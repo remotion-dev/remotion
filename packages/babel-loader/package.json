@@ -1,13 +1,11 @@
 {
 	"name": "@remotion/babel-loader",
-	"version": "4.0.142",
+	"version": "4.0.160",
 	"description": "babel-loader polyfill for Remotion",
 	"main": "dist/index.js",
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
-		"watch": "tsc -w",
-		"build": "tsc -d"
+		"lint": "eslint src --ext ts,tsx"
 	},
 	"files": [
 		"dist"

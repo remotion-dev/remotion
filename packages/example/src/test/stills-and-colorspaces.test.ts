@@ -100,6 +100,7 @@ test(
 		const composition = await selectComposition({
 			serveUrl: bundled,
 			id: 'tiles',
+			inputProps: {},
 		});
 
 		const testOut = path.join(folder, `.${imageFormat}`);
@@ -127,6 +128,7 @@ test('Bt709 encoding should work', async () => {
 	const composition = await selectComposition({
 		serveUrl: bundled,
 		id: 'green',
+		inputProps: {},
 	});
 
 	const still = await renderStill({
@@ -151,7 +153,6 @@ test('Bt709 encoding should work', async () => {
 		codec: 'h264',
 		composition,
 		imageFormat: 'png',
-		colorSpace: 'bt709',
 		serveUrl: bundled,
 		muted: true,
 	});

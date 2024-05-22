@@ -42,8 +42,8 @@ type Listeners = {
 }[];
 
 export const PreviewServerConnection: React.FC<{
-	children: React.ReactNode;
-	readOnlyStudio: boolean;
+	readonly children: React.ReactNode;
+	readonly readOnlyStudio: boolean;
 }> = ({children, readOnlyStudio}) => {
 	const listeners = useRef<Listeners>([]);
 
@@ -100,13 +100,14 @@ export const PreviewServerConnection: React.FC<{
 					files: newEvent.files,
 				};
 
+				window.remotion_staticFiles = newEvent.files;
+				window.remotion_publicFolderExists = newEvent.folderExists;
+
 				window.dispatchEvent(
 					new CustomEvent(Internals.WATCH_REMOTION_STATIC_FILES, {
 						detail: payload,
 					}),
 				);
-				window.remotion_staticFiles = newEvent.files;
-				window.remotion_publicFolderExists = newEvent.folderExists;
 			}
 
 			listeners.current.forEach((l) => {

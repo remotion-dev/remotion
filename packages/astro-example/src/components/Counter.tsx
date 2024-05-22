@@ -1,7 +1,6 @@
 import "./Counter.css";
 import { Player } from "@remotion/player";
 import { Gif } from "@remotion/gif";
-import { Pumpkin } from "./LottieExample";
 
 const Comp: React.FC = () => {
   return (
@@ -12,7 +11,6 @@ const Comp: React.FC = () => {
         height={200}
         width={200}
       />
-      <Pumpkin></Pumpkin>
     </div>
   );
 };

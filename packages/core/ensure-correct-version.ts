@@ -7,24 +7,31 @@ const {version} = packageJson;
 const src =
 	`
 // Automatically generated on publish
+
+/**
+ * @description Provides the current version number of the Remotion library.
+ * @see [Documentation](https://remotion.dev/docs/version)
+ * @returns {string} The current version of the remotion package
+ */
 export const VERSION = '${version}';
 `.trim() + '\n';
 
 fs.writeFileSync(path.resolve(process.cwd(), 'src/version.ts'), src);
 
 cp.execSync('pnpm build');
+cp.execSync('bun x tsc -d');
 
 const distFile = fs.readFileSync('dist/esm/version.mjs', 'utf-8');
 
 if (!distFile.includes(version)) {
-	console.log('In dist file, did not include version');
+	console.log('In dist file, did not include ' + JSON.stringify(version));
 	process.exit(1);
 }
 
 const distFileCjs = fs.readFileSync('dist/cjs/version.js', 'utf-8');
 
 if (!distFileCjs.includes(version)) {
-	console.log('In dist file, did not include version');
+	console.log('In dist file, did not include ' + JSON.stringify(version));
 	process.exit(1);
 }
 

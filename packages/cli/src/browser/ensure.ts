@@ -8,12 +8,13 @@ import {quietFlagProvided} from '../parsed-cli';
 export const ENSURE_COMMAND = 'ensure';
 
 export const ensureCommand = async (logLevel: LogLevel) => {
+	const indent = false;
+
 	const {browserExecutable} = getCliOptions({
 		isStill: false,
 		logLevel,
+		indent,
 	});
-
-	const indent = false;
 
 	const status = await ensureBrowser({
 		browserExecutable,

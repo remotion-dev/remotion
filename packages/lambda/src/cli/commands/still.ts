@@ -77,6 +77,7 @@ export const stillCommand = async (
 	} = getCliOptions({
 		isStill: true,
 		logLevel,
+		indent: false,
 	});
 
 	const region = getAwsRegion();

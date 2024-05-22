@@ -97,11 +97,9 @@ export const bundleCommand = async (
 		fullPath: file,
 		logLevel,
 		onDirectoryCreated: () => {},
-		bundlingStep: 0,
 		indent: false,
 		quietProgress: updatesDontOverwrite,
 		publicDir,
-		steps: 1,
 		remotionRoot,
 		onProgressCallback: ({bundling, copying}) => {
 			// Handle floating point inaccuracies

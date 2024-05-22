@@ -1,1 +1,1 @@
-module.exports = require('./dist/cjs/enable');
+module.exports = require('./dist/cjs/enable.js');

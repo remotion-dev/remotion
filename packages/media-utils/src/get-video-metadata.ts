@@ -28,7 +28,7 @@ const fn = (src: string): Promise<VideoMetadata> => {
 			const pixels = video.videoHeight * video.videoWidth;
 
 			if (pixels === 0) {
-				reject(new Error('Unable to determine video metadata'));
+				reject(new Error(`Unable to determine video metadata for ${src}`));
 				return;
 			}
 

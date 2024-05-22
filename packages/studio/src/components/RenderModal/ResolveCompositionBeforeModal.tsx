@@ -3,7 +3,7 @@ import type {AnyComposition, VideoConfig} from 'remotion';
 import {Internals} from 'remotion';
 import {LIGHT_TEXT} from '../../helpers/colors';
 import {inlineCodeSnippet} from '../Menu/styles';
-import {Spinner} from '../Spinner';
+import {RunningCalculateMetadata} from '../RunningCalculateMetadata';
 import {Spacing} from '../layout';
 
 const loaderContainer: React.CSSProperties = {
@@ -36,8 +36,8 @@ export const ResolvedCompositionContext =
 	React.createContext<TResolvedCompositionContext>(null);
 
 export const ResolveCompositionBeforeModal: React.FC<{
-	compositionId: string;
-	children: React.ReactNode;
+	readonly compositionId: string;
+	readonly children: React.ReactNode;
 }> = ({compositionId, children}) => {
 	const resolved = Internals.useResolvedVideoConfig(compositionId);
 	const unresolvedContext = useContext(Internals.CompositionManager);
@@ -73,15 +73,7 @@ export const ResolveCompositionBeforeModal: React.FC<{
 	}, [resolved, unresolved]);
 
 	if (!resolved || resolved.type === 'loading') {
-		return (
-			<div style={loaderContainer}>
-				<Spinner duration={1} size={30} />
-				<Spacing y={2} />
-				<div style={loaderLabel}>
-					Running <code style={inlineCodeSnippet}>calculateMetadata()</code>
-				</div>
-			</div>
-		);
+		return <RunningCalculateMetadata />;
 	}
 
 	if (resolved.type === 'error') {
@@ -100,7 +92,6 @@ export const ResolveCompositionBeforeModal: React.FC<{
 		);
 	}
 
-	// eslint-disable-next-line react/jsx-no-useless-fragment
 	return (
 		<ResolvedCompositionContext.Provider value={value}>
 			{children}

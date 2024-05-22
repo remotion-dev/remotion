@@ -6,8 +6,5 @@ tsconfig.tsbuildinfo
 jest.config.js
 *.tgz
 .turbo
-.rollup.cache
-tsconfig-cjs.tsbuildinfo
-tsconfig-cjs.json
 tsconfig.json
 .prettierrc.mjs

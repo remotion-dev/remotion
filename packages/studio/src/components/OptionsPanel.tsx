@@ -2,6 +2,7 @@ import React, {
 	createRef,
 	useCallback,
 	useContext,
+	useEffect,
 	useImperativeHandle,
 	useMemo,
 	useState,
@@ -55,9 +56,11 @@ export const optionsSidebarTabs = createRef<{
 }>();
 
 export const OptionsPanel: React.FC<{
-	readOnlyStudio: boolean;
+	readonly readOnlyStudio: boolean;
 }> = ({readOnlyStudio}) => {
-	const {props, updateProps} = useContext(Internals.EditorPropsContext);
+	const {props, updateProps, resetUnsaved} = useContext(
+		Internals.EditorPropsContext,
+	);
 	const [saving, setSaving] = useState(false);
 
 	const isMobileLayout = useMobileLayout();
@@ -133,7 +136,7 @@ export const OptionsPanel: React.FC<{
 			: 'There are unsaved changes';
 	}, []);
 
-	const setInputProps = useCallback(
+	const setDefaultProps = useCallback(
 		(
 			newProps:
 				| Record<string, unknown>
@@ -152,7 +155,7 @@ export const OptionsPanel: React.FC<{
 		[composition, updateProps],
 	);
 
-	const actualProps = useMemo(() => {
+	const currentDefaultProps = useMemo(() => {
 		if (composition === null) {
 			return {};
 		}
@@ -165,8 +168,20 @@ export const OptionsPanel: React.FC<{
 			return false;
 		}
 
-		return !deepEqual(composition.defaultProps, actualProps);
-	}, [actualProps, composition]);
+		return !deepEqual(composition.defaultProps, currentDefaultProps);
+	}, [currentDefaultProps, composition]);
+
+	const reset = useCallback(() => {
+		resetUnsaved();
+	}, [resetUnsaved]);
+
+	useEffect(() => {
+		window.addEventListener(Internals.PROPS_UPDATED_EXTERNALLY, reset);
+
+		return () => {
+			window.removeEventListener(Internals.PROPS_UPDATED_EXTERNALLY, reset);
+		};
+	}, [reset]);
 
 	return (
 		<div style={container} className="css-reset">
@@ -196,8 +211,8 @@ export const OptionsPanel: React.FC<{
 				<DataEditor
 					key={composition.id}
 					unresolvedComposition={composition}
-					inputProps={actualProps}
-					setInputProps={setInputProps}
+					defaultProps={currentDefaultProps}
+					setDefaultProps={setDefaultProps}
 					mayShowSaveButton
 					propsEditType="default-props"
 					saving={saving}

@@ -24,8 +24,8 @@ const MyVideo = () => {
 ```
 
 If you are outside of a Remotion context, the hook will throw an error.  
-If you want to ignore the fact that you are outside of a Remotion context, you can pass `true` as the first argument to the hook.  
-The hook will always return `1` in this case.
+If you want to avoid this error and return a default scale, you can pass an options object with the property `dontThrowIfOutsideOfRemotion` set to `true`.  
+In this case, the hook will return `1`.
 
 ```tsx twoslash title="MyComp.tsx"
 import { useCurrentScale } from "remotion";

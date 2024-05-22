@@ -3,6 +3,7 @@ import type {SpawnOptionsWithoutStdio} from 'node:child_process';
 import {spawn} from 'node:child_process';
 import path from 'path';
 import {getExecutablePath} from './compositor/get-executable-path';
+import {getExplicitEnv} from './compositor/get-explicit-env';
 import {makeFileExecutableIfItIsNot} from './compositor/make-file-executable';
 import type {LogLevel} from './log-level';
 import type {CancelSignal} from './make-cancel-signal';
@@ -33,8 +34,11 @@ export const callFf = ({
 	});
 	makeFileExecutableIfItIsNot(executablePath);
 
+	const cwd = path.dirname(executablePath);
+
 	const task = execa(executablePath, args.filter(truthy), {
-		cwd: path.dirname(executablePath),
+		cwd,
+		env: getExplicitEnv(cwd),
 		...options,
 	});
 
@@ -70,8 +74,11 @@ export const callFfNative = ({
 	});
 	makeFileExecutableIfItIsNot(executablePath);
 
+	const cwd = path.dirname(executablePath);
+
 	const task = spawn(executablePath, args.filter(truthy), {
-		cwd: path.dirname(executablePath),
+		cwd,
+		env: getExplicitEnv(cwd),
 		...options,
 	});
 

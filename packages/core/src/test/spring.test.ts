@@ -223,3 +223,17 @@ test('spring should not end too early', () => {
 		}),
 	).toBeCloseTo(1);
 });
+
+test('from / to', () => {
+	expect(
+		spring({
+			fps: 30,
+			frame: 10,
+			from: 0,
+			to: 200,
+			config: {
+				damping: 200,
+			},
+		}),
+	).toBeCloseTo(169.082);
+});

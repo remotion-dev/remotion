@@ -10,9 +10,9 @@ As an alternative to [using TypeScript types](/docs/parameterized-rendering) to 
 
 ## Prerequisites
 
-If you want to use this feature, install `zod` and [`@remotion/zod-types`](/docs/zod-types/) for Remotion-specific types:
+If you want to use this feature, install `zod@3.22.3` and [`@remotion/zod-types`](/docs/zod-types/) for Remotion-specific types:
 
-<Installation pkg="@remotion/zod-types zod"/>
+<Installation pkg="@remotion/zod-types zod@3.22.3"/>
 
 ## Defining a schema
 

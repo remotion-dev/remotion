@@ -1,9 +1,10 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useEffect, useMemo, useRef} from 'react';
+import React, {useCallback, useEffect, useMemo} from 'react';
 import type {CurrentScaleContextType} from 'remotion';
 import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {noop} from '../helpers/noop';
+import {drawRef} from '../state/canvas-ref';
 import {TimelineZoomContext} from '../state/timeline-zoom';
 import {HigherZIndex} from '../state/z-index';
 import {EditorContent} from './EditorContent';
@@ -23,7 +24,8 @@ const background: React.CSSProperties = {
 const DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS = 300;
 
 export const BUFFER_STATE_DELAY_IN_MILLISECONDS =
-	typeof process.env.BUFFER_STATE_DELAY_IN_MILLISECONDS === 'undefined'
+	typeof process.env.BUFFER_STATE_DELAY_IN_MILLISECONDS === 'undefined' ||
+	process.env.BUFFER_STATE_DELAY_IN_MILLISECONDS === null
 		? DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS
 		: Number(process.env.BUFFER_STATE_DELAY_IN_MILLISECONDS);
 
@@ -31,8 +33,6 @@ export const Editor: React.FC<{
 	readonly Root: React.FC;
 	readonly readOnlyStudio: boolean;
 }> = ({Root, readOnlyStudio}) => {
-	const drawRef = useRef<HTMLDivElement>(null);
-
 	const size = PlayerInternals.useElementSize(drawRef, {
 		triggerOnWindowResize: false,
 		shouldApplyCssTransforms: true,

@@ -8,14 +8,14 @@ import React, {
 import type {AnyComposition, SerializedJSONWithCustomFields} from 'remotion';
 import {Internals, getInputProps} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import type {z} from 'zod';
+import {type z} from 'zod';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {
+	callUpdateDefaultPropsApi,
 	canUpdateDefaultProps,
-	updateDefaultProps,
 } from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
@@ -112,18 +112,20 @@ const setPersistedShowWarningState = (val: boolean) => {
 };
 
 export const DataEditor: React.FC<{
-	unresolvedComposition: AnyComposition;
-	inputProps: Record<string, unknown>;
-	setInputProps: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
-	mayShowSaveButton: boolean;
-	propsEditType: PropsEditType;
-	saving: boolean;
-	setSaving: React.Dispatch<React.SetStateAction<boolean>>;
-	readOnlyStudio: boolean;
+	readonly unresolvedComposition: AnyComposition;
+	readonly defaultProps: Record<string, unknown>;
+	readonly setDefaultProps: React.Dispatch<
+		React.SetStateAction<Record<string, unknown>>
+	>;
+	readonly mayShowSaveButton: boolean;
+	readonly propsEditType: PropsEditType;
+	readonly saving: boolean;
+	readonly setSaving: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly readOnlyStudio: boolean;
 }> = ({
 	unresolvedComposition,
-	inputProps,
-	setInputProps,
+	defaultProps,
+	setDefaultProps,
 	mayShowSaveButton,
 	propsEditType,
 	saving,
@@ -134,6 +136,9 @@ export const DataEditor: React.FC<{
 	const [showWarning, setShowWarningWithoutPersistance] = useState<boolean>(
 		() => getPersistedShowWarningState(),
 	);
+	const {updateCompositionDefaultProps} = useContext(
+		Internals.CompositionManager,
+	);
 
 	const inJSONEditor = mode === 'json';
 	const serializedJSON: SerializedJSONWithCustomFields | null = useMemo(() => {
@@ -141,13 +146,13 @@ export const DataEditor: React.FC<{
 			return null;
 		}
 
-		const value = inputProps;
+		const value = defaultProps;
 		return NoReactInternals.serializeJSONWithDate({
 			data: value,
 			indent: 2,
 			staticBase: window.remotion_staticBase,
 		});
-	}, [inJSONEditor, inputProps]);
+	}, [inJSONEditor, defaultProps]);
 
 	const cliProps = getInputProps();
 	const [canSaveDefaultPropsObjectState, setCanSaveDefaultProps] =
@@ -184,8 +189,8 @@ export const DataEditor: React.FC<{
 			return 'no-schema' as const;
 		}
 
-		return schema.safeParse(inputProps);
-	}, [inputProps, schema]);
+		return schema.safeParse(defaultProps);
+	}, [defaultProps, schema]);
 
 	const setShowWarning: React.Dispatch<React.SetStateAction<boolean>> =
 		useCallback((val) => {
@@ -292,9 +297,9 @@ export const DataEditor: React.FC<{
 			return;
 		}
 
-		updateDefaultProps(
+		callUpdateDefaultPropsApi(
 			unresolvedComposition.id,
-			inputProps,
+			defaultProps,
 			extractEnumJsonPaths(schema, z, []),
 		).then((response) => {
 			if (!response.success) {
@@ -304,11 +309,7 @@ export const DataEditor: React.FC<{
 				);
 			}
 		});
-	}, [unresolvedComposition.id, inputProps, schema, z]);
-
-	useEffect(() => {
-		setSaving(false);
-	}, [fastRefreshes, setSaving]);
+	}, [unresolvedComposition.id, defaultProps, schema, z]);
 
 	const onSave = useCallback(
 		(
@@ -319,10 +320,12 @@ export const DataEditor: React.FC<{
 				return;
 			}
 
+			window.remotion_ignoreFastRefreshUpdate = fastRefreshes + 1;
 			setSaving(true);
-			updateDefaultProps(
+			const newDefaultProps = updater(unresolvedComposition.defaultProps ?? {});
+			callUpdateDefaultPropsApi(
 				unresolvedComposition.id,
-				updater(unresolvedComposition.defaultProps ?? {}),
+				newDefaultProps,
 				extractEnumJsonPaths(schema, z, []),
 			)
 				.then((response) => {
@@ -334,18 +337,27 @@ export const DataEditor: React.FC<{
 							2000,
 						);
 					}
+
+					updateCompositionDefaultProps(
+						unresolvedComposition.id,
+						newDefaultProps,
+					);
 				})
 				.catch((err) => {
 					showNotification(`Cannot update default props: ${err.message}`, 2000);
+				})
+				.finally(() => {
 					setSaving(false);
 				});
 		},
 		[
 			schema,
 			z,
+			fastRefreshes,
 			setSaving,
-			unresolvedComposition.id,
 			unresolvedComposition.defaultProps,
+			unresolvedComposition.id,
+			updateCompositionDefaultProps,
 		],
 	);
 
@@ -444,11 +456,11 @@ export const DataEditor: React.FC<{
 
 			{mode === 'schema' ? (
 				<SchemaEditor
-					value={inputProps}
-					setValue={setInputProps}
+					unsavedDefaultProps={defaultProps}
+					setValue={setDefaultProps}
 					schema={schema}
 					zodValidationResult={zodValidationResult}
-					defaultProps={unresolvedComposition.defaultProps}
+					savedDefaultProps={unresolvedComposition.defaultProps}
 					onSave={onSave}
 					showSaveButton={showSaveButton}
 					saving={saving}
@@ -456,8 +468,8 @@ export const DataEditor: React.FC<{
 				/>
 			) : (
 				<RenderModalJSONPropsEditor
-					value={inputProps ?? {}}
-					setValue={setInputProps}
+					value={defaultProps ?? {}}
+					setValue={setDefaultProps}
 					onSave={onUpdate}
 					showSaveButton={showSaveButton}
 					serializedJSON={serializedJSON}

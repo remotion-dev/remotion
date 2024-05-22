@@ -17,6 +17,10 @@ const messageForVariable = (variable: string) => {
 };
 
 export const checkCredentials = () => {
+	if (process.env.REMOTION_SKIP_AWS_CREDENTIALS_CHECK) {
+		return;
+	}
+
 	if (process.env.REMOTION_AWS_PROFILE || process.env.AWS_PROFILE) {
 		return;
 	}

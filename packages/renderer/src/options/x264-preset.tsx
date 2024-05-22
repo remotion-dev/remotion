@@ -25,7 +25,12 @@ export const validateSelectedCodecAndPresetCombination = ({
 	codec: Codec;
 	x264Preset: X264Preset | null;
 }) => {
-	if (x264Preset !== null && codec !== 'h264' && codec !== 'h264-mkv') {
+	if (
+		x264Preset !== null &&
+		codec !== 'h264' &&
+		codec !== 'h264-mkv' &&
+		codec !== 'h264-ts'
+	) {
 		throw new TypeError(
 			`You have set a x264 preset but the codec is "${codec}". Set the codec to "h264" or remove the Preset profile.`,
 		);

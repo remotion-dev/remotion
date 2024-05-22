@@ -408,9 +408,10 @@ export const internalRenderStill = wrapWithErrorHandling(
 );
 
 /**
- *
- * @description Render a still frame from a composition
- * @see [Documentation](https://www.remotion.dev/docs/renderer/render-still)
+ * @description Renders a single frame to an image and writes it to the specified output location.
+ * @see [Documentation](https://remotion.dev/docs/renderer/render-still)
+ * @param {RenderStillOptions} options Configuration options for rendering the still image
+ * @returns {Promise<RenderStillReturnValue>} A promise that resolves to an object with a buffer key containing the image data if no output path is defined, otherwise null.
  */
 export const renderStill = (
 	options: RenderStillOptions,

@@ -77,6 +77,12 @@ const getBrowserStatus = (
 	return {type: 'no-browser'};
 };
 
+/**
+ * Ensures a browser is locally installed so a Remotion render can be executed. This function manages the browser's download or validates existing browser paths.
+ * @see [Documentation](https://remotion.dev/docs/renderer/ensure-browser)
+ * @param {EnsureBrowserOptions} [options] Configuration options which may include a `browserExecutable` path, `logLevel` settings, and `onBrowserDownload` function to manage download specifics and progression.
+ * @returns {Promise<void>} A promise that resolves when the browser is prepared with no explicit return value.
+ */
 export const ensureBrowser = (options?: EnsureBrowserOptions) => {
 	const indent = false;
 	const logLevel = options?.logLevel ?? 'info';

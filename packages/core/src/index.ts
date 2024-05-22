@@ -40,6 +40,7 @@ declare global {
 		remotion_publicPath: string;
 		remotion_publicFolderExists: string | null;
 		remotion_editorName: string | null;
+		remotion_ignoreFastRefreshUpdate: number | null;
 		remotion_numberOfAudioTags: number;
 		remotion_projectName: string;
 		remotion_cwd: string;
@@ -131,6 +132,7 @@ export {
 export {prefetch, PrefetchOnProgress} from './prefetch.js';
 export {registerRoot} from './register-root.js';
 export {
+	AbsoluteFillLayout,
 	LayoutAndStyle,
 	Sequence,
 	SequenceProps,

@@ -111,6 +111,13 @@ const takeMeasurement = ({
 	};
 };
 
+/**
+ * Calculates the width and height of specified text to be used for layout calculations.
+ * Only works in the browser, not in Node.js or Bun.
+ * @see [Documentation](https://remotion.dev/docs/layout-utils/measure-text)
+ * @param {Word} wordOptions - The text options to measure, including the text itself, font properties, and additional styles.
+ * @returns {Dimensions} The dimensions object containing the measured width and height of the text.
+ */
 export const measureText = ({
 	text,
 	fontFamily,

@@ -1,3 +1,4 @@
+import {enableSkia} from '@remotion/skia/enable';
 import {enableTailwind} from '@remotion/tailwind';
 import path from 'node:path';
 
@@ -21,8 +22,18 @@ const aliases = {
 	'@remotion/preload': resolveCwd('@remotion/preload'),
 	'@remotion/rive': resolveCwd('@remotion/rive'),
 	'@remotion/shapes': resolveCwd('@remotion/shapes'),
+	'@remotion/studio/internals': resolveCwd('@remotion/studio/internals'),
+	'@remotion/studio': resolveCwd('@remotion/studio'),
 	'@remotion/skia': resolveCwd('@remotion/skia'),
 	'@remotion/three': resolveCwd('@remotion/three'),
+	'@remotion/transitions/fade': resolveCwd('@remotion/transitions/fade'),
+	'@remotion/transitions/slide': resolveCwd('@remotion/transitions/slide'),
+	'@remotion/transitions/flip': resolveCwd('@remotion/transitions/flip'),
+	'@remotion/transitions/clock-wipe': resolveCwd(
+		'@remotion/transitions/clock-wipe',
+	),
+	'@remotion/transitions/wipe': resolveCwd('@remotion/transitions/wipe'),
+	'@remotion/transitions': resolveCwd('@remotion/transitions'),
 	'@remotion/zod-types': resolveCwd('@remotion/zod-types'),
 };
 
@@ -48,35 +59,37 @@ export const webpackOverride = (currentConfiguration) => {
 
 		return currentConfiguration;
 	})();
-	return enableTailwind({
-		...replaced,
-		module: {
-			...replaced.module,
-			rules: [
-				...(replaced.module?.rules ?? []),
-				{
-					test: /\.mdx?$/,
-					use: [
-						{
-							loader: '@mdx-js/loader',
-							options: {},
-						},
-					],
-				},
-			],
-		},
-		resolve: {
-			...replaced.resolve,
-			alias: {
-				...replaced.resolve.alias,
-				// eslint-disable-next-line no-undef
-				lib: path.join(process.cwd(), 'src', 'lib'),
-
-				// ES Modules need to be generated with `pnpm build` in every package
-				// So if you just make a change while you run `pnpm watch`, you don't see the difference
-				// which is confusing for contributors
-				...aliases,
+	return enableSkia(
+		enableTailwind({
+			...replaced,
+			module: {
+				...replaced.module,
+				rules: [
+					...(replaced.module?.rules ?? []),
+					{
+						test: /\.mdx?$/,
+						use: [
+							{
+								loader: '@mdx-js/loader',
+								options: {},
+							},
+						],
+					},
+				],
 			},
-		},
-	});
+			resolve: {
+				...replaced.resolve,
+				alias: {
+					...replaced.resolve.alias,
+					// eslint-disable-next-line no-undef
+					lib: path.join(process.cwd(), 'src', 'lib'),
+
+					// ES Modules need to be generated with `pnpm build` in every package
+					// So if you just make a change while you run `pnpm watch`, you don't see the difference
+					// which is confusing for contributors
+					...aliases,
+				},
+			},
+		}),
+	);
 };

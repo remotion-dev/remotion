@@ -4,7 +4,7 @@
  * @returns
  */
 const config = (mode) => ({
-  title: "Remotion | Make videos programmatically in React",
+  title: "Remotion | Make videos programmatically",
   tagline: "Make videos programmatically",
   url: "https://www.remotion.dev",
   baseUrl: "/",
@@ -76,30 +76,34 @@ const config = (mode) => ({
               to: "/docs/resources",
               label: "Resources",
             },
-            { to: "blog", label: "Blog" },
             { to: "showcase", label: "Showcase" },
-            { to: "experts", label: "Experts" },
-            { to: "learn", label: "Learn" },
-            { to: "about", label: "About" },
             { to: "success-stories", label: "Success Stories" },
+            { to: "blog", label: "Blog" },
+            { to: "learn", label: "Learn" },
+            { to: "experts", label: "Experts" },
             { to: "https://remotion.pro/store", label: "Store" },
             { to: "/docs/support", label: "Support" },
+            { to: "about", label: "About us" },
+            { to: "contact", label: "Contact us" },
           ],
         },
         {
-          to: "https://github.com/remotion-dev/remotion",
-          label: "GitHub",
+          href: "https://github.com/remotion-dev/remotion",
           position: "right",
+          className: "header-github-link",
+          "aria-label": "GitHub repository",
         },
         {
-          to: "https://remotion.dev/discord",
-          label: "Discord",
+          href: "https://remotion.dev/discord",
           position: "right",
+          className: "header-discord-link",
+          "aria-label": "Discord",
         },
         {
-          to: "https://x.com/remotion",
-          label: "X",
+          href: "https://x.com/remotion",
           position: "right",
+          className: "header-x-link",
+          "aria-label": "X / Twitter",
         },
       ].filter(Boolean),
     },
@@ -195,6 +199,10 @@ const config = (mode) => ({
             {
               label: "About us",
               to: "about",
+            },
+            {
+              label: "Contact us",
+              to: "contact",
             },
             mode === "complete"
               ? {

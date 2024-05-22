@@ -8,7 +8,7 @@ crumb: "Lambda API"
 
 _available from v3.3.75_
 
-Speculate the name of the Lambda function that will be created by [deployFunction()](/docs/lambda/deployfunction) or its CLI equivalent, [`npx remotion lambda functions deploy`](/docs/lambda/cli/functions). This could be useful in cases when the configuration of the Lambda function is known in advance, and the name of the function is needed.
+Speculate the name of the Lambda function that will be created by [`deployFunction()`](/docs/lambda/deployfunction) or its CLI equivalent, [`npx remotion lambda functions deploy`](/docs/lambda/cli/functions). This could be useful in cases when the configuration of the Lambda function is known in advance, and the name of the function is needed.
 
 If you are not sure whether a function exists, use [`getFunctionInfo()`](/docs/lambda/getfunctioninfo) and catch the error that gets thrown if it does not exist.
 
@@ -16,16 +16,9 @@ If you want to get a list of deployed functions, use [`getFunctions()`](/docs/la
 
 ## Function name pattern
 
-The function name depends on the following parameters:
+A Remotion Lambda function is always names like this:
 
-- Remotion version
-- Memory size
-- Disk size
-- Timeout
-
-The name of the function resembles the following pattern:
-
-```
+```txt
 remotion-render-3-3-63-mem2048mb-disk2048mb-240sec
                 ^^^^^^    ^^^^       ^^^    ^^^
                   |         |         |      |-- Timeout in seconds
@@ -33,6 +26,8 @@ remotion-render-3-3-63-mem2048mb-disk2048mb-240sec
                   |         |------------------- Memory size in MB
                   |----------------------------- Remotion version with dots replaced by dashes
 ```
+
+[Learn more](/docs/lambda/naming-convention) about this convention.
 
 ## Example
 

@@ -140,10 +140,7 @@ export type TRenderAsset = {
 };
 
 export const compositionsRef = React.createRef<{
-	getCompositions: () => TCompMetadataWithCalcFunction<
-		AnyZodObject,
-		Record<string, unknown>
-	>[];
+	getCompositions: () => AnyComposition[];
 }>();
 
 export const CompositionManagerProvider: React.FC<{
@@ -241,6 +238,26 @@ export const CompositionManagerProvider: React.FC<{
 			: null,
 	);
 
+	const updateCompositionDefaultProps = useCallback(
+		(id: string, newDefaultProps: Record<string, unknown>) => {
+			setCompositions((comps) => {
+				const updated = comps.map((c) => {
+					if (c.id === id) {
+						return {
+							...c,
+							defaultProps: newDefaultProps,
+						};
+					}
+
+					return c;
+				});
+
+				return updated;
+			});
+		},
+		[],
+	);
+
 	const contextValue = useMemo((): CompositionManagerContext => {
 		return {
 			compositions,
@@ -253,6 +270,7 @@ export const CompositionManagerProvider: React.FC<{
 			setCurrentCompositionMetadata,
 			canvasContent,
 			setCanvasContent,
+			updateCompositionDefaultProps,
 		};
 	}, [
 		compositions,
@@ -263,7 +281,7 @@ export const CompositionManagerProvider: React.FC<{
 		unregisterFolder,
 		currentCompositionMetadata,
 		canvasContent,
-		setCanvasContent,
+		updateCompositionDefaultProps,
 	]);
 
 	return (

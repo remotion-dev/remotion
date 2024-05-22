@@ -67,9 +67,9 @@ Config.overrideWebpackConfig((config) => {
   return {
     ...config,
     resolve: {
-      ...replaced.resolve,
+      ...config.resolve,
       plugins: [
-        ...(replaced.resolve?.plugins ?? []),
+        ...(config.resolve?.plugins ?? []),
         new TsconfigPathsPlugin(),
       ],
     },

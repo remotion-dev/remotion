@@ -85,6 +85,7 @@ export const renderCommand = async (
 	} = CliInternals.getCliOptions({
 		isStill: false,
 		logLevel,
+		indent: false,
 	});
 
 	const offthreadVideoCacheSizeInBytes =

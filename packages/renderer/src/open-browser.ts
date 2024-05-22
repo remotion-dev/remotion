@@ -1,4 +1,5 @@
 import type {Browser} from './browser';
+import {addHeadlessBrowser} from './browser-instances';
 import type {HeadlessBrowser} from './browser/Browser';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import {puppeteer} from './browser/node';
@@ -50,16 +51,6 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 	}
 
 	return [`--use-gl=${renderer}`];
-};
-
-const browserInstances: HeadlessBrowser[] = [];
-
-export const killAllBrowsers = async () => {
-	for (const browser of browserInstances) {
-		try {
-			await browser.close(true, 'info', false);
-		} catch (err) {}
-	}
 };
 
 type InternalOpenBrowserOptions = {
@@ -151,6 +142,7 @@ export const internalOpenBrowser = async ({
 			'--disable-sync',
 			'--force-color-profile=srgb',
 			'--metrics-recording-only',
+			'--mute-audio',
 			'--no-first-run',
 			'--video-threads=' + getIdealVideoThreadsFlag(logLevel),
 			'--enable-automation',
@@ -206,7 +198,7 @@ export const internalOpenBrowser = async ({
 	const pages = await browserInstance.pages(logLevel, indent);
 	await pages[0].close();
 
-	browserInstances.push(browserInstance);
+	addHeadlessBrowser(browserInstance);
 	return browserInstance;
 };
 

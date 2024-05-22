@@ -4,20 +4,19 @@ import type {Site} from '../../../api/get-sites';
 import {BINARY_NAME} from '../../../shared/constants';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
-import {sitesCreateSubcommand, SITES_CREATE_SUBCOMMAND} from './create';
-import {sitesLsSubcommand, SITES_LS_SUBCOMMAND} from './ls';
-import {sitesRmSubcommand, SITES_RM_COMMAND} from './rm';
-import {sitesRmallSubcommand, SITES_RMALL_COMMAND} from './rmall';
+import {SITES_CREATE_SUBCOMMAND, sitesCreateSubcommand} from './create';
+import {SITES_LS_SUBCOMMAND, sitesLsSubcommand} from './ls';
+import {SITES_RM_COMMAND, sitesRmSubcommand} from './rm';
+import {SITES_RMALL_COMMAND, sitesRmallSubcommand} from './rmall';
 
 export const SITES_COMMAND = 'sites';
 
 export const displaySiteInfo = (site: Site) => {
-	const LEFT_COL = 16;
 	return [
-		'Site: '.padEnd(LEFT_COL, ' ') + ' ' + site.id,
-		'Bucket: '.padEnd(LEFT_COL, ' ') + ' ' + site.bucketName,
-		'Region: '.padEnd(LEFT_COL, ' ') + ' ' + site.bucketRegion,
-		'Serve Url: '.padEnd(LEFT_COL, ' ') + ' ' + site.serveUrl,
+		'Site: '.padEnd(CliInternals.LABEL_WIDTH, ' ') + ' ' + site.id,
+		'Bucket: '.padEnd(CliInternals.LABEL_WIDTH, ' ') + ' ' + site.bucketName,
+		'Region: '.padEnd(CliInternals.LABEL_WIDTH, ' ') + ' ' + site.bucketRegion,
+		'Serve Url: '.padEnd(CliInternals.LABEL_WIDTH, ' ') + ' ' + site.serveUrl,
 	].join('\n');
 };
 

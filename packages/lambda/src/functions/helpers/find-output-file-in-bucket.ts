@@ -30,7 +30,7 @@ export const findOutputFileInBucket = async ({
 	const {renderBucketName, key} = getExpectedOutName(
 		renderMetadata,
 		bucketName,
-		null,
+		customCredentials,
 	);
 
 	try {
@@ -38,6 +38,7 @@ export const findOutputFileInBucket = async ({
 			bucketName,
 			key,
 			region,
+			customCredentials,
 		});
 		return {
 			lastModified: head.LastModified?.getTime() as number,

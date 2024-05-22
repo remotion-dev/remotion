@@ -3,7 +3,7 @@ import {ModalsContext} from '../../state/modals';
 import {ModalContainer} from '../ModalContainer';
 
 export const DismissableModal: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 

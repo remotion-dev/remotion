@@ -83,7 +83,7 @@ const generate = async () => {
     if (!read.typesVersions) read.typesVersions = {};
     if (!read.typesVersions[">=1.0"]) read.typesVersions[">=1.0"] = {};
     read.typesVersions[">=1.0"][removeWhitespace(unquote(font.family))] = [
-      `dist/esm/${removeWhitespace(unquote(font.family))}.d.ts`,
+      `dist/cjs/${removeWhitespace(unquote(font.family))}.d.ts`,
     ];
   }
 

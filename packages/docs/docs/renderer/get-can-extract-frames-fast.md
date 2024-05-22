@@ -78,7 +78,3 @@ Returns a promise which resolves to an object with the following parameters:
 
 - `canExtractFramesFast`: _boolean_ Whether it will be fast to extract a frame from a video.
 - `shouldReencode`: _boolean_ Whether the video can be re-encoded to make the render faster.
-
-## See also
-
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/can-extract-frames-fast.ts)

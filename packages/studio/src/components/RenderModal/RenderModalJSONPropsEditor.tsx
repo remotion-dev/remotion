@@ -36,13 +36,15 @@ const parseJSON = (str: string, schema: z.ZodTypeAny): State => {
 };
 
 export const RenderModalJSONPropsEditor: React.FC<{
-	value: unknown;
-	setValue: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
-	onSave: () => void;
-	showSaveButton: boolean;
-	serializedJSON: SerializedJSONWithCustomFields | null;
-	defaultProps: Record<string, unknown>;
-	schema: z.ZodTypeAny;
+	readonly value: unknown;
+	readonly setValue: React.Dispatch<
+		React.SetStateAction<Record<string, unknown>>
+	>;
+	readonly onSave: () => void;
+	readonly showSaveButton: boolean;
+	readonly serializedJSON: SerializedJSONWithCustomFields | null;
+	readonly defaultProps: Record<string, unknown>;
+	readonly schema: z.ZodTypeAny;
 }> = ({
 	setValue,
 	value,

@@ -76,7 +76,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	rendererFunctionName: string | null;
 	forceBucketName: string | null;
 	audioCodec: AudioCodec | null;
-	colorSpace: ColorSpace;
+	colorSpace: ColorSpace | null;
 	deleteAfter: DeleteAfter | null;
 	indent: boolean;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>;
@@ -188,7 +188,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		type: LambdaRoutines.start,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		deleteAfter: deleteAfter ?? null,
-		colorSpace: colorSpace ?? 'default',
+		colorSpace: colorSpace ?? null,
 		preferLossless: preferLossless ?? false,
 	};
 };

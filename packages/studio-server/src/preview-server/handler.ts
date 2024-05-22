@@ -12,8 +12,10 @@ export const handleRequest = async <Req, Res>({
 	logLevel,
 	methods,
 	binariesDirectory,
+	publicDir,
 }: {
 	remotionRoot: string;
+	publicDir: string;
 	request: IncomingMessage;
 	response: ServerResponse;
 	entryPoint: string;
@@ -43,6 +45,7 @@ export const handleRequest = async <Req, Res>({
 			logLevel,
 			methods,
 			binariesDirectory,
+			publicDir,
 		});
 
 		response.end(

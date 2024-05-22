@@ -8,10 +8,10 @@ export type GetOrCreateBucketInput = {
 	region: GcpRegion;
 	updateBucketState?: (
 		state:
-			| 'Checking for existing bucket'
-			| 'Creating new bucket'
+			| 'Checking bucket'
+			| 'Creating bucket'
 			| 'Created bucket'
-			| 'Using existing bucket',
+			| 'Used bucket',
 	) => void;
 };
 
@@ -42,7 +42,7 @@ export const getOrCreateBucket = async (
 	}
 
 	if (remotionBuckets.length === 1) {
-		params?.updateBucketState?.('Using existing bucket');
+		params?.updateBucketState?.('Used bucket');
 		return {
 			bucketName: remotionBuckets[0].name,
 			alreadyExisted: true,
@@ -50,7 +50,7 @@ export const getOrCreateBucket = async (
 	}
 
 	if (params?.region) {
-		params.updateBucketState?.('Creating new bucket');
+		params.updateBucketState?.('Creating bucket');
 
 		const bucketName = makeBucketName();
 		await createBucket({

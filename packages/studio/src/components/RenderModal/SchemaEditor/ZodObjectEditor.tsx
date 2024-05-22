@@ -18,24 +18,24 @@ export type ObjectDiscrimatedUnionReplacement = {
 };
 
 export const ZodObjectEditor: React.FC<{
-	schema: z.ZodTypeAny;
-	jsonPath: JSONPath;
-	value: Record<string, unknown>;
-	defaultValue: Record<string, unknown>;
-	setValue: UpdaterFunction<Record<string, unknown>>;
-	onSave: UpdaterFunction<Record<string, unknown>>;
-	showSaveButton: boolean;
-	onRemove: null | (() => void);
-	saving: boolean;
-	saveDisabledByParent: boolean;
-	mayPad: boolean;
-	discriminatedUnionReplacement: ObjectDiscrimatedUnionReplacement | null;
+	readonly schema: z.ZodTypeAny;
+	readonly jsonPath: JSONPath;
+	readonly unsavedValue: Record<string, unknown>;
+	readonly savedValue: Record<string, unknown>;
+	readonly setValue: UpdaterFunction<Record<string, unknown>>;
+	readonly onSave: UpdaterFunction<Record<string, unknown>>;
+	readonly showSaveButton: boolean;
+	readonly onRemove: null | (() => void);
+	readonly saving: boolean;
+	readonly saveDisabledByParent: boolean;
+	readonly mayPad: boolean;
+	readonly discriminatedUnionReplacement: ObjectDiscrimatedUnionReplacement | null;
 }> = ({
 	schema,
 	jsonPath,
 	setValue,
-	value,
-	defaultValue,
+	unsavedValue,
+	savedValue,
 	onSave,
 	showSaveButton,
 	onRemove,
@@ -53,8 +53,8 @@ export const ZodObjectEditor: React.FC<{
 	const {localValue, onChange, RevisionContextProvider, reset} = useLocalState({
 		schema,
 		setValue,
-		value,
-		defaultValue,
+		unsavedValue,
+		savedValue,
 	});
 
 	const def = schema._def;
@@ -70,8 +70,8 @@ export const ZodObjectEditor: React.FC<{
 	const isRoot = jsonPath.length === 0;
 
 	const isDefaultValue = useMemo(() => {
-		return deepEqual(localValue.value, defaultValue);
-	}, [defaultValue, localValue]);
+		return deepEqual(localValue.value, savedValue);
+	}, [savedValue, localValue]);
 
 	const suffix = useMemo(() => {
 		return expanded ? ' {' : ' {...}';
@@ -125,7 +125,7 @@ export const ZodObjectEditor: React.FC<{
 										schema={shape[key]}
 										value={localValue.value[key]}
 										// In case of null | {a: string, b: string} type, we need to fallback to the default value
-										defaultValue={(defaultValue ?? value)[key]}
+										defaultValue={(savedValue ?? unsavedValue)[key]}
 										setValue={(val, forceApply) => {
 											onChange(
 												(oldVal) => {

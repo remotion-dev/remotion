@@ -198,17 +198,12 @@ const handleAddAsset = ({
 	try {
 		const query = new URLSearchParams(search);
 
-		const folder = query.get('folder');
-		if (typeof folder !== 'string') {
-			throw new Error('No `folder` provided');
+		const filePath = query.get('filePath');
+		if (typeof filePath !== 'string') {
+			throw new Error('No `filePath` provided');
 		}
 
-		const file = query.get('file');
-		if (typeof file !== 'string') {
-			throw new Error('No `file` provided');
-		}
-
-		const absolutePath = path.join(publicDir, folder, file);
+		const absolutePath = path.join(publicDir, filePath);
 
 		const relativeToPublicDir = path.relative(publicDir, absolutePath);
 		if (relativeToPublicDir.startsWith('..')) {
@@ -217,10 +212,12 @@ const handleAddAsset = ({
 
 		fs.mkdirSync(path.dirname(absolutePath), {recursive: true});
 
-		req.pipe(createWriteStream(absolutePath));
-		req.on('end', () => {
+		const writeStream = createWriteStream(absolutePath);
+		writeStream.on('close', () => {
 			res.end(JSON.stringify({success: true}));
 		});
+
+		req.pipe(writeStream);
 	} catch (err) {
 		res.statusCode = 500;
 		res.end(JSON.stringify({error: (err as Error).message}));
@@ -351,6 +348,7 @@ export const handleRoutes = ({
 				logLevel,
 				methods,
 				binariesDirectory,
+				publicDir,
 			});
 		}
 	}

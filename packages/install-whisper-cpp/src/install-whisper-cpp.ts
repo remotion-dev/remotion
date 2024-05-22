@@ -1,76 +1,131 @@
-import type {StdioOptions} from 'child_process';
+import {spawn, type StdioOptions} from 'child_process';
 import fs, {existsSync, rmSync} from 'fs';
-import {execSync} from 'node:child_process';
-import {Readable} from 'node:stream';
-import {finished} from 'node:stream/promises';
-import type {ReadableStream} from 'node:stream/web';
 import os from 'os';
 import path from 'path';
+import {downloadFile} from './download';
 
 const getIsSemVer = (str: string) => {
 	return /^[\d]{1}\.[\d]{1,2}\.+/.test(str);
+};
+
+const execute = ({
+	command,
+	printOutput,
+	signal,
+	cwd,
+	shell,
+}: {
+	command: string;
+	printOutput: boolean;
+	signal: AbortSignal | null;
+	cwd: string | null;
+	shell: string | null;
+}) => {
+	const stdio: StdioOptions = printOutput ? 'inherit' : 'ignore';
+
+	return new Promise<void>((resolve, reject) => {
+		const [bin, ...args] = command.split(' ');
+
+		const child = spawn(bin, args, {
+			stdio,
+			signal: signal ?? undefined,
+			cwd: cwd ?? undefined,
+			shell: shell ?? undefined,
+		});
+
+		child.on('exit', (code, exitSignal) => {
+			if (code !== 0) {
+				reject(
+					new Error(
+						`Error while executing ${command}. Exit code: ${code}, signal: ${exitSignal}`,
+					),
+				);
+				return;
+			}
+
+			resolve();
+		});
+	});
 };
 
 const installForWindows = async ({
 	version,
 	to,
 	printOutput,
+	signal,
 }: {
 	version: string;
 	to: string;
 	printOutput: boolean;
+	signal: AbortSignal | null;
 }) => {
 	if (!getIsSemVer(version)) {
 		throw new Error(`Non-semantic version provided. Only releases of Whisper.cpp are supported on Windows (e.g., 1.5.4). Provided version:
 		${version}. See https://www.remotion.dev/docs/install-whisper-cpp/install-whisper-cpp#version for more information.`);
 	}
 
-	const url = `https://github.com/ggerganov/whisper.cpp/releases/download/v${version}/whisper-bin-x64.zip`;
+	const url =
+		version === '1.5.5'
+			? 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/whisper-bin-x64-1-5-5.zip'
+			: `https://github.com/ggerganov/whisper.cpp/releases/download/v${version}/whisper-bin-x64.zip`;
 
 	const filePath = path.join(process.cwd(), 'whisper-bin-x64.zip');
 	const fileStream = fs.createWriteStream(filePath);
 
-	const {body} = await fetch(url);
-	if (body === null) {
-		throw new Error('Failed to download whisper binary');
-	}
+	await downloadFile({
+		fileStream,
+		printOutput,
+		url,
+		onProgress: undefined,
+		signal,
+	});
 
-	await finished(
-		Readable.fromWeb(body as unknown as ReadableStream).pipe(fileStream),
-	);
-
-	execSync(`Expand-Archive -Force ${filePath} ${to}`, {
+	execute({
+		command: `Expand-Archive -Force ${filePath} ${to}`,
 		shell: 'powershell',
-		stdio: printOutput ? 'inherit' : 'ignore',
+		printOutput,
+		signal,
+		cwd: null,
 	});
 
 	rmSync(filePath);
 };
 
-const installWhisperForUnix = ({
+const installWhisperForUnix = async ({
 	version,
 	to,
 	printOutput,
+	signal,
 }: {
 	version: string;
 	to: string;
 	printOutput: boolean;
-}) => {
-	const stdio: StdioOptions = printOutput ? 'inherit' : 'ignore';
-	execSync(`git clone https://github.com/ggerganov/whisper.cpp.git ${to}`, {
-		stdio,
+	signal: AbortSignal | null;
+}): Promise<void> => {
+	await execute({
+		command: `git clone https://github.com/ggerganov/whisper.cpp.git ${to}`,
+		printOutput,
+		signal,
+		cwd: null,
+		shell: null,
 	});
 
 	const ref = getIsSemVer(version) ? `v${version}` : version;
 
-	execSync(`git checkout ${ref}`, {
-		stdio,
+	await execute({
+		command: `git checkout ${ref}`,
+		printOutput,
 		cwd: to,
+		signal,
+		shell: null,
 	});
 
-	execSync(`make`, {
+	await execute({
+		command: 'make',
 		cwd: to,
-		stdio,
+		signal,
+		printOutput,
+		shell: null,
 	});
 };
 
@@ -84,9 +139,11 @@ export const installWhisperCpp = async ({
 	version,
 	to,
 	printOutput = true,
+	signal,
 }: {
 	version: string;
 	to: string;
+	signal?: AbortSignal | null;
 	printOutput?: boolean;
 }): Promise<{
 	alreadyExisted: boolean;
@@ -94,8 +151,8 @@ export const installWhisperCpp = async ({
 	if (existsSync(to)) {
 		if (!existsSync(getWhisperExecutablePath(to))) {
 			if (printOutput) {
-				console.log(
-					`Whisper folder exists but the executable (${to}) is missing. Delete ${to} and try again.`,
+				throw new Error(
+					`Whisper folder ${to} exists but the executable (${getWhisperExecutablePath(to)}) is missing. Delete ${to} and try again.`,
 				);
 			}
 
@@ -110,12 +167,17 @@ export const installWhisperCpp = async ({
 	}
 
 	if (process.platform === 'darwin' || process.platform === 'linux') {
-		installWhisperForUnix({version, to, printOutput});
+		await installWhisperForUnix({
+			version,
+			to,
+			printOutput,
+			signal: signal ?? null,
+		});
 		return Promise.resolve({alreadyExisted: false});
 	}
 
 	if (process.platform === 'win32') {
-		await installForWindows({version, to, printOutput});
+		await installForWindows({version, to, printOutput, signal: signal ?? null});
 		return Promise.resolve({alreadyExisted: false});
 	}
 

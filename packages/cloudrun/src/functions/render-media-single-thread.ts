@@ -119,7 +119,6 @@ export const renderMediaSingleThread = async (
 			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
 			colorSpace: body.colorSpace,
 			repro: false,
-			finishRenderProgress: () => undefined,
 			binariesDirectory: null,
 			separateAudioTo: null,
 			forSeamlessAacConcatenation: false,

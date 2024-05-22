@@ -56,6 +56,7 @@ const getProResProfile = () => {
 export const getCliOptions = (options: {
 	isStill: boolean;
 	logLevel: LogLevel;
+	indent: boolean;
 }) => {
 	const frameRange = getAndValidateFrameRange(options.logLevel, false);
 
@@ -89,7 +90,11 @@ export const getCliOptions = (options: {
 		frameRange,
 		shouldOutputImageSequence,
 		inputProps: getInputProps(null, options.logLevel),
-		envVariables: getEnvironmentVariables(null, options.logLevel, false),
+		envVariables: getEnvironmentVariables(
+			null,
+			options.logLevel,
+			options.indent,
+		),
 		pixelFormat,
 		proResProfile,
 		everyNthFrame,

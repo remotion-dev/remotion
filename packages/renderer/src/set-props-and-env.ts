@@ -46,6 +46,18 @@ const innerSetPropsAndEnv = async ({
 
 	await page.evaluateOnNewDocument((timeout: number) => {
 		window.remotion_puppeteerTimeout = timeout;
+
+		// To make getRemotionEnvironment() work
+		if (window.process === undefined) {
+			// @ts-expect-error
+			window.process = {};
+		}
+
+		if (window.process.env === undefined) {
+			window.process.env = {};
+		}
+
+		window.process.env.NODE_ENV = 'production';
 	}, actualTimeout);
 
 	await page.evaluateOnNewDocument((input: string) => {
@@ -64,7 +76,7 @@ const innerSetPropsAndEnv = async ({
 
 	await page.evaluateOnNewDocument(() => {
 		window.remotion_attempt = 1;
-	}, initialFrame);
+	});
 
 	await page.evaluateOnNewDocument((port: number) => {
 		window.remotion_proxyPort = port;

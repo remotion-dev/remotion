@@ -19,7 +19,11 @@ import {compositionsRef} from './CompositionManager.js';
 import type {CompositionManagerContext} from './CompositionManagerContext.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import * as CSSUtils from './default-css.js';
-import {EditorPropsContext, EditorPropsProvider} from './EditorProps.js';
+import {
+	EditorPropsContext,
+	EditorPropsProvider,
+	editorPropsProviderRef,
+} from './EditorProps.js';
 import {
 	addSequenceStackTraces,
 	enableSequenceStackTraces,
@@ -42,6 +46,7 @@ import {RemotionRoot} from './RemotionRoot.js';
 import {RenderAssetManager} from './RenderAssetManager.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
 import {
+	PROPS_UPDATED_EXTERNALLY,
 	ResolveCompositionConfig,
 	resolveCompositionsRef,
 	useResolvedVideoConfig,
@@ -154,6 +159,8 @@ export const Internals = {
 	CurrentScaleContext,
 	PreviewSizeContext,
 	calculateScale,
+	editorPropsProviderRef,
+	PROPS_UPDATED_EXTERNALLY,
 } as const;
 
 export type {

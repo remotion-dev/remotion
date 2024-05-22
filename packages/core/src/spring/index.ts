@@ -1,3 +1,4 @@
+import {interpolate} from '../interpolate.js';
 import {validateFrame} from '../validate-frame.js';
 import {validateFps} from '../validation/validate-fps.js';
 import {validateSpringDuration} from '../validation/validation-spring-duration.js';
@@ -58,8 +59,6 @@ export function spring({
 		? measureSpring({
 				fps,
 				config,
-				from,
-				to,
 				threshold: durationRestThreshold,
 			})
 		: undefined;
@@ -95,19 +94,18 @@ export function spring({
 		fps,
 		frame: durationProcessed,
 		config,
-		from,
-		to,
 	});
 
-	if (!config.overshootClamping) {
-		return spr.current;
-	}
+	const inner = config.overshootClamping
+		? to >= from
+			? Math.min(spr.current, to)
+			: Math.max(spr.current, to)
+		: spr.current;
 
-	if (to >= from) {
-		return Math.min(spr.current, to);
-	}
+	const interpolated =
+		from === 0 && to === 1 ? inner : interpolate(inner, [0, 1], [from, to]);
 
-	return Math.max(spr.current, to);
+	return interpolated;
 }
 
 export {measureSpring} from './measure-spring.js';

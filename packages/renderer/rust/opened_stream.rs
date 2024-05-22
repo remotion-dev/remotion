@@ -112,6 +112,8 @@ impl OpenedStream {
                         unscaled_frame: video.clone(),
                         tone_mapped,
                         filter_graph: self.filter_graph,
+                        colorspace: video.color_space(),
+                        src_range: video.color_range(),
                     };
 
                     offset = offset + one_frame_in_time_base;
@@ -323,6 +325,8 @@ impl OpenedStream {
                         unscaled_frame: unfiltered.clone(),
                         tone_mapped,
                         filter_graph: self.filter_graph,
+                        colorspace: unfiltered.color_space(),
+                        src_range: unfiltered.color_range(),
                     };
 
                     let previous_pts = match freshly_seeked || self.last_position.is_none() {
@@ -368,7 +372,7 @@ impl OpenedStream {
                                 let new_difference =
                                     (unfiltered.pts().expect("pts") - position).abs();
 
-                                if new_difference > prev_difference {
+                                if new_difference >= prev_difference {
                                     stop_after_n_diverging_pts = Some(stop - 1);
                                 } else if prev_difference > new_difference {
                                     // Fixing test video crazy1.mp4, frames 240-259

@@ -87,4 +87,4 @@ This function is based on the [WarpJS](https://benjamminf.github.io/warpjs/) lib
 
 - [`@remotion/paths`](/docs/paths)
 - [Example repo](https://github.com/remotion-dev/text-warping)
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/paths/src/warp-path.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/paths/src/warp-path/index.ts)

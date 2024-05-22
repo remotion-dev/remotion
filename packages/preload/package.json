@@ -1,15 +1,13 @@
 {
 	"name": "@remotion/preload",
-	"version": "4.0.142",
+	"version": "4.0.160",
 	"description": "Utility functions for preloading assets in HTML5",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
-		"watch": "tsc -w",
-		"build": "tsc -d"
+		"lint": "eslint src --ext ts,tsx"
 	},
 	"author": "Jonny Burger",
 	"contributors": [],

@@ -300,6 +300,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		let stopped = false;
 
 		const onBuffer = () => {
+			stopped = false;
 			requestAnimationFrame(() => {
 				if (bufferStateDelayInMilliseconds === 0) {
 					setShowBufferState(true);

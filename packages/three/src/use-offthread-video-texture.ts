@@ -98,6 +98,12 @@ export const useInnerVideoTexture = ({
 	return imageTexture;
 };
 
+/**
+ * @description Allows you to use a video in React Three Fiber that is synchronized with Remotion's `useCurrentFrame()` using the `<OffthreadVideo>`.
+ * @see [Documentation](https://remotion.dev/docs/use-offthread-video-texture)
+ * @param {UseOffthreadVideoTextureOptions} options Configuration options including the video source (`src`), playback rate (`playbackRate`), transparency (`transparent`), and tone mapping (`toneMapped`).
+ * @returns {THREE.Texture | null} A THREE.Texture if available, otherwise null. To be used as a texture in 3D objects in React Three Fiber.
+ */
 export function useOffthreadVideoTexture({
 	src,
 	playbackRate = 1,

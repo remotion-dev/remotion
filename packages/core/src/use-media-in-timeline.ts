@@ -102,7 +102,10 @@ export const useMediaInTimeline = ({
 			throw new Error('No src passed');
 		}
 
-		if (!getRemotionEnvironment().isStudio && process.env.NODE_ENV !== 'test') {
+		if (
+			!getRemotionEnvironment().isStudio &&
+			window.process?.env?.NODE_ENV !== 'test'
+		) {
 			return;
 		}
 

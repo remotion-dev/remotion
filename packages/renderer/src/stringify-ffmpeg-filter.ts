@@ -32,27 +32,36 @@ export const getActualTrimLeft = ({
 	fps,
 	trimLeftOffset,
 	seamless,
+	assetDuration,
 }: {
 	asset: MediaAsset;
 	fps: number;
 	trimLeftOffset: number;
 	seamless: boolean;
-}) => {
+	assetDuration: number | null;
+}): {
+	trimLeft: number;
+	maxTrim: number | null;
+} => {
 	const sinceStart = asset.trimLeft - asset.audioStartFrame;
 	if (!seamless) {
-		return (
-			asset.audioStartFrame / fps +
-			(sinceStart / fps) * asset.playbackRate +
-			trimLeftOffset
-		);
+		return {
+			trimLeft:
+				asset.audioStartFrame / fps +
+				(sinceStart / fps) * asset.playbackRate +
+				trimLeftOffset,
+			maxTrim: assetDuration,
+		};
 	}
 
 	if (seamless) {
-		return (
-			asset.audioStartFrame / fps / asset.playbackRate +
-			sinceStart / fps +
-			trimLeftOffset
-		);
+		return {
+			trimLeft:
+				asset.audioStartFrame / fps / asset.playbackRate +
+				sinceStart / fps +
+				trimLeftOffset,
+			maxTrim: assetDuration ? assetDuration / asset.playbackRate : null,
+		};
 	}
 
 	throw new Error('This should never happen');
@@ -86,17 +95,18 @@ const trimAndSetTempo = ({
 	// and the offset needs to be the same for all audio tracks, before processing it further.
 	// This also affects the trimLeft and trimRight values, as they need to be adjusted.
 	if (forSeamlessAacConcatenation) {
-		const trimLeft = getActualTrimLeft({
+		const {trimLeft, maxTrim} = getActualTrimLeft({
 			asset,
 			fps,
 			trimLeftOffset,
 			seamless: true,
+			assetDuration,
 		});
 		const trimRight =
 			trimLeft + asset.duration / fps - trimLeftOffset + trimRightOffset;
 
-		let trimRightOrAssetDuration = assetDuration
-			? Math.min(trimRight, assetDuration / asset.playbackRate)
+		let trimRightOrAssetDuration = maxTrim
+			? Math.min(trimRight, maxTrim)
 			: trimRight;
 
 		if (trimRightOrAssetDuration < trimLeft) {
@@ -126,17 +136,18 @@ const trimAndSetTempo = ({
 	// Otherwise, we first trim and then apply playback rate, as then the atempo
 	// filter needs to do less work.
 	if (!forSeamlessAacConcatenation) {
-		const actualTrimLeft = getActualTrimLeft({
+		const {trimLeft: actualTrimLeft, maxTrim} = getActualTrimLeft({
 			asset,
 			fps,
 			trimLeftOffset,
 			seamless: false,
+			assetDuration,
 		});
 		const trimRight =
 			actualTrimLeft + (asset.duration / fps) * asset.playbackRate;
 
-		const trimRightOrAssetDuration = assetDuration
-			? Math.min(trimRight, assetDuration)
+		const trimRightOrAssetDuration = maxTrim
+			? Math.min(trimRight, maxTrim)
 			: trimRight;
 
 		return {
@@ -184,20 +195,19 @@ export const stringifyFfmpegFilter = ({
 		return null;
 	}
 
-	const {toneFrequency, startInVideo, playbackRate} = asset;
+	const {toneFrequency, startInVideo} = asset;
 
 	const startInVideoSeconds = startInVideo / fps;
 
-	if (
-		assetDuration &&
-		getActualTrimLeft({
-			asset,
-			fps,
-			trimLeftOffset,
-			seamless: forSeamlessAacConcatenation,
-		}) >=
-			assetDuration / playbackRate
-	) {
+	const {trimLeft, maxTrim} = getActualTrimLeft({
+		asset,
+		fps,
+		trimLeftOffset,
+		seamless: forSeamlessAacConcatenation,
+		assetDuration,
+	});
+
+	if (maxTrim && trimLeft >= maxTrim) {
 		return null;
 	}
 

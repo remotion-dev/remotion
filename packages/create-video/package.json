@@ -1,6 +1,6 @@
 {
 	"name": "create-video",
-	"version": "4.0.142",
+	"version": "4.0.160",
 	"description": "",
 	"main": "dist/index.js",
 	"bin": {
@@ -11,8 +11,6 @@
 	],
 	"scripts": {
 		"formatting": "prettier src --check",
-		"build": "tsc -d",
-		"watch": "tsc -w",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run"
 	},
@@ -23,7 +21,7 @@
 		"execa": "5.1.1",
 		"minimist": "1.2.6",
 		"prompts": "2.4.2",
-		"react": "18.2.0",
+		"react": "18.3.1",
 		"tar": "6.2.1"
 	},
 	"devDependencies": {
@@ -31,7 +29,7 @@
 		"@types/minimist": "1.2.2",
 		"@types/node": "18.14.6",
 		"@types/prompts": "^2.0.12",
-		"@types/react": "18.2.48",
+		"@types/react": "18.3.1",
 		"@types/tar": "6.1.1",
 		"eslint": "8.56.0",
 		"prettier": "3.2.5",

@@ -10,7 +10,6 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {
-	ApiRoutes,
 	ApplyCodemodRequest,
 	CanUpdateDefaultPropsResponse,
 	CopyStillToClipboardRequest,
@@ -21,40 +20,7 @@ import type {
 	RequiredChromiumOptions,
 } from '@remotion/studio-shared';
 import {NoReactInternals} from 'remotion/no-react';
-
-const callApi = <Endpoint extends keyof ApiRoutes>(
-	endpoint: Endpoint,
-	body: ApiRoutes[Endpoint]['Request'],
-	signal?: AbortSignal,
-): Promise<ApiRoutes[Endpoint]['Response']> => {
-	return new Promise<ApiRoutes[Endpoint]['Response']>((resolve, reject) => {
-		fetch(endpoint as string, {
-			method: 'post',
-			headers: {
-				'content-type': 'application/json',
-			},
-			signal,
-			body: JSON.stringify(body),
-		})
-			.then((res) => res.json())
-			.then(
-				(
-					data:
-						| {success: true; data: ApiRoutes[Endpoint]['Response']}
-						| {success: false; error: string},
-				) => {
-					if (data.success) {
-						resolve(data.data);
-					} else {
-						reject(new Error(data.error));
-					}
-				},
-			)
-			.catch((err) => {
-				reject(err);
-			});
-	});
-};
+import {callApi} from '../call-api';
 
 export const addStillRenderJob = ({
 	compositionId,
@@ -377,7 +343,7 @@ export const getProjectInfo = (signal: AbortSignal) => {
 	return callApi('/api/project-info', {}, signal);
 };
 
-export const updateDefaultProps = (
+export const callUpdateDefaultPropsApi = (
 	compositionId: string,
 	defaultProps: Record<string, unknown>,
 	enumPaths: EnumPath[],

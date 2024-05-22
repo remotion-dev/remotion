@@ -8,7 +8,7 @@ export const getCompositionFromBody = async (body: CloudRunPayloadType) => {
 			browserExecutable: null,
 			chromiumOptions: {
 				...(body.chromiumOptions ?? {}),
-				enableMultiProcessOnLinux: false,
+				enableMultiProcessOnLinux: true,
 			},
 			envVariables: body.envVariables ?? {},
 			id: body.composition,

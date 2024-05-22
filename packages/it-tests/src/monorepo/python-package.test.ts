@@ -53,7 +53,7 @@ test("Python package should create the same renderMedia payload as normal Lambda
     audioBitrate: null,
     audioCodec: null,
     chromiumOptions: {},
-    colorSpace: "default",
+    colorSpace: null,
     concurrencyPerLambda: 1,
     crf: undefined,
     deleteAfter: null,

@@ -69,7 +69,7 @@ export const BasicTransition: React.FC = () => {
 				<Letter color="green">D</Letter>
 			</TransitionSeries.Sequence>
 			{new Array(10).fill(true).map((_, i) => (
-				<>
+				<React.Fragment key={i}>
 					<TransitionSeries.Transition
 						presentation={wipe({direction: 'from-left'})}
 						timing={springTiming({
@@ -86,7 +86,7 @@ export const BasicTransition: React.FC = () => {
 							{'EFHIJKLMNO'[i]}
 						</Letter>
 					</TransitionSeries.Sequence>
-				</>
+				</React.Fragment>
 			))}
 			<TransitionSeries.Transition
 				timing={linearTiming({durationInFrames: 30})}

@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/cli",
-	"version": "4.0.142",
+	"version": "4.0.160",
 	"description": "CLI for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -11,9 +11,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"test": "vitest --run",
-		"build": "tsc -d",
-		"watch": "tsc -w"
+		"test": "vitest --run"
 	},
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"
@@ -40,6 +38,7 @@
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/renderer": "workspace:*",
+		"@remotion/studio-shared": "workspace:*",
 		"@remotion/studio-server": "workspace:*",
 		"@remotion/studio": "workspace:*",
 		"dotenv": "9.0.2",
@@ -54,12 +53,11 @@
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.281",
 		"@types/minimist": "^1.2.2",
-		"bun-types": "0.8.0",
 		"@types/node": "18.14.6",
 		"@types/prompts": "^2.4.1",
-		"@types/react": "18.2.48",
+		"@types/react": "18.3.1",
 		"@types/prettier": "^2.7.2",
-		"@types/react-dom": "18.2.18",
+		"@types/react-dom": "18.3.0",
 		"@remotion/zod-types": "workspace:*",
 		"@remotion/tailwind": "workspace:*",
 		"@remotion/skia": "workspace:*",
@@ -69,10 +67,10 @@
 		"eslint-plugin-react-hooks": "4.4.0",
 		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4",
-		"react": "18.2.0",
-		"react-dom": "18.2.0",
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
 		"vitest": "0.31.1",
-		"zod": "^3.22.3"
+		"zod": "3.22.3"
 	},
 	"keywords": [
 		"remotion",

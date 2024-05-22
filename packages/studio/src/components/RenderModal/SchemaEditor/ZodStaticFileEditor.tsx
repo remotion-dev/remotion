@@ -1,6 +1,6 @@
 import React, {useCallback, useMemo} from 'react';
-import {getStaticFiles} from 'remotion';
 import type {z} from 'zod';
+import {getStaticFiles} from '../../../api/get-static-files';
 import {Checkmark} from '../../../icons/Checkmark';
 import type {ComboboxValue} from '../../NewComposition/ComboBox';
 import {Combobox} from '../../NewComposition/ComboBox';
@@ -17,17 +17,17 @@ const container: React.CSSProperties = {
 };
 
 export const ZodStaticFileEditor: React.FC<{
-	schema: z.ZodTypeAny;
-	jsonPath: JSONPath;
-	value: string;
-	defaultValue: string;
-	setValue: UpdaterFunction<string>;
-	onSave: (updater: (oldState: string) => string) => void;
-	showSaveButton: boolean;
-	onRemove: null | (() => void);
-	saving: boolean;
-	saveDisabledByParent: boolean;
-	mayPad: boolean;
+	readonly schema: z.ZodTypeAny;
+	readonly jsonPath: JSONPath;
+	readonly value: string;
+	readonly defaultValue: string;
+	readonly setValue: UpdaterFunction<string>;
+	readonly onSave: (updater: (oldState: string) => string) => void;
+	readonly showSaveButton: boolean;
+	readonly onRemove: null | (() => void);
+	readonly saving: boolean;
+	readonly saveDisabledByParent: boolean;
+	readonly mayPad: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -53,8 +53,8 @@ export const ZodStaticFileEditor: React.FC<{
 	} = useLocalState({
 		schema,
 		setValue,
-		value,
-		defaultValue,
+		unsavedValue: value,
+		savedValue: defaultValue,
 	});
 
 	const def = schema._def;

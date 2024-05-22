@@ -30,17 +30,17 @@ export type UpdaterFunction<T> = (
 ) => void;
 
 export const ZodSwitch: React.FC<{
-	schema: z.ZodTypeAny;
-	jsonPath: JSONPath;
-	value: unknown;
-	defaultValue: unknown;
-	setValue: UpdaterFunction<unknown>;
-	onSave: UpdaterFunction<unknown>;
-	showSaveButton: boolean;
-	onRemove: null | (() => void);
-	saving: boolean;
-	saveDisabledByParent: boolean;
-	mayPad: boolean;
+	readonly schema: z.ZodTypeAny;
+	readonly jsonPath: JSONPath;
+	readonly value: unknown;
+	readonly defaultValue: unknown;
+	readonly setValue: UpdaterFunction<unknown>;
+	readonly onSave: UpdaterFunction<unknown>;
+	readonly showSaveButton: boolean;
+	readonly onRemove: null | (() => void);
+	readonly saving: boolean;
+	readonly saveDisabledByParent: boolean;
+	readonly mayPad: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -69,8 +69,8 @@ export const ZodSwitch: React.FC<{
 		return (
 			<ZodObjectEditor
 				setValue={setValue as UpdaterFunction<Record<string, unknown>>}
-				value={value as Record<string, unknown>}
-				defaultValue={defaultValue as Record<string, unknown>}
+				unsavedValue={value as Record<string, unknown>}
+				savedValue={defaultValue as Record<string, unknown>}
 				jsonPath={jsonPath}
 				schema={schema}
 				onSave={onSave as UpdaterFunction<Record<string, unknown>>}

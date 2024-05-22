@@ -1,6 +1,8 @@
 import type {AnyRemotionOption} from './option';
 
-let multiProcessOnLinux = true;
+const DEFAULT_VALUE = true;
+
+let multiProcessOnLinux = DEFAULT_VALUE;
 
 const cliFlag = 'enable-multiprocess-on-linux' as const;
 
@@ -40,7 +42,7 @@ export const enableMultiprocessOnLinuxOption = {
 
 		return {
 			source: 'default',
-			value: false,
+			value: DEFAULT_VALUE,
 		};
 	},
 	setConfig: (value: boolean) => {

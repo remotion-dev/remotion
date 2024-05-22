@@ -30,6 +30,14 @@ export const getInstructionIndexAtLengthFromConstructed = (
 	};
 };
 
+/**
+ * @description Gets the index of the instruction and the part length into the instruction at a specified length along an SVG path.
+ * @see [Documentation](https://remotion.dev/docs/paths/get-instruction-index-at-length)
+ * @param path The SVG path data as a string.
+ * @param length The length along the path at which to find the instruction index and the part length into the instruction.
+ * @returns {InstructionAtLength} Object containing the index of the instruction and the part length into the instruction at the given length.
+ * @throws {Error} If the given length is less than 0 or greater than the total length of the path, or if the path is invalid.
+ */
 export const getInstructionIndexAtLength = (
 	path: string,
 	length: number,

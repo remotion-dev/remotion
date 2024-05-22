@@ -1,5 +1,6 @@
 import type {MutableRefObject} from 'react';
 import {createContext, useContext, useMemo} from 'react';
+import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {useVideo} from './use-video.js';
 
 export type PlayableMediaTag = {
@@ -65,10 +66,15 @@ export const getFrameForComposition = (composition: string) => {
 	const item = localStorage.getItem(makeKey()) ?? '{}';
 	const obj: CurrentTimePerComposition = JSON.parse(item);
 
-	return obj[composition]
-		? Number(obj[composition])
-		: (typeof window === 'undefined' ? 0 : window.remotion_initialFrame ?? 0) ??
-				0;
+	if (obj[composition] !== undefined) {
+		return Number(obj[composition]);
+	}
+
+	if (typeof window === 'undefined') {
+		return 0;
+	}
+
+	return window.remotion_initialFrame ?? 0;
 };
 
 export const useTimelinePosition = (): number => {
@@ -83,7 +89,7 @@ export const useTimelinePosition = (): number => {
 
 	const unclamped =
 		state.frame[videoConfig.id] ??
-		(typeof window !== 'undefined' && window.remotion_isPlayer
+		(getRemotionEnvironment().isPlayer
 			? 0
 			: getFrameForComposition(videoConfig.id));
 
