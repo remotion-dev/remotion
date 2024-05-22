@@ -36,7 +36,10 @@ An object containing one or more of the following options:
 
 _optional in &lt;5.0, required from 5.0_
 
-Define custom props that can be retrieved using [`getInputProps()`](/docs/get-input-props) at runtime. Useful for [setting a dynamic duration or dimensions](/docs/dynamic-metadata) for your video.
+[Input Props to pass to the selected composition of your video.](/docs/parameterized-rendering#passing-input-props-in-the-cli).  
+Must be a JSON object.  
+From the root component the props can be read using [`getInputProps()`](/docs/get-input-props).  
+You may transform input props using [`calculateMetadata()`](/docs/calculate-metadata).
 
 #### `puppeteerInstance?`<AvailableFrom v="3.0.0" />
 

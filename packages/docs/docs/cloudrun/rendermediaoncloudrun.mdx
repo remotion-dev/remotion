@@ -6,7 +6,14 @@ crumb: "Cloud Run API"
 ---
 
 <ExperimentalBadge>
-<p>Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the <a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.</p>
+  <p>
+    Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs
+    may change in any version and documentation is not yet finished. See the{" "}
+    <a href="https://remotion.dev/changelog">
+      changelog to stay up to date with breaking changes
+    </a>
+    .
+  </p>
 </ExperimentalBadge>
 
 Kicks off a media rendering process on Remotion Cloud Run.
@@ -83,7 +90,10 @@ See also [`renderMedia() -> codec`](/docs/renderer/render-media#codec).
 
 _optional_
 
-React props that are passed to your composition. You define the shape of the props that the component accepts.
+[Input Props to pass to the selected composition of your video.](/docs/parameterized-rendering#passing-input-props-in-the-cli).  
+Must be a JSON object.  
+From the root component the props can be read using [`getInputProps()`](/docs/get-input-props).  
+You may transform input props using [`calculateMetadata()`](/docs/calculate-metadata).
 
 ### `privacy?`
 
@@ -128,21 +138,21 @@ See [`renderMedia() -> jpegQuality`](/docs/renderer/render-media#jpegquality).
 
 _optional_
 
-<Options id="audio-bitrate"/>
+<Options id="audio-bitrate" />
 
 ### `videoBitrate?`
 
 _optional_
 
-<Options id="video-bitrate"/>
+<Options id="video-bitrate" />
 
 ### `bufferSize?`<AvailableFrom v="4.0.78" />
 
-<Options id="buffer-size"/>
+<Options id="buffer-size" />
 
 ### `maxRate?`<AvailableFrom v="4.0.78" />
 
-<Options id="max-rate"/>
+<Options id="max-rate" />
 
 ### `proResProfile?`
 
@@ -224,7 +234,7 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 #### `gl`
 
-<Options id="gl"  />
+<Options id="gl" />
 
 ### `muted?`
 
@@ -246,7 +256,7 @@ Overrides default composition height.
 
 ### `logLevel?`
 
-<Options id="log"/>
+<Options id="log" />
 
 ### `outName?`
 

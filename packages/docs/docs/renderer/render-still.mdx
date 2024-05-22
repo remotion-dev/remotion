@@ -5,7 +5,7 @@ title: renderStill()
 crumb: "@remotion/renderer"
 ---
 
-import {AngleChangelog} from '../../components/AngleChangelog';
+import { AngleChangelog } from "../../components/AngleChangelog";
 
 _Part of the `@remotion/renderer` package. Available from v2.3._
 
@@ -80,7 +80,10 @@ An absolute path to where the frame should be rendered to.
 
 _optional_
 
-[Custom props which will be passed to the component.](/docs/parameterized-rendering) Useful for rendering videos with dynamic content. Can be an object of any shape.
+[Input Props to pass to the selected composition of your video.](/docs/parameterized-rendering#passing-input-props-in-the-cli).  
+Must be a JSON object.  
+From the root component the props can be read using [`getInputProps()`](/docs/get-input-props).  
+You may transform input props using [`calculateMetadata()`](/docs/calculate-metadata).
 
 ### `frame?`
 
@@ -122,7 +125,7 @@ An object containing key-value pairs of environment variables which will be inje
 
 ### `logLevel?`<AvailableFrom v="4.0.115"/>
 
-<Options id="log"/>
+<Options id="log" />
 
 ### `overwrite?`
 
@@ -182,7 +185,7 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 #### `headless?`
 
-<Options id="disable-headless"  />
+<Options id="disable-headless" />
 
 #### `gl`
 

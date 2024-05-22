@@ -8,7 +8,14 @@ crumb: "Cloud Run CLI Reference"
 ---
 
 <ExperimentalBadge>
-<p>Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the <a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.</p>
+  <p>
+    Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs
+    may change in any version and documentation is not yet finished. See the{" "}
+    <a href="https://remotion.dev/changelog">
+      changelog to stay up to date with breaking changes
+    </a>
+    .
+  </p>
 </ExperimentalBadge>
 
 Using the `npx remotion cloudrun render` command, you can render a video on GCP.
@@ -51,7 +58,14 @@ The [GCP region](/docs/cloudrun/region-selection) to select. For lowest latency,
 
 ### `--props`
 
-[React Props to pass to the root component of your video.](/docs/parameterized-rendering#passing-input-props-in-the-cli) Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`).
+[Input Props to pass to the selected composition of your video.](/docs/parameterized-rendering#passing-input-props-in-the-cli).  
+Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`).  
+From the root component the props can be read using [`getInputProps()`](/docs/get-input-props).  
+You may transform input props using [`calculateMetadata()`](/docs/calculate-metadata).
+
+:::note
+Inline JSON string isn't supported on Windows shells because it removes the `"` character, use a file name instead.
+:::
 
 ### `--privacy`
 

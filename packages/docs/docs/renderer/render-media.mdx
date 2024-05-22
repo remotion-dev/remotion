@@ -79,17 +79,10 @@ Choose a suitable codec for your output media. Refer to the [Encoding guide](/do
 
 _object - optional_
 
-An object of arbitrary shape that:
-
-<Step>1</Step> will be passed as <a href="/docs/parameterized-rendering">
-  props to your component
-</a>
-<br />
-<Step>2</Step> can be retrieved using <a href="/docs/get-input-props">
-  <code>getInputProps()</code>
-</a>
-.<br />
-<br />
+[Input Props to pass to the selected composition of your video.](/docs/parameterized-rendering#passing-input-props-in-the-cli).  
+Must be a JSON object.  
+From the root component the props can be read using [`getInputProps()`](/docs/get-input-props).  
+You may transform input props using [`calculateMetadata()`](/docs/calculate-metadata).
 
 Make sure to also pass the same `inputProps` to [`selectComposition()`](/docs/renderer/select-composition) for this to work correctly.
 
