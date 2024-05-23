@@ -76,7 +76,7 @@ export const getSilentParts = async ({
 	});
 
 	const response = JSON.parse(
-		res.toString('utf-8'),
+		new TextDecoder('utf-8').decode(res),
 	) as GetSilentPartsResponseRust;
 
 	await compositor.finishCommands();

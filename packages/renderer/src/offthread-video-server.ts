@@ -137,7 +137,7 @@ export const startOffthreadVideoServer = ({
 			let extractStart = Date.now();
 			downloadAsset({src, downloadMap, indent, logLevel})
 				.then((to) => {
-					return new Promise<Buffer>((resolve, reject) => {
+					return new Promise<Uint8Array>((resolve, reject) => {
 						if (closed) {
 							reject(Error(REQUEST_CLOSED_TOKEN));
 							return;

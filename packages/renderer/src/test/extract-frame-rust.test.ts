@@ -244,10 +244,8 @@ test(
 
 		const header = data.subarray(0, BMP_HEADER_SIZE);
 
-		const width = header.readInt32LE(18);
-		const height = header.readInt32LE(22);
-		expect(width).toBe(683);
-		expect(height).toBe(512);
+		expect(Buffer.from([...header.subarray(18, 22)]).readInt32LE(0)).toBe(683);
+		expect(Buffer.from([...header.subarray(22, 26)]).readInt32LE(0)).toBe(512);
 
 		// Expected length fixing
 		expect(data.length).toBe(1050678);
@@ -288,11 +286,8 @@ test('Should be able to extract a frame with abnormal DAR', async () => {
 
 	const header = data.subarray(0, BMP_HEADER_SIZE);
 
-	const width = header.readInt32LE(18);
-	const height = header.readInt32LE(22);
-
-	expect(width).toBe(1280);
-	expect(height).toBe(2276);
+	expect(Buffer.from([...header.subarray(18, 22)]).readInt32LE(0)).toBe(1280);
+	expect(Buffer.from([...header.subarray(22, 26)]).readInt32LE(0)).toBe(2276);
 
 	expect(data[0x00169915]).approximately(232, 2);
 	expect(data[0x0012dd58]).approximately(231, 2);
@@ -543,7 +538,7 @@ test('Should handle getting a frame from a WebM when it is not transparent', asy
 	});
 
 	// Should resort back to BMP because it is faster
-	const header = data.slice(0, 8).toString('utf8');
+	const header = new TextDecoder('utf-8').decode(data.slice(0, 8));
 	expect(header).toContain('BM60');
 
 	expect(data.length).toBe(2764854);
@@ -569,7 +564,7 @@ test('Should handle a video with no frames at the beginning', async () => {
 	});
 
 	// Should resort back to BMP because it is faster
-	const header = data.slice(0, 8).toString('utf8');
+	const header = new TextDecoder('utf-8').decode(data.slice(0, 8));
 	expect(header).toContain('BM6');
 
 	expect(data.length).toBe(6220854);
@@ -649,7 +644,7 @@ test('Two different starting times should not result in big seeking', async () =
 	expect(expected[9][2] / 100).toBeCloseTo(1.07, 1);
 
 	const stats = await compositor.executeCommand('GetOpenVideoStats', {});
-	const statsJson = JSON.parse(stats.toString('utf-8'));
+	const statsJson = JSON.parse(new TextDecoder('utf-8').decode(stats));
 	expect(statsJson.open_streams).toBe(2);
 	expect(statsJson.open_videos).toBe(1);
 
