@@ -19,5 +19,7 @@ export const getVideoMetadata = async (
 	});
 	await compositor.finishCommands();
 	await compositor.waitForDone();
-	return JSON.parse(metadataResponse.toString('utf-8')) as VideoMetadata;
+	return JSON.parse(
+		new TextDecoder('utf-8').decode(metadataResponse),
+	) as VideoMetadata;
 };
