@@ -106,11 +106,11 @@ export const makePayloadMessage = ({
 
 	const concat = Buffer.concat([
 		magicSeparator,
+		Buffer.from(String(status)),
+		Buffer.from(':'),
 		Buffer.from(messageTypeToMessageId(message.type).toString()),
 		Buffer.from(':'),
 		Buffer.from(body.length.toString()),
-		Buffer.from(':'),
-		Buffer.from(String(status)),
 		Buffer.from(':'),
 		body,
 	]);
