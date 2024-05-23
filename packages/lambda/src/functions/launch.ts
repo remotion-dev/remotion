@@ -364,7 +364,7 @@ const innerLaunchHandler = async ({
 				region: getCurrentRegionInFunction(),
 				timeoutInTest: 12000,
 				type: LambdaRoutines.renderer,
-				onMessage: ({message}) => {
+				receivedStreamingPayload: ({message}) => {
 					if (message.type === 'frames-rendered') {
 						framesRendered[i] = message.payload.frames;
 						console.log(

@@ -62,7 +62,7 @@ test('Should fail when using an incompatible version', async () => {
 				preferLossless: false,
 			},
 			functionName: 'remotion-dev-render',
-			onMessage: () => undefined,
+			receivedStreamingPayload: () => undefined,
 			region: 'us-east-1',
 			timeoutInTest: 120000,
 			retriesRemaining: 0,

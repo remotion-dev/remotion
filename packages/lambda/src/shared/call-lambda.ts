@@ -20,7 +20,7 @@ type Options<T extends LambdaRoutines> = {
 	payload: Omit<LambdaPayloads[T], 'type'>;
 	region: AwsRegion;
 	timeoutInTest: number;
-	onMessage: OnMessage;
+	receivedStreamingPayload: OnMessage;
 };
 
 const parseJsonWithErrorSurfacing = ({
@@ -134,7 +134,7 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 	payload,
 	region,
 	timeoutInTest,
-	onMessage,
+	receivedStreamingPayload: onMessage,
 }: Options<T>): Promise<LambdaReturnValues[T]> => {
 	const res = await getLambdaClient(region, timeoutInTest).send(
 		new InvokeWithResponseStreamCommand({

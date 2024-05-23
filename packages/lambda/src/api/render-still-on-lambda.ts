@@ -78,7 +78,7 @@ const internalRenderStillOnLambda = async (
 			type: LambdaRoutines.still,
 			payload: await makeLambdaRenderStillPayload(input),
 			region,
-			onMessage: ({message}) => {
+			receivedStreamingPayload: ({message}) => {
 				if (message.type === 'render-id-determined') {
 					onInit?.({
 						renderId: message.payload.renderId,
