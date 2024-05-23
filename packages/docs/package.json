@@ -1,6 +1,6 @@
 {
   "name": "docs",
-  "version": "4.0.161",
+  "version": "4.0.163",
   "private": true,
   "scripts": {
     "formatting": "prettier src --check",
@@ -52,6 +52,7 @@
     "@remotion/skia": "workspace:*",
     "@remotion/studio": "workspace:*",
     "@remotion/tailwind": "workspace:*",
+    "@remotion/enable-scss": "workspace:*",
     "@remotion/three": "workspace:*",
     "@remotion/transitions": "workspace:*",
     "@rive-app/canvas-advanced": "2.3.0",

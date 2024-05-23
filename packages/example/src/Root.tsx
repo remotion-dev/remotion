@@ -89,9 +89,15 @@ import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
 import './style.css';
 import {WatchStaticDemo} from './watch-static';
-
 if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
+}
+
+// @ts-expect-error no types
+import styles from './styles.module.scss';
+
+if (!styles.hithere) {
+	throw new Error('should support SCSS modules');
 }
 
 // Use it to test that UI does not regress on weird CSS

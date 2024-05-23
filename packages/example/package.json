@@ -1,7 +1,7 @@
 {
 	"name": "@remotion/example",
 	"private": true,
-	"version": "4.0.161",
+	"version": "4.0.163",
 	"description": "",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"author": "Jonny Burger",
@@ -49,6 +49,7 @@
 		"@remotion/rive": "workspace:*",
 		"@remotion/shapes": "workspace:*",
 		"@remotion/skia": "workspace:*",
+		"@remotion/enable-scss": "workspace:*",
 		"@remotion/studio": "workspace:*",
 		"@remotion/tailwind": "workspace:*",
 		"@remotion/three": "workspace:*",
@@ -79,7 +80,11 @@
 		"ts-unused-exports": "^7.0.1",
 		"use-asset": "^1.0.4",
 		"vitest": "0.31.1",
-		"zod": "3.22.3"
+		"zod": "3.22.3",
+		"style-loader": "2.0.0",
+		"css-loader": "5.2.7",
+		"sass-loader": "14.2.1",
+		"sass": "1.77.2"
 	},
 	"devDependencies": {
 		"eslint": "8.56.0",

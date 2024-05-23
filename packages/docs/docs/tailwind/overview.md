@@ -15,7 +15,7 @@ This package provides utilities useful for integrating [TailwindCSS](https://tai
 
 Install `@remotion/tailwind` as well as TailwindCSS dependencies.
 
-<Installation pkg="@remotion/renderer"/>
+<Installation pkg="@remotion/tailwind"/>
 
 <br/>
 
