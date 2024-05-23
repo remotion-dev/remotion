@@ -243,12 +243,9 @@ test(
 		});
 
 		const header = data.subarray(0, BMP_HEADER_SIZE);
-		const view = new DataView(header.buffer);
 
-		const width = view.getInt32(18);
-		const height = view.getInt32(22);
-		expect(width).toBe(683);
-		expect(height).toBe(512);
+		expect(Buffer.from([...header.subarray(18, 22)]).readInt32LE(0)).toBe(683);
+		expect(Buffer.from([...header.subarray(22, 26)]).readInt32LE(0)).toBe(512);
 
 		// Expected length fixing
 		expect(data.length).toBe(1050678);
@@ -289,13 +286,8 @@ test('Should be able to extract a frame with abnormal DAR', async () => {
 
 	const header = data.subarray(0, BMP_HEADER_SIZE);
 
-	const view = new DataView(header.buffer);
-
-	const width = view.getInt32(18);
-	const height = view.getInt32(22);
-
-	expect(width).toBe(1280);
-	expect(height).toBe(2276);
+	expect(Buffer.from([...header.subarray(18, 22)]).readInt32LE(0)).toBe(1280);
+	expect(Buffer.from([...header.subarray(22, 26)]).readInt32LE(0)).toBe(2276);
 
 	expect(data[0x00169915]).approximately(232, 2);
 	expect(data[0x0012dd58]).approximately(231, 2);
