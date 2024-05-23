@@ -15,7 +15,7 @@ const messageTypes = {
 } as const;
 
 type MessageTypeId = keyof typeof messageTypes;
-type MessageType = (typeof messageTypes)[MessageTypeId]['type'];
+export type MessageType = (typeof messageTypes)[MessageTypeId]['type'];
 
 export const formatMap: {[key in MessageType]: 'json' | 'binary'} = {
 	[framesRendered]: 'json',
@@ -83,7 +83,7 @@ export const messageTypeToMessageId = (
 	return id;
 };
 
-type StreamingMessage = {
+export type StreamingMessage = {
 	successType: 'error' | 'success';
 	message: StreamingPayload;
 };
@@ -91,144 +91,6 @@ type StreamingMessage = {
 export type OnMessage = (options: StreamingMessage) => void;
 
 const magicSeparator = Buffer.from('remotion_buffer:');
-
-const parseJsonOrThrowSource = (data: Buffer, type: string) => {
-	const asString = data.toString('utf-8');
-	try {
-		return JSON.parse(asString);
-	} catch (err) {
-		throw new Error(`Invalid JSON (${type}): ${asString}`);
-	}
-};
-
-export const makeStreaming = (options: {onMessage: OnMessage}) => {
-	let outputBuffer = Buffer.from('');
-
-	let unprocessedBuffers: Buffer[] = [];
-
-	let missingData: null | {
-		dataMissing: number;
-	} = null;
-
-	const processInput = () => {
-		let separatorIndex = outputBuffer.indexOf(magicSeparator);
-		if (separatorIndex === -1) {
-			return;
-		}
-
-		separatorIndex += magicSeparator.length;
-
-		let messageTypeString = '';
-		let lengthString = '';
-		let statusString = '';
-
-		// Each message has the structure with `remotion_buffer:{[message_type_id]}:{[length]}`
-		// Let's read the buffer to extract the nonce, and if the full length is available,
-		// we'll extract the data and pass it to the callback.
-
-		// eslint-disable-next-line no-constant-condition
-		while (true) {
-			const nextDigit = outputBuffer[separatorIndex];
-			// 0x3a is the character ":"
-			if (nextDigit === 0x3a) {
-				separatorIndex++;
-				break;
-			}
-
-			separatorIndex++;
-
-			messageTypeString += String.fromCharCode(nextDigit);
-		}
-
-		// eslint-disable-next-line no-constant-condition
-		while (true) {
-			const nextDigit = outputBuffer[separatorIndex];
-			if (nextDigit === 0x3a) {
-				separatorIndex++;
-				break;
-			}
-
-			separatorIndex++;
-
-			lengthString += String.fromCharCode(nextDigit);
-		}
-
-		// eslint-disable-next-line no-constant-condition
-		while (true) {
-			const nextDigit = outputBuffer[separatorIndex];
-			if (nextDigit === 0x3a) {
-				break;
-			}
-
-			separatorIndex++;
-
-			statusString += String.fromCharCode(nextDigit);
-		}
-
-		const length = Number(lengthString);
-		const status = Number(statusString);
-
-		const dataLength = outputBuffer.length - separatorIndex - 1;
-		if (dataLength < length) {
-			missingData = {
-				dataMissing: length - dataLength,
-			};
-
-			return;
-		}
-
-		const data = outputBuffer.subarray(
-			separatorIndex + 1,
-			separatorIndex + 1 + Number(lengthString),
-		);
-		const messageType = messageTypeIdToMessage(
-			messageTypeString as MessageTypeId,
-		);
-
-		const innerPayload =
-			formatMap[messageType] === 'json'
-				? parseJsonOrThrowSource(data, messageType)
-				: data;
-
-		const payload: StreamingPayload = {
-			type: messageType,
-			payload: innerPayload,
-		};
-
-		options.onMessage({
-			successType: status === 1 ? 'error' : 'success',
-			message: payload,
-		});
-		missingData = null;
-
-		outputBuffer = outputBuffer.subarray(
-			separatorIndex + Number(lengthString) + 1,
-		);
-		processInput();
-	};
-
-	return {
-		addData: (data: Buffer) => {
-			unprocessedBuffers.push(data);
-			const separatorIndex = data.indexOf(magicSeparator);
-			if (separatorIndex === -1) {
-				if (missingData) {
-					missingData.dataMissing -= data.length;
-				}
-
-				if (!missingData || missingData.dataMissing > 0) {
-					return;
-				}
-			}
-
-			unprocessedBuffers.unshift(outputBuffer);
-
-			outputBuffer = Buffer.concat(unprocessedBuffers);
-			unprocessedBuffers = [];
-			processInput();
-		},
-	};
-};
 
 export const makePayloadMessage = ({
 	message,

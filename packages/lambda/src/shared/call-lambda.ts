@@ -1,8 +1,12 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type {InvokeWithResponseStreamResponseEvent} from '@aws-sdk/client-lambda';
 import {InvokeWithResponseStreamCommand} from '@aws-sdk/client-lambda';
-import type {OnMessage} from '../functions/streaming/streaming';
-import {makeStreaming} from '../functions/streaming/streaming';
+import {RenderInternals} from '@remotion/renderer';
+import type {
+	MessageType,
+	StreamingMessage,
+} from '../functions/streaming/streaming';
+import {formatMap, type OnMessage} from '../functions/streaming/streaming';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from './aws-clients';
 import type {LambdaPayloads, LambdaRoutines} from './constants';
@@ -32,6 +36,15 @@ const parseJsonWithErrorSurfacing = ({
 		throw new Error(
 			`${INVALID_JSON_MESSAGE}. Invoking: ${type} Response: ${JSON.stringify(input)}`,
 		);
+	}
+};
+
+const parseJsonOrThrowSource = (data: Uint8Array, type: string) => {
+	const asString = new TextDecoder('utf-8').decode(data);
+	try {
+		return JSON.parse(asString);
+	} catch (err) {
+		throw new Error(`Invalid JSON (${type}): ${asString}`);
 	}
 };
 
@@ -132,15 +145,28 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 
 	let responseJson: Record<string, unknown> | null = null;
 
-	const {addData} = makeStreaming({
-		onMessage: (message) => {
+	const {onData, clear} = RenderInternals.makeStreamer(
+		(status, messageType, data) => {
+			const innerPayload =
+				formatMap[messageType as MessageType] === 'json'
+					? parseJsonOrThrowSource(data, messageType)
+					: data;
+
+			const message: StreamingMessage = {
+				successType: status,
+				message: {
+					type: messageType as MessageType,
+					payload: innerPayload,
+				},
+			};
+
 			if (message.message.type === 'response-json') {
 				responseJson = message.message.payload;
 			} else {
 				onMessage(message);
 			}
 		},
-	});
+	);
 
 	const events =
 		res.EventStream as AsyncIterable<InvokeWithResponseStreamResponseEvent>;
@@ -152,7 +178,7 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 		// `PayloadChunk`: These contain the actual raw bytes of the chunk
 		// It has a single property: `Payload`
 		if (event.PayloadChunk && event.PayloadChunk.Payload) {
-			addData(Buffer.from(event.PayloadChunk.Payload));
+			onData(event.PayloadChunk.Payload);
 			// Decode the raw bytes into a string a human can read
 			const decoded = new TextDecoder('utf-8').decode(
 				event.PayloadChunk.Payload,
@@ -185,5 +211,6 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 
 	const json = parseJson<T>({input: responsePayload.trim(), type});
 
+	clear();
 	return json;
 };
