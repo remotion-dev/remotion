@@ -325,7 +325,6 @@ export const renderCommand = async (
 		downloadBehavior: {type: 'play-in-browser'},
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		x264Preset: x264Preset ?? null,
-		enableStreaming: parsedLambdaCli['enable-streaming'] ?? false,
 		preferLossless,
 		indent: false,
 	});

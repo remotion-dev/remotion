@@ -1,11 +1,9 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import {InvokeCommand} from '@aws-sdk/client-lambda';
 import type {LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {existsSync, mkdirSync, rmSync, writeFileSync} from 'fs';
 import path, {join} from 'path';
 import {VERSION} from 'remotion/version';
-import {getLambdaClient} from '../shared/aws-clients';
 import {callLambda} from '../shared/call-lambda';
 import {
 	compressInputProps,
@@ -15,7 +13,6 @@ import {
 } from '../shared/compress-props';
 import type {
 	LambdaPayload,
-	LambdaPayloads,
 	PostRenderData,
 	RenderMetadata,
 } from '../shared/constants';
@@ -57,48 +54,6 @@ import {
 type Options = {
 	expectedBucketOwner: string;
 	getRemainingTimeInMillis: () => number;
-};
-
-const callFunctionWithRetry = async ({
-	payload,
-	retries,
-	functionName,
-}: {
-	payload: LambdaPayloads[LambdaRoutines.renderer];
-	retries: number;
-	functionName: string;
-}): Promise<unknown> => {
-	try {
-		const result = await getLambdaClient(getCurrentRegionInFunction()).send(
-			new InvokeCommand({
-				FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
-				Payload: JSON.stringify(payload),
-				InvocationType: 'Event',
-			}),
-		);
-		if (result.FunctionError) {
-			throw new Error(
-				`Lambda function ${functionName} returned an error: ${result.FunctionError} ${result.LogResult}`,
-			);
-		}
-	} catch (err) {
-		if ((err as Error).name === 'ResourceConflictException') {
-			if (retries > 10) {
-				throw err;
-			}
-
-			await new Promise((resolve) => {
-				setTimeout(resolve, 1000);
-			});
-			return callFunctionWithRetry({
-				payload,
-				retries: retries + 1,
-				functionName,
-			});
-		}
-
-		throw err;
-	}
 };
 
 const innerLaunchHandler = async ({
@@ -293,7 +248,6 @@ const innerLaunchHandler = async ({
 			offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 			deleteAfter: params.deleteAfter,
 			colorSpace: params.colorSpace,
-			enableStreaming: params.enableStreaming,
 			preferLossless: params.preferLossless,
 			compositionStart: realFrameRange[0],
 			framesPerLambda,
@@ -403,65 +357,61 @@ const innerLaunchHandler = async ({
 	// TODO: Now this will wait for the render to complete
 	await Promise.all(
 		lambdaPayloads.map(async (payload, i) => {
-			if (params.enableStreaming) {
-				await callLambda({
-					functionName,
-					payload,
-					retriesRemaining: 0,
-					region: getCurrentRegionInFunction(),
-					timeoutInTest: 12000,
-					type: LambdaRoutines.renderer,
-					onMessage: ({message}) => {
-						if (message.type === 'frames-rendered') {
-							framesRendered[i] = message.payload.frames;
-							console.log(
-								`${framesRendered.reduce(
-									(a, b) => a + b,
-									0,
-								)} frames rendered (${message.payload.frames})`,
-							);
-						} else if (message.type === 'video-chunk-rendered') {
-							const filename = join(
-								outdir,
-								// TODO: Can be simplified
-								path.basename(
-									chunkKeyForIndex({
-										index: i,
-										renderId: params.renderId,
-										type: 'video',
-									}),
-								),
-							);
-							writeFileSync(filename, message.payload);
-							console.log(
-								`[STREAMING]: ${message.payload.length} bytes chunk received`,
-								filename,
-							);
-							files.push(filename);
-						} else if (message.type === 'audio-chunk-rendered') {
-							const filename = join(
-								outdir,
-								// TODO: Can be simplified
-								path.basename(
-									chunkKeyForIndex({
-										index: i,
-										renderId: params.renderId,
-										type: 'audio',
-									}),
-								),
-							);
-							writeFileSync(filename, message.payload);
-							files.push(filename);
-							console.log(
-								`[STREAMING]: ${message.payload.length} bytes audio chunk received`,
-								filename,
-							);
-						}
-					},
-				});
-			} else {
-				await callFunctionWithRetry({payload, retries: 0, functionName});
-			}
+			await callLambda({
+				functionName,
+				payload,
+				retriesRemaining: 0,
+				region: getCurrentRegionInFunction(),
+				timeoutInTest: 12000,
+				type: LambdaRoutines.renderer,
+				onMessage: ({message}) => {
+					if (message.type === 'frames-rendered') {
+						framesRendered[i] = message.payload.frames;
+						console.log(
+							`${framesRendered.reduce(
+								(a, b) => a + b,
+								0,
+							)} frames rendered (${message.payload.frames})`,
+						);
+					} else if (message.type === 'video-chunk-rendered') {
+						const filename = join(
+							outdir,
+							// TODO: Can be simplified
+							path.basename(
+								chunkKeyForIndex({
+									index: i,
+									renderId: params.renderId,
+									type: 'video',
+								}),
+							),
+						);
+						writeFileSync(filename, message.payload);
+						console.log(
+							`[STREAMING]: ${message.payload.length} bytes chunk received`,
+							filename,
+						);
+						files.push(filename);
+					} else if (message.type === 'audio-chunk-rendered') {
+						const filename = join(
+							outdir,
+							// TODO: Can be simplified
+							path.basename(
+								chunkKeyForIndex({
+									index: i,
+									renderId: params.renderId,
+									type: 'audio',
+								}),
+							),
+						);
+						writeFileSync(filename, message.payload);
+						files.push(filename);
+						console.log(
+							`[STREAMING]: ${message.payload.length} bytes audio chunk received`,
+							filename,
+						);
+					}
+				},
+			});
 		}),
 	);
 
