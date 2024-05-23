@@ -4,7 +4,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {existsSync, mkdirSync, rmSync, writeFileSync} from 'fs';
 import path, {join} from 'path';
 import {VERSION} from 'remotion/version';
-import {callLambda} from '../shared/call-lambda';
+import {callLambdaWithStreaming} from '../shared/call-lambda';
 import {
 	compressInputProps,
 	decompressInputProps,
@@ -357,7 +357,7 @@ const innerLaunchHandler = async ({
 	// TODO: Now this will wait for the render to complete
 	await Promise.all(
 		lambdaPayloads.map(async (payload, i) => {
-			await callLambda({
+			await callLambdaWithStreaming({
 				functionName,
 				payload,
 				retriesRemaining: 0,

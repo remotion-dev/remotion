@@ -479,7 +479,6 @@ export const rendererHandler = async (
 				payload: retryPayload,
 				type: LambdaRoutines.renderer,
 				region: getCurrentRegionInFunction(),
-				receivedStreamingPayload: () => undefined,
 				timeoutInTest: 120000,
 				retriesRemaining: 0,
 			});

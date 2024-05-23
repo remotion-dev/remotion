@@ -10,7 +10,7 @@ import type {
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {AwsRegion} from '../pricing/aws-regions';
-import {callLambdaWithStreaming} from '../shared/call-lambda';
+import {callLambda} from '../shared/call-lambda';
 import type {OutNameInput, Privacy, WebhookOption} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
@@ -77,12 +77,11 @@ export const internalRenderMediaOnLambdaRaw = async (
 	const {functionName, region, rendererFunctionName} = input;
 
 	try {
-		const res = await callLambdaWithStreaming({
+		const res = await callLambda({
 			functionName,
 			type: LambdaRoutines.start,
 			payload: await makeLambdaRenderMediaPayload(input),
 			region,
-			receivedStreamingPayload: () => undefined,
 			timeoutInTest: 120000,
 			retriesRemaining: 0,
 		});

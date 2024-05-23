@@ -1,15 +1,20 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type {InvokeWithResponseStreamResponseEvent} from '@aws-sdk/client-lambda';
-import {InvokeWithResponseStreamCommand} from '@aws-sdk/client-lambda';
+import {
+	InvokeCommand,
+	InvokeWithResponseStreamCommand,
+} from '@aws-sdk/client-lambda';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	MessageType,
+	OnMessage,
 	StreamingMessage,
 } from '../functions/streaming/streaming';
-import {formatMap, type OnMessage} from '../functions/streaming/streaming';
+import {formatMap} from '../functions/streaming/streaming';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from './aws-clients';
 import type {LambdaPayloads, LambdaRoutines} from './constants';
+import type {LambdaReturnValues} from './return-values';
 
 const INVALID_JSON_MESSAGE = 'Cannot parse Lambda response as JSON';
 
@@ -19,7 +24,6 @@ type Options<T extends LambdaRoutines> = {
 	payload: Omit<LambdaPayloads[T], 'type'>;
 	region: AwsRegion;
 	timeoutInTest: number;
-	receivedStreamingPayload: OnMessage;
 };
 
 const parseJsonOrThrowSource = (data: Uint8Array, type: string) => {
@@ -31,8 +35,31 @@ const parseJsonOrThrowSource = (data: Uint8Array, type: string) => {
 	}
 };
 
+export const callLambda = async <T extends LambdaRoutines>(
+	options: Options<T> & {
+		retriesRemaining: number;
+	},
+): Promise<LambdaReturnValues[T]> => {
+	try {
+		// Do not remove this await
+		const res = await callLambdaWithoutRetry<T>(options);
+		return res;
+	} catch (err) {
+		if (options.retriesRemaining === 0) {
+			throw err;
+		}
+		// TODO: Should only retry in case it is flaky
+
+		return callLambda({
+			...options,
+			retriesRemaining: options.retriesRemaining - 1,
+		});
+	}
+};
+
 export const callLambdaWithStreaming = async <T extends LambdaRoutines>(
 	options: Options<T> & {
+		receivedStreamingPayload: OnMessage;
 		retriesRemaining: number;
 	},
 ): Promise<void> => {
@@ -41,7 +68,7 @@ export const callLambdaWithStreaming = async <T extends LambdaRoutines>(
 
 	try {
 		// Do not remove this await
-		await callLambdaWithoutRetry<T>(options);
+		await callLambdaWithStreamingWithoutRetry<T>(options);
 	} catch (err) {
 		if (options.retriesRemaining === 0) {
 			throw err;
@@ -64,8 +91,28 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 	payload,
 	region,
 	timeoutInTest,
+}: Options<T>): Promise<LambdaReturnValues[T]> => {
+	const res = await getLambdaClient(region, timeoutInTest).send(
+		new InvokeCommand({
+			FunctionName: functionName,
+			Payload: JSON.stringify({type, ...payload}),
+		}),
+	);
+
+	const decoded = new TextDecoder('utf-8').decode(res.Payload);
+	return JSON.parse(decoded) as LambdaReturnValues[T];
+};
+
+const callLambdaWithStreamingWithoutRetry = async <T extends LambdaRoutines>({
+	functionName,
+	type,
+	payload,
+	region,
+	timeoutInTest,
 	receivedStreamingPayload,
-}: Options<T>): Promise<void> => {
+}: Options<T> & {
+	receivedStreamingPayload: OnMessage;
+}): Promise<void> => {
 	const res = await getLambdaClient(region, timeoutInTest).send(
 		new InvokeWithResponseStreamCommand({
 			FunctionName: functionName,

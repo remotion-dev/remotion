@@ -113,7 +113,6 @@ describe('Webhooks', () => {
 				preferLossless: false,
 			},
 			functionName: 'remotion-dev-lambda',
-			receivedStreamingPayload: () => undefined,
 			region: 'us-east-1',
 			timeoutInTest: 120000,
 			retriesRemaining: 0,
@@ -129,7 +128,6 @@ describe('Webhooks', () => {
 				logLevel: 'info',
 			},
 			functionName: 'remotion-dev-lambda',
-			receivedStreamingPayload: () => undefined,
 			region: 'us-east-1',
 			timeoutInTest: 120000,
 			retriesRemaining: 0,
@@ -174,7 +172,6 @@ describe('Webhooks', () => {
 
 		await callLambda({
 			functionName: 'remotion-dev-lambda',
-			receivedStreamingPayload: () => undefined,
 			region: 'us-east-1',
 			type: LambdaRoutines.launch,
 			payload: {
