@@ -10,7 +10,6 @@ import {formatMap, type OnMessage} from '../functions/streaming/streaming';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from './aws-clients';
 import type {LambdaPayloads, LambdaRoutines} from './constants';
-import type {LambdaReturnValues, OrError} from './return-values';
 
 const INVALID_JSON_MESSAGE = 'Cannot parse Lambda response as JSON';
 
@@ -23,22 +22,6 @@ type Options<T extends LambdaRoutines> = {
 	receivedStreamingPayload: OnMessage;
 };
 
-const parseJsonWithErrorSurfacing = ({
-	input,
-	type,
-}: {
-	input: string;
-	type: string;
-}) => {
-	try {
-		return JSON.parse(input);
-	} catch {
-		throw new Error(
-			`${INVALID_JSON_MESSAGE}. Invoking: ${type} Response: ${JSON.stringify(input)}`,
-		);
-	}
-};
-
 const parseJsonOrThrowSource = (data: Uint8Array, type: string) => {
 	const asString = new TextDecoder('utf-8').decode(data);
 	try {
@@ -48,70 +31,17 @@ const parseJsonOrThrowSource = (data: Uint8Array, type: string) => {
 	}
 };
 
-const parseJson = <T extends LambdaRoutines>({
-	input,
-	type,
-}: {
-	input: string;
-	type: string;
-}) => {
-	let json = parseJsonWithErrorSurfacing({input, type}) as
-		| OrError<Awaited<LambdaReturnValues[T]>>
-		| {
-				errorType: string;
-				errorMessage: string;
-				trace: string[];
-		  }
-		| {
-				statusCode: string;
-				body: string;
-		  };
-
-	if ('statusCode' in json) {
-		json = parseJsonWithErrorSurfacing({input: json.body, type}) as
-			| OrError<Awaited<LambdaReturnValues[T]>>
-			| {
-					errorType: string;
-					errorMessage: string;
-					trace: string[];
-			  };
-	}
-
-	if ('errorMessage' in json) {
-		const err = new Error(json.errorMessage);
-		err.name = json.errorType;
-		err.stack = (json.trace ?? []).join('\n');
-		throw err;
-	}
-
-	// This will not happen, it is for narrowing purposes
-	if ('statusCode' in json) {
-		throw new Error(
-			`Lambda function failed with status code ${json.statusCode}`,
-		);
-	}
-
-	if (json.type === 'error') {
-		const err = new Error(json.message);
-		err.stack = json.stack;
-		throw err;
-	}
-
-	return json;
-};
-
-export const callLambda = async <T extends LambdaRoutines>(
+export const callLambdaWithStreaming = async <T extends LambdaRoutines>(
 	options: Options<T> & {
 		retriesRemaining: number;
 	},
-): Promise<LambdaReturnValues[T]> => {
+): Promise<void> => {
 	// As of August 2023, Lambda streaming sometimes misses parts of the JSON response.
 	// Handling this for now by applying a retry mechanism.
 
 	try {
 		// Do not remove this await
-		const res = await callLambdaWithoutRetry<T>(options);
-		return res;
+		await callLambdaWithoutRetry<T>(options);
 	} catch (err) {
 		if (options.retriesRemaining === 0) {
 			throw err;
@@ -121,7 +51,7 @@ export const callLambda = async <T extends LambdaRoutines>(
 			throw err;
 		}
 
-		return callLambda({
+		return callLambdaWithStreaming({
 			...options,
 			retriesRemaining: options.retriesRemaining - 1,
 		});
@@ -134,16 +64,14 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 	payload,
 	region,
 	timeoutInTest,
-	receivedStreamingPayload: onMessage,
-}: Options<T>): Promise<LambdaReturnValues[T]> => {
+	receivedStreamingPayload,
+}: Options<T>): Promise<void> => {
 	const res = await getLambdaClient(region, timeoutInTest).send(
 		new InvokeWithResponseStreamCommand({
 			FunctionName: functionName,
 			Payload: JSON.stringify({type, ...payload}),
 		}),
 	);
-
-	let responseJson: Record<string, unknown> | null = null;
 
 	const {onData, clear} = RenderInternals.makeStreamer(
 		(status, messageType, data) => {
@@ -160,17 +88,12 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 				},
 			};
 
-			if (message.message.type === 'response-json') {
-				responseJson = message.message.payload;
-			} else {
-				onMessage(message);
-			}
+			receivedStreamingPayload(message);
 		},
 	);
 
 	const events =
 		res.EventStream as AsyncIterable<InvokeWithResponseStreamResponseEvent>;
-	let responsePayload = '';
 
 	for await (const event of events) {
 		// There are two types of events you can get on a stream.
@@ -179,12 +102,6 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 		// It has a single property: `Payload`
 		if (event.PayloadChunk && event.PayloadChunk.Payload) {
 			onData(event.PayloadChunk.Payload);
-			// Decode the raw bytes into a string a human can read
-			const decoded = new TextDecoder('utf-8').decode(
-				event.PayloadChunk.Payload,
-			);
-			// TODO: Replace the streaming payload of render-id-determined
-			responsePayload += decoded;
 		}
 
 		if (event.InvokeComplete) {
@@ -205,12 +122,5 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 		}
 	}
 
-	if (responseJson) {
-		return responseJson as LambdaReturnValues[T];
-	}
-
-	const json = parseJson<T>({input: responsePayload.trim(), type});
-
 	clear();
-	return json;
 };
