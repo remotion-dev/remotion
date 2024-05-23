@@ -287,6 +287,15 @@ module.exports = {
     },
     {
       type: "category",
+      label: "@remotion/enable-scss",
+      link: {
+        type: "doc",
+        id: "enable-scss/overview",
+      },
+      items: ["enable-scss/enable-scss"],
+    },
+    {
+      type: "category",
       label: "@remotion/three",
       link: {
         type: "doc",
@@ -430,9 +439,13 @@ module.exports = {
       },
       items: [
         "studio/get-static-files",
+        "studio/watch-public-folder",
         "studio/watch-static-file",
         "studio/write-static-file",
+        "studio/delete-static-file",
+        "studio/restart-studio",
         "studio/save-default-props",
+        "studio/update-default-props",
       ],
     },
     {
@@ -712,6 +725,7 @@ module.exports = {
         "lambda/upgrading",
         "lambda/uninstall",
         "lambda/s3-public-access",
+        "lambda/naming-convention",
       ],
     },
     {
@@ -785,6 +799,7 @@ module.exports = {
         "troubleshooting/timed-out-page-function",
         "troubleshooting/delay-render-proxy",
         "troubleshooting/bundling-bundle",
+        "troubleshooting/browser-launch",
       ],
     },
     {
@@ -798,6 +813,8 @@ module.exports = {
         "miscellaneous/snippets/adding-animations",
         "miscellaneous/snippets/offthread-video-while-rendering",
         "miscellaneous/snippets/hls",
+        "miscellaneous/snippets/combine-compositions",
+        "miscellaneous/snippets/align-duration",
       ],
     },
 
@@ -938,13 +955,17 @@ module.exports = {
             "recorder/editing/transitions",
             "recorder/editing/chapters",
             "recorder/editing/music",
+            "recorder/editing/b-roll",
           ],
         },
         "recorder/exporting",
+        "recorder/lambda-rendering",
         "recorder/source-control",
+        "recorder/vlogging",
         "recorder/upgrading",
+        "recorder/roadmap",
         "recorder/gear",
-        "recorder/example",
+        "recorder/our-recorder",
         "recorder/support",
       ],
     },

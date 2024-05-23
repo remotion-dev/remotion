@@ -151,6 +151,15 @@ export type ApplyCodemodResponse =
 			reason: string;
 	  };
 
+export type DeleteStaticFileRequest = {
+	relativePath: string;
+};
+
+export type DeleteStaticFileResponse = {
+	success: boolean;
+	existed: boolean;
+};
+
 export type CanUpdateDefaultPropsRequest = {
 	compositionId: string;
 };
@@ -177,6 +186,9 @@ export type ProjectInfoRequest = {};
 export type ProjectInfoResponse = {
 	projectInfo: ProjectInfo;
 };
+
+export type RestartStudioRequest = {};
+export type RestartStudioResponse = {};
 
 export type ApiRoutes = {
 	'/api/cancel': ReqAndRes<CancelRenderRequest, CancelRenderResponse>;
@@ -206,4 +218,9 @@ export type ApiRoutes = {
 	>;
 	'/api/apply-codemod': ReqAndRes<ApplyCodemodRequest, ApplyCodemodResponse>;
 	'/api/project-info': ReqAndRes<ProjectInfoRequest, ProjectInfoResponse>;
+	'/api/delete-static-file': ReqAndRes<
+		DeleteStaticFileRequest,
+		DeleteStaticFileResponse
+	>;
+	'/api/restart-studio': ReqAndRes<RestartStudioRequest, RestartStudioResponse>;
 };

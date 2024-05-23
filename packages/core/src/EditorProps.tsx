@@ -17,6 +17,7 @@ export type EditorPropsContextType = {
 			| Record<string, unknown>
 			| ((oldProps: Record<string, unknown>) => Record<string, unknown>);
 	}) => void;
+	resetUnsaved: () => void;
 };
 
 export const EditorPropsContext = createContext<EditorPropsContextType>({
@@ -24,10 +25,14 @@ export const EditorPropsContext = createContext<EditorPropsContextType>({
 	updateProps: () => {
 		throw new Error('Not implemented');
 	},
+	resetUnsaved: () => {
+		throw new Error('Not implemented');
+	},
 });
 
 export const editorPropsProviderRef = React.createRef<{
 	getProps: () => Props;
+	setProps: React.Dispatch<React.SetStateAction<Props>>;
 }>();
 
 export const EditorPropsProvider: React.FC<{
@@ -58,19 +63,24 @@ export const EditorPropsProvider: React.FC<{
 		[],
 	);
 
+	const resetUnsaved = useCallback(() => {
+		setProps({});
+	}, []);
+
 	useImperativeHandle(
 		editorPropsProviderRef,
 		() => {
 			return {
 				getProps: () => props,
+				setProps,
 			};
 		},
 		[props],
 	);
 
 	const ctx = useMemo((): EditorPropsContextType => {
-		return {props, updateProps};
-	}, [props, updateProps]);
+		return {props, updateProps, resetUnsaved};
+	}, [props, resetUnsaved, updateProps]);
 
 	return (
 		<EditorPropsContext.Provider value={ctx}>

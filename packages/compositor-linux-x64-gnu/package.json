@@ -1,5 +1,5 @@
 {
-  "version": "4.0.148",
+  "version": "4.0.163",
   "name": "@remotion/compositor-linux-x64-gnu",
   "os": [
     "linux"

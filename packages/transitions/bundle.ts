@@ -1,6 +1,11 @@
-const presentations = ['slide', 'flip', 'wipe', 'fade', 'clock-wipe'];
 import {build} from 'bun';
 import path from 'path';
+
+if (process.env.NODE_ENV !== 'production') {
+	throw new Error('This script must be run using NODE_ENV=production');
+}
+
+const presentations = ['slide', 'flip', 'wipe', 'fade', 'clock-wipe'];
 
 const output = await build({
 	entrypoints: [
@@ -22,9 +27,7 @@ const output = await build({
 
 for (const file of output.outputs) {
 	const str = await file.text();
-	const newStr = str
-		.replace(/jsxDEV/g, 'jsx')
-		.replace(/react\/jsx-dev-runtime/g, 'react/jsx-runtime');
+	const newStr = str;
 
 	Bun.write(path.join('dist', 'esm', file.path), newStr);
 }

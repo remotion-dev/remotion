@@ -6,7 +6,8 @@ crumb: "@remotion/studio"
 
 # saveDefaultProps()<AvailableFrom v="4.0.147"/>
 
-Saves the [`defaultProps`](/docs/composition) for a [composition](/docs/terminology/composition) back to the [root file](/docs/terminology/root-file).
+Saves the [`defaultProps`](/docs/composition) for a [composition](/docs/terminology/composition) back to the [root file](/docs/terminology/root-file).  
+If you just want to update the default props in the Props Editor (right sidebar in the Studio) without saving them to the root file, use [`updateDefaultProps()`](/docs/studio/update-default-props).
 
 ## Examples
 
@@ -80,7 +81,9 @@ In order to use this function:
 
 <Step>1</Step> You need to be inside the Remotion Studio.
 <br />
-<Step>2</Step> <code>zod</code> needs to be installed.
+<Step>2</Step> The Studio must be running (no static deployment)
+<br />
+<Step>3</Step> <code>zod</code> needs to be installed.
 <br />
 <br />
 

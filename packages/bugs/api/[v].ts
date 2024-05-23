@@ -6,7 +6,35 @@ type Bug = {
   versions: string[];
 };
 
-const bugs: Bug[] = [
+export const bugs: Bug[] = [
+  {
+    title: "Bad color mapping with OffthreadVideo",
+    description:
+      "Videos in the bt.709 color space are not properly mapped to the sRGB color space. Use v4.0.155 instead.",
+    link: "https://github.com/remotion-dev/remotion/issues/3850#issuecomment-2105628446",
+    versions: ["4.0.154"],
+  },
+  {
+    title: "@remotion/renderer import exception",
+    description:
+      "The @remotion/renderer package was compiled in a bad way and does not work.",
+    link: "https://github.com/remotion-dev/remotion/releases/tag/v4.0.151",
+    versions: ["4.0.152", "4.0.151"],
+  },
+  {
+    title: "Duplicate key warning",
+    description:
+      "Extraneous duplicate key warning in the console in this version.",
+    link: "https://github.com/remotion-dev/remotion/releases/tag/v4.0.150",
+    versions: ["4.0.149"],
+  },
+  {
+    title: "Slowdown with <TransitionSeries>",
+    description:
+      "All sequences were rendered all the time, slowing down the render and making it more crash-prone.",
+    link: "https://github.com/remotion-dev/remotion/pull/3736",
+    versions: ["4.0.140", "4.0.141", "4.0.142"],
+  },
   {
     title: "Audio issues on Lambda",
     description:

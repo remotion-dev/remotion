@@ -266,7 +266,17 @@ const innerStitchFramesToVideo = async (
 					fps,
 					chunkLengthInSeconds: assetsInfo.chunkLengthInSeconds,
 					logLevel,
-					onProgress: () => updateProgress(0),
+					onProgress: (progress) => {
+						// TODO: This can be added to the overall progress calcuation
+						Log.verbose(
+							{
+								indent,
+								logLevel,
+								tag: 'audio',
+							},
+							`Encoding progress: ${Math.round(progress * 100)}%`,
+						);
+					},
 					downloadMap: assetsInfo.downloadMap,
 					remotionRoot,
 					indent,
@@ -460,11 +470,11 @@ const innerStitchFramesToVideo = async (
 	});
 };
 
-export const internalStitchFramesToVideo = async (
+export const internalStitchFramesToVideo = (
 	options: InternalStitchFramesToVideoOptions,
 ): Promise<Buffer | null> => {
 	const remotionRoot = findRemotionRoot();
-	const task = await innerStitchFramesToVideo(options, remotionRoot);
+	const task = innerStitchFramesToVideo(options, remotionRoot);
 
 	return Promise.race([
 		task,

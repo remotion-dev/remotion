@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/renderer",
-	"version": "4.0.148",
+	"version": "4.0.163",
 	"description": "Renderer for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -9,7 +9,7 @@
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
-		"build": "node build.mjs",
+		"build": "node build.mjs --debug",
 		"build-all": "node build.mjs --all",
 		"prepublishOnly": "node build.mjs --all"
 	},

@@ -93,11 +93,21 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 		payload,
 	);
 
+	const cwd = path.dirname(bin);
+
 	const child = spawn(bin, [JSON.stringify(fullCommand)], {
-		cwd: path.dirname(bin),
+		cwd,
+		env:
+			process.platform === 'darwin'
+				? {
+						// Should work out of the box, but sometimes it doesn't
+						// https://github.com/remotion-dev/remotion/issues/3862
+						DYLD_LIBRARY_PATH: cwd,
+					}
+				: undefined,
 	});
 
-	const stderrChunks: Buffer[] = [];
+	let stderrChunks: Buffer[] = [];
 	let outputBuffer = Buffer.from('');
 
 	const separator = Buffer.from('remotion_buffer:');
@@ -108,6 +118,7 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 		nonce: string,
 		data: Buffer,
 	) => {
+		// Nonce '0' just means that the message should be logged
 		if (nonce === '0') {
 			Log.verbose({indent, logLevel, tag: 'compositor'}, data.toString('utf8'));
 		}
@@ -149,39 +160,49 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 		let lengthString = '';
 		let statusString = '';
 
-		// Each message from Rust is prefixed with `remotion_buffer;{[nonce]}:{[length]}`
+		// Each message from Rust is prefixed with `remotion_buffer:{[nonce]}:{[length]}`
 		// Let's read the buffer to extract the nonce, and if the full length is available,
 		// we'll extract the data and pass it to the callback.
 
 		// eslint-disable-next-line no-constant-condition
 		while (true) {
-			const nextDigit = outputBuffer[separatorIndex];
-			// 0x3a is the character ":"
-			if (nextDigit === 0x3a) {
-				separatorIndex++;
-				break;
+			if (separatorIndex > outputBuffer.length - 1) {
+				return;
 			}
 
+			const nextDigit = outputBuffer[separatorIndex];
 			separatorIndex++;
+
+			// 0x3a is the character ":"
+			if (nextDigit === 0x3a) {
+				break;
+			}
 
 			nonceString += String.fromCharCode(nextDigit);
 		}
 
 		// eslint-disable-next-line no-constant-condition
 		while (true) {
-			const nextDigit = outputBuffer[separatorIndex];
-			if (nextDigit === 0x3a) {
-				separatorIndex++;
-				break;
+			if (separatorIndex > outputBuffer.length - 1) {
+				return;
 			}
 
+			const nextDigit = outputBuffer[separatorIndex];
 			separatorIndex++;
+
+			if (nextDigit === 0x3a) {
+				break;
+			}
 
 			lengthString += String.fromCharCode(nextDigit);
 		}
 
 		// eslint-disable-next-line no-constant-condition
 		while (true) {
+			if (separatorIndex > outputBuffer.length - 1) {
+				return;
+			}
+
 			const nextDigit = outputBuffer[separatorIndex];
 			if (nextDigit === 0x3a) {
 				break;
@@ -214,6 +235,7 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 		outputBuffer = outputBuffer.subarray(
 			separatorIndex + Number(lengthString) + 1,
 		);
+
 		processInput();
 	};
 
@@ -233,8 +255,8 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 		}
 
 		unprocessedBuffers.unshift(outputBuffer);
-
 		outputBuffer = Buffer.concat(unprocessedBuffers);
+
 		unprocessedBuffers = [];
 		processInput();
 	});
@@ -277,6 +299,10 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 
 			reject?.(error);
 		}
+
+		// Need to manually free up memory
+		outputBuffer = Buffer.from('');
+		stderrChunks = [];
 	});
 
 	return {

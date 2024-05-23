@@ -73,6 +73,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Conference Speaker Announcement Cards](https://github.com/lyonjs/social-video-generator)
 - [Motionly.video](https://github.com/karelnagel/motionly)
 - [DataVids](https://github.com/apsquared/datavids_public)
+- [Bar race chart](https://github.com/hylarucoder/remotion-bar-race-chart)
 
 ## Examples
 
@@ -102,6 +103,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - CSS animations ([Source code](https://github.com/remotion-dev/css-animation-play-state), [Preview](https://css-animation-play-state.vercel.app/))
 - Globe.gl example ([Source code](https://github.com/alexfernandez803/remotion-globegl))
 - Measuring the size of a DOM node ([Source code](https://github.com/remotion-dev/measure-item), [Preview](https://measure-item.vercel.app/))
+- Light-leak Transition ([Source code](https://github.com/remotion-dev/light-leak-example), [Preview](https://light-leak-example.vercel.app/))
 
 ## Videos
 

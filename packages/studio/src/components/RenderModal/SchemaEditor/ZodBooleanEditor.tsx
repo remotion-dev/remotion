@@ -12,17 +12,17 @@ const fullWidth: React.CSSProperties = {
 };
 
 export const ZodBooleanEditor: React.FC<{
-	schema: z.ZodTypeAny;
-	jsonPath: JSONPath;
-	value: boolean;
-	setValue: UpdaterFunction<boolean>;
-	defaultValue: boolean;
-	onSave: UpdaterFunction<boolean>;
-	onRemove: null | (() => void);
-	showSaveButton: boolean;
-	saving: boolean;
-	saveDisabledByParent: boolean;
-	mayPad: boolean;
+	readonly schema: z.ZodTypeAny;
+	readonly jsonPath: JSONPath;
+	readonly value: boolean;
+	readonly setValue: UpdaterFunction<boolean>;
+	readonly defaultValue: boolean;
+	readonly onSave: UpdaterFunction<boolean>;
+	readonly onRemove: null | (() => void);
+	readonly showSaveButton: boolean;
+	readonly saving: boolean;
+	readonly saveDisabledByParent: boolean;
+	readonly mayPad: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -39,8 +39,8 @@ export const ZodBooleanEditor: React.FC<{
 	const {localValue, onChange, reset} = useLocalState({
 		schema,
 		setValue,
-		value,
-		defaultValue,
+		unsavedValue: value,
+		savedValue: defaultValue,
 	});
 
 	const onToggle: React.ChangeEventHandler<HTMLInputElement> = useCallback(

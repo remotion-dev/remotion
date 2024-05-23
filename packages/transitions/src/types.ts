@@ -32,4 +32,5 @@ export type TransitionPresentationComponentProps<
 	children: React.ReactNode;
 	presentationDirection: PresentationDirection;
 	passedProps: PresentationProps;
+	presentationDurationInFrames: number;
 };

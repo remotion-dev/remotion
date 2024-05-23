@@ -89,7 +89,9 @@ const readJson = async (jsonPath: string) => {
 	return JSON.parse(data);
 };
 
-const transcribeToTempJSON = async ({
+export type TranscribeOnProgress = (progress: number) => void;
+
+const transcribeToTemporaryFile = async ({
 	fileToTranscribe,
 	whisperPath,
 	model,
@@ -100,6 +102,8 @@ const transcribeToTempJSON = async ({
 	printOutput,
 	tokensPerItem,
 	language,
+	signal,
+	onProgress,
 }: {
 	fileToTranscribe: string;
 	whisperPath: string;
@@ -110,7 +114,9 @@ const transcribeToTempJSON = async ({
 	tokenLevelTimestamps: boolean;
 	printOutput: boolean;
 	tokensPerItem: number | null;
-	language?: Language | null;
+	language: Language | null;
+	signal: AbortSignal | null;
+	onProgress: TranscribeOnProgress | null;
 }): Promise<{
 	outputPath: string;
 }> => {
@@ -136,6 +142,7 @@ const transcribeToTempJSON = async ({
 		'-ojf', // Output full JSON
 		tokenLevelTimestamps ? ['--dtw', model] : null,
 		model ? [`-m`, `${modelPath}`] : null,
+		['-pp'], // print progress
 		translate ? '-tr' : null,
 		language ? ['-l', language.toLowerCase()] : null,
 	]
@@ -145,6 +152,7 @@ const transcribeToTempJSON = async ({
 	const outputPath = await new Promise<string>((resolve, reject) => {
 		const task = spawn(executable, args, {
 			cwd: whisperPath,
+			signal: signal ?? undefined,
 		});
 		const predictedPath = `${tmpJSONPath}.json`;
 
@@ -152,6 +160,12 @@ const transcribeToTempJSON = async ({
 
 		const onData = (data: Buffer) => {
 			const str = data.toString('utf-8');
+			const hasProgress = str.includes('progress =');
+			if (hasProgress) {
+				const progress = parseFloat(str.split('progress =')[1].trim());
+				onProgress?.(progress / 100);
+			}
+
 			output += str;
 
 			// Sometimes it hangs here
@@ -177,18 +191,19 @@ const transcribeToTempJSON = async ({
 		task.stdout.on('data', onStdout);
 		task.stderr.on('data', onStderr);
 
-		task.on('exit', (code, signal) => {
+		task.on('exit', (code, exitSignal) => {
 			// Whisper sometimes files also with error code 0
 			// https://github.com/ggerganov/whisper.cpp/pull/1952/files
 
 			if (existsSync(predictedPath)) {
 				resolve(predictedPath);
+				onProgress?.(1);
 				return;
 			}
 
-			if (signal) {
+			if (exitSignal) {
 				reject(
-					new Error(`Process was killed with signal ${signal}: ${output}`),
+					new Error(`Process was killed with signal ${exitSignal}: ${output}`),
 				);
 				return;
 			}
@@ -214,6 +229,8 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	printOutput = true,
 	tokensPerItem,
 	language,
+	signal,
+	onProgress,
 }: {
 	inputPath: string;
 	whisperPath: string;
@@ -224,6 +241,8 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	printOutput?: boolean;
 	tokensPerItem?: true extends HasTokenLevelTimestamps ? never : number | null;
 	language?: Language | null;
+	signal?: AbortSignal;
+	onProgress?: TranscribeOnProgress;
 }): Promise<TranscriptionJson<HasTokenLevelTimestamps>> => {
 	if (!existsSync(whisperPath)) {
 		throw new Error(
@@ -243,7 +262,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 
 	const tmpJSONDir = path.join(process.cwd(), 'tmp');
 
-	const {outputPath: tmpJSONPath} = await transcribeToTempJSON({
+	const {outputPath: tmpJSONPath} = await transcribeToTemporaryFile({
 		fileToTranscribe: inputPath,
 		whisperPath,
 		model,
@@ -253,7 +272,9 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 		tokenLevelTimestamps,
 		printOutput,
 		tokensPerItem: tokenLevelTimestamps ? 1 : tokensPerItem ?? 1,
-		language,
+		language: language ?? null,
+		signal: signal ?? null,
+		onProgress: onProgress ?? null,
 	});
 
 	const json = (await readJson(

@@ -1,11 +1,11 @@
 {
   "name": "@remotion/google-fonts",
-  "version": "4.0.148",
+  "version": "4.0.163",
   "description": "Load Google Fonts in Remotion",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.mjs",
   "scripts": {
-    "build": "bun bundle.ts",
+    "build": "bun --env-file=../.env.bundle bundle.ts",
     "generate": "bun scripts/generate.ts && bun scripts/generate-index.ts",
     "prepublishOnly": "bun ensure-generation.ts"
   },

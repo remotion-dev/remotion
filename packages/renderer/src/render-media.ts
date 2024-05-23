@@ -61,6 +61,7 @@ import {
 	isReproEnabled,
 } from './repro';
 import {internalStitchFramesToVideo} from './stitch-frames-to-video';
+import {succeedOrCancel} from './succeed-or-cancel';
 import type {OnStartData} from './types';
 import {validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
@@ -83,6 +84,7 @@ export type RenderMediaOnProgress = (progress: {
 	encodedFrames: number;
 	encodedDoneIn: number | null;
 	renderedDoneIn: number | null;
+	renderEstimatedTime: number;
 	progress: number;
 	stitchStage: StitchingState;
 }) => void;
@@ -121,7 +123,6 @@ export type InternalRenderMediaOptions = {
 	disallowParallelEncoding: boolean;
 	serveUrl: string;
 	concurrency: number | string | null;
-	finishRenderProgress: () => void;
 	binariesDirectory: string | null;
 	compositionStart: number;
 } & MoreRenderMediaOptions;
@@ -235,7 +236,6 @@ const internalRenderMediaRaw = ({
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
 	repro,
-	finishRenderProgress,
 	binariesDirectory,
 	separateAudioTo,
 	forSeamlessAacConcatenation,
@@ -293,7 +293,7 @@ const internalRenderMediaRaw = ({
 
 	validateFfmpegOverride(ffmpegOverride);
 
-	validateEveryNthFrame(everyNthFrame, codec);
+	validateEveryNthFrame(everyNthFrame);
 	validateNumberOfGifLoops(numberOfGifLoops, codec);
 
 	let stitchStage: StitchingState = 'encoding';
@@ -305,6 +305,8 @@ const internalRenderMediaRaw = ({
 	let renderedDoneIn: number | null = null;
 	let encodedDoneIn: number | null = null;
 	let cancelled = false;
+	let renderEstimatedTime = 0;
+	let totalTimeSpentOnFrames = 0;
 
 	const renderStart = Date.now();
 
@@ -428,12 +430,12 @@ const internalRenderMediaRaw = ({
 
 	const callUpdate = () => {
 		const encoded = Math.round(0.8 * encodedFrames + 0.2 * muxedFrames);
-
 		onProgress?.({
 			encodedDoneIn,
 			encodedFrames: encoded,
 			renderedDoneIn,
 			renderedFrames,
+			renderEstimatedTime,
 			stitchStage,
 			progress:
 				Math.round((70 * renderedFrames + 30 * encoded) / totalFramesToRender) /
@@ -568,6 +570,15 @@ const internalRenderMediaRaw = ({
 						timeToRenderInMilliseconds,
 					) => {
 						renderedFrames = frame;
+
+						totalTimeSpentOnFrames += timeToRenderInMilliseconds;
+						const newAverage = totalTimeSpentOnFrames / renderedFrames;
+
+						const remainingFrames = totalFramesToRender - renderedFrames;
+
+						// Get estimated time by multiplying the avarage render time by the remaining frames
+						renderEstimatedTime = Math.round(remainingFrames * newAverage);
+
 						callUpdate();
 						recordFrameTime(frameIndex, timeToRenderInMilliseconds);
 					},
@@ -647,7 +658,6 @@ const internalRenderMediaRaw = ({
 			.then(([{assetsInfo}]) => {
 				renderedDoneIn = Date.now() - renderStart;
 
-				callUpdate();
 				Log.verbose(
 					{indent, logLevel},
 					'Rendering frames done in',
@@ -658,56 +668,56 @@ const internalRenderMediaRaw = ({
 				}
 
 				const stitchStart = Date.now();
-				return Promise.all([
-					internalStitchFramesToVideo({
-						width: composition.width * scale,
-						height: composition.height * scale,
-						fps,
-						outputLocation: absoluteOutputLocation,
-						preEncodedFileLocation,
-						preferLossless,
-						indent,
-						force: overwrite,
-						pixelFormat,
-						codec,
-						proResProfile,
-						crf,
-						assetsInfo,
-						onProgress: (frame: number) => {
-							stitchStage = 'muxing';
-							if (preEncodedFileLocation) {
-								muxedFrames = frame;
-							} else {
-								muxedFrames = frame;
-								encodedFrames = frame;
-							}
+				return internalStitchFramesToVideo({
+					width: composition.width * scale,
+					height: composition.height * scale,
+					fps,
+					outputLocation: absoluteOutputLocation,
+					preEncodedFileLocation,
+					preferLossless,
+					indent,
+					force: overwrite,
+					pixelFormat,
+					codec,
+					proResProfile,
+					crf,
+					assetsInfo,
+					onProgress: (frame: number) => {
+						stitchStage = 'muxing';
+						if (preEncodedFileLocation) {
+							muxedFrames = frame;
+						} else {
+							muxedFrames = frame;
+							encodedFrames = frame;
+						}
 
+						if (encodedFrames === totalFramesToRender) {
+							encodedDoneIn = Date.now() - stitchStart;
+						}
+
+						if (frame > 0) {
 							callUpdate();
-						},
-						onDownload,
-						numberOfGifLoops,
-						logLevel,
-						cancelSignal: cancelStitcher.cancelSignal,
-						muted: disableAudio,
-						enforceAudioTrack,
-						ffmpegOverride: ffmpegOverride ?? null,
-						audioBitrate,
-						videoBitrate,
-						encodingBufferSize,
-						encodingMaxRate,
-						audioCodec,
-						x264Preset: x264Preset ?? null,
-						colorSpace,
-						binariesDirectory,
-						separateAudioTo,
-					}),
-					stitchStart,
-				]);
+						}
+					},
+					onDownload,
+					numberOfGifLoops,
+					logLevel,
+					cancelSignal: cancelStitcher.cancelSignal,
+					muted: disableAudio,
+					enforceAudioTrack,
+					ffmpegOverride: ffmpegOverride ?? null,
+					audioBitrate,
+					videoBitrate,
+					encodingBufferSize,
+					encodingMaxRate,
+					audioCodec,
+					x264Preset: x264Preset ?? null,
+					colorSpace,
+					binariesDirectory,
+					separateAudioTo,
+				});
 			})
-			.then(([buffer, stitchStart]) => {
-				encodedFrames = totalFramesToRender;
-				encodedDoneIn = Date.now() - stitchStart;
-				callUpdate();
+			.then((buffer) => {
 				Log.verbose(
 					{indent, logLevel},
 					'Stitching done in',
@@ -719,7 +729,6 @@ const internalRenderMediaRaw = ({
 					slowestFrames,
 				};
 
-				finishRenderProgress();
 				if (isReproEnabled()) {
 					getReproWriter()
 						.onRenderSucceed({indent, logLevel, output: absoluteOutputLocation})
@@ -782,14 +791,11 @@ const internalRenderMediaRaw = ({
 			});
 	});
 
-	return Promise.race([
+	return succeedOrCancel({
 		happyPath,
-		new Promise<RenderMediaResult>((_resolve, reject) => {
-			cancelSignal?.(() => {
-				reject(new Error(cancelErrorMessages.renderMedia));
-			});
-		}),
-	]);
+		cancelSignal,
+		cancelMessage: cancelErrorMessages.renderMedia,
+	});
 };
 
 export const internalRenderMedia = wrapWithErrorHandling(
@@ -921,7 +927,6 @@ export const renderMedia = ({
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		colorSpace: colorSpace ?? DEFAULT_COLOR_SPACE,
 		repro: repro ?? false,
-		finishRenderProgress: () => undefined,
 		binariesDirectory: binariesDirectory ?? null,
 		separateAudioTo: separateAudioTo ?? null,
 		forSeamlessAacConcatenation: forSeamlessAacConcatenation ?? false,

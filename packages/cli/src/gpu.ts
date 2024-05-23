@@ -25,6 +25,7 @@ export const gpuCommand = async (logLevel: LogLevel) => {
 	} = getCliOptions({
 		isStill: false,
 		logLevel,
+		indent: false,
 	});
 
 	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({

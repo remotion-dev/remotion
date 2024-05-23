@@ -95,6 +95,7 @@ export const render = async (
 	} = getCliOptions({
 		isStill: false,
 		logLevel,
+		indent: false,
 	});
 
 	const x264Preset = x264Option.getValue({commandLine: parsedCli}).value;

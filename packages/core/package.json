@@ -1,6 +1,6 @@
 {
 	"name": "remotion",
-	"version": "4.0.148",
+	"version": "4.0.163",
 	"description": "Render videos in React",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -10,7 +10,7 @@
 		"prepublishOnly": "bun ensure-correct-version.ts && cp ../../README.md .",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
-		"build": "bun bundle.ts"
+		"build": "bun --env-file=../.env.bundle bundle.ts"
 	},
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"

@@ -141,17 +141,33 @@ export const waitForReady = ({
 			});
 	});
 
+	const onDisposedPromise = new Promise((_, reject) => {
+		const onDispose = () => {
+			reject(new Error('Target closed (page disposed)'));
+		};
+
+		page.on(PageEmittedEvents.Disposed, onDispose);
+
+		cleanups.push(() => {
+			page.off(PageEmittedEvents.Disposed, onDispose);
+		});
+	});
+
+	const onClosedSilentPromise = new Promise((_, reject) => {
+		const onClosedSilent = () => {
+			reject(new Error('Target closed'));
+		};
+
+		page.browser.on(BrowserEmittedEvents.ClosedSilent, onClosedSilent);
+
+		cleanups.push(() => {
+			page.browser.off(BrowserEmittedEvents.ClosedSilent, onClosedSilent);
+		});
+	});
+
 	return Promise.race([
-		new Promise((_, reject) => {
-			page.on(PageEmittedEvents.Disposed, () => {
-				reject(new Error('Target closed (page disposed)'));
-			});
-		}),
-		new Promise((_, reject) => {
-			page.browser.on(BrowserEmittedEvents.ClosedSilent, () => {
-				reject(new Error('Target closed'));
-			});
-		}),
+		onDisposedPromise,
+		onClosedSilentPromise,
 		waitForReadyProm,
 	]).finally(() => {
 		cleanups.forEach((cleanup) => {

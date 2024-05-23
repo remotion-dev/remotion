@@ -78,7 +78,7 @@ fs.writeFileSync(
   `export const articles = ` + JSON.stringify(data, null, 2),
 );
 
-execSync("bunx prettier src/data/articles.ts --write");
+execSync("bun x prettier src/data/articles.ts --write");
 
 // render cards
 const serveUrl = await bundle({

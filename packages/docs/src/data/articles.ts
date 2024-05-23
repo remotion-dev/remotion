@@ -177,7 +177,7 @@ export const articles = [
   {
     id: "cli/benchmark",
     title: "npx remotion benchmark",
-    relativePath: "docs/cli/benchmark.md",
+    relativePath: "docs/cli/benchmark.mdx",
     compId: "articles-docs-cli-benchmark",
     crumb: "CLI Reference",
   },
@@ -212,7 +212,7 @@ export const articles = [
   {
     id: "cli/compositions",
     title: "npx remotion compositions",
-    relativePath: "docs/cli/compositions.md",
+    relativePath: "docs/cli/compositions.mdx",
     compId: "articles-docs-cli-compositions",
     crumb: "CLI Reference",
   },
@@ -254,21 +254,21 @@ export const articles = [
   {
     id: "cli/render",
     title: "npx remotion render",
-    relativePath: "docs/cli/render.md",
+    relativePath: "docs/cli/render.mdx",
     compId: "articles-docs-cli-render",
     crumb: "CLI Reference",
   },
   {
     id: "cli/still",
     title: "npx remotion still",
-    relativePath: "docs/cli/still.md",
+    relativePath: "docs/cli/still.mdx",
     compId: "articles-docs-cli-still",
     crumb: "CLI Reference",
   },
   {
     id: "cli/studio",
     title: "npx remotion studio",
-    relativePath: "docs/cli/studio.md",
+    relativePath: "docs/cli/studio.mdx",
     compId: "articles-docs-cli-studio",
     crumb: "CLI Reference",
   },
@@ -324,7 +324,7 @@ export const articles = [
   {
     id: "render",
     title: "npx remotion cloudrun render",
-    relativePath: "docs/cloudrun/cli/render.md",
+    relativePath: "docs/cloudrun/cli/render.mdx",
     compId: "articles-docs-cloudrun-cli-render",
     crumb: "Cloud Run CLI Reference",
   },
@@ -345,7 +345,7 @@ export const articles = [
   {
     id: "still",
     title: "npx remotion cloudrun still",
-    relativePath: "docs/cloudrun/cli/still.md",
+    relativePath: "docs/cloudrun/cli/still.mdx",
     compId: "articles-docs-cloudrun-cli-still",
     crumb: "Cloud Run CLI Reference",
   },
@@ -471,14 +471,14 @@ export const articles = [
   {
     id: "rendermediaoncloudrun",
     title: "renderMediaOnCloudrun()",
-    relativePath: "docs/cloudrun/rendermediaoncloudrun.md",
+    relativePath: "docs/cloudrun/rendermediaoncloudrun.mdx",
     compId: "articles-docs-cloudrun-rendermediaoncloudrun",
     crumb: "Cloud Run API",
   },
   {
     id: "renderstilloncloudrun",
     title: "renderStillOnCloudrun()",
-    relativePath: "docs/cloudrun/renderstilloncloudrun.md",
+    relativePath: "docs/cloudrun/renderstilloncloudrun.mdx",
     compId: "articles-docs-cloudrun-renderstilloncloudrun",
     crumb: "Cloud Run API",
   },
@@ -670,6 +670,20 @@ export const articles = [
     relativePath: "docs/easing.md",
     compId: "articles-docs-easing",
     crumb: "API",
+  },
+  {
+    id: "enable-scss/enable-scss",
+    title: "enableScss()",
+    relativePath: "docs/enable-scss/enable-scss.mdx",
+    compId: "articles-docs-enable-scss-enable-scss",
+    crumb: "@remotion/enable-scss",
+  },
+  {
+    id: "enable-scss",
+    title: "@remotion/enable-scss",
+    relativePath: "docs/enable-scss/overview.mdx",
+    compId: "articles-docs-enable-scss-overview",
+    crumb: null,
   },
   {
     id: "enametoolong",
@@ -954,7 +968,7 @@ export const articles = [
   {
     id: "authentication",
     title: "Authentication",
-    relativePath: "docs/lambda/authentication.md",
+    relativePath: "docs/lambda/authentication.mdx",
     compId: "articles-docs-lambda-authentication",
     crumb: "Lambda",
   },
@@ -989,14 +1003,14 @@ export const articles = [
   {
     id: "lambda/cli/compositions",
     title: "npx remotion lambda compositions",
-    relativePath: "docs/lambda/cli/compositions.md",
+    relativePath: "docs/lambda/cli/compositions.mdx",
     compId: "articles-docs-lambda-cli-compositions",
     crumb: "Lambda CLI Reference",
   },
   {
     id: "functions",
     title: "npx remotion lambda functions",
-    relativePath: "docs/lambda/cli/functions.md",
+    relativePath: "docs/lambda/cli/functions.mdx",
     compId: "articles-docs-lambda-cli-functions",
     crumb: "Lambda CLI Reference",
   },
@@ -1024,7 +1038,7 @@ export const articles = [
   {
     id: "render",
     title: "npx remotion lambda render",
-    relativePath: "docs/lambda/cli/render.md",
+    relativePath: "docs/lambda/cli/render.mdx",
     compId: "articles-docs-lambda-cli-render",
     crumb: "Lambda CLI Reference",
   },
@@ -1038,7 +1052,7 @@ export const articles = [
   {
     id: "still",
     title: "npx remotion lambda still",
-    relativePath: "docs/lambda/cli/still.md",
+    relativePath: "docs/lambda/cli/still.mdx",
     compId: "articles-docs-lambda-cli-still",
     crumb: "Lambda CLI Reference",
   },
@@ -1101,7 +1115,7 @@ export const articles = [
   {
     id: "deployfunction",
     title: "deployFunction()",
-    relativePath: "docs/lambda/deployfunction.md",
+    relativePath: "docs/lambda/deployfunction.mdx",
     compId: "articles-docs-lambda-deployfunction",
     crumb: "Lambda API",
   },
@@ -1171,7 +1185,7 @@ export const articles = [
   {
     id: "getcompositionsonlambda",
     title: "getCompositionsOnLambda()",
-    relativePath: "docs/lambda/getcompositionsonlambda.md",
+    relativePath: "docs/lambda/getcompositionsonlambda.mdx",
     compId: "articles-docs-lambda-getcompositionsonlambda",
     crumb: "Lambda API",
   },
@@ -1267,6 +1281,13 @@ export const articles = [
     crumb: "@remotion/lambda",
   },
   {
+    id: "naming-convention",
+    title: "Function naming convention",
+    relativePath: "docs/lambda/naming-convention.mdx",
+    compId: "articles-docs-lambda-naming-convention",
+    crumb: "Lambda",
+  },
+  {
     id: "lambda/permissions",
     title: "Permissions",
     relativePath: "docs/lambda/permissions.md",
@@ -1304,14 +1325,14 @@ export const articles = [
   {
     id: "rendermediaonlambda",
     title: "renderMediaOnLambda()",
-    relativePath: "docs/lambda/rendermediaonlambda.md",
+    relativePath: "docs/lambda/rendermediaonlambda.mdx",
     compId: "articles-docs-lambda-rendermediaonlambda",
     crumb: "Lambda API",
   },
   {
     id: "renderstillonlambda",
     title: "renderStillOnLambda()",
-    relativePath: "docs/lambda/renderstillonlambda.md",
+    relativePath: "docs/lambda/renderstillonlambda.mdx",
     compId: "articles-docs-lambda-renderstillonlambda",
     crumb: "Lambda API",
   },
@@ -1325,7 +1346,7 @@ export const articles = [
   {
     id: "runtime",
     title: "Runtime",
-    relativePath: "docs/lambda/runtime.md",
+    relativePath: "docs/lambda/runtime.mdx",
     compId: "articles-docs-lambda-runtime",
     crumb: "Lambda",
   },
@@ -1701,6 +1722,20 @@ export const articles = [
     crumb: "Snippets",
   },
   {
+    id: "miscellaneous/snippets/align-duration",
+    title: "How do I make the composition the same duration as my video?",
+    relativePath: "docs/miscellaneous/snippets/align-duration.mdx",
+    compId: "articles-docs-miscellaneous-snippets-align-duration",
+    crumb: "FAQ",
+  },
+  {
+    id: "miscellaneous/snippets/combine-compositions",
+    title: "How do I combine compositions?",
+    relativePath: "docs/miscellaneous/snippets/combine-compositions.mdx",
+    compId: "articles-docs-miscellaneous-snippets-combine-compositions",
+    crumb: "FAQ",
+  },
+  {
     id: "miscellaneous/snippets/fps-converter",
     title: "FPS converter",
     relativePath: "docs/miscellaneous/snippets/fps-converter.md",
@@ -2027,7 +2062,7 @@ export const articles = [
   {
     id: "player/api",
     title: "<Player>",
-    relativePath: "docs/player/api.md",
+    relativePath: "docs/player/api.mdx",
     compId: "articles-docs-player-api",
     crumb: "@remotion/player",
   },
@@ -2291,13 +2326,6 @@ export const articles = [
     crumb: "Recorder",
   },
   {
-    id: "recorder/example",
-    title: "Before you buy",
-    relativePath: "docs/recorder/example.mdx",
-    compId: "articles-docs-recorder-example",
-    crumb: "Recorder",
-  },
-  {
     id: "recorder/exporting",
     title: "Exporting a video",
     relativePath: "docs/recorder/exporting.mdx",
@@ -2319,10 +2347,31 @@ export const articles = [
     crumb: "Templates",
   },
   {
+    id: "recorder/lambda-rendering",
+    title: "Render on Lambda",
+    relativePath: "docs/recorder/lambda-rendering.mdx",
+    compId: "articles-docs-recorder-lambda-rendering",
+    crumb: "Recorder",
+  },
+  {
+    id: "recorder/our-recorder",
+    title: "Our Recorder",
+    relativePath: "docs/recorder/our-recorder.mdx",
+    compId: "articles-docs-recorder-our-recorder",
+    crumb: "Recorder",
+  },
+  {
     id: "recorder/record",
     title: "Record a scene",
     relativePath: "docs/recorder/record.mdx",
     compId: "articles-docs-recorder-record",
+    crumb: "Recorder",
+  },
+  {
+    id: "recorder/roadmap",
+    title: "Roadmap",
+    relativePath: "docs/recorder/roadmap.mdx",
+    compId: "articles-docs-recorder-roadmap",
     crumb: "Recorder",
   },
   {
@@ -2351,6 +2400,13 @@ export const articles = [
     title: "Upgrading",
     relativePath: "docs/recorder/upgrading.mdx",
     compId: "articles-docs-recorder-upgrading",
+    crumb: "Recorder",
+  },
+  {
+    id: "recorder/vlogging",
+    title: "Vlogging",
+    relativePath: "docs/recorder/vlogging.mdx",
+    compId: "articles-docs-recorder-vlogging",
     crumb: "Recorder",
   },
   {
@@ -2461,7 +2517,7 @@ export const articles = [
   {
     id: "render-frames",
     title: "renderFrames()",
-    relativePath: "docs/renderer/render-frames.md",
+    relativePath: "docs/renderer/render-frames.mdx",
     compId: "articles-docs-renderer-render-frames",
     crumb: "@remotion/renderer",
   },
@@ -2475,7 +2531,7 @@ export const articles = [
   {
     id: "render-still",
     title: "renderStill()",
-    relativePath: "docs/renderer/render-still.md",
+    relativePath: "docs/renderer/render-still.mdx",
     compId: "articles-docs-renderer-render-still",
     crumb: "@remotion/renderer",
   },
@@ -2781,6 +2837,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "studio/delete-static-file",
+    title: "deleteStaticFile()",
+    relativePath: "docs/studio/delete-static-file.mdx",
+    compId: "articles-docs-studio-delete-static-file",
+    crumb: "@remotion/studio",
+  },
+  {
     id: "studio/deploy-server",
     title: "Deploy the Remotion Studio on a VPS",
     relativePath: "docs/studio/deploy-server.mdx",
@@ -2828,6 +2891,20 @@ export const articles = [
     relativePath: "docs/studio/studio.mdx",
     compId: "articles-docs-studio-studio",
     crumb: "Timeline basics",
+  },
+  {
+    id: "studio/update-default-props",
+    title: "updateDefaultProps()",
+    relativePath: "docs/studio/update-default-props.mdx",
+    compId: "articles-docs-studio-update-default-props",
+    crumb: "@remotion/studio",
+  },
+  {
+    id: "studio/watch-public-folder",
+    title: "watchPublicFolder()",
+    relativePath: "docs/studio/watch-public-folder.mdx",
+    compId: "articles-docs-studio-watch-public-folder",
+    crumb: "@remotion/studio",
   },
   {
     id: "studio/watch-static-file",
@@ -3166,6 +3243,13 @@ export const articles = [
     crumb: "Troubleshooting",
   },
   {
+    id: "troubleshooting/browser-launch",
+    title: "Failed to launch the browser process",
+    relativePath: "docs/troubleshooting/browser-launch.mdx",
+    compId: "articles-docs-troubleshooting-browser-launch",
+    crumb: "Troubleshooting",
+  },
+  {
     id: "troubleshooting/bundling-bundle",
     title: "Calling bundle() in bundled code",
     relativePath: "docs/troubleshooting/bundling-bundle.md",
@@ -3196,7 +3280,7 @@ export const articles = [
   {
     id: "troubleshooting/delay-render-proxy",
     title: "Loading <Img> with src http://localhost:3000/proxy",
-    relativePath: "docs/troubleshooting/delay-render-proxy.md",
+    relativePath: "docs/troubleshooting/delay-render-proxy.mdx",
     compId: "articles-docs-troubleshooting-delay-render-proxy",
     crumb: "Troubleshooting",
   },
@@ -3385,7 +3469,7 @@ export const articles = [
   {
     id: "zod-types/index",
     title: "@remotion/zod-types",
-    relativePath: "docs/zod-types/index.md",
+    relativePath: "docs/zod-types/index.mdx",
     compId: "articles-docs-zod-types-index",
     crumb: "Schema",
   },

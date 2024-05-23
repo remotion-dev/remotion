@@ -79,7 +79,9 @@ export const getConfig = ({
 		outDir,
 		environment: 'production',
 		webpackOverride: options?.webpackOverride ?? ((f) => f),
-		onProgress,
+		onProgress: (p) => {
+			onProgress?.(p);
+		},
 		enableCaching: options?.enableCaching ?? true,
 		maxTimelineTracks,
 		remotionRoot: resolvedRemotionRoot,
@@ -262,7 +264,9 @@ export const internalBundle = async (
 			src: from,
 			dest: to,
 			onSymlinkDetected: showSymlinkWarning,
-			onProgress: (prog) => options.onPublicDirCopyProgress?.(prog),
+			onProgress: (prog) => {
+				return options.onPublicDirCopyProgress?.(prog);
+			},
 			copiedBytes: 0,
 			lastReportedProgress: 0,
 		});

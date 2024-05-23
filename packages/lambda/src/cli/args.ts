@@ -38,6 +38,8 @@ type LambdaCommandLineOptions = {
 	['enable-streaming']: boolean;
 	[BrowserSafeApis.options.deleteAfterOption.cliFlag]: DeleteAfter | undefined;
 	[BrowserSafeApis.options.folderExpiryOption.cliFlag]: boolean | undefined;
+	['vpc-subnet-ids']: string | undefined;
+	['vpc-security-group-ids']: string | undefined;
 };
 
 export const parsedLambdaCli = CliInternals.minimist<LambdaCommandLineOptions>(

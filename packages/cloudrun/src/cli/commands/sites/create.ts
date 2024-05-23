@@ -98,7 +98,7 @@ export const sitesCreateSubcommand = async (
 		},
 		bucketProgress: {
 			doneIn: null,
-			creationState: 'Checking for existing bucket',
+			creationState: 'Checking bucket',
 		},
 		deployProgress: {
 			doneIn: null,
@@ -108,14 +108,14 @@ export const sitesCreateSubcommand = async (
 		},
 	};
 
-	const updateProgress = () => {
+	const updateProgress = (newLine: boolean) => {
 		progressBar.update(
 			[
 				makeBundleProgress(multiProgress.bundleProgress),
 				makeBucketProgress(multiProgress.bucketProgress),
 				makeDeployProgressBar(multiProgress.deployProgress),
 			].join('\n'),
-			false,
+			newLine,
 		);
 	};
 
@@ -127,12 +127,12 @@ export const sitesCreateSubcommand = async (
 		region,
 		updateBucketState: (state) => {
 			multiProgress.bucketProgress.creationState = state;
-			updateProgress();
+			updateProgress(false);
 		},
 	});
 
 	multiProgress.bucketProgress.doneIn = Date.now() - bucketStart;
-	updateProgress();
+	updateProgress(false);
 
 	const bundleStart = Date.now();
 	let uploadStart = Date.now();
@@ -158,7 +158,7 @@ export const sitesCreateSubcommand = async (
 					doneIn: null,
 					stats: null,
 				};
-				updateProgress();
+				updateProgress(false);
 			},
 			enableCaching: ConfigInternals.getWebpackCaching(),
 			webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
@@ -166,7 +166,7 @@ export const sitesCreateSubcommand = async (
 		},
 	});
 
-	updateProgress();
+	updateProgress(false);
 
 	const uploadDuration = Date.now() - uploadStart;
 
@@ -180,12 +180,7 @@ export const sitesCreateSubcommand = async (
 			untouchedFiles: stats.untouchedFiles,
 		},
 	};
-	updateProgress();
-
-	Log.info({indent: false, logLevel});
-	Log.info({indent: false, logLevel});
-	Log.info({indent: false, logLevel}, 'Deployed to GCP Storage!');
-	Log.info({indent: false, logLevel});
+	updateProgress(true);
 
 	Log.info(
 		{indent: false, logLevel},
@@ -201,7 +196,7 @@ export const sitesCreateSubcommand = async (
 	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.blueBright(
-			'ℹ️ If you make changes to your code, you need to redeploy the site. You can overwrite the existing site by running:',
+			'ℹ️   Redeploy your site everytime you make changes to it. You can overwrite the existing site by running:',
 		),
 	);
 	Log.info(

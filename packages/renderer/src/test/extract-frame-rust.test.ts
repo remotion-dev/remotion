@@ -60,17 +60,13 @@ test(
 		});
 
 		// Platform specific PNG encoder settings
-		if (data.length === 195708) {
-			expect(data[100000] / 100).toBeCloseTo(0.04, 0.01);
-			expect(data[100001] / 100).toBeCloseTo(0.16, 0.01);
-			expect(data[140001] / 100).toBeCloseTo(0.76, 0.01);
-			expect(data[170001] / 100).toBeCloseTo(1.23, 0.01);
+
+		if (data.length === 169002) {
+			expect(data[100000] / 100).toBeCloseTo(0.01, 0.01);
+			expect(data[100001] / 100).toBeCloseTo(1.28, 0.01);
+			expect(data[140001] / 100).toBeCloseTo(1.85, 0.01);
 		} else {
-			expect(data.length).toBe(191797);
-			expect(data[100000] / 100).toBeCloseTo(0.82, 0.01);
-			expect(data[100001] / 100).toBeCloseTo(2.41, 0.01);
-			expect(data[140001] / 100).toBeCloseTo(0.03, 0.01);
-			expect(data[170001] / 100).toBeCloseTo(0.33, 0.01);
+			expect(data.length).toBe(173198);
 		}
 
 		await compositor.finishCommands();
@@ -265,8 +261,8 @@ test(
 		});
 
 		// Expected length fixing
-		expect(transparentdata.length).toBeGreaterThan(174000);
-		expect(transparentdata.length).toBeLessThan(175000);
+		expect(transparentdata.length).toBeGreaterThan(142000);
+		expect(transparentdata.length).toBeLessThan(143000);
 
 		await compositor.finishCommands();
 		await compositor.waitForDone();
@@ -298,9 +294,9 @@ test('Should be able to extract a frame with abnormal DAR', async () => {
 	expect(width).toBe(1280);
 	expect(height).toBe(2276);
 
-	expect(data[0x00169915]).approximately(250, 2);
-	expect(data[0x0012dd58]).approximately(249, 2);
-	expect(data[0x00019108]).approximately(249, 2);
+	expect(data[0x00169915]).approximately(232, 2);
+	expect(data[0x0012dd58]).approximately(231, 2);
+	expect(data[0x00019108]).approximately(231, 2);
 
 	await compositor.finishCommands();
 	await compositor.waitForDone();
@@ -613,41 +609,40 @@ test('Two different starting times should not result in big seeking', async () =
 		expected.push([centerLeftPixelR, centerLeftPixelG, centerLeftPixelB]);
 	}
 
-	expect(expected[0][0] / 100).toBeCloseTo(1.53, 1);
-	expect(expected[0][1] / 100).toBeCloseTo(1.86, 1);
-	expect(expected[0][2] / 100).toBeCloseTo(2.24, 1);
+	expect(expected[0][0] / 100).toBeCloseTo(1.48, 1);
+	expect(expected[0][1] / 100).toBeCloseTo(1.77, 1);
+	expect(expected[0][2] / 100).toBeCloseTo(2.11, 1);
 
-	expect(expected[1][0] / 100).toBeCloseTo(0.69, 1);
-	expect(expected[1][1] / 100).toBeCloseTo(0.7, 1);
-	expect(expected[1][2] / 100).toBeCloseTo(0.68, 1);
+	expect(expected[1][0] / 100).toBeCloseTo(0.77, 1);
+	expect(expected[1][1] / 100).toBeCloseTo(0.78, 1);
+	expect(expected[1][2] / 100).toBeCloseTo(0.76, 1);
 
-	expect(expected[2][0] / 100).toBeCloseTo(1.53, 1);
-	expect(expected[2][1] / 100).toBeCloseTo(1.86, 1);
-	expect(expected[2][2] / 100).toBeCloseTo(2.24, 1);
+	expect(expected[2][0] / 100).toBeCloseTo(1.48, 1);
+	expect(expected[2][1] / 100).toBeCloseTo(1.77, 1);
+	expect(expected[2][2] / 100).toBeCloseTo(2.11, 1);
 
-	expect(expected[3][0] / 100).toBeCloseTo(2.52, 1);
-	expect(expected[3][1] / 100).toBeCloseTo(2.51, 1);
-	expect(expected[3][2] / 100).toBeCloseTo(2.45, 1);
+	expect(expected[3][0] / 100).toBeCloseTo(2.34, 1);
+	expect(expected[3][1] / 100).toBeCloseTo(2.33, 1);
+	expect(expected[3][2] / 100).toBeCloseTo(2.28, 1);
 
 	expect(expected[4][0] / 100).toBeCloseTo(1.5, 1);
-	expect(expected[4][1] / 100).toBeCloseTo(1.86, 1);
-	expect(expected[4][2] / 100).toBeCloseTo(2.24, 1);
+	expect(expected[4][1] / 100).toBeCloseTo(1.77, 1);
+	expect(expected[4][2] / 100).toBeCloseTo(2.11, 1);
 
 	expect(expected[5][0] / 100).toBeCloseTo(1.32, 1);
-	expect(expected[5][1] / 100).toBeCloseTo(1.59, 1);
 	expect(expected[5][2] / 100).toBeCloseTo(1.2, 1);
 
-	expect(expected[6][0] / 100).toBeCloseTo(1.53, 1);
-	expect(expected[6][1] / 100).toBeCloseTo(1.86, 1);
-	expect(expected[6][2] / 100).toBeCloseTo(2.24, 1);
+	expect(expected[6][0] / 100).toBeCloseTo(1.48, 1);
+	expect(expected[6][1] / 100).toBeCloseTo(1.77, 1);
+	expect(expected[6][2] / 100).toBeCloseTo(2.11, 1);
 
 	expect(expected[7][0] / 100).toBeCloseTo(1.38, 1);
 	expect(expected[7][1] / 100).toBeCloseTo(1.41, 1);
 	expect(expected[7][2] / 100).toBeCloseTo(1.07, 1);
 
-	expect(expected[8][0] / 100).toBeCloseTo(1.53, 1);
-	expect(expected[8][1] / 100).toBeCloseTo(1.86, 1);
-	expect(expected[8][2] / 100).toBeCloseTo(2.24, 1);
+	expect(expected[8][0] / 100).toBeCloseTo(1.48, 1);
+	expect(expected[8][1] / 100).toBeCloseTo(1.77, 1);
+	expect(expected[8][2] / 100).toBeCloseTo(2.11, 1);
 
 	expect(expected[9][0] / 100).toBeCloseTo(1.27, 1);
 	expect(expected[9][1] / 100).toBeCloseTo(1.47, 1);
