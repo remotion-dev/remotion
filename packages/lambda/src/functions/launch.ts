@@ -15,7 +15,6 @@ import type {
 	LambdaPayloads,
 	PostRenderData,
 	RenderMetadata,
-	SerializedInputProps,
 } from '../shared/constants';
 import {
 	LambdaRoutines,
@@ -23,7 +22,6 @@ import {
 	renderMetadataKey,
 } from '../shared/constants';
 import {DOCS_URL} from '../shared/docs-url';
-import {getCloudwatchMethodUrl} from '../shared/get-aws-urls';
 import {invokeWebhook} from '../shared/invoke-webhook';
 import {
 	validateDimension,
@@ -43,7 +41,6 @@ import {
 } from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaDeleteFile, lambdaWriteFile} from './helpers/io';
-import type {OnAllChunksAvailable} from './helpers/merge-chunks';
 import {mergeChunksAndFinishRender} from './helpers/merge-chunks';
 import {timer} from './helpers/timer';
 import {validateComposition} from './helpers/validate-composition';
@@ -62,9 +59,7 @@ const callFunctionWithRetry = async ({
 	retries,
 	functionName,
 }: {
-	payload:
-		| LambdaPayloads[LambdaRoutines.renderer]
-		| LambdaPayloads[LambdaRoutines.merge];
+	payload: LambdaPayloads[LambdaRoutines.renderer];
 	retries: number;
 	functionName: string;
 }): Promise<unknown> => {
@@ -105,12 +100,10 @@ const innerLaunchHandler = async ({
 	functionName,
 	params,
 	options,
-	onAllChunksAvailable,
 }: {
 	functionName: string;
 	params: LambdaPayload;
 	options: Options;
-	onAllChunksAvailable: OnAllChunksAvailable;
 }): Promise<PostRenderData> => {
 	if (params.type !== LambdaRoutines.launch) {
 		throw new Error('Expected launch type');
@@ -414,7 +407,6 @@ const innerLaunchHandler = async ({
 		inputProps: params.inputProps,
 		serializedResolvedProps,
 		renderMetadata,
-		onAllChunks: onAllChunksAvailable,
 		audioBitrate: params.audioBitrate,
 		logLevel: params.logLevel,
 		framesPerLambda,
@@ -424,13 +416,6 @@ const innerLaunchHandler = async ({
 	});
 
 	return postRenderData;
-};
-
-type AllChunksAvailable = {
-	inputProps: SerializedInputProps;
-	serializedResolvedProps: SerializedInputProps;
-	framesPerLambda: number;
-	compositionStart: number;
 };
 
 export const launchHandler = async (
@@ -443,8 +428,6 @@ export const launchHandler = async (
 		throw new Error('Expected launch type');
 	}
 
-	let allChunksAvailable: null | AllChunksAvailable = null;
-
 	const functionName =
 		params.rendererFunctionName ??
 		(process.env.AWS_LAMBDA_FUNCTION_NAME as string);
@@ -455,86 +438,6 @@ export const launchHandler = async (
 	};
 
 	const onTimeout = async () => {
-		if (allChunksAvailable) {
-			RenderInternals.Log.info(
-				logOptions,
-				'All chunks are available, but the function is about to time out.',
-			);
-			RenderInternals.Log.info(
-				logOptions,
-				'Spawning another function to merge chunks.',
-			);
-
-			try {
-				await callFunctionWithRetry({
-					functionName,
-					payload: {
-						type: LambdaRoutines.merge,
-						renderId: params.renderId,
-						bucketName: params.bucketName,
-						outName: params.outName,
-						serializedResolvedProps: allChunksAvailable.serializedResolvedProps,
-						inputProps: allChunksAvailable.inputProps,
-						logLevel: params.logLevel,
-						framesPerLambda: allChunksAvailable.framesPerLambda,
-						preferLossless: params.preferLossless,
-						compositionStart: allChunksAvailable.compositionStart,
-					},
-					retries: 2,
-				});
-				RenderInternals.Log.info(
-					logOptions,
-					`New function successfully invoked. See the CloudWatch logs for it:`,
-				);
-				RenderInternals.Log.info(
-					logOptions,
-					getCloudwatchMethodUrl({
-						functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
-						method: LambdaRoutines.merge,
-						region: getCurrentRegionInFunction(),
-						rendererFunctionName: params.rendererFunctionName,
-						renderId: params.renderId,
-					}),
-				);
-				RenderInternals.Log.info(
-					logOptions,
-					'This function will now time out.',
-				);
-			} catch (err) {
-				if (process.env.NODE_ENV === 'test') {
-					throw err;
-				}
-
-				RenderInternals.Log.error(
-					{indent: false, logLevel: params.logLevel},
-					'Failed to invoke additional function to merge videos:',
-				);
-				RenderInternals.Log.error(
-					{indent: false, logLevel: params.logLevel},
-					err,
-				);
-
-				await writeLambdaError({
-					bucketName: params.bucketName,
-					errorInfo: {
-						type: 'stitcher',
-						message: (err as Error).message,
-						name: (err as Error).name as string,
-						stack: (err as Error).stack as string,
-						tmpDir: null,
-						frame: 0,
-						chunk: 0,
-						isFatal: false,
-						attempt: 1,
-						willRetry: false,
-						totalAttempts: 1,
-					},
-					renderId: params.renderId,
-					expectedBucketOwner: options.expectedBucketOwner,
-				});
-			}
-		}
-
 		if (!params.webhook) {
 			return;
 		}
@@ -614,19 +517,6 @@ export const launchHandler = async (
 			functionName,
 			params,
 			options,
-			onAllChunksAvailable: ({
-				inputProps,
-				serializedResolvedProps,
-				framesPerLambda,
-				compositionStart,
-			}) => {
-				allChunksAvailable = {
-					inputProps,
-					serializedResolvedProps,
-					framesPerLambda,
-					compositionStart,
-				};
-			},
 		});
 		clearTimeout(webhookDueToTimeout);
 

@@ -38,13 +38,6 @@ import type {EnhancedErrorInfo} from './write-lambda-error';
 import {writeLambdaError} from './write-lambda-error';
 import {writePostRenderData} from './write-post-render-data';
 
-export type OnAllChunksAvailable = (options: {
-	inputProps: SerializedInputProps;
-	serializedResolvedProps: SerializedInputProps;
-	framesPerLambda: number;
-	compositionStart: number;
-}) => void;
-
 export const mergeChunksAndFinishRender = async (options: {
 	bucketName: string;
 	renderId: string;
@@ -63,7 +56,6 @@ export const mergeChunksAndFinishRender = async (options: {
 	inputProps: SerializedInputProps;
 	serializedResolvedProps: SerializedInputProps;
 	renderMetadata: RenderMetadata;
-	onAllChunks: OnAllChunksAvailable;
 	audioBitrate: string | null;
 	logLevel: LogLevel;
 	framesPerLambda: number;
@@ -170,12 +162,6 @@ export const mergeChunksAndFinishRender = async (options: {
 		expectedBucketOwner: options.expectedBucketOwner,
 		onErrors,
 		logLevel: options.logLevel,
-	});
-	options.onAllChunks({
-		inputProps: options.inputProps,
-		serializedResolvedProps: options.serializedResolvedProps,
-		framesPerLambda: options.framesPerLambda,
-		compositionStart: options.compositionStart,
 	});
 	const encodingStart = Date.now();
 	if (options.renderMetadata.type === 'still') {
