@@ -24,7 +24,7 @@ export const functionsLsCommand = async (logLevel: LogLevel) => {
 	});
 	fetchingOutput.update('Getting functions...', false);
 
-	const compatibleOnly = parsedLambdaCli['compatible-only'];
+	const compatibleOnly = parsedLambdaCli['compatible-only'] || false;
 
 	const functions = await getFunctions({
 		region,
