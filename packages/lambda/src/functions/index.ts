@@ -159,22 +159,31 @@ const innerHandler = async ({
 			params.logLevel,
 		);
 
-		await rendererHandler(
-			params,
-			{
-				expectedBucketOwner: currentUserId,
-				isWarm,
-			},
-			(payload) => {
-				const message = makePayloadMessage({
-					message: payload,
-					status: 0,
+		await new Promise((resolve, reject) => {
+			rendererHandler(
+				params,
+				{
+					expectedBucketOwner: currentUserId,
+					isWarm,
+				},
+				(payload) => {
+					const message = makePayloadMessage({
+						message: payload,
+						status: 0,
+					});
+					responseWriter.write(message).catch((err) => {
+						reject(err);
+					});
+				},
+				context,
+			)
+				.then((res) => {
+					resolve(res);
+				})
+				.catch((err) => {
+					reject(err);
 				});
-				responseWriter.write(message);
-				// TODO: Error handling?
-			},
-			context,
-		);
+		});
 
 		return;
 	}
