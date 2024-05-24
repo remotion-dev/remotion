@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type {LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {existsSync, mkdirSync, rmSync, writeFileSync} from 'fs';
+import {existsSync, mkdirSync, rmSync} from 'fs';
 import {join} from 'path';
 import {VERSION} from 'remotion/version';
-import {callLambdaWithStreaming} from '../shared/call-lambda';
 import {
 	compressInputProps,
 	decompressInputProps,
@@ -20,7 +19,6 @@ import {
 	CONCAT_FOLDER_TOKEN,
 	LambdaRoutines,
 	MAX_FUNCTIONS_PER_RENDER,
-	chunkKeyForIndex,
 	renderMetadataKey,
 } from '../shared/constants';
 import {DOCS_URL} from '../shared/docs-url';
@@ -45,6 +43,7 @@ import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaDeleteFile, lambdaWriteFile} from './helpers/io';
 import {mergeChunksAndFinishRender} from './helpers/merge-chunks';
 import {makeOverallRenderProgress} from './helpers/overall-render-progress';
+import {streamRenderer} from './helpers/stream-renderer';
 import {timer} from './helpers/timer';
 import {validateComposition} from './helpers/validate-composition';
 import {
@@ -69,13 +68,6 @@ const innerLaunchHandler = async ({
 	if (params.type !== LambdaRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
-
-	const overallProgress = makeOverallRenderProgress({
-		renderId: params.renderId,
-		bucketName: params.bucketName,
-		expectedBucketOwner: options.expectedBucketOwner,
-		region: getCurrentRegionInFunction(),
-	});
 
 	const startedDate = Date.now();
 
@@ -189,6 +181,14 @@ const innerLaunchHandler = async ({
 			`Too many functions: This render would cause ${chunks.length} functions to spawn. We limit this amount to ${MAX_FUNCTIONS_PER_RENDER} functions as more would result in diminishing returns. Values set: frameCount = ${frameCount}, framesPerLambda=${framesPerLambda}. See ${DOCS_URL}/docs/lambda/concurrency#too-many-functions for help.`,
 		);
 	}
+
+	const overallProgress = makeOverallRenderProgress({
+		renderId: params.renderId,
+		bucketName: params.bucketName,
+		expectedBucketOwner: options.expectedBucketOwner,
+		region: getCurrentRegionInFunction(),
+		expectedChunks: chunks.length,
+	});
 
 	const sortedChunks = chunks.slice().sort((a, b) => a[0] - b[0]);
 
@@ -350,9 +350,6 @@ const innerLaunchHandler = async ({
 		customCredentials: null,
 	});
 
-	const framesRendered = new Array(lambdaPayloads.length).fill(0);
-	const framesEncoded = new Array(lambdaPayloads.length).fill(0);
-
 	const outdir = join(RenderInternals.tmpDir(CONCAT_FOLDER_TOKEN), 'bucket');
 	if (existsSync(outdir)) {
 		rmSync(outdir, {
@@ -363,58 +360,16 @@ const innerLaunchHandler = async ({
 	mkdirSync(outdir);
 
 	const files: string[] = [];
-	const chunksCompleted: number[] = [];
 
 	// TODO: Now this will wait for the render to complete
 	await Promise.all(
-		lambdaPayloads.map(async (payload, i) => {
-			await callLambdaWithStreaming({
+		lambdaPayloads.map(async (payload) => {
+			await streamRenderer({
+				files,
 				functionName,
+				outdir,
+				overallProgress,
 				payload,
-				retriesRemaining: 0,
-				region: getCurrentRegionInFunction(),
-				timeoutInTest: 12000,
-				type: LambdaRoutines.renderer,
-				receivedStreamingPayload: ({message}) => {
-					if (message.type === 'frames-rendered') {
-						framesRendered[i] = message.payload.rendered;
-						framesEncoded[i] = message.payload.encoded;
-						const totalFramesRendered = framesRendered.reduce(
-							(a, b) => a + b,
-							0,
-						);
-						const totalFramesEncoded = framesEncoded.reduce((a, b) => a + b, 0);
-						overallProgress.setFrames({
-							encoded: totalFramesEncoded,
-							rendered: totalFramesRendered,
-						});
-					} else if (message.type === 'video-chunk-rendered') {
-						const filename = join(
-							outdir,
-							chunkKeyForIndex({
-								index: payload.chunk,
-								type: 'video',
-							}),
-						);
-						writeFileSync(filename, message.payload);
-						files.push(filename);
-					} else if (message.type === 'audio-chunk-rendered') {
-						const filename = join(
-							outdir,
-							chunkKeyForIndex({
-								index: payload.chunk,
-								type: 'audio',
-							}),
-						);
-						writeFileSync(filename, message.payload);
-						files.push(filename);
-					} else if (message.type === 'chunk-complete') {
-						chunksCompleted.push(payload.chunk);
-						overallProgress.setChunks(chunksCompleted);
-					} else {
-						throw new Error(`Unknown message type ${message.type}`);
-					}
-				},
 			});
 		}),
 	);

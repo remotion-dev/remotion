@@ -8,17 +8,37 @@ export type OverallRenderProgress = {
 	framesEncoded: number;
 };
 
+export type OverallProgressHelper = {
+	upload: () => Promise<void>;
+	finishUploading: () => void;
+	setFrames: ({
+		encoded,
+		rendered,
+		index,
+	}: {
+		rendered: number;
+		encoded: number;
+		index: number;
+	}) => void;
+	addChunkCompleted: (chunkIndex: number) => void;
+};
+
 export const makeOverallRenderProgress = ({
 	renderId,
 	bucketName,
 	expectedBucketOwner,
 	region,
+	expectedChunks,
 }: {
 	renderId: string;
 	bucketName: string;
 	expectedBucketOwner: string;
 	region: AwsRegion;
-}) => {
+	expectedChunks: number;
+}): OverallProgressHelper => {
+	const framesRendered = new Array(expectedChunks).fill(0);
+	const framesEncoded = new Array(expectedChunks).fill(0);
+
 	const renderProgress: OverallRenderProgress = {
 		chunks: [],
 		framesRendered: 0,
@@ -68,13 +88,24 @@ export const makeOverallRenderProgress = ({
 	return {
 		upload,
 		finishUploading,
-		setFrames: ({encoded, rendered}: {rendered: number; encoded: number}) => {
-			renderProgress.framesRendered = rendered;
-			renderProgress.framesEncoded = encoded;
+		setFrames: ({
+			encoded,
+			rendered,
+			index,
+		}: {
+			rendered: number;
+			encoded: number;
+			index: number;
+		}) => {
+			framesRendered[index] = rendered;
+			framesEncoded[index] = encoded;
+
+			renderProgress.framesRendered = framesRendered.reduce((a, b) => a + b, 0);
+			renderProgress.framesEncoded = framesEncoded.reduce((a, b) => a + b, 0);
 			upload();
 		},
-		setChunks: (chunks: number[]) => {
-			renderProgress.chunks = chunks;
+		addChunkCompleted: (chunkIndex) => {
+			renderProgress.chunks.push(chunkIndex);
 			upload();
 		},
 	};
