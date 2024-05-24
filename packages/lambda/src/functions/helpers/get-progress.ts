@@ -324,10 +324,7 @@ export const getProgress = async ({
 					renderMetadata.estimatedRenderLambdaInvokations
 				: 0,
 			rendering: renderMetadata ? chunkCount / renderMetadata.totalChunks : 0,
-			frames:
-				frameCount === null
-					? 0
-					: (overallProgress?.framesRendered ?? 0) / frameCount,
+			frames: (overallProgress?.framesRendered ?? 0) / (frameCount ?? 1),
 		}),
 		retriesInfo,
 		outKey:
