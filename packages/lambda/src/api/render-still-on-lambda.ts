@@ -5,6 +5,7 @@ import type {
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
+import type {RenderStillLambdaResponsePayload} from '../functions/still';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambdaWithStreaming} from '../shared/call-lambda';
 import type {CostsInfo, OutNameInput, Privacy} from '../shared/constants';
@@ -73,32 +74,47 @@ const internalRenderStillOnLambda = async (
 ): Promise<RenderStillOnLambdaOutput> => {
 	const {functionName, region, onInit} = input;
 	try {
-		const res = await callLambdaWithStreaming({
-			functionName,
-			type: LambdaRoutines.still,
-			payload: await makeLambdaRenderStillPayload(input),
-			region,
-			receivedStreamingPayload: ({message}) => {
-				if (message.type === 'render-id-determined') {
-					onInit?.({
-						renderId: message.payload.renderId,
-						cloudWatchLogs: getCloudwatchMethodUrl({
-							functionName,
-							method: LambdaRoutines.still,
-							region,
-							rendererFunctionName: null,
-							renderId: message.payload.renderId,
-						}),
-						lambdaInsightsUrl: getLambdaInsightsUrl({
-							functionName,
-							region,
-						}),
+		const payload = await makeLambdaRenderStillPayload(input);
+		const res = await new Promise<RenderStillLambdaResponsePayload>(
+			(resolve, reject) => {
+				callLambdaWithStreaming({
+					functionName,
+					type: LambdaRoutines.still,
+					payload,
+					region,
+					receivedStreamingPayload: ({message}) => {
+						if (message.type === 'render-id-determined') {
+							onInit?.({
+								renderId: message.payload.renderId,
+								cloudWatchLogs: getCloudwatchMethodUrl({
+									functionName,
+									method: LambdaRoutines.still,
+									region,
+									rendererFunctionName: null,
+									renderId: message.payload.renderId,
+								}),
+								lambdaInsightsUrl: getLambdaInsightsUrl({
+									functionName,
+									region,
+								}),
+							});
+						}
+
+						if (message.type === 'still-rendered') {
+							resolve(message.payload);
+						}
+					},
+					timeoutInTest: 120000,
+					retriesRemaining: 0,
+				})
+					.then(() => {
+						reject(new Error('Expected response to be streamed'));
+					})
+					.catch((err) => {
+						reject(err);
 					});
-				}
 			},
-			timeoutInTest: 120000,
-			retriesRemaining: 0,
-		});
+		);
 
 		return {
 			estimatedPrice: res.estimatedPrice,
