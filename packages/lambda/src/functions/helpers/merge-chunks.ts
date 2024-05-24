@@ -18,7 +18,7 @@ import {
 } from '../../shared/constants';
 import type {DownloadBehavior} from '../../shared/content-disposition-header';
 import type {LambdaCodec} from '../../shared/validate-lambda-codec';
-import {concatVideosS3} from './concat-videos';
+import {concatVideos} from './concat-videos';
 import {createPostRenderData} from './create-post-render-data';
 import {cleanupFiles} from './delete-chunks';
 import {getCurrentRegionInFunction} from './get-current-region';
@@ -121,7 +121,7 @@ export const mergeChunksAndFinishRender = async (options: {
 		throw new Error('Cannot merge stills');
 	}
 
-	const {outfile, cleanupChunksProm} = await concatVideosS3({
+	const {outfile, cleanupChunksProm} = await concatVideos({
 		onProgress,
 		numberOfFrames: options.numberOfFrames,
 		codec: options.codec,

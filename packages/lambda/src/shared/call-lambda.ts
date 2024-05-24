@@ -6,11 +6,14 @@ import {
 } from '@aws-sdk/client-lambda';
 import {RenderInternals} from '@remotion/renderer';
 import type {
-	MessageType,
+	MessageTypeId,
 	OnMessage,
 	StreamingMessage,
 } from '../functions/streaming/streaming';
-import {formatMap} from '../functions/streaming/streaming';
+import {
+	formatMap,
+	messageTypeIdToMessageType,
+} from '../functions/streaming/streaming';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from './aws-clients';
 import type {LambdaPayloads, LambdaRoutines} from './constants';
@@ -121,16 +124,19 @@ const callLambdaWithStreamingWithoutRetry = async <T extends LambdaRoutines>({
 	);
 
 	const {onData, clear} = RenderInternals.makeStreamer(
-		(status, messageType, data) => {
+		(status, messageTypeId, data) => {
+			const messageType = messageTypeIdToMessageType(
+				messageTypeId as MessageTypeId,
+			);
 			const innerPayload =
-				formatMap[messageType as MessageType] === 'json'
+				formatMap[messageType] === 'json'
 					? parseJsonOrThrowSource(data, messageType)
 					: data;
 
 			const message: StreamingMessage = {
 				successType: status,
 				message: {
-					type: messageType as MessageType,
+					type: messageType,
 					payload: innerPayload,
 				},
 			};

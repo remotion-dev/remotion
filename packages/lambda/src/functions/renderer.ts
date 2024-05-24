@@ -319,20 +319,22 @@ const renderHandler = async ({
 		'Writing chunk to S3',
 	);
 	if (audioOutputLocation) {
-		await onStream({
+		onStream({
 			type: 'audio-chunk-rendered',
 			payload: fs.readFileSync(audioOutputLocation),
 		});
 	}
 
 	if (videoOutputLocation) {
-		await onStream({
+		onStream({
 			type: 'video-chunk-rendered',
 			payload: fs.readFileSync(videoOutputLocation),
 		});
 	}
 
 	const writeStart = Date.now();
+
+	// TODO: Should not have to do this anymore
 	await Promise.all([
 		lambdaWriteFile({
 			bucketName: params.bucketName,

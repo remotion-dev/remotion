@@ -16,8 +16,8 @@ const messageTypes = {
 	'6': {type: stillRendered},
 } as const;
 
-type MessageTypeId = keyof typeof messageTypes;
-export type MessageType = (typeof messageTypes)[MessageTypeId]['type'];
+export type MessageTypeId = keyof typeof messageTypes;
+type MessageType = (typeof messageTypes)[MessageTypeId]['type'];
 
 export const formatMap: {[key in MessageType]: 'json' | 'binary'} = {
 	[framesRendered]: 'json',
@@ -60,7 +60,7 @@ export type StreamingPayload =
 			payload: RenderStillLambdaResponsePayload;
 	  };
 
-export const messageTypeIdToMessage = (
+export const messageTypeIdToMessageType = (
 	messageTypeId: MessageTypeId,
 ): MessageType => {
 	const types = messageTypes[messageTypeId];
@@ -108,11 +108,11 @@ export const makePayloadMessage = ({
 
 	const concat = Buffer.concat([
 		magicSeparator,
-		Buffer.from(String(status)),
-		Buffer.from(':'),
 		Buffer.from(messageTypeToMessageId(message.type).toString()),
 		Buffer.from(':'),
 		Buffer.from(body.length.toString()),
+		Buffer.from(':'),
+		Buffer.from(String(status)),
 		Buffer.from(':'),
 		body,
 	]);
