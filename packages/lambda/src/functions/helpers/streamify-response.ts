@@ -46,15 +46,6 @@ export const HANDLER_STREAMING = Symbol.for(
 );
 export const STREAM_RESPONSE = 'response';
 
-export function isInAWS(handler: Function): boolean {
-	return (
-		// @ts-expect-error
-		handler[HANDLER_STREAMING] !== undefined &&
-		// @ts-expect-error
-		handler[HANDLER_STREAMING] === STREAM_RESPONSE
-	);
-}
-
 export function streamifyResponse(handler: Function): Function {
 	// Check if we are inside Lambda
 	if (
@@ -71,13 +62,12 @@ export function streamifyResponse(handler: Function): Function {
 		async apply(target, _, argList) {
 			const responseStream: ResponseStream = patchArgs(argList);
 			await target(...argList);
+
 			return {
 				EventStream: [
 					{
 						PayloadChunk: {
-							Payload: responseStream._isBase64Encoded
-								? responseStream.getBufferedData()
-								: responseStream.getBufferedData(),
+							Payload: responseStream.getBufferedData(),
 						},
 						InvokeComplete: true,
 					},

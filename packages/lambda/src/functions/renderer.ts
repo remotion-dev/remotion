@@ -189,7 +189,7 @@ const renderHandler = async ({
 			imageFormat: params.imageFormat,
 			serializedInputPropsWithCustomSchema,
 			frameRange: params.frameRange,
-			onProgress: async ({renderedFrames, encodedFrames, stitchStage}) => {
+			onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
 				if (renderedFrames % 5 === 0) {
 					RenderInternals.Log.info(
 						{indent: false, logLevel: params.logLevel},
@@ -327,7 +327,9 @@ const renderHandler = async ({
 
 	if (videoOutputLocation) {
 		onStream({
-			type: 'video-chunk-rendered',
+			type: RenderInternals.isAudioCodec(params.codec)
+				? 'audio-chunk-rendered'
+				: 'video-chunk-rendered',
 			payload: fs.readFileSync(videoOutputLocation),
 		});
 	}

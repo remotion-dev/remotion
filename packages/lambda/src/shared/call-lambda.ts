@@ -95,15 +95,22 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 	region,
 	timeoutInTest,
 }: Options<T>): Promise<LambdaReturnValues[T]> => {
+	const Payload = JSON.stringify({type, ...payload});
 	const res = await getLambdaClient(region, timeoutInTest).send(
 		new InvokeCommand({
 			FunctionName: functionName,
-			Payload: JSON.stringify({type, ...payload}),
+			Payload,
+			InvocationType: 'RequestResponse',
 		}),
 	);
 
 	const decoded = new TextDecoder('utf-8').decode(res.Payload);
-	return JSON.parse(decoded) as LambdaReturnValues[T];
+
+	try {
+		return JSON.parse(decoded) as LambdaReturnValues[T];
+	} catch (err) {
+		throw new Error(`Invalid JSON (${type}): ${JSON.stringify(decoded)}`);
+	}
 };
 
 const callLambdaWithStreamingWithoutRetry = async <T extends LambdaRoutines>({
@@ -145,6 +152,7 @@ const callLambdaWithStreamingWithoutRetry = async <T extends LambdaRoutines>({
 		},
 	);
 
+	console.log('looking for event stream', res);
 	const events =
 		res.EventStream as AsyncIterable<InvokeWithResponseStreamResponseEvent>;
 
