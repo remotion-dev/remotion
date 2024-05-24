@@ -64,6 +64,8 @@ export const initalizedMetadataKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/initialized.txt`;
 export const lambdaChunkInitializedPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/lambda-initialized`;
+export const overallProgressKey = (renderId: string) =>
+	`${rendersPrefix(renderId)}/overall-progress.json`;
 export const lambdaChunkInitializedKey = ({
 	renderId,
 	chunk,

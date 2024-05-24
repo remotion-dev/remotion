@@ -44,6 +44,7 @@ import {
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaDeleteFile, lambdaWriteFile} from './helpers/io';
 import {mergeChunksAndFinishRender} from './helpers/merge-chunks';
+import {makeOverallRenderProgress} from './helpers/overall-render-progress';
 import {timer} from './helpers/timer';
 import {validateComposition} from './helpers/validate-composition';
 import {
@@ -68,6 +69,13 @@ const innerLaunchHandler = async ({
 	if (params.type !== LambdaRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
+
+	const overallProgress = makeOverallRenderProgress({
+		renderId: params.renderId,
+		bucketName: params.bucketName,
+		expectedBucketOwner: options.expectedBucketOwner,
+		region: getCurrentRegionInFunction(),
+	});
 
 	const startedDate = Date.now();
 
@@ -330,6 +338,7 @@ const innerLaunchHandler = async ({
 		}
 	}
 
+	// TODO: Can we not await this?
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
 		key: renderMetadataKey(params.renderId),
@@ -367,12 +376,11 @@ const innerLaunchHandler = async ({
 				receivedStreamingPayload: ({message}) => {
 					if (message.type === 'frames-rendered') {
 						framesRendered[i] = message.payload.frames;
-						console.log(
-							`${framesRendered.reduce(
-								(a, b) => a + b,
-								0,
-							)} frames rendered (${message.payload.frames})`,
+						const totalFramesRendered = framesRendered.reduce(
+							(a, b) => a + b,
+							0,
 						);
+						overallProgress.setFrames(totalFramesRendered);
 					} else if (message.type === 'video-chunk-rendered') {
 						const filename = join(
 							outdir,
@@ -382,10 +390,6 @@ const innerLaunchHandler = async ({
 							}),
 						);
 						writeFileSync(filename, message.payload);
-						console.log(
-							`[STREAMING]: ${message.payload.length} bytes chunk received`,
-							filename,
-						);
 						files.push(filename);
 					} else if (message.type === 'audio-chunk-rendered') {
 						const filename = join(
@@ -397,10 +401,6 @@ const innerLaunchHandler = async ({
 						);
 						writeFileSync(filename, message.payload);
 						files.push(filename);
-						console.log(
-							`[STREAMING]: ${message.payload.length} bytes audio chunk received`,
-							filename,
-						);
 					}
 				},
 			});
