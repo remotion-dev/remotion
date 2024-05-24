@@ -65,12 +65,31 @@ export const streamRenderer = async ({
 			return;
 		}
 
+		if (message.type === 'error-occurred') {
+			// TODO: Re-call the function
+			overallProgress.setFrames({
+				encoded: 0,
+				index: payload.chunk,
+				rendered: 0,
+			});
+
+			// TODO: Not catching the error
+			streamRenderer({
+				payload,
+				functionName,
+				outdir,
+				overallProgress,
+				files,
+			});
+		}
+
 		throw new Error(`Unknown message type ${message.type}`);
 	};
 
 	await callLambdaWithStreaming({
 		functionName,
 		payload,
+		// TODO: Should we re-add retries
 		retriesRemaining: 0,
 		region: getCurrentRegionInFunction(),
 		timeoutInTest: 12000,

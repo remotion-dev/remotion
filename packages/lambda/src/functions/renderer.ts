@@ -402,6 +402,9 @@ export const rendererHandler = async (
 
 		console.log(`Error occurred (will retry = ${String(willRetry)})`);
 		console.log(err);
+
+		// TODO: Stream 'error-occurred'
+
 		await writeLambdaError({
 			bucketName: params.bucketName,
 			errorInfo: {
