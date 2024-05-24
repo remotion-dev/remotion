@@ -5,6 +5,8 @@ id: get-remotion-environment
 crumb: "API"
 ---
 
+# getRemotionEnvironment()<AvailableFrom v="4.0.25" />
+
 With the `getRemotionEnvironment()` function, you can retrieve information about the current Remotion Environment.
 It returns an object with the following properties:
 
