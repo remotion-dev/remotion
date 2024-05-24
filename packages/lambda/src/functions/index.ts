@@ -72,7 +72,7 @@ const innerHandler = async ({
 			params.logLevel,
 		);
 
-		await onStream({
+		onStream({
 			type: 'render-id-determined',
 			payload: {renderId},
 		});
@@ -83,6 +83,8 @@ const innerHandler = async ({
 			renderId,
 			onStream,
 		});
+
+		await responseWriter.end();
 
 		return;
 	}
@@ -102,6 +104,7 @@ const innerHandler = async ({
 		});
 
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));
+		await responseWriter.end();
 		return;
 	}
 
@@ -122,6 +125,7 @@ const innerHandler = async ({
 		});
 
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));
+		await responseWriter.end();
 		return;
 	}
 
@@ -141,6 +145,7 @@ const innerHandler = async ({
 		});
 
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));
+		await responseWriter.end();
 		return;
 	}
 
@@ -185,6 +190,8 @@ const innerHandler = async ({
 				});
 		});
 
+		await responseWriter.end();
+
 		return;
 	}
 
@@ -198,7 +205,8 @@ const innerHandler = async ({
 		);
 
 		const response = await infoHandler(params);
-		responseWriter.write(Buffer.from(JSON.stringify(response)));
+		await responseWriter.write(Buffer.from(JSON.stringify(response)));
+		await responseWriter.end();
 		return;
 	}
 
@@ -215,7 +223,9 @@ const innerHandler = async ({
 			expectedBucketOwner: currentUserId,
 		});
 
-		responseWriter.write(Buffer.from(JSON.stringify(response)));
+		await responseWriter.write(Buffer.from(JSON.stringify(response)));
+		await responseWriter.end();
+
 		return;
 	}
 
@@ -245,6 +255,7 @@ const routine = async (
 		};
 
 		await responseWriter.write(Buffer.from(JSON.stringify(res)));
+		await responseWriter.end();
 	}
 };
 
