@@ -189,7 +189,7 @@ const renderHandler = async ({
 			imageFormat: params.imageFormat,
 			serializedInputPropsWithCustomSchema,
 			frameRange: params.frameRange,
-			onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
+			onProgress: async ({renderedFrames, encodedFrames, stitchStage}) => {
 				if (renderedFrames % 5 === 0) {
 					RenderInternals.Log.info(
 						{indent: false, logLevel: params.logLevel},

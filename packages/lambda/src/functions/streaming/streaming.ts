@@ -1,9 +1,12 @@
+import type {RenderStillLambdaResponsePayload} from '../still';
+
 const framesRendered = 'frames-rendered' as const;
 const errorOccurred = 'error-occurred' as const;
 const renderIdDetermined = 'render-id-determined' as const;
 const videoChunkRendered = 'video-chunk-rendered' as const;
 const audioChunkRendered = 'audio-chunk-rendered' as const;
 const responseJson = 'response-json' as const;
+const stillRendered = 'still-rendered' as const;
 
 const messageTypes = {
 	'1': {type: framesRendered},
@@ -12,6 +15,7 @@ const messageTypes = {
 	'4': {type: videoChunkRendered},
 	'5': {type: audioChunkRendered},
 	'6': {type: responseJson},
+	'7': {type: stillRendered},
 } as const;
 
 type MessageTypeId = keyof typeof messageTypes;
@@ -24,6 +28,7 @@ export const formatMap: {[key in MessageType]: 'json' | 'binary'} = {
 	[responseJson]: 'json',
 	[videoChunkRendered]: 'binary',
 	[audioChunkRendered]: 'binary',
+	[stillRendered]: 'json',
 };
 
 export type StreamingPayload =
@@ -56,6 +61,10 @@ export type StreamingPayload =
 	| {
 			type: typeof responseJson;
 			payload: Record<string, unknown>;
+	  }
+	| {
+			type: typeof stillRendered;
+			payload: RenderStillLambdaResponsePayload;
 	  };
 
 export const messageTypeIdToMessage = (

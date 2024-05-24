@@ -14,14 +14,13 @@ import {printCloudwatchHelper} from './helpers/print-cloudwatch-helper';
 import type {RequestContext} from './helpers/request-context';
 import type {ResponseStream} from './helpers/streamify-response';
 import {streamifyResponse} from './helpers/streamify-response';
-import type {StreamingPayloads} from './helpers/streaming-payloads';
-import {sendProgressEvent} from './helpers/streaming-payloads';
 import {infoHandler} from './info';
 import {launchHandler} from './launch';
 import {progressHandler} from './progress';
 import {rendererHandler} from './renderer';
 import {startHandler} from './start';
 import {stillHandler} from './still';
+import type {OnStream} from './streaming/streaming';
 import {makePayloadMessage} from './streaming/streaming';
 
 const sendResponse = ({
@@ -44,9 +43,11 @@ const innerHandler = async ({
 	params,
 	responseStream,
 	context,
+	onStream,
 }: {
 	params: LambdaPayload;
 	responseStream: ResponseStream;
+	onStream: OnStream;
 	context: RequestContext;
 }): Promise<void> => {
 	setCurrentRequestId(context.awsRequestId);
@@ -83,20 +84,16 @@ const innerHandler = async ({
 			params.logLevel,
 		);
 
-		const renderIdDetermined: StreamingPayloads = {
+		await onStream({
 			type: 'render-id-determined',
-			renderId,
-		};
-		sendProgressEvent(responseStream, renderIdDetermined);
+			payload: {renderId},
+		});
 
-		const response = await stillHandler({
+		await stillHandler({
 			expectedBucketOwner: currentUserId,
 			params,
 			renderId,
-		});
-		sendResponse({
-			responseStream,
-			response,
+			onStream,
 		});
 
 		return;
@@ -246,9 +243,10 @@ const routine = async (
 	params: LambdaPayload,
 	responseStream: ResponseStream,
 	context: RequestContext,
+	onStream: OnStream,
 ): Promise<void> => {
 	try {
-		await innerHandler({params, responseStream, context});
+		await innerHandler({params, responseStream, context, onStream});
 	} catch (err) {
 		const res: OrError<0> = {
 			type: 'error',

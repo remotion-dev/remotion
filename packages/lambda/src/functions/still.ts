@@ -44,17 +44,20 @@ import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
 } from './helpers/write-lambda-error';
+import type {OnStream} from './streaming/streaming';
 
 type Options = {
 	params: LambdaPayload;
 	renderId: string;
 	expectedBucketOwner: string;
+	onStream: OnStream;
 };
 
 const innerStillHandler = async ({
 	params: lambdaParams,
 	expectedBucketOwner,
 	renderId,
+	onStream,
 }: Options) => {
 	if (lambdaParams.type !== LambdaRoutines.still) {
 		throw new TypeError('Expected still type');
@@ -271,19 +274,22 @@ const innerStillHandler = async ({
 		customCredentials,
 	);
 
-	return {
-		type: 'success' as const,
-		output: url,
-		size,
-		sizeInBytes: size,
-		bucketName,
-		estimatedPrice: formatCostsInfo(estimatedPrice),
-		renderId,
-		outKey,
-	};
+	await onStream({
+		type: 'still-rendered',
+		payload: {
+			type: 'success' as const,
+			output: url,
+			size,
+			sizeInBytes: size,
+			bucketName,
+			estimatedPrice: formatCostsInfo(estimatedPrice),
+			renderId,
+			outKey,
+		},
+	});
 };
 
-type RenderStillLambdaResponsePayload = {
+export type RenderStillLambdaResponsePayload = {
 	type: 'success';
 	output: string;
 	outKey: string;
@@ -294,9 +300,7 @@ type RenderStillLambdaResponsePayload = {
 	renderId: string;
 };
 
-export const stillHandler = async (
-	options: Options,
-): Promise<RenderStillLambdaResponsePayload> => {
+export const stillHandler = async (options: Options): Promise<void> => {
 	const {params} = options;
 
 	if (params.type !== LambdaRoutines.still) {
