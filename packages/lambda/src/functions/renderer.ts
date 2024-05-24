@@ -314,11 +314,16 @@ const renderHandler = async ({
 		});
 	}
 
+	onStream({
+		type: 'chunk-complete',
+		payload: {},
+	});
+
 	const writeStart = Date.now();
 
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
-		`Wrote chunk to S3 (${Date.now() - writeStart}ms)`,
+		`Streamed chunk to main function (${Date.now() - writeStart}ms)`,
 	);
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
@@ -415,6 +420,7 @@ export const rendererHandler = async (
 			renderId: params.renderId,
 			expectedBucketOwner: options.expectedBucketOwner,
 		});
+		// TODO: This does not stream anymore
 		if (willRetry) {
 			const retryPayload: LambdaPayloads[LambdaRoutines.renderer] = {
 				...params,

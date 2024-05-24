@@ -10,7 +10,6 @@ import {
 	renderMetadataKey,
 	rendersPrefix,
 } from '../../shared/constants';
-import {parseLambdaChunkKey} from '../../shared/parse-chunk-key';
 import {truthy} from '../../shared/truthy';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import {estimatePriceFromBucket} from './calculate-price-from-bucket';
@@ -243,20 +242,14 @@ export const getProgress = async ({
 		renderMetadata,
 	});
 
-	const chunkCount = outputFile
-		? renderMetadata?.totalChunks ?? 0
-		: chunks.length / chunkMultiplier;
-
-	const availableChunks = chunks.map((c) =>
-		parseLambdaChunkKey(c.Key as string),
-	);
+	const chunkCount = overallProgress?.chunks.length ?? 0;
 
 	const missingChunks = renderMetadata
 		? new Array(renderMetadata.totalChunks)
 				.fill(true)
 				.map((_, i) => i)
 				.filter((index) => {
-					return !availableChunks.find((c) => c.chunk === index);
+					return !(overallProgress?.chunks ?? []).find((c) => c === index);
 				})
 		: null;
 

@@ -363,6 +363,7 @@ const innerLaunchHandler = async ({
 	mkdirSync(outdir);
 
 	const files: string[] = [];
+	const chunksCompleted: number[] = [];
 
 	// TODO: Now this will wait for the render to complete
 	await Promise.all(
@@ -407,6 +408,11 @@ const innerLaunchHandler = async ({
 						);
 						writeFileSync(filename, message.payload);
 						files.push(filename);
+					} else if (message.type === 'chunk-complete') {
+						chunksCompleted.push(payload.chunk);
+						overallProgress.setChunks(chunksCompleted);
+					} else {
+						throw new Error(`Unknown message type ${message.type}`);
 					}
 				},
 			});

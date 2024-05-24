@@ -6,6 +6,7 @@ const errorOccurred = 'error-occurred' as const;
 const renderIdDetermined = 'render-id-determined' as const;
 const videoChunkRendered = 'video-chunk-rendered' as const;
 const audioChunkRendered = 'audio-chunk-rendered' as const;
+const chunkComplete = 'chunk-complete' as const;
 const stillRendered = 'still-rendered' as const;
 
 const messageTypes = {
@@ -15,6 +16,7 @@ const messageTypes = {
 	'4': {type: videoChunkRendered},
 	'5': {type: audioChunkRendered},
 	'6': {type: stillRendered},
+	'7': {type: chunkComplete},
 } as const;
 
 export type MessageTypeId = keyof typeof messageTypes;
@@ -27,6 +29,7 @@ export const formatMap: {[key in MessageType]: 'json' | 'binary'} = {
 	[videoChunkRendered]: 'binary',
 	[audioChunkRendered]: 'binary',
 	[stillRendered]: 'json',
+	[chunkComplete]: 'json',
 };
 
 export type StreamingPayload =
@@ -60,6 +63,10 @@ export type StreamingPayload =
 	| {
 			type: typeof stillRendered;
 			payload: RenderStillLambdaResponsePayload;
+	  }
+	| {
+			type: typeof chunkComplete;
+			payload: {};
 	  };
 
 export const messageTypeIdToMessageType = (
