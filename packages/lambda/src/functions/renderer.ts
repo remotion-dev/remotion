@@ -194,28 +194,10 @@ const renderHandler = async ({
 			serializedInputPropsWithCustomSchema,
 			frameRange: params.frameRange,
 			onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
-				if (renderedFrames % 5 === 0) {
-					RenderInternals.Log.info(
-						{indent: false, logLevel: params.logLevel},
-						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`,
-					);
-					writeLambdaInitializedFile({
-						attempt: params.attempt,
-						bucketName: params.bucketName,
-						chunk: params.chunk,
-						expectedBucketOwner: options.expectedBucketOwner,
-						framesRendered: renderedFrames,
-						renderId: params.renderId,
-					}).catch((err) => {
-						console.log('Could not write progress', err);
-						return reject(err);
-					});
-				} else {
-					RenderInternals.Log.verbose(
-						{indent: false, logLevel: params.logLevel},
-						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`,
-					);
-				}
+				RenderInternals.Log.verbose(
+					{indent: false, logLevel: params.logLevel},
+					`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`,
+				);
 
 				onStream({
 					type: 'frames-rendered',
@@ -238,7 +220,6 @@ const renderHandler = async ({
 					bucketName: params.bucketName,
 					chunk: params.chunk,
 					expectedBucketOwner: options.expectedBucketOwner,
-					framesRendered: 0,
 					renderId: params.renderId,
 				}).catch((err) => reject(err));
 			},

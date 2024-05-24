@@ -2017,19 +2017,17 @@ export const writeLambdaInitializedFile = ({
 	attempt,
 	chunk,
 	renderId,
-	framesRendered,
 }: {
 	bucketName: string;
 	expectedBucketOwner: string;
 	renderId: string;
 	chunk: number;
 	attempt: number;
-	framesRendered: number;
 }) => {
 	return lambdaWriteFile({
 		privacy: 'private',
 		bucketName,
-		body: String(framesRendered),
+		body: '0',
 		key: lambdaChunkInitializedKey({
 			renderId,
 			chunk,
