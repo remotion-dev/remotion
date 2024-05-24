@@ -33,7 +33,8 @@ export type StreamingPayload =
 	| {
 			type: typeof framesRendered;
 			payload: {
-				frames: number;
+				rendered: number;
+				encoded: number;
 			};
 	  }
 	| {

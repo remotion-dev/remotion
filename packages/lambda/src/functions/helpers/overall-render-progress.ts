@@ -5,6 +5,7 @@ import {lambdaWriteFile} from './io';
 export type OverallRenderProgress = {
 	chunks: number[];
 	framesRendered: number;
+	framesEncoded: number;
 };
 
 export const makeOverallRenderProgress = ({
@@ -21,6 +22,7 @@ export const makeOverallRenderProgress = ({
 	const renderProgress: OverallRenderProgress = {
 		chunks: [],
 		framesRendered: 0,
+		framesEncoded: 0,
 	};
 
 	let currentUploadPromise: Promise<void> | null = null;
@@ -66,8 +68,9 @@ export const makeOverallRenderProgress = ({
 	return {
 		upload,
 		finishUploading,
-		setFrames: (framesRendered: number) => {
-			renderProgress.framesRendered = framesRendered;
+		setFrames: ({encoded, rendered}: {rendered: number; encoded: number}) => {
+			renderProgress.framesRendered = rendered;
+			renderProgress.framesEncoded = encoded;
 			upload();
 		},
 		setChunks: (chunks: number[]) => {

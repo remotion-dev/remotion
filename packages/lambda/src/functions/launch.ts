@@ -351,6 +351,7 @@ const innerLaunchHandler = async ({
 	});
 
 	const framesRendered = new Array(lambdaPayloads.length).fill(0);
+	const framesEncoded = new Array(lambdaPayloads.length).fill(0);
 
 	const outdir = join(RenderInternals.tmpDir(CONCAT_FOLDER_TOKEN), 'bucket');
 	if (existsSync(outdir)) {
@@ -375,12 +376,17 @@ const innerLaunchHandler = async ({
 				type: LambdaRoutines.renderer,
 				receivedStreamingPayload: ({message}) => {
 					if (message.type === 'frames-rendered') {
-						framesRendered[i] = message.payload.frames;
+						framesRendered[i] = message.payload.rendered;
+						framesEncoded[i] = message.payload.encoded;
 						const totalFramesRendered = framesRendered.reduce(
 							(a, b) => a + b,
 							0,
 						);
-						overallProgress.setFrames(totalFramesRendered);
+						const totalFramesEncoded = framesEncoded.reduce((a, b) => a + b, 0);
+						overallProgress.setFrames({
+							encoded: totalFramesEncoded,
+							rendered: totalFramesRendered,
+						});
 					} else if (message.type === 'video-chunk-rendered') {
 						const filename = join(
 							outdir,

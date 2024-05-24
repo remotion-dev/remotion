@@ -174,6 +174,11 @@ const renderHandler = async ({
 	const resolvedProps = await resolvedPropsPromise;
 	const serializedInputPropsWithCustomSchema = await inputPropsPromise;
 
+	const allFrames = RenderInternals.getFramesToRender(
+		params.frameRange,
+		params.everyNthFrame,
+	);
+
 	await new Promise<void>((resolve, reject) => {
 		RenderInternals.internalRenderMedia({
 			repro: false,
@@ -214,13 +219,8 @@ const renderHandler = async ({
 
 				onStream({
 					type: 'frames-rendered',
-					payload: {frames: renderedFrames},
+					payload: {rendered: renderedFrames, encoded: encodedFrames},
 				});
-
-				const allFrames = RenderInternals.getFramesToRender(
-					params.frameRange,
-					params.everyNthFrame,
-				);
 
 				if (renderedFrames === allFrames.length) {
 					RenderInternals.Log.verbose(
@@ -315,7 +315,7 @@ const renderHandler = async ({
 
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
-		'Writing chunk to S3',
+		'Streaming chunks to main function',
 	);
 	if (audioOutputLocation) {
 		onStream({
