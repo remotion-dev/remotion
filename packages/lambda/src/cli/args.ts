@@ -39,12 +39,14 @@ type LambdaCommandLineOptions = {
 	[BrowserSafeApis.options.folderExpiryOption.cliFlag]: boolean | undefined;
 	['vpc-subnet-ids']: string | undefined;
 	['vpc-security-group-ids']: string | undefined;
+	['compatible-only']: boolean;
 };
 
 export const parsedLambdaCli = CliInternals.minimist<LambdaCommandLineOptions>(
 	process.argv.slice(2),
 	{
 		boolean: CliInternals.BooleanFlags,
+		'compatible-only',
 	},
 );
 
