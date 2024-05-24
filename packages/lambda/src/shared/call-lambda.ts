@@ -152,7 +152,6 @@ const callLambdaWithStreamingWithoutRetry = async <T extends LambdaRoutines>({
 		},
 	);
 
-	console.log('looking for event stream', res);
 	const events =
 		res.EventStream as AsyncIterable<InvokeWithResponseStreamResponseEvent>;
 

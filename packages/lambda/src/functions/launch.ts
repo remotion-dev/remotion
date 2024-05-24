@@ -379,7 +379,7 @@ const innerLaunchHandler = async ({
 							// TODO: Can be simplified
 							path.basename(
 								chunkKeyForIndex({
-									index: i,
+									index: payload.chunk,
 									renderId: params.renderId,
 									type: 'video',
 								}),
@@ -397,7 +397,7 @@ const innerLaunchHandler = async ({
 							// TODO: Can be simplified
 							path.basename(
 								chunkKeyForIndex({
-									index: i,
+									index: payload.chunk,
 									renderId: params.renderId,
 									type: 'audio',
 								}),
@@ -442,7 +442,7 @@ const innerLaunchHandler = async ({
 		preferLossless: params.preferLossless,
 		compositionStart: realFrameRange[0],
 		outdir,
-		files,
+		files: files.sort(),
 	});
 
 	return postRenderData;
