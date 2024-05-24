@@ -28,6 +28,7 @@ export const BooleanFlags = [
 	'ipv4',
 	BrowserSafeApis.options.beepOnFinishOption.cliFlag,
 	'repro',
+	'compatible-only',
 ];
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {

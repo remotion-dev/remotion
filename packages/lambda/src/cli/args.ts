@@ -45,10 +45,7 @@ type LambdaCommandLineOptions = {
 export const parsedLambdaCli = CliInternals.minimist<LambdaCommandLineOptions>(
 	process.argv.slice(2),
 	{
-		boolean: [
-		  ...CliInternals.BooleanFlags,
-		  'compatible-only',
-		],
+		boolean: CliInternals.BooleanFlags,
 	},
 );
 
