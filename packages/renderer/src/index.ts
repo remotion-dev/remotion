@@ -145,7 +145,6 @@ import {
 	supportedAudioCodecs,
 } from './options/audio-codec';
 import {getShouldRenderAudio} from './render-has-audio';
-import {makeStreamer} from './streaming';
 import {toMegabytes} from './to-megabytes';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateBitrate} from './validate-videobitrate';
@@ -240,7 +239,6 @@ export const RenderInternals = {
 	codecSupportsMedia,
 	toMegabytes,
 	internalEnsureBrowser,
-	makeStreamer,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

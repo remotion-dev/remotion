@@ -1,3 +1,4 @@
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {RenderStillLambdaResponsePayload} from '../still';
 
 const framesRendered = 'frames-rendered' as const;
@@ -92,32 +93,17 @@ export type StreamingMessage = {
 
 export type OnMessage = (options: StreamingMessage) => void;
 
-const magicSeparator = Buffer.from('remotion_buffer:');
+export type OnStream = (payload: StreamingPayload) => void;
 
-export const makePayloadMessage = ({
-	message,
-	status,
-}: {
-	message: StreamingPayload;
-	status: 0 | 1;
-}): Buffer => {
+export const makeStreamPayload = ({message}: {message: StreamingPayload}) => {
 	const body =
 		formatMap[message.type] === 'json'
 			? Buffer.from(JSON.stringify(message.payload))
 			: (message.payload as Buffer);
 
-	const concat = Buffer.concat([
-		magicSeparator,
-		Buffer.from(messageTypeToMessageId(message.type).toString()),
-		Buffer.from(':'),
-		Buffer.from(body.length.toString()),
-		Buffer.from(':'),
-		Buffer.from(String(status)),
-		Buffer.from(':'),
+	return BrowserSafeApis.makeStreamPayloadMessage({
 		body,
-	]);
-
-	return concat;
+		nonce: messageTypeToMessageId(message.type),
+		status: 0,
+	});
 };
-
-export type OnStream = (payload: StreamingPayload) => void;

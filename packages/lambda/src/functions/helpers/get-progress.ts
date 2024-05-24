@@ -188,8 +188,6 @@ export const getProgress = async ({
 		contents,
 		output: outputFile?.url ?? null,
 		renderId,
-		hasAudio,
-		hasVideo,
 	});
 
 	const timeToFinish = getTimeToFinish({
@@ -199,6 +197,7 @@ export const getProgress = async ({
 
 	const chunkMultiplier = [hasAudio, hasVideo].filter(truthy).length;
 
+	// TODO: Those chunks are not in S3 anymore
 	const chunks = contents.filter((c) => c.Key?.startsWith(chunkKey(renderId)));
 	const framesRendered = renderMetadata
 		? getRenderedFramesProgress({

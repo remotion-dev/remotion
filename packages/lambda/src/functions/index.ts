@@ -24,8 +24,7 @@ import {
 	streamWriter,
 	type ResponseStreamWriter,
 } from './streaming/stream-writer';
-import type {OnStream} from './streaming/streaming';
-import {makePayloadMessage} from './streaming/streaming';
+import {makeStreamPayload, type OnStream} from './streaming/streaming';
 
 const innerHandler = async ({
 	params,
@@ -172,9 +171,8 @@ const innerHandler = async ({
 					isWarm,
 				},
 				(payload) => {
-					const message = makePayloadMessage({
+					const message = makeStreamPayload({
 						message: payload,
-						status: 0,
 					});
 					responseWriter.write(message).catch((err) => {
 						reject(err);

@@ -7,15 +7,11 @@ export const getCleanupProgress = ({
 	output,
 	chunkCount,
 	renderId,
-	hasAudio,
-	hasVideo,
 }: {
 	contents: _Object[];
 	output: string | null;
 	chunkCount: number;
 	renderId: string;
-	hasAudio: boolean;
-	hasVideo: boolean;
 }): null | CleanupInfo => {
 	if (output === null) {
 		return null;
@@ -24,8 +20,6 @@ export const getCleanupProgress = ({
 	const filesToDelete = getFilesToDelete({
 		chunkCount,
 		renderId,
-		hasAudio,
-		hasVideo,
 	});
 	const filesStillThere = contents.filter((c) => {
 		return filesToDelete.find((f) => {

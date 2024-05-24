@@ -1,7 +1,7 @@
 import type {ResponseStream} from '../helpers/streamify-response';
 
 export type ResponseStreamWriter = {
-	write: (message: Buffer) => Promise<void>;
+	write: (message: Uint8Array) => Promise<void>;
 	end: () => Promise<void>;
 };
 
@@ -12,7 +12,7 @@ export const streamWriter = (
 ): ResponseStreamWriter => {
 	let promiseChain = Promise.resolve();
 
-	const write = (message: Buffer): Promise<void> => {
+	const write = (message: Uint8Array): Promise<void> => {
 		promiseChain = promiseChain.then(() => {
 			return new Promise<void>((resolve, reject) => {
 				responseStream.write(message, (err) => {

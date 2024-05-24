@@ -10,7 +10,6 @@ import type {LambdaPayload, LambdaPayloads} from '../shared/constants';
 import {
 	LambdaRoutines,
 	RENDERER_PATH_TOKEN,
-	chunkKeyForIndex,
 	lambdaTimingsKey,
 } from '../shared/constants';
 import {isFlakyError} from '../shared/is-flaky-error';
@@ -335,40 +334,6 @@ const renderHandler = async ({
 	}
 
 	const writeStart = Date.now();
-
-	// TODO: Should not have to do this anymore
-	await Promise.all([
-		lambdaWriteFile({
-			bucketName: params.bucketName,
-			key: chunkKeyForIndex({
-				renderId: params.renderId,
-				index: params.chunk,
-				type: RenderInternals.isAudioCodec(params.codec) ? 'audio' : 'video',
-			}),
-			body: fs.createReadStream(videoOutputLocation),
-			region: getCurrentRegionInFunction(),
-			privacy: params.privacy,
-			expectedBucketOwner: options.expectedBucketOwner,
-			downloadBehavior: null,
-			customCredentials: null,
-		}),
-		audioOutputLocation
-			? lambdaWriteFile({
-					bucketName: params.bucketName,
-					key: chunkKeyForIndex({
-						renderId: params.renderId,
-						index: params.chunk,
-						type: 'audio',
-					}),
-					body: fs.createReadStream(audioOutputLocation),
-					region: getCurrentRegionInFunction(),
-					privacy: params.privacy,
-					expectedBucketOwner: options.expectedBucketOwner,
-					downloadBehavior: null,
-					customCredentials: null,
-				})
-			: null,
-	]);
 
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
