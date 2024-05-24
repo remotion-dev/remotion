@@ -111,14 +111,12 @@ export const lambdaTimingsKey = ({
 export const chunkKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/chunks/chunk`;
 export const chunkKeyForIndex = ({
-	renderId,
 	index,
 	type,
 }: {
-	renderId: string;
 	index: number;
 	type: 'video' | 'audio';
-}) => `${chunkKey(renderId)}:${String(index).padStart(8, '0')}:${type}`;
+}) => `chunk:${String(index).padStart(8, '0')}:${type}`;
 
 export const getErrorKeyPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/errors/`;

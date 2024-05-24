@@ -2,7 +2,7 @@
 import type {LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {existsSync, mkdirSync, rmSync, writeFileSync} from 'fs';
-import path, {join} from 'path';
+import {join} from 'path';
 import {VERSION} from 'remotion/version';
 import {callLambdaWithStreaming} from '../shared/call-lambda';
 import {
@@ -376,14 +376,10 @@ const innerLaunchHandler = async ({
 					} else if (message.type === 'video-chunk-rendered') {
 						const filename = join(
 							outdir,
-							// TODO: Can be simplified
-							path.basename(
-								chunkKeyForIndex({
-									index: payload.chunk,
-									renderId: params.renderId,
-									type: 'video',
-								}),
-							),
+							chunkKeyForIndex({
+								index: payload.chunk,
+								type: 'video',
+							}),
 						);
 						writeFileSync(filename, message.payload);
 						console.log(
@@ -394,14 +390,10 @@ const innerLaunchHandler = async ({
 					} else if (message.type === 'audio-chunk-rendered') {
 						const filename = join(
 							outdir,
-							// TODO: Can be simplified
-							path.basename(
-								chunkKeyForIndex({
-									index: payload.chunk,
-									renderId: params.renderId,
-									type: 'audio',
-								}),
-							),
+							chunkKeyForIndex({
+								index: payload.chunk,
+								type: 'audio',
+							}),
 						);
 						writeFileSync(filename, message.payload);
 						files.push(filename);
