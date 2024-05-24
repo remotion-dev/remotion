@@ -25,9 +25,9 @@ import {getEncodingProgressStepSize} from './get-encoding-progress-step-size';
 import {getFinalEncodingStatus} from './get-final-encoding-status';
 import {getLambdasInvokedStats} from './get-lambdas-invoked-stats';
 import {getOverallProgress} from './get-overall-progress';
+import {getOverallProgressS3} from './get-overall-progress-s3';
 import {getPostRenderData} from './get-post-render-data';
 import {getRenderMetadata} from './get-render-metadata';
-import {getRenderedFramesProgress} from './get-rendered-frames-progress';
 import {getRetryStats} from './get-retry-stats';
 import {getTimeToFinish} from './get-time-to-finish';
 import {inspectErrors} from './inspect-errors';
@@ -199,15 +199,11 @@ export const getProgress = async ({
 
 	// TODO: Those chunks are not in S3 anymore
 	const chunks = contents.filter((c) => c.Key?.startsWith(chunkKey(renderId)));
-	const framesRendered = renderMetadata
-		? getRenderedFramesProgress({
-				contents,
-				everyNthFrame: renderMetadata.everyNthFrame,
-				frameRange: renderMetadata.frameRange,
-				framesPerLambda: renderMetadata.framesPerLambda,
-				renderId,
-			})
-		: 0;
+	const overallProgress = await getOverallProgressS3({
+		renderId,
+		bucketName,
+		expectedBucketOwner,
+	});
 
 	const allChunks =
 		chunks.length / chunkMultiplier ===
@@ -292,7 +288,7 @@ export const getProgress = async ({
 	].filter(NoReactInternals.truthy);
 
 	return {
-		framesRendered,
+		framesRendered: overallProgress?.framesRendered ?? 0,
 		chunks: chunkCount,
 		done: false,
 		encodingStatus,
@@ -328,7 +324,10 @@ export const getProgress = async ({
 					renderMetadata.estimatedRenderLambdaInvokations
 				: 0,
 			rendering: renderMetadata ? chunkCount / renderMetadata.totalChunks : 0,
-			frames: frameCount === null ? 0 : framesRendered / frameCount,
+			frames:
+				frameCount === null
+					? 0
+					: (overallProgress?.framesRendered ?? 0) / frameCount,
 		}),
 		retriesInfo,
 		outKey:

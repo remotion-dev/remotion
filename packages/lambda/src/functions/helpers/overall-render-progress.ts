@@ -2,7 +2,7 @@ import type {AwsRegion} from '../../client';
 import {overallProgressKey} from '../../shared/constants';
 import {lambdaWriteFile} from './io';
 
-type OverallRenderProgress = {
+export type OverallRenderProgress = {
 	chunks: number[];
 	framesRendered: number;
 };
