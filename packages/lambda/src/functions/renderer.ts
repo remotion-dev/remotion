@@ -216,9 +216,6 @@ const renderHandler = async ({
 				onStream({
 					type: 'frames-rendered',
 					payload: {frames: renderedFrames},
-				}).catch((err) => {
-					console.log('Could not write progress', err);
-					return reject(err);
 				});
 
 				const allFrames = RenderInternals.getFramesToRender(

@@ -20,33 +20,21 @@ import {progressHandler} from './progress';
 import {rendererHandler} from './renderer';
 import {startHandler} from './start';
 import {stillHandler} from './still';
+import {
+	streamWriter,
+	type ResponseStreamWriter,
+} from './streaming/stream-writer';
 import type {OnStream} from './streaming/streaming';
 import {makePayloadMessage} from './streaming/streaming';
 
-const sendResponse = ({
-	responseStream,
-	response,
-}: {
-	responseStream: ResponseStream;
-	response: Record<string, unknown>;
-}) => {
-	const message = makePayloadMessage({
-		message: {type: 'response-json', payload: response},
-		status: 0,
-	});
-	responseStream.write(message, () => {
-		responseStream.end();
-	});
-};
-
 const innerHandler = async ({
 	params,
-	responseStream,
+	responseWriter,
 	context,
 	onStream,
 }: {
 	params: LambdaPayload;
-	responseStream: ResponseStream;
+	responseWriter: ResponseStreamWriter;
 	onStream: OnStream;
 	context: RequestContext;
 }): Promise<void> => {
@@ -113,10 +101,7 @@ const innerHandler = async ({
 			expectedBucketOwner: currentUserId,
 		});
 
-		sendResponse({
-			responseStream,
-			response,
-		});
+		await responseWriter.write(Buffer.from(JSON.stringify(response)));
 		return;
 	}
 
@@ -135,10 +120,8 @@ const innerHandler = async ({
 			expectedBucketOwner: currentUserId,
 			getRemainingTimeInMillis: context.getRemainingTimeInMillis,
 		});
-		sendResponse({
-			responseStream,
-			response,
-		});
+
+		await responseWriter.write(Buffer.from(JSON.stringify(response)));
 		return;
 	}
 
@@ -156,7 +139,8 @@ const innerHandler = async ({
 			timeoutInMilliseconds,
 			retriesRemaining: 2,
 		});
-		sendResponse({responseStream, response});
+
+		await responseWriter.write(Buffer.from(JSON.stringify(response)));
 		return;
 	}
 
@@ -175,34 +159,23 @@ const innerHandler = async ({
 			params.logLevel,
 		);
 
-		const response = await rendererHandler(
+		await rendererHandler(
 			params,
 			{
 				expectedBucketOwner: currentUserId,
 				isWarm,
 			},
 			(payload) => {
-				return new Promise((resolve) => {
-					const message = makePayloadMessage({
-						message: payload,
-						status: 0,
-					});
-					console.log('Sending message', message.toString('utf-8'));
-					// TODO: Ensure write happens in order
-					responseStream.write(message, () => {
-						resolve();
-						console.log('TODO do something with the message');
-					});
-					// TODO: Error handling?
+				const message = makePayloadMessage({
+					message: payload,
+					status: 0,
 				});
+				responseWriter.write(message);
+				// TODO: Error handling?
 			},
 			context,
 		);
 
-		sendResponse({
-			responseStream,
-			response,
-		});
 		return;
 	}
 
@@ -216,7 +189,7 @@ const innerHandler = async ({
 		);
 
 		const response = await infoHandler(params);
-		sendResponse({responseStream, response});
+		responseWriter.write(Buffer.from(JSON.stringify(response)));
 		return;
 	}
 
@@ -232,7 +205,8 @@ const innerHandler = async ({
 		const response = await compositionsHandler(params, {
 			expectedBucketOwner: currentUserId,
 		});
-		sendResponse({responseStream, response});
+
+		responseWriter.write(Buffer.from(JSON.stringify(response)));
 		return;
 	}
 
@@ -245,8 +219,15 @@ const routine = async (
 	context: RequestContext,
 	onStream: OnStream,
 ): Promise<void> => {
+	const responseWriter = streamWriter(responseStream);
+
 	try {
-		await innerHandler({params, responseStream, context, onStream});
+		await innerHandler({
+			params,
+			responseWriter,
+			context,
+			onStream,
+		});
 	} catch (err) {
 		const res: OrError<0> = {
 			type: 'error',
@@ -254,7 +235,7 @@ const routine = async (
 			stack: (err as Error).stack as string,
 		};
 
-		sendResponse({responseStream, response: res});
+		await responseWriter.write(Buffer.from(JSON.stringify(res)));
 	}
 };
 

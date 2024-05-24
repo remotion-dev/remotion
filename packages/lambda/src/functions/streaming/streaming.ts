@@ -5,7 +5,6 @@ const errorOccurred = 'error-occurred' as const;
 const renderIdDetermined = 'render-id-determined' as const;
 const videoChunkRendered = 'video-chunk-rendered' as const;
 const audioChunkRendered = 'audio-chunk-rendered' as const;
-const responseJson = 'response-json' as const;
 const stillRendered = 'still-rendered' as const;
 
 const messageTypes = {
@@ -14,8 +13,7 @@ const messageTypes = {
 	'3': {type: renderIdDetermined},
 	'4': {type: videoChunkRendered},
 	'5': {type: audioChunkRendered},
-	'6': {type: responseJson},
-	'7': {type: stillRendered},
+	'6': {type: stillRendered},
 } as const;
 
 type MessageTypeId = keyof typeof messageTypes;
@@ -25,7 +23,6 @@ export const formatMap: {[key in MessageType]: 'json' | 'binary'} = {
 	[framesRendered]: 'json',
 	[errorOccurred]: 'json',
 	[renderIdDetermined]: 'json',
-	[responseJson]: 'json',
 	[videoChunkRendered]: 'binary',
 	[audioChunkRendered]: 'binary',
 	[stillRendered]: 'json',
@@ -57,10 +54,6 @@ export type StreamingPayload =
 			payload: {
 				renderId: string;
 			};
-	  }
-	| {
-			type: typeof responseJson;
-			payload: Record<string, unknown>;
 	  }
 	| {
 			type: typeof stillRendered;
@@ -127,4 +120,4 @@ export const makePayloadMessage = ({
 	return concat;
 };
 
-export type OnStream = (payload: StreamingPayload) => Promise<void>;
+export type OnStream = (payload: StreamingPayload) => void;
