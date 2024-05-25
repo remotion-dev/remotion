@@ -52,6 +52,7 @@ export type StreamingPayload =
 			type: typeof errorOccurred;
 			payload: {
 				error: string;
+				shouldRetry: boolean;
 			};
 	  }
 	| {

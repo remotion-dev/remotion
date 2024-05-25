@@ -396,15 +396,22 @@ export const rendererHandler = async (
 
 		const shouldNotRetry = (err as Error).name === 'CancelledError';
 
-		const willRetry =
+		const shouldRetry =
 			isRetryableError && params.retriesLeft > 0 && !shouldNotRetry;
-		const isFatal = !willRetry;
+		const isFatal = !shouldRetry;
 
-		console.log(`Error occurred (will retry = ${String(willRetry)})`);
+		console.log(`Error occurred (will retry = ${String(shouldRetry)})`);
 		console.log(err);
 
-		// TODO: Stream 'error-occurred'
+		onStream({
+			type: 'error-occurred',
+			payload: {
+				error: (err as Error).stack as string,
+				shouldRetry,
+			},
+		});
 
+		// TODO: Stream 'error-occurred'
 		await writeLambdaError({
 			bucketName: params.bucketName,
 			errorInfo: {
@@ -418,13 +425,13 @@ export const rendererHandler = async (
 				tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
 				attempt: params.attempt,
 				totalAttempts: params.retriesLeft + params.attempt,
-				willRetry,
+				willRetry: shouldRetry,
 			},
 			renderId: params.renderId,
 			expectedBucketOwner: options.expectedBucketOwner,
 		});
 		// TODO: This does not stream anymore
-		if (willRetry) {
+		if (shouldRetry) {
 			const retryPayload: LambdaPayloads[LambdaRoutines.renderer] = {
 				...params,
 				retriesLeft: params.retriesLeft - 1,

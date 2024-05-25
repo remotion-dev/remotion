@@ -43,7 +43,7 @@ import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaDeleteFile, lambdaWriteFile} from './helpers/io';
 import {mergeChunksAndFinishRender} from './helpers/merge-chunks';
 import {makeOverallRenderProgress} from './helpers/overall-render-progress';
-import {streamRenderer} from './helpers/stream-renderer';
+import {streamRendererFunctionWithRetry} from './helpers/stream-renderer';
 import {timer} from './helpers/timer';
 import {validateComposition} from './helpers/validate-composition';
 import {
@@ -364,7 +364,7 @@ const innerLaunchHandler = async ({
 	// TODO: Now this will wait for the render to complete
 	await Promise.all(
 		lambdaPayloads.map(async (payload) => {
-			await streamRenderer({
+			await streamRendererFunctionWithRetry({
 				files,
 				functionName,
 				outdir,
