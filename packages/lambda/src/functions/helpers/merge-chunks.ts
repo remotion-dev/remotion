@@ -11,24 +11,19 @@ import type {
 	RenderMetadata,
 	SerializedInputProps,
 } from '../../shared/constants';
-import {
-	encodingProgressKey,
-	initalizedMetadataKey,
-	rendersPrefix,
-} from '../../shared/constants';
+import {initalizedMetadataKey, rendersPrefix} from '../../shared/constants';
 import type {DownloadBehavior} from '../../shared/content-disposition-header';
 import type {LambdaCodec} from '../../shared/validate-lambda-codec';
 import {concatVideos} from './concat-videos';
 import {createPostRenderData} from './create-post-render-data';
 import {cleanupFiles} from './delete-chunks';
 import {getCurrentRegionInFunction} from './get-current-region';
-import {getEncodingProgressStepSize} from './get-encoding-progress-step-size';
 import {getFilesToDelete} from './get-files-to-delete';
 import {getOutputUrlFromMetadata} from './get-output-url-from-metadata';
 import {inspectErrors} from './inspect-errors';
 import {lambdaDeleteFile, lambdaLs, lambdaWriteFile} from './io';
+import type {OverallProgressHelper} from './overall-render-progress';
 import {timer} from './timer';
-import {writeLambdaError} from './write-lambda-error';
 import {writePostRenderData} from './write-post-render-data';
 
 export const mergeChunksAndFinishRender = async (options: {
@@ -57,59 +52,11 @@ export const mergeChunksAndFinishRender = async (options: {
 	compositionStart: number;
 	outdir: string;
 	files: string[];
+	overallProgress: OverallProgressHelper;
 }): Promise<PostRenderData> => {
-	let lastProgressUploaded = Date.now();
-
 	const onProgress = (framesEncoded: number) => {
-		const deltaSinceLastProgressUploaded = Date.now() - lastProgressUploaded;
-
-		if (
-			deltaSinceLastProgressUploaded < 1500 &&
-			framesEncoded !== options.numberOfFrames
-		) {
-			return;
-		}
-
-		lastProgressUploaded = Date.now();
-
-		lambdaWriteFile({
-			bucketName: options.bucketName,
-			key: encodingProgressKey(options.renderId),
-			body: String(
-				Math.round(
-					framesEncoded / getEncodingProgressStepSize(options.numberOfFrames),
-				),
-			),
-			region: getCurrentRegionInFunction(),
-			privacy: 'private',
-			expectedBucketOwner: options.expectedBucketOwner,
-			downloadBehavior: null,
-			customCredentials: null,
-		}).catch((err) => {
-			writeLambdaError({
-				bucketName: options.bucketName,
-				errorInfo: {
-					chunk: null,
-					frame: null,
-					isFatal: false,
-					name: (err as Error).name,
-					message: (err as Error).message,
-					stack: `Could not upload stitching progress ${
-						(err as Error).stack as string
-					}`,
-					tmpDir: null,
-					type: 'stitcher',
-					attempt: 1,
-					totalAttempts: 1,
-					willRetry: false,
-				},
-				renderId: options.renderId,
-				expectedBucketOwner: options.expectedBucketOwner,
-			});
-		});
+		options.overallProgress.setCombinedFrames(framesEncoded);
 	};
-
-	// TODO: Add back get files
 
 	const encodingStart = Date.now();
 	if (options.renderMetadata.type === 'still') {
@@ -134,6 +81,7 @@ export const mergeChunksAndFinishRender = async (options: {
 		muted: options.renderMetadata.muted,
 	});
 	const encodingStop = Date.now();
+	options.overallProgress.setTimeToCombine(encodingStop - encodingStart);
 
 	const outputSize = fs.statSync(outfile);
 
@@ -160,22 +108,6 @@ export const mergeChunksAndFinishRender = async (options: {
 		prefix: rendersPrefix(options.renderId),
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
-	});
-
-	const finalEncodingProgressProm = lambdaWriteFile({
-		bucketName: options.bucketName,
-		key: encodingProgressKey(options.renderId),
-		body: String(
-			Math.ceil(
-				options.numberOfFrames /
-					getEncodingProgressStepSize(options.numberOfFrames),
-			),
-		),
-		region: getCurrentRegionInFunction(),
-		privacy: 'private',
-		expectedBucketOwner: options.expectedBucketOwner,
-		downloadBehavior: null,
-		customCredentials: null,
 	});
 
 	const errorExplanationsProm = inspectErrors({
@@ -219,7 +151,6 @@ export const mergeChunksAndFinishRender = async (options: {
 	);
 
 	const postRenderData = createPostRenderData({
-		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		renderId: options.renderId,
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
@@ -239,9 +170,9 @@ export const mergeChunksAndFinishRender = async (options: {
 			size: outputSize.size,
 			url: outputUrl,
 		},
+		timeToCombine: encodingStop - encodingStart,
 	});
 
-	await finalEncodingProgressProm;
 	await writePostRenderData({
 		bucketName: options.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,

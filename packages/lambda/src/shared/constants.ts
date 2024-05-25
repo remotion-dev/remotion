@@ -56,8 +56,6 @@ export const RENDER_FN_PREFIX = 'remotion-render-';
 export const LOG_GROUP_PREFIX = '/aws/lambda/';
 export const LAMBDA_INSIGHTS_PREFIX = '/aws/lambda-insights';
 export const rendersPrefix = (renderId: string) => `renders/${renderId}`;
-export const encodingProgressKey = (renderId: string) =>
-	`${rendersPrefix(renderId)}/encoding-progress.json`;
 export const renderMetadataKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/pre-render-metadata.json`;
 export const initalizedMetadataKey = (renderId: string) =>
@@ -431,6 +429,8 @@ export type LambdaPayload = LambdaPayloads[LambdaRoutines];
 
 export type EncodingProgress = {
 	framesEncoded: number;
+	combinedFrames: number;
+	timeToCombine: number | null;
 };
 
 type Discriminated =
@@ -496,6 +496,7 @@ export type PostRenderData = {
 	mostExpensiveFrameRanges: ExpensiveChunk[] | undefined;
 	estimatedBillingDurationInMilliseconds: number;
 	deleteAfter: DeleteAfter | null;
+	timeToCombine: number | null;
 };
 
 export type CostsInfo = {
@@ -538,6 +539,8 @@ export type RenderProgress = {
 	outputSizeInBytes: number | null;
 	type: 'success';
 	estimatedBillingDurationInMilliseconds: number | null;
+	combinedFrames: number;
+	timeToCombine: number | null;
 };
 
 export type Privacy = 'public' | 'private' | 'no-acl';

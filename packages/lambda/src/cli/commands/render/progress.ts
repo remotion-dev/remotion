@@ -96,34 +96,30 @@ const makeRenderProgress = ({
 	return [first, second];
 };
 
-const makeEncodingProgress = ({
+const makeCombinationProgress = ({
 	encodingProgress,
-	chunkProgress,
 	totalFrames,
-	timeToEncode,
 }: {
 	encodingProgress: EncodingProgress;
-	chunkProgress: ChunkProgress;
 	totalFrames: number | null;
-	timeToEncode: number | null;
 }) => {
-	const {framesEncoded} = encodingProgress;
-	const progress = totalFrames === null ? 0 : framesEncoded / totalFrames;
-	const chunksDone = chunkProgress.doneIn !== null;
+	const {combinedFrames, timeToCombine} = encodingProgress;
+	const progress = totalFrames === null ? 0 : combinedFrames / totalFrames;
+	const chunksDone = timeToCombine !== null;
 	const shouldShow = progress > 0 || chunksDone;
 	if (!shouldShow) {
 		return '';
 	}
 
 	return [
-		`${timeToEncode === null ? 'Combining' : 'Combined'} chunks`.padEnd(
+		`${timeToCombine === null ? 'Combining' : 'Combined'} chunks`.padEnd(
 			CliInternals.LABEL_WIDTH,
 			' ',
 		),
 		CliInternals.makeProgressBar(progress),
-		timeToEncode === null
+		timeToCombine === null
 			? `${Math.round(progress * 100)}%`
-			: CliInternals.chalk.gray(`${timeToEncode}ms`),
+			: CliInternals.chalk.gray(`${timeToCombine}ms`),
 	].join(' ');
 };
 
@@ -199,6 +195,8 @@ export const makeMultiProgressFromStatus = (
 		},
 		encodingProgress: {
 			framesEncoded: status.encodingStatus?.framesEncoded ?? 0,
+			combinedFrames: status.combinedFrames,
+			timeToCombine: status.timeToCombine,
 		},
 		lambdaInvokeProgress: {
 			lambdasInvoked: status.lambdasInvoked,
@@ -221,7 +219,6 @@ export const makeProgressString = ({
 	downloadInfo,
 	retriesInfo,
 	logLevel,
-	timeToEncode,
 	totalFrames,
 }: {
 	progress: MultiRenderProgress;
@@ -229,7 +226,6 @@ export const makeProgressString = ({
 	downloadInfo: DownloadedInfo | null;
 	retriesInfo: ChunkRetry[];
 	logLevel: LogLevel;
-	timeToEncode: number | null;
 	totalFrames: number | null;
 }) => {
 	return [
@@ -237,10 +233,8 @@ export const makeProgressString = ({
 		...makeRenderProgress({
 			chunkProgress: progress.chunkProgress,
 		}),
-		makeEncodingProgress({
+		makeCombinationProgress({
 			encodingProgress: progress.encodingProgress,
-			chunkProgress: progress.chunkProgress,
-			timeToEncode,
 			totalFrames,
 		}),
 		makeCleanupProgress(progress.cleanupInfo, logLevel === 'verbose'),

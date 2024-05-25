@@ -28,9 +28,9 @@ export const createPostRenderData = ({
 	errorExplanations,
 	timeToDelete,
 	outputFile,
+	timeToCombine,
 }: {
 	renderId: string;
-	expectedBucketOwner: string;
 	region: AwsRegion;
 	memorySizeInMb: number;
 	renderMetadata: RenderMetadata;
@@ -39,6 +39,7 @@ export const createPostRenderData = ({
 	timeToDelete: number;
 	errorExplanations: EnhancedErrorInfo[];
 	outputFile: OutputFileMetadata;
+	timeToCombine: number | null;
 }): PostRenderData => {
 	const initializedKeys = contents.filter((c) =>
 		c.Key?.startsWith(lambdaTimingsPrefix(renderId)),
@@ -128,5 +129,6 @@ export const createPostRenderData = ({
 					),
 		deleteAfter: renderMetadata.deleteAfter,
 		estimatedBillingDurationInMilliseconds,
+		timeToCombine: timeToCombine ?? null,
 	};
 };

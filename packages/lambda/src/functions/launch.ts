@@ -398,6 +398,7 @@ const innerLaunchHandler = async ({
 		compositionStart: realFrameRange[0],
 		outdir,
 		files: files.sort(),
+		overallProgress,
 	});
 
 	return postRenderData;

@@ -5,7 +5,6 @@ import type {CustomCredentials} from '../../shared/aws-clients';
 import type {RenderProgress} from '../../shared/constants';
 import {
 	chunkKey,
-	encodingProgressKey,
 	MAX_EPHEMERAL_STORAGE_IN_MB,
 	renderMetadataKey,
 	rendersPrefix,
@@ -19,8 +18,6 @@ import {findOutputFileInBucket} from './find-output-file-in-bucket';
 import {formatCostsInfo} from './format-costs-info';
 import {getCleanupProgress} from './get-cleanup-progress';
 import {getCurrentRegionInFunction} from './get-current-region';
-import {getEncodingMetadata} from './get-encoding-metadata';
-import {getEncodingProgressStepSize} from './get-encoding-progress-step-size';
 import {getLambdasInvokedStats} from './get-lambdas-invoked-stats';
 import {getOverallProgress} from './get-overall-progress';
 import {getOverallProgressS3} from './get-overall-progress-s3';
@@ -93,6 +90,8 @@ export const getProgress = async ({
 			done: true,
 			encodingStatus: {
 				framesEncoded: totalFrameCount,
+				combinedFrames: totalFrameCount,
+				timeToCombine: postRenderData.timeToCombine,
 			},
 			errors: postRenderData.errors,
 			fatalErrorEncountered: false,
@@ -112,6 +111,8 @@ export const getProgress = async ({
 			type: 'success',
 			estimatedBillingDurationInMilliseconds:
 				postRenderData.estimatedBillingDurationInMilliseconds,
+			timeToCombine: postRenderData.timeToCombine,
+			combinedFrames: totalFrameCount,
 		};
 	}
 
@@ -227,15 +228,6 @@ export const getProgress = async ({
 			).length
 		: null;
 
-	const frameCountOrNull = frameCount === null ? 0 : frameCount;
-
-	// TODO: This is not needed
-	getEncodingMetadata({
-		exists: contents.find((c) => c.Key === encodingProgressKey(renderId)),
-		frameCount: frameCountOrNull,
-		stepSize: getEncodingProgressStepSize(frameCountOrNull),
-	});
-
 	const chunkCount = overallProgress?.chunks.length ?? 0;
 
 	const missingChunks = renderMetadata
@@ -280,6 +272,8 @@ export const getProgress = async ({
 		done: false,
 		encodingStatus: {
 			framesEncoded: overallProgress?.framesEncoded ?? 0,
+			combinedFrames: overallProgress?.combinedFrames ?? 0,
+			timeToCombine: overallProgress?.timeToCombine ?? null,
 		},
 		costs: priceFromBucket
 			? formatCostsInfo(priceFromBucket.accruedSoFar)
@@ -331,6 +325,8 @@ export const getProgress = async ({
 		estimatedBillingDurationInMilliseconds: priceFromBucket
 			? priceFromBucket.estimatedBillingDurationInMilliseconds
 			: null,
+		combinedFrames: overallProgress?.combinedFrames ?? 0,
+		timeToCombine: overallProgress?.timeToCombine ?? null,
 		type: 'success',
 	};
 };

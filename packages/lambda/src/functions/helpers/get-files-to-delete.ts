@@ -1,5 +1,4 @@
 import {
-	encodingProgressKey,
 	lambdaChunkInitializedPrefix,
 	lambdaTimingsPrefixForChunk,
 } from '../../shared/constants';
@@ -30,9 +29,5 @@ export const getFilesToDelete = ({
 				type: 'prefix' as const,
 			};
 		}),
-		{
-			name: encodingProgressKey(renderId),
-			type: 'exact',
-		},
 	];
 };

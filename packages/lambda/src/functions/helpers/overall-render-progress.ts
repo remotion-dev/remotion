@@ -6,6 +6,8 @@ export type OverallRenderProgress = {
 	chunks: number[];
 	framesRendered: number;
 	framesEncoded: number;
+	combinedFrames: number;
+	timeToCombine: number | null;
 };
 
 export type OverallProgressHelper = {
@@ -21,6 +23,8 @@ export type OverallProgressHelper = {
 		index: number;
 	}) => void;
 	addChunkCompleted: (chunkIndex: number) => void;
+	setCombinedFrames: (framesEncoded: number) => void;
+	setTimeToCombine: (timeToCombine: number) => void;
 };
 
 export const makeOverallRenderProgress = ({
@@ -43,6 +47,8 @@ export const makeOverallRenderProgress = ({
 		chunks: [],
 		framesRendered: 0,
 		framesEncoded: 0,
+		combinedFrames: 0,
+		timeToCombine: null,
 	};
 
 	let currentUploadPromise: Promise<void> | null = null;
@@ -53,6 +59,7 @@ export const makeOverallRenderProgress = ({
 		stopUploading = true;
 	};
 
+	// TODO: What if upload fails?
 	const upload = async () => {
 		if (stopUploading) {
 			return;
@@ -106,6 +113,14 @@ export const makeOverallRenderProgress = ({
 		},
 		addChunkCompleted: (chunkIndex) => {
 			renderProgress.chunks.push(chunkIndex);
+			upload();
+		},
+		setCombinedFrames: (frames: number) => {
+			renderProgress.combinedFrames = frames;
+			upload();
+		},
+		setTimeToCombine: (timeToCombine: number) => {
+			renderProgress.timeToCombine = timeToCombine;
 			upload();
 		},
 	};
