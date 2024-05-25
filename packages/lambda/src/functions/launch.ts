@@ -44,7 +44,6 @@ import {lambdaDeleteFile, lambdaWriteFile} from './helpers/io';
 import {mergeChunksAndFinishRender} from './helpers/merge-chunks';
 import {makeOverallRenderProgress} from './helpers/overall-render-progress';
 import {streamRendererFunctionWithRetry} from './helpers/stream-renderer';
-import {timer} from './helpers/timer';
 import {validateComposition} from './helpers/validate-composition';
 import {
 	getTmpDirStateIfENoSp,
@@ -191,8 +190,6 @@ const innerLaunchHandler = async ({
 	});
 
 	const sortedChunks = chunks.slice().sort((a, b) => a[0] - b[0]);
-
-	const reqSend = timer('sending off requests', params.logLevel);
 
 	const serializedResolved = serializeOrThrow(comp.props, 'resolved-props');
 
@@ -370,11 +367,10 @@ const innerLaunchHandler = async ({
 				outdir,
 				overallProgress,
 				payload,
+				logLevel: params.logLevel,
 			});
 		}),
 	);
-
-	reqSend.end();
 
 	const postRenderData = await mergeChunksAndFinishRender({
 		bucketName: params.bucketName,

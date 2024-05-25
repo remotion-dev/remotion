@@ -1,3 +1,5 @@
+import type {LogLevel} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import {writeFileSync} from 'fs';
 import {join} from 'path';
 import type {LambdaPayload} from '../../defaults';
@@ -23,12 +25,14 @@ const streamRenderer = ({
 	outdir,
 	overallProgress,
 	files,
+	logLevel,
 }: {
 	payload: LambdaPayload;
 	functionName: string;
 	outdir: string;
 	overallProgress: OverallProgressHelper;
 	files: string[];
+	logLevel: LogLevel;
 }) => {
 	if (payload.type !== LambdaRoutines.renderer) {
 		throw new Error('Expected renderer type');
@@ -83,6 +87,21 @@ const streamRenderer = ({
 					rendered: 0,
 				});
 
+				RenderInternals.Log.error(
+					{
+						indent: false,
+						logLevel,
+					},
+					`Renderer function of chunk ${payload.chunk} failed with error: ${message.payload.error}`,
+				);
+				RenderInternals.Log.error(
+					{
+						indent: false,
+						logLevel,
+					},
+					`Will retry chunk = ${message.payload.shouldRetry}`,
+				);
+
 				resolve({
 					type: 'error',
 					error: message.payload.error,
@@ -123,12 +142,14 @@ export const streamRendererFunctionWithRetry = async ({
 	functionName,
 	outdir,
 	overallProgress,
+	logLevel,
 }: {
 	payload: LambdaPayload;
 	functionName: string;
 	outdir: string;
 	overallProgress: OverallProgressHelper;
 	files: string[];
+	logLevel: LogLevel;
 }): Promise<unknown> => {
 	if (payload.type !== LambdaRoutines.renderer) {
 		throw new Error('Expected renderer type');
@@ -140,6 +161,7 @@ export const streamRendererFunctionWithRetry = async ({
 		outdir,
 		overallProgress,
 		payload,
+		logLevel,
 	});
 
 	if (result.type === 'error') {
@@ -157,6 +179,7 @@ export const streamRendererFunctionWithRetry = async ({
 				attempt: payload.attempt + 1,
 				retriesLeft: payload.retriesLeft - 1,
 			},
+			logLevel,
 		});
 	}
 };
