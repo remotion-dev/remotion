@@ -3,10 +3,9 @@ import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
 import {VERSION} from 'remotion/version';
-import {callLambda} from '../shared/call-lambda';
 import {writeLambdaInitializedFile} from '../shared/chunk-progress';
 import {decompressInputProps} from '../shared/compress-props';
-import type {LambdaPayload, LambdaPayloads} from '../shared/constants';
+import type {LambdaPayload} from '../shared/constants';
 import {
 	LambdaRoutines,
 	RENDERER_PATH_TOKEN,
@@ -398,10 +397,12 @@ export const rendererHandler = async (
 
 		const shouldRetry =
 			isRetryableError && params.retriesLeft > 0 && !shouldNotRetry;
-		const isFatal = !shouldRetry;
 
-		console.log(`Error occurred (will retry = ${String(shouldRetry)})`);
-		console.log(err);
+		RenderInternals.Log.error(
+			{indent: false, logLevel: params.logLevel},
+			`Error occurred (will retry = ${String(shouldRetry)})`,
+		);
+		RenderInternals.Log.error({indent: false, logLevel: params.logLevel}, err);
 
 		onStream({
 			type: 'error-occurred',
@@ -411,7 +412,7 @@ export const rendererHandler = async (
 			},
 		});
 
-		// TODO: Stream 'error-occurred'
+		// TODO: Error should be handled right away in launch function
 		await writeLambdaError({
 			bucketName: params.bucketName,
 			errorInfo: {
@@ -421,7 +422,7 @@ export const rendererHandler = async (
 				chunk: params.chunk,
 				frame: null,
 				type: 'renderer',
-				isFatal,
+				isFatal: !shouldRetry,
 				tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
 				attempt: params.attempt,
 				totalAttempts: params.retriesLeft + params.attempt,
@@ -430,24 +431,6 @@ export const rendererHandler = async (
 			renderId: params.renderId,
 			expectedBucketOwner: options.expectedBucketOwner,
 		});
-		// TODO: This does not stream anymore
-		if (shouldRetry) {
-			const retryPayload: LambdaPayloads[LambdaRoutines.renderer] = {
-				...params,
-				retriesLeft: params.retriesLeft - 1,
-				attempt: params.attempt + 1,
-			};
-			const res = await callLambda({
-				functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
-				payload: retryPayload,
-				type: LambdaRoutines.renderer,
-				region: getCurrentRegionInFunction(),
-				timeoutInTest: 120000,
-				retriesRemaining: 0,
-			});
-
-			return res;
-		}
 
 		throw err;
 	} finally {
