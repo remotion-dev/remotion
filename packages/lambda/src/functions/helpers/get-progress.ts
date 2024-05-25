@@ -21,7 +21,6 @@ import {getCleanupProgress} from './get-cleanup-progress';
 import {getCurrentRegionInFunction} from './get-current-region';
 import {getEncodingMetadata} from './get-encoding-metadata';
 import {getEncodingProgressStepSize} from './get-encoding-progress-step-size';
-import {getFinalEncodingStatus} from './get-final-encoding-status';
 import {getLambdasInvokedStats} from './get-lambdas-invoked-stats';
 import {getOverallProgress} from './get-overall-progress';
 import {getOverallProgressS3} from './get-overall-progress-s3';
@@ -230,16 +229,11 @@ export const getProgress = async ({
 
 	const frameCountOrNull = frameCount === null ? 0 : frameCount;
 
-	const encodingStatus = getEncodingMetadata({
+	// TODO: This is not needed
+	getEncodingMetadata({
 		exists: contents.find((c) => c.Key === encodingProgressKey(renderId)),
 		frameCount: frameCountOrNull,
 		stepSize: getEncodingProgressStepSize(frameCountOrNull),
-	});
-
-	const finalEncodingStatus = getFinalEncodingStatus({
-		encodingProgress: encodingStatus,
-		outputFileExists: Boolean(outputFile),
-		renderMetadata,
 	});
 
 	const chunkCount = overallProgress?.chunks.length ?? 0;
@@ -284,7 +278,9 @@ export const getProgress = async ({
 		framesRendered: overallProgress?.framesRendered ?? 0,
 		chunks: chunkCount,
 		done: false,
-		encodingStatus,
+		encodingStatus: {
+			framesEncoded: overallProgress?.framesEncoded ?? 0,
+		},
 		costs: priceFromBucket
 			? formatCostsInfo(priceFromBucket.accruedSoFar)
 			: formatCostsInfo(0),
@@ -309,8 +305,8 @@ export const getProgress = async ({
 		overallProgress: getOverallProgress({
 			cleanup: cleanup ? cleanup.filesDeleted / cleanup.minFilesToDelete : 0,
 			encoding:
-				finalEncodingStatus && renderMetadata && frameCount
-					? finalEncodingStatus.framesEncoded / frameCount
+				renderMetadata && frameCount
+					? overallProgress?.framesEncoded ?? 0 / frameCount
 					: 0,
 			invoking: renderMetadata
 				? lambdasInvokedStats.lambdasInvoked /

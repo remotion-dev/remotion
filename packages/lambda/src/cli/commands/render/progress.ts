@@ -18,6 +18,7 @@ type LambdaInvokeProgress = {
 type ChunkProgress = {
 	doneIn: number | null;
 	framesRendered: number;
+	framesEncoded: number;
 	totalFrames: number | null;
 	totalChunks: number | null;
 	chunksEncoded: number;
@@ -53,13 +54,11 @@ const makeRenderProgress = ({
 }: {
 	chunkProgress: ChunkProgress;
 }) => {
-	const {chunksEncoded, totalChunks, doneIn} = chunkProgress;
+	const {doneIn, framesRendered, totalFrames, framesEncoded} = chunkProgress;
 	const renderProgress =
-		chunkProgress.totalFrames === null
-			? 0
-			: chunkProgress.framesRendered / chunkProgress.totalFrames;
+		totalFrames === null ? 0 : framesRendered / totalFrames;
 	const encodingProgress =
-		totalChunks === null ? 0 : chunksEncoded / totalChunks;
+		totalFrames === null ? 0 : framesEncoded / totalFrames;
 
 	const frames =
 		chunkProgress.totalFrames === null
@@ -78,15 +77,19 @@ const makeRenderProgress = ({
 		.join(' ');
 
 	const second = [
-		`${doneIn === null ? 'Encoding' : 'Encoded'} chunks`.padEnd(
+		`${doneIn === null ? 'Encoding' : 'Encoded'} frames`.padEnd(
 			CliInternals.LABEL_WIDTH,
 			' ',
 		),
 		CliInternals.makeProgressBar(encodingProgress),
 		doneIn === null
-			? `${Math.round(encodingProgress * 100)}%`
+			? totalFrames === null
+				? null
+				: `${framesEncoded}/${totalFrames}`
 			: CliInternals.chalk.gray(`${doneIn}ms`),
-	].join(' ');
+	]
+		.filter(truthy)
+		.join(' ');
 
 	return [first, second];
 };
@@ -183,6 +186,7 @@ export const makeMultiProgressFromStatus = (
 			totalChunks: status.renderMetadata?.totalChunks ?? null,
 			doneIn: status.timeToFinishChunks,
 			framesRendered: status.framesRendered,
+			framesEncoded: status.encodingStatus?.framesEncoded ?? 0,
 			totalFrames:
 				status.renderMetadata && status.renderMetadata.type === 'video'
 					? RenderInternals.getFramesToRender(
