@@ -43,8 +43,10 @@ const makeInvokeProgress = (
 		),
 		CliInternals.makeProgressBar(progress),
 		progress === 1
-			? CliInternals.chalk.gray('100%')
-			: `${Math.round(progress * 100)}%`,
+			? CliInternals.chalk.gray(`${lambdasInvoked}/${totalLambdas}`)
+			: totalLambdas === null
+				? null
+				: `${lambdasInvoked}/${totalLambdas}`,
 		retriesInfo.length > 0 ? `(+${retriesInfo.length} retries)` : [],
 	].join(' ');
 };
@@ -114,7 +116,7 @@ const makeEncodingProgress = ({
 	}
 
 	return [
-		`${timeToEncode === null ? 'Combining' : 'Combined'} videos`.padEnd(
+		`${timeToEncode === null ? 'Combining' : 'Combined'} chunks`.padEnd(
 			CliInternals.LABEL_WIDTH,
 			' ',
 		),
