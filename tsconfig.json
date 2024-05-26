@@ -55,6 +55,9 @@
       "path": "./packages/example-without-zod"
     },
     {
+      "path": "./packages/fonts"
+    },
+    {
       "path": "./packages/gif"
     },
     {
