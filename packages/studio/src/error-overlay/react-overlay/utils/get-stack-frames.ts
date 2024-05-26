@@ -9,8 +9,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import type {SymbolicatedStackFrame} from '@remotion/studio-shared';
 import {parseError} from './parser';
-import type {SymbolicatedStackFrame} from './stack-frame';
 import {unmap} from './unmapper';
 
 export const getStackFrames = async (

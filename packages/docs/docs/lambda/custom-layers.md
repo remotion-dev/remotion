@@ -8,7 +8,7 @@ crumb: "Lambda"
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-The Lambda function [includes FFMPEG, Chrome and base fonts by default](/docs/lambda/runtime).
+The Lambda function [includes Chrome and base fonts by default](/docs/lambda/runtime).
 
 In some advanced use cases, you want to replace certain parts of the stack:
 

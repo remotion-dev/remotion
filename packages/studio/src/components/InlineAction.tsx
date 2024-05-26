@@ -1,5 +1,5 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import {getBackgroundFromHoverState, LIGHT_TEXT} from '../helpers/colors';
+import {LIGHT_TEXT, getBackgroundFromHoverState} from '../helpers/colors';
 import {useZIndex} from '../state/z-index';
 
 export type RenderInlineAction = (color: string) => React.ReactNode;

@@ -1,10 +1,10 @@
+import {formatBytes} from '@remotion/studio-shared';
 import React from 'react';
-import {formatBytes} from '../helpers/format-bytes';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {JSONViewer} from './JSONViewer';
-import {Spacing} from './layout';
 import type {AssetFileType} from './Preview';
 import {TextViewer} from './TextViewer';
+import {Spacing} from './layout';
 
 const msgStyle: React.CSSProperties = {
 	fontSize: 13,

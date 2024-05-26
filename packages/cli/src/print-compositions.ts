@@ -1,6 +1,7 @@
+import type {LogLevel} from '@remotion/renderer';
 import type {VideoConfig} from 'remotion';
 import {Log} from './log';
-import {quietFlagProvided} from './parse-command-line';
+import {quietFlagProvided} from './parsed-cli';
 
 const max = (arr: number[]) => {
 	if (arr.length === 0) {
@@ -18,15 +19,24 @@ const max = (arr: number[]) => {
 	return biggest;
 };
 
-export const printCompositions = (compositions: VideoConfig[]) => {
+export const printCompositions = (
+	compositions: VideoConfig[],
+	logLevel: LogLevel,
+) => {
 	if (!quietFlagProvided()) {
-		Log.info();
-		Log.info('The following compositions are available:');
-		Log.info();
+		Log.info({indent: false, logLevel});
+		Log.info(
+			{indent: false, logLevel},
+			'The following compositions are available:',
+		);
+		Log.info({indent: false, logLevel});
 	}
 
 	if (quietFlagProvided()) {
-		Log.info(compositions.map((c) => c.id).join(' '));
+		Log.info(
+			{indent: false, logLevel},
+			compositions.map((c) => c.id).join(' '),
+		);
 		return;
 	}
 
@@ -35,6 +45,7 @@ export const printCompositions = (compositions: VideoConfig[]) => {
 	const thirdColumnLength = 15;
 
 	Log.info(
+		{indent: false, logLevel},
 		compositions
 			.map((comp) => {
 				const isStill = comp.durationInFrames === 1;

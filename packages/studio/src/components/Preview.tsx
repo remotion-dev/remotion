@@ -13,7 +13,6 @@ import {LIGHT_TEXT} from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import type {Dimensions} from '../helpers/is-current-selected-still';
 import {CheckerboardContext} from '../state/checkerboard';
-import {PreviewSizeContext} from '../state/preview-size';
 import {RenderPreview} from './RenderPreview';
 import {Spinner} from './Spinner';
 import {StaticFilePreview} from './StaticFilePreview';
@@ -105,11 +104,18 @@ const containerStyle = (options: {
 };
 
 export const VideoPreview: React.FC<{
-	canvasSize: Size;
-	contentDimensions: Dimensions | 'none' | null;
-	canvasContent: CanvasContent;
-	assetMetadata: AssetMetadata | null;
-}> = ({canvasSize, contentDimensions, canvasContent, assetMetadata}) => {
+	readonly canvasSize: Size;
+	readonly contentDimensions: Dimensions | 'none' | null;
+	readonly canvasContent: CanvasContent;
+	readonly assetMetadata: AssetMetadata | null;
+	readonly isRefreshing: boolean;
+}> = ({
+	canvasSize,
+	contentDimensions,
+	canvasContent,
+	assetMetadata,
+	isRefreshing,
+}) => {
 	if (assetMetadata && assetMetadata.type === 'not-found') {
 		return (
 			<div style={centeredContainer}>
@@ -132,17 +138,25 @@ export const VideoPreview: React.FC<{
 			canvasSize={canvasSize}
 			canvasContent={canvasContent}
 			assetMetadata={assetMetadata}
+			isRefreshing={isRefreshing}
 		/>
 	);
 };
 
 const CompWhenItHasDimensions: React.FC<{
-	contentDimensions: Dimensions | 'none';
-	canvasSize: Size;
-	canvasContent: CanvasContent;
-	assetMetadata: AssetMetadata | null;
-}> = ({contentDimensions, canvasSize, canvasContent, assetMetadata}) => {
-	const {size: previewSize} = useContext(PreviewSizeContext);
+	readonly contentDimensions: Dimensions | 'none';
+	readonly canvasSize: Size;
+	readonly canvasContent: CanvasContent;
+	readonly assetMetadata: AssetMetadata | null;
+	readonly isRefreshing: boolean;
+}> = ({
+	contentDimensions,
+	canvasSize,
+	canvasContent,
+	assetMetadata,
+	isRefreshing,
+}) => {
+	const {size: previewSize} = useContext(Internals.PreviewSizeContext);
 
 	const {centerX, centerY, yCorrection, xCorrection, scale} = useMemo(() => {
 		if (contentDimensions === 'none') {
@@ -183,6 +197,7 @@ const CompWhenItHasDimensions: React.FC<{
 				getPreviewFileType(canvasContent.asset) === 'audio'
 					? 'center'
 					: 'normal',
+			opacity: isRefreshing ? 0.5 : 1,
 		};
 	}, [
 		contentDimensions,
@@ -192,6 +207,7 @@ const CompWhenItHasDimensions: React.FC<{
 		previewSize.translation.y,
 		centerY,
 		canvasContent,
+		isRefreshing,
 	]);
 
 	return (
@@ -219,10 +235,10 @@ const CompWhenItHasDimensions: React.FC<{
 };
 
 const PortalContainer: React.FC<{
-	scale: number;
-	xCorrection: number;
-	yCorrection: number;
-	contentDimensions: Dimensions;
+	readonly scale: number;
+	readonly xCorrection: number;
+	readonly yCorrection: number;
+	readonly contentDimensions: Dimensions;
 }> = ({scale, xCorrection, yCorrection, contentDimensions}) => {
 	const {checkerboard} = useContext(CheckerboardContext);
 

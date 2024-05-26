@@ -1,8 +1,20 @@
+import type {ENABLE_V5_BREAKING_CHANGES} from '../v5-flag.js';
 import {validateFps} from '../validation/validate-fps.js';
-import type {SpringConfig} from './spring-utils.js';
+import type {SpringConfig} from './spring-utils';
 import {springCalculation} from './spring-utils.js';
 
 const cache = new Map<string, number>();
+
+type V4Props = {
+	from?: number;
+	to?: number;
+};
+
+type MeasureSpringProps = {
+	fps: number;
+	config?: Partial<SpringConfig>;
+	threshold?: number;
+} & (false extends typeof ENABLE_V5_BREAKING_CHANGES ? V4Props : {});
 
 /**
  * @description The function returns how long it takes for a spring animation to settle
@@ -12,15 +24,7 @@ export function measureSpring({
 	fps,
 	config = {},
 	threshold = 0.005,
-	from = 0,
-	to = 1,
-}: {
-	fps: number;
-	config?: Partial<SpringConfig>;
-	threshold?: number;
-	from?: number;
-	to?: number;
-}): number {
+}: MeasureSpringProps): number {
 	if (typeof threshold !== 'number') {
 		throw new TypeError(
 			`threshold must be a number, got ${threshold} of type ${typeof threshold}`,
@@ -53,8 +57,6 @@ export function measureSpring({
 		config.mass,
 		config.overshootClamping,
 		config.stiffness,
-		from,
-		to,
 		threshold,
 	].join('-');
 	if (cache.has(cacheKey)) {
@@ -63,7 +65,6 @@ export function measureSpring({
 
 	validateFps(fps, 'to the measureSpring() function', false);
 
-	const range = Math.abs(from - to);
 	let frame = 0;
 	let finishedFrame = 0;
 	const calc = () => {
@@ -71,17 +72,12 @@ export function measureSpring({
 			fps,
 			frame,
 			config,
-			from,
-			to,
 		});
 	};
 
 	let animation = calc();
 	const calcDifference = () => {
-		return (
-			Math.abs(animation.current - animation.toValue) /
-			(range === 0 ? 1 : range)
-		);
+		return Math.abs(animation.current - animation.toValue);
 	};
 
 	let difference = calcDifference();

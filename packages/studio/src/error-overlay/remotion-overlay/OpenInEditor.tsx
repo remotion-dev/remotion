@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import type {SymbolicatedStackFrame} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useEffect,
@@ -6,10 +7,9 @@ import React, {
 	useReducer,
 	useRef,
 } from 'react';
+import {Button} from '../../components/Button';
 import {openInEditor} from '../../helpers/open-in-editor';
 import {useKeybinding} from '../../helpers/use-keybinding';
-import type {SymbolicatedStackFrame} from '../react-overlay/utils/stack-frame';
-import {Button} from './Button';
 import {ShortcutHint} from './ShortcutHint';
 
 type State =

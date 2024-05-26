@@ -39,7 +39,7 @@ const { serveUrl } = await deploySite({
       sizeUploaded,
     }) => {
       console.log(
-        `Upload progress: Total files ${totalFiles}, Files uploaded ${filesUploaded}, Total size ${totalSize}, Size uploaded ${sizeUploaded}`
+        `Upload progress: Total files ${totalFiles}, Files uploaded ${filesUploaded}, Total size ${totalSize}, Size uploaded ${sizeUploaded}`,
       );
     },
   },
@@ -53,7 +53,7 @@ An object with the following properties:
 
 ### `entryPoint`
 
-An absolute path pointing to the entry point of your Remotion project. [Usually the entry point in your Remotion project is stored at `src/entry.tsx`](/docs/terminology#entry-point).
+An absolute path pointing to the entry point of your Remotion project. [Usually the entry point in your Remotion project is stored at `src/entry.tsx`](/docs/terminology/entry-point).
 
 ### `bucketName`
 
@@ -94,7 +94,7 @@ Whether webpack caching should be enabled. See [`bundle()` -> enableCaching](/do
 
 #### `publicDir`
 
-Set the directory in which the files that can be loaded using [`staticFile()`](/docs/staticfile) are located. By default it is the folder `public/` located in the [Remotion Root](/docs/terminology#remotion-root) folder. If you pass a relative path, it will be resolved against the [Remotion Root](/docs/terminology#remotion-root).
+Set the directory in which the files that can be loaded using [`staticFile()`](/docs/staticfile) are located. By default it is the folder `public/` located in the [Remotion Root](/docs/terminology/remotion-root) folder. If you pass a relative path, it will be resolved against the [Remotion Root](/docs/terminology/remotion-root).
 
 #### `rootDir`
 
@@ -112,20 +112,36 @@ Ignore an error that gets thrown if you pass an entry point file which does not 
 
 An object with the following values:
 
-- `serveUrl` _(string)_: An URL such as `https://storage.googleapis.com/remotioncloudrun-123asd321/sites/abcdefgh/index.html`.
+### `serveUrl`
 
-  You can use this "Serve URL" to render a video on Remotion Cloud Run using:
+string\_
 
-  - The [`npx remotion cloudrun render`](/docs/cloudrun/cli/render) command
-  - The [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun) and [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun) functions.
-  - Locally using the [`renderMedia()`](/docs/renderer/render-media) and [`renderStill()`](/docs/renderer/render-still) functions.
-  - Locally using the [`npx remotion render`](/docs/cli) and [`npx remotion still`](/docs/cli) commands
+An URL such as `https://storage.googleapis.com/remotioncloudrun-123asd321/sites/abcdefgh/index.html`.
 
-  If you are rendering on Cloud Run, you can also pass the site name (in this case `abcdefgh`) as an abbreviation.
+You can use this "Serve URL" to render a video on Remotion Cloud Run using:
 
-- `siteName` _(string)_: The identifier of the site that was given. Is either the site name that you have passed into this function, or a random string that was generated if you didn't pass a site name.
+- The [`npx remotion cloudrun render`](/docs/cloudrun/cli/render) command
+- The [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun) and [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun) functions.
+- Locally using the [`renderMedia()`](/docs/renderer/render-media) and [`renderStill()`](/docs/renderer/render-still) functions.
+- Locally using the [`npx remotion render`](/docs/cli) and [`npx remotion still`](/docs/cli) commands
 
-- `stats`: An object with 3 entries: `uploadedFiles`, `deletedFiles` and `untouchedFiles`. Each one is a `number`.
+If you are rendering on Cloud Run, you can also pass the site name (in this case `abcdefgh`) as an abbreviation.
+
+### `siteName`
+
+_string_
+
+The identifier of the site that was given. Is either the site name that you have passed into this function, or a random string that was generated if you didn't pass a site name.
+
+### `stats`
+
+An object with 3 entries:
+
+- `uploadedFiles`
+- `deletedFiles`
+- `untouchedFiles`
+
+Each one is a `number`.
 
 ## See also
 

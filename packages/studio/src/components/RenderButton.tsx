@@ -11,12 +11,12 @@ import type {
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
-import {Button} from '../error-overlay/remotion-overlay/Button';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {RenderIcon} from '../icons/render';
 import {useTimelineInOutFramePosition} from '../state/in-out';
 import {ModalsContext} from '../state/modals';
+import {Button} from './Button';
 import {Row, Spacing} from './layout';
 
 const button: React.CSSProperties = {
@@ -33,12 +33,12 @@ const label: React.CSSProperties = {
 export const RenderButton: React.FC = () => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const {setSelectedModal} = useContext(ModalsContext);
-	const {type} = useContext(StudioServerConnectionCtx);
 
-	const connectionStatus = useContext(StudioServerConnectionCtx).type;
+	const connectionStatus = useContext(StudioServerConnectionCtx)
+		.previewServerState.type;
 	const shortcut = areKeyboardShortcutsDisabled() ? '' : '(R)';
 	const tooltip =
-		type === 'connected'
+		connectionStatus === 'connected'
 			? 'Export the current composition ' + shortcut
 			: 'Connect to the Studio server to render';
 
@@ -107,6 +107,9 @@ export const RenderButton: React.FC = () => {
 			initialEncodingMaxRate: defaults.encodingMaxRate,
 			initialUserAgent: defaults.userAgent,
 			initialBeep: defaults.beepOnFinish,
+			initialRepro: defaults.repro,
+			initialForSeamlessAacConcatenation: defaults.forSeamlessAacConcatenation,
+			renderTypeOfLastRender: null,
 		});
 	}, [video, setSelectedModal, frame, props, inFrame, outFrame]);
 

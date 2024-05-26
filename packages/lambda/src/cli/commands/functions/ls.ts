@@ -1,6 +1,7 @@
 import {CliInternals} from '@remotion/cli';
-import {RenderInternals} from '@remotion/renderer';
+import type {LogLevel} from '@remotion/renderer';
 import {getFunctions} from '../../../api/get-functions';
+import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 
 const NAME_COLS = 70;
@@ -11,30 +12,35 @@ const VERSION_COLS = 15;
 
 export const FUNCTIONS_LS_SUBCOMMAND = 'ls';
 
-export const functionsLsCommand = async () => {
+export const functionsLsCommand = async (logLevel: LogLevel) => {
 	const region = getAwsRegion();
 	const fetchingOutput = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
 		cancelSignal: null,
 		updatesDontOverwrite: CliInternals.shouldUseNonOverlayingLogger({
-			logLevel: RenderInternals.getLogLevel(),
+			logLevel,
 		}),
 		indent: false,
 	});
 	fetchingOutput.update('Getting functions...', false);
 
+	const compatibleOnly = parsedLambdaCli['compatible-only'] || false;
+
 	const functions = await getFunctions({
 		region,
-		compatibleOnly: false,
+		compatibleOnly,
 	});
 
 	if (CliInternals.quietFlagProvided()) {
 		if (functions.length === 0) {
-			CliInternals.Log.info('()');
+			CliInternals.Log.info({indent: false, logLevel}, '()');
 			return;
 		}
 
-		CliInternals.Log.info(functions.map((f) => f.functionName).join(' '));
+		CliInternals.Log.info(
+			{indent: false, logLevel},
+			functions.map((f) => f.functionName).join(' '),
+		);
 		return;
 	}
 
@@ -45,8 +51,9 @@ export const functionsLsCommand = async () => {
 		`${functions.length} ${pluralized} in the ${region} region`,
 		true,
 	);
-	CliInternals.Log.info();
+	CliInternals.Log.info({indent: false, logLevel});
 	CliInternals.Log.info(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			[
 				'Name'.padEnd(NAME_COLS, ' '),
@@ -60,6 +67,7 @@ export const functionsLsCommand = async () => {
 
 	for (const datapoint of functions) {
 		CliInternals.Log.info(
+			{indent: false, logLevel},
 			[
 				datapoint.functionName.padEnd(NAME_COLS, ' '),
 				datapoint.version

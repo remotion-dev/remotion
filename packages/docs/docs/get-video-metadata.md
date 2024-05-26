@@ -29,7 +29,7 @@ A string pointing to an asset.
 - `aspectRatio`: `number` Video width divided by video height.
 - `isRemote`: `boolean` Whether the video was imported locally or from a different origin.
 
-:::warn
+:::warning
 `durationInSeconds` may return `Infinity`. This happens if the duration of the video is not stored in the beginning of the file.  
 This is for example the case for videos that are recorded with a webcam and being encoded while the recording is still in progress.  
 Ensure handling for `Infinity` for user-provided videos and re-encode videos with FFmpeg to move the duration to the beginning of the file.

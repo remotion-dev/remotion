@@ -67,7 +67,7 @@ export class LifecycleWatcher {
 
 	#timeoutPromise: Promise<TimeoutError | undefined>;
 
-	#maximumTimer?: NodeJS.Timeout;
+	#maximumTimer?: Timer;
 	#hasSameDocumentNavigation?: boolean;
 	#newDocumentNavigation?: boolean;
 	#swapped?: boolean;

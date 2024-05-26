@@ -51,11 +51,15 @@ const ffmpegIsOneOfFrames = ({
 		.join('+');
 };
 
-const ffmpegBuildVolumeExpression = (
-	arr: VolumeArray,
-	delay: number,
-	fps: number,
-): string => {
+const ffmpegBuildVolumeExpression = ({
+	arr,
+	delay,
+	fps,
+}: {
+	arr: VolumeArray;
+	delay: number;
+	fps: number;
+}): string => {
 	if (arr.length === 0) {
 		throw new Error('Volume array expression should never have length 0');
 	}
@@ -66,10 +70,11 @@ const ffmpegBuildVolumeExpression = (
 
 	const [first, ...rest] = arr;
 	const [volume, frames] = first;
+
 	return ffmpegIfOrElse(
 		ffmpegIsOneOfFrames({frames, trimLeft: delay, fps}),
 		String(volume),
-		ffmpegBuildVolumeExpression(rest, delay, fps),
+		ffmpegBuildVolumeExpression({arr: rest, delay, fps}),
 	);
 };
 
@@ -138,7 +143,11 @@ export const ffmpegVolumeExpression = ({
 		.sort((a, b) => a[1].length - b[1].length);
 
 	// Construct and tell FFMPEG it has to evaluate expression on each frame
-	const expression = ffmpegBuildVolumeExpression(volumeArray, trimLeft, fps);
+	const expression = ffmpegBuildVolumeExpression({
+		arr: volumeArray,
+		delay: trimLeft,
+		fps,
+	});
 
 	return {
 		eval: 'frame',

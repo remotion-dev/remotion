@@ -11,6 +11,7 @@ import {
 	rendersPrefix,
 } from '../../shared/constants';
 import {parseLambdaChunkKey} from '../../shared/parse-chunk-key';
+import {truthy} from '../../shared/truthy';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import {estimatePriceFromBucket} from './calculate-price-from-bucket';
 import {checkIfRenderExists} from './check-if-render-exists';
@@ -20,6 +21,7 @@ import {formatCostsInfo} from './format-costs-info';
 import {getCleanupProgress} from './get-cleanup-progress';
 import {getCurrentRegionInFunction} from './get-current-region';
 import {getEncodingMetadata} from './get-encoding-metadata';
+import {getEncodingProgressStepSize} from './get-encoding-progress-step-size';
 import {getFinalEncodingStatus} from './get-final-encoding-status';
 import {getLambdasInvokedStats} from './get-lambdas-invoked-stats';
 import {getOverallProgress} from './get-overall-progress';
@@ -31,6 +33,7 @@ import {getTimeToFinish} from './get-time-to-finish';
 import {inspectErrors} from './inspect-errors';
 import {lambdaLs} from './io';
 import {makeTimeoutError} from './make-timeout-error';
+import {lambdaRenderHasAudioVideo} from './render-has-audio-video';
 import type {EnhancedErrorInfo} from './write-lambda-error';
 
 export const getProgress = async ({
@@ -64,10 +67,13 @@ export const getProgress = async ({
 			customCredentials,
 		);
 
-		const totalFrameCount = RenderInternals.getFramesToRender(
-			postRenderData.renderMetadata.frameRange,
-			postRenderData.renderMetadata.everyNthFrame,
-		).length;
+		const totalFrameCount =
+			postRenderData.renderMetadata.type === 'still'
+				? 1
+				: RenderInternals.getFramesToRender(
+						postRenderData.renderMetadata.frameRange,
+						postRenderData.renderMetadata.everyNthFrame,
+					).length;
 
 		return {
 			framesRendered: totalFrameCount,
@@ -173,17 +179,25 @@ export const getProgress = async ({
 		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
 	});
 
+	const {hasAudio, hasVideo} = renderMetadata
+		? lambdaRenderHasAudioVideo(renderMetadata)
+		: {hasAudio: false, hasVideo: false};
+
 	const cleanup = getCleanupProgress({
 		chunkCount: renderMetadata?.totalChunks ?? 0,
 		contents,
 		output: outputFile?.url ?? null,
 		renderId,
+		hasAudio,
+		hasVideo,
 	});
 
 	const timeToFinish = getTimeToFinish({
 		lastModified: outputFile?.lastModified ?? null,
 		renderMetadata,
 	});
+
+	const chunkMultiplier = [hasAudio, hasVideo].filter(truthy).length;
 
 	const chunks = contents.filter((c) => c.Key?.startsWith(chunkKey(renderId)));
 	const framesRendered = renderMetadata
@@ -196,7 +210,9 @@ export const getProgress = async ({
 			})
 		: 0;
 
-	const allChunks = chunks.length === (renderMetadata?.totalChunks ?? Infinity);
+	const allChunks =
+		chunks.length / chunkMultiplier ===
+		(renderMetadata?.totalChunks ?? Infinity);
 	const renderSize = contents
 		.map((c) => c.Size ?? 0)
 		.reduce((a, b) => a + b, 0);
@@ -218,9 +234,12 @@ export const getProgress = async ({
 			).length
 		: null;
 
+	const frameCountOrNull = frameCount === null ? 0 : frameCount;
+
 	const encodingStatus = getEncodingMetadata({
 		exists: contents.find((c) => c.Key === encodingProgressKey(renderId)),
-		frameCount: frameCount === null ? 0 : frameCount,
+		frameCount: frameCountOrNull,
+		stepSize: getEncodingProgressStepSize(frameCountOrNull),
 	});
 
 	const finalEncodingStatus = getFinalEncodingStatus({
@@ -231,7 +250,7 @@ export const getProgress = async ({
 
 	const chunkCount = outputFile
 		? renderMetadata?.totalChunks ?? 0
-		: chunks.length;
+		: chunks.length / chunkMultiplier;
 
 	const availableChunks = chunks.map((c) =>
 		parseLambdaChunkKey(c.Key as string),

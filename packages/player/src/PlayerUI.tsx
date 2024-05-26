@@ -1,7 +1,7 @@
 import type {MouseEventHandler, SyntheticEvent} from 'react';
 import React, {
-	forwardRef,
 	Suspense,
+	forwardRef,
 	useCallback,
 	useContext,
 	useEffect,
@@ -10,7 +10,13 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import type {CurrentScaleContextType} from 'remotion';
 import {Internals} from 'remotion';
+import type {
+	RenderFullscreenButton,
+	RenderPlayPauseButton,
+} from './PlayerControls.js';
+import {Controls} from './PlayerControls.js';
 import {
 	calculateCanvasTransformation,
 	calculateContainerStyle,
@@ -20,11 +26,6 @@ import {
 import {ErrorBoundary} from './error-boundary.js';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
 import type {PlayerMethods, PlayerRef} from './player-methods.js';
-import type {
-	RenderFullscreenButton,
-	RenderPlayPauseButton,
-} from './PlayerControls.js';
-import {Controls} from './PlayerControls.js';
 import {usePlayback} from './use-playback.js';
 import {usePlayer} from './use-player.js';
 import {IS_NODE} from './utils/is-node.js';
@@ -35,6 +36,7 @@ export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
 export type RenderLoading = (canvas: {
 	height: number;
 	width: number;
+	isBuffering: boolean;
 }) => React.ReactNode;
 export type RenderPoster = RenderLoading;
 export type PosterFillMode = 'player-size' | 'composition-size';
@@ -50,33 +52,36 @@ const doesReactVersionSupportSuspense = parseInt(reactVersion, 10) >= 18;
 const PlayerUI: React.ForwardRefRenderFunction<
 	PlayerRef,
 	{
-		controls: boolean;
-		loop: boolean;
-		autoPlay: boolean;
-		allowFullscreen: boolean;
-		inputProps: Record<string, unknown>;
-		showVolumeControls: boolean;
-		style?: React.CSSProperties;
-		clickToPlay: boolean;
-		doubleClickToFullscreen: boolean;
-		spaceKeyToPlayOrPause: boolean;
-		errorFallback: ErrorFallback;
-		playbackRate: number;
-		renderLoading: RenderLoading | undefined;
-		renderPoster: RenderPoster | undefined;
-		className: string | undefined;
-		moveToBeginningWhenEnded: boolean;
-		showPosterWhenPaused: boolean;
-		showPosterWhenEnded: boolean;
-		showPosterWhenUnplayed: boolean;
-		inFrame: number | null;
-		outFrame: number | null;
-		initiallyShowControls: number | boolean;
-		renderPlayPauseButton: RenderPlayPauseButton | null;
-		renderFullscreen: RenderFullscreenButton | null;
-		alwaysShowControls: boolean;
-		showPlaybackRateControl: boolean | number[];
-		posterFillMode: PosterFillMode;
+		readonly controls: boolean;
+		readonly loop: boolean;
+		readonly autoPlay: boolean;
+		readonly allowFullscreen: boolean;
+		readonly inputProps: Record<string, unknown>;
+		readonly showVolumeControls: boolean;
+		readonly style?: React.CSSProperties;
+		readonly clickToPlay: boolean;
+		readonly doubleClickToFullscreen: boolean;
+		readonly spaceKeyToPlayOrPause: boolean;
+		readonly errorFallback: ErrorFallback;
+		readonly playbackRate: number;
+		readonly renderLoading: RenderLoading | undefined;
+		readonly renderPoster: RenderPoster | undefined;
+		readonly className: string | undefined;
+		readonly moveToBeginningWhenEnded: boolean;
+		readonly showPosterWhenPaused: boolean;
+		readonly showPosterWhenEnded: boolean;
+		readonly showPosterWhenUnplayed: boolean;
+		readonly showPosterWhenBuffering: boolean;
+		readonly inFrame: number | null;
+		readonly outFrame: number | null;
+		readonly initiallyShowControls: number | boolean;
+		readonly renderPlayPauseButton: RenderPlayPauseButton | null;
+		readonly renderFullscreen: RenderFullscreenButton | null;
+		readonly alwaysShowControls: boolean;
+		readonly showPlaybackRateControl: boolean | number[];
+		readonly posterFillMode: PosterFillMode;
+		readonly bufferStateDelayInMilliseconds: number;
+		readonly hideControlsWhenPointerDoesntMove: boolean | number;
 	}
 > = (
 	{
@@ -99,6 +104,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		showPosterWhenUnplayed,
 		showPosterWhenEnded,
 		showPosterWhenPaused,
+		showPosterWhenBuffering,
 		inFrame,
 		outFrame,
 		initiallyShowControls,
@@ -107,6 +113,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		alwaysShowControls,
 		showPlaybackRateControl,
 		posterFillMode,
+		bufferStateDelayInMilliseconds,
+		hideControlsWhenPointerDoesntMove,
 	},
 	ref,
 ) => {
@@ -122,6 +130,16 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const [shouldAutoplay, setShouldAutoPlay] = useState(autoPlay);
 	const [isFullscreen, setIsFullscreen] = useState(() => false);
 	const [seeking, setSeeking] = useState(false);
+
+	const supportsFullScreen = useMemo(() => {
+		if (typeof document === 'undefined') {
+			return false;
+		}
+
+		return Boolean(
+			document.fullscreenEnabled || document.webkitFullscreenEnabled,
+		);
+	}, []);
 
 	const player = usePlayer();
 	usePlayback({
@@ -181,9 +199,6 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			throw new Error('allowFullscreen is false');
 		}
 
-		const supportsFullScreen =
-			document.fullscreenEnabled || document.webkitFullscreenEnabled;
-
 		if (!supportsFullScreen) {
 			throw new Error('Browser doesnt support fullscreen');
 		}
@@ -197,7 +212,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		} else {
 			container.current.requestFullscreen();
 		}
-	}, [allowFullscreen]);
+	}, [allowFullscreen, supportsFullScreen]);
 
 	const exitFullscreen = useCallback(() => {
 		if (document.webkitExitFullscreen) {
@@ -278,6 +293,53 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			isMuted,
 		});
 	}, [player.emitter, isMuted]);
+	const [showBufferIndicator, setShowBufferState] = useState<boolean>(false);
+
+	useEffect(() => {
+		let timeout: NodeJS.Timeout | Timer | null = null;
+		let stopped = false;
+
+		const onBuffer = () => {
+			stopped = false;
+			requestAnimationFrame(() => {
+				if (bufferStateDelayInMilliseconds === 0) {
+					setShowBufferState(true);
+				} else {
+					timeout = setTimeout(() => {
+						if (!stopped) {
+							setShowBufferState(true);
+						}
+					}, bufferStateDelayInMilliseconds);
+				}
+			});
+		};
+
+		const onResume = () => {
+			requestAnimationFrame(() => {
+				stopped = true;
+				setShowBufferState(false);
+				if (timeout) {
+					clearTimeout(timeout);
+				}
+			});
+		};
+
+		player.emitter.addEventListener('waiting', onBuffer);
+		player.emitter.addEventListener('resume', onResume);
+
+		return () => {
+			player.emitter.removeEventListener('waiting', onBuffer);
+			player.emitter.removeEventListener('resume', onResume);
+
+			setShowBufferState(false);
+
+			if (timeout) {
+				clearTimeout(timeout);
+			}
+
+			stopped = true;
+		};
+	}, [bufferStateDelayInMilliseconds, player.emitter]);
 
 	useImperativeHandle(
 		ref,
@@ -439,7 +501,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const [handleClick, handleDoubleClick] = useClickPreventionOnDoubleClick(
 		onSingleClick,
 		onDoubleClick,
-		doubleClickToFullscreen,
+		doubleClickToFullscreen && allowFullscreen && supportsFullScreen,
 	);
 
 	useEffect(() => {
@@ -454,9 +516,17 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			? renderLoading({
 					height: outerStyle.height as number,
 					width: outerStyle.width as number,
+					isBuffering: showBufferIndicator,
 				})
 			: null;
-	}, [outerStyle.height, outerStyle.width, renderLoading]);
+	}, [outerStyle.height, outerStyle.width, renderLoading, showBufferIndicator]);
+
+	const currentScale: CurrentScaleContextType = useMemo(() => {
+		return {
+			type: 'scale',
+			scale,
+		};
+	}, [scale]);
 
 	if (!config) {
 		return null;
@@ -472,6 +542,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					posterFillMode === 'player-size'
 						? (outerStyle.width as number)
 						: config.width,
+				isBuffering: showBufferIndicator,
 			})
 		: null;
 
@@ -487,6 +558,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			showPosterWhenPaused && !player.isPlaying() && !seeking,
 			showPosterWhenEnded && player.isLastFrame && !player.isPlaying(),
 			showPosterWhenUnplayed && !player.hasPlayed && !player.isPlaying(),
+			showPosterWhenBuffering && showBufferIndicator && player.isPlaying(),
 		].some(Boolean);
 
 	const {left, top, width, height, ...outerWithoutScale} = outer;
@@ -495,17 +567,19 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		<>
 			<div
 				style={outer}
-				onClick={clickToPlay ? handleClick : undefined}
+				onPointerUp={clickToPlay ? handleClick : undefined}
 				onDoubleClick={doubleClickToFullscreen ? handleDoubleClick : undefined}
 			>
 				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
 							<Internals.ClipComposition>
-								<VideoComponent
-									{...(video?.props ?? {})}
-									{...(inputProps ?? {})}
-								/>
+								<Internals.CurrentScaleContext.Provider value={currentScale}>
+									<VideoComponent
+										{...(video?.props ?? {})}
+										{...(inputProps ?? {})}
+									/>
+								</Internals.CurrentScaleContext.Provider>
 							</Internals.ClipComposition>
 						</ErrorBoundary>
 					) : null}
@@ -516,7 +590,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 								width: config.width,
 								height: config.height,
 							}}
-							onClick={clickToPlay ? handleClick : undefined}
+							onPointerUp={clickToPlay ? handleClick : undefined}
 							onDoubleClick={
 								doubleClickToFullscreen ? handleDoubleClick : undefined
 							}
@@ -529,7 +603,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			{shouldShowPoster && posterFillMode === 'player-size' ? (
 				<div
 					style={outer}
-					onClick={clickToPlay ? handleClick : undefined}
+					onPointerUp={clickToPlay ? handleClick : undefined}
 					onDoubleClick={
 						doubleClickToFullscreen ? handleDoubleClick : undefined
 					}
@@ -559,6 +633,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					renderPlayPauseButton={renderPlayPauseButton}
 					alwaysShowControls={alwaysShowControls}
 					showPlaybackRateControl={showPlaybackRateControl}
+					buffering={showBufferIndicator}
+					hideControlsWhenPointerDoesntMove={hideControlsWhenPointerDoesntMove}
+					onDoubleClick={
+						doubleClickToFullscreen ? handleDoubleClick : undefined
+					}
+					onPointerUp={clickToPlay ? handleClick : undefined}
 				/>
 			) : null}
 		</>

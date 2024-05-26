@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useMemo, useState} from 'react';
+import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
 import {Internals, type StaticFile} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {
@@ -9,17 +9,18 @@ import {
 } from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
 import type {AssetFolder, AssetStructure} from '../helpers/create-folder-tree';
+import {useMobileLayout} from '../helpers/mobile-layout';
+import {pushUrl} from '../helpers/url-state';
+import useAssetDragEvents from '../helpers/use-asset-drag-events';
 import {ClipboardIcon} from '../icons/clipboard';
 import {FileIcon} from '../icons/file';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
+import {SidebarContext} from '../state/sidebar';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
-import {Row, Spacing} from './layout';
-import {
-	notificationCenter,
-	sendErrorNotification,
-} from './Notifications/NotificationCenter';
+import {showNotification} from './Notifications/NotificationCenter';
 import {openInFileExplorer} from './RenderQueue/actions';
+import {Row, Spacing} from './layout';
 
 const ASSET_ITEM_HEIGHT = 32;
 
@@ -64,13 +65,34 @@ const revealIconStyle: React.CSSProperties = {
 };
 
 const AssetFolderItem: React.FC<{
-	item: AssetFolder;
-	tabIndex: number;
-	level: number;
-	parentFolder: string;
-	toggleFolder: (folderName: string, parentName: string | null) => void;
-}> = ({tabIndex, item, level, parentFolder, toggleFolder}) => {
+	readonly item: AssetFolder;
+	readonly tabIndex: number;
+	readonly level: number;
+	readonly parentFolder: string;
+	readonly toggleFolder: (
+		folderName: string,
+		parentName: string | null,
+	) => void;
+	readonly dropLocation: string | null;
+	readonly setDropLocation: React.Dispatch<React.SetStateAction<string | null>>;
+}> = ({
+	tabIndex,
+	item,
+	level,
+	parentFolder,
+	toggleFolder,
+	dropLocation,
+	setDropLocation,
+}) => {
 	const [hovered, setHovered] = useState(false);
+	const openFolderTimerRef = useRef<number | null>(null);
+
+	const {isDropDiv, onDragEnter, onDragLeave} = useAssetDragEvents({
+		name: item.name,
+		parentFolder,
+		dropLocation,
+		setDropLocation,
+	});
 
 	const onPointerEnter = useCallback(() => {
 		setHovered(true);
@@ -102,7 +124,13 @@ const AssetFolderItem: React.FC<{
 	const Icon = item.expanded ? ExpandedFolderIcon : CollapsedFolderIcon;
 
 	return (
-		<>
+		<div
+			onDragEnter={onDragEnter}
+			onDragLeave={onDragLeave}
+			style={{
+				backgroundColor: isDropDiv ? CLEAR_HOVER : BACKGROUND,
+			}}
+		>
 			<div
 				style={folderStyle}
 				onPointerEnter={onPointerEnter}
@@ -110,6 +138,18 @@ const AssetFolderItem: React.FC<{
 				tabIndex={tabIndex}
 				title={item.name}
 				onClick={onClick}
+				onDragEnter={() => {
+					if (!item.expanded) {
+						openFolderTimerRef.current = window.setTimeout(() => {
+							toggleFolder(item.name, parentFolder);
+						}, 1000);
+					}
+				}}
+				onDragLeave={() => {
+					if (openFolderTimerRef.current) {
+						clearTimeout(openFolderTimerRef.current);
+					}
+				}}
 			>
 				<Row>
 					<Icon style={iconStyle} color={hovered ? 'white' : LIGHT_TEXT} />
@@ -127,24 +167,39 @@ const AssetFolderItem: React.FC<{
 					parentFolder={parentFolder}
 					tabIndex={tabIndex}
 					toggleFolder={toggleFolder}
+					dropLocation={dropLocation}
+					setDropLocation={setDropLocation}
 				/>
 			) : null}
-		</>
+		</div>
 	);
 };
 
 export const AssetFolderTree: React.FC<{
-	item: AssetStructure;
-	name: string | null;
-	parentFolder: string | null;
-	level: number;
-	tabIndex: number;
-	toggleFolder: (folderName: string, parentName: string | null) => void;
-}> = ({item, level, name, parentFolder, toggleFolder, tabIndex}) => {
+	readonly item: AssetStructure;
+	readonly name: string | null;
+	readonly parentFolder: string | null;
+	readonly level: number;
+	readonly tabIndex: number;
+	readonly toggleFolder: (
+		folderName: string,
+		parentName: string | null,
+	) => void;
+	readonly dropLocation: string | null;
+	readonly setDropLocation: React.Dispatch<React.SetStateAction<string | null>>;
+}> = ({
+	item,
+	level,
+	name,
+	parentFolder,
+	toggleFolder,
+	tabIndex,
+	dropLocation,
+	setDropLocation,
+}) => {
 	const combinedParents = useMemo(() => {
 		return [parentFolder, name].filter(NoReactInternals.truthy).join('/');
 	}, [name, parentFolder]);
-
 	return (
 		<div>
 			{item.folders.map((folder) => {
@@ -156,6 +211,8 @@ export const AssetFolderTree: React.FC<{
 						level={level + 1}
 						parentFolder={combinedParents}
 						toggleFolder={toggleFolder}
+						dropLocation={dropLocation}
+						setDropLocation={setDropLocation}
 					/>
 				);
 			})}
@@ -175,12 +232,14 @@ export const AssetFolderTree: React.FC<{
 };
 
 const AssetSelectorItem: React.FC<{
-	item: StaticFile | AssetFolder;
-	tabIndex: number;
-	level: number;
-	parentFolder: string;
+	readonly item: StaticFile | AssetFolder;
+	readonly tabIndex: number;
+	readonly level: number;
+	readonly parentFolder: string;
 }> = ({item, tabIndex, level, parentFolder}) => {
+	const isMobileLayout = useMobileLayout();
 	const [hovered, setHovered] = useState(false);
+	const {setSidebarCollapsedState} = useContext(SidebarContext);
 	const onPointerEnter = useCallback(() => {
 		setHovered(true);
 	}, []);
@@ -208,8 +267,17 @@ const AssetSelectorItem: React.FC<{
 			? parentFolder + '/' + item.name
 			: item.name;
 		setCanvasContent({type: 'asset', asset: relativePath});
-		window.history.pushState({}, 'Studio', `/assets/${relativePath}`);
-	}, [item.name, parentFolder, setCanvasContent]);
+		pushUrl(`/assets/${relativePath}`);
+		if (isMobileLayout) {
+			setSidebarCollapsedState({left: 'collapsed', right: 'collapsed'});
+		}
+	}, [
+		isMobileLayout,
+		item.name,
+		parentFolder,
+		setCanvasContent,
+		setSidebarCollapsedState,
+	]);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
@@ -220,8 +288,8 @@ const AssetSelectorItem: React.FC<{
 					? SELECTED_BACKGROUND
 					: CLEAR_HOVER
 				: selected
-				? SELECTED_BACKGROUND
-				: 'transparent',
+					? SELECTED_BACKGROUND
+					: 'transparent',
 			paddingLeft: 12 + level * 8,
 		};
 	}, [hovered, level, selected]);
@@ -253,7 +321,7 @@ const AssetSelectorItem: React.FC<{
 						'/' +
 						item.name,
 				}).catch((err) => {
-					sendErrorNotification(`Could not open file: ${err.message}`);
+					showNotification(`Could not open file: ${err.message}`, 2000);
 				});
 			},
 			[item.name, parentFolder],
@@ -266,15 +334,10 @@ const AssetSelectorItem: React.FC<{
 				const content = `staticFile("${[parentFolder, item.name].join('/')}")`;
 				copyText(content)
 					.then(() => {
-						notificationCenter.current?.addNotification({
-							content: `Copied '${content}' to clipboard`,
-							created: Date.now(),
-							duration: 1000,
-							id: String(Math.random()),
-						});
+						showNotification(`Copied '${content}' to clipboard`, 1000);
 					})
 					.catch((err) => {
-						sendErrorNotification(`Could not copy: ${err.message}`);
+						showNotification(`Could not copy: ${err.message}`, 2000);
 					});
 			},
 			[item.name, parentFolder],

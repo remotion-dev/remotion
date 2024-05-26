@@ -18,18 +18,10 @@ import {formatRemoteObject} from '../format-logs';
 import type {LogLevel} from '../log-level';
 import {Log} from '../logger';
 import {truthy} from '../truthy';
-import {assert} from './assert';
 import type {HeadlessBrowser} from './Browser';
 import type {CDPSession} from './Connection';
 import type {ConsoleMessageType} from './ConsoleMessage';
 import {ConsoleMessage} from './ConsoleMessage';
-import type {
-	AttachedToTargetEvent,
-	BindingCalledEvent,
-	ConsoleAPICalledEvent,
-	EntryAddedEvent,
-	StackTrace,
-} from './devtools-types';
 import type {
 	EvaluateFn,
 	EvaluateFnReturnType,
@@ -44,10 +36,19 @@ import type {HTTPResponse} from './HTTPResponse';
 import type {JSHandle} from './JSHandle';
 import {_createJSHandle} from './JSHandle';
 import type {Viewport} from './PuppeteerViewport';
-import type {SourceMapGetter} from './source-map-getter';
 import type {Target} from './Target';
 import {TaskQueue} from './TaskQueue';
 import {TimeoutSettings} from './TimeoutSettings';
+import {assert} from './assert';
+import type {
+	AttachedToTargetEvent,
+	BindingCalledEvent,
+	ConsoleAPICalledEvent,
+	EntryAddedEvent,
+	SetDeviceMetricsOverrideRequest,
+	StackTrace,
+} from './devtools-types';
+import type {SourceMapGetter} from './source-map-getter';
 import {
 	evaluationString,
 	isErrorLike,
@@ -172,7 +173,7 @@ export class Page extends EventEmitter {
 						.send('Target.detachFromTarget', {
 							sessionId: event.sessionId,
 						})
-						.catch((err) => console.log(err));
+						.catch((err) => Log.error({indent, logLevel}, err));
 			}
 		});
 
@@ -216,7 +217,7 @@ export class Page extends EventEmitter {
 				const tag = [origPosition?.name, file].filter(truthy).join('@');
 
 				if (log.type === 'error') {
-					Log.errorAdvanced(
+					Log.error(
 						{
 							logLevel,
 							tag,
@@ -236,12 +237,9 @@ export class Page extends EventEmitter {
 				}
 			} else if (log.type === 'error') {
 				if (log.text.includes('Failed to load resource:')) {
-					Log.errorAdvanced({logLevel, tag: url, indent}, log.text);
+					Log.error({logLevel, tag: url, indent}, log.text);
 				} else {
-					Log.errorAdvanced(
-						{logLevel, tag: `console.${log.type}`, indent},
-						log.text,
-					);
+					Log.error({logLevel, tag: `console.${log.type}`, indent}, log.text);
 				}
 			} else {
 				Log.verbose({logLevel, tag: `console.${log.type}`, indent}, log.text);
@@ -346,18 +344,39 @@ export class Page extends EventEmitter {
 	}
 
 	async setViewport(viewport: Viewport): Promise<void> {
+		const fromSurface = !process.env.DISABLE_FROM_SURFACE;
+
+		const request: SetDeviceMetricsOverrideRequest = fromSurface
+			? {
+					mobile: false,
+					width: viewport.width,
+					height: viewport.height,
+					deviceScaleFactor: viewport.deviceScaleFactor,
+					screenOrientation: {
+						angle: 0,
+						type: 'portraitPrimary',
+					},
+				}
+			: {
+					mobile: false,
+					width: viewport.width,
+					height: viewport.height,
+					deviceScaleFactor: 1,
+					screenHeight: viewport.height,
+					screenWidth: viewport.width,
+					scale: viewport.deviceScaleFactor,
+					viewport: {
+						height: viewport.height * viewport.deviceScaleFactor,
+						width: viewport.width * viewport.deviceScaleFactor,
+						scale: 1,
+						x: 0,
+						y: 0,
+					},
+				};
+
 		const {value} = await this.#client.send(
 			'Emulation.setDeviceMetricsOverride',
-			{
-				mobile: false,
-				width: viewport.width,
-				height: viewport.height,
-				deviceScaleFactor: viewport.deviceScaleFactor,
-				screenOrientation: {
-					angle: 0,
-					type: 'portraitPrimary',
-				},
-			},
+			request,
 		);
 		return value;
 	}

@@ -4,9 +4,8 @@
 		"rootDir": "src",
 		"outDir": "dist",
 		"jsx": "react-jsx",
-		"skipLibCheck": true,
-		"types": ["bun-types"]
+		"skipLibCheck": true
 	},
 	"include": ["src"],
-	"references": [{"path": "../core"}]
+	"references": [{"path": "../core"}, {"path": "../studio"}]
 }

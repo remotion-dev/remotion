@@ -1,5 +1,6 @@
 import {useContext} from 'react';
-import {getStaticFiles, staticFile} from 'remotion';
+import {staticFile} from 'remotion';
+import {getStaticFiles} from '../api/get-static-files';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT} from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
@@ -26,7 +27,8 @@ export const StaticFilePreview: React.FC<{
 	const fileType = getPreviewFileType(currentAsset);
 	const staticFileSrc = staticFile(currentAsset);
 	const staticFiles = getStaticFiles();
-	const connectionStatus = useContext(StudioServerConnectionCtx).type;
+	const connectionStatus = useContext(StudioServerConnectionCtx)
+		.previewServerState.type;
 
 	const exists = staticFiles.find((file) => file.name === currentAsset);
 

@@ -10,8 +10,8 @@ import {INPUT_BACKGROUND} from '../../helpers/colors';
 import {useZIndex} from '../../state/z-index';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {
-	getInputBorderColor,
 	INPUT_HORIZONTAL_PADDING,
+	getInputBorderColor,
 } from '../NewComposition/RemInput';
 
 type Props = React.DetailedHTMLProps<

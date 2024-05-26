@@ -1,18 +1,9 @@
 {
+  "extends": "../tsconfig.settings.json",
   "compilerOptions": {
-    "target": "ES2018",
-    "module": "commonjs",
-    "declaration": true,
-    "declarationMap": false,
-    "sourceMap": true,
-    "lib": ["es2018", "dom"],
     "jsx": "react-jsx",
     "noEmit": true,
-    "strict": true,
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "incremental": true,
-    "noUnusedLocals": true
+    "incremental": true
   },
   "references": [
     {
@@ -31,7 +22,12 @@
       "path": "../renderer"
     },
     {
+      "path": "../install-whisper-cpp"
+    },
+
+    {
       "path": "../cli"
     }
-  ]
+  ],
+  "exclude": ["download-whisper.ts"]
 }

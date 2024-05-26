@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import React, {forwardRef, useCallback, useContext} from 'react';
+import {Sequence} from '../Sequence.js';
 import {getAbsoluteSrc} from '../absolute-src.js';
 import {calculateLoopDuration} from '../calculate-loop.js';
 import {cancelRender} from '../cancel-render.js';
@@ -7,12 +8,11 @@ import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {Loop} from '../loop/index.js';
 import {usePreload} from '../prefetch.js';
-import {Sequence} from '../Sequence.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {validateMediaProps} from '../validate-media-props.js';
 import {validateStartFromProps} from '../validate-start-from-props.js';
 import {DurationsContext} from '../video/duration-state.js';
-import {AudioForDevelopment} from './AudioForDevelopment.js';
+import {AudioForPreview} from './AudioForPreview.js';
 import {AudioForRendering} from './AudioForRendering.js';
 import type {RemotionAudioProps, RemotionMainAudioProps} from './props.js';
 import {SharedAudioContext} from './shared-audio-tags.js';
@@ -24,11 +24,19 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			/**
 			 * @deprecated For internal use only
 			 */
-			stack?: string;
+			readonly stack?: string;
 		}
 > = (props, ref) => {
 	const audioContext = useContext(SharedAudioContext);
-	const {startFrom, endAt, name, stack, ...otherProps} = props;
+	const {
+		startFrom,
+		endAt,
+		name,
+		stack,
+		pauseWhenBuffering,
+		showInTimeline,
+		...otherProps
+	} = props;
 	const {loop, ...propsOtherThanLoop} = props;
 	const {fps} = useVideoConfig();
 	const environment = getRemotionEnvironment();
@@ -70,8 +78,12 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		[setDurations],
 	);
 
-	if (loop && durations[getAbsoluteSrc(preloadedSrc)] !== undefined) {
-		const duration = Math.floor(durations[getAbsoluteSrc(preloadedSrc)] * fps);
+	const durationFetched =
+		durations[getAbsoluteSrc(preloadedSrc)] ??
+		durations[getAbsoluteSrc(props.src)];
+
+	if (loop && durationFetched !== undefined) {
+		const duration = durationFetched * fps;
 
 		return (
 			<Loop
@@ -107,6 +119,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			>
 				<Audio
 					_remotionInternalNeedsDurationCalculation={Boolean(loop)}
+					pauseWhenBuffering={pauseWhenBuffering ?? false}
 					{...otherProps}
 					ref={ref}
 				/>
@@ -129,7 +142,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	}
 
 	return (
-		<AudioForDevelopment
+		<AudioForPreview
 			_remotionInternalNativeLoopPassed={
 				props._remotionInternalNativeLoopPassed ?? false
 			}
@@ -141,7 +154,10 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			ref={ref}
 			onError={onError}
 			onDuration={onDuration}
+			// Proposal: Make this default to true in v5
+			pauseWhenBuffering={pauseWhenBuffering ?? false}
 			_remotionInternalNeedsDurationCalculation={Boolean(loop)}
+			showInTimeline={showInTimeline ?? true}
 		/>
 	);
 };

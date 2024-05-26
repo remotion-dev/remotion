@@ -52,11 +52,30 @@ Config.overrideWebpackConfig((config) => {
 });
 ```
 
-:::note
-Prior to `v3.3.39`, the option was called `Config.Bundling.overrideWebpackConfig()`.
-:::
-
 Remember that in Node.JS APIs, the config file does not apply, so you need to add the Webpack override also to the [`bundle()`](/docs/bundle) and [`deploySite()`](/docs/lambda/deploysite) functions.
+
+## Automatically syncing Webpack and TypeScript aliases
+
+To not duplicate the aliases in your Webpack override and in your `tsconfig.json`, you can install `tsconfig-paths-webpack-plugin` and use it:
+
+```ts
+import path from "path";
+import { Config } from "@remotion/cli/config";
+import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
+
+Config.overrideWebpackConfig((config) => {
+  return {
+    ...config,
+    resolve: {
+      ...config.resolve,
+      plugins: [
+        ...(config.resolve?.plugins ?? []),
+        new TsconfigPathsPlugin(),
+      ],
+    },
+  };
+});
+```
 
 ## See also
 

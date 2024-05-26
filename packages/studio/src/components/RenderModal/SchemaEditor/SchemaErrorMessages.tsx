@@ -1,8 +1,8 @@
 import type {z} from 'zod';
-import {Button} from '../../../error-overlay/remotion-overlay/Button';
 import {BLUE, LIGHT_TEXT} from '../../../helpers/colors';
-import {Spacing} from '../../layout';
+import {Button} from '../../Button';
 import {inlineCodeSnippet} from '../../Menu/styles';
+import {Spacing} from '../../layout';
 import {ZodErrorMessages} from './ZodErrorMessages';
 
 const explainer: React.CSSProperties = {
@@ -34,9 +34,7 @@ const errorContainer: React.CSSProperties = {
 };
 
 const openDocs = () => {
-	window.open(
-		'https://www.remotion.dev/docs/parameterized-rendering#define-a-schema-',
-	);
+	window.open('https://www.remotion.dev/docs/schemas');
 };
 
 export const ZodNotInstalled = () => {

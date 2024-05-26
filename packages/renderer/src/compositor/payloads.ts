@@ -197,7 +197,7 @@ export type VideoMetadata = {
 		| 'unknown';
 };
 
-type SilentPart = {
+export type SilentPart = {
 	startInSeconds: number;
 	endInSeconds: number;
 };
@@ -226,6 +226,7 @@ export type CompositorCommand = {
 		original_src: string;
 		time: number;
 		transparent: boolean;
+		tone_mapped: boolean;
 	};
 	GetSilences: {
 		src: string;

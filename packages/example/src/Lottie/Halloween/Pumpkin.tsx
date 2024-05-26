@@ -2,15 +2,15 @@ import {Lottie} from '@remotion/lottie';
 import {useEffect, useState} from 'react';
 import {
 	AbsoluteFill,
+	Sequence,
 	continueRender,
 	delayRender,
 	interpolate,
-	Sequence,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
-import './common.css';
 import HeaderAndCredits from './HeaderAndCredits';
+import './common.css';
 
 const Pumpkin = () => {
 	const frame = useCurrentFrame();

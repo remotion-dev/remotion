@@ -74,7 +74,12 @@ const innerStillHandler = async ({
 
 	validateDownloadBehavior(lambdaParams.downloadBehavior);
 	validatePrivacy(lambdaParams.privacy, true);
-	validateOutname(lambdaParams.outName, null, null);
+	validateOutname({
+		outName: lambdaParams.outName,
+		codec: null,
+		audioCodecSetting: null,
+		separateAudioTo: null,
+	});
 
 	const start = Date.now();
 
@@ -119,6 +124,8 @@ const innerStillHandler = async ({
 		logLevel: lambdaParams.logLevel,
 		webpackConfigOrServeUrl: serveUrl,
 		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
+		binariesDirectory: null,
+		forceIPv4: false,
 	});
 
 	const browserInstance = await browserInstancePromise;
@@ -136,6 +143,9 @@ const innerStillHandler = async ({
 		logLevel: lambdaParams.logLevel,
 		server,
 		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
+		onBrowserDownload: () => {
+			throw new Error('Should not download a browser in Lambda');
+		},
 	});
 
 	const renderMetadata: RenderMetadata = {
@@ -157,8 +167,6 @@ const innerStillHandler = async ({
 		renderId,
 		outName: lambdaParams.outName ?? undefined,
 		privacy: lambdaParams.privacy,
-		everyNthFrame: 1,
-		frameRange: [lambdaParams.frame, lambdaParams.frame],
 		audioCodec: null,
 		deleteAfter: lambdaParams.deleteAfter,
 		numberOfGifLoops: null,
@@ -176,6 +184,11 @@ const innerStillHandler = async ({
 		downloadBehavior: null,
 		customCredentials: null,
 	});
+
+	const onBrowserDownload = () => {
+		throw new Error('Should not download a browser in Lambda');
+	};
+
 	await RenderInternals.internalRenderStill({
 		composition,
 		output: outputPath,
@@ -198,7 +211,7 @@ const innerStillHandler = async ({
 		cancelSignal: null,
 		indent: false,
 		onBrowserLog: null,
-		onDownload: onDownloadsHelper(),
+		onDownload: onDownloadsHelper(lambdaParams.logLevel),
 		port: null,
 		server,
 		logLevel: lambdaParams.logLevel,
@@ -209,6 +222,8 @@ const innerStillHandler = async ({
 				data: composition.props,
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
+		binariesDirectory: null,
+		onBrowserDownload,
 	});
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
@@ -250,25 +265,31 @@ const innerStillHandler = async ({
 		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
 	});
 
+	const {key: outKey, url} = getOutputUrlFromMetadata(
+		renderMetadata,
+		bucketName,
+		customCredentials,
+	);
+
 	return {
 		type: 'success' as const,
-		output: getOutputUrlFromMetadata(
-			renderMetadata,
-			bucketName,
-			customCredentials,
-		),
+		output: url,
 		size,
+		sizeInBytes: size,
 		bucketName,
 		estimatedPrice: formatCostsInfo(estimatedPrice),
 		renderId,
+		outKey,
 	};
 };
 
 type RenderStillLambdaResponsePayload = {
 	type: 'success';
 	output: string;
+	outKey: string;
 	size: number;
 	bucketName: string;
+	sizeInBytes: number;
 	estimatedPrice: CostsInfo;
 	renderId: string;
 };

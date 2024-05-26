@@ -11,8 +11,8 @@ import {
   useVideoConfig,
 } from "remotion";
 import { useMobileLayout } from "../../helpers/mobile-layout";
-import { transformElement } from "./element";
 import { Faces } from "./Faces";
+import { transformElement } from "./element";
 import { extrudeElement } from "./join-inbetween-tiles";
 import {
   rotateX,
@@ -26,8 +26,8 @@ import {
 import styles from "./more.module.css";
 
 const InFrameLogo: React.FC<{
-  background: string;
-  dark: boolean;
+  readonly background: string;
+  readonly dark: boolean;
 }> = ({ background, dark }) => {
   const { width: bBoxWidth, height: bBoxHeight, fps } = useVideoConfig();
   const viewBox = [-bBoxWidth / 2, -bBoxHeight / 2, bBoxWidth, bBoxHeight].join(

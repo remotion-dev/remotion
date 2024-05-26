@@ -32,6 +32,7 @@ export const getTimelineSequenceLayout = ({
 	startFromMedia,
 	video,
 	windowWidth,
+	premountDisplay,
 }: {
 	durationInFrames: number;
 	startFrom: number;
@@ -39,10 +40,12 @@ export const getTimelineSequenceLayout = ({
 	maxMediaDuration: number | null;
 	video: VideoConfig;
 	windowWidth: number;
+	premountDisplay: number | null;
 }) => {
 	const maxMediaSequenceDuration =
 		(maxMediaDuration ?? Infinity) - startFromMedia;
 	const lastFrame = (video.durationInFrames ?? 1) - 1;
+
 	let spatialDuration = Math.min(
 		maxMediaSequenceDuration,
 		durationInFrames - 1,
@@ -67,20 +70,31 @@ export const getTimelineSequenceLayout = ({
 		lastFrame === 0
 			? 0
 			: (startFromWithOffset / lastFrame) *
-			  (windowWidth - TIMELINE_PADDING * 2);
+				(windowWidth - TIMELINE_PADDING * 2);
 
 	const nonNegativeMarginLeft = Math.min(marginLeft, 0);
 
-	return {
-		marginLeft: Math.round(Math.max(marginLeft, 0)),
-		width: Math.floor(
-			getWidthOfTrack({
-				durationInFrames,
+	const width = getWidthOfTrack({
+		durationInFrames,
+		lastFrame,
+		nonNegativeMarginLeft,
+		spatialDuration,
+		windowWidth,
+	});
+
+	const premountWidth = premountDisplay
+		? getWidthOfTrack({
+				durationInFrames: premountDisplay,
 				lastFrame,
 				nonNegativeMarginLeft,
-				spatialDuration,
+				spatialDuration: premountDisplay,
 				windowWidth,
-			}),
-		),
+			})
+		: null;
+
+	return {
+		marginLeft: Math.max(marginLeft, 0) - (premountWidth ?? 0),
+		width: width + (premountWidth ?? 0),
+		premountWidth,
 	};
 };

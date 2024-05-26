@@ -53,7 +53,8 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		enforceAudioTrack: z.boolean(),
 		preferLossless: z.boolean(),
 		offthreadVideoCacheSizeInBytes: z.number().nullable(),
-		colorSpace: z.enum(BrowserSafeApis.validColorSpaces),
+		colorSpace: z.enum(BrowserSafeApis.validColorSpaces).nullable(),
+		clientVersion: z.string(),
 	}),
 	z.object({
 		type: z.literal('still'),
@@ -69,11 +70,12 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		envVariables: z.record(z.string()),
 		chromiumOptions: chromiumOptions.optional(),
 		outputBucket: z.string(),
-		outName: z.string().optional(),
+		outName: z.string().nullable(),
 		frame: z.number(),
 		delayRenderTimeoutInMilliseconds: z.number(),
 		logLevel,
 		offthreadVideoCacheSizeInBytes: z.number().nullable(),
+		clientVersion: z.string(),
 	}),
 ]);
 

@@ -1,6 +1,7 @@
 ---
 image: /generated/articles-docs-docker.png
 id: docker
+sidebar_label: Docker
 title: Dockerizing a Remotion app
 crumb: "Building video apps"
 ---
@@ -224,4 +225,4 @@ Alpine Linux is a lightweight distribution often used in Docker. There are two k
 
 ## See also
 
-- [Deploying the Remotion Studio](/docs/deploy-studio)
+- [Deploying the Remotion Studio](/docs/studio/deploy-server)

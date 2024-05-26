@@ -38,11 +38,11 @@ window.addEventListener('beforeunload', () => {
 });
 
 export const ServerDisconnected: React.FC = () => {
-	const ctx = useContext(StudioServerConnectionCtx);
+	const {previewServerState: ctx} = useContext(StudioServerConnectionCtx);
 	const fav = document.getElementById('__remotion_favicon') as HTMLLinkElement;
 
 	if (ctx.type !== 'disconnected') {
-		fav.setAttribute('href', '/remotion.png');
+		fav.setAttribute('href', '/favicon.ico');
 		return null;
 	}
 

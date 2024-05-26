@@ -38,12 +38,14 @@ test("Should be able to render video with scale 2", async () => {
   const exists = fs.existsSync(outputPath);
   expect(exists).toBe(true);
 
-  const info = await RenderInternals.callFf(
-    "ffprobe",
-    [outputPath],
-    false,
-    "info"
-  );
+  const info = await RenderInternals.callFf({
+    bin: "ffprobe",
+    args: [outputPath],
+    indent: false,
+    logLevel: "info",
+    binariesDirectory: null,
+    cancelSignal: undefined,
+  });
   const data = info.stderr;
   expect(data).toContain("Video: h264");
   expect(data).toContain("yuv420p");
@@ -77,12 +79,14 @@ test("Should be able to render video with scale 0.1", async () => {
   const exists = fs.existsSync(outputPath);
   expect(exists).toBe(true);
 
-  const info = await RenderInternals.callFf(
-    "ffprobe",
-    [outputPath],
-    false,
-    "info"
-  );
+  const info = await RenderInternals.callFf({
+    bin: "ffprobe",
+    args: [outputPath],
+    indent: false,
+    logLevel: "info",
+    binariesDirectory: null,
+    cancelSignal: undefined,
+  });
   const data = info.stderr;
   expect(data).toContain("Video: h264");
   expect(data).toContain("yuv420p");

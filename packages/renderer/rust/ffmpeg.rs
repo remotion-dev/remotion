@@ -59,6 +59,7 @@ pub fn extract_frame(
     original_src: String,
     time: f64,
     transparent: bool,
+    tone_mapped: bool,
     maximum_frame_cache_size_in_bytes: Option<u128>,
 ) -> Result<Vec<u8>, ErrorWithBacktrace> {
     let manager = OpenedVideoManager::get_instance();
@@ -86,6 +87,7 @@ pub fn extract_frame(
         &src,
         &original_src,
         transparent,
+        tone_mapped,
         position,
         threshold - 1,
     );
@@ -96,6 +98,7 @@ pub fn extract_frame(
                 &src,
                 &original_src,
                 transparent,
+                tone_mapped,
                 item,
             )?);
         }
@@ -154,10 +157,11 @@ pub fn extract_frame(
         one_frame_in_time_base,
         threshold,
         maximum_frame_cache_size_in_bytes,
+        tone_mapped,
     )?;
 
     let from_cache = FrameCacheManager::get_instance()
-        .get_frame_cache(&src, &original_src, transparent)
+        .get_frame_cache(&src, &original_src, transparent, tone_mapped)
         .lock()?
         .get_item_from_id(frame_id);
 
@@ -184,7 +188,10 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
         Some(video_stream) => video_stream,
         None => Err(std::io::Error::new(
             ErrorKind::Other,
-            "No video stream found",
+            format!(
+                "No video stream found in {}. Is this a video file?",
+                file_path
+            ),
         ))?,
     };
 
@@ -359,7 +366,7 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
 
     if let Ok(video) = codec.decoder().video() {
         #[allow(non_snake_case)]
-        let pixelFormat: Option<String> = match video.format()  {
+        let pixelFormat: Option<String> = match video.format() {
             remotionffmpeg::format::Pixel::YUV420P => Some("yuv420p".to_string()),
             remotionffmpeg::format::Pixel::YUYV422 => Some("yuyv422".to_string()),
             remotionffmpeg::format::Pixel::RGB24 => Some("rgb24".to_string()),

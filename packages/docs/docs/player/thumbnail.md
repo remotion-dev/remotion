@@ -7,7 +7,7 @@ crumb: "@remotion/player"
 
 _available from v3.2.41_
 
-A component which can be rendered in a regular React App (for example: [Create React App](https://create-react-app.dev/), [Next.JS](https://nextjs.org)) to display a single frame of a video.
+A component which can be rendered in a regular React App (for example: for example: [Next.JS](https://nextjs.org), [Vite.js](https://vitejs.dev), [Create React App](https://create-react-app.dev/)) to display a single frame of a video.
 
 ```tsx twoslash title="MyApp.tsx"
 // @allowUmdGlobalAccess
@@ -272,6 +272,18 @@ ref.current?.addEventListener("error", (e) => {
   console.log("error ", e.detail.error); // error [Error: undefined is not a function]
 });
 ```
+
+### `waiting`<AvailableFrom v="4.0.125" />
+
+Fires when the Player has entered into the [native buffering state](/docs/player/buffer-state).
+
+Read here [how to best implement state management](/docs/player/buffer-state#state-management).
+
+### `resume`<AvailableFrom v="4.0.125" />
+
+Fires when the Player has exited the [native buffering state](/docs/player/buffer-state).
+
+Read here [how to best implement state management](/docs/player/buffer-state#state-management).
 
 ## Handling errors
 

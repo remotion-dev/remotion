@@ -1,42 +1,51 @@
+import React from 'react';
 import type {render} from 'react-dom';
-import {createPortal} from 'react-dom';
 import ReactDOM from 'react-dom/client';
 import {Internals} from 'remotion';
-import '../styles/styles.css';
-import {Editor} from './components/Editor';
-import {EditorContexts} from './components/EditorContexts';
-import {ServerDisconnected} from './components/Notifications/ServerDisconnected';
-import {openEventSource} from './helpers/event-source';
+import {NoReactInternals} from 'remotion/no-react';
+import {Studio} from './Studio';
+import {NoRegisterRoot} from './components/NoRegisterRoot';
+import {startErrorOverlay} from './error-overlay/entry-basic';
+import {enableHotMiddleware} from './hot-middleware-client/client';
 
 Internals.CSSUtils.injectCSS(
-	Internals.CSSUtils.makeDefaultCSS(null, '#1f2428'),
+	Internals.CSSUtils.makeDefaultPreviewCSS(null, '#1f2428'),
 );
 
-const getServerDisconnectedDomElement = () => {
-	return document.getElementById('server-disconnected-overlay');
+let root: ReturnType<typeof ReactDOM.createRoot> | null = null;
+
+const getRootForElement = () => {
+	if (root) {
+		return root;
+	}
+
+	root = ReactDOM.createRoot(Internals.getPreviewDomElement() as HTMLElement);
+	return root;
 };
 
-const content = (
-	<Internals.RemotionRoot numberOfAudioTags={window.remotion_numberOfAudioTags}>
-		<EditorContexts>
-			<Editor />
-			{createPortal(
-				<ServerDisconnected />,
-				getServerDisconnectedDomElement() as HTMLElement,
-			)}
-		</EditorContexts>
-	</Internals.RemotionRoot>
-);
+const renderToDOM = (content: React.ReactElement) => {
+	if (!ReactDOM.createRoot) {
+		if (NoReactInternals.ENABLE_V5_BREAKING_CHANGES) {
+			throw new Error(
+				'Remotion 5.0 does only support React 18+. However, ReactDOM.createRoot() is undefined.',
+			);
+		}
 
-if (ReactDOM.createRoot) {
-	ReactDOM.createRoot(Internals.getPreviewDomElement() as HTMLElement).render(
-		content,
-	);
-} else {
-	(ReactDOM as unknown as {render: typeof render}).render(
-		content,
-		Internals.getPreviewDomElement(),
-	);
-}
+		(ReactDOM as unknown as {render: typeof render}).render(
+			content,
+			Internals.getPreviewDomElement(),
+		);
+		return;
+	}
 
-openEventSource();
+	getRootForElement().render(content);
+};
+
+renderToDOM(<NoRegisterRoot />);
+
+Internals.waitForRoot((NewRoot) => {
+	renderToDOM(<Studio readOnly={false} rootComponent={NewRoot} />);
+	startErrorOverlay();
+});
+
+enableHotMiddleware();

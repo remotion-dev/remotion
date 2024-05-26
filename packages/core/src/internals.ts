@@ -3,6 +3,7 @@ import {
 	SharedAudioContextProvider,
 } from './audio/shared-audio-tags.js';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
+import {BufferingContextReact, BufferingProvider} from './buffering.js';
 import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
@@ -18,8 +19,15 @@ import {compositionsRef} from './CompositionManager.js';
 import type {CompositionManagerContext} from './CompositionManagerContext.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import * as CSSUtils from './default-css.js';
-import {EditorPropsContext, EditorPropsProvider} from './EditorProps.js';
-import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
+import {
+	EditorPropsContext,
+	EditorPropsProvider,
+	editorPropsProviderRef,
+} from './EditorProps.js';
+import {
+	addSequenceStackTraces,
+	enableSequenceStackTraces,
+} from './enable-sequence-stack-traces.js';
 import {
 	getPreviewDomElement,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
@@ -27,7 +35,6 @@ import {
 import type {RemotionEnvironment} from './get-remotion-environment.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import type {SerializedJSONWithCustomFields} from './input-props-serialization.js';
-import {DATE_TOKEN, FILE_TOKEN} from './input-props-serialization.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import {NativeLayersProvider} from './NativeLayers.js';
 import {NonceContext} from './nonce.js';
@@ -39,6 +46,7 @@ import {RemotionRoot} from './RemotionRoot.js';
 import {RenderAssetManager} from './RenderAssetManager.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
 import {
+	PROPS_UPDATED_EXTERNALLY,
 	ResolveCompositionConfig,
 	resolveCompositionsRef,
 	useResolvedVideoConfig,
@@ -59,6 +67,11 @@ import {
 	useTimelineSetFrame,
 } from './timeline-position-state.js';
 import {truthy} from './truthy.js';
+import {
+	calculateScale,
+	CurrentScaleContext,
+	PreviewSizeContext,
+} from './use-current-scale.js';
 import {useLazyComponent} from './use-lazy-component.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {useVideo} from './use-video.js';
@@ -134,29 +147,35 @@ export const Internals = {
 	RenderAssetManager,
 	persistCurrentFrame,
 	useTimelineSetFrame,
-	FILE_TOKEN,
-	DATE_TOKEN,
 	NativeLayersProvider,
 	ClipComposition,
 	isIosSafari,
 	WATCH_REMOTION_STATIC_FILES,
 	addSequenceStackTraces,
 	useMediaStartsAt,
+	BufferingProvider,
+	BufferingContextReact,
+	enableSequenceStackTraces,
+	CurrentScaleContext,
+	PreviewSizeContext,
+	calculateScale,
+	editorPropsProviderRef,
+	PROPS_UPDATED_EXTERNALLY,
 } as const;
 
 export type {
-	TComposition,
-	TimelinePosition as Timeline,
-	TCompMetadata,
-	TSequence,
-	TRenderAsset as TAsset,
-	TimelineContextValue,
-	SetTimelineContextValue,
-	CompProps,
 	CompositionManagerContext,
+	CompProps,
 	MediaVolumeContextValue,
-	SetMediaVolumeContextValue,
 	RemotionEnvironment,
 	SerializedJSONWithCustomFields,
+	SetMediaVolumeContextValue,
+	SetTimelineContextValue,
+	TRenderAsset as TAsset,
+	TCompMetadata,
+	TComposition,
+	TimelinePosition as Timeline,
+	TimelineContextValue,
+	TSequence,
 	WatchRemotionStaticFilesPayload,
 };

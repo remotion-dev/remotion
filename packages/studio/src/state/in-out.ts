@@ -43,14 +43,14 @@ export const useTimelineInOutFramePosition = (): InOutValue => {
 			actualInFrame === null
 				? null
 				: actualInFrame >= maxFrame
-				? null
-				: actualInFrame,
+					? null
+					: actualInFrame,
 		outFrame:
 			actualOutFrame === null
 				? null
 				: actualOutFrame >= maxFrame
-				? null
-				: actualOutFrame,
+					? null
+					: actualOutFrame,
 	};
 };
 

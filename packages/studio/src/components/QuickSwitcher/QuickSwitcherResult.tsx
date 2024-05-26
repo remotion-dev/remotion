@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {getBackgroundFromHoverState, LIGHT_TEXT} from '../../helpers/colors';
+import {LIGHT_TEXT, getBackgroundFromHoverState} from '../../helpers/colors';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {StillIcon} from '../../icons/still';
 import {FilmIcon} from '../../icons/video';
@@ -130,8 +130,8 @@ export const QuickSwitcherResult: React.FC<{
 				result.type === 'search-result'
 					? LIGHT_TEXT
 					: selected || hovered
-					? 'white'
-					: LIGHT_TEXT,
+						? 'white'
+						: LIGHT_TEXT,
 			fontSize: 15,
 		};
 	}, [hovered, result.type, selected]);

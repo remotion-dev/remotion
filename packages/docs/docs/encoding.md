@@ -5,7 +5,7 @@ title: Encoding Guide
 crumb: "Codecs and more"
 ---
 
-Backed by [FFMPEG](https://ffmpeg.org/), Remotion allows you to configure a variety of encoding settings. The goal of this page is to help you navigate through the settings and to help you choose the right one.
+Backed by [FFmpeg](https://ffmpeg.org/), Remotion allows you to configure a variety of encoding settings. The goal of this page is to help you navigate through the settings and to help you choose the right one.
 
 ## Choosing a codec
 
@@ -164,7 +164,7 @@ For ProRes, there is no CRF option, but there are profiles which you can set usi
       Value
     </th>
     <th>
-      FFMPEG setting
+      FFmpeg setting
     </th>
     <th>
       Bitrate
@@ -257,7 +257,7 @@ Specifying a file extension when rendering media will determine the default code
 
 ## What other settings do you need?
 
-Which of the dozens of options that FFMPEG supports would you like to see exposed in Remotion? Let us know by opening an [issue on our issue tracker!](https://github.com/remotion-dev/remotion/issues)
+Which of the dozens of options that FFmpeg supports would you like to see exposed in Remotion? Let us know by opening an [issue on our issue tracker!](https://github.com/remotion-dev/remotion/issues)
 
 ## See also
 

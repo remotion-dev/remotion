@@ -76,6 +76,7 @@ As argument, you get an object with the following properties:
 - `defaultProps`: Only the default props, taken from the [`defaultProps`](/docs/composition#defaultprops) prop or the Remotion Studio Data sidebar.
 - `props`: The [resolved props](/docs/props-resolution), taking input props into account.
 - `abortSignal`: An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) which you can use to abort network requests if [the default props have been changed](/docs/data-fetching#aborting-stale-requests) in the meanwhile.
+- `compositionId` (_available from v4.0.98_): The ID of the current composition
 
 The function must return an object, which can contain the following properties:
 

@@ -1,5 +1,6 @@
 import {getIsCli} from '../cli/is-cli';
 import {DOCS_URL} from './docs-url';
+import {isLikelyToHaveAwsProfile} from './is-likely-to-have-aws-profile';
 import {truthy} from './truthy';
 
 const messageForVariable = (variable: string) => {
@@ -16,7 +17,15 @@ const messageForVariable = (variable: string) => {
 };
 
 export const checkCredentials = () => {
+	if (process.env.REMOTION_SKIP_AWS_CREDENTIALS_CHECK) {
+		return;
+	}
+
 	if (process.env.REMOTION_AWS_PROFILE || process.env.AWS_PROFILE) {
+		return;
+	}
+
+	if (isLikelyToHaveAwsProfile()) {
 		return;
 	}
 

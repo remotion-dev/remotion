@@ -46,6 +46,18 @@ const innerSetPropsAndEnv = async ({
 
 	await page.evaluateOnNewDocument((timeout: number) => {
 		window.remotion_puppeteerTimeout = timeout;
+
+		// To make getRemotionEnvironment() work
+		if (window.process === undefined) {
+			// @ts-expect-error
+			window.process = {};
+		}
+
+		if (window.process.env === undefined) {
+			window.process.env = {};
+		}
+
+		window.process.env.NODE_ENV = 'production';
 	}, actualTimeout);
 
 	await page.evaluateOnNewDocument((input: string) => {
@@ -62,6 +74,10 @@ const innerSetPropsAndEnv = async ({
 		window.remotion_initialFrame = key;
 	}, initialFrame);
 
+	await page.evaluateOnNewDocument(() => {
+		window.remotion_attempt = 1;
+	});
+
 	await page.evaluateOnNewDocument((port: number) => {
 		window.remotion_proxyPort = port;
 	}, proxyPort);
@@ -73,6 +89,34 @@ const innerSetPropsAndEnv = async ({
 	await page.evaluateOnNewDocument((enabled: boolean) => {
 		window.remotion_videoEnabled = enabled;
 	}, videoEnabled);
+
+	await page.evaluateOnNewDocument(() => {
+		window.alert = (message) => {
+			if (message) {
+				window.window.remotion_cancelledError = new Error(
+					`alert("${message}") was called. It cannot be called in a headless browser.`,
+				).stack;
+			} else {
+				window.window.remotion_cancelledError = new Error(
+					'alert() was called. It cannot be called in a headless browser.',
+				).stack;
+			}
+		};
+
+		window.confirm = (message) => {
+			if (message) {
+				window.remotion_cancelledError = new Error(
+					`confirm("${message}") was called. It cannot be called in a headless browser.`,
+				).stack;
+			} else {
+				window.remotion_cancelledError = new Error(
+					'confirm() was called. It cannot be called in a headless browser.',
+				).stack;
+			}
+
+			return false;
+		};
+	});
 
 	const pageRes = await page.goto({url: urlToVisit, timeout: actualTimeout});
 
@@ -180,7 +224,7 @@ const innerSetPropsAndEnv = async ({
 		timeoutInMilliseconds: actualTimeout,
 	});
 
-	const requiredVersion: typeof window.siteVersion = '10';
+	const requiredVersion: typeof window.siteVersion = '11';
 
 	if (siteVersion !== requiredVersion) {
 		throw new Error(
@@ -224,7 +268,7 @@ const innerSetPropsAndEnv = async ({
 };
 
 export const setPropsAndEnv = async (params: SetPropsAndEnv) => {
-	let timeout: NodeJS.Timeout | null = null;
+	let timeout: Timer | null = null;
 
 	try {
 		const result = await Promise.race([

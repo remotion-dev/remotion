@@ -1,7 +1,7 @@
+import type {ScriptLine} from '@remotion/studio-shared';
 import React from 'react';
 import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../../components/Menu/is-menu-item';
 import {BLUE} from '../../helpers/colors';
-import type {ScriptLine} from '../react-overlay/utils/stack-frame';
 
 const container: React.CSSProperties = {
 	display: 'flex',

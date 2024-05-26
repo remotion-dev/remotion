@@ -1,18 +1,9 @@
 {
 	"extends": "../tsconfig.settings.json",
 	"compilerOptions": {
-		"composite": true,
 		"rootDir": "src",
-		"outDir": "dist",
-		"module": "ESNext",
-		"moduleResolution": "Node"
+		"outDir": "dist"
 	},
-	"include": ["src"],
-	"references": [
-		{"path": "../core"},
-		{"path": "../test-utils"},
-		{
-			"path": "../studio"
-		}
-	]
+	"include": ["./src"],
+	"references": [{"path": "../core"}, {"path": "../test-utils"}]
 }

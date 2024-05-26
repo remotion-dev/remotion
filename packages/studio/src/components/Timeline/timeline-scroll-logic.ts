@@ -1,7 +1,7 @@
 import {interpolate} from 'remotion';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
-import {scrollableRef} from './timeline-refs';
 import {redrawTimelineSliderFast} from './TimelineSlider';
+import {scrollableRef} from './timeline-refs';
 
 export const canScrollTimelineIntoDirection = () => {
 	const current = scrollableRef.current as HTMLDivElement;
@@ -158,11 +158,11 @@ export const ensureFrameIsInViewport = ({
 					? getScrollPositionForCursorOnRightEdge({
 							nextFrame: frame,
 							durationInFrames,
-					  })
+						})
 					: getScrollPositionForCursorOnLeftEdge({
 							nextFrame: frame,
 							durationInFrames,
-					  }),
+						}),
 			);
 		}
 	}

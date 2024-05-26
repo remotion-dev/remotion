@@ -17,7 +17,7 @@ Refer to the `renderMediaOnLambda()` documentation to [learn how to trigger a re
 You will need to set up an API endpoint with a POST request handler. Make sure that the endpoint is reachable and accepts requests from AWS.
 
 :::info
-If you run the webhook endpoint on your local machine (i.e. on `localhost`), you will need to set up a public reverse proxy using a tool like [ngrok](https://ngrok.com/).
+If you run the webhook endpoint on your local machine (i.e. on `localhost`), you will need to set up a public reverse proxy using a tool like [tunnelmole](https://tunnelmole.com/docs), an open source tunneling tool or [ngrok](https://ngrok.com/), a popular closed source tunneling tool. Running either tool will generate a Public URL that will forward to your service on localhost.
 :::info
 
 ## Response

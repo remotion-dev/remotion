@@ -2,27 +2,27 @@ import React, {useCallback} from 'react';
 import type {z} from 'zod';
 import {Checkbox} from '../../Checkbox';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
-import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
+import {useLocalState} from './local-state';
+import type {JSONPath} from './zod-types';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
 };
 
 export const ZodBooleanEditor: React.FC<{
-	schema: z.ZodTypeAny;
-	jsonPath: JSONPath;
-	value: boolean;
-	setValue: UpdaterFunction<boolean>;
-	defaultValue: boolean;
-	onSave: UpdaterFunction<boolean>;
-	onRemove: null | (() => void);
-	showSaveButton: boolean;
-	saving: boolean;
-	saveDisabledByParent: boolean;
-	mayPad: boolean;
+	readonly schema: z.ZodTypeAny;
+	readonly jsonPath: JSONPath;
+	readonly value: boolean;
+	readonly setValue: UpdaterFunction<boolean>;
+	readonly defaultValue: boolean;
+	readonly onSave: UpdaterFunction<boolean>;
+	readonly onRemove: null | (() => void);
+	readonly showSaveButton: boolean;
+	readonly saving: boolean;
+	readonly saveDisabledByParent: boolean;
+	readonly mayPad: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -39,8 +39,8 @@ export const ZodBooleanEditor: React.FC<{
 	const {localValue, onChange, reset} = useLocalState({
 		schema,
 		setValue,
-		value,
-		defaultValue,
+		unsavedValue: value,
+		savedValue: defaultValue,
 	});
 
 	const onToggle: React.ChangeEventHandler<HTMLInputElement> = useCallback(

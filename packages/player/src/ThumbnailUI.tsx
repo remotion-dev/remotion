@@ -6,6 +6,7 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
+import type {CurrentScaleContextType} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	calculateCanvasTransformation,
@@ -17,6 +18,7 @@ import {ErrorBoundary} from './error-boundary.js';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
 import type {ThumbnailMethods} from './player-methods.js';
 import type {ErrorFallback, RenderLoading} from './PlayerUI.js';
+import {useBufferStateEmitter} from './use-buffer-state-emitter.js';
 import {useThumbnail} from './use-thumbnail.js';
 import {IS_NODE} from './utils/is-node.js';
 import {useElementSize} from './utils/use-element-size.js';
@@ -64,6 +66,8 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 
 	const thumbnail = useThumbnail();
 
+	useBufferStateEmitter(thumbnail.emitter);
+
 	useImperativeHandle(
 		ref,
 		() => {
@@ -103,17 +107,22 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 		[thumbnail.emitter],
 	);
 
-	const rootRef = useRef<ThumbnailMethods>(null);
-	useImperativeHandle(ref, () => rootRef.current as ThumbnailMethods, []);
-
 	const loadingMarkup = useMemo(() => {
 		return renderLoading
 			? renderLoading({
 					height: outerStyle.height as number,
 					width: outerStyle.width as number,
+					isBuffering: false,
 				})
 			: null;
 	}, [outerStyle.height, outerStyle.width, renderLoading]);
+
+	const currentScaleContext: CurrentScaleContextType = useMemo(() => {
+		return {
+			type: 'scale',
+			scale,
+		};
+	}, [scale]);
 
 	if (!config) {
 		return null;
@@ -124,7 +133,12 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 			<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
 				{VideoComponent ? (
 					<ErrorBoundary onError={onError} errorFallback={errorFallback}>
-						<VideoComponent {...(video?.props ?? {})} {...(inputProps ?? {})} />
+						<Internals.CurrentScaleContext.Provider value={currentScaleContext}>
+							<VideoComponent
+								{...(video?.props ?? {})}
+								{...(inputProps ?? {})}
+							/>
+						</Internals.CurrentScaleContext.Provider>
 					</ErrorBoundary>
 				) : null}
 			</div>

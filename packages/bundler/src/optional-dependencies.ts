@@ -32,6 +32,9 @@ export class AllowOptionalDependenciesPlugin {
 	}
 
 	apply(compiler: Compiler) {
+		compiler.hooks.afterCompile.tap('Com', (compilation) => {
+			compilation.errors = compilation.errors.filter(this.filter);
+		});
 		compiler.hooks.afterEmit.tap(
 			'AllowOptionalDependenciesPlugin',
 			(compilation) => {

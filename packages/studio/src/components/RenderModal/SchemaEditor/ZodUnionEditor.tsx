@@ -1,10 +1,10 @@
 import type {z} from 'zod';
 import type {ZodType} from '../../get-zod-if-possible';
 import {useZodIfPossible} from '../../get-zod-if-possible';
-import type {JSONPath} from './zod-types';
 import {ZonNonEditableValue} from './ZodNonEditableValue';
 import {ZodOrNullishEditor} from './ZodOrNullishEditor';
 import type {UpdaterFunction} from './ZodSwitch';
+import type {JSONPath} from './zod-types';
 const findNull = (
 	value: readonly [z.ZodTypeAny, z.ZodTypeAny, ...z.ZodTypeAny[]],
 	zodType: ZodType,

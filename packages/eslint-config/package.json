@@ -1,12 +1,8 @@
 {
   "name": "@remotion/eslint-config",
-  "version": "4.0.85",
+  "version": "4.0.163",
   "description": "",
   "main": "dist/index.js",
-  "scripts": {
-    "build": "tsc -d",
-    "watch": "tsc -w"
-  },
   "files": [
     "dist"
   ],
@@ -17,8 +13,8 @@
   "license": "ISC",
   "dependencies": {
     "@remotion/eslint-plugin": "workspace:*",
-    "@typescript-eslint/eslint-plugin": "6.7.4",
-    "@typescript-eslint/parser": "6.7.4",
+    "@typescript-eslint/eslint-plugin": "6.21.0",
+    "@typescript-eslint/parser": "6.21.0",
     "eslint-plugin-10x": "1.5.2",
     "eslint-plugin-react": "7.32.2",
     "eslint-plugin-react-hooks": "4.6.0"
@@ -28,7 +24,7 @@
   },
   "devDependencies": {
     "@types/node": "18.14.6",
-    "eslint": "8.42.0"
+    "eslint": "8.56.0"
   },
   "keywords": [
     "remotion",

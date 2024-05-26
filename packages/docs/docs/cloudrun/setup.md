@@ -15,53 +15,7 @@ import TabItem from '@theme/TabItem';
 
 ## 1. Install `@remotion/cloudrun`
 
-<Tabs
-defaultValue="npm"
-values={[
-{ label: 'npm', value: 'npm', },
-{ label: 'yarn', value: 'yarn', },
-{ label: 'pnpm', value: 'pnpm', },
-]
-}>
-<TabItem value="npm">
-
-```bash
-npm i @remotion/cloudrun
-```
-
-  </TabItem>
-
-  <TabItem value="pnpm">
-
-```bash
-pnpm i @remotion/cloudrun
-```
-
-  </TabItem>
-  <TabItem value="yarn">
-
-```bash
-yarn add @remotion/cloudrun
-```
-
-  </TabItem>
-
-</Tabs>
-
-Also update **all the other Remotion packages** to have the same version: `remotion`, `@remotion/cli` and others.
-
-:::note
-Make sure no package version number has a `^` character in front of it as it can lead to a version conflict.
-:::
-
-Your package.json should look like the following:
-
-```json
-  "@remotion/cli": "4.0.0", // Replace 4.0.0 with the current version
-  "@remotion/cloudrun": "4.0.0", // Remove any `^` character
-  // ...
-  "remotion": "4.0.0",
-```
+<Installation pkg="@remotion/cloudrun"/>
 
 ## 2. Create a GCP project
 
@@ -160,9 +114,9 @@ The object that is returned contains a name field, which you'll need for renderi
 </TabItem>
 </Tabs>
 
-The service consists of necessary binaries and JavaScript code that can take a [serve URL](/docs/terminology#serve-url) and make renders from it. A service is bound to the Remotion version, if you upgrade Remotion, you [need to deploy a new service](/docs/cloudrun/upgrading). A service does not include your Remotion code, it will be deployed in the next step instead.
+The service consists of necessary binaries and JavaScript code that can take a [serve URL](/docs/terminology/serve-url) and make renders from it. A service is bound to the Remotion version, if you upgrade Remotion, you [need to deploy a new service](/docs/cloudrun/upgrading). A service does not include your Remotion code, it will be deployed in the next step instead.
 
-A [`Cloud Run URL`](/docs/terminology#cloud-run-url) will be printed, providing unique endpoint for accessing the deployed service and performing a render. Alternatively you can use the [`Service Name`](/docs/terminology#service-name), that is also printed, for accessing the deployed service and performing a render.
+A [`Cloud Run URL`](/docs/terminology/cloud-run-url) will be printed, providing unique endpoint for accessing the deployed service and performing a render. Alternatively you can use the [`Service Name`](/docs/terminology/service-name), that is also printed, for accessing the deployed service and performing a render.
 
 ## 7. Deploy a site
 
@@ -175,13 +129,13 @@ values={[
 }>
 <TabItem value="cli">
 
-Run the following command to deploy your Remotion project to a Cloud Storage bucket. Pass as the last argument the [entry point](/docs/terminology#entry-point) of the project.
+Run the following command to deploy your Remotion project to a Cloud Storage bucket. Pass as the last argument the [entry point](/docs/terminology/entry-point) of the project.
 
 ```bash
 npx remotion cloudrun sites create src/index.ts --site-name=my-video
 ```
 
-A [`serveUrl`](/docs/terminology#serve-url) will be printed pointing to the deployed project.
+A [`serveUrl`](/docs/terminology/serve-url) will be printed pointing to the deployed project.
 
 When you update your Remotion video in the future, redeploy your site. Pass the same [`--site-name`](/docs/lambda/cli/sites#--site-name) to overwrite the previous deploy. If you don't pass [`--site-name`](/docs/lambda/cli/sites#--site-name), a unique URL will be generated on every deploy.
 
@@ -341,7 +295,7 @@ You already have the service name from a previous step. But since you only need 
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import { getServices, renderMediaOnCloudrun } from "@remotion/cloudrun";
+import { getServices, renderMediaOnCloudrun } from "@remotion/cloudrun/client";
 
 const services = await getServices({
   region: "us-east1",
@@ -356,8 +310,8 @@ We can now trigger a render of a video using the [`renderMediaOnCloudrun()`](/do
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import { renderMediaOnCloudrun } from "@remotion/cloudrun";
 
+import { renderMediaOnCloudrun } from "@remotion/cloudrun/client";
 const url = "string";
 const serviceName = "string";
 const updateRenderProgress = (progress: number) => {};
@@ -378,6 +332,10 @@ if (result.type === "success") {
   console.log(result.renderId);
 }
 ```
+
+:::note
+Import from [`@remotion/cloudrun/client`](/docs/cloudrun/light-client) to not import the whole renderer, which cannot be bundled.
+:::
 
 The render will now run and after a while the video will be available in your cloud storage bucket. You can keep track of the render progress by passing a function to the [updateRenderProgress](/docs/cloudrun/rendermediaoncloudrun#updaterenderprogress) attribute, to receive progress as a number.
 
@@ -405,7 +363,7 @@ We can now trigger a render of a still using the [`renderStillOnCloudrun()`](/do
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import { renderStillOnCloudrun } from "@remotion/cloudrun";
+import { renderStillOnCloudrun } from "@remotion/cloudrun/client";
 
 const url = "string";
 const serviceName = "string";
@@ -425,6 +383,10 @@ if (result.type === "success") {
   console.log(result.renderId);
 }
 ```
+
+:::note
+Import from [`@remotion/cloudrun/client`](/docs/cloudrun/light-client) to not import the whole renderer, which cannot be bundled.
+:::
 
 The render will now run and after a while the image will be available in your cloud storage bucket.
 

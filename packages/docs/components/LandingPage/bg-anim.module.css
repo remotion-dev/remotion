@@ -9,8 +9,8 @@
 @media screen and (max-width: 700px) {
   .bganimcontainer {
     position: absolute;
-    width: 100vw;
-    height: 100vw;
+    width: 100%;
+    height: 100%;
     left: 50%;
     margin-left: -50%;
     min-width: 0;
@@ -35,5 +35,4 @@
   .p {
     stroke-width: 0.04;
   }
-  
 }

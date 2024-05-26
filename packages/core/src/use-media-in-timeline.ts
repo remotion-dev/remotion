@@ -1,12 +1,12 @@
 import type {RefObject} from 'react';
 import {useContext, useEffect, useMemo, useState} from 'react';
+import {SequenceContext} from './SequenceContext.js';
+import {SequenceManager} from './SequenceManager.js';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
 import {getAssetDisplayName} from './get-asset-file-name.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {useNonce} from './nonce.js';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
-import {SequenceContext} from './SequenceContext.js';
-import {SequenceManager} from './SequenceManager.js';
 import type {PlayableMediaTag} from './timeline-position-state.js';
 import {TimelineContext, usePlayingState} from './timeline-position-state.js';
 import {useVideoConfig} from './use-video-config.js';
@@ -34,6 +34,8 @@ export const useMediaInTimeline = ({
 	displayName,
 	id,
 	stack,
+	showInTimeline,
+	premountDisplay,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
@@ -44,6 +46,8 @@ export const useMediaInTimeline = ({
 	displayName: string | null;
 	id: string;
 	stack: string | null;
+	showInTimeline: boolean;
+	premountDisplay: number | null;
 }) => {
 	const videoConfig = useVideoConfig();
 	const {rootId, audioAndVideoTags} = useContext(TimelineContext);
@@ -98,7 +102,14 @@ export const useMediaInTimeline = ({
 			throw new Error('No src passed');
 		}
 
-		if (!getRemotionEnvironment().isStudio && process.env.NODE_ENV !== 'test') {
+		if (
+			!getRemotionEnvironment().isStudio &&
+			window.process?.env?.NODE_ENV !== 'test'
+		) {
+			return;
+		}
+
+		if (!showInTimeline) {
 			return;
 		}
 
@@ -119,6 +130,7 @@ export const useMediaInTimeline = ({
 			loopDisplay: undefined,
 			playbackRate,
 			stack,
+			premountDisplay,
 		});
 		return () => {
 			unregisterSequence(id);
@@ -142,6 +154,8 @@ export const useMediaInTimeline = ({
 		playbackRate,
 		displayName,
 		stack,
+		showInTimeline,
+		premountDisplay,
 	]);
 
 	useEffect(() => {

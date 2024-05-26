@@ -15,7 +15,7 @@ If this is your first contribution, see the <a href="https://github.com/remotion
 
 <Step>1</Step> Create a custom transition. Loook at the <a href="/docs/transitions/presentations/custom">custom presentation</a> docs to see how it's done.<br/>
 <Step>2</Step>Add your presentation to the remotion monorepository under <code>packages/transitions/src/presentations</code>.<br/>
-<Step>3</Step> In the <code>rollup.config.js</code>, add your presentation to the <code>presentations array</code>.
+<Step>3</Step> In the <code>bundle.ts</code>, add your presentation to the <code>presentations array</code>.
 <br/>
 
 ```tsx

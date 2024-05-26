@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import {Log} from '../logger';
-import {assert} from './assert';
 import type {Commands} from './devtools-commands';
 import type {TargetInfo} from './devtools-types';
 
@@ -247,7 +246,7 @@ export class CDPSession extends EventEmitter {
 			(resolve, reject) => {
 				if (this.#callbacks.size > 100) {
 					for (const callback of this.#callbacks.values()) {
-						Log.info(callback.fn);
+						Log.info({indent: false, logLevel: 'info'}, callback.fn);
 					}
 
 					throw new Error('Leak detected: Too many callbacks');
@@ -277,7 +276,6 @@ export class CDPSession extends EventEmitter {
 				callback.resolve(object.result);
 			}
 		} else {
-			assert(!object.id);
 			this.emit(object.method, object.params);
 		}
 	}

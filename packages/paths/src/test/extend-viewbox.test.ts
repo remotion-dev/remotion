@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {extendViewBox} from '../extend-viewbox';
 
 test('Should be able to extend a viewBox', () => {

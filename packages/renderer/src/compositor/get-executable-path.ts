@@ -1,12 +1,18 @@
 // Adapted from @swc/core package
 
+import path from 'path';
 import type {LogLevel} from '../log-level';
 import {Log} from '../logger';
 
 let warned = false;
 
-function isMusl({indent, logLevel}: {indent: boolean; logLevel: LogLevel}) {
-	// @ts-expect-error bun no types
+export function isMusl({
+	indent,
+	logLevel,
+}: {
+	indent: boolean;
+	logLevel: LogLevel;
+}) {
 	if (!process.report && typeof Bun !== 'undefined') {
 		if (!warned) {
 			Log.warn(
@@ -19,34 +25,71 @@ function isMusl({indent, logLevel}: {indent: boolean; logLevel: LogLevel}) {
 		return false;
 	}
 
+	const report = process.report?.getReport();
+	if (report && typeof report === 'string') {
+		if (!warned) {
+			Log.warn(
+				{indent, logLevel},
+				'Bun limitation: Could not determine if your Windows is using musl or glibc. Assuming glibc.',
+			);
+		}
+
+		warned = true;
+		return false;
+	}
+
 	// @ts-expect-error no types
-	const {glibcVersionRuntime} = process.report.getReport().header;
+	const {glibcVersionRuntime} = report.header;
 	return !glibcVersionRuntime;
 }
 
-export const getExecutablePath = (
-	type: 'compositor' | 'ffmpeg' | 'ffprobe' | 'ffmpeg-cwd',
+export const getExecutablePath = ({
+	indent,
+	logLevel,
+	type,
+	binariesDirectory,
+}: {
+	type: 'compositor' | 'ffmpeg' | 'ffprobe';
+	indent: boolean;
+	logLevel: LogLevel;
+	binariesDirectory: string | null;
+}): string => {
+	const base = binariesDirectory ?? getExecutableDir(indent, logLevel);
+	switch (type) {
+		case 'compositor':
+			if (process.platform === 'win32') {
+				return path.resolve(base, 'remotion.exe');
+			}
+
+			return path.resolve(base, 'remotion');
+
+		case 'ffmpeg':
+			if (process.platform === 'win32') {
+				return path.join(base, 'ffmpeg.exe');
+			}
+
+			return path.join(base, 'ffmpeg');
+		case 'ffprobe':
+			if (process.platform === 'win32') {
+				return path.join(base, 'ffprobe.exe');
+			}
+
+			return path.join(base, 'ffprobe');
+
+		default:
+			throw new Error(`Unknown executable type: ${type}`);
+	}
+};
+
+export const getExecutableDir = (
 	indent: boolean,
 	logLevel: LogLevel,
 ): string => {
-	if (type === 'compositor' && process.env.COMPOSITOR_PATH) {
-		return process.env.COMPOSITOR_PATH;
-	}
-
-	const key =
-		type === 'compositor'
-			? 'binaryPath'
-			: type === 'ffmpeg'
-				? 'ffmpegPath'
-				: type === 'ffprobe'
-					? 'ffprobePath'
-					: 'ffmpegCwd';
-
 	switch (process.platform) {
 		case 'win32':
 			switch (process.arch) {
 				case 'x64':
-					return require('@remotion/compositor-win32-x64-msvc')[key];
+					return require('@remotion/compositor-win32-x64-msvc').dir;
 				default:
 					throw new Error(
 						`Unsupported architecture on Windows: ${process.arch}`,
@@ -56,9 +99,9 @@ export const getExecutablePath = (
 		case 'darwin':
 			switch (process.arch) {
 				case 'x64':
-					return require('@remotion/compositor-darwin-x64')[key];
+					return require('@remotion/compositor-darwin-x64').dir;
 				case 'arm64':
-					return require('@remotion/compositor-darwin-arm64')[key];
+					return require('@remotion/compositor-darwin-arm64').dir;
 				default:
 					throw new Error(`Unsupported architecture on macOS: ${process.arch}`);
 			}
@@ -68,16 +111,16 @@ export const getExecutablePath = (
 			switch (process.arch) {
 				case 'x64':
 					if (musl) {
-						return require('@remotion/compositor-linux-x64-musl')[key];
+						return require('@remotion/compositor-linux-x64-musl').dir;
 					}
 
-					return require('@remotion/compositor-linux-x64-gnu')[key];
+					return require('@remotion/compositor-linux-x64-gnu').dir;
 				case 'arm64':
 					if (musl) {
-						return require('@remotion/compositor-linux-arm64-musl')[key];
+						return require('@remotion/compositor-linux-arm64-musl').dir;
 					}
 
-					return require('@remotion/compositor-linux-arm64-gnu')[key];
+					return require('@remotion/compositor-linux-arm64-gnu').dir;
 
 				default:
 					throw new Error(`Unsupported architecture on Linux: ${process.arch}`);

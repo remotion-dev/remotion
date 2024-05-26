@@ -1,6 +1,6 @@
+import type {RenderJob} from '@remotion/studio-shared';
 import React, {useCallback, useContext} from 'react';
 import {FAIL_COLOR, LIGHT_TEXT} from '../../helpers/colors';
-import type {RenderJob} from '../../preview-server/job';
 import {ModalsContext} from '../../state/modals';
 import {
 	CircularProgress,

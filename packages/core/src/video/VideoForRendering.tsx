@@ -8,6 +8,8 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
+import {RenderAssetManager} from '../RenderAssetManager.js';
+import {SequenceContext} from '../SequenceContext.js';
 import {getAbsoluteSrc} from '../absolute-src.js';
 import {
 	useFrameForVolumeProp,
@@ -17,18 +19,16 @@ import {continueRender, delayRender} from '../delay-render.js';
 import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {isApproximatelyTheSame} from '../is-approximately-the-same.js';
 import {random} from '../random.js';
-import {RenderAssetManager} from '../RenderAssetManager.js';
-import {SequenceContext} from '../SequenceContext.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
 import {evaluateVolume} from '../volume-prop.js';
-import {warnAboutNonSeekableMedia} from '../warn-about-non-seekable-media.js';
 import {getMediaTime} from './get-current-time.js';
-import type {RemotionVideoProps} from './props.js';
+import type {RemotionVideoProps} from './props';
+import {seekToTimeMultipleUntilRight} from './seek-until-right.js';
 
 type VideoForRenderingProps = RemotionVideoProps & {
-	onDuration: (src: string, durationInSeconds: number) => void;
+	readonly onDuration: (src: string, durationInSeconds: number) => void;
 };
 
 const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
@@ -44,6 +44,9 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		toneFrequency,
 		name,
 		acceptableTimeShiftInSeconds,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
+		loopVolumeCurveBehavior,
 		...props
 	},
 	ref,
@@ -51,7 +54,9 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const absoluteFrame = useTimelinePosition();
 
 	const frame = useCurrentFrame();
-	const volumePropsFrame = useFrameForVolumeProp();
+	const volumePropsFrame = useFrameForVolumeProp(
+		loopVolumeCurveBehavior ?? 'repeat',
+	);
 	const videoConfig = useUnsafeVideoConfig();
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const sequenceContext = useContext(SequenceContext);
@@ -114,6 +119,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			playbackRate: playbackRate ?? 1,
 			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 			toneFrequency: toneFrequency ?? null,
+			audioStartFrame: Math.max(0, -(sequenceContext?.relativeFrom ?? 0)),
 		});
 
 		return () => unregisterRenderAsset(id);
@@ -129,6 +135,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		allowAmplificationDuringRender,
 		toneFrequency,
+		sequenceContext?.relativeFrom,
 	]);
 
 	useImperativeHandle(
@@ -149,18 +156,17 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
-		const currentTime = (() => {
-			return getMediaTime({
-				fps: videoConfig.fps,
-				frame,
-				src: props.src as string,
-				playbackRate: playbackRate || 1,
-				startFrom: -mediaStartsAt,
-				mediaType: 'video',
-			});
-		})();
-		const handle = delayRender(`Rendering <Video /> with src="${props.src}"`);
-		if (process.env.NODE_ENV === 'test') {
+		const currentTime = getMediaTime({
+			frame,
+			playbackRate: playbackRate || 1,
+			startFrom: -mediaStartsAt,
+			fps: videoConfig.fps,
+		});
+		const handle = delayRender(`Rendering <Video /> with src="${props.src}"`, {
+			retries: delayRenderRetries ?? undefined,
+			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+		});
+		if (window.process?.env?.NODE_ENV === 'test') {
 			continueRender(handle);
 			return;
 		}
@@ -181,29 +187,19 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			};
 		}
 
-		current.currentTime = currentTime;
-
-		const seekedHandler = () => {
-			warnAboutNonSeekableMedia(current, 'exception');
-
-			if (window.navigator.platform.startsWith('Mac')) {
-				// Improve me: This is ensures frame perfectness but slows down render.
-				// Please see this issue for context: https://github.com/remotion-dev/remotion/issues/200
-
-				// Only affects macOS since it uses VideoToolbox decoding.
-				setTimeout(() => {
-					continueRender(handle);
-				}, 100);
-			} else {
-				continueRender(handle);
-			}
-		};
-
-		current.addEventListener('seeked', seekedHandler, {once: true});
-
 		const endedHandler = () => {
 			continueRender(handle);
 		};
+
+		const seek = seekToTimeMultipleUntilRight(
+			current,
+			currentTime,
+			videoConfig.fps,
+		);
+
+		seek.prom.then(() => {
+			continueRender(handle);
+		});
 
 		current.addEventListener('ended', endedHandler, {once: true});
 
@@ -229,9 +225,9 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 
 		// If video skips to another frame or unmounts, we clear the created handle
 		return () => {
+			seek.cancel();
 			current.removeEventListener('ended', endedHandler);
 			current.removeEventListener('error', errorHandler);
-			current.removeEventListener('seeked', seekedHandler);
 			continueRender(handle);
 		};
 	}, [
@@ -242,6 +238,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		frame,
 		mediaStartsAt,
 		onError,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
 	]);
 
 	const {src} = props;
@@ -250,11 +248,17 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	if (environment.isRendering) {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useLayoutEffect(() => {
-			if (process.env.NODE_ENV === 'test') {
+			if (window.process?.env?.NODE_ENV === 'test') {
 				return;
 			}
 
-			const newHandle = delayRender('Loading <Video> duration with src=' + src);
+			const newHandle = delayRender(
+				'Loading <Video> duration with src=' + src,
+				{
+					retries: delayRenderRetries ?? undefined,
+					timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+				},
+			);
 			const {current} = videoRef;
 
 			const didLoad = () => {
@@ -277,7 +281,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 				current?.removeEventListener('loadedmetadata', didLoad);
 				continueRender(newHandle);
 			};
-		}, [src, onDuration]);
+		}, [src, onDuration, delayRenderRetries, delayRenderTimeoutInMilliseconds]);
 	}
 
 	return <video ref={videoRef} {...props} onError={onError} />;

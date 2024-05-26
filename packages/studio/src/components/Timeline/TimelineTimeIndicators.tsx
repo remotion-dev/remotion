@@ -13,11 +13,11 @@ import {
 import {renderFrame} from '../../state/render-frame';
 import {SPLITTER_HANDLE_SIZE} from '../Splitter/SplitterHandle';
 import {TimeValue} from '../TimeValue';
+import {TimelineWidthContext} from './TimelineWidthProvider';
 import {timelineVerticalScroll} from './timeline-refs';
 import {getFrameIncrementFromWidth} from './timeline-scroll-logic';
-import {TimelineWidthContext} from './TimelineWidthProvider';
 
-export const TIMELINE_TIME_INDICATOR_HEIGHT = 30;
+export const TIMELINE_TIME_INDICATOR_HEIGHT = 39;
 
 const container: React.CSSProperties = {
 	height: TIMELINE_TIME_INDICATOR_HEIGHT - 4,
@@ -131,13 +131,14 @@ const Inner: React.FC<{
 		};
 	}, []);
 
-	const style = useMemo(() => {
+	const style: React.CSSProperties = useMemo(() => {
 		return {
 			...container,
 			width: windowWidth - SPLITTER_HANDLE_SIZE / 2,
 			overflow: 'hidden',
 			// Since
 			marginLeft: SPLITTER_HANDLE_SIZE / 2,
+			pointerEvents: 'none',
 		};
 	}, [windowWidth]);
 
@@ -190,8 +191,8 @@ const Inner: React.FC<{
 							index % fps === 0
 								? 10
 								: (index / frameMarkerEveryNth) % 2 === 0
-								? 5
-								: 2,
+									? 5
+									: 2,
 					},
 					showTime: false,
 				};

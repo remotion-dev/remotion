@@ -35,6 +35,10 @@ export const TableOfContents: React.FC = () => {
           <strong>openBrowser()</strong>
           <div>Open a Chrome browser to reuse across renders</div>
         </TOCItem>
+        <TOCItem link="/docs/renderer/ensure-browser">
+          <strong>ensureBrowser()</strong>
+          <div>Open a Chrome browser to reuse across renders</div>
+        </TOCItem>
         <TOCItem link="/docs/renderer/make-cancel-signal">
           <strong>makeCancelSignal()</strong>
           <div>Create token to later cancel a render</div>

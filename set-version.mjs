@@ -39,7 +39,7 @@ for (const dir of [path.join("cloudrun", "container"), ...dirs]) {
   writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + "\n");
   try {
     console.log("setting version for", dir);
-    execSync("pnpm exec prettier --write package.json", {
+    execSync("bun x prettier --write package.json", {
       cwd: path.join(process.cwd(), "packages", dir),
     });
   } catch (e) {
@@ -47,11 +47,11 @@ for (const dir of [path.join("cloudrun", "container"), ...dirs]) {
   }
 }
 
-execSync("node ensure-correct-version.js", {
+execSync("bun ensure-correct-version.ts", {
   cwd: "packages/core",
 });
 
-execSync("pnpm exec vitest src/monorepo --run", {
+execSync("bun x vitest src/monorepo --run", {
   cwd: "packages/it-tests",
   stdio: "inherit",
 });

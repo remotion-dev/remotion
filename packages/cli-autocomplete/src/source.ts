@@ -1,5 +1,6 @@
 import { uniqueOptions } from "./unique-options";
 import { RenderInternals } from "@remotion/renderer";
+import { BrowserSafeApis } from "@remotion/renderer/client";
 
 const alwaysOptions: Fig.Option[] = [
   {
@@ -20,6 +21,13 @@ const alwaysOptions: Fig.Option[] = [
           name: l,
         };
       }),
+    },
+  },
+  {
+    name: "--config",
+    description: "Custom location for a Remotion config file",
+    args: {
+      template: "filepaths",
     },
   },
 ];
@@ -97,7 +105,7 @@ const localRenderAndStillOptions: Fig.Option[] = [
   },
   {
     name: "--ffmpeg-executable",
-    description: "Custom path for FFMPEG executable",
+    description: "Custom path for FFmpeg executable",
     args: {
       template: "filepaths",
     },
@@ -119,13 +127,6 @@ const localRenderAndStillOptions: Fig.Option[] = [
     args: {
       name: "port",
       default: "3333",
-    },
-  },
-  {
-    name: "--config",
-    description: "Custom location for a Remotion config file",
-    args: {
-      template: "filepaths",
     },
   },
   {
@@ -207,6 +208,11 @@ const localRenderOptions: Fig.Option[] = [
     name: "--muted",
     description: "Mute the output video",
   },
+  {
+    name: "--repro",
+    description:
+      "Collect information that you can submit to Remotion if asked for a reproduction",
+  },
 ];
 
 const stillOptions: Fig.Option[] = [
@@ -270,11 +276,12 @@ const renderOptions: Fig.Option[] = [
         { name: "wav" },
         { name: "prores" },
         { name: "h264-mkv" },
+        { name: "h264-ts" },
       ],
     },
   },
   {
-    name: "--audio-codec",
+    name: `--${BrowserSafeApis.options.audioCodecOption.cliFlag}`,
     description: "Codec to be used for the audio",
     args: {
       suggestions: [
@@ -313,7 +320,7 @@ const renderOptions: Fig.Option[] = [
   },
   {
     name: "--crf",
-    description: "FFMPEG CRF value, controls quality, see docs for info",
+    description: "FFmpeg CRF value, controls quality, see docs for info",
     exclusiveOn: ["--video-bitrate"],
   },
   {
@@ -493,7 +500,7 @@ const benchmarkOptions: Fig.Option[] = uniqueOptions(
 );
 
 const completionSpec: Fig.Spec = {
-  name: "remotion",
+  name: ["remotion", "remotionb"],
   description: "Create videos programmatically in React",
   subcommands: [
     {
@@ -710,7 +717,7 @@ const completionSpec: Fig.Spec = {
                   exclusiveOn: ["--retention-period"],
                 },
                 {
-                  name: "--enable-lambda-insights",
+                  name: `--${BrowserSafeApis.options.enableLambdaInsights.cliFlag}`,
                   description: "Enable Lambda Insights",
                 },
                 {
@@ -806,6 +813,32 @@ const completionSpec: Fig.Spec = {
         },
       ],
       options: globalLambdaOptions,
+    },
+    {
+      name: "bundle",
+      priority: 100,
+      description: "Bundle a Remotion project",
+      args: {
+        name: "entry",
+        template: ["filepaths"],
+      },
+      options: [
+        ...alwaysOptions,
+        {
+          name: "--public-dir",
+          description: "Location of the public/ directory",
+          args: {
+            template: "folders",
+          },
+        },
+        {
+          name: "--out-dir",
+          description: "Define the location of the resulting bundle",
+          args: {
+            template: "folders",
+          },
+        },
+      ],
     },
     {
       name: "render",

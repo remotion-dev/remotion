@@ -10,7 +10,7 @@ import {noop} from '../../helpers/noop';
 import {getClickLock, setClickLock} from '../../state/input-dragger-click-lock';
 import {HigherZIndex} from '../../state/z-index';
 import type {RemInputStatus} from './RemInput';
-import {inputBaseStyle, RemotionInput} from './RemInput';
+import {RemotionInput, inputBaseStyle} from './RemInput';
 
 type Props = InputHTMLAttributes<HTMLInputElement> & {
 	onValueChange: (newVal: number) => void;
@@ -24,18 +24,24 @@ const isInt = (num: number) => {
 	return num % 1 === 0;
 };
 
-export const InputDragger: React.FC<Props> = ({
-	onValueChange,
-	min: _min,
-	max: _max,
-	step: _step,
-	value,
-	onTextChange,
-	formatter = (q) => String(q),
-	status,
-	rightAlign,
-	...props
-}) => {
+const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
+	HTMLButtonElement,
+	Props
+> = (
+	{
+		onValueChange,
+		min: _min,
+		max: _max,
+		step: _step,
+		value,
+		onTextChange,
+		formatter = (q) => String(q),
+		status,
+		rightAlign,
+		...props
+	},
+	ref,
+) => {
 	const [inputFallback, setInputFallback] = useState(false);
 	const fallbackRef = useRef<HTMLInputElement>(null);
 	const style = useMemo(() => {
@@ -196,6 +202,7 @@ export const InputDragger: React.FC<Props> = ({
 
 	return (
 		<button
+			ref={ref}
 			type="button"
 			style={style}
 			onClick={onClick}
@@ -205,3 +212,5 @@ export const InputDragger: React.FC<Props> = ({
 		</button>
 	);
 };
+
+export const InputDragger = React.forwardRef(InputDraggerForwardRefFn);

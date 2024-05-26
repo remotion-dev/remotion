@@ -1,4 +1,7 @@
 import React, {useCallback, useContext, useEffect, useMemo} from 'react';
+import {Img} from '../Img.js';
+import {RenderAssetManager} from '../RenderAssetManager.js';
+import {SequenceContext} from '../SequenceContext.js';
 import {getAbsoluteSrc} from '../absolute-src.js';
 import {
 	useFrameForVolumeProp,
@@ -6,10 +9,7 @@ import {
 } from '../audio/use-audio-frame.js';
 import {cancelRender} from '../cancel-render.js';
 import {OFFTHREAD_VIDEO_CLASS_NAME} from '../default-css.js';
-import {Img} from '../Img.js';
 import {random} from '../random.js';
-import {RenderAssetManager} from '../RenderAssetManager.js';
-import {SequenceContext} from '../SequenceContext.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {truthy} from '../truthy.js';
 import {useCurrentFrame} from '../use-current-frame.js';
@@ -27,14 +27,18 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	muted,
 	allowAmplificationDuringRender,
 	transparent = false,
+	toneMapped = true,
 	toneFrequency,
 	name,
+	loopVolumeCurveBehavior,
 	...props
 }) => {
 	const absoluteFrame = useTimelinePosition();
 
 	const frame = useCurrentFrame();
-	const volumePropsFrame = useFrameForVolumeProp();
+	const volumePropsFrame = useFrameForVolumeProp(
+		loopVolumeCurveBehavior ?? 'repeat',
+	);
 	const videoConfig = useUnsafeVideoConfig();
 	const sequenceContext = useContext(SequenceContext);
 	const mediaStartsAt = useMediaStartsAt();
@@ -99,6 +103,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			playbackRate: playbackRate ?? 1,
 			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 			toneFrequency: toneFrequency ?? null,
+			audioStartFrame: Math.max(0, -(sequenceContext?.relativeFrom ?? 0)),
 		});
 
 		return () => unregisterRenderAsset(id);
@@ -114,6 +119,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 		playbackRate,
 		allowAmplificationDuringRender,
 		toneFrequency,
+		sequenceContext?.relativeFrom,
 	]);
 
 	const currentTime = useMemo(() => {
@@ -127,8 +133,13 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	}, [frame, mediaStartsAt, playbackRate, videoConfig.fps]);
 
 	const actualSrc = useMemo(() => {
-		return getOffthreadVideoSource({src, currentTime, transparent});
-	}, [currentTime, src, transparent]);
+		return getOffthreadVideoSource({
+			src,
+			currentTime,
+			transparent,
+			toneMapped,
+		});
+	}, [toneMapped, currentTime, src, transparent]);
 
 	const onErr: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement> =
 		useCallback(

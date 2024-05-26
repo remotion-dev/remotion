@@ -22,7 +22,7 @@ type LambdaCommandLineOptions = {
 	['disable-chunk-optimization']: boolean;
 	['save-browser-logs']: boolean;
 	['disable-cloudwatch']: boolean;
-	['enable-lambda-insights']: boolean;
+	[BrowserSafeApis.options.enableLambdaInsights.cliFlag]: boolean;
 	['max-retries']?: number;
 	['frames-per-lambda']?: number;
 	['concurrency-per-lambda']?: number;
@@ -37,6 +37,9 @@ type LambdaCommandLineOptions = {
 	['force-bucket-name']: string | undefined;
 	[BrowserSafeApis.options.deleteAfterOption.cliFlag]: DeleteAfter | undefined;
 	[BrowserSafeApis.options.folderExpiryOption.cliFlag]: boolean | undefined;
+	['vpc-subnet-ids']: string | undefined;
+	['vpc-security-group-ids']: string | undefined;
+	['compatible-only']: boolean;
 };
 
 export const parsedLambdaCli = CliInternals.minimist<LambdaCommandLineOptions>(

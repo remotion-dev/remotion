@@ -25,12 +25,14 @@ export const renderArgsCheck = async (
 
 	let serveUrl = args[0];
 	if (!serveUrl) {
-		Log.error('No serve URL passed.');
+		Log.error({indent: false, logLevel}, 'No serve URL passed.');
 		Log.info(
+			{indent: false, logLevel},
 			'Pass an additional argument specifying a URL where your Remotion project is hosted.',
 		);
-		Log.info();
+		Log.info({indent: false, logLevel});
 		Log.info(
+			{indent: false, logLevel},
 			`${BINARY_NAME} ${subcommand} <serve-url> <composition-id> [output-location]`,
 		);
 		quit(1);
@@ -65,6 +67,7 @@ export const renderArgsCheck = async (
 	let serviceName = parsedCloudrunCli['service-name'];
 	if (cloudRunUrl && serviceName) {
 		Log.error(
+			{indent: false, logLevel},
 			'Both a Cloud Run URL and a Service Name was provided. Specify only one.',
 		);
 		quit(1);
@@ -74,9 +77,13 @@ export const renderArgsCheck = async (
 		const services = await getServices({region, compatibleOnly: true});
 		if (services.length === 0) {
 			// TODO: Log if there is an incompatible service
-			Log.error('No compatible services found. Please create a service first:');
-			Log.info();
+			Log.error(
+				{indent: false, logLevel},
+				'No compatible services found. Please create a service first:',
+			);
+			Log.info({indent: false, logLevel});
 			Log.info(
+				{indent: false, logLevel},
 				`  ${BINARY_NAME} ${SERVICES_COMMAND} ${CLOUD_RUN_DEPLOY_SUBCOMMAND}`,
 			);
 			quit(1);

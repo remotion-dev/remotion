@@ -6,8 +6,9 @@ test(
 	async () => {
 		const compositor = startLongRunningCompositor({
 			maximumFrameCacheItemsInBytes: null,
-			logLevel: 'verbose',
+			logLevel: 'info',
 			indent: false,
+			binariesDirectory: null,
 		});
 
 		const matching = await Promise.all(
@@ -19,14 +20,15 @@ test(
 				const output = await compositor.executeCommand('Echo', {
 					message: expectedString,
 				});
-				const isSame = output.toString('utf8') === 'Echo ' + expectedString;
+				const isSame =
+					new TextDecoder('utf-8').decode(output) === 'Echo ' + expectedString;
 				return isSame;
 			}),
 		);
 
-		compositor.finishCommands();
+		await compositor.finishCommands();
 		await compositor.waitForDone();
 		expect(matching.every((m) => m)).toBe(true);
 	},
-	{timeout: 5000},
+	{timeout: 5000, retry: 2},
 );

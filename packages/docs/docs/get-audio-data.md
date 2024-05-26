@@ -34,6 +34,14 @@ You can <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a> d
 
 A string pointing to an audio asset.
 
+### `options?`<AvailableFrom v="4.0.121"/>
+
+#### `sampleRate?`<AvailableFrom v="4.0.121"/>
+
+The `sampleRate` that should be passed into the [`AudioContext`](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext/AudioContext) constructor. If not provided, the default value is `48000`.
+
+In versions before 4.0.121, the default value was `undefined`, leading to undeterministic behavior across devices rendering.
+
 ## Return value
 
 _`Promise<AudioData>`_
@@ -50,7 +58,11 @@ An array with waveform information for each channel.
 
 _number_
 
-How many samples per second each waveform contains.
+The sample rate of the generated `AudioContext`. This will be the same as the `sampleRate` input option if passed, `48000` otherwise, and in version previous to 4.0.121, the sample rate of the device's preferred output device.
+
+:::note
+Previously, this documentation stated that this is the sample rate of the audio file. This is incorrect. [The sample rate of the audio file is not exposed to the browser's JavaScript environment.](https://github.com/WebAudio/web-audio-api/issues/30)
+:::
 
 ### `durationInSeconds`
 

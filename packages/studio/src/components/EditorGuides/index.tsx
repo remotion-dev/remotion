@@ -12,7 +12,7 @@ const EditorGuides: React.FC<{
 	contentDimensions: Dimensions | 'none' | null;
 	assetMetadata: AssetMetadata | null;
 }> = ({canvasSize, contentDimensions, assetMetadata}) => {
-	const {canvasDimensions, scale} = useStudioCanvasDimensions({
+	const {canvasPosition: canvasDimensions, scale} = useStudioCanvasDimensions({
 		canvasSize,
 		contentDimensions,
 		assetMetadata,

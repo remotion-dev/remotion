@@ -26,7 +26,7 @@ export const SchemaVerticalGuide: React.FC<{
 					width: 1,
 					background: '#363A3E',
 					position: 'absolute',
-			  };
+				};
 	}, [isRoot]);
 
 	return (

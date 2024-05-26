@@ -34,11 +34,12 @@ export const getExpectedOutName = (
 		renderMetadata,
 	});
 	if (outNameValue) {
-		validateOutname(
-			outNameValue,
-			renderMetadata.codec,
-			renderMetadata.audioCodec,
-		);
+		validateOutname({
+			outName: outNameValue,
+			codec: renderMetadata.codec,
+			audioCodecSetting: renderMetadata.audioCodec,
+			separateAudioTo: null,
+		});
 		return customOutName(renderMetadata.renderId, bucketName, outNameValue);
 	}
 

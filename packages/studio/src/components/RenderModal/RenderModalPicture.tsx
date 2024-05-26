@@ -9,20 +9,20 @@ import type {ChangeEvent} from 'react';
 import React, {useCallback, useMemo} from 'react';
 import {Checkmark} from '../../icons/Checkmark';
 import {Checkbox} from '../Checkbox';
-import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 import {RemotionInput} from '../NewComposition/RemInput';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
+import {Spacing} from '../layout';
 import {CrfSetting} from './CrfSetting';
 import {JpegQualitySetting} from './JpegQualitySetting';
-import {input, label, optionRow, rightRow} from './layout';
 import {OptionExplainerBubble} from './OptionExplainerBubble';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalHr} from './RenderModalHr';
 import {ScaleSetting} from './ScaleSetting';
+import {input, label, optionRow, rightRow} from './layout';
 
 const qualityControlModes = ['crf', 'bitrate'] as const;
 export type QualityControl = (typeof qualityControlModes)[number];
@@ -206,7 +206,7 @@ export const RenderModalPicture: React.FC<{
 					<div style={label}>
 						Target video bitrate
 						<Spacing x={0.5} />
-						<OptionExplainerBubble id="videoBitrate" />
+						<OptionExplainerBubble id="videoBitrateOption" />
 					</div>
 
 					<div style={rightRow}>

@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import type {LogLevel} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import {displayServiceInfo, LEFT_COL} from '.';
 import {internalDeployService} from '../../../api/deploy-service';
@@ -18,7 +19,7 @@ import {Log} from '../../log';
 
 export const CLOUD_RUN_DEPLOY_SUBCOMMAND = 'deploy';
 
-export const cloudRunDeploySubcommand = async () => {
+export const cloudRunDeploySubcommand = async (logLevel: LogLevel) => {
 	const region = getGcpRegion();
 	const projectID = process.env.REMOTION_GCP_PROJECT_ID as string;
 	const memoryLimit = String(parsedCloudrunCli.memoryLimit ?? '2Gi');
@@ -33,6 +34,7 @@ export const cloudRunDeploySubcommand = async () => {
 
 	if (!CliInternals.quietFlagProvided()) {
 		Log.info(
+			{indent: false, logLevel},
 			CliInternals.chalk.gray(
 				`
 Validating Deployment of Cloud Run Service:
@@ -51,21 +53,27 @@ ${[
     `.trim(),
 			),
 		);
-		Log.info();
+		Log.info({indent: false, logLevel});
 	}
 
 	validateGcpRegion(region);
 	await validateImageRemotionVersion();
 
 	if (projectID === undefined) {
-		Log.error(`REMOTION_GCP_PROJECT_ID not found in the .env file.`);
+		Log.error(
+			{indent: false, logLevel},
+			`REMOTION_GCP_PROJECT_ID not found in the .env file.`,
+		);
 		quit(0);
 	}
 
 	// if no existing service, deploy new service
 
 	if (!CliInternals.quietFlagProvided()) {
-		Log.info(CliInternals.chalk.white('\nDeploying Cloud Run Service...'));
+		Log.info(
+			{indent: false, logLevel},
+			CliInternals.chalk.white('\nDeploying Cloud Run Service...'),
+		);
 	}
 
 	try {
@@ -78,31 +86,46 @@ ${[
 			maxInstances: Number(maxInstances) ?? DEFAULT_MAX_INSTANCES,
 			projectID,
 			region,
+			logLevel,
+			indent: false,
 		});
 
 		if (!deployResult.fullName) {
-			Log.error('full service name not returned from Cloud Run API.');
+			Log.error(
+				{indent: false, logLevel},
+				'full service name not returned from Cloud Run API.',
+			);
 			throw new Error(JSON.stringify(deployResult));
 		}
 
 		if (!deployResult.shortName) {
-			Log.error('short service name not returned from Cloud Run API.');
+			Log.error(
+				{indent: false, logLevel},
+				'short service name not returned from Cloud Run API.',
+			);
 			throw new Error(JSON.stringify(deployResult));
 		}
 
 		if (!deployResult.alreadyExists && !deployResult.uri) {
-			Log.error('service uri not returned from Cloud Run API.');
+			Log.error(
+				{indent: false, logLevel},
+				'service uri not returned from Cloud Run API.',
+			);
 		}
 
 		const consoleUrl = makeConsoleUrl(region, deployResult.shortName);
 
 		if (deployResult.alreadyExists) {
-			Log.info();
+			Log.info({indent: false, logLevel});
 
 			if (CliInternals.quietFlagProvided()) {
-				CliInternals.Log.info(deployResult.shortName);
+				CliInternals.Log.info(
+					{indent: false, logLevel},
+					deployResult.shortName,
+				);
 			} else {
 				Log.info(
+					{indent: false, logLevel},
 					CliInternals.chalk.blueBright(
 						`
 Service already exists, skipping deployment;
@@ -122,12 +145,16 @@ ${displayServiceInfo({
 				);
 			}
 		} else {
-			Log.info();
+			Log.info({indent: false, logLevel});
 
 			if (CliInternals.quietFlagProvided()) {
-				CliInternals.Log.info(deployResult.shortName);
+				CliInternals.Log.info(
+					{indent: false, logLevel},
+					deployResult.shortName,
+				);
 			} else {
 				Log.info(
+					{indent: false, logLevel},
 					CliInternals.chalk.blueBright(
 						`
 Cloud Run Deployed!
@@ -149,6 +176,7 @@ ${displayServiceInfo({
 		}
 	} catch (e) {
 		Log.error(
+			{indent: false, logLevel},
 			CliInternals.chalk.red(
 				`Failed to deploy service - ${generateServiceName({
 					memoryLimit,

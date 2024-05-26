@@ -1,4 +1,5 @@
-import type {WebpackOverrideFn} from '@remotion/bundler';
+import type {GitSource, WebpackOverrideFn} from '@remotion/bundler';
+import type {LogLevel} from '@remotion/renderer';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import {cloudrunDeleteFile, cloudrunLs} from '../functions/helpers/io';
 import {bundleSite} from '../shared/bundle-site';
@@ -12,20 +13,32 @@ import {getCloudStorageClient} from './helpers/get-cloud-storage-client';
 import type {UploadDirProgress} from './upload-dir';
 import {uploadDir} from './upload-dir';
 
+type Options = {
+	onBundleProgress?: (progress: number) => void;
+	onUploadProgress?: (upload: UploadDirProgress) => void;
+	webpackOverride?: WebpackOverrideFn;
+	ignoreRegisterRootWarning?: boolean;
+	enableCaching?: boolean;
+	publicDir?: string | null;
+	rootDir?: string;
+	bypassBucketNameValidation?: boolean;
+	gitSource?: GitSource | null;
+};
+
+export type RawDeploySiteInput = {
+	entryPoint: string;
+	bucketName: string;
+	siteName: string;
+	options: Options;
+	logLevel: LogLevel;
+	indent: boolean;
+};
+
 export type DeploySiteInput = {
 	entryPoint: string;
 	bucketName: string;
 	siteName?: string;
-	options?: {
-		onBundleProgress?: (progress: number) => void;
-		onUploadProgress?: (upload: UploadDirProgress) => void;
-		webpackOverride?: WebpackOverrideFn;
-		ignoreRegisterRootWarning?: boolean;
-		enableCaching?: boolean;
-		publicDir?: string | null;
-		rootDir?: string;
-		bypassBucketNameValidation?: boolean;
-	};
+	options?: Options;
 };
 
 export type DeploySiteOutput = Promise<{
@@ -38,23 +51,22 @@ export type DeploySiteOutput = Promise<{
 	};
 }>;
 
-const deploySiteRaw = async ({
+const internalDeploySiteRaw = async ({
 	entryPoint,
 	bucketName,
 	siteName,
 	options,
-}: DeploySiteInput): DeploySiteOutput => {
+}: RawDeploySiteInput): DeploySiteOutput => {
 	validateBucketName(bucketName, {mustStartWithRemotion: true});
 
-	const siteId = siteName ?? randomHash();
-	validateSiteName(siteId);
+	validateSiteName(siteName);
 
 	const cloudStorageClient = getCloudStorageClient();
 
 	// check if bucket exists
 	await cloudStorageClient.bucket(bucketName).get();
 
-	const subFolder = getSitesKey(siteId);
+	const subFolder = getSitesKey(siteName);
 
 	// gcpLs is a function that lists all files in a bucket
 	const [files, bundled] = await Promise.all([
@@ -71,6 +83,7 @@ const deploySiteRaw = async ({
 			ignoreRegisterRootWarning: options?.ignoreRegisterRootWarning,
 			onProgress: options?.onBundleProgress ?? (() => undefined),
 			entryPoint,
+			gitSource: options?.gitSource,
 		}),
 	]);
 
@@ -100,7 +113,7 @@ const deploySiteRaw = async ({
 
 	return {
 		serveUrl: makeStorageServeUrl({bucketName, subFolder}),
-		siteName: siteId,
+		siteName,
 		stats: {
 			uploadedFiles: toUpload.length,
 			deletedFiles: toDelete.length,
@@ -108,6 +121,8 @@ const deploySiteRaw = async ({
 		},
 	};
 };
+
+const errorHandled = NoReactAPIs.wrapWithErrorHandling(internalDeploySiteRaw);
 
 /**
  * @description Deploys a Remotion project to a GCP storage bucket to prepare it for rendering on Cloud Run.
@@ -117,4 +132,13 @@ const deploySiteRaw = async ({
  * @param {string} params.siteName The name of the folder in which the project gets deployed to.
  * @param {object} params.options Further options, see documentation page for this function.
  */
-export const deploySite = NoReactAPIs.wrapWithErrorHandling(deploySiteRaw);
+export const deploySite = (input: DeploySiteInput): DeploySiteOutput => {
+	return errorHandled({
+		bucketName: input.bucketName,
+		entryPoint: input.entryPoint,
+		indent: false,
+		logLevel: 'info',
+		options: input.options ?? {},
+		siteName: input.siteName ?? randomHash(),
+	});
+};

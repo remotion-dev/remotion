@@ -1,6 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
-import type {LogLevel} from '@remotion/renderer';
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
@@ -20,6 +20,27 @@ import {findFunctionName} from '../helpers/find-function-name';
 import {quit} from '../helpers/quit';
 import {Log} from '../log';
 
+const {
+	offthreadVideoCacheSizeInBytesOption,
+	scaleOption,
+	deleteAfterOption,
+	jpegQualityOption,
+	enableMultiprocessOnLinuxOption,
+	glOption,
+	headlessOption,
+	delayRenderTimeoutInMillisecondsOption,
+	binariesDirectoryOption,
+} = BrowserSafeApis.options;
+
+const {
+	parsedCli,
+	determineFinalStillImageFormat,
+	chalk,
+	getCliOptions,
+	formatBytes,
+	getCompositionWithDimensionOverride,
+} = CliInternals;
+
 export const STILL_COMMAND = 'still';
 
 export const stillCommand = async (
@@ -30,40 +51,72 @@ export const stillCommand = async (
 	const serveUrl = args[0];
 
 	if (!serveUrl) {
-		Log.error('No serve URL passed.');
+		Log.error({indent: false, logLevel}, 'No serve URL passed.');
 		Log.info(
+			{indent: false, logLevel},
 			'Pass an additional argument specifying a URL where your Remotion project is hosted.',
 		);
-		Log.info();
+		Log.info({indent: false, logLevel});
 		Log.info(
+			{indent: false, logLevel},
 			`${BINARY_NAME} ${STILL_COMMAND} <serve-url> <composition-id>  [output-location]`,
 		);
 		quit(1);
 	}
 
 	const {
-		chromiumOptions,
 		envVariables,
 		inputProps,
-		puppeteerTimeout,
-		jpegQuality,
 		stillFrame,
-		scale,
 		height,
 		width,
 		browserExecutable,
-		offthreadVideoCacheSizeInBytes,
-	} = await CliInternals.getCliOptions({
-		type: 'still',
-		isLambda: true,
-		remotionRoot,
+		userAgent,
+		disableWebSecurity,
+		ignoreCertificateErrors,
+	} = getCliOptions({
+		isStill: true,
 		logLevel,
+		indent: false,
 	});
 
 	const region = getAwsRegion();
 	let composition = args[1];
+
+	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const gl = glOption.getValue({commandLine: parsedCli}).value;
+	const headless = headlessOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const chromiumOptions: ChromiumOptions = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+	};
+
+	const timeoutInMilliseconds = delayRenderTimeoutInMillisecondsOption.getValue(
+		{
+			commandLine: parsedCli,
+		},
+	).value;
+	const offthreadVideoCacheSizeInBytes =
+		offthreadVideoCacheSizeInBytesOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
 	if (!composition) {
-		Log.info('No compositions passed. Fetching compositions...');
+		Log.info(
+			{indent: false, logLevel},
+			'No compositions passed. Fetching compositions...',
+		);
 
 		validateServeUrl(serveUrl);
 
@@ -81,32 +134,41 @@ export const stillCommand = async (
 			logLevel,
 			webpackConfigOrServeUrl: serveUrl,
 			offthreadVideoCacheSizeInBytes,
+			binariesDirectory,
+			forceIPv4: false,
 		});
 
-		const {compositionId} =
-			await CliInternals.getCompositionWithDimensionOverride({
-				args: args.slice(1),
-				compositionIdFromUi: null,
-				indent: false,
-				serveUrlOrWebpackUrl: serveUrl,
+		const indent = false;
+
+		const {compositionId} = await getCompositionWithDimensionOverride({
+			args: args.slice(1),
+			compositionIdFromUi: null,
+			indent,
+			serveUrlOrWebpackUrl: serveUrl,
+			logLevel,
+			browserExecutable,
+			chromiumOptions,
+			envVariables,
+			serializedInputPropsWithCustomSchema:
+				NoReactInternals.serializeJSONWithDate({
+					indent: undefined,
+					staticBase: null,
+					data: inputProps,
+				}).serializedString,
+			port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
+			puppeteerInstance: undefined,
+			timeoutInMilliseconds,
+			height,
+			width,
+			server,
+			offthreadVideoCacheSizeInBytes,
+			binariesDirectory,
+			onBrowserDownload: CliInternals.defaultBrowserDownloadProgress({
+				indent,
 				logLevel,
-				browserExecutable,
-				chromiumOptions,
-				envVariables,
-				serializedInputPropsWithCustomSchema:
-					NoReactInternals.serializeJSONWithDate({
-						indent: undefined,
-						staticBase: null,
-						data: inputProps,
-					}).serializedString,
-				port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
-				puppeteerInstance: undefined,
-				timeoutInMilliseconds: puppeteerTimeout,
-				height,
-				width,
-				server,
-				offthreadVideoCacheSizeInBytes,
-			});
+				quiet: CliInternals.quietFlagProvided(),
+			}),
+		});
 		composition = compositionId;
 	}
 
@@ -122,10 +184,10 @@ export const stillCommand = async (
 	validatePrivacy(privacy, true);
 
 	const {format: imageFormat, source: imageFormatReason} =
-		CliInternals.determineFinalStillImageFormat({
+		determineFinalStillImageFormat({
 			downloadName,
 			outName: outName ?? null,
-			cliFlag: CliInternals.parsedCli['image-format'] ?? null,
+			cliFlag: parsedCli['image-format'] ?? null,
 			isLambda: true,
 			fromUi: null,
 			configImageFormat:
@@ -133,13 +195,19 @@ export const stillCommand = async (
 		});
 
 	Log.info(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			`functionName = ${functionName}, imageFormat = ${imageFormat} (${imageFormatReason})`,
 		),
 	);
 
-	const deleteAfter =
-		parsedLambdaCli[BrowserSafeApis.options.deleteAfterOption.cliFlag];
+	const deleteAfter = parsedLambdaCli[deleteAfterOption.cliFlag];
+	const scale = scaleOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const jpegQuality = jpegQualityOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const res = await renderStillOnLambda({
 		functionName,
@@ -156,12 +224,15 @@ export const stillCommand = async (
 		logLevel,
 		outName,
 		chromiumOptions,
-		timeoutInMilliseconds: puppeteerTimeout,
+		timeoutInMilliseconds,
 		scale,
 		forceHeight: height,
 		forceWidth: width,
 		onInit: ({cloudWatchLogs, renderId, lambdaInsightsUrl}) => {
-			Log.info(CliInternals.chalk.gray(`Render invoked with ID = ${renderId}`));
+			Log.info(
+				{indent: false, logLevel},
+				chalk.gray(`Render invoked with ID = ${renderId}`),
+			);
 			Log.verbose(
 				{indent: false, logLevel},
 				`CloudWatch logs (if enabled): ${cloudWatchLogs}`,
@@ -175,7 +246,7 @@ export const stillCommand = async (
 	});
 
 	if (downloadName) {
-		Log.info('Finished rendering. Downloading...');
+		Log.info({indent: false, logLevel}, 'Finished rendering. Downloading...');
 		const {outputPath, sizeInBytes} = await downloadMedia({
 			bucketName: res.bucketName,
 			outPath: downloadName,
@@ -183,10 +254,15 @@ export const stillCommand = async (
 			renderId: res.renderId,
 			logLevel,
 		});
-		Log.info('Done!', outputPath, CliInternals.formatBytes(sizeInBytes));
+		Log.info(
+			{indent: false, logLevel},
+			'Done!',
+			outputPath,
+			formatBytes(sizeInBytes),
+		);
 	} else {
-		Log.info(`Finished still!`);
-		Log.info();
-		Log.info(res.url);
+		Log.info({indent: false, logLevel}, `Finished still!`);
+		Log.info({indent: false, logLevel});
+		Log.info({indent: false, logLevel}, res.url);
 	}
 };

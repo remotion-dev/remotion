@@ -24,6 +24,10 @@ const value = spring({
 });
 ```
 
+## Spring Editor
+
+Visit [springs.remotion.dev](https://springs.remotion.dev) to play around with the spring animation parameters and see how they affect the animation.
+
 ## Parameters
 
 ### `frame`
@@ -102,7 +106,7 @@ const value = spring({
 });
 ```
 
-See also: [Order or operations](#order-of-operations)
+See also: [Order of operations](#order-of-operations)
 
 ### `durationRestThreshold`<AvailableFrom v="3.0.27" />
 
@@ -118,7 +122,7 @@ _optional_
 
 How many frames to delay the animation for.
 
-For example, if a `delay` of `25` is given frames 0-24 will return the initial value, and the animation will effectively start from frame 25. See also: [Order or operations](#order-of-operations)
+For example, if a `delay` of `25` is given frames 0-24 will return the initial value, and the animation will effectively start from frame 25. See also: [Order of operations](#order-of-operations)
 
 ## Order of operations
 

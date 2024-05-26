@@ -246,12 +246,17 @@ export const MyVideo = () => <></>;
 // @filename: index.tsx
 // ---cut---
 import { Player } from "@remotion/player";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { MyVideo } from "./remotion/MyVideo";
 
 export const App: React.FC = () => {
   // Connect the state to a text field
   const [text, setText] = useState("world");
+  const inputProps = useMemo(() => {
+    return {
+      text,
+    };
+  }, [text]);
 
   return (
     <Player
@@ -260,9 +265,7 @@ export const App: React.FC = () => {
       compositionWidth={1920}
       compositionHeight={1080}
       fps={30}
-      inputProps={{
-        text,
-      }}
+      inputProps={inputProps}
     />
   );
 };

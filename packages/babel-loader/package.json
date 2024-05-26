@@ -1,13 +1,11 @@
 {
 	"name": "@remotion/babel-loader",
-	"version": "4.0.85",
+	"version": "4.0.163",
 	"description": "babel-loader polyfill for Remotion",
 	"main": "dist/index.js",
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
-		"watch": "tsc -w",
-		"build": "tsc -d"
+		"lint": "eslint src --ext ts,tsx"
 	},
 	"files": [
 		"dist"
@@ -32,11 +30,11 @@
 		"webpack": "5.83.1"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.276",
+		"@jonny/eslint-config": "3.0.281",
 		"@remotion/bundler": "workspace:*",
 		"@types/node": "18.14.6",
-		"eslint": "8.42.0",
-		"prettier": "3.1.1",
+		"eslint": "8.56.0",
+		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4",
 		"remotion": "workspace:*"
 	},

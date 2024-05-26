@@ -1,70 +1,52 @@
 import type {Codec} from './codec';
-import {isAudioCodec} from './is-audio-codec';
+import {isAudioCodec} from './options/audio-codec';
 
 export type Crf = number | undefined;
 
+const defaultCrfMap: {[key in Codec]: number} = {
+	h264: 18,
+	h265: 23,
+	vp8: 9,
+	vp9: 28,
+	prores: 0,
+	gif: 0,
+	'h264-mkv': 18,
+	'h264-ts': 18,
+	aac: 0,
+	mp3: 0,
+	wav: 0,
+};
+
 export const getDefaultCrfForCodec = (codec: Codec): number => {
-	if (isAudioCodec(codec)) {
-		return 0;
+	const val = defaultCrfMap[codec];
+	if (val === undefined) {
+		throw new TypeError(`Got unexpected codec "${codec}"`);
 	}
 
-	if (codec === 'h264' || codec === 'h264-mkv') {
-		return 18; // FFMPEG default 23
-	}
+	return val;
+};
 
-	if (codec === 'h265') {
-		return 23; // FFMPEG default 28
-	}
-
-	if (codec === 'vp8') {
-		return 9; // FFMPEG default 10
-	}
-
-	if (codec === 'vp9') {
-		return 28; // FFMPEG recommendation 31
-	}
-
-	if (codec === 'prores') {
-		return 0;
-	}
-
-	if (codec === 'gif') {
-		return 0;
-	}
-
-	throw new TypeError(`Got unexpected codec "${codec}"`);
+const crfRanges: {[key in Codec]: [number, number]} = {
+	h264: [1, 51],
+	h265: [0, 51],
+	vp8: [4, 63],
+	vp9: [0, 63],
+	prores: [0, 0],
+	gif: [0, 0],
+	'h264-mkv': [1, 51],
+	'h264-ts': [1, 51],
+	aac: [0, 0],
+	mp3: [0, 0],
+	wav: [0, 0],
 };
 
 export const getValidCrfRanges = (codec: Codec): [number, number] => {
-	if (isAudioCodec(codec)) {
-		return [0, 0];
+	const val = crfRanges[codec];
+	if (val === undefined) {
+		throw new TypeError(`Got unexpected codec "${codec}"`);
 	}
 
-	if (codec === 'prores') {
-		return [0, 0];
-	}
-
-	if (codec === 'gif') {
-		return [0, 0];
-	}
-
-	if (codec === 'h264' || codec === 'h264-mkv') {
-		return [1, 51];
-	}
-
-	if (codec === 'h265') {
-		return [0, 51];
-	}
-
-	if (codec === 'vp8') {
-		return [4, 63];
-	}
-
-	if (codec === 'vp9') {
-		return [0, 63];
-	}
-
-	throw new TypeError(`Got unexpected codec "${codec}"`);
+	return val;
 };
 
 export const validateQualitySettings = ({
@@ -123,7 +105,10 @@ export const validateQualitySettings = ({
 	}
 
 	const range = getValidCrfRanges(codec);
-	if (crf === 0 && (codec === 'h264' || codec === 'h264-mkv')) {
+	if (
+		crf === 0 &&
+		(codec === 'h264' || codec === 'h264-mkv' || codec === 'h264-ts')
+	) {
 		throw new TypeError(
 			"Setting the CRF to 0 with a H264 codec is not supported anymore because of it's inconsistencies between platforms. Videos with CRF 0 cannot be played on iOS/macOS. 0 is a extreme value with inefficient settings which you probably do not want. Set CRF to a higher value to fix this error.",
 		);

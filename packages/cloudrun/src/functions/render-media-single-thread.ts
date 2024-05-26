@@ -3,6 +3,7 @@ import {Storage} from '@google-cloud/storage';
 import type {ChromiumOptions, RenderMediaOnProgress} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {NoReactInternals} from 'remotion/no-react';
+import {VERSION} from 'remotion/version';
 import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
 import type {
@@ -17,6 +18,18 @@ export const renderMediaSingleThread = async (
 ) => {
 	if (body.type !== 'media') {
 		throw new Error('expected type media');
+	}
+
+	if (body.clientVersion !== VERSION) {
+		if (!body.clientVersion) {
+			throw new Error(
+				`Version mismatch: When calling renderMediaOnCloudRun(), you called a service which has the version ${VERSION} but the @remotion/cloudrun package is an older version. Deploy a new service with matchin version and use it to call renderMediaOnCloudRun().`,
+			);
+		}
+
+		throw new Error(
+			`Version mismatch: When calling renderMediaOnCloudRun(), you called a service, which has the version ${VERSION}, but the @remotion/cloudrun package you used to invoke the function has version ${VERSION}. Deploy a new service and use it to call renderMediaOnCloudrun().`,
+		);
 	}
 
 	const renderId = randomHash({randomInTests: true});
@@ -65,7 +78,7 @@ export const renderMediaSingleThread = async (
 				}).serializedString,
 			jpegQuality: body.jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 			audioCodec: body.audioCodec,
-			audioBitrate: body.audioBitrate,
+			audioBitrate: body.audioBitrate ?? null,
 			videoBitrate: body.videoBitrate,
 			encodingMaxRate: body.encodingMaxRate,
 			encodingBufferSize: body.encodingBufferSize,
@@ -75,7 +88,7 @@ export const renderMediaSingleThread = async (
 				body.imageFormat ?? RenderInternals.DEFAULT_VIDEO_IMAGE_FORMAT,
 			scale: body.scale,
 			proResProfile: body.proResProfile ?? undefined,
-			x264Preset: body.x264Preset ?? undefined,
+			x264Preset: body.x264Preset,
 			everyNthFrame: body.everyNthFrame,
 			numberOfGifLoops: body.numberOfGifLoops,
 			onProgress,
@@ -105,6 +118,14 @@ export const renderMediaSingleThread = async (
 			server: undefined,
 			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
 			colorSpace: body.colorSpace,
+			repro: false,
+			binariesDirectory: null,
+			separateAudioTo: null,
+			forSeamlessAacConcatenation: false,
+			compositionStart: 0,
+			onBrowserDownload: () => {
+				throw new Error('Should not download a browser in Cloud Run');
+			},
 		});
 
 		const storage = new Storage();
@@ -130,7 +151,11 @@ export const renderMediaSingleThread = async (
 			privacy: publicUpload ? 'public-read' : 'project-private',
 		};
 
-		RenderInternals.Log.info('Render Completed:', responseData);
+		RenderInternals.Log.info(
+			{indent: false, logLevel: body.logLevel},
+			'Render Completed:',
+			responseData,
+		);
 		res.end(JSON.stringify({response: responseData}));
 	} catch (err) {
 		await writeCloudrunError({

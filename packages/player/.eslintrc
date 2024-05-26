@@ -1,5 +1,8 @@
 {
-	"extends": ["@jonny", "plugin:require-extensions/recommended"],
+	"extends": [
+		"@jonny/eslint-config/react",
+		"plugin:require-extensions/recommended"
+	],
 	"plugins": ["require-extensions"],
 	"rules": {
 		"no-console": "error",

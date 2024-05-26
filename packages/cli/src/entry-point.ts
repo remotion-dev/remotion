@@ -1,6 +1,6 @@
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {existsSync, lstatSync} from 'node:fs';
+import {existsSync} from 'node:fs';
 import path from 'node:path';
 import {ConfigInternals} from './config';
 import {Log} from './log';
@@ -22,14 +22,28 @@ const findCommonPath = (remotionRoot: string) => {
 	);
 };
 
-export const findEntryPoint = (
-	args: string[],
-	remotionRoot: string,
-	logLevel: LogLevel,
-): {
+type FoundReason =
+	| 'argument passed - found in cwd'
+	| 'argument passed - found in root'
+	| 'argument passed'
+	| 'config file'
+	| 'common paths'
+	| 'none found';
+
+export const findEntryPoint = ({
+	args,
+	logLevel,
+	remotionRoot,
+	allowDirectory,
+}: {
+	args: string[];
+	remotionRoot: string;
+	logLevel: LogLevel;
+	allowDirectory: boolean;
+}): {
 	file: string | null;
 	remainingArgs: string[];
-	reason: string;
+	reason: FoundReason;
 } => {
 	const result = findEntryPointInner(args, remotionRoot, logLevel);
 	if (result.file === null) {
@@ -46,7 +60,7 @@ export const findEntryPoint = (
 		);
 	}
 
-	if (lstatSync(result.file).isDirectory()) {
+	if (result.isDirectory && !allowDirectory) {
 		throw new Error(
 			`${result.file} was chosen as the entry point (reason = ${result.reason}) but it is a directory - it needs to be a file.`,
 		);
@@ -55,14 +69,19 @@ export const findEntryPoint = (
 	return result;
 };
 
+const isBundledCode = (p: string) => {
+	return existsSync(p) && existsSync(path.join(p, 'index.html'));
+};
+
 const findEntryPointInner = (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
 ): {
 	file: string | null;
+	isDirectory: boolean;
 	remainingArgs: string[];
-	reason: string;
+	reason: FoundReason;
 } => {
 	// 1st priority: Explicitly passed entry point
 	let file: string | null = args[0];
@@ -81,6 +100,7 @@ const findEntryPointInner = (
 				file: cwdResolution,
 				remainingArgs: args.slice(1),
 				reason: 'argument passed - found in cwd',
+				isDirectory: isBundledCode(cwdResolution),
 			};
 		}
 
@@ -90,11 +110,17 @@ const findEntryPointInner = (
 				file: remotionRootResolution,
 				remainingArgs: args.slice(1),
 				reason: 'argument passed - found in root',
+				isDirectory: isBundledCode(remotionRootResolution),
 			};
 		}
 
 		if (RenderInternals.isServeUrl(file)) {
-			return {file, remainingArgs: args.slice(1), reason: 'argument passed'};
+			return {
+				file,
+				remainingArgs: args.slice(1),
+				reason: 'argument passed',
+				isDirectory: false,
+			};
 		}
 	}
 
@@ -111,6 +137,7 @@ const findEntryPointInner = (
 			file: path.resolve(remotionRoot, file),
 			remainingArgs: args,
 			reason: 'config file',
+			isDirectory: isBundledCode(path.resolve(remotionRoot, file)),
 		};
 	}
 
@@ -129,8 +156,14 @@ const findEntryPointInner = (
 			file: absolutePath,
 			remainingArgs: args,
 			reason: 'common paths',
+			isDirectory: false,
 		};
 	}
 
-	return {file: null, remainingArgs: args, reason: 'none found'};
+	return {
+		file: null,
+		remainingArgs: args,
+		reason: 'none found',
+		isDirectory: false,
+	};
 };

@@ -6,7 +6,7 @@ import {getBackgroundFromHoverState} from '../../helpers/colors';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {MenuContent} from '../NewComposition/MenuContent';
-import {isMenuItem, MENU_INITIATOR_CLASSNAME} from './is-menu-item';
+import {MENU_INITIATOR_CLASSNAME, isMenuItem} from './is-menu-item';
 import {getPortal} from './portals';
 import {menuContainerTowardsBottom, outerPortal} from './styles';
 
@@ -174,7 +174,7 @@ export const MenuItem: React.FC<{
 							</HigherZIndex>
 						</div>,
 						getPortal(currentZIndex),
-				  )
+					)
 				: null}
 		</>
 	);

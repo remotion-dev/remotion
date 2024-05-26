@@ -4,15 +4,13 @@
 import type {RefObject} from 'react';
 import React, {useMemo} from 'react';
 import {afterAll, beforeAll, expect, test, vitest} from 'vitest';
-import {CompositionManager} from '../CompositionManagerContext.js';
-import {RenderAssetManagerProvider} from '../RenderAssetManager.js';
 import {ResolveCompositionConfig} from '../ResolveCompositionConfig.js';
 import type {SequenceManagerContext} from '../SequenceManager.js';
 import {SequenceManager} from '../SequenceManager.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import * as useVideoConfigModule from '../use-video-config.js';
 import {renderHook} from './render-hook.js';
-import {mockCompositionContext} from './wrap-sequence-context.js';
+import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 beforeAll(() => {
 	vitest
@@ -48,13 +46,11 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 		}, []);
 
 		return (
-			<CompositionManager.Provider value={mockCompositionContext}>
+			<WrapSequenceContext>
 				<SequenceManager.Provider value={sequenceManagerContext}>
-					<RenderAssetManagerProvider>
-						<ResolveCompositionConfig>{children}</ResolveCompositionConfig>
-					</RenderAssetManagerProvider>
+					<ResolveCompositionConfig>{children}</ResolveCompositionConfig>
 				</SequenceManager.Provider>
-			</CompositionManager.Provider>
+			</WrapSequenceContext>
 		);
 	};
 
@@ -74,6 +70,8 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 				displayName: null,
 				id: 'test',
 				stack: null,
+				showInTimeline: true,
+				premountDisplay: null,
 			}),
 		{
 			wrapper,

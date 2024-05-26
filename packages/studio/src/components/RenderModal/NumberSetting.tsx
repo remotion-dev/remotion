@@ -1,10 +1,10 @@
 import type {AvailableOptions} from '@remotion/renderer/client';
 import React, {useCallback} from 'react';
-import {Spacing} from '../layout';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {RightAlignInput} from '../NewComposition/RemInput';
-import {label, optionRow, rightRow} from './layout';
+import {Spacing} from '../layout';
 import {OptionExplainerBubble} from './OptionExplainerBubble';
+import {label, optionRow, rightRow} from './layout';
 
 export const NumberSetting: React.FC<{
 	name: string;

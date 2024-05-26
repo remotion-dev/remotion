@@ -209,6 +209,7 @@ export const Index: React.FC = () => {
         defaultProps: {},
         props: {},
         abortSignal: new AbortController().signal,
+        compositionId: "MyComp",
       }),
     )
       .then(({ durationInFrames, props, width, height, fps }) => {
@@ -237,3 +238,4 @@ export const Index: React.FC = () => {
 
 - [How props get resolved](/docs/props-resolution)
 - [Data fetching](/docs/data-fetching)
+- [How do I make the composition the same duration as my video?](/docs/miscellaneous/snippets/align-duration)

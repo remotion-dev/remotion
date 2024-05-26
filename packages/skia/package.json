@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/skia",
-	"version": "4.0.85",
+	"version": "4.0.163",
 	"description": "Utilities for using react-native-skia in Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -9,8 +9,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"watch": "tsc -w",
-		"build": "rollup --config rollup-enable.config.js && rollup --config rollup.config.js && tsc -d"
+		"build": "bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>, William Candillon <wcandillon@gmail.com>",
 	"contributors": [],
@@ -25,24 +24,22 @@
 		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
-		"@shopify/react-native-skia": "^0.1.191",
+		"@shopify/react-native-skia": ">=0.1.191",
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.276",
+		"@jonny/eslint-config": "3.0.281",
 		"@remotion/bundler": "workspace:*",
-		"@rollup/plugin-typescript": "^8.2.0",
-		"@shopify/react-native-skia": "^0.1.191",
-		"@types/react": "18.0.26",
+		"@shopify/react-native-skia": "^1.2.2",
+		"@types/react": "18.3.1",
 		"@types/react-native": "^0.69.2",
-		"eslint": "8.42.0",
-		"prettier": "3.1.1",
+		"eslint": "8.56.0",
+		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4",
-		"react": "18.2.0",
-		"react-dom": "18.2.0",
-		"remotion": "workspace:*",
-		"rollup": "^2.70.1"
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
+		"remotion": "workspace:*"
 	},
 	"keywords": [
 		"remotion",
@@ -69,7 +66,7 @@
 	"typesVersions": {
 		">=1.0": {
 			"enable": [
-				"dist/esm/enable.d.ts"
+				"dist/cjs/enable.d.ts"
 			]
 		}
 	}

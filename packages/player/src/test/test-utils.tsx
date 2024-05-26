@@ -7,7 +7,7 @@ const HelloWorld: FC = () => {
 };
 
 const AllTheProviders: FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	// overwriting console.error console does not gets poluted with all the errors
 	// eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -21,4 +21,4 @@ const customRender = (
 ) => render<typeof queries>(ui, {wrapper: AllTheProviders, ...options});
 
 export * from '@testing-library/react';
-export {customRender as render, HelloWorld};
+export {HelloWorld, customRender as render};

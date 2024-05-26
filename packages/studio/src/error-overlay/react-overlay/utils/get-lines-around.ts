@@ -9,7 +9,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import type {ScriptLine} from './stack-frame';
+import type {ScriptLine} from '@remotion/studio-shared';
 
 /**
  *

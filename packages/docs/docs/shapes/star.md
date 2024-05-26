@@ -16,7 +16,7 @@ Renders an SVG element containing a star.
 
 ## Example
 
-```tsx twoslash title="src/Rect.tsx"
+```tsx twoslash title="src/Star.tsx"
 import { Star } from "@remotion/shapes";
 import { AbsoluteFill } from "remotion";
 

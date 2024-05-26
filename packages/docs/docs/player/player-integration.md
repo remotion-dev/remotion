@@ -19,6 +19,7 @@ Remotion and your React app use a different Webpack config. Therefore, if you wa
 Use one of our starter templates:
 
 - [Next.js (App dir)](/templates/next)
+- [Next.js (App dir + TailwindCSS)](/templates/next-tailwind)
 - [Next.js (Pages dir)](/templates/next-pages-dir)
 - [Remix](/templates/remix)
 

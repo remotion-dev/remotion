@@ -1,6 +1,12 @@
-import type {InternalRenderMediaOptions, LogLevel} from '@remotion/renderer';
+import type {
+	ChromiumOptions,
+	InternalRenderMediaOptions,
+	LogLevel,
+} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
+import {defaultBrowserDownloadProgress} from './browser-download-bar';
 import {chalk} from './chalk';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
@@ -8,11 +14,10 @@ import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
-import {getFinalOutputCodec} from './get-final-output-codec';
 import {getVideoImageFormat} from './image-formats';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
-import {parsedCli, quietFlagProvided} from './parse-command-line';
+import {parsedCli, quietFlagProvided} from './parsed-cli';
 import {createOverwriteableCliOutput} from './progress-bar';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
@@ -20,6 +25,32 @@ import {showMultiCompositionsPicker} from './show-compositions-picker';
 import {truthy} from './truthy';
 
 const DEFAULT_RUNS = 3;
+
+const {
+	audioBitrateOption,
+	x264Option,
+	offthreadVideoCacheSizeInBytesOption,
+	scaleOption,
+	crfOption,
+	jpegQualityOption,
+	videoBitrateOption,
+	enforceAudioOption,
+	mutedOption,
+	videoCodecOption,
+	colorSpaceOption,
+	enableMultiprocessOnLinuxOption,
+	glOption,
+	numberOfGifLoopsOption,
+	encodingMaxRateOption,
+	encodingBufferSizeOption,
+	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
+	overwriteOption,
+	binariesDirectoryOption,
+	forSeamlessAacConcatenationOption,
+	publicPathOption,
+	publicDirOption,
+} = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
 	const {concurrencies} = parsedCli;
@@ -136,23 +167,21 @@ export const benchmarkCommand = async (
 ) => {
 	const runs: number = parsedCli.runs ?? DEFAULT_RUNS;
 
-	const {file, reason, remainingArgs} = findEntryPoint(
+	const {file, reason, remainingArgs} = findEntryPoint({
 		args,
 		remotionRoot,
 		logLevel,
-	);
+		allowDirectory: true,
+	});
 
 	if (!file) {
-		Log.error('No entry file passed.');
-		Log.infoAdvanced(
+		Log.error({indent: false, logLevel}, 'No entry file passed.');
+		Log.info(
 			{indent: false, logLevel},
 			'Pass an additional argument specifying the entry file',
 		);
-		Log.infoAdvanced({indent: false, logLevel});
-		Log.infoAdvanced(
-			{indent: false, logLevel},
-			`$ remotion benchmark <entry file>`,
-		);
+		Log.info({indent: false, logLevel});
+		Log.info({indent: false, logLevel}, `$ remotion benchmark <entry file>`);
 		process.exit(1);
 	}
 
@@ -162,38 +191,21 @@ export const benchmarkCommand = async (
 		inputProps,
 		envVariables,
 		browserExecutable,
-		chromiumOptions,
-		puppeteerTimeout,
-		browser,
-		scale,
-		publicDir,
 		proResProfile,
-		x264Preset,
 		frameRange: defaultFrameRange,
-		overwrite,
-		jpegQuality,
-		crf: configFileCrf,
 		pixelFormat,
-		scale: configFileScale,
-		numberOfGifLoops,
 		everyNthFrame,
-		muted,
-		enforceAudioTrack,
 		ffmpegOverride,
-		audioBitrate,
-		videoBitrate,
-		encodingMaxRate,
-		encodingBufferSize,
 		height,
 		width,
 		concurrency: unparsedConcurrency,
-		offthreadVideoCacheSizeInBytes,
-		colorSpace,
-	} = await getCliOptions({
-		isLambda: false,
-		type: 'series',
-		remotionRoot,
+		disableWebSecurity,
+		userAgent,
+		ignoreCertificateErrors,
+	} = getCliOptions({
+		isStill: false,
 		logLevel,
+		indent: false,
 	});
 
 	Log.verbose(
@@ -204,14 +216,48 @@ export const benchmarkCommand = async (
 		reason,
 	);
 
+	const scale = scaleOption.getValue({commandLine: parsedCli}).value;
+	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const gl = glOption.getValue({commandLine: parsedCli}).value;
+	const headless = headlessOption.getValue({commandLine: parsedCli}).value;
+	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
+	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
+
+	const chromiumOptions: ChromiumOptions = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+	};
+
+	const onBrowserDownload = defaultBrowserDownloadProgress({
+		indent: false,
+		logLevel,
+		quiet: quietFlagProvided(),
+	});
+
+	const indent = false;
+
+	await RenderInternals.internalEnsureBrowser({
+		browserExecutable,
+		indent,
+		logLevel,
+		onBrowserDownload,
+	});
+
 	const browserInstance = RenderInternals.internalOpenBrowser({
-		browser,
+		browser: 'chrome',
 		browserExecutable,
 		chromiumOptions,
 		forceDeviceScaleFactor: scale,
-		indent: false,
+		indent,
 		viewport: null,
 		logLevel,
+		onBrowserDownload,
 	});
 
 	const {urlOrBundle: bundleLocation, cleanup: cleanupBundle} =
@@ -221,13 +267,18 @@ export const benchmarkCommand = async (
 			remotionRoot,
 			onProgress: () => undefined,
 			indentOutput: false,
-			logLevel: ConfigInternals.Logging.getLogLevel(),
-			bundlingStep: 0,
-			steps: 1,
+			logLevel,
 			onDirectoryCreated: (dir) => {
 				registerCleanupJob(() => RenderInternals.deleteDirectory(dir));
 			},
 			quietProgress: false,
+			quietFlag: quietFlagProvided(),
+			outDir: null,
+			// Not needed for benchmark
+			gitSource: null,
+			bufferStateDelayInMilliseconds: null,
+			maxTimelineTracks: null,
+			publicPath,
 		});
 
 	registerCleanupJob(() => cleanupBundle());
@@ -246,7 +297,9 @@ export const benchmarkCommand = async (
 		serializedInputPropsWithCustomSchema,
 		envVariables,
 		chromiumOptions,
-		timeoutInMilliseconds: puppeteerTimeout,
+		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption.getValue({
+			commandLine: parsedCli,
+		}).value,
 		port: getRendererPortFromConfigFileAndCliFlag(),
 		puppeteerInstance,
 		browserExecutable,
@@ -255,7 +308,14 @@ export const benchmarkCommand = async (
 		//  Intentionally disabling server to not cache results
 		server: undefined,
 		logLevel,
-		offthreadVideoCacheSizeInBytes,
+		offthreadVideoCacheSizeInBytes:
+			offthreadVideoCacheSizeInBytesOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+		binariesDirectory: binariesDirectoryOption.getValue({
+			commandLine: parsedCli,
+		}).value,
+		onBrowserDownload,
 	});
 
 	const ids = (
@@ -264,7 +324,7 @@ export const benchmarkCommand = async (
 					.split(',')
 					.map((c) => c.trim())
 					.filter(truthy)
-			: await showMultiCompositionsPicker(comps)
+			: await showMultiCompositionsPicker(comps, logLevel)
 	) as string[];
 
 	const compositions = ids.map((compId) => {
@@ -279,6 +339,7 @@ export const benchmarkCommand = async (
 
 	if (compositions.length === 0) {
 		Log.error(
+			{indent: false, logLevel},
 			'No composition IDs passed. Add another argument to the command specifying at least 1 composition ID.',
 		);
 	}
@@ -287,15 +348,54 @@ export const benchmarkCommand = async (
 
 	let count = 1;
 
+	const x264Preset = x264Option.getValue({commandLine: parsedCli}).value;
+	const audioBitrate = audioBitrateOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const configFileCrf = crfOption.getValue({commandLine: parsedCli}).value;
+	const jpegQuality = jpegQualityOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const videoBitrate = videoBitrateOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const enforceAudioTrack = enforceAudioOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const muted = mutedOption.getValue({commandLine: parsedCli}).value;
+	const numberOfGifLoops = numberOfGifLoopsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const encodingMaxRate = encodingMaxRateOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const encodingBufferSize = encodingBufferSizeOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const delayRenderInMilliseconds =
+		delayRenderTimeoutInMillisecondsOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+	const overwrite = overwriteOption.getValue(
+		{
+			commandLine: parsedCli,
+		},
+		true,
+	).value;
+
 	for (const composition of compositions) {
-		const {codec, reason: codecReason} = getFinalOutputCodec({
-			cliFlag: parsedCli.codec,
-			downloadName: null,
-			outName: null,
-			configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
-			uiCodec: null,
-			compositionCodec: composition.defaultCodec ?? null,
-		});
+		const {value: videoCodec, source: codecReason} = videoCodecOption.getValue(
+			{
+				commandLine: parsedCli,
+			},
+			{
+				downloadName: null,
+				outName: null,
+				configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
+				uiCodec: null,
+				compositionCodec: composition.defaultCodec ?? null,
+			},
+		);
 		const concurrency = getValidConcurrency(unparsedConcurrency);
 
 		benchmark[composition.id] = {};
@@ -306,11 +406,11 @@ export const benchmarkCommand = async (
 				updatesDontOverwrite: shouldUseNonOverlayingLogger({logLevel}),
 				indent: false,
 			});
-			Log.infoAdvanced({indent: false, logLevel});
-			Log.infoAdvanced(
+			Log.info({indent: false, logLevel});
+			Log.info(
 				{indent: false, logLevel},
 				`${chalk.bold(`Benchmark #${count++}:`)} ${chalk.gray(
-					`composition=${composition.id} concurrency=${con} codec=${codec} (${codecReason})`,
+					`composition=${composition.id} concurrency=${con} codec=${videoCodec} (${codecReason})`,
 				)}`,
 			);
 
@@ -327,7 +427,7 @@ export const benchmarkCommand = async (
 					envVariables,
 					frameRange: defaultFrameRange,
 					imageFormat: getVideoImageFormat({
-						codec,
+						codec: videoCodec,
 						uiImageFormat: null,
 					}),
 					serializedInputPropsWithCustomSchema,
@@ -337,8 +437,8 @@ export const benchmarkCommand = async (
 					x264Preset,
 					jpegQuality,
 					chromiumOptions,
-					timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
-					scale: configFileScale,
+					timeoutInMilliseconds: delayRenderInMilliseconds,
+					scale,
 					port: getRendererPortFromConfigFileAndCliFlag(),
 					numberOfGifLoops,
 					everyNthFrame,
@@ -348,7 +448,7 @@ export const benchmarkCommand = async (
 					browserExecutable,
 					ffmpegOverride,
 					serveUrl: bundleLocation,
-					codec,
+					codec: videoCodec,
 					audioBitrate,
 					videoBitrate,
 					encodingMaxRate,
@@ -371,8 +471,24 @@ export const benchmarkCommand = async (
 							indent: undefined,
 							staticBase: null,
 						}).serializedString,
-					offthreadVideoCacheSizeInBytes,
-					colorSpace,
+					offthreadVideoCacheSizeInBytes:
+						offthreadVideoCacheSizeInBytesOption.getValue({
+							commandLine: parsedCli,
+						}).value,
+					colorSpace: colorSpaceOption.getValue({
+						commandLine: parsedCli,
+					}).value,
+					repro: false,
+					binariesDirectory: binariesDirectoryOption.getValue({
+						commandLine: parsedCli,
+					}).value,
+					separateAudioTo: null,
+					forSeamlessAacConcatenation:
+						forSeamlessAacConcatenationOption.getValue({
+							commandLine: parsedCli,
+						}).value,
+					compositionStart: 0,
+					onBrowserDownload,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(
@@ -394,5 +510,5 @@ export const benchmarkCommand = async (
 		}
 	}
 
-	Log.infoAdvanced({indent: false, logLevel});
+	Log.info({indent: false, logLevel});
 };

@@ -3,6 +3,7 @@ import {Storage} from '@google-cloud/storage';
 import type {ChromiumOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {NoReactInternals} from 'remotion/no-react';
+import {VERSION} from 'remotion/version';
 import {Log} from '../cli/log';
 import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
@@ -18,6 +19,18 @@ export const renderStillSingleThread = async (
 ) => {
 	if (body.type !== 'still') {
 		throw new Error('expected type still');
+	}
+
+	if (body.clientVersion !== VERSION) {
+		if (!body.clientVersion) {
+			throw new Error(
+				`Version mismatch: When calling renderMediaOnCloudRun(), you called a service which has the version ${VERSION} but the @remotion/cloudrun package is an older version. Deploy a new service with matchin version and use it to call renderMediaOnCloudRun().`,
+			);
+		}
+
+		throw new Error(
+			`Version mismatch: When calling renderMediaOnCloudRun(), you called a service, which has the version ${VERSION}, but the @remotion/cloudrun package you used to invoke the function has version ${VERSION}. Deploy a new service and use it to call renderMediaOnCloudrun().`,
+		);
 	}
 
 	const renderId = randomHash({randomInTests: true});
@@ -80,8 +93,12 @@ export const renderStillSingleThread = async (
 			puppeteerInstance: null,
 			server: undefined,
 			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
+			binariesDirectory: null,
+			onBrowserDownload: () => {
+				throw new Error('Should not download a browser in Cloud Run');
+			},
 		});
-		Log.info('Still rendered');
+		Log.info({indent: false, logLevel: body.logLevel}, 'Still rendered');
 
 		const storage = new Storage();
 
@@ -94,7 +111,7 @@ export const renderStillSingleThread = async (
 				predefinedAcl: publicUpload ? 'publicRead' : 'projectPrivate',
 			});
 
-		Log.info('Still uploaded');
+		Log.info({indent: false, logLevel: body.logLevel}, 'Still uploaded');
 
 		const uploadedFile = uploadedResponse[0];
 		const renderMetadata = await uploadedFile.getMetadata();
@@ -108,7 +125,11 @@ export const renderStillSingleThread = async (
 			privacy: publicUpload ? 'public-read' : 'project-private',
 		};
 
-		RenderInternals.Log.info('Render Completed:', responseData);
+		RenderInternals.Log.info(
+			{indent: false, logLevel: body.logLevel},
+			'Render Completed:',
+			responseData,
+		);
 
 		res.end(JSON.stringify({response: responseData}));
 	} catch (err) {

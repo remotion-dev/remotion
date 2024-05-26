@@ -1,10 +1,10 @@
+import {DEFAULT_TIMELINE_TRACKS} from '@remotion/studio-shared';
 import React from 'react';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 
-export const DEFAULT_TIMELINE_TRACKS = 90;
-
 export const MAX_TIMELINE_TRACKS =
-	typeof process.env.MAX_TIMELINE_TRACKS === 'undefined'
+	typeof process.env.MAX_TIMELINE_TRACKS === 'undefined' ||
+	process.env.MAX_TIMELINE_TRACKS === null
 		? DEFAULT_TIMELINE_TRACKS
 		: Number(process.env.MAX_TIMELINE_TRACKS);
 

@@ -25,7 +25,7 @@ const Square: React.FC<{color: string}> = () => <div></div>
 // ---cut---
 import { Series } from "remotion";
 
-const Example: React.FC = () => {
+export const Example: React.FC = () => {
   return (
     <Series>
       <Series.Sequence durationInFrames={40}>
@@ -87,6 +87,12 @@ _optional_
 
 A class name to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
 
+### `premountFor`<AvailableFrom v="4.0.140"/>
+
+_optional_
+
+[Premount](/docs/player/premounting) the sequence for a set number of frames.
+
 ### `ref`<AvailableFrom v="3.3.4" />
 
 _optional_
@@ -101,7 +107,7 @@ const Square: React.FC<{
 import React, { useRef } from "react";
 import { Series } from "remotion";
 
-const Example: React.FC = () => {
+export const Example: React.FC = () => {
   const first = useRef<HTMLDivElement>(null);
   const second = useRef<HTMLDivElement>(null);
 

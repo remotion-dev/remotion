@@ -27,3 +27,7 @@ packages/lambda-python/remotion-env
 packages/lambda-python/remotion_lambda.egg-info
 packages/cloudrun/container/cloudbuild.json
 packages/example/public/offthreadvideoregression
+.git
+
+packages/example/build
+packages/example-without-zod/build

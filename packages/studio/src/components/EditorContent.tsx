@@ -1,9 +1,10 @@
+import type {Size} from '@remotion/player';
 import React, {useContext} from 'react';
 import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {InitialCompositionLoader} from './InitialCompositionLoader';
 import {MenuToolbar} from './MenuToolbar';
-import {SplitterContainer} from './Splitter/SplitterContainer';
+import {SplitterContainer, containerColumn} from './Splitter/SplitterContainer';
 import {SplitterElement} from './Splitter/SplitterElement';
 import {SplitterHandle} from './Splitter/SplitterHandle';
 import {Timeline} from './Timeline/Timeline';
@@ -18,7 +19,19 @@ const container: React.CSSProperties = {
 	height: 0,
 };
 
-export const EditorContent: React.FC = () => {
+export const EditorContent: React.FC<{
+	readonly readOnlyStudio: boolean;
+	readonly onMounted: () => void;
+	readonly drawRef: React.RefObject<HTMLDivElement>;
+	readonly size: Size | null;
+	readonly bufferStateDelayInMilliseconds: number;
+}> = ({
+	readOnlyStudio,
+	onMounted,
+	size,
+	drawRef,
+	bufferStateDelayInMilliseconds,
+}) => {
 	const isStill = useIsStill();
 	const {canvasContent} = useContext(Internals.CompositionManager);
 
@@ -29,9 +42,17 @@ export const EditorContent: React.FC = () => {
 	return (
 		<div style={container}>
 			<InitialCompositionLoader />
-			<MenuToolbar />
+			<MenuToolbar readOnlyStudio={readOnlyStudio} />
 			{onlyTopPanel ? (
-				<TopPanel />
+				<div style={containerColumn}>
+					<TopPanel
+						size={size}
+						drawRef={drawRef}
+						bufferStateDelayInMilliseconds={bufferStateDelayInMilliseconds}
+						onMounted={onMounted}
+						readOnlyStudio={readOnlyStudio}
+					/>
+				</div>
 			) : (
 				<SplitterContainer
 					orientation="horizontal"
@@ -41,7 +62,13 @@ export const EditorContent: React.FC = () => {
 					defaultFlex={0.75}
 				>
 					<SplitterElement sticky={null} type="flexer">
-						<TopPanel />
+						<TopPanel
+							size={size}
+							drawRef={drawRef}
+							bufferStateDelayInMilliseconds={bufferStateDelayInMilliseconds}
+							onMounted={onMounted}
+							readOnlyStudio={readOnlyStudio}
+						/>
 					</SplitterElement>
 					<SplitterHandle allowToCollapse="none" onCollapse={noop} />
 					<SplitterElement sticky={null} type="anti-flexer">

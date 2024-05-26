@@ -14,6 +14,10 @@ export const TableOfContents: React.FC = () => {
           <strong>fillTextBox()</strong>
           <div>Find line breaks and overflows in a text box</div>
         </TOCItem>
+        <TOCItem link="/docs/layout-utils/fit-text">
+          <strong>fitText()</strong>
+          <div>Get font size to fit text in a box</div>
+        </TOCItem>
       </Grid>
     </div>
   );

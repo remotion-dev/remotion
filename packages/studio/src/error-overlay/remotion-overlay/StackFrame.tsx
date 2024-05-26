@@ -1,8 +1,8 @@
+import type {SymbolicatedStackFrame} from '@remotion/studio-shared';
 import React, {useCallback, useState} from 'react';
-import type {SymbolicatedStackFrame} from '../react-overlay/utils/stack-frame';
-import {Button} from './Button';
-import {CaretDown, CaretRight} from './carets';
+import {Button} from '../../components/Button';
 import {CodeFrame} from './CodeFrame';
+import {CaretDown, CaretRight} from './carets';
 import {formatLocation} from './format-location';
 
 const location: React.CSSProperties = {

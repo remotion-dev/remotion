@@ -2,6 +2,7 @@ import type React from 'react';
 import {useContext, useEffect} from 'react';
 import type {CanvasContent} from 'remotion';
 import {Internals} from 'remotion';
+import {getRoute} from '../helpers/url-state';
 import {TimelineZoomCtx} from '../state/timeline-zoom';
 
 const makeKey = () => {
@@ -18,25 +19,21 @@ export const getZoomFromLocalStorage = (): Record<string, number> => {
 };
 
 export const deriveCanvasContentFromUrl = (): CanvasContent | null => {
-	const substrings = window.location.pathname.split('/').filter(Boolean);
+	const substrings = getRoute().split('/').filter(Boolean);
 
 	const lastPart = substrings[substrings.length - 1];
 
 	if (substrings[0] === 'assets') {
 		return {
 			type: 'asset',
-			asset: decodeURIComponent(
-				window.location.pathname.substring('/assets/'.length),
-			),
+			asset: decodeURIComponent(getRoute().substring('/assets/'.length)),
 		};
 	}
 
 	if (substrings[0] === 'outputs') {
 		return {
 			type: 'output',
-			path: decodeURIComponent(
-				window.location.pathname.substring('/outputs/'.length),
-			),
+			path: decodeURIComponent(getRoute().substring('/outputs/'.length)),
 		};
 	}
 

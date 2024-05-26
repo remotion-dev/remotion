@@ -6,36 +6,35 @@ import React, {
 	useState,
 } from 'react';
 import type {AnyComposition, SerializedJSONWithCustomFields} from 'remotion';
-import {getInputProps, Internals} from 'remotion';
+import {Internals, getInputProps} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import type {z} from 'zod';
+import {type z} from 'zod';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
-import {subscribeToEvent} from '../../helpers/event-source';
-import {useZodIfPossible} from '../get-zod-if-possible';
-import {Flex, Spacing} from '../layout';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
-import {sendErrorNotification} from '../Notifications/NotificationCenter';
+import {showNotification} from '../Notifications/NotificationCenter';
 import {
+	callUpdateDefaultPropsApi,
 	canUpdateDefaultProps,
-	updateDefaultProps,
 } from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
-import type {TypeCanSaveState} from './get-render-modal-warnings';
-import {
-	defaultTypeCanSaveState,
-	getRenderModalWarnings,
-} from './get-render-modal-warnings';
+import {useZodIfPossible} from '../get-zod-if-possible';
+import {Flex, Spacing} from '../layout';
 import {RenderModalJSONPropsEditor} from './RenderModalJSONPropsEditor';
-import {extractEnumJsonPaths} from './SchemaEditor/extract-enum-json-paths';
 import {SchemaEditor} from './SchemaEditor/SchemaEditor';
 import {
 	NoDefaultProps,
 	NoSchemaDefined,
 	ZodNotInstalled,
 } from './SchemaEditor/SchemaErrorMessages';
+import {extractEnumJsonPaths} from './SchemaEditor/extract-enum-json-paths';
 import {WarningIndicatorButton} from './WarningIndicatorButton';
+import type {TypeCanSaveState} from './get-render-modal-warnings';
+import {
+	defaultTypeCanSaveState,
+	getRenderModalWarnings,
+} from './get-render-modal-warnings';
 
 type Mode = 'json' | 'schema';
 
@@ -113,25 +112,32 @@ const setPersistedShowWarningState = (val: boolean) => {
 };
 
 export const DataEditor: React.FC<{
-	unresolvedComposition: AnyComposition;
-	inputProps: Record<string, unknown>;
-	setInputProps: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
-	mayShowSaveButton: boolean;
-	propsEditType: PropsEditType;
-	saving: boolean;
-	setSaving: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly unresolvedComposition: AnyComposition;
+	readonly defaultProps: Record<string, unknown>;
+	readonly setDefaultProps: React.Dispatch<
+		React.SetStateAction<Record<string, unknown>>
+	>;
+	readonly mayShowSaveButton: boolean;
+	readonly propsEditType: PropsEditType;
+	readonly saving: boolean;
+	readonly setSaving: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly readOnlyStudio: boolean;
 }> = ({
 	unresolvedComposition,
-	inputProps,
-	setInputProps,
+	defaultProps,
+	setDefaultProps,
 	mayShowSaveButton,
 	propsEditType,
 	saving,
 	setSaving,
+	readOnlyStudio,
 }) => {
 	const [mode, setMode] = useState<Mode>('schema');
 	const [showWarning, setShowWarningWithoutPersistance] = useState<boolean>(
 		() => getPersistedShowWarningState(),
+	);
+	const {updateCompositionDefaultProps} = useContext(
+		Internals.CompositionManager,
 	);
 
 	const inJSONEditor = mode === 'json';
@@ -140,13 +146,13 @@ export const DataEditor: React.FC<{
 			return null;
 		}
 
-		const value = inputProps;
+		const value = defaultProps;
 		return NoReactInternals.serializeJSONWithDate({
 			data: value,
 			indent: 2,
 			staticBase: window.remotion_staticBase,
 		});
-	}, [inJSONEditor, inputProps]);
+	}, [inJSONEditor, defaultProps]);
 
 	const cliProps = getInputProps();
 	const [canSaveDefaultPropsObjectState, setCanSaveDefaultProps] =
@@ -183,8 +189,8 @@ export const DataEditor: React.FC<{
 			return 'no-schema' as const;
 		}
 
-		return schema.safeParse(inputProps);
-	}, [inputProps, schema]);
+		return schema.safeParse(defaultProps);
+	}, [defaultProps, schema]);
 
 	const setShowWarning: React.Dispatch<React.SetStateAction<boolean>> =
 		useCallback((val) => {
@@ -211,7 +217,10 @@ export const DataEditor: React.FC<{
 
 	const checkIfCanSaveDefaultProps = useCallback(async () => {
 		try {
-			const can = await canUpdateDefaultProps(unresolvedComposition.id);
+			const can = await canUpdateDefaultProps(
+				unresolvedComposition.id,
+				readOnlyStudio,
+			);
 
 			if (can.canUpdate) {
 				setCanSaveDefaultProps((prevState) => ({
@@ -240,11 +249,15 @@ export const DataEditor: React.FC<{
 				},
 			}));
 		}
-	}, [unresolvedComposition.id]);
+	}, [readOnlyStudio, unresolvedComposition.id]);
 
 	useEffect(() => {
 		checkIfCanSaveDefaultProps();
 	}, [checkIfCanSaveDefaultProps]);
+
+	const {previewServerState, subscribeToEvent} = useContext(
+		StudioServerConnectionCtx,
+	);
 
 	useEffect(() => {
 		const unsub = subscribeToEvent(
@@ -255,7 +268,7 @@ export const DataEditor: React.FC<{
 		return () => {
 			unsub();
 		};
-	}, [checkIfCanSaveDefaultProps]);
+	}, [checkIfCanSaveDefaultProps, subscribeToEvent]);
 
 	const modeItems = useMemo((): SegmentedControlItem[] => {
 		return [
@@ -280,66 +293,75 @@ export const DataEditor: React.FC<{
 
 	const onUpdate = useCallback(() => {
 		if (schema === 'no-zod' || schema === 'no-schema' || z === null) {
-			sendErrorNotification('Cannot update default props: No Zod schema');
+			showNotification('Cannot update default props: No Zod schema', 2000);
 			return;
 		}
 
-		updateDefaultProps(
+		callUpdateDefaultPropsApi(
 			unresolvedComposition.id,
-			inputProps,
+			defaultProps,
 			extractEnumJsonPaths(schema, z, []),
 		).then((response) => {
 			if (!response.success) {
-				sendErrorNotification(
-					'Cannot update default props: ' + response.reason,
+				showNotification(
+					`Cannot update default props: ${response.reason}`,
+					2000,
 				);
 			}
 		});
-	}, [unresolvedComposition.id, inputProps, schema, z]);
-
-	useEffect(() => {
-		setSaving(false);
-	}, [fastRefreshes, setSaving]);
+	}, [unresolvedComposition.id, defaultProps, schema, z]);
 
 	const onSave = useCallback(
 		(
 			updater: (oldState: Record<string, unknown>) => Record<string, unknown>,
 		) => {
 			if (schema === 'no-zod' || schema === 'no-schema' || z === null) {
-				sendErrorNotification('Cannot update default props: No Zod schema');
+				showNotification('Cannot update default props: No Zod schema', 2000);
 				return;
 			}
 
+			window.remotion_ignoreFastRefreshUpdate = fastRefreshes + 1;
 			setSaving(true);
-			updateDefaultProps(
+			const newDefaultProps = updater(unresolvedComposition.defaultProps ?? {});
+			callUpdateDefaultPropsApi(
 				unresolvedComposition.id,
-				updater(unresolvedComposition.defaultProps ?? {}),
+				newDefaultProps,
 				extractEnumJsonPaths(schema, z, []),
 			)
 				.then((response) => {
 					if (!response.success) {
 						// eslint-disable-next-line no-console
 						console.log(response.stack);
-						sendErrorNotification(
+						showNotification(
 							`Cannot update default props: ${response.reason}. See console for more information.`,
+							2000,
 						);
 					}
+
+					updateCompositionDefaultProps(
+						unresolvedComposition.id,
+						newDefaultProps,
+					);
 				})
 				.catch((err) => {
-					sendErrorNotification(`Cannot update default props: ${err.message}`);
+					showNotification(`Cannot update default props: ${err.message}`, 2000);
+				})
+				.finally(() => {
 					setSaving(false);
 				});
 		},
 		[
 			schema,
 			z,
+			fastRefreshes,
 			setSaving,
-			unresolvedComposition.id,
 			unresolvedComposition.defaultProps,
+			unresolvedComposition.id,
+			updateCompositionDefaultProps,
 		],
 	);
 
-	const connectionStatus = useContext(StudioServerConnectionCtx).type;
+	const connectionStatus = previewServerState.type;
 
 	const warnings = useMemo(() => {
 		return getRenderModalWarnings({
@@ -428,17 +450,17 @@ export const DataEditor: React.FC<{
 									type="warning"
 								/>
 							</React.Fragment>
-					  ))
+						))
 					: null}
 			</div>
 
 			{mode === 'schema' ? (
 				<SchemaEditor
-					value={inputProps}
-					setValue={setInputProps}
+					unsavedDefaultProps={defaultProps}
+					setValue={setDefaultProps}
 					schema={schema}
 					zodValidationResult={zodValidationResult}
-					defaultProps={unresolvedComposition.defaultProps}
+					savedDefaultProps={unresolvedComposition.defaultProps}
 					onSave={onSave}
 					showSaveButton={showSaveButton}
 					saving={saving}
@@ -446,8 +468,8 @@ export const DataEditor: React.FC<{
 				/>
 			) : (
 				<RenderModalJSONPropsEditor
-					value={inputProps ?? {}}
-					setValue={setInputProps}
+					value={defaultProps ?? {}}
+					setValue={setDefaultProps}
 					onSave={onUpdate}
 					showSaveButton={showSaveButton}
 					serializedJSON={serializedJSON}

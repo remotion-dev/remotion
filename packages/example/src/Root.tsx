@@ -1,16 +1,19 @@
 import {alias} from 'lib/alias';
-import React, {useCallback} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {
 	CalculateMetadataFunction,
 	Composition,
 	Folder,
+	Still,
 	getInputProps,
 	staticFile,
-	Still,
 } from 'remotion';
 import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
 import BetaText, {betaTextSchema} from './BetaText';
+import {NativeBufferStateForImage} from './BufferState/Image';
+import {NativeBufferState} from './BufferState/Simple';
+import {NativeBufferStateForVideo} from './BufferState/Video';
 import {CancelRender} from './CancelRender';
 import {ColorInterpolation} from './ColorInterpolation';
 import {ComplexSounds} from './ComplexSounds';
@@ -29,18 +32,21 @@ import {Layers} from './Layers';
 import {ManyAudio} from './ManyAudio';
 import {MissingImg} from './MissingImg';
 import {
-	OffthreadLocalVideo,
 	OffthreadRemoteVideo,
+	calculateMetadataFn,
 } from './OffthreadRemoteVideo/OffthreadRemoteVideo';
 import {OrbScene} from './Orb';
+import {PremountedExample} from './Premount';
+import {PremountedRemoteVideos} from './Premount/RemoteVideos';
 import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
+import {RetryDelayRender} from './RetryDelayRender';
 import RiveVehicle from './Rive/RiveExample';
 import {ScalePath} from './ScalePath';
 import {
 	ArrayTest,
-	schemaArrayTestSchema,
 	SchemaTest,
+	schemaArrayTestSchema,
 	schemaTestSchema,
 } from './SchemaTest';
 import {Scripts} from './Scripts';
@@ -50,18 +56,28 @@ import EllipseTest from './Shapes/EllipseTest';
 import RectTest from './Shapes/RectTest';
 import StarTest from './Shapes/StarTest';
 import TriangleTest from './Shapes/TriangleTest';
+import {RuntimeShaderZoomBlur} from './Skia/Blur';
+import {RuntimeShaderDemo} from './Skia/Shader';
 import {SkipZeroFrame} from './SkipZeroFrame';
 import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
 import {StillHelloWorld} from './StillHelloWorld';
 import {StillZoom} from './StillZoom';
-import './style.css';
+import {DeleteStaticFile} from './StudioApis/DeleteStaticFile';
+import {ClickUpdate} from './StudioApis/RestartStudio';
+import {
+	SaveDefaultProps,
+	saveStudioSchema,
+} from './StudioApis/SaveDefaultProps';
+import {WriteStaticFile} from './StudioApis/WriteStaticFile';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
+import {TextStroke} from './TextStroke';
 import ThreeBasic from './ThreeBasic';
 import {VideoTextureDemo} from './ThreeScene/Scene';
 import {Timeout} from './Timeout';
+import {FitText, fitTextSchema} from './Title/FitText';
 import {AudioTransition} from './Transitions/AudioTransition';
 import {BasicTransition} from './Transitions/BasicTransition';
 import {CustomTransition} from './Transitions/CustomTransition';
@@ -71,10 +87,17 @@ import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
+import './style.css';
 import {WatchStaticDemo} from './watch-static';
-
 if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
+}
+
+// @ts-expect-error no types
+import styles from './styles.module.scss';
+
+if (!styles.hithere) {
+	throw new Error('should support SCSS modules');
 }
 
 // Use it to test that UI does not regress on weird CSS
@@ -85,73 +108,74 @@ export const Index: React.FC = () => {
 
 	const calculateMetadata: CalculateMetadataFunction<
 		z.infer<typeof dynamicDurationSchema>
-	> = useCallback(async ({props}) => {
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const shouldLog = (..._data: unknown[]) => undefined;
-		// To test logging
-		// const shouldLog = console.log;
+	> = useMemo(() => {
+		return async ({props}) => {
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			const shouldLog = (..._data: unknown[]) => undefined;
+			// To test logging
+			// const shouldLog = console.log;
+			const foo = function* () {
+				yield 'a';
+				yield 'b';
+				yield 'c';
+			};
+			shouldLog('');
+			shouldLog('');
+			shouldLog('');
+			shouldLog('');
 
-		const foo = function* () {
-			yield 'a';
-			yield 'b';
-			yield 'c';
-		};
-		shouldLog('');
-		shouldLog('');
-		shouldLog('');
-		shouldLog('');
+			shouldLog('objects', {a: 'string'});
+			shouldLog('boolean:', false);
+			shouldLog('number:', 1);
+			shouldLog('symbol', Symbol('hi'));
+			shouldLog('Date:', new Date());
+			shouldLog('bigint:', BigInt(123));
+			shouldLog('function:', () => 'hi');
+			shouldLog('array:', [1, 2, 3]);
+			shouldLog('regex:', /abc/);
+			shouldLog('');
+			shouldLog('');
+			shouldLog('');
+			shouldLog('');
+			shouldLog('Hello World ArrayBuffer', new ArrayBuffer(1));
+			shouldLog('Hello World DataView', new DataView(new ArrayBuffer(1)));
+			shouldLog('Hello World Error', new Error('hithere'));
+			shouldLog('Hello World Generator', foo());
+			shouldLog('Hello World Iterator', [1, 2, 3].values());
+			const map = new Map();
+			map.set('a', 1);
+			shouldLog('Hello World Map', map);
+			shouldLog('Hello World Node', document.createElement('div'));
+			shouldLog('Hello World null', null);
+			shouldLog(
+				'Hello World Promise',
+				new Promise<void>((resolve) => {
+					resolve();
+				}),
+			);
+			shouldLog('Hello World Proxy', new Proxy(document, {}));
+			shouldLog('Hello World RegExp', /abc/);
+			shouldLog('Hello World Set', {a: [1, 2, 3]});
+			shouldLog('Hello World TypedArray', new Uint8Array([1, 2, 3]));
+			const wm3 = new WeakMap();
+			const o1 = {};
+			wm3.set(o1, 'azerty');
+			const ws = new WeakSet();
+			const foo2 = {};
 
-		shouldLog('objects', {a: 'string'});
-		shouldLog('boolean:', false);
-		shouldLog('number:', 1);
-		shouldLog('symbol', Symbol('hi'));
-		shouldLog('Date:', new Date());
-		shouldLog('bigint:', BigInt(123));
-		shouldLog('function:', () => 'hi');
-		shouldLog('array:', [1, 2, 3]);
-		shouldLog('regex:', /abc/);
-		shouldLog('');
-		shouldLog('');
-		shouldLog('');
-		shouldLog('');
-		shouldLog('Hello World ArrayBuffer', new ArrayBuffer(1));
-		shouldLog('Hello World DataView', new DataView(new ArrayBuffer(1)));
-		shouldLog('Hello World Error', new Error('hithere'));
-		shouldLog('Hello World Generator', foo());
-		shouldLog('Hello World Iterator', [1, 2, 3].values());
-		const map = new Map();
-		map.set('a', 1);
-		shouldLog('Hello World Map', map);
-		shouldLog('Hello World Node', document.createElement('div'));
-		shouldLog('Hello World null', null);
-		shouldLog(
-			'Hello World Promise',
-			new Promise<void>((resolve) => {
-				resolve();
-			}),
-		);
-		shouldLog('Hello World Proxy', new Proxy(document, {}));
-		shouldLog('Hello World RegExp', /abc/);
-		shouldLog('Hello World Set', {a: [1, 2, 3]});
-		shouldLog('Hello World TypedArray', new Uint8Array([1, 2, 3]));
-		const wm3 = new WeakMap();
-		const o1 = {};
-		wm3.set(o1, 'azerty');
-		const ws = new WeakSet();
-		const foo2 = {};
+			ws.add(foo2);
 
-		ws.add(foo2);
+			shouldLog('Hello World WeakMap', wm3);
+			shouldLog('Hello World WeakSet', ws);
 
-		shouldLog('Hello World WeakMap', wm3);
-		shouldLog('Hello World WeakSet', ws);
+			await new Promise((r) => {
+				setTimeout(r, 1000);
+			});
 
-		await new Promise((r) => {
-			setTimeout(r, 1000);
-		});
-
-		return {
-			durationInFrames: props.duration,
-			fps: 30,
+			return {
+				durationInFrames: props.duration,
+				fps: 30,
+			};
 		};
 	}, []);
 
@@ -190,7 +214,7 @@ export const Index: React.FC = () => {
 					durationInFrames={100}
 					calculateMetadata={calculateMetadata}
 					schema={dynamicDurationSchema}
-					defaultProps={{duration: 50}}
+					defaultProps={{duration: 200}}
 				/>
 				<Composition
 					id="failing-dynamic-length"
@@ -350,7 +374,7 @@ export const Index: React.FC = () => {
 					width={1080}
 					height={1080}
 					fps={30}
-					durationInFrames={100}
+					durationInFrames={10000}
 				/>
 				<Composition
 					id="skip-zero-frame"
@@ -438,6 +462,16 @@ export const Index: React.FC = () => {
 						line2: 'text',
 					}}
 				/>
+				<Still
+					id="FitText"
+					component={FitText}
+					width={800}
+					height={900}
+					schema={fitTextSchema}
+					defaultProps={{
+						line: 'Test',
+					}}
+				/>
 				<Composition
 					id="beta-text"
 					component={BetaText}
@@ -505,23 +539,13 @@ export const Index: React.FC = () => {
 					}}
 				/>
 				<Composition
-					id="OffthreadLocalVideo"
-					component={OffthreadLocalVideo}
-					width={1080}
-					height={1920}
-					fps={30}
-					durationInFrames={30 * 60}
-					defaultProps={{
-						src: 'variablefps.webm',
-					}}
-				/>
-				<Composition
 					id="OffthreadRemoteVideo"
 					component={OffthreadRemoteVideo}
-					width={1920}
-					height={1080}
 					fps={30}
-					durationInFrames={30 * 60}
+					calculateMetadata={calculateMetadataFn}
+					defaultProps={{
+						src: staticFile('vid1.mp4'),
+					}}
 				/>
 				<Composition
 					id="video-testing-webm"
@@ -632,6 +656,38 @@ export const Index: React.FC = () => {
 					height={720}
 					fps={30}
 					durationInFrames={100}
+				/>
+				<Composition
+					id="text-stroke"
+					component={TextStroke}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={100}
+				/>
+				<Composition
+					id="native-buffer-state"
+					component={NativeBufferState}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={200}
+				/>
+				<Composition
+					id="native-buffer-state-for-video"
+					component={NativeBufferStateForVideo}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={200}
+				/>
+				<Composition
+					id="native-buffer-state-for-image"
+					component={NativeBufferStateForImage}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={200}
 				/>
 				<Composition
 					id="default-codec"
@@ -1031,9 +1087,27 @@ export const Index: React.FC = () => {
 					durationInFrames={150}
 				/>
 			</Folder>
+			<Folder name="Premount">
+				<Composition
+					id="premounted"
+					component={PremountedExample}
+					fps={30}
+					height={1080}
+					durationInFrames={300}
+					width={1080}
+				/>
+				<Composition
+					id="premounted-remote"
+					component={PremountedRemoteVideos}
+					fps={30}
+					height={1080}
+					durationInFrames={300}
+					width={1080}
+				/>
+			</Folder>
 			<Folder name="Transitions">
 				<Composition
-					id="transition"
+					id="basic-transition"
 					component={BasicTransition}
 					fps={30}
 					height={1080}
@@ -1129,6 +1203,73 @@ export const Index: React.FC = () => {
 				width={1080}
 				durationInFrames={120}
 			/>
+			<Composition
+				id="RetryDelayRender"
+				component={RetryDelayRender}
+				fps={30}
+				height={1080}
+				width={1080}
+				durationInFrames={120}
+			/>
+			<Folder name="Skia">
+				<Composition
+					id="skia-shader"
+					component={RuntimeShaderDemo}
+					fps={30}
+					height={1080}
+					width={1080}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="skia-zoomblur"
+					component={RuntimeShaderZoomBlur}
+					fps={30}
+					height={1080}
+					width={1080}
+					durationInFrames={120}
+				/>
+			</Folder>
+			<Folder name="studio-apis">
+				<Composition
+					id="save-default-props"
+					component={SaveDefaultProps}
+					fps={30}
+					durationInFrames={100}
+					height={200}
+					width={200}
+					schema={saveStudioSchema}
+					defaultProps={{color: 'green'}}
+				/>
+				<Composition
+					id="restart-studio"
+					component={ClickUpdate}
+					fps={30}
+					durationInFrames={100}
+					height={200}
+					width={200}
+					schema={saveStudioSchema}
+					defaultProps={{color: 'green'}}
+				/>
+				<Composition
+					id="write-static-file"
+					component={WriteStaticFile}
+					fps={30}
+					durationInFrames={100}
+					height={200}
+					width={200}
+					schema={saveStudioSchema}
+					defaultProps={{color: 'green'}}
+				/>
+				<Composition
+					id="delete-static-file"
+					component={DeleteStaticFile}
+					fps={30}
+					durationInFrames={100}
+					height={200}
+					width={200}
+					defaultProps={{color: 'green'}}
+				/>
+			</Folder>
 		</>
 	);
 };

@@ -21,6 +21,10 @@ export const humanReadableCodec = (codec: Codec) => {
 		return 'H.264 Matroska';
 	}
 
+	if (codec === 'h264-ts') {
+		return 'H.264 Transport Stream';
+	}
+
 	if (codec === 'h265') {
 		return 'H.265';
 	}
@@ -40,4 +44,6 @@ export const humanReadableCodec = (codec: Codec) => {
 	if (codec === 'wav') {
 		return 'Waveform';
 	}
+
+	throw new TypeError(`Got unexpected codec "${codec}"`);
 };

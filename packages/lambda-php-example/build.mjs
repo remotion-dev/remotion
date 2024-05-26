@@ -16,5 +16,5 @@ if (!hasComposer()) {
   console.log("Environment has no Composer. Skipping...");
   process.exit(0);
 }
-execSync("composer install", { stdio: "inherit" });
+execSync("composer install --quiet", { stdio: "inherit" });
 console.log("composer installed deps.");

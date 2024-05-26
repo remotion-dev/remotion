@@ -1,16 +1,14 @@
 import type {
 	ChromiumOptions,
-	LogLevel,
 	StillImageFormat,
 	ToOptions,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
-import type {DeleteAfter} from '../functions/helpers/lifecycle';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import type {CostsInfo, OutNameInput, Privacy} from '../shared/constants';
-import {LambdaRoutines} from '../shared/constants';
+import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {
 	getCloudwatchMethodUrl,
@@ -18,7 +16,7 @@ import {
 } from '../shared/get-aws-urls';
 import {makeLambdaRenderStillPayload} from './make-lambda-payload';
 
-export type RenderStillOnLambdaInput = {
+type MandatoryParameters = {
 	region: AwsRegion;
 	functionName: string;
 	serveUrl: string;
@@ -26,46 +24,52 @@ export type RenderStillOnLambdaInput = {
 	inputProps: Record<string, unknown>;
 	imageFormat: StillImageFormat;
 	privacy: Privacy;
-	maxRetries?: number;
-	envVariables?: Record<string, string>;
+};
+
+type OptionalParameters = {
+	maxRetries: number;
+	envVariables: Record<string, string>;
 	/**
 	 * @deprecated Renamed to `jpegQuality`
 	 */
 	quality?: never;
-	jpegQuality?: number;
-	frame?: number;
-	logLevel?: LogLevel;
-	outName?: OutNameInput;
-	timeoutInMilliseconds?: number;
-	chromiumOptions?: ChromiumOptions;
-	scale?: number;
-	downloadBehavior?: DownloadBehavior;
-	forceWidth?: number | null;
-	forceHeight?: number | null;
-	forceBucketName?: string;
+	frame: number;
+	outName: OutNameInput | null;
+	chromiumOptions: ChromiumOptions;
+	downloadBehavior: DownloadBehavior;
+	forceWidth: number | null;
+	forceHeight: number | null;
+	forceBucketName: string | null;
 	/**
-	 * @deprecated Renamed to `dumpBrowserLogs`
+	 * @deprecated Renamed to `logLevel`
 	 */
-	dumpBrowserLogs?: boolean;
-	onInit?: (data: {
+	dumpBrowserLogs: boolean;
+	onInit: (data: {
 		renderId: string;
 		cloudWatchLogs: string;
 		lambdaInsightsUrl: string;
 	}) => void;
-	deleteAfter?: DeleteAfter | null;
-} & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
+	indent: boolean;
+} & ToOptions<typeof BrowserSafeApis.optionsMap.renderStillOnLambda>;
+
+export type RenderStillOnLambdaNonNullInput = MandatoryParameters &
+	OptionalParameters;
+
+export type RenderStillOnLambdaInput = MandatoryParameters &
+	Partial<OptionalParameters>;
 
 export type RenderStillOnLambdaOutput = {
 	estimatedPrice: CostsInfo;
 	url: string;
+	outKey: string;
 	sizeInBytes: number;
 	bucketName: string;
 	renderId: string;
 	cloudWatchLogs: string;
 };
 
-const renderStillOnLambdaRaw = async (
-	input: RenderStillOnLambdaInput,
+const internalRenderStillOnLambda = async (
+	input: RenderStillOnLambdaNonNullInput,
 ): Promise<RenderStillOnLambdaOutput> => {
 	const {functionName, region, onInit} = input;
 	try {
@@ -76,7 +80,7 @@ const renderStillOnLambdaRaw = async (
 			region,
 			receivedStreamingPayload: (payload) => {
 				if (payload.type === 'render-id-determined') {
-					onInit?.({
+					onInit({
 						renderId: payload.renderId,
 						cloudWatchLogs: getCloudwatchMethodUrl({
 							functionName,
@@ -99,6 +103,7 @@ const renderStillOnLambdaRaw = async (
 		return {
 			estimatedPrice: res.estimatedPrice,
 			url: res.output,
+			outKey: res.outKey,
 			sizeInBytes: res.size,
 			bucketName: res.bucketName,
 			renderId: res.renderId,
@@ -121,6 +126,10 @@ const renderStillOnLambdaRaw = async (
 	}
 };
 
+const errorHandled = NoReactAPIs.wrapWithErrorHandling(
+	internalRenderStillOnLambda,
+);
+
 /**
  * @description Renders a still frame on Lambda
  * @link https://remotion.dev/docs/lambda/renderstillonlambda
@@ -137,6 +146,34 @@ const renderStillOnLambdaRaw = async (
  * @param params.privacy Whether the item in the S3 bucket should be public. Possible values: `"private"` and `"public"`
  * @returns {Promise<RenderStillOnLambdaOutput>} See documentation for exact response structure.
  */
-export const renderStillOnLambda = NoReactAPIs.wrapWithErrorHandling(
-	renderStillOnLambdaRaw,
-) as typeof renderStillOnLambdaRaw;
+export const renderStillOnLambda = (input: RenderStillOnLambdaInput) => {
+	return errorHandled({
+		chromiumOptions: input.chromiumOptions ?? {},
+		composition: input.composition,
+		deleteAfter: input.deleteAfter ?? null,
+		downloadBehavior: input.downloadBehavior ?? {type: 'play-in-browser'},
+		envVariables: input.envVariables ?? {},
+		forceBucketName: input.forceBucketName ?? null,
+		forceHeight: input.forceHeight ?? null,
+		forceWidth: input.forceWidth ?? null,
+		frame: input.frame ?? 0,
+		functionName: input.functionName,
+		imageFormat: input.imageFormat,
+		indent: false,
+		inputProps: input.inputProps,
+		maxRetries: input.maxRetries ?? DEFAULT_MAX_RETRIES,
+		onInit: input.onInit ?? (() => undefined),
+		outName: input.outName ?? null,
+		privacy: input.privacy,
+		quality: undefined,
+		region: input.region,
+		serveUrl: input.serveUrl,
+		jpegQuality: input.jpegQuality ?? 80,
+		logLevel: input.dumpBrowserLogs ? 'verbose' : input.logLevel ?? 'info',
+		offthreadVideoCacheSizeInBytes:
+			input.offthreadVideoCacheSizeInBytes ?? null,
+		scale: input.scale ?? 1,
+		timeoutInMilliseconds: input.timeoutInMilliseconds ?? 30000,
+		dumpBrowserLogs: false,
+	});
+};

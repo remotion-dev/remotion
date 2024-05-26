@@ -7,7 +7,7 @@ import {
 	setRenderJobs,
 } from '../helpers/document-title';
 import {useKeybinding} from '../helpers/use-keybinding';
-import {sendErrorNotification} from './Notifications/NotificationCenter';
+import {showNotification} from './Notifications/NotificationCenter';
 import {RenderQueueContext} from './RenderQueue/context';
 
 export const TitleUpdater: React.FC = () => {
@@ -41,18 +41,24 @@ export const TitleUpdater: React.FC = () => {
 	return null;
 };
 
-export const CurrentCompositionKeybindings: React.FC = () => {
+export const CurrentCompositionKeybindings: React.FC<{
+	readOnlyStudio: boolean;
+}> = ({readOnlyStudio}) => {
 	const keybindings = useKeybinding();
 	const video = Internals.useVideo();
-	const {type} = useContext(StudioServerConnectionCtx);
+	const {type} = useContext(StudioServerConnectionCtx).previewServerState;
 
 	const openRenderModal = useCallback(() => {
 		if (!video) {
 			return;
 		}
 
+		if (readOnlyStudio) {
+			return showNotification('Studio is read-only', 2000);
+		}
+
 		if (type !== 'connected') {
-			sendErrorNotification('Studio server is offline');
+			showNotification('Studio server is offline', 2000);
 			return;
 		}
 
@@ -61,7 +67,7 @@ export const CurrentCompositionKeybindings: React.FC = () => {
 		) as HTMLDivElement;
 
 		renderButton.click();
-	}, [type, video]);
+	}, [readOnlyStudio, type, video]);
 
 	useEffect(() => {
 		const binding = keybindings.registerKeybinding({

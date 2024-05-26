@@ -4,11 +4,10 @@ import type {
 	JobProgressCallback,
 	RenderJob,
 	RenderJobWithCleanup,
-} from '@remotion/studio';
-import {StudioInternals} from '@remotion/studio';
+} from '@remotion/studio-server';
+import {StudioServerInternals} from '@remotion/studio-server';
 import path from 'node:path';
 import {chalk} from '../chalk';
-import {ConfigInternals} from '../config';
 import {Log} from '../log';
 import {printError} from '../print-error';
 import {initialAggregateRenderProgress} from '../progress-types';
@@ -39,7 +38,7 @@ export const getRenderQueue = (): RenderJob[] => {
 };
 
 const notifyClientsOfJobUpdate = () => {
-	StudioInternals.waitForLiveEventsListener().then((listener) => {
+	StudioServerInternals.waitForLiveEventsListener().then((listener) => {
 		listener.sendEventToClient({
 			type: 'render-queue-updated',
 			queue: getRenderQueue(),
@@ -171,7 +170,7 @@ const processJobIfPossible = async ({
 			};
 		});
 		const startTime = Date.now();
-		Log.info(chalk.gray('╭─ Starting render '));
+		Log.info({indent: false, logLevel}, chalk.gray('╭─ Starting render '));
 		let lastProgress: AggregateRenderProgress | null = null;
 		await processJob({
 			job: nextJob,
@@ -217,9 +216,12 @@ const processJobIfPossible = async ({
 			},
 			logLevel,
 		});
-		Log.info(chalk.gray('╰─ Done in ' + (Date.now() - startTime) + 'ms.'));
+		Log.info(
+			{indent: false, logLevel},
+			chalk.gray('╰─ Done in ' + (Date.now() - startTime) + 'ms.'),
+		);
 
-		const {unwatch} = StudioInternals.installFileWatcher({
+		const {unwatch} = StudioServerInternals.installFileWatcher({
 			file: path.resolve(remotionRoot, nextJob.outName),
 			onChange: (type) => {
 				if (type === 'created') {
@@ -250,7 +252,11 @@ const processJobIfPossible = async ({
 			};
 		});
 	} catch (err) {
-		Log.error(chalk.gray('╰─ '), chalk.red('Failed to render'));
+		Log.error(
+			{indent: false, logLevel},
+			chalk.gray('╰─ '),
+			chalk.red('Failed to render'),
+		);
 
 		updateJob(nextJob.id, (job) => {
 			return {
@@ -263,9 +269,9 @@ const processJobIfPossible = async ({
 			};
 		});
 
-		await printError(err as Error, ConfigInternals.Logging.getLogLevel());
+		await printError(err as Error, logLevel);
 
-		StudioInternals.waitForLiveEventsListener().then((listener) => {
+		StudioServerInternals.waitForLiveEventsListener().then((listener) => {
 			listener.sendEventToClient({
 				type: 'render-job-failed',
 				compositionId: nextJob.compositionId,

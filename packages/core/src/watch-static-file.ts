@@ -1,5 +1,6 @@
 import {getRemotionEnvironment} from './get-remotion-environment';
 import type {StaticFile} from './get-static-files';
+import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag';
 
 type WatcherCallback = (newData: StaticFile | null) => void;
 
@@ -20,6 +21,12 @@ export const watchStaticFile = (
 	fileName: string,
 	callback: WatcherCallback,
 ): {cancel: () => void} => {
+	if (ENABLE_V5_BREAKING_CHANGES) {
+		throw new Error(
+			'watchStaticFile() has moved into the `@remotion/studio` package. Update your imports.',
+		);
+	}
+
 	// Check if function is called in Remotion Studio
 	if (!getRemotionEnvironment().isStudio) {
 		// eslint-disable-next-line no-console
@@ -27,8 +34,15 @@ export const watchStaticFile = (
 		return {cancel: () => undefined};
 	}
 
+	const withoutStaticBase = fileName.startsWith(window.remotion_staticBase)
+		? fileName.replace(window.remotion_staticBase, '')
+		: fileName;
+	const withoutLeadingSlash = withoutStaticBase.startsWith('/')
+		? withoutStaticBase.slice(1)
+		: withoutStaticBase;
+
 	let prevFileData = window.remotion_staticFiles.find(
-		(file: StaticFile) => file.name === fileName,
+		(file: StaticFile) => file.name === withoutLeadingSlash,
 	);
 
 	// Check if the specified static file has updated or deleted
@@ -39,7 +53,7 @@ export const watchStaticFile = (
 
 		// Check for user specified file
 		const newFileData = staticFiles.find(
-			(file: StaticFile) => file.name === fileName,
+			(file: StaticFile) => file.name === withoutLeadingSlash,
 		);
 
 		if (!newFileData) {

@@ -2,11 +2,11 @@ import React, {useCallback} from 'react';
 import type {z} from 'zod';
 import {InputDragger} from '../../NewComposition/InputDragger';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
-import type {JSONPath} from './zod-types';
 import {ZodFieldValidation} from './ZodFieldValidation';
 import type {UpdaterFunction} from './ZodSwitch';
+import {useLocalState} from './local-state';
+import type {JSONPath} from './zod-types';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
@@ -67,17 +67,17 @@ const getStep = (schema: z.ZodTypeAny): number | undefined => {
 };
 
 export const ZodNumberEditor: React.FC<{
-	schema: z.ZodTypeAny;
-	jsonPath: JSONPath;
-	value: number;
-	setValue: UpdaterFunction<number>;
-	defaultValue: number;
-	onSave: UpdaterFunction<number>;
-	onRemove: null | (() => void);
-	showSaveButton: boolean;
-	saving: boolean;
-	saveDisabledByParent: boolean;
-	mayPad: boolean;
+	readonly schema: z.ZodTypeAny;
+	readonly jsonPath: JSONPath;
+	readonly value: number;
+	readonly setValue: UpdaterFunction<number>;
+	readonly defaultValue: number;
+	readonly onSave: UpdaterFunction<number>;
+	readonly onRemove: null | (() => void);
+	readonly showSaveButton: boolean;
+	readonly saving: boolean;
+	readonly saveDisabledByParent: boolean;
+	readonly mayPad: boolean;
 }> = ({
 	jsonPath,
 	value,
@@ -97,10 +97,10 @@ export const ZodNumberEditor: React.FC<{
 
 		reset,
 	} = useLocalState({
-		value,
+		unsavedValue: value,
 		schema,
 		setValue,
-		defaultValue,
+		savedValue: defaultValue,
 	});
 
 	const onNumberChange = useCallback(

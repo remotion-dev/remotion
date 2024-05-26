@@ -40,8 +40,13 @@ for (const packageManager of packageManagers) {
 				},
 			},
 		);
+		const expectedStartScript =
+			packageManager === 'bun' ? 'remotionb studio' : 'remotion studio';
 		expect(newPackageJson).to.deep.equal({
 			...packageJson,
+			scripts: {
+				start: expectedStartScript,
+			},
 			dependencies: {
 				...packageJson.dependencies,
 				'@remotion/cli': latestRemotionVersion,

@@ -6,7 +6,7 @@ export const OverlayInDavinci: React.FC = () => {
 
   return (
     <div>
-      <video ref={ref} src="/img/OverlayInDavinci.mov" controls autoPlay loop />
+      <video ref={ref} src="/img/OverlayInDavinci.mp4" controls autoPlay loop />
     </div>
   );
 };

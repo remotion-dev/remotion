@@ -53,6 +53,7 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 			audioCodec: null,
 			downloadBehavior: {type: 'play-in-browser'},
 			numberOfGifLoops: null,
+			muted: false,
 		},
 		outputFileMetadata: {
 			url: 'out.mp4',

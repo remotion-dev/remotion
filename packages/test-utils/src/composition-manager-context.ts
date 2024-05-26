@@ -46,5 +46,6 @@ export const makeMockCompositionManagerContext =
         compositionId: "markup",
       },
       setCanvasContent: () => undefined,
+      updateCompositionDefaultProps: () => undefined,
     };
   };

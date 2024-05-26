@@ -27,13 +27,13 @@
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "typescript.preferences.autoImportFileExcludePatterns": [
-    "@types/node/test.d.ts"
-  ],
   "[go]": {
     "editor.defaultFormatter": "golang.go"
   },
   "typescript.tsdk": "node_modules/typescript/lib",
   "python.terminal.activateEnvironment": false,
-  "rust-analyzer.cargo.buildScripts.enable": false
+  "rust-analyzer.linkedProjects": ["packages/renderer/Cargo.toml"],
+  "search.exclude": {
+    "packages/**/dist": true
+  }
 }

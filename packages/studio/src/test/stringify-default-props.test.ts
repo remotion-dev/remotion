@@ -1,7 +1,7 @@
-import {expect, test} from 'vitest';
+import {stringifyDefaultProps} from '@remotion/studio-shared';
+import {expect, test} from 'bun:test';
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import {z} from 'zod';
-import {stringifyDefaultProps} from '../codemods/stringify-with-path';
 import {createZodValues} from '../components/RenderModal/SchemaEditor/create-zod-values';
 import {extractEnumJsonPaths} from '../components/RenderModal/SchemaEditor/extract-enum-json-paths';
 
@@ -32,7 +32,10 @@ test('Should stringify default props correctly', () => {
 	const enumPaths = extractEnumJsonPaths(schema, z, []);
 	expect(enumPaths).toStrictEqual([['abc'], ['array', '[]']]);
 
-	const result = stringifyDefaultProps({props: values, enumPaths});
+	const result = stringifyDefaultProps({
+		props: values,
+		enumPaths,
+	});
 	expect(result).toBe(
 		`{"abc":"hi" as const,"array":["hi" as const],"notAnEnum":""}`,
 	);

@@ -28,25 +28,29 @@ export const sitesLsSubcommand = async (logLevel: LogLevel) => {
 	const sitesPluralized = sites.length === 1 ? 'site' : 'sites';
 	if (!CliInternals.quietFlagProvided()) {
 		Log.info(
+			{indent: false, logLevel},
 			`${sites.length} ${sitesPluralized} in ${region}, in the ${process.env.REMOTION_GCP_PROJECT_ID} project.`,
 		);
 	}
 
 	if (CliInternals.quietFlagProvided()) {
 		if (sites.length === 0) {
-			Log.info('()');
+			Log.info({indent: false, logLevel}, '()');
 			return;
 		}
 
-		return Log.info(sites.map((s) => s.id).join(' '));
+		return Log.info(
+			{indent: false, logLevel},
+			sites.map((s) => s.id).join(' '),
+		);
 	}
 
 	if (sites.length > 0) {
-		Log.info();
+		Log.info({indent: false, logLevel});
 
 		for (const site of sites) {
-			Log.info(displaySiteInfo(site));
-			Log.info();
+			Log.info({indent: false, logLevel}, displaySiteInfo(site));
+			Log.info({indent: false, logLevel});
 		}
 	}
 };

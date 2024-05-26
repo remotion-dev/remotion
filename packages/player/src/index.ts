@@ -1,8 +1,7 @@
-import {
-	calculateCanvasTransformation,
-	calculateScale,
-} from './calculate-scale.js';
+import {BufferingIndicator} from './BufferingIndicator.js';
+import {calculateCanvasTransformation} from './calculate-scale.js';
 import {PlayerEventEmitterContext} from './emitter-context.js';
+import {PlayerEmitterProvider} from './EmitterProvider.js';
 import type {CallbackListener, PlayerEventTypes} from './event-emitter.js';
 import {PlayerEmitter} from './event-emitter.js';
 import {useHoverState} from './use-hover-state.js';
@@ -13,21 +12,21 @@ import {
 	useElementSize,
 } from './utils/use-element-size.js';
 
-export {
+export type {
 	PlayerMethods,
 	PlayerRef,
 	ThumbnailMethods,
 	ThumbnailRef,
 } from './player-methods.js';
-export {Player, PlayerProps} from './Player.js';
+export {Player} from './Player.js';
+export type {PlayerProps} from './Player.js';
 export type {
 	RenderFullscreenButton,
 	RenderPlayPauseButton,
 } from './PlayerControls.js';
 export type {ErrorFallback, RenderLoading, RenderPoster} from './PlayerUI.js';
 export {Thumbnail} from './Thumbnail.js';
-export {PreviewSize, Translation} from './utils/preview-size.js';
-export {Size} from './utils/use-element-size.js';
+export type {Size} from './utils/use-element-size.js';
 export type {CallbackListener, PlayerEventTypes as EventTypes};
 
 export const PlayerInternals = {
@@ -39,5 +38,6 @@ export const PlayerInternals = {
 	calculateCanvasTransformation,
 	useHoverState,
 	updateAllElementsSizes,
-	calculateScale,
+	PlayerEmitterProvider,
+	BufferingIndicator,
 };

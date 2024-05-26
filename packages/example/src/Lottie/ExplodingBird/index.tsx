@@ -2,10 +2,10 @@ import {Lottie} from '@remotion/lottie';
 import {useEffect, useState} from 'react';
 import {
 	AbsoluteFill,
-	continueRender,
-	delayRender,
 	Loop,
 	Sequence,
+	continueRender,
+	delayRender,
 	useVideoConfig,
 } from 'remotion';
 

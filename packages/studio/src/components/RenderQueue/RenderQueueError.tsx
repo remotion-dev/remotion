@@ -1,5 +1,5 @@
+import type {RenderJob} from '@remotion/studio-shared';
 import React, {useCallback, useContext} from 'react';
-import type {RenderJob} from '../../preview-server/job';
 import {ModalsContext} from '../../state/modals';
 import {useZIndex} from '../../state/z-index';
 import {renderQueueItemSubtitleStyle} from './item-style';

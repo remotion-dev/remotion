@@ -39,7 +39,7 @@ type ThumbnailProps<
 		className?: string;
 	};
 
-export const ThumbnailFn = <
+const ThumbnailFn = <
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
 >(
@@ -114,6 +114,7 @@ export const ThumbnailFn = <
 			>
 				<ThumbnailEmitterContext.Provider value={emitter}>
 					<ThumbnailUI
+						ref={rootRef}
 						className={className}
 						errorFallback={errorFallback}
 						inputProps={passedInputProps}
@@ -134,7 +135,7 @@ const forward = forwardRef as <T, P = {}>(
 ) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 
 /**
- * @description A component which can be rendered in a regular React App (for example: Create React App, Next.js) to display a single frame of a video.
+ * @description A component which can be rendered in a regular React App (for example: Next.js, Vite) to display a single frame of a video.
  * @see [Documentation](https://www.remotion.dev/docs/player/thumbnail)
  */
 

@@ -5,11 +5,10 @@ import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
+import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
-import {type LogLevel} from './log-level';
-import {getLogLevel} from './logger';
 import type {ChromiumOptions} from './open-browser';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
@@ -18,6 +17,7 @@ import {makeOrReuseServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {waitForReady} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
+import type {RequiredInputPropsInV5} from './v5-required-input-props';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {wrapWithErrorHandling} from './wrap-with-error-handling';
 
@@ -27,39 +27,31 @@ type InternalGetCompositionsOptions = {
 	puppeteerInstance: HeadlessBrowser | undefined;
 	onBrowserLog: null | ((log: BrowserLog) => void);
 	browserExecutable: BrowserExecutable | null;
-	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	port: number | null;
 	server: RemotionServer | undefined;
 	indent: boolean;
-	logLevel: LogLevel;
 	serveUrlOrWebpackUrl: string;
 } & ToOptions<typeof optionsMap.getCompositions>;
 
-export type GetCompositionsOptions = {
-	inputProps?: Record<string, unknown> | null;
+export type GetCompositionsOptions = RequiredInputPropsInV5 & {
 	envVariables?: Record<string, string>;
 	puppeteerInstance?: HeadlessBrowser;
 	onBrowserLog?: (log: BrowserLog) => void;
 	browserExecutable?: BrowserExecutable;
-	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	port?: number | null;
-	logLevel?: LogLevel;
-	offthreadVideoCacheSizeInBytes?: number | null;
-};
+} & Partial<ToOptions<typeof optionsMap.getCompositions>>;
 
 type InnerGetCompositionsParams = {
 	serializedInputPropsWithCustomSchema: string;
 	envVariables: Record<string, string>;
 	onBrowserLog: null | ((log: BrowserLog) => void);
-	timeoutInMilliseconds: number;
 	serveUrl: string;
 	page: Page;
 	proxyPort: number;
 	indent: boolean;
-	logLevel: LogLevel;
-};
+} & ToOptions<typeof optionsMap.getCompositions>;
 
 const innerGetCompositions = async ({
 	envVariables,
@@ -152,7 +144,7 @@ const innerGetCompositions = async ({
 	});
 };
 
-type CleanupFn = () => void;
+type CleanupFn = () => Promise<unknown>;
 
 const internalGetCompositionsRaw = async ({
 	browserExecutable,
@@ -168,6 +160,8 @@ const internalGetCompositionsRaw = async ({
 	timeoutInMilliseconds,
 	logLevel,
 	offthreadVideoCacheSizeInBytes,
+	binariesDirectory,
+	onBrowserDownload,
 }: InternalGetCompositionsOptions) => {
 	const {page, cleanup: cleanupPage} = await getPageAndCleanupFn({
 		passedInInstance: puppeteerInstance,
@@ -176,6 +170,7 @@ const internalGetCompositionsRaw = async ({
 		forceDeviceScaleFactor: undefined,
 		indent,
 		logLevel,
+		onBrowserDownload,
 	});
 
 	const cleanup: CleanupFn[] = [cleanupPage];
@@ -201,6 +196,8 @@ const internalGetCompositionsRaw = async ({
 				logLevel,
 				indent,
 				offthreadVideoCacheSizeInBytes,
+				binariesDirectory,
+				forceIPv4: false,
 			},
 			{
 				onDownload: () => undefined,
@@ -210,7 +207,9 @@ const internalGetCompositionsRaw = async ({
 			.then(({server: {serveUrl, offthreadPort, sourceMap}, cleanupServer}) => {
 				page.setBrowserSourceMapGetter(sourceMap);
 
-				cleanup.push(() => cleanupServer(true));
+				cleanup.push(() => {
+					return cleanupServer(true);
+				});
 
 				return innerGetCompositions({
 					envVariables,
@@ -222,6 +221,9 @@ const internalGetCompositionsRaw = async ({
 					timeoutInMilliseconds,
 					indent,
 					logLevel,
+					offthreadVideoCacheSizeInBytes,
+					binariesDirectory,
+					onBrowserDownload,
 				});
 			})
 
@@ -245,7 +247,10 @@ export const internalGetCompositions = wrapWithErrorHandling(
 
 /**
  * @description Gets the compositions defined in a Remotion project based on a Webpack bundle.
- * @see [Documentation](https://www.remotion.dev/docs/renderer/get-compositions)
+ * @see [Documentation](https://remotion.dev/docs/get-compositions)
+ * @param serveUrlOrWebpackUrl URL pointing to the Remotion Bundle.
+ * @param {GetCompositionsOptions} [config] Optional configurations for getting composition details.
+ * @returns {Promise<VideoConfig[]>} Returns a promise that resolves to an array of available compositions.
  */
 export const getCompositions = (
 	serveUrlOrWebpackUrl: string,
@@ -266,8 +271,15 @@ export const getCompositions = (
 		port,
 		puppeteerInstance,
 		timeoutInMilliseconds,
-		logLevel,
+		logLevel: passedLogLevel,
+		onBrowserDownload,
+		binariesDirectory,
+		offthreadVideoCacheSizeInBytes,
 	} = config ?? {};
+
+	const indent = false;
+	const logLevel = passedLogLevel ?? 'info';
+
 	return internalGetCompositions({
 		browserExecutable: browserExecutable ?? null,
 		chromiumOptions: chromiumOptions ?? {},
@@ -278,15 +290,22 @@ export const getCompositions = (
 				indent: undefined,
 				staticBase: null,
 			}).serializedString,
-		indent: false,
+		indent,
 		onBrowserLog: onBrowserLog ?? null,
 		port: port ?? null,
 		puppeteerInstance: puppeteerInstance ?? undefined,
 		serveUrlOrWebpackUrl,
 		server: undefined,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
-		logLevel: logLevel ?? getLogLevel(),
-		offthreadVideoCacheSizeInBytes:
-			config?.offthreadVideoCacheSizeInBytes ?? null,
+		logLevel,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		binariesDirectory: binariesDirectory ?? null,
+		onBrowserDownload:
+			onBrowserDownload ??
+			defaultBrowserDownloadProgress({
+				indent,
+				logLevel,
+				api: 'getCompositions()',
+			}),
 	});
 };

@@ -1,18 +1,14 @@
 import type {
 	AudioCodec,
 	ChromiumOptions,
-	ColorSpace,
 	FrameRange,
-	LogLevel,
 	PixelFormat,
 	ProResProfile,
 	ToOptions,
 	VideoImageFormat,
-	X264Preset,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
-import type {DeleteAfter} from '../functions/helpers/lifecycle';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import type {OutNameInput, Privacy, WebhookOption} from '../shared/constants';
@@ -39,7 +35,6 @@ export type RenderMediaOnLambdaInput = {
 	envVariables?: Record<string, string>;
 	pixelFormat?: PixelFormat;
 	proResProfile?: ProResProfile;
-	x264Preset?: X264Preset;
 	privacy?: Privacy;
 	/**
 	 * @deprecated Renamed to `jpegQuality`
@@ -48,21 +43,14 @@ export type RenderMediaOnLambdaInput = {
 	jpegQuality?: number;
 	maxRetries?: number;
 	framesPerLambda?: number;
-	logLevel?: LogLevel;
 	frameRange?: FrameRange;
 	outName?: OutNameInput;
-	timeoutInMilliseconds?: number;
 	chromiumOptions?: Omit<ChromiumOptions, 'enableMultiProcessOnLinux'>;
 	scale?: number;
 	everyNthFrame?: number;
 	concurrencyPerLambda?: number;
 	downloadBehavior?: DownloadBehavior | null;
-	muted?: boolean;
 	overwrite?: boolean;
-	audioBitrate?: string | null;
-	videoBitrate?: string | null;
-	encodingMaxRate?: string | null;
-	encodingBufferSize?: string | null;
 	webhook?: WebhookOption | null;
 	forceWidth?: number | null;
 	forceHeight?: number | null;
@@ -73,8 +61,6 @@ export type RenderMediaOnLambdaInput = {
 	 * @deprecated in favor of `logLevel`: true
 	 */
 	dumpBrowserLogs?: boolean;
-	colorSpace?: ColorSpace;
-	deleteAfter?: DeleteAfter | null;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 export type RenderMediaOnLambdaOutput = {
@@ -132,43 +118,15 @@ export const internalRenderMediaOnLambdaRaw = async (
 	}
 };
 
-/**
- * @description Triggers a render on a lambda given a composition and a lambda function.
- * @see [Documentation](https://remotion.dev/docs/lambda/rendermediaonlambda)
- * @param params.functionName The name of the Lambda function that should be used
- * @param params.serveUrl The URL of the deployed project
- * @param params.composition The ID of the composition which should be rendered.
- * @param params.inputProps The input props that should be passed to the composition.
- * @param params.codec The media codec which should be used for encoding.
- * @param params.imageFormat In which image format the frames should be rendered. Default "jpeg"
- * @param params.crf The constant rate factor to be used during encoding.
- * @param params.envVariables Object containing environment variables to be inserted into the video environment
- * @param params.proResProfile The ProRes profile if rendering a ProRes video
- * @param params.jpegQuality JPEG quality if JPEG was selected as the image format.
- * @param params.region The AWS region in which the media should be rendered.
- * @param params.maxRetries How often rendering a chunk may fail before the media render gets aborted. Default "1"
- * @param params.logLevel Level of logging that Lambda function should perform. Default "info".
- * @param params.webhook Configuration for webhook called upon completion or timeout of the render.
- * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
- */
-export const renderMediaOnLambda = (
+export const renderMediaOnLambdaOptionalToRequired = (
 	options: RenderMediaOnLambdaInput,
-): Promise<RenderMediaOnLambdaOutput> => {
-	const wrapped = NoReactAPIs.wrapWithErrorHandling(
-		internalRenderMediaOnLambdaRaw,
-	);
-	if (options.quality) {
-		throw new Error(
-			'quality has been renamed to jpegQuality. Please rename the option.',
-		);
-	}
-
-	return wrapped({
+): InnerRenderMediaOnLambdaInput => {
+	return {
 		audioBitrate: options.audioBitrate ?? null,
 		audioCodec: options.audioCodec ?? null,
 		chromiumOptions: options.chromiumOptions ?? {},
 		codec: options.codec,
-		colorSpace: options.colorSpace ?? 'default',
+		colorSpace: options.colorSpace ?? null,
 		composition: options.composition,
 		concurrencyPerLambda: options.concurrencyPerLambda ?? 1,
 		crf: options.crf,
@@ -206,7 +164,44 @@ export const renderMediaOnLambda = (
 		webhook: options.webhook ?? null,
 		x264Preset: options.x264Preset ?? null,
 		deleteAfter: options.deleteAfter ?? null,
-	});
+		preferLossless: options.preferLossless ?? false,
+		indent: false,
+	};
+};
+
+const wrapped = NoReactAPIs.wrapWithErrorHandling(
+	internalRenderMediaOnLambdaRaw,
+);
+
+/**
+ * @description Triggers a render on a lambda given a composition and a lambda function.
+ * @see [Documentation](https://remotion.dev/docs/lambda/rendermediaonlambda)
+ * @param params.functionName The name of the Lambda function that should be used
+ * @param params.serveUrl The URL of the deployed project
+ * @param params.composition The ID of the composition which should be rendered.
+ * @param params.inputProps The input props that should be passed to the composition.
+ * @param params.codec The media codec which should be used for encoding.
+ * @param params.imageFormat In which image format the frames should be rendered. Default "jpeg"
+ * @param params.crf The constant rate factor to be used during encoding.
+ * @param params.envVariables Object containing environment variables to be inserted into the video environment
+ * @param params.proResProfile The ProRes profile if rendering a ProRes video
+ * @param params.jpegQuality JPEG quality if JPEG was selected as the image format.
+ * @param params.region The AWS region in which the media should be rendered.
+ * @param params.maxRetries How often rendering a chunk may fail before the media render gets aborted. Default "1"
+ * @param params.logLevel Level of logging that Lambda function should perform. Default "info".
+ * @param params.webhook Configuration for webhook called upon completion or timeout of the render.
+ * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
+ */
+export const renderMediaOnLambda = (
+	options: RenderMediaOnLambdaInput,
+): Promise<RenderMediaOnLambdaOutput> => {
+	if (options.quality) {
+		throw new Error(
+			'quality has been renamed to jpegQuality. Please rename the option.',
+		);
+	}
+
+	return wrapped(renderMediaOnLambdaOptionalToRequired(options));
 };
 
 /**

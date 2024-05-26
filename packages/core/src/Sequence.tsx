@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import React, {
 	forwardRef,
 	useContext,
@@ -7,55 +8,66 @@ import React, {
 } from 'react';
 import {AbsoluteFill} from './AbsoluteFill.js';
 import type {LoopDisplay} from './CompositionManager.js';
-import {getRemotionEnvironment} from './get-remotion-environment.js';
-import {useNonce} from './nonce.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {
 	SequenceManager,
 	SequenceVisibilityToggleContext,
 } from './SequenceManager.js';
+import {getRemotionEnvironment} from './get-remotion-environment.js';
+import {useNonce} from './nonce.js';
 import {
 	TimelineContext,
 	useTimelinePosition,
 } from './timeline-position-state.js';
 import {useVideoConfig} from './use-video-config.js';
 
+import {Freeze} from './freeze.js';
+import {useCurrentFrame} from './use-current-frame';
+
+export type AbsoluteFillLayout = {
+	layout?: 'absolute-fill';
+	premountFor?: number;
+	style?: React.CSSProperties;
+	className?: string;
+};
+
 export type LayoutAndStyle =
-	| {
-			layout?: 'absolute-fill';
-			style?: React.CSSProperties;
-			className?: string;
-	  }
+	| AbsoluteFillLayout
 	| {
 			layout: 'none';
 	  };
 
 export type SequencePropsWithoutDuration = {
-	children: React.ReactNode;
-	width?: number;
-	height?: number;
-	from?: number;
-	name?: string;
+	readonly children: React.ReactNode;
+	readonly width?: number;
+	readonly height?: number;
+	readonly from?: number;
+	readonly name?: string;
+	readonly showInTimeline?: boolean;
 	/**
 	 * @deprecated For internal use only.
 	 */
-	showInTimeline?: boolean;
+	readonly _remotionInternalLoopDisplay?: LoopDisplay;
 	/**
 	 * @deprecated For internal use only.
 	 */
-	loopDisplay?: LoopDisplay;
+	readonly _remotionInternalPremountDisplay?: number | null;
 	/**
 	 * @deprecated For internal use only.
 	 */
-	stack?: string;
+	readonly _remotionInternalStack?: string;
+	/**
+	 * @deprecated For internal use only.
+	 */
+	readonly _remotionInternalIsPremounting?: boolean;
 } & LayoutAndStyle;
 
 export type SequenceProps = {
-	durationInFrames?: number;
+	readonly durationInFrames?: number;
 } & SequencePropsWithoutDuration;
 
-const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
+const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	SequenceProps
 > = (
@@ -67,13 +79,15 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		height,
 		width,
 		showInTimeline = true,
-		loopDisplay,
-		stack,
+		_remotionInternalLoopDisplay: loopDisplay,
+		_remotionInternalStack: stack,
+		_remotionInternalPremountDisplay: premountDisplay,
 		...other
 	},
 	ref,
 ) => {
 	const {layout = 'absolute-fill'} = other;
+
 	const [id] = useState(() => String(Math.random()));
 	const parentSequence = useContext(SequenceContext);
 	const {rootId} = useContext(TimelineContext);
@@ -130,6 +144,13 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
 	const {hidden} = useContext(SequenceVisibilityToggleContext);
 
+	const premounting = useMemo(() => {
+		return (
+			parentSequence?.premounting ??
+			Boolean(other._remotionInternalIsPremounting)
+		);
+	}, [other._remotionInternalIsPremounting, parentSequence?.premounting]);
+
 	const contextValue = useMemo((): SequenceContextType => {
 		return {
 			cumulatedFrom,
@@ -139,6 +160,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			id,
 			height: height ?? parentSequence?.height ?? null,
 			width: width ?? parentSequence?.width ?? null,
+			premounting,
 		};
 	}, [
 		cumulatedFrom,
@@ -148,6 +170,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		id,
 		height,
 		width,
+		premounting,
 	]);
 
 	const timelineClipName = useMemo(() => {
@@ -171,6 +194,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			nonce,
 			loopDisplay,
 			stack: stack ?? null,
+			premountDisplay: premountDisplay ?? null,
 		});
 		return () => {
 			unregisterSequence(id);
@@ -190,6 +214,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		nonce,
 		loopDisplay,
 		stack,
+		premountDisplay,
 	]);
 
 	// Ceil to support floats
@@ -240,6 +265,64 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			)}
 		</SequenceContext.Provider>
 	);
+};
+
+const RegularSequence = forwardRef(RegularSequenceRefForwardingFunction);
+
+const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	SequenceProps
+> = (props, ref) => {
+	const frame = useCurrentFrame();
+
+	if (props.layout === 'none') {
+		throw new Error(
+			'`<Sequence>` with `premountFor` prop does not support layout="none"',
+		);
+	}
+
+	const {style: passedStyle, from = 0, premountFor = 0, ...otherProps} = props;
+
+	const premountingActive = frame < from && frame >= from - premountFor;
+
+	const style = useMemo(() => {
+		return {
+			...passedStyle,
+			opacity: premountingActive ? 0 : 1,
+			pointerEvents: premountingActive
+				? 'none'
+				: passedStyle?.pointerEvents ?? undefined,
+		};
+	}, [premountingActive, passedStyle]);
+
+	return (
+		<Freeze frame={from} active={premountingActive}>
+			<Sequence
+				ref={ref}
+				from={from}
+				style={style}
+				_remotionInternalPremountDisplay={premountFor}
+				_remotionInternalIsPremounting={premountingActive}
+				{...otherProps}
+			/>
+		</Freeze>
+	);
+};
+
+const PremountedSequence = forwardRef(PremountedSequenceRefForwardingFunction);
+const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	SequenceProps
+> = (props, ref) => {
+	if (
+		props.layout !== 'none' &&
+		props.premountFor &&
+		!getRemotionEnvironment().isRendering
+	) {
+		return <PremountedSequence {...props} ref={ref} />;
+	}
+
+	return <RegularSequence {...props} ref={ref} />;
 };
 
 /**

@@ -25,13 +25,13 @@ import { useCallback, useSyncExternalStore } from "react";
 
 export const useCurrentPlayerFrame = (ref: React.RefObject<PlayerRef>) => {
   const subscribe = useCallback(
-    (onStoreChange: (newVal: number) => void) => {
+    (onStoreChange: () => void) => {
       const { current } = ref;
       if (!current) {
         return () => undefined;
       }
       const updater: CallbackListener<"frameupdate"> = ({ detail }) => {
-        onStoreChange(detail.frame);
+        onStoreChange();
       };
       current.addEventListener("frameupdate", updater);
       return () => {

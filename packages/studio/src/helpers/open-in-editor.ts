@@ -1,4 +1,4 @@
-import type {SymbolicatedStackFrame} from '@remotion/renderer';
+import type {SymbolicatedStackFrame} from '@remotion/studio-shared';
 
 export const openInEditor = (stack: SymbolicatedStackFrame) => {
 	const {

@@ -1,3 +1,4 @@
+import {PlayerInternals} from '@remotion/player';
 import React from 'react';
 import {PreviewServerConnection} from '../helpers/client-id';
 import {FolderContextProvider} from '../state/folders';
@@ -10,7 +11,6 @@ import {CheckerboardProvider} from './CheckerboardProvider';
 import {ZodProvider} from './get-zod-if-possible';
 import {MediaVolumeProvider} from './MediaVolumeProvider';
 import {ModalsProvider} from './ModalsProvider';
-import {PlayerEmitterContext} from './PlayerEmitterContext';
 import {RenderQueueContextProvider} from './RenderQueue/context';
 import {SetTimelineInOutProvider} from './SetTimelineInOutProvider';
 import {ShowGuidesProvider} from './ShowGuidesProvider';
@@ -19,10 +19,11 @@ import {ZoomGesturesProvider} from './ZoomGesturesProvider';
 
 export const EditorContexts: React.FC<{
 	children: React.ReactNode;
-}> = ({children}) => {
+	readOnlyStudio: boolean;
+}> = ({children, readOnlyStudio}) => {
 	return (
 		<ZodProvider>
-			<PreviewServerConnection>
+			<PreviewServerConnection readOnlyStudio={readOnlyStudio}>
 				<RenderQueueContextProvider>
 					<KeybindingContextProvider>
 						<CheckerboardProvider>
@@ -32,7 +33,9 @@ export const EditorContexts: React.FC<{
 										<PreviewSizeProvider>
 											<ModalsProvider>
 												<MediaVolumeProvider>
-													<PlayerEmitterContext>
+													<PlayerInternals.PlayerEmitterProvider
+														currentPlaybackRate={null}
+													>
 														<SidebarContextProvider>
 															<FolderContextProvider>
 																<HighestZIndexProvider>
@@ -42,7 +45,7 @@ export const EditorContexts: React.FC<{
 																</HighestZIndexProvider>
 															</FolderContextProvider>
 														</SidebarContextProvider>
-													</PlayerEmitterContext>
+													</PlayerInternals.PlayerEmitterProvider>
 												</MediaVolumeProvider>
 											</ModalsProvider>
 										</PreviewSizeProvider>

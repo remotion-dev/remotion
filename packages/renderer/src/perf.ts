@@ -44,9 +44,9 @@ export const getPerf = () => {
 		...(Object.keys(perf) as PerfId[])
 			.filter((p) => perf[p].length)
 			.map((p) => {
-				return `  ${p} => ${
-					perf[p].reduce((a, b) => a + b, 0) / perf[p].length
-				}ms (n = ${perf[p].length})`;
+				return `  ${p} => ${Math.round(
+					perf[p].reduce((a, b) => a + b, 0) / perf[p].length,
+				)}ms (n = ${perf[p].length})`;
 			}),
 	];
 };

@@ -13,16 +13,20 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import type {AnyCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {useMobileLayout} from '../helpers/mobile-layout';
 import {ThinRenderIcon} from '../icons/render';
 import {ModalsContext} from '../state/modals';
+import {SidebarContext} from '../state/sidebar';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 
 export const SidebarRenderButton: React.FC<{
-	composition: AnyCompMetadata;
-	visible: boolean;
+	readonly composition: AnyCompMetadata;
+	readonly visible: boolean;
 }> = ({composition, visible}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSidebarCollapsedState} = useContext(SidebarContext);
+	const isMobileLayout = useMobileLayout();
 
 	const iconStyle: SVGProps<SVGSVGElement> = useMemo(() => {
 		return {
@@ -32,7 +36,8 @@ export const SidebarRenderButton: React.FC<{
 		};
 	}, []);
 
-	const connectionStatus = useContext(StudioServerConnectionCtx).type;
+	const connectionStatus = useContext(StudioServerConnectionCtx)
+		.previewServerState.type;
 	const {props} = useContext(Internals.EditorPropsContext);
 
 	const onClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
@@ -83,9 +88,24 @@ export const SidebarRenderButton: React.FC<{
 				initialEncodingMaxRate: defaults.encodingMaxRate,
 				initialUserAgent: defaults.userAgent,
 				initialBeep: defaults.beepOnFinish,
+				initialRepro: defaults.repro,
+				initialForSeamlessAacConcatenation:
+					defaults.forSeamlessAacConcatenation,
+				renderTypeOfLastRender: null,
 			});
+
+			if (isMobileLayout) {
+				setSidebarCollapsedState({left: 'collapsed', right: 'collapsed'});
+			}
 		},
-		[composition.defaultProps, composition.id, props, setSelectedModal],
+		[
+			composition.defaultProps,
+			composition.id,
+			isMobileLayout,
+			props,
+			setSelectedModal,
+			setSidebarCollapsedState,
+		],
 	);
 
 	const renderAction: RenderInlineAction = useCallback(
