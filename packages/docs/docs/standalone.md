@@ -13,84 +13,92 @@ Unbolded APIs are licensed under the MIT license.
 
 **remotion**:
 
-- **[interpolate\(\)](https://www.remotion.dev/docs/interpolate)**
-- **[spring\(\)](https://www.remotion.dev/docs/spring)**
+- **[interpolate\(\)](/docs/interpolate)**
+- **[spring\(\)](/docs/spring)**
 
 **@remotion/renderer**:
 
-- **[getCanExtractFramesFast\(\)](https://www.remotion.dev/docs/renderer/get-can-extract-frames-fast)**
-- **[getVideoMetadata\(\)](https://www.remotion.dev/docs/renderer/get-video-metadata)**
-- **[getSilentParts\(\)](https://www.remotion.dev/docs/renderer/get-silent-parts)**
-- **[extractAudio\(\)](https://www.remotion.dev/docs/renderer/extract-audio)**
+- **[getCanExtractFramesFast\(\)](/docs/renderer/get-can-extract-frames-fast)**
+- **[getVideoMetadata\(\)](/docs/renderer/get-video-metadata)**
+- **[getSilentParts\(\)](/docs/renderer/get-silent-parts)**
+- **[extractAudio\(\)](/docs/renderer/extract-audio)**
 
 **@remotion/gif**:
 
-- **[getGifDurationInSeconds\(\)](https://www.remotion.dev/docs/gif/get-gif-duration-in-seconds)**
+- **[getGifDurationInSeconds\(\)](/docs/gif/get-gif-duration-in-seconds)**
 
 **@remotion/media-utils**:
 
-- [audioBufferToDataUrl\(\)](https://www.remotion.dev/docs/audio-buffer-to-data-url)
-- [getAudioData\(\)](https://www.remotion.dev/docs/get-audio-data)
-- [getAudioDurationInSeconds\(\)](https://www.remotion.dev/docs/get-audio-duration-in-seconds)
-- [getVideoMetadata\(\)](https://www.remotion.dev/docs/get-video-metadata)
-- [getWaveformPortion\(\)](https://www.remotion.dev/docs/get-waveform-portion)
-- [useAudioData\(\)](https://www.remotion.dev/docs/use-audio-data)
-- [visualizeAudio\(\)](https://www.remotion.dev/docs/visualize-audio)
+- [audioBufferToDataUrl\(\)](/docs/audio-buffer-to-data-url)
+- [getAudioData\(\)](/docs/get-audio-data)
+- [getAudioDurationInSeconds\(\)](/docs/get-audio-duration-in-seconds)
+- [getVideoMetadata\(\)](/docs/get-video-metadata)
+- [getWaveformPortion\(\)](/docs/get-waveform-portion)
+- [useAudioData\(\)](/docs/use-audio-data)
+- [visualizeAudio\(\)](/docs/visualize-audio)
 
 **@remotion/preload**:
 
-- [preloadVideo\(\)](https://www.remotion.dev/docs/preload/preload-video)
-- [preloadAudio\(\)](https://www.remotion.dev/docs/preload/preload-audio)
-- [preloadImage\(\)](https://www.remotion.dev/docs/preload/preload-image)
-- [preloadFont\(\)](https://www.remotion.dev/docs/preload/preload-font)
-- [resolveRedirect\(\)](https://www.remotion.dev/docs/preload/resolve-redirect)
+- [preloadVideo\(\)](/docs/preload/preload-video)
+- [preloadAudio\(\)](/docs/preload/preload-audio)
+- [preloadImage\(\)](/docs/preload/preload-image)
+- [preloadFont\(\)](/docs/preload/preload-font)
+- [resolveRedirect\(\)](/docs/preload/resolve-redirect)
 
 **@remotion/paths**:
 
-- [getLength\(\)](https://www.remotion.dev/docs/paths/get-length)
-- [getPointAtLength\(\)](https://www.remotion.dev/docs/paths/get-point-at-length)
-- [getTangentAtLength\(\)](https://www.remotion.dev/docs/paths/get-tangent-at-length)
-- [getInstructionIndexAtLength\(\)](https://www.remotion.dev/docs/paths/get-instruction-index-at-length)
-- [reversePath\(\)](https://www.remotion.dev/docs/paths/reverse-path)
-- [normalizePath\(\)](https://www.remotion.dev/docs/paths/normalize-path)
-- [interpolatePath\(\)](https://www.remotion.dev/docs/paths/interpolate-path)
-- [evolvePath\(\)](https://www.remotion.dev/docs/paths/evolve-path)
-- [resetPath\(\)](https://www.remotion.dev/docs/paths/reset-path)
-- [getSubpaths\(\)](https://www.remotion.dev/docs/paths/get-subpaths)
-- [translatePath\(\)](https://www.remotion.dev/docs/paths/translate-path)
-- [warpPath\(\)](https://www.remotion.dev/docs/paths/warp-path)
-- [scalePath\(\)](https://www.remotion.dev/docs/paths/scale-path)
-- [getBoundingBox\(\)](https://www.remotion.dev/docs/paths/get-bounding-box)
-- [extendViewBox\(\)](https://www.remotion.dev/docs/paths/extend-viewbox)
-- [parsePath\(\)](https://www.remotion.dev/docs/paths/parse-path)
-- [serializeInstructions\(\)](https://www.remotion.dev/docs/paths/serialize-instructions)
-- [reduceInstructions\(\)](https://www.remotion.dev/docs/paths/reduce-instructions)
-- [getParts\(\)](https://www.remotion.dev/docs/paths/get-parts)
+- [getLength\(\)](/docs/paths/get-length)
+- [getPointAtLength\(\)](/docs/paths/get-point-at-length)
+- [getTangentAtLength\(\)](/docs/paths/get-tangent-at-length)
+- [getInstructionIndexAtLength\(\)](/docs/paths/get-instruction-index-at-length)
+- [reversePath\(\)](/docs/paths/reverse-path)
+- [normalizePath\(\)](/docs/paths/normalize-path)
+- [interpolatePath\(\)](/docs/paths/interpolate-path)
+- [evolvePath\(\)](/docs/paths/evolve-path)
+- [resetPath\(\)](/docs/paths/reset-path)
+- [getSubpaths\(\)](/docs/paths/get-subpaths)
+- [translatePath\(\)](/docs/paths/translate-path)
+- [warpPath\(\)](/docs/paths/warp-path)
+- [scalePath\(\)](/docs/paths/scale-path)
+- [getBoundingBox\(\)](/docs/paths/get-bounding-box)
+- [extendViewBox\(\)](/docs/paths/extend-viewbox)
+- [parsePath\(\)](/docs/paths/parse-path)
+- [serializeInstructions\(\)](/docs/paths/serialize-instructions)
+- [reduceInstructions\(\)](/docs/paths/reduce-instructions)
+- [getParts\(\)](/docs/paths/get-parts)
 
 **@remotion/noise**:
 
-- [noise2D\(\)](https://www.remotion.dev/docs/noise/noise-2d)
-- [noise3D\(\)](https://www.remotion.dev/docs/noise/noise-3d)
-- [noise4D\(\)](https://www.remotion.dev/docs/noise/noise-4d)
+- [noise2D\(\)](/docs/noise/noise-2d)
+- [noise3D\(\)](/docs/noise/noise-3d)
+- [noise4D\(\)](/docs/noise/noise-4d)
 
 **@remotion/shapes**:
 
-- [`<Rect />`](https://www.remotion.dev/docs/shapes/rect)
-- [`<Triangle />`](https://www.remotion.dev/docs/shapes/triangle)
-- [`<Circle />`](https://www.remotion.dev/docs/shapes/circle)
-- [`<Ellipse />`](https://www.remotion.dev/docs/shapes/ellipse)
-- [`<Star />`](https://www.remotion.dev/docs/shapes/star)
-- [`<Pie />`](https://www.remotion.dev/docs/shapes/pie)
-- [`<Polygon />`](https://www.remotion.dev/docs/shapes/polygon)
-- [makeRect\(\)](https://www.remotion.dev/docs/shapes/make-rect)
-- [makeTriangle\(\)](https://www.remotion.dev/docs/shapes/make-triangle)
-- [makeCircle\(\)](https://www.remotion.dev/docs/shapes/make-circle)
-- [makeEllipse\(\)](https://www.remotion.dev/docs/shapes/make-ellipse)
-- [makeStar\(\)](https://www.remotion.dev/docs/shapes/make-star)
-- [makePie\(\)](https://www.remotion.dev/docs/shapes/make-pie)
-- [makePolygon\(\)](https://www.remotion.dev/docs/shapes/make-polygon)
+- [`<Rect />`](/docs/shapes/rect)
+- [`<Triangle />`](/docs/shapes/triangle)
+- [`<Circle />`](/docs/shapes/circle)
+- [`<Ellipse />`](/docs/shapes/ellipse)
+- [`<Star />`](/docs/shapes/star)
+- [`<Pie />`](/docs/shapes/pie)
+- [`<Polygon />`](/docs/shapes/polygon)
+- [makeRect\(\)](/docs/shapes/make-rect)
+- [makeTriangle\(\)](/docs/shapes/make-triangle)
+- [makeCircle\(\)](/docs/shapes/make-circle)
+- [makeEllipse\(\)](/docs/shapes/make-ellipse)
+- [makeStar\(\)](/docs/shapes/make-star)
+- [makePie\(\)](/docs/shapes/make-pie)
+- [makePolygon\(\)](/docs/shapes/make-polygon)
 
 **@remotion/layout-utils**:
 
-- [measureText\(\)](https://www.remotion.dev/docs/layout-utils/measure-text)
-- [fillTextBox\(\)](https://www.remotion.dev/docs/layout-utils/fill-text-box)
+- [measureText\(\)](/docs/layout-utils/measure-text)
+- [fillTextBox\(\)](/docs/layout-utils/fill-text-box)
+- [fitText\(\)](/docs/layout-utils/fit-text)
+
+**@remotion/install-whisper-cpp**:
+
+- [installWhisperCpp\(\)](/docs/install-whisper-cpp/install-whisper-cpp)
+- [transcribe\(\)](/docs/install-whisper-cpp/transcribe)
+- [convertToCaptions\(\)](/docs/install-whisper-cpp/convert-to-captions)
+- [downloadWhisperModel\(\)](/docs/install-whisper-cpp/download-whisper-model)
