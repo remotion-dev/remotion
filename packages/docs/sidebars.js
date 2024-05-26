@@ -543,6 +543,17 @@ module.exports = {
         "install-whisper-cpp/convert-to-captions",
       ],
     },
+    {
+      type: "category",
+      label: "@remotion/fonts",
+      link: {
+        type: "doc",
+        id: "fonts/fonts",
+      },
+      items: [
+        "fonts/load-font"
+      ],
+    },
   ],
   mainSidebar: [
     {
@@ -566,7 +577,7 @@ module.exports = {
         "layers",
         "transitioning",
         "using-audio",
-        "fonts",
+        "using-fonts",
         "measuring",
         "using-randomness",
         "audio-visualization",

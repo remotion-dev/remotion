@@ -2,7 +2,7 @@
 image: /generated/articles-docs-using-fonts.png
 title: Using fonts
 sidebar_label: Fonts
-id: fonts
+id: using-fonts
 crumb: "Techniques"
 ---
 
@@ -44,33 +44,27 @@ const MyComp: React.FC = () => {
 };
 ```
 
-## Example using local fonts
+## Local fonts using `@remotion/fonts`
 
-Put the font into your `public/` folder and use the [`staticFile()`](/docs/staticfile) API to load the font. Use the `FontFace` browser API to load the font. [Click here](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face) to read the syntax that can be used for the Font Face API.
+_available from v4.0.164_
 
+Put the font into your `public/` folder.
 Put this somewhere in your app where it gets executed:
 
 ```tsx twoslash title="load-fonts.ts"
-import { continueRender, delayRender, staticFile } from "remotion";
+import {loadFont} from "@remotion/fonts";
 
-const waitForFont = delayRender();
-const font = new FontFace(
-  `Bangers`,
-  `url('${staticFile("bangers.woff2")}') format('woff2')`,
-);
-
-font
-  .load()
-  .then(() => {
-    document.fonts.add(font);
-    continueRender(waitForFont);
-  })
-  .catch((err) => console.log("Error loading font", err));
+loadFont({
+	family: 'Font family name',
+	url: 'Local font url',
+	weight: '500',
+	// ... other options 
+}).then(() => console.log('Font loaded!'))
 ```
 
 :::note
-Make sure to include quotes [around the URL](/docs/troubleshooting/could-not-be-parsed-as-a-value-list).  
-The `format` should be one of `woff2` for WOFF2 files, `woff` for WOFF, `opentype` for OTF, `truetype` for TTF.
+Check the available options [around the URL](/docs/fonts/load-font).  
+The font format should be one of `woff2` for WOFF2 files, `woff` for WOFF, `opentype` for OTF, `truetype` for TTF.
 :::
 
 The font is now available for use:

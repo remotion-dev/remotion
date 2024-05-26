@@ -34,6 +34,7 @@
     "@remotion/bundler": "workspace:*",
     "@remotion/cli": "workspace:*",
     "@remotion/cloudrun": "workspace:*",
+    "@remotion/fonts": "workspace:*",
     "@remotion/gif": "workspace:*",
     "@remotion/google-fonts": "workspace:*",
     "@remotion/install-whisper-cpp": "workspace:*",

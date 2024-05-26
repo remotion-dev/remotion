@@ -86,7 +86,7 @@ export const articles = [
   {
     id: "api",
     title: "API overview",
-    relativePath: "docs/api.md",
+    relativePath: "docs/api.mdx",
     compId: "articles-docs-api",
     crumb: null,
   },
@@ -679,7 +679,7 @@ export const articles = [
     crumb: "@remotion/enable-scss",
   },
   {
-    id: "enable-scss",
+    id: "enable-scss/overview",
     title: "@remotion/enable-scss",
     relativePath: "docs/enable-scss/overview.mdx",
     compId: "articles-docs-enable-scss-overview",
@@ -740,6 +740,20 @@ export const articles = [
     relativePath: "docs/font-picker.mdx",
     compId: "articles-docs-font-picker",
     crumb: "Building video apps",
+  },
+  {
+    id: "fonts",
+    title: "@remotion/fonts",
+    relativePath: "docs/fonts/index.md",
+    compId: "articles-docs-fonts-index",
+    crumb: null,
+  },
+  {
+    id: "fonts/load-font",
+    title: "loadFont()",
+    relativePath: "docs/fonts/load-font.md",
+    compId: "articles-docs-fonts-load-font",
+    crumb: "@remotion/fonts",
   },
   {
     id: "freeze",
@@ -2790,7 +2804,7 @@ export const articles = [
   {
     id: "standalone",
     title: "Useful functions outside of Remotion",
-    relativePath: "docs/standalone.md",
+    relativePath: "docs/standalone.mdx",
     compId: "articles-docs-standalone",
     crumb: null,
   },
@@ -2870,6 +2884,13 @@ export const articles = [
     relativePath: "docs/studio/quick-switcher.mdx",
     compId: "articles-docs-studio-quick-switcher",
     crumb: "Remotion Studio",
+  },
+  {
+    id: "studio/restart-studio",
+    title: "restartStudio()",
+    relativePath: "docs/studio/restart-studio.mdx",
+    compId: "articles-docs-studio-restart-studio",
+    crumb: "@remotion/studio",
   },
   {
     id: "studio/save-default-props",
@@ -3383,7 +3404,7 @@ export const articles = [
     crumb: "Techniques",
   },
   {
-    id: "fonts",
+    id: "using-fonts",
     title: "Using fonts",
     relativePath: "docs/using-fonts.md",
     compId: "articles-docs-using-fonts",
