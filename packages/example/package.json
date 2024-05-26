@@ -34,6 +34,7 @@
 		"@remotion/cloudrun": "workspace:*",
 		"@remotion/eslint-config": "workspace:*",
 		"@remotion/eslint-plugin": "workspace:*",
+		"@remotion/fonts": "workspace:*",
 		"@remotion/gif": "workspace:*",
 		"@remotion/google-fonts": "workspace:*",
 		"@remotion/lambda": "workspace:*",
