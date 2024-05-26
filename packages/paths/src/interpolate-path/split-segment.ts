@@ -14,6 +14,8 @@ import {splitCurve} from './split-curve';
  * @return {Object[]} Array of ~segmentCount command objects between commandStart and
  *   commandEnd. (Can be segmentCount+1 objects if commandStart is type M).
  */
+
+// TODO: Delete and replace
 export function splitSegment(
 	commandStart: Command,
 	commandEnd: Command,
@@ -27,9 +29,16 @@ export function splitSegment(
 		commandEnd.type === 'Q' ||
 		commandEnd.type === 'C'
 	) {
-		segments = segments.concat(
-			splitCurve(commandStart, commandEnd, segmentCount),
-		);
+		if (commandStart.type !== 'Z') {
+			segments = segments.concat(
+				splitCurve(
+					commandStart.x as number,
+					commandStart.y as number,
+					commandEnd,
+					segmentCount,
+				),
+			);
+		}
 
 		// general case - just copy the same point
 	} else {
