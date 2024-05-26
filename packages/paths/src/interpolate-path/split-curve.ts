@@ -31,8 +31,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
+import type {
+	CInstruction,
+	LInstruction,
+	QInstruction,
+	ReducedInstruction,
+} from '../helpers/types';
 import type {Command} from './command';
-import {pointsToCommand} from './points-to-command';
+import {pointsToCommand, pointsToInstruction} from './points-to-command';
 import {splitCurveAsPoints} from './split-curve-as-points';
 
 /**
@@ -64,4 +70,36 @@ export const splitCurve = (
 	return splitCurveAsPoints(points, segmentCount).map((p) =>
 		pointsToCommand(p),
 	);
+};
+
+/**
+ * Convert command objects to arrays of points, run de Casteljau's algorithm on it
+ * to split into to the desired number of segments.
+ *
+ * @param {Object} commandStart The start command object
+ * @param {Object} instructionEnd The end command object
+ * @param {Number} segmentCount The number of segments to create
+ * @return {Object[]} An array of commands representing the segments in sequence
+ */
+export const splitCurveInstructions = (
+	instructionStartX: number,
+	instructionStartY: number,
+	instructionEnd: LInstruction | QInstruction | CInstruction,
+	segmentCount: number,
+): ReducedInstruction[] => {
+	const points = [[instructionStartX, instructionStartY]] as number[][];
+	if (instructionEnd.type === 'Q') {
+		points.push([instructionEnd.cpx, instructionEnd.cpy]);
+	}
+
+	if (instructionEnd.type === 'C') {
+		points.push([instructionEnd.cp1x, instructionEnd.cp1y]);
+		points.push([instructionEnd.cp2x, instructionEnd.cp2y]);
+	}
+
+	points.push([instructionEnd.x as number, instructionEnd.y as number]);
+
+	return splitCurveAsPoints(points, segmentCount).map((p) => {
+		return pointsToInstruction(p);
+	});
 };
