@@ -10,6 +10,6 @@ export const getFontFormat = (url: string): string => {
 		case 'ttf':
 			return 'truetype';
 		default:
-			throw new Error(`Unsuppoted font format: ${ext}`);
+			throw new Error(`Unsupported font format: ${ext}`);
 	}
 };
