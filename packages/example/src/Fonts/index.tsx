@@ -1,12 +1,12 @@
+import {loadFont} from '@remotion/fonts';
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
-import {loadFont} from '@remotion/fonts';
 
 loadFont({
 	family: 'Bangers',
 	url: 'bangers.woff2',
-	weight: '500'
-}).then(() => console.log("Font loaded!"))
+	weight: '500',
+}).then(() => console.log('Font loaded!'));
 
 export const FontDemo: React.FC = () => {
 	return (
