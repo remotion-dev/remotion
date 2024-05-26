@@ -626,6 +626,9 @@ importers:
       '@remotion/enable-scss':
         specifier: workspace:*
         version: link:../enable-scss
+      '@remotion/fonts':
+        specifier: workspace:*
+        version: link:../fonts
       '@remotion/gif':
         specifier: workspace:*
         version: link:../gif
