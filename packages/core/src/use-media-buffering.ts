@@ -77,7 +77,11 @@ export const useMediaBuffering = ({
 				// reset if a video is already playing.
 				// Therefore only calling it after checking if the video
 				// has no future data.
-				current.load();
+
+				// Breaks on Firefox though: https://github.com/remotion-dev/remotion/issues/3915
+				if (!navigator.userAgent.includes('Firefox/')) {
+					current.load();
+				}
 			} else {
 				current.addEventListener('waiting', onWaiting);
 				cleanupFns.push(() => {
