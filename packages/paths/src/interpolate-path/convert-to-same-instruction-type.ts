@@ -97,7 +97,7 @@ const convertToQCommand = (command: ReducedInstruction): QInstruction => {
  * @param {Object} bCommand Command object from path `d` attribute to match against
  * @return {Object} aCommand converted to type of bCommand
  */
-export function convertToSameType(
+export function convertToSameInstructionType(
 	aCommand: ReducedInstruction,
 	bCommand: ReducedInstruction,
 ): ReducedInstruction {

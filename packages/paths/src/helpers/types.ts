@@ -51,6 +51,12 @@ export type CInstruction = {
 	y: number;
 };
 
+export type MInstruction = {
+	type: 'M';
+	x: number;
+	y: number;
+};
+
 export type QInstruction = {
 	type: 'Q';
 	cpx: number;
@@ -59,18 +65,16 @@ export type QInstruction = {
 	y: number;
 };
 
+export type ZInstruction = {
+	type: 'Z';
+};
+
 export type ReducedInstruction =
-	| {
-			type: 'M';
-			x: number;
-			y: number;
-	  }
+	| MInstruction
 	| LInstruction
 	| CInstruction
 	| QInstruction
-	| {
-			type: 'Z';
-	  };
+	| ZInstruction;
 
 export type AbsoluteInstruction =
 	| ReducedInstruction
