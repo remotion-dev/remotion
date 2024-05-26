@@ -178,11 +178,12 @@ function splitCurveAsPoints(
  * @return {Object[]} An array of commands representing the segments in sequence
  */
 export const splitCurve = (
-	commandStart: Command,
+	commandStartX: number,
+	commandStartY: number,
 	commandEnd: Command,
 	segmentCount: number,
 ): Command[] => {
-	const points = [[commandStart.x, commandStart.y]] as number[][];
+	const points = [[commandStartX, commandStartY]] as number[][];
 	if (commandEnd.x1 !== null && commandEnd.x1 !== undefined) {
 		points.push([commandEnd.x1, commandEnd.y1 as number]);
 	}
