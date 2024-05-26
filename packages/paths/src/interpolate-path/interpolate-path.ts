@@ -31,8 +31,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-import type {Command} from './helpers/split-curve';
-import {splitCurve, typeMap} from './helpers/split-curve';
+import {typeMap, type Command} from './command';
+import {commandToString} from './command-to-string';
+import {splitCurve} from './split-curve';
 
 const commandTokenRegex = /[MLCSTQAHVZmlcstqahv]|-?[\d.e+-]+/g;
 
@@ -43,17 +44,6 @@ function arrayOfLength<T>(length: number, value: T): T[] {
 	}
 
 	return array;
-}
-
-/**
- * Converts a command object to a string to be used in a `d` attribute
- * @param {Object} command A command object
- * @return {String} The string for the `d` attribute
- */
-function commandToString(command: Command) {
-	return `${command.type} ${typeMap[command.type]
-		.map((p) => command[p as keyof Command])
-		.join(' ')}`;
 }
 
 /**

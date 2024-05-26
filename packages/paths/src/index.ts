@@ -15,7 +15,7 @@ export {
 	Part,
 	ReducedInstruction,
 } from './helpers/types';
-export {interpolatePath} from './interpolate-path';
+export {interpolatePath} from './interpolate-path/interpolate-path';
 export {normalizePath} from './normalize-path';
 export {parsePath} from './parse-path';
 export {reduceInstructions} from './reduce-instructions';
