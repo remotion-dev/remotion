@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/cloudrun",
-	"version": "4.0.163",
+	"version": "4.0.164",
 	"description": "GCP Cloud Run alternative to lambda rendering",
 	"main": "dist/index.js",
 	"scripts": {

@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/install-whisper-cpp",
-	"version": "4.0.163",
+	"version": "4.0.164",
 	"description": "Install helper for Whisper.cpp",
 	"main": "dist/index.js",
 	"sideEffects": false,

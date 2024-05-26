@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/cli",
-	"version": "4.0.163",
+	"version": "4.0.164",
 	"description": "CLI for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,

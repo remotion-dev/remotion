@@ -1,6 +1,6 @@
 {
   "name": "@remotion/eslint-plugin",
-  "version": "4.0.163",
+  "version": "4.0.164",
   "description": "A set of rules helping you avoid common pitfalls in Remotion.",
   "scripts": {
     "test": "vitest --run"

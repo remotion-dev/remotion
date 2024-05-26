@@ -5,4 +5,4 @@
  * @see [Documentation](https://remotion.dev/docs/version)
  * @returns {string} The current version of the remotion package
  */
-export const VERSION = '4.0.163';
+export const VERSION = '4.0.164';

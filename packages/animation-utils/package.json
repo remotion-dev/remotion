@@ -4,7 +4,7 @@
 		"name": "Chetan Karwa",
 		"email": "cbkarwa@gmail.com"
 	},
-	"version": "4.0.163",
+	"version": "4.0.164",
 	"description": "A set of animation utilities for Remotion",
 	"main": "./dist/index.js",
 	"module": "./dist/index.mjs",
