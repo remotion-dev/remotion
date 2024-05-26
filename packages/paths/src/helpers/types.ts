@@ -35,33 +35,39 @@ export type BoundingBox = {
 	height: number;
 };
 
+export type LInstruction = {
+	type: 'L';
+	x: number;
+	y: number;
+};
+
+export type CInstruction = {
+	type: 'C';
+	cp1x: number;
+	cp1y: number;
+	cp2x: number;
+	cp2y: number;
+	x: number;
+	y: number;
+};
+
+export type QInstruction = {
+	type: 'Q';
+	cpx: number;
+	cpy: number;
+	x: number;
+	y: number;
+};
+
 export type ReducedInstruction =
 	| {
 			type: 'M';
 			x: number;
 			y: number;
 	  }
-	| {
-			type: 'L';
-			x: number;
-			y: number;
-	  }
-	| {
-			type: 'C';
-			cp1x: number;
-			cp1y: number;
-			cp2x: number;
-			cp2y: number;
-			x: number;
-			y: number;
-	  }
-	| {
-			type: 'Q';
-			cpx: number;
-			cpy: number;
-			x: number;
-			y: number;
-	  }
+	| LInstruction
+	| CInstruction
+	| QInstruction
 	| {
 			type: 'Z';
 	  };
