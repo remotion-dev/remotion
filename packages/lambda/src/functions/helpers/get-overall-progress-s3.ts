@@ -24,6 +24,12 @@ export const getOverallProgressS3 = async ({
 		const str = await streamToString(Body);
 		return JSON.parse(str) as OverallRenderProgress;
 	} catch (err) {
-		return null;
+		if ((err as Error).name === 'NotFound') {
+			throw new TypeError(
+				`No render with ID "${renderId}" found in bucket ${bucketName} and region ${getCurrentRegionInFunction()}`,
+			);
+		}
+
+		throw err;
 	}
 };

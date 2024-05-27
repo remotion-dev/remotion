@@ -11,7 +11,6 @@ import {
 import {truthy} from '../../shared/truthy';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import {estimatePriceFromBucket} from './calculate-price-from-bucket';
-import {checkIfRenderExists} from './check-if-render-exists';
 import {getExpectedOutName} from './expected-out-name';
 import {findOutputFileInBucket} from './find-output-file-in-bucket';
 import {formatCostsInfo} from './format-costs-info';
@@ -49,7 +48,7 @@ export const getProgress = async ({
 		expectedBucketOwner,
 	});
 
-	if (overallProgress?.postRenderData) {
+	if (overallProgress.postRenderData) {
 		const outData = getExpectedOutName(
 			overallProgress.postRenderData.renderMetadata,
 			bucketName,
@@ -146,13 +145,6 @@ export const getProgress = async ({
 		);
 	}
 
-	checkIfRenderExists(
-		contents,
-		renderId,
-		bucketName,
-		getCurrentRegionInFunction(),
-	);
-
 	const outputFile = renderMetadata
 		? await findOutputFileInBucket({
 				bucketName,
@@ -170,7 +162,7 @@ export const getProgress = async ({
 		// We cannot determine the ephemeral storage size, so we
 		// overestimate the price, but will only have a miniscule effect (~0.2%)
 		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
-		timings: overallProgress?.timings ?? [],
+		timings: overallProgress.timings ?? [],
 	});
 
 	const {hasAudio, hasVideo} = renderMetadata
@@ -191,7 +183,7 @@ export const getProgress = async ({
 	const chunkMultiplier = [hasAudio, hasVideo].filter(truthy).length;
 
 	const allChunks =
-		(overallProgress?.chunks ?? []).length / chunkMultiplier ===
+		(overallProgress.chunks ?? []).length / chunkMultiplier ===
 		(renderMetadata?.totalChunks ?? Infinity);
 	const renderSize = contents
 		.map((c) => c.Size ?? 0)
@@ -204,14 +196,14 @@ export const getProgress = async ({
 			).length
 		: null;
 
-	const chunkCount = overallProgress?.chunks.length ?? 0;
+	const chunkCount = overallProgress.chunks.length ?? 0;
 
 	const missingChunks = renderMetadata
 		? new Array(renderMetadata.totalChunks)
 				.fill(true)
 				.map((_, i) => i)
 				.filter((index) => {
-					return !(overallProgress?.chunks ?? []).find((c) => c === index);
+					return !(overallProgress.chunks ?? []).find((c) => c === index);
 				})
 		: null;
 
@@ -242,13 +234,13 @@ export const getProgress = async ({
 	].filter(NoReactInternals.truthy);
 
 	return {
-		framesRendered: overallProgress?.framesRendered ?? 0,
+		framesRendered: overallProgress.framesRendered ?? 0,
 		chunks: chunkCount,
 		done: false,
 		encodingStatus: {
-			framesEncoded: overallProgress?.framesEncoded ?? 0,
-			combinedFrames: overallProgress?.combinedFrames ?? 0,
-			timeToCombine: overallProgress?.timeToCombine ?? null,
+			framesEncoded: overallProgress.framesEncoded ?? 0,
+			combinedFrames: overallProgress.combinedFrames ?? 0,
+			timeToCombine: overallProgress.timeToCombine ?? null,
 		},
 		costs: priceFromBucket
 			? formatCostsInfo(priceFromBucket.accruedSoFar)
@@ -262,7 +254,7 @@ export const getProgress = async ({
 		fatalErrorEncountered: allErrors.some((f) => f.isFatal && !f.willRetry),
 		currentTime: Date.now(),
 		renderSize,
-		lambdasInvoked: overallProgress?.lambdasInvoked ?? 0,
+		lambdasInvoked: overallProgress.lambdasInvoked ?? 0,
 		cleanup,
 		timeToFinishChunks:
 			allChunks && overallProgress
@@ -275,16 +267,16 @@ export const getProgress = async ({
 			cleanup: cleanup ? cleanup.filesDeleted / cleanup.minFilesToDelete : 0,
 			encoding:
 				renderMetadata && frameCount
-					? overallProgress?.framesEncoded ?? 0 / frameCount
+					? overallProgress.framesEncoded ?? 0 / frameCount
 					: 0,
 			invoking: renderMetadata
-				? (overallProgress?.lambdasInvoked ?? 0) /
+				? (overallProgress.lambdasInvoked ?? 0) /
 					renderMetadata.estimatedRenderLambdaInvokations
 				: 0,
 			rendering: renderMetadata ? chunkCount / renderMetadata.totalChunks : 0,
-			frames: (overallProgress?.framesRendered ?? 0) / (frameCount ?? 1),
+			frames: (overallProgress.framesRendered ?? 0) / (frameCount ?? 1),
 		}),
-		retriesInfo: overallProgress?.retries ?? [],
+		retriesInfo: overallProgress.retries ?? [],
 		outKey:
 			outputFile && renderMetadata
 				? getExpectedOutName(renderMetadata, bucketName, customCredentials).key
@@ -300,8 +292,8 @@ export const getProgress = async ({
 		estimatedBillingDurationInMilliseconds: priceFromBucket
 			? priceFromBucket.estimatedBillingDurationInMilliseconds
 			: null,
-		combinedFrames: overallProgress?.combinedFrames ?? 0,
-		timeToCombine: overallProgress?.timeToCombine ?? null,
+		combinedFrames: overallProgress.combinedFrames ?? 0,
+		timeToCombine: overallProgress.timeToCombine ?? null,
 		type: 'success',
 	};
 };
