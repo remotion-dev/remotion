@@ -284,8 +284,6 @@ const renderHandler = async ({
 			.catch((err) => reject(err));
 	});
 
-	const endRendered = Date.now();
-
 	const condensedTimingData: ChunkTimingData = {
 		...chunkTimingData,
 		timings: Object.values(chunkTimingData.timings),
@@ -311,9 +309,14 @@ const renderHandler = async ({
 		});
 	}
 
+	const endRendered = Date.now();
+
 	onStream({
 		type: 'chunk-complete',
-		payload: {},
+		payload: {
+			rendered: endRendered,
+			start,
+		},
 	});
 
 	const writeStart = Date.now();
@@ -326,6 +329,7 @@ const renderHandler = async ({
 		{indent: false, logLevel: params.logLevel},
 		'Cleaning up and writing timings',
 	);
+
 	await Promise.all(
 		[
 			fs.promises.rm(videoOutputLocation, {recursive: true}),

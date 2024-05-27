@@ -70,7 +70,10 @@ export type StreamingPayload =
 	  }
 	| {
 			type: typeof chunkComplete;
-			payload: {};
+			payload: {
+				start: number;
+				rendered: number;
+			};
 	  }
 	| {
 			type: typeof lambdaInvoked;
