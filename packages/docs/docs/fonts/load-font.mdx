@@ -1,0 +1,82 @@
+---
+image: /generated/articles-docs-fonts-load-font.png
+title: loadFont()
+crumb: "@remotion/fonts"
+---
+
+_Part of the [`@remotion/fonts`](/docs/fonts) package_
+
+Load a local font for use in Remotion.  
+Automatically blocks the render until the font is ready.
+
+## Usage
+
+```tsx twoslash
+import { loadFont } from "@remotion/fonts";
+import { AbsoluteFill, staticFile } from "remotion";
+
+loadFont({
+  family: "Bangers",
+  url: staticFile("bangers.ttf"),
+}).then(() => console.log("Font loaded!"));
+
+export const GoogleFontsExample: React.FC = () => {
+  return (
+    <AbsoluteFill
+      style={{
+        fontFamily: "Bangers",
+      }}
+    >
+      <h1>Local Font</h1>
+    </AbsoluteFill>
+  );
+};
+```
+
+## Options
+
+### family
+
+The name of the font family.
+
+### url
+
+Where to load the font from.
+
+All arguments and options are optional. Use TypeScript autocompletion.
+
+### ascentOverride?
+
+Defines the ascent metric for the font.
+
+### descentOverride?
+
+Defines the descent metric for the font.
+
+### display?
+
+Determines how a font face is displayed based on whether and when it is downloaded and ready to use.
+
+### featureSettings?
+
+Allows control over advanced typographic features in OpenType fonts.
+
+### lineGapOverride?
+
+Defines the line gap metric for the font.
+
+### stretch?
+
+Allows to specify a normal, condensed, or expanded face.
+
+### style?
+
+The font style we want to load. While each font has a different set of styles, common options are: `normal`, `italic` etc.
+
+### unicodeRange?
+
+The range of Unicode code points to be used from the font.
+
+### weight?
+
+Sets the weight (or boldness) of the font. The weights available depend on the font-family that is currently set.

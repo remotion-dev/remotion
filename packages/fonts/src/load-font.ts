@@ -1,10 +1,20 @@
 import {cancelRender, continueRender, delayRender, staticFile} from 'remotion';
 import {getFontFormat} from './get-font-format';
 
-interface LoadFontOptions extends FontFaceDescriptors {
+type LoadFontOptions = {
 	family: string;
 	url: string;
-}
+	ascentOverride?: string;
+	descentOverride?: string;
+	display?: 'auto' | 'block' | 'fallback' | 'optional' | 'swap';
+	featureSettings?: string;
+	lineGapOverride?: string;
+	stretch?: string;
+	style?: string;
+	unicodeRange?: string;
+	variant?: string;
+	weight?: string;
+};
 
 export const loadFont = async ({
 	family,
