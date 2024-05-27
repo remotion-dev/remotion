@@ -17,10 +17,16 @@ export const Studio: React.FC<{
 	useLayoutEffect(() => {
 		window.remotion_isStudio = true;
 		Internals.enableSequenceStackTraces();
+
+		return () => {
+			window.remotion_isStudio = false;
+		};
 	}, []);
+
 	useLayoutEffect(() => {
 		injectCSS();
 	}, []);
+
 	return (
 		<Internals.RemotionRoot
 			numberOfAudioTags={window.remotion_numberOfAudioTags}
