@@ -1,14 +1,13 @@
 import type {
 	CInstruction,
 	LInstruction,
+	Point,
 	QInstruction,
 	ReducedInstruction,
 } from '../helpers/types';
 
 const convertToLCommand = (command: ReducedInstruction): LInstruction => {
 	if (command.type === 'M' || command.type === 'L' || command.type === 'Z') {
-		console.log({command});
-
 		throw new Error('unexpected');
 	}
 
@@ -19,7 +18,10 @@ const convertToLCommand = (command: ReducedInstruction): LInstruction => {
 	};
 };
 
-const convertToCCommand = (command: ReducedInstruction): CInstruction => {
+const convertToCCommand = (
+	command: ReducedInstruction,
+	currentPoint: Point,
+): CInstruction => {
 	if (command.type === 'M' || command.type === 'C' || command.type === 'Z') {
 		throw new Error('unexpected');
 	}
@@ -27,8 +29,8 @@ const convertToCCommand = (command: ReducedInstruction): CInstruction => {
 	if (command.type === 'L') {
 		return {
 			type: 'C',
-			cp1x: command.x,
-			cp1y: command.y,
+			cp1x: currentPoint.x,
+			cp1y: currentPoint.y,
 			cp2x: command.x,
 			cp2y: command.y,
 			x: command.x,
@@ -102,6 +104,7 @@ const convertToQCommand = (command: ReducedInstruction): QInstruction => {
 export function convertToSameInstructionType(
 	aCommand: ReducedInstruction,
 	bCommand: ReducedInstruction,
+	currentPoint: Point,
 ): ReducedInstruction {
 	if (aCommand.type === 'M' || bCommand.type === 'M') {
 		return {...aCommand};
@@ -112,7 +115,7 @@ export function convertToSameInstructionType(
 	}
 
 	if (bCommand.type === 'C') {
-		return convertToCCommand(aCommand);
+		return convertToCCommand(aCommand, currentPoint);
 	}
 
 	if (bCommand.type === 'L') {

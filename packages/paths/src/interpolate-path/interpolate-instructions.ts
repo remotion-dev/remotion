@@ -1,3 +1,4 @@
+import {getEndPosition} from '../get-end-position';
 import type {ReducedInstruction} from '../helpers/types';
 import {convertToSameInstructionType} from './convert-to-same-instruction-type';
 import {extendInstruction} from './extend-command';
@@ -74,7 +75,9 @@ export function interpolateInstructions(
 	// commands have same length now.
 	// convert commands in A to the same type as those in B
 	const aSameType = aCommands.map((aCommand, i) => {
-		return convertToSameInstructionType(aCommand, bCommands[i]);
+		const commandsUntilNow = aCommands.slice(0, i);
+		const point = getEndPosition(commandsUntilNow);
+		return convertToSameInstructionType(aCommand, bCommands[i], point);
 	});
 
 	const interpolatedCommands: ReducedInstruction[] = [];

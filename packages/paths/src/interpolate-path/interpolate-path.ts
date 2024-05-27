@@ -69,7 +69,5 @@ export const interpolatePath = (
 
 	const commandInterpolator = interpolateInstructions(aCommands, bCommands);
 
-	const interpolatedCommands = commandInterpolator(value);
-
-	return serializeInstructions(interpolatedCommands);
+	return serializeInstructions(commandInterpolator(value));
 };

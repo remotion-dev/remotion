@@ -9,10 +9,8 @@ import {decasteljau} from './de-casteljau';
  */
 export function splitCurveAsPoints(
 	points: number[][],
-	segmentCount: number,
+	segmentCount = 2,
 ): number[][][] {
-	segmentCount = segmentCount || 2;
-
 	const segments = [];
 	let remainingCurve = points;
 	const tIncrement = 1 / segmentCount;

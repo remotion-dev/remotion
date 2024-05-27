@@ -1,6 +1,6 @@
 import {getBoundingBoxFromInstructions} from './get-bounding-box';
 
-export {debugPath} from './debug-path';
+import {debugPath} from './debug-path';
 export {evolvePath} from './evolve-path';
 export {extendViewBox} from './extend-viewbox';
 export {getBoundingBox} from './get-bounding-box';
@@ -26,6 +26,8 @@ export {scalePath} from './scale-path';
 export {serializeInstructions} from './serialize-instructions';
 export {translatePath} from './translate-path';
 export {WarpPathFn, warpPath} from './warp-path';
+
 export const PathInternals = {
 	getBoundingBoxFromInstructions,
+	debugPath,
 };

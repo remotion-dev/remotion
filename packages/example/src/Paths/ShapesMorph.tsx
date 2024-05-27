@@ -1,4 +1,4 @@
-import {debugPath, interpolatePath} from '@remotion/paths';
+import {PathInternals, interpolatePath} from '@remotion/paths';
 import {makeCircle, makePolygon} from '@remotion/shapes';
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 
@@ -10,7 +10,7 @@ export const ShapesMorph: React.FC = () => {
 	});
 
 	const {path: polygonpath} = makePolygon({
-		points: 5,
+		points: 15,
 		radius: 80,
 	});
 
@@ -20,7 +20,7 @@ export const ShapesMorph: React.FC = () => {
 	});
 
 	const interpolated = interpolatePath(interpolation, polygonpath, circlepath);
-	const debugged = debugPath(interpolated);
+	const debugged = PathInternals.debugPath(interpolated);
 
 	return (
 		<AbsoluteFill className="bg-gray-100 items-center justify-center">
