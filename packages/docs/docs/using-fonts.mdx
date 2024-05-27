@@ -48,29 +48,32 @@ const MyComp: React.FC = () => {
 
 _available from v4.0.164_
 
-Put the font into your `public/` folder.
+Put the font into your `public/` folder.  
 Put this somewhere in your app where it gets executed:
 
 ```tsx twoslash title="load-fonts.ts"
-import {loadFont} from "@remotion/fonts";
+import { loadFont } from "@remotion/fonts";
+import { staticFile } from "remotion";
+
+const fontFamily = "Inter";
 
 loadFont({
-	family: 'Font family name',
-	url: 'Local font url',
-	weight: '500',
-	// ... other options 
-}).then(() => console.log('Font loaded!'))
+  family: fontFamily,
+  url: staticFile("Inter-Regular.woff2"),
+  weight: "500",
+}).then(() => {
+  console.log("Font loaded!");
+});
 ```
-
-:::note
-Check the available options [around the URL](/docs/fonts/load-font).  
-The font format should be one of `woff2` for WOFF2 files, `woff` for WOFF, `opentype` for OTF, `truetype` for TTF.
-:::
 
 The font is now available for use:
 
 ```tsx twoslash title="MyComp.tsx"
-<div style={{ fontFamily: "Bangers" }}>Some text</div>
+const fontFamily = "Inter";
+
+// ---cut---
+
+<div style={{ fontFamily: fontFamily }}>Some text</div>;
 ```
 
 :::info

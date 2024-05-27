@@ -1,4 +1,5 @@
-import {cancelRender, continueRender, delayRender, staticFile} from 'remotion';
+import {cancelRender, continueRender, delayRender} from 'remotion';
+import type {FontFormat} from './get-font-format';
 import {getFontFormat} from './get-font-format';
 
 type LoadFontOptions = {
@@ -14,6 +15,7 @@ type LoadFontOptions = {
 	unicodeRange?: string;
 	variant?: string;
 	weight?: string;
+	format?: FontFormat;
 };
 
 export const loadFont = async ({
@@ -28,25 +30,24 @@ export const loadFont = async ({
 	style,
 	unicodeRange,
 	weight,
+	format,
+	variant,
 }: LoadFontOptions): Promise<void> => {
 	const waitForFont = delayRender();
 	try {
-		const fontFormat = getFontFormat(url);
-		const font = new FontFace(
-			family,
-			`url('${staticFile(url)}') format('${fontFormat}')`,
-			{
-				ascentOverride,
-				descentOverride,
-				display,
-				featureSettings,
-				lineGapOverride,
-				stretch,
-				style,
-				unicodeRange,
-				weight,
-			},
-		);
+		const fontFormat = format ?? getFontFormat(url);
+		const font = new FontFace(family, `url('${url}') format('${fontFormat}')`, {
+			ascentOverride,
+			descentOverride,
+			display,
+			featureSettings,
+			lineGapOverride,
+			stretch,
+			style,
+			unicodeRange,
+			weight,
+			variant,
+		});
 		await font.load();
 		document.fonts.add(font);
 		continueRender(waitForFont);

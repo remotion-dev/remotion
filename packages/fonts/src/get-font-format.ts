@@ -1,4 +1,4 @@
-type FontFormat = 'woff2' | 'woff' | 'opentype' | 'truetype';
+export type FontFormat = 'woff2' | 'woff' | 'opentype' | 'truetype';
 
 export const getFontFormat = (url: string): FontFormat => {
 	const ext = url.split('.').pop()?.toLowerCase();
@@ -12,6 +12,6 @@ export const getFontFormat = (url: string): FontFormat => {
 		case 'ttf':
 			return 'truetype';
 		default:
-			throw new Error(`Unsupported font format: ${ext}`);
+			throw new Error(`Unsupported font extension: ${ext}`);
 	}
 };
