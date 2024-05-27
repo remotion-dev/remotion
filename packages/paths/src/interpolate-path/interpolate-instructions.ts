@@ -96,9 +96,7 @@ export function interpolateInstructions(
 	return function (t: number) {
 		// at 1 return the final value without the extensions used during interpolation
 		if (t === 1) {
-			return bCommandsInput === null || bCommandsInput === undefined
-				? []
-				: bCommandsInput;
+			return bCommandsInput;
 		}
 
 		// work with aCommands directly since interpolatedCommands are mutated

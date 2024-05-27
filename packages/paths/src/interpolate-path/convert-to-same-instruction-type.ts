@@ -7,6 +7,8 @@ import type {
 
 const convertToLCommand = (command: ReducedInstruction): LInstruction => {
 	if (command.type === 'M' || command.type === 'L' || command.type === 'Z') {
+		console.log({command});
+
 		throw new Error('unexpected');
 	}
 
@@ -110,15 +112,15 @@ export function convertToSameInstructionType(
 	}
 
 	if (aCommand.type === 'C') {
-		return convertToCCommand(aCommand);
+		return convertToCCommand(bCommand);
 	}
 
 	if (aCommand.type === 'L') {
-		return convertToLCommand(aCommand);
+		return convertToLCommand(bCommand);
 	}
 
 	if (aCommand.type === 'Q') {
-		return convertToQCommand(aCommand);
+		return convertToQCommand(bCommand);
 	}
 
 	if (aCommand.type === 'Z') {

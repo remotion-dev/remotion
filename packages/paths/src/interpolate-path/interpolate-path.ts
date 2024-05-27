@@ -31,9 +31,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-import {commandToString} from './command-to-string';
-import {interpolatePathCommands} from './interpolate-commands';
-import {pathCommandsFromString} from './path-commands-from-string';
+import {parsePath} from '../parse-path';
+import {reduceInstructions} from '../reduce-instructions';
+import {serializeInstructions} from '../serialize-instructions';
+import {interpolateInstructions} from './interpolate-instructions';
 
 /**
  * @description Interpolates between two SVG paths.
@@ -56,25 +57,19 @@ export const interpolatePath = (
 		return firstPath;
 	}
 
-	const aCommands = pathCommandsFromString(firstPath);
+	const aCommands = reduceInstructions(parsePath(firstPath));
 	if (aCommands.length === 0) {
 		throw new TypeError(`SVG Path "${firstPath}" is not valid`);
 	}
 
-	const bCommands = pathCommandsFromString(secondPath);
+	const bCommands = reduceInstructions(parsePath(secondPath));
 	if (bCommands.length === 0) {
 		throw new TypeError(`SVG Path "${secondPath}" is not valid`);
 	}
 
-	const commandInterpolator = interpolatePathCommands(aCommands, bCommands);
+	const commandInterpolator = interpolateInstructions(aCommands, bCommands);
 
 	const interpolatedCommands = commandInterpolator(value);
 
-	// convert to a string (fastest concat: https://jsperf.com/join-concat/150)
-
-	return interpolatedCommands
-		.map((c) => {
-			return commandToString(c);
-		})
-		.join(' ');
+	return serializeInstructions(interpolatedCommands);
 };

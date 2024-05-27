@@ -37,40 +37,8 @@ import type {
 	QInstruction,
 	ReducedInstruction,
 } from '../helpers/types';
-import type {Command} from './command';
-import {pointsToCommand, pointsToInstruction} from './points-to-command';
+import {pointsToInstruction} from './points-to-command';
 import {splitCurveAsPoints} from './split-curve-as-points';
-
-/**
- * Convert command objects to arrays of points, run de Casteljau's algorithm on it
- * to split into to the desired number of segments.
- *
- * @param {Object} commandStart The start command object
- * @param {Object} commandEnd The end command object
- * @param {Number} segmentCount The number of segments to create
- * @return {Object[]} An array of commands representing the segments in sequence
- */
-export const splitCurve = (
-	commandStartX: number,
-	commandStartY: number,
-	commandEnd: Command,
-	segmentCount: number,
-): Command[] => {
-	const points = [[commandStartX, commandStartY]] as number[][];
-	if (commandEnd.x1 !== null && commandEnd.x1 !== undefined) {
-		points.push([commandEnd.x1, commandEnd.y1 as number]);
-	}
-
-	if (commandEnd.x2 !== null && commandEnd.x2 !== undefined) {
-		points.push([commandEnd.x2, commandEnd.y2 as number]);
-	}
-
-	points.push([commandEnd.x as number, commandEnd.y as number]);
-
-	return splitCurveAsPoints(points, segmentCount).map((p) =>
-		pointsToCommand(p),
-	);
-};
 
 /**
  * Convert command objects to arrays of points, run de Casteljau's algorithm on it

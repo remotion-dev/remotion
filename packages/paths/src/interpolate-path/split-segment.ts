@@ -1,7 +1,6 @@
 import type {ReducedInstruction} from '../helpers/types';
 import {arrayOfLength} from './array-of-length';
-import type {Command} from './command';
-import {splitCurve, splitCurveInstructions} from './split-curve';
+import {splitCurveInstructions} from './split-curve';
 
 /**
  * Interpolate between command objects commandStart and commandEnd segmentCount times.
@@ -15,49 +14,6 @@ import {splitCurve, splitCurveInstructions} from './split-curve';
  * @return {Object[]} Array of ~segmentCount command objects between commandStart and
  *   commandEnd. (Can be segmentCount+1 objects if commandStart is type M).
  */
-
-// TODO: Delete and replace
-export function splitSegment(
-	commandStart: Command,
-	commandEnd: Command,
-	segmentCount: number,
-) {
-	let segments: Command[] = [];
-
-	// line, quadratic bezier, or cubic bezier
-	if (
-		commandEnd.type === 'L' ||
-		commandEnd.type === 'Q' ||
-		commandEnd.type === 'C'
-	) {
-		if (commandStart.type !== 'Z') {
-			segments = segments.concat(
-				splitCurve(
-					commandStart.x as number,
-					commandStart.y as number,
-					commandEnd,
-					segmentCount,
-				),
-			);
-		}
-
-		// general case - just copy the same point
-	} else {
-		const copyCommand = {...commandStart};
-
-		// convert M to L
-		if (copyCommand.type === 'M') {
-			copyCommand.type = 'L';
-		}
-
-		segments = segments.concat(
-			arrayOfLength(segmentCount - 1, undefined).map(() => copyCommand),
-		);
-		segments.push(commandEnd);
-	}
-
-	return segments;
-}
 
 export function splitSegmentInstructions(
 	commandStart: ReducedInstruction,
