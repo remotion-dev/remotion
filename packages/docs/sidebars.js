@@ -548,11 +548,10 @@ module.exports = {
       label: "@remotion/fonts",
       link: {
         type: "doc",
-        id: "fonts/fonts",
+
+        id: "fonts/fonts-api",
       },
-      items: [
-        "fonts/load-font"
-      ],
+      items: ["fonts/load-font"],
     },
   ],
   mainSidebar: [
@@ -577,7 +576,7 @@ module.exports = {
         "layers",
         "transitioning",
         "using-audio",
-        "using-fonts",
+        "fonts",
         "measuring",
         "using-randomness",
         "audio-visualization",
