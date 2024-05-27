@@ -19,7 +19,6 @@ import {
 	CONCAT_FOLDER_TOKEN,
 	LambdaRoutines,
 	MAX_FUNCTIONS_PER_RENDER,
-	renderMetadataKey,
 } from '../shared/constants';
 import {DOCS_URL} from '../shared/docs-url';
 import {invokeWebhook} from '../shared/invoke-webhook';
@@ -40,7 +39,7 @@ import {
 	getBrowserInstance,
 } from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
-import {lambdaDeleteFile, lambdaWriteFile} from './helpers/io';
+import {lambdaDeleteFile} from './helpers/io';
 import {mergeChunksAndFinishRender} from './helpers/merge-chunks';
 import {makeOverallRenderProgress} from './helpers/overall-render-progress';
 import {streamRendererFunctionWithRetry} from './helpers/stream-renderer';
@@ -336,17 +335,7 @@ const innerLaunchHandler = async ({
 		}
 	}
 
-	// TODO: Can we not await this?
-	await lambdaWriteFile({
-		bucketName: params.bucketName,
-		key: renderMetadataKey(params.renderId),
-		body: JSON.stringify(renderMetadata),
-		region: getCurrentRegionInFunction(),
-		privacy: 'private',
-		expectedBucketOwner: options.expectedBucketOwner,
-		downloadBehavior: null,
-		customCredentials: null,
-	});
+	overallProgress.setRenderMetadata(renderMetadata);
 
 	const outdir = join(RenderInternals.tmpDir(CONCAT_FOLDER_TOKEN), 'bucket');
 	if (existsSync(outdir)) {

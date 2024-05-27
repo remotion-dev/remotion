@@ -5,7 +5,6 @@ import type {CustomCredentials} from '../../shared/aws-clients';
 import type {CleanupInfo, RenderProgress} from '../../shared/constants';
 import {
 	MAX_EPHEMERAL_STORAGE_IN_MB,
-	renderMetadataKey,
 	rendersPrefix,
 } from '../../shared/constants';
 import {truthy} from '../../shared/truthy';
@@ -17,7 +16,6 @@ import {formatCostsInfo} from './format-costs-info';
 import {getCurrentRegionInFunction} from './get-current-region';
 import {getOverallProgress} from './get-overall-progress';
 import {getOverallProgressS3} from './get-overall-progress-s3';
-import {getRenderMetadata} from './get-render-metadata';
 import {getTimeToFinish} from './get-time-to-finish';
 import {inspectErrors} from './inspect-errors';
 import {lambdaLs} from './io';
@@ -46,6 +44,7 @@ export const getProgress = async ({
 		renderId,
 		bucketName,
 		expectedBucketOwner,
+		region,
 	});
 
 	if (overallProgress.postRenderData) {
@@ -117,19 +116,9 @@ export const getProgress = async ({
 		expectedBucketOwner,
 	});
 
-	const renderMetadataExists = Boolean(
-		contents.find((c) => c.Key === renderMetadataKey(renderId)),
-	);
+	const {renderMetadata} = overallProgress;
 
-	const [renderMetadata, errorExplanations] = await Promise.all([
-		renderMetadataExists
-			? getRenderMetadata({
-					bucketName,
-					renderId,
-					region: getCurrentRegionInFunction(),
-					expectedBucketOwner,
-				})
-			: null,
+	const [errorExplanations] = await Promise.all([
 		inspectErrors({
 			contents,
 			renderId,

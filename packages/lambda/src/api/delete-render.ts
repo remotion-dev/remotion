@@ -1,7 +1,7 @@
 import type {AwsRegion} from '../client';
 import {rendersPrefix} from '../defaults';
 import {getExpectedOutName} from '../functions/helpers/expected-out-name';
-import {getRenderMetadata} from '../functions/helpers/get-render-metadata';
+import {getOverallProgressS3} from '../functions/helpers/get-overall-progress-s3';
 import {lambdaDeleteFile, lambdaLs} from '../functions/helpers/io';
 import type {CustomCredentials} from '../shared/aws-clients';
 import {getAccountId} from '../shared/get-account-id';
@@ -26,15 +26,20 @@ export const deleteRender = async (input: DeleteRenderInput) => {
 	const expectedBucketOwner = await getAccountId({
 		region: input.region,
 	});
-	const renderMetadata = await getRenderMetadata({
+	const progress = await getOverallProgressS3({
 		bucketName: input.bucketName,
 		expectedBucketOwner,
 		region: input.region,
 		renderId: input.renderId,
 	});
 
+	// Render did not start yet
+	if (progress.renderMetadata === null) {
+		return {freedBytes: 0};
+	}
+
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
-		renderMetadata,
+		progress.renderMetadata,
 		input.bucketName,
 		input.customCredentials ?? null,
 	);

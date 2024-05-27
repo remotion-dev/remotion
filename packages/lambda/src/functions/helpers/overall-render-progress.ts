@@ -1,5 +1,5 @@
 import type {AwsRegion} from '../../client';
-import type {PostRenderData} from '../../shared/constants';
+import type {PostRenderData, RenderMetadata} from '../../shared/constants';
 import {overallProgressKey} from '../../shared/constants';
 import type {ParsedTiming} from '../../shared/parse-lambda-timings-key';
 import type {ChunkRetry} from './get-retry-stats';
@@ -15,6 +15,7 @@ export type OverallRenderProgress = {
 	retries: ChunkRetry[];
 	postRenderData: PostRenderData | null;
 	timings: ParsedTiming[];
+	renderMetadata: RenderMetadata | null;
 };
 
 export type OverallProgressHelper = {
@@ -38,6 +39,7 @@ export type OverallProgressHelper = {
 	setTimeToCombine: (timeToCombine: number) => void;
 	addRetry: (retry: ChunkRetry) => void;
 	setPostRenderData: (postRenderData: PostRenderData) => void;
+	setRenderMetadata: (renderMetadata: RenderMetadata) => void;
 	get: () => OverallRenderProgress;
 };
 
@@ -52,6 +54,7 @@ export const makeInitialOverallRenderProgress = (): OverallRenderProgress => {
 		retries: [],
 		postRenderData: null,
 		timings: [],
+		renderMetadata: null,
 	};
 };
 
@@ -151,6 +154,10 @@ export const makeOverallRenderProgress = ({
 		},
 		setPostRenderData(postRenderData) {
 			renderProgress.postRenderData = postRenderData;
+			upload();
+		},
+		setRenderMetadata: (renderMetadata) => {
+			renderProgress.renderMetadata = renderMetadata;
 			upload();
 		},
 		addRetry(retry) {

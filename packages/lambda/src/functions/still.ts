@@ -18,7 +18,7 @@ import type {
 import {
 	LambdaRoutines,
 	MAX_EPHEMERAL_STORAGE_IN_MB,
-	renderMetadataKey,
+	overallProgressKey,
 } from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {isFlakyError} from '../shared/is-flaky-error';
@@ -39,6 +39,7 @@ import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {lambdaWriteFile} from './helpers/io';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
+import {makeInitialOverallRenderProgress} from './helpers/overall-render-progress';
 import {validateComposition} from './helpers/validate-composition';
 import {
 	getTmpDirStateIfENoSp,
@@ -177,10 +178,13 @@ const innerStillHandler = async ({
 		audioBitrate: null,
 	};
 
+	const still = makeInitialOverallRenderProgress();
+	still.renderMetadata = renderMetadata;
+
 	await lambdaWriteFile({
 		bucketName,
-		key: renderMetadataKey(renderId),
-		body: JSON.stringify(renderMetadata),
+		key: overallProgressKey(renderId),
+		body: JSON.stringify(still),
 		region: getCurrentRegionInFunction(),
 		privacy: 'private',
 		expectedBucketOwner,
