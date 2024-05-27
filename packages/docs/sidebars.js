@@ -549,9 +549,9 @@ module.exports = {
       link: {
         type: "doc",
 
-        id: "fonts/fonts-api",
+        id: "fonts-api/fonts-api",
       },
-      items: ["fonts/load-font"],
+      items: ["fonts-api/load-font"],
     },
   ],
   mainSidebar: [
