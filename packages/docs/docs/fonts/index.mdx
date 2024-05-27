@@ -8,7 +8,7 @@ title: "@remotion/fonts"
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 
-The `@remotion/fonts` package provides an API for [loading local fonts](/docs/fonts) into a Remotion component.
+The `@remotion/fonts` package provides an API for [loading local fonts](/docs/fonts) or remote fonts from a URL into a Remotion component.
 
 ## Installation
 
@@ -20,7 +20,7 @@ Put the font into your `public/` folder.
 To load a font, import the package `@remotion/fonts` and call [`loadFont()`](/docs/fonts/load-font).
 
 ```tsx twoslash
-import { loadFont } from "@remotion/fonts/";
+import { loadFont } from "@remotion/fonts";
 loadFont({
   family: "some name",
   url: "someName",
