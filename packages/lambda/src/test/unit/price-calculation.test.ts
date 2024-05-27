@@ -7,13 +7,6 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 	process.env.AWS_REGION = 'us-east-1';
 
 	const price = estimatePriceFromBucket({
-		contents: [
-			{
-				Key: 'renders/123/out.mp4',
-				// Render date is before start date. It can happen if Lambda function is out of date
-				LastModified: new Date(aDate - 10000),
-			},
-		],
 		memorySizeInMb: 1024,
 		renderMetadata: {
 			audioBitrate: null,
@@ -62,6 +55,13 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 		},
 		diskSizeInMb: 512,
 		lambdasInvoked: 1,
+		timings: [
+			{
+				chunk: 1,
+				rendered: aDate - 2000,
+				start: aDate,
+			},
+		],
 	});
 	expect(price?.accruedSoFar).toBeGreaterThanOrEqual(0);
 });

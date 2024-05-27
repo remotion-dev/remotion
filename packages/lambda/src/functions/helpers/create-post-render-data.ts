@@ -2,24 +2,18 @@ import type {_Object} from '@aws-sdk/client-s3';
 import {estimatePrice} from '../../api/estimate-price';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import type {PostRenderData, RenderMetadata} from '../../shared/constants';
-import {
-	MAX_EPHEMERAL_STORAGE_IN_MB,
-	lambdaTimingsPrefix,
-} from '../../shared/constants';
+import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../../shared/constants';
 import {
 	OVERHEAD_TIME_PER_LAMBDA,
 	getMostExpensiveChunks,
 } from '../../shared/get-most-expensive-chunks';
-import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import type {OutputFileMetadata} from './find-output-file-in-bucket';
-import {getFilesToDelete} from './get-files-to-delete';
 import {getTimeToFinish} from './get-time-to-finish';
 import type {OverallRenderProgress} from './overall-render-progress';
 import type {EnhancedErrorInfo} from './write-lambda-error';
 
 export const createPostRenderData = ({
-	renderId,
 	region,
 	memorySizeInMb,
 	renderMetadata,
@@ -31,7 +25,6 @@ export const createPostRenderData = ({
 	timeToCombine,
 	overallProgress,
 }: {
-	renderId: string;
 	region: AwsRegion;
 	memorySizeInMb: number;
 	renderMetadata: RenderMetadata;
@@ -43,13 +36,7 @@ export const createPostRenderData = ({
 	timeToCombine: number | null;
 	overallProgress: OverallRenderProgress;
 }): PostRenderData => {
-	const initializedKeys = contents.filter((c) =>
-		c.Key?.startsWith(lambdaTimingsPrefix(renderId)),
-	);
-
-	const parsedTimings = initializedKeys.map(({Key}) =>
-		parseLambdaTimingsKey(Key as string),
-	);
+	const parsedTimings = overallProgress.timings;
 
 	const estimatedBillingDurationInMilliseconds = parsedTimings
 		.map((p) => p.rendered - p.start + OVERHEAD_TIME_PER_LAMBDA)
@@ -103,16 +90,12 @@ export const createPostRenderData = ({
 		outputSize: outputFile.size,
 		renderSize,
 		renderMetadata,
-		filesCleanedUp: getFilesToDelete({
-			chunkCount: renderMetadata.totalChunks,
-			renderId,
-		}).length,
+		filesCleanedUp: 0,
 		timeToEncode,
 		timeToCleanUp: timeToDelete,
 		timeToRenderChunks: calculateChunkTimes({
-			contents,
-			renderId,
 			type: 'absolute-time',
+			timings: overallProgress.timings,
 		}),
 		retriesInfo: overallProgress.retries,
 		mostExpensiveFrameRanges:

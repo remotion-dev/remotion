@@ -2,7 +2,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {NoReactInternals} from 'remotion/no-react';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import type {CustomCredentials} from '../../shared/aws-clients';
-import type {RenderProgress} from '../../shared/constants';
+import type {CleanupInfo, RenderProgress} from '../../shared/constants';
 import {
 	MAX_EPHEMERAL_STORAGE_IN_MB,
 	renderMetadataKey,
@@ -15,7 +15,6 @@ import {checkIfRenderExists} from './check-if-render-exists';
 import {getExpectedOutName} from './expected-out-name';
 import {findOutputFileInBucket} from './find-output-file-in-bucket';
 import {formatCostsInfo} from './format-costs-info';
-import {getCleanupProgress} from './get-cleanup-progress';
 import {getCurrentRegionInFunction} from './get-current-region';
 import {getOverallProgress} from './get-overall-progress';
 import {getOverallProgressS3} from './get-overall-progress-s3';
@@ -164,7 +163,6 @@ export const getProgress = async ({
 		: null;
 
 	const priceFromBucket = estimatePriceFromBucket({
-		contents,
 		renderMetadata,
 		memorySizeInMb,
 		outputFileMetadata: outputFile,
@@ -172,18 +170,18 @@ export const getProgress = async ({
 		// We cannot determine the ephemeral storage size, so we
 		// overestimate the price, but will only have a miniscule effect (~0.2%)
 		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
+		timings: overallProgress?.timings ?? [],
 	});
 
 	const {hasAudio, hasVideo} = renderMetadata
 		? lambdaRenderHasAudioVideo(renderMetadata)
 		: {hasAudio: false, hasVideo: false};
 
-	const cleanup = getCleanupProgress({
-		chunkCount: renderMetadata?.totalChunks ?? 0,
-		contents,
-		output: outputFile?.url ?? null,
-		renderId,
-	});
+	const cleanup: CleanupInfo = {
+		doneIn: null,
+		minFilesToDelete: 0,
+		filesDeleted: 0,
+	};
 
 	const timeToFinish = getTimeToFinish({
 		lastModified: outputFile?.lastModified ?? null,
@@ -266,13 +264,13 @@ export const getProgress = async ({
 		renderSize,
 		lambdasInvoked: overallProgress?.lambdasInvoked ?? 0,
 		cleanup,
-		timeToFinishChunks: allChunks
-			? calculateChunkTimes({
-					contents,
-					renderId,
-					type: 'absolute-time',
-				})
-			: null,
+		timeToFinishChunks:
+			allChunks && overallProgress
+				? calculateChunkTimes({
+						type: 'absolute-time',
+						timings: overallProgress.timings,
+					})
+				: null,
 		overallProgress: getOverallProgress({
 			cleanup: cleanup ? cleanup.filesDeleted / cleanup.minFilesToDelete : 0,
 			encoding:

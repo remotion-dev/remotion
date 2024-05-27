@@ -75,7 +75,11 @@ const streamRenderer = ({
 			}
 
 			if (message.type === 'chunk-complete') {
-				overallProgress.addChunkCompleted(payload.chunk);
+				overallProgress.addChunkCompleted(
+					payload.chunk,
+					message.payload.start,
+					message.payload.rendered,
+				);
 				return;
 			}
 

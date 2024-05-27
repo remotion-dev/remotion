@@ -5,18 +5,11 @@ import path from 'node:path';
 import {VERSION} from 'remotion/version';
 import {decompressInputProps} from '../shared/compress-props';
 import type {LambdaPayload} from '../shared/constants';
-import {
-	LambdaRoutines,
-	RENDERER_PATH_TOKEN,
-	lambdaTimingsKey,
-} from '../shared/constants';
+import {LambdaRoutines, RENDERER_PATH_TOKEN} from '../shared/constants';
 import {isFlakyError} from '../shared/is-flaky-error';
 import {truthy} from '../shared/truthy';
 import {enableNodeIntrospection} from '../shared/why-is-node-running';
-import type {
-	ChunkTimingData,
-	ObjectChunkTimingData,
-} from './chunk-optimization/types';
+import type {ObjectChunkTimingData} from './chunk-optimization/types';
 import {
 	canConcatAudioSeamlessly,
 	canConcatVideoSeamlessly,
@@ -27,7 +20,6 @@ import {
 } from './helpers/get-browser-instance';
 import {executablePath} from './helpers/get-chromium-executable-path';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
-import {lambdaWriteFile} from './helpers/io';
 import {startLeakDetection} from './helpers/leak-detection';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
 import type {RequestContext} from './helpers/request-context';
@@ -284,11 +276,6 @@ const renderHandler = async ({
 			.catch((err) => reject(err));
 	});
 
-	const condensedTimingData: ChunkTimingData = {
-		...chunkTimingData,
-		timings: Object.values(chunkTimingData.timings),
-	};
-
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
 		'Streaming chunks to main function',
@@ -337,21 +324,6 @@ const renderHandler = async ({
 				? fs.promises.rm(audioOutputLocation, {recursive: true})
 				: null,
 			fs.promises.rm(outputPath, {recursive: true}),
-			lambdaWriteFile({
-				bucketName: params.bucketName,
-				body: JSON.stringify(condensedTimingData as ChunkTimingData, null, 2),
-				key: lambdaTimingsKey({
-					renderId: params.renderId,
-					chunk: params.chunk,
-					rendered: endRendered,
-					start,
-				}),
-				region: getCurrentRegionInFunction(),
-				privacy: 'private',
-				expectedBucketOwner: options.expectedBucketOwner,
-				downloadBehavior: null,
-				customCredentials: null,
-			}),
 		].filter(truthy),
 	);
 	RenderInternals.Log.verbose(

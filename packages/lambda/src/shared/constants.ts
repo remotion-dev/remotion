@@ -63,12 +63,6 @@ export const initalizedMetadataKey = (renderId: string) =>
 export const overallProgressKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/overall-progress.json`;
 
-export const lambdaTimingsPrefix = (renderId: string) =>
-	`${rendersPrefix(renderId)}/lambda-timings/chunk:`;
-
-export const lambdaTimingsPrefixForChunk = (renderId: string, chunk: number) =>
-	lambdaTimingsPrefix(renderId) + String(chunk).padStart(8, '0');
-
 export const lambdaLogsPrefix = (
 	renderId: string,
 	chunk: number,
@@ -79,22 +73,6 @@ export const lambdaLogsPrefix = (
 		8,
 		'0',
 	)}:frames:${startFrame}-${endFrame}.json`;
-
-export const lambdaTimingsKey = ({
-	renderId,
-	chunk,
-	start,
-	rendered,
-}: {
-	renderId: string;
-	chunk: number;
-	start: number;
-	rendered: number;
-}) =>
-	`${lambdaTimingsPrefixForChunk(
-		renderId,
-		chunk,
-	)}-start:${start}-rendered:${rendered}.txt`;
 
 export const getErrorKeyPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/errors/`;

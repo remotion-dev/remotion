@@ -1,5 +1,4 @@
 import {CliInternals} from '@remotion/cli';
-import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {NoReactInternals} from 'remotion/no-react';
 import type {
@@ -123,33 +122,6 @@ const makeCombinationProgress = ({
 	].join(' ');
 };
 
-const makeCleanupProgress = (
-	cleanupInfo: CleanupInfo | null,
-	skipped: boolean,
-) => {
-	if (!cleanupInfo) {
-		return '';
-	}
-
-	if (skipped) {
-		return [
-			CliInternals.chalk.blueBright(
-				`Not cleaning up because --log=verbose was set`,
-			),
-		].join(' ');
-	}
-
-	const {doneIn, filesDeleted, minFilesToDelete} = cleanupInfo;
-	const progress = filesDeleted / minFilesToDelete;
-	return [
-		CliInternals.makeProgressBar(progress),
-		`${doneIn === null ? 'Cleaning up' : 'Cleaned up'} artifacts`,
-		doneIn === null
-			? `${Math.round(progress * 100)}%`
-			: CliInternals.chalk.gray(`${doneIn}ms`),
-	].join(' ');
-};
-
 const makeDownloadProgress = (
 	downloadInfo: DownloadedInfo,
 	totalSteps: number,
@@ -218,14 +190,12 @@ export const makeProgressString = ({
 	steps,
 	downloadInfo,
 	retriesInfo,
-	logLevel,
 	totalFrames,
 }: {
 	progress: MultiRenderProgress;
 	steps: number;
 	downloadInfo: DownloadedInfo | null;
 	retriesInfo: ChunkRetry[];
-	logLevel: LogLevel;
 	totalFrames: number | null;
 }) => {
 	return [
@@ -237,7 +207,6 @@ export const makeProgressString = ({
 			encodingProgress: progress.encodingProgress,
 			totalFrames,
 		}),
-		makeCleanupProgress(progress.cleanupInfo, logLevel === 'verbose'),
 		downloadInfo ? makeDownloadProgress(downloadInfo, steps) : null,
 	]
 		.filter(NoReactInternals.truthy)

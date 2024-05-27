@@ -16,9 +16,7 @@ import type {DownloadBehavior} from '../../shared/content-disposition-header';
 import type {LambdaCodec} from '../../shared/validate-lambda-codec';
 import {concatVideos} from './concat-videos';
 import {createPostRenderData} from './create-post-render-data';
-import {cleanupFiles} from './delete-chunks';
 import {getCurrentRegionInFunction} from './get-current-region';
-import {getFilesToDelete} from './get-files-to-delete';
 import {getOutputUrlFromMetadata} from './get-output-url-from-metadata';
 import {inspectErrors} from './inspect-errors';
 import {lambdaDeleteFile, lambdaLs, lambdaWriteFile} from './io';
@@ -117,21 +115,6 @@ export const mergeChunksAndFinishRender = async (options: {
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
 
-	const jobs = getFilesToDelete({
-		chunkCount: options.chunkCount,
-		renderId: options.renderId,
-	});
-
-	const deletProm =
-		options.logLevel === 'verbose'
-			? Promise.resolve(0)
-			: cleanupFiles({
-					region: getCurrentRegionInFunction(),
-					bucket: options.bucketName,
-					contents,
-					jobs,
-				});
-
 	const cleanupSerializedInputPropsProm = cleanupSerializedInputProps({
 		bucketName: options.bucketName,
 		region: getCurrentRegionInFunction(),
@@ -151,7 +134,6 @@ export const mergeChunksAndFinishRender = async (options: {
 
 	const postRenderData = createPostRenderData({
 		region: getCurrentRegionInFunction(),
-		renderId: options.renderId,
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		renderMetadata: options.renderMetadata,
 		contents,
@@ -159,7 +141,6 @@ export const mergeChunksAndFinishRender = async (options: {
 		timeToEncode: encodingStop - encodingStart,
 		timeToDelete: (
 			await Promise.all([
-				deletProm,
 				cleanupSerializedInputPropsProm,
 				cleanupResolvedInputPropsProm,
 			])
