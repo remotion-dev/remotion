@@ -104,26 +104,26 @@ export function convertToSameInstructionType(
 	bCommand: ReducedInstruction,
 ): ReducedInstruction {
 	if (aCommand.type === 'M' || bCommand.type === 'M') {
-		return aCommand;
+		return {...aCommand};
 	}
 
 	if (aCommand.type === bCommand.type) {
-		return aCommand;
+		return {...aCommand};
 	}
 
-	if (aCommand.type === 'C') {
-		return convertToCCommand(bCommand);
+	if (bCommand.type === 'C') {
+		return convertToCCommand(aCommand);
 	}
 
-	if (aCommand.type === 'L') {
-		return convertToLCommand(bCommand);
+	if (bCommand.type === 'L') {
+		return convertToLCommand(aCommand);
 	}
 
-	if (aCommand.type === 'Q') {
-		return convertToQCommand(bCommand);
+	if (bCommand.type === 'Q') {
+		return convertToQCommand(aCommand);
 	}
 
-	if (aCommand.type === 'Z') {
+	if (bCommand.type === 'Z') {
 		return {
 			type: 'Z',
 		};

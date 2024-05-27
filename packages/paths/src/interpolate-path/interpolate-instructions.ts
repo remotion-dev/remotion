@@ -22,14 +22,8 @@ export function interpolateInstructions(
 	bCommandsInput: ReducedInstruction[],
 ) {
 	// make a copy so we don't mess with the input arrays
-	let aCommands =
-		aCommandsInput === null || aCommandsInput === undefined
-			? []
-			: aCommandsInput.slice();
-	let bCommands =
-		bCommandsInput === null || bCommandsInput === undefined
-			? []
-			: bCommandsInput.slice();
+	let aCommands = aCommandsInput.slice();
+	let bCommands = bCommandsInput.slice();
 
 	// both input sets are empty, so we don't interpolate
 	if (!aCommands.length && !bCommands.length) {
@@ -79,18 +73,15 @@ export function interpolateInstructions(
 
 	// commands have same length now.
 	// convert commands in A to the same type as those in B
-	aCommands = aCommands.map((aCommand, i) =>
-		convertToSameInstructionType(aCommand, bCommands[i]),
-	);
+	const aSameType = aCommands.map((aCommand, i) => {
+		return convertToSameInstructionType(aCommand, bCommands[i]);
+	});
 
-	// create mutable interpolated command objects
-	const interpolatedCommands: ReducedInstruction[] = aCommands.map(
-		(aCommand) => ({...aCommand}),
-	);
+	const interpolatedCommands: ReducedInstruction[] = [];
 
 	if (addZ) {
-		interpolatedCommands.push({type: 'Z'});
-		aCommands.push({type: 'Z'}); // required for when returning at t == 0
+		aSameType.push({type: 'Z'}); // required for when returning at t == 0
+		bCommands.push({type: 'Z'});
 	}
 
 	return function (t: number) {
@@ -101,19 +92,14 @@ export function interpolateInstructions(
 
 		// work with aCommands directly since interpolatedCommands are mutated
 		if (t === 0) {
-			return aCommands;
+			return aSameType;
 		}
 
 		// interpolate the commands using the mutable interpolated command objs
-		for (let i = 0; i < interpolatedCommands.length; ++i) {
-			const aCommand = aCommands[i];
-			const bCommand = bCommands[i];
-			const interpolatedCommand = interpolateInstructionOfSameKind(
-				t,
-				aCommand,
-				bCommand,
+		for (let i = 0; i < aSameType.length; ++i) {
+			interpolatedCommands.push(
+				interpolateInstructionOfSameKind(t, aSameType[i], bCommands[i]),
 			);
-			interpolatedCommands.push(interpolatedCommand);
 		}
 
 		return interpolatedCommands;
