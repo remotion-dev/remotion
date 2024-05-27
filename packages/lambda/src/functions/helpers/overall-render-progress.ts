@@ -15,7 +15,6 @@ export type OverallRenderProgress = {
 
 export type OverallProgressHelper = {
 	upload: () => Promise<void>;
-	finishUploading: () => void;
 	setFrames: ({
 		encoded,
 		rendered,
@@ -63,17 +62,9 @@ export const makeOverallRenderProgress = ({
 	let currentUploadPromise: Promise<void> | null = null;
 
 	let lastUpload: string | null = null;
-	let stopUploading = false;
-	const finishUploading = () => {
-		stopUploading = true;
-	};
 
 	// TODO: What if upload fails?
 	const upload = async () => {
-		if (stopUploading) {
-			return;
-		}
-
 		if (lastUpload === JSON.stringify(renderProgress)) {
 			return;
 		}
@@ -96,14 +87,13 @@ export const makeOverallRenderProgress = ({
 			privacy: 'private',
 			region,
 		});
-		await currentUploadPromise;
 		lastUpload = JSON.stringify(renderProgress);
+		await currentUploadPromise;
 		currentUploadPromise = null;
 	};
 
 	return {
 		upload,
-		finishUploading,
 		setFrames: ({
 			encoded,
 			rendered,
