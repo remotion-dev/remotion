@@ -18,7 +18,7 @@ const euclideanDistance = (points: [number, number][]) => {
 	return Math.sqrt(d2);
 };
 
-export function split(p: number[][], t = 0.5) {
+function split(p: number[][], t = 0.5) {
 	const seg0 = [];
 	const seg1 = [];
 	const orders = [p];
@@ -54,7 +54,7 @@ export function split(p: number[][], t = 0.5) {
 	return [seg0, seg1];
 }
 
-export function interpolateUntil(
+function interpolateUntil(
 	points: [number, number][],
 	threshold: number,
 	deltaFunction = euclideanDistance,
@@ -80,7 +80,7 @@ export function interpolateUntil(
 	return segments;
 }
 
-export function createLineSegment(points: number[][]): ReducedInstruction {
+function createLineSegment(points: number[][]): ReducedInstruction {
 	switch (points.length) {
 		case 2:
 			return {

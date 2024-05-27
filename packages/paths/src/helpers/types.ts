@@ -20,11 +20,6 @@ export interface Point {
 }
 export type PointArray = [number, number];
 
-export interface PointProperties {
-	tangentX: number;
-	tangentY: number;
-}
-
 export type BoundingBox = {
 	x1: number;
 	y1: number;
