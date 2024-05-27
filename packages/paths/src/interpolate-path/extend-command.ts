@@ -1,5 +1,4 @@
 import type {ReducedInstruction} from '../helpers/types';
-import {arrayOfLength} from './array-of-length';
 import {splitSegmentInstructions} from './split-segment';
 
 /**
@@ -29,26 +28,25 @@ export function extendInstruction(
 	// should be added in that segment (should always be >= 1 since we need each
 	// point itself).
 	// 0 = segment 0-1, 1 = segment 1-2, n-1 = last vertex
-	const countPointsPerSegment = arrayOfLength<undefined>(
-		numReferenceSegments,
-		undefined,
-	).reduce(
-		(accum, _d, i) => {
-			const insertIndex = Math.floor(segmentRatio * i);
+	const countPointsPerSegment = new Array(numReferenceSegments)
+		.fill(undefined)
+		.reduce(
+			(accum, _d, i) => {
+				const insertIndex = Math.floor(segmentRatio * i);
 
-			accum[insertIndex] = (accum[insertIndex] || 0) + 1;
+				accum[insertIndex] = (accum[insertIndex] || 0) + 1;
 
-			return accum;
-		},
-		[] as (undefined | number)[],
-	);
+				return accum;
+			},
+			[] as (undefined | number)[],
+		) as number[];
 
 	// extend each segment to have the correct number of points for a smooth interpolation
 	const extended = countPointsPerSegment.reduce(
 		(_extended, segmentCount, i) => {
 			// if last command, just add `segmentCount` number of times
 			if (i === commandsToExtend.length - 1) {
-				const lastCommandCopies = arrayOfLength(segmentCount as number, {
+				const lastCommandCopies = new Array(segmentCount as number).fill({
 					...commandsToExtend[commandsToExtend.length - 1],
 				});
 

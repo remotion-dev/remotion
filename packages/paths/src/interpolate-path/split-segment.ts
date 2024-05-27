@@ -1,5 +1,4 @@
 import type {ReducedInstruction} from '../helpers/types';
-import {arrayOfLength} from './array-of-length';
 import {splitCurveInstructions} from './split-curve';
 
 /**
@@ -51,7 +50,7 @@ export function splitSegmentInstructions(
 				: commandStart;
 
 		segments = segments.concat(
-			arrayOfLength(segmentCount - 1, undefined).map(() => copyCommand),
+			new Array(segmentCount - 1).fill(true).map(() => copyCommand),
 		);
 		segments.push(commandEnd);
 	}
