@@ -1,4 +1,4 @@
-import {interpolatePath} from '@remotion/paths';
+import {debugPath, interpolatePath} from '@remotion/paths';
 import {makeCircle, makePolygon} from '@remotion/shapes';
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 
@@ -20,11 +20,15 @@ export const ShapesMorph: React.FC = () => {
 	});
 
 	const interpolated = interpolatePath(interpolation, polygonpath, circlepath);
+	const debugged = debugPath(interpolated);
 
 	return (
 		<AbsoluteFill className="bg-gray-100 items-center justify-center">
 			<svg viewBox="0 0 720 720">
 				<path d={interpolated} />
+				{debugged.map((debug) => {
+					return <path d={debug.d} fill={debug.color} />;
+				})}
 			</svg>
 		</AbsoluteFill>
 	);
