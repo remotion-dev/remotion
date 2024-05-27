@@ -4,7 +4,6 @@ import type {AwsRegion} from '../../pricing/aws-regions';
 import type {CustomCredentials} from '../../shared/aws-clients';
 import type {RenderProgress} from '../../shared/constants';
 import {
-	chunkKey,
 	MAX_EPHEMERAL_STORAGE_IN_MB,
 	renderMetadataKey,
 	rendersPrefix,
@@ -194,8 +193,6 @@ export const getProgress = async ({
 
 	const chunkMultiplier = [hasAudio, hasVideo].filter(truthy).length;
 
-	// TODO: Those chunks are not in S3 anymore
-	const chunks = contents.filter((c) => c.Key?.startsWith(chunkKey(renderId)));
 	const overallProgress = await getOverallProgressS3({
 		renderId,
 		bucketName,
@@ -203,7 +200,7 @@ export const getProgress = async ({
 	});
 
 	const allChunks =
-		chunks.length / chunkMultiplier ===
+		(overallProgress?.chunks ?? []).length / chunkMultiplier ===
 		(renderMetadata?.totalChunks ?? Infinity);
 	const renderSize = contents
 		.map((c) => c.Size ?? 0)
@@ -246,7 +243,6 @@ export const getProgress = async ({
 			? makeTimeoutError({
 					timeoutInMilliseconds,
 					renderMetadata,
-					chunks,
 					renderId,
 					missingChunks: missingChunks ?? [],
 				})

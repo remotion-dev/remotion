@@ -64,6 +64,7 @@ export const makeOverallRenderProgress = ({
 	let lastUpload: string | null = null;
 
 	// TODO: What if upload fails?
+	// TODO: Is there any chance the latest update will not settle?
 	const upload = async () => {
 		if (lastUpload === JSON.stringify(renderProgress)) {
 			return;

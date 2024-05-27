@@ -3,7 +3,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {writeFileSync} from 'fs';
 import {join} from 'path';
 import type {LambdaPayload} from '../../defaults';
-import {LambdaRoutines, chunkKeyForIndex} from '../../defaults';
+import {LambdaRoutines} from '../../defaults';
 import {callLambdaWithStreaming} from '../../shared/call-lambda';
 import type {OnMessage} from '../streaming/streaming';
 import {getCurrentRegionInFunction} from './get-current-region';
@@ -57,10 +57,7 @@ const streamRenderer = ({
 			if (message.type === 'video-chunk-rendered') {
 				const filename = join(
 					outdir,
-					chunkKeyForIndex({
-						index: payload.chunk,
-						type: 'video',
-					}),
+					`chunk:${String(payload.chunk).padStart(8, '0')}:video`,
 				);
 				writeFileSync(filename, message.payload);
 				files.push(filename);
@@ -70,10 +67,7 @@ const streamRenderer = ({
 			if (message.type === 'audio-chunk-rendered') {
 				const filename = join(
 					outdir,
-					chunkKeyForIndex({
-						index: payload.chunk,
-						type: 'audio',
-					}),
+					`chunk:${String(payload.chunk).padStart(8, '0')}:audio`,
 				);
 				writeFileSync(filename, message.payload);
 				files.push(filename);
