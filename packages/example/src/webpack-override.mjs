@@ -20,6 +20,7 @@ const aliases = {
 	'@remotion/motion-blur': resolveCwd('@remotion/motion-blur'),
 	'@remotion/noise': resolveCwd('@remotion/noise'),
 	'@remotion/paths': resolveCwd('@remotion/paths'),
+	'@remotion/fonts': resolveCwd('@remotion/fonts'),
 	'@remotion/player': resolveCwd('@remotion/player'),
 	'@remotion/preload': resolveCwd('@remotion/preload'),
 	'@remotion/rive': resolveCwd('@remotion/rive'),

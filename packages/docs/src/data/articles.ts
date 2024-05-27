@@ -86,7 +86,7 @@ export const articles = [
   {
     id: "api",
     title: "API overview",
-    relativePath: "docs/api.md",
+    relativePath: "docs/api.mdx",
     compId: "articles-docs-api",
     crumb: null,
   },
@@ -679,7 +679,7 @@ export const articles = [
     crumb: "@remotion/enable-scss",
   },
   {
-    id: "enable-scss",
+    id: "enable-scss/overview",
     title: "@remotion/enable-scss",
     relativePath: "docs/enable-scss/overview.mdx",
     compId: "articles-docs-enable-scss-overview",
@@ -740,6 +740,27 @@ export const articles = [
     relativePath: "docs/font-picker.mdx",
     compId: "articles-docs-font-picker",
     crumb: "Building video apps",
+  },
+  {
+    id: "fonts-api",
+    title: "@remotion/fonts",
+    relativePath: "docs/fonts-api/index.mdx",
+    compId: "articles-docs-fonts-api-index",
+    crumb: null,
+  },
+  {
+    id: "fonts-api/load-font",
+    title: "loadFont()",
+    relativePath: "docs/fonts-api/load-font.mdx",
+    compId: "articles-docs-fonts-api-load-font",
+    crumb: "@remotion/fonts",
+  },
+  {
+    id: "fonts",
+    title: "Using fonts",
+    relativePath: "docs/fonts.mdx",
+    compId: "articles-docs-fonts",
+    crumb: "Techniques",
   },
   {
     id: "freeze",
@@ -2790,7 +2811,7 @@ export const articles = [
   {
     id: "standalone",
     title: "Useful functions outside of Remotion",
-    relativePath: "docs/standalone.md",
+    relativePath: "docs/standalone.mdx",
     compId: "articles-docs-standalone",
     crumb: null,
   },
@@ -2870,6 +2891,13 @@ export const articles = [
     relativePath: "docs/studio/quick-switcher.mdx",
     compId: "articles-docs-studio-quick-switcher",
     crumb: "Remotion Studio",
+  },
+  {
+    id: "studio/restart-studio",
+    title: "restartStudio()",
+    relativePath: "docs/studio/restart-studio.mdx",
+    compId: "articles-docs-studio-restart-studio",
+    crumb: "@remotion/studio",
   },
   {
     id: "studio/save-default-props",
@@ -3380,13 +3408,6 @@ export const articles = [
     title: "Using audio",
     relativePath: "docs/using-audio.md",
     compId: "articles-docs-using-audio",
-    crumb: "Techniques",
-  },
-  {
-    id: "fonts",
-    title: "Using fonts",
-    relativePath: "docs/using-fonts.md",
-    compId: "articles-docs-using-fonts",
     crumb: "Techniques",
   },
   {

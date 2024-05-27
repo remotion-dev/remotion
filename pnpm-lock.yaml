@@ -626,6 +626,9 @@ importers:
       '@remotion/enable-scss':
         specifier: workspace:*
         version: link:../enable-scss
+      '@remotion/fonts':
+        specifier: workspace:*
+        version: link:../fonts
       '@remotion/gif':
         specifier: workspace:*
         version: link:../gif
@@ -921,6 +924,9 @@ importers:
       '@remotion/eslint-plugin':
         specifier: workspace:*
         version: link:../eslint-plugin
+      '@remotion/fonts':
+        specifier: workspace:*
+        version: link:../fonts
       '@remotion/gif':
         specifier: workspace:*
         version: link:../gif
@@ -1112,6 +1118,28 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
+
+  packages/fonts:
+    dependencies:
+      remotion:
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@jonny/eslint-config':
+        specifier: 3.0.281
+        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
+      '@types/node':
+        specifier: 18.14.6
+        version: 18.14.6
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
+      prettier:
+        specifier: 3.2.5
+        version: 3.2.5
+      prettier-plugin-organize-imports:
+        specifier: 3.2.4
+        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
 
   packages/gif:
     dependencies:

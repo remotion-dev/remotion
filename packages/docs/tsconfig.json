@@ -29,6 +29,7 @@
     { "path": "../babel-loader" },
     { "path": "../cloudrun" },
     { "path": "../create-video" },
+    { "path": "../fonts" },
     { "path": "../lottie" },
     { "path": "../noise" },
     { "path": "../paths" },
