@@ -89,7 +89,6 @@ export const createPostRenderData = ({
 		endTime,
 		outputSize: outputFile.size,
 		renderSize,
-		renderMetadata,
 		filesCleanedUp: 0,
 		timeToEncode,
 		timeToCleanUp: timeToDelete,

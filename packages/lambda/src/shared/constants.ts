@@ -436,7 +436,6 @@ export type PostRenderData = {
 	startTime: number;
 	endTime: number;
 	filesCleanedUp: number;
-	renderMetadata: RenderMetadata;
 	timeToEncode: number;
 	timeToCleanUp: number;
 	timeToRenderChunks: number;

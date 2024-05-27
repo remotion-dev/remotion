@@ -48,25 +48,31 @@ export const getProgress = async ({
 	});
 
 	if (overallProgress.postRenderData) {
+		if (!overallProgress.renderMetadata) {
+			throw new Error(
+				'No render metadata found even though render is finished',
+			);
+		}
+
 		const outData = getExpectedOutName(
-			overallProgress.postRenderData.renderMetadata,
+			overallProgress.renderMetadata,
 			bucketName,
 			customCredentials,
 		);
 
 		const totalFrameCount =
-			overallProgress.postRenderData.renderMetadata.type === 'still'
+			overallProgress.renderMetadata.type === 'still'
 				? 1
 				: RenderInternals.getFramesToRender(
-						overallProgress.postRenderData.renderMetadata.frameRange,
-						overallProgress.postRenderData.renderMetadata.everyNthFrame,
+						overallProgress.renderMetadata.frameRange,
+						overallProgress.renderMetadata.everyNthFrame,
 					).length;
 
 		return {
 			framesRendered: totalFrameCount,
 			bucket: bucketName,
 			renderSize: overallProgress.postRenderData.renderSize,
-			chunks: overallProgress.postRenderData.renderMetadata.totalChunks,
+			chunks: overallProgress.renderMetadata.totalChunks,
 			cleanup: {
 				doneIn: overallProgress.postRenderData.timeToCleanUp,
 				filesDeleted: overallProgress.postRenderData.filesCleanedUp,
@@ -87,10 +93,9 @@ export const getProgress = async ({
 			},
 			errors: overallProgress.postRenderData.errors,
 			fatalErrorEncountered: false,
-			lambdasInvoked: overallProgress.postRenderData.renderMetadata.totalChunks,
+			lambdasInvoked: overallProgress.renderMetadata.totalChunks,
 			outputFile: overallProgress.postRenderData.outputFile,
 			renderId,
-			renderMetadata: overallProgress.postRenderData.renderMetadata,
 			timeToFinish: overallProgress.postRenderData.timeToFinish,
 			timeToFinishChunks: overallProgress.postRenderData.timeToRenderChunks,
 			overallProgress: 1,
@@ -106,6 +111,7 @@ export const getProgress = async ({
 				overallProgress.postRenderData.estimatedBillingDurationInMilliseconds,
 			timeToCombine: overallProgress.postRenderData.timeToCombine,
 			combinedFrames: totalFrameCount,
+			renderMetadata: overallProgress.renderMetadata,
 		};
 	}
 
@@ -118,15 +124,13 @@ export const getProgress = async ({
 
 	const {renderMetadata} = overallProgress;
 
-	const [errorExplanations] = await Promise.all([
-		inspectErrors({
-			contents,
-			renderId,
-			bucket: bucketName,
-			region: getCurrentRegionInFunction(),
-			expectedBucketOwner,
-		}),
-	]);
+	const errorExplanations = await inspectErrors({
+		contents,
+		renderId,
+		bucket: bucketName,
+		region: getCurrentRegionInFunction(),
+		expectedBucketOwner,
+	});
 
 	if (renderMetadata?.type === 'still') {
 		throw new Error(
