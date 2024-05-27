@@ -18,12 +18,10 @@ import {findOutputFileInBucket} from './find-output-file-in-bucket';
 import {formatCostsInfo} from './format-costs-info';
 import {getCleanupProgress} from './get-cleanup-progress';
 import {getCurrentRegionInFunction} from './get-current-region';
-import {getLambdasInvokedStats} from './get-lambdas-invoked-stats';
 import {getOverallProgress} from './get-overall-progress';
 import {getOverallProgressS3} from './get-overall-progress-s3';
 import {getPostRenderData} from './get-post-render-data';
 import {getRenderMetadata} from './get-render-metadata';
-import {getRetryStats} from './get-retry-stats';
 import {getTimeToFinish} from './get-time-to-finish';
 import {inspectErrors} from './inspect-errors';
 import {lambdaLs} from './io';
@@ -211,16 +209,6 @@ export const getProgress = async ({
 		.map((c) => c.Size ?? 0)
 		.reduce((a, b) => a + b, 0);
 
-	const lambdasInvokedStats = getLambdasInvokedStats({
-		contents,
-		renderId,
-	});
-
-	const retriesInfo = getRetryStats({
-		contents,
-		renderId,
-	});
-
 	const frameCount = renderMetadata
 		? RenderInternals.getFramesToRender(
 				renderMetadata.frameRange,
@@ -287,7 +275,7 @@ export const getProgress = async ({
 		fatalErrorEncountered: allErrors.some((f) => f.isFatal && !f.willRetry),
 		currentTime: Date.now(),
 		renderSize,
-		lambdasInvoked: lambdasInvokedStats.lambdasInvoked,
+		lambdasInvoked: overallProgress?.lambdasInvoked ?? 0,
 		cleanup,
 		timeToFinishChunks: allChunks
 			? calculateChunkTimes({
@@ -303,13 +291,13 @@ export const getProgress = async ({
 					? overallProgress?.framesEncoded ?? 0 / frameCount
 					: 0,
 			invoking: renderMetadata
-				? lambdasInvokedStats.lambdasInvoked /
+				? (overallProgress?.lambdasInvoked ?? 0) /
 					renderMetadata.estimatedRenderLambdaInvokations
 				: 0,
 			rendering: renderMetadata ? chunkCount / renderMetadata.totalChunks : 0,
 			frames: (overallProgress?.framesRendered ?? 0) / (frameCount ?? 1),
 		}),
-		retriesInfo,
+		retriesInfo: overallProgress?.retries ?? [],
 		outKey:
 			outputFile && renderMetadata
 				? getExpectedOutName(renderMetadata, bucketName, customCredentials).key

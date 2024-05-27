@@ -3,7 +3,6 @@ import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
 import {VERSION} from 'remotion/version';
-import {writeLambdaInitializedFile} from '../shared/chunk-progress';
 import {decompressInputProps} from '../shared/compress-props';
 import type {LambdaPayload} from '../shared/constants';
 import {
@@ -214,13 +213,12 @@ const renderHandler = async ({
 			},
 			concurrency: params.concurrencyPerLambda,
 			onStart: () => {
-				writeLambdaInitializedFile({
-					attempt: params.attempt,
-					bucketName: params.bucketName,
-					chunk: params.chunk,
-					expectedBucketOwner: options.expectedBucketOwner,
-					renderId: params.renderId,
-				}).catch((err) => reject(err));
+				onStream({
+					type: 'lambda-invoked',
+					payload: {
+						attempt: params.attempt,
+					},
+				});
 			},
 			puppeteerInstance: browserInstance.instance,
 			serveUrl: params.serveUrl,

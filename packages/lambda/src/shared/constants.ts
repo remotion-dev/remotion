@@ -60,22 +60,9 @@ export const renderMetadataKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/pre-render-metadata.json`;
 export const initalizedMetadataKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/initialized.txt`;
-export const lambdaChunkInitializedPrefix = (renderId: string) =>
-	`${rendersPrefix(renderId)}/lambda-initialized`;
 export const overallProgressKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/overall-progress.json`;
-export const lambdaChunkInitializedKey = ({
-	renderId,
-	chunk,
-	attempt,
-}: {
-	attempt: number;
-	renderId: string;
-	chunk: number;
-}) =>
-	`${lambdaChunkInitializedPrefix(
-		renderId,
-	)}-chunk:${chunk}-attempt:${attempt}.txt`;
+
 export const lambdaTimingsPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/lambda-timings/chunk:`;
 

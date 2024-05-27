@@ -40,6 +40,11 @@ const streamRenderer = ({
 
 	return new Promise<StreamRendererResponse>((resolve) => {
 		const receivedStreamingPayload: OnMessage = ({message}) => {
+			if (message.type === 'lambda-invoked') {
+				overallProgress.setLambdaInvoked(payload.chunk);
+				return;
+			}
+
 			if (message.type === 'frames-rendered') {
 				overallProgress.setFrames({
 					index: payload.chunk,
@@ -168,6 +173,12 @@ export const streamRendererFunctionWithRetry = async ({
 		if (!result.shouldRetry) {
 			throw result.error;
 		}
+
+		overallProgress.addRetry({
+			attempt: payload.attempt + 1,
+			time: Date.now(),
+			chunk: payload.chunk,
+		});
 
 		return streamRendererFunctionWithRetry({
 			files,

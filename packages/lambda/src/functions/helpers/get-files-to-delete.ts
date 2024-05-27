@@ -1,7 +1,4 @@
-import {
-	lambdaChunkInitializedPrefix,
-	lambdaTimingsPrefixForChunk,
-} from '../../shared/constants';
+import {lambdaTimingsPrefixForChunk} from '../../shared/constants';
 
 export type CleanupJob = {
 	name: string;
@@ -19,10 +16,6 @@ export const getFilesToDelete = ({
 		.fill(true)
 		.map((_x, i) => lambdaTimingsPrefixForChunk(renderId, i));
 	return [
-		{
-			name: lambdaChunkInitializedPrefix(renderId),
-			type: 'prefix' as const,
-		},
 		...lambdaTimings.map((i) => {
 			return {
 				name: i,

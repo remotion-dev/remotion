@@ -1,5 +1,6 @@
 import type {AwsRegion} from '../../client';
 import {overallProgressKey} from '../../shared/constants';
+import type {ChunkRetry} from './get-retry-stats';
 import {lambdaWriteFile} from './io';
 
 export type OverallRenderProgress = {
@@ -8,6 +9,8 @@ export type OverallRenderProgress = {
 	framesEncoded: number;
 	combinedFrames: number;
 	timeToCombine: number | null;
+	lambdasInvoked: number;
+	retries: ChunkRetry[];
 };
 
 export type OverallProgressHelper = {
@@ -22,9 +25,12 @@ export type OverallProgressHelper = {
 		encoded: number;
 		index: number;
 	}) => void;
+	setLambdaInvoked: (chunk: number) => void;
 	addChunkCompleted: (chunkIndex: number) => void;
 	setCombinedFrames: (framesEncoded: number) => void;
 	setTimeToCombine: (timeToCombine: number) => void;
+	addRetry: (retry: ChunkRetry) => void;
+	get: () => OverallRenderProgress;
 };
 
 export const makeOverallRenderProgress = ({
@@ -42,6 +48,7 @@ export const makeOverallRenderProgress = ({
 }): OverallProgressHelper => {
 	const framesRendered = new Array(expectedChunks).fill(0);
 	const framesEncoded = new Array(expectedChunks).fill(0);
+	const lambdasInvoked = new Array(expectedChunks).fill(0);
 
 	const renderProgress: OverallRenderProgress = {
 		chunks: [],
@@ -49,6 +56,8 @@ export const makeOverallRenderProgress = ({
 		framesEncoded: 0,
 		combinedFrames: 0,
 		timeToCombine: null,
+		lambdasInvoked: 0,
+		retries: [],
 	};
 
 	let currentUploadPromise: Promise<void> | null = null;
@@ -123,5 +132,15 @@ export const makeOverallRenderProgress = ({
 			renderProgress.timeToCombine = timeToCombine;
 			upload();
 		},
+		setLambdaInvoked(chunk) {
+			lambdasInvoked[chunk] = true;
+			renderProgress.lambdasInvoked = lambdasInvoked.reduce((a, b) => a + b, 0);
+			upload();
+		},
+		addRetry(retry) {
+			renderProgress.retries.push(retry);
+			upload();
+		},
+		get: () => renderProgress,
 	};
 };

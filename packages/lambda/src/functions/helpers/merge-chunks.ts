@@ -171,6 +171,7 @@ export const mergeChunksAndFinishRender = async (options: {
 			url: outputUrl,
 		},
 		timeToCombine: encodingStop - encodingStart,
+		overallProgress: options.overallProgress.get(),
 	});
 
 	await writePostRenderData({

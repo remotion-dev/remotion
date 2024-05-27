@@ -14,8 +14,8 @@ import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import type {OutputFileMetadata} from './find-output-file-in-bucket';
 import {getFilesToDelete} from './get-files-to-delete';
-import {getRetryStats} from './get-retry-stats';
 import {getTimeToFinish} from './get-time-to-finish';
+import type {OverallRenderProgress} from './overall-render-progress';
 import type {EnhancedErrorInfo} from './write-lambda-error';
 
 export const createPostRenderData = ({
@@ -29,6 +29,7 @@ export const createPostRenderData = ({
 	timeToDelete,
 	outputFile,
 	timeToCombine,
+	overallProgress,
 }: {
 	renderId: string;
 	region: AwsRegion;
@@ -40,6 +41,7 @@ export const createPostRenderData = ({
 	errorExplanations: EnhancedErrorInfo[];
 	outputFile: OutputFileMetadata;
 	timeToCombine: number | null;
+	overallProgress: OverallRenderProgress;
 }): PostRenderData => {
 	const initializedKeys = contents.filter((c) =>
 		c.Key?.startsWith(lambdaTimingsPrefix(renderId)),
@@ -82,11 +84,6 @@ export const createPostRenderData = ({
 		.map((c) => c.Size ?? 0)
 		.reduce((a, b) => a + b, 0);
 
-	const retriesInfo = getRetryStats({
-		contents,
-		renderId,
-	});
-
 	return {
 		cost: {
 			currency: 'USD',
@@ -117,7 +114,7 @@ export const createPostRenderData = ({
 			renderId,
 			type: 'absolute-time',
 		}),
-		retriesInfo,
+		retriesInfo: overallProgress.retries,
 		mostExpensiveFrameRanges:
 			renderMetadata.type === 'still'
 				? []
