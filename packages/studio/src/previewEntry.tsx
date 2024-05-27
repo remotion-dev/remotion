@@ -45,7 +45,7 @@ renderToDOM(<NoRegisterRoot />);
 
 Internals.waitForRoot((NewRoot) => {
 	renderToDOM(<Studio readOnly={false} rootComponent={NewRoot} />);
-	startErrorOverlay();
 });
 
+startErrorOverlay();
 enableHotMiddleware();

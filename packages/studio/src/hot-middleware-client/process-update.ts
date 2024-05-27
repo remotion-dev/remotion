@@ -32,6 +32,13 @@ const applyOptions: AcceptOptions = {
 			'Ignored an update to unaccepted module ' +
 				(data.chain ?? []).join(' -> '),
 		);
+
+		// Case:
+		// 1. Import a CSS file with a bad filename in Root.tsx
+		// 2. Fix the import and save it
+		if (!window.remotion_isStudio) {
+			reloadUrl();
+		}
 	},
 	onDeclined(data) {
 		console.warn(
