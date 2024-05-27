@@ -1,6 +1,6 @@
 import type {_Object} from '@aws-sdk/client-s3';
 import type {AwsRegion} from '../../client';
-import {initalizedMetadataKey} from '../../shared/constants';
+import {overallProgressKey} from '../../shared/constants';
 
 export const checkIfRenderExists = (
 	contents: _Object[],
@@ -10,7 +10,7 @@ export const checkIfRenderExists = (
 ) => {
 	const initializedExists = Boolean(
 		contents.find((c) => {
-			return c.Key?.startsWith(initalizedMetadataKey(renderId));
+			return c.Key?.startsWith(overallProgressKey(renderId));
 		}),
 	);
 

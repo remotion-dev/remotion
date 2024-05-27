@@ -308,6 +308,7 @@ const innerLaunchHandler = async ({
 			: params.outName?.s3OutputProvider ?? null,
 	);
 
+	// TODO: Once we don't check for output file in S3, we can do this asynchronously
 	const output = await findOutputFileInBucket({
 		bucketName: params.bucketName,
 		customCredentials,

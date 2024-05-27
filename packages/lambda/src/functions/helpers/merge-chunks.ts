@@ -11,7 +11,7 @@ import type {
 	RenderMetadata,
 	SerializedInputProps,
 } from '../../shared/constants';
-import {initalizedMetadataKey, rendersPrefix} from '../../shared/constants';
+import {rendersPrefix} from '../../shared/constants';
 import type {DownloadBehavior} from '../../shared/content-disposition-header';
 import type {LambdaCodec} from '../../shared/validate-lambda-codec';
 import {concatVideos} from './concat-videos';
@@ -19,7 +19,7 @@ import {createPostRenderData} from './create-post-render-data';
 import {getCurrentRegionInFunction} from './get-current-region';
 import {getOutputUrlFromMetadata} from './get-output-url-from-metadata';
 import {inspectErrors} from './inspect-errors';
-import {lambdaDeleteFile, lambdaLs, lambdaWriteFile} from './io';
+import {lambdaLs, lambdaWriteFile} from './io';
 import type {OverallProgressHelper} from './overall-render-progress';
 import {timer} from './timer';
 
@@ -155,12 +155,6 @@ export const mergeChunksAndFinishRender = async (options: {
 	});
 
 	options.overallProgress.setPostRenderData(postRenderData);
-	await lambdaDeleteFile({
-		bucketName: options.bucketName,
-		key: initalizedMetadataKey(options.renderId),
-		region: getCurrentRegionInFunction(),
-		customCredentials: null,
-	});
 
 	await Promise.all([cleanupChunksProm, fs.promises.rm(outfile)]);
 	return postRenderData;

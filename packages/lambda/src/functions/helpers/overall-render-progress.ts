@@ -41,6 +41,20 @@ export type OverallProgressHelper = {
 	get: () => OverallRenderProgress;
 };
 
+export const makeInitialOverallRenderProgress = (): OverallRenderProgress => {
+	return {
+		chunks: [],
+		framesRendered: 0,
+		framesEncoded: 0,
+		combinedFrames: 0,
+		timeToCombine: null,
+		lambdasInvoked: 0,
+		retries: [],
+		postRenderData: null,
+		timings: [],
+	};
+};
+
 export const makeOverallRenderProgress = ({
 	renderId,
 	bucketName,
@@ -58,17 +72,8 @@ export const makeOverallRenderProgress = ({
 	const framesEncoded = new Array(expectedChunks).fill(0);
 	const lambdasInvoked = new Array(expectedChunks).fill(0);
 
-	const renderProgress: OverallRenderProgress = {
-		chunks: [],
-		framesRendered: 0,
-		framesEncoded: 0,
-		combinedFrames: 0,
-		timeToCombine: null,
-		lambdasInvoked: 0,
-		retries: [],
-		postRenderData: null,
-		timings: [],
-	};
+	const renderProgress: OverallRenderProgress =
+		makeInitialOverallRenderProgress();
 
 	let currentUploadPromise: Promise<void> | null = null;
 

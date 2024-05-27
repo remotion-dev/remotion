@@ -58,8 +58,6 @@ export const LAMBDA_INSIGHTS_PREFIX = '/aws/lambda-insights';
 export const rendersPrefix = (renderId: string) => `renders/${renderId}`;
 export const renderMetadataKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/pre-render-metadata.json`;
-export const initalizedMetadataKey = (renderId: string) =>
-	`${rendersPrefix(renderId)}/initialized.txt`;
 export const overallProgressKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/overall-progress.json`;
 
