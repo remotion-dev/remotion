@@ -97,6 +97,34 @@ export const MyComposition = () => {
 };
 ```
 
+```tsx twoslash title="Example of a ramp up over 100 frames"
+import {
+  AbsoluteFill,
+  interpolate,
+  staticFile,
+  OffthreadVideo,
+} from "remotion";
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <OffthreadVideo
+        volume={(f) =>
+          interpolate(f, [0, 100], [0, 1], { extrapolateLeft: "clamp" })
+        }
+        src={staticFile("video.webm")}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+:::note
+On iOS Safari, it's not possible to granularly change the volume of a media tag.  
+Only values `0` and `1` will be respected by the browser.
+:::
+
 ### `loopVolumeCurveBehavior`<AvailableFrom v="4.0.142" />
 
 Controls the `frame` which is returned when using the [`volume`](#volume) callback function and wrapping `OffthreadVideo` in a [`<Loop>`](/docs/loop).
