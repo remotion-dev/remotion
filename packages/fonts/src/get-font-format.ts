@@ -12,6 +12,8 @@ export const getFontFormat = (url: string): FontFormat => {
 		case 'ttf':
 			return 'truetype';
 		default:
-			throw new Error(`Unsupported font extension: ${ext}`);
+			throw new Error(
+				`Could not automatically derive font format from extension: ${ext}. Pass the "format" parameter explicitly.`,
+			);
 	}
 };

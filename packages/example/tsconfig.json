@@ -19,6 +19,7 @@
 		{"path": "../eslint-config"},
 		{"path": "../eslint-plugin"},
 		{"path": "../gif"},
+		{"path": "../fonts"},
 		{"path": "../lambda"},
 		{"path": "../lottie"},
 		{"path": "../media-utils"},

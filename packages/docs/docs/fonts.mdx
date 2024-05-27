@@ -26,10 +26,10 @@ const GoogleFontsComp: React.FC = () => {
 
 ## Google Fonts using CSS
 
-Import the CSS that Google Fonts gives you. From version 2.2 on, Remotion will automatically wait until the fonts are loaded.
+Import the CSS that Google Fonts gives you.
 
 :::note
-This does not work if you use [`lazyComponent`](/docs/composition#lazycomponent).
+From version 2.2 on, Remotion will automatically wait until the fonts are loaded.  
 :::
 
 ```css title="font.css"
@@ -49,7 +49,7 @@ const MyComp: React.FC = () => {
 _available from v4.0.164_
 
 Put the font into your `public/` folder.  
-Put this somewhere in your app where it gets executed:
+Put the [`loadFont()`](/docs/fonts/load-font) call somewhere in your app where it gets executed:
 
 ```tsx twoslash title="load-fonts.ts"
 import { loadFont } from "@remotion/fonts";
@@ -76,6 +76,28 @@ const fontFamily = "Inter";
 <div style={{ fontFamily: fontFamily }}>Some text</div>;
 ```
 
-:::info
+## Local fonts (manually)
+
+You may load fonts by using the web-native [`FontFace`](https://developer.mozilla.org/en-US/docs/Web/API/FontFace) API.
+
+```tsx twoslash title="load-fonts.ts"
+import { continueRender, delayRender, staticFile } from "remotion";
+
+const waitForFont = delayRender();
+const font = new FontFace(
+  `Bangers`,
+  `url('${staticFile("bangers.woff2")}') format('woff2')`,
+);
+
+font
+  .load()
+  .then(() => {
+    document.fonts.add(font);
+    continueRender(waitForFont);
+  })
+  .catch((err) => console.log("Error loading font", err));
+```
+
+:::note
 If your Typescript types give errors, install the newest version of the `@types/web` package.
 :::

@@ -2,7 +2,7 @@ import {cancelRender, continueRender, delayRender} from 'remotion';
 import type {FontFormat} from './get-font-format';
 import {getFontFormat} from './get-font-format';
 
-type LoadFontOptions = {
+export type LoadFontOptions = {
 	family: string;
 	url: string;
 	ascentOverride?: string;

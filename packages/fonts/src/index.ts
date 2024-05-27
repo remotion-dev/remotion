@@ -1,1 +1,2 @@
-export {loadFont} from './load-font';
+export {FontFormat} from './get-font-format';
+export {LoadFontOptions, loadFont} from './load-font';
