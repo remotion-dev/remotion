@@ -24,7 +24,6 @@ import {inspectErrors} from './inspect-errors';
 import {lambdaDeleteFile, lambdaLs, lambdaWriteFile} from './io';
 import type {OverallProgressHelper} from './overall-render-progress';
 import {timer} from './timer';
-import {writePostRenderData} from './write-post-render-data';
 
 export const mergeChunksAndFinishRender = async (options: {
 	bucketName: string;
@@ -174,13 +173,7 @@ export const mergeChunksAndFinishRender = async (options: {
 		overallProgress: options.overallProgress.get(),
 	});
 
-	await writePostRenderData({
-		bucketName: options.bucketName,
-		expectedBucketOwner: options.expectedBucketOwner,
-		postRenderData,
-		region: getCurrentRegionInFunction(),
-		renderId: options.renderId,
-	});
+	options.overallProgress.setPostRenderData(postRenderData);
 	await lambdaDeleteFile({
 		bucketName: options.bucketName,
 		key: initalizedMetadataKey(options.renderId),

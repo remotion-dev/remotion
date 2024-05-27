@@ -156,10 +156,6 @@ export const customOutName = (
 	};
 };
 
-export const postRenderDataKey = (renderId: string) => {
-	return `${rendersPrefix(renderId)}/post-render-metadata.json`;
-};
-
 export const defaultPropsKey = (hash: string) => {
 	return `default-props/${hash}.json`;
 };

@@ -19,7 +19,6 @@ import {getCleanupProgress} from './get-cleanup-progress';
 import {getCurrentRegionInFunction} from './get-current-region';
 import {getOverallProgress} from './get-overall-progress';
 import {getOverallProgressS3} from './get-overall-progress-s3';
-import {getPostRenderData} from './get-post-render-data';
 import {getRenderMetadata} from './get-render-metadata';
 import {getTimeToFinish} from './get-time-to-finish';
 import {inspectErrors} from './inspect-errors';
@@ -45,70 +44,70 @@ export const getProgress = async ({
 	timeoutInMilliseconds: number;
 	customCredentials: CustomCredentials | null;
 }): Promise<RenderProgress> => {
-	const postRenderData = await getPostRenderData({
-		bucketName,
-		region,
+	const overallProgress = await getOverallProgressS3({
 		renderId,
+		bucketName,
 		expectedBucketOwner,
 	});
 
-	if (postRenderData) {
+	if (overallProgress?.postRenderData) {
 		const outData = getExpectedOutName(
-			postRenderData.renderMetadata,
+			overallProgress.postRenderData.renderMetadata,
 			bucketName,
 			customCredentials,
 		);
 
 		const totalFrameCount =
-			postRenderData.renderMetadata.type === 'still'
+			overallProgress.postRenderData.renderMetadata.type === 'still'
 				? 1
 				: RenderInternals.getFramesToRender(
-						postRenderData.renderMetadata.frameRange,
-						postRenderData.renderMetadata.everyNthFrame,
+						overallProgress.postRenderData.renderMetadata.frameRange,
+						overallProgress.postRenderData.renderMetadata.everyNthFrame,
 					).length;
 
 		return {
 			framesRendered: totalFrameCount,
 			bucket: bucketName,
-			renderSize: postRenderData.renderSize,
-			chunks: postRenderData.renderMetadata.totalChunks,
+			renderSize: overallProgress.postRenderData.renderSize,
+			chunks: overallProgress.postRenderData.renderMetadata.totalChunks,
 			cleanup: {
-				doneIn: postRenderData.timeToCleanUp,
-				filesDeleted: postRenderData.filesCleanedUp,
-				minFilesToDelete: postRenderData.filesCleanedUp,
+				doneIn: overallProgress.postRenderData.timeToCleanUp,
+				filesDeleted: overallProgress.postRenderData.filesCleanedUp,
+				minFilesToDelete: overallProgress.postRenderData.filesCleanedUp,
 			},
 			costs: {
-				accruedSoFar: postRenderData.cost.estimatedCost,
-				displayCost: postRenderData.cost.estimatedDisplayCost,
-				currency: postRenderData.cost.currency,
-				disclaimer: postRenderData.cost.disclaimer,
+				accruedSoFar: overallProgress.postRenderData.cost.estimatedCost,
+				displayCost: overallProgress.postRenderData.cost.estimatedDisplayCost,
+				currency: overallProgress.postRenderData.cost.currency,
+				disclaimer: overallProgress.postRenderData.cost.disclaimer,
 			},
 			currentTime: Date.now(),
 			done: true,
 			encodingStatus: {
 				framesEncoded: totalFrameCount,
 				combinedFrames: totalFrameCount,
-				timeToCombine: postRenderData.timeToCombine,
+				timeToCombine: overallProgress.postRenderData.timeToCombine,
 			},
-			errors: postRenderData.errors,
+			errors: overallProgress.postRenderData.errors,
 			fatalErrorEncountered: false,
-			lambdasInvoked: postRenderData.renderMetadata.totalChunks,
-			outputFile: postRenderData.outputFile,
+			lambdasInvoked: overallProgress.postRenderData.renderMetadata.totalChunks,
+			outputFile: overallProgress.postRenderData.outputFile,
 			renderId,
-			renderMetadata: postRenderData.renderMetadata,
-			timeToFinish: postRenderData.timeToFinish,
-			timeToFinishChunks: postRenderData.timeToRenderChunks,
+			renderMetadata: overallProgress.postRenderData.renderMetadata,
+			timeToFinish: overallProgress.postRenderData.timeToFinish,
+			timeToFinishChunks: overallProgress.postRenderData.timeToRenderChunks,
 			overallProgress: 1,
-			retriesInfo: postRenderData.retriesInfo,
+			retriesInfo: overallProgress.postRenderData.retriesInfo,
 			outKey: outData.key,
 			outBucket: outData.renderBucketName,
-			mostExpensiveFrameRanges: postRenderData.mostExpensiveFrameRanges ?? null,
-			timeToEncode: postRenderData.timeToEncode,
-			outputSizeInBytes: postRenderData.outputSize,
+			mostExpensiveFrameRanges:
+				overallProgress.postRenderData.mostExpensiveFrameRanges ?? null,
+			timeToEncode: overallProgress.postRenderData.timeToEncode,
+			outputSizeInBytes: overallProgress.postRenderData.outputSize,
 			type: 'success',
 			estimatedBillingDurationInMilliseconds:
-				postRenderData.estimatedBillingDurationInMilliseconds,
-			timeToCombine: postRenderData.timeToCombine,
+				overallProgress.postRenderData.estimatedBillingDurationInMilliseconds,
+			timeToCombine: overallProgress.postRenderData.timeToCombine,
 			combinedFrames: totalFrameCount,
 		};
 	}
@@ -192,12 +191,6 @@ export const getProgress = async ({
 	});
 
 	const chunkMultiplier = [hasAudio, hasVideo].filter(truthy).length;
-
-	const overallProgress = await getOverallProgressS3({
-		renderId,
-		bucketName,
-		expectedBucketOwner,
-	});
 
 	const allChunks =
 		(overallProgress?.chunks ?? []).length / chunkMultiplier ===
