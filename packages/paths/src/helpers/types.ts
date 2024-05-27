@@ -20,11 +20,6 @@ export interface Point {
 }
 export type PointArray = [number, number];
 
-export interface PointProperties {
-	tangentX: number;
-	tangentY: number;
-}
-
 export type BoundingBox = {
 	x1: number;
 	y1: number;
@@ -35,36 +30,46 @@ export type BoundingBox = {
 	height: number;
 };
 
+export type LInstruction = {
+	type: 'L';
+	x: number;
+	y: number;
+};
+
+export type CInstruction = {
+	type: 'C';
+	cp1x: number;
+	cp1y: number;
+	cp2x: number;
+	cp2y: number;
+	x: number;
+	y: number;
+};
+
+export type MInstruction = {
+	type: 'M';
+	x: number;
+	y: number;
+};
+
+export type QInstruction = {
+	type: 'Q';
+	cpx: number;
+	cpy: number;
+	x: number;
+	y: number;
+};
+
+export type ZInstruction = {
+	type: 'Z';
+};
+
 export type ReducedInstruction =
-	| {
-			type: 'M';
-			x: number;
-			y: number;
-	  }
-	| {
-			type: 'L';
-			x: number;
-			y: number;
-	  }
-	| {
-			type: 'C';
-			cp1x: number;
-			cp1y: number;
-			cp2x: number;
-			cp2y: number;
-			x: number;
-			y: number;
-	  }
-	| {
-			type: 'Q';
-			cpx: number;
-			cpy: number;
-			x: number;
-			y: number;
-	  }
-	| {
-			type: 'Z';
-	  };
+	| MInstruction
+	| LInstruction
+	| CInstruction
+	| QInstruction
+	| ZInstruction;
 
 export type AbsoluteInstruction =
 	| ReducedInstruction

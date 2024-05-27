@@ -6,19 +6,19 @@ test('Should be able to make a circle path', () => {
 	expect(circlePath).toEqual({
 		height: 100,
 		width: 100,
-		path: 'M 0 50 a 50 50 0 1 0 100 0 a 50 50 0 1 0 -100 0 Z',
+		path: 'M 50 0 a 50 50 0 1 1 0 100 a 50 50 0 1 1 0 -100 Z',
 		transformOrigin: '50 50',
 		instructions: [
-			{type: 'M', x: 0, y: 50},
+			{type: 'M', x: 50, y: 0},
 			{
 				type: 'a',
 				rx: 50,
 				ry: 50,
 				xAxisRotation: 0,
 				largeArcFlag: true,
-				sweepFlag: false,
-				dx: 100,
-				dy: 0,
+				sweepFlag: true,
+				dx: 0,
+				dy: 100,
 			},
 			{
 				type: 'a',
@@ -26,9 +26,9 @@ test('Should be able to make a circle path', () => {
 				ry: 50,
 				xAxisRotation: 0,
 				largeArcFlag: true,
-				sweepFlag: false,
-				dx: -100,
-				dy: 0,
+				sweepFlag: true,
+				dx: 0,
+				dy: -100,
 			},
 			{
 				type: 'Z',

@@ -1,5 +1,6 @@
 import {getBoundingBoxFromInstructions} from './get-bounding-box';
 
+import {debugPath} from './debug-path';
 export {evolvePath} from './evolve-path';
 export {extendViewBox} from './extend-viewbox';
 export {getBoundingBox} from './get-bounding-box';
@@ -15,7 +16,7 @@ export {
 	Part,
 	ReducedInstruction,
 } from './helpers/types';
-export {interpolatePath} from './interpolate-path';
+export {interpolatePath} from './interpolate-path/interpolate-path';
 export {normalizePath} from './normalize-path';
 export {parsePath} from './parse-path';
 export {reduceInstructions} from './reduce-instructions';
@@ -28,4 +29,5 @@ export {WarpPathFn, warpPath} from './warp-path';
 
 export const PathInternals = {
 	getBoundingBoxFromInstructions,
+	debugPath,
 };
