@@ -29,13 +29,24 @@ export const MyVideo = () => {
 
 The component also accepts a `volume` props which allows you to control the volume of the audio in it's entirety or frame by frame. Read the page on [using audio](/docs/using-audio) to learn more.
 
-```tsx twoslash
-import { AbsoluteFill, Audio, interpolate, staticFile } from "remotion";
+```tsx twoslash title="Setting a static volume"
+import { AbsoluteFill, Audio, staticFile } from "remotion";
 
 export const MyVideo = () => {
   return (
     <AbsoluteFill>
       <Audio volume={0.5} src={staticFile("background.mp3")} />
+    </AbsoluteFill>
+  );
+};
+```
+
+```tsx twoslash title="Changing the volume over time"
+import { AbsoluteFill, Audio, interpolate, staticFile } from "remotion";
+
+export const MyVideo = () => {
+  return (
+    <AbsoluteFill>
       <Audio
         volume={(f) =>
           interpolate(f, [0, 30], [0, 1], { extrapolateLeft: "clamp" })
@@ -46,6 +57,11 @@ export const MyVideo = () => {
   );
 };
 ```
+
+:::note
+On iOS Safari, it's not possible to granularly change the volume of a media tag.  
+Only values `0` and `1` will be respected by the browser.
+:::
 
 ### `loopVolumeCurveBehavior`<AvailableFrom v="4.0.142" />
 
