@@ -104,11 +104,6 @@ const makeCombinationProgress = ({
 }) => {
 	const {combinedFrames, timeToCombine} = encodingProgress;
 	const progress = totalFrames === null ? 0 : combinedFrames / totalFrames;
-	const chunksDone = timeToCombine !== null;
-	const shouldShow = progress > 0 || chunksDone;
-	if (!shouldShow) {
-		return '';
-	}
 
 	return [
 		`${timeToCombine === null ? 'Combining' : 'Combined'} chunks`.padEnd(
