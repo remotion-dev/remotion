@@ -223,7 +223,7 @@ export const getProgress = async ({
 		overallProgress: getOverallProgress({
 			encoding:
 				renderMetadata && frameCount
-					? overallProgress.framesEncoded ?? 0 / frameCount
+					? (overallProgress.framesEncoded ?? 0) / frameCount
 					: 0,
 			invoking: renderMetadata
 				? (overallProgress.lambdasInvoked ?? 0) /
