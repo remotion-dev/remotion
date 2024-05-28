@@ -111,6 +111,7 @@ const streamRenderer = ({
 					error: message.payload.error,
 					shouldRetry: message.payload.shouldRetry,
 				});
+				return;
 			}
 
 			throw new Error(`Unknown message type ${message.type}`);
