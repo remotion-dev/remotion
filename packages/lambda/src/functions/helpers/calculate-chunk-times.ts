@@ -12,7 +12,7 @@ const getAbsoluteTime = (parsedTimings: ParsedTiming[]) => {
 	const biggestEnd = max(allEnds);
 	const smallestStart = min(allStarts);
 
-	return (biggestEnd as number) - smallestStart;
+	return Math.max(0, biggestEnd - smallestStart);
 };
 
 export const calculateChunkTimes = ({

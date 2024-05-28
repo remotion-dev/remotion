@@ -19,7 +19,7 @@ export const min = (arr: number[]) => {
 
 export const max = (arr: number[]) => {
 	if (arr.length === 0) {
-		return null;
+		throw new Error('Array of 0 length');
 	}
 
 	let biggest = arr[0];
