@@ -1,4 +1,3 @@
-import type {_Object} from '@aws-sdk/client-s3';
 import {estimatePrice} from '../../api/estimate-price';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import type {PostRenderData, RenderMetadata} from '../../shared/constants';
@@ -16,7 +15,6 @@ export const createPostRenderData = ({
 	region,
 	memorySizeInMb,
 	renderMetadata,
-	contents,
 	timeToEncode,
 	errorExplanations,
 	timeToDelete,
@@ -29,7 +27,6 @@ export const createPostRenderData = ({
 	region: AwsRegion;
 	memorySizeInMb: number;
 	renderMetadata: RenderMetadata;
-	contents: _Object[];
 	timeToEncode: number;
 	timeToDelete: number;
 	errorExplanations: EnhancedErrorInfo[];
@@ -61,10 +58,6 @@ export const createPostRenderData = ({
 
 	const endTime = Date.now();
 
-	const renderSize = contents
-		.map((c) => c.Size ?? 0)
-		.reduce((a, b) => a + b, 0);
-
 	return {
 		cost: {
 			currency: 'USD',
@@ -82,7 +75,7 @@ export const createPostRenderData = ({
 		startTime: renderMetadata.startedDate,
 		endTime,
 		outputSize,
-		renderSize,
+		renderSize: outputSize,
 		filesCleanedUp: 0,
 		timeToEncode,
 		timeToCleanUp: timeToDelete,

@@ -161,9 +161,6 @@ export const getProgress = async ({
 	const allChunks =
 		(overallProgress.chunks ?? []).length / chunkMultiplier ===
 		(renderMetadata?.totalChunks ?? Infinity);
-	const renderSize = contents
-		.map((c) => c.Size ?? 0)
-		.reduce((a, b) => a + b, 0);
 
 	const frameCount = renderMetadata
 		? RenderInternals.getFramesToRender(
@@ -214,9 +211,9 @@ export const getProgress = async ({
 		chunks: chunkCount,
 		done: false,
 		encodingStatus: {
-			framesEncoded: overallProgress.framesEncoded ?? 0,
-			combinedFrames: overallProgress.combinedFrames ?? 0,
-			timeToCombine: overallProgress.timeToCombine ?? null,
+			framesEncoded: overallProgress.framesEncoded,
+			combinedFrames: overallProgress.combinedFrames,
+			timeToCombine: overallProgress.timeToCombine,
 		},
 		costs: priceFromBucket
 			? formatCostsInfo(priceFromBucket.accruedSoFar)
@@ -229,7 +226,7 @@ export const getProgress = async ({
 		errors: allErrors,
 		fatalErrorEncountered: allErrors.some((f) => f.isFatal && !f.willRetry),
 		currentTime: Date.now(),
-		renderSize,
+		renderSize: 0,
 		lambdasInvoked: overallProgress.lambdasInvoked ?? 0,
 		cleanup,
 		timeToFinishChunks:

@@ -137,7 +137,6 @@ export const mergeChunksAndFinishRender = async (options: {
 		region: getCurrentRegionInFunction(),
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		renderMetadata: options.renderMetadata,
-		contents,
 		errorExplanations: await errorExplanationsProm,
 		timeToEncode: encodingStop - encodingStart,
 		timeToDelete: (
