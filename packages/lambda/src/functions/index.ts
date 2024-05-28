@@ -34,7 +34,7 @@ const innerHandler = async ({
 }: {
 	params: LambdaPayload;
 	responseWriter: ResponseStreamWriter;
-	onStream: OnStream;
+	onStream: OnStream | undefined;
 	context: RequestContext;
 }): Promise<void> => {
 	setCurrentRequestId(context.awsRequestId);
@@ -71,17 +71,25 @@ const innerHandler = async ({
 			params.logLevel,
 		);
 
-		onStream({
-			type: 'render-id-determined',
-			payload: {renderId},
-		});
+		if (onStream) {
+			onStream({
+				type: 'render-id-determined',
+				payload: {renderId},
+			});
+		}
 
-		await stillHandler({
+		const res = await stillHandler({
 			expectedBucketOwner: currentUserId,
 			params,
 			renderId,
 			onStream,
 		});
+
+		// Response is only coming in if the still function was invoked without streaming.
+		// e.g. Python SDK.
+		if (res) {
+			await responseWriter.write(Buffer.from(JSON.stringify(res)));
+		}
 
 		await responseWriter.end();
 
