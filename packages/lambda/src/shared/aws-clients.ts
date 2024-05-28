@@ -258,7 +258,11 @@ export const getS3Client = (
 	region: AwsRegion,
 	customCredentials: CustomCredentials | null,
 ): S3Client => {
-	return getServiceClient({region, service: 's3', customCredentials});
+	return getServiceClient({
+		region: customCredentials?.region ?? region,
+		service: 's3',
+		customCredentials,
+	});
 };
 
 export const getLambdaClient = (
