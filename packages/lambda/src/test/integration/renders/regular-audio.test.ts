@@ -57,7 +57,7 @@ test('Should make regular (non-seamless) audio', async () => {
 		prefix: rendersPrefix(renderId),
 	});
 
-	expect(files.length).toBe(8);
+	expect(files.length).toBe(2);
 
 	await deleteRender({
 		bucketName: progress.outBucket as string,
