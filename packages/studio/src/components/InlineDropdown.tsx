@@ -1,9 +1,10 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useCallback, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {noop} from '../helpers/noop';
 import {HigherZIndex, useZIndex} from '../state/z-index';
+import {InlineAction, type InlineActionProps} from './InlineAction';
 import {getPortal} from './Menu/portals';
 import {
 	MAX_MENU_WIDTH,
@@ -15,6 +16,8 @@ import {
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {MenuContent} from './NewComposition/MenuContent';
 
+// Some duplicate state with ContextMenu.tsx
+
 type OpenState =
 	| {
 			type: 'not-open';
@@ -25,44 +28,32 @@ type OpenState =
 			top: number;
 	  };
 
-export const ContextMenu: React.FC<{
-	readonly children: React.ReactNode;
+export const InlineDropdown = ({
+	values,
+	...props
+}: Omit<InlineActionProps, 'onClick'> & {
 	readonly values: ComboboxValue[];
-}> = ({children, values}) => {
+}) => {
 	const ref = useRef<HTMLDivElement>(null);
 	const [opened, setOpened] = useState<OpenState>({type: 'not-open'});
-	const {currentZIndex} = useZIndex();
 
-	const style: React.CSSProperties = useMemo(() => {
-		return {};
-	}, []);
+	const {currentZIndex} = useZIndex();
 
 	const size = PlayerInternals.useElementSize(ref, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});
+
 	const isMobileLayout = useMobileLayout();
 
-	useEffect(() => {
-		const {current} = ref;
-		if (!current) {
-			return;
-		}
-
-		const onClick = (e: MouseEvent) => {
+	const onClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
+		(e) => {
 			e.preventDefault();
 			e.stopPropagation();
 			setOpened({type: 'open', left: e.clientX, top: e.clientY});
-
-			return false;
-		};
-
-		current.addEventListener('contextmenu', onClick);
-
-		return () => {
-			current.removeEventListener('contextmenu', onClick);
-		};
-	}, [size]);
+		},
+		[],
+	);
 
 	const spaceToBottom = useMemo(() => {
 		if (size && opened.type === 'open') {
@@ -126,8 +117,8 @@ export const ContextMenu: React.FC<{
 
 	return (
 		<>
-			<div ref={ref} onContextMenu={() => false} style={style}>
-				{children}
+			<div ref={ref}>
+				<InlineAction onClick={onClick} {...props} />
 			</div>
 			{portalStyle
 				? ReactDOM.createPortal(
