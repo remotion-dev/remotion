@@ -196,14 +196,14 @@ export const sitesCreateSubcommand = async (
 		left: 'Serve URL',
 		logLevel,
 		right: serveUrl,
-		color: 'blue',
+		color: 'blueBright',
 	});
 	CliInternals.printFact('info')({
 		indent: false,
 		left: 'Site name',
 		logLevel,
 		right: siteName,
-		color: 'blue',
+		color: 'blueBright',
 	});
 
 	Log.info({indent: false, logLevel});

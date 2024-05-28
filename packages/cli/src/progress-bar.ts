@@ -316,7 +316,7 @@ export const printFact =
 		logLevel: LogLevel;
 		left: string;
 		right: string;
-		color: 'blue' | 'gray' | undefined;
+		color: 'blue' | 'blueBright' | 'gray' | undefined;
 	}) => {
 		const fn = (str: string) => {
 			if (color === 'gray') {
@@ -325,6 +325,10 @@ export const printFact =
 
 			if (color === 'blue') {
 				return chalk.blue(str);
+			}
+
+			if (color === 'blueBright') {
+				return chalk.blueBright(str);
 			}
 
 			return str;
