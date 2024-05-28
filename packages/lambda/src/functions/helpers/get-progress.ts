@@ -3,20 +3,15 @@ import {NoReactInternals} from 'remotion/no-react';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import type {CustomCredentials} from '../../shared/aws-clients';
 import type {CleanupInfo, RenderProgress} from '../../shared/constants';
-import {
-	MAX_EPHEMERAL_STORAGE_IN_MB,
-	rendersPrefix,
-} from '../../shared/constants';
+import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../../shared/constants';
 import {truthy} from '../../shared/truthy';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import {estimatePriceFromBucket} from './calculate-price-from-bucket';
 import {getExpectedOutName} from './expected-out-name';
 import {formatCostsInfo} from './format-costs-info';
-import {getCurrentRegionInFunction} from './get-current-region';
 import {getOverallProgress} from './get-overall-progress';
 import {getOverallProgressS3} from './get-overall-progress-s3';
 import {inspectErrors} from './inspect-errors';
-import {lambdaLs} from './io';
 import {makeTimeoutError} from './make-timeout-error';
 import {lambdaRenderHasAudioVideo} from './render-has-audio-video';
 import type {EnhancedErrorInfo} from './write-lambda-error';
@@ -113,21 +108,10 @@ export const getProgress = async ({
 		};
 	}
 
-	const contents = await lambdaLs({
-		bucketName,
-		prefix: rendersPrefix(renderId),
-		region: getCurrentRegionInFunction(),
-		expectedBucketOwner,
-	});
-
 	const {renderMetadata} = overallProgress;
 
-	const errorExplanations = await inspectErrors({
-		contents,
-		renderId,
-		bucket: bucketName,
-		region: getCurrentRegionInFunction(),
-		expectedBucketOwner,
+	const errorExplanations = inspectErrors({
+		errors: overallProgress.errors,
 	});
 
 	if (renderMetadata && renderMetadata.type === 'still') {

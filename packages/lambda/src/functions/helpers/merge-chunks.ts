@@ -11,7 +11,6 @@ import type {
 	RenderMetadata,
 	SerializedInputProps,
 } from '../../shared/constants';
-import {rendersPrefix} from '../../shared/constants';
 import type {DownloadBehavior} from '../../shared/content-disposition-header';
 import type {LambdaCodec} from '../../shared/validate-lambda-codec';
 import {concatVideos} from './concat-videos';
@@ -19,7 +18,7 @@ import {createPostRenderData} from './create-post-render-data';
 import {getCurrentRegionInFunction} from './get-current-region';
 import {getOutputUrlFromMetadata} from './get-output-url-from-metadata';
 import {inspectErrors} from './inspect-errors';
-import {lambdaLs, lambdaWriteFile} from './io';
+import {lambdaWriteFile} from './io';
 import type {OverallProgressHelper} from './overall-render-progress';
 import {timer} from './timer';
 
@@ -101,19 +100,8 @@ export const mergeChunksAndFinishRender = async (options: {
 
 	writeToS3.end();
 
-	const contents = await lambdaLs({
-		bucketName: options.bucketName,
-		prefix: rendersPrefix(options.renderId),
-		expectedBucketOwner: options.expectedBucketOwner,
-		region: getCurrentRegionInFunction(),
-	});
-
-	const errorExplanationsProm = inspectErrors({
-		contents,
-		renderId: options.renderId,
-		bucket: options.bucketName,
-		region: getCurrentRegionInFunction(),
-		expectedBucketOwner: options.expectedBucketOwner,
+	const errorExplanations = inspectErrors({
+		errors: options.overallProgress.get().errors,
 	});
 
 	const cleanupSerializedInputPropsProm = cleanupSerializedInputProps({
@@ -137,7 +125,7 @@ export const mergeChunksAndFinishRender = async (options: {
 		region: getCurrentRegionInFunction(),
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		renderMetadata: options.renderMetadata,
-		errorExplanations: await errorExplanationsProm,
+		errorExplanations,
 		timeToEncode: encodingStop - encodingStart,
 		timeToDelete: (
 			await Promise.all([

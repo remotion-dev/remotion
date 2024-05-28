@@ -59,30 +59,6 @@ export const rendersPrefix = (renderId: string) => `renders/${renderId}`;
 export const overallProgressKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/overall-progress.json`;
 
-export const lambdaLogsPrefix = (
-	renderId: string,
-	chunk: number,
-	startFrame: number,
-	endFrame: number,
-) =>
-	`${rendersPrefix(renderId)}/logs/chunk:${String(chunk).padStart(
-		8,
-		'0',
-	)}:frames:${startFrame}-${endFrame}.json`;
-
-export const getErrorKeyPrefix = (renderId: string) =>
-	`${rendersPrefix(renderId)}/errors/`;
-
-export const getErrorFileName = ({
-	renderId,
-	chunk,
-	attempt,
-}: {
-	renderId: string;
-	chunk: number | null;
-	attempt: number;
-}) => getErrorKeyPrefix(renderId) + ':chunk-' + chunk + ':attempt-' + attempt;
-
 export type OutNameInput =
 	| string
 	| {

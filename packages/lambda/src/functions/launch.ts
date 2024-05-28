@@ -40,13 +40,11 @@ import {
 } from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {mergeChunksAndFinishRender} from './helpers/merge-chunks';
+import type {OverallProgressHelper} from './helpers/overall-render-progress';
 import {makeOverallRenderProgress} from './helpers/overall-render-progress';
 import {streamRendererFunctionWithRetry} from './helpers/stream-renderer';
 import {validateComposition} from './helpers/validate-composition';
-import {
-	getTmpDirStateIfENoSp,
-	writeLambdaError,
-} from './helpers/write-lambda-error';
+import {getTmpDirStateIfENoSp} from './helpers/write-lambda-error';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -57,21 +55,16 @@ const innerLaunchHandler = async ({
 	functionName,
 	params,
 	options,
+	overallProgress,
 }: {
 	functionName: string;
 	params: LambdaPayload;
 	options: Options;
+	overallProgress: OverallProgressHelper;
 }): Promise<PostRenderData> => {
 	if (params.type !== LambdaRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
-
-	const overallProgress = makeOverallRenderProgress({
-		renderId: params.renderId,
-		bucketName: params.bucketName,
-		expectedBucketOwner: options.expectedBucketOwner,
-		region: getCurrentRegionInFunction(),
-	});
 
 	const startedDate = Date.now();
 
@@ -446,24 +439,20 @@ export const launchHandler = async (
 				err,
 			);
 
-			await writeLambdaError({
-				bucketName: params.bucketName,
-				errorInfo: {
-					type: 'webhook',
-					message: (err as Error).message,
-					name: (err as Error).name as string,
-					stack: (err as Error).stack as string,
-					tmpDir: null,
-					frame: 0,
-					chunk: 0,
-					isFatal: false,
-					attempt: 1,
-					willRetry: false,
-					totalAttempts: 1,
-				},
-				renderId: params.renderId,
-				expectedBucketOwner: options.expectedBucketOwner,
+			overallProgress.addErrorWithoutUpload({
+				type: 'webhook',
+				message: (err as Error).message,
+				name: (err as Error).name as string,
+				stack: (err as Error).stack as string,
+				tmpDir: null,
+				frame: 0,
+				chunk: 0,
+				isFatal: false,
+				attempt: 1,
+				willRetry: false,
+				totalAttempts: 1,
 			});
+			overallProgress.upload();
 		}
 	};
 
@@ -481,11 +470,19 @@ export const launchHandler = async (
 		)} before it times out`,
 	);
 
+	const overallProgress = makeOverallRenderProgress({
+		renderId: params.renderId,
+		bucketName: params.bucketName,
+		expectedBucketOwner: options.expectedBucketOwner,
+		region: getCurrentRegionInFunction(),
+	});
+
 	try {
 		const postRenderData = await innerLaunchHandler({
 			functionName,
 			params,
 			options,
+			overallProgress,
 		});
 		clearTimeout(webhookDueToTimeout);
 
@@ -522,24 +519,21 @@ export const launchHandler = async (
 				throw err;
 			}
 
-			await writeLambdaError({
-				bucketName: params.bucketName,
-				errorInfo: {
-					type: 'webhook',
-					message: (err as Error).message,
-					name: (err as Error).name as string,
-					stack: (err as Error).stack as string,
-					tmpDir: null,
-					frame: 0,
-					chunk: 0,
-					isFatal: false,
-					attempt: 1,
-					willRetry: false,
-					totalAttempts: 1,
-				},
-				renderId: params.renderId,
-				expectedBucketOwner: options.expectedBucketOwner,
+			overallProgress.addErrorWithoutUpload({
+				type: 'webhook',
+				message: (err as Error).message,
+				name: (err as Error).name as string,
+				stack: (err as Error).stack as string,
+				tmpDir: null,
+				frame: 0,
+				chunk: 0,
+				isFatal: false,
+				attempt: 1,
+				willRetry: false,
+				totalAttempts: 1,
 			});
+			overallProgress.upload();
+
 			RenderInternals.Log.error(
 				{indent: false, logLevel: params.logLevel},
 				'Failed to invoke webhook:',
@@ -563,24 +557,21 @@ export const launchHandler = async (
 			'Error occurred',
 			err,
 		);
-		await writeLambdaError({
-			bucketName: params.bucketName,
-			errorInfo: {
-				chunk: null,
-				frame: null,
-				name: (err as Error).name as string,
-				stack: (err as Error).stack as string,
-				type: 'stitcher',
-				isFatal: true,
-				tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
-				attempt: 1,
-				totalAttempts: 1,
-				willRetry: false,
-				message: (err as Error).message,
-			},
-			expectedBucketOwner: options.expectedBucketOwner,
-			renderId: params.renderId,
+		overallProgress.addErrorWithoutUpload({
+			chunk: null,
+			frame: null,
+			name: (err as Error).name as string,
+			stack: (err as Error).stack as string,
+			type: 'stitcher',
+			isFatal: true,
+			tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
+			attempt: 1,
+			totalAttempts: 1,
+			willRetry: false,
+			message: (err as Error).message,
 		});
+		overallProgress.upload();
+
 		RenderInternals.Log.error(
 			{indent: false, logLevel: params.logLevel},
 			'Wrote error to S3',
@@ -615,24 +606,21 @@ export const launchHandler = async (
 					throw error;
 				}
 
-				await writeLambdaError({
-					bucketName: params.bucketName,
-					errorInfo: {
-						type: 'webhook',
-						message: (err as Error).message,
-						name: (err as Error).name as string,
-						stack: (err as Error).stack as string,
-						tmpDir: null,
-						frame: 0,
-						chunk: 0,
-						isFatal: false,
-						attempt: 1,
-						willRetry: false,
-						totalAttempts: 1,
-					},
-					renderId: params.renderId,
-					expectedBucketOwner: options.expectedBucketOwner,
+				overallProgress.addErrorWithoutUpload({
+					type: 'webhook',
+					message: (err as Error).message,
+					name: (err as Error).name as string,
+					stack: (err as Error).stack as string,
+					tmpDir: null,
+					frame: 0,
+					chunk: 0,
+					isFatal: false,
+					attempt: 1,
+					willRetry: false,
+					totalAttempts: 1,
 				});
+				overallProgress.upload();
+
 				RenderInternals.Log.error(
 					{indent: false, logLevel: params.logLevel},
 					'Failed to invoke webhook:',
