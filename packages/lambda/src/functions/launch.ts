@@ -39,7 +39,6 @@ import {
 	getBrowserInstance,
 } from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
-import {lambdaDeleteFile} from './helpers/io';
 import {mergeChunksAndFinishRender} from './helpers/merge-chunks';
 import {makeOverallRenderProgress} from './helpers/overall-render-progress';
 import {streamRendererFunctionWithRetry} from './helpers/stream-renderer';
@@ -308,29 +307,16 @@ const innerLaunchHandler = async ({
 			: params.outName?.s3OutputProvider ?? null,
 	);
 
-	// TODO: Once we don't check for output file in S3, we can do this asynchronously
-	const output = findOutputFileInBucket({
-		bucketName: params.bucketName,
-		customCredentials,
-		renderMetadata,
-	});
-
-	if (output) {
-		if (params.overwrite) {
-			console.info(
-				'Deleting',
-				{bucketName: renderBucketName, key},
-				'because it already existed and will be overwritten',
-			);
-			await lambdaDeleteFile({
-				bucketName: renderBucketName,
-				customCredentials,
-				key,
-				region: getCurrentRegionInFunction(),
-			});
-		} else {
+	if (!params.overwrite) {
+		const output = await findOutputFileInBucket({
+			bucketName: params.bucketName,
+			customCredentials,
+			renderMetadata,
+			region: getCurrentRegionInFunction(),
+		});
+		if (output) {
 			throw new TypeError(
-				`Output file "${key}" in bucket "${renderBucketName}" in region "${getCurrentRegionInFunction()}" already exists. Delete it before re-rendering, or use the overwrite option to delete it before render."`,
+				`Output file "${key}" in bucket "${renderBucketName}" in region "${getCurrentRegionInFunction()}" already exists. Delete it before re-rendering, or set the 'overwrite' option in renderMediaOnLambda() to overwrite it."`,
 			);
 		}
 	}

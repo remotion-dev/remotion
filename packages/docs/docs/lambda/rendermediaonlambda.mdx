@@ -186,21 +186,21 @@ Renamed to `jpegQuality` in v4.0.0.
 
 _optional_
 
-<Options id="audio-bitrate"/>
+<Options id="audio-bitrate" />
 
 ### `videoBitrate?`
 
 _optional_
 
-<Options id="video-bitrate"/>
+<Options id="video-bitrate" />
 
 ### `bufferSize?`<AvailableFrom v="4.0.78" />
 
-<Options id="buffer-size"/>
+<Options id="buffer-size" />
 
 ### `maxRate?`<AvailableFrom v="4.0.78" />
 
-<Options id="max-rate"/>
+<Options id="max-rate" />
 
 ### `maxRetries`
 
@@ -283,15 +283,14 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 #### `gl`
 
-<Options id="gl"  />
+<Options id="gl" />
 
 ### `overwrite?`
 
 _available from v3.2.25_
 
-If a custom out name is specified and a file already exists at this key in the S3 bucket, decide whether that file will be deleted before the render begins. Default `false`.
-
-An existing file at the output S3 key will conflict with the render and must be deleted beforehand. If this setting is `false` and a conflict occurs, an error will be thrown.
+If a custom out name is specified and a file already exists at this key in the S3 bucket, decide whether the file should be overwritten. Default `false`.  
+If the file exists and `overwrite` is `false`, an error will be thrown.
 
 ### `rendererFunctionName?`
 
@@ -341,7 +340,7 @@ Specify a specific bucket name to be used. [This is not recommended](/docs/lambd
 
 ### `logLevel?`
 
-<Options id="log"/>
+<Options id="log" />
 
 If the `logLevel` is set to `verbose`, the Lambda function will not clean up artifacts, to aid debugging. Do not use it unless you are debugging a problem.
 
@@ -355,11 +354,11 @@ If the `logLevel` is set to `verbose`, the Lambda function will not clean up art
 
 ### `deleteAfter?`<AvailableFrom v="4.0.32"/>
 
-<Options id="delete-after"/>
+<Options id="delete-after" />
 
 ### `preferLossless?`<AvailableFrom v="4.0.123"/>
 
-<Options  id="prefer-lossless" />
+<Options id="prefer-lossless" />
 
 ### ~~`dumpBrowserLogs?`~~
 
