@@ -36,12 +36,21 @@ for (const dir of [path.join("cloudrun", "container"), ...dirs]) {
   );
   const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
   packageJson.version = version;
-  writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + "\n");
+  const potentialPrettierPath = path.join(
+    process.cwd(),
+    "packages",
+    dir,
+    ".prettierrc.js"
+  );
+  const hasPrettier =
+    existsSync(potentialPrettierPath) &&
+    readFileSync(potentialPrettierPath, "utf-8").includes("useTabs: true");
+  writeFileSync(
+    packageJsonPath,
+    JSON.stringify(packageJson, null, hasPrettier ? "\t" : 2) + "\n"
+  );
   try {
     console.log("setting version for", dir);
-    execSync("bun x prettier --write package.json", {
-      cwd: path.join(process.cwd(), "packages", dir),
-    });
   } catch (e) {
     // console.log(e.message);
   }

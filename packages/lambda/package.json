@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/lambda",
-	"version": "4.0.164",
+	"version": "4.0.165",
 	"description": "Distributed renderer for Remotion based on AWS Lambda",
 	"main": "dist/index.js",
 	"sideEffects": false,

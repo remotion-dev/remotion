@@ -1,7 +1,7 @@
 {
-  "name": "@remotion/fonts",
-  "version": "4.0.164",
-  "description": "Load local fonts for Remotion",
+	"name": "@remotion/fonts",
+	"version": "4.0.165",
+	"description": "Load local fonts for Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -11,9 +11,12 @@
 		"lint": "eslint src --ext ts,tsx",
 		"build": "bun --env-file=../.env.bundle bundle.ts"
 	},
-  "keywords": ["remotion", "fonts"],
-  "author": "Lucas Benya <bitup.games@gmail.com>",
-  "license": "MIT",
+	"keywords": [
+		"remotion",
+		"fonts"
+	],
+	"author": "Lucas Benya <bitup.games@gmail.com>",
+	"license": "MIT",
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"
 	},
@@ -30,7 +33,7 @@
 		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4"
 	},
-  "publishConfig": {
-    "access": "public"
-  }
+	"publishConfig": {
+		"access": "public"
+	}
 }
