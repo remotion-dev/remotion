@@ -385,7 +385,7 @@ export const renderCommand = async (
 
 	// eslint-disable-next-line no-constant-condition
 	while (true) {
-		await sleep(1000);
+		await sleep(500);
 		const newStatus = await getRenderProgress({
 			functionName,
 			bucketName: res.bucketName,
