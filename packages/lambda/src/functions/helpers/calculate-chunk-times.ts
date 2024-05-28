@@ -28,7 +28,7 @@ export const calculateChunkTimes = ({
 
 	if (type === 'combined-time-for-cost-calculation') {
 		const totalEncodingTimings = parsedTimings
-			.map((p) => p.rendered - p.start)
+			.map((p) => Math.max(0, p.rendered - p.start))
 			.reduce((a, b) => a + b, 0);
 
 		return totalEncodingTimings + absoluteTime;
