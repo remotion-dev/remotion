@@ -4,6 +4,7 @@ import {overallProgressKey} from '../../shared/constants';
 import type {ParsedTiming} from '../../shared/parse-lambda-timings-key';
 import type {ChunkRetry} from './get-retry-stats';
 import {lambdaWriteFile} from './io';
+import type {LambdaErrorInfo} from './write-lambda-error';
 
 export type OverallRenderProgress = {
 	chunks: number[];
@@ -16,6 +17,7 @@ export type OverallRenderProgress = {
 	postRenderData: PostRenderData | null;
 	timings: ParsedTiming[];
 	renderMetadata: RenderMetadata | null;
+	errors: LambdaErrorInfo[];
 };
 
 export type OverallProgressHelper = {
@@ -40,6 +42,8 @@ export type OverallProgressHelper = {
 	addRetry: (retry: ChunkRetry) => void;
 	setPostRenderData: (postRenderData: PostRenderData) => void;
 	setRenderMetadata: (renderMetadata: RenderMetadata) => void;
+	addErrorWithoutUpload: (errorInfo: LambdaErrorInfo) => void;
+	setExpectedChunks: (expectedChunks: number) => void;
 	get: () => OverallRenderProgress;
 };
 
@@ -55,6 +59,7 @@ export const makeInitialOverallRenderProgress = (): OverallRenderProgress => {
 		postRenderData: null,
 		timings: [],
 		renderMetadata: null,
+		errors: [],
 	};
 };
 
@@ -63,17 +68,15 @@ export const makeOverallRenderProgress = ({
 	bucketName,
 	expectedBucketOwner,
 	region,
-	expectedChunks,
 }: {
 	renderId: string;
 	bucketName: string;
 	expectedBucketOwner: string;
 	region: AwsRegion;
-	expectedChunks: number;
 }): OverallProgressHelper => {
-	const framesRendered = new Array(expectedChunks).fill(0);
-	const framesEncoded = new Array(expectedChunks).fill(0);
-	const lambdasInvoked = new Array(expectedChunks).fill(0);
+	let framesRendered: number[] = [];
+	let framesEncoded: number[] = [];
+	let lambdasInvoked: boolean[] = [];
 
 	const renderProgress: OverallRenderProgress =
 		makeInitialOverallRenderProgress();
@@ -123,6 +126,14 @@ export const makeOverallRenderProgress = ({
 			encoded: number;
 			index: number;
 		}) => {
+			if (framesRendered.length === 0) {
+				throw new Error('Expected chunks to be set before frames are set');
+			}
+
+			if (framesEncoded.length === 0) {
+				throw new Error('Expected chunks to be set before frames are set');
+			}
+
 			framesRendered[index] = rendered;
 			framesEncoded[index] = encoded;
 
@@ -148,8 +159,15 @@ export const makeOverallRenderProgress = ({
 			upload();
 		},
 		setLambdaInvoked(chunk) {
+			if (lambdasInvoked.length === 0) {
+				throw new Error('Expected chunks to be set before lambdas are set');
+			}
+
 			lambdasInvoked[chunk] = true;
-			renderProgress.lambdasInvoked = lambdasInvoked.reduce((a, b) => a + b, 0);
+			renderProgress.lambdasInvoked = lambdasInvoked.reduce(
+				(a, b) => a + Number(b),
+				0,
+			);
 			upload();
 		},
 		setPostRenderData(postRenderData) {
@@ -159,6 +177,14 @@ export const makeOverallRenderProgress = ({
 		setRenderMetadata: (renderMetadata) => {
 			renderProgress.renderMetadata = renderMetadata;
 			upload();
+		},
+		addErrorWithoutUpload: (errorInfo) => {
+			renderProgress.errors.push(errorInfo);
+		},
+		setExpectedChunks: (expectedChunks) => {
+			framesRendered = new Array(expectedChunks).fill(0);
+			framesEncoded = new Array(expectedChunks).fill(0);
+			lambdasInvoked = new Array(expectedChunks).fill(false);
 		},
 		addRetry(retry) {
 			renderProgress.retries.push(retry);

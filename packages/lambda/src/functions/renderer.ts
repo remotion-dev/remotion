@@ -23,10 +23,7 @@ import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {startLeakDetection} from './helpers/leak-detection';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
 import type {RequestContext} from './helpers/request-context';
-import {
-	getTmpDirStateIfENoSp,
-	writeLambdaError,
-} from './helpers/write-lambda-error';
+import {getTmpDirStateIfENoSp} from './helpers/write-lambda-error';
 import type {OnStream} from './streaming/streaming';
 
 type Options = {
@@ -383,27 +380,20 @@ export const rendererHandler = async (
 			payload: {
 				error: (err as Error).stack as string,
 				shouldRetry,
+				errorInfo: {
+					name: (err as Error).name as string,
+					message: (err as Error).message as string,
+					stack: (err as Error).stack as string,
+					chunk: params.chunk,
+					frame: null,
+					type: 'renderer',
+					isFatal: !shouldRetry,
+					tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
+					attempt: params.attempt,
+					totalAttempts: params.retriesLeft + params.attempt,
+					willRetry: shouldRetry,
+				},
 			},
-		});
-
-		// TODO: Error should be handled right away in launch function
-		await writeLambdaError({
-			bucketName: params.bucketName,
-			errorInfo: {
-				name: (err as Error).name as string,
-				message: (err as Error).message as string,
-				stack: (err as Error).stack as string,
-				chunk: params.chunk,
-				frame: null,
-				type: 'renderer',
-				isFatal: !shouldRetry,
-				tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
-				attempt: params.attempt,
-				totalAttempts: params.retriesLeft + params.attempt,
-				willRetry: shouldRetry,
-			},
-			renderId: params.renderId,
-			expectedBucketOwner: options.expectedBucketOwner,
 		});
 
 		throw err;

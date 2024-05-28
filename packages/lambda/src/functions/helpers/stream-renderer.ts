@@ -84,6 +84,7 @@ const streamRenderer = ({
 			}
 
 			if (message.type === 'error-occurred') {
+				overallProgress.addErrorWithoutUpload(message.payload.errorInfo);
 				overallProgress.setFrames({
 					encoded: 0,
 					index: payload.chunk,

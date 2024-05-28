@@ -66,6 +66,13 @@ const innerLaunchHandler = async ({
 		throw new Error('Expected launch type');
 	}
 
+	const overallProgress = makeOverallRenderProgress({
+		renderId: params.renderId,
+		bucketName: params.bucketName,
+		expectedBucketOwner: options.expectedBucketOwner,
+		region: getCurrentRegionInFunction(),
+	});
+
 	const startedDate = Date.now();
 
 	const browserInstance = getBrowserInstance(
@@ -180,13 +187,7 @@ const innerLaunchHandler = async ({
 		);
 	}
 
-	const overallProgress = makeOverallRenderProgress({
-		renderId: params.renderId,
-		bucketName: params.bucketName,
-		expectedBucketOwner: options.expectedBucketOwner,
-		region: getCurrentRegionInFunction(),
-		expectedChunks: chunks.length,
-	});
+	overallProgress.setExpectedChunks(chunks.length);
 
 	const sortedChunks = chunks.slice().sort((a, b) => a[0] - b[0]);
 

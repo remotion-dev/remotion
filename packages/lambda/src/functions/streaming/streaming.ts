@@ -1,4 +1,5 @@
 import {BrowserSafeApis} from '@remotion/renderer/client';
+import type {LambdaErrorInfo} from '../helpers/write-lambda-error';
 import type {RenderStillLambdaResponsePayload} from '../still';
 
 const framesRendered = 'frames-rendered' as const;
@@ -56,6 +57,7 @@ export type StreamingPayload =
 			payload: {
 				error: string;
 				shouldRetry: boolean;
+				errorInfo: LambdaErrorInfo;
 			};
 	  }
 	| {
