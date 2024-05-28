@@ -1,3 +1,7 @@
+export const streamingKey = 'remotion_buffer:';
+
+const magicWordStr = 'remotion_buffer:';
+
 export const makeStreamer = (
 	onMessage: (
 		statusType: 'success' | 'error',
@@ -5,10 +9,9 @@ export const makeStreamer = (
 		data: Uint8Array,
 	) => void,
 ) => {
-	const separatorStr = 'remotion_buffer:';
-	const separator = new Uint8Array(separatorStr.length);
-	for (let i = 0; i < separatorStr.length; i++) {
-		separator[i] = separatorStr.charCodeAt(i);
+	const separator = new Uint8Array(magicWordStr.length);
+	for (let i = 0; i < magicWordStr.length; i++) {
+		separator[i] = magicWordStr.charCodeAt(i);
 	}
 
 	let unprocessedBuffers: Uint8Array[] = [];
@@ -143,4 +146,52 @@ export const makeStreamer = (
 			outputBuffer = new Uint8Array(0);
 		},
 	};
+};
+
+export const makeStreamPayloadMessage = ({
+	status,
+	body,
+	nonce,
+}: {
+	nonce: string;
+	status: 0 | 1;
+	body: Uint8Array;
+}): Uint8Array => {
+	const nonceArr = new TextEncoder().encode(nonce);
+	const magicWordArr = new TextEncoder().encode(magicWordStr);
+	const separatorArr = new TextEncoder().encode(':');
+	const bodyLengthArr = new TextEncoder().encode(body.length.toString());
+	const statusArr = new TextEncoder().encode(String(status));
+
+	// Calculate total length of new Uint8Array
+	const totalLength =
+		nonceArr.length +
+		magicWordArr.length +
+		separatorArr.length * 3 +
+		bodyLengthArr.length +
+		statusArr.length +
+		body.length;
+
+	// Create a new Uint8Array to hold all combined parts
+	const concat = new Uint8Array(totalLength);
+
+	let offset = 0;
+
+	// Function to append data to concat
+	const appendToConcat = (data: Uint8Array) => {
+		concat.set(data, offset);
+		offset += data.length;
+	};
+
+	// Building the final Uint8Array
+	appendToConcat(magicWordArr);
+	appendToConcat(nonceArr);
+	appendToConcat(separatorArr);
+	appendToConcat(bodyLengthArr);
+	appendToConcat(separatorArr);
+	appendToConcat(statusArr);
+	appendToConcat(separatorArr);
+	appendToConcat(body);
+
+	return concat;
 };

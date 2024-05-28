@@ -107,7 +107,7 @@ type LambdaWriteFileInput = {
 	customCredentials: CustomCredentials | null;
 };
 
-export const tryLambdaWriteFile = async ({
+const tryLambdaWriteFile = async ({
 	bucketName,
 	key,
 	body,

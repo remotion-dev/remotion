@@ -1,4 +1,3 @@
-import type {_Object} from '@aws-sdk/client-s3';
 import type {RenderMetadata} from '../../defaults';
 import {makeTimeoutMessage} from './make-timeout-message';
 import type {EnhancedErrorInfo} from './write-lambda-error';
@@ -10,7 +9,6 @@ export const makeTimeoutError = ({
 	renderId,
 }: {
 	timeoutInMilliseconds: number;
-	chunks: _Object[];
 	renderMetadata: RenderMetadata;
 	renderId: string;
 	missingChunks: number[];

@@ -124,7 +124,8 @@ The current time at which the Lambda function responded to the progress request.
 
 ### `renderSize`
 
-How many bytes have been saved to the S3 bucket as a result of this render.
+How many bytes have been saved to the S3 bucket as a result of this render.  
+From v4.0.165, this might be slightly underreported as the `progress.json` file is not factored in.
 
 ### `outputSizeInBytes`
 

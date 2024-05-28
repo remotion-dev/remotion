@@ -1,8 +1,5 @@
-import {getErrorFileName} from '../../shared/constants';
-import {getCurrentRegionInFunction} from './get-current-region';
 import type {FileNameAndSize} from './get-files-in-folder';
 import {getFolderFiles} from './get-files-in-folder';
-import {lambdaWriteFile} from './io';
 import {errorIsOutOfSpaceError} from './is-enosp-err';
 
 export type LambdaErrorInfo = {
@@ -38,33 +35,9 @@ export const getTmpDirStateIfENoSp = (
 };
 
 export type EnhancedErrorInfo = LambdaErrorInfo & {
+	/**
+	 * @deprecated Will always be an empty string.
+	 */
 	s3Location: string;
 	explanation: string | null;
-};
-
-export const writeLambdaError = async ({
-	bucketName,
-	renderId,
-	errorInfo,
-	expectedBucketOwner,
-}: {
-	bucketName: string;
-	renderId: string;
-	expectedBucketOwner: string;
-	errorInfo: LambdaErrorInfo;
-}) => {
-	await lambdaWriteFile({
-		bucketName,
-		key: `${getErrorFileName({
-			renderId,
-			chunk: errorInfo.chunk,
-			attempt: errorInfo.attempt,
-		})}.txt`,
-		body: JSON.stringify(errorInfo),
-		region: getCurrentRegionInFunction(),
-		privacy: 'private',
-		expectedBucketOwner,
-		downloadBehavior: null,
-		customCredentials: null,
-	});
 };

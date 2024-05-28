@@ -113,10 +113,8 @@ describe('Webhooks', () => {
 				preferLossless: false,
 			},
 			functionName: 'remotion-dev-lambda',
-			receivedStreamingPayload: () => undefined,
 			region: 'us-east-1',
 			timeoutInTest: 120000,
-			retriesRemaining: 0,
 		});
 		const parsed = res;
 
@@ -129,10 +127,8 @@ describe('Webhooks', () => {
 				logLevel: 'info',
 			},
 			functionName: 'remotion-dev-lambda',
-			receivedStreamingPayload: () => undefined,
 			region: 'us-east-1',
 			timeoutInTest: 120000,
-			retriesRemaining: 0,
 		});
 
 		expect(mockableHttpClients.http).toHaveBeenCalledTimes(1);
@@ -174,7 +170,6 @@ describe('Webhooks', () => {
 
 		await callLambda({
 			functionName: 'remotion-dev-lambda',
-			receivedStreamingPayload: () => undefined,
 			region: 'us-east-1',
 			type: LambdaRoutines.launch,
 			payload: {
@@ -230,7 +225,6 @@ describe('Webhooks', () => {
 				preferLossless: false,
 			},
 			timeoutInTest: 1000,
-			retriesRemaining: 0,
 		});
 
 		await new Promise((resolve) => {

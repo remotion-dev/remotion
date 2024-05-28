@@ -10,7 +10,7 @@ import {callLambda} from '../../shared/call-lambda';
 
 const functionName = 'remotion-dev-render';
 
-export const waitUntilDone = async (bucketName: string, renderId: string) => {
+const waitUntilDone = async (bucketName: string, renderId: string) => {
 	// eslint-disable-next-line no-constant-condition
 	while (true) {
 		const progress = await callLambda({
@@ -22,10 +22,8 @@ export const waitUntilDone = async (bucketName: string, renderId: string) => {
 				logLevel: 'error',
 			},
 			functionName: 'remotion-dev-lambda',
-			receivedStreamingPayload: () => undefined,
 			region: 'eu-central-1',
 			timeoutInTest: 120000,
-			retriesRemaining: 0,
 		});
 		if (progress.done) {
 			return progress;
@@ -70,10 +68,8 @@ export const simulateLambdaRender = async (
 			}),
 		),
 		functionName: 'remotion-dev-lambda',
-		receivedStreamingPayload: () => undefined,
 		region: 'eu-central-1',
 		timeoutInTest: 120000,
-		retriesRemaining: 0,
 	});
 
 	const progress = await waitUntilDone(res.bucketName, res.renderId);

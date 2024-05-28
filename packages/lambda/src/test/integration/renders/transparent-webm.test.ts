@@ -53,7 +53,7 @@ test('Should make a transparent video', async () => {
 		prefix: rendersPrefix(renderId),
 	});
 
-	expect(files.length).toBe(4);
+	expect(files.length).toBe(2);
 
 	await deleteRender({
 		bucketName: progress.outBucket as string,

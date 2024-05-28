@@ -109,9 +109,7 @@ export const internalDeployFunction = async (
 	};
 };
 
-export const errorHandled = NoReactAPIs.wrapWithErrorHandling(
-	internalDeployFunction,
-);
+const errorHandled = NoReactAPIs.wrapWithErrorHandling(internalDeployFunction);
 
 /**
  * @description Creates an AWS Lambda function in your account that will be able to render a video in the cloud.

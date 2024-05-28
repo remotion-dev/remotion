@@ -1,7 +1,4 @@
-import type {_Object} from '@aws-sdk/client-s3';
-import {lambdaTimingsPrefix} from '../../shared/constants';
 import type {ParsedTiming} from '../../shared/parse-lambda-timings-key';
-import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
 import {max, min} from './min-max';
 
 const getAbsoluteTime = (parsedTimings: ParsedTiming[]) => {
@@ -15,27 +12,23 @@ const getAbsoluteTime = (parsedTimings: ParsedTiming[]) => {
 	const biggestEnd = max(allEnds);
 	const smallestStart = min(allStarts);
 
-	return (biggestEnd as number) - smallestStart;
+	return Math.max(0, biggestEnd - smallestStart);
 };
 
 export const calculateChunkTimes = ({
-	contents,
-	renderId,
 	type,
+	timings,
 }: {
-	contents: _Object[];
-	renderId: string;
 	type: 'combined-time-for-cost-calculation' | 'absolute-time';
+	timings: ParsedTiming[];
 }) => {
-	const parsedTimings = contents
-		.filter((c) => c.Key?.startsWith(lambdaTimingsPrefix(renderId)))
-		.map((f) => parseLambdaTimingsKey(f.Key as string));
+	const parsedTimings = timings;
 
 	const absoluteTime = getAbsoluteTime(parsedTimings);
 
 	if (type === 'combined-time-for-cost-calculation') {
 		const totalEncodingTimings = parsedTimings
-			.map((p) => p.rendered - p.start)
+			.map((p) => Math.max(0, p.rendered - p.start))
 			.reduce((a, b) => a + b, 0);
 
 		return totalEncodingTimings + absoluteTime;

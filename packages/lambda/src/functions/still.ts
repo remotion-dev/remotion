@@ -18,7 +18,7 @@ import type {
 import {
 	LambdaRoutines,
 	MAX_EPHEMERAL_STORAGE_IN_MB,
-	renderMetadataKey,
+	overallProgressKey,
 } from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {isFlakyError} from '../shared/is-flaky-error';
@@ -39,22 +39,24 @@ import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {lambdaWriteFile} from './helpers/io';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
+import {makeInitialOverallRenderProgress} from './helpers/overall-render-progress';
 import {validateComposition} from './helpers/validate-composition';
-import {
-	getTmpDirStateIfENoSp,
-	writeLambdaError,
-} from './helpers/write-lambda-error';
+import type {OnStream} from './streaming/streaming';
 
 type Options = {
 	params: LambdaPayload;
 	renderId: string;
 	expectedBucketOwner: string;
+	onStream: OnStream;
+	timeoutInMilliseconds: number;
 };
 
 const innerStillHandler = async ({
 	params: lambdaParams,
 	expectedBucketOwner,
 	renderId,
+	onStream,
+	timeoutInMilliseconds,
 }: Options) => {
 	if (lambdaParams.type !== LambdaRoutines.still) {
 		throw new TypeError('Expected still type');
@@ -174,10 +176,13 @@ const innerStillHandler = async ({
 		audioBitrate: null,
 	};
 
+	const still = makeInitialOverallRenderProgress(timeoutInMilliseconds);
+	still.renderMetadata = renderMetadata;
+
 	await lambdaWriteFile({
 		bucketName,
-		key: renderMetadataKey(renderId),
-		body: JSON.stringify(renderMetadata),
+		key: overallProgressKey(renderId),
+		body: JSON.stringify(still),
 		region: getCurrentRegionInFunction(),
 		privacy: 'private',
 		expectedBucketOwner,
@@ -271,7 +276,7 @@ const innerStillHandler = async ({
 		customCredentials,
 	);
 
-	return {
+	const payload: RenderStillLambdaResponsePayload = {
 		type: 'success' as const,
 		output: url,
 		size,
@@ -281,9 +286,14 @@ const innerStillHandler = async ({
 		renderId,
 		outKey,
 	};
+
+	onStream({
+		type: 'still-rendered',
+		payload,
+	});
 };
 
-type RenderStillLambdaResponsePayload = {
+export type RenderStillLambdaResponsePayload = {
 	type: 'success';
 	output: string;
 	outKey: string;
@@ -296,7 +306,9 @@ type RenderStillLambdaResponsePayload = {
 
 export const stillHandler = async (
 	options: Options,
-): Promise<RenderStillLambdaResponsePayload> => {
+): Promise<{
+	type: 'success';
+}> => {
 	const {params} = options;
 
 	if (params.type !== LambdaRoutines.still) {
@@ -304,7 +316,8 @@ export const stillHandler = async (
 	}
 
 	try {
-		return await innerStillHandler(options);
+		await innerStillHandler(options);
+		return {type: 'success'};
 	} catch (err) {
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
@@ -314,6 +327,16 @@ export const stillHandler = async (
 		if (!willRetry) {
 			throw err;
 		}
+
+		RenderInternals.Log.error(
+			{
+				indent: false,
+				logLevel: params.logLevel,
+			},
+			'Got error:',
+			(err as Error).stack,
+			'Will retry.',
+		);
 
 		const retryPayload: LambdaPayloads[LambdaRoutines.still] = {
 			...params,
@@ -326,39 +349,7 @@ export const stillHandler = async (
 			payload: retryPayload,
 			region: getCurrentRegionInFunction(),
 			type: LambdaRoutines.still,
-			receivedStreamingPayload: () => undefined,
 			timeoutInTest: 120000,
-			retriesRemaining: 0,
-		});
-		const bucketName =
-			params.bucketName ??
-			(
-				await internalGetOrCreateBucket({
-					region: getCurrentRegionInFunction(),
-					enableFolderExpiry: null,
-					customCredentials: null,
-				})
-			).bucketName;
-
-		// `await` elided on purpose here; using `void` to mark it as intentional
-		// eslint-disable-next-line no-void
-		void writeLambdaError({
-			bucketName,
-			errorInfo: {
-				chunk: null,
-				frame: null,
-				isFatal: false,
-				name: (err as Error).name,
-				message: (err as Error).message,
-				stack: (err as Error).stack as string,
-				type: 'browser',
-				tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
-				attempt: params.attempt,
-				totalAttempts: params.attempt + params.maxRetries,
-				willRetry,
-			},
-			expectedBucketOwner: options.expectedBucketOwner,
-			renderId: options.renderId,
 		});
 
 		return res;

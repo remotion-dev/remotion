@@ -1,3 +1,4 @@
+import type {Runtime} from '@aws-sdk/client-lambda';
 import {
 	AddLayerVersionPermissionCommand,
 	PublishLayerVersionCommand,
@@ -35,7 +36,7 @@ const layerInfo: HostedLayers = {
 const V5_RUNTIME = true;
 
 const makeLayerPublic = async () => {
-	const runtimes: string[] = [V5_RUNTIME ? 'nodejs20.x' : 'nodejs18.x'];
+	const runtimes: Runtime[] = [V5_RUNTIME ? 'nodejs20.x' : 'nodejs18.x'];
 
 	const layers = ['fonts', 'chromium'] as const;
 	for (const region of getRegions()) {

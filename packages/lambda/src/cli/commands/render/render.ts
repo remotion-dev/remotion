@@ -8,7 +8,6 @@ import {downloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
 import {internalRenderMediaOnLambdaRaw} from '../../../api/render-media-on-lambda';
 import type {EnhancedErrorInfo} from '../../../functions/helpers/write-lambda-error';
-import type {RenderProgress} from '../../../shared/constants';
 
 import {
 	BINARY_NAME,
@@ -27,18 +26,9 @@ import {findFunctionName} from '../../helpers/find-function-name';
 import {getWebhookCustomData} from '../../helpers/get-webhook-custom-data';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
-import {makeMultiProgressFromStatus, makeProgressString} from './progress';
+import {makeProgressString} from './progress';
 
 export const RENDER_COMMAND = 'render';
-
-function getTotalFrames(status: RenderProgress): number | null {
-	return status.renderMetadata && status.renderMetadata.type === 'video'
-		? RenderInternals.getFramesToRender(
-				status.renderMetadata.frameRange,
-				status.renderMetadata.everyNthFrame,
-			).length
-		: null;
-}
 
 const {
 	x264Option,
@@ -329,8 +319,6 @@ export const renderCommand = async (
 		indent: false,
 	});
 
-	const totalSteps = downloadName ? 6 : 5;
-
 	const progressBar = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
 		cancelSignal: null,
@@ -371,23 +359,17 @@ export const renderCommand = async (
 		region: getAwsRegion(),
 		logLevel,
 	});
-	const multiProgress = makeMultiProgressFromStatus(status);
 	progressBar.update(
 		makeProgressString({
-			progress: multiProgress,
-			steps: totalSteps,
 			downloadInfo: null,
-			retriesInfo: status.retriesInfo,
-			logLevel,
-			totalFrames: getTotalFrames(status),
-			timeToEncode: status.timeToEncode,
+			overall: status,
 		}),
 		false,
 	);
 
 	// eslint-disable-next-line no-constant-condition
 	while (true) {
-		await sleep(1000);
+		await sleep(500);
 		const newStatus = await getRenderProgress({
 			functionName,
 			bucketName: res.bucketName,
@@ -395,16 +377,10 @@ export const renderCommand = async (
 			region: getAwsRegion(),
 			logLevel,
 		});
-		const newProgress = makeMultiProgressFromStatus(newStatus);
 		progressBar.update(
 			makeProgressString({
-				progress: newProgress,
-				steps: totalSteps,
-				retriesInfo: newStatus.retriesInfo,
 				downloadInfo: null,
-				logLevel,
-				timeToEncode: newStatus.timeToEncode,
-				totalFrames: getTotalFrames(newStatus),
+				overall: newStatus,
 			}),
 			false,
 		);
@@ -412,13 +388,8 @@ export const renderCommand = async (
 		if (newStatus.done) {
 			progressBar.update(
 				makeProgressString({
-					progress: newProgress,
-					steps: totalSteps,
 					downloadInfo: null,
-					retriesInfo: newStatus.retriesInfo,
-					logLevel,
-					timeToEncode: newStatus.timeToEncode,
-					totalFrames: getTotalFrames(newStatus),
+					overall: newStatus,
 				}),
 				false,
 			);
@@ -433,17 +404,12 @@ export const renderCommand = async (
 					onProgress: ({downloaded, totalSize}) => {
 						progressBar.update(
 							makeProgressString({
-								progress: newProgress,
-								steps: totalSteps,
-								retriesInfo: newStatus.retriesInfo,
 								downloadInfo: {
 									doneIn: null,
 									downloaded,
 									totalSize,
 								},
-								logLevel,
-								timeToEncode: newStatus.timeToEncode,
-								totalFrames: getTotalFrames(newStatus),
+								overall: newStatus,
 							}),
 							false,
 						);
@@ -451,17 +417,12 @@ export const renderCommand = async (
 				});
 				progressBar.update(
 					makeProgressString({
-						progress: newProgress,
-						steps: totalSteps,
-						retriesInfo: newStatus.retriesInfo,
 						downloadInfo: {
 							doneIn: Date.now() - downloadStart,
 							downloaded: sizeInBytes,
 							totalSize: sizeInBytes,
 						},
-						logLevel,
-						timeToEncode: newStatus.timeToEncode,
-						totalFrames: getTotalFrames(newStatus),
+						overall: newStatus,
 					}),
 					false,
 				);
@@ -488,7 +449,7 @@ export const renderCommand = async (
 					newStatus.timeToFinish
 						? `${(newStatus.timeToFinish / 1000).toFixed(2)}sec`
 						: null,
-					`Estimated cost $${newStatus.costs.displayCost}`,
+					`Estimated cost ${newStatus.costs.displayCost}`,
 				]
 					.filter(Boolean)
 					.join(', '),

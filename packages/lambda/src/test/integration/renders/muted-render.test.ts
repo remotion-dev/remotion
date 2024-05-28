@@ -42,7 +42,7 @@ test('Should make muted render audio', async () => {
 		prefix: rendersPrefix(renderId),
 	});
 
-	expect(files.length).toBe(3);
+	expect(files.length).toBe(2);
 
 	await deleteRender({
 		bucketName: progress.outBucket as string,
