@@ -24,7 +24,6 @@ type ChunkProgress = {
 };
 
 type MultiRenderProgress = {
-	chunkProgress: ChunkProgress;
 	encodingProgress: EncodingProgress;
 	cleanupInfo: CleanupInfo | null;
 };
@@ -54,11 +53,21 @@ const makeInvokeProgress = (
 	].join(' ');
 };
 
-const makeRenderProgress = ({
-	chunkProgress,
-}: {
-	chunkProgress: ChunkProgress;
-}) => {
+const makeRenderProgress = (progress: RenderProgress) => {
+	const chunkProgress: ChunkProgress = {
+		chunksEncoded: progress.chunks,
+		totalChunks: progress.renderMetadata?.totalChunks ?? null,
+		doneIn: progress.timeToFinishChunks,
+		framesRendered: progress.framesRendered,
+		framesEncoded: progress.encodingStatus?.framesEncoded ?? 0,
+		totalFrames:
+			progress.renderMetadata && progress.renderMetadata.type === 'video'
+				? RenderInternals.getFramesToRender(
+						progress.renderMetadata.frameRange,
+						progress.renderMetadata.everyNthFrame,
+					).length
+				: null,
+	};
 	const {doneIn, framesRendered, totalFrames, framesEncoded} = chunkProgress;
 	const renderProgress =
 		totalFrames === null ? 0 : framesRendered / totalFrames;
@@ -149,20 +158,6 @@ export const makeMultiProgressFromStatus = (
 	status: RenderProgress,
 ): MultiRenderProgress => {
 	return {
-		chunkProgress: {
-			chunksEncoded: status.chunks,
-			totalChunks: status.renderMetadata?.totalChunks ?? null,
-			doneIn: status.timeToFinishChunks,
-			framesRendered: status.framesRendered,
-			framesEncoded: status.encodingStatus?.framesEncoded ?? 0,
-			totalFrames:
-				status.renderMetadata && status.renderMetadata.type === 'video'
-					? RenderInternals.getFramesToRender(
-							status.renderMetadata.frameRange,
-							status.renderMetadata.everyNthFrame,
-						).length
-					: null,
-		},
 		encodingProgress: {
 			framesEncoded: status.encodingStatus?.framesEncoded ?? 0,
 			combinedFrames: status.combinedFrames,
@@ -193,9 +188,7 @@ export const makeProgressString = ({
 }) => {
 	return [
 		makeInvokeProgress(overall, retriesInfo),
-		...makeRenderProgress({
-			chunkProgress: progress.chunkProgress,
-		}),
+		...makeRenderProgress(overall),
 		makeCombinationProgress({
 			encodingProgress: progress.encodingProgress,
 			totalFrames,
