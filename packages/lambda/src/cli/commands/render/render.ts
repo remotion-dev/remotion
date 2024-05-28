@@ -329,8 +329,6 @@ export const renderCommand = async (
 		indent: false,
 	});
 
-	const totalSteps = downloadName ? 6 : 5;
-
 	const progressBar = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
 		cancelSignal: null,
@@ -375,7 +373,6 @@ export const renderCommand = async (
 	progressBar.update(
 		makeProgressString({
 			progress: multiProgress,
-			steps: totalSteps,
 			downloadInfo: null,
 			retriesInfo: status.retriesInfo,
 			totalFrames: getTotalFrames(status),
@@ -397,7 +394,6 @@ export const renderCommand = async (
 		progressBar.update(
 			makeProgressString({
 				progress: newProgress,
-				steps: totalSteps,
 				retriesInfo: newStatus.retriesInfo,
 				downloadInfo: null,
 				totalFrames: getTotalFrames(newStatus),
@@ -409,7 +405,6 @@ export const renderCommand = async (
 			progressBar.update(
 				makeProgressString({
 					progress: newProgress,
-					steps: totalSteps,
 					downloadInfo: null,
 					retriesInfo: newStatus.retriesInfo,
 					totalFrames: getTotalFrames(newStatus),
@@ -428,7 +423,6 @@ export const renderCommand = async (
 						progressBar.update(
 							makeProgressString({
 								progress: newProgress,
-								steps: totalSteps,
 								retriesInfo: newStatus.retriesInfo,
 								downloadInfo: {
 									doneIn: null,
@@ -444,7 +438,6 @@ export const renderCommand = async (
 				progressBar.update(
 					makeProgressString({
 						progress: newProgress,
-						steps: totalSteps,
 						retriesInfo: newStatus.retriesInfo,
 						downloadInfo: {
 							doneIn: Date.now() - downloadStart,

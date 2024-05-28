@@ -117,18 +117,17 @@ const makeCombinationProgress = ({
 	].join(' ');
 };
 
-const makeDownloadProgress = (
-	downloadInfo: DownloadedInfo,
-	totalSteps: number,
-) => {
+const makeDownloadProgress = (downloadInfo: DownloadedInfo) => {
 	return [
-		`(6/${totalSteps})`,
+		`${downloadInfo.doneIn === null ? 'Downloading' : 'Downloaded'} video`.padEnd(
+			CliInternals.LABEL_WIDTH,
+			' ',
+		),
 		downloadInfo.totalSize === null
 			? CliInternals.getFileSizeDownloadBar(downloadInfo.downloaded)
 			: CliInternals.makeProgressBar(
 					downloadInfo.downloaded / downloadInfo.totalSize,
 				),
-		`${downloadInfo.doneIn === null ? 'Downloading' : 'Downloaded'} video`,
 		downloadInfo.doneIn === null
 			? [
 					`${CliInternals.formatBytes(downloadInfo.downloaded)}`,
@@ -182,13 +181,11 @@ type DownloadedInfo = {
 
 export const makeProgressString = ({
 	progress,
-	steps,
 	downloadInfo,
 	retriesInfo,
 	totalFrames,
 }: {
 	progress: MultiRenderProgress;
-	steps: number;
 	downloadInfo: DownloadedInfo | null;
 	retriesInfo: ChunkRetry[];
 	totalFrames: number | null;
@@ -202,7 +199,7 @@ export const makeProgressString = ({
 			encodingProgress: progress.encodingProgress,
 			totalFrames,
 		}),
-		downloadInfo ? makeDownloadProgress(downloadInfo, steps) : null,
+		downloadInfo ? makeDownloadProgress(downloadInfo) : null,
 	]
 		.filter(NoReactInternals.truthy)
 		.join('\n');
