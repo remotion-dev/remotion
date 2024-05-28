@@ -126,6 +126,7 @@ export const mergeChunksAndFinishRender = async (options: {
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		renderMetadata: options.renderMetadata,
 		errorExplanations,
+		// TODO: This is wrong
 		timeToEncode: encodingStop - encodingStart,
 		timeToDelete: (
 			await Promise.all([

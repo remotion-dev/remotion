@@ -34,30 +34,23 @@ const makeInvokeProgress = (overall: RenderProgress) => {
 };
 
 const makeRenderProgress = (progress: RenderProgress) => {
-	const chunkProgress = {
-		chunksEncoded: progress.chunks,
-		totalChunks: progress.renderMetadata?.totalChunks ?? null,
-		doneIn: progress.timeToFinishChunks,
-		framesRendered: progress.framesRendered,
-		framesEncoded: progress.encodingStatus?.framesEncoded ?? 0,
-		totalFrames:
-			progress.renderMetadata && progress.renderMetadata.type === 'video'
-				? RenderInternals.getFramesToRender(
-						progress.renderMetadata.frameRange,
-						progress.renderMetadata.everyNthFrame,
-					).length
-				: null,
-	};
-	const {doneIn, framesRendered, totalFrames, framesEncoded} = chunkProgress;
+	const doneIn = progress.timeToFinishChunks;
+	const {framesRendered} = progress;
+	const framesEncoded = progress.encodingStatus?.framesEncoded ?? 0;
+	const totalFrames =
+		progress.renderMetadata && progress.renderMetadata.type === 'video'
+			? RenderInternals.getFramesToRender(
+					progress.renderMetadata.frameRange,
+					progress.renderMetadata.everyNthFrame,
+				).length
+			: null;
 	const renderProgress =
 		totalFrames === null ? 0 : framesRendered / totalFrames;
 	const encodingProgress =
 		totalFrames === null ? 0 : framesEncoded / totalFrames;
 
 	const frames =
-		chunkProgress.totalFrames === null
-			? null
-			: `${chunkProgress.framesRendered}/${chunkProgress.totalFrames}`;
+		totalFrames === null ? null : `${framesRendered}/${totalFrames}`;
 
 	const first = [
 		(doneIn === null ? 'Rendering frames' : 'Rendered frames').padEnd(
