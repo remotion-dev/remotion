@@ -8,7 +8,6 @@ import {downloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
 import {internalRenderMediaOnLambdaRaw} from '../../../api/render-media-on-lambda';
 import type {EnhancedErrorInfo} from '../../../functions/helpers/write-lambda-error';
-import type {RenderProgress} from '../../../shared/constants';
 
 import {
 	BINARY_NAME,
@@ -30,15 +29,6 @@ import {Log} from '../../log';
 import {makeProgressString} from './progress';
 
 export const RENDER_COMMAND = 'render';
-
-function getTotalFrames(status: RenderProgress): number | null {
-	return status.renderMetadata && status.renderMetadata.type === 'video'
-		? RenderInternals.getFramesToRender(
-				status.renderMetadata.frameRange,
-				status.renderMetadata.everyNthFrame,
-			).length
-		: null;
-}
 
 const {
 	x264Option,
@@ -372,8 +362,6 @@ export const renderCommand = async (
 	progressBar.update(
 		makeProgressString({
 			downloadInfo: null,
-			retriesInfo: status.retriesInfo,
-			totalFrames: getTotalFrames(status),
 			overall: status,
 		}),
 		false,
@@ -391,10 +379,8 @@ export const renderCommand = async (
 		});
 		progressBar.update(
 			makeProgressString({
-				retriesInfo: newStatus.retriesInfo,
 				downloadInfo: null,
-				totalFrames: getTotalFrames(newStatus),
-				overall: status,
+				overall: newStatus,
 			}),
 			false,
 		);
@@ -403,9 +389,7 @@ export const renderCommand = async (
 			progressBar.update(
 				makeProgressString({
 					downloadInfo: null,
-					retriesInfo: newStatus.retriesInfo,
-					totalFrames: getTotalFrames(newStatus),
-					overall: status,
+					overall: newStatus,
 				}),
 				false,
 			);
@@ -420,14 +404,12 @@ export const renderCommand = async (
 					onProgress: ({downloaded, totalSize}) => {
 						progressBar.update(
 							makeProgressString({
-								retriesInfo: newStatus.retriesInfo,
 								downloadInfo: {
 									doneIn: null,
 									downloaded,
 									totalSize,
 								},
-								totalFrames: getTotalFrames(newStatus),
-								overall: status,
+								overall: newStatus,
 							}),
 							false,
 						);
@@ -435,14 +417,12 @@ export const renderCommand = async (
 				});
 				progressBar.update(
 					makeProgressString({
-						retriesInfo: newStatus.retriesInfo,
 						downloadInfo: {
 							doneIn: Date.now() - downloadStart,
 							downloaded: sizeInBytes,
 							totalSize: sizeInBytes,
 						},
-						totalFrames: getTotalFrames(newStatus),
-						overall: status,
+						overall: newStatus,
 					}),
 					false,
 				);

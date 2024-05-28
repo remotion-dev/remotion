@@ -2,7 +2,6 @@ import {CliInternals} from '@remotion/cli';
 import {RenderInternals} from '@remotion/renderer';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderProgress} from '../../../defaults';
-import type {ChunkRetry} from '../../../functions/helpers/get-retry-stats';
 import {truthy} from '../../../shared/truthy';
 
 type LambdaInvokeProgress = {
@@ -19,10 +18,7 @@ type ChunkProgress = {
 	chunksEncoded: number;
 };
 
-const makeInvokeProgress = (
-	overall: RenderProgress,
-	retriesInfo: ChunkRetry[],
-) => {
+const makeInvokeProgress = (overall: RenderProgress) => {
 	const invokeProgress: LambdaInvokeProgress = {
 		lambdasInvoked: overall.lambdasInvoked,
 		totalLambdas:
@@ -40,7 +36,9 @@ const makeInvokeProgress = (
 			: totalLambdas === null
 				? null
 				: `${lambdasInvoked}/${totalLambdas}`,
-		retriesInfo.length > 0 ? `(+${retriesInfo.length} retries)` : [],
+		overall.retriesInfo.length > 0
+			? `(+${overall.retriesInfo.length} retries)`
+			: [],
 	].join(' ');
 };
 
@@ -99,18 +97,22 @@ const makeRenderProgress = (progress: RenderProgress) => {
 	return [first, second];
 };
 
-const makeCombinationProgress = ({
-	totalFrames,
-	progress: prog,
-}: {
-	progress: RenderProgress;
-	totalFrames: number | null;
-}) => {
+function getTotalFrames(status: RenderProgress): number | null {
+	return status.renderMetadata && status.renderMetadata.type === 'video'
+		? RenderInternals.getFramesToRender(
+				status.renderMetadata.frameRange,
+				status.renderMetadata.everyNthFrame,
+			).length
+		: null;
+}
+
+const makeCombinationProgress = (prog: RenderProgress) => {
 	const encodingProgress = {
 		framesEncoded: prog.encodingStatus?.framesEncoded ?? 0,
 		combinedFrames: prog.combinedFrames,
 		timeToCombine: prog.timeToCombine,
 	};
+	const totalFrames = getTotalFrames(prog);
 	const {combinedFrames, timeToCombine} = encodingProgress;
 	const progress = totalFrames === null ? 0 : combinedFrames / totalFrames;
 
@@ -158,22 +160,15 @@ type DownloadedInfo = {
 
 export const makeProgressString = ({
 	downloadInfo,
-	retriesInfo,
-	totalFrames,
 	overall,
 }: {
 	overall: RenderProgress;
 	downloadInfo: DownloadedInfo | null;
-	retriesInfo: ChunkRetry[];
-	totalFrames: number | null;
 }) => {
 	return [
-		makeInvokeProgress(overall, retriesInfo),
+		makeInvokeProgress(overall),
 		...makeRenderProgress(overall),
-		makeCombinationProgress({
-			progress: overall,
-			totalFrames,
-		}),
+		makeCombinationProgress(overall),
 		downloadInfo ? makeDownloadProgress(downloadInfo) : null,
 	]
 		.filter(NoReactInternals.truthy)
