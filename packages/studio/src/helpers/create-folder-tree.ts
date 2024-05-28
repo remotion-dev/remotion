@@ -157,8 +157,12 @@ const createFolderIfDoesNotExist = (
 		items: [],
 		key: folderItem.name,
 		expanded:
-			foldersExpanded[openFolderKey(folderItem.name, folderItem.parent)] ??
-			false,
+			foldersExpanded[
+				openFolderKey({
+					folderName: folderItem.name,
+					parentName: folderItem.parent,
+				})
+			] ?? false,
 		parentName: folderItem.parent,
 	});
 };
@@ -171,7 +175,10 @@ export const createFolderTree = (
 	const items: CompositionSelectorItemType[] = [];
 	const uniqueFolderKeys: string[] = [];
 	for (const folder of folders) {
-		const folderKey = openFolderKey(folder.name, folder.parent);
+		const folderKey = openFolderKey({
+			folderName: folder.name,
+			parentName: folder.parent,
+		});
 		if (uniqueFolderKeys.includes(folderKey)) {
 			if (folder.parent) {
 				throw new Error(
