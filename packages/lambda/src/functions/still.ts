@@ -47,7 +47,7 @@ type Options = {
 	params: LambdaPayload;
 	renderId: string;
 	expectedBucketOwner: string;
-	onStream: OnStream | undefined;
+	onStream: OnStream;
 };
 
 const innerStillHandler = async ({
@@ -285,14 +285,10 @@ const innerStillHandler = async ({
 		outKey,
 	};
 
-	if (onStream) {
-		onStream({
-			type: 'still-rendered',
-			payload,
-		});
-	} else {
-		return payload;
-	}
+	onStream({
+		type: 'still-rendered',
+		payload,
+	});
 };
 
 export type RenderStillLambdaResponsePayload = {
@@ -306,9 +302,7 @@ export type RenderStillLambdaResponsePayload = {
 	renderId: string;
 };
 
-export const stillHandler = async (
-	options: Options,
-): Promise<RenderStillLambdaResponsePayload | null> => {
+export const stillHandler = async (options: Options): Promise<void> => {
 	const {params} = options;
 
 	if (params.type !== LambdaRoutines.still) {
@@ -316,8 +310,7 @@ export const stillHandler = async (
 	}
 
 	try {
-		const res = await innerStillHandler(options);
-		return res ?? null;
+		await innerStillHandler(options);
 	} catch (err) {
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur

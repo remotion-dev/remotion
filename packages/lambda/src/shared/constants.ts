@@ -334,6 +334,7 @@ export type LambdaPayloads = {
 		bucketName: string | null;
 		offthreadVideoCacheSizeInBytes: number | null;
 		deleteAfter: DeleteAfter | null;
+		streamed: boolean;
 	};
 	compositions: {
 		type: LambdaRoutines.compositions;

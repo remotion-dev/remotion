@@ -24,17 +24,16 @@ import {
 	streamWriter,
 	type ResponseStreamWriter,
 } from './streaming/stream-writer';
-import {makeStreamPayload, type OnStream} from './streaming/streaming';
+import type {StreamingPayload} from './streaming/streaming';
+import {makeStreamPayload} from './streaming/streaming';
 
 const innerHandler = async ({
 	params,
 	responseWriter,
 	context,
-	onStream,
 }: {
 	params: LambdaPayload;
 	responseWriter: ResponseStreamWriter;
-	onStream: OnStream | undefined;
 	context: RequestContext;
 }): Promise<void> => {
 	setCurrentRequestId(context.awsRequestId);
@@ -71,25 +70,36 @@ const innerHandler = async ({
 			params.logLevel,
 		);
 
-		if (onStream) {
-			onStream({
-				type: 'render-id-determined',
-				payload: {renderId},
-			});
-		}
+		await new Promise((resolve, reject) => {
+			const onStream = (payload: StreamingPayload) => {
+				const message = makeStreamPayload({
+					message: payload,
+				});
+				responseWriter.write(message).catch((err) => {
+					reject(err);
+				});
+			};
 
-		const res = await stillHandler({
-			expectedBucketOwner: currentUserId,
-			params,
-			renderId,
-			onStream,
+			if (params.streamed) {
+				onStream({
+					type: 'render-id-determined',
+					payload: {renderId},
+				});
+			}
+
+			stillHandler({
+				expectedBucketOwner: currentUserId,
+				params,
+				renderId,
+				onStream,
+			})
+				.then((r) => {
+					resolve(r);
+				})
+				.catch((err) => {
+					reject(err);
+				});
 		});
-
-		// Response is only coming in if the still function was invoked without streaming.
-		// e.g. Python SDK.
-		if (res) {
-			await responseWriter.write(Buffer.from(JSON.stringify(res)));
-		}
 
 		await responseWriter.end();
 
@@ -242,7 +252,6 @@ const routine = async (
 	params: LambdaPayload,
 	responseStream: ResponseStream,
 	context: RequestContext,
-	onStream: OnStream,
 ): Promise<void> => {
 	const responseWriter = streamWriter(responseStream);
 
@@ -251,7 +260,6 @@ const routine = async (
 			params,
 			responseWriter,
 			context,
-			onStream,
 		});
 	} catch (err) {
 		const res: OrError<0> = {

@@ -275,5 +275,6 @@ export const makeLambdaRenderStillPayload = async ({
 		offthreadVideoCacheSizeInBytes,
 		deleteAfter,
 		type: LambdaRoutines.still,
+		streamed: true,
 	};
 };

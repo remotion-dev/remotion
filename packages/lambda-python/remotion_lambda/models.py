@@ -386,6 +386,7 @@ class RenderStillParams:
     dump_browser_logs: Optional[bool] = None
     delete_after: Optional[DeleteAfter] = None
     offthreadvideo_cache_size_in_bytes: Optional[int] = None
+    streamed: bool = False
 
     def serialize_params(self) -> Dict:
         """
@@ -428,7 +429,8 @@ class RenderStillParams:
             'forceBucketName': self.force_bucket_name,
             'deleteAfter': self.delete_after,
             'attempt': self.attempt,
-            'offthreadVideoCacheSizeInBytes': self.offthreadvideo_cache_size_in_bytes
+            'offthreadVideoCacheSizeInBytes': self.offthreadvideo_cache_size_in_bytes,
+            'streamed': self.streamed
         }
 
         return parameters
