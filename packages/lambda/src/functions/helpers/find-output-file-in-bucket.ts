@@ -1,27 +1,22 @@
-import type {AwsRegion} from '../..';
 import {ROLE_NAME} from '../../api/iam-validation/suggested-policy';
 import type {CustomCredentials} from '../../shared/aws-clients';
 import type {RenderMetadata} from '../../shared/constants';
 import {getExpectedOutName} from './expected-out-name';
 import {getOutputUrlFromMetadata} from './get-output-url-from-metadata';
-import {lambdaHeadCommand} from './io';
 
 export type OutputFileMetadata = {
 	url: string;
-	size: number;
 };
 
-export const findOutputFileInBucket = async ({
-	region,
+export const findOutputFileInBucket = ({
 	renderMetadata,
 	bucketName,
 	customCredentials,
 }: {
-	region: AwsRegion;
 	renderMetadata: RenderMetadata;
 	bucketName: string;
 	customCredentials: CustomCredentials | null;
-}): Promise<OutputFileMetadata | null> => {
+}): OutputFileMetadata | null => {
 	if (!renderMetadata) {
 		throw new Error('unexpectedly did not get renderMetadata');
 	}
@@ -33,14 +28,7 @@ export const findOutputFileInBucket = async ({
 	);
 
 	try {
-		const head = await lambdaHeadCommand({
-			bucketName,
-			key,
-			region,
-			customCredentials,
-		});
 		return {
-			size: head.ContentLength as number,
 			url: getOutputUrlFromMetadata(
 				renderMetadata,
 				bucketName,

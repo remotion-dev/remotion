@@ -81,10 +81,10 @@ export const mergeChunksAndFinishRender = async (options: {
 	const encodingStop = Date.now();
 	options.overallProgress.setTimeToCombine(encodingStop - encodingStart);
 
-	const outputSize = fs.statSync(outfile);
+	const outputSize = fs.statSync(outfile).size;
 
 	const writeToS3 = timer(
-		`Writing to S3 (${outputSize.size} bytes)`,
+		`Writing to S3 (${outputSize} bytes)`,
 		options.logLevel,
 	);
 
@@ -145,11 +145,11 @@ export const mergeChunksAndFinishRender = async (options: {
 				cleanupSerializedInputPropsProm,
 				cleanupResolvedInputPropsProm,
 			])
-		).reduce((a, b) => a + b, 0),
+		).reduce((a, b) => Math.max(a, b), 0),
 		outputFile: {
-			size: outputSize.size,
 			url: outputUrl,
 		},
+		outputSize,
 		timeToCombine: encodingStop - encodingStart,
 		overallProgress: options.overallProgress.get(),
 		timeToFinish: Date.now() - options.startTime,

@@ -278,7 +278,7 @@ const innerStillHandler = async ({
 		customCredentials,
 	);
 
-	await onStream({
+	onStream({
 		type: 'still-rendered',
 		payload: {
 			type: 'success' as const,

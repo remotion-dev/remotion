@@ -24,6 +24,7 @@ export const createPostRenderData = ({
 	timeToCombine,
 	overallProgress,
 	timeToFinish,
+	outputSize,
 }: {
 	region: AwsRegion;
 	memorySizeInMb: number;
@@ -36,6 +37,7 @@ export const createPostRenderData = ({
 	timeToCombine: number | null;
 	overallProgress: OverallRenderProgress;
 	timeToFinish: number;
+	outputSize: number;
 }): PostRenderData => {
 	const parsedTimings = overallProgress.timings;
 
@@ -79,7 +81,7 @@ export const createPostRenderData = ({
 		errors: errorExplanations,
 		startTime: renderMetadata.startedDate,
 		endTime,
-		outputSize: outputFile.size,
+		outputSize,
 		renderSize,
 		filesCleanedUp: 0,
 		timeToEncode,

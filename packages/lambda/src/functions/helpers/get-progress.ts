@@ -11,7 +11,6 @@ import {truthy} from '../../shared/truthy';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import {estimatePriceFromBucket} from './calculate-price-from-bucket';
 import {getExpectedOutName} from './expected-out-name';
-import {findOutputFileInBucket} from './find-output-file-in-bucket';
 import {formatCostsInfo} from './format-costs-info';
 import {getCurrentRegionInFunction} from './get-current-region';
 import {getOverallProgress} from './get-overall-progress';
@@ -131,20 +130,11 @@ export const getProgress = async ({
 		expectedBucketOwner,
 	});
 
-	if (renderMetadata?.type === 'still') {
+	if (renderMetadata && renderMetadata.type === 'still') {
 		throw new Error(
 			"You don't need to call getRenderProgress() on a still render. Once you have obtained the `renderId`, the render is already done! 😉",
 		);
 	}
-
-	const outputFile = renderMetadata
-		? await findOutputFileInBucket({
-				bucketName,
-				renderMetadata,
-				region,
-				customCredentials,
-			})
-		: null;
 
 	const priceFromBucket = estimatePriceFromBucket({
 		renderMetadata,
@@ -234,7 +224,7 @@ export const getProgress = async ({
 		renderId,
 		renderMetadata,
 		bucket: bucketName,
-		outputFile: outputFile?.url ?? null,
+		outputFile: null,
 		timeToFinish: null,
 		errors: allErrors,
 		fatalErrorEncountered: allErrors.some((f) => f.isFatal && !f.willRetry),
@@ -263,18 +253,11 @@ export const getProgress = async ({
 			frames: (overallProgress.framesRendered ?? 0) / (frameCount ?? 1),
 		}),
 		retriesInfo: overallProgress.retries ?? [],
-		outKey:
-			outputFile && renderMetadata
-				? getExpectedOutName(renderMetadata, bucketName, customCredentials).key
-				: null,
-		outBucket:
-			outputFile && renderMetadata
-				? getExpectedOutName(renderMetadata, bucketName, customCredentials)
-						.renderBucketName
-				: null,
+		outKey: null,
+		outBucket: null,
 		mostExpensiveFrameRanges: null,
 		timeToEncode: null,
-		outputSizeInBytes: outputFile?.size ?? null,
+		outputSizeInBytes: null,
 		estimatedBillingDurationInMilliseconds: priceFromBucket
 			? priceFromBucket.estimatedBillingDurationInMilliseconds
 			: null,
