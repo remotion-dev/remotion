@@ -57,7 +57,7 @@ export const LOG_GROUP_PREFIX = '/aws/lambda/';
 export const LAMBDA_INSIGHTS_PREFIX = '/aws/lambda-insights';
 export const rendersPrefix = (renderId: string) => `renders/${renderId}`;
 export const overallProgressKey = (renderId: string) =>
-	`${rendersPrefix(renderId)}/overall-progress.json`;
+	`${rendersPrefix(renderId)}/progress.json`;
 
 export type OutNameInput =
 	| string
