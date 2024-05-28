@@ -4,12 +4,19 @@ import {useZIndex} from '../state/z-index';
 
 export type RenderInlineAction = (color: string) => React.ReactNode;
 
-export const InlineAction: React.FC<{
-	onClick: React.MouseEventHandler<HTMLButtonElement>;
-	disabled?: boolean;
-	renderAction: RenderInlineAction;
-	title?: string;
-}> = ({renderAction, onClick, disabled, title}) => {
+export type InlineActionProps = {
+	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
+	readonly disabled?: boolean;
+	readonly renderAction: RenderInlineAction;
+	readonly title?: string;
+};
+
+export const InlineAction = ({
+	renderAction,
+	onClick,
+	disabled,
+	title,
+}: InlineActionProps) => {
 	const {tabIndex} = useZIndex();
 
 	const [hovered, setHovered] = useState(false);
