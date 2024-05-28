@@ -115,7 +115,6 @@ describe('Webhooks', () => {
 			functionName: 'remotion-dev-lambda',
 			region: 'us-east-1',
 			timeoutInTest: 120000,
-			retriesRemaining: 0,
 		});
 		const parsed = res;
 
@@ -130,7 +129,6 @@ describe('Webhooks', () => {
 			functionName: 'remotion-dev-lambda',
 			region: 'us-east-1',
 			timeoutInTest: 120000,
-			retriesRemaining: 0,
 		});
 
 		expect(mockableHttpClients.http).toHaveBeenCalledTimes(1);
@@ -227,7 +225,6 @@ describe('Webhooks', () => {
 				preferLossless: false,
 			},
 			timeoutInTest: 1000,
-			retriesRemaining: 0,
 		});
 
 		await new Promise((resolve) => {

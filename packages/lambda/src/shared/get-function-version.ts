@@ -21,7 +21,6 @@ export const getFunctionVersion = async ({
 			region,
 			type: LambdaRoutines.info,
 			timeoutInTest: 120000,
-			retriesRemaining: 0,
 		});
 		return result.version;
 	} catch (err) {

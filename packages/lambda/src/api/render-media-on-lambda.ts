@@ -83,7 +83,6 @@ export const internalRenderMediaOnLambdaRaw = async (
 			payload: await makeLambdaRenderMediaPayload(input),
 			region,
 			timeoutInTest: 120000,
-			retriesRemaining: 0,
 		});
 
 		return {

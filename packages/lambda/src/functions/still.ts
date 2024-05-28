@@ -350,7 +350,6 @@ export const stillHandler = async (
 			region: getCurrentRegionInFunction(),
 			type: LambdaRoutines.still,
 			timeoutInTest: 120000,
-			retriesRemaining: 0,
 		});
 
 		return res;

@@ -13,7 +13,6 @@ test('Call function locally', async () => {
 			functionName: 'remotion-dev-lambda',
 			region: 'us-east-1',
 			timeoutInTest: 120000,
-			retriesRemaining: 0,
 		}),
 	).toEqual({type: 'success', version: VERSION});
 });

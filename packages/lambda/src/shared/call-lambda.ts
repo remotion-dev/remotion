@@ -40,31 +40,17 @@ const parseJsonOrThrowSource = (data: Uint8Array, type: string) => {
 };
 
 export const callLambda = async <T extends LambdaRoutines>(
-	options: Options<T> & {
-		retriesRemaining: number;
-	},
+	options: Options<T> & {},
 ): Promise<LambdaReturnValues[T]> => {
-	try {
-		// Do not remove this await
-		const res = await callLambdaWithoutRetry<T>(options);
-		if (res.type === 'error') {
-			const err = new Error(res.message);
-			err.stack = res.stack;
-			throw err;
-		}
-
-		return res;
-	} catch (err) {
-		if (options.retriesRemaining === 0) {
-			throw err;
-		}
-		// TODO: Should only retry in case it is flaky
-
-		return callLambda({
-			...options,
-			retriesRemaining: options.retriesRemaining - 1,
-		});
+	// Do not remove this await
+	const res = await callLambdaWithoutRetry<T>(options);
+	if (res.type === 'error') {
+		const err = new Error(res.message);
+		err.stack = res.stack;
+		throw err;
 	}
+
+	return res;
 };
 
 export const callLambdaWithStreaming = async <T extends LambdaRoutines>(

@@ -11,7 +11,6 @@ test('Info handler should return version', async () => {
 		functionName: 'remotion-dev-lambda',
 		region: 'us-east-1',
 		timeoutInTest: 120000,
-		retriesRemaining: 0,
 	});
 
 	expect(typeof response.version === 'string').toBe(true);
