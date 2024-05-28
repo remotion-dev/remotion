@@ -9,7 +9,6 @@ import {
 } from '../../shared/get-most-expensive-chunks';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import type {OutputFileMetadata} from './find-output-file-in-bucket';
-import {getTimeToFinish} from './get-time-to-finish';
 import type {OverallRenderProgress} from './overall-render-progress';
 import type {EnhancedErrorInfo} from './write-lambda-error';
 
@@ -24,6 +23,7 @@ export const createPostRenderData = ({
 	outputFile,
 	timeToCombine,
 	overallProgress,
+	timeToFinish,
 }: {
 	region: AwsRegion;
 	memorySizeInMb: number;
@@ -35,6 +35,7 @@ export const createPostRenderData = ({
 	outputFile: OutputFileMetadata;
 	timeToCombine: number | null;
 	overallProgress: OverallRenderProgress;
+	timeToFinish: number;
 }): PostRenderData => {
 	const parsedTimings = overallProgress.timings;
 
@@ -57,15 +58,6 @@ export const createPostRenderData = ({
 	}
 
 	const endTime = Date.now();
-
-	const timeToFinish = getTimeToFinish({
-		renderMetadata,
-		lastModified: endTime,
-	});
-
-	if (!timeToFinish) {
-		throw new TypeError(`Cannot calculate timeToFinish value`);
-	}
 
 	const renderSize = contents
 		.map((c) => c.Size ?? 0)

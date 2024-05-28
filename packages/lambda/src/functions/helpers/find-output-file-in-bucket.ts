@@ -9,7 +9,6 @@ import {lambdaHeadCommand} from './io';
 export type OutputFileMetadata = {
 	url: string;
 	size: number;
-	lastModified: number;
 };
 
 export const findOutputFileInBucket = async ({
@@ -41,7 +40,6 @@ export const findOutputFileInBucket = async ({
 			customCredentials,
 		});
 		return {
-			lastModified: head.LastModified?.getTime() as number,
 			size: head.ContentLength as number,
 			url: getOutputUrlFromMetadata(
 				renderMetadata,

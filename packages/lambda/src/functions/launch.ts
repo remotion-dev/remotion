@@ -100,6 +100,7 @@ const innerLaunchHandler = async ({
 		'Validating composition, input props:',
 		serializedInputPropsWithCustomSchema,
 	);
+	const startTime = Date.now();
 	const comp = await validateComposition({
 		serveUrl: params.serveUrl,
 		composition: params.composition,
@@ -389,6 +390,7 @@ const innerLaunchHandler = async ({
 		outdir,
 		files: files.sort(),
 		overallProgress,
+		startTime,
 	});
 
 	return postRenderData;

@@ -48,11 +48,6 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 			numberOfGifLoops: null,
 			muted: false,
 		},
-		outputFileMetadata: {
-			url: 'out.mp4',
-			lastModified: Date.now() - 2000,
-			size: 1000000,
-		},
 		diskSizeInMb: 512,
 		lambdasInvoked: 1,
 		timings: [

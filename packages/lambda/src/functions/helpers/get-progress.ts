@@ -16,7 +16,6 @@ import {formatCostsInfo} from './format-costs-info';
 import {getCurrentRegionInFunction} from './get-current-region';
 import {getOverallProgress} from './get-overall-progress';
 import {getOverallProgressS3} from './get-overall-progress-s3';
-import {getTimeToFinish} from './get-time-to-finish';
 import {inspectErrors} from './inspect-errors';
 import {lambdaLs} from './io';
 import {makeTimeoutError} from './make-timeout-error';
@@ -150,7 +149,6 @@ export const getProgress = async ({
 	const priceFromBucket = estimatePriceFromBucket({
 		renderMetadata,
 		memorySizeInMb,
-		outputFileMetadata: outputFile,
 		lambdasInvoked: renderMetadata?.estimatedRenderLambdaInvokations ?? 0,
 		// We cannot determine the ephemeral storage size, so we
 		// overestimate the price, but will only have a miniscule effect (~0.2%)
@@ -167,11 +165,6 @@ export const getProgress = async ({
 		minFilesToDelete: 0,
 		filesDeleted: 0,
 	};
-
-	const timeToFinish = getTimeToFinish({
-		lastModified: outputFile?.lastModified ?? null,
-		renderMetadata,
-	});
 
 	const chunkMultiplier = [hasAudio, hasVideo].filter(truthy).length;
 
@@ -242,7 +235,7 @@ export const getProgress = async ({
 		renderMetadata,
 		bucket: bucketName,
 		outputFile: outputFile?.url ?? null,
-		timeToFinish,
+		timeToFinish: null,
 		errors: allErrors,
 		fatalErrorEncountered: allErrors.some((f) => f.isFatal && !f.willRetry),
 		currentTime: Date.now(),

@@ -50,6 +50,7 @@ export const mergeChunksAndFinishRender = async (options: {
 	outdir: string;
 	files: string[];
 	overallProgress: OverallProgressHelper;
+	startTime: number;
 }): Promise<PostRenderData> => {
 	const onProgress = (framesEncoded: number) => {
 		options.overallProgress.setCombinedFrames(framesEncoded);
@@ -146,12 +147,12 @@ export const mergeChunksAndFinishRender = async (options: {
 			])
 		).reduce((a, b) => a + b, 0),
 		outputFile: {
-			lastModified: Date.now(),
 			size: outputSize.size,
 			url: outputUrl,
 		},
 		timeToCombine: encodingStop - encodingStart,
 		overallProgress: options.overallProgress.get(),
+		timeToFinish: Date.now() - options.startTime,
 	});
 
 	options.overallProgress.setPostRenderData(postRenderData);
