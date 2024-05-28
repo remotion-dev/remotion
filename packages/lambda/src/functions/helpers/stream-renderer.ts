@@ -75,6 +75,10 @@ const streamRenderer = ({
 			}
 
 			if (message.type === 'chunk-complete') {
+				RenderInternals.Log.verbose(
+					{indent: false, logLevel},
+					`Rendered chunk ${payload.chunk}`,
+				);
 				overallProgress.addChunkCompleted(
 					payload.chunk,
 					message.payload.start,

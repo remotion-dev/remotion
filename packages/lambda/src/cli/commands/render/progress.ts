@@ -17,7 +17,7 @@ const makeInvokeProgress = (overall: RenderProgress) => {
 	};
 	const {lambdasInvoked, totalLambdas} = invokeProgress;
 	const progress = totalLambdas === null ? 0 : lambdasInvoked / totalLambdas;
-	return [
+	const topLine = [
 		`${progress === 0 ? 'Invoked' : 'Invoking'} lambdas`.padEnd(
 			CliInternals.LABEL_WIDTH,
 		),
@@ -27,10 +27,14 @@ const makeInvokeProgress = (overall: RenderProgress) => {
 			: totalLambdas === null
 				? null
 				: `${lambdasInvoked}/${totalLambdas}`,
-		overall.retriesInfo.length > 0
-			? `(+${overall.retriesInfo.length} retries)`
-			: [],
 	].join(' ');
+
+	return [
+		topLine,
+		overall.retriesInfo.length > 0
+			? `! Retrying chunk${overall.retriesInfo.length === 1 ? '' : 's'} ${overall.retriesInfo.map((r) => r.chunk).join(', ')}`
+			: null,
+	].filter(NoReactInternals.truthy);
 };
 
 const makeRenderProgress = (progress: RenderProgress) => {
@@ -180,7 +184,7 @@ export const makeProgressString = ({
 }) => {
 	return [
 		makeTopRow(overall),
-		makeInvokeProgress(overall),
+		...makeInvokeProgress(overall),
 		...makeRenderProgress(overall),
 		makeCombinationProgress(overall),
 		downloadInfo ? makeDownloadProgress(downloadInfo) : null,
