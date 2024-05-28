@@ -203,6 +203,10 @@ const innerLaunchHandler = async ({
 
 	const fps = comp.fps / params.everyNthFrame;
 
+	// If for 150 functions, we stream every frame, we DDos ourselves.
+	// Throttling a bit, allowing more progress if there is lower concurrency.
+	const progressEveryNthFrame = Math.ceil(chunks.length / 15);
+
 	const lambdaPayloads = chunks.map((chunkPayload) => {
 		const payload: LambdaPayload = {
 			type: LambdaRoutines.renderer,
@@ -249,6 +253,7 @@ const innerLaunchHandler = async ({
 			preferLossless: params.preferLossless,
 			compositionStart: realFrameRange[0],
 			framesPerLambda,
+			progressEveryNthFrame,
 		};
 		return payload;
 	});
@@ -475,6 +480,7 @@ export const launchHandler = async (
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		timeoutTimestamp: options.getRemainingTimeInMillis() + Date.now(),
+		logLevel: params.logLevel,
 	});
 
 	try {

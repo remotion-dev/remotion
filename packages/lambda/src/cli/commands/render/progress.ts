@@ -161,7 +161,9 @@ const makeTopRow = (overall: RenderProgress) => {
 			? `${overall.renderMetadata.estimatedTotalLambdaInvokations} λ`
 			: null,
 		`${overall.costs.displayCost}`,
-		`Timeout ${timeoutInSeconds}s`,
+		timeoutInSeconds < 0
+			? 'Timeout reached - Expecting crash shortly'
+			: `Timeout ${timeoutInSeconds}s`,
 	]
 		.filter(NoReactInternals.truthy)
 		.join(' • ');

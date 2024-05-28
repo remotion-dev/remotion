@@ -309,6 +309,7 @@ export type LambdaPayloads = {
 		colorSpace: ColorSpace | null;
 		compositionStart: number;
 		framesPerLambda: number;
+		progressEveryNthFrame: number;
 	};
 	still: {
 		type: LambdaRoutines.still;

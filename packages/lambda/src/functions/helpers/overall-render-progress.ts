@@ -1,3 +1,4 @@
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {AwsRegion} from '../../client';
 import type {PostRenderData, RenderMetadata} from '../../shared/constants';
@@ -78,12 +79,14 @@ export const makeOverallRenderProgress = ({
 	expectedBucketOwner,
 	region,
 	timeoutTimestamp,
+	logLevel,
 }: {
 	renderId: string;
 	bucketName: string;
 	expectedBucketOwner: string;
 	region: AwsRegion;
 	timeoutTimestamp: number;
+	logLevel: LogLevel;
 }): OverallProgressHelper => {
 	let framesRendered: number[] = [];
 	let framesEncoded: number[] = [];
@@ -102,7 +105,6 @@ export const makeOverallRenderProgress = ({
 	let encodeStartTime: number | null = null;
 	let renderFramesStartTime: number | null = null;
 
-	// TODO: What if upload fails?
 	const upload = async () => {
 		const uploadRequestId = ++latestUploadRequest;
 		if (currentUploadPromise) {
@@ -131,13 +133,23 @@ export const makeOverallRenderProgress = ({
 			key: overallProgressKey(renderId),
 			privacy: 'private',
 			region,
-		}).then(() => {
-			// By default, upload is way too fast (~20 requests per second)
-			// Space out the requests a bit
-			return new Promise<void>((resolve) => {
-				setTimeout(resolve, 500 - (Date.now() - start));
+		})
+			.then(() => {
+				// By default, upload is way too fast (~20 requests per second)
+				// Space out the requests a bit
+				return new Promise<void>((resolve) => {
+					setTimeout(resolve, 500 - (Date.now() - start));
+				});
+			})
+			.catch((err) => {
+				// If an error occurs in uploading the state that contains the errors,
+				// that is unfortunate. We just log it.
+				RenderInternals.Log.error(
+					{indent: false, logLevel},
+					'Error uploading progress',
+					err,
+				);
 			});
-		});
 		await currentUploadPromise;
 		currentUploadPromise = null;
 	};

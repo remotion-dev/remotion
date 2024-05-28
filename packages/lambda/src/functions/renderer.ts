@@ -186,10 +186,24 @@ const renderHandler = async ({
 					`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`,
 				);
 
-				onStream({
-					type: 'frames-rendered',
-					payload: {rendered: renderedFrames, encoded: encodedFrames},
-				});
+				const allFramesRendered = allFrames.length === renderedFrames;
+				const allFramesEncoded = allFrames.length === encodedFrames;
+
+				const frameReportPoint =
+					(renderedFrames % params.progressEveryNthFrame === 0 ||
+						allFramesRendered) &&
+					!allFramesEncoded;
+				const encodedFramesReportPoint =
+					(encodedFrames % params.progressEveryNthFrame === 0 ||
+						allFramesEncoded) &&
+					allFramesRendered;
+
+				if (frameReportPoint || encodedFramesReportPoint) {
+					onStream({
+						type: 'frames-rendered',
+						payload: {rendered: renderedFrames, encoded: encodedFrames},
+					});
+				}
 
 				if (renderedFrames === allFrames.length) {
 					RenderInternals.Log.verbose(

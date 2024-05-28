@@ -224,11 +224,14 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 				: new Client({
 						region,
 						credentials: getCredentials(),
-						requestHandler: {
-							httpsAgent: {
-								maxSockets: MAX_FUNCTIONS_PER_RENDER + 50,
-							},
-						},
+						requestHandler:
+							service === 'lambda'
+								? {
+										httpsAgent: {
+											maxSockets: MAX_FUNCTIONS_PER_RENDER + 50,
+										},
+									}
+								: undefined,
 					});
 
 		if (process.env.REMOTION_DISABLE_AWS_CLIENT_CACHE) {
