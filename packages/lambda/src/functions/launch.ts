@@ -328,7 +328,6 @@ const innerLaunchHandler = async ({
 
 	const files: string[] = [];
 
-	// TODO: Now this will wait for the render to complete
 	await Promise.all(
 		lambdaPayloads.map(async (payload) => {
 			await streamRendererFunctionWithRetry({
