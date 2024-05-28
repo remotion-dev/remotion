@@ -1,3 +1,4 @@
+import {RenderInternals} from '@remotion/renderer';
 import type {AwsRegion} from '../../client';
 import type {PostRenderData, RenderMetadata} from '../../shared/constants';
 import {overallProgressKey} from '../../shared/constants';
@@ -12,6 +13,8 @@ export type OverallRenderProgress = {
 	framesEncoded: number;
 	combinedFrames: number;
 	timeToCombine: number | null;
+	timeToEncode: number | null;
+	timeToRenderFrames: number | null;
 	lambdasInvoked: number;
 	retries: ChunkRetry[];
 	postRenderData: PostRenderData | null;
@@ -54,12 +57,14 @@ export const makeInitialOverallRenderProgress = (): OverallRenderProgress => {
 		framesEncoded: 0,
 		combinedFrames: 0,
 		timeToCombine: null,
+		timeToEncode: null,
 		lambdasInvoked: 0,
 		retries: [],
 		postRenderData: null,
 		timings: [],
 		renderMetadata: null,
 		errors: [],
+		timeToRenderFrames: null,
 	};
 };
 
@@ -87,6 +92,9 @@ export const makeOverallRenderProgress = ({
 
 	let latestUploadRequest = 0;
 	const getLatestRequestId = () => latestUploadRequest;
+
+	let encodeStartTime: number | null = null;
+	let renderFramesStartTime: number | null = null;
 
 	// TODO: What if upload fails?
 	const upload = async () => {
@@ -150,12 +158,46 @@ export const makeOverallRenderProgress = ({
 			framesRendered[index] = rendered;
 			framesEncoded[index] = encoded;
 
-			renderProgress.framesRendered = framesRendered.reduce((a, b) => a + b, 0);
-			renderProgress.framesEncoded = framesEncoded.reduce((a, b) => a + b, 0);
+			const totalFramesEncoded = framesEncoded.reduce((a, b) => a + b, 0);
+			const totalFramesRendered = framesRendered.reduce((a, b) => a + b, 0);
+			if (renderProgress.framesEncoded === 0 && totalFramesEncoded > 0) {
+				encodeStartTime = Date.now();
+			}
+
+			if (renderProgress.framesRendered === 0 && totalFramesRendered > 0) {
+				renderFramesStartTime = Date.now();
+			}
+
+			if (renderProgress.timeToRenderFrames === null) {
+				const frameCount =
+					renderProgress.renderMetadata &&
+					renderProgress.renderMetadata.type === 'video'
+						? RenderInternals.getFramesToRender(
+								renderProgress.renderMetadata.frameRange,
+								renderProgress.renderMetadata.everyNthFrame,
+							).length
+						: null;
+				if (frameCount === totalFramesRendered) {
+					const timeToRenderFrames =
+						Date.now() - (renderFramesStartTime ?? Date.now());
+					renderProgress.timeToRenderFrames = timeToRenderFrames;
+				}
+			}
+
+			renderProgress.framesRendered = totalFramesRendered;
+			renderProgress.framesEncoded = totalFramesEncoded;
 			upload();
 		},
 		addChunkCompleted: (chunkIndex, start, rendered) => {
 			renderProgress.chunks.push(chunkIndex);
+			if (
+				renderProgress.chunks.length ===
+				renderProgress.renderMetadata?.totalChunks
+			) {
+				const timeToEncode = Date.now() - (encodeStartTime ?? Date.now());
+				renderProgress.timeToEncode = timeToEncode;
+			}
+
 			renderProgress.timings.push({
 				chunk: chunkIndex,
 				start,

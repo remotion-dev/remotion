@@ -91,6 +91,7 @@ export const getProgress = async ({
 			renderId,
 			timeToFinish: overallProgress.postRenderData.timeToFinish,
 			timeToFinishChunks: overallProgress.postRenderData.timeToRenderChunks,
+			timeToRenderFrames: overallProgress.postRenderData.timeToRenderFrames,
 			overallProgress: 1,
 			retriesInfo: overallProgress.postRenderData.retriesInfo,
 			outKey: outData.key,
@@ -199,6 +200,7 @@ export const getProgress = async ({
 			combinedFrames: overallProgress.combinedFrames,
 			timeToCombine: overallProgress.timeToCombine,
 		},
+		timeToRenderFrames: overallProgress.timeToRenderFrames,
 		costs: priceFromBucket
 			? formatCostsInfo(priceFromBucket.accruedSoFar)
 			: formatCostsInfo(0),
@@ -236,7 +238,7 @@ export const getProgress = async ({
 		outKey: null,
 		outBucket: null,
 		mostExpensiveFrameRanges: null,
-		timeToEncode: null,
+		timeToEncode: overallProgress.timeToEncode,
 		outputSizeInBytes: null,
 		estimatedBillingDurationInMilliseconds: priceFromBucket
 			? priceFromBucket.estimatedBillingDurationInMilliseconds

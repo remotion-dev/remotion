@@ -15,7 +15,6 @@ export const createPostRenderData = ({
 	region,
 	memorySizeInMb,
 	renderMetadata,
-	timeToEncode,
 	errorExplanations,
 	timeToDelete,
 	outputFile,
@@ -27,7 +26,6 @@ export const createPostRenderData = ({
 	region: AwsRegion;
 	memorySizeInMb: number;
 	renderMetadata: RenderMetadata;
-	timeToEncode: number;
 	timeToDelete: number;
 	errorExplanations: EnhancedErrorInfo[];
 	outputFile: OutputFileMetadata;
@@ -58,6 +56,14 @@ export const createPostRenderData = ({
 
 	const endTime = Date.now();
 
+	if (overallProgress.timeToEncode === null) {
+		throw new Error('Expected time to encode to be set');
+	}
+
+	if (overallProgress.timeToRenderFrames === null) {
+		throw new Error('Expected time to encode to be set');
+	}
+
 	return {
 		cost: {
 			currency: 'USD',
@@ -77,12 +83,13 @@ export const createPostRenderData = ({
 		outputSize,
 		renderSize: outputSize,
 		filesCleanedUp: 0,
-		timeToEncode,
+		timeToEncode: overallProgress.timeToEncode,
 		timeToCleanUp: timeToDelete,
 		timeToRenderChunks: calculateChunkTimes({
 			type: 'absolute-time',
 			timings: overallProgress.timings,
 		}),
+		timeToRenderFrames: overallProgress.timeToRenderFrames,
 		retriesInfo: overallProgress.retries,
 		mostExpensiveFrameRanges:
 			renderMetadata.type === 'still'

@@ -403,6 +403,7 @@ export type PostRenderData = {
 	outputSize: number;
 	renderSize: number;
 	timeToFinish: number;
+	timeToRenderFrames: number;
 	errors: EnhancedErrorInfo[];
 	startTime: number;
 	endTime: number;
@@ -455,6 +456,7 @@ export type RenderProgress = {
 	lambdasInvoked: number;
 	cleanup: CleanupInfo | null;
 	timeToFinishChunks: number | null;
+	timeToRenderFrames: number | null;
 	timeToEncode: number | null;
 	overallProgress: number;
 	retriesInfo: ChunkRetry[];

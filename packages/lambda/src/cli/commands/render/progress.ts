@@ -34,8 +34,6 @@ const makeInvokeProgress = (overall: RenderProgress) => {
 };
 
 const makeRenderProgress = (progress: RenderProgress) => {
-	const doneIn = progress.timeToFinishChunks;
-	const {framesRendered} = progress;
 	const framesEncoded = progress.encodingStatus?.framesEncoded ?? 0;
 	const totalFrames =
 		progress.renderMetadata && progress.renderMetadata.type === 'video'
@@ -45,35 +43,37 @@ const makeRenderProgress = (progress: RenderProgress) => {
 				).length
 			: null;
 	const renderProgress =
-		totalFrames === null ? 0 : framesRendered / totalFrames;
+		totalFrames === null ? 0 : progress.framesRendered / totalFrames;
 	const encodingProgress =
 		totalFrames === null ? 0 : framesEncoded / totalFrames;
 
 	const frames =
-		totalFrames === null ? null : `${framesRendered}/${totalFrames}`;
+		totalFrames === null ? null : `${progress.framesRendered}/${totalFrames}`;
 
 	const first = [
-		(doneIn === null ? 'Rendering frames' : 'Rendered frames').padEnd(
-			CliInternals.LABEL_WIDTH,
-			' ',
-		),
+		(progress.timeToRenderFrames === null
+			? 'Rendering frames'
+			: 'Rendered frames'
+		).padEnd(CliInternals.LABEL_WIDTH, ' '),
 		CliInternals.makeProgressBar(renderProgress),
-		doneIn === null ? frames : CliInternals.chalk.gray(`${doneIn}ms`),
+		progress.timeToRenderFrames === null
+			? frames
+			: CliInternals.chalk.gray(`${progress.timeToRenderFrames}ms`),
 	]
 		.filter(truthy)
 		.join(' ');
 
 	const second = [
-		`${doneIn === null ? 'Encoding' : 'Encoded'} frames`.padEnd(
+		`${progress.timeToEncode === null ? 'Encoding' : 'Encoded'} frames`.padEnd(
 			CliInternals.LABEL_WIDTH,
 			' ',
 		),
 		CliInternals.makeProgressBar(encodingProgress),
-		doneIn === null
+		progress.timeToEncode === null
 			? totalFrames === null
 				? null
 				: `${framesEncoded}/${totalFrames}`
-			: CliInternals.chalk.gray(`${doneIn}ms`),
+			: CliInternals.chalk.gray(`${progress.timeToEncode}ms`),
 	]
 		.filter(truthy)
 		.join(' ');
