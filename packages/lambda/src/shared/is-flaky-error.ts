@@ -63,6 +63,11 @@ export const isFlakyError = (err: Error): boolean => {
 		return true;
 	}
 
+	// CDN slowness
+	if (message.includes('Loading root component')) {
+		return true;
+	}
+
 	// Internet flakiness
 	if (
 		message.includes('getaddrinfo') ||
