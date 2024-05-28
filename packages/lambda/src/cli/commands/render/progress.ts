@@ -9,15 +9,6 @@ type LambdaInvokeProgress = {
 	lambdasInvoked: number;
 };
 
-type ChunkProgress = {
-	doneIn: number | null;
-	framesRendered: number;
-	framesEncoded: number;
-	totalFrames: number | null;
-	totalChunks: number | null;
-	chunksEncoded: number;
-};
-
 const makeInvokeProgress = (overall: RenderProgress) => {
 	const invokeProgress: LambdaInvokeProgress = {
 		lambdasInvoked: overall.lambdasInvoked,
@@ -43,7 +34,7 @@ const makeInvokeProgress = (overall: RenderProgress) => {
 };
 
 const makeRenderProgress = (progress: RenderProgress) => {
-	const chunkProgress: ChunkProgress = {
+	const chunkProgress = {
 		chunksEncoded: progress.chunks,
 		totalChunks: progress.renderMetadata?.totalChunks ?? null,
 		doneIn: progress.timeToFinishChunks,
