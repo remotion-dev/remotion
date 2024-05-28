@@ -27,7 +27,7 @@ import {findFunctionName} from '../../helpers/find-function-name';
 import {getWebhookCustomData} from '../../helpers/get-webhook-custom-data';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
-import {makeMultiProgressFromStatus, makeProgressString} from './progress';
+import {makeProgressString} from './progress';
 
 export const RENDER_COMMAND = 'render';
 
@@ -369,10 +369,8 @@ export const renderCommand = async (
 		region: getAwsRegion(),
 		logLevel,
 	});
-	const multiProgress = makeMultiProgressFromStatus(status);
 	progressBar.update(
 		makeProgressString({
-			progress: multiProgress,
 			downloadInfo: null,
 			retriesInfo: status.retriesInfo,
 			totalFrames: getTotalFrames(status),
@@ -391,10 +389,8 @@ export const renderCommand = async (
 			region: getAwsRegion(),
 			logLevel,
 		});
-		const newProgress = makeMultiProgressFromStatus(newStatus);
 		progressBar.update(
 			makeProgressString({
-				progress: newProgress,
 				retriesInfo: newStatus.retriesInfo,
 				downloadInfo: null,
 				totalFrames: getTotalFrames(newStatus),
@@ -406,7 +402,6 @@ export const renderCommand = async (
 		if (newStatus.done) {
 			progressBar.update(
 				makeProgressString({
-					progress: newProgress,
 					downloadInfo: null,
 					retriesInfo: newStatus.retriesInfo,
 					totalFrames: getTotalFrames(newStatus),
@@ -425,7 +420,6 @@ export const renderCommand = async (
 					onProgress: ({downloaded, totalSize}) => {
 						progressBar.update(
 							makeProgressString({
-								progress: newProgress,
 								retriesInfo: newStatus.retriesInfo,
 								downloadInfo: {
 									doneIn: null,
@@ -441,7 +435,6 @@ export const renderCommand = async (
 				});
 				progressBar.update(
 					makeProgressString({
-						progress: newProgress,
 						retriesInfo: newStatus.retriesInfo,
 						downloadInfo: {
 							doneIn: Date.now() - downloadStart,

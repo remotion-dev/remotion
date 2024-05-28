@@ -352,12 +352,6 @@ export type LambdaPayloads = {
 
 export type LambdaPayload = LambdaPayloads[LambdaRoutines];
 
-export type EncodingProgress = {
-	framesEncoded: number;
-	combinedFrames: number;
-	timeToCombine: number | null;
-};
-
 type Discriminated =
 	| {
 			type: 'still';
@@ -434,6 +428,12 @@ export type CleanupInfo = {
 	doneIn: number | null;
 	minFilesToDelete: number;
 	filesDeleted: number;
+};
+
+type EncodingProgress = {
+	framesEncoded: number;
+	combinedFrames: number;
+	timeToCombine: number | null;
 };
 
 export type RenderProgress = {

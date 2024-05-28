@@ -1,11 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import {RenderInternals} from '@remotion/renderer';
 import {NoReactInternals} from 'remotion/no-react';
-import type {
-	CleanupInfo,
-	EncodingProgress,
-	RenderProgress,
-} from '../../../defaults';
+import type {RenderProgress} from '../../../defaults';
 import type {ChunkRetry} from '../../../functions/helpers/get-retry-stats';
 import {truthy} from '../../../shared/truthy';
 
@@ -21,11 +17,6 @@ type ChunkProgress = {
 	totalFrames: number | null;
 	totalChunks: number | null;
 	chunksEncoded: number;
-};
-
-type MultiRenderProgress = {
-	encodingProgress: EncodingProgress;
-	cleanupInfo: CleanupInfo | null;
 };
 
 const makeInvokeProgress = (
@@ -109,12 +100,17 @@ const makeRenderProgress = (progress: RenderProgress) => {
 };
 
 const makeCombinationProgress = ({
-	encodingProgress,
 	totalFrames,
+	progress: prog,
 }: {
-	encodingProgress: EncodingProgress;
+	progress: RenderProgress;
 	totalFrames: number | null;
 }) => {
+	const encodingProgress = {
+		framesEncoded: prog.encodingStatus?.framesEncoded ?? 0,
+		combinedFrames: prog.combinedFrames,
+		timeToCombine: prog.timeToCombine,
+	};
 	const {combinedFrames, timeToCombine} = encodingProgress;
 	const progress = totalFrames === null ? 0 : combinedFrames / totalFrames;
 
@@ -154,19 +150,6 @@ const makeDownloadProgress = (downloadInfo: DownloadedInfo) => {
 	].join(' ');
 };
 
-export const makeMultiProgressFromStatus = (
-	status: RenderProgress,
-): MultiRenderProgress => {
-	return {
-		encodingProgress: {
-			framesEncoded: status.encodingStatus?.framesEncoded ?? 0,
-			combinedFrames: status.combinedFrames,
-			timeToCombine: status.timeToCombine,
-		},
-		cleanupInfo: status.cleanup,
-	};
-};
-
 type DownloadedInfo = {
 	totalSize: number | null;
 	downloaded: number;
@@ -174,14 +157,12 @@ type DownloadedInfo = {
 };
 
 export const makeProgressString = ({
-	progress,
 	downloadInfo,
 	retriesInfo,
 	totalFrames,
 	overall,
 }: {
 	overall: RenderProgress;
-	progress: MultiRenderProgress;
 	downloadInfo: DownloadedInfo | null;
 	retriesInfo: ChunkRetry[];
 	totalFrames: number | null;
@@ -190,7 +171,7 @@ export const makeProgressString = ({
 		makeInvokeProgress(overall, retriesInfo),
 		...makeRenderProgress(overall),
 		makeCombinationProgress({
-			encodingProgress: progress.encodingProgress,
+			progress: overall,
 			totalFrames,
 		}),
 		downloadInfo ? makeDownloadProgress(downloadInfo) : null,
