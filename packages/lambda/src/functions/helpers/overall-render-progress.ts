@@ -83,25 +83,33 @@ export const makeOverallRenderProgress = ({
 
 	let currentUploadPromise: Promise<void> | null = null;
 
-	let lastUpload: string | null = null;
+	const getCurrentProgress = () => renderProgress;
+
+	let latestUploadRequest = 0;
+	const getLatestRequestId = () => latestUploadRequest;
 
 	// TODO: What if upload fails?
-	// TODO: Is there any chance the latest update will not settle?
 	const upload = async () => {
-		if (lastUpload === JSON.stringify(renderProgress)) {
-			return;
-		}
-
+		const uploadRequestId = ++latestUploadRequest;
 		if (currentUploadPromise) {
-			currentUploadPromise = currentUploadPromise.then(() => {
-				currentUploadPromise = null;
-				return upload();
-			});
+			await currentUploadPromise;
+		}
+
+		const toWrite = JSON.stringify(getCurrentProgress());
+
+		// Deduplicate two fast incoming requests
+		await new Promise<void>((resolve) => {
+			setImmediate(() => resolve());
+		});
+
+		// If request has been replaced by a new one
+		if (getLatestRequestId() !== uploadRequestId) {
 			return;
 		}
 
+		const start = Date.now();
 		currentUploadPromise = lambdaWriteFile({
-			body: JSON.stringify(renderProgress),
+			body: toWrite,
 			bucketName,
 			customCredentials: null,
 			downloadBehavior: null,
@@ -109,8 +117,13 @@ export const makeOverallRenderProgress = ({
 			key: overallProgressKey(renderId),
 			privacy: 'private',
 			region,
+		}).then(() => {
+			// By default, upload is way too fast (~20 requests per second)
+			// Space out the requests a bit
+			return new Promise<void>((resolve) => {
+				setTimeout(resolve, 500 - (Date.now() - start));
+			});
 		});
-		lastUpload = JSON.stringify(renderProgress);
 		await currentUploadPromise;
 		currentUploadPromise = null;
 	};
