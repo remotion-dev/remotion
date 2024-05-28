@@ -121,7 +121,7 @@ export type OnStream = (payload: StreamingPayload) => void;
 export const makeStreamPayload = ({message}: {message: StreamingPayload}) => {
 	const body =
 		formatMap[message.type] === 'json'
-			? Buffer.from(JSON.stringify(message.payload))
+			? new TextEncoder().encode(JSON.stringify(message.payload))
 			: (message.payload as Buffer);
 
 	return NoReactAPIs.makeStreamPayloadMessage({
