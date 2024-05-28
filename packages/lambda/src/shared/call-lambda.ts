@@ -5,6 +5,7 @@ import {
 	InvokeWithResponseStreamCommand,
 } from '@aws-sdk/client-lambda';
 import {NoReactAPIs} from '@remotion/renderer/pure';
+import type {OrError} from '../functions';
 import type {
 	MessageTypeId,
 	OnMessage,
@@ -46,6 +47,12 @@ export const callLambda = async <T extends LambdaRoutines>(
 	try {
 		// Do not remove this await
 		const res = await callLambdaWithoutRetry<T>(options);
+		if (res.type === 'error') {
+			const err = new Error(res.message);
+			err.stack = res.stack;
+			throw err;
+		}
+
 		return res;
 	} catch (err) {
 		if (options.retriesRemaining === 0) {
@@ -94,7 +101,7 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 	payload,
 	region,
 	timeoutInTest,
-}: Options<T>): Promise<LambdaReturnValues[T]> => {
+}: Options<T>): Promise<OrError<LambdaReturnValues[T]>> => {
 	const Payload = JSON.stringify({type, ...payload});
 	const res = await getLambdaClient(region, timeoutInTest).send(
 		new InvokeCommand({
@@ -107,7 +114,7 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 	const decoded = new TextDecoder('utf-8').decode(res.Payload);
 
 	try {
-		return JSON.parse(decoded) as LambdaReturnValues[T];
+		return JSON.parse(decoded) as OrError<LambdaReturnValues[T]>;
 	} catch (err) {
 		throw new Error(`Invalid JSON (${type}): ${JSON.stringify(decoded)}`);
 	}

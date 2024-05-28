@@ -576,7 +576,7 @@ export const launchHandler = async (
 			willRetry: false,
 			message: (err as Error).message,
 		});
-		overallProgress.upload();
+		await overallProgress.upload();
 
 		RenderInternals.Log.error(
 			{indent: false, logLevel: params.logLevel},

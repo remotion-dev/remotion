@@ -1,7 +1,6 @@
 import {RenderInternals} from '@remotion/renderer';
 import type {LambdaPayload} from '../shared/constants';
 import {COMMAND_NOT_FOUND, LambdaRoutines} from '../shared/constants';
-import type {OrError} from '../shared/return-values';
 import {compositionsHandler} from './compositions';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {getWarm, setWarm} from './helpers/is-warm';
@@ -249,6 +248,14 @@ const innerHandler = async ({
 
 	throw new Error(COMMAND_NOT_FOUND);
 };
+
+export type OrError<T> =
+	| T
+	| {
+			type: 'error';
+			message: string;
+			stack: string;
+	  };
 
 const routine = async (
 	params: LambdaPayload,

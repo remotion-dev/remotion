@@ -304,7 +304,11 @@ export type RenderStillLambdaResponsePayload = {
 	renderId: string;
 };
 
-export const stillHandler = async (options: Options): Promise<void> => {
+export const stillHandler = async (
+	options: Options,
+): Promise<{
+	type: 'success';
+}> => {
 	const {params} = options;
 
 	if (params.type !== LambdaRoutines.still) {
@@ -313,6 +317,7 @@ export const stillHandler = async (options: Options): Promise<void> => {
 
 	try {
 		await innerStillHandler(options);
+		return {type: 'success'};
 	} catch (err) {
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
