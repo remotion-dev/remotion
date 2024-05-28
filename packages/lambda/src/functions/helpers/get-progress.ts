@@ -221,7 +221,6 @@ export const getProgress = async ({
 					})
 				: null,
 		overallProgress: getOverallProgress({
-			cleanup: cleanup ? cleanup.filesDeleted / cleanup.minFilesToDelete : 0,
 			encoding:
 				renderMetadata && frameCount
 					? overallProgress.framesEncoded ?? 0 / frameCount
