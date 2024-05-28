@@ -70,10 +70,10 @@ export const createPostRenderData = ({
 			disclaimer:
 				'Estimated cost for lambda invocations only. Does not include cost for S3 storage and data transfer.',
 			estimatedCost: cost,
-			estimatedDisplayCost: new Intl.NumberFormat('en-US', {
+			estimatedDisplayCost: `$${new Intl.NumberFormat('en-US', {
 				currency: 'USD',
 				currencyDisplay: 'narrowSymbol',
-			}).format(cost),
+			}).format(cost)}`,
 		},
 		outputFile: outputFile.url,
 		timeToFinish,

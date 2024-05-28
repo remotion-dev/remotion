@@ -48,6 +48,7 @@ type Options = {
 	renderId: string;
 	expectedBucketOwner: string;
 	onStream: OnStream;
+	timeoutInMilliseconds: number;
 };
 
 const innerStillHandler = async ({
@@ -55,6 +56,7 @@ const innerStillHandler = async ({
 	expectedBucketOwner,
 	renderId,
 	onStream,
+	timeoutInMilliseconds,
 }: Options) => {
 	if (lambdaParams.type !== LambdaRoutines.still) {
 		throw new TypeError('Expected still type');
@@ -174,7 +176,7 @@ const innerStillHandler = async ({
 		audioBitrate: null,
 	};
 
-	const still = makeInitialOverallRenderProgress();
+	const still = makeInitialOverallRenderProgress(timeoutInMilliseconds);
 	still.renderMetadata = renderMetadata;
 
 	await lambdaWriteFile({

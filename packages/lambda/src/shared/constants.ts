@@ -467,6 +467,7 @@ export type RenderProgress = {
 	estimatedBillingDurationInMilliseconds: number | null;
 	combinedFrames: number;
 	timeToCombine: number | null;
+	timeoutTimestamp: number;
 };
 
 export type Privacy = 'public' | 'private' | 'no-acl';

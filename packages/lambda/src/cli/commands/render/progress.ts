@@ -142,6 +142,33 @@ type DownloadedInfo = {
 	doneIn: number | null;
 };
 
+const makeTopRow = (overall: RenderProgress) => {
+	const timeoutInSeconds = Math.round(
+		(overall.timeoutTimestamp - Date.now()) / 1000,
+	);
+
+	if (!overall.renderMetadata) {
+		return null;
+	}
+
+	if (overall.done) {
+		return null;
+	}
+
+	const str = [
+		`${Math.round(overall.overallProgress * 100)}%`,
+		overall.renderMetadata
+			? `${overall.renderMetadata.estimatedTotalLambdaInvokations} λ`
+			: null,
+		`${overall.costs.displayCost}`,
+		`Timeout ${timeoutInSeconds}s`,
+	]
+		.filter(NoReactInternals.truthy)
+		.join(' • ');
+
+	return CliInternals.chalk.gray(str);
+};
+
 export const makeProgressString = ({
 	downloadInfo,
 	overall,
@@ -150,6 +177,7 @@ export const makeProgressString = ({
 	downloadInfo: DownloadedInfo | null;
 }) => {
 	return [
+		makeTopRow(overall),
 		makeInvokeProgress(overall),
 		...makeRenderProgress(overall),
 		makeCombinationProgress(overall),

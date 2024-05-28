@@ -15,6 +15,7 @@ import {makeInitialOverallRenderProgress} from './helpers/overall-render-progres
 
 type Options = {
 	expectedBucketOwner: string;
+	timeoutInMilliseconds: number;
 };
 
 export const startHandler = async (params: LambdaPayload, options: Options) => {
@@ -57,7 +58,11 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		bucketName,
 		downloadBehavior: null,
 		region,
-		body: JSON.stringify(makeInitialOverallRenderProgress()),
+		body: JSON.stringify(
+			makeInitialOverallRenderProgress(
+				options.timeoutInMilliseconds + Date.now(),
+			),
+		),
 		expectedBucketOwner: options.expectedBucketOwner,
 		key: overallProgressKey(renderId),
 		privacy: 'private',

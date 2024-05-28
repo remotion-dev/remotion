@@ -474,6 +474,7 @@ export const launchHandler = async (
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
+		timeoutTimestamp: options.getRemainingTimeInMillis() + Date.now(),
 	});
 
 	try {

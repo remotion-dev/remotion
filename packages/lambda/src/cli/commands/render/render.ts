@@ -449,7 +449,7 @@ export const renderCommand = async (
 					newStatus.timeToFinish
 						? `${(newStatus.timeToFinish / 1000).toFixed(2)}sec`
 						: null,
-					`Estimated cost $${newStatus.costs.displayCost}`,
+					`Estimated cost ${newStatus.costs.displayCost}`,
 				]
 					.filter(Boolean)
 					.join(', '),

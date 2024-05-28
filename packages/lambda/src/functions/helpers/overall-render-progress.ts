@@ -21,6 +21,7 @@ export type OverallRenderProgress = {
 	timings: ParsedTiming[];
 	renderMetadata: RenderMetadata | null;
 	errors: LambdaErrorInfo[];
+	timeoutTimestamp: number;
 };
 
 export type OverallProgressHelper = {
@@ -50,7 +51,9 @@ export type OverallProgressHelper = {
 	get: () => OverallRenderProgress;
 };
 
-export const makeInitialOverallRenderProgress = (): OverallRenderProgress => {
+export const makeInitialOverallRenderProgress = (
+	timeoutTimestamp: number,
+): OverallRenderProgress => {
 	return {
 		chunks: [],
 		framesRendered: 0,
@@ -65,6 +68,7 @@ export const makeInitialOverallRenderProgress = (): OverallRenderProgress => {
 		renderMetadata: null,
 		errors: [],
 		timeToRenderFrames: null,
+		timeoutTimestamp,
 	};
 };
 
@@ -73,18 +77,20 @@ export const makeOverallRenderProgress = ({
 	bucketName,
 	expectedBucketOwner,
 	region,
+	timeoutTimestamp,
 }: {
 	renderId: string;
 	bucketName: string;
 	expectedBucketOwner: string;
 	region: AwsRegion;
+	timeoutTimestamp: number;
 }): OverallProgressHelper => {
 	let framesRendered: number[] = [];
 	let framesEncoded: number[] = [];
 	let lambdasInvoked: boolean[] = [];
 
 	const renderProgress: OverallRenderProgress =
-		makeInitialOverallRenderProgress();
+		makeInitialOverallRenderProgress(timeoutTimestamp);
 
 	let currentUploadPromise: Promise<void> | null = null;
 

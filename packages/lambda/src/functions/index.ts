@@ -92,6 +92,7 @@ const innerHandler = async ({
 				params,
 				renderId,
 				onStream,
+				timeoutInMilliseconds,
 			})
 				.then((r) => {
 					resolve(r);
@@ -118,6 +119,7 @@ const innerHandler = async ({
 
 		const response = await startHandler(params, {
 			expectedBucketOwner: currentUserId,
+			timeoutInMilliseconds,
 		});
 
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));
