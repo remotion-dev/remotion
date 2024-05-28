@@ -48,7 +48,6 @@ export const InlineDropdown = ({
 
 	const onClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
 		(e) => {
-			console.log('click', e);
 			e.preventDefault();
 			e.stopPropagation();
 			setOpened({type: 'open', left: e.clientX, top: e.clientY});
