@@ -41,11 +41,6 @@ function patchArgs(argList: unknown[]): ResponseStream {
 	return argList[1] as ResponseStream;
 }
 
-export const HANDLER_STREAMING = Symbol.for(
-	'aws.lambda.runtime.handler.streaming',
-);
-export const STREAM_RESPONSE = 'response';
-
 export function streamifyResponse(handler: Function): Function {
 	// Check if we are inside Lambda
 	if (

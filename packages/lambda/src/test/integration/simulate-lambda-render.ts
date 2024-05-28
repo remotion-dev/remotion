@@ -10,7 +10,7 @@ import {callLambda} from '../../shared/call-lambda';
 
 const functionName = 'remotion-dev-render';
 
-export const waitUntilDone = async (bucketName: string, renderId: string) => {
+const waitUntilDone = async (bucketName: string, renderId: string) => {
 	// eslint-disable-next-line no-constant-condition
 	while (true) {
 		const progress = await callLambda({

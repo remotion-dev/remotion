@@ -6,7 +6,3 @@ export type ObjectChunkTimingData = {
 		[key: number]: number;
 	};
 };
-
-export type ChunkTimingData = Omit<ObjectChunkTimingData, 'timings'> & {
-	timings: number[];
-};

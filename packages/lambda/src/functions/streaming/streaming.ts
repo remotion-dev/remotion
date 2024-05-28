@@ -95,9 +95,7 @@ export const messageTypeIdToMessageType = (
 	return types.type;
 };
 
-export const messageTypeToMessageId = (
-	messageType: MessageType,
-): MessageTypeId => {
+const messageTypeToMessageId = (messageType: MessageType): MessageTypeId => {
 	const id = (Object.keys(messageTypes) as unknown as MessageTypeId[]).find(
 		(key) => messageTypes[key].type === messageType,
 	) as MessageTypeId;

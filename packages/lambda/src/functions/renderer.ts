@@ -345,7 +345,7 @@ const renderHandler = async ({
 	return {};
 };
 
-export const ENABLE_SLOW_LEAK_DETECTION = false;
+const ENABLE_SLOW_LEAK_DETECTION = false;
 
 export const rendererHandler = async (
 	params: LambdaPayload,
