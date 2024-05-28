@@ -376,6 +376,7 @@ export const renderCommand = async (
 			downloadInfo: null,
 			retriesInfo: status.retriesInfo,
 			totalFrames: getTotalFrames(status),
+			overall: status,
 		}),
 		false,
 	);
@@ -397,6 +398,7 @@ export const renderCommand = async (
 				retriesInfo: newStatus.retriesInfo,
 				downloadInfo: null,
 				totalFrames: getTotalFrames(newStatus),
+				overall: status,
 			}),
 			false,
 		);
@@ -408,6 +410,7 @@ export const renderCommand = async (
 					downloadInfo: null,
 					retriesInfo: newStatus.retriesInfo,
 					totalFrames: getTotalFrames(newStatus),
+					overall: status,
 				}),
 				false,
 			);
@@ -430,6 +433,7 @@ export const renderCommand = async (
 									totalSize,
 								},
 								totalFrames: getTotalFrames(newStatus),
+								overall: status,
 							}),
 							false,
 						);
@@ -445,6 +449,7 @@ export const renderCommand = async (
 							totalSize: sizeInBytes,
 						},
 						totalFrames: getTotalFrames(newStatus),
+						overall: status,
 					}),
 					false,
 				);

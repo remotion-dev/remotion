@@ -24,16 +24,20 @@ type ChunkProgress = {
 };
 
 type MultiRenderProgress = {
-	lambdaInvokeProgress: LambdaInvokeProgress;
 	chunkProgress: ChunkProgress;
 	encodingProgress: EncodingProgress;
 	cleanupInfo: CleanupInfo | null;
 };
 
 const makeInvokeProgress = (
-	invokeProgress: LambdaInvokeProgress,
+	overall: RenderProgress,
 	retriesInfo: ChunkRetry[],
 ) => {
+	const invokeProgress: LambdaInvokeProgress = {
+		lambdasInvoked: overall.lambdasInvoked,
+		totalLambdas:
+			overall.renderMetadata?.estimatedRenderLambdaInvokations ?? null,
+	};
 	const {lambdasInvoked, totalLambdas} = invokeProgress;
 	const progress = totalLambdas === null ? 0 : lambdasInvoked / totalLambdas;
 	return [
@@ -164,11 +168,6 @@ export const makeMultiProgressFromStatus = (
 			combinedFrames: status.combinedFrames,
 			timeToCombine: status.timeToCombine,
 		},
-		lambdaInvokeProgress: {
-			lambdasInvoked: status.lambdasInvoked,
-			totalLambdas:
-				status.renderMetadata?.estimatedRenderLambdaInvokations ?? null,
-		},
 		cleanupInfo: status.cleanup,
 	};
 };
@@ -184,14 +183,16 @@ export const makeProgressString = ({
 	downloadInfo,
 	retriesInfo,
 	totalFrames,
+	overall,
 }: {
+	overall: RenderProgress;
 	progress: MultiRenderProgress;
 	downloadInfo: DownloadedInfo | null;
 	retriesInfo: ChunkRetry[];
 	totalFrames: number | null;
 }) => {
 	return [
-		makeInvokeProgress(progress.lambdaInvokeProgress, retriesInfo),
+		makeInvokeProgress(overall, retriesInfo),
 		...makeRenderProgress({
 			chunkProgress: progress.chunkProgress,
 		}),
