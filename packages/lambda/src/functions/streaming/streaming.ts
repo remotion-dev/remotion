@@ -1,4 +1,4 @@
-import {BrowserSafeApis} from '@remotion/renderer/client';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {LambdaErrorInfo} from '../helpers/write-lambda-error';
 import type {RenderStillLambdaResponsePayload} from '../still';
 
@@ -124,7 +124,7 @@ export const makeStreamPayload = ({message}: {message: StreamingPayload}) => {
 			? Buffer.from(JSON.stringify(message.payload))
 			: (message.payload as Buffer);
 
-	return BrowserSafeApis.makeStreamPayloadMessage({
+	return NoReactAPIs.makeStreamPayloadMessage({
 		body,
 		nonce: messageTypeToMessageId(message.type),
 		status: 0,

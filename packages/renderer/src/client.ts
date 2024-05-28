@@ -32,7 +32,6 @@ import {
 	validPixelFormatsForCodec,
 } from './pixel-format';
 import {proResProfileOptions} from './prores-profile';
-import {makeStreamPayloadMessage, makeStreamer} from './streaming';
 import {validateOutputFilename} from './validate-output-filename';
 export {AvailableOptions, TypeOfOption} from './options';
 
@@ -67,6 +66,4 @@ export const BrowserSafeApis = {
 	logLevels,
 	getOutputCodecOrUndefined,
 	getExtensionFromAudioCodec,
-	makeStreamer,
-	makeStreamPayloadMessage,
 };

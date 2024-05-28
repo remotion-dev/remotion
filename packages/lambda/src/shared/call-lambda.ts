@@ -4,7 +4,7 @@ import {
 	InvokeCommand,
 	InvokeWithResponseStreamCommand,
 } from '@aws-sdk/client-lambda';
-import {BrowserSafeApis} from '@remotion/renderer/client';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {
 	MessageTypeId,
 	OnMessage,
@@ -130,7 +130,7 @@ const callLambdaWithStreamingWithoutRetry = async <T extends LambdaRoutines>({
 		}),
 	);
 
-	const {onData, clear} = BrowserSafeApis.makeStreamer(
+	const {onData, clear} = NoReactAPIs.makeStreamer(
 		(status, messageTypeId, data) => {
 			const messageType = messageTypeIdToMessageType(
 				messageTypeId as MessageTypeId,
