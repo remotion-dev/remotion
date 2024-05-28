@@ -41,10 +41,6 @@ import {lambdaWriteFile} from './helpers/io';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
 import {makeInitialOverallRenderProgress} from './helpers/overall-render-progress';
 import {validateComposition} from './helpers/validate-composition';
-import {
-	getTmpDirStateIfENoSp,
-	writeLambdaError,
-} from './helpers/write-lambda-error';
 import type {OnStream} from './streaming/streaming';
 
 type Options = {
@@ -323,6 +319,16 @@ export const stillHandler = async (options: Options): Promise<void> => {
 			throw err;
 		}
 
+		RenderInternals.Log.error(
+			{
+				indent: false,
+				logLevel: params.logLevel,
+			},
+			'Got error:',
+			(err as Error).stack,
+			'Will retry.',
+		);
+
 		const retryPayload: LambdaPayloads[LambdaRoutines.still] = {
 			...params,
 			maxRetries: params.maxRetries - 1,
@@ -336,36 +342,6 @@ export const stillHandler = async (options: Options): Promise<void> => {
 			type: LambdaRoutines.still,
 			timeoutInTest: 120000,
 			retriesRemaining: 0,
-		});
-		const bucketName =
-			params.bucketName ??
-			(
-				await internalGetOrCreateBucket({
-					region: getCurrentRegionInFunction(),
-					enableFolderExpiry: null,
-					customCredentials: null,
-				})
-			).bucketName;
-
-		// `await` elided on purpose here; using `void` to mark it as intentional
-		// eslint-disable-next-line no-void
-		void writeLambdaError({
-			bucketName,
-			errorInfo: {
-				chunk: null,
-				frame: null,
-				isFatal: false,
-				name: (err as Error).name,
-				message: (err as Error).message,
-				stack: (err as Error).stack as string,
-				type: 'browser',
-				tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
-				attempt: params.attempt,
-				totalAttempts: params.attempt + params.maxRetries,
-				willRetry,
-			},
-			expectedBucketOwner: options.expectedBucketOwner,
-			renderId: options.renderId,
 		});
 
 		return res;
