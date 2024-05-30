@@ -1241,7 +1241,7 @@ export const articles = [
   {
     id: "getrenderprogress",
     title: "getRenderProgress()",
-    relativePath: "docs/lambda/getrenderprogress.md",
+    relativePath: "docs/lambda/getrenderprogress.mdx",
     compId: "articles-docs-lambda-getrenderprogress",
     crumb: "Lambda API",
   },
@@ -3331,6 +3331,13 @@ export const articles = [
     title: "Apple Silicon under Rosetta",
     relativePath: "docs/troubleshooting/rosetta.md",
     compId: "articles-docs-troubleshooting-rosetta",
+    crumb: "Troubleshooting",
+  },
+  {
+    id: "troubleshooting/sigkill",
+    title: "Process quit with signal SIGKILL",
+    relativePath: "docs/troubleshooting/sigkill.mdx",
+    compId: "articles-docs-troubleshooting-sigkill",
     crumb: "Troubleshooting",
   },
   {
