@@ -20,39 +20,65 @@ Remotion supports 5 video codecs: `h264` (_default_), `h265`, `vp8`, `vp9` and `
     <th>Browser compatibility</th>
   </tr>
   <tr>
-    <td>H.264 <sub>also known as MPEG-4</sub></td>
+    <td>
+      H.264 <sub>also known as MPEG-4</sub>
+    </td>
     <td>.mp4, .mov or .mkv</td>
-    <td style={{color: 'darkorange'}}>Medium</td>
-    <td style={{color: 'green', fontWeight: 'bold'}}>Very fast</td>
-    <td><a href="https://caniuse.com/mpeg4" style={{color: 'green', fontWeight: 'bold'}}>Very good</a></td>
+    <td style={{ color: "darkorange" }}>Medium</td>
+    <td style={{ color: "green", fontWeight: "bold" }}>Very fast</td>
+    <td>
+      <a
+        href="https://caniuse.com/mpeg4"
+        style={{ color: "green", fontWeight: "bold" }}
+      >
+        Very good
+      </a>
+    </td>
   </tr>
   <tr>
-    <td>H.265 <sub>also known as HEVC</sub></td>
+    <td>
+      H.265 <sub>also known as HEVC</sub>
+    </td>
     <td>.mp4 or .hevc</td>
-    <td style={{color: 'darkorange'}}>Medium</td>
-    <td style={{color: 'green'}}>Fast</td>
-    <td><a href="https://caniuse.com/hevc" style={{color: 'red', fontWeight: 'bold'}}>Very poor</a></td>
+    <td style={{ color: "darkorange" }}>Medium</td>
+    <td style={{ color: "green" }}>Fast</td>
+    <td>
+      <a
+        href="https://caniuse.com/hevc"
+        style={{ color: "red", fontWeight: "bold" }}
+      >
+        Very poor
+      </a>
+    </td>
   </tr>
   <tr>
     <td>VP8</td>
     <td>.webm</td>
-    <td style={{color: 'green'}}>Small</td>
-    <td style={{color: 'red'}}>Slow</td>
-    <td><a href="https://caniuse.com/webm" style={{color: 'darkorange'}}>Okay</a></td>
+    <td style={{ color: "green" }}>Small</td>
+    <td style={{ color: "red" }}>Slow</td>
+    <td>
+      <a href="https://caniuse.com/webm" style={{ color: "darkorange" }}>
+        Okay
+      </a>
+    </td>
   </tr>
   <tr>
     <td>VP9</td>
     <td>.webm</td>
-    <td style={{color: 'green', fontWeight: 'bold'}}>Very small</td>
-    <td style={{color: 'red', fontWeight: 'bold'}}>Very slow</td>
-    <td><a href="https://caniuse.com/webm" style={{color: 'darkorange'}}>Okay</a></td>
+    <td style={{ color: "green", fontWeight: "bold" }}>Very small</td>
+    <td style={{ color: "red", fontWeight: "bold" }}>Very slow</td>
+    <td>
+      <a href="https://caniuse.com/webm" style={{ color: "darkorange" }}>
+        Okay
+      </a>
+    </td>
   </tr>
   <tr>
     <td>ProRes</td>
     <td>.mov</td>
-    <td style={{color: 'red'}}>Large</td>
-    <td style={{color: 'green'}}>Fast</td>
-    <td style={{color: 'red', fontWeight: 'bold'}}>None</td>
+    <td style={{ color: "red" }}>Large</td>
+    <td style={{ color: "green" }}>Fast</td>
+    <td style={{ color: "red", fontWeight: "bold" }}>None</td>
   </tr>
 </table>
 
@@ -70,84 +96,48 @@ No matter which codec you end up using, there's always a tradeoff between file s
 
 Be cautious: Every codec has it's own range of acceptable values and a different default. So while `23` will look very good on a H264 video, it will look terrible on a WebM video. Use this chart to determine which CRF value to use:
 
-<details style={{fontSize: '0.9em'}}>
-<summary>
-Changelog
-</summary>
-<ul>
-<li>
-Since version 2.1.3, Remotion doesn't allow the CRF to be set to <code>0</code> anymore because of the issues it causes on macOS/iOS and possible other scenarios. Set the CRF to 1 or higher.
-</li>
-</ul>
+<details style={{ fontSize: "0.9em" }}>
+  <summary>Changelog</summary>
+  <ul>
+    <li>
+      Since version 2.1.3, Remotion doesn't allow the CRF to be set to{" "}
+      <code>0</code> anymore because of the issues it causes on macOS/iOS and
+      possible other scenarios. Set the CRF to 1 or higher.
+    </li>
+  </ul>
 </details>
-<div style={{height: 10}}/>
+<div style={{ height: 10 }} />
 <table>
-<tr>
-<th>
-Codec
-</th>
-<th>
-Minimum - Best quality
-</th>
-<th>
-Maximum - Best compression
-</th>
-<th>
-Default
-</th>
-</tr>
-<tr>
-<td>
-H264
-</td>
-<td>
-1
-</td>
-<td>
-51</td>
-<td>
-18
-</td>
-</tr>
-<tr>
-<td>
-H265
-</td>
-<td>
-0
-</td>
-<td>
-51</td>
-<td>
-23
-</td>
-</tr>
-<tr>
-<td>
-VP8
-</td>
-<td>
-4
-</td>
-<td>
-63</td>
-<td>
-9
-</td>
-</tr>
-<tr>
-<td>
-VP9
-</td>
-<td>
-0
-</td>
-<td>
-63</td>
-<td>
-28
-</td>
-</tr>
+  <tr>
+    <th>Codec</th>
+    <th>Minimum - Best quality</th>
+    <th>Maximum - Best compression</th>
+    <th>Default</th>
+  </tr>
+  <tr>
+    <td>H264</td>
+    <td>1</td>
+    <td>51</td>
+    <td>18</td>
+  </tr>
+  <tr>
+    <td>H265</td>
+    <td>0</td>
+    <td>51</td>
+    <td>23</td>
+  </tr>
+  <tr>
+    <td>VP8</td>
+    <td>4</td>
+    <td>63</td>
+    <td>9</td>
+  </tr>
+  <tr>
+    <td>VP9</td>
+    <td>0</td>
+    <td>63</td>
+    <td>28</td>
+  </tr>
 </table>
 
 You can [set a CRF in the config file using the `Config.setCrf()`](/docs/config#setcrf) function or use the [`--crf`](/docs/cli#flags) command line flag.
@@ -160,15 +150,9 @@ For ProRes, there is no CRF option, but there are profiles which you can set usi
 
 <table>
   <tr>
-    <th>
-      Value
-    </th>
-    <th>
-      FFmpeg setting
-    </th>
-    <th>
-      Bitrate
-    </th>
+    <th>Value</th>
+    <th>FFmpeg setting</th>
+    <th>Bitrate</th>
     <th>
       <a href="/docs/transparent-videos">Supports alpha channel</a>
     </th>
@@ -241,7 +225,10 @@ Using the [`--audio-codec`](/docs/config#setaudiocodec) flag, you can set the fo
 
 The container format will be automatically derived based on the file extension.
 
-import {SupportedAudioCodecTable, FileExtensionTable} from '../components/SupportedAudioCodec';
+import {
+  SupportedAudioCodecTable,
+  FileExtensionTable,
+} from "../components/SupportedAudioCodec";
 
 <SupportedAudioCodecTable />
 

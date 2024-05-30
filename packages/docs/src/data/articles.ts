@@ -695,7 +695,7 @@ export const articles = [
   {
     id: "encoding",
     title: "Encoding Guide",
-    relativePath: "docs/encoding.md",
+    relativePath: "docs/encoding.mdx",
     compId: "articles-docs-encoding",
     crumb: "Codecs and more",
   },
@@ -2233,6 +2233,13 @@ export const articles = [
     relativePath: "docs/preview.mdx",
     compId: "articles-docs-preview",
     crumb: "Timeline basics",
+  },
+  {
+    id: "quality",
+    title: "Quality Guide",
+    relativePath: "docs/quality.mdx",
+    compId: "articles-docs-quality",
+    crumb: "Codecs and more",
   },
   {
     id: "random",
