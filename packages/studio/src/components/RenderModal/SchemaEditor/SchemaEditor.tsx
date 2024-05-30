@@ -14,6 +14,7 @@ import {ZodObjectEditor} from './ZodObjectEditor';
 import {deepEqual} from './deep-equal';
 import type {RevisionContextType} from './local-state';
 import {RevisionContext} from './local-state';
+import {defaultPropsEditorScrollableAreaRef} from './scroll-to-default-props-path';
 
 const scrollable: React.CSSProperties = {
 	display: 'flex',
@@ -132,7 +133,11 @@ export const SchemaEditor: React.FC<{
 	}
 
 	return (
-		<div style={scrollable} className={VERTICAL_SCROLLBAR_CLASSNAME}>
+		<div
+			ref={defaultPropsEditorScrollableAreaRef}
+			style={scrollable}
+			className={VERTICAL_SCROLLBAR_CLASSNAME}
+		>
 			<RevisionContext.Provider value={revisionState}>
 				<ZodObjectEditor
 					discriminatedUnionReplacement={null}

@@ -40,6 +40,10 @@ export const TableOfContents: React.FC = () => {
           <strong>{"restartStudio()"}</strong>
           <div>Restart the Studio Server.</div>
         </TOCItem>
+        <TOCItem link="/docs/studio/focus-default-props-path">
+          <strong>{"focusDefaultPropsPath()"}</strong>
+          <div>Scrolls to a specific field in the default props editor</div>
+        </TOCItem>
       </Grid>
     </div>
   );

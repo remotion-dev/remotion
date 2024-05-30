@@ -2886,6 +2886,13 @@ export const articles = [
     crumb: "Remotion Studio",
   },
   {
+    id: "studio/focus-default-props-path",
+    title: "focusDefaultPropsPath()",
+    relativePath: "docs/studio/focus-default-props-path.mdx",
+    compId: "articles-docs-studio-focus-default-props-path",
+    crumb: "@remotion/studio",
+  },
+  {
     id: "studio/get-static-files",
     title: "getStaticFiles()",
     relativePath: "docs/studio/get-static-files.mdx",

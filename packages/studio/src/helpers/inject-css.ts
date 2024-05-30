@@ -1,4 +1,5 @@
 import {Internals} from 'remotion';
+import {DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME} from '../components/RenderModal/SchemaEditor/scroll-to-default-props-path';
 
 const makeDefaultGlobalCSS = () => {
 	return `
@@ -125,6 +126,11 @@ const makeDefaultGlobalCSS = () => {
     background-color: white;
     position: relative;
   }  
+
+  .${DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME} span {
+    color: var(--remotion-cli-internals-blue) !important;
+    transition: color 0.2s ease-in-out;
+  }
   `.trim();
 };
 

@@ -1091,6 +1091,11 @@ export const Index: React.FC = () => {
 						union: [
 							{type: 'boat' as const, depth: 10},
 							{type: 'car' as const, color: 'red', obj: [{link: 'hi there'}]},
+							{type: 'car' as const, color: '', obj: [{link: ''}]},
+							{type: 'car' as const, color: '', obj: [{link: ''}]},
+							{type: 'car' as const, color: '', obj: [{link: ''}]},
+							{type: 'car' as const, color: '', obj: [{link: ''}]},
+							{type: 'car' as const, color: '', obj: [{link: ''}]},
 						],
 					}}
 					durationInFrames={150}
