@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import {isRemoteAsset} from './is-remote-asset';
+import {onMediaError} from './media-tag-error-handling';
 import {pLimit} from './p-limit';
 import type {VideoMetadata} from './types';
 
@@ -20,8 +21,13 @@ const fn = (src: string): Promise<VideoMetadata> => {
 	video.src = src;
 	return new Promise<VideoMetadata>((resolve, reject) => {
 		const onError = () => {
-			reject(video.error);
-			cleanup();
+			onMediaError({
+				error: video.error!,
+				src,
+				cleanup,
+				reject,
+				api: 'getVideoMetadata()',
+			});
 		};
 
 		const onLoadedMetadata = () => {
