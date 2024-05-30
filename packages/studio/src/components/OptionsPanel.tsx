@@ -146,6 +146,8 @@ export const OptionsPanel: React.FC<{
 				return;
 			}
 
+			window.remotion_ignoreFastRefreshUpdate = null;
+
 			updateProps({
 				id: composition.id,
 				defaultProps: composition.defaultProps as Record<string, unknown>,
