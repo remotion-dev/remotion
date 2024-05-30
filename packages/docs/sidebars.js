@@ -621,6 +621,7 @@ module.exports = {
         "transparent-videos",
         "render-as-gif",
         "overlay",
+        "quality",
         "dataset-render",
         "render-all",
         "miscellaneous/video-formats",
