@@ -9,20 +9,14 @@ import React, {
 } from 'react';
 import type {AnyComposition} from 'remotion';
 import {Internals} from 'remotion';
-import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
-import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
+import {BACKGROUND} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
+import {GlobalPropsEditorUpdateButton} from './GlobalPropsEditorUpdateButton';
 import {DataEditor} from './RenderModal/DataEditor';
 import {deepEqual} from './RenderModal/SchemaEditor/deep-equal';
 import {RenderQueue} from './RenderQueue';
 import {RendersTab} from './RendersTab';
 import {Tab, Tabs} from './Tabs';
-
-const circle: React.CSSProperties = {
-	width: 8,
-	height: 8,
-	borderRadius: 4,
-};
 
 type OptionsSidebarPanel = 'input-props' | 'renders';
 
@@ -106,15 +100,6 @@ export const OptionsPanel: React.FC<{
 	const {compositions, canvasContent} = useContext(
 		Internals.CompositionManager,
 	);
-	const circleStyle = useMemo((): React.CSSProperties => {
-		const onTabColor = saving ? LIGHT_TEXT : 'white';
-
-		return {
-			...circle,
-			backgroundColor: panel === 'input-props' ? onTabColor : LIGHT_TEXT,
-			cursor: 'help',
-		};
-	}, [panel, saving]);
 
 	const composition = useMemo((): AnyComposition | null => {
 		if (canvasContent === null || canvasContent.type !== 'composition') {
@@ -129,12 +114,6 @@ export const OptionsPanel: React.FC<{
 
 		return null;
 	}, [canvasContent, compositions]);
-
-	const saveToolTip = useMemo(() => {
-		return process.env.KEYBOARD_SHORTCUTS_ENABLED
-			? `Save using ${cmdOrCtrlCharacter}+S`
-			: 'There are unsaved changes';
-	}, []);
 
 	const setDefaultProps = useCallback(
 		(
@@ -197,7 +176,10 @@ export const OptionsPanel: React.FC<{
 						>
 							Props
 							{unsavedChangesExist ? (
-								<div title={saveToolTip} style={circleStyle} />
+								<GlobalPropsEditorUpdateButton
+									compositionId={composition.id}
+									currentDefaultProps={currentDefaultProps}
+								/>
 							) : null}
 						</Tab>
 					) : null}
