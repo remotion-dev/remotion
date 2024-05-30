@@ -4,9 +4,6 @@
 	"description": "Distributed renderer for Remotion based on AWS Lambda",
 	"main": "dist/index.js",
 	"sideEffects": false,
-	"bin": {
-		"remotion-lambda": "remotion-lambda-cli.js"
-	},
 	"scripts": {
 		"formatting": "prettier src --check",
 		"testintegration": "vitest src/test/integration --run",
