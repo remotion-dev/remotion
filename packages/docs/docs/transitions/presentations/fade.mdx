@@ -66,6 +66,16 @@ The style of the container element when the scene is is entering.
 
 The style of the container element when the scene is exiting.
 
+### `shouldFadeOutExitingScene?`<AvailableFrom v="4.0.166"/>
+
+Whether the exiting scene should fade out or not. Default `false`.
+
+:::note
+The default is `false` because if both the entering and existing scene are semi-opaque, the whole scene will be semi-opaque, which will make the content underneath shine though.  
+We recommend for transitioning between fully opaque scenes setting this to `false`.  
+If the scenes are not fully covered (like fading between overlays), we recommend setting this to `false`.
+:::
+
 ## See also
 
 - [Source code for this presentation](https://github.com/remotion-dev/remotion/blob/main/packages/transitions/src/presentations/fade.tsx)
