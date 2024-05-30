@@ -2239,7 +2239,7 @@ export const articles = [
     title: "Quality Guide",
     relativePath: "docs/quality.mdx",
     compId: "articles-docs-quality",
-    crumb: "Codecs and more",
+    crumb: "Make it look good",
   },
   {
     id: "random",
