@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
+import {onMediaError} from './media-tag-error-handling';
 import {pLimit} from './p-limit';
 
 const limit = pLimit(3);
@@ -18,8 +19,13 @@ const fn = (src: string): Promise<number> => {
 	audio.src = src;
 	return new Promise<number>((resolve, reject) => {
 		const onError = () => {
-			reject(audio.error);
-			cleanup();
+			onMediaError({
+				error: audio.error!,
+				src,
+				cleanup,
+				reject,
+				api: 'getAudioDurationInSeconds()',
+			});
 		};
 
 		const onLoadedMetadata = () => {
