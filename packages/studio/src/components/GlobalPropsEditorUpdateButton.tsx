@@ -1,7 +1,14 @@
 import React, {useCallback} from 'react';
+import {Internals} from 'remotion';
 import {saveDefaultProps} from '../api/save-default-props';
 import {showNotification} from './Notifications/NotificationCenter';
+import {SchemaResetButton} from './RenderModal/SchemaEditor/SchemaResetButton';
 import {SchemaSaveButton} from './RenderModal/SchemaEditor/SchemaSaveButton';
+
+const container: React.CSSProperties = {
+	display: 'inline-block',
+	flexDirection: 'row',
+};
 
 export const GlobalPropsEditorUpdateButton: React.FC<{
 	readonly compositionId: string;
@@ -22,5 +29,15 @@ export const GlobalPropsEditorUpdateButton: React.FC<{
 			});
 	}, [compositionId, currentDefaultProps]);
 
-	return <SchemaSaveButton disabled={disabled} onClick={onClicked} />;
+	const onReset = useCallback(() => {
+		window.remotion_ignoreFastRefreshUpdate = null;
+		window.dispatchEvent(new CustomEvent(Internals.PROPS_UPDATED_EXTERNALLY));
+	}, []);
+
+	return (
+		<div style={container}>
+			<SchemaResetButton onClick={onReset} />
+			<SchemaSaveButton disabled={disabled} onClick={onClicked} />
+		</div>
+	);
 };
