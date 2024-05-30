@@ -810,6 +810,7 @@ module.exports = {
         "troubleshooting/delay-render-proxy",
         "troubleshooting/bundling-bundle",
         "troubleshooting/browser-launch",
+        "troubleshooting/sigkill",
       ],
     },
     {
