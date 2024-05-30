@@ -6,6 +6,7 @@ import { Control } from "./control";
 import styles from "./styles.module.css";
 import type { DemoType } from "./types";
 import {
+  animationMathDemo,
   circleDemo,
   clockWipePresentationDemo,
   cubePresentationDemo,
@@ -61,10 +62,11 @@ const demos: DemoType[] = [
   customTimingDemo,
   clockWipePresentationDemo,
   cubePresentationDemo,
+  animationMathDemo,
 ];
 
 export const Demo: React.FC<{
-  type: string;
+  readonly type: string;
 }> = ({ type }) => {
   const demo = demos.find((d) => d.id === type);
   const { colorMode } = useColorMode();

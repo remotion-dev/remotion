@@ -582,6 +582,7 @@ module.exports = {
         "audio-visualization",
         "noise-visualization",
         "video-manipulation",
+        "animation-math",
       ],
     },
     {
@@ -822,7 +823,6 @@ module.exports = {
         "miscellaneous/snippets/player-in-iframe",
         "miscellaneous/snippets/fps-converter",
         "miscellaneous/snippets/use-delay-render",
-        "miscellaneous/snippets/adding-animations",
         "miscellaneous/snippets/offthread-video-while-rendering",
         "miscellaneous/snippets/hls",
         "miscellaneous/snippets/combine-compositions",

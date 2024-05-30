@@ -321,6 +321,11 @@
       "source": "/recorder",
       "destination": "/docs/recorder",
       "permanent": false
+    },
+    {
+      "source": "/docs/miscellaneous/snippets/adding-animations",
+      "destination": "/docs/animation-math",
+      "permanent": false
     }
   ]
 }

@@ -63,6 +63,13 @@ export const articles = [
     crumb: "The basics",
   },
   {
+    id: "animation-math",
+    title: "Animation math",
+    relativePath: "docs/animation-math.mdx",
+    compId: "articles-docs-animation-math",
+    crumb: "Techniques",
+  },
+  {
     id: "animation-utils/index",
     title: "@remotion/animation-utils",
     relativePath: "docs/animation-utils/index.md",
@@ -1733,13 +1740,6 @@ export const articles = [
     title: "Change the speed of a video over time",
     relativePath: "docs/miscellaneous/snippets/accelerated-video.md",
     compId: "articles-docs-miscellaneous-snippets-accelerated-video",
-    crumb: "Snippets",
-  },
-  {
-    id: "miscellaneous/snippets/adding-animations",
-    title: "Adding and subtracting animations",
-    relativePath: "docs/miscellaneous/snippets/adding-animations.md",
-    compId: "articles-docs-miscellaneous-snippets-adding-animations",
     crumb: "Snippets",
   },
   {
