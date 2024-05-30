@@ -26,8 +26,8 @@ const badge: React.CSSProperties = {
 };
 
 export const RendersTab: React.FC<{
-	selected: boolean;
-	onClick: MouseEventHandler<HTMLButtonElement>;
+	readonly selected: boolean;
+	readonly onClick: MouseEventHandler<HTMLDivElement>;
 }> = ({selected, onClick}) => {
 	const {jobs} = useContext(RenderQueueContext);
 	const {canvasContent} = useContext(Internals.CompositionManager);

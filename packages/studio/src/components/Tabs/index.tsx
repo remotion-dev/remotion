@@ -15,8 +15,8 @@ const tabsContainer: React.CSSProperties = {
 };
 
 export const Tabs: React.FC<{
-	children: React.ReactNode;
-	style?: React.CSSProperties;
+	readonly children: React.ReactNode;
+	readonly style?: React.CSSProperties;
 }> = ({children, style}) => {
 	const definiteStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -41,10 +41,10 @@ const selectorButton: React.CSSProperties = {
 };
 
 export const Tab: React.FC<{
-	children: React.ReactNode;
-	onClick: React.MouseEventHandler<HTMLButtonElement>;
-	style?: React.CSSProperties;
-	selected: boolean;
+	readonly children: React.ReactNode;
+	readonly onClick: React.MouseEventHandler<HTMLDivElement>;
+	readonly style?: React.CSSProperties;
+	readonly selected: boolean;
 }> = ({children, onClick, style, selected}) => {
 	const [hovered, setHovered] = useState(false);
 	const {tabIndex} = useZIndex();
@@ -74,15 +74,15 @@ export const Tab: React.FC<{
 	);
 
 	return (
-		<button
+		<div
 			style={definiteStyle}
-			type="button"
+			role="button"
 			onClick={onClick}
 			tabIndex={tabIndex}
 			onPointerLeave={onPointerLeave}
 			onPointerEnter={onPointerEnter}
 		>
 			{children}
-		</button>
+		</div>
 	);
 };

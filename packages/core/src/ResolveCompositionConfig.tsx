@@ -342,7 +342,8 @@ export const ResolveCompositionConfig: React.FC<
 		}
 
 		window.dispatchEvent(new CustomEvent('remotion.propsUpdatedExternally'));
-	}, [fastRefreshes, shouldIgnoreUpdate]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [fastRefreshes]);
 
 	useEffect(() => {
 		if (renderModalComposition && !isTheSame) {
