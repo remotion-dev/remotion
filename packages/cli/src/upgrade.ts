@@ -1,7 +1,7 @@
-import type {LogLevel} from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
+import {RenderInternals, type LogLevel} from '@remotion/renderer';
 import type {PackageManager} from '@remotion/studio-server';
 import {StudioServerInternals} from '@remotion/studio-server';
+import {spawn} from 'node:child_process';
 import path from 'node:path';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
@@ -78,7 +78,7 @@ export const upgrade = async (
 			peerDependencies.includes(u),
 	);
 
-	const prom = RenderInternals.execa(
+	const task = spawn(
 		manager.manager,
 		getUpgradeCommand({
 			manager: manager.manager,
@@ -86,15 +86,21 @@ export const upgrade = async (
 			version: targetVersion,
 		}),
 		{
-			env: {...process.env, ADBLOCK: '1', DISABLE_OPENCOLLECTIVE: '1'},
-			stdio: 'inherit',
+			env: {
+				...process.env,
+				ADBLOCK: '1',
+				DISABLE_OPENCOLLECTIVE: '1',
+			},
+			stdio: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'info')
+				? 'inherit'
+				: 'ignore',
 		},
 	);
-	if (RenderInternals.isEqualOrBelowLogLevel(logLevel, 'info')) {
-		prom.stdout?.pipe(process.stdout);
-	}
 
-	await prom;
+	await new Promise<void>((resolve) => {
+		task.on('close', resolve);
+	});
+
 	Log.info({indent: false, logLevel}, '⏫ Remotion has been upgraded!');
 	Log.info({indent: false, logLevel}, 'https://remotion.dev/changelog');
 };
