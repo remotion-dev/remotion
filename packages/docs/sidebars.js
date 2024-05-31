@@ -979,6 +979,13 @@ module.exports = {
         "recorder/source-control",
         "recorder/external-recordings",
         "recorder/upgrading",
+        {
+          type: "category",
+          label: "Troubleshooting",
+          items: [
+            "recorder/troubleshooting/failed-to-execute-get-video-metadata",
+          ],
+        },
         "recorder/roadmap",
         "recorder/gear",
         "recorder/our-recorder",

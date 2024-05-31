@@ -2445,6 +2445,15 @@ export const articles = [
     crumb: "Recorder",
   },
   {
+    id: "recorder/troubleshooting/failed-to-execute-get-video-metadata",
+    title: "Failed to execute getVideoMetadata()",
+    relativePath:
+      "docs/recorder/troubleshooting/failed-to-execute-get-video-metadata.mdx",
+    compId:
+      "articles-docs-recorder-troubleshooting-failed-to-execute-get-video-metadata",
+    crumb: "Recorder",
+  },
+  {
     id: "recorder/upgrading",
     title: "Upgrading",
     relativePath: "docs/recorder/upgrading.mdx",
