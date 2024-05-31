@@ -602,6 +602,13 @@ export const articles = [
     crumb: "How to be awesome",
   },
   {
+    id: "contributing/ineligible",
+    title: "Ineligibile for bounties",
+    relativePath: "docs/contributing/ineligible.mdx",
+    compId: "articles-docs-contributing-ineligible",
+    crumb: "Contributing",
+  },
+  {
     id: "contributing/option",
     title: "Implementing a new option",
     relativePath: "docs/contributing/option.md",

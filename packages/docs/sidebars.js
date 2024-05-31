@@ -938,6 +938,7 @@ module.exports = {
         "contributing/presentation",
         "authoring-packages",
         "prereleases",
+        "contributing/ineligible",
       ],
     },
     "license",
