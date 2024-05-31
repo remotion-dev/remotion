@@ -7,7 +7,7 @@
     "docusaurus": "docusaurus",
     "start": "docusaurus start --host 0.0.0.0",
     "start-docs": "docusaurus start",
-    "build-docs": "node --max_old_space_size=16000 node_modules/@docusaurus/core/bin/docusaurus.mjs build && node count-pages.mjs",
+    "build-docs": "node --max_old_space_size=16000 node_modules/@docusaurus/core/bin/docusaurus.mjs build && bun count-pages.ts",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "serve": "docusaurus serve",
