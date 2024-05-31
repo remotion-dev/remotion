@@ -117,7 +117,10 @@ export const CompositionSelector: React.FC = () => {
 						for (let i = 0; i < splitted.length - 1; i++) {
 							const allExceptLast =
 								i === 0
-									? openFolderKey({folderName: splitted[0], parentName: null})
+									? openFolderKey({
+											folderName: splitted.filter((s) => s !== 'no-parent')[0],
+											parentName: null,
+										})
 									: splitted.slice(0, i + 1).join('/');
 							foldersExpandedState[allExceptLast] = true;
 						}
