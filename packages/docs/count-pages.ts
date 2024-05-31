@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import path from "path";
-import { readDir } from "./get-pages.mjs";
+import { readDir } from "./get-pages.js";
 
 const root = path.join(process.cwd(), "docs");
 
