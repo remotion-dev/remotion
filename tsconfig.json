@@ -139,6 +139,9 @@
       "path": "./packages/enable-scss"
     },
     {
+      "path": "./packages/streaming"
+    },
+    {
       "path": "./packages/zod-types"
     }
   ]
