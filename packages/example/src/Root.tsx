@@ -71,6 +71,7 @@ import {
 	SaveDefaultProps,
 	saveStudioSchema,
 } from './StudioApis/SaveDefaultProps';
+import {TriggerCalculateMetadata} from './StudioApis/TriggerCalculateMetadata';
 import {WriteStaticFile} from './StudioApis/WriteStaticFile';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
@@ -1281,6 +1282,21 @@ export const Index: React.FC = () => {
 					durationInFrames={100}
 					height={200}
 					width={200}
+					defaultProps={{color: 'green'}}
+				/>
+				<Composition
+					id="trigger-calculate-metadata"
+					component={TriggerCalculateMetadata}
+					fps={30}
+					durationInFrames={100}
+					height={200}
+					width={200}
+					calculateMetadata={async () => {
+						await new Promise((r) => {
+							setTimeout(r, 1000);
+						});
+						return {};
+					}}
 					defaultProps={{color: 'green'}}
 				/>
 			</Folder>
