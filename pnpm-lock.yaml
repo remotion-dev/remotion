@@ -1356,6 +1356,9 @@ importers:
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
+      '@remotion/streaming':
+        specifier: workspace:*
+        version: link:../streaming
       '@smithy/abort-controller':
         specifier: 3.0.0
         version: 3.0.0
@@ -1761,6 +1764,9 @@ importers:
       '@jonny/eslint-config':
         specifier: 3.0.281
         version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
+      '@remotion/streaming':
+        specifier: workspace:*
+        version: link:../streaming
       '@testing-library/dom':
         specifier: ^8.16.0
         version: 8.16.0

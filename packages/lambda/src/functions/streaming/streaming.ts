@@ -1,4 +1,4 @@
-import {NoReactAPIs} from '@remotion/renderer/pure';
+import {makeStreamPayloadMessage} from '@remotion/streaming';
 import type {LambdaErrorInfo} from '../helpers/write-lambda-error';
 import type {RenderStillLambdaResponsePayload} from '../still';
 
@@ -122,7 +122,7 @@ export const makeStreamPayload = ({message}: {message: StreamingPayload}) => {
 			? new TextEncoder().encode(JSON.stringify(message.payload))
 			: (message.payload as Buffer);
 
-	return NoReactAPIs.makeStreamPayloadMessage({
+	return makeStreamPayloadMessage({
 		body,
 		nonce: messageTypeToMessageId(message.type),
 		status: 0,

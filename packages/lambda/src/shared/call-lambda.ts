@@ -4,7 +4,7 @@ import {
 	InvokeCommand,
 	InvokeWithResponseStreamCommand,
 } from '@aws-sdk/client-lambda';
-import {NoReactAPIs} from '@remotion/renderer/pure';
+import {makeStreamer} from '@remotion/streaming';
 import type {OrError} from '../functions';
 import type {
 	MessageTypeId,
@@ -123,27 +123,25 @@ const callLambdaWithStreamingWithoutRetry = async <T extends LambdaRoutines>({
 		}),
 	);
 
-	const {onData, clear} = NoReactAPIs.makeStreamer(
-		(status, messageTypeId, data) => {
-			const messageType = messageTypeIdToMessageType(
-				messageTypeId as MessageTypeId,
-			);
-			const innerPayload =
-				formatMap[messageType] === 'json'
-					? parseJsonOrThrowSource(data, messageType)
-					: data;
+	const {onData, clear} = makeStreamer((status, messageTypeId, data) => {
+		const messageType = messageTypeIdToMessageType(
+			messageTypeId as MessageTypeId,
+		);
+		const innerPayload =
+			formatMap[messageType] === 'json'
+				? parseJsonOrThrowSource(data, messageType)
+				: data;
 
-			const message: StreamingMessage = {
-				successType: status,
-				message: {
-					type: messageType,
-					payload: innerPayload,
-				},
-			};
+		const message: StreamingMessage = {
+			successType: status,
+			message: {
+				type: messageType,
+				payload: innerPayload,
+			},
+		};
 
-			receivedStreamingPayload(message);
-		},
-	);
+		receivedStreamingPayload(message);
+	});
 
 	const events =
 		res.EventStream as AsyncIterable<InvokeWithResponseStreamResponseEvent>;
