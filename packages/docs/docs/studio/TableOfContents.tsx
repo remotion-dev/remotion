@@ -44,6 +44,10 @@ export const TableOfContents: React.FC = () => {
           <strong>{"focusDefaultPropsPath()"}</strong>
           <div>Scrolls to a specific field in the default props editor</div>
         </TOCItem>
+        <TOCItem link="/docs/studio/reevaluate-composition">
+          <strong>{"reevaluateComposition()"}</strong>
+          <div>Re-runs calculateMetadata() on the current composition</div>
+        </TOCItem>
       </Grid>
     </div>
   );

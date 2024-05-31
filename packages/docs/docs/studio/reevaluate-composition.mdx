@@ -22,7 +22,7 @@ import { reevaluateComposition } from "@remotion/studio";
 
 export const ReevaluateCompositionComp: React.FC = () => {
   const reevaluate = useCallback(async () => {
-    await reevaluateComposition();
+    reevaluateComposition();
 
     console.log("Re-evaluated!");
   }, []);

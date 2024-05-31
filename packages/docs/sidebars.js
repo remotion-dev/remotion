@@ -447,6 +447,7 @@ module.exports = {
         "studio/save-default-props",
         "studio/update-default-props",
         "studio/focus-default-props-path",
+        "studio/reevaluate-composition",
       ],
     },
     {
