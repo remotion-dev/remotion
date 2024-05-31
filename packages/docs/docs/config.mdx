@@ -5,7 +5,7 @@ title: Configuration file
 crumb: "remotion.config.ts"
 ---
 
-import {AngleChangelog} from '../components/AngleChangelog';
+import { AngleChangelog } from "../components/AngleChangelog";
 
 To configure Remotion, create a `remotion.config.ts` file in the root of your Remotion project.
 
@@ -13,7 +13,7 @@ These options will apply to CLI commands such as `npx remotion studio` and `npx 
 
 :::warning
 The configuration file has no effect when using [SSR](/docs/renderer) APIs.
-:::warn
+:::
 
 You can control several behaviors of Remotion here.
 
@@ -79,7 +79,7 @@ The [command line flag](/docs/cli/render#--port) `--port` will take precedence o
 
 ## setPublicDir()<AvailableFrom v="3.2.13" />
 
-<Options id="public-dir"  />
+<Options id="public-dir" />
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -232,7 +232,7 @@ The [command line flag](/docs/cli/render#--ignore-certificate-errors) `--ignore-
 
 ## setChromiumHeadlessMode()<AvailableFrom v="2.6.5" />
 
-<Options id="disable-headless"  />
+<Options id="disable-headless" />
 
 ```tsx twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -244,7 +244,7 @@ Config.setChromiumHeadlessMode(false);
 
 ## setChromiumMultiProcessOnLinux()<AvailableFrom v="4.0.42" />
 
-<Options id="enable-multiprocess-on-linux" cli/>
+<Options id="enable-multiprocess-on-linux" cli />
 
 ```tsx twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -700,8 +700,8 @@ The [command line flag](/docs/cli/render#--audio-bitrate) `--audio-bitrate` will
 ## `setEnableFolderExpiry()`<AvailableFrom v="4.0.32" />
 
 <Options id="enable-folder-expiry" />
-<br/>
-<br/>
+<br />
+<br />
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -712,8 +712,8 @@ Config.setEnableFolderExpiry(true);
 ## `setLambdaInsights()`<AvailableFrom v="4.0.115" />
 
 <Options id="enable-lambda-insights" />
-<br/>
-<br/>
+<br />
+<br />
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -724,8 +724,8 @@ Config.setLambdaInsights(true);
 ## `setDeleteAfter()`<AvailableFrom v="4.0.32" />
 
 <Options id="delete-after" />
-<br/>
-<br/>
+<br />
+<br />
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -736,8 +736,8 @@ Config.setDeleteAfter("3-days");
 ## `setBeepOnFinish()`<AvailableFrom v="4.0.84" />
 
 <Options id="beep-on-finish" />
-<br/>
-<br/>
+<br />
+<br />
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
