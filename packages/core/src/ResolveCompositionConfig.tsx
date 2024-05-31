@@ -247,6 +247,7 @@ export const ResolveCompositionConfig: React.FC<
 					};
 
 					const props = {
+						...defaultProps,
 						...(inputProps ?? {}),
 					};
 
