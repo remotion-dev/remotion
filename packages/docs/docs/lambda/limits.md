@@ -9,7 +9,6 @@ crumb: "Lambda"
 The standard AWS Lambda quotas apply ([see here](https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-limits.html)), most notably:
 
 - [**Concurrency**](/docs/lambda/concurrency): By default, the maximum concurrent executions per region per account is 1000 executions. This limit might be lower for new accounts and users within an enterprise.
-- **Burst concurrency**: AWS may limit your ability to spawn a lot Lambda functions in a short amount of time. By default, this is 3000 functions at a time.
 - [**Storage**](/docs/lambda/disk-size): Configurable, limited to 10GB at most
 - [**RAM**](/docs/lambda/runtime#memory-size): Configurable, limited to 10GB at most
 - [**Execution limit**](/docs/lambda/runtime#timeout): Configurable, at most 15 minutes
