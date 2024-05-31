@@ -1,10 +1,12 @@
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {z} from 'zod';
 
 export const REMOTION_COLOR_BRAND = '__remotion-color';
 
 export const parseColor = (value: string) => {
-	const colored = Internals.processColor(value).toString(16).padStart(8, '0');
+	const colored = NoReactInternals.processColor(value)
+		.toString(16)
+		.padStart(8, '0');
 
 	const opacity = parseInt(colored.slice(0, 2), 16);
 
@@ -27,6 +29,6 @@ export const zColor = () =>
 					return false;
 				}
 			},
-			{message: 'Invalid color'}
+			{message: 'Invalid color'},
 		)
 		.describe(REMOTION_COLOR_BRAND);

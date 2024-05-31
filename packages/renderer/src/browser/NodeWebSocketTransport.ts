@@ -57,31 +57,41 @@ export class NodeWebSocketTransport implements ConnectionTransport {
 		});
 	}
 
-	#ws: WS;
+	websocket: WS;
 	onmessage?: (message: string) => void;
 	onclose?: () => void;
 
 	constructor(ws: WS) {
-		this.#ws = ws;
-		this.#ws.addEventListener('message', (event) => {
+		this.websocket = ws;
+		this.websocket.addEventListener('message', (event) => {
 			if (this.onmessage) {
 				this.onmessage.call(null, event.data as string);
 			}
 		});
-		this.#ws.addEventListener('close', () => {
+		this.websocket.addEventListener('close', () => {
 			if (this.onclose) {
 				this.onclose.call(null);
 			}
 		});
 		// Silently ignore all errors - we don't know what to do with them.
-		this.#ws.addEventListener('error', () => undefined);
+		this.websocket.addEventListener('error', () => undefined);
 	}
 
 	send(message: string): void {
-		this.#ws.send(message);
+		this.websocket.send(message);
 	}
 
 	close(): void {
-		this.#ws.close();
+		this.websocket.close();
+	}
+
+	forgetEventLoop(): void {
+		// @ts-expect-error
+		this.websocket._socket.unref();
+	}
+
+	rememberEventLoop(): void {
+		// @ts-expect-error
+		this.websocket._socket.ref();
 	}
 }

@@ -146,7 +146,7 @@ function parsePercentage(str: string): number {
 	return int / 100;
 }
 
-const names: {[key: string]: number} = {
+export const colorNames: {[key: string]: number} = {
 	transparent: 0x00000000,
 
 	// http://www.w3.org/TR/css3-color/#svg-color
@@ -313,8 +313,8 @@ function normalizeColor(color: string): number {
 		}
 	}
 
-	if (names[color] !== undefined) {
-		return names[color];
+	if (colorNames[color] !== undefined) {
+		return colorNames[color];
 	}
 
 	if (matchers.rgb) {

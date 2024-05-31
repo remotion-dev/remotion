@@ -1,4 +1,5 @@
 import {unlinkSync} from 'node:fs';
+import path from 'node:path';
 import {expect, test} from 'vitest';
 import {composeWithoutCache} from '../compositor/compose';
 import {startCompositor} from '../compositor/compositor';
@@ -11,16 +12,17 @@ test('Should handle the overlay', async () => {
 				invalid: 'json',
 			},
 		];
-		const compositor = startCompositor(
-			'StartLongRunningProcess',
-			{
+		const compositor = startCompositor({
+			type: 'StartLongRunningProcess',
+			payload: {
 				concurrency: 2,
 				maximum_frame_cache_size_in_bytes: 100,
 				verbose: false,
 			},
-			'info',
-			false,
-		);
+			logLevel: 'info',
+			indent: false,
+			binariesDirectory: null,
+		});
 
 		await composeWithoutCache({
 			height: 1080,
@@ -31,7 +33,7 @@ test('Should handle the overlay', async () => {
 			compositor,
 		});
 
-		compositor.finishCommands();
+		await compositor.finishCommands();
 		await compositor.waitForDone();
 
 		throw new Error('should not reach here');
@@ -54,28 +56,31 @@ test('Should handle valid', async () => {
 		},
 	];
 
-	const compositor = startCompositor(
-		'StartLongRunningProcess',
-		{
+	const compositor = startCompositor({
+		type: 'StartLongRunningProcess',
+		payload: {
 			concurrency: 2,
 			maximum_frame_cache_size_in_bytes: 100,
 			verbose: false,
 		},
-		'info',
-		false,
-	);
+		logLevel: 'info',
+		indent: false,
+		binariesDirectory: null,
+	});
+
+	const output = path.join(__dirname, 'test.png');
 
 	await composeWithoutCache({
 		height: 1080,
 		width: 1080,
 		layers,
-		output: 'test.png',
+		output,
 		imageFormat: 'Png',
 		compositor,
 	});
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 
-	unlinkSync('test.png');
+	unlinkSync(output);
 });

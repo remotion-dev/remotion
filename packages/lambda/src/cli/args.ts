@@ -1,4 +1,6 @@
 import {CliInternals} from '@remotion/cli';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
+import type {DeleteAfter} from '../client';
 
 import type {AwsRegion} from '../pricing/aws-regions';
 import type {Privacy} from '../shared/constants';
@@ -20,17 +22,24 @@ type LambdaCommandLineOptions = {
 	['disable-chunk-optimization']: boolean;
 	['save-browser-logs']: boolean;
 	['disable-cloudwatch']: boolean;
-	['max-retries']: number;
-	['frames-per-lambda']: number;
-	['concurrency-per-lambda']: number;
+	[BrowserSafeApis.options.enableLambdaInsights.cliFlag]: boolean;
+	['max-retries']?: number;
+	['frames-per-lambda']?: number;
+	['concurrency-per-lambda']?: number;
 	['out-name']: string | undefined;
 	['custom-role-arn']: string | undefined;
 	privacy: Privacy;
 	webhook: string | undefined;
 	['webhook-secret']: string | undefined;
+	[BrowserSafeApis.options.webhookCustomDataOption.cliFlag]: string | undefined;
 	['renderer-function-name']: string | undefined;
 	['function-name']: string | undefined;
 	['force-bucket-name']: string | undefined;
+	[BrowserSafeApis.options.deleteAfterOption.cliFlag]: DeleteAfter | undefined;
+	[BrowserSafeApis.options.folderExpiryOption.cliFlag]: boolean | undefined;
+	['vpc-subnet-ids']: string | undefined;
+	['vpc-security-group-ids']: string | undefined;
+	['compatible-only']: boolean;
 };
 
 export const parsedLambdaCli = CliInternals.minimist<LambdaCommandLineOptions>(

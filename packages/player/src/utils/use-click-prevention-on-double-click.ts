@@ -13,6 +13,12 @@ const useClickPreventionOnDoubleClick = (
 
 	const handleClick = useCallback(
 		async (e: SyntheticEvent) => {
+			// UnSupported double click on touch.(mobile)
+			if ((e.nativeEvent as PointerEvent).pointerType === 'touch') {
+				onClick(e);
+				return;
+			}
+
 			api.clearPendingPromises();
 			const waitForClick = cancellablePromise(delay(200));
 			api.appendPendingPromise(waitForClick);
@@ -40,17 +46,11 @@ const useClickPreventionOnDoubleClick = (
 
 	const returnValue = useMemo((): [(e: SyntheticEvent) => void, () => void] => {
 		if (!doubleClickToFullscreen) {
-			return [onClick, onDoubleClick];
+			return [onClick, () => undefined];
 		}
 
 		return [handleClick, handleDoubleClick];
-	}, [
-		doubleClickToFullscreen,
-		handleClick,
-		handleDoubleClick,
-		onClick,
-		onDoubleClick,
-	]);
+	}, [doubleClickToFullscreen, handleClick, handleDoubleClick, onClick]);
 
 	return returnValue;
 };

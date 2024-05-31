@@ -59,6 +59,7 @@ const Base: React.FC<{
                 marginLeft: -50,
                 marginTop: -50,
                 fontWeight: "bold",
+                color: "var(--ifm-color-primary)",
               }}
             >
               A

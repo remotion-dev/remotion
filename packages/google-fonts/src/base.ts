@@ -31,7 +31,9 @@ export const loadFonts = (
   fontFamily: FontInfo["fontFamily"];
   fonts: FontInfo["fonts"];
   unicodeRanges: FontInfo["unicodeRanges"];
+  waitUntilDone: () => Promise<undefined>;
 } => {
+  const promises: Promise<void>[] = [];
   const styles = style ? [style] : Object.keys(meta.fonts);
   for (const style of styles) {
     // Don't load fonts on server
@@ -48,7 +50,7 @@ export const loadFonts = (
     for (const weight of weights) {
       if (!meta.fonts[style][weight]) {
         throw new Error(
-          `The font ${meta.fontFamily} does not have a weight ${weight} in style ${style}`
+          `The font ${meta.fontFamily} does not  have a weight ${weight} in style ${style}`
         );
       }
       const subsets =
@@ -93,7 +95,7 @@ export const loadFonts = (
         );
 
         //  Load font-face
-        fontFace
+        const promise = fontFace
           .load()
           .then(() => {
             (options?.document ?? document).fonts.add(fontFace);
@@ -104,6 +106,8 @@ export const loadFonts = (
             loadedFonts[fontKey] = false;
             throw err;
           });
+
+        promises.push(promise);
       }
     }
   }
@@ -112,5 +116,6 @@ export const loadFonts = (
     fontFamily: meta.fontFamily,
     fonts: meta.fonts,
     unicodeRanges: meta.unicodeRanges,
+    waitUntilDone: () => Promise.all<void>(promises).then(() => undefined),
   };
 };

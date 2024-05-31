@@ -23,6 +23,10 @@ const support: {[key in Codec]: MediaSupport} = {
 		video: true,
 		audio: true,
 	},
+	'h264-ts': {
+		video: true,
+		audio: true,
+	},
 	h265: {
 		video: true,
 		audio: true,
@@ -55,6 +59,7 @@ export const codecSupportsMedia = (codec: Codec): MediaSupport => {
 
 const codecSupportsVideoBitrateMap: {[key in Codec]: boolean} = {
 	'h264-mkv': true,
+	'h264-ts': true,
 	aac: false,
 	gif: false,
 	h264: true,

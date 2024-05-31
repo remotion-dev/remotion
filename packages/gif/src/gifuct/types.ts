@@ -23,19 +23,21 @@ type Lct = {
 };
 
 export type Frame = {
-	gce: {
-		byteSize: number;
-		codes: number[];
-		delay: number;
-		terminator: number;
-		transparentColorIndex: number;
-		extras: {
-			userInput: boolean;
-			transparentColorGiven: boolean;
-			future: number;
-			disposal: number;
-		};
-	};
+	gce:
+		| undefined
+		| {
+				byteSize: number;
+				codes: number[];
+				delay: number;
+				terminator: number;
+				transparentColorIndex: number;
+				extras: {
+					userInput: boolean;
+					transparentColorGiven: boolean;
+					future: number;
+					disposal: number;
+				};
+		  };
 	image: {
 		code: number;
 		data: {

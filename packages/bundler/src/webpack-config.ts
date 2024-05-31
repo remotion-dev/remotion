@@ -7,14 +7,15 @@ import {jsonStringifyWithCircularReferences} from './stringify-with-circular-ref
 import {getWebpackCacheName} from './webpack-cache';
 import esbuild = require('esbuild');
 
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {Configuration} from 'webpack';
+import {CaseSensitivePathsPlugin} from './case-sensitive-paths';
 import {AllowOptionalDependenciesPlugin} from './optional-dependencies';
 export type WebpackConfiguration = Configuration;
 
 export type WebpackOverrideFn = (
 	currentConfiguration: WebpackConfiguration,
-) => WebpackConfiguration;
+) => WebpackConfiguration | Promise<WebpackConfiguration>;
 
 if (!ReactDOM?.version) {
 	throw new Error('Could not find "react-dom" package. Did you install it?');
@@ -27,7 +28,9 @@ if (reactDomVersion === '0') {
 	);
 }
 
-const shouldUseReactDomClient = parseInt(reactDomVersion, 10) >= 18;
+const shouldUseReactDomClient = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+	? true
+	: parseInt(reactDomVersion, 10) >= 18;
 
 const esbuildLoaderOptions: LoaderOptions = {
 	target: 'chrome85',
@@ -41,7 +44,7 @@ function truthy<T>(value: T): value is Truthy<T> {
 	return Boolean(value);
 }
 
-export const webpackConfig = ({
+export const webpackConfig = async ({
 	entry,
 	userDefinedComponent,
 	outDir,
@@ -50,9 +53,9 @@ export const webpackConfig = ({
 	onProgress,
 	enableCaching = true,
 	maxTimelineTracks,
-	entryPoints,
 	remotionRoot,
 	keyboardShortcutsEnabled,
+	bufferStateDelayInMilliseconds,
 	poll,
 }: {
 	entry: string;
@@ -62,32 +65,44 @@ export const webpackConfig = ({
 	webpackOverride: WebpackOverrideFn;
 	onProgress?: (f: number) => void;
 	enableCaching?: boolean;
-	maxTimelineTracks: number;
+	maxTimelineTracks: number | null;
 	keyboardShortcutsEnabled: boolean;
-	entryPoints: string[];
+	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
 	poll: number | null;
-}): [string, WebpackConfiguration] => {
+}): Promise<[string, WebpackConfiguration]> => {
 	let lastProgress = 0;
-	const conf: WebpackConfiguration = webpackOverride({
+
+	const isBun = typeof Bun !== 'undefined';
+
+	const define = new webpack.DefinePlugin({
+		'process.env.MAX_TIMELINE_TRACKS': maxTimelineTracks,
+		'process.env.KEYBOARD_SHORTCUTS_ENABLED': keyboardShortcutsEnabled,
+		'process.env.BUFFER_STATE_DELAY_IN_MILLISECONDS':
+			bufferStateDelayInMilliseconds,
+	});
+
+	const conf: WebpackConfiguration = await webpackOverride({
 		optimization: {
 			minimize: false,
 		},
 		experiments: {
-			lazyCompilation:
-				environment === 'production'
+			lazyCompilation: isBun
+				? false
+				: environment === 'production'
 					? false
 					: {
 							entries: false,
-					  },
+						},
 		},
 		watchOptions: {
 			poll: poll ?? undefined,
 			aggregateTimeout: 0,
-			ignored: ['**/.git/**', '**/node_modules/**'],
+			ignored: ['**/.git/**', '**/.turbo/**', '**/node_modules/**'],
 		},
-
-		devtool: 'cheap-module-source-map',
+		// Higher source map quality in development to power line numbers for stack traces
+		devtool:
+			environment === 'development' ? 'source-map' : 'cheap-module-source-map',
 		entry: [
 			// Fast Refresh must come first,
 			// because setup-environment imports ReactDOM.
@@ -96,7 +111,6 @@ export const webpackConfig = ({
 				? require.resolve('./fast-refresh/runtime.js')
 				: null,
 			require.resolve('./setup-environment'),
-			...entryPoints,
 			userDefinedComponent,
 			require.resolve('../react-shim.js'),
 			entry,
@@ -106,28 +120,26 @@ export const webpackConfig = ({
 			environment === 'development'
 				? [
 						new ReactFreshWebpackPlugin(),
+						new CaseSensitivePathsPlugin(),
 						new webpack.HotModuleReplacementPlugin(),
-						new webpack.DefinePlugin({
-							'process.env.MAX_TIMELINE_TRACKS': maxTimelineTracks,
-							'process.env.KEYBOARD_SHORTCUTS_ENABLED':
-								keyboardShortcutsEnabled,
-						}),
+						define,
 						new AllowOptionalDependenciesPlugin(),
-				  ]
+					]
 				: [
 						new ProgressPlugin((p) => {
 							if (onProgress) {
-								if (p === 1 || p - lastProgress > 0.05) {
+								if ((p === 1 && p > lastProgress) || p - lastProgress > 0.05) {
 									lastProgress = p;
 									onProgress(Number((p * 100).toFixed(2)));
 								}
 							}
 						}),
+						define,
 						new AllowOptionalDependenciesPlugin(),
-				  ],
+					],
 		output: {
 			hashFunction: 'xxhash64',
-			filename: Internals.bundleName,
+			filename: NoReactInternals.bundleName,
 			devtoolModuleFilenameTemplate: '[resource-path]',
 			assetModuleFilename:
 				environment === 'development' ? '[path][name][ext]' : '[hash][ext]',
@@ -142,6 +154,8 @@ export const webpackConfig = ({
 				'react-dom/client': shouldUseReactDomClient
 					? require.resolve('react-dom/client')
 					: require.resolve('react-dom'),
+				// Note: Order matters here! "remotion/no-react" must be matched before "remotion"
+				'remotion/no-react': require.resolve('remotion/no-react'),
 				remotion: require.resolve('remotion'),
 			},
 		},
@@ -167,7 +181,7 @@ export const webpackConfig = ({
 						environment === 'development'
 							? {
 									loader: require.resolve('./fast-refresh/loader.js'),
-							  }
+								}
 							: null,
 					].filter(truthy),
 				},
@@ -186,7 +200,7 @@ export const webpackConfig = ({
 						environment === 'development'
 							? {
 									loader: require.resolve('./fast-refresh/loader.js'),
-							  }
+								}
 							: null,
 					].filter(truthy),
 				},
@@ -205,7 +219,7 @@ export const webpackConfig = ({
 						type: 'filesystem',
 						name: getWebpackCacheName(environment, hash),
 						version: hash,
-				  }
+					}
 				: false,
 			output: {
 				...conf.output,

@@ -6,6 +6,7 @@ import React, { useMemo } from "react";
 import { random } from "remotion";
 import { BlueButton } from "../../../components/layout/Button";
 import { Spacer } from "../../../components/layout/Spacer";
+import { Seo } from "../../components/Seo";
 import {
   EmailLogo,
   GitHubLogo,
@@ -14,7 +15,6 @@ import {
   TwitterLogo,
   VideoCallLogo,
 } from "../../components/icons";
-import { Seo } from "../../components/Seo";
 import { experts } from "../../data/experts";
 import styles from "./experts.module.css";
 
@@ -148,6 +148,14 @@ const Experts: React.FC = () => {
 
                   {e.github ? (
                     <>
+                      {/* Check if the expert has a website and a GitHub profile, but not a Twitter */}
+                      {e.website && !e.x ? (
+                        <>
+                          <Spacer />
+                          <Spacer />
+                        </>
+                      ) : null}
+
                       {e.x ? (
                         <>
                           <Spacer />

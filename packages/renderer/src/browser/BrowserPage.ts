@@ -13,25 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {formatRemoteObject} from '../format-logs';
 import type {LogLevel} from '../log-level';
 import {Log} from '../logger';
-import type {AnySourceMapConsumer} from '../symbolicate-stacktrace';
 import {truthy} from '../truthy';
-import {assert} from './assert';
 import type {HeadlessBrowser} from './Browser';
 import type {CDPSession} from './Connection';
 import type {ConsoleMessageType} from './ConsoleMessage';
 import {ConsoleMessage} from './ConsoleMessage';
-import type {
-	AttachedToTargetEvent,
-	BindingCalledEvent,
-	ConsoleAPICalledEvent,
-	EntryAddedEvent,
-	StackTrace,
-} from './devtools-types';
 import type {
 	EvaluateFn,
 	EvaluateFnReturnType,
@@ -49,6 +39,16 @@ import type {Viewport} from './PuppeteerViewport';
 import type {Target} from './Target';
 import {TaskQueue} from './TaskQueue';
 import {TimeoutSettings} from './TimeoutSettings';
+import {assert} from './assert';
+import type {
+	AttachedToTargetEvent,
+	BindingCalledEvent,
+	ConsoleAPICalledEvent,
+	EntryAddedEvent,
+	SetDeviceMetricsOverrideRequest,
+	StackTrace,
+} from './devtools-types';
+import type {SourceMapGetter} from './source-map-getter';
 import {
 	evaluationString,
 	isErrorLike,
@@ -94,7 +94,7 @@ export class Page extends EventEmitter {
 		target,
 		defaultViewport,
 		browser,
-		sourcemapContext,
+		sourceMapGetter,
 		logLevel,
 		indent,
 	}: {
@@ -102,7 +102,7 @@ export class Page extends EventEmitter {
 		target: Target;
 		defaultViewport: Viewport;
 		browser: HeadlessBrowser;
-		sourcemapContext: Promise<AnySourceMapConsumer | null>;
+		sourceMapGetter: SourceMapGetter;
 		logLevel: LogLevel;
 		indent: boolean;
 	}): Promise<Page> {
@@ -110,7 +110,7 @@ export class Page extends EventEmitter {
 			client,
 			target,
 			browser,
-			sourcemapContext,
+			sourceMapGetter,
 			logLevel,
 			indent,
 		});
@@ -128,34 +128,32 @@ export class Page extends EventEmitter {
 	#pageBindings = new Map<string, Function>();
 	browser: HeadlessBrowser;
 	screenshotTaskQueue: TaskQueue;
-	sourcemapContext: AnySourceMapConsumer | null = null;
+	sourceMapGetter: SourceMapGetter;
 	logLevel: LogLevel;
 
 	constructor({
 		client,
 		target,
 		browser,
-		sourcemapContext,
+		sourceMapGetter,
 		logLevel,
 		indent,
 	}: {
 		client: CDPSession;
 		target: Target;
 		browser: HeadlessBrowser;
-		sourcemapContext: Promise<AnySourceMapConsumer | null>;
+		sourceMapGetter: SourceMapGetter;
 		logLevel: LogLevel;
 		indent: boolean;
 	}) {
 		super();
 		this.#client = client;
 		this.#target = target;
-		this.#frameManager = new FrameManager(client, this);
+		this.#frameManager = new FrameManager(client, this, indent, logLevel);
 		this.screenshotTaskQueue = new TaskQueue();
 		this.browser = browser;
 		this.id = String(Math.random());
-		sourcemapContext.then((context) => {
-			this.sourcemapContext = context;
-		});
+		this.sourceMapGetter = sourceMapGetter;
 		this.logLevel = logLevel;
 
 		client.on('Target.attachedToTarget', (event: AttachedToTargetEvent) => {
@@ -175,7 +173,7 @@ export class Page extends EventEmitter {
 						.send('Target.detachFromTarget', {
 							sessionId: event.sessionId,
 						})
-						.catch((err) => console.log(err));
+						.catch((err) => Log.error({indent, logLevel}, err));
 			}
 		});
 
@@ -200,11 +198,11 @@ export class Page extends EventEmitter {
 			}
 
 			if (
-				url?.endsWith(Internals.bundleName) &&
+				url?.endsWith(NoReactInternals.bundleName) &&
 				lineNumber &&
-				this.sourcemapContext
+				this.sourceMapGetter()
 			) {
-				const origPosition = this.sourcemapContext?.originalPositionFor({
+				const origPosition = this.sourceMapGetter()?.originalPositionFor({
 					column: columnNumber ?? 0,
 					line: lineNumber,
 				});
@@ -219,7 +217,7 @@ export class Page extends EventEmitter {
 				const tag = [origPosition?.name, file].filter(truthy).join('@');
 
 				if (log.type === 'error') {
-					Log.errorAdvanced(
+					Log.error(
 						{
 							logLevel,
 							tag,
@@ -228,7 +226,7 @@ export class Page extends EventEmitter {
 						log.previewString,
 					);
 				} else {
-					Log.verboseAdvanced(
+					Log.verbose(
 						{
 							logLevel,
 							tag,
@@ -239,18 +237,12 @@ export class Page extends EventEmitter {
 				}
 			} else if (log.type === 'error') {
 				if (log.text.includes('Failed to load resource:')) {
-					Log.errorAdvanced({logLevel, tag: url, indent}, log.text);
+					Log.error({logLevel, tag: url, indent}, log.text);
 				} else {
-					Log.errorAdvanced(
-						{logLevel, tag: `console.${log.type}`, indent},
-						log.text,
-					);
+					Log.error({logLevel, tag: `console.${log.type}`, indent}, log.text);
 				}
 			} else {
-				Log.verboseAdvanced(
-					{logLevel, tag: `console.${log.type}`, indent},
-					log.text,
-				);
+				Log.verbose({logLevel, tag: `console.${log.type}`, indent}, log.text);
 			}
 		});
 	}
@@ -352,18 +344,39 @@ export class Page extends EventEmitter {
 	}
 
 	async setViewport(viewport: Viewport): Promise<void> {
+		const fromSurface = !process.env.DISABLE_FROM_SURFACE;
+
+		const request: SetDeviceMetricsOverrideRequest = fromSurface
+			? {
+					mobile: false,
+					width: viewport.width,
+					height: viewport.height,
+					deviceScaleFactor: viewport.deviceScaleFactor,
+					screenOrientation: {
+						angle: 0,
+						type: 'portraitPrimary',
+					},
+				}
+			: {
+					mobile: false,
+					width: viewport.width,
+					height: viewport.height,
+					deviceScaleFactor: 1,
+					screenHeight: viewport.height,
+					screenWidth: viewport.width,
+					scale: viewport.deviceScaleFactor,
+					viewport: {
+						height: viewport.height * viewport.deviceScaleFactor,
+						width: viewport.width * viewport.deviceScaleFactor,
+						scale: 1,
+						x: 0,
+						y: 0,
+					},
+				};
+
 		const {value} = await this.#client.send(
 			'Emulation.setDeviceMetricsOverride',
-			{
-				mobile: false,
-				width: viewport.width,
-				height: viewport.height,
-				deviceScaleFactor: viewport.deviceScaleFactor,
-				screenOrientation: {
-					angle: 0,
-					type: 'portraitPrimary',
-				},
-			},
+			request,
 		);
 		return value;
 	}
@@ -543,9 +556,7 @@ export class Page extends EventEmitter {
 		}
 	}
 
-	setBrowserSourceMapContext(context: Promise<AnySourceMapConsumer | null>) {
-		context.then((ctx) => {
-			this.sourcemapContext = ctx;
-		});
+	setBrowserSourceMapGetter(context: SourceMapGetter) {
+		this.sourceMapGetter = context;
 	}
 }

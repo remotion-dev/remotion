@@ -9,6 +9,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import {playAndHandleNotAllowedError} from '../play-and-handle-not-allowed-error.js';
 import type {RemotionAudioProps} from './props.js';
 
 /**
@@ -78,8 +79,8 @@ const didPropChange = (key: string, newProp: unknown, prevProp: unknown) => {
 		!(newProp as string).startsWith('data:')
 	) {
 		return (
-			new URL(prevProp as string, window.location.origin).toString() !==
-			new URL(newProp as string, window.location.origin).toString()
+			new URL(prevProp as string, window.origin).toString() !==
+			new URL(newProp as string, window.origin).toString()
 		);
 	}
 
@@ -236,7 +237,7 @@ export const SharedAudioContextProvider: React.FC<{
 
 	const playAllAudios = useCallback(() => {
 		refs.forEach((ref) => {
-			ref.ref.current?.play();
+			playAndHandleNotAllowedError(ref.ref, 'audio');
 		});
 	}, [refs]);
 

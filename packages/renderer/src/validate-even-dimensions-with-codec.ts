@@ -6,13 +6,24 @@ export const validateEvenDimensionsWithCodec = ({
 	height,
 	codec,
 	scale,
+	wantsImageSequence,
 }: {
 	width: number;
 	height: number;
 	scale: number;
 	codec: Codec;
+	wantsImageSequence: boolean;
 }) => {
-	if (codec !== 'h264-mkv' && codec !== 'h264' && codec !== 'h265') {
+	if (wantsImageSequence) {
+		return;
+	}
+
+	if (
+		codec !== 'h264-mkv' &&
+		codec !== 'h264' &&
+		codec !== 'h265' &&
+		codec !== 'h264-ts'
+	) {
 		return;
 	}
 

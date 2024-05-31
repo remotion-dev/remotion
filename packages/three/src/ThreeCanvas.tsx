@@ -1,16 +1,23 @@
 import type {RootState} from '@react-three/fiber';
 import {Canvas, useThree} from '@react-three/fiber';
 import React, {useCallback, useLayoutEffect, useState} from 'react';
-import {continueRender, delayRender, Internals} from 'remotion';
+import {Internals, continueRender, delayRender} from 'remotion';
 import {SuspenseLoader} from './SuspenseLoader';
+import {validateDimension} from './validate';
 
 export type ThreeCanvasProps = React.ComponentProps<typeof Canvas> & {
-	width: number;
-	height: number;
-	children: React.ReactNode;
+	readonly width: number;
+	readonly height: number;
+	readonly children: React.ReactNode;
 };
 
-const Scale = ({width, height}: {width: number; height: number}) => {
+const Scale = ({
+	width,
+	height,
+}: {
+	readonly width: number;
+	readonly height: number;
+}) => {
 	const {set, setSize: threeSetSize} = useThree();
 	const [setSize] = useState(() => threeSetSize);
 	useLayoutEffect(() => {
@@ -31,16 +38,8 @@ export const ThreeCanvas = (props: ThreeCanvasProps) => {
 		delayRender('Waiting for <ThreeCanvas/> to be created'),
 	);
 
-	Internals.validateDimension(
-		width,
-		'width',
-		'of the <ThreeCanvas /> component',
-	);
-	Internals.validateDimension(
-		height,
-		'height',
-		'of the <ThreeCanvas /> component',
-	);
+	validateDimension(width, 'width', 'of the <ThreeCanvas /> component');
+	validateDimension(height, 'height', 'of the <ThreeCanvas /> component');
 	const contexts = Internals.useRemotionContexts();
 	const actualStyle = {
 		width: props.width,

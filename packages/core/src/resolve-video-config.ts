@@ -1,100 +1,34 @@
 import type {AnyZodObject} from 'zod';
-import type {CalcMetadataReturnType} from './Composition.js';
-import type {TCompMetadataWithCalcFunction} from './CompositionManager.js';
+import type {
+	CalcMetadataReturnType,
+	CalculateMetadataFunction,
+} from './Composition.js';
+import type {InferProps} from './props-if-has-props.js';
+import {validateDefaultCodec} from './validation/validate-default-codec.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import {validateFps} from './validation/validate-fps.js';
 import type {VideoConfig} from './video-config.js';
 
-export const resolveVideoConfig = ({
-	composition,
-	editorProps: editorPropsOrUndefined,
-	signal,
-	inputProps,
-}: {
-	composition: TCompMetadataWithCalcFunction<
-		AnyZodObject,
-		Record<string, unknown>
-	>;
-	editorProps: object;
-	signal: AbortSignal;
-	inputProps: Record<string, unknown>;
-}): VideoConfig | Promise<VideoConfig> => {
-	const calculatedProm = composition.calculateMetadata
-		? composition.calculateMetadata({
-				defaultProps: composition.defaultProps ?? {},
-				props: {
-					...(composition.defaultProps ?? {}),
-					...(editorPropsOrUndefined ?? {}),
-					...inputProps,
-				},
-				abortSignal: signal,
-		  })
-		: null;
-
-	const fallbackProps = {
-		...(composition.defaultProps ?? {}),
-		...(inputProps ?? {}),
-	};
-
-	if (
-		calculatedProm !== null &&
-		typeof calculatedProm === 'object' &&
-		'then' in calculatedProm
-	) {
-		return calculatedProm.then((c) => {
-			const {height, width, durationInFrames, fps} = validateCalculated({
-				calculated: c,
-				composition,
-			});
-			return {
-				width,
-				height,
-				fps,
-				durationInFrames,
-				id: composition.id,
-				defaultProps: composition.defaultProps ?? {},
-				props: c.props ?? fallbackProps,
-			};
-		});
-	}
-
-	const data = validateCalculated({
-		calculated: calculatedProm,
-		composition,
-	});
-
-	if (calculatedProm === null) {
-		return {
-			...data,
-			id: composition.id,
-			defaultProps: composition.defaultProps ?? {},
-			props: fallbackProps,
-		};
-	}
-
-	return {
-		...data,
-		id: composition.id,
-		defaultProps: composition.defaultProps ?? {},
-		props: calculatedProm.props ?? composition.defaultProps ?? {},
-	};
-};
-
 const validateCalculated = ({
-	composition,
 	calculated,
+	compositionId,
+	compositionFps,
+	compositionHeight,
+	compositionWidth,
+	compositionDurationInFrames,
 }: {
-	composition: TCompMetadataWithCalcFunction<
-		AnyZodObject,
-		Record<string, unknown>
-	>;
 	calculated: CalcMetadataReturnType<Record<string, unknown>> | null;
+	compositionId: string;
+	compositionWidth: number | null;
+	compositionHeight: number | null;
+	compositionFps: number | null;
+	compositionDurationInFrames: number | null;
 }) => {
-	const calculateMetadataErrorLocation = `calculated by calculateMetadata() for the composition "${composition.id}"`;
-	const defaultErrorLocation = `of the "<Composition />" component with the id "${composition.id}"`;
+	const calculateMetadataErrorLocation = `calculated by calculateMetadata() for the composition "${compositionId}"`;
+	const defaultErrorLocation = `of the "<Composition />" component with the id "${compositionId}"`;
 
-	const width = calculated?.width ?? composition.width ?? undefined;
+	const width = calculated?.width ?? compositionWidth ?? undefined;
 
 	validateDimension(
 		width,
@@ -102,7 +36,7 @@ const validateCalculated = ({
 		calculated?.width ? calculateMetadataErrorLocation : defaultErrorLocation,
 	);
 
-	const height = calculated?.height ?? composition.height ?? undefined;
+	const height = calculated?.height ?? compositionHeight ?? undefined;
 
 	validateDimension(
 		height,
@@ -110,7 +44,7 @@ const validateCalculated = ({
 		calculated?.height ? calculateMetadataErrorLocation : defaultErrorLocation,
 	);
 
-	const fps = calculated?.fps ?? composition.fps ?? null;
+	const fps = calculated?.fps ?? compositionFps ?? null;
 
 	validateFps(
 		fps,
@@ -119,12 +53,103 @@ const validateCalculated = ({
 	);
 
 	const durationInFrames =
-		calculated?.durationInFrames ?? composition.durationInFrames ?? null;
+		calculated?.durationInFrames ?? compositionDurationInFrames ?? null;
 
 	validateDurationInFrames(durationInFrames, {
 		allowFloats: false,
-		component: `of the "<Composition />" component with the id "${composition.id}"`,
+		component: `of the "<Composition />" component with the id "${compositionId}"`,
 	});
 
-	return {width, height, fps, durationInFrames};
+	const defaultCodec = calculated?.defaultCodec;
+	validateDefaultCodec(defaultCodec, calculateMetadataErrorLocation);
+
+	return {width, height, fps, durationInFrames, defaultCodec};
+};
+
+export const resolveVideoConfig = ({
+	calculateMetadata,
+	signal,
+	defaultProps,
+	originalProps,
+	compositionId,
+	compositionDurationInFrames,
+	compositionFps,
+	compositionHeight,
+	compositionWidth,
+}: {
+	compositionId: string;
+	compositionWidth: number | null;
+	compositionHeight: number | null;
+	compositionFps: number | null;
+	compositionDurationInFrames: number | null;
+	calculateMetadata: CalculateMetadataFunction<
+		InferProps<AnyZodObject, Record<string, unknown>>
+	> | null;
+	signal: AbortSignal;
+	defaultProps: Record<string, unknown>;
+	originalProps: Record<string, unknown>;
+}): VideoConfig | Promise<VideoConfig> => {
+	const calculatedProm = calculateMetadata
+		? calculateMetadata({
+				defaultProps,
+				props: originalProps,
+				abortSignal: signal,
+				compositionId,
+			})
+		: null;
+
+	if (
+		calculatedProm !== null &&
+		typeof calculatedProm === 'object' &&
+		'then' in calculatedProm
+	) {
+		return calculatedProm.then((c) => {
+			const {height, width, durationInFrames, fps, defaultCodec} =
+				validateCalculated({
+					calculated: c,
+					compositionDurationInFrames,
+					compositionFps,
+					compositionHeight,
+					compositionWidth,
+					compositionId,
+				});
+			return {
+				width,
+				height,
+				fps,
+				durationInFrames,
+				id: compositionId,
+				defaultProps,
+				props: c.props ?? originalProps,
+				defaultCodec: defaultCodec ?? null,
+			};
+		});
+	}
+
+	const data = validateCalculated({
+		calculated: calculatedProm,
+		compositionDurationInFrames,
+		compositionFps,
+		compositionHeight,
+		compositionWidth,
+		compositionId,
+	});
+
+	if (calculatedProm === null) {
+		return {
+			...data,
+			id: compositionId,
+			defaultProps: defaultProps ?? {},
+			props: originalProps,
+			defaultCodec: null,
+		};
+	}
+
+	return {
+		...data,
+		id: compositionId,
+		defaultProps: defaultProps ?? {},
+		props: calculatedProm.props ?? originalProps,
+		defaultCodec: calculatedProm.defaultCodec ?? null,
+	};
 };

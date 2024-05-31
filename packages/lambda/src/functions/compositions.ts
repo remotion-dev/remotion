@@ -1,11 +1,14 @@
 import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
-import {getOrCreateBucket} from '../api/get-or-create-bucket';
+import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
 import type {LambdaPayload} from '../defaults';
 import {LambdaRoutines} from '../defaults';
 import {decompressInputProps} from '../shared/compress-props';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
-import {getBrowserInstance} from './helpers/get-browser-instance';
+import {
+	forgetBrowserEventLoop,
+	getBrowserInstance,
+} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 
 type Options = {
@@ -32,52 +35,63 @@ export const compositionsHandler = async (
 		);
 	}
 
-	const region = getCurrentRegionInFunction();
+	try {
+		const region = getCurrentRegionInFunction();
 
-	const [bucketName, browserInstance] = await Promise.all([
-		lambdaParams.bucketName ??
-			getOrCreateBucket({
-				region,
-			}).then((b) => b.bucketName),
-		getBrowserInstance(
+		const browserInstancePromise = getBrowserInstance(
 			lambdaParams.logLevel,
 			false,
-			lambdaParams.chromiumOptions ?? {},
-		),
-	]);
+			lambdaParams.chromiumOptions,
+		);
+		const bucketNamePromise = lambdaParams.bucketName
+			? Promise.resolve(lambdaParams.bucketName)
+			: internalGetOrCreateBucket({
+					region,
+					enableFolderExpiry: null,
+					customCredentials: null,
+				}).then((b) => b.bucketName);
 
-	const serializedInputPropsWithCustomSchema = await decompressInputProps({
-		bucketName,
-		expectedBucketOwner: options.expectedBucketOwner,
-		region: getCurrentRegionInFunction(),
-		serialized: lambdaParams.inputProps,
-		propsType: 'input-props',
-	});
+		const bucketName = await bucketNamePromise;
+		const serializedInputPropsWithCustomSchema = await decompressInputProps({
+			bucketName: await bucketNamePromise,
+			expectedBucketOwner: options.expectedBucketOwner,
+			region: getCurrentRegionInFunction(),
+			serialized: lambdaParams.inputProps,
+			propsType: 'input-props',
+		});
 
-	const realServeUrl = convertToServeUrl({
-		urlOrId: lambdaParams.serveUrl,
-		region,
-		bucketName,
-	});
+		const realServeUrl = convertToServeUrl({
+			urlOrId: lambdaParams.serveUrl,
+			region,
+			bucketName,
+		});
 
-	const compositions = await RenderInternals.internalGetCompositions({
-		serveUrlOrWebpackUrl: realServeUrl,
-		puppeteerInstance: browserInstance,
-		serializedInputPropsWithCustomSchema,
-		envVariables: lambdaParams.envVariables ?? {},
-		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
-		chromiumOptions: lambdaParams.chromiumOptions,
-		port: null,
-		server: undefined,
-		logLevel: lambdaParams.logLevel,
-		indent: false,
-		browserExecutable: null,
-		onBrowserLog: null,
-		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
-	});
+		const compositions = await RenderInternals.internalGetCompositions({
+			serveUrlOrWebpackUrl: realServeUrl,
+			puppeteerInstance: (await browserInstancePromise).instance,
+			serializedInputPropsWithCustomSchema,
+			envVariables: lambdaParams.envVariables ?? {},
+			timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
+			chromiumOptions: lambdaParams.chromiumOptions,
+			port: null,
+			server: undefined,
+			logLevel: lambdaParams.logLevel,
+			indent: false,
+			browserExecutable: null,
+			onBrowserLog: null,
+			offthreadVideoCacheSizeInBytes:
+				lambdaParams.offthreadVideoCacheSizeInBytes,
+			binariesDirectory: null,
+			onBrowserDownload: () => {
+				throw new Error('Should not download a browser in Lambda');
+			},
+		});
 
-	return Promise.resolve({
-		compositions,
-		type: 'success' as const,
-	});
+		return Promise.resolve({
+			compositions,
+			type: 'success' as const,
+		});
+	} finally {
+		forgetBrowserEventLoop(lambdaParams.logLevel);
+	}
 };

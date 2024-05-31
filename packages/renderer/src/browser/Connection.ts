@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {assert} from './assert';
+import {Log} from '../logger';
 import type {Commands} from './devtools-commands';
 import type {TargetInfo} from './devtools-types';
 
@@ -24,9 +24,10 @@ import type {NodeWebSocketTransport} from './NodeWebSocketTransport';
 interface ConnectionCallback {
 	resolve: (value: {value: any; size: number}) => void;
 	reject: Function;
-	error: ProtocolError;
 	method: string;
 	returnSize: boolean;
+	stack: string;
+	fn: string;
 }
 
 const ConnectionEmittedEvents = {
@@ -34,7 +35,7 @@ const ConnectionEmittedEvents = {
 } as const;
 
 export class Connection extends EventEmitter {
-	#transport: NodeWebSocketTransport;
+	transport: NodeWebSocketTransport;
 	#lastId = 0;
 	#sessions: Map<string, CDPSession> = new Map();
 	#closed = false;
@@ -43,9 +44,9 @@ export class Connection extends EventEmitter {
 	constructor(transport: NodeWebSocketTransport) {
 		super();
 
-		this.#transport = transport;
-		this.#transport.onmessage = this.#onMessage.bind(this);
-		this.#transport.onclose = this.#onClose.bind(this);
+		this.transport = transport;
+		this.transport.onmessage = this.#onMessage.bind(this);
+		this.transport.onclose = this.#onClose.bind(this);
 	}
 
 	static fromSession(session: CDPSession): Connection | undefined {
@@ -73,9 +74,10 @@ export class Connection extends EventEmitter {
 				this.#callbacks.set(id, {
 					resolve,
 					reject,
-					error: new ProtocolError(),
 					method,
 					returnSize: true,
+					stack: new Error().stack ?? '',
+					fn: method + JSON.stringify(params),
 				});
 			},
 		);
@@ -84,7 +86,7 @@ export class Connection extends EventEmitter {
 	_rawSend(message: Record<string, unknown>): number {
 		const id = ++this.#lastId;
 		const stringifiedMessage = JSON.stringify({...message, id});
-		this.#transport.send(stringifiedMessage);
+		this.transport.send(stringifiedMessage);
 		return id;
 	}
 
@@ -126,10 +128,9 @@ export class Connection extends EventEmitter {
 			// Callbacks could be all rejected if someone has called `.dispose()`.
 			if (callback) {
 				this.#callbacks.delete(object.id);
+
 				if (object.error) {
-					callback.reject(
-						createProtocolError(callback.error, callback.method, object),
-					);
+					callback.reject(createProtocolError(callback.method, object));
 				} else if (callback.returnSize) {
 					callback.resolve({value: object.result, size: message.length});
 				} else {
@@ -146,12 +147,12 @@ export class Connection extends EventEmitter {
 			return;
 		}
 
-		this.#transport.onmessage = undefined;
-		this.#transport.onclose = undefined;
+		this.transport.onmessage = undefined;
+		this.transport.onclose = undefined;
 		for (const callback of this.#callbacks.values()) {
 			callback.reject(
 				rewriteError(
-					callback.error,
+					new ProtocolError(),
 					`Protocol error (${callback.method}): Target closed. https://www.remotion.dev/docs/target-closed`,
 				),
 			);
@@ -168,7 +169,7 @@ export class Connection extends EventEmitter {
 
 	dispose(): void {
 		this.#onClose();
-		this.#transport.close();
+		this.transport.close();
 	}
 
 	/**
@@ -227,9 +228,7 @@ export class CDPSession extends EventEmitter {
 		if (!this.#connection) {
 			return Promise.reject(
 				new Error(
-					`Protocol error (${method}): Session closed. Most likely the ${
-						this.#targetType
-					} has been closed.`,
+					`Protocol error (${method}): Session closed. Most likely the ${this.#targetType} has been closed.`,
 				),
 			);
 		}
@@ -245,12 +244,21 @@ export class CDPSession extends EventEmitter {
 
 		return new Promise<{value: Commands[T]['returnType']; size: number}>(
 			(resolve, reject) => {
+				if (this.#callbacks.size > 100) {
+					for (const callback of this.#callbacks.values()) {
+						Log.info({indent: false, logLevel: 'info'}, callback.fn);
+					}
+
+					throw new Error('Leak detected: Too many callbacks');
+				}
+
 				this.#callbacks.set(id, {
 					resolve,
 					reject,
-					error: new ProtocolError(),
 					method,
 					returnSize: true,
+					stack: new Error().stack ?? '',
+					fn: method + JSON.stringify(params),
 				});
 			},
 		);
@@ -261,16 +269,13 @@ export class CDPSession extends EventEmitter {
 		if (object.id && callback) {
 			this.#callbacks.delete(object.id);
 			if (object.error) {
-				callback.reject(
-					createProtocolError(callback.error, callback.method, object),
-				);
+				callback.reject(createProtocolError(callback.method, object));
 			} else if (callback.returnSize) {
 				callback.resolve({value: object.result, size});
 			} else {
 				callback.resolve(object.result);
 			}
 		} else {
-			assert(!object.id);
 			this.emit(object.method, object.params);
 		}
 	}
@@ -280,7 +285,7 @@ export class CDPSession extends EventEmitter {
 		for (const callback of this.#callbacks.values()) {
 			callback.reject(
 				rewriteError(
-					callback.error,
+					new ProtocolError(),
 					`Protocol error (${callback.method}): Target closed. https://www.remotion.dev/docs/target-closed`,
 				),
 			);
@@ -296,7 +301,6 @@ export class CDPSession extends EventEmitter {
 }
 
 function createProtocolError(
-	error: ProtocolError,
 	method: string,
 	object: {error: {message: string; data: any; code: number}},
 ): Error {
@@ -305,7 +309,7 @@ function createProtocolError(
 		message += ` ${object.error.data}`;
 	}
 
-	return rewriteError(error, message, object.error.message);
+	return rewriteError(new ProtocolError(), message, object.error.message);
 }
 
 function rewriteError(

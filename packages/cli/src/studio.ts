@@ -1,62 +1,29 @@
-import crypto from 'node:crypto';
-import {existsSync} from 'node:fs';
-import path from 'node:path';
-import {openBrowser} from './better-opn';
-import {chalk} from './chalk';
+import type {LogLevel} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
+import {StudioServerInternals} from '@remotion/studio-server';
 import {ConfigInternals} from './config';
+import {getNumberOfSharedAudioTags} from './config/number-of-shared-audio-tags';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getEnvironmentVariables} from './get-env';
+import {getGitSource} from './get-github-repository';
 import {getInputProps} from './get-input-props';
-import {getNetworkAddress} from './get-network-address';
+import {getRenderDefaults} from './get-render-defaults';
 import {Log} from './log';
-import {parsedCli} from './parse-command-line';
-import {getAbsolutePublicDir} from './preview-server/get-absolute-public-dir';
+import {parsedCli} from './parsed-cli';
 import {
-	setLiveEventsListener,
-	waitForLiveEventsListener,
-} from './preview-server/live-events';
-import {getFiles, initPublicFolderWatch} from './preview-server/public-folder';
-import {startServer} from './preview-server/start-server';
-import {
-	printServerReadyComment,
-	setServerReadyComment,
-} from './server-ready-comment';
-import {watchRootFile} from './watch-root-file';
-
-const noop = () => undefined;
-
-const getShouldOpenBrowser = (): {
-	shouldOpenBrowser: boolean;
-	reasonForBrowserDecision: string;
-} => {
-	if (parsedCli['no-open']) {
-		return {
-			shouldOpenBrowser: false,
-			reasonForBrowserDecision: '--no-open specified',
-		};
-	}
-
-	if ((process.env.BROWSER ?? '').toLowerCase() === 'none') {
-		return {
-			shouldOpenBrowser: false,
-			reasonForBrowserDecision: 'env BROWSER=none was set',
-		};
-	}
-
-	if (ConfigInternals.getShouldOpenBrowser() === false) {
-		return {shouldOpenBrowser: false, reasonForBrowserDecision: 'Config file'};
-	}
-
-	return {shouldOpenBrowser: true, reasonForBrowserDecision: 'default'};
-};
+	addJob,
+	cancelJob,
+	getRenderQueue,
+	removeJob,
+} from './render-queue/queue';
 
 const getPort = () => {
 	if (parsedCli.port) {
 		return parsedCli.port;
 	}
 
-	const serverPort = ConfigInternals.getServerPort();
+	const serverPort = ConfigInternals.getStudioPort();
 	if (serverPort) {
 		return serverPort;
 	}
@@ -64,17 +31,36 @@ const getPort = () => {
 	return null;
 };
 
-export const studioCommand = async (remotionRoot: string, args: string[]) => {
-	const {file, reason} = findEntryPoint(args, remotionRoot);
+const {binariesDirectoryOption, publicDirOption} = BrowserSafeApis.options;
 
-	Log.verbose('Entry point:', file, 'reason:', reason);
+export const studioCommand = async (
+	remotionRoot: string,
+	args: string[],
+	logLevel: LogLevel,
+) => {
+	const {file, reason} = findEntryPoint({
+		args,
+		remotionRoot,
+		logLevel,
+		allowDirectory: false,
+	});
+
+	Log.verbose(
+		{indent: false, logLevel},
+		'Entry point:',
+		file,
+		'reason:',
+		reason,
+	);
 
 	if (!file) {
 		Log.error(
+			{indent: false, logLevel},
 			'No Remotion entrypoint was found. Specify an additional argument manually:',
 		);
-		Log.error('  npx remotion studio src/index.ts');
+		Log.error({indent: false, logLevel}, '  npx remotion studio src/index.ts');
 		Log.error(
+			{indent: false, logLevel},
 			'See https://www.remotion.dev/docs/register-root for more information.',
 		);
 		process.exit(1);
@@ -85,98 +71,76 @@ export const studioCommand = async (remotionRoot: string, args: string[]) => {
 	const fullEntryPath = convertEntryPointToServeUrl(file);
 
 	let inputProps = getInputProps((newProps) => {
-		waitForLiveEventsListener().then((listener) => {
+		StudioServerInternals.waitForLiveEventsListener().then((listener) => {
 			inputProps = newProps;
 			listener.sendEventToClient({
 				type: 'new-input-props',
 				newProps,
 			});
 		});
-	});
-	let envVariables = await getEnvironmentVariables((newEnvVariables) => {
-		waitForLiveEventsListener().then((listener) => {
-			envVariables = newEnvVariables;
-			listener.sendEventToClient({
-				type: 'new-env-variables',
-				newEnvVariables,
-			});
-		});
-	});
-
-	const publicDir = getAbsolutePublicDir({
-		userPassedPublicDir: ConfigInternals.getPublicDir(),
-		remotionRoot,
-	});
-
-	const hashPrefix = '/static-';
-	const staticHash = `${hashPrefix}${crypto.randomBytes(6).toString('hex')}`;
-
-	initPublicFolderWatch({
-		publicDir,
-		remotionRoot,
-		onUpdate: () => {
-			waitForLiveEventsListener().then((listener) => {
-				const files = getFiles();
+	}, logLevel);
+	let envVariables = getEnvironmentVariables(
+		(newEnvVariables) => {
+			StudioServerInternals.waitForLiveEventsListener().then((listener) => {
+				envVariables = newEnvVariables;
 				listener.sendEventToClient({
-					type: 'new-public-folder',
-					files,
-					folderExists:
-						files.length > 0
-							? publicDir
-							: existsSync(publicDir)
-							? publicDir
-							: null,
+					type: 'new-env-variables',
+					newEnvVariables,
 				});
 			});
 		},
+		logLevel,
+		false,
+	);
 
-		staticHash,
-	});
+	const keyboardShortcutsEnabled =
+		ConfigInternals.getKeyboardShortcutsEnabled();
 
-	watchRootFile(remotionRoot);
+	const gitSource = getGitSource(remotionRoot);
 
-	const {port, liveEventsServer} = await startServer({
-		entry: path.resolve(__dirname, 'previewEntry.js'),
-		userDefinedComponent: fullEntryPath,
+	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	const relativePublicDir = publicDirOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	await StudioServerInternals.startStudio({
+		previewEntry: require.resolve('@remotion/studio/entry'),
+		browserArgs: parsedCli['browser-args'],
+		browserFlag: parsedCli.browser,
+		logLevel,
+		configValueShouldOpenBrowser: ConfigInternals.getShouldOpenBrowser(),
+		fullEntryPath,
 		getCurrentInputProps: () => inputProps,
 		getEnvVariables: () => envVariables,
-		port: desiredPort,
+		desiredPort,
+		keyboardShortcutsEnabled,
 		maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 		remotionRoot,
-		keyboardShortcutsEnabled: ConfigInternals.getKeyboardShortcutsEnabled(),
-		publicDir,
+		relativePublicDir,
 		webpackOverride: ConfigInternals.getWebpackOverrideFn(),
 		poll: ConfigInternals.getWebpackPolling(),
-		userPassedPublicDir: ConfigInternals.getPublicDir(),
-		hash: staticHash,
-		hashPrefix,
+		getRenderDefaults,
+		getRenderQueue,
+		numberOfAudioTags:
+			parsedCli['number-of-shared-audio-tags'] ?? getNumberOfSharedAudioTags(),
+		queueMethods: {
+			addJob,
+			cancelJob,
+			removeJob,
+		},
+		// Minimist quirk: Adding `--no-open` flag will result in {['no-open']: false, open: true}
+		// @ts-expect-error
+		parsedCliOpen: parsedCli.open,
+		gitSource,
+		bufferStateDelayInMilliseconds:
+			ConfigInternals.getBufferStateDelayInMilliseconds(),
+		binariesDirectory,
+		forceIPv4: parsedCli.ipv4,
 	});
 
-	setLiveEventsListener(liveEventsServer);
-	const networkAddress = getNetworkAddress();
-	if (networkAddress) {
-		setServerReadyComment(
-			`Local: ${chalk.underline(
-				`http://localhost:${port}`,
-			)}, Network: ${chalk.underline(`http://${networkAddress}:${port}`)}`,
-		);
-	} else {
-		setServerReadyComment(`http://localhost:${port}`);
-	}
-
-	printServerReadyComment('Server ready');
-
-	const {reasonForBrowserDecision, shouldOpenBrowser} = getShouldOpenBrowser();
-
-	if (shouldOpenBrowser) {
-		await openBrowser({
-			url: `http://localhost:${port}`,
-			browserArgs: parsedCli['browser-args'],
-			browserFlag: parsedCli.browser,
-		});
-	} else {
-		Log.verbose(`Not opening browser, reason: ${reasonForBrowserDecision}`);
-	}
-
-	await new Promise(noop);
+	// If the server is restarted through the UI, let's do the whole thing again.
+	await studioCommand(remotionRoot, args, logLevel);
 };

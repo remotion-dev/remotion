@@ -1,5 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
+import type {LogLevel} from '@remotion/renderer';
 import {existsSync, lstatSync} from 'fs';
 import {Internals} from 'remotion';
 import {displaySiteInfo} from '.';
@@ -27,23 +28,40 @@ export const SITES_CREATE_SUBCOMMAND = 'create';
 export const sitesCreateSubcommand = async (
 	args: string[],
 	remotionRoot: string,
+	logLevel: LogLevel,
 ) => {
-	const {file, reason} = CliInternals.findEntryPoint(args, remotionRoot);
+	const {file, reason} = CliInternals.findEntryPoint({
+		args,
+		remotionRoot,
+		logLevel,
+		allowDirectory: false,
+	});
 	if (!file) {
-		Log.error('No entry file passed.');
+		Log.error({indent: false, logLevel}, 'No entry file passed.');
 		Log.info(
+			{indent: false, logLevel},
 			'Pass an additional argument specifying the entry file of your Remotion project:',
 		);
-		Log.info();
-		Log.info(`${BINARY_NAME} deploy <entry-file.ts>`);
+		Log.info({indent: false, logLevel});
+		Log.info(
+			{indent: false, logLevel},
+			`${BINARY_NAME} deploy <entry-file.ts>`,
+		);
 		quit(1);
 		return;
 	}
 
-	Log.verbose('Entry point:', file, 'Reason:', reason);
+	Log.verbose(
+		{indent: false, logLevel},
+		'Entry point:',
+		file,
+		'Reason:',
+		reason,
+	);
 
 	if (!existsSync(file)) {
 		Log.error(
+			{indent: false, logLevel},
 			`No file exists at ${file}. Make sure the path exists and try again.`,
 		);
 		quit(1);
@@ -51,6 +69,7 @@ export const sitesCreateSubcommand = async (
 
 	if (lstatSync(file).isDirectory()) {
 		Log.error(
+			{indent: false, logLevel},
 			`You passed a path ${file} but it is a directory. Pass a file instead.`,
 		);
 		quit(1);
@@ -79,7 +98,7 @@ export const sitesCreateSubcommand = async (
 		},
 		bucketProgress: {
 			doneIn: null,
-			creationState: 'Checking for existing bucket',
+			creationState: 'Checking bucket',
 		},
 		deployProgress: {
 			doneIn: null,
@@ -89,14 +108,14 @@ export const sitesCreateSubcommand = async (
 		},
 	};
 
-	const updateProgress = () => {
+	const updateProgress = (newLine: boolean) => {
 		progressBar.update(
 			[
 				makeBundleProgress(multiProgress.bundleProgress),
 				makeBucketProgress(multiProgress.bucketProgress),
 				makeDeployProgressBar(multiProgress.deployProgress),
 			].join('\n'),
-			false,
+			newLine,
 		);
 	};
 
@@ -108,12 +127,12 @@ export const sitesCreateSubcommand = async (
 		region,
 		updateBucketState: (state) => {
 			multiProgress.bucketProgress.creationState = state;
-			updateProgress();
+			updateProgress(false);
 		},
 	});
 
 	multiProgress.bucketProgress.doneIn = Date.now() - bucketStart;
-	updateProgress();
+	updateProgress(false);
 
 	const bundleStart = Date.now();
 	let uploadStart = Date.now();
@@ -139,14 +158,15 @@ export const sitesCreateSubcommand = async (
 					doneIn: null,
 					stats: null,
 				};
-				updateProgress();
+				updateProgress(false);
 			},
 			enableCaching: ConfigInternals.getWebpackCaching(),
 			webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
+			gitSource: null,
 		},
 	});
 
-	updateProgress();
+	updateProgress(false);
 
 	const uploadDuration = Date.now() - uploadStart;
 
@@ -160,14 +180,10 @@ export const sitesCreateSubcommand = async (
 			untouchedFiles: stats.untouchedFiles,
 		},
 	};
-	updateProgress();
-
-	Log.info();
-	Log.info();
-	Log.info('Deployed to GCP Storage!');
-	Log.info();
+	updateProgress(true);
 
 	Log.info(
+		{indent: false, logLevel},
 		displaySiteInfo({
 			bucketName,
 			id: siteName,
@@ -176,13 +192,15 @@ export const sitesCreateSubcommand = async (
 		}),
 	);
 
-	Log.info();
+	Log.info({indent: false, logLevel});
 	Log.info(
+		{indent: false, logLevel},
 		CliInternals.chalk.blueBright(
-			'ℹ️ If you make changes to your code, you need to redeploy the site. You can overwrite the existing site by running:',
+			'ℹ️   Redeploy your site everytime you make changes to it. You can overwrite the existing site by running:',
 		),
 	);
 	Log.info(
+		{indent: false, logLevel},
 		CliInternals.chalk.blueBright(
 			['npx remotion cloudrun sites create', args[0], `--site-name=${siteName}`]
 				.filter(Internals.truthy)

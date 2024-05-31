@@ -37,7 +37,7 @@ export const Control = ({
       flexDirection: "row",
       alignItems: "center",
     }),
-    []
+    [],
   );
 
   const inputStyle = useMemo<React.CSSProperties>(
@@ -45,7 +45,7 @@ export const Control = ({
       width: 80,
       marginRight: 2,
     }),
-    []
+    [],
   );
 
   return (
@@ -67,7 +67,7 @@ export const Control = ({
         )}
         {`${option.name}`}
       </div>
-      {option.type === "numeric" ? (
+      {option.type === "numeric" && enabled ? (
         <input
           type="range"
           min={option.min}
@@ -75,7 +75,6 @@ export const Control = ({
           step={option.step}
           value={value as number}
           style={inputStyle}
-          disabled={!enabled}
           onChange={(e) => setValue(Number(e.target.value))}
         />
       ) : null}

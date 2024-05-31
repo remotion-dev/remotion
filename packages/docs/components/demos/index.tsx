@@ -6,18 +6,29 @@ import { Control } from "./control";
 import styles from "./styles.module.css";
 import type { DemoType } from "./types";
 import {
+  animationMathDemo,
   circleDemo,
+  clockWipePresentationDemo,
+  cubePresentationDemo,
+  customPresentationDemo,
+  customTimingDemo,
   ellipseDemo,
+  fadePresentationDemo,
+  flipPresentationDemo,
   noiseDemo,
   opacityDemo,
   pieDemo,
+  polygonDemo,
   rectDemo,
   rotateDemo,
   scaleDemo,
   skewDemo,
+  slidePresentationDemo,
+  slidePresentationDemoLongThreshold,
   starDemo,
   translateDemo,
   triangleDemo,
+  wipePresentationDemo,
 } from "./types";
 
 const container: React.CSSProperties = {
@@ -35,19 +46,30 @@ const demos: DemoType[] = [
   circleDemo,
   ellipseDemo,
   starDemo,
+  polygonDemo,
   pieDemo,
   translateDemo,
   skewDemo,
   rotateDemo,
   scaleDemo,
   opacityDemo,
+  fadePresentationDemo,
+  wipePresentationDemo,
+  slidePresentationDemo,
+  slidePresentationDemoLongThreshold,
+  flipPresentationDemo,
+  customPresentationDemo,
+  customTimingDemo,
+  clockWipePresentationDemo,
+  cubePresentationDemo,
+  animationMathDemo,
 ];
 
 export const Demo: React.FC<{
-  type: string;
+  readonly type: string;
 }> = ({ type }) => {
   const demo = demos.find((d) => d.id === type);
-  const { isDarkTheme } = useColorMode();
+  const { colorMode } = useColorMode();
 
   const [key, setKey] = useState(() => 0);
 
@@ -58,13 +80,15 @@ export const Demo: React.FC<{
           [
             o.name,
             o.optional === "default-disabled" ? null : o.default,
-          ] as const
+          ] as const,
       )
       .reduce((a, b) => {
         a[b[0]] = b[1];
         return a;
       }, {});
   }, [demo.options]);
+
+  const [state, setState] = useState(() => initialState);
 
   const restart = useCallback(() => {
     setState(initialState);
@@ -74,8 +98,6 @@ export const Demo: React.FC<{
   if (!demo) {
     throw new Error("Demo not found");
   }
-
-  const [state, setState] = useState(() => initialState);
 
   return (
     <div style={container}>
@@ -89,7 +111,10 @@ export const Demo: React.FC<{
         style={{
           width: "100%",
           aspectRatio: demo.compWidth / demo.compHeight,
-          borderBottom: "1px solid var(--ifm-color-emphasis-300)",
+          borderBottom:
+            demo.options.length > 0
+              ? "1px solid var(--ifm-color-emphasis-300)"
+              : 0,
         }}
         errorFallback={({ error }) => {
           return (
@@ -116,7 +141,7 @@ export const Demo: React.FC<{
             </AbsoluteFill>
           );
         }}
-        inputProps={{ ...state, darkMode: isDarkTheme }}
+        inputProps={{ ...state, darkMode: colorMode === "dark" }}
         autoPlay={demo.autoPlay}
         loop
       />

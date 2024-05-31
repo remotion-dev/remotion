@@ -132,7 +132,7 @@ export const CameraMotionBlurExample: React.FC = () => {
         <label style={row}>
           <input
             type="range"
-            min={0}
+            min={1}
             max={360}
             step={1}
             value={shutterAngle}

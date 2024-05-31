@@ -1,7 +1,9 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {Internals} from 'remotion';
+import {BrowserSafeApis} from '@remotion/renderer/client';
+import {NoReactInternals} from 'remotion/no-react';
 import {downloadFile} from '../../api/download-file';
 import {renderStillOnCloudrun} from '../../api/render-still-on-cloudrun';
 import {validateServeUrl} from '../../shared/validate-serveurl';
@@ -11,7 +13,22 @@ import {renderArgsCheck} from './render/helpers/renderArgsCheck';
 
 export const STILL_COMMAND = 'still';
 
-export const stillCommand = async (args: string[], remotionRoot: string) => {
+const {
+	offthreadVideoCacheSizeInBytesOption,
+	scaleOption,
+	jpegQualityOption,
+	enableMultiprocessOnLinuxOption,
+	glOption,
+	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
+	binariesDirectoryOption,
+} = BrowserSafeApis.options;
+
+export const stillCommand = async (
+	args: string[],
+	remotionRoot: string,
+	logLevel: LogLevel,
+) => {
 	const {
 		serveUrl,
 		cloudRunUrl,
@@ -20,31 +37,58 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		privacy,
 		downloadName,
 		region,
-	} = await renderArgsCheck(STILL_COMMAND, args);
+	} = await renderArgsCheck(STILL_COMMAND, args, logLevel);
 
 	const {
-		chromiumOptions,
 		envVariables,
 		inputProps,
-		puppeteerTimeout,
-		jpegQuality,
 		stillFrame,
-		scale,
 		height,
 		width,
 		browserExecutable,
-		port,
+		userAgent,
+		disableWebSecurity,
+		ignoreCertificateErrors,
+	} = CliInternals.getCliOptions({
+		isStill: false,
 		logLevel,
-		offthreadVideoCacheSizeInBytes,
-	} = await CliInternals.getCliOptions({
-		type: 'still',
-		isLambda: true,
-		remotionRoot,
+		indent: false,
 	});
 
 	let composition = args[1];
+
+	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const gl = glOption.getValue({commandLine: CliInternals.parsedCli}).value;
+	const headless = headlessOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const chromiumOptions: ChromiumOptions = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+	};
+
+	const offthreadVideoCacheSizeInBytes =
+		offthreadVideoCacheSizeInBytesOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value;
+	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+
 	if (!composition) {
-		Log.info('No compositions passed. Fetching compositions...');
+		Log.info(
+			{indent: false, logLevel},
+			'No compositions passed. Fetching compositions...',
+		);
 
 		validateServeUrl(serveUrl);
 
@@ -57,35 +101,46 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		const server = RenderInternals.prepareServer({
 			concurrency: 1,
 			indent: false,
-			port,
+			port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 			remotionRoot,
 			logLevel,
 			webpackConfigOrServeUrl: serveUrl,
 			offthreadVideoCacheSizeInBytes,
+			binariesDirectory,
+			forceIPv4: false,
 		});
+
+		const indent = false;
 
 		const {compositionId} =
 			await CliInternals.getCompositionWithDimensionOverride({
 				args: args.slice(1),
 				compositionIdFromUi: null,
-				indent: false,
+				indent,
 				serveUrlOrWebpackUrl: serveUrl,
 				logLevel,
 				browserExecutable,
 				chromiumOptions,
 				envVariables,
-				serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-					data: inputProps,
-					indent: undefined,
-					staticBase: null,
-				}).serializedString,
-				port,
+				serializedInputPropsWithCustomSchema:
+					NoReactInternals.serializeJSONWithDate({
+						data: inputProps,
+						indent: undefined,
+						staticBase: null,
+					}).serializedString,
+				port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 				puppeteerInstance: undefined,
 				timeoutInMilliseconds: puppeteerTimeout,
 				height,
 				width,
 				server: await server,
 				offthreadVideoCacheSizeInBytes,
+				binariesDirectory,
+				onBrowserDownload: CliInternals.defaultBrowserDownloadProgress({
+					indent,
+					logLevel,
+					quiet: CliInternals.quietFlagProvided(),
+				}),
 			});
 		composition = compositionId;
 	}
@@ -100,9 +155,13 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 			configImageFormat:
 				ConfigInternals.getUserPreferredStillImageFormat() ?? null,
 		});
-	Log.verbose(`Image format: (${imageFormat}), ${imageFormatReason}`);
+	Log.verbose(
+		{indent: false, logLevel},
+		`Image format: (${imageFormat}), ${imageFormatReason}`,
+	);
 	// Todo: Check cloudRunUrl is valid, as the error message is obtuse
 	CliInternals.Log.info(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			`
 Cloud Run Service URL = ${cloudRunUrl}
@@ -116,7 +175,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 			`.trim(),
 		),
 	);
-	Log.info();
+	Log.info({indent: false, logLevel});
 
 	const renderStart = Date.now();
 	const progressBar = CliInternals.createOverwriteableCliOutput({
@@ -140,6 +199,13 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		);
 	};
 
+	const scale = scaleOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const jpegQuality = jpegQualityOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+
 	const res = await renderStillOnCloudrun({
 		cloudRunUrl,
 		serveUrl,
@@ -157,31 +223,39 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		forceWidth: width,
 		forceBucketName,
 		outName,
-		logLevel: ConfigInternals.Logging.getLogLevel(),
+		logLevel,
 		delayRenderTimeoutInMilliseconds: puppeteerTimeout,
 	});
 	if (res.type === 'crash') {
-		displayCrashLogs(res);
+		displayCrashLogs(res, logLevel);
 	} else if (res.type === 'success') {
 		doneIn = Date.now() - renderStart;
 		updateProgress(true);
 
 		Log.info(
+			{indent: false, logLevel},
 			CliInternals.chalk.gray(`Cloud Storage Uri = ${res.cloudStorageUri}`),
 		);
-		Log.info(CliInternals.chalk.gray(`Render ID = ${res.renderId}`));
 		Log.info(
+			{indent: false, logLevel},
+			CliInternals.chalk.gray(`Render ID = ${res.renderId}`),
+		);
+		Log.info(
+			{indent: false, logLevel},
 			CliInternals.chalk.gray(
 				`${Math.round(Number(res.size) / 1000)} KB, Privacy: ${
 					res.privacy
 				}, Bucket: ${res.bucketName}`,
 			),
 		);
-		Log.info(CliInternals.chalk.blue(`○ ${res.publicUrl}`));
+		Log.info(
+			{indent: false, logLevel},
+			CliInternals.chalk.blue(`○ ${res.publicUrl}`),
+		);
 
 		if (downloadName) {
-			Log.info('');
-			Log.info('downloading file...');
+			Log.info({indent: false, logLevel}, '');
+			Log.info({indent: false, logLevel}, 'downloading file...');
 
 			const {outputPath: destination} = await downloadFile({
 				bucketName: res.bucketName,
@@ -190,6 +264,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 			});
 
 			Log.info(
+				{indent: false, logLevel},
 				CliInternals.chalk.blueBright(`Downloaded file to ${destination}!`),
 			);
 		}

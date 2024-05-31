@@ -4,6 +4,7 @@ import path from "path";
 import { expect, test } from "vitest";
 import { LambdaInternals } from "@remotion/lambda";
 
+const PYTHON_OUTPUT_MARKER = 10;
 const referenceVersion = readFileSync(
   path.join(process.cwd(), "..", "core", "package.json"),
   "utf-8"
@@ -32,13 +33,14 @@ test("Set the right version for pytest", () => {
 test("Python package should create the same renderMedia payload as normal Lambda package", async () => {
   const cwd = path.join(process.cwd(), "..", "lambda-python");
   const pythonOutput = execSync(
-    "python -m pytest -rP  tests/test_render_client.py",
+    "python -m pytest -rP  tests/test_render_client_render_media.py",
     {
       cwd,
+      //stdio: "inherit",
     }
   );
   const output = pythonOutput.toString().split("\n");
-  const toParse = output[10];
+  const toParse = output[PYTHON_OUTPUT_MARKER];
   const nativeVersion = await LambdaInternals.makeLambdaRenderMediaPayload({
     region: "us-east-1",
     composition: "react-svg",
@@ -48,6 +50,52 @@ test("Python package should create the same renderMedia payload as normal Lambda
     inputProps: {
       hi: "there",
     },
+    audioBitrate: null,
+    audioCodec: null,
+    chromiumOptions: {},
+    colorSpace: null,
+    concurrencyPerLambda: 1,
+    crf: undefined,
+    deleteAfter: null,
+    downloadBehavior: {
+      fileName: "hi",
+      type: "download",
+    },
+    envVariables: {},
+    everyNthFrame: 1,
+    forceBucketName: null,
+    forceHeight: null,
+    forceWidth: null,
+    frameRange: null,
+    framesPerLambda: null,
+    imageFormat: "jpeg",
+    jpegQuality: 80,
+    logLevel: "info",
+    maxRetries: 1,
+    muted: false,
+    numberOfGifLoops: 0,
+    offthreadVideoCacheSizeInBytes: null,
+    outName: null,
+    overwrite: false,
+    pixelFormat: undefined,
+    privacy: "public",
+    proResProfile: undefined,
+    rendererFunctionName: null,
+    scale: 1,
+    timeoutInMilliseconds: 30000,
+    videoBitrate: null,
+    encodingMaxRate: null,
+    encodingBufferSize: null,
+    webhook: {
+      secret: "abc",
+      url: "https://example.com",
+      customData: {
+        hi: "there",
+      },
+    },
+    x264Preset: null,
+    preferLossless: false,
+    indent: false,
   });
   const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
   const parsedJson = JSON.parse(jsonOutput);
@@ -66,21 +114,79 @@ test("Python package should create the same progress payload as normal Lambda pa
     "python -m pytest -rP  tests/test_get_render_progress_client.py",
     {
       cwd,
+      //stdio: "inherit",
     }
   );
   const output = pythonOutput.toString().split("\n");
-  const toParse = output[10];
+  const toParse = output[PYTHON_OUTPUT_MARKER];
   const nativeVersion = LambdaInternals.getRenderProgressPayload({
     region: "us-east-1",
     functionName: "remotion-render",
     bucketName: "remotion-render",
     renderId: "abcdef",
+    logLevel: "info",
   });
   const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
   const parsedJson = JSON.parse(jsonOutput);
   expect(parsedJson).toEqual({ ...nativeVersion, s3OutputProvider: null });
 });
 
+test("Python package should create the same renderStill payload as normal Lambda package", async () => {
+  const cwd = path.join(process.cwd(), "..", "lambda-python");
+  const pythonOutput = execSync(
+    "python -m pytest -rP  tests/test_render_client_render_still.py",
+    {
+      cwd,
+      //stdio: "inherit",
+    }
+  );
+  const output = pythonOutput.toString().split("\n");
+  const toParse = output[PYTHON_OUTPUT_MARKER];
+  const nativeVersion = await LambdaInternals.makeLambdaRenderStillPayload({
+    region: "us-east-1",
+    composition: "still-helloworld",
+    functionName: "remotion-render",
+    serveUrl: "testbed",
+    inputProps: {
+      message: "Hello from props!",
+    },
+    chromiumOptions: {},
+    deleteAfter: null,
+    downloadBehavior: { type: "play-in-browser" },
+    envVariables: {},
+    forceBucketName: null,
+    forceHeight: null,
+    forceWidth: null,
+    imageFormat: "jpeg",
+    jpegQuality: 80,
+    logLevel: "info",
+    maxRetries: 1,
+    offthreadVideoCacheSizeInBytes: null,
+    outName: null,
+    privacy: "public",
+    scale: 1,
+    timeoutInMilliseconds: 30000,
+    frame: 0,
+    indent: false,
+    onInit: () => undefined,
+    dumpBrowserLogs: false,
+    quality: undefined,
+  });
+  const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
+  const { streamed: _, ...parsedJson } = JSON.parse(jsonOutput);
+  // remove the bucketName field because request input does not have that value
+  // forceBucketName is being set in bucketName
+  const { bucketName, streamed, ...newObject } = nativeVersion;
+  const assertValue = {
+    ...newObject,
+    forceBucketName: nativeVersion.bucketName,
+  };
+  expect(
+    removeUndefined({
+      ...parsedJson,
+    })
+  ).toEqual(removeUndefined(assertValue));
+});
 const removeUndefined = (data: unknown) => {
   return JSON.parse(JSON.stringify(data));
 };

@@ -46,4 +46,14 @@ describe('Render correctly with props', () => {
 			),
 		).not.toThrow();
 	});
+
+	test('It should render Audio with loop, startFrom and endAt props', () => {
+		expect(() =>
+			render(
+				<WrapSequenceContext>
+					<Audio src="test" volume={1} startFrom={10} endAt={20} loop />
+				</WrapSequenceContext>,
+			),
+		).not.toThrow();
+	});
 });

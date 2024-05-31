@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import type {LogLevel} from '@remotion/renderer';
 import {getSites} from '../../../api/get-sites';
 import {getAwsRegion} from '../../get-aws-region';
 import {dateString} from '../../helpers/date-string';
@@ -16,12 +17,13 @@ const logRow = (data: [string, string, string, string]) => {
 	].join('');
 };
 
-export const sitesLsSubcommand = async () => {
+export const sitesLsSubcommand = async (logLevel: LogLevel) => {
 	const region = getAwsRegion();
 	const {sites, buckets} = await getSites({region});
 
 	if (buckets.length > 1 && !CliInternals.quietFlagProvided()) {
 		CliInternals.Log.warn(
+			{indent: false, logLevel},
 			'Warning: You have more than one Remotion S3 bucket, but only one is needed. This can lead to conflicts. Remove all but one of them.',
 		);
 	}
@@ -29,21 +31,26 @@ export const sitesLsSubcommand = async () => {
 	const sitesPluralized = sites.length === 1 ? 'site' : 'sites';
 	if (!CliInternals.quietFlagProvided()) {
 		CliInternals.Log.info(
+			{indent: false, logLevel},
 			`${sites.length} ${sitesPluralized} in the ${region} region.`,
 		);
 	}
 
 	if (CliInternals.quietFlagProvided()) {
 		if (sites.length === 0) {
-			CliInternals.Log.info('()');
+			CliInternals.Log.info({indent: false, logLevel}, '()');
 			return;
 		}
 
-		return CliInternals.Log.info(sites.map((s) => s.id).join(' '));
+		return CliInternals.Log.info(
+			{indent: false, logLevel},
+			sites.map((s) => s.id).join(' '),
+		);
 	}
 
-	CliInternals.Log.info();
+	CliInternals.Log.info({indent: false, logLevel});
 	CliInternals.Log.info(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			logRow(['Site Name', 'Bucket', 'Size', 'Last updated']),
 		),
@@ -51,6 +58,7 @@ export const sitesLsSubcommand = async () => {
 
 	for (const site of sites) {
 		CliInternals.Log.info(
+			{indent: false, logLevel},
 			logRow([
 				site.id,
 				site.bucketName,
@@ -58,7 +66,7 @@ export const sitesLsSubcommand = async () => {
 				site.lastModified ? dateString(new Date(site.lastModified)) : 'n/a',
 			]),
 		);
-		CliInternals.Log.info(site.serveUrl);
-		CliInternals.Log.info();
+		CliInternals.Log.info({indent: false, logLevel}, site.serveUrl);
+		CliInternals.Log.info({indent: false, logLevel});
 	}
 };

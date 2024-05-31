@@ -8,11 +8,11 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
+import {RenderAssetManager} from '../RenderAssetManager.js';
+import {SequenceContext} from '../SequenceContext.js';
 import {getAbsoluteSrc} from '../absolute-src.js';
 import {continueRender, delayRender} from '../delay-render.js';
 import {random} from '../random.js';
-import {RenderAssetManager} from '../RenderAssetManager.js';
-import {SequenceContext} from '../SequenceContext.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {evaluateVolume} from '../volume-prop.js';
@@ -20,7 +20,7 @@ import type {RemotionAudioProps} from './props.js';
 import {useFrameForVolumeProp} from './use-audio-frame.js';
 
 type AudioForRenderingProps = RemotionAudioProps & {
-	onDuration: (src: string, durationInSeconds: number) => void;
+	readonly onDuration: (src: string, durationInSeconds: number) => void;
 };
 
 const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
@@ -29,8 +29,28 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 > = (props, ref) => {
 	const audioRef = useRef<HTMLAudioElement>(null);
 
+	const {
+		volume: volumeProp,
+		playbackRate,
+		allowAmplificationDuringRender,
+		onDuration,
+		toneFrequency,
+		_remotionInternalNeedsDurationCalculation,
+		_remotionInternalNativeLoopPassed,
+		acceptableTimeShiftInSeconds,
+		name,
+		onError,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
+		loopVolumeCurveBehavior,
+		pauseWhenBuffering,
+		...nativeProps
+	} = props;
+
 	const absoluteFrame = useTimelinePosition();
-	const volumePropFrame = useFrameForVolumeProp();
+	const volumePropFrame = useFrameForVolumeProp(
+		loopVolumeCurveBehavior ?? 'repeat',
+	);
 	const frame = useCurrentFrame();
 	const sequenceContext = useContext(SequenceContext);
 	const {registerRenderAsset, unregisterRenderAsset} =
@@ -43,18 +63,13 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			`audio-${random(
 				props.src ?? '',
 			)}-${sequenceContext?.relativeFrom}-${sequenceContext?.cumulatedFrom}-${sequenceContext?.durationInFrames}`,
-		[props.src, sequenceContext],
+		[
+			props.src,
+			sequenceContext?.relativeFrom,
+			sequenceContext?.cumulatedFrom,
+			sequenceContext?.durationInFrames,
+		],
 	);
-
-	const {
-		volume: volumeProp,
-		playbackRate,
-		allowAmplificationDuringRender,
-		onDuration,
-		_remotionInternalNeedsDurationCalculation,
-		acceptableTimeShiftInSeconds,
-		...nativeProps
-	} = props;
 
 	const volume = evaluateVolume({
 		volume: volumeProp,
@@ -97,6 +112,8 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			mediaFrame: frame,
 			playbackRate: props.playbackRate ?? 1,
 			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
+			toneFrequency: toneFrequency ?? null,
+			audioStartFrame: Math.max(0, -(sequenceContext?.relativeFrom ?? 0)),
 		});
 		return () => unregisterRenderAsset(id);
 	}, [
@@ -112,6 +129,8 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		props.playbackRate,
 		allowAmplificationDuringRender,
+		toneFrequency,
+		sequenceContext?.relativeFrom,
 	]);
 
 	const {src} = props;
@@ -123,7 +142,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	// If audio source switches, make new handle
 	useLayoutEffect(() => {
-		if (process.env.NODE_ENV === 'test') {
+		if (window.process?.env?.NODE_ENV === 'test') {
 			return;
 		}
 
@@ -131,7 +150,10 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
-		const newHandle = delayRender('Loading <Audio> duration with src=' + src);
+		const newHandle = delayRender('Loading <Audio> duration with src=' + src, {
+			retries: delayRenderRetries ?? undefined,
+			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+		});
 		const {current} = audioRef;
 
 		const didLoad = () => {
@@ -154,7 +176,13 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			current?.removeEventListener('loadedmetadata', didLoad);
 			continueRender(newHandle);
 		};
-	}, [src, onDuration, needsToRenderAudioTag]);
+	}, [
+		src,
+		onDuration,
+		needsToRenderAudioTag,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
+	]);
 
 	if (!needsToRenderAudioTag) {
 		return null;

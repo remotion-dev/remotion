@@ -1,5 +1,5 @@
 import * as assert from 'node:assert';
-import type {ClipRegion} from 'remotion';
+import type {ClipRegion} from 'remotion/no-react';
 import type {Page} from './browser/BrowserPage';
 import type {StillImageFormat} from './image-format';
 import {screenshotTask} from './screenshot-task';
@@ -13,6 +13,7 @@ export const screenshot = (options: {
 	width: number;
 	height: number;
 	clipRegion: ClipRegion | null;
+	scale: number;
 }): Promise<Buffer | string> => {
 	if (options.jpegQuality) {
 		assert.ok(
@@ -41,6 +42,7 @@ export const screenshot = (options: {
 			path: options.path,
 			jpegQuality: options.type === 'jpeg' ? options.jpegQuality : undefined,
 			clipRegion: options.clipRegion,
+			scale: options.scale,
 		}),
 	);
 };

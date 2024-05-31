@@ -1,5 +1,5 @@
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {describe, test} from 'vitest';
-import {setCrf} from '../config/crf';
 import {expectToThrow} from './expect-to-throw';
 
 describe('set crf invalid input', () => {
@@ -8,7 +8,7 @@ describe('set crf invalid input', () => {
 		test(`test for ${entry}`, () =>
 			expectToThrow(
 				// @ts-expect-error
-				() => setCrf(entry),
+				() => BrowserSafeApis.options.crfOption.setConfig(entry),
 				/The CRF must be a number or undefined/,
 			)),
 	);

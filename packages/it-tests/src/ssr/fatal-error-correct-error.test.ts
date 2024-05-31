@@ -1,12 +1,12 @@
 import { renderMedia } from "@remotion/renderer";
-import { expect, test } from "vitest";
+import { expect, test } from "bun:test";
 
 test("Fatal error on frame 10 should yield correct error", async () => {
   await expect(() => {
     return renderMedia({
       codec: "h264",
       serveUrl:
-        "https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/",
+        "https://661808694cad562ef2f35be7--incomparable-dasik-a4482b.netlify.app/",
       composition: {
         durationInFrames: 1000000,
         fps: 30,
@@ -15,8 +15,10 @@ test("Fatal error on frame 10 should yield correct error", async () => {
         width: 1280,
         defaultProps: {},
         props: {},
+        defaultCodec: null,
       },
+      logLevel: "error",
       outputLocation: "out/render.mp4",
     });
-  }).rejects.toThrow(/Invalid array length/);
+  }).toThrow(/Invalid array length/);
 });

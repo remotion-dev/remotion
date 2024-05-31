@@ -1,16 +1,21 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {VERSION} from 'remotion/version';
-import {getOrCreateBucket} from '../api/get-or-create-bucket';
+import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
 import {getLambdaClient} from '../shared/aws-clients';
 import type {LambdaPayload} from '../shared/constants';
-import {initalizedMetadataKey, LambdaRoutines} from '../shared/constants';
+import {LambdaRoutines, overallProgressKey} from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
-import {randomHash} from '../shared/random-hash';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
+import {
+	generateRandomHashWithLifeCycleRule,
+	validateDeleteAfter,
+} from './helpers/lifecycle';
+import {makeInitialOverallRenderProgress} from './helpers/overall-render-progress';
 
 type Options = {
 	expectedBucketOwner: string;
+	timeoutInMilliseconds: number;
 };
 
 export const startHandler = async (params: LambdaPayload, options: Options) => {
@@ -34,8 +39,10 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 	const bucketName =
 		params.bucketName ??
 		(
-			await getOrCreateBucket({
+			await internalGetOrCreateBucket({
 				region: getCurrentRegionInFunction(),
+				enableFolderExpiry: null,
+				customCredentials: null,
 			})
 		).bucketName;
 	const realServeUrl = convertToServeUrl({
@@ -44,15 +51,20 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		bucketName,
 	});
 
-	const renderId = randomHash({randomInTests: true});
+	validateDeleteAfter(params.deleteAfter);
+	const renderId = generateRandomHashWithLifeCycleRule(params.deleteAfter);
 
 	const initialFile = lambdaWriteFile({
 		bucketName,
 		downloadBehavior: null,
 		region,
-		body: 'Render was initialized',
+		body: JSON.stringify(
+			makeInitialOverallRenderProgress(
+				options.timeoutInMilliseconds + Date.now(),
+			),
+		),
 		expectedBucketOwner: options.expectedBucketOwner,
-		key: initalizedMetadataKey(renderId),
+		key: overallProgressKey(renderId),
 		privacy: 'private',
 		customCredentials: null,
 	});
@@ -75,7 +87,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		jpegQuality: params.jpegQuality,
 		maxRetries: params.maxRetries,
 		privacy: params.privacy,
-		logLevel: params.logLevel ?? 'info',
+		logLevel: params.logLevel,
 		frameRange: params.frameRange,
 		outName: params.outName,
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
@@ -90,21 +102,32 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		webhook: params.webhook,
 		audioBitrate: params.audioBitrate,
 		videoBitrate: params.videoBitrate,
+		encodingBufferSize: params.encodingBufferSize,
+		encodingMaxRate: params.encodingMaxRate,
 		forceHeight: params.forceHeight,
 		forceWidth: params.forceWidth,
 		rendererFunctionName: params.rendererFunctionName,
 		audioCodec: params.audioCodec,
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
+		deleteAfter: params.deleteAfter,
+		colorSpace: params.colorSpace,
+		preferLossless: params.preferLossless,
 	};
 
 	// Don't replace with callLambda(), we want to return before the render is snone
-	await getLambdaClient(getCurrentRegionInFunction()).send(
+	const result = await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({
 			FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
 			Payload: JSON.stringify(payload),
 			InvocationType: 'Event',
 		}),
 	);
+	if (result.FunctionError) {
+		throw new Error(
+			`Lambda function returned error: ${result.FunctionError} ${result.LogResult}`,
+		);
+	}
+
 	await initialFile;
 
 	return {

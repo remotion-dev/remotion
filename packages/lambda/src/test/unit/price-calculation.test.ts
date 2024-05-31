@@ -7,15 +7,9 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 	process.env.AWS_REGION = 'us-east-1';
 
 	const price = estimatePriceFromBucket({
-		contents: [
-			{
-				Key: 'renders/123/out.mp4',
-				// Render date is before start date. It can happen if Lambda function is out of date
-				LastModified: new Date(aDate - 10000),
-			},
-		],
 		memorySizeInMb: 1024,
 		renderMetadata: {
+			audioBitrate: null,
 			codec: 'h264',
 			compositionId: 'react-svg',
 			estimatedRenderLambdaInvokations: 10,
@@ -30,6 +24,7 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 			memorySizeInMb: 1024,
 			region: 'eu-central-1',
 			renderId: '123',
+			deleteAfter: null,
 			siteId: 'my-site',
 			startedDate: aDate + 1000,
 			totalChunks: 20,
@@ -42,20 +37,26 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 				width: 1080,
 				defaultProps: {},
 				props: {},
+				defaultCodec: null,
 			},
 			outName: 'out.mp4',
 			privacy: 'public',
 			everyNthFrame: 1,
 			frameRange: [0, 99],
 			audioCodec: null,
-		},
-		outputFileMetadata: {
-			url: 'out.mp4',
-			lastModified: Date.now() - 2000,
-			size: 1000000,
+			downloadBehavior: {type: 'play-in-browser'},
+			numberOfGifLoops: null,
+			muted: false,
 		},
 		diskSizeInMb: 512,
 		lambdasInvoked: 1,
+		timings: [
+			{
+				chunk: 1,
+				rendered: aDate - 2000,
+				start: aDate,
+			},
+		],
 	});
-	expect(price).toBeGreaterThanOrEqual(0);
+	expect(price?.accruedSoFar).toBeGreaterThanOrEqual(0);
 });

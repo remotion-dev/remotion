@@ -1,35 +1,64 @@
 import type {Browser} from './browser';
+import {addHeadlessBrowser} from './browser-instances';
 import type {HeadlessBrowser} from './browser/Browser';
+import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import {puppeteer} from './browser/node';
 import type {Viewport} from './browser/PuppeteerViewport';
-import {
-	ensureLocalBrowser,
-	getLocalBrowserExecutable,
-} from './get-local-browser-executable';
+import {internalEnsureBrowser} from './ensure-browser';
+import {getLocalBrowserExecutable} from './get-local-browser-executable';
 import {getIdealVideoThreadsFlag} from './get-video-threads-flag';
 import {isEqualOrBelowLogLevel, type LogLevel} from './log-level';
-import {
-	DEFAULT_OPENGL_RENDERER,
-	validateOpenGlRenderer,
-} from './validate-opengl-renderer';
+import {Log} from './logger';
+import type {validOpenGlRenderers} from './options/gl';
+import {DEFAULT_OPENGL_RENDERER, validateOpenGlRenderer} from './options/gl';
+import type {OnBrowserDownload} from './options/on-browser-download';
 
-const validRenderers = ['swangle', 'angle', 'egl', 'swiftshader'] as const;
+type OpenGlRenderer = (typeof validOpenGlRenderers)[number];
 
-type OpenGlRenderer = (typeof validRenderers)[number];
-
+// ⚠️ When adding new options, also add them to the hash in lambda/get-browser-instance.ts!
 export type ChromiumOptions = {
 	ignoreCertificateErrors?: boolean;
 	disableWebSecurity?: boolean;
 	gl?: OpenGlRenderer | null;
 	headless?: boolean;
 	userAgent?: string | null;
+	enableMultiProcessOnLinux?: boolean;
+};
+
+const featuresToEnable = (option?: OpenGlRenderer | null) => {
+	const renderer = option ?? DEFAULT_OPENGL_RENDERER;
+
+	const enableAlways = ['NetworkService', 'NetworkServiceInProcess'];
+
+	if (renderer === 'vulkan') {
+		return [...enableAlways, 'Vulkan', 'UseSkiaRenderer'];
+	}
+
+	if (renderer === 'angle-egl') {
+		return [...enableAlways, 'VaapiVideoDecoder'];
+	}
+
+	return enableAlways;
 };
 
 const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 	const renderer = option ?? DEFAULT_OPENGL_RENDERER;
 	validateOpenGlRenderer(renderer);
 	if (renderer === 'swangle') {
-		return [`--use-gl=angle`, `--use-angle=swiftshader`];
+		return ['--use-gl=angle', '--use-angle=swiftshader'];
+	}
+
+	if (renderer === 'angle-egl') {
+		return ['--use-gl=angle', '--use-angle=gl-egl'];
+	}
+
+	if (renderer === 'vulkan') {
+		return [
+			'--use-angle=vulkan',
+			'--use-vulkan=swiftshader',
+			'--disable-vulkan-fallback-to-gl-for-testing',
+			'--dignore-gpu-blocklist',
+		];
 	}
 
 	if (renderer === null) {
@@ -37,16 +66,6 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 	}
 
 	return [`--use-gl=${renderer}`];
-};
-
-const browserInstances: HeadlessBrowser[] = [];
-
-export const killAllBrowsers = async () => {
-	for (const browser of browserInstances) {
-		try {
-			await browser.close(true, 'info', false);
-		} catch (err) {}
-	}
 };
 
 type InternalOpenBrowserOptions = {
@@ -57,6 +76,7 @@ type InternalOpenBrowserOptions = {
 	indent: boolean;
 	browser: Browser;
 	logLevel: LogLevel;
+	onBrowserDownload: OnBrowserDownload;
 };
 
 export type OpenBrowserOptions = {
@@ -74,6 +94,7 @@ export const internalOpenBrowser = async ({
 	indent,
 	viewport,
 	logLevel,
+	onBrowserDownload,
 }: InternalOpenBrowserOptions): Promise<HeadlessBrowser> => {
 	// @ts-expect-error Firefox
 	if (browser === 'firefox') {
@@ -82,11 +103,30 @@ export const internalOpenBrowser = async ({
 		);
 	}
 
-	await ensureLocalBrowser(browserExecutable);
+	await internalEnsureBrowser({
+		browserExecutable,
+		logLevel,
+		indent,
+		onBrowserDownload,
+	});
 
 	const executablePath = getLocalBrowserExecutable(browserExecutable);
 
 	const customGlRenderer = getOpenGlRenderer(chromiumOptions.gl ?? null);
+	const enableMultiProcessOnLinux =
+		chromiumOptions.enableMultiProcessOnLinux ?? true;
+
+	Log.verbose(
+		{indent, logLevel, tag: 'openBrowser()'},
+		`Opening browser: gl = ${chromiumOptions.gl}, executable = ${executablePath}, enableMultiProcessOnLinux = ${enableMultiProcessOnLinux}`,
+	);
+
+	if (chromiumOptions.userAgent) {
+		Log.verbose(
+			{indent, logLevel: 'verbose', tag: 'openBrowser()'},
+			`Using custom user agent: ${chromiumOptions.userAgent}`,
+		);
+	}
 
 	const browserInstance = await puppeteer.launch({
 		executablePath,
@@ -97,7 +137,7 @@ export const internalOpenBrowser = async ({
 			'about:blank',
 			'--allow-pre-commit-input',
 			'--disable-background-networking',
-			'--enable-features=NetworkService,NetworkServiceInProcess',
+			`--enable-features=${featuresToEnable(chromiumOptions.gl).join(',')}`,
 			'--disable-background-timer-throttling',
 			'--disable-backgrounding-occluded-windows',
 			'--disable-breakpad',
@@ -117,20 +157,25 @@ export const internalOpenBrowser = async ({
 			'--disable-sync',
 			'--force-color-profile=srgb',
 			'--metrics-recording-only',
+			'--mute-audio',
 			'--no-first-run',
-			'--video-threads=' + getIdealVideoThreadsFlag(),
+			`--video-threads=${getIdealVideoThreadsFlag(logLevel)}`,
 			'--enable-automation',
 			'--password-store=basic',
 			'--use-mock-keychain',
 			'--enable-blink-features=IdleDetection',
 			'--export-tagged-pdf',
 			'--intensive-wake-up-throttling-policy=0',
-			chromiumOptions.headless ?? true ? '--headless' : null,
+			chromiumOptions.headless ?? true ? '--headless=old' : null,
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
 			...customGlRenderer,
 			'--disable-background-media-suspend',
-			process.platform === 'linux' ? '--single-process' : null,
+			process.platform === 'linux' &&
+			chromiumOptions.gl !== 'vulkan' &&
+			!enableMultiProcessOnLinux
+				? '--single-process'
+				: null,
 			'--allow-running-insecure-content', // https://source.chromium.org/search?q=lang:cpp+symbol:kAllowRunningInsecureContent&ss=chromium
 			'--disable-component-update', // https://source.chromium.org/search?q=lang:cpp+symbol:kDisableComponentUpdate&ss=chromium
 			'--disable-domain-reliability', // https://source.chromium.org/search?q=lang:cpp+symbol:kDisableDomainReliability&ss=chromium
@@ -143,6 +188,8 @@ export const internalOpenBrowser = async ({
 			'--no-pings', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoPings&ss=chromium
 			'--font-render-hinting=none',
 			'--no-zygote', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoZygote&ss=chromium,
+			'--ignore-gpu-blocklist',
+			'--enable-unsafe-webgpu',
 			typeof forceDeviceScaleFactor === 'undefined'
 				? null
 				: `--force-device-scale-factor=${forceDeviceScaleFactor}`,
@@ -166,7 +213,7 @@ export const internalOpenBrowser = async ({
 	const pages = await browserInstance.pages(logLevel, indent);
 	await pages[0].close();
 
-	browserInstances.push(browserInstance);
+	addHeadlessBrowser(browserInstance);
 	return browserInstance;
 };
 
@@ -184,13 +231,22 @@ export const openBrowser = (
 		forceDeviceScaleFactor,
 		shouldDumpIo,
 	} = options ?? {};
+
+	const indent = false;
+	const logLevel = shouldDumpIo ? 'verbose' : 'info';
+
 	return internalOpenBrowser({
 		browser,
 		browserExecutable: browserExecutable ?? null,
 		chromiumOptions: chromiumOptions ?? {},
 		forceDeviceScaleFactor,
-		indent: false,
+		indent,
 		viewport: null,
-		logLevel: shouldDumpIo ? 'verbose' : 'info',
+		logLevel,
+		onBrowserDownload: defaultBrowserDownloadProgress({
+			indent,
+			logLevel,
+			api: 'openBrowser()',
+		}),
 	});
 };

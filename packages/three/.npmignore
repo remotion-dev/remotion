@@ -2,12 +2,8 @@ dist/test/**
 src
 .eslintrc
 tsconfig.tsbuildinfo
-vitest.config.ts
+vitest.config.mts
 *.tgz
 .turbo
 tsconfig.json
 .prettierrc.js
-dist/tsconfig-esm.tsbuildinfo
-.rollup.cache
-tsconfig-esm.json
-rollup.config.js

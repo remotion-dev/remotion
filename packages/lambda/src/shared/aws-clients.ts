@@ -5,9 +5,10 @@ import {S3Client} from '@aws-sdk/client-s3';
 import {ServiceQuotasClient} from '@aws-sdk/client-service-quotas';
 import {STSClient} from '@aws-sdk/client-sts';
 import {fromIni} from '@aws-sdk/credential-providers';
-import {createHash} from 'node:crypto';
+import {random} from 'remotion/no-react';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {checkCredentials} from './check-credentials';
+import {MAX_FUNCTIONS_PER_RENDER} from './constants';
 import {isInsideLambda} from './is-in-lambda';
 
 const _clients: Partial<
@@ -48,7 +49,6 @@ const getCredentials = ():
 		process.env.REMOTION_AWS_SECRET_ACCESS_KEY &&
 		process.env.REMOTION_AWS_SESSION_TOKEN
 	) {
-		console.log('Using credentials from Remotion assumed role.');
 		return {
 			accessKeyId: process.env.REMOTION_AWS_ACCESS_KEY_ID,
 			secretAccessKey: process.env.REMOTION_AWS_SECRET_ACCESS_KEY,
@@ -77,7 +77,6 @@ const getCredentials = ():
 		process.env.AWS_SECRET_ACCESS_KEY &&
 		process.env.AWS_SESSION_TOKEN
 	) {
-		console.log('Using credentials from AWS STS');
 		return {
 			accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
 			secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
@@ -106,7 +105,11 @@ const getCredentialsHash = ({
 }): string => {
 	const hashComponents: {[key: string]: unknown} = {};
 
-	if (process.env.REMOTION_AWS_PROFILE) {
+	if (process.env.REMOTION_SKIP_AWS_CREDENTIALS_CHECK) {
+		hashComponents.credentials = {
+			credentialsSkipped: true,
+		};
+	} else if (process.env.REMOTION_AWS_PROFILE) {
 		hashComponents.credentials = {
 			awsProfile: process.env.REMOTION_AWS_PROFILE,
 		};
@@ -136,9 +139,7 @@ const getCredentialsHash = ({
 	hashComponents.region = region;
 	hashComponents.service = service;
 
-	return createHash('sha256')
-		.update(JSON.stringify(hashComponents))
-		.digest('base64');
+	return random(JSON.stringify(hashComponents)).toString().replace('0.', '');
 };
 
 export type ServiceMapping = {
@@ -157,6 +158,7 @@ export type CustomCredentialsWithoutSensitiveData = {
 export type CustomCredentials = CustomCredentialsWithoutSensitiveData & {
 	accessKeyId: string | null;
 	secretAccessKey: string | null;
+	region?: AwsRegion;
 };
 
 export const getServiceClient = <T extends keyof ServiceMapping>({
@@ -205,24 +207,38 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 	if (!_clients[key]) {
 		checkCredentials();
 
-		if (customCredentials) {
-			_clients[key] = new Client({
-				region: 'us-east-1',
-				credentials:
-					customCredentials.accessKeyId && customCredentials.secretAccessKey
-						? {
-								accessKeyId: customCredentials.accessKeyId,
-								secretAccessKey: customCredentials.secretAccessKey,
-						  }
-						: undefined,
-				endpoint: customCredentials.endpoint,
-			});
-		} else {
-			_clients[key] = new Client({
-				region,
-				credentials: getCredentials(),
-			});
+		const client = customCredentials
+			? new Client({
+					region: customCredentials.region ?? 'us-east-1',
+					credentials:
+						customCredentials.accessKeyId && customCredentials.secretAccessKey
+							? {
+									accessKeyId: customCredentials.accessKeyId,
+									secretAccessKey: customCredentials.secretAccessKey,
+								}
+							: undefined,
+					endpoint: customCredentials.endpoint,
+				})
+			: process.env.REMOTION_SKIP_AWS_CREDENTIALS_CHECK
+				? new Client({region})
+				: new Client({
+						region,
+						credentials: getCredentials(),
+						requestHandler:
+							service === 'lambda'
+								? {
+										httpsAgent: {
+											maxSockets: MAX_FUNCTIONS_PER_RENDER + 50,
+										},
+									}
+								: undefined,
+					});
+
+		if (process.env.REMOTION_DISABLE_AWS_CLIENT_CACHE) {
+			return client as ServiceMapping[T];
 		}
+
+		_clients[key] = client;
 	}
 
 	return _clients[key] as ServiceMapping[T];
@@ -242,7 +258,11 @@ export const getS3Client = (
 	region: AwsRegion,
 	customCredentials: CustomCredentials | null,
 ): S3Client => {
-	return getServiceClient({region, service: 's3', customCredentials});
+	return getServiceClient({
+		region: customCredentials?.region ?? region,
+		service: 's3',
+		customCredentials,
+	});
 };
 
 export const getLambdaClient = (

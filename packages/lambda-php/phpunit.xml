@@ -1,0 +1,3 @@
+<phpunit bootstrap="vendor/autoload.php">
+  <!-- Other configurations -->
+</phpunit>

@@ -1,19 +1,10 @@
 import {RenderInternals} from '@remotion/renderer';
+import path from 'path';
 import {VERSION} from 'remotion/version';
-import {
-	afterAll,
-	afterEach,
-	beforeAll,
-	beforeEach,
-	describe,
-	expect,
-	test,
-	vi,
-} from 'vitest';
+import {beforeAll, beforeEach, describe, expect, test, vi} from 'vitest';
 import {LambdaRoutines} from '../../defaults';
 import {callLambda} from '../../shared/call-lambda';
 import {mockableHttpClients} from '../../shared/invoke-webhook';
-import {disableLogs, enableLogs} from '../disable-logs';
 
 const originalFetch = mockableHttpClients.http;
 beforeEach(() => {
@@ -33,20 +24,15 @@ beforeEach(() => {
 			};
 		},
 	);
-});
-
-afterEach(() => {
-	mockableHttpClients.http = originalFetch;
+	return () => {
+		mockableHttpClients.http = originalFetch;
+	};
 });
 
 beforeAll(() => {
-	disableLogs();
-});
-
-afterAll(async () => {
-	enableLogs();
-
-	await RenderInternals.killAllBrowsers();
+	return async () => {
+		await RenderInternals.killAllBrowsers();
+	};
 });
 
 const TEST_URL = 'http://localhost:8000';
@@ -54,12 +40,26 @@ const TEST_URL = 'http://localhost:8000';
 describe('Webhooks', () => {
 	test('Should call webhook upon completion', async () => {
 		process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
+		process.env.AWS_LAMBDA_FUNCTION_NAME = 'remotion-dev-lambda';
+
+		const exampleBuild = path.join(process.cwd(), '..', 'example', 'build');
+
+		const {port, close} = await RenderInternals.serveStatic(exampleBuild, {
+			binariesDirectory: null,
+			concurrency: 1,
+			downloadMap: RenderInternals.makeDownloadMap(),
+			indent: false,
+			logLevel: 'error',
+			offthreadVideoCacheSizeInBytes: null,
+			port: null,
+			remotionRoot: path.dirname(exampleBuild),
+			forceIPv4: false,
+		});
 
 		const res = await callLambda({
 			type: LambdaRoutines.start,
 			payload: {
-				serveUrl:
-					'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
+				serveUrl: `http://localhost:${port}`,
 				chromiumOptions: {},
 				codec: 'h264',
 				composition: 'react-svg',
@@ -94,21 +94,27 @@ describe('Webhooks', () => {
 				webhook: {
 					url: TEST_URL,
 					secret: 'TEST_SECRET',
+					customData: {
+						customID: 123,
+					},
 				},
 				audioBitrate: null,
 				videoBitrate: null,
+				encodingBufferSize: null,
+				encodingMaxRate: null,
 				forceHeight: null,
 				forceWidth: null,
 				rendererFunctionName: null,
 				bucketName: null,
 				audioCodec: null,
 				offthreadVideoCacheSizeInBytes: null,
+				deleteAfter: null,
+				colorSpace: null,
+				preferLossless: false,
 			},
 			functionName: 'remotion-dev-lambda',
-			receivedStreamingPayload: () => undefined,
 			region: 'us-east-1',
 			timeoutInTest: 120000,
-			retriesRemaining: 0,
 		});
 		const parsed = res;
 
@@ -118,12 +124,11 @@ describe('Webhooks', () => {
 				bucketName: parsed.bucketName,
 				renderId: parsed.renderId,
 				version: VERSION,
+				logLevel: 'info',
 			},
 			functionName: 'remotion-dev-lambda',
-			receivedStreamingPayload: () => undefined,
 			region: 'us-east-1',
 			timeoutInTest: 120000,
-			retriesRemaining: 0,
 		});
 
 		expect(mockableHttpClients.http).toHaveBeenCalledTimes(1);
@@ -142,20 +147,34 @@ describe('Webhooks', () => {
 			},
 			expect.anything(),
 		);
+		await close();
 	});
 
 	test('Should call webhook upon timeout', async () => {
 		process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 
+		const exampleBuild = path.join(process.cwd(), '..', 'example', 'build');
+
+		// Maybe this can use simulateLambdaRender instead
+		const {port, close} = await RenderInternals.serveStatic(exampleBuild, {
+			binariesDirectory: null,
+			concurrency: 1,
+			downloadMap: RenderInternals.makeDownloadMap(),
+			indent: false,
+			logLevel: 'error',
+			offthreadVideoCacheSizeInBytes: null,
+			port: null,
+			remotionRoot: path.dirname(exampleBuild),
+			forceIPv4: false,
+		});
+
 		await callLambda({
 			functionName: 'remotion-dev-lambda',
-			receivedStreamingPayload: () => undefined,
 			region: 'us-east-1',
 			type: LambdaRoutines.launch,
 			payload: {
 				offthreadVideoCacheSizeInBytes: null,
-				serveUrl:
-					'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
+				serveUrl: `http://localhost:${port}`,
 				chromiumOptions: {},
 				codec: 'h264',
 				composition: 'react-svg',
@@ -186,18 +205,26 @@ describe('Webhooks', () => {
 				},
 				muted: false,
 				overwrite: true,
-				webhook: {url: TEST_URL, secret: 'TEST_SECRET'},
+				webhook: {
+					url: TEST_URL,
+					secret: 'TEST_SECRET',
+					customData: {customID: 123},
+				},
 				audioBitrate: null,
 				videoBitrate: null,
+				encodingBufferSize: null,
+				encodingMaxRate: null,
 				bucketName: 'abc',
 				renderId: 'abc',
 				forceHeight: null,
 				forceWidth: null,
 				rendererFunctionName: null,
 				audioCodec: null,
+				deleteAfter: null,
+				colorSpace: null,
+				preferLossless: false,
 			},
 			timeoutInTest: 1000,
-			retriesRemaining: 0,
 		});
 
 		await new Promise((resolve) => {
@@ -213,11 +240,12 @@ describe('Webhooks', () => {
 					'X-Remotion-Mode': 'production',
 					'X-Remotion-Signature': expect.stringContaining('sha512='),
 					'X-Remotion-Status': 'timeout',
-					'Content-Length': 54,
+					'Content-Length': 84,
 				},
 				timeout: 5000,
 			},
 			expect.anything(),
 		);
+		await close();
 	});
 });

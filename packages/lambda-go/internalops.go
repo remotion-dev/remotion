@@ -20,6 +20,11 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		return nil, validationErrors
 	}
 
+	jpegQuality := 80
+	if options.JpegQuality != 0 {
+		jpegQuality = options.JpegQuality
+	}
+
 	internalParams := renderInternalOptions{
 		ServeUrl:                       options.ServeUrl,
 		InputProps:                     inputProps,
@@ -38,10 +43,13 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		AudioCodec:                     options.AudioCodec,
 		ForceBucketName:                options.ForceBucketName,
 		RendererFunctionName:           &options.RendererFunctionName,
+		DeleteAfter:                    options.DeleteAfter,
 		Type:                           "start",
+		JpegQuality:                    jpegQuality,
 	}
 
 	internalParams.Muted = options.Muted
+	internalParams.PreferLossless = options.PreferLossless
 	internalParams.Overwrite = options.Overwrite
 
 	if options.RendererFunctionName == "" {
@@ -68,6 +76,11 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		internalParams.Privacy = "public"
 	} else {
 		internalParams.Privacy = options.Privacy
+	}
+	if options.ColorSpace == "" {
+		internalParams.ColorSpace = nil
+	} else {
+		internalParams.ColorSpace = options.ColorSpace
 	}
 	if options.LogLevel == "" {
 		internalParams.LogLevel = "info"
@@ -124,7 +137,11 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	} else {
 		internalParams.ChromiumOptions = options.ChromiumOptions
 	}
-	internalParams.EnvVariables = options.EnvVariables
+	if options.EnvVariables == nil {
+		internalParams.EnvVariables = map[string]interface{}{}
+	} else {
+		internalParams.EnvVariables = options.EnvVariables
+	}
 
 	return &internalParams, nil
 }
@@ -138,9 +155,15 @@ func constructGetProgressInternals(options *RenderConfig) (*renderProgressIntern
 		return nil, validationErrors
 	}
 
+	logLevel := "info"
+	if options.LogLevel != "" {
+		logLevel = options.LogLevel
+	}
+
 	internalParams := renderProgressInternalConfig{
 		RenderId:   options.RenderId,
 		BucketName: options.BucketName,
+		LogLevel:   logLevel,
 		Type:       "status",
 		Version:    VERSION,
 	}

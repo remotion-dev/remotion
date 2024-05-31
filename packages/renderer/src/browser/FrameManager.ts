@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import type {LogLevel} from '../log-level';
 import {assert} from './assert';
 import type {Page} from './BrowserPage';
 import type {CDPSession} from './Connection';
@@ -22,11 +23,11 @@ import type {
 	AttachedToTargetEvent,
 	DetachedFromTargetEvent,
 	ExecutionContextDescription,
-	Frame as TFrame,
 	FrameDetachedEvent,
 	FrameDetachedEventReason,
 	FrameTree,
 	LifecycleEventEvent,
+	Frame as TFrame,
 } from './devtools-types';
 import {DOMWorld} from './DOMWorld';
 import type {
@@ -73,11 +74,16 @@ export class FrameManager extends EventEmitter {
 		return this.#client;
 	}
 
-	constructor(client: CDPSession, page: Page) {
+	constructor(
+		client: CDPSession,
+		page: Page,
+		indent: boolean,
+		logLevel: LogLevel,
+	) {
 		super();
 		this.#client = client;
 		this.#page = page;
-		this.#networkManager = new NetworkManager(client, this);
+		this.#networkManager = new NetworkManager(client, this, indent, logLevel);
 		this.setupEventListeners(this.#client);
 	}
 
@@ -134,7 +140,7 @@ export class FrameManager extends EventEmitter {
 							autoAttach: true,
 							waitForDebuggerOnStart: false,
 							flatten: true,
-					  }),
+						}),
 			]);
 
 			const {

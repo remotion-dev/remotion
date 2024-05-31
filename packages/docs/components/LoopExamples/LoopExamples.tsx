@@ -28,7 +28,7 @@ const BlueSquare: React.FC = () => {
           transform: `translateY(${interpolate(
             animation,
             [0, 1],
-            [600, 0]
+            [600, 0],
           )}px)`,
           justifyContent: "center",
           alignItems: "center",
@@ -63,9 +63,9 @@ const NestedExample: React.FC = () => (
   </Loop>
 );
 
-export const LoopExamples: React.FC<{ type: "base" | "times" | "nested" }> = ({
-  type,
-}) => {
+export const LoopExamples: React.FC<{
+  readonly type: "base" | "times" | "nested";
+}> = ({ type }) => {
   const component = (() => {
     if (type === "base") {
       return BaseExample;
@@ -91,7 +91,8 @@ export const LoopExamples: React.FC<{ type: "base" | "times" | "nested" }> = ({
         durationInFrames={150}
         fps={30}
         style={{
-          width: "100%",
+          backgroundColor: "#eee",
+          height: 200,
         }}
         loop
       />

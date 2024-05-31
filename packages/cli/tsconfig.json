@@ -4,7 +4,8 @@
 		"rootDir": "src",
 		"outDir": "dist",
 		"jsx": "react-jsx",
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"lib": ["dom"]
 	},
 	"references": [
 		{"path": "../core"},
@@ -12,7 +13,8 @@
 		{"path": "../renderer"},
 		{"path": "../player"},
 		{"path": "../media-utils"},
+		{"path": "../studio-server"},
 		{"path": "../zod-types"}
 	],
-	"exclude": ["vitest.config.ts", "dist"]
+	"exclude": ["vitest.config.mts", "dist"]
 }

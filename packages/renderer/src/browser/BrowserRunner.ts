@@ -20,11 +20,11 @@ import * as readline from 'readline';
 import {deleteDirectory} from '../delete-directory';
 import {Log} from '../logger';
 import {truthy} from '../truthy';
-import {assert} from './assert';
 import {Connection} from './Connection';
 import {TimeoutError} from './Errors';
 import type {LaunchOptions} from './LaunchOptions';
 import {NodeWebSocketTransport} from './NodeWebSocketTransport';
+import {assert} from './assert';
 import {
 	formatChromeMessage,
 	shouldLogBrowserMessage,
@@ -97,7 +97,7 @@ export class BrowserRunner {
 					}
 
 					const {output, tag} = formatted;
-					Log.verboseAdvanced(
+					Log.verbose(
 						{indent: options.indent, logLevel: options.logLevel, tag},
 						output,
 					);
@@ -112,7 +112,7 @@ export class BrowserRunner {
 					}
 
 					const {output, tag} = formatted;
-					Log.verboseAdvanced(
+					Log.error(
 						{indent: options.indent, logLevel: options.logLevel, tag},
 						output,
 					);
@@ -164,6 +164,28 @@ export class BrowserRunner {
 		// perform this earlier, then the previous function calls would not happen.
 		removeEventListeners(this.#listeners);
 		return this.#processClosing;
+	}
+
+	forgetEventLoop(): void {
+		assert(this.proc, 'BrowserRunner not started.');
+		this.proc.unref();
+		// @ts-expect-error
+		this.proc.stdout?.unref();
+		// @ts-expect-error
+		this.proc.stderr?.unref();
+		assert(this.connection, 'BrowserRunner not connected.');
+		this.connection.transport.forgetEventLoop();
+	}
+
+	rememberEventLoop(): void {
+		assert(this.proc, 'BrowserRunner not started.');
+		this.proc.ref();
+		// @ts-expect-error
+		this.proc.stdout?.ref();
+		// @ts-expect-error
+		this.proc.stderr?.ref();
+		assert(this.connection, 'BrowserRunner not connected.');
+		this.connection.transport.rememberEventLoop();
 	}
 
 	kill(): void {
@@ -258,9 +280,7 @@ function waitForWSEndpoint(
 						'Failed to launch the browser process!',
 						error ? error.message : null,
 						stderr,
-						'',
-						'TROUBLESHOOTING: https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md',
-						'',
+						'Troubleshooting: https://remotion.dev/docs/troubleshooting/browser-launch',
 					]
 						.filter(truthy)
 						.join('\n'),

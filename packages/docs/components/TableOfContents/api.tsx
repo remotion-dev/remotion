@@ -52,9 +52,17 @@ export const TableOfContents: React.FC = () => {
           <strong>@remotion/media-utils</strong>
           <div>Obtain info about video and audio</div>
         </TOCItem>
+        <TOCItem link="/docs/animation-utils">
+          <strong>@remotion/animation-utils</strong>
+          <div>Animation utilities</div>
+        </TOCItem>
         <TOCItem link="/docs/tailwind/tailwind">
           <strong>@remotion/tailwind</strong>
-          <div>Utilities for using TailwindCSS in Remotion</div>
+          <div>Webpack override for using TailwindCSS</div>
+        </TOCItem>
+        <TOCItem link="/docs/enable-scss/overview">
+          <strong>@remotion/enable-scss</strong>
+          <div>Webpack override for enabling SASS/SCSS</div>
         </TOCItem>
         <TOCItem link="/docs/three">
           <strong>@remotion/three</strong>
@@ -87,6 +95,18 @@ export const TableOfContents: React.FC = () => {
         <TOCItem link="/docs/shapes">
           <strong>@remotion/shapes</strong>
           <div>Generate SVG shapes</div>
+        </TOCItem>
+        <TOCItem link="/docs/transitions">
+          <strong>@remotion/transitions</strong>
+          <div>Transition between scenes</div>
+        </TOCItem>
+        <TOCItem link="/docs/layout-utils">
+          <strong>@remotion/layout-utils</strong>
+          <div>Layout helpers</div>
+        </TOCItem>
+        <TOCItem link="/docs/install-whisper-cpp">
+          <strong>@remotion/install-whisper-cpp</strong>
+          <div>Cross-platform Whisper.cpp installation</div>
         </TOCItem>
       </Grid>
     </div>

@@ -25,6 +25,11 @@ export const isFlakyError = (err: Error): boolean => {
 		return true;
 	}
 
+	// S3 in rare occasions
+	if (message.includes('We encountered an internal error.')) {
+		return true;
+	}
+
 	if (message.includes('Compositor exited') && !message.includes('SIGSEGV')) {
 		return true;
 	}
@@ -41,6 +46,40 @@ export const isFlakyError = (err: Error): boolean => {
 	// https://discord.com/channels/809501355504959528/1131234931863998665/1131998442219118622
 	if (
 		message.includes('RequestTimeout: Your socket connection to the server')
+	) {
+		return true;
+	}
+
+	if (message.includes('waiting for the page to render the React component')) {
+		return true;
+	}
+
+	// In puppeteer-evaluate.ts
+	if (message.includes('Timed out evaluating page function')) {
+		return true;
+	}
+
+	if (message.includes('Timeout exceeded rendering the component')) {
+		return true;
+	}
+
+	// CDN slowness
+	if (message.includes('Loading root component')) {
+		return true;
+	}
+
+	// Internet flakiness
+	if (
+		message.includes('getaddrinfo') ||
+		message.includes('ECONNRESET') ||
+		message.includes('socket hang up')
+	) {
+		return true;
+	}
+
+	if (
+		message?.includes('Target closed') ||
+		message?.includes('Session closed')
 	) {
 		return true;
 	}

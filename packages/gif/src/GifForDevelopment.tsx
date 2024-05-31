@@ -19,6 +19,7 @@ export const GifForDevelopment = forwardRef<
 			height,
 			onError,
 			loopBehavior = 'loop',
+			playbackRate = 1,
 			onLoad,
 			fit = 'fill',
 			...props
@@ -95,7 +96,7 @@ export const GifForDevelopment = forwardRef<
 			console.error(error.stack);
 			if (isCorsError(error)) {
 				throw new Error(
-					`Failed to render GIF with source ${src}: "${error.message}". You must enable CORS for this URL.`,
+					`Failed to render GIF with source ${src}: "${error.message}". You must enable CORS for this URL. Open the Developer Tools to see exactly why this fetch failed.`,
 				);
 			}
 
@@ -104,7 +105,11 @@ export const GifForDevelopment = forwardRef<
 			);
 		}
 
-		const index = useCurrentGifIndex(state.delays, loopBehavior);
+		const index = useCurrentGifIndex({
+			delays: state.delays,
+			loopBehavior,
+			playbackRate,
+		});
 
 		if (index === -1) {
 			return null;

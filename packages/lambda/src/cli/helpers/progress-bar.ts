@@ -1,5 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 
 export type BundleProgress = {
 	progress: number;
@@ -8,9 +8,11 @@ export type BundleProgress = {
 
 export const makeBundleProgress = ({progress, doneIn}: BundleProgress) => {
 	return [
-		`(1/3)`,
+		`${doneIn === null ? 'Bundling' : 'Bundled'} video`.padEnd(
+			CliInternals.LABEL_WIDTH,
+			' ',
+		),
 		CliInternals.makeProgressBar(progress / 100),
-		`${doneIn === null ? 'Bundling' : 'Bundled'} video`,
 		doneIn === null
 			? `${Math.round(progress)}%`
 			: CliInternals.chalk.gray(`${doneIn}ms`),
@@ -25,9 +27,11 @@ export const makeBucketProgress = ({doneIn}: BucketCreationProgress) => {
 	const progress = doneIn === null ? 0 : 1;
 
 	return [
-		`(2/3)`,
+		`${doneIn === null ? 'Creating' : 'Created'} bucket`.padEnd(
+			CliInternals.LABEL_WIDTH,
+			' ',
+		),
 		CliInternals.makeProgressBar(progress),
-		`${doneIn === null ? 'Creating' : 'Created'} bucket`,
 		doneIn === null ? `0/1` : CliInternals.chalk.gray(`${doneIn}ms`),
 	].join(' ');
 };
@@ -60,7 +64,7 @@ const makeUploadDiff = ({stats}: {stats: UploadStats | null}) => {
 			stats.addedFiles ? `+${stats.addedFiles}` : null,
 			stats.removedFiles ? `-${stats.removedFiles}` : null,
 		]
-			.filter(Internals.truthy)
+			.filter(NoReactInternals.truthy)
 			.join(',')} ${total === 1 ? 'file' : 'files'})`,
 	);
 };
@@ -73,18 +77,20 @@ export const makeDeployProgressBar = ({
 }: DeployToS3Progress) => {
 	const progress = totalSize === null ? 0 : sizeUploaded / totalSize;
 	return [
-		`(3/3)`,
+		`${doneIn === null ? 'Uploading' : 'Uploaded'} to S3`.padEnd(
+			CliInternals.LABEL_WIDTH,
+			' ',
+		),
 		CliInternals.makeProgressBar(progress),
-		`${doneIn === null ? 'Uploading' : 'Uploaded'} to S3`,
 		doneIn === null
 			? typeof totalSize === 'number'
 				? `${CliInternals.formatBytes(sizeUploaded)}/${CliInternals.formatBytes(
 						totalSize,
-				  )}`
+					)}`
 				: ''
 			: CliInternals.chalk.gray(`${doneIn}ms`),
 		makeUploadDiff({stats}),
 	]
-		.filter(Internals.truthy)
+		.filter(NoReactInternals.truthy)
 		.join(' ');
 };

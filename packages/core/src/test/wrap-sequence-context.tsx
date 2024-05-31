@@ -6,7 +6,7 @@ import {ResolveCompositionConfig} from '../ResolveCompositionConfig.js';
 
 const Comp: React.FC = () => null;
 
-export const mockCompositionContext: CompositionManagerContext = {
+const mockCompositionContext: CompositionManagerContext = {
 	assets: [],
 	compositions: [
 		{
@@ -24,19 +24,16 @@ export const mockCompositionContext: CompositionManagerContext = {
 			calculateMetadata: null,
 		},
 	],
-	currentComposition: 'my-comp',
 	folders: [],
-	registerRenderAsset: () => undefined,
 	registerComposition: () => undefined,
 	registerFolder: () => undefined,
-	setCurrentComposition: () => undefined,
-	unregisterAsset: () => undefined,
 	unregisterComposition: () => undefined,
 	unregisterFolder: () => undefined,
+	canvasContent: {type: 'composition', compositionId: 'my-comp'},
 };
 
 export const WrapSequenceContext: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	return (
 		<CanUseRemotionHooksProvider>

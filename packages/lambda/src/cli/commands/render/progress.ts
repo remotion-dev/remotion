@@ -1,12 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import {RenderInternals} from '@remotion/renderer';
-import {Internals} from 'remotion';
-import type {
-	CleanupInfo,
-	EncodingProgress,
-	RenderProgress,
-} from '../../../defaults';
-import type {ChunkRetry} from '../../../functions/helpers/get-retry-stats';
+import {NoReactInternals} from 'remotion/no-react';
+import type {RenderProgress} from '../../../defaults';
 import {truthy} from '../../../shared/truthy';
 
 type LambdaInvokeProgress = {
@@ -14,192 +9,135 @@ type LambdaInvokeProgress = {
 	lambdasInvoked: number;
 };
 
-type ChunkProgress = {
-	doneIn: number | null;
-	framesRendered: number;
-	totalFrames: number | null;
-	totalChunks: number | null;
-	chunksInvoked: number;
-};
-
-type MultiRenderProgress = {
-	lambdaInvokeProgress: LambdaInvokeProgress;
-	chunkProgress: ChunkProgress;
-	encodingProgress: EncodingProgress;
-	cleanupInfo: CleanupInfo | null;
-};
-
-const makeInvokeProgress = (
-	invokeProgress: LambdaInvokeProgress,
-	totalSteps: number,
-	retriesInfo: ChunkRetry[],
-) => {
+const makeInvokeProgress = (overall: RenderProgress) => {
+	const invokeProgress: LambdaInvokeProgress = {
+		lambdasInvoked: overall.lambdasInvoked,
+		totalLambdas:
+			overall.renderMetadata?.estimatedRenderLambdaInvokations ?? null,
+	};
 	const {lambdasInvoked, totalLambdas} = invokeProgress;
 	const progress = totalLambdas === null ? 0 : lambdasInvoked / totalLambdas;
-	return [
-		`(1/${totalSteps})`,
+	const topLine = [
+		`${progress === 0 ? 'Invoked' : 'Invoking'} lambdas`.padEnd(
+			CliInternals.LABEL_WIDTH,
+		),
 		CliInternals.makeProgressBar(progress),
-		`${progress === 0 ? 'Invoked' : 'Invoking'} lambdas`,
 		progress === 1
-			? CliInternals.chalk.gray('100%')
-			: `${Math.round(progress * 100)}%`,
-		retriesInfo.length > 0 ? `(+${retriesInfo.length} retries)` : [],
+			? CliInternals.chalk.gray(`${lambdasInvoked}/${totalLambdas}`)
+			: totalLambdas === null
+				? null
+				: `${lambdasInvoked}/${totalLambdas}`,
 	].join(' ');
+
+	return [
+		topLine,
+		overall.retriesInfo.length > 0
+			? `! Retrying chunk${overall.retriesInfo.length === 1 ? '' : 's'} ${overall.retriesInfo.map((r) => r.chunk).join(', ')}`
+			: null,
+	].filter(NoReactInternals.truthy);
 };
 
-const makeRenderProgress = ({
-	chunkProgress,
-	totalSteps,
-}: {
-	chunkProgress: ChunkProgress;
-	totalSteps: number;
-}) => {
-	const {chunksInvoked, totalChunks, doneIn} = chunkProgress;
+const makeRenderProgress = (progress: RenderProgress) => {
+	const framesEncoded = progress.encodingStatus?.framesEncoded ?? 0;
+	const totalFrames =
+		progress.renderMetadata && progress.renderMetadata.type === 'video'
+			? RenderInternals.getFramesToRender(
+					progress.renderMetadata.frameRange,
+					progress.renderMetadata.everyNthFrame,
+				).length
+			: null;
 	const renderProgress =
-		chunkProgress.totalFrames === null
-			? 0
-			: chunkProgress.framesRendered / chunkProgress.totalFrames;
+		totalFrames === null ? 0 : progress.framesRendered / totalFrames;
 	const encodingProgress =
-		totalChunks === null ? 0 : chunksInvoked / totalChunks;
+		totalFrames === null ? 0 : framesEncoded / totalFrames;
 
 	const frames =
-		chunkProgress.totalFrames === null
-			? null
-			: `(${chunkProgress.framesRendered}/${chunkProgress.totalFrames})`;
+		totalFrames === null ? null : `${progress.framesRendered}/${totalFrames}`;
 
 	const first = [
-		`(2/${totalSteps})`,
+		(progress.timeToRenderFrames === null
+			? 'Rendering frames'
+			: 'Rendered frames'
+		).padEnd(CliInternals.LABEL_WIDTH, ' '),
 		CliInternals.makeProgressBar(renderProgress),
-		doneIn === null ? 'Rendering frames' : 'Rendered frames',
-		doneIn === null ? frames : CliInternals.chalk.gray(`${doneIn}ms`),
+		progress.timeToRenderFrames === null
+			? frames
+			: CliInternals.chalk.gray(`${progress.timeToRenderFrames}ms`),
 	]
 		.filter(truthy)
 		.join(' ');
 
 	const second = [
-		`(3/${totalSteps})`,
+		`${progress.timeToEncode === null ? 'Encoding' : 'Encoded'} frames`.padEnd(
+			CliInternals.LABEL_WIDTH,
+			' ',
+		),
 		CliInternals.makeProgressBar(encodingProgress),
-		`${doneIn === null ? 'Encoding' : 'Encoded'} chunks`,
-		doneIn === null
-			? `${Math.round(encodingProgress * 100)}%`
-			: CliInternals.chalk.gray(`${doneIn}ms`),
-	].join(' ');
+		progress.timeToEncode === null
+			? totalFrames === null
+				? null
+				: `${framesEncoded}/${totalFrames}`
+			: CliInternals.chalk.gray(`${progress.timeToEncode}ms`),
+	]
+		.filter(truthy)
+		.join(' ');
 
 	return [first, second];
 };
 
-const makeEncodingProgress = ({
-	encodingProgress,
-	chunkProgress,
-	totalSteps,
-	totalFrames,
-	timeToEncode,
-}: {
-	encodingProgress: EncodingProgress;
-	chunkProgress: ChunkProgress;
-	totalSteps: number;
-	totalFrames: number | null;
-	timeToEncode: number | null;
-}) => {
-	const {framesEncoded} = encodingProgress;
-	const progress = totalFrames === null ? 0 : framesEncoded / totalFrames;
-	const chunksDone = chunkProgress.doneIn !== null;
-	const shouldShow = progress > 0 || chunksDone;
-	if (!shouldShow) {
-		return '';
-	}
+function getTotalFrames(status: RenderProgress): number | null {
+	return status.renderMetadata && status.renderMetadata.type === 'video'
+		? RenderInternals.getFramesToRender(
+				status.renderMetadata.frameRange,
+				status.renderMetadata.everyNthFrame,
+			).length
+		: null;
+}
+
+const makeCombinationProgress = (prog: RenderProgress) => {
+	const encodingProgress = {
+		framesEncoded: prog.encodingStatus?.framesEncoded ?? 0,
+		combinedFrames: prog.combinedFrames,
+		timeToCombine: prog.timeToCombine,
+	};
+	const totalFrames = getTotalFrames(prog);
+	const {combinedFrames, timeToCombine} = encodingProgress;
+	const progress = totalFrames === null ? 0 : combinedFrames / totalFrames;
 
 	return [
-		`(4/${totalSteps})`,
+		`${timeToCombine === null ? 'Combining' : 'Combined'} chunks`.padEnd(
+			CliInternals.LABEL_WIDTH,
+			' ',
+		),
 		CliInternals.makeProgressBar(progress),
-		`${timeToEncode === null ? 'Combining' : 'Combined'} videos`,
-		timeToEncode === null
+		timeToCombine === null
 			? `${Math.round(progress * 100)}%`
-			: CliInternals.chalk.gray(`${timeToEncode}ms`),
+			: CliInternals.chalk.gray(`${timeToCombine}ms`),
 	].join(' ');
 };
 
-const makeCleanupProgress = (
-	cleanupInfo: CleanupInfo | null,
-	totalSteps: number,
-	skipped: boolean,
-) => {
-	if (!cleanupInfo) {
-		return '';
-	}
-
-	if (skipped) {
-		return [
-			`(5/${totalSteps})`,
-			CliInternals.chalk.blueBright(
-				`Not cleaning up because --log=verbose was set`,
-			),
-		].join(' ');
-	}
-
-	const {doneIn, filesDeleted, minFilesToDelete} = cleanupInfo;
-	const progress = filesDeleted / minFilesToDelete;
+const makeDownloadProgress = (downloadInfo: DownloadedInfo) => {
 	return [
-		`(5/${totalSteps})`,
-		CliInternals.makeProgressBar(progress),
-		`${doneIn === null ? 'Cleaning up' : 'Cleaned up'} artifacts`,
-		doneIn === null
-			? `${Math.round(progress * 100)}%`
-			: CliInternals.chalk.gray(`${doneIn}ms`),
-	].join(' ');
-};
-
-const makeDownloadProgress = (
-	downloadInfo: DownloadedInfo,
-	totalSteps: number,
-) => {
-	return [
-		`(6/${totalSteps})`,
+		`${downloadInfo.doneIn === null ? 'Downloading' : 'Downloaded'} video`.padEnd(
+			CliInternals.LABEL_WIDTH,
+			' ',
+		),
 		downloadInfo.totalSize === null
 			? CliInternals.getFileSizeDownloadBar(downloadInfo.downloaded)
 			: CliInternals.makeProgressBar(
 					downloadInfo.downloaded / downloadInfo.totalSize,
-			  ),
-		`${downloadInfo.doneIn === null ? 'Downloading' : 'Downloaded'} video`,
+				),
 		downloadInfo.doneIn === null
 			? [
 					`${CliInternals.formatBytes(downloadInfo.downloaded)}`,
 					downloadInfo.totalSize === null
 						? null
 						: `${CliInternals.formatBytes(downloadInfo.totalSize)}`,
-			  ]
-					.filter(Internals.truthy)
+				]
+					.filter(NoReactInternals.truthy)
 					.join('/')
 			: CliInternals.chalk.gray(`${downloadInfo.doneIn}ms`),
 	].join(' ');
-};
-
-export const makeMultiProgressFromStatus = (
-	status: RenderProgress,
-): MultiRenderProgress => {
-	return {
-		chunkProgress: {
-			chunksInvoked: status.chunks,
-			totalChunks: status.renderMetadata?.totalChunks ?? null,
-			doneIn: status.timeToFinishChunks,
-			framesRendered: status.framesRendered,
-			totalFrames: status.renderMetadata
-				? RenderInternals.getFramesToRender(
-						status.renderMetadata.frameRange,
-						status.renderMetadata.everyNthFrame,
-				  ).length
-				: null,
-		},
-		encodingProgress: {
-			framesEncoded: status.encodingStatus?.framesEncoded ?? 0,
-		},
-		lambdaInvokeProgress: {
-			lambdasInvoked: status.lambdasInvoked,
-			totalLambdas:
-				status.renderMetadata?.estimatedRenderLambdaInvokations ?? null,
-		},
-		cleanupInfo: status.cleanup,
-	};
 };
 
 type DownloadedInfo = {
@@ -208,39 +146,49 @@ type DownloadedInfo = {
 	doneIn: number | null;
 };
 
+const makeTopRow = (overall: RenderProgress) => {
+	const timeoutInSeconds = Math.round(
+		(overall.timeoutTimestamp - Date.now()) / 1000,
+	);
+
+	if (!overall.renderMetadata) {
+		return null;
+	}
+
+	if (overall.done) {
+		return null;
+	}
+
+	const str = [
+		`${Math.round(overall.overallProgress * 100)}%`,
+		overall.renderMetadata
+			? `${overall.renderMetadata.estimatedTotalLambdaInvokations} λ`
+			: null,
+		`${overall.costs.displayCost}`,
+		timeoutInSeconds < 0
+			? 'Timeout reached - Expecting crash shortly'
+			: `Timeout ${timeoutInSeconds}s`,
+	]
+		.filter(NoReactInternals.truthy)
+		.join(' • ');
+
+	return CliInternals.chalk.gray(str);
+};
+
 export const makeProgressString = ({
-	progress,
-	steps,
 	downloadInfo,
-	retriesInfo,
-	verbose,
-	timeToEncode,
-	totalFrames,
+	overall,
 }: {
-	progress: MultiRenderProgress;
-	steps: number;
+	overall: RenderProgress;
 	downloadInfo: DownloadedInfo | null;
-	retriesInfo: ChunkRetry[];
-	verbose: boolean;
-	timeToEncode: number | null;
-	totalFrames: number | null;
 }) => {
 	return [
-		makeInvokeProgress(progress.lambdaInvokeProgress, steps, retriesInfo),
-		...makeRenderProgress({
-			chunkProgress: progress.chunkProgress,
-			totalSteps: steps,
-		}),
-		makeEncodingProgress({
-			encodingProgress: progress.encodingProgress,
-			chunkProgress: progress.chunkProgress,
-			totalSteps: steps,
-			timeToEncode,
-			totalFrames,
-		}),
-		makeCleanupProgress(progress.cleanupInfo, steps, verbose),
-		downloadInfo ? makeDownloadProgress(downloadInfo, steps) : null,
+		makeTopRow(overall),
+		...makeInvokeProgress(overall),
+		...makeRenderProgress(overall),
+		makeCombinationProgress(overall),
+		downloadInfo ? makeDownloadProgress(downloadInfo) : null,
 	]
-		.filter(Internals.truthy)
+		.filter(NoReactInternals.truthy)
 		.join('\n');
 };

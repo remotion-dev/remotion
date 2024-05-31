@@ -1,9 +1,17 @@
-import {AnyRemotionOption} from './option';
+import type {AnyRemotionOption} from './option';
+
+let offthreadVideoCacheSizeInBytes: number | null = null;
+
+export const getOffthreadVideoCacheSizeInBytes = () => {
+	return offthreadVideoCacheSizeInBytes;
+};
+
+const cliFlag = 'offthreadvideo-cache-size-in-bytes' as const;
 
 export const offthreadVideoCacheSizeInBytesOption = {
 	name: 'OffthreadVideo cache size',
-	cliFlag: 'offthreadvideo-cache-size-in-bytes' as const,
-	description: (
+	cliFlag,
+	description: () => (
 		<>
 			From v4.0, Remotion has a cache for{' '}
 			<a href="https://remotion.dev/docs/offthreadvideo">
@@ -22,7 +30,30 @@ export const offthreadVideoCacheSizeInBytesOption = {
 	ssrName: 'offthreadVideoCacheSizeInBytes' as const,
 	docLink: 'https://www.remotion.dev/docs/offthreadvideo',
 	type: 0 as number | null,
-} satisfies AnyRemotionOption;
+	getValue: ({commandLine}) => {
+		if (commandLine[cliFlag] !== undefined) {
+			return {
+				source: 'cli',
+				value: commandLine[cliFlag] as number,
+			};
+		}
+
+		if (offthreadVideoCacheSizeInBytes !== null) {
+			return {
+				source: 'config',
+				value: offthreadVideoCacheSizeInBytes,
+			};
+		}
+
+		return {
+			source: 'default',
+			value: null,
+		};
+	},
+	setConfig: (size: number | null) => {
+		offthreadVideoCacheSizeInBytes = size ?? null;
+	},
+} satisfies AnyRemotionOption<number | null>;
 
 export const validateOffthreadVideoCacheSizeInBytes = (option: unknown) => {
 	if (option === undefined || option === null) {
@@ -33,7 +64,7 @@ export const validateOffthreadVideoCacheSizeInBytes = (option: unknown) => {
 		throw new Error('Expected a number');
 	}
 
-	if (option < 0) {
+	if (option < 0 || option === 0) {
 		throw new Error('Expected a positive number');
 	}
 

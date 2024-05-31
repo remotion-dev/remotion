@@ -1,25 +1,30 @@
 import type {AwsRegion} from '../pricing/aws-regions';
+import type {CustomCredentials} from '../shared/aws-clients';
 import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
+import {applyLifeCyleOperation} from '../shared/lifecycle-rules';
 import {makeBucketName} from '../shared/validate-bucketname';
 import {createBucket} from './create-bucket';
 import {getRemotionS3Buckets} from './get-buckets';
 
+type GetOrCreateBucketInputInner = {
+	region: AwsRegion;
+	enableFolderExpiry: boolean | null;
+	customCredentials: CustomCredentials | null;
+};
+
 export type GetOrCreateBucketInput = {
 	region: AwsRegion;
+	enableFolderExpiry?: boolean;
+	customCredentials?: CustomCredentials;
 };
 
 export type GetOrCreateBucketOutput = {
 	bucketName: string;
 	alreadyExisted: boolean;
 };
-/**
- * @description Creates a bucket for Remotion Lambda in your S3 account. If one already exists, it will get returned instead.
- * @see [Documentation](https://remotion.dev/docs/lambda/getorcreatebucket)
- * @param params.region The region in which you want your S3 bucket to reside in.
- * @returns {Promise<GetOrCreateBucketOutput>} An object containing the `bucketName`.
- */
-export const getOrCreateBucket = async (
-	params: GetOrCreateBucketInput,
+
+export const internalGetOrCreateBucket = async (
+	params: GetOrCreateBucketInputInner,
 ): Promise<GetOrCreateBucketOutput> => {
 	const {remotionBuckets} = await getRemotionS3Buckets(params.region);
 	if (remotionBuckets.length > 1) {
@@ -32,7 +37,17 @@ export const getOrCreateBucket = async (
 		);
 	}
 
+	const {enableFolderExpiry, region} = params;
 	if (remotionBuckets.length === 1) {
+		const existingBucketName = remotionBuckets[0].name;
+		// apply to existing bucket
+		await applyLifeCyleOperation({
+			enableFolderExpiry: enableFolderExpiry ?? null,
+			bucketName: existingBucketName,
+			region,
+			customCredentials: params.customCredentials,
+		});
+
 		return {bucketName: remotionBuckets[0].name, alreadyExisted: true};
 	}
 
@@ -43,5 +58,27 @@ export const getOrCreateBucket = async (
 		region: params.region,
 	});
 
+	// apply to newly created bucket
+	await applyLifeCyleOperation({
+		enableFolderExpiry: enableFolderExpiry ?? null,
+		bucketName,
+		region,
+		customCredentials: params.customCredentials,
+	});
+
 	return {bucketName, alreadyExisted: false};
+};
+
+/**
+ * @description Creates a bucket for Remotion Lambda in your S3 account. If one already exists, it will get returned instead.
+ * @see [Documentation](https://remotion.dev/docs/lambda/getorcreatebucket)
+ * @param params.region The region in which you want your S3 bucket to reside in.
+ * @returns {Promise<GetOrCreateBucketOutput>} An object containing the `bucketName`.
+ */
+export const getOrCreateBucket = (options: GetOrCreateBucketInput) => {
+	return internalGetOrCreateBucket({
+		region: options.region,
+		enableFolderExpiry: options.enableFolderExpiry ?? null,
+		customCredentials: options.customCredentials ?? null,
+	});
 };

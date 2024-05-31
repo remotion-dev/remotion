@@ -3,7 +3,9 @@ extern crate ffmpeg_next as remotionffmpeg;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 use crate::{
-    errors::ErrorWithBacktrace, global_printer::_print_debug, opened_stream::get_time,
+    errors::ErrorWithBacktrace,
+    global_printer::{_print_debug, _print_verbose},
+    opened_stream::get_time,
     scalable_frame::ScalableFrame,
 };
 
@@ -14,6 +16,7 @@ pub fn get_frame_cache_id() -> usize {
 
 pub struct FrameCacheItem {
     pub resolved_pts: i64,
+    pub previous_pts: Option<i64>,
     pub asked_time: i64,
     pub frame: ScalableFrame,
     pub id: usize,
@@ -32,6 +35,7 @@ pub struct FrameCacheReference {
     pub src: String,
     pub original_src: String,
     pub transparent: bool,
+    pub tone_mapped: bool,
 }
 
 #[derive(Clone, Copy)]
@@ -53,6 +57,7 @@ impl FrameCache {
         src: String,
         original_src: String,
         transparent: bool,
+        tone_mapped: bool,
     ) -> Result<Vec<FrameCacheReference>, ErrorWithBacktrace> {
         let mut references: Vec<FrameCacheReference> = Vec::new();
         for item in &self.items {
@@ -62,6 +67,7 @@ impl FrameCache {
                 src: src.clone(),
                 original_src: original_src.clone(),
                 transparent,
+                tone_mapped,
             });
         }
         Ok(references)
@@ -194,6 +200,7 @@ impl FrameCache {
 
         if best_distance > threshold {
             let has_no_items_before = self.items.iter().all(|item| item.resolved_pts > time);
+
             if has_no_items_before {
                 let has_asked_time_before = self
                     .items
@@ -213,7 +220,44 @@ impl FrameCache {
                     return Ok(None);
                 }
             } else {
-                return Ok(None);
+                let closest_item_after_this = self
+                    .items
+                    .iter()
+                    .filter(|item| item.resolved_pts >= time)
+                    .min_by_key(|item| item.resolved_pts);
+
+                let is_inbetween_next_frame = match closest_item_after_this {
+                    Some(closest_item_after_this) => {
+                        // Comparing DTS and PTS - not perfect but that is the assumption for variable videos
+                        closest_item_after_this.resolved_pts > time
+                            && closest_item_after_this.previous_pts.is_some()
+                            && closest_item_after_this.previous_pts.unwrap() < time
+                    }
+                    None => false,
+                };
+
+                let is_inbetween_and_after = best_item.is_some()
+                    && self.items[best_item.unwrap()].previous_pts.is_some()
+                    && self.items[best_item.unwrap()].previous_pts.unwrap() < time
+                    && self.items[best_item.unwrap()].resolved_pts > time;
+
+                if is_inbetween_next_frame {
+                    _print_verbose(&format!(
+                        "Found timestamp with too much threshold, but will let it pass because it is the best match and there is a frame after the current one that follows one with a lower timestamp. threshold = {}, after this pts = {} after this previous pts = {:?}",
+                         threshold,
+                         closest_item_after_this.unwrap().resolved_pts,
+                        closest_item_after_this.unwrap().previous_pts,
+                    ))?;
+                    // Fall through to success
+                } else if is_inbetween_and_after {
+                    _print_verbose(&format!(
+                        "Found timestamp with too much threshold, but will let it pass because it is inbetween frames. threshold = {}",
+                         threshold
+                    ))?;
+                    // Fall through to success
+                } else {
+                    return Ok(None);
+                }
             }
         }
 

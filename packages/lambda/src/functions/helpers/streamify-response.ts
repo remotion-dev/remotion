@@ -31,18 +31,14 @@ export class ResponseStream extends Stream.Writable {
 		this._isBase64Encoded = isBase64Encoded;
 	}
 }
-export const HANDLER_STREAMING = Symbol.for(
-	'aws.lambda.runtime.handler.streaming',
-);
-export const STREAM_RESPONSE = 'response';
 
-export function isInAWS(handler: Function): boolean {
-	return (
-		// @ts-expect-error
-		handler[HANDLER_STREAMING] !== undefined &&
-		// @ts-expect-error
-		handler[HANDLER_STREAMING] === STREAM_RESPONSE
-	);
+function patchArgs(argList: unknown[]): ResponseStream {
+	if (!(argList[1] instanceof ResponseStream)) {
+		const responseStream = new ResponseStream();
+		argList.splice(1, 0, responseStream);
+	}
+
+	return argList[1] as ResponseStream;
 }
 
 export function streamifyResponse(handler: Function): Function {
@@ -61,13 +57,12 @@ export function streamifyResponse(handler: Function): Function {
 		async apply(target, _, argList) {
 			const responseStream: ResponseStream = patchArgs(argList);
 			await target(...argList);
+
 			return {
 				EventStream: [
 					{
 						PayloadChunk: {
-							Payload: responseStream._isBase64Encoded
-								? responseStream.getBufferedData()
-								: responseStream.getBufferedData(),
+							Payload: responseStream.getBufferedData(),
 						},
 						InvokeComplete: true,
 					},
@@ -75,13 +70,4 @@ export function streamifyResponse(handler: Function): Function {
 			};
 		},
 	});
-}
-
-function patchArgs(argList: unknown[]): ResponseStream {
-	if (!(argList[1] instanceof ResponseStream)) {
-		const responseStream = new ResponseStream();
-		argList.splice(1, 0, responseStream);
-	}
-
-	return argList[1] as ResponseStream;
 }

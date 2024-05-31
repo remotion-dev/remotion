@@ -1,4 +1,4 @@
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {afterEach, beforeEach} from 'vitest';
 import {cleanFnStore} from '../../api/mock-functions';
 
@@ -7,7 +7,7 @@ let stderrOutput: string[] = [];
 
 export const getProcessWriteOutput = () => {
 	return stdoutOutput
-		.filter(Internals.truthy)
+		.filter(NoReactInternals.truthy)
 		.map((c) => c.toString())
 		.join('\n');
 };

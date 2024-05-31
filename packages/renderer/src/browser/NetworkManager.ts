@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import type {LogLevel} from '../log-level';
+import {Log} from '../logger';
 import type {Commands} from './devtools-commands';
 import type {
 	LoadingFailedEvent,
@@ -51,10 +53,19 @@ export class NetworkManager extends EventEmitter {
 	#client: CDPSession;
 	#frameManager: FrameManager;
 	#networkEventManager = new NetworkEventManager();
-	constructor(client: CDPSession, frameManager: FrameManager) {
+	#indent: boolean;
+	#logLevel: LogLevel;
+	constructor(
+		client: CDPSession,
+		frameManager: FrameManager,
+		indent: boolean,
+		logLevel: LogLevel,
+	) {
 		super();
 		this.#client = client;
 		this.#frameManager = frameManager;
+		this.#indent = indent;
+		this.#logLevel = logLevel;
 
 		this.#client.on('Fetch.requestPaused', this.#onRequestPaused.bind(this));
 		this.#client.on(
@@ -332,6 +343,13 @@ export class NetworkManager extends EventEmitter {
 		// @see https://crbug.com/750469
 		if (!request) {
 			return;
+		}
+
+		if (!event.canceled) {
+			Log.warn(
+				{indent: this.#indent, logLevel: this.#logLevel},
+				`Browser failed to load ${request._url} (${event.type}): ${event.errorText}`,
+			);
 		}
 
 		this.#forgetRequest(request, true);

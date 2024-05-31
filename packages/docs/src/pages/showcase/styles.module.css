@@ -17,3 +17,14 @@
   align-items: center;
   width: 100%;
 }
+
+.container {
+  column-count: 3;
+  column-gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .container {
+    column-count: 1;
+  }
+}

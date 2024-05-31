@@ -1,0 +1,97 @@
+---
+image: /generated/articles-docs-transitions-timings-springtiming.png
+crumb: "@remotion/transitions - Timings"
+title: "springTiming()"
+---
+
+A timing function for [`<TransitionSeries>`](/docs/transitions/transitionseries) based on [`spring()`](/docs/spring).
+
+```tsx twoslash title="SlideTransition.tsx"
+import { AbsoluteFill } from "remotion";
+
+const Letter: React.FC<{
+  children: React.ReactNode;
+  color: string;
+}> = ({ children, color }) => {
+  return (
+    <AbsoluteFill
+      style={{
+        backgroundColor: color,
+        opacity: 0.9,
+        justifyContent: "center",
+        alignItems: "center",
+        fontSize: 200,
+        color: "white",
+      }}
+    >
+      {children}
+    </AbsoluteFill>
+  );
+};
+// ---cut---
+import { springTiming, TransitionSeries } from "@remotion/transitions";
+import { slide } from "@remotion/transitions/slide";
+
+const BasicTransition = () => {
+  return (
+    <TransitionSeries>
+      <TransitionSeries.Sequence durationInFrames={40}>
+        <Letter color="#0b84f3">A</Letter>
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Transition
+        presentation={slide()}
+        timing={springTiming({
+          config: {
+            damping: 200,
+          },
+          durationInFrames: 30,
+          durationRestThreshold: 0.001,
+        })}
+      />
+      <TransitionSeries.Sequence durationInFrames={60}>
+        <Letter color="pink">B</Letter>
+      </TransitionSeries.Sequence>
+    </TransitionSeries>
+  );
+};
+```
+
+## API
+
+An object with the following properties:
+
+### `config`
+
+_optional_
+
+A spring `config`, see [`spring()`](/docs/spring).
+
+### `durationInFrames`
+
+_optional_
+
+Stretch the timing curve of the animation to a fixed duration.
+
+### `durationRestThreshold?`
+
+_optional_
+
+At which point the animation is considered to be finished. Defaults: `0.005`
+
+### `reverse?`<AvailableFrom v="4.0.144" />
+
+_optional_
+
+Reverse the timing curve.
+
+## Recommendation: Set a low duration rest threshold
+
+The default `durationRestThreshold` is `0.005` (same as `spring()`). This means that if the animations has progressed 99.5%, it is considered to be finished.  
+For a transition, this can lead to a slightly noticeable cutoff of the animation:
+
+<Demo type="slide-long-duration-rest" />
+
+To avoid this, set a low `durationRestThreshold`, we recommend `0.001`.
+
+Consider that this will also increase the duration of the animation.
+If you set a fixed `durationInFrames`, the animation will feel faster because it for longer it is not considered to be finished.

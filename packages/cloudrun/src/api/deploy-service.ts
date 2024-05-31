@@ -1,3 +1,5 @@
+import type {LogLevel} from '@remotion/renderer';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import {
 	DEFAULT_MAX_INSTANCES,
 	DEFAULT_MIN_INSTANCES,
@@ -11,6 +13,18 @@ import {checkIfServiceExists} from './check-if-service-exists';
 import {constructServiceTemplate} from './helpers/construct-service-deploy-request';
 import {getCloudRunClient} from './helpers/get-cloud-run-client';
 
+type InternalDeployServiceInput = {
+	performImageVersionValidation: boolean;
+	memoryLimit: string;
+	cpuLimit: string;
+	timeoutSeconds: number;
+	minInstances: number;
+	maxInstances: number;
+	projectID: string;
+	region: string;
+	logLevel: LogLevel;
+	indent: boolean;
+};
 export type DeployServiceInput = {
 	performImageVersionValidation?: boolean;
 	memoryLimit?: string;
@@ -18,6 +32,7 @@ export type DeployServiceInput = {
 	timeoutSeconds?: number;
 	minInstances?: number;
 	maxInstances?: number;
+	logLevel?: LogLevel;
 	projectID: string;
 	region: string;
 };
@@ -29,18 +44,7 @@ export type DeployServiceOutput = {
 	alreadyExists: boolean;
 };
 
-/**
- * @description Creates a Cloud Run service in your project that will be able to render a video in GCP.
- * @link https://remotion.dev/docs/cloudrun/deployservice
- * @param params.performImageVersionValidation Validate that an image exists in the public Artifact Registry that matches the Remotion Version. Default true
- * @param params.memoryLimit Memory limit of Cloud Run service to deploy.
- * @param params.cpuLimit CPU limit of Cloud Run service to deploy.
- * @param params.timeoutSeconds After how many seconds the Cloud Run service should be killed if it does not end itself.
- * @param params.projectID GCP Project ID to deploy the Cloud Run service to.
- * @param params.region GCP region to deploy the Cloud Run service to.
- * @returns {Promise<DeployServiceOutput>}  See documentation for detailed structure
- */
-export const deployService = async ({
+const deployServiceRaw = async ({
 	performImageVersionValidation = true,
 	memoryLimit,
 	cpuLimit,
@@ -49,31 +53,12 @@ export const deployService = async ({
 	maxInstances,
 	projectID,
 	region,
-}: DeployServiceInput): Promise<DeployServiceOutput> => {
+	logLevel,
+}: InternalDeployServiceInput): Promise<DeployServiceOutput> => {
 	validateGcpRegion(region);
 	validateProjectID(projectID);
 	if (performImageVersionValidation) {
 		validateImageRemotionVersion();
-	}
-
-	if (!memoryLimit) {
-		memoryLimit = '2Gi';
-	}
-
-	if (!cpuLimit) {
-		cpuLimit = '1.0';
-	}
-
-	if (!timeoutSeconds) {
-		timeoutSeconds = DEFAULT_TIMEOUT;
-	}
-
-	if (!minInstances) {
-		minInstances = DEFAULT_MIN_INSTANCES;
-	}
-
-	if (!maxInstances) {
-		maxInstances = DEFAULT_MAX_INSTANCES;
 	}
 
 	const parent = `projects/${projectID}/locations/${region}`;
@@ -86,6 +71,7 @@ export const deployService = async ({
 		timeoutSeconds,
 		projectID,
 		region,
+		logLevel,
 	});
 
 	const serviceName = generateServiceName({
@@ -128,4 +114,44 @@ export const deployService = async ({
 		uri: response.uri as string,
 		alreadyExists: false,
 	};
+};
+
+export const internalDeployService =
+	NoReactAPIs.wrapWithErrorHandling(deployServiceRaw);
+
+/**
+ * @description Creates a Cloud Run service in your project that will be able to render a video in GCP.
+ * @link https://remotion.dev/docs/cloudrun/deployservice
+ * @param params.performImageVersionValidation Validate that an image exists in the public Artifact Registry that matches the Remotion Version. Default true
+ * @param params.memoryLimit Memory limit of Cloud Run service to deploy.
+ * @param params.cpuLimit CPU limit of Cloud Run service to deploy.
+ * @param params.timeoutSeconds After how many seconds the Cloud Run service should be killed if it does not end itself.
+ * @param params.projectID GCP Project ID to deploy the Cloud Run service to.
+ * @param params.region GCP region to deploy the Cloud Run service to.
+ * @returns {Promise<DeployServiceOutput>}  See documentation for detailed structure
+ */
+
+export const deployService = ({
+	performImageVersionValidation = true,
+	memoryLimit,
+	cpuLimit,
+	timeoutSeconds,
+	minInstances,
+	maxInstances,
+	projectID,
+	region,
+	logLevel,
+}: DeployServiceInput): Promise<DeployServiceOutput> => {
+	return internalDeployService({
+		performImageVersionValidation,
+		memoryLimit: memoryLimit ?? '2Gi',
+		cpuLimit: cpuLimit ?? '1.0',
+		timeoutSeconds: timeoutSeconds ?? DEFAULT_TIMEOUT,
+		minInstances: minInstances ?? DEFAULT_MIN_INSTANCES,
+		maxInstances: maxInstances ?? DEFAULT_MAX_INSTANCES,
+		projectID,
+		region,
+		logLevel: logLevel ?? 'info',
+		indent: false,
+	});
 };

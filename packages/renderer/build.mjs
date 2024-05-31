@@ -5,7 +5,10 @@ import {
 	lstatSync,
 	mkdirSync,
 	readdirSync,
+	renameSync,
+	rmdirSync,
 	rmSync,
+	statSync,
 	unlinkSync,
 } from 'node:fs';
 import os from 'node:os';
@@ -14,6 +17,16 @@ import {toolchains} from './toolchains.mjs';
 
 const isWin = os.platform() === 'win32';
 const where = isWin ? 'where' : 'which';
+
+if (os.platform() === 'win32') {
+	console.log('Windows CI is broken - revisit in 14 days');
+	console.log('https://github.com/actions/runner-images/issues/8598');
+	if (Date.now() > new Date('2024-31-01').getTime()) {
+		process.exit(1);
+	}
+
+	process.exit(0);
+}
 
 function isMusl() {
 	const {glibcVersionRuntime} = process.report.getReport().header;
@@ -38,7 +51,7 @@ export const getTarget = () => {
 					return 'x86_64-pc-windows-gnu';
 				default:
 					throw new Error(
-						`Unsupported architecture on Windows: ${process.arch}`
+						`Unsupported architecture on Windows: ${process.arch}`,
 					);
 			}
 
@@ -73,7 +86,7 @@ export const getTarget = () => {
 
 		default:
 			throw new Error(
-				`Unsupported OS: ${process.platform}, architecture: ${process.arch}`
+				`Unsupported OS: ${process.platform}, architecture: ${process.arch}`,
 			);
 	}
 };
@@ -92,38 +105,38 @@ const mode = debug ? 'debug' : 'release';
 
 const copyDestinations = {
 	'aarch64-unknown-linux-gnu': {
-		from: `target/aarch64-unknown-linux-gnu/${mode}/compositor`,
-		to: '../compositor-linux-arm64-gnu/compositor',
+		from: `target/aarch64-unknown-linux-gnu/${mode}/remotion`,
+		to: '../compositor-linux-arm64-gnu/remotion',
 		dir: '../compositor-linux-arm64-gnu',
 	},
 	'aarch64-unknown-linux-musl': {
-		from: 'target/aarch64-unknown-linux-musl/' + mode + '/compositor',
-		to: '../compositor-linux-arm64-musl/compositor',
+		from: `target/aarch64-unknown-linux-musl/${mode}/remotion`,
+		to: '../compositor-linux-arm64-musl/remotion',
 		dir: '../compositor-linux-arm64-musl',
 	},
 	'x86_64-unknown-linux-gnu': {
-		from: 'target/x86_64-unknown-linux-gnu/' + mode + '/compositor',
-		to: '../compositor-linux-x64-gnu/compositor',
+		from: `target/x86_64-unknown-linux-gnu/${mode}/remotion`,
+		to: '../compositor-linux-x64-gnu/remotion',
 		dir: '../compositor-linux-x64-gnu',
 	},
 	'x86_64-unknown-linux-musl': {
-		from: 'target/x86_64-unknown-linux-musl/' + mode + '/compositor',
-		to: '../compositor-linux-x64-musl/compositor',
+		from: `target/x86_64-unknown-linux-musl/${mode}/remotion`,
+		to: '../compositor-linux-x64-musl/remotion',
 		dir: '../compositor-linux-x64-musl',
 	},
 	'x86_64-apple-darwin': {
-		from: 'target/x86_64-apple-darwin/' + mode + '/compositor',
-		to: '../compositor-darwin-x64/compositor',
+		from: `target/x86_64-apple-darwin/${mode}/remotion`,
+		to: '../compositor-darwin-x64/remotion',
 		dir: '../compositor-darwin-x64',
 	},
 	'aarch64-apple-darwin': {
-		from: 'target/aarch64-apple-darwin/' + mode + '/compositor',
-		to: '../compositor-darwin-arm64/compositor',
+		from: `target/aarch64-apple-darwin/${mode}/remotion`,
+		to: '../compositor-darwin-arm64/remotion',
 		dir: '../compositor-darwin-arm64',
 	},
 	'x86_64-pc-windows-gnu': {
-		from: 'target/x86_64-pc-windows-gnu/' + mode + '/compositor.exe',
-		to: '../compositor-win32-x64-msvc/compositor.exe',
+		from: `target/x86_64-pc-windows-gnu/${mode}/remotion.exe`,
+		to: '../compositor-win32-x64-msvc/remotion.exe',
 		dir: '../compositor-win32-x64-msvc',
 	},
 };
@@ -140,14 +153,14 @@ const cloudrun = process.argv.includes('--cloudrun');
 const lambda = process.argv.includes('--lambda');
 if (!existsSync('toolchains') && all) {
 	throw new Error(
-		'Run "node install-toolchain.mjs" if you want to build all platforms'
+		'Run "node install-toolchain.mjs" if you want to build all platforms',
 	);
 }
 
 for (const toolchain of toolchains) {
 	if (!existsSync(path.join('toolchains', toolchain)) && all) {
 		throw new Error(
-			`Toolchain for ${toolchain} not found. Run "node install-toolchain.mjs" if you want to build all platforms`
+			`Toolchain for ${toolchain} not found. Run "node install-toolchain.mjs" if you want to build all platforms`,
 		);
 	}
 }
@@ -159,7 +172,7 @@ const rustFfmpegSys = packages.find((p) => p.name === 'ffmpeg-sys-next');
 
 if (!rustFfmpegSys) {
 	console.error(
-		'Could not find ffmpeg-sys-next when running cargo metadata --format-version=1'
+		'Could not find ffmpeg-sys-next when running cargo metadata --format-version=1',
 	);
 	process.exit(1);
 }
@@ -169,28 +182,80 @@ const binariesDirectory = path.join(path.dirname(manifest), 'zips');
 const archs = all
 	? targets
 	: lambda
-	? ['aarch64-unknown-linux-gnu']
-	: cloudrun
-	? ['x86_64-unknown-linux-gnu']
-	: [nativeArch];
+		? ['aarch64-unknown-linux-gnu']
+		: cloudrun
+			? ['x86_64-unknown-linux-gnu']
+			: [nativeArch];
 
 for (const arch of archs) {
 	const ffmpegFolder = path.join(copyDestinations[arch].dir, 'ffmpeg');
-	if (!existsSync(ffmpegFolder)) {
-		mkdirSync(ffmpegFolder);
+	if (existsSync(ffmpegFolder)) {
+		rmSync(ffmpegFolder, {recursive: true});
 	}
 
-	execSync(`tar xf ${binariesDirectory}/${arch}.gz -C ${ffmpegFolder}`, {
-		stdio: 'inherit',
+	mkdirSync(ffmpegFolder);
+
+	// strip-components: extract in a flat folder structure
+	execSync(
+		`tar xf  ${binariesDirectory}/${arch}.gz -C ${ffmpegFolder} --strip-components 2`,
+		{
+			stdio: 'inherit',
+		},
+	);
+	const filesInFfmpegFolder = readdirSync(ffmpegFolder);
+	const filesToDelete = filesInFfmpegFolder.filter((file) => {
+		return (
+			file.endsWith('.h') ||
+			file.endsWith('.a') ||
+			file.endsWith('.la') ||
+			file.endsWith('.hpp') ||
+			statSync(path.join(ffmpegFolder, file)).isDirectory()
+		);
 	});
+	for (const file of filesToDelete) {
+		rmSync(path.join(ffmpegFolder, file), {recursive: true});
+	}
+
+	const filesInFfmpegFolder2 = readdirSync(ffmpegFolder);
+	for (const file of filesInFfmpegFolder2) {
+		if (file === 'ffmpeg') {
+			renameSync(
+				path.join(ffmpegFolder, file),
+				path.join(ffmpegFolder, '..', 'ffmpeg_'),
+			);
+			continue;
+		}
+
+		renameSync(
+			path.join(ffmpegFolder, file),
+			path.join(ffmpegFolder, '..', file),
+		);
+	}
+
+	rmdirSync(path.join(ffmpegFolder, '..', 'ffmpeg'));
+	if (existsSync(path.join(ffmpegFolder, '..', 'bin'))) {
+		rmSync(path.join(ffmpegFolder, '..', 'bin'), {recursive: true});
+	}
+
+	if (existsSync(path.join(ffmpegFolder, '..', 'ffmpeg_'))) {
+		renameSync(
+			path.join(ffmpegFolder, '..', 'ffmpeg_'),
+			path.join(ffmpegFolder, '..', 'ffmpeg'),
+		);
+	}
+
 	const command = `cargo build ${debug ? '' : '--release'} --target=${arch}`;
 	console.log(command);
 
 	// debuginfo will keep symbols, which are used for backtrace.
 	// symbols makes it a tiny bit smaller, but error messages will be hard to debug.
 
+	const rPathOrigin = arch.includes('linux')
+		? `-C link-args=-Wl,-rpath,'$ORIGIN'`
+		: '';
+
 	const optimizations = all
-		? '-C opt-level=3 -C lto=fat -C strip=debuginfo -C embed-bitcode=yes'
+		? `-C opt-level=3 -C lto=fat -C strip=debuginfo -C embed-bitcode=yes ${rPathOrigin}`
 		: '';
 
 	execSync(command, {
@@ -211,8 +276,8 @@ for (const arch of archs) {
 					? undefined
 					: path.join(
 							process.cwd(),
-							'toolchains/x86_64_gnu_toolchain/bin/x86_64-unknown-linux-gnu-gcc'
-					  ),
+							'toolchains/x86_64_gnu_toolchain/bin/x86_64-unknown-linux-gnu-gcc',
+						),
 			CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER:
 				nativeArch === 'x86_64-unknown-linux-musl'
 					? undefined
@@ -221,54 +286,6 @@ for (const arch of archs) {
 	});
 	const copyInstructions = copyDestinations[arch];
 
-	const libDir = path.join(
-		copyDestinations[arch].dir,
-		'ffmpeg',
-		'remotion',
-		'lib'
-	);
-	const binDir = path.join(
-		copyDestinations[arch].dir,
-		'ffmpeg',
-		'remotion',
-		'bin'
-	);
-	const files = readdirSync(libDir);
-	for (const file of files) {
-		if (file.endsWith('.a')) {
-			unlinkSync(path.join(libDir, file));
-		} else if (file.endsWith('.dylib') && file.split('.').length === 3) {
-			unlinkSync(path.join(libDir, file));
-		} else if (file.endsWith('.la')) {
-			unlinkSync(path.join(libDir, file));
-		} else if (file.endsWith('.def')) {
-			unlinkSync(path.join(libDir, file));
-		} else if (file.includes('libvpx') && arch !== 'x86_64-pc-windows-gnu') {
-			unlinkSync(path.join(libDir, file));
-		} else if (file.endsWith('.lib')) {
-			unlinkSync(path.join(libDir, file));
-		}
-	}
-
-	const binFiles = readdirSync(binDir);
-	for (const file of binFiles) {
-		if (!file.includes('ffmpeg') && !file.includes('ffprobe')) {
-			unlinkSync(path.join(binDir, file));
-		}
-	}
-
-	rmSync(path.join(copyDestinations[arch].dir, 'ffmpeg', 'remotion', 'share'), {
-		recursive: true,
-	});
-	rmSync(
-		path.join(copyDestinations[arch].dir, 'ffmpeg', 'remotion', 'include'),
-		{
-			recursive: true,
-		}
-	);
-	rmSync(path.join(copyDestinations[arch].dir, 'ffmpeg', 'bindings.rs'), {
-		recursive: true,
-	});
 	copyFileSync(copyInstructions.from, copyInstructions.to);
 
 	const output = execSync('npm pack --json', {
@@ -278,13 +295,19 @@ for (const arch of archs) {
 
 	const filename = JSON.parse(output.toString('utf-8'))[0].filename.replace(
 		/^@remotion\//,
-		'remotion-'
+		'remotion-',
 	);
 	const tgzPath = path.join(
 		process.cwd(),
 		copyDestinations[arch].dir,
-		filename
+		filename,
 	);
+
+	if (arch.includes('linux')) {
+		execSync(
+			`patchelf --force-rpath --set-rpath '$ORIGIN' ${copyDestinations[arch].dir}/remotion`,
+		);
+	}
 
 	const filesize = lstatSync(tgzPath).size;
 	console.log('Zipped size:', (filesize / 1000000).toFixed(2) + 'MB');

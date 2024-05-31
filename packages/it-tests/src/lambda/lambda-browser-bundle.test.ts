@@ -50,3 +50,23 @@ describe("Should be able to bundle @remotion/lambda/client with ESBuild", () => 
     fs.unlinkSync(outfile);
   });
 });
+
+describe("Should be able to bundle @remotion/renderer/pure without React", () => {
+  const outfile = path.join(tmpdir(), "esbuild-test.js");
+
+  test("Should build without errors", async () => {
+    const { errors, warnings } = await BundlerInternals.esbuild.build({
+      platform: "node",
+      target: "node16",
+      bundle: true,
+      outfile,
+      entryPoints: [require.resolve("@remotion/renderer/pure")],
+    });
+    expect(errors.length).toBe(0);
+    expect(warnings.length).toBe(0);
+
+    // Should not include react
+    const contents = fs.readFileSync(outfile, "utf-8");
+    expect(contents.includes("jsx-runtime")).toBe(false);
+  });
+});

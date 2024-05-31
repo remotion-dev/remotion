@@ -23,4 +23,4 @@ const errorWithStackFrame = new RenderInternals.SymbolicateableError({
 	stackFrame: frames,
 });
 
-await CliInternals.handleCommonError(errorWithStackFrame, 'info');
+await CliInternals.printError(errorWithStackFrame, 'info');

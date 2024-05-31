@@ -1,14 +1,16 @@
 import path from "node:path";
 import { expect, test } from "vitest";
-import { getVideoMetadata } from "@remotion/renderer";
+import { getVideoMetadata, VideoMetadata } from "@remotion/renderer";
 
 import { existsSync } from "node:fs";
 import { exampleVideos } from "./example-videos";
 
 test("Should return video metadata", async () => {
-  const metadataResponse = await getVideoMetadata(exampleVideos.framer24fps);
+  const metadataResponse = await getVideoMetadata(exampleVideos.framer24fps, {
+    logLevel: "info",
+  });
 
-  expect(metadataResponse).toEqual({
+  const videoMetadata: VideoMetadata = {
     fps: 24,
     width: 1080,
     height: 1080,
@@ -16,34 +18,60 @@ test("Should return video metadata", async () => {
     codec: "h264",
     canPlayInVideoTag: true,
     supportsSeeking: true,
-  });
+    colorSpace: "bt601",
+    audioCodec: null,
+    audioFileExtension: null,
+    pixelFormat: "yuv420p",
+  };
+
+  expect(metadataResponse).toEqual(videoMetadata);
 });
 
 test("Should return video metadata", async () => {
-  const metadataResponse = await getVideoMetadata(exampleVideos.customDar);
+  const metadataResponse = await getVideoMetadata(exampleVideos.customDar, {
+    logLevel: "info",
+  });
 
   expect(metadataResponse.supportsSeeking).toEqual(true);
+  expect(metadataResponse.colorSpace).toEqual("bt601");
+  expect(metadataResponse.audioCodec).toEqual("aac");
+  expect(metadataResponse.audioFileExtension).toEqual("aac");
 });
 
 test("Should return AV1 video data", async () => {
-  const metadataResponse = await getVideoMetadata(exampleVideos.av1);
+  const metadataResponse = await getVideoMetadata(exampleVideos.av1, {
+    logLevel: "info",
+  });
   expect(metadataResponse.codec).toEqual("av1");
+  expect(metadataResponse.colorSpace).toEqual("bt709");
+  expect(metadataResponse.audioCodec).toEqual(null);
+  expect(metadataResponse.audioFileExtension).toEqual(null);
 });
 
 test("Should return AV1 video data", async () => {
-  const metadataResponse = await getVideoMetadata(exampleVideos.webcam);
+  const metadataResponse = await getVideoMetadata(exampleVideos.webcam, {
+    logLevel: "info",
+  });
   expect(metadataResponse.codec).toEqual("vp8");
+  expect(metadataResponse.colorSpace).toEqual("bt709");
+  expect(metadataResponse.audioCodec).toEqual("opus");
+  expect(metadataResponse.audioFileExtension).toEqual("opus");
 });
 
 test("Should return HEVC video codec", async () => {
-  const metadataResponse = await getVideoMetadata(exampleVideos.iphonevideo);
+  const metadataResponse = await getVideoMetadata(exampleVideos.iphonevideo, {
+    logLevel: "info",
+  });
   expect(metadataResponse.codec).toEqual("h265");
   expect(metadataResponse.canPlayInVideoTag).toEqual(true);
+  expect(metadataResponse.colorSpace).toEqual("bt2020-ncl");
+  expect(metadataResponse.audioCodec).toEqual("aac");
+  expect(metadataResponse.audioFileExtension).toEqual("aac");
 });
 
 test("Should return an error due to non existing file", async () => {
   try {
-    await getVideoMetadata("invalid");
+    await getVideoMetadata("invalid", { logLevel: "info" });
   } catch (err) {
     expect((err as Error).message).toContain(
       "Compositor error: No such file or directory"
@@ -65,7 +93,7 @@ test("Should return an error due to using a audio file", async () => {
   expect(existsSync(audioFile)).toEqual(true);
 
   try {
-    await getVideoMetadata(audioFile);
+    await getVideoMetadata(audioFile, { logLevel: "info" });
   } catch (err) {
     expect((err as Error).message).toContain(
       "Compositor error: No video stream found"

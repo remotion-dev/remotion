@@ -1,37 +1,26 @@
-import type {_Object} from '@aws-sdk/client-s3';
 import type {RenderMetadata} from '../../defaults';
-import {parseLambdaChunkKey} from '../../shared/parse-chunk-key';
 import {makeTimeoutMessage} from './make-timeout-message';
 import type {EnhancedErrorInfo} from './write-lambda-error';
 
 export const makeTimeoutError = ({
 	timeoutInMilliseconds,
-	chunks,
+	missingChunks,
 	renderMetadata,
 	renderId,
 }: {
 	timeoutInMilliseconds: number;
-	chunks: _Object[];
 	renderMetadata: RenderMetadata;
 	renderId: string;
+	missingChunks: number[];
 }): EnhancedErrorInfo => {
-	const availableChunks = chunks.map((c) =>
-		parseLambdaChunkKey(c.Key as string),
-	);
-
-	const missingChunks = new Array(renderMetadata.totalChunks)
-		.fill(true)
-		.map((_, i) => i)
-		.filter((index) => {
-			return !availableChunks.find((c) => c.chunk === index);
-		});
-
 	const message = makeTimeoutMessage({
 		missingChunks,
 		renderMetadata,
 		timeoutInMilliseconds,
 		renderId,
 	});
+
+	const error = new Error(message);
 
 	return {
 		attempt: 1,
@@ -40,7 +29,7 @@ export const makeTimeoutError = ({
 		frame: null,
 		isFatal: true,
 		s3Location: '',
-		stack: new Error().stack as string,
+		stack: error.stack as string,
 		tmpDir: null,
 		totalAttempts: 1,
 		type: 'stitcher',

@@ -15,12 +15,12 @@
  */
 
 import type {LogLevel} from '../log-level';
-import type {AnySourceMapConsumer} from '../symbolicate-stacktrace';
 import type {BrowserContext, HeadlessBrowser} from './Browser';
 import {Page} from './BrowserPage';
 import type {CDPSession} from './Connection';
 import type {TargetInfo} from './devtools-types';
 import type {Viewport} from './PuppeteerViewport';
+import type {SourceMapGetter} from './source-map-getter';
 
 const isPagetTarget = (target: TargetInfo): boolean => {
 	return (
@@ -37,7 +37,7 @@ export class Target {
 	#defaultViewport: Viewport;
 	#pagePromise?: Promise<Page>;
 
-	_initializedPromise: Promise<boolean>;
+	_initializedPromise: Promise<boolean> | null;
 	_initializedCallback!: (x: boolean) => void;
 	_isClosedPromise: Promise<void>;
 	_closedCallback!: () => void;
@@ -94,7 +94,7 @@ export class Target {
 	 * If the target is not of type `"page"` or `"background_page"`, returns `null`.
 	 */
 	async page(
-		sourcemapContext: Promise<AnySourceMapConsumer | null>,
+		sourceMapGetter: SourceMapGetter,
 		logLevel: LogLevel,
 		indent: boolean,
 	): Promise<Page | null> {
@@ -105,7 +105,7 @@ export class Target {
 					target: this,
 					defaultViewport: this.#defaultViewport ?? null,
 					browser: this.browser(),
-					sourcemapContext,
+					sourceMapGetter,
 					logLevel,
 					indent,
 				});

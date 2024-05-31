@@ -35,14 +35,21 @@ const getMissedFramesforCodec = async () => {
     }
   );
 
-  await RenderInternals.callFf("ffmpeg", [
-    "-i",
-    outputPath,
-    "-f",
-    "image2",
-    path.join(outputDir, "out%2d.jpeg"),
-    "-y",
-  ]);
+  await RenderInternals.callFf({
+    bin: "ffmpeg",
+    args: [
+      "-i",
+      outputPath,
+      "-f",
+      "image2",
+      path.join(outputDir, "out%2d.jpeg"),
+      "-y",
+    ],
+    indent: false,
+    logLevel: "info",
+    binariesDirectory: null,
+    cancelSignal: undefined,
+  });
 
   let missedFrames = 0;
 

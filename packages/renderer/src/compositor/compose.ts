@@ -1,11 +1,12 @@
 import {spawn} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {chmodSync} from 'node:fs';
 import {copyFile} from 'node:fs/promises';
+import path from 'node:path';
 import type {DownloadMap} from '../assets/download-map';
-import {dynamicLibraryPathOptions} from '../call-ffmpeg';
+import type {LogLevel} from '../log-level';
 import type {Compositor} from './compositor';
 import {getExecutablePath} from './get-executable-path';
+import {makeFileExecutableIfItIsNot} from './make-file-executable';
 import {makeNonce} from './make-nonce';
 import type {
 	CompositorCommand,
@@ -94,14 +95,24 @@ export const compose = async ({
 	downloadMap.compositorCache[hash] = output;
 };
 
-export const callCompositor = (payload: string) => {
+export const callCompositor = (
+	payload: string,
+	indent: boolean,
+	logLevel: LogLevel,
+	binariesDirectory: string | null,
+) => {
 	return new Promise<void>((resolve, reject) => {
-		const execPath = getExecutablePath('compositor');
-		if (!process.env.READ_ONLY_FS) {
-			chmodSync(execPath, 0o755);
-		}
+		const execPath = getExecutablePath({
+			type: 'compositor',
+			indent,
+			logLevel,
+			binariesDirectory,
+		});
+		makeFileExecutableIfItIsNot(execPath);
 
-		const child = spawn(execPath, [payload], dynamicLibraryPathOptions());
+		const child = spawn(execPath, [payload], {
+			cwd: path.dirname(execPath),
+		});
 
 		const stderrChunks: Buffer[] = [];
 		child.stderr.on('data', (d) => stderrChunks.push(d));
@@ -137,7 +148,32 @@ export const callCompositor = (payload: string) => {
 			return;
 		}
 
-		child.stdin.write(payload);
-		child.stdin.end();
+		try {
+			child.stdin.write(payload, (e) => {
+				if (e) {
+					if (e instanceof Error && e.message.includes('EPIPE')) {
+						reject(
+							new Error(
+								'Compositor stdin closed unexpectedly,' +
+									Buffer.concat(stderrChunks).toString('utf-8'),
+							),
+						);
+					}
+
+					return;
+				}
+
+				child.stdin.end();
+			});
+		} catch (err) {
+			if (err instanceof Error && err.message.includes('EPIPE')) {
+				reject(
+					new Error(
+						'Compositor stdin closed unexpectedly,' +
+							Buffer.concat(stderrChunks).toString('utf-8'),
+					),
+				);
+			}
+		}
 	});
 };

@@ -1,5 +1,9 @@
 # Remotion License
 
+In Remotion 5.0, the license will slightly change. [View the changes here](https://github.com/remotion-dev/remotion/pull/3750).
+
+---
+
 Depending on the type of your legal entity, you are granted permission to use Remotion for your project. Individuals and small companies are allowed to use Remotion to create videos for free (even commercial), while a company license is required for for-profit organizations of a certain size. This two-tier system was designed to ensure funding for this project while still allowing the source code to be available and the program to be free for most. Read below for the exact terms of use.
 
 - [Free license](#free-license)
@@ -7,7 +11,7 @@ Depending on the type of your legal entity, you are granted permission to use Re
 
 ## Free license
 
-Copyright © 2023 [Remotion](https://www.remotion.dev/)
+Copyright © 2024 [Remotion](https://www.remotion.dev)
 
 ### Eligibility
 
@@ -36,6 +40,10 @@ Support is provided on a best-we-can-do basis via GitHub Issues and Discord.
 
 ## Company license
 
-You are required to obtain a company license to use Remotion if you are not within the group of entities eligible for a free license. This license will enable you to use Remotion for the allowed use cases specified in the free license, and give you access to prioritized support (read the [Support Policy](/docs/support)).
+You are required to obtain a company license to use Remotion if you are not within the group of entities eligible for a free license. This license will enable you to use Remotion for the allowed use cases specified in the free license, and give you access to prioritized support (read the [Support Policy](https://www.remotion.dev/docs/support)).
 
-Visit [companies.remotion.dev](https://companies.remotion.dev) for pricing and to buy a license.
+Visit [remotion.pro](https://www.remotion.pro/license) for pricing and to buy a license.
+
+### FAQs
+
+Are you not sure whether you need a company license because of an edge case? Here are some [frequently asked questions](https://www.remotion.pro/faq).

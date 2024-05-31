@@ -1,0 +1,54 @@
+{
+	"name": "@remotion/video-parser",
+	"version": "4.0.166",
+	"description": "CLI for Remotion",
+	"main": "dist/index.js",
+	"sideEffects": false,
+	"scripts": {
+		"formatting": "prettier src --check",
+		"lint": "eslint src --ext ts,tsx",
+		"test": "bun test",
+		"build": "tsc -d",
+		"watch": "tsc -w"
+	},
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion"
+	},
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"exports": {
+		".": "./dist/index.js",
+		"./config": "./dist/config/index.js",
+		"./package.json": "./package.json"
+	},
+	"typesVersions": {
+		">=1.0": {
+			"config": [
+				"dist/config/index.d.ts"
+			]
+		}
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"license": "SEE LICENSE IN LICENSE.md",
+	"dependencies": {},
+	"devDependencies": {
+		"@jonny/eslint-config": "3.0.281",
+		"@types/bun": "1.0.12",
+		"@types/node": "18.14.6",
+		"eslint": "8.56.0",
+		"eslint-plugin-10x": "1.5.2",
+		"eslint-plugin-react": "7.32.2",
+		"eslint-plugin-react-hooks": "4.4.0",
+		"prettier": "3.2.5",
+		"prettier-plugin-organize-imports": "3.2.4"
+	},
+	"keywords": [
+		"remotion",
+		"ffmpeg",
+		"video",
+		"react",
+		"player"
+	],
+	"private": true
+}

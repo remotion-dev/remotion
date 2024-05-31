@@ -1,11 +1,14 @@
 import './asset-types.js';
 import {Clipper} from './Clipper.js';
+import type {Codec} from './codec.js';
 import type {TRenderAsset} from './CompositionManager.js';
+import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import type {StaticFile} from './get-static-files.js';
 import {useIsPlayer} from './is-player.js';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning.js';
 import type {ClipRegion} from './NativeLayers.js';
 import {Null} from './Null.js';
+import {Sequence} from './Sequence.js';
 import type {VideoConfig} from './video-config.js';
 
 export type VideoConfigWithSerializedProps = Omit<
@@ -20,7 +23,10 @@ declare global {
 	interface Window {
 		remotion_renderReady: boolean;
 		remotion_delayRenderTimeouts: {
-			[key: string]: {label: string | null; timeout: number | NodeJS.Timeout};
+			[key: string]: {
+				label: string | null;
+				timeout: number | Timer;
+			};
 		};
 		remotion_cancelledError: string | undefined;
 		remotion_getCompositionNames: () => string[];
@@ -31,13 +37,20 @@ declare global {
 		remotion_setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
 		remotion_staticFiles: StaticFile[];
+		remotion_publicPath: string;
 		remotion_publicFolderExists: string | null;
 		remotion_editorName: string | null;
+		remotion_ignoreFastRefreshUpdate: number | null;
 		remotion_numberOfAudioTags: number;
 		remotion_projectName: string;
 		remotion_cwd: string;
 		remotion_studioServerCommand: string;
-		remotion_setFrame: (frame: number, composition: string) => void;
+		remotion_setFrame: (
+			frame: number,
+			composition: string,
+			attempt: number,
+		) => void;
+		remotion_attempt: number;
 		remotion_initialFrame: number;
 		remotion_proxyPort: number;
 		remotion_audioEnabled: boolean;
@@ -48,9 +61,10 @@ declare global {
 		remotion_collectAssets: () => TRenderAsset[];
 		remotion_getClipRegion: () => ClipRegion | null;
 		remotion_isPlayer: boolean;
+		remotion_isStudio: boolean;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
-		siteVersion: '10';
+		siteVersion: '11';
 		remotion_version: string;
 		remotion_imported: string | boolean;
 		remotion_unsavedProps: boolean | undefined;
@@ -72,6 +86,7 @@ export type BundleState =
 			compositionDurationInFrames: number;
 			compositionWidth: number;
 			compositionFps: number;
+			compositionDefaultCodec: Codec;
 	  };
 
 checkMultipleRemotionVersions();
@@ -92,6 +107,7 @@ export {
 	TCompMetadata,
 	TRenderAsset,
 } from './CompositionManager.js';
+export type {CanvasContent} from './CompositionManagerContext.js';
 export {getInputProps} from './config/input-props.js';
 export {continueRender, delayRender} from './delay-render.js';
 export * from './easing.js';
@@ -100,30 +116,47 @@ export * from './freeze.js';
 export {getRemotionEnvironment} from './get-remotion-environment.js';
 export {getStaticFiles, StaticFile} from './get-static-files.js';
 export * from './IFrame.js';
-export * from './Img.js';
+export {Img, ImgProps} from './Img.js';
 export * from './internals.js';
 export {interpolateColors} from './interpolate-colors.js';
+export {Loop} from './loop/index.js';
+export {ClipRegion} from './NativeLayers.js';
 export {
+	EasingFunction,
 	ExtrapolateType,
 	interpolate,
 	InterpolateOptions,
-} from './interpolate.js';
-export {Loop} from './loop/index.js';
-export {ClipRegion} from './NativeLayers.js';
-export {prefetch} from './prefetch.js';
-export {random, RandomSeed} from './random.js';
+	random,
+	RandomSeed,
+} from './no-react';
+export {prefetch, PrefetchOnProgress} from './prefetch.js';
 export {registerRoot} from './register-root.js';
-export {Sequence} from './Sequence.js';
+export {
+	AbsoluteFillLayout,
+	LayoutAndStyle,
+	Sequence,
+	SequenceProps,
+	SequencePropsWithoutDuration,
+} from './Sequence.js';
 export {Series} from './series/index.js';
 export * from './spring/index.js';
 export {staticFile} from './static-file.js';
 export * from './Still.js';
 export type {PlayableMediaTag} from './timeline-position-state.js';
+export {useBufferState} from './use-buffer-state';
 export {useCurrentFrame} from './use-current-frame.js';
+export {
+	CurrentScaleContextType,
+	PreviewSize,
+	PreviewSizeCtx,
+	Translation,
+	useCurrentScale,
+} from './use-current-scale';
 export * from './use-video-config.js';
 export * from './version.js';
 export * from './video-config.js';
 export * from './video/index.js';
+export {watchStaticFile} from './watch-static-file.js';
 
 export const Experimental = {
 	/**
@@ -154,6 +187,7 @@ export const Config = new Proxy(proxyObj, {
 		}
 
 		return () => {
+			/* eslint-disable no-console */
 			console.warn(
 				'⚠️  The CLI configuration has been extracted from Remotion Core.',
 			);
@@ -167,8 +201,11 @@ export const Config = new Proxy(proxyObj, {
 			console.warn(
 				'For more information, see https://www.remotion.dev/docs/4-0-migration.',
 			);
+			/* eslint-enable no-console */
 
 			process.exit(1);
 		};
 	},
 });
+
+addSequenceStackTraces(Sequence);

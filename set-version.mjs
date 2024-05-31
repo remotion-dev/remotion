@@ -27,7 +27,7 @@ const dirs = readdirSync("packages")
     existsSync(path.join(process.cwd(), "packages", dir, "package.json"))
   );
 
-for (const dir of dirs) {
+for (const dir of [path.join("cloudrun", "container"), ...dirs]) {
   const packageJsonPath = path.join(
     process.cwd(),
     "packages",
@@ -36,28 +36,42 @@ for (const dir of dirs) {
   );
   const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
   packageJson.version = version;
-  writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + "\n");
+  const potentialPrettierPath = path.join(
+    process.cwd(),
+    "packages",
+    dir,
+    ".prettierrc.js"
+  );
+  const hasPrettier =
+    existsSync(potentialPrettierPath) &&
+    readFileSync(potentialPrettierPath, "utf-8").includes("useTabs: true");
+  writeFileSync(
+    packageJsonPath,
+    JSON.stringify(packageJson, null, hasPrettier ? "\t" : 2) + "\n"
+  );
   try {
     console.log("setting version for", dir);
-    execSync("pnpm exec prettier --write package.json", {
-      cwd: path.join(process.cwd(), "packages", dir),
-    });
   } catch (e) {
     // console.log(e.message);
   }
 }
 
-execSync("node ensure-correct-version.js", {
+execSync("bun ensure-correct-version.ts", {
   cwd: "packages/core",
 });
 
-execSync("pnpm exec vitest src/monorepo --run", {
+execSync("bun x vitest src/monorepo --run", {
   cwd: "packages/it-tests",
   stdio: "inherit",
 });
 
 execSync("node build.mjs --all", {
   cwd: "packages/renderer",
+  stdio: "inherit",
+});
+
+execSync("pnpm build", {
+  cwd: "packages/cloudrun",
   stdio: "inherit",
 });
 

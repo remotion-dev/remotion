@@ -1,5 +1,5 @@
 import type {Codec} from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {OutNameInput, OutNameOutput, RenderMetadata} from '../../defaults';
 import {customOutName, outName, outStillName} from '../../defaults';
 import type {CustomCredentials} from '../../shared/aws-clients';
@@ -34,11 +34,12 @@ export const getExpectedOutName = (
 		renderMetadata,
 	});
 	if (outNameValue) {
-		validateOutname(
-			outNameValue,
-			renderMetadata.codec,
-			renderMetadata.audioCodec,
-		);
+		validateOutname({
+			outName: outNameValue,
+			codec: renderMetadata.codec,
+			audioCodecSetting: renderMetadata.audioCodec,
+			separateAudioTo: null,
+		});
 		return customOutName(renderMetadata.renderId, bucketName, outNameValue);
 	}
 
@@ -55,7 +56,7 @@ export const getExpectedOutName = (
 			renderBucketName: bucketName,
 			key: outName(
 				renderMetadata.renderId,
-				RenderInternals.getFileExtensionFromCodec(
+				NoReactAPIs.getFileExtensionFromCodec(
 					renderMetadata.codec as Codec,
 					renderMetadata.audioCodec,
 				),

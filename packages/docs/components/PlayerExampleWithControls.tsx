@@ -1,11 +1,11 @@
-import { useState } from "react";
-import React from "react";
+import React, { useState } from "react";
 import { PlayerExample } from "./PlayerExample";
 import { CoolInput } from "./TextInput";
 
 export const PlayerExampleWithControls: React.FC = () => {
   const [name, setName] = useState("");
   const [color, setColor] = useState("#4098f5");
+
   return (
     <div>
       <PlayerExample name={name} color={color} />

@@ -2,6 +2,20 @@ import type {AwsRegion} from '../client';
 import type {LambdaRoutines} from './constants';
 import {encodeAwsUrlParams} from './encode-aws-url-params';
 
+const cloudWatchUrlWithQuery = ({
+	region,
+	functionNameToUse,
+	query,
+}: {
+	region: AwsRegion;
+	functionNameToUse: string;
+	query: string;
+}) => {
+	return `https://${region}.console.aws.amazon.com/cloudwatch/home?region=${region}#logsV2:log-groups/log-group/$252Faws$252Flambda$252F${functionNameToUse}/log-events$3FfilterPattern$3D${encodeAwsUrlParams(
+		query,
+	)}`;
+};
+
 export const getCloudwatchMethodUrl = ({
 	region,
 	functionName,
@@ -19,6 +33,16 @@ export const getCloudwatchMethodUrl = ({
 	const query = `"method=${method},renderId=${renderId}"`;
 
 	return cloudWatchUrlWithQuery({region, functionNameToUse, query});
+};
+
+export const getLambdaInsightsUrl = ({
+	region,
+	functionName,
+}: {
+	region: AwsRegion;
+	functionName: string;
+}) => {
+	return `https://${region}.console.aws.amazon.com/cloudwatch/home?region=${region}#lambda-insights:functions/${functionName}`;
 };
 
 export const getCloudwatchRendererUrl = ({
@@ -40,20 +64,6 @@ export const getCloudwatchRendererUrl = ({
 	}"`;
 
 	return cloudWatchUrlWithQuery({region, functionNameToUse, query});
-};
-
-const cloudWatchUrlWithQuery = ({
-	region,
-	functionNameToUse,
-	query,
-}: {
-	region: AwsRegion;
-	functionNameToUse: string;
-	query: string;
-}) => {
-	return `https://${region}.console.aws.amazon.com/cloudwatch/home?region=${region}#logsV2:log-groups/log-group/$252Faws$252Flambda$252F${functionNameToUse}/log-events$3FfilterPattern$3D${encodeAwsUrlParams(
-		query,
-	)}`;
 };
 
 export const getS3RenderUrl = ({

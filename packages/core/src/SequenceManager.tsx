@@ -17,21 +17,36 @@ export const SequenceManager = React.createContext<SequenceManagerContext>({
 	sequences: [],
 });
 
+export type SequenceVisibilityToggleState = {
+	hidden: Record<string, boolean>;
+	setHidden: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+};
+
+export const SequenceVisibilityToggleContext =
+	React.createContext<SequenceVisibilityToggleState>({
+		hidden: {},
+		setHidden: () => {
+			throw new Error('SequenceVisibilityToggle not initialized');
+		},
+	});
+
 export const SequenceManagerProvider: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
 	const [sequences, setSequences] = useState<TSequence[]>([]);
+	const [hidden, setHidden] = useState<Record<string, boolean>>({});
 
 	const registerSequence = useCallback((seq: TSequence) => {
 		setSequences((seqs) => {
 			return [...seqs, seq];
 		});
 	}, []);
+
 	const unregisterSequence = useCallback((seq: string) => {
 		setSequences((seqs) => seqs.filter((s) => s.id !== seq));
 	}, []);
 
-	const context: SequenceManagerContext = useMemo(() => {
+	const sequenceContext: SequenceManagerContext = useMemo(() => {
 		return {
 			registerSequence,
 			sequences,
@@ -39,9 +54,18 @@ export const SequenceManagerProvider: React.FC<{
 		};
 	}, [registerSequence, sequences, unregisterSequence]);
 
+	const hiddenContext: SequenceVisibilityToggleState = useMemo(() => {
+		return {
+			hidden,
+			setHidden,
+		};
+	}, [hidden]);
+
 	return (
-		<SequenceManager.Provider value={context}>
-			{children}
+		<SequenceManager.Provider value={sequenceContext}>
+			<SequenceVisibilityToggleContext.Provider value={hiddenContext}>
+				{children}
+			</SequenceVisibilityToggleContext.Provider>
 		</SequenceManager.Provider>
 	);
 };

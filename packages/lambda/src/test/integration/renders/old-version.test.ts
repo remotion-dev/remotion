@@ -1,16 +1,9 @@
 import {RenderInternals} from '@remotion/renderer';
-import {afterAll, beforeAll, expect, test} from 'vitest';
+import {afterAll, expect, test} from 'vitest';
 import {LambdaRoutines} from '../../../defaults';
 import {callLambda} from '../../../shared/call-lambda';
-import {disableLogs, enableLogs} from '../../disable-logs';
-
-beforeAll(() => {
-	disableLogs();
-});
 
 afterAll(async () => {
-	enableLogs();
-
 	await RenderInternals.killAllBrowsers();
 });
 
@@ -55,6 +48,8 @@ test('Should fail when using an incompatible version', async () => {
 				webhook: null,
 				audioBitrate: null,
 				videoBitrate: null,
+				encodingBufferSize: null,
+				encodingMaxRate: null,
 				forceHeight: null,
 				forceWidth: null,
 				rendererFunctionName: null,
@@ -62,12 +57,13 @@ test('Should fail when using an incompatible version', async () => {
 				audioCodec: null,
 				renderId: 'test',
 				offthreadVideoCacheSizeInBytes: null,
+				deleteAfter: null,
+				colorSpace: null,
+				preferLossless: false,
 			},
 			functionName: 'remotion-dev-render',
-			receivedStreamingPayload: () => undefined,
 			region: 'us-east-1',
 			timeoutInTest: 120000,
-			retriesRemaining: 0,
 		});
 		console.log(aha);
 		throw new Error('Should not reach this');

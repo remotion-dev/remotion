@@ -1,19 +1,21 @@
-import type {AudioCodec, supportedAudioCodecs} from './audio-codec';
-import {getDefaultAudioCodec} from './audio-codec';
 import type {Codec} from './codec';
 import type {FileExtension} from './file-extensions';
 import {defaultFileExtensionMap} from './file-extensions';
+import type {AudioCodec, supportedAudioCodecs} from './options/audio-codec';
+import {resolveAudioCodec} from './options/audio-codec';
 
 export const validateOutputFilename = <T extends Codec>({
 	codec,
-	audioCodec,
+	audioCodecSetting,
 	extension,
 	preferLossless,
+	separateAudioTo,
 }: {
 	codec: T;
-	audioCodec: AudioCodec | null;
+	audioCodecSetting: AudioCodec | null;
 	extension: string;
 	preferLossless: boolean;
+	separateAudioTo: string | null;
 }) => {
 	if (!defaultFileExtensionMap[codec]) {
 		throw new TypeError(
@@ -24,8 +26,12 @@ export const validateOutputFilename = <T extends Codec>({
 	}
 
 	const map = defaultFileExtensionMap[codec];
-	const resolvedAudioCodec =
-		audioCodec ?? getDefaultAudioCodec({codec, preferLossless});
+	const resolvedAudioCodec = resolveAudioCodec({
+		codec,
+		preferLossless,
+		setting: audioCodecSetting,
+		separateAudioTo,
+	});
 
 	if (resolvedAudioCodec === null) {
 		if (extension !== map.default) {
@@ -48,7 +54,10 @@ export const validateOutputFilename = <T extends Codec>({
 			resolvedAudioCodec as (typeof supportedAudioCodecs)[T][number]
 		].possible;
 
-	if (!acceptableExtensions.includes(extension as FileExtension)) {
+	if (
+		!acceptableExtensions.includes(extension as FileExtension) &&
+		!separateAudioTo
+	) {
 		throw new TypeError(
 			`When using the ${codec} codec with the ${resolvedAudioCodec} audio codec, the output filename must end in one of the following: ${acceptableExtensions.join(
 				', ',

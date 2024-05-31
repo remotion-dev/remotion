@@ -122,14 +122,12 @@ export class DOMWorld {
 		timeout,
 		pageFunction,
 		title,
-		shouldClosePage,
 	}: {
 		browser: HeadlessBrowser;
 		timeout: number | null;
 		pageFunction: Function | string;
 		title: string;
-		shouldClosePage: boolean;
-	}): Promise<JSHandle> {
+	}): WaitTask {
 		return new WaitTask({
 			domWorld: this,
 			predicateBody: pageFunction,
@@ -137,13 +135,6 @@ export class DOMWorld {
 			timeout,
 			args: [],
 			browser,
-			shouldClosePage,
-		}).promise;
-	}
-
-	title(): Promise<string> {
-		return this.evaluate(() => {
-			return document.title;
 		});
 	}
 }
@@ -155,7 +146,6 @@ interface WaitTaskOptions {
 	timeout: number | null;
 	browser: HeadlessBrowser;
 	args: SerializableOrJSHandle[];
-	shouldClosePage: boolean;
 }
 
 const noop = (): void => undefined;
@@ -168,10 +158,9 @@ class WaitTask {
 	#runCount = 0;
 	#resolve: (x: JSHandle) => void = noop;
 	#reject: (x: Error) => void = noop;
-	#timeoutTimer?: NodeJS.Timeout;
+	#timeoutTimer?: Timer;
 	#terminated = false;
 	#browser: HeadlessBrowser;
-	#shouldClosePage: boolean;
 
 	promise: Promise<JSHandle>;
 
@@ -189,7 +178,6 @@ class WaitTask {
 		this.#predicateBody = getPredicateBody(options.predicateBody);
 		this.#args = options.args;
 		this.#runCount = 0;
-		this.#shouldClosePage = options.shouldClosePage;
 		this.#domWorld._waitTasks.add(this);
 
 		this.promise = new Promise<JSHandle>((resolve, reject) => {
@@ -203,10 +191,6 @@ class WaitTask {
 				`waiting for ${options.title} failed: timeout ${options.timeout}ms exceeded`,
 			);
 			this.#timeoutTimer = setTimeout(() => {
-				if (this.#shouldClosePage) {
-					return this.terminate(timeoutError);
-				}
-
 				return this.#reject(timeoutError);
 			}, options.timeout);
 		}
@@ -345,6 +329,10 @@ class WaitTask {
 			BrowserEmittedEvents.ClosedSilent,
 			this.onBrowserCloseSilent,
 		);
+
+		if (this.#domWorld._waitTasks.size > 100) {
+			throw new Error('Leak detected: Too many WaitTasks');
+		}
 
 		this.#domWorld._waitTasks.delete(this);
 	}

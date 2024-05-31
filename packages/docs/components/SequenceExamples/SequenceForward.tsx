@@ -28,7 +28,7 @@ const BlueSquare: React.FC = () => {
           transform: `translateY(${interpolate(
             animation,
             [0, 1],
-            [600, 0]
+            [600, 0],
           )}px)`,
           justifyContent: "center",
           alignItems: "center",
@@ -117,7 +117,7 @@ export const SequenceForwardExample: React.FC<{
         durationInFrames={150}
         fps={30}
         style={{
-          width: "100%",
+          height: 200,
         }}
         loop
       />

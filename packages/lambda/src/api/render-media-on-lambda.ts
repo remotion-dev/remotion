@@ -2,21 +2,25 @@ import type {
 	AudioCodec,
 	ChromiumOptions,
 	FrameRange,
-	LogLevel,
 	PixelFormat,
 	ProResProfile,
 	ToOptions,
 	VideoImageFormat,
-	X264Preset,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
-import type {OutNameInput, Privacy} from '../shared/constants';
+import type {OutNameInput, Privacy, WebhookOption} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
-import {getCloudwatchRendererUrl, getS3RenderUrl} from '../shared/get-aws-urls';
+import {
+	getCloudwatchRendererUrl,
+	getLambdaInsightsUrl,
+	getS3RenderUrl,
+} from '../shared/get-aws-urls';
 import type {LambdaCodec} from '../shared/validate-lambda-codec';
+import type {InnerRenderMediaOnLambdaInput} from './make-lambda-payload';
 import {makeLambdaRenderMediaPayload} from './make-lambda-payload';
 
 export type RenderMediaOnLambdaInput = {
@@ -31,7 +35,6 @@ export type RenderMediaOnLambdaInput = {
 	envVariables?: Record<string, string>;
 	pixelFormat?: PixelFormat;
 	proResProfile?: ProResProfile;
-	x264Preset?: X264Preset;
 	privacy?: Privacy;
 	/**
 	 * @deprecated Renamed to `jpegQuality`
@@ -40,24 +43,15 @@ export type RenderMediaOnLambdaInput = {
 	jpegQuality?: number;
 	maxRetries?: number;
 	framesPerLambda?: number;
-	logLevel?: LogLevel;
 	frameRange?: FrameRange;
 	outName?: OutNameInput;
-	timeoutInMilliseconds?: number;
-	chromiumOptions?: ChromiumOptions;
+	chromiumOptions?: Omit<ChromiumOptions, 'enableMultiProcessOnLinux'>;
 	scale?: number;
 	everyNthFrame?: number;
-	numberOfGifLoops?: number | null;
 	concurrencyPerLambda?: number;
 	downloadBehavior?: DownloadBehavior | null;
-	muted?: boolean;
 	overwrite?: boolean;
-	audioBitrate?: string | null;
-	videoBitrate?: string | null;
-	webhook?: {
-		url: string;
-		secret: string | null;
-	};
+	webhook?: WebhookOption | null;
 	forceWidth?: number | null;
 	forceHeight?: number | null;
 	rendererFunctionName?: string | null;
@@ -73,8 +67,109 @@ export type RenderMediaOnLambdaOutput = {
 	renderId: string;
 	bucketName: string;
 	cloudWatchLogs: string;
+	lambdaInsightsLogs: string;
 	folderInS3Console: string;
 };
+
+export const internalRenderMediaOnLambdaRaw = async (
+	input: InnerRenderMediaOnLambdaInput,
+): Promise<RenderMediaOnLambdaOutput> => {
+	const {functionName, region, rendererFunctionName} = input;
+
+	try {
+		const res = await callLambda({
+			functionName,
+			type: LambdaRoutines.start,
+			payload: await makeLambdaRenderMediaPayload(input),
+			region,
+			timeoutInTest: 120000,
+		});
+
+		return {
+			renderId: res.renderId,
+			bucketName: res.bucketName,
+			cloudWatchLogs: getCloudwatchRendererUrl({
+				functionName,
+				region,
+				renderId: res.renderId,
+				rendererFunctionName: rendererFunctionName ?? null,
+				chunk: null,
+			}),
+			folderInS3Console: getS3RenderUrl({
+				bucketName: res.bucketName,
+				renderId: res.renderId,
+				region,
+			}),
+			lambdaInsightsLogs: getLambdaInsightsUrl({
+				functionName,
+				region,
+			}),
+		};
+	} catch (err) {
+		if ((err as Error).stack?.includes('UnrecognizedClientException')) {
+			throw new Error(
+				'UnrecognizedClientException: The AWS credentials provided were probably mixed up. Learn how to fix this issue here: https://remotion.dev/docs/lambda/troubleshooting/unrecognizedclientexception',
+			);
+		}
+
+		throw err;
+	}
+};
+
+export const renderMediaOnLambdaOptionalToRequired = (
+	options: RenderMediaOnLambdaInput,
+): InnerRenderMediaOnLambdaInput => {
+	return {
+		audioBitrate: options.audioBitrate ?? null,
+		audioCodec: options.audioCodec ?? null,
+		chromiumOptions: options.chromiumOptions ?? {},
+		codec: options.codec,
+		colorSpace: options.colorSpace ?? null,
+		composition: options.composition,
+		concurrencyPerLambda: options.concurrencyPerLambda ?? 1,
+		crf: options.crf,
+		downloadBehavior: options.downloadBehavior ?? {type: 'play-in-browser'},
+		envVariables: options.envVariables ?? {},
+		everyNthFrame: options.everyNthFrame ?? 1,
+		forceBucketName: options.forceBucketName ?? null,
+		forceHeight: options.forceHeight ?? null,
+		forceWidth: options.forceWidth ?? null,
+		frameRange: options.frameRange ?? null,
+		framesPerLambda: options.framesPerLambda ?? null,
+		functionName: options.functionName,
+		imageFormat: options.imageFormat ?? 'jpeg',
+		inputProps: options.inputProps ?? {},
+		jpegQuality: options.jpegQuality ?? 80,
+		logLevel: options.logLevel ?? 'info',
+		maxRetries: options.maxRetries ?? 1,
+		muted: options.muted ?? false,
+		numberOfGifLoops: options.numberOfGifLoops ?? null,
+		offthreadVideoCacheSizeInBytes:
+			options.offthreadVideoCacheSizeInBytes ?? null,
+		outName: options.outName ?? null,
+		overwrite: options.overwrite ?? false,
+		pixelFormat: options.pixelFormat ?? undefined,
+		privacy: options.privacy ?? 'public',
+		proResProfile: options.proResProfile ?? undefined,
+		region: options.region,
+		rendererFunctionName: options.rendererFunctionName ?? null,
+		scale: options.scale ?? 1,
+		serveUrl: options.serveUrl,
+		timeoutInMilliseconds: options.timeoutInMilliseconds ?? 30000,
+		videoBitrate: options.videoBitrate ?? null,
+		encodingMaxRate: options.encodingMaxRate ?? null,
+		encodingBufferSize: options.encodingBufferSize ?? null,
+		webhook: options.webhook ?? null,
+		x264Preset: options.x264Preset ?? null,
+		deleteAfter: options.deleteAfter ?? null,
+		preferLossless: options.preferLossless ?? false,
+		indent: false,
+	};
+};
+
+const wrapped = NoReactAPIs.wrapWithErrorHandling(
+	internalRenderMediaOnLambdaRaw,
+);
 
 /**
  * @description Triggers a render on a lambda given a composition and a lambda function.
@@ -95,47 +190,16 @@ export type RenderMediaOnLambdaOutput = {
  * @param params.webhook Configuration for webhook called upon completion or timeout of the render.
  * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
  */
-
-export const renderMediaOnLambda = async (
-	input: RenderMediaOnLambdaInput,
+export const renderMediaOnLambda = (
+	options: RenderMediaOnLambdaInput,
 ): Promise<RenderMediaOnLambdaOutput> => {
-	const {functionName, region, rendererFunctionName} = input;
-
-	try {
-		const res = await callLambda({
-			functionName,
-			type: LambdaRoutines.start,
-			payload: await makeLambdaRenderMediaPayload(input),
-			region,
-			receivedStreamingPayload: () => undefined,
-			timeoutInTest: 120000,
-			retriesRemaining: 0,
-		});
-		return {
-			renderId: res.renderId,
-			bucketName: res.bucketName,
-			cloudWatchLogs: getCloudwatchRendererUrl({
-				functionName,
-				region,
-				renderId: res.renderId,
-				rendererFunctionName: rendererFunctionName ?? null,
-				chunk: null,
-			}),
-			folderInS3Console: getS3RenderUrl({
-				bucketName: res.bucketName,
-				renderId: res.renderId,
-				region,
-			}),
-		};
-	} catch (err) {
-		if ((err as Error).stack?.includes('UnrecognizedClientException')) {
-			throw new Error(
-				'UnrecognizedClientException: The AWS credentials provided were probably mixed up. Learn how to fix this issue here: https://remotion.dev/docs/lambda/troubleshooting/unrecognizedclientexception',
-			);
-		}
-
-		throw err;
+	if (options.quality) {
+		throw new Error(
+			'quality has been renamed to jpegQuality. Please rename the option.',
+		);
 	}
+
+	return wrapped(renderMediaOnLambdaOptionalToRequired(options));
 };
 
 /**

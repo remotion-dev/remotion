@@ -1,3 +1,4 @@
+import BrowserOnly from "@docusaurus/BrowserOnly";
 import Hls from "hls.js";
 import React, {
   forwardRef,
@@ -5,6 +6,7 @@ import React, {
   useImperativeHandle,
   useRef,
 } from "react";
+import { VideoPlayerWithControls } from "./VideoPlayerWithControls";
 
 const getVideoToPlayUrl = (muxId: string) => {
   return `https://stream.mux.com/${muxId}.m3u8`;
@@ -52,3 +54,23 @@ const MuxVideoForward: React.ForwardRefRenderFunction<
 };
 
 export const MuxVideo = forwardRef(MuxVideoForward);
+
+export const NewMuxVideo: React.FC<{
+  muxId: string;
+}> = ({ muxId }) => {
+  return (
+    <BrowserOnly>
+      {() => (
+        <VideoPlayerWithControls
+          playbackId={muxId}
+          poster={"https://image.mux.com/" + muxId + "/thumbnail.png?time=1"}
+          onError={(error) => {
+            console.log(error);
+          }}
+          onLoaded={() => undefined}
+          onSize={() => undefined}
+        />
+      )}
+    </BrowserOnly>
+  );
+};

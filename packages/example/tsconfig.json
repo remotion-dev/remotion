@@ -19,6 +19,7 @@
 		{"path": "../eslint-config"},
 		{"path": "../eslint-plugin"},
 		{"path": "../gif"},
+		{"path": "../fonts"},
 		{"path": "../lambda"},
 		{"path": "../lottie"},
 		{"path": "../media-utils"},
@@ -29,6 +30,8 @@
 		{"path": "../shapes"},
 		{"path": "../skia"},
 		{"path": "../three"},
-		{"path": "../zod-types"}
+		{"path": "../transitions"},
+		{"path": "../zod-types"},
+		{"path": "../layout-utils"}
 	]
 }

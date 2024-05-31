@@ -1,4 +1,5 @@
 import type {LogLevel} from './log-level';
+import {Log} from './logger';
 import type {BrowserReplacer} from './replace-browser';
 
 export const cycleBrowserTabs = (
@@ -15,7 +16,7 @@ export const cycleBrowserTabs = (
 		};
 	}
 
-	let interval: NodeJS.Timeout | null = null;
+	let interval: Timer | null = null;
 	let i = 0;
 	let stopped = false;
 	const set = () => {
@@ -39,9 +40,11 @@ export const cycleBrowserTabs = (
 					}
 				})
 
-				.catch((err) => console.log(err))
+				.catch((err) => Log.error({indent, logLevel}, err))
 				.finally(() => {
-					set();
+					if (!stopped) {
+						set();
+					}
 				});
 		}, 200);
 	};
@@ -56,7 +59,7 @@ export const cycleBrowserTabs = (
 
 			stopped = true;
 
-			return clearInterval(interval);
+			return clearTimeout(interval);
 		},
 	};
 };

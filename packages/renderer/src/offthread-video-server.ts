@@ -3,10 +3,7 @@ import {URLSearchParams} from 'node:url';
 import {downloadAsset} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import type {Compositor} from './compositor/compositor';
-import {
-	getIdealMaximumFrameCacheSizeInBytes,
-	startCompositor,
-} from './compositor/compositor';
+import {startCompositor} from './compositor/compositor';
 import type {LogLevel} from './log-level';
 import {isEqualOrBelowLogLevel} from './log-level';
 import {Log} from './logger';
@@ -34,10 +31,17 @@ export const extractUrlAndSourceFromUrl = (url: string) => {
 
 	const transparent = params.get('transparent');
 
+	const toneMapped = params.get('toneMapped');
+
+	if (!toneMapped) {
+		throw new Error('Did not get `toneMapped` parameter');
+	}
+
 	return {
 		src,
 		time: parseFloat(time),
 		transparent: transparent === 'true',
+		toneMapped: toneMapped === 'true',
 	};
 };
 
@@ -49,39 +53,40 @@ export const startOffthreadVideoServer = ({
 	logLevel,
 	indent,
 	offthreadVideoCacheSizeInBytes,
+	binariesDirectory,
 }: {
 	downloadMap: DownloadMap;
 	offthreadVideoCacheSizeInBytes: number | null;
 	concurrency: number;
 	logLevel: LogLevel;
 	indent: boolean;
+	binariesDirectory: string | null;
 }): {
 	listener: RequestListener;
 	close: () => Promise<void>;
 	compositor: Compositor;
 } => {
 	validateOffthreadVideoCacheSizeInBytes(offthreadVideoCacheSizeInBytes);
-	const compositor = startCompositor(
-		'StartLongRunningProcess',
-		{
+	const compositor = startCompositor({
+		type: 'StartLongRunningProcess',
+		payload: {
 			concurrency,
-			maximum_frame_cache_size_in_bytes:
-				offthreadVideoCacheSizeInBytes ??
-				getIdealMaximumFrameCacheSizeInBytes(),
+			maximum_frame_cache_size_in_bytes: offthreadVideoCacheSizeInBytes,
 			verbose: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		},
 		logLevel,
 		indent,
-	);
+		binariesDirectory,
+	});
 
 	return {
-		close: () => {
+		close: async () => {
 			// Note: This is being used as a promise:
 			//     .close().then()
 			// but if finishCommands() fails, it acts like a sync function,
 			// therefore we have to catch an error and put a promise rejection
 			try {
-				compositor.finishCommands();
+				await compositor.finishCommands();
 				return compositor.waitForDone();
 			} catch (err) {
 				return Promise.reject(err);
@@ -98,13 +103,10 @@ export const startOffthreadVideoServer = ({
 				return;
 			}
 
-			const {src, time, transparent} = extractUrlAndSourceFromUrl(req.url);
+			const {src, time, transparent, toneMapped} = extractUrlAndSourceFromUrl(
+				req.url,
+			);
 			response.setHeader('access-control-allow-origin', '*');
-			if (transparent) {
-				response.setHeader('content-type', `image/png`);
-			} else {
-				response.setHeader('content-type', `image/bmp`);
-			}
 
 			// Prevent caching of the response and excessive disk writes
 			// https://github.com/remotion-dev/remotion/issues/2760
@@ -133,23 +135,25 @@ export const startOffthreadVideoServer = ({
 			});
 
 			let extractStart = Date.now();
-			downloadAsset({src, downloadMap})
+			downloadAsset({src, downloadMap, indent, logLevel})
 				.then((to) => {
-					return new Promise<Buffer>((resolve, reject) => {
+					return new Promise<Uint8Array>((resolve, reject) => {
 						if (closed) {
 							reject(Error(REQUEST_CLOSED_TOKEN));
 							return;
 						}
 
 						extractStart = Date.now();
-						resolve(
-							compositor.executeCommand('ExtractFrame', {
+						compositor
+							.executeCommand('ExtractFrame', {
 								src: to,
 								original_src: src,
 								time,
 								transparent,
-							}),
-						);
+								tone_mapped: toneMapped,
+							})
+							.then(resolve)
+							.catch(reject);
 					});
 				})
 				.then((readable) => {
@@ -169,8 +173,28 @@ export const startOffthreadVideoServer = ({
 
 						if (timeToExtract > 1000) {
 							Log.verbose(
+								{indent, logLevel},
 								`Took ${timeToExtract}ms to extract frame from ${src} at ${time}`,
 							);
+						}
+
+						const firstByte = readable.at(0);
+						const secondByte = readable.at(1);
+						const thirdByte = readable.at(2);
+						const isPng =
+							firstByte === 0x89 && secondByte === 0x50 && thirdByte === 0x4e;
+						const isBmp = firstByte === 0x42 && secondByte === 0x4d;
+						if (isPng) {
+							response.setHeader('content-type', `image/png`);
+						} else if (isBmp) {
+							response.setHeader('content-type', `image/bmp`);
+						} else {
+							reject(
+								new Error(
+									`Unknown file type: ${firstByte} ${secondByte} ${thirdByte}`,
+								),
+							);
+							return;
 						}
 
 						response.writeHead(200);
@@ -185,13 +209,18 @@ export const startOffthreadVideoServer = ({
 					});
 				})
 				.catch((err) => {
-					response.writeHead(500);
+					if (!response.headersSent) {
+						response.writeHead(500);
+					}
+
 					response.end();
 
 					// Any errors occurred due to the render being aborted don't need to be logged.
-					if (err.message !== REQUEST_CLOSED_TOKEN) {
+					if (
+						err.message !== REQUEST_CLOSED_TOKEN &&
+						!err.message.includes('EPIPE')
+					) {
 						downloadMap.emitter.dispatchError(err);
-						console.log('Error occurred', err);
 					}
 				});
 		},

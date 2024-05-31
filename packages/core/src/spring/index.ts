@@ -1,8 +1,9 @@
+import {interpolate} from '../interpolate.js';
 import {validateFrame} from '../validate-frame.js';
 import {validateFps} from '../validation/validate-fps.js';
 import {validateSpringDuration} from '../validation/validation-spring-duration.js';
 import {measureSpring} from './measure-spring.js';
-import type {SpringConfig} from './spring-utils.js';
+import type {SpringConfig} from './spring-utils';
 import {springCalculation} from './spring-utils.js';
 
 /**
@@ -58,50 +59,54 @@ export function spring({
 		? measureSpring({
 				fps,
 				config,
-				from,
-				to,
 				threshold: durationRestThreshold,
-		  })
+			})
 		: undefined;
 
 	const naturalDurationGetter = needsToCalculateNaturalDuration
 		? {
 				get: () => naturalDuration as number,
-		  }
+			}
 		: {
 				get: () => {
 					throw new Error(
 						'did not calculate natural duration, this is an error with Remotion. Please report',
 					);
 				},
-		  };
+			};
 
-	const frame =
-		(reverse
-			? (passedDurationInFrames ?? naturalDurationGetter.get()) - passedFrame
-			: passedFrame) - (reverse ? -delay : delay);
+	const reverseProcessed = reverse
+		? (passedDurationInFrames ?? naturalDurationGetter.get()) - passedFrame
+		: passedFrame;
+
+	const delayProcessed = reverseProcessed + (reverse ? delay : -delay);
+
+	const durationProcessed =
+		passedDurationInFrames === undefined
+			? delayProcessed
+			: delayProcessed / (passedDurationInFrames / naturalDurationGetter.get());
+
+	if (passedDurationInFrames && delayProcessed > passedDurationInFrames) {
+		return to;
+	}
 
 	const spr = springCalculation({
 		fps,
-		frame:
-			passedDurationInFrames === undefined
-				? frame
-				: frame / (passedDurationInFrames / naturalDurationGetter.get()),
+		frame: durationProcessed,
 		config,
-		from,
-		to,
 	});
 
-	if (!config.overshootClamping) {
-		return spr.current;
-	}
+	const inner = config.overshootClamping
+		? to >= from
+			? Math.min(spr.current, to)
+			: Math.max(spr.current, to)
+		: spr.current;
 
-	if (to >= from) {
-		return Math.min(spr.current, to);
-	}
+	const interpolated =
+		from === 0 && to === 1 ? inner : interpolate(inner, [0, 1], [from, to]);
 
-	return Math.max(spr.current, to);
+	return interpolated;
 }
 
 export {measureSpring} from './measure-spring.js';
-export {SpringConfig} from './spring-utils.js';
+export type {SpringConfig} from './spring-utils';

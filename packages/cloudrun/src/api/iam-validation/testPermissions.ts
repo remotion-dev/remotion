@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import {getProjectId} from '../../functions/helpers/is-in-cloud-task';
 import {getResourceManagerClient} from '../helpers/get-resource-manager-client';
 
 export const logPermissionOutput = (output: TestResult) => {
@@ -43,7 +44,7 @@ export const testPermissions = async (
 	);
 
 	const response = await resourceManagerClient.testIamPermissions({
-		resource: `projects/${process.env.REMOTION_GCP_PROJECT_ID}`,
+		resource: `projects/${getProjectId()}`,
 		permissions: permissionList,
 	});
 

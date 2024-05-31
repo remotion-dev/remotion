@@ -1,19 +1,16 @@
 <?php
 namespace Remotion\LambdaPhp;
 
-use Aws\Credentials\CredentialProvider;
 use Aws\Lambda\LambdaClient;
 use Exception;
 use stdClass;
 
-require_once __DIR__ . '/Version.php';
-
 class PHPClient
 {
-    private $client;
-    private $region;
-    private $serveUrl;
-    private $functionName;
+    protected $client;
+    protected $region;
+    protected $serveUrl;
+    protected $functionName;
 
     public function __construct(string $region, string $serveUrl, string $functionName, ?callable $credential)
     {
@@ -55,22 +52,23 @@ class PHPClient
         return $this->handleLambdaResponseRender($result);
     }
 
-    public function makeRenderProgressPayload(string $renderId, string $bucketName)
+    public function makeRenderProgressPayload(string $renderId, string $bucketName, string $logLevel = "info")
     {
         $params = array(
             'renderId' => $renderId,
             'bucketName' => $bucketName,
             'type' => 'status',
-            "version" => VERSION,
-            "s3OutputProvider" => null
+            "version" => Semantic::VERSION,
+            "s3OutputProvider" => null,
+            "logLevel" => $logLevel ,
         );
         $result = json_encode($params);
         return $result;
     }
 
-    public function getRenderProgress(string $renderId, string $bucketName): GetRenderProgressResponse
+    public function getRenderProgress(string $renderId, string $bucketName, string $logLevel = "info"): GetRenderProgressResponse
     {
-        $payload = $this->makeRenderProgressPayload($renderId, $bucketName);
+        $payload = $this->makeRenderProgressPayload($renderId, $bucketName, $logLevel);
         $result = $this->invokeLambdaFunction($payload);
         return $this->handleLambdaResponseProgress($result);
     }
@@ -94,12 +92,19 @@ class PHPClient
     {
         $response = json_decode($response, true);
 
+        // AWS response
         if (isset($response->errorMessage)) {
             throw new Exception($response->errorMessage);
         }
 
         $classResponse = new RenderMediaOnLambdaResponse();
+
+        // Remotion response
+        if ($response['type'] === 'error') {
+            throw new Exception($response['message']);
+        }
         $classResponse->type = $response['type'];
+        print_r(json_encode($response));
         $classResponse->renderId = $response['renderId'];
         $classResponse->bucketName = $response['bucketName'];
         return $classResponse;

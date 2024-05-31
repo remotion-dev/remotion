@@ -30,6 +30,52 @@ const blobToBase64 = function (blob: Blob): Promise<string> {
 	});
 };
 
+export type PrefetchOnProgress = (options: {
+	totalBytes: number | null;
+	loadedBytes: number;
+}) => void;
+
+const getBlobFromReader = async ({
+	reader,
+	contentType,
+	contentLength,
+	onProgress,
+}: {
+	reader: ReadableStreamDefaultReader<Uint8Array>;
+	contentType: string | null;
+	contentLength: number | null;
+	onProgress: PrefetchOnProgress | undefined;
+}): Promise<Blob> => {
+	let receivedLength = 0;
+	const chunks = [];
+	// eslint-disable-next-line no-constant-condition
+	while (true) {
+		const {done, value} = await reader.read();
+
+		if (done) {
+			break;
+		}
+
+		chunks.push(value);
+		receivedLength += value.length;
+		if (onProgress) {
+			onProgress({loadedBytes: receivedLength, totalBytes: contentLength});
+		}
+	}
+
+	const chunksAll = new Uint8Array(receivedLength);
+	let position = 0;
+
+	for (const chunk of chunks) {
+		chunksAll.set(chunk, position);
+		position += chunk.length;
+	}
+
+	return new Blob([chunksAll], {
+		type: contentType ?? undefined,
+	});
+};
+
 /**
  * @description When you call the preFetch() function, an asset will be fetched and kept in memory so it is ready when you want to play it in a <Player>.
  * @see [Documentation](https://www.remotion.dev/docs/prefetch)
@@ -38,6 +84,8 @@ export const prefetch = (
 	src: string,
 	options?: {
 		method?: 'blob-url' | 'base64';
+		contentType?: string;
+		onProgress?: PrefetchOnProgress;
 	},
 ): FetchAndPreload => {
 	const method = options?.method ?? 'blob-url';
@@ -75,18 +123,51 @@ export const prefetch = (
 				throw new Error(`HTTP error, status = ${res.status}`);
 			}
 
-			return res.blob();
+			const headerContentType = res.headers.get('Content-Type');
+
+			const contentType = options?.contentType ?? headerContentType;
+			const hasProperContentType =
+				contentType &&
+				(contentType.startsWith('video/') ||
+					contentType.startsWith('audio/') ||
+					contentType.startsWith('image/'));
+
+			if (!hasProperContentType) {
+				// eslint-disable-next-line no-console
+				console.warn(
+					`Called prefetch() on ${src} which returned a "Content-Type" of ${headerContentType}. Prefetched content should have a proper content type (video/... or audio/...) or a contentType passed the options of prefetch(). Otherwise, prefetching will not work properly in all browsers.`,
+				);
+			}
+
+			if (!res.body) {
+				throw new Error(`HTTP response of ${src} has no body`);
+			}
+
+			const reader = res.body.getReader();
+
+			return getBlobFromReader({
+				reader,
+				contentType: options?.contentType ?? headerContentType ?? null,
+				contentLength: res.headers.get('Content-Length')
+					? parseInt(res.headers.get('Content-Length')!, 10)
+					: null,
+				onProgress: options?.onProgress,
+			});
 		})
 		.then((buf) => {
 			if (!buf) {
 				return;
 			}
 
+			const actualBlob = options?.contentType
+				? new Blob([buf], {type: options.contentType})
+				: buf;
+
 			if (method === 'base64') {
-				return blobToBase64(buf);
+				return blobToBase64(actualBlob);
 			}
 
-			return URL.createObjectURL(buf);
+			return URL.createObjectURL(actualBlob);
 		})
 		.then((url) => {
 			if (canceled) {

@@ -6,13 +6,13 @@ import {callLambda} from '../../shared/call-lambda';
 test('Call function locally', async () => {
 	expect(
 		await callLambda({
-			payload: {},
+			payload: {
+				logLevel: 'info',
+			},
 			type: LambdaRoutines.info,
 			functionName: 'remotion-dev-lambda',
 			region: 'us-east-1',
-			receivedStreamingPayload: () => undefined,
 			timeoutInTest: 120000,
-			retriesRemaining: 0,
 		}),
 	).toEqual({type: 'success', version: VERSION});
 });

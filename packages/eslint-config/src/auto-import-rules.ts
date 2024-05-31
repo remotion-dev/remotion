@@ -14,6 +14,8 @@ export const autoImports = {
   interpolateColors: "import {interpolateColors} from 'remotion'",
   Easing: "import {Easing} from 'remotion'",
   getInputProps: "import {getInputProps} from 'remotion'",
+  getStaticFiles: "import {getStaticFiles} from '@remotion/studio'",
+  watchStaticFiles: "import {watchStaticFiles} from '@remotion/studio'",
   continueRender: "import {continueRender} from 'remotion'",
   delayRender: "import {delayRender} from 'remotion'",
   AbsoluteFill: "import {AbsoluteFill} from 'remotion'",
@@ -31,6 +33,9 @@ export const autoImports = {
   Img: "import {Img} from 'remotion'",
   IFrame: "import {IFrame} from 'remotion'",
   Folder: "import {Folder} from 'remotion'",
+  useCurrentScale: "import {useCurrentScale} from 'remotion'",
+  VERSION: "import {VERSION} from 'remotion'",
+  watchStaticFile: "import {watchStaticFile} from 'remotion'",
   z: "import {z} from 'zod'",
   styled: "import styled from 'styled-components'",
 };

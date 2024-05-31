@@ -1,3 +1,7 @@
+const getRegex = () => /^([a-zA-Z0-9-\u4E00-\u9FFF])+$/g;
+
+export const isCompositionIdValid = (id: string) => id.match(getRegex());
+
 export const validateCompositionId = (id: string) => {
 	if (!isCompositionIdValid(id)) {
 		throw new Error(
@@ -5,10 +9,6 @@ export const validateCompositionId = (id: string) => {
 		);
 	}
 };
-
-const getRegex = () => /^([a-zA-Z0-9-])+$/g;
-
-export const isCompositionIdValid = (id: string) => id.match(getRegex());
 
 export const invalidCompositionErrorMessage = `Composition ID must match ${String(
 	getRegex(),

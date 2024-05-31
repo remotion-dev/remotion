@@ -6,7 +6,10 @@ export const getCompositionFromBody = async (body: CloudRunPayloadType) => {
 		{
 			serveUrl: body.serveUrl,
 			browserExecutable: null,
-			chromiumOptions: body.chromiumOptions ?? {},
+			chromiumOptions: {
+				...(body.chromiumOptions ?? {}),
+				enableMultiProcessOnLinux: true,
+			},
 			envVariables: body.envVariables ?? {},
 			id: body.composition,
 			indent: false,
@@ -17,13 +20,20 @@ export const getCompositionFromBody = async (body: CloudRunPayloadType) => {
 			port: null,
 			puppeteerInstance: undefined,
 			server: undefined,
-			timeoutInMilliseconds: body.delayRenderTimeoutInMilliseconds,
+			timeoutInMilliseconds:
+				body.delayRenderTimeoutInMilliseconds ??
+				RenderInternals.DEFAULT_TIMEOUT,
 			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
+			binariesDirectory: null,
+			onBrowserDownload: () => {
+				throw new Error('Should not download a browser in Cloud Run');
+			},
 		},
 	);
 
 	if (propsSize > 10_000_000) {
 		RenderInternals.Log.warn(
+			{indent: false, logLevel: body.logLevel},
 			`The props of your composition are large (${propsSize} bytes). This may cause slowdown.`,
 		);
 	}

@@ -1,7 +1,8 @@
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import path from 'node:path';
 import {getExpectedOutName} from '../functions/helpers/expected-out-name';
-import {getRenderMetadata} from '../functions/helpers/get-render-metadata';
+import {getOverallProgressS3} from '../functions/helpers/get-overall-progress-s3';
 import type {LambdaReadFileProgress} from '../functions/helpers/read-with-progress';
 import {lambdaDownloadFileWithProgress} from '../functions/helpers/read-with-progress';
 import type {AwsRegion} from '../pricing/aws-regions';
@@ -15,6 +16,7 @@ export type DownloadMediaInput = {
 	outPath: string;
 	onProgress?: LambdaReadFileProgress;
 	customCredentials?: CustomCredentials;
+	logLevel?: LogLevel;
 };
 
 export type DownloadMediaOutput = {
@@ -40,18 +42,22 @@ export const downloadMedia = async (
 	const expectedBucketOwner = await getAccountId({
 		region: input.region,
 	});
-	const renderMetadata = await getRenderMetadata({
+	const overallProgress = await getOverallProgressS3({
 		bucketName: input.bucketName,
 		expectedBucketOwner,
 		region: input.region,
 		renderId: input.renderId,
 	});
 
+	if (!overallProgress.renderMetadata) {
+		throw new Error('Render did not finish yet');
+	}
+
 	const outputPath = path.resolve(process.cwd(), input.outPath);
 	RenderInternals.ensureOutputDirectory(outputPath);
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
-		renderMetadata,
+		overallProgress.renderMetadata,
 		input.bucketName,
 		input.customCredentials ?? null,
 	);
@@ -64,6 +70,7 @@ export const downloadMedia = async (
 		onProgress: input.onProgress ?? (() => undefined),
 		outputPath,
 		customCredentials,
+		logLevel: input.logLevel ?? 'info',
 	});
 
 	return {

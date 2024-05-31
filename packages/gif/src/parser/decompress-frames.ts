@@ -4,13 +4,10 @@ import type {Frame, ParsedFrameWithoutPatch, ParsedGif} from '../gifuct/types';
 export const decompressFrames = (parsedGif: ParsedGif) => {
 	return parsedGif.frames
 		.filter((f) => {
-			return !('application' in f);
+			return 'image' in f;
 		})
 		.map((f) => {
-			const fr = (f as Frame).image
-				? decompressFrame(f as Frame, parsedGif.gct)
-				: null;
-			return fr;
+			return decompressFrame(f as Frame, parsedGif.gct);
 		})
 		.filter(Boolean)
 		.map((f) => f as ParsedFrameWithoutPatch);

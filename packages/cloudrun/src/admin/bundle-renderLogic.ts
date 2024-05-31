@@ -1,8 +1,5 @@
 import {BundlerInternals} from '@remotion/bundler';
-import {
-	binaryPath as x64BinaryPath,
-	ffmpegCwd,
-} from '@remotion/compositor-linux-x64-gnu';
+import {dir} from '@remotion/compositor-linux-x64-gnu';
 import fs from 'fs';
 import path from 'path';
 
@@ -24,18 +21,37 @@ const bundleRenderLogic = async () => {
 		outfile,
 		entryPoints: [template],
 		treeShaking: true,
-		external: [
-			'./compositor',
-			'./compositor.exe',
-			'./ffmpeg/remotion/bin/ffmpeg',
-			'./ffmpeg/remotion/bin/ffprobe',
-		],
+		external: ['./remotion', './remotion.exe', './mappings.wasm'],
 	});
 
-	const compositorFile = `${outdir}/compositor`;
+	const filesInCwd = fs.readdirSync(dir);
+	const filesToCopy = filesInCwd.filter(
+		(f) =>
+			f.startsWith('remotion') ||
+			f.endsWith('.so') ||
+			f.endsWith('.dll') ||
+			f.endsWith('.dylib') ||
+			f.startsWith('ffmpeg') ||
+			f.startsWith('ffprobe'),
+	);
+	for (const file of filesToCopy) {
+		fs.cpSync(path.join(dir, file), path.join(outdir, file));
+	}
 
-	fs.copyFileSync(x64BinaryPath, compositorFile);
-	fs.cpSync(ffmpegCwd, `${outdir}/ffmpeg`, {recursive: true});
+	fs.cpSync(
+		path.join(
+			__dirname,
+			'..',
+			'..',
+			'..',
+			'renderer',
+			'node_modules',
+			'source-map',
+			'lib',
+			'mappings.wasm',
+		),
+		`${outdir}/mappings.wasm`,
+	);
 
 	console.log('distribution bundled.');
 };

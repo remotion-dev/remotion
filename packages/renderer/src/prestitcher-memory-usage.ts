@@ -1,4 +1,5 @@
-import os from 'node:os';
+import {getAvailableMemory} from './get-available-memory';
+import type {LogLevel} from './log-level';
 
 const estimateMemoryUsageForPrestitcher = ({
 	width,
@@ -18,11 +19,13 @@ const estimateMemoryUsageForPrestitcher = ({
 export const shouldUseParallelEncoding = ({
 	width,
 	height,
+	logLevel,
 }: {
 	width: number;
 	height: number;
+	logLevel: LogLevel;
 }) => {
-	const freeMemory = os.freemem();
+	const freeMemory = getAvailableMemory(logLevel);
 	const estimatedUsage = estimateMemoryUsageForPrestitcher({
 		height,
 		width,

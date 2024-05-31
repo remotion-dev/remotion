@@ -17,6 +17,8 @@ test('Should be able to download file', async () => {
 			});
 		},
 		onProgress: () => undefined,
+		indent: false,
+		logLevel: 'info',
 	});
 	const data = await fs.promises.readFile(to, 'utf8');
 
@@ -37,6 +39,8 @@ test('Should fail to download invalid files', async () => {
 			},
 			url: 'https://thisdomain.doesnotexist',
 			onProgress: () => undefined,
+			indent: false,
+			logLevel: 'info',
 		}),
 	).rejects.toThrow(/ENOTFOUND/);
 });

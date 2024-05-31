@@ -1,5 +1,6 @@
 import type {MutableRefObject} from 'react';
 import {createContext, useContext, useMemo} from 'react';
+import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {useVideo} from './use-video.js';
 
 export type PlayableMediaTag = {
@@ -45,20 +46,35 @@ export const SetTimelineContext = createContext<SetTimelineContextValue>({
 	},
 });
 
-const makeKey = (composition: string) => {
-	return `remotion.time.${composition}`;
+type CurrentTimePerComposition = Record<string, number>;
+
+const makeKey = () => {
+	return `remotion.time-all`;
 };
 
-export const persistCurrentFrame = (frame: number, composition: string) => {
-	localStorage.setItem(makeKey(composition), String(frame));
+export const persistCurrentFrame = (time: CurrentTimePerComposition) => {
+	localStorage.setItem(makeKey(), JSON.stringify(time));
+};
+
+export const getInitialFrameState = () => {
+	const item = localStorage.getItem(makeKey()) ?? '{}';
+	const obj: CurrentTimePerComposition = JSON.parse(item);
+	return obj;
 };
 
 export const getFrameForComposition = (composition: string) => {
-	const frame = localStorage.getItem(makeKey(composition));
-	return frame
-		? Number(frame)
-		: (typeof window === 'undefined' ? 0 : window.remotion_initialFrame ?? 0) ??
-				0;
+	const item = localStorage.getItem(makeKey()) ?? '{}';
+	const obj: CurrentTimePerComposition = JSON.parse(item);
+
+	if (obj[composition] !== undefined) {
+		return Number(obj[composition]);
+	}
+
+	if (typeof window === 'undefined') {
+		return 0;
+	}
+
+	return window.remotion_initialFrame ?? 0;
 };
 
 export const useTimelinePosition = (): number => {
@@ -73,7 +89,7 @@ export const useTimelinePosition = (): number => {
 
 	const unclamped =
 		state.frame[videoConfig.id] ??
-		(typeof window !== 'undefined' && window.remotion_isPlayer
+		(getRemotionEnvironment().isPlayer
 			? 0
 			: getFrameForComposition(videoConfig.id));
 

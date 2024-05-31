@@ -9,18 +9,19 @@ type And<A extends boolean, B extends boolean> = A extends true
 export type PropsIfHasProps<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
-> = And<
-	AnyZodObject extends Schema ? true : false,
-	{} extends Props ? true : false
-> extends true
-	? {
-			// Neither props nor schema specified
-			defaultProps?: {};
-	  }
-	: // All the other cases
-	  {
-			defaultProps: InferProps<Schema, Props>;
-	  };
+> =
+	And<
+		AnyZodObject extends Schema ? true : false,
+		{} extends Props ? true : false
+	> extends true
+		? {
+				// Neither props nor schema specified
+				defaultProps?: {};
+			}
+		: // All the other cases
+			{
+				defaultProps: InferProps<Schema, Props>;
+			};
 
 export type InferProps<
 	Schema extends AnyZodObject,
@@ -28,11 +29,11 @@ export type InferProps<
 > = AnyZodObject extends Schema
 	? {} extends Props
 		? // Neither props nor schema specified
-		  Record<string, unknown>
+			Record<string, unknown>
 		: // Only props specified
-		  Props
+			Props
 	: {} extends Props
-	? // Only schema specified
-	  z.infer<Schema>
-	: // Props and schema specified
-	  z.infer<Schema> & Props;
+		? // Only schema specified
+			z.input<Schema>
+		: // Props and schema specified
+			z.input<Schema> & Props;

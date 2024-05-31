@@ -7,6 +7,7 @@ name: Install and Test
 
 env:
   FORCE_COLOR: 1
+  TURBO_TELEMETRY_DISABLED: 1
 jobs:
   lambda-tests:
     runs-on: ubuntu-latest
@@ -16,6 +17,9 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.1.7
       - run: |
           corepack enable
       - name: Get pnpm store directory
@@ -39,11 +43,14 @@ jobs:
         uses: actions/cache@v3.0.11
         with:
           # Currently disabled but would love to enable:
-          # packages/*/dist
-          # packages/*/tsconfig.tsbuildinfo
           path: |
+            tsconfig.tsbuildinfo
+            packages/*/dist
+            packages/*/tsconfig.tsbuildinfo
             packages/*/.turbo
-            node_modules/.cache
+            packages/docs/node_modules/.cache
+            packages/example/node_modules/.cache
+            packages/google-fonts/.cache-css
           key: ts-${{ runner.os }}-node16-v3
       - name: build
         run: |
@@ -62,6 +69,9 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.1.7
       - run: |
           corepack enable
       - name: Get pnpm store directory
@@ -78,26 +88,46 @@ jobs:
             ${{ runner.os }}-pnpm-store-
       - name: Install
         run: pnpm install --frozen-lockfile
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Setup PHP with PHPUnit
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          tools: phpunit:10.1.3
+      - run: pip install pylint boto3 pytest
       - name: Build cache
         uses: actions/cache@v3.0.11
         with:
-          # Disbled but would like to enable:
-          # packages/*/dist
-          # packages/*/tsconfig.tsbuildinfo
           path: |
+            tsconfig.tsbuildinfo
+            packages/*/dist
+            packages/*/tsconfig.tsbuildinfo
             packages/*/.turbo
-            node_modules/.cache
+            packages/docs/node_modules/.cache
+            packages/example/node_modules/.cache
+            packages/google-fonts/.cache-css
           key: ts-${{ runner.os }}-node16-v3
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: "packages/renderer -> target"
+      - name: Build cache
+        uses: actions/cache@v3.0.11
+        with:
+          path: |
+            packages/google-fonts/.cache-css
+          key: ssr-${{ runner.os }}-node16-v3
+
       - name: build
         run: |
           pnpm build
       - name: Test SSR
-        timeout-minutes: 5
+        timeout-minutes: 8
         run: |
-          cd packages/it-tests && pnpm run testssr
+          cd packages/it-tests && bun run testssr
   lint:
     runs-on: ubuntu-latest
     name: Linting + Formatting
@@ -106,6 +136,9 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.1.7
       - run: |
           corepack enable
       - name: Get pnpm store directory
@@ -130,6 +163,7 @@ jobs:
     name: Build Node ${{ matrix.node_version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
@@ -138,23 +172,22 @@ jobs:
             node_version: 16
           - os: macos-latest
             node_version: 16
+          - os: macos-14
+            node_version: 16
           - os: ubuntu-latest
-            node_version: 20
+            node_version: 20.5
     steps:
       - uses: actions/checkout@main
+      - uses: actions/setup-go@v5
+        if: matrix.os == 'macos-14'
+        with:
+          go-version: "1.20"
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node_version }}
-      - name: Setup PHP with PHPUnit
-        uses: shivammathur/setup-php@v2
+      - uses: oven-sh/setup-bun@v1
         with:
-          php-version: "8.2"
-          tools: phpunit:10.1.3
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-      - run: pip install pylint boto3 pytest
+          bun-version: 1.1.7
       - run: |
           corepack enable
       - name: Get pnpm store directory
@@ -183,12 +216,14 @@ jobs:
       - name: Build cache
         uses: actions/cache@v3.0.11
         with:
-          # Disabled but would love to enable:
-          # packages/*/dist
-          # packages/*/tsconfig.tsbuildinfo
           path: |
+            tsconfig.tsbuildinfo
+            packages/*/dist
+            packages/*/tsconfig.tsbuildinfo
             packages/*/.turbo
-            node_modules/.cache
+            packages/google-fonts/.cache-css
+            packages/docs/node_modules/.cache
+            packages/example/node_modules/.cache
           key: ts-${{ runner.os }}-node${{ matrix.node_version }}-v3
 
       - name: Build & Test

@@ -1,4 +1,7 @@
-import type {WebpackOverrideFn} from '@remotion/bundler';
+import type {GitSource, WebpackOverrideFn} from '@remotion/bundler';
+import type {ToOptions} from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import fs from 'node:fs';
 import {lambdaDeleteFile, lambdaLs} from '../functions/helpers/io';
 import type {AwsRegion} from '../pricing/aws-regions';
@@ -16,12 +19,15 @@ import {bucketExistsInRegion} from './bucket-exists';
 import type {UploadDirProgress} from './upload-dir';
 import {uploadDir} from './upload-dir';
 
-export type DeploySiteInput = {
+type MandatoryParameters = {
 	entryPoint: string;
 	bucketName: string;
 	region: AwsRegion;
-	siteName?: string;
-	options?: {
+};
+
+type OptionalParameters = {
+	siteName: string;
+	options: {
 		onBundleProgress?: (progress: number) => void;
 		onUploadProgress?: (upload: UploadDirProgress) => void;
 		webpackOverride?: WebpackOverrideFn;
@@ -31,8 +37,12 @@ export type DeploySiteInput = {
 		rootDir?: string;
 		bypassBucketNameValidation?: boolean;
 	};
-	privacy?: 'public' | 'no-acl';
-};
+	privacy: 'public' | 'no-acl';
+	gitSource: GitSource | null;
+	indent: boolean;
+} & ToOptions<typeof BrowserSafeApis.optionsMap.deploySiteLambda>;
+
+export type DeploySiteInput = MandatoryParameters & Partial<OptionalParameters>;
 
 export type DeploySiteOutput = Promise<{
 	serveUrl: string;
@@ -44,31 +54,22 @@ export type DeploySiteOutput = Promise<{
 	};
 }>;
 
-/**
- * @description Deploys a Remotion project to an S3 bucket to prepare it for rendering on AWS Lambda.
- * @see [Documentation](https://remotion.dev/docs/lambda/deploysite)
- * @param {AwsRegion} params.region The region in which the S3 bucket resides in.
- * @param {string} params.entryPoint An absolute path to the entry file of your Remotion project.
- * @param {string} params.bucketName The name of the bucket to deploy your project into.
- * @param {string} params.siteName The name of the folder in which the project gets deployed to.
- * @param {object} params.options Further options, see documentation page for this function.
- */
-export const deploySite = async ({
+const mandatoryDeploySite = async ({
 	bucketName,
 	entryPoint,
 	siteName,
 	options,
 	region,
-	privacy: passedPrivacy,
-}: DeploySiteInput): DeploySiteOutput => {
+	privacy,
+	gitSource,
+	throwIfSiteExists,
+}: MandatoryParameters & OptionalParameters): DeploySiteOutput => {
 	validateAwsRegion(region);
 	validateBucketName(bucketName, {
 		mustStartWithRemotion: !options?.bypassBucketNameValidation,
 	});
 
-	const siteId = siteName ?? randomHash();
-	validateSiteName(siteId);
-	const privacy = passedPrivacy ?? 'public';
+	validateSiteName(siteName);
 	validatePrivacy(privacy, false);
 
 	const accountId = await getAccountId({region});
@@ -82,7 +83,7 @@ export const deploySite = async ({
 		throw new Error(`No bucket with the name ${bucketName} exists`);
 	}
 
-	const subFolder = getSitesKey(siteId);
+	const subFolder = getSitesKey(siteName);
 
 	const [files, bundled] = await Promise.all([
 		lambdaLs({
@@ -101,8 +102,19 @@ export const deploySite = async ({
 			ignoreRegisterRootWarning: options?.ignoreRegisterRootWarning,
 			onProgress: options?.onBundleProgress ?? (() => undefined),
 			entryPoint,
+			gitSource,
 		}),
 	]);
+
+	if (throwIfSiteExists && files.length > 0) {
+		throw new Error(
+			'`throwIfSiteExists` was passed as true, but there are already files in this folder: ' +
+				files
+					.slice(0, 5)
+					.map((f) => f.Key)
+					.join(', '),
+		);
+	}
 
 	const {toDelete, toUpload, existingCount} = await getS3DiffOperations({
 		objects: files,
@@ -140,11 +152,38 @@ export const deploySite = async ({
 
 	return {
 		serveUrl: makeS3ServeUrl({bucketName, subFolder, region}),
-		siteName: siteId,
+		siteName,
 		stats: {
 			uploadedFiles: toUpload.length,
 			deletedFiles: toDelete.length,
 			untouchedFiles: existingCount,
 		},
 	};
+};
+
+export const internalDeploySite =
+	NoReactAPIs.wrapWithErrorHandling(mandatoryDeploySite);
+
+/**
+ * @description Deploys a Remotion project to an S3 bucket to prepare it for rendering on AWS Lambda.
+ * @see [Documentation](https://remotion.dev/docs/lambda/deploysite)
+ * @param {AwsRegion} params.region The region in which the S3 bucket resides in.
+ * @param {string} params.entryPoint An absolute path to the entry file of your Remotion project.
+ * @param {string} params.bucketName The name of the bucket to deploy your project into.
+ * @param {string} params.siteName The name of the folder in which the project gets deployed to.
+ * @param {object} params.options Further options, see documentation page for this function.
+ */
+export const deploySite = (args: DeploySiteInput) => {
+	return internalDeploySite({
+		bucketName: args.bucketName,
+		entryPoint: args.entryPoint,
+		region: args.region,
+		gitSource: args.gitSource ?? null,
+		options: args.options ?? {},
+		privacy: args.privacy ?? 'public',
+		siteName: args.siteName ?? randomHash(),
+		indent: false,
+		logLevel: 'info',
+		throwIfSiteExists: args.throwIfSiteExists ?? false,
+	});
 };

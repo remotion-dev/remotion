@@ -14,6 +14,7 @@ export type RenderAssetManagerContext = {
 };
 
 export const RenderAssetManager = createContext<RenderAssetManagerContext>({
+	// Must be undefined, otherwise error in Player
 	registerRenderAsset: () => undefined,
 	unregisterRenderAsset: () => undefined,
 	renderAssets: [],

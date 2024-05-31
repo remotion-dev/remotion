@@ -12,17 +12,28 @@
     "./packages/lambda-python/src",
     "./packages/lambda-python/remotion_lambda_sdk"
   ],
-  "[php]": {
-    "editor.defaultFormatter": "DEVSENSE.phptools-vscode"
-  },
   "[python]": {
     "editor.defaultFormatter": "ms-python.autopep8"
   },
-  "python.formatting.provider": "none",
-  "typescript.preferences.autoImportFileExcludePatterns": [
-    "@types/node/test.d.ts"
-  ],
+  "[javascript]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   "[go]": {
     "editor.defaultFormatter": "golang.go"
+  },
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "python.terminal.activateEnvironment": false,
+  "rust-analyzer.linkedProjects": ["packages/renderer/Cargo.toml"],
+  "search.exclude": {
+    "packages/**/dist": true
   }
 }

@@ -1,20 +1,29 @@
-import {getOrCreateBucket} from '../api/get-or-create-bucket';
+import {NoReactInternals} from 'remotion/no-react';
+import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
 import type {AwsRegion} from '../client';
 import {lambdaReadFile, lambdaWriteFile} from '../functions/helpers/io';
 import type {SerializedInputProps} from './constants';
 import {inputPropsKey, resolvedPropsKey} from './constants';
 import {randomHash} from './random-hash';
-import {serializeJSONWithDate} from './serialize-props';
 import {streamToString} from './stream-to-string';
+import {MAX_WEBHOOK_CUSTOM_DATA_SIZE} from './validate-webhook';
 
 type PropsType = 'input-props' | 'resolved-props';
+
+const makeKey = (type: PropsType, hash: string): string => {
+	if (type === 'input-props') {
+		return inputPropsKey(hash);
+	}
+
+	return resolvedPropsKey(hash);
+};
 
 export const serializeOrThrow = (
 	inputProps: Record<string, unknown>,
 	propsType: PropsType,
 ) => {
 	try {
-		const payload = serializeJSONWithDate({
+		const payload = NoReactInternals.serializeJSONWithDate({
 			indent: undefined,
 			staticBase: null,
 			data: inputProps,
@@ -31,7 +40,7 @@ export const getNeedsToUpload = (
 	type: 'still' | 'video-or-audio',
 	sizes: number[],
 ) => {
-	const MARGIN = 5_000;
+	const MARGIN = 5_000 + MAX_WEBHOOK_CUSTOM_DATA_SIZE;
 	const MAX_INLINE_PAYLOAD_SIZE =
 		(type === 'still' ? 5_000_000 : 200_000) - MARGIN;
 
@@ -70,8 +79,10 @@ export const compressInputProps = async ({
 		const bucketName =
 			userSpecifiedBucketName ??
 			(
-				await getOrCreateBucket({
+				await internalGetOrCreateBucket({
 					region,
+					enableFolderExpiry: null,
+					customCredentials: null,
 				})
 			).bucketName;
 
@@ -83,7 +94,7 @@ export const compressInputProps = async ({
 			downloadBehavior: null,
 			expectedBucketOwner: null,
 			key: makeKey(propsType, hash),
-			privacy: 'public',
+			privacy: 'private',
 		});
 
 		return {
@@ -134,12 +145,4 @@ export const decompressInputProps = async ({
 			}`,
 		);
 	}
-};
-
-const makeKey = (type: PropsType, hash: string): string => {
-	if (type === 'input-props') {
-		return inputPropsKey(hash);
-	}
-
-	return resolvedPropsKey(hash);
 };

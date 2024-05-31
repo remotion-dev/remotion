@@ -1,10 +1,12 @@
 // Keep in sync with cli
 export const listOfRemotionPackages = [
+	'@remotion/layout-utils',
 	'@remotion/bundler',
 	'@remotion/cli',
 	'@remotion/cloudrun',
 	'@remotion/eslint-config',
 	'@remotion/eslint-plugin',
+	'@remotion/enable-scss',
 	'@remotion/renderer',
 	'@remotion/skia',
 	'@remotion/lottie',
@@ -21,7 +23,13 @@ export const listOfRemotionPackages = [
 	'@remotion/rive',
 	'@remotion/gif',
 	'@remotion/shapes',
+	'@remotion/studio',
+	'@remotion/studio-server',
+	'@remotion/studio-shared',
 	'@remotion/zod-types',
 	'@remotion/tailwind',
+	'@remotion/transitions',
+	'@remotion/install-whisper-cpp',
+	'@remotion/animation-utils',
 	'remotion',
 ];

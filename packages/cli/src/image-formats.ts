@@ -1,7 +1,7 @@
 import type {VideoImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {ConfigInternals} from './config';
-import {parsedCli} from './parse-command-line';
+import {parsedCli} from './parsed-cli';
 
 export const getVideoImageFormat = ({
 	codec,
@@ -39,6 +39,7 @@ export const getVideoImageFormat = ({
 	if (
 		codec === 'h264' ||
 		codec === 'h264-mkv' ||
+		codec === 'h264-ts' ||
 		codec === 'h265' ||
 		codec === 'vp8' ||
 		codec === 'vp9' ||

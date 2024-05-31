@@ -1,23 +1,27 @@
-import type {CancelSignal} from '@remotion/renderer';
+import type {CancelSignal, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {AnsiDiff} from './ansi/ansi-diff';
+import type {
+	AggregateRenderProgress,
+	BundlingState,
+	CopyingState,
+	RenderingProgressInput,
+	StitchingProgressInput,
+} from '@remotion/studio-server';
+import {StudioServerInternals} from '@remotion/studio-server';
 import {chalk} from './chalk';
 import {
 	getFileSizeDownloadBar,
 	makeMultiDownloadProgress,
 } from './download-progress';
-import {formatBytes} from './format-bytes';
+import {formatEtaString} from './eta-string';
+import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
-import type {
-	AggregateRenderProgress,
-	RenderingProgressInput,
-	StitchingProgressInput,
-} from './progress-types';
 import {truthy} from './truthy';
-
 export type OverwriteableCliOutput = {
 	update: (up: string, newline: boolean) => boolean;
 };
+
+export const LABEL_WIDTH = 18;
 
 export const createOverwriteableCliOutput = (options: {
 	quiet: boolean;
@@ -54,7 +58,7 @@ export const createOverwriteableCliOutput = (options: {
 		};
 	}
 
-	const diff = new AnsiDiff();
+	const diff = new StudioServerInternals.AnsiDiff();
 
 	options.cancelSignal?.(() => {
 		process.stdout.write(diff.finish());
@@ -81,19 +85,14 @@ export const createOverwriteableCliOutput = (options: {
 
 const makeBundlingProgress = ({
 	bundlingState,
-	bundlingStep,
-	steps,
 }: {
 	bundlingState: BundlingState;
-	bundlingStep: number;
-	steps: number;
 }) => {
 	const {doneIn, progress} = bundlingState;
 
 	return [
-		`(${bundlingStep + 1}/${steps})`,
+		`${doneIn ? 'Bundled' : 'Bundling'} code`.padEnd(LABEL_WIDTH, ' '),
 		makeProgressBar(progress),
-		`${doneIn ? 'Bundled' : 'Bundling'} code`,
 		doneIn === null
 			? (progress * 100).toFixed(0) + '%'
 			: chalk.gray(`${doneIn}ms`),
@@ -109,9 +108,8 @@ const makeCopyingProgress = (options: CopyingState) => {
 	}
 
 	return [
-		'    +',
+		'Copying public dir'.padEnd(LABEL_WIDTH, ' '),
 		options.doneIn ? makeProgressBar(1) : getFileSizeDownloadBar(options.bytes),
-		'Copying public dir',
 		options.doneIn === null ? null : chalk.gray(`${options.doneIn}ms`),
 	]
 		.filter(truthy)
@@ -139,36 +137,20 @@ const makeSymlinkProgress = (options: SymbolicLinksState) => {
 	].join('\n');
 };
 
-export type CopyingState = {
-	bytes: number;
-	doneIn: number | null;
-};
-
-export type BundlingState = {
-	progress: number;
-	doneIn: number | null;
-};
-
 export type SymbolicLinksState = {symlinks: string[]};
 
-export const makeBundlingAndCopyProgress = (
-	{
-		bundling,
-		copying,
-		symLinks,
-	}: {
-		bundling: BundlingState;
-		copying: CopyingState;
-		symLinks: SymbolicLinksState;
-	},
-	bundlingStep: number,
-	steps: number,
-) => {
+export const makeBundlingAndCopyProgress = ({
+	bundling,
+	copying,
+	symLinks,
+}: {
+	bundling: BundlingState;
+	copying: CopyingState;
+	symLinks: SymbolicLinksState;
+}) => {
 	return [
 		makeBundlingProgress({
 			bundlingState: bundling,
-			bundlingStep,
-			steps,
 		}),
 		makeCopyingProgress(copying),
 		makeSymlinkProgress(symLinks),
@@ -180,18 +162,28 @@ export const makeBundlingAndCopyProgress = (
 const makeRenderingProgress = ({
 	frames,
 	totalFrames,
-	steps,
-	concurrency,
 	doneIn,
+	timeRemainingInMilliseconds,
 }: RenderingProgressInput) => {
 	const progress = frames / totalFrames;
 	return [
-		`(${steps.indexOf('rendering') + 1}/${steps.length})`,
-		makeProgressBar(progress),
-		[doneIn ? 'Rendered' : 'Rendering', `frames (${concurrency}x)`]
+		[doneIn ? 'Rendered' : 'Rendering', totalFrames === 1 ? 'still' : 'frames']
 			.filter(truthy)
-			.join(' '),
-		doneIn === null ? `${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
+			.join(' ')
+			.padEnd(LABEL_WIDTH, ' '),
+		makeProgressBar(progress),
+		doneIn === null
+			? [
+					`${String(frames).padStart(String(totalFrames).length, ' ')}/${totalFrames}`,
+					timeRemainingInMilliseconds
+						? chalk.gray(
+								`${formatEtaString(timeRemainingInMilliseconds)} remaining`,
+							)
+						: null,
+				]
+					.filter(truthy)
+					.join(' ')
+			: chalk.gray(`${doneIn}ms`),
 	]
 		.filter(truthy)
 		.join(' ');
@@ -199,12 +191,10 @@ const makeRenderingProgress = ({
 
 const makeStitchingProgress = ({
 	stitchingProgress,
-	steps,
-	stitchingStep,
+	isUsingParallelEncoding,
 }: {
 	stitchingProgress: StitchingProgressInput;
-	steps: number;
-	stitchingStep: number;
+	isUsingParallelEncoding: boolean;
 }) => {
 	const {frames, totalFrames, doneIn, stage, codec} = stitchingProgress;
 	const progress = frames / totalFrames;
@@ -212,16 +202,18 @@ const makeStitchingProgress = ({
 		codec === 'gif'
 			? 'GIF'
 			: RenderInternals.isAudioCodec(codec)
-			? 'audio'
-			: 'video';
+				? 'audio'
+				: 'video';
 
 	return [
-		`(${stitchingStep + 1}/${steps})`,
-		makeProgressBar(progress),
-		stage === 'muxing' && RenderInternals.canUseParallelEncoding(codec)
+		(stage === 'muxing' && isUsingParallelEncoding
 			? `${doneIn ? 'Muxed' : 'Muxing'} ${mediaType}`
-			: `${doneIn ? 'Encoded' : 'Encoding'} ${mediaType}`,
-		doneIn === null ? `${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
+			: `${doneIn ? 'Encoded' : 'Encoding'} ${mediaType}`
+		).padEnd(LABEL_WIDTH, ' '),
+		makeProgressBar(progress),
+		doneIn === null
+			? `${String(frames).padStart(String(totalFrames).length, ' ')}/${totalFrames}`
+			: chalk.gray(`${doneIn}ms`),
 	]
 		.filter(truthy)
 		.join(' ');
@@ -229,12 +221,10 @@ const makeStitchingProgress = ({
 
 export const makeRenderingAndStitchingProgress = ({
 	prog,
-	steps,
-	stitchingStep,
+	isUsingParallelEncoding,
 }: {
 	prog: AggregateRenderProgress;
-	steps: number;
-	stitchingStep: number;
+	isUsingParallelEncoding: boolean;
 }): {
 	output: string;
 	progress: number;
@@ -248,9 +238,8 @@ export const makeRenderingAndStitchingProgress = ({
 			? null
 			: makeStitchingProgress({
 					stitchingProgress: stitching,
-					steps,
-					stitchingStep,
-			  }),
+					isUsingParallelEncoding,
+				}),
 	]
 		.filter(truthy)
 		.join('\n');
@@ -273,20 +262,84 @@ const getGuiProgressSubtitle = (progress: AggregateRenderProgress): string => {
 		return `Bundling ${Math.round(progress.bundling.progress * 100)}%`;
 	}
 
+	if (
+		progress.bundling.progress === 1 &&
+		progress.bundling.doneIn === null &&
+		progress.copyingState.bytes === 0
+	) {
+		return `Bundling ${Math.round(progress.bundling.progress * 100)}%`;
+	}
+
 	if (progress.copyingState.doneIn === null) {
-		return `Copying public dir ${formatBytes(progress.copyingState.bytes)}`;
+		return `Copying public dir ${StudioServerInternals.formatBytes(
+			progress.copyingState.bytes,
+		)}`;
 	}
 
 	if (!progress.rendering) {
 		return `Getting compositions`;
 	}
 
+	// Get render estimated time value and extract hours, minutes, and seconds
+	const {timeRemainingInMilliseconds} = progress.rendering;
+
+	// Create estimated time string by concatenating them with colons
+	const estimatedTimeString =
+		timeRemainingInMilliseconds === null
+			? null
+			: formatEtaString(timeRemainingInMilliseconds);
+
 	const allRendered =
 		progress.rendering.frames === progress.rendering.totalFrames;
 
 	if (!allRendered || !progress.stitching || progress.stitching.frames === 0) {
-		return `Rendering ${progress.rendering.frames}/${progress.rendering.totalFrames}`;
+		const etaString =
+			timeRemainingInMilliseconds && timeRemainingInMilliseconds > 0
+				? `, time remaining: ${estimatedTimeString}`
+				: '';
+		return `Rendered ${progress.rendering.frames}/${progress.rendering.totalFrames}${etaString}`;
 	}
 
-	return `Stitching ${progress.stitching.frames}/${progress.stitching.totalFrames}`;
+	return `Stitched ${progress.stitching.frames}/${progress.stitching.totalFrames}`;
 };
+
+export const printFact =
+	(printLevel: LogLevel) =>
+	({
+		indent,
+		logLevel,
+		left,
+		right,
+		color,
+	}: {
+		indent: boolean;
+		logLevel: LogLevel;
+		left: string;
+		right: string;
+		color: 'blue' | 'blueBright' | 'gray' | undefined;
+	}) => {
+		const fn = (str: string) => {
+			if (color === 'gray') {
+				return chalk.gray(str);
+			}
+
+			if (color === 'blue') {
+				return chalk.blue(str);
+			}
+
+			if (color === 'blueBright') {
+				return chalk.blueBright(str);
+			}
+
+			return str;
+		};
+
+		if (RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose')) {
+			Log[printLevel]({indent, logLevel}, fn(`${left} = ${right}`));
+
+			return;
+		}
+
+		const leftPadded = left.padEnd(LABEL_WIDTH, ' ');
+		Log[printLevel]({indent, logLevel}, fn(`${leftPadded} ${right}`));
+	};

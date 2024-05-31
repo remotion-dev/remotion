@@ -1,10 +1,10 @@
-import {Internals} from 'remotion';
+import {validateDimension} from '../validate';
 
 let passedWidth: number | null = null;
 
 export const overrideWidth = (newWidth: number) => {
 	if (typeof newWidth !== 'number') {
-		Internals.validateDimension(newWidth, 'width', 'passed to `setWidth()`');
+		validateDimension(newWidth, 'width', 'passed to `setWidth()`');
 	}
 
 	passedWidth = newWidth;

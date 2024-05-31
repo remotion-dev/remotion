@@ -1,6 +1,5 @@
 import Head from "@docusaurus/Head";
 import Layout from "@theme/Layout";
-import clsx from "clsx";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { VideoPlayer } from "../../components/VideoPlayer";
 import { VideoPreview } from "../../components/VideoPreview";
@@ -9,43 +8,60 @@ import {
   showcaseVideos,
   shuffledShowcaseVideos,
 } from "../../data/showcase-videos";
-import { chunk } from "../../helpers/chunk";
 import { useMobileLayout } from "../../helpers/mobile-layout";
-import { useElementSize } from "../../helpers/use-el-size";
 import headerStyles from "./header.module.css";
 import styles from "./styles.module.css";
 
 const PageHeader: React.FC = () => {
   return (
-    <div className={headerStyles.row}>
+    <div
+      style={{
+        maxWidth: "var(--ifm-container-width)",
+        paddingLeft: 20,
+        paddingRight: 20,
+        margin: "auto",
+        marginTop: 50,
+      }}
+    >
       <div style={{ flex: 1 }}>
         <h1 className={headerStyles.title}>Showcase</h1>
+
         <p>
-          Some awesome creations from the community, many with source code. Have
-          you made your own video with Remotion?{" "}
-          <a href="/showcase/add">Add it to the showcase!</a>
+          This page showcases products and campaigns crafted with Remotion. From
+          dynamic video content to engaging animations, each project highlights
+          the versatility and creativity enabled by Remotion.{" "}
+        </p>
+        <p>
+          Have you leveraged {"Remotion's"} capabilities for your own project?
+          <a
+            target="_blank"
+            href="mailto:hi@remotion.dev?subject=Showcase+page"
+          >
+            {" "}
+            Contact us
+          </a>{" "}
+          to feature your Remotion-based creation right here.
+        </p>
+        <p>
+          See more projects, applications, examples and libraries on the{" "}
+          <a href="/docs/resources">Resources</a> page.
         </p>
       </div>
     </div>
   );
 };
 
-const flex1: React.CSSProperties = {
-  flex: 1,
-};
-
 const container: React.CSSProperties = {
   maxWidth: "var(--ifm-container-width)",
   width: "100%",
   margin: "auto",
+  marginTop: 50,
+  paddingLeft: 20,
+  paddingRight: 20,
 };
 
 const Showcase = () => {
-  const containerSize = useElementSize(
-    typeof document === "undefined" ? null : document.body,
-  );
   const mobileLayout = useMobileLayout();
-  const mobileHeight = mobileLayout ? containerSize.width : null;
 
   const [userHasInteractedWithPage, setUserHasInteractedWithPage] =
     useState(false);
@@ -113,20 +129,16 @@ const Showcase = () => {
   const layoutStyle: React.CSSProperties = useMemo(() => {
     if (mobileLayout) {
       return {
-        display: "flex",
-        flexDirection: "column",
-        textAlign: "left",
+        width: "100%",
+        marginBottom: 20,
       };
     }
 
     return {
-      display: "flex",
-      flexDirection: "row",
-      textAlign: "left",
+      display: "inline-block",
+      width: "100%",
     };
   }, [mobileLayout]);
-
-  const chunks = chunk(shuffledShowcaseVideos, 3);
 
   return (
     <Layout>
@@ -137,11 +149,9 @@ const Showcase = () => {
         <meta property="og:image" content="/img/showcase.png" />
         <meta property="twitter:image" content="/img/showcase.png" />
       </Head>
-      <header className={clsx("hero ", styles.heroBanner)}>
-        <div className="container">
-          <PageHeader />
-        </div>
-      </header>
+      <div>
+        <PageHeader />
+      </div>
       <VideoPlayer
         hasNext={hasNext}
         hasPrevious={hasPrevious}
@@ -151,30 +161,19 @@ const Showcase = () => {
         video={video}
         userHasInteractedWithPage={userHasInteractedWithPage}
       />
-
       <main>
         <section className={styles.videos}>
-          <div style={container}>
-            {chunks.map((c) => {
+          <div className={styles.container} style={container}>
+            {shuffledShowcaseVideos.map((vid) => {
               return (
-                <div key={c.map((c_) => c_.muxId).join("")} style={layoutStyle}>
-                  {c.map((vid) => {
-                    return (
-                      <div key={vid.muxId} style={flex1}>
-                        <VideoPreview
-                          mobileHeight={mobileHeight}
-                          onClick={() => {
-                            setVideo(vid);
-                            setUserHasInteractedWithPage(true);
-                          }}
-                          mobileLayout={mobileLayout}
-                          {...vid}
-                        />
-                      </div>
-                    );
-                  })}
-                  {c.length < 3 ? <div style={flex1} /> : null}
-                  {c.length < 2 ? <div style={flex1} /> : null}
+                <div key={vid.muxId} style={layoutStyle}>
+                  <VideoPreview
+                    onClick={() => {
+                      setVideo(vid);
+                      setUserHasInteractedWithPage(true);
+                    }}
+                    {...vid}
+                  />
                 </div>
               );
             })}

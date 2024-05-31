@@ -1,0 +1,46 @@
+import {unlinkSync} from 'node:fs';
+import {expect, test} from 'vitest';
+import {extractAudio} from '../extract-audio';
+import {exampleVideos} from './example-videos';
+
+test('Should be able to extract the audio from a mp4 format video', async () => {
+	const audioOutput = exampleVideos.bigBuckBunny.replace(
+		'bigbuckbunny.mp4',
+		'bigbuckbunny.aac',
+	);
+	await extractAudio({
+		videoSource: exampleVideos.bigBuckBunny,
+		audioOutput,
+		logLevel: 'info',
+	});
+	unlinkSync(audioOutput);
+});
+
+test('Should not be able to extract the audio with the wrong audio format', async () => {
+	const audioOutput = exampleVideos.bigBuckBunny.replace(
+		'bigbuckbunny.mp4',
+		'bigbuckbunny.aac',
+	);
+	await expect(() => {
+		return extractAudio({
+			videoSource: exampleVideos.webcam,
+			audioOutput,
+			logLevel: 'info',
+		});
+	}).rejects.toMatch(
+		/Input audio codec: 'AV_CODEC_ID_OPUS'. Error: Invalid argument/,
+	);
+});
+
+test('Should be able to extract the audio from a webm with the right format', async () => {
+	const audioOutput = exampleVideos.webcam.replace(
+		'webcam.webm',
+		'webcam.opus',
+	);
+	await extractAudio({
+		videoSource: exampleVideos.webcam,
+		audioOutput,
+		logLevel: 'info',
+	});
+	unlinkSync(audioOutput);
+});

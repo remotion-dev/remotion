@@ -1,4 +1,4 @@
-import type {TRenderAsset} from 'remotion';
+import type {TRenderAsset} from 'remotion/no-react';
 import {resolveAssetSrc} from '../resolve-asset-src';
 import {convertAssetToFlattenedVolume} from './flatten-volume-array';
 import type {Assets, MediaAsset, UnsafeAsset} from './types';
@@ -49,6 +49,8 @@ export const calculateAssetPositions = (frames: TRenderAsset[][]): Assets => {
 					volume: [],
 					playbackRate: asset.playbackRate,
 					allowAmplificationDuringRender: asset.allowAmplificationDuringRender,
+					toneFrequency: asset.toneFrequency,
+					audioStartFrame: asset.audioStartFrame,
 				});
 			}
 

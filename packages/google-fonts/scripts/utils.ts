@@ -1,7 +1,24 @@
-import { Font } from "./google-fonts";
+import type { Font } from "./google-fonts";
 
 export const unquote = (str: string) =>
   str.replace(/^['"]/g, "").replace(/['"]$/g, "");
+
+// Firefox does not support numbers in fontFamily
+export const replaceDigitsWithWords = (str: string): string => {
+  const numWords = [
+    "Zero",
+    "One",
+    "Two",
+    "Three",
+    "Four",
+    "Five",
+    "Six",
+    "Seven",
+    "Eight",
+    "Nine",
+  ];
+  return str.replace(/\d/g, (digit) => numWords[parseInt(digit)]);
+};
 
 export const quote = (str: string) => `'${str}'`;
 

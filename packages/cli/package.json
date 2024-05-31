@@ -1,18 +1,17 @@
 {
 	"name": "@remotion/cli",
-	"version": "4.0.24",
+	"version": "4.0.166",
 	"description": "CLI for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"bin": {
-		"remotion": "remotion-cli.js"
+		"remotion": "remotion-cli.js",
+		"remotionb": "remotionb-cli.js"
 	},
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"test": "vitest --run",
-		"build": "tsc -d",
-		"watch": "tsc -w"
+		"test": "vitest --run"
 	},
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"
@@ -39,40 +38,40 @@
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/renderer": "workspace:*",
+		"@remotion/studio-shared": "workspace:*",
+		"@remotion/studio-server": "workspace:*",
+		"@remotion/studio": "workspace:*",
 		"dotenv": "9.0.2",
-		"memfs": "3.4.3",
 		"minimist": "1.2.6",
-		"open": "^8.4.2",
-		"prompts": "2.4.1",
-		"remotion": "workspace:*",
-		"semver": "7.5.3",
-		"source-map": "0.6.1"
+		"prompts": "2.4.2",
+		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.266",
+		"@jonny/eslint-config": "3.0.281",
 		"@types/minimist": "^1.2.2",
 		"@types/node": "18.14.6",
 		"@types/prompts": "^2.4.1",
-		"@types/react": "18.0.26",
+		"@types/react": "18.3.1",
 		"@types/prettier": "^2.7.2",
-		"@types/react-dom": "18.0.10",
-		"@types/semver": "^7.3.4",
+		"@types/react-dom": "18.3.0",
 		"@remotion/zod-types": "workspace:*",
 		"@remotion/tailwind": "workspace:*",
-		"eslint": "8.42.0",
+		"@remotion/enable-scss": "workspace:*",
+		"@remotion/skia": "workspace:*",
+		"eslint": "8.56.0",
 		"eslint-plugin-10x": "1.5.2",
 		"eslint-plugin-react": "7.32.2",
 		"eslint-plugin-react-hooks": "4.4.0",
-		"prettier": "3.0.2",
-		"prettier-plugin-organize-imports": "^3.2.2",
-		"react": "^18.0.0",
-		"react-dom": "^18.0.0",
+		"prettier": "3.2.5",
+		"prettier-plugin-organize-imports": "3.2.4",
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
 		"vitest": "0.31.1",
-		"zod": "^3.21.4"
+		"zod": "3.22.3"
 	},
 	"keywords": [
 		"remotion",

@@ -15,19 +15,24 @@ export const MediaVolumeSlider: React.FC<{
 	const [focused, setFocused] = useState<boolean>(false);
 	const parentDivRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
-	const hover = useHoverState(parentDivRef);
+	const hover = useHoverState(parentDivRef, false);
+
 	// Need to import it from React to fix React 17 ESM support.
 	const randomId =
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		typeof React.useId === 'undefined' ? 'volume-slider' : React.useId();
+
 	const [randomClass] = useState(() =>
 		`__remotion-volume-slider-${random(randomId)}`.replace('.', ''),
 	);
 	const isMutedOrZero = mediaMuted || mediaVolume === 0;
 
-	const onVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setMediaVolume(parseFloat(e.target.value));
-	};
+	const onVolumeChange = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			setMediaVolume(parseFloat(e.target.value));
+		},
+		[setMediaVolume],
+	);
 
 	const onBlur = () => {
 		setTimeout(() => {
@@ -39,15 +44,16 @@ export const MediaVolumeSlider: React.FC<{
 		}, 10);
 	};
 
+	const isVolume0 = mediaVolume === 0;
 	const onClick = useCallback(() => {
-		if (mediaVolume === 0) {
+		if (isVolume0) {
 			setMediaVolume(1);
 			setMediaMuted(false);
 			return;
 		}
 
 		setMediaMuted((mute) => !mute);
-	}, [mediaVolume, setMediaMuted, setMediaVolume]);
+	}, [isVolume0, setMediaMuted, setMediaVolume]);
 
 	const parentDivStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -74,6 +80,29 @@ export const MediaVolumeSlider: React.FC<{
 		};
 	}, []);
 
+	const sliderContainer = useMemo((): React.CSSProperties => {
+		const paddingLeft = 5;
+		const common: React.CSSProperties = {
+			paddingLeft,
+			height: ICON_SIZE,
+			width: VOLUME_SLIDER_WIDTH,
+		};
+
+		if (displayVerticalVolumeSlider) {
+			return {
+				...common,
+				position: 'absolute',
+				transform: `rotate(-90deg) translateX(${
+					VOLUME_SLIDER_WIDTH / 2 + ICON_SIZE / 2
+				}px)`,
+			};
+		}
+
+		return {
+			...common,
+		};
+	}, [displayVerticalVolumeSlider]);
+
 	const inputStyle = useMemo((): React.CSSProperties => {
 		const commonStyle: React.CSSProperties = {
 			WebkitAppearance: 'none',
@@ -90,16 +119,11 @@ export const MediaVolumeSlider: React.FC<{
 		if (displayVerticalVolumeSlider) {
 			return {
 				...commonStyle,
-				transform: `rotate(-90deg)`,
-				position: 'absolute',
-				bottom: ICON_SIZE + VOLUME_SLIDER_WIDTH / 2 + 5,
+				bottom: ICON_SIZE + VOLUME_SLIDER_WIDTH / 2,
 			};
 		}
 
-		return {
-			...commonStyle,
-			marginLeft: 5,
-		};
+		return commonStyle;
 	}, [displayVerticalVolumeSlider, mediaVolume]);
 
 	const sliderStyle = `
@@ -141,20 +165,22 @@ export const MediaVolumeSlider: React.FC<{
 			>
 				{isMutedOrZero ? <VolumeOffIcon /> : <VolumeOnIcon />}
 			</button>
-			{(focused || hover) && !mediaMuted ? (
-				<input
-					ref={inputRef}
-					aria-label="Change volume"
-					className={randomClass}
-					max={1}
-					min={0}
-					onBlur={() => setFocused(false)}
-					onChange={onVolumeChange}
-					step={0.01}
-					type="range"
-					value={mediaVolume}
-					style={inputStyle}
-				/>
+			{(focused || hover) && !mediaMuted && !Internals.isIosSafari() ? (
+				<div style={sliderContainer}>
+					<input
+						ref={inputRef}
+						aria-label="Change volume"
+						className={randomClass}
+						max={1}
+						min={0}
+						onBlur={() => setFocused(false)}
+						onChange={onVolumeChange}
+						step={0.01}
+						type="range"
+						value={mediaVolume}
+						style={inputStyle}
+					/>
+				</div>
 			) : null}
 		</div>
 	);

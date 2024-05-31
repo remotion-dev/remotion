@@ -1,0 +1,54 @@
+{
+	"name": "@remotion/animation-utils",
+	"author": {
+		"name": "Chetan Karwa",
+		"email": "cbkarwa@gmail.com"
+	},
+	"version": "4.0.166",
+	"description": "A set of animation utilities for Remotion",
+	"main": "./dist/index.js",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.ts",
+	"scripts": {
+		"formatting": "prettier src --check",
+		"lint": "eslint src --ext ts,tsx",
+		"build": "bun --env-file=../.env.bundle bundle.ts",
+		"test": "vitest --run"
+	},
+	"dependencies": {
+		"remotion": "workspace:*"
+	},
+	"files": [
+		"dist",
+		"!dist/test"
+	],
+	"peerDependencies": {
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
+	},
+	"devDependencies": {
+		"@types/react": "18.3.1",
+		"@types/node": "18.14.6",
+		"prettier": "3.2.5",
+		"prettier-plugin-organize-imports": "3.2.4",
+		"eslint": "8.56.0",
+		"@jonny/eslint-config": "3.0.281",
+		"vitest": "0.31.1"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
+			"require": "./dist/index.js"
+		}
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"keywords": [
+		"remotion",
+		"animation-utils"
+	]
+}

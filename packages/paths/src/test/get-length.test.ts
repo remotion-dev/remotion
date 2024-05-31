@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {getLength} from '../get-length';
 
 test('Should be able to get length of a path', () => {

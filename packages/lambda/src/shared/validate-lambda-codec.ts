@@ -1,5 +1,6 @@
 const lambdaCodecs = [
 	'h264',
+	'h265',
 	'vp8',
 	'vp9',
 	'mp3',

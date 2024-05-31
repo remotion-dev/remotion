@@ -1,10 +1,6 @@
-import { useEffect } from "react";
-import { useState } from "react";
-import { useRef } from "react";
-import { useCallback } from "react";
 import type { PlayerRef } from "@remotion/player";
 import { Player } from "@remotion/player";
-import React from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ColorDemo } from "./ColorDemo";
 import "./input-fields.css";
 
@@ -27,7 +23,7 @@ export const PlayerExample: React.FC<{
         playerRef.current?.pause();
       }
     },
-    [isIntersecting]
+    [isIntersecting],
   );
   useEffect(() => {
     const { current } = containerRef;
@@ -61,6 +57,8 @@ export const PlayerExample: React.FC<{
         }}
         style={{
           width: "100%",
+          border: "1px solid rgba(0, 0, 0, 0.4)",
+          borderRadius: 5,
         }}
         loop
       />

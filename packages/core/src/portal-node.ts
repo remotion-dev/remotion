@@ -18,6 +18,13 @@ export const portalNode = () => {
 		_portalNode.style.height = '100%';
 		_portalNode.style.display = 'flex';
 		_portalNode.style.flexDirection = 'column';
+
+		const containerNode = document.createElement('div');
+		containerNode.style.position = 'fixed';
+		containerNode.style.top = -999999 + 'px';
+		containerNode.appendChild(_portalNode);
+
+		document.body.appendChild(containerNode);
 	}
 
 	return _portalNode;

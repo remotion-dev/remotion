@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import * as childProcess from 'node:child_process';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
@@ -22,32 +21,32 @@ import * as path from 'node:path';
 import extractZip from 'extract-zip';
 
 import {promisify} from 'node:util';
-import {assert} from './assert';
 
 import {downloadFile} from '../assets/download-file';
+import {makeFileExecutableIfItIsNot} from '../compositor/make-file-executable';
+import type {LogLevel} from '../log-level';
 import {Log} from '../logger';
+import type {DownloadBrowserProgressFn} from '../options/on-browser-download';
 import {getDownloadsCacheDir} from './get-download-destination';
 
-const downloadURLs: Record<Platform, string> = {
-	linux:
-		'https://github.com/Alex313031/thorium/releases/download/M114.0.5735.205/thorium-browser_114.0.5735.205_amd64.zip',
-	mac: 'https://github.com/Alex313031/Thorium-Special/releases/download/M114.0.5735.205-1/Thorium_MacOS_X64.dmg',
-	mac_arm:
-		'https://github.com/Alex313031/Thorium-Special/releases/download/M114.0.5735.205-1/Thorium_MacOS_ARM.dmg',
-	win64:
-		'https://github.com/Alex313031/Thorium-Win/releases/download/M114.0.5735.205/Thorium_114.0.5735.205.zip',
-};
+const TESTED_VERSION = '123.0.6312.86';
 
-type Platform = 'linux' | 'mac' | 'mac_arm' | 'win64';
+type Platform = 'linux64' | 'mac-x64' | 'mac-arm64' | 'win64';
 
-function getThoriumDownloadUrl(platform: Platform): string {
-	return downloadURLs[platform];
+function getChromeDownloadUrl({
+	platform,
+	version,
+}: {
+	platform: Platform;
+	version: string | null;
+}): string {
+	return `https://storage.googleapis.com/chrome-for-testing-public/${
+		version ?? TESTED_VERSION
+	}/${platform}/chrome-headless-shell-${platform}.zip`;
 }
 
-const readdirAsync = fs.promises.readdir;
 const mkdirAsync = fs.promises.mkdir;
 const unlinkAsync = promisify(fs.unlink.bind(fs));
-const chmodAsync = promisify(fs.chmod.bind(fs));
 
 function existsAsync(filePath: string): Promise<boolean> {
 	return new Promise((resolve) => {
@@ -68,32 +67,44 @@ const getPlatform = (): Platform => {
 	const platform = os.platform();
 	switch (platform) {
 		case 'darwin':
-			return os.arch() === 'arm64' ? 'mac_arm' : 'mac';
+			return os.arch() === 'arm64' ? 'mac-arm64' : 'mac-x64';
 		case 'linux':
-			return 'linux';
+			return 'linux64';
 		case 'win32':
 			return 'win64';
 		default:
-			assert(false, 'Unsupported platform: ' + platform);
+			throw new Error('Unsupported platform: ' + platform);
 	}
 };
 
-const destination = '.thorium';
+const destination = 'chrome-headless-shell';
 
 const getDownloadsFolder = () => {
 	return path.join(getDownloadsCacheDir(), destination);
 };
 
-export const downloadBrowser = async (): Promise<
-	BrowserFetcherRevisionInfo | undefined
-> => {
+export const downloadBrowser = async ({
+	logLevel,
+	indent,
+	onProgress,
+	version,
+}: {
+	logLevel: LogLevel;
+	indent: boolean;
+	onProgress: DownloadBrowserProgressFn;
+	version: string | null;
+}): Promise<BrowserFetcherRevisionInfo | undefined> => {
 	const platform = getPlatform();
-	const downloadURL = getThoriumDownloadUrl(platform);
+	const downloadURL = getChromeDownloadUrl({platform, version});
 	const fileName = downloadURL.split('/').pop();
-	assert(fileName, `A malformed download URL was found: ${downloadURL}.`);
+	if (!fileName) {
+		throw new Error(`A malformed download URL was found: ${downloadURL}.`);
+	}
+
 	const downloadsFolder = getDownloadsFolder();
 	const archivePath = path.join(downloadsFolder, fileName);
 	const outputPath = getFolderPath(downloadsFolder, platform);
+
 	if (await existsAsync(outputPath)) {
 		return getRevisionInfo();
 	}
@@ -107,31 +118,35 @@ export const downloadBrowser = async (): Promise<
 	// Use system Chromium builds on Linux ARM devices
 	if (os.platform() !== 'darwin' && os.arch() === 'arm64') {
 		throw new Error(
-			'The chromium binary is not available for arm64.' +
-				'\nIf you are on Ubuntu, you can install with: ' +
-				'\n\n sudo apt install chromium\n' +
-				'\n\n sudo apt install chromium-browser\n',
+			[
+				'Chrome Headless Shell is not available for Linux for arm64 architecture.',
+				'If you are on Ubuntu, you can install with:',
+				'sudo apt install chromium',
+				'sudo apt install chromium-browser',
+			].join('\n'),
 		);
 	}
 
 	try {
-		let lastProgress = 0;
 		await downloadFile({
 			url: downloadURL,
 			to: () => archivePath,
 			onProgress: (progress) => {
-				if (progress.downloaded > lastProgress + 10_000_000) {
-					lastProgress = progress.downloaded;
-
-					Log.info(
-						`Downloading Thorium - ${toMegabytes(
-							progress.downloaded,
-						)}/${toMegabytes(progress.totalSize as number)}`,
-					);
+				if (progress.totalSize === null || progress.percent === null) {
+					throw new Error('Expected totalSize and percent to be defined');
 				}
+
+				onProgress({
+					downloadedBytes: progress.downloaded,
+					totalSizeInBytes: progress.totalSize,
+					percent: progress.percent,
+				});
 			},
+			indent,
+			logLevel,
 		});
-		await install({archivePath, folderPath: outputPath});
+		Log.info({indent, logLevel});
+		await extractZip(archivePath, {dir: outputPath});
 	} finally {
 		if (await existsAsync(archivePath)) {
 			await unlinkAsync(archivePath);
@@ -139,7 +154,7 @@ export const downloadBrowser = async (): Promise<
 	}
 
 	const revisionInfo = getRevisionInfo();
-	await chmodAsync(revisionInfo.executablePath, 0o755);
+	makeFileExecutableIfItIsNot(revisionInfo.executablePath);
 
 	return revisionInfo;
 };
@@ -153,19 +168,13 @@ const getExecutablePath = () => {
 	const platform = getPlatform();
 	const folderPath = getFolderPath(downloadsFolder, platform);
 
-	if (platform === 'mac' || platform === 'mac_arm') {
-		return path.join(folderPath, 'Thorium.app', 'Contents', 'MacOS', 'Thorium');
-	}
-
-	if (platform === 'linux') {
-		return path.join(folderPath, 'thorium');
-	}
-
-	if (platform === 'win64') {
-		return path.join(folderPath, 'BIN', 'thorium.exe');
-	}
-
-	throw new Error('Can not download browser for platform: ' + platform);
+	return path.join(
+		folderPath,
+		`chrome-headless-shell-${platform}`,
+		platform === 'win64'
+			? 'chrome-headless-shell.exe'
+			: 'chrome-headless-shell',
+	);
 };
 
 export const getRevisionInfo = (): BrowserFetcherRevisionInfo => {
@@ -174,7 +183,7 @@ export const getRevisionInfo = (): BrowserFetcherRevisionInfo => {
 	const platform = getPlatform();
 	const folderPath = getFolderPath(downloadsFolder, platform);
 
-	const url = getThoriumDownloadUrl(platform);
+	const url = getChromeDownloadUrl({platform, version: null});
 	const local = fs.existsSync(folderPath);
 	return {
 		executablePath,
@@ -183,81 +192,3 @@ export const getRevisionInfo = (): BrowserFetcherRevisionInfo => {
 		url,
 	};
 };
-
-async function install({
-	archivePath,
-	folderPath,
-}: {
-	archivePath: string;
-	folderPath: string;
-}): Promise<unknown> {
-	if (archivePath.endsWith('.zip')) {
-		return extractZip(archivePath, {dir: folderPath});
-	}
-
-	if (archivePath.endsWith('.dmg')) {
-		await mkdirAsync(folderPath);
-		return _installDMG(archivePath, folderPath);
-	}
-
-	throw new Error(`Unsupported archive format: ${archivePath}`);
-}
-
-function _installDMG(dmgPath: string, folderPath: string): Promise<void> {
-	let mountPath: string | undefined;
-
-	return new Promise<void>((fulfill, reject): void => {
-		const mountCommand = `hdiutil attach -nobrowse -noautoopen "${dmgPath}"`;
-		childProcess.exec(mountCommand, (err, stdout) => {
-			if (err) {
-				return reject(err);
-			}
-
-			const volumes = stdout.match(/\/Volumes\/(.*)/m);
-			if (!volumes) {
-				return reject(new Error(`Could not find volume path in ${stdout}`));
-			}
-
-			mountPath = volumes[0] as string;
-			readdirAsync(mountPath)
-				.then((fileNames) => {
-					const appName = fileNames.find((item) => {
-						return typeof item === 'string' && item.endsWith('.app');
-					});
-					if (!appName) {
-						return reject(new Error(`Cannot find app in ${mountPath}`));
-					}
-
-					const copyPath = path.join(mountPath as string, appName);
-					childProcess.exec(`cp -R "${copyPath}" "${folderPath}"`, (_err) => {
-						if (_err) {
-							reject(_err);
-						} else {
-							fulfill();
-						}
-					});
-				})
-				.catch(reject);
-		});
-	})
-		.catch((error) => {
-			console.error(error);
-		})
-		.finally((): void => {
-			if (!mountPath) {
-				return;
-			}
-
-			const unmountCommand = `hdiutil detach "${mountPath}" -quiet`;
-			childProcess.exec(unmountCommand, (err) => {
-				if (err) {
-					console.error(`Error unmounting dmg: ${err}`);
-				}
-			});
-		});
-}
-
-function toMegabytes(bytes: number) {
-	const mb = bytes / 1024 / 1024;
-	return `${Math.round(mb * 10) / 10} Mb`;
-}

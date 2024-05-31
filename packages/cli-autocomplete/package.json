@@ -1,19 +1,19 @@
 {
-  "version": "4.0.24",
-  "name": "@remotion/fig-autocomplete",
-  "private": true,
-  "devDependencies": {
-    "@jonny/eslint-config": "3.0.266",
-    "@types/node": "18.14.6",
-    "eslint": "8.42.0",
-    "prettier": "3.0.2",
-    "@fig/eslint-config-autocomplete": "^1.1.0",
-    "@withfig/autocomplete-types": "^1.20.0",
-    "ts-node": "^10.8.0",
-    "@remotion/renderer": "workspace:*"
-  },
-  "scripts": {
-    "formatting": "prettier src --check",
-    "build": "ts-node src/generate.ts"
-  }
+	"version": "4.0.166",
+	"name": "@remotion/fig-autocomplete",
+	"private": true,
+	"devDependencies": {
+		"@jonny/eslint-config": "3.0.281",
+		"@types/node": "18.14.6",
+		"eslint": "8.56.0",
+		"prettier": "3.2.5",
+		"@fig/eslint-config-autocomplete": "1.2.1",
+		"@withfig/autocomplete-types": "^1.20.0",
+		"ts-node": "10.9.2",
+		"@remotion/renderer": "workspace:*"
+	},
+	"scripts": {
+		"formatting": "prettier src --check",
+		"build": "ts-node src/generate.ts"
+	}
 }

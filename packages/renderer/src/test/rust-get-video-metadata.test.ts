@@ -1,17 +1,16 @@
 import {existsSync} from 'node:fs';
 import path from 'node:path';
 import {expect, test} from 'vitest';
-import {
-	getIdealMaximumFrameCacheSizeInBytes,
-	startLongRunningCompositor,
-} from '../compositor/compositor';
+import {startLongRunningCompositor} from '../compositor/compositor';
+import type {VideoMetadata} from '../compositor/payloads';
 
 test('Should return video metadata', async () => {
-	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheSizeInBytes(),
-		'info',
-		false,
-	);
+	const compositor = startLongRunningCompositor({
+		maximumFrameCacheItemsInBytes: null,
+		logLevel: 'info',
+		indent: false,
+		binariesDirectory: null,
+	});
 
 	const videoFile = path.join(
 		__dirname,
@@ -27,8 +26,11 @@ test('Should return video metadata', async () => {
 	const metadataResponse = await compositor.executeCommand('GetVideoMetadata', {
 		src: videoFile,
 	});
-	const metadataJson = JSON.parse(metadataResponse.toString('utf-8'));
-	expect(metadataJson).toEqual({
+	const metadataJson = JSON.parse(
+		new TextDecoder('utf-8').decode(metadataResponse),
+	);
+
+	const data: VideoMetadata = {
 		fps: 24,
 		width: 1080,
 		height: 1080,
@@ -36,15 +38,21 @@ test('Should return video metadata', async () => {
 		canPlayInVideoTag: true,
 		codec: 'h264',
 		supportsSeeking: true,
-	});
+		colorSpace: 'bt601',
+		audioCodec: null,
+		audioFileExtension: null,
+		pixelFormat: 'yuv420p',
+	};
+	expect(metadataJson).toEqual(data);
 });
 
 test('Should return an error due to non existing file', async () => {
-	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheSizeInBytes(),
-		'info',
-		false,
-	);
+	const compositor = startLongRunningCompositor({
+		maximumFrameCacheItemsInBytes: null,
+		logLevel: 'info',
+		indent: false,
+		binariesDirectory: null,
+	});
 
 	try {
 		await compositor.executeCommand('GetVideoMetadata', {
@@ -58,11 +66,12 @@ test('Should return an error due to non existing file', async () => {
 });
 
 test('Should return an error due to using a audio file', async () => {
-	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheSizeInBytes(),
-		'info',
-		false,
-	);
+	const compositor = startLongRunningCompositor({
+		maximumFrameCacheItemsInBytes: null,
+		logLevel: 'info',
+		indent: false,
+		binariesDirectory: null,
+	});
 
 	const audioFile = path.join(
 		__dirname,
