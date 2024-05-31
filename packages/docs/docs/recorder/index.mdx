@@ -134,7 +134,7 @@ AI will make mistakes - so we make it easy to correct them.
 
   </tr>
 </table>
-<table style={{ tableLayout: "fixed", width: 950,}}>
+<table style={{ tableLayout: "fixed", width: 950}}>
   <tr style={{borderTop: 0}}>
     <td valign="top" style={{width: 950/ 3}}>
       <video style={{height: 300}} src="/recorder/subseditor.webm" autoPlay muted playsInline loop></video>
@@ -155,6 +155,8 @@ AI will make mistakes - so we make it easy to correct them.
 ## Agnostic endcards
 
 Your viewer watched the entire video! Now don't make them forget about you.
+
+<div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch', }}>
 
 <table style={{ width: 950, tableLayout: "fixed" }}>
   <tr>
@@ -187,6 +189,7 @@ Your viewer watched the entire video! Now don't make them forget about you.
     </td>
   </tr>
 </table>
+</div>
 
 The endcard is written with React and CSS, so can be easily customized.
 
@@ -194,24 +197,26 @@ The endcard is written with React and CSS, so can be easily customized.
 
 Having access to the entire source code, you can use CSS to customize the look of the Recorder.
 
-<table style={{ tableLayout: "fixed", width: 950 }}>
-  <tr style={{ borderTop: 0 }}>
-    <td valign="top" style={{ width: 950 / 3 }}>
-      <img style={{ borderRadius: 5 }} src="/recorder/theme-light.png"></img>
-      Look of the built-in light theme
-    </td>
-    <td valign="top" style={{ width: 950 / 3 }}>
-      <img style={{ borderRadius: 5 }} src="/recorder/theme-dark.png"></img>
-      <br />
-      Look of the built-in dark theme
-    </td>
-    <td valign="top" style={{ width: 950 / 3 }}>
-      <img style={{ borderRadius: 5 }} src="/recorder/theme-fancy.png"></img>
-      <br />
-      Use CSS to make it your own!
-    </td>
-  </tr>
-</table>
+<div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+  <table style={{ tableLayout: "fixed", width: 950 }}>
+    <tr style={{ borderTop: 0 }}>
+      <td valign="top" style={{ width: 950 / 3 }}>
+        <img style={{ borderRadius: 5 }} src="/recorder/theme-light.png"></img>
+        Look of the built-in light theme
+      </td>
+      <td valign="top" style={{ width: 950 / 3 }}>
+        <img style={{ borderRadius: 5 }} src="/recorder/theme-dark.png"></img>
+        <br />
+        Look of the built-in dark theme
+      </td>
+      <td valign="top" style={{ width: 950 / 3 }}>
+        <img style={{ borderRadius: 5 }} src="/recorder/theme-fancy.png"></img>
+        <br />
+        Use CSS to make it your own!
+      </td>
+    </tr>
+  </table>
+</div>
 
 ## Recording
 
