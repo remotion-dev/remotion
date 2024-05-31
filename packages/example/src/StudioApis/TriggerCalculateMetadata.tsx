@@ -1,10 +1,10 @@
-import {triggerCalculateMetadata} from '@remotion/studio';
+import {reevaluateComposition} from '@remotion/studio';
 import React, {useCallback} from 'react';
 import {AbsoluteFill} from 'remotion';
 
 export const TriggerCalculateMetadata: React.FC = () => {
 	const onClickUpdate = useCallback(() => {
-		triggerCalculateMetadata();
+		reevaluateComposition();
 	}, []);
 
 	return (
