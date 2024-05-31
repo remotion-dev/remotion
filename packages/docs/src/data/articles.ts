@@ -603,7 +603,7 @@ export const articles = [
   },
   {
     id: "contributing/ineligible",
-    title: "Ineligibile for bounties",
+    title: "Ineligible for bounties",
     relativePath: "docs/contributing/ineligible.mdx",
     compId: "articles-docs-contributing-ineligible",
     crumb: "Contributing",
@@ -2320,7 +2320,7 @@ export const articles = [
   },
   {
     id: "recorder/editing/editing",
-    title: "Editing",
+    title: "Start editing",
     relativePath: "docs/recorder/editing/editing.mdx",
     compId: "articles-docs-recorder-editing-editing",
     crumb: "Recorder",
@@ -2354,6 +2354,13 @@ export const articles = [
     crumb: "Recorder",
   },
   {
+    id: "recorder/editing/silence-removal",
+    title: "Silence removal",
+    relativePath: "docs/recorder/editing/silence-removal.mdx",
+    compId: "articles-docs-recorder-editing-silence-removal",
+    crumb: "Recorder",
+  },
+  {
     id: "recorder/editing/transitions",
     title: "Transitions",
     relativePath: "docs/recorder/editing/transitions.mdx",
@@ -2365,6 +2372,13 @@ export const articles = [
     title: "Exporting a video",
     relativePath: "docs/recorder/exporting.mdx",
     compId: "articles-docs-recorder-exporting",
+    crumb: "Recorder",
+  },
+  {
+    id: "recorder/external-recordings",
+    title: "External recordings",
+    relativePath: "docs/recorder/external-recordings.mdx",
+    compId: "articles-docs-recorder-external-recordings",
     crumb: "Recorder",
   },
   {
@@ -2435,13 +2449,6 @@ export const articles = [
     title: "Upgrading",
     relativePath: "docs/recorder/upgrading.mdx",
     compId: "articles-docs-recorder-upgrading",
-    crumb: "Recorder",
-  },
-  {
-    id: "recorder/vlogging",
-    title: "Vlogging",
-    relativePath: "docs/recorder/vlogging.mdx",
-    compId: "articles-docs-recorder-vlogging",
     crumb: "Recorder",
   },
   {
