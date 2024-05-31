@@ -962,6 +962,7 @@ module.exports = {
           collapsed: false,
           items: [
             "recorder/editing/editing",
+            "recorder/editing/silence-removal",
             "recorder/editing/captions",
             "recorder/editing/layout",
             "recorder/editing/scenes",
@@ -975,7 +976,7 @@ module.exports = {
         "recorder/exporting",
         "recorder/lambda-rendering",
         "recorder/source-control",
-        "recorder/vlogging",
+        "recorder/external-recordings",
         "recorder/upgrading",
         "recorder/roadmap",
         "recorder/gear",

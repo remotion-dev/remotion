@@ -7,7 +7,7 @@ crumb: Recorder
 To generate captions, the Remotion Recorder uses [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) for fast and accurate transcriptions.
 Each time you record a clip with the Remotion Recorder, captions are automatically generated and persisted to same folder as your recordings.
 
-## First transcription
+## Installing Whisper.cpp
 
 The very first time you finish recording a clip, Whisper.cpp and a 1.5GB model will be installed on your computer. This may take a few minutes.
 Once installed, captions for the `webcam` clip will be generated.
@@ -22,7 +22,7 @@ If the AI has made a mistake, no problem, there are various ways to correct the 
 
 ## Generate captions via CLI
 
-If you want to generate captions for a clip that has not been recorded with the Remotion Recorder, put the files you want to transcribe in the `public` folder and run:
+For [external recordings](/docs/recorder/external-recordings), you can also generate captions via the CLI.
 
 ```
 bun sub.ts
