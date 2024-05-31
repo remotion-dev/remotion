@@ -508,8 +508,13 @@ const innerRenderFrames = async ({
 				indent,
 				logLevel,
 			}).catch((err) => {
+				const truncateWithEllipsis =
+					renderAsset.src.substring(0, 1000) +
+					(renderAsset.src.length > 1000 ? '...' : '');
 				onError(
-					new Error(`Error while downloading asset: ${(err as Error).stack}`),
+					new Error(
+						`Error while downloading ${truncateWithEllipsis}: ${(err as Error).stack}`,
+					),
 				);
 			});
 		});
