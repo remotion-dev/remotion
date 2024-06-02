@@ -266,6 +266,68 @@ export default async function handler(
 }
 ```
 
+## Example webhook endpoint (Next.JS App Router)
+
+following is the example in Next.JS new App Router
+
+```tsx twoslash title="app/api/webhook.ts"
+
+import {
+    validateWebhookSignature,
+    WebhookPayload,
+} from "@remotion/lambda/client";
+
+// Enable testing through the tool below
+const ENABLE_TESTING = true;
+
+export const POST = async (req: Request, res: Response) => {
+  let headers = {};
+  //allow requests from remotion website if testing
+  if (ENABLE_TESTING) {
+        const testingheaders = {
+            "Access-Control-Allow-Origin": "https://www.remotion.dev",
+            "Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Remotion-Status, X-Remotion-Signature, X-Remotion-Mode",
+            "Access-Control-Allow-Methods": "OPTIONS,POST"
+        };
+        headers = { ...headers, ...testingheaders };
+  };
+
+  //end rightaway if using OPTIONS
+  if (req.method === "OPTIONS") {
+      return new Response(null, {
+          headers
+      });
+  }
+
+  //parse the body properly
+  const body = await req.json();
+
+  validateWebhookSignature({
+      secret: process.env.WEBHOOK_SECRET as string,
+      body: body,
+      signatureHeader: req.headers.get("X-Remotion-Signature") as string
+  });
+
+  //this will stop here if error with validation
+
+  const payload = body as WebhookPayload;
+
+  if(payload.type === "success"){
+        //...
+  }else if(payload.type === "timeout"){
+        //...
+  }
+  //send the response
+  return new Response(JSON.stringify({success: true}), {
+      headers
+  });
+}
+
+export const OPTIONS = POST
+
+
+```
+
 ## Test your webhook endpoint
 
 You can use this tool to verify that your webhook endpoint is working properly. The tool will send an appropriate demo payload and log the response to the screen. All requests sent by this tool will have the `"X-Remotion-Mode"` header set to `"demo"`.
