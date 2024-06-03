@@ -325,3 +325,21 @@ test('Should handle negative values in transforms well', () => {
 		transform: 'translate(100px, 0px)',
 	});
 });
+
+// Refer https://github.com/remotion-dev/remotion/issues/3922
+test('Should assign proper start value from interpolate\'s inputRange array if first element is greater than input value', () => {
+	expect(
+		interpolateStyles(
+			1.5,
+			[2, 3],
+			[
+				{
+					opacity: 0,
+				},
+				{
+					opacity: 1,
+				},
+			],
+		),
+	).toEqual({opacity: -0.5});
+});
