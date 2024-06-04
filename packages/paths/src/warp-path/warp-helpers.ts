@@ -1,3 +1,4 @@
+import {convertQToCInstruction} from '../helpers/convert-q-to-c-instruction';
 import type {ReducedInstruction} from '../helpers/types';
 
 export type WarpPathFn = (point: {x: number; y: number}) => {
@@ -90,13 +91,19 @@ function createLineSegment(points: number[][]): ReducedInstruction {
 			};
 
 		case 3:
-			return {
-				type: 'Q',
-				cpx: points[1][0],
-				cpy: points[1][1],
-				x: points[2][0],
-				y: points[2][1],
-			};
+			return convertQToCInstruction(
+				{
+					type: 'Q',
+					cpx: points[1][0],
+					cpy: points[1][1],
+					x: points[2][0],
+					y: points[2][1],
+				},
+				{
+					x: points[0][0],
+					y: points[0][1],
+				},
+			);
 
 		case 4:
 			return {
@@ -142,16 +149,7 @@ function warpInterpolate(
 				points.push([segment.x, segment.y]);
 			}
 
-			if (segment.type === 'Q') {
-				points.push([segment.cpx, segment.cpy]);
-				points.push([segment.x, segment.y]);
-			}
-
-			if (
-				segment.type === 'C' ||
-				segment.type === 'Q' ||
-				segment.type === 'L'
-			) {
+			if (segment.type === 'C' || segment.type === 'L') {
 				return interpolateUntil(points, threshold, deltaFunction).map(
 					(rawSegment) => createLineSegment(rawSegment),
 				);
@@ -198,23 +196,6 @@ export const warpTransform = (
 						type: 'L',
 						x,
 						y,
-					},
-				];
-			}
-
-			if (segment.type === 'Q') {
-				const {x, y} = transformer({x: segment.x, y: segment.y});
-				const {x: cpx, y: cpy} = transformer({
-					x: segment.cpx,
-					y: segment.cpy,
-				});
-				return [
-					{
-						type: 'Q',
-						x,
-						y,
-						cpx,
-						cpy,
 					},
 				];
 			}

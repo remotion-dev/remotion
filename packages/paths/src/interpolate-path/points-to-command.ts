@@ -1,3 +1,4 @@
+import {convertQToCInstruction} from '../helpers/convert-q-to-c-instruction';
 import type {ReducedInstruction} from '../helpers/types';
 
 /**
@@ -32,13 +33,19 @@ export function pointsToInstruction(points: number[][]): ReducedInstruction {
 		const x1 = points[1][0];
 		const y1 = points[1][1];
 
-		return {
-			type: 'Q',
-			cpx: x1,
-			cpy: y1,
-			x,
-			y,
-		};
+		return convertQToCInstruction(
+			{
+				type: 'Q',
+				cpx: x1,
+				cpy: y1,
+				x,
+				y,
+			},
+			{
+				x: points[0][0],
+				y: points[0][1],
+			},
+		);
 	}
 
 	return {

@@ -2,7 +2,6 @@ import type {
 	CInstruction,
 	LInstruction,
 	MInstruction,
-	QInstruction,
 	ReducedInstruction,
 	ZInstruction,
 } from '../helpers/types';
@@ -30,20 +29,6 @@ const interpolateCInstructions = (
 		cp2x: (1 - t) * first.cp2x + t * second.cp2x,
 		cp1y: (1 - t) * first.cp1y + t * second.cp1y,
 		cp2y: (1 - t) * first.cp2y + t * second.cp2y,
-		x: (1 - t) * first.x + t * second.x,
-		y: (1 - t) * first.y + t * second.y,
-	};
-};
-
-const interpolateQInstructions = (
-	t: number,
-	first: QInstruction,
-	second: QInstruction,
-): QInstruction => {
-	return {
-		type: 'Q',
-		cpx: (1 - t) * first.cpx + t * second.cpx,
-		cpy: (1 - t) * first.cpy + t * second.cpy,
 		x: (1 - t) * first.x + t * second.x,
 		y: (1 - t) * first.y + t * second.y,
 	};
@@ -80,14 +65,6 @@ export const interpolateInstructionOfSameKind = (
 		}
 
 		return interpolateCInstructions(t, first, second);
-	}
-
-	if (first.type === 'Q') {
-		if (second.type !== 'Q') {
-			throw new Error('mismatch');
-		}
-
-		return interpolateQInstructions(t, first, second);
 	}
 
 	if (first.type === 'M') {

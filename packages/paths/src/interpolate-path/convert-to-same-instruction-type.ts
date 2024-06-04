@@ -2,7 +2,6 @@ import type {
 	CInstruction,
 	LInstruction,
 	Point,
-	QInstruction,
 	ReducedInstruction,
 } from '../helpers/types';
 
@@ -38,47 +37,7 @@ const convertToCCommand = (
 		};
 	}
 
-	if (command.type === 'Q') {
-		return {
-			type: 'C',
-			cp1x: command.cpx,
-			cp1y: command.cpy,
-			cp2x: command.cpx,
-			cp2y: command.cpy,
-			x: command.x,
-			y: command.y,
-		};
-	}
-
 	throw new Error('all types should be handled');
-};
-
-const convertToQCommand = (command: ReducedInstruction): QInstruction => {
-	if (command.type === 'M' || command.type === 'Q' || command.type === 'Z') {
-		throw new Error('unexpected');
-	}
-
-	if (command.type === 'C') {
-		return {
-			type: 'Q',
-			cpx: command.cp1x,
-			cpy: command.cp1y,
-			x: command.x,
-			y: command.y,
-		};
-	}
-
-	if (command.type === 'L') {
-		return {
-			type: 'Q',
-			cpx: command.x,
-			cpy: command.y,
-			x: command.x,
-			y: command.y,
-		};
-	}
-
-	throw new Error('unhandled');
 };
 
 /**
@@ -120,10 +79,6 @@ export function convertToSameInstructionType(
 
 	if (bCommand.type === 'L') {
 		return convertToLCommand(aCommand);
-	}
-
-	if (bCommand.type === 'Q') {
-		return convertToQCommand(aCommand);
 	}
 
 	if (bCommand.type === 'Z') {

@@ -36,12 +36,6 @@ export const turnInto3D = (
         cp1: [instruction.cp1x, instruction.cp1y, 0, 1],
         cp2: [instruction.cp2x, instruction.cp2y, 0, 1],
       });
-    } else if (instruction.type === "Q") {
-      newInstructions.push({
-        type: "Q",
-        cp: [instruction.cpx, instruction.cpy, 0, 1],
-        point: [instruction.x, instruction.y, 0, 1],
-      });
     } else {
       throw new Error("unknown");
     }
