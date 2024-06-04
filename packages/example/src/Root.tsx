@@ -37,6 +37,7 @@ import {
 } from './OffthreadRemoteVideo/OffthreadRemoteVideo';
 import {OrbScene} from './Orb';
 import {ShapesMorph} from './Paths/ShapesMorph';
+import {SlicePath} from './Paths/SlicePath';
 import {PremountedExample} from './Premount';
 import {PremountedRemoteVideos} from './Premount/RemoteVideos';
 import InfinityVideo from './ReallyLongVideo';
@@ -969,6 +970,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="shapes-morph"
 					component={ShapesMorph}
+					durationInFrames={500}
+					fps={30}
+					height={1080}
+					width={1080}
+				/>
+				<Composition
+					id="slice-path"
+					component={SlicePath}
 					durationInFrames={500}
 					fps={30}
 					height={1080}

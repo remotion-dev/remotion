@@ -3,8 +3,9 @@ import {conductAnalysis} from './helpers/reduced-analysis';
 import type {ReducedInstruction} from './helpers/types';
 import {parsePath} from './parse-path';
 import {reduceInstructions} from './reduce-instructions';
+import {serializeInstructions} from './serialize-instructions';
 
-export const cutPath = (d: string, length: number) => {
+export const cutPath = (d: string, length: number): string => {
 	const parsed = parsePath(d);
 	const reduced = reduceInstructions(parsed);
 	const constructed = conductAnalysis(reduced);
@@ -25,13 +26,17 @@ export const cutPath = (d: string, length: number) => {
 					progress,
 				});
 				newInstructions.push(cut);
-				return newInstructions;
+				return serializeInstructions(newInstructions);
 			}
 
 			summedUpLength += instructionAndInfo.length;
 			newInstructions.push(instructionAndInfo.instruction);
+
+			if (summedUpLength === length) {
+				return serializeInstructions(newInstructions);
+			}
 		}
 	}
 
-	return newInstructions;
+	return serializeInstructions(newInstructions);
 };

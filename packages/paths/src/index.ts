@@ -1,6 +1,7 @@
 import {getBoundingBoxFromInstructions} from './get-bounding-box';
 
 import {debugPath} from './debug-path';
+export {cutPath} from './cut-path';
 export {evolvePath} from './evolve-path';
 export {extendViewBox} from './extend-viewbox';
 export {getBoundingBox} from './get-bounding-box';
