@@ -1,7 +1,7 @@
 import {getBoundingBoxFromInstructions} from './get-bounding-box';
 
+import {cutPath} from './cut-path';
 import {debugPath} from './debug-path';
-export {cutPath} from './cut-path';
 export {evolvePath} from './evolve-path';
 export {extendViewBox} from './extend-viewbox';
 export {getBoundingBox} from './get-bounding-box';
@@ -31,4 +31,5 @@ export {WarpPathFn, warpPath} from './warp-path';
 export const PathInternals = {
 	getBoundingBoxFromInstructions,
 	debugPath,
+	cutPath,
 };
