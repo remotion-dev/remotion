@@ -1,4 +1,4 @@
-import {cutPath, getLength} from '@remotion/paths';
+import {PathInternals, getLength} from '@remotion/paths';
 import {makeStar} from '@remotion/shapes';
 import React from 'react';
 import {interpolate, useCurrentFrame} from 'remotion';
@@ -16,7 +16,7 @@ export const SlicePath: React.FC = () => {
 	const progress = interpolate(frame, [0, 100], [0, 1]);
 	const length = getLength(path.path);
 
-	const cut = cutPath(path.path, length * progress);
+	const cut = PathInternals.cutPath(path.path, length * progress);
 
 	return (
 		<svg viewBox={`0 0 ${path.width} ${path.height}`}>
