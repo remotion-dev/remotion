@@ -1,4 +1,4 @@
-import {removeATSHVInstructions} from './helpers/remove-a-s-t-curves';
+import {removeATSHVQInstructions} from './helpers/remove-a-s-t-curves';
 import type {
 	AbsoluteInstruction,
 	BoundingBox,
@@ -229,7 +229,7 @@ export const getBoundingBoxFromInstructions = (
  */
 export const getBoundingBox = (d: string): BoundingBox => {
 	const parsed = parsePath(d) as AbsoluteInstruction[];
-	const unarced = removeATSHVInstructions(normalizeInstructions(parsed));
+	const unarced = removeATSHVQInstructions(normalizeInstructions(parsed));
 
 	return getBoundingBoxFromInstructions(unarced);
 };

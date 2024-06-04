@@ -1,3 +1,4 @@
+import {convertQToCInstruction} from './convert-q-to-c-instruction';
 import {iterateOverSegments} from './iterate';
 import type {AbsoluteInstruction, ReducedInstruction} from './types';
 
@@ -234,12 +235,12 @@ function arcToCircle({
 }
 
 // Requires path to be normalized
-export const removeATSHVInstructions = (
+export const removeATSHVQInstructions = (
 	segments: AbsoluteInstruction[],
 ): ReducedInstruction[] => {
 	return iterateOverSegments<ReducedInstruction>({
 		segments,
-		iterate: ({segment, prevSegment, x, y, cpX, cpY}) => {
+		iterate: ({segment, prevSegment, x, y, cpX, cpY}): ReducedInstruction[] => {
 			if (segment.type === 'H') {
 				return [{type: 'L', x: segment.x, y}];
 			}
@@ -311,13 +312,16 @@ export const removeATSHVInstructions = (
 				const newControlY = y - vectorY;
 
 				return [
-					{
-						type: 'Q',
-						cpx: newControlX,
-						cpy: newControlY,
-						x: segment.x,
-						y: segment.y,
-					},
+					convertQToCInstruction(
+						{
+							type: 'Q',
+							cpx: newControlX,
+							cpy: newControlY,
+							x: segment.x,
+							y: segment.y,
+						},
+						{x, y},
+					),
 				];
 			}
 
@@ -353,6 +357,10 @@ export const removeATSHVInstructions = (
 						y: segment.y,
 					},
 				];
+			}
+
+			if (segment.type === 'Q') {
+				return [convertQToCInstruction(segment, {x, y})];
 			}
 
 			return [segment];
