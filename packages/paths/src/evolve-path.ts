@@ -8,6 +8,15 @@ import {getLength} from './get-length';
  */
 export const evolvePath = (progress: number, path: string) => {
 	const length = getLength(path);
+
+	if (progress === 0) {
+		const extendedLength = length * 1.5;
+		return {
+			strokeDasharray: `${extendedLength} ${extendedLength}`,
+			strokeDashoffset: extendedLength,
+		};
+	}
+
 	const strokeDasharray = `${length} ${length}`;
 	const strokeDashoffset = length - progress * length;
 
