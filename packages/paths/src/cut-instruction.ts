@@ -7,15 +7,15 @@ import type {
 
 const cutLInstruction = ({
 	instruction,
-	startingPoint,
+	lastPoint,
 	progress,
 }: {
 	instruction: LInstruction;
-	startingPoint: Point;
+	lastPoint: Point;
 	progress: number;
 }): LInstruction => {
-	const x = startingPoint.x + (instruction.x - startingPoint.x) * progress;
-	const y = startingPoint.y + (instruction.y - startingPoint.y) * progress;
+	const x = lastPoint.x + (instruction.x - lastPoint.x) * progress;
+	const y = lastPoint.y + (instruction.y - lastPoint.y) * progress;
 
 	return {
 		type: 'L',
@@ -33,18 +33,18 @@ function interpolatePoint(pA: Point, pB: Point, factor: number) {
 
 export function cutCInstruction({
 	progress,
-	startingPoint,
+	lastPoint,
 	instruction,
 }: {
 	progress: number;
-	startingPoint: Point;
+	lastPoint: Point;
 	instruction: CInstruction;
 }): CInstruction {
 	// De Casteljau's algorithm for Bezier splitting
 	const u = progress;
 
 	// Points of original curve
-	const p0 = {x: startingPoint.x, y: startingPoint.y};
+	const p0 = {x: lastPoint.x, y: lastPoint.y};
 	const p1 = {x: instruction.cp1x, y: instruction.cp1y};
 	const p2 = {x: instruction.cp2x, y: instruction.cp2y};
 	const p3 = {x: instruction.x, y: instruction.y};
@@ -74,11 +74,11 @@ export function cutCInstruction({
 
 export const cutInstruction = ({
 	instruction,
-	startingPoint,
+	lastPoint,
 	progress,
 }: {
 	instruction: ReducedInstruction;
-	startingPoint: Point;
+	lastPoint: Point;
 	progress: number;
 }): ReducedInstruction => {
 	if (instruction.type === 'M') {
@@ -86,12 +86,18 @@ export const cutInstruction = ({
 	}
 
 	if (instruction.type === 'L') {
-		return cutLInstruction({instruction, startingPoint, progress});
+		return cutLInstruction({instruction, lastPoint, progress});
 	}
 
 	if (instruction.type === 'C') {
-		return cutCInstruction({instruction, startingPoint, progress});
+		return cutCInstruction({instruction, lastPoint, progress});
 	}
 
+	// TODO: Could we cut it as well?
+	if (instruction.type === 'Z') {
+		return instruction;
+	}
+
+	// @ts-expect-error
 	throw new TypeError(`${instruction.type} is not supported.`);
 };

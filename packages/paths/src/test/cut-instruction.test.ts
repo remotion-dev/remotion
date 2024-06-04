@@ -8,7 +8,7 @@ test('Cut L instruction', () => {
 			x: 100,
 			y: 100,
 		},
-		startingPoint: {
+		lastPoint: {
 			x: 0,
 			y: 0,
 		},
