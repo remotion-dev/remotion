@@ -18,7 +18,7 @@ export interface Point {
 	x: number;
 	y: number;
 }
-export type Point = [number, number];
+export type PointArray = [number, number];
 
 export type BoundingBox = {
 	x1: number;

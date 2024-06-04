@@ -4,7 +4,7 @@ import {parsePath} from '../parse-path';
 import {makeArc} from './arc';
 import {makeCubic, makeQuadratic} from './bezier';
 import {makeLinearPosition} from './linear';
-import type {Instruction, Point, Properties} from './types';
+import type {Instruction, Point, PointArray, Properties} from './types';
 
 export type Constructed = {
 	segments: Instruction[][];
@@ -22,13 +22,13 @@ export const constructFromInstructions = (
 	const functions: (null | Properties)[] = [];
 	let initialPoint: null | Point = null;
 
-	let cur: Point = [0, 0];
-	let prev_point: Point = [0, 0];
+	let cur: PointArray = [0, 0];
+	let prev_point: PointArray = [0, 0];
 	let curve:
 		| ReturnType<typeof makeCubic>
 		| ReturnType<typeof makeQuadratic>
 		| undefined;
-	let ringStart: Point = [0, 0];
+	let ringStart: PointArray = [0, 0];
 
 	const segments: Instruction[][] = [];
 

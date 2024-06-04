@@ -6,14 +6,15 @@ type SegmentInstruction = {
 	function: Properties | null;
 	length: number;
 	instruction: ReducedInstruction;
+	startPoint: Point;
 };
 
 type Segment = {
 	startPoint: Point;
-	instructions: SegmentInstruction[];
+	instructionsAndInfo: SegmentInstruction[];
 };
 
-export const constructFromInstructions = (
+export const conductAnalysis = (
 	instructions: ReducedInstruction[],
 ): Segment[] => {
 	let currentPoint: Point = {x: 0, y: 0};
@@ -30,11 +31,12 @@ export const constructFromInstructions = (
 			moveStart = {x: currentPoint.x, y: currentPoint.y};
 			segments.push({
 				startPoint: {x: instruction.x, y: instruction.y},
-				instructions: [
+				instructionsAndInfo: [
 					{
 						instruction,
 						function: null,
 						length: 0,
+						startPoint: currentPoint,
 					},
 				],
 			});
@@ -46,7 +48,7 @@ export const constructFromInstructions = (
 					(currentPoint.x - instruction.x) ** 2 +
 						(currentPoint.y - instruction.y) ** 2,
 				);
-				segments[segments.length - 1].instructions.push({
+				segments[segments.length - 1].instructionsAndInfo.push({
 					instruction,
 					length,
 					function: makeLinearPosition({
@@ -55,6 +57,7 @@ export const constructFromInstructions = (
 						y0: currentPoint.y,
 						y1: instruction.y,
 					}),
+					startPoint: currentPoint,
 				});
 			}
 
@@ -67,7 +70,7 @@ export const constructFromInstructions = (
 					(segments[segments.length - 1].startPoint.x - currentPoint.x) ** 2 +
 						(segments[segments.length - 1].startPoint.y - currentPoint.y) ** 2,
 				);
-				segments[segments.length - 1].instructions.push({
+				segments[segments.length - 1].instructionsAndInfo.push({
 					instruction,
 					function: makeLinearPosition({
 						x0: currentPoint.x,
@@ -76,6 +79,7 @@ export const constructFromInstructions = (
 						y1: moveStart.y,
 					}),
 					length,
+					startPoint: {...currentPoint},
 				});
 			}
 
@@ -96,10 +100,11 @@ export const constructFromInstructions = (
 
 			const length = curve.getTotalLength();
 			if (segments.length > 0) {
-				segments[segments.length - 1].instructions.push({
+				segments[segments.length - 1].instructionsAndInfo.push({
 					instruction,
 					length,
 					function: curve,
+					startPoint: {...currentPoint},
 				});
 			}
 
