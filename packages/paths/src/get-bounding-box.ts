@@ -175,31 +175,6 @@ export const getBoundingBoxFromInstructions = (
 				break;
 			}
 
-			case 'Q': {
-				const qxMinMax = minmaxQ([x, seg.cpx, seg.x]);
-				if (minX > qxMinMax[0]) {
-					minX = qxMinMax[0];
-				}
-
-				if (maxX < qxMinMax[1]) {
-					maxX = qxMinMax[1];
-				}
-
-				const qyMinMax = minmaxQ([y, seg.cpy, seg.y]);
-				if (minY > qyMinMax[0]) {
-					minY = qyMinMax[0];
-				}
-
-				if (maxY < qyMinMax[1]) {
-					maxY = qyMinMax[1];
-				}
-
-				x = seg.x;
-				y = seg.y;
-
-				break;
-			}
-
 			case 'Z':
 				x = lastMoveX;
 				y = lastMoveY;

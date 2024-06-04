@@ -22,11 +22,7 @@ export function splitSegmentInstructions(
 	let segments: ReducedInstruction[] = [];
 
 	// line, quadratic bezier, or cubic bezier
-	if (
-		commandEnd.type === 'L' ||
-		commandEnd.type === 'Q' ||
-		commandEnd.type === 'C'
-	) {
+	if (commandEnd.type === 'L' || commandEnd.type === 'C') {
 		if (commandStart.type !== 'Z') {
 			segments = segments.concat(
 				splitCurveInstructions(
