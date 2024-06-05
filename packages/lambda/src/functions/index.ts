@@ -257,7 +257,7 @@ export type OrError<T> =
 			stack: string;
 	  };
 
-const routine = async (
+export const routine = async (
 	params: LambdaPayload,
 	responseStream: ResponseStream,
 	context: RequestContext,

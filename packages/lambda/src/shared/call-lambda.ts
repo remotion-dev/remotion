@@ -135,24 +135,22 @@ const invokeStreamOrTimeout = async ({
 		}),
 	);
 
-	let cleanup: Function = () => undefined;
+	let cleanup = () => undefined;
 
 	const timeout = new Promise<InvokeWithResponseStreamCommandOutput>(
 		(_resolve, reject) => {
 			const int = setTimeout(() => {
 				reject(new Error(LAMBDA_STREAM_STALL));
 			}, STREAM_STALL_TIMEOUT);
-			cleanup = () => clearTimeout(int);
+			cleanup = () => {
+				clearTimeout(int);
+			};
 		},
 	);
 
-	const res = await Promise.race([
-		resProm.then((r) => {
-			cleanup();
-			return r;
-		}),
-		timeout,
-	]);
+	const res = await Promise.race([resProm, timeout]);
+
+	cleanup();
 
 	return res;
 };
@@ -222,6 +220,8 @@ const callLambdaWithStreamingWithoutRetry = async <T extends LambdaRoutines>({
 					`Lambda function ${functionName} failed with error code ${event.InvokeComplete.ErrorCode}: ${event.InvokeComplete.ErrorDetails}. See ${logs} to see the logs of this invocation.`,
 				);
 			}
+
+			break;
 		}
 	}
 
