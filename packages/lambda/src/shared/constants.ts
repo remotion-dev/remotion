@@ -106,10 +106,6 @@ export const customOutName = (
 	};
 };
 
-export const defaultPropsKey = (hash: string) => {
-	return `default-props/${hash}.json`;
-};
-
 export const inputPropsKey = (hash: string) => {
 	return `input-props/${hash}.json`;
 };
@@ -153,6 +149,7 @@ export type SerializedInputProps =
 	| {
 			type: 'bucket-url';
 			hash: string;
+			bucketName: string;
 	  }
 	| {
 			type: 'payload';

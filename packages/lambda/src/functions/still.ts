@@ -253,7 +253,6 @@ const innerStillHandler = async ({
 	await Promise.all([
 		fs.promises.rm(outputPath, {recursive: true}),
 		cleanupSerializedInputProps({
-			bucketName,
 			region: getCurrentRegionInFunction(),
 			serialized: lambdaParams.inputProps,
 		}),
