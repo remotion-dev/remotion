@@ -105,7 +105,7 @@ const internalRenderStillOnLambda = async (
 						}
 					},
 					timeoutInTest: 120000,
-					retriesRemaining: 0,
+					retriesRemaining: 1,
 				})
 					.then(() => {
 						reject(new Error('Expected response to be streamed'));

@@ -73,7 +73,10 @@ export const callLambdaWithStreaming = async <T extends LambdaRoutines>(
 			throw err;
 		}
 
-		if (!(err as Error).message.includes(INVALID_JSON_MESSAGE)) {
+		if (
+			!(err as Error).message.includes(INVALID_JSON_MESSAGE) &&
+			!(err as Error).message.includes(LAMBDA_STREAM_STALL)
+		) {
 			throw err;
 		}
 
@@ -109,6 +112,9 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 	}
 };
 
+const STREAM_STALL_TIMEOUT = 7000;
+const LAMBDA_STREAM_STALL = `AWS did not invoke Lambda in ${STREAM_STALL_TIMEOUT}ms`;
+
 const invokeStreamOrTimeout = async ({
 	region,
 	timeoutInTest,
@@ -134,8 +140,8 @@ const invokeStreamOrTimeout = async ({
 	const timeout = new Promise<InvokeWithResponseStreamCommandOutput>(
 		(_resolve, reject) => {
 			const int = setTimeout(() => {
-				reject(new Error('AWS did not invoke Lambda in time'));
-			}, 5000);
+				reject(new Error(LAMBDA_STREAM_STALL));
+			}, STREAM_STALL_TIMEOUT);
 			cleanup = () => clearTimeout(int);
 		},
 	);
