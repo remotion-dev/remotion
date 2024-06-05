@@ -32,6 +32,7 @@ import {validateOutname} from '../shared/validate-outname';
 import {validatePrivacy} from '../shared/validate-privacy';
 import {planFrameRanges} from './chunk-optimization/plan-frame-ranges';
 import {bestFramesPerLambdaParam} from './helpers/best-frames-per-lambda-param';
+import {cleanupProps} from './helpers/cleanup-props';
 import {getExpectedOutName} from './helpers/expected-out-name';
 import {findOutputFileInBucket} from './helpers/find-output-file-in-bucket';
 import {
@@ -56,11 +57,13 @@ const innerLaunchHandler = async ({
 	params,
 	options,
 	overallProgress,
+	registerCleanupTask,
 }: {
 	functionName: string;
 	params: LambdaPayload;
 	options: Options;
 	overallProgress: OverallProgressHelper;
+	registerCleanupTask: (cleanupTask: CleanupTask) => void;
 }): Promise<PostRenderData> => {
 	if (params.type !== LambdaRoutines.launch) {
 		throw new Error('Expected launch type');
@@ -199,6 +202,13 @@ const innerLaunchHandler = async ({
 		stringifiedInputProps: serializedResolved,
 		userSpecifiedBucketName: params.bucketName,
 		needsToUpload,
+	});
+
+	registerCleanupTask(() => {
+		return cleanupProps({
+			serializedResolvedProps,
+			inputProps: params.inputProps,
+		});
 	});
 
 	const fps = comp.fps / params.everyNthFrame;
@@ -379,6 +389,8 @@ const innerLaunchHandler = async ({
 	return postRenderData;
 };
 
+type CleanupTask = () => Promise<unknown>;
+
 export const launchHandler = async (
 	params: LambdaPayload,
 	options: Options,
@@ -398,6 +410,12 @@ export const launchHandler = async (
 		logLevel: params.logLevel,
 	};
 
+	const cleanupTasks: CleanupTask[] = [];
+
+	const registerCleanupTask = (task: CleanupTask) => {
+		cleanupTasks.push(task);
+	};
+
 	const onTimeout = async () => {
 		RenderInternals.Log.error(
 			{indent: false, logLevel: params.logLevel},
@@ -411,6 +429,21 @@ export const launchHandler = async (
 		if (webhookInvoked) {
 			return;
 		}
+
+		Promise.all(cleanupTasks)
+			.then(() => {
+				RenderInternals.Log.info(
+					{indent: false, logLevel: params.logLevel},
+					'Ran cleanup tasks',
+				);
+			})
+			.catch((err) => {
+				RenderInternals.Log.error(
+					{indent: false, logLevel: params.logLevel},
+					'Failed to run cleanup tasks:',
+					err,
+				);
+			});
 
 		try {
 			await invokeWebhook(
@@ -489,6 +522,7 @@ export const launchHandler = async (
 			params,
 			options,
 			overallProgress,
+			registerCleanupTask,
 		});
 		clearTimeout(webhookDueToTimeout);
 
