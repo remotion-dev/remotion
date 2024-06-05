@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import type {InvokeWithResponseStreamResponseEvent} from '@aws-sdk/client-lambda';
+import type {
+	InvokeWithResponseStreamCommandOutput,
+	InvokeWithResponseStreamResponseEvent,
+} from '@aws-sdk/client-lambda';
 import {
 	InvokeCommand,
 	InvokeWithResponseStreamCommand,
@@ -106,6 +109,48 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 	}
 };
 
+const invokeStreamOrTimeout = async ({
+	region,
+	timeoutInTest,
+	functionName,
+	type,
+	payload,
+}: {
+	region: AwsRegion;
+	timeoutInTest: number;
+	functionName: string;
+	type: string;
+	payload: Record<string, unknown>;
+}) => {
+	const resProm = getLambdaClient(region, timeoutInTest).send(
+		new InvokeWithResponseStreamCommand({
+			FunctionName: functionName,
+			Payload: JSON.stringify({type, ...payload}),
+		}),
+	);
+
+	let cleanup: Function = () => undefined;
+
+	const timeout = new Promise<InvokeWithResponseStreamCommandOutput>(
+		(_resolve, reject) => {
+			const int = setTimeout(() => {
+				reject(new Error('AWS did not invoke Lambda in time'));
+			}, 5000);
+			cleanup = () => clearTimeout(int);
+		},
+	);
+
+	const res = await Promise.race([
+		resProm.then((r) => {
+			cleanup();
+			return r;
+		}),
+		timeout,
+	]);
+
+	return res;
+};
+
 const callLambdaWithStreamingWithoutRetry = async <T extends LambdaRoutines>({
 	functionName,
 	type,
@@ -116,12 +161,13 @@ const callLambdaWithStreamingWithoutRetry = async <T extends LambdaRoutines>({
 }: Options<T> & {
 	receivedStreamingPayload: OnMessage;
 }): Promise<void> => {
-	const res = await getLambdaClient(region, timeoutInTest).send(
-		new InvokeWithResponseStreamCommand({
-			FunctionName: functionName,
-			Payload: JSON.stringify({type, ...payload}),
-		}),
-	);
+	const res = await invokeStreamOrTimeout({
+		functionName,
+		payload,
+		region,
+		timeoutInTest,
+		type,
+	});
 
 	const {onData, clear} = makeStreamer((status, messageTypeId, data) => {
 		const messageType = messageTypeIdToMessageType(
