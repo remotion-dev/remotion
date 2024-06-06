@@ -38,6 +38,15 @@ const fn = (src: string): Promise<VideoMetadata> => {
 				return;
 			}
 
+			if (!Number.isFinite(video.duration)) {
+				reject(
+					new Error(
+						`Unable to determine video duration for ${src} - got Infinity. Re-encoding this video may fix this issue.`,
+					),
+				);
+				return;
+			}
+
 			const metadata: VideoMetadata = {
 				durationInSeconds: video.duration,
 				width: video.videoWidth,
