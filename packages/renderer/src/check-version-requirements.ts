@@ -47,6 +47,10 @@ export const gLibCErrorMessage = (libCString: string) => {
 };
 
 const checkLibCRequirement = (logLevel: LogLevel, indent: boolean) => {
+	if (process.platform === 'win32' || process.platform === 'darwin') {
+		return;
+	}
+
 	const {report} = process;
 	if (report) {
 		const rep = report.getReport();
