@@ -80,7 +80,7 @@ const installForWindows = async ({
 		signal,
 	});
 
-	execute({
+	await execute({
 		command: `Expand-Archive -Force ${filePath} ${to}`,
 		shell: 'powershell',
 		printOutput,
