@@ -112,7 +112,7 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 	}
 };
 
-const STREAM_STALL_TIMEOUT = 7000;
+const STREAM_STALL_TIMEOUT = 30000;
 const LAMBDA_STREAM_STALL = `AWS did not invoke Lambda in ${STREAM_STALL_TIMEOUT}ms`;
 
 const invokeStreamOrTimeout = async ({
