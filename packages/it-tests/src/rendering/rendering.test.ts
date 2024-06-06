@@ -137,7 +137,7 @@ test("Should fail to render out of range frame when range is a string", async ()
     }
   );
   expect(task.exitCode).toBe(1);
-  expect(task.stderr).toContain("Frame range 2-10 is not inbetween 0-9");
+  expect(task.stderr).toContain("frame range 2-10 is not inbetween 0-9");
 });
 
 test("Should render a ProRes video", async () => {
