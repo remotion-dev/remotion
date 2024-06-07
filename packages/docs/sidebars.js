@@ -673,6 +673,7 @@ module.exports = {
         "player/best-practices",
       ],
     },
+
     {
       type: "category",
       label: "Lambda",
@@ -831,11 +832,15 @@ module.exports = {
         "miscellaneous/snippets/align-duration",
       ],
     },
-
     {
       type: "link",
       href: "/docs/api",
       label: "API Reference",
+    },
+    {
+      type: "link",
+      href: "/docs/recorder",
+      label: "Recorder",
     },
     {
       type: "category",
@@ -984,6 +989,7 @@ module.exports = {
           label: "Troubleshooting",
           items: [
             "recorder/troubleshooting/failed-to-execute-get-video-metadata",
+            "recorder/troubleshooting/cannot-read-properties-of-undefined",
           ],
         },
         "recorder/roadmap",

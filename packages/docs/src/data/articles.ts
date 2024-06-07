@@ -2445,6 +2445,15 @@ export const articles = [
     crumb: "Recorder",
   },
   {
+    id: "recorder/troubleshooting/cannot-read-properties-of-undefined",
+    title: "Cannot read properties of undefined (reading 'decode')",
+    relativePath:
+      "docs/recorder/troubleshooting/cannot-read-properties-of-undefined.mdx",
+    compId:
+      "articles-docs-recorder-troubleshooting-cannot-read-properties-of-undefined",
+    crumb: "Recorder",
+  },
+  {
     id: "recorder/troubleshooting/failed-to-execute-get-video-metadata",
     title: "Failed to execute getVideoMetadata()",
     relativePath:
