@@ -8,6 +8,7 @@ import {truthy} from './truthy';
 
 export type FilterWithoutPaddingApplied = ProcessedTrack & {
 	filter: string;
+	actualTrimLeft: number;
 };
 
 export type ProcessedTrack = {
@@ -277,5 +278,6 @@ export const stringifyFfmpegFilter = ({
 				: `adelay=${new Array(channels + 1)
 						.fill((startInVideoSeconds * 1000).toFixed(0))
 						.join('|')}`,
+		actualTrimLeft,
 	};
 };
