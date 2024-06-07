@@ -837,6 +837,7 @@ module.exports = {
       href: "/docs/api",
       label: "API Reference",
     },
+    "upgrading-remotion",
     {
       type: "link",
       href: "/docs/recorder",
