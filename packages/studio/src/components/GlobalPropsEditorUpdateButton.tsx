@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
 import {saveDefaultProps} from '../api/save-default-props';
 import {showNotification} from './Notifications/NotificationCenter';
@@ -14,9 +14,14 @@ export const GlobalPropsEditorUpdateButton: React.FC<{
 	readonly compositionId: string;
 	readonly currentDefaultProps: Record<string, unknown>;
 }> = ({compositionId, currentDefaultProps}) => {
+	const {fastRefreshes} = useContext(Internals.NonceContext);
+
 	const [disabled, setDisabled] = React.useState(false);
+
 	const onClicked = useCallback(() => {
 		setDisabled(true);
+		window.remotion_ignoreFastRefreshUpdate = fastRefreshes + 1;
+
 		saveDefaultProps({
 			compositionId,
 			defaultProps: () => currentDefaultProps,
@@ -27,7 +32,7 @@ export const GlobalPropsEditorUpdateButton: React.FC<{
 			.finally(() => {
 				setDisabled(true);
 			});
-	}, [compositionId, currentDefaultProps]);
+	}, [compositionId, currentDefaultProps, fastRefreshes]);
 
 	const onReset = useCallback(() => {
 		window.remotion_ignoreFastRefreshUpdate = null;
