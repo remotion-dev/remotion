@@ -489,7 +489,9 @@ const internalRenderMediaRaw = ({
 		}
 	};
 
-	const waitForPrestitcherIfNecessary = async () => {
+	const waitForPrestitcherIfNecessary = async (): Promise<{
+		usesParallelEncoding: boolean;
+	}> => {
 		if (stitcherFfmpeg) {
 			await waitForFinish();
 			stitcherFfmpeg?.stdin?.end();
@@ -499,6 +501,8 @@ const internalRenderMediaRaw = ({
 				throw new Error(preStitcher?.getLogs());
 			}
 		}
+
+		return {usesParallelEncoding: Boolean(stitcherFfmpeg)};
 	};
 
 	const mediaSupport = codecSupportsMedia(codec);
