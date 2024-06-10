@@ -3409,6 +3409,13 @@ export const articles = [
     crumb: "Frame-perfection",
   },
   {
+    id: "upgrading",
+    title: "Upgrading Remotion",
+    relativePath: "docs/upgrading.mdx",
+    compId: "articles-docs-upgrading",
+    crumb: "upgrade remotion",
+  },
+  {
     id: "use-audio-data",
     title: "useAudioData()",
     relativePath: "docs/use-audio-data.mdx",
