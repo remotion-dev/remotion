@@ -80,19 +80,23 @@ export const compressInputProps = async ({
 	const hash = randomHash();
 
 	if (needsToUpload) {
+		if (userSpecifiedBucketName) {
+			return {
+				type: 'bucket-url',
+				bucketName: userSpecifiedBucketName,
+				hash,
+			};
+		}
+
 		const bucketTimer = timer(
 			'Finding bucket name to upload resolved props',
 			logLevel,
 		);
-		const bucketName =
-			userSpecifiedBucketName ??
-			(
-				await internalGetOrCreateBucket({
-					region,
-					enableFolderExpiry: null,
-					customCredentials: null,
-				})
-			).bucketName;
+		const {bucketName} = await internalGetOrCreateBucket({
+			region,
+			enableFolderExpiry: null,
+			customCredentials: null,
+		});
 		bucketTimer.end();
 
 		const uploadTimer = timer('Upload resolved props to S3', logLevel);

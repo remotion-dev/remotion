@@ -61,6 +61,11 @@ const streamRenderer = ({
 				);
 				writeFileSync(filename, message.payload);
 				files.push(filename);
+				RenderInternals.Log.verbose(
+					{indent: false, logLevel},
+					`Received video chunk for chunk ${payload.chunk}`,
+				);
+
 				return;
 			}
 
@@ -69,7 +74,12 @@ const streamRenderer = ({
 					outdir,
 					`chunk:${String(payload.chunk).padStart(8, '0')}:audio`,
 				);
+
 				writeFileSync(filename, message.payload);
+				RenderInternals.Log.verbose(
+					{indent: false, logLevel},
+					`Received audio chunk for chunk ${payload.chunk}`,
+				);
 				files.push(filename);
 				return;
 			}
@@ -77,7 +87,7 @@ const streamRenderer = ({
 			if (message.type === 'chunk-complete') {
 				RenderInternals.Log.verbose(
 					{indent: false, logLevel},
-					`Rendered chunk ${payload.chunk}`,
+					`Finished chunk ${payload.chunk}`,
 				);
 				overallProgress.addChunkCompleted(
 					payload.chunk,
