@@ -146,6 +146,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		]),
 		userSpecifiedBucketName: bucketName ?? null,
 		propsType: 'input-props',
+		logLevel,
 	});
 	return {
 		rendererFunctionName,
@@ -249,6 +250,7 @@ export const makeLambdaRenderStillPayload = async ({
 		needsToUpload: getNeedsToUpload('still', [stringifiedInputProps.length]),
 		userSpecifiedBucketName: forceBucketName ?? null,
 		propsType: 'input-props',
+		logLevel,
 	});
 
 	return {

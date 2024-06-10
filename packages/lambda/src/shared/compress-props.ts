@@ -1,7 +1,9 @@
+import type {LogLevel} from '@remotion/renderer';
 import {NoReactInternals} from 'remotion/no-react';
 import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
 import type {AwsRegion} from '../client';
 import {lambdaReadFile, lambdaWriteFile} from '../functions/helpers/io';
+import {timer} from '../functions/helpers/timer';
 import type {SerializedInputProps} from './constants';
 import {inputPropsKey, resolvedPropsKey} from './constants';
 import {randomHash} from './random-hash';
@@ -66,16 +68,22 @@ export const compressInputProps = async ({
 	userSpecifiedBucketName,
 	propsType,
 	needsToUpload,
+	logLevel,
 }: {
 	stringifiedInputProps: string;
 	region: AwsRegion;
 	userSpecifiedBucketName: string | null;
 	propsType: PropsType;
 	needsToUpload: boolean;
+	logLevel: LogLevel;
 }): Promise<SerializedInputProps> => {
 	const hash = randomHash();
 
 	if (needsToUpload) {
+		const bucketTimer = timer(
+			'Finding bucket name to upload resolved props',
+			logLevel,
+		);
 		const bucketName =
 			userSpecifiedBucketName ??
 			(
@@ -85,7 +93,9 @@ export const compressInputProps = async ({
 					customCredentials: null,
 				})
 			).bucketName;
+		bucketTimer.end();
 
+		const uploadTimer = timer('Upload resolved props to S3', logLevel);
 		await lambdaWriteFile({
 			body: stringifiedInputProps,
 			bucketName,
@@ -96,6 +106,7 @@ export const compressInputProps = async ({
 			key: makeKey(propsType, hash),
 			privacy: 'private',
 		});
+		uploadTimer.end();
 
 		return {
 			type: 'bucket-url',

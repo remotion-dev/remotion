@@ -44,6 +44,7 @@ import {mergeChunksAndFinishRender} from './helpers/merge-chunks';
 import type {OverallProgressHelper} from './helpers/overall-render-progress';
 import {makeOverallRenderProgress} from './helpers/overall-render-progress';
 import {streamRendererFunctionWithRetry} from './helpers/stream-renderer';
+import {timer} from './helpers/timer';
 import {validateComposition} from './helpers/validate-composition';
 import {getTmpDirStateIfENoSp} from './helpers/write-lambda-error';
 
@@ -202,6 +203,7 @@ const innerLaunchHandler = async ({
 		stringifiedInputProps: serializedResolved,
 		userSpecifiedBucketName: params.bucketName,
 		needsToUpload,
+		logLevel: params.logLevel,
 	});
 
 	registerCleanupTask(() => {
@@ -317,6 +319,10 @@ const innerLaunchHandler = async ({
 	);
 
 	if (!params.overwrite) {
+		const findOutputFile = timer(
+			'Checking if output file already exists',
+			params.logLevel,
+		);
 		const output = await findOutputFileInBucket({
 			bucketName: params.bucketName,
 			customCredentials,
@@ -328,6 +334,8 @@ const innerLaunchHandler = async ({
 				`Output file "${key}" in bucket "${renderBucketName}" in region "${getCurrentRegionInFunction()}" already exists. Delete it before re-rendering, or set the 'overwrite' option in renderMediaOnLambda() to overwrite it."`,
 			);
 		}
+
+		findOutputFile.end();
 	}
 
 	overallProgress.setRenderMetadata(renderMetadata);
