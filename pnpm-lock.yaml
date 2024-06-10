@@ -1362,6 +1362,15 @@ importers:
       '@smithy/abort-controller':
         specifier: 3.0.0
         version: 3.0.0
+      '@smithy/protocol-http':
+        specifier: 4.0.0
+        version: 4.0.0
+      '@smithy/querystring-builder':
+        specifier: 3.0.0
+        version: 3.0.0
+      '@smithy/types':
+        specifier: 3.0.0
+        version: 3.0.0
       mime-types:
         specifier: 2.1.34
         version: 2.1.34

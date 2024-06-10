@@ -8,7 +8,6 @@ import {fromIni} from '@aws-sdk/credential-providers';
 import {random} from 'remotion/no-react';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {checkCredentials} from './check-credentials';
-import {MAX_FUNCTIONS_PER_RENDER} from './constants';
 import {isInsideLambda} from './is-in-lambda';
 
 const _clients: Partial<
@@ -211,7 +210,8 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 			service === 'lambda'
 				? {
 						httpsAgent: {
-							maxSockets: MAX_FUNCTIONS_PER_RENDER * 2,
+							maxSockets: 100,
+							keepAlive: false,
 						},
 					}
 				: undefined;

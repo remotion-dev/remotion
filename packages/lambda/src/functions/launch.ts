@@ -30,6 +30,7 @@ import {
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import {validateOutname} from '../shared/validate-outname';
 import {validatePrivacy} from '../shared/validate-privacy';
+import {enableNodeIntrospection} from '../shared/why-is-node-running';
 import {planFrameRanges} from './chunk-optimization/plan-frame-ranges';
 import {bestFramesPerLambdaParam} from './helpers/best-frames-per-lambda-param';
 import {cleanupProps} from './helpers/cleanup-props';
@@ -40,9 +41,11 @@ import {
 	getBrowserInstance,
 } from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
+import {startLeakDetection} from './helpers/leak-detection';
 import {mergeChunksAndFinishRender} from './helpers/merge-chunks';
 import type {OverallProgressHelper} from './helpers/overall-render-progress';
 import {makeOverallRenderProgress} from './helpers/overall-render-progress';
+import type {RequestContext} from './helpers/request-context';
 import {streamRendererFunctionWithRetry} from './helpers/stream-renderer';
 import {timer} from './helpers/timer';
 import {validateComposition} from './helpers/validate-composition';
@@ -52,6 +55,8 @@ type Options = {
 	expectedBucketOwner: string;
 	getRemainingTimeInMillis: () => number;
 };
+
+const ENABLE_SLOW_LEAK_DETECTION = true;
 
 const innerLaunchHandler = async ({
 	functionName,
@@ -402,6 +407,7 @@ type CleanupTask = () => Promise<unknown>;
 export const launchHandler = async (
 	params: LambdaPayload,
 	options: Options,
+	requestContext: RequestContext,
 ): Promise<{
 	type: 'success';
 }> => {
@@ -423,6 +429,8 @@ export const launchHandler = async (
 	const registerCleanupTask = (task: CleanupTask) => {
 		cleanupTasks.push(task);
 	};
+
+	const leakDetection = enableNodeIntrospection(ENABLE_SLOW_LEAK_DETECTION);
 
 	const onTimeout = async () => {
 		RenderInternals.Log.error(
@@ -683,5 +691,7 @@ export const launchHandler = async (
 		throw err;
 	} finally {
 		forgetBrowserEventLoop(params.logLevel);
+
+		startLeakDetection(leakDetection, requestContext.awsRequestId);
 	}
 };
