@@ -61,7 +61,7 @@ export const onMediaError = ({
 	cleanup: () => void;
 	api: string;
 }) => {
-	const suspecting404 = error?.MEDIA_ERR_SRC_NOT_SUPPORTED === error?.code;
+	const suspecting404 = error.MEDIA_ERR_SRC_NOT_SUPPORTED === error.code;
 	const isSrcSameOriginAsCurrent = new URL(src, window.location.origin)
 		.toString()
 		.startsWith(window.location.origin);
@@ -83,8 +83,11 @@ export const onMediaError = ({
 							[
 								`Failed to execute ${api}, Received a MediaError loading "${src}".`,
 								status === null
-									? `Browser error message: ${error?.message}`
+									? null
 									: `HTTP Status code of the file: ${status}.`,
+								error.message
+									? `Browser error message: ${error.message}`
+									: null,
 								'Check the path of the file and if it is a valid video.',
 							]
 								.filter(Boolean)
