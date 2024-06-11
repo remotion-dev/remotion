@@ -49,10 +49,14 @@ export class ResponseStream extends Writable {
 	async *[Symbol.asyncIterator](): AsyncGenerator<Chunk, void, void> {
 		while (true) {
 			if (this.queue.length > 0) {
-				yield this.queue.shift()!;
+				const shifted = this.queue.shift()!;
+				yield shifted;
+				if (shifted.InvokeComplete) {
+					break;
+				}
 			} else {
 				// Wait for new data to be written
-				yield new Promise<Chunk>((resolve) => {
+				const shifted = await new Promise<Chunk>((resolve) => {
 					this.waitingResolve.push((data) => {
 						Promise.resolve(data).then((d) => {
 							if (d) {
@@ -61,6 +65,10 @@ export class ResponseStream extends Writable {
 						});
 					});
 				});
+				yield shifted;
+				if (shifted.InvokeComplete) {
+					break;
+				}
 			}
 		}
 	}
