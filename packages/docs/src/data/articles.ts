@@ -2319,6 +2319,13 @@ export const articles = [
     crumb: "Recorder",
   },
   {
+    id: "recorder/editing/cutting-clips",
+    title: "Cutting clips",
+    relativePath: "docs/recorder/editing/cutting-clips.mdx",
+    compId: "articles-docs-recorder-editing-cutting-clips",
+    crumb: "Recorder",
+  },
+  {
     id: "recorder/editing/editing",
     title: "Start editing",
     relativePath: "docs/recorder/editing/editing.mdx",
