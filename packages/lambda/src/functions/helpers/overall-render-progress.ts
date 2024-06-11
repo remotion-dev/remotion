@@ -23,6 +23,9 @@ export type OverallRenderProgress = {
 	renderMetadata: RenderMetadata | null;
 	errors: LambdaErrorInfo[];
 	timeoutTimestamp: number;
+	functionLaunched: number;
+	serveUrlOpened: number | null;
+	compositionValidated: number | null;
 };
 
 export type OverallProgressHelper = {
@@ -50,12 +53,15 @@ export type OverallProgressHelper = {
 	addErrorWithoutUpload: (errorInfo: LambdaErrorInfo) => void;
 	setExpectedChunks: (expectedChunks: number) => void;
 	get: () => OverallRenderProgress;
+	setServeUrlOpened: (timestamp: number) => void;
+	setCompositionValidated: (timestamp: number) => void;
 };
 
 export const makeInitialOverallRenderProgress = (
 	timeoutTimestamp: number,
 ): OverallRenderProgress => {
 	return {
+		functionLaunched: Date.now(),
 		chunks: [],
 		framesRendered: 0,
 		framesEncoded: 0,
@@ -70,6 +76,8 @@ export const makeInitialOverallRenderProgress = (
 		errors: [],
 		timeToRenderFrames: null,
 		timeoutTimestamp,
+		serveUrlOpened: null,
+		compositionValidated: null,
 	};
 };
 
@@ -253,6 +261,14 @@ export const makeOverallRenderProgress = ({
 			framesRendered = new Array(expectedChunks).fill(0);
 			framesEncoded = new Array(expectedChunks).fill(0);
 			lambdasInvoked = new Array(expectedChunks).fill(false);
+		},
+		setCompositionValidated(timestamp) {
+			renderProgress.compositionValidated = timestamp;
+			upload();
+		},
+		setServeUrlOpened(timestamp) {
+			renderProgress.serveUrlOpened = timestamp;
+			upload();
 		},
 		addRetry(retry) {
 			renderProgress.retries.push(retry);

@@ -89,6 +89,7 @@ const innerGetCompositions = async ({
 		videoEnabled: false,
 		indent,
 		logLevel,
+		onServeUrlVisited: () => undefined,
 	});
 
 	await puppeteerEvaluateWithCatch({

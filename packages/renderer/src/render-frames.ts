@@ -293,6 +293,7 @@ const innerRenderFrames = async ({
 			videoEnabled: imageFormat !== 'none',
 			indent,
 			logLevel,
+			onServeUrlVisited: () => undefined,
 		});
 
 		await puppeteerEvaluateWithCatch({

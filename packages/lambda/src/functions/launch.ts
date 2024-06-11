@@ -121,7 +121,11 @@ const innerLaunchHandler = async ({
 		onBrowserDownload: () => {
 			throw new Error('Should not download a browser in Lambda');
 		},
+		onServeUrlVisited: () => {
+			overallProgress.setServeUrlOpened(Date.now());
+		},
 	});
+	overallProgress.setCompositionValidated(Date.now());
 	RenderInternals.Log.info(
 		logOptions,
 		'Composition validated, resolved props',

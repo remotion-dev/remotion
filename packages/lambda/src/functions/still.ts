@@ -148,6 +148,7 @@ const innerStillHandler = async ({
 		onBrowserDownload: () => {
 			throw new Error('Should not download a browser in Lambda');
 		},
+		onServeUrlVisited: () => undefined,
 	});
 
 	const renderMetadata: RenderMetadata = {
