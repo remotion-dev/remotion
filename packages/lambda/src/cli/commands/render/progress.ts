@@ -179,10 +179,6 @@ const makeTopRow = (overall: RenderProgress) => {
 		(overall.timeoutTimestamp - Date.now()) / 1000,
 	);
 
-	if (!overall.renderMetadata) {
-		return null;
-	}
-
 	if (overall.done) {
 		return null;
 	}
