@@ -30,7 +30,6 @@ import {
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import {validateOutname} from '../shared/validate-outname';
 import {validatePrivacy} from '../shared/validate-privacy';
-import {enableNodeIntrospection} from '../shared/why-is-node-running';
 import {planFrameRanges} from './chunk-optimization/plan-frame-ranges';
 import {bestFramesPerLambdaParam} from './helpers/best-frames-per-lambda-param';
 import {cleanupProps} from './helpers/cleanup-props';
@@ -41,7 +40,6 @@ import {
 	getBrowserInstance,
 } from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
-import {startLeakDetection} from './helpers/leak-detection';
 import {mergeChunksAndFinishRender} from './helpers/merge-chunks';
 import type {OverallProgressHelper} from './helpers/overall-render-progress';
 import {makeOverallRenderProgress} from './helpers/overall-render-progress';
@@ -55,8 +53,6 @@ type Options = {
 	expectedBucketOwner: string;
 	getRemainingTimeInMillis: () => number;
 };
-
-const ENABLE_SLOW_LEAK_DETECTION = true;
 
 const innerLaunchHandler = async ({
 	functionName,
@@ -430,8 +426,6 @@ export const launchHandler = async (
 		cleanupTasks.push(task);
 	};
 
-	const leakDetection = enableNodeIntrospection(ENABLE_SLOW_LEAK_DETECTION);
-
 	const onTimeout = async () => {
 		RenderInternals.Log.error(
 			{indent: false, logLevel: params.logLevel},
@@ -691,7 +685,5 @@ export const launchHandler = async (
 		throw err;
 	} finally {
 		forgetBrowserEventLoop(params.logLevel);
-
-		startLeakDetection(leakDetection, requestContext.awsRequestId);
 	}
 };
