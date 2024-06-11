@@ -979,6 +979,7 @@ module.exports = {
             "recorder/editing/chapters",
             "recorder/editing/music",
             "recorder/editing/b-roll",
+            "recorder/editing/cutting-clips",
           ],
         },
         "recorder/exporting",
