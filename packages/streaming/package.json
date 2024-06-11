@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/streaming",
-	"version": "4.0.171",
+	"version": "4.0.172",
 	"description": "Internal streaming helpers",
 	"main": "dist",
 	"sideEffects": false,
