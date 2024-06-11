@@ -14,7 +14,7 @@ title: "@remotion/lambda"
 
 Render Remotion videos on [AWS Lambda](https://aws.amazon.com/lambda/). This is the fastest, most cost-efficient and most scalable way to render Remotion videos.
 
-import {LambdaRegionList} from '../components/lambda/regions.tsx';
+import { LambdaRegionList } from "../components/lambda/regions.tsx";
 
 ## When should I use it?
 
@@ -32,6 +32,8 @@ If one of those constraints is a dealbreaker for you, resort to normal [server-s
 - A lot of Lambda functions are created in parallel which each render a small part of the video
 - The initial Lambda function downloads the videos and stitches them together.
 - The final video gets uploaded to S3 and is available for download.
+
+See in more detail: [How Remotion Lambda works](/docs/lambda/how-lambda-works)
 
 ## Architecture
 
