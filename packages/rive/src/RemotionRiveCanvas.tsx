@@ -41,6 +41,7 @@ export type RiveCanvasRef = {
 	getAnimationInstance: () => LinearAnimationInstance | null;
 	getArtboard: () => Artboard | null;
 	getRenderer: () => CanvasRenderer | null;
+	getCanvas: () => RiveCanvas | null;
 };
 
 const RemotionRiveCanvasForwardRefFunction: React.ForwardRefRenderFunction<
@@ -88,9 +89,12 @@ const RemotionRiveCanvasForwardRefFunction: React.ForwardRefRenderFunction<
 				getRenderer() {
 					return rive?.renderer ?? null;
 				},
+				getCanvas() {
+					return riveCanvasInstance ?? null;
+				},
 			};
 		},
-		[rive],
+		[rive, riveCanvasInstance],
 	);
 
 	useEffect(() => {
