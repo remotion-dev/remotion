@@ -210,7 +210,6 @@ const callLambdaWithStreamingWithoutRetry = async <T extends LambdaRoutines>({
 		}
 
 		if (event.InvokeComplete) {
-			console.log('Invoke is now complete!');
 			if (event.InvokeComplete.ErrorCode) {
 				const logs = `https://${region}.console.aws.amazon.com/cloudwatch/home?region=${region}#logsV2:logs-insights$3FqueryDetail$3D~(end~0~start~-3600~timeType~'RELATIVE~unit~'seconds~editorString~'fields*20*40timestamp*2c*20*40requestId*2c*20*40message*0a*7c*20filter*20*40requestId*20like*20*${res.$metadata.requestId}*22*0a*7c*20sort*20*40timestamp*20asc~source~(~'*2faws*2flambda*2f${functionName}))`;
 				if (event.InvokeComplete.ErrorCode === 'Unhandled') {
