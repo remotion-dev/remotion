@@ -7,20 +7,11 @@
 			"error",
 			{
 				"patterns": ["@remotion/cli", "@remotion/*/src/*", "remotion/src/*"],
-				"paths": ["remotion", "react", "react-dom"],
-			},
-		],
+				"paths": ["remotion", "react", "react-dom"]
+			}
+		]
 	},
 	"overrides": [
-		{
-			"files": "./src/functions/helpers/http-handler/**",
-			"rules": {
-				"new-cap": "off",
-				"prefer-const": "off",
-				"no-eq-null": "off",
-				"eqeqeq": "off",
-			},
-		},
 		{
 			"files": "./src/cli/**",
 			"rules": {
@@ -29,10 +20,10 @@
 					"error",
 					{
 						"patterns": ["@remotion/*/src/*", "remotion/src/*"],
-						"paths": ["remotion", "react", "react-dom"],
-					},
-				],
-			},
-		},
-	],
+						"paths": ["remotion", "react", "react-dom"]
+					}
+				]
+			}
+		}
+	]
 }
