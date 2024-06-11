@@ -43,7 +43,6 @@ import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {mergeChunksAndFinishRender} from './helpers/merge-chunks';
 import type {OverallProgressHelper} from './helpers/overall-render-progress';
 import {makeOverallRenderProgress} from './helpers/overall-render-progress';
-import type {RequestContext} from './helpers/request-context';
 import {streamRendererFunctionWithRetry} from './helpers/stream-renderer';
 import {timer} from './helpers/timer';
 import {validateComposition} from './helpers/validate-composition';
@@ -403,7 +402,6 @@ type CleanupTask = () => Promise<unknown>;
 export const launchHandler = async (
 	params: LambdaPayload,
 	options: Options,
-	requestContext: RequestContext,
 ): Promise<{
 	type: 'success';
 }> => {

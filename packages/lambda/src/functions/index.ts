@@ -145,14 +145,10 @@ const innerHandler = async ({
 			params.logLevel,
 		);
 
-		const response = await launchHandler(
-			params,
-			{
-				expectedBucketOwner: currentUserId,
-				getRemainingTimeInMillis: context.getRemainingTimeInMillis,
-			},
-			context,
-		);
+		const response = await launchHandler(params, {
+			expectedBucketOwner: currentUserId,
+			getRemainingTimeInMillis: context.getRemainingTimeInMillis,
+		});
 
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));
 		await responseWriter.end();
