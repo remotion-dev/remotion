@@ -111,17 +111,12 @@ export const makeOverallRenderProgress = ({
 			await currentUploadPromise;
 		}
 
-		const toWrite = JSON.stringify(getCurrentProgress());
-
-		// Deduplicate two fast incoming requests
-		await new Promise<void>((resolve) => {
-			setImmediate(() => resolve());
-		});
-
 		// If request has been replaced by a new one
 		if (getLatestRequestId() !== uploadRequestId) {
 			return;
 		}
+
+		const toWrite = JSON.stringify(getCurrentProgress());
 
 		const start = Date.now();
 		currentUploadPromise = lambdaWriteFile({
@@ -138,7 +133,7 @@ export const makeOverallRenderProgress = ({
 				// By default, upload is way too fast (~20 requests per second)
 				// Space out the requests a bit
 				return new Promise<void>((resolve) => {
-					setTimeout(resolve, 500 - (Date.now() - start));
+					setTimeout(resolve, 250 - (Date.now() - start));
 				});
 			})
 			.catch((err) => {

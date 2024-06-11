@@ -5,7 +5,9 @@ import {S3Client} from '@aws-sdk/client-s3';
 import {ServiceQuotasClient} from '@aws-sdk/client-service-quotas';
 import {STSClient} from '@aws-sdk/client-sts';
 import {fromIni} from '@aws-sdk/credential-providers';
+import {Agent} from 'https';
 import {random} from 'remotion/no-react';
+import {NodeHttpHandler} from '../functions/helpers/http-handler/custom-handler';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {checkCredentials} from './check-credentials';
 import {isInsideLambda} from './is-in-lambda';
@@ -208,12 +210,18 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 
 		const lambdaOptions =
 			service === 'lambda'
-				? {
-						httpsAgent: {
-							maxSockets: 100,
-							keepAlive: false,
-						},
-					}
+				? new NodeHttpHandler({
+						httpsAgent: new Agent({
+							keepAlive: true,
+							maxSockets: 300, // default is 50 per client.
+						}),
+
+						// time limit (ms) for receiving response.
+						requestTimeout: 30_000,
+
+						// time limit (ms) for establishing connection.
+						connectionTimeout: 6_000,
+					})
 				: undefined;
 
 		const client = customCredentials

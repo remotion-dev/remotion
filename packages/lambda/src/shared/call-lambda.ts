@@ -8,7 +8,6 @@ import {
 	InvokeWithResponseStreamCommand,
 } from '@aws-sdk/client-lambda';
 import {makeStreamer} from '@remotion/streaming';
-import {freemem} from 'os';
 import type {OrError} from '../functions';
 import type {
 	MessageTypeId,
@@ -76,7 +75,8 @@ export const callLambdaWithStreaming = async <T extends LambdaRoutines>(
 
 		if (
 			!(err as Error).message.includes(INVALID_JSON_MESSAGE) &&
-			!(err as Error).message.includes(LAMBDA_STREAM_STALL)
+			!(err as Error).message.includes(LAMBDA_STREAM_STALL) &&
+			!(err as Error).message.includes('aborted')
 		) {
 			throw err;
 		}
@@ -186,8 +186,6 @@ const callLambdaWithStreamingWithoutRetry = async <T extends LambdaRoutines>({
 				? parseJsonOrThrowSource(data, messageType)
 				: data;
 
-		console.log('got', data.length, freemem(), process.memoryUsage());
-
 		const message: StreamingMessage = {
 			successType: status,
 			message: {
@@ -227,9 +225,9 @@ const callLambdaWithStreamingWithoutRetry = async <T extends LambdaRoutines>({
 					`Lambda function ${functionName} failed with error code ${event.InvokeComplete.ErrorCode}: ${event.InvokeComplete.ErrorDetails}. See ${logs} to see the logs of this invocation.`,
 				);
 			}
-
-			break;
 		}
+
+		// Don't put a `break` statement here, as it will cause the socket to not properly exit.
 	}
 
 	clear();
