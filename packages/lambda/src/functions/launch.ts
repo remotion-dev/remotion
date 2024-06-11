@@ -207,7 +207,6 @@ const innerLaunchHandler = async ({
 		stringifiedInputProps: serializedResolved,
 		userSpecifiedBucketName: params.bucketName,
 		needsToUpload,
-		logLevel: params.logLevel,
 	});
 
 	registerCleanupTask(() => {

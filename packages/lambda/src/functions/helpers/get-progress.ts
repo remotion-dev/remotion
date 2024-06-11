@@ -235,7 +235,6 @@ export const getProgress = async ({
 				? (overallProgress.lambdasInvoked ?? 0) /
 					renderMetadata.estimatedRenderLambdaInvokations
 				: 0,
-			rendering: renderMetadata ? chunkCount / renderMetadata.totalChunks : 0,
 			frames: (overallProgress.framesRendered ?? 0) / (frameCount ?? 1),
 			gotComposition: overallProgress.compositionValidated,
 			visitedServeUrl: overallProgress.serveUrlOpened,

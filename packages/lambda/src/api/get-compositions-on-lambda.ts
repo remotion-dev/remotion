@@ -65,7 +65,6 @@ export const getCompositionsOnLambda = async ({
 		needsToUpload: getNeedsToUpload('video-or-audio', [
 			stringifiedInputProps.length,
 		]),
-		logLevel: logLevel ?? 'error',
 	});
 
 	try {
