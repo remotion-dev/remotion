@@ -464,6 +464,9 @@ export type RenderProgress = {
 	combinedFrames: number;
 	timeToCombine: number | null;
 	timeoutTimestamp: number;
+	functionLaunched: number;
+	serveUrlOpened: number | null;
+	compositionValidated: number | null;
 };
 
 export type Privacy = 'public' | 'private' | 'no-acl';

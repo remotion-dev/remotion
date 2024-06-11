@@ -21,7 +21,7 @@ export type OverwriteableCliOutput = {
 	update: (up: string, newline: boolean) => boolean;
 };
 
-export const LABEL_WIDTH = 18;
+export const LABEL_WIDTH = 20;
 
 export const createOverwriteableCliOutput = (options: {
 	quiet: boolean;

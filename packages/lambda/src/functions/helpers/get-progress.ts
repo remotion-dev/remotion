@@ -107,6 +107,9 @@ export const getProgress = async ({
 			combinedFrames: totalFrameCount,
 			renderMetadata: overallProgress.renderMetadata,
 			timeoutTimestamp: overallProgress.timeoutTimestamp,
+			compositionValidated: overallProgress.compositionValidated,
+			functionLaunched: overallProgress.functionLaunched,
+			serveUrlOpened: overallProgress.serveUrlOpened,
 		};
 	}
 
@@ -248,5 +251,8 @@ export const getProgress = async ({
 		timeToCombine: overallProgress.timeToCombine ?? null,
 		timeoutTimestamp: overallProgress.timeoutTimestamp,
 		type: 'success',
+		compositionValidated: overallProgress.compositionValidated,
+		functionLaunched: overallProgress.functionLaunched,
+		serveUrlOpened: overallProgress.serveUrlOpened,
 	};
 };

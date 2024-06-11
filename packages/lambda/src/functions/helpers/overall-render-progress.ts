@@ -61,7 +61,6 @@ export const makeInitialOverallRenderProgress = (
 	timeoutTimestamp: number,
 ): OverallRenderProgress => {
 	return {
-		functionLaunched: Date.now(),
 		chunks: [],
 		framesRendered: 0,
 		framesEncoded: 0,
@@ -76,6 +75,7 @@ export const makeInitialOverallRenderProgress = (
 		errors: [],
 		timeToRenderFrames: null,
 		timeoutTimestamp,
+		functionLaunched: Date.now(),
 		serveUrlOpened: null,
 		compositionValidated: null,
 	};
