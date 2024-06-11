@@ -268,6 +268,7 @@ const innerRenderStill = async ({
 		videoEnabled: true,
 		indent,
 		logLevel,
+		onServeUrlVisited: () => undefined,
 	});
 
 	await puppeteerEvaluateWithCatch({

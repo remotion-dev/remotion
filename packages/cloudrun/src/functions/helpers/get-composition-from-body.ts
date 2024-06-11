@@ -28,6 +28,7 @@ export const getCompositionFromBody = async (body: CloudRunPayloadType) => {
 			onBrowserDownload: () => {
 				throw new Error('Should not download a browser in Cloud Run');
 			},
+			onServeUrlVisited: () => undefined,
 		},
 	);
 

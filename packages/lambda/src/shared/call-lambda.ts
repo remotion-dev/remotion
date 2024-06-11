@@ -75,10 +75,14 @@ export const callLambdaWithStreaming = async <T extends LambdaRoutines>(
 
 		if (
 			!(err as Error).message.includes(INVALID_JSON_MESSAGE) &&
-			!(err as Error).message.includes(LAMBDA_STREAM_STALL)
+			!(err as Error).message.includes(LAMBDA_STREAM_STALL) &&
+			!(err as Error).message.includes('aborted')
 		) {
 			throw err;
 		}
+
+		console.error(err);
+		console.error('Retries remaining', options.retriesRemaining);
 
 		return callLambdaWithStreaming({
 			...options,
@@ -220,9 +224,9 @@ const callLambdaWithStreamingWithoutRetry = async <T extends LambdaRoutines>({
 					`Lambda function ${functionName} failed with error code ${event.InvokeComplete.ErrorCode}: ${event.InvokeComplete.ErrorDetails}. See ${logs} to see the logs of this invocation.`,
 				);
 			}
-
-			break;
 		}
+
+		// Don't put a `break` statement here, as it will cause the socket to not properly exit.
 	}
 
 	clear();

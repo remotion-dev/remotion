@@ -114,7 +114,7 @@ export type StreamingMessage = {
 
 export type OnMessage = (options: StreamingMessage) => void;
 
-export type OnStream = (payload: StreamingPayload) => void;
+export type OnStream = (payload: StreamingPayload) => Promise<void>;
 
 export const makeStreamPayload = ({message}: {message: StreamingPayload}) => {
 	const body =

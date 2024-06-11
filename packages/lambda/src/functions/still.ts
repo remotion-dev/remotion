@@ -148,11 +148,11 @@ const innerStillHandler = async ({
 		onBrowserDownload: () => {
 			throw new Error('Should not download a browser in Lambda');
 		},
+		onServeUrlVisited: () => undefined,
 	});
 
 	const renderMetadata: RenderMetadata = {
 		startedDate: Date.now(),
-		videoConfig: composition,
 		codec: null,
 		compositionId: lambdaParams.composition,
 		estimatedTotalLambdaInvokations: 1,

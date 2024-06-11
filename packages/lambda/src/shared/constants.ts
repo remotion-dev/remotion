@@ -12,7 +12,6 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import type {VideoConfig} from 'remotion/no-react';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import type {DeleteAfter} from '../functions/helpers/lifecycle';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
@@ -367,7 +366,6 @@ type Discriminated =
 
 export type RenderMetadata = Discriminated & {
 	siteId: string;
-	videoConfig: VideoConfig;
 	startedDate: number;
 	totalChunks: number;
 	estimatedTotalLambdaInvokations: number;
@@ -466,6 +464,9 @@ export type RenderProgress = {
 	combinedFrames: number;
 	timeToCombine: number | null;
 	timeoutTimestamp: number;
+	functionLaunched: number;
+	serveUrlOpened: number | null;
+	compositionValidated: number | null;
 };
 
 export type Privacy = 'public' | 'private' | 'no-acl';

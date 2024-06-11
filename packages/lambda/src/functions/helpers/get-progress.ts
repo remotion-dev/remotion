@@ -107,6 +107,9 @@ export const getProgress = async ({
 			combinedFrames: totalFrameCount,
 			renderMetadata: overallProgress.renderMetadata,
 			timeoutTimestamp: overallProgress.timeoutTimestamp,
+			compositionValidated: overallProgress.compositionValidated,
+			functionLaunched: overallProgress.functionLaunched,
+			serveUrlOpened: overallProgress.serveUrlOpened,
 		};
 	}
 
@@ -232,8 +235,11 @@ export const getProgress = async ({
 				? (overallProgress.lambdasInvoked ?? 0) /
 					renderMetadata.estimatedRenderLambdaInvokations
 				: 0,
-			rendering: renderMetadata ? chunkCount / renderMetadata.totalChunks : 0,
 			frames: (overallProgress.framesRendered ?? 0) / (frameCount ?? 1),
+			gotComposition: overallProgress.compositionValidated,
+			visitedServeUrl: overallProgress.serveUrlOpened,
+			invokedLambda: overallProgress.lambdasInvoked,
+			combining: overallProgress.combinedFrames / (frameCount ?? 1),
 		}),
 		retriesInfo: overallProgress.retries ?? [],
 		outKey: null,
@@ -248,5 +254,8 @@ export const getProgress = async ({
 		timeToCombine: overallProgress.timeToCombine ?? null,
 		timeoutTimestamp: overallProgress.timeoutTimestamp,
 		type: 'success',
+		compositionValidated: overallProgress.compositionValidated,
+		functionLaunched: overallProgress.functionLaunched,
+		serveUrlOpened: overallProgress.serveUrlOpened,
 	};
 };

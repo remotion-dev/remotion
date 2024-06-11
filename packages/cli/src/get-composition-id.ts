@@ -103,6 +103,7 @@ export const getCompositionId = async ({
 				offthreadVideoCacheSizeInBytes,
 				binariesDirectory,
 				onBrowserDownload,
+				onServeUrlVisited: () => undefined,
 			});
 
 		if (propsSize > 10_000_000) {

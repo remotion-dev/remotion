@@ -23,6 +23,7 @@ import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {startLeakDetection} from './helpers/leak-detection';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
 import type {RequestContext} from './helpers/request-context';
+import {timer} from './helpers/timer';
 import {getTmpDirStateIfENoSp} from './helpers/write-lambda-error';
 import type {OnStream} from './streaming/streaming';
 
@@ -287,10 +288,11 @@ const renderHandler = async ({
 			.catch((err) => reject(err));
 	});
 
-	RenderInternals.Log.verbose(
-		{indent: false, logLevel: params.logLevel},
-		'Streaming chunks to main function',
+	const streamTimer = timer(
+		'Streaming chunk to the main function',
+		params.logLevel,
 	);
+
 	if (audioOutputLocation) {
 		onStream({
 			type: 'audio-chunk-rendered',
@@ -315,6 +317,8 @@ const renderHandler = async ({
 			rendered: endRendered,
 			start,
 		},
+	}).then(() => {
+		streamTimer.end();
 	});
 
 	const writeStart = Date.now();

@@ -74,8 +74,16 @@ const innerHandler = async ({
 				const message = makeStreamPayload({
 					message: payload,
 				});
-				responseWriter.write(message).catch((err) => {
-					reject(err);
+				return new Promise<void>((innerResolve, innerReject) => {
+					responseWriter
+						.write(message)
+						.then(() => {
+							innerResolve();
+						})
+						.catch((err) => {
+							reject(err);
+							innerReject(err);
+						});
 				});
 			};
 
@@ -193,8 +201,17 @@ const innerHandler = async ({
 					const message = makeStreamPayload({
 						message: payload,
 					});
-					responseWriter.write(message).catch((err) => {
-						reject(err);
+
+					return new Promise((innerResolve, innerReject) => {
+						responseWriter
+							.write(message)
+							.then(() => {
+								innerResolve();
+							})
+							.catch((err) => {
+								reject(err);
+								innerReject(err);
+							});
 					});
 				},
 				context,

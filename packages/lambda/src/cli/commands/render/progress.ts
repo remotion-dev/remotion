@@ -9,6 +9,34 @@ type LambdaInvokeProgress = {
 	lambdasInvoked: number;
 };
 
+const makeEvaluationProgress = (overall: RenderProgress) => {
+	const timeToLaunch = overall.compositionValidated
+		? overall.compositionValidated - overall.functionLaunched
+		: null;
+
+	if (timeToLaunch) {
+		return [
+			`Got composition`.padEnd(CliInternals.LABEL_WIDTH),
+			CliInternals.makeProgressBar(1),
+			CliInternals.chalk.gray(`${timeToLaunch}ms`),
+		].join(' ');
+	}
+
+	if (overall.serveUrlOpened) {
+		return [
+			`Calculating metadata`.padEnd(CliInternals.LABEL_WIDTH),
+			CliInternals.makeProgressBar(0.5),
+			`${overall.currentTime - overall.serveUrlOpened}ms`,
+		].join(' ');
+	}
+
+	return [
+		`Visiting Site`.padEnd(CliInternals.LABEL_WIDTH),
+		CliInternals.makeProgressBar(0),
+		`${overall.currentTime - overall.functionLaunched}ms`,
+	].join(' ');
+};
+
 const makeInvokeProgress = (overall: RenderProgress) => {
 	const invokeProgress: LambdaInvokeProgress = {
 		lambdasInvoked: overall.lambdasInvoked,
@@ -151,10 +179,6 @@ const makeTopRow = (overall: RenderProgress) => {
 		(overall.timeoutTimestamp - Date.now()) / 1000,
 	);
 
-	if (!overall.renderMetadata) {
-		return null;
-	}
-
 	if (overall.done) {
 		return null;
 	}
@@ -184,6 +208,7 @@ export const makeProgressString = ({
 }) => {
 	return [
 		makeTopRow(overall),
+		makeEvaluationProgress(overall),
 		...makeInvokeProgress(overall),
 		...makeRenderProgress(overall),
 		makeCombinationProgress(overall),
