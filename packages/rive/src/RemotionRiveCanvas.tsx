@@ -6,7 +6,14 @@ import type {
 	RiveCanvas,
 } from '@rive-app/canvas-advanced';
 import riveCanvas from '@rive-app/canvas-advanced';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {
+	forwardRef,
+	useEffect,
+	useImperativeHandle,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {
 	continueRender,
 	delayRender,
@@ -30,14 +37,27 @@ interface RiveProps {
 	onLoad?: onLoadCallback | null;
 }
 
-export const RemotionRiveCanvas: React.FC<RiveProps> = ({
-	src,
-	fit = 'contain',
-	alignment = 'center',
-	artboard: artboardName,
-	animation: animationIndex,
-	onLoad = null,
-}) => {
+export type RiveCanvasRef = {
+	getAnimationInstance: () => LinearAnimationInstance | null;
+	getArtboard: () => Artboard | null;
+	getRenderer: () => CanvasRenderer | null;
+	getCanvas: () => RiveCanvas | null;
+};
+
+const RemotionRiveCanvasForwardRefFunction: React.ForwardRefRenderFunction<
+	RiveCanvasRef,
+	RiveProps
+> = (
+	{
+		src,
+		fit = 'contain',
+		alignment = 'center',
+		artboard: artboardName,
+		animation: animationIndex,
+		onLoad = null,
+	},
+	ref,
+) => {
 	const {width, fps, height} = useVideoConfig();
 	const frame = useCurrentFrame();
 	const canvas = useRef<HTMLCanvasElement>(null);
@@ -55,6 +75,27 @@ export const RemotionRiveCanvas: React.FC<RiveProps> = ({
 		renderer: CanvasRenderer;
 		artboard: Artboard;
 	} | null>(null);
+
+	useImperativeHandle(
+		ref,
+		() => {
+			return {
+				getAnimationInstance() {
+					return rive?.animation ?? null;
+				},
+				getArtboard() {
+					return rive?.artboard ?? null;
+				},
+				getRenderer() {
+					return rive?.renderer ?? null;
+				},
+				getCanvas() {
+					return riveCanvasInstance ?? null;
+				},
+			};
+		},
+		[rive, riveCanvasInstance],
+	);
 
 	useEffect(() => {
 		riveCanvas({
@@ -162,3 +203,7 @@ export const RemotionRiveCanvas: React.FC<RiveProps> = ({
 
 	return <canvas ref={canvas} width={width} height={height} style={style} />;
 };
+
+export const RemotionRiveCanvas = forwardRef(
+	RemotionRiveCanvasForwardRefFunction,
+);
