@@ -152,7 +152,6 @@ const innerStillHandler = async ({
 
 	const renderMetadata: RenderMetadata = {
 		startedDate: Date.now(),
-		videoConfig: composition,
 		codec: null,
 		compositionId: lambdaParams.composition,
 		estimatedTotalLambdaInvokations: 1,

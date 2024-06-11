@@ -278,7 +278,6 @@ const innerLaunchHandler = async ({
 
 	const renderMetadata: RenderMetadata = {
 		startedDate,
-		videoConfig: comp,
 		totalChunks: chunks.length,
 		estimatedTotalLambdaInvokations: [
 			// Direct invokations
