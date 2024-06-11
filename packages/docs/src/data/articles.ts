@@ -1288,6 +1288,13 @@ export const articles = [
     crumb: "@remotion/lambda",
   },
   {
+    id: "how-lambda-works",
+    title: "How Remotion Lambda works",
+    relativePath: "docs/lambda/how-lambda-works.mdx",
+    compId: "articles-docs-lambda-how-lambda-works",
+    crumb: "Lambda",
+  },
+  {
     id: "lambda/insights",
     title: "Enable Lambda Insights",
     relativePath: "docs/lambda/insights.mdx",
