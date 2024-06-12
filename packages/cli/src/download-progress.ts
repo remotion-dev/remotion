@@ -25,7 +25,10 @@ export const makeMultiDownloadProgress = (progresses: DownloadProgress[]) => {
 				? progress.name.substring(0, 57) + '...'
 				: progress.name;
 		return [
-			`Downloading assets`.padEnd(LABEL_WIDTH, ' '),
+			(progress.progress === 1
+				? 'Downloaded assets '
+				: 'Downloading assets'
+			).padEnd(LABEL_WIDTH, ' '),
 			progress.progress
 				? makeProgressBar(progress.progress)
 				: getFileSizeDownloadBar(progress.downloaded),
