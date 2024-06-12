@@ -77,6 +77,7 @@ export type PlayerProps<Schema extends AnyZodObject, Props> = {
 	readonly posterFillMode?: PosterFillMode;
 	readonly bufferStateDelayInMilliseconds?: number;
 	readonly hideControlsWhenPointerDoesntMove?: boolean | number;
+	readonly overflowVisible?: boolean;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
@@ -129,6 +130,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 		posterFillMode = 'player-size',
 		bufferStateDelayInMilliseconds,
 		hideControlsWhenPointerDoesntMove = true,
+		overflowVisible = false,
 		...componentProps
 	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>,
@@ -387,6 +389,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 							hideControlsWhenPointerDoesntMove={
 								hideControlsWhenPointerDoesntMove
 							}
+							overflowVisible={overflowVisible}
 						/>
 					</PlayerEmitterProvider>
 				</Internals.Timeline.SetTimelineContext.Provider>

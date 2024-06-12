@@ -82,6 +82,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		readonly posterFillMode: PosterFillMode;
 		readonly bufferStateDelayInMilliseconds: number;
 		readonly hideControlsWhenPointerDoesntMove: boolean | number;
+		readonly overflowVisible: boolean;
 	}
 > = (
 	{
@@ -115,6 +116,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		posterFillMode,
 		bufferStateDelayInMilliseconds,
 		hideControlsWhenPointerDoesntMove,
+		overflowVisible,
 	},
 	ref,
 ) => {
@@ -437,16 +439,22 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const VideoComponent = video ? video.component : null;
 
 	const outerStyle: React.CSSProperties = useMemo(() => {
-		return calculateOuterStyle({canvasSize, config, style});
-	}, [canvasSize, config, style]);
+		return calculateOuterStyle({canvasSize, config, style, overflowVisible});
+	}, [canvasSize, config, overflowVisible, style]);
 
 	const outer = useMemo(() => {
-		return calculateOuter({config, layout, scale});
-	}, [config, layout, scale]);
+		return calculateOuter({config, layout, scale, overflowVisible});
+	}, [config, layout, overflowVisible, scale]);
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
-		return calculateContainerStyle({canvasSize, config, layout, scale});
-	}, [canvasSize, config, layout, scale]);
+		return calculateContainerStyle({
+			canvasSize,
+			config,
+			layout,
+			scale,
+			overflowVisible,
+		});
+	}, [canvasSize, config, layout, overflowVisible, scale]);
 
 	const onError = useCallback(
 		(error: Error) => {
