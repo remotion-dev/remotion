@@ -1,3 +1,4 @@
+import {Artifact} from './Artifact.js';
 import './asset-types.js';
 import {Clipper} from './Clipper.js';
 import type {Codec} from './codec.js';
@@ -170,6 +171,7 @@ export const Experimental = {
 	 * @see [Documentation](https://www.remotion.dev/docs/null)
 	 */
 	Null,
+	Artifact,
 	useIsPlayer,
 };
 

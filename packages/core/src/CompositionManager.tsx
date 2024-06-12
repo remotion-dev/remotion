@@ -142,6 +142,8 @@ export type AudioOrVideoAsset = {
 export type ArtifactAsset = {
 	type: 'artifact';
 	id: string;
+	filename: string;
+	content: string;
 };
 
 export type TRenderAsset = AudioOrVideoAsset | ArtifactAsset;
