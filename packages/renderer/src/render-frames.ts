@@ -2,7 +2,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {performance} from 'perf_hooks';
 // eslint-disable-next-line no-restricted-imports
-import type {AudioOrVideoAsset, VideoConfig} from 'remotion/no-react';
+import type {
+	ArtifactAsset,
+	AudioOrVideoAsset,
+	VideoConfig,
+} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
@@ -144,7 +148,8 @@ type InnerRenderFramesOptions = {
 
 export type FrameAndAssets = {
 	frame: number;
-	assets: AudioOrVideoAsset[];
+	audioAndVideoAssets: AudioOrVideoAsset[];
+	artifactAssets: ArtifactAsset[];
 };
 
 export type RenderFramesOptions = {
@@ -488,22 +493,22 @@ const innerRenderFrames = async ({
 
 		stopPerfMeasure(id);
 
-		const previousRenderAssets = assets
+		const previousAudioRenderAssets = assets
 			.filter(truthy)
-			.map((a) => a.assets)
+			.map((a) => a.audioAndVideoAssets)
 			.flat(2);
 
 		const audioAndVideoAssets = onlyAudioAndVideoAssets(collectedAssets);
 		const artifactAssets = onlyArtifact(collectedAssets);
-		console.log(artifactAssets);
 
 		const compressedAssets = audioAndVideoAssets.map((asset) => {
-			return compressAsset(previousRenderAssets, asset);
+			return compressAsset(previousAudioRenderAssets, asset);
 		});
 
 		assets.push({
-			assets: compressedAssets,
+			audioAndVideoAssets: compressedAssets,
 			frame,
+			artifactAssets,
 		});
 		for (const renderAsset of compressedAssets) {
 			downloadAndMapAssetsToFileUrl({

@@ -31,7 +31,7 @@ export const convertAssetsToFileUrls = async ({
 
 	for (const ch of chunks) {
 		const assetPromises = ch.map((frame) => {
-			const frameAssetPromises = frame.assets.map((a) => {
+			const frameAssetPromises = frame.audioAndVideoAssets.map((a) => {
 				return downloadAndMapAssetsToFileUrl({
 					renderAsset: a,
 					onDownload,
