@@ -294,19 +294,49 @@ const renderHandler = async ({
 	);
 
 	if (audioOutputLocation) {
+		const audioChunkTimer = timer('Sending audio chunk', params.logLevel);
 		onStream({
 			type: 'audio-chunk-rendered',
 			payload: fs.readFileSync(audioOutputLocation),
-		});
+		})
+			.then(() => {
+				audioChunkTimer.end();
+			})
+			.catch((err) => {
+				RenderInternals.Log.error(
+					{indent: false, logLevel: params.logLevel},
+					`Error occurred while streaming audio chunk to main function`,
+				);
+				RenderInternals.Log.error(
+					{indent: false, logLevel: params.logLevel},
+					err,
+				);
+				throw err;
+			});
 	}
 
 	if (videoOutputLocation) {
+		const videoChunkTimer = timer('Sending main chunk', params.logLevel);
 		onStream({
 			type: RenderInternals.isAudioCodec(params.codec)
 				? 'audio-chunk-rendered'
 				: 'video-chunk-rendered',
 			payload: fs.readFileSync(videoOutputLocation),
-		});
+		})
+			.then(() => {
+				videoChunkTimer.end();
+			})
+			.catch((err) => {
+				RenderInternals.Log.error(
+					{indent: false, logLevel: params.logLevel},
+					`Error occurred while streaming main chunk to main function`,
+				);
+				RenderInternals.Log.error(
+					{indent: false, logLevel: params.logLevel},
+					err,
+				);
+				throw err;
+			});
 	}
 
 	const endRendered = Date.now();
@@ -321,12 +351,6 @@ const renderHandler = async ({
 		streamTimer.end();
 	});
 
-	const writeStart = Date.now();
-
-	RenderInternals.Log.verbose(
-		{indent: false, logLevel: params.logLevel},
-		`Streamed chunk to main function (${Date.now() - writeStart}ms)`,
-	);
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
 		'Cleaning up and writing timings',

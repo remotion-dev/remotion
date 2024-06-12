@@ -432,14 +432,6 @@ export const launchHandler = async (
 			'Function is about to time out. Can not finish render.',
 		);
 
-		if (!params.webhook) {
-			return;
-		}
-
-		if (webhookInvoked) {
-			return;
-		}
-
 		Promise.all(cleanupTasks)
 			.then(() => {
 				RenderInternals.Log.info(
@@ -454,6 +446,28 @@ export const launchHandler = async (
 					err,
 				);
 			});
+
+		if (!params.webhook) {
+			RenderInternals.Log.verbose(
+				{
+					indent: false,
+					logLevel: params.logLevel,
+				},
+				'No webhook specified.',
+			);
+			return;
+		}
+
+		if (webhookInvoked) {
+			RenderInternals.Log.verbose(
+				{
+					indent: false,
+					logLevel: params.logLevel,
+				},
+				'Webhook already invoked. Not invoking again.',
+			);
+			return;
+		}
 
 		try {
 			await invokeWebhook(
