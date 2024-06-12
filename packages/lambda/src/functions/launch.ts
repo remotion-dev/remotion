@@ -491,6 +491,7 @@ export const launchHandler = async (
 					logLevel: params.logLevel,
 				},
 				'Successfully invoked timeout webhook.',
+				params.webhook.url,
 			);
 			webhookInvoked = true;
 		} catch (err) {
