@@ -34,6 +34,7 @@ type ThumbnailProps<
 		compositionWidth: number;
 		compositionHeight: number;
 		fps: number;
+		overflowVisible?: boolean;
 		errorFallback?: ErrorFallback;
 		renderLoading?: RenderLoading;
 		className?: string;
@@ -54,6 +55,7 @@ const ThumbnailFn = <
 		className,
 		errorFallback = () => '⚠️',
 		renderLoading,
+		overflowVisible = false,
 		...componentProps
 	}: ThumbnailProps<Schema, Props>,
 	ref: MutableRefObject<ThumbnailMethods>,
@@ -120,6 +122,7 @@ const ThumbnailFn = <
 						inputProps={passedInputProps}
 						renderLoading={renderLoading}
 						style={style}
+						overflowVisible={overflowVisible}
 					/>
 				</ThumbnailEmitterContext.Provider>
 			</SharedPlayerContexts>

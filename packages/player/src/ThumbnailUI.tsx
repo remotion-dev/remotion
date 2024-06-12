@@ -40,8 +40,12 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 		errorFallback: ErrorFallback;
 		renderLoading: RenderLoading | undefined;
 		className: string | undefined;
+		overflowVisible: boolean;
 	}
-> = ({style, inputProps, errorFallback, renderLoading, className}, ref) => {
+> = (
+	{style, inputProps, errorFallback, renderLoading, className, overflowVisible},
+	ref,
+) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const video = Internals.useVideo();
 	const container = useRef<HTMLDivElement>(null);
@@ -83,12 +87,12 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 	const VideoComponent = video ? video.component : null;
 
 	const outerStyle: React.CSSProperties = useMemo(() => {
-		return calculateOuterStyle({config, style, canvasSize});
-	}, [canvasSize, config, style]);
+		return calculateOuterStyle({config, style, canvasSize, overflowVisible});
+	}, [canvasSize, config, overflowVisible, style]);
 
 	const outer: React.CSSProperties = useMemo(() => {
-		return calculateOuter({config, layout, scale});
-	}, [config, layout, scale]);
+		return calculateOuter({config, layout, scale, overflowVisible});
+	}, [config, layout, overflowVisible, scale]);
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
 		return calculateContainerStyle({
@@ -96,8 +100,9 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 			config,
 			layout,
 			scale,
+			overflowVisible,
 		});
-	}, [canvasSize, config, layout, scale]);
+	}, [canvasSize, config, layout, overflowVisible, scale]);
 
 	const onError = useCallback(
 		(error: Error) => {
