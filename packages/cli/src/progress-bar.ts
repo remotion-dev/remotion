@@ -14,6 +14,7 @@ import {
 	makeMultiDownloadProgress,
 } from './download-progress';
 import {formatEtaString} from './eta-string';
+import {makeHyperlink} from './hyperlinks/make-link';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import {truthy} from './truthy';
@@ -311,11 +312,13 @@ export const printFact =
 		left,
 		right,
 		color,
+		link,
 	}: {
 		indent: boolean;
 		logLevel: LogLevel;
 		left: string;
 		right: string;
+		link?: string;
 		color: 'blue' | 'blueBright' | 'gray' | undefined;
 	}) => {
 		const fn = (str: string) => {
@@ -340,6 +343,16 @@ export const printFact =
 			return;
 		}
 
-		const leftPadded = left.padEnd(LABEL_WIDTH, ' ');
+		let leftPadded = left.padEnd(LABEL_WIDTH, ' ');
+		if (link) {
+			const endPadding = LABEL_WIDTH - left.length;
+			leftPadded =
+				makeHyperlink({
+					text: left,
+					fallback: left,
+					url: link,
+				}) + ' '.repeat(endPadding);
+		}
+
 		Log[printLevel]({indent, logLevel}, fn(`${leftPadded} ${right}`));
 	};
