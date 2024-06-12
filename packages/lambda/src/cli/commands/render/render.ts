@@ -330,28 +330,65 @@ export const renderCommand = async (
 	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray(
-			`bucket = ${res.bucketName}, function = ${functionName}`,
+			`Bucket: ${CliInternals.makeHyperlink({text: res.bucketName, fallback: res.bucketName, url: `https://${getAwsRegion()}.console.aws.amazon.com/s3/buckets/${res.bucketName}/?region=${getAwsRegion()}`})}`,
 		),
 	);
 	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray(
-			`renderId = ${res.renderId}, codec = ${codec} (${reason})`,
+			`Function: ${CliInternals.makeHyperlink({text: functionName, fallback: functionName, url: `https://${getAwsRegion()}.console.aws.amazon.com/lambda/home#/functions/${functionName}?tab=code`})}`,
+		),
+	);
+	Log.info(
+		{indent: false, logLevel},
+		CliInternals.chalk.gray(
+			`Render ID: ${CliInternals.makeHyperlink({text: res.renderId, fallback: res.renderId, url: res.folderInS3Console})}`,
+		),
+	);
+	Log.info(
+		{
+			indent: false,
+			logLevel,
+		},
+		CliInternals.chalk.gray(
+			`${CliInternals.makeHyperlink({
+				text: 'Codec',
+				fallback: 'Codec',
+				url: 'https://remotion.dev/docs/encoding',
+			})}: ${codec} (${reason})`,
 		),
 	);
 
 	Log.verbose(
 		{indent: false, logLevel},
-		`CloudWatch logs (if enabled): ${res.cloudWatchLogs}`,
+		CliInternals.makeHyperlink({
+			text: (instruction) =>
+				`${instruction} to view CloudWatch logs (if enabled)`,
+			url: res.cloudWatchLogs,
+			fallback: `CloudWatch logs (if enabled): ${res.cloudWatchLogs}`,
+		}),
 	);
 	Log.verbose(
 		{indent: false, logLevel},
-		`Lambda insights (if enabled): ${res.lambdaInsightsLogs}`,
+		CliInternals.makeHyperlink({
+			text: (instruction) =>
+				`${instruction} to view Lambda insights (if enabled)`,
+			url: res.lambdaInsightsLogs,
+			fallback: `Lambda insights (if enabled): ${res.lambdaInsightsLogs}`,
+		}),
 	);
-	Log.verbose(
-		{indent: false, logLevel},
-		`Render folder: ${res.folderInS3Console}`,
-	);
+
+	if (!CliInternals.supportsHyperlink()) {
+		Log.verbose(
+			{indent: false, logLevel},
+			CliInternals.makeHyperlink({
+				text: (instruction) => `${instruction} for Render folder`,
+				url: res.folderInS3Console,
+				fallback: `Render folder: ${res.folderInS3Console}`,
+			}),
+		);
+	}
+
 	const status = await getRenderProgress({
 		functionName,
 		bucketName: res.bucketName,

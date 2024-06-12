@@ -18,6 +18,8 @@ import {getCliOptions} from './get-cli-options';
 import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
 import {loadConfig} from './get-config-file-name';
 import {gpuCommand} from './gpu';
+import {supportsHyperlink} from './hyperlinks/is-supported';
+import {makeHyperlink} from './hyperlinks/make-link';
 import {getVideoImageFormat} from './image-formats';
 import {initializeCli} from './initialize-cli';
 import {lambdaCommand} from './lambda-command';
@@ -167,4 +169,6 @@ export const CliInternals = {
 	defaultBrowserDownloadProgress,
 	LABEL_WIDTH,
 	printFact,
+	makeHyperlink,
+	supportsHyperlink,
 };

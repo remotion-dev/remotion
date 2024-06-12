@@ -215,7 +215,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		progressBar.update(
 			[
 				`Rendering on Cloud Run: `,
-				CliInternals.makeProgressBar(renderProgress.progress),
+				CliInternals.makeProgressBar(renderProgress.progress, false),
 				`${renderProgress.doneIn === null ? 'Rendering' : 'Rendered'}`,
 				renderProgress.doneIn === null
 					? `${Math.round(renderProgress.progress * 100)}%`

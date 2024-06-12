@@ -14,6 +14,7 @@ import {
 	makeMultiDownloadProgress,
 } from './download-progress';
 import {formatEtaString} from './eta-string';
+import {makeHyperlink} from './hyperlinks/make-link';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import {truthy} from './truthy';
@@ -92,7 +93,7 @@ const makeBundlingProgress = ({
 
 	return [
 		`${doneIn ? 'Bundled' : 'Bundling'} code`.padEnd(LABEL_WIDTH, ' '),
-		makeProgressBar(progress),
+		makeProgressBar(progress, false),
 		doneIn === null
 			? (progress * 100).toFixed(0) + '%'
 			: chalk.gray(`${doneIn}ms`),
@@ -109,7 +110,9 @@ const makeCopyingProgress = (options: CopyingState) => {
 
 	return [
 		'Copying public dir'.padEnd(LABEL_WIDTH, ' '),
-		options.doneIn ? makeProgressBar(1) : getFileSizeDownloadBar(options.bytes),
+		options.doneIn
+			? makeProgressBar(1, false)
+			: getFileSizeDownloadBar(options.bytes),
 		options.doneIn === null ? null : chalk.gray(`${options.doneIn}ms`),
 	]
 		.filter(truthy)
@@ -171,10 +174,10 @@ const makeRenderingProgress = ({
 			.filter(truthy)
 			.join(' ')
 			.padEnd(LABEL_WIDTH, ' '),
-		makeProgressBar(progress),
+		makeProgressBar(progress, false),
 		doneIn === null
 			? [
-					`${String(frames).padStart(String(totalFrames).length, ' ')}/${totalFrames}`,
+					`${frames}/${totalFrames}`.padStart(getRightLabelWidth(totalFrames)),
 					timeRemainingInMilliseconds
 						? chalk.gray(
 								`${formatEtaString(timeRemainingInMilliseconds)} remaining`,
@@ -187,6 +190,10 @@ const makeRenderingProgress = ({
 	]
 		.filter(truthy)
 		.join(' ');
+};
+
+export const getRightLabelWidth = (totalFrames: number) => {
+	return `${totalFrames}/${totalFrames}`.length;
 };
 
 const makeStitchingProgress = ({
@@ -210,7 +217,7 @@ const makeStitchingProgress = ({
 			? `${doneIn ? 'Muxed' : 'Muxing'} ${mediaType}`
 			: `${doneIn ? 'Encoded' : 'Encoding'} ${mediaType}`
 		).padEnd(LABEL_WIDTH, ' '),
-		makeProgressBar(progress),
+		makeProgressBar(progress, false),
 		doneIn === null
 			? `${String(frames).padStart(String(totalFrames).length, ' ')}/${totalFrames}`
 			: chalk.gray(`${doneIn}ms`),
@@ -233,7 +240,7 @@ export const makeRenderingAndStitchingProgress = ({
 	const {rendering, stitching, downloads, bundling} = prog;
 	const output = [
 		rendering ? makeRenderingProgress(rendering) : null,
-		makeMultiDownloadProgress(downloads),
+		makeMultiDownloadProgress(downloads, rendering?.totalFrames ?? 0),
 		stitching === null
 			? null
 			: makeStitchingProgress({
@@ -311,11 +318,13 @@ export const printFact =
 		left,
 		right,
 		color,
+		link,
 	}: {
 		indent: boolean;
 		logLevel: LogLevel;
 		left: string;
 		right: string;
+		link?: string;
 		color: 'blue' | 'blueBright' | 'gray' | undefined;
 	}) => {
 		const fn = (str: string) => {
@@ -340,6 +349,16 @@ export const printFact =
 			return;
 		}
 
-		const leftPadded = left.padEnd(LABEL_WIDTH, ' ');
+		let leftPadded = left.padEnd(LABEL_WIDTH, ' ');
+		if (link) {
+			const endPadding = LABEL_WIDTH - left.length;
+			leftPadded =
+				makeHyperlink({
+					text: left,
+					fallback: left,
+					url: link,
+				}) + ' '.repeat(endPadding);
+		}
+
 		Log[printLevel]({indent, logLevel}, fn(`${leftPadded} ${right}`));
 	};

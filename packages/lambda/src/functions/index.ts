@@ -202,9 +202,10 @@ const innerHandler = async ({
 						message: payload,
 					});
 
+					const writeProm = responseWriter.write(message);
+
 					return new Promise((innerResolve, innerReject) => {
-						responseWriter
-							.write(message)
+						writeProm
 							.then(() => {
 								innerResolve();
 							})

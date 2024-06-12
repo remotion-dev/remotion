@@ -38,6 +38,7 @@ import {ConfigInternals} from '../config';
 import {getAndValidateAbsoluteOutputFile} from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
 import {getOutputFilename} from '../get-filename';
+import {makeHyperlink} from '../hyperlinks/make-link';
 import {getVideoImageFormat} from '../image-formats';
 import {Log} from '../log';
 import {makeOnDownload} from '../make-on-download';
@@ -367,11 +368,13 @@ export const renderVideoFlow = async ({
 			.filter(truthy)
 			.join(' '),
 		color: 'gray',
+		link: 'https://www.remotion.dev/docs/terminology/composition',
 	});
 	printFact('info')({
 		indent,
 		logLevel,
 		left: 'Codec',
+		link: 'https://www.remotion.dev/docs/encoding',
 		right: [codec, isVerbose ? `(${codecReason})` : null]
 			.filter(truthy)
 			.join(' '),
@@ -388,6 +391,7 @@ export const renderVideoFlow = async ({
 		indent,
 		logLevel,
 		left: 'Concurrency',
+		link: 'https://www.remotion.dev/docs/terminology/concurrency',
 		right: `${actualConcurrency}x`,
 		color: 'gray',
 	});
@@ -584,7 +588,7 @@ export const renderVideoFlow = async ({
 	Log.info(
 		{indent, logLevel},
 		chalk.blue(
-			`${(exists ? '○' : '+').padEnd(LABEL_WIDTH)} ${relativeOutputLocation}`,
+			`${(exists ? '○' : '+').padEnd(LABEL_WIDTH)} ${makeHyperlink({url: `file://${absoluteOutputFile}`, text: relativeOutputLocation, fallback: relativeOutputLocation})}`,
 		),
 	);
 

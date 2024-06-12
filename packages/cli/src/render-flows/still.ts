@@ -24,6 +24,7 @@ import {ConfigInternals} from '../config';
 import {determineFinalStillImageFormat} from '../determine-image-format';
 import {getAndValidateAbsoluteOutputFile} from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
+import {makeHyperlink} from '../hyperlinks/make-link';
 import {Log} from '../log';
 import {makeOnDownload} from '../make-on-download';
 import {parsedCli, quietFlagProvided} from '../parsed-cli';
@@ -272,6 +273,7 @@ export const renderStillFlow = async ({
 	printFact('info')({
 		indent,
 		left: 'Composition',
+		link: 'https://remotion.dev/docs/terminology/composition',
 		logLevel,
 		right: [compositionId, isVerbose ? `(${reason})` : null]
 			.filter(truthy)
@@ -366,7 +368,7 @@ export const renderStillFlow = async ({
 	Log.info(
 		{indent, logLevel},
 		chalk.blue(
-			`${(exists ? '○' : '+').padEnd(LABEL_WIDTH)} ${relativeOutputLocation}`,
+			`${(exists ? '○' : '+').padEnd(LABEL_WIDTH)} ${makeHyperlink({url: 'file://' + absoluteOutputLocation, text: relativeOutputLocation, fallback: relativeOutputLocation})}`,
 		),
 	);
 };
