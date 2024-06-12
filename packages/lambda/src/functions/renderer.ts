@@ -1,4 +1,9 @@
-import type {AudioCodec, BrowserLog, Codec} from '@remotion/renderer';
+import type {
+	AudioCodec,
+	BrowserLog,
+	Codec,
+	OnArtifact,
+} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -167,6 +172,10 @@ const renderHandler = async ({
 		params.everyNthFrame,
 	);
 
+	const onArtifact: OnArtifact = (artifact) => {
+		console.log(artifact);
+	};
+
 	await new Promise<void>((resolve, reject) => {
 		RenderInternals.internalRenderMedia({
 			repro: false,
@@ -271,6 +280,7 @@ const renderHandler = async ({
 			onBrowserDownload: () => {
 				throw new Error('Should not download a browser in Lambda');
 			},
+			onArtifact,
 		})
 			.then(({slowestFrames}) => {
 				RenderInternals.Log.verbose(

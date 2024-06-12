@@ -489,6 +489,7 @@ export const benchmarkCommand = async (
 						}).value,
 					compositionStart: 0,
 					onBrowserDownload,
+					onArtifact: () => undefined,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

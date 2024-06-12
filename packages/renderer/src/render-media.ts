@@ -53,6 +53,7 @@ import {prespawnFfmpeg} from './prespawn-ffmpeg';
 import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
 import type {ProResProfile} from './prores-profile';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
+import type {OnArtifact} from './render-frames';
 import {internalRenderFrames} from './render-frames';
 import {
 	disableRepro,
@@ -125,6 +126,7 @@ export type InternalRenderMediaOptions = {
 	concurrency: number | string | null;
 	binariesDirectory: string | null;
 	compositionStart: number;
+	onArtifact: OnArtifact | null;
 } & MoreRenderMediaOptions;
 
 type Prettify<T> = {
@@ -179,6 +181,7 @@ export type RenderMediaOptions = Prettify<{
 	colorSpace?: ColorSpace;
 	repro?: boolean;
 	binariesDirectory?: string | null;
+	onArtifact?: OnArtifact;
 }> &
 	Partial<MoreRenderMediaOptions>;
 
@@ -241,6 +244,7 @@ const internalRenderMediaRaw = ({
 	forSeamlessAacConcatenation,
 	compositionStart,
 	onBrowserDownload,
+	onArtifact,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	if (repro) {
 		enableRepro({
@@ -649,6 +653,7 @@ const internalRenderMediaRaw = ({
 					compositionStart,
 					forSeamlessAacConcatenation,
 					onBrowserDownload,
+					onArtifact,
 				});
 
 				return renderFramesProc;
@@ -863,6 +868,7 @@ export const renderMedia = ({
 	separateAudioTo,
 	forSeamlessAacConcatenation,
 	onBrowserDownload,
+	onArtifact,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	if (quality !== undefined) {
 		console.warn(
@@ -937,6 +943,7 @@ export const renderMedia = ({
 		onBrowserDownload:
 			onBrowserDownload ??
 			defaultBrowserDownloadProgress({indent, logLevel, api: 'renderMedia()'}),
+		onArtifact: onArtifact ?? null,
 		// TODO: In the future, introduce this as a public API when launching the distributed rendering API
 		compositionStart: 0,
 	});

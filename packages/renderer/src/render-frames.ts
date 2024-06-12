@@ -2,11 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {performance} from 'perf_hooks';
 // eslint-disable-next-line no-restricted-imports
-import type {
-	ArtifactAsset,
-	AudioOrVideoAsset,
-	VideoConfig,
-} from 'remotion/no-react';
+import type {AudioOrVideoAsset, VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
@@ -71,7 +67,9 @@ import {wrapWithErrorHandling} from './wrap-with-error-handling';
 
 const MAX_RETRIES_PER_FRAME = 1;
 
-export type InternalRenderFramesOptions = {
+export type OnArtifact = (asset: EmittedAsset) => void;
+
+type InternalRenderFramesOptions = {
 	onStart: null | ((data: OnStartData) => void);
 	onFrameUpdate:
 		| null
@@ -105,7 +103,14 @@ export type InternalRenderFramesOptions = {
 	serializedResolvedPropsWithCustomSchema: string;
 	parallelEncodingEnabled: boolean;
 	compositionStart: number;
+	onArtifact: OnArtifact | null;
 } & ToOptions<typeof optionsMap.renderFrames>;
+
+type EmittedAsset = {
+	filename: string;
+	content: string | Buffer;
+	frame: number;
+};
 
 type InnerRenderFramesOptions = {
 	onStart: null | ((data: OnStartData) => void);
@@ -123,6 +128,7 @@ type InnerRenderFramesOptions = {
 	everyNthFrame: number;
 	onBrowserLog: null | ((log: BrowserLog) => void);
 	onFrameBuffer: null | ((buffer: Buffer, frame: number) => void);
+	onArtifact: OnArtifact | null;
 	onDownload: RenderMediaOnDownload | null;
 	timeoutInMilliseconds: number;
 	scale: number;
@@ -146,10 +152,15 @@ type InnerRenderFramesOptions = {
 	compositionStart: number;
 } & ToOptions<typeof optionsMap.renderFrames>;
 
+type ArtifactWithoutContent = {
+	frame: number;
+	filename: string;
+};
+
 export type FrameAndAssets = {
 	frame: number;
 	audioAndVideoAssets: AudioOrVideoAsset[];
-	artifactAssets: ArtifactAsset[];
+	artifactAssets: ArtifactWithoutContent[];
 };
 
 export type RenderFramesOptions = {
@@ -190,6 +201,7 @@ export type RenderFramesOptions = {
 	composition: VideoConfig;
 	muted?: boolean;
 	concurrency?: number | string | null;
+	onArtifact?: OnArtifact | null;
 	serveUrl: string;
 } & Partial<ToOptions<typeof optionsMap.renderFrames>>;
 
@@ -511,7 +523,7 @@ const innerRenderFrames = async ({
 				if (artifact.filename === previousArtifact.filename) {
 					reject(
 						new Error(
-							`An artifact with output "${artifact.filename}" was already registered at frame ${previousArtifact.frame}, but now registered again at frame ${artifact.frame}.`,
+							`An artifact with output "${artifact.filename}" was already registered at frame ${previousArtifact.frame}, but now registered again at frame ${artifact.frame}. An artifact`,
 						),
 					);
 					return;
@@ -526,7 +538,12 @@ const innerRenderFrames = async ({
 		assets.push({
 			audioAndVideoAssets: compressedAssets,
 			frame,
-			artifactAssets,
+			artifactAssets: artifactAssets.map((a) => {
+				return {
+					frame: a.frame,
+					filename: a.filename,
+				};
+			}),
 		});
 		for (const renderAsset of compressedAssets) {
 			downloadAndMapAssetsToFileUrl({
@@ -784,6 +801,7 @@ const internalRenderFramesRaw = ({
 	forSeamlessAacConcatenation,
 	compositionStart,
 	onBrowserDownload,
+	onArtifact,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	validateDimension(
 		composition.height,
@@ -913,6 +931,7 @@ const internalRenderFramesRaw = ({
 					forSeamlessAacConcatenation,
 					compositionStart,
 					onBrowserDownload,
+					onArtifact,
 				});
 			}),
 		])
@@ -1007,6 +1026,7 @@ export const renderFrames = (
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
 		onBrowserDownload,
+		onArtifact,
 	} = options;
 
 	if (!composition) {
@@ -1078,5 +1098,6 @@ export const renderFrames = (
 		onBrowserDownload:
 			onBrowserDownload ??
 			defaultBrowserDownloadProgress({indent, logLevel, api: 'renderFrames()'}),
+		onArtifact: onArtifact ?? null,
 	});
 };

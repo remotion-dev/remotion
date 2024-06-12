@@ -11,6 +11,7 @@ import type {
 	FrameRange,
 	LogLevel,
 	NumberOfGifLoops,
+	OnArtifact,
 	PixelFormat,
 	ProResProfile,
 	RenderMediaOnDownload,
@@ -402,6 +403,10 @@ export const renderVideoFlow = async ({
 		logLevel,
 	);
 
+	const onArtifact: OnArtifact = (artifact) => {
+		console.log('artifact', artifact);
+	};
+
 	const absoluteSeparateAudioTo =
 		separateAudioTo === null ? null : path.resolve(separateAudioTo);
 	const exists = existsSync(absoluteOutputFile);
@@ -491,6 +496,7 @@ export const renderVideoFlow = async ({
 			compositionStart: 0,
 			forSeamlessAacConcatenation,
 			onBrowserDownload,
+			onArtifact,
 		});
 
 		Log.info({indent, logLevel}, chalk.blue(`▶ ${absoluteOutputFile}`));
@@ -580,6 +586,7 @@ export const renderVideoFlow = async ({
 		forSeamlessAacConcatenation,
 		compositionStart: 0,
 		onBrowserDownload,
+		onArtifact,
 	});
 	if (!updatesDontOverwrite) {
 		updateRenderProgress({newline: true, printToConsole: true});
