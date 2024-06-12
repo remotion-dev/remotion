@@ -29,7 +29,7 @@ import type {
 	RenderingProgressInput,
 	StitchingProgressInput,
 } from '@remotion/studio-server';
-import fs, {existsSync} from 'node:fs';
+import fs, {existsSync, writeFileSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
@@ -404,7 +404,7 @@ export const renderVideoFlow = async ({
 	);
 
 	const onArtifact: OnArtifact = (artifact) => {
-		console.log('artifact', artifact);
+		writeFileSync(artifact.filename, artifact.content);
 	};
 
 	const absoluteSeparateAudioTo =

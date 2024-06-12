@@ -239,6 +239,7 @@ const innerRenderFrames = async ({
 	parallelEncodingEnabled,
 	compositionStart,
 	forSeamlessAacConcatenation,
+	onArtifact,
 }: Omit<
 	InnerRenderFramesOptions,
 	'offthreadVideoCacheSizeInBytes'
@@ -529,6 +530,8 @@ const innerRenderFrames = async ({
 					return;
 				}
 			}
+
+			onArtifact?.(artifact);
 		}
 
 		const compressedAssets = audioAndVideoAssets.map((asset) => {
