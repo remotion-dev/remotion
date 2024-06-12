@@ -485,6 +485,13 @@ export const launchHandler = async (
 				},
 				params.logLevel,
 			);
+			RenderInternals.Log.verbose(
+				{
+					indent: false,
+					logLevel: params.logLevel,
+				},
+				'Successfully invoked timeout webhook.',
+			);
 			webhookInvoked = true;
 		} catch (err) {
 			if (process.env.NODE_ENV === 'test') {
