@@ -12,7 +12,7 @@ export const makeBundleProgress = ({progress, doneIn}: BundleProgress) => {
 			CliInternals.LABEL_WIDTH,
 			' ',
 		),
-		CliInternals.makeProgressBar(progress / 100),
+		CliInternals.makeProgressBar(progress / 100, false),
 		doneIn === null
 			? `${Math.round(progress)}%`
 			: CliInternals.chalk.gray(`${doneIn}ms`),
@@ -62,7 +62,7 @@ export const makeBucketProgress = ({
 
 	return [
 		creationState.padEnd(CliInternals.LABEL_WIDTH, ' '),
-		CliInternals.makeProgressBar(progress),
+		CliInternals.makeProgressBar(progress, false),
 		doneIn === null
 			? `${statesFinished} / ${3}`
 			: CliInternals.chalk.gray(`${doneIn}ms`),
@@ -114,7 +114,7 @@ export const makeDeployProgressBar = ({
 			CliInternals.LABEL_WIDTH,
 			' ',
 		),
-		CliInternals.makeProgressBar(progress),
+		CliInternals.makeProgressBar(progress, false),
 		doneIn === null
 			? typeof totalSize === 'number'
 				? `${CliInternals.formatBytes(sizeUploaded)}/${CliInternals.formatBytes(

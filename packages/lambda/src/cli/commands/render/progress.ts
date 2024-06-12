@@ -17,7 +17,7 @@ const makeEvaluationProgress = (overall: RenderProgress) => {
 	if (timeToLaunch) {
 		return [
 			`Got composition`.padEnd(CliInternals.LABEL_WIDTH),
-			CliInternals.makeProgressBar(1),
+			CliInternals.makeProgressBar(1, false),
 			CliInternals.chalk.gray(`${timeToLaunch}ms`),
 		].join(' ');
 	}
@@ -25,14 +25,14 @@ const makeEvaluationProgress = (overall: RenderProgress) => {
 	if (overall.serveUrlOpened) {
 		return [
 			`Calculating metadata`.padEnd(CliInternals.LABEL_WIDTH),
-			CliInternals.makeProgressBar(0.5),
+			CliInternals.makeProgressBar(0.5, false),
 			`${overall.currentTime - overall.serveUrlOpened}ms`,
 		].join(' ');
 	}
 
 	return [
 		`Visiting Site`.padEnd(CliInternals.LABEL_WIDTH),
-		CliInternals.makeProgressBar(0),
+		CliInternals.makeProgressBar(0, false),
 		`${overall.currentTime - overall.functionLaunched}ms`,
 	].join(' ');
 };
@@ -49,7 +49,7 @@ const makeInvokeProgress = (overall: RenderProgress) => {
 		`${progress === 0 ? 'Invoked' : 'Invoking'} lambdas`.padEnd(
 			CliInternals.LABEL_WIDTH,
 		),
-		CliInternals.makeProgressBar(progress),
+		CliInternals.makeProgressBar(progress, false),
 		progress === 1
 			? CliInternals.chalk.gray(`${lambdasInvoked}/${totalLambdas}`)
 			: totalLambdas === null
@@ -87,7 +87,7 @@ const makeRenderProgress = (progress: RenderProgress) => {
 			? 'Rendering frames'
 			: 'Rendered frames'
 		).padEnd(CliInternals.LABEL_WIDTH, ' '),
-		CliInternals.makeProgressBar(renderProgress),
+		CliInternals.makeProgressBar(renderProgress, false),
 		progress.timeToRenderFrames === null
 			? frames
 			: CliInternals.chalk.gray(`${progress.timeToRenderFrames}ms`),
@@ -100,7 +100,7 @@ const makeRenderProgress = (progress: RenderProgress) => {
 			CliInternals.LABEL_WIDTH,
 			' ',
 		),
-		CliInternals.makeProgressBar(encodingProgress),
+		CliInternals.makeProgressBar(encodingProgress, false),
 		progress.timeToEncode === null
 			? totalFrames === null
 				? null
@@ -137,7 +137,7 @@ const makeCombinationProgress = (prog: RenderProgress) => {
 			CliInternals.LABEL_WIDTH,
 			' ',
 		),
-		CliInternals.makeProgressBar(progress),
+		CliInternals.makeProgressBar(progress, false),
 		timeToCombine === null
 			? `${Math.round(progress * 100)}%`
 			: CliInternals.chalk.gray(`${timeToCombine}ms`),
@@ -154,6 +154,7 @@ const makeDownloadProgress = (downloadInfo: DownloadedInfo) => {
 			? CliInternals.getFileSizeDownloadBar(downloadInfo.downloaded)
 			: CliInternals.makeProgressBar(
 					downloadInfo.downloaded / downloadInfo.totalSize,
+					false,
 				),
 		downloadInfo.doneIn === null
 			? [
