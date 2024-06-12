@@ -1,6 +1,10 @@
 import React from 'react';
-import {Experimental} from 'remotion';
+import {Experimental, useCurrentFrame} from 'remotion';
 
 export const SubtitleArtifact: React.FC = () => {
-	return <Experimental.Artifact content="Hello World!" filename="hello.txt" />;
+	const frame = useCurrentFrame();
+
+	return frame === 0 ? (
+		<Experimental.Artifact content="Hello World!" filename="hello.txt" />
+	) : null;
 };
