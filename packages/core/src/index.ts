@@ -103,6 +103,7 @@ export {
 export {
 	AnyCompMetadata,
 	AnyComposition,
+	AudioOrVideoAsset,
 	SmallTCompMetadata,
 	TCompMetadata,
 	TRenderAsset,

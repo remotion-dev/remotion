@@ -1,4 +1,4 @@
-import type {TRenderAsset} from 'remotion/no-react';
+import type {AudioOrVideoAsset} from 'remotion/no-react';
 import type {LogLevel} from '../log-level';
 import type {FrameAndAssets} from '../render-frames';
 import type {RenderMediaOnDownload} from './download-and-map-assets-to-file';
@@ -25,9 +25,9 @@ export const convertAssetsToFileUrls = async ({
 	downloadMap: DownloadMap;
 	indent: boolean;
 	logLevel: LogLevel;
-}): Promise<TRenderAsset[][]> => {
+}): Promise<AudioOrVideoAsset[][]> => {
 	const chunks = chunk(assets, 1000);
-	const results: TRenderAsset[][][] = [];
+	const results: AudioOrVideoAsset[][][] = [];
 
 	for (const ch of chunks) {
 		const assetPromises = ch.map((frame) => {

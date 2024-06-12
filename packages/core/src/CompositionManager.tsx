@@ -126,7 +126,7 @@ export type TSequence = {
 	premountDisplay: number | null;
 } & EnhancedTSequenceData;
 
-export type TRenderAsset = {
+export type AudioOrVideoAsset = {
 	type: 'audio' | 'video';
 	src: string;
 	id: string;
@@ -138,6 +138,13 @@ export type TRenderAsset = {
 	toneFrequency: number | null;
 	audioStartFrame: number;
 };
+
+export type ArtifactAsset = {
+	type: 'artifact';
+	id: string;
+};
+
+export type TRenderAsset = AudioOrVideoAsset | ArtifactAsset;
 
 export const compositionsRef = React.createRef<{
 	getCompositions: () => AnyComposition[];

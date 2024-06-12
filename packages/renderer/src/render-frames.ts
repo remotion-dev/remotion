@@ -2,8 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {performance} from 'perf_hooks';
 // eslint-disable-next-line no-restricted-imports
-import type {TAsset} from 'remotion';
-import type {VideoConfig} from 'remotion/no-react';
+import type {AudioOrVideoAsset, VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
@@ -23,6 +22,7 @@ import type {Compositor} from './compositor/compositor';
 import {compressAsset} from './compress-assets';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
+import {onlyArtifact, onlyAudioAndVideoAssets} from './filter-asset-types';
 import {findRemotionRoot} from './find-closest-package-json';
 import type {FrameRange} from './frame-range';
 import {getActualConcurrency} from './get-concurrency';
@@ -144,7 +144,7 @@ type InnerRenderFramesOptions = {
 
 export type FrameAndAssets = {
 	frame: number;
-	assets: TAsset[];
+	assets: AudioOrVideoAsset[];
 };
 
 export type RenderFramesOptions = {
@@ -488,20 +488,24 @@ const innerRenderFrames = async ({
 
 		stopPerfMeasure(id);
 
-		const compressedAssets = collectedAssets.map((asset) =>
-			compressAsset(
-				assets
-					.filter(truthy)
-					.map((a) => a.assets)
-					.flat(2),
-				asset,
-			),
-		);
+		const previousRenderAssets = assets
+			.filter(truthy)
+			.map((a) => a.assets)
+			.flat(2);
+
+		const audioAndVideoAssets = onlyAudioAndVideoAssets(collectedAssets);
+		const artifactAssets = onlyArtifact(collectedAssets);
+		console.log(artifactAssets);
+
+		const compressedAssets = audioAndVideoAssets.map((asset) => {
+			return compressAsset(previousRenderAssets, asset);
+		});
+
 		assets.push({
 			assets: compressedAssets,
 			frame,
 		});
-		compressedAssets.forEach((renderAsset) => {
+		for (const renderAsset of compressedAssets) {
 			downloadAndMapAssetsToFileUrl({
 				renderAsset,
 				onDownload,
@@ -518,7 +522,8 @@ const innerRenderFrames = async ({
 					),
 				);
 			});
-		});
+		}
+
 		if (!assetsOnly) {
 			framesRendered++;
 			onFrameUpdate?.(framesRendered, frame, performance.now() - startTime);
