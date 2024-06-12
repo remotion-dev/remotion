@@ -144,6 +144,7 @@ export type ArtifactAsset = {
 	id: string;
 	filename: string;
 	content: string;
+	frame: number;
 };
 
 export type TRenderAsset = AudioOrVideoAsset | ArtifactAsset;

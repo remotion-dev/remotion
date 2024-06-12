@@ -498,8 +498,26 @@ const innerRenderFrames = async ({
 			.map((a) => a.audioAndVideoAssets)
 			.flat(2);
 
+		const previousArtifactAssets = assets
+			.filter(truthy)
+			.map((a) => a.artifactAssets)
+			.flat(2);
+
 		const audioAndVideoAssets = onlyAudioAndVideoAssets(collectedAssets);
 		const artifactAssets = onlyArtifact(collectedAssets);
+
+		for (const artifact of artifactAssets) {
+			for (const previousArtifact of previousArtifactAssets) {
+				if (artifact.filename === previousArtifact.filename) {
+					reject(
+						new Error(
+							`An artifact with output "${artifact.filename}" was already registered at frame ${previousArtifact.frame}, but now registered again at frame ${artifact.frame}.`,
+						),
+					);
+					return;
+				}
+			}
+		}
 
 		const compressedAssets = audioAndVideoAssets.map((asset) => {
 			return compressAsset(previousAudioRenderAssets, asset);

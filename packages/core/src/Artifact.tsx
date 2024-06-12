@@ -1,15 +1,17 @@
 import type React from 'react';
 import {useContext, useEffect, useState} from 'react';
 import {RenderAssetManager} from './RenderAssetManager';
+import {useCurrentFrame} from './use-current-frame';
 
 // TODO: Not register in development?
 export const Artifact: React.FC<{
-	filename: string;
-	content: string;
+	readonly filename: string;
+	readonly content: string;
 }> = ({filename, content}) => {
 	// TODO: Validate filename and content
 	const {registerRenderAsset, unregisterRenderAsset} =
 		useContext(RenderAssetManager);
+	const frame = useCurrentFrame();
 
 	const [id] = useState(() => {
 		return String(Math.random());
@@ -21,12 +23,20 @@ export const Artifact: React.FC<{
 			id,
 			content,
 			filename,
+			frame,
 		});
 
 		return () => {
 			return unregisterRenderAsset(id);
 		};
-	}, [content, filename, id, registerRenderAsset, unregisterRenderAsset]);
+	}, [
+		content,
+		filename,
+		frame,
+		id,
+		registerRenderAsset,
+		unregisterRenderAsset,
+	]);
 
 	return null;
 };
