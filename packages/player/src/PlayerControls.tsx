@@ -65,12 +65,14 @@ const controlsRow: React.CSSProperties = {
 	alignItems: 'center',
 	justifyContent: 'center',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 const leftPartStyle: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	alignItems: 'center',
 };
 

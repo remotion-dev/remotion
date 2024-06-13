@@ -22,6 +22,7 @@ const text: React.CSSProperties = {
 	lineHeight: 1,
 	width: '100%',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 const time: React.CSSProperties = {
