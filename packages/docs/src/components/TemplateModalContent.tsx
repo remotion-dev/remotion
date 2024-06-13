@@ -29,6 +29,7 @@ const link: React.CSSProperties = {
   alignItems: "center",
   cursor: "pointer",
   userSelect: "none",
+  WebkitUserSelect: "none",
 };
 
 const description: React.CSSProperties = {};

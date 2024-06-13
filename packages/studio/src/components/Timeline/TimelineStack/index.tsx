@@ -34,8 +34,8 @@ SourceMapConsumer.initialize({
 });
 
 export const TimelineStack: React.FC<{
-	isCompact: boolean;
-	sequence: TSequence;
+	readonly isCompact: boolean;
+	readonly sequence: TSequence;
 }> = ({isCompact, sequence}) => {
 	const [originalLocation, setOriginalLocation] =
 		useState<OriginalPosition | null>(null);
@@ -219,6 +219,7 @@ export const TimelineStack: React.FC<{
 			lineHeight: 1,
 			color: opening && isCompact ? VERY_LIGHT_TEXT : LIGHT_COLOR,
 			userSelect: 'none',
+			WebkitUserSelect: 'none',
 			borderBottom: hoverEffect ? '1px solid #fff' : 'none',
 			cursor: hoverEffect ? 'pointer' : undefined,
 		};
