@@ -42,7 +42,7 @@ import {makeHyperlink} from '../hyperlinks/make-link';
 import {getVideoImageFormat} from '../image-formats';
 import {Log} from '../log';
 import {makeOnDownload} from '../make-on-download';
-import {onArtifactOnCli} from '../on-artifact';
+import {handleOnArtifact} from '../on-artifact';
 import {parsedCli, quietFlagProvided} from '../parsed-cli';
 import {
 	LABEL_WIDTH,
@@ -220,6 +220,13 @@ export const renderVideoFlow = async ({
 		doneIn: null,
 	};
 
+	let {onArtifact, initialProgress: artifactState} = handleOnArtifact(
+		(progress) => {
+			artifactState = progress;
+			updateRenderProgress({newline: false, printToConsole: true});
+		},
+	);
+
 	const updateRenderProgress = ({
 		newline,
 		printToConsole,
@@ -233,6 +240,7 @@ export const renderVideoFlow = async ({
 			downloads,
 			bundling: bundlingProgress,
 			copyingState,
+			artifactState,
 		};
 
 		const {output, message, progress} = makeRenderingAndStitchingProgress({
@@ -430,6 +438,7 @@ export const renderVideoFlow = async ({
 		codec: shouldOutputImageSequence ? undefined : codec,
 		uiImageFormat,
 	});
+
 	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {
 			recursive: true,
@@ -492,7 +501,7 @@ export const renderVideoFlow = async ({
 			compositionStart: 0,
 			forSeamlessAacConcatenation,
 			onBrowserDownload,
-			onArtifact: onArtifactOnCli,
+			onArtifact,
 		});
 
 		Log.info({indent, logLevel}, chalk.blue(`▶ ${absoluteOutputFile}`));
@@ -582,7 +591,7 @@ export const renderVideoFlow = async ({
 		forSeamlessAacConcatenation,
 		compositionStart: 0,
 		onBrowserDownload,
-		onArtifact: onArtifactOnCli,
+		onArtifact,
 	});
 	if (!updatesDontOverwrite) {
 		updateRenderProgress({newline: true, printToConsole: true});

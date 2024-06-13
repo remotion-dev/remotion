@@ -56,6 +56,17 @@ export type AggregateRenderProgress = {
 	downloads: DownloadProgress[];
 	bundling: BundlingState;
 	copyingState: CopyingState;
+	artifactState: ArtifactProgress;
+};
+
+export type ReceivedAsset = {
+	filename: string;
+	absoluteOutputDestination: string;
+	sizeInBytes: number;
+};
+
+export type ArtifactProgress = {
+	received: ReceivedAsset[];
 };
 
 export type JobProgressCallback = (
