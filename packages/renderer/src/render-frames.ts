@@ -108,7 +108,7 @@ type InternalRenderFramesOptions = {
 
 type EmittedAsset = {
 	filename: string;
-	content: string | Buffer;
+	content: string | Uint8Array;
 	frame: number;
 };
 

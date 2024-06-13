@@ -1,4 +1,3 @@
-import {Artifact} from './Artifact.js';
 import './asset-types.js';
 import {Clipper} from './Clipper.js';
 import type {Codec} from './codec.js';
@@ -92,6 +91,7 @@ export type BundleState =
 
 checkMultipleRemotionVersions();
 export * from './AbsoluteFill.js';
+export {Artifact} from './Artifact.js';
 export * from './audio/index.js';
 export {cancelRender} from './cancel-render.js';
 export {
@@ -171,7 +171,6 @@ export const Experimental = {
 	 * @see [Documentation](https://www.remotion.dev/docs/null)
 	 */
 	Null,
-	Artifact,
 	useIsPlayer,
 };
 

@@ -11,7 +11,6 @@ import type {
 	FrameRange,
 	LogLevel,
 	NumberOfGifLoops,
-	OnArtifact,
 	PixelFormat,
 	ProResProfile,
 	RenderMediaOnDownload,
@@ -29,7 +28,7 @@ import type {
 	RenderingProgressInput,
 	StitchingProgressInput,
 } from '@remotion/studio-server';
-import fs, {existsSync, writeFileSync} from 'node:fs';
+import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
@@ -43,6 +42,7 @@ import {makeHyperlink} from '../hyperlinks/make-link';
 import {getVideoImageFormat} from '../image-formats';
 import {Log} from '../log';
 import {makeOnDownload} from '../make-on-download';
+import {onArtifactOnCli} from '../on-artifact';
 import {parsedCli, quietFlagProvided} from '../parsed-cli';
 import {
 	LABEL_WIDTH,
@@ -403,10 +403,6 @@ export const renderVideoFlow = async ({
 		logLevel,
 	);
 
-	const onArtifact: OnArtifact = (artifact) => {
-		writeFileSync(artifact.filename, artifact.content);
-	};
-
 	const absoluteSeparateAudioTo =
 		separateAudioTo === null ? null : path.resolve(separateAudioTo);
 	const exists = existsSync(absoluteOutputFile);
@@ -496,7 +492,7 @@ export const renderVideoFlow = async ({
 			compositionStart: 0,
 			forSeamlessAacConcatenation,
 			onBrowserDownload,
-			onArtifact,
+			onArtifact: onArtifactOnCli,
 		});
 
 		Log.info({indent, logLevel}, chalk.blue(`▶ ${absoluteOutputFile}`));
@@ -586,7 +582,7 @@ export const renderVideoFlow = async ({
 		forSeamlessAacConcatenation,
 		compositionStart: 0,
 		onBrowserDownload,
-		onArtifact,
+		onArtifact: onArtifactOnCli,
 	});
 	if (!updatesDontOverwrite) {
 		updateRenderProgress({newline: true, printToConsole: true});
