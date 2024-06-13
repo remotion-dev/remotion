@@ -713,9 +713,9 @@ export default ({
 				playbackRate={playbackRate}
 				spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
 				playerRef={ref}
-				showPosterWhenEnded={showPosterWhenEnded}
-				showPosterWhenPaused={showPosterWhenPaused}
-				showPosterWhenUnplayed={showPosterWhenUnplayed}
+				showPosterWhenEnded={false}
+				showPosterWhenPaused={false}
+				showPosterWhenUnplayed={false}
 				showPosterWhenBuffering={showPosterWhenBuffering}
 				showVolumeControls={showVolumeControls}
 				showPlaybackRateControl={showPlaybackRateControl}

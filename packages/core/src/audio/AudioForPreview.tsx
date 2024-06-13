@@ -11,7 +11,6 @@ import {SequenceContext} from '../SequenceContext.js';
 import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
 import {usePreload} from '../prefetch.js';
 import {random} from '../random.js';
-import {useMediaBuffering} from '../use-media-buffering.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {
 	DEFAULT_ACCEPTABLE_TIMESHIFT,
@@ -169,12 +168,8 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		onlyWarnForMediaSeekingError: false,
 		acceptableTimeshift:
 			acceptableTimeShiftInSeconds ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
-	});
-
-	useMediaBuffering({
-		element: audioRef,
-		shouldBuffer: pauseWhenBuffering,
 		isPremounting: Boolean(sequenceContext?.premounting),
+		pauseWhenBuffering,
 	});
 
 	useImperativeHandle(

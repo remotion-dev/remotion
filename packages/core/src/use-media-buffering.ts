@@ -1,5 +1,4 @@
-import type React from 'react';
-import {useEffect} from 'react';
+import {useEffect, useState} from 'react';
 import {useBufferState} from './use-buffer-state';
 
 export const useMediaBuffering = ({
@@ -12,6 +11,7 @@ export const useMediaBuffering = ({
 	isPremounting: boolean;
 }) => {
 	const buffer = useBufferState();
+	const [isBuffering, setIsBuffering] = useState(false);
 
 	useEffect(() => {
 		let cleanupFns: Function[] = [];
@@ -32,9 +32,11 @@ export const useMediaBuffering = ({
 		const cleanup = () => {
 			cleanupFns.forEach((fn) => fn());
 			cleanupFns = [];
+			setIsBuffering(false);
 		};
 
 		const onWaiting = () => {
+			setIsBuffering(true);
 			const {unblock} = buffer.delayPlayback();
 			const onCanPlay = () => {
 				cleanup();
@@ -96,4 +98,6 @@ export const useMediaBuffering = ({
 			cleanup();
 		};
 	}, [buffer, element, isPremounting, shouldBuffer]);
+
+	return isBuffering;
 };
