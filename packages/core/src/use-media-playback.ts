@@ -1,6 +1,7 @@
 import type {RefObject} from 'react';
-import {useContext, useEffect, useRef} from 'react';
+import {useContext, useEffect} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
+import {useBufferUntilFirstFrame} from './buffer-until-first-frame.js';
 import {BufferingContextReact} from './buffering.js';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
 import {
@@ -10,7 +11,11 @@ import {
 } from './timeline-position-state.js';
 import {useBufferState} from './use-buffer-state.js';
 import {useCurrentFrame} from './use-current-frame.js';
-import {useMediaBuffering} from './use-media-buffering.js';
+import {
+	useMediaBuffering,
+	useMediaBufferingBasedOnRequestVideoCallback,
+} from './use-media-buffering.js';
+import {useRequestVideoCallbackTime} from './use-request-video-callback-time.js';
 import {useVideoConfig} from './use-video-config.js';
 import {getMediaTime} from './video/get-current-time.js';
 import {isIosSafari} from './video/video-fragment.js';
@@ -21,47 +26,14 @@ export const DEFAULT_ACCEPTABLE_TIMESHIFT = 0.45;
 const seek = (
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>,
 	time: number,
-	type: 'video' | 'audio',
-	playing: boolean,
-): Promise<number | null> => {
+): void => {
 	if (!mediaRef.current) {
-		return Promise.resolve(null);
+		return;
 	}
-
-	console.log('gonna seek', playing);
-
-	const returnPromise = () => {
-		if (
-			type === 'video' &&
-			(mediaRef.current as HTMLVideoElement).requestVideoFrameCallback
-		) {
-			return new Promise<number>((resolve) => {
-				(mediaRef.current as HTMLVideoElement).requestVideoFrameCallback(
-					(_, i) => {
-						resolve(i.mediaTime);
-					},
-				);
-			});
-		}
-
-		return Promise.resolve(null);
-	};
 
 	// iOS seeking does not support multiple decimals
-	if (isIosSafari()) {
-		mediaRef.current.currentTime = Number(time.toFixed(1));
-		if (
-			type === 'video' &&
-			(mediaRef.current as HTMLVideoElement).requestVideoFrameCallback
-		) {
-			return returnPromise();
-		}
-
-		return Promise.resolve(null);
-	}
-
-	mediaRef.current.currentTime = time;
-	return returnPromise();
+	const timeToSet = isIosSafari() ? Number(time.toFixed(1)) : time;
+	mediaRef.current.currentTime = timeToSet;
 };
 
 export const useMediaPlayback = ({
@@ -98,11 +70,31 @@ export const useMediaPlayback = ({
 		);
 	}
 
+	const currentTime = useRequestVideoCallbackTime(mediaRef, mediaType);
+
+	const desiredUnclampedTime = getMediaTime({
+		frame,
+		playbackRate: localPlaybackRate,
+		startFrom: -mediaStartsAt,
+		fps,
+	});
+
 	const isMediaTagBuffering = useMediaBuffering({
 		element: mediaRef,
 		shouldBuffer: pauseWhenBuffering,
 		isPremounting,
 	});
+
+	const {isStalled} = useMediaBufferingBasedOnRequestVideoCallback({
+		currentTime,
+		desiredUnclampedTime,
+		mediaRef,
+	});
+
+	const {bufferUntilFirstFrame, isBuffering} = useBufferUntilFirstFrame(
+		mediaRef,
+		mediaType,
+	);
 
 	const playbackRate = localPlaybackRate * globalPlaybackRate;
 
@@ -120,49 +112,27 @@ export const useMediaPlayback = ({
 
 	useEffect(() => {
 		if (!playing) {
+			console.log('pauseda');
 			mediaRef.current?.pause();
 			return;
 		}
 
 		const isPlayerBuffering = buffering.buffering.current;
-		if (isPlayerBuffering && !isMediaTagBuffering) {
+		const isMediaTagBufferingOrStalled =
+			isMediaTagBuffering || isStalled() || isBuffering();
+
+		if (isPlayerBuffering && !isMediaTagBufferingOrStalled) {
+			console.log('pausedb', isStalled());
 			mediaRef.current?.pause();
 		}
-	}, [buffering.buffering, isMediaTagBuffering, mediaRef, playing]);
-
-	const currentTime = useRef<number | null>(null);
-
-	useEffect(() => {
-		if (!mediaRef.current) {
-			currentTime.current = null;
-		}
-
-		if (mediaType !== 'video') {
-			currentTime.current = null;
-		}
-
-		let cancel = () => undefined;
-
-		const request = () => {
-			const cb = (
-				mediaRef.current as HTMLVideoElement
-			).requestVideoFrameCallback((_, info) => {
-				currentTime.current = info.mediaTime;
-				request();
-			});
-
-			cancel = () => {
-				(mediaRef.current as HTMLVideoElement)?.cancelVideoFrameCallback(cb);
-				cancel = () => undefined;
-			};
-		};
-
-		request();
-
-		return () => {
-			cancel();
-		};
-	}, [mediaRef, mediaType]);
+	}, [
+		buffering.buffering,
+		isBuffering,
+		isMediaTagBuffering,
+		isStalled,
+		mediaRef,
+		playing,
+	]);
 
 	useEffect(() => {
 		const tagName = mediaType === 'audio' ? '<Audio>' : '<Video>';
@@ -181,12 +151,6 @@ export const useMediaPlayback = ({
 			mediaRef.current.playbackRate = playbackRateToSet;
 		}
 
-		const desiredUnclampedTime = getMediaTime({
-			frame,
-			playbackRate: localPlaybackRate,
-			startFrom: -mediaStartsAt,
-			fps,
-		});
 		const {duration} = mediaRef.current;
 		const shouldBeTime =
 			!Number.isNaN(duration) && Number.isFinite(duration)
@@ -212,11 +176,7 @@ export const useMediaPlayback = ({
 			// or if time shift is bigger than 0.45sec
 
 			console.log('Seeking', shouldBeTime, isTime, rvcTime, timeShift);
-			const {unblock} = delayPlayback();
-			seek(mediaRef, shouldBeTime, mediaType, playing).then((num) => {
-				console.log('seeking done unblock', num);
-				unblock();
-			});
+			seek(mediaRef, shouldBeTime);
 
 			if (!onlyWarnForMediaSeekingError) {
 				warnAboutNonSeekableMedia(
@@ -230,18 +190,6 @@ export const useMediaPlayback = ({
 
 		const seekThreshold = playing ? 0.15 : 0.00001;
 
-		if (buffering.buffering.current) {
-			const shouldSeek =
-				Math.abs(mediaRef.current.currentTime - shouldBeTime) > seekThreshold;
-			if (shouldSeek) {
-				seek(mediaRef, shouldBeTime, mediaType, playing).then(() => {
-					console.log('seeking done (buffered)');
-				});
-			}
-
-			return;
-		}
-
 		// Only perform a seek if the time is not already the same.
 		// Chrome rounds to 6 digits, so 0.033333333 -> 0.033333,
 		// therefore a threshold is allowed.
@@ -250,9 +198,9 @@ export const useMediaPlayback = ({
 		const makesSenseToSeek =
 			Math.abs(mediaRef.current.currentTime - shouldBeTime) > seekThreshold;
 
-		if (!playing) {
+		if (!playing || buffering.buffering.current) {
 			if (makesSenseToSeek) {
-				seek(mediaRef, shouldBeTime, mediaType, playing).then(() => {});
+				seek(mediaRef, shouldBeTime);
 			}
 
 			return;
@@ -264,13 +212,11 @@ export const useMediaPlayback = ({
 			absoluteFrame === 0
 		) {
 			if (makesSenseToSeek) {
-				console.log('playing', mediaRef.current.currentTime, shouldBeTime);
-				seek(mediaRef, shouldBeTime, mediaType, playing).then(() => {
-					console.log('seeking done (playing)');
-				});
+				seek(mediaRef, shouldBeTime);
 			}
 
 			playAndHandleNotAllowedError(mediaRef, mediaType);
+			bufferUntilFirstFrame();
 		}
 	}, [
 		absoluteFrame,
@@ -288,5 +234,7 @@ export const useMediaPlayback = ({
 		playing,
 		delayPlayback,
 		buffering.buffering,
+		currentTime,
+		desiredUnclampedTime,
 	]);
 };

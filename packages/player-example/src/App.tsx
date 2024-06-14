@@ -634,7 +634,6 @@ const PlayerOnly: React.FC<
 			spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
 			moveToBeginningWhenEnded={moveToBeginningWhenEnded}
 			renderPoster={renderPoster}
-			initialFrame={30}
 			showPosterWhenUnplayed={showPosterWhenUnplayed}
 			showPosterWhenEnded={showPosterWhenEnded}
 			showPosterWhenPaused={showPosterWhenPaused}

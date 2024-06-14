@@ -1,7 +1,15 @@
 import {useContext, useMemo} from 'react';
 import {BufferingContextReact} from './buffering';
 
-export const useBufferState = () => {
+export type DelayPlaybackHandle = {
+	unblock: () => void;
+};
+
+type UseBufferState = {
+	delayPlayback: () => DelayPlaybackHandle;
+};
+
+export const useBufferState = (): UseBufferState => {
 	const buffer = useContext(BufferingContextReact);
 
 	if (!buffer) {

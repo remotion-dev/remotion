@@ -10,6 +10,7 @@ export const playAndHandleNotAllowedError = (
 	}
 
 	const prom = current.play();
+
 	if (prom.catch) {
 		prom.catch((err: Error) => {
 			if (!current) {
