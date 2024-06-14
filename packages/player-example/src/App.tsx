@@ -634,6 +634,7 @@ const PlayerOnly: React.FC<
 			spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
 			moveToBeginningWhenEnded={moveToBeginningWhenEnded}
 			renderPoster={renderPoster}
+			initialFrame={30}
 			showPosterWhenUnplayed={showPosterWhenUnplayed}
 			showPosterWhenEnded={showPosterWhenEnded}
 			showPosterWhenPaused={showPosterWhenPaused}
@@ -712,9 +713,9 @@ export default ({
 				playbackRate={playbackRate}
 				spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
 				playerRef={ref}
-				showPosterWhenEnded={false}
-				showPosterWhenPaused={false}
-				showPosterWhenUnplayed={false}
+				showPosterWhenEnded={showPosterWhenEnded}
+				showPosterWhenPaused={showPosterWhenPaused}
+				showPosterWhenUnplayed={showPosterWhenUnplayed}
 				showPosterWhenBuffering={showPosterWhenBuffering}
 				showVolumeControls={showVolumeControls}
 				showPlaybackRateControl={showPlaybackRateControl}
