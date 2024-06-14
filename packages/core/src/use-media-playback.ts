@@ -9,7 +9,6 @@ import {
 	usePlayingState,
 	useTimelinePosition,
 } from './timeline-position-state.js';
-import {useBufferState} from './use-buffer-state.js';
 import {useCurrentFrame} from './use-current-frame.js';
 import {useMediaBuffering} from './use-media-buffering.js';
 import {useRequestVideoCallbackTime} from './use-request-video-callback-time.js';
@@ -61,7 +60,6 @@ export const useMediaPlayback = ({
 	const buffering = useContext(BufferingContextReact);
 	const {fps} = useVideoConfig();
 	const mediaStartsAt = useMediaStartsAt();
-	const {delayPlayback} = useBufferState();
 
 	if (!buffering) {
 		throw new Error(
