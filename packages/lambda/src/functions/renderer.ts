@@ -305,61 +305,35 @@ const renderHandler = async ({
 
 	if (audioOutputLocation) {
 		const audioChunkTimer = timer('Sending audio chunk', params.logLevel);
-		onStream({
+		await onStream({
 			type: 'audio-chunk-rendered',
 			payload: fs.readFileSync(audioOutputLocation),
-		})
-			.then(() => {
-				audioChunkTimer.end();
-			})
-			.catch((err) => {
-				RenderInternals.Log.error(
-					{indent: false, logLevel: params.logLevel},
-					`Error occurred while streaming audio chunk to main function`,
-				);
-				RenderInternals.Log.error(
-					{indent: false, logLevel: params.logLevel},
-					err,
-				);
-				throw err;
-			});
+		});
+		audioChunkTimer.end();
 	}
 
 	if (videoOutputLocation) {
 		const videoChunkTimer = timer('Sending main chunk', params.logLevel);
-		onStream({
+		await onStream({
 			type: RenderInternals.isAudioCodec(params.codec)
 				? 'audio-chunk-rendered'
 				: 'video-chunk-rendered',
 			payload: fs.readFileSync(videoOutputLocation),
-		})
-			.then(() => {
-				videoChunkTimer.end();
-			})
-			.catch((err) => {
-				RenderInternals.Log.error(
-					{indent: false, logLevel: params.logLevel},
-					`Error occurred while streaming main chunk to main function`,
-				);
-				RenderInternals.Log.error(
-					{indent: false, logLevel: params.logLevel},
-					err,
-				);
-				throw err;
-			});
+		});
+		videoChunkTimer.end();
 	}
 
 	const endRendered = Date.now();
 
-	onStream({
+	await onStream({
 		type: 'chunk-complete',
 		payload: {
 			rendered: endRendered,
 			start,
 		},
-	}).then(() => {
-		streamTimer.end();
 	});
+
+	streamTimer.end();
 
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
@@ -452,6 +426,8 @@ export const rendererHandler = async (
 	} finally {
 		forgetBrowserEventLoop(params.logLevel);
 
-		startLeakDetection(leakDetection, requestContext.awsRequestId);
+		if (ENABLE_SLOW_LEAK_DETECTION) {
+			startLeakDetection(leakDetection, requestContext.awsRequestId);
+		}
 	}
 };

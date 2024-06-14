@@ -186,7 +186,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	}, []);
 
 	const toggle = useCallback(
-		(e?: SyntheticEvent) => {
+		(e?: SyntheticEvent | PointerEvent) => {
 			if (player.isPlaying()) {
 				player.pause();
 			} else {
@@ -484,7 +484,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		);
 
 	const onSingleClick = useCallback(
-		(e: SyntheticEvent) => {
+		(e: SyntheticEvent | PointerEvent) => {
 			toggle(e);
 		},
 		[toggle],
@@ -506,11 +506,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		}
 	}, [exitFullscreen, isFullscreen, requestFullscreen]);
 
-	const [handleClick, handleDoubleClick] = useClickPreventionOnDoubleClick(
-		onSingleClick,
-		onDoubleClick,
-		doubleClickToFullscreen && allowFullscreen && supportsFullScreen,
-	);
+	const {handlePointerDown, handleDoubleClick} =
+		useClickPreventionOnDoubleClick(
+			onSingleClick,
+			onDoubleClick,
+			doubleClickToFullscreen && allowFullscreen && supportsFullScreen,
+		);
 
 	useEffect(() => {
 		if (shouldAutoplay) {
@@ -575,7 +576,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		<>
 			<div
 				style={outer}
-				onPointerUp={clickToPlay ? handleClick : undefined}
+				onPointerDown={clickToPlay ? handlePointerDown : undefined}
 				onDoubleClick={doubleClickToFullscreen ? handleDoubleClick : undefined}
 			>
 				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
@@ -598,7 +599,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 								width: config.width,
 								height: config.height,
 							}}
-							onPointerUp={clickToPlay ? handleClick : undefined}
+							onPointerDown={clickToPlay ? handlePointerDown : undefined}
 							onDoubleClick={
 								doubleClickToFullscreen ? handleDoubleClick : undefined
 							}
@@ -611,7 +612,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			{shouldShowPoster && posterFillMode === 'player-size' ? (
 				<div
 					style={outer}
-					onPointerUp={clickToPlay ? handleClick : undefined}
+					onPointerDown={clickToPlay ? handlePointerDown : undefined}
 					onDoubleClick={
 						doubleClickToFullscreen ? handleDoubleClick : undefined
 					}
@@ -646,7 +647,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					onDoubleClick={
 						doubleClickToFullscreen ? handleDoubleClick : undefined
 					}
-					onPointerUp={clickToPlay ? handleClick : undefined}
+					onPointerDown={clickToPlay ? handlePointerDown : undefined}
 				/>
 			) : null}
 		</>

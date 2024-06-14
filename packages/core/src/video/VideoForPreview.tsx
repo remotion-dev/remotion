@@ -11,7 +11,6 @@ import {SequenceContext} from '../SequenceContext.js';
 import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
 import {usePreload} from '../prefetch.js';
-import {useMediaBuffering} from '../use-media-buffering.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {
 	DEFAULT_ACCEPTABLE_TIMESHIFT,
@@ -33,6 +32,7 @@ type VideoForPreviewProps = RemotionVideoProps & {
 	readonly pauseWhenBuffering: boolean;
 	readonly _remotionInternalNativeLoopPassed: boolean;
 	readonly _remotionInternalStack: string | null;
+	readonly _remotionDebugSeeking: boolean;
 	readonly showInTimeline: boolean;
 };
 
@@ -56,6 +56,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		name,
 		_remotionInternalNativeLoopPassed,
 		_remotionInternalStack,
+		_remotionDebugSeeking,
 		style,
 		pauseWhenBuffering,
 		showInTimeline,
@@ -114,12 +115,9 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		onlyWarnForMediaSeekingError,
 		acceptableTimeshift:
 			acceptableTimeShiftInSeconds ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
-	});
-
-	useMediaBuffering({
-		element: videoRef,
-		shouldBuffer: pauseWhenBuffering,
 		isPremounting: Boolean(parentSequence?.premounting),
+		pauseWhenBuffering,
+		debugSeeking: _remotionDebugSeeking,
 	});
 
 	const actualFrom = parentSequence ? parentSequence.relativeFrom : 0;

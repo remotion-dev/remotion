@@ -1,4 +1,4 @@
-import type {MouseEventHandler, ReactNode} from 'react';
+import type {MouseEventHandler, ReactNode, SyntheticEvent} from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {DefaultPlayPauseButton} from './DefaultPlayPauseButton.js';
@@ -65,12 +65,14 @@ const controlsRow: React.CSSProperties = {
 	alignItems: 'center',
 	justifyContent: 'center',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 const leftPartStyle: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	alignItems: 'center',
 };
 
@@ -122,7 +124,9 @@ export const Controls: React.FC<{
 	readonly containerRef: React.RefObject<HTMLDivElement>;
 	readonly buffering: boolean;
 	readonly hideControlsWhenPointerDoesntMove: boolean | number;
-	readonly onPointerUp: React.PointerEventHandler<HTMLDivElement> | undefined;
+	readonly onPointerDown:
+		| ((ev: PointerEvent | SyntheticEvent) => void)
+		| undefined;
 	readonly onDoubleClick: MouseEventHandler<HTMLDivElement> | undefined;
 }> = ({
 	durationInFrames,
@@ -147,7 +151,7 @@ export const Controls: React.FC<{
 	containerRef,
 	buffering,
 	hideControlsWhenPointerDoesntMove,
-	onPointerUp,
+	onPointerDown,
 	onDoubleClick,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -278,16 +282,17 @@ export const Controls: React.FC<{
 	const ref = useRef<HTMLDivElement | null>(null);
 	const flexRef = useRef<HTMLDivElement | null>(null);
 
-	const onPointerUpIfContainer: React.PointerEventHandler<HTMLDivElement> =
+	const onPointerDownIfContainer: React.PointerEventHandler<HTMLDivElement> =
 		useCallback(
 			(e) => {
 				// Only if pressing the container
 				if (e.target === ref.current || e.target === flexRef.current) {
-					onPointerUp?.(e);
+					onPointerDown?.(e);
 				}
 			},
-			[onPointerUp],
+			[onPointerDown],
 		);
+
 	const onDoubleClickIfContainer: MouseEventHandler<HTMLDivElement> =
 		useCallback(
 			(e) => {
@@ -303,7 +308,7 @@ export const Controls: React.FC<{
 		<div
 			ref={ref}
 			style={containerCss}
-			onPointerUp={onPointerUpIfContainer}
+			onPointerDown={onPointerDownIfContainer}
 			onDoubleClick={onDoubleClickIfContainer}
 		>
 			<div ref={flexRef} style={controlsRow}>

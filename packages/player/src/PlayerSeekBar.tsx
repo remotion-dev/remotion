@@ -25,6 +25,7 @@ const VERTICAL_PADDING = 4;
 
 const containerStyle: React.CSSProperties = {
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	paddingTop: VERTICAL_PADDING,
 	paddingBottom: VERTICAL_PADDING,
 	boxSizing: 'border-box',

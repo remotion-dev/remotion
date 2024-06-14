@@ -10,6 +10,7 @@ export const playAndHandleNotAllowedError = (
 	}
 
 	const prom = current.play();
+
 	if (prom.catch) {
 		prom.catch((err: Error) => {
 			if (!current) {
@@ -53,7 +54,7 @@ export const playAndHandleNotAllowedError = (
 			console.log(`Could not play ${mediaType} due to following error: `, err);
 			if (!current.muted) {
 				// eslint-disable-next-line no-console
-				console.log(`The video will be muted and we'll retry playing it.`, err);
+				console.log(`The video will be muted and we'll retry playing it.`);
 				current.muted = true;
 				current.play();
 			}

@@ -191,7 +191,7 @@ const makeTopRow = (overall: RenderProgress) => {
 			: null,
 		`${overall.costs.displayCost}`,
 		timeoutInSeconds < 0
-			? 'Timeout reached - Expecting crash shortly'
+			? `${CliInternals.chalk.red('Timeout reached')} - Expecting crash shortly`
 			: `Timeout ${timeoutInSeconds}s`,
 	]
 		.filter(NoReactInternals.truthy)
