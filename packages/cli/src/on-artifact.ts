@@ -4,9 +4,10 @@ import {writeFileSync} from 'fs';
 import path from 'path';
 
 export const handleOnArtifact = (
+	artifactState: ArtifactProgress,
 	onProgress: (artifact: ArtifactProgress) => void,
 ) => {
-	const progress: ArtifactProgress = {received: []};
+	const initialProgress = {...artifactState};
 
 	const onArtifact: OnArtifact = (artifact) => {
 		// TODO: Normalize backslashes on Windows
@@ -16,17 +17,16 @@ export const handleOnArtifact = (
 		);
 		writeFileSync(artifact.filename, artifact.content);
 
-		progress.received.push({
+		initialProgress.received.push({
 			absoluteOutputDestination,
 			filename: artifact.filename,
 			sizeInBytes: artifact.content.length,
 		});
 	};
 
-	onProgress(progress);
+	onProgress(initialProgress);
 
 	return {
 		onArtifact,
-		initialProgress: progress,
 	};
 };

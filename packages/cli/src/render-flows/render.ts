@@ -28,6 +28,7 @@ import type {
 	RenderingProgressInput,
 	StitchingProgressInput,
 } from '@remotion/studio-server';
+import type {ArtifactProgress} from '@remotion/studio-shared';
 import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -220,12 +221,7 @@ export const renderVideoFlow = async ({
 		doneIn: null,
 	};
 
-	let {onArtifact, initialProgress: artifactState} = handleOnArtifact(
-		(progress) => {
-			artifactState = progress;
-			updateRenderProgress({newline: false, printToConsole: true});
-		},
-	);
+	let artifactState: ArtifactProgress = {received: []};
 
 	const updateRenderProgress = ({
 		newline,
@@ -253,6 +249,11 @@ export const renderVideoFlow = async ({
 			renderProgress.update(updatesDontOverwrite ? message : output, newline);
 		}
 	};
+
+	const {onArtifact} = handleOnArtifact(artifactState, (progress) => {
+		artifactState = progress;
+		updateRenderProgress({newline: false, printToConsole: true});
+	});
 
 	const {urlOrBundle, cleanup: cleanupBundle} = await bundleOnCliOrTakeServeUrl(
 		{
