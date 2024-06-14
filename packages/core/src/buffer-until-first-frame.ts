@@ -28,18 +28,40 @@ export const useBufferUntilFirstFrame = ({
 			}
 
 			if (skipIfPaused && current.paused) {
-				console.log('not seeking because paused');
+				return;
 			}
 
 			bufferingRef.current = true;
 
 			const playback = delayPlayback();
 
-			current.requestVideoFrameCallback((_, info2) => {
-				console.log('requestVideoFrameCallback', _, info2);
-				bufferingRef.current = false;
+			const unblock = () => {
 				playback.unblock();
+				current.removeEventListener('ended', unblock, {
+					// @ts-expect-error
+					once: true,
+				});
+				current.removeEventListener('pause', unblock, {
+					// @ts-expect-error
+					once: true,
+				});
+			};
+
+			const onEndedOrPause = () => {
+				unblock();
+			};
+
+			current.requestVideoFrameCallback(() => {
+				// Safari often seeks and then stalls.
+				// This makes sure that the video actually starts playing.
+				current.requestVideoFrameCallback(() => {
+					bufferingRef.current = false;
+					unblock();
+				});
 			});
+
+			current.addEventListener('ended', onEndedOrPause, {once: true});
+			current.addEventListener('pause', onEndedOrPause, {once: true});
 		},
 		[delayPlayback, mediaRef, mediaType],
 	);

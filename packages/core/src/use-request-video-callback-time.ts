@@ -8,28 +8,39 @@ export const useRequestVideoCallbackTime = (
 	const currentTime = useRef<number | null>(null);
 
 	useEffect(() => {
-		if (mediaRef.current) {
-			currentTime.current = mediaRef.current.currentTime;
+		const {current} = mediaRef;
+		if (current) {
+			currentTime.current = current.currentTime;
 		} else {
 			currentTime.current = null;
+			return;
 		}
 
 		if (mediaType !== 'video') {
 			currentTime.current = null;
+			return;
+		}
+
+		const videoTag = current as HTMLVideoElement;
+
+		if (!videoTag.requestVideoFrameCallback) {
+			return;
 		}
 
 		let cancel = () => undefined;
 
 		const request = () => {
-			const cb = (
-				mediaRef.current as HTMLVideoElement
-			).requestVideoFrameCallback((_, info) => {
+			if (!videoTag) {
+				return;
+			}
+
+			const cb = videoTag.requestVideoFrameCallback((_, info) => {
 				currentTime.current = info.mediaTime;
 				request();
 			});
 
 			cancel = () => {
-				(mediaRef.current as HTMLVideoElement)?.cancelVideoFrameCallback(cb);
+				videoTag.cancelVideoFrameCallback(cb);
 				cancel = () => undefined;
 			};
 		};
