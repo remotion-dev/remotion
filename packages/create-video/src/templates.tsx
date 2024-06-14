@@ -264,8 +264,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 	{
 		homePageLabel: 'Audiogram',
 		shortName: 'Audiogram',
-		org: 'marcusstenbeck',
-		repoName: 'remotion-template-audiogram',
+		org: 'remotion-dev',
+		repoName: 'template-audiogram',
 		description: 'Text and waveform visualization for podcasts',
 		longerDescription:
 			'A template that turns podcast snippets into videos that can be posted on Social Media.',
