@@ -4,6 +4,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {existsSync, mkdirSync, rmSync} from 'fs';
 import {join} from 'path';
 import {VERSION} from 'remotion/version';
+import type {EventEmitter} from 'stream';
 import {
 	compressInputProps,
 	decompressInputProps,
@@ -430,6 +431,11 @@ export const launchHandler = async (
 		RenderInternals.Log.error(
 			{indent: false, logLevel: params.logLevel},
 			'Function is about to time out. Can not finish render.',
+		);
+
+		// @ts-expect-error
+		(globalThis._dumpUnreleasedBuffers as EventEmitter).emit(
+			'dump-unreleased-buffers',
 		);
 
 		Promise.all(cleanupTasks)
