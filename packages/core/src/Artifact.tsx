@@ -11,6 +11,7 @@ export const Artifact: React.FC<{
 	// TODO: Validate filename and content
 	const {registerRenderAsset, unregisterRenderAsset} =
 		useContext(RenderAssetManager);
+
 	const frame = useCurrentFrame();
 
 	const [id] = useState(() => {

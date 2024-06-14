@@ -75,6 +75,7 @@ import {
 import {useLazyComponent} from './use-lazy-component.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {useVideo} from './use-video.js';
+import {validateRenderAsset} from './validation/validate-artifact.js';
 import {
 	invalidCompositionErrorMessage,
 	isCompositionIdValid,
@@ -161,6 +162,7 @@ export const Internals = {
 	calculateScale,
 	editorPropsProviderRef,
 	PROPS_UPDATED_EXTERNALLY,
+	validateRenderAsset,
 } as const;
 
 export type {
