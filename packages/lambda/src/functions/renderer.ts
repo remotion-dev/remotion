@@ -442,6 +442,8 @@ export const rendererHandler = async (
 	} finally {
 		forgetBrowserEventLoop(params.logLevel);
 
-		startLeakDetection(leakDetection, requestContext.awsRequestId);
+		if (ENABLE_SLOW_LEAK_DETECTION) {
+			startLeakDetection(leakDetection, requestContext.awsRequestId);
+		}
 	}
 };
