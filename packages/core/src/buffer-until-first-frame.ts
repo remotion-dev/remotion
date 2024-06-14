@@ -1,36 +1,48 @@
 import {useCallback, useRef} from 'react';
 import {useBufferState} from './use-buffer-state';
 
-export const useBufferUntilFirstFrame = (
-	mediaRef: React.RefObject<HTMLVideoElement | HTMLAudioElement>,
-	mediaType: 'video' | 'audio',
-) => {
+export const useBufferUntilFirstFrame = ({
+	mediaRef,
+	mediaType,
+}: {
+	mediaRef: React.RefObject<HTMLVideoElement | HTMLAudioElement>;
+	mediaType: 'video' | 'audio';
+}) => {
 	const bufferingRef = useRef<boolean>(false);
 	const {delayPlayback} = useBufferState();
 
-	const bufferUntilFirstFrame = useCallback(() => {
-		if (mediaType !== 'video') {
-			return;
-		}
+	const bufferUntilFirstFrame = useCallback(
+		({skipIfPaused}: {skipIfPaused: boolean}) => {
+			if (mediaType !== 'video') {
+				return;
+			}
 
-		const current = mediaRef.current as HTMLVideoElement | null;
+			const current = mediaRef.current as HTMLVideoElement | null;
 
-		if (!current) {
-			return;
-		}
+			if (!current) {
+				return;
+			}
 
-		if (!current.requestVideoFrameCallback) {
-			return;
-		}
+			if (!current.requestVideoFrameCallback) {
+				return;
+			}
 
-		bufferingRef.current = true;
+			if (skipIfPaused && current.paused) {
+				console.log('not seeking because paused');
+			}
 
-		const playback = delayPlayback();
-		current.requestVideoFrameCallback(() => {
-			bufferingRef.current = false;
-			playback.unblock();
-		});
-	}, [delayPlayback, mediaRef, mediaType]);
+			bufferingRef.current = true;
+
+			const playback = delayPlayback();
+
+			current.requestVideoFrameCallback((_, info2) => {
+				console.log('requestVideoFrameCallback', _, info2);
+				bufferingRef.current = false;
+				playback.unblock();
+			});
+		},
+		[delayPlayback, mediaRef, mediaType],
+	);
 
 	return {
 		isBuffering: () => bufferingRef.current,

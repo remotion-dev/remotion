@@ -11,10 +11,7 @@ import {
 } from './timeline-position-state.js';
 import {useBufferState} from './use-buffer-state.js';
 import {useCurrentFrame} from './use-current-frame.js';
-import {
-	useMediaBuffering,
-	useMediaBufferingBasedOnRequestVideoCallback,
-} from './use-media-buffering.js';
+import {useMediaBuffering} from './use-media-buffering.js';
 import {useRequestVideoCallbackTime} from './use-request-video-callback-time.js';
 import {useVideoConfig} from './use-video-config.js';
 import {getMediaTime} from './video/get-current-time.js';
@@ -45,6 +42,7 @@ export const useMediaPlayback = ({
 	acceptableTimeshift,
 	pauseWhenBuffering,
 	isPremounting,
+	debugSeeking,
 }: {
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>;
 	src: string | undefined;
@@ -54,6 +52,7 @@ export const useMediaPlayback = ({
 	acceptableTimeshift: number;
 	pauseWhenBuffering: boolean;
 	isPremounting: boolean;
+	debugSeeking: boolean;
 }) => {
 	const {playbackRate: globalPlaybackRate} = useContext(TimelineContext);
 	const frame = useCurrentFrame();
@@ -85,16 +84,10 @@ export const useMediaPlayback = ({
 		isPremounting,
 	});
 
-	const {isStalled} = useMediaBufferingBasedOnRequestVideoCallback({
-		currentTime,
-		desiredUnclampedTime,
-		mediaRef,
-	});
-
-	const {bufferUntilFirstFrame, isBuffering} = useBufferUntilFirstFrame(
+	const {bufferUntilFirstFrame, isBuffering} = useBufferUntilFirstFrame({
 		mediaRef,
 		mediaType,
-	);
+	});
 
 	const playbackRate = localPlaybackRate * globalPlaybackRate;
 
@@ -112,24 +105,20 @@ export const useMediaPlayback = ({
 
 	useEffect(() => {
 		if (!playing) {
-			console.log('pauseda');
 			mediaRef.current?.pause();
 			return;
 		}
 
 		const isPlayerBuffering = buffering.buffering.current;
-		const isMediaTagBufferingOrStalled =
-			isMediaTagBuffering || isStalled() || isBuffering();
+		const isMediaTagBufferingOrStalled = isMediaTagBuffering || isBuffering();
 
 		if (isPlayerBuffering && !isMediaTagBufferingOrStalled) {
-			console.log('pausedb', isStalled());
 			mediaRef.current?.pause();
 		}
 	}, [
 		buffering.buffering,
 		isBuffering,
 		isMediaTagBuffering,
-		isStalled,
 		mediaRef,
 		playing,
 	]);
@@ -157,26 +146,34 @@ export const useMediaPlayback = ({
 				? Math.min(duration, desiredUnclampedTime)
 				: desiredUnclampedTime;
 		const isTime = mediaRef.current.currentTime;
-		const rvcTime = currentTime.current ?? Infinity;
+		const rvcTime = currentTime.current ?? null;
 
 		const timeShiftMediaTag = Math.abs(shouldBeTime - isTime);
-		const timeShiftRvcTag = Math.abs(shouldBeTime - rvcTime);
-		const timeShift = Math.min(timeShiftMediaTag, timeShiftRvcTag);
+		const timeShiftRvcTag = rvcTime ? Math.abs(shouldBeTime - rvcTime) : null;
+		const timeShift = timeShiftRvcTag ? timeShiftRvcTag : timeShiftMediaTag;
 
-		console.log({
-			isTime,
-			rvcTime,
-			shouldBeTime,
-			state: mediaRef.current.readyState,
-			playing: !mediaRef.current.paused,
-		});
+		if (debugSeeking) {
+			// eslint-disable-next-line no-console
+			console.log({
+				isTime,
+				rvcTime,
+				shouldBeTime,
+				state: mediaRef.current.readyState,
+				playing: !mediaRef.current.paused,
+			});
+		}
 
 		if (timeShift > acceptableTimeShiftButLessThanDuration) {
 			// If scrubbing around, adjust timing
 			// or if time shift is bigger than 0.45sec
 
-			console.log('Seeking', shouldBeTime, isTime, rvcTime, timeShift);
+			if (debugSeeking) {
+				// eslint-disable-next-line no-console
+				console.log('Seeking', {shouldBeTime, isTime, rvcTime, timeShift});
+			}
+
 			seek(mediaRef, shouldBeTime);
+			bufferUntilFirstFrame({skipIfPaused: true});
 
 			if (!onlyWarnForMediaSeekingError) {
 				warnAboutNonSeekableMedia(
@@ -198,7 +195,11 @@ export const useMediaPlayback = ({
 		const makesSenseToSeek =
 			Math.abs(mediaRef.current.currentTime - shouldBeTime) > seekThreshold;
 
-		if (!playing || buffering.buffering.current) {
+		const isMediaTagBufferingOrStalled = isMediaTagBuffering || isBuffering();
+		const isSomethingElseBuffering =
+			buffering.buffering.current && !isMediaTagBufferingOrStalled;
+
+		if (!playing || isSomethingElseBuffering) {
 			if (makesSenseToSeek) {
 				seek(mediaRef, shouldBeTime);
 			}
@@ -216,7 +217,7 @@ export const useMediaPlayback = ({
 			}
 
 			playAndHandleNotAllowedError(mediaRef, mediaType);
-			bufferUntilFirstFrame();
+			bufferUntilFirstFrame({skipIfPaused: false});
 		}
 	}, [
 		absoluteFrame,
@@ -236,5 +237,9 @@ export const useMediaPlayback = ({
 		buffering.buffering,
 		currentTime,
 		desiredUnclampedTime,
+		bufferUntilFirstFrame,
+		isMediaTagBuffering,
+		isBuffering,
+		debugSeeking,
 	]);
 };

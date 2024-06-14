@@ -24,7 +24,6 @@ export const useRequestVideoCallbackTime = (
 			const cb = (
 				mediaRef.current as HTMLVideoElement
 			).requestVideoFrameCallback((_, info) => {
-				console.log(info);
 				currentTime.current = info.mediaTime;
 				request();
 			});
