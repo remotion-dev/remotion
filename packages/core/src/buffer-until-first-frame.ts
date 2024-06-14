@@ -1,4 +1,4 @@
-import {useCallback, useRef} from 'react';
+import {useCallback, useMemo, useRef} from 'react';
 import {useBufferState} from './use-buffer-state';
 
 export const useBufferUntilFirstFrame = ({
@@ -45,6 +45,7 @@ export const useBufferUntilFirstFrame = ({
 					// @ts-expect-error
 					once: true,
 				});
+				bufferingRef.current = false;
 			};
 
 			const onEndedOrPause = () => {
@@ -55,7 +56,6 @@ export const useBufferUntilFirstFrame = ({
 				// Safari often seeks and then stalls.
 				// This makes sure that the video actually starts playing.
 				current.requestVideoFrameCallback(() => {
-					bufferingRef.current = false;
 					unblock();
 				});
 			});
@@ -66,8 +66,10 @@ export const useBufferUntilFirstFrame = ({
 		[delayPlayback, mediaRef, mediaType],
 	);
 
-	return {
-		isBuffering: () => bufferingRef.current,
-		bufferUntilFirstFrame,
-	};
+	return useMemo(() => {
+		return {
+			isBuffering: () => bufferingRef.current,
+			bufferUntilFirstFrame,
+		};
+	}, [bufferUntilFirstFrame]);
 };

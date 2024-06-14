@@ -56,7 +56,7 @@ export const playAndHandleNotAllowedError = (
 				// eslint-disable-next-line no-console
 				console.log(`The video will be muted and we'll retry playing it.`);
 				current.muted = true;
-				playAndHandleNotAllowedError(mediaRef, mediaType);
+				current.play();
 			}
 		});
 	}
