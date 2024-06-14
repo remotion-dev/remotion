@@ -361,20 +361,25 @@ export const renderCommand = async (
 
 	Log.verbose(
 		{indent: false, logLevel},
+		'CloudWatch logs (if enabled):',
 		CliInternals.makeHyperlink({
-			text: (instruction) =>
-				`${instruction} to view CloudWatch logs (if enabled)`,
+			text: `Main function`,
+			url: res.cloudWatchMainLogs,
+			fallback: res.cloudWatchMainLogs,
+		}),
+		CliInternals.makeHyperlink({
+			text: `Renderer functions`,
 			url: res.cloudWatchLogs,
-			fallback: `CloudWatch logs (if enabled): ${res.cloudWatchLogs}`,
+			fallback: res.cloudWatchLogs,
 		}),
 	);
 	Log.verbose(
 		{indent: false, logLevel},
+		'Lambda insights: (if enabled):',
 		CliInternals.makeHyperlink({
-			text: (instruction) =>
-				`${instruction} to view Lambda insights (if enabled)`,
+			text: (instruction) => `${instruction} to view`,
 			url: res.lambdaInsightsLogs,
-			fallback: `Lambda insights (if enabled): ${res.lambdaInsightsLogs}`,
+			fallback: res.lambdaInsightsLogs,
 		}),
 	);
 
