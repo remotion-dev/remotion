@@ -11,60 +11,53 @@ export const useBufferUntilFirstFrame = ({
 	const bufferingRef = useRef<boolean>(false);
 	const {delayPlayback} = useBufferState();
 
-	const bufferUntilFirstFrame = useCallback(
-		({skipIfPaused}: {skipIfPaused: boolean}) => {
-			if (mediaType !== 'video') {
-				return;
-			}
+	const bufferUntilFirstFrame = useCallback(() => {
+		if (mediaType !== 'video') {
+			return;
+		}
 
-			const current = mediaRef.current as HTMLVideoElement | null;
+		const current = mediaRef.current as HTMLVideoElement | null;
 
-			if (!current) {
-				return;
-			}
+		if (!current) {
+			return;
+		}
 
-			if (!current.requestVideoFrameCallback) {
-				return;
-			}
+		if (!current.requestVideoFrameCallback) {
+			return;
+		}
 
-			if (skipIfPaused && current.paused) {
-				return;
-			}
+		bufferingRef.current = true;
 
-			bufferingRef.current = true;
+		const playback = delayPlayback();
 
-			const playback = delayPlayback();
-
-			const unblock = () => {
-				playback.unblock();
-				current.removeEventListener('ended', unblock, {
-					// @ts-expect-error
-					once: true,
-				});
-				current.removeEventListener('pause', unblock, {
-					// @ts-expect-error
-					once: true,
-				});
-				bufferingRef.current = false;
-			};
-
-			const onEndedOrPause = () => {
-				unblock();
-			};
-
-			current.requestVideoFrameCallback(() => {
-				// Safari often seeks and then stalls.
-				// This makes sure that the video actually starts playing.
-				current.requestVideoFrameCallback(() => {
-					unblock();
-				});
+		const unblock = () => {
+			playback.unblock();
+			current.removeEventListener('ended', unblock, {
+				// @ts-expect-error
+				once: true,
 			});
+			current.removeEventListener('pause', unblock, {
+				// @ts-expect-error
+				once: true,
+			});
+			bufferingRef.current = false;
+		};
 
-			current.addEventListener('ended', onEndedOrPause, {once: true});
-			current.addEventListener('pause', onEndedOrPause, {once: true});
-		},
-		[delayPlayback, mediaRef, mediaType],
-	);
+		const onEndedOrPause = () => {
+			unblock();
+		};
+
+		current.requestVideoFrameCallback(() => {
+			// Safari often seeks and then stalls.
+			// This makes sure that the video actually starts playing.
+			current.requestVideoFrameCallback(() => {
+				unblock();
+			});
+		});
+
+		current.addEventListener('ended', onEndedOrPause, {once: true});
+		current.addEventListener('pause', onEndedOrPause, {once: true});
+	}, [delayPlayback, mediaRef, mediaType]);
 
 	return useMemo(() => {
 		return {
