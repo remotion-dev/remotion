@@ -26,6 +26,13 @@ export type OverallRenderProgress = {
 	functionLaunched: number;
 	serveUrlOpened: number | null;
 	compositionValidated: number | null;
+	receivedAssets: ReceivedAsset[];
+};
+
+export type ReceivedAsset = {
+	filename: string;
+	sizeInBytes: number;
+	s3Url: string;
 };
 
 export type OverallProgressHelper = {
@@ -55,6 +62,8 @@ export type OverallProgressHelper = {
 	get: () => OverallRenderProgress;
 	setServeUrlOpened: (timestamp: number) => void;
 	setCompositionValidated: (timestamp: number) => void;
+	addReceivedAsset: (asset: ReceivedAsset) => void;
+	getReceivedAssets: () => ReceivedAsset[];
 };
 
 export const makeInitialOverallRenderProgress = (
@@ -78,6 +87,7 @@ export const makeInitialOverallRenderProgress = (
 		functionLaunched: Date.now(),
 		serveUrlOpened: null,
 		compositionValidated: null,
+		receivedAssets: [],
 	};
 };
 
@@ -273,6 +283,13 @@ export const makeOverallRenderProgress = ({
 		addRetry(retry) {
 			renderProgress.retries.push(retry);
 			upload();
+		},
+		addReceivedAsset(asset) {
+			renderProgress.receivedAssets.push(asset);
+			upload();
+		},
+		getReceivedAssets() {
+			return renderProgress.receivedAssets;
 		},
 		get: () => renderProgress,
 	};

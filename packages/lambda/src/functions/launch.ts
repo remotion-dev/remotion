@@ -56,11 +56,6 @@ type Options = {
 	getRemainingTimeInMillis: () => number;
 };
 
-type ReceivedAsset = {
-	filename: string;
-	sizeInBytes: number;
-};
-
 const innerLaunchHandler = async ({
 	functionName,
 	params,
@@ -361,16 +356,21 @@ const innerLaunchHandler = async ({
 
 	const files: string[] = [];
 
-	const artifacts: ReceivedAsset[] = [];
-
 	const onArtifact = (artifact: EmittedAsset): {alreadyExisted: boolean} => {
-		if (artifacts.find((a) => a.filename === artifact.filename)) {
+		if (
+			overallProgress
+				.getReceivedAssets()
+				.find((a) => a.filename === artifact.filename)
+		) {
 			return {alreadyExisted: true};
 		}
 
-		artifacts.push({
+		const region = getCurrentRegionInFunction();
+		const s3Key = artifactName(renderMetadata.renderId, artifact.filename);
+		overallProgress.addReceivedAsset({
 			filename: artifact.filename,
 			sizeInBytes: artifact.content.length,
+			s3Url: `https://s3.${region}.amazonaws.com/${renderBucketName}/${s3Key}`,
 		});
 
 		const start = Date.now();
@@ -380,9 +380,9 @@ const innerLaunchHandler = async ({
 		);
 		lambdaWriteFile({
 			bucketName: renderBucketName,
-			key: artifactName(renderMetadata.renderId, artifact.filename),
+			key: s3Key,
 			body: artifact.content,
-			region: getCurrentRegionInFunction(),
+			region,
 			privacy: params.privacy,
 			expectedBucketOwner: options.expectedBucketOwner,
 			downloadBehavior: params.downloadBehavior,

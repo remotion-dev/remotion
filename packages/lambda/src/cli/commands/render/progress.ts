@@ -200,6 +200,32 @@ const makeTopRow = (overall: RenderProgress) => {
 	return CliInternals.chalk.gray(str);
 };
 
+const makeArtifactProgress = (progress: RenderProgress) => {
+	const {artifactProgress} = progress;
+	if (artifactProgress.length === 0) {
+		return null;
+	}
+
+	return artifactProgress
+		.map((artifact) => {
+			return [
+				CliInternals.chalk.blue('+'.padEnd(CliInternals.LABEL_WIDTH)),
+				CliInternals.chalk.blue(
+					CliInternals.makeHyperlink({
+						url: artifact.s3Url,
+						fallback: artifact.filename,
+						text: artifact.filename,
+					}),
+				),
+				CliInternals.chalk.gray(
+					`${CliInternals.formatBytes(artifact.sizeInBytes)}`,
+				),
+			].join(' ');
+		})
+		.filter(truthy)
+		.join('\n');
+};
+
 export const makeProgressString = ({
 	downloadInfo,
 	overall,
@@ -213,6 +239,7 @@ export const makeProgressString = ({
 		...makeInvokeProgress(overall),
 		...makeRenderProgress(overall),
 		makeCombinationProgress(overall),
+		makeArtifactProgress(overall),
 		downloadInfo ? makeDownloadProgress(downloadInfo) : null,
 	]
 		.filter(NoReactInternals.truthy)
