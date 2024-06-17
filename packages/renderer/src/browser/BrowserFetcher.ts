@@ -43,7 +43,7 @@ function getChromeDownloadUrl({
 	version: string | null;
 }): string {
 	if (platform === 'linux-arm64') {
-		return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-linux.zip`;
+		return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-linux-arm64.zip`;
 	}
 
 	return `https://storage.googleapis.com/chrome-for-testing-public/${
@@ -153,6 +153,23 @@ export const downloadBrowser = async ({
 		});
 		Log.info({indent, logLevel});
 		await extractZip(archivePath, {dir: outputPath});
+		const chromePath = path.join(outputPath, 'chrome-linux', 'chrome');
+		const chromeHeadlessShellPath = path.join(
+			outputPath,
+			'chrome-linux',
+			'chrome-headless-shell',
+		);
+		if (fs.existsSync(chromePath)) {
+			fs.renameSync(chromePath, chromeHeadlessShellPath);
+		}
+
+		const chromeLinuxFolder = path.join(outputPath, 'chrome-linux');
+		if (fs.existsSync(chromeLinuxFolder)) {
+			fs.renameSync(
+				chromeLinuxFolder,
+				path.join(outputPath, 'chrome-headless-shell-linux-arm64'),
+			);
+		}
 	} finally {
 		if (await existsAsync(archivePath)) {
 			await unlinkAsync(archivePath);
