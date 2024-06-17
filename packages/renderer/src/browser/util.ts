@@ -91,30 +91,18 @@ export async function releaseObject(
 		});
 }
 
-export interface PuppeteerEventListener {
-	emitter: CommonEventEmitter;
-	eventName: string | symbol;
-	handler: (...args: any[]) => void;
-}
-
 export function addEventListener(
 	emitter: CommonEventEmitter,
 	eventName: string | symbol,
 	handler: (...args: any[]) => void,
-): PuppeteerEventListener {
+) {
 	emitter.on(eventName, handler);
-	return {emitter, eventName, handler};
+	return () => emitter.off(eventName, handler);
 }
 
-export function removeEventListeners(
-	listeners: Array<{
-		emitter: CommonEventEmitter;
-		eventName: string | symbol;
-		handler: (...args: any[]) => void;
-	}>,
-): void {
+export function removeEventListeners(listeners: Array<() => void>): void {
 	for (const listener of listeners) {
-		listener.emitter.off(listener.eventName, listener.handler);
+		listener();
 	}
 
 	listeners.length = 0;

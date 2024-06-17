@@ -30,8 +30,10 @@ import type {DownloadBrowserProgressFn} from '../options/on-browser-download';
 import {getDownloadsCacheDir} from './get-download-destination';
 
 const TESTED_VERSION = '123.0.6312.86';
+// https://github.com/microsoft/playwright/tree/v1.42.0
+const PLAYWRIGHT_VERSION = '1105'; // 123.0.6312.4
 
-type Platform = 'linux64' | 'mac-x64' | 'mac-arm64' | 'win64';
+type Platform = 'linux64' | 'linux-arm64' | 'mac-x64' | 'mac-arm64' | 'win64';
 
 function getChromeDownloadUrl({
 	platform,
@@ -40,6 +42,10 @@ function getChromeDownloadUrl({
 	platform: Platform;
 	version: string | null;
 }): string {
+	if (platform === 'linux-arm64') {
+		return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-linux-arm64.zip`;
+	}
+
 	return `https://storage.googleapis.com/chrome-for-testing-public/${
 		version ?? TESTED_VERSION
 	}/${platform}/chrome-headless-shell-${platform}.zip`;
@@ -69,7 +75,7 @@ const getPlatform = (): Platform => {
 		case 'darwin':
 			return os.arch() === 'arm64' ? 'mac-arm64' : 'mac-x64';
 		case 'linux':
-			return 'linux64';
+			return os.arch() === 'arm64' ? 'linux-arm64' : 'linux64';
 		case 'win32':
 			return 'win64';
 		default:
@@ -115,14 +121,14 @@ export const downloadBrowser = async ({
 		});
 	}
 
-	// Use system Chromium builds on Linux ARM devices
-	if (os.platform() !== 'darwin' && os.arch() === 'arm64') {
+	if (
+		os.platform() !== 'darwin' &&
+		os.platform() !== 'linux' &&
+		os.arch() === 'arm64'
+	) {
 		throw new Error(
 			[
-				'Chrome Headless Shell is not available for Linux for arm64 architecture.',
-				'If you are on Ubuntu, you can install with:',
-				'sudo apt install chromium',
-				'sudo apt install chromium-browser',
+				'Chrome Headless Shell is not available for Windows for arm64 architecture.',
 			].join('\n'),
 		);
 	}
@@ -147,6 +153,23 @@ export const downloadBrowser = async ({
 		});
 		Log.info({indent, logLevel});
 		await extractZip(archivePath, {dir: outputPath});
+		const chromePath = path.join(outputPath, 'chrome-linux', 'chrome');
+		const chromeHeadlessShellPath = path.join(
+			outputPath,
+			'chrome-linux',
+			'chrome-headless-shell',
+		);
+		if (fs.existsSync(chromePath)) {
+			fs.renameSync(chromePath, chromeHeadlessShellPath);
+		}
+
+		const chromeLinuxFolder = path.join(outputPath, 'chrome-linux');
+		if (fs.existsSync(chromeLinuxFolder)) {
+			fs.renameSync(
+				chromeLinuxFolder,
+				path.join(outputPath, 'chrome-headless-shell-linux-arm64'),
+			);
+		}
 	} finally {
 		if (await existsAsync(archivePath)) {
 			await unlinkAsync(archivePath);

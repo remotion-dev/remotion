@@ -171,7 +171,12 @@ export const useMediaPlayback = ({
 			}
 
 			seek(mediaRef, shouldBeTime);
-			bufferUntilFirstFrame({skipIfPaused: true});
+			if (playing) {
+				bufferUntilFirstFrame();
+				if (mediaRef.current.paused) {
+					playAndHandleNotAllowedError(mediaRef, mediaType);
+				}
+			}
 
 			if (!onlyWarnForMediaSeekingError) {
 				warnAboutNonSeekableMedia(
@@ -215,7 +220,7 @@ export const useMediaPlayback = ({
 			}
 
 			playAndHandleNotAllowedError(mediaRef, mediaType);
-			bufferUntilFirstFrame({skipIfPaused: false});
+			bufferUntilFirstFrame();
 		}
 	}, [
 		absoluteFrame,
