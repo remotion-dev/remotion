@@ -427,18 +427,8 @@ export const launchHandler = async (
 		cleanupTasks.push(task);
 	};
 
-	const onTimeout = async () => {
-		RenderInternals.Log.error(
-			{indent: false, logLevel: params.logLevel},
-			'Function is about to time out. Can not finish render.',
-		);
-
-		// @ts-expect-error
-		(globalThis._dumpUnreleasedBuffers as EventEmitter).emit(
-			'dump-unreleased-buffers',
-		);
-
-		Promise.all(cleanupTasks)
+	const runCleanupTasks = () => {
+		const prom = Promise.all(cleanupTasks)
 			.then(() => {
 				RenderInternals.Log.info(
 					{indent: false, logLevel: params.logLevel},
@@ -452,6 +442,23 @@ export const launchHandler = async (
 					err,
 				);
 			});
+
+		cleanupTasks.length = 0;
+		return prom;
+	};
+
+	const onTimeout = async () => {
+		RenderInternals.Log.error(
+			{indent: false, logLevel: params.logLevel},
+			'Function is about to time out. Can not finish render.',
+		);
+
+		// @ts-expect-error
+		(globalThis._dumpUnreleasedBuffers as EventEmitter).emit(
+			'dump-unreleased-buffers',
+		);
+
+		runCleanupTasks();
 
 		if (!params.webhook) {
 			RenderInternals.Log.verbose(
@@ -622,6 +629,8 @@ export const launchHandler = async (
 			);
 		}
 
+		runCleanupTasks();
+
 		return {
 			type: 'success',
 		};
@@ -649,6 +658,8 @@ export const launchHandler = async (
 			message: (err as Error).message,
 		});
 		await overallProgress.upload();
+
+		runCleanupTasks();
 
 		RenderInternals.Log.error(
 			{indent: false, logLevel: params.logLevel},
