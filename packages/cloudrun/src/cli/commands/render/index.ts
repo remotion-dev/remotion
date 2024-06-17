@@ -319,6 +319,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
 		indent: false,
+		downloadBehavior: {type: 'play-in-browser'},
 	});
 
 	if (res.type === 'crash') {

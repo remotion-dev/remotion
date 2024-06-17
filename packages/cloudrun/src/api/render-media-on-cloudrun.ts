@@ -15,6 +15,7 @@ import {VERSION} from 'remotion/version';
 import type {
 	CloudRunCrashResponse,
 	CloudRunPayloadType,
+	DownloadBehavior,
 	ErrorResponsePayload,
 	RenderMediaOnCloudrunOutput,
 } from '../functions/helpers/payloads';
@@ -56,6 +57,7 @@ type InternalRenderMediaOnCloudrun = {
 	preferLossless: boolean | undefined;
 	indent: boolean;
 	logLevel: LogLevel;
+	downloadBehavior: DownloadBehavior;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>>;
 
 export type RenderMediaOnCloudrunInput = {
@@ -84,6 +86,7 @@ export type RenderMediaOnCloudrunInput = {
 	forceHeight?: number | null;
 	concurrency?: number | string | null;
 	preferLossless?: boolean;
+	downloadBehavior?: DownloadBehavior;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>>;
 
 const internalRenderMediaOnCloudrunRaw = async ({
@@ -125,6 +128,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 	preferLossless,
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
+	downloadBehavior,
 }: InternalRenderMediaOnCloudrun): Promise<
 	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 > => {
@@ -183,6 +187,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		colorSpace: colorSpace ?? null,
 		clientVersion: VERSION,
+		downloadBehavior,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);
@@ -349,6 +354,7 @@ export const renderMediaOnCloudrun = ({
 	preferLossless,
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
+	downloadBehavior,
 }: RenderMediaOnCloudrunInput): Promise<
 	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 > => {
@@ -393,5 +399,8 @@ export const renderMediaOnCloudrun = ({
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? undefined,
 		colorSpace: colorSpace ?? undefined,
 		indent: false,
+		downloadBehavior: downloadBehavior ?? {
+			type: 'play-in-browser',
+		},
 	});
 };
