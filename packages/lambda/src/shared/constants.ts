@@ -85,6 +85,8 @@ export const outName = (renderId: string, extension: string) =>
 	`${rendersPrefix(renderId)}/out.${extension}`;
 export const outStillName = (renderId: string, imageFormat: StillImageFormat) =>
 	`${rendersPrefix(renderId)}/out.${imageFormat}`;
+export const artifactName = (renderId: string, name: string) =>
+	`${rendersPrefix(renderId)}/artifacts/${name}`;
 export const customOutName = (
 	renderId: string,
 	bucketName: string,

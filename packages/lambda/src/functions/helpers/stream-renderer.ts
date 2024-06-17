@@ -1,4 +1,4 @@
-import type {LogLevel} from '@remotion/renderer';
+import type {EmittedAsset, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {writeFileSync} from 'fs';
 import {join} from 'path';
@@ -26,6 +26,7 @@ const streamRenderer = ({
 	overallProgress,
 	files,
 	logLevel,
+	onArtifact,
 }: {
 	payload: LambdaPayload;
 	functionName: string;
@@ -33,6 +34,7 @@ const streamRenderer = ({
 	overallProgress: OverallProgressHelper;
 	files: string[];
 	logLevel: LogLevel;
+	onArtifact: (asset: EmittedAsset) => {alreadyExisted: boolean};
 }) => {
 	if (payload.type !== LambdaRoutines.renderer) {
 		throw new Error('Expected renderer type');
@@ -94,6 +96,25 @@ const streamRenderer = ({
 					message.payload.start,
 					message.payload.rendered,
 				);
+				return;
+			}
+
+			if (message.type === 'artifact-emitted') {
+				RenderInternals.Log.info(
+					{indent: false, logLevel},
+					`Received artifact on frame ${message.payload.artifact.frame}:`,
+					message.payload.artifact.filename,
+					message.payload.artifact.content.length + 'bytes.',
+				);
+				const {alreadyExisted} = onArtifact(message.payload.artifact);
+				if (alreadyExisted) {
+					return resolve({
+						type: 'error',
+						error: `Chunk ${payload.chunk} emitted an asset filename ${message.payload.artifact.filename} at frame ${message.payload.artifact.frame} but there is already another artifact with the same name.`,
+						shouldRetry: false,
+					});
+				}
+
 				return;
 			}
 
@@ -162,6 +183,7 @@ export const streamRendererFunctionWithRetry = async ({
 	outdir,
 	overallProgress,
 	logLevel,
+	onArtifact,
 }: {
 	payload: LambdaPayload;
 	functionName: string;
@@ -169,6 +191,7 @@ export const streamRendererFunctionWithRetry = async ({
 	overallProgress: OverallProgressHelper;
 	files: string[];
 	logLevel: LogLevel;
+	onArtifact: (asset: EmittedAsset) => {alreadyExisted: boolean};
 }): Promise<unknown> => {
 	if (payload.type !== LambdaRoutines.renderer) {
 		throw new Error('Expected renderer type');
@@ -181,6 +204,7 @@ export const streamRendererFunctionWithRetry = async ({
 		overallProgress,
 		payload,
 		logLevel,
+		onArtifact,
 	});
 
 	if (result.type === 'error') {
@@ -205,6 +229,7 @@ export const streamRendererFunctionWithRetry = async ({
 				retriesLeft: payload.retriesLeft - 1,
 			},
 			logLevel,
+			onArtifact,
 		});
 	}
 };

@@ -173,7 +173,32 @@ const renderHandler = async ({
 	);
 
 	const onArtifact: OnArtifact = (artifact) => {
-		console.log(artifact);
+		RenderInternals.Log.info(
+			{indent: false, logLevel: params.logLevel},
+			`Received artifact on frame ${artifact.frame}:`,
+			artifact.filename,
+			artifact.content.length + 'bytes. Streaming to main function',
+		);
+		const startTimestamp = Date.now();
+		onStream({
+			type: 'artifact-emitted',
+			payload: {
+				artifact,
+			},
+		})
+			.then(() => {
+				RenderInternals.Log.info(
+					{indent: false, logLevel: params.logLevel},
+					`Streaming artifact ${artifact.filename} to main function took ${Date.now() - startTimestamp}ms`,
+				);
+			})
+			.catch((e) => {
+				RenderInternals.Log.error(
+					{indent: false, logLevel: params.logLevel},
+					`Error streaming artifact ${artifact.filename} to main function`,
+					e,
+				);
+			});
 	};
 
 	await new Promise<void>((resolve, reject) => {

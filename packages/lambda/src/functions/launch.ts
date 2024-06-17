@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import type {LogOptions} from '@remotion/renderer';
+import type {EmittedAsset, LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {existsSync, mkdirSync, rmSync} from 'fs';
 import {join} from 'path';
 import {VERSION} from 'remotion/version';
-import type {EventEmitter} from 'stream';
+import {type EventEmitter} from 'stream';
 import {
 	compressInputProps,
 	decompressInputProps,
@@ -20,6 +20,7 @@ import {
 	CONCAT_FOLDER_TOKEN,
 	LambdaRoutines,
 	MAX_FUNCTIONS_PER_RENDER,
+	artifactName,
 } from '../shared/constants';
 import {DOCS_URL} from '../shared/docs-url';
 import {invokeWebhook} from '../shared/invoke-webhook';
@@ -41,6 +42,7 @@ import {
 	getBrowserInstance,
 } from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
+import {lambdaWriteFile} from './helpers/io';
 import {mergeChunksAndFinishRender} from './helpers/merge-chunks';
 import type {OverallProgressHelper} from './helpers/overall-render-progress';
 import {makeOverallRenderProgress} from './helpers/overall-render-progress';
@@ -52,6 +54,11 @@ import {getTmpDirStateIfENoSp} from './helpers/write-lambda-error';
 type Options = {
 	expectedBucketOwner: string;
 	getRemainingTimeInMillis: () => number;
+};
+
+type ReceivedAsset = {
+	filename: string;
+	sizeInBytes: number;
 };
 
 const innerLaunchHandler = async ({
@@ -354,6 +361,50 @@ const innerLaunchHandler = async ({
 
 	const files: string[] = [];
 
+	const artifacts: ReceivedAsset[] = [];
+
+	const onArtifact = (artifact: EmittedAsset): {alreadyExisted: boolean} => {
+		if (artifacts.find((a) => a.filename === artifact.filename)) {
+			return {alreadyExisted: true};
+		}
+
+		artifacts.push({
+			filename: artifact.filename,
+			sizeInBytes: artifact.content.length,
+		});
+
+		const start = Date.now();
+		RenderInternals.Log.info(
+			{indent: false, logLevel: params.logLevel},
+			'Writing artifact ' + artifact.filename + ' to S3',
+		);
+		lambdaWriteFile({
+			bucketName: renderBucketName,
+			key: artifactName(renderMetadata.renderId, artifact.filename),
+			body: artifact.content,
+			region: getCurrentRegionInFunction(),
+			privacy: params.privacy,
+			expectedBucketOwner: options.expectedBucketOwner,
+			downloadBehavior: params.downloadBehavior,
+			customCredentials,
+		})
+			.then(() => {
+				RenderInternals.Log.info(
+					{indent: false, logLevel: params.logLevel},
+					`Wrote artifact to S3 in ${Date.now() - start}ms`,
+				);
+			})
+			.catch((err) => {
+				// TODO: Handle error
+				RenderInternals.Log.error(
+					{indent: false, logLevel: params.logLevel},
+					'Failed to write artifact to S3',
+					err,
+				);
+			});
+		return {alreadyExisted: false};
+	};
+
 	await Promise.all(
 		lambdaPayloads.map(async (payload) => {
 			await streamRendererFunctionWithRetry({
@@ -363,6 +414,7 @@ const innerLaunchHandler = async ({
 				overallProgress,
 				payload,
 				logLevel: params.logLevel,
+				onArtifact,
 			});
 		}),
 	);

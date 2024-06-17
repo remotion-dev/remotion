@@ -10,10 +10,9 @@ export const handleOnArtifact = (
 	const initialProgress = {...artifactState};
 
 	const onArtifact: OnArtifact = (artifact) => {
-		// TODO: Normalize backslashes on Windows
 		const absoluteOutputDestination = path.join(
 			process.cwd(),
-			artifact.filename,
+			artifact.filename.replace('/', path.sep),
 		);
 		writeFileSync(artifact.filename, artifact.content);
 

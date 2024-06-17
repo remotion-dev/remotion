@@ -1,3 +1,4 @@
+import type {EmittedAsset} from '@remotion/renderer';
 import {makeStreamPayloadMessage} from '@remotion/streaming';
 import type {LambdaErrorInfo} from '../helpers/write-lambda-error';
 import type {RenderStillLambdaResponsePayload} from '../still';
@@ -10,6 +11,7 @@ const audioChunkRendered = 'audio-chunk-rendered' as const;
 const chunkComplete = 'chunk-complete' as const;
 const stillRendered = 'still-rendered' as const;
 const lambdaInvoked = 'lambda-invoked' as const;
+const artifactEmitted = 'artifact-emitted' as const;
 
 const messageTypes = {
 	'1': {type: framesRendered},
@@ -20,6 +22,7 @@ const messageTypes = {
 	'6': {type: stillRendered},
 	'7': {type: chunkComplete},
 	'8': {type: lambdaInvoked},
+	'9': {type: artifactEmitted},
 } as const;
 
 export type MessageTypeId = keyof typeof messageTypes;
@@ -34,6 +37,7 @@ export const formatMap: {[key in MessageType]: 'json' | 'binary'} = {
 	[stillRendered]: 'json',
 	[chunkComplete]: 'json',
 	[lambdaInvoked]: 'json',
+	[artifactEmitted]: 'json',
 };
 
 export type StreamingPayload =
@@ -81,6 +85,12 @@ export type StreamingPayload =
 			type: typeof lambdaInvoked;
 			payload: {
 				attempt: number;
+			};
+	  }
+	| {
+			type: typeof artifactEmitted;
+			payload: {
+				artifact: EmittedAsset;
 			};
 	  };
 

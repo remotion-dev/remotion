@@ -67,7 +67,7 @@ import {wrapWithErrorHandling} from './wrap-with-error-handling';
 
 const MAX_RETRIES_PER_FRAME = 1;
 
-export type OnArtifact = (asset: EmittedAsset) => void;
+export type OnArtifact = (asset: EmittedArtifact) => void;
 
 type InternalRenderFramesOptions = {
 	onStart: null | ((data: OnStartData) => void);
@@ -106,7 +106,7 @@ type InternalRenderFramesOptions = {
 	onArtifact: OnArtifact | null;
 } & ToOptions<typeof optionsMap.renderFrames>;
 
-type EmittedAsset = {
+export type EmittedArtifact = {
 	filename: string;
 	content: string | Uint8Array;
 	frame: number;
