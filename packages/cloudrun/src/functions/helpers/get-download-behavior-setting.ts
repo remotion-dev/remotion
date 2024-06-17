@@ -44,17 +44,17 @@ export const getDownloadBehaviorSetting = (
 	}
 
 	if (downloadBehavior.fileName === null) {
-		return {'content-disposition': `attachment`};
+		return {contentDisposition: `attachment`};
 	}
 
 	const {containsHex} = includesHexOfUnsafeChar(downloadBehavior.fileName);
 	if (containsHex) {
 		return {
-			'content-disposition': `attachment; filename="${downloadBehavior.fileName}"`,
+			contentDisposition: `attachment; filename="${downloadBehavior.fileName}"`,
 		};
 	}
 
 	return {
-		'content-disposition': `attachment; filename="${encodeURIComponent(downloadBehavior.fileName)}"`,
+		contentDisposition: `attachment; filename="${encodeURIComponent(downloadBehavior.fileName)}"`,
 	};
 };
