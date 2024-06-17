@@ -9,16 +9,19 @@ RUN npm i
 RUN yum install -y \
   mesa-libgbm	\
   libX11 \
-  libXrandr\ 
+  libXrandr \ 
   libdrm \ 
   libXdamage \ 
   libXfixes \ 
-  dbus -libs\ 
+  dbus-libs \ 
   libXcomposite \ 
-  alsa -lib \ 
+  alsa-lib \ 
   nss \ 
   dbus \
   at-spi2-core \
   atk \
   at-spi2-atk
+COPY ensure-browser.mjs .
+COPY ensure.mjs .
+RUN node ensure.mjs
 RUN npx remotion compositions

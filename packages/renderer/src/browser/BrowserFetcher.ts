@@ -123,7 +123,7 @@ export const downloadBrowser = async ({
 
 	if (
 		os.platform() !== 'darwin' &&
-		os.platform() !== 'win32' &&
+		os.platform() !== 'linux' &&
 		os.arch() === 'arm64'
 	) {
 		throw new Error(
