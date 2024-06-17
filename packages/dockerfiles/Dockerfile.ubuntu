@@ -7,7 +7,6 @@ WORKDIR /usr/app
 RUN git clone https://github.com/remotion-dev/template-helloworld /usr/app
 RUN cd /usr/app
 RUN npm i
-RUN npx remotion browser ensure
 RUN apt install -y \
   libnss3 \
   libdbus-1-3 \
