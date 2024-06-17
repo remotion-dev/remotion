@@ -7,6 +7,7 @@ import {VERSION} from 'remotion/version';
 import {Log} from '../cli/log';
 import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
+import {getDownloadBehaviorSetting} from './helpers/get-download-behavior-setting';
 import type {
 	CloudRunPayloadType,
 	RenderStillOnCloudrunOutput,
@@ -109,6 +110,7 @@ export const renderStillSingleThread = async (
 			.upload(tempFilePath, {
 				destination: `renders/${renderId}/${body.outName ?? 'out.png'}`,
 				predefinedAcl: publicUpload ? 'publicRead' : 'projectPrivate',
+				metadata: getDownloadBehaviorSetting(body.downloadBehavior),
 			});
 
 		Log.info({indent: false, logLevel: body.logLevel}, 'Still uploaded');
