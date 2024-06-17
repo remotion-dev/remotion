@@ -1,0 +1,65 @@
+---
+sidebar_label: Linux Dependencies
+title: Linux Dependencies
+crumb: "FAQ"
+---
+
+If you are on Linux, Chrome Headless Shell requires some shared libraries to be installed.
+
+## Ubuntu
+
+```bash
+RUN apt install -y \
+  libnss3 \
+  libdbus-1-3 \
+  libatk1.0-0 \
+  libasound2 \
+  libxrandr2 \
+  libxkbcommon-dev \
+  libxfixes3 \
+  libxcomposite1 \
+  libxdamage1 \
+  libgbm-dev \
+  libatk-bridge2.0-0
+```
+
+## Debian
+
+```bash
+RUN apt install -y \
+  libnss3 \
+  libdbus-1-3 \
+  libatk1.0-0 \
+  libgbm-dev \
+  libasound2 \
+  libxrandr2 \
+  libxkbcommon-dev \
+  libxfixes3 \
+  libxcomposite1 \
+  libxdamage1 \
+  libatk-bridge2.0-0
+```
+
+## Amazon Linux 2023
+
+```bash
+RUN yum install -y \
+  mesa-libgbm	\
+  libX11 \
+  libXrandr\
+  libdrm \
+  libXdamage \
+  libXfixes \
+  dbus -libs\
+  libXcomposite \
+  alsa -lib \
+  nss \
+  dbus \
+  at-spi2-core \
+  atk \
+  at-spi2-atk
+```
+
+## Alpine Linux
+
+Not supported due to to unsupported Libc symbols.

@@ -258,7 +258,7 @@ function waitForWSEndpoint(
 
 	return new Promise((resolve, reject) => {
 		browserStderr.addListener('data', onData);
-		browserProcess.addListener('close', onClose);
+		browserStderr.addListener('close', onClose);
 		const listeners = [
 			() => browserStderr.removeListener('data', onData),
 			() => browserStderr.removeListener('close', onClose),

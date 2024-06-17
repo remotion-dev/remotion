@@ -913,6 +913,7 @@ module.exports = {
         "chromium-flags",
         "miscellaneous/changing-temp-dir",
         "miscellaneous/chrome-headless-shell",
+        "miscellaneous/linux-dependencies",
         "gl-options",
         "bun",
         "standalone",
