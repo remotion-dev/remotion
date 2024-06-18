@@ -1,16 +1,17 @@
 import type React from 'react';
 import {useContext, useEffect, useState} from 'react';
 import {RenderAssetManager} from './RenderAssetManager';
+import {getRemotionEnvironment} from './get-remotion-environment';
 import {useCurrentFrame} from './use-current-frame';
 
-// TODO: Not register in development?
 export const Artifact: React.FC<{
 	readonly filename: string;
 	readonly content: string;
 }> = ({filename, content}) => {
-	// TODO: Validate filename and content
 	const {registerRenderAsset, unregisterRenderAsset} =
 		useContext(RenderAssetManager);
+
+	const [env] = useState(() => getRemotionEnvironment());
 
 	const frame = useCurrentFrame();
 
@@ -19,6 +20,10 @@ export const Artifact: React.FC<{
 	});
 
 	useEffect(() => {
+		if (!env.isRendering) {
+			return;
+		}
+
 		registerRenderAsset({
 			type: 'artifact',
 			id,
@@ -32,6 +37,7 @@ export const Artifact: React.FC<{
 		};
 	}, [
 		content,
+		env.isRendering,
 		filename,
 		frame,
 		id,

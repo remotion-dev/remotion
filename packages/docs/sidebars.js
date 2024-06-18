@@ -84,6 +84,7 @@ module.exports = {
       items: [
         "absolute-fill",
         "audio",
+        "artifact",
         "calculate-metadata",
         "cancel-render",
         "composition",
