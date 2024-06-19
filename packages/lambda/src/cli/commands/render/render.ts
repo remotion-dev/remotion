@@ -504,6 +504,7 @@ export const renderCommand = async (
 				);
 			}
 
+			Log.info({indent: false, logLevel});
 			Log.info(
 				{indent: false, logLevel},
 				[
