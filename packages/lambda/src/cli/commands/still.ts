@@ -3,6 +3,7 @@ import {ConfigInternals} from '@remotion/cli/config';
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
+import path from 'path';
 import {NoReactInternals} from 'remotion/no-react';
 import {downloadMedia} from '../../api/download-media';
 import {renderStillOnLambda} from '../../api/render-still-on-lambda';
@@ -19,6 +20,7 @@ import {getAwsRegion} from '../get-aws-region';
 import {findFunctionName} from '../helpers/find-function-name';
 import {quit} from '../helpers/quit';
 import {Log} from '../log';
+import {makeArtifactProgress} from './render/progress';
 
 const {
 	offthreadVideoCacheSizeInBytesOption,
@@ -235,18 +237,46 @@ export const stillCommand = async (
 			);
 			Log.verbose(
 				{indent: false, logLevel},
-				`CloudWatch logs (if enabled): ${cloudWatchLogs}`,
+				`${CliInternals.makeHyperlink({
+					text: 'CloudWatch Logs',
+					url: cloudWatchLogs,
+					fallback: `CloudWatch Logs: ${cloudWatchLogs}`,
+				})} (if enabled)`,
 			);
 			Log.verbose(
 				{indent: false, logLevel},
-				`Lambda Insights (if enabled): ${lambdaInsightsUrl}`,
+				`${CliInternals.makeHyperlink({
+					text: 'Lambda Insights',
+					url: lambdaInsightsUrl,
+					fallback: `Lambda Insights: ${lambdaInsightsUrl}`,
+				})} (if enabled)`,
 			);
 		},
 		deleteAfter,
 	});
 
+	Log.info(
+		{
+			indent: false,
+			logLevel,
+		},
+		makeArtifactProgress(res.receivedAssets),
+	);
+
+	Log.info(
+		{indent: false, logLevel},
+		chalk.blue('+ S3'.padEnd(CliInternals.LABEL_WIDTH)),
+		chalk.blue(
+			CliInternals.makeHyperlink({
+				fallback: res.url,
+				url: res.url,
+				text: res.outKey,
+			}),
+		),
+		chalk.gray(formatBytes(res.sizeInBytes)),
+	);
+
 	if (downloadName) {
-		Log.info({indent: false, logLevel}, 'Finished rendering. Downloading...');
 		const {outputPath, sizeInBytes} = await downloadMedia({
 			bucketName: res.bucketName,
 			outPath: downloadName,
@@ -254,15 +284,18 @@ export const stillCommand = async (
 			renderId: res.renderId,
 			logLevel,
 		});
+		const relativePath = path.relative(process.cwd(), outputPath);
 		Log.info(
 			{indent: false, logLevel},
-			'Done!',
-			outputPath,
-			formatBytes(sizeInBytes),
+			chalk.blue('↓'.padEnd(CliInternals.LABEL_WIDTH)),
+			chalk.blue(
+				CliInternals.makeHyperlink({
+					url: 'file://' + outputPath,
+					text: relativePath,
+					fallback: outputPath,
+				}),
+			),
+			chalk.gray(formatBytes(sizeInBytes)),
 		);
-	} else {
-		Log.info({indent: false, logLevel}, `Finished still!`);
-		Log.info({indent: false, logLevel});
-		Log.info({indent: false, logLevel}, res.url);
 	}
 };

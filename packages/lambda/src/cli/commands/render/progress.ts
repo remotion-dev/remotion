@@ -2,6 +2,7 @@ import {CliInternals} from '@remotion/cli';
 import {RenderInternals} from '@remotion/renderer';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderProgress} from '../../../defaults';
+import type {ReceivedAsset} from '../../../functions/helpers/overall-render-progress';
 import {truthy} from '../../../shared/truthy';
 
 type LambdaInvokeProgress = {
@@ -200,8 +201,7 @@ const makeTopRow = (overall: RenderProgress) => {
 	return CliInternals.chalk.gray(str);
 };
 
-const makeArtifactProgress = (progress: RenderProgress) => {
-	const {artifactProgress} = progress;
+export const makeArtifactProgress = (artifactProgress: ReceivedAsset[]) => {
 	if (artifactProgress.length === 0) {
 		return null;
 	}
@@ -209,12 +209,12 @@ const makeArtifactProgress = (progress: RenderProgress) => {
 	return artifactProgress
 		.map((artifact) => {
 			return [
-				CliInternals.chalk.blue('+'.padEnd(CliInternals.LABEL_WIDTH)),
+				CliInternals.chalk.blue('+ S3'.padEnd(CliInternals.LABEL_WIDTH)),
 				CliInternals.chalk.blue(
 					CliInternals.makeHyperlink({
 						url: artifact.s3Url,
 						fallback: artifact.filename,
-						text: artifact.filename,
+						text: artifact.s3Key,
 					}),
 				),
 				CliInternals.chalk.gray(
@@ -239,8 +239,8 @@ export const makeProgressString = ({
 		...makeInvokeProgress(overall),
 		...makeRenderProgress(overall),
 		makeCombinationProgress(overall),
-		makeArtifactProgress(overall),
 		downloadInfo ? makeDownloadProgress(downloadInfo) : null,
+		makeArtifactProgress(overall.artifactProgress),
 	]
 		.filter(NoReactInternals.truthy)
 		.join('\n');

@@ -371,6 +371,7 @@ const innerLaunchHandler = async ({
 			filename: artifact.filename,
 			sizeInBytes: artifact.content.length,
 			s3Url: `https://s3.${region}.amazonaws.com/${renderBucketName}/${s3Key}`,
+			s3Key,
 		});
 
 		const start = Date.now();

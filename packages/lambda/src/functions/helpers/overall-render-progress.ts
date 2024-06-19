@@ -33,6 +33,7 @@ export type ReceivedAsset = {
 	filename: string;
 	sizeInBytes: number;
 	s3Url: string;
+	s3Key: string;
 };
 
 export type OverallProgressHelper = {
