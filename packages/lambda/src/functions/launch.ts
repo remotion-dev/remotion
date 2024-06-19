@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import type {EmittedAsset, LogOptions} from '@remotion/renderer';
+import type {EmittedArtifact, LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {existsSync, mkdirSync, rmSync} from 'fs';
 import {join} from 'path';
@@ -356,7 +356,7 @@ const innerLaunchHandler = async ({
 
 	const files: string[] = [];
 
-	const onArtifact = (artifact: EmittedAsset): {alreadyExisted: boolean} => {
+	const onArtifact = (artifact: EmittedArtifact): {alreadyExisted: boolean} => {
 		if (
 			overallProgress
 				.getReceivedAssets()

@@ -28,6 +28,7 @@ import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {startLeakDetection} from './helpers/leak-detection';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
 import type {RequestContext} from './helpers/request-context';
+import {serializeArtifact} from './helpers/serialize-artifact';
 import {timer} from './helpers/timer';
 import {getTmpDirStateIfENoSp} from './helpers/write-lambda-error';
 import type {OnStream} from './streaming/streaming';
@@ -183,7 +184,7 @@ const renderHandler = async ({
 		onStream({
 			type: 'artifact-emitted',
 			payload: {
-				artifact,
+				artifact: serializeArtifact(artifact),
 			},
 		})
 			.then(() => {

@@ -53,6 +53,7 @@ import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import type {BrowserReplacer} from './replace-browser';
 import {handleBrowserCrash} from './replace-browser';
 import {seekToFrame} from './seek-to-frame';
+import type {EmittedArtifact} from './serialize-artifact';
 import {setPropsAndEnv} from './set-props-and-env';
 import {takeFrameAndCompose} from './take-frame-and-compose';
 import {truthy} from './truthy';
@@ -105,12 +106,6 @@ type InternalRenderFramesOptions = {
 	compositionStart: number;
 	onArtifact: OnArtifact | null;
 } & ToOptions<typeof optionsMap.renderFrames>;
-
-export type EmittedArtifact = {
-	filename: string;
-	content: string | Uint8Array;
-	frame: number;
-};
 
 type InnerRenderFramesOptions = {
 	onStart: null | ((data: OnStartData) => void);
@@ -531,7 +526,15 @@ const innerRenderFrames = async ({
 				}
 			}
 
-			onArtifact?.(artifact);
+			const stringOrUintArray =
+				typeof artifact.content === 'string'
+					? artifact.content
+					: new Uint8Array(Object.values(artifact.content));
+
+			onArtifact?.({
+				...artifact,
+				content: stringOrUintArray,
+			});
 		}
 
 		const compressedAssets = audioAndVideoAssets.map((asset) => {

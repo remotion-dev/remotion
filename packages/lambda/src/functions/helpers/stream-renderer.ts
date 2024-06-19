@@ -1,4 +1,4 @@
-import type {EmittedAsset, LogLevel} from '@remotion/renderer';
+import type {EmittedArtifact, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {writeFileSync} from 'fs';
 import {join} from 'path';
@@ -8,6 +8,7 @@ import {callLambdaWithStreaming} from '../../shared/call-lambda';
 import type {OnMessage} from '../streaming/streaming';
 import {getCurrentRegionInFunction} from './get-current-region';
 import type {OverallProgressHelper} from './overall-render-progress';
+import {deserializeArtifact} from './serialize-artifact';
 
 type StreamRendererResponse =
 	| {
@@ -34,7 +35,7 @@ const streamRenderer = ({
 	overallProgress: OverallProgressHelper;
 	files: string[];
 	logLevel: LogLevel;
-	onArtifact: (asset: EmittedAsset) => {alreadyExisted: boolean};
+	onArtifact: (asset: EmittedArtifact) => {alreadyExisted: boolean};
 }) => {
 	if (payload.type !== LambdaRoutines.renderer) {
 		throw new Error('Expected renderer type');
@@ -100,13 +101,14 @@ const streamRenderer = ({
 			}
 
 			if (message.type === 'artifact-emitted') {
+				const artifact = deserializeArtifact(message.payload.artifact);
 				RenderInternals.Log.info(
 					{indent: false, logLevel},
 					`Received artifact on frame ${message.payload.artifact.frame}:`,
-					message.payload.artifact.filename,
-					message.payload.artifact.content.length + 'bytes.',
+					artifact.filename,
+					artifact.content.length + 'bytes.',
 				);
-				const {alreadyExisted} = onArtifact(message.payload.artifact);
+				const {alreadyExisted} = onArtifact(artifact);
 				if (alreadyExisted) {
 					return resolve({
 						type: 'error',
@@ -191,7 +193,7 @@ export const streamRendererFunctionWithRetry = async ({
 	overallProgress: OverallProgressHelper;
 	files: string[];
 	logLevel: LogLevel;
-	onArtifact: (asset: EmittedAsset) => {alreadyExisted: boolean};
+	onArtifact: (asset: EmittedArtifact) => {alreadyExisted: boolean};
 }): Promise<unknown> => {
 	if (payload.type !== LambdaRoutines.renderer) {
 		throw new Error('Expected renderer type');

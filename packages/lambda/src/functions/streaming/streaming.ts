@@ -1,5 +1,5 @@
-import type {EmittedAsset} from '@remotion/renderer';
 import {makeStreamPayloadMessage} from '@remotion/streaming';
+import type {SerializedArtifact} from '../helpers/serialize-artifact';
 import type {LambdaErrorInfo} from '../helpers/write-lambda-error';
 import type {RenderStillLambdaResponsePayload} from '../still';
 
@@ -90,7 +90,7 @@ export type StreamingPayload =
 	| {
 			type: typeof artifactEmitted;
 			payload: {
-				artifact: EmittedAsset;
+				artifact: SerializedArtifact;
 			};
 	  };
 
