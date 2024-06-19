@@ -98,6 +98,9 @@ export const renderStillSingleThread = async (
 			onBrowserDownload: () => {
 				throw new Error('Should not download a browser in Cloud Run');
 			},
+			onArtifact: () => {
+				throw new Error('Emitting artifacts is not supported in Cloud Run');
+			},
 		});
 		Log.info({indent: false, logLevel: body.logLevel}, 'Still rendered');
 

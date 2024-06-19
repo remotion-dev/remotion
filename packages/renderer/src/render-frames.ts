@@ -526,15 +526,7 @@ const innerRenderFrames = async ({
 				}
 			}
 
-			const stringOrUintArray =
-				typeof artifact.content === 'string'
-					? artifact.content
-					: new Uint8Array(Object.values(artifact.content));
-
-			onArtifact?.({
-				...artifact,
-				content: stringOrUintArray,
-			});
+			onArtifact?.(artifact);
 		}
 
 		const compressedAssets = audioAndVideoAssets.map((asset) => {

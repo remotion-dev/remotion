@@ -3,6 +3,7 @@ import path from 'node:path';
 import type {ClipRegion, TRenderAsset} from 'remotion/no-react';
 import type {DownloadMap} from './assets/download-map';
 import type {Page} from './browser/BrowserPage';
+import {collectAssets} from './collect-assets';
 import {compose} from './compositor/compose';
 import type {Compositor} from './compositor/compositor';
 import type {StillImageFormat, VideoImageFormat} from './image-format';
@@ -37,7 +38,7 @@ export const takeFrameAndCompose = async ({
 	compositor: Compositor;
 	timeoutInMilliseconds: number;
 }): Promise<{buffer: Buffer | null; collectedAssets: TRenderAsset[]}> => {
-	const [{value: clipRegion}, {value: collectedAssets}] = await Promise.all([
+	const [{value: clipRegion}, collectedAssets] = await Promise.all([
 		puppeteerEvaluateWithCatch<ClipRegion | null>({
 			pageFunction: () => {
 				if (typeof window.remotion_getClipRegion === 'undefined') {
@@ -51,15 +52,7 @@ export const takeFrameAndCompose = async ({
 			page: freePage,
 			timeoutInMilliseconds,
 		}),
-		puppeteerEvaluateWithCatch<TRenderAsset[]>({
-			pageFunction: () => {
-				return window.remotion_collectAssets();
-			},
-			args: [],
-			frame,
-			page: freePage,
-			timeoutInMilliseconds,
-		}),
+		collectAssets({frame, freePage, timeoutInMilliseconds}),
 	]);
 
 	if (imageFormat === 'none') {

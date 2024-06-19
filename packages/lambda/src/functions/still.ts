@@ -1,4 +1,4 @@
-import type {StillImageFormat} from '@remotion/renderer';
+import type {EmittedArtifact, StillImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -18,6 +18,7 @@ import type {
 import {
 	LambdaRoutines,
 	MAX_EPHEMERAL_STORAGE_IN_MB,
+	artifactName,
 	overallProgressKey,
 } from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
@@ -39,6 +40,7 @@ import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {lambdaWriteFile} from './helpers/io';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
+import type {ReceivedAsset} from './helpers/overall-render-progress';
 import {makeInitialOverallRenderProgress} from './helpers/overall-render-progress';
 import {validateComposition} from './helpers/validate-composition';
 import type {OnStream} from './streaming/streaming';
@@ -194,6 +196,58 @@ const innerStillHandler = async ({
 		throw new Error('Should not download a browser in Lambda');
 	};
 
+	const receivedAssets: ReceivedAsset[] = [];
+
+	const {key, renderBucketName, customCredentials} = getExpectedOutName(
+		renderMetadata,
+		bucketName,
+		getCredentialsFromOutName(lambdaParams.outName),
+	);
+
+	const onArtifact = (artifact: EmittedArtifact): {alreadyExisted: boolean} => {
+		if (receivedAssets.find((a) => a.filename === artifact.filename)) {
+			return {alreadyExisted: true};
+		}
+
+		const s3Key = artifactName(renderMetadata.renderId, artifact.filename);
+		receivedAssets.push({
+			filename: artifact.filename,
+			sizeInBytes: artifact.content.length,
+			s3Url: `https://s3.${region}.amazonaws.com/${renderBucketName}/${s3Key}`,
+		});
+
+		const startTime = Date.now();
+		RenderInternals.Log.info(
+			{indent: false, logLevel: lambdaParams.logLevel},
+			'Writing artifact ' + artifact.filename + ' to S3',
+		);
+		lambdaWriteFile({
+			bucketName: renderBucketName,
+			key: s3Key,
+			body: artifact.content,
+			region,
+			privacy: lambdaParams.privacy,
+			expectedBucketOwner,
+			downloadBehavior: lambdaParams.downloadBehavior,
+			customCredentials,
+		})
+			.then(() => {
+				RenderInternals.Log.info(
+					{indent: false, logLevel: lambdaParams.logLevel},
+					`Wrote artifact to S3 in ${Date.now() - startTime}ms`,
+				);
+			})
+			.catch((err) => {
+				// TODO: Handle error
+				RenderInternals.Log.error(
+					{indent: false, logLevel: lambdaParams.logLevel},
+					'Failed to write artifact to S3',
+					err,
+				);
+			});
+		return {alreadyExisted: false};
+	};
+
 	await RenderInternals.internalRenderStill({
 		composition,
 		output: outputPath,
@@ -229,13 +283,8 @@ const innerStillHandler = async ({
 		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
 		binariesDirectory: null,
 		onBrowserDownload,
+		onArtifact,
 	});
-
-	const {key, renderBucketName, customCredentials} = getExpectedOutName(
-		renderMetadata,
-		bucketName,
-		getCredentialsFromOutName(lambdaParams.outName),
-	);
 
 	const {size} = await fs.promises.stat(outputPath);
 
@@ -284,6 +333,7 @@ const innerStillHandler = async ({
 		estimatedPrice: formatCostsInfo(estimatedPrice),
 		renderId,
 		outKey,
+		receivedAssets,
 	};
 
 	onStream({
@@ -301,6 +351,7 @@ export type RenderStillLambdaResponsePayload = {
 	sizeInBytes: number;
 	estimatedPrice: CostsInfo;
 	renderId: string;
+	receivedAssets: ReceivedAsset[];
 };
 
 export const stillHandler = async (

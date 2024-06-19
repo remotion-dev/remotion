@@ -64,9 +64,8 @@ export const renderMediaSingleThread = async (
 			enableMultiProcessOnLinux: true,
 		};
 
-		const onArtifact: OnArtifact = (artifact) => {
-			// TODO: Do something with the artifact
-			console.log(artifact);
+		const onArtifact: OnArtifact = () => {
+			throw new Error('Emitting artifacts is not supported in Cloud Run');
 		};
 
 		await RenderInternals.internalRenderMedia({

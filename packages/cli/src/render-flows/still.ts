@@ -14,6 +14,7 @@ import type {
 	AggregateRenderProgress,
 	JobProgressCallback,
 } from '@remotion/studio-server';
+import type {ArtifactProgress} from '@remotion/studio-shared';
 import {existsSync, mkdirSync} from 'node:fs';
 import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
@@ -27,6 +28,7 @@ import {getCompositionWithDimensionOverride} from '../get-composition-with-dimen
 import {makeHyperlink} from '../hyperlinks/make-link';
 import {Log} from '../log';
 import {makeOnDownload} from '../make-on-download';
+import {handleOnArtifact} from '../on-artifact';
 import {parsedCli, quietFlagProvided} from '../parsed-cli';
 import type {OverwriteableCliOutput} from '../progress-bar';
 import {
@@ -124,15 +126,13 @@ export const renderStillFlow = async ({
 	const updateRenderProgress = ({
 		newline,
 		printToConsole,
-		isUsingParallelEncoding,
 	}: {
 		newline: boolean;
 		printToConsole: boolean;
-		isUsingParallelEncoding: boolean;
 	}) => {
 		const {output, progress, message} = makeRenderingAndStitchingProgress({
 			prog: aggregate,
-			isUsingParallelEncoding,
+			isUsingParallelEncoding: false,
 		});
 		if (printToConsole) {
 			renderProgress.update(updatesDontOverwrite ? message : output, newline);
@@ -176,7 +176,6 @@ export const renderStillFlow = async ({
 				updateRenderProgress({
 					newline: false,
 					printToConsole: true,
-					isUsingParallelEncoding: false,
 				});
 			},
 			indentOutput: indent,
@@ -299,6 +298,8 @@ export const renderStillFlow = async ({
 
 	const renderStart = Date.now();
 
+	let artifactState: ArtifactProgress = {received: []};
+
 	aggregate.rendering = {
 		frames: 0,
 		doneIn: null,
@@ -309,7 +310,6 @@ export const renderStillFlow = async ({
 	updateRenderProgress({
 		newline: false,
 		printToConsole: true,
-		isUsingParallelEncoding: false,
 	});
 
 	const onDownload: RenderMediaOnDownload = makeOnDownload({
@@ -319,6 +319,14 @@ export const renderStillFlow = async ({
 		updateRenderProgress,
 		updatesDontOverwrite,
 		isUsingParallelEncoding: false,
+	});
+
+	const {onArtifact} = handleOnArtifact(artifactState, (progress) => {
+		artifactState = progress;
+		updateRenderProgress({
+			newline: false,
+			printToConsole: true,
+		});
 	});
 
 	await RenderInternals.internalRenderStill({
@@ -352,6 +360,7 @@ export const renderStillFlow = async ({
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
 		onBrowserDownload,
+		onArtifact,
 	});
 
 	aggregate.rendering = {
@@ -363,7 +372,6 @@ export const renderStillFlow = async ({
 	updateRenderProgress({
 		newline: true,
 		printToConsole: true,
-		isUsingParallelEncoding: false,
 	});
 	Log.info(
 		{indent, logLevel},
