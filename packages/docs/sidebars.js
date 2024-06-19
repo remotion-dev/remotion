@@ -817,6 +817,7 @@ module.exports = {
         "troubleshooting/bundling-bundle",
         "troubleshooting/browser-launch",
         "troubleshooting/sigkill",
+        "troubleshooting/could-not-find-executable-to-run",
       ],
     },
     {
