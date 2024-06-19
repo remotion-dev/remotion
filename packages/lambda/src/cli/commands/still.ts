@@ -12,6 +12,7 @@ import {
 	DEFAULT_MAX_RETRIES,
 	DEFAULT_OUTPUT_PRIVACY,
 } from '../../shared/constants';
+import {getS3RenderUrl} from '../../shared/get-aws-urls';
 import {validatePrivacy} from '../../shared/validate-privacy';
 import {validateMaxRetries} from '../../shared/validate-retries';
 import {validateServeUrl} from '../../shared/validate-serveurl';
@@ -199,7 +200,14 @@ export const stillCommand = async (
 	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray(
-			`functionName = ${functionName}, imageFormat = ${imageFormat} (${imageFormatReason})`,
+			`Function: ${CliInternals.makeHyperlink({text: functionName, fallback: functionName, url: `https://${getAwsRegion()}.console.aws.amazon.com/lambda/home#/functions/${functionName}?tab=code`})}`,
+		),
+	);
+
+	Log.info(
+		{indent: false, logLevel},
+		CliInternals.chalk.gray(
+			`Image Format = ${imageFormat} (${imageFormatReason})`,
 		),
 	);
 
@@ -230,11 +238,7 @@ export const stillCommand = async (
 		scale,
 		forceHeight: height,
 		forceWidth: width,
-		onInit: ({cloudWatchLogs, renderId, lambdaInsightsUrl}) => {
-			Log.info(
-				{indent: false, logLevel},
-				chalk.gray(`Render invoked with ID = ${renderId}`),
-			);
+		onInit: ({cloudWatchLogs, lambdaInsightsUrl}) => {
 			Log.verbose(
 				{indent: false, logLevel},
 				`${CliInternals.makeHyperlink({
@@ -254,6 +258,18 @@ export const stillCommand = async (
 		},
 		deleteAfter,
 	});
+	Log.info(
+		{indent: false, logLevel},
+		CliInternals.chalk.gray(
+			`Render ID: ${CliInternals.makeHyperlink({text: res.renderId, fallback: res.renderId, url: getS3RenderUrl({bucketName: res.bucketName, renderId: res.renderId, region: getAwsRegion()})})}`,
+		),
+	);
+	Log.info(
+		{indent: false, logLevel},
+		CliInternals.chalk.gray(
+			`Bucket: ${CliInternals.makeHyperlink({text: res.bucketName, fallback: res.bucketName, url: `https://${getAwsRegion()}.console.aws.amazon.com/s3/buckets/${res.bucketName}/?region=${getAwsRegion()}`})}`,
+		),
+	);
 
 	Log.info(
 		{
