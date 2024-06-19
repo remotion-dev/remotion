@@ -14,7 +14,6 @@ import type {
 	AggregateRenderProgress,
 	JobProgressCallback,
 } from '@remotion/studio-server';
-import type {ArtifactProgress} from '@remotion/studio-shared';
 import {existsSync, mkdirSync} from 'node:fs';
 import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
@@ -298,8 +297,6 @@ export const renderStillFlow = async ({
 
 	const renderStart = Date.now();
 
-	let artifactState: ArtifactProgress = {received: []};
-
 	aggregate.rendering = {
 		frames: 0,
 		doneIn: null,
@@ -321,8 +318,9 @@ export const renderStillFlow = async ({
 		isUsingParallelEncoding: false,
 	});
 
-	const {onArtifact} = handleOnArtifact(artifactState, (progress) => {
-		artifactState = progress;
+	const {onArtifact} = handleOnArtifact(aggregate.artifactState, (progress) => {
+		aggregate.artifactState = progress;
+
 		updateRenderProgress({
 			newline: false,
 			printToConsole: true,
