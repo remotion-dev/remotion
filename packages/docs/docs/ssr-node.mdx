@@ -35,7 +35,7 @@ const compositionId = "HelloWorld";
 // for multiple renders that you can parametrize using input props.
 const bundleLocation = await bundle({
   entryPoint: path.resolve("./src/index.ts"),
-  // If you have a Webpack override, make sure to add it here
+  // If you have a webpack override in remotion.config.ts, pass it here as well.
   webpackOverride: (config) => config,
 });
 
