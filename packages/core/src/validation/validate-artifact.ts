@@ -19,13 +19,13 @@ export const validateArtifactFilename = (filename: unknown) => {
 };
 
 const validateContent = (content: unknown) => {
-	if (typeof content !== 'string') {
+	if (typeof content !== 'string' && !(content instanceof Uint8Array)) {
 		throw new TypeError(
-			`The "content" must be a string, but you passed a value of type ${typeof content}`,
+			`The "content" must be a string or Uint8Array, but you passed a value of type ${typeof content}`,
 		);
 	}
 
-	if (content.trim() === '') {
+	if (typeof content === 'string' && content.trim() === '') {
 		throw new Error('The `content` must not be empty');
 	}
 };

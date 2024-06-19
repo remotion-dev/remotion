@@ -6,7 +6,7 @@ import {useCurrentFrame} from './use-current-frame';
 
 export const Artifact: React.FC<{
 	readonly filename: string;
-	readonly content: string;
+	readonly content: string | Uint8Array;
 }> = ({filename, content}) => {
 	const {registerRenderAsset, unregisterRenderAsset} =
 		useContext(RenderAssetManager);

@@ -14,12 +14,18 @@ export const handleOnArtifact = (
 			process.cwd(),
 			artifact.filename.replace('/', path.sep),
 		);
-		writeFileSync(artifact.filename, artifact.content);
+
+		const stringOrUintArray =
+			typeof artifact.content === 'string'
+				? artifact.content
+				: new Uint8Array(Object.values(artifact.content));
+
+		writeFileSync(artifact.filename, stringOrUintArray);
 
 		initialProgress.received.push({
 			absoluteOutputDestination,
 			filename: artifact.filename,
-			sizeInBytes: artifact.content.length,
+			sizeInBytes: stringOrUintArray.length,
 		});
 	};
 

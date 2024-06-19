@@ -143,7 +143,7 @@ export type ArtifactAsset = {
 	type: 'artifact';
 	id: string;
 	filename: string;
-	content: string;
+	content: string | Uint8Array;
 	frame: number;
 };
 
