@@ -10,6 +10,7 @@ import {VERSION} from 'remotion/version';
 import type {
 	CloudRunCrashResponse,
 	CloudRunPayloadType,
+	DownloadBehavior,
 	ErrorResponsePayload,
 	RenderStillOnCloudrunOutput,
 } from '../functions/helpers/payloads';
@@ -40,6 +41,7 @@ type OptionalParameters = {
 	forceWidth: number | null;
 	forceHeight: number | null;
 	indent: boolean;
+	downloadBehavior: DownloadBehavior;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderStillOnCloudRun>;
 
 export type RenderStillOnCloudrunInput = Partial<OptionalParameters> &
@@ -91,6 +93,7 @@ const internalRenderStillOnCloudRun = async ({
 	logLevel,
 	delayRenderTimeoutInMilliseconds,
 	offthreadVideoCacheSizeInBytes,
+	downloadBehavior,
 }: OptionalParameters & MandatoryParameters): Promise<
 	RenderStillOnCloudrunOutput | ErrorResponsePayload | CloudRunCrashResponse
 > => {
@@ -131,6 +134,7 @@ const internalRenderStillOnCloudRun = async ({
 		delayRenderTimeoutInMilliseconds,
 		offthreadVideoCacheSizeInBytes,
 		clientVersion: VERSION,
+		downloadBehavior,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);
@@ -237,5 +241,6 @@ export const renderStillOnCloudrun = (options: RenderStillOnCloudrunInput) => {
 		scale: options.scale ?? 1,
 		serveUrl: options.serveUrl,
 		serviceName: options.serviceName ?? null,
+		downloadBehavior: options.downloadBehavior ?? {type: 'play-in-browser'},
 	});
 };

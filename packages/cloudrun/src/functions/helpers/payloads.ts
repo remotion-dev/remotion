@@ -17,6 +17,18 @@ const chromiumOptions = z.object({
 });
 const logLevel = z.enum(BrowserSafeApis.logLevels);
 
+const downloadBehavior = z.discriminatedUnion('type', [
+	z.object({
+		type: z.literal('play-in-browser'),
+	}),
+	z.object({
+		type: z.literal('download'),
+		fileName: z.string().nullable(),
+	}),
+]);
+
+export type DownloadBehavior = z.infer<typeof downloadBehavior>;
+
 export const CloudRunPayload = z.discriminatedUnion('type', [
 	z.object({
 		type: z.literal('media'),
@@ -55,6 +67,7 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		offthreadVideoCacheSizeInBytes: z.number().nullable(),
 		colorSpace: z.enum(BrowserSafeApis.validColorSpaces).nullable(),
 		clientVersion: z.string(),
+		downloadBehavior,
 	}),
 	z.object({
 		type: z.literal('still'),
@@ -76,6 +89,7 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		logLevel,
 		offthreadVideoCacheSizeInBytes: z.number().nullable(),
 		clientVersion: z.string(),
+		downloadBehavior,
 	}),
 ]);
 

@@ -10,6 +10,7 @@ import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
+import {getDownloadBehaviorSetting} from './helpers/get-download-behavior-setting';
 import type {
 	CloudRunPayloadType,
 	RenderMediaOnCloudrunOutput,
@@ -147,6 +148,7 @@ export const renderMediaSingleThread = async (
 			.upload(tempFilePath, {
 				destination: `renders/${renderId}/${body.outName ?? defaultOutName}`,
 				predefinedAcl: publicUpload ? 'publicRead' : 'projectPrivate',
+				metadata: getDownloadBehaviorSetting(body.downloadBehavior),
 			});
 
 		const uploadedFile = uploadedResponse[0];
