@@ -238,7 +238,6 @@ const innerStillHandler = async ({
 				);
 			})
 			.catch((err) => {
-				// TODO: Handle error
 				RenderInternals.Log.error(
 					{indent: false, logLevel: lambdaParams.logLevel},
 					'Failed to write artifact to S3',
@@ -402,7 +401,7 @@ export const stillHandler = async (
 						message: (err as Error).message as string,
 						stack: (err as Error).stack as string,
 						chunk: null,
-						frame: null,
+						frame: params.frame,
 						type: 'renderer',
 						isFatal: false,
 						tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),

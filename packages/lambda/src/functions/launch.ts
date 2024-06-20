@@ -367,12 +367,6 @@ const innerLaunchHandler = async ({
 
 		const region = getCurrentRegionInFunction();
 		const s3Key = artifactName(renderMetadata.renderId, artifact.filename);
-		overallProgress.addReceivedArtifact({
-			filename: artifact.filename,
-			sizeInBytes: artifact.content.length,
-			s3Url: `https://s3.${region}.amazonaws.com/${renderBucketName}/${s3Key}`,
-			s3Key,
-		});
 
 		const start = Date.now();
 		RenderInternals.Log.info(
@@ -394,9 +388,28 @@ const innerLaunchHandler = async ({
 					{indent: false, logLevel: params.logLevel},
 					`Wrote artifact to S3 in ${Date.now() - start}ms`,
 				);
+				overallProgress.addReceivedArtifact({
+					filename: artifact.filename,
+					sizeInBytes: artifact.content.length,
+					s3Url: `https://s3.${region}.amazonaws.com/${renderBucketName}/${s3Key}`,
+					s3Key,
+				});
 			})
 			.catch((err) => {
-				// TODO: Handle error
+				overallProgress.addErrorWithoutUpload({
+					type: 'artifact',
+					message: (err as Error).message,
+					name: (err as Error).name as string,
+					stack: (err as Error).stack as string,
+					tmpDir: null,
+					frame: artifact.frame,
+					chunk: null,
+					isFatal: false,
+					attempt: 1,
+					willRetry: false,
+					totalAttempts: 1,
+				});
+				overallProgress.upload();
 				RenderInternals.Log.error(
 					{indent: false, logLevel: params.logLevel},
 					'Failed to write artifact to S3',
