@@ -202,12 +202,12 @@ const makeArtifactProgress = (artifactState: ArtifactProgress) => {
 	return received
 		.map((artifact) => {
 			return [
-				chalk.blue('+'.padEnd(LABEL_WIDTH)),
+				chalk.blue((artifact.alreadyExisted ? '○' : '+').padEnd(LABEL_WIDTH)),
 				chalk.blue(
 					makeHyperlink({
 						url: 'file://' + artifact.absoluteOutputDestination,
-						fallback: artifact.filename,
-						text: artifact.filename,
+						fallback: artifact.absoluteOutputDestination,
+						text: artifact.relativeOutputDestination,
 					}),
 				),
 				chalk.gray(`${formatBytes(artifact.sizeInBytes)}`),

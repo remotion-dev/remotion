@@ -318,13 +318,17 @@ export const renderStillFlow = async ({
 		isUsingParallelEncoding: false,
 	});
 
-	const {onArtifact} = handleOnArtifact(aggregate.artifactState, (progress) => {
-		aggregate.artifactState = progress;
+	const {onArtifact} = handleOnArtifact({
+		artifactState: aggregate.artifactState,
+		compositionId,
+		onProgress: (progress) => {
+			aggregate.artifactState = progress;
 
-		updateRenderProgress({
-			newline: false,
-			printToConsole: true,
-		});
+			updateRenderProgress({
+				newline: false,
+				printToConsole: true,
+			});
+		},
 	});
 
 	await RenderInternals.internalRenderStill({

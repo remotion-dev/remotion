@@ -250,11 +250,6 @@ export const renderVideoFlow = async ({
 		}
 	};
 
-	const {onArtifact} = handleOnArtifact(artifactState, (progress) => {
-		artifactState = progress;
-		updateRenderProgress({newline: false, printToConsole: true});
-	});
-
 	const {urlOrBundle, cleanup: cleanupBundle} = await bundleOnCliOrTakeServeUrl(
 		{
 			fullPath: fullEntryPoint,
@@ -331,6 +326,15 @@ export const renderVideoFlow = async ({
 			binariesDirectory,
 			onBrowserDownload,
 		});
+
+	const {onArtifact} = handleOnArtifact({
+		artifactState,
+		onProgress: (progress) => {
+			artifactState = progress;
+			updateRenderProgress({newline: false, printToConsole: true});
+		},
+		compositionId,
+	});
 
 	const {value: codec, source: codecReason} =
 		BrowserSafeApis.options.videoCodecOption.getValue(

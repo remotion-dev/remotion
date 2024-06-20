@@ -62,7 +62,9 @@ export type AggregateRenderProgress = {
 export type ReceivedArtifact = {
 	filename: string;
 	absoluteOutputDestination: string;
+	relativeOutputDestination: string;
 	sizeInBytes: number;
+	alreadyExisted: boolean;
 };
 
 export type ArtifactProgress = {
