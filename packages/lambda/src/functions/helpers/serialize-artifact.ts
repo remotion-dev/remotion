@@ -11,8 +11,9 @@ export const deserializeArtifact = (
 	serializedArtifact: SerializedArtifact,
 ): EmittedArtifact => {
 	if (serializedArtifact.binary) {
-		const encoder = new TextEncoder();
-		const content = encoder.encode(atob(serializedArtifact.stringContent));
+		const content = new TextEncoder().encode(
+			atob(serializedArtifact.stringContent),
+		);
 
 		return {
 			filename: serializedArtifact.filename,
@@ -32,8 +33,7 @@ export const serializeArtifact = (
 	artifact: EmittedArtifact,
 ): SerializedArtifact => {
 	if (artifact.content instanceof Uint8Array) {
-		const decoder = new TextDecoder('utf8');
-		const b64encoded = btoa(decoder.decode(artifact.content));
+		const b64encoded = btoa(new TextDecoder('utf8').decode(artifact.content));
 		return {
 			filename: artifact.filename,
 			stringContent: b64encoded,

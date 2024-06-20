@@ -145,6 +145,7 @@ export type ArtifactAsset = {
 	filename: string;
 	content: string | Uint8Array;
 	frame: number;
+	binary: boolean;
 };
 
 export type TRenderAsset = AudioOrVideoAsset | ArtifactAsset;

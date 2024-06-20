@@ -1,4 +1,4 @@
-import type {TRenderAsset} from 'remotion/no-react';
+import type {ArtifactAsset, TRenderAsset} from 'remotion/no-react';
 import type {Page} from './browser/BrowserPage';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 
@@ -26,15 +26,20 @@ export const collectAssets = async ({
 			return asset;
 		}
 
-		const stringOrUintArray =
-			typeof asset.content === 'string'
-				? asset.content
-				: new Uint8Array(Object.values(asset.content));
+		if (typeof asset.content !== 'string') {
+			throw new Error(
+				`Expected string content for artifact ${asset.id}, but got ${asset.content}`,
+			);
+		}
+
+		const stringOrUintArray = asset.binary
+			? new TextEncoder().encode(atob(asset.content as string))
+			: asset.content;
 
 		return {
 			...asset,
 			content: stringOrUintArray,
-		};
+		} as ArtifactAsset;
 	});
 
 	return fixedArtifacts;

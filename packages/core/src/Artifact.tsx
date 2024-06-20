@@ -24,13 +24,25 @@ export const Artifact: React.FC<{
 			return;
 		}
 
-		registerRenderAsset({
-			type: 'artifact',
-			id,
-			content,
-			filename,
-			frame,
-		});
+		if (typeof content === 'string') {
+			registerRenderAsset({
+				type: 'artifact',
+				id,
+				content,
+				filename,
+				frame,
+				binary: false,
+			});
+		} else {
+			registerRenderAsset({
+				type: 'artifact',
+				id,
+				content: btoa(new TextDecoder('utf8').decode(content)),
+				filename,
+				frame,
+				binary: true,
+			});
+		}
 
 		return () => {
 			return unregisterRenderAsset(id);
