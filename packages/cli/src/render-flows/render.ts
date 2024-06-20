@@ -28,7 +28,7 @@ import type {
 	RenderingProgressInput,
 	StitchingProgressInput,
 } from '@remotion/studio-server';
-import type {ArtifactProgress} from '@remotion/studio-shared';
+import {formatBytes, type ArtifactProgress} from '@remotion/studio-shared';
 import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -602,21 +602,26 @@ export const renderVideoFlow = async ({
 		updateRenderProgress({newline: true, printToConsole: true});
 	}
 
+	if (absoluteSeparateAudioTo) {
+		const relativeAudio = path.relative(process.cwd(), absoluteSeparateAudioTo);
+		const audioSize = fs.statSync(absoluteSeparateAudioTo).size;
+		Log.info(
+			{indent, logLevel},
+			chalk.blue(
+				`${(audioExists ? '○' : '+').padEnd(LABEL_WIDTH, ' ')} ${makeHyperlink({url: `file://${absoluteSeparateAudioTo}`, text: relativeAudio, fallback: absoluteSeparateAudioTo})}`,
+			),
+			chalk.gray(`${formatBytes(audioSize)}`),
+		);
+	}
+
+	const {size} = fs.statSync(absoluteOutputFile);
 	Log.info(
 		{indent, logLevel},
 		chalk.blue(
 			`${(exists ? '○' : '+').padEnd(LABEL_WIDTH)} ${makeHyperlink({url: `file://${absoluteOutputFile}`, text: relativeOutputLocation, fallback: relativeOutputLocation})}`,
 		),
+		chalk.gray(`${formatBytes(size)}`),
 	);
-
-	if (absoluteSeparateAudioTo) {
-		Log.info(
-			{indent, logLevel},
-			chalk.blue(
-				`${(audioExists ? '○' : '+').padEnd(LABEL_WIDTH, ' ')} ${absoluteSeparateAudioTo}`,
-			),
-		);
-	}
 
 	Log.verbose({indent, logLevel}, `Slowest frames:`);
 	slowestFrames.forEach(({frame, time}) => {
