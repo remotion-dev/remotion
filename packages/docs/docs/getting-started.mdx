@@ -69,13 +69,38 @@ Bun as a runtime is mostly supported. [Read more here](/docs/bun).
 Choose the template that is most suitable for you.  
 For your first project, we recommend the [Hello World](/templates/hello-world) template.
 
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'Regular templates', value: 'npm', },
+{ label: 'Next.js + Remix templates', value: 'pnpm', },
+]
+}>
+<TabItem value="npm">
+
 After the project has been scaffolded, we recommend to open the project in your text editor and starting the [Remotion Studio](/docs/studio):
 
 ```bash
 npm start
 ```
 
-Got instructions for more Linux distributions? [Add them to this page](https://github.com/remotion-dev/remotion/edit/main/packages/docs/docs/getting-started.md)!
+  </TabItem>
+  <TabItem value="pnpm">
+
+After the project has been scaffolded, we recommend to open the project in your text editor and starting the app:
+
+```bash
+npm run dev
+```
+
+To start the [Remotion Studio](/docs/studio):
+
+```bash
+npm run remotion
+```
+
+  </TabItem>
+</Tabs>
 
 ## Installation in existing projects
 
