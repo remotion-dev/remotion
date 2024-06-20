@@ -59,14 +59,14 @@ export type AggregateRenderProgress = {
 	artifactState: ArtifactProgress;
 };
 
-export type ReceivedAsset = {
+export type ReceivedArtifact = {
 	filename: string;
 	absoluteOutputDestination: string;
 	sizeInBytes: number;
 };
 
 export type ArtifactProgress = {
-	received: ReceivedAsset[];
+	received: ReceivedArtifact[];
 };
 
 export type JobProgressCallback = (

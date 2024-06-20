@@ -276,7 +276,7 @@ export const stillCommand = async (
 			indent: false,
 			logLevel,
 		},
-		makeArtifactProgress(res.receivedAssets),
+		makeArtifactProgress(res.artifacts),
 	);
 
 	Log.info(

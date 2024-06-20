@@ -40,7 +40,7 @@ import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {lambdaWriteFile} from './helpers/io';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
-import type {ReceivedAsset} from './helpers/overall-render-progress';
+import type {ReceivedArtifact} from './helpers/overall-render-progress';
 import {makeInitialOverallRenderProgress} from './helpers/overall-render-progress';
 import {validateComposition} from './helpers/validate-composition';
 import type {OnStream} from './streaming/streaming';
@@ -196,7 +196,7 @@ const innerStillHandler = async ({
 		throw new Error('Should not download a browser in Lambda');
 	};
 
-	const receivedAssets: ReceivedAsset[] = [];
+	const receivedArtifact: ReceivedArtifact[] = [];
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
 		renderMetadata,
@@ -205,12 +205,12 @@ const innerStillHandler = async ({
 	);
 
 	const onArtifact = (artifact: EmittedArtifact): {alreadyExisted: boolean} => {
-		if (receivedAssets.find((a) => a.filename === artifact.filename)) {
+		if (receivedArtifact.find((a) => a.filename === artifact.filename)) {
 			return {alreadyExisted: true};
 		}
 
 		const s3Key = artifactName(renderMetadata.renderId, artifact.filename);
-		receivedAssets.push({
+		receivedArtifact.push({
 			filename: artifact.filename,
 			sizeInBytes: artifact.content.length,
 			s3Url: `https://s3.${region}.amazonaws.com/${renderBucketName}/${s3Key}`,
@@ -334,7 +334,7 @@ const innerStillHandler = async ({
 		estimatedPrice: formatCostsInfo(estimatedPrice),
 		renderId,
 		outKey,
-		receivedAssets,
+		receivedArtifacts: receivedArtifact,
 	};
 
 	onStream({
@@ -352,7 +352,7 @@ export type RenderStillLambdaResponsePayload = {
 	sizeInBytes: number;
 	estimatedPrice: CostsInfo;
 	renderId: string;
-	receivedAssets: ReceivedAsset[];
+	receivedArtifacts: ReceivedArtifact[];
 };
 
 export const stillHandler = async (

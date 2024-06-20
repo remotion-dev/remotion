@@ -6,7 +6,7 @@ crumb: API
 
 # `<Artifact>`<AvailableFrom v="4.0.176"/>
 
-By rendering an `<Artifact>` tag in your Remotion markup, an extra file will get emitted during rendering.
+By rendering an `<Artifact>` tag in your Remotion markup, [an extra file will get emitted during rendering](/docs/emitting-artifacts).
 
 ```tsx twoslash title="MyComp.tsx"
 import { Artifact, useCurrentFrame } from "remotion";
@@ -55,8 +55,9 @@ Must match the regex `/^([0-9a-zA-Z-!_.*'()/:&$@=;+,?]+)/g`.
 
 ### `content`
 
-A string or `UInt8Array` that is the content of the file that will be emitted.
+A `string` or `Uint8Array` that is the content of the file that will be emitted. Don't consider an `Uint8Array` to be faster, because it needs to be serialized.
 
 ## See also
 
+- [Emitting Artifacts](/docs/artifacts)
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/components/Artifact.tsx)

@@ -2,7 +2,7 @@ import {CliInternals} from '@remotion/cli';
 import {RenderInternals} from '@remotion/renderer';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderProgress} from '../../../defaults';
-import type {ReceivedAsset} from '../../../functions/helpers/overall-render-progress';
+import type {ReceivedArtifact} from '../../../functions/helpers/overall-render-progress';
 import {truthy} from '../../../shared/truthy';
 
 type LambdaInvokeProgress = {
@@ -201,7 +201,7 @@ const makeTopRow = (overall: RenderProgress) => {
 	return CliInternals.chalk.gray(str);
 };
 
-export const makeArtifactProgress = (artifactProgress: ReceivedAsset[]) => {
+export const makeArtifactProgress = (artifactProgress: ReceivedArtifact[]) => {
 	if (artifactProgress.length === 0) {
 		return null;
 	}
@@ -240,7 +240,7 @@ export const makeProgressString = ({
 		...makeRenderProgress(overall),
 		makeCombinationProgress(overall),
 		downloadInfo ? makeDownloadProgress(downloadInfo) : null,
-		makeArtifactProgress(overall.artifactProgress),
+		makeArtifactProgress(overall.artifacts),
 	]
 		.filter(NoReactInternals.truthy)
 		.join('\n');

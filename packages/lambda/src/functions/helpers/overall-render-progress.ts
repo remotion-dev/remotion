@@ -26,10 +26,10 @@ export type OverallRenderProgress = {
 	functionLaunched: number;
 	serveUrlOpened: number | null;
 	compositionValidated: number | null;
-	receivedAssets: ReceivedAsset[];
+	receivedArtifact: ReceivedArtifact[];
 };
 
-export type ReceivedAsset = {
+export type ReceivedArtifact = {
 	filename: string;
 	sizeInBytes: number;
 	s3Url: string;
@@ -63,8 +63,8 @@ export type OverallProgressHelper = {
 	get: () => OverallRenderProgress;
 	setServeUrlOpened: (timestamp: number) => void;
 	setCompositionValidated: (timestamp: number) => void;
-	addReceivedAsset: (asset: ReceivedAsset) => void;
-	getReceivedAssets: () => ReceivedAsset[];
+	addReceivedArtifact: (asset: ReceivedArtifact) => void;
+	getReceivedArtifacts: () => ReceivedArtifact[];
 };
 
 export const makeInitialOverallRenderProgress = (
@@ -88,7 +88,7 @@ export const makeInitialOverallRenderProgress = (
 		functionLaunched: Date.now(),
 		serveUrlOpened: null,
 		compositionValidated: null,
-		receivedAssets: [],
+		receivedArtifact: [],
 	};
 };
 
@@ -285,12 +285,12 @@ export const makeOverallRenderProgress = ({
 			renderProgress.retries.push(retry);
 			upload();
 		},
-		addReceivedAsset(asset) {
-			renderProgress.receivedAssets.push(asset);
+		addReceivedArtifact(asset) {
+			renderProgress.receivedArtifact.push(asset);
 			upload();
 		},
-		getReceivedAssets() {
-			return renderProgress.receivedAssets;
+		getReceivedArtifacts() {
+			return renderProgress.receivedArtifact;
 		},
 		get: () => renderProgress,
 	};

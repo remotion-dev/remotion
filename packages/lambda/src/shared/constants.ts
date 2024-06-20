@@ -14,7 +14,7 @@ import type {
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import type {DeleteAfter} from '../functions/helpers/lifecycle';
-import type {ReceivedAsset} from '../functions/helpers/overall-render-progress';
+import type {ReceivedArtifact} from '../functions/helpers/overall-render-progress';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import type {AwsRegion} from '../pricing/aws-regions';
 import type {
@@ -415,7 +415,7 @@ export type PostRenderData = {
 	estimatedBillingDurationInMilliseconds: number;
 	deleteAfter: DeleteAfter | null;
 	timeToCombine: number | null;
-	artifactProgress: ReceivedAsset[];
+	artifactProgress: ReceivedArtifact[];
 };
 
 export type CostsInfo = {
@@ -471,7 +471,7 @@ export type RenderProgress = {
 	functionLaunched: number;
 	serveUrlOpened: number | null;
 	compositionValidated: number | null;
-	artifactProgress: ReceivedAsset[];
+	artifacts: ReceivedArtifact[];
 };
 
 export type Privacy = 'public' | 'private' | 'no-acl';

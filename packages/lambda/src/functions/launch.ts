@@ -359,7 +359,7 @@ const innerLaunchHandler = async ({
 	const onArtifact = (artifact: EmittedArtifact): {alreadyExisted: boolean} => {
 		if (
 			overallProgress
-				.getReceivedAssets()
+				.getReceivedArtifacts()
 				.find((a) => a.filename === artifact.filename)
 		) {
 			return {alreadyExisted: true};
@@ -367,7 +367,7 @@ const innerLaunchHandler = async ({
 
 		const region = getCurrentRegionInFunction();
 		const s3Key = artifactName(renderMetadata.renderId, artifact.filename);
-		overallProgress.addReceivedAsset({
+		overallProgress.addReceivedArtifact({
 			filename: artifact.filename,
 			sizeInBytes: artifact.content.length,
 			s3Url: `https://s3.${region}.amazonaws.com/${renderBucketName}/${s3Key}`,

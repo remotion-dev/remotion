@@ -54,7 +54,7 @@ export {
 	CopyingState,
 	DownloadProgress,
 	JobProgressCallback,
-	ReceivedAsset,
+	ReceivedArtifact as ReceivedAsset,
 	RenderJob,
 	RenderJobWithCleanup,
 	RenderingProgressInput,

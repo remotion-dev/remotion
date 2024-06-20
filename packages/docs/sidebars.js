@@ -630,6 +630,7 @@ module.exports = {
         "render-all",
         "miscellaneous/video-formats",
         "video-vs-offthreadvideo",
+        "artifacts",
       ],
     },
     {
