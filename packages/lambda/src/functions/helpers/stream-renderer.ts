@@ -211,7 +211,7 @@ export const streamRendererFunctionWithRetry = async ({
 
 	if (result.type === 'error') {
 		if (!result.shouldRetry) {
-			throw result.error;
+			throw new Error(result.error);
 		}
 
 		overallProgress.addRetry({
