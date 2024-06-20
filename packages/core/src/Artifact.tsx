@@ -24,16 +24,7 @@ export const Artifact: React.FC<{
 			return;
 		}
 
-		if (typeof content === 'string') {
-			registerRenderAsset({
-				type: 'artifact',
-				id,
-				content,
-				filename,
-				frame,
-				binary: false,
-			});
-		} else {
+		if (content instanceof Uint8Array) {
 			registerRenderAsset({
 				type: 'artifact',
 				id,
@@ -41,6 +32,15 @@ export const Artifact: React.FC<{
 				filename,
 				frame,
 				binary: true,
+			});
+		} else {
+			registerRenderAsset({
+				type: 'artifact',
+				id,
+				content,
+				filename,
+				frame,
+				binary: false,
 			});
 		}
 
