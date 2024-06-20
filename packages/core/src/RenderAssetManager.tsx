@@ -6,6 +6,7 @@ import {
 	useState,
 } from 'react';
 import type {TRenderAsset} from './CompositionManager.js';
+import {validateRenderAsset} from './validation/validate-artifact.js';
 
 export type RenderAssetManagerContext = {
 	registerRenderAsset: (renderAsset: TRenderAsset) => void;
@@ -26,6 +27,7 @@ export const RenderAssetManagerProvider: React.FC<{
 	const [renderAssets, setRenderAssets] = useState<TRenderAsset[]>([]);
 
 	const registerRenderAsset = useCallback((renderAsset: TRenderAsset) => {
+		validateRenderAsset(renderAsset);
 		setRenderAssets((assets) => {
 			return [...assets, renderAsset];
 		});

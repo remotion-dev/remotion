@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path, {extname} from 'node:path';
-import type {TRenderAsset} from 'remotion/no-react';
+import type {AudioOrVideoAsset} from 'remotion/no-react';
 import {random} from 'remotion/no-react';
 import {isAssetCompressed} from '../compress-assets';
 import {ensureOutputDirectory} from '../ensure-output-directory';
@@ -350,12 +350,12 @@ export const downloadAndMapAssetsToFileUrl = async ({
 	logLevel,
 	indent,
 }: {
-	renderAsset: TRenderAsset;
+	renderAsset: AudioOrVideoAsset;
 	onDownload: RenderMediaOnDownload | null;
 	downloadMap: DownloadMap;
 	logLevel: LogLevel;
 	indent: boolean;
-}): Promise<TRenderAsset> => {
+}): Promise<AudioOrVideoAsset> => {
 	const cleanup = attachDownloadListenerToEmitter(downloadMap, onDownload);
 	const newSrc = await downloadAsset({
 		src: renderAsset.src,

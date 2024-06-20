@@ -1,4 +1,4 @@
-import type {StillImageFormat} from '@remotion/renderer';
+import type {EmittedArtifact, StillImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -6,18 +6,17 @@ import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import {estimatePrice} from '../api/estimate-price';
 import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
-import {callLambda} from '../shared/call-lambda';
 import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
 import {decompressInputProps} from '../shared/compress-props';
 import type {
 	CostsInfo,
 	LambdaPayload,
-	LambdaPayloads,
 	RenderMetadata,
 } from '../shared/constants';
 import {
 	LambdaRoutines,
 	MAX_EPHEMERAL_STORAGE_IN_MB,
+	artifactName,
 	overallProgressKey,
 } from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
@@ -39,8 +38,10 @@ import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {lambdaWriteFile} from './helpers/io';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
+import type {ReceivedArtifact} from './helpers/overall-render-progress';
 import {makeInitialOverallRenderProgress} from './helpers/overall-render-progress';
 import {validateComposition} from './helpers/validate-composition';
+import {getTmpDirStateIfENoSp} from './helpers/write-lambda-error';
 import type {OnStream} from './streaming/streaming';
 
 type Options = {
@@ -194,6 +195,58 @@ const innerStillHandler = async ({
 		throw new Error('Should not download a browser in Lambda');
 	};
 
+	const receivedArtifact: ReceivedArtifact[] = [];
+
+	const {key, renderBucketName, customCredentials} = getExpectedOutName(
+		renderMetadata,
+		bucketName,
+		getCredentialsFromOutName(lambdaParams.outName),
+	);
+
+	const onArtifact = (artifact: EmittedArtifact): {alreadyExisted: boolean} => {
+		if (receivedArtifact.find((a) => a.filename === artifact.filename)) {
+			return {alreadyExisted: true};
+		}
+
+		const s3Key = artifactName(renderMetadata.renderId, artifact.filename);
+		receivedArtifact.push({
+			filename: artifact.filename,
+			sizeInBytes: artifact.content.length,
+			s3Url: `https://s3.${region}.amazonaws.com/${renderBucketName}/${s3Key}`,
+			s3Key,
+		});
+
+		const startTime = Date.now();
+		RenderInternals.Log.info(
+			{indent: false, logLevel: lambdaParams.logLevel},
+			'Writing artifact ' + artifact.filename + ' to S3',
+		);
+		lambdaWriteFile({
+			bucketName: renderBucketName,
+			key: s3Key,
+			body: artifact.content,
+			region,
+			privacy: lambdaParams.privacy,
+			expectedBucketOwner,
+			downloadBehavior: lambdaParams.downloadBehavior,
+			customCredentials,
+		})
+			.then(() => {
+				RenderInternals.Log.info(
+					{indent: false, logLevel: lambdaParams.logLevel},
+					`Wrote artifact to S3 in ${Date.now() - startTime}ms`,
+				);
+			})
+			.catch((err) => {
+				RenderInternals.Log.error(
+					{indent: false, logLevel: lambdaParams.logLevel},
+					'Failed to write artifact to S3',
+					err,
+				);
+			});
+		return {alreadyExisted: false};
+	};
+
 	await RenderInternals.internalRenderStill({
 		composition,
 		output: outputPath,
@@ -229,13 +282,8 @@ const innerStillHandler = async ({
 		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
 		binariesDirectory: null,
 		onBrowserDownload,
+		onArtifact,
 	});
-
-	const {key, renderBucketName, customCredentials} = getExpectedOutName(
-		renderMetadata,
-		bucketName,
-		getCredentialsFromOutName(lambdaParams.outName),
-	);
 
 	const {size} = await fs.promises.stat(outputPath);
 
@@ -284,6 +332,7 @@ const innerStillHandler = async ({
 		estimatedPrice: formatCostsInfo(estimatedPrice),
 		renderId,
 		outKey,
+		receivedArtifacts: receivedArtifact,
 	};
 
 	onStream({
@@ -301,13 +350,21 @@ export type RenderStillLambdaResponsePayload = {
 	sizeInBytes: number;
 	estimatedPrice: CostsInfo;
 	renderId: string;
+	receivedArtifacts: ReceivedArtifact[];
 };
 
 export const stillHandler = async (
 	options: Options,
-): Promise<{
-	type: 'success';
-}> => {
+): Promise<
+	| {
+			type: 'success';
+	  }
+	| {
+			type: 'error';
+			message: string;
+			stack: string;
+	  }
+> => {
 	const {params} = options;
 
 	if (params.type !== LambdaRoutines.still) {
@@ -323,10 +380,6 @@ export const stillHandler = async (
 		const isBrowserError = isFlakyError(err as Error);
 		const willRetry = isBrowserError || params.maxRetries > 0;
 
-		if (!willRetry) {
-			throw err;
-		}
-
 		RenderInternals.Log.error(
 			{
 				indent: false,
@@ -337,21 +390,34 @@ export const stillHandler = async (
 			'Will retry.',
 		);
 
-		const retryPayload: LambdaPayloads[LambdaRoutines.still] = {
-			...params,
-			maxRetries: params.maxRetries - 1,
-			attempt: params.attempt + 1,
+		if (params.streamed) {
+			await options.onStream({
+				type: 'error-occurred',
+				payload: {
+					error: (err as Error).stack as string,
+					shouldRetry: willRetry,
+					errorInfo: {
+						name: (err as Error).name as string,
+						message: (err as Error).message as string,
+						stack: (err as Error).stack as string,
+						chunk: null,
+						frame: params.frame,
+						type: 'renderer',
+						isFatal: false,
+						tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
+						attempt: params.attempt,
+						totalAttempts: 1 + params.maxRetries,
+						willRetry: true,
+					},
+				},
+			});
+		}
+
+		return {
+			type: 'error',
+			message: (err as Error).message,
+			stack: (err as Error).stack as string,
 		};
-
-		const res = await callLambda({
-			functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
-			payload: retryPayload,
-			region: getCurrentRegionInFunction(),
-			type: LambdaRoutines.still,
-			timeoutInTest: 120000,
-		});
-
-		return res;
 	} finally {
 		forgetBrowserEventLoop(
 			options.params.type === LambdaRoutines.still

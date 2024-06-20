@@ -17,6 +17,7 @@ import type {Compositor} from './compositor/compositor';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
+import {onlyArtifact} from './filter-asset-types';
 import {findRemotionRoot} from './find-closest-package-json';
 import type {StillImageFormat} from './image-format';
 import {
@@ -34,6 +35,7 @@ import {DEFAULT_OVERWRITE} from './overwrite';
 import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
+import type {OnArtifact} from './render-frames';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {takeFrameAndCompose} from './take-frame-and-compose';
@@ -68,6 +70,7 @@ type InternalRenderStillOptions = {
 	serveUrl: string;
 	port: number | null;
 	offthreadVideoCacheSizeInBytes: number | null;
+	onArtifact: OnArtifact | null;
 } & ToOptions<typeof optionsMap.renderStill>;
 
 export type RenderStillOptions = {
@@ -99,6 +102,7 @@ export type RenderStillOptions = {
 	 * @deprecated Renamed to `jpegQuality`
 	 */
 	quality?: never;
+	onArtifact?: OnArtifact;
 } & Partial<ToOptions<typeof optionsMap.renderStill>>;
 
 type CleanupFn = () => Promise<unknown>;
@@ -130,6 +134,7 @@ const innerRenderStill = async ({
 	indent,
 	serializedResolvedPropsWithCustomSchema,
 	onBrowserDownload,
+	onArtifact,
 }: InternalRenderStillOptions & {
 	downloadMap: DownloadMap;
 	serveUrl: string;
@@ -316,7 +321,7 @@ const innerRenderStill = async ({
 		attempt: 0,
 	});
 
-	const {buffer} = await takeFrameAndCompose({
+	const {buffer, collectedAssets} = await takeFrameAndCompose({
 		frame: stillFrame,
 		freePage: page,
 		height: composition.height,
@@ -330,6 +335,23 @@ const innerRenderStill = async ({
 		downloadMap,
 		timeoutInMilliseconds,
 	});
+
+	const artifactAssets = onlyArtifact(collectedAssets);
+	const previousArtifactAssets = [];
+
+	for (const artifact of artifactAssets) {
+		for (const previousArtifact of previousArtifactAssets) {
+			if (artifact.filename === previousArtifact.filename) {
+				throw new Error(
+					`An artifact with output "${artifact.filename}" was already registered at frame ${previousArtifact.frame}, but now registered again at frame ${artifact.frame}. Artifacts must have unique names. https://remotion.dev/docs/artifacts`,
+				);
+			}
+		}
+
+		previousArtifactAssets.push(artifact);
+
+		onArtifact?.(artifact);
+	}
 
 	await cleanup();
 
@@ -443,6 +465,7 @@ export const renderStill = (
 		logLevel: passedLogLevel,
 		binariesDirectory,
 		onBrowserDownload,
+		onArtifact,
 	} = options;
 
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
@@ -499,5 +522,6 @@ export const renderStill = (
 		onBrowserDownload:
 			onBrowserDownload ??
 			defaultBrowserDownloadProgress({indent, logLevel, api: 'renderStill()'}),
+		onArtifact: onArtifact ?? null,
 	});
 };

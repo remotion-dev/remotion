@@ -3,6 +3,7 @@ import {ConfigInternals} from '@remotion/cli/config';
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
+import path from 'path';
 import {NoReactInternals} from 'remotion/no-react';
 import {downloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
@@ -428,16 +429,11 @@ export const renderCommand = async (
 		);
 
 		if (newStatus.done) {
-			progressBar.update(
-				makeProgressString({
-					downloadInfo: null,
-					overall: newStatus,
-				}),
-				false,
-			);
+			let downloadOrNothing;
+
 			if (downloadName) {
 				const downloadStart = Date.now();
-				const {outputPath, sizeInBytes} = await downloadMedia({
+				const download = await downloadMedia({
 					bucketName: res.bucketName,
 					outPath: downloadName,
 					region: getAwsRegion(),
@@ -457,31 +453,58 @@ export const renderCommand = async (
 						);
 					},
 				});
+				downloadOrNothing = download;
 				progressBar.update(
 					makeProgressString({
 						downloadInfo: {
 							doneIn: Date.now() - downloadStart,
-							downloaded: sizeInBytes,
-							totalSize: sizeInBytes,
+							downloaded: download.sizeInBytes,
+							totalSize: download.sizeInBytes,
 						},
 						overall: newStatus,
 					}),
 					false,
 				);
-				Log.info({indent: false, logLevel});
-				Log.info({indent: false, logLevel});
-				Log.info(
-					{indent: false, logLevel},
-					'Done!',
-					outputPath,
-					CliInternals.formatBytes(sizeInBytes),
-				);
-			} else {
-				Log.info({indent: false, logLevel});
-				Log.info({indent: false, logLevel});
-				Log.info({indent: false, logLevel}, 'Done! ' + newStatus.outputFile);
 			}
 
+			Log.info({indent: false, logLevel});
+			Log.info(
+				{indent: false, logLevel},
+				CliInternals.chalk.blue('+ S3 '.padEnd(CliInternals.LABEL_WIDTH)),
+				CliInternals.chalk.blue(
+					CliInternals.makeHyperlink({
+						fallback: newStatus.outputFile as string,
+						text: newStatus.outKey as string,
+						url: newStatus.outputFile as string,
+					}),
+				),
+				CliInternals.chalk.gray(
+					CliInternals.formatBytes(newStatus.outputSizeInBytes as number),
+				),
+			);
+
+			if (downloadOrNothing) {
+				const relativeOutputPath = path.relative(
+					process.cwd(),
+					downloadOrNothing.outputPath,
+				);
+				Log.info(
+					{indent: false, logLevel},
+					CliInternals.chalk.blue('↓'.padEnd(CliInternals.LABEL_WIDTH)),
+					CliInternals.chalk.blue(
+						CliInternals.makeHyperlink({
+							url: `file://${downloadOrNothing.outputPath}`,
+							text: relativeOutputPath,
+							fallback: downloadOrNothing.outputPath,
+						}),
+					),
+					CliInternals.chalk.gray(
+						CliInternals.formatBytes(downloadOrNothing.sizeInBytes),
+					),
+				);
+			}
+
+			Log.info({indent: false, logLevel});
 			Log.info(
 				{indent: false, logLevel},
 				[

@@ -98,6 +98,20 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "artifact",
+    title: "<Artifact>",
+    relativePath: "docs/artifact.mdx",
+    compId: "articles-docs-artifact",
+    crumb: "API",
+  },
+  {
+    id: "artifacts",
+    title: "Emitting Artifacts",
+    relativePath: "docs/artifacts.mdx",
+    compId: "articles-docs-artifacts",
+    crumb: "Techniques",
+  },
+  {
     id: "get-help",
     title: "Get help",
     relativePath: "docs/ask-for-help.mdx",
@@ -1719,6 +1733,13 @@ export const articles = [
     title: "Can I embed the Remotion Studio?",
     relativePath: "docs/miscellaneous/embed-remotion-studio.mdx",
     compId: "articles-docs-miscellaneous-embed-remotion-studio",
+    crumb: "FAQ",
+  },
+  {
+    id: "miscellaneous/linux-dependencies",
+    title: "Linux Dependencies",
+    relativePath: "docs/miscellaneous/linux-dependencies.mdx",
+    compId: "articles-docs-miscellaneous-linux-dependencies",
     crumb: "FAQ",
   },
   {

@@ -4,9 +4,9 @@ import {
 	CalculateMetadataFunction,
 	Composition,
 	Folder,
-	Still,
 	getInputProps,
 	staticFile,
+	Still,
 } from 'remotion';
 import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
@@ -32,8 +32,8 @@ import {Layers} from './Layers';
 import {ManyAudio} from './ManyAudio';
 import {MissingImg} from './MissingImg';
 import {
-	OffthreadRemoteVideo,
 	calculateMetadataFn,
+	OffthreadRemoteVideo,
 } from './OffthreadRemoteVideo/OffthreadRemoteVideo';
 import {OrbScene} from './Orb';
 import {ShapesMorph} from './Paths/ShapesMorph';
@@ -47,8 +47,8 @@ import RiveVehicle from './Rive/RiveExample';
 import {ScalePath} from './ScalePath';
 import {
 	ArrayTest,
-	SchemaTest,
 	schemaArrayTestSchema,
+	SchemaTest,
 	schemaTestSchema,
 } from './SchemaTest';
 import {Scripts} from './Scripts';
@@ -74,6 +74,7 @@ import {
 } from './StudioApis/SaveDefaultProps';
 import {TriggerCalculateMetadata} from './StudioApis/TriggerCalculateMetadata';
 import {WriteStaticFile} from './StudioApis/WriteStaticFile';
+import './style.css';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
 import {TextStroke} from './TextStroke';
@@ -90,7 +91,6 @@ import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
-import './style.css';
 import {WatchStaticDemo} from './watch-static';
 if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
@@ -98,6 +98,7 @@ if (alias !== 'alias') {
 
 // @ts-expect-error no types
 import styles from './styles.module.scss';
+import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
 
 if (!styles.hithere) {
 	throw new Error('should support SCSS modules');
@@ -1307,6 +1308,16 @@ export const Index: React.FC = () => {
 						return {};
 					}}
 					defaultProps={{color: 'green'}}
+				/>
+			</Folder>
+			<Folder name="Artifacts">
+				<Composition
+					id="subtitle"
+					component={SubtitleArtifact}
+					fps={30}
+					height={1000}
+					width={1000}
+					durationInFrames={10}
 				/>
 			</Folder>
 		</>

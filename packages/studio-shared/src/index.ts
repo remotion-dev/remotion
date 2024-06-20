@@ -49,6 +49,7 @@ export {ProjectInfo} from './project-info';
 export type {RenderDefaults} from './render-defaults';
 export {
 	AggregateRenderProgress,
+	ArtifactProgress,
 	BundlingState,
 	CopyingState,
 	DownloadProgress,

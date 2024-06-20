@@ -1,4 +1,5 @@
-import type {TRenderAsset} from 'remotion/no-react';
+import type {AudioOrVideoAsset, TRenderAsset} from 'remotion/no-react';
+import {onlyAudioAndVideoAssets} from '../filter-asset-types';
 import {resolveAssetSrc} from '../resolve-asset-src';
 import {convertAssetToFlattenedVolume} from './flatten-volume-array';
 import type {Assets, MediaAsset, UnsafeAsset} from './types';
@@ -18,9 +19,13 @@ const findFrom = (target: TRenderAsset[], renderAsset: TRenderAsset) => {
 	return true;
 };
 
-const copyAndDeduplicateAssets = (renderAssets: TRenderAsset[]) => {
-	const deduplicated: TRenderAsset[] = [];
-	for (const renderAsset of renderAssets) {
+const copyAndDeduplicateAssets = (
+	renderAssets: TRenderAsset[],
+): AudioOrVideoAsset[] => {
+	const onlyAudioAndVideo = onlyAudioAndVideoAssets(renderAssets);
+	const deduplicated: AudioOrVideoAsset[] = [];
+
+	for (const renderAsset of onlyAudioAndVideo) {
 		if (!deduplicated.find((d) => d.id === renderAsset.id)) {
 			deduplicated.push(renderAsset);
 		}
@@ -29,7 +34,9 @@ const copyAndDeduplicateAssets = (renderAssets: TRenderAsset[]) => {
 	return deduplicated;
 };
 
-export const calculateAssetPositions = (frames: TRenderAsset[][]): Assets => {
+export const calculateAssetPositions = (
+	frames: AudioOrVideoAsset[][],
+): Assets => {
 	const assets: UnsafeAsset[] = [];
 
 	for (let frame = 0; frame < frames.length; frame++) {

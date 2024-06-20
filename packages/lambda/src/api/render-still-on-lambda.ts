@@ -5,6 +5,7 @@ import type {
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
+import type {ReceivedArtifact} from '../functions/helpers/overall-render-progress';
 import type {RenderStillLambdaResponsePayload} from '../functions/still';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambdaWithStreaming} from '../shared/call-lambda';
@@ -67,6 +68,7 @@ export type RenderStillOnLambdaOutput = {
 	bucketName: string;
 	renderId: string;
 	cloudWatchLogs: string;
+	artifacts: ReceivedArtifact[];
 };
 
 const internalRenderStillOnLambda = async (
@@ -100,12 +102,16 @@ const internalRenderStillOnLambda = async (
 							});
 						}
 
+						if (message.type === 'error-occurred') {
+							reject(new Error(message.payload.error));
+						}
+
 						if (message.type === 'still-rendered') {
 							resolve(message.payload);
 						}
 					},
 					timeoutInTest: 120000,
-					retriesRemaining: 1,
+					retriesRemaining: input.maxRetries,
 				})
 					.then(() => {
 						reject(new Error('Expected response to be streamed'));
@@ -130,6 +136,7 @@ const internalRenderStillOnLambda = async (
 				renderId: res.renderId,
 				rendererFunctionName: null,
 			}),
+			artifacts: res.receivedArtifacts,
 		};
 	} catch (err) {
 		if ((err as Error).stack?.includes('UnrecognizedClientException')) {

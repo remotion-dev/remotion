@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import type {LogOptions} from '@remotion/renderer';
+import type {EmittedArtifact, LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {existsSync, mkdirSync, rmSync} from 'fs';
 import {join} from 'path';
 import {VERSION} from 'remotion/version';
-import type {EventEmitter} from 'stream';
+import {type EventEmitter} from 'stream';
 import {
 	compressInputProps,
 	decompressInputProps,
@@ -20,6 +20,7 @@ import {
 	CONCAT_FOLDER_TOKEN,
 	LambdaRoutines,
 	MAX_FUNCTIONS_PER_RENDER,
+	artifactName,
 } from '../shared/constants';
 import {DOCS_URL} from '../shared/docs-url';
 import {invokeWebhook} from '../shared/invoke-webhook';
@@ -41,6 +42,7 @@ import {
 	getBrowserInstance,
 } from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
+import {lambdaWriteFile} from './helpers/io';
 import {mergeChunksAndFinishRender} from './helpers/merge-chunks';
 import type {OverallProgressHelper} from './helpers/overall-render-progress';
 import {makeOverallRenderProgress} from './helpers/overall-render-progress';
@@ -354,6 +356,69 @@ const innerLaunchHandler = async ({
 
 	const files: string[] = [];
 
+	const onArtifact = (artifact: EmittedArtifact): {alreadyExisted: boolean} => {
+		if (
+			overallProgress
+				.getReceivedArtifacts()
+				.find((a) => a.filename === artifact.filename)
+		) {
+			return {alreadyExisted: true};
+		}
+
+		const region = getCurrentRegionInFunction();
+		const s3Key = artifactName(renderMetadata.renderId, artifact.filename);
+
+		const start = Date.now();
+		RenderInternals.Log.info(
+			{indent: false, logLevel: params.logLevel},
+			'Writing artifact ' + artifact.filename + ' to S3',
+		);
+		lambdaWriteFile({
+			bucketName: renderBucketName,
+			key: s3Key,
+			body: artifact.content,
+			region,
+			privacy: params.privacy,
+			expectedBucketOwner: options.expectedBucketOwner,
+			downloadBehavior: params.downloadBehavior,
+			customCredentials,
+		})
+			.then(() => {
+				RenderInternals.Log.info(
+					{indent: false, logLevel: params.logLevel},
+					`Wrote artifact to S3 in ${Date.now() - start}ms`,
+				);
+				overallProgress.addReceivedArtifact({
+					filename: artifact.filename,
+					sizeInBytes: artifact.content.length,
+					s3Url: `https://s3.${region}.amazonaws.com/${renderBucketName}/${s3Key}`,
+					s3Key,
+				});
+			})
+			.catch((err) => {
+				overallProgress.addErrorWithoutUpload({
+					type: 'artifact',
+					message: (err as Error).message,
+					name: (err as Error).name as string,
+					stack: (err as Error).stack as string,
+					tmpDir: null,
+					frame: artifact.frame,
+					chunk: null,
+					isFatal: false,
+					attempt: 1,
+					willRetry: false,
+					totalAttempts: 1,
+				});
+				overallProgress.upload();
+				RenderInternals.Log.error(
+					{indent: false, logLevel: params.logLevel},
+					'Failed to write artifact to S3',
+					err,
+				);
+			});
+		return {alreadyExisted: false};
+	};
+
 	await Promise.all(
 		lambdaPayloads.map(async (payload) => {
 			await streamRendererFunctionWithRetry({
@@ -363,6 +428,7 @@ const innerLaunchHandler = async ({
 				overallProgress,
 				payload,
 				logLevel: params.logLevel,
+				onArtifact,
 			});
 		}),
 	);

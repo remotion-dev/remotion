@@ -91,6 +91,7 @@ export type BundleState =
 
 checkMultipleRemotionVersions();
 export * from './AbsoluteFill.js';
+export {Artifact} from './Artifact.js';
 export * from './audio/index.js';
 export {cancelRender} from './cancel-render.js';
 export {
@@ -103,6 +104,7 @@ export {
 export {
 	AnyCompMetadata,
 	AnyComposition,
+	AudioOrVideoAsset,
 	SmallTCompMetadata,
 	TCompMetadata,
 	TRenderAsset,

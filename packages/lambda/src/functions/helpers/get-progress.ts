@@ -110,6 +110,7 @@ export const getProgress = async ({
 			compositionValidated: overallProgress.compositionValidated,
 			functionLaunched: overallProgress.functionLaunched,
 			serveUrlOpened: overallProgress.serveUrlOpened,
+			artifacts: overallProgress.receivedArtifact,
 		};
 	}
 
@@ -257,5 +258,6 @@ export const getProgress = async ({
 		compositionValidated: overallProgress.compositionValidated,
 		functionLaunched: overallProgress.functionLaunched,
 		serveUrlOpened: overallProgress.serveUrlOpened,
+		artifacts: overallProgress.receivedArtifact,
 	};
 };

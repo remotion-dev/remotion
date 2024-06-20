@@ -84,6 +84,7 @@ module.exports = {
       items: [
         "absolute-fill",
         "audio",
+        "artifact",
         "calculate-metadata",
         "cancel-render",
         "composition",
@@ -629,6 +630,7 @@ module.exports = {
         "render-all",
         "miscellaneous/video-formats",
         "video-vs-offthreadvideo",
+        "artifacts",
       ],
     },
     {

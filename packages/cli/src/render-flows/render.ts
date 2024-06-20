@@ -28,6 +28,7 @@ import type {
 	RenderingProgressInput,
 	StitchingProgressInput,
 } from '@remotion/studio-server';
+import type {ArtifactProgress} from '@remotion/studio-shared';
 import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -42,6 +43,7 @@ import {makeHyperlink} from '../hyperlinks/make-link';
 import {getVideoImageFormat} from '../image-formats';
 import {Log} from '../log';
 import {makeOnDownload} from '../make-on-download';
+import {handleOnArtifact} from '../on-artifact';
 import {parsedCli, quietFlagProvided} from '../parsed-cli';
 import {
 	LABEL_WIDTH,
@@ -219,6 +221,8 @@ export const renderVideoFlow = async ({
 		doneIn: null,
 	};
 
+	let artifactState: ArtifactProgress = {received: []};
+
 	const updateRenderProgress = ({
 		newline,
 		printToConsole,
@@ -232,6 +236,7 @@ export const renderVideoFlow = async ({
 			downloads,
 			bundling: bundlingProgress,
 			copyingState,
+			artifactState,
 		};
 
 		const {output, message, progress} = makeRenderingAndStitchingProgress({
@@ -321,6 +326,15 @@ export const renderVideoFlow = async ({
 			binariesDirectory,
 			onBrowserDownload,
 		});
+
+	const {onArtifact} = handleOnArtifact({
+		artifactState,
+		onProgress: (progress) => {
+			artifactState = progress;
+			updateRenderProgress({newline: false, printToConsole: true});
+		},
+		compositionId,
+	});
 
 	const {value: codec, source: codecReason} =
 		BrowserSafeApis.options.videoCodecOption.getValue(
@@ -429,6 +443,7 @@ export const renderVideoFlow = async ({
 		codec: shouldOutputImageSequence ? undefined : codec,
 		uiImageFormat,
 	});
+
 	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {
 			recursive: true,
@@ -491,6 +506,7 @@ export const renderVideoFlow = async ({
 			compositionStart: 0,
 			forSeamlessAacConcatenation,
 			onBrowserDownload,
+			onArtifact,
 		});
 
 		Log.info({indent, logLevel}, chalk.blue(`▶ ${absoluteOutputFile}`));
@@ -580,6 +596,7 @@ export const renderVideoFlow = async ({
 		forSeamlessAacConcatenation,
 		compositionStart: 0,
 		onBrowserDownload,
+		onArtifact,
 	});
 	if (!updatesDontOverwrite) {
 		updateRenderProgress({newline: true, printToConsole: true});

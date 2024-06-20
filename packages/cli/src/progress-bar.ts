@@ -8,6 +8,7 @@ import type {
 	StitchingProgressInput,
 } from '@remotion/studio-server';
 import {StudioServerInternals} from '@remotion/studio-server';
+import {formatBytes, type ArtifactProgress} from '@remotion/studio-shared';
 import {chalk} from './chalk';
 import {
 	getFileSizeDownloadBar,
@@ -192,6 +193,30 @@ const makeRenderingProgress = ({
 		.join(' ');
 };
 
+const makeArtifactProgress = (artifactState: ArtifactProgress) => {
+	const {received} = artifactState;
+	if (received.length === 0) {
+		return null;
+	}
+
+	return received
+		.map((artifact) => {
+			return [
+				chalk.blue((artifact.alreadyExisted ? '○' : '+').padEnd(LABEL_WIDTH)),
+				chalk.blue(
+					makeHyperlink({
+						url: 'file://' + artifact.absoluteOutputDestination,
+						fallback: artifact.absoluteOutputDestination,
+						text: artifact.relativeOutputDestination,
+					}),
+				),
+				chalk.gray(`${formatBytes(artifact.sizeInBytes)}`),
+			].join(' ');
+		})
+		.filter(truthy)
+		.join('\n');
+};
+
 export const getRightLabelWidth = (totalFrames: number) => {
 	return `${totalFrames}/${totalFrames}`.length;
 };
@@ -237,7 +262,7 @@ export const makeRenderingAndStitchingProgress = ({
 	progress: number;
 	message: string;
 } => {
-	const {rendering, stitching, downloads, bundling} = prog;
+	const {rendering, stitching, downloads, bundling, artifactState} = prog;
 	const output = [
 		rendering ? makeRenderingProgress(rendering) : null,
 		makeMultiDownloadProgress(downloads, rendering?.totalFrames ?? 0),
@@ -247,6 +272,7 @@ export const makeRenderingAndStitchingProgress = ({
 					stitchingProgress: stitching,
 					isUsingParallelEncoding,
 				}),
+		makeArtifactProgress(artifactState),
 	]
 		.filter(truthy)
 		.join('\n');

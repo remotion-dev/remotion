@@ -3,7 +3,7 @@ import {getFolderFiles} from './get-files-in-folder';
 import {errorIsOutOfSpaceError} from './is-enosp-err';
 
 export type LambdaErrorInfo = {
-	type: 'renderer' | 'browser' | 'stitcher' | 'webhook';
+	type: 'renderer' | 'browser' | 'stitcher' | 'webhook' | 'artifact';
 	message: string;
 	name: string;
 	stack: string;

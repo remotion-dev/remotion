@@ -113,7 +113,7 @@ export const waitForReady = ({
 						args: [],
 						frame,
 						page,
-						timeoutInMilliseconds,
+						timeoutInMilliseconds: 5000,
 					})
 						.then((res) => {
 							reject(

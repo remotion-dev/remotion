@@ -69,47 +69,50 @@ const innerHandler = async ({
 			params.logLevel,
 		);
 
-		await new Promise((resolve, reject) => {
-			const onStream = (payload: StreamingPayload) => {
-				const message = makeStreamPayload({
-					message: payload,
-				});
-				return new Promise<void>((innerResolve, innerReject) => {
-					responseWriter
-						.write(message)
-						.then(() => {
-							innerResolve();
-						})
-						.catch((err) => {
-							reject(err);
-							innerReject(err);
-						});
-				});
-			};
+		try {
+			await new Promise((resolve, reject) => {
+				const onStream = (payload: StreamingPayload) => {
+					const message = makeStreamPayload({
+						message: payload,
+					});
+					return new Promise<void>((innerResolve, innerReject) => {
+						responseWriter
+							.write(message)
+							.then(() => {
+								innerResolve();
+							})
+							.catch((err) => {
+								reject(err);
+								innerReject(err);
+							});
+					});
+				};
 
-			if (params.streamed) {
-				onStream({
-					type: 'render-id-determined',
-					payload: {renderId},
-				});
-			}
+				if (params.streamed) {
+					onStream({
+						type: 'render-id-determined',
+						payload: {renderId},
+					});
+				}
 
-			stillHandler({
-				expectedBucketOwner: currentUserId,
-				params,
-				renderId,
-				onStream,
-				timeoutInMilliseconds,
-			})
-				.then((r) => {
-					resolve(r);
+				stillHandler({
+					expectedBucketOwner: currentUserId,
+					params,
+					renderId,
+					onStream,
+					timeoutInMilliseconds,
 				})
-				.catch((err) => {
-					reject(err);
-				});
-		});
-
-		await responseWriter.end();
+					.then((r) => {
+						resolve(r);
+					})
+					.catch((err) => {
+						reject(err);
+					});
+			});
+			await responseWriter.end();
+		} catch (err) {
+			console.log({err});
+		}
 
 		return;
 	}

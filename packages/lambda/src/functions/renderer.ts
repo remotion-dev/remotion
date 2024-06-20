@@ -1,4 +1,9 @@
-import type {AudioCodec, BrowserLog, Codec} from '@remotion/renderer';
+import type {
+	AudioCodec,
+	BrowserLog,
+	Codec,
+	OnArtifact,
+} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -23,6 +28,7 @@ import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {startLeakDetection} from './helpers/leak-detection';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
 import type {RequestContext} from './helpers/request-context';
+import {serializeArtifact} from './helpers/serialize-artifact';
 import {timer} from './helpers/timer';
 import {getTmpDirStateIfENoSp} from './helpers/write-lambda-error';
 import type {OnStream} from './streaming/streaming';
@@ -167,6 +173,35 @@ const renderHandler = async ({
 		params.everyNthFrame,
 	);
 
+	const onArtifact: OnArtifact = (artifact) => {
+		RenderInternals.Log.info(
+			{indent: false, logLevel: params.logLevel},
+			`Received artifact on frame ${artifact.frame}:`,
+			artifact.filename,
+			artifact.content.length + 'bytes. Streaming to main function',
+		);
+		const startTimestamp = Date.now();
+		onStream({
+			type: 'artifact-emitted',
+			payload: {
+				artifact: serializeArtifact(artifact),
+			},
+		})
+			.then(() => {
+				RenderInternals.Log.info(
+					{indent: false, logLevel: params.logLevel},
+					`Streaming artifact ${artifact.filename} to main function took ${Date.now() - startTimestamp}ms`,
+				);
+			})
+			.catch((e) => {
+				RenderInternals.Log.error(
+					{indent: false, logLevel: params.logLevel},
+					`Error streaming artifact ${artifact.filename} to main function`,
+					e,
+				);
+			});
+	};
+
 	await new Promise<void>((resolve, reject) => {
 		RenderInternals.internalRenderMedia({
 			repro: false,
@@ -271,6 +306,7 @@ const renderHandler = async ({
 			onBrowserDownload: () => {
 				throw new Error('Should not download a browser in Lambda');
 			},
+			onArtifact,
 		})
 			.then(({slowestFrames}) => {
 				RenderInternals.Log.verbose(

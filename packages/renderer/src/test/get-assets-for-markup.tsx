@@ -52,6 +52,7 @@ export const getAssetsForMarkup = async (
 		const [renderAssets, setAssets] = useState<TRenderAsset[]>([]);
 
 		const registerRenderAsset = useCallback((renderAsset: TRenderAsset) => {
+			Internals.validateRenderAsset(renderAsset);
 			setAssets((assts) => {
 				return [...assts, renderAsset];
 			});
