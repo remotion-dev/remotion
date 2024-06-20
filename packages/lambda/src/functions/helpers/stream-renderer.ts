@@ -112,7 +112,7 @@ const streamRenderer = ({
 				if (alreadyExisted) {
 					return resolve({
 						type: 'error',
-						error: `Chunk ${payload.chunk} emitted an asset filename ${message.payload.artifact.filename} at frame ${message.payload.artifact.frame} but there is already another artifact with the same name.`,
+						error: `Chunk ${payload.chunk} emitted an asset filename ${message.payload.artifact.filename} at frame ${message.payload.artifact.frame} but there is already another artifact with the same name. https://remotion.dev/docs/artifacts`,
 						shouldRetry: false,
 					});
 				}
