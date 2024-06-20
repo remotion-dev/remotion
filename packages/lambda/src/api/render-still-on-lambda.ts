@@ -102,12 +102,16 @@ const internalRenderStillOnLambda = async (
 							});
 						}
 
+						if (message.type === 'error-occurred') {
+							reject(new Error(message.payload.error));
+						}
+
 						if (message.type === 'still-rendered') {
 							resolve(message.payload);
 						}
 					},
 					timeoutInTest: 120000,
-					retriesRemaining: 1,
+					retriesRemaining: input.maxRetries,
 				})
 					.then(() => {
 						reject(new Error('Expected response to be streamed'));

@@ -6,13 +6,11 @@ import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import {estimatePrice} from '../api/estimate-price';
 import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
-import {callLambda} from '../shared/call-lambda';
 import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
 import {decompressInputProps} from '../shared/compress-props';
 import type {
 	CostsInfo,
 	LambdaPayload,
-	LambdaPayloads,
 	RenderMetadata,
 } from '../shared/constants';
 import {
@@ -43,6 +41,7 @@ import {onDownloadsHelper} from './helpers/on-downloads-logger';
 import type {ReceivedArtifact} from './helpers/overall-render-progress';
 import {makeInitialOverallRenderProgress} from './helpers/overall-render-progress';
 import {validateComposition} from './helpers/validate-composition';
+import {getTmpDirStateIfENoSp} from './helpers/write-lambda-error';
 import type {OnStream} from './streaming/streaming';
 
 type Options = {
@@ -357,9 +356,16 @@ export type RenderStillLambdaResponsePayload = {
 
 export const stillHandler = async (
 	options: Options,
-): Promise<{
-	type: 'success';
-}> => {
+): Promise<
+	| {
+			type: 'success';
+	  }
+	| {
+			type: 'error';
+			message: string;
+			stack: string;
+	  }
+> => {
 	const {params} = options;
 
 	if (params.type !== LambdaRoutines.still) {
@@ -375,10 +381,6 @@ export const stillHandler = async (
 		const isBrowserError = isFlakyError(err as Error);
 		const willRetry = isBrowserError || params.maxRetries > 0;
 
-		if (!willRetry) {
-			throw err;
-		}
-
 		RenderInternals.Log.error(
 			{
 				indent: false,
@@ -389,21 +391,34 @@ export const stillHandler = async (
 			'Will retry.',
 		);
 
-		const retryPayload: LambdaPayloads[LambdaRoutines.still] = {
-			...params,
-			maxRetries: params.maxRetries - 1,
-			attempt: params.attempt + 1,
+		if (params.streamed) {
+			await options.onStream({
+				type: 'error-occurred',
+				payload: {
+					error: (err as Error).stack as string,
+					shouldRetry: willRetry,
+					errorInfo: {
+						name: (err as Error).name as string,
+						message: (err as Error).message as string,
+						stack: (err as Error).stack as string,
+						chunk: null,
+						frame: null,
+						type: 'renderer',
+						isFatal: false,
+						tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
+						attempt: params.attempt,
+						totalAttempts: 1 + params.maxRetries,
+						willRetry: true,
+					},
+				},
+			});
+		}
+
+		return {
+			type: 'error',
+			message: (err as Error).message,
+			stack: (err as Error).stack as string,
 		};
-
-		const res = await callLambda({
-			functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
-			payload: retryPayload,
-			region: getCurrentRegionInFunction(),
-			type: LambdaRoutines.still,
-			timeoutInTest: 120000,
-		});
-
-		return res;
 	} finally {
 		forgetBrowserEventLoop(
 			options.params.type === LambdaRoutines.still
