@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "89debbee84d4ad1e04bb212425875772",
+    "content-hash": "c236ae51ccee0a544bdd0e4332102a06",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -62,16 +62,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.314.2",
+            "version": "3.314.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "1f5ccf9c73a66fb85c7c5de8f11ed69e44c636ef"
+                "reference": "0c1adaa22c3d333ac20dcc87dd355e9a013a05fd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/1f5ccf9c73a66fb85c7c5de8f11ed69e44c636ef",
-                "reference": "1f5ccf9c73a66fb85c7c5de8f11ed69e44c636ef",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/0c1adaa22c3d333ac20dcc87dd355e9a013a05fd",
+                "reference": "0c1adaa22c3d333ac20dcc87dd355e9a013a05fd",
                 "shasum": ""
             },
             "require": {
@@ -151,9 +151,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.314.2"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.314.5"
             },
-            "time": "2024-06-14T18:11:34+00:00"
+            "time": "2024-06-19T18:11:48+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -819,16 +819,16 @@
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.29.0",
+            "version": "v1.30.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "9773676c8a1bb1f8d4340a62efe641cf76eda7ec"
+                "reference": "fd22ab50000ef01661e2a31d850ebaa297f8e03c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/9773676c8a1bb1f8d4340a62efe641cf76eda7ec",
-                "reference": "9773676c8a1bb1f8d4340a62efe641cf76eda7ec",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/fd22ab50000ef01661e2a31d850ebaa297f8e03c",
+                "reference": "fd22ab50000ef01661e2a31d850ebaa297f8e03c",
                 "shasum": ""
             },
             "require": {
@@ -879,7 +879,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.29.0"
+                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.30.0"
             },
             "funding": [
                 {
@@ -895,7 +895,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-01-29T20:11:03+00:00"
+            "time": "2024-06-19T12:30:46+00:00"
         }
     ],
     "packages-dev": [
@@ -1458,16 +1458,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "10.5.21",
+            "version": "10.5.23",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "ac837816fa52078f7a5e17ed774f256a72a51af6"
+                "reference": "12826591cc32fa0959b7e7577a90c3f527e377b2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/ac837816fa52078f7a5e17ed774f256a72a51af6",
-                "reference": "ac837816fa52078f7a5e17ed774f256a72a51af6",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/12826591cc32fa0959b7e7577a90c3f527e377b2",
+                "reference": "12826591cc32fa0959b7e7577a90c3f527e377b2",
                 "shasum": ""
             },
             "require": {
@@ -1539,7 +1539,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.21"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.23"
             },
             "funding": [
                 {
@@ -1555,7 +1555,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-06-15T09:13:15+00:00"
+            "time": "2024-06-20T07:29:28+00:00"
         },
         {
             "name": "sebastian/cli-parser",
