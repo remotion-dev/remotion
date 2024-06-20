@@ -164,6 +164,10 @@ If the render is in progress, this is `null`. If the render is done, it is an ar
 - `timeInMilliseconds`: The time it took the render that chunk
 - `frameRange`: A tuple containing the first and last frame that was rendered in that chunk.
 
+### `artifacts`<AvailableFrom v="4.0.176"/>
+
+Artifacts that were created so far during the render. [See here for an example of dealing with field.](/docs/artifacts#using-rendermediaonlambda)
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/get-render-progress.ts)
