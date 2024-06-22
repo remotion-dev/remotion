@@ -1,5 +1,5 @@
 import type {RefObject} from 'react';
-import {useContext, useEffect} from 'react';
+import {useCallback, useContext, useEffect, useRef} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
 import {useBufferUntilFirstFrame} from './buffer-until-first-frame.js';
 import {BufferingContextReact} from './buffering.js';
@@ -60,6 +60,7 @@ export const useMediaPlayback = ({
 	const buffering = useContext(BufferingContextReact);
 	const {fps} = useVideoConfig();
 	const mediaStartsAt = useMediaStartsAt();
+	const lastSeekDueToShift = useRef<number | null>(null);
 
 	if (!buffering) {
 		throw new Error(
@@ -82,9 +83,27 @@ export const useMediaPlayback = ({
 		isPremounting,
 	});
 
+	const isVariableFpsVideoMap = useRef<Record<string, boolean>>({});
+
+	const onVariableFpsVideoDetected = useCallback(() => {
+		if (!src) {
+			return;
+		}
+
+		if (debugSeeking) {
+			// eslint-disable-next-line no-console
+			console.log(
+				`Detected ${src} as a variable FPS video. Disabling buffering while seeking.`,
+			);
+		}
+
+		isVariableFpsVideoMap.current[src] = true;
+	}, [debugSeeking, src]);
+
 	const {bufferUntilFirstFrame, isBuffering} = useBufferUntilFirstFrame({
 		mediaRef,
 		mediaType,
+		onVariableFpsVideoDetected,
 	});
 
 	const playbackRate = localPlaybackRate * globalPlaybackRate;
@@ -143,36 +162,52 @@ export const useMediaPlayback = ({
 			!Number.isNaN(duration) && Number.isFinite(duration)
 				? Math.min(duration, desiredUnclampedTime)
 				: desiredUnclampedTime;
-		const isTime = mediaRef.current.currentTime;
+
+		const mediaTagTime = mediaRef.current.currentTime;
 		const rvcTime = currentTime.current ?? null;
 
-		const timeShiftMediaTag = Math.abs(shouldBeTime - isTime);
+		const isVariableFpsVideo = isVariableFpsVideoMap.current[src];
+
+		const timeShiftMediaTag = Math.abs(shouldBeTime - mediaTagTime);
 		const timeShiftRvcTag = rvcTime ? Math.abs(shouldBeTime - rvcTime) : null;
-		const timeShift = timeShiftRvcTag ? timeShiftRvcTag : timeShiftMediaTag;
+		const timeShift =
+			timeShiftRvcTag && !isVariableFpsVideo
+				? timeShiftRvcTag
+				: timeShiftMediaTag;
 
 		if (debugSeeking) {
 			// eslint-disable-next-line no-console
 			console.log({
-				isTime,
+				mediaTagTime,
 				rvcTime,
 				shouldBeTime,
 				state: mediaRef.current.readyState,
 				playing: !mediaRef.current.paused,
+				isVariableFpsVideo,
 			});
 		}
 
-		if (timeShift > acceptableTimeShiftButLessThanDuration) {
+		if (
+			timeShift > acceptableTimeShiftButLessThanDuration &&
+			lastSeekDueToShift.current !== shouldBeTime
+		) {
 			// If scrubbing around, adjust timing
 			// or if time shift is bigger than 0.45sec
 
 			if (debugSeeking) {
 				// eslint-disable-next-line no-console
-				console.log('Seeking', {shouldBeTime, isTime, rvcTime, timeShift});
+				console.log('Seeking', {
+					shouldBeTime,
+					isTime: mediaTagTime,
+					rvcTime,
+					timeShift,
+				});
 			}
 
 			seek(mediaRef, shouldBeTime);
-			if (playing) {
-				bufferUntilFirstFrame();
+			lastSeekDueToShift.current = shouldBeTime;
+			if (playing && !isVariableFpsVideo) {
+				bufferUntilFirstFrame(shouldBeTime);
 				if (mediaRef.current.paused) {
 					playAndHandleNotAllowedError(mediaRef, mediaType);
 				}
@@ -220,7 +255,9 @@ export const useMediaPlayback = ({
 			}
 
 			playAndHandleNotAllowedError(mediaRef, mediaType);
-			bufferUntilFirstFrame();
+			if (!isVariableFpsVideo) {
+				bufferUntilFirstFrame(shouldBeTime);
+			}
 		}
 	}, [
 		absoluteFrame,

@@ -221,7 +221,7 @@ pub mod payloads {
         pub fps: f32,
         pub width: u32,
         pub height: u32,
-        pub durationInSeconds: f64,
+        pub durationInSeconds: Option<f64>,
         pub codec: KnownCodecs,
         pub canPlayInVideoTag: bool,
         pub supportsSeeking: bool,
