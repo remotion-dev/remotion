@@ -1,41 +1,71 @@
 import React, {useMemo} from 'react';
 
 export type TransitionState = {
-	progress: number;
-	direction: 'entering' | 'exiting';
+	entering: number;
+	exiting: number;
+	isInTransitionSeries: boolean;
 };
 
-const NonePresentationContext = React.createContext<TransitionState | null>(
-	null,
-);
+type EnteringState = {
+	enteringProgress: number;
+};
 
-export const WrapInProgressContext: React.FC<{
-	presentationProgress: number;
-	presentationDirection: 'entering' | 'exiting';
-	children: React.ReactNode;
-}> = ({presentationDirection, presentationProgress, children}) => {
-	const value: TransitionState = useMemo(() => {
+type ExitingState = {
+	exitingProgress: number;
+};
+
+const EnteringContext = React.createContext<EnteringState | null>(null);
+const ExitingContext = React.createContext<ExitingState | null>(null);
+
+export const WrapInEnteringProgressContext: React.FC<{
+	readonly presentationProgress: number;
+	readonly children: React.ReactNode;
+}> = ({presentationProgress, children}) => {
+	const value: EnteringState = useMemo(() => {
 		return {
-			progress: presentationProgress,
-			direction: presentationDirection,
+			enteringProgress: presentationProgress,
 		};
-	}, [presentationDirection, presentationProgress]);
+	}, [presentationProgress]);
 
 	return (
-		<NonePresentationContext.Provider value={value}>
+		<EnteringContext.Provider value={value}>
 			{children}
-		</NonePresentationContext.Provider>
+		</EnteringContext.Provider>
+	);
+};
+
+export const WrapInExitingProgressContext: React.FC<{
+	readonly presentationProgress: number;
+	readonly children: React.ReactNode;
+}> = ({presentationProgress, children}) => {
+	const value: ExitingState = useMemo(() => {
+		return {
+			exitingProgress: presentationProgress,
+		};
+	}, [presentationProgress]);
+
+	return (
+		<ExitingContext.Provider value={value}>{children}</ExitingContext.Provider>
 	);
 };
 
 /**
  * Gets the progress and direction of a transition with a context() presentation.
  */
-export const useProgress = () => {
-	const value = React.useContext(NonePresentationContext);
-	if (!value) {
-		return null;
+export const useTransitionProgress = (): TransitionState => {
+	const entering = React.useContext(EnteringContext);
+	const exiting = React.useContext(ExitingContext);
+	if (!entering && !exiting) {
+		return {
+			isInTransitionSeries: false,
+			entering: 1,
+			exiting: 0,
+		};
 	}
 
-	return value;
+	return {
+		isInTransitionSeries: true,
+		entering: entering?.enteringProgress ?? 1,
+		exiting: exiting?.exitingProgress ?? 0,
+	};
 };

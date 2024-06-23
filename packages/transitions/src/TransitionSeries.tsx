@@ -7,7 +7,10 @@ import type {
 } from 'remotion';
 import {Internals, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {WrapInProgressContext} from './context.js';
+import {
+	WrapInEnteringProgressContext,
+	WrapInExitingProgressContext,
+} from './context.js';
 import {flattenChildren} from './flatten-children.js';
 import {slide} from './presentations/slide.js';
 import type {TransitionSeriesTransitionProps} from './types.js';
@@ -253,10 +256,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 								{fps},
 							)}
 						>
-							<WrapInProgressContext
-								presentationDirection="exiting"
-								presentationProgress={nextProgress}
-							>
+							<WrapInExitingProgressContext presentationProgress={nextProgress}>
 								<UppercasePrevPresentation
 									passedProps={prevPresentation.props ?? {}}
 									presentationDirection="entering"
@@ -265,14 +265,13 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 										{fps},
 									)}
 								>
-									<WrapInProgressContext
-										presentationDirection="entering"
+									<WrapInEnteringProgressContext
 										presentationProgress={prevProgress}
 									>
 										{child}
-									</WrapInProgressContext>
+									</WrapInEnteringProgressContext>
 								</UppercasePrevPresentation>
-							</WrapInProgressContext>
+							</WrapInExitingProgressContext>
 						</UppercaseNextPresentation>
 					</Sequence>
 				);
@@ -300,12 +299,11 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 								{fps},
 							)}
 						>
-							<WrapInProgressContext
-								presentationDirection="entering"
+							<WrapInEnteringProgressContext
 								presentationProgress={prevProgress}
 							>
 								{child}
-							</WrapInProgressContext>
+							</WrapInEnteringProgressContext>
 						</UppercasePrevPresentation>
 					</Sequence>
 				);
@@ -333,12 +331,9 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 								{fps},
 							)}
 						>
-							<WrapInProgressContext
-								presentationDirection="exiting"
-								presentationProgress={nextProgress}
-							>
+							<WrapInExitingProgressContext presentationProgress={nextProgress}>
 								{child}
-							</WrapInProgressContext>
+							</WrapInExitingProgressContext>
 						</UppercaseNextPresentation>
 					</Sequence>
 				);
