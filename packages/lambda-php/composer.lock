@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c236ae51ccee0a544bdd0e4332102a06",
+    "content-hash": "6b8a201129927b718f0197075c3f5135",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -62,16 +62,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.314.5",
+            "version": "3.314.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "0c1adaa22c3d333ac20dcc87dd355e9a013a05fd"
+                "reference": "d04da330b0201edab71edd33a03b8d5ad6e4a313"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/0c1adaa22c3d333ac20dcc87dd355e9a013a05fd",
-                "reference": "0c1adaa22c3d333ac20dcc87dd355e9a013a05fd",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/d04da330b0201edab71edd33a03b8d5ad6e4a313",
+                "reference": "d04da330b0201edab71edd33a03b8d5ad6e4a313",
                 "shasum": ""
             },
             "require": {
@@ -151,9 +151,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.314.5"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.314.6"
             },
-            "time": "2024-06-19T18:11:48+00:00"
+            "time": "2024-06-20T18:09:51+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -1458,16 +1458,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "10.5.23",
+            "version": "10.5.24",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "12826591cc32fa0959b7e7577a90c3f527e377b2"
+                "reference": "5f124e3e3e561006047b532fd0431bf5bb6b9015"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/12826591cc32fa0959b7e7577a90c3f527e377b2",
-                "reference": "12826591cc32fa0959b7e7577a90c3f527e377b2",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/5f124e3e3e561006047b532fd0431bf5bb6b9015",
+                "reference": "5f124e3e3e561006047b532fd0431bf5bb6b9015",
                 "shasum": ""
             },
             "require": {
@@ -1539,7 +1539,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.23"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.24"
             },
             "funding": [
                 {
@@ -1555,7 +1555,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-06-20T07:29:28+00:00"
+            "time": "2024-06-20T13:09:54+00:00"
         },
         {
             "name": "sebastian/cli-parser",
