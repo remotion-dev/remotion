@@ -1,0 +1,33 @@
+---
+image: /generated/articles-docs-recorder-exporting-subtitles.png
+title: Exporting subtitles
+sidebar_label: Subtitles
+crumb: Recorder
+---
+
+## Non-landscape layout
+
+If you export a video in the `square` layout, then the subtitles will be burned into the video.
+
+The idea behind this is that the square videos are posted on platforms like x.com and LinkedIn, where the video appears in a feed, muted by default.  
+It is important that the subtitles are always visible and have a large font size.
+
+## Landscape layout
+
+If you export a video in the `landscape` layout, then the subtitles will be by default exported as a `.srt` file, located in `out/[composition-id]/captions.srt`.  
+This is caused by the use of the [`<Artifact>`](/docs/artifact) API in [`remotion/captions/srt/EmitSrtFile.tsx`](https://github.com/remotion-dev/recorder/blob/main/remotion/captions/srt/EmitSrtFile.tsx).
+
+When posting to YouTube, you should upload the SRT file alongside your video, so that viewers can use the native YouTube feature to toggle the subtitles and adjust the font size.
+
+## Burn subtitles
+
+If you want to burn the subtitles into the video in landscape layout, edit the [`remotion/captions/srt/SrtPreviewAndEditor/SrtPreviewAndEditor.tsx`](https://github.com/remotion-dev/recorder/blob/main/remotion/captions/srt/SrtPreviewAndEditor/SrtPreviewAndEditor.tsx) file and delete the following lines:
+
+```diff title="remotion/captions/srt/SrtPreviewAndEditor/SrtPreviewAndEditor.tsx"
+-  // During rendering, you will get the actual .srt file instead of the preview.
+-  if (getRemotionEnvironment().isRendering) {
+-    return null;
+-  }
+```
+
+Now your video will include the subtitles as an overlay on top of the video.
