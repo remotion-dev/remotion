@@ -966,7 +966,19 @@ module.exports = {
         "recorder/buy",
         "recorder/setup",
         "recorder/create",
-        "recorder/record",
+        {
+          type: "category",
+          label: "Record",
+          link: {
+            type: "doc",
+            id: "recorder/record/index",
+          },
+          items: [
+            "recorder/record/index",
+            "recorder/record/manually",
+            "recorder/record/delete",
+          ],
+        },
         "recorder/captions",
         {
           type: "category",
