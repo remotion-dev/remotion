@@ -977,6 +977,7 @@ module.exports = {
             "recorder/record/index",
             "recorder/record/manually",
             "recorder/record/delete",
+            "recorder/record/cropping",
           ],
         },
         "recorder/captions",
