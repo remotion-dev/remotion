@@ -969,10 +969,6 @@ module.exports = {
         {
           type: "category",
           label: "Record",
-          link: {
-            type: "doc",
-            id: "recorder/record/index",
-          },
           items: [
             "recorder/record/index",
             "recorder/record/manually",
@@ -997,10 +993,19 @@ module.exports = {
             "recorder/editing/music",
             "recorder/editing/b-roll",
             "recorder/editing/cutting-clips",
+            "recorder/editing/normalizing-audio",
           ],
         },
-        "recorder/exporting",
-        "recorder/lambda-rendering",
+        {
+          type: "category",
+          label: "Exporting",
+          collapsed: false,
+          items: [
+            "recorder/exporting",
+            "recorder/lambda-rendering",
+            "recorder/exporting-subtitles",
+          ],
+        },
         "recorder/source-control",
         "recorder/external-recordings",
         "recorder/upgrading",

@@ -2382,6 +2382,13 @@ export const articles = [
     crumb: "Recorder",
   },
   {
+    id: "recorder/editing/normalizing-audio",
+    title: "Normalizing audio levels",
+    relativePath: "docs/recorder/editing/normalizing-audio.mdx",
+    compId: "articles-docs-recorder-editing-normalizing-audio",
+    crumb: "Recorder",
+  },
+  {
     id: "recorder/editing/scenes",
     title: "Scenes",
     relativePath: "docs/recorder/editing/scenes.mdx",
@@ -2400,6 +2407,13 @@ export const articles = [
     title: "Transitions",
     relativePath: "docs/recorder/editing/transitions.mdx",
     compId: "articles-docs-recorder-editing-transitions",
+    crumb: "Recorder",
+  },
+  {
+    id: "recorder/exporting-subtitles",
+    title: "Exporting subtitles",
+    relativePath: "docs/recorder/exporting-subtitles.mdx",
+    compId: "articles-docs-recorder-exporting-subtitles",
     crumb: "Recorder",
   },
   {
