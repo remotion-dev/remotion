@@ -49,7 +49,7 @@ export type OffthreadVideoProps = {
 	volume?: VolumeProp;
 	playbackRate?: number;
 	muted?: boolean;
-	onError?: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement>;
+	onError?: (err: Error) => void;
 	acceptableTimeShiftInSeconds?: number;
 	allowAmplificationDuringRender?: boolean;
 	toneFrequency?: number;
