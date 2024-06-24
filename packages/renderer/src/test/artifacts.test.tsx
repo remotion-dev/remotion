@@ -2,9 +2,9 @@
 /**
  * @vitest-environment jsdom
  */
+import {expect, test} from 'bun:test';
 import React from 'react';
 import {Artifact, useCurrentFrame} from 'remotion';
-import {expect, test} from 'vitest';
 import {getAssetsForMarkup} from './get-assets-for-markup';
 
 const basicConfig = {

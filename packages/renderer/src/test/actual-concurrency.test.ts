@@ -1,5 +1,5 @@
+import {expect, test} from 'bun:test';
 import os from 'node:os';
-import {expect, test} from 'vitest';
 import {getActualConcurrency} from '../get-concurrency';
 
 test('Actual concurrency null should choose a good result', () => {

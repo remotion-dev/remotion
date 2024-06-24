@@ -1,5 +1,5 @@
+import {expect, test} from 'bun:test';
 import {unlinkSync} from 'node:fs';
-import {expect, test} from 'vitest';
 import {extractAudio} from '../extract-audio';
 import {exampleVideos} from './example-videos';
 

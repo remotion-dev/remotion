@@ -1,4 +1,4 @@
-import {describe, expect, test} from 'vitest';
+import {describe, expect, test} from 'bun:test';
 import {calculateATempo} from '../assets/calculate-atempo';
 
 describe('Calculate atempo', () => {

@@ -1,10 +1,7 @@
 /* eslint-disable no-restricted-imports */
-/**
- * @vitest-environment jsdom
- */
+import {expect, test} from 'bun:test';
 import React from 'react';
 import {Audio, interpolate, Sequence, useCurrentFrame, Video} from 'remotion';
-import {expect, test} from 'vitest';
 import {calculateAssetPositions} from '../assets/calculate-asset-positions';
 import type {MediaAsset} from '../assets/types';
 import {onlyAudioAndVideoAssets} from '../filter-asset-types';

@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {getFrameOutputFileName} from '../get-frame-padded-index';
 
 test('Get frame padded index', () => {

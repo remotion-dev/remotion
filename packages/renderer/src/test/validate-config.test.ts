@@ -1,4 +1,4 @@
-import {describe, expect, test} from 'vitest';
+import {describe, expect, test} from 'bun:test';
 import {renderFrames} from '../render-frames';
 
 describe('Should validate invalid data passed to renderFrames', () => {
