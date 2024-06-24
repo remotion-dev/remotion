@@ -6,7 +6,7 @@
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
-		"test": "vitest --run",
+		"test": "bun test src",
 		"formatting": "prettier src --check"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
@@ -45,8 +45,7 @@
 		"eslint-plugin-react-hooks": "4.4.0",
 		"prettier": "3.2.5",
 		"@types/semver": "^7.3.4",
-		"prettier-plugin-organize-imports": "3.2.4",
-		"vitest": "0.31.1"
+		"prettier-plugin-organize-imports": "3.2.4"
 	},
 	"exports": {
 		".": "./dist/index.js",
