@@ -3317,6 +3317,13 @@ export const articles = [
     crumb: "@remotion/transitions",
   },
   {
+    id: "transitions/presentations/none",
+    title: "none()",
+    relativePath: "docs/transitions/presentations/none.mdx",
+    compId: "articles-docs-transitions-presentations-none",
+    crumb: "@remotion/transitions - Presentations",
+  },
+  {
     id: "transitions/presentations/slide",
     title: "slide()",
     relativePath: "docs/transitions/presentations/slide.mdx",
@@ -3363,6 +3370,13 @@ export const articles = [
     title: "<TransitionSeries>",
     relativePath: "docs/transitions/transitionseries.mdx",
     compId: "articles-docs-transitions-transitionseries",
+    crumb: "@remotion/transitions",
+  },
+  {
+    id: "transitions/use-transition-progress",
+    title: "useTransitionProgress()",
+    relativePath: "docs/transitions/use-transition-progress.mdx",
+    compId: "articles-docs-transitions-use-transition-progress",
     crumb: "@remotion/transitions",
   },
   {
