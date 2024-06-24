@@ -113,6 +113,6 @@ test("Should not return duration in variable fps video", async () => {
   );
   expect(existsSync(video)).toEqual(true);
 
-  const hi = await getVideoMetadata(video, { logLevel: "verbose" });
-  console.log(hi);
+  const hi = await getVideoMetadata(video, { logLevel: "info" });
+  expect(hi.durationInSeconds).toBe(null);
 });

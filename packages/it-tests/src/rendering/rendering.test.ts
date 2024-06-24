@@ -533,24 +533,30 @@ test("Should be able to render a huge payload that gets serialized", async () =>
   fs.unlinkSync(outputPath.replace(".mp4", ".png"));
 });
 
-test("If timeout, the error should be shown", async () => {
-  const task = await execa(
-    "pnpm",
-    [
-      "exec",
-      "remotion",
-      "render",
-      "build",
-      "Timeout",
-      outputPath,
-      "--timeout=7000",
-    ],
-    {
-      cwd: path.join(process.cwd(), "..", "example"),
-      reject: false,
-    }
-  );
+test(
+  "If timeout, the error should be shown",
+  async () => {
+    const task = await execa(
+      "pnpm",
+      [
+        "exec",
+        "remotion",
+        "render",
+        "build",
+        "Timeout",
+        outputPath,
+        "--timeout=7000",
+      ],
+      {
+        cwd: path.join(process.cwd(), "..", "example"),
+        reject: false,
+      }
+    );
 
-  expect(task.exitCode).toBe(1);
-  expect(task.stderr).toContain("This error should appear");
-});
+    expect(task.exitCode).toBe(1);
+    expect(task.stderr).toContain("This error should appear");
+  },
+  {
+    timeout: 30000,
+  }
+);

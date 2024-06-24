@@ -13,7 +13,7 @@ test("Should not be able to bundle @remotion/lambda directly", async () => {
       entryPoints: [require.resolve("@remotion/lambda")],
       logLevel: "silent",
     })
-  ).rejects.toThrow(/Could not resolve "pnpapi"/);
+  ).toThrow(/Could not resolve "pnpapi"/);
 });
 
 describe("Should be able to bundle @remotion/lambda/client with ESBuild", () => {

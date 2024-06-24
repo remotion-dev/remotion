@@ -1299,12 +1299,6 @@ importers:
       sharp:
         specifier: 0.32.6
         version: 0.32.6
-      vite:
-        specifier: ^4.5.3
-        version: 4.5.3(@types/node@18.14.6)(sass@1.77.2)
-      vitest:
-        specifier: 0.31.1
-        version: 0.31.1(happy-dom@14.5.1)(jsdom@21.1.0)
 
   packages/lambda:
     dependencies:
@@ -2075,9 +2069,6 @@ importers:
       react:
         specifier: 18.3.1
         version: 18.3.1
-      vitest:
-        specifier: 0.31.1
-        version: 0.31.1(happy-dom@14.5.1)(jsdom@21.1.0)
 
   packages/studio-shared:
     dependencies:

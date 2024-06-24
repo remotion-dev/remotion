@@ -95,12 +95,24 @@ test("should render correct frames from embedded videos - WebM offthread", async
   expect(missedFrames).toBe(0);
 });
 
-test("should render correct frames from embedded videos - MP4 onthread", async () => {
-  const missedFrames = await getMissedFramesforCodec("mp4", false);
-  expect(missedFrames).toBeLessThanOrEqual(8);
-});
+test(
+  "should render correct frames from embedded videos - MP4 onthread",
+  async () => {
+    const missedFrames = await getMissedFramesforCodec("mp4", false);
+    expect(missedFrames).toBeLessThanOrEqual(8);
+  },
+  {
+    timeout: 40000,
+  }
+);
 
-test("should render correct frames from embedded videos - MP4 offthread", async () => {
-  const missedFrames = await getMissedFramesforCodec("mp4", true);
-  expect(missedFrames).toBe(0);
-});
+test(
+  "should render correct frames from embedded videos - MP4 offthread",
+  async () => {
+    const missedFrames = await getMissedFramesforCodec("mp4", true);
+    expect(missedFrames).toBe(0);
+  },
+  {
+    timeout: 40000,
+  }
+);

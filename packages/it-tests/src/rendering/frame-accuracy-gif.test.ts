@@ -104,5 +104,6 @@ test(
   },
   {
     retry: 2,
+    timeout: 40000,
   }
 );

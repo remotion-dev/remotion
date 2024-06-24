@@ -1,9 +1,21 @@
 import path from "path";
 import fs from "fs";
-import { beforeEach, expect, test } from "vitest";
+import { beforeAll, beforeEach, expect, test } from "bun:test";
 import execa from "execa";
 
 const outputPath = path.join(process.cwd(), "packages/example/out.mp4");
+
+beforeAll(async () => {
+  /**
+   * Before running any of these tests, we should bundle the example project. In the CI, this is already done.
+   */
+  if (process.env.CI) {
+    return;
+  }
+  await execa("pnpm", ["exec", "remotion", "bundle"], {
+    cwd: path.join(process.cwd(), "..", "example"),
+  });
+});
 
 beforeEach(() => {
   if (fs.existsSync(outputPath)) {
@@ -18,6 +30,7 @@ test("Should fail to render if cancelRender() was being used", async () => {
       "exec",
       "remotion",
       "render",
+      "build",
       "cancel-render",
       "--frames=2-10",
       outputPath,
