@@ -1,7 +1,7 @@
 import { execSync } from "child_process";
 import { readFileSync, writeFileSync } from "fs";
 import path from "path";
-import { expect, test } from "vitest";
+import { expect, test } from "bun:test";
 import { LambdaInternals } from "@remotion/lambda";
 
 test("Set the right version for gotest", () => {

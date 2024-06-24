@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs";
 import execa from "execa";
-import { expect, test } from "vitest";
+import { expect, test } from "bun:test";
 
 test("Should be able to render if remotion.config.ts is not provided", async () => {
   const outputPath = path.join(process.cwd(), "packages/example/out.mp3");

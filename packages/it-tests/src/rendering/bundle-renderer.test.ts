@@ -3,7 +3,7 @@ import { execSync } from "node:child_process";
 import { RenderInternals } from "@remotion/renderer";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "vitest";
+import { expect, test } from "bun:test";
 import { exampleVideos } from "./example-videos";
 import { copyFileSync, cpSync, readdirSync, rmSync } from "node:fs";
 

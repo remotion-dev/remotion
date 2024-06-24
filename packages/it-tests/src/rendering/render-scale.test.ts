@@ -1,7 +1,7 @@
 import fs from "fs";
 import execa from "execa";
 import path from "path";
-import { beforeEach, expect, test } from "vitest";
+import { beforeEach, expect, test } from "bun:test";
 import { RenderInternals } from "@remotion/renderer";
 
 const outputPath = path.join(process.cwd(), "packages/example/out.mp4");

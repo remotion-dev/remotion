@@ -1,6 +1,6 @@
 import path from "path";
 import execa from "execa";
-import { expect, test } from "vitest";
+import { expect, test } from "bun:test";
 
 test("Should be able to call pnpm exec compositions", async () => {
   const task = await execa(

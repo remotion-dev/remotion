@@ -4,7 +4,7 @@ import os from "os";
 import path from "path";
 import sharp from "sharp";
 import { random } from "remotion";
-import { expect, test } from "vitest";
+import { expect, test } from "bun:test";
 import { RenderInternals } from "@remotion/renderer";
 
 function selectColor(color: string, frame: number) {

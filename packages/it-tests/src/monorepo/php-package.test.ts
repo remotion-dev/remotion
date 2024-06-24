@@ -1,7 +1,7 @@
 import { execSync } from "child_process";
 import { readFileSync, writeFileSync } from "fs";
 import path from "path";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "bun:test";
 import { LambdaInternals } from "@remotion/lambda";
 
 const referenceVersion = readFileSync(

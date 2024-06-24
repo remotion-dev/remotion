@@ -1,7 +1,7 @@
 import fs from "fs";
 import execa from "execa";
 import path from "path";
-import { afterEach, beforeEach, test, expect } from "vitest";
+import { afterEach, beforeEach, test, expect } from "bun:test";
 
 const outputPath = path.join(process.cwd(), "packages/example/out.png");
 

@@ -2,7 +2,7 @@ import { BundlerInternals } from "@remotion/bundler";
 import fs from "fs";
 import { tmpdir } from "os";
 import path from "path";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "bun:test";
 
 test("Should not be able to bundle @remotion/cloudrun directly", async () => {
   expect(() =>

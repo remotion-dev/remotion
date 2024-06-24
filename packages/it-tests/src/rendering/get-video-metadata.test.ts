@@ -1,5 +1,5 @@
 import path from "node:path";
-import { expect, test } from "vitest";
+import { expect, test } from "bun:test";
 import { getVideoMetadata, VideoMetadata } from "@remotion/renderer";
 
 import { existsSync } from "node:fs";
