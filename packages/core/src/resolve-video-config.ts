@@ -3,11 +3,7 @@ import type {
 	CalcMetadataReturnType,
 	CalculateMetadataFunction,
 } from './Composition.js';
-import {getRemotionEnvironment} from './get-remotion-environment.js';
-import {
-	deserializeJSONWithCustomFields,
-	serializeJSONWithDate,
-} from './input-props-serialization.js';
+import {serializeThenDeserializeInStudio} from './input-props-serialization.js';
 import type {InferProps} from './props-if-has-props.js';
 import {validateDefaultCodec} from './validation/validate-default-codec.js';
 import {validateDimension} from './validation/validate-dimensions.js';
@@ -69,22 +65,6 @@ const validateCalculated = ({
 	validateDefaultCodec(defaultCodec, calculateMetadataErrorLocation);
 
 	return {width, height, fps, durationInFrames, defaultCodec};
-};
-
-const serializeThenDeserializeInStudio = (props: Record<string, unknown>) => {
-	// Serializing once in the Studio, to catch potential serialization errors before
-	// you only get them during rendering
-	if (getRemotionEnvironment().isStudio) {
-		return deserializeJSONWithCustomFields(
-			serializeJSONWithDate({
-				data: props,
-				indent: 2,
-				staticBase: window.remotion_staticBase,
-			}).serializedString,
-		);
-	}
-
-	return props;
 };
 
 type ResolveVideoConfigParams = {

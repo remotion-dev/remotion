@@ -483,14 +483,7 @@ export const Index: React.FC = () => {
 					durationInFrames={30}
 					fps={30}
 					defaultProps={{
-						calculated: new Vector2(10, 10),
-					}}
-					calculateMetadata={() => {
-						return {
-							props: {
-								calculated: new Vector2(10, 10),
-							},
-						};
+						calculated: new Vector2(15, 10),
 					}}
 				/>
 			</Folder>

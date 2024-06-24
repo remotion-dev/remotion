@@ -71,7 +71,13 @@ If you use `lazyComponent`, Remotion will use React Suspense to load the compone
 
 _optional_
 
-Give your component default props. Default props can be overriden using the [Props editor](/docs/visual-editing) and with [Input Props](/docs/props-resolution)
+Give your component default props. Default props can be overriden using the [Props editor](/docs/visual-editing) and with [Input Props](/docs/props-resolution).
+
+Props must be an object that contains only pure JSON-serializable values.  
+Functions, classes, and other non-serializable values will be lost while rendering.  
+(This restriction does not apply to the [`<Player>`](/docs/player/api), where you are allowed to pass functions as props.)
+
+You may in addition use `Date`, `Map`, `Set` and [`staticFile()`](/docs/staticfile) in your default props and Remotion will guarantee the proper serialization.
 
 :::note
 Type your components using the `React.FC<{}>` type and the `defaultProps` prop will be typesafe.
