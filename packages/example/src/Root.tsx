@@ -806,6 +806,7 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={720}
+					lazyComponent={undefined}
 				/>
 				<Composition
 					id="22khz"
