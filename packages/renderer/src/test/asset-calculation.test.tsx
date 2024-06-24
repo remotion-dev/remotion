@@ -1,7 +1,6 @@
-/* eslint-disable no-restricted-imports */
 import {expect, test} from 'bun:test';
 import React from 'react';
-import {Audio, interpolate, Sequence, useCurrentFrame, Video} from 'remotion';
+import {Audio, Sequence, Video, interpolate, useCurrentFrame} from 'remotion';
 import {calculateAssetPositions} from '../assets/calculate-asset-positions';
 import type {MediaAsset} from '../assets/types';
 import {onlyAudioAndVideoAssets} from '../filter-asset-types';
