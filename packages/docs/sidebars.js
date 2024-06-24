@@ -460,6 +460,7 @@ module.exports = {
       },
       items: [
         "transitions/transitionseries",
+        "transitions/use-transition-progress",
         {
           type: "category",
           label: "Timings",
@@ -486,6 +487,7 @@ module.exports = {
             "transitions/presentations/wipe",
             "transitions/presentations/flip",
             "transitions/presentations/clock-wipe",
+            "transitions/presentations/none",
             {
               type: "doc",
               id: "transitions/presentations/cube",
