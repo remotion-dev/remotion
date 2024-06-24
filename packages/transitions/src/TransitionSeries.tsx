@@ -7,11 +7,11 @@ import type {
 } from 'remotion';
 import {Internals, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {flattenChildren} from './flatten-children.js';
 import {
 	WrapInEnteringProgressContext,
 	WrapInExitingProgressContext,
-} from './none.js';
+} from './context.js';
+import {flattenChildren} from './flatten-children.js';
 import {slide} from './presentations/slide.js';
 import type {TransitionSeriesTransitionProps} from './types.js';
 import {validateDurationInFrames} from './validate.js';
