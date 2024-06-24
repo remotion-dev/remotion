@@ -27,40 +27,46 @@ export const serializeJSONWithDate = ({
 	let mapUsed = false;
 	let setUsed = false;
 
-	const serializedString = JSON.stringify(
-		data,
-		function (key, value) {
-			const item = (this as Record<string, unknown>)[key];
-			if (item instanceof Date) {
-				customDateUsed = true;
-				return `${DATE_TOKEN}${item.toISOString()}`;
-			}
+	try {
+		const serializedString = JSON.stringify(
+			data,
+			function (key, value) {
+				const item = (this as Record<string, unknown>)[key];
+				if (item instanceof Date) {
+					customDateUsed = true;
+					return `${DATE_TOKEN}${item.toISOString()}`;
+				}
 
-			if (item instanceof Map) {
-				mapUsed = true;
+				if (item instanceof Map) {
+					mapUsed = true;
+					return value;
+				}
+
+				if (item instanceof Set) {
+					setUsed = true;
+					return value;
+				}
+
+				if (
+					typeof item === 'string' &&
+					staticBase !== null &&
+					item.startsWith(staticBase)
+				) {
+					customFileUsed = true;
+					return `${FILE_TOKEN}${item.replace(staticBase + '/', '')}`;
+				}
+
 				return value;
-			}
-
-			if (item instanceof Set) {
-				setUsed = true;
-				return value;
-			}
-
-			if (
-				typeof item === 'string' &&
-				staticBase !== null &&
-				item.startsWith(staticBase)
-			) {
-				customFileUsed = true;
-				return `${FILE_TOKEN}${item.replace(staticBase + '/', '')}`;
-			}
-
-			return value;
-		},
-		indent,
-	);
-
-	return {serializedString, customDateUsed, customFileUsed, mapUsed, setUsed};
+			},
+			indent,
+		);
+		return {serializedString, customDateUsed, customFileUsed, mapUsed, setUsed};
+	} catch (err) {
+		throw new Error(
+			'Could not serialize the passed input props to JSON: ' +
+				(err as Error).message,
+		);
+	}
 };
 
 export const deserializeJSONWithCustomFields = <T = Record<string, unknown>>(

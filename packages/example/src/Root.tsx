@@ -432,6 +432,31 @@ export const Index: React.FC = () => {
 						height={720}
 					/>
 				</MyCtx.Provider>
+				<Composition
+					id="circular-structure"
+					component={Framer}
+					width={1080}
+					height={1080}
+					durationInFrames={30}
+					fps={30}
+					calculateMetadata={() => {
+						const objectA = {
+							name: 'Object A',
+						};
+
+						const objectB = {
+							name: 'Object B',
+							linkedObject: objectA, // ObjectB links to objectA
+						};
+
+						// @ts-expect-error linked object
+						objectA.linkedObject = objectB;
+
+						return {
+							props: objectA,
+						};
+					}}
+				/>
 			</Folder>
 			<Folder name="creatives">
 				<Composition

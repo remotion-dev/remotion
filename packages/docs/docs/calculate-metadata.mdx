@@ -85,7 +85,7 @@ As argument, you get an object with the following properties:
 
 The function must return an pure JSON-serializable object, which can contain the following properties:
 
-- `props` _optional_: The [final props](/docs/props-resolution) the component receives. It must have the [same shape](/docs/data-fetching#usage) as the `props` received by this function. The props must be a plain object and must not contain any non-JSON-serializable values, except `Date`.
+- `props` _optional_: The [final props](/docs/props-resolution) the component receives. It must have the [same shape](/docs/data-fetching#usage) as the `props` received by this function. The props must be a plain object and must not contain any non-JSON-serializable values, except `Date`, `Map`, `Set` and [`staticFile()`](/docs/staticfile).
 - `durationInFrames` _optional_: The duration of the composition in frames
 - `width` _optional_: The width of the composition in pixels
 - `height` _optional_: The height of the composition in pixels

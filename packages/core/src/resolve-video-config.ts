@@ -3,6 +3,11 @@ import type {
 	CalcMetadataReturnType,
 	CalculateMetadataFunction,
 } from './Composition.js';
+import {getRemotionEnvironment} from './get-remotion-environment.js';
+import {
+	deserializeJSONWithCustomFields,
+	serializeJSONWithDate,
+} from './input-props-serialization.js';
 import type {InferProps} from './props-if-has-props.js';
 import {validateDefaultCodec} from './validation/validate-default-codec.js';
 import {validateDimension} from './validation/validate-dimensions.js';
@@ -66,17 +71,23 @@ const validateCalculated = ({
 	return {width, height, fps, durationInFrames, defaultCodec};
 };
 
-export const resolveVideoConfig = ({
-	calculateMetadata,
-	signal,
-	defaultProps,
-	originalProps,
-	compositionId,
-	compositionDurationInFrames,
-	compositionFps,
-	compositionHeight,
-	compositionWidth,
-}: {
+const serializeThenDeserializeInStudio = (props: Record<string, unknown>) => {
+	// Serializing once in the Studio, to catch potential serialization errors before
+	// you only get them during rendering
+	if (getRemotionEnvironment().isStudio) {
+		return deserializeJSONWithCustomFields(
+			serializeJSONWithDate({
+				data: props,
+				indent: 2,
+				staticBase: window.remotion_staticBase,
+			}).serializedString,
+		);
+	}
+
+	return props;
+};
+
+type ResolveVideoConfigParams = {
 	compositionId: string;
 	compositionWidth: number | null;
 	compositionHeight: number | null;
@@ -88,7 +99,19 @@ export const resolveVideoConfig = ({
 	signal: AbortSignal;
 	defaultProps: Record<string, unknown>;
 	originalProps: Record<string, unknown>;
-}): VideoConfig | Promise<VideoConfig> => {
+};
+
+export const resolveVideoConfig = ({
+	calculateMetadata,
+	signal,
+	defaultProps,
+	originalProps,
+	compositionId,
+	compositionDurationInFrames,
+	compositionFps,
+	compositionHeight,
+	compositionWidth,
+}: ResolveVideoConfigParams): VideoConfig | Promise<VideoConfig> => {
 	const calculatedProm = calculateMetadata
 		? calculateMetadata({
 				defaultProps,
@@ -119,8 +142,8 @@ export const resolveVideoConfig = ({
 				fps,
 				durationInFrames,
 				id: compositionId,
-				defaultProps,
-				props: c.props ?? originalProps,
+				defaultProps: serializeThenDeserializeInStudio(defaultProps),
+				props: serializeThenDeserializeInStudio(c.props ?? originalProps),
 				defaultCodec: defaultCodec ?? null,
 			};
 		});
@@ -139,8 +162,8 @@ export const resolveVideoConfig = ({
 		return {
 			...data,
 			id: compositionId,
-			defaultProps: defaultProps ?? {},
-			props: originalProps,
+			defaultProps: serializeThenDeserializeInStudio(defaultProps ?? {}),
+			props: serializeThenDeserializeInStudio(originalProps),
 			defaultCodec: null,
 		};
 	}
@@ -148,8 +171,35 @@ export const resolveVideoConfig = ({
 	return {
 		...data,
 		id: compositionId,
-		defaultProps: defaultProps ?? {},
-		props: calculatedProm.props ?? originalProps,
+		defaultProps: serializeThenDeserializeInStudio(defaultProps ?? {}),
+		props: serializeThenDeserializeInStudio(
+			calculatedProm.props ?? originalProps,
+		),
 		defaultCodec: calculatedProm.defaultCodec ?? null,
 	};
+};
+
+export const resolveVideoConfigOrCatch = (
+	params: ResolveVideoConfigParams,
+):
+	| {
+			type: 'success';
+			result: VideoConfig | Promise<VideoConfig>;
+	  }
+	| {
+			type: 'error';
+			error: Error;
+	  } => {
+	try {
+		const promiseOrReturnValue = resolveVideoConfig(params);
+		return {
+			type: 'success',
+			result: promiseOrReturnValue,
+		};
+	} catch (err) {
+		return {
+			type: 'error',
+			error: err as Error,
+		};
+	}
 };
