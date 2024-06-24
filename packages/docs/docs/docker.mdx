@@ -130,9 +130,12 @@ const bundled = await bundle({
   webpackOverride: (config) => config,
 });
 
+const inputProps = {};
+
 const composition = await selectComposition({
   serveUrl: bundled,
   id: "MyComp",
+  inputProps,
 });
 
 console.log("Starting to render composition");
@@ -145,6 +148,7 @@ await renderMedia({
   chromiumOptions: {
     enableMultiProcessOnLinux: true,
   },
+  inputProps,
 });
 
 console.log(`Rendered composition ${composition.id}.`);

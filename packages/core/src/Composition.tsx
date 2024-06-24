@@ -14,6 +14,7 @@ import {useResolvedVideoConfig} from './ResolveCompositionConfig.js';
 import type {Codec} from './codec.js';
 import {continueRender, delayRender} from './delay-render.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
+import {serializeThenDeserializeInStudio} from './input-props-serialization.js';
 import {useIsPlayer} from './is-player.js';
 import {Loading} from './loading-indicator.js';
 import {useNonce} from './nonce.js';
@@ -194,7 +195,9 @@ export const Composition = <
 			id,
 			folderName,
 			component: lazy,
-			defaultProps: defaultProps as z.output<Schema> & Props,
+			defaultProps: serializeThenDeserializeInStudio(
+				(defaultProps ?? {}) as z.output<Schema> & Props,
+			) as z.output<Schema> & Props,
 			nonce,
 			parentFolderName: parentName,
 			schema: schema ?? null,

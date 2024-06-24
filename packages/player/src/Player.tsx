@@ -407,7 +407,7 @@ const forward = forwardRef as <T, P = {}>(
 
 /**
  * @description Creates and renders a customizable video player with various interactive controls for a React application.
- * @see [Documentation](https://remotion.dev/docs/player/api)
+ * @see [Documentation](https://remotion.dev/docs/player/player)
  * @param {PlayerProps<Schema, Props>} props The properties for configuring the player, including video specifics and UI controls.
  * @param {MutableRefObject<PlayerRef>} ref Reference to the player for controlling playback, volume, and other aspects.
  * @returns {JSX.Element} The rendered video player component.

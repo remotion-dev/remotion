@@ -18,7 +18,7 @@ import {getInputProps} from './config/input-props.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {NonceContext} from './nonce.js';
 import type {InferProps} from './props-if-has-props.js';
-import {resolveVideoConfig} from './resolve-video-config.js';
+import {resolveVideoConfigOrCatch} from './resolve-video-config.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import {validateFps} from './validation/validate-fps.js';
@@ -137,7 +137,7 @@ export const ResolveCompositionConfig: React.FC<
 
 			const {signal} = controller;
 
-			const promOrNot = resolveVideoConfig({
+			const result = resolveVideoConfigOrCatch({
 				compositionId,
 				calculateMetadata,
 				originalProps: combinedProps,
@@ -148,6 +148,19 @@ export const ResolveCompositionConfig: React.FC<
 				compositionHeight,
 				compositionWidth,
 			});
+			if (result.type === 'error') {
+				setResolvedConfigs((r) => ({
+					...r,
+					[compositionId]: {
+						type: 'error',
+						error: result.error,
+					},
+				}));
+
+				return controller;
+			}
+
+			const promOrNot = result.result;
 
 			if (typeof promOrNot === 'object' && 'then' in promOrNot) {
 				setResolvedConfigs((r) => {

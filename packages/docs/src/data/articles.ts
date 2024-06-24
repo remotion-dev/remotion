@@ -2382,6 +2382,13 @@ export const articles = [
     crumb: "Recorder",
   },
   {
+    id: "recorder/editing/normalizing-audio",
+    title: "Normalizing audio levels",
+    relativePath: "docs/recorder/editing/normalizing-audio.mdx",
+    compId: "articles-docs-recorder-editing-normalizing-audio",
+    crumb: "Recorder",
+  },
+  {
     id: "recorder/editing/scenes",
     title: "Scenes",
     relativePath: "docs/recorder/editing/scenes.mdx",
@@ -2400,6 +2407,13 @@ export const articles = [
     title: "Transitions",
     relativePath: "docs/recorder/editing/transitions.mdx",
     compId: "articles-docs-recorder-editing-transitions",
+    crumb: "Recorder",
+  },
+  {
+    id: "recorder/exporting-subtitles",
+    title: "Exporting subtitles",
+    relativePath: "docs/recorder/exporting-subtitles.mdx",
+    compId: "articles-docs-recorder-exporting-subtitles",
     crumb: "Recorder",
   },
   {
@@ -2445,10 +2459,31 @@ export const articles = [
     crumb: "Recorder",
   },
   {
-    id: "recorder/record",
-    title: "Record a scene",
-    relativePath: "docs/recorder/record.mdx",
-    compId: "articles-docs-recorder-record",
+    id: "recorder/record/cropping",
+    title: "Cropping sources",
+    relativePath: "docs/recorder/record/cropping.mdx",
+    compId: "articles-docs-recorder-record-cropping",
+    crumb: "Recorder",
+  },
+  {
+    id: "recorder/record/delete",
+    title: "Delete a recording",
+    relativePath: "docs/recorder/record/delete.mdx",
+    compId: "articles-docs-recorder-record-delete",
+    crumb: "Recorder",
+  },
+  {
+    id: "recorder/record/index",
+    title: "Record using the interface",
+    relativePath: "docs/recorder/record/index.mdx",
+    compId: "articles-docs-recorder-record-index",
+    crumb: "Recorder",
+  },
+  {
+    id: "recorder/record/manually",
+    title: "Manually add recordings",
+    relativePath: "docs/recorder/record/manually.mdx",
+    compId: "articles-docs-recorder-record-manually",
     crumb: "Recorder",
   },
   {
@@ -3379,6 +3414,13 @@ export const articles = [
       "docs/troubleshooting/could-not-be-parsed-as-a-value-list.mdx",
     compId: "articles-docs-troubleshooting-could-not-be-parsed-as-a-value-list",
     crumb: "Browser quirks",
+  },
+  {
+    id: "troubleshooting/could-not-find-executable-to-run",
+    title: "Could not determine executable to run",
+    relativePath: "docs/troubleshooting/could-not-find-executable-to-run.mdx",
+    compId: "articles-docs-troubleshooting-could-not-find-executable-to-run",
+    crumb: "Troubleshooting",
   },
   {
     id: "troubleshooting/debug-failed-render",

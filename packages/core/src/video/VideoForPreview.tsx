@@ -61,6 +61,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		pauseWhenBuffering,
 		showInTimeline,
 		loopVolumeCurveBehavior,
+		onError,
 		...nativeProps
 	} = props;
 
@@ -147,11 +148,16 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		}
 
 		const errorHandler = () => {
-			if (current?.error) {
+			if (current.error) {
 				// eslint-disable-next-line no-console
 				console.error('Error occurred in video', current?.error);
+
 				// If user is handling the error, we don't cause an unhandled exception
-				if (props.onError) {
+				if (onError) {
+					const err = new Error(
+						`Code ${current.error.code}: ${current.error.message}`,
+					);
+					onError(err);
 					return;
 				}
 
@@ -159,7 +165,16 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 					`The browser threw an error while playing the video ${src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help. Pass an onError() prop to handle the error.`,
 				);
 			} else {
-				throw new Error('The browser threw an error');
+				// If user is handling the error, we don't cause an unhandled exception
+				if (onError) {
+					const err = new Error(
+						`The browser threw an error while playing the video ${src}`,
+					);
+					onError(err);
+					return;
+				}
+
+				throw new Error('The browser threw an error while playing the video');
 			}
 		};
 
@@ -167,7 +182,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		return () => {
 			current.removeEventListener('error', errorHandler);
 		};
-	}, [props.onError, src]);
+	}, [onError, src]);
 
 	const currentOnDurationCallback =
 		useRef<VideoForPreviewProps['onDuration']>();
