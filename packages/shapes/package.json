@@ -7,7 +7,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"test": "vitest --run"
+		"test": "bun test src"
 	},
 	"author": "Alex Fernandez, Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",
@@ -28,7 +28,7 @@
 		"prettier-plugin-organize-imports": "3.2.4",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"vitest": "0.31.1"
+		"@happy-dom/global-registrator": "14.5.1"
 	},
 	"keywords": [
 		"svg",

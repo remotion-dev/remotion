@@ -1841,6 +1841,9 @@ importers:
         specifier: workspace:*
         version: link:../paths
     devDependencies:
+      '@happy-dom/global-registrator':
+        specifier: 14.5.1
+        version: 14.5.1
       '@jonny/eslint-config':
         specifier: 3.0.281
         version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
@@ -1871,9 +1874,6 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
-      vitest:
-        specifier: 0.31.1
-        version: 0.31.1(happy-dom@14.5.1)(jsdom@21.1.0)
 
   packages/skia:
     dependencies:
