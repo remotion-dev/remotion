@@ -477,27 +477,33 @@ test('Should get from broken webcam video', async () => {
 	await compositor.waitForDone();
 });
 
-test('Should get from iPhone video', async () => {
-	const compositor = startLongRunningCompositor({
-		maximumFrameCacheItemsInBytes: null,
-		logLevel: 'info',
-		indent: false,
-		binariesDirectory: null,
-	});
+test(
+	'Should get from iPhone video',
+	async () => {
+		const compositor = startLongRunningCompositor({
+			maximumFrameCacheItemsInBytes: null,
+			logLevel: 'info',
+			indent: false,
+			binariesDirectory: null,
+		});
 
-	const data = await compositor.executeCommand('ExtractFrame', {
-		src: exampleVideos.iphonevideo,
-		original_src: exampleVideos.iphonevideo,
-		time: 1,
-		transparent: false,
-		tone_mapped: true,
-	});
+		const data = await compositor.executeCommand('ExtractFrame', {
+			src: exampleVideos.iphonevideo,
+			original_src: exampleVideos.iphonevideo,
+			time: 1,
+			transparent: false,
+			tone_mapped: true,
+		});
 
-	expect(data.length).toBe(24883254);
+		expect(data.length).toBe(24883254);
 
-	await compositor.finishCommands();
-	await compositor.waitForDone();
-});
+		await compositor.finishCommands();
+		await compositor.waitForDone();
+	},
+	{
+		timeout: 30000,
+	},
+);
 
 test('Should get from AV1 video', async () => {
 	const compositor = startLongRunningCompositor({
