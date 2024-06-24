@@ -172,7 +172,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
     title: "Banger Show - Music visuals",
     type: "mux_video",
     time: "0",
-    muxId: "FUlewnqa8pHBmNaRN6lME00WPRFsfKZLSBNlECmWea4c",
+    muxId: "nDU01DSCFdvie6l9Z8u557TwSvJMsnhO3pfTqqXDuPbQ",
     description:
       "High quality music visuals without learning 3D or video editing software.",
     height: 1080,
