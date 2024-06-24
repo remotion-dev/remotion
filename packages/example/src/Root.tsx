@@ -98,6 +98,8 @@ if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
 }
 
+const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
+
 // @ts-expect-error no types
 import styles from './styles.module.scss';
 
@@ -450,31 +452,33 @@ export const Index: React.FC = () => {
 						height={720}
 					/>
 				</MyCtx.Provider>
-				<Composition
-					id="circular-structure"
-					component={Framer}
-					width={1080}
-					height={1080}
-					durationInFrames={30}
-					fps={30}
-					calculateMetadata={() => {
-						const objectA = {
-							name: 'Object A',
-						};
+				{INCLUDE_COMP_BREAKING_GET_COMPOSITIONS ? (
+					<Composition
+						id="circular-structure"
+						component={Framer}
+						width={1080}
+						height={1080}
+						durationInFrames={30}
+						fps={30}
+						calculateMetadata={() => {
+							const objectA = {
+								name: 'Object A',
+							};
 
-						const objectB = {
-							name: 'Object B',
-							linkedObject: objectA, // ObjectB links to objectA
-						};
+							const objectB = {
+								name: 'Object B',
+								linkedObject: objectA, // ObjectB links to objectA
+							};
 
-						// @ts-expect-error linked object
-						objectA.linkedObject = objectB;
+							// @ts-expect-error linked object
+							objectA.linkedObject = objectB;
 
-						return {
-							props: objectA,
-						};
-					}}
-				/>
+							return {
+								props: objectA,
+							};
+						}}
+					/>
+				) : null}
 				<Composition
 					id="class-serialization"
 					component={ClassSerialization}
