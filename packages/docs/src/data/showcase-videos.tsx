@@ -127,19 +127,19 @@ export const showcaseVideos: ShowcaseVideo[] = [
     },
   },
   {
-    title: "Typeframes - Animated social media videos",
+    title: "Revid - Animated social media videos",
     type: "mux_video",
-    time: "14.5",
-    muxId: "jW02uEGU6OMGFfGeDA2402I011jdhdyeABxVbZ3pi1hvf8",
+    time: "13",
+    muxId: "AQJeyQ00njF88JNevZ2Xf00KGOX01zBLBa4Xisvu9M00ynM",
     description:
-      "Create stunning social media videos with Typeframes, an AI-powered tool that transforms text into editable videos in minutes. ",
+      "Create stunning social media videos with Revid, an AI-powered tool that transforms text into editable videos in minutes. ",
     height: 1152,
     width: 2048,
     submittedOn: new Date("04-24-2024"),
     links: [
       {
         type: "website",
-        url: "https://www.typeframes.com/",
+        url: "https://www.revid.ai/",
       },
     ],
     author: {
