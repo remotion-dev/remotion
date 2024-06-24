@@ -142,16 +142,13 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	}, [toneMapped, currentTime, src, transparent]);
 
 	const onErr: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement> =
-		useCallback(
-			(e) => {
-				if (onError) {
-					onError?.(e);
-				} else {
-					cancelRender('Failed to load image with src ' + actualSrc);
-				}
-			},
-			[actualSrc, onError],
-		);
+		useCallback(() => {
+			if (onError) {
+				onError?.(new Error('Failed to load image with src ' + actualSrc));
+			} else {
+				cancelRender('Failed to load image with src ' + actualSrc);
+			}
+		}, [actualSrc, onError]);
 
 	const className = useMemo(() => {
 		return [OFFTHREAD_VIDEO_CLASS_NAME, props.className]

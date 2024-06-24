@@ -17,7 +17,7 @@ export type RemotionVideoProps = Omit<
 		React.VideoHTMLAttributes<HTMLVideoElement>,
 		HTMLVideoElement
 	>,
-	'autoPlay' | 'controls' | 'onEnded' | 'nonce'
+	'autoPlay' | 'controls' | 'onEnded' | 'nonce' | 'onError'
 > & {
 	name?: string;
 	volume?: VolumeProp;
@@ -30,6 +30,7 @@ export type RemotionVideoProps = Omit<
 	delayRenderTimeoutInMilliseconds?: number;
 	loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
 	delayRenderRetries?: number;
+	onError?: (err: Error) => void;
 };
 
 type DeprecatedOffthreadVideoProps = {
@@ -48,7 +49,7 @@ export type OffthreadVideoProps = {
 	volume?: VolumeProp;
 	playbackRate?: number;
 	muted?: boolean;
-	onError?: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement>;
+	onError?: (err: Error) => void;
 	acceptableTimeShiftInSeconds?: number;
 	allowAmplificationDuringRender?: boolean;
 	toneFrequency?: number;
