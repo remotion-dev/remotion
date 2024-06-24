@@ -284,7 +284,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		}, [src, onDuration, delayRenderRetries, delayRenderTimeoutInMilliseconds]);
 	}
 
-	return <video ref={videoRef} {...props} onError={onError} />;
+	return <video ref={videoRef} {...props} />;
 };
 
 export const VideoForRendering = forwardRef(
