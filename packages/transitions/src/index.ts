@@ -9,4 +9,7 @@ export {
 	TransitionTiming,
 } from './types.js';
 // Hooks
-export {TransitionState, useTransitionProgress} from './context.js';
+export {
+	TransitionState,
+	useTransitionProgress,
+} from './use-transition-progress.js';

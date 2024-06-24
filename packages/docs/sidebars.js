@@ -460,6 +460,7 @@ module.exports = {
       },
       items: [
         "transitions/transitionseries",
+        "transitions/use-transition-progress",
         {
           type: "category",
           label: "Timings",

@@ -30,9 +30,7 @@ const NonePresentation: React.FC<
  * @param {NoneProps} [props] Optional properties to define 'enterStyle' and 'exitStyle'.
  * @returns {TransitionPresentation<NoneProps>} The transition presentation component setup.
  */
-export const context = (
-	props?: NoneProps,
-): TransitionPresentation<NoneProps> => {
+export const none = (props?: NoneProps): TransitionPresentation<NoneProps> => {
 	return {
 		component: NonePresentation,
 		props: props ?? {},
