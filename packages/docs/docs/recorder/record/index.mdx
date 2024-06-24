@@ -1,10 +1,11 @@
 ---
-image: /generated/articles-docs-recorder-record.png
-title: Record a scene
+image: /generated/articles-docs-recorder-record-index.png
+title: Record using the interface
+sidebar_label: Using the interface
 crumb: Recorder
 ---
 
-import { RecordingButton } from "../../components/recorder/RecordButton";
+import { RecordingButton } from "../../../components/recorder/RecordButton";
 
 The Recorder ships with its own recording interface.  
 From it, you can record a clip and add it as a scene to your project.
@@ -116,31 +117,3 @@ bun sub.ts
 ```
 
 If you want to not use a take, just make another recording. The `copy.ts` script will only take the recordings with the latest timestamp.
-
-## Manually adding recordings
-
-You can also add recordings from other sources, like your phone.  
-Simply name the file `webcam` followed by any number, like `10`, followed by one of the supported file extensions: `.mp4`, `.webm`, `.mkv` or `.mov`.
-
-The order your recordings appear in your video is based on the number suffix. Here is a way you could structure your recordings:
-
-```txt
-webcam10.mp4
-display10.mp4
-webcam20.mp4
-webcam30.mp4
-```
-
-If there is only a `webcam` recording with said number, the webcam will be fullscreen.
-
-A `display` recording will only get picked up if there is also a `webcam` recording.  
-The webcam will be miniaturized in this case.
-
-If you only have recorded a display, give it a `webcam` prefix nonetheless for it to get picked up.
-
-## Deleting a recording
-
-To delete a recording, simply delete locate the file in your public folder and delete them.  
-The Remotion Studio will automatically refresh move all other recordings to the next available number.
-
-To prevent the settings from the scenes cascading, delete the scene in the default props editor as well.
