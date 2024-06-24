@@ -27,9 +27,7 @@ test('Should not be able to extract the audio with the wrong audio format', asyn
 			audioOutput,
 			logLevel: 'info',
 		});
-	}).rejects.toMatch(
-		/Input audio codec: 'AV_CODEC_ID_OPUS'. Error: Invalid argument/,
-	);
+	}).toThrow(/Input audio codec: 'AV_CODEC_ID_OPUS'. Error: Invalid argument/);
 });
 
 test('Should be able to extract the audio from a webm with the right format', async () => {

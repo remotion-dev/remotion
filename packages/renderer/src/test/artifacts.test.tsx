@@ -1,7 +1,4 @@
 /* eslint-disable no-restricted-imports */
-/**
- * @vitest-environment jsdom
- */
 import {expect, test} from 'bun:test';
 import React from 'react';
 import {Artifact, useCurrentFrame} from 'remotion';
@@ -83,6 +80,6 @@ test('Should throw on when missing content', async () => {
 	try {
 		await getAssetsForMarkup(Markup, basicConfig);
 	} catch (err) {
-		expect(err).toMatch(/The "content" must be a string/);
+		expect((err as Error).message).toMatch(/The "content" must be a string/);
 	}
 });
