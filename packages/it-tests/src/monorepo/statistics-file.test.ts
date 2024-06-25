@@ -8,7 +8,7 @@ test('All packages should have a README.md file', () => {
 
 	expect(dirs.length).toBeGreaterThan(0);
 
-	const readmePath = join(process.cwd(), '..', '..', 'STATS.md');
+	const readmePath = join(process.cwd(), '..', 'STATS.md');
 
 	const readme =
 		[
@@ -17,7 +17,7 @@ test('All packages should have a README.md file', () => {
 			dirs.map(({pkg}) => {
 				const name = pkg === 'core' ? 'remotion' : `@remotion/${pkg}`;
 
-				return `[![NPM Downloads](https://img.shields.io/npm/dm/${name}.svg?style=flat&color=black&label=${name})](https://npmcharts.com/compare/${name}?minimal=true)`;
+				return `[![NPM Downloads](https://img.shields.io/npm/dm/${name}.svg?style=flat&color=black&label=${name})](https://npmcharts.com/compare/${name}?minimal=true)  `;
 			}),
 		]
 			.filter(Boolean)
