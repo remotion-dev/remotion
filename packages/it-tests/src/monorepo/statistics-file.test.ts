@@ -3,7 +3,7 @@ import {writeFileSync} from 'fs';
 import {join} from 'path';
 import {Pkgs, descriptions, getAllPackages} from './get-all-packages';
 
-test('All packages should have a README.md file', () => {
+test('Should make a STATS.md file', () => {
 	const dirs = getAllPackages();
 
 	expect(dirs.length).toBeGreaterThan(0);
