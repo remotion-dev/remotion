@@ -32,5 +32,6 @@
 		"@types/prompts": "^2.0.12",
 		"@types/tar": "6.1.1",
 		"vitest": "0.31.1"
-	}
+	},
+	"homepage": "https://remotion.dev/templates"
 }

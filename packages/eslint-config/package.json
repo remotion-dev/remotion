@@ -34,5 +34,6 @@
 	],
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/brownfield#install-the-eslint-plugin"
 }

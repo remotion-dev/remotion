@@ -4779,5 +4779,6 @@
 			"require": "./dist/cjs/index.cjs",
 			"types": "./dist/cjs/index.d.ts"
 		}
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/google-fonts"
 }

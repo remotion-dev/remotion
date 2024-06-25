@@ -59,5 +59,6 @@
 			"import": "./dist/esm/index.mjs",
 			"require": "./dist/cjs/index.js"
 		}
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/three"
 }

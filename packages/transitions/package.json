@@ -111,5 +111,6 @@
 				"dist/presentations/clock-wipe.d.ts"
 			]
 		}
-	}
+	},
+	"homepage": "https://www.remotion.dev/transitions"
 }

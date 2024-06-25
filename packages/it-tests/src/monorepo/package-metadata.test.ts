@@ -26,6 +26,22 @@ test('All packages should have a repository field', () => {
 	}
 });
 
+test('All packages should have a homepage field', () => {
+	const dirs = getAllPackages();
+
+	expect(dirs.length).toBeGreaterThan(0);
+
+	for (const {pkg, path} of dirs) {
+		const homepage = apiDocs[pkg as Pkgs];
+		updatePackageJson(path, (data) => {
+			return {
+				...data,
+				homepage: homepage ?? undefined,
+			};
+		});
+	}
+});
+
 test('All packages should have a description field', () => {
 	const dirs = getAllPackages();
 

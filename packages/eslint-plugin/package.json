@@ -27,5 +27,6 @@
 	"devDependencies": {
 		"vitest": "0.31.1"
 	},
-	"private": false
+	"private": false,
+	"homepage": "https://www.remotion.dev/docs/brownfield#install-the-eslint-plugin"
 }

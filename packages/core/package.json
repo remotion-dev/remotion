@@ -75,5 +75,6 @@
 				"dist/cjs/no-react.d.ts"
 			]
 		}
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/remotion"
 }

@@ -76,5 +76,6 @@
 				"dist/client.d.ts"
 			]
 		}
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/lambda"
 }
