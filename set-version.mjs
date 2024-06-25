@@ -60,7 +60,7 @@ execSync("bun ensure-correct-version.ts", {
   cwd: "packages/core",
 });
 
-execSync("bun x vitest src/monorepo --run", {
+execSync("bun test src/monorepo", {
   cwd: "packages/it-tests",
   stdio: "inherit",
 });
