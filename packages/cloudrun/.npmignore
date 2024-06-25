@@ -1,5 +1,4 @@
 src
-vitest.config.mts
 tsconfig.json
 terraform
 gcpInstaller
