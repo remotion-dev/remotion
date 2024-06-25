@@ -28,6 +28,20 @@
       "dependsOn": ["^build", "build"],
       "outputs": []
     },
+    "@remotion/example#test": {
+      "dependsOn": ["^build", "build", "@remotion/it-tests#test"],
+      "outputs": []
+    },
+    "@remotion/renderer#test": {
+      "dependsOn": [
+        "^build",
+        "build",
+        "@remotion/lambda#build",
+        "@remotion/example#test",
+        "@remotion/cloudrun#build"
+      ],
+      "outputs": []
+    },
     "lint": {
       "dependsOn": ["//#ts-build"],
       "outputs": []
@@ -45,7 +59,7 @@
       "outputMode": "new-only"
     },
     "@remotion/cloudrun#build": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "//#ts-build"],
       "outputs": [
         "dist/shared/sa-permissions.json",
         "container/dist/**",
@@ -58,6 +72,7 @@
       "dependsOn": ["^build"],
       "outputMode": "new-only"
     },
+
     "@remotion/it-tests#test": {
       "dependsOn": [
         "^build",
