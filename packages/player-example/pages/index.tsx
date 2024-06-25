@@ -1,11 +1,11 @@
 import {Thumbnail} from '@remotion/player';
 import React from 'react';
 import App from '../src/App';
+import {NativeBufferState} from '../src/BufferState';
 import CarSlideshow from '../src/CarSlideshow';
 import {FontPicker} from '../src/FontPicker';
 import {ThumbnailDemo} from '../src/ThumbnailDemo';
 import {VideoautoplayDemo} from '../src/VideoAutoplay';
-import {NativeBufferState} from '../src/BufferState';
 
 function Index() {
 	return (
