@@ -37,12 +37,6 @@ for (const dir of [path.join('cloudrun', 'container'), ...dirs]) {
 	);
 	const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
 	packageJson.version = version;
-	const potentialPrettierPath = path.join(
-		process.cwd(),
-		'packages',
-		dir,
-		'.prettierrc.js',
-	);
 	writeFileSync(
 		packageJsonPath,
 		JSON.stringify(packageJson, null, '\t') + '\n',
