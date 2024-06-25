@@ -5,7 +5,6 @@ tsconfig.tsbuildinfo
 .prettierrc
 *.tgz
 .turbo
-vitest.config.mts
 dist/tsconfig.tsbuildinfo
 tsconfig.json
 .prettierrc.js
