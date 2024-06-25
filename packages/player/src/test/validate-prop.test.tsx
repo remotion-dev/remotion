@@ -1,6 +1,3 @@
-/**
- * @vitest-environment jsdom
- */
 import type {ComponentType} from 'react';
 import {Composition} from 'remotion';
 import {expect, test} from 'vitest';
