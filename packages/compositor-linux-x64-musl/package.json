@@ -1,24 +1,24 @@
 {
-  "version": "4.0.177",
-  "name": "@remotion/compositor-linux-x64-musl",
-  "os": [
-    "linux"
-  ],
-  "cpu": [
-    "x64"
-  ],
-  "libc": [
-    "musl"
-  ],
-  "exports": {
-    ".": {
-      "require": "./index.js",
-      "import": "./index.mjs",
-      "types": "./index.d.ts"
-    },
-    "./package.json": "./package.json"
-  },
-  "publishConfig": {
-    "access": "public"
-  }
+	"version": "4.0.177",
+	"name": "@remotion/compositor-linux-x64-musl",
+	"os": [
+		"linux"
+	],
+	"cpu": [
+		"x64"
+	],
+	"libc": [
+		"musl"
+	],
+	"exports": {
+		".": {
+			"require": "./index.js",
+			"import": "./index.mjs",
+			"types": "./index.d.ts"
+		},
+		"./package.json": "./package.json"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
 }

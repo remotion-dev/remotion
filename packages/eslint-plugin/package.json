@@ -1,28 +1,28 @@
 {
-  "name": "@remotion/eslint-plugin",
-  "version": "4.0.177",
-  "description": "A set of rules helping you avoid common pitfalls in Remotion.",
-  "scripts": {
-    "test": "vitest --run"
-  },
-  "main": "dist/index.js",
-  "bugs": {
-    "url": "https://github.com/remotion-dev/remotion/issues"
-  },
-  "author": "Jonny Burger <jonny@remotion.dev>",
-  "license": "ISC",
-  "dependencies": {
-    "@typescript-eslint/utils": "5.19.0"
-  },
-  "keywords": [
-    "eslint",
-    "eslintplugin"
-  ],
-  "peerDependencies": {
-    "eslint": ">=7.0.0"
-  },
-  "devDependencies": {
-    "vitest": "0.31.1"
-  },
-  "private": false
+	"name": "@remotion/eslint-plugin",
+	"version": "4.0.177",
+	"description": "A set of rules helping you avoid common pitfalls in Remotion.",
+	"scripts": {
+		"test": "vitest --run"
+	},
+	"main": "dist/index.js",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"license": "ISC",
+	"dependencies": {
+		"@typescript-eslint/utils": "5.19.0"
+	},
+	"keywords": [
+		"eslint",
+		"eslintplugin"
+	],
+	"peerDependencies": {
+		"eslint": ">=7.0.0"
+	},
+	"devDependencies": {
+		"vitest": "0.31.1"
+	},
+	"private": false
 }
