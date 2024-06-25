@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/studio",
 	"version": "4.0.177",
-	"description": "Remotion Editor",
+	"description": "APIs for interacting with the Remotion Studio",
 	"main": "dist",
 	"sideEffects": false,
 	"scripts": {

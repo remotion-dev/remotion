@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/transitions",
 	"version": "4.0.177",
-	"description": "Transition presets for Remotion",
+	"description": "Library for creating transitions in Remotion",
 	"sideEffects": false,
 	"main": "dist/esm/index.mjs",
 	"module": "dist/esm/index.js",

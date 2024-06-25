@@ -20,5 +20,6 @@
 	},
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"description": "MacOS x64 binary for the Remotion Rust code"
 }

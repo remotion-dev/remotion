@@ -23,5 +23,6 @@
 	},
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"description": "Linux x64 binary for the Remotion Rust code"
 }

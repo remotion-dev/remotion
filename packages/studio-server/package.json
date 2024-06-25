@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/studio-server",
 	"version": "4.0.177",
-	"description": "Remotion Editor",
+	"description": "Run a Remotion Studio with a server backend",
 	"main": "dist",
 	"sideEffects": false,
 	"scripts": {

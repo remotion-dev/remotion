@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/noise",
 	"version": "4.0.177",
-	"description": "Noise effect for Remotion",
+	"description": "Noise generation functions",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",

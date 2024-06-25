@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/cloudrun",
 	"version": "4.0.177",
-	"description": "GCP Cloud Run alternative to lambda rendering",
+	"description": "Render Remotion videos on Google Cloud Run",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {

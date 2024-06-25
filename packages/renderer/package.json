@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/renderer",
 	"version": "4.0.177",
-	"description": "Renderer for Remotion",
+	"description": "Render Remotion videos using Node.js or Bun",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"sideEffects": false,

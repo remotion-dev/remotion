@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/enable-scss",
 	"version": "4.0.177",
-	"description": "Webpack override for using SASS/SCSS in Remotion",
+	"description": "Enable SCSS support in Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",

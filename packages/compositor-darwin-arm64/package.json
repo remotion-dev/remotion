@@ -20,5 +20,6 @@
 	},
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"description": "MacOS Apple Silicon binary for the Remotion Rust code"
 }

@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/eslint-plugin",
 	"version": "4.0.177",
-	"description": "A set of rules helping you avoid common pitfalls in Remotion.",
+	"description": "Rules for writing Remotion code",
 	"scripts": {
 		"test": "vitest --run"
 	},

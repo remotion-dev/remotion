@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/bundler",
 	"version": "4.0.177",
-	"description": "Bundler for Remotion",
+	"description": "Bundle Remotion compositions using Webpack",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"bugs": {

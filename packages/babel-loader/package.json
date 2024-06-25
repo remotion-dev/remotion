@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/babel-loader",
 	"version": "4.0.177",
-	"description": "babel-loader polyfill for Remotion",
+	"description": "Babel loader for Remotion",
 	"main": "dist/index.js",
 	"scripts": {
 		"formatting": "prettier src --check",

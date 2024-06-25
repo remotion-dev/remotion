@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/streaming",
 	"version": "4.0.177",
-	"description": "Internal streaming helpers",
+	"description": "Utilities for streaming data between programs",
 	"main": "dist",
 	"sideEffects": false,
 	"scripts": {

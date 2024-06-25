@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/eslint-config",
 	"version": "4.0.177",
-	"description": "",
+	"description": "Default configuration for Remotion templates",
 	"main": "dist/index.js",
 	"files": [
 		"dist"

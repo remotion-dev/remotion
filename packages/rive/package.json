@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/rive",
 	"version": "4.0.177",
-	"description": "Remotion Rive",
+	"description": "Embed Rive animations in a Remotion video",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",

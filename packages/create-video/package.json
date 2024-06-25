@@ -4,7 +4,7 @@
 	},
 	"name": "create-video",
 	"version": "4.0.177",
-	"description": "",
+	"description": "Create a new Remotion project",
 	"main": "dist/index.js",
 	"bin": {
 		"create-video": "bin.js"

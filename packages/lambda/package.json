@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/lambda",
 	"version": "4.0.177",
-	"description": "Distributed renderer for Remotion based on AWS Lambda",
+	"description": "Render Remotion videos on AWS Lambda",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {

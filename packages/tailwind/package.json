@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/tailwind",
 	"version": "4.0.177",
-	"description": "Utilities for using tailwind css in Remotion",
+	"description": "Enable TailwindCSS support in Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",

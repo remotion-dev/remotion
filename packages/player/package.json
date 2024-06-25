@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/player",
 	"version": "4.0.177",
-	"description": "Remotion Player",
+	"description": "React component for embedding a Remotion preview into your app",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",

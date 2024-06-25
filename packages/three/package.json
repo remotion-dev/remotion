@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/three",
 	"version": "4.0.177",
-	"description": "Utility functions for using react-three-fiber with remotion",
+	"description": "Include React Three Fiber components in a Remotion video",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",

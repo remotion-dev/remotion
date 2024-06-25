@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/media-utils",
 	"version": "4.0.177",
-	"description": "Utility functions for audio and video",
+	"description": "Utilities for working with media files",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {

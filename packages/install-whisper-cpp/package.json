@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/install-whisper-cpp",
 	"version": "4.0.177",
-	"description": "Install helper for Whisper.cpp",
+	"description": "Helpers for installing and using Whisper.cpp",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"bugs": {

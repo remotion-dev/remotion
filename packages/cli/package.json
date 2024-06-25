@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/cli",
 	"version": "4.0.177",
-	"description": "CLI for Remotion",
+	"description": "Control Remotion features using the `npx remotion` command",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"bin": {

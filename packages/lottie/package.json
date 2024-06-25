@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/lottie",
 	"version": "4.0.177",
-	"description": "Remotion Lottie",
+	"description": "Include Lottie animations in Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",

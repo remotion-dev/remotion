@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/studio-shared",
 	"version": "4.0.177",
-	"description": "Shared items between Remotion Studio frontend and backend",
+	"description": "Internal package for shared objects between the Studio backend and frontend",
 	"main": "dist",
 	"sideEffects": false,
 	"scripts": {
