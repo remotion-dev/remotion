@@ -2,12 +2,12 @@
  
 Bundle Remotion compositions using Webpack
  
-[![NPM Downloads](https://img.shields.io/npm/dm/bundler.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/bundler?minimal=true)
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/bundler.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/bundler?minimal=true)
  
 ## Installation
  
 ```bash
-npm install @remotion/${pkg} --save-exact
+npm install @remotion/bundler --save-exact
 ```
  
 When installing a Remotion package, make sure to align the version of all `remotion` and `@remotion/*` packages to the same version.

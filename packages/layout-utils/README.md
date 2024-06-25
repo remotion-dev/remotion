@@ -2,12 +2,12 @@
  
 Utilities for working with layouts
  
-[![NPM Downloads](https://img.shields.io/npm/dm/layout-utils.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/layout-utils?minimal=true)
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/layout-utils.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/layout-utils?minimal=true)
  
 ## Installation
  
 ```bash
-npm install @remotion/${pkg} --save-exact
+npm install @remotion/layout-utils --save-exact
 ```
  
 When installing a Remotion package, make sure to align the version of all `remotion` and `@remotion/*` packages to the same version.

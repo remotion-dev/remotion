@@ -182,18 +182,20 @@ test('All packages should have a README.md file', () => {
 
 		const readmePath = join(path, '..', 'README.md');
 
+		const name = `@remotion/${pkg}`;
+
 		const readme =
 			[
 				`# @remotion/${pkg}`,
 				description ? ' ' : null,
 				description ?? null,
 				' ',
-				`[![NPM Downloads](https://img.shields.io/npm/dm/${pkg}.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/${pkg}?minimal=true)`,
+				`[![NPM Downloads](https://img.shields.io/npm/dm/${name}.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/${name}?minimal=true)`,
 				' ',
 				'## Installation',
 				' ',
 				'```bash',
-				'npm install @remotion/${pkg} --save-exact',
+				`npm install ${name} --save-exact`,
 				'```',
 				' ',
 				'When installing a Remotion package, make sure to align the version of all `remotion` and `@remotion/*` packages to the same version.',
@@ -209,7 +211,5 @@ test('All packages should have a README.md file', () => {
 				.join('\n') + '\n';
 
 		writeFileSync(readmePath, readme);
-
-		console.log(readmePath);
 	}
 });

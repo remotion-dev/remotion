@@ -2,12 +2,12 @@
  
 Helpers for installing and using Whisper.cpp
  
-[![NPM Downloads](https://img.shields.io/npm/dm/install-whisper-cpp.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/install-whisper-cpp?minimal=true)
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/install-whisper-cpp.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/install-whisper-cpp?minimal=true)
  
 ## Installation
  
 ```bash
-npm install @remotion/${pkg} --save-exact
+npm install @remotion/install-whisper-cpp --save-exact
 ```
  
 When installing a Remotion package, make sure to align the version of all `remotion` and `@remotion/*` packages to the same version.

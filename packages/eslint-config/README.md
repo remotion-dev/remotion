@@ -2,12 +2,12 @@
  
 Default configuration for Remotion templates
  
-[![NPM Downloads](https://img.shields.io/npm/dm/eslint-config.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/eslint-config?minimal=true)
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/eslint-config.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/eslint-config?minimal=true)
  
 ## Installation
  
 ```bash
-npm install @remotion/${pkg} --save-exact
+npm install @remotion/eslint-config --save-exact
 ```
  
 When installing a Remotion package, make sure to align the version of all `remotion` and `@remotion/*` packages to the same version.

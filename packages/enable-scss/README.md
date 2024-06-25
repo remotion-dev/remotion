@@ -2,12 +2,12 @@
  
 Enable SCSS support in Remotion
  
-[![NPM Downloads](https://img.shields.io/npm/dm/enable-scss.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/enable-scss?minimal=true)
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/enable-scss.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/enable-scss?minimal=true)
  
 ## Installation
  
 ```bash
-npm install @remotion/${pkg} --save-exact
+npm install @remotion/enable-scss --save-exact
 ```
  
 When installing a Remotion package, make sure to align the version of all `remotion` and `@remotion/*` packages to the same version.

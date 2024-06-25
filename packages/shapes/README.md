@@ -2,12 +2,12 @@
  
 Generate SVG shapes
  
-[![NPM Downloads](https://img.shields.io/npm/dm/shapes.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/shapes?minimal=true)
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/shapes.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/shapes?minimal=true)
  
 ## Installation
  
 ```bash
-npm install @remotion/${pkg} --save-exact
+npm install @remotion/shapes --save-exact
 ```
  
 When installing a Remotion package, make sure to align the version of all `remotion` and `@remotion/*` packages to the same version.
