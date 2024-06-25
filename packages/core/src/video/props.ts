@@ -58,6 +58,7 @@ export type OffthreadVideoProps = {
 	pauseWhenBuffering?: boolean;
 	loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
 	delayRenderTimeoutInMilliseconds?: number;
+	delayRenderRetries?: number;
 	/**
 	 * @deprecated For internal use only
 	 */
