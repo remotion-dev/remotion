@@ -3,7 +3,6 @@ src
 .eslintrc
 tsconfig.tsbuildinfo
 .prettierrc
-vitest.config.mts
 *.tgz
 .turbo
 dist/tsconfig.tsbuildinfo
