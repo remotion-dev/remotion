@@ -33,7 +33,6 @@
 	},
 	"devDependencies": {
 		"@remotion/bundler": "workspace:*",
-		"@types/node": "18.14.6",
 		"autoprefixer": "^10.4.14"
 	},
 	"keywords": [

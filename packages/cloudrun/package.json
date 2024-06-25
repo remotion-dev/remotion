@@ -27,7 +27,6 @@
 		"zod": "3.22.3"
 	},
 	"devDependencies": {
-		"@types/node": "^18.11.2",
 		"@remotion/compositor-linux-x64-gnu": "workspace:*",
 		"@types/minimist": "1.2.2"
 	},

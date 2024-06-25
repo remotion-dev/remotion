@@ -32,7 +32,6 @@
 	},
 	"devDependencies": {
 		"@react-three/fiber": "8.13.5",
-		"@types/node": "18.14.6",
 		"@types/react": "18.3.1",
 		"@types/react-reconciler": "^0.26.4",
 		"@types/three": "0.157.2",

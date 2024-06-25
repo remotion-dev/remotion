@@ -30,11 +30,6 @@
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
-	"dependencies": {},
-	"devDependencies": {
-		"@types/bun": "1.0.12",
-		"@types/node": "18.14.6"
-	},
 	"keywords": [
 		"remotion",
 		"ffmpeg",

@@ -31,7 +31,6 @@
 	},
 	"devDependencies": {
 		"@remotion/bundler": "workspace:*",
-		"@types/node": "18.14.6",
 		"remotion": "workspace:*"
 	},
 	"peerDependencies": {

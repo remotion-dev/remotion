@@ -3,7 +3,6 @@
 	"name": "@remotion/fig-autocomplete",
 	"private": true,
 	"devDependencies": {
-		"@types/node": "18.14.6",
 		"@fig/eslint-config-autocomplete": "1.2.1",
 		"@withfig/autocomplete-types": "^1.20.0",
 		"@remotion/renderer": "workspace:*"

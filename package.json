@@ -1,46 +1,45 @@
 {
-  "name": "remotion-monorepo",
-  "version": "0.0.0",
-  "private": true,
-  "license": "SEE LICENSE IN LICENSE.md",
-  "scripts": {
-    "test": "turbo run lint test",
-    "ts-build": "tsc -b --verbose",
-    "stylecheck": "turbo run lint formatting",
-    "build": "turbo run build",
-    "build-docs": "turbo run build-docs",
-    "ci": "turbo run build test --concurrency=50%",
-    "watch": "tsc -b --verbose -w",
-    "release-alpha": "pnpm recursive publish --tag=alpha --no-git-checks && pnpm recursive run --sequential publishprivate",
-    "release": "pnpm recursive publish && pnpm recursive run --sequential publishprivate && git push --tags && git push",
-    "clean": "rm -rf packages/**/dist && rm -rf packages/**/node_modules && rm -rf node_modules && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo && rm -f packages/tsconfig.tsbuildinfo && rm -rf packages/**/.turbo && rm -rf .turbo"
-  },
-  "engines": {
-    "node": ">=16",
-    "pnpm": ">=3"
-  },
-  "pnpm": {
-    "overrides": {
-      "caniuse-lite": "1.0.30001636"
-    }
-  },
-  "devDependencies": {
-    "@jonny/eslint-config": "3.0.281",
-    "@types/bun": "1.0.12",
-    "@types/node": "18.14.6",
-    "eslint": "8.56.0",
-    "eslint-plugin-10x": "1.5.2",
-    "eslint-plugin-react": "7.32.2",
-    "eslint-plugin-react-hooks": "4.4.0",
-    "prettier": "3.2.5",
-    "prettier-plugin-organize-imports": "3.2.4"
-  },
-  "dependencies": {
-    "turbo": "1.13.3",
-    "typescript": "5.3.3"
-  },
-  "workspaces": [
-    "packages/*"
-  ],
-  "packageManager": "pnpm@8.10.2"
+	"name": "remotion-monorepo",
+	"version": "0.0.0",
+	"private": true,
+	"license": "SEE LICENSE IN LICENSE.md",
+	"scripts": {
+		"test": "turbo run lint test",
+		"ts-build": "tsc -b --verbose",
+		"stylecheck": "turbo run lint formatting",
+		"build": "turbo run build",
+		"build-docs": "turbo run build-docs",
+		"ci": "turbo run build test --concurrency=50%",
+		"watch": "tsc -b --verbose -w",
+		"release-alpha": "pnpm recursive publish --tag=alpha --no-git-checks && pnpm recursive run --sequential publishprivate",
+		"release": "pnpm recursive publish && pnpm recursive run --sequential publishprivate && git push --tags && git push",
+		"clean": "rm -rf packages/**/dist && rm -rf packages/**/node_modules && rm -rf node_modules && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo && rm -f packages/tsconfig.tsbuildinfo && rm -rf packages/**/.turbo && rm -rf .turbo"
+	},
+	"engines": {
+		"node": ">=16",
+		"pnpm": ">=3"
+	},
+	"pnpm": {
+		"overrides": {
+			"caniuse-lite": "1.0.30001636"
+		}
+	},
+	"devDependencies": {
+		"@jonny/eslint-config": "3.0.281",
+		"@types/bun": "1.0.12",
+		"eslint": "8.56.0",
+		"eslint-plugin-10x": "1.5.2",
+		"eslint-plugin-react": "7.32.2",
+		"eslint-plugin-react-hooks": "4.4.0",
+		"prettier": "3.2.5",
+		"prettier-plugin-organize-imports": "3.2.4"
+	},
+	"dependencies": {
+		"turbo": "1.13.3",
+		"typescript": "5.3.3"
+	},
+	"workspaces": [
+		"packages/*"
+	],
+	"packageManager": "pnpm@8.10.2"
 }

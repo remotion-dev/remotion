@@ -1,13 +1,10 @@
 {
-  "name": "@remotion/discord-poster",
-  "version": "4.0.177",
-  "license": "SEE LICENSE IN LICENSE.md",
-  "type": "module",
-  "scripts": {
-    "discord": "bun src/post.ts"
-  },
-  "private": true,
-  "devDependencies": {
-    "@types/node": "18.14.6"
-  }
+	"name": "@remotion/discord-poster",
+	"version": "4.0.177",
+	"license": "SEE LICENSE IN LICENSE.md",
+	"type": "module",
+	"scripts": {
+		"discord": "bun src/post.ts"
+	},
+	"private": true
 }

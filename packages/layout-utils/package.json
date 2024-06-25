@@ -33,10 +33,6 @@
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
-	"dependencies": {},
-	"devDependencies": {
-		"@types/node": "18.14.6"
-	},
 	"keywords": [
 		"remotion",
 		"layout-utils"

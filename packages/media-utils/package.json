@@ -24,7 +24,6 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@types/node": "18.14.6",
 		"@types/react": "18.3.1"
 	},
 	"keywords": [
