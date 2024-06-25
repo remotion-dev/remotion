@@ -1,3 +1,4 @@
+// bun set-version.mjs 4.0.178
 import { execSync } from "child_process";
 import {
   existsSync,
