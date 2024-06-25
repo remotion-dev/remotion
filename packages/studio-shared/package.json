@@ -21,9 +21,6 @@
 		"remotion": "workspace:*"
 	},
 	"devDependencies": {
-		"@types/node": "18.14.6",
-		"prettier": "3.2.5",
-		"prettier-plugin-organize-imports": "3.2.4",
 		"@remotion/renderer": "workspace:*"
 	},
 	"publishConfig": {

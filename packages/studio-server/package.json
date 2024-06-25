@@ -35,12 +35,8 @@
 	},
 	"devDependencies": {
 		"react": "18.3.1",
-		"@types/node": "18.14.6",
-		"@types/react": "18.3.1",
 		"@babel/types": "7.24.0",
-		"prettier": "3.2.5",
-		"@types/semver": "^7.3.4",
-		"prettier-plugin-organize-imports": "3.2.4"
+		"@types/semver": "^7.3.4"
 	},
 	"exports": {
 		".": "./dist/index.js",

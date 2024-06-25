@@ -8,7 +8,8 @@
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
-		"build": "bun --env-file=../.env.bundle bundle.ts"
+		"build": "bun --env-file=../.env.bundle bundle.ts",
+		"formatting": "prettier src --check"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -28,10 +29,7 @@
 		"@remotion/bundler": "workspace:*"
 	},
 	"devDependencies": {
-		"@remotion/bundler": "workspace:*",
-		"@types/node": "18.14.6",
-		"prettier": "3.2.5",
-		"prettier-plugin-organize-imports": "3.2.4"
+		"@remotion/bundler": "workspace:*"
 	},
 	"keywords": [
 		"remotion",

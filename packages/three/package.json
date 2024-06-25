@@ -32,13 +32,9 @@
 	},
 	"devDependencies": {
 		"@react-three/fiber": "8.13.5",
-		"@types/node": "18.14.6",
-		"@types/react": "18.3.1",
 		"@types/react-reconciler": "^0.26.4",
 		"@types/three": "0.157.2",
 		"@types/web": "0.0.78",
-		"prettier": "3.2.5",
-		"prettier-plugin-organize-imports": "3.2.4",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"remotion": "workspace:*",

@@ -26,12 +26,8 @@
 	},
 	"devDependencies": {
 		"@types/minimist": "1.2.2",
-		"@types/node": "18.14.6",
 		"@types/prompts": "^2.0.12",
-		"@types/react": "18.3.1",
 		"@types/tar": "6.1.1",
-		"prettier": "3.2.5",
-		"prettier-plugin-organize-imports": "3.2.4",
 		"vitest": "0.31.1"
 	}
 }

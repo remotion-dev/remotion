@@ -1,5 +1,5 @@
-import React, {useCallback} from 'react';
 import {getAvailableFonts} from '@remotion/google-fonts';
+import React, {useCallback} from 'react';
 
 export const FontPicker: React.FC = () => {
 	const newFonts = getAvailableFonts();

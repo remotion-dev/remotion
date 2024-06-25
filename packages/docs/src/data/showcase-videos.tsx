@@ -1,376 +1,376 @@
-import { random } from "remotion";
+import {random} from 'remotion';
 
-export type ShowcaseLink = "tutorial" | "source_code" | "website" | "video";
+export type ShowcaseLink = 'tutorial' | 'source_code' | 'website' | 'video';
 
 export type ShowcaseVideo = {
-  title: string;
-  description: string;
-  height: number;
-  width: number;
-  links: {
-    url: string;
-    type: ShowcaseLink;
-  }[];
-  submittedOn: Date;
-  type: "mux_video";
-  time?: string | null;
-  muxId: string;
-  author?: {
-    name: string;
-    url: string;
-  };
+	title: string;
+	description: string;
+	height: number;
+	width: number;
+	links: {
+		url: string;
+		type: ShowcaseLink;
+	}[];
+	submittedOn: Date;
+	type: 'mux_video';
+	time?: string | null;
+	muxId: string;
+	author?: {
+		name: string;
+		url: string;
+	};
 };
 
 export const showcaseVideos: ShowcaseVideo[] = [
-  {
-    title: "Hackreels - Animate your code",
-    type: "mux_video",
-    time: "0",
-    muxId: "IOSwIZiNUsdfcg9ccN3E2vqzen92L99VgoP3Q5p9On8",
-    description:
-      "Create effortlessly beautiful code animations in seconds. Hackreels detects code changes automatically and makes stunning animations based on those changes. ",
-    height: 1080,
-    width: 1920,
-    submittedOn: new Date("04-22-2024"),
-    links: [
-      {
-        type: "video",
-        url: "https://twitter.com/dparksdev/status/1715725060324073582",
-      },
-      {
-        type: "website",
-        url: "https://www.hackreels.com/",
-      },
-    ],
-    author: {
-      url: "https://davidparks.dev/",
-      name: "David Parks",
-    },
-  },
-  {
-    title: "MUX - Vizualise video stats",
-    type: "mux_video",
-    time: "3",
-    muxId: "DDgXb2KfPk7xdvxEoyPkrl7GcybohNon",
-    description:
-      "An article on how to showcase your video stats by creating a dynamic animated video using Remotion and the Mux Data API.",
-    height: 270,
-    width: 480,
-    submittedOn: new Date("19-01-2022"),
-    links: [
-      {
-        type: "source_code",
-        url: "https://github.com/davekiss/mux-remotion-demo/",
-      },
-      {
-        type: "video",
-        url: "https://twitter.com/MuxHQ/status/1483514610380644357",
-      },
-      {
-        type: "tutorial",
-        url: "https://mux.com/blog/visualize-mux-data-with-remotion/",
-      },
-    ],
-    author: {
-      url: "https://davekiss.com/",
-      name: "Dave Kiss",
-    },
-  },
-  {
-    title: "Next.js - Video tutorial",
-    type: "mux_video",
-    time: "10",
-    muxId: "dWxzp02gvlUM42a6GSQ02g006qiW2T43QGeuszqimY0200AE",
-    description:
-      "Delba Oliveira visually explains Vercel's Next.js and the concept of React.",
-    height: 1080,
-    width: 1920,
-    submittedOn: new Date("10-09-2023"),
-    links: [
-      {
-        type: "video",
-        url: "https://twitter.com/delba_oliveira/status/1707439537054535867",
-      },
-      {
-        type: "website",
-        url: "https://www.youtube.com/@Delba",
-      },
-    ],
-    author: {
-      url: "https://delba.dev/",
-      name: "Delba Oliveira",
-    },
-  },
-  {
-    title: "GitHub Unwrapped - Campaign",
-    type: "mux_video",
-    time: "6",
-    muxId: "OwQFvqomOR00q6yj5SWwaA7DBg01NaCPKcOvczoZqCty00",
-    description:
-      "A year-in-review video campaign for GitHub, where each user gets a personalized video based on their GitHub activity.",
-    height: 1080,
-    width: 1080,
-    submittedOn: new Date("04-23-2024"),
-    links: [
-      {
-        type: "website",
-        url: "https://githubunwrapped.com/",
-      },
-      {
-        type: "source_code",
-        url: "https://github.com/remotion-dev/github-unwrapped-2023",
-      },
-    ],
-    author: {
-      url: "https://www.remotion.dev/",
-      name: "Remotion",
-    },
-  },
-  {
-    title: "Revid - Animated social media videos",
-    type: "mux_video",
-    time: "13",
-    muxId: "AQJeyQ00njF88JNevZ2Xf00KGOX01zBLBa4Xisvu9M00ynM",
-    description:
-      "Create stunning social media videos with Revid, an AI-powered tool that transforms text into editable videos in minutes. ",
-    height: 1152,
-    width: 2048,
-    submittedOn: new Date("04-24-2024"),
-    links: [
-      {
-        type: "website",
-        url: "https://www.revid.ai/",
-      },
-    ],
-    author: {
-      url: "https://twitter.com/tibo_maker",
-      name: "Tibo",
-    },
-  },
-  {
-    title: "AnimStats - Animated statistics",
-    type: "mux_video",
-    time: "8",
-    muxId: "DudsRLermQWA5JMpF6Z49AwuAjrvO00vxmsgSyS00neo00",
-    description:
-      "With AnimStats, you can transform your statistics into captivating animated GIFs and Videos within minutes. The user-friendly interface and powerful editing feature make the process quick and effortless.",
-    height: 1152,
-    width: 2048,
-    submittedOn: new Date("04-24-2024"),
-    links: [
-      {
-        type: "website",
-        url: "https://www.animstats.com/",
-      },
-    ],
-    author: {
-      url: "https://twitter.com/audiencon",
-      name: "Audiencon",
-    },
-  },
-  {
-    title: "Banger Show - Music visuals",
-    type: "mux_video",
-    time: "0",
-    muxId: "nDU01DSCFdvie6l9Z8u557TwSvJMsnhO3pfTqqXDuPbQ",
-    description:
-      "High quality music visuals without learning 3D or video editing software.",
-    height: 1080,
-    width: 1920,
-    submittedOn: new Date("04-24-2024"),
-    links: [
-      {
-        type: "website",
-        url: "https://banger.show/",
-      },
-    ],
-  },
-  {
-    title: "MotionShot - Video guides",
-    type: "mux_video",
-    time: "0",
-    muxId: "q8DK3k322cMIfMwPTSu5GYEnovEvoYA4aprLH8cp5pY",
-    description:
-      "Make guides & tutorials for your products, internal tools, SOPs, step-by-step processing and export them into MP4, GIF, PDF, or embed into your own webpage.",
-    height: 1080,
-    width: 1920,
-    submittedOn: new Date("04-24-2024"),
-    links: [
-      {
-        type: "website",
-        url: "https://www.motionshot.app/",
-      },
-    ],
-    author: {
-      url: "https://twitter.com/pramodk73",
-      name: "Pramod Kumar",
-    },
-  },
-  {
-    title: "Watercolor Map - Animated map",
-    type: "mux_video",
-    time: "1",
-    muxId: "Wd02W8GdZsjQ3JSKUsOjKtpEGxXBNbXRg8hiwmYx7cTM",
-    description:
-      "A travel animation showing the journey on a map, with watercolor effects. Perfect for adding b-roll footage to travel vlogs or video projects.",
-    height: 1080,
-    width: 1080,
-    submittedOn: new Date("04-23-2024"),
-    links: [
-      {
-        type: "source_code",
-        url: "https://github.com/remotion-dev/github-unwrapped-2023",
-      },
-    ],
-    author: {
-      url: "https://www.remotion.dev/",
-      name: "Remotion",
-    },
-  },
-  {
-    title: "Clippulse - Animated social media videos",
-    type: "mux_video",
-    time: "4.5",
-    muxId: "vQSX6I8lo5SPIEj02jcw6OVKb01V8WcYwB01GUC02PqMHxI",
-    description:
-      "Clippulse is a dynamic tool to easily produce fully customizable videos for brands, without any prior video editing experience required.",
-    height: 1080,
-    width: 1920,
-    submittedOn: new Date("04-24-2024"),
-    links: [
-      {
-        type: "website",
-        url: "https://www.clippulse.com/",
-      },
-    ],
-    author: {
-      url: "https://twitter.com/andrei_terteci",
-      name: "Andrei Terteci",
-    },
-  },
-  {
-    title: "Submagic - Viral shorts",
-    type: "mux_video",
-    time: "0",
-    muxId: "CjBZygWogZoMptDHSOgYFZ9019oQMIkQqliQlgpWpyP4",
-    description:
-      "Make your short-form videos more captivating with Captions, B-Rolls, Zooms and Sound Effects.",
-    height: 1080,
-    width: 1920,
-    submittedOn: new Date("04-25-2024"),
-    links: [
-      {
-        type: "video",
-        url: "https://www.youtube.com/watch?v=hNKola6xpqQ",
-      },
-    ],
-    author: {
-      url: "https://www.submagic.co/",
-      name: "Submagic",
-    },
-  },
-  {
-    title: "Polygon - Campaign",
-    type: "mux_video",
-    time: "10",
-    muxId: "tswSoVoFUjryYX8702phE801Fv00VwtB018cIy3a25fNo01c",
-    description:
-      "A year-in-review for stock performance provided by Polygon Stock API.",
-    height: 1194,
-    width: 2048,
-    submittedOn: new Date("01-02-2023"),
-    links: [],
-    author: {
-      url: "https://polygon.io",
-      name: "Polygon",
-    },
-  },
-  {
-    title: "Hello Météo - Weather app",
-    type: "mux_video",
-    time: "5",
-    muxId: "6ZdkFhso67CenQGpVtjTf300VsYMD01gvag6G6hV6UD00M",
-    description:
-      "A weather report generator, which gets OpenWeather data and renders a video with the forecast on a daily basis. It also creates a story on social media.",
-    height: 1920,
-    width: 1080,
-    submittedOn: new Date("04-25-2024"),
-    links: [
-      {
-        type: "website",
-        url: "https://www.instagram.com/hellometeo/",
-      },
-    ],
-    author: {
-      url: "https://www.pergoud.com/",
-      name: "Florent Pergoud",
-    },
-  },
-  {
-    title: "Electricity Maps - Data visualization",
-    type: "mux_video",
-    time: "2.9",
-    muxId: "63euRVDpjG02pCGuf02LDJXKLzLrGW3j400GE3kVZRYDgI",
-    description:
-      "A visualization of heavy electricity data in Europe. It shows fluctuations in grid emissions on the map, as well as the daily country variations in a chart.",
-    height: 1080,
-    width: 1920,
-    submittedOn: new Date("04-26-2024"),
-    links: [
-      {
-        type: "video",
-        url: "https://www.youtube.com/watch?v=5m48kkhak-M",
-      },
-      {
-        type: "website",
-        url: "https://www.electricitymaps.com/electricity-mapped",
-      },
-    ],
-    author: {
-      url: "https://www.electricitymaps.com/",
-      name: "Electricity Maps",
-    },
-  },
-  {
-    title: "Remotion Recorder - Screencast videos",
-    type: "mux_video",
-    time: "0",
-    muxId: "HCA9phm4tUVjYm9dFWj1GpYTwIGrse00yg01SwaM2PbJU",
-    description:
-      "Fully featured screen recording software built with Remotion. Record your screen, webcam, and audio. Edit and render the video for multiple platforms quickly in the same tool.",
-    height: 1080,
-    width: 1920,
-    submittedOn: new Date("04-26-2024"),
-    links: [
-      {
-        type: "website",
-        url: "https://www.remotion.pro/recorder",
-      },
-    ],
-    author: {
-      url: "https://www.remotion.dev",
-      name: "Remotion",
-    },
-  },
-  {
-    title: "Fluidmotion - Animated video backgrounds",
-    type: "mux_video",
-    time: "0",
-    muxId: "eLyQruncRGvNahd3n9hB44OuziMYqGgS8R1xyhbz02s4",
-    description:
-      "Create beautiful animated background for apps, videos or presentations.",
-    height: 1080,
-    width: 1920,
-    submittedOn: new Date("05-15-2024"),
-    links: [
-      {
-        type: "website",
-        url: "https://fluidmotion.app/",
-      },
-    ],
-  },
+	{
+		title: 'Hackreels - Animate your code',
+		type: 'mux_video',
+		time: '0',
+		muxId: 'IOSwIZiNUsdfcg9ccN3E2vqzen92L99VgoP3Q5p9On8',
+		description:
+			'Create effortlessly beautiful code animations in seconds. Hackreels detects code changes automatically and makes stunning animations based on those changes. ',
+		height: 1080,
+		width: 1920,
+		submittedOn: new Date('04-22-2024'),
+		links: [
+			{
+				type: 'video',
+				url: 'https://twitter.com/dparksdev/status/1715725060324073582',
+			},
+			{
+				type: 'website',
+				url: 'https://www.hackreels.com/',
+			},
+		],
+		author: {
+			url: 'https://davidparks.dev/',
+			name: 'David Parks',
+		},
+	},
+	{
+		title: 'MUX - Vizualise video stats',
+		type: 'mux_video',
+		time: '3',
+		muxId: 'DDgXb2KfPk7xdvxEoyPkrl7GcybohNon',
+		description:
+			'An article on how to showcase your video stats by creating a dynamic animated video using Remotion and the Mux Data API.',
+		height: 270,
+		width: 480,
+		submittedOn: new Date('19-01-2022'),
+		links: [
+			{
+				type: 'source_code',
+				url: 'https://github.com/davekiss/mux-remotion-demo/',
+			},
+			{
+				type: 'video',
+				url: 'https://twitter.com/MuxHQ/status/1483514610380644357',
+			},
+			{
+				type: 'tutorial',
+				url: 'https://mux.com/blog/visualize-mux-data-with-remotion/',
+			},
+		],
+		author: {
+			url: 'https://davekiss.com/',
+			name: 'Dave Kiss',
+		},
+	},
+	{
+		title: 'Next.js - Video tutorial',
+		type: 'mux_video',
+		time: '10',
+		muxId: 'dWxzp02gvlUM42a6GSQ02g006qiW2T43QGeuszqimY0200AE',
+		description:
+			"Delba Oliveira visually explains Vercel's Next.js and the concept of React.",
+		height: 1080,
+		width: 1920,
+		submittedOn: new Date('10-09-2023'),
+		links: [
+			{
+				type: 'video',
+				url: 'https://twitter.com/delba_oliveira/status/1707439537054535867',
+			},
+			{
+				type: 'website',
+				url: 'https://www.youtube.com/@Delba',
+			},
+		],
+		author: {
+			url: 'https://delba.dev/',
+			name: 'Delba Oliveira',
+		},
+	},
+	{
+		title: 'GitHub Unwrapped - Campaign',
+		type: 'mux_video',
+		time: '6',
+		muxId: 'OwQFvqomOR00q6yj5SWwaA7DBg01NaCPKcOvczoZqCty00',
+		description:
+			'A year-in-review video campaign for GitHub, where each user gets a personalized video based on their GitHub activity.',
+		height: 1080,
+		width: 1080,
+		submittedOn: new Date('04-23-2024'),
+		links: [
+			{
+				type: 'website',
+				url: 'https://githubunwrapped.com/',
+			},
+			{
+				type: 'source_code',
+				url: 'https://github.com/remotion-dev/github-unwrapped-2023',
+			},
+		],
+		author: {
+			url: 'https://www.remotion.dev/',
+			name: 'Remotion',
+		},
+	},
+	{
+		title: 'Revid - Animated social media videos',
+		type: 'mux_video',
+		time: '13',
+		muxId: 'AQJeyQ00njF88JNevZ2Xf00KGOX01zBLBa4Xisvu9M00ynM',
+		description:
+			'Create stunning social media videos with Revid, an AI-powered tool that transforms text into editable videos in minutes. ',
+		height: 1152,
+		width: 2048,
+		submittedOn: new Date('04-24-2024'),
+		links: [
+			{
+				type: 'website',
+				url: 'https://www.revid.ai/',
+			},
+		],
+		author: {
+			url: 'https://twitter.com/tibo_maker',
+			name: 'Tibo',
+		},
+	},
+	{
+		title: 'AnimStats - Animated statistics',
+		type: 'mux_video',
+		time: '8',
+		muxId: 'DudsRLermQWA5JMpF6Z49AwuAjrvO00vxmsgSyS00neo00',
+		description:
+			'With AnimStats, you can transform your statistics into captivating animated GIFs and Videos within minutes. The user-friendly interface and powerful editing feature make the process quick and effortless.',
+		height: 1152,
+		width: 2048,
+		submittedOn: new Date('04-24-2024'),
+		links: [
+			{
+				type: 'website',
+				url: 'https://www.animstats.com/',
+			},
+		],
+		author: {
+			url: 'https://twitter.com/audiencon',
+			name: 'Audiencon',
+		},
+	},
+	{
+		title: 'Banger Show - Music visuals',
+		type: 'mux_video',
+		time: '0',
+		muxId: 'nDU01DSCFdvie6l9Z8u557TwSvJMsnhO3pfTqqXDuPbQ',
+		description:
+			'High quality music visuals without learning 3D or video editing software.',
+		height: 1080,
+		width: 1920,
+		submittedOn: new Date('04-24-2024'),
+		links: [
+			{
+				type: 'website',
+				url: 'https://banger.show/',
+			},
+		],
+	},
+	{
+		title: 'MotionShot - Video guides',
+		type: 'mux_video',
+		time: '0',
+		muxId: 'q8DK3k322cMIfMwPTSu5GYEnovEvoYA4aprLH8cp5pY',
+		description:
+			'Make guides & tutorials for your products, internal tools, SOPs, step-by-step processing and export them into MP4, GIF, PDF, or embed into your own webpage.',
+		height: 1080,
+		width: 1920,
+		submittedOn: new Date('04-24-2024'),
+		links: [
+			{
+				type: 'website',
+				url: 'https://www.motionshot.app/',
+			},
+		],
+		author: {
+			url: 'https://twitter.com/pramodk73',
+			name: 'Pramod Kumar',
+		},
+	},
+	{
+		title: 'Watercolor Map - Animated map',
+		type: 'mux_video',
+		time: '1',
+		muxId: 'Wd02W8GdZsjQ3JSKUsOjKtpEGxXBNbXRg8hiwmYx7cTM',
+		description:
+			'A travel animation showing the journey on a map, with watercolor effects. Perfect for adding b-roll footage to travel vlogs or video projects.',
+		height: 1080,
+		width: 1080,
+		submittedOn: new Date('04-23-2024'),
+		links: [
+			{
+				type: 'source_code',
+				url: 'https://github.com/remotion-dev/github-unwrapped-2023',
+			},
+		],
+		author: {
+			url: 'https://www.remotion.dev/',
+			name: 'Remotion',
+		},
+	},
+	{
+		title: 'Clippulse - Animated social media videos',
+		type: 'mux_video',
+		time: '4.5',
+		muxId: 'vQSX6I8lo5SPIEj02jcw6OVKb01V8WcYwB01GUC02PqMHxI',
+		description:
+			'Clippulse is a dynamic tool to easily produce fully customizable videos for brands, without any prior video editing experience required.',
+		height: 1080,
+		width: 1920,
+		submittedOn: new Date('04-24-2024'),
+		links: [
+			{
+				type: 'website',
+				url: 'https://www.clippulse.com/',
+			},
+		],
+		author: {
+			url: 'https://twitter.com/andrei_terteci',
+			name: 'Andrei Terteci',
+		},
+	},
+	{
+		title: 'Submagic - Viral shorts',
+		type: 'mux_video',
+		time: '0',
+		muxId: 'CjBZygWogZoMptDHSOgYFZ9019oQMIkQqliQlgpWpyP4',
+		description:
+			'Make your short-form videos more captivating with Captions, B-Rolls, Zooms and Sound Effects.',
+		height: 1080,
+		width: 1920,
+		submittedOn: new Date('04-25-2024'),
+		links: [
+			{
+				type: 'video',
+				url: 'https://www.youtube.com/watch?v=hNKola6xpqQ',
+			},
+		],
+		author: {
+			url: 'https://www.submagic.co/',
+			name: 'Submagic',
+		},
+	},
+	{
+		title: 'Polygon - Campaign',
+		type: 'mux_video',
+		time: '10',
+		muxId: 'tswSoVoFUjryYX8702phE801Fv00VwtB018cIy3a25fNo01c',
+		description:
+			'A year-in-review for stock performance provided by Polygon Stock API.',
+		height: 1194,
+		width: 2048,
+		submittedOn: new Date('01-02-2023'),
+		links: [],
+		author: {
+			url: 'https://polygon.io',
+			name: 'Polygon',
+		},
+	},
+	{
+		title: 'Hello Météo - Weather app',
+		type: 'mux_video',
+		time: '5',
+		muxId: '6ZdkFhso67CenQGpVtjTf300VsYMD01gvag6G6hV6UD00M',
+		description:
+			'A weather report generator, which gets OpenWeather data and renders a video with the forecast on a daily basis. It also creates a story on social media.',
+		height: 1920,
+		width: 1080,
+		submittedOn: new Date('04-25-2024'),
+		links: [
+			{
+				type: 'website',
+				url: 'https://www.instagram.com/hellometeo/',
+			},
+		],
+		author: {
+			url: 'https://www.pergoud.com/',
+			name: 'Florent Pergoud',
+		},
+	},
+	{
+		title: 'Electricity Maps - Data visualization',
+		type: 'mux_video',
+		time: '2.9',
+		muxId: '63euRVDpjG02pCGuf02LDJXKLzLrGW3j400GE3kVZRYDgI',
+		description:
+			'A visualization of heavy electricity data in Europe. It shows fluctuations in grid emissions on the map, as well as the daily country variations in a chart.',
+		height: 1080,
+		width: 1920,
+		submittedOn: new Date('04-26-2024'),
+		links: [
+			{
+				type: 'video',
+				url: 'https://www.youtube.com/watch?v=5m48kkhak-M',
+			},
+			{
+				type: 'website',
+				url: 'https://www.electricitymaps.com/electricity-mapped',
+			},
+		],
+		author: {
+			url: 'https://www.electricitymaps.com/',
+			name: 'Electricity Maps',
+		},
+	},
+	{
+		title: 'Remotion Recorder - Screencast videos',
+		type: 'mux_video',
+		time: '0',
+		muxId: 'HCA9phm4tUVjYm9dFWj1GpYTwIGrse00yg01SwaM2PbJU',
+		description:
+			'Fully featured screen recording software built with Remotion. Record your screen, webcam, and audio. Edit and render the video for multiple platforms quickly in the same tool.',
+		height: 1080,
+		width: 1920,
+		submittedOn: new Date('04-26-2024'),
+		links: [
+			{
+				type: 'website',
+				url: 'https://www.remotion.pro/recorder',
+			},
+		],
+		author: {
+			url: 'https://www.remotion.dev',
+			name: 'Remotion',
+		},
+	},
+	{
+		title: 'Fluidmotion - Animated video backgrounds',
+		type: 'mux_video',
+		time: '0',
+		muxId: 'eLyQruncRGvNahd3n9hB44OuziMYqGgS8R1xyhbz02s4',
+		description:
+			'Create beautiful animated background for apps, videos or presentations.',
+		height: 1080,
+		width: 1920,
+		submittedOn: new Date('05-15-2024'),
+		links: [
+			{
+				type: 'website',
+				url: 'https://fluidmotion.app/',
+			},
+		],
+	},
 
-  /*
+	/*
   {
     title: "Exemplary AI - Viral shorts",
     type: "mux_video",
@@ -1805,13 +1805,13 @@ export const showcaseVideos: ShowcaseVideo[] = [
 ];
 
 const dateString = (date: Date) =>
-  date.getDate() + "-" + date.getMonth() + "-" + date.getFullYear();
+	date.getDate() + '-' + date.getMonth() + '-' + date.getFullYear();
 
 const todayHash = dateString(new Date());
 
 export const shuffledShowcaseVideos =
-  typeof window === "undefined"
-    ? []
-    : showcaseVideos.slice(0).sort((a, b) => {
-        return random(a.muxId + todayHash) - random(b.muxId + todayHash);
-      });
+	typeof window === 'undefined'
+		? []
+		: showcaseVideos.slice(0).sort((a, b) => {
+				return random(a.muxId + todayHash) - random(b.muxId + todayHash);
+			});
