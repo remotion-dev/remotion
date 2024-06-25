@@ -25,8 +25,13 @@
     }
   },
   "devDependencies": {
+    "@jonny/eslint-config": "3.0.281",
     "@types/bun": "1.0.12",
-    "@types/node": "18.14.6"
+    "@types/node": "18.14.6",
+    "eslint": "8.56.0",
+    "eslint-plugin-10x": "1.5.2",
+    "eslint-plugin-react": "7.32.2",
+    "eslint-plugin-react-hooks": "4.4.0"
   },
   "dependencies": {
     "turbo": "1.13.3",

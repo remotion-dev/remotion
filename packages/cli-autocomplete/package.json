@@ -5,7 +5,6 @@
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.281",
 		"@types/node": "18.14.6",
-		"eslint": "8.56.0",
 		"prettier": "3.2.5",
 		"@fig/eslint-config-autocomplete": "1.2.1",
 		"@withfig/autocomplete-types": "^1.20.0",

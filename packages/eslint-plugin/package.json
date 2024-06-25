@@ -22,7 +22,6 @@
     "eslint": ">=7.0.0"
   },
   "devDependencies": {
-    "eslint": "8.56.0",
     "vitest": "0.31.1"
   },
   "private": false

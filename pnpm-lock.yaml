@@ -18,12 +18,27 @@ importers:
         specifier: 5.3.3
         version: 5.3.3
     devDependencies:
+      '@jonny/eslint-config':
+        specifier: 3.0.281
+        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/bun':
         specifier: 1.0.12
         version: 1.0.12
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
+      eslint-plugin-10x:
+        specifier: 1.5.2
+        version: 1.5.2(eslint@8.56.0)
+      eslint-plugin-react:
+        specifier: 7.32.2
+        version: 7.32.2(eslint@8.56.0)
+      eslint-plugin-react-hooks:
+        specifier: 4.4.0
+        version: 4.4.0(eslint@8.56.0)
 
   packages/ai-improvements:
     dependencies:
@@ -58,9 +73,6 @@ importers:
       '@types/react':
         specifier: 18.3.1
         version: 18.3.1
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -155,9 +167,6 @@ importers:
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -210,18 +219,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-plugin-10x:
-        specifier: 1.5.2
-        version: 1.5.2(eslint@8.56.0)
-      eslint-plugin-react:
-        specifier: 7.32.2
-        version: 7.32.2(eslint@8.56.0)
-      eslint-plugin-react-hooks:
-        specifier: 4.4.0
-        version: 4.4.0(eslint@8.56.0)
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -304,18 +301,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-plugin-10x:
-        specifier: 1.5.2
-        version: 1.5.2(eslint@8.56.0)
-      eslint-plugin-react:
-        specifier: 7.32.2
-        version: 7.32.2(eslint@8.56.0)
-      eslint-plugin-react-hooks:
-        specifier: 4.4.0
-        version: 4.4.0(eslint@8.56.0)
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -349,9 +334,6 @@ importers:
       '@withfig/autocomplete-types':
         specifier: ^1.20.0
         version: 1.30.0
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -407,9 +389,6 @@ importers:
       '@types/node':
         specifier: ^18.11.2
         version: 18.14.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -457,12 +436,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-plugin-require-extensions:
-        specifier: ^0.1.2
-        version: 0.1.2(eslint@8.56.0)
       happy-dom:
         specifier: 14.5.1
         version: 14.5.1
@@ -530,9 +503,6 @@ importers:
       '@types/tar':
         specifier: 6.1.1
         version: 6.1.1
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -765,9 +735,6 @@ importers:
       '@typescript/twoslash':
         specifier: 3.2.1
         version: 3.2.1
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       fenceparser:
         specifier: ^2.2.0
         version: 2.2.0
@@ -817,9 +784,6 @@ importers:
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -838,6 +802,9 @@ importers:
       '@typescript-eslint/parser':
         specifier: 6.21.0
         version: 6.21.0(eslint@8.56.0)(typescript@5.3.3)
+      eslint:
+        specifier: '>=7.15.0'
+        version: 8.56.0
       eslint-plugin-10x:
         specifier: 1.5.2
         version: 1.5.2(eslint@8.56.0)
@@ -851,19 +818,16 @@ importers:
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
 
   packages/eslint-plugin:
     dependencies:
       '@typescript-eslint/utils':
         specifier: 5.19.0
         version: 5.19.0(eslint@8.56.0)(typescript@5.3.3)
-    devDependencies:
       eslint:
-        specifier: 8.56.0
+        specifier: '>=7.0.0'
         version: 8.56.0
+    devDependencies:
       vitest:
         specifier: 0.31.1
         version: 0.31.1(happy-dom@14.5.1)(jsdom@21.1.0)
@@ -1057,18 +1021,6 @@ importers:
         specifier: 3.22.3
         version: 3.22.3
     devDependencies:
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-plugin-10x:
-        specifier: 1.5.2
-        version: 1.5.2(eslint@8.56.0)
-      eslint-plugin-react:
-        specifier: 7.32.2
-        version: 7.32.2(eslint@8.56.0)
-      eslint-plugin-react-hooks:
-        specifier: 4.4.0
-        version: 4.4.0(eslint@8.56.0)
       prettier-plugin-organize-imports:
         specifier: 3.2.4
         version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
@@ -1110,9 +1062,6 @@ importers:
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1141,9 +1090,6 @@ importers:
       esbuild:
         specifier: 0.18.6
         version: 0.18.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1200,18 +1146,6 @@ importers:
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-plugin-10x:
-        specifier: 1.5.2
-        version: 1.5.2(eslint@8.56.0)
-      eslint-plugin-react:
-        specifier: 7.32.2
-        version: 7.32.2(eslint@8.56.0)
-      eslint-plugin-react-hooks:
-        specifier: 4.4.0
-        version: 4.4.0(eslint@8.56.0)
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1366,9 +1300,6 @@ importers:
       '@types/react':
         specifier: 18.3.1
         version: 18.3.1
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1417,9 +1348,6 @@ importers:
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1448,9 +1376,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1485,9 +1410,6 @@ importers:
       '@types/react':
         specifier: 18.3.1
         version: 18.3.1
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1507,9 +1429,6 @@ importers:
       '@types/react':
         specifier: 18.3.1
         version: 18.3.1
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1538,9 +1457,6 @@ importers:
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1556,9 +1472,6 @@ importers:
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1593,12 +1506,6 @@ importers:
       csstype:
         specifier: ^3.1.1
         version: 3.1.1
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-plugin-require-extensions:
-        specifier: ^0.1.2
-        version: 0.1.2(eslint@8.56.0)
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1644,9 +1551,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       next:
         specifier: 14.1.4
         version: 14.1.4(react-dom@18.3.1)(react@18.3.1)
@@ -1672,9 +1576,6 @@ importers:
       '@jonny/eslint-config':
         specifier: 3.0.281
         version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1755,9 +1656,6 @@ importers:
       '@types/ws':
         specifier: 8.5.10
         version: 8.5.10
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1792,9 +1690,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1832,9 +1727,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1869,9 +1761,6 @@ importers:
       '@types/react-native':
         specifier: ^0.69.2
         version: 0.69.2
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1890,18 +1779,6 @@ importers:
       '@jonny/eslint-config':
         specifier: 3.0.281
         version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-plugin-10x:
-        specifier: 1.5.2
-        version: 1.5.2(eslint@8.56.0)
-      eslint-plugin-react:
-        specifier: 7.32.2
-        version: 7.32.2(eslint@8.56.0)
-      eslint-plugin-react-hooks:
-        specifier: 4.4.0
-        version: 4.4.0(eslint@8.56.0)
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1957,18 +1834,6 @@ importers:
       '@types/semver':
         specifier: ^7.3.4
         version: 7.5.3
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-plugin-10x:
-        specifier: 1.5.2
-        version: 1.5.2(eslint@8.56.0)
-      eslint-plugin-react:
-        specifier: 7.32.2
-        version: 7.32.2(eslint@8.56.0)
-      eslint-plugin-react-hooks:
-        specifier: 4.4.0
-        version: 4.4.0(eslint@8.56.0)
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -2033,18 +1898,6 @@ importers:
       '@types/semver':
         specifier: ^7.3.4
         version: 7.5.3
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-plugin-10x:
-        specifier: 1.5.2
-        version: 1.5.2(eslint@8.56.0)
-      eslint-plugin-react:
-        specifier: 7.32.2
-        version: 7.32.2(eslint@8.56.0)
-      eslint-plugin-react-hooks:
-        specifier: 4.4.0
-        version: 4.4.0(eslint@8.56.0)
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -2070,18 +1923,6 @@ importers:
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-plugin-10x:
-        specifier: 1.5.2
-        version: 1.5.2(eslint@8.56.0)
-      eslint-plugin-react:
-        specifier: 7.32.2
-        version: 7.32.2(eslint@8.56.0)
-      eslint-plugin-react-hooks:
-        specifier: 4.4.0
-        version: 4.4.0(eslint@8.56.0)
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -2122,9 +1963,6 @@ importers:
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -2143,9 +1981,6 @@ importers:
       '@types/react':
         specifier: 18.3.1
         version: 18.3.1
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -2168,9 +2003,6 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@react-three/fiber':
         specifier: 8.13.5
         version: 8.13.5(react-dom@18.3.1)(react@18.3.1)(three@0.158.0)
@@ -2189,9 +2021,6 @@ importers:
       '@types/web':
         specifier: 0.0.78
         version: 0.0.78
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -2241,9 +2070,6 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^2.0.0
         version: 2.2.0(vite@3.2.10)
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -2268,18 +2094,6 @@ importers:
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-plugin-10x:
-        specifier: 1.5.2
-        version: 1.5.2(eslint@8.56.0)
-      eslint-plugin-react:
-        specifier: 7.32.2
-        version: 7.32.2(eslint@8.56.0)
-      eslint-plugin-react-hooks:
-        specifier: 4.4.0
-        version: 4.4.0(eslint@8.56.0)
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -2296,9 +2110,6 @@ importers:
       '@jonny/eslint-config':
         specifier: 3.0.281
         version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -8392,6 +8203,7 @@ packages:
 
   /@humanwhocodes/object-schema@2.0.3:
     resolution: {integrity: sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA==}
+    deprecated: Use @eslint/object-schema instead
 
   /@jest/types@27.5.1:
     resolution: {integrity: sha512-Cx46iJ9QpwQTjIdq5VJu2QTMMs3QlEjI0x1QbBP5W1+nMzyc2XmimiRR/CbX9TO0cPTeUlxWMOu8mslYsJ8DEw==}
@@ -13983,15 +13795,6 @@ packages:
       semver: 6.3.1
       string.prototype.matchall: 4.0.11
 
-  /eslint-plugin-require-extensions@0.1.2(eslint@8.56.0):
-    resolution: {integrity: sha512-UtddVQMdE2SezgWwK7JO7eCBUDUqLg6jq8YGlz5RlSG06Sqlr+xcAaosho3wZYrOzfp6zKUseDFavWgoAgCimQ==}
-    engines: {node: '>=16'}
-    peerDependencies:
-      eslint: '*'
-    dependencies:
-      eslint: 8.56.0
-    dev: true
-
   /eslint-scope@5.1.1:
     resolution: {integrity: sha512-2NxwbF/hZ0KpepYN0cNbo+FN6XoK7GaHlQhgx/hIZl6Va0bF45RQOOwhLIy8lQDbuCiadSLCBnH2CFYquit5bw==}
     engines: {node: '>=8.0.0'}
@@ -14748,15 +14551,6 @@ packages:
 
   /function-bind@1.1.2:
     resolution: {integrity: sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==}
-
-  /function.prototype.name@1.1.5:
-    resolution: {integrity: sha512-uN7m/BzVKQnCUF/iW8jYea67v++2u7m5UgENbHRtdDVclOUP+FMPlCNdmk0h/ysGyo2tavMJEDqJAkJdRa1vMA==}
-    engines: {node: '>= 0.4'}
-    dependencies:
-      call-bind: 1.0.7
-      define-properties: 1.2.1
-      es-abstract: 1.23.3
-      functions-have-names: 1.2.3
 
   /function.prototype.name@1.1.6:
     resolution: {integrity: sha512-Z5kx79swU5P27WEayXM1tBi5Ze/lbIyiNgU3qyXUOf9b2rgXYyF9Dy9Cx+IQv/Lc8WCG6L82zwUPpSS9hGehIg==}
@@ -15735,6 +15529,7 @@ packages:
 
   /inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
+    deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
     dependencies:
       once: 1.4.0
       wrappy: 1.0.2
@@ -20313,6 +20108,7 @@ packages:
 
   /rimraf@3.0.2:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
     dependencies:
       glob: 7.2.0
@@ -23309,7 +23105,7 @@ packages:
     resolution: {integrity: sha512-YmjsSMDBYsM1CaFiayOVT06+KJeXf0o5M/CAd4o1lTadFAtacTUM49zoYxr/oroopFDfhvN6iEcBxUyc3gvKmw==}
     engines: {node: '>= 0.4'}
     dependencies:
-      function.prototype.name: 1.1.5
+      function.prototype.name: 1.1.6
       has-tostringtag: 1.0.2
       is-async-function: 2.0.0
       is-date-object: 1.0.5
