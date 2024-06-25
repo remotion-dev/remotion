@@ -32,7 +32,6 @@
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.281",
 		"@types/bun": "1.0.12",
 		"@types/node": "18.14.6",
 		"prettier": "3.2.5",

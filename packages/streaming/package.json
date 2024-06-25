@@ -21,7 +21,6 @@
 		"access": "public"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.281",
 		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4"
 	},

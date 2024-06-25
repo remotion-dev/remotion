@@ -37,7 +37,6 @@
 		"zod": "3.22.3"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.281",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/compositor-linux-arm64-gnu": "workspace:*",
 		"@types/mime-types": "2.1.1",

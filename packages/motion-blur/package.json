@@ -37,7 +37,6 @@
 		}
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.281",
 		"@types/react": "18.3.1",
 		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4",

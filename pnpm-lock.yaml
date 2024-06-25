@@ -64,9 +64,6 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -158,9 +155,6 @@ importers:
         specifier: 5.83.1
         version: 5.83.1
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@remotion/bundler':
         specifier: workspace:*
         version: link:../bundler
@@ -207,9 +201,6 @@ importers:
         specifier: 5.83.1
         version: 5.83.1(esbuild@0.18.6)
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -268,9 +259,6 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@remotion/enable-scss':
         specifier: workspace:*
         version: link:../enable-scss
@@ -322,9 +310,6 @@ importers:
       '@fig/eslint-config-autocomplete':
         specifier: 1.2.1
         version: 1.2.1(eslint@8.56.0)(typescript@5.3.3)
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
@@ -377,9 +362,6 @@ importers:
         specifier: 3.22.3
         version: 3.22.3
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@remotion/compositor-linux-x64-gnu':
         specifier: workspace:*
         version: link:../compositor-linux-x64-gnu
@@ -421,9 +403,6 @@ importers:
       '@happy-dom/global-registrator':
         specifier: 14.5.1
         version: 14.5.1
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@testing-library/react':
         specifier: 14.0.0
         version: 14.0.0(react-dom@18.3.1)(react@18.3.1)
@@ -485,9 +464,6 @@ importers:
         specifier: 6.2.1
         version: 6.2.1
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/minimist':
         specifier: 1.2.2
         version: 1.2.2
@@ -548,9 +524,6 @@ importers:
       '@docusaurus/types':
         specifier: 2.4.1
         version: 2.4.1(@swc/core@1.3.80)(react-dom@18.3.1)(react@18.3.1)
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@mdx-js/react':
         specifier: ^1.6.21
         version: 1.6.22(react@18.3.1)
@@ -775,9 +748,6 @@ importers:
         specifier: 2.0.0
         version: 2.0.0(webpack@5.83.1)
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@remotion/bundler':
         specifier: workspace:*
         version: link:../bundler
@@ -1056,9 +1026,6 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -1075,9 +1042,6 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -1140,9 +1104,6 @@ importers:
         specifier: '>=16.8.0'
         version: 18.2.0(react@18.2.0)
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -1279,9 +1240,6 @@ importers:
         specifier: 3.22.3
         version: 3.22.3
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@remotion/compositor-linux-arm64-gnu':
         specifier: workspace:*
         version: link:../compositor-linux-arm64-gnu
@@ -1342,9 +1300,6 @@ importers:
 
   packages/layout-utils:
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -1364,9 +1319,6 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -1401,9 +1353,6 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -1423,9 +1372,6 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/react':
         specifier: 18.3.1
         version: 18.3.1
@@ -1451,9 +1397,6 @@ importers:
         specifier: 4.0.1
         version: 4.0.1
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -1466,9 +1409,6 @@ importers:
 
   packages/paths:
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -1488,9 +1428,6 @@ importers:
       '@happy-dom/global-registrator':
         specifier: 14.5.1
         version: 14.5.1
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@testing-library/react':
         specifier: 13.1.1
         version: 13.1.1(react-dom@18.3.1)(react@18.3.1)
@@ -1573,9 +1510,6 @@ importers:
 
   packages/preload:
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1626,9 +1560,6 @@ importers:
       '@happy-dom/global-registrator':
         specifier: 14.5.1
         version: 14.5.1
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@remotion/streaming':
         specifier: workspace:*
         version: link:../streaming
@@ -1678,9 +1609,6 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -1712,9 +1640,6 @@ importers:
       '@happy-dom/global-registrator':
         specifier: 14.5.1
         version: 14.5.1
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@testing-library/react':
         specifier: ^13.4.0
         version: 13.4.0(react-dom@18.3.1)(react@18.3.1)
@@ -1746,9 +1671,6 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@remotion/bundler':
         specifier: workspace:*
         version: link:../bundler
@@ -1776,9 +1698,6 @@ importers:
 
   packages/streaming:
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1816,9 +1735,6 @@ importers:
         specifier: 0.7.3
         version: 0.7.3
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@remotion/zod-types':
         specifier: workspace:*
         version: link:../zod-types
@@ -1886,9 +1802,6 @@ importers:
       '@babel/types':
         specifier: 7.24.0
         version: 7.24.0
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -1914,9 +1827,6 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
@@ -1954,9 +1864,6 @@ importers:
         specifier: ^3.3.2
         version: 3.3.2
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@remotion/bundler':
         specifier: workspace:*
         version: link:../bundler
@@ -1972,9 +1879,6 @@ importers:
 
   packages/test-utils:
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -2052,9 +1956,6 @@ importers:
       '@happy-dom/global-registrator':
         specifier: 14.5.1
         version: 14.5.1
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@remotion/test-utils':
         specifier: workspace:*
         version: link:../test-utils
@@ -2085,9 +1986,6 @@ importers:
 
   packages/video-parser:
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/bun':
         specifier: 1.0.12
         version: 1.0.12
@@ -2107,9 +2005,6 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -8228,6 +8123,7 @@ packages:
       - eslint
       - supports-color
       - typescript
+    dev: true
 
   /@jridgewell/gen-mapping@0.3.2:
     resolution: {integrity: sha512-mh65xKQAzI6iBcFzwv28KVWSmCkdRBWoOh+bYQGW3+6OZvbbN3TqMGo5hqYxQniRcH9F2VZIoJCm4pa3BPDK/A==}
@@ -10218,6 +10114,7 @@ packages:
       typescript: 5.3.3
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   /@typescript-eslint/parser@5.62.0(eslint@8.56.0)(typescript@5.3.3):
     resolution: {integrity: sha512-VlJEV0fOQ7BExOsHYAGrgbEiZoi8D+Bl2+f6V2RrXerRSylnp+ZBHmPvaIa8cz0Ajx7WO7Z5RqfgYg7ED1nRhA==}
@@ -10279,6 +10176,7 @@ packages:
       typescript: 5.3.3
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   /@typescript-eslint/scope-manager@5.19.0:
     resolution: {integrity: sha512-Fz+VrjLmwq5fbQn5W7cIJZ066HxLMKvDEmf4eu1tZ8O956aoX45jAuBB76miAECMTODyUxH61AQM7q4/GOMQ5g==}
@@ -10310,6 +10208,7 @@ packages:
     dependencies:
       '@typescript-eslint/types': 7.5.0
       '@typescript-eslint/visitor-keys': 7.5.0
+    dev: true
 
   /@typescript-eslint/type-utils@5.62.0(eslint@8.56.0)(typescript@5.3.3):
     resolution: {integrity: sha512-xsSQreu+VnfbqQpW5vnCJdq1Z3Q0U31qiWmRhr98ONQmcp/yhiPJFPq8MXiJVLiksmOKSjIldZzkebzHuCGzew==}
@@ -10369,6 +10268,7 @@ packages:
       typescript: 5.3.3
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   /@typescript-eslint/types@5.19.0:
     resolution: {integrity: sha512-zR1ithF4Iyq1wLwkDcT+qFnhs8L5VUtjgac212ftiOP/ZZUOCuuF2DeGiZZGQXGoHA50OreZqLH5NjDcDqn34w==}
@@ -10388,6 +10288,7 @@ packages:
   /@typescript-eslint/types@7.5.0:
     resolution: {integrity: sha512-tv5B4IHeAdhR7uS4+bf8Ov3k793VEVHd45viRRkehIUZxm0WF82VPiLgHzA/Xl4TGPg1ZD49vfxBKFPecD5/mg==}
     engines: {node: ^18.18.0 || >=20.0.0}
+    dev: true
 
   /@typescript-eslint/typescript-estree@5.19.0(typescript@5.3.3):
     resolution: {integrity: sha512-dRPuD4ocXdaE1BM/dNR21elSEUPKaWgowCA0bqJ6YbYkvtrPVEvZ+zqcX5a8ECYn3q5iBSSUcBBD42ubaOp0Hw==}
@@ -10473,6 +10374,7 @@ packages:
       typescript: 5.3.3
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   /@typescript-eslint/utils@5.19.0(eslint@8.56.0)(typescript@5.3.3):
     resolution: {integrity: sha512-ZuEckdupXpXamKvFz/Ql8YnePh2ZWcwz7APICzJL985Rp5C2AYcHO62oJzIqNhAMtMK6XvrlBTZeNG8n7gS3lQ==}
@@ -10548,6 +10450,7 @@ packages:
     transitivePeerDependencies:
       - supports-color
       - typescript
+    dev: true
 
   /@typescript-eslint/visitor-keys@5.19.0:
     resolution: {integrity: sha512-Ym7zZoMDZcAKWsULi2s7UMLREdVQdScPQ/fKWMYefarCztWlHPFVJo8racf8R0Gc8FAEJ2eD4of8As1oFtnQlQ==}
@@ -10579,6 +10482,7 @@ packages:
     dependencies:
       '@typescript-eslint/types': 7.5.0
       eslint-visitor-keys: 3.4.3
+    dev: true
 
   /@typescript/twoslash@3.1.0:
     resolution: {integrity: sha512-kTwMUQ8xtAZaC4wb2XuLkPqFVBj2dNBueMQ89NWEuw87k2nLBbuafeG5cob/QEr6YduxIdTVUjix0MtC7mPlmg==}
@@ -11136,6 +11040,7 @@ packages:
       es-errors: 1.3.0
       es-object-atoms: 1.0.0
       es-shim-unscopables: 1.0.2
+    dev: true
 
   /array.prototype.flatmap@1.3.2:
     resolution: {integrity: sha512-Ewyx0c9PmpcsByhSW4r+9zDU7sGjFc86qf/kKtuSCRdhfbk0SNLLkaT5qvcHnRGgc5NP/ly/y+qkXkqONX54CQ==}
@@ -11153,6 +11058,7 @@ packages:
       define-properties: 1.2.1
       es-abstract: 1.23.3
       es-shim-unscopables: 1.0.2
+    dev: true
 
   /array.prototype.tosorted@1.1.3:
     resolution: {integrity: sha512-/DdH4TiTmOKzyQbp/eadcCVexiCb36xJg7HshYOYJnNZFDj33GEv0P7GxsynpShhq4OLYJzbGcBDkLsDt7MnNg==}
@@ -13328,6 +13234,7 @@ packages:
       internal-slot: 1.0.7
       iterator.prototype: 1.1.2
       safe-array-concat: 1.1.2
+    dev: true
 
   /es-module-lexer@1.1.1:
     resolution: {integrity: sha512-n3ruqU8Te7I5prBd6d0darM8ajFuVNhLWvgo04hN7goWSaSrxe7ENOZitac7akN0A2o+8fMomBDsNPvW/eE3CQ==}
@@ -13794,6 +13701,7 @@ packages:
       resolve: 2.0.0-next.5
       semver: 6.3.1
       string.prototype.matchall: 4.0.11
+    dev: true
 
   /eslint-scope@5.1.1:
     resolution: {integrity: sha512-2NxwbF/hZ0KpepYN0cNbo+FN6XoK7GaHlQhgx/hIZl6Va0bF45RQOOwhLIy8lQDbuCiadSLCBnH2CFYquit5bw==}
@@ -15646,6 +15554,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       has-tostringtag: 1.0.2
+    dev: true
 
   /is-bigint@1.0.4:
     resolution: {integrity: sha512-zB9CruMamjym81i2JZ3UMn54PKGsQzsJeo6xvN3HJJ4CAsQNB6iRutp2To77OfCNuoxspsIhzaPoO1zyCEhFOg==}
@@ -15773,6 +15682,7 @@ packages:
     resolution: {integrity: sha512-0by5vtUJs8iFQb5TYUHHPudOR+qXYIMKtiUzvLIZITZUjknFmziyBJuLhVRc+Ds0dREFlskDNJKYIdIzu/9pfw==}
     dependencies:
       call-bind: 1.0.7
+    dev: true
 
   /is-fullwidth-code-point@3.0.0:
     resolution: {integrity: sha512-zymm5+u+sCsSWyD9qNaejV3DFvhCKclKdizYaJUuHA83RLjb7nSuGnddCHGv0hk+KY7BMAlsWeK4Ueg6EV6XQg==}
@@ -15815,6 +15725,7 @@ packages:
   /is-map@2.0.3:
     resolution: {integrity: sha512-1Qed0/Hr2m+YqxnM09CjA2d/i6YZNfF6R2oRAOj36eUdS6qIV/huPJNSEpKbupewFs+ZsJlxsjjPbc0/afW6Lw==}
     engines: {node: '>= 0.4'}
+    dev: true
 
   /is-negative-zero@2.0.3:
     resolution: {integrity: sha512-5KoIu2Ngpyek75jXodFvnafB6DJgr3u8uuK0LEZJjrU19DrMD3EVERaR8sjz8CCGgpZvxPl9SuE1GMVPFHx1mw==}
@@ -15911,6 +15822,7 @@ packages:
   /is-set@2.0.3:
     resolution: {integrity: sha512-iPAjerrse27/ygGLxw+EBR9agv9Y6uLeYVJMu+QNCoouJ1/1ri0mGrcWpfCqFZuzzx3WjtwxG098X+n4OuRkPg==}
     engines: {node: '>= 0.4'}
+    dev: true
 
   /is-shared-array-buffer@1.0.3:
     resolution: {integrity: sha512-nA2hv5XIhLR3uVzDDfCIknerhx8XUKnstuOERPNNIinXG7v9u+ohXF67vxm4TPTEPU6lm61ZkwP3c9PCB97rhg==}
@@ -15957,6 +15869,7 @@ packages:
   /is-weakmap@2.0.2:
     resolution: {integrity: sha512-K5pXYOm9wqY1RgjpL3YTkF39tni1XajUIkawTLUo9EZEVUFga5gSQJF8nNS7ZwJQ02y+1YCNYcMh+HIf1ZqE+w==}
     engines: {node: '>= 0.4'}
+    dev: true
 
   /is-weakref@1.0.2:
     resolution: {integrity: sha512-qctsuLZmIQ0+vSSMfoVvyFe2+GSEvnmZ2ezTup1SBse9+twCCeial6EEi3Nc2KFcf6+qz2FBPnjXsk8xhKSaPQ==}
@@ -15969,6 +15882,7 @@ packages:
     dependencies:
       call-bind: 1.0.7
       get-intrinsic: 1.2.4
+    dev: true
 
   /is-what@4.1.15:
     resolution: {integrity: sha512-uKua1wfy3Yt+YqsD6mTUEa2zSi3G1oPlqTflgaPJ7z63vUGN5pxFpnQfeSLMFnJDEsdvOtkp1rUWkYjB4YfhgA==}
@@ -16033,6 +15947,7 @@ packages:
       has-symbols: 1.0.3
       reflect.getprototypeof: 1.0.6
       set-function-name: 2.0.2
+    dev: true
 
   /its-fine@1.0.6(react@18.3.1):
     resolution: {integrity: sha512-VZJZPwVT2kxe5KQv+TxCjojfLiUIut8zXDNLTxcM7gJ/xQ/bSPk5M0neZ+j3myy45KKkltY1mm1jyJgx3Fxsdg==}
@@ -19676,6 +19591,7 @@ packages:
       get-intrinsic: 1.2.4
       globalthis: 1.0.3
       which-builtin-type: 1.1.3
+    dev: true
 
   /regenerate-unicode-properties@10.1.0:
     resolution: {integrity: sha512-d1VudCLoIGitcU/hEg2QqvyGZQmdC0Lf8BqdOMXGFSvJP4bNV1+XqbPQeHHLD51Jh4QJJ225dlIFvY4Ly6MXmQ==}
@@ -23117,6 +23033,7 @@ packages:
       which-boxed-primitive: 1.0.2
       which-collection: 1.0.2
       which-typed-array: 1.1.15
+    dev: true
 
   /which-collection@1.0.2:
     resolution: {integrity: sha512-K4jVyjnBdgvc86Y6BkaLZEN933SwYOuBFkdmBu9ZfkcAbdVbpITnDmjvZ/aQjRXQrv5EPkTnD1s39GiiqbngCw==}
@@ -23126,6 +23043,7 @@ packages:
       is-set: 2.0.3
       is-weakmap: 2.0.2
       is-weakset: 2.0.3
+    dev: true
 
   /which-pm-runs@1.1.0:
     resolution: {integrity: sha512-n1brCuqClxfFfq/Rb0ICg9giSZqCS+pLtccdag6C2HyufBrh3fBOiy9nb6ggRMvWOVH5GrdJskj5iGTZNxd7SA==}

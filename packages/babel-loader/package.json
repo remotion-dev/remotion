@@ -30,7 +30,6 @@
 		"webpack": "5.83.1"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.281",
 		"@remotion/bundler": "workspace:*",
 		"@types/node": "18.14.6",
 		"prettier": "3.2.5",
