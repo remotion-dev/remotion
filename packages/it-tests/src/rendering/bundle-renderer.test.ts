@@ -16,7 +16,9 @@ test("Should be able to bundle the renderer", () => {
     target: "node16",
     bundle: true,
     outfile,
-    entryPoints: [`${__dirname}/test-index.ts`],
+    entryPoints: [
+      `${__dirname}${path.sep}..${path.sep}..${path.sep}test-index.ts`,
+    ],
   });
   expect(errors.length).toBe(0);
   expect(warnings.length).toBe(0);

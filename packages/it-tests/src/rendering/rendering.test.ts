@@ -265,37 +265,41 @@ test("Should be able to render a WAV audio file", async () => {
   fs.unlinkSync(out);
 });
 
-test("Should be able to render a MP3 audio file", async () => {
-  const out = outputPath.replace("mp4", "mp3");
-  const task = execa(
-    "pnpm",
-    ["exec", "remotion", "render", "build", "audio-testing", out],
-    {
-      cwd: path.join(process.cwd(), "..", "example"),
-    }
-  );
-  task.stderr?.pipe(process.stderr);
-  await task;
-  const exists = fs.existsSync(out);
-  expect(exists).toBe(true);
+test(
+  "Should be able to render a MP3 audio file",
+  async () => {
+    const out = outputPath.replace("mp4", "mp3");
+    const task = execa(
+      "pnpm",
+      ["exec", "remotion", "render", "build", "audio-testing", out],
+      {
+        cwd: path.join(process.cwd(), "..", "example"),
+      }
+    );
+    task.stderr?.pipe(process.stderr);
+    await task;
+    const exists = fs.existsSync(out);
+    expect(exists).toBe(true);
 
-  const info = await RenderInternals.callFf({
-    bin: "ffprobe",
-    args: [out],
-    indent: false,
-    logLevel: "info",
-    binariesDirectory: null,
-    cancelSignal: undefined,
-  });
-  const data = info.stderr;
-  expect(data).toContain("mp3");
-  expect(data).toContain("stereo");
-  expect(data).toContain("Kevin MacLeod");
-  expect(data).toContain("320 kb/s");
-  expect(data).toContain("Stream #0");
-  expect(data).not.toContain("Stream #1");
-  fs.unlinkSync(out);
-});
+    const info = await RenderInternals.callFf({
+      bin: "ffprobe",
+      args: [out],
+      indent: false,
+      logLevel: "info",
+      binariesDirectory: null,
+      cancelSignal: undefined,
+    });
+    const data = info.stderr;
+    expect(data).toContain("mp3");
+    expect(data).toContain("stereo");
+    expect(data).toContain("Kevin MacLeod");
+    expect(data).toContain("320 kb/s");
+    expect(data).toContain("Stream #0");
+    expect(data).not.toContain("Stream #1");
+    fs.unlinkSync(out);
+  },
+  { timeout: 30000 }
+);
 
 test("Should be able to render a AAC audio file", async () => {
   const out = outputPath.replace("mp4", "aac");
@@ -585,6 +589,25 @@ test(
 
     expect(task.exitCode).toBe(1);
     expect(task.stderr).toContain("This error should appear");
+  },
+  {
+    timeout: 30000,
+  }
+);
+
+test(
+  "Should be able to call pnpm exec compositions",
+  async () => {
+    const task = await execa(
+      "pnpm",
+      ["exec", "remotion", "compositions", "build"],
+      {
+        cwd: path.join(process.cwd(), "..", "example"),
+        reject: false,
+      }
+    );
+
+    expect(task.stdout).toContain("The following compositions");
   },
   {
     timeout: 30000,

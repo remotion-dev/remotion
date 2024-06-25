@@ -28,16 +28,13 @@
       "dependsOn": ["^build", "build"],
       "outputs": []
     },
-    "@remotion/example#test": {
-      "dependsOn": ["^build", "build", "@remotion/it-tests#test"],
-      "outputs": []
-    },
+
     "@remotion/renderer#test": {
       "dependsOn": [
         "^build",
         "build",
         "@remotion/lambda#build",
-        "@remotion/example#test",
+        "@remotion/it-tests#test",
         "@remotion/cloudrun#build"
       ],
       "outputs": []
