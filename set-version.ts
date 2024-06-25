@@ -1,3 +1,4 @@
+// bun set-version.mjs 4.0.178
 import { execSync } from "child_process";
 import {
   existsSync,
@@ -60,7 +61,7 @@ execSync("bun ensure-correct-version.ts", {
   cwd: "packages/core",
 });
 
-execSync("bun x vitest src/monorepo --run", {
+execSync("bun test src/monorepo", {
   cwd: "packages/it-tests",
   stdio: "inherit",
 });

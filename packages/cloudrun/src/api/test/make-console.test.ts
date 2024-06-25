@@ -1,4 +1,4 @@
-import {beforeEach, expect, test} from 'vitest';
+import {beforeEach, expect, test} from 'bun:test';
 import {makeConsoleUrl} from '../../cli/helpers/make-console-url';
 import {isInCloudTask} from '../../functions/helpers/is-in-cloud-task';
 

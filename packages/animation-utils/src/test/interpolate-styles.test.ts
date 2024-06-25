@@ -1,5 +1,5 @@
+import {expect, test} from 'bun:test';
 import {Easing} from 'remotion';
-import {expect, test} from 'vitest';
 import {interpolateStyles} from '../transformation-helpers/interpolate-styles';
 import {translate} from '../transformation-helpers/make-transform';
 
