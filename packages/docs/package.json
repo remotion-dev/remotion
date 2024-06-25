@@ -91,8 +91,6 @@
     "@typescript/twoslash": "3.2.1",
     "fenceparser": "^2.2.0",
     "lodash.sortby": "^4.7.0",
-    "prettier": "3.2.5",
-    "prettier-plugin-organize-imports": "3.2.4",
     "shiki": "0.14.3",
     "shiki-twoslash": "3.1.2",
     "unified": "^8.4.2",

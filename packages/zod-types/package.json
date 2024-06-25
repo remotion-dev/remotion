@@ -27,8 +27,6 @@
 		"zod": "3.22.3"
 	},
 	"devDependencies": {
-		"prettier": "3.2.5",
-		"prettier-plugin-organize-imports": "3.2.4",
 		"zod": "3.22.3"
 	},
 	"keywords": [

@@ -21,10 +21,6 @@
 		"react-dom": "18.3.1",
 		"remotion": "workspace:*"
 	},
-	"devDependencies": {
-		"prettier": "3.2.5",
-		"prettier-plugin-organize-imports": "3.2.4"
-	},
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",

@@ -26,9 +26,7 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@types/node": "18.14.6",
-		"prettier": "3.2.5",
-		"prettier-plugin-organize-imports": "3.2.4"
+		"@types/node": "18.14.6"
 	},
 	"keywords": [
 		"remotion",

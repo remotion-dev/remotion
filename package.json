@@ -31,7 +31,9 @@
     "eslint": "8.56.0",
     "eslint-plugin-10x": "1.5.2",
     "eslint-plugin-react": "7.32.2",
-    "eslint-plugin-react-hooks": "4.4.0"
+    "eslint-plugin-react-hooks": "4.4.0",
+    "prettier": "3.2.5",
+    "prettier-plugin-organize-imports": "3.2.4"
   },
   "dependencies": {
     "turbo": "1.13.3",

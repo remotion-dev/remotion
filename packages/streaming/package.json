@@ -20,10 +20,6 @@
 	"publishConfig": {
 		"access": "public"
 	},
-	"devDependencies": {
-		"prettier": "3.2.5",
-		"prettier-plugin-organize-imports": "3.2.4"
-	},
 	"exports": {
 		".": "./dist/index.js",
 		"./package.json": "./package.json"

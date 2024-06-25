@@ -33,8 +33,6 @@
 		"@shopify/react-native-skia": "^1.2.2",
 		"@types/react": "18.3.1",
 		"@types/react-native": "^0.69.2",
-		"prettier": "3.2.5",
-		"prettier-plugin-organize-imports": "3.2.4",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"remotion": "workspace:*"

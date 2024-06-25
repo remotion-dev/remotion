@@ -44,9 +44,7 @@
 		"@types/node": "18.14.6",
 		"@types/react": "18.3.1",
 		"@types/prompt": "^1.1.0",
-		"prettier": "3.2.5",
 		"pureimage": "0.4.13",
-		"prettier-plugin-organize-imports": "3.2.4",
 		"vitest": "0.31.1",
 		"zip-lib": "^0.7.2"
 	},
