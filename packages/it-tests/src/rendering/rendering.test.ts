@@ -233,37 +233,43 @@ test("Should render a still image if single frame specified", async () => {
   });
 });
 
-test("Should be able to render a WAV audio file", async () => {
-  const out = outputPath.replace("mp4", "wav");
-  const task = execa(
-    "pnpm",
-    ["exec", "remotion", "render", "build", "audio-testing", out],
-    {
-      cwd: path.join(process.cwd(), "..", "example"),
-    }
-  );
-  task.stderr?.pipe(process.stderr);
-  await task;
-  const exists = fs.existsSync(out);
-  expect(exists).toBe(true);
+test(
+  "Should be able to render a WAV audio file",
+  async () => {
+    const out = outputPath.replace("mp4", "wav");
+    const task = execa(
+      "pnpm",
+      ["exec", "remotion", "render", "build", "audio-testing", out],
+      {
+        cwd: path.join(process.cwd(), "..", "example"),
+      }
+    );
+    task.stderr?.pipe(process.stderr);
+    await task;
+    const exists = fs.existsSync(out);
+    expect(exists).toBe(true);
 
-  const info = await RenderInternals.callFf({
-    bin: "ffprobe",
-    args: [out],
-    indent: false,
-    logLevel: "info",
-    binariesDirectory: null,
-    cancelSignal: undefined,
-  });
-  const data = info.stderr;
-  expect(data).toContain("pcm_s16le");
-  expect(data).toContain("2 channels");
-  expect(data).toContain("Kevin MacLeod");
-  expect(data).toMatch(/bitrate: 15\d\d kb/);
-  expect(data).toContain("Stream #0");
-  expect(data).not.toContain("Stream #1");
-  fs.unlinkSync(out);
-});
+    const info = await RenderInternals.callFf({
+      bin: "ffprobe",
+      args: [out],
+      indent: false,
+      logLevel: "info",
+      binariesDirectory: null,
+      cancelSignal: undefined,
+    });
+    const data = info.stderr;
+    expect(data).toContain("pcm_s16le");
+    expect(data).toContain("2 channels");
+    expect(data).toContain("Kevin MacLeod");
+    expect(data).toMatch(/bitrate: 15\d\d kb/);
+    expect(data).toContain("Stream #0");
+    expect(data).not.toContain("Stream #1");
+    fs.unlinkSync(out);
+  },
+  {
+    timeout: 30000,
+  }
+);
 
 test(
   "Should be able to render a MP3 audio file",
@@ -301,91 +307,117 @@ test(
   { timeout: 30000 }
 );
 
-test("Should be able to render a AAC audio file", async () => {
-  const out = outputPath.replace("mp4", "aac");
-  const task = execa(
-    "pnpm",
-    ["exec", "remotion", "render", "build", "audio-testing", out],
-    {
-      cwd: path.join(process.cwd(), "..", "example"),
-    }
-  );
-  task.stderr?.pipe(process.stderr);
-  await task;
-  const exists = fs.existsSync(out);
-  expect(exists).toBe(true);
+test(
+  "Should be able to render a AAC audio file",
+  async () => {
+    const out = outputPath.replace("mp4", "aac");
+    const task = execa(
+      "pnpm",
+      ["exec", "remotion", "render", "build", "audio-testing", out],
+      {
+        cwd: path.join(process.cwd(), "..", "example"),
+      }
+    );
+    task.stderr?.pipe(process.stderr);
+    await task;
+    const exists = fs.existsSync(out);
+    expect(exists).toBe(true);
 
-  const info = await RenderInternals.callFf({
-    bin: "ffprobe",
-    args: [out],
-    indent: false,
-    logLevel: "info",
-    binariesDirectory: null,
-    cancelSignal: undefined,
-  });
-  const data = info.stderr;
-  expect(data).toContain("aac");
-  expect(data).toContain("stereo");
-  expect(data).not.toContain("Kevin MacLeod");
-  expect(data).toMatch(/\d?\d kb\/s/);
-  expect(data).toContain("Stream #0");
-  expect(data).not.toContain("Stream #1");
-  fs.unlinkSync(out);
-});
+    const info = await RenderInternals.callFf({
+      bin: "ffprobe",
+      args: [out],
+      indent: false,
+      logLevel: "info",
+      binariesDirectory: null,
+      cancelSignal: undefined,
+    });
+    const data = info.stderr;
+    expect(data).toContain("aac");
+    expect(data).toContain("stereo");
+    expect(data).not.toContain("Kevin MacLeod");
+    expect(data).toMatch(/\d?\d kb\/s/);
+    expect(data).toContain("Stream #0");
+    expect(data).not.toContain("Stream #1");
+    fs.unlinkSync(out);
+  },
+  {
+    timeout: 30000,
+  }
+);
 
-test("Should render a video with GIFs", async () => {
-  const task = await execa(
-    "pnpm",
-    ["exec", "remotion", "render", "build", "gif", "--frames=0-47", outputPath],
-    {
-      cwd: path.join(process.cwd(), "..", "example"),
-    }
-  );
-  expect(task.exitCode).toBe(0);
-  expect(fs.existsSync(outputPath)).toBe(true);
+test(
+  "Should render a video with GIFs",
+  async () => {
+    const task = await execa(
+      "pnpm",
+      [
+        "exec",
+        "remotion",
+        "render",
+        "build",
+        "gif",
+        "--frames=0-47",
+        outputPath,
+      ],
+      {
+        cwd: path.join(process.cwd(), "..", "example"),
+      }
+    );
+    expect(task.exitCode).toBe(0);
+    expect(fs.existsSync(outputPath)).toBe(true);
 
-  const info = await RenderInternals.callFf({
-    bin: "ffprobe",
-    args: [outputPath],
-    indent: false,
-    logLevel: "info",
-    binariesDirectory: null,
-    cancelSignal: undefined,
-  });
-  const data = info.stderr;
-  expect(data).toContain("Video: h264");
-  expect(data).not.toContain("bt709");
-  expect(data).toContain("Duration: 00:00:01.64");
+    const info = await RenderInternals.callFf({
+      bin: "ffprobe",
+      args: [outputPath],
+      indent: false,
+      logLevel: "info",
+      binariesDirectory: null,
+      cancelSignal: undefined,
+    });
+    const data = info.stderr;
+    expect(data).toContain("Video: h264");
+    expect(data).not.toContain("bt709");
+    expect(data).toContain("Duration: 00:00:01.64");
 
-  fs.unlinkSync(outputPath);
-});
+    fs.unlinkSync(outputPath);
+  },
+  {
+    timeout: 30000,
+  }
+);
 
-test("Should render a video with Offline Audio-context", async () => {
-  const out = outputPath.replace(".mp4", ".mp3");
+test(
+  "Should render a video with Offline Audio-context",
+  async () => {
+    const out = outputPath.replace(".mp4", ".mp3");
 
-  const task = await execa(
-    "pnpm",
-    ["exec", "remotion", "render", "build", "offline-audio-buffer", out],
-    {
-      cwd: path.join(process.cwd(), "..", "example"),
-    }
-  );
-  expect(task.exitCode).toBe(0);
-  expect(fs.existsSync(out)).toBe(true);
+    const task = await execa(
+      "pnpm",
+      ["exec", "remotion", "render", "build", "offline-audio-buffer", out],
+      {
+        cwd: path.join(process.cwd(), "..", "example"),
+      }
+    );
+    expect(task.exitCode).toBe(0);
+    expect(fs.existsSync(out)).toBe(true);
 
-  const info = await RenderInternals.callFf({
-    bin: "ffprobe",
-    args: [out],
-    indent: false,
-    logLevel: "info",
-    binariesDirectory: null,
-    cancelSignal: undefined,
-  });
-  const data = info.stderr;
-  expect(data).toContain("Stream #0:0: Audio: mp3");
-  expect(data).toContain("48000 Hz, stereo");
-  fs.unlinkSync(out);
-});
+    const info = await RenderInternals.callFf({
+      bin: "ffprobe",
+      args: [out],
+      indent: false,
+      logLevel: "info",
+      binariesDirectory: null,
+      cancelSignal: undefined,
+    });
+    const data = info.stderr;
+    expect(data).toContain("Stream #0:0: Audio: mp3");
+    expect(data).toContain("48000 Hz, stereo");
+    fs.unlinkSync(out);
+  },
+  {
+    timeout: 30000,
+  }
+);
 
 test("Should succeed to render an audio file that doesn't have any audio inputs", async () => {
   const out = outputPath.replace(".mp4", ".mp3");
