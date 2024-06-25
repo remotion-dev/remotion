@@ -26,7 +26,7 @@
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.281",
-		"@testing-library/react": "14.0.0",
+		"@testing-library/react": "15.0.7",
 		"@happy-dom/global-registrator": "14.5.1",
 		"happy-dom": "14.5.1",
 		"@types/node": "18.14.6",
