@@ -21,14 +21,18 @@ const readFileWithoutRedirect = (
 	url: string,
 ): Promise<http.IncomingMessage> => {
 	return new Promise<http.IncomingMessage>((resolve, reject) => {
-		getClient(url)(
+		const client = getClient(url);
+		client(
 			url,
-			{
-				headers: {
-					'User-Agent':
-						'Mozilla/5.0 (@remotion/renderer - https://remotion.dev)',
-				},
-			},
+			// Bun 1.1.16 does not support the `headers` option
+			typeof Bun === 'undefined'
+				? {
+						headers: {
+							'user-agent':
+								'Mozilla/5.0 (@remotion/renderer - https://remotion.dev)',
+						},
+					}
+				: {},
 			(res) => {
 				resolve(res);
 			},

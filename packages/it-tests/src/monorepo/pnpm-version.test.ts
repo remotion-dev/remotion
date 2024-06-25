@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import path from "path";
-import { test, expect } from "vitest";
+import { test, expect } from "bun:test";
 
 test("Docs should refer to right pnpm version", () => {
   const root = path.join(__dirname, "..", "..", "..", "..");

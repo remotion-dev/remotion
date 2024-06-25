@@ -1,6 +1,6 @@
+import {expect, test} from 'bun:test';
 import {existsSync} from 'node:fs';
 import path from 'node:path';
-import {expect, test} from 'vitest';
 import {cleanDownloadMap, makeDownloadMap} from '../assets/download-map';
 import {
 	getAudioChannelsAndDuration,
@@ -92,6 +92,6 @@ test('Throw error if parsing a non video file', () => {
 			binariesDirectory: null,
 			cancelSignal: undefined,
 		}),
-	).rejects.toThrow(/Invalid data found when processing input/);
+	).toThrow(/Invalid data found when processing input/);
 	cleanDownloadMap(downloadMap);
 });

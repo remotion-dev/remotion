@@ -1,11 +1,11 @@
 import {execSync} from 'child_process';
 
-execSync('pnpm run buildlambda', {
+execSync('bun run build', {
 	cwd: '../lambda',
 	stdio: 'inherit',
 });
 
-execSync('pnpm exec remotion lambda functions rmall -f', {
+execSync('bunx remotion lambda functions rmall -f', {
 	stdio: 'inherit',
 });
 

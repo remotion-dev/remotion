@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {parseStack} from '../parse-browser-error-stack';
 
 const stack = `Error: Evaluation failed: TypeError: Cannot read properties of undefined (reading 'a')

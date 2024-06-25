@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { expect, test } from "vitest";
+import { expect, test } from "bun:test";
 
 test("Should not have carets in Remotion versions", async () => {
   const packagesDir = path.join(process.cwd(), "..");

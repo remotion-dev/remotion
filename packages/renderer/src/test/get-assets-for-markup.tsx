@@ -1,7 +1,4 @@
 /* eslint-disable no-restricted-imports */
-/**
- * @vitest-environment jsdom
- */
 import {render} from '@testing-library/react';
 import type {ComponentType} from 'react';
 import React, {

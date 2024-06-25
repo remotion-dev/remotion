@@ -1,5 +1,5 @@
 import path from "path";
-import { expect, test } from "vitest";
+import { expect, test } from "bun:test";
 import { RenderInternals, openBrowser } from "@remotion/renderer";
 import { existsSync } from "fs";
 

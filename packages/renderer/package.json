@@ -8,7 +8,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"test": "vitest --run",
+		"test": "bun test src",
 		"build": "node build.mjs --debug",
 		"build-all": "node build.mjs --all",
 		"prepublishOnly": "node build.mjs --all"
@@ -36,19 +36,18 @@
 		"@jonny/eslint-config": "3.0.281",
 		"@testing-library/dom": "^8.16.0",
 		"@testing-library/react": "13.3.0",
+		"@happy-dom/global-registrator": "14.5.1",
 		"@types/node": "18.14.6",
 		"@types/progress": "2.0.5",
 		"@types/bun": "1.0.12",
 		"@types/react": "18.3.1",
 		"@types/react-dom": "18.3.0",
 		"@remotion/streaming": "workspace:*",
-		"jsdom": "^24.0.0",
 		"eslint": "8.56.0",
 		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"vitest": "0.31.1",
 		"@types/ws": "8.5.10"
 	},
 	"optionalDependencies": {

@@ -37,7 +37,7 @@ export type VideoMetadata = {
 	fps: number;
 	width: number;
 	height: number;
-	durationInSeconds: number;
+	durationInSeconds: number | null;
 	codec: 'h264' | 'h265' | 'vp8' | 'vp9' | 'av1' | 'prores' | 'unknown';
 	canPlayInVideoTag: boolean;
 	supportsSeeking: boolean;

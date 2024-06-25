@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {flattenVolumeArray} from '../assets/flatten-volume-array';
 import type {MediaAsset} from '../assets/types';
 import {getExtraFramesToCapture} from '../get-extra-frames-to-capture';

@@ -3,9 +3,9 @@
   "version": "4.0.177",
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
-    "test": "vitest src/rendering --run",
+    "test": "bun test src/rendering --run",
     "testssr": "bun test src/ssr src/bundle src/templates src/monorepo --timeout 40000",
-    "testlambda": "vitest src/lambda --run"
+    "testlambda": "bun test src/lambda src/cloudrun --run"
   },
   "private": true,
   "devDependencies": {
@@ -31,8 +31,6 @@
     "create-video": "workspace:*",
     "execa": "5.1.1",
     "remotion": "workspace:*",
-    "sharp": "0.32.6",
-    "vite": "^4.5.3",
-    "vitest": "0.31.1"
+    "sharp": "0.32.6"
   }
 }

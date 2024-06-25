@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {getExtraFramesToCapture} from '../get-extra-frames-to-capture';
 
 test('Extra frames to capture 0', () => {

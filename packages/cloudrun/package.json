@@ -3,6 +3,7 @@
 	"version": "4.0.177",
 	"description": "GCP Cloud Run alternative to lambda rendering",
 	"main": "dist/index.js",
+	"sideEffects": false,
 	"scripts": {
 		"build": "bun build.ts",
 		"buildContainer": "bun src/admin/bundle-renderLogic.ts",

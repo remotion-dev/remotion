@@ -1,5 +1,5 @@
 import path from "node:path";
-import { expect, test } from "vitest";
+import { expect, test } from "bun:test";
 import { getVideoMetadata, VideoMetadata } from "@remotion/renderer";
 
 import { existsSync } from "node:fs";
@@ -113,6 +113,6 @@ test("Should not return duration in variable fps video", async () => {
   );
   expect(existsSync(video)).toEqual(true);
 
-  const hi = await getVideoMetadata(video, { logLevel: "verbose" });
-  console.log(hi);
+  const hi = await getVideoMetadata(video, { logLevel: "info" });
+  expect(hi.durationInSeconds).toBe(null);
 });
