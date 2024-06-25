@@ -41,7 +41,6 @@
 		"@remotion/compositor-linux-arm64-gnu": "workspace:*",
 		"@types/mime-types": "2.1.1",
 		"@types/minimist": "1.2.2",
-		"@types/react": "18.3.1",
 		"@types/prompt": "^1.1.0",
 		"pureimage": "0.4.13",
 		"vitest": "0.31.1",

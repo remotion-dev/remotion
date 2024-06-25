@@ -19,8 +19,7 @@
 	"devDependencies": {
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"remotion": "workspace:*",
-		"@types/react": "18.3.1"
+		"remotion": "workspace:*"
 	},
 	"private": true
 }
