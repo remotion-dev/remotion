@@ -95,7 +95,6 @@ export const onMediaError = ({
 						);
 			reject(err);
 			cleanup();
-			console.log('404', status);
 		})
 		.catch((e) => {
 			reject(e);
