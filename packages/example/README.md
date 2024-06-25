@@ -1,8 +1,6 @@
-# @remotion/studio-server
+# @remotion/example
  
-Run a Remotion Studio with a server backend
- 
-[![NPM Downloads](https://img.shields.io/npm/dm/studio-server.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/studio-server?minimal=true)
+[![NPM Downloads](https://img.shields.io/npm/dm/example.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/example?minimal=true)
  
 ## Installation
  

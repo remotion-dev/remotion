@@ -1,8 +1,8 @@
-# @remotion/studio-server
+# @remotion/video-parser
  
-Run a Remotion Studio with a server backend
+A JavaScript parser for .mp4, .mov, .webm and .mkv files
  
-[![NPM Downloads](https://img.shields.io/npm/dm/studio-server.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/studio-server?minimal=true)
+[![NPM Downloads](https://img.shields.io/npm/dm/video-parser.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/video-parser?minimal=true)
  
 ## Installation
  

@@ -1,3 +1,18 @@
-This package offers a Noise effect for Remotion.
-
-**Documentation: https://remotion.dev/noise**
+# @remotion/noise
+ 
+Noise generation functions
+ 
+[![NPM Downloads](https://img.shields.io/npm/dm/noise.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/noise?minimal=true)
+ 
+## Installation
+ 
+```bash
+npm install @remotion/${pkg} --save-exact
+```
+ 
+When installing a Remotion package, make sure to align the version of all `remotion` and `@remotion/*` packages to the same version.
+Remove the `^` character from the version number to use the exact version.
+ 
+## Usage
+ 
+See the [documentation](https://www.remotion.dev/docs/noise) for more information.

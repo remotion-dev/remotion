@@ -1,8 +1,6 @@
-# @remotion/studio-server
+# @remotion/compositor-win32-x64-msvc
  
-Run a Remotion Studio with a server backend
- 
-[![NPM Downloads](https://img.shields.io/npm/dm/studio-server.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/studio-server?minimal=true)
+[![NPM Downloads](https://img.shields.io/npm/dm/compositor-win32-x64-msvc.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/compositor-win32-x64-msvc?minimal=true)
  
 ## Installation
  

@@ -1,8 +1,6 @@
-# @remotion/studio-server
+# @remotion/ai-improvements
  
-Run a Remotion Studio with a server backend
- 
-[![NPM Downloads](https://img.shields.io/npm/dm/studio-server.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/studio-server?minimal=true)
+[![NPM Downloads](https://img.shields.io/npm/dm/ai-improvements.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/ai-improvements?minimal=true)
  
 ## Installation
  

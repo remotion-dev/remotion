@@ -1,8 +1,8 @@
-# @remotion/studio-server
+# @remotion/compositor-darwin-arm64
  
-Run a Remotion Studio with a server backend
+MacOS Apple Silicon binary for the Remotion Rust code
  
-[![NPM Downloads](https://img.shields.io/npm/dm/studio-server.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/studio-server?minimal=true)
+[![NPM Downloads](https://img.shields.io/npm/dm/compositor-darwin-arm64.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/compositor-darwin-arm64?minimal=true)
  
 ## Installation
  

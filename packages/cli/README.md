@@ -1,8 +1,8 @@
-# @remotion/studio-server
+# @remotion/cli
  
-Run a Remotion Studio with a server backend
+Control Remotion features using the `npx remotion` command
  
-[![NPM Downloads](https://img.shields.io/npm/dm/studio-server.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/studio-server?minimal=true)
+[![NPM Downloads](https://img.shields.io/npm/dm/cli.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/cli?minimal=true)
  
 ## Installation
  
@@ -15,4 +15,4 @@ Remove the `^` character from the version number to use the exact version.
  
 ## Usage
  
-This is an internal package and has no documentation.
+See the [documentation](https://www.remotion.dev/docs/cli) for more information.

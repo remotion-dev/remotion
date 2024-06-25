@@ -1,8 +1,8 @@
-# @remotion/studio-server
+# @remotion/create-video
  
-Run a Remotion Studio with a server backend
+Create a new Remotion project
  
-[![NPM Downloads](https://img.shields.io/npm/dm/studio-server.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/studio-server?minimal=true)
+[![NPM Downloads](https://img.shields.io/npm/dm/create-video.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/create-video?minimal=true)
  
 ## Installation
  
@@ -15,4 +15,4 @@ Remove the `^` character from the version number to use the exact version.
  
 ## Usage
  
-This is an internal package and has no documentation.
+See the [documentation](https://remotion.dev/templates) for more information.

@@ -1,9 +1,18 @@
-# Renderer
-
-Contains TypeScript + Rust code for rendering a Remotion video.
-
-See the public APIs here: https://remotion.dev/docs/renderer
-
-## Development
-
-For developing the Rust parts, see https://remotion.dev/docs/contributing/rust.
+# @remotion/renderer
+ 
+Render Remotion videos using Node.js or Bun
+ 
+[![NPM Downloads](https://img.shields.io/npm/dm/renderer.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/renderer?minimal=true)
+ 
+## Installation
+ 
+```bash
+npm install @remotion/${pkg} --save-exact
+```
+ 
+When installing a Remotion package, make sure to align the version of all `remotion` and `@remotion/*` packages to the same version.
+Remove the `^` character from the version number to use the exact version.
+ 
+## Usage
+ 
+See the [documentation](https://www.remotion.dev/docs/renderer) for more information.

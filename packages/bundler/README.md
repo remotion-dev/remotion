@@ -1,8 +1,8 @@
-# @remotion/studio-server
+# @remotion/bundler
  
-Run a Remotion Studio with a server backend
+Bundle Remotion compositions using Webpack
  
-[![NPM Downloads](https://img.shields.io/npm/dm/studio-server.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/studio-server?minimal=true)
+[![NPM Downloads](https://img.shields.io/npm/dm/bundler.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/bundler?minimal=true)
  
 ## Installation
  
@@ -15,4 +15,4 @@ Remove the `^` character from the version number to use the exact version.
  
 ## Usage
  
-This is an internal package and has no documentation.
+See the [documentation](https://www.remotion.dev/docs/bundler) for more information.

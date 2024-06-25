@@ -61,7 +61,7 @@ export const packages = [
 	'ai-improvements',
 	'discord-poster',
 	'cli-autocomplete',
-];
+] as const;
 
 export type Pkgs = (typeof packages)[number];
 
@@ -69,10 +69,16 @@ export const getAllPackages = () => {
 	const pkgDir = path.join(__dirname, '..', '..', '..');
 	const filePackages = readdirSync(pkgDir)
 		.filter((pkg) => lstatSync(path.join(pkgDir, pkg)).isDirectory())
-		.map((pkg) => ({pkg, path: path.join(pkgDir, pkg, 'package.json')}))
+		.map((pkg) => ({
+			pkg: pkg as Pkgs,
+			path: path.join(pkgDir, pkg, 'package.json'),
+		}))
 		.filter(({path}) => existsSync(path));
 
-	const notInFile = packages.sort().map((pkg) => pkg);
+	const notInFile = packages
+		.slice()
+		.sort()
+		.map((pkg) => pkg);
 
 	if (
 		JSON.stringify(filePackages.map((pkg) => pkg.pkg).sort()) !==

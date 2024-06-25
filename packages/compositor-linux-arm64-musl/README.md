@@ -1,8 +1,8 @@
-# @remotion/studio-server
+# @remotion/compositor-linux-arm64-musl
  
-Run a Remotion Studio with a server backend
+Linux ARM64 binary for the Remotion Rust code
  
-[![NPM Downloads](https://img.shields.io/npm/dm/studio-server.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/studio-server?minimal=true)
+[![NPM Downloads](https://img.shields.io/npm/dm/compositor-linux-arm64-musl.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/compositor-linux-arm64-musl?minimal=true)
  
 ## Installation
  

@@ -1,8 +1,8 @@
-# @remotion/studio-server
+# @remotion/studio-shared
  
-Run a Remotion Studio with a server backend
+Internal package for shared objects between the Studio backend and frontend
  
-[![NPM Downloads](https://img.shields.io/npm/dm/studio-server.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/studio-server?minimal=true)
+[![NPM Downloads](https://img.shields.io/npm/dm/studio-shared.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/studio-shared?minimal=true)
  
 ## Installation
  
