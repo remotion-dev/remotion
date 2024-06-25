@@ -1,7 +1,10 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/skia"
+	},
 	"name": "@remotion/skia",
 	"version": "4.0.177",
-	"description": "Utilities for using react-native-skia in Remotion",
+	"description": "Include React Native Skia components in a Remotion video",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -14,9 +17,6 @@
 	"author": "Jonny Burger <jonny@remotion.dev>, William Candillon <wcandillon@gmail.com>",
 	"contributors": [],
 	"license": "MIT",
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
@@ -64,5 +64,6 @@
 				"dist/cjs/enable.d.ts"
 			]
 		}
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/skia"
 }

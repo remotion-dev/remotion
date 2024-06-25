@@ -1,7 +1,10 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/eslint-config"
+	},
 	"name": "@remotion/eslint-config",
 	"version": "4.0.177",
-	"description": "",
+	"description": "Default configuration for Remotion templates",
 	"main": "dist/index.js",
 	"files": [
 		"dist"
@@ -31,5 +34,6 @@
 	],
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/brownfield#install-the-eslint-plugin"
 }

@@ -1,7 +1,10 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/transitions"
+	},
 	"name": "@remotion/transitions",
 	"version": "4.0.177",
-	"description": "Transition presets for Remotion",
+	"description": "Library for creating transitions in Remotion",
 	"sideEffects": false,
 	"main": "dist/esm/index.mjs",
 	"module": "dist/esm/index.js",
@@ -15,9 +18,6 @@
 	"author": "Jonny Burger",
 	"contributors": [],
 	"license": "UNLICENSED",
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
@@ -111,5 +111,6 @@
 				"dist/presentations/clock-wipe.d.ts"
 			]
 		}
-	}
+	},
+	"homepage": "https://www.remotion.dev/transitions"
 }

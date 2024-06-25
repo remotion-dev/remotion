@@ -1,21 +1,25 @@
 {
-  "version": "4.0.177",
-  "name": "@remotion/compositor-darwin-x64",
-  "os": [
-    "darwin"
-  ],
-  "cpu": [
-    "x64"
-  ],
-  "exports": {
-    ".": {
-      "require": "./index.js",
-      "import": "./index.mjs",
-      "types": "./index.d.ts"
-    },
-    "./package.json": "./package.json"
-  },
-  "publishConfig": {
-    "access": "public"
-  }
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/compositor-darwin-x64"
+	},
+	"version": "4.0.177",
+	"name": "@remotion/compositor-darwin-x64",
+	"os": [
+		"darwin"
+	],
+	"cpu": [
+		"x64"
+	],
+	"exports": {
+		".": {
+			"require": "./index.js",
+			"import": "./index.mjs",
+			"types": "./index.d.ts"
+		},
+		"./package.json": "./package.json"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"description": "MacOS x64 binary for the Remotion Rust code"
 }

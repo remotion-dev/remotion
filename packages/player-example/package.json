@@ -1,4 +1,7 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/player-example"
+	},
 	"name": "@remotion/player-example",
 	"version": "4.0.177",
 	"private": true,

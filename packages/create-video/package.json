@@ -1,7 +1,10 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/create-video"
+	},
 	"name": "create-video",
 	"version": "4.0.177",
-	"description": "",
+	"description": "Create a new Remotion project",
 	"main": "dist/index.js",
 	"bin": {
 		"create-video": "bin.js"
@@ -29,5 +32,6 @@
 		"@types/prompts": "^2.0.12",
 		"@types/tar": "6.1.1",
 		"vitest": "0.31.1"
-	}
+	},
+	"homepage": "https://remotion.dev/templates"
 }

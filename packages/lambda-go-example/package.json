@@ -1,8 +1,11 @@
 {
-  "name": "@remotion/lambda-go-example",
-  "private": true,
-  "version": "4.0.177",
-  "scripts": {
-    "lint": "node build.mjs"
-  }
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lambda-go-example"
+	},
+	"name": "@remotion/lambda-go-example",
+	"private": true,
+	"version": "4.0.177",
+	"scripts": {
+		"lint": "node build.mjs"
+	}
 }

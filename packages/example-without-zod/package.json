@@ -1,8 +1,10 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/example-without-zod"
+	},
 	"name": "@remotion/example-without-zod",
 	"private": true,
 	"version": "4.0.177",
-	"description": "",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"author": "Jonny Burger",
 	"main": "dist/index.js",

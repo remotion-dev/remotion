@@ -1,7 +1,10 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/paths"
+	},
 	"name": "@remotion/paths",
 	"version": "4.0.177",
-	"description": "Utility functions for SVG paths",
+	"description": "Utilities for working with SVG paths",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
@@ -11,9 +14,6 @@
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
@@ -24,5 +24,6 @@
 	],
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"homepage": "https://www.remotion.dev/paths"
 }

@@ -1,32 +1,16 @@
-# Website
-
-This website is built using [Docusaurus 2](https://v2.docusaurus.io/), a modern static website generator.
-
+# @remotion/docs
+ 
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/docs.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/docs?minimal=true)
+ 
 ## Installation
-
-Go to the root directory of the repository (`cd ../..` if you are in the `docs` directory) and run
-
-```console
-pnpm i
-pnpm build
+ 
+```bash
+npm install @remotion/docs --save-exact
 ```
-
-## Local Development
-
-In this directory (`packages/docs`), run:
-
-```console
-pnpm start
-```
-
-This command starts a local development server and open up a browser window. Most changes are reflected live without having to restart the server.
-
-## Generate top fonts
-
-To update `font-picker.md` (https://www.remotion.dev/docs/font-picker) with the up to date font list, run:
-
-```
-node make-top-google-fonts.mjs 250
-```
-
-and paste it into the Markdown file. Repeat it with `100` and `25`.
+ 
+When installing a Remotion package, make sure to align the version of all `remotion` and `@remotion/*` packages to the same version.
+Remove the `^` character from the version number to use the exact version.
+ 
+## Usage
+ 
+This is an internal package and has no documentation.

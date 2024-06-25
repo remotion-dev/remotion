@@ -1,7 +1,10 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/shapes"
+	},
 	"name": "@remotion/shapes",
 	"version": "4.0.177",
-	"description": "Utility functions and components for SVG shapes",
+	"description": "Generate SVG shapes",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
@@ -11,9 +14,6 @@
 	},
 	"author": "Alex Fernandez, Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
@@ -37,5 +37,6 @@
 	},
 	"dependencies": {
 		"@remotion/paths": "workspace:*"
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/shapes"
 }

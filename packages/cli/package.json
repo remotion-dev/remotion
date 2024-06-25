@@ -1,7 +1,10 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/cli"
+	},
 	"name": "@remotion/cli",
 	"version": "4.0.177",
-	"description": "CLI for Remotion",
+	"description": "Control Remotion features using the `npx remotion` command",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"bin": {
@@ -12,9 +15,6 @@
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "bun test src"
-	},
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
@@ -71,5 +71,6 @@
 	],
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/cli"
 }

@@ -1,7 +1,10 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/core"
+	},
 	"name": "remotion",
 	"version": "4.0.177",
-	"description": "Render videos in React",
+	"description": "Make videos programmatically",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -11,9 +14,6 @@
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
 		"build": "bun --env-file=../.env.bundle bundle.ts"
-	},
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
@@ -75,5 +75,6 @@
 				"dist/cjs/no-react.d.ts"
 			]
 		}
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/remotion"
 }

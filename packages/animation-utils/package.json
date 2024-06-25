@@ -1,11 +1,14 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/animation-utils"
+	},
 	"name": "@remotion/animation-utils",
 	"author": {
 		"name": "Chetan Karwa",
 		"email": "cbkarwa@gmail.com"
 	},
 	"version": "4.0.177",
-	"description": "A set of animation utilities for Remotion",
+	"description": "Helpers for animating CSS properties",
 	"main": "./dist/index.js",
 	"module": "./dist/index.mjs",
 	"types": "./dist/index.d.ts",

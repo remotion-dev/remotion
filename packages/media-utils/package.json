@@ -1,7 +1,10 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/media-utils"
+	},
 	"name": "@remotion/media-utils",
 	"version": "4.0.177",
-	"description": "Utility functions for audio and video",
+	"description": "Utilities for working with media files",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
@@ -10,9 +13,6 @@
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
@@ -32,5 +32,6 @@
 	],
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/media-utils"
 }

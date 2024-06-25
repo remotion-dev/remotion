@@ -1,7 +1,10 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/studio-server"
+	},
 	"name": "@remotion/studio-server",
 	"version": "4.0.177",
-	"description": "Remotion Editor",
+	"description": "Run a Remotion Studio with a server backend",
 	"main": "dist",
 	"sideEffects": false,
 	"scripts": {
@@ -12,9 +15,6 @@
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
 	"license": "MIT",
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},

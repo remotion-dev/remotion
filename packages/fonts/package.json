@@ -1,7 +1,10 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/fonts"
+	},
 	"name": "@remotion/fonts",
 	"version": "4.0.177",
-	"description": "Load local fonts for Remotion",
+	"description": "Helpers for loading local fonts into Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -17,9 +20,6 @@
 	],
 	"author": "Lucas Benya <bitup.games@gmail.com>",
 	"license": "MIT",
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
@@ -28,5 +28,6 @@
 	},
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/fonts-api"
 }

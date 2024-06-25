@@ -1,12 +1,15 @@
 {
-  "name": "@remotion/lambda-go",
-  "private": true,
-  "version": "4.0.177",
-  "scripts": {
-    "lint": "node build.mjs",
-    "publishprivate": "node publish.mjs"
-  },
-  "devDependencies": {
-    "remotion": "workspace:*"
-  }
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lambda-go"
+	},
+	"name": "@remotion/lambda-go",
+	"private": true,
+	"version": "4.0.177",
+	"scripts": {
+		"lint": "node build.mjs",
+		"publishprivate": "node publish.mjs"
+	},
+	"devDependencies": {
+		"remotion": "workspace:*"
+	}
 }

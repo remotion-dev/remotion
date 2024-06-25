@@ -1,7 +1,10 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lambda"
+	},
 	"name": "@remotion/lambda",
 	"version": "4.0.177",
-	"description": "Distributed renderer for Remotion based on AWS Lambda",
+	"description": "Render Remotion videos on AWS Lambda",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
@@ -14,9 +17,6 @@
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",
-	"repository": {
-		"url": "https://github.com/JonnyBurger/remotion"
-	},
 	"dependencies": {
 		"@smithy/abort-controller": "3.0.0",
 		"@aws-sdk/client-cloudwatch-logs": "3.583.0",
@@ -76,5 +76,6 @@
 				"dist/client.d.ts"
 			]
 		}
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/lambda"
 }
