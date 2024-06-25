@@ -1,4 +1,7 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/cloudrun"
+	},
 	"name": "@remotion/cloudrun",
 	"version": "4.0.177",
 	"description": "GCP Cloud Run alternative to lambda rendering",

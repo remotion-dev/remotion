@@ -1,4 +1,7 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/zod-types"
+	},
 	"name": "@remotion/zod-types",
 	"version": "4.0.177",
 	"description": "A color validator for Zod",
@@ -14,9 +17,6 @@
 	"author": "Jonny Burger",
 	"contributors": [],
 	"license": "MIT",
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},

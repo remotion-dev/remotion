@@ -1,4 +1,7 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/renderer"
+	},
 	"name": "@remotion/renderer",
 	"version": "4.0.177",
 	"description": "Renderer for Remotion",
@@ -15,9 +18,6 @@
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},

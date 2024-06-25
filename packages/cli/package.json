@@ -1,4 +1,7 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/cli"
+	},
 	"name": "@remotion/cli",
 	"version": "4.0.177",
 	"description": "CLI for Remotion",
@@ -12,9 +15,6 @@
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "bun test src"
-	},
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"

@@ -1,4 +1,7 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/player"
+	},
 	"name": "@remotion/player",
 	"version": "4.0.177",
 	"description": "Remotion Player",
@@ -21,9 +24,6 @@
 			"import": "./dist/esm/index.mjs",
 			"require": "./dist/cjs/index.js"
 		}
-	},
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"

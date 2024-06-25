@@ -1,4 +1,7 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/eslint-plugin"
+	},
 	"name": "@remotion/eslint-plugin",
 	"version": "4.0.177",
 	"description": "A set of rules helping you avoid common pitfalls in Remotion.",

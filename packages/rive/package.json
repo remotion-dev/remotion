@@ -1,4 +1,7 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/rive"
+	},
 	"name": "@remotion/rive",
 	"version": "4.0.177",
 	"description": "Remotion Rive",
@@ -9,9 +12,6 @@
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"build": "bun --env-file=../.env.bundle bundle.ts"
-	},
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
