@@ -13,10 +13,15 @@ test('All packages should have a README.md file', () => {
 	const readme =
 		[
 			`# Download statistics`,
-			'Monthly downloads of Remotion packages',
+			'Monthly downloads of Remotion packages  ',
 			dirs
 				.map(({pkg}) => {
-					const name = pkg === 'core' ? 'remotion' : `@remotion/${pkg}`;
+					const name =
+						pkg === 'core'
+							? 'remotion'
+							: pkg === 'create-video'
+								? 'create-video'
+								: `@remotion/${pkg}`;
 					const description = descriptions[pkg as Pkgs];
 					if (!description) {
 						return null;

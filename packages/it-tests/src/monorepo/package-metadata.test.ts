@@ -36,14 +36,12 @@ test('All packages should have a description field', () => {
 		if (description === undefined) {
 			throw new Error(`No description for ${pkg}`);
 		}
-		if (description) {
-			updatePackageJson(path, (data) => {
-				return {
-					...data,
-					description,
-				};
-			});
-		}
+		updatePackageJson(path, (data) => {
+			return {
+				...data,
+				description: description ?? undefined,
+			};
+		});
 	}
 });
 
@@ -61,7 +59,7 @@ test('All packages should have a README.md file', () => {
 
 		const readmePath = join(path, '..', 'README.md');
 
-		const name = `@remotion/${pkg}`;
+		const name = pkg === 'create-video' ? 'create-video' : `@remotion/${pkg}`;
 
 		const readme =
 			[

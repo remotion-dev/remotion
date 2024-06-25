@@ -152,7 +152,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 		'Internal package for shared objects between the Studio backend and frontend',
 	tailwind: 'Enable TailwindCSS support in Remotion',
 	streaming: 'Utilities for streaming data between programs',
-	'video-parser': 'A JavaScript parser for .mp4, .mov, .webm and .mkv files',
+	'video-parser': null,
 	rive: 'Embed Rive animations in a Remotion video',
 	paths: 'Utilities for working with SVG paths',
 	studio: 'APIs for interacting with the Remotion Studio',

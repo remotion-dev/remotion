@@ -4,7 +4,6 @@
 	},
 	"name": "@remotion/video-parser",
 	"version": "4.0.177",
-	"description": "A JavaScript parser for .mp4, .mov, .webm and .mkv files",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {

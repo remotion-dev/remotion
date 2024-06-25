@@ -1,7 +1,5 @@
 # @remotion/video-parser
  
-A JavaScript parser for .mp4, .mov, .webm and .mkv files
- 
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/video-parser.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/video-parser?minimal=true)
  
 ## Installation
