@@ -645,3 +645,22 @@ test(
     timeout: 30000,
   }
 );
+
+test(
+  "Should be able to render video that was wrapped in context",
+  async () => {
+    await execa(
+      "pnpm",
+      ["exec", "remotion", "still", "build", "wrapped-in-context", outputPath],
+      {
+        cwd: path.join(process.cwd(), "..", "example"),
+      }
+    );
+
+    const exists = fs.existsSync(outputPath);
+    expect(exists).toBe(true);
+  },
+  {
+    timeout: 30000,
+  }
+);
