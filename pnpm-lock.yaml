@@ -161,12 +161,6 @@ importers:
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
       remotion:
         specifier: workspace:*
         version: link:../core
@@ -210,12 +204,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -289,12 +277,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -319,9 +301,6 @@ importers:
       '@withfig/autocomplete-types':
         specifier: ^1.20.0
         version: 1.30.0
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
 
   packages/cloudrun:
     dependencies:
@@ -371,12 +350,6 @@ importers:
       '@types/node':
         specifier: ^18.11.2
         version: 18.14.6
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: ^3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
 
   packages/cloudrun/container:
     dependencies:
@@ -421,12 +394,6 @@ importers:
       jsdom:
         specifier: 21.1.0
         version: 21.1.0
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -479,12 +446,6 @@ importers:
       '@types/tar':
         specifier: 6.1.1
         version: 6.1.1
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
       vitest:
         specifier: 0.31.1
         version: 0.31.1(happy-dom@14.5.1)(jsdom@21.1.0)
@@ -714,12 +675,6 @@ importers:
       lodash.sortby:
         specifier: ^4.7.0
         version: 4.7.0
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
       shiki:
         specifier: 0.14.3
         version: 0.14.3
@@ -754,12 +709,6 @@ importers:
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
 
   packages/eslint-config:
     dependencies:
@@ -1025,16 +974,6 @@ importers:
       remotion:
         specifier: workspace:*
         version: link:../core
-    devDependencies:
-      '@types/node':
-        specifier: 18.14.6
-        version: 18.14.6
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
 
   packages/gif:
     dependencies:
@@ -1054,12 +993,6 @@ importers:
       esbuild:
         specifier: 0.18.6
         version: 0.18.6
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1107,12 +1040,6 @@ importers:
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
 
   packages/it-tests:
     devDependencies:
@@ -1258,12 +1185,6 @@ importers:
       '@types/react':
         specifier: 18.3.1
         version: 18.3.1
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
       pureimage:
         specifier: 0.4.13
         version: 0.4.13
@@ -1303,12 +1224,6 @@ importers:
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
 
   packages/lottie:
     dependencies:
@@ -1328,12 +1243,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1359,12 +1268,6 @@ importers:
       '@types/react':
         specifier: 18.3.1
         version: 18.3.1
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
 
   packages/motion-blur:
     dependencies:
@@ -1375,12 +1278,6 @@ importers:
       '@types/react':
         specifier: 18.3.1
         version: 18.3.1
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1400,24 +1297,12 @@ importers:
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
 
   packages/paths:
     devDependencies:
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
 
   packages/player:
     dependencies:
@@ -1443,12 +1328,6 @@ importers:
       csstype:
         specifier: ^3.1.1
         version: 3.1.1
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1500,22 +1379,8 @@ importers:
       remotion:
         specifier: workspace:*
         version: link:../core
-    devDependencies:
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
 
-  packages/preload:
-    devDependencies:
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
+  packages/preload: {}
 
   packages/renderer:
     dependencies:
@@ -1587,12 +1452,6 @@ importers:
       '@types/ws':
         specifier: 8.5.10
         version: 8.5.10
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1618,12 +1477,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1652,12 +1505,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1683,12 +1530,6 @@ importers:
       '@types/react-native':
         specifier: ^0.69.2
         version: 0.69.2
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1696,14 +1537,7 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
 
-  packages/streaming:
-    devDependencies:
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
+  packages/streaming: {}
 
   packages/studio:
     dependencies:
@@ -1750,12 +1584,6 @@ importers:
       '@types/semver':
         specifier: ^7.3.4
         version: 7.5.3
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1811,12 +1639,6 @@ importers:
       '@types/semver':
         specifier: ^7.3.4
         version: 7.5.3
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1833,12 +1655,6 @@ importers:
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
 
   packages/tailwind:
     dependencies:
@@ -1870,12 +1686,6 @@ importers:
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
 
   packages/test-utils:
     devDependencies:
@@ -1885,12 +1695,6 @@ importers:
       '@types/react':
         specifier: 18.3.1
         version: 18.3.1
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1925,12 +1729,6 @@ importers:
       '@types/web':
         specifier: 0.0.78
         version: 0.0.78
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1971,12 +1769,6 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^2.0.0
         version: 2.2.0(vite@3.2.10)
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1992,12 +1784,6 @@ importers:
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
 
   packages/zod-types:
     dependencies:
@@ -2005,12 +1791,6 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-organize-imports:
-        specifier: 3.2.4
-        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
       zod:
         specifier: 3.22.3
         version: 3.22.3
