@@ -18,12 +18,27 @@ importers:
         specifier: 5.3.3
         version: 5.3.3
     devDependencies:
+      '@jonny/eslint-config':
+        specifier: 3.0.281
+        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/bun':
         specifier: 1.0.12
         version: 1.0.12
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
+      eslint-plugin-10x:
+        specifier: 1.5.2
+        version: 1.5.2(eslint@8.56.0)
+      eslint-plugin-react:
+        specifier: 7.32.2
+        version: 7.32.2(eslint@8.56.0)
+      eslint-plugin-react-hooks:
+        specifier: 4.4.0
+        version: 4.4.0(eslint@8.56.0)
 
   packages/ai-improvements:
     dependencies:
@@ -49,18 +64,12 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
       '@types/react':
         specifier: 18.3.1
         version: 18.3.1
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -146,18 +155,12 @@ importers:
         specifier: 5.83.1
         version: 5.83.1
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@remotion/bundler':
         specifier: workspace:*
         version: link:../bundler
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -198,9 +201,6 @@ importers:
         specifier: 5.83.1
         version: 5.83.1(esbuild@0.18.6)
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -210,18 +210,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-plugin-10x:
-        specifier: 1.5.2
-        version: 1.5.2(eslint@8.56.0)
-      eslint-plugin-react:
-        specifier: 7.32.2
-        version: 7.32.2(eslint@8.56.0)
-      eslint-plugin-react-hooks:
-        specifier: 4.4.0
-        version: 4.4.0(eslint@8.56.0)
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -271,9 +259,6 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@remotion/enable-scss':
         specifier: workspace:*
         version: link:../enable-scss
@@ -304,18 +289,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-plugin-10x:
-        specifier: 1.5.2
-        version: 1.5.2(eslint@8.56.0)
-      eslint-plugin-react:
-        specifier: 7.32.2
-        version: 7.32.2(eslint@8.56.0)
-      eslint-plugin-react-hooks:
-        specifier: 4.4.0
-        version: 4.4.0(eslint@8.56.0)
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -337,9 +310,6 @@ importers:
       '@fig/eslint-config-autocomplete':
         specifier: 1.2.1
         version: 1.2.1(eslint@8.56.0)(typescript@5.3.3)
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
@@ -349,9 +319,6 @@ importers:
       '@withfig/autocomplete-types':
         specifier: ^1.20.0
         version: 1.30.0
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -395,9 +362,6 @@ importers:
         specifier: 3.22.3
         version: 3.22.3
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@remotion/compositor-linux-x64-gnu':
         specifier: workspace:*
         version: link:../compositor-linux-x64-gnu
@@ -407,9 +371,6 @@ importers:
       '@types/node':
         specifier: ^18.11.2
         version: 18.14.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -442,9 +403,6 @@ importers:
       '@happy-dom/global-registrator':
         specifier: 14.5.1
         version: 14.5.1
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@testing-library/react':
         specifier: 14.0.0
         version: 14.0.0(react-dom@18.3.1)(react@18.3.1)
@@ -457,12 +415,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-plugin-require-extensions:
-        specifier: ^0.1.2
-        version: 0.1.2(eslint@8.56.0)
       happy-dom:
         specifier: 14.5.1
         version: 14.5.1
@@ -512,9 +464,6 @@ importers:
         specifier: 6.2.1
         version: 6.2.1
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/minimist':
         specifier: 1.2.2
         version: 1.2.2
@@ -530,9 +479,6 @@ importers:
       '@types/tar':
         specifier: 6.1.1
         version: 6.1.1
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -578,9 +524,6 @@ importers:
       '@docusaurus/types':
         specifier: 2.4.1
         version: 2.4.1(@swc/core@1.3.80)(react-dom@18.3.1)(react@18.3.1)
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@mdx-js/react':
         specifier: ^1.6.21
         version: 1.6.22(react@18.3.1)
@@ -765,9 +708,6 @@ importers:
       '@typescript/twoslash':
         specifier: 3.2.1
         version: 3.2.1
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       fenceparser:
         specifier: ^2.2.0
         version: 2.2.0
@@ -808,18 +748,12 @@ importers:
         specifier: 2.0.0
         version: 2.0.0(webpack@5.83.1)
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@remotion/bundler':
         specifier: workspace:*
         version: link:../bundler
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -838,6 +772,9 @@ importers:
       '@typescript-eslint/parser':
         specifier: 6.21.0
         version: 6.21.0(eslint@8.56.0)(typescript@5.3.3)
+      eslint:
+        specifier: '>=7.15.0'
+        version: 8.56.0
       eslint-plugin-10x:
         specifier: 1.5.2
         version: 1.5.2(eslint@8.56.0)
@@ -851,19 +788,16 @@ importers:
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
 
   packages/eslint-plugin:
     dependencies:
       '@typescript-eslint/utils':
         specifier: 5.19.0
         version: 5.19.0(eslint@8.56.0)(typescript@5.3.3)
-    devDependencies:
       eslint:
-        specifier: 8.56.0
+        specifier: '>=7.0.0'
         version: 8.56.0
+    devDependencies:
       vitest:
         specifier: 0.31.1
         version: 0.31.1(happy-dom@14.5.1)(jsdom@21.1.0)
@@ -1057,18 +991,6 @@ importers:
         specifier: 3.22.3
         version: 3.22.3
     devDependencies:
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-plugin-10x:
-        specifier: 1.5.2
-        version: 1.5.2(eslint@8.56.0)
-      eslint-plugin-react:
-        specifier: 7.32.2
-        version: 7.32.2(eslint@8.56.0)
-      eslint-plugin-react-hooks:
-        specifier: 4.4.0
-        version: 4.4.0(eslint@8.56.0)
       prettier-plugin-organize-imports:
         specifier: 3.2.4
         version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
@@ -1104,15 +1026,9 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1126,9 +1042,6 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -1141,9 +1054,6 @@ importers:
       esbuild:
         specifier: 0.18.6
         version: 0.18.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1194,24 +1104,9 @@ importers:
         specifier: '>=16.8.0'
         version: 18.2.0(react@18.2.0)
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-plugin-10x:
-        specifier: 1.5.2
-        version: 1.5.2(eslint@8.56.0)
-      eslint-plugin-react:
-        specifier: 7.32.2
-        version: 7.32.2(eslint@8.56.0)
-      eslint-plugin-react-hooks:
-        specifier: 4.4.0
-        version: 4.4.0(eslint@8.56.0)
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1345,9 +1240,6 @@ importers:
         specifier: 3.22.3
         version: 3.22.3
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@remotion/compositor-linux-arm64-gnu':
         specifier: workspace:*
         version: link:../compositor-linux-arm64-gnu
@@ -1366,9 +1258,6 @@ importers:
       '@types/react':
         specifier: 18.3.1
         version: 18.3.1
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1411,15 +1300,9 @@ importers:
 
   packages/layout-utils:
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1436,9 +1319,6 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -1448,9 +1328,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1476,18 +1353,12 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
       '@types/react':
         specifier: 18.3.1
         version: 18.3.1
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1501,15 +1372,9 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/react':
         specifier: 18.3.1
         version: 18.3.1
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1532,15 +1397,9 @@ importers:
         specifier: 4.0.1
         version: 4.0.1
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1550,15 +1409,9 @@ importers:
 
   packages/paths:
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1575,9 +1428,6 @@ importers:
       '@happy-dom/global-registrator':
         specifier: 14.5.1
         version: 14.5.1
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@testing-library/react':
         specifier: 13.1.1
         version: 13.1.1(react-dom@18.3.1)(react@18.3.1)
@@ -1593,12 +1443,6 @@ importers:
       csstype:
         specifier: ^3.1.1
         version: 3.1.1
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-plugin-require-extensions:
-        specifier: ^0.1.2
-        version: 0.1.2(eslint@8.56.0)
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1644,9 +1488,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       next:
         specifier: 14.1.4
         version: 14.1.4(react-dom@18.3.1)(react@18.3.1)
@@ -1669,12 +1510,6 @@ importers:
 
   packages/preload:
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1725,9 +1560,6 @@ importers:
       '@happy-dom/global-registrator':
         specifier: 14.5.1
         version: 14.5.1
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@remotion/streaming':
         specifier: workspace:*
         version: link:../streaming
@@ -1755,9 +1587,6 @@ importers:
       '@types/ws':
         specifier: 8.5.10
         version: 8.5.10
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1780,9 +1609,6 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -1792,9 +1618,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1817,9 +1640,6 @@ importers:
       '@happy-dom/global-registrator':
         specifier: 14.5.1
         version: 14.5.1
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@testing-library/react':
         specifier: ^13.4.0
         version: 13.4.0(react-dom@18.3.1)(react@18.3.1)
@@ -1832,9 +1652,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1854,9 +1671,6 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@remotion/bundler':
         specifier: workspace:*
         version: link:../bundler
@@ -1869,9 +1683,6 @@ importers:
       '@types/react-native':
         specifier: ^0.69.2
         version: 0.69.2
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1887,21 +1698,6 @@ importers:
 
   packages/streaming:
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-plugin-10x:
-        specifier: 1.5.2
-        version: 1.5.2(eslint@8.56.0)
-      eslint-plugin-react:
-        specifier: 7.32.2
-        version: 7.32.2(eslint@8.56.0)
-      eslint-plugin-react-hooks:
-        specifier: 4.4.0
-        version: 4.4.0(eslint@8.56.0)
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1939,9 +1735,6 @@ importers:
         specifier: 0.7.3
         version: 0.7.3
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@remotion/zod-types':
         specifier: workspace:*
         version: link:../zod-types
@@ -1957,18 +1750,6 @@ importers:
       '@types/semver':
         specifier: ^7.3.4
         version: 7.5.3
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-plugin-10x:
-        specifier: 1.5.2
-        version: 1.5.2(eslint@8.56.0)
-      eslint-plugin-react:
-        specifier: 7.32.2
-        version: 7.32.2(eslint@8.56.0)
-      eslint-plugin-react-hooks:
-        specifier: 4.4.0
-        version: 4.4.0(eslint@8.56.0)
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -2021,9 +1802,6 @@ importers:
       '@babel/types':
         specifier: 7.24.0
         version: 7.24.0
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -2033,18 +1811,6 @@ importers:
       '@types/semver':
         specifier: ^7.3.4
         version: 7.5.3
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-plugin-10x:
-        specifier: 1.5.2
-        version: 1.5.2(eslint@8.56.0)
-      eslint-plugin-react:
-        specifier: 7.32.2
-        version: 7.32.2(eslint@8.56.0)
-      eslint-plugin-react-hooks:
-        specifier: 4.4.0
-        version: 4.4.0(eslint@8.56.0)
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -2061,27 +1827,12 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-plugin-10x:
-        specifier: 1.5.2
-        version: 1.5.2(eslint@8.56.0)
-      eslint-plugin-react:
-        specifier: 7.32.2
-        version: 7.32.2(eslint@8.56.0)
-      eslint-plugin-react-hooks:
-        specifier: 4.4.0
-        version: 4.4.0(eslint@8.56.0)
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -2113,18 +1864,12 @@ importers:
         specifier: ^3.3.2
         version: 3.3.2
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@remotion/bundler':
         specifier: workspace:*
         version: link:../bundler
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -2134,18 +1879,12 @@ importers:
 
   packages/test-utils:
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
       '@types/react':
         specifier: 18.3.1
         version: 18.3.1
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -2168,9 +1907,6 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@react-three/fiber':
         specifier: 8.13.5
         version: 8.13.5(react-dom@18.3.1)(react@18.3.1)(three@0.158.0)
@@ -2189,9 +1925,6 @@ importers:
       '@types/web':
         specifier: 0.0.78
         version: 0.0.78
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -2223,9 +1956,6 @@ importers:
       '@happy-dom/global-registrator':
         specifier: 14.5.1
         version: 14.5.1
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@remotion/test-utils':
         specifier: workspace:*
         version: link:../test-utils
@@ -2241,9 +1971,6 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^2.0.0
         version: 2.2.0(vite@3.2.10)
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -2259,27 +1986,12 @@ importers:
 
   packages/video-parser:
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@types/bun':
         specifier: 1.0.12
         version: 1.0.12
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-plugin-10x:
-        specifier: 1.5.2
-        version: 1.5.2(eslint@8.56.0)
-      eslint-plugin-react:
-        specifier: 7.32.2
-        version: 7.32.2(eslint@8.56.0)
-      eslint-plugin-react-hooks:
-        specifier: 4.4.0
-        version: 4.4.0(eslint@8.56.0)
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -2293,12 +2005,6 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -8392,6 +8098,7 @@ packages:
 
   /@humanwhocodes/object-schema@2.0.3:
     resolution: {integrity: sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA==}
+    deprecated: Use @eslint/object-schema instead
 
   /@jest/types@27.5.1:
     resolution: {integrity: sha512-Cx46iJ9QpwQTjIdq5VJu2QTMMs3QlEjI0x1QbBP5W1+nMzyc2XmimiRR/CbX9TO0cPTeUlxWMOu8mslYsJ8DEw==}
@@ -8416,6 +8123,7 @@ packages:
       - eslint
       - supports-color
       - typescript
+    dev: true
 
   /@jridgewell/gen-mapping@0.3.2:
     resolution: {integrity: sha512-mh65xKQAzI6iBcFzwv28KVWSmCkdRBWoOh+bYQGW3+6OZvbbN3TqMGo5hqYxQniRcH9F2VZIoJCm4pa3BPDK/A==}
@@ -10406,6 +10114,7 @@ packages:
       typescript: 5.3.3
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   /@typescript-eslint/parser@5.62.0(eslint@8.56.0)(typescript@5.3.3):
     resolution: {integrity: sha512-VlJEV0fOQ7BExOsHYAGrgbEiZoi8D+Bl2+f6V2RrXerRSylnp+ZBHmPvaIa8cz0Ajx7WO7Z5RqfgYg7ED1nRhA==}
@@ -10467,6 +10176,7 @@ packages:
       typescript: 5.3.3
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   /@typescript-eslint/scope-manager@5.19.0:
     resolution: {integrity: sha512-Fz+VrjLmwq5fbQn5W7cIJZ066HxLMKvDEmf4eu1tZ8O956aoX45jAuBB76miAECMTODyUxH61AQM7q4/GOMQ5g==}
@@ -10498,6 +10208,7 @@ packages:
     dependencies:
       '@typescript-eslint/types': 7.5.0
       '@typescript-eslint/visitor-keys': 7.5.0
+    dev: true
 
   /@typescript-eslint/type-utils@5.62.0(eslint@8.56.0)(typescript@5.3.3):
     resolution: {integrity: sha512-xsSQreu+VnfbqQpW5vnCJdq1Z3Q0U31qiWmRhr98ONQmcp/yhiPJFPq8MXiJVLiksmOKSjIldZzkebzHuCGzew==}
@@ -10557,6 +10268,7 @@ packages:
       typescript: 5.3.3
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   /@typescript-eslint/types@5.19.0:
     resolution: {integrity: sha512-zR1ithF4Iyq1wLwkDcT+qFnhs8L5VUtjgac212ftiOP/ZZUOCuuF2DeGiZZGQXGoHA50OreZqLH5NjDcDqn34w==}
@@ -10576,6 +10288,7 @@ packages:
   /@typescript-eslint/types@7.5.0:
     resolution: {integrity: sha512-tv5B4IHeAdhR7uS4+bf8Ov3k793VEVHd45viRRkehIUZxm0WF82VPiLgHzA/Xl4TGPg1ZD49vfxBKFPecD5/mg==}
     engines: {node: ^18.18.0 || >=20.0.0}
+    dev: true
 
   /@typescript-eslint/typescript-estree@5.19.0(typescript@5.3.3):
     resolution: {integrity: sha512-dRPuD4ocXdaE1BM/dNR21elSEUPKaWgowCA0bqJ6YbYkvtrPVEvZ+zqcX5a8ECYn3q5iBSSUcBBD42ubaOp0Hw==}
@@ -10661,6 +10374,7 @@ packages:
       typescript: 5.3.3
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   /@typescript-eslint/utils@5.19.0(eslint@8.56.0)(typescript@5.3.3):
     resolution: {integrity: sha512-ZuEckdupXpXamKvFz/Ql8YnePh2ZWcwz7APICzJL985Rp5C2AYcHO62oJzIqNhAMtMK6XvrlBTZeNG8n7gS3lQ==}
@@ -10736,6 +10450,7 @@ packages:
     transitivePeerDependencies:
       - supports-color
       - typescript
+    dev: true
 
   /@typescript-eslint/visitor-keys@5.19.0:
     resolution: {integrity: sha512-Ym7zZoMDZcAKWsULi2s7UMLREdVQdScPQ/fKWMYefarCztWlHPFVJo8racf8R0Gc8FAEJ2eD4of8As1oFtnQlQ==}
@@ -10767,6 +10482,7 @@ packages:
     dependencies:
       '@typescript-eslint/types': 7.5.0
       eslint-visitor-keys: 3.4.3
+    dev: true
 
   /@typescript/twoslash@3.1.0:
     resolution: {integrity: sha512-kTwMUQ8xtAZaC4wb2XuLkPqFVBj2dNBueMQ89NWEuw87k2nLBbuafeG5cob/QEr6YduxIdTVUjix0MtC7mPlmg==}
@@ -11324,6 +11040,7 @@ packages:
       es-errors: 1.3.0
       es-object-atoms: 1.0.0
       es-shim-unscopables: 1.0.2
+    dev: true
 
   /array.prototype.flatmap@1.3.2:
     resolution: {integrity: sha512-Ewyx0c9PmpcsByhSW4r+9zDU7sGjFc86qf/kKtuSCRdhfbk0SNLLkaT5qvcHnRGgc5NP/ly/y+qkXkqONX54CQ==}
@@ -11341,6 +11058,7 @@ packages:
       define-properties: 1.2.1
       es-abstract: 1.23.3
       es-shim-unscopables: 1.0.2
+    dev: true
 
   /array.prototype.tosorted@1.1.3:
     resolution: {integrity: sha512-/DdH4TiTmOKzyQbp/eadcCVexiCb36xJg7HshYOYJnNZFDj33GEv0P7GxsynpShhq4OLYJzbGcBDkLsDt7MnNg==}
@@ -13516,6 +13234,7 @@ packages:
       internal-slot: 1.0.7
       iterator.prototype: 1.1.2
       safe-array-concat: 1.1.2
+    dev: true
 
   /es-module-lexer@1.1.1:
     resolution: {integrity: sha512-n3ruqU8Te7I5prBd6d0darM8ajFuVNhLWvgo04hN7goWSaSrxe7ENOZitac7akN0A2o+8fMomBDsNPvW/eE3CQ==}
@@ -13982,14 +13701,6 @@ packages:
       resolve: 2.0.0-next.5
       semver: 6.3.1
       string.prototype.matchall: 4.0.11
-
-  /eslint-plugin-require-extensions@0.1.2(eslint@8.56.0):
-    resolution: {integrity: sha512-UtddVQMdE2SezgWwK7JO7eCBUDUqLg6jq8YGlz5RlSG06Sqlr+xcAaosho3wZYrOzfp6zKUseDFavWgoAgCimQ==}
-    engines: {node: '>=16'}
-    peerDependencies:
-      eslint: '*'
-    dependencies:
-      eslint: 8.56.0
     dev: true
 
   /eslint-scope@5.1.1:
@@ -14748,15 +14459,6 @@ packages:
 
   /function-bind@1.1.2:
     resolution: {integrity: sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==}
-
-  /function.prototype.name@1.1.5:
-    resolution: {integrity: sha512-uN7m/BzVKQnCUF/iW8jYea67v++2u7m5UgENbHRtdDVclOUP+FMPlCNdmk0h/ysGyo2tavMJEDqJAkJdRa1vMA==}
-    engines: {node: '>= 0.4'}
-    dependencies:
-      call-bind: 1.0.7
-      define-properties: 1.2.1
-      es-abstract: 1.23.3
-      functions-have-names: 1.2.3
 
   /function.prototype.name@1.1.6:
     resolution: {integrity: sha512-Z5kx79swU5P27WEayXM1tBi5Ze/lbIyiNgU3qyXUOf9b2rgXYyF9Dy9Cx+IQv/Lc8WCG6L82zwUPpSS9hGehIg==}
@@ -15735,6 +15437,7 @@ packages:
 
   /inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
+    deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
     dependencies:
       once: 1.4.0
       wrappy: 1.0.2
@@ -15851,6 +15554,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       has-tostringtag: 1.0.2
+    dev: true
 
   /is-bigint@1.0.4:
     resolution: {integrity: sha512-zB9CruMamjym81i2JZ3UMn54PKGsQzsJeo6xvN3HJJ4CAsQNB6iRutp2To77OfCNuoxspsIhzaPoO1zyCEhFOg==}
@@ -15978,6 +15682,7 @@ packages:
     resolution: {integrity: sha512-0by5vtUJs8iFQb5TYUHHPudOR+qXYIMKtiUzvLIZITZUjknFmziyBJuLhVRc+Ds0dREFlskDNJKYIdIzu/9pfw==}
     dependencies:
       call-bind: 1.0.7
+    dev: true
 
   /is-fullwidth-code-point@3.0.0:
     resolution: {integrity: sha512-zymm5+u+sCsSWyD9qNaejV3DFvhCKclKdizYaJUuHA83RLjb7nSuGnddCHGv0hk+KY7BMAlsWeK4Ueg6EV6XQg==}
@@ -16020,6 +15725,7 @@ packages:
   /is-map@2.0.3:
     resolution: {integrity: sha512-1Qed0/Hr2m+YqxnM09CjA2d/i6YZNfF6R2oRAOj36eUdS6qIV/huPJNSEpKbupewFs+ZsJlxsjjPbc0/afW6Lw==}
     engines: {node: '>= 0.4'}
+    dev: true
 
   /is-negative-zero@2.0.3:
     resolution: {integrity: sha512-5KoIu2Ngpyek75jXodFvnafB6DJgr3u8uuK0LEZJjrU19DrMD3EVERaR8sjz8CCGgpZvxPl9SuE1GMVPFHx1mw==}
@@ -16116,6 +15822,7 @@ packages:
   /is-set@2.0.3:
     resolution: {integrity: sha512-iPAjerrse27/ygGLxw+EBR9agv9Y6uLeYVJMu+QNCoouJ1/1ri0mGrcWpfCqFZuzzx3WjtwxG098X+n4OuRkPg==}
     engines: {node: '>= 0.4'}
+    dev: true
 
   /is-shared-array-buffer@1.0.3:
     resolution: {integrity: sha512-nA2hv5XIhLR3uVzDDfCIknerhx8XUKnstuOERPNNIinXG7v9u+ohXF67vxm4TPTEPU6lm61ZkwP3c9PCB97rhg==}
@@ -16162,6 +15869,7 @@ packages:
   /is-weakmap@2.0.2:
     resolution: {integrity: sha512-K5pXYOm9wqY1RgjpL3YTkF39tni1XajUIkawTLUo9EZEVUFga5gSQJF8nNS7ZwJQ02y+1YCNYcMh+HIf1ZqE+w==}
     engines: {node: '>= 0.4'}
+    dev: true
 
   /is-weakref@1.0.2:
     resolution: {integrity: sha512-qctsuLZmIQ0+vSSMfoVvyFe2+GSEvnmZ2ezTup1SBse9+twCCeial6EEi3Nc2KFcf6+qz2FBPnjXsk8xhKSaPQ==}
@@ -16174,6 +15882,7 @@ packages:
     dependencies:
       call-bind: 1.0.7
       get-intrinsic: 1.2.4
+    dev: true
 
   /is-what@4.1.15:
     resolution: {integrity: sha512-uKua1wfy3Yt+YqsD6mTUEa2zSi3G1oPlqTflgaPJ7z63vUGN5pxFpnQfeSLMFnJDEsdvOtkp1rUWkYjB4YfhgA==}
@@ -16238,6 +15947,7 @@ packages:
       has-symbols: 1.0.3
       reflect.getprototypeof: 1.0.6
       set-function-name: 2.0.2
+    dev: true
 
   /its-fine@1.0.6(react@18.3.1):
     resolution: {integrity: sha512-VZJZPwVT2kxe5KQv+TxCjojfLiUIut8zXDNLTxcM7gJ/xQ/bSPk5M0neZ+j3myy45KKkltY1mm1jyJgx3Fxsdg==}
@@ -19881,6 +19591,7 @@ packages:
       get-intrinsic: 1.2.4
       globalthis: 1.0.3
       which-builtin-type: 1.1.3
+    dev: true
 
   /regenerate-unicode-properties@10.1.0:
     resolution: {integrity: sha512-d1VudCLoIGitcU/hEg2QqvyGZQmdC0Lf8BqdOMXGFSvJP4bNV1+XqbPQeHHLD51Jh4QJJ225dlIFvY4Ly6MXmQ==}
@@ -20313,6 +20024,7 @@ packages:
 
   /rimraf@3.0.2:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
     dependencies:
       glob: 7.2.0
@@ -23309,7 +23021,7 @@ packages:
     resolution: {integrity: sha512-YmjsSMDBYsM1CaFiayOVT06+KJeXf0o5M/CAd4o1lTadFAtacTUM49zoYxr/oroopFDfhvN6iEcBxUyc3gvKmw==}
     engines: {node: '>= 0.4'}
     dependencies:
-      function.prototype.name: 1.1.5
+      function.prototype.name: 1.1.6
       has-tostringtag: 1.0.2
       is-async-function: 2.0.0
       is-date-object: 1.0.5
@@ -23321,6 +23033,7 @@ packages:
       which-boxed-primitive: 1.0.2
       which-collection: 1.0.2
       which-typed-array: 1.1.15
+    dev: true
 
   /which-collection@1.0.2:
     resolution: {integrity: sha512-K4jVyjnBdgvc86Y6BkaLZEN933SwYOuBFkdmBu9ZfkcAbdVbpITnDmjvZ/aQjRXQrv5EPkTnD1s39GiiqbngCw==}
@@ -23330,6 +23043,7 @@ packages:
       is-set: 2.0.3
       is-weakmap: 2.0.2
       is-weakset: 2.0.3
+    dev: true
 
   /which-pm-runs@1.1.0:
     resolution: {integrity: sha512-n1brCuqClxfFfq/Rb0ICg9giSZqCS+pLtccdag6C2HyufBrh3fBOiy9nb6ggRMvWOVH5GrdJskj5iGTZNxd7SA==}

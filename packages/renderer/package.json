@@ -33,7 +33,6 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.281",
 		"@testing-library/dom": "^8.16.0",
 		"@testing-library/react": "13.3.0",
 		"@happy-dom/global-registrator": "14.5.1",
@@ -43,7 +42,6 @@
 		"@types/react": "18.3.1",
 		"@types/react-dom": "18.3.0",
 		"@remotion/streaming": "workspace:*",
-		"eslint": "8.56.0",
 		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4",
 		"react": "18.3.1",

@@ -32,12 +32,10 @@
 		"remotion": "workspace:*"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.281",
 		"@types/node": "18.14.6",
 		"@types/react": "18.3.1",
 		"@types/react-dom": "18.3.0",
 		"esbuild": "0.18.6",
-		"eslint": "8.56.0",
 		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4",
 		"react": "18.3.1",

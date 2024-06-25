@@ -30,9 +30,7 @@
 		"@types/react": "18.3.1",
 		"@types/node": "18.14.6",
 		"prettier": "3.2.5",
-		"prettier-plugin-organize-imports": "3.2.4",
-		"eslint": "8.56.0",
-		"@jonny/eslint-config": "3.0.281"
+		"prettier-plugin-organize-imports": "3.2.4"
 	},
 	"exports": {
 		"./package.json": "./package.json",

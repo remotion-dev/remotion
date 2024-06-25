@@ -19,8 +19,6 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.281",
-		"eslint": "8.56.0",
 		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4"
 	},

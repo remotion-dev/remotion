@@ -28,11 +28,9 @@
 		"react-dom": "^18.2.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.281",
 		"@types/node": "18.14.6",
 		"@types/react": "18.3.1",
 		"@types/react-dom": "18.3.0",
-		"eslint": "8.56.0",
 		"prettier": "3.2.5",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",

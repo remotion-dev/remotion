@@ -42,15 +42,12 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.281",
 		"@testing-library/react": "13.1.1",
 		"@happy-dom/global-registrator": "14.5.1",
 		"@types/node": "18.14.6",
 		"@types/react": "18.3.1",
 		"@types/react-dom": "18.3.0",
 		"csstype": "^3.1.1",
-		"eslint": "8.56.0",
-		"eslint-plugin-require-extensions": "^0.1.2",
 		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4",
 		"react": "18.3.1",
