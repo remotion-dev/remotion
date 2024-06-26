@@ -42,31 +42,31 @@ export const allowESLintShareableConfig = () => {
   // Probe for the ESLint >=8.0.0 layout:
   for (let currentModule = module; ; ) {
     if (!eslintrcBundlePath) {
-      // For ESLint >=8.0.0, all @eslint/eslintrc code is bundled at this path:
-      //   .../@eslint/eslintrc/dist/eslintrc.cjs
-      try {
-        const eslintrcFolder = path.dirname(
-          require.resolve("@eslint/eslintrc/package.json", {
-            paths: [currentModule.path],
-          })
-        );
+      if (currentModule.filename.endsWith('eslintrc.cjs')) {
+        // For ESLint >=8.0.0, all @eslint/eslintrc code is bundled at this path:
+        //   .../@eslint/eslintrc/dist/eslintrc.cjs
+        try {
+          const eslintrcFolderPath = path.dirname(
+            require.resolve("@eslint/eslintrc/package.json", {
+              paths: [currentModule.path],
+            })
+          );
 
-        // Make sure we actually resolved the module in our call path
-        // and not some other spurious dependency.
-        if (
-          path.join(eslintrcFolder, "dist/eslintrc.cjs") ===
-          currentModule.filename
-        ) {
-          eslintrcBundlePath = path.join(eslintrcFolder, "dist/eslintrc.cjs");
+          // Make sure we actually resolved the module in our call path
+          // and not some other spurious dependency.
+          const resolvedEslintrcBundlePath = path.join(eslintrcFolderPath, 'dist/eslintrc.cjs');
+          if (resolvedEslintrcBundlePath === currentModule.filename) {
+            eslintrcBundlePath = resolvedEslintrcBundlePath;
+          }
+        } catch (ex: unknown) {
+          // Module resolution failures are expected, as we're walking
+          // up our require stack to look for eslint. All other errors
+          // are rethrown.
+          if (!isModuleResolutionError(ex)) {
+            throw ex;
+          }
         }
-      } catch (ex: unknown) {
-        // Module resolution failures are expected, as we're walking
-        // up our require stack to look for eslint. All other errors
-        // are rethrown.
-        if (!isModuleResolutionError(ex)) {
-          throw ex;
-        }
-      }
+      }  
     } else {
       // Next look for a file in ESLint's folder
       //   .../eslint/lib/cli-engine/cli-engine.js
@@ -79,10 +79,19 @@ export const allowESLintShareableConfig = () => {
 
         // Make sure we actually resolved the module in our call path
         // and not some other spurious dependency.
-        if (
-          path.join(eslintCandidateFolder, "lib/cli-engine/cli-engine.js") ===
-          currentModule.filename
-        ) {
+        // 1. VS Code's eslint extension uses eslint/use-at-your-own-risk when you
+        // turn on flat config
+        // 2. eslint's use-at-your-own-risk maps to lib/unsupported-api.js
+        // 3. lib/unsupported-api.js loads lib/cli-engine/file-enumerator.js, not
+        // lib/cli-engine/cli-engine.js
+        // 4. eslint-patch prior to this change specifically searched for
+        // lib/cli-engine/cli-engine.js in the import stack, and if it wasn't
+        // found, it would assume an older version of eslint, and that would cause
+        // an error
+        // Below change allows for any file inside the eslint package to count,
+        // allowing VS Code's eslint extension to work when you use eslint's flat
+        // config
+        if (currentModule.filename.startsWith(eslintCandidateFolder + path.sep)) {
           eslintFolder = eslintCandidateFolder;
           break;
         }
@@ -103,10 +112,10 @@ export const allowESLintShareableConfig = () => {
   }
 
   if (!eslintFolder) {
-    // Probe for the ESLint >=7.8.0 layout:
+    // Probe for the ESLint >=7.12.0 layout:
     for (let currentModule = module; ; ) {
       if (!configArrayFactoryPath) {
-        // For ESLint >=7.8.0, config-array-factory.js is at this path:
+        // For ESLint >=7.12.0, config-array-factory.js is at this path:
         //   .../@eslint/eslintrc/lib/config-array-factory.js
         try {
           const eslintrcFolder = path.dirname(
@@ -136,7 +145,7 @@ export const allowESLintShareableConfig = () => {
             throw ex;
           }
         }
-      } else {
+      } else if (currentModule.filename.endsWith('cli-engine.js')) {
         // Next look for a file in ESLint's folder
         //   .../eslint/lib/cli-engine/cli-engine.js
         try {
@@ -171,9 +180,9 @@ export const allowESLintShareableConfig = () => {
   }
 
   if (!eslintFolder) {
-    // Probe for the <7.8.0 layout:
+    // Probe for the <7.12.0 layout:
     for (let currentModule = module; ; ) {
-      // For ESLint <7.8.0, config-array-factory.js was at this path:
+      // For ESLint <7.12.0, config-array-factory.js was at this path:
       //   .../eslint/lib/cli-engine/config-array-factory.js
       if (
         /[\\/]eslint[\\/]lib[\\/]cli-engine[\\/]config-array-factory\.js$/i.test(
@@ -197,7 +206,7 @@ export const allowESLintShareableConfig = () => {
         throw new Error(
           "Failed to patch ESLint because the calling module was not recognized.\n" +
             "If you are using a newer ESLint version that may be unsupported, please create a GitHub issue:\n" +
-            "https://github.com/microsoft/rushstack/issues"
+            "https://github.com/remotion-dev/remotion/issues"
         );
       }
       currentModule = currentModule.parent;
@@ -215,17 +224,17 @@ export const allowESLintShareableConfig = () => {
     throw new Error("Unable to parse ESLint version: " + eslintPackageVersion);
   }
   const eslintMajorVersion = Number(versionMatch[1]);
-  if (!(eslintMajorVersion >= 6 && eslintMajorVersion <= 8)) {
+  if (!(eslintMajorVersion >= 6 && eslintMajorVersion <= 9)) {
     throw new Error(
-      "The patch-eslint.js script has only been tested with ESLint version 6.x, 7.x, and 8.x." +
+      "The patch-eslint.js script has only been tested with ESLint version 6.x, 7.x, and 8.x, and 9.x." +
         ` (Your version: ${eslintPackageVersion})\n` +
         "Consider reporting a GitHub issue:\n" +
-        "https://github.com/microsoft/rushstack/issues"
+        "https://github.com/remotion-dev/remotion/issues"
     );
   }
 
   let ConfigArrayFactory;
-  if (eslintMajorVersion === 8) {
+  if (eslintMajorVersion >= 8) {
     ConfigArrayFactory = require(eslintrcBundlePath!).Legacy.ConfigArrayFactory;
   } else {
     ConfigArrayFactory = require(configArrayFactoryPath!).ConfigArrayFactory;
@@ -234,7 +243,7 @@ export const allowESLintShareableConfig = () => {
     ConfigArrayFactory.__patched = true;
 
     let ModuleResolver: { resolve: any };
-    if (eslintMajorVersion === 8) {
+    if (eslintMajorVersion >= 8) {
       ModuleResolver = require(eslintrcBundlePath!).Legacy.ModuleResolver;
     } else {
       ModuleResolver = require(moduleResolverPath!);
