@@ -83,11 +83,15 @@ pub fn make_tone_map_filtergraph(graph: FilterGraph) -> Result<(Graph, bool), ff
     let transfer_is_target = transfer_in == "input" || transfer_in == "709";
     let primaries_is_target = primaries == "input" || primaries == "709" || primaries == "170m";
 
-    let needs_conversion = matrix_is_target && transfer_is_target && primaries_is_target;
+    // zimg does not yet support HLG
+    // Submitted video: hlg.mp4 by Augie
+    let is_unsupported = transfer_characteristic == TransferCharacteristic::ARIB_STD_B67;
+    let should_convert =
+        !(matrix_is_target && transfer_is_target && primaries_is_target) && !is_unsupported;
 
-    let filter_string = match needs_conversion {
-        true => "copy".to_string(),
-        false => {
+    let filter_string = match should_convert {
+        false => "copy".to_string(),
+        true => {
             let tin_value = match transfer_characteristic {
                 // Handle file that was not tagged with transfer characteristic
                 // If a file is not tagged with transfer characteristic, but the primaries are BT2020, we assume it's BT2020_10
@@ -114,5 +118,5 @@ pub fn make_tone_map_filtergraph(graph: FilterGraph) -> Result<(Graph, bool), ff
 
     filter.validate()?;
 
-    Ok((filter, !needs_conversion))
+    Ok((filter, should_convert))
 }
