@@ -966,6 +966,7 @@ module.exports = {
         "recorder/index",
         "recorder/before-you-buy",
         "recorder/buy",
+        "recorder/demo",
         "recorder/setup",
         "recorder/create",
         {
