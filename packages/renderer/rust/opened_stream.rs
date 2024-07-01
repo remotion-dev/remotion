@@ -1,6 +1,9 @@
 use std::{io::ErrorKind, time::SystemTime};
 
-use ffmpeg_next::Rational;
+use ffmpeg_next::{
+    ffi::{AVSEEK_FLAG_ANY, AVSEEK_FLAG_BACKWARD},
+    format, Rational,
+};
 use remotionffmpeg::{codec::Id, frame::Video, media::Type, Dictionary, StreamMut};
 extern crate ffmpeg_next as remotionffmpeg;
 use std::time::UNIX_EPOCH;
@@ -155,6 +158,37 @@ impl OpenedStream {
         Ok(latest_frame)
     }
 
+    fn seek_to_frame_and_handle_error(
+        &mut self,
+        max_ts: i64,
+        ts: i64,
+    ) -> Result<(), ffmpeg_next::Error> {
+        if (ts - max_ts).abs() <= 1 {
+            return Ok(());
+        }
+        match self
+            .input
+            .seek(self.stream_index as i32, -100000, max_ts, ts, 0)
+        {
+            Ok(_) => Ok(()),
+            Err(err) => {
+                if err.to_string().contains("Operation not permitted") {
+                    _print_verbose(&format!(
+                        "Seeking into a part of the file that contains executable code."
+                    ));
+                    _print_verbose(&format!(
+                        "FFmpeg is unwilling to execute it, gave the following error:"
+                    ));
+                    _print_verbose(&format!("{} {} {}", err.to_string(), max_ts, ts));
+
+                    Err(err)
+                } else {
+                    Err(err)
+                }
+            }
+        }
+    }
+
     pub fn get_frame(
         &mut self,
         time: f64,
@@ -165,6 +199,7 @@ impl OpenedStream {
         maximum_frame_cache_size_in_bytes: Option<u128>,
         tone_mapped: bool,
     ) -> Result<usize, ErrorWithBacktrace> {
+        _print_verbose(&format!("THRESHOLD {}", threshold));
         let mut freshly_seeked = false;
         let mut last_seek_position = match self.duration_or_zero {
             0 => position,
@@ -176,28 +211,12 @@ impl OpenedStream {
 
         if should_seek {
             _print_verbose(&format!(
-                "Seeking to {} from dts = {:?}, duration = {}, last seek = {}",
-                position, self.last_position, self.duration_or_zero, last_seek_position
+                "{} Seeking to {} from dts = {:?}, duration = {}, last seek = {}",
+                time, position, self.last_position, self.duration_or_zero, last_seek_position
             ))?;
             self.video.flush();
-            match self
-                .input
-                .seek(self.stream_index as i32, 0, position, last_seek_position, 0)
-            {
-                Ok(_) => Ok(()),
-                Err(err) => {
-                    if err.to_string().contains("Operation not permitted") {
-                        _print_verbose(&format!(
-                            "Seeking into a part of the file that contains executable code."
-                        ))?;
-                        _print_verbose(&format!("FFmpeg is unwilling to execute it."))?;
 
-                        Ok(())
-                    } else {
-                        Err(err)
-                    }
-                }
-            }?;
+            self.seek_to_frame_and_handle_error(position, last_seek_position)?;
 
             freshly_seeked = true;
             self.last_position = None
@@ -269,10 +288,11 @@ impl OpenedStream {
             }
 
             _print_verbose(&format!(
-                "Got packet dts = {:?} pts = {:?} key = {}",
+                "Got packet dts = {:?} pts = {:?} key = {}, size = {:?}",
                 packet.dts(),
                 packet.pts(),
-                packet.is_key()
+                packet.is_key(),
+                packet.size(),
             ))?;
             if freshly_seeked {
                 if packet.is_key() {
@@ -281,22 +301,17 @@ impl OpenedStream {
                     match packet.pts() {
                         Some(pts) => {
                             last_seek_position = pts - 1;
-                            stop_after_n_diverging_pts = None;
 
-                            self.input.seek(
-                                self.stream_index as i32,
-                                0,
-                                pts,
-                                last_seek_position,
-                                0,
-                            )?;
+                            _print_verbose(&format!("else clause {}", pts - 1))?;
                         }
-                        None => {}
+                        None => {
+                            _print_verbose(&format!("elses clause 2"))?;
+                        }
                     }
-                    continue;
                 }
             }
 
+            _print_verbose("sending packet")?;
             self.video.send_packet(&packet)?;
 
             let result = self.receive_frame();
@@ -390,7 +405,9 @@ impl OpenedStream {
                         pts: unfiltered.pts().expect("pts"),
                     });
                 }
-                Ok(None) => {}
+                Ok(None) => {
+                    _print_verbose("no packets");
+                }
                 Err(err) => {
                     return Err(err);
                 }
