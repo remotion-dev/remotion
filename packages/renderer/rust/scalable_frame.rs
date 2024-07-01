@@ -214,15 +214,6 @@ pub fn scale_and_make_bitmap(
         )?;
     }
 
-    scaler.set_colorspace_details(
-        native_frame.colorspace,
-        native_frame.src_range,
-        color::Range::JPEG,
-        0,
-        1 << 16,
-        1 << 16,
-    )?;
-
     let mut data: Vec<*const u8> = Vec::with_capacity(planes.len());
 
     for i in 0..planes.len() {
