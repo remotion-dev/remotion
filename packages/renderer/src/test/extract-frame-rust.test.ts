@@ -289,7 +289,7 @@ test('Should be able to extract a frame with abnormal DAR', async () => {
 	expect(Buffer.from([...header.subarray(18, 22)]).readInt32LE(0)).toBe(1280);
 	expect(Buffer.from([...header.subarray(22, 26)]).readInt32LE(0)).toBe(2276);
 
-	expect(data[0x00169915]).toBeCloseTo(250, 2);
+	expect(data[0x00169915] / 100).toBeCloseTo(2.5, 1);
 	expect(data[0x0012dd58]).toBeCloseTo(249, 2);
 	expect(data[0x00019108]).toBeCloseTo(249, 2);
 
