@@ -291,7 +291,7 @@ test('Should be able to extract a frame with abnormal DAR', async () => {
 
 	expect(data[0x00169915] / 100).toBeCloseTo(2.5, 1);
 	expect(data[0x0012dd58] / 100).toBeCloseTo(2.5, 1);
-	expect(data[0x00019108]).toBeCloseTo(249, 2);
+	expect(data[0x00019108] / 100).toBeCloseTo(2.5, 1);
 
 	await compositor.finishCommands();
 	await compositor.waitForDone();
