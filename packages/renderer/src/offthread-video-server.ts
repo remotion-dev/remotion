@@ -135,7 +135,15 @@ export const startOffthreadVideoServer = ({
 			});
 
 			let extractStart = Date.now();
-			downloadAsset({src, downloadMap, indent, logLevel})
+			downloadAsset({
+				src,
+				downloadMap,
+				indent,
+				logLevel,
+				binariesDirectory,
+				cancelSignalForAudioAnalysis: undefined,
+				shouldAnalyzeAudioImmediately: true,
+			})
 				.then((to) => {
 					return new Promise<Uint8Array>((resolve, reject) => {
 						if (closed) {

@@ -145,6 +145,7 @@ type InnerRenderFramesOptions = {
 	serializedResolvedPropsWithCustomSchema: string;
 	parallelEncodingEnabled: boolean;
 	compositionStart: number;
+	binariesDirectory: string | null;
 } & ToOptions<typeof optionsMap.renderFrames>;
 
 type ArtifactWithoutContent = {
@@ -235,6 +236,7 @@ const innerRenderFrames = async ({
 	compositionStart,
 	forSeamlessAacConcatenation,
 	onArtifact,
+	binariesDirectory,
 }: Omit<
 	InnerRenderFramesOptions,
 	'offthreadVideoCacheSizeInBytes'
@@ -550,6 +552,9 @@ const innerRenderFrames = async ({
 				downloadMap,
 				indent,
 				logLevel,
+				binariesDirectory,
+				cancelSignalForAudioAnalysis: cancelSignal,
+				shouldAnalyzeAudioImmediately: true,
 			}).catch((err) => {
 				const truncateWithEllipsis =
 					renderAsset.src.substring(0, 1000) +
