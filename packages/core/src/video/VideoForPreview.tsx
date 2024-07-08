@@ -245,6 +245,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			src={actualSrc}
 			loop={_remotionInternalNativeLoopPassed}
 			style={actualStyle}
+			disableRemotePlayback
 			{...nativeProps}
 		/>
 	);

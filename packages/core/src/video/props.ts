@@ -17,7 +17,12 @@ export type RemotionVideoProps = Omit<
 		React.VideoHTMLAttributes<HTMLVideoElement>,
 		HTMLVideoElement
 	>,
-	'autoPlay' | 'controls' | 'onEnded' | 'nonce' | 'onError'
+	| 'autoPlay'
+	| 'controls'
+	| 'onEnded'
+	| 'nonce'
+	| 'onError'
+	| 'disableRemotePlayback'
 > & {
 	name?: string;
 	volume?: VolumeProp;
