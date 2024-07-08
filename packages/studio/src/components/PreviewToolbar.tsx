@@ -1,5 +1,6 @@
 import React, {useContext, useState} from 'react';
 import {Internals} from 'remotion';
+import {checkFullscreenSupport} from '../helpers/check-fullscreen-support';
 import {BACKGROUND} from '../helpers/colors';
 import {
 	useIsStill,
@@ -60,8 +61,7 @@ export const PreviewToolbar: React.FC<{
 
 	const [loop, setLoop] = useState(loadLoopOption());
 
-	const isFullscreenSupported =
-		document.fullscreenEnabled || document.webkitFullscreenEnabled;
+	const isFullscreenSupported = checkFullscreenSupport();
 
 	return (
 		<div style={container} className="css-reset">

@@ -23,6 +23,7 @@ import type {ModalState} from '../state/modals';
 import {ModalsContext} from '../state/modals';
 import type {SidebarCollapsedState} from '../state/sidebar';
 import {SidebarContext} from '../state/sidebar';
+import {checkFullscreenSupport} from './check-fullscreen-support';
 import {StudioServerConnectionCtx} from './client-id';
 import {getGitMenuItem} from './get-git-menu-item';
 import {useMobileLayout} from './mobile-layout';
@@ -161,8 +162,7 @@ export const useMenuStructure = (
 	} = useContext(SidebarContext);
 	const sizes = getUniqueSizes(size);
 
-	const isFullscreenSupported =
-		document.fullscreenEnabled || document.webkitFullscreenEnabled;
+	const isFullscreenSupported = checkFullscreenSupport();
 
 	const mobileLayout = useMobileLayout();
 	const structure = useMemo((): Structure => {
