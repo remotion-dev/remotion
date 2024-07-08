@@ -51,7 +51,7 @@ export const getAudioChannelsAndDurationWithoutCache = async ({
 	} catch (err) {
 		if (
 			(err as Error).message.includes(
-				'Invalid data found when processing input',
+				'This file cannot be read by `ffprobe`. Is it a valid multimedia file?',
 			)
 		) {
 			throw new Error(
