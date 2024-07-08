@@ -261,7 +261,7 @@ export const downloadAsset = async ({
 		await getAudioChannelsAndDuration({
 			binariesDirectory,
 			downloadMap,
-			src,
+			src: to,
 			indent,
 			logLevel,
 			cancelSignal: cancelSignalForAudioAnalysis,
