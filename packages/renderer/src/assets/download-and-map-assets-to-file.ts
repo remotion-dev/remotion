@@ -5,9 +5,11 @@ import {random} from 'remotion/no-react';
 import {isAssetCompressed} from '../compress-assets';
 import {ensureOutputDirectory} from '../ensure-output-directory';
 import type {LogLevel} from '../log-level';
+import type {CancelSignal} from '../make-cancel-signal';
 import {getExt} from '../mime-types';
 import {downloadFile} from './download-file';
 import type {DownloadMap} from './download-map';
+import {getAudioChannelsAndDuration} from './get-audio-channels';
 import {sanitizeFilePath} from './sanitize-filepath';
 
 export type RenderMediaOnDownload = (
@@ -149,11 +151,17 @@ export const downloadAsset = async ({
 	downloadMap,
 	indent,
 	logLevel,
+	shouldAnalyzeAudioImmediately,
+	binariesDirectory,
+	cancelSignalForAudioAnalysis,
 }: {
 	src: string;
 	downloadMap: DownloadMap;
 	indent: boolean;
 	logLevel: LogLevel;
+	shouldAnalyzeAudioImmediately: boolean;
+	binariesDirectory: string | null;
+	cancelSignalForAudioAnalysis: CancelSignal | undefined;
 }): Promise<string> => {
 	if (isAssetCompressed(src)) {
 		return src;
@@ -249,6 +257,16 @@ export const downloadAsset = async ({
 	});
 
 	notifyAssetIsDownloaded({src, downloadMap, downloadDir, to});
+	if (shouldAnalyzeAudioImmediately) {
+		await getAudioChannelsAndDuration({
+			binariesDirectory,
+			downloadMap,
+			src,
+			indent,
+			logLevel,
+			cancelSignal: cancelSignalForAudioAnalysis,
+		});
+	}
 
 	return to;
 };
@@ -349,12 +367,18 @@ export const downloadAndMapAssetsToFileUrl = async ({
 	downloadMap,
 	logLevel,
 	indent,
+	binariesDirectory,
+	cancelSignalForAudioAnalysis,
+	shouldAnalyzeAudioImmediately,
 }: {
 	renderAsset: AudioOrVideoAsset;
 	onDownload: RenderMediaOnDownload | null;
 	downloadMap: DownloadMap;
 	logLevel: LogLevel;
 	indent: boolean;
+	shouldAnalyzeAudioImmediately: boolean;
+	binariesDirectory: string | null;
+	cancelSignalForAudioAnalysis: CancelSignal | undefined;
 }): Promise<AudioOrVideoAsset> => {
 	const cleanup = attachDownloadListenerToEmitter(downloadMap, onDownload);
 	const newSrc = await downloadAsset({
@@ -362,6 +386,9 @@ export const downloadAndMapAssetsToFileUrl = async ({
 		downloadMap,
 		indent,
 		logLevel,
+		shouldAnalyzeAudioImmediately,
+		binariesDirectory,
+		cancelSignalForAudioAnalysis,
 	});
 	cleanup();
 

@@ -31,6 +31,7 @@ import {HlsDemo} from './Hls/HlsDemo';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {Layers} from './Layers';
 import {ManyAudio} from './ManyAudio';
+import {HandleAudioRenderError} from './MediaErrorHandling/HandleAudioRenderError';
 import {MissingImg} from './MissingImg';
 import {
 	OffthreadRemoteVideo,
@@ -94,6 +95,7 @@ import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
 import './style.css';
 import {WatchStaticDemo} from './watch-static';
+
 if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
 }
@@ -1377,6 +1379,16 @@ export const Index: React.FC = () => {
 					height={1000}
 					width={1000}
 					durationInFrames={10}
+				/>
+			</Folder>
+			<Folder name="MediaErrorHandling">
+				<Composition
+					id="AudioError"
+					component={HandleAudioRenderError}
+					fps={30}
+					height={1080}
+					width={1080}
+					durationInFrames={10_000}
 				/>
 			</Folder>
 		</>

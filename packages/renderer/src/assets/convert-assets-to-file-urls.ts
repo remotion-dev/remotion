@@ -19,12 +19,14 @@ export const convertAssetsToFileUrls = async ({
 	downloadMap,
 	indent,
 	logLevel,
+	binariesDirectory,
 }: {
 	assets: FrameAndAssets[];
 	onDownload: RenderMediaOnDownload;
 	downloadMap: DownloadMap;
 	indent: boolean;
 	logLevel: LogLevel;
+	binariesDirectory: string | null;
 }): Promise<AudioOrVideoAsset[][]> => {
 	const chunks = chunk(assets, 1000);
 	const results: AudioOrVideoAsset[][][] = [];
@@ -38,6 +40,9 @@ export const convertAssetsToFileUrls = async ({
 					downloadMap,
 					indent,
 					logLevel,
+					binariesDirectory,
+					cancelSignalForAudioAnalysis: undefined,
+					shouldAnalyzeAudioImmediately: true,
 				});
 			});
 			return Promise.all(frameAssetPromises);
