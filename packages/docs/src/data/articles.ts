@@ -396,7 +396,7 @@ export const articles = [
 		title: 'The fundamentals',
 		relativePath: 'docs/the-fundamentals.mdx',
 		compId: 'articles-docs-the-fundamentals',
-		crumb: 'Getting started',
+		crumb: "'Getting started'",
 	},
 	{
 		id: 'ssr',
@@ -586,6 +586,13 @@ export const articles = [
 		relativePath: 'docs/motion-blur/trail.mdx',
 		compId: 'articles-docs-motion-blur-trail',
 		crumb: 'Motion blur',
+	},
+	{
+		id: 'studio-into-app',
+		title: 'Converting a Remotion project to an app',
+		relativePath: 'docs/studio-app.mdx',
+		compId: 'articles-docs-studio-app',
+		crumb: "'Converting Remotion Projects'",
 	},
 	{
 		id: 'freeze',
@@ -2100,7 +2107,7 @@ export const articles = [
 		title: 'Render your video',
 		relativePath: 'docs/render.mdx',
 		compId: 'articles-docs-render',
-		crumb: 'How To',
+		crumb: "'How To'",
 	},
 	{
 		id: 'ssr-legacy',
