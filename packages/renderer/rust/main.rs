@@ -100,8 +100,7 @@ fn start_long_running_process(
         let mut current_maximum_cache_size = maximum_frame_cache_size_in_bytes;
 
         pool.install(move || {
-            thread::spawn(move || {
-                let time = std::time::Instant::now();
+            let handle = thread::spawn(move || {
                 if is_about_to_run_out_of_memory() {
                     ffmpeg::emergency_memory_free_up().unwrap();
                     current_maximum_cache_size = current_maximum_cache_size / 2;
@@ -122,6 +121,8 @@ fn start_long_running_process(
                 ffmpeg::keep_only_latest_frames_and_close_videos(current_maximum_cache_size)
                     .unwrap();
             });
+
+            handle.join().unwrap();
         });
     }
 
