@@ -18,6 +18,21 @@ export const getZoomFromLocalStorage = (): Record<string, number> => {
 	return zoom ? JSON.parse(zoom) : {};
 };
 
+function decodeIfNeeded(str: string) {
+	const needsDecode = /%[0-9A-Fa-f]{2}/.test(str);
+
+	if (needsDecode) {
+		try {
+			return decodeURIComponent(str);
+		} catch (e) {
+			// console.warn("Failed to decode string:", str);
+			return str;
+		}
+	}
+
+	return str;
+}
+
 export const deriveCanvasContentFromUrl = (): CanvasContent | null => {
 	const substrings = getRoute().split('/').filter(Boolean);
 
@@ -40,7 +55,8 @@ export const deriveCanvasContentFromUrl = (): CanvasContent | null => {
 	if (lastPart) {
 		return {
 			type: 'composition',
-			compositionId: lastPart,
+			// CJK-named composition IDs are not automatically reselected after page refresh
+			compositionId: decodeIfNeeded(lastPart),
 		};
 	}
 
