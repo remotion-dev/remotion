@@ -2,7 +2,7 @@
 image: /generated/articles-docs-the-fundamentals.png
 id: the-fundamentals
 title: The fundamentals
-crumb: "Getting started"
+crumb: 'Getting started'
 ---
 
 ## React components
@@ -49,23 +49,23 @@ A video has 4 properties:
 You can obtain these values from the [`useVideoConfig()`](/docs/use-video-config) hook:
 
 ```tsx twoslash
-import { AbsoluteFill, useVideoConfig } from "remotion";
+import {AbsoluteFill, useVideoConfig} from 'remotion';
 
 export const MyComposition = () => {
-  const { fps, durationInFrames, width, height } = useVideoConfig();
+	const {fps, durationInFrames, width, height} = useVideoConfig();
 
-  return (
-    <AbsoluteFill
-      style={{
-        justifyContent: "center",
-        alignItems: "center",
-        fontSize: 60,
-        backgroundColor: "white",
-      }}
-    >
-      This {width}x{height}px video is {durationInFrames / fps} seconds long.
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill
+			style={{
+				justifyContent: 'center',
+				alignItems: 'center',
+				fontSize: 60,
+				backgroundColor: 'white',
+			}}
+		>
+			This {width}x{height}px video is {durationInFrames / fps} seconds long.
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -80,25 +80,25 @@ A composition is the combination of a React component and video metadata.
 By rendering a [`<Composition>`](/docs/composition) component in `src/Root.tsx`, you can register a renderable video and make it visible in the Remotion sidebar.
 
 ```tsx twoslash title="src/Root.tsx"
-import { Composition } from "remotion";
+import {Composition} from 'remotion';
 // @include: example-MyComposition
 // ---cut---
 
 export const RemotionRoot: React.FC = () => {
-  return (
-    <Composition
-      id="MyComposition"
-      durationInFrames={150}
-      fps={30}
-      width={1920}
-      height={1080}
-      component={MyComposition}
-    />
-  );
+	return (
+		<Composition
+			id="MyComposition"
+			durationInFrames={150}
+			fps={30}
+			width={1920}
+			height={1080}
+			component={MyComposition}
+		/>
+	);
 };
 ```
 
 :::note
 You can register multiple compositions in `src/Root.tsx` by wrapping them in a React Fragment:  
-`<><Composition/><Composition/></>`
+`<><Composition/><Composition/></>`. See also: [How to combine compositions?](/docs/miscellaneous/snippets/combine-compositions)
 :::
