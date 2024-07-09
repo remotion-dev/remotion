@@ -116,7 +116,7 @@ export const articles = [
 		title: 'Installing Remotion in an existing project',
 		relativePath: 'docs/brownfield-installation.mdx',
 		compId: 'articles-docs-brownfield-installation',
-		crumb: 'Brownfield integration',
+		crumb: "'Brownfield integration'",
 	},
 	{
 		id: 'studio/studio',
@@ -586,6 +586,13 @@ export const articles = [
 		relativePath: 'docs/motion-blur/trail.mdx',
 		compId: 'articles-docs-motion-blur-trail',
 		crumb: 'Motion blur',
+	},
+	{
+		id: 'studio-into-app',
+		title: 'Converting a Remotion project to an app',
+		relativePath: 'docs/studio-app.mdx',
+		compId: 'articles-docs-studio-app',
+		crumb: "'Converting Remotion Projects'",
 	},
 	{
 		id: 'freeze',
@@ -1956,6 +1963,13 @@ export const articles = [
 		crumb: 'Techniques',
 	},
 	{
+		id: 'player-into-remotion-project',
+		title: 'Turn a <Player> into a Remotion project',
+		relativePath: 'docs/player-into-remotion-project.mdx',
+		compId: 'articles-docs-player-into-remotion-project',
+		crumb: "'Converting Remotion Projects'",
+	},
+	{
 		id: 'gl-options',
 		title: '--gl flag',
 		relativePath: 'docs/open-gl.mdx',
@@ -2100,7 +2114,7 @@ export const articles = [
 		title: 'Render your video',
 		relativePath: 'docs/render.mdx',
 		compId: 'articles-docs-render',
-		crumb: 'How To',
+		crumb: "'How To'",
 	},
 	{
 		id: 'ssr-legacy',
