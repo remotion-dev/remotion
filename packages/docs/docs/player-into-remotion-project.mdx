@@ -1,0 +1,137 @@
+---
+image: /generated/articles-docs-player-into-remotion-project.png
+id: player-into-remotion-project
+title: Turn a <Player> into a Remotion project
+crumb: 'Converting Remotion Projects'
+---
+
+If you have a React app that uses the [`<Player>`](/docs/player/player) component, you can turn it also into a Remotion project without having to create a new repository. This will enable you to:
+
+<Step>1</Step> Use the <a href="/docs/studio/">Remotion Studio</a>
+<br />
+<Step>2</Step> Render videos locally
+<br />
+<Step>2</Step> Create a <a href="/docs/terminology/bundle">
+  Remotion Bundle
+</a> that allows rendering in the cloud
+<br />
+
+## Instructions
+
+<Step>1</Step> Ensure that you don't already have a Studio installed - in the following
+templates, the Studio is already installed and can be started using the command <a href="/docs/cli/studio">
+  <code>npx remotion studio</code>
+</a>
+:<br />
+<br />
+
+- [Next.js (App dir)](/templates/next)
+- [Next.js (App dir + TailwindCSS)](/templates/next-tailwind)
+- [Next.js (Pages dir)](/templates/next-pages-dir)
+- [Remix](/templates/remix)
+
+<Step>2</Step> Install the Remotion CLI:
+
+<Installation pkg="@remotion/cli" />
+<br />
+
+<Step>3</Step> Make a new folder <code>remotion</code> and add these two files in
+it:
+<br />
+<br />
+
+```tsx twoslash title="remotion/Root.tsx"
+// @filename: Composition.tsx
+export const MyComposition: React.FC = () => {
+  return null;
+};
+// @filename: Root.tsx
+// ---cut---
+import React from 'react';
+import {Composition} from 'remotion';
+import {MyComposition} from './Composition';
+
+export const RemotionRoot: React.FC = () => {
+  return (
+    <>
+      <Composition
+        id="Empty"
+        // Import the component and add the properties you had in the `<Player>` before
+        component={MyComposition}
+        durationInFrames={60}
+        fps={30}
+        width={1280}
+        height={720}
+      />
+    </>
+  );
+};
+```
+
+```ts twoslash title="remotion/index.ts"
+// @filename: Composition.tsx
+export const MyComposition: React.FC = () => {
+  return null;
+};
+// @filename: Root.tsx
+import React from "react";
+import { Composition } from "remotion";
+import { MyComposition } from "./Composition";
+
+export const RemotionRoot: React.FC = () => {
+  return (
+    <>
+      <Composition
+        id="MyComp"
+        component={MyComposition}
+        durationInFrames={60}
+        fps={30}
+        width={1280}
+        height={720}
+      />
+    </>
+  );
+};
+// @filename: index.ts
+// ---cut---
+import { registerRoot } from "remotion";
+import { RemotionRoot } from "./Root";
+
+registerRoot(RemotionRoot);
+```
+
+Add the component you previously registered in the `<Player>` also to the `<Composition>`.  
+If necessary, move the components into the <code>remotion</code> directory.
+
+The file that calls [`registerRoot()`](/docs/register-root) is now your Remotion [**entry point**](/docs/terminology/entry-point).
+
+<Step>4</Step> Apply common Webpack overrides that are commonly enabled in React
+apps:
+<br />
+<br />
+
+- [TailwindCSS](/docs/tailwind/tailwind)
+- [SCSS](/docs/enable-scss/overview)
+- [TypeScript Aliases](/docs/typescript-aliases#automatically-syncing-webpack-and-typescript-aliases)
+
+## Start the Remotion Studio:
+
+```
+npx remotion studio
+```
+
+## Render a video
+
+Render our a video using
+
+```
+npx remotion render remotion/index.ts
+```
+
+## Set up server-side rendering
+
+See [server-side rendering](/docs/ssr) for more information.
+
+## How do I download a video from the Remotion Player?
+
+The video first needs to get rendered - this can only be done on the server. See [ways to render](/docs/render) and [server-side rendering](/docs/ssr) for more information.

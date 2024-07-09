@@ -777,7 +777,14 @@ module.exports = {
 		{
 			type: 'category',
 			label: 'Building apps',
-			items: ['brownfield', 'video-uploads', 'presigned-urls', 'font-picker'],
+			items: [
+				'brownfield',
+				'studio-into-app',
+				'player-into-remotion-project',
+				'video-uploads',
+				'presigned-urls',
+				'font-picker',
+			],
 		},
 		{
 			type: 'category',
