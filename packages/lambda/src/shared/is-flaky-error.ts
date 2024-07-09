@@ -72,6 +72,7 @@ export const isFlakyError = (err: Error): boolean => {
 	if (
 		message.includes('getaddrinfo') ||
 		message.includes('ECONNRESET') ||
+		message.includes('ERR_CONNECTION_TIMED_OUT') ||
 		message.includes('socket hang up')
 	) {
 		return true;
