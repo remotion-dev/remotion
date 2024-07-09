@@ -158,6 +158,7 @@ const innerSetPropsAndEnv = async ({
 		) {
 			return retry();
 		}
+
 		throw error;
 	}
 

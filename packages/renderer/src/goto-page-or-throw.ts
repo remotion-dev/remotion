@@ -1,5 +1,5 @@
-import {Page} from './browser/BrowserPage';
-import {HTTPResponse} from './browser/HTTPResponse';
+import type {Page} from './browser/BrowserPage';
+import type {HTTPResponse} from './browser/HTTPResponse';
 
 export const gotoPageOrThrow = async (
 	page: Page,
