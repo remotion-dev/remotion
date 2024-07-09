@@ -90,17 +90,6 @@ const flex1: React.CSSProperties = {
 
 const fullscreen: React.CSSProperties = {};
 
-declare global {
-	interface Document {
-		webkitFullscreenEnabled?: boolean;
-		webkitFullscreenElement?: Element;
-		webkitExitFullscreen?: Document['exitFullscreen'];
-	}
-	interface HTMLDivElement {
-		webkitRequestFullScreen: HTMLDivElement['requestFullscreen'];
-	}
-}
-
 export const Controls: React.FC<{
 	readonly fps: number;
 	readonly durationInFrames: number;
@@ -222,7 +211,9 @@ export const Controls: React.FC<{
 		// Must be handled client-side to avoid SSR hydration mismatch
 		setSupportsFullscreen(
 			(typeof document !== 'undefined' &&
-				(document.fullscreenEnabled || document.webkitFullscreenEnabled)) ??
+				(document.fullscreenEnabled ||
+					// @ts-expect-error Types not defined
+					document.webkitFullscreenEnabled)) ??
 				false,
 		);
 	}, []);

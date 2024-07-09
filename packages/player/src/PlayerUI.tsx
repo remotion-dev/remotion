@@ -139,7 +139,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		}
 
 		return Boolean(
-			document.fullscreenEnabled || document.webkitFullscreenEnabled,
+			document.fullscreenEnabled ||
+				// @ts-expect-error Types not defined
+				document.webkitFullscreenEnabled,
 		);
 	}, []);
 
@@ -170,6 +172,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		const onFullscreenChange = () => {
 			setIsFullscreen(
 				document.fullscreenElement === current ||
+					// @ts-expect-error Types not defined
 					document.webkitFullscreenElement === current,
 			);
 		};
@@ -209,7 +212,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			throw new Error('No player ref found');
 		}
 
+		// @ts-expect-error Types not defined
 		if (container.current.webkitRequestFullScreen) {
+			// @ts-expect-error Types not defined
 			container.current.webkitRequestFullScreen();
 		} else {
 			container.current.requestFullscreen();
@@ -217,7 +222,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	}, [allowFullscreen, supportsFullScreen]);
 
 	const exitFullscreen = useCallback(() => {
+		// @ts-expect-error Types not defined
 		if (document.webkitExitFullscreen) {
+			// @ts-expect-error Types not defined
 			document.webkitExitFullscreen();
 		} else {
 			document.exitFullscreen();
@@ -232,7 +239,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 		const fullscreenChange = () => {
 			const element =
-				document.webkitFullscreenElement ?? document.fullscreenElement;
+				// @ts-expect-error Types not defined
+				document.webkitFullscreenElement ??
+				// defined
+				document.fullscreenElement;
 
 			if (element && element === container.current) {
 				player.emitter.dispatchFullscreenChange({
