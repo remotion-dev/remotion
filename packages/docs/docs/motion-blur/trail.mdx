@@ -1,11 +1,11 @@
 ---
 image: /generated/articles-docs-motion-blur-trail.png
-title: "<Trail>"
+title: '<Trail>'
 slug: trail
-crumb: "Motion blur"
+crumb: 'Motion blur'
 ---
 
-import { TrailExample } from "../../components/TrailExample/TrailExample";
+import {TrailExample} from '../../components/TrailExample/TrailExample';
 
 ```twoslash include example
 const BlueSquare: React.FC = () => <div></div>
@@ -42,17 +42,17 @@ The highest opacity of a layer. The lowest opacity is 0 and layers intbetween ge
 ```tsx twoslash
 // @include: example-BlueSquare
 // ---cut---
-import { Trail } from "@remotion/motion-blur";
-import { AbsoluteFill } from "remotion";
+import {Trail} from '@remotion/motion-blur';
+import {AbsoluteFill} from 'remotion';
 
 export const MyComposition = () => {
   return (
     <Trail layers={50} lagInFrames={0.1} trailOpacity={1}>
       <AbsoluteFill
         style={{
-          backgroundColor: "white",
-          justifyContent: "center",
-          alignItems: "center",
+          backgroundColor: 'white',
+          justifyContent: 'center',
+          alignItems: 'center',
         }}
       >
         <BlueSquare />
@@ -66,13 +66,16 @@ export const MyComposition = () => {
 
 <TrailExample />
 
-<Credits contributors={[
-{
-username: "UmungoBungo",
-contribution: "Implementation"
-},
-]} />
+<Credits
+  contributors={[
+    {
+      username: 'UmungoBungo',
+      contribution: 'Implementation',
+    },
+  ]}
+/>
 
 ## See also
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/motion-blur/src/Trail.tsx)
+- [Common mistake with `<Trail>` and `<CameraMotionBlur>`](/docs/motion-blur/common-mistake)

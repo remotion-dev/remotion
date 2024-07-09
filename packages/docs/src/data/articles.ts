@@ -560,6 +560,13 @@ export const articles = [
 		crumb: 'Terminology',
 	},
 	{
+		id: 'motion-blur/common-mistake',
+		title: 'Common mistake with <MotionBlur> and <Trail>',
+		relativePath: 'docs/motion-blur/common-mistake.mdx',
+		compId: 'articles-docs-motion-blur-common-mistake',
+		crumb: null,
+	},
+	{
 		id: 'motion-blur/camera-motion-blur',
 		title: '<CameraMotionBlur>',
 		relativePath: 'docs/motion-blur/camera-motion-blur.mdx',

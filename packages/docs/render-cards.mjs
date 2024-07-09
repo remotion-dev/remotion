@@ -1,138 +1,146 @@
-import { bundle } from "@remotion/bundler";
-import { getCompositions, renderStill } from "@remotion/renderer";
-import { execSync } from "child_process";
-import fs from "fs";
-import os from "os";
-import path from "path";
-import { readDir } from "./get-pages.mjs";
+import {bundle} from '@remotion/bundler';
+import {getCompositions, renderStill} from '@remotion/renderer';
+import {execSync} from 'child_process';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
+import {readDir} from './get-pages.mjs';
 
 const data = [];
-const root = path.join(process.cwd(), "docs");
+const root = path.join(process.cwd(), 'docs');
 
 const findId = (split, page) => {
-  const found = split.find((s) => s.startsWith("id: "));
-  if (found) {
-    return found.substr("id: ".length);
-  }
+	const found = split.find((s) => s.startsWith('id: '));
+	if (found) {
+		return found.substr('id: '.length);
+	}
 
-  return page
-    .replace(process.cwd() + path.sep + "docs" + path.sep, "")
-    .replace(/.md$/, "")
-    .replace(/.mdx$/, "");
+	return page
+		.replace(process.cwd() + path.sep + 'docs' + path.sep, '')
+		.replace(/.md$/, '')
+		.replace(/.mdx$/, '');
 };
 
 const findTitle = (split) => {
-  const title = split
-    .find((s) => s.startsWith("title: "))
-    .replace(/^title:\s/, "");
-  if (title.startsWith('"')) {
-    return title.substr(1, title.length - 2);
-  }
+	const title = split
+		.find((s) => s.startsWith('title: '))
+		.replace(/^title:\s/, '');
+	if (title.startsWith('"')) {
+		return title.substr(1, title.length - 2);
+	}
 
-  return title;
+	return title;
 };
 
 const findCrumb = (split) => {
-  const crumb = split
-    .find((s) => s.startsWith("crumb: "))
-    ?.replace(/^crumb:\s/, "");
-  if (crumb?.startsWith('"')) {
-    return crumb.substr(1, crumb.length - 2);
-  }
+	const crumb = split
+		.find((s) => s.startsWith('crumb: '))
+		?.replace(/^crumb:\s/, '');
+	if (crumb?.startsWith('"')) {
+		return crumb.substr(1, crumb.length - 2);
+	}
 
-  return crumb ?? null;
+	return crumb ?? null;
 };
 
 const pages = readDir(root);
 
 for (const page of pages) {
-  const opened = fs.readFileSync(page, "utf8");
-  const frontmatter =
-    opened.match(/---\n((.|\n)*?)---\n/) ??
-    opened.match(/---\r\n((.|\r\n)*?)---\r\n/);
-  if (!frontmatter) {
-    console.log("No frontmatter for", page);
-    continue;
-  }
+	if (page.endsWith('.DS_Store')) {
+		continue;
+	}
 
-  const split = frontmatter[1].split(os.EOL);
-  const id = findId(split, page).replaceAll(path.sep, path.posix.sep);
-  const title = findTitle(split);
-  const crumb = findCrumb(split);
+	if (page.endsWith('.tsx')) {
+		continue;
+	}
 
-  const relativePath = page
-    .replace(process.cwd() + path.sep, "")
-    .replaceAll(path.sep, path.posix.sep);
+	const opened = fs.readFileSync(page, 'utf8');
+	const frontmatter =
+		opened.match(/---\n((.|\n)*?)---\n/) ??
+		opened.match(/---\r\n((.|\r\n)*?)---\r\n/);
+	if (!frontmatter) {
+		console.log('No frontmatter for', page);
+		continue;
+	}
 
-  const compId =
-    "articles-" +
-    relativePath
-      .replaceAll(path.posix.sep, "-")
-      .replace(/.md$/, "")
-      .replace(/.mdx$/, "");
-  data.push({ id, title, relativePath, compId, crumb });
+	const split = frontmatter[1].split(os.EOL);
+	const id = findId(split, page).replaceAll(path.sep, path.posix.sep);
+	const title = findTitle(split);
+	const crumb = findCrumb(split);
+
+	const relativePath = page
+		.replace(process.cwd() + path.sep, '')
+		.replaceAll(path.sep, path.posix.sep);
+
+	const compId =
+		'articles-' +
+		relativePath
+			.replaceAll(path.posix.sep, '-')
+			.replace(/.md$/, '')
+			.replace(/.mdx$/, '');
+	data.push({id, title, relativePath, compId, crumb});
 }
 
 fs.writeFileSync(
-  path.join(process.cwd(), "src", "data", "articles.ts"),
-  `export const articles = ` + JSON.stringify(data, null, 2),
+	path.join(process.cwd(), 'src', 'data', 'articles.ts'),
+	`export const articles = ` + JSON.stringify(data, null, 2),
 );
 
-execSync("bun x prettier src/data/articles.ts --write");
+execSync('bun x prettier src/data/articles.ts --write');
 
 // render cards
 const serveUrl = await bundle({
-  entryPoint: path.join(process.cwd(), "./src/remotion/entry.ts"),
-  publicDir: path.join(process.cwd(), "static"),
+	entryPoint: path.join(process.cwd(), './src/remotion/entry.ts'),
+	publicDir: path.join(process.cwd(), 'static'),
 });
 const compositions = await getCompositions(serveUrl);
 
 for (const composition of compositions.filter(
-  (c) => c.id.startsWith("expert") || c.id.startsWith("template"),
+	(c) => c.id.startsWith('expert') || c.id.startsWith('template'),
 )) {
-  const output = `static/generated/${composition.id}.png`;
-  if (fs.existsSync(output)) {
-    console.log("Existed", composition.id);
-    continue;
-  } else {
-    await renderStill({
-      composition,
-      output,
-      serveUrl,
-    });
-    console.log("Rendered", composition.id);
-  }
+	const output = `static/generated/${composition.id}.png`;
+	if (fs.existsSync(output)) {
+		console.log('Existed', composition.id);
+		continue;
+	} else {
+		await renderStill({
+			composition,
+			output,
+			serveUrl,
+		});
+		console.log('Rendered', composition.id);
+	}
 }
 
 for (const entry of data) {
-  const composition = compositions.find((c) => c.id === entry.compId);
-  const output = `static/generated/${composition.id}.png`;
-  if (fs.existsSync(output)) {
-    continue;
-  }
+	const composition = compositions.find((c) => c.id === entry.compId);
+	const output = `static/generated/${composition.id}.png`;
+	if (fs.existsSync(output)) {
+		continue;
+	}
 
-  const out = path.join(process.cwd(), entry.relativePath);
-  await renderStill({
-    composition,
-    output,
-    serveUrl,
-  });
+	const out = path.join(process.cwd(), entry.relativePath);
+	await renderStill({
+		composition,
+		output,
+		serveUrl,
+	});
 
-  const fileContents = fs.readFileSync(out, "utf-8");
-  const lines = fileContents
-    .split(os.EOL)
-    .filter((l) => !l.startsWith("image: "));
-  const frontmatterLine = lines.findIndex((l) => l === "---");
-  if (frontmatterLine === -1) {
-    throw new Error("could not find frontmatter for " + composition.id);
-  }
+	const fileContents = fs.readFileSync(out, 'utf-8');
+	const lines = fileContents
+		.split(os.EOL)
+		.filter((l) => !l.startsWith('image: '));
+	const frontmatterLine = lines.findIndex((l) => l === '---');
+	if (frontmatterLine === -1) {
+		throw new Error('could not find frontmatter for ' + composition.id);
+	}
 
-  const newLines = [
-    ...lines.slice(0, frontmatterLine + 1),
-    `image: /${output.substring("/static".length)}`,
-    ...lines.slice(frontmatterLine + 1),
-  ].join(os.EOL);
+	const newLines = [
+		...lines.slice(0, frontmatterLine + 1),
+		`image: /${output.substring('/static'.length)}`,
+		...lines.slice(frontmatterLine + 1),
+	].join(os.EOL);
 
-  fs.writeFileSync(out, newLines);
-  console.log("Rendered", composition.id);
+	fs.writeFileSync(out, newLines);
+	console.log('Rendered', composition.id);
 }

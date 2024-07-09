@@ -209,7 +209,11 @@ module.exports = {
 				type: 'doc',
 				id: 'motion-blur/index',
 			},
-			items: ['motion-blur/trail', 'motion-blur/camera-motion-blur'],
+			items: [
+				'motion-blur/trail',
+				'motion-blur/camera-motion-blur',
+				'motion-blur/common-mistake',
+			],
 		},
 		{
 			type: 'category',
