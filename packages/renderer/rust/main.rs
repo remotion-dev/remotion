@@ -21,7 +21,10 @@ use commands::execute_command;
 use errors::{error_to_json, ErrorWithBacktrace};
 use global_printer::{_print_verbose, set_verbose_logging};
 use memory::{get_ideal_maximum_frame_cache_size, is_about_to_run_out_of_memory};
-use std::env;
+use std::{
+    env, thread,
+    time::{SystemTime, UNIX_EPOCH},
+};
 
 use payloads::payloads::{parse_cli, CliInputCommand, CliInputCommandPayload};
 
@@ -97,22 +100,28 @@ fn start_long_running_process(
         let mut current_maximum_cache_size = maximum_frame_cache_size_in_bytes;
 
         pool.install(move || {
-            if is_about_to_run_out_of_memory() {
-                ffmpeg::emergency_memory_free_up().unwrap();
-                current_maximum_cache_size = current_maximum_cache_size / 2;
-            }
+            thread::spawn(move || {
+                let time = std::time::Instant::now();
+                if is_about_to_run_out_of_memory() {
+                    ffmpeg::emergency_memory_free_up().unwrap();
+                    current_maximum_cache_size = current_maximum_cache_size / 2;
+                }
 
-            match execute_command(opts.payload, Some(current_maximum_cache_size)) {
-                Ok(res) => global_printer::synchronized_write_buf(0, &opts.nonce, &res).unwrap(),
-                Err(err) => global_printer::synchronized_write_buf(
-                    1,
-                    &opts.nonce,
-                    &error_to_json(err).unwrap().as_bytes(),
-                )
-                .unwrap(),
-            };
+                match execute_command(opts.payload, Some(current_maximum_cache_size)) {
+                    Ok(res) => {
+                        global_printer::synchronized_write_buf(0, &opts.nonce, &res).unwrap()
+                    }
+                    Err(err) => global_printer::synchronized_write_buf(
+                        1,
+                        &opts.nonce,
+                        &error_to_json(err).unwrap().as_bytes(),
+                    )
+                    .unwrap(),
+                };
 
-            ffmpeg::keep_only_latest_frames_and_close_videos(current_maximum_cache_size).unwrap();
+                ffmpeg::keep_only_latest_frames_and_close_videos(current_maximum_cache_size)
+                    .unwrap();
+            });
         });
     }
 
