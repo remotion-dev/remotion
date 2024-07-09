@@ -116,7 +116,7 @@ export const articles = [
 		title: 'Installing Remotion in an existing project',
 		relativePath: 'docs/brownfield-installation.mdx',
 		compId: 'articles-docs-brownfield-installation',
-		crumb: 'Brownfield integration',
+		crumb: "'Brownfield integration'",
 	},
 	{
 		id: 'studio/studio',
@@ -396,7 +396,7 @@ export const articles = [
 		title: 'The fundamentals',
 		relativePath: 'docs/the-fundamentals.mdx',
 		compId: 'articles-docs-the-fundamentals',
-		crumb: "'Getting started'",
+		crumb: 'Getting started',
 	},
 	{
 		id: 'ssr',
@@ -1961,6 +1961,13 @@ export const articles = [
 		relativePath: 'docs/transitions.mdx',
 		compId: 'articles-docs-transitions',
 		crumb: 'Techniques',
+	},
+	{
+		id: 'player-into-remotion-project',
+		title: 'Turn a <Player> into a Remotion project',
+		relativePath: 'docs/player-into-remotion-project.mdx',
+		compId: 'articles-docs-player-into-remotion-project',
+		crumb: "'Converting Remotion Projects'",
 	},
 	{
 		id: 'gl-options',
