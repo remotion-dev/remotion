@@ -360,7 +360,7 @@ const innerRenderFrames = async ({
 	const getPool = async (context: SourceMapGetter) => {
 		const pages = new Array(concurrencyOrFramesToRender)
 			.fill(true)
-			.map((_, i) => makePage(context, realFrameRange[i]));
+			.map((_, i) => makePage(context, framesToRender[i]));
 		const puppeteerPages = await Promise.all(pages);
 		const pool = new Pool(puppeteerPages);
 		return pool;
