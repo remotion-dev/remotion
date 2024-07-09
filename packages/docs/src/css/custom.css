@@ -16,6 +16,10 @@
 	-moz-osx-font-smoothing: grayscale; /* Firefox */
 }
 
+html {
+	scroll-padding-top: 80px;
+}
+
 h1,
 h2,
 h3,

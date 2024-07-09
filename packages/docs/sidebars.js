@@ -776,6 +776,7 @@ module.exports = {
 			items: [
 				'brownfield',
 				'studio-into-app',
+				'player-into-remotion-project',
 				'video-uploads',
 				'presigned-urls',
 				'font-picker',
