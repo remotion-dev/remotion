@@ -929,6 +929,7 @@ module.exports = {
 				'gl-options',
 				'bun',
 				'standalone',
+				'miscellaneous/emojis',
 			],
 		},
 		{

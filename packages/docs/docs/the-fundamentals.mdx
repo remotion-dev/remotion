@@ -2,13 +2,15 @@
 image: /generated/articles-docs-the-fundamentals.png
 id: the-fundamentals
 title: The fundamentals
-crumb: 'Getting started'
+crumb: Getting started
 ---
 
 ## React components
 
 ```twoslash include example
 import { AbsoluteFill, useCurrentFrame } from "remotion";
+
+
 
 export const MyComposition = () => {
   const frame = useCurrentFrame();
@@ -52,20 +54,20 @@ You can obtain these values from the [`useVideoConfig()`](/docs/use-video-config
 import {AbsoluteFill, useVideoConfig} from 'remotion';
 
 export const MyComposition = () => {
-	const {fps, durationInFrames, width, height} = useVideoConfig();
+  const {fps, durationInFrames, width, height} = useVideoConfig();
 
-	return (
-		<AbsoluteFill
-			style={{
-				justifyContent: 'center',
-				alignItems: 'center',
-				fontSize: 60,
-				backgroundColor: 'white',
-			}}
-		>
-			This {width}x{height}px video is {durationInFrames / fps} seconds long.
-		</AbsoluteFill>
-	);
+  return (
+    <AbsoluteFill
+      style={{
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontSize: 60,
+        backgroundColor: 'white',
+      }}
+    >
+      This {width}x{height}px video is {durationInFrames / fps} seconds long.
+    </AbsoluteFill>
+  );
 };
 ```
 
@@ -85,16 +87,16 @@ import {Composition} from 'remotion';
 // ---cut---
 
 export const RemotionRoot: React.FC = () => {
-	return (
-		<Composition
-			id="MyComposition"
-			durationInFrames={150}
-			fps={30}
-			width={1920}
-			height={1080}
-			component={MyComposition}
-		/>
-	);
+  return (
+    <Composition
+      id="MyComposition"
+      durationInFrames={150}
+      fps={30}
+      width={1920}
+      height={1080}
+      component={MyComposition}
+    />
+  );
 };
 ```
 

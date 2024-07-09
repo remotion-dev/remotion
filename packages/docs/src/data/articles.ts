@@ -1592,6 +1592,13 @@ export const articles = [
 		crumb: 'FAQ',
 	},
 	{
+		id: 'miscellaneous/emojis',
+		title: 'Emojis',
+		relativePath: 'docs/miscellaneous/emojis.mdx',
+		compId: 'articles-docs-miscellaneous-emojis',
+		crumb: 'Font rendering',
+	},
+	{
 		id: 'miscellaneous/cloud-gpu-docker',
 		title: 'Setup EC2 for Docker with GPU',
 		relativePath: 'docs/miscellaneous/cloud-gpu-docker.mdx',
