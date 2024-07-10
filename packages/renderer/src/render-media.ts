@@ -20,7 +20,7 @@ import {ensureOutputDirectory} from './ensure-output-directory';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
 import {findRemotionRoot} from './find-closest-package-json';
 import type {FrameRange} from './frame-range';
-import {getActualConcurrency} from './get-concurrency';
+import {resolveConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
@@ -336,7 +336,7 @@ const internalRenderMediaRaw = ({
 		'Estimated usage parallel encoding',
 		estimatedUsage,
 	);
-	const actualConcurrency = getActualConcurrency(concurrency);
+	const resolvedConcurrency = resolveConcurrency(concurrency);
 	Log.verbose(
 		{
 			indent,
@@ -344,7 +344,7 @@ const internalRenderMediaRaw = ({
 			tag: 'renderMedia()',
 		},
 		'Using concurrency:',
-		actualConcurrency,
+		resolvedConcurrency,
 	);
 	Log.verbose(
 		{
@@ -551,7 +551,7 @@ const internalRenderMediaRaw = ({
 				return makeOrReuseServer(
 					reusedServer,
 					{
-						concurrency: actualConcurrency,
+						concurrency: resolvedConcurrency,
 						indent,
 						port,
 						remotionRoot: findRemotionRoot(),

@@ -2,10 +2,10 @@
 image: /generated/articles-docs-renderer-render-frames.png
 id: render-frames
 title: renderFrames()
-crumb: "@remotion/renderer"
+crumb: '@remotion/renderer'
 ---
 
-import { AngleChangelog } from "../../components/AngleChangelog";
+import {AngleChangelog} from '../../components/AngleChangelog';
 
 _Part of the `@remotion/renderer` package._
 
@@ -34,11 +34,23 @@ Call [`selectComposition()`](/docs/renderer/select-composition) or [`getComposit
 
 ### `onStart`
 
-A callback that fires after the setup process (validation, browser launch) has finished. Example value
+Callback function that gets called once the renderer has prepared to start rendering and has calculated the amount of frames that are going to be rendered:
 
-```ts twoslash
-const onStart = () => {
-  console.log("Starting rendering...");
+```tsx twoslash
+import {OnStartData} from '@remotion/renderer';
+
+const onStart = ({
+  frameCount,
+  parallelEncoding, // available from v4.0.52
+  resolvedConcurrency, // available from v4.0.180
+}: OnStartData) => {
+  console.log(`Beginning to render ${frameCount}.`);
+
+  if (parallelEncoding) {
+    console.log('Parallel encoding is enabled.');
+  }
+
+  console.log(`Using concurrency: ${resolvedConcurrency}`);
 };
 ```
 
@@ -178,25 +190,25 @@ type BrowserLog = {
   text: string;
   stackTrace: ConsoleMessageLocation[];
   type:
-    | "log"
-    | "debug"
-    | "info"
-    | "error"
-    | "warning"
-    | "dir"
-    | "dirxml"
-    | "table"
-    | "trace"
-    | "clear"
-    | "startGroup"
-    | "startGroupCollapsed"
-    | "endGroup"
-    | "assert"
-    | "profile"
-    | "profileEnd"
-    | "count"
-    | "timeEnd"
-    | "verbose";
+    | 'log'
+    | 'debug'
+    | 'info'
+    | 'error'
+    | 'warning'
+    | 'dir'
+    | 'dirxml'
+    | 'table'
+    | 'trace'
+    | 'clear'
+    | 'startGroup'
+    | 'startGroupCollapsed'
+    | 'endGroup'
+    | 'assert'
+    | 'profile'
+    | 'profileEnd'
+    | 'count'
+    | 'timeEnd'
+    | 'verbose';
 };
 
 const renderFrames = (options: {
@@ -211,7 +223,7 @@ renderFrames({
         .map((stack) => {
           return `  ${stack.url}:${stack.lineNumber}:${stack.columnNumber}`;
         })
-        .join("\n"),
+        .join('\n'),
     );
   },
 });

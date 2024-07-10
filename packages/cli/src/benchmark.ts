@@ -56,7 +56,7 @@ const getValidConcurrency = (cliConcurrency: number | string | null) => {
 	const {concurrencies} = parsedCli;
 
 	if (!concurrencies) {
-		return [RenderInternals.getActualConcurrency(cliConcurrency)];
+		return [RenderInternals.resolveConcurrency(cliConcurrency)];
 	}
 
 	return (concurrencies as string)

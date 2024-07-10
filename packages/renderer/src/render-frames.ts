@@ -25,7 +25,7 @@ import {handleJavascriptException} from './error-handling/handle-javascript-exce
 import {onlyArtifact, onlyAudioAndVideoAssets} from './filter-asset-types';
 import {findRemotionRoot} from './find-closest-package-json';
 import type {FrameRange} from './frame-range';
-import {getActualConcurrency} from './get-concurrency';
+import {resolveConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import {getExtraFramesToCapture} from './get-extra-frames-to-capture';
 import type {CountType} from './get-frame-padded-index';
@@ -132,7 +132,7 @@ type InnerRenderFramesOptions = {
 	muted: boolean;
 	onError: (err: Error) => void;
 	pagesArray: Page[];
-	actualConcurrency: number;
+	resolvedConcurrency: number;
 	proxyPort: number;
 	downloadMap: DownloadMap;
 	makeBrowser: () => Promise<HeadlessBrowser>;
@@ -220,7 +220,7 @@ const innerRenderFrames = async ({
 	composition,
 	timeoutInMilliseconds,
 	scale,
-	actualConcurrency: concurrency,
+	resolvedConcurrency,
 	everyNthFrame,
 	proxyPort,
 	cancelSignal,
@@ -354,7 +354,7 @@ const innerRenderFrames = async ({
 
 	const concurrencyOrFramesToRender = Math.min(
 		framesToRender.length,
-		concurrency,
+		resolvedConcurrency,
 	);
 
 	const getPool = async (context: SourceMapGetter) => {
@@ -383,6 +383,7 @@ const innerRenderFrames = async ({
 	onStart?.({
 		frameCount: framesToRender.length,
 		parallelEncoding: parallelEncodingEnabled,
+		resolvedConcurrency,
 	});
 
 	const assets: FrameAndAssets[] = [];
@@ -843,7 +844,7 @@ const internalRenderFramesRaw = ({
 
 	const browserInstance = puppeteerInstance ?? makeBrowser();
 
-	const actualConcurrency = getActualConcurrency(concurrency);
+	const resolvedConcurrency = resolveConcurrency(concurrency);
 
 	const openedPages: Page[] = [];
 
@@ -867,7 +868,7 @@ const internalRenderFramesRaw = ({
 						webpackConfigOrServeUrl: webpackBundleOrServeUrl,
 						port,
 						remotionRoot: findRemotionRoot(),
-						concurrency: actualConcurrency,
+						concurrency: resolvedConcurrency,
 						logLevel,
 						indent,
 						offthreadVideoCacheSizeInBytes,
@@ -888,7 +889,7 @@ const internalRenderFramesRaw = ({
 
 				const cycle = cycleBrowserTabs(
 					browserReplacer,
-					actualConcurrency,
+					resolvedConcurrency,
 					logLevel,
 					indent,
 				);
@@ -903,7 +904,7 @@ const internalRenderFramesRaw = ({
 					pagesArray: openedPages,
 					serveUrl,
 					composition,
-					actualConcurrency,
+					resolvedConcurrency,
 					onDownload,
 					proxyPort: offthreadPort,
 					makeBrowser,
