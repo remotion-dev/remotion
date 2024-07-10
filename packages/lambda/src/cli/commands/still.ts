@@ -271,13 +271,16 @@ export const stillCommand = async (
 		),
 	);
 
-	Log.info(
-		{
-			indent: false,
-			logLevel,
-		},
-		makeArtifactProgress(res.artifacts),
-	);
+	const artifactProgress = makeArtifactProgress(res.artifacts);
+	if (artifactProgress) {
+		Log.info(
+			{
+				indent: false,
+				logLevel,
+			},
+			makeArtifactProgress(res.artifacts),
+		);
+	}
 
 	Log.info(
 		{indent: false, logLevel},
