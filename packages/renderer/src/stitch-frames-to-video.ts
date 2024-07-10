@@ -359,7 +359,7 @@ const innerStitchFramesToVideo = async (
 			x264Preset,
 			colorSpace,
 		}),
-		codec === 'h264' ? ['-movflags', 'faststart'] : null,
+		codec === 'h264' || codec === 'h264-ts' ? ['-movflags', 'faststart'] : null,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
 		['-metadata', `comment=Made with Remotion ${VERSION}`],

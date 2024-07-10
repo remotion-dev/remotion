@@ -39,6 +39,8 @@ export const muxVideoAndAudio = async ({
 		videoOutput ? 'copy' : null,
 		audioOutput ? '-c:a' : null,
 		audioOutput ? 'copy' : null,
+		'-movflags',
+		'faststart',
 		`-metadata`,
 		`comment=Made with Remotion ${VERSION}`,
 		'-y',
