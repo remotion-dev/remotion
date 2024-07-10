@@ -29,12 +29,12 @@ import {mapToAlignment, mapToFit} from './map-enums.js';
 type onLoadCallback = (file: File) => void;
 
 interface RiveProps {
-	src: string;
-	fit?: RemotionRiveCanvasFit;
-	alignment?: RemotionRiveCanvasAlignment;
-	artboard?: string | number;
-	animation?: string | number;
-	onLoad?: onLoadCallback | null;
+	readonly src: string;
+	readonly fit?: RemotionRiveCanvasFit;
+	readonly alignment?: RemotionRiveCanvasAlignment;
+	readonly artboard?: string | number;
+	readonly animation?: string | number;
+	readonly onLoad?: onLoadCallback | null;
 }
 
 export type RiveCanvasRef = {
