@@ -442,6 +442,14 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={1000000}
 				/>
+				<Composition
+					id="CJK-chars-明金"
+					component={ErrorOnFrame10}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={1000000}
+				/>
 				<MyCtx.Provider
 					value={{
 						hi: () => 'hithere',
