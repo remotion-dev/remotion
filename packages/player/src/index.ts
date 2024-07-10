@@ -19,13 +19,14 @@ export type {
 	ThumbnailRef,
 } from './player-methods.js';
 export {Player} from './Player.js';
-export type {PlayerProps} from './Player.js';
+export type {PlayerProps, PlayerPropsWithoutZod} from './Player.js';
 export type {
 	RenderFullscreenButton,
 	RenderPlayPauseButton,
 } from './PlayerControls.js';
 export type {ErrorFallback, RenderLoading, RenderPoster} from './PlayerUI.js';
 export {Thumbnail} from './Thumbnail.js';
+export type {ThumbnailProps, ThumbnailPropsWithoutZod} from './Thumbnail.js';
 export type {Size} from './utils/use-element-size.js';
 export type {CallbackListener, PlayerEventTypes as EventTypes};
 
