@@ -1,13 +1,23 @@
 ---
 image: /generated/articles-docs-rive-remotionrivecanvas.png
-crumb: "@remotion/rive"
-sidebar_label: "<RemotionRiveCanvas>"
-title: "<RemotionRiveCanvas>"
+crumb: '@remotion/rive'
+sidebar_label: '<RemotionRiveCanvas>'
+title: '<RemotionRiveCanvas>'
 ---
 
-<AvailableFrom v="3.3.75"/>
+# &lt;RemotionRiveCanvas&gt;<AvailableFrom v="3.3.75"/>
 
 This component can render a [Rive](https://rive.app/) animation so it synchronizes with Remotion's time.
+
+## Example
+
+```tsx twoslash
+import {RemotionRiveCanvas} from '@remotion/rive';
+
+function App() {
+  return <RemotionRiveCanvas src="https://example.com/myAnimation.riv" />;
+}
+```
 
 ## Props
 
@@ -35,15 +45,54 @@ Either a `string` specifying the animation name, a `number` specifying the anima
 
 A callback function that will be executed when the Rive Runtime is loaded. The argument callback is an object of type Rive `File`
 
-## Basic Example
+## Ref<AvailableFrom v="4.0.180" />
 
-```tsx twoslash
-import { RemotionRiveCanvas } from "@remotion/rive";
+You can attach a ref to the component to access the Rive Canvas instance.
 
-function App() {
-  return <RemotionRiveCanvas src="https://example.com/myAnimation.riv" />;
-}
+```tsx twoslash title="MyComp.tsx"
+import {RemotionRiveCanvas, RiveCanvasRef} from '@remotion/rive';
+import {useEffect} from 'react';
+
+const MyComp: React.FC = () => {
+  const canvasRef = React.useRef<RiveCanvasRef>(null);
+
+  useEffect(() => {
+    if (!canvasRef.current) {
+      return;
+    }
+
+    canvasRef.current.getAnimationInstance(); // import("@rive-app/canvas-advanced").LinearAnimationInstance
+    canvasRef.current.getArtboard(); // import("@rive-app/canvas-advanced").Artboard
+    canvasRef.current.getRenderer(); // import("@rive-app/canvas-advanced").CanvasRenderer
+    canvasRef.current.getCanvas(); // import("@rive-app/canvas-advanced").RiveCanvas
+  }, [canvasRef]);
+
+  return (
+    <RemotionRiveCanvas
+      src="https://example.com/myAnimation.riv"
+      ref={canvasRef}
+    />
+  );
+};
 ```
+
+The ref exposes the following methods:
+
+### `getAnimationInstance()`
+
+Returns a [`LinearAnimationInstance`](https://github.com/rive-app/rive-wasm/blob/caacb99a5b503d3fa56e8e921af2a7015478851c/js/src/rive_advanced.mjs.d.ts#L513) from the Rive Runtime.
+
+### `getArtboard()`
+
+Returns a [`Artboard`](https://github.com/rive-app/rive-wasm/blob/caacb99a5b503d3fa56e8e921af2a7015478851c/js/src/rive_advanced.mjs.d.ts) from the Rive Runtime.
+
+### `getRenderer()`
+
+Returns a [`CanvasRenderer`](https://github.com/rive-app/rive-wasm/blob/caacb99a5b503d3fa56e8e921af2a7015478851c/js/src/rive_advanced.mjs.d.ts#L221) from the Rive Runtime.
+
+### `getCanvas()`
+
+Returns a [`RiveCanvas`](https://github.com/rive-app/rive-wasm/blob/caacb99a5b503d3fa56e8e921af2a7015478851c/js/src/rive_advanced.mjs.d.ts#L14) from the Rive Runtime.
 
 ## Set Text Run at Runtime Example
 
@@ -51,15 +100,15 @@ This example assumes that your Rive animation has a text run named "city". See [
 more information about Text Runs on Rive.
 
 ```tsx twoslash
-import { RemotionRiveCanvas } from "@remotion/rive";
-import { File } from "@rive-app/canvas-advanced";
-import { useCallback } from "react";
+import {RemotionRiveCanvas} from '@remotion/rive';
+import {File} from '@rive-app/canvas-advanced';
+import {useCallback} from 'react';
 
 // Make sure to wrap your onLoad handler on `useCallback` to avoid re-rendering this component every single time
 const onLoadHandler = useCallback((file: File) => {
   const artboard = file.defaultArtboard();
-  const textRun = artboard.textRun("city");
-  textRun.text = "Tokyo";
+  const textRun = artboard.textRun('city');
+  textRun.text = 'Tokyo';
 }, []);
 
 function App() {
