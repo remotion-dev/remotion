@@ -290,9 +290,9 @@ export const renderVideoFlow = async ({
 	const puppeteerInstance = await browserInstance;
 	addCleanupCallback(() => puppeteerInstance.close(false, logLevel, indent));
 
-	const actualConcurrency = RenderInternals.getActualConcurrency(concurrency);
+	const resolvedConcurrency = RenderInternals.resolveConcurrency(concurrency);
 	const server = await RenderInternals.prepareServer({
-		concurrency: actualConcurrency,
+		concurrency: resolvedConcurrency,
 		indent,
 		port,
 		remotionRoot,
@@ -406,7 +406,7 @@ export const renderVideoFlow = async ({
 		logLevel,
 		left: 'Concurrency',
 		link: 'https://www.remotion.dev/docs/terminology/concurrency',
-		right: `${actualConcurrency}x`,
+		right: `${resolvedConcurrency}x`,
 		color: 'gray',
 	});
 
@@ -479,7 +479,7 @@ export const renderVideoFlow = async ({
 			everyNthFrame,
 			envVariables,
 			frameRange,
-			concurrency: actualConcurrency,
+			concurrency: resolvedConcurrency,
 			puppeteerInstance,
 			jpegQuality: jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 			timeoutInMilliseconds: puppeteerTimeout,

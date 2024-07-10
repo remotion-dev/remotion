@@ -21,7 +21,7 @@ import {defaultFileExtensionMap} from './file-extensions';
 import {findRemotionRoot} from './find-closest-package-json';
 import {validateFrameRange} from './frame-range';
 import {internalGetCompositions} from './get-compositions';
-import {getActualConcurrency} from './get-concurrency';
+import {resolveConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
 
 import {
@@ -155,7 +155,7 @@ import {
 } from './wait-for-symbolication-error-to-be-done';
 
 export const RenderInternals = {
-	getActualConcurrency,
+	resolveConcurrency,
 	serveStatic,
 	validateEvenDimensionsWithCodec,
 	getFileExtensionFromCodec,

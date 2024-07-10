@@ -1,8 +1,6 @@
 import {getCpuCount} from './get-cpu-count';
 
-export const getActualConcurrency = (
-	userPreference: number | string | null,
-) => {
+export const resolveConcurrency = (userPreference: number | string | null) => {
 	const maxCpus = getCpuCount();
 
 	if (userPreference === null) {

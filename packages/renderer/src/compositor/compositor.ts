@@ -1,6 +1,6 @@
 import {spawn} from 'node:child_process';
 import path from 'node:path';
-import {getActualConcurrency} from '../get-concurrency';
+import {resolveConcurrency} from '../get-concurrency';
 import type {LogLevel} from '../log-level';
 import {isEqualOrBelowLogLevel} from '../log-level';
 import {Log} from '../logger';
@@ -44,7 +44,7 @@ export const startLongRunningCompositor = ({
 	return startCompositor({
 		type: 'StartLongRunningProcess',
 		payload: {
-			concurrency: getActualConcurrency(null),
+			concurrency: resolveConcurrency(null),
 			maximum_frame_cache_size_in_bytes: maximumFrameCacheItemsInBytes,
 			verbose: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		},
