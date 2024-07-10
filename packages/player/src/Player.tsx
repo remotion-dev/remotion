@@ -39,7 +39,10 @@ import {
 
 export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
 
-export type PlayerProps<Schema extends AnyZodObject, Props> = {
+export type PlayerProps<
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown>,
+> = {
 	readonly durationInFrames: number;
 	readonly compositionWidth: number;
 	readonly compositionHeight: number;
@@ -81,6 +84,9 @@ export type PlayerProps<Schema extends AnyZodObject, Props> = {
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
+export type PlayerPropsWithoutZod<Props extends Record<string, unknown>> =
+	PlayerProps<AnyZodObject, Props>;
+
 export const componentOrNullIfLazy = <Props,>(
 	props: CompProps<Props>,
 ): ComponentType<Props> | null => {
@@ -91,7 +97,10 @@ export const componentOrNullIfLazy = <Props,>(
 	return null;
 };
 
-const PlayerFn = <Schema extends AnyZodObject, Props>(
+const PlayerFn = <
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown>,
+>(
 	{
 		durationInFrames,
 		compositionHeight,

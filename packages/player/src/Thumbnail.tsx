@@ -23,22 +23,25 @@ import {PLAYER_COMP_ID, SharedPlayerContexts} from './SharedPlayerContext.js';
 import ThumbnailUI from './ThumbnailUI.js';
 import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 
-type ThumbnailProps<
+export type ThumbnailProps<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
 > = PropsIfHasProps<Schema, Props> &
 	CompProps<Props> & {
-		frameToDisplay: number;
-		style?: CSSProperties;
-		durationInFrames: number;
-		compositionWidth: number;
-		compositionHeight: number;
-		fps: number;
-		overflowVisible?: boolean;
-		errorFallback?: ErrorFallback;
-		renderLoading?: RenderLoading;
-		className?: string;
+		readonly frameToDisplay: number;
+		readonly style?: CSSProperties;
+		readonly durationInFrames: number;
+		readonly compositionWidth: number;
+		readonly compositionHeight: number;
+		readonly fps: number;
+		readonly overflowVisible?: boolean;
+		readonly errorFallback?: ErrorFallback;
+		readonly renderLoading?: RenderLoading;
+		readonly className?: string;
 	};
+
+export type ThumbnailPropsWithoutZod<Props extends Record<string, unknown>> =
+	ThumbnailProps<AnyZodObject, Props>;
 
 const ThumbnailFn = <
 	Schema extends AnyZodObject,
