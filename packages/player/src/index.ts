@@ -25,11 +25,8 @@ export type {
 	RenderPlayPauseButton,
 } from './PlayerControls.js';
 export type {ErrorFallback, RenderLoading, RenderPoster} from './PlayerUI.js';
-export {
-	Thumbnail,
-	ThumbnailProps,
-	ThumbnailPropsWithoutZod,
-} from './Thumbnail.js';
+export {Thumbnail} from './Thumbnail.js';
+export type {ThumbnailProps, ThumbnailPropsWithoutZod} from './Thumbnail.js';
 export type {Size} from './utils/use-element-size.js';
 export type {CallbackListener, PlayerEventTypes as EventTypes};
 
