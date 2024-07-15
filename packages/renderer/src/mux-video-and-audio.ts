@@ -16,6 +16,7 @@ export const muxVideoAndAudio = async ({
 	binariesDirectory,
 	fps,
 	cancelSignal,
+	addFaststart,
 }: {
 	videoOutput: string | null;
 	audioOutput: string | null;
@@ -26,6 +27,7 @@ export const muxVideoAndAudio = async ({
 	fps: number;
 	onProgress: (p: number) => void;
 	cancelSignal: CancelSignal | undefined;
+	addFaststart: boolean;
 }) => {
 	const startTime = Date.now();
 	Log.verbose({indent, logLevel}, 'Muxing video and audio together');
@@ -39,8 +41,8 @@ export const muxVideoAndAudio = async ({
 		videoOutput ? 'copy' : null,
 		audioOutput ? '-c:a' : null,
 		audioOutput ? 'copy' : null,
-		'-movflags',
-		'faststart',
+		addFaststart ? '-movflags' : null,
+		addFaststart ? 'faststart' : null,
 		`-metadata`,
 		`comment=Made with Remotion ${VERSION}`,
 		'-y',

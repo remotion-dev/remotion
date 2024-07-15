@@ -36,6 +36,20 @@ type Options = {
 	muted: boolean;
 };
 
+const codecSupportsFastStart: {[key in Codec]: boolean} = {
+	'h264-mkv': false,
+	'h264-ts': false,
+	h264: true,
+	h265: true,
+	aac: false,
+	gif: false,
+	mp3: false,
+	prores: true,
+	vp8: false,
+	vp9: false,
+	wav: false,
+};
+
 export const combineChunks = async ({
 	files,
 	filelistDir,
@@ -168,6 +182,7 @@ export const combineChunks = async ({
 			binariesDirectory,
 			fps,
 			cancelSignal,
+			addFaststart: codecSupportsFastStart[codec],
 		});
 		onProgress(numberOfFrames);
 		rmSync(filelistDir, {recursive: true});

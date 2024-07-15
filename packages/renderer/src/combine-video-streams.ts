@@ -63,8 +63,6 @@ export const combineVideoStreams = async ({
 		encoder,
 		codec === 'h265' ? '-tag:v' : null,
 		codec === 'h265' ? 'hvc1' : null,
-		codec === 'h264' || codec === 'h264-ts' ? '-movflags' : null,
-		codec === 'h264' || codec === 'h264-ts' ? 'faststart' : null,
 		addRemotionMetadata ? `-metadata` : null,
 		addRemotionMetadata ? `comment=Made with Remotion ${VERSION}` : null,
 		'-y',
