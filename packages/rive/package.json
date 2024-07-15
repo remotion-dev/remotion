@@ -20,7 +20,7 @@
 	"author": "Caleb Ojo, Jonny Burger",
 	"license": "See LICENSE.md",
 	"dependencies": {
-		"@rive-app/canvas-advanced": "2.3.0",
+		"@rive-app/canvas-advanced": "2.19.3",
 		"remotion": "workspace:*"
 	},
 	"peerDependencies": {

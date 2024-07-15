@@ -1291,8 +1291,8 @@ importers:
   packages/rive:
     dependencies:
       '@rive-app/canvas-advanced':
-        specifier: 2.3.0
-        version: 2.3.0
+        specifier: 2.19.3
+        version: 2.19.3
       remotion:
         specifier: workspace:*
         version: link:../core
@@ -8116,6 +8116,10 @@ packages:
       suspend-react: 0.1.3(react@18.3.1)
       three: 0.158.0
       zustand: 3.7.2(react@18.3.1)
+
+  /@rive-app/canvas-advanced@2.19.3:
+    resolution: {integrity: sha512-AcUsPH8ve7pV6QABN0ekwSpIJN0Fudjp+bqYxFUwbtXnE2wvoA0d2yzAtJeVwNQtFKboyfHovNgPIQ9tEdB4VA==}
+    dev: false
 
   /@rive-app/canvas-advanced@2.3.0:
     resolution: {integrity: sha512-JzgY8aSvWbuigoJ+8x1lHW8or0syQz8hxpRdPijkCCp/GJYRPvBstYdJPbHk2nbv5+BV+8Rv4zRw96wKFVsvKQ==}
