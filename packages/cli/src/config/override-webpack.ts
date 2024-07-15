@@ -16,9 +16,29 @@ let invocations = 0;
 
 export const overrideWebpackConfig = (fn: WebpackOverrideFn) => {
 	if (invocations > 0) {
-		throw new Error(
-			'You specified the overrideWebpackConfig() multiple times which is incorrect, in such a case, only the function passed in the latest override will be considered. If you want to call more than one functions, pass a single function and then call other functions from inside. Read More: https://www.remotion.dev/docs/config#overridewebpackconfig   https://github.com/remotion-dev/remotion/issues/4063  \n',
-		);
+		const err = [
+			'You specified the Config.overrideWebpackConfig() multiple times, which is not supported.',
+			'Combine all Webpack overrides into a single one.',
+			'You can curry multiple overrides:',
+			'',
+			'Instead of:',
+			'',
+			'  Config.overrideWebpackConfig((currentConfiguration) => {',
+			'    return enableScss(currentConfiguration);',
+			'  });',
+			'  Config.overrideWebpackConfig((currentConfiguration) => {',
+			'    return enableTailwind(currentConfiguration);',
+			'  });',
+			'',
+			'Do this:',
+			'',
+			'  Config.overrideWebpackConfig((currentConfiguration) => {',
+			'    return enableScss(enableTailwind(currentConfiguration));',
+			'  });',
+			'',
+			'Read more: https://www.remotion.dev/docs/config#overridewebpackconfig',
+		];
+		throw new Error(err.join('\n'));
 	}
 
 	invocations++;
