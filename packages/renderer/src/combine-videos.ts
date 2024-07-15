@@ -44,7 +44,7 @@ const codecSupportsFastStart: {[key in Codec]: boolean} = {
 	aac: false,
 	gif: false,
 	mp3: false,
-	prores: true,
+	prores: false,
 	vp8: false,
 	vp9: false,
 	wav: false,
