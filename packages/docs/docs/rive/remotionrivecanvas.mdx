@@ -45,6 +45,19 @@ Either a `string` specifying the animation name, a `number` specifying the anima
 
 A callback function that will be executed when the Rive Runtime is loaded. The argument callback is an object of type Rive `File`
 
+### `enableRiveAssetCdn?`<AvailableFrom v="4.0.181" />
+
+Whether to enable the Rive Asset CDN. Default is `true`.
+
+### `assetLoader?`<AvailableFrom v="4.0.181" />
+
+A custom asset loader. See [here](https://rive.app/community/doc/loading-assets/doct4wVHGPgC#handling-assets) for more information.
+
+:::note
+Memoize the assetLoader function using `useCallback`.  
+You can type the function using `FileAssetLoader` from `@remotion/rive` (re-exported from `@rive-app/canvas-advanced`).
+:::
+
 ## Ref<AvailableFrom v="4.0.180" />
 
 You can attach a ref to the component to access the Rive Canvas instance.

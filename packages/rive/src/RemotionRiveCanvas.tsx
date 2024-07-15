@@ -2,6 +2,7 @@ import type {
 	Artboard,
 	CanvasRenderer,
 	File,
+	FileAssetLoader,
 	LinearAnimationInstance,
 	RiveCanvas,
 } from '@rive-app/canvas-advanced';
@@ -35,6 +36,8 @@ interface RiveProps {
 	readonly artboard?: string | number;
 	readonly animation?: string | number;
 	readonly onLoad?: onLoadCallback | null;
+	readonly enableRiveAssetCdn?: boolean;
+	readonly assetLoader?: FileAssetLoader;
 }
 
 export type RiveCanvasRef = {
@@ -55,6 +58,8 @@ const RemotionRiveCanvasForwardRefFunction: React.ForwardRefRenderFunction<
 		artboard: artboardName,
 		animation: animationIndex,
 		onLoad = null,
+		assetLoader,
+		enableRiveAssetCdn = true,
 	},
 	ref,
 ) => {
@@ -100,7 +105,7 @@ const RemotionRiveCanvasForwardRefFunction: React.ForwardRefRenderFunction<
 	useEffect(() => {
 		riveCanvas({
 			locateFile: () =>
-				'https://unpkg.com/@rive-app/canvas-advanced@2.3.0/rive.wasm',
+				'https://unpkg.com/@rive-app/canvas-advanced@2.19.3/rive.wasm',
 		})
 			.then((riveInstance) => {
 				setRiveCanvas(riveInstance);
@@ -122,35 +127,45 @@ const RemotionRiveCanvasForwardRefFunction: React.ForwardRefRenderFunction<
 		fetch(new Request(src))
 			.then((f) => f.arrayBuffer())
 			.then((b) => {
-				riveCanvasInstance.load(new Uint8Array(b)).then((file) => {
-					const artboard =
-						typeof artboardName === 'string'
-							? file.artboardByName(artboardName)
-							: typeof artboardName === 'number'
-								? file.artboardByIndex(artboardName)
-								: file.defaultArtboard();
-					const animation = new riveCanvasInstance.LinearAnimationInstance(
-						typeof animationIndex === 'number'
-							? artboard.animationByIndex(animationIndex)
-							: typeof animationIndex === 'string'
-								? artboard.animationByName(animationIndex)
-								: artboard.animationByIndex(0),
-						artboard,
-					);
-					setRive({
-						animation,
-						artboard,
-						renderer,
+				riveCanvasInstance
+					.load(new Uint8Array(b), assetLoader, enableRiveAssetCdn)
+					.then((file) => {
+						const artboard =
+							typeof artboardName === 'string'
+								? file.artboardByName(artboardName)
+								: typeof artboardName === 'number'
+									? file.artboardByIndex(artboardName)
+									: file.defaultArtboard();
+						const animation = new riveCanvasInstance.LinearAnimationInstance(
+							typeof animationIndex === 'number'
+								? artboard.animationByIndex(animationIndex)
+								: typeof animationIndex === 'string'
+									? artboard.animationByName(animationIndex)
+									: artboard.animationByIndex(0),
+							artboard,
+						);
+						setRive({
+							animation,
+							artboard,
+							renderer,
+						});
+						if (onLoad) {
+							onLoad(file);
+						}
 					});
-					if (onLoad) {
-						onLoad(file);
-					}
-				});
 			})
 			.catch((newErr) => {
 				setError(newErr);
 			});
-	}, [animationIndex, artboardName, riveCanvasInstance, src, onLoad]);
+	}, [
+		animationIndex,
+		artboardName,
+		riveCanvasInstance,
+		src,
+		onLoad,
+		assetLoader,
+		enableRiveAssetCdn,
+	]);
 
 	React.useEffect(() => {
 		if (!riveCanvasInstance) {
