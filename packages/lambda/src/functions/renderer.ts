@@ -1,4 +1,9 @@
-import type {AudioCodec, BrowserLog, Codec} from '@remotion/renderer';
+import type {
+	AudioCodec,
+	BrowserLog,
+	Codec,
+	OnArtifact,
+} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -23,6 +28,8 @@ import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {startLeakDetection} from './helpers/leak-detection';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
 import type {RequestContext} from './helpers/request-context';
+import {serializeArtifact} from './helpers/serialize-artifact';
+import {timer} from './helpers/timer';
 import {getTmpDirStateIfENoSp} from './helpers/write-lambda-error';
 import type {OnStream} from './streaming/streaming';
 
@@ -166,6 +173,35 @@ const renderHandler = async ({
 		params.everyNthFrame,
 	);
 
+	const onArtifact: OnArtifact = (artifact) => {
+		RenderInternals.Log.info(
+			{indent: false, logLevel: params.logLevel},
+			`Received artifact on frame ${artifact.frame}:`,
+			artifact.filename,
+			artifact.content.length + 'bytes. Streaming to main function',
+		);
+		const startTimestamp = Date.now();
+		onStream({
+			type: 'artifact-emitted',
+			payload: {
+				artifact: serializeArtifact(artifact),
+			},
+		})
+			.then(() => {
+				RenderInternals.Log.info(
+					{indent: false, logLevel: params.logLevel},
+					`Streaming artifact ${artifact.filename} to main function took ${Date.now() - startTimestamp}ms`,
+				);
+			})
+			.catch((e) => {
+				RenderInternals.Log.error(
+					{indent: false, logLevel: params.logLevel},
+					`Error streaming artifact ${artifact.filename} to main function`,
+					e,
+				);
+			});
+	};
+
 	await new Promise<void>((resolve, reject) => {
 		RenderInternals.internalRenderMedia({
 			repro: false,
@@ -270,6 +306,7 @@ const renderHandler = async ({
 			onBrowserDownload: () => {
 				throw new Error('Should not download a browser in Lambda');
 			},
+			onArtifact,
 		})
 			.then(({slowestFrames}) => {
 				RenderInternals.Log.verbose(
@@ -287,29 +324,34 @@ const renderHandler = async ({
 			.catch((err) => reject(err));
 	});
 
-	RenderInternals.Log.verbose(
-		{indent: false, logLevel: params.logLevel},
-		'Streaming chunks to main function',
+	const streamTimer = timer(
+		'Streaming chunk to the main function',
+		params.logLevel,
 	);
+
 	if (audioOutputLocation) {
-		onStream({
+		const audioChunkTimer = timer('Sending audio chunk', params.logLevel);
+		await onStream({
 			type: 'audio-chunk-rendered',
 			payload: fs.readFileSync(audioOutputLocation),
 		});
+		audioChunkTimer.end();
 	}
 
 	if (videoOutputLocation) {
-		onStream({
+		const videoChunkTimer = timer('Sending main chunk', params.logLevel);
+		await onStream({
 			type: RenderInternals.isAudioCodec(params.codec)
 				? 'audio-chunk-rendered'
 				: 'video-chunk-rendered',
 			payload: fs.readFileSync(videoOutputLocation),
 		});
+		videoChunkTimer.end();
 	}
 
 	const endRendered = Date.now();
 
-	onStream({
+	await onStream({
 		type: 'chunk-complete',
 		payload: {
 			rendered: endRendered,
@@ -317,12 +359,8 @@ const renderHandler = async ({
 		},
 	});
 
-	const writeStart = Date.now();
+	streamTimer.end();
 
-	RenderInternals.Log.verbose(
-		{indent: false, logLevel: params.logLevel},
-		`Streamed chunk to main function (${Date.now() - writeStart}ms)`,
-	);
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
 		'Cleaning up and writing timings',
@@ -414,6 +452,8 @@ export const rendererHandler = async (
 	} finally {
 		forgetBrowserEventLoop(params.logLevel);
 
-		startLeakDetection(leakDetection, requestContext.awsRequestId);
+		if (ENABLE_SLOW_LEAK_DETECTION) {
+			startLeakDetection(leakDetection, requestContext.awsRequestId);
+		}
 	}
 };

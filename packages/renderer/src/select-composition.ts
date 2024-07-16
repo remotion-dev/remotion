@@ -34,6 +34,7 @@ type InternalSelectCompositionsConfig = {
 	server: RemotionServer | undefined;
 	serveUrl: string;
 	id: string;
+	onServeUrlVisited: () => void;
 } & ToOptions<typeof optionsMap.selectComposition>;
 
 export type SelectCompositionOptions = RequiredInputPropsInV5 & {
@@ -72,6 +73,7 @@ const innerSelectComposition = async ({
 	id,
 	indent,
 	logLevel,
+	onServeUrlVisited,
 }: InnerSelectCompositionConfig): Promise<InternalReturnType> => {
 	if (onBrowserLog) {
 		page.on('console', (log) => {
@@ -98,6 +100,7 @@ const innerSelectComposition = async ({
 		videoEnabled: false,
 		indent,
 		logLevel,
+		onServeUrlVisited,
 	});
 
 	await puppeteerEvaluateWithCatch({
@@ -197,6 +200,7 @@ export const internalSelectCompositionRaw = async (
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
 		onBrowserDownload,
+		onServeUrlVisited,
 	} = options;
 
 	const {page, cleanup: cleanupPage} = await getPageAndCleanupFn({
@@ -236,7 +240,6 @@ export const internalSelectCompositionRaw = async (
 			},
 			{
 				onDownload: () => undefined,
-				onError,
 			},
 		)
 			.then(({server: {serveUrl, offthreadPort, sourceMap}, cleanupServer}) => {
@@ -261,6 +264,7 @@ export const internalSelectCompositionRaw = async (
 					offthreadVideoCacheSizeInBytes,
 					binariesDirectory,
 					onBrowserDownload,
+					onServeUrlVisited,
 				});
 			})
 
@@ -342,6 +346,7 @@ export const selectComposition = async (
 				logLevel,
 				api: 'selectComposition()',
 			}),
+		onServeUrlVisited: () => undefined,
 	});
 	return data.metadata;
 };

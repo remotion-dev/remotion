@@ -1,24 +1,18 @@
-## @remotion/shapes
-
-A package providing utility functions for creating shapes with SVG.
-
-Documentation: https://remotion.dev/shapes
-
-No dependencies are needed, meaning this package can be used independently of Remotion.
-
-## API
-
-- [`makeRect()`](https://remotion.dev/docs/shapes/make-rect)
-- [`makeCircle()`](https://remotion.dev/docs/shapes/make-circle)
-- [`makeTriangle()`](https://remotion.dev/docs/shapes/make-triangle)
-- [`makeEllipse()`](https://remotion.dev/docs/shapes/make-ellipse)
-- [`makePolygon()`](https://remotion.dev/docs/shapes/make-polygon)
-- [`<Circle />`](https://remotion.dev/docs/shapes/circle)
-- [`<Rect />`](https://remotion.dev/shapes/shapes/rect)
-- [`<Triangle />`](https://remotion.dev/shapes/shapes/triangle)
-- [`<Ellipse />`](https://remotion.dev/shapes/shapes/ellipse)
-- [`<Polygon />`](https://remotion.dev/shapes/shapes/polygon)
-
-## License
-
-MIT
+# @remotion/shapes
+ 
+Generate SVG shapes
+ 
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/shapes.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/shapes?minimal=true)
+ 
+## Installation
+ 
+```bash
+npm install @remotion/shapes --save-exact
+```
+ 
+When installing a Remotion package, make sure to align the version of all `remotion` and `@remotion/*` packages to the same version.
+Remove the `^` character from the version number to use the exact version.
+ 
+## Usage
+ 
+See the [documentation](https://www.remotion.dev/docs/shapes) for more information.

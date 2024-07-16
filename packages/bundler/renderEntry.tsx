@@ -190,6 +190,9 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 
 const waitForRootHandle = delayRender(
 	'Loading root component - See https://remotion.dev/docs/troubleshooting/loading-root-component if you experience a timeout',
+	{
+		timeoutInMilliseconds: 10000,
+	},
 );
 
 const videoContainer = document.getElementById(

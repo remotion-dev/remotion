@@ -15,6 +15,7 @@ import type {OutNameInput, Privacy, WebhookOption} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {
+	getCloudwatchMethodUrl,
 	getCloudwatchRendererUrl,
 	getLambdaInsightsUrl,
 	getS3RenderUrl,
@@ -67,6 +68,7 @@ export type RenderMediaOnLambdaOutput = {
 	renderId: string;
 	bucketName: string;
 	cloudWatchLogs: string;
+	cloudWatchMainLogs: string;
 	lambdaInsightsLogs: string;
 	folderInS3Console: string;
 };
@@ -94,6 +96,13 @@ export const internalRenderMediaOnLambdaRaw = async (
 				renderId: res.renderId,
 				rendererFunctionName: rendererFunctionName ?? null,
 				chunk: null,
+			}),
+			cloudWatchMainLogs: getCloudwatchMethodUrl({
+				renderId: res.renderId,
+				functionName,
+				method: LambdaRoutines.launch,
+				region,
+				rendererFunctionName: rendererFunctionName ?? null,
 			}),
 			folderInS3Console: getS3RenderUrl({
 				bucketName: res.bucketName,

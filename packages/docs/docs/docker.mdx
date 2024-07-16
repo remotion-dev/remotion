@@ -40,7 +40,8 @@ This Dockerfile is unable to render WebGL content. Suggestions on how to improve
 ## Line-by-line
 
 <p>
-<Step>1</Step> Specify the base image for the Dockerfile. In this case, we use Debian.
+  <Step>1</Step> Specify the base image for the Dockerfile. In this case, we use
+  Debian.
 </p>
 
 ```docker
@@ -48,7 +49,7 @@ FROM debian:bookworm
 ```
 
 <p>
-<Step>2</Step> Update the package lists on the Debian system.
+  <Step>2</Step> Update the package lists on the Debian system.
 </p>
 
 ```docker
@@ -56,7 +57,8 @@ RUN apt-get update
 ```
 
 <p>
-<Step>3</Step> Download Remotion's dependencies: Node.JS (with NPM) and Chromium. 
+  <Step>3</Step> Download Remotion's dependencies: Node.JS (with NPM) and
+  Chromium.
 </p>
 
 ```docker
@@ -64,8 +66,12 @@ RUN apt-get install -y nodejs npm chromium
 ```
 
 <p>
-<Step>4</Step> Copy the files from your project. If you have additional source files, add them here. If some files do not exist, remove them.
-The <code>COPY</code> syntax allows multiple files, but at least one file must exist. It is assumed <code>package.json</code>, <code>src</code> and <code>public</code> exist in your project, but you can adjust this to your needs.
+  <Step>4</Step> Copy the files from your project. If you have additional source
+  files, add them here. If some files do not exist, remove them. The{" "}
+  <code>COPY</code> syntax allows multiple files, but at least one file must
+  exist. It is assumed <code>package.json</code>, <code>src</code> and{" "}
+  <code>public</code> exist in your project, but you can adjust this to your
+  needs.
 </p>
 
 ```docker
@@ -75,7 +81,7 @@ COPY public ./public
 ```
 
 <p>
-<Step>5</Step> Install the right package manager and dependencies. 
+  <Step>5</Step> Install the right package manager and dependencies.
 </p>
 
 - If you use NPM, put the following in your Dockerfile:
@@ -97,7 +103,7 @@ COPY public ./public
   ```
 
 <p>
-<Step>6</Step> Run your code. It can be a CLI command or a Node.JS app.
+  <Step>6</Step> Run your code. It can be a CLI command or a Node.JS app.
 </p>
 
 ```docker
@@ -120,13 +126,16 @@ const require = createRequire(import.meta.url);
 
 const bundled = await bundle({
   entryPoint: require.resolve("./src/index.ts"),
-  // If you have a Webpack override, make sure to import it here
+  // If you have a webpack override in remotion.config.ts, pass it here as well.
   webpackOverride: (config) => config,
 });
+
+const inputProps = {};
 
 const composition = await selectComposition({
   serveUrl: bundled,
   id: "MyComp",
+  inputProps,
 });
 
 console.log("Starting to render composition");
@@ -139,6 +148,7 @@ await renderMedia({
   chromiumOptions: {
     enableMultiProcessOnLinux: true,
   },
+  inputProps,
 });
 
 console.log(`Rendered composition ${composition.id}.`);

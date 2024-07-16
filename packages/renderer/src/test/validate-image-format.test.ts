@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {validateStillImageFormat} from '../image-format';
 
 test('"none" is not a valid image format', () => {

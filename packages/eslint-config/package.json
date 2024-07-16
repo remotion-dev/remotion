@@ -1,39 +1,39 @@
 {
-  "name": "@remotion/eslint-config",
-  "version": "4.0.166",
-  "description": "",
-  "main": "dist/index.js",
-  "files": [
-    "dist"
-  ],
-  "bugs": {
-    "url": "https://github.com/remotion-dev/remotion/issues"
-  },
-  "author": "Jonny Burger <jonny@remotion.dev>",
-  "license": "ISC",
-  "dependencies": {
-    "@remotion/eslint-plugin": "workspace:*",
-    "@typescript-eslint/eslint-plugin": "6.21.0",
-    "@typescript-eslint/parser": "6.21.0",
-    "eslint-plugin-10x": "1.5.2",
-    "eslint-plugin-react": "7.32.2",
-    "eslint-plugin-react-hooks": "4.6.0"
-  },
-  "peerDependencies": {
-    "eslint": ">=7.15.0"
-  },
-  "devDependencies": {
-    "@types/node": "18.14.6",
-    "eslint": "8.56.0"
-  },
-  "keywords": [
-    "remotion",
-    "ffmpeg",
-    "video",
-    "react",
-    "player"
-  ],
-  "publishConfig": {
-    "access": "public"
-  }
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/eslint-config"
+	},
+	"name": "@remotion/eslint-config",
+	"version": "4.0.181",
+	"description": "Default configuration for Remotion templates",
+	"main": "dist/index.js",
+	"files": [
+		"dist"
+	],
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"license": "ISC",
+	"dependencies": {
+		"@remotion/eslint-plugin": "workspace:*",
+		"@typescript-eslint/eslint-plugin": "6.21.0",
+		"@typescript-eslint/parser": "6.21.0",
+		"eslint-plugin-10x": "1.5.2",
+		"eslint-plugin-react": "7.32.2",
+		"eslint-plugin-react-hooks": "4.6.0"
+	},
+	"peerDependencies": {
+		"eslint": ">=7.15.0"
+	},
+	"keywords": [
+		"remotion",
+		"ffmpeg",
+		"video",
+		"react",
+		"player"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"homepage": "https://www.remotion.dev/docs/brownfield#install-the-eslint-plugin"
 }

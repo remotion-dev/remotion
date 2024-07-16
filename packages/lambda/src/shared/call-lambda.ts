@@ -1,10 +1,13 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import type {InvokeWithResponseStreamResponseEvent} from '@aws-sdk/client-lambda';
+import type {
+	InvokeWithResponseStreamCommandOutput,
+	InvokeWithResponseStreamResponseEvent,
+} from '@aws-sdk/client-lambda';
 import {
 	InvokeCommand,
 	InvokeWithResponseStreamCommand,
 } from '@aws-sdk/client-lambda';
-import {NoReactAPIs} from '@remotion/renderer/pure';
+import {makeStreamer} from '@remotion/streaming';
 import type {OrError} from '../functions';
 import type {
 	MessageTypeId,
@@ -70,9 +73,16 @@ export const callLambdaWithStreaming = async <T extends LambdaRoutines>(
 			throw err;
 		}
 
-		if (!(err as Error).message.includes(INVALID_JSON_MESSAGE)) {
+		if (
+			!(err as Error).message.includes(INVALID_JSON_MESSAGE) &&
+			!(err as Error).message.includes(LAMBDA_STREAM_STALL) &&
+			!(err as Error).message.includes('aborted')
+		) {
 			throw err;
 		}
+
+		console.error(err);
+		console.error('Retries remaining', options.retriesRemaining);
 
 		return callLambdaWithStreaming({
 			...options,
@@ -106,6 +116,49 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 	}
 };
 
+const STREAM_STALL_TIMEOUT = 30000;
+const LAMBDA_STREAM_STALL = `AWS did not invoke Lambda in ${STREAM_STALL_TIMEOUT}ms`;
+
+const invokeStreamOrTimeout = async ({
+	region,
+	timeoutInTest,
+	functionName,
+	type,
+	payload,
+}: {
+	region: AwsRegion;
+	timeoutInTest: number;
+	functionName: string;
+	type: string;
+	payload: Record<string, unknown>;
+}) => {
+	const resProm = getLambdaClient(region, timeoutInTest).send(
+		new InvokeWithResponseStreamCommand({
+			FunctionName: functionName,
+			Payload: JSON.stringify({type, ...payload}),
+		}),
+	);
+
+	let cleanup = () => undefined;
+
+	const timeout = new Promise<InvokeWithResponseStreamCommandOutput>(
+		(_resolve, reject) => {
+			const int = setTimeout(() => {
+				reject(new Error(LAMBDA_STREAM_STALL));
+			}, STREAM_STALL_TIMEOUT);
+			cleanup = () => {
+				clearTimeout(int);
+			};
+		},
+	);
+
+	const res = await Promise.race([resProm, timeout]);
+
+	cleanup();
+
+	return res;
+};
+
 const callLambdaWithStreamingWithoutRetry = async <T extends LambdaRoutines>({
 	functionName,
 	type,
@@ -116,34 +169,33 @@ const callLambdaWithStreamingWithoutRetry = async <T extends LambdaRoutines>({
 }: Options<T> & {
 	receivedStreamingPayload: OnMessage;
 }): Promise<void> => {
-	const res = await getLambdaClient(region, timeoutInTest).send(
-		new InvokeWithResponseStreamCommand({
-			FunctionName: functionName,
-			Payload: JSON.stringify({type, ...payload}),
-		}),
-	);
+	const res = await invokeStreamOrTimeout({
+		functionName,
+		payload,
+		region,
+		timeoutInTest,
+		type,
+	});
 
-	const {onData, clear} = NoReactAPIs.makeStreamer(
-		(status, messageTypeId, data) => {
-			const messageType = messageTypeIdToMessageType(
-				messageTypeId as MessageTypeId,
-			);
-			const innerPayload =
-				formatMap[messageType] === 'json'
-					? parseJsonOrThrowSource(data, messageType)
-					: data;
+	const {onData, clear} = makeStreamer((status, messageTypeId, data) => {
+		const messageType = messageTypeIdToMessageType(
+			messageTypeId as MessageTypeId,
+		);
+		const innerPayload =
+			formatMap[messageType] === 'json'
+				? parseJsonOrThrowSource(data, messageType)
+				: data;
 
-			const message: StreamingMessage = {
-				successType: status,
-				message: {
-					type: messageType,
-					payload: innerPayload,
-				},
-			};
+		const message: StreamingMessage = {
+			successType: status,
+			message: {
+				type: messageType,
+				payload: innerPayload,
+			},
+		};
 
-			receivedStreamingPayload(message);
-		},
-	);
+		receivedStreamingPayload(message);
+	});
 
 	const events =
 		res.EventStream as AsyncIterable<InvokeWithResponseStreamResponseEvent>;
@@ -173,6 +225,8 @@ const callLambdaWithStreamingWithoutRetry = async <T extends LambdaRoutines>({
 				);
 			}
 		}
+
+		// Don't put a `break` statement here, as it will cause the socket to not properly exit.
 	}
 
 	clear();

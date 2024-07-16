@@ -152,7 +152,7 @@ An object describing the costs of the render so far. The cost may increase if th
 - `displayCost`: The cost formatted as a string.
 - `disclaimer`: Textual disclaimer removing any doubt that there is no guarantee.
 
-## `estimatedBillingDurationInMilliseconds`<AvailableFrom v="4.0.74"/>
+### `estimatedBillingDurationInMilliseconds`<AvailableFrom v="4.0.74"/>
 
 The estimated total runtime of all invoked Lambda functions combined, in milliseconds. As the render goes on, this number increases.
 
@@ -163,6 +163,10 @@ If the render is in progress, this is `null`. If the render is done, it is an ar
 - `chunk`: The index of the chunk (starting from 0)
 - `timeInMilliseconds`: The time it took the render that chunk
 - `frameRange`: A tuple containing the first and last frame that was rendered in that chunk.
+
+### `artifacts`<AvailableFrom v="4.0.176"/>
+
+Artifacts that were created so far during the render. [See here for an example of dealing with field.](/docs/artifacts#using-rendermediaonlambda)
 
 ## See also
 

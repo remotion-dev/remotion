@@ -1,10 +1,6 @@
 import type {AudioCodec, LogLevel} from '@remotion/renderer';
 import fs from 'fs';
 import type {CustomCredentials} from '../../shared/aws-clients';
-import {
-	cleanupSerializedInputProps,
-	cleanupSerializedResolvedProps,
-} from '../../shared/cleanup-serialized-input-props';
 import type {
 	PostRenderData,
 	Privacy,
@@ -13,6 +9,7 @@ import type {
 } from '../../shared/constants';
 import type {DownloadBehavior} from '../../shared/content-disposition-header';
 import type {LambdaCodec} from '../../shared/validate-lambda-codec';
+import {cleanupProps} from './cleanup-props';
 import {concatVideos} from './concat-videos';
 import {createPostRenderData} from './create-post-render-data';
 import {getCurrentRegionInFunction} from './get-current-region';
@@ -104,15 +101,9 @@ export const mergeChunksAndFinishRender = async (options: {
 		errors: options.overallProgress.get().errors,
 	});
 
-	const cleanupSerializedInputPropsProm = cleanupSerializedInputProps({
-		bucketName: options.bucketName,
-		region: getCurrentRegionInFunction(),
-		serialized: options.inputProps,
-	});
-	const cleanupResolvedInputPropsProm = cleanupSerializedResolvedProps({
-		bucketName: options.bucketName,
-		region: getCurrentRegionInFunction(),
-		serialized: options.serializedResolvedProps,
+	const cleanupProm = cleanupProps({
+		inputProps: options.inputProps,
+		serializedResolvedProps: options.serializedResolvedProps,
 	});
 
 	const {url: outputUrl} = getOutputUrlFromMetadata(
@@ -126,12 +117,7 @@ export const mergeChunksAndFinishRender = async (options: {
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		renderMetadata: options.renderMetadata,
 		errorExplanations,
-		timeToDelete: (
-			await Promise.all([
-				cleanupSerializedInputPropsProm,
-				cleanupResolvedInputPropsProm,
-			])
-		).reduce((a, b) => Math.max(a, b), 0),
+		timeToDelete: (await cleanupProm).reduce((a, b) => Math.max(a, b), 0),
 		outputFile: {
 			url: outputUrl,
 		},

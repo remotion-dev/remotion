@@ -4,9 +4,9 @@ import {
 	CalculateMetadataFunction,
 	Composition,
 	Folder,
-	Still,
 	getInputProps,
 	staticFile,
+	Still,
 } from 'remotion';
 import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
@@ -15,6 +15,7 @@ import {NativeBufferStateForImage} from './BufferState/Image';
 import {NativeBufferState} from './BufferState/Simple';
 import {NativeBufferStateForVideo} from './BufferState/Video';
 import {CancelRender} from './CancelRender';
+import {ClassSerialization} from './ClassSerialization';
 import {ColorInterpolation} from './ColorInterpolation';
 import {ComplexSounds} from './ComplexSounds';
 import {MyCtx, WrappedInContext} from './Context';
@@ -30,13 +31,15 @@ import {HlsDemo} from './Hls/HlsDemo';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {Layers} from './Layers';
 import {ManyAudio} from './ManyAudio';
+import {HandleAudioRenderError} from './MediaErrorHandling/HandleAudioRenderError';
 import {MissingImg} from './MissingImg';
 import {
-	OffthreadRemoteVideo,
 	calculateMetadataFn,
+	OffthreadRemoteVideo,
 } from './OffthreadRemoteVideo/OffthreadRemoteVideo';
 import {OrbScene} from './Orb';
 import {ShapesMorph} from './Paths/ShapesMorph';
+import {SlicePath} from './Paths/SlicePath';
 import {PremountedExample} from './Premount';
 import {PremountedRemoteVideos} from './Premount/RemoteVideos';
 import InfinityVideo from './ReallyLongVideo';
@@ -46,8 +49,8 @@ import RiveVehicle from './Rive/RiveExample';
 import {ScalePath} from './ScalePath';
 import {
 	ArrayTest,
-	SchemaTest,
 	schemaArrayTestSchema,
+	SchemaTest,
 	schemaTestSchema,
 } from './SchemaTest';
 import {Scripts} from './Scripts';
@@ -71,7 +74,10 @@ import {
 	SaveDefaultProps,
 	saveStudioSchema,
 } from './StudioApis/SaveDefaultProps';
+import {TriggerCalculateMetadata} from './StudioApis/TriggerCalculateMetadata';
 import {WriteStaticFile} from './StudioApis/WriteStaticFile';
+import './style.css';
+import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
 import {TextStroke} from './TextStroke';
@@ -88,14 +94,34 @@ import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
-import './style.css';
 import {WatchStaticDemo} from './watch-static';
+
 if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
 }
 
+const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
+
 // @ts-expect-error no types
 import styles from './styles.module.scss';
+import {ThreeHtml} from './ThreeHtml/ThreeHtml';
+
+class Vector2 {
+	readonly x: number;
+	readonly y: number;
+
+	constructor(x: number, y: number) {
+		// eslint-disable-next-line react/no-this-in-sfc
+		this.x = x;
+		// eslint-disable-next-line react/no-this-in-sfc
+		this.y = y;
+	}
+
+	toString(): string {
+		// eslint-disable-next-line react/no-this-in-sfc
+		return `Vector2 [X: ${this.x}, Y: ${this.y}]`;
+	}
+}
 
 if (!styles.hithere) {
 	throw new Error('should support SCSS modules');
@@ -417,6 +443,14 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={1000000}
 				/>
+				<Composition
+					id="CJK-chars-明金"
+					component={ErrorOnFrame10}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={1000000}
+				/>
 				<MyCtx.Provider
 					value={{
 						hi: () => 'hithere',
@@ -429,6 +463,44 @@ export const Index: React.FC = () => {
 						height={720}
 					/>
 				</MyCtx.Provider>
+				{INCLUDE_COMP_BREAKING_GET_COMPOSITIONS ? (
+					<Composition
+						id="circular-structure"
+						component={Framer}
+						width={1080}
+						height={1080}
+						durationInFrames={30}
+						fps={30}
+						calculateMetadata={() => {
+							const objectA = {
+								name: 'Object A',
+							};
+
+							const objectB = {
+								name: 'Object B',
+								linkedObject: objectA, // ObjectB links to objectA
+							};
+
+							// @ts-expect-error linked object
+							objectA.linkedObject = objectB;
+
+							return {
+								props: objectA,
+							};
+						}}
+					/>
+				) : null}
+				<Composition
+					id="class-serialization"
+					component={ClassSerialization}
+					width={1080}
+					height={1080}
+					durationInFrames={30}
+					fps={30}
+					defaultProps={{
+						calculated: new Vector2(15, 10),
+					}}
+				/>
 			</Folder>
 			<Folder name="creatives">
 				<Composition
@@ -745,6 +817,7 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={720}
+					lazyComponent={undefined}
 				/>
 				<Composition
 					id="22khz"
@@ -832,6 +905,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="three-basic"
 					component={ThreeBasic}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={600}
+				/>
+				<Composition
+					id="three-html"
+					component={ThreeHtml}
 					width={1280}
 					height={720}
 					fps={30}
@@ -968,6 +1049,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="shapes-morph"
 					component={ShapesMorph}
+					durationInFrames={500}
+					fps={30}
+					height={1080}
+					width={1080}
+				/>
+				<Composition
+					id="slice-path"
+					component={SlicePath}
 					durationInFrames={500}
 					fps={30}
 					height={1080}
@@ -1282,6 +1371,41 @@ export const Index: React.FC = () => {
 					height={200}
 					width={200}
 					defaultProps={{color: 'green'}}
+				/>
+				<Composition
+					id="trigger-calculate-metadata"
+					component={TriggerCalculateMetadata}
+					fps={30}
+					durationInFrames={100}
+					height={200}
+					width={200}
+					calculateMetadata={async () => {
+						await new Promise((r) => {
+							setTimeout(r, 1000);
+						});
+						return {};
+					}}
+					defaultProps={{color: 'green'}}
+				/>
+			</Folder>
+			<Folder name="Artifacts">
+				<Composition
+					id="subtitle"
+					component={SubtitleArtifact}
+					fps={30}
+					height={1000}
+					width={1000}
+					durationInFrames={10}
+				/>
+			</Folder>
+			<Folder name="MediaErrorHandling">
+				<Composition
+					id="AudioError"
+					component={HandleAudioRenderError}
+					fps={30}
+					height={1080}
+					width={1080}
+					durationInFrames={10_000}
 				/>
 			</Folder>
 		</>

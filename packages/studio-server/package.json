@@ -1,20 +1,20 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/studio-server"
+	},
 	"name": "@remotion/studio-server",
-	"version": "4.0.166",
-	"description": "Remotion Editor",
+	"version": "4.0.181",
+	"description": "Run a Remotion Studio with a server backend",
 	"main": "dist",
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
-		"test": "vitest --run",
+		"test": "bun test src",
 		"formatting": "prettier src --check"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
 	"license": "MIT",
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
@@ -35,18 +35,8 @@
 	},
 	"devDependencies": {
 		"react": "18.3.1",
-		"@jonny/eslint-config": "3.0.281",
-		"@types/node": "18.14.6",
-		"@types/react": "18.3.1",
 		"@babel/types": "7.24.0",
-		"eslint": "8.56.0",
-		"eslint-plugin-10x": "1.5.2",
-		"eslint-plugin-react": "7.32.2",
-		"eslint-plugin-react-hooks": "4.4.0",
-		"prettier": "3.2.5",
-		"@types/semver": "^7.3.4",
-		"prettier-plugin-organize-imports": "3.2.4",
-		"vitest": "0.31.1"
+		"@types/semver": "^7.3.4"
 	},
 	"exports": {
 		".": "./dist/index.js",

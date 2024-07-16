@@ -23,6 +23,17 @@ export type OverallRenderProgress = {
 	renderMetadata: RenderMetadata | null;
 	errors: LambdaErrorInfo[];
 	timeoutTimestamp: number;
+	functionLaunched: number;
+	serveUrlOpened: number | null;
+	compositionValidated: number | null;
+	receivedArtifact: ReceivedArtifact[];
+};
+
+export type ReceivedArtifact = {
+	filename: string;
+	sizeInBytes: number;
+	s3Url: string;
+	s3Key: string;
 };
 
 export type OverallProgressHelper = {
@@ -50,6 +61,10 @@ export type OverallProgressHelper = {
 	addErrorWithoutUpload: (errorInfo: LambdaErrorInfo) => void;
 	setExpectedChunks: (expectedChunks: number) => void;
 	get: () => OverallRenderProgress;
+	setServeUrlOpened: (timestamp: number) => void;
+	setCompositionValidated: (timestamp: number) => void;
+	addReceivedArtifact: (asset: ReceivedArtifact) => void;
+	getReceivedArtifacts: () => ReceivedArtifact[];
 };
 
 export const makeInitialOverallRenderProgress = (
@@ -70,6 +85,10 @@ export const makeInitialOverallRenderProgress = (
 		errors: [],
 		timeToRenderFrames: null,
 		timeoutTimestamp,
+		functionLaunched: Date.now(),
+		serveUrlOpened: null,
+		compositionValidated: null,
+		receivedArtifact: [],
 	};
 };
 
@@ -111,17 +130,12 @@ export const makeOverallRenderProgress = ({
 			await currentUploadPromise;
 		}
 
-		const toWrite = JSON.stringify(getCurrentProgress());
-
-		// Deduplicate two fast incoming requests
-		await new Promise<void>((resolve) => {
-			setImmediate(() => resolve());
-		});
-
 		// If request has been replaced by a new one
 		if (getLatestRequestId() !== uploadRequestId) {
 			return;
 		}
+
+		const toWrite = JSON.stringify(getCurrentProgress());
 
 		const start = Date.now();
 		currentUploadPromise = lambdaWriteFile({
@@ -138,7 +152,7 @@ export const makeOverallRenderProgress = ({
 				// By default, upload is way too fast (~20 requests per second)
 				// Space out the requests a bit
 				return new Promise<void>((resolve) => {
-					setTimeout(resolve, 500 - (Date.now() - start));
+					setTimeout(resolve, 250 - (Date.now() - start));
 				});
 			})
 			.catch((err) => {
@@ -259,9 +273,24 @@ export const makeOverallRenderProgress = ({
 			framesEncoded = new Array(expectedChunks).fill(0);
 			lambdasInvoked = new Array(expectedChunks).fill(false);
 		},
+		setCompositionValidated(timestamp) {
+			renderProgress.compositionValidated = timestamp;
+			upload();
+		},
+		setServeUrlOpened(timestamp) {
+			renderProgress.serveUrlOpened = timestamp;
+			upload();
+		},
 		addRetry(retry) {
 			renderProgress.retries.push(retry);
 			upload();
+		},
+		addReceivedArtifact(asset) {
+			renderProgress.receivedArtifact.push(asset);
+			upload();
+		},
+		getReceivedArtifacts() {
+			return renderProgress.receivedArtifact;
 		},
 		get: () => renderProgress,
 	};

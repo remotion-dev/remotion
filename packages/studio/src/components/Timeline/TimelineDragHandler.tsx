@@ -46,6 +46,7 @@ const inner: React.CSSProperties = {
 
 const container: React.CSSProperties = {
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	position: 'absolute',
 	height: '100%',
 	top: 0,

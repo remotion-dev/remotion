@@ -6,11 +6,12 @@ import type {
   TransitionPresentation,
   TransitionTiming,
 } from "@remotion/transitions";
-import { springTiming, TransitionSeries } from "@remotion/transitions";
+import { TransitionSeries, springTiming } from "@remotion/transitions";
 import { clockWipe } from "@remotion/transitions/clock-wipe";
 import { fade } from "@remotion/transitions/fade";
 import type { FlipDirection } from "@remotion/transitions/flip";
 import { flip } from "@remotion/transitions/flip";
+import { none } from "@remotion/transitions/none";
 import type { SlideDirection } from "@remotion/transitions/slide";
 import { slide } from "@remotion/transitions/slide";
 import type { WipeDirection } from "@remotion/transitions/wipe";
@@ -61,9 +62,9 @@ const SceneB: React.FC = () => {
 };
 
 export const SampleTransition: React.FC<{
-  effect: TransitionPresentation<Record<string, unknown>>;
-  durationRestThreshold: number;
-  transition?: TransitionTiming;
+  readonly effect: TransitionPresentation<Record<string, unknown>>;
+  readonly durationRestThreshold: number;
+  readonly transition?: TransitionTiming;
 }> = ({ durationRestThreshold, effect, transition }) => {
   return (
     <TransitionSeries>
@@ -95,7 +96,7 @@ export const FadeDemo: React.FC = () => {
 };
 
 export const SlideDemo: React.FC<{
-  direction: SlideDirection;
+  readonly direction: SlideDirection;
 }> = ({ direction }) => {
   return (
     <SampleTransition
@@ -106,7 +107,7 @@ export const SlideDemo: React.FC<{
 };
 
 export const FlipDemo: React.FC<{
-  direction: FlipDirection;
+  readonly direction: FlipDirection;
 }> = ({ direction }) => {
   return (
     <SampleTransition
@@ -116,8 +117,12 @@ export const FlipDemo: React.FC<{
   );
 };
 
+export const NoneDemo: React.FC<{}> = () => {
+  return <SampleTransition effect={none({})} durationRestThreshold={0.001} />;
+};
+
 export const SlideDemoLongDurationRest: React.FC<{
-  direction: SlideDirection;
+  readonly direction: SlideDirection;
 }> = ({ direction }) => {
   return (
     <SampleTransition
@@ -128,7 +133,7 @@ export const SlideDemoLongDurationRest: React.FC<{
 };
 
 export const WipeDemo: React.FC<{
-  direction: WipeDirection;
+  readonly direction: WipeDirection;
 }> = ({ direction }) => {
   return (
     <SampleTransition
@@ -149,7 +154,7 @@ export const ClockWipeDemo: React.FC<{}> = () => {
   );
 };
 
-export const CubeDemo: React.FC<{ direction: CubeDirection }> = ({
+export const CubeDemo: React.FC<{ readonly direction: CubeDirection }> = ({
   direction,
 }) => {
   return (
@@ -214,8 +219,8 @@ export const CustomTimingDemo: React.FC<{}> = () => {
 };
 
 export const PresentationPreview: React.FC<{
-  effect: TransitionPresentation<Record<string, unknown>>;
-  durationRestThreshold: number;
+  readonly effect: TransitionPresentation<Record<string, unknown>>;
+  readonly durationRestThreshold: number;
 }> = ({ effect, durationRestThreshold }) => {
   const ref = useRef<PlayerRef>(null);
 

@@ -1,4 +1,4 @@
-import type {LogLevel} from '@remotion/renderer';
+import type {EmittedArtifact, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {writeFileSync} from 'fs';
 import {join} from 'path';
@@ -8,6 +8,7 @@ import {callLambdaWithStreaming} from '../../shared/call-lambda';
 import type {OnMessage} from '../streaming/streaming';
 import {getCurrentRegionInFunction} from './get-current-region';
 import type {OverallProgressHelper} from './overall-render-progress';
+import {deserializeArtifact} from './serialize-artifact';
 
 type StreamRendererResponse =
 	| {
@@ -26,6 +27,7 @@ const streamRenderer = ({
 	overallProgress,
 	files,
 	logLevel,
+	onArtifact,
 }: {
 	payload: LambdaPayload;
 	functionName: string;
@@ -33,6 +35,7 @@ const streamRenderer = ({
 	overallProgress: OverallProgressHelper;
 	files: string[];
 	logLevel: LogLevel;
+	onArtifact: (asset: EmittedArtifact) => {alreadyExisted: boolean};
 }) => {
 	if (payload.type !== LambdaRoutines.renderer) {
 		throw new Error('Expected renderer type');
@@ -61,6 +64,11 @@ const streamRenderer = ({
 				);
 				writeFileSync(filename, message.payload);
 				files.push(filename);
+				RenderInternals.Log.verbose(
+					{indent: false, logLevel},
+					`Received video chunk for chunk ${payload.chunk}`,
+				);
+
 				return;
 			}
 
@@ -69,7 +77,12 @@ const streamRenderer = ({
 					outdir,
 					`chunk:${String(payload.chunk).padStart(8, '0')}:audio`,
 				);
+
 				writeFileSync(filename, message.payload);
+				RenderInternals.Log.verbose(
+					{indent: false, logLevel},
+					`Received audio chunk for chunk ${payload.chunk}`,
+				);
 				files.push(filename);
 				return;
 			}
@@ -77,13 +90,33 @@ const streamRenderer = ({
 			if (message.type === 'chunk-complete') {
 				RenderInternals.Log.verbose(
 					{indent: false, logLevel},
-					`Rendered chunk ${payload.chunk}`,
+					`Finished chunk ${payload.chunk}`,
 				);
 				overallProgress.addChunkCompleted(
 					payload.chunk,
 					message.payload.start,
 					message.payload.rendered,
 				);
+				return;
+			}
+
+			if (message.type === 'artifact-emitted') {
+				const artifact = deserializeArtifact(message.payload.artifact);
+				RenderInternals.Log.info(
+					{indent: false, logLevel},
+					`Received artifact on frame ${message.payload.artifact.frame}:`,
+					artifact.filename,
+					artifact.content.length + 'bytes.',
+				);
+				const {alreadyExisted} = onArtifact(artifact);
+				if (alreadyExisted) {
+					return resolve({
+						type: 'error',
+						error: `Chunk ${payload.chunk} emitted an asset filename ${message.payload.artifact.filename} at frame ${message.payload.artifact.frame} but there is already another artifact with the same name. https://remotion.dev/docs/artifacts`,
+						shouldRetry: false,
+					});
+				}
+
 				return;
 			}
 
@@ -152,6 +185,7 @@ export const streamRendererFunctionWithRetry = async ({
 	outdir,
 	overallProgress,
 	logLevel,
+	onArtifact,
 }: {
 	payload: LambdaPayload;
 	functionName: string;
@@ -159,6 +193,7 @@ export const streamRendererFunctionWithRetry = async ({
 	overallProgress: OverallProgressHelper;
 	files: string[];
 	logLevel: LogLevel;
+	onArtifact: (asset: EmittedArtifact) => {alreadyExisted: boolean};
 }): Promise<unknown> => {
 	if (payload.type !== LambdaRoutines.renderer) {
 		throw new Error('Expected renderer type');
@@ -171,11 +206,12 @@ export const streamRendererFunctionWithRetry = async ({
 		overallProgress,
 		payload,
 		logLevel,
+		onArtifact,
 	});
 
 	if (result.type === 'error') {
 		if (!result.shouldRetry) {
-			throw result.error;
+			throw new Error(result.error);
 		}
 
 		overallProgress.addRetry({
@@ -195,6 +231,7 @@ export const streamRendererFunctionWithRetry = async ({
 				retriesLeft: payload.retriesLeft - 1,
 			},
 			logLevel,
+			onArtifact,
 		});
 	}
 };

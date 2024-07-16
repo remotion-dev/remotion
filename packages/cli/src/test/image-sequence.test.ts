@@ -1,4 +1,4 @@
-import {afterEach, beforeAll, expect, test} from 'vitest';
+import {afterEach, beforeAll, expect, test} from 'bun:test';
 import {
 	getShouldOutputImageSequence,
 	setImageSequence,

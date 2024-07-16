@@ -2,7 +2,7 @@ import { test } from "bun:test";
 import { readFileSync } from "fs";
 import { resolve } from "path";
 import { StudioServerInternals } from "@remotion/studio-server";
-import { expect } from "vitest";
+import { expect } from "bun:test";
 
 const rootFile = resolve(
   __dirname,

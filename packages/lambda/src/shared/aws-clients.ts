@@ -207,6 +207,15 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 	if (!_clients[key]) {
 		checkCredentials();
 
+		const lambdaOptions =
+			service === 'lambda'
+				? {
+						httpsAgent: {
+							maxSockets: MAX_FUNCTIONS_PER_RENDER * 2,
+						},
+					}
+				: undefined;
+
 		const client = customCredentials
 			? new Client({
 					region: customCredentials.region ?? 'us-east-1',
@@ -218,20 +227,17 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 								}
 							: undefined,
 					endpoint: customCredentials.endpoint,
+					requestHandler: lambdaOptions,
 				})
 			: process.env.REMOTION_SKIP_AWS_CREDENTIALS_CHECK
-				? new Client({region})
+				? new Client({
+						region,
+						requestHandler: lambdaOptions,
+					})
 				: new Client({
 						region,
 						credentials: getCredentials(),
-						requestHandler:
-							service === 'lambda'
-								? {
-										httpsAgent: {
-											maxSockets: MAX_FUNCTIONS_PER_RENDER + 50,
-										},
-									}
-								: undefined,
+						requestHandler: lambdaOptions,
 					});
 
 		if (process.env.REMOTION_DISABLE_AWS_CLIENT_CACHE) {

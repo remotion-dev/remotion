@@ -56,7 +56,7 @@ const getValidConcurrency = (cliConcurrency: number | string | null) => {
 	const {concurrencies} = parsedCli;
 
 	if (!concurrencies) {
-		return [RenderInternals.getActualConcurrency(cliConcurrency)];
+		return [RenderInternals.resolveConcurrency(cliConcurrency)];
 	}
 
 	return (concurrencies as string)
@@ -153,7 +153,7 @@ const makeBenchmarkProgressBar = ({
 
 	return [
 		`Rendering (${run + 1} out of ${totalRuns} runs)`,
-		makeProgressBar(totalProgress),
+		makeProgressBar(totalProgress, false),
 		doneIn === null
 			? `${(totalProgress * 100).toFixed(2)}% `
 			: chalk.gray(doneIn),
@@ -489,6 +489,7 @@ export const benchmarkCommand = async (
 						}).value,
 					compositionStart: 0,
 					onBrowserDownload,
+					onArtifact: () => undefined,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

@@ -1,5 +1,5 @@
+import {expect, test} from 'bun:test';
 import type {NetworkInterfaceInfo} from 'os';
-import {expect, test} from 'vitest';
 import {
 	flattenNetworkInterfaces,
 	getHostToBind,

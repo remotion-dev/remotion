@@ -5,6 +5,7 @@ import {
   CustomTransitionDemo,
   FadeDemo,
   FlipDemo,
+  NoneDemo,
   SlideDemo,
   SlideDemoLongDurationRest,
   WipeDemo,
@@ -576,6 +577,17 @@ export const flipPresentationDemo: DemoType = {
       values: ["from-left", "from-bottom", "from-right", "from-top"],
     },
   ],
+};
+
+export const nonePresentationDemo: DemoType = {
+  comp: NoneDemo,
+  compHeight: 280,
+  compWidth: 540,
+  durationInFrames: 60,
+  fps: 30,
+  id: "none",
+  autoPlay: true,
+  options: [],
 };
 
 export const slidePresentationDemoLongThreshold: DemoType = {

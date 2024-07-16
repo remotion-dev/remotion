@@ -1,11 +1,11 @@
 ---
 image: /generated/articles-docs-motion-blur-camera-motion-blur.png
-title: "<CameraMotionBlur>"
+title: '<CameraMotionBlur>'
 slug: camera-motion-blur
-crumb: "Realistic camera effect"
+crumb: 'Realistic camera effect'
 ---
 
-import { CameraMotionBlurExample } from "../../components/CameraMotionBlurExample/CameraMotionBlurExample";
+import {CameraMotionBlurExample} from '../../components/CameraMotionBlurExample/CameraMotionBlurExample';
 
 ```twoslash include example
 const RainbowSquare: React.FC = () => <div></div>
@@ -80,17 +80,17 @@ Recommended values: 5-10.
 ```tsx twoslash
 // @include: example-RainbowSquare
 // ---cut---
-import { CameraMotionBlur } from "@remotion/motion-blur";
-import { AbsoluteFill } from "remotion";
+import {CameraMotionBlur} from '@remotion/motion-blur';
+import {AbsoluteFill} from 'remotion';
 
 export const MyComposition = () => {
   return (
     <CameraMotionBlur shutterAngle={180} samples={10}>
       <AbsoluteFill
         style={{
-          backgroundColor: "white",
-          justifyContent: "center",
-          alignItems: "center",
+          backgroundColor: 'white',
+          justifyContent: 'center',
+          alignItems: 'center',
         }}
       >
         <RainbowSquare />
@@ -107,14 +107,17 @@ export const MyComposition = () => {
 ## See also
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/motion-blur/src/CameraMotionBlur.tsx)
+- [Common mistake with `<Trail>` and `<CameraMotionBlur>`](/docs/motion-blur/common-mistake)
 
-<Credits contributors={[
-{
-username: "UmungoBungo",
-contribution: "Idea"
-},
-{
-username: "marcusstenbeck",
-contribution: "Implementation"
-},
-]} />
+<Credits
+  contributors={[
+    {
+      username: 'UmungoBungo',
+      contribution: 'Idea',
+    },
+    {
+      username: 'marcusstenbeck',
+      contribution: 'Implementation',
+    },
+  ]}
+/>

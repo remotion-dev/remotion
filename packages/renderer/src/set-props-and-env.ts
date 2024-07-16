@@ -1,6 +1,7 @@
 import {VERSION} from 'remotion/version';
 import type {Page} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
+import {gotoPageOrThrow} from './goto-page-or-throw';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import {normalizeServeUrl} from './normalize-serve-url';
@@ -21,6 +22,7 @@ type SetPropsAndEnv = {
 	videoEnabled: boolean;
 	indent: boolean;
 	logLevel: LogLevel;
+	onServeUrlVisited: () => void;
 };
 
 const innerSetPropsAndEnv = async ({
@@ -36,6 +38,7 @@ const innerSetPropsAndEnv = async ({
 	videoEnabled,
 	indent,
 	logLevel,
+	onServeUrlVisited,
 }: SetPropsAndEnv): Promise<void> => {
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 	const actualTimeout = timeoutInMilliseconds ?? DEFAULT_TIMEOUT;
@@ -118,14 +121,6 @@ const innerSetPropsAndEnv = async ({
 		};
 	});
 
-	const pageRes = await page.goto({url: urlToVisit, timeout: actualTimeout});
-
-	if (pageRes === null) {
-		throw new Error(`Visited "${urlToVisit}" but got no response.`);
-	}
-
-	const status = pageRes.status();
-
 	const retry = async () => {
 		await new Promise<void>((resolve) => {
 			setTimeout(() => {
@@ -146,8 +141,28 @@ const innerSetPropsAndEnv = async ({
 			videoEnabled,
 			indent,
 			logLevel,
+			onServeUrlVisited,
 		});
 	};
+
+	const [pageRes, error] = await gotoPageOrThrow(
+		page,
+		urlToVisit,
+		actualTimeout,
+	);
+
+	if (error !== null) {
+		if (
+			error.message.includes('ECONNRESET') ||
+			error.message.includes('ERR_CONNECTION_TIMED_OUT')
+		) {
+			return retry();
+		}
+
+		throw error;
+	}
+
+	const status = pageRes.status();
 
 	// S3 in rare occasions returns a 500 or 503 error code for GET operations.
 	// Usually it is fixed by retrying.
@@ -160,6 +175,8 @@ const innerSetPropsAndEnv = async ({
 			`Error while getting compositions: Tried to go to ${urlToVisit} but the status code was ${status} instead of 200. Does the site you specified exist?`,
 		);
 	}
+
+	onServeUrlVisited();
 
 	const {value: isRemotionFn} = await puppeteerEvaluateWithCatch<
 		(typeof window)['getStaticCompositions']

@@ -19,23 +19,29 @@ export const getLambdaClient: typeof original = (region, timeoutInTest) => {
 		}) => {
 			const payload = JSON.parse(params.input.Payload);
 
-			const {handler} = await import('../../functions/index');
+			const {routine} = await import('../../functions/index');
 
 			const responseStream = new ResponseStream();
-			const res = await handler(payload, responseStream, {
+			const prom = routine(payload, responseStream, {
 				invokedFunctionArn: 'arn:fake',
 				getRemainingTimeInMillis: () => timeoutInTest ?? 120000,
+				awsRequestId: 'fake',
 			});
 			if (
 				params.input.InvocationType === 'RequestResponse' ||
 				params.input.InvocationType === 'Event'
 			) {
-				return {Payload: res.EventStream[0].PayloadChunk.Payload};
+				await prom;
+				return {Payload: responseStream.getBufferedData()};
 			}
 
+			prom.then(() => {
+				responseStream._finish();
+				responseStream.end();
+			});
 			// When streaming, we should not consume the response
 			return {
-				EventStream: res.EventStream,
+				EventStream: responseStream,
 			};
 		},
 	} as unknown as LambdaClient;

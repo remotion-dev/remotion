@@ -28,6 +28,7 @@ import type {
 	RenderingProgressInput,
 	StitchingProgressInput,
 } from '@remotion/studio-server';
+import {formatBytes, type ArtifactProgress} from '@remotion/studio-shared';
 import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -38,9 +39,11 @@ import {ConfigInternals} from '../config';
 import {getAndValidateAbsoluteOutputFile} from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
 import {getOutputFilename} from '../get-filename';
+import {makeHyperlink} from '../hyperlinks/make-link';
 import {getVideoImageFormat} from '../image-formats';
 import {Log} from '../log';
 import {makeOnDownload} from '../make-on-download';
+import {handleOnArtifact} from '../on-artifact';
 import {parsedCli, quietFlagProvided} from '../parsed-cli';
 import {
 	LABEL_WIDTH,
@@ -218,6 +221,8 @@ export const renderVideoFlow = async ({
 		doneIn: null,
 	};
 
+	let artifactState: ArtifactProgress = {received: []};
+
 	const updateRenderProgress = ({
 		newline,
 		printToConsole,
@@ -231,6 +236,7 @@ export const renderVideoFlow = async ({
 			downloads,
 			bundling: bundlingProgress,
 			copyingState,
+			artifactState,
 		};
 
 		const {output, message, progress} = makeRenderingAndStitchingProgress({
@@ -284,9 +290,9 @@ export const renderVideoFlow = async ({
 	const puppeteerInstance = await browserInstance;
 	addCleanupCallback(() => puppeteerInstance.close(false, logLevel, indent));
 
-	const actualConcurrency = RenderInternals.getActualConcurrency(concurrency);
+	const resolvedConcurrency = RenderInternals.resolveConcurrency(concurrency);
 	const server = await RenderInternals.prepareServer({
-		concurrency: actualConcurrency,
+		concurrency: resolvedConcurrency,
 		indent,
 		port,
 		remotionRoot,
@@ -320,6 +326,15 @@ export const renderVideoFlow = async ({
 			binariesDirectory,
 			onBrowserDownload,
 		});
+
+	const {onArtifact} = handleOnArtifact({
+		artifactState,
+		onProgress: (progress) => {
+			artifactState = progress;
+			updateRenderProgress({newline: false, printToConsole: true});
+		},
+		compositionId,
+	});
 
 	const {value: codec, source: codecReason} =
 		BrowserSafeApis.options.videoCodecOption.getValue(
@@ -367,11 +382,13 @@ export const renderVideoFlow = async ({
 			.filter(truthy)
 			.join(' '),
 		color: 'gray',
+		link: 'https://www.remotion.dev/docs/terminology/composition',
 	});
 	printFact('info')({
 		indent,
 		logLevel,
 		left: 'Codec',
+		link: 'https://www.remotion.dev/docs/encoding',
 		right: [codec, isVerbose ? `(${codecReason})` : null]
 			.filter(truthy)
 			.join(' '),
@@ -388,7 +405,8 @@ export const renderVideoFlow = async ({
 		indent,
 		logLevel,
 		left: 'Concurrency',
-		right: `${actualConcurrency}x`,
+		link: 'https://www.remotion.dev/docs/terminology/concurrency',
+		right: `${resolvedConcurrency}x`,
 		color: 'gray',
 	});
 
@@ -425,6 +443,7 @@ export const renderVideoFlow = async ({
 		codec: shouldOutputImageSequence ? undefined : codec,
 		uiImageFormat,
 	});
+
 	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {
 			recursive: true,
@@ -460,7 +479,7 @@ export const renderVideoFlow = async ({
 			everyNthFrame,
 			envVariables,
 			frameRange,
-			concurrency: actualConcurrency,
+			concurrency: resolvedConcurrency,
 			puppeteerInstance,
 			jpegQuality: jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 			timeoutInMilliseconds: puppeteerTimeout,
@@ -487,6 +506,7 @@ export const renderVideoFlow = async ({
 			compositionStart: 0,
 			forSeamlessAacConcatenation,
 			onBrowserDownload,
+			onArtifact,
 		});
 
 		Log.info({indent, logLevel}, chalk.blue(`▶ ${absoluteOutputFile}`));
@@ -576,26 +596,32 @@ export const renderVideoFlow = async ({
 		forSeamlessAacConcatenation,
 		compositionStart: 0,
 		onBrowserDownload,
+		onArtifact,
 	});
 	if (!updatesDontOverwrite) {
 		updateRenderProgress({newline: true, printToConsole: true});
 	}
 
-	Log.info(
-		{indent, logLevel},
-		chalk.blue(
-			`${(exists ? '○' : '+').padEnd(LABEL_WIDTH)} ${relativeOutputLocation}`,
-		),
-	);
-
 	if (absoluteSeparateAudioTo) {
+		const relativeAudio = path.relative(process.cwd(), absoluteSeparateAudioTo);
+		const audioSize = fs.statSync(absoluteSeparateAudioTo).size;
 		Log.info(
 			{indent, logLevel},
 			chalk.blue(
-				`${(audioExists ? '○' : '+').padEnd(LABEL_WIDTH, ' ')} ${absoluteSeparateAudioTo}`,
+				`${(audioExists ? '○' : '+').padEnd(LABEL_WIDTH, ' ')} ${makeHyperlink({url: `file://${absoluteSeparateAudioTo}`, text: relativeAudio, fallback: absoluteSeparateAudioTo})}`,
 			),
+			chalk.gray(`${formatBytes(audioSize)}`),
 		);
 	}
+
+	const {size} = fs.statSync(absoluteOutputFile);
+	Log.info(
+		{indent, logLevel},
+		chalk.blue(
+			`${(exists ? '○' : '+').padEnd(LABEL_WIDTH)} ${makeHyperlink({url: `file://${absoluteOutputFile}`, text: relativeOutputLocation, fallback: relativeOutputLocation})}`,
+		),
+		chalk.gray(`${formatBytes(size)}`),
+	);
 
 	Log.verbose({indent, logLevel}, `Slowest frames:`);
 	slowestFrames.forEach(({frame, time}) => {

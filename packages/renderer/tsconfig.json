@@ -5,6 +5,5 @@
 		"outDir": "dist"
 	},
 	"include": ["src"],
-	"references": [{"path": "../core"}],
-	"exclude": ["vitest.config.mts"]
+	"references": [{"path": "../core"}, {"path": "../streaming"}]
 }

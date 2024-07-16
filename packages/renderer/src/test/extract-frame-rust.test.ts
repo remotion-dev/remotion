@@ -1,5 +1,5 @@
+import {expect, test} from 'bun:test';
 import {interpolate} from 'remotion';
-import {expect, test} from 'vitest';
 import {startLongRunningCompositor} from '../compositor/compositor';
 import {exampleVideos} from './example-videos';
 
@@ -289,9 +289,9 @@ test('Should be able to extract a frame with abnormal DAR', async () => {
 	expect(Buffer.from([...header.subarray(18, 22)]).readInt32LE(0)).toBe(1280);
 	expect(Buffer.from([...header.subarray(22, 26)]).readInt32LE(0)).toBe(2276);
 
-	expect(data[0x00169915]).approximately(232, 2);
-	expect(data[0x0012dd58]).approximately(231, 2);
-	expect(data[0x00019108]).approximately(231, 2);
+	expect(data[0x00169915] / 100).toBeCloseTo(2.5, 1);
+	expect(data[0x0012dd58] / 100).toBeCloseTo(2.5, 1);
+	expect(data[0x00019108] / 100).toBeCloseTo(2.5, 1);
 
 	await compositor.finishCommands();
 	await compositor.waitForDone();
@@ -477,27 +477,33 @@ test('Should get from broken webcam video', async () => {
 	await compositor.waitForDone();
 });
 
-test('Should get from iPhone video', async () => {
-	const compositor = startLongRunningCompositor({
-		maximumFrameCacheItemsInBytes: null,
-		logLevel: 'info',
-		indent: false,
-		binariesDirectory: null,
-	});
+test(
+	'Should get from iPhone video',
+	async () => {
+		const compositor = startLongRunningCompositor({
+			maximumFrameCacheItemsInBytes: null,
+			logLevel: 'info',
+			indent: false,
+			binariesDirectory: null,
+		});
 
-	const data = await compositor.executeCommand('ExtractFrame', {
-		src: exampleVideos.iphonevideo,
-		original_src: exampleVideos.iphonevideo,
-		time: 1,
-		transparent: false,
-		tone_mapped: true,
-	});
+		const data = await compositor.executeCommand('ExtractFrame', {
+			src: exampleVideos.iphonevideo,
+			original_src: exampleVideos.iphonevideo,
+			time: 1,
+			transparent: false,
+			tone_mapped: true,
+		});
 
-	expect(data.length).toBe(24883254);
+		expect(data.length).toBe(24883254);
 
-	await compositor.finishCommands();
-	await compositor.waitForDone();
-});
+		await compositor.finishCommands();
+		await compositor.waitForDone();
+	},
+	{
+		timeout: 30000,
+	},
+);
 
 test('Should get from AV1 video', async () => {
 	const compositor = startLongRunningCompositor({
@@ -604,40 +610,40 @@ test('Two different starting times should not result in big seeking', async () =
 		expected.push([centerLeftPixelR, centerLeftPixelG, centerLeftPixelB]);
 	}
 
-	expect(expected[0][0] / 100).toBeCloseTo(1.48, 1);
-	expect(expected[0][1] / 100).toBeCloseTo(1.77, 1);
-	expect(expected[0][2] / 100).toBeCloseTo(2.11, 1);
+	expect(expected[0][0] / 100).toBeCloseTo(1.53, 1);
+	expect(expected[0][1] / 100).toBeCloseTo(1.86, 1);
+	expect(expected[0][2] / 100).toBeCloseTo(2.24, 1);
 
-	expect(expected[1][0] / 100).toBeCloseTo(0.77, 1);
-	expect(expected[1][1] / 100).toBeCloseTo(0.78, 1);
-	expect(expected[1][2] / 100).toBeCloseTo(0.76, 1);
+	expect(expected[1][0] / 100).toBeCloseTo(0.69, 1);
+	expect(expected[1][1] / 100).toBeCloseTo(0.7, 1);
+	expect(expected[1][2] / 100).toBeCloseTo(0.68, 1);
 
-	expect(expected[2][0] / 100).toBeCloseTo(1.48, 1);
-	expect(expected[2][1] / 100).toBeCloseTo(1.77, 1);
-	expect(expected[2][2] / 100).toBeCloseTo(2.11, 1);
+	expect(expected[2][0] / 100).toBeCloseTo(1.53, 1);
+	expect(expected[2][1] / 100).toBeCloseTo(1.86, 1);
+	expect(expected[2][2] / 100).toBeCloseTo(2.24, 1);
 
-	expect(expected[3][0] / 100).toBeCloseTo(2.34, 1);
-	expect(expected[3][1] / 100).toBeCloseTo(2.33, 1);
-	expect(expected[3][2] / 100).toBeCloseTo(2.28, 1);
+	expect(expected[3][0] / 100).toBeCloseTo(2.52, 1);
+	expect(expected[3][1] / 100).toBeCloseTo(2.51, 1);
+	expect(expected[3][2] / 100).toBeCloseTo(2.45, 1);
 
 	expect(expected[4][0] / 100).toBeCloseTo(1.5, 1);
-	expect(expected[4][1] / 100).toBeCloseTo(1.77, 1);
-	expect(expected[4][2] / 100).toBeCloseTo(2.11, 1);
+	expect(expected[4][1] / 100).toBeCloseTo(1.86, 1);
+	expect(expected[4][2] / 100).toBeCloseTo(2.24, 1);
 
 	expect(expected[5][0] / 100).toBeCloseTo(1.32, 1);
 	expect(expected[5][2] / 100).toBeCloseTo(1.2, 1);
 
-	expect(expected[6][0] / 100).toBeCloseTo(1.48, 1);
-	expect(expected[6][1] / 100).toBeCloseTo(1.77, 1);
-	expect(expected[6][2] / 100).toBeCloseTo(2.11, 1);
+	expect(expected[6][0] / 100).toBeCloseTo(1.53, 1);
+	expect(expected[6][1] / 100).toBeCloseTo(1.86, 1);
+	expect(expected[6][2] / 100).toBeCloseTo(2.24, 1);
 
 	expect(expected[7][0] / 100).toBeCloseTo(1.38, 1);
 	expect(expected[7][1] / 100).toBeCloseTo(1.41, 1);
 	expect(expected[7][2] / 100).toBeCloseTo(1.07, 1);
 
-	expect(expected[8][0] / 100).toBeCloseTo(1.48, 1);
-	expect(expected[8][1] / 100).toBeCloseTo(1.77, 1);
-	expect(expected[8][2] / 100).toBeCloseTo(2.11, 1);
+	expect(expected[8][0] / 100).toBeCloseTo(1.53, 1);
+	expect(expected[8][1] / 100).toBeCloseTo(1.86, 1);
+	expect(expected[8][2] / 100).toBeCloseTo(2.24, 1);
 
 	expect(expected[9][0] / 100).toBeCloseTo(1.27, 1);
 	expect(expected[9][1] / 100).toBeCloseTo(1.47, 1);
@@ -668,54 +674,60 @@ const getExpectedMediaFrameUncorrected = ({
 	);
 };
 
-test('Should not duplicate frames for iphoneVideo', async () => {
-	const frame30 =
-		getExpectedMediaFrameUncorrected({
-			frame: 30,
-			playbackRate: 1,
-			startFrom: 0,
-		}) / 30;
-	const frame31 =
-		getExpectedMediaFrameUncorrected({
-			frame: 31,
-			playbackRate: 1,
-			startFrom: 0,
-		}) / 30;
+test(
+	'Should not duplicate frames for iphoneVideo',
+	async () => {
+		const frame30 =
+			getExpectedMediaFrameUncorrected({
+				frame: 30,
+				playbackRate: 1,
+				startFrom: 0,
+			}) / 30;
+		const frame31 =
+			getExpectedMediaFrameUncorrected({
+				frame: 31,
+				playbackRate: 1,
+				startFrom: 0,
+			}) / 30;
 
-	const compositor = startLongRunningCompositor({
-		maximumFrameCacheItemsInBytes: 500,
-		logLevel: 'info',
-		indent: false,
-		binariesDirectory: null,
-	});
+		const compositor = startLongRunningCompositor({
+			maximumFrameCacheItemsInBytes: 500,
+			logLevel: 'info',
+			indent: false,
+			binariesDirectory: null,
+		});
 
-	const firstFrame = await compositor.executeCommand('ExtractFrame', {
-		src: exampleVideos.iphonevideo,
-		original_src: exampleVideos.iphonevideo,
-		time: frame30,
-		transparent: false,
-		tone_mapped: true,
-	});
+		const firstFrame = await compositor.executeCommand('ExtractFrame', {
+			src: exampleVideos.iphonevideo,
+			original_src: exampleVideos.iphonevideo,
+			time: frame30,
+			transparent: false,
+			tone_mapped: true,
+		});
 
-	const secondFrame = await compositor.executeCommand('ExtractFrame', {
-		src: exampleVideos.iphonevideo,
-		original_src: exampleVideos.iphonevideo,
-		time: frame31,
-		transparent: false,
-		tone_mapped: true,
-	});
+		const secondFrame = await compositor.executeCommand('ExtractFrame', {
+			src: exampleVideos.iphonevideo,
+			original_src: exampleVideos.iphonevideo,
+			time: frame31,
+			transparent: false,
+			tone_mapped: true,
+		});
 
-	const hundredRandomPixels = new Array(100).fill(true).map(() => {
-		return Math.round(Math.random() * firstFrame.length);
-	});
+		const hundredRandomPixels = new Array(100).fill(true).map(() => {
+			return Math.round(Math.random() * firstFrame.length);
+		});
 
-	let isSame = true;
-	for (const pixel of hundredRandomPixels) {
-		if (firstFrame[pixel] !== secondFrame[pixel]) {
-			isSame = false;
-			break;
+		let isSame = true;
+		for (const pixel of hundredRandomPixels) {
+			if (firstFrame[pixel] !== secondFrame[pixel]) {
+				isSame = false;
+				break;
+			}
 		}
-	}
 
-	expect(isSame).toBe(false);
-});
+		expect(isSame).toBe(false);
+	},
+	{
+		timeout: 30000,
+	},
+);

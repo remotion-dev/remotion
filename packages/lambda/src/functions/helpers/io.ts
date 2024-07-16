@@ -99,7 +99,7 @@ export const lambdaDeleteFile = async ({
 type LambdaWriteFileInput = {
 	bucketName: string;
 	key: string;
-	body: ReadStream | string;
+	body: ReadStream | string | Uint8Array;
 	region: AwsRegion;
 	privacy: Privacy;
 	expectedBucketOwner: string | null;

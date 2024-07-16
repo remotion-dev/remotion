@@ -12,9 +12,9 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import type {VideoConfig} from 'remotion/no-react';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import type {DeleteAfter} from '../functions/helpers/lifecycle';
+import type {ReceivedArtifact} from '../functions/helpers/overall-render-progress';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import type {AwsRegion} from '../pricing/aws-regions';
 import type {
@@ -86,6 +86,8 @@ export const outName = (renderId: string, extension: string) =>
 	`${rendersPrefix(renderId)}/out.${extension}`;
 export const outStillName = (renderId: string, imageFormat: StillImageFormat) =>
 	`${rendersPrefix(renderId)}/out.${imageFormat}`;
+export const artifactName = (renderId: string, name: string) =>
+	`${rendersPrefix(renderId)}/artifacts/${name}`;
 export const customOutName = (
 	renderId: string,
 	bucketName: string,
@@ -104,10 +106,6 @@ export const customOutName = (
 		renderBucketName: name.bucketName,
 		customCredentials: name.s3OutputProvider ?? null,
 	};
-};
-
-export const defaultPropsKey = (hash: string) => {
-	return `default-props/${hash}.json`;
 };
 
 export const inputPropsKey = (hash: string) => {
@@ -153,6 +151,7 @@ export type SerializedInputProps =
 	| {
 			type: 'bucket-url';
 			hash: string;
+			bucketName: string;
 	  }
 	| {
 			type: 'payload';
@@ -370,7 +369,6 @@ type Discriminated =
 
 export type RenderMetadata = Discriminated & {
 	siteId: string;
-	videoConfig: VideoConfig;
 	startedDate: number;
 	totalChunks: number;
 	estimatedTotalLambdaInvokations: number;
@@ -417,6 +415,7 @@ export type PostRenderData = {
 	estimatedBillingDurationInMilliseconds: number;
 	deleteAfter: DeleteAfter | null;
 	timeToCombine: number | null;
+	artifactProgress: ReceivedArtifact[];
 };
 
 export type CostsInfo = {
@@ -469,6 +468,10 @@ export type RenderProgress = {
 	combinedFrames: number;
 	timeToCombine: number | null;
 	timeoutTimestamp: number;
+	functionLaunched: number;
+	serveUrlOpened: number | null;
+	compositionValidated: number | null;
+	artifacts: ReceivedArtifact[];
 };
 
 export type Privacy = 'public' | 'private' | 'no-acl';

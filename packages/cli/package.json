@@ -1,7 +1,10 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/cli"
+	},
 	"name": "@remotion/cli",
-	"version": "4.0.166",
-	"description": "CLI for Remotion",
+	"version": "4.0.181",
+	"description": "Control Remotion features using the `npx remotion` command",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"bin": {
@@ -11,10 +14,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"test": "vitest --run"
-	},
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
+		"test": "bun test src"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
@@ -51,26 +51,15 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.281",
 		"@types/minimist": "^1.2.2",
-		"@types/node": "18.14.6",
 		"@types/prompts": "^2.4.1",
-		"@types/react": "18.3.1",
 		"@types/prettier": "^2.7.2",
-		"@types/react-dom": "18.3.0",
 		"@remotion/zod-types": "workspace:*",
 		"@remotion/tailwind": "workspace:*",
 		"@remotion/enable-scss": "workspace:*",
 		"@remotion/skia": "workspace:*",
-		"eslint": "8.56.0",
-		"eslint-plugin-10x": "1.5.2",
-		"eslint-plugin-react": "7.32.2",
-		"eslint-plugin-react-hooks": "4.4.0",
-		"prettier": "3.2.5",
-		"prettier-plugin-organize-imports": "3.2.4",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"vitest": "0.31.1",
 		"zod": "3.22.3"
 	},
 	"keywords": [
@@ -82,5 +71,6 @@
 	],
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/cli"
 }

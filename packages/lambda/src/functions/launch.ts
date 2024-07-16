@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import type {LogOptions} from '@remotion/renderer';
+import type {EmittedArtifact, LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {existsSync, mkdirSync, rmSync} from 'fs';
 import {join} from 'path';
 import {VERSION} from 'remotion/version';
+import {type EventEmitter} from 'stream';
 import {
 	compressInputProps,
 	decompressInputProps,
@@ -19,6 +20,7 @@ import {
 	CONCAT_FOLDER_TOKEN,
 	LambdaRoutines,
 	MAX_FUNCTIONS_PER_RENDER,
+	artifactName,
 } from '../shared/constants';
 import {DOCS_URL} from '../shared/docs-url';
 import {invokeWebhook} from '../shared/invoke-webhook';
@@ -32,6 +34,7 @@ import {validateOutname} from '../shared/validate-outname';
 import {validatePrivacy} from '../shared/validate-privacy';
 import {planFrameRanges} from './chunk-optimization/plan-frame-ranges';
 import {bestFramesPerLambdaParam} from './helpers/best-frames-per-lambda-param';
+import {cleanupProps} from './helpers/cleanup-props';
 import {getExpectedOutName} from './helpers/expected-out-name';
 import {findOutputFileInBucket} from './helpers/find-output-file-in-bucket';
 import {
@@ -39,10 +42,12 @@ import {
 	getBrowserInstance,
 } from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
+import {lambdaWriteFile} from './helpers/io';
 import {mergeChunksAndFinishRender} from './helpers/merge-chunks';
 import type {OverallProgressHelper} from './helpers/overall-render-progress';
 import {makeOverallRenderProgress} from './helpers/overall-render-progress';
 import {streamRendererFunctionWithRetry} from './helpers/stream-renderer';
+import {timer} from './helpers/timer';
 import {validateComposition} from './helpers/validate-composition';
 import {getTmpDirStateIfENoSp} from './helpers/write-lambda-error';
 
@@ -56,11 +61,13 @@ const innerLaunchHandler = async ({
 	params,
 	options,
 	overallProgress,
+	registerCleanupTask,
 }: {
 	functionName: string;
 	params: LambdaPayload;
 	options: Options;
 	overallProgress: OverallProgressHelper;
+	registerCleanupTask: (cleanupTask: CleanupTask) => void;
 }): Promise<PostRenderData> => {
 	if (params.type !== LambdaRoutines.launch) {
 		throw new Error('Expected launch type');
@@ -117,7 +124,11 @@ const innerLaunchHandler = async ({
 		onBrowserDownload: () => {
 			throw new Error('Should not download a browser in Lambda');
 		},
+		onServeUrlVisited: () => {
+			overallProgress.setServeUrlOpened(Date.now());
+		},
 	});
+	overallProgress.setCompositionValidated(Date.now());
 	RenderInternals.Log.info(
 		logOptions,
 		'Composition validated, resolved props',
@@ -201,6 +212,13 @@ const innerLaunchHandler = async ({
 		needsToUpload,
 	});
 
+	registerCleanupTask(() => {
+		return cleanupProps({
+			serializedResolvedProps,
+			inputProps: params.inputProps,
+		});
+	});
+
 	const fps = comp.fps / params.everyNthFrame;
 
 	// If for 150 functions, we stream every frame, we DDos ourselves.
@@ -266,7 +284,6 @@ const innerLaunchHandler = async ({
 
 	const renderMetadata: RenderMetadata = {
 		startedDate,
-		videoConfig: comp,
 		totalChunks: chunks.length,
 		estimatedTotalLambdaInvokations: [
 			// Direct invokations
@@ -307,6 +324,10 @@ const innerLaunchHandler = async ({
 	);
 
 	if (!params.overwrite) {
+		const findOutputFile = timer(
+			'Checking if output file already exists',
+			params.logLevel,
+		);
 		const output = await findOutputFileInBucket({
 			bucketName: params.bucketName,
 			customCredentials,
@@ -318,6 +339,8 @@ const innerLaunchHandler = async ({
 				`Output file "${key}" in bucket "${renderBucketName}" in region "${getCurrentRegionInFunction()}" already exists. Delete it before re-rendering, or set the 'overwrite' option in renderMediaOnLambda() to overwrite it."`,
 			);
 		}
+
+		findOutputFile.end();
 	}
 
 	overallProgress.setRenderMetadata(renderMetadata);
@@ -333,6 +356,69 @@ const innerLaunchHandler = async ({
 
 	const files: string[] = [];
 
+	const onArtifact = (artifact: EmittedArtifact): {alreadyExisted: boolean} => {
+		if (
+			overallProgress
+				.getReceivedArtifacts()
+				.find((a) => a.filename === artifact.filename)
+		) {
+			return {alreadyExisted: true};
+		}
+
+		const region = getCurrentRegionInFunction();
+		const s3Key = artifactName(renderMetadata.renderId, artifact.filename);
+
+		const start = Date.now();
+		RenderInternals.Log.info(
+			{indent: false, logLevel: params.logLevel},
+			'Writing artifact ' + artifact.filename + ' to S3',
+		);
+		lambdaWriteFile({
+			bucketName: renderBucketName,
+			key: s3Key,
+			body: artifact.content,
+			region,
+			privacy: params.privacy,
+			expectedBucketOwner: options.expectedBucketOwner,
+			downloadBehavior: params.downloadBehavior,
+			customCredentials,
+		})
+			.then(() => {
+				RenderInternals.Log.info(
+					{indent: false, logLevel: params.logLevel},
+					`Wrote artifact to S3 in ${Date.now() - start}ms`,
+				);
+				overallProgress.addReceivedArtifact({
+					filename: artifact.filename,
+					sizeInBytes: artifact.content.length,
+					s3Url: `https://s3.${region}.amazonaws.com/${renderBucketName}/${s3Key}`,
+					s3Key,
+				});
+			})
+			.catch((err) => {
+				overallProgress.addErrorWithoutUpload({
+					type: 'artifact',
+					message: (err as Error).message,
+					name: (err as Error).name as string,
+					stack: (err as Error).stack as string,
+					tmpDir: null,
+					frame: artifact.frame,
+					chunk: null,
+					isFatal: false,
+					attempt: 1,
+					willRetry: false,
+					totalAttempts: 1,
+				});
+				overallProgress.upload();
+				RenderInternals.Log.error(
+					{indent: false, logLevel: params.logLevel},
+					'Failed to write artifact to S3',
+					err,
+				);
+			});
+		return {alreadyExisted: false};
+	};
+
 	await Promise.all(
 		lambdaPayloads.map(async (payload) => {
 			await streamRendererFunctionWithRetry({
@@ -342,6 +428,7 @@ const innerLaunchHandler = async ({
 				overallProgress,
 				payload,
 				logLevel: params.logLevel,
+				onArtifact,
 			});
 		}),
 	);
@@ -379,6 +466,8 @@ const innerLaunchHandler = async ({
 	return postRenderData;
 };
 
+type CleanupTask = () => Promise<unknown>;
+
 export const launchHandler = async (
 	params: LambdaPayload,
 	options: Options,
@@ -398,17 +487,64 @@ export const launchHandler = async (
 		logLevel: params.logLevel,
 	};
 
+	const cleanupTasks: CleanupTask[] = [];
+
+	const registerCleanupTask = (task: CleanupTask) => {
+		cleanupTasks.push(task);
+	};
+
+	const runCleanupTasks = () => {
+		const prom = Promise.all(cleanupTasks)
+			.then(() => {
+				RenderInternals.Log.info(
+					{indent: false, logLevel: params.logLevel},
+					'Ran cleanup tasks',
+				);
+			})
+			.catch((err) => {
+				RenderInternals.Log.error(
+					{indent: false, logLevel: params.logLevel},
+					'Failed to run cleanup tasks:',
+					err,
+				);
+			});
+
+		cleanupTasks.length = 0;
+		return prom;
+	};
+
 	const onTimeout = async () => {
 		RenderInternals.Log.error(
 			{indent: false, logLevel: params.logLevel},
 			'Function is about to time out. Can not finish render.',
 		);
 
+		// @ts-expect-error
+		(globalThis._dumpUnreleasedBuffers as EventEmitter).emit(
+			'dump-unreleased-buffers',
+		);
+
+		runCleanupTasks();
+
 		if (!params.webhook) {
+			RenderInternals.Log.verbose(
+				{
+					indent: false,
+					logLevel: params.logLevel,
+				},
+				'No webhook specified.',
+			);
 			return;
 		}
 
 		if (webhookInvoked) {
+			RenderInternals.Log.verbose(
+				{
+					indent: false,
+					logLevel: params.logLevel,
+				},
+				'Webhook already invoked. Not invoking again.',
+			);
 			return;
 		}
 
@@ -427,6 +563,14 @@ export const launchHandler = async (
 					redirectsSoFar: 0,
 				},
 				params.logLevel,
+			);
+			RenderInternals.Log.verbose(
+				{
+					indent: false,
+					logLevel: params.logLevel,
+				},
+				'Successfully invoked timeout webhook.',
+				params.webhook.url,
 			);
 			webhookInvoked = true;
 		} catch (err) {
@@ -489,6 +633,7 @@ export const launchHandler = async (
 			params,
 			options,
 			overallProgress,
+			registerCleanupTask,
 		});
 		clearTimeout(webhookDueToTimeout);
 
@@ -550,6 +695,8 @@ export const launchHandler = async (
 			);
 		}
 
+		runCleanupTasks();
+
 		return {
 			type: 'success',
 		};
@@ -577,6 +724,8 @@ export const launchHandler = async (
 			message: (err as Error).message,
 		});
 		await overallProgress.upload();
+
+		runCleanupTasks();
 
 		RenderInternals.Log.error(
 			{indent: false, logLevel: params.logLevel},

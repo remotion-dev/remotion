@@ -1,5 +1,5 @@
 import { getCompositions } from "@remotion/renderer";
-import { expect, test } from "vitest";
+import { expect, test } from "bun:test";
 
 test("getCompositions() should give a good error message if there is no compositions file", async () => {
   // @ts-expect-error

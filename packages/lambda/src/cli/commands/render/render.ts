@@ -3,6 +3,7 @@ import {ConfigInternals} from '@remotion/cli/config';
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
+import path from 'path';
 import {NoReactInternals} from 'remotion/no-react';
 import {downloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
@@ -330,28 +331,70 @@ export const renderCommand = async (
 	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray(
-			`bucket = ${res.bucketName}, function = ${functionName}`,
+			`Bucket: ${CliInternals.makeHyperlink({text: res.bucketName, fallback: res.bucketName, url: `https://${getAwsRegion()}.console.aws.amazon.com/s3/buckets/${res.bucketName}/?region=${getAwsRegion()}`})}`,
 		),
 	);
 	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray(
-			`renderId = ${res.renderId}, codec = ${codec} (${reason})`,
+			`Function: ${CliInternals.makeHyperlink({text: functionName, fallback: functionName, url: `https://${getAwsRegion()}.console.aws.amazon.com/lambda/home#/functions/${functionName}?tab=code`})}`,
+		),
+	);
+	Log.info(
+		{indent: false, logLevel},
+		CliInternals.chalk.gray(
+			`Render ID: ${CliInternals.makeHyperlink({text: res.renderId, fallback: res.renderId, url: res.folderInS3Console})}`,
+		),
+	);
+	Log.info(
+		{
+			indent: false,
+			logLevel,
+		},
+		CliInternals.chalk.gray(
+			`${CliInternals.makeHyperlink({
+				text: 'Codec',
+				fallback: 'Codec',
+				url: 'https://remotion.dev/docs/encoding',
+			})}: ${codec} (${reason})`,
 		),
 	);
 
 	Log.verbose(
 		{indent: false, logLevel},
-		`CloudWatch logs (if enabled): ${res.cloudWatchLogs}`,
+		'CloudWatch logs (if enabled):',
+		CliInternals.makeHyperlink({
+			text: `Main function`,
+			url: res.cloudWatchMainLogs,
+			fallback: res.cloudWatchMainLogs,
+		}),
+		CliInternals.makeHyperlink({
+			text: `Renderer functions`,
+			url: res.cloudWatchLogs,
+			fallback: res.cloudWatchLogs,
+		}),
 	);
 	Log.verbose(
 		{indent: false, logLevel},
-		`Lambda insights (if enabled): ${res.lambdaInsightsLogs}`,
+		'Lambda insights: (if enabled):',
+		CliInternals.makeHyperlink({
+			text: (instruction) => `${instruction} to view`,
+			url: res.lambdaInsightsLogs,
+			fallback: res.lambdaInsightsLogs,
+		}),
 	);
-	Log.verbose(
-		{indent: false, logLevel},
-		`Render folder: ${res.folderInS3Console}`,
-	);
+
+	if (!CliInternals.supportsHyperlink()) {
+		Log.verbose(
+			{indent: false, logLevel},
+			CliInternals.makeHyperlink({
+				text: (instruction) => `${instruction} for Render folder`,
+				url: res.folderInS3Console,
+				fallback: `Render folder: ${res.folderInS3Console}`,
+			}),
+		);
+	}
+
 	const status = await getRenderProgress({
 		functionName,
 		bucketName: res.bucketName,
@@ -386,16 +429,11 @@ export const renderCommand = async (
 		);
 
 		if (newStatus.done) {
-			progressBar.update(
-				makeProgressString({
-					downloadInfo: null,
-					overall: newStatus,
-				}),
-				false,
-			);
+			let downloadOrNothing;
+
 			if (downloadName) {
 				const downloadStart = Date.now();
-				const {outputPath, sizeInBytes} = await downloadMedia({
+				const download = await downloadMedia({
 					bucketName: res.bucketName,
 					outPath: downloadName,
 					region: getAwsRegion(),
@@ -415,31 +453,58 @@ export const renderCommand = async (
 						);
 					},
 				});
+				downloadOrNothing = download;
 				progressBar.update(
 					makeProgressString({
 						downloadInfo: {
 							doneIn: Date.now() - downloadStart,
-							downloaded: sizeInBytes,
-							totalSize: sizeInBytes,
+							downloaded: download.sizeInBytes,
+							totalSize: download.sizeInBytes,
 						},
 						overall: newStatus,
 					}),
 					false,
 				);
-				Log.info({indent: false, logLevel});
-				Log.info({indent: false, logLevel});
-				Log.info(
-					{indent: false, logLevel},
-					'Done!',
-					outputPath,
-					CliInternals.formatBytes(sizeInBytes),
-				);
-			} else {
-				Log.info({indent: false, logLevel});
-				Log.info({indent: false, logLevel});
-				Log.info({indent: false, logLevel}, 'Done! ' + newStatus.outputFile);
 			}
 
+			Log.info({indent: false, logLevel});
+			Log.info(
+				{indent: false, logLevel},
+				CliInternals.chalk.blue('+ S3 '.padEnd(CliInternals.LABEL_WIDTH)),
+				CliInternals.chalk.blue(
+					CliInternals.makeHyperlink({
+						fallback: newStatus.outputFile as string,
+						text: newStatus.outKey as string,
+						url: newStatus.outputFile as string,
+					}),
+				),
+				CliInternals.chalk.gray(
+					CliInternals.formatBytes(newStatus.outputSizeInBytes as number),
+				),
+			);
+
+			if (downloadOrNothing) {
+				const relativeOutputPath = path.relative(
+					process.cwd(),
+					downloadOrNothing.outputPath,
+				);
+				Log.info(
+					{indent: false, logLevel},
+					CliInternals.chalk.blue('↓'.padEnd(CliInternals.LABEL_WIDTH)),
+					CliInternals.chalk.blue(
+						CliInternals.makeHyperlink({
+							url: `file://${downloadOrNothing.outputPath}`,
+							text: relativeOutputPath,
+							fallback: downloadOrNothing.outputPath,
+						}),
+					),
+					CliInternals.chalk.gray(
+						CliInternals.formatBytes(downloadOrNothing.sizeInBytes),
+					),
+				);
+			}
+
+			Log.info({indent: false, logLevel});
 			Log.info(
 				{indent: false, logLevel},
 				[

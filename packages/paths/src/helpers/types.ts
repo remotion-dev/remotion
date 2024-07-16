@@ -68,11 +68,11 @@ export type ReducedInstruction =
 	| MInstruction
 	| LInstruction
 	| CInstruction
-	| QInstruction
 	| ZInstruction;
 
 export type AbsoluteInstruction =
 	| ReducedInstruction
+	| QInstruction
 	| {
 			type: 'A';
 			rx: number;

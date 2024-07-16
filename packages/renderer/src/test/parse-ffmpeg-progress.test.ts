@@ -1,8 +1,9 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {parseFfmpegProgress} from '../parse-ffmpeg-progress';
 
 test('Should be able to parse Ffmpeg progress', () => {
 	const result = parseFfmpegProgress('anything', 30);
+	// @ts-expect-error bun types bug
 	expect(result).toBe(undefined);
 	expect(
 		parseFfmpegProgress(

@@ -1,4 +1,5 @@
-import {NoReactAPIs} from '@remotion/renderer/pure';
+import {makeStreamPayloadMessage} from '@remotion/streaming';
+import type {SerializedArtifact} from '../helpers/serialize-artifact';
 import type {LambdaErrorInfo} from '../helpers/write-lambda-error';
 import type {RenderStillLambdaResponsePayload} from '../still';
 
@@ -10,6 +11,7 @@ const audioChunkRendered = 'audio-chunk-rendered' as const;
 const chunkComplete = 'chunk-complete' as const;
 const stillRendered = 'still-rendered' as const;
 const lambdaInvoked = 'lambda-invoked' as const;
+const artifactEmitted = 'artifact-emitted' as const;
 
 const messageTypes = {
 	'1': {type: framesRendered},
@@ -20,6 +22,7 @@ const messageTypes = {
 	'6': {type: stillRendered},
 	'7': {type: chunkComplete},
 	'8': {type: lambdaInvoked},
+	'9': {type: artifactEmitted},
 } as const;
 
 export type MessageTypeId = keyof typeof messageTypes;
@@ -34,6 +37,7 @@ export const formatMap: {[key in MessageType]: 'json' | 'binary'} = {
 	[stillRendered]: 'json',
 	[chunkComplete]: 'json',
 	[lambdaInvoked]: 'json',
+	[artifactEmitted]: 'json',
 };
 
 export type StreamingPayload =
@@ -82,6 +86,12 @@ export type StreamingPayload =
 			payload: {
 				attempt: number;
 			};
+	  }
+	| {
+			type: typeof artifactEmitted;
+			payload: {
+				artifact: SerializedArtifact;
+			};
 	  };
 
 export const messageTypeIdToMessageType = (
@@ -114,7 +124,7 @@ export type StreamingMessage = {
 
 export type OnMessage = (options: StreamingMessage) => void;
 
-export type OnStream = (payload: StreamingPayload) => void;
+export type OnStream = (payload: StreamingPayload) => Promise<void>;
 
 export const makeStreamPayload = ({message}: {message: StreamingPayload}) => {
 	const body =
@@ -122,7 +132,7 @@ export const makeStreamPayload = ({message}: {message: StreamingPayload}) => {
 			? new TextEncoder().encode(JSON.stringify(message.payload))
 			: (message.payload as Buffer);
 
-	return NoReactAPIs.makeStreamPayloadMessage({
+	return makeStreamPayloadMessage({
 		body,
 		nonce: messageTypeToMessageId(message.type),
 		status: 0,

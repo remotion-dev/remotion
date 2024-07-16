@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {formatObjectPreview} from '../format-logs';
 
 process.env.NO_COLOR = '1';

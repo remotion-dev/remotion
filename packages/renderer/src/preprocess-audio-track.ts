@@ -111,7 +111,9 @@ const preprocessAudioTrackUnlimited = async ({
 		const utf8 = data.toString('utf8');
 		const parsed = parseFfmpegProgress(utf8, fps);
 		if (parsed !== undefined) {
-			onProgress(parsed / (chunkLengthInSeconds * fps));
+			onProgress(
+				(parsed - filter.actualTrimLeft * fps) / (chunkLengthInSeconds * fps),
+			);
 		}
 	});
 

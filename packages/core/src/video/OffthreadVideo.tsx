@@ -68,12 +68,18 @@ export const OffthreadVideo: React.FC<OffthreadVideoProps> = (props) => {
 		return <OffthreadVideoForRendering {...otherProps} />;
 	}
 
-	const {transparent, toneMapped, ...withoutTransparent} = otherProps;
+	const {
+		transparent,
+		toneMapped,
+		_remotionDebugSeeking,
+		...withoutTransparent
+	} = otherProps;
 
 	return (
 		<VideoForPreview
 			_remotionInternalStack={stack ?? null}
 			_remotionInternalNativeLoopPassed={false}
+			_remotionDebugSeeking={_remotionDebugSeeking ?? false}
 			onDuration={onDuration}
 			onlyWarnForMediaSeekingError
 			pauseWhenBuffering={pauseWhenBuffering ?? false}

@@ -5,7 +5,7 @@ if (process.env.NODE_ENV !== 'production') {
 	throw new Error('This script must be run using NODE_ENV=production');
 }
 
-const presentations = ['slide', 'flip', 'wipe', 'fade', 'clock-wipe'];
+const presentations = ['slide', 'flip', 'wipe', 'fade', 'clock-wipe', 'none'];
 
 const output = await build({
 	entrypoints: [

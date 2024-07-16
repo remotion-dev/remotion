@@ -1,30 +1,31 @@
 {
-  "name": "@remotion/astro-example",
-  "private": true,
-  "type": "module",
-  "version": "4.0.166",
-  "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "test": "node test.mjs && node test.cjs && node build.mjs",
-    "preview": "astro preview",
-    "astro": "astro"
-  },
-  "dependencies": {
-    "@astrojs/react": "^2.0.2",
-    "@remotion/gif": "workspace:*",
-    "@remotion/lottie": "workspace:*",
-    "@remotion/motion-blur": "workspace:*",
-    "@remotion/player": "workspace:*",
-    "@remotion/skia": "workspace:*",
-    "@remotion/three": "workspace:*",
-    "@remotion/transitions": "workspace:*",
-    "@types/react": "18.3.1",
-    "@types/react-dom": "18.3.0",
-    "lottie-web": "5.12.2",
-    "astro": "^2.0.14",
-    "react": "^18.1.0",
-    "react-dom": "^18.1.0",
-    "remotion": "workspace:*"
-  }
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/astro-example"
+	},
+	"name": "@remotion/astro-example",
+	"private": true,
+	"type": "module",
+	"version": "4.0.181",
+	"scripts": {
+		"dev": "astro dev",
+		"start": "astro dev",
+		"test": "node test.mjs && node test.cjs && node build.mjs",
+		"preview": "astro preview",
+		"astro": "astro"
+	},
+	"dependencies": {
+		"@astrojs/react": "^2.0.2",
+		"@remotion/gif": "workspace:*",
+		"@remotion/lottie": "workspace:*",
+		"@remotion/motion-blur": "workspace:*",
+		"@remotion/player": "workspace:*",
+		"@remotion/skia": "workspace:*",
+		"@remotion/three": "workspace:*",
+		"@remotion/transitions": "workspace:*",
+		"lottie-web": "5.12.2",
+		"astro": "^2.0.14",
+		"react": "^18.1.0",
+		"react-dom": "^18.1.0",
+		"remotion": "workspace:*"
+	}
 }

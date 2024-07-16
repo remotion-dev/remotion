@@ -1,10 +1,10 @@
-import type {TRenderAsset} from 'remotion/no-react';
+import type {AudioOrVideoAsset} from 'remotion/no-react';
 
 // An unsafe asset is an asset with looser types, which occurs
 // during construction of the asset list. Prefer the MediaAsset
 // type instead.
 export type UnsafeAsset = Omit<
-	TRenderAsset,
+	AudioOrVideoAsset,
 	'frame' | 'id' | 'volume' | 'mediaFrame' | 'audioStartFrom'
 > & {
 	startInVideo: number;
@@ -27,9 +27,9 @@ export type MediaAsset = Omit<UnsafeAsset, 'duration' | 'volume'> & {
 };
 
 export const uncompressMediaAsset = (
-	allRenderAssets: TRenderAsset[],
-	assetToUncompress: TRenderAsset,
-): TRenderAsset => {
+	allRenderAssets: AudioOrVideoAsset[],
+	assetToUncompress: AudioOrVideoAsset,
+): AudioOrVideoAsset => {
 	const isCompressed = assetToUncompress.src.match(/same-as-(.*)-([0-9]+)$/);
 	if (!isCompressed) {
 		return assetToUncompress;

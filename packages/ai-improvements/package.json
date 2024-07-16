@@ -1,10 +1,11 @@
 {
-  "name": "ai-improvements",
-  "dependencies": {
-    "@types/node": "^20.6.5",
-    "@types/bun": "1.0.12",
-    "openai": "^4.18.0"
-  },
-  "private": true,
-  "version": "4.0.166"
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/ai-improvements"
+	},
+	"name": "ai-improvements",
+	"dependencies": {
+		"openai": "^4.18.0"
+	},
+	"private": true,
+	"version": "4.0.181"
 }

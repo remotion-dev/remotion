@@ -1,24 +1,28 @@
 {
-  "version": "4.0.166",
-  "name": "@remotion/compositor-linux-arm64-gnu",
-  "os": [
-    "linux"
-  ],
-  "cpu": [
-    "arm64"
-  ],
-  "libc": [
-    "glibc"
-  ],
-  "exports": {
-    ".": {
-      "require": "./index.js",
-      "import": "./index.mjs",
-      "types": "./index.d.ts"
-    },
-    "./package.json": "./package.json"
-  },
-  "publishConfig": {
-    "access": "public"
-  }
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/compositor-linux-arm64-gnu"
+	},
+	"version": "4.0.181",
+	"name": "@remotion/compositor-linux-arm64-gnu",
+	"os": [
+		"linux"
+	],
+	"cpu": [
+		"arm64"
+	],
+	"libc": [
+		"glibc"
+	],
+	"exports": {
+		".": {
+			"require": "./index.js",
+			"import": "./index.mjs",
+			"types": "./index.d.ts"
+		},
+		"./package.json": "./package.json"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"description": "Linux ARM64 binary for the Remotion Rust code"
 }

@@ -11,8 +11,13 @@ crumb: "API"
 
 Use it if you:
 
-<Step>1</Step> need to make the duration, width, height, or fps <a href="/docs/dynamic-metadata">dynamic based on some data</a><br/>
-<Step>2</Step> want to transform the props passed to the composition, for example to do <a href="/docs/data-fetching">data fetching</a><br/>
+<Step>1</Step> need to make the duration, width, height, or fps <a href="/docs/dynamic-metadata">
+  dynamic based on some data
+</a>
+<br />
+<Step>2</Step> want to transform the props passed to the composition, for example
+to do <a href="/docs/data-fetching">data fetching</a>
+<br />
 <Step>3</Step> want to add a per-composition default codec
 
 ## Usage / API
@@ -78,9 +83,9 @@ As argument, you get an object with the following properties:
 - `abortSignal`: An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) which you can use to abort network requests if [the default props have been changed](/docs/data-fetching#aborting-stale-requests) in the meanwhile.
 - `compositionId` (_available from v4.0.98_): The ID of the current composition
 
-The function must return an object, which can contain the following properties:
+The function must return an pure JSON-serializable object, which can contain the following properties:
 
-- `props` _optional_: The [final props](/docs/props-resolution) the component receives. It must have the [same shape](/docs/data-fetching#usage) as the `props` received by this function.
+- `props` _optional_: The [final props](/docs/props-resolution) the component receives. It must have the [same shape](/docs/data-fetching#usage) as the `props` received by this function. The props must be a plain object and must not contain any non-JSON-serializable values, except `Date`, `Map`, `Set` and [`staticFile()`](/docs/staticfile).
 - `durationInFrames` _optional_: The duration of the composition in frames
 - `width` _optional_: The width of the composition in pixels
 - `height` _optional_: The height of the composition in pixels

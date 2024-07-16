@@ -24,6 +24,8 @@ import { bundle } from "@remotion/bundler";
 
 const serveUrl = await bundle({
   entryPoint: path.join(process.cwd(), "./src/index.ts"),
+  // If you have a webpack override in remotion.config.ts, pass it here as well.
+  webpackOverride: (config) => config,
 });
 ```
 
@@ -76,7 +78,7 @@ A `boolean` specifying whether Webpack caching should be enabled. Default `true`
 
 _optional_
 
-<Options id="public-path"/>
+<Options id="public-path" />
 
 ### `rootDir?`<AvailableFrom v="3.1.6" />
 

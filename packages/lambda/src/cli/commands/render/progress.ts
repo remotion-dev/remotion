@@ -2,11 +2,40 @@ import {CliInternals} from '@remotion/cli';
 import {RenderInternals} from '@remotion/renderer';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderProgress} from '../../../defaults';
+import type {ReceivedArtifact} from '../../../functions/helpers/overall-render-progress';
 import {truthy} from '../../../shared/truthy';
 
 type LambdaInvokeProgress = {
 	totalLambdas: number | null;
 	lambdasInvoked: number;
+};
+
+const makeEvaluationProgress = (overall: RenderProgress) => {
+	const timeToLaunch = overall.compositionValidated
+		? overall.compositionValidated - overall.functionLaunched
+		: null;
+
+	if (timeToLaunch) {
+		return [
+			`Got composition`.padEnd(CliInternals.LABEL_WIDTH),
+			CliInternals.makeProgressBar(1, false),
+			CliInternals.chalk.gray(`${timeToLaunch}ms`),
+		].join(' ');
+	}
+
+	if (overall.serveUrlOpened) {
+		return [
+			`Calculating metadata`.padEnd(CliInternals.LABEL_WIDTH),
+			CliInternals.makeProgressBar(0.5, false),
+			`${overall.currentTime - overall.serveUrlOpened}ms`,
+		].join(' ');
+	}
+
+	return [
+		`Visiting Site`.padEnd(CliInternals.LABEL_WIDTH),
+		CliInternals.makeProgressBar(0, false),
+		`${overall.currentTime - overall.functionLaunched}ms`,
+	].join(' ');
 };
 
 const makeInvokeProgress = (overall: RenderProgress) => {
@@ -21,7 +50,7 @@ const makeInvokeProgress = (overall: RenderProgress) => {
 		`${progress === 0 ? 'Invoked' : 'Invoking'} lambdas`.padEnd(
 			CliInternals.LABEL_WIDTH,
 		),
-		CliInternals.makeProgressBar(progress),
+		CliInternals.makeProgressBar(progress, false),
 		progress === 1
 			? CliInternals.chalk.gray(`${lambdasInvoked}/${totalLambdas}`)
 			: totalLambdas === null
@@ -59,7 +88,7 @@ const makeRenderProgress = (progress: RenderProgress) => {
 			? 'Rendering frames'
 			: 'Rendered frames'
 		).padEnd(CliInternals.LABEL_WIDTH, ' '),
-		CliInternals.makeProgressBar(renderProgress),
+		CliInternals.makeProgressBar(renderProgress, false),
 		progress.timeToRenderFrames === null
 			? frames
 			: CliInternals.chalk.gray(`${progress.timeToRenderFrames}ms`),
@@ -72,7 +101,7 @@ const makeRenderProgress = (progress: RenderProgress) => {
 			CliInternals.LABEL_WIDTH,
 			' ',
 		),
-		CliInternals.makeProgressBar(encodingProgress),
+		CliInternals.makeProgressBar(encodingProgress, false),
 		progress.timeToEncode === null
 			? totalFrames === null
 				? null
@@ -109,7 +138,7 @@ const makeCombinationProgress = (prog: RenderProgress) => {
 			CliInternals.LABEL_WIDTH,
 			' ',
 		),
-		CliInternals.makeProgressBar(progress),
+		CliInternals.makeProgressBar(progress, false),
 		timeToCombine === null
 			? `${Math.round(progress * 100)}%`
 			: CliInternals.chalk.gray(`${timeToCombine}ms`),
@@ -126,6 +155,7 @@ const makeDownloadProgress = (downloadInfo: DownloadedInfo) => {
 			? CliInternals.getFileSizeDownloadBar(downloadInfo.downloaded)
 			: CliInternals.makeProgressBar(
 					downloadInfo.downloaded / downloadInfo.totalSize,
+					false,
 				),
 		downloadInfo.doneIn === null
 			? [
@@ -151,10 +181,6 @@ const makeTopRow = (overall: RenderProgress) => {
 		(overall.timeoutTimestamp - Date.now()) / 1000,
 	);
 
-	if (!overall.renderMetadata) {
-		return null;
-	}
-
 	if (overall.done) {
 		return null;
 	}
@@ -166,13 +192,38 @@ const makeTopRow = (overall: RenderProgress) => {
 			: null,
 		`${overall.costs.displayCost}`,
 		timeoutInSeconds < 0
-			? 'Timeout reached - Expecting crash shortly'
+			? `${CliInternals.chalk.red('Timeout reached')} - Expecting crash shortly`
 			: `Timeout ${timeoutInSeconds}s`,
 	]
 		.filter(NoReactInternals.truthy)
 		.join(' • ');
 
 	return CliInternals.chalk.gray(str);
+};
+
+export const makeArtifactProgress = (artifactProgress: ReceivedArtifact[]) => {
+	if (artifactProgress.length === 0) {
+		return null;
+	}
+
+	return artifactProgress
+		.map((artifact) => {
+			return [
+				CliInternals.chalk.blue('+ S3'.padEnd(CliInternals.LABEL_WIDTH)),
+				CliInternals.chalk.blue(
+					CliInternals.makeHyperlink({
+						url: artifact.s3Url,
+						fallback: artifact.filename,
+						text: artifact.s3Key,
+					}),
+				),
+				CliInternals.chalk.gray(
+					`${CliInternals.formatBytes(artifact.sizeInBytes)}`,
+				),
+			].join(' ');
+		})
+		.filter(truthy)
+		.join('\n');
 };
 
 export const makeProgressString = ({
@@ -184,10 +235,12 @@ export const makeProgressString = ({
 }) => {
 	return [
 		makeTopRow(overall),
+		makeEvaluationProgress(overall),
 		...makeInvokeProgress(overall),
 		...makeRenderProgress(overall),
 		makeCombinationProgress(overall),
 		downloadInfo ? makeDownloadProgress(downloadInfo) : null,
+		makeArtifactProgress(overall.artifacts),
 	]
 		.filter(NoReactInternals.truthy)
 		.join('\n');

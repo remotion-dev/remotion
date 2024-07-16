@@ -103,5 +103,6 @@ export const createPostRenderData = ({
 		deleteAfter: renderMetadata.deleteAfter,
 		estimatedBillingDurationInMilliseconds,
 		timeToCombine: timeToCombine ?? null,
+		artifactProgress: overallProgress.receivedArtifact,
 	};
 };

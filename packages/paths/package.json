@@ -1,7 +1,10 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/paths"
+	},
 	"name": "@remotion/paths",
-	"version": "4.0.166",
-	"description": "Utility functions for SVG paths",
+	"version": "4.0.181",
+	"description": "Utilities for working with SVG paths",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
@@ -11,18 +14,8 @@
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
-	},
-	"devDependencies": {
-		"@jonny/eslint-config": "3.0.281",
-		"@types/node": "18.14.6",
-		"eslint": "8.56.0",
-		"prettier": "3.2.5",
-		"prettier-plugin-organize-imports": "3.2.4"
 	},
 	"keywords": [
 		"svg",
@@ -31,5 +24,6 @@
 	],
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"homepage": "https://www.remotion.dev/paths"
 }

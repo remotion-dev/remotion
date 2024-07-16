@@ -2,7 +2,7 @@
 image: /generated/articles-docs-miscellaneous-automatic-duration.png
 sidebar_label: Automatic duration
 title: Calculating the duration of a composition automatically
-crumb: "FAQ"
+crumb: 'FAQ'
 ---
 
 It is currently **not supported** to derive the duration of a composition be from the content. The reason for it are the following:
@@ -11,8 +11,8 @@ It is currently **not supported** to derive the duration of a composition be fro
   Here is an example of a component of which it is impossible to calculate the duration of:
 
   ```tsx twoslash title="InfiniteComposition.tsx"
-  import React from "react";
-  import { useCurrentFrame } from "remotion";
+  import React from 'react';
+  import {useCurrentFrame} from 'remotion';
 
   const InfiniteComposition: React.FC = () => {
     const frame = useCurrentFrame();
@@ -23,10 +23,10 @@ It is currently **not supported** to derive the duration of a composition be fro
 - **`<Series>` and `<Sequence>` can be dynamic too**  
   While it is true that many compositions use [`<Sequence>`](/docs/sequence) or [`<Series>`](/docs/series) from which the duration could be derived in many cases, it is also not a bulletproof solution.
 
-  It is perfectly acceptable to change the `from` or `durationInFrames` of a [`<Sequence>`](/docs/sequence) values over time:
+  It is perfectly acceptable to change the values of the `from` or `durationInFrames` props of a [`<Sequence>`](/docs/sequence) over time:
 
   ```tsx twoslash title="ChangingDuration.tsx"
-  import { Sequence, useCurrentFrame } from "remotion";
+  import {Sequence, useCurrentFrame} from 'remotion';
 
   const ChangingDuration: React.FC = () => {
     const frame = useCurrentFrame();

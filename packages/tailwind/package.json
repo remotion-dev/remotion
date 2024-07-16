@@ -1,7 +1,10 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/tailwind"
+	},
 	"name": "@remotion/tailwind",
-	"version": "4.0.166",
-	"description": "Utilities for using tailwind css in Remotion",
+	"version": "4.0.181",
+	"description": "Enable TailwindCSS support in Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -13,9 +16,6 @@
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
 	"license": "MIT",
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
@@ -32,13 +32,8 @@
 		"@remotion/bundler": "workspace:*"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.281",
 		"@remotion/bundler": "workspace:*",
-		"@types/node": "18.14.6",
-		"autoprefixer": "^10.4.14",
-		"eslint": "8.56.0",
-		"prettier": "3.2.5",
-		"prettier-plugin-organize-imports": "3.2.4"
+		"autoprefixer": "^10.4.14"
 	},
 	"keywords": [
 		"remotion",
@@ -55,5 +50,6 @@
 			"import": "./dist/esm/index.mjs",
 			"require": "./dist/cjs/index.js"
 		}
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/tailwind/tailwind"
 }

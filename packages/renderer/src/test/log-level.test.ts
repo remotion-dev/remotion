@@ -1,4 +1,4 @@
-import {describe, expect, test} from 'vitest';
+import {describe, expect, test} from 'bun:test';
 import type {LogLevel} from '../log-level';
 import {isValidLogLevel} from '../log-level';
 

@@ -1,4 +1,8 @@
-export type {TRenderAsset} from './CompositionManager';
+export type {
+	ArtifactAsset,
+	AudioOrVideoAsset,
+	TRenderAsset,
+} from './CompositionManager';
 export type {ClipRegion} from './NativeLayers';
 export {
 	EasingFunction,

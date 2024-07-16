@@ -1,57 +1,57 @@
-import Link from "@docusaurus/Link";
-import React from "react";
-import { useMobileLayout } from "../helpers/mobile-layout";
+import Link from '@docusaurus/Link';
+import React from 'react';
+import {useMobileLayout} from '../helpers/mobile-layout';
 
 const commonStyle: React.CSSProperties = {
-  height: 40,
-  borderRadius: 20,
-  backgroundColor: "white",
-  border: "2px solid black",
-  color: "var(--text-color)",
-  fontWeight: "bold",
-  justifyContent: "center",
-  alignItems: "center",
-  display: "flex",
-  cursor: "pointer",
-  padding: 16,
-  fontSize: 14,
-  marginLeft: 10,
+	height: 40,
+	borderRadius: 20,
+	backgroundColor: 'white',
+	border: '2px solid black',
+	color: 'var(--text-color)',
+	fontWeight: 'bold',
+	justifyContent: 'center',
+	alignItems: 'center',
+	display: 'flex',
+	cursor: 'pointer',
+	padding: 16,
+	fontSize: 14,
+	marginLeft: 10,
 };
 
 const rightStyle: React.CSSProperties = {
-  ...commonStyle,
-  right: 0,
-  textDecoration: "none",
-  color: "black",
+	...commonStyle,
+	right: 0,
+	textDecoration: 'none',
+	color: 'black',
 };
 
 const icon: React.CSSProperties = {
-  height: 16,
-  marginLeft: 10,
+	height: 16,
+	marginLeft: 10,
 };
 
 const linkStyle: React.CSSProperties = {
-  textDecoration: "none",
+	textDecoration: 'none',
 };
 
 export const MoreTemplatesButton: React.FC = () => {
-  const mobileLayout = useMobileLayout();
+	const mobileLayout = useMobileLayout();
 
-  return (
-    <Link to="/templates" style={linkStyle}>
-      <div style={rightStyle}>
-        {mobileLayout ? "Templates" : "Find a template"}
-        <svg
-          style={icon}
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 448 512"
-        >
-          <path
-            fill="currentColor"
-            d="M438.6 278.6l-160 160C272.4 444.9 264.2 448 256 448s-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L338.8 288H32C14.33 288 .0016 273.7 .0016 256S14.33 224 32 224h306.8l-105.4-105.4c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l160 160C451.1 245.9 451.1 266.1 438.6 278.6z"
-          />
-        </svg>
-      </div>
-    </Link>
-  );
+	return (
+		<Link to="/templates" style={linkStyle}>
+			<div style={rightStyle}>
+				{mobileLayout ? 'Templates' : 'Find a template'}
+				<svg
+					style={icon}
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 448 512"
+				>
+					<path
+						fill="currentColor"
+						d="M438.6 278.6l-160 160C272.4 444.9 264.2 448 256 448s-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L338.8 288H32C14.33 288 .0016 273.7 .0016 256S14.33 224 32 224h306.8l-105.4-105.4c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l160 160C451.1 245.9 451.1 266.1 438.6 278.6z"
+					/>
+				</svg>
+			</div>
+		</Link>
+	);
 };

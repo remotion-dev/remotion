@@ -1,5 +1,16 @@
-# Fig autocompletions
-
-Autocompletions for [Fig](https://fig.io) are generated from this repository and then occasionally sent to Fig for inclusion in their autocomplete.
-
-Add options and run `pnpm run build` to verify that it is a valid Fig schema.
+# @remotion/cli-autocomplete
+ 
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/cli-autocomplete.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/cli-autocomplete?minimal=true)
+ 
+## Installation
+ 
+```bash
+npm install @remotion/cli-autocomplete --save-exact
+```
+ 
+When installing a Remotion package, make sure to align the version of all `remotion` and `@remotion/*` packages to the same version.
+Remove the `^` character from the version number to use the exact version.
+ 
+## Usage
+ 
+This is an internal package and has no documentation.

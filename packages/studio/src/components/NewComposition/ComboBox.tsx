@@ -67,10 +67,10 @@ export type SelectionItem = {
 export type ComboboxValue = DividerItem | SelectionItem;
 
 export const Combobox: React.FC<{
-	values: ComboboxValue[];
-	selectedId: string | number;
-	style?: React.CSSProperties;
-	title: string;
+	readonly values: ComboboxValue[];
+	readonly selectedId: string | number;
+	readonly style?: React.CSSProperties;
+	readonly title: string;
 }> = ({values, selectedId, style: customStyle, title}) => {
 	const [hovered, setIsHovered] = useState(false);
 	const [opened, setOpened] = useState(false);
@@ -217,6 +217,7 @@ export const Combobox: React.FC<{
 			...container,
 			...(customStyle ?? {}),
 			userSelect: 'none',
+			WebkitUserSelect: 'none',
 			color: 'white',
 			display: 'inline-flex',
 			flexDirection: 'row',

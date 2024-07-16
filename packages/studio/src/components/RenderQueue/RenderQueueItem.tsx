@@ -54,8 +54,8 @@ const subtitle: React.CSSProperties = {
 const SELECTED_CLASSNAME = '__remotion_selected_classname';
 
 export const RenderQueueItem: React.FC<{
-	job: RenderJob;
-	selected: boolean;
+	readonly job: RenderJob;
+	readonly selected: boolean;
 }> = ({job, selected}) => {
 	const [hovered, setHovered] = useState(false);
 
@@ -79,6 +79,7 @@ export const RenderQueueItem: React.FC<{
 				selected,
 			}),
 			userSelect: 'none',
+			WebkitUserSelect: 'none',
 		};
 	}, [hovered, isHoverable, selected]);
 

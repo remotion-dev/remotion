@@ -21,6 +21,33 @@ hide_title: true
 
 The Remotion Recorder is a video production tool <strong>built entirely in JavaScript</strong>.
 
+## Recording
+
+Record your facecam and screen in sync but independently. This allows you to create a dynamic layout later.
+
+<div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch', }}>
+<table style={{  tableLayout: "fixed", width: 950, marginBottom: 0 }}>
+
+<tr>
+    <td valign="top" style={{width: 950/ 2}}>
+      <img src="/recorder/individual.png"></img>
+      </td>
+    <td valign="top" style={{width: 950/ 2}}>
+      <video src="/recorder/volume.mp4" autoPlay muted playsInline loop></video>
+    </td>
+
+  </tr>
+  <tr>
+    <td valign="top" style={{width: 950/ 2}}>
+      Record webcam and display as separate streams. Up to 4 sources can be recorded at the same time!   
+         </td>
+    <td valign="top" style={{width: 950/ 2}}>
+   Ensure you are in the center of the video and you are not too close to the microphone.
+    </td>
+</tr>
+</table>
+</div>
+
 ## Different platforms require different formats
 
 Each platform has its own conventions for how videos should look.
@@ -88,9 +115,6 @@ Each platform has its own conventions for how videos should look.
       <div>Audio by default</div>
       <div>
         Captions as .srt file{" "}
-        <sup>
-          <a href="#youtube-captions">planned</a>
-        </sup>
       </div>
       <div>Endcard with related videos</div>
       </td>
@@ -221,11 +245,6 @@ Having access to the entire source code, you can use CSS to customize the look o
 The Recorder is built with TypeScript and React, and you can fully customize it's behavior.
 It's a hackable video editor.
 
-## Recording
-
-Record your facecam and screen in sync but independently, so you can change the layout later.  
-See if you are too loud or off-center.
-
 ## Silence removal
 
 Automatically remove the silence at the start and end of your take.
@@ -263,7 +282,4 @@ You can customize it to your liking if you have TypeScript and React knowledge.
 
 ---
 
-<sup id="youtube-captions">1)</sup> YouTube videos currently have their subtitles
-burned in, but we plan to add support for exporting a .srt file.
-<br />
-<sup id="tiktok-format">2)</sup> 9:16 format is not yet implemented.
+<sup id="tiktok-format">1)</sup> 9:16 format is not yet implemented.

@@ -203,11 +203,67 @@ router.post("/my-remotion-webhook-endpoint", jsonParser, (req, res) => {
 });
 ```
 
-## Example webhook endpoint (Next.JS)
+## Example webhook endpoint (Next.JS App Router)
 
-Similary, here is an example endpoint in Next.JS.
+Similary, here is an example endpoint in Next.JS for the App Router.
 
 Since this endpoint is going to be executed in an AWS Lambda function on its own, you want to import the Remotion functions from [`@remotion/lambda/client`](/docs/lambda/light-client).
+
+```tsx twoslash title="app/api/webhook.ts"
+import {
+  validateWebhookSignature,
+  WebhookPayload,
+} from "@remotion/lambda/client";
+
+// Enable testing through the tool below
+// You may disable it in production
+const ENABLE_TESTING = true;
+
+export const POST = async (req: Request, res: Response) => {
+  let headers = {};
+
+  if (ENABLE_TESTING) {
+    const testingheaders = {
+      "Access-Control-Allow-Origin": "https://www.remotion.dev",
+      "Access-Control-Allow-Headers":
+        "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Remotion-Status, X-Remotion-Signature, X-Remotion-Mode",
+      "Access-Control-Allow-Methods": "OPTIONS,POST",
+    };
+    headers = { ...headers, ...testingheaders };
+  }
+
+  if (req.method === "OPTIONS") {
+    return new Response(null, {
+      headers,
+    });
+  }
+
+  // Parse the body properly
+  const body = await req.json();
+
+  validateWebhookSignature({
+    secret: process.env.WEBHOOK_SECRET as string,
+    body: body,
+    signatureHeader: req.headers.get("X-Remotion-Signature") as string,
+  });
+
+  const payload = body as WebhookPayload;
+
+  if (payload.type === "success") {
+    //...
+  } else if (payload.type === "timeout") {
+    //...
+  }
+
+  return new Response(JSON.stringify({ success: true }));
+};
+
+export const OPTIONS = POST;
+```
+
+## Example webhook endpoint (Next.JS Pages Router)
+
+The same endpoint as above, but using the Pages Router.
 
 ```tsx twoslash title="pages/api/webhook.ts"
 type NextApiRequest = {
@@ -227,6 +283,7 @@ import {
 } from "@remotion/lambda/client";
 
 // Enable testing through the tool below
+// You may disable it in production
 const ENABLE_TESTING = true;
 
 export default async function handler(

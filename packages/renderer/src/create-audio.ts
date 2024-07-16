@@ -64,6 +64,7 @@ export const createAudio = async ({
 		downloadMap,
 		indent,
 		logLevel,
+		binariesDirectory,
 	});
 
 	markAllAssetsAsDownloaded(downloadMap);

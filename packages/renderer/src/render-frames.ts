@@ -2,8 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {performance} from 'perf_hooks';
 // eslint-disable-next-line no-restricted-imports
-import type {TAsset} from 'remotion';
-import type {VideoConfig} from 'remotion/no-react';
+import type {AudioOrVideoAsset, VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
@@ -23,9 +22,10 @@ import type {Compositor} from './compositor/compositor';
 import {compressAsset} from './compress-assets';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
+import {onlyArtifact, onlyAudioAndVideoAssets} from './filter-asset-types';
 import {findRemotionRoot} from './find-closest-package-json';
 import type {FrameRange} from './frame-range';
-import {getActualConcurrency} from './get-concurrency';
+import {resolveConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import {getExtraFramesToCapture} from './get-extra-frames-to-capture';
 import type {CountType} from './get-frame-padded-index';
@@ -53,6 +53,7 @@ import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import type {BrowserReplacer} from './replace-browser';
 import {handleBrowserCrash} from './replace-browser';
 import {seekToFrame} from './seek-to-frame';
+import type {EmittedArtifact} from './serialize-artifact';
 import {setPropsAndEnv} from './set-props-and-env';
 import {takeFrameAndCompose} from './take-frame-and-compose';
 import {truthy} from './truthy';
@@ -67,7 +68,9 @@ import {wrapWithErrorHandling} from './wrap-with-error-handling';
 
 const MAX_RETRIES_PER_FRAME = 1;
 
-export type InternalRenderFramesOptions = {
+export type OnArtifact = (asset: EmittedArtifact) => void;
+
+type InternalRenderFramesOptions = {
 	onStart: null | ((data: OnStartData) => void);
 	onFrameUpdate:
 		| null
@@ -101,6 +104,7 @@ export type InternalRenderFramesOptions = {
 	serializedResolvedPropsWithCustomSchema: string;
 	parallelEncodingEnabled: boolean;
 	compositionStart: number;
+	onArtifact: OnArtifact | null;
 } & ToOptions<typeof optionsMap.renderFrames>;
 
 type InnerRenderFramesOptions = {
@@ -119,6 +123,7 @@ type InnerRenderFramesOptions = {
 	everyNthFrame: number;
 	onBrowserLog: null | ((log: BrowserLog) => void);
 	onFrameBuffer: null | ((buffer: Buffer, frame: number) => void);
+	onArtifact: OnArtifact | null;
 	onDownload: RenderMediaOnDownload | null;
 	timeoutInMilliseconds: number;
 	scale: number;
@@ -127,7 +132,7 @@ type InnerRenderFramesOptions = {
 	muted: boolean;
 	onError: (err: Error) => void;
 	pagesArray: Page[];
-	actualConcurrency: number;
+	resolvedConcurrency: number;
 	proxyPort: number;
 	downloadMap: DownloadMap;
 	makeBrowser: () => Promise<HeadlessBrowser>;
@@ -140,11 +145,18 @@ type InnerRenderFramesOptions = {
 	serializedResolvedPropsWithCustomSchema: string;
 	parallelEncodingEnabled: boolean;
 	compositionStart: number;
+	binariesDirectory: string | null;
 } & ToOptions<typeof optionsMap.renderFrames>;
+
+type ArtifactWithoutContent = {
+	frame: number;
+	filename: string;
+};
 
 export type FrameAndAssets = {
 	frame: number;
-	assets: TAsset[];
+	audioAndVideoAssets: AudioOrVideoAsset[];
+	artifactAssets: ArtifactWithoutContent[];
 };
 
 export type RenderFramesOptions = {
@@ -185,6 +197,7 @@ export type RenderFramesOptions = {
 	composition: VideoConfig;
 	muted?: boolean;
 	concurrency?: number | string | null;
+	onArtifact?: OnArtifact | null;
 	serveUrl: string;
 } & Partial<ToOptions<typeof optionsMap.renderFrames>>;
 
@@ -207,7 +220,7 @@ const innerRenderFrames = async ({
 	composition,
 	timeoutInMilliseconds,
 	scale,
-	actualConcurrency: concurrency,
+	resolvedConcurrency,
 	everyNthFrame,
 	proxyPort,
 	cancelSignal,
@@ -222,6 +235,8 @@ const innerRenderFrames = async ({
 	parallelEncodingEnabled,
 	compositionStart,
 	forSeamlessAacConcatenation,
+	onArtifact,
+	binariesDirectory,
 }: Omit<
 	InnerRenderFramesOptions,
 	'offthreadVideoCacheSizeInBytes'
@@ -293,6 +308,7 @@ const innerRenderFrames = async ({
 			videoEnabled: imageFormat !== 'none',
 			indent,
 			logLevel,
+			onServeUrlVisited: () => undefined,
 		});
 
 		await puppeteerEvaluateWithCatch({
@@ -338,13 +354,13 @@ const innerRenderFrames = async ({
 
 	const concurrencyOrFramesToRender = Math.min(
 		framesToRender.length,
-		concurrency,
+		resolvedConcurrency,
 	);
 
 	const getPool = async (context: SourceMapGetter) => {
 		const pages = new Array(concurrencyOrFramesToRender)
 			.fill(true)
-			.map((_, i) => makePage(context, realFrameRange[i]));
+			.map((_, i) => makePage(context, framesToRender[i]));
 		const puppeteerPages = await Promise.all(pages);
 		const pool = new Pool(puppeteerPages);
 		return pool;
@@ -367,6 +383,7 @@ const innerRenderFrames = async ({
 	onStart?.({
 		frameCount: framesToRender.length,
 		parallelEncoding: parallelEncodingEnabled,
+		resolvedConcurrency,
 	});
 
 	const assets: FrameAndAssets[] = [];
@@ -487,26 +504,58 @@ const innerRenderFrames = async ({
 
 		stopPerfMeasure(id);
 
-		const compressedAssets = collectedAssets.map((asset) =>
-			compressAsset(
-				assets
-					.filter(truthy)
-					.map((a) => a.assets)
-					.flat(2),
-				asset,
-			),
-		);
-		assets.push({
-			assets: compressedAssets,
-			frame,
+		const previousAudioRenderAssets = assets
+			.filter(truthy)
+			.map((a) => a.audioAndVideoAssets)
+			.flat(2);
+
+		const previousArtifactAssets = assets
+			.filter(truthy)
+			.map((a) => a.artifactAssets)
+			.flat(2);
+
+		const audioAndVideoAssets = onlyAudioAndVideoAssets(collectedAssets);
+		const artifactAssets = onlyArtifact(collectedAssets);
+
+		for (const artifact of artifactAssets) {
+			for (const previousArtifact of previousArtifactAssets) {
+				if (artifact.filename === previousArtifact.filename) {
+					reject(
+						new Error(
+							`An artifact with output "${artifact.filename}" was already registered at frame ${previousArtifact.frame}, but now registered again at frame ${artifact.frame}. Artifacts must have unique names. https://remotion.dev/docs/artifacts`,
+						),
+					);
+					return;
+				}
+			}
+
+			onArtifact?.(artifact);
+		}
+
+		const compressedAssets = audioAndVideoAssets.map((asset) => {
+			return compressAsset(previousAudioRenderAssets, asset);
 		});
-		compressedAssets.forEach((renderAsset) => {
+
+		assets.push({
+			audioAndVideoAssets: compressedAssets,
+			frame,
+			artifactAssets: artifactAssets.map((a) => {
+				return {
+					frame: a.frame,
+					filename: a.filename,
+				};
+			}),
+		});
+		for (const renderAsset of compressedAssets) {
 			downloadAndMapAssetsToFileUrl({
 				renderAsset,
 				onDownload,
 				downloadMap,
 				indent,
 				logLevel,
+				binariesDirectory,
+				cancelSignalForAudioAnalysis: cancelSignal,
+				shouldAnalyzeAudioImmediately: true,
 			}).catch((err) => {
 				const truncateWithEllipsis =
 					renderAsset.src.substring(0, 1000) +
@@ -517,7 +566,8 @@ const innerRenderFrames = async ({
 					),
 				);
 			});
-		});
+		}
+
 		if (!assetsOnly) {
 			framesRendered++;
 			onFrameUpdate?.(framesRendered, frame, performance.now() - startTime);
@@ -755,6 +805,7 @@ const internalRenderFramesRaw = ({
 	forSeamlessAacConcatenation,
 	compositionStart,
 	onBrowserDownload,
+	onArtifact,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	validateDimension(
 		composition.height,
@@ -793,7 +844,7 @@ const internalRenderFramesRaw = ({
 
 	const browserInstance = puppeteerInstance ?? makeBrowser();
 
-	const actualConcurrency = getActualConcurrency(concurrency);
+	const resolvedConcurrency = resolveConcurrency(concurrency);
 
 	const openedPages: Page[] = [];
 
@@ -817,7 +868,7 @@ const internalRenderFramesRaw = ({
 						webpackConfigOrServeUrl: webpackBundleOrServeUrl,
 						port,
 						remotionRoot: findRemotionRoot(),
-						concurrency: actualConcurrency,
+						concurrency: resolvedConcurrency,
 						logLevel,
 						indent,
 						offthreadVideoCacheSizeInBytes,
@@ -826,7 +877,6 @@ const internalRenderFramesRaw = ({
 					},
 					{
 						onDownload,
-						onError,
 					},
 				),
 				browserInstance,
@@ -838,7 +888,7 @@ const internalRenderFramesRaw = ({
 
 				const cycle = cycleBrowserTabs(
 					browserReplacer,
-					actualConcurrency,
+					resolvedConcurrency,
 					logLevel,
 					indent,
 				);
@@ -853,7 +903,7 @@ const internalRenderFramesRaw = ({
 					pagesArray: openedPages,
 					serveUrl,
 					composition,
-					actualConcurrency,
+					resolvedConcurrency,
 					onDownload,
 					proxyPort: offthreadPort,
 					makeBrowser,
@@ -884,10 +934,22 @@ const internalRenderFramesRaw = ({
 					forSeamlessAacConcatenation,
 					compositionStart,
 					onBrowserDownload,
+					onArtifact,
 				});
 			}),
 		])
 			.then((res) => {
+				server?.compositor
+					.executeCommand('CloseAllVideos', {})
+					.then(() => {
+						Log.verbose(
+							{indent, logLevel, tag: 'compositor'},
+							'Freed memory from compositor',
+						);
+					})
+					.catch((err) => {
+						Log.verbose({indent, logLevel}, 'Could not close compositor', err);
+					});
 				return resolve(res);
 			})
 			.catch((err) => reject(err))
@@ -970,6 +1032,7 @@ export const renderFrames = (
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
 		onBrowserDownload,
+		onArtifact,
 	} = options;
 
 	if (!composition) {
@@ -1041,5 +1104,6 @@ export const renderFrames = (
 		onBrowserDownload:
 			onBrowserDownload ??
 			defaultBrowserDownloadProgress({indent, logLevel, api: 'renderFrames()'}),
+		onArtifact: onArtifact ?? null,
 	});
 };

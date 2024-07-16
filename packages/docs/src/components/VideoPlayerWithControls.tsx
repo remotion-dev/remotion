@@ -1,42 +1,42 @@
-import Hls from "hls.js";
-import type Plyr from "plyr";
-import "plyr/dist/plyr.css";
-import type { MutableRefObject } from "react";
+import Hls from 'hls.js';
+import type Plyr from 'plyr';
+import 'plyr/dist/plyr.css';
+import type {MutableRefObject} from 'react';
 import React, {
-  forwardRef,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import "./video-player.css";
+	forwardRef,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
+import './video-player.css';
 
 export interface HTMLVideoElementWithPlyr extends HTMLVideoElement {
-  plyr: Plyr;
+	plyr: Plyr;
 }
 
 const useCombinedRefs = function (
-  ...refs: (
-    | ((instance: HTMLVideoElementWithPlyr | null) => void)
-    | MutableRefObject<HTMLVideoElementWithPlyr | null>
-    | null
-  )[]
+	...refs: (
+		| ((instance: HTMLVideoElementWithPlyr | null) => void)
+		| MutableRefObject<HTMLVideoElementWithPlyr | null>
+		| null
+	)[]
 ): MutableRefObject<HTMLVideoElementWithPlyr | null> {
-  const targetRef = useRef(null);
+	const targetRef = useRef(null);
 
-  useEffect(() => {
-    refs.forEach((ref) => {
-      if (!ref) return;
+	useEffect(() => {
+		refs.forEach((ref) => {
+			if (!ref) return;
 
-      if (typeof ref === "function") {
-        ref(targetRef.current);
-      } else {
-        ref.current = targetRef.current;
-      }
-    });
-  }, [refs]);
+			if (typeof ref === 'function') {
+				ref(targetRef.current);
+			} else {
+				ref.current = targetRef.current;
+			}
+		});
+	}, [refs]);
 
-  return targetRef;
+	return targetRef;
 };
 
 /*
@@ -60,135 +60,135 @@ const useCombinedRefs = function (
  */
 
 type Props = {
-  playbackId: string;
-  poster: string;
-  // eslint-disable-next-line react/require-default-props
-  currentTime?: number;
-  onLoaded: () => void;
-  onError: (error: ErrorEvent) => void;
-  onSize: (dim: { width: number; height: number }) => void;
-  // eslint-disable-next-line react/require-default-props
-  autoPlay?: boolean;
+	playbackId: string;
+	poster: string;
+	// eslint-disable-next-line react/require-default-props
+	currentTime?: number;
+	onLoaded: () => void;
+	onError: (error: ErrorEvent) => void;
+	onSize: (dim: {width: number; height: number}) => void;
+	// eslint-disable-next-line react/require-default-props
+	autoPlay?: boolean;
 };
 
 type SizedEvent = {
-  target: {
-    width: number;
-    height: number;
-  };
+	target: {
+		width: number;
+		height: number;
+	};
 };
 
 export const VideoPlayerWithControls = forwardRef<
-  HTMLVideoElementWithPlyr,
-  Props
+	HTMLVideoElementWithPlyr,
+	Props
 >(
-  (
-    { playbackId, poster, currentTime, onLoaded, onError, onSize, autoPlay },
-    ref,
-  ) => {
-    const videoRef = useRef<HTMLVideoElementWithPlyr>(null);
-    const metaRef = useCombinedRefs(ref, videoRef);
-    const playerRef = useRef<Plyr | null>(null);
-    const [playerInitTime] = useState(Date.now());
+	(
+		{playbackId, poster, currentTime, onLoaded, onError, onSize, autoPlay},
+		ref,
+	) => {
+		const videoRef = useRef<HTMLVideoElementWithPlyr>(null);
+		const metaRef = useCombinedRefs(ref, videoRef);
+		const playerRef = useRef<Plyr | null>(null);
+		const [playerInitTime] = useState(Date.now());
 
-    const videoError = useCallback(
-      (event: ErrorEvent) => onError(event),
-      [onError],
-    );
+		const videoError = useCallback(
+			(event: ErrorEvent) => onError(event),
+			[onError],
+		);
 
-    const onImageLoad = useCallback(
-      (event: SizedEvent) => {
-        const [w, h] = [event.target.width, event.target.height];
-        if (w && h) {
-          onSize({ width: w, height: h });
-          onLoaded();
-        } else {
-          onLoaded();
-          console.error("Error getting img dimensions", event); // eslint-disable-line no-console
-        }
-      },
-      [onLoaded, onSize],
-    );
+		const onImageLoad = useCallback(
+			(event: SizedEvent) => {
+				const [w, h] = [event.target.width, event.target.height];
+				if (w && h) {
+					onSize({width: w, height: h});
+					onLoaded();
+				} else {
+					onLoaded();
+					console.error('Error getting img dimensions', event); // eslint-disable-line no-console
+				}
+			},
+			[onLoaded, onSize],
+		);
 
-    /*
-     * See comment above -- we're loading the poster image just so we can grab the dimensions
-     * which determines styles for the player
-     */
-    useEffect(() => {
-      const img = new Image();
-      img.onload = (evt) => onImageLoad(evt as unknown as SizedEvent);
-      img.src = poster;
-    }, [onImageLoad, poster]);
+		/*
+		 * See comment above -- we're loading the poster image just so we can grab the dimensions
+		 * which determines styles for the player
+		 */
+		useEffect(() => {
+			const img = new Image();
+			img.onload = (evt) => onImageLoad(evt as unknown as SizedEvent);
+			img.src = poster;
+		}, [onImageLoad, poster]);
 
-    useEffect(() => {
-      const video = videoRef.current;
-      const src = `https://stream.mux.com/${playbackId}.m3u8`;
-      let hls: Hls | null;
-      hls = null;
-      if (video) {
-        video.addEventListener("error", videoError);
-        const Plyr = require("plyr");
-        playerRef.current = new Plyr(video, {
-          previewThumbnails: {
-            enabled: true,
-            src: `https://image.mux.com/${playbackId}/storyboard.vtt`,
-          },
-          storage: { enabled: false },
-          fullscreen: {
-            iosNative: true,
-          },
-          captions: { active: true, language: "auto", update: true },
-        });
+		useEffect(() => {
+			const video = videoRef.current;
+			const src = `https://stream.mux.com/${playbackId}.m3u8`;
+			let hls: Hls | null;
+			hls = null;
+			if (video) {
+				video.addEventListener('error', videoError);
+				const Plyr = require('plyr');
+				playerRef.current = new Plyr(video, {
+					previewThumbnails: {
+						enabled: true,
+						src: `https://image.mux.com/${playbackId}/storyboard.vtt`,
+					},
+					storage: {enabled: false},
+					fullscreen: {
+						iosNative: true,
+					},
+					captions: {active: true, language: 'auto', update: true},
+				});
 
-        if (video.canPlayType("application/vnd.apple.mpegurl")) {
-          // This will run in safari, where HLS is supported natively
-          video.src = src;
-        } else if (Hls.isSupported()) {
-          // This will run in all other modern browsers
-          hls = new Hls();
-          hls.loadSource(src);
-          hls.attachMedia(video);
-          hls.on(Hls.Events.ERROR, (_event, data) => {
-            if (data.fatal) {
-              videoError(new ErrorEvent("HLS.js fatal error"));
-            }
-          });
-        } else {
-          console.error(
-            // eslint-disable-line no-console
-            "This is an old browser that does not support MSE https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API",
-          );
-        }
-      }
+				if (video.canPlayType('application/vnd.apple.mpegurl')) {
+					// This will run in safari, where HLS is supported natively
+					video.src = src;
+				} else if (Hls.isSupported()) {
+					// This will run in all other modern browsers
+					hls = new Hls();
+					hls.loadSource(src);
+					hls.attachMedia(video);
+					hls.on(Hls.Events.ERROR, (_event, data) => {
+						if (data.fatal) {
+							videoError(new ErrorEvent('HLS.js fatal error'));
+						}
+					});
+				} else {
+					console.error(
+						// eslint-disable-line no-console
+						'This is an old browser that does not support MSE https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API',
+					);
+				}
+			}
 
-      return () => {
-        if (video) {
-          video.removeEventListener("error", videoError);
-        }
+			return () => {
+				if (video) {
+					video.removeEventListener('error', videoError);
+				}
 
-        if (hls) {
-          hls.destroy();
-        }
-      };
-    }, [playbackId, playerInitTime, videoError, videoRef]);
+				if (hls) {
+					hls.destroy();
+				}
+			};
+		}, [playbackId, playerInitTime, videoError, videoRef]);
 
-    useEffect(() => {
-      const video = videoRef.current;
-      if (currentTime && video) {
-        video.currentTime = currentTime;
-      }
-    }, [currentTime]);
+		useEffect(() => {
+			const video = videoRef.current;
+			if (currentTime && video) {
+				video.currentTime = currentTime;
+			}
+		}, [currentTime]);
 
-    return (
-      <div className="video-container">
-        <video
-          ref={metaRef}
-          autoPlay={autoPlay}
-          poster={poster}
-          controls
-          playsInline
-        />
-      </div>
-    );
-  },
+		return (
+			<div className="video-container">
+				<video
+					ref={metaRef}
+					autoPlay={autoPlay}
+					poster={poster}
+					controls
+					playsInline
+				/>
+			</div>
+		);
+	},
 );
