@@ -1,18 +1,18 @@
 import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useState,
+	useCallback,
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useState,
 } from 'react';
 import {Img} from '../Img.js';
 import {RenderAssetManager} from '../RenderAssetManager.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {getAbsoluteSrc} from '../absolute-src.js';
 import {
-  useFrameForVolumeProp,
-  useMediaStartsAt,
+	useFrameForVolumeProp,
+	useMediaStartsAt,
 } from '../audio/use-audio-frame.js';
 import {cancelRender} from '../cancel-render.js';
 import {OFFTHREAD_VIDEO_CLASS_NAME} from '../default-css.js';
@@ -28,205 +28,205 @@ import {getOffthreadVideoSource} from './offthread-video-source.js';
 import type {OffthreadVideoProps} from './props.js';
 
 export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
-  onError,
-  volume: volumeProp,
-  playbackRate,
-  src,
-  muted,
-  allowAmplificationDuringRender,
-  transparent = false,
-  toneMapped = true,
-  toneFrequency,
-  name,
-  loopVolumeCurveBehavior,
-  delayRenderRetries,
-  delayRenderTimeoutInMilliseconds,
-  ...props
+	onError,
+	volume: volumeProp,
+	playbackRate,
+	src,
+	muted,
+	allowAmplificationDuringRender,
+	transparent = false,
+	toneMapped = true,
+	toneFrequency,
+	name,
+	loopVolumeCurveBehavior,
+	delayRenderRetries,
+	delayRenderTimeoutInMilliseconds,
+	...props
 }) => {
-  const absoluteFrame = useTimelinePosition();
+	const absoluteFrame = useTimelinePosition();
 
-  const frame = useCurrentFrame();
-  const volumePropsFrame = useFrameForVolumeProp(
-    loopVolumeCurveBehavior ?? 'repeat',
-  );
-  const videoConfig = useUnsafeVideoConfig();
-  const sequenceContext = useContext(SequenceContext);
-  const mediaStartsAt = useMediaStartsAt();
+	const frame = useCurrentFrame();
+	const volumePropsFrame = useFrameForVolumeProp(
+		loopVolumeCurveBehavior ?? 'repeat',
+	);
+	const videoConfig = useUnsafeVideoConfig();
+	const sequenceContext = useContext(SequenceContext);
+	const mediaStartsAt = useMediaStartsAt();
 
-  const {registerRenderAsset, unregisterRenderAsset} =
-    useContext(RenderAssetManager);
+	const {registerRenderAsset, unregisterRenderAsset} =
+		useContext(RenderAssetManager);
 
-  if (!src) {
-    throw new TypeError('No `src` was passed to <OffthreadVideo>.');
-  }
+	if (!src) {
+		throw new TypeError('No `src` was passed to <OffthreadVideo>.');
+	}
 
-  // Generate a string that's as unique as possible for this asset
-  // but at the same time the same on all threads
-  const id = useMemo(
-    () =>
-      `offthreadvideo-${random(
-        src ?? '',
-      )}-${sequenceContext?.cumulatedFrom}-${sequenceContext?.relativeFrom}-${sequenceContext?.durationInFrames}`,
-    [
-      src,
-      sequenceContext?.cumulatedFrom,
-      sequenceContext?.relativeFrom,
-      sequenceContext?.durationInFrames,
-    ],
-  );
+	// Generate a string that's as unique as possible for this asset
+	// but at the same time the same on all threads
+	const id = useMemo(
+		() =>
+			`offthreadvideo-${random(
+				src ?? '',
+			)}-${sequenceContext?.cumulatedFrom}-${sequenceContext?.relativeFrom}-${sequenceContext?.durationInFrames}`,
+		[
+			src,
+			sequenceContext?.cumulatedFrom,
+			sequenceContext?.relativeFrom,
+			sequenceContext?.durationInFrames,
+		],
+	);
 
-  if (!videoConfig) {
-    throw new Error('No video config found');
-  }
+	if (!videoConfig) {
+		throw new Error('No video config found');
+	}
 
-  const volume = evaluateVolume({
-    volume: volumeProp,
-    frame: volumePropsFrame,
-    mediaVolume: 1,
-    allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
-  });
+	const volume = evaluateVolume({
+		volume: volumeProp,
+		frame: volumePropsFrame,
+		mediaVolume: 1,
+		allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
+	});
 
-  useEffect(() => {
-    if (!src) {
-      throw new Error('No src passed');
-    }
+	useEffect(() => {
+		if (!src) {
+			throw new Error('No src passed');
+		}
 
-    if (!window.remotion_audioEnabled) {
-      return;
-    }
+		if (!window.remotion_audioEnabled) {
+			return;
+		}
 
-    if (muted) {
-      return;
-    }
+		if (muted) {
+			return;
+		}
 
-    if (volume <= 0) {
-      return;
-    }
+		if (volume <= 0) {
+			return;
+		}
 
-    registerRenderAsset({
-      type: 'video',
-      src: getAbsoluteSrc(src),
-      id,
-      frame: absoluteFrame,
-      volume,
-      mediaFrame: frame,
-      playbackRate: playbackRate ?? 1,
-      allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
-      toneFrequency: toneFrequency ?? null,
-      audioStartFrame: Math.max(0, -(sequenceContext?.relativeFrom ?? 0)),
-    });
+		registerRenderAsset({
+			type: 'video',
+			src: getAbsoluteSrc(src),
+			id,
+			frame: absoluteFrame,
+			volume,
+			mediaFrame: frame,
+			playbackRate: playbackRate ?? 1,
+			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
+			toneFrequency: toneFrequency ?? null,
+			audioStartFrame: Math.max(0, -(sequenceContext?.relativeFrom ?? 0)),
+		});
 
-    return () => unregisterRenderAsset(id);
-  }, [
-    muted,
-    src,
-    registerRenderAsset,
-    id,
-    unregisterRenderAsset,
-    volume,
-    frame,
-    absoluteFrame,
-    playbackRate,
-    allowAmplificationDuringRender,
-    toneFrequency,
-    sequenceContext?.relativeFrom,
-  ]);
+		return () => unregisterRenderAsset(id);
+	}, [
+		muted,
+		src,
+		registerRenderAsset,
+		id,
+		unregisterRenderAsset,
+		volume,
+		frame,
+		absoluteFrame,
+		playbackRate,
+		allowAmplificationDuringRender,
+		toneFrequency,
+		sequenceContext?.relativeFrom,
+	]);
 
-  const currentTime = useMemo(() => {
-    return (
-      getExpectedMediaFrameUncorrected({
-        frame,
-        playbackRate: playbackRate || 1,
-        startFrom: -mediaStartsAt,
-      }) / videoConfig.fps
-    );
-  }, [frame, mediaStartsAt, playbackRate, videoConfig.fps]);
+	const currentTime = useMemo(() => {
+		return (
+			getExpectedMediaFrameUncorrected({
+				frame,
+				playbackRate: playbackRate || 1,
+				startFrom: -mediaStartsAt,
+			}) / videoConfig.fps
+		);
+	}, [frame, mediaStartsAt, playbackRate, videoConfig.fps]);
 
-  const actualSrc = useMemo(() => {
-    return getOffthreadVideoSource({
-      src,
-      currentTime,
-      transparent,
-      toneMapped,
-    });
-  }, [toneMapped, currentTime, src, transparent]);
+	const actualSrc = useMemo(() => {
+		return getOffthreadVideoSource({
+			src,
+			currentTime,
+			transparent,
+			toneMapped,
+		});
+	}, [toneMapped, currentTime, src, transparent]);
 
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
+	const [imageSrc, setImageSrc] = useState<string | null>(null);
 
-  useLayoutEffect(() => {
-    const cleanup: Function[] = [];
+	useLayoutEffect(() => {
+		const cleanup: Function[] = [];
 
-    setImageSrc(null);
-    const controller = new AbortController();
+		setImageSrc(null);
+		const controller = new AbortController();
 
-    const newHandle = delayRender('Fetching ' + actualSrc + 'from server', {
-      retries: delayRenderRetries ?? undefined,
-      timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
-    });
+		const newHandle = delayRender('Fetching ' + actualSrc + 'from server', {
+			retries: delayRenderRetries ?? undefined,
+			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+		});
 
-    fetch(actualSrc, {
-      signal: controller.signal,
-    })
-      .then((res) => res.blob())
-      .then((blob) => {
-        const url = URL.createObjectURL(blob);
-        cleanup.push(() => URL.revokeObjectURL(url));
-        setImageSrc(url);
-        continueRender(newHandle);
-      })
-      .catch((err) => {
-        if (onError) {
-          onError(err);
-        } else {
-          cancelRender(err);
-        }
-      });
+		fetch(actualSrc, {
+			signal: controller.signal,
+		})
+			.then((res) => res.blob())
+			.then((blob) => {
+				const url = URL.createObjectURL(blob);
+				cleanup.push(() => URL.revokeObjectURL(url));
+				setImageSrc(url);
+				continueRender(newHandle);
+			})
+			.catch((err) => {
+				if (onError) {
+					onError(err);
+				} else {
+					cancelRender(err);
+				}
+			});
 
-    cleanup.push(() => {
-      if (controller.signal.aborted) {
-        return;
-      }
+		cleanup.push(() => {
+			if (controller.signal.aborted) {
+				return;
+			}
 
-      controller.abort();
-    });
+			controller.abort();
+		});
 
-    return () => {
-      cleanup.forEach((c) => c());
-    };
-  }, [
-    actualSrc,
-    delayRenderRetries,
-    delayRenderTimeoutInMilliseconds,
-    onError,
-  ]);
+		return () => {
+			cleanup.forEach((c) => c());
+		};
+	}, [
+		actualSrc,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
+		onError,
+	]);
 
-  const onErr: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement> =
-    useCallback(() => {
-      if (onError) {
-        onError?.(new Error('Failed to load image with src ' + actualSrc));
-      } else {
-        cancelRender('Failed to load image with src ' + actualSrc);
-      }
-    }, [actualSrc, onError]);
+	const onErr: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement> =
+		useCallback(() => {
+			if (onError) {
+				onError?.(new Error('Failed to load image with src ' + actualSrc));
+			} else {
+				cancelRender('Failed to load image with src ' + actualSrc);
+			}
+		}, [actualSrc, onError]);
 
-  const className = useMemo(() => {
-    return [OFFTHREAD_VIDEO_CLASS_NAME, props.className]
-      .filter(truthy)
-      .join(' ');
-  }, [props.className]);
+	const className = useMemo(() => {
+		return [OFFTHREAD_VIDEO_CLASS_NAME, props.className]
+			.filter(truthy)
+			.join(' ');
+	}, [props.className]);
 
-  if (!imageSrc) {
-    return null;
-  }
+	if (!imageSrc) {
+		return null;
+	}
 
-  return (
-    <Img
-      src={imageSrc}
-      className={className}
-      delayRenderRetries={delayRenderRetries}
-      delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
-      {...props}
-      onError={onErr}
-    />
-  );
+	return (
+		<Img
+			src={imageSrc}
+			className={className}
+			delayRenderRetries={delayRenderRetries}
+			delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
+			{...props}
+			onError={onErr}
+		/>
+	);
 };
