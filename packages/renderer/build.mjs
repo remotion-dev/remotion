@@ -18,6 +18,11 @@ import {toolchains} from './toolchains.mjs';
 const isWin = os.platform() === 'win32';
 const where = isWin ? 'where' : 'which';
 
+if (os.platform() === 'win32') {
+	console.log('Windows CI is broken - needs to be cross-compiled');
+	process.exit(0);
+}
+
 function isMusl() {
 	const {glibcVersionRuntime} = process.report.getReport().header;
 	return !glibcVersionRuntime;
