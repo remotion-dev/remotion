@@ -1,6 +1,6 @@
 import {Html} from '@react-three/drei';
 import {ThreeCanvas} from '@remotion/three';
-import {useRef} from 'react';
+import React, {useRef} from 'react';
 import {
   Internals,
   interpolate,
@@ -12,7 +12,9 @@ const Content = () => {
   return <h1>{useCurrentFrame()}</h1>;
 };
 
-const Box = ({portalTarget}) => {
+const Box: React.FC<{
+  portalTarget: React.MutableRefObject<HTMLDivElement>;
+}> = ({portalTarget}) => {
   const frame = useCurrentFrame();
   const rotation = interpolate(frame, [0, 1_000], [0, -5], {
     extrapolateRight: 'clamp',
@@ -38,7 +40,8 @@ const Box = ({portalTarget}) => {
 };
 
 export const ThreeHtml = () => {
-  const portalRef = useRef(null);
+  const portalRef =
+    useRef<HTMLDivElement>() as React.MutableRefObject<HTMLDivElement>;
 
   const {width, height} = useVideoConfig();
 
