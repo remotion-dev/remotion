@@ -251,7 +251,7 @@ class RenderMediaParams:
     input_props: Optional[List] = None
     bucket_name: Optional[str] = None
     region: Optional[str] = None
-    out_name: Optional[str] = None
+    out_name: Optional[Union[str, OutNameInputObject]] = None
     prefer_lossless: Optional[bool] = False
     composition: str = ""
     serve_url: str = ""
