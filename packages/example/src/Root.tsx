@@ -104,6 +104,7 @@ const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
 
 // @ts-expect-error no types
 import styles from './styles.module.scss';
+import { ThreeHtml } from './ThreeHtml/ThreeHtml';
 
 class Vector2 {
 	readonly x: number;
@@ -904,6 +905,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="three-basic"
 					component={ThreeBasic}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={600}
+				/>
+				<Composition
+					id="three-html"
+					component={ThreeHtml}
 					width={1280}
 					height={720}
 					fps={30}
