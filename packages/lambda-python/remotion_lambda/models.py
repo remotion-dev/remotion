@@ -124,7 +124,7 @@ class OutNameInputObject:
     Defines output naming and storage options.
 
     Attributes:
-        bucket_name (str): The name of the S3 bucket for output storage.
+        bucketName (str): The name of the S3 bucket for output storage.
         key (str): The key name within the S3 bucket.
         s3_output_provider (Optional[CustomCredentials]):
              Optional custom credentials for the S3 output provider.
