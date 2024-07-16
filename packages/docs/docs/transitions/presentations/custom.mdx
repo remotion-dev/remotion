@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-transitions-presentations-custom.png
-crumb: "@remotion/transitions"
-title: "Custom presentations"
+crumb: '@remotion/transitions'
+title: 'Custom presentations'
 ---
 
 This page describes how to create your own custom effect for [`<TransitionSeries>`](/docs/transitions/transitionseries).
@@ -27,16 +27,16 @@ A custom presentation is a function which returns an object of type `TransitionP
 It is an object with a React component (`component`) and React props which are passed to the component as `passedProps`.
 
 ```tsx twoslash title="custom-presentation.tsx"
-import type { TransitionPresentationComponentProps } from "@remotion/transitions";
+import type {TransitionPresentationComponentProps} from '@remotion/transitions';
 
 const StarPresentation: React.FC<
   TransitionPresentationComponentProps<CustomPresentationProps>
-> = ({ children, presentationDirection, presentationProgress, passedProps }) =>
+> = ({children, presentationDirection, presentationProgress, passedProps}) =>
   null;
 
 // ---cut---
 
-import type { TransitionPresentation } from "@remotion/transitions";
+import type {TransitionPresentation} from '@remotion/transitions';
 
 type CustomPresentationProps = {
   width: number;
@@ -46,7 +46,7 @@ type CustomPresentationProps = {
 export const customPresentation = (
   props: CustomPresentationProps,
 ): TransitionPresentation<CustomPresentationProps> => {
-  return { component: StarPresentation, props };
+  return {component: StarPresentation, props};
 };
 ```
 
@@ -74,17 +74,12 @@ type CustomPresentationProps = {
 };
 
 // ---cut---
-import type { TransitionPresentationComponentProps } from "@remotion/transitions";
-import { AbsoluteFill } from "remotion";
+import type {TransitionPresentationComponentProps} from '@remotion/transitions';
+import {AbsoluteFill} from 'remotion';
 
 const StarPresentation: React.FC<
   TransitionPresentationComponentProps<CustomPresentationProps>
-> = ({
-  children,
-  presentationDirection,
-  presentationProgress,
-  passedProps,
-}) => {
+> = ({children, presentationDirection, presentationProgress, passedProps}) => {
   return (
     <AbsoluteFill>
       <AbsoluteFill>{children}</AbsoluteFill>
@@ -116,17 +111,17 @@ size. <br /> <Step>4</Step> <a href="/docs/paths">
 Inside the container, the <code>children</code> get rendered.
 <br />
 <Step>6</Step> The effect is disabled if <code>presentationDirection</code> is set
-to <code>"exiting"</code>{" "}
+to <code>"exiting"</code>{' '}
 
 <br />
 <br />
 
 ```tsx twoslash title="StarPresentation.tsx"
-import { getBoundingBox, translatePath } from "@remotion/paths";
-import { makeStar } from "@remotion/shapes";
-import type { TransitionPresentationComponentProps } from "@remotion/transitions";
-import React, { useMemo, useState } from "react";
-import { AbsoluteFill, random } from "remotion";
+import {getBoundingBox, translatePath} from '@remotion/paths';
+import {makeStar} from '@remotion/shapes';
+import type {TransitionPresentationComponentProps} from '@remotion/transitions';
+import React, {useMemo, useState} from 'react';
+import {AbsoluteFill, random} from 'remotion';
 
 export type CustomPresentationProps = {
   width: number;
@@ -135,18 +130,13 @@ export type CustomPresentationProps = {
 
 const StarPresentation: React.FC<
   TransitionPresentationComponentProps<CustomPresentationProps>
-> = ({
-  children,
-  presentationDirection,
-  presentationProgress,
-  passedProps,
-}) => {
+> = ({children, presentationDirection, presentationProgress, passedProps}) => {
   const finishedRadius =
     Math.sqrt(passedProps.width ** 2 + passedProps.height ** 2) / 2;
   const innerRadius = finishedRadius * presentationProgress;
   const outerRadius = finishedRadius * 2 * presentationProgress;
 
-  const { path } = makeStar({
+  const {path} = makeStar({
     innerRadius,
     outerRadius,
     points: 5,
@@ -164,17 +154,17 @@ const StarPresentation: React.FC<
 
   const style: React.CSSProperties = useMemo(() => {
     return {
-      width: "100%",
-      height: "100%",
+      width: '100%',
+      height: '100%',
       clipPath:
-        presentationDirection === "exiting" ? undefined : `url(#${clipId})`,
+        presentationDirection === 'exiting' ? undefined : `url(#${clipId})`,
     };
   }, [clipId, presentationDirection]);
 
   return (
     <AbsoluteFill>
       <AbsoluteFill style={style}>{children}</AbsoluteFill>
-      {presentationDirection === "exiting" ? null : (
+      {presentationDirection === 'exiting' ? null : (
         <AbsoluteFill>
           <svg>
             <defs>
@@ -193,13 +183,13 @@ const StarPresentation: React.FC<
 Example usage:
 
 ```tsx twoslash title="MyComp.tsx"
-import { springTiming, TransitionSeries } from "@remotion/transitions";
-import { AbsoluteFill, useVideoConfig } from "remotion";
+import {springTiming, TransitionSeries} from '@remotion/transitions';
+import {AbsoluteFill, useVideoConfig} from 'remotion';
 
 import type {
   TransitionPresentation,
   TransitionPresentationComponentProps,
-} from "@remotion/transitions";
+} from '@remotion/transitions';
 
 type CustomPresentationProps = {
   width: number;
@@ -209,24 +199,24 @@ type CustomPresentationProps = {
 export const customPresentation = (
   props: CustomPresentationProps,
 ): TransitionPresentation<CustomPresentationProps> => {
-  return { component: StarPresentation, props };
+  return {component: StarPresentation, props};
 };
 
 const StarPresentation: React.FC<
   TransitionPresentationComponentProps<CustomPresentationProps>
-> = ({ children, presentationDirection, presentationProgress, passedProps }) =>
+> = ({children, presentationDirection, presentationProgress, passedProps}) =>
   null;
 
 export const Letter: React.FC<{
   children: React.ReactNode;
   color: string;
-}> = ({ children, color }) => {
+}> = ({children, color}) => {
   return <AbsoluteFill style={{}}>{children}</AbsoluteFill>;
 };
 
 // ---cut---
 export const MyComp: React.FC = () => {
-  const { width, height } = useVideoConfig();
+  const {width, height} = useVideoConfig();
 
   return (
     <TransitionSeries>
@@ -234,7 +224,7 @@ export const MyComp: React.FC = () => {
         <Letter color="orange">A</Letter>
       </TransitionSeries.Sequence>
       <TransitionSeries.Transition
-        presentation={customPresentation({ width, height })}
+        presentation={customPresentation({width, height})}
         timing={springTiming({
           durationInFrames: 45,
           config: {

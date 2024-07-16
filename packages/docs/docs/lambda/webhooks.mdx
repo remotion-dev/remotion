@@ -3,10 +3,10 @@ image: /generated/articles-docs-lambda-webhooks.png
 sidebar_label: Webhooks
 title: Webhooks
 slug: /lambda/webhooks
-crumb: "Lambda"
+crumb: 'Lambda'
 ---
 
-import { WebhookTest } from "../../components/lambda/webhook-test";
+import {WebhookTest} from '../../components/lambda/webhook-test';
 
 When rendering on AWS Lambda, Remotion can send webhooks to notify you when the render ends, successfully or with failures. This page describes the webhook payloads and how to set up a webhook API endpoint.
 
@@ -40,7 +40,7 @@ The request body has the following structure:
 ```ts
 type WebhookPayload =
   | {
-      type: "error";
+      type: 'error';
       errors: {
         message: string;
         name: string;
@@ -52,7 +52,7 @@ type WebhookPayload =
       customData: Record<string, unkown>;
     }
   | {
-      type: "success";
+      type: 'success';
       lambdaErrors: EnhancedErrorInfo[];
       outputUrl: string | undefined;
       outputFile: string | undefined;
@@ -70,7 +70,7 @@ type WebhookPayload =
       };
     }
   | {
-      type: "timeout";
+      type: 'timeout';
       renderId: string;
       expectedBucketOwner: string;
       bucketName: string;
@@ -118,7 +118,7 @@ Remotion will sign all webhook requests if you provide a webhook secret in the C
 
 :::warning
 If you don't provide a secret, the `X-Remotion-Signature` will be set to `NO_SECRET_PROVIDED`. It is not possible to verify the authenticity and data integrity of a webhook request that is sent with a `NO_SECRET_PROVIDED` signature. If you want to verify incoming webhooks, you must provide a webhook secret.
-:::warn
+:::
 
 Remotion uses [HMAC](https://en.wikipedia.org/wiki/HMAC) with the [SHA-512 algorithm](https://en.wikipedia.org/wiki/SHA-2) to cryptographically sign the webhook requests it sends. This allows you to verify the authenticity and data integrity of incoming webhook requests.
 
@@ -213,7 +213,7 @@ Since this endpoint is going to be executed in an AWS Lambda function on its own
 import {
   validateWebhookSignature,
   WebhookPayload,
-} from "@remotion/lambda/client";
+} from '@remotion/lambda/client';
 
 // Enable testing through the tool below
 // You may disable it in production
@@ -224,15 +224,15 @@ export const POST = async (req: Request, res: Response) => {
 
   if (ENABLE_TESTING) {
     const testingheaders = {
-      "Access-Control-Allow-Origin": "https://www.remotion.dev",
-      "Access-Control-Allow-Headers":
-        "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Remotion-Status, X-Remotion-Signature, X-Remotion-Mode",
-      "Access-Control-Allow-Methods": "OPTIONS,POST",
+      'Access-Control-Allow-Origin': 'https://www.remotion.dev',
+      'Access-Control-Allow-Headers':
+        'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Remotion-Status, X-Remotion-Signature, X-Remotion-Mode',
+      'Access-Control-Allow-Methods': 'OPTIONS,POST',
     };
-    headers = { ...headers, ...testingheaders };
+    headers = {...headers, ...testingheaders};
   }
 
-  if (req.method === "OPTIONS") {
+  if (req.method === 'OPTIONS') {
     return new Response(null, {
       headers,
     });
@@ -244,18 +244,18 @@ export const POST = async (req: Request, res: Response) => {
   validateWebhookSignature({
     secret: process.env.WEBHOOK_SECRET as string,
     body: body,
-    signatureHeader: req.headers.get("X-Remotion-Signature") as string,
+    signatureHeader: req.headers.get('X-Remotion-Signature') as string,
   });
 
   const payload = body as WebhookPayload;
 
-  if (payload.type === "success") {
+  if (payload.type === 'success') {
     //...
-  } else if (payload.type === "timeout") {
+  } else if (payload.type === 'timeout') {
     //...
   }
 
-  return new Response(JSON.stringify({ success: true }));
+  return new Response(JSON.stringify({success: true}));
 };
 
 export const OPTIONS = POST;
@@ -272,7 +272,7 @@ type NextApiRequest = {
   method: string;
 };
 type NextApiResponse = {
-  status: (code: number) => { json: (body: object) => void; end: () => void };
+  status: (code: number) => {json: (body: object) => void; end: () => void};
   setHeader: (key: string, value: string) => void;
   end: () => void;
 };
@@ -280,7 +280,7 @@ type NextApiResponse = {
 import {
   validateWebhookSignature,
   WebhookPayload,
-} from "@remotion/lambda/client";
+} from '@remotion/lambda/client';
 
 // Enable testing through the tool below
 // You may disable it in production
@@ -291,14 +291,14 @@ export default async function handler(
   res: NextApiResponse,
 ) {
   if (ENABLE_TESTING) {
-    res.setHeader("Access-Control-Allow-Origin", "https://www.remotion.dev");
-    res.setHeader("Access-Control-Allow-Methods", "OPTIONS,POST");
+    res.setHeader('Access-Control-Allow-Origin', 'https://www.remotion.dev');
+    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS,POST');
     res.setHeader(
-      "Access-Control-Allow-Headers",
-      "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Remotion-Status, X-Remotion-Signature, X-Remotion-Mode",
+      'Access-Control-Allow-Headers',
+      'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Remotion-Status, X-Remotion-Signature, X-Remotion-Mode',
     );
   }
-  if (req.method === "OPTIONS") {
+  if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
   }
@@ -306,14 +306,14 @@ export default async function handler(
   validateWebhookSignature({
     secret: process.env.WEBHOOK_SECRET as string,
     body: req.body,
-    signatureHeader: req.headers["x-remotion-signature"] as string,
+    signatureHeader: req.headers['x-remotion-signature'] as string,
   });
 
   // If code reaches this path, the webhook is authentic.
   const payload = req.body as WebhookPayload;
-  if (payload.type === "success") {
+  if (payload.type === 'success') {
     // ...
-  } else if (payload.type === "timeout") {
+  } else if (payload.type === 'timeout') {
     // ...
   }
 
