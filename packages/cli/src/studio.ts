@@ -31,7 +31,8 @@ const getPort = () => {
 	return null;
 };
 
-const {binariesDirectoryOption, publicDirOption} = BrowserSafeApis.options;
+const {binariesDirectoryOption, publicDirOption, disableGitSourceOption} =
+	BrowserSafeApis.options;
 
 export const studioCommand = async (
 	remotionRoot: string,
@@ -96,15 +97,19 @@ export const studioCommand = async (
 	const keyboardShortcutsEnabled =
 		ConfigInternals.getKeyboardShortcutsEnabled();
 
-	const gitSource = getGitSource(remotionRoot);
-
 	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	const disableGitSource = disableGitSourceOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 
 	const relativePublicDir = publicDirOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+
+	const gitSource = getGitSource({remotionRoot, disableGitSource});
 
 	await StudioServerInternals.startStudio({
 		previewEntry: require.resolve('@remotion/studio/entry'),

@@ -1,11 +1,14 @@
-import type {GitSource, WebpackOverrideFn} from '@remotion/bundler';
+import {
+	BundlerInternals,
+	type GitSource,
+	type WebpackOverrideFn,
+} from '@remotion/bundler';
 import type {ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import fs from 'node:fs';
 import {lambdaDeleteFile, lambdaLs} from '../functions/helpers/io';
 import type {AwsRegion} from '../pricing/aws-regions';
-import {bundleSite} from '../shared/bundle-site';
 import {getSitesKey} from '../shared/constants';
 import {getAccountId} from '../shared/get-account-id';
 import {getS3DiffOperations} from '../shared/get-s3-operations';
@@ -93,16 +96,22 @@ const mandatoryDeploySite = async ({
 			// The `/` is important to not accidentially delete sites with the same name but containing a suffix.
 			prefix: `${subFolder}/`,
 		}),
-		bundleSite({
+		BundlerInternals.internalBundle({
 			publicPath: `/${subFolder}/`,
 			webpackOverride: options?.webpackOverride ?? ((f) => f),
 			enableCaching: options?.enableCaching ?? true,
-			publicDir: options?.publicDir,
-			rootDir: options?.rootDir,
-			ignoreRegisterRootWarning: options?.ignoreRegisterRootWarning,
+			publicDir: options?.publicDir ?? null,
+			rootDir: options?.rootDir ?? null,
+			ignoreRegisterRootWarning: options?.ignoreRegisterRootWarning ?? false,
 			onProgress: options?.onBundleProgress ?? (() => undefined),
 			entryPoint,
 			gitSource,
+			bufferStateDelayInMilliseconds: null,
+			maxTimelineTracks: null,
+			onDirectoryCreated: () => undefined,
+			onPublicDirCopyProgress: () => undefined,
+			onSymlinkDetected: () => undefined,
+			outDir: null,
 		}),
 	]);
 

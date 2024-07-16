@@ -1,10 +1,11 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 import type {LogLevel} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {existsSync, lstatSync} from 'fs';
 import {Internals} from 'remotion';
 import {displaySiteInfo} from '.';
-import {deploySite} from '../../../api/deploy-site';
+import {internalDeploySiteRaw} from '../../../api/deploy-site';
 import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {BINARY_NAME} from '../../../shared/constants';
 import {validateSiteName} from '../../../shared/validate-site-name';
@@ -137,7 +138,14 @@ export const sitesCreateSubcommand = async (
 	const bundleStart = Date.now();
 	let uploadStart = Date.now();
 
-	const {serveUrl, siteName, stats} = await deploySite({
+	const disableGitSource =
+		BrowserSafeApis.options.disableGitSourceOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value;
+
+	const gitSource = CliInternals.getGitSource({remotionRoot, disableGitSource});
+
+	const {serveUrl, siteName, stats} = await internalDeploySiteRaw({
 		entryPoint: file,
 		siteName: desiredSiteName,
 		bucketName,
@@ -162,8 +170,14 @@ export const sitesCreateSubcommand = async (
 			},
 			enableCaching: ConfigInternals.getWebpackCaching(),
 			webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
-			gitSource: null,
+			gitSource,
+			bypassBucketNameValidation: true,
+			ignoreRegisterRootWarning: true,
+			publicDir: null,
+			rootDir: remotionRoot,
 		},
+		indent: false,
+		logLevel,
 	});
 
 	updateProgress(false);
