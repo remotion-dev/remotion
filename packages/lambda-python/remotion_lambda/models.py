@@ -35,6 +35,7 @@ class Privacy(str, Enum):
     """
     PUBLIC: str = 'public'
     PRIVATE: str = 'private'
+    NO_ACL: str = 'no-acl'
 
 
 class LogLevel(str, Enum):
