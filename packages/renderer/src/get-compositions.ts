@@ -202,7 +202,6 @@ const internalGetCompositionsRaw = async ({
 			},
 			{
 				onDownload: () => undefined,
-				onError,
 			},
 		)
 			.then(({server: {serveUrl, offthreadPort, sourceMap}, cleanupServer}) => {
