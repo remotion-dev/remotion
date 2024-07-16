@@ -128,7 +128,7 @@ class OutNameInputObject:
         s3_output_provider (Optional[CustomCredentials]):
              Optional custom credentials for the S3 output provider.
     """
-    bucket_name: str
+    bucketName: str
     key: str
     s3_output_provider: Optional[CustomCredentials] = None
 
