@@ -942,7 +942,10 @@ const internalRenderFramesRaw = ({
 				server?.compositor
 					.executeCommand('CloseAllVideos', {})
 					.then(() => {
-						Log.verbose({indent, logLevel}, 'Freed memory from compositor');
+						Log.verbose(
+							{indent, logLevel, tag: 'compositor'},
+							'Freed memory from compositor',
+						);
 					})
 					.catch((err) => {
 						Log.verbose({indent, logLevel}, 'Could not close compositor', err);
