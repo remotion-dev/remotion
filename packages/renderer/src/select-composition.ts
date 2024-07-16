@@ -240,7 +240,6 @@ export const internalSelectCompositionRaw = async (
 			},
 			{
 				onDownload: () => undefined,
-				onError,
 			},
 		)
 			.then(({server: {serveUrl, offthreadPort, sourceMap}, cleanupServer}) => {

@@ -564,7 +564,6 @@ const internalRenderMediaRaw = ({
 					},
 					{
 						onDownload,
-						onError: (err) => reject(err),
 					},
 				);
 			})

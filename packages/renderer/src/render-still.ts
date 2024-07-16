@@ -381,7 +381,6 @@ const internalRenderStillRaw = (
 			},
 			{
 				onDownload: options.onDownload,
-				onError,
 			},
 		)
 			.then(({server, cleanupServer}) => {

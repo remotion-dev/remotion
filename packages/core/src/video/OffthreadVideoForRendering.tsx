@@ -164,23 +164,45 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 		});
 
-		fetch(actualSrc, {
-			signal: controller.signal,
-		})
-			.then((res) => res.blob())
-			.then((blob) => {
+		const execute = async () => {
+			try {
+				const res = await fetch(actualSrc, {
+					signal: controller.signal,
+				});
+				if (res.status !== 200) {
+					if (res.status === 500) {
+						const json = await res.json();
+						if (json.error) {
+							const cleanedUpErrorMessage = (json.error as string).replace(
+								/^Error: /,
+								'',
+							);
+
+							throw new Error(cleanedUpErrorMessage);
+						}
+					}
+
+					throw new Error(
+						`Server returned status ${res.status} while fetching ${actualSrc}`,
+					);
+				}
+
+				const blob = await res.blob();
+
 				const url = URL.createObjectURL(blob);
 				cleanup.push(() => URL.revokeObjectURL(url));
 				setImageSrc(url);
 				continueRender(newHandle);
-			})
-			.catch((err) => {
+			} catch (err) {
 				if (onError) {
-					onError(err);
+					onError(err as Error);
 				} else {
 					cancelRender(err);
 				}
-			});
+			}
+		};
+
+		execute();
 
 		cleanup.push(() => {
 			if (controller.signal.aborted) {
@@ -203,11 +225,11 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	const onErr: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement> =
 		useCallback(() => {
 			if (onError) {
-				onError?.(new Error('Failed to load image with src ' + actualSrc));
+				onError?.(new Error('Failed to load image with src ' + imageSrc));
 			} else {
-				cancelRender('Failed to load image with src ' + actualSrc);
+				cancelRender('Failed to load image with src ' + imageSrc);
 			}
-		}, [actualSrc, onError]);
+		}, [imageSrc, onError]);
 
 	const className = useMemo(() => {
 		return [OFFTHREAD_VIDEO_CLASS_NAME, props.className]

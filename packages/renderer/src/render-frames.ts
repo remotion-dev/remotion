@@ -877,7 +877,6 @@ const internalRenderFramesRaw = ({
 					},
 					{
 						onDownload,
-						onError,
 					},
 				),
 				browserInstance,
