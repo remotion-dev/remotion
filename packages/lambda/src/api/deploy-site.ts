@@ -1,14 +1,11 @@
-import {
-	BundlerInternals,
-	type GitSource,
-	type WebpackOverrideFn,
-} from '@remotion/bundler';
+import {type GitSource, type WebpackOverrideFn} from '@remotion/bundler';
 import type {ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import fs from 'node:fs';
 import {lambdaDeleteFile, lambdaLs} from '../functions/helpers/io';
 import type {AwsRegion} from '../pricing/aws-regions';
+import {bundleSite} from '../shared/bundle-site';
 import {getSitesKey} from '../shared/constants';
 import {getAccountId} from '../shared/get-account-id';
 import {getS3DiffOperations} from '../shared/get-s3-operations';
@@ -96,7 +93,7 @@ const mandatoryDeploySite = async ({
 			// The `/` is important to not accidentially delete sites with the same name but containing a suffix.
 			prefix: `${subFolder}/`,
 		}),
-		BundlerInternals.internalBundle({
+		bundleSite({
 			publicPath: `/${subFolder}/`,
 			webpackOverride: options?.webpackOverride ?? ((f) => f),
 			enableCaching: options?.enableCaching ?? true,
