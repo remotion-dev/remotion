@@ -98,9 +98,11 @@ export function shiki(context: DocusaurusContext, pluginOptions: any) {
 		) {
 			return plugin;
 		}
+
 		if (typeof plugin === 'string') {
 			return plugin;
 		}
+
 		if (typeof plugin === 'boolean') {
 			return plugin;
 		}
@@ -128,6 +130,6 @@ export function shiki(context: DocusaurusContext, pluginOptions: any) {
 	}
 
 	return {
-		themes: [path.resolve(__dirname, './docusaurus-theme-shiki-twoslash')],
+		themes: [path.resolve(process.cwd(), './docusaurus-theme-shiki-twoslash')],
 	};
 }

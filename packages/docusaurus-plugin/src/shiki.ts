@@ -1,15 +1,17 @@
 import {TwoslashError} from '@typescript/twoslash';
 
 import {lex, parse} from 'fenceparser';
-import {Highlighter, getHighlighter} from 'shiki';
-import {UserConfigSettings, renderCodeToHTML} from 'shiki-twoslash';
-import {Node} from 'unist';
+import type {Highlighter} from 'shiki';
+import {getHighlighter} from 'shiki';
+import type {UserConfigSettings} from 'shiki-twoslash';
+import {renderCodeToHTML} from 'shiki-twoslash';
+import type {Node} from 'unist';
 import {visit} from 'unist-util-visit';
-import {BuildVisitor, UnistNode} from 'unist-util-visit/lib';
+import type {BuildVisitor, UnistNode} from 'unist-util-visit/lib';
 import {cachedTwoslashCall} from './caching';
 
-const {setupNodeForTwoslashException} = require('./exceptionMessageDOM');
-const {addIncludes, replaceIncludesInCode} = require('./includes');
+import {setupNodeForTwoslashException} from './exceptionMessageDOM';
+import {addIncludes, replaceIncludesInCode} from './includes';
 
 type OBJECT = Record<string, any>;
 
@@ -154,32 +156,14 @@ const parseFence = (fence: string): Fence => {
 // --- The Remark API ---
 
 /**
- * Synchronous outer function, async inner function, which is how the remark
- * async API works.
- */
-export function remarkTwoslash(settings: UserConfigSettings = {}) {
-	if (!highlighterCache.has(settings)) {
-		highlighterCache.set(settings, highlightersFromSettings(settings));
-	}
-
-	const transform = async (markdownAST: UnistNode) => {
-		const highlighters = await highlighterCache.get(settings);
-		parsingNewFile();
-		visit(markdownAST, 'code', remarkVisitor(highlighters, settings));
-	};
-
-	return transform;
-}
-
-/**
  * The function doing the work of transforming any codeblock samples in a remark AST.
  */
 const remarkVisitor =
 	(
 		highlighters: Highlighter[],
 		twoslashSettings: UserConfigSettings = {},
-	): BuildVisitor<Node, 'code'> =>
-	(node) => {
+	): BuildVisitor<Node, 'code' | 'html'> =>
+	(node: Node) => {
 		const code = node;
 		let fence;
 
@@ -191,9 +175,9 @@ const remarkVisitor =
 				'Codefence error',
 				'Could not parse the codefence for this code sample',
 				"It's usually an unclosed string",
-				code,
+				code.value,
 			);
-			return setupNodeForTwoslashException(code, node, twoslashError);
+			return setupNodeForTwoslashException(code.value, node, twoslashError);
 		}
 
 		// Do nothing if the node has an attribute to ignore
@@ -225,34 +209,47 @@ const remarkVisitor =
 			) {
 				throw error;
 			} else {
-				return setupNodeForTwoslashException(code, node, error);
+				return setupNodeForTwoslashException(code.value, node, error as Error);
 			}
 		}
 
 		if (twoslash) {
-			// @ts-expect-error
 			node.value = twoslash.code;
-			// @ts-expect-error
 			node.lang = twoslash.extension;
 			// @ts-expect-error
 			node.twoslash = twoslash;
 		}
 
 		const shikiHTML = getHTML(
-			// @ts-expect-error
 			node.value,
 			fence,
 			highlighters,
 			twoslash,
 			twoslashSettings,
 		);
-		// @ts-expect-error
 		node.type = 'html';
-		// @ts-expect-error
 		node.value = shikiHTML;
 		// @ts-expect-error
 		node.children = [];
 	};
+
+/**
+ * Synchronous outer function, async inner function, which is how the remark
+ * async API works.
+ */
+export function remarkTwoslash(settings: UserConfigSettings = {}) {
+	if (!highlighterCache.has(settings)) {
+		highlighterCache.set(settings, highlightersFromSettings(settings));
+	}
+
+	const transform = async (markdownAST: UnistNode) => {
+		const highlighters = await highlighterCache.get(settings);
+		parsingNewFile();
+		visit(markdownAST, 'code', remarkVisitor(highlighters, settings));
+	};
+
+	return transform;
+}
 
 // --- The Markdown-it API ---
 

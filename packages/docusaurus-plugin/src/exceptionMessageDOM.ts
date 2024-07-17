@@ -1,5 +1,5 @@
 import {TwoslashError} from '@typescript/twoslash';
-import {Node} from './unist-types';
+import type {Node} from './unist-types';
 
 export function escapeHtml(html: string) {
 	return html.replace(/</g, '&lt;').replace(/>/g, '&gt;');

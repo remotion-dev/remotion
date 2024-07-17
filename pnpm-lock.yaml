@@ -444,6 +444,9 @@ importers:
       '@remotion/cloudrun':
         specifier: workspace:*
         version: link:../cloudrun
+      '@remotion/docusaurus-plugin':
+        specifier: workspace:*
+        version: link:../docusaurus-plugin
       '@remotion/enable-scss':
         specifier: workspace:*
         version: link:../enable-scss

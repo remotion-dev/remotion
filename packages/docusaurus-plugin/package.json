@@ -1,4 +1,17 @@
 {
+	"name": "@remotion/docusaurus-plugin",
+	"version": "4.0.181",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"sideEffects": false,
+	"scripts": {
+		"lint": "eslint src --ext ts,tsx"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"license": "UNLICENSED",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
 	"dependencies": {
 		"shiki-twoslash": "3.1.2",
 		"unified": "^11.0.5",
@@ -8,5 +21,6 @@
 		"@typescript/twoslash": "3.2.1",
 		"@docusaurus/types": "3.4.0",
 		"@types/unist": "3.0.2"
-	}
+	},
+	"private": true
 }

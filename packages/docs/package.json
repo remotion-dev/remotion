@@ -35,6 +35,7 @@
 		"@remotion/babel-loader": "workspace:*",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/cli": "workspace:*",
+		"@remotion/docusaurus-plugin": "workspace:*",
 		"@remotion/cloudrun": "workspace:*",
 		"@remotion/fonts": "workspace:*",
 		"@remotion/gif": "workspace:*",
