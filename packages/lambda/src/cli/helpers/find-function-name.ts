@@ -52,9 +52,9 @@ export const findFunctionName = async (logLevel: LogLevel) => {
 					'Prefer using one of those functions by passing their name to  `--function-name` or removing it entirely.',
 				);
 			}
-
-			return cliFlag;
 		}
+
+		return cliFlag;
 	}
 
 	if (lambdasWithMatchingVersion.length === 0) {
