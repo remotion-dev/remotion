@@ -129,7 +129,17 @@ const getFromEnvVariables = (): GitSource | null => {
 	return null;
 };
 
-export const getGitSource = (remotionRoot: string): GitSource | null => {
+export const getGitSource = ({
+	remotionRoot,
+	disableGitSource,
+}: {
+	remotionRoot: string;
+	disableGitSource: boolean;
+}): GitSource | null => {
+	if (disableGitSource) {
+		return null;
+	}
+
 	const fromEnv = getFromEnvVariables();
 	if (fromEnv) {
 		return getFromEnvVariables();

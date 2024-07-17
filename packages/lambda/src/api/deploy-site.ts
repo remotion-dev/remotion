@@ -1,4 +1,4 @@
-import type {GitSource, WebpackOverrideFn} from '@remotion/bundler';
+import {type GitSource, type WebpackOverrideFn} from '@remotion/bundler';
 import type {ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
@@ -97,12 +97,18 @@ const mandatoryDeploySite = async ({
 			publicPath: `/${subFolder}/`,
 			webpackOverride: options?.webpackOverride ?? ((f) => f),
 			enableCaching: options?.enableCaching ?? true,
-			publicDir: options?.publicDir,
-			rootDir: options?.rootDir,
-			ignoreRegisterRootWarning: options?.ignoreRegisterRootWarning,
+			publicDir: options?.publicDir ?? null,
+			rootDir: options?.rootDir ?? null,
+			ignoreRegisterRootWarning: options?.ignoreRegisterRootWarning ?? false,
 			onProgress: options?.onBundleProgress ?? (() => undefined),
 			entryPoint,
 			gitSource,
+			bufferStateDelayInMilliseconds: null,
+			maxTimelineTracks: null,
+			onDirectoryCreated: () => undefined,
+			onPublicDirCopyProgress: () => undefined,
+			onSymlinkDetected: () => undefined,
+			outDir: null,
 		}),
 	]);
 

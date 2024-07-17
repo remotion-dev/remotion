@@ -17,6 +17,7 @@ import {ffmpegCommand, ffprobeCommand} from './ffmpeg';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
 import {loadConfig} from './get-config-file-name';
+import {getGitSource} from './get-github-repository';
 import {gpuCommand} from './gpu';
 import {supportsHyperlink} from './hyperlinks/is-supported';
 import {makeHyperlink} from './hyperlinks/make-link';
@@ -171,4 +172,5 @@ export const CliInternals = {
 	printFact,
 	makeHyperlink,
 	supportsHyperlink,
+	getGitSource,
 };
