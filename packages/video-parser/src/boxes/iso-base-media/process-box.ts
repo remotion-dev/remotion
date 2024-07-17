@@ -16,7 +16,6 @@ const processBoxAndSubtract = ({
 	iterator: BufferIterator;
 	fileOffset: number;
 }): BoxAndNext => {
-	const offset = iterator.counter.getOffset();
 	const boxSize = iterator.getFourByteNumber();
 	if (boxSize === 0) {
 		throw new Error(`Expected box size of not 0, got ${boxSize}`);
@@ -27,14 +26,14 @@ const processBoxAndSubtract = ({
 	const boxType = iterator.getByteString(4);
 	iterator.counter.decrement(8);
 
-	const boxBuffer = iterator.slice(offset, boxSize + offset);
+	const boxBuffer = iterator.sliceFromHere(0, boxSize);
 	if (boxBuffer.byteLength !== boxSize) {
 		return {
 			type: 'incomplete',
 		};
 	}
 
-	const next = iterator.slice(boxSize + offset);
+	const next = iterator.sliceFromHere(boxSize);
 
 	if (boxType === 'ftyp') {
 		const box = parseFtyp(boxBuffer, fileOffset);

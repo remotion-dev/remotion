@@ -14,7 +14,7 @@ export const parseFtyp = (data: Uint8Array, offset: number): FtypBox => {
 	const majorBrand = iterator.getByteString(4);
 	const minorVersion = iterator.getFourByteNumber();
 
-	const rest = iterator.slice(16);
+	const rest = iterator.sliceFromHere(0);
 	const types = rest.byteLength / 4;
 	const compatibleBrands: string[] = [];
 	for (let i = 0; i < types; i++) {
