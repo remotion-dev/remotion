@@ -1,8 +1,12 @@
-import type {GitSource, WebpackOverrideFn} from '@remotion/bundler';
-import type {LogLevel} from '@remotion/renderer';
+import {
+	BundlerInternals,
+	type GitSource,
+	type WebpackOverrideFn,
+} from '@remotion/bundler';
+import type {ToOptions} from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import {cloudrunDeleteFile, cloudrunLs} from '../functions/helpers/io';
-import {bundleSite} from '../shared/bundle-site';
 import {getSitesKey} from '../shared/constants';
 import {getStorageDiffOperations} from '../shared/get-storage-operations';
 import {makeStorageServeUrl} from '../shared/make-storage-url';
@@ -25,21 +29,25 @@ type Options = {
 	gitSource?: GitSource | null;
 };
 
+type OptionalParameters = {
+	siteName: string;
+	options: Options;
+} & ToOptions<typeof BrowserSafeApis.optionsMap.deploySiteCloudRun>;
+
 export type RawDeploySiteInput = {
 	entryPoint: string;
 	bucketName: string;
 	siteName: string;
 	options: Options;
-	logLevel: LogLevel;
 	indent: boolean;
-};
+} & OptionalParameters;
 
 export type DeploySiteInput = {
 	entryPoint: string;
 	bucketName: string;
 	siteName?: string;
 	options?: Options;
-};
+} & Partial<OptionalParameters>;
 
 export type DeploySiteOutput = Promise<{
 	serveUrl: string;
@@ -51,7 +59,7 @@ export type DeploySiteOutput = Promise<{
 	};
 }>;
 
-const internalDeploySiteRaw = async ({
+export const internalDeploySiteRaw = async ({
 	entryPoint,
 	bucketName,
 	siteName,
@@ -74,16 +82,22 @@ const internalDeploySiteRaw = async ({
 			bucketName,
 			prefix: subFolder,
 		}),
-		bundleSite({
+		BundlerInternals.internalBundle({
 			publicPath: `/${bucketName}/${subFolder}/`,
 			webpackOverride: options?.webpackOverride ?? ((f) => f),
 			enableCaching: options?.enableCaching ?? true,
-			publicDir: options?.publicDir,
-			rootDir: options?.rootDir,
-			ignoreRegisterRootWarning: options?.ignoreRegisterRootWarning,
+			publicDir: options?.publicDir ?? null,
+			rootDir: options?.rootDir ?? null,
+			ignoreRegisterRootWarning: options?.ignoreRegisterRootWarning ?? false,
 			onProgress: options?.onBundleProgress ?? (() => undefined),
 			entryPoint,
-			gitSource: options?.gitSource,
+			gitSource: options?.gitSource ?? null,
+			bufferStateDelayInMilliseconds: null,
+			maxTimelineTracks: null,
+			onDirectoryCreated: () => undefined,
+			onPublicDirCopyProgress: () => undefined,
+			onSymlinkDetected: () => undefined,
+			outDir: null,
 		}),
 	]);
 
