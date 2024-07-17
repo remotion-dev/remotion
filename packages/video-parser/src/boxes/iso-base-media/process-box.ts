@@ -1,4 +1,5 @@
 import type {BoxAndNext, IsoBaseMediaBox} from '../../parse-video';
+import type {BufferIterator} from '../../read-and-increment-offset';
 import {getArrayBufferIterator} from '../../read-and-increment-offset';
 import {parseFtyp} from './ftype';
 import {parseMoov} from './moov/moov';
@@ -9,33 +10,35 @@ import {parseTkhd} from './tkhd';
 import {parseTrak} from './trak/trak';
 
 const processBoxAndSubtract = ({
-	data,
+	iterator,
 	fileOffset,
 }: {
-	data: Uint8Array;
+	iterator: BufferIterator;
 	fileOffset: number;
 }): BoxAndNext => {
-	const iterator = getArrayBufferIterator(data);
-
+	const offset = iterator.counter.getOffset();
 	const boxSize = iterator.getFourByteNumber();
 	if (boxSize === 0) {
-		throw new Error(`Expected box size of ${data.byteLength}, got ${boxSize}`);
+		throw new Error(`Expected box size of not 0, got ${boxSize}`);
 	}
 
+	const toDiscard = boxSize;
+
 	const boxType = iterator.getByteString(4);
+	iterator.counter.decrement(8);
 
-	const boxBuffer = iterator.slice(0, boxSize);
-	const next = iterator.slice(boxSize);
-
+	const boxBuffer = iterator.slice(offset, boxSize + offset);
 	if (boxBuffer.byteLength !== boxSize) {
 		return {
 			type: 'incomplete',
 		};
 	}
 
+	const next = iterator.slice(boxSize + offset);
+
 	if (boxType === 'ftyp') {
 		const box = parseFtyp(boxBuffer, fileOffset);
-		iterator.discard(boxSize);
+		iterator.discard(toDiscard);
 		return {
 			type: 'complete',
 			box,
@@ -46,7 +49,7 @@ const processBoxAndSubtract = ({
 
 	if (boxType === 'mvhd') {
 		const box = parseMvhd(boxBuffer, fileOffset);
-		iterator.discard(boxSize);
+		iterator.discard(toDiscard);
 
 		return {
 			type: 'complete',
@@ -58,7 +61,7 @@ const processBoxAndSubtract = ({
 
 	if (boxType === 'tkhd') {
 		const box = parseTkhd(boxBuffer, fileOffset);
-		iterator.discard(boxSize);
+		iterator.discard(toDiscard);
 
 		return {
 			type: 'complete',
@@ -70,7 +73,7 @@ const processBoxAndSubtract = ({
 
 	if (boxType === 'stsd') {
 		const box = parseStsd(boxBuffer, fileOffset);
-		iterator.discard(boxSize);
+		iterator.discard(toDiscard);
 
 		return {
 			type: 'complete',
@@ -82,7 +85,7 @@ const processBoxAndSubtract = ({
 
 	if (boxType === 'mebx') {
 		const box = parseMebx(boxBuffer, fileOffset);
-		iterator.discard(boxSize);
+		iterator.discard(toDiscard);
 
 		return {
 			type: 'complete',
@@ -94,6 +97,7 @@ const processBoxAndSubtract = ({
 
 	if (boxType === 'moov') {
 		const box = parseMoov(boxBuffer, fileOffset);
+		iterator.discard(toDiscard);
 
 		return {
 			type: 'complete',
@@ -105,7 +109,7 @@ const processBoxAndSubtract = ({
 
 	if (boxType === 'trak') {
 		const box = parseTrak(boxBuffer, fileOffset);
-		iterator.discard(boxSize);
+		iterator.discard(toDiscard);
 
 		return {
 			type: 'complete',
@@ -126,7 +130,7 @@ const processBoxAndSubtract = ({
 			? parseBoxes(childArray, fileOffset)
 			: [];
 
-	iterator.discard(boxSize);
+	iterator.discard(toDiscard);
 
 	return {
 		type: 'complete',
@@ -150,13 +154,15 @@ export const parseBoxes = (
 	let remaining = data;
 	let bytesConsumed = fileOffset;
 
+	const iterator = getArrayBufferIterator(data);
+
 	while (remaining.byteLength > 0) {
 		const result = processBoxAndSubtract({
-			data: remaining,
+			iterator,
 			fileOffset: bytesConsumed,
 		});
 		if (result.type === 'incomplete') {
-			return boxes;
+			break;
 		}
 
 		remaining = result.next;

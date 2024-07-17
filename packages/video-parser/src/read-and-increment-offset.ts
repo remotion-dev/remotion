@@ -15,6 +15,14 @@ export class OffsetCounter {
 	getOffset(): number {
 		return this.#offset;
 	}
+
+	decrement(amount: number) {
+		if (amount < 0) {
+			throw new Error('Cannot decrement by a negative amount');
+		}
+
+		this.#offset -= amount;
+	}
 }
 
 const makeOffsetCounter = (): OffsetCounter => {
@@ -29,12 +37,14 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 	const getSlice = (amount: number) => {
 		const value = data.slice(counter.getOffset(), counter.getOffset() + amount);
 		counter.increment(amount);
+
 		return value;
 	};
 
 	const getUint8 = () => {
 		const val = view.getUint8(counter.getOffset());
 		counter.increment(1);
+
 		return val;
 	};
 
@@ -66,11 +76,20 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 		return val;
 	};
 
+	const sliceFromHere = (offset: number, length?: number) => {
+		const val = data.slice(
+			offset + counter.getOffset(),
+			length ? length + counter.getOffset() : undefined,
+		);
+		return val;
+	};
+
 	const byteLength = () => {
 		return data.byteLength;
 	};
 
 	return {
+		sliceFromHere,
 		addData,
 		counter,
 		slice,
