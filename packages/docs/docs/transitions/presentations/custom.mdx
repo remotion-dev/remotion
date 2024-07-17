@@ -13,12 +13,9 @@ A presentation is a higher order component which wraps around the entering slide
 <Step>1</Step> The current <code>presentationProgress</code>, influenced by the
 timing of the transition
 <br />
-<Step>2</Step> The <code>presentationDirection</code>, either <code>
-  entering
-</code> or <code>exiting</code>
+<Step>2</Step> The <code>presentationDirection</code>, either <code>entering</code> or <code>exiting</code>
 <br />
-<Step>3</Step> The <code>presentationDurationInFrames</code> (_available from
-v4.0.153_)
+<Step>3</Step> The <code>presentationDurationInFrames</code> (_available from v4.0.153_)
 <Step>4</Step> Additional developer-defined <code>passedProps</code>
 
 ## Boilerplate
@@ -94,18 +91,12 @@ const StarPresentation: React.FC<
 
 The following example implements a star mask transition:
 
-<Step>1</Step> Based on the <code>passedProps</code> <code>height</code> and <code>
-  width
-</code>
+<Step>1</Step> Based on the <code>passedProps</code> <code>height</code> and <code>width</code>
 , the inner radius of the star is calculated that will completely fill the canvas.
 <br />
-<Step>2</Step> Using <a href="/docs/shapes">
-  <code>@remotion/shapes</code>
-</a>, an SVG path is calculated, and grown from zero to the full size of the canvas. <br />
+<Step>2</Step> Using <a href="/docs/shapes"><code>@remotion/shapes</code></a>, an SVG path is calculated, and grown from zero to the full size of the canvas. <br />
 <Step>3</Step> The <code>presentationProgress</code> is used to interpolate the shape
-size. <br /> <Step>4</Step> <a href="/docs/paths">
-  <code>@remotion/paths</code>
-</a> is used to center the star in the middle of the canvas.
+size. <br /> <Step>4</Step> <a href="/docs/paths"><code>@remotion/paths</code></a> is used to center the star in the middle of the canvas.
 <br />
 <Step>5</Step> A <code>clipPath</code> is used to clip the entering slide.
 Inside the container, the <code>children</code> get rendered.

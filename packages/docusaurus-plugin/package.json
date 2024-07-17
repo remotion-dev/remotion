@@ -19,7 +19,8 @@
 		"fenceparser": "^2.2.0",
 		"shiki": "0.10.1",
 		"@typescript/twoslash": "3.2.1",
-		"@docusaurus/types": "3.4.0"
+		"@docusaurus/types": "3.4.0",
+		"@types/node": "^20.14.11"
 	},
 	"private": true
 }

@@ -224,8 +224,95 @@ const remarkVisitor =
 			twoslash,
 			twoslashSettings,
 		);
-		node.type = 'html';
-		node.value = shikiHTML;
+		// @ts-expect-error
+		node.type = 'mdxJsxFlowElement';
+		node.name = 'div';
+		// @ts-expect-error
+		node.attributes = [
+			{
+				type: 'mdxJsxAttribute',
+				name: 'dangerouslySetInnerHTML',
+				value: {
+					type: 'mdxJsxAttributeValueExpression',
+					value: `{\n    __html: '',\n  }`,
+					data: {
+						estree: {
+							type: 'Program',
+							start: 779,
+							end: 843,
+							body: [
+								{
+									type: 'ExpressionStatement',
+									expression: {
+										type: 'ObjectExpression',
+										start: 779,
+										end: 843,
+										loc: {
+											start: {line: 28, column: 27, offset: 779},
+											end: {line: 30, column: 3, offset: 843},
+										},
+										properties: [
+											{
+												type: 'Property',
+												start: 785,
+												end: 838,
+												loc: {
+													start: {line: 29, column: 4, offset: 785},
+													end: {line: 29, column: 57, offset: 838},
+												},
+												method: false,
+												shorthand: false,
+												computed: false,
+												key: {
+													type: 'Identifier',
+													start: 785,
+													end: 791,
+													loc: {
+														start: {line: 29, column: 4, offset: 785},
+														end: {line: 29, column: 10, offset: 791},
+													},
+													name: '__html',
+													range: [785, 791],
+												},
+												value: {
+													type: 'Literal',
+													start: 793,
+													end: 838,
+													loc: {
+														start: {line: 29, column: 12, offset: 793},
+														end: {line: 29, column: 57, offset: 838},
+													},
+													value: shikiHTML,
+													raw: JSON.stringify(shikiHTML),
+													range: [793, 838],
+												},
+												kind: 'init',
+												range: [785, 838],
+											},
+										],
+										range: [779, 843],
+									},
+									start: 779,
+									end: 843,
+									loc: {
+										start: {line: 28, column: 27, offset: 779},
+										end: {line: 30, column: 3, offset: 843},
+									},
+									range: [779, 843],
+								},
+							],
+							sourceType: 'module',
+							comments: [],
+							loc: {
+								start: {line: 28, column: 27, offset: 779},
+								end: {line: 30, column: 3, offset: 843},
+							},
+							range: [779, 843],
+						},
+					},
+				},
+			},
+		];
 		node.children = [];
 	};
 

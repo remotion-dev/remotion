@@ -90,6 +90,7 @@ export interface Node {
 	 * Node type.
 	 */
 	type: 'code' | 'html';
+	name?: string;
 
 	/**
 	 * Info from the ecosystem.
