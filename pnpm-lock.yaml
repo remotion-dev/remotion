@@ -613,9 +613,6 @@ importers:
       '@docusaurus/types':
         specifier: 3.4.0
         version: 3.4.0(react-dom@18.3.1)(react@18.3.1)
-      '@types/unist':
-        specifier: 3.0.2
-        version: 3.0.2
       '@typescript/twoslash':
         specifier: 3.2.1
         version: 3.2.1

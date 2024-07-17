@@ -1,5 +1,7 @@
 // ## Interfaces
 
+import type {TwoSlashReturn} from '@typescript/twoslash';
+
 /**
  * Info associated with nodes by the ecosystem.
  *
@@ -70,7 +72,7 @@ export interface Literal extends Node {
 	/**
 	 * Plain value.
 	 */
-	value: unknown;
+	value: string;
 }
 
 /**
@@ -87,7 +89,7 @@ export interface Node {
 	/**
 	 * Node type.
 	 */
-	type: string;
+	type: 'code' | 'html';
 
 	/**
 	 * Info from the ecosystem.
@@ -101,6 +103,11 @@ export interface Node {
 	 * have a position.
 	 */
 	position?: Position | undefined;
+	value: string;
+	lang: string;
+	meta?: string;
+	children?: Node[];
+	twoslash?: TwoSlashReturn;
 }
 
 /**

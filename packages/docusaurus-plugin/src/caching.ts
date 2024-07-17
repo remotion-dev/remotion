@@ -1,4 +1,6 @@
-import {UserConfigSettings, runTwoSlash} from 'shiki-twoslash';
+import type {TwoSlashReturn} from '@typescript/twoslash';
+import type {UserConfigSettings} from 'shiki-twoslash';
+import {runTwoSlash} from 'shiki-twoslash';
 
 /**
  * Keeps a cache of the JSON responses to a twoslash call in node_modules/.cache/twoslash
@@ -9,7 +11,7 @@ export const cachedTwoslashCall = (
 	code: string,
 	lang: string,
 	settings: UserConfigSettings,
-) => {
+): TwoSlashReturn => {
 	const isWebWorker =
 		typeof self !== 'undefined' &&
 		// @ts-expect-error

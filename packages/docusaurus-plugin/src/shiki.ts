@@ -5,13 +5,13 @@ import type {Highlighter} from 'shiki';
 import {getHighlighter} from 'shiki';
 import type {UserConfigSettings} from 'shiki-twoslash';
 import {renderCodeToHTML} from 'shiki-twoslash';
-import type {Node} from 'unist';
 import {visit} from 'unist-util-visit';
 import type {BuildVisitor, UnistNode} from 'unist-util-visit/lib';
 import {cachedTwoslashCall} from './caching';
 
 import {setupNodeForTwoslashException} from './exceptionMessageDOM';
 import {addIncludes, replaceIncludesInCode} from './includes';
+import type {Node} from './unist-types';
 
 type OBJECT = Record<string, any>;
 
@@ -168,7 +168,6 @@ const remarkVisitor =
 		let fence;
 
 		try {
-			// @ts-expect-error
 			fence = parseFence([node.lang, node.meta].filter(Boolean).join(' '));
 		} catch (error) {
 			const twoslashError = new TwoslashError(
@@ -195,8 +194,7 @@ const remarkVisitor =
 		try {
 			// By allowing node.twoslash to already exist you can set it up yourself in a browser
 			twoslash =
-				// @ts-expect-error
-				node.twoslash || runTwoSlashOnNode(code, fence, twoslashSettings);
+				node.twoslash || runTwoSlashOnNode(code.value, fence, twoslashSettings);
 		} catch (error) {
 			const shouldAlwaysRaise =
 				process && process.env && Boolean(process.env.CI);
@@ -216,7 +214,6 @@ const remarkVisitor =
 		if (twoslash) {
 			node.value = twoslash.code;
 			node.lang = twoslash.extension;
-			// @ts-expect-error
 			node.twoslash = twoslash;
 		}
 
@@ -229,7 +226,6 @@ const remarkVisitor =
 		);
 		node.type = 'html';
 		node.value = shikiHTML;
-		// @ts-expect-error
 		node.children = [];
 	};
 

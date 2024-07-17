@@ -145,8 +145,6 @@ export const setupNodeForTwoslashException = (
     <div class='twoslash-exception-message'>${body}${codeSample}</div>`;
 
 	node.type = 'html';
-	// @ts-expect-error
 	node.value = "<div id='twoslash-error'>" + css + html + '</div>';
-	// @ts-expect-error
 	node.children = [];
 };
