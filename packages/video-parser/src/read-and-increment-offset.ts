@@ -17,16 +17,13 @@ export class OffsetCounter {
 	}
 }
 
-const makeOffsetCounter = (initial: number): OffsetCounter => {
-	return new OffsetCounter(initial);
+const makeOffsetCounter = (): OffsetCounter => {
+	return new OffsetCounter(0);
 };
 
-export const getArrayBufferIterator = (
-	data: ArrayBuffer,
-	initialOffset: number,
-) => {
+export const getArrayBufferIterator = (data: ArrayBuffer) => {
 	const view = new DataView(data);
-	const counter = makeOffsetCounter(initialOffset);
+	const counter = makeOffsetCounter();
 
 	const getSlice = (amount: number) => {
 		const value = data.slice(counter.getOffset(), counter.getOffset() + amount);

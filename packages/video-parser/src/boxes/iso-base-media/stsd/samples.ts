@@ -116,7 +116,7 @@ export const processSampleAndSubtract = ({
 	data: ArrayBuffer;
 	fileOffset: number;
 }): SampleAndNext => {
-	const iterator = getArrayBufferIterator(data, 0);
+	const iterator = getArrayBufferIterator(data);
 	const boxSize = iterator.getUint32();
 	if (boxSize !== data.byteLength) {
 		throw new Error(`Expected box size of ${data.byteLength}, got ${boxSize}`);

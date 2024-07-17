@@ -9,7 +9,7 @@ export interface MoovBox extends BaseBox {
 }
 
 export const parseMoov = (data: ArrayBuffer, offset: number): MoovBox => {
-	const iterator = getArrayBufferIterator(data, 0);
+	const iterator = getArrayBufferIterator(data);
 	const size = iterator.getUint32();
 	if (size !== data.byteLength) {
 		throw new Error(`Expected moov size of ${data.byteLength}, got ${size}`);

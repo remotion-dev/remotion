@@ -9,7 +9,7 @@ export interface TrakBox extends BaseBox {
 }
 
 export const parseTrak = (data: ArrayBuffer, offset: number): TrakBox => {
-	const iterator = getArrayBufferIterator(data, 0);
+	const iterator = getArrayBufferIterator(data);
 	const size = iterator.getUint32();
 
 	if (size !== data.byteLength) {

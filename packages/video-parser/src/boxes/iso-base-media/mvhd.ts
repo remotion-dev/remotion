@@ -28,7 +28,7 @@ export interface MvhdBox extends BaseBox {
 }
 
 export const parseMvhd = (data: ArrayBuffer, offset: number): MvhdBox => {
-	const iterator = getArrayBufferIterator(data, 0);
+	const iterator = getArrayBufferIterator(data);
 	const size = iterator.getUint32();
 	const atom = iterator.getAtom();
 	if (atom !== 'mvhd') {
@@ -57,7 +57,7 @@ export const parseMvhd = (data: ArrayBuffer, offset: number): MvhdBox => {
 	const durationInSeconds = durationInUnits / timeScale;
 
 	const rateArray = iterator.getSlice(4);
-	const rateView = getArrayBufferIterator(rateArray, 0);
+	const rateView = getArrayBufferIterator(rateArray);
 	const rate =
 		rateView.getInt8() * 10 +
 		rateView.getInt8() +
@@ -65,7 +65,7 @@ export const parseMvhd = (data: ArrayBuffer, offset: number): MvhdBox => {
 		rateView.getInt8() * 0.01;
 
 	const volumeArray = iterator.getSlice(2);
-	const volumeView = getArrayBufferIterator(volumeArray, 0);
+	const volumeView = getArrayBufferIterator(volumeArray);
 
 	const volume = volumeView.getInt8() + volumeView.getInt8() * 0.1;
 

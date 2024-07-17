@@ -6,7 +6,7 @@ export interface KeysBox extends BaseBox {
 }
 
 export const parseKeys = (data: ArrayBuffer, offset: number): KeysBox => {
-	const iterator = getArrayBufferIterator(data, 0);
+	const iterator = getArrayBufferIterator(data);
 	const size = iterator.getUint32();
 	if (size !== data.byteLength) {
 		throw new Error(`Expected keys size of ${data.byteLength}, got ${size}`);

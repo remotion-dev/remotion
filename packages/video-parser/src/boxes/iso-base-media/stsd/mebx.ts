@@ -11,7 +11,7 @@ export interface MebxBox extends BaseBox {
 }
 
 export const parseMebx = (data: ArrayBuffer, offset: number): MebxBox => {
-	const iterator = getArrayBufferIterator(data, 0);
+	const iterator = getArrayBufferIterator(data);
 	const size = iterator.getUint32();
 	if (size !== data.byteLength) {
 		throw new Error(`Expected mebx size of ${data.byteLength}, got ${size}`);
