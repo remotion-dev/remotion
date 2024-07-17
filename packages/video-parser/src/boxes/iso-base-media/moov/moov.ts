@@ -21,7 +21,7 @@ export const parseMoov = (data: ArrayBuffer, offset: number): MoovBox => {
 	}
 
 	const children = parseBoxes(
-		iterator.data.slice(iterator.counter.getOffset()),
+		iterator.slice(iterator.counter.getOffset()),
 		offset + iterator.counter.getOffset(),
 	);
 

@@ -28,7 +28,7 @@ export const parseMebx = (data: ArrayBuffer, offset: number): MebxBox => {
 	const dataReferenceIndex = iterator.getUint16();
 
 	const children = parseBoxes(
-		iterator.data.slice(iterator.counter.getOffset()),
+		iterator.slice(iterator.counter.getOffset()),
 		offset + iterator.counter.getOffset(),
 	);
 

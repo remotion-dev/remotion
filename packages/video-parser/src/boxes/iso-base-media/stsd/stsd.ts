@@ -33,7 +33,7 @@ export const parseStsd = (data: ArrayBuffer, offset: number): StsdBox => {
 	const numberOfEntries = view.getUint32();
 
 	const boxes = parseSamples(
-		view.data.slice(view.counter.getOffset()),
+		view.slice(view.counter.getOffset()),
 		offset + view.counter.getOffset(),
 	);
 

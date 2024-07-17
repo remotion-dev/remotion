@@ -87,8 +87,7 @@ export const expectSegment = (iterator: BufferIterator) => {
 
 	const length = iterator.getVint(8);
 
-	const bytesRemaining =
-		iterator.data.byteLength - iterator.counter.getOffset();
+	const bytesRemaining = iterator.byteLength() - iterator.counter.getOffset();
 	const toDiscard = Math.min(
 		bytesRemaining,
 		length > 0 ? length : bytesRemaining,

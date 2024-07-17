@@ -46,9 +46,19 @@ export const getArrayBufferIterator = (
 		return val;
 	};
 
+	const slice = (offset: number) => {
+		const val = data.slice(offset);
+		return val;
+	};
+
+	const byteLength = () => {
+		return data.byteLength;
+	};
+
 	return {
 		counter,
-		data,
+		slice,
+		byteLength,
 		discard: (length: number) => {
 			counter.increment(length);
 		},
