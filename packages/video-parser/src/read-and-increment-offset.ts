@@ -61,8 +61,8 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 	};
 
 	// TODO: Better not have this function
-	const slice = (offset: number) => {
-		const val = data.slice(offset);
+	const slice = (offset: number, length?: number) => {
+		const val = data.slice(offset, length);
 		return val;
 	};
 

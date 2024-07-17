@@ -78,12 +78,14 @@ export const parseVideo = async (
 		});
 	});
 
+	const iterator = getArrayBufferIterator(new Uint8Array(data));
+
 	if (matchesPattern(isoBaseMediaMp4Pattern)(data.subarray(4, 8))) {
 		return parseBoxes(new Uint8Array(data), 0);
 	}
 
 	if (matchesPattern(webmPattern)(data.subarray(0, 4))) {
-		return [parseWebm(getArrayBufferIterator(new Uint8Array(data)))];
+		return [parseWebm(iterator)];
 	}
 
 	return [];

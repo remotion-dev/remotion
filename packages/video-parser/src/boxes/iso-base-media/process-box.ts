@@ -22,12 +22,10 @@ const processBoxAndSubtract = ({
 		throw new Error(`Expected box size of ${data.byteLength}, got ${boxSize}`);
 	}
 
-	const boxTypeBuffer = data.slice(4, 8);
+	const boxType = iterator.getByteString(4);
 
-	const boxType = new TextDecoder().decode(boxTypeBuffer);
-
-	const boxBuffer = data.slice(0, boxSize);
-	const next = data.slice(boxSize);
+	const boxBuffer = iterator.slice(0, boxSize);
+	const next = iterator.slice(boxSize);
 
 	if (boxBuffer.byteLength !== boxSize) {
 		return {
@@ -36,45 +34,59 @@ const processBoxAndSubtract = ({
 	}
 
 	if (boxType === 'ftyp') {
+		const box = parseFtyp(boxBuffer, fileOffset);
+		iterator.discard(boxSize);
 		return {
 			type: 'complete',
-			box: parseFtyp(boxBuffer, fileOffset),
+			box,
 			next,
 			size: boxSize,
 		};
 	}
 
 	if (boxType === 'mvhd') {
+		const box = parseMvhd(boxBuffer, fileOffset);
+		iterator.discard(boxSize);
+
 		return {
 			type: 'complete',
-			box: parseMvhd(boxBuffer, fileOffset),
+			box,
 			next,
 			size: boxSize,
 		};
 	}
 
 	if (boxType === 'tkhd') {
+		const box = parseTkhd(boxBuffer, fileOffset);
+		iterator.discard(boxSize);
+
 		return {
 			type: 'complete',
-			box: parseTkhd(boxBuffer, fileOffset),
+			box,
 			next,
 			size: boxSize,
 		};
 	}
 
 	if (boxType === 'stsd') {
+		const box = parseStsd(boxBuffer, fileOffset);
+		iterator.discard(boxSize);
+
 		return {
 			type: 'complete',
-			box: parseStsd(boxBuffer, fileOffset),
+			box,
 			next,
 			size: boxSize,
 		};
 	}
 
 	if (boxType === 'mebx') {
+		const box = parseMebx(boxBuffer, fileOffset);
+		iterator.discard(boxSize);
+
 		return {
 			type: 'complete',
-			box: parseMebx(boxBuffer, fileOffset),
+			box,
 			next,
 			size: boxSize,
 		};
@@ -92,9 +104,12 @@ const processBoxAndSubtract = ({
 	}
 
 	if (boxType === 'trak') {
+		const box = parseTrak(boxBuffer, fileOffset);
+		iterator.discard(boxSize);
+
 		return {
 			type: 'complete',
-			box: parseTrak(boxBuffer, fileOffset),
+			box,
 			next,
 			size: boxSize,
 		};
@@ -110,6 +125,8 @@ const processBoxAndSubtract = ({
 		boxType === 'stsb'
 			? parseBoxes(childArray, fileOffset)
 			: [];
+
+	iterator.discard(boxSize);
 
 	return {
 		type: 'complete',
