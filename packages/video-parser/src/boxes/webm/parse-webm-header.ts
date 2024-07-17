@@ -3,7 +3,8 @@ import {expectSegment} from './segments';
 
 // Parsing according to https://darkcoding.net/software/reading-mediarecorders-webm-opus-output/
 export const parseWebm = (data: ArrayBuffer) => {
-	const counter = getArrayBufferIterator(data, 4);
+	const counter = getArrayBufferIterator(data, 0);
+	counter.discard(4);
 	const length = counter.getEBML();
 
 	if (length !== 31) {
