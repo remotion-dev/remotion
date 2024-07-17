@@ -47,7 +47,6 @@ export const getArrayBufferIterator = (
 	};
 
 	return {
-		view,
 		counter,
 		data,
 		discard: (length: number) => {
