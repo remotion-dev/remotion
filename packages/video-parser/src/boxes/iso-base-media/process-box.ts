@@ -1,5 +1,6 @@
 import type {BoxAndNext, IsoBaseMediaBox} from '../../parse-video';
-import {fourByteToNumber, parseFtyp} from './ftype';
+import {getArrayBufferIterator} from '../../read-and-increment-offset';
+import {parseFtyp} from './ftype';
 import {parseMoov} from './moov/moov';
 import {parseMvhd} from './mvhd';
 import {parseMebx} from './stsd/mebx';
@@ -14,7 +15,9 @@ const processBoxAndSubtract = ({
 	data: Uint8Array;
 	fileOffset: number;
 }): BoxAndNext => {
-	const boxSize = fourByteToNumber(data, 0);
+	const iterator = getArrayBufferIterator(data);
+
+	const boxSize = iterator.getFourByteNumber();
 	if (boxSize === 0) {
 		throw new Error(`Expected box size of ${data.byteLength}, got ${boxSize}`);
 	}

@@ -38,6 +38,12 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 		return val;
 	};
 
+	const getFourByteNumber = () => {
+		return (
+			(getUint8() << 24) | (getUint8() << 16) | (getUint8() << 8) | getUint8()
+		);
+	};
+
 	const getUint32 = () => {
 		const val = view.getUint32(counter.getOffset());
 		counter.increment(4);
@@ -72,6 +78,7 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 		discard: (length: number) => {
 			counter.increment(length);
 		},
+		getFourByteNumber,
 		getSlice,
 		getAtom: () => {
 			const atom = getSlice(4);
@@ -206,7 +213,7 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 		},
 		getByteString(length: number): string {
 			const bytes = getSlice(length);
-			return new TextDecoder().decode(bytes);
+			return new TextDecoder().decode(bytes).trim();
 		},
 		getFloat64: () => {
 			const val = view.getFloat64(counter.getOffset());
