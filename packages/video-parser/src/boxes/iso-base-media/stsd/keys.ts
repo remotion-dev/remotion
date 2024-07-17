@@ -5,7 +5,7 @@ export interface KeysBox extends BaseBox {
 	type: 'keys-box';
 }
 
-export const parseKeys = (data: ArrayBuffer, offset: number): KeysBox => {
+export const parseKeys = (data: Uint8Array, offset: number): KeysBox => {
 	const iterator = getArrayBufferIterator(data);
 	const size = iterator.getUint32();
 	if (size !== data.byteLength) {

@@ -27,7 +27,7 @@ export interface MvhdBox extends BaseBox {
 	type: 'mvhd-box';
 }
 
-export const parseMvhd = (data: ArrayBufferLike, offset: number): MvhdBox => {
+export const parseMvhd = (data: Uint8Array, offset: number): MvhdBox => {
 	const iterator = getArrayBufferIterator(data);
 	const size = iterator.getUint32();
 	const atom = iterator.getAtom();

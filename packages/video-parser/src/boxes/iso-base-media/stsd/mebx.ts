@@ -10,7 +10,7 @@ export interface MebxBox extends BaseBox {
 	children: IsoBaseMediaBox[];
 }
 
-export const parseMebx = (data: ArrayBufferLike, offset: number): MebxBox => {
+export const parseMebx = (data: Uint8Array, offset: number): MebxBox => {
 	const iterator = getArrayBufferIterator(data);
 	const size = iterator.getUint32();
 	if (size !== data.byteLength) {

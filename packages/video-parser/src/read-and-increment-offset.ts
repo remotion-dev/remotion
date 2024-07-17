@@ -21,8 +21,9 @@ const makeOffsetCounter = (): OffsetCounter => {
 	return new OffsetCounter(0);
 };
 
-export const getArrayBufferIterator = (data: ArrayBufferLike) => {
-	const view = new DataView(data);
+export const getArrayBufferIterator = (initialData: Uint8Array) => {
+	let data = initialData;
+	let view = new DataView(data.buffer);
 	const counter = makeOffsetCounter();
 
 	const getSlice = (amount: number) => {
@@ -43,10 +44,20 @@ export const getArrayBufferIterator = (data: ArrayBufferLike) => {
 		return val;
 	};
 
+	const addData = (newData: ArrayBufferLike) => {
+		data = new Uint8Array(
+			data.buffer,
+			data.byteOffset,
+			data.byteLength + newData.byteLength,
+		);
+		data.set(new Uint8Array(newData), data.byteLength - newData.byteLength);
+		view = new DataView(data.buffer);
+	};
+
 	// TODO: Better not have this function
 	const slice = (offset: number) => {
 		const val = data.slice(offset);
-		return val as ArrayBufferLike;
+		return val;
 	};
 
 	const byteLength = () => {
@@ -54,6 +65,7 @@ export const getArrayBufferIterator = (data: ArrayBufferLike) => {
 	};
 
 	return {
+		addData,
 		counter,
 		slice,
 		byteLength,
@@ -63,7 +75,7 @@ export const getArrayBufferIterator = (data: ArrayBufferLike) => {
 		getSlice,
 		getAtom: () => {
 			const atom = getSlice(4);
-			return new TextDecoder().decode(atom as ArrayBuffer);
+			return new TextDecoder().decode(atom);
 		},
 		getMatroskaSegmentId: () => {
 			const first = getSlice(1);
@@ -194,7 +206,7 @@ export const getArrayBufferIterator = (data: ArrayBufferLike) => {
 		},
 		getByteString(length: number): string {
 			const bytes = getSlice(length);
-			return new TextDecoder().decode(bytes as ArrayBuffer);
+			return new TextDecoder().decode(bytes);
 		},
 		getFloat64: () => {
 			const val = view.getFloat64(counter.getOffset());

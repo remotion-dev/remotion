@@ -11,7 +11,7 @@ const processBoxAndSubtract = ({
 	data,
 	fileOffset,
 }: {
-	data: ArrayBufferLike;
+	data: Uint8Array;
 	fileOffset: number;
 }): BoxAndNext => {
 	const boxSize = fourByteToNumber(data, 0);
@@ -21,7 +21,7 @@ const processBoxAndSubtract = ({
 
 	const boxTypeBuffer = data.slice(4, 8);
 
-	const boxType = new TextDecoder().decode(boxTypeBuffer as ArrayBuffer);
+	const boxType = new TextDecoder().decode(boxTypeBuffer);
 
 	const sub = data.slice(0, boxSize);
 	const next = data.slice(boxSize);
@@ -107,7 +107,7 @@ const processBoxAndSubtract = ({
 };
 
 export const parseBoxes = (
-	data: ArrayBufferLike,
+	data: Uint8Array,
 	fileOffset: number,
 ): IsoBaseMediaBox[] => {
 	const boxes: IsoBaseMediaBox[] = [];

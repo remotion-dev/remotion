@@ -33,7 +33,7 @@ export type IsoBaseMediaBox =
 
 export type BoxAndNext = {
 	box: IsoBaseMediaBox;
-	next: ArrayBufferLike;
+	next: Uint8Array;
 	size: number;
 };
 
@@ -73,11 +73,11 @@ export const parseVideo = async (
 	});
 
 	if (matchesPattern(isoBaseMediaMp4Pattern)(data.subarray(4, 8))) {
-		return parseBoxes(new Uint8Array(data).buffer as unknown as ArrayBuffer, 0);
+		return parseBoxes(new Uint8Array(data), 0);
 	}
 
 	if (matchesPattern(webmPattern)(data.subarray(0, 4))) {
-		return [parseWebm(new Uint8Array(data).buffer as unknown as ArrayBuffer)];
+		return [parseWebm(new Uint8Array(data))];
 	}
 
 	return [];
