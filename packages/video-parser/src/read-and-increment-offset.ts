@@ -46,6 +46,7 @@ export const getArrayBufferIterator = (
 		return val;
 	};
 
+	// TODO: Better not have this function
 	const slice = (offset: number) => {
 		const val = data.slice(offset);
 		return val;
@@ -122,8 +123,8 @@ export const getArrayBufferIterator = (
 				.join('')}`;
 		},
 		getVint: (bytes: number) => {
-			const slice = getSlice(bytes);
-			const d = [...Array.from(new Uint8Array(slice))];
+			const _slice = getSlice(bytes);
+			const d = [...Array.from(new Uint8Array(_slice))];
 			const totalLength = d[0];
 
 			if (totalLength === 0) {
