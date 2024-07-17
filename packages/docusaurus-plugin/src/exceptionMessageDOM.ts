@@ -1,10 +1,15 @@
-const {TwoslashError} = require('@typescript/twoslash');
+import {TwoslashError} from '@typescript/twoslash';
+import {Node} from './unist-types';
 
 export function escapeHtml(html: string) {
 	return html.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-export const setupNodeForTwoslashException = (code: string, node, error) => {
+export const setupNodeForTwoslashException = (
+	code: string,
+	node: Node,
+	error: Error,
+) => {
 	const css = `<style>
 @import url('http://fonts.cdnfonts.com/css/caslon-os'); 
 
@@ -83,7 +88,7 @@ export const setupNodeForTwoslashException = (code: string, node, error) => {
 }
 </style>`;
 
-	const bodyFromTwoslashError = (err) => {
+	const bodyFromTwoslashError = (err: TwoslashError) => {
 		return `
 <h3>${escapeHtml(err.title)}</h3>
 <p>${escapeHtml(err.description).replace(/(?:\r\n|\r|\n)/g, '<br>')}</p>
@@ -94,7 +99,7 @@ export const setupNodeForTwoslashException = (code: string, node, error) => {
 `;
 	};
 
-	const bodyFromError = (err) => {
+	const bodyFromError = (err: Error) => {
 		return `<pre><code>${err.message.split('## Code')[0]}</code></pre>`;
 	};
 
@@ -140,7 +145,8 @@ export const setupNodeForTwoslashException = (code: string, node, error) => {
     <div class='twoslash-exception-message'>${body}${codeSample}</div>`;
 
 	node.type = 'html';
+	// @ts-expect-error
 	node.value = "<div id='twoslash-error'>" + css + html + '</div>';
-
+	// @ts-expect-error
 	node.children = [];
 };
