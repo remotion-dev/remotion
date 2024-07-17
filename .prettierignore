@@ -5,3 +5,8 @@ packages/docs/docs/transitions/presentations/custom.mdx
 packages/docs/docs/studio-app.mdx
 packages/docs/docs/cloudrun/cli/regions.mdx
 packages/docs/docs/flickering.mdx
+packages/docs/docs/lambda/feb-2023-incident.mdx
+packages/docs/docs/lambda/how-lambda-works.mdx
+packages/docs/docs/lambda/s3-public-access.mdx
+packages/docs/docs/player-into-remotion-project.mdx
+packages/docs/docs/miscellaneous/cloud-gpu-docker.mdx

@@ -1,8 +1,8 @@
 ---
 image: /generated/articles-docs-lambda-without-iam-index.png
 title: Using Lambda with IAM roles
-sidebar_label: "With IAM Roles"
-crumb: "Lambda without IAM"
+sidebar_label: 'With IAM Roles'
+crumb: 'Lambda without IAM'
 ---
 
 import {UserPolicy} from '../../../components/lambda/user-permissions.tsx';
@@ -34,9 +34,10 @@ The steps below provide authorization for the Lambda function to execute `render
 - Click on JSON
 - Copy the JSON policy template below:
   <details>
-  <summary>Show full role permissions JSON file for latest Remotion Lambda version
-  </summary>
-  <UserPolicy />
+    <summary>
+      Show full role permissions JSON file for latest Remotion Lambda version
+    </summary>
+    <UserPolicy />
   </details>
 - Click next. On the tags page, you don't need to fill in anything. Click next again.
 - Give the policy the name `remotion-executionrole-policy`. The other fields can be left as they are.
@@ -78,18 +79,18 @@ Use the `outName` property to select a different bucket. See: [Custom output des
 // @target: es2017
 // ---cut---
 
-import { renderMediaOnLambda } from "@remotion/lambda/client";
+import {renderMediaOnLambda} from '@remotion/lambda/client';
 
-const { bucketName, renderId } = await renderMediaOnLambda({
-  region: "us-east-1",
-  functionName: "remotion-render-bds9aab",
-  composition: "MyVideo",
+const {bucketName, renderId} = await renderMediaOnLambda({
+  region: 'us-east-1',
+  functionName: 'remotion-render-bds9aab',
+  composition: 'MyVideo',
   serveUrl:
-    "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
-  codec: "h264",
+    'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
+  codec: 'h264',
   outName: {
-    key: "my-output",
-    bucketName: "output-bucket",
+    key: 'my-output',
+    bucketName: 'output-bucket',
   },
 });
 ```

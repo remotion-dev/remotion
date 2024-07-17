@@ -41,9 +41,7 @@ times.
 <br />
 <Step>3</Step> A component should not animate when the video is paused.
 <br />
-<Step>4</Step> A component should not rely on randomness - Exception: <a href="/docs/random">
-  <code>random()</code>
-</a>
+<Step>4</Step> A component should not rely on randomness - Exception: <a href="/docs/random"><code>random()</code></a>
 
 ### Bypass multithreading
 
@@ -58,43 +56,21 @@ Otherwise, it will take a screenshot of a loading state.
 
 ### Solution
 
-<Step>1</Step> Use the <a>
-  <code>&lt;Img&gt;</code>
-</a>
-, <a>
-  <code>&lt;Video&gt;</code>
-</a>
-, <a>
-  <code>&lt;OffthreadVideo&gt;</code>
-</a>
-, <a>
-  <code>&lt;Audio&gt;</code>
-</a>
-, <a>
-  <code>&lt;Iframe&gt;</code>
-</a> and <a>
-  <code>&lt;Gif&gt;</code>
-</a> as they wait for the assets to be loaded. <br />
+<Step>1</Step> Use the <a><code>&lt;Img&gt;</code></a>
+, <a><code>&lt;Video&gt;</code></a>
+, <a><code>&lt;OffthreadVideo&gt;</code></a>
+, <a><code>&lt;Audio&gt;</code></a>
+, <a><code>&lt;Iframe&gt;</code></a> and <a><code>&lt;Gif&gt;</code></a> as they wait for the assets to be loaded. <br />
 
 <Step>2</Step> When loading data, use the <a href="/docs/delay-render">
   <code>delayRender()</code>
 </a> function.
 <br />
-<Step>3</Step> Ensure you correctly wait <a href="/docs/fonts">
-  for fonts to load
-</a>
+<Step>3</Step> Ensure you correctly wait <a href="/docs/fonts">for fonts to load</a>
 .<br />
-<Step>4</Step> Only call <a href="/docs/layout-utils/fit-text">
-  <code>fitText()</code>
-</a>, <a href="/docs/layout-utils/fill-text-box">
-  <code>fillTextBox()</code>
-</a> and <a href="/docs/layout-utils/measure-text">
-  <code>measureText()</code>
-</a> once fonts are loaded.
+<Step>4</Step> Only call <a href="/docs/layout-utils/fit-text"><code>fitText()</code></a>, <a href="/docs/layout-utils/fill-text-box"><code>fillTextBox()</code></a> and <a href="/docs/layout-utils/measure-text"><code>measureText()</code></a> once fonts are loaded.
 <br />
-<Step>5</Step> Avoid using the <a href="/docs/troubleshooting/background-image">
-  <code>background-image</code> and <code>mask-image</code> CSS properties
-</a>.
+<Step>5</Step> Avoid using the <a href="/docs/troubleshooting/background-image"><code>background-image</code> and <code>mask-image</code> CSS properties</a>.
 
 ## Flickering `<Video>` tag
 
