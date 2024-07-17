@@ -3,3 +3,5 @@ packages/docs/docs/calculate-metadata.mdx
 packages/docs/docs/transitions/transitionseries.mdx
 packages/docs/docs/transitions/presentations/custom.mdx
 packages/docs/docs/studio-app.mdx
+packages/docs/docs/cloudrun/cli/regions.mdx
+packages/docs/docs/flickering.mdx
