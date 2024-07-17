@@ -6,7 +6,7 @@ import {getHighlighter} from 'shiki';
 import type {UserConfigSettings} from 'shiki-twoslash';
 import {renderCodeToHTML} from 'shiki-twoslash';
 import {visit} from 'unist-util-visit';
-import type {BuildVisitor, UnistNode} from 'unist-util-visit/lib';
+import type {BuildVisitor} from 'unist-util-visit/lib';
 import {cachedTwoslashCall} from './caching';
 
 import {setupNodeForTwoslashException} from './exceptionMessageDOM';
@@ -325,7 +325,7 @@ export function remarkTwoslash(settings: UserConfigSettings = {}) {
 		highlighterCache.set(settings, highlightersFromSettings(settings));
 	}
 
-	const transform = async (markdownAST: UnistNode) => {
+	const transform = async (markdownAST: Node) => {
 		const highlighters = await highlighterCache.get(settings);
 		parsingNewFile();
 		visit(markdownAST, 'code', remarkVisitor(highlighters, settings));
