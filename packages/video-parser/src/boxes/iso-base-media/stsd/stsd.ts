@@ -9,7 +9,7 @@ export interface StsdBox extends BaseBox {
 	samples: Sample[];
 }
 
-export const parseStsd = (data: ArrayBuffer, offset: number): StsdBox => {
+export const parseStsd = (data: ArrayBufferLike, offset: number): StsdBox => {
 	const view = getArrayBufferIterator(data);
 
 	const size = view.getUint32();

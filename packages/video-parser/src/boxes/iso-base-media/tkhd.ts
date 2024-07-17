@@ -18,7 +18,10 @@ export interface TkhdBox extends BaseBox {
 	height: number;
 }
 
-export const parseTkhd = (data: ArrayBuffer, fileOffset: number): TkhdBox => {
+export const parseTkhd = (
+	data: ArrayBufferLike,
+	fileOffset: number,
+): TkhdBox => {
 	const iterator = getArrayBufferIterator(data);
 
 	const size = iterator.getUint32();

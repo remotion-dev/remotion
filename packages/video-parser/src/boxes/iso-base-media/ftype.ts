@@ -7,7 +7,7 @@ export interface FtypBox extends BaseBox {
 	compatibleBrands: string[];
 }
 
-export const fourByteToNumber = (data: ArrayBuffer, from: number) => {
+export const fourByteToNumber = (data: ArrayBufferLike, from: number) => {
 	const view = new DataView(data);
 
 	return (
@@ -18,8 +18,10 @@ export const fourByteToNumber = (data: ArrayBuffer, from: number) => {
 	);
 };
 
-export const parseFtyp = (data: ArrayBuffer, offset: number): FtypBox => {
-	const majorBrand = new TextDecoder().decode(data.slice(8, 12)).trim();
+export const parseFtyp = (data: ArrayBufferLike, offset: number): FtypBox => {
+	const majorBrand = new TextDecoder()
+		.decode(data.slice(8, 12) as ArrayBuffer)
+		.trim();
 
 	const minorVersion = fourByteToNumber(data, 12);
 
@@ -28,7 +30,9 @@ export const parseFtyp = (data: ArrayBuffer, offset: number): FtypBox => {
 	const compatibleBrands: string[] = [];
 	for (let i = 0; i < types; i++) {
 		const fourBytes = rest.slice(i * 4, i * 4 + 4);
-		compatibleBrands.push(new TextDecoder().decode(fourBytes).trim());
+		compatibleBrands.push(
+			new TextDecoder().decode(fourBytes as ArrayBuffer).trim(),
+		);
 	}
 
 	return {

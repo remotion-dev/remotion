@@ -21,7 +21,7 @@ const makeOffsetCounter = (): OffsetCounter => {
 	return new OffsetCounter(0);
 };
 
-export const getArrayBufferIterator = (data: ArrayBuffer) => {
+export const getArrayBufferIterator = (data: ArrayBufferLike) => {
 	const view = new DataView(data);
 	const counter = makeOffsetCounter();
 
@@ -46,7 +46,7 @@ export const getArrayBufferIterator = (data: ArrayBuffer) => {
 	// TODO: Better not have this function
 	const slice = (offset: number) => {
 		const val = data.slice(offset);
-		return val;
+		return val as ArrayBufferLike;
 	};
 
 	const byteLength = () => {
@@ -63,7 +63,7 @@ export const getArrayBufferIterator = (data: ArrayBuffer) => {
 		getSlice,
 		getAtom: () => {
 			const atom = getSlice(4);
-			return new TextDecoder().decode(atom);
+			return new TextDecoder().decode(atom as ArrayBuffer);
 		},
 		getMatroskaSegmentId: () => {
 			const first = getSlice(1);
@@ -194,7 +194,7 @@ export const getArrayBufferIterator = (data: ArrayBuffer) => {
 		},
 		getByteString(length: number): string {
 			const bytes = getSlice(length);
-			return new TextDecoder().decode(bytes);
+			return new TextDecoder().decode(bytes as ArrayBuffer);
 		},
 		getFloat64: () => {
 			const val = view.getFloat64(counter.getOffset());

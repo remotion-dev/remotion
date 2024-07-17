@@ -8,7 +8,7 @@ export interface TrakBox extends BaseBox {
 	children: IsoBaseMediaBox[];
 }
 
-export const parseTrak = (data: ArrayBuffer, offset: number): TrakBox => {
+export const parseTrak = (data: ArrayBufferLike, offset: number): TrakBox => {
 	const iterator = getArrayBufferIterator(data);
 	const size = iterator.getUint32();
 

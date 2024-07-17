@@ -33,7 +33,7 @@ export type IsoBaseMediaBox =
 
 export type BoxAndNext = {
 	box: IsoBaseMediaBox;
-	next: ArrayBuffer;
+	next: ArrayBufferLike;
 	size: number;
 };
 

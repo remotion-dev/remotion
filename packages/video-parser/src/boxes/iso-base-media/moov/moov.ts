@@ -8,7 +8,7 @@ export interface MoovBox extends BaseBox {
 	children: IsoBaseMediaBox[];
 }
 
-export const parseMoov = (data: ArrayBuffer, offset: number): MoovBox => {
+export const parseMoov = (data: ArrayBufferLike, offset: number): MoovBox => {
 	const iterator = getArrayBufferIterator(data);
 	const size = iterator.getUint32();
 	if (size !== data.byteLength) {

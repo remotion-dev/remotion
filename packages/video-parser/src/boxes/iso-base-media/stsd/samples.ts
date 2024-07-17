@@ -46,7 +46,7 @@ export type Sample = AudioSample | VideoSample | UnknownSample;
 
 type SampleAndNext = {
 	sample: Sample | null;
-	next: ArrayBuffer;
+	next: ArrayBufferLike;
 	size: number;
 };
 
@@ -113,7 +113,7 @@ export const processSampleAndSubtract = ({
 	data,
 	fileOffset,
 }: {
-	data: ArrayBuffer;
+	data: ArrayBufferLike;
 	fileOffset: number;
 }): SampleAndNext => {
 	const iterator = getArrayBufferIterator(data);
@@ -240,7 +240,7 @@ export const processSampleAndSubtract = ({
 };
 
 export const parseSamples = (
-	data: ArrayBuffer,
+	data: ArrayBufferLike,
 	fileOffset: number,
 ): Sample[] => {
 	const samples: Sample[] = [];
