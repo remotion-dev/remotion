@@ -79,6 +79,7 @@ const RemotionRiveCanvasForwardRefFunction: React.ForwardRefRenderFunction<
 		animation: LinearAnimationInstance;
 		renderer: CanvasRenderer;
 		artboard: Artboard;
+		file: File;
 	} | null>(null);
 
 	useImperativeHandle(
@@ -148,10 +149,8 @@ const RemotionRiveCanvasForwardRefFunction: React.ForwardRefRenderFunction<
 							animation,
 							artboard,
 							renderer,
+							file,
 						});
-						if (onLoad) {
-							onLoad(file);
-						}
 					});
 			})
 			.catch((newErr) => {
@@ -166,6 +165,12 @@ const RemotionRiveCanvasForwardRefFunction: React.ForwardRefRenderFunction<
 		assetLoader,
 		enableRiveAssetCdn,
 	]);
+
+	useEffect(() => {
+		if (onLoad && rive) {
+			onLoad(rive.file);
+		}
+	}, [onLoad, rive]);
 
 	React.useEffect(() => {
 		if (!riveCanvasInstance) {
