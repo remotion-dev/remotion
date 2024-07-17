@@ -89,6 +89,7 @@ const innerGetCompositions = async ({
 		videoEnabled: false,
 		indent,
 		logLevel,
+		onServeUrlVisited: () => undefined,
 	});
 
 	await puppeteerEvaluateWithCatch({
@@ -201,7 +202,6 @@ const internalGetCompositionsRaw = async ({
 			},
 			{
 				onDownload: () => undefined,
-				onError,
 			},
 		)
 			.then(({server: {serveUrl, offthreadPort, sourceMap}, cleanupServer}) => {

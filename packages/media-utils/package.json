@@ -1,7 +1,10 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/media-utils"
+	},
 	"name": "@remotion/media-utils",
-	"version": "4.0.160",
-	"description": "Utility functions for audio and video",
+	"version": "4.0.181",
+	"description": "Utilities for working with media files",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
@@ -10,9 +13,6 @@
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
@@ -23,14 +23,6 @@
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0"
 	},
-	"devDependencies": {
-		"@jonny/eslint-config": "3.0.281",
-		"@types/node": "18.14.6",
-		"@types/react": "18.3.1",
-		"eslint": "8.56.0",
-		"prettier": "3.2.5",
-		"prettier-plugin-organize-imports": "3.2.4"
-	},
 	"keywords": [
 		"remotion",
 		"ffmpeg",
@@ -40,5 +32,6 @@
 	],
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/media-utils"
 }

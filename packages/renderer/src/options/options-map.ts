@@ -141,4 +141,7 @@ export const optionsMap = {
 		logLevel: logLevelOption,
 		throwIfSiteExists: throwIfSiteExistsOption,
 	},
+	deploySiteCloudRun: {
+		logLevel: logLevelOption,
+	},
 } as const;

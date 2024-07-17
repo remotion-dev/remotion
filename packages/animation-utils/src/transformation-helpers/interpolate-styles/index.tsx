@@ -291,6 +291,10 @@ export const interpolateStyles = (
 	checkStylesRange(outputStylesRange);
 
 	let startIndex = inputRange.findIndex((step) => input < step) - 1;
+	if (startIndex === -1) {
+		startIndex = 0;
+	}
+
 	if (startIndex === -2) {
 		startIndex = inputRange.length - 2;
 	}

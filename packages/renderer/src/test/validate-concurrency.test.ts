@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {validateConcurrency} from '../validate-concurrency';
 
 const invalidConcurrency: String = 'invalidConcurrency';

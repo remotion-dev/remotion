@@ -100,6 +100,7 @@ export const compressInputProps = async ({
 		return {
 			type: 'bucket-url',
 			hash,
+			bucketName,
 		};
 	}
 

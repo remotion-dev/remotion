@@ -1,20 +1,11 @@
 import type {compositionsHandler} from '../functions/compositions';
 import type {infoHandler} from '../functions/info';
 import type {launchHandler} from '../functions/launch';
-import type {mergeHandler} from '../functions/merge';
 import type {progressHandler} from '../functions/progress';
 import type {rendererHandler} from '../functions/renderer';
 import type {startHandler} from '../functions/start';
 import type {stillHandler} from '../functions/still';
 import type {LambdaRoutines} from './constants';
-
-export type OrError<T> =
-	| T
-	| {
-			type: 'error';
-			message: string;
-			stack: string;
-	  };
 
 export interface LambdaReturnValues {
 	[LambdaRoutines.start]: ReturnType<typeof startHandler>;
@@ -24,5 +15,4 @@ export interface LambdaReturnValues {
 	[LambdaRoutines.info]: ReturnType<typeof infoHandler>;
 	[LambdaRoutines.still]: ReturnType<typeof stillHandler>;
 	[LambdaRoutines.compositions]: ReturnType<typeof compositionsHandler>;
-	[LambdaRoutines.merge]: ReturnType<typeof mergeHandler>;
 }

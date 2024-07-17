@@ -6,7 +6,7 @@ crumb: "Server-side rendering"
 sidebar_label: Example
 ---
 
-The NPM package [`@remotion/renderer`](/docs/renderer) provides you with an API for rendering media programmatically.  
+The NPM package [`@remotion/renderer`](/docs/renderer) provides you with "**S**erver-**S**ide **R**endering" APIs for rendering media programmatically.  
 These functions can be used in Node.js and Bun.
 
 Rendering a video takes three steps:
@@ -16,8 +16,8 @@ Rendering a video takes three steps:
 <Step>2</Step> Select the composition to render and calculate its metadata
 <br />
 <Step>3</Step> Render the video, audio, still or image sequence.
-<br />
-<br />
+
+## Example script
 
 Follow this commented example to see how to render a video:
 
@@ -35,7 +35,7 @@ const compositionId = "HelloWorld";
 // for multiple renders that you can parametrize using input props.
 const bundleLocation = await bundle({
   entryPoint: path.resolve("./src/index.ts"),
-  // If you have a Webpack override, make sure to add it here
+  // If you have a webpack override in remotion.config.ts, pass it here as well.
   webpackOverride: (config) => config,
 });
 
@@ -74,6 +74,10 @@ This flow is customizable. Click on one of the SSR APIs to read about its option
 - [`renderStill()`](/docs/renderer/render-still) - Render a still image.
 - [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video) - Encode a video based on an image sequence
 - [`openBrowser()`](/docs/renderer/open-browser) - Share a browser instance across function calls for improved performance.
+
+## Linux Dependencies
+
+If you are on Linux, Chrome Headless Shell requires some shared libraries to be installed. See [Linux Dependencies](/docs/miscellaneous/linux-dependencies).
 
 ## SSR APIs in Next.js
 

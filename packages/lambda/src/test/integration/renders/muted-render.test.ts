@@ -1,4 +1,7 @@
-import {RenderInternals} from '@remotion/renderer';
+import {RenderInternals, getVideoMetadata} from '@remotion/renderer';
+import {createWriteStream, unlinkSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import path from 'path';
 import {afterAll, expect, test} from 'vitest';
 import {deleteRender} from '../../../api/delete-render';
 import {rendersPrefix} from '../../../defaults';
@@ -21,12 +24,19 @@ test('Should make muted render audio', async () => {
 		muted: true,
 	});
 
+	const tmpfile = path.join(tmpdir(), 'out.mp4');
+
+	await new Promise<void>((resolve) => {
+		file.pipe(createWriteStream(tmpfile)).on('close', () => resolve());
+	});
+
+	// Make sure Faststart is supported
+	const {supportsSeeking} = await getVideoMetadata(tmpfile);
+	expect(supportsSeeking).toBe(true);
+
 	const out = await RenderInternals.callFf({
 		bin: 'ffprobe',
-		args: ['-'],
-		options: {
-			stdin: file,
-		},
+		args: [tmpfile],
 		indent: false,
 		binariesDirectory: null,
 		cancelSignal: undefined,
@@ -35,6 +45,8 @@ test('Should make muted render audio', async () => {
 
 	expect(out.stdout).not.toContain('Audio');
 
+	unlinkSync(tmpfile);
+
 	const files = await lambdaLs({
 		bucketName: progress.outBucket as string,
 		region: 'eu-central-1',
@@ -42,7 +54,7 @@ test('Should make muted render audio', async () => {
 		prefix: rendersPrefix(renderId),
 	});
 
-	expect(files.length).toBe(3);
+	expect(files.length).toBe(2);
 
 	await deleteRender({
 		bucketName: progress.outBucket as string,

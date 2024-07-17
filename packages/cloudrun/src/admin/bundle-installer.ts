@@ -12,7 +12,7 @@ export const hasGTar = () => {
 	}
 };
 
-const bundleInstaller = async () => {
+export const bundleInstaller = async () => {
 	const outdir = path.join(__dirname, '..', `build-installer`);
 	mkdirSync(outdir, {recursive: true});
 
@@ -63,5 +63,3 @@ const bundleInstaller = async () => {
 
 	rmSync(outdir, {recursive: true});
 };
-
-bundleInstaller();

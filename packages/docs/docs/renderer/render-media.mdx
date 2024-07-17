@@ -2,7 +2,7 @@
 image: /generated/articles-docs-renderer-render-media.png
 id: render-media
 title: renderMedia()
-crumb: "@remotion/renderer"
+crumb: '@remotion/renderer'
 ---
 
 _Available since v3.0 - Part of the `@remotion/renderer` package._
@@ -12,18 +12,18 @@ Render a video or an audio programmatically.
 ```tsx twoslash title="render.mjs"
 // @module: esnext
 // @target: es2017
-const serveUrl = "/path/to/bundle";
-const outputLocation = "/path/to/frames";
+const serveUrl = '/path/to/bundle';
+const outputLocation = '/path/to/frames';
 
-import { renderMedia, selectComposition } from "@remotion/renderer";
+import {renderMedia, selectComposition} from '@remotion/renderer';
 
 const inputProps = {
-  titleText: "Hello World",
+  titleText: 'Hello World',
 };
 
 const composition = await selectComposition({
   serveUrl,
-  id: "my-video",
+  id: 'my-video',
   inputProps,
 });
 
@@ -32,7 +32,7 @@ const composition = await selectComposition({
 await renderMedia({
   composition,
   serveUrl,
-  codec: "h264",
+  codec: 'h264',
   outputLocation,
   inputProps,
 });
@@ -79,17 +79,10 @@ Choose a suitable codec for your output media. Refer to the [Encoding guide](/do
 
 _object - optional_
 
-An object of arbitrary shape that:
-
-<Step>1</Step> will be passed as <a href="/docs/parameterized-rendering">
-  props to your component
-</a>
-<br />
-<Step>2</Step> can be retrieved using <a href="/docs/get-input-props">
-  <code>getInputProps()</code>
-</a>
-.<br />
-<br />
+[Input Props to pass to the selected composition of your video.](/docs/parameterized-rendering#passing-input-props-in-the-cli).  
+Must be a JSON object.  
+From the root component the props can be read using [`getInputProps()`](/docs/get-input-props).  
+You may transform input props using [`calculateMetadata()`](/docs/calculate-metadata).
 
 Make sure to also pass the same `inputProps` to [`selectComposition()`](/docs/renderer/select-composition) for this to work correctly.
 
@@ -108,6 +101,10 @@ A `number` specifying how many render processes should be started in parallel, a
 ### `logLevel?`<AvailableFrom v="4.0.0"/>
 
 <Options id="log" />
+
+### `onArtifact?`<AvailableFrom v="4.0.176" />
+
+[Handle an artifact](/docs/artifacts#using-rendermedia-renderstill-or-renderframes) that was emitted by the [`<Artifact>`](/docs/artifact) component.
 
 ### `audioCodec?`
 
@@ -231,14 +228,20 @@ _function_ - optional
 Callback function that gets called once the renderer has prepared to start rendering and has calculated the amount of frames that are going to be rendered:
 
 ```tsx twoslash
-import { OnStartData } from "@remotion/renderer";
+import {OnStartData} from '@remotion/renderer';
 
-const onStart = ({ frameCount, parallelEncoding }: OnStartData) => {
+const onStart = ({
+  frameCount,
+  parallelEncoding, // available from v4.0.52
+  resolvedConcurrency, // available from v4.0.180
+}: OnStartData) => {
   console.log(`Beginning to render ${frameCount}.`);
-  // From Remotion v4.0.52
+
   if (parallelEncoding) {
-    console.log("Parallel encoding is enabled.");
+    console.log('Parallel encoding is enabled.');
   }
+
+  console.log(`Using concurrency: ${resolvedConcurrency}`);
 };
 ```
 
@@ -249,15 +252,15 @@ _function - optional_
 React to render progress. The following callback function is similar to how Remotion displays render progress on it's CLI:
 
 ```tsx twoslash title="Simple example - Log overall progress"
-import { RenderMediaOnProgress } from "@remotion/renderer";
+import {RenderMediaOnProgress} from '@remotion/renderer';
 
-const onProgress: RenderMediaOnProgress = ({ progress }) => {
+const onProgress: RenderMediaOnProgress = ({progress}) => {
   console.log(`Rendering is ${progress * 100}% complete`);
 };
 ```
 
 ```tsx twoslash title="Advanced example - Fine-grained progress values"
-import { RenderMediaOnProgress } from "@remotion/renderer";
+import {RenderMediaOnProgress} from '@remotion/renderer';
 
 const onProgress: RenderMediaOnProgress = ({
   renderedFrames,
@@ -266,12 +269,12 @@ const onProgress: RenderMediaOnProgress = ({
   renderedDoneIn,
   stitchStage,
 }) => {
-  if (stitchStage === "encoding") {
+  if (stitchStage === 'encoding') {
     // First pass, parallel rendering of frames and encoding into video
-    console.log("Encoding...");
-  } else if (stitchStage === "muxing") {
+    console.log('Encoding...');
+  } else if (stitchStage === 'muxing') {
     // Second pass, adding audio to the video
-    console.log("Muxing audio...");
+    console.log('Muxing audio...');
   }
   // Amount of frames rendered into images
   console.log(`${renderedFrames} rendered`);
@@ -299,11 +302,11 @@ _function - optional_
 If an audio (or a video with sound) is included in your project, Remotion needs to download it in order to use it's audio in the output file. You can use this callback to react to a download happening and progressing.
 
 ```tsx twoslash
-import { RenderMediaOnDownload } from "@remotion/renderer";
+import {RenderMediaOnDownload} from '@remotion/renderer';
 
 const onDownload: RenderMediaOnDownload = (src) => {
   console.log(`Downloading ${src}...`);
-  return ({ percent, downloaded, totalSize }) => {
+  return ({percent, downloaded, totalSize}) => {
     // percent and totalSize can be `null` if the downloaded resource
     // does not have a `Content-Length` header
     if (percent === null) {
@@ -334,7 +337,7 @@ _function - optional_
 Catch a console message being printed. Example:
 
 ```tsx twoslash
-import { BrowserLog } from "@remotion/renderer";
+import {BrowserLog} from '@remotion/renderer';
 
 const onBrowserLog = (log: BrowserLog) => {
   // `type` is the console.* method: `log`, `warn`, `error`, etc.
@@ -403,11 +406,11 @@ _function - optional_
 Modifies the FFMPEG command that Remotion uses under the hood. It works reducer-style, meaning that you pass a function that takes a command as an argument and returns a new command.
 
 ```tsx twoslash
-import type { FfmpegOverrideFn } from "@remotion/renderer";
+import type {FfmpegOverrideFn} from '@remotion/renderer';
 
-const ffmpegOverride: FfmpegOverrideFn = ({ type, args }) => {
+const ffmpegOverride: FfmpegOverrideFn = ({type, args}) => {
   console.log(type); // "stitcher" | "pre-stitcher
-  return [...args, "-vf", "eq=brightness=0:saturation=1"];
+  return [...args, '-vf', 'eq=brightness=0:saturation=1'];
 };
 ```
 

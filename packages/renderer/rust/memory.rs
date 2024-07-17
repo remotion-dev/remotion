@@ -2,10 +2,17 @@ use sysinfo::System;
 
 use crate::global_printer::_print_verbose;
 
+pub fn get_max_lambda_memory() -> u64 {
+    match std::env::var("AWS_LAMBDA_FUNCTION_MEMORY_SIZE") {
+        Ok(val) => val.parse::<u64>().unwrap() * 1024 * 1024,
+        Err(_) => std::u64::MAX,
+    }
+}
+
 pub fn get_available_memory() -> u64 {
     let mut sys = System::new();
     sys.refresh_memory();
-    let total_memory = sys.total_memory();
+    let total_memory = sys.total_memory().min(get_max_lambda_memory());
     let used_memory = sys.used_memory();
 
     // Underflow can only happen in release mode, is prevented in debug
@@ -17,7 +24,7 @@ pub fn get_available_memory() -> u64 {
             total_memory, used_memory
         ))
         .unwrap();
-    
+
         return 0;
     }
     return total_memory - used_memory;

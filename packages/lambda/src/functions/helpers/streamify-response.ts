@@ -1,9 +1,14 @@
-import {Stream} from 'stream';
+import {Writable} from 'stream';
 
-export class ResponseStream extends Stream.Writable {
+type Chunk = {
+	PayloadChunk: {Payload: string | Buffer | null};
+	InvokeComplete: boolean;
+};
+
+export class ResponseStream extends Writable {
+	private queue: Chunk[] = [];
+	private waitingResolve: ((value?: Chunk) => void)[] = [];
 	private response: Buffer[];
-	_contentType?: string;
-	_isBase64Encoded?: boolean;
 
 	constructor() {
 		super();
@@ -11,48 +16,62 @@ export class ResponseStream extends Stream.Writable {
 	}
 
 	_write(
-		chunk: string,
+		chunk: any,
 		encoding: BufferEncoding,
 		callback: (error?: Error | null) => void,
 	): void {
+		const data = Buffer.from(chunk, encoding);
+		const resolve = this.waitingResolve.shift();
+		if (resolve) {
+			resolve({PayloadChunk: {Payload: data}, InvokeComplete: false});
+		} else {
+			this.queue.push({PayloadChunk: {Payload: data}, InvokeComplete: false});
+		}
+
 		this.response.push(Buffer.from(chunk, encoding));
+
 		callback();
+	}
+
+	_finish() {
+		const resolve = this.waitingResolve.shift();
+		if (resolve) {
+			resolve({PayloadChunk: {Payload: null}, InvokeComplete: true});
+		} else {
+			this.queue.push({PayloadChunk: {Payload: null}, InvokeComplete: true});
+		}
 	}
 
 	getBufferedData(): Buffer {
 		return Buffer.concat(this.response);
 	}
 
-	setContentType(contentType: string) {
-		this._contentType = contentType;
+	async *[Symbol.asyncIterator](): AsyncGenerator<Chunk, void, void> {
+		while (true) {
+			if (this.queue.length > 0) {
+				const shifted = this.queue.shift()!;
+				yield shifted;
+				if (shifted.InvokeComplete) {
+					break;
+				}
+			} else {
+				// Wait for new data to be written
+				const shifted = await new Promise<Chunk>((resolve) => {
+					this.waitingResolve.push((data) => {
+						Promise.resolve(data).then((d) => {
+							if (d) {
+								resolve(d);
+							}
+						});
+					});
+				});
+				yield shifted;
+				if (shifted.InvokeComplete) {
+					break;
+				}
+			}
+		}
 	}
-
-	setIsBase64Encoded(isBase64Encoded: boolean) {
-		this._isBase64Encoded = isBase64Encoded;
-	}
-}
-
-function patchArgs(argList: unknown[]): ResponseStream {
-	if (!(argList[1] instanceof ResponseStream)) {
-		const responseStream = new ResponseStream();
-		argList.splice(1, 0, responseStream);
-	}
-
-	return argList[1] as ResponseStream;
-}
-
-export const HANDLER_STREAMING = Symbol.for(
-	'aws.lambda.runtime.handler.streaming',
-);
-export const STREAM_RESPONSE = 'response';
-
-export function isInAWS(handler: Function): boolean {
-	return (
-		// @ts-expect-error
-		handler[HANDLER_STREAMING] !== undefined &&
-		// @ts-expect-error
-		handler[HANDLER_STREAMING] === STREAM_RESPONSE
-	);
 }
 
 export function streamifyResponse(handler: Function): Function {
@@ -67,22 +86,7 @@ export function streamifyResponse(handler: Function): Function {
 		return awslambda.streamifyResponse(handler);
 	}
 
-	return new Proxy(handler, {
-		async apply(target, _, argList) {
-			const responseStream: ResponseStream = patchArgs(argList);
-			await target(...argList);
-			return {
-				EventStream: [
-					{
-						PayloadChunk: {
-							Payload: responseStream._isBase64Encoded
-								? responseStream.getBufferedData()
-								: responseStream.getBufferedData(),
-						},
-						InvokeComplete: true,
-					},
-				],
-			};
-		},
-	});
+	return () => {
+		throw new Error('Lambda not detected');
+	};
 }

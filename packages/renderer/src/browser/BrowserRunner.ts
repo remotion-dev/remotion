@@ -16,7 +16,6 @@
 
 import * as childProcess from 'node:child_process';
 import * as fs from 'node:fs';
-import * as readline from 'readline';
 import {deleteDirectory} from '../delete-directory';
 import {Log} from '../logger';
 import {truthy} from '../truthy';
@@ -29,7 +28,6 @@ import {
 	formatChromeMessage,
 	shouldLogBrowserMessage,
 } from './should-log-message';
-import type {PuppeteerEventListener} from './util';
 import {
 	addEventListener,
 	isErrnoException,
@@ -47,7 +45,7 @@ export class BrowserRunner {
 	#processArguments: string[];
 	#userDataDir: string;
 	#closed = true;
-	#listeners: PuppeteerEventListener[] = [];
+	#listeners: (() => void)[] = [];
 	#processClosing!: Promise<void>;
 
 	proc?: childProcess.ChildProcess;
@@ -253,16 +251,17 @@ function waitForWSEndpoint(
 	browserProcess: childProcess.ChildProcess,
 	timeout: number,
 ): Promise<string> {
-	assert(browserProcess.stderr, '`browserProcess` does not have stderr.');
-	const rl = readline.createInterface(browserProcess.stderr);
-	let stderr = '';
+	const browserStderr = browserProcess.stderr;
+	assert(browserStderr, '`browserProcess` does not have stderr.');
+
+	let stderrString = '';
 
 	return new Promise((resolve, reject) => {
+		browserStderr.addListener('data', onData);
+		browserStderr.addListener('close', onClose);
 		const listeners = [
-			addEventListener(rl, 'line', onLine),
-			addEventListener(rl, 'close', () => {
-				return onClose();
-			}),
+			() => browserStderr.removeListener('data', onData),
+			() => browserStderr.removeListener('close', onClose),
 			addEventListener(browserProcess, 'exit', () => {
 				return onClose();
 			}),
@@ -279,7 +278,7 @@ function waitForWSEndpoint(
 					[
 						'Failed to launch the browser process!',
 						error ? error.message : null,
-						stderr,
+						stderrString,
 						'Troubleshooting: https://remotion.dev/docs/troubleshooting/browser-launch',
 					]
 						.filter(truthy)
@@ -292,14 +291,14 @@ function waitForWSEndpoint(
 			cleanup();
 			reject(
 				new TimeoutError(
-					`Timed out after ${timeout} ms while trying to connect to the browser! Chrome logged the following: ${stderr}`,
+					`Timed out after ${timeout} ms while trying to connect to the browser! Chrome logged the following: ${stderrString}`,
 				),
 			);
 		}
 
-		function onLine(line: string) {
-			stderr += line + '\n';
-			const match = line.match(/^DevTools listening on (ws:\/\/.*)$/);
+		function onData(data: Buffer) {
+			stderrString += data.toString('utf8');
+			const match = stderrString.match(/DevTools listening on (ws:\/\/.*)/);
 			if (!match) {
 				return;
 			}

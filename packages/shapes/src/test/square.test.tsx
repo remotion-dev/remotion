@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {Rect} from '../components/rect';
 import {render} from './test-utils';
 

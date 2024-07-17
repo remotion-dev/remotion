@@ -1,5 +1,5 @@
 import path from "node:path";
-import { expect, test } from "vitest";
+import { expect, test } from "bun:test";
 import { getVideoMetadata, VideoMetadata } from "@remotion/renderer";
 
 import { existsSync } from "node:fs";
@@ -99,4 +99,20 @@ test("Should return an error due to using a audio file", async () => {
       "Compositor error: No video stream found"
     );
   }
+});
+
+test("Should not return duration in variable fps video", async () => {
+  const video = path.join(
+    __dirname,
+    "..",
+    "..",
+    "..",
+    "example",
+    "public",
+    "variablefps-no-duration.webm"
+  );
+  expect(existsSync(video)).toEqual(true);
+
+  const hi = await getVideoMetadata(video, { logLevel: "info" });
+  expect(hi.durationInSeconds).toBe(null);
 });

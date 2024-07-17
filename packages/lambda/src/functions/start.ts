@@ -3,7 +3,7 @@ import {VERSION} from 'remotion/version';
 import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
 import {getLambdaClient} from '../shared/aws-clients';
 import type {LambdaPayload} from '../shared/constants';
-import {initalizedMetadataKey, LambdaRoutines} from '../shared/constants';
+import {LambdaRoutines, overallProgressKey} from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
@@ -11,9 +11,11 @@ import {
 	generateRandomHashWithLifeCycleRule,
 	validateDeleteAfter,
 } from './helpers/lifecycle';
+import {makeInitialOverallRenderProgress} from './helpers/overall-render-progress';
 
 type Options = {
 	expectedBucketOwner: string;
+	timeoutInMilliseconds: number;
 };
 
 export const startHandler = async (params: LambdaPayload, options: Options) => {
@@ -56,9 +58,13 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		bucketName,
 		downloadBehavior: null,
 		region,
-		body: 'Render was initialized',
+		body: JSON.stringify(
+			makeInitialOverallRenderProgress(
+				options.timeoutInMilliseconds + Date.now(),
+			),
+		),
 		expectedBucketOwner: options.expectedBucketOwner,
-		key: initalizedMetadataKey(renderId),
+		key: overallProgressKey(renderId),
 		privacy: 'private',
 		customCredentials: null,
 	});

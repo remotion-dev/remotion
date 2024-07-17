@@ -26,8 +26,8 @@ type OpenState =
 	  };
 
 export const ContextMenu: React.FC<{
-	children: React.ReactNode;
-	values: ComboboxValue[];
+	readonly children: React.ReactNode;
+	readonly values: ComboboxValue[];
 }> = ({children, values}) => {
 	const ref = useRef<HTMLDivElement>(null);
 	const [opened, setOpened] = useState<OpenState>({type: 'not-open'});

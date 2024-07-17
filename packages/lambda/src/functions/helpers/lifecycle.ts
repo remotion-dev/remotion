@@ -12,7 +12,7 @@ const expiryDays = {
 
 export type DeleteAfter = keyof typeof expiryDays;
 
-export const getEnabledLifeCycleRule = ({
+const getEnabledLifeCycleRule = ({
 	key,
 	value,
 }: {

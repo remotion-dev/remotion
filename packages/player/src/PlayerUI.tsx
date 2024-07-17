@@ -82,6 +82,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		readonly posterFillMode: PosterFillMode;
 		readonly bufferStateDelayInMilliseconds: number;
 		readonly hideControlsWhenPointerDoesntMove: boolean | number;
+		readonly overflowVisible: boolean;
 	}
 > = (
 	{
@@ -115,6 +116,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		posterFillMode,
 		bufferStateDelayInMilliseconds,
 		hideControlsWhenPointerDoesntMove,
+		overflowVisible,
 	},
 	ref,
 ) => {
@@ -137,7 +139,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		}
 
 		return Boolean(
-			document.fullscreenEnabled || document.webkitFullscreenEnabled,
+			document.fullscreenEnabled ||
+				// @ts-expect-error Types not defined
+				document.webkitFullscreenEnabled,
 		);
 	}, []);
 
@@ -168,6 +172,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		const onFullscreenChange = () => {
 			setIsFullscreen(
 				document.fullscreenElement === current ||
+					// @ts-expect-error Types not defined
 					document.webkitFullscreenElement === current,
 			);
 		};
@@ -184,7 +189,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	}, []);
 
 	const toggle = useCallback(
-		(e?: SyntheticEvent) => {
+		(e?: SyntheticEvent | PointerEvent) => {
 			if (player.isPlaying()) {
 				player.pause();
 			} else {
@@ -207,7 +212,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			throw new Error('No player ref found');
 		}
 
+		// @ts-expect-error Types not defined
 		if (container.current.webkitRequestFullScreen) {
+			// @ts-expect-error Types not defined
 			container.current.webkitRequestFullScreen();
 		} else {
 			container.current.requestFullscreen();
@@ -215,7 +222,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	}, [allowFullscreen, supportsFullScreen]);
 
 	const exitFullscreen = useCallback(() => {
+		// @ts-expect-error Types not defined
 		if (document.webkitExitFullscreen) {
+			// @ts-expect-error Types not defined
 			document.webkitExitFullscreen();
 		} else {
 			document.exitFullscreen();
@@ -230,7 +239,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 		const fullscreenChange = () => {
 			const element =
-				document.webkitFullscreenElement ?? document.fullscreenElement;
+				// @ts-expect-error Types not defined
+				document.webkitFullscreenElement ??
+				// defined
+				document.fullscreenElement;
 
 			if (element && element === container.current) {
 				player.emitter.dispatchFullscreenChange({
@@ -437,16 +449,22 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const VideoComponent = video ? video.component : null;
 
 	const outerStyle: React.CSSProperties = useMemo(() => {
-		return calculateOuterStyle({canvasSize, config, style});
-	}, [canvasSize, config, style]);
+		return calculateOuterStyle({canvasSize, config, style, overflowVisible});
+	}, [canvasSize, config, overflowVisible, style]);
 
 	const outer = useMemo(() => {
-		return calculateOuter({config, layout, scale});
-	}, [config, layout, scale]);
+		return calculateOuter({config, layout, scale, overflowVisible});
+	}, [config, layout, overflowVisible, scale]);
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
-		return calculateContainerStyle({canvasSize, config, layout, scale});
-	}, [canvasSize, config, layout, scale]);
+		return calculateContainerStyle({
+			canvasSize,
+			config,
+			layout,
+			scale,
+			overflowVisible,
+		});
+	}, [canvasSize, config, layout, overflowVisible, scale]);
 
 	const onError = useCallback(
 		(error: Error) => {
@@ -476,7 +494,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		);
 
 	const onSingleClick = useCallback(
-		(e: SyntheticEvent) => {
+		(e: SyntheticEvent | PointerEvent) => {
 			toggle(e);
 		},
 		[toggle],
@@ -498,11 +516,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		}
 	}, [exitFullscreen, isFullscreen, requestFullscreen]);
 
-	const [handleClick, handleDoubleClick] = useClickPreventionOnDoubleClick(
-		onSingleClick,
-		onDoubleClick,
-		doubleClickToFullscreen && allowFullscreen && supportsFullScreen,
-	);
+	const {handlePointerDown, handleDoubleClick} =
+		useClickPreventionOnDoubleClick(
+			onSingleClick,
+			onDoubleClick,
+			doubleClickToFullscreen && allowFullscreen && supportsFullScreen,
+		);
 
 	useEffect(() => {
 		if (shouldAutoplay) {
@@ -567,7 +586,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		<>
 			<div
 				style={outer}
-				onPointerUp={clickToPlay ? handleClick : undefined}
+				onPointerDown={clickToPlay ? handlePointerDown : undefined}
 				onDoubleClick={doubleClickToFullscreen ? handleDoubleClick : undefined}
 			>
 				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
@@ -590,7 +609,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 								width: config.width,
 								height: config.height,
 							}}
-							onPointerUp={clickToPlay ? handleClick : undefined}
+							onPointerDown={clickToPlay ? handlePointerDown : undefined}
 							onDoubleClick={
 								doubleClickToFullscreen ? handleDoubleClick : undefined
 							}
@@ -603,7 +622,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			{shouldShowPoster && posterFillMode === 'player-size' ? (
 				<div
 					style={outer}
-					onPointerUp={clickToPlay ? handleClick : undefined}
+					onPointerDown={clickToPlay ? handlePointerDown : undefined}
 					onDoubleClick={
 						doubleClickToFullscreen ? handleDoubleClick : undefined
 					}
@@ -638,7 +657,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					onDoubleClick={
 						doubleClickToFullscreen ? handleDoubleClick : undefined
 					}
-					onPointerUp={clickToPlay ? handleClick : undefined}
+					onPointerDown={clickToPlay ? handlePointerDown : undefined}
 				/>
 			) : null}
 		</>

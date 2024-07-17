@@ -13,7 +13,8 @@ import {bundleOnCli} from './setup-cache';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {yesOrNo} from './yes-or-no';
 
-const {publicPathOption, publicDirOption} = BrowserSafeApis.options;
+const {publicPathOption, publicDirOption, disableGitSourceOption} =
+	BrowserSafeApis.options;
 
 export const bundleCommand = async (
 	remotionRoot: string,
@@ -59,6 +60,9 @@ export const bundleCommand = async (
 
 	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
 	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
+	const disableGitSource = disableGitSourceOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const outputPath = parsedCli['out-dir']
 		? path.resolve(process.cwd(), parsedCli['out-dir'])
@@ -91,7 +95,7 @@ export const bundleCommand = async (
 		rmSync(outputPath, {recursive: true});
 	}
 
-	const gitSource = getGitSource(remotionRoot);
+	const gitSource = getGitSource({remotionRoot, disableGitSource});
 
 	const output = await bundleOnCli({
 		fullPath: file,

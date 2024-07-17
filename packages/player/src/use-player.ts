@@ -11,7 +11,7 @@ type UsePlayerMethods = {
 	isFirstFrame: boolean;
 	emitter: PlayerEmitter;
 	playing: boolean;
-	play: (e?: SyntheticEvent) => void;
+	play: (e?: SyntheticEvent | PointerEvent) => void;
 	pause: () => void;
 	pauseAndReturnToPlayStart: () => void;
 	seek: (newFrame: number) => void;
@@ -74,7 +74,7 @@ export const usePlayer = (): UsePlayerMethods => {
 	);
 
 	const play = useCallback(
-		(e?: SyntheticEvent) => {
+		(e?: SyntheticEvent | PointerEvent) => {
 			if (imperativePlaying.current) {
 				return;
 			}

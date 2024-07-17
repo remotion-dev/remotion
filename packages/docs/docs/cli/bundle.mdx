@@ -1,0 +1,43 @@
+---
+image: /generated/articles-docs-cli-bundle.png
+title: npx remotion bundle
+sidebar_label: bundle
+crumb: CLI Reference
+---
+
+_available from v4.0.89_
+
+Creates a [Remotion Bundle](/docs/terminology/bundle) on the command line.  
+Equivalent to the [`bundle()`](/docs/bundle) Node.JS API.
+
+```bash
+npx remotion bundle <serve-url|entry-file>?
+```
+
+You may pass a [Serve URL](/docs/terminology/serve-url) or an [entry point](/docs/terminology/entry-point) as the first argument, otherwise the entry point will be [determined](/docs/terminology/entry-point#which-entry-point-is-being-used).
+
+## Flags
+
+### `--config`
+
+Specify a location for the Remotion config file.
+
+### `--log`
+
+<Options id="log" />
+
+### `--public-dir`
+
+<Options id="public-dir" />
+
+### `--out-dir`
+
+Define the location of the resulting bundle. By default it is a folder called `./build`, adjacent to the [Remotion Root](/docs/terminology/remotion-root).
+
+### `--public-path`<AvailableFrom v="4.0.127"/>
+
+<Options id="public-path" />
+
+### `--disable-git-source`<AvailableFrom v="4.0.182" />
+
+<Options id="disable-git-source" />

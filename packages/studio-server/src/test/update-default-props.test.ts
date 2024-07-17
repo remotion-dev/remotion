@@ -1,6 +1,6 @@
+import {expect, test} from 'bun:test';
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
-import {expect, test} from 'vitest';
 import {updateDefaultProps} from '../codemods/update-default-props';
 
 test('Should be able to update default props', async () => {

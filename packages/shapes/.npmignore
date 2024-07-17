@@ -6,4 +6,3 @@ tsconfig.tsbuildinfo
 .turbo
 .prettierrc.js
 tsconfig.json
-vitest.config.mts

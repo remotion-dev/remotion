@@ -1,3 +1,18 @@
-# `@remotion/studio-server`
-
-Right now the APIs in here are not meant for public consumption.
+# @remotion/studio-server
+ 
+Run a Remotion Studio with a server backend
+ 
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/studio-server.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/studio-server?minimal=true)
+ 
+## Installation
+ 
+```bash
+npm install @remotion/studio-server --save-exact
+```
+ 
+When installing a Remotion package, make sure to align the version of all `remotion` and `@remotion/*` packages to the same version.
+Remove the `^` character from the version number to use the exact version.
+ 
+## Usage
+ 
+This is an internal package and has no documentation.

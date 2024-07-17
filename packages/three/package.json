@@ -1,7 +1,10 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/three"
+	},
 	"name": "@remotion/three",
-	"version": "4.0.160",
-	"description": "Utility functions for using react-three-fiber with remotion",
+	"version": "4.0.181",
+	"description": "Include React Three Fiber components in a Remotion video",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -14,9 +17,6 @@
 	"author": "Björn Zeutzheim",
 	"contributors": [],
 	"license": "MIT",
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
@@ -31,16 +31,10 @@
 		"remotion": "workspace:*"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.281",
 		"@react-three/fiber": "8.13.5",
-		"@types/node": "18.14.6",
-		"@types/react": "18.3.1",
 		"@types/react-reconciler": "^0.26.4",
 		"@types/three": "0.157.2",
 		"@types/web": "0.0.78",
-		"eslint": "8.56.0",
-		"prettier": "3.2.5",
-		"prettier-plugin-organize-imports": "3.2.4",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"remotion": "workspace:*",
@@ -65,5 +59,6 @@
 			"import": "./dist/esm/index.mjs",
 			"require": "./dist/cjs/index.js"
 		}
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/three"
 }

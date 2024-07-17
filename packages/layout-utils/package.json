@@ -1,7 +1,10 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/layout-utils"
+	},
 	"name": "@remotion/layout-utils",
-	"version": "4.0.160",
-	"description": "Layout Utils for Remotion",
+	"version": "4.0.181",
+	"description": "Utilities for working with layouts",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -27,19 +30,8 @@
 	],
 	"contributors": [],
 	"license": "MIT",
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
-	},
-	"dependencies": {},
-	"devDependencies": {
-		"@jonny/eslint-config": "3.0.281",
-		"@types/node": "18.14.6",
-		"eslint": "8.56.0",
-		"prettier": "3.2.5",
-		"prettier-plugin-organize-imports": "3.2.4"
 	},
 	"keywords": [
 		"remotion",
@@ -47,5 +39,6 @@
 	],
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/layout-utils"
 }

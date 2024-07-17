@@ -27,7 +27,9 @@ export const BooleanFlags = [
 	'no-open',
 	'ipv4',
 	BrowserSafeApis.options.beepOnFinishOption.cliFlag,
+	BrowserSafeApis.options.disableGitSourceOption.cliFlag,
 	'repro',
+	'compatible-only',
 ];
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {

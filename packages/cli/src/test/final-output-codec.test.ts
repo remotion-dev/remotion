@@ -1,6 +1,6 @@
-import type {CodecOrUndefined} from '@remotion/renderer';
+import type {Codec, CodecOrUndefined} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import {describe, expect, test} from 'vitest';
+import {describe, expect, test} from 'bun:test';
 
 const {videoCodecOption} = BrowserSafeApis.options;
 
@@ -29,7 +29,7 @@ describe('Codec tests valid codec input', () => {
 					},
 				),
 			).toEqual({
-				value: entry,
+				value: entry!,
 				source: 'from --codec flag',
 			})),
 	);
@@ -60,7 +60,7 @@ describe('Codec tests undefined codec input with known extension', () => {
 					},
 				),
 			).toEqual({
-				value: entry[0],
+				value: entry[0] as Codec,
 				source: 'derived from out name',
 			});
 		}),

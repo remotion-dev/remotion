@@ -9,6 +9,5 @@
 		{"path": "../core"},
 		{"path": "../cli"},
 		{"path": "../renderer"}
-	],
-	"exclude": ["vitest.config.mts"]
+	]
 }

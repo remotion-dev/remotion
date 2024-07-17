@@ -1,7 +1,7 @@
 import { execSync } from "child_process";
 import { readFileSync, writeFileSync } from "fs";
 import path from "path";
-import { expect, test } from "vitest";
+import { expect, test } from "bun:test";
 import { LambdaInternals } from "@remotion/lambda";
 
 const PYTHON_OUTPUT_MARKER = 10;
@@ -173,10 +173,10 @@ test("Python package should create the same renderStill payload as normal Lambda
     quality: undefined,
   });
   const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
-  const parsedJson = JSON.parse(jsonOutput);
+  const { streamed: _, ...parsedJson } = JSON.parse(jsonOutput);
   // remove the bucketName field because request input does not have that value
   // forceBucketName is being set in bucketName
-  const { bucketName, ...newObject } = nativeVersion;
+  const { bucketName, streamed, ...newObject } = nativeVersion;
   const assertValue = {
     ...newObject,
     forceBucketName: nativeVersion.bucketName,

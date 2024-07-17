@@ -1,6 +1,6 @@
+import {expect, test} from 'bun:test';
 import fs from 'node:fs';
 import {tmpdir} from 'node:os';
-import {expect, test} from 'vitest';
 import {getSanitizedFilenameForAssetUrl} from '../assets/download-and-map-assets-to-file';
 import {downloadFile} from '../assets/download-file';
 
@@ -42,5 +42,5 @@ test('Should fail to download invalid files', async () => {
 			indent: false,
 			logLevel: 'info',
 		}),
-	).rejects.toThrow(/ENOTFOUND/);
+	).toThrow(typeof Bun === 'undefined' ? /ENOTFOUND/ : /Unable to connect/);
 });

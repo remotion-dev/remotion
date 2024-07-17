@@ -12,4 +12,7 @@ export const initialAggregateRenderProgress = (): AggregateRenderProgress => ({
 		bytes: 0,
 		doneIn: null,
 	},
+	artifactState: {
+		received: [],
+	},
 });

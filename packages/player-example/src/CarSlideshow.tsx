@@ -1,13 +1,13 @@
 import {createRef, useCallback, useImperativeHandle, useState} from 'react';
 import {
+	Experimental,
 	Img,
+	Sequence,
+	Video,
 	interpolate,
+	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
-	Video,
-	staticFile,
-	Sequence,
-	Experimental,
 } from 'remotion';
 
 type Props = {

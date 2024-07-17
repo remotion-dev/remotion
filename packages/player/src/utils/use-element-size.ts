@@ -137,8 +137,8 @@ export const useElementSize = (
 		}
 
 		const {current} = ref;
-		if (ref.current) {
-			observer.observe(ref.current);
+		if (current) {
+			observer.observe(current);
 		}
 
 		return (): void => {

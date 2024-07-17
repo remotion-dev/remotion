@@ -1,5 +1,5 @@
-import type {AwsRegion} from '../..';
 import {ROLE_NAME} from '../../api/iam-validation/suggested-policy';
+import type {AwsRegion} from '../../client';
 import type {CustomCredentials} from '../../shared/aws-clients';
 import type {RenderMetadata} from '../../shared/constants';
 import {getExpectedOutName} from './expected-out-name';
@@ -8,8 +8,6 @@ import {lambdaHeadCommand} from './io';
 
 export type OutputFileMetadata = {
 	url: string;
-	size: number;
-	lastModified: number;
 };
 
 export const findOutputFileInBucket = async ({
@@ -34,15 +32,13 @@ export const findOutputFileInBucket = async ({
 	);
 
 	try {
-		const head = await lambdaHeadCommand({
+		await lambdaHeadCommand({
 			bucketName,
 			key,
 			region,
 			customCredentials,
 		});
 		return {
-			lastModified: head.LastModified?.getTime() as number,
-			size: head.ContentLength as number,
 			url: getOutputUrlFromMetadata(
 				renderMetadata,
 				bucketName,

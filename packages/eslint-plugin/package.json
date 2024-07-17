@@ -1,29 +1,32 @@
 {
-  "name": "@remotion/eslint-plugin",
-  "version": "4.0.160",
-  "description": "A set of rules helping you avoid common pitfalls in Remotion.",
-  "scripts": {
-    "test": "vitest --run"
-  },
-  "main": "dist/index.js",
-  "bugs": {
-    "url": "https://github.com/remotion-dev/remotion/issues"
-  },
-  "author": "Jonny Burger <jonny@remotion.dev>",
-  "license": "ISC",
-  "dependencies": {
-    "@typescript-eslint/utils": "5.19.0"
-  },
-  "keywords": [
-    "eslint",
-    "eslintplugin"
-  ],
-  "peerDependencies": {
-    "eslint": ">=7.0.0"
-  },
-  "devDependencies": {
-    "eslint": "8.56.0",
-    "vitest": "0.31.1"
-  },
-  "private": false
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/eslint-plugin"
+	},
+	"name": "@remotion/eslint-plugin",
+	"version": "4.0.181",
+	"description": "Rules for writing Remotion code",
+	"scripts": {
+		"test": "vitest --run"
+	},
+	"main": "dist/index.js",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"license": "ISC",
+	"dependencies": {
+		"@typescript-eslint/utils": "5.19.0"
+	},
+	"keywords": [
+		"eslint",
+		"eslintplugin"
+	],
+	"peerDependencies": {
+		"eslint": ">=7.0.0"
+	},
+	"devDependencies": {
+		"vitest": "0.31.1"
+	},
+	"private": false,
+	"homepage": "https://www.remotion.dev/docs/brownfield#install-the-eslint-plugin"
 }

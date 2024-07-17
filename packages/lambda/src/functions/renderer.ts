@@ -1,25 +1,20 @@
-import type {AudioCodec, BrowserLog, Codec} from '@remotion/renderer';
+import type {
+	AudioCodec,
+	BrowserLog,
+	Codec,
+	OnArtifact,
+} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
 import {VERSION} from 'remotion/version';
-import {callLambda} from '../shared/call-lambda';
-import {writeLambdaInitializedFile} from '../shared/chunk-progress';
 import {decompressInputProps} from '../shared/compress-props';
-import type {LambdaPayload, LambdaPayloads} from '../shared/constants';
-import {
-	LambdaRoutines,
-	RENDERER_PATH_TOKEN,
-	chunkKeyForIndex,
-	lambdaTimingsKey,
-} from '../shared/constants';
+import type {LambdaPayload} from '../shared/constants';
+import {LambdaRoutines, RENDERER_PATH_TOKEN} from '../shared/constants';
 import {isFlakyError} from '../shared/is-flaky-error';
 import {truthy} from '../shared/truthy';
 import {enableNodeIntrospection} from '../shared/why-is-node-running';
-import type {
-	ChunkTimingData,
-	ObjectChunkTimingData,
-} from './chunk-optimization/types';
+import type {ObjectChunkTimingData} from './chunk-optimization/types';
 import {
 	canConcatAudioSeamlessly,
 	canConcatVideoSeamlessly,
@@ -30,25 +25,30 @@ import {
 } from './helpers/get-browser-instance';
 import {executablePath} from './helpers/get-chromium-executable-path';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
-import {lambdaWriteFile} from './helpers/io';
 import {startLeakDetection} from './helpers/leak-detection';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
 import type {RequestContext} from './helpers/request-context';
-import {
-	getTmpDirStateIfENoSp,
-	writeLambdaError,
-} from './helpers/write-lambda-error';
+import {serializeArtifact} from './helpers/serialize-artifact';
+import {timer} from './helpers/timer';
+import {getTmpDirStateIfENoSp} from './helpers/write-lambda-error';
+import type {OnStream} from './streaming/streaming';
 
 type Options = {
 	expectedBucketOwner: string;
 	isWarm: boolean;
 };
 
-const renderHandler = async (
-	params: LambdaPayload,
-	options: Options,
-	logs: BrowserLog[],
-): Promise<{}> => {
+const renderHandler = async ({
+	params,
+	options,
+	logs,
+	onStream,
+}: {
+	params: LambdaPayload;
+	options: Options;
+	logs: BrowserLog[];
+	onStream: OnStream;
+}): Promise<{}> => {
 	if (params.type !== LambdaRoutines.renderer) {
 		throw new Error('Params must be renderer');
 	}
@@ -168,6 +168,40 @@ const renderHandler = async (
 	const resolvedProps = await resolvedPropsPromise;
 	const serializedInputPropsWithCustomSchema = await inputPropsPromise;
 
+	const allFrames = RenderInternals.getFramesToRender(
+		params.frameRange,
+		params.everyNthFrame,
+	);
+
+	const onArtifact: OnArtifact = (artifact) => {
+		RenderInternals.Log.info(
+			{indent: false, logLevel: params.logLevel},
+			`Received artifact on frame ${artifact.frame}:`,
+			artifact.filename,
+			artifact.content.length + 'bytes. Streaming to main function',
+		);
+		const startTimestamp = Date.now();
+		onStream({
+			type: 'artifact-emitted',
+			payload: {
+				artifact: serializeArtifact(artifact),
+			},
+		})
+			.then(() => {
+				RenderInternals.Log.info(
+					{indent: false, logLevel: params.logLevel},
+					`Streaming artifact ${artifact.filename} to main function took ${Date.now() - startTimestamp}ms`,
+				);
+			})
+			.catch((e) => {
+				RenderInternals.Log.error(
+					{indent: false, logLevel: params.logLevel},
+					`Error streaming artifact ${artifact.filename} to main function`,
+					e,
+				);
+			});
+	};
+
 	await new Promise<void>((resolve, reject) => {
 		RenderInternals.internalRenderMedia({
 			repro: false,
@@ -183,33 +217,29 @@ const renderHandler = async (
 			serializedInputPropsWithCustomSchema,
 			frameRange: params.frameRange,
 			onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
-				if (renderedFrames % 5 === 0) {
-					RenderInternals.Log.info(
-						{indent: false, logLevel: params.logLevel},
-						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`,
-					);
-					writeLambdaInitializedFile({
-						attempt: params.attempt,
-						bucketName: params.bucketName,
-						chunk: params.chunk,
-						expectedBucketOwner: options.expectedBucketOwner,
-						framesRendered: renderedFrames,
-						renderId: params.renderId,
-					}).catch((err) => {
-						console.log('Could not write progress', err);
-						return reject(err);
-					});
-				} else {
-					RenderInternals.Log.verbose(
-						{indent: false, logLevel: params.logLevel},
-						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`,
-					);
-				}
-
-				const allFrames = RenderInternals.getFramesToRender(
-					params.frameRange,
-					params.everyNthFrame,
+				RenderInternals.Log.verbose(
+					{indent: false, logLevel: params.logLevel},
+					`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`,
 				);
+
+				const allFramesRendered = allFrames.length === renderedFrames;
+				const allFramesEncoded = allFrames.length === encodedFrames;
+
+				const frameReportPoint =
+					(renderedFrames % params.progressEveryNthFrame === 0 ||
+						allFramesRendered) &&
+					!allFramesEncoded;
+				const encodedFramesReportPoint =
+					(encodedFrames % params.progressEveryNthFrame === 0 ||
+						allFramesEncoded) &&
+					allFramesRendered;
+
+				if (frameReportPoint || encodedFramesReportPoint) {
+					onStream({
+						type: 'frames-rendered',
+						payload: {rendered: renderedFrames, encoded: encodedFrames},
+					});
+				}
 
 				if (renderedFrames === allFrames.length) {
 					RenderInternals.Log.verbose(
@@ -222,14 +252,12 @@ const renderHandler = async (
 			},
 			concurrency: params.concurrencyPerLambda,
 			onStart: () => {
-				writeLambdaInitializedFile({
-					attempt: params.attempt,
-					bucketName: params.bucketName,
-					chunk: params.chunk,
-					expectedBucketOwner: options.expectedBucketOwner,
-					framesRendered: 0,
-					renderId: params.renderId,
-				}).catch((err) => reject(err));
+				onStream({
+					type: 'lambda-invoked',
+					payload: {
+						attempt: params.attempt,
+					},
+				});
 			},
 			puppeteerInstance: browserInstance.instance,
 			serveUrl: params.serveUrl,
@@ -278,6 +306,7 @@ const renderHandler = async (
 			onBrowserDownload: () => {
 				throw new Error('Should not download a browser in Lambda');
 			},
+			onArtifact,
 		})
 			.then(({slowestFrames}) => {
 				RenderInternals.Log.verbose(
@@ -295,59 +324,48 @@ const renderHandler = async (
 			.catch((err) => reject(err));
 	});
 
+	const streamTimer = timer(
+		'Streaming chunk to the main function',
+		params.logLevel,
+	);
+
+	if (audioOutputLocation) {
+		const audioChunkTimer = timer('Sending audio chunk', params.logLevel);
+		await onStream({
+			type: 'audio-chunk-rendered',
+			payload: fs.readFileSync(audioOutputLocation),
+		});
+		audioChunkTimer.end();
+	}
+
+	if (videoOutputLocation) {
+		const videoChunkTimer = timer('Sending main chunk', params.logLevel);
+		await onStream({
+			type: RenderInternals.isAudioCodec(params.codec)
+				? 'audio-chunk-rendered'
+				: 'video-chunk-rendered',
+			payload: fs.readFileSync(videoOutputLocation),
+		});
+		videoChunkTimer.end();
+	}
+
 	const endRendered = Date.now();
 
-	const condensedTimingData: ChunkTimingData = {
-		...chunkTimingData,
-		timings: Object.values(chunkTimingData.timings),
-	};
+	await onStream({
+		type: 'chunk-complete',
+		payload: {
+			rendered: endRendered,
+			start,
+		},
+	});
 
-	RenderInternals.Log.verbose(
-		{indent: false, logLevel: params.logLevel},
-		'Writing chunk to S3',
-	);
-	const writeStart = Date.now();
-	await Promise.all([
-		lambdaWriteFile({
-			bucketName: params.bucketName,
-			key: chunkKeyForIndex({
-				renderId: params.renderId,
-				index: params.chunk,
-				type: RenderInternals.isAudioCodec(params.codec) ? 'audio' : 'video',
-			}),
-			body: fs.createReadStream(videoOutputLocation),
-			region: getCurrentRegionInFunction(),
-			privacy: params.privacy,
-			expectedBucketOwner: options.expectedBucketOwner,
-			downloadBehavior: null,
-			customCredentials: null,
-		}),
-		audioOutputLocation
-			? lambdaWriteFile({
-					bucketName: params.bucketName,
-					key: chunkKeyForIndex({
-						renderId: params.renderId,
-						index: params.chunk,
-						type: 'audio',
-					}),
-					body: fs.createReadStream(audioOutputLocation),
-					region: getCurrentRegionInFunction(),
-					privacy: params.privacy,
-					expectedBucketOwner: options.expectedBucketOwner,
-					downloadBehavior: null,
-					customCredentials: null,
-				})
-			: null,
-	]);
+	streamTimer.end();
 
-	RenderInternals.Log.verbose(
-		{indent: false, logLevel: params.logLevel},
-		`Wrote chunk to S3 (${Date.now() - writeStart}ms)`,
-	);
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
 		'Cleaning up and writing timings',
 	);
+
 	await Promise.all(
 		[
 			fs.promises.rm(videoOutputLocation, {recursive: true}),
@@ -355,21 +373,6 @@ const renderHandler = async (
 				? fs.promises.rm(audioOutputLocation, {recursive: true})
 				: null,
 			fs.promises.rm(outputPath, {recursive: true}),
-			lambdaWriteFile({
-				bucketName: params.bucketName,
-				body: JSON.stringify(condensedTimingData as ChunkTimingData, null, 2),
-				key: lambdaTimingsKey({
-					renderId: params.renderId,
-					chunk: params.chunk,
-					rendered: endRendered,
-					start,
-				}),
-				region: getCurrentRegionInFunction(),
-				privacy: 'private',
-				expectedBucketOwner: options.expectedBucketOwner,
-				downloadBehavior: null,
-				customCredentials: null,
-			}),
 		].filter(truthy),
 	);
 	RenderInternals.Log.verbose(
@@ -380,11 +383,12 @@ const renderHandler = async (
 	return {};
 };
 
-export const ENABLE_SLOW_LEAK_DETECTION = false;
+const ENABLE_SLOW_LEAK_DETECTION = false;
 
 export const rendererHandler = async (
 	params: LambdaPayload,
 	options: Options,
+	onStream: OnStream,
 	requestContext: RequestContext,
 ): Promise<{
 	type: 'success';
@@ -398,7 +402,7 @@ export const rendererHandler = async (
 	const leakDetection = enableNodeIntrospection(ENABLE_SLOW_LEAK_DETECTION);
 
 	try {
-		await renderHandler(params, options, logs);
+		await renderHandler({params, options, logs, onStream});
 		return {
 			type: 'success',
 		};
@@ -414,53 +418,42 @@ export const rendererHandler = async (
 
 		const shouldNotRetry = (err as Error).name === 'CancelledError';
 
-		const willRetry =
+		const shouldRetry =
 			isRetryableError && params.retriesLeft > 0 && !shouldNotRetry;
-		const isFatal = !willRetry;
 
-		console.log(`Error occurred (will retry = ${String(willRetry)})`);
-		console.log(err);
-		await writeLambdaError({
-			bucketName: params.bucketName,
-			errorInfo: {
-				name: (err as Error).name as string,
-				message: (err as Error).message as string,
-				stack: (err as Error).stack as string,
-				chunk: params.chunk,
-				frame: null,
-				type: 'renderer',
-				isFatal,
-				tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
-				attempt: params.attempt,
-				totalAttempts: params.retriesLeft + params.attempt,
-				willRetry,
+		RenderInternals.Log.error(
+			{indent: false, logLevel: params.logLevel},
+			`Error occurred (will retry = ${String(shouldRetry)})`,
+		);
+		RenderInternals.Log.error({indent: false, logLevel: params.logLevel}, err);
+
+		onStream({
+			type: 'error-occurred',
+			payload: {
+				error: (err as Error).stack as string,
+				shouldRetry,
+				errorInfo: {
+					name: (err as Error).name as string,
+					message: (err as Error).message as string,
+					stack: (err as Error).stack as string,
+					chunk: params.chunk,
+					frame: null,
+					type: 'renderer',
+					isFatal: !shouldRetry,
+					tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
+					attempt: params.attempt,
+					totalAttempts: params.retriesLeft + params.attempt,
+					willRetry: shouldRetry,
+				},
 			},
-			renderId: params.renderId,
-			expectedBucketOwner: options.expectedBucketOwner,
 		});
-		if (willRetry) {
-			const retryPayload: LambdaPayloads[LambdaRoutines.renderer] = {
-				...params,
-				retriesLeft: params.retriesLeft - 1,
-				attempt: params.attempt + 1,
-			};
-			const res = await callLambda({
-				functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
-				payload: retryPayload,
-				type: LambdaRoutines.renderer,
-				region: getCurrentRegionInFunction(),
-				receivedStreamingPayload: () => undefined,
-				timeoutInTest: 120000,
-				retriesRemaining: 0,
-			});
-
-			return res;
-		}
 
 		throw err;
 	} finally {
 		forgetBrowserEventLoop(params.logLevel);
 
-		startLeakDetection(leakDetection, requestContext.awsRequestId);
+		if (ENABLE_SLOW_LEAK_DETECTION) {
+			startLeakDetection(leakDetection, requestContext.awsRequestId);
+		}
 	}
 };

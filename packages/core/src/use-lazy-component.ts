@@ -17,7 +17,10 @@ export const useLazyComponent = <Props>(
 	compProps: CompProps<Props>,
 ): LazyExoticComponent<ComponentType<Props>> => {
 	const lazy = useMemo(() => {
-		if ('lazyComponent' in compProps) {
+		if (
+			'lazyComponent' in compProps &&
+			typeof compProps.lazyComponent !== 'undefined'
+		) {
 			return React.lazy(
 				compProps.lazyComponent as () => Promise<{
 					default: ComponentType<Props>;

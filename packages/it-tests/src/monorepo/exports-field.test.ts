@@ -1,6 +1,6 @@
 import { existsSync, lstatSync, readdirSync, readFileSync } from "fs";
 import path from "path";
-import { test } from "vitest";
+import { test } from "bun:test";
 
 test("All packages should export package.json", () => {
   const packages = readdirSync(path.join(process.cwd(), ".."));

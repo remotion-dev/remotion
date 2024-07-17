@@ -1,7 +1,10 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/rive"
+	},
 	"name": "@remotion/rive",
-	"version": "4.0.160",
-	"description": "Remotion Rive",
+	"version": "4.0.181",
+	"description": "Embed Rive animations in a Remotion video",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -10,9 +13,6 @@
 		"lint": "eslint src --ext ts,tsx",
 		"build": "bun --env-file=../.env.bundle bundle.ts"
 	},
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
@@ -20,7 +20,7 @@
 	"author": "Caleb Ojo, Jonny Burger",
 	"license": "See LICENSE.md",
 	"dependencies": {
-		"@rive-app/canvas-advanced": "2.3.0",
+		"@rive-app/canvas-advanced": "2.19.3",
 		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
@@ -28,17 +28,11 @@
 		"react-dom": "^18.2.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.281",
-		"@types/node": "18.14.6",
-		"@types/react": "18.3.1",
-		"@types/react-dom": "18.3.0",
-		"eslint": "8.56.0",
-		"prettier": "3.2.5",
 		"react": "18.3.1",
-		"react-dom": "18.3.1",
-		"prettier-plugin-organize-imports": "3.2.4"
+		"react-dom": "18.3.1"
 	},
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/rive"
 }

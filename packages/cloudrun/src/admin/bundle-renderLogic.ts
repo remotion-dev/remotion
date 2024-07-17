@@ -3,7 +3,7 @@ import {dir} from '@remotion/compositor-linux-x64-gnu';
 import fs from 'fs';
 import path from 'path';
 
-const bundleRenderLogic = async () => {
+export const bundleRenderLogic = async () => {
 	const outdir = path.join(__dirname, '../../container/dist');
 	fs.mkdirSync(outdir, {
 		recursive: true,
@@ -55,5 +55,3 @@ const bundleRenderLogic = async () => {
 
 	console.log('distribution bundled.');
 };
-
-bundleRenderLogic();

@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {makeFileExtensionMap} from '../get-extension-from-codec';
 
 test('Derive codec from file extension', () => {

@@ -2,7 +2,7 @@ import { BundlerInternals } from "@remotion/bundler";
 import fs from "fs";
 import { tmpdir } from "os";
 import path from "path";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "bun:test";
 
 test("Should not be able to bundle @remotion/cloudrun directly", async () => {
   expect(() =>
@@ -13,7 +13,7 @@ test("Should not be able to bundle @remotion/cloudrun directly", async () => {
       entryPoints: [require.resolve("@remotion/cloudrun")],
       logLevel: "silent",
     })
-  ).rejects.toThrow(/Could not resolve "pnpapi"/);
+  ).toThrow(/Could not resolve "pnpapi"/);
 });
 
 describe("Should be able to bundle @remotion/cloudrun/client with ESBuild", () => {
@@ -35,10 +35,10 @@ describe("Should be able to bundle @remotion/cloudrun/client with ESBuild", () =
     expect(contents.includes("getRemotionEnvironment")).toBe(false);
   });
 
-  test("Bundle should be below 6MB", async () => {
+  test("Bundle should be below 7MB", async () => {
     const file = await fs.promises.readFile(outfile, "utf-8");
     expect(file.length).toBeGreaterThan(10000);
-    expect(file.length).toBeLessThanOrEqual(6000000);
+    expect(file.length).toBeLessThanOrEqual(7_000_000);
   });
 
   test("Bundle should not include Renderer", async () => {

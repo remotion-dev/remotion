@@ -5,6 +5,7 @@ import {
   CustomTransitionDemo,
   FadeDemo,
   FlipDemo,
+  NoneDemo,
   SlideDemo,
   SlideDemoLongDurationRest,
   WipeDemo,
@@ -16,6 +17,7 @@ import { PieDemo } from "./Pie";
 import { PolygonDemo } from "./Polygon";
 import { RectDemo } from "./Rect";
 import { StarDemo } from "./Star";
+import { AnimationMath } from "./SubtractAnimations";
 import {
   OpacityDemo,
   RotateDemo,
@@ -577,6 +579,17 @@ export const flipPresentationDemo: DemoType = {
   ],
 };
 
+export const nonePresentationDemo: DemoType = {
+  comp: NoneDemo,
+  compHeight: 280,
+  compWidth: 540,
+  durationInFrames: 60,
+  fps: 30,
+  id: "none",
+  autoPlay: true,
+  options: [],
+};
+
 export const slidePresentationDemoLongThreshold: DemoType = {
   comp: SlideDemoLongDurationRest,
   compHeight: 280,
@@ -664,6 +677,17 @@ export const customTimingDemo: DemoType = {
   durationInFrames: 60,
   fps: 30,
   id: "custom-timing",
+  autoPlay: true,
+  options: [],
+};
+
+export const animationMathDemo: DemoType = {
+  comp: AnimationMath,
+  compHeight: 280,
+  compWidth: 540,
+  durationInFrames: 120,
+  fps: 30,
+  id: "animation-math",
   autoPlay: true,
   options: [],
 };

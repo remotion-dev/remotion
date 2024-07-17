@@ -1,31 +1,42 @@
-type Factors = 'invoking' | 'rendering' | 'frames' | 'encoding' | 'cleanup';
+type Factors = 'invoking' | 'frames' | 'encoding' | 'evaluating' | 'combining';
 
 const weights: {[key in Factors]: number} = {
-	cleanup: 0.1,
-	encoding: 0.225,
-	rendering: 0.225,
-	frames: 0.225,
-	invoking: 0.225,
+	evaluating: 0.1,
+	encoding: 0.1,
+	frames: 0.6,
+	invoking: 0.1,
+	combining: 0.1,
 };
 
 export const getOverallProgress = ({
-	cleanup,
 	encoding,
-	rendering,
 	invoking,
 	frames,
+	invokedLambda,
+	visitedServeUrl,
+	gotComposition,
+	combining,
 }: {
-	cleanup: number;
+	invokedLambda: number;
+	visitedServeUrl: number | null;
+	gotComposition: number | null;
 	encoding: number;
-	rendering: number;
 	invoking: number;
 	frames: number;
+	combining: number;
 }) => {
+	const evaluationProgress =
+		[
+			Boolean(invokedLambda),
+			Boolean(visitedServeUrl),
+			Boolean(gotComposition),
+		].reduce((a, b) => Number(a) + Number(b), 0) / 3;
+
 	return (
-		cleanup * weights.cleanup +
+		evaluationProgress * weights.evaluating +
 		encoding * weights.encoding +
-		rendering * weights.rendering +
 		invoking * weights.invoking +
-		frames * weights.frames
+		frames * weights.frames +
+		combining * weights.combining
 	);
 };

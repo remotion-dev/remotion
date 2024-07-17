@@ -11,6 +11,7 @@ import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {StillIcon} from '../icons/still';
 import {FilmIcon} from '../icons/video';
 import {ModalsContext} from '../state/modals';
+import {CompositionContextButton} from './CompositionContextButton';
 import {ContextMenu} from './ContextMenu';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
@@ -69,12 +70,15 @@ export type CompositionSelectorItemType =
 	  };
 
 export const CompositionSelectorItem: React.FC<{
-	item: CompositionSelectorItemType;
-	currentComposition: string | null;
-	tabIndex: number;
-	selectComposition: (c: AnyComposition, push: boolean) => void;
-	toggleFolder: (folderName: string, parentName: string | null) => void;
-	level: number;
+	readonly item: CompositionSelectorItemType;
+	readonly currentComposition: string | null;
+	readonly tabIndex: number;
+	readonly selectComposition: (c: AnyComposition, push: boolean) => void;
+	readonly toggleFolder: (
+		folderName: string,
+		parentName: string | null,
+	) => void;
+	readonly level: number;
 }> = ({
 	item,
 	level,
@@ -299,12 +303,11 @@ export const CompositionSelectorItem: React.FC<{
 					<Spacing x={1} />
 					<div style={label}>{item.composition.id}</div>
 					<Spacing x={0.5} />
-					<div>
-						<SidebarRenderButton
-							visible={hovered}
-							composition={item.composition}
-						/>
-					</div>
+					<CompositionContextButton values={contextMenu} visible={hovered} />
+					<SidebarRenderButton
+						visible={hovered}
+						composition={item.composition}
+					/>
 				</a>
 			</Row>
 		</ContextMenu>

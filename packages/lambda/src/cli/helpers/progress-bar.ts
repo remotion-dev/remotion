@@ -12,7 +12,7 @@ export const makeBundleProgress = ({progress, doneIn}: BundleProgress) => {
 			CliInternals.LABEL_WIDTH,
 			' ',
 		),
-		CliInternals.makeProgressBar(progress / 100),
+		CliInternals.makeProgressBar(progress / 100, false),
 		doneIn === null
 			? `${Math.round(progress)}%`
 			: CliInternals.chalk.gray(`${doneIn}ms`),
@@ -31,7 +31,7 @@ export const makeBucketProgress = ({doneIn}: BucketCreationProgress) => {
 			CliInternals.LABEL_WIDTH,
 			' ',
 		),
-		CliInternals.makeProgressBar(progress),
+		CliInternals.makeProgressBar(progress, false),
 		doneIn === null ? `0/1` : CliInternals.chalk.gray(`${doneIn}ms`),
 	].join(' ');
 };
@@ -81,7 +81,7 @@ export const makeDeployProgressBar = ({
 			CliInternals.LABEL_WIDTH,
 			' ',
 		),
-		CliInternals.makeProgressBar(progress),
+		CliInternals.makeProgressBar(progress, false),
 		doneIn === null
 			? typeof totalSize === 'number'
 				? `${CliInternals.formatBytes(sizeUploaded)}/${CliInternals.formatBytes(

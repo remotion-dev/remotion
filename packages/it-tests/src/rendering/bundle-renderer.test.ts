@@ -3,7 +3,7 @@ import { execSync } from "node:child_process";
 import { RenderInternals } from "@remotion/renderer";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "vitest";
+import { expect, test } from "bun:test";
 import { exampleVideos } from "./example-videos";
 import { copyFileSync, cpSync, readdirSync, rmSync } from "node:fs";
 
@@ -16,7 +16,9 @@ test("Should be able to bundle the renderer", () => {
     target: "node16",
     bundle: true,
     outfile,
-    entryPoints: [`${__dirname}/test-index.ts`],
+    entryPoints: [
+      `${__dirname}${path.sep}..${path.sep}..${path.sep}test-index.ts`,
+    ],
   });
   expect(errors.length).toBe(0);
   expect(warnings.length).toBe(0);

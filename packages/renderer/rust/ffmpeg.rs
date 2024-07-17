@@ -7,6 +7,7 @@ use crate::payloads::payloads::{
     KnownAudioCodecs, KnownCodecs, KnownColorSpaces, OpenVideoStats, VideoMetadata,
 };
 use std::fs::File;
+use std::i64;
 use std::io::{BufReader, ErrorKind};
 extern crate ffmpeg_next as remotionffmpeg;
 use remotionffmpeg::{codec, encoder, format, media, Rational};
@@ -301,13 +302,17 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
         .map_err(|e| e.to_string())?;
 
     // Get the duration
+    let duration = input.duration();
     #[allow(non_snake_case)]
-    let durationInSeconds = input.duration() as f64 / remotionffmpeg::ffi::AV_TIME_BASE as f64;
+    let durationInSeconds = match duration {
+        i64::MIN => None,
+        _ => Some(duration as f64 / remotionffmpeg::ffi::AV_TIME_BASE as f64),
+    };
 
     #[allow(non_snake_case)]
     let supportsSeeking = match video_codec_name {
         KnownCodecs::H264 => {
-            if durationInSeconds < 5.0 {
+            if durationInSeconds.is_some() && durationInSeconds.unwrap() < 5.0 {
                 true
             } else {
                 let f = File::open(file_path).unwrap();

@@ -6,7 +6,7 @@ import {execSync} from 'node:child_process';
 import {cpus} from 'node:os';
 
 // We also get it from nproc and use the minimum of the two.
-const getConcurrencyFromNProc = (): number | null => {
+export const getConcurrencyFromNProc = (): number | null => {
 	try {
 		return parseInt(execSync('nproc', {stdio: 'pipe'}).toString().trim(), 10);
 	} catch (error) {

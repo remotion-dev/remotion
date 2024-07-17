@@ -1,7 +1,7 @@
 set -e
 cd ..
 cd lambda
-npm run buildlambda
+bun run build
 cd ..
 cd example
 bunx remotion lambda functions rmall -f

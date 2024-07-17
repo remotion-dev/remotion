@@ -55,6 +55,9 @@
       "path": "./packages/example-without-zod"
     },
     {
+      "path": "./packages/fonts"
+    },
+    {
       "path": "./packages/gif"
     },
     {
@@ -131,6 +134,12 @@
     },
     {
       "path": "./packages/video-parser"
+    },
+    {
+      "path": "./packages/enable-scss"
+    },
+    {
+      "path": "./packages/streaming"
     },
     {
       "path": "./packages/zod-types"

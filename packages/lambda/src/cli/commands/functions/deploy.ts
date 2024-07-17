@@ -86,9 +86,7 @@ VPC Security Group IDs = ${vpcSecurityGroupIds}
 	});
 	if (CliInternals.quietFlagProvided()) {
 		CliInternals.Log.info({indent: false, logLevel}, functionName);
-	}
-
-	if (alreadyExisted) {
+	} else if (alreadyExisted) {
 		output.update(`Already exists as ${functionName}`, true);
 	} else {
 		output.update(`Deployed as ${functionName}\n`, true);

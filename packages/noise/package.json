@@ -1,7 +1,10 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/noise"
+	},
 	"name": "@remotion/noise",
-	"version": "4.0.160",
-	"description": "Noise effect for Remotion",
+	"version": "4.0.181",
+	"description": "Noise generation functions",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -10,7 +13,7 @@
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"build": "bun --env-file=../.env.bundle bundle.ts",
-		"test": "vitest --run"
+		"test": "bun test src"
 	},
 	"exports": {
 		"./package.json": "./package.json",
@@ -28,9 +31,6 @@
 	],
 	"contributors": [],
 	"license": "MIT",
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
@@ -38,19 +38,12 @@
 		"remotion": "workspace:*",
 		"simplex-noise": "4.0.1"
 	},
-	"devDependencies": {
-		"@jonny/eslint-config": "3.0.281",
-		"@types/node": "18.14.6",
-		"eslint": "8.56.0",
-		"prettier": "3.2.5",
-		"prettier-plugin-organize-imports": "3.2.4",
-		"vitest": "0.31.1"
-	},
 	"keywords": [
 		"remotion",
 		"noise"
 	],
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/noise"
 }

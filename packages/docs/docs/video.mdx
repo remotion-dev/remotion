@@ -5,9 +5,11 @@ id: video
 crumb: "API"
 ---
 
-This component allows you to include a video file in your Remotion project. It wraps the native [`HTMLVideoElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement).
+Wraps the native [`<video>`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement) element to include video in your component that is synchronized with Remotion's time.
 
-Prefer [`<OffthreadVideo>`](/docs/offthreadvideo) by default which is faster during rendering.
+:::info
+Prefer [`<OffthreadVideo>`](/docs/offthreadvideo) which during render is faster and supports more codecs.
+:::
 
 ## API
 
@@ -108,7 +110,7 @@ export const MyComposition = () => {
 };
 ```
 
-```tsx twoslash title="Example of a fade in over 100 frames"
+```tsx twoslash title="Example of a ramp up over 100 frames"
 import { AbsoluteFill, interpolate, staticFile, Video } from "remotion";
 
 // ---cut---
@@ -125,6 +127,11 @@ export const MyComposition = () => {
   );
 };
 ```
+
+:::note
+On iOS Safari, it's not possible to granularly change the volume of a media tag.  
+Only values `0` and `1` will be respected by the browser.
+:::
 
 ### `loopVolumeCurveBehavior`<AvailableFrom v="4.0.142" />
 

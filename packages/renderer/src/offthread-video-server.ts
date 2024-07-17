@@ -135,9 +135,17 @@ export const startOffthreadVideoServer = ({
 			});
 
 			let extractStart = Date.now();
-			downloadAsset({src, downloadMap, indent, logLevel})
+			downloadAsset({
+				src,
+				downloadMap,
+				indent,
+				logLevel,
+				binariesDirectory,
+				cancelSignalForAudioAnalysis: undefined,
+				shouldAnalyzeAudioImmediately: true,
+			})
 				.then((to) => {
-					return new Promise<Buffer>((resolve, reject) => {
+					return new Promise<Uint8Array>((resolve, reject) => {
 						if (closed) {
 							reject(Error(REQUEST_CLOSED_TOKEN));
 							return;
@@ -211,17 +219,10 @@ export const startOffthreadVideoServer = ({
 				.catch((err) => {
 					if (!response.headersSent) {
 						response.writeHead(500);
+						response.write(JSON.stringify({error: err.stack}));
 					}
 
 					response.end();
-
-					// Any errors occurred due to the render being aborted don't need to be logged.
-					if (
-						err.message !== REQUEST_CLOSED_TOKEN &&
-						!err.message.includes('EPIPE')
-					) {
-						downloadMap.emitter.dispatchError(err);
-					}
 				});
 		},
 		compositor,
@@ -239,13 +240,8 @@ type ProgressEventPayload = {
 	src: string;
 };
 
-type ErrorEventPayload = {
-	error: Error;
-};
-
 type EventMap = {
 	progress: ProgressEventPayload;
-	error: ErrorEventPayload;
 	download: DownloadEventPayload;
 };
 
@@ -261,7 +257,6 @@ type Listeners = {
 
 export class OffthreadVideoServerEmitter {
 	listeners: Listeners = {
-		error: [],
 		progress: [],
 		download: [],
 	};
@@ -295,12 +290,6 @@ export class OffthreadVideoServerEmitter {
 				callback({detail: context});
 			},
 		);
-	}
-
-	dispatchError(error: Error) {
-		this.dispatchEvent('error', {
-			error,
-		});
 	}
 
 	dispatchDownloadProgress(

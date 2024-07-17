@@ -6,8 +6,8 @@ const half = '╸';
 const half_right = '╺';
 const totalBars = 18;
 
-export const makeProgressBar = (percentage: number) => {
-	const color = RenderInternals.isColorSupported();
+export const makeProgressBar = (percentage: number, noColor: boolean) => {
+	const color = noColor ? false : RenderInternals.isColorSupported();
 	const barsToShow = Math.floor(percentage * totalBars);
 	const extraBar = (percentage * totalBars) % barsToShow;
 	const grayBars = totalBars - barsToShow;
@@ -21,6 +21,10 @@ export const makeProgressBar = (percentage: number) => {
 		.split('');
 	if (!showHalf && barsToShow > 0 && gray.length > 0 && color) {
 		gray[0] = half_right;
+	}
+
+	if (!color) {
+		return `${base}${gray.join('')}`;
 	}
 
 	return `${chalk.blue(base)}${chalk.dim(gray.join(''))}`;

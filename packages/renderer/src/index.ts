@@ -21,7 +21,7 @@ import {defaultFileExtensionMap} from './file-extensions';
 import {findRemotionRoot} from './find-closest-package-json';
 import {validateFrameRange} from './frame-range';
 import {internalGetCompositions} from './get-compositions';
-import {getActualConcurrency} from './get-concurrency';
+import {resolveConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
 
 import {
@@ -108,7 +108,7 @@ export {X264Preset} from './options/x264-preset';
 export {PixelFormat} from './pixel-format';
 export {RemotionServer} from './prepare-server';
 export {ProResProfile} from './prores-profile';
-export {RenderFramesOptions, renderFrames} from './render-frames';
+export {OnArtifact, RenderFramesOptions, renderFrames} from './render-frames';
 export {
 	InternalRenderMediaOptions,
 	RenderMediaOnProgress,
@@ -122,6 +122,7 @@ export {
 	SelectCompositionOptions,
 	selectComposition,
 } from './select-composition';
+export {EmittedArtifact} from './serialize-artifact';
 export {
 	StitchFramesToVideoOptions,
 	stitchFramesToVideo,
@@ -154,7 +155,7 @@ import {
 } from './wait-for-symbolication-error-to-be-done';
 
 export const RenderInternals = {
-	getActualConcurrency,
+	resolveConcurrency,
 	serveStatic,
 	validateEvenDimensionsWithCodec,
 	getFileExtensionFromCodec,

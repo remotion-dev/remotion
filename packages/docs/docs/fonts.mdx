@@ -1,0 +1,103 @@
+---
+image: /generated/articles-docs-fonts.png
+title: Using fonts
+sidebar_label: Fonts
+id: fonts
+crumb: "Techniques"
+---
+
+Here are some ways how you can use custom fonts in Remotion.
+
+## Google Fonts using `@remotion/google-fonts`
+
+_available from v3.2.40_
+
+[`@remotion/google-fonts`](/docs/google-fonts) is a type-safe way to load Google fonts without having to create CSS files.
+
+```tsx title="MyComp.tsx"
+import { loadFont } from "@remotion/google-fonts/TitanOne";
+
+const { fontFamily } = loadFont();
+
+const GoogleFontsComp: React.FC = () => {
+  return <div style={{ fontFamily }}>Hello, Google Fonts</div>;
+};
+```
+
+## Google Fonts using CSS
+
+Import the CSS that Google Fonts gives you.
+
+:::note
+From version 2.2 on, Remotion will automatically wait until the fonts are loaded.  
+:::
+
+```css title="font.css"
+@import url("https://fonts.googleapis.com/css2?family=Bangers");
+```
+
+```tsx twoslash title="MyComp.tsx"
+import "./font.css";
+
+const MyComp: React.FC = () => {
+  return <div style={{ fontFamily: "Bangers" }}>Hello</div>;
+};
+```
+
+## Local fonts using `@remotion/fonts`
+
+_available from v4.0.164_
+
+Put the font into your `public/` folder.  
+Put the [`loadFont()`](/docs/fonts-api/load-font) call somewhere in your app where it gets executed:
+
+```tsx twoslash title="load-fonts.ts"
+import { loadFont } from "@remotion/fonts";
+import { staticFile } from "remotion";
+
+const fontFamily = "Inter";
+
+loadFont({
+  family: fontFamily,
+  url: staticFile("Inter-Regular.woff2"),
+  weight: "500",
+}).then(() => {
+  console.log("Font loaded!");
+});
+```
+
+The font is now available for use:
+
+```tsx twoslash title="MyComp.tsx"
+const fontFamily = "Inter";
+
+// ---cut---
+
+<div style={{ fontFamily: fontFamily }}>Some text</div>;
+```
+
+## Local fonts (manually)
+
+You may load fonts by using the web-native [`FontFace`](https://developer.mozilla.org/en-US/docs/Web/API/FontFace) API.
+
+```tsx twoslash title="load-fonts.ts"
+import { continueRender, delayRender, staticFile } from "remotion";
+
+const waitForFont = delayRender();
+const font = new FontFace(
+  `Bangers`,
+  `url('${staticFile("bangers.woff2")}') format('woff2')`,
+);
+
+font
+  .load()
+  .then(() => {
+    document.fonts.add(font);
+    continueRender(waitForFont);
+  })
+  .catch((err) => console.log("Error loading font", err));
+```
+
+:::note
+If your Typescript types give errors, install the newest version of the `@types/web` package.
+:::

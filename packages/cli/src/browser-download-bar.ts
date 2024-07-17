@@ -20,7 +20,7 @@ const makeDownloadProgress = ({
 
 	return [
 		`    +`,
-		makeProgressBar(progress),
+		makeProgressBar(progress, false),
 		`${doneIn ? 'Got' : 'Getting'} Headless Shell`,
 		doneIn === null
 			? (progress * 100).toFixed(0) + '%'

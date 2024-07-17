@@ -15,6 +15,8 @@ export {
 	ProjectInfoRequest,
 	ProjectInfoResponse,
 	RemoveRenderRequest,
+	RestartStudioRequest,
+	RestartStudioResponse,
 	SimpleDiff,
 	SubscribeToFileExistenceRequest,
 	SubscribeToFileExistenceResponse,
@@ -47,6 +49,7 @@ export {ProjectInfo} from './project-info';
 export type {RenderDefaults} from './render-defaults';
 export {
 	AggregateRenderProgress,
+	ArtifactProgress,
 	BundlingState,
 	CopyingState,
 	DownloadProgress,

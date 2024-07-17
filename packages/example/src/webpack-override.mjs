@@ -1,5 +1,7 @@
+import {enableScss} from '@remotion/enable-scss';
 import {enableSkia} from '@remotion/skia/enable';
 import {enableTailwind} from '@remotion/tailwind';
+
 import path from 'node:path';
 
 const WEBPACK_OR_ESBUILD = 'esbuild';
@@ -18,6 +20,7 @@ const aliases = {
 	'@remotion/motion-blur': resolveCwd('@remotion/motion-blur'),
 	'@remotion/noise': resolveCwd('@remotion/noise'),
 	'@remotion/paths': resolveCwd('@remotion/paths'),
+	'@remotion/fonts': resolveCwd('@remotion/fonts'),
 	'@remotion/player': resolveCwd('@remotion/player'),
 	'@remotion/preload': resolveCwd('@remotion/preload'),
 	'@remotion/rive': resolveCwd('@remotion/rive'),
@@ -59,37 +62,39 @@ export const webpackOverride = (currentConfiguration) => {
 
 		return currentConfiguration;
 	})();
-	return enableSkia(
-		enableTailwind({
-			...replaced,
-			module: {
-				...replaced.module,
-				rules: [
-					...(replaced.module?.rules ?? []),
-					{
-						test: /\.mdx?$/,
-						use: [
-							{
-								loader: '@mdx-js/loader',
-								options: {},
-							},
-						],
-					},
-				],
-			},
-			resolve: {
-				...replaced.resolve,
-				alias: {
-					...replaced.resolve.alias,
-					// eslint-disable-next-line no-undef
-					lib: path.join(process.cwd(), 'src', 'lib'),
-
-					// ES Modules need to be generated with `pnpm build` in every package
-					// So if you just make a change while you run `pnpm watch`, you don't see the difference
-					// which is confusing for contributors
-					...aliases,
+	return enableScss(
+		enableSkia(
+			enableTailwind({
+				...replaced,
+				module: {
+					...replaced.module,
+					rules: [
+						...(replaced.module?.rules ?? []),
+						{
+							test: /\.mdx?$/,
+							use: [
+								{
+									loader: '@mdx-js/loader',
+									options: {},
+								},
+							],
+						},
+					],
 				},
-			},
-		}),
+				resolve: {
+					...replaced.resolve,
+					alias: {
+						...replaced.resolve.alias,
+						// eslint-disable-next-line no-undef
+						lib: path.join(process.cwd(), 'src', 'lib'),
+
+						// ES Modules need to be generated with `pnpm build` in every package
+						// So if you just make a change while you run `pnpm watch`, you don't see the difference
+						// which is confusing for contributors
+						...aliases,
+					},
+				},
+			}),
+		),
 	);
 };

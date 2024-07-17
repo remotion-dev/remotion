@@ -1,13 +1,16 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/transitions"
+	},
 	"name": "@remotion/transitions",
-	"version": "4.0.160",
-	"description": "Transition presets for Remotion",
+	"version": "4.0.181",
+	"description": "Library for creating transitions in Remotion",
 	"sideEffects": false,
 	"main": "dist/esm/index.mjs",
 	"module": "dist/esm/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
-		"test": "vitest src --run",
+		"test": "bun test src",
 		"lint": "eslint src --ext ts,tsx",
 		"formatting": "prettier src --check",
 		"build": "bun --env-file=../.env.bundle bundle.ts"
@@ -15,9 +18,6 @@
 	"author": "Jonny Burger",
 	"contributors": [],
 	"license": "UNLICENSED",
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
@@ -27,17 +27,10 @@
 		"@remotion/paths": "workspace:*"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.281",
-		"eslint": "8.56.0",
-		"prettier": "3.2.5",
-		"prettier-plugin-organize-imports": "3.2.4",
+		"@happy-dom/global-registrator": "14.5.1",
 		"remotion": "workspace:*",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"vitest": "0.31.1",
-		"@types/react": "18.3.1",
-		"@types/react-dom": "18.3.0",
-		"@types/bun": "1.0.12",
 		"@remotion/test-utils": "workspace:*",
 		"@vitejs/plugin-react": "^2.0.0"
 	},
@@ -89,6 +82,12 @@
 			"require": "./dist/presentations/clock-wipe.js",
 			"types": "./dist/presentations/clock-wipe.d.ts"
 		},
+		"./none": {
+			"module": "./dist/esm/none.mjs",
+			"import": "./dist/esm/none.mjs",
+			"require": "./dist/presentations/none.js",
+			"types": "./dist/presentations/none.d.ts"
+		},
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
@@ -105,9 +104,13 @@
 			"fade": [
 				"dist/presentations/fade.d.ts"
 			],
+			"none": [
+				"dist/presentations/none.d.ts"
+			],
 			"clock-wipe": [
 				"dist/presentations/clock-wipe.d.ts"
 			]
 		}
-	}
+	},
+	"homepage": "https://www.remotion.dev/transitions"
 }

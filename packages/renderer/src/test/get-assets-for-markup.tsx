@@ -1,7 +1,4 @@
 /* eslint-disable no-restricted-imports */
-/**
- * @vitest-environment jsdom
- */
 import {render} from '@testing-library/react';
 import type {ComponentType} from 'react';
 import React, {
@@ -52,6 +49,7 @@ export const getAssetsForMarkup = async (
 		const [renderAssets, setAssets] = useState<TRenderAsset[]>([]);
 
 		const registerRenderAsset = useCallback((renderAsset: TRenderAsset) => {
+			Internals.validateRenderAsset(renderAsset);
 			setAssets((assts) => {
 				return [...assts, renderAsset];
 			});

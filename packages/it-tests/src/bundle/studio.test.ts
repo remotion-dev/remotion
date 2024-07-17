@@ -1,6 +1,6 @@
 import { execSync } from "child_process";
 import path from "path";
-import { expect, test } from "vitest";
+import { expect, test } from "bun:test";
 
 test("Should be able to start the studio without zod installed", () => {
   const res = execSync("pnpm exec remotion studio --test-for-server-open", {

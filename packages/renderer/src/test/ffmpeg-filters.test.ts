@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {flattenVolumeArray} from '../assets/flatten-volume-array';
 import type {MediaAsset} from '../assets/types';
 import {getExtraFramesToCapture} from '../get-extra-frames-to-capture';
@@ -53,6 +53,7 @@ test('Should create a basic filter correctly', () => {
 			logLevel: 'info',
 		}),
 	).toEqual({
+		actualTrimLeft: 0,
 		filter:
 			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0us:6666666.666666667us[a0]',
 		pad_end: null,
@@ -100,6 +101,7 @@ test('Trim the end', () => {
 			logLevel: 'info',
 		}),
 	).toEqual({
+		actualTrimLeft: 0,
 		filter:
 			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0us:704000.0000000001us[a0]',
 		pad_end: 'apad=pad_len=' + padding,
@@ -148,6 +150,7 @@ test('Should handle trim correctly', () => {
 			logLevel: 'info',
 		}),
 	).toEqual({
+		actualTrimLeft: 0.3333333333333333,
 		filter:
 			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=333333.3333333333us:1037333.3333333335us[a0]',
 		pad_end: 'apad=pad_len=128000',
@@ -183,6 +186,7 @@ test('Should add padding if audio is too short', () => {
 			logLevel: 'info',
 		}),
 	).toEqual({
+		actualTrimLeft: 0.3333333333333333,
 		filter:
 			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=333333.3333333333us:1000000us[a0]',
 		pad_end: `apad=pad_len=${padding}`,
@@ -229,6 +233,7 @@ test('Should handle delay correctly', () => {
 			logLevel: 'info',
 		}),
 	).toEqual({
+		actualTrimLeft: 0.3333333333333333,
 		filter:
 			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=333333.3333333333us:1000000us[a0]',
 		pad_end: 'apad=pad_len=1792',
@@ -275,6 +280,7 @@ test('Should offset multiple channels', () => {
 			logLevel: 'info',
 		}),
 	).toEqual({
+		actualTrimLeft: 0.3333333333333333,
 		filter:
 			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=333333.3333333333us:1000000us[a0]',
 		pad_end: 'apad=pad_len=1792',
@@ -333,6 +339,7 @@ test('Should calculate pad correctly with a lot of playbackRate', () => {
 			logLevel: 'info',
 		}),
 	).toEqual({
+		actualTrimLeft: 0,
 		filter:
 			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0us:33333333.000000004us,atempo=2.00000,atempo=2.00000,atempo=2.00000,atempo=2.00000[a0]',
 		pad_end: `apad=pad_len=${expectedPadLength}`,

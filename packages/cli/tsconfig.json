@@ -16,5 +16,5 @@
 		{"path": "../studio-server"},
 		{"path": "../zod-types"}
 	],
-	"exclude": ["vitest.config.mts", "dist"]
+	"exclude": ["dist"]
 }

@@ -9,6 +9,7 @@ import {deleteStaticFileHandler} from './routes/delete-static-file';
 import {handleOpenInFileExplorer} from './routes/open-in-file-explorer';
 import {projectInfoHandler} from './routes/project-info';
 import {handleRemoveRender} from './routes/remove-render';
+import {handleRestartStudio} from './routes/restart-studio';
 import {subscribeToFileExistence} from './routes/subscribe-to-file-existence';
 import {unsubscribeFromFileExistence} from './routes/unsubscribe-from-file-existence';
 import {handleUpdate} from './routes/update-available';
@@ -33,4 +34,5 @@ export const allApiRoutes: {
 	'/api/update-available': handleUpdate,
 	'/api/project-info': projectInfoHandler,
 	'/api/delete-static-file': deleteStaticFileHandler,
+	'/api/restart-studio': handleRestartStudio,
 };

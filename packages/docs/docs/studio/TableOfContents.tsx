@@ -36,6 +36,18 @@ export const TableOfContents: React.FC = () => {
           <strong>{"deleteStaticFile()"}</strong>
           <div>Delete a file from the public directory</div>
         </TOCItem>
+        <TOCItem link="/docs/studio/restart-studio">
+          <strong>{"restartStudio()"}</strong>
+          <div>Restart the Studio Server.</div>
+        </TOCItem>
+        <TOCItem link="/docs/studio/focus-default-props-path">
+          <strong>{"focusDefaultPropsPath()"}</strong>
+          <div>Scrolls to a specific field in the default props editor</div>
+        </TOCItem>
+        <TOCItem link="/docs/studio/reevaluate-composition">
+          <strong>{"reevaluateComposition()"}</strong>
+          <div>Re-runs calculateMetadata() on the current composition</div>
+        </TOCItem>
       </Grid>
     </div>
   );

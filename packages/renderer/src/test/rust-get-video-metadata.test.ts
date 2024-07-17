@@ -1,6 +1,6 @@
+import {expect, test} from 'bun:test';
 import {existsSync} from 'node:fs';
 import path from 'node:path';
-import {expect, test} from 'vitest';
 import {startLongRunningCompositor} from '../compositor/compositor';
 import type {VideoMetadata} from '../compositor/payloads';
 
@@ -26,7 +26,9 @@ test('Should return video metadata', async () => {
 	const metadataResponse = await compositor.executeCommand('GetVideoMetadata', {
 		src: videoFile,
 	});
-	const metadataJson = JSON.parse(metadataResponse.toString('utf-8'));
+	const metadataJson = JSON.parse(
+		new TextDecoder('utf-8').decode(metadataResponse),
+	);
 
 	const data: VideoMetadata = {
 		fps: 24,

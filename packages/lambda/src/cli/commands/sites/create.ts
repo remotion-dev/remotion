@@ -27,8 +27,12 @@ import {Log} from '../../log';
 
 export const SITES_CREATE_SUBCOMMAND = 'create';
 
-const {folderExpiryOption, publicDirOption, throwIfSiteExistsOption} =
-	BrowserSafeApis.options;
+const {
+	folderExpiryOption,
+	publicDirOption,
+	throwIfSiteExistsOption,
+	disableGitSourceOption,
+} = BrowserSafeApis.options;
 
 export const sitesCreateSubcommand = async (
 	args: string[],
@@ -137,6 +141,11 @@ export const sitesCreateSubcommand = async (
 	const throwIfSiteExists = throwIfSiteExistsOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const disableGitSource = disableGitSourceOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+
+	const gitSource = CliInternals.getGitSource({remotionRoot, disableGitSource});
 
 	const {serveUrl, siteName, stats} = await LambdaInternals.internalDeploySite({
 		entryPoint: file,
@@ -172,7 +181,7 @@ export const sitesCreateSubcommand = async (
 		region: getAwsRegion(),
 		privacy:
 			(parsedLambdaCli.privacy as Exclude<Privacy, 'private'>) ?? 'public',
-		gitSource: null,
+		gitSource,
 		indent: false,
 		logLevel,
 		throwIfSiteExists,
@@ -196,14 +205,14 @@ export const sitesCreateSubcommand = async (
 		left: 'Serve URL',
 		logLevel,
 		right: serveUrl,
-		color: 'blue',
+		color: 'blueBright',
 	});
 	CliInternals.printFact('info')({
 		indent: false,
 		left: 'Site name',
 		logLevel,
 		right: siteName,
-		color: 'blue',
+		color: 'blueBright',
 	});
 
 	Log.info({indent: false, logLevel});

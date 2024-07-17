@@ -1,5 +1,5 @@
-import { random } from "remotion";
+import {random} from 'remotion';
 
 export const makeId = () => {
-  return random(null).toString().replace(".", "");
+	return random(null).toString().replace('.', '');
 };

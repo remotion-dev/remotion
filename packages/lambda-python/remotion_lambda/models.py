@@ -35,6 +35,7 @@ class Privacy(str, Enum):
     """
     PUBLIC: str = 'public'
     PRIVATE: str = 'private'
+    NO_ACL: str = 'no-acl'
 
 
 class LogLevel(str, Enum):
@@ -123,12 +124,12 @@ class OutNameInputObject:
     Defines output naming and storage options.
 
     Attributes:
-        bucket_name (str): The name of the S3 bucket for output storage.
+        bucketName (str): The name of the S3 bucket for output storage.
         key (str): The key name within the S3 bucket.
         s3_output_provider (Optional[CustomCredentials]):
              Optional custom credentials for the S3 output provider.
     """
-    bucket_name: str
+    bucketName: str
     key: str
     s3_output_provider: Optional[CustomCredentials] = None
 
@@ -251,7 +252,7 @@ class RenderMediaParams:
     input_props: Optional[List] = None
     bucket_name: Optional[str] = None
     region: Optional[str] = None
-    out_name: Optional[str] = None
+    out_name: Optional[Union[str, OutNameInputObject]] = None
     prefer_lossless: Optional[bool] = False
     composition: str = ""
     serve_url: str = ""
@@ -386,6 +387,7 @@ class RenderStillParams:
     dump_browser_logs: Optional[bool] = None
     delete_after: Optional[DeleteAfter] = None
     offthreadvideo_cache_size_in_bytes: Optional[int] = None
+    streamed: bool = False
 
     def serialize_params(self) -> Dict:
         """
@@ -428,7 +430,8 @@ class RenderStillParams:
             'forceBucketName': self.force_bucket_name,
             'deleteAfter': self.delete_after,
             'attempt': self.attempt,
-            'offthreadVideoCacheSizeInBytes': self.offthreadvideo_cache_size_in_bytes
+            'offthreadVideoCacheSizeInBytes': self.offthreadvideo_cache_size_in_bytes,
+            'streamed': self.streamed
         }
 
         return parameters

@@ -1,24 +1,18 @@
-## @remotion/paths
-
-A package providing utility functions for dealing with SVG paths. This package consists of code from [`svg-path-properties`](https://www.npmjs.com/package/svg-path-properties) and [`svg-path-reverse`](https://github.com/Pomax/svg-path-reverse#readme) with the following improvements:
-
-- Functional style APIs
-- First class Typescript types
-- Documentation with examples
-- ESM import style
-
-No dependencies are needed, meaning this package can be used independently of Remotion.
-
-## API
-
-- [`getLength()`](https://remotion.dev/docs/paths/get-length)
-- [`getPointAtLength()`](https://remotion.dev/docs/paths/get-point-at-length)
-- [`getTangentAtLength()`](https://remotion.dev/docs/paths/get-tangent-at-length)
-- [`reversePath()`](https://remotion.dev/docs/paths/reverse-path)
-- [`normalizePath()`](https://remotion.dev/docs/paths/normalize-path)
-- [`interpolatePath()`](https://remotion.dev/docs/paths/interpolate-path)
-- [`evolvePath()`](https://remotion.dev/docs/paths/evolve-path)
-
-## License
-
-MIT
+# @remotion/paths
+ 
+Utilities for working with SVG paths
+ 
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/paths.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/paths?minimal=true)
+ 
+## Installation
+ 
+```bash
+npm install @remotion/paths --save-exact
+```
+ 
+When installing a Remotion package, make sure to align the version of all `remotion` and `@remotion/*` packages to the same version.
+Remove the `^` character from the version number to use the exact version.
+ 
+## Usage
+ 
+See the [documentation](https://www.remotion.dev/paths) for more information.

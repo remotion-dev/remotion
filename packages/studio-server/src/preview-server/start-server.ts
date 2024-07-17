@@ -44,6 +44,7 @@ export const startServer = async (options: {
 }): Promise<{
 	port: number;
 	liveEventsServer: LiveEventsServer;
+	close: () => Promise<void>;
 }> => {
 	const [, config] = await BundlerInternals.webpackConfig({
 		entry: options.entry,
@@ -159,7 +160,18 @@ export const startServer = async (options: {
 					})
 					.catch((err) => reject(err));
 			});
-			return {port: selectedPort as number, liveEventsServer};
+			return {
+				port: selectedPort as number,
+				liveEventsServer,
+				close: () => {
+					return new Promise<void>((resolve) => {
+						server.closeAllConnections();
+						server.close(() => {
+							resolve();
+						});
+					});
+				},
+			};
 		} catch (err) {
 			if (!(err instanceof Error)) {
 				throw err;
