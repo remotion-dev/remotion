@@ -1,12 +1,3 @@
-packages/docs/docs/artifacts.mdx
-packages/docs/docs/calculate-metadata.mdx
-packages/docs/docs/transitions/transitionseries.mdx
-packages/docs/docs/transitions/presentations/custom.mdx
-packages/docs/docs/studio-app.mdx
-packages/docs/docs/cloudrun/cli/regions.mdx
-packages/docs/docs/flickering.mdx
-packages/docs/docs/lambda/feb-2023-incident.mdx
-packages/docs/docs/lambda/how-lambda-works.mdx
-packages/docs/docs/lambda/s3-public-access.mdx
-packages/docs/docs/player-into-remotion-project.mdx
-packages/docs/docs/miscellaneous/cloud-gpu-docker.mdx
+# Prettier for docs is temporarily disabled:
+# https://github.com/prettier/prettier/issues/12209
+packages/docs/docs

@@ -598,6 +598,9 @@ importers:
       '@types/hls.js':
         specifier: ^0.13.3
         version: 0.13.3
+      '@types/node':
+        specifier: 20.14.11
+        version: 20.14.11
       '@types/unist':
         specifier: ^2.0.0
         version: 2.0.6
@@ -613,9 +616,6 @@ importers:
       '@docusaurus/types':
         specifier: 3.4.0
         version: 3.4.0(react-dom@18.3.1)(react@18.3.1)
-      '@types/node':
-        specifier: ^20.14.11
-        version: 20.14.11
       '@typescript/twoslash':
         specifier: 3.2.1
         version: 3.2.1

@@ -15,8 +15,7 @@ Previously, Lambda functions did not use Response Streaming, and instead saved c
 <Step>1</Step> A single Lambda function is invoked using <a href="/docs/lambda/rendermediaonlambda">
   <code>renderMediaOnLambda()</code>
 </a> - either directly or via the CLI which also calls this API. This invocation
-is called the <strong>main function</strong>.
-<br />
+is called the <strong>main function</strong>.<br />
 <Step>2</Step> The main function visits the <a href="/docs/terminology/serve-url">
   Serve URL
 </a> that it is being passed in a headless browser. <br />
@@ -24,28 +23,22 @@ is called the <strong>main function</strong>.
 that was passed and runs the <a href="/docs/props-resolution">
   props resolution
 </a> algorithm to determine the props that should be passed to the video as well
-as the metadata (such as the duration in frames).
-<br />
+as the metadata (such as the duration in frames).<br />
 <Step>4</Step> Based on the determined duration of the video and the <a href="/docs/lambda/concurrency">
   concurrency
 </a>, several <strong>renderer functions</strong> are spawned, which are tasked to
-render a portion of the video.
-<br />
+render a portion of the video.<br />
 <Step>5</Step> The renderer functions use <a href="https://aws.amazon.com/blogs/compute/introducing-aws-lambda-response-streaming/">
   AWS Lambda Response Streaming
 </a> to report progress as well as the binary video chunks. <br />
 <Step>6</Step> The main function concatenates the progress reports into a
-concise <code>progress.json</code> file and periodically uploads it to S3.
-<br />
+concise <code>progress.json</code> file and periodically uploads it to S3.<br />
 <Step>7</Step> The <a href="/docs/lambda/getrenderprogress">
-  <code>getRenderProgress()</code>
-</a> API queries the S3 bucket for the <code>progress.json</code> file and returns
-the progress of the render.
-<br />
+  <code>getRenderProgress()</code></a> API queries the S3 bucket for the <code>progress.json</code> file and returns
+the progress of the render.<br />
 <Step>8</Step> As soon as all chunks have arrived in the main function, they
 get <a href="/blog/faster-lambda">seamlessly concatenated</a>. The concatenation
-algorithm is not a public API at the moment.
-<br />
+algorithm is not a public API at the moment.<br />
 <Step>9</Step> The main function uploads the final video to S3 and shuts down.
 
 ## FAQ

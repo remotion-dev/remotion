@@ -73,7 +73,6 @@ Use the [`onArtifact`](/docs/renderer/render-media#onartifact) callback to recei
 // @module: es2022
 // @target: es2017
 import type {VideoConfig} from 'remotion';
-import fs from 'fs';
 
 const composition: VideoConfig = {
   width: 100,
@@ -87,103 +86,5 @@ const composition: VideoConfig = {
 };
 const serveUrl = 'http://localhost:8080';
 const inputProps = {};
-// ---cut---
-import {renderMedia, OnArtifact} from '@remotion/renderer';
 
-const onArtifact: OnArtifact = (artifact) => {
-  console.log(artifact.filename); // string
-  console.log(artifact.content); // string | Uint8Array
-  console.log(artifact.frame); // number, frame in the composition which emitted this
-
-  // Example action: Write the artifact to disk
-  fs.writeFileSync(artifact.filename, artifact.content);
-};
-
-await renderMedia({
-  composition,
-  serveUrl,
-  onArtifact,
-  codec: 'h264',
-  inputProps,
-});
 ```
-
-### Using the Remotion Lambda CLI
-
-When using [`npx remotion lambda render`](/docs/lambda/cli/render) or [`npx remotion lambda still`](/docs/lambda/cli/still), artifacts get saved to the S3 bucket under the key `renders/[render-id]/artifacts/[filename]`.
-
-They will get logged to the console and you can click them to download them.  
-The `--privacy` option also applies to artifacts.
-
-### Using `renderMediaOnLambda()`
-
-When using [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), artifacts get saved to the S3 bucket under the key `renders/[render-id]/artifacts/[filename]`.
-
-You can obtain a list of currently received assets from [`getRenderProgress()`](/docs/lambda/getrenderprogress#artifacts).
-
-```tsx twoslash title="progress.ts"
-// @module: es2022
-// @target: es2017
-import {getRenderProgress} from '@remotion/lambda/client';
-
-const renderProgress = await getRenderProgress({
-  renderId: 'hi',
-  functionName: 'hi',
-  bucketName: 'hi',
-  region: 'eu-central-1',
-});
-
-for (const artifact of renderProgress.artifacts) {
-  console.log(artifact.filename); // "hello-world.txt"
-  console.log(artifact.sizeInBytes); // 12
-  console.log(artifact.s3Url); // "https://s3.eu-central-1.amazonaws.com/remotion-lambda-abcdef/renders/abcdef/artifacts/hello-world.txt"
-  console.log(artifact.s3Key); // "renders/abcdef/artifacts/hello-world.txt"
-}
-```
-
-### Using `renderStillOnLambda()`
-
-When using [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda), artifacts get saved to the S3 bucket under the key `renders/[render-id]/artifacts/[filename]`.
-
-You can obtain a list of received assets from [`artifacts`](/docs/lambda/renderstillonlambda#artifacts) field of `renderStillOnLambda()`.
-
-```tsx twoslash title="still.ts"
-const serveUrl = 'http://localhost:8080';
-const inputProps = {};
-const functionName = 'hi';
-const composition = 'hi';
-const privacy = 'public' as const;
-const imageFormat = 'png' as const;
-const region = 'eu-central-1' as const;
-
-// ---cut---
-// @module: es2022
-// @target: es2017
-import {renderStillOnLambda} from '@remotion/lambda/client';
-
-const stillResponse = await renderStillOnLambda({
-  functionName,
-  region,
-  serveUrl,
-  composition,
-  inputProps,
-  imageFormat,
-  privacy,
-});
-
-for (const artifact of stillResponse.artifacts) {
-  console.log(artifact.filename); // "hello-world.txt"
-  console.log(artifact.sizeInBytes); // 12
-  console.log(artifact.s3Url); // "https://s3.eu-central-1.amazonaws.com/remotion-lambda-abcdef/renders/abcdef/artifacts/hello-world.txt"
-  console.log(artifact.s3Key); // "renders/abcdef/artifacts/hello-world.txt"
-}
-```
-
-### Using Cloud Run
-
-In the Cloud Run Alpha, emitting artifacts is not supported and will throw an error.  
-We plan on revising Cloud Run to use the same runtime as Lambda in the future and will bring this feature along.
-
-## See also
-
-- [`<Artifact>`](/docs/artifact)

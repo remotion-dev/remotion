@@ -21,6 +21,7 @@
 		"@docusaurus/module-type-aliases",
 		"@docusaurus/theme-classic"
 	],
+
 	"references": [
 		{"path": "../player"},
 		{"path": "../core"},
