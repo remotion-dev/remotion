@@ -1,9 +1,8 @@
-import {getArrayBufferIterator} from '../../read-and-increment-offset';
+import type {BufferIterator} from '../../read-and-increment-offset';
 import {expectSegment} from './segments';
 
 // Parsing according to https://darkcoding.net/software/reading-mediarecorders-webm-opus-output/
-export const parseWebm = (data: Uint8Array) => {
-	const counter = getArrayBufferIterator(data);
+export const parseWebm = (counter: BufferIterator) => {
 	counter.discard(4);
 	const length = counter.getEBML();
 

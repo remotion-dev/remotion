@@ -23,12 +23,19 @@ const processBoxAndSubtract = ({
 
 	const boxType = new TextDecoder().decode(boxTypeBuffer);
 
-	const sub = data.slice(0, boxSize);
+	const boxBuffer = data.slice(0, boxSize);
 	const next = data.slice(boxSize);
+
+	if (boxBuffer.byteLength !== boxSize) {
+		return {
+			type: 'incomplete',
+		};
+	}
 
 	if (boxType === 'ftyp') {
 		return {
-			box: parseFtyp(sub, fileOffset),
+			type: 'complete',
+			box: parseFtyp(boxBuffer, fileOffset),
 			next,
 			size: boxSize,
 		};
@@ -36,7 +43,8 @@ const processBoxAndSubtract = ({
 
 	if (boxType === 'mvhd') {
 		return {
-			box: parseMvhd(sub, fileOffset),
+			type: 'complete',
+			box: parseMvhd(boxBuffer, fileOffset),
 			next,
 			size: boxSize,
 		};
@@ -44,7 +52,8 @@ const processBoxAndSubtract = ({
 
 	if (boxType === 'tkhd') {
 		return {
-			box: parseTkhd(sub, fileOffset),
+			type: 'complete',
+			box: parseTkhd(boxBuffer, fileOffset),
 			next,
 			size: boxSize,
 		};
@@ -52,7 +61,8 @@ const processBoxAndSubtract = ({
 
 	if (boxType === 'stsd') {
 		return {
-			box: parseStsd(sub, fileOffset),
+			type: 'complete',
+			box: parseStsd(boxBuffer, fileOffset),
 			next,
 			size: boxSize,
 		};
@@ -60,15 +70,19 @@ const processBoxAndSubtract = ({
 
 	if (boxType === 'mebx') {
 		return {
-			box: parseMebx(sub, fileOffset),
+			type: 'complete',
+			box: parseMebx(boxBuffer, fileOffset),
 			next,
 			size: boxSize,
 		};
 	}
 
 	if (boxType === 'moov') {
+		const box = parseMoov(boxBuffer, fileOffset);
+
 		return {
-			box: parseMoov(sub, fileOffset),
+			type: 'complete',
+			box,
 			next,
 			size: boxSize,
 		};
@@ -76,13 +90,14 @@ const processBoxAndSubtract = ({
 
 	if (boxType === 'trak') {
 		return {
-			box: parseTrak(sub, fileOffset),
+			type: 'complete',
+			box: parseTrak(boxBuffer, fileOffset),
 			next,
 			size: boxSize,
 		};
 	}
 
-	const childArray = sub.slice(8, boxSize);
+	const childArray = boxBuffer.slice(8, boxSize);
 
 	const children =
 		boxType === 'mdia' ||
@@ -94,6 +109,7 @@ const processBoxAndSubtract = ({
 			: [];
 
 	return {
+		type: 'complete',
 		box: {
 			type: 'regular-box',
 			boxType,
@@ -115,14 +131,17 @@ export const parseBoxes = (
 	let bytesConsumed = fileOffset;
 
 	while (remaining.byteLength > 0) {
-		const {next, box, size} = processBoxAndSubtract({
+		const result = processBoxAndSubtract({
 			data: remaining,
 			fileOffset: bytesConsumed,
 		});
+		if (result.type === 'incomplete') {
+			return boxes;
+		}
 
-		remaining = next;
-		boxes.push(box);
-		bytesConsumed = box.offset + size;
+		remaining = result.next;
+		boxes.push(result.box);
+		bytesConsumed = result.box.offset + result.size;
 	}
 
 	return boxes;

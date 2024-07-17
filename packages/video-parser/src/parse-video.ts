@@ -11,6 +11,7 @@ import type {TkhdBox} from './boxes/iso-base-media/tkhd';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import {parseWebm} from './boxes/webm/parse-webm-header';
 import type {MatroskaSegment} from './boxes/webm/segments';
+import {getArrayBufferIterator} from './read-and-increment-offset';
 
 interface RegularBox extends BaseBox {
 	boxType: string;
@@ -31,11 +32,16 @@ export type IsoBaseMediaBox =
 	| MoovBox
 	| TrakBox;
 
-export type BoxAndNext = {
-	box: IsoBaseMediaBox;
-	next: Uint8Array;
-	size: number;
-};
+export type BoxAndNext =
+	| {
+			type: 'complete';
+			box: IsoBaseMediaBox;
+			next: Uint8Array;
+			size: number;
+	  }
+	| {
+			type: 'incomplete';
+	  };
 
 const isoBaseMediaMp4Pattern = Buffer.from('ftyp');
 const webmPattern = Buffer.from([0x1a, 0x45, 0xdf, 0xa3]);
@@ -77,8 +83,27 @@ export const parseVideo = async (
 	}
 
 	if (matchesPattern(webmPattern)(data.subarray(0, 4))) {
-		return [parseWebm(new Uint8Array(data))];
+		return [parseWebm(getArrayBufferIterator(new Uint8Array(data)))];
 	}
 
 	return [];
+};
+
+export const streamVideo = async (url: string) => {
+	const res = await fetch(url);
+	if (!res.body) {
+		throw new Error('No body');
+	}
+
+	const reader = res.body.getReader();
+
+	// eslint-disable-next-line no-constant-condition
+	while (true) {
+		const {done, value} = await reader.read();
+		if (done) {
+			break;
+		}
+
+		console.log(value?.length);
+	}
 };

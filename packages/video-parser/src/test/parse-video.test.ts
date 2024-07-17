@@ -22,13 +22,6 @@ if (process.platform !== 'win32') {
 				type: 'regular-box',
 				children: [],
 			},
-			{
-				boxSize: 14282275,
-				boxType: 'mdat',
-				offset: 40,
-				type: 'regular-box',
-				children: [],
-			},
 		]);
 	});
 
@@ -48,13 +41,6 @@ if (process.platform !== 'win32') {
 				boxType: 'wide',
 				boxSize: 8,
 				offset: 20,
-				children: [],
-			},
-			{
-				boxSize: 39048800,
-				boxType: 'mdat',
-				offset: 28,
-				type: 'regular-box',
 				children: [],
 			},
 		]);
@@ -80,13 +66,6 @@ if (process.platform !== 'win32') {
 				boxType: 'free',
 				type: 'regular-box',
 				children: [],
-			},
-			{
-				offset: 40,
-				boxSize: 73010,
-				boxType: 'mdat',
-				children: [],
-				type: 'regular-box',
 			},
 		]);
 	});
