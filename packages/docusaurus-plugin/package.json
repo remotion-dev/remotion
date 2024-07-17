@@ -21,5 +21,8 @@
 		"@typescript/twoslash": "3.2.1",
 		"@docusaurus/types": "3.4.0"
 	},
-	"private": true
+	"private": true,
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/docusaurus-plugin"
+	}
 }
