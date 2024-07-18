@@ -2,10 +2,8 @@
 image: /generated/articles-docs-renderer-get-compositions.png
 title: getCompositions()
 id: get-compositions
-crumb: "@remotion/renderer"
+crumb: '@remotion/renderer'
 ---
-
-import { AngleChangelog } from "../../components/AngleChangelog";
 
 _Part of the `@remotion/renderer` package._
 
@@ -84,25 +82,25 @@ type BrowserLog = {
   text: string;
   stackTrace: ConsoleMessageLocation[];
   type:
-    | "log"
-    | "debug"
-    | "info"
-    | "error"
-    | "warning"
-    | "dir"
-    | "dirxml"
-    | "table"
-    | "trace"
-    | "clear"
-    | "startGroup"
-    | "startGroupCollapsed"
-    | "endGroup"
-    | "assert"
-    | "profile"
-    | "profileEnd"
-    | "count"
-    | "timeEnd"
-    | "verbose";
+    | 'log'
+    | 'debug'
+    | 'info'
+    | 'error'
+    | 'warning'
+    | 'dir'
+    | 'dirxml'
+    | 'table'
+    | 'trace'
+    | 'clear'
+    | 'startGroup'
+    | 'startGroupCollapsed'
+    | 'endGroup'
+    | 'assert'
+    | 'profile'
+    | 'profileEnd'
+    | 'count'
+    | 'timeEnd'
+    | 'verbose';
 };
 
 const getCompositions = (options: {
@@ -118,7 +116,7 @@ getCompositions({
         .map((stack) => {
           return `  ${stack.url}:${stack.lineNumber}:${stack.columnNumber}`;
         })
-        .join("\n"),
+        .join('\n'),
     );
   },
 });
@@ -173,17 +171,17 @@ Returns a promise that resolves to an array of available compositions. Example v
 ```ts twoslash
 [
   {
-    id: "HelloWorld",
+    id: 'HelloWorld',
     width: 1920,
     height: 1080,
     fps: 30,
     durationInFrames: 120,
     defaultProps: {
-      title: "Hello World",
+      title: 'Hello World',
     },
   },
   {
-    id: "Title",
+    id: 'Title',
     width: 1080,
     height: 1080,
     fps: 30,

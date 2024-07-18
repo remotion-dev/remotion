@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-serverless-framework-integration.png
 title: Using the Serverless Framework with Remotion Lambda
 slug: /lambda/serverless-framework-integration
 sidebar_label: Serverless.com integration
-crumb: "@remotion/lambda"
+crumb: '@remotion/lambda'
 ---
 
 import Tabs from '@theme/Tabs';
@@ -368,9 +368,10 @@ From the `serverless-app` directory.
 
 ### Interacting with the API
 
-The API requires an authorization token to interact with it. To obtain the token, first go to the serverless dashboard to retrieve outputs such as `UserPoolRegion`, `UserPoolId`, and `UserPoolClientId`, which are used to authenticate with Cognito. If you do not have a frontend application, you can create a user and an authentication token manually for the API by following this [guide](docs/lambda/without-iam/example#test-your-endpoint).
+The API requires an authorization token to interact with it. To obtain the token, first go to the serverless dashboard to retrieve outputs such as `UserPoolRegion`, `UserPoolId`, and `UserPoolClientId`, which are used to authenticate with Cognito. If you do not have a frontend application, you can create a user and an authentication token manually for the API by following this [guide](/docs/lambda/without-iam/example#test-your-endpoint).
 
-<img src="/img/serverless-com-integration-serverlesss-output.png" /> <br/><br/>
+<img src="/img/serverless-com-integration-serverlesss-output.png" /> <br />
+<br />
 
 From the guide, `YOUR_USER_POOL_CLIENT_ID` is `UserpoolClientId` and `YOUR_USER_POOL_ID` is the `UserPoolId`, the steps should be followed up to retrieving the `IdToken`.
 

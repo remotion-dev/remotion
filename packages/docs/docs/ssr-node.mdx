@@ -2,7 +2,7 @@
 image: /generated/articles-docs-ssr-node.png
 id: ssr-node
 title: Rendering using SSR APIs
-crumb: "Server-side rendering"
+crumb: 'Server-side rendering'
 sidebar_label: Example
 ---
 
@@ -11,11 +11,11 @@ These functions can be used in Node.js and Bun.
 
 Rendering a video takes three steps:
 
-<Step>1</Step> Creating a <a href="/docs/terminology/bundle">Remotion Bundle</a>
-<br />
-<Step>2</Step> Select the composition to render and calculate its metadata
-<br />
-<Step>3</Step> Render the video, audio, still or image sequence.
+<div>
+  <Step>1</Step> Creating a{' '}<a href="/docs/terminology/bundle">Remotion Bundle</a><br />
+  <Step>2</Step> Select the composition to render and calculate its metadata<br />
+  <Step>3</Step> Render the video, audio, still or image sequence.{' '}
+</div>
 
 ## Example script
 
@@ -24,24 +24,24 @@ Follow this commented example to see how to render a video:
 ```tsx twoslash title="render.mjs"
 // @module: ESNext
 // @target: ESNext
-import { bundle } from "@remotion/bundler";
-import { renderMedia, selectComposition } from "@remotion/renderer";
-import path from "path";
+import {bundle} from '@remotion/bundler';
+import {renderMedia, selectComposition} from '@remotion/renderer';
+import path from 'path';
 
 // The composition you want to render
-const compositionId = "HelloWorld";
+const compositionId = 'HelloWorld';
 
 // You only have to create a bundle once, and you may reuse it
 // for multiple renders that you can parametrize using input props.
 const bundleLocation = await bundle({
-  entryPoint: path.resolve("./src/index.ts"),
+  entryPoint: path.resolve('./src/index.ts'),
   // If you have a webpack override in remotion.config.ts, pass it here as well.
   webpackOverride: (config) => config,
 });
 
 // Parametrize the video by passing props to your component.
 const inputProps = {
-  foo: "bar",
+  foo: 'bar',
 };
 
 // Get the composition you want to render. Pass `inputProps` if you
@@ -57,12 +57,12 @@ const composition = await selectComposition({
 await renderMedia({
   composition,
   serveUrl: bundleLocation,
-  codec: "h264",
+  codec: 'h264',
   outputLocation: `out/${compositionId}.mp4`,
   inputProps,
 });
 
-console.log("Render done!");
+console.log('Render done!');
 ```
 
 This flow is customizable. Click on one of the SSR APIs to read about its options:

@@ -1,11 +1,16 @@
-const { TwoslashError } = require("@typescript/twoslash");
+import {TwoslashError} from '@typescript/twoslash';
+import type {Node} from './unist-types';
 
-function escapeHtml(html) {
-  return html.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+export function escapeHtml(html: string) {
+	return html.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-exports.setupNodeForTwoslashException = (code, node, error) => {
-  const css = `<style>
+export const setupNodeForTwoslashException = (
+	code: string,
+	node: Node,
+	error: Error,
+) => {
+	const css = `<style>
 @import url('http://fonts.cdnfonts.com/css/caslon-os'); 
 
 .twoslash-fixed-error-note { 
@@ -83,66 +88,63 @@ exports.setupNodeForTwoslashException = (code, node, error) => {
 }
 </style>`;
 
-  const bodyFromTwoslashError = (err) => {
-    return `
+	const bodyFromTwoslashError = (err: TwoslashError) => {
+		return `
 <h3>${escapeHtml(err.title)}</h3>
-<p>${escapeHtml(err.description).replace(/(?:\r\n|\r|\n)/g, "<br>")}</p>
+<p>${escapeHtml(err.description).replace(/(?:\r\n|\r|\n)/g, '<br>')}</p>
 <code>${escapeHtml(err.recommendation).replace(
-      /(?:\r\n|\r|\n)/g,
-      "<br>",
-    )}</code>
+			/(?:\r\n|\r|\n)/g,
+			'<br>',
+		)}</code>
 `;
-  };
+	};
 
-  const bodyFromError = (err) => {
-    return `<pre><code>${err.message.split("## Code")[0]}</code></pre>`;
-  };
+	const bodyFromError = (err: Error) => {
+		return `<pre><code>${err.message.split('## Code')[0]}</code></pre>`;
+	};
 
-  const isWebWorker =
-    typeof self !== "undefined" &&
-    // @ts-expect-error
-    typeof self.WorkerGlobalScope !== "undefined";
-  const isBrowser =
-    isWebWorker ||
-    (typeof window !== "undefined" &&
-      typeof window.document !== "undefined" &&
-      typeof fetch !== "undefined");
+	const isWebWorker =
+		typeof self !== 'undefined' &&
+		// @ts-expect-error
+		typeof self.WorkerGlobalScope !== 'undefined';
+	const isBrowser =
+		isWebWorker ||
+		(typeof window !== 'undefined' &&
+			typeof window.document !== 'undefined' &&
+			typeof fetch !== 'undefined');
 
-  // @ts-expect-error
-  const isJest = typeof jest !== "undefined";
+	// @ts-expect-error
+	const isJest = typeof jest !== 'undefined';
 
-  const eLog = !isBrowser && !isJest ? console.error : () => {};
+	const eLog = !isBrowser && !isJest ? console.error : () => {};
 
-  let body = `<pre><code>${error}</code></pre>`;
-  if (typeof error !== "object") {
-    body = String(error);
-    eLog(`### Unexpected error:`);
-    eLog(error);
-  } else if (error instanceof TwoslashError) {
-    body = bodyFromTwoslashError(error);
-    eLog(`### Twoslash error: ${error.title}`);
-    eLog(error.description);
-    eLog(error.recommendation);
-    eLog("\n### Code Sample");
-    eLog(code);
-  } else if (error instanceof Error) {
-    body = bodyFromError(error);
-    eLog(`### Unexpected error:`);
-    eLog(error);
-  }
+	let body = `<pre><code>${error}</code></pre>`;
+	if (typeof error !== 'object') {
+		body = String(error);
+		eLog(`### Unexpected error:`);
+		eLog(error);
+	} else if (error instanceof TwoslashError) {
+		body = bodyFromTwoslashError(error);
+		eLog(`### Twoslash error: ${error.title}`);
+		eLog(error.description);
+		eLog(error.recommendation);
+		eLog('\n### Code Sample');
+		eLog(code);
+	} else if (error instanceof Error) {
+		body = bodyFromError(error);
+		eLog(`### Unexpected error:`);
+		eLog(error);
+	}
 
-  const codeSample = `<p>Raising Code:</p><pre class='twoslash-exception-code'><code>${escapeHtml(
-    code,
-  )}</code></pre>`;
+	const codeSample = `<p>Raising Code:</p><pre class='twoslash-exception-code'><code>${escapeHtml(
+		code,
+	)}</code></pre>`;
 
-  const html = `
+	const html = `
     <a href='#twoslash-error'><div class='twoslash-fixed-error-note'><span class='twoslash-error-color'></span>Twoslash failure</div></a>
     <div class='twoslash-exception-message'>${body}${codeSample}</div>`;
 
-  node.type = "html";
-  // @ts-expect-error
-  node.value = "<div id='twoslash-error'>" + css + html + "</div>";
-
-  // @ts-expect-error
-  node.children = [];
+	node.type = 'html';
+	node.value = "<div id='twoslash-error'>" + css + html + '</div>';
+	node.children = [];
 };
