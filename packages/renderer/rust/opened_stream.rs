@@ -177,10 +177,8 @@ impl OpenedStream {
          target_position < self.last_position.unwrap_or(0)
             || 
             // Less than 3 seconds before the position we want to be
-            self.last_position.unwrap_or(0) < calc_position(time - 3.0, time_base)
-            || 
-            // Never seeked before
-            self.last_position.is_none()
+            self.last_position.unwrap_or(0) < calc_position(time - 1.0, time_base)
+            
             ;
 
         if should_seek {
