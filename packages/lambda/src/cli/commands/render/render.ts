@@ -347,6 +347,18 @@ export const renderCommand = async (
 		),
 	);
 	Log.info(
+		{indent: false, logLevel},
+		CliInternals.chalk.gray(
+			`progress.json: ${CliInternals.makeHyperlink({
+				text: (clickInstruction) => {
+					return `${clickInstruction} to view`;
+				},
+				fallback: res.progressJsonInConsole,
+				url: res.progressJsonInConsole,
+			})}`,
+		),
+	);
+	Log.info(
 		{
 			indent: false,
 			logLevel,

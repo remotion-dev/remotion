@@ -77,3 +77,15 @@ export const getS3RenderUrl = ({
 }) => {
 	return `https://s3.console.aws.amazon.com/s3/buckets/${bucketName}?region=${region}&prefix=renders/${renderId}/`;
 };
+
+export const getProgressJsonUrl = ({
+	region,
+	bucketName,
+	renderId,
+}: {
+	region: AwsRegion;
+	bucketName: string;
+	renderId: string;
+}) => {
+	return `https://${region}.console.aws.amazon.com/s3/object/${bucketName}?region=${region}&bucketType=general&prefix=renders/${renderId}/progress.json`;
+};
