@@ -158,7 +158,7 @@ impl OpenedStream {
     pub fn get_frame(
         &mut self,
         time: f64,
-        position: i64,
+        target_position: i64,
         time_base: Rational,
         one_frame_in_time_base: i64,
         threshold: i64,
@@ -166,24 +166,36 @@ impl OpenedStream {
         tone_mapped: bool,
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
-        let mut last_seek_position = match self.duration_or_zero {
-            0 => position,
-            _ => self.duration_or_zero.min(position),
+        let position_to_seek_to = match self.duration_or_zero {
+            0 => target_position,
+            _ => self.duration_or_zero.min(target_position),
         };
 
-        let should_seek = position < self.last_position.unwrap_or(0)
-            || self.last_position.unwrap_or(0) < calc_position(time - 3.0, time_base);
+
+        let should_seek =
+        // Beyond the position in the video
+         target_position < self.last_position.unwrap_or(0)
+            || 
+            // Less than 3 seconds before the position we want to be
+            self.last_position.unwrap_or(0) < calc_position(time - 3.0, time_base)
+            || 
+            // Never seeked before
+            self.last_position.is_none()
+            ;
 
         if should_seek {
             _print_verbose(&format!(
-                "Seeking to {} from dts = {:?}, duration = {}, last seek = {}",
-                position, self.last_position, self.duration_or_zero, last_seek_position
+                "Seeking to {} from dts = {:?}, duration = {}, target position = {}",
+                position_to_seek_to, self.last_position, self.duration_or_zero, target_position
             ))?;
             self.video.flush();
-            match self
-                .input
-                .seek(self.stream_index as i32, 0, position, last_seek_position, 0)
-            {
+            match self.input.seek(
+                self.stream_index as i32,
+                0,
+                target_position,
+                position_to_seek_to,
+                0,
+            ) {
                 Ok(_) => Ok(()),
                 Err(err) => {
                     if err.to_string().contains("Operation not permitted") {
@@ -224,7 +236,7 @@ impl OpenedStream {
             let (stream, packet) = match self.input.get_next_packet() {
                 Err(remotionffmpeg::Error::Eof) => {
                     let data = self.handle_eof(
-                        position,
+                        target_position,
                         one_frame_in_time_base,
                         match freshly_seeked || self.last_position.is_none() {
                             true => None,
@@ -280,14 +292,14 @@ impl OpenedStream {
                 } else {
                     match packet.pts() {
                         Some(pts) => {
-                            last_seek_position = pts - 1;
+                            let new_position_to_seek_to = pts - 1;
                             stop_after_n_diverging_pts = None;
 
                             self.input.seek(
                                 self.stream_index as i32,
                                 0,
                                 pts,
-                                last_seek_position,
+                                new_position_to_seek_to,
                                 0,
                             )?;
                         }
@@ -337,7 +349,7 @@ impl OpenedStream {
                         resolved_pts: unfiltered.pts().expect("expected pts"),
                         frame: ScalableFrame::new(frame, self.transparent),
                         id: frame_cache_id,
-                        asked_time: position,
+                        asked_time: target_position,
                         last_used: get_time(),
                         previous_pts,
                     };
@@ -368,9 +380,9 @@ impl OpenedStream {
                     match stop_after_n_diverging_pts {
                         Some(stop) => match last_frame_received {
                             Some(last_frame) => {
-                                let prev_difference = (last_frame.pts - position).abs();
+                                let prev_difference = (last_frame.pts - target_position).abs();
                                 let new_difference =
-                                    (unfiltered.pts().expect("pts") - position).abs();
+                                    (unfiltered.pts().expect("pts") - target_position).abs();
 
                                 if new_difference >= prev_difference {
                                     stop_after_n_diverging_pts = Some(stop - 1);
@@ -400,14 +412,14 @@ impl OpenedStream {
         let final_frame = FrameCacheManager::get_instance()
             .get_frame_cache(&self.src, &self.original_src, self.transparent, tone_mapped)
             .lock()?
-            .get_item_id(position, threshold)?;
+            .get_item_id(target_position, threshold)?;
 
         if final_frame.is_none() {
             return Err(std::io::Error::new(
                 ErrorKind::Other,
                 format!(
                     "No frame found at position {} for source {} (original source = {}). If you think this should work, file an issue at https://remotion.dev/issue or post it in https://remotion.dev/discord. Post the problematic video and the output of `npx remotion versions`.",
-                    position, self.src, self.original_src
+                    target_position, self.src, self.original_src
                 ),
             ))?;
         }
