@@ -15,13 +15,13 @@ To make bucket creation work again, you need to upgrade to a newer Remotion vers
 
 Users might see an error:
 
-```bash
+```sh
 InvalidBucketAclWithObjectOwnership: Bucket cannot have ACLs set with ObjectOwnership's BucketOwnerEnforced setting.
 ```
 
 or
 
-```bash
+```shell
 AccessDenied: Access Denied
 ```
 
@@ -33,7 +33,8 @@ AWS does make all buckets private by default and Remotion tries to create a publ
 
 ## Resolution
 
-<Step>1</Step> Upgrade to Remotion <code>v3.3.87</code> or later. <br/><br/>
+<Step>1</Step> Upgrade to Remotion <code>v3.3.87</code> or later. <br />
+<br />
 
 ```bash
 npx remotion upgrade
@@ -43,12 +44,15 @@ npx remotion upgrade
 Note: When you upgrade Remotion, you will need to deploy new functions as well.
 :::
 
-<Step>2</Step> change your policies to give your user the <code> s3:PutBucketOwnershipControls</code> and <code>s3:PutBucketPublicAccessBlock</code> permission. The easiest way is to copy the following user policy: <br/><br/>
+<Step>2</Step> change your policies to give your user the <code>s3:PutBucketOwnershipControls</code> and <code>s3:PutBucketPublicAccessBlock</code> permission. The easiest way
+is to copy the following user policy: <br />
+<br />
 
 <details>
-<summary>Show full user permissions JSON file for latest Remotion Lambda version
-</summary>
-<UserPolicy />
+  <summary>
+    Show full user permissions JSON file for latest Remotion Lambda version
+  </summary>
+  <UserPolicy />
 </details>
 
 or type in `npx remotion lambda policies user` after upgrading Remotion Lambda.
@@ -57,11 +61,14 @@ Go to the [Users](https://us-east-1.console.aws.amazon.com/iamv2/home?region=us-
 
 You can verify that it worked by running `npx remotion lambda policies validate`.
 
-<Step>3</Step> Redeploy your functions. You don't need to delete your old functions as it might cause downtime for your application. <br/>
+<Step>3</Step> Redeploy your functions. You don't need to delete your old functions
+as it might cause downtime for your application. <br />
 
-<Step>4</Step> As a reminder, you also need to redeploy your site when you upgrade to a higher Remotion version. <br/>
+<Step>4</Step> As a reminder, you also need to redeploy your site when you upgrade
+to a higher Remotion version. <br />
 
-<Step>5</Step> If any values are hardcoded, update the function and site name in your application code.
+<Step>5</Step> If any values are hardcoded, update the function and site name in
+your application code.
 
 ## Questions?
 

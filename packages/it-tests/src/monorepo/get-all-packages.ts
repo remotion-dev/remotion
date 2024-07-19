@@ -22,6 +22,7 @@ export const packages = [
 	'core',
 	'create-video',
 	'discord-poster',
+	'docusaurus-plugin',
 	'docs',
 	'enable-scss',
 	'eslint-config',
@@ -176,6 +177,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'ai-improvements': null,
 	'discord-poster': null,
 	'cli-autocomplete': null,
+	'docusaurus-plugin': null,
 };
 
 export const apiDocs: {[key in Pkgs]: string | null} = {
@@ -208,6 +210,7 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	'ai-improvements': null,
 	'discord-poster': null,
 	'cli-autocomplete': null,
+	'docusaurus-plugin': null,
 	'animation-utils': null,
 	'example-without-zod': null,
 	'lambda-go': null,

@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-sqs.png
 title: Using Lambda with SQS
 slug: /lambda/sqs
 sidebar_label: Queueing with SQS
-crumb: "@remotion/lambda"
+crumb: '@remotion/lambda'
 ---
 
 import Tabs from '@theme/Tabs';
@@ -101,17 +101,17 @@ The `remotion-executionrole-policy` is referenced from [here](https://github.com
 
 ```ts
 // 👇 Create a role with custom name
-const renderFunctionLambdaRole = new Role(this, "remotionSQSLambdaRole", {
-  roleName: "remotionSQSLambdaRole",
-  assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
+const renderFunctionLambdaRole = new Role(this, 'remotionSQSLambdaRole', {
+  roleName: 'remotionSQSLambdaRole',
+  assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
   managedPolicies: [
     ManagedPolicy.fromAwsManagedPolicyName(
-      "service-role/AWSLambdaBasicExecutionRole"
+      'service-role/AWSLambdaBasicExecutionRole',
     ),
     ManagedPolicy.fromManagedPolicyName(
       this,
-      "remotion-executionrole-policy",
-      "remotion-executionrole-policy"
+      'remotion-executionrole-policy',
+      'remotion-executionrole-policy',
     ),
   ],
 });
@@ -273,9 +273,9 @@ From [CDK stack code](https://github.com/alexfernandez803/remotion-serverless/bl
 
 ```js title="create queue"
 // 👇 create the queue
-const remotionQueue = new sqs.Queue(this, "queue", {
+const remotionQueue = new sqs.Queue(this, 'queue', {
   encryption: sqs.QueueEncryption.KMS_MANAGED,
-  queueName: "remotion_queue",
+  queueName: 'remotion_queue',
 });
 ```
 
@@ -283,11 +283,11 @@ const remotionQueue = new sqs.Queue(this, "queue", {
 
   ```js title="apiIntegrationRole"
   // 👇 create the apiIntegrationRole role
-  const apiIntegrationRole = new IAM.Role(this, "api-integration-role", {
-    assumedBy: new IAM.ServicePrincipal("lambda.amazonaws.com"),
+  const apiIntegrationRole = new IAM.Role(this, 'api-integration-role', {
+    assumedBy: new IAM.ServicePrincipal('lambda.amazonaws.com'),
     managedPolicies: [
       ManagedPolicy.fromAwsManagedPolicyName(
-        "service-role/AWSLambdaBasicExecutionRole"
+        'service-role/AWSLambdaBasicExecutionRole',
       ),
     ],
   });
@@ -297,17 +297,17 @@ const remotionQueue = new sqs.Queue(this, "queue", {
 
   ```js title="remotionSQSLambdaRole"
   // 👇 create a role with custom name
-  const renderFunctionLambdaRole = new Role(this, "remotionSQSLambdaRole", {
-    roleName: "remotionSQSLambdaRole",
-    assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
+  const renderFunctionLambdaRole = new Role(this, 'remotionSQSLambdaRole', {
+    roleName: 'remotionSQSLambdaRole',
+    assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
     managedPolicies: [
       ManagedPolicy.fromAwsManagedPolicyName(
-        "service-role/AWSLambdaBasicExecutionRole"
+        'service-role/AWSLambdaBasicExecutionRole',
       ),
       ManagedPolicy.fromManagedPolicyName(
         this,
-        "remotion-executionrole-policy",
-        "remotion-executionrole-policy"
+        'remotion-executionrole-policy',
+        'remotion-executionrole-policy',
       ),
     ],
   });
@@ -330,7 +330,7 @@ const remotionQueue = new sqs.Queue(this, "queue", {
       batchSize: 1,
       maxBatchingWindow: Duration.minutes(5),
       reportBatchItemFailures: true, // default to false
-    })
+    }),
   );
   ```
 
@@ -339,7 +339,7 @@ const remotionQueue = new sqs.Queue(this, "queue", {
 The API requires an authorization token to interact with it. To obtain the token:
 
 - After successful deployment you will be given out outputs such as `apigw-sqs-app-stack.region`, `apigw-sqs-app-stack.userPoolClientId`, and `apigw-sqs-app-stack.userPoolId`, which are used to authenticate with Cognito.
-- If you don't have a frontend which user needs to login, you can create a user and an authentication token manually for the API by following this [guide](docs/lambda/without-iam/example#test-your-endpoint).
+- If you don't have a frontend which user needs to login, you can create a user and an authentication token manually for the API by following this [guide](/docs/lambda/without-iam/example#test-your-endpoint).
 
 From the guide, `YOUR_USER_POOL_CLIENT_ID` is `apigw-sqs-app-stack.userPoolClientId` and `YOUR_USER_POOL_ID` is the `apigw-sqs-app-stack.userPoolId`, the steps should be followed up to retrieving the `IdToken`.
 

@@ -2,14 +2,19 @@
 image: /generated/articles-docs-cloudrun-permissions.png
 sidebar_label: Permissions
 title: Permissions
-crumb: "Cloud Run"
+crumb: 'Cloud Run'
 ---
 
 <ExperimentalBadge>
-<p>Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the <a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.</p>
+  <p>
+    Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the{' '}<a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.
+  </p>
 </ExperimentalBadge>
 
-import {SAPermissionList, SAPermissionTable} from '../../components/cloudrun/sa-permissions.tsx';
+import {
+  SAPermissionList,
+  SAPermissionTable,
+} from '../../components/cloudrun/sa-permissions.tsx';
 
 This document describes the necessary permissions for Remotion Cloud Run and explains to those interested why the permissions are necessary.
 
@@ -24,9 +29,11 @@ To view and manually edit roles in your GCP project, go to the [Roles page withi
 To view and manually edit permissions/roles assigned to Users or Service Accounts in your GCP project, go to the [IAM page within IAM Admin](https://console.cloud.google.com/iam-admin/iam).
 
 <details>
-<summary>Show full Remotion API Service Account permissions list for the latest Remotion Cloud Run version.
-</summary>
-<SAPermissionList />
+  <summary>
+    Show full Remotion API Service Account permissions list for the latest
+    Remotion Cloud Run version.
+  </summary>
+  <SAPermissionList />
 </details>
 
 :::info

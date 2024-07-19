@@ -2,10 +2,8 @@
 image: /generated/articles-docs-chromium-flags.png
 id: chromium-flags
 title: Chromium flags
-crumb: "Tweaks"
+crumb: 'Tweaks'
 ---
-
-import {AngleChangelog} from '../components/AngleChangelog';
 
 We allow you to set the following flags in Chromium and Google Chrome since Remotion 2.6.5:
 
@@ -30,7 +28,7 @@ Pass [`--disable-web-security`](/docs/cli/render#--disable-web-security) in one 
 Use [setChromiumDisableWebSecurity()](/docs/config#setchromiumdisablewebsecurity).
 
 ```tsx twoslash
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 
 // ---cut---
 
@@ -58,7 +56,7 @@ Pass [`--ignore-certificate-errors`](/docs/cli/render#--ignore-certificate-error
 Use [setChromiumIgnoreCertificateErrors()](/docs/config#setchromiumignorecertificateerrors).
 
 ```tsx twoslash
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 
 // ---cut---
 
@@ -71,7 +69,7 @@ Prior to `v3.3.39`, the option was called `Config.Puppeteer.setChromiumIgnoreCer
 
 ## `--disable-headless`
 
-<Options id="disable-headless"  />
+<Options id="disable-headless" />
 
 ### Via Node.JS APIs
 
@@ -86,7 +84,7 @@ Pass [`--disable-headless`](/docs/cli/render#--disable-headless) in one of the f
 Use [setChromiumHeadlessMode()](/docs/config#setchromiumheadlessmode).
 
 ```tsx twoslash
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 
 // ---cut---
 
@@ -112,11 +110,11 @@ Pass [`--gl=swiftshader`](/docs/cli) in one of the following commands: [`remotio
 ### Via config file
 
 ```tsx twoslash
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 
 // ---cut---
 
-Config.setChromiumOpenGlRenderer("swiftshader");
+Config.setChromiumOpenGlRenderer('swiftshader');
 ```
 
 :::note

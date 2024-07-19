@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-getrenderprogress.png
 id: getrenderprogress
 title: getRenderProgress()
 slug: /lambda/getrenderprogress
-crumb: "Lambda API"
+crumb: 'Lambda API'
 ---
 
 Gets the current status of a non-[still](https://www.remotion.dev/docs/lambda/renderstillonlambda) render originally triggered via [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
@@ -14,13 +14,13 @@ Gets the current status of a non-[still](https://www.remotion.dev/docs/lambda/re
 // @module: esnext
 // @target: es2017
 
-import { getRenderProgress } from "@remotion/lambda/client";
+import {getRenderProgress} from '@remotion/lambda/client';
 
 const progress = await getRenderProgress({
-  renderId: "d7nlc2y",
-  bucketName: "remotionlambda-d9mafgx",
-  functionName: "remotion-render-la8ffw",
-  region: "us-east-1",
+  renderId: 'd7nlc2y',
+  bucketName: 'remotionlambda-d9mafgx',
+  functionName: 'remotion-render-la8ffw',
+  region: 'us-east-1',
 });
 ```
 
@@ -38,7 +38,7 @@ Call the function by passing an object with the following properties:
 
 ### `renderId`
 
-The unique identifier for the render that you want to get the progress for. You can get the renderId from the return value of [`renderMediaOnLambda()`](/docs/lambda/renderMediaonlambda).
+The unique identifier for the render that you want to get the progress for. You can get the renderId from the return value of [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
 
 ### `bucketName`
 
