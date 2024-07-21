@@ -2,10 +2,8 @@
 image: /generated/articles-docs-config.png
 id: config
 title: Configuration file
-crumb: "remotion.config.ts"
+crumb: 'remotion.config.ts'
 ---
-
-import {AngleChangelog} from '../components/AngleChangelog';
 
 To configure Remotion, create a `remotion.config.ts` file in the root of your Remotion project.
 
@@ -13,16 +11,16 @@ These options will apply to CLI commands such as `npx remotion studio` and `npx 
 
 :::warning
 The configuration file has no effect when using [SSR](/docs/renderer) APIs.
-:::warn
+:::
 
 You can control several behaviors of Remotion here.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 
 Config.setConcurrency(8);
-Config.setPixelFormat("yuv444p");
-Config.setCodec("h265");
+Config.setPixelFormat('yuv444p');
+Config.setCodec('h265');
 ```
 
 ## overrideWebpackConfig()<AvailableFrom v="1.1.0" />
@@ -30,7 +28,7 @@ Config.setCodec("h265");
 Allows you to insert your custom Webpack config. [See the page about custom Webpack configs](/docs/webpack) for more information.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.overrideWebpackConfig((currentConfiguration) => {
   // Return a new Webpack configuration
@@ -46,7 +44,7 @@ Config.overrideWebpackConfig((currentConfiguration) => {
 Enable or disable Webpack caching. Default is `true` which will make the Webpack step in the first run a bit slower but will massively speed up subsequent runs.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setCachingEnabled(false);
 ```
@@ -58,7 +56,7 @@ The [command line flag](/docs/cli/render#--bundle-cache) `--bundle-cache` will t
 Set the HTTP port for the Studio.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setStudioPort(3003);
 ```
@@ -70,7 +68,7 @@ The [command line flag](/docs/cli/studio#--port) `--port` will take precedence o
 Set the port to be used to host the Webpack bundle.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setStudioPort(3004);
 ```
@@ -79,12 +77,12 @@ The [command line flag](/docs/cli/render#--port) `--port` will take precedence o
 
 ## setPublicDir()<AvailableFrom v="3.2.13" />
 
-<Options id="public-dir"  />
+<Options id="public-dir" />
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setPublicDir("./custom-public-dir");
+Config.setPublicDir('./custom-public-dir');
 ```
 
 The [command line flag](/docs/cli/render#--public-dir) `--public-dir` will take precedence over this option.
@@ -94,9 +92,9 @@ The [command line flag](/docs/cli/render#--public-dir) `--public-dir` will take 
 Sets the Remotion [entry point](/docs/terminology/entry-point), you don't have to specify it for CLI commands.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setEntryPoint("./src/index.ts");
+Config.setEntryPoint('./src/index.ts');
 ```
 
 If you pass an entry point as a CLI argument, it will take precedence.
@@ -112,9 +110,9 @@ Acceptable values:
 - `verbose`: All of the above, plus browser logs and other debug info.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setLevel("verbose");
+Config.setLevel('verbose');
 ```
 
 The [command line flag](/docs/cli/render#--log) `--log` will take precedence over this option.
@@ -124,7 +122,7 @@ The [command line flag](/docs/cli/render#--log) `--log` will take precedence ove
 Set how many tracks are being displayed in the timeline in the Studio at most. This does not affect your video, just the amount of tracks shown when previewing. Default `15`.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setMaxTimelineTracks(20);
 ```
@@ -134,7 +132,7 @@ Config.setMaxTimelineTracks(20);
 Whether the Studio should react to keyboard shortcuts. Default `true`.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setKeyboardShortcutsEnabled(false);
 ```
@@ -147,7 +145,7 @@ Enables Webpack polling instead of the file system event listeners for hot reloa
 This is useful if you are inside a virtual machine or have a remote file system.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setWebpackPollingInMilliseconds(1000);
 ```
@@ -159,7 +157,7 @@ The [command line flag](/docs/cli/studio#--webpack-poll) `--webpack-poll` will t
 How many shared audio tags should be mounted in the Studio. Shared audio tags can help prevent playback issues due to audio autoplay policies of the browser. See [this article](/docs/player/autoplay#use-the-numberofsharedaudiotags-property) which covers the same option but for the Player. Default `0`, meaning no autoplay policies are circumvented.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 
 // ---cut---
 Config.setNumberOfSharedAudioTags(5);
@@ -170,7 +168,7 @@ Config.setNumberOfSharedAudioTags(5);
 Whether Remotion should open a browser when starting the Studio. Default `true`.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 
 // ---cut---
 Config.setShouldOpenBrowser(false);
@@ -181,9 +179,9 @@ Config.setShouldOpenBrowser(false);
 Set a custom Chrome or Chromium executable path. By default Remotion will try to find an existing version of Chrome on your system and if not found, it will download one. This flag is useful if you don't have Chrome installed in a standard location and you want to prevent downloading an additional browser or need [support for the H264 codec](/docs/video#codec-support).
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setBrowserExecutable("/usr/bin/google-chrome-stable");
+Config.setBrowserExecutable('/usr/bin/google-chrome-stable');
 ```
 
 The [command line flag](/docs/cli/render#--browser-executable) `--browser-executable` will take precedence over this option.
@@ -195,7 +193,7 @@ _previously named "setTimeoutInMilliseconds"_
 Define how long a single frame may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setDelayRenderTimeoutInMilliseconds(60000);
 ```
@@ -207,7 +205,7 @@ The [command line flag](/docs/cli/render#--timeout) `--timeout` will take preced
 This will most notably disable CORS among other security features during rendering.
 
 ```tsx twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 
 // ---cut---
 
@@ -221,7 +219,7 @@ The [command line flag](/docs/cli/render#--disable-web-security) `--disable-web-
 Results in invalid SSL certificates, such as self-signed ones, being ignored during rendering.
 
 ```tsx twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 
 // ---cut---
 
@@ -232,10 +230,10 @@ The [command line flag](/docs/cli/render#--ignore-certificate-errors) `--ignore-
 
 ## setChromiumHeadlessMode()<AvailableFrom v="2.6.5" />
 
-<Options id="disable-headless"  />
+<Options id="disable-headless" />
 
 ```tsx twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 
 // ---cut---
 
@@ -244,10 +242,10 @@ Config.setChromiumHeadlessMode(false);
 
 ## setChromiumMultiProcessOnLinux()<AvailableFrom v="4.0.42" />
 
-<Options id="enable-multiprocess-on-linux" cli/>
+<Options id="enable-multiprocess-on-linux" cli />
 
 ```tsx twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 
 // ---cut---
 
@@ -261,11 +259,11 @@ The [command line flag](/docs/cli/render#--enable-multiprocess-on-linux) `--enab
 <Options id="gl" />
 
 ```tsx twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 
 // ---cut---
 
-Config.setChromiumOpenGlRenderer("angle");
+Config.setChromiumOpenGlRenderer('angle');
 ```
 
 The [command line flag](/docs/cli/render#--gl) `--gl` will take precedence over this option.
@@ -276,7 +274,7 @@ Sets how many Puppeteer instances will work on rendering your video in parallel.
 Default: `null`, meaning **half of the threads** available on your CPU.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setConcurrency(8);
 ```
@@ -296,9 +294,9 @@ Determines which in which image format to render the frames. Either:
 - `none` - don't render images, just calculate audio information
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setVideoImageFormat("png");
+Config.setVideoImageFormat('png');
 ```
 
 ## setStillImageFormat()<AvailableFrom v="4.0.0" />
@@ -311,9 +309,9 @@ Determines which in which image format to render the frames. Either:
 - `webp`
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setStillImageFormat("pdf");
+Config.setStillImageFormat('pdf');
 ```
 
 ## ~~setImageFormat()~~<AvailableFrom v="1.4.0" />
@@ -329,9 +327,9 @@ Determines which in which image format to render the frames. Either:
 - `none` - don't render images, just calculate audio information (available from v2.0)
 
 ```ts title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setImageFormat("png");
+Config.setImageFormat('png');
 ```
 
 The [command line flag](/docs/cli/render#--image-format) `--image-format` will take precedence over this option.
@@ -341,7 +339,7 @@ The [command line flag](/docs/cli/render#--image-format) `--image-format` will t
 [Scales the output frames by the factor you pass in.](/docs/scaling) For example, a 1280x720px frame will become a 1920x1080px frame with a scale factor of `1.5`. Vector elements like fonts and HTML markups will be rendered with extra details. Default: `1`.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setScale(2);
 ```
@@ -353,7 +351,7 @@ The [command line flag](/docs/cli/render#--scale) `--scale` will take precedence
 Disables audio output. Default `false`.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setMuted(true);
 ```
@@ -365,7 +363,7 @@ The [command line flag](/docs/cli/render#--muted) `--muted` will take precedence
 Render a silent audio track if there would be none otherwise. Default `false`.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setEnforceAudioTrack(true);
 ```
@@ -377,7 +375,7 @@ The [command line flag](/docs/cli/render#--enforce-audio-track) `--enforce-audio
 <Options id="for-seamless-aac-concatenation" />
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setForSeamlessAacConcatenation(true);
 ```
@@ -389,7 +387,7 @@ The [command line flag](/docs/cli/render#--for-seamless-aac-concatenation) `--fo
 Pass a number to render a still frame or a tuple to render a subset of a video. The frame sequence is zero-indexed.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setFrameRange(90); // To render only the 91st frame
 ```
@@ -397,7 +395,7 @@ Config.setFrameRange(90); // To render only the 91st frame
 or
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setFrameRange([0, 20]); // Render a video only containing the first 21 frames
 ```
@@ -409,7 +407,7 @@ The [command line flag](/docs/cli/render#--frames) `--frames` will take preceden
 The JPEG quality of each frame. Must be a number between 0 and 100. Will not work if you render PNG frames. [Default: 80](https://github.com/chromium/chromium/blob/99314be8152e688bafbbf9a615536bdbb289ea87/headless/lib/browser/protocol/headless_handler.cc#L32).
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setJpegQuality(90);
 ```
@@ -425,9 +423,9 @@ Renamed to `setJpegQuality` in `v4.0.0`.
 Set a custom location for a [`.env`](https://www.npmjs.com/package/dotenv) file. You can specify an absolute path or a relative path in which case it gets resolved based on the current working directory.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setDotEnvLocation(".my-env");
+Config.setDotEnvLocation('.my-env');
 ```
 
 The [command line flag](/docs/cli/render#--env-file) `--env-file` will take precedence over this option.
@@ -439,7 +437,7 @@ This option may only be set when rendering GIFs. [It determines how many frames 
 For example, if the `fps` is 30, and `everyNthFrame` is 2, the FPS of the GIF is `15`.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setEveryNthFrame(2);
 ```
@@ -451,7 +449,7 @@ The [command line flag](/docs/cli/render#--every-nth-frame) `--every-nth-frame` 
 <Options id="number-of-gif-loops" />
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setNumberOfGifLoops(2);
 ```
@@ -463,9 +461,9 @@ The [command line flag](/docs/cli/render#--number-of-gif-loops) `--number-of-gif
 Set the output location of the video or still, relative to the current working directory. The default is `out/{composition}.{container}`. For example, `out/HelloWorld.mp4`.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setOutputLocation("out/video.mp4");
+Config.setOutputLocation('out/video.mp4');
 ```
 
 If you pass another argument to the render command, it will take precedence: `npx remotion render src/index.ts HelloWorld out/video.mp4`.
@@ -475,7 +473,7 @@ If you pass another argument to the render command, it will take precedence: `np
 Set this to `false` to prevent overwriting Remotion outputs when they already exists.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setOverwriteOutput(false);
 ```
@@ -490,9 +488,9 @@ Controls the pixel format in FFmpeg. [Read more about it here.](https://trac.ffm
 Default value: `yuv420p`
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setPixelFormat("yuv420p");
+Config.setPixelFormat('yuv420p');
 ```
 
 The [command line flag](/docs/cli/render#--pixel-format) `--pixel-format` will take precedence over this option.
@@ -511,9 +509,9 @@ Choose one of the supported codecs: `h264` _(default)_, `h265`, `vp8`, `vp9`.
 - `aac` will export audio only as an AAC file _(available from v2.0)_
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setCodec("h265");
+Config.setCodec('h265');
 ```
 
 The [command line flag](/docs/cli/render#--codec) `--codec` will take precedence over this option.
@@ -523,9 +521,9 @@ The [command line flag](/docs/cli/render#--codec) `--codec` will take precedence
 ## setAudioCodec()
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setAudioCodec("pcm-16");
+Config.setAudioCodec('pcm-16');
 ```
 
 Choose the encoding of your audio.
@@ -547,9 +545,9 @@ See [here](https://video.stackexchange.com/a/14715) for explanation of possible 
 Default: `hq`
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setProResProfile("4444");
+Config.setProResProfile('4444');
 ```
 
 The [command line flag](/docs/cli/render#--prores-profile) `--prores-profile` will take precedence over this option.
@@ -561,9 +559,9 @@ Possible values: `superfast`, `veryfast`, `faster`, `fast`, `medium`, `slow`, `s
 Default: `medium`
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setX264Preset("fast");
+Config.setX264Preset('fast');
 ```
 
 The [command line flag](/docs/cli/render#--prores-profile) `--prores-profile` will take precedence over this option.
@@ -575,7 +573,7 @@ The [command line flag](/docs/cli/render#--prores-profile) `--prores-profile` wi
 Set to true if you want to output an image sequence instead of a video.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setImageSequence(true);
 ```
@@ -587,7 +585,7 @@ The [command line flag](/docs/cli/render#--sequence) `--sequence` will take prec
 Overrides the height of the rendered video.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.overrideHeight(600);
 ```
@@ -600,7 +598,7 @@ The [command line flag](/docs/cli/render#--height) `--height` will take preceden
 Overrides the width of the rendered video.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.overrideWidth(900);
 ```
@@ -615,9 +613,9 @@ _Deprecated_. Use `setCodec()` and `setImageSequence()` instead.
 Either `'mp4'` or `'png-sequence'`.
 
 ```ts title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setOutputFormat("mp4");
+Config.setOutputFormat('mp4');
 ```
 
 The [command line flags](/docs/cli) `--sequence` and `--codec` will take precedence over this option.
@@ -642,7 +640,7 @@ The range is exponential, so increasing the CRF value +6 results in roughly half
 Choose the highest CRF value that still provides an acceptable quality. If the output looks good, then try a higher value. If it looks bad, choose a lower value.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setCrf(16);
 ```
@@ -654,9 +652,9 @@ The [command line flag](/docs/cli/render#--crf) `--crf` will take precedence ove
 <Options id="video-bitrate" />
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setVideoBitrate("1M");
+Config.setVideoBitrate('1M');
 ```
 
 The [command line flag](/docs/cli/render#--video-bitrate) `--video-bitrate` will take precedence over this option.
@@ -666,9 +664,9 @@ The [command line flag](/docs/cli/render#--video-bitrate) `--video-bitrate` will
 <Options id="buffer-size" />
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setEncodingBufferSize("10000k");
+Config.setEncodingBufferSize('10000k');
 ```
 
 The [command line flag](/docs/cli/render#--buffer-size) `--buffer-size` will take precedence over this option.
@@ -678,9 +676,9 @@ The [command line flag](/docs/cli/render#--buffer-size) `--buffer-size` will tak
 <Options id="max-rate" />
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setEncodingMaxRate("5000k");
+Config.setEncodingMaxRate('5000k');
 ```
 
 The [command line flag](/docs/cli/render#--max-rate) `--max-rate` will take precedence over this option.
@@ -690,9 +688,9 @@ The [command line flag](/docs/cli/render#--max-rate) `--max-rate` will take prec
 <Options id="audio-bitrate" />
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setAudioBitrate("128K");
+Config.setAudioBitrate('128K');
 ```
 
 The [command line flag](/docs/cli/render#--audio-bitrate) `--audio-bitrate` will take precedence over this option.
@@ -700,11 +698,11 @@ The [command line flag](/docs/cli/render#--audio-bitrate) `--audio-bitrate` will
 ## `setEnableFolderExpiry()`<AvailableFrom v="4.0.32" />
 
 <Options id="enable-folder-expiry" />
-<br/>
-<br/>
+<br />
+<br />
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setEnableFolderExpiry(true);
 ```
@@ -712,11 +710,11 @@ Config.setEnableFolderExpiry(true);
 ## `setLambdaInsights()`<AvailableFrom v="4.0.115" />
 
 <Options id="enable-lambda-insights" />
-<br/>
-<br/>
+<br />
+<br />
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setLambdaInsights(true);
 ```
@@ -724,23 +722,23 @@ Config.setLambdaInsights(true);
 ## `setDeleteAfter()`<AvailableFrom v="4.0.32" />
 
 <Options id="delete-after" />
-<br/>
-<br/>
+<br />
+<br />
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setDeleteAfter("3-days");
+Config.setDeleteAfter('3-days');
 ```
 
 ## `setBeepOnFinish()`<AvailableFrom v="4.0.84" />
 
 <Options id="beep-on-finish" />
-<br/>
-<br/>
+<br />
+<br />
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setBeepOnFinish(true);
 ```
@@ -752,7 +750,7 @@ The [command line flag](/docs/cli/studio#--beep-on-finish) `--beep-on-finish` wi
 Set the amount of milliseconds after which the Player in the Studio will display a buffering UI after the Player has entered a buffer state. Default `300`.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setBufferStateDelayInMilliseconds(0);
 ```
@@ -762,9 +760,9 @@ Config.setBufferStateDelayInMilliseconds(0);
 <Options id="binaries-directory" />
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setBinariesDirectory("/path/to/custom/directory");
+Config.setBinariesDirectory('/path/to/custom/directory');
 ```
 
 ## `setPreferLosslessAudio?`<AvailableFrom v="4.0.123" />
@@ -772,7 +770,7 @@ Config.setBinariesDirectory("/path/to/custom/directory");
 <Options id="prefer-lossless" />
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setPreferLosslessAudio(true);
 ```
@@ -782,21 +780,21 @@ Config.setPreferLosslessAudio(true);
 Modifies the FFmpeg command that Remotion uses under the hood. It works reducer-style, meaning that you pass a function that takes a command as an argument and returns a new command.
 
 ```tsx twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.overrideFfmpegCommand(({ args }) => {
+Config.overrideFfmpegCommand(({args}) => {
   // Define the custom FFmpeg options as an array of strings
   const customFfmpegOptions = [
-    "-profile:v",
-    "main",
-    "-video_track_timescale",
-    "90000",
-    "-color_primaries",
-    "bt709",
-    "-color_trc",
-    "bt709",
-    "-strict",
-    "experimental",
+    '-profile:v',
+    'main',
+    '-video_track_timescale',
+    '90000',
+    '-color_primaries',
+    'bt709',
+    '-color_trc',
+    'bt709',
+    '-strict',
+    'experimental',
   ];
   // The customFfmpegOptions are inserted before the last element to ensure
   // they appear before the ffmpeg's output path
@@ -830,9 +828,9 @@ _removed in v4.0_
 Allows you to use a custom FFmpeg binary. Must be an absolute path. By default, this is null and the FFmpeg in `PATH` will be used.
 
 ```ts title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setFfmpegExecutable("/path/to/custom/ffmpeg");
+Config.setFfmpegExecutable('/path/to/custom/ffmpeg');
 ```
 
 The [command line flag](/docs/cli/render#--ffmpeg-executable) `--ffmpeg-executable` will take precedence over this option.
@@ -844,9 +842,9 @@ _removed in v4.0_
 Allows you to use a custom `ffprobe` binary. Must be an absolute path. By default, this is null and the `ffprobe` in `PATH` will be used.
 
 ```ts title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setFfprobeExecutable("/path/to/custom/ffprobe");
+Config.setFfprobeExecutable('/path/to/custom/ffprobe');
 ```
 
 The [command line flag](/docs/cli/render#--ffprobe-executable) `--ffprobe-executable` will take precedence over this option.
@@ -870,7 +868,7 @@ Use the options individually.
 :::
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setPort(3003);
 ```
@@ -883,15 +881,15 @@ The [config file](/docs/config) gets executed in a CommonJS environment. If you 
 
 ```ts twoslash title="remotion.config.ts"
 // @filename: src/enable-sass.ts
-import { WebpackOverrideFn } from "@remotion/bundler";
+import {WebpackOverrideFn} from '@remotion/bundler';
 export const enableSass: WebpackOverrideFn = (c) => c;
 
 // @filename: remotion.config.ts
 // ---cut---
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 
 Config.overrideWebpackConfig(async (currentConfiguration) => {
-  const { enableSass } = await import("./src/enable-sass");
+  const {enableSass} = await import('./src/enable-sass');
   return enableSass(currentConfiguration);
 });
 ```
@@ -909,7 +907,7 @@ Config.Bundling.setCachingEnabled(false);
 From v3.3.39 on, all options can be accessed directly from the `Config` object.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setCachingEnabled(false);
 ```

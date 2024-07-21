@@ -18,6 +18,7 @@ import {
 	getCloudwatchMethodUrl,
 	getCloudwatchRendererUrl,
 	getLambdaInsightsUrl,
+	getProgressJsonUrl,
 	getS3RenderUrl,
 } from '../shared/get-aws-urls';
 import type {LambdaCodec} from '../shared/validate-lambda-codec';
@@ -71,6 +72,7 @@ export type RenderMediaOnLambdaOutput = {
 	cloudWatchMainLogs: string;
 	lambdaInsightsLogs: string;
 	folderInS3Console: string;
+	progressJsonInConsole: string;
 };
 
 export const internalRenderMediaOnLambdaRaw = async (
@@ -111,6 +113,11 @@ export const internalRenderMediaOnLambdaRaw = async (
 			}),
 			lambdaInsightsLogs: getLambdaInsightsUrl({
 				functionName,
+				region,
+			}),
+			progressJsonInConsole: getProgressJsonUrl({
+				bucketName: res.bucketName,
+				renderId: res.renderId,
 				region,
 			}),
 		};

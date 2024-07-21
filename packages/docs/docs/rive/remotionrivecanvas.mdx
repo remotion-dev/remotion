@@ -54,9 +54,63 @@ Whether to enable the Rive Asset CDN. Default is `true`.
 A custom asset loader. See [here](https://rive.app/community/doc/loading-assets/doct4wVHGPgC#handling-assets) for more information.
 
 :::note
-Memoize the assetLoader function using `useCallback`.  
-You can type the function using `FileAssetLoader` from `@remotion/rive` (re-exported from `@rive-app/canvas-advanced`).
+Memoize the assetLoader function using `useCallback`.
 :::
+
+```tsx
+import {useCallback} from 'react';
+import {RemotionRiveCanvas} from '@remotion/rive';
+import {FileAsset, ImageAsset} from '@rive-app/canvas-advanced';
+import {decodeImage} from '@rive-app/react-canvas';
+
+export const MyComp: React.FC = () => {
+  const assetLoader = useCallback((asset: FileAsset, bytes: Uint8Array) => {
+    console.log('Asset properties to query', {
+      name: asset.name,
+      fileExtension: asset.fileExtension,
+      cdnUuid: asset.cdnUuid,
+      isFont: asset.isFont,
+      isImage: asset.isImage,
+      isAudio: asset.isAudio,
+      bytes,
+    });
+
+    // If the asset has a `cdnUuid`, return false to let the runtime handle
+    // loading it in from a CDN. Or if there are bytes found for the asset
+    // (aka, it was embedded), return false as there's no work needed here
+    if (asset.cdnUuid.length > 0 || bytes.length > 0) {
+      return false;
+    }
+
+    if (asset.isImage) {
+      fetch('https://picsum.photos/300/500').then(async (res) => {
+        console.log('doing this');
+        const image = await decodeImage(
+          new Uint8Array(await res.arrayBuffer()),
+        );
+
+        (asset as ImageAsset).setRenderImage(image);
+
+        // You could maintain a reference and update the image dynamically at any time.
+        // But be sure to call unref to release any references when no longer needed.
+        // This allows the engine to clean it up when it is not used by any more animations.
+        image.unref();
+      });
+
+      return true;
+    }
+
+    return false;
+  }, []);
+
+  return (
+    <RemotionRiveCanvas
+      src="https://example.com/myAnimation.riv"
+      assetLoader={assetLoader}
+    />
+  );
+};
+```
 
 ## Ref<AvailableFrom v="4.0.180" />
 
