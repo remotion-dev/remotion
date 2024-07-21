@@ -25,6 +25,15 @@ export class OffsetCounter {
 	}
 }
 
+const isoBaseMediaMp4Pattern = Buffer.from('ftyp');
+const webmPattern = Buffer.from([0x1a, 0x45, 0xdf, 0xa3]);
+
+const matchesPattern = (pattern: Buffer) => {
+	return (data: Buffer) => {
+		return pattern.every((value, index) => data[index] === value);
+	};
+};
+
 const makeOffsetCounter = (): OffsetCounter => {
 	return new OffsetCounter(0);
 };
@@ -78,11 +87,23 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 		return data.byteLength - counter.getOffset();
 	};
 
+	const isIsoBaseMedia = () => {
+		return matchesPattern(isoBaseMediaMp4Pattern)(
+			Buffer.from(data.subarray(4, 8)),
+		);
+	};
+
+	const isWebm = () => {
+		return matchesPattern(webmPattern)(Buffer.from(data.subarray(0, 4)));
+	};
+
 	return {
 		addData,
 		counter,
 		byteLength,
 		bytesRemaining,
+		isIsoBaseMedia,
+		isWebm,
 		discard: (length: number) => {
 			counter.increment(length);
 		},

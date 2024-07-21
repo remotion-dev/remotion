@@ -11,6 +11,7 @@ import type {TkhdBox} from './boxes/iso-base-media/tkhd';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import {parseWebm} from './boxes/webm/parse-webm-header';
 import type {MatroskaSegment} from './boxes/webm/segments';
+import type {BufferIterator} from './read-and-increment-offset';
 import {getArrayBufferIterator} from './read-and-increment-offset';
 
 interface RegularBox extends BaseBox {
@@ -42,21 +43,9 @@ export type BoxAndNext =
 			type: 'incomplete';
 	  };
 
-const isoBaseMediaMp4Pattern = Buffer.from('ftyp');
-const webmPattern = Buffer.from([0x1a, 0x45, 0xdf, 0xa3]);
-
-const matchesPattern = (pattern: Buffer) => {
-	return (data: Buffer) => {
-		return pattern.every((value, index) => data[index] === value);
-	};
-};
-
 export type AnySegment = MatroskaSegment | IsoBaseMediaBox;
 
-export const parseVideo = async (
-	src: string,
-	bytes: number,
-): Promise<AnySegment[]> => {
+export const loadVideo = async (src: string, bytes: number) => {
 	const stream = createReadStream(
 		src,
 		Number.isFinite(bytes) ? {end: bytes - 1} : {},
@@ -78,12 +67,15 @@ export const parseVideo = async (
 	});
 
 	const iterator = getArrayBufferIterator(new Uint8Array(data));
+	return iterator;
+};
 
-	if (matchesPattern(isoBaseMediaMp4Pattern)(data.subarray(4, 8))) {
+export const parseVideo = (iterator: BufferIterator): AnySegment[] => {
+	if (iterator.isIsoBaseMedia()) {
 		return parseBoxes(iterator, Infinity);
 	}
 
-	if (matchesPattern(webmPattern)(data.subarray(0, 4))) {
+	if (iterator.isWebm()) {
 		return [parseWebm(iterator)];
 	}
 

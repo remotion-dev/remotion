@@ -1,11 +1,12 @@
 import {expect, test} from 'bun:test';
-import {parseVideo} from '../parse-video';
+import {loadVideo, parseVideo} from '../parse-video';
 import {exampleVideos} from './example-videos';
 
 // If this is fixed we can unflag https://github.com/oven-sh/bun/issues/10890
 if (process.platform !== 'win32') {
 	test('Parse Big Buck bunny', async () => {
-		const data = await parseVideo(exampleVideos.bigBuckBunny, 4 * 1024);
+		const video = await loadVideo(exampleVideos.bigBuckBunny, 4 * 1024);
+		const data = parseVideo(video);
 		expect(data).toEqual([
 			{
 				offset: 0,
@@ -26,7 +27,8 @@ if (process.platform !== 'win32') {
 	});
 
 	test('Parse an iPhone video', async () => {
-		const data = await parseVideo(exampleVideos.iphonevideo, 4 * 1024);
+		const video = await loadVideo(exampleVideos.iphonevideo, 4 * 1024);
+		const data = parseVideo(video);
 		expect(data).toEqual([
 			{
 				boxSize: 20,
@@ -47,10 +49,11 @@ if (process.platform !== 'win32') {
 	});
 
 	test('Parse framer', async () => {
-		const parsed = await parseVideo(
+		const video = await loadVideo(
 			exampleVideos.framerWithoutFileExtension,
 			4 * 1024,
 		);
+		const parsed = parseVideo(video);
 		expect(parsed).toEqual([
 			{
 				offset: 0,
@@ -71,7 +74,8 @@ if (process.platform !== 'win32') {
 	});
 
 	test('Parse a full video', async () => {
-		const data = await parseVideo(exampleVideos.framer24fps, Infinity);
+		const video = await loadVideo(exampleVideos.framer24fps, Infinity);
+		const data = parseVideo(video);
 		if (!data) throw new Error('No data');
 
 		const [first, second, third] = data;
