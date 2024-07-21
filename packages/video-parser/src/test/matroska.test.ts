@@ -1,11 +1,12 @@
 import {expect, test} from 'bun:test';
 import {getDuration} from '../get-duration';
-import {parseVideo} from '../parse-video';
+import {loadVideo, parseVideo} from '../parse-video';
 import {exampleVideos} from './example-videos';
 
 test('Should get duration of AV1 video', async () => {
-	const parsed = await parseVideo(exampleVideos.av1, Infinity);
-	expect(parsed).toEqual([
+	const video = await loadVideo(exampleVideos.av1, Infinity);
+	const parsed = parseVideo(video);
+	expect(parsed.segments).toEqual([
 		{
 			type: 'main-segment',
 			children: [
@@ -78,5 +79,5 @@ test('Should get duration of AV1 video', async () => {
 		},
 	]);
 
-	expect(getDuration(parsed)).toBe(1);
+	expect(getDuration(parsed.segments)).toBe(1);
 });

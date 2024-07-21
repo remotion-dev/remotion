@@ -1,12 +1,13 @@
 import {expect, test} from 'bun:test';
-import {parseVideo} from '../parse-video';
+import {loadVideo, parseVideo} from '../parse-video';
 import {exampleVideos} from './example-videos';
 
 // If this is fixed we can unflag https://github.com/oven-sh/bun/issues/10890
 if (process.platform !== 'win32') {
 	test('Parse Big Buck bunny', async () => {
-		const data = await parseVideo(exampleVideos.bigBuckBunny, 4 * 1024);
-		expect(data).toEqual([
+		const video = await loadVideo(exampleVideos.bigBuckBunny, 4 * 1024);
+		const data = parseVideo(video);
+		expect(data.segments).toEqual([
 			{
 				offset: 0,
 				boxSize: 32,
@@ -22,19 +23,13 @@ if (process.platform !== 'win32') {
 				type: 'regular-box',
 				children: [],
 			},
-			{
-				boxSize: 14282275,
-				boxType: 'mdat',
-				offset: 40,
-				type: 'regular-box',
-				children: [],
-			},
 		]);
 	});
 
 	test('Parse an iPhone video', async () => {
-		const data = await parseVideo(exampleVideos.iphonevideo, 4 * 1024);
-		expect(data).toEqual([
+		const video = await loadVideo(exampleVideos.iphonevideo, 4 * 1024);
+		const data = parseVideo(video);
+		expect(data.segments).toEqual([
 			{
 				boxSize: 20,
 				type: 'ftyp-box',
@@ -50,22 +45,16 @@ if (process.platform !== 'win32') {
 				offset: 20,
 				children: [],
 			},
-			{
-				boxSize: 39048800,
-				boxType: 'mdat',
-				offset: 28,
-				type: 'regular-box',
-				children: [],
-			},
 		]);
 	});
 
 	test('Parse framer', async () => {
-		const parsed = await parseVideo(
+		const video = await loadVideo(
 			exampleVideos.framerWithoutFileExtension,
 			4 * 1024,
 		);
-		expect(parsed).toEqual([
+		const parsed = parseVideo(video);
+		expect(parsed.segments).toEqual([
 			{
 				offset: 0,
 				boxSize: 32,
@@ -81,21 +70,15 @@ if (process.platform !== 'win32') {
 				type: 'regular-box',
 				children: [],
 			},
-			{
-				offset: 40,
-				boxSize: 73010,
-				boxType: 'mdat',
-				children: [],
-				type: 'regular-box',
-			},
 		]);
 	});
 
 	test('Parse a full video', async () => {
-		const data = await parseVideo(exampleVideos.framer24fps, Infinity);
+		const video = await loadVideo(exampleVideos.framer24fps, Infinity);
+		const data = parseVideo(video);
 		if (!data) throw new Error('No data');
 
-		const [first, second, third, fourth] = data;
+		const [first, second, third] = data.segments;
 
 		if (first.type !== 'ftyp-box') {
 			throw new Error('Expected ftyp-box');
@@ -123,9 +106,5 @@ if (process.platform !== 'win32') {
 			children: [],
 			type: 'regular-box',
 		});
-
-		if (!fourth) {
-			throw new Error('No extra data');
-		}
 	});
 }

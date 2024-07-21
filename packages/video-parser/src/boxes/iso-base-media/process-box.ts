@@ -1,5 +1,7 @@
-import type {BoxAndNext, IsoBaseMediaBox} from '../../parse-video';
-import {fourByteToNumber, parseFtyp} from './ftype';
+import type {BufferIterator} from '../../buffer-iterator';
+import type {IsoBaseMediaBox, ParseResult} from '../../parse-result';
+import type {BoxAndNext} from '../../parse-video';
+import {parseFtyp} from './ftyp';
 import {parseMoov} from './moov/moov';
 import {parseMvhd} from './mvhd';
 import {parseMebx} from './stsd/mebx';
@@ -7,93 +9,155 @@ import {parseStsd} from './stsd/stsd';
 import {parseTkhd} from './tkhd';
 import {parseTrak} from './trak/trak';
 
-const processBoxAndSubtract = ({
-	data,
-	fileOffset,
+const getChildren = ({
+	boxType,
+	iterator,
+	bytesRemainingInBox,
 }: {
-	data: ArrayBuffer;
-	fileOffset: number;
-}): BoxAndNext => {
-	const boxSize = fourByteToNumber(data, 0);
-	if (boxSize === 0) {
-		throw new Error(`Expected box size of ${data.byteLength}, got ${boxSize}`);
+	boxType: string;
+	iterator: BufferIterator;
+	bytesRemainingInBox: number;
+}) => {
+	const parseChildren =
+		boxType === 'mdia' ||
+		boxType === 'minf' ||
+		boxType === 'stbl' ||
+		boxType === 'dims' ||
+		boxType === 'stsb';
+
+	if (parseChildren) {
+		const parsed = parseBoxes({
+			iterator,
+			maxBytes: bytesRemainingInBox,
+			allowIncompleteBoxes: false,
+			initialBoxes: [],
+		});
+
+		if (parsed.status === 'incomplete') {
+			throw new Error('Incomplete boxes are not allowed');
+		}
+
+		return parsed.segments;
 	}
 
-	const boxTypeBuffer = data.slice(4, 8);
+	iterator.discard(bytesRemainingInBox);
+	return [];
+};
 
-	const boxType = new TextDecoder().decode(boxTypeBuffer);
+const processBox = ({
+	iterator,
+	allowIncompleteBoxes,
+}: {
+	iterator: BufferIterator;
+	allowIncompleteBoxes: boolean;
+}): BoxAndNext => {
+	const fileOffset = iterator.counter.getOffset();
+	const bytesRemaining = iterator.bytesRemaining();
 
-	const sub = data.slice(0, boxSize);
-	const next = data.slice(boxSize);
+	const boxSize = iterator.getFourByteNumber();
+	if (boxSize === 0) {
+		throw new Error(`Expected box size of not 0, got ${boxSize}`);
+	}
+
+	if (bytesRemaining < boxSize) {
+		iterator.counter.decrement(iterator.counter.getOffset() - fileOffset);
+		if (allowIncompleteBoxes) {
+			return {
+				type: 'incomplete',
+			};
+		}
+
+		throw new Error(
+			`Expected box size of ${bytesRemaining}, got ${boxSize}. Incomplete boxes are not allowed.`,
+		);
+	}
+
+	const boxType = iterator.getByteString(4);
 
 	if (boxType === 'ftyp') {
+		const box = parseFtyp({iterator, size: boxSize, offset: fileOffset});
 		return {
-			box: parseFtyp(sub, fileOffset),
-			next,
+			type: 'complete',
+			box,
 			size: boxSize,
 		};
 	}
 
 	if (boxType === 'mvhd') {
+		const box = parseMvhd({iterator, offset: fileOffset, size: boxSize});
+
 		return {
-			box: parseMvhd(sub, fileOffset),
-			next,
+			type: 'complete',
+			box,
 			size: boxSize,
 		};
 	}
 
 	if (boxType === 'tkhd') {
+		const box = parseTkhd({iterator, offset: fileOffset, size: boxSize});
+
 		return {
-			box: parseTkhd(sub, fileOffset),
-			next,
+			type: 'complete',
+			box,
 			size: boxSize,
 		};
 	}
 
 	if (boxType === 'stsd') {
+		const box = parseStsd({iterator, offset: fileOffset, size: boxSize});
+
 		return {
-			box: parseStsd(sub, fileOffset),
-			next,
+			type: 'complete',
+			box,
 			size: boxSize,
 		};
 	}
 
 	if (boxType === 'mebx') {
+		const box = parseMebx({iterator, offset: 0, size: boxSize});
+
 		return {
-			box: parseMebx(sub, fileOffset),
-			next,
+			type: 'complete',
+			box,
 			size: boxSize,
 		};
 	}
 
 	if (boxType === 'moov') {
+		const box = parseMoov({iterator, offset: fileOffset, size: boxSize});
+
 		return {
-			box: parseMoov(sub, fileOffset),
-			next,
+			type: 'complete',
+			box,
 			size: boxSize,
 		};
 	}
 
 	if (boxType === 'trak') {
+		const box = parseTrak({
+			data: iterator,
+			size: boxSize,
+			offsetAtStart: fileOffset,
+		});
+
 		return {
-			box: parseTrak(sub, fileOffset),
-			next,
+			type: 'complete',
+			box,
 			size: boxSize,
 		};
 	}
 
-	const childArray = sub.slice(8, boxSize);
+	const bytesRemainingInBox =
+		boxSize - (iterator.counter.getOffset() - fileOffset);
 
-	const children =
-		boxType === 'mdia' ||
-		boxType === 'minf' ||
-		boxType === 'stbl' ||
-		boxType === 'dims' ||
-		boxType === 'stsb'
-			? parseBoxes(childArray, fileOffset)
-			: [];
+	const children = getChildren({
+		boxType,
+		iterator,
+		bytesRemainingInBox,
+	});
 
 	return {
+		type: 'complete',
 		box: {
 			type: 'regular-box',
 			boxType,
@@ -101,29 +165,57 @@ const processBoxAndSubtract = ({
 			children,
 			offset: fileOffset,
 		},
-		next,
 		size: boxSize,
 	};
 };
 
-export const parseBoxes = (
-	data: ArrayBuffer,
-	fileOffset: number,
-): IsoBaseMediaBox[] => {
-	const boxes: IsoBaseMediaBox[] = [];
-	let remaining = data;
-	let bytesConsumed = fileOffset;
+export const parseBoxes = ({
+	iterator,
+	maxBytes,
+	allowIncompleteBoxes,
+	initialBoxes,
+}: {
+	iterator: BufferIterator;
+	maxBytes: number;
+	allowIncompleteBoxes: boolean;
+	initialBoxes: IsoBaseMediaBox[];
+}): ParseResult => {
+	const boxes: IsoBaseMediaBox[] = initialBoxes;
+	const initialOffset = iterator.counter.getOffset();
 
-	while (remaining.byteLength > 0) {
-		const {next, box, size} = processBoxAndSubtract({
-			data: remaining,
-			fileOffset: bytesConsumed,
+	while (
+		iterator.bytesRemaining() > 0 &&
+		iterator.counter.getOffset() - initialOffset < maxBytes
+	) {
+		const result = processBox({
+			iterator,
+			allowIncompleteBoxes,
 		});
+		if (result.type === 'incomplete') {
+			if (Number.isFinite(maxBytes)) {
+				throw new Error('maxBytes must be Infinity for top-level boxes');
+			}
 
-		remaining = next;
-		boxes.push(box);
-		bytesConsumed = box.offset + size;
+			return {
+				status: 'incomplete',
+				segments: boxes,
+				continueParsing: () => {
+					return parseBoxes({
+						iterator,
+						maxBytes,
+						allowIncompleteBoxes,
+						initialBoxes: boxes,
+					});
+				},
+			};
+		}
+
+		boxes.push(result.box);
+		iterator.discardFirstBytes();
 	}
 
-	return boxes;
+	return {
+		status: 'done',
+		segments: boxes,
+	};
 };

@@ -1,4 +1,4 @@
-import type {BufferIterator} from '../../read-and-increment-offset';
+import type {BufferIterator} from '../../buffer-iterator';
 import type {DurationSegment} from './segments/duration';
 import {parseDurationSegment} from './segments/duration';
 import type {InfoSegment} from './segments/info';
@@ -38,7 +38,7 @@ export type MatroskaSegment =
 	| DurationSegment
 	| TracksSegment;
 
-export const expectSegment = (iterator: BufferIterator) => {
+export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 	const segmentId = iterator.getMatroskaSegmentId();
 
 	if (segmentId === '0x18538067') {
@@ -87,8 +87,7 @@ export const expectSegment = (iterator: BufferIterator) => {
 
 	const length = iterator.getVint(8);
 
-	const bytesRemaining =
-		iterator.data.byteLength - iterator.counter.getOffset();
+	const bytesRemaining = iterator.byteLength() - iterator.counter.getOffset();
 	const toDiscard = Math.min(
 		bytesRemaining,
 		length > 0 ? length : bytesRemaining,

@@ -1,57 +1,24 @@
 import {createReadStream} from 'fs';
-import type {BaseBox} from './boxes/iso-base-media/base-type';
-import type {FtypBox} from './boxes/iso-base-media/ftype';
-import type {MoovBox} from './boxes/iso-base-media/moov/moov';
-import type {MvhdBox} from './boxes/iso-base-media/mvhd';
 import {parseBoxes} from './boxes/iso-base-media/process-box';
-import type {KeysBox} from './boxes/iso-base-media/stsd/keys';
-import type {MebxBox} from './boxes/iso-base-media/stsd/mebx';
-import type {StsdBox} from './boxes/iso-base-media/stsd/stsd';
-import type {TkhdBox} from './boxes/iso-base-media/tkhd';
-import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import {parseWebm} from './boxes/webm/parse-webm-header';
-import type {MatroskaSegment} from './boxes/webm/segments';
+import type {BufferIterator} from './buffer-iterator';
+import {getArrayBufferIterator} from './buffer-iterator';
+import type {IsoBaseMediaBox, ParseResult} from './parse-result';
 
-interface RegularBox extends BaseBox {
-	boxType: string;
-	boxSize: number;
-	children: IsoBaseMediaBox[];
-	offset: number;
-	type: 'regular-box';
-}
+export type BoxAndNext =
+	| {
+			type: 'complete';
+			box: IsoBaseMediaBox;
+			size: number;
+	  }
+	| {
+			type: 'incomplete';
+	  };
 
-export type IsoBaseMediaBox =
-	| RegularBox
-	| FtypBox
-	| MvhdBox
-	| TkhdBox
-	| StsdBox
-	| MebxBox
-	| KeysBox
-	| MoovBox
-	| TrakBox;
-
-export type BoxAndNext = {
-	box: IsoBaseMediaBox;
-	next: ArrayBuffer;
-	size: number;
-};
-
-const isoBaseMediaMp4Pattern = Buffer.from('ftyp');
-const webmPattern = Buffer.from([0x1a, 0x45, 0xdf, 0xa3]);
-
-const matchesPattern = (pattern: Buffer) => {
-	return (data: Buffer) => {
-		return pattern.every((value, index) => data[index] === value);
-	};
-};
-
-export type AnySegment = MatroskaSegment | IsoBaseMediaBox;
-
-export const parseVideo = async (
+export const loadVideo = async (
 	src: string,
 	bytes: number,
-): Promise<AnySegment[]> => {
+): Promise<BufferIterator> => {
 	const stream = createReadStream(
 		src,
 		Number.isFinite(bytes) ? {end: bytes - 1} : {},
@@ -72,13 +39,56 @@ export const parseVideo = async (
 		});
 	});
 
-	if (matchesPattern(isoBaseMediaMp4Pattern)(data.subarray(4, 8))) {
-		return parseBoxes(new Uint8Array(data).buffer as unknown as ArrayBuffer, 0);
+	const iterator = getArrayBufferIterator(new Uint8Array(data));
+	return iterator;
+};
+
+export const parseVideo = (iterator: BufferIterator): ParseResult => {
+	if (iterator.bytesRemaining() === 0) {
+		return {
+			status: 'incomplete',
+			segments: [],
+			continueParsing: () => {
+				return parseVideo(iterator);
+			},
+		};
 	}
 
-	if (matchesPattern(webmPattern)(data.subarray(0, 4))) {
-		return [parseWebm(new Uint8Array(data).buffer as unknown as ArrayBuffer)];
+	if (iterator.isIsoBaseMedia()) {
+		return parseBoxes({
+			iterator,
+			maxBytes: Infinity,
+			allowIncompleteBoxes: true,
+			initialBoxes: [],
+		});
 	}
 
-	return [];
+	if (iterator.isWebm()) {
+		return parseWebm(iterator);
+	}
+
+	throw new Error('Unknown video format');
+};
+
+export const streamVideo = async (url: string) => {
+	const res = await fetch(url);
+	if (!res.body) {
+		throw new Error('No body');
+	}
+
+	const reader = res.body.getReader();
+
+	const iterator = getArrayBufferIterator(new Uint8Array([]));
+	let parseResult = parseVideo(iterator);
+	while (parseResult.status === 'incomplete') {
+		const result = await reader.read();
+		if (result.done) {
+			break;
+		}
+
+		iterator.addData(result.value);
+		parseResult = parseResult.continueParsing();
+	}
+
+	return parseResult.segments;
 };
