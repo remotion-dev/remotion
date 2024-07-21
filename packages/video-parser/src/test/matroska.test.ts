@@ -1,11 +1,10 @@
 import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
+import {readFromNode} from '../from-node';
 import {getDuration} from '../get-duration';
-import {loadVideo, parseVideo} from '../parse-video';
 
 test('Should get duration of AV1 video', async () => {
-	const video = await loadVideo(RenderInternals.exampleVideos.av1, Infinity);
-	const parsed = parseVideo(video);
+	const parsed = await readFromNode(RenderInternals.exampleVideos.av1);
 	expect(parsed.segments).toEqual([
 		{
 			type: 'main-segment',

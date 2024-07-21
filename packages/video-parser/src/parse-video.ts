@@ -1,4 +1,3 @@
-import {createReadStream} from 'fs';
 import {parseBoxes} from './boxes/iso-base-media/process-box';
 import {parseWebm} from './boxes/webm/parse-webm-header';
 import type {BufferIterator} from './buffer-iterator';
@@ -14,34 +13,6 @@ export type BoxAndNext =
 	| {
 			type: 'incomplete';
 	  };
-
-export const loadVideo = async (
-	src: string,
-	bytes: number,
-): Promise<BufferIterator> => {
-	const stream = createReadStream(
-		src,
-		Number.isFinite(bytes) ? {end: bytes - 1} : {},
-	);
-	const data = await new Promise<Buffer>((resolve, reject) => {
-		const buffers: Buffer[] = [];
-
-		stream.on('data', (chunk) => {
-			buffers.push(chunk as Buffer);
-		});
-
-		stream.on('end', () => {
-			resolve(Buffer.concat(buffers));
-		});
-
-		stream.on('error', (err) => {
-			reject(err);
-		});
-	});
-
-	const iterator = getArrayBufferIterator(new Uint8Array(data));
-	return iterator;
-};
 
 export const parseVideo = (iterator: BufferIterator): ParseResult => {
 	if (iterator.bytesRemaining() === 0) {

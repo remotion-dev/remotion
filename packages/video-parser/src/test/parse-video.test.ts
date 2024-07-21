@@ -1,15 +1,11 @@
 import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
-import {loadVideo, parseVideo} from '../parse-video';
+import {readFromNode} from '../from-node';
 
 // If this is fixed we can unflag https://github.com/oven-sh/bun/issues/10890
 if (process.platform !== 'win32') {
 	test('Parse Big Buck bunny', async () => {
-		const video = await loadVideo(
-			RenderInternals.exampleVideos.bigBuckBunny,
-			4 * 1024,
-		);
-		const data = parseVideo(video);
+		const data = await readFromNode(RenderInternals.exampleVideos.bigBuckBunny);
 		expect(data.segments).toEqual([
 			{
 				offset: 0,
@@ -30,11 +26,7 @@ if (process.platform !== 'win32') {
 	});
 
 	test('Parse an iPhone video', async () => {
-		const video = await loadVideo(
-			RenderInternals.exampleVideos.iphonevideo,
-			4 * 1024,
-		);
-		const data = parseVideo(video);
+		const data = await readFromNode(RenderInternals.exampleVideos.iphonevideo);
 		expect(data.segments).toEqual([
 			{
 				boxSize: 20,
@@ -55,11 +47,9 @@ if (process.platform !== 'win32') {
 	});
 
 	test('Parse framer', async () => {
-		const video = await loadVideo(
+		const parsed = await readFromNode(
 			RenderInternals.exampleVideos.framerWithoutFileExtension,
-			4 * 1024,
 		);
-		const parsed = parseVideo(video);
 		expect(parsed.segments).toEqual([
 			{
 				offset: 0,
@@ -80,11 +70,7 @@ if (process.platform !== 'win32') {
 	});
 
 	test('Parse a full video', async () => {
-		const video = await loadVideo(
-			RenderInternals.exampleVideos.framer24fps,
-			Infinity,
-		);
-		const data = parseVideo(video);
+		const data = await readFromNode(RenderInternals.exampleVideos.framer24fps);
 		if (!data) throw new Error('No data');
 
 		const [first, second, third] = data.segments;
