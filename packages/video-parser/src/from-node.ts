@@ -1,21 +1,22 @@
 import {createReadStream} from 'fs';
-import {getArrayBufferIterator} from './buffer-iterator';
-import {parseVideo} from './parse-video';
+import {stat} from 'node:fs/promises';
+import {Readable} from 'stream';
+import type {ReaderInterface} from './reader';
 
-export const readFromNode = async (src: string) => {
-	const stream = createReadStream(src);
-
-	const iterator = getArrayBufferIterator(new Uint8Array([]));
-	let parseResult = parseVideo(iterator);
-
-	for await (const chunk of stream) {
-		if (parseResult.status === 'done') {
-			break;
-		}
-
-		iterator.addData(chunk);
-		parseResult = parseResult.continueParsing();
-	}
-
-	return parseResult;
+export const nodeReader: ReaderInterface = {
+	read: (src, range) => {
+		const stream = createReadStream(src, {
+			start: range === null ? 0 : range[0],
+			end: range === null ? Infinity : range[1],
+		});
+		return Promise.resolve(
+			Readable.toWeb(
+				stream,
+			).getReader() as ReadableStreamDefaultReader<Uint8Array>,
+		);
+	},
+	getLength: async (src) => {
+		const stats = await stat(src);
+		return stats.size;
+	},
 };

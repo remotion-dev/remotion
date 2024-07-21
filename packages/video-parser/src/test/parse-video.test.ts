@@ -1,10 +1,14 @@
 import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
-import {readFromNode} from '../from-node';
+import {nodeReader} from '../from-node';
+import {getVideoMetadata} from '../get-video-metadata';
 
 test('Parse Big Buck bunny', async () => {
-	const data = await readFromNode(RenderInternals.exampleVideos.bigBuckBunny);
-	expect(data.segments.slice(0, 2)).toEqual([
+	const data = await getVideoMetadata(
+		RenderInternals.exampleVideos.bigBuckBunny,
+		nodeReader,
+	);
+	expect(data.slice(0, 2)).toEqual([
 		{
 			offset: 0,
 			boxSize: 32,
@@ -24,8 +28,11 @@ test('Parse Big Buck bunny', async () => {
 });
 
 test('Parse an iPhone video', async () => {
-	const data = await readFromNode(RenderInternals.exampleVideos.iphonevideo);
-	expect(data.segments.slice(0, 2)).toEqual([
+	const data = await getVideoMetadata(
+		RenderInternals.exampleVideos.iphonevideo,
+		nodeReader,
+	);
+	expect(data.slice(0, 2)).toEqual([
 		{
 			boxSize: 20,
 			type: 'ftyp-box',
@@ -45,10 +52,11 @@ test('Parse an iPhone video', async () => {
 });
 
 test('Parse framer', async () => {
-	const parsed = await readFromNode(
+	const parsed = await getVideoMetadata(
 		RenderInternals.exampleVideos.framerWithoutFileExtension,
+		nodeReader,
 	);
-	expect(parsed.segments.slice(0, 2)).toEqual([
+	expect(parsed.slice(0, 2)).toEqual([
 		{
 			offset: 0,
 			boxSize: 32,
@@ -68,10 +76,13 @@ test('Parse framer', async () => {
 });
 
 test('Parse a full video', async () => {
-	const data = await readFromNode(RenderInternals.exampleVideos.framer24fps);
+	const data = await getVideoMetadata(
+		RenderInternals.exampleVideos.framer24fps,
+		nodeReader,
+	);
 	if (!data) throw new Error('No data');
 
-	const [first, second, third] = data.segments;
+	const [first, second, third] = data;
 
 	if (first.type !== 'ftyp-box') {
 		throw new Error('Expected ftyp-box');
@@ -99,4 +110,9 @@ test('Parse a full video', async () => {
 		children: [],
 		type: 'regular-box',
 	});
+});
+
+test('Should warn if missing node reader', () => {
+	const data = getVideoMetadata(RenderInternals.exampleVideos.framer24fps);
+	expect(data).rejects.toThrow(/node/);
 });
