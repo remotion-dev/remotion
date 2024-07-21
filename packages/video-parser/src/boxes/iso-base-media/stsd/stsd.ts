@@ -1,4 +1,4 @@
-import {getArrayBufferIterator} from '../../../read-and-increment-offset';
+import type {BufferIterator} from '../../../read-and-increment-offset';
 import type {BaseBox} from '../base-type';
 import type {Sample} from './samples';
 import {parseSamples} from './samples';
@@ -9,33 +9,31 @@ export interface StsdBox extends BaseBox {
 	samples: Sample[];
 }
 
-export const parseStsd = (data: Uint8Array, offset: number): StsdBox => {
-	const view = getArrayBufferIterator(data);
-
-	const size = view.getUint32();
-	if (size !== data.byteLength) {
-		throw new Error(`Expected stsd size of ${data.byteLength}, got ${size}`);
+export const parseStsd = (iterator: BufferIterator): StsdBox => {
+	const offset = iterator.counter.getOffset();
+	const size = iterator.getUint32();
+	if (size < iterator.bytesRemaining()) {
+		throw new Error(
+			`Expected stsd size of at least ${iterator.bytesRemaining()}, got ${size}`,
+		);
 	}
 
-	const type = view.getAtom();
+	const type = iterator.getAtom();
 	if (type !== 'stsd') {
 		throw new Error(`Expected stsd type of stsd, got ${type}`);
 	}
 
-	const version = view.getUint8();
+	const version = iterator.getUint8();
 	if (version !== 0) {
 		throw new Error(`Unsupported STSD version ${version}`);
 	}
 
 	// flags, we discard them
-	view.discard(3);
+	iterator.discard(3);
 
-	const numberOfEntries = view.getUint32();
+	const numberOfEntries = iterator.getUint32();
 
-	const boxes = parseSamples(
-		view.sliceFromHere(0),
-		offset + view.counter.getOffset(),
-	);
+	const boxes = parseSamples(iterator, iterator.counter.getOffset() - offset);
 
 	if (boxes.length !== numberOfEntries) {
 		throw new Error(
@@ -45,7 +43,7 @@ export const parseStsd = (data: Uint8Array, offset: number): StsdBox => {
 
 	return {
 		type: 'stsd-box',
-		boxSize: data.byteLength,
+		boxSize: size,
 		offset,
 		numberOfEntries,
 		samples: boxes,

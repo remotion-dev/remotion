@@ -1,4 +1,4 @@
-import {getArrayBufferIterator} from '../../../read-and-increment-offset';
+import type {BufferIterator} from '../../../read-and-increment-offset';
 
 type SampleBase = {
 	format: string;
@@ -46,8 +46,6 @@ export type Sample = AudioSample | VideoSample | UnknownSample;
 
 type SampleAndNext = {
 	sample: Sample | null;
-	next: Uint8Array;
-	size: number;
 };
 
 // https://developer.apple.com/documentation/quicktime-file-format/video_sample_description
@@ -110,24 +108,21 @@ const audioTags = [
 ];
 
 export const processSampleAndSubtract = ({
-	data,
-	fileOffset,
+	iterator,
 }: {
-	data: Uint8Array;
-	fileOffset: number;
+	iterator: BufferIterator;
 }): SampleAndNext => {
-	const iterator = getArrayBufferIterator(data);
+	const fileOffset = iterator.counter.getOffset();
+	const bytesRemaining = iterator.bytesRemaining();
 	const boxSize = iterator.getUint32();
-	if (boxSize !== data.byteLength) {
-		throw new Error(`Expected box size of ${data.byteLength}, got ${boxSize}`);
+	if (bytesRemaining < boxSize) {
+		throw new Error(`Expected box size of ${bytesRemaining}, got ${boxSize}`);
 	}
 
 	const boxFormat = iterator.getAtom();
 	const isVideo = videoTags.includes(boxFormat);
 	const isAudio =
 		audioTags.includes(boxFormat) || audioTags.includes(Number(boxFormat));
-
-	const next = data.slice(boxSize);
 
 	// 6 reserved bytes
 	iterator.discard(6);
@@ -149,8 +144,6 @@ export const processSampleAndSubtract = ({
 				size: boxSize,
 				format: boxFormat,
 			},
-			next,
-			size: boxSize,
 		};
 	}
 
@@ -189,8 +182,6 @@ export const processSampleAndSubtract = ({
 				bytesPerFrame,
 				bitsPerSample,
 			},
-			next,
-			size: boxSize,
 		};
 	}
 
@@ -231,8 +222,6 @@ export const processSampleAndSubtract = ({
 				depth,
 				colorTableId,
 			},
-			next,
-			size: boxSize,
 		};
 	}
 
@@ -240,25 +229,23 @@ export const processSampleAndSubtract = ({
 };
 
 export const parseSamples = (
-	data: Uint8Array,
-	fileOffset: number,
+	iterator: BufferIterator,
+	maxBytes: number,
 ): Sample[] => {
 	const samples: Sample[] = [];
-	let remaining = data;
-	let bytesConsumed = fileOffset;
+	const initialOffset = iterator.counter.getOffset();
 
-	while (remaining.byteLength > 0) {
-		const {next, sample, size} = processSampleAndSubtract({
-			data: remaining,
-			fileOffset: bytesConsumed,
+	while (
+		iterator.bytesRemaining() > 0 &&
+		iterator.counter.getOffset() - initialOffset < maxBytes
+	) {
+		const {sample} = processSampleAndSubtract({
+			iterator,
 		});
 
-		remaining = next;
 		if (sample) {
 			samples.push(sample);
 		}
-
-		bytesConsumed += size;
 	}
 
 	return samples;

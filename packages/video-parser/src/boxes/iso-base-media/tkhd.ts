@@ -1,4 +1,4 @@
-import {getArrayBufferIterator} from '../../read-and-increment-offset';
+import type {BufferIterator} from '../../read-and-increment-offset';
 import type {BaseBox} from './base-type';
 import type {ThreeDMatrix} from './mvhd';
 import {toUnixTimestamp} from './to-date';
@@ -18,9 +18,8 @@ export interface TkhdBox extends BaseBox {
 	height: number;
 }
 
-export const parseTkhd = (data: Uint8Array, fileOffset: number): TkhdBox => {
-	const iterator = getArrayBufferIterator(data);
-
+export const parseTkhd = (iterator: BufferIterator): TkhdBox => {
+	const fileOffset = iterator.counter.getOffset();
 	const size = iterator.getUint32();
 
 	const atom = iterator.getAtom();
@@ -84,7 +83,7 @@ export const parseTkhd = (data: Uint8Array, fileOffset: number): TkhdBox => {
 
 	return {
 		offset: fileOffset,
-		boxSize: data.byteLength,
+		boxSize: size,
 		type: 'tkhd-box',
 		creationTime: toUnixTimestamp(creationTime),
 		modificationTime: toUnixTimestamp(modificationTime),

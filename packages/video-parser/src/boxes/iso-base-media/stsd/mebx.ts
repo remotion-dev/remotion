@@ -1,5 +1,5 @@
 import type {IsoBaseMediaBox} from '../../../parse-video';
-import {getArrayBufferIterator} from '../../../read-and-increment-offset';
+import type {BufferIterator} from '../../../read-and-increment-offset';
 import type {BaseBox} from '../base-type';
 import {parseBoxes} from '../process-box';
 
@@ -10,12 +10,9 @@ export interface MebxBox extends BaseBox {
 	children: IsoBaseMediaBox[];
 }
 
-export const parseMebx = (data: Uint8Array, offset: number): MebxBox => {
-	const iterator = getArrayBufferIterator(data);
+export const parseMebx = (iterator: BufferIterator): MebxBox => {
+	const offset = iterator.counter.getOffset();
 	const size = iterator.getUint32();
-	if (size !== data.byteLength) {
-		throw new Error(`Expected mebx size of ${data.byteLength}, got ${size}`);
-	}
 
 	const atom = iterator.getAtom();
 	if (atom !== 'mebx') {
@@ -27,14 +24,11 @@ export const parseMebx = (data: Uint8Array, offset: number): MebxBox => {
 
 	const dataReferenceIndex = iterator.getUint16();
 
-	const children = parseBoxes(
-		iterator.sliceFromHere(0),
-		offset + iterator.counter.getOffset(),
-	);
+	const children = parseBoxes(iterator, size - 2 - 6 - 4 - 4);
 
 	return {
 		type: 'mebx-box',
-		boxSize: data.byteLength,
+		boxSize: size,
 		offset,
 		dataReferenceIndex,
 		format: 'mebx',

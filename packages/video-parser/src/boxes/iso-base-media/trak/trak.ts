@@ -1,5 +1,5 @@
 import type {IsoBaseMediaBox} from '../../../parse-video';
-import {getArrayBufferIterator} from '../../../read-and-increment-offset';
+import type {BufferIterator} from '../../../read-and-increment-offset';
 import type {BaseBox} from '../base-type';
 import {parseBoxes} from '../process-box';
 
@@ -8,29 +8,30 @@ export interface TrakBox extends BaseBox {
 	children: IsoBaseMediaBox[];
 }
 
-export const parseTrak = (data: Uint8Array, offset: number): TrakBox => {
-	const iterator = getArrayBufferIterator(data);
-	const size = iterator.getUint32();
+export const parseTrak = (
+	data: BufferIterator,
+	bytesRemaining: number,
+): TrakBox => {
+	const offsetAtStart = data.counter.getOffset();
+	const size = data.getUint32();
 
-	if (size !== data.byteLength) {
-		throw new Error(
-			`Data size of version 0 is ${size}, got ${data.byteLength}`,
-		);
+	if (size > bytesRemaining) {
+		throw new Error(`Don't have enough data to parse trak box yet`);
 	}
 
-	const atom = iterator.getAtom();
+	const atom = data.getAtom();
 	if (atom !== 'trak') {
 		throw new Error(`Expected trak atom, got ${atom}`);
 	}
 
 	const children = parseBoxes(
-		data.slice(iterator.counter.getOffset()),
-		offset + iterator.counter.getOffset(),
+		data,
+		size - (data.counter.getOffset() - offsetAtStart),
 	);
 
 	return {
-		offset,
-		boxSize: data.byteLength,
+		offset: offsetAtStart,
+		boxSize: size,
 		type: 'trak-box',
 		children,
 	};

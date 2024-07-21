@@ -82,11 +82,16 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 		return data.byteLength;
 	};
 
+	const bytesRemaining = () => {
+		return data.byteLength - counter.getOffset();
+	};
+
 	return {
 		sliceFromHere,
 		addData,
 		counter,
 		byteLength,
+		bytesRemaining,
 		discard: (length: number) => {
 			counter.increment(length);
 		},

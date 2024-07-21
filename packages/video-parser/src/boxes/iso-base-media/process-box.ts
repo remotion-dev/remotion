@@ -1,6 +1,5 @@
 import type {BoxAndNext, IsoBaseMediaBox} from '../../parse-video';
 import type {BufferIterator} from '../../read-and-increment-offset';
-import {getArrayBufferIterator} from '../../read-and-increment-offset';
 import {parseFtyp} from './ftype';
 import {parseMoov} from './moov/moov';
 import {parseMvhd} from './mvhd';
@@ -23,102 +22,85 @@ const processBoxAndSubtract = ({
 
 	const toDiscard = boxSize;
 
+	const bytesRemaining = iterator.bytesRemaining();
+
 	const boxType = iterator.getByteString(4);
 	iterator.counter.decrement(8);
 
-	const boxBuffer = iterator.sliceFromHere(0, boxSize);
-	if (boxBuffer.byteLength !== boxSize) {
+	if (bytesRemaining < boxSize) {
 		return {
 			type: 'incomplete',
 		};
 	}
 
-	const next = iterator.sliceFromHere(boxSize);
-
 	if (boxType === 'ftyp') {
-		const box = parseFtyp(boxBuffer, fileOffset);
-		iterator.discard(toDiscard);
+		const box = parseFtyp(iterator);
 		return {
 			type: 'complete',
 			box,
-			next,
 			size: boxSize,
 		};
 	}
 
 	if (boxType === 'mvhd') {
-		const box = parseMvhd(boxBuffer, fileOffset);
-		iterator.discard(toDiscard);
+		const box = parseMvhd(iterator);
 
 		return {
 			type: 'complete',
 			box,
-			next,
 			size: boxSize,
 		};
 	}
 
 	if (boxType === 'tkhd') {
-		const box = parseTkhd(boxBuffer, fileOffset);
-		iterator.discard(toDiscard);
+		const box = parseTkhd(iterator);
 
 		return {
 			type: 'complete',
 			box,
-			next,
 			size: boxSize,
 		};
 	}
 
 	if (boxType === 'stsd') {
-		const box = parseStsd(boxBuffer, fileOffset);
-		iterator.discard(toDiscard);
+		const box = parseStsd(iterator);
 
 		return {
 			type: 'complete',
 			box,
-			next,
 			size: boxSize,
 		};
 	}
 
 	if (boxType === 'mebx') {
-		const box = parseMebx(boxBuffer, fileOffset);
-		iterator.discard(toDiscard);
+		const box = parseMebx(iterator);
 
 		return {
 			type: 'complete',
 			box,
-			next,
 			size: boxSize,
 		};
 	}
 
 	if (boxType === 'moov') {
-		const box = parseMoov(boxBuffer, fileOffset);
-		iterator.discard(toDiscard);
+		const box = parseMoov(iterator);
 
 		return {
 			type: 'complete',
 			box,
-			next,
 			size: boxSize,
 		};
 	}
 
 	if (boxType === 'trak') {
-		const box = parseTrak(boxBuffer, fileOffset);
-		iterator.discard(toDiscard);
+		const box = parseTrak(iterator, fileOffset);
 
 		return {
 			type: 'complete',
 			box,
-			next,
 			size: boxSize,
 		};
 	}
-
-	const childArray = boxBuffer.slice(8, boxSize);
 
 	const children =
 		boxType === 'mdia' ||
@@ -126,7 +108,7 @@ const processBoxAndSubtract = ({
 		boxType === 'stbl' ||
 		boxType === 'dims' ||
 		boxType === 'stsb'
-			? parseBoxes(childArray, fileOffset)
+			? parseBoxes(iterator, boxSize - 8)
 			: [];
 
 	iterator.discard(toDiscard);
@@ -140,33 +122,30 @@ const processBoxAndSubtract = ({
 			children,
 			offset: fileOffset,
 		},
-		next,
 		size: boxSize,
 	};
 };
 
 export const parseBoxes = (
-	data: Uint8Array,
-	fileOffset: number,
+	iterator: BufferIterator,
+	maxBytes: number,
 ): IsoBaseMediaBox[] => {
 	const boxes: IsoBaseMediaBox[] = [];
-	let remaining = data;
-	let bytesConsumed = fileOffset;
+	const initialOffset = iterator.counter.getOffset();
 
-	const iterator = getArrayBufferIterator(data);
-
-	while (remaining.byteLength > 0) {
+	while (
+		iterator.bytesRemaining() > 0 &&
+		iterator.counter.getOffset() - initialOffset < maxBytes
+	) {
 		const result = processBoxAndSubtract({
 			iterator,
-			fileOffset: bytesConsumed,
+			fileOffset: iterator.counter.getOffset(),
 		});
 		if (result.type === 'incomplete') {
 			break;
 		}
 
-		remaining = result.next;
 		boxes.push(result.box);
-		bytesConsumed = result.box.offset + result.size;
 	}
 
 	return boxes;

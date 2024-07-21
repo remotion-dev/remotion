@@ -1,3 +1,4 @@
+import type {BufferIterator} from '../../read-and-increment-offset';
 import {getArrayBufferIterator} from '../../read-and-increment-offset';
 import type {BaseBox} from './base-type';
 import {toUnixTimestamp} from './to-date';
@@ -27,8 +28,8 @@ export interface MvhdBox extends BaseBox {
 	type: 'mvhd-box';
 }
 
-export const parseMvhd = (data: Uint8Array, offset: number): MvhdBox => {
-	const iterator = getArrayBufferIterator(data);
+export const parseMvhd = (iterator: BufferIterator): MvhdBox => {
+	const offset = iterator.counter.getOffset();
 	const size = iterator.getUint32();
 	const atom = iterator.getAtom();
 	if (atom !== 'mvhd') {
@@ -99,7 +100,7 @@ export const parseMvhd = (data: Uint8Array, offset: number): MvhdBox => {
 		matrix: matrix as ThreeDMatrix,
 		nextTrackId,
 		type: 'mvhd-box',
-		boxSize: data.byteLength,
+		boxSize: size,
 		offset,
 	};
 };

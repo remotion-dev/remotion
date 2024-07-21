@@ -1,5 +1,6 @@
 import {expect, test} from 'bun:test';
 import {parseMvhd} from '../boxes/iso-base-media/mvhd';
+import {getArrayBufferIterator} from '../read-and-increment-offset';
 
 test('Should be able to parse a MVHD box correctly', () => {
 	const buffer = Uint8Array.from([
@@ -63,7 +64,7 @@ test('Should be able to parse a MVHD box correctly', () => {
 		0, 0, 0, 2,
 	]);
 
-	const mvhd = parseMvhd(buffer, 0);
+	const mvhd = parseMvhd(getArrayBufferIterator(buffer));
 	expect(mvhd).toEqual({
 		creationTime: null,
 		modificationTime: null,

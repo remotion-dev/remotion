@@ -36,7 +36,6 @@ export type BoxAndNext =
 	| {
 			type: 'complete';
 			box: IsoBaseMediaBox;
-			next: Uint8Array;
 			size: number;
 	  }
 	| {
@@ -81,7 +80,7 @@ export const parseVideo = async (
 	const iterator = getArrayBufferIterator(new Uint8Array(data));
 
 	if (matchesPattern(isoBaseMediaMp4Pattern)(data.subarray(4, 8))) {
-		return parseBoxes(new Uint8Array(data), 0);
+		return parseBoxes(iterator, Infinity);
 	}
 
 	if (matchesPattern(webmPattern)(data.subarray(0, 4))) {

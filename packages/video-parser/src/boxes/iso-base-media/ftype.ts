@@ -1,4 +1,4 @@
-import {getArrayBufferIterator} from '../../read-and-increment-offset';
+import type {BufferIterator} from '../../read-and-increment-offset';
 import type {BaseBox} from './base-type';
 
 export interface FtypBox extends BaseBox {
@@ -8,8 +8,8 @@ export interface FtypBox extends BaseBox {
 	compatibleBrands: string[];
 }
 
-export const parseFtyp = (data: Uint8Array, offset: number): FtypBox => {
-	const iterator = getArrayBufferIterator(data);
+export const parseFtyp = (iterator: BufferIterator): FtypBox => {
+	const offset = iterator.counter.getOffset();
 	iterator.discard(8);
 	const majorBrand = iterator.getByteString(4);
 	const minorVersion = iterator.getFourByteNumber();
@@ -21,12 +21,14 @@ export const parseFtyp = (data: Uint8Array, offset: number): FtypBox => {
 		compatibleBrands.push(iterator.getByteString(4).trim());
 	}
 
+	const offsetAtEnd = iterator.counter.getOffset();
+
 	return {
 		type: 'ftyp-box',
 		majorBrand,
 		minorVersion,
 		compatibleBrands,
 		offset,
-		boxSize: data.byteLength,
+		boxSize: offsetAtEnd - offset,
 	};
 };
