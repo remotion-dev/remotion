@@ -9,21 +9,15 @@ export interface StsdBox extends BaseBox {
 	samples: Sample[];
 }
 
-export const parseStsd = (iterator: BufferIterator): StsdBox => {
-	const bytesRemaining = iterator.bytesRemaining();
-	const offset = iterator.counter.getOffset();
-	const size = iterator.getUint32();
-	if (bytesRemaining < size) {
-		throw new Error(
-			`Expected stsd size of at least ${bytesRemaining}, got ${size}`,
-		);
-	}
-
-	const type = iterator.getAtom();
-	if (type !== 'stsd') {
-		throw new Error(`Expected stsd type of stsd, got ${type}`);
-	}
-
+export const parseStsd = ({
+	iterator,
+	offset,
+	size,
+}: {
+	iterator: BufferIterator;
+	offset: number;
+	size: number;
+}): StsdBox => {
 	const version = iterator.getUint8();
 	if (version !== 0) {
 		throw new Error(`Unsupported STSD version ${version}`);

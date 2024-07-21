@@ -34,7 +34,14 @@ test('Should be able to parse a STSD audio box correctly', () => {
 		2, 18, 16, 6, 128, 128, 128, 1, 2, 0, 0, 0, 8, 0, 0, 0, 0,
 	]);
 
-	const parsed = parseStsd(getArrayBufferIterator(buffer));
+	const iterator = getArrayBufferIterator(buffer);
+	iterator.discard(8);
+
+	const parsed = parseStsd({
+		iterator,
+		offset: 0,
+		size: 159,
+	});
 
 	expect(parsed).toEqual({
 		offset: 0,

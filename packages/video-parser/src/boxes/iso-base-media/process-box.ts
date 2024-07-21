@@ -104,8 +104,7 @@ const processBox = ({
 	}
 
 	if (boxType === 'stsd') {
-		iterator.counter.decrement(8);
-		const box = parseStsd(iterator);
+		const box = parseStsd({iterator, offset: fileOffset, size: boxSize});
 
 		return {
 			type: 'complete',
