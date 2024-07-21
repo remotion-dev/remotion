@@ -17,10 +17,10 @@ type AudioSample = SampleBase & {
 	compressionId: number;
 	packetSize: number;
 	sampleRate: number;
-	samplesPerPacket: number;
-	bytesPerPacket: number;
-	bytesPerFrame: number;
-	bitsPerSample: number;
+	samplesPerPacket: number | null;
+	bytesPerPacket: number | null;
+	bytesPerFrame: number | null;
+	bitsPerSample: number | null;
 };
 
 type VideoSample = SampleBase & {
@@ -154,45 +154,79 @@ export const processSample = ({
 	}
 
 	if (isAudio) {
-		if (version !== 1) {
-			throw new Error(`Unsupported version ${version}`);
+		if (version === 0) {
+			const numberOfChannels = iterator.getUint16();
+			const sampleSize = iterator.getUint16();
+			const compressionId = iterator.getUint16();
+			const packetSize = iterator.getUint16();
+			const sampleRate = iterator.getFixedPoint1616Number();
+
+			const bytesRemainingInBox =
+				boxSize - (iterator.counter.getOffset() - fileOffset);
+			iterator.discard(bytesRemainingInBox);
+
+			return {
+				sample: {
+					format: boxFormat,
+					offset: fileOffset,
+					dataReferenceIndex,
+					version,
+					revisionLevel,
+					vendor: [...Array.from(new Uint8Array(vendor))],
+					size: boxSize,
+					type: 'audio',
+					numberOfChannels,
+					sampleSize,
+					compressionId,
+					packetSize,
+					sampleRate,
+					samplesPerPacket: null,
+					bytesPerPacket: null,
+					bytesPerFrame: null,
+					bitsPerSample: null,
+				},
+			};
 		}
 
-		const numberOfChannels = iterator.getUint16();
-		const sampleSize = iterator.getUint16();
-		const compressionId = iterator.getUint16();
-		const packetSize = iterator.getUint16();
-		const sampleRate = iterator.getFixedPoint1616Number();
-		const samplesPerPacket = iterator.getUint16();
-		const bytesPerPacket = iterator.getUint16();
-		const bytesPerFrame = iterator.getUint16();
-		const bitsPerSample = iterator.getUint16();
+		if (version === 1) {
+			const numberOfChannels = iterator.getUint16();
+			const sampleSize = iterator.getUint16();
+			const compressionId = iterator.getUint16();
+			const packetSize = iterator.getUint16();
+			const sampleRate = iterator.getFixedPoint1616Number();
+			const samplesPerPacket = iterator.getUint16();
+			const bytesPerPacket = iterator.getUint16();
+			const bytesPerFrame = iterator.getUint16();
+			const bitsPerSample = iterator.getUint16();
 
-		const bytesRemainingInBox =
-			boxSize - (iterator.counter.getOffset() - fileOffset);
-		iterator.discard(bytesRemainingInBox);
+			const bytesRemainingInBox =
+				boxSize - (iterator.counter.getOffset() - fileOffset);
+			iterator.discard(bytesRemainingInBox);
 
-		return {
-			sample: {
-				format: boxFormat,
-				offset: fileOffset,
-				dataReferenceIndex,
-				version,
-				revisionLevel,
-				vendor: [...Array.from(new Uint8Array(vendor))],
-				size: boxSize,
-				type: 'audio',
-				numberOfChannels,
-				sampleSize,
-				compressionId,
-				packetSize,
-				sampleRate,
-				samplesPerPacket,
-				bytesPerPacket,
-				bytesPerFrame,
-				bitsPerSample,
-			},
-		};
+			return {
+				sample: {
+					format: boxFormat,
+					offset: fileOffset,
+					dataReferenceIndex,
+					version,
+					revisionLevel,
+					vendor: [...Array.from(new Uint8Array(vendor))],
+					size: boxSize,
+					type: 'audio',
+					numberOfChannels,
+					sampleSize,
+					compressionId,
+					packetSize,
+					sampleRate,
+					samplesPerPacket,
+					bytesPerPacket,
+					bytesPerFrame,
+					bitsPerSample,
+				},
+			};
+		}
+
+		throw new Error(`Unsupported version ${version}`);
 	}
 
 	if (isVideo) {
