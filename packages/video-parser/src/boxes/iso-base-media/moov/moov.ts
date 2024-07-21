@@ -1,11 +1,11 @@
-import type {IsoBaseMediaBox} from '../../../parse-video';
+import type {AnySegment} from '../../../parse-result';
 import type {BufferIterator} from '../../../read-and-increment-offset';
 import type {BaseBox} from '../base-type';
 import {parseBoxes} from '../process-box';
 
 export interface MoovBox extends BaseBox {
 	type: 'moov-box';
-	children: IsoBaseMediaBox[];
+	children: AnySegment[];
 }
 
 export const parseMoov = (iterator: BufferIterator): MoovBox => {
@@ -29,10 +29,14 @@ export const parseMoov = (iterator: BufferIterator): MoovBox => {
 		allowIncompleteBoxes: false,
 	});
 
+	if (children.status === 'incomplete') {
+		throw new Error('Incomplete boxes are not allowed');
+	}
+
 	return {
 		offset,
 		boxSize: size,
 		type: 'moov-box',
-		children,
+		children: children.segments,
 	};
 };

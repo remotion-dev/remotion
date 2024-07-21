@@ -1,11 +1,11 @@
-import type {IsoBaseMediaBox} from '../../../parse-video';
+import type {AnySegment} from '../../../parse-result';
 import type {BufferIterator} from '../../../read-and-increment-offset';
 import type {BaseBox} from '../base-type';
 import {parseBoxes} from '../process-box';
 
 export interface TrakBox extends BaseBox {
 	type: 'trak-box';
-	children: IsoBaseMediaBox[];
+	children: AnySegment[];
 }
 
 export const parseTrak = (data: BufferIterator): TrakBox => {
@@ -27,10 +27,14 @@ export const parseTrak = (data: BufferIterator): TrakBox => {
 		allowIncompleteBoxes: false,
 	});
 
+	if (children.status === 'incomplete') {
+		throw new Error('Incomplete boxes are not allowed');
+	}
+
 	return {
 		offset: offsetAtStart,
 		boxSize: size,
 		type: 'trak-box',
-		children,
+		children: children.segments,
 	};
 };

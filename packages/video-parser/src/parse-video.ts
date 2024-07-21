@@ -1,37 +1,9 @@
 import {createReadStream} from 'fs';
-import type {BaseBox} from './boxes/iso-base-media/base-type';
-import type {FtypBox} from './boxes/iso-base-media/ftyp';
-import type {MoovBox} from './boxes/iso-base-media/moov/moov';
-import type {MvhdBox} from './boxes/iso-base-media/mvhd';
 import {parseBoxes} from './boxes/iso-base-media/process-box';
-import type {KeysBox} from './boxes/iso-base-media/stsd/keys';
-import type {MebxBox} from './boxes/iso-base-media/stsd/mebx';
-import type {StsdBox} from './boxes/iso-base-media/stsd/stsd';
-import type {TkhdBox} from './boxes/iso-base-media/tkhd';
-import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import {parseWebm} from './boxes/webm/parse-webm-header';
-import type {MatroskaSegment} from './boxes/webm/segments';
+import type {IsoBaseMediaBox, ParseResult} from './parse-result';
 import type {BufferIterator} from './read-and-increment-offset';
 import {getArrayBufferIterator} from './read-and-increment-offset';
-
-interface RegularBox extends BaseBox {
-	boxType: string;
-	boxSize: number;
-	children: IsoBaseMediaBox[];
-	offset: number;
-	type: 'regular-box';
-}
-
-export type IsoBaseMediaBox =
-	| RegularBox
-	| FtypBox
-	| MvhdBox
-	| TkhdBox
-	| StsdBox
-	| MebxBox
-	| KeysBox
-	| MoovBox
-	| TrakBox;
 
 export type BoxAndNext =
 	| {
@@ -42,8 +14,6 @@ export type BoxAndNext =
 	| {
 			type: 'incomplete';
 	  };
-
-export type AnySegment = MatroskaSegment | IsoBaseMediaBox;
 
 export const loadVideo = async (
 	src: string,
@@ -73,7 +43,7 @@ export const loadVideo = async (
 	return iterator;
 };
 
-export const parseVideo = (iterator: BufferIterator): AnySegment[] => {
+export const parseVideo = (iterator: BufferIterator): ParseResult => {
 	if (iterator.isIsoBaseMedia()) {
 		return parseBoxes({
 			iterator,
@@ -83,10 +53,10 @@ export const parseVideo = (iterator: BufferIterator): AnySegment[] => {
 	}
 
 	if (iterator.isWebm()) {
-		return [parseWebm(iterator)];
+		return parseWebm(iterator);
 	}
 
-	return [];
+	throw new Error('Unknown video format');
 };
 
 export const streamVideo = async (url: string) => {

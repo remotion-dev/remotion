@@ -1,4 +1,5 @@
-import type {BoxAndNext, IsoBaseMediaBox} from '../../parse-video';
+import type {IsoBaseMediaBox, ParseResult} from '../../parse-result';
+import type {BoxAndNext} from '../../parse-video';
 import type {BufferIterator} from '../../read-and-increment-offset';
 import {parseFtyp} from './ftyp';
 import {parseMoov} from './moov/moov';
@@ -7,6 +8,40 @@ import {parseMebx} from './stsd/mebx';
 import {parseStsd} from './stsd/stsd';
 import {parseTkhd} from './tkhd';
 import {parseTrak} from './trak/trak';
+
+const getChildren = ({
+	boxType,
+	iterator,
+	bytesRemainingInBox,
+}: {
+	boxType: string;
+	iterator: BufferIterator;
+	bytesRemainingInBox: number;
+}) => {
+	const parseChildren =
+		boxType === 'mdia' ||
+		boxType === 'minf' ||
+		boxType === 'stbl' ||
+		boxType === 'dims' ||
+		boxType === 'stsb';
+
+	if (parseChildren) {
+		const parsed = parseBoxes({
+			iterator,
+			maxBytes: bytesRemainingInBox,
+			allowIncompleteBoxes: false,
+		});
+
+		if (parsed.status === 'incomplete') {
+			throw new Error('Incomplete boxes are not allowed');
+		}
+
+		return parsed.segments;
+	}
+
+	iterator.discard(bytesRemainingInBox);
+	return [];
+};
 
 const processBox = ({
 	iterator,
@@ -117,18 +152,11 @@ const processBox = ({
 	const bytesRemainingInBox =
 		boxSize - (iterator.counter.getOffset() - fileOffset);
 
-	const children =
-		boxType === 'mdia' ||
-		boxType === 'minf' ||
-		boxType === 'stbl' ||
-		boxType === 'dims' ||
-		boxType === 'stsb'
-			? parseBoxes({
-					iterator,
-					maxBytes: bytesRemainingInBox,
-					allowIncompleteBoxes: false,
-				})
-			: (iterator.discard(bytesRemainingInBox), []);
+	const children = getChildren({
+		boxType,
+		iterator,
+		bytesRemainingInBox,
+	});
 
 	return {
 		type: 'complete',
@@ -151,7 +179,7 @@ export const parseBoxes = ({
 	iterator: BufferIterator;
 	maxBytes: number;
 	allowIncompleteBoxes: boolean;
-}): IsoBaseMediaBox[] => {
+}): ParseResult => {
 	const boxes: IsoBaseMediaBox[] = [];
 	const initialOffset = iterator.counter.getOffset();
 
@@ -164,11 +192,17 @@ export const parseBoxes = ({
 			allowIncompleteBoxes,
 		});
 		if (result.type === 'incomplete') {
-			break;
+			return {
+				status: 'incomplete',
+				segments: boxes,
+			};
 		}
 
 		boxes.push(result.box);
 	}
 
-	return boxes;
+	return {
+		status: 'done',
+		segments: boxes,
+	};
 };

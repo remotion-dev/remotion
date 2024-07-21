@@ -7,7 +7,7 @@ if (process.platform !== 'win32') {
 	test('Parse Big Buck bunny', async () => {
 		const video = await loadVideo(exampleVideos.bigBuckBunny, 4 * 1024);
 		const data = parseVideo(video);
-		expect(data).toEqual([
+		expect(data.segments).toEqual([
 			{
 				offset: 0,
 				boxSize: 32,
@@ -29,7 +29,7 @@ if (process.platform !== 'win32') {
 	test('Parse an iPhone video', async () => {
 		const video = await loadVideo(exampleVideos.iphonevideo, 4 * 1024);
 		const data = parseVideo(video);
-		expect(data).toEqual([
+		expect(data.segments).toEqual([
 			{
 				boxSize: 20,
 				type: 'ftyp-box',
@@ -54,7 +54,7 @@ if (process.platform !== 'win32') {
 			4 * 1024,
 		);
 		const parsed = parseVideo(video);
-		expect(parsed).toEqual([
+		expect(parsed.segments).toEqual([
 			{
 				offset: 0,
 				boxSize: 32,
@@ -78,7 +78,7 @@ if (process.platform !== 'win32') {
 		const data = parseVideo(video);
 		if (!data) throw new Error('No data');
 
-		const [first, second, third] = data;
+		const [first, second, third] = data.segments;
 
 		if (first.type !== 'ftyp-box') {
 			throw new Error('Expected ftyp-box');

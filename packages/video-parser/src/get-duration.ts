@@ -1,4 +1,4 @@
-import type {AnySegment} from './parse-video';
+import type {AnySegment} from './parse-result';
 
 const getDurationFromMatroska = (segments: AnySegment[]): number | null => {
 	const mainSegment = segments.find((s) => s.type === 'main-segment');

@@ -1,4 +1,4 @@
-import type {AnySegment} from './parse-video';
+import type {AnySegment} from './parse-result';
 
 export const getDimensions = (boxes: AnySegment[]): number[] => {
 	const moovBox = boxes.find((b) => b.type === 'moov-box');

@@ -1,4 +1,4 @@
-import type {IsoBaseMediaBox} from '../../../parse-video';
+import type {AnySegment} from '../../../parse-result';
 import type {BufferIterator} from '../../../read-and-increment-offset';
 import type {BaseBox} from '../base-type';
 import {parseBoxes} from '../process-box';
@@ -7,7 +7,7 @@ export interface MebxBox extends BaseBox {
 	type: 'mebx-box';
 	dataReferenceIndex: number;
 	format: string;
-	children: IsoBaseMediaBox[];
+	children: AnySegment[];
 }
 
 export const parseMebx = (iterator: BufferIterator): MebxBox => {
@@ -30,12 +30,16 @@ export const parseMebx = (iterator: BufferIterator): MebxBox => {
 		allowIncompleteBoxes: false,
 	});
 
+	if (children.status === 'incomplete') {
+		throw new Error('Incomplete boxes are not allowed');
+	}
+
 	return {
 		type: 'mebx-box',
 		boxSize: size,
 		offset,
 		dataReferenceIndex,
 		format: 'mebx',
-		children,
+		children: children.segments,
 	};
 };
