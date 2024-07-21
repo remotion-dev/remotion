@@ -80,8 +80,7 @@ export const streamVideo = async (url: string) => {
 
 	const iterator = getArrayBufferIterator(new Uint8Array([]));
 	let parseResult = parseVideo(iterator);
-	// eslint-disable-next-line no-constant-condition
-	while (true && parseResult.status === 'incomplete') {
+	while (parseResult.status === 'incomplete') {
 		const result = await reader.read();
 		if (result.done) {
 			break;
@@ -89,8 +88,7 @@ export const streamVideo = async (url: string) => {
 
 		iterator.addData(result.value);
 		parseResult = parseResult.continueParsing();
-		console.log(parseResult);
 	}
 
-	console.log('all done');
+	return parseResult.segments;
 };
