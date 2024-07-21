@@ -12,6 +12,9 @@
 		"test": "bun test",
 		"watch": "tsc -w"
 	},
+	"devDependencies": {
+		"@remotion/renderer": "workspace:*"
+	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},

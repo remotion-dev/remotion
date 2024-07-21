@@ -1,11 +1,14 @@
+import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
 import {getDimensions} from '../get-dimensions';
 import {getDuration} from '../get-duration';
 import {loadVideo, parseVideo} from '../parse-video';
-import {exampleVideos} from './example-videos';
 
 test('Should get duration of video', async () => {
-	const video = await loadVideo(exampleVideos.framer24fps, 128 * 1024);
+	const video = await loadVideo(
+		RenderInternals.exampleVideos.framer24fps,
+		128 * 1024,
+	);
 	const parsed = parseVideo(video);
 
 	expect(getDuration(parsed.segments)).toBe(4.167);
@@ -13,7 +16,10 @@ test('Should get duration of video', async () => {
 });
 
 test('Should get duration of HEVC video', async () => {
-	const video = await loadVideo(exampleVideos.iphonehevc, Infinity);
+	const video = await loadVideo(
+		RenderInternals.exampleVideos.iphonehevc,
+		Infinity,
+	);
 	const parsed = parseVideo(video);
 
 	expect(getDuration(parsed.segments)).toBe(3.4);
