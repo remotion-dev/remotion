@@ -8,21 +8,15 @@ export interface MoovBox extends BaseBox {
 	children: AnySegment[];
 }
 
-export const parseMoov = (iterator: BufferIterator): MoovBox => {
-	const bytesRemaining = iterator.bytesRemaining();
-	const offset = iterator.counter.getOffset();
-	const size = iterator.getUint32();
-	if (bytesRemaining < size) {
-		throw new Error(
-			`Expected moov size of at least ${bytesRemaining}, got ${size}`,
-		);
-	}
-
-	const atom = iterator.getAtom();
-	if (atom !== 'moov') {
-		throw new Error(`Expected moov type of moov, got ${atom}`);
-	}
-
+export const parseMoov = ({
+	iterator,
+	offset,
+	size,
+}: {
+	iterator: BufferIterator;
+	offset: number;
+	size: number;
+}): MoovBox => {
 	const children = parseBoxes({
 		iterator,
 		maxBytes: size - (iterator.counter.getOffset() - offset),

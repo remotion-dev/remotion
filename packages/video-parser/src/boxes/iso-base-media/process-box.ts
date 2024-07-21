@@ -114,8 +114,7 @@ const processBox = ({
 	}
 
 	if (boxType === 'mebx') {
-		iterator.counter.decrement(8);
-		const box = parseMebx(iterator);
+		const box = parseMebx({iterator, offset: 0, size: boxSize});
 
 		return {
 			type: 'complete',
@@ -125,8 +124,7 @@ const processBox = ({
 	}
 
 	if (boxType === 'moov') {
-		iterator.counter.decrement(8);
-		const box = parseMoov(iterator);
+		const box = parseMoov({iterator, offset: fileOffset, size: boxSize});
 
 		return {
 			type: 'complete',

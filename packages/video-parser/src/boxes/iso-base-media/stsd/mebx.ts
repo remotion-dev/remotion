@@ -10,15 +10,15 @@ export interface MebxBox extends BaseBox {
 	children: AnySegment[];
 }
 
-export const parseMebx = (iterator: BufferIterator): MebxBox => {
-	const offset = iterator.counter.getOffset();
-	const size = iterator.getUint32();
-
-	const atom = iterator.getAtom();
-	if (atom !== 'mebx') {
-		throw new Error(`Expected mebx type of mebx, got ${atom}`);
-	}
-
+export const parseMebx = ({
+	iterator,
+	offset,
+	size,
+}: {
+	iterator: BufferIterator;
+	offset: number;
+	size: number;
+}): MebxBox => {
 	// reserved, 6 bit
 	iterator.discard(6);
 
