@@ -23,7 +23,11 @@ export const parseMoov = (iterator: BufferIterator): MoovBox => {
 		throw new Error(`Expected moov type of moov, got ${atom}`);
 	}
 
-	const children = parseBoxes(iterator, size - 8);
+	const children = parseBoxes({
+		iterator,
+		maxBytes: size - 8,
+		allowIncompleteBoxes: false,
+	});
 
 	return {
 		offset,

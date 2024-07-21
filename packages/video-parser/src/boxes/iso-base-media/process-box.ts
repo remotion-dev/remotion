@@ -8,7 +8,13 @@ import {parseStsd} from './stsd/stsd';
 import {parseTkhd} from './tkhd';
 import {parseTrak} from './trak/trak';
 
-const processBox = ({iterator}: {iterator: BufferIterator}): BoxAndNext => {
+const processBox = ({
+	iterator,
+	allowIncompleteBoxes,
+}: {
+	iterator: BufferIterator;
+	allowIncompleteBoxes: boolean;
+}): BoxAndNext => {
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
 
@@ -17,13 +23,20 @@ const processBox = ({iterator}: {iterator: BufferIterator}): BoxAndNext => {
 		throw new Error(`Expected box size of not 0, got ${boxSize}`);
 	}
 
-	const boxType = iterator.getByteString(4);
-
 	if (bytesRemaining < boxSize) {
-		return {
-			type: 'incomplete',
-		};
+		iterator.counter.decrement(boxSize);
+		if (allowIncompleteBoxes) {
+			return {
+				type: 'incomplete',
+			};
+		}
+
+		throw new Error(
+			`Expected box size of ${bytesRemaining}, got ${boxSize}. Incomplete boxes are not allowed.`,
+		);
 	}
+
+	const boxType = iterator.getByteString(4);
 
 	if (boxType === 'ftyp') {
 		iterator.counter.decrement(8);
@@ -110,7 +123,11 @@ const processBox = ({iterator}: {iterator: BufferIterator}): BoxAndNext => {
 		boxType === 'stbl' ||
 		boxType === 'dims' ||
 		boxType === 'stsb'
-			? parseBoxes(iterator, bytesRemainingInBox)
+			? parseBoxes({
+					iterator,
+					maxBytes: bytesRemainingInBox,
+					allowIncompleteBoxes: false,
+				})
 			: (iterator.discard(bytesRemainingInBox), []);
 
 	return {
@@ -126,10 +143,15 @@ const processBox = ({iterator}: {iterator: BufferIterator}): BoxAndNext => {
 	};
 };
 
-export const parseBoxes = (
-	iterator: BufferIterator,
-	maxBytes: number,
-): IsoBaseMediaBox[] => {
+export const parseBoxes = ({
+	iterator,
+	maxBytes,
+	allowIncompleteBoxes,
+}: {
+	iterator: BufferIterator;
+	maxBytes: number;
+	allowIncompleteBoxes: boolean;
+}): IsoBaseMediaBox[] => {
 	const boxes: IsoBaseMediaBox[] = [];
 	const initialOffset = iterator.counter.getOffset();
 
@@ -139,6 +161,7 @@ export const parseBoxes = (
 	) {
 		const result = processBox({
 			iterator,
+			allowIncompleteBoxes,
 		});
 		if (result.type === 'incomplete') {
 			break;

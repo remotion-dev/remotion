@@ -21,10 +21,11 @@ export const parseTrak = (data: BufferIterator): TrakBox => {
 		throw new Error(`Expected trak atom, got ${atom}`);
 	}
 
-	const children = parseBoxes(
-		data,
-		size - (data.counter.getOffset() - offsetAtStart),
-	);
+	const children = parseBoxes({
+		iterator: data,
+		maxBytes: size - (data.counter.getOffset() - offsetAtStart),
+		allowIncompleteBoxes: false,
+	});
 
 	return {
 		offset: offsetAtStart,

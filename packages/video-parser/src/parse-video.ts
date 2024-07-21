@@ -75,7 +75,11 @@ export const loadVideo = async (
 
 export const parseVideo = (iterator: BufferIterator): AnySegment[] => {
 	if (iterator.isIsoBaseMedia()) {
-		return parseBoxes(iterator, Infinity);
+		return parseBoxes({
+			iterator,
+			maxBytes: Infinity,
+			allowIncompleteBoxes: true,
+		});
 	}
 
 	if (iterator.isWebm()) {

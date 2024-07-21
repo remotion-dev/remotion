@@ -24,7 +24,11 @@ export const parseMebx = (iterator: BufferIterator): MebxBox => {
 
 	const dataReferenceIndex = iterator.getUint16();
 
-	const children = parseBoxes(iterator, size - 2 - 6 - 4 - 4);
+	const children = parseBoxes({
+		iterator,
+		maxBytes: iterator.counter.getOffset() - offset,
+		allowIncompleteBoxes: false,
+	});
 
 	return {
 		type: 'mebx-box',
