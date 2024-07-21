@@ -69,13 +69,13 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 		return val;
 	};
 
-	const addData = (newData: ArrayBufferLike) => {
-		data = new Uint8Array(
-			data.buffer,
-			data.byteOffset,
-			data.byteLength + newData.byteLength,
+	const addData = (newData: Uint8Array) => {
+		const newArray = new Uint8Array(
+			data.buffer.byteLength + newData.byteLength,
 		);
-		data.set(new Uint8Array(newData), data.byteLength - newData.byteLength);
+		newArray.set(data);
+		newArray.set(new Uint8Array(newData), data.byteLength);
+		data = newArray;
 		view = new DataView(data.buffer);
 	};
 

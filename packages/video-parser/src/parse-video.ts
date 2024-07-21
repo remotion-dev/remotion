@@ -45,7 +45,10 @@ export type BoxAndNext =
 
 export type AnySegment = MatroskaSegment | IsoBaseMediaBox;
 
-export const loadVideo = async (src: string, bytes: number) => {
+export const loadVideo = async (
+	src: string,
+	bytes: number,
+): Promise<BufferIterator> => {
 	const stream = createReadStream(
 		src,
 		Number.isFinite(bytes) ? {end: bytes - 1} : {},
@@ -90,11 +93,14 @@ export const streamVideo = async (url: string) => {
 
 	const reader = res.body.getReader();
 
+	const iterator = getArrayBufferIterator(new Uint8Array([]));
 	// eslint-disable-next-line no-constant-condition
 	while (true) {
-		const {done} = await reader.read();
-		if (done) {
+		const result = await reader.read();
+		if (result.done) {
 			break;
 		}
+
+		iterator.addData(result.value);
 	}
 };
