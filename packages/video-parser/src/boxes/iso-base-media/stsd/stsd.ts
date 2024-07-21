@@ -10,11 +10,12 @@ export interface StsdBox extends BaseBox {
 }
 
 export const parseStsd = (iterator: BufferIterator): StsdBox => {
+	const bytesRemaining = iterator.bytesRemaining();
 	const offset = iterator.counter.getOffset();
 	const size = iterator.getUint32();
-	if (size < iterator.bytesRemaining()) {
+	if (bytesRemaining < size) {
 		throw new Error(
-			`Expected stsd size of at least ${iterator.bytesRemaining()}, got ${size}`,
+			`Expected stsd size of at least ${bytesRemaining}, got ${size}`,
 		);
 	}
 
@@ -33,7 +34,9 @@ export const parseStsd = (iterator: BufferIterator): StsdBox => {
 
 	const numberOfEntries = iterator.getUint32();
 
-	const boxes = parseSamples(iterator, iterator.counter.getOffset() - offset);
+	const bytesRemainingInBox = size - (iterator.counter.getOffset() - offset);
+
+	const boxes = parseSamples(iterator, bytesRemainingInBox);
 
 	if (boxes.length !== numberOfEntries) {
 		throw new Error(

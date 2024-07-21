@@ -13,7 +13,6 @@ test('Should get duration of video', async () => {
 
 test('Should get duration of HEVC video', async () => {
 	const parsed = await parseVideo(exampleVideos.iphonehevc, Infinity);
-	console.log({parsed});
 
 	expect(getDuration(parsed)).toBe(3.4);
 	expect(getDimensions(parsed)).toEqual([1920, 1080]);

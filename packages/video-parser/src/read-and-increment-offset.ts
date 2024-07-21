@@ -6,7 +6,7 @@ export class OffsetCounter {
 
 	increment(amount: number) {
 		if (amount < 0) {
-			throw new Error('Cannot increment by a negative amount');
+			throw new Error('Cannot increment by a negative amount: ' + amount);
 		}
 
 		this.#offset += amount;

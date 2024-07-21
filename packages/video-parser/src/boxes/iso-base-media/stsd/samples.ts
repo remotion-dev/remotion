@@ -115,11 +115,13 @@ export const processSample = ({
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
 	const boxSize = iterator.getUint32();
+
 	if (bytesRemaining < boxSize) {
 		throw new Error(`Expected box size of ${bytesRemaining}, got ${boxSize}`);
 	}
 
 	const boxFormat = iterator.getAtom();
+
 	const isVideo = videoTags.includes(boxFormat);
 	const isAudio =
 		audioTags.includes(boxFormat) || audioTags.includes(Number(boxFormat));
@@ -133,6 +135,10 @@ export const processSample = ({
 	const vendor = iterator.getSlice(4);
 
 	if (!isVideo && !isAudio) {
+		const bytesRemainingInBox =
+			boxSize - (iterator.counter.getOffset() - fileOffset);
+		iterator.discard(bytesRemainingInBox);
+
 		return {
 			sample: {
 				type: 'unknown',
@@ -161,6 +167,10 @@ export const processSample = ({
 		const bytesPerPacket = iterator.getUint16();
 		const bytesPerFrame = iterator.getUint16();
 		const bitsPerSample = iterator.getUint16();
+
+		const bytesRemainingInBox =
+			boxSize - (iterator.counter.getOffset() - fileOffset);
+		iterator.discard(bytesRemainingInBox);
 
 		return {
 			sample: {
@@ -198,7 +208,9 @@ export const processSample = ({
 		const depth = iterator.getUint16();
 		const colorTableId = iterator.getInt16();
 
-		iterator.discard(4);
+		const bytesRemainingInBox =
+			boxSize - (iterator.counter.getOffset() - fileOffset);
+		iterator.discard(bytesRemainingInBox);
 
 		return {
 			sample: {

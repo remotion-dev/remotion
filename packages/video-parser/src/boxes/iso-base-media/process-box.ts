@@ -10,17 +10,14 @@ import {parseTrak} from './trak/trak';
 
 const processBox = ({iterator}: {iterator: BufferIterator}): BoxAndNext => {
 	const fileOffset = iterator.counter.getOffset();
+	const bytesRemaining = iterator.bytesRemaining();
+
 	const boxSize = iterator.getFourByteNumber();
 	if (boxSize === 0) {
 		throw new Error(`Expected box size of not 0, got ${boxSize}`);
 	}
 
-	const toDiscard = boxSize;
-
-	const bytesRemaining = iterator.bytesRemaining();
-
 	const boxType = iterator.getByteString(4);
-	iterator.counter.decrement(8);
 
 	if (bytesRemaining < boxSize) {
 		return {
@@ -29,6 +26,7 @@ const processBox = ({iterator}: {iterator: BufferIterator}): BoxAndNext => {
 	}
 
 	if (boxType === 'ftyp') {
+		iterator.counter.decrement(8);
 		const box = parseFtyp(iterator);
 		return {
 			type: 'complete',
@@ -38,6 +36,7 @@ const processBox = ({iterator}: {iterator: BufferIterator}): BoxAndNext => {
 	}
 
 	if (boxType === 'mvhd') {
+		iterator.counter.decrement(8);
 		const box = parseMvhd(iterator);
 
 		return {
@@ -48,6 +47,7 @@ const processBox = ({iterator}: {iterator: BufferIterator}): BoxAndNext => {
 	}
 
 	if (boxType === 'tkhd') {
+		iterator.counter.decrement(8);
 		const box = parseTkhd(iterator);
 
 		return {
@@ -58,6 +58,7 @@ const processBox = ({iterator}: {iterator: BufferIterator}): BoxAndNext => {
 	}
 
 	if (boxType === 'stsd') {
+		iterator.counter.decrement(8);
 		const box = parseStsd(iterator);
 
 		return {
@@ -68,6 +69,7 @@ const processBox = ({iterator}: {iterator: BufferIterator}): BoxAndNext => {
 	}
 
 	if (boxType === 'mebx') {
+		iterator.counter.decrement(8);
 		const box = parseMebx(iterator);
 
 		return {
@@ -78,6 +80,7 @@ const processBox = ({iterator}: {iterator: BufferIterator}): BoxAndNext => {
 	}
 
 	if (boxType === 'moov') {
+		iterator.counter.decrement(8);
 		const box = parseMoov(iterator);
 
 		return {
@@ -88,6 +91,7 @@ const processBox = ({iterator}: {iterator: BufferIterator}): BoxAndNext => {
 	}
 
 	if (boxType === 'trak') {
+		iterator.counter.decrement(8);
 		const box = parseTrak(iterator);
 
 		return {
@@ -97,16 +101,17 @@ const processBox = ({iterator}: {iterator: BufferIterator}): BoxAndNext => {
 		};
 	}
 
+	const bytesRemainingInBox =
+		boxSize - (iterator.counter.getOffset() - fileOffset);
+
 	const children =
 		boxType === 'mdia' ||
 		boxType === 'minf' ||
 		boxType === 'stbl' ||
 		boxType === 'dims' ||
 		boxType === 'stsb'
-			? parseBoxes(iterator, boxSize - 8)
-			: [];
-
-	iterator.discard(toDiscard);
+			? parseBoxes(iterator, bytesRemainingInBox)
+			: (iterator.discard(bytesRemainingInBox), []);
 
 	return {
 		type: 'complete',
