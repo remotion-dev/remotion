@@ -1,5 +1,5 @@
-import type {BufferIterator} from '../../read-and-increment-offset';
-import {getArrayBufferIterator} from '../../read-and-increment-offset';
+import type {BufferIterator} from '../../buffer-iterator';
+import {getArrayBufferIterator} from '../../buffer-iterator';
 import type {BaseBox} from './base-type';
 import {toUnixTimestamp} from './to-date';
 

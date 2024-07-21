@@ -1,4 +1,4 @@
-import type {BufferIterator} from '../../read-and-increment-offset';
+import type {BufferIterator} from '../../buffer-iterator';
 import type {DurationSegment} from './segments/duration';
 import {parseDurationSegment} from './segments/duration';
 import type {InfoSegment} from './segments/info';

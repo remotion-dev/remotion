@@ -1,9 +1,9 @@
 import {createReadStream} from 'fs';
 import {parseBoxes} from './boxes/iso-base-media/process-box';
 import {parseWebm} from './boxes/webm/parse-webm-header';
+import type {BufferIterator} from './buffer-iterator';
+import {getArrayBufferIterator} from './buffer-iterator';
 import type {IsoBaseMediaBox, ParseResult} from './parse-result';
-import type {BufferIterator} from './read-and-increment-offset';
-import {getArrayBufferIterator} from './read-and-increment-offset';
 
 export type BoxAndNext =
 	| {

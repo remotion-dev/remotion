@@ -1,4 +1,4 @@
-import {getArrayBufferIterator} from '../../../read-and-increment-offset';
+import {getArrayBufferIterator} from '../../../buffer-iterator';
 import type {BaseBox} from '../base-type';
 
 export interface KeysBox extends BaseBox {

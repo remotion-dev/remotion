@@ -1,4 +1,4 @@
-import type {BufferIterator} from '../../../read-and-increment-offset';
+import type {BufferIterator} from '../../../buffer-iterator';
 import type {BaseBox} from '../base-type';
 import type {Sample} from './samples';
 import {parseSamples} from './samples';

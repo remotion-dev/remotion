@@ -1,7 +1,7 @@
 import {expect, test} from 'bun:test';
 import {processSample} from '../boxes/iso-base-media/stsd/samples';
 import {parseStsd} from '../boxes/iso-base-media/stsd/stsd';
-import {getArrayBufferIterator} from '../read-and-increment-offset';
+import {getArrayBufferIterator} from '../buffer-iterator';
 
 test('Should be able to parse a STSD audio box correctly', () => {
 	const buffer = Uint8Array.from([

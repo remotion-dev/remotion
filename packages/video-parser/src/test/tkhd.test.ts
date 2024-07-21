@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
 import {parseTkhd} from '../boxes/iso-base-media/tkhd';
-import {getArrayBufferIterator} from '../read-and-increment-offset';
+import {getArrayBufferIterator} from '../buffer-iterator';
 
 test('Should be able to parse a TKHD box', () => {
 	const buffer = Uint8Array.from([

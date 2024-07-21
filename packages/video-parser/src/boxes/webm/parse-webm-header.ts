@@ -1,5 +1,5 @@
+import type {BufferIterator} from '../../buffer-iterator';
 import type {ParseResult} from '../../parse-result';
-import type {BufferIterator} from '../../read-and-increment-offset';
 import {expectSegment} from './segments';
 
 // Parsing according to https://darkcoding.net/software/reading-mediarecorders-webm-opus-output/

@@ -1,5 +1,5 @@
+import type {BufferIterator} from '../../../buffer-iterator';
 import type {AnySegment} from '../../../parse-result';
-import type {BufferIterator} from '../../../read-and-increment-offset';
 import type {BaseBox} from '../base-type';
 import {parseBoxes} from '../process-box';
 
@@ -25,7 +25,7 @@ export const parseMoov = (iterator: BufferIterator): MoovBox => {
 
 	const children = parseBoxes({
 		iterator,
-		maxBytes: size - 8,
+		maxBytes: size - (iterator.counter.getOffset() - offset),
 		allowIncompleteBoxes: false,
 		initialBoxes: [],
 	});

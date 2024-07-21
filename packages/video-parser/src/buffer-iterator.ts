@@ -168,8 +168,8 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 				.join('')}`;
 		},
 		getVint: (bytes: number) => {
-			const _slice = getSlice(bytes);
-			const d = [...Array.from(new Uint8Array(_slice))];
+			const slice = getSlice(bytes);
+			const d = [...Array.from(new Uint8Array(slice))];
 			const totalLength = d[0];
 
 			if (totalLength === 0) {

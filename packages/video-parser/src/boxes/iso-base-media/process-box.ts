@@ -1,6 +1,6 @@
+import type {BufferIterator} from '../../buffer-iterator';
 import type {IsoBaseMediaBox, ParseResult} from '../../parse-result';
 import type {BoxAndNext} from '../../parse-video';
-import type {BufferIterator} from '../../read-and-increment-offset';
 import {parseFtyp} from './ftyp';
 import {parseMoov} from './moov/moov';
 import {parseMvhd} from './mvhd';

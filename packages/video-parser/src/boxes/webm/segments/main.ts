@@ -1,4 +1,4 @@
-import type {BufferIterator} from '../../../read-and-increment-offset';
+import type {BufferIterator} from '../../../buffer-iterator';
 import {type MatroskaSegment} from '../segments';
 import {expectChildren} from './parse-children';
 
