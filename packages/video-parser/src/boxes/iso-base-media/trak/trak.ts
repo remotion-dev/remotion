@@ -8,14 +8,11 @@ export interface TrakBox extends BaseBox {
 	children: IsoBaseMediaBox[];
 }
 
-export const parseTrak = (
-	data: BufferIterator,
-	bytesRemaining: number,
-): TrakBox => {
+export const parseTrak = (data: BufferIterator): TrakBox => {
 	const offsetAtStart = data.counter.getOffset();
 	const size = data.getUint32();
 
-	if (size > bytesRemaining) {
+	if (size > data.bytesRemaining()) {
 		throw new Error(`Don't have enough data to parse trak box yet`);
 	}
 

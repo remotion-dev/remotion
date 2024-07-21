@@ -10,12 +10,16 @@ export interface FtypBox extends BaseBox {
 
 export const parseFtyp = (iterator: BufferIterator): FtypBox => {
 	const offset = iterator.counter.getOffset();
-	iterator.discard(8);
+	const size = iterator.getUint32();
+	const atom = iterator.getAtom();
+	if (atom !== 'ftyp') {
+		throw new Error(`Expected ftyp atom, got ${atom}`);
+	}
+
 	const majorBrand = iterator.getByteString(4);
 	const minorVersion = iterator.getFourByteNumber();
 
-	const rest = iterator.sliceFromHere(0);
-	const types = rest.byteLength / 4;
+	const types = (size - iterator.counter.getOffset()) / 4;
 	const compatibleBrands: string[] = [];
 	for (let i = 0; i < types; i++) {
 		compatibleBrands.push(iterator.getByteString(4).trim());

@@ -1,6 +1,6 @@
 import type {BoxAndNext, IsoBaseMediaBox} from '../../parse-video';
 import type {BufferIterator} from '../../read-and-increment-offset';
-import {parseFtyp} from './ftype';
+import {parseFtyp} from './ftyp';
 import {parseMoov} from './moov/moov';
 import {parseMvhd} from './mvhd';
 import {parseMebx} from './stsd/mebx';
@@ -8,13 +8,8 @@ import {parseStsd} from './stsd/stsd';
 import {parseTkhd} from './tkhd';
 import {parseTrak} from './trak/trak';
 
-const processBoxAndSubtract = ({
-	iterator,
-	fileOffset,
-}: {
-	iterator: BufferIterator;
-	fileOffset: number;
-}): BoxAndNext => {
+const processBox = ({iterator}: {iterator: BufferIterator}): BoxAndNext => {
+	const fileOffset = iterator.counter.getOffset();
 	const boxSize = iterator.getFourByteNumber();
 	if (boxSize === 0) {
 		throw new Error(`Expected box size of not 0, got ${boxSize}`);
@@ -93,7 +88,7 @@ const processBoxAndSubtract = ({
 	}
 
 	if (boxType === 'trak') {
-		const box = parseTrak(iterator, fileOffset);
+		const box = parseTrak(iterator);
 
 		return {
 			type: 'complete',
@@ -137,9 +132,8 @@ export const parseBoxes = (
 		iterator.bytesRemaining() > 0 &&
 		iterator.counter.getOffset() - initialOffset < maxBytes
 	) {
-		const result = processBoxAndSubtract({
+		const result = processBox({
 			iterator,
-			fileOffset: iterator.counter.getOffset(),
 		});
 		if (result.type === 'incomplete') {
 			break;

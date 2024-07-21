@@ -70,14 +70,6 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 		view = new DataView(data.buffer);
 	};
 
-	const sliceFromHere = (offset: number, length?: number) => {
-		const val = data.slice(
-			offset + counter.getOffset(),
-			length ? length + counter.getOffset() : undefined,
-		);
-		return val;
-	};
-
 	const byteLength = () => {
 		return data.byteLength;
 	};
@@ -87,7 +79,6 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 	};
 
 	return {
-		sliceFromHere,
 		addData,
 		counter,
 		byteLength,

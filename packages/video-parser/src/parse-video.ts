@@ -1,6 +1,6 @@
 import {createReadStream} from 'fs';
 import type {BaseBox} from './boxes/iso-base-media/base-type';
-import type {FtypBox} from './boxes/iso-base-media/ftype';
+import type {FtypBox} from './boxes/iso-base-media/ftyp';
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';
 import type {MvhdBox} from './boxes/iso-base-media/mvhd';
 import {parseBoxes} from './boxes/iso-base-media/process-box';
@@ -100,11 +100,9 @@ export const streamVideo = async (url: string) => {
 
 	// eslint-disable-next-line no-constant-condition
 	while (true) {
-		const {done, value} = await reader.read();
+		const {done} = await reader.read();
 		if (done) {
 			break;
 		}
-
-		console.log(value?.length);
 	}
 };

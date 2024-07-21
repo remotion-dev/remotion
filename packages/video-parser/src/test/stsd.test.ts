@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {processSampleAndSubtract} from '../boxes/iso-base-media/stsd/samples';
+import {processSample} from '../boxes/iso-base-media/stsd/samples';
 import {parseStsd} from '../boxes/iso-base-media/stsd/stsd';
 import {getArrayBufferIterator} from '../read-and-increment-offset';
 
@@ -125,7 +125,7 @@ test('Should be able to parse a STSD video box correctly', () => {
 		0, 0, 0, 16, 112, 97, 115, 112, 0, 0, 0, 1, 0, 0, 0, 1,
 	]);
 
-	const parsed = processSampleAndSubtract({
+	const parsed = processSample({
 		iterator: getArrayBufferIterator(buffer),
 	});
 	expect(parsed.sample).toEqual({

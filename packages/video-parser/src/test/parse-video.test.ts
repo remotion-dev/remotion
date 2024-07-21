@@ -74,7 +74,7 @@ if (process.platform !== 'win32') {
 		const data = await parseVideo(exampleVideos.framer24fps, Infinity);
 		if (!data) throw new Error('No data');
 
-		const [first, second, third, fourth] = data;
+		const [first, second, third] = data;
 
 		if (first.type !== 'ftyp-box') {
 			throw new Error('Expected ftyp-box');
@@ -102,9 +102,5 @@ if (process.platform !== 'win32') {
 			children: [],
 			type: 'regular-box',
 		});
-
-		if (!fourth) {
-			throw new Error('No extra data');
-		}
 	});
 }

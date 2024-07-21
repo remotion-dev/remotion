@@ -107,7 +107,7 @@ const audioTags = [
 	'ac-3',
 ];
 
-export const processSampleAndSubtract = ({
+export const processSample = ({
 	iterator,
 }: {
 	iterator: BufferIterator;
@@ -239,7 +239,7 @@ export const parseSamples = (
 		iterator.bytesRemaining() > 0 &&
 		iterator.counter.getOffset() - initialOffset < maxBytes
 	) {
-		const {sample} = processSampleAndSubtract({
+		const {sample} = processSample({
 			iterator,
 		});
 
