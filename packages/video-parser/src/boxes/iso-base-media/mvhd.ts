@@ -28,14 +28,15 @@ export interface MvhdBox extends BaseBox {
 	type: 'mvhd-box';
 }
 
-export const parseMvhd = (iterator: BufferIterator): MvhdBox => {
-	const offset = iterator.counter.getOffset();
-	const size = iterator.getUint32();
-	const atom = iterator.getAtom();
-	if (atom !== 'mvhd') {
-		throw new Error(`Expected mvhd atom, got ${atom}`);
-	}
-
+export const parseMvhd = ({
+	iterator,
+	offset,
+	size,
+}: {
+	iterator: BufferIterator;
+	offset: number;
+	size: number;
+}): MvhdBox => {
 	const version = iterator.getUint8();
 	if (version !== 0) {
 		throw new Error(`Unsupported MVHD version ${version}`);

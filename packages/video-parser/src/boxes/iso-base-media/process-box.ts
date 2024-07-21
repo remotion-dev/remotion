@@ -84,8 +84,7 @@ const processBox = ({
 	}
 
 	if (boxType === 'mvhd') {
-		iterator.counter.decrement(8);
-		const box = parseMvhd(iterator);
+		const box = parseMvhd({iterator, offset: fileOffset, size: boxSize});
 
 		return {
 			type: 'complete',
