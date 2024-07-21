@@ -58,7 +58,13 @@ test('Should be able to parse a TKHD box', () => {
 		0, 0, 0, 0,
 	]);
 
-	const mvhd = parseTkhd(getArrayBufferIterator(buffer));
+	const iterator = getArrayBufferIterator(buffer);
+	iterator.discard(8);
+	const mvhd = parseTkhd({
+		iterator,
+		offset: 0,
+		size: 92,
+	});
 	expect(mvhd).toEqual({
 		type: 'tkhd-box',
 		boxSize: 92,

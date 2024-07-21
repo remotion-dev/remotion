@@ -94,8 +94,7 @@ const processBox = ({
 	}
 
 	if (boxType === 'tkhd') {
-		iterator.counter.decrement(8);
-		const box = parseTkhd(iterator);
+		const box = parseTkhd({iterator, offset: fileOffset, size: boxSize});
 
 		return {
 			type: 'complete',
