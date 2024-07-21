@@ -211,6 +211,7 @@ export const parseBoxes = ({
 		}
 
 		boxes.push(result.box);
+		iterator.discardFirstBytes();
 	}
 
 	return {

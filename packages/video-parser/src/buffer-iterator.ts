@@ -1,7 +1,9 @@
 export class OffsetCounter {
 	#offset: number;
+	#discardedBytes: number;
 	constructor(initial: number) {
 		this.#offset = initial;
+		this.#discardedBytes = 0;
 	}
 
 	increment(amount: number) {
@@ -14,6 +16,14 @@ export class OffsetCounter {
 
 	getOffset(): number {
 		return this.#offset;
+	}
+
+	getDiscardedOffset(): number {
+		return this.#offset - this.#discardedBytes;
+	}
+
+	discardBytes(amount: number) {
+		this.#discardedBytes += amount;
 	}
 
 	decrement(amount: number) {
@@ -44,14 +54,17 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 	const counter = makeOffsetCounter();
 
 	const getSlice = (amount: number) => {
-		const value = data.slice(counter.getOffset(), counter.getOffset() + amount);
+		const value = data.slice(
+			counter.getDiscardedOffset(),
+			counter.getDiscardedOffset() + amount,
+		);
 		counter.increment(amount);
 
 		return value;
 	};
 
 	const getUint8 = () => {
-		const val = view.getUint8(counter.getOffset());
+		const val = view.getUint8(counter.getDiscardedOffset());
 		counter.increment(1);
 
 		return val;
@@ -64,7 +77,7 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 	};
 
 	const getUint32 = () => {
-		const val = view.getUint32(counter.getOffset());
+		const val = view.getUint32(counter.getDiscardedOffset());
 		counter.increment(4);
 		return val;
 	};
@@ -84,7 +97,7 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 	};
 
 	const bytesRemaining = () => {
-		return data.byteLength - counter.getOffset();
+		return data.byteLength - counter.getDiscardedOffset();
 	};
 
 	const isIsoBaseMedia = () => {
@@ -97,12 +110,22 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 		return matchesPattern(webmPattern)(Buffer.from(data.subarray(0, 4)));
 	};
 
+	const removeBytesRead = () => {
+		const bytesToRemove = counter.getDiscardedOffset();
+		counter.discardBytes(bytesToRemove);
+		const newArray = new Uint8Array(data.buffer.byteLength - bytesToRemove);
+		newArray.set(data.slice(bytesToRemove));
+		data = newArray;
+		view = new DataView(data.buffer);
+	};
+
 	return {
 		addData,
 		counter,
 		byteLength,
 		bytesRemaining,
 		isIsoBaseMedia,
+		discardFirstBytes: removeBytesRead,
 		isWebm,
 		discard: (length: number) => {
 			counter.increment(length);
@@ -206,17 +229,17 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 			return actualValue;
 		},
 		getInt8: () => {
-			const val = view.getInt8(counter.getOffset());
+			const val = view.getInt8(counter.getDiscardedOffset());
 			counter.increment(1);
 			return val;
 		},
 		getUint16: () => {
-			const val = view.getUint16(counter.getOffset());
+			const val = view.getUint16(counter.getDiscardedOffset());
 			counter.increment(2);
 			return val;
 		},
 		getInt16: () => {
-			const val = view.getInt16(counter.getOffset());
+			const val = view.getInt16(counter.getDiscardedOffset());
 			counter.increment(2);
 			return val;
 		},
@@ -245,7 +268,7 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 			return new TextDecoder().decode(bytes).trim();
 		},
 		getFloat64: () => {
-			const val = view.getFloat64(counter.getOffset());
+			const val = view.getFloat64(counter.getDiscardedOffset());
 			counter.increment(8);
 			return val;
 		},
