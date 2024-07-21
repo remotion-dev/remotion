@@ -83,3 +83,13 @@ export const getDimensions = (boxes: AnySegment[]): Dimensions => {
 
 	return {width: firstTrack.width, height: firstTrack.height};
 };
+
+// TODO: An audio track should return 'hasDimensions' = true on an audio file
+// and stop parsing
+export const hasDimensions = (boxes: AnySegment[]): boolean => {
+	try {
+		return getDimensions(boxes) !== null;
+	} catch (err) {
+		return false;
+	}
+};

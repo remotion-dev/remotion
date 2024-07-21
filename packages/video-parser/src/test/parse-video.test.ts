@@ -33,26 +33,15 @@ test('Parse Big Buck bunny', async () => {
 test('Parse an iPhone video', async () => {
 	const data = await getVideoMetadata(
 		RenderInternals.exampleVideos.iphonevideo,
-		{boxes: true},
+		{durationInSeconds: true, dimensions: true},
 		nodeReader,
 	);
-	expect(data.boxes.slice(0, 2)).toEqual([
-		{
-			boxSize: 20,
-			type: 'ftyp-box',
-			majorBrand: 'qt',
-			minorVersion: 0,
-			compatibleBrands: ['qt'],
-			offset: 0,
-		},
-		{
-			type: 'regular-box',
-			boxType: 'wide',
-			boxSize: 8,
-			offset: 20,
-			children: [],
-		},
-	]);
+
+	expect(data.durationInSeconds).toBe(12.568333333333333);
+	expect(data.dimensions).toEqual({
+		width: 3840,
+		height: 2160,
+	});
 });
 
 test('Parse framer', async () => {
@@ -91,10 +80,6 @@ test('Parse a full video', async () => {
 	if (!data) throw new Error('No data');
 
 	const [first, second, third] = data.boxes;
-
-	if (first.type !== 'ftyp-box') {
-		throw new Error('Expected ftyp-box');
-	}
 
 	expect(first).toEqual({
 		offset: 0,

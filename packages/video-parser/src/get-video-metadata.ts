@@ -1,39 +1,16 @@
 import {getArrayBufferIterator} from './buffer-iterator';
 import {webReader} from './from-web';
-import type {Dimensions} from './get-dimensions';
 import {getDimensions} from './get-dimensions';
 import {getDuration} from './get-duration';
-import type {AnySegment} from './parse-result';
+import {hasAllInfo} from './has-all-info';
+import type {GetVideoMetadata, Metadata} from './options';
 import {parseVideo} from './parse-video';
-import type {ReaderInterface} from './reader';
 
-export type Options<
-	EnableDimensions extends boolean,
-	EnableDuration extends boolean,
-	EnableBoxes extends boolean,
-> = {
-	dimensions?: EnableDimensions;
-	durationInSeconds?: EnableDuration;
-	boxes?: EnableBoxes;
-};
-
-type Metadata<
-	EnableDimensions extends boolean,
-	EnableDuration extends boolean,
-	EnableBoxes extends boolean,
-> = (EnableDimensions extends true ? {dimensions: Dimensions} : {}) &
-	(EnableDuration extends true ? {durationInSeconds: number | null} : {}) &
-	(EnableBoxes extends true ? {boxes: AnySegment[]} : {});
-
-export const getVideoMetadata = async <
-	EnableDimensions extends boolean,
-	EnableDuration extends boolean,
-	EnableBoxes extends boolean,
->(
-	src: string,
-	options: Options<EnableDimensions, EnableDuration, EnableBoxes>,
-	readerInterface: ReaderInterface = webReader,
-): Promise<Metadata<EnableDimensions, EnableDuration, EnableBoxes>> => {
+export const getVideoMetadata: GetVideoMetadata = async (
+	src,
+	options,
+	readerInterface = webReader,
+) => {
 	const reader = await readerInterface.read(src, null);
 
 	const returnValue = {} as Metadata<true, true, true>;
@@ -49,6 +26,14 @@ export const getVideoMetadata = async <
 
 		iterator.addData(result.value);
 		parseResult = parseResult.continueParsing();
+
+		if (hasAllInfo(options, parseResult)) {
+			if (!reader.closed) {
+				reader.cancel(new Error('has all information'));
+			}
+
+			break;
+		}
 	}
 
 	if (options.dimensions) {
