@@ -38,7 +38,7 @@ export type MatroskaSegment =
 	| DurationSegment
 	| TracksSegment;
 
-export const expectSegment = (iterator: BufferIterator) => {
+export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 	const segmentId = iterator.getMatroskaSegmentId();
 
 	if (segmentId === '0x18538067') {
