@@ -69,11 +69,11 @@ export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 		return parseTimestampScaleSegment(iterator);
 	}
 
-	if (segmentId === '0x4d808c') {
+	if (segmentId === '0x4d808c' || segmentId === '0x4d808d4c') {
 		return parseMuxingSegment(iterator);
 	}
 
-	if (segmentId === '0x57418c') {
+	if (segmentId === '0x57418c' || segmentId === '0x57418d4c') {
 		return parseWritingSegment(iterator);
 	}
 
