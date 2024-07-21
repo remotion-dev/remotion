@@ -25,6 +25,7 @@ export const parseTrak = (data: BufferIterator): TrakBox => {
 		iterator: data,
 		maxBytes: size - (data.counter.getOffset() - offsetAtStart),
 		allowIncompleteBoxes: false,
+		initialBoxes: [],
 	});
 
 	if (children.status === 'incomplete') {

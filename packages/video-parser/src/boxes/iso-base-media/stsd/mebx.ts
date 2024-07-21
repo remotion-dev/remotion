@@ -28,6 +28,7 @@ export const parseMebx = (iterator: BufferIterator): MebxBox => {
 		iterator,
 		maxBytes: iterator.counter.getOffset() - offset,
 		allowIncompleteBoxes: false,
+		initialBoxes: [],
 	});
 
 	if (children.status === 'incomplete') {

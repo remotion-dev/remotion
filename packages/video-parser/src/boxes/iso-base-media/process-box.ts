@@ -30,6 +30,7 @@ const getChildren = ({
 			iterator,
 			maxBytes: bytesRemainingInBox,
 			allowIncompleteBoxes: false,
+			initialBoxes: [],
 		});
 
 		if (parsed.status === 'incomplete') {
@@ -59,7 +60,7 @@ const processBox = ({
 	}
 
 	if (bytesRemaining < boxSize) {
-		iterator.counter.decrement(boxSize);
+		iterator.counter.decrement(iterator.counter.getOffset() - fileOffset);
 		if (allowIncompleteBoxes) {
 			return {
 				type: 'incomplete',
@@ -175,12 +176,14 @@ export const parseBoxes = ({
 	iterator,
 	maxBytes,
 	allowIncompleteBoxes,
+	initialBoxes,
 }: {
 	iterator: BufferIterator;
 	maxBytes: number;
 	allowIncompleteBoxes: boolean;
+	initialBoxes: IsoBaseMediaBox[];
 }): ParseResult => {
-	const boxes: IsoBaseMediaBox[] = [];
+	const boxes: IsoBaseMediaBox[] = initialBoxes;
 	const initialOffset = iterator.counter.getOffset();
 
 	while (
@@ -192,9 +195,21 @@ export const parseBoxes = ({
 			allowIncompleteBoxes,
 		});
 		if (result.type === 'incomplete') {
+			if (Number.isFinite(maxBytes)) {
+				throw new Error('maxBytes must be Infinity for top-level boxes');
+			}
+
 			return {
 				status: 'incomplete',
 				segments: boxes,
+				continueParsing: () => {
+					return parseBoxes({
+						iterator,
+						maxBytes,
+						allowIncompleteBoxes,
+						initialBoxes: boxes,
+					});
+				},
 			};
 		}
 

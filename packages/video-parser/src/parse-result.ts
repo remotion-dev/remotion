@@ -38,4 +38,5 @@ export type ParseResult =
 	| {
 			status: 'incomplete';
 			segments: AnySegment[];
+			continueParsing: () => ParseResult;
 	  };

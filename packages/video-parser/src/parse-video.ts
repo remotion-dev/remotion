@@ -44,11 +44,22 @@ export const loadVideo = async (
 };
 
 export const parseVideo = (iterator: BufferIterator): ParseResult => {
+	if (iterator.bytesRemaining() === 0) {
+		return {
+			status: 'incomplete',
+			segments: [],
+			continueParsing: () => {
+				return parseVideo(iterator);
+			},
+		};
+	}
+
 	if (iterator.isIsoBaseMedia()) {
 		return parseBoxes({
 			iterator,
 			maxBytes: Infinity,
 			allowIncompleteBoxes: true,
+			initialBoxes: [],
 		});
 	}
 
@@ -68,13 +79,18 @@ export const streamVideo = async (url: string) => {
 	const reader = res.body.getReader();
 
 	const iterator = getArrayBufferIterator(new Uint8Array([]));
+	let parseResult = parseVideo(iterator);
 	// eslint-disable-next-line no-constant-condition
-	while (true) {
+	while (true && parseResult.status === 'incomplete') {
 		const result = await reader.read();
 		if (result.done) {
 			break;
 		}
 
 		iterator.addData(result.value);
+		parseResult = parseResult.continueParsing();
+		console.log(parseResult);
 	}
+
+	console.log('all done');
 };

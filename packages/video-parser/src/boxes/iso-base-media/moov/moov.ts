@@ -27,6 +27,7 @@ export const parseMoov = (iterator: BufferIterator): MoovBox => {
 		iterator,
 		maxBytes: size - 8,
 		allowIncompleteBoxes: false,
+		initialBoxes: [],
 	});
 
 	if (children.status === 'incomplete') {
