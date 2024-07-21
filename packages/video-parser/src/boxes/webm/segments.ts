@@ -15,6 +15,18 @@ import {
 } from './segments/seek-position';
 import type {TimestampScaleSegment} from './segments/timestamp-scale';
 import {parseTimestampScaleSegment} from './segments/timestamp-scale';
+import type {
+	FlagLacingSegment,
+	TrackEntrySegment,
+	TrackNumberSegment,
+	TrackUIDSegment,
+} from './segments/track-entry';
+import {
+	parseFlagLacing,
+	parseTrackEntry,
+	parseTrackNumber,
+	parseTrackUID,
+} from './segments/track-entry';
 import type {TracksSegment} from './segments/tracks';
 import {parseTracksSegment} from './segments/tracks';
 import type {UnknownSegment} from './segments/unknown';
@@ -36,7 +48,11 @@ export type MatroskaSegment =
 	| MuxingAppSegment
 	| WritingAppSegment
 	| DurationSegment
-	| TracksSegment;
+	| TracksSegment
+	| TrackEntrySegment
+	| TrackNumberSegment
+	| TrackUIDSegment
+	| FlagLacingSegment;
 
 export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 	const segmentId = iterator.getMatroskaSegmentId();
@@ -69,20 +85,36 @@ export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 		return parseTimestampScaleSegment(iterator);
 	}
 
-	if (segmentId === '0x4d808c' || segmentId === '0x4d808d4c') {
+	if (segmentId.startsWith('0x4d80')) {
 		return parseMuxingSegment(iterator);
 	}
 
-	if (segmentId === '0x57418c' || segmentId === '0x57418d4c') {
+	if (segmentId.startsWith('0x5741')) {
 		return parseWritingSegment(iterator);
 	}
 
-	if (segmentId === '0x448988') {
+	if (segmentId.startsWith('0x4489')) {
 		return parseDurationSegment(iterator);
 	}
 
 	if (segmentId === '0x1654ae6b') {
 		return parseTracksSegment(iterator);
+	}
+
+	if (segmentId.startsWith('0xae')) {
+		return parseTrackEntry(iterator);
+	}
+
+	if (segmentId.startsWith('0xd7')) {
+		return parseTrackNumber(iterator);
+	}
+
+	if (segmentId.startsWith('0x73c5')) {
+		return parseTrackUID(iterator);
+	}
+
+	if (segmentId.startsWith('0x9c')) {
+		return parseFlagLacing(iterator);
 	}
 
 	const length = iterator.getVint(8);
