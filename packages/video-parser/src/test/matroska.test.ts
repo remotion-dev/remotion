@@ -1,15 +1,18 @@
 import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
 import {nodeReader} from '../from-node';
-import {getDuration} from '../get-duration';
 import {getVideoMetadata} from '../get-video-metadata';
 
 test('Should get duration of AV1 video', async () => {
 	const parsed = await getVideoMetadata(
 		RenderInternals.exampleVideos.av1,
+		{
+			durationInSeconds: true,
+			boxes: true,
+		},
 		nodeReader,
 	);
-	expect(parsed).toEqual([
+	expect(parsed.boxes).toEqual([
 		{
 			type: 'main-segment',
 			children: [
@@ -82,5 +85,5 @@ test('Should get duration of AV1 video', async () => {
 		},
 	]);
 
-	expect(getDuration(parsed)).toBe(1);
+	expect(parsed.durationInSeconds).toBe(1);
 });

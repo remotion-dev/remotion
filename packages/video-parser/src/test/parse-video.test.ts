@@ -6,9 +6,12 @@ import {getVideoMetadata} from '../get-video-metadata';
 test('Parse Big Buck bunny', async () => {
 	const data = await getVideoMetadata(
 		RenderInternals.exampleVideos.bigBuckBunny,
+		{
+			boxes: true,
+		},
 		nodeReader,
 	);
-	expect(data.slice(0, 2)).toEqual([
+	expect(data.boxes.slice(0, 2)).toEqual([
 		{
 			offset: 0,
 			boxSize: 32,
@@ -30,9 +33,10 @@ test('Parse Big Buck bunny', async () => {
 test('Parse an iPhone video', async () => {
 	const data = await getVideoMetadata(
 		RenderInternals.exampleVideos.iphonevideo,
+		{boxes: true},
 		nodeReader,
 	);
-	expect(data.slice(0, 2)).toEqual([
+	expect(data.boxes.slice(0, 2)).toEqual([
 		{
 			boxSize: 20,
 			type: 'ftyp-box',
@@ -54,9 +58,12 @@ test('Parse an iPhone video', async () => {
 test('Parse framer', async () => {
 	const parsed = await getVideoMetadata(
 		RenderInternals.exampleVideos.framerWithoutFileExtension,
+		{
+			boxes: true,
+		},
 		nodeReader,
 	);
-	expect(parsed.slice(0, 2)).toEqual([
+	expect(parsed.boxes.slice(0, 2)).toEqual([
 		{
 			offset: 0,
 			boxSize: 32,
@@ -78,11 +85,12 @@ test('Parse framer', async () => {
 test('Parse a full video', async () => {
 	const data = await getVideoMetadata(
 		RenderInternals.exampleVideos.framer24fps,
+		{boxes: true},
 		nodeReader,
 	);
 	if (!data) throw new Error('No data');
 
-	const [first, second, third] = data;
+	const [first, second, third] = data.boxes;
 
 	if (first.type !== 'ftyp-box') {
 		throw new Error('Expected ftyp-box');
@@ -113,6 +121,8 @@ test('Parse a full video', async () => {
 });
 
 test('Should warn if missing node reader', () => {
-	const data = getVideoMetadata(RenderInternals.exampleVideos.framer24fps);
+	const data = getVideoMetadata(RenderInternals.exampleVideos.framer24fps, {
+		boxes: true,
+	});
 	expect(data).rejects.toThrow(/node/);
 });
