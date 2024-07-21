@@ -75,8 +75,7 @@ const processBox = ({
 	const boxType = iterator.getByteString(4);
 
 	if (boxType === 'ftyp') {
-		iterator.counter.decrement(8);
-		const box = parseFtyp(iterator);
+		const box = parseFtyp({iterator, size: boxSize, offset: fileOffset});
 		return {
 			type: 'complete',
 			box,
