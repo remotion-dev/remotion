@@ -134,8 +134,11 @@ const processBox = ({
 	}
 
 	if (boxType === 'trak') {
-		iterator.counter.decrement(8);
-		const box = parseTrak(iterator);
+		const box = parseTrak({
+			data: iterator,
+			size: boxSize,
+			offsetAtStart: fileOffset,
+		});
 
 		return {
 			type: 'complete',

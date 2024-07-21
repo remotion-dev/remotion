@@ -8,19 +8,15 @@ export interface TrakBox extends BaseBox {
 	children: AnySegment[];
 }
 
-export const parseTrak = (data: BufferIterator): TrakBox => {
-	const offsetAtStart = data.counter.getOffset();
-	const size = data.getUint32();
-
-	if (size > data.bytesRemaining()) {
-		throw new Error(`Don't have enough data to parse trak box yet`);
-	}
-
-	const atom = data.getAtom();
-	if (atom !== 'trak') {
-		throw new Error(`Expected trak atom, got ${atom}`);
-	}
-
+export const parseTrak = ({
+	data,
+	size,
+	offsetAtStart,
+}: {
+	data: BufferIterator;
+	size: number;
+	offsetAtStart: number;
+}): TrakBox => {
 	const children = parseBoxes({
 		iterator: data,
 		maxBytes: size - (data.counter.getOffset() - offsetAtStart),
