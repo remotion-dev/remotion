@@ -177,3 +177,80 @@ export const parseDefaultDurationSegment = (
 		defaultDuration,
 	};
 };
+
+export type VideoSegment = {
+	type: 'video-segment';
+
+	children: MatroskaSegment[];
+};
+
+export const parseVideoSegment = (iterator: BufferIterator): VideoSegment => {
+	const length = iterator.getVint(8);
+
+	return {
+		type: 'video-segment',
+		children: expectChildren(
+			iterator,
+			length - (iterator.counter.getOffset() - iterator.counter.getOffset()),
+		),
+	};
+};
+
+export type WidthSegment = {
+	type: 'width-segment';
+	width: number;
+};
+
+export const parseWidthSegment = (iterator: BufferIterator): WidthSegment => {
+	const length = iterator.getVint(1);
+	if (length !== 2) {
+		throw new Error('Expected width segment to be 2 bytes');
+	}
+
+	const width = iterator.getUint16();
+
+	return {
+		type: 'width-segment',
+		width,
+	};
+};
+
+export type HeightSegment = {
+	type: 'height-segment';
+	height: number;
+};
+
+export const parseHeightSegment = (iterator: BufferIterator): HeightSegment => {
+	const length = iterator.getVint(1);
+	if (length !== 2) {
+		throw new Error('Expected height segment to be 2 bytes');
+	}
+
+	const height = iterator.getUint16();
+
+	return {
+		type: 'height-segment',
+		height,
+	};
+};
+
+export type AlphaModeSegment = {
+	type: 'alpha-mode-segment';
+	alphaMode: number;
+};
+
+export const parseAlphaModeSegment = (
+	iterator: BufferIterator,
+): AlphaModeSegment => {
+	const length = iterator.getVint(1);
+	if (length !== 1) {
+		throw new Error('Expected alpha mode segment to be 1 byte');
+	}
+
+	const alphaMode = iterator.getUint8();
+
+	return {
+		type: 'alpha-mode-segment',
+		alphaMode,
+	};
+};

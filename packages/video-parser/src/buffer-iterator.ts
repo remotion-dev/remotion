@@ -145,6 +145,7 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 				.join('')}`;
 
 			// Catch void block
+			// https://www.matroska.org/technical/elements.html
 			const knownIdsWithOneLength = [
 				'0xec',
 				'0xae',
@@ -152,6 +153,9 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 				'0x9c',
 				'0x86',
 				'0x83',
+				'0xe0',
+				'0xb0',
+				'0xba',
 			];
 			if (knownIdsWithOneLength.includes(firstOneString)) {
 				return firstOneString;
@@ -159,7 +163,13 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 
 			const firstTwo = getSlice(1);
 
-			const knownIdsWithTwoLength = ['0x4dbb', '0x53ac', '0xec01', '0x73c5'];
+			const knownIdsWithTwoLength = [
+				'0x4dbb',
+				'0x53ac',
+				'0xec01',
+				'0x73c5',
+				'0x53c0',
+			];
 
 			const firstTwoString = `${firstOneString}${Array.from(
 				new Uint8Array(firstTwo),

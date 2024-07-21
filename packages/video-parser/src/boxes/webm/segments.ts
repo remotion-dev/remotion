@@ -16,24 +16,32 @@ import {
 import type {TimestampScaleSegment} from './segments/timestamp-scale';
 import {parseTimestampScaleSegment} from './segments/timestamp-scale';
 import type {
+	AlphaModeSegment,
 	CodecSegment,
 	DefaultDurationSegment,
 	FlagLacingSegment,
+	HeightSegment,
 	LanguageSegment,
 	TrackEntrySegment,
 	TrackNumberSegment,
 	TrackTypeSegment,
 	TrackUIDSegment,
+	VideoSegment,
+	WidthSegment,
 } from './segments/track-entry';
 import {
+	parseAlphaModeSegment,
 	parseCodecSegment,
 	parseDefaultDurationSegment,
 	parseFlagLacing,
+	parseHeightSegment,
 	parseLanguageSegment,
 	parseTrackEntry,
 	parseTrackNumber,
 	parseTrackTypeSegment,
 	parseTrackUID,
+	parseVideoSegment,
+	parseWidthSegment,
 } from './segments/track-entry';
 import type {TracksSegment} from './segments/tracks';
 import {parseTracksSegment} from './segments/tracks';
@@ -64,7 +72,11 @@ export type MatroskaSegment =
 	| LanguageSegment
 	| CodecSegment
 	| TrackTypeSegment
-	| DefaultDurationSegment;
+	| DefaultDurationSegment
+	| VideoSegment
+	| WidthSegment
+	| HeightSegment
+	| AlphaModeSegment;
 
 export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 	const segmentId = iterator.getMatroskaSegmentId();
@@ -150,6 +162,22 @@ export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 
 	if (segmentId === '0x23e383') {
 		return parseDefaultDurationSegment(iterator);
+	}
+
+	if (segmentId === '0xe0') {
+		return parseVideoSegment(iterator);
+	}
+
+	if (segmentId === '0xb0') {
+		return parseWidthSegment(iterator);
+	}
+
+	if (segmentId === '0xba') {
+		return parseHeightSegment(iterator);
+	}
+
+	if (segmentId === '0x53c0') {
+		return parseAlphaModeSegment(iterator);
 	}
 
 	const length = iterator.getVint(8);
