@@ -89,3 +89,91 @@ export const parseFlagLacing = (
 		lacing: Boolean(bytes[0]),
 	};
 };
+
+export type LanguageSegment = {
+	type: 'language-segment';
+	language: string;
+};
+
+export const parseLanguageSegment = (
+	iterator: BufferIterator,
+): LanguageSegment => {
+	const length = iterator.getVint(1);
+	if (length !== 3) {
+		throw new Error('Expected language segment to be 3 bytes');
+	}
+
+	const language = iterator.getByteString(length);
+
+	return {
+		type: 'language-segment',
+		language,
+	};
+};
+
+export type CodecSegment = {
+	type: 'codec-segment';
+	codec: string;
+};
+
+export const parseCodecSegment = (iterator: BufferIterator): CodecSegment => {
+	const length = iterator.getVint(1);
+
+	// Could make a TypeScript enum with it
+	// https://www.matroska.org/technical/codec_specs.html
+	const codec = iterator.getByteString(length);
+
+	return {
+		type: 'codec-segment',
+		codec,
+	};
+};
+
+export type TrackTypeSegment = {
+	type: 'track-type-segment';
+	trackType: number;
+};
+
+export const parseTrackTypeSegment = (
+	iterator: BufferIterator,
+): TrackTypeSegment => {
+	const length = iterator.getVint(1);
+	if (length !== 1) {
+		throw new Error('Expected track type segment to be 1 byte');
+	}
+
+	const trackType = iterator.getUint8();
+
+	// Could make the return type nicer
+	/* 1 - video,
+  	2 - audio,
+		3 - complex,
+		16 - logo,
+		17 - subtitle,
+		18 - buttons,
+		32 - control,
+		33 - metadata;
+    */
+	return {
+		type: 'track-type-segment',
+		trackType,
+	};
+};
+
+export type DefaultDurationSegment = {
+	type: 'default-duration-segment';
+	defaultDuration: number;
+};
+
+export const parseDefaultDurationSegment = (
+	iterator: BufferIterator,
+): DefaultDurationSegment => {
+	const length = iterator.getVint(1);
+
+	const defaultDuration = iterator.getDecimalBytes(length);
+
+	return {
+		type: 'default-duration-segment',
+		defaultDuration,
+	};
+};

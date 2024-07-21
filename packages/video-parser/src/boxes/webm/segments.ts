@@ -16,15 +16,23 @@ import {
 import type {TimestampScaleSegment} from './segments/timestamp-scale';
 import {parseTimestampScaleSegment} from './segments/timestamp-scale';
 import type {
+	CodecSegment,
+	DefaultDurationSegment,
 	FlagLacingSegment,
+	LanguageSegment,
 	TrackEntrySegment,
 	TrackNumberSegment,
+	TrackTypeSegment,
 	TrackUIDSegment,
 } from './segments/track-entry';
 import {
+	parseCodecSegment,
+	parseDefaultDurationSegment,
 	parseFlagLacing,
+	parseLanguageSegment,
 	parseTrackEntry,
 	parseTrackNumber,
+	parseTrackTypeSegment,
 	parseTrackUID,
 } from './segments/track-entry';
 import type {TracksSegment} from './segments/tracks';
@@ -52,10 +60,21 @@ export type MatroskaSegment =
 	| TrackEntrySegment
 	| TrackNumberSegment
 	| TrackUIDSegment
-	| FlagLacingSegment;
+	| FlagLacingSegment
+	| LanguageSegment
+	| CodecSegment
+	| TrackTypeSegment
+	| DefaultDurationSegment;
 
 export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 	const segmentId = iterator.getMatroskaSegmentId();
+
+	if (segmentId === '0x') {
+		return {
+			type: 'unknown-segment',
+			id: segmentId,
+		};
+	}
 
 	if (segmentId === '0x18538067') {
 		return parseMainSegment(iterator);
@@ -101,20 +120,36 @@ export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 		return parseTracksSegment(iterator);
 	}
 
-	if (segmentId.startsWith('0xae')) {
+	if (segmentId === '0xae') {
 		return parseTrackEntry(iterator);
 	}
 
-	if (segmentId.startsWith('0xd7')) {
+	if (segmentId === '0xd7') {
 		return parseTrackNumber(iterator);
 	}
 
-	if (segmentId.startsWith('0x73c5')) {
+	if (segmentId === '0x73c5') {
 		return parseTrackUID(iterator);
 	}
 
-	if (segmentId.startsWith('0x9c')) {
+	if (segmentId === '0x9c') {
 		return parseFlagLacing(iterator);
+	}
+
+	if (segmentId === '0x22b59c') {
+		return parseLanguageSegment(iterator);
+	}
+
+	if (segmentId === '0x86') {
+		return parseCodecSegment(iterator);
+	}
+
+	if (segmentId === '0x83') {
+		return parseTrackTypeSegment(iterator);
+	}
+
+	if (segmentId === '0x23e383') {
+		return parseDefaultDurationSegment(iterator);
 	}
 
 	const length = iterator.getVint(8);

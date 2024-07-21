@@ -145,7 +145,14 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 				.join('')}`;
 
 			// Catch void block
-			const knownIdsWithOneLength = ['0xec', '0xae', '0xd7', '0x9c'];
+			const knownIdsWithOneLength = [
+				'0xec',
+				'0xae',
+				'0xd7',
+				'0x9c',
+				'0x86',
+				'0x83',
+			];
 			if (knownIdsWithOneLength.includes(firstOneString)) {
 				return firstOneString;
 			}
@@ -166,7 +173,13 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 				return firstTwoString;
 			}
 
-			const knownIdsWithThreeLength = ['0x4d808c', '0x57418c', '0x448988'];
+			const knownIdsWithThreeLength = [
+				'0x4d808c',
+				'0x57418c',
+				'0x448988',
+				'0x22b59c',
+				'0x23e383',
+			];
 
 			const firstThree = getSlice(1);
 
