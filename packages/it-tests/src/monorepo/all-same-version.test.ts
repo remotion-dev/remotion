@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {existsSync, lstatSync, readdirSync, readFileSync} from 'fs';
+import {existsSync, lstatSync, readFileSync, readdirSync} from 'fs';
 import path from 'path';
 
 test('All packages require the same remotion version', () => {
