@@ -72,6 +72,11 @@ export const AllTemplates: React.FC = () => {
 										return null;
 									}
 
+									if (template.cliId === 'next-tailwind') {
+										// Delete duplicate
+										return null;
+									}
+
 									return (
 										<div
 											key={template.cliId}
