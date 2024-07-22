@@ -1,6 +1,7 @@
 import type {Template} from 'create-video';
 import React from 'react';
 import {Blank} from './icons/blank';
+import {CodeHike} from './icons/code-hike';
 import {Cubes} from './icons/cubes';
 import {JSIcon} from './icons/js';
 import {NextIcon} from './icons/next';
@@ -16,8 +17,8 @@ import {TTSIcon} from './icons/tts';
 import {Waveform} from './icons/waveform';
 
 export const IconForTemplate: React.FC<{
-	template: Template;
-	scale: number;
+	readonly template: Template;
+	readonly scale: number;
 }> = ({template, scale = 1}) => {
 	if (template.cliId === 'hello-world') {
 		return (
@@ -148,6 +149,10 @@ export const IconForTemplate: React.FC<{
 
 	if (template.cliId === 'tiktok') {
 		return <TikTok style={{height: scale * 36}} />;
+	}
+
+	if (template.cliId === 'code-hike') {
+		return <CodeHike style={{height: scale * 36}} />;
 	}
 
 	return (
