@@ -10,7 +10,8 @@
 	"scripts": {
 		"build": "bun --env-file=../.env.bundle bundle.ts",
 		"generate": "bun scripts/generate.ts && bun scripts/generate-index.ts",
-		"prepublishOnly": "bun ensure-generation.ts"
+		"prepublishOnly": "bun ensure-generation.ts",
+		"formatting": "prettier src --check"
 	},
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
