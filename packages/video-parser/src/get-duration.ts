@@ -61,3 +61,11 @@ export const getDuration = (boxes: AnySegment[]): number | null => {
 
 	return mvhdBox.durationInSeconds;
 };
+
+export const hasDuration = (boxes: AnySegment[]): boolean => {
+	try {
+		return getDuration(boxes) !== null;
+	} catch (err) {
+		return false;
+	}
+};
