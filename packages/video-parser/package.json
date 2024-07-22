@@ -9,7 +9,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"test": "bun test",
+		"test": "bun test src/test",
 		"watch": "tsc -w"
 	},
 	"devDependencies": {
