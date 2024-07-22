@@ -135,11 +135,11 @@ The [`<Player>`](/docs/player) will react if the metadata being passed to it cha
 <p><Step>1</Step> Perform data fetching using <code>useEffect()</code>:</p>
 
 ```tsx twoslash title="MyApp.tsx"
-import { getVideoMetadata } from "@remotion/media-utils";
-import { useEffect, useState } from "react";
 
 const VideoTesting: React.FC = () => null;
 // ---cut---
+import { getVideoMetadata } from "@remotion/media-utils";
+import { useEffect, useState } from "react";
 import { Player } from "@remotion/player";
 
 export const Index: React.FC = () => {

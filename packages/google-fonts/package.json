@@ -3,14 +3,15 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.182",
+	"version": "4.0.183",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
 	"scripts": {
 		"build": "bun --env-file=../.env.bundle bundle.ts",
 		"generate": "bun scripts/generate.ts && bun scripts/generate-index.ts",
-		"prepublishOnly": "bun ensure-generation.ts"
+		"prepublishOnly": "bun ensure-generation.ts",
+		"formatting": "prettier src --check"
 	},
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {

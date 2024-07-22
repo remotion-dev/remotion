@@ -10,6 +10,7 @@ import esbuild = require('esbuild');
 import {NoReactInternals} from 'remotion/no-react';
 import type {Configuration} from 'webpack';
 import {CaseSensitivePathsPlugin} from './case-sensitive-paths';
+import {AllowDependencyExpressionPlugin} from './hide-expression-dependency';
 import {AllowOptionalDependenciesPlugin} from './optional-dependencies';
 export type WebpackConfiguration = Configuration;
 
@@ -124,6 +125,7 @@ export const webpackConfig = async ({
 						new webpack.HotModuleReplacementPlugin(),
 						define,
 						new AllowOptionalDependenciesPlugin(),
+						new AllowDependencyExpressionPlugin(),
 					]
 				: [
 						new ProgressPlugin((p) => {
@@ -136,6 +138,7 @@ export const webpackConfig = async ({
 						}),
 						define,
 						new AllowOptionalDependenciesPlugin(),
+						new AllowDependencyExpressionPlugin(),
 					],
 		output: {
 			hashFunction: 'xxhash64',

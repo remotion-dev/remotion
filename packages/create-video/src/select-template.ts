@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import minimist from 'minimist';
+import {makeHyperlink} from './hyperlinks/make-link';
 import prompts, {selectAsync} from './prompts';
 import {stripAnsi} from './strip-ansi';
 import type {Template} from './templates';
@@ -43,8 +44,16 @@ export const selectTemplate = async () => {
 				return {
 					value: template,
 					title:
-						chalk.bold(padEnd(template.shortName, descriptionColumn)) +
-						template.description.trim(),
+						chalk.bold(
+							padEnd(
+								makeHyperlink({
+									text: template.shortName,
+									url: `https://remotion.dev/templates/${template.cliId}`,
+									fallback: template.shortName,
+								}),
+								descriptionColumn,
+							),
+						) + template.description.trim(),
 				};
 			}),
 		},
