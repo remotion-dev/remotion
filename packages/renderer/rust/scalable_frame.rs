@@ -134,7 +134,7 @@ impl ScalableFrame {
         }
         match self.native_frame {
             None => {}
-            Some(ref frame) => size = frame.size,
+            Some(ref frame) => size += frame.size,
         }
 
         size
