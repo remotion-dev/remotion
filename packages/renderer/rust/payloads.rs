@@ -97,6 +97,7 @@ pub mod payloads {
         pub open_videos: usize,
         pub open_streams: usize,
         pub frames_in_cache: usize,
+        pub cache_size: u128,
     }
 
     #[derive(Serialize, Deserialize, Debug)]

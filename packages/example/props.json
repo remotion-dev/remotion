@@ -1,0 +1,1675 @@
+{
+	"durationInFrames": 1950,
+	"displayResolutionName": "Portrait",
+	"fps": 30,
+	"width": 720,
+	"height": 1280,
+	"audioUrl": "https://d3qebvzk3ie1bc.cloudfront.net/upload/user/a282fed1-b77d-401a-9f77-73217808f737/audio/2ec06010-1caa-4c72-8f65-f9e5ce6bd78e.mp4",
+	"closedCaptionSettings": {
+		"id": 600134,
+		"enabled": false,
+		"backgroundColor": "#00000000",
+		"color": "white",
+		"fontFamily": "Open Sans",
+		"fontSize": 16,
+		"layout": "bottom",
+		"effect": "icon",
+		"effectColor": "#0000FF",
+		"textShadow": null,
+		"outlineColor": null,
+		"outlineWidth": null
+	},
+	"music": {
+		"startTime": 0,
+		"trackOffset": 0,
+		"duration": 65,
+		"fadeInDuration": 0.5,
+		"fadeOutDuration": 1,
+		"volume": 0.04,
+		"song": {
+			"id": "16592",
+			"name": "Arrivings",
+			"artist": "Reveille",
+			"duration": 203.98,
+			"src": "https://cdn.soundstripe.com/uploads/audio_file/7074153787cd49049740543a43ccb7f1/mp3_Reveille_Arrivings_Full.mp3?key=b63a0cf8-2c20-4a2b-982a-6d57514f55e4&token=1722040906_95dfda561d1f47965fafe9f6cc8b90cc844f732631d89cf7e386ea10832a0bbf",
+			"genre": ["Corporate", "Pop", "Electronic"],
+			"source": "soundstripe"
+		}
+	},
+	"useInPip": false,
+	"videoURL": "https://d3qebvzk3ie1bc.cloudfront.net/upload/user/a282fed1-b77d-401a-9f77-73217808f737/video/2ec06010-1caa-4c72-8f65-f9e5ce6bd78e.mp4",
+	"useInSBS": false,
+	"sbsVideoPlacement": "",
+	"streams": [
+		{
+			"id": "mediapipe_face_detection",
+			"status": "complete",
+			"url": "https://augie-beta-backend.s3.us-east-1.amazonaws.com/upload/user/a282fed1-b77d-401a-9f77-73217808f737/video/2ec06010-1caa-4c72-8f65-f9e5ce6bd78e.mp4/mediapipe_face_detection/data.json"
+		}
+	],
+	"slots": [
+		{
+			"startSeconds": 0,
+			"endSeconds": "0.67",
+			"transitionTypes": "Cross Fade",
+			"slotEffect": "NONE",
+			"filters": "",
+			"layout": "None",
+			"layoutSwap": false,
+			"media": {
+				"source": null,
+				"contentUrl": "https://d3qebvzk3ie1bc.cloudfront.net/augie/600001/assets/6d1ad180-0fd9-4daf-a8e9-ecf53833136a",
+				"contentType": "video/mp4",
+				"width": 1280,
+				"height": 720
+			},
+			"textTiming": [
+				{
+					"id": 159370901,
+					"text": "Dear",
+					"startTime": "0.07",
+					"endTime": "0.13"
+				},
+				{
+					"id": 159370902,
+					"text": "New",
+					"startTime": "0.16",
+					"endTime": "0.32"
+				},
+				{
+					"id": 159370903,
+					"text": "York.",
+					"startTime": "0.33",
+					"endTime": "0.66"
+				}
+			]
+		},
+		{
+			"startSeconds": "0.67",
+			"endSeconds": "2.00",
+			"transitionTypes": "Cross Fade",
+			"slotEffect": "NONE",
+			"filters": "",
+			"layout": "None",
+			"layoutSwap": false,
+			"media": {
+				"source": null,
+				"contentUrl": "https://d3qebvzk3ie1bc.cloudfront.net/augie/600001/assets/3ee9ffa0-16cc-4a93-b0e3-f7401b397afd",
+				"contentType": "video/mp4",
+				"width": 1280,
+				"height": 720
+			},
+			"textTiming": [
+				{"id": 159370904, "text": "My", "startTime": "0.67", "endTime": "0.82"},
+				{
+					"id": 159370905,
+					"text": "name",
+					"startTime": "0.83",
+					"endTime": "1.01"
+				},
+				{"id": 159370906, "text": "is", "startTime": "1.02", "endTime": "1.05"},
+				{
+					"id": 159370907,
+					"text": "Kevin",
+					"startTime": "1.06",
+					"endTime": "1.41"
+				},
+				{
+					"id": 159370908,
+					"text": "Lopez.",
+					"startTime": "1.42",
+					"endTime": "1.99"
+				}
+			]
+		},
+		{
+			"startSeconds": "2.00",
+			"endSeconds": "4.86",
+			"transitionTypes": "Cross Fade",
+			"slotEffect": "NONE",
+			"filters": "",
+			"layout": "None",
+			"layoutSwap": false,
+			"media": {
+				"source": null,
+				"contentUrl": "https://d3qebvzk3ie1bc.cloudfront.net/augie/600001/assets/173f0468-aeb8-4690-9625-48b2e961e64b",
+				"contentType": "video/mp4",
+				"width": 1280,
+				"height": 720
+			},
+			"textTiming": [
+				{"id": 159370909, "text": "I", "startTime": "2.00", "endTime": "2.25"},
+				{"id": 159370910, "text": "am", "startTime": "2.26", "endTime": "2.32"},
+				{"id": 159370911, "text": "an", "startTime": "2.33", "endTime": "2.39"},
+				{
+					"id": 159370912,
+					"text": "independent",
+					"startTime": "2.40",
+					"endTime": "2.85"
+				},
+				{
+					"id": 159370913,
+					"text": "film",
+					"startTime": "2.86",
+					"endTime": "3.19"
+				},
+				{
+					"id": 159370914,
+					"text": "producer",
+					"startTime": "3.20",
+					"endTime": "3.71"
+				},
+				{
+					"id": 159370915,
+					"text": "here",
+					"startTime": "3.72",
+					"endTime": "3.94"
+				},
+				{"id": 159370916, "text": "in", "startTime": "3.95", "endTime": "3.99"},
+				{
+					"id": 159370917,
+					"text": "New",
+					"startTime": "4.00",
+					"endTime": "4.16"
+				},
+				{
+					"id": 159370918,
+					"text": "York",
+					"startTime": "4.17",
+					"endTime": "4.38"
+				},
+				{
+					"id": 159370919,
+					"text": "City,",
+					"startTime": "4.39",
+					"endTime": "4.77"
+				}
+			]
+		},
+		{
+			"startSeconds": "4.86",
+			"endSeconds": "9.20",
+			"transitionTypes": "Cross Fade",
+			"slotEffect": "NONE",
+			"filters": "",
+			"layout": "Full Screen",
+			"layoutSwap": false,
+			"media": {
+				"source": "user_upload",
+				"contentUrl": "https://d3qebvzk3ie1bc.cloudfront.net/augie/600001/assets/d1a6da34-4c43-423c-a962-fddcb64609a1",
+				"contentType": "video/quicktime",
+				"sizing": "auto",
+				"width": 1280,
+				"height": 720
+			},
+			"textTiming": [
+				{
+					"id": 159370920,
+					"text": "but",
+					"startTime": "4.86",
+					"endTime": "4.95"
+				},
+				{
+					"id": 159370921,
+					"text": "I'm",
+					"startTime": "4.96",
+					"endTime": "5.09"
+				},
+				{
+					"id": 159370922,
+					"text": "also",
+					"startTime": "5.10",
+					"endTime": "5.30"
+				},
+				{
+					"id": 159370923,
+					"text": "the",
+					"startTime": "5.31",
+					"endTime": "5.42"
+				},
+				{
+					"id": 159370924,
+					"text": "proud",
+					"startTime": "5.43",
+					"endTime": "5.76"
+				},
+				{
+					"id": 159370925,
+					"text": "founding",
+					"startTime": "5.77",
+					"endTime": "6.08"
+				},
+				{
+					"id": 159370926,
+					"text": "principal",
+					"startTime": "6.09",
+					"endTime": "6.48"
+				},
+				{"id": 159370927, "text": "of", "startTime": "6.49", "endTime": "6.51"},
+				{
+					"id": 159370928,
+					"text": "motion",
+					"startTime": "6.52",
+					"endTime": "6.84"
+				},
+				{
+					"id": 159370929,
+					"text": "picture",
+					"startTime": "6.85",
+					"endTime": "7.13"
+				},
+				{
+					"id": 159370930,
+					"text": "Technical",
+					"startTime": "7.14",
+					"endTime": "7.54"
+				},
+				{
+					"id": 159370931,
+					"text": "High",
+					"startTime": "7.55",
+					"endTime": "7.63"
+				},
+				{
+					"id": 159370932,
+					"text": "School",
+					"startTime": "7.64",
+					"endTime": "7.94"
+				},
+				{
+					"id": 159370933,
+					"text": "that's",
+					"startTime": "7.95",
+					"endTime": "8.05"
+				},
+				{
+					"id": 159370934,
+					"text": "coming",
+					"startTime": "8.06",
+					"endTime": "8.33"
+				},
+				{"id": 159370935, "text": "to", "startTime": "8.34", "endTime": "8.41"},
+				{
+					"id": 159370936,
+					"text": "Northern",
+					"startTime": "8.42",
+					"endTime": "8.73"
+				},
+				{
+					"id": 159370937,
+					"text": "Queens.",
+					"startTime": "8.74",
+					"endTime": "9.19"
+				}
+			]
+		},
+		{
+			"startSeconds": "9.20",
+			"endSeconds": "13.32",
+			"transitionTypes": "Cross Fade",
+			"slotEffect": "NONE",
+			"filters": "",
+			"layout": "Full Screen",
+			"layoutSwap": false,
+			"media": {
+				"source": "user_upload",
+				"contentUrl": "https://d3qebvzk3ie1bc.cloudfront.net/augie/600001/assets/3f73a4b5-5597-4650-bfdb-8763fb546bdf",
+				"contentType": "video/quicktime",
+				"sizing": "auto",
+				"width": 568,
+				"height": 320
+			},
+			"textTiming": [
+				{
+					"id": 159374419,
+					"text": "It's",
+					"startTime": "9.20",
+					"endTime": "9.31"
+				},
+				{"id": 159374422, "text": "a", "startTime": "9.32", "endTime": "9.39"},
+				{
+					"id": 159374424,
+					"text": "new",
+					"startTime": "9.40",
+					"endTime": "9.73"
+				},
+				{
+					"id": 159374426,
+					"text": "film",
+					"startTime": "9.74",
+					"endTime": "10.01"
+				},
+				{
+					"id": 159374428,
+					"text": "and",
+					"startTime": "10.02",
+					"endTime": "10.11"
+				},
+				{
+					"id": 159374430,
+					"text": "CTE",
+					"startTime": "10.12",
+					"endTime": "10.52"
+				},
+				{
+					"id": 159374432,
+					"text": "school",
+					"startTime": "10.53",
+					"endTime": "11.07"
+				},
+				{
+					"id": 159374434,
+					"text": "part",
+					"startTime": "11.08",
+					"endTime": "11.47"
+				},
+				{
+					"id": 159374436,
+					"text": "of",
+					"startTime": "11.48",
+					"endTime": "11.68"
+				},
+				{
+					"id": 159374437,
+					"text": "the",
+					"startTime": "11.69",
+					"endTime": "11.85"
+				},
+				{
+					"id": 159374438,
+					"text": "urban",
+					"startTime": "11.86",
+					"endTime": "12.05"
+				},
+				{
+					"id": 159374439,
+					"text": "assembling",
+					"startTime": "12.06",
+					"endTime": "12.54"
+				},
+				{
+					"id": 159374440,
+					"text": "cuny",
+					"startTime": "12.55",
+					"endTime": "12.91"
+				},
+				{
+					"id": 159374441,
+					"text": "network",
+					"startTime": "12.92",
+					"endTime": "13.22"
+				},
+				{
+					"id": 159374442,
+					"text": "of",
+					"startTime": "13.23",
+					"endTime": "13.31"
+				}
+			]
+		},
+		{
+			"startSeconds": "13.32",
+			"endSeconds": "17.68",
+			"transitionTypes": "Cross Fade",
+			"slotEffect": "NONE",
+			"filters": "",
+			"layout": "Full Screen",
+			"layoutSwap": false,
+			"media": {
+				"source": "getty_video",
+				"contentUrl": "https://d3qebvzk3ie1bc.cloudfront.net/augie/600001/assets/1c29c4a3-fdd4-402e-8ebb-3449fc08ca95",
+				"contentType": "video/mp4",
+				"sizing": "auto",
+				"width": 2160,
+				"height": 3840
+			},
+			"textTiming": [
+				{
+					"id": 159374412,
+					"text": "schools",
+					"startTime": "13.32",
+					"endTime": "14.15"
+				},
+				{
+					"id": 159374413,
+					"text": "here",
+					"startTime": "14.16",
+					"endTime": "14.74"
+				},
+				{
+					"id": 159374414,
+					"text": "in",
+					"startTime": "14.75",
+					"endTime": "14.78"
+				},
+				{
+					"id": 159374415,
+					"text": "New",
+					"startTime": "14.79",
+					"endTime": "15.03"
+				},
+				{
+					"id": 159374416,
+					"text": "York",
+					"startTime": "15.04",
+					"endTime": "15.28"
+				},
+				{
+					"id": 159374417,
+					"text": "City.",
+					"startTime": "15.29",
+					"endTime": "15.69"
+				},
+				{
+					"id": 159374418,
+					"text": "It's",
+					"startTime": "15.70",
+					"endTime": "15.84"
+				},
+				{
+					"id": 159374420,
+					"text": "part",
+					"startTime": "15.85",
+					"endTime": "16.04"
+				},
+				{
+					"id": 159374421,
+					"text": "of",
+					"startTime": "16.05",
+					"endTime": "16.07"
+				},
+				{
+					"id": 159374423,
+					"text": "the",
+					"startTime": "16.08",
+					"endTime": "16.15"
+				},
+				{
+					"id": 159374425,
+					"text": "New",
+					"startTime": "16.16",
+					"endTime": "16.27"
+				},
+				{
+					"id": 159374427,
+					"text": "York",
+					"startTime": "16.28",
+					"endTime": "16.44"
+				},
+				{
+					"id": 159374429,
+					"text": "City",
+					"startTime": "16.45",
+					"endTime": "16.58"
+				},
+				{
+					"id": 159374431,
+					"text": "public",
+					"startTime": "16.59",
+					"endTime": "16.91"
+				},
+				{
+					"id": 159374433,
+					"text": "school",
+					"startTime": "16.92",
+					"endTime": "17.15"
+				},
+				{
+					"id": 159374435,
+					"text": "system.",
+					"startTime": "17.16",
+					"endTime": "17.67"
+				}
+			]
+		},
+		{
+			"startSeconds": "17.68",
+			"endSeconds": "23.59",
+			"transitionTypes": "Cross Fade",
+			"slotEffect": "NONE",
+			"filters": "",
+			"layout": "Full Screen",
+			"layoutSwap": false,
+			"media": {
+				"source": "user_upload",
+				"contentUrl": "https://d3qebvzk3ie1bc.cloudfront.net/augie/600001/assets/55ae8f73-72e0-4958-a98e-358f93db1979",
+				"contentType": "video/quicktime",
+				"sizing": "auto",
+				"width": 1280,
+				"height": 720
+			},
+			"textTiming": [
+				{
+					"id": 159382017,
+					"text": "I",
+					"startTime": "17.68",
+					"endTime": "17.70"
+				},
+				{
+					"id": 159382019,
+					"text": "personally",
+					"startTime": "17.71",
+					"endTime": "18.43"
+				},
+				{
+					"id": 159382021,
+					"text": "am",
+					"startTime": "18.44",
+					"endTime": "18.73"
+				},
+				{
+					"id": 159382023,
+					"text": "so",
+					"startTime": "18.74",
+					"endTime": "18.93"
+				},
+				{
+					"id": 159382025,
+					"text": "excited",
+					"startTime": "18.94",
+					"endTime": "19.55"
+				},
+				{
+					"id": 159382027,
+					"text": "because",
+					"startTime": "19.56",
+					"endTime": "19.81"
+				},
+				{
+					"id": 159382029,
+					"text": "I",
+					"startTime": "19.82",
+					"endTime": "19.83"
+				},
+				{
+					"id": 159382031,
+					"text": "get",
+					"startTime": "19.84",
+					"endTime": "20.02"
+				},
+				{
+					"id": 159382033,
+					"text": "to",
+					"startTime": "20.03",
+					"endTime": "20.13"
+				},
+				{
+					"id": 159382034,
+					"text": "bring",
+					"startTime": "20.14",
+					"endTime": "20.39"
+				},
+				{
+					"id": 159382036,
+					"text": "of",
+					"startTime": "20.74",
+					"endTime": "20.78"
+				},
+				{
+					"id": 159382038,
+					"text": "my",
+					"startTime": "20.79",
+					"endTime": "20.98"
+				},
+				{
+					"id": 159382040,
+					"text": "world,",
+					"startTime": "20.99",
+					"endTime": "21.38"
+				},
+				{
+					"id": 159382042,
+					"text": "both",
+					"startTime": "21.39",
+					"endTime": "21.62"
+				},
+				{
+					"id": 159382044,
+					"text": "of",
+					"startTime": "21.63",
+					"endTime": "21.68"
+				},
+				{
+					"id": 159382046,
+					"text": "my",
+					"startTime": "21.69",
+					"endTime": "21.78"
+				},
+				{
+					"id": 159382047,
+					"text": "passions",
+					"startTime": "21.79",
+					"endTime": "22.29"
+				},
+				{
+					"id": 159382048,
+					"text": "together",
+					"startTime": "22.30",
+					"endTime": "23.03"
+				},
+				{
+					"id": 159382049,
+					"text": "the",
+					"startTime": "23.10",
+					"endTime": "23.22"
+				},
+				{
+					"id": 159382050,
+					"text": "world",
+					"startTime": "23.23",
+					"endTime": "23.49"
+				},
+				{
+					"id": 159382051,
+					"text": "of",
+					"startTime": "23.50",
+					"endTime": "23.58"
+				}
+			]
+		},
+		{
+			"startSeconds": "23.59",
+			"endSeconds": "29.31",
+			"transitionTypes": "Cross Fade",
+			"slotEffect": "NONE",
+			"filters": "",
+			"layout": "Full Screen",
+			"layoutSwap": false,
+			"media": {
+				"source": "user_upload",
+				"contentUrl": "https://d3qebvzk3ie1bc.cloudfront.net/augie/600001/assets/6d6cb4fe-da95-47ea-b7f3-b2284ee34a59",
+				"contentType": "video/mp4",
+				"sizing": "auto",
+				"width": 854,
+				"height": 480
+			},
+			"textTiming": [
+				{
+					"id": 159382052,
+					"text": "education",
+					"startTime": "23.59",
+					"endTime": "24.15"
+				},
+				{
+					"id": 159382054,
+					"text": "and",
+					"startTime": "24.16",
+					"endTime": "24.26"
+				},
+				{
+					"id": 159382056,
+					"text": "the",
+					"startTime": "24.27",
+					"endTime": "24.34"
+				},
+				{
+					"id": 159382058,
+					"text": "world",
+					"startTime": "24.35",
+					"endTime": "24.58"
+				},
+				{
+					"id": 159382060,
+					"text": "of",
+					"startTime": "24.59",
+					"endTime": "24.69"
+				},
+				{
+					"id": 159382062,
+					"text": "film",
+					"startTime": "24.70",
+					"endTime": "25.06"
+				},
+				{
+					"id": 159382064,
+					"text": "to",
+					"startTime": "25.07",
+					"endTime": "25.20"
+				},
+				{
+					"id": 159382067,
+					"text": "really",
+					"startTime": "25.21",
+					"endTime": "25.39"
+				},
+				{
+					"id": 159382069,
+					"text": "help",
+					"startTime": "25.40",
+					"endTime": "25.94"
+				},
+				{
+					"id": 159382071,
+					"text": "inspire",
+					"startTime": "25.95",
+					"endTime": "26.64"
+				},
+				{
+					"id": 159382072,
+					"text": "and",
+					"startTime": "26.65",
+					"endTime": "26.70"
+				},
+				{
+					"id": 159382073,
+					"text": "empower",
+					"startTime": "26.71",
+					"endTime": "27.14"
+				},
+				{
+					"id": 159382074,
+					"text": "the",
+					"startTime": "27.15",
+					"endTime": "27.24"
+				},
+				{
+					"id": 159382075,
+					"text": "next",
+					"startTime": "27.25",
+					"endTime": "27.51"
+				},
+				{
+					"id": 159382076,
+					"text": "generation",
+					"startTime": "27.52",
+					"endTime": "27.99"
+				},
+				{
+					"id": 159382077,
+					"text": "of",
+					"startTime": "28.00",
+					"endTime": "28.08"
+				},
+				{
+					"id": 159382078,
+					"text": "diverse",
+					"startTime": "28.09",
+					"endTime": "28.48"
+				},
+				{
+					"id": 159382079,
+					"text": "filmmakers.",
+					"startTime": "28.49",
+					"endTime": "29.18"
+				}
+			]
+		},
+		{
+			"startSeconds": "29.31",
+			"endSeconds": "32.08",
+			"transitionTypes": "Cross Fade",
+			"slotEffect": "NONE",
+			"filters": "",
+			"layout": "None",
+			"layoutSwap": false,
+			"media": {
+				"source": null,
+				"contentUrl": "https://d3qebvzk3ie1bc.cloudfront.net/augie/600001/assets/b9851c44-53c7-4072-bd7c-e6c9b45b8434",
+				"contentType": "video/mp4",
+				"width": 1280,
+				"height": 720
+			},
+			"textTiming": [
+				{
+					"id": 159382053,
+					"text": "I",
+					"startTime": "29.31",
+					"endTime": "29.48"
+				},
+				{
+					"id": 159382055,
+					"text": "myself",
+					"startTime": "29.49",
+					"endTime": "29.98"
+				},
+				{
+					"id": 159382057,
+					"text": "as",
+					"startTime": "29.99",
+					"endTime": "30.14"
+				},
+				{
+					"id": 159382059,
+					"text": "a",
+					"startTime": "30.15",
+					"endTime": "30.16"
+				},
+				{
+					"id": 159382061,
+					"text": "person",
+					"startTime": "30.17",
+					"endTime": "30.45"
+				},
+				{
+					"id": 159382063,
+					"text": "of",
+					"startTime": "30.46",
+					"endTime": "30.56"
+				},
+				{
+					"id": 159382065,
+					"text": "color",
+					"startTime": "30.57",
+					"endTime": "30.94"
+				},
+				{
+					"id": 159382066,
+					"text": "and",
+					"startTime": "30.95",
+					"endTime": "31.10"
+				},
+				{
+					"id": 159382068,
+					"text": "a",
+					"startTime": "31.11",
+					"endTime": "31.12"
+				},
+				{
+					"id": 159382070,
+					"text": "storyteller,",
+					"startTime": "31.13",
+					"endTime": "32.04"
+				}
+			]
+		},
+		{
+			"startSeconds": "32.08",
+			"endSeconds": "35.35",
+			"transitionTypes": "Cross Fade",
+			"slotEffect": "NONE",
+			"filters": "",
+			"layout": "Full Screen",
+			"layoutSwap": false,
+			"media": {
+				"source": "user_upload",
+				"contentUrl": "https://d3qebvzk3ie1bc.cloudfront.net/augie/600001/assets/cb5c1bef-0343-4f17-ba53-559d5debfdab",
+				"contentType": "video/quicktime",
+				"sizing": "auto",
+				"width": 2160,
+				"height": 3840
+			},
+			"textTiming": [
+				{
+					"id": 159382336,
+					"text": "I",
+					"startTime": "32.08",
+					"endTime": "32.50"
+				},
+				{
+					"id": 159382338,
+					"text": "found",
+					"startTime": "32.51",
+					"endTime": "33.14"
+				},
+				{
+					"id": 159382340,
+					"text": "an",
+					"startTime": "33.15",
+					"endTime": "33.32"
+				},
+				{
+					"id": 159382342,
+					"text": "enormous",
+					"startTime": "33.33",
+					"endTime": "33.78"
+				},
+				{
+					"id": 159382344,
+					"text": "amount",
+					"startTime": "33.79",
+					"endTime": "34.10"
+				},
+				{
+					"id": 159382347,
+					"text": "of",
+					"startTime": "34.11",
+					"endTime": "34.48"
+				},
+				{
+					"id": 159382349,
+					"text": "barriers",
+					"startTime": "34.49",
+					"endTime": "35.21"
+				},
+				{
+					"id": 159382351,
+					"text": "and",
+					"startTime": "35.22",
+					"endTime": "35.34"
+				}
+			]
+		},
+		{
+			"startSeconds": "35.35",
+			"endSeconds": "43.36",
+			"transitionTypes": "Cross Fade",
+			"slotEffect": "NONE",
+			"filters": "",
+			"layout": "None",
+			"layoutSwap": false,
+			"media": {
+				"source": "user_upload",
+				"contentUrl": "https://d3qebvzk3ie1bc.cloudfront.net/augie/600001/assets/b8398df6-8803-4377-b558-c97317ac0933",
+				"contentType": "video/quicktime",
+				"width": 2160,
+				"height": 3840
+			},
+			"textTiming": [
+				{
+					"id": 159382810,
+					"text": "obstacles",
+					"startTime": "35.35",
+					"endTime": "36.02"
+				},
+				{
+					"id": 159382812,
+					"text": "in",
+					"startTime": "36.03",
+					"endTime": "36.13"
+				},
+				{
+					"id": 159382814,
+					"text": "the",
+					"startTime": "36.14",
+					"endTime": "36.22"
+				},
+				{
+					"id": 159382816,
+					"text": "way",
+					"startTime": "36.23",
+					"endTime": "36.82"
+				},
+				{
+					"id": 159382819,
+					"text": "that",
+					"startTime": "36.83",
+					"endTime": "37.14"
+				},
+				{
+					"id": 159382821,
+					"text": "I",
+					"startTime": "37.15",
+					"endTime": "37.16"
+				},
+				{
+					"id": 159382823,
+					"text": "hope",
+					"startTime": "37.17",
+					"endTime": "37.48"
+				},
+				{
+					"id": 159382825,
+					"text": "to",
+					"startTime": "37.49",
+					"endTime": "37.58"
+				},
+				{
+					"id": 159382827,
+					"text": "break",
+					"startTime": "37.59",
+					"endTime": "37.90"
+				},
+				{
+					"id": 159382829,
+					"text": "down",
+					"startTime": "37.91",
+					"endTime": "38.16"
+				},
+				{
+					"id": 159382831,
+					"text": "for",
+					"startTime": "38.17",
+					"endTime": "38.33"
+				},
+				{
+					"id": 159382833,
+					"text": "our",
+					"startTime": "38.34",
+					"endTime": "38.37"
+				},
+				{
+					"id": 159382835,
+					"text": "students",
+					"startTime": "38.38",
+					"endTime": "38.85"
+				},
+				{
+					"id": 159382837,
+					"text": "in",
+					"startTime": "38.86",
+					"endTime": "38.95"
+				},
+				{
+					"id": 159382839,
+					"text": "order",
+					"startTime": "38.96",
+					"endTime": "39.18"
+				},
+				{
+					"id": 159382841,
+					"text": "to",
+					"startTime": "39.19",
+					"endTime": "39.24"
+				},
+				{
+					"id": 159382842,
+					"text": "make",
+					"startTime": "39.25",
+					"endTime": "39.70"
+				},
+				{
+					"id": 159382843,
+					"text": "the",
+					"startTime": "39.71",
+					"endTime": "39.86"
+				},
+				{
+					"id": 159382844,
+					"text": "experience",
+					"startTime": "39.87",
+					"endTime": "40.47"
+				},
+				{
+					"id": 159382845,
+					"text": "that",
+					"startTime": "40.48",
+					"endTime": "40.58"
+				},
+				{
+					"id": 159382846,
+					"text": "much",
+					"startTime": "40.59",
+					"endTime": "40.85"
+				},
+				{
+					"id": 159382847,
+					"text": "more,",
+					"startTime": "40.86",
+					"endTime": "41.10"
+				},
+				{
+					"id": 159382848,
+					"text": "fulfilling,",
+					"startTime": "41.20",
+					"endTime": "42.00"
+				},
+				{
+					"id": 159382849,
+					"text": "fruitful",
+					"startTime": "42.01",
+					"endTime": "42.55"
+				},
+				{
+					"id": 159382850,
+					"text": "and",
+					"startTime": "42.56",
+					"endTime": "42.67"
+				},
+				{
+					"id": 159382851,
+					"text": "exciting",
+					"startTime": "42.68",
+					"endTime": "43.12"
+				},
+				{
+					"id": 159382852,
+					"text": "for",
+					"startTime": "43.13",
+					"endTime": "43.20"
+				},
+				{
+					"id": 159382853,
+					"text": "them.",
+					"startTime": "43.21",
+					"endTime": "43.35"
+				}
+			]
+		},
+		{
+			"startSeconds": "43.36",
+			"endSeconds": "48.62",
+			"transitionTypes": "Cross Fade",
+			"slotEffect": "NONE",
+			"filters": "",
+			"layout": "Full Screen",
+			"layoutSwap": false,
+			"media": {
+				"source": "user_upload",
+				"contentUrl": "https://d3qebvzk3ie1bc.cloudfront.net/augie/600001/assets/3a227380-21a0-4263-acc7-bf4652d37494",
+				"contentType": "video/mp4",
+				"sizing": "auto",
+				"width": 854,
+				"height": 480
+			},
+			"textTiming": [
+				{
+					"id": 159382811,
+					"text": "We're",
+					"startTime": "43.36",
+					"endTime": "43.48"
+				},
+				{
+					"id": 159382813,
+					"text": "talking",
+					"startTime": "43.49",
+					"endTime": "43.77"
+				},
+				{
+					"id": 159382815,
+					"text": "about",
+					"startTime": "43.78",
+					"endTime": "44.02"
+				},
+				{
+					"id": 159382817,
+					"text": "an",
+					"startTime": "44.03",
+					"endTime": "44.07"
+				},
+				{
+					"id": 159382818,
+					"text": "industry",
+					"startTime": "44.08",
+					"endTime": "44.45"
+				},
+				{
+					"id": 159382820,
+					"text": "that",
+					"startTime": "44.46",
+					"endTime": "44.56"
+				},
+				{
+					"id": 159382822,
+					"text": "wants",
+					"startTime": "44.57",
+					"endTime": "44.80"
+				},
+				{
+					"id": 159382824,
+					"text": "more",
+					"startTime": "44.81",
+					"endTime": "45.00"
+				},
+				{
+					"id": 159382826,
+					"text": "diverse",
+					"startTime": "45.01",
+					"endTime": "45.37"
+				},
+				{
+					"id": 159382828,
+					"text": "voices,",
+					"startTime": "45.38",
+					"endTime": "46.23"
+				},
+				{
+					"id": 159382830,
+					"text": "wants",
+					"startTime": "46.27",
+					"endTime": "46.68"
+				},
+				{
+					"id": 159382832,
+					"text": "more",
+					"startTime": "46.69",
+					"endTime": "46.88"
+				},
+				{
+					"id": 159382834,
+					"text": "diversity,",
+					"startTime": "46.89",
+					"endTime": "47.54"
+				},
+				{
+					"id": 159382836,
+					"text": "wants",
+					"startTime": "47.55",
+					"endTime": "47.80"
+				},
+				{
+					"id": 159382838,
+					"text": "more",
+					"startTime": "47.81",
+					"endTime": "47.98"
+				},
+				{
+					"id": 159382840,
+					"text": "inclusion.",
+					"startTime": "47.99",
+					"endTime": "48.61"
+				}
+			]
+		},
+		{
+			"startSeconds": "48.62",
+			"endSeconds": "56.27",
+			"transitionTypes": "Cross Fade",
+			"slotEffect": "NONE",
+			"filters": "",
+			"layout": "Full Screen",
+			"layoutSwap": false,
+			"media": {
+				"source": "user_upload",
+				"contentUrl": "https://d3qebvzk3ie1bc.cloudfront.net/augie/600001/assets/b8398df6-8803-4377-b558-c97317ac0933",
+				"contentType": "video/quicktime",
+				"sizing": "auto",
+				"width": 2160,
+				"height": 3840
+			},
+			"textTiming": [
+				{
+					"id": 159382918,
+					"text": "And",
+					"startTime": "48.62",
+					"endTime": "48.74"
+				},
+				{
+					"id": 159382919,
+					"text": "in",
+					"startTime": "48.75",
+					"endTime": "48.82"
+				},
+				{
+					"id": 159382920,
+					"text": "my",
+					"startTime": "48.83",
+					"endTime": "49.03"
+				},
+				{
+					"id": 159382921,
+					"text": "humble",
+					"startTime": "49.04",
+					"endTime": "49.34"
+				},
+				{
+					"id": 159382922,
+					"text": "opinion,",
+					"startTime": "49.35",
+					"endTime": "49.90"
+				},
+				{
+					"id": 159382923,
+					"text": "it's",
+					"startTime": "49.98",
+					"endTime": "50.28"
+				},
+				{
+					"id": 159382924,
+					"text": "through",
+					"startTime": "50.29",
+					"endTime": "50.42"
+				},
+				{
+					"id": 159382925,
+					"text": "public",
+					"startTime": "50.43",
+					"endTime": "50.79"
+				},
+				{
+					"id": 159382926,
+					"text": "education",
+					"startTime": "50.80",
+					"endTime": "51.45"
+				},
+				{
+					"id": 159382927,
+					"text": "where",
+					"startTime": "51.46",
+					"endTime": "51.52"
+				},
+				{
+					"id": 159382928,
+					"text": "we",
+					"startTime": "51.53",
+					"endTime": "51.67"
+				},
+				{
+					"id": 159382929,
+					"text": "can",
+					"startTime": "51.68",
+					"endTime": "51.79"
+				},
+				{
+					"id": 159382930,
+					"text": "really",
+					"startTime": "51.80",
+					"endTime": "52.00"
+				},
+				{
+					"id": 159382931,
+					"text": "move",
+					"startTime": "52.01",
+					"endTime": "52.23"
+				},
+				{
+					"id": 159382932,
+					"text": "the",
+					"startTime": "52.24",
+					"endTime": "52.30"
+				},
+				{
+					"id": 159382933,
+					"text": "needle,",
+					"startTime": "52.31",
+					"endTime": "52.70"
+				},
+				{
+					"id": 159382934,
+					"text": "having",
+					"startTime": "52.71",
+					"endTime": "53.02"
+				},
+				{
+					"id": 159382935,
+					"text": "the",
+					"startTime": "53.03",
+					"endTime": "53.14"
+				},
+				{
+					"id": 159382936,
+					"text": "support",
+					"startTime": "53.15",
+					"endTime": "53.53"
+				},
+				{
+					"id": 159382937,
+					"text": "of",
+					"startTime": "53.54",
+					"endTime": "53.61"
+				},
+				{
+					"id": 159382938,
+					"text": "this",
+					"startTime": "53.62",
+					"endTime": "53.80"
+				},
+				{
+					"id": 159382939,
+					"text": "wonderful",
+					"startTime": "53.81",
+					"endTime": "54.26"
+				},
+				{
+					"id": 159382940,
+					"text": "city",
+					"startTime": "54.27",
+					"endTime": "54.60"
+				},
+				{
+					"id": 159382941,
+					"text": "is",
+					"startTime": "54.61",
+					"endTime": "54.74"
+				},
+				{
+					"id": 159382942,
+					"text": "the",
+					"startTime": "54.75",
+					"endTime": "54.86"
+				},
+				{
+					"id": 159382943,
+					"text": "greatest",
+					"startTime": "54.87",
+					"endTime": "55.26"
+				},
+				{
+					"id": 159382944,
+					"text": "city",
+					"startTime": "55.27",
+					"endTime": "55.50"
+				},
+				{
+					"id": 159382945,
+					"text": "in",
+					"startTime": "55.51",
+					"endTime": "55.57"
+				},
+				{
+					"id": 159382946,
+					"text": "the",
+					"startTime": "55.58",
+					"endTime": "55.66"
+				},
+				{
+					"id": 159382947,
+					"text": "world.",
+					"startTime": "55.67",
+					"endTime": "56.25"
+				}
+			]
+		},
+		{
+			"startSeconds": "56.27",
+			"endSeconds": "57.69",
+			"transitionTypes": "Cross Fade",
+			"slotEffect": "NONE",
+			"filters": "",
+			"layout": "None",
+			"layoutSwap": false,
+			"media": {
+				"source": "getty_video",
+				"contentUrl": "https://d3qebvzk3ie1bc.cloudfront.net/augie/600001/assets/c5f04657-70bf-4bf5-84f1-031521e5200a",
+				"contentType": "video/mp4",
+				"width": 1280,
+				"height": 720
+			},
+			"textTiming": [
+				{
+					"id": 159382903,
+					"text": "And",
+					"startTime": "56.27",
+					"endTime": "56.48"
+				},
+				{
+					"id": 159382905,
+					"text": "if",
+					"startTime": "56.49",
+					"endTime": "56.64"
+				},
+				{
+					"id": 159382907,
+					"text": "we",
+					"startTime": "56.65",
+					"endTime": "56.77"
+				},
+				{
+					"id": 159382909,
+					"text": "do",
+					"startTime": "56.78",
+					"endTime": "56.98"
+				},
+				{
+					"id": 159382911,
+					"text": "it",
+					"startTime": "56.99",
+					"endTime": "57.06"
+				},
+				{
+					"id": 159382913,
+					"text": "right",
+					"startTime": "57.07",
+					"endTime": "57.26"
+				},
+				{
+					"id": 159382915,
+					"text": "here,",
+					"startTime": "57.27",
+					"endTime": "57.68"
+				}
+			]
+		},
+		{
+			"startSeconds": "57.69",
+			"endSeconds": "59.45",
+			"transitionTypes": "Cross Fade",
+			"slotEffect": "NONE",
+			"filters": "",
+			"layout": "None",
+			"layoutSwap": false,
+			"media": {
+				"source": null,
+				"contentUrl": "https://d3qebvzk3ie1bc.cloudfront.net/augie/600001/assets/756e1506-68a5-44c3-b486-124e7d356336",
+				"contentType": "video/mp4",
+				"width": 1280,
+				"height": 720
+			},
+			"textTiming": [
+				{
+					"id": 159371107,
+					"text": "the",
+					"startTime": "57.69",
+					"endTime": "57.81"
+				},
+				{
+					"id": 159371108,
+					"text": "rest",
+					"startTime": "57.82",
+					"endTime": "58.02"
+				},
+				{
+					"id": 159371109,
+					"text": "of",
+					"startTime": "58.03",
+					"endTime": "58.09"
+				},
+				{
+					"id": 159371110,
+					"text": "the",
+					"startTime": "58.10",
+					"endTime": "58.18"
+				},
+				{
+					"id": 159371111,
+					"text": "world",
+					"startTime": "58.19",
+					"endTime": "58.56"
+				},
+				{
+					"id": 159371112,
+					"text": "is",
+					"startTime": "58.57",
+					"endTime": "58.68"
+				},
+				{
+					"id": 159371113,
+					"text": "watching",
+					"startTime": "58.69",
+					"endTime": "59.18"
+				},
+				{
+					"id": 159371114,
+					"text": "and,",
+					"startTime": "59.19",
+					"endTime": "59.44"
+				}
+			]
+		},
+		{
+			"startSeconds": "59.45",
+			"endSeconds": 65,
+			"transitionTypes": "Cross Fade",
+			"slotEffect": "NONE",
+			"filters": "",
+			"layout": "None",
+			"layoutSwap": false,
+			"media": {
+				"source": null,
+				"contentUrl": "https://d3qebvzk3ie1bc.cloudfront.net/augie/600001/assets/268a5349-f191-402b-a835-c45d47cf5046",
+				"contentType": "video/mp4",
+				"width": 1280,
+				"height": 720
+			},
+			"textTiming": [
+				{
+					"id": 159371115,
+					"text": "uh,",
+					"startTime": "59.45",
+					"endTime": "59.46"
+				},
+				{
+					"id": 159371116,
+					"text": "we're",
+					"startTime": "59.47",
+					"endTime": "59.74"
+				},
+				{
+					"id": 159371117,
+					"text": "thrilled",
+					"startTime": "59.75",
+					"endTime": "60.14"
+				},
+				{
+					"id": 159371118,
+					"text": "to",
+					"startTime": "60.15",
+					"endTime": "60.30"
+				},
+				{
+					"id": 159371119,
+					"text": "be",
+					"startTime": "60.31",
+					"endTime": "60.38"
+				},
+				{
+					"id": 159371120,
+					"text": "able",
+					"startTime": "60.39",
+					"endTime": "60.70"
+				},
+				{
+					"id": 159371121,
+					"text": "to",
+					"startTime": "60.71",
+					"endTime": "60.86"
+				},
+				{
+					"id": 159371122,
+					"text": "embark",
+					"startTime": "60.87",
+					"endTime": "61.17"
+				},
+				{
+					"id": 159371123,
+					"text": "on",
+					"startTime": "61.18",
+					"endTime": "61.27"
+				},
+				{
+					"id": 159371124,
+					"text": "this",
+					"startTime": "61.28",
+					"endTime": "61.37"
+				},
+				{
+					"id": 159371125,
+					"text": "journey.",
+					"startTime": "61.38",
+					"endTime": "61.70"
+				}
+			]
+		}
+	],
+	"timelineObjects": [],
+	"mediaTweaks": {
+		"jok:5bc26f8191542a3967061814a688830a131602784bf25eaee632c8af1dc91471": {
+			"portrait": {"sizing": "cover"}
+		},
+		"jok:ca4573e238d036265c336f8a7103bf8fe108c44e29360fe499fb78ae95c6e7c2": {
+			"portrait": {"sizing": "cover"}
+		},
+		"jok:cdfe7d758e1c70c4e5a07462db902acdebcf09b62e95019d51c92ed347c8b73d": {
+			"portrait": {"sizing": "cover"}
+		},
+		"jok:f1c48d8822e8a36e9997dbd6e2bf5ec7fb31de06c6e217994087d2594fdb4a38": {
+			"portrait": {"sizing": "cover"}
+		}
+	},
+	"metadata": {
+		"fragments": [{"startSeconds": 0, "endSeconds": 65}],
+		"elevenLabsAudioUsed": false,
+		"elevenLabsVoiceId": "",
+		"hasDisplayedCreationReport": true
+	},
+	"renderType": "Complete Augie"
+}

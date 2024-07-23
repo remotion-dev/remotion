@@ -1,7 +1,8 @@
-use std::usize;
+use std::{ops::Not, usize};
 
 use ffmpeg_next::{
     color,
+    ffi::{av_frame_free, AVFrame},
     format::Pixel,
     frame::{self, Video},
     software::scaling::{Context, Flags},
@@ -45,6 +46,17 @@ pub struct ScalableFrame {
     pub native_frame: Option<NotRgbFrame>,
     pub rgb_frame: Option<RgbFrame>,
     pub transparent: bool,
+}
+
+impl NotRgbFrame {
+    pub fn unref_ffmpeg(&mut self) {
+        unsafe {
+            let mut mut_ptr = self.unscaled_frame.as_mut_ptr();
+            let frame_ptr: *mut *mut AVFrame = &mut mut_ptr;
+
+            av_frame_free(frame_ptr);
+        }
+    }
 }
 
 impl ScalableFrame {
@@ -92,6 +104,7 @@ impl ScalableFrame {
                     format = video.format();
 
                     linesize = unsafe { (*video.as_ptr()).linesize };
+                    drop(video)
                 } else {
                     let amount_of_planes = frame.unscaled_frame.planes();
 
@@ -108,6 +121,7 @@ impl ScalableFrame {
                 let bitmap =
                     scale_and_make_bitmap(&frame, planes, format, linesize, self.transparent)?;
                 self.rgb_frame = Some(RgbFrame { data: bitmap });
+
                 self.native_frame = None;
                 Ok(())
             }
@@ -134,7 +148,12 @@ impl ScalableFrame {
         }
         match self.native_frame {
             None => {}
-            Some(ref frame) => size += frame.size,
+            // Native frames take twice as much memory in RAM
+            Some(ref frame) => size += frame.size * 2,
+        }
+
+        if size == 0 {
+            _print_verbose("memory frame size is 0").unwrap();
         }
 
         size

@@ -617,7 +617,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					calculateMetadata={calculateMetadataFn}
 					defaultProps={{
-						src: staticFile('vid1.mp4'),
+						src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
 					}}
 				/>
 				<Composition

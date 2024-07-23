@@ -39,7 +39,7 @@ pub fn execute_command(
             Ok(vec![])
         }
         CliInputCommandPayload::CloseAllVideos(_) => {
-            let manager = OpenedVideoManager::get_instance();
+            let manager: &OpenedVideoManager = OpenedVideoManager::get_instance();
             manager.close_all_videos()?;
 
             Ok(vec![])

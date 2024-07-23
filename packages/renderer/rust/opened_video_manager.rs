@@ -89,7 +89,7 @@ impl OpenedVideoManager {
         let mut vid = self.videos.write()?;
         vid.remove(src);
 
-        FrameCacheManager::get_instance().remove_frame_cache(src);
+        FrameCacheManager::get_instance().clear_frame_cache(src);
 
         Ok(())
     }

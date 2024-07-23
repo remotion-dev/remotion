@@ -119,27 +119,83 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 			return;
 		}
 
-		exec(`cat /proc/${child.pid}/status`, (err, str) => {
-			if (err) {
-				Log.error({indent: false, logLevel}, 'Could not get memory usage', err);
-				clearInterval(memoryReporter);
-				return;
-			}
+		executeCommand('GetOpenVideoStats', {}).then((res) => {
+			exec(`cat /proc/${child.pid}/status`, (err, str) => {
+				if (err) {
+					Log.error(
+						{indent: false, logLevel},
+						'Could not get memory usage',
+						err,
+					);
+					clearInterval(memoryReporter);
+					return;
+				}
 
-			Log.verbose(
-				{indent: false, logLevel},
-				'Compositor memory usage:',
-				str
-					.split('\n')
-					.filter((l) => l.includes('VmRSS'))[0]
-					.split('\t')[1],
-			);
+				Log.verbose(
+					{indent: false, logLevel},
+					child.pid,
+					'Compositor memory usage:',
+					str
+						.split('\n')
+						.filter((l) => l.includes('VmRSS'))[0]
+						.split('\t')[1],
+					{res: new TextDecoder().decode(res)},
+				);
+			});
 		});
 	}, 10000);
+	console.log('setting interval');
 
 	let stderrChunks: Buffer[] = [];
 
 	const waiters = new Map<string, Waiter>();
+
+	const executeCommand = <Type extends keyof CompositorCommand>(
+		command: Type,
+		params: CompositorCommand[Type],
+	) => {
+		return new Promise<Uint8Array>((_resolve, _reject) => {
+			if (runningStatus.type === 'quit-without-error') {
+				_reject(
+					new Error(
+						`Compositor quit${
+							runningStatus.signal ? ` with signal ${runningStatus.signal}` : ''
+						}`,
+					),
+				);
+				return;
+			}
+
+			if (runningStatus.type === 'quit-with-error') {
+				_reject(
+					new Error(
+						`Compositor quit${
+							runningStatus.signal ? ` with signal ${runningStatus.signal}` : ''
+						}: ${runningStatus.error}`,
+					),
+				);
+				return;
+			}
+
+			const nonce = makeNonce();
+			const composed: CompositorCommandSerialized<Type> = {
+				nonce,
+				payload: {
+					type: command,
+					params,
+				},
+			};
+			child.stdin.write(JSON.stringify(composed) + '\n', (e) => {
+				if (e) {
+					_reject(e);
+				}
+			});
+			waiters.set(nonce, {
+				resolve: _resolve,
+				reject: _reject,
+			});
+		});
+	};
 
 	const onMessage = (
 		statusType: 'success' | 'error',
@@ -291,56 +347,7 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 			});
 		},
 
-		executeCommand: <Type extends keyof CompositorCommand>(
-			command: Type,
-			params: CompositorCommand[Type],
-		) => {
-			return new Promise<Uint8Array>((_resolve, _reject) => {
-				if (runningStatus.type === 'quit-without-error') {
-					_reject(
-						new Error(
-							`Compositor quit${
-								runningStatus.signal
-									? ` with signal ${runningStatus.signal}`
-									: ''
-							}`,
-						),
-					);
-					return;
-				}
-
-				if (runningStatus.type === 'quit-with-error') {
-					_reject(
-						new Error(
-							`Compositor quit${
-								runningStatus.signal
-									? ` with signal ${runningStatus.signal}`
-									: ''
-							}: ${runningStatus.error}`,
-						),
-					);
-					return;
-				}
-
-				const nonce = makeNonce();
-				const composed: CompositorCommandSerialized<Type> = {
-					nonce,
-					payload: {
-						type: command,
-						params,
-					},
-				};
-				child.stdin.write(JSON.stringify(composed) + '\n', (e) => {
-					if (e) {
-						_reject(e);
-					}
-				});
-				waiters.set(nonce, {
-					resolve: _resolve,
-					reject: _reject,
-				});
-			});
-		},
+		executeCommand,
 		pid: child.pid ?? null,
 	};
 };

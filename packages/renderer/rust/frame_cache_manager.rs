@@ -8,6 +8,7 @@ use crate::{
     frame_cache::{FrameCache, FrameCacheReference},
     global_printer::_print_verbose,
 };
+use ffmpeg_next::format;
 use lazy_static::lazy_static;
 
 pub struct FrameCacheAndOriginalSource {
@@ -34,8 +35,36 @@ impl FrameCacheManager {
         self.cache.read().unwrap().contains_key(src)
     }
 
-    pub fn remove_frame_cache(&self, src: &str) {
-        self.cache.write().unwrap().remove(src);
+    pub fn clear_frame_cache(&self, src: &str) {
+        let cache = self.cache.write().unwrap();
+        let unwrapped = cache.get(src).unwrap();
+        unwrapped
+            .transparent_tone_mapped
+            .clone()
+            .lock()
+            .unwrap()
+            .remove_all_items();
+
+        unwrapped
+            .transparent_original
+            .clone()
+            .lock()
+            .unwrap()
+            .remove_all_items();
+
+        unwrapped
+            .opaque_original
+            .clone()
+            .lock()
+            .unwrap()
+            .remove_all_items();
+
+        unwrapped
+            .opaque_tone_mapped
+            .clone()
+            .lock()
+            .unwrap()
+            .remove_all_items();
     }
 
     fn add_frame_cache(&self, src: &str, original_src: &str) {
@@ -139,7 +168,6 @@ impl FrameCacheManager {
 
     pub fn get_frame_references(&self) -> Result<Vec<FrameCacheReference>, ErrorWithBacktrace> {
         let mut vec: Vec<FrameCacheReference> = Vec::new();
-        // 0..2 loops twice, not 0..1
         let keys = self
             .cache
             .read()
@@ -148,6 +176,7 @@ impl FrameCacheManager {
             .cloned()
             .collect::<Vec<String>>();
 
+        // 0..2 loops twice, not 0..1
         for i in 0..4 {
             let transparent = i == 0 || i == 2;
             let tone_mapped = i == 0 || i == 1;
@@ -180,7 +209,7 @@ impl FrameCacheManager {
         return Ok(vec);
     }
 
-    fn get_total_size(&self) -> Result<u128, ErrorWithBacktrace> {
+    pub fn get_total_size(&self) -> Result<u128, ErrorWithBacktrace> {
         let mut total_size = 0;
 
         let keys = self
@@ -215,6 +244,55 @@ impl FrameCacheManager {
         return Ok(total_size);
     }
 
+    pub fn get_average_size(&self) -> Result<u128, ErrorWithBacktrace> {
+        let mut total_size = 0;
+
+        let keys = self
+            .cache
+            .read()
+            .unwrap()
+            .keys()
+            .cloned()
+            .collect::<Vec<String>>();
+
+        let mut items: usize = 0;
+
+        let mut sizes = Vec::new();
+        let mut item_counts = Vec::new();
+
+        for i in 0..4 {
+            let transparent = i == 0 || i == 2;
+            let tone_mapped = i == 0 || i == 1;
+
+            for key in keys.clone() {
+                let src = key.clone();
+
+                let original_src = self
+                    .cache
+                    .read()
+                    .unwrap()
+                    .get(&src)
+                    .unwrap()
+                    .original_src
+                    .clone();
+                let lock = self.get_frame_cache(&src, &original_src, transparent, tone_mapped);
+                let frame_cache = lock.lock()?;
+                let size_in_bytes = frame_cache.get_size_in_bytes();
+
+                total_size += size_in_bytes;
+                items += frame_cache.get_cache_item_count();
+                sizes.push(size_in_bytes);
+                item_counts.push(frame_cache.get_cache_item_count());
+            }
+        }
+
+        _print_verbose(&format!("memory keys are {:?}", keys)).unwrap();
+        _print_verbose(&format!("memory sizes are {:?}", sizes)).unwrap();
+        _print_verbose(&format!("memory item counts are {:?}", item_counts)).unwrap();
+
+        return Ok(total_size / items as u128);
+    }
+
     pub fn prune(&self, maximum_frame_cache_size_in_bytes: u128) -> Result<(), ErrorWithBacktrace> {
         let references = FrameCacheManager::get_instance().get_frame_references()?;
         let mut sorted = references.clone();
@@ -235,6 +313,10 @@ impl FrameCacheManager {
                 )
                 .lock()?
                 .remove_item_by_id(removal.id)?;
+                _print_verbose(&format!(
+                    "Save memory: Pruned frame {} {} {} {}",
+                    removal.src, removal.transparent, removal.tone_mapped, removal.id
+                ))?;
 
                 pruned += 1;
             }
@@ -242,10 +324,11 @@ impl FrameCacheManager {
 
         if pruned > 0 {
             _print_verbose(&format!(
-                "Pruned {} to save memory, keeping {}. Total cache size: {}MB",
+                "Pruned {} to save memory, keeping {}. Total cache size: {}MB, Avg Size: {}MB",
                 pruned,
                 self.get_frames_in_cache()?,
-                self.get_total_size()? / 1024 / 1024
+                self.get_total_size()? / 1024 / 1024,
+                self.get_average_size()? / 1024 / 1024
             ))?;
         }
 
@@ -262,7 +345,12 @@ impl FrameCacheManager {
     // Should be called if system is about to run out of memory
     pub fn halfen_cache_size(&self) -> Result<(), ErrorWithBacktrace> {
         let current_cache_size = self.get_total_size()?;
-        self.prune(current_cache_size / 2)
+        self.prune(current_cache_size / 2);
+        _print_verbose(&format!(
+            "memory Cache size reduced to {}MB",
+            current_cache_size / 1024 / 1024
+        ))?;
+        Ok(())
     }
 
     pub fn get_frames_in_cache(&self) -> Result<usize, ErrorWithBacktrace> {

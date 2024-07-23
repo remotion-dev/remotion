@@ -18,11 +18,13 @@ pub fn get_open_video_stats() -> Result<OpenVideoStats, ErrorWithBacktrace> {
     let open_videos = manager.get_open_videos()?;
     let open_streams = manager.get_open_video_streams()?;
     let frames_in_cache = cache_manager.get_frames_in_cache()?;
+    let cache_size = cache_manager.get_total_size()?;
 
     Ok(OpenVideoStats {
         open_videos,
         open_streams,
         frames_in_cache,
+        cache_size,
     })
 }
 

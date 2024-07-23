@@ -2,6 +2,8 @@ extern crate ffmpeg_next as remotionffmpeg;
 
 use std::sync::atomic::{AtomicUsize, Ordering};
 
+use ffmpeg_next::ffi::{av_frame_free, AVFrame};
+
 use crate::{
     errors::ErrorWithBacktrace,
     global_printer::{_print_debug, _print_verbose},
@@ -42,6 +44,15 @@ pub struct FrameCacheReference {
 struct LastFrameFoundSoFar {
     pub id: usize,
     pub pts: i64,
+}
+
+impl FrameCacheItem {
+    pub fn unref_ffmpeg(&mut self) {
+        match self.frame.native_frame {
+            Some(ref mut frame) => frame.unref_ffmpeg(),
+            None => {}
+        }
+    }
 }
 
 impl FrameCache {
@@ -133,6 +144,14 @@ impl FrameCache {
             }
         }
         Ok(())
+    }
+
+    pub fn remove_all_items(&mut self) {
+        for item in self.items.iter_mut() {
+            item.unref_ffmpeg();
+            item.frame.native_frame = None;
+            item.frame.rgb_frame = None;
+        }
     }
 
     pub fn is_empty(&self) -> bool {
