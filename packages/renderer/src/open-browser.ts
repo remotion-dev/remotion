@@ -131,7 +131,6 @@ export const internalOpenBrowser = async ({
 	const browserInstance = await puppeteer.launch({
 		executablePath,
 		dumpio: isEqualOrBelowLogLevel(logLevel, 'verbose'),
-		logLevel,
 		indent,
 		args: [
 			'about:blank',

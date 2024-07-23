@@ -1,5 +1,7 @@
 import {spawn} from 'node:child_process';
 import path from 'node:path';
+
+import {exec} from 'child_process';
 import {resolveConcurrency} from '../get-concurrency';
 import type {LogLevel} from '../log-level';
 import {isEqualOrBelowLogLevel} from '../log-level';
@@ -108,6 +110,29 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 				: undefined,
 	});
 
+	const memoryReporter = setInterval(() => {
+		if (!isEqualOrBelowLogLevel(logLevel, 'verbose')) {
+			return;
+		}
+
+		exec(`cat /proc/${child.pid}/status`, (err, str) => {
+			if (err) {
+				Log.error({indent: false, logLevel}, 'Could not get memory usage', err);
+				clearInterval(memoryReporter);
+				return;
+			}
+
+			Log.verbose(
+				{indent: false, logLevel},
+				'Compositor memory usage:',
+				str
+					.split('\n')
+					.filter((l) => l.includes('VmRSS'))[0]
+					.split('\t')[1],
+			);
+		});
+	}, 10000);
+
 	let stderrChunks: Buffer[] = [];
 
 	const waiters = new Map<string, Waiter>();
@@ -159,6 +184,7 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 	let reject: ((reason: Error) => void) | null = null;
 
 	child.on('close', (code, signal) => {
+		clearInterval(memoryReporter);
 		const waitersToKill = Array.from(waiters.values());
 		if (code === 0) {
 			runningStatus = {type: 'quit-without-error', signal};

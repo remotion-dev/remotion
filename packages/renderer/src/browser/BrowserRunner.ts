@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
+import {exec} from 'child_process';
 import * as childProcess from 'node:child_process';
 import * as fs from 'node:fs';
+
 import {deleteDirectory} from '../delete-directory';
+import type {LogLevel} from '../log-level';
 import {Log} from '../logger';
 import {truthy} from '../truthy';
 import {Connection} from './Connection';
@@ -47,6 +50,8 @@ export class BrowserRunner {
 	#closed = true;
 	#listeners: (() => void)[] = [];
 	#processClosing!: Promise<void>;
+	#timerInterval: Timer | null = null;
+	#logLevel: LogLevel;
 
 	proc?: childProcess.ChildProcess;
 	connection?: Connection;
@@ -55,14 +60,49 @@ export class BrowserRunner {
 		executablePath,
 		processArguments,
 		userDataDir,
+		logLevel,
 	}: {
 		executablePath: string;
 		processArguments: string[];
 		userDataDir: string;
+		logLevel: LogLevel;
 	}) {
 		this.#executablePath = executablePath;
 		this.#processArguments = processArguments;
 		this.#userDataDir = userDataDir;
+		this.#logLevel = logLevel;
+	}
+
+	startReportingMemory() {
+		this.#timerInterval = setInterval(() => {
+			exec(`cat /proc/${this.proc?.pid}/status`, (err, str) => {
+				if (err) {
+					Log.error(
+						{indent: false, logLevel: this.#logLevel},
+						'Could not get memory usage',
+						err,
+					);
+					this.stopReportingMemory();
+					return;
+				}
+
+				Log.verbose(
+					{indent: false, logLevel: this.#logLevel},
+					'Browser memory usage:',
+					str
+						.split('\n')
+						.filter((l) => l.includes('VmRSS'))[0]
+						.split('\t')[1],
+				);
+			});
+		}, 10000);
+	}
+
+	stopReportingMemory() {
+		if (this.#timerInterval) {
+			clearInterval(this.#timerInterval);
+			this.#timerInterval = null;
+		}
 	}
 
 	start(options: LaunchOptions): void {
@@ -85,6 +125,9 @@ export class BrowserRunner {
 				stdio,
 			},
 		);
+
+		this.startReportingMemory();
+
 		if (dumpio) {
 			this.proc.stdout?.on('data', (d) => {
 				const message = d.toString('utf8').trim();
@@ -96,7 +139,7 @@ export class BrowserRunner {
 
 					const {output, tag} = formatted;
 					Log.verbose(
-						{indent: options.indent, logLevel: options.logLevel, tag},
+						{indent: options.indent, logLevel: this.#logLevel, tag},
 						output,
 					);
 				}
@@ -111,7 +154,7 @@ export class BrowserRunner {
 
 					const {output, tag} = formatted;
 					Log.error(
-						{indent: options.indent, logLevel: options.logLevel, tag},
+						{indent: options.indent, logLevel: this.#logLevel, tag},
 						output,
 					);
 				}
@@ -152,6 +195,7 @@ export class BrowserRunner {
 	}
 
 	close(): Promise<void> {
+		this.stopReportingMemory();
 		if (this.#closed) {
 			return Promise.resolve();
 		}
@@ -173,6 +217,7 @@ export class BrowserRunner {
 		this.proc.stderr?.unref();
 		assert(this.connection, 'BrowserRunner not connected.');
 		this.connection.transport.forgetEventLoop();
+		this.stopReportingMemory();
 	}
 
 	rememberEventLoop(): void {
@@ -184,6 +229,7 @@ export class BrowserRunner {
 		this.proc.stderr?.ref();
 		assert(this.connection, 'BrowserRunner not connected.');
 		this.connection.transport.rememberEventLoop();
+		this.startReportingMemory();
 	}
 
 	kill(): void {

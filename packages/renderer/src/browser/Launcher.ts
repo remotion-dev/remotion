@@ -22,6 +22,7 @@ import {BrowserRunner} from './BrowserRunner';
 
 import type {PuppeteerNodeLaunchOptions} from './LaunchOptions';
 
+import type {LogLevel} from '../log-level';
 import {getRevisionInfo} from './BrowserFetcher';
 
 const tmpDir = () => {
@@ -34,7 +35,11 @@ export interface ProductLauncher {
 }
 
 export class ChromeLauncher implements ProductLauncher {
-	async launch(options: PuppeteerNodeLaunchOptions): Promise<HeadlessBrowser> {
+	async launch(
+		options: PuppeteerNodeLaunchOptions & {
+			logLevel: LogLevel;
+		},
+	): Promise<HeadlessBrowser> {
 		const {
 			args = [],
 			dumpio = false,
@@ -77,12 +82,12 @@ export class ChromeLauncher implements ProductLauncher {
 			executablePath: chromeExecutable,
 			processArguments: chromeArguments,
 			userDataDir,
+			logLevel: options.logLevel,
 		});
 		runner.start({
 			dumpio,
 			env,
 			indent,
-			logLevel: options.logLevel,
 		});
 
 		let browser;
