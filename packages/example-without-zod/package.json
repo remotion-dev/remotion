@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/example-without-zod",
 	"private": true,
-	"version": "4.0.183",
+	"version": "4.0.184",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"author": "Jonny Burger",
 	"main": "dist/index.js",
