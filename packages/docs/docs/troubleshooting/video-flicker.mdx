@@ -9,16 +9,16 @@ crumb: "Frame-perfection"
 Consider the following markup:
 
 ```tsx twoslash title="MyComponent.tsx"
-import { AbsoluteFill, Sequence, Video } from "remotion";
+import { AbsoluteFill, Sequence, OffthreadVideo } from "remotion";
 
 const MyComponent: React.FC = () => {
   return (
     <AbsoluteFill>
       <Sequence from={0} durationInFrames={120}>
-        <Video src="https://example.com/video1.mp4" />
+        <OffthreadVideo src="https://example.com/video1.mp4" />
       </Sequence>
       <Sequence from={120} durationInFrames={120}>
-        <Video src="https://example.com/video2.mp4" />
+        <OffthreadVideo src="https://example.com/video2.mp4" />
       </Sequence>
     </AbsoluteFill>
   );
@@ -39,7 +39,7 @@ This effect is only happening in the Remotion Studio and the Remotion Player, an
 
 You may want to pause the `<Player>` temporarily to allow loading of the assets and resume once the assets are ready for playback.
 
-You can do so by adding a `pauseWhenBuffering` prop to your [`<Video>`](/docs/video/#pausewhenbuffering), [`<OffthreadVideo>`](/docs/offthreadvideo/#pausewhenbuffering), [`<Audio>`](/docs/audio/#pausewhenbuffering) and [`<Img>`](/docs/img/#pausewhenbuffering) tags. [Learn more about the buffer state.](/docs/player/buffer-state)
+You can do so by adding a `pauseWhenBuffering` prop to your [`<OffthreadVideo>`](/docs/video/#pausewhenbuffering), [`<OffthreadVideo>`](/docs/offthreadvideo/#pausewhenbuffering), [`<Audio>`](/docs/audio/#pausewhenbuffering) and [`<Img>`](/docs/img/#pausewhenbuffering) tags. [Learn more about the buffer state.](/docs/player/buffer-state)
 
 ### Option 3: Preloading to avoid network request
 
