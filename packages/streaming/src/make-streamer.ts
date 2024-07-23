@@ -2,8 +2,6 @@ import {EventEmitter} from 'stream';
 
 export const streamingKey = 'remotion_buffer:';
 
-const magicWordStr = 'remotion_buffer:';
-
 // @ts-expect-error
 globalThis._dumpUnreleasedBuffers = new EventEmitter();
 
@@ -17,9 +15,9 @@ export const makeStreamer = (
 		data: Uint8Array,
 	) => void,
 ) => {
-	const separator = new Uint8Array(magicWordStr.length);
-	for (let i = 0; i < magicWordStr.length; i++) {
-		separator[i] = magicWordStr.charCodeAt(i);
+	const separator = new Uint8Array(streamingKey.length);
+	for (let i = 0; i < streamingKey.length; i++) {
+		separator[i] = streamingKey.charCodeAt(i);
 	}
 
 	let unprocessedBuffers: Uint8Array[] = [];
@@ -181,7 +179,7 @@ export const makeStreamPayloadMessage = ({
 	body: Uint8Array;
 }): Uint8Array => {
 	const nonceArr = new TextEncoder().encode(nonce);
-	const magicWordArr = new TextEncoder().encode(magicWordStr);
+	const magicWordArr = new TextEncoder().encode(streamingKey);
 	const separatorArr = new TextEncoder().encode(':');
 	const bodyLengthArr = new TextEncoder().encode(body.length.toString());
 	const statusArr = new TextEncoder().encode(String(status));
