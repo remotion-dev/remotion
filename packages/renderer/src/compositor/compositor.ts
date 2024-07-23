@@ -115,6 +115,10 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 			return;
 		}
 
+		if (process.platform !== 'linux') {
+			return;
+		}
+
 		exec(`cat /proc/${child.pid}/status`, (err, str) => {
 			if (err) {
 				Log.error({indent: false, logLevel}, 'Could not get memory usage', err);

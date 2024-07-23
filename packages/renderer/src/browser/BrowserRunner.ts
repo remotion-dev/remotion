@@ -19,7 +19,7 @@ import * as childProcess from 'node:child_process';
 import * as fs from 'node:fs';
 
 import {deleteDirectory} from '../delete-directory';
-import type {LogLevel} from '../log-level';
+import {isEqualOrBelowLogLevel, type LogLevel} from '../log-level';
 import {Log} from '../logger';
 import {truthy} from '../truthy';
 import {Connection} from './Connection';
@@ -74,7 +74,19 @@ export class BrowserRunner {
 	}
 
 	startReportingMemory() {
+		if (!isEqualOrBelowLogLevel(this.#logLevel, 'verbose')) {
+			return;
+		}
+
+		if (process.platform !== 'linux') {
+			return;
+		}
+
 		this.#timerInterval = setInterval(() => {
+			if (process.platform !== 'linux') {
+				return;
+			}
+
 			exec(`cat /proc/${this.proc?.pid}/status`, (err, str) => {
 				if (err) {
 					Log.error(
