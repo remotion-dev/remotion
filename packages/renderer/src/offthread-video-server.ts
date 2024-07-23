@@ -217,6 +217,11 @@ export const startOffthreadVideoServer = ({
 					});
 				})
 				.catch((err) => {
+					Log.error(
+						{indent, logLevel},
+						'Could not extract frame from compositor',
+						err,
+					);
 					if (!response.headersSent) {
 						response.writeHead(500);
 						response.write(JSON.stringify({error: err.stack}));

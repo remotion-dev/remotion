@@ -1,3 +1,4 @@
+import {makeStreamer} from '@remotion/streaming';
 import {spawn} from 'node:child_process';
 import path from 'node:path';
 
@@ -6,7 +7,6 @@ import {resolveConcurrency} from '../get-concurrency';
 import type {LogLevel} from '../log-level';
 import {isEqualOrBelowLogLevel} from '../log-level';
 import {Log} from '../logger';
-import {makeStreamer} from '../streaming';
 import {serializeCommand} from './compose';
 import {getExecutablePath} from './get-executable-path';
 import {makeFileExecutableIfItIsNot} from './make-file-executable';
