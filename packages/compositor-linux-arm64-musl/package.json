@@ -2,7 +2,7 @@
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/compositor-linux-arm64-musl"
 	},
-	"version": "4.0.184",
+	"version": "4.0.185",
 	"name": "@remotion/compositor-linux-arm64-musl",
 	"os": [
 		"linux"
