@@ -30,6 +30,7 @@
 		"@mdx-js/react": "^2.3.0",
 		"@react-three/drei": "9.88.7",
 		"@react-three/fiber": "8.13.5",
+		"@remotion/animated-emoji": "workspace:*",
 		"@remotion/babel-loader": "workspace:*",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/cli": "workspace:*",

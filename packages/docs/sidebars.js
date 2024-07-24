@@ -540,6 +540,18 @@ module.exports = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/animated-emoji',
+			link: {
+				type: 'doc',
+				id: 'animated-emoji/index',
+			},
+			items: [
+				'animated-emoji/animated-emoji',
+				'animated-emoji/get-available-emoji',
+			],
+		},
+		{
+			type: 'category',
 			label: '@remotion/install-whisper-cpp',
 			link: {
 				type: 'doc',

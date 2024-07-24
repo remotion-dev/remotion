@@ -31,6 +31,7 @@
 		"@docusaurus/types": "3.4.0",
 		"@mdx-js/react": "3.0.1",
 		"@remotion-dev/cube-presentation": "https://www.remotion.pro/pkg/cube-transition/1.0.1/docs",
+		"@remotion/animated-emoji": "workspace:*",
 		"@remotion/animation-utils": "workspace:*",
 		"@remotion/babel-loader": "workspace:*",
 		"@remotion/bundler": "workspace:*",
