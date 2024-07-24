@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/lambda-python",
 	"private": true,
-	"version": "4.0.185",
+	"version": "4.0.186",
 	"scripts": {
 		"lint": "node build.mjs",
 		"publishprivate": "node publish.mjs"

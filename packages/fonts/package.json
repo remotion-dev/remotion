@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/fonts"
 	},
 	"name": "@remotion/fonts",
-	"version": "4.0.185",
+	"version": "4.0.186",
 	"description": "Helpers for loading local fonts into Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",

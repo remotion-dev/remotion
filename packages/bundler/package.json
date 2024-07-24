@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/bundler"
 	},
 	"name": "@remotion/bundler",
-	"version": "4.0.185",
+	"version": "4.0.186",
 	"description": "Bundle Remotion compositions using Webpack",
 	"main": "dist/index.js",
 	"sideEffects": false,

@@ -1240,6 +1240,9 @@ importers:
 
   packages/renderer:
     dependencies:
+      '@remotion/streaming':
+        specifier: workspace:*
+        version: link:../streaming
       execa:
         specifier: 5.1.1
         version: 5.1.1
@@ -1281,9 +1284,6 @@ importers:
       '@happy-dom/global-registrator':
         specifier: 14.5.1
         version: 14.5.1
-      '@remotion/streaming':
-        specifier: workspace:*
-        version: link:../streaming
       '@testing-library/dom':
         specifier: ^8.16.0
         version: 8.16.0

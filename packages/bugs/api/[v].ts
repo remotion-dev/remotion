@@ -8,6 +8,12 @@ type Bug = {
 
 export const bugs: Bug[] = [
 	{
+		title: '@remotion/streaming is missing',
+		description: 'Broken release - @remotion/streaming is missing when installing @remotion/renderer. Upgrade to 4.0.186.',
+		link: 'https://remotion.dev/changelog',
+		versions: ['4.0.185'],
+	},
+	{
 		title: 'Crash upon start.',
 		description: 'Broken release - @remotion/renderer would throw an error.',
 		link: 'https://remotion.dev/changelog',
