@@ -62,6 +62,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		showInTimeline,
 		loopVolumeCurveBehavior,
 		onError,
+		onAutoPlayError,
 		...nativeProps
 	} = props;
 
@@ -98,6 +99,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		stack: _remotionInternalStack,
 		showInTimeline,
 		premountDisplay: null,
+		onAutoPlayError: onAutoPlayError ?? null,
 	});
 
 	useSyncVolumeWithMediaTag({
@@ -119,6 +121,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		isPremounting: Boolean(parentSequence?.premounting),
 		pauseWhenBuffering,
 		debugSeeking: _remotionDebugSeeking,
+		onAutoPlayError: onAutoPlayError ?? null,
 	});
 
 	const actualFrom = parentSequence ? parentSequence.relativeFrom : 0;

@@ -241,6 +241,13 @@ Customize the [timeout](/docs/delay-render#modifying-the-timeout) of the [`delay
 
 Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRender()`](/docs/delay-render) call that this component makes.
 
+### `onAutoPlayError`<AvailableFrom v="4.0.187" />
+
+A callback function that gets called when the video fails to play due to autoplay restrictions.  
+If you don't pass a callback, the video will be muted and be retried once.  
+This prop is useful if you want to handle the error yourself, e.g. for pausing the Player.  
+Read more here about [autoplay restrictions](/docs/player/autoplay).
+
 ## Speed up renders for video with silent audio
 
 Remotion will download the whole video during render in order to mix its audio. If the video contains a silent audio track, you can add the muted property to signal to Remotion that it does not need to download the video and make the render more efficient.

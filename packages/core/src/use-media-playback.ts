@@ -42,6 +42,7 @@ export const useMediaPlayback = ({
 	pauseWhenBuffering,
 	isPremounting,
 	debugSeeking,
+	onAutoPlayError,
 }: {
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>;
 	src: string | undefined;
@@ -52,6 +53,7 @@ export const useMediaPlayback = ({
 	pauseWhenBuffering: boolean;
 	isPremounting: boolean;
 	debugSeeking: boolean;
+	onAutoPlayError: null | (() => void);
 }) => {
 	const {playbackRate: globalPlaybackRate} = useContext(TimelineContext);
 	const frame = useCurrentFrame();
@@ -209,7 +211,7 @@ export const useMediaPlayback = ({
 			if (playing && !isVariableFpsVideo) {
 				bufferUntilFirstFrame(shouldBeTime);
 				if (mediaRef.current.paused) {
-					playAndHandleNotAllowedError(mediaRef, mediaType);
+					playAndHandleNotAllowedError(mediaRef, mediaType, onAutoPlayError);
 				}
 			}
 
@@ -254,7 +256,7 @@ export const useMediaPlayback = ({
 				seek(mediaRef, shouldBeTime);
 			}
 
-			playAndHandleNotAllowedError(mediaRef, mediaType);
+			playAndHandleNotAllowedError(mediaRef, mediaType, onAutoPlayError);
 			if (!isVariableFpsVideo) {
 				bufferUntilFirstFrame(shouldBeTime);
 			}
@@ -275,5 +277,6 @@ export const useMediaPlayback = ({
 		playbackRate,
 		playing,
 		src,
+		onAutoPlayError,
 	]);
 };

@@ -94,9 +94,11 @@ const didPropChange = (key: string, newProp: unknown, prevProp: unknown) => {
 export const SharedAudioContext = createContext<SharedContext | null>(null);
 
 export const SharedAudioContextProvider: React.FC<{
-	numberOfAudioTags: number;
-	children: React.ReactNode;
-	component: LazyExoticComponent<ComponentType<Record<string, unknown>>> | null;
+	readonly numberOfAudioTags: number;
+	readonly children: React.ReactNode;
+	readonly component: LazyExoticComponent<
+		ComponentType<Record<string, unknown>>
+	> | null;
 }> = ({children, numberOfAudioTags, component}) => {
 	const audios = useRef<AudioElem[]>([]);
 	const [initialNumberOfAudioTags] = useState(numberOfAudioTags);
@@ -237,7 +239,7 @@ export const SharedAudioContextProvider: React.FC<{
 
 	const playAllAudios = useCallback(() => {
 		refs.forEach((ref) => {
-			playAndHandleNotAllowedError(ref.ref, 'audio');
+			playAndHandleNotAllowedError(ref.ref, 'audio', null);
 		});
 	}, [refs]);
 
