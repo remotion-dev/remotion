@@ -1,22 +1,15 @@
-import {
-	Loop,
-	OffthreadVideo,
-	RemotionOffthreadVideoProps,
-	useVideoConfig,
-} from 'remotion';
-import {
-	CalculateEmojiSrc,
-	Scale,
-	defaultCalculateEmojiSrc,
-} from './calculate-emoji-src';
+import type {RemotionOffthreadVideoProps} from 'remotion';
+import {Loop, OffthreadVideo, useVideoConfig} from 'remotion';
+import type {CalculateEmojiSrc, Scale} from './calculate-emoji-src';
+import {defaultCalculateEmojiSrc} from './calculate-emoji-src';
 import {emojis} from './emoji-data';
 import type {EmojiName} from './get-available-emoji';
 import {isWebkit} from './is-webkit';
 
 export type AnimatedEmojiProps = Omit<RemotionOffthreadVideoProps, 'src'> & {
-	emoji: EmojiName;
-	scale?: Scale;
-	calculateSrc?: CalculateEmojiSrc;
+	readonly emoji: EmojiName;
+	readonly scale?: Scale;
+	readonly calculateSrc?: CalculateEmojiSrc;
 };
 
 export const AnimatedEmoji = ({
