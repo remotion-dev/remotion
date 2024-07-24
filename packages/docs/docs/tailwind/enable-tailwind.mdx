@@ -44,6 +44,7 @@ This mean if you execute the Remotion CLI from a different directory, Tailwind w
 To fix this, you can pass the path to the config file as the second argument to `enableTailwind()`:
 
 ```ts twoslash title="remotion.config.ts"
+import path from 'node:path';
 import {Config} from '@remotion/cli/config';
 import {enableTailwind} from '@remotion/tailwind';
 
