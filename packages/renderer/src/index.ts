@@ -137,6 +137,7 @@ import {killAllBrowsers} from './browser-instances';
 import {codecSupportsMedia} from './codec-supports-media';
 import {makeFileExecutableIfItIsNot} from './compositor/make-file-executable';
 import {internalEnsureBrowser} from './ensure-browser';
+import {exampleVideos} from './example-videos';
 import type {AudioCodec} from './options/audio-codec';
 import {
 	getDefaultAudioCodec,
@@ -146,7 +147,6 @@ import {
 	supportedAudioCodecs,
 } from './options/audio-codec';
 import {getShouldRenderAudio} from './render-has-audio';
-import {exampleVideos} from './test/example-videos';
 import {toMegabytes} from './to-megabytes';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateBitrate} from './validate-videobitrate';

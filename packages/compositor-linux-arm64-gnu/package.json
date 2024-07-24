@@ -2,7 +2,7 @@
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/compositor-linux-arm64-gnu"
 	},
-	"version": "4.0.183",
+	"version": "4.0.186",
 	"name": "@remotion/compositor-linux-arm64-gnu",
 	"os": [
 		"linux"

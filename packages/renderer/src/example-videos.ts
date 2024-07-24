@@ -1,7 +1,7 @@
 import path from 'node:path';
 
-const examplePackage = path.join(__dirname, '..', '..', '..', 'example');
-const docsPackage = path.join(__dirname, '..', '..', '..', 'docs');
+const examplePackage = path.join(__dirname, '..', '..', 'example');
+const docsPackage = path.join(__dirname, '..', '..', 'docs');
 
 export const exampleVideos = {
 	bigBuckBunny: path.join(examplePackage, 'public/bigbuckbunny.mp4'),
