@@ -279,47 +279,69 @@ You can use the following snippet that uses [`@remotion/media-utils`](/docs/medi
 Note that this will mount a `<video>` tag in the browser, meaning only codecs supported by the browser can be used.
 
 ```tsx twoslash title="LoopedOffthreadVideo.tsx"
-import { getVideoMetadata } from "@remotion/media-utils";
-import React, { useEffect, useState } from "react";
 import {
-  cancelRender,
-  continueRender,
-  delayRender,
   Loop,
   OffthreadVideo,
-  staticFile,
   useVideoConfig,
 } from "remotion";
 
-const src = staticFile("myvideo.mp4");
-
-export const LoopedOffthreadVideo: React.FC = () => {
-  const [duration, setDuration] = useState<null | number>(null);
-  const [handle] = useState(() => delayRender());
+export const LoopedOffthreadVideo: React.FC<{
+  durationInSeconds: number | null;
+  src: string;
+}> = ({durationInSeconds, src}) => {
   const { fps } = useVideoConfig();
 
-  useEffect(() => {
-    getVideoMetadata(src)
-      .then(({ durationInSeconds }) => {
-        setDuration(durationInSeconds);
-        continueRender(handle);
-      })
-      .catch((err) => {
-        cancelRender(handle);
-        console.log(err);
-      });
-  }, [handle]);
-
-  if (duration === null) {
+  if (durationInSeconds === null) {
     return null;
   }
 
   return (
-    <Loop durationInFrames={Math.floor(fps * duration)}>
+    <Loop durationInFrames={Math.floor(fps * durationInSeconds)}>
       <OffthreadVideo src={src} />
     </Loop>
   );
 };
+```
+
+```tsx twoslash title="Root.tsx"
+const LoopedOffthreadVideo: React.FC<{
+  durationInSeconds: number | null;
+  src: string;
+}> = () => null;
+
+// ---cut---
+
+import React, { useState } from "react";
+import { Composition, staticFile } from "remotion";
+import { getVideoMetadata } from "@remotion/media-utils";
+
+export const RemotionRoot: React.FC = () => {
+  return (
+    <Composition 
+      id="MyComp"
+      component={LoopedOffthreadVideo}
+      defaultProps={{
+        durationInSeconds: null,
+        src: staticFile("myvideo.mp4"),
+      }}
+      calculateMetadata={async ({props}) => {
+        const { durationInSeconds, width, height } = await getVideoMetadata(props.src);
+        const fps = 30;
+
+        return {
+          durationInFrames: Math.floor(durationInSeconds * fps),
+          fps,
+          width,
+          height,
+          props: {
+            ...props,
+            durationInSeconds,
+          }
+        };
+      }}
+    />
+  )
+}
 ```
 
 ## Supported codecs by `<OffthreadVideo>`
