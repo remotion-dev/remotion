@@ -1,5 +1,5 @@
 import {staticFile} from 'remotion';
-import {EmojiName} from './get-available-emojis';
+import {EmojiName} from './get-available-emoji';
 
 export type Format = 'hevc' | 'webm';
 export type Scale = '0.5' | '1' | '2';

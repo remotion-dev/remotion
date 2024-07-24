@@ -10,7 +10,7 @@ import {
 	defaultCalculateEmojiSrc,
 } from './calculate-emoji-src';
 import {emojis} from './emoji-data';
-import type {EmojiName} from './get-available-emojis';
+import type {EmojiName} from './get-available-emoji';
 import {isWebkit} from './is-webkit';
 
 export type AnimatedEmojiProps = Omit<RemotionOffthreadVideoProps, 'src'> & {
