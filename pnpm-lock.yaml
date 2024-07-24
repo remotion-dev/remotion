@@ -708,7 +708,7 @@ importers:
       '@react-three/fiber':
         specifier: 8.13.5
         version: 8.13.5(react-dom@18.3.1)(react@18.3.1)(three@0.158.0)
-      '@remotion/animated-emojis':
+      '@remotion/animated-emoji':
         specifier: workspace:*
         version: link:../animated-emojis
       '@remotion/babel-loader':

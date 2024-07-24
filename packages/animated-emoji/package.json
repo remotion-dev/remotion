@@ -1,5 +1,5 @@
 {
-	"name": "@remotion/animated-emojis",
+	"name": "@remotion/animated-emoji",
 	"version": "4.0.186",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",

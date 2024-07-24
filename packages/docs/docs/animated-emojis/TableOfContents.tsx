@@ -6,15 +6,15 @@ export const TableOfContents: React.FC = () => {
   return (
     <div>
       <Grid>
-        <TOCItem link="/docs/animated-emojis/animated-emoji">
+        <TOCItem link="/docs/animated-emoji/animated-emoji">
           <strong>{"<AnimatedEmoji>"}</strong>
           <div>
             Component for rendering an animated emoji.
           </div>
         </TOCItem>
-        <TOCItem link="/docs/animated-emojis/get-available-emojis">
+        <TOCItem link="/docs/animated-emoji/get-available-emojis">
           <strong>{"getAvailableEmojis()"}</strong>
-          <div>Get a list of available emojis.</div>
+          <div>Get a list of available emoji.</div>
         </TOCItem>
       </Grid>
     </div>

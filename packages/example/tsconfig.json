@@ -12,7 +12,7 @@
 	},
 	"include": ["src"],
 	"references": [
-		{"path": "../animated-emojis"},
+		{"path": "../animated-emoji"},
 		{"path": "../animation-utils"},
 		{"path": "../core"},
 		{"path": "../babel-loader"},
