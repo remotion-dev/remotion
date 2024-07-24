@@ -29,7 +29,9 @@
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
-	"dependencies": {},
+	"dependencies": {
+		"remotion": "workspace:*"
+	},
 	"keywords": [],
 	"publishConfig": {
 		"access": "public"
