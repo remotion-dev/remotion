@@ -5,6 +5,7 @@ import path from 'path';
 export const packages = [
 	'ai-improvements',
 	'animation-utils',
+	'animated-emojis',
 	'astro-example',
 	'babel-loader',
 	'bugs',
@@ -178,6 +179,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'discord-poster': null,
 	'cli-autocomplete': null,
 	'docusaurus-plugin': null,
+	'animated-emojis': 'Google Fonts Animated Emojis as Remotion components',
 };
 
 export const apiDocs: {[key in Pkgs]: string | null} = {
@@ -242,4 +244,5 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	streaming: null,
 	studio: null,
 	transitions: 'https://www.remotion.dev/transitions',
+	'animated-emojis': 'https://www.remotion.dev/docs/animated-emojis',
 };

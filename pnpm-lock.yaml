@@ -55,6 +55,8 @@ importers:
         specifier: ^4.18.0
         version: 4.38.2
 
+  packages/animated-emojis: {}
+
   packages/animation-utils:
     dependencies:
       react:
@@ -702,6 +704,9 @@ importers:
       '@react-three/fiber':
         specifier: 8.13.5
         version: 8.13.5(react-dom@18.3.1)(react@18.3.1)(three@0.158.0)
+      '@remotion/animated-emojis':
+        specifier: workspace:*
+        version: link:../animated-emojis
       '@remotion/babel-loader':
         specifier: workspace:*
         version: link:../babel-loader

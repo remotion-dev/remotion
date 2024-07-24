@@ -145,6 +145,9 @@
 			"path": "./packages/docusaurus-plugin"
 		},
 		{
+			"path": "./packages/animated-emojis"
+		},
+		{
 			"path": "./packages/zod-types"
 		}
 	]

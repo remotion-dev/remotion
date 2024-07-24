@@ -4,12 +4,13 @@ import {
 	CalculateMetadataFunction,
 	Composition,
 	Folder,
+	Still,
 	getInputProps,
 	staticFile,
-	Still,
 } from 'remotion';
 import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
+import {UseanimatedEmojis} from './AnimatedEmojis';
 import BetaText, {betaTextSchema} from './BetaText';
 import {NativeBufferStateForImage} from './BufferState/Image';
 import {NativeBufferState} from './BufferState/Simple';
@@ -34,8 +35,8 @@ import {ManyAudio} from './ManyAudio';
 import {HandleAudioRenderError} from './MediaErrorHandling/HandleAudioRenderError';
 import {MissingImg} from './MissingImg';
 import {
-	calculateMetadataFn,
 	OffthreadRemoteVideo,
+	calculateMetadataFn,
 } from './OffthreadRemoteVideo/OffthreadRemoteVideo';
 import {OrbScene} from './Orb';
 import {ShapesMorph} from './Paths/ShapesMorph';
@@ -49,8 +50,8 @@ import RiveVehicle from './Rive/RiveExample';
 import {ScalePath} from './ScalePath';
 import {
 	ArrayTest,
-	schemaArrayTestSchema,
 	SchemaTest,
+	schemaArrayTestSchema,
 	schemaTestSchema,
 } from './SchemaTest';
 import {Scripts} from './Scripts';
@@ -76,12 +77,12 @@ import {
 } from './StudioApis/SaveDefaultProps';
 import {TriggerCalculateMetadata} from './StudioApis/TriggerCalculateMetadata';
 import {WriteStaticFile} from './StudioApis/WriteStaticFile';
-import './style.css';
 import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
 import {TextStroke} from './TextStroke';
 import ThreeBasic from './ThreeBasic';
+import {ThreeHtml} from './ThreeHtml/ThreeHtml';
 import {VideoTextureDemo} from './ThreeScene/Scene';
 import {Timeout} from './Timeout';
 import {FitText, fitTextSchema} from './Title/FitText';
@@ -94,6 +95,7 @@ import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
+import './style.css';
 import {WatchStaticDemo} from './watch-static';
 
 if (alias !== 'alias') {
@@ -104,7 +106,6 @@ const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
 
 // @ts-expect-error no types
 import styles from './styles.module.scss';
-import {ThreeHtml} from './ThreeHtml/ThreeHtml';
 
 class Vector2 {
 	readonly x: number;
@@ -1402,6 +1403,16 @@ export const Index: React.FC = () => {
 				<Composition
 					id="AudioError"
 					component={HandleAudioRenderError}
+					fps={30}
+					height={1080}
+					width={1080}
+					durationInFrames={10_000}
+				/>
+			</Folder>
+			<Folder name="AnimatedEmojis">
+				<Composition
+					id="AnimatedEmojis"
+					component={UseanimatedEmojis}
 					fps={30}
 					height={1080}
 					width={1080}

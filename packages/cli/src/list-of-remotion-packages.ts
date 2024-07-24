@@ -31,5 +31,6 @@ export const listOfRemotionPackages = [
 	'@remotion/transitions',
 	'@remotion/install-whisper-cpp',
 	'@remotion/animation-utils',
+	'@remotion/animated-emojis',
 	'remotion',
 ];
