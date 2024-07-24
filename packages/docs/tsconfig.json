@@ -42,6 +42,7 @@
 		{"path": "../shapes"},
 		{"path": "../gif"},
 		{"path": "../motion-blur"},
+		{"path": "../animated-emoji"},
 		{"path": "../lambda"},
 		{"path": "../bundler"},
 		{"path": "../renderer"},
