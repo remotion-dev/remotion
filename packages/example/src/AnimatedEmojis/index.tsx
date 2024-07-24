@@ -1,5 +1,5 @@
 import {AnimatedEmoji} from '@remotion/animated-emojis';
 
 export const UseanimatedEmojis: React.FC = () => {
-	return <AnimatedEmoji />;
+	return <AnimatedEmoji emoji="blush" scale="1" />;
 };

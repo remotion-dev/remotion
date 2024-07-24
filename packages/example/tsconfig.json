@@ -12,6 +12,8 @@
 	},
 	"include": ["src"],
 	"references": [
+		{"path": "../animated-emojis"},
+		{"path": "../animation-utils"},
 		{"path": "../core"},
 		{"path": "../babel-loader"},
 		{"path": "../bundler"},
