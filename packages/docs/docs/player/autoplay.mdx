@@ -57,3 +57,8 @@ You can have as many silent audio tags as you want. Set `numberOfSharedAudioTags
 :::warning
 Due to a bug on our side, this prop does not work well [before Remotion v3.1.5](https://github.com/remotion-dev/remotion/issues/723). Upgrade to receive the bugfix.
 :::
+
+## Controlling the behavior of autoplay failures<AvailableFrom v="4.0.187" />
+
+If the browser blocks a video from being autoplayed due to it having sound, the video will be muted and will be retried once.  
+If you want to handle the error yourself, you can pass a callback to the [`onAutoPlayError`](/docs/offthreadvideo#onautoplayerror) prop of `<OffthreadVideo>` and `<Video>`.
