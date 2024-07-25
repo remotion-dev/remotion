@@ -7,9 +7,15 @@ const BAR_HEIGHT = 5;
 const KNOB_SIZE = 12;
 export const VOLUME_SLIDER_WIDTH = 100;
 
+export type RenderMuteButton = (props: {
+	muted: boolean;
+	volume: number;
+}) => React.ReactNode;
+
 export const MediaVolumeSlider: React.FC<{
-	displayVerticalVolumeSlider: Boolean;
-}> = ({displayVerticalVolumeSlider}) => {
+	readonly displayVerticalVolumeSlider: Boolean;
+	readonly renderMuteButton: RenderMuteButton | null;
+}> = ({displayVerticalVolumeSlider, renderMuteButton}) => {
 	const [mediaMuted, setMediaMuted] = Internals.useMediaMutedState();
 	const [mediaVolume, setMediaVolume] = Internals.useMediaVolumeState();
 	const [focused, setFocused] = useState<boolean>(false);
@@ -25,7 +31,6 @@ export const MediaVolumeSlider: React.FC<{
 	const [randomClass] = useState(() =>
 		`__remotion-volume-slider-${random(randomId)}`.replace('.', ''),
 	);
-	const isMutedOrZero = mediaMuted || mediaVolume === 0;
 
 	const onVolumeChange = useCallback(
 		(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -146,6 +151,26 @@ export const MediaVolumeSlider: React.FC<{
 	}
 `;
 
+	const renderDefaultMuteButton: RenderMuteButton = useCallback(
+		({muted, volume}) => {
+			const isMutedOrZero = muted || volume === 0;
+			return (
+				<button
+					aria-label={isMutedOrZero ? 'Unmute sound' : 'Mute sound'}
+					title={isMutedOrZero ? 'Unmute sound' : 'Mute sound'}
+					onClick={onClick}
+					onBlur={onBlur}
+					onFocus={() => setFocused(true)}
+					style={volumeContainer}
+					type="button"
+				>
+					{isMutedOrZero ? <VolumeOffIcon /> : <VolumeOnIcon />}
+				</button>
+			);
+		},
+		[onClick, volumeContainer],
+	);
+
 	return (
 		<div ref={parentDivRef} style={parentDivStyle}>
 			<style
@@ -154,17 +179,10 @@ export const MediaVolumeSlider: React.FC<{
 					__html: sliderStyle,
 				}}
 			/>
-			<button
-				aria-label={isMutedOrZero ? 'Unmute sound' : 'Mute sound'}
-				title={isMutedOrZero ? 'Unmute sound' : 'Mute sound'}
-				onClick={onClick}
-				onBlur={onBlur}
-				onFocus={() => setFocused(true)}
-				style={volumeContainer}
-				type="button"
-			>
-				{isMutedOrZero ? <VolumeOffIcon /> : <VolumeOnIcon />}
-			</button>
+
+			{renderMuteButton
+				? renderMuteButton({muted: mediaMuted, volume: mediaVolume})
+				: renderDefaultMuteButton({muted: mediaMuted, volume: mediaVolume})}
 			{(focused || hover) && !mediaMuted && !Internals.isIosSafari() ? (
 				<div style={sliderContainer}>
 					<input

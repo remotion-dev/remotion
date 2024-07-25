@@ -17,6 +17,7 @@ import type {
 import {Composition, Internals} from 'remotion';
 import type {AnyZodObject} from 'zod';
 import {PlayerEmitterProvider} from './EmitterProvider.js';
+import type {RenderMuteButton} from './MediaVolumeSlider.js';
 import type {
 	RenderFullscreenButton,
 	RenderPlayPauseButton,
@@ -73,6 +74,7 @@ export type PlayerProps<
 	readonly initiallyShowControls?: number | boolean;
 	readonly renderPlayPauseButton?: RenderPlayPauseButton;
 	readonly renderFullscreenButton?: RenderFullscreenButton;
+	readonly renderMuteButton?: RenderMuteButton;
 	readonly alwaysShowControls?: boolean;
 	readonly schema?: Schema;
 	readonly initiallyMuted?: boolean;
@@ -140,6 +142,7 @@ const PlayerFn = <
 		bufferStateDelayInMilliseconds,
 		hideControlsWhenPointerDoesntMove = true,
 		overflowVisible = false,
+		renderMuteButton,
 		...componentProps
 	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>,
@@ -390,6 +393,7 @@ const PlayerFn = <
 							initiallyShowControls={initiallyShowControls ?? true}
 							renderFullscreen={renderFullscreenButton ?? null}
 							renderPlayPauseButton={renderPlayPauseButton ?? null}
+							renderMuteButton={renderMuteButton ?? null}
 							alwaysShowControls={alwaysShowControls}
 							showPlaybackRateControl={showPlaybackRateControl}
 							bufferStateDelayInMilliseconds={

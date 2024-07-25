@@ -12,6 +12,7 @@ import React, {
 } from 'react';
 import type {CurrentScaleContextType} from 'remotion';
 import {Internals} from 'remotion';
+import type {RenderMuteButton} from './MediaVolumeSlider.js';
 import type {
 	RenderFullscreenButton,
 	RenderPlayPauseButton,
@@ -77,6 +78,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		readonly initiallyShowControls: number | boolean;
 		readonly renderPlayPauseButton: RenderPlayPauseButton | null;
 		readonly renderFullscreen: RenderFullscreenButton | null;
+		readonly renderMuteButton: RenderMuteButton | null;
 		readonly alwaysShowControls: boolean;
 		readonly showPlaybackRateControl: boolean | number[];
 		readonly posterFillMode: PosterFillMode;
@@ -111,6 +113,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		initiallyShowControls,
 		renderFullscreen: renderFullscreenButton,
 		renderPlayPauseButton,
+		renderMuteButton,
 		alwaysShowControls,
 		showPlaybackRateControl,
 		posterFillMode,
@@ -658,6 +661,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 						doubleClickToFullscreen ? handleDoubleClick : undefined
 					}
 					onPointerDown={clickToPlay ? handlePointerDown : undefined}
+					renderMuteButton={renderMuteButton}
 				/>
 			) : null}
 		</>

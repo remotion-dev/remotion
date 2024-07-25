@@ -2,6 +2,7 @@ import type {MouseEventHandler, ReactNode, SyntheticEvent} from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {DefaultPlayPauseButton} from './DefaultPlayPauseButton.js';
+import type {RenderMuteButton} from './MediaVolumeSlider.js';
 import {MediaVolumeSlider} from './MediaVolumeSlider.js';
 import {PlaybackrateControl, playerButtonStyle} from './PlaybackrateControl.js';
 import {PlayerSeekBar} from './PlayerSeekBar.js';
@@ -117,6 +118,7 @@ export const Controls: React.FC<{
 		| ((ev: PointerEvent | SyntheticEvent) => void)
 		| undefined;
 	readonly onDoubleClick: MouseEventHandler<HTMLDivElement> | undefined;
+	readonly renderMuteButton: RenderMuteButton | null;
 }> = ({
 	durationInFrames,
 	isFullscreen,
@@ -142,6 +144,7 @@ export const Controls: React.FC<{
 	hideControlsWhenPointerDoesntMove,
 	onPointerDown,
 	onDoubleClick,
+	renderMuteButton,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
@@ -333,6 +336,7 @@ export const Controls: React.FC<{
 						<>
 							<div style={xSpacer} />
 							<MediaVolumeSlider
+								renderMuteButton={renderMuteButton}
 								displayVerticalVolumeSlider={displayVerticalVolumeSlider}
 							/>
 						</>

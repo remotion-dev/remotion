@@ -12,6 +12,7 @@ import {
 	useElementSize,
 } from './utils/use-element-size.js';
 
+export type {RenderMuteButton} from './MediaVolumeSlider.js';
 export type {
 	PlayerMethods,
 	PlayerRef,
