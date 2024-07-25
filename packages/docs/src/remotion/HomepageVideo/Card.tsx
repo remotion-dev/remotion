@@ -313,11 +313,11 @@ export const Cards: React.FC<{
 				const index = indices[i];
 				const content =
 					index === 0 ? (
-						<CurrentCountry theme={theme} />
+						<TrendingRepos theme={theme} />
 					) : index === 1 ? (
 						<Temperature theme={theme} />
 					) : index === 2 ? (
-						<TrendingRepos theme={theme} />
+						<CurrentCountry theme={theme} />
 					) : (
 						'🐹'
 					);

@@ -6,7 +6,7 @@ import {experts} from '../data/experts';
 import {AllTemplates} from './AllTemplates';
 import {Article} from './Article';
 import {Expert} from './Expert';
-import {Comp, schema} from './HomepageVideo/Comp';
+import {HomepageVideoComp, schema} from './HomepageVideo/Comp';
 import {TemplateComp} from './Template';
 
 export const RemotionRoot: React.FC = () => {
@@ -67,7 +67,7 @@ export const RemotionRoot: React.FC = () => {
 				id="template-all"
 			/>
 			<Composition
-				component={Comp}
+				component={HomepageVideoComp}
 				id="HomepageVideo"
 				width={640}
 				height={360}

@@ -43,7 +43,7 @@ export const TrendingRepos: React.FC<{
 							marginBottom: 10,
 						}}
 					>
-						Trending repository
+						Trending repositories
 					</div>
 					<div style={item}>1. maybe-finance/maybe</div>
 					<div style={item}>2. excalidraw/excalidraw</div>

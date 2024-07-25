@@ -7,7 +7,9 @@ export const schema = z.object({
 	theme: z.enum(['light', 'dark']),
 });
 
-export const Comp: React.FC<z.infer<typeof schema>> = ({theme}) => {
+export const HomepageVideoComp: React.FC<z.infer<typeof schema>> = ({
+	theme,
+}) => {
 	const [state, setRerenders] = useState({
 		rerenders: 0,
 		indices: [0, 1, 2, 3],
