@@ -27,6 +27,11 @@ import {getExpectedMediaFrameUncorrected} from './get-current-time.js';
 import {getOffthreadVideoSource} from './offthread-video-source.js';
 import type {OffthreadVideoProps} from './props.js';
 
+type SrcAndHandle = {
+	src: string;
+	handle: ReturnType<typeof delayRender>;
+};
+
 export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	onError,
 	volume: volumeProp,
@@ -151,7 +156,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 		});
 	}, [toneMapped, currentTime, src, transparent]);
 
-	const [imageSrc, setImageSrc] = useState<string | null>(null);
+	const [imageSrc, setImageSrc] = useState<SrcAndHandle | null>(null);
 
 	useLayoutEffect(() => {
 		const cleanup: Function[] = [];
@@ -191,8 +196,10 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 
 				const url = URL.createObjectURL(blob);
 				cleanup.push(() => URL.revokeObjectURL(url));
-				setImageSrc(url);
-				continueRender(newHandle);
+				setImageSrc({
+					src: url,
+					handle: newHandle,
+				});
 			} catch (err) {
 				if (onError) {
 					onError(err as Error);
@@ -241,9 +248,11 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 		return null;
 	}
 
+	continueRender(imageSrc.handle);
+
 	return (
 		<Img
-			src={imageSrc}
+			src={imageSrc.src}
 			className={className}
 			delayRenderRetries={delayRenderRetries}
 			delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
