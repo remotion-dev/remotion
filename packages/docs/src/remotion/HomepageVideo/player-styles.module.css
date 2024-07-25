@@ -1,16 +1,16 @@
 .card {
-  scale: 1;
-  transition: scale 0.2s ease;
+	scale: 1;
+	transition: scale 0.2s ease;
 }
 
 .content {
-  transition: opacity 0.2s ease;
+	transition: opacity 0.2s ease;
 }
 
 .passive .content {
-  opacity: 0;
+	opacity: 0;
 }
 
 .active {
-  scale: 1.05;
+	scale: 1.05;
 }
