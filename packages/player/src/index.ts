@@ -26,6 +26,7 @@ export type {
 	RenderPlayPauseButton,
 } from './PlayerControls.js';
 export type {ErrorFallback, RenderLoading, RenderPoster} from './PlayerUI.js';
+export type {RenderVolumeSlider} from './render-volume-slider.js';
 export {Thumbnail} from './Thumbnail.js';
 export type {ThumbnailProps, ThumbnailPropsWithoutZod} from './Thumbnail.js';
 export type {Size} from './utils/use-element-size.js';

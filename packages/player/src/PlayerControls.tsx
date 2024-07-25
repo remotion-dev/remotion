@@ -8,6 +8,7 @@ import {PlaybackrateControl, playerButtonStyle} from './PlaybackrateControl.js';
 import {PlayerSeekBar} from './PlayerSeekBar.js';
 import {formatTime} from './format-time.js';
 import {FullscreenIcon} from './icons.js';
+import type {RenderVolumeSlider} from './render-volume-slider.js';
 import {useHoverState} from './use-hover-state.js';
 import type {usePlayer} from './use-player.js';
 import {
@@ -119,6 +120,7 @@ export const Controls: React.FC<{
 		| undefined;
 	readonly onDoubleClick: MouseEventHandler<HTMLDivElement> | undefined;
 	readonly renderMuteButton: RenderMuteButton | null;
+	readonly renderVolumeSlider: RenderVolumeSlider | null;
 }> = ({
 	durationInFrames,
 	isFullscreen,
@@ -145,6 +147,7 @@ export const Controls: React.FC<{
 	onPointerDown,
 	onDoubleClick,
 	renderMuteButton,
+	renderVolumeSlider,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
@@ -337,6 +340,7 @@ export const Controls: React.FC<{
 							<div style={xSpacer} />
 							<MediaVolumeSlider
 								renderMuteButton={renderMuteButton}
+								renderVolumeSlider={renderVolumeSlider}
 								displayVerticalVolumeSlider={displayVerticalVolumeSlider}
 							/>
 						</>

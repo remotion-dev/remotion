@@ -1,9 +1,10 @@
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {Internals, random} from 'remotion';
 import {ICON_SIZE, VolumeOffIcon, VolumeOnIcon} from './icons.js';
+import type {RenderVolumeSlider} from './render-volume-slider.js';
+import {renderDefaultVolumeSlider} from './render-volume-slider.js';
 import {useHoverState} from './use-hover-state.js';
 
-const BAR_HEIGHT = 5;
 const KNOB_SIZE = 12;
 export const VOLUME_SLIDER_WIDTH = 100;
 
@@ -13,9 +14,10 @@ export type RenderMuteButton = (props: {
 }) => React.ReactNode;
 
 export const MediaVolumeSlider: React.FC<{
-	readonly displayVerticalVolumeSlider: Boolean;
+	readonly displayVerticalVolumeSlider: boolean;
 	readonly renderMuteButton: RenderMuteButton | null;
-}> = ({displayVerticalVolumeSlider, renderMuteButton}) => {
+	readonly renderVolumeSlider: RenderVolumeSlider | null;
+}> = ({displayVerticalVolumeSlider, renderMuteButton, renderVolumeSlider}) => {
 	const [mediaMuted, setMediaMuted] = Internals.useMediaMutedState();
 	const [mediaVolume, setMediaVolume] = Internals.useMediaVolumeState();
 	const [focused, setFocused] = useState<boolean>(false);
@@ -32,22 +34,15 @@ export const MediaVolumeSlider: React.FC<{
 		`__remotion-volume-slider-${random(randomId)}`.replace('.', ''),
 	);
 
-	const onVolumeChange = useCallback(
-		(e: React.ChangeEvent<HTMLInputElement>) => {
-			setMediaVolume(parseFloat(e.target.value));
-		},
-		[setMediaVolume],
-	);
-
-	const onBlur = () => {
+	const onBlur = useCallback(() => {
 		setTimeout(() => {
 			// We need a small delay to check which element was focused next,
 			// and if it wasn't the volume slider, we hide it
-			if (document.activeElement !== inputRef.current) {
+			if (inputRef.current && document.activeElement !== inputRef.current) {
 				setFocused(false);
 			}
 		}, 10);
-	};
+	}, []);
 
 	const isVolume0 = mediaVolume === 0;
 	const onClick = useCallback(() => {
@@ -84,52 +79,6 @@ export const MediaVolumeSlider: React.FC<{
 			padding: 0,
 		};
 	}, []);
-
-	const sliderContainer = useMemo((): React.CSSProperties => {
-		const paddingLeft = 5;
-		const common: React.CSSProperties = {
-			paddingLeft,
-			height: ICON_SIZE,
-			width: VOLUME_SLIDER_WIDTH,
-		};
-
-		if (displayVerticalVolumeSlider) {
-			return {
-				...common,
-				position: 'absolute',
-				transform: `rotate(-90deg) translateX(${
-					VOLUME_SLIDER_WIDTH / 2 + ICON_SIZE / 2
-				}px)`,
-			};
-		}
-
-		return {
-			...common,
-		};
-	}, [displayVerticalVolumeSlider]);
-
-	const inputStyle = useMemo((): React.CSSProperties => {
-		const commonStyle: React.CSSProperties = {
-			WebkitAppearance: 'none',
-			backgroundColor: 'rgba(255, 255, 255, 0.5)',
-			borderRadius: BAR_HEIGHT / 2,
-			cursor: 'pointer',
-			height: BAR_HEIGHT,
-			width: VOLUME_SLIDER_WIDTH,
-			backgroundImage: `linear-gradient(
-				to right,
-				white ${mediaVolume * 100}%, rgba(255, 255, 255, 0) ${mediaVolume * 100}%
-			)`,
-		};
-		if (displayVerticalVolumeSlider) {
-			return {
-				...commonStyle,
-				bottom: ICON_SIZE + VOLUME_SLIDER_WIDTH / 2,
-			};
-		}
-
-		return commonStyle;
-	}, [displayVerticalVolumeSlider, mediaVolume]);
 
 	const sliderStyle = `
 	.${randomClass}::-webkit-slider-thumb {
@@ -168,7 +117,7 @@ export const MediaVolumeSlider: React.FC<{
 				</button>
 			);
 		},
-		[onClick, volumeContainer],
+		[onBlur, onClick, volumeContainer],
 	);
 
 	return (
@@ -179,27 +128,18 @@ export const MediaVolumeSlider: React.FC<{
 					__html: sliderStyle,
 				}}
 			/>
-
 			{renderMuteButton
 				? renderMuteButton({muted: mediaMuted, volume: mediaVolume})
 				: renderDefaultMuteButton({muted: mediaMuted, volume: mediaVolume})}
-			{(focused || hover) && !mediaMuted && !Internals.isIosSafari() ? (
-				<div style={sliderContainer}>
-					<input
-						ref={inputRef}
-						aria-label="Change volume"
-						className={randomClass}
-						max={1}
-						min={0}
-						onBlur={() => setFocused(false)}
-						onChange={onVolumeChange}
-						step={0.01}
-						type="range"
-						value={mediaVolume}
-						style={inputStyle}
-					/>
-				</div>
-			) : null}
+			{(focused || hover) && !mediaMuted && !Internals.isIosSafari()
+				? (renderVolumeSlider ?? renderDefaultVolumeSlider)({
+						className: randomClass,
+						isNarrow: displayVerticalVolumeSlider,
+						volume: mediaVolume,
+						onBlur: () => setFocused(false),
+						inputRef,
+					})
+				: null}
 		</div>
 	);
 };
