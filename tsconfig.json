@@ -1,142 +1,154 @@
 {
-  "compilerOptions": {
-    "target": "ES2018",
-    "module": "commonjs",
-    "declaration": true,
-    "declarationMap": false,
-    "sourceMap": false,
-    "lib": ["es2018", "dom"],
-    "jsx": "react-jsx",
-    "noEmit": false,
-    "strict": true,
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "incremental": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "skipLibCheck": true
-  },
-  "include": [],
-  "references": [
-    {
-      "path": "./packages/babel-loader"
-    },
-    {
-      "path": "./packages/bundler"
-    },
-    {
-      "path": "./packages/cloudrun"
-    },
-    {
-      "path": "./packages/cli"
-    },
-    {
-      "path": "./packages/cli-autocomplete"
-    },
-    {
-      "path": "./packages/core"
-    },
-    {
-      "path": "./packages/create-video"
-    },
-    {
-      "path": "./packages/docs"
-    },
-    {
-      "path": "./packages/eslint-config"
-    },
-    {
-      "path": "./packages/eslint-plugin"
-    },
-    {
-      "path": "./packages/example"
-    },
-    {
-      "path": "./packages/example-without-zod"
-    },
-    {
-      "path": "./packages/gif"
-    },
-    {
-      "path": "./packages/google-fonts"
-    },
-    {
-      "path": "./packages/it-tests"
-    },
-    {
-      "path": "./packages/lambda"
-    },
-    {
-      "path": "./packages/lottie"
-    },
-    {
-      "path": "./packages/media-utils"
-    },
-    {
-      "path": "./packages/animation-utils"
-    },
-    {
-      "path": "./packages/install-whisper-cpp"
-    },
-    {
-      "path": "./packages/motion-blur"
-    },
-    {
-      "path": "./packages/noise"
-    },
-    {
-      "path": "./packages/paths"
-    },
-    {
-      "path": "./packages/player"
-    },
-    {
-      "path": "./packages/player-example"
-    },
-    {
-      "path": "./packages/preload"
-    },
-    {
-      "path": "./packages/renderer"
-    },
-    {
-      "path": "./packages/rive"
-    },
-    {
-      "path": "./packages/shapes"
-    },
-    {
-      "path": "./packages/skia"
-    },
-    {
-      "path": "./packages/tailwind"
-    },
-    {
-      "path": "./packages/studio"
-    },
-    {
-      "path": "./packages/studio-server"
-    },
-    {
-      "path": "./packages/studio-shared"
-    },
-    {
-      "path": "./packages/test-utils"
-    },
-    {
-      "path": "./packages/three"
-    },
-    {
-      "path": "./packages/transitions"
-    },
-    {
-      "path": "./packages/video-parser"
-    },
-    {
-      "path": "./packages/enable-scss"
-    },
-    {
-      "path": "./packages/zod-types"
-    }
-  ]
+	"compilerOptions": {
+		"target": "ES2018",
+		"module": "commonjs",
+		"declaration": true,
+		"declarationMap": false,
+		"sourceMap": false,
+		"lib": ["es2018", "dom"],
+		"jsx": "react-jsx",
+		"noEmit": false,
+		"strict": true,
+		"esModuleInterop": true,
+		"resolveJsonModule": true,
+		"incremental": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"skipLibCheck": true
+	},
+	"include": [],
+	"references": [
+		{
+			"path": "./packages/babel-loader"
+		},
+		{
+			"path": "./packages/bundler"
+		},
+		{
+			"path": "./packages/cloudrun"
+		},
+		{
+			"path": "./packages/cli"
+		},
+		{
+			"path": "./packages/cli-autocomplete"
+		},
+		{
+			"path": "./packages/core"
+		},
+		{
+			"path": "./packages/create-video"
+		},
+		{
+			"path": "./packages/docs"
+		},
+		{
+			"path": "./packages/eslint-config"
+		},
+		{
+			"path": "./packages/eslint-plugin"
+		},
+		{
+			"path": "./packages/example"
+		},
+		{
+			"path": "./packages/example-without-zod"
+		},
+		{
+			"path": "./packages/fonts"
+		},
+		{
+			"path": "./packages/gif"
+		},
+		{
+			"path": "./packages/google-fonts"
+		},
+		{
+			"path": "./packages/it-tests"
+		},
+		{
+			"path": "./packages/lambda"
+		},
+		{
+			"path": "./packages/lottie"
+		},
+		{
+			"path": "./packages/media-utils"
+		},
+		{
+			"path": "./packages/animation-utils"
+		},
+		{
+			"path": "./packages/install-whisper-cpp"
+		},
+		{
+			"path": "./packages/motion-blur"
+		},
+		{
+			"path": "./packages/noise"
+		},
+		{
+			"path": "./packages/paths"
+		},
+		{
+			"path": "./packages/player"
+		},
+		{
+			"path": "./packages/player-example"
+		},
+		{
+			"path": "./packages/preload"
+		},
+		{
+			"path": "./packages/renderer"
+		},
+		{
+			"path": "./packages/rive"
+		},
+		{
+			"path": "./packages/shapes"
+		},
+		{
+			"path": "./packages/skia"
+		},
+		{
+			"path": "./packages/tailwind"
+		},
+		{
+			"path": "./packages/studio"
+		},
+		{
+			"path": "./packages/studio-server"
+		},
+		{
+			"path": "./packages/studio-shared"
+		},
+		{
+			"path": "./packages/test-utils"
+		},
+		{
+			"path": "./packages/three"
+		},
+		{
+			"path": "./packages/transitions"
+		},
+		{
+			"path": "./packages/video-parser"
+		},
+		{
+			"path": "./packages/enable-scss"
+		},
+		{
+			"path": "./packages/streaming"
+		},
+		{
+			"path": "./packages/docusaurus-plugin"
+		},
+		{
+			"path": "./packages/animated-emoji"
+		},
+		{
+			"path": "./packages/zod-types"
+		}
+	]
 }

@@ -7,12 +7,7 @@ crumb: "Cloud Run API"
 
 <ExperimentalBadge>
   <p>
-    Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs
-    may change in any version and documentation is not yet finished. See the{" "}
-    <a href="https://remotion.dev/changelog">
-      changelog to stay up to date with breaking changes
-    </a>
-    .
+    Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the{' '}<a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.
   </p>
 </ExperimentalBadge>
 
@@ -45,7 +40,7 @@ if (result.type === "success") {
 ```
 
 :::note
-Import from [`@remotion/cloudrun/client`](/docs/cloudrun/light-client) to not import the whole renderer, which cannot be bundled.
+Import from [`@remotion/cloudrun/client`](/docs/cloudrun/light-client) to not load the whole renderer, which cannot be bundled.
 :::
 
 ## Arguments
@@ -201,6 +196,18 @@ Renders only every nth frame. For example only every second frame, every third f
 _optional_
 
 <Options id="number-of-gif-loops" />
+
+_optional, available since v3.1.5_
+
+How the output file should behave when accessed through the S3 output link in the browser.  
+Either:
+
+### `downloadBehavior?`<AvailableFrom v="4.0.176"/>
+
+How the output file should behave when accessed through the Cloud Storage output link in the browser.
+
+- `{"type": "play-in-browser"}` - the default. The video will play in the browser.
+- `{"type": "download", fileName: null}` or `{"type": "download", fileName: "download.mp4"}` - a `Content-Disposition` header will be added which makes the browser download the file. You can optionally override the filename.
 
 ### `frameRange?`
 

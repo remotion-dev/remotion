@@ -1,4 +1,4 @@
-import type {BufferIterator} from '../../../read-and-increment-offset';
+import type {BufferIterator} from '../../../buffer-iterator';
 
 export type MuxingAppSegment = {
 	type: 'muxing-app-segment';

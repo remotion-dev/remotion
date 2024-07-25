@@ -2,46 +2,46 @@
 image: /generated/articles-docs-ssr-node.png
 id: ssr-node
 title: Rendering using SSR APIs
-crumb: "Server-side rendering"
+crumb: 'Server-side rendering'
 sidebar_label: Example
 ---
 
-The NPM package [`@remotion/renderer`](/docs/renderer) provides you with an API for rendering media programmatically.  
+The NPM package [`@remotion/renderer`](/docs/renderer) provides you with "**S**erver-**S**ide **R**endering" APIs for rendering media programmatically.  
 These functions can be used in Node.js and Bun.
 
 Rendering a video takes three steps:
 
-<Step>1</Step> Creating a <a href="/docs/terminology/bundle">Remotion Bundle</a>
-<br />
-<Step>2</Step> Select the composition to render and calculate its metadata
-<br />
-<Step>3</Step> Render the video, audio, still or image sequence.
-<br />
-<br />
+<div>
+  <Step>1</Step> Creating a{' '}<a href="/docs/terminology/bundle">Remotion Bundle</a><br />
+  <Step>2</Step> Select the composition to render and calculate its metadata<br />
+  <Step>3</Step> Render the video, audio, still or image sequence.{' '}
+</div>
+
+## Example script
 
 Follow this commented example to see how to render a video:
 
 ```tsx twoslash title="render.mjs"
 // @module: ESNext
 // @target: ESNext
-import { bundle } from "@remotion/bundler";
-import { renderMedia, selectComposition } from "@remotion/renderer";
-import path from "path";
+import {bundle} from '@remotion/bundler';
+import {renderMedia, selectComposition} from '@remotion/renderer';
+import path from 'path';
 
 // The composition you want to render
-const compositionId = "HelloWorld";
+const compositionId = 'HelloWorld';
 
 // You only have to create a bundle once, and you may reuse it
 // for multiple renders that you can parametrize using input props.
 const bundleLocation = await bundle({
-  entryPoint: path.resolve("./src/index.ts"),
-  // If you have a Webpack override, make sure to add it here
+  entryPoint: path.resolve('./src/index.ts'),
+  // If you have a webpack override in remotion.config.ts, pass it here as well.
   webpackOverride: (config) => config,
 });
 
 // Parametrize the video by passing props to your component.
 const inputProps = {
-  foo: "bar",
+  foo: 'bar',
 };
 
 // Get the composition you want to render. Pass `inputProps` if you
@@ -57,12 +57,12 @@ const composition = await selectComposition({
 await renderMedia({
   composition,
   serveUrl: bundleLocation,
-  codec: "h264",
+  codec: 'h264',
   outputLocation: `out/${compositionId}.mp4`,
   inputProps,
 });
 
-console.log("Render done!");
+console.log('Render done!');
 ```
 
 This flow is customizable. Click on one of the SSR APIs to read about its options:
@@ -74,6 +74,10 @@ This flow is customizable. Click on one of the SSR APIs to read about its option
 - [`renderStill()`](/docs/renderer/render-still) - Render a still image.
 - [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video) - Encode a video based on an image sequence
 - [`openBrowser()`](/docs/renderer/open-browser) - Share a browser instance across function calls for improved performance.
+
+## Linux Dependencies
+
+If you are on Linux, Chrome Headless Shell requires some shared libraries to be installed. See [Linux Dependencies](/docs/miscellaneous/linux-dependencies).
 
 ## SSR APIs in Next.js
 

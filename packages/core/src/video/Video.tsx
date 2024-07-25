@@ -33,9 +33,10 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		stack,
 		_remotionInternalNativeLoopPassed,
 		showInTimeline,
+		onAutoPlayError,
 		...otherProps
 	} = props;
-	const {loop, ...propsOtherThanLoop} = props;
+	const {loop, _remotionDebugSeeking, ...propsOtherThanLoop} = props;
 	const {fps} = useVideoConfig();
 	const environment = getRemotionEnvironment();
 
@@ -131,7 +132,9 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 			_remotionInternalNativeLoopPassed={
 				_remotionInternalNativeLoopPassed ?? false
 			}
+			_remotionDebugSeeking={_remotionDebugSeeking ?? false}
 			showInTimeline={showInTimeline ?? true}
+			onAutoPlayError={onAutoPlayError ?? undefined}
 		/>
 	);
 };

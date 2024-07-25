@@ -31,7 +31,7 @@ const problematicCharacters = {
 	'%3B': ';',
 };
 
-export type HexInfo = {
+type HexInfo = {
 	containsHex: boolean;
 };
 

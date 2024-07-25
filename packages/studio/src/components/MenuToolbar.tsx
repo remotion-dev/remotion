@@ -27,7 +27,7 @@ const flex: React.CSSProperties = {
 };
 
 export const MenuToolbar: React.FC<{
-	readOnlyStudio: boolean;
+	readonly readOnlyStudio: boolean;
 }> = ({readOnlyStudio}) => {
 	const [selected, setSelected] = useState<string | null>(null);
 

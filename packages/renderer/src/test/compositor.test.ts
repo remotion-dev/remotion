@@ -1,6 +1,6 @@
+import {expect, test} from 'bun:test';
 import {unlinkSync} from 'node:fs';
 import path from 'node:path';
-import {expect, test} from 'vitest';
 import {composeWithoutCache} from '../compositor/compose';
 import {startCompositor} from '../compositor/compositor';
 import type {Layer} from '../compositor/payloads';
@@ -38,7 +38,7 @@ test('Should handle the overlay', async () => {
 
 		throw new Error('should not reach here');
 	} catch (err) {
-		expect(err).toMatch(/missing field/);
+		expect((err as Error).message).toMatch(/missing field/);
 	}
 });
 

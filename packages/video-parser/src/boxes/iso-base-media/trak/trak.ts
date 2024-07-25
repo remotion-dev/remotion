@@ -1,37 +1,37 @@
-import type {IsoBaseMediaBox} from '../../../parse-video';
-import {getArrayBufferIterator} from '../../../read-and-increment-offset';
+import type {BufferIterator} from '../../../buffer-iterator';
+import type {AnySegment} from '../../../parse-result';
 import type {BaseBox} from '../base-type';
 import {parseBoxes} from '../process-box';
 
 export interface TrakBox extends BaseBox {
 	type: 'trak-box';
-	children: IsoBaseMediaBox[];
+	children: AnySegment[];
 }
 
-export const parseTrak = (data: ArrayBuffer, offset: number): TrakBox => {
-	const iterator = getArrayBufferIterator(data, 0);
-	const size = iterator.getUint32();
+export const parseTrak = ({
+	data,
+	size,
+	offsetAtStart,
+}: {
+	data: BufferIterator;
+	size: number;
+	offsetAtStart: number;
+}): TrakBox => {
+	const children = parseBoxes({
+		iterator: data,
+		maxBytes: size - (data.counter.getOffset() - offsetAtStart),
+		allowIncompleteBoxes: false,
+		initialBoxes: [],
+	});
 
-	if (size !== data.byteLength) {
-		throw new Error(
-			`Data size of version 0 is ${size}, got ${data.byteLength}`,
-		);
+	if (children.status === 'incomplete') {
+		throw new Error('Incomplete boxes are not allowed');
 	}
-
-	const atom = iterator.getAtom();
-	if (atom !== 'trak') {
-		throw new Error(`Expected trak atom, got ${atom}`);
-	}
-
-	const children = parseBoxes(
-		data.slice(iterator.counter.getOffset()),
-		offset + iterator.counter.getOffset(),
-	);
 
 	return {
-		offset,
-		boxSize: data.byteLength,
+		offset: offsetAtStart,
+		boxSize: size,
 		type: 'trak-box',
-		children,
+		children: children.segments,
 	};
 };

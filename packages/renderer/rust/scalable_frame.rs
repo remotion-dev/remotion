@@ -134,7 +134,7 @@ impl ScalableFrame {
         }
         match self.native_frame {
             None => {}
-            Some(ref frame) => size = frame.size,
+            Some(ref frame) => size = frame.size * 2,
         }
 
         size
@@ -213,15 +213,6 @@ pub fn scale_and_make_bitmap(
             1 << 16,
         )?;
     }
-
-    scaler.set_colorspace_details(
-        native_frame.colorspace,
-        native_frame.src_range,
-        color::Range::JPEG,
-        0,
-        1 << 16,
-        1 << 16,
-    )?;
 
     let mut data: Vec<*const u8> = Vec::with_capacity(planes.len());
 
@@ -363,13 +354,15 @@ pub fn rotate_180(
     stride: usize,
     channels: usize,
 ) -> (Vec<u8>, u32, u32) {
-    let mut new_data: Vec<u8> = vec![0; stride * height as usize];
+    let new_stride = width as usize * channels;
+
+    let mut new_data: Vec<u8> = vec![0; new_stride * height as usize];
 
     for y in 0..height {
         for x in 0..width {
             let new_x = width - x - 1;
             let new_y = height - y - 1;
-            let new_index = (new_y as usize * stride) + (new_x as usize * channels);
+            let new_index = (new_y as usize * new_stride) + (new_x as usize * channels);
             let old_index = (y as usize * stride) + (x as usize * channels);
             new_data[new_index..new_index + channels]
                 .copy_from_slice(&data[old_index..old_index + channels]);

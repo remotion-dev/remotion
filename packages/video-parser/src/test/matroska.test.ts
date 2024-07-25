@@ -1,11 +1,19 @@
+import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
-import {getDuration} from '../get-duration';
-import {parseVideo} from '../parse-video';
-import {exampleVideos} from './example-videos';
+import {nodeReader} from '../from-node';
+import {getVideoMetadata} from '../get-video-metadata';
 
 test('Should get duration of AV1 video', async () => {
-	const parsed = await parseVideo(exampleVideos.av1, Infinity);
-	expect(parsed).toEqual([
+	const parsed = await getVideoMetadata(
+		RenderInternals.exampleVideos.av1,
+		{
+			durationInSeconds: true,
+			boxes: true,
+		},
+		nodeReader,
+	);
+
+	expect(parsed.boxes).toEqual([
 		{
 			type: 'main-segment',
 			children: [
@@ -16,36 +24,48 @@ test('Should get duration of AV1 video', async () => {
 						{
 							type: 'seek-segment',
 							seekId: '0x1549a966',
-							child: {type: 'seek-position-segment', seekPosition: 161},
+							child: {
+								type: 'seek-position-segment',
+								seekPosition: 161,
+							},
 						},
 						{
 							type: 'seek-segment',
 							seekId: '0x1654ae6b',
-							child: {type: 'seek-position-segment', seekPosition: 214},
+							child: {
+								type: 'seek-position-segment',
+								seekPosition: 214,
+							},
 						},
 						{
 							type: 'seek-segment',
 							seekId: '0x1254c367',
-							child: {type: 'seek-position-segment', seekPosition: 322},
+							child: {
+								type: 'seek-position-segment',
+								seekPosition: 322,
+							},
 						},
 						{
 							type: 'seek-segment',
 							seekId: '0x1c53bb6b',
-							child: {type: 'seek-position-segment', seekPosition: 347329},
+							child: {
+								type: 'seek-position-segment',
+								seekPosition: 347329,
+							},
 						},
 					],
 				},
 				{
-					length: 88,
 					type: 'void-segment',
+					length: 88,
 				},
 				{
-					length: 48,
 					type: 'info-segment',
+					length: 48,
 					children: [
 						{
-							timestampScale: 1000000,
 							type: 'timestamp-scale-segment',
+							timestampScale: 1000000,
 						},
 						{
 							type: 'muxing-app-segment',
@@ -56,8 +76,8 @@ test('Should get duration of AV1 video', async () => {
 							value: 'Lavf60.3.100',
 						},
 						{
-							duration: 1000,
 							type: 'duration-segment',
+							duration: 1000,
 						},
 					],
 				},
@@ -65,18 +85,56 @@ test('Should get duration of AV1 video', async () => {
 					type: 'tracks-segment',
 					children: [
 						{
-							id: '0xae',
-							type: 'unknown-segment',
+							type: 'track-entry-segment',
+							children: [
+								{
+									type: 'track-number-segment',
+									trackNumber: 1,
+								},
+								{
+									type: 'track-uid-segment',
+									trackUid: 'ab2171012bb9020a',
+								},
+								{
+									type: 'flag-lacing-segment',
+									lacing: false,
+								},
+								{
+									type: 'language-segment',
+									language: 'und',
+								},
+								{
+									type: 'codec-segment',
+									codec: 'V_AV1',
+								},
+								{
+									type: 'track-type-segment',
+									trackType: 1,
+								},
+								{
+									type: 'default-duration-segment',
+									defaultDuration: 40000000,
+								},
+								{
+									type: 'video-segment',
+									children: [
+										{
+											id: '0x3855b090',
+											type: 'unknown-segment',
+										},
+									],
+								},
+							],
 						},
 					],
 				},
 				{
-					id: '0x1254c367',
+					id: '0xc71013c2',
 					type: 'unknown-segment',
 				},
 			],
 		},
 	]);
 
-	expect(getDuration(parsed)).toBe(1);
+	expect(parsed.durationInSeconds).toBe(1);
 });

@@ -15,8 +15,10 @@ import type {OutNameInput, Privacy, WebhookOption} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {
+	getCloudwatchMethodUrl,
 	getCloudwatchRendererUrl,
 	getLambdaInsightsUrl,
+	getProgressJsonUrl,
 	getS3RenderUrl,
 } from '../shared/get-aws-urls';
 import type {LambdaCodec} from '../shared/validate-lambda-codec';
@@ -67,8 +69,10 @@ export type RenderMediaOnLambdaOutput = {
 	renderId: string;
 	bucketName: string;
 	cloudWatchLogs: string;
+	cloudWatchMainLogs: string;
 	lambdaInsightsLogs: string;
 	folderInS3Console: string;
+	progressJsonInConsole: string;
 };
 
 export const internalRenderMediaOnLambdaRaw = async (
@@ -82,9 +86,7 @@ export const internalRenderMediaOnLambdaRaw = async (
 			type: LambdaRoutines.start,
 			payload: await makeLambdaRenderMediaPayload(input),
 			region,
-			receivedStreamingPayload: () => undefined,
 			timeoutInTest: 120000,
-			retriesRemaining: 0,
 		});
 
 		return {
@@ -97,6 +99,13 @@ export const internalRenderMediaOnLambdaRaw = async (
 				rendererFunctionName: rendererFunctionName ?? null,
 				chunk: null,
 			}),
+			cloudWatchMainLogs: getCloudwatchMethodUrl({
+				renderId: res.renderId,
+				functionName,
+				method: LambdaRoutines.launch,
+				region,
+				rendererFunctionName: rendererFunctionName ?? null,
+			}),
 			folderInS3Console: getS3RenderUrl({
 				bucketName: res.bucketName,
 				renderId: res.renderId,
@@ -104,6 +113,11 @@ export const internalRenderMediaOnLambdaRaw = async (
 			}),
 			lambdaInsightsLogs: getLambdaInsightsUrl({
 				functionName,
+				region,
+			}),
+			progressJsonInConsole: getProgressJsonUrl({
+				bucketName: res.bucketName,
+				renderId: res.renderId,
 				region,
 			}),
 		};

@@ -30,6 +30,7 @@ export const getCustomOutName = ({
 				endpoint: renderMetadata.outName.s3OutputProvider.endpoint,
 				accessKeyId: customCredentials?.accessKeyId ?? null,
 				secretAccessKey: customCredentials?.secretAccessKey ?? null,
+				region: customCredentials?.region,
 			},
 		};
 	}

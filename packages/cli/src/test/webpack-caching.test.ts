@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {
 	DEFAULT_WEBPACK_CACHE_ENABLED,
 	getWebpackCaching,

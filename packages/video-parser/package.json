@@ -1,18 +1,19 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/video-parser"
+	},
 	"name": "@remotion/video-parser",
-	"version": "4.0.163",
-	"description": "CLI for Remotion",
+	"version": "4.0.187",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"test": "bun test",
-		"build": "tsc -d",
+		"test": "bun test src/test",
 		"watch": "tsc -w"
 	},
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
+	"devDependencies": {
+		"@remotion/renderer": "workspace:*"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
@@ -31,18 +32,6 @@
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
-	"dependencies": {},
-	"devDependencies": {
-		"@jonny/eslint-config": "3.0.281",
-		"@types/bun": "1.0.12",
-		"@types/node": "18.14.6",
-		"eslint": "8.56.0",
-		"eslint-plugin-10x": "1.5.2",
-		"eslint-plugin-react": "7.32.2",
-		"eslint-plugin-react-hooks": "4.4.0",
-		"prettier": "3.2.5",
-		"prettier-plugin-organize-imports": "3.2.4"
-	},
 	"keywords": [
 		"remotion",
 		"ffmpeg",

@@ -173,7 +173,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		numberOfGifLoops,
 		concurrencyPerLambda,
 		downloadBehavior,
-		muted: muted ?? false,
+		muted,
 		version: VERSION,
 		overwrite: overwrite ?? false,
 		audioBitrate: audioBitrate ?? null,
@@ -275,5 +275,6 @@ export const makeLambdaRenderStillPayload = async ({
 		offthreadVideoCacheSizeInBytes,
 		deleteAfter,
 		type: LambdaRoutines.still,
+		streamed: true,
 	};
 };

@@ -1,4 +1,4 @@
-import {describe, expect, test} from 'vitest';
+import {describe, expect, test} from 'bun:test';
 import {makeTriangle} from '../utils/make-triangle';
 
 test('Should be able to make a triangle path', () => {

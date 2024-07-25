@@ -9,23 +9,23 @@ const getIsSemVer = (str: string) => {
 };
 
 const execute = ({
-	command,
 	printOutput,
 	signal,
 	cwd,
 	shell,
+	args,
+	bin,
 }: {
-	command: string;
 	printOutput: boolean;
 	signal: AbortSignal | null;
 	cwd: string | null;
 	shell: string | null;
+	bin: string;
+	args: string[];
 }) => {
 	const stdio: StdioOptions = printOutput ? 'inherit' : 'ignore';
 
 	return new Promise<void>((resolve, reject) => {
-		const [bin, ...args] = command.split(' ');
-
 		const child = spawn(bin, args, {
 			stdio,
 			signal: signal ?? undefined,
@@ -37,7 +37,7 @@ const execute = ({
 			if (code !== 0) {
 				reject(
 					new Error(
-						`Error while executing ${command}. Exit code: ${code}, signal: ${exitSignal}`,
+						`Error while executing ${bin} ${args.join(' ')}. Exit code: ${code}, signal: ${exitSignal}`,
 					),
 				);
 				return;
@@ -80,12 +80,13 @@ const installForWindows = async ({
 		signal,
 	});
 
-	execute({
-		command: `Expand-Archive -Force ${filePath} ${to}`,
+	await execute({
 		shell: 'powershell',
 		printOutput,
 		signal,
 		cwd: null,
+		bin: 'Expand-Archive',
+		args: ['-Force', filePath, to],
 	});
 
 	rmSync(filePath);
@@ -103,7 +104,8 @@ const installWhisperForUnix = async ({
 	signal: AbortSignal | null;
 }): Promise<void> => {
 	await execute({
-		command: `git clone https://github.com/ggerganov/whisper.cpp.git ${to}`,
+		bin: 'git',
+		args: ['clone', 'https://github.com/ggerganov/whisper.cpp.git', to],
 		printOutput,
 		signal,
 		cwd: null,
@@ -113,7 +115,8 @@ const installWhisperForUnix = async ({
 	const ref = getIsSemVer(version) ? `v${version}` : version;
 
 	await execute({
-		command: `git checkout ${ref}`,
+		bin: 'git',
+		args: ['checkout', ref],
 		printOutput,
 		cwd: to,
 		signal,
@@ -121,7 +124,8 @@ const installWhisperForUnix = async ({
 	});
 
 	await execute({
-		command: 'make',
+		args: [],
+		bin: 'make',
 		cwd: to,
 		signal,
 		printOutput,

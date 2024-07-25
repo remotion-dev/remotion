@@ -1,0 +1,90 @@
+---
+image: /generated/articles-docs-artifacts.png
+title: Emitting Artifacts
+id: artifacts
+crumb: 'Techniques'
+---
+
+# Emitting Artifacts<AvailableFrom v="4.0.176" />
+
+Sometimes you wish to generate additional files when rendering your video. For example:
+
+- A `.srt` subtitle file
+- A `.txt` containing chapters of the video
+- A `CREDITS` file for the assets used in the video
+- Debug information from the render.
+
+You can use the [`<Artifact>`](/docs/artifact) component to emit arbitrary files from your video.
+
+:::note
+Emitting artifacts is not currently supported by `@remotion/cloudrun`.
+:::
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+// @filename: subtitles.tsx
+
+export const generateSubtitles = () => {
+  return ``;
+};
+// @filename: MyComp.tsx
+// ---cut---
+import React from 'react';
+import {Artifact, useCurrentFrame} from 'remotion';
+import {generateSubtitles} from './subtitles';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  return (
+    <>
+      {frame === 0 ? (
+        <Artifact filename="captions.srt" content={generateSubtitles()} />
+      ) : null}
+    </>
+  );
+};
+```
+
+## Rules of artifacts
+
+<Step>1</Step> The asset should only be rendered for one single frame of the video.
+Otherwise, the asset will get emitted multiple times. <br />
+
+<Step>2</Step> It is possible to emit multiple assets, but they may not have the
+same filename.
+<br />
+<Step>3</Step> For the <code>content</code> prop it is possible to pass a <code>string</code>, or a <code>Uint8Array</code> for binary data. Passing an <code>
+  Uint8Array
+</code> should not be considered faster due to it having to be serialized.
+<br />
+
+## Receiving artifacts
+
+### In the CLI or Studio
+
+Artifacts get saved to `out/[composition-id]/[filename]` when rendering a video.
+
+### Using `renderMedia()`, `renderStill()` or `renderFrames()`
+
+Use the [`onArtifact`](/docs/renderer/render-media#onartifact) callback to receive the artifacts.
+
+```tsx twoslash title="render.mjs"
+// @module: es2022
+// @target: es2017
+import type {VideoConfig} from 'remotion';
+
+const composition: VideoConfig = {
+  width: 100,
+  height: 100,
+  fps: 30,
+  defaultProps: {},
+  props: {},
+  defaultCodec: null,
+  id: 'hi',
+  durationInFrames: 100,
+};
+const serveUrl = 'http://localhost:8080';
+const inputProps = {};
+
+```

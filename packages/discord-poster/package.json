@@ -1,13 +1,13 @@
 {
-  "name": "@remotion/discord-poster",
-  "version": "4.0.163",
-  "license": "SEE LICENSE IN LICENSE.md",
-  "type": "module",
-  "scripts": {
-    "discord": "bun src/post.ts"
-  },
-  "private": true,
-  "devDependencies": {
-    "@types/node": "18.14.6"
-  }
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/discord-poster"
+	},
+	"name": "@remotion/discord-poster",
+	"version": "4.0.187",
+	"license": "SEE LICENSE IN LICENSE.md",
+	"type": "module",
+	"scripts": {
+		"discord": "bun src/post.ts"
+	},
+	"private": true
 }

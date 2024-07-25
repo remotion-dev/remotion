@@ -10,5 +10,5 @@ writeFileSync("src/generatedCompletionSpec.ts", output);
 
 execSync("bun x prettier --write src/generatedCompletionSpec.ts");
 execSync("bun x eslint --fix src/generatedCompletionSpec.ts", {
-  stdio: "inherit",
+	stdio: "inherit",
 });

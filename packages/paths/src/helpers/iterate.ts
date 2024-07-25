@@ -1,13 +1,19 @@
-import type {AbsoluteInstruction, ReducedInstruction} from './types';
+import type {
+	AbsoluteInstruction,
+	QInstruction,
+	ReducedInstruction,
+} from './types';
 
-export const iterateOverSegments = <T extends ReducedInstruction>({
+export const iterateOverSegments = <
+	T extends ReducedInstruction | QInstruction,
+>({
 	segments,
 	iterate,
 }: {
-	segments: AbsoluteInstruction[];
+	segments: (AbsoluteInstruction | QInstruction)[];
 	iterate: (options: {
-		segment: AbsoluteInstruction;
-		prevSegment: AbsoluteInstruction | null;
+		segment: AbsoluteInstruction | QInstruction;
+		prevSegment: (AbsoluteInstruction | QInstruction) | null;
 		x: number;
 		y: number;
 		initialX: number;

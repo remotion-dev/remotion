@@ -34,7 +34,7 @@ export const getRenderDefaults = (): RenderDefaults => {
 	}).value;
 	const logLevel = logLevelOption.getValue({commandLine: parsedCli}).value;
 	const defaultCodec = ConfigInternals.getOutputCodecOrUndefined();
-	const concurrency = RenderInternals.getActualConcurrency(
+	const concurrency = RenderInternals.resolveConcurrency(
 		ConfigInternals.getConcurrency(),
 	);
 	const pixelFormat = ConfigInternals.getPixelFormat();

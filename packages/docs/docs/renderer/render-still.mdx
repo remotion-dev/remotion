@@ -2,10 +2,8 @@
 image: /generated/articles-docs-renderer-render-still.png
 id: render-still
 title: renderStill()
-crumb: "@remotion/renderer"
+crumb: '@remotion/renderer'
 ---
-
-import { AngleChangelog } from "../../components/AngleChangelog";
 
 _Part of the `@remotion/renderer` package. Available from v2.3._
 
@@ -20,19 +18,19 @@ You first need to bundle the project and fetch the compositions. Read [the code 
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import { bundle } from "@remotion/bundler";
-import { getCompositions, renderStill } from "@remotion/renderer";
+import {bundle} from '@remotion/bundler';
+import {getCompositions, renderStill} from '@remotion/renderer';
 
 // The composition you want to render
-const compositionId = "HelloWorld";
+const compositionId = 'HelloWorld';
 
 const bundleLocation = await bundle({
-  entryPoint: require.resolve("./src/index.ts"),
+  entryPoint: require.resolve('./src/index.ts'),
 });
 
 const comps = await getCompositions(bundleLocation, {
   inputProps: {
-    custom: "data",
+    custom: 'data',
   },
 });
 const composition = comps.find((c) => c.id === compositionId);
@@ -46,9 +44,9 @@ if (!composition) {
 await renderStill({
   composition,
   serveUrl: bundleLocation,
-  output: "/tmp/still.png",
+  output: '/tmp/still.png',
   inputProps: {
-    custom: "data",
+    custom: 'data',
   },
 });
 ```
@@ -126,6 +124,10 @@ An object containing key-value pairs of environment variables which will be inje
 ### `logLevel?`<AvailableFrom v="4.0.115"/>
 
 <Options id="log" />
+
+### `onArtifact?`<AvailableFrom v="4.0.176" />
+
+[Handle an artifact](/docs/artifacts#using-rendermedia-renderstill-or-renderframes) that was emitted by the [`<Artifact>`](/docs/artifact) component.
 
 ### `overwrite?`
 

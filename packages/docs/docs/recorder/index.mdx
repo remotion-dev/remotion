@@ -21,6 +21,33 @@ hide_title: true
 
 The Remotion Recorder is a video production tool <strong>built entirely in JavaScript</strong>.
 
+## Recording
+
+Record your facecam and screen in sync but independently. This allows you to create a dynamic layout later.
+
+<div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch', }}>
+<table style={{  tableLayout: "fixed", width: 950, marginBottom: 0 }}>
+
+<tr>
+    <td valign="top" style={{width: 950/ 2}}>
+      <img src="/recorder/individual.png"></img>
+      </td>
+    <td valign="top" style={{width: 950/ 2}}>
+      <video src="/recorder/volume.mp4" autoPlay muted playsInline loop></video>
+    </td>
+
+  </tr>
+  <tr>
+    <td valign="top" style={{width: 950/ 2}}>
+      Record webcam and display as separate streams. Up to 4 sources can be recorded at the same time!   
+         </td>
+    <td valign="top" style={{width: 950/ 2}}>
+   Ensure you are in the center of the video and you are not too close to the microphone.
+    </td>
+</tr>
+</table>
+</div>
+
 ## Different platforms require different formats
 
 Each platform has its own conventions for how videos should look.
@@ -88,9 +115,6 @@ Each platform has its own conventions for how videos should look.
       <div>Audio by default</div>
       <div>
         Captions as .srt file{" "}
-        <sup>
-          <a href="#youtube-captions">planned</a>
-        </sup>
       </div>
       <div>Endcard with related videos</div>
       </td>
@@ -134,7 +158,7 @@ AI will make mistakes - so we make it easy to correct them.
 
   </tr>
 </table>
-<table style={{ tableLayout: "fixed", width: 950,}}>
+<table style={{ tableLayout: "fixed", width: 950}}>
   <tr style={{borderTop: 0}}>
     <td valign="top" style={{width: 950/ 3}}>
       <video style={{height: 300}} src="/recorder/subseditor.webm" autoPlay muted playsInline loop></video>
@@ -155,6 +179,8 @@ AI will make mistakes - so we make it easy to correct them.
 ## Agnostic endcards
 
 Your viewer watched the entire video! Now don't make them forget about you.
+
+<div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch', }}>
 
 <table style={{ width: 950, tableLayout: "fixed" }}>
   <tr>
@@ -187,36 +213,37 @@ Your viewer watched the entire video! Now don't make them forget about you.
     </td>
   </tr>
 </table>
+</div>
 
 The endcard is written with React and CSS, so can be easily customized.
 
-## Custom styling
+## Customization
 
 Having access to the entire source code, you can use CSS to customize the look of the Recorder.
 
-<table style={{ tableLayout: "fixed", width: 950 }}>
-  <tr style={{ borderTop: 0 }}>
-    <td valign="top" style={{ width: 950 / 3 }}>
-      <img style={{ borderRadius: 5 }} src="/recorder/theme-light.png"></img>
-      Look of the built-in light theme
-    </td>
-    <td valign="top" style={{ width: 950 / 3 }}>
-      <img style={{ borderRadius: 5 }} src="/recorder/theme-dark.png"></img>
-      <br />
-      Look of the built-in dark theme
-    </td>
-    <td valign="top" style={{ width: 950 / 3 }}>
-      <img style={{ borderRadius: 5 }} src="/recorder/theme-fancy.png"></img>
-      <br />
-      Use CSS to make it your own!
-    </td>
-  </tr>
-</table>
+<div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+  <table style={{ tableLayout: "fixed", width: 950 }}>
+    <tr style={{ borderTop: 0 }}>
+      <td valign="top" style={{ width: 950 / 3 }}>
+        <img style={{ borderRadius: 5 }} src="/recorder/theme-light.png"></img>
+        Look of the built-in light theme
+      </td>
+      <td valign="top" style={{ width: 950 / 3 }}>
+        <img style={{ borderRadius: 5 }} src="/recorder/theme-dark.png"></img>
+        <br />
+        Look of the built-in dark theme
+      </td>
+      <td valign="top" style={{ width: 950 / 3 }}>
+        <img style={{ borderRadius: 5 }} src="/recorder/theme-fancy.png"></img>
+        <br />
+        Use CSS to make it your own!
+      </td>
+    </tr>
+  </table>
+</div>
 
-## Recording
-
-Record your facecam and screen in sync but independently, so you can change the layout later.  
-See if you are too loud or off-center.
+The Recorder is built with TypeScript and React, and you can fully customize it's behavior.
+It's a hackable video editor.
 
 ## Silence removal
 
@@ -237,7 +264,7 @@ Enable clean transitions between scenes - no matter if you change the layout dur
 
 ## Chapters
 
-Mark a scene as the beginning of a new chapter and automatically generated animated chapters.
+Mark a scene as the beginning of a new chapter and automatically generate animated chapters.
 
 ## B-Roll
 
@@ -255,7 +282,4 @@ You can customize it to your liking if you have TypeScript and React knowledge.
 
 ---
 
-<sup id="youtube-captions">1)</sup> YouTube videos currently have their subtitles
-burned in, but we plan to add support for exporting a .srt file.
-<br />
-<sup id="tiktok-format">2)</sup> 9:16 format is not yet supported.
+<sup id="tiktok-format">1)</sup> 9:16 format is not yet implemented.

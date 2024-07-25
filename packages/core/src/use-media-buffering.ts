@@ -1,5 +1,5 @@
 import type React from 'react';
-import {useEffect} from 'react';
+import {useEffect, useState} from 'react';
 import {useBufferState} from './use-buffer-state';
 
 export const useMediaBuffering = ({
@@ -12,7 +12,9 @@ export const useMediaBuffering = ({
 	isPremounting: boolean;
 }) => {
 	const buffer = useBufferState();
+	const [isBuffering, setIsBuffering] = useState(false);
 
+	// Buffer state based on `waiting` and `canplay`
 	useEffect(() => {
 		let cleanupFns: Function[] = [];
 
@@ -32,9 +34,11 @@ export const useMediaBuffering = ({
 		const cleanup = () => {
 			cleanupFns.forEach((fn) => fn());
 			cleanupFns = [];
+			setIsBuffering(false);
 		};
 
 		const onWaiting = () => {
+			setIsBuffering(true);
 			const {unblock} = buffer.delayPlayback();
 			const onCanPlay = () => {
 				cleanup();
@@ -77,7 +81,11 @@ export const useMediaBuffering = ({
 				// reset if a video is already playing.
 				// Therefore only calling it after checking if the video
 				// has no future data.
-				current.load();
+
+				// Breaks on Firefox though: https://github.com/remotion-dev/remotion/issues/3915
+				if (!navigator.userAgent.includes('Firefox/')) {
+					current.load();
+				}
 			} else {
 				current.addEventListener('waiting', onWaiting);
 				cleanupFns.push(() => {
@@ -92,4 +100,6 @@ export const useMediaBuffering = ({
 			cleanup();
 		};
 	}, [buffer, element, isPremounting, shouldBuffer]);
+
+	return isBuffering;
 };

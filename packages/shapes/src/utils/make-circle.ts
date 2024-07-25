@@ -15,8 +15,8 @@ export const makeCircle = ({radius}: MakeCircleProps): ShapeInfo => {
 	const instructions: Instruction[] = [
 		{
 			type: 'M',
-			x: 0,
-			y: radius,
+			x: radius,
+			y: 0,
 		},
 		{
 			type: 'a',
@@ -24,9 +24,9 @@ export const makeCircle = ({radius}: MakeCircleProps): ShapeInfo => {
 			ry: radius,
 			xAxisRotation: 0,
 			largeArcFlag: true,
-			sweepFlag: false,
-			dx: radius * 2,
-			dy: 0,
+			sweepFlag: true,
+			dx: 0,
+			dy: radius * 2,
 		},
 		{
 			type: 'a',
@@ -34,9 +34,9 @@ export const makeCircle = ({radius}: MakeCircleProps): ShapeInfo => {
 			ry: radius,
 			xAxisRotation: 0,
 			largeArcFlag: true,
-			sweepFlag: false,
-			dx: -radius * 2,
-			dy: 0,
+			sweepFlag: true,
+			dx: 0,
+			dy: -radius * 2,
 		},
 		{
 			type: 'Z',

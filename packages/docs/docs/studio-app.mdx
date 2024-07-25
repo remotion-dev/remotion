@@ -1,0 +1,69 @@
+---
+image: /generated/articles-docs-studio-app.png
+id: studio-into-app
+title: Converting a Remotion project to an app
+sidebar_label: Convert Studio to an app
+crumb: 'Converting Remotion Projects'
+---
+
+If you have started from any [Remotion template](/templates) except the Next.js and Remix templates, you currently have an app where you can start the [Remotion Studio](/docs/terminology/studio).
+
+If you would like to now turn your project into an app, follow these steps.
+
+<Step>1</Step> Scaffold a new project using one of those templates:
+<br />
+<br />
+
+- [Next.js (App dir)](/templates/next)
+- [Next.js (App dir + TailwindCSS)](/templates/next-tailwind)
+- [Next.js (Pages dir)](/templates/next-pages-dir)
+- [Remix](/templates/remix)
+
+<Step>2</Step> In the <code>remotion/Root.tsx</code> file of the new project, replace
+the sample code with the code from <code>src/Root.tsx</code> from your existing project.
+Include all other components recursively, until <code>npx tsc -w</code> does give
+no errors anymore.
+<br />
+<br />
+
+<Step>3</Step> Copy the contents of the <code>public</code> folder into the new project.
+<br />
+<br />
+<Step>4</Step> Find where the <code>{'<Player>'}</code> is rendered:
+<br />
+<br />
+<ul>
+	<li>
+		<strong>In the Next.js Pages Dir template:</strong> Under{' '}
+		<code>pages/index.tsx</code>.
+	</li>
+	<li>
+		<strong>In the Next.js App Dir template:</strong> Under{' '}
+		<code>app/page.tsx</code>.
+	</li>
+	<li>
+		<strong>In the Remix template:</strong> Under{' '}
+		<code>app/routes/_index.tsx</code>.
+	</li>
+</ul>
+
+Choose the main [composition](/docs/terminology/composition) that you want to render in the Player and include it's <code>component</code> and other metadata in the <code>&lt;Player&gt;</code>. You may import the component from the <code>remotion</code> folder so it is imported in both the Studio and the app.
+
+If you want to remove the duplication of metadata, you can define constants such as `DURATION_IN_FRAMES` and `FPS` in a separate file and import the constants in both the Studio and the app.
+
+If you use [`calculateMetadata()`](/docs/dynamic-metadata#with-the-player), see [here](/docs/dynamic-metadata#with-the-player) how you can use it with the Player.
+
+<Step>5</Step> If you have any Webpack override defined in <code>remotion.config.ts</code>
+, look up how to apply it to your framework as well.
+
+## Next steps
+
+Good luck with your new app!
+
+- [ ] Chat with other builders on [Discord](https://remotion.dev/discord).
+- [ ] Post your app on [`#showcase`](https://remotion.dev/discord) and tag [`@remotion`](https://x.com/remotion) on x.com if you build something!
+- [ ] If you build together with others, ensure you have the proper [Remotion license](/docs/license).
+
+## See also
+
+- [Installation in an existing project](/docs/brownfield)

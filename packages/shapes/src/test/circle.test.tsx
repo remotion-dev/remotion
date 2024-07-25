@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {Circle} from '../components/circle';
 import {render} from './test-utils';
 
@@ -8,6 +8,6 @@ test('Should be able to make a circle svg', () => {
 	);
 
 	expect(container.querySelector('path')?.getAttribute('d')).toEqual(
-		'M 0 100 a 100 100 0 1 0 200 0 a 100 100 0 1 0 -200 0 Z',
+		'M 100 0 a 100 100 0 1 1 0 200 a 100 100 0 1 1 0 -200 Z',
 	);
 });

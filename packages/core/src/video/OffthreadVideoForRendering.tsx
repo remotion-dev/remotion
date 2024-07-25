@@ -1,4 +1,11 @@
-import React, {useCallback, useContext, useEffect, useMemo} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useState,
+} from 'react';
 import {Img} from '../Img.js';
 import {RenderAssetManager} from '../RenderAssetManager.js';
 import {SequenceContext} from '../SequenceContext.js';
@@ -9,6 +16,7 @@ import {
 } from '../audio/use-audio-frame.js';
 import {cancelRender} from '../cancel-render.js';
 import {OFFTHREAD_VIDEO_CLASS_NAME} from '../default-css.js';
+import {continueRender, delayRender} from '../delay-render.js';
 import {random} from '../random.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {truthy} from '../truthy.js';
@@ -18,6 +26,11 @@ import {evaluateVolume} from '../volume-prop.js';
 import {getExpectedMediaFrameUncorrected} from './get-current-time.js';
 import {getOffthreadVideoSource} from './offthread-video-source.js';
 import type {OffthreadVideoProps} from './props.js';
+
+type SrcAndHandle = {
+	src: string;
+	handle: ReturnType<typeof delayRender>;
+};
 
 export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	onError,
@@ -31,6 +44,8 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	toneFrequency,
 	name,
 	loopVolumeCurveBehavior,
+	delayRenderRetries,
+	delayRenderTimeoutInMilliseconds,
 	...props
 }) => {
 	const absoluteFrame = useTimelinePosition();
@@ -141,17 +156,87 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 		});
 	}, [toneMapped, currentTime, src, transparent]);
 
-	const onErr: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement> =
-		useCallback(
-			(e) => {
-				if (onError) {
-					onError?.(e);
-				} else {
-					cancelRender('Failed to load image with src ' + actualSrc);
+	const [imageSrc, setImageSrc] = useState<SrcAndHandle | null>(null);
+
+	useLayoutEffect(() => {
+		const cleanup: Function[] = [];
+
+		setImageSrc(null);
+		const controller = new AbortController();
+
+		const newHandle = delayRender('Fetching ' + actualSrc + 'from server', {
+			retries: delayRenderRetries ?? undefined,
+			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+		});
+
+		const execute = async () => {
+			try {
+				const res = await fetch(actualSrc, {
+					signal: controller.signal,
+				});
+				if (res.status !== 200) {
+					if (res.status === 500) {
+						const json = await res.json();
+						if (json.error) {
+							const cleanedUpErrorMessage = (json.error as string).replace(
+								/^Error: /,
+								'',
+							);
+
+							throw new Error(cleanedUpErrorMessage);
+						}
+					}
+
+					throw new Error(
+						`Server returned status ${res.status} while fetching ${actualSrc}`,
+					);
 				}
-			},
-			[actualSrc, onError],
-		);
+
+				const blob = await res.blob();
+
+				const url = URL.createObjectURL(blob);
+				cleanup.push(() => URL.revokeObjectURL(url));
+				setImageSrc({
+					src: url,
+					handle: newHandle,
+				});
+			} catch (err) {
+				if (onError) {
+					onError(err as Error);
+				} else {
+					cancelRender(err);
+				}
+			}
+		};
+
+		execute();
+
+		cleanup.push(() => {
+			if (controller.signal.aborted) {
+				return;
+			}
+
+			controller.abort();
+		});
+
+		return () => {
+			cleanup.forEach((c) => c());
+		};
+	}, [
+		actualSrc,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
+		onError,
+	]);
+
+	const onErr: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement> =
+		useCallback(() => {
+			if (onError) {
+				onError?.(new Error('Failed to load image with src ' + imageSrc));
+			} else {
+				cancelRender('Failed to load image with src ' + imageSrc);
+			}
+		}, [imageSrc, onError]);
 
 	const className = useMemo(() => {
 		return [OFFTHREAD_VIDEO_CLASS_NAME, props.className]
@@ -159,7 +244,20 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			.join(' ');
 	}, [props.className]);
 
+	if (!imageSrc) {
+		return null;
+	}
+
+	continueRender(imageSrc.handle);
+
 	return (
-		<Img src={actualSrc} className={className} {...props} onError={onErr} />
+		<Img
+			src={imageSrc.src}
+			className={className}
+			delayRenderRetries={delayRenderRetries}
+			delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
+			{...props}
+			onError={onErr}
+		/>
 	);
 };

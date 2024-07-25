@@ -12,6 +12,7 @@ const menuContainer: React.CSSProperties = {
 	position: 'fixed',
 	color: 'white',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 export const SHADOW_TOWARDS_BOTTOM = '0 2px 8px rgba(0, 0, 0, 0.5)';

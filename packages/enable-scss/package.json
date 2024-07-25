@@ -1,21 +1,22 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/enable-scss"
+	},
 	"name": "@remotion/enable-scss",
-	"version": "4.0.163",
-	"description": "Webpack override for using SASS/SCSS in Remotion",
+	"version": "4.0.187",
+	"description": "Enable SCSS support in Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
-		"build": "bun --env-file=../.env.bundle bundle.ts"
+		"build": "bun --env-file=../.env.bundle bundle.ts",
+		"formatting": "prettier src --check"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
 	"license": "MIT",
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
@@ -28,12 +29,7 @@
 		"@remotion/bundler": "workspace:*"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.281",
-		"@remotion/bundler": "workspace:*",
-		"@types/node": "18.14.6",
-		"eslint": "8.56.0",
-		"prettier": "3.2.5",
-		"prettier-plugin-organize-imports": "3.2.4"
+		"@remotion/bundler": "workspace:*"
 	},
 	"keywords": [
 		"remotion",
@@ -50,5 +46,6 @@
 			"import": "./dist/esm/index.mjs",
 			"require": "./dist/cjs/index.js"
 		}
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/enable-scss/overview"
 }

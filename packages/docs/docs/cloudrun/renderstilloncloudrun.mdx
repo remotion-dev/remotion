@@ -6,7 +6,9 @@ crumb: "Cloud Run API"
 ---
 
 <ExperimentalBadge>
-<p>Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the <a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.</p>
+  <p>
+    Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the{' '}<a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.
+  </p>
 </ExperimentalBadge>
 
 Kicks off a still rendering process on Remotion Cloud Run.
@@ -38,7 +40,7 @@ if (result.type === "success") {
 ```
 
 :::note
-Import from [`@remotion/cloudrun/client`](/docs/cloudrun/light-client) to not import the whole renderer, which cannot be bundled.
+Import from [`@remotion/cloudrun/client`](/docs/cloudrun/light-client) to not load the whole renderer, which cannot be bundled.
 :::
 
 ## Arguments
@@ -86,6 +88,13 @@ One of:
 
 - `"public"` (_default_): The rendered still is publicly accessible under the Cloud Storage URL.
 - `"private"`: The rendered still is not publicly available, but is available within the GCP project to those with the correct permissions.
+
+### `downloadBehavior?`<AvailableFrom v="4.0.176"/>
+
+How the output file should behave when accessed through the Cloud Storage output link in the browser.
+
+- `{"type": "play-in-browser"}` - the default. The video will play in the browser.
+- `{"type": "download", fileName: null}` or `{"type": "download", fileName: "download.mp4"}` - a `Content-Disposition` header will be added which makes the browser download the file. You can optionally override the filename.
 
 ### `forceBucketName?`
 
@@ -143,7 +152,7 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 #### `gl`
 
-<Options id="gl"  />
+<Options id="gl" />
 
 ### `forceWidth?`
 
@@ -159,7 +168,7 @@ Overrides default composition height.
 
 ### `logLevel?`
 
-<Options id="log"/>
+<Options id="log" />
 
 ### `outName?`
 

@@ -6,11 +6,9 @@ import {inputPropsKey, resolvedPropsKey} from './constants';
 export const cleanupSerializedInputProps = async ({
 	serialized,
 	region,
-	bucketName,
 }: {
 	serialized: SerializedInputProps;
 	region: AwsRegion;
-	bucketName: string;
 }): Promise<number> => {
 	if (serialized.type === 'payload') {
 		return 0;
@@ -18,7 +16,7 @@ export const cleanupSerializedInputProps = async ({
 
 	const time = Date.now();
 	await lambdaDeleteFile({
-		bucketName,
+		bucketName: serialized.bucketName,
 		key: inputPropsKey(serialized.hash),
 		region,
 		customCredentials: null,
@@ -30,11 +28,9 @@ export const cleanupSerializedInputProps = async ({
 export const cleanupSerializedResolvedProps = async ({
 	serialized,
 	region,
-	bucketName,
 }: {
 	serialized: SerializedInputProps;
 	region: AwsRegion;
-	bucketName: string;
 }): Promise<number> => {
 	if (serialized.type === 'payload') {
 		return 0;
@@ -42,7 +38,7 @@ export const cleanupSerializedResolvedProps = async ({
 
 	const time = Date.now();
 	await lambdaDeleteFile({
-		bucketName,
+		bucketName: serialized.bucketName,
 		key: resolvedPropsKey(serialized.hash),
 		region,
 		customCredentials: null,

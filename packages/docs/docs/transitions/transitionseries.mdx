@@ -14,18 +14,10 @@ The `<TransitionSeries>` component behaves the same as the [`<Series>`](/docs/se
 Each transition consists of two parts:
 
 <Step>1</Step> <code>presentation</code>: The effect that is being used, for
-example <a href="/docs/transitions/presentations/fade">
-  <code>fade()</code>
-</a> or <a href="/docs/transitions/presentations/wipe">
-  <code>wipe()</code>
-</a>.<br />
+example <a href="/docs/transitions/presentations/fade"><code>fade()</code></a> or <a href="/docs/transitions/presentations/wipe"><code>wipe()</code></a>.<br />
 
 <Step>2</Step> <code>timing</code>: The duration and the progress curve, for
-example <a href="/docs/transitions/timings/springtiming">
-  <code>springTiming()</code>
-</a> or <a href="/docs/transitions/timings/lineartiming">
-  <code>linearTiming()</code>
-</a>
+example <a href="/docs/transitions/timings/springtiming"><code>springTiming()</code></a> or <a href="/docs/transitions/timings/lineartiming"><code>linearTiming()</code></a>
 
 <br />
 <br />
@@ -195,6 +187,70 @@ const BasicTransition = () => {
 During this time, both slides are rendered. This means the total duration of the animation is `60 + 40 - 30 = 70`.
 
 <TransitionsDuration />
+
+<details>
+<summary>Example with 3 slides</summary>
+
+```tsx twoslash title="SlideTransition.tsx"
+import { AbsoluteFill } from "remotion";
+
+const Letter: React.FC<{
+  children: React.ReactNode;
+  color: string;
+}> = ({ children, color }) => {
+  return (
+    <AbsoluteFill
+      style={{
+        backgroundColor: color,
+        opacity: 0.9,
+        justifyContent: "center",
+        alignItems: "center",
+        fontSize: 200,
+        color: "white",
+      }}
+    >
+      {children}
+    </AbsoluteFill>
+  );
+};
+// ---cut---
+import { linearTiming, TransitionSeries } from "@remotion/transitions";
+import { slide } from "@remotion/transitions/slide";
+
+const BasicTransition = () => {
+  return (
+    <TransitionSeries>
+      <TransitionSeries.Sequence durationInFrames={40}>
+        <Letter color="#0b84f3">A</Letter>
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Transition
+        presentation={slide()}
+        timing={linearTiming({ durationInFrames: 30 })}
+      />
+      <TransitionSeries.Sequence durationInFrames={60}>
+        <Letter color="pink">B</Letter>
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Transition
+        presentation={slide()}
+        timing={linearTiming({ durationInFrames: 45 })}
+      />
+      <TransitionSeries.Sequence durationInFrames={90}>
+        <Letter color="green">C</Letter>
+      </TransitionSeries.Sequence>
+    </TransitionSeries>
+  );
+};
+```
+
+- The first slide is shown for 40 frames
+- The second slide is shown for 60 frames
+- The third slide is shown for 90 frames
+- There are two transitions, one 30 frames long and one 45 frames long
+
+1. Sum up the durations: `40 + 60 + 90 = 190`
+2. Subtract the duration of the transitions: `190 - 30 - 45 = 115`
+
+</details>
 
 ## Getting the duration of a transition
 

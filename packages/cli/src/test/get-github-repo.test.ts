@@ -1,5 +1,5 @@
+import {expect, test} from 'bun:test';
 import path from 'node:path';
-import {expect, test} from 'vitest';
 import {
 	getGifRef,
 	getGitConfig,
@@ -53,7 +53,10 @@ test('Should get Gif Ref', () => {
 });
 
 test('Should get Git Source', () => {
-	const git = getGitSource(process.cwd());
+	const git = getGitSource({
+		remotionRoot: process.cwd(),
+		disableGitSource: false,
+	});
 	expect(git).not.toBeNull();
 	expect(git?.relativeFromGitRoot).toBe(`packages${path.sep}cli`);
 });
@@ -64,7 +67,10 @@ test('Should recognize VERCEL', () => {
 	process.env.VERCEL_GIT_REPO_SLUG = 'remotion';
 	process.env.VERCEL_GIT_REPO_OWNER = 'remotion-dev';
 
-	const source = getGitSource('dontmatter');
+	const source = getGitSource({
+		remotionRoot: 'dontmatter',
+		disableGitSource: false,
+	});
 	expect(source).not.toBeNull();
 	expect(source?.name).toBe('remotion');
 	expect(source?.org).toBe('remotion-dev');

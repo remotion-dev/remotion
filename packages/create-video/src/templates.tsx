@@ -42,7 +42,8 @@ export type Template = {
 		| 'tailwind'
 		| 'overlay'
 		| 'stargazer'
-		| 'tiktok';
+		| 'tiktok'
+		| 'code-hike';
 	defaultBranch: string;
 	featuredOnHomePage: string | null;
 	previewURL?: string | null;
@@ -264,8 +265,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 	{
 		homePageLabel: 'Audiogram',
 		shortName: 'Audiogram',
-		org: 'marcusstenbeck',
-		repoName: 'remotion-template-audiogram',
+		org: 'remotion-dev',
+		repoName: 'template-audiogram',
 		description: 'Text and waveform visualization for podcasts',
 		longerDescription:
 			'A template that turns podcast snippets into videos that can be posted on Social Media.',
@@ -337,6 +338,30 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
+	},
+	{
+		homePageLabel: 'Code Hike',
+		shortName: 'Code Hike',
+		org: 'remotion-dev',
+		repoName: 'template-code-hike',
+		description: 'Beautiful code animations',
+		longerDescription: (
+			<>
+				Add code snippets and animate between them using{' '}
+				<a href="https://codehike.org/">Code Hike</a>. Supports many languages,
+				TypeScript error annotations, and many themes.
+			</>
+		),
+		promoVideo: {
+			muxId: 'fKwnpTAOqvnZpu00fwEezi00cpF3927NumGcS1gGdUj8A',
+			width: 1080,
+			height: 1080,
+		},
+		cliId: 'code-hike' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
+		previewURL: 'https://template-code-hike.vercel.app/',
 	},
 	{
 		homePageLabel: 'Stargazer',

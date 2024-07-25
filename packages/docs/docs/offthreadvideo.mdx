@@ -97,6 +97,34 @@ export const MyComposition = () => {
 };
 ```
 
+```tsx twoslash title="Example of a ramp up over 100 frames"
+import {
+  AbsoluteFill,
+  interpolate,
+  staticFile,
+  OffthreadVideo,
+} from "remotion";
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <OffthreadVideo
+        volume={(f) =>
+          interpolate(f, [0, 100], [0, 1], { extrapolateLeft: "clamp" })
+        }
+        src={staticFile("video.webm")}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+:::note
+On iOS Safari, it's not possible to granularly change the volume of a media tag.  
+Only values `0` and `1` will be respected by the browser.
+:::
+
 ### `loopVolumeCurveBehavior`<AvailableFrom v="4.0.142" />
 
 Controls the `frame` which is returned when using the [`volume`](#volume) callback function and wrapping `OffthreadVideo` in a [`<Loop>`](/docs/loop).
@@ -222,6 +250,17 @@ If set to `false`, no layer will be shown in the timeline of the Remotion Studio
 
 Customize the [timeout](/docs/delay-render#modifying-the-timeout) of the [`delayRender()`](/docs/delay-render) call that this component makes.
 
+### `delayRenderRetries`<AvailableFrom v="4.0.178" />
+
+Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRender()`](/docs/delay-render) call that this component makes.
+
+### `onAutoPlayError`<AvailableFrom v="4.0.187" />
+
+A callback function that gets called when the video fails to play due to autoplay restrictions.  
+If you don't pass a callback, the video will be muted and be retried once.  
+This prop is useful if you want to handle the error yourself, e.g. for pausing the Player.  
+Read more here about [autoplay restrictions](/docs/player/autoplay).
+
 ### ~~`imageFormat` <AvailableFrom v="3.0.22" />~~
 
 _removed in v4.0.0_
@@ -247,47 +286,69 @@ You can use the following snippet that uses [`@remotion/media-utils`](/docs/medi
 Note that this will mount a `<video>` tag in the browser, meaning only codecs supported by the browser can be used.
 
 ```tsx twoslash title="LoopedOffthreadVideo.tsx"
-import { getVideoMetadata } from "@remotion/media-utils";
-import React, { useEffect, useState } from "react";
 import {
-  cancelRender,
-  continueRender,
-  delayRender,
   Loop,
   OffthreadVideo,
-  staticFile,
   useVideoConfig,
 } from "remotion";
 
-const src = staticFile("myvideo.mp4");
-
-export const LoopedOffthreadVideo: React.FC = () => {
-  const [duration, setDuration] = useState<null | number>(null);
-  const [handle] = useState(() => delayRender());
+export const LoopedOffthreadVideo: React.FC<{
+  durationInSeconds: number | null;
+  src: string;
+}> = ({durationInSeconds, src}) => {
   const { fps } = useVideoConfig();
 
-  useEffect(() => {
-    getVideoMetadata(src)
-      .then(({ durationInSeconds }) => {
-        setDuration(durationInSeconds);
-        continueRender(handle);
-      })
-      .catch((err) => {
-        cancelRender(handle);
-        console.log(err);
-      });
-  }, [handle]);
-
-  if (duration === null) {
+  if (durationInSeconds === null) {
     return null;
   }
 
   return (
-    <Loop durationInFrames={Math.floor(fps * duration)}>
+    <Loop durationInFrames={Math.floor(fps * durationInSeconds)}>
       <OffthreadVideo src={src} />
     </Loop>
   );
 };
+```
+
+```tsx twoslash title="Root.tsx"
+const LoopedOffthreadVideo: React.FC<{
+  durationInSeconds: number | null;
+  src: string;
+}> = () => null;
+
+// ---cut---
+
+import React, { useState } from "react";
+import { Composition, staticFile } from "remotion";
+import { getVideoMetadata } from "@remotion/media-utils";
+
+export const RemotionRoot: React.FC = () => {
+  return (
+    <Composition 
+      id="MyComp"
+      component={LoopedOffthreadVideo}
+      defaultProps={{
+        durationInSeconds: null,
+        src: staticFile("myvideo.mp4"),
+      }}
+      calculateMetadata={async ({props}) => {
+        const { durationInSeconds, width, height } = await getVideoMetadata(props.src);
+        const fps = 30;
+
+        return {
+          durationInFrames: Math.floor(durationInSeconds * fps),
+          fps,
+          width,
+          height,
+          props: {
+            ...props,
+            durationInSeconds,
+          }
+        };
+      }}
+    />
+  )
+}
 ```
 
 ## Supported codecs by `<OffthreadVideo>`

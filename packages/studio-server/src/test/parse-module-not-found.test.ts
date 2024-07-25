@@ -1,5 +1,5 @@
 import {getLocationFromBuildError} from '@remotion/studio-shared';
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 
 const message = "Cannot find module 'does not exist'";
 const stack =

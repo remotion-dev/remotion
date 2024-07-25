@@ -54,11 +54,19 @@ Version = ${VERSION}
 CloudWatch Logging Enabled = ${createCloudWatchLogGroup}
 CloudWatch Retention Period = ${cloudWatchLogRetentionPeriodInDays} days
 Lambda Insights Enabled = ${enableLambdaInsights}
-VPC Subnet IDs = ${vpcSubnetIds}
-VPC Security Group IDs = ${vpcSecurityGroupIds}
+
 				`.trim(),
 			),
 		);
+		if (vpcSubnetIds) {
+			CliInternals.Log.info(
+				{indent: false, logLevel},
+				`
+VPC Subnet IDs = ${vpcSubnetIds}
+VPC Security Group IDs = ${vpcSecurityGroupIds}
+`.trim(),
+			);
+		}
 	}
 
 	const output = CliInternals.createOverwriteableCliOutput({

@@ -10,7 +10,7 @@ import {FolderContext} from '../state/folders';
 import {SidebarContext} from '../state/sidebar';
 import {getKeysToExpand} from './CompositionSelector';
 import {explorerSidebarTabs} from './ExplorerPanel';
-import {deriveCanvasContentFromUrl} from './ZoomPersistor';
+import {deriveCanvasContentFromUrl} from './load-canvas-content-from-url';
 
 export const useSelectAsset = () => {
 	const {setCanvasContent} = useContext(Internals.CompositionManager);

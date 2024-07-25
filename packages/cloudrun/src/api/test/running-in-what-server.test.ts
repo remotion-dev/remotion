@@ -1,4 +1,4 @@
-import {beforeEach, expect, test} from 'vitest';
+import {beforeEach, expect, test} from 'bun:test';
 import {
 	getProjectId,
 	isInCloudTask,

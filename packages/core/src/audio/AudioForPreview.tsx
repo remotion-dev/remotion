@@ -11,7 +11,6 @@ import {SequenceContext} from '../SequenceContext.js';
 import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
 import {usePreload} from '../prefetch.js';
 import {random} from '../random.js';
-import {useMediaBuffering} from '../use-media-buffering.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {
 	DEFAULT_ACCEPTABLE_TIMESHIFT,
@@ -34,6 +33,7 @@ type AudioForPreviewProps = RemotionAudioProps & {
 	readonly pauseWhenBuffering: boolean;
 	readonly _remotionInternalNativeLoopPassed: boolean;
 	readonly _remotionInternalStack: string | null;
+	readonly _remotionDebugSeeking: boolean;
 	readonly showInTimeline: boolean;
 	readonly stack?: string | undefined;
 };
@@ -62,6 +62,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		_remotionInternalNeedsDurationCalculation,
 		_remotionInternalNativeLoopPassed,
 		_remotionInternalStack,
+		_remotionDebugSeeking,
 		allowAmplificationDuringRender,
 		name,
 		pauseWhenBuffering,
@@ -159,6 +160,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		stack: _remotionInternalStack,
 		showInTimeline,
 		premountDisplay: null,
+		onAutoPlayError: null,
 	});
 
 	useMediaPlayback({
@@ -169,12 +171,10 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		onlyWarnForMediaSeekingError: false,
 		acceptableTimeshift:
 			acceptableTimeShiftInSeconds ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
-	});
-
-	useMediaBuffering({
-		element: audioRef,
-		shouldBuffer: pauseWhenBuffering,
 		isPremounting: Boolean(sequenceContext?.premounting),
+		pauseWhenBuffering,
+		debugSeeking: _remotionDebugSeeking,
+		onAutoPlayError: null,
 	});
 
 	useImperativeHandle(

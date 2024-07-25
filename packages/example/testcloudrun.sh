@@ -4,7 +4,7 @@ cd renderer
 node build.mjs --cloudrun
 cd ..
 cd cloudrun
-pnpm run buildContainer
+bun run build
 cd container
 ARTIFACT_REGISTRY_ENV=development node submit.mjs
 cd ..

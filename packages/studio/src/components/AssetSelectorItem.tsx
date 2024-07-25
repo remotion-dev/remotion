@@ -47,6 +47,7 @@ const itemStyle: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 	height: ASSET_ITEM_HEIGHT,
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 const labelStyle: React.CSSProperties = {

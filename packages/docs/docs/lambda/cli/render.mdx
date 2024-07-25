@@ -2,13 +2,12 @@
 image: /generated/articles-docs-lambda-cli-render.png
 id: render
 sidebar_label: render
-title: "npx remotion lambda render"
+title: 'npx remotion lambda render'
 slug: /lambda/cli/render
-crumb: "Lambda CLI Reference"
+crumb: 'Lambda CLI Reference'
 ---
 
-import { MinimumFramesPerLambda } from "../../../components/lambda/default-frames-per-lambda";
-import {AngleChangelog} from '../../../components/AngleChangelog';
+import {MinimumFramesPerLambda} from '../../../components/lambda/default-frames-per-lambda';
 
 Using the `npx remotion lambda render` command, you can render a video in the cloud.
 
@@ -190,6 +189,10 @@ For example only every second frame, every third frame and so on. Only works for
 
 <Options id="number-of-gif-loops" />
 
+### `--timeout`
+
+A number describing how long the render may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
+
 ### `--out-name`
 
 The file name of the media output as stored in the S3 bucket. By default, it is `out` plus the appropriate file extension, for example: `out.mp4`. Must match `/([0-9a-zA-Z-!_.*'()/]+)/g`.
@@ -252,11 +255,11 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 
 ### `--delete-after`<AvailableFrom v="4.0.32"/>
 
-<Options id="delete-after" cli/>
+<Options id="delete-after" cli />
 
 ### `--webhook-custom-data`<AvailableFrom v="4.0.25"/>
 
-<Options id="webhook-custom-data" cli/>
+<Options id="webhook-custom-data" cli />
 
 ### `--color-space`<AvailableFrom v="4.0.28"/>
 

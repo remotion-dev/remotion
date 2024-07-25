@@ -1,4 +1,4 @@
-import type {AnySegment} from './parse-video';
+import type {AnySegment} from './parse-result';
 
 const getDurationFromMatroska = (segments: AnySegment[]): number | null => {
 	const mainSegment = segments.find((s) => s.type === 'main-segment');
@@ -60,4 +60,12 @@ export const getDuration = (boxes: AnySegment[]): number | null => {
 	}
 
 	return mvhdBox.durationInSeconds;
+};
+
+export const hasDuration = (boxes: AnySegment[]): boolean => {
+	try {
+		return getDuration(boxes) !== null;
+	} catch (err) {
+		return false;
+	}
 };

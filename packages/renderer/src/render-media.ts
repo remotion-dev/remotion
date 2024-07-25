@@ -20,7 +20,7 @@ import {ensureOutputDirectory} from './ensure-output-directory';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
 import {findRemotionRoot} from './find-closest-package-json';
 import type {FrameRange} from './frame-range';
-import {getActualConcurrency} from './get-concurrency';
+import {resolveConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
@@ -53,6 +53,7 @@ import {prespawnFfmpeg} from './prespawn-ffmpeg';
 import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
 import type {ProResProfile} from './prores-profile';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
+import type {OnArtifact} from './render-frames';
 import {internalRenderFrames} from './render-frames';
 import {
 	disableRepro,
@@ -125,6 +126,7 @@ export type InternalRenderMediaOptions = {
 	concurrency: number | string | null;
 	binariesDirectory: string | null;
 	compositionStart: number;
+	onArtifact: OnArtifact | null;
 } & MoreRenderMediaOptions;
 
 type Prettify<T> = {
@@ -179,6 +181,7 @@ export type RenderMediaOptions = Prettify<{
 	colorSpace?: ColorSpace;
 	repro?: boolean;
 	binariesDirectory?: string | null;
+	onArtifact?: OnArtifact;
 }> &
 	Partial<MoreRenderMediaOptions>;
 
@@ -241,6 +244,7 @@ const internalRenderMediaRaw = ({
 	forSeamlessAacConcatenation,
 	compositionStart,
 	onBrowserDownload,
+	onArtifact,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	if (repro) {
 		enableRepro({
@@ -332,7 +336,7 @@ const internalRenderMediaRaw = ({
 		'Estimated usage parallel encoding',
 		estimatedUsage,
 	);
-	const actualConcurrency = getActualConcurrency(concurrency);
+	const resolvedConcurrency = resolveConcurrency(concurrency);
 	Log.verbose(
 		{
 			indent,
@@ -340,7 +344,7 @@ const internalRenderMediaRaw = ({
 			tag: 'renderMedia()',
 		},
 		'Using concurrency:',
-		actualConcurrency,
+		resolvedConcurrency,
 	);
 	Log.verbose(
 		{
@@ -489,7 +493,9 @@ const internalRenderMediaRaw = ({
 		}
 	};
 
-	const waitForPrestitcherIfNecessary = async () => {
+	const waitForPrestitcherIfNecessary = async (): Promise<{
+		usesParallelEncoding: boolean;
+	}> => {
 		if (stitcherFfmpeg) {
 			await waitForFinish();
 			stitcherFfmpeg?.stdin?.end();
@@ -499,6 +505,8 @@ const internalRenderMediaRaw = ({
 				throw new Error(preStitcher?.getLogs());
 			}
 		}
+
+		return {usesParallelEncoding: Boolean(stitcherFfmpeg)};
 	};
 
 	const mediaSupport = codecSupportsMedia(codec);
@@ -543,7 +551,7 @@ const internalRenderMediaRaw = ({
 				return makeOrReuseServer(
 					reusedServer,
 					{
-						concurrency: actualConcurrency,
+						concurrency: resolvedConcurrency,
 						indent,
 						port,
 						remotionRoot: findRemotionRoot(),
@@ -556,7 +564,6 @@ const internalRenderMediaRaw = ({
 					},
 					{
 						onDownload,
-						onError: (err) => reject(err),
 					},
 				);
 			})
@@ -645,6 +652,7 @@ const internalRenderMediaRaw = ({
 					compositionStart,
 					forSeamlessAacConcatenation,
 					onBrowserDownload,
+					onArtifact,
 				});
 
 				return renderFramesProc;
@@ -859,6 +867,7 @@ export const renderMedia = ({
 	separateAudioTo,
 	forSeamlessAacConcatenation,
 	onBrowserDownload,
+	onArtifact,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	if (quality !== undefined) {
 		console.warn(
@@ -933,6 +942,7 @@ export const renderMedia = ({
 		onBrowserDownload:
 			onBrowserDownload ??
 			defaultBrowserDownloadProgress({indent, logLevel, api: 'renderMedia()'}),
+		onArtifact: onArtifact ?? null,
 		// TODO: In the future, introduce this as a public API when launching the distributed rendering API
 		compositionStart: 0,
 	});

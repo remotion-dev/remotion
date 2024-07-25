@@ -22,7 +22,7 @@ export const getRealFrameRange = (
 
 	if (frameRange[1] >= durationInFrames || frameRange[0] < 0) {
 		throw new Error(
-			`Frame range ${frameRange.join('-')} is not inbetween 0-${
+			`The "durationInFrames" of the <Composition /> was evaluated to be ${durationInFrames}, but frame range ${frameRange.join('-')} is not inbetween 0-${
 				durationInFrames - 1
 			}`,
 		);

@@ -1,6 +1,11 @@
-import type {AnySegment} from './parse-video';
+import type {AnySegment} from './parse-result';
 
-export const getDimensions = (boxes: AnySegment[]): number[] => {
+export type Dimensions = {
+	width: number;
+	height: number;
+};
+
+export const getDimensions = (boxes: AnySegment[]): Dimensions => {
 	const moovBox = boxes.find((b) => b.type === 'moov-box');
 	if (!moovBox || moovBox.type !== 'moov-box') {
 		throw new Error('Expected moov box');
@@ -76,5 +81,15 @@ export const getDimensions = (boxes: AnySegment[]): number[] => {
 		throw new Error('Expected video track');
 	}
 
-	return [firstTrack.width, firstTrack.height];
+	return {width: firstTrack.width, height: firstTrack.height};
+};
+
+// TODO: An audio track should return 'hasDimensions' = true on an audio file
+// and stop parsing
+export const hasDimensions = (boxes: AnySegment[]): boolean => {
+	try {
+		return getDimensions(boxes) !== null;
+	} catch (err) {
+		return false;
+	}
 };

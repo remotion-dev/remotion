@@ -1,34 +1,37 @@
-import type {IsoBaseMediaBox} from '../../../parse-video';
-import {getArrayBufferIterator} from '../../../read-and-increment-offset';
+import type {BufferIterator} from '../../../buffer-iterator';
+import type {AnySegment} from '../../../parse-result';
 import type {BaseBox} from '../base-type';
 import {parseBoxes} from '../process-box';
 
 export interface MoovBox extends BaseBox {
 	type: 'moov-box';
-	children: IsoBaseMediaBox[];
+	children: AnySegment[];
 }
 
-export const parseMoov = (data: ArrayBuffer, offset: number): MoovBox => {
-	const iterator = getArrayBufferIterator(data, 0);
-	const size = iterator.getUint32();
-	if (size !== data.byteLength) {
-		throw new Error(`Expected moov size of ${data.byteLength}, got ${size}`);
-	}
+export const parseMoov = ({
+	iterator,
+	offset,
+	size,
+}: {
+	iterator: BufferIterator;
+	offset: number;
+	size: number;
+}): MoovBox => {
+	const children = parseBoxes({
+		iterator,
+		maxBytes: size - (iterator.counter.getOffset() - offset),
+		allowIncompleteBoxes: false,
+		initialBoxes: [],
+	});
 
-	const atom = iterator.getAtom();
-	if (atom !== 'moov') {
-		throw new Error(`Expected moov type of moov, got ${atom}`);
+	if (children.status === 'incomplete') {
+		throw new Error('Incomplete boxes are not allowed');
 	}
-
-	const children = parseBoxes(
-		iterator.data.slice(iterator.counter.getOffset()),
-		offset + iterator.counter.getOffset(),
-	);
 
 	return {
 		offset,
-		boxSize: data.byteLength,
+		boxSize: size,
 		type: 'moov-box',
-		children,
+		children: children.segments,
 	};
 };

@@ -39,7 +39,10 @@ import {
 
 export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
 
-export type PlayerProps<Schema extends AnyZodObject, Props> = {
+export type PlayerProps<
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown>,
+> = {
 	readonly durationInFrames: number;
 	readonly compositionWidth: number;
 	readonly compositionHeight: number;
@@ -77,8 +80,12 @@ export type PlayerProps<Schema extends AnyZodObject, Props> = {
 	readonly posterFillMode?: PosterFillMode;
 	readonly bufferStateDelayInMilliseconds?: number;
 	readonly hideControlsWhenPointerDoesntMove?: boolean | number;
+	readonly overflowVisible?: boolean;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
+
+export type PlayerPropsWithoutZod<Props extends Record<string, unknown>> =
+	PlayerProps<AnyZodObject, Props>;
 
 export const componentOrNullIfLazy = <Props,>(
 	props: CompProps<Props>,
@@ -90,7 +97,10 @@ export const componentOrNullIfLazy = <Props,>(
 	return null;
 };
 
-const PlayerFn = <Schema extends AnyZodObject, Props>(
+const PlayerFn = <
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown>,
+>(
 	{
 		durationInFrames,
 		compositionHeight,
@@ -129,6 +139,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 		posterFillMode = 'player-size',
 		bufferStateDelayInMilliseconds,
 		hideControlsWhenPointerDoesntMove = true,
+		overflowVisible = false,
 		...componentProps
 	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>,
@@ -387,6 +398,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 							hideControlsWhenPointerDoesntMove={
 								hideControlsWhenPointerDoesntMove
 							}
+							overflowVisible={overflowVisible}
 						/>
 					</PlayerEmitterProvider>
 				</Internals.Timeline.SetTimelineContext.Provider>
@@ -404,7 +416,7 @@ const forward = forwardRef as <T, P = {}>(
 
 /**
  * @description Creates and renders a customizable video player with various interactive controls for a React application.
- * @see [Documentation](https://remotion.dev/docs/player/api)
+ * @see [Documentation](https://remotion.dev/docs/player/player)
  * @param {PlayerProps<Schema, Props>} props The properties for configuring the player, including video specifics and UI controls.
  * @param {MutableRefObject<PlayerRef>} ref Reference to the player for controlling playback, volume, and other aspects.
  * @returns {JSX.Element} The rendered video player component.

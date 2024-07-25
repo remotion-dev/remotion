@@ -55,7 +55,7 @@ export const appendVideoFragment = ({
 		return actualSrc;
 	}
 
-	actualSrc += `#t=${toSeconds(-actualFrom, fps)}`;
+	actualSrc += `#t=${toSeconds(Math.max(0, -actualFrom), fps)}`;
 
 	if (!Number.isFinite(duration)) {
 		return actualSrc;

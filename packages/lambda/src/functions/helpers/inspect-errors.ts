@@ -1,10 +1,4 @@
-import type {_Object} from '@aws-sdk/client-s3';
-import {NoReactInternals} from 'remotion/no-react';
-import type {AwsRegion} from '../../pricing/aws-regions';
-import {getErrorKeyPrefix} from '../../shared/constants';
 import {DOCS_URL} from '../../shared/docs-url';
-import {streamToString} from '../../shared/stream-to-string';
-import {lambdaReadFile} from './io';
 import {
 	errorIsOutOfSpaceError,
 	isBrowserCrashedError,
@@ -48,47 +42,16 @@ const getExplanation = (stack: string) => {
 	return null;
 };
 
-export const inspectErrors = async ({
-	contents,
-	bucket,
-	region,
-	renderId,
-	expectedBucketOwner,
+export const inspectErrors = ({
+	errors,
 }: {
-	contents: _Object[];
-	bucket: string;
-	region: AwsRegion;
-	renderId: string;
-	expectedBucketOwner: string;
-}): Promise<EnhancedErrorInfo[]> => {
-	const errs = contents
-		.filter((c) => c.Key?.startsWith(getErrorKeyPrefix(renderId)))
-		.map((c) => c.Key)
-		.filter(NoReactInternals.truthy);
-
-	if (errs.length === 0) {
-		return [];
-	}
-
-	const errors = await Promise.all(
-		errs.map(async (key) => {
-			const Body = await lambdaReadFile({
-				bucketName: bucket,
-				key,
-				region,
-				expectedBucketOwner,
-			});
-			const errorLog = await streamToString(Body);
-			return errorLog;
-		}),
-	);
-	return errors.map((e, index): EnhancedErrorInfo => {
-		const parsed = JSON.parse(e) as LambdaErrorInfo;
-
+	errors: LambdaErrorInfo[];
+}): EnhancedErrorInfo[] => {
+	return errors.map((e): EnhancedErrorInfo => {
 		return {
-			...parsed,
-			explanation: getExplanation(parsed.stack),
-			s3Location: errs[index],
+			...e,
+			explanation: getExplanation(e.stack),
+			s3Location: '',
 		};
 	});
 };

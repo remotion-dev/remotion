@@ -1,23 +1,23 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/renderer"
+	},
 	"name": "@remotion/renderer",
-	"version": "4.0.163",
-	"description": "Renderer for Remotion",
+	"version": "4.0.187",
+	"description": "Render Remotion videos using Node.js or Bun",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"test": "vitest --run",
+		"test": "bun test src",
 		"build": "node build.mjs --debug",
 		"build-all": "node build.mjs --all",
 		"prepublishOnly": "node build.mjs --all"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
@@ -25,29 +25,20 @@
 		"execa": "5.1.1",
 		"extract-zip": "2.0.1",
 		"remotion": "workspace:*",
+		"@remotion/streaming": "workspace:*",
 		"source-map": "^0.8.0-beta.0",
-		"ws": "8.7.0"
+		"ws": "8.17.1"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.281",
 		"@testing-library/dom": "^8.16.0",
 		"@testing-library/react": "13.3.0",
-		"@types/node": "18.14.6",
-		"@types/progress": "2.0.5",
-		"@types/bun": "1.0.12",
-		"@types/react": "18.3.1",
-		"@types/react-dom": "18.3.0",
-		"jsdom": "^24.0.0",
-		"eslint": "8.56.0",
-		"prettier": "3.2.5",
-		"prettier-plugin-organize-imports": "3.2.4",
+		"@happy-dom/global-registrator": "14.5.1",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"vitest": "0.31.1",
 		"@types/ws": "8.5.10"
 	},
 	"optionalDependencies": {
@@ -68,5 +59,6 @@
 	],
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/renderer"
 }

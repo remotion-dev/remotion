@@ -106,7 +106,11 @@ export const startStudio = async ({
 	forceIPv4: boolean;
 }) => {
 	try {
-		process.title = 'Remotion Studio';
+		if (typeof Bun === 'undefined') {
+			process.title = 'node (npx remotion studio)';
+		} else {
+			process.title = `bun (bunx remotion studio)`;
+		}
 	} catch (err) {}
 
 	watchRootFile(remotionRoot);
@@ -204,11 +208,12 @@ export const startStudio = async ({
 		);
 	}
 
+	await noOpUntilRestart();
 	RenderInternals.Log.info(
 		{indent: false, logLevel},
 		'Closing server to restart...',
 	);
-	await noOpUntilRestart();
+
 	await liveEventsServer.closeConnections();
 	cleanupLiveEventsListener();
 	await close();

@@ -284,7 +284,7 @@ const compositionId = "MyComp";
 
 const bundleLocation = await bundle({
   entryPoint: "./src/index.ts",
-  // If you have a webpack override, don't forget to add it
+  // If you have a webpack override in remotion.config.ts, pass it here as well.
   webpackOverride: webpackOverride,
 });
 

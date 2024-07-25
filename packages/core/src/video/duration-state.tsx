@@ -13,11 +13,18 @@ export const durationReducer = (
 	action: DurationAction,
 ) => {
 	switch (action.type) {
-		case 'got-duration':
+		case 'got-duration': {
+			const absoluteSrc = getAbsoluteSrc(action.src);
+			if (state[absoluteSrc] === action.durationInSeconds) {
+				return state;
+			}
+
 			return {
 				...state,
-				[getAbsoluteSrc(action.src)]: action.durationInSeconds,
+				[absoluteSrc]: action.durationInSeconds,
 			};
+		}
+
 		default:
 			return state;
 	}

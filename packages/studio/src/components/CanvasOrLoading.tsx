@@ -6,6 +6,7 @@ import {BACKGROUND} from '../helpers/colors';
 import {TimelineZoomCtx} from '../state/timeline-zoom';
 import {Canvas} from './Canvas';
 import {FramePersistor} from './FramePersistor';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {RefreshCompositionOverlay} from './RefreshCompositionOverlay';
 import {
 	RunningCalculateMetadata,
@@ -114,7 +115,7 @@ const ErrorLoading: React.FC<{
 	readonly error: Error;
 }> = ({error}) => {
 	return (
-		<div style={loaderContainer}>
+		<div style={loaderContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			<ErrorLoader
 				key={error.stack}
 				canHaveDismissButton={false}

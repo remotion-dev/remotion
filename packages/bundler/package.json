@@ -1,19 +1,19 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/bundler"
+	},
 	"name": "@remotion/bundler",
-	"version": "4.0.163",
-	"description": "Bundler for Remotion",
+	"version": "4.0.187",
+	"description": "Bundle Remotion compositions using Webpack",
 	"main": "dist/index.js",
 	"sideEffects": false,
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"test": "vitest --run"
+		"test": "bun test src"
 	},
 	"files": [
 		"dist",
@@ -39,19 +39,8 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.281",
-		"@types/node": "18.14.6",
-		"@types/react": "18.3.1",
-		"@types/react-dom": "18.3.0",
-		"eslint": "8.56.0",
-		"eslint-plugin-10x": "1.5.2",
-		"eslint-plugin-react": "7.32.2",
-		"eslint-plugin-react-hooks": "4.4.0",
-		"prettier": "3.2.5",
-		"prettier-plugin-organize-imports": "3.2.4",
 		"react": "18.3.1",
-		"react-dom": "18.3.1",
-		"vitest": "0.31.1"
+		"react-dom": "18.3.1"
 	},
 	"keywords": [
 		"remotion",
@@ -63,5 +52,6 @@
 	],
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/bundler"
 }

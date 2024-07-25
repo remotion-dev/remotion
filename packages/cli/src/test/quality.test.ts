@@ -1,5 +1,5 @@
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import {describe, expect, test} from 'vitest';
+import {describe, expect, test} from 'bun:test';
 import {expectToThrow} from './expect-to-throw';
 
 const setJpegQuality = BrowserSafeApis.options.jpegQualityOption.setConfig;

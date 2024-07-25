@@ -59,6 +59,7 @@ pub fn make_tone_map_filtergraph(graph: FilterGraph) -> Result<(Graph, bool), ff
         TransferCharacteristic::BT2020_12 => "2020_12",
         TransferCharacteristic::BT709 => "709",
         TransferCharacteristic::Linear => "linear",
+        TransferCharacteristic::ARIB_STD_B67 => "arib-std-b67",
         // Handle file that was not tagged with transfer characteristic
         // by z0w0 on Discord (03/21/2024)
         TransferCharacteristic::Unspecified => match video_primaries {
@@ -78,16 +79,35 @@ pub fn make_tone_map_filtergraph(graph: FilterGraph) -> Result<(Graph, bool), ff
         _ => "input",
     };
 
-    let matrix_is_target =
-        matrix_in == "input" || matrix_in == "470bg" || matrix_in == "709" || matrix_in == "170m";
+    let matrix_is_target = matrix_in == "input"
+        || matrix_in == "470bg"
+        || matrix_in == "709"
+        || matrix_in == "170m"
+        || matrix_in == "2020_ncl"; // adding matrix_in == 2020_ncl and primaries == 2020 after this message: https://discord.com/channels/809501355504959528/990308056627806238/1256183797041336370
+                                    // shampoo-bt2020ncl.mp4 in testbed
     let transfer_is_target = transfer_in == "input" || transfer_in == "709";
-    let primaries_is_target = primaries == "input" || primaries == "709" || primaries == "170m";
+    let primaries_is_target =
+        primaries == "input" || primaries == "709" || primaries == "170m" || primaries == "2020";
 
-    let needs_conversion = matrix_is_target && transfer_is_target && primaries_is_target;
+    // zimg does not yet support HLG
+    // Submitted video: hlg.mp4 by Augie
 
-    let filter_string = match needs_conversion {
-        true => "copy".to_string(),
-        false => {
+    // we get a crash on
+    // > matrix_in: input transfer_in: input primaries: 2020 transfer_characteristic: ARIB_STD_B67
+    // but actually this is supported (clean_shoes.mp4 in testbed):
+    // > matrix_in: 2020_ncl transfer_in: input primaries: 2020 transfer_characteristic: ARIB_STD_B67
+
+    // Potentially fixed in zimg 3.0
+    // https://github.com/sekrit-twc/zimg/blob/master/ChangeLog
+
+    let is_unsupported =
+        transfer_characteristic == TransferCharacteristic::ARIB_STD_B67 && matrix_in == "input";
+    let should_convert =
+        !(matrix_is_target && transfer_is_target && primaries_is_target) && !is_unsupported;
+
+    let filter_string = match should_convert {
+        false => "copy".to_string(),
+        true => {
             let tin_value = match transfer_characteristic {
                 // Handle file that was not tagged with transfer characteristic
                 // If a file is not tagged with transfer characteristic, but the primaries are BT2020, we assume it's BT2020_10
@@ -114,5 +134,5 @@ pub fn make_tone_map_filtergraph(graph: FilterGraph) -> Result<(Graph, bool), ff
 
     filter.validate()?;
 
-    Ok((filter, !needs_conversion))
+    Ok((filter, should_convert))
 }

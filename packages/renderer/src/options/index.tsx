@@ -5,6 +5,7 @@ import {binariesDirectoryOption} from './binaries-directory';
 import {colorSpaceOption} from './color-space';
 import {crfOption} from './crf';
 import {deleteAfterOption} from './delete-after';
+import {disableGitSourceOption} from './disable-git-source';
 import {enableLambdaInsights} from './enable-lambda-insights';
 import {enableMultiprocessOnLinuxOption} from './enable-multiprocess-on-linux';
 import {encodingBufferSizeOption} from './encoding-buffer-size';
@@ -71,6 +72,7 @@ export const allOptions = {
 	publicDirOption,
 	onBrowserDownloadOption,
 	throwIfSiteExistsOption,
+	disableGitSourceOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

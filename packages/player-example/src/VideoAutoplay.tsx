@@ -4,8 +4,8 @@ import {
 	Audio,
 	Sequence,
 	Series,
-	staticFile,
 	Video,
+	staticFile,
 } from 'remotion';
 
 preloadVideo(
