@@ -1,8 +1,8 @@
 import {useColorMode} from '@docusaurus/theme-common';
 import {Player} from '@remotion/player';
 import React, {useEffect, useState} from 'react';
-import type {Location} from '../../remotion/HomepageVideo/Comp';
 import {HomepageVideoComp} from '../../remotion/HomepageVideo/Comp';
+import type {Location} from '../../remotion/HomepageVideo/types';
 import {ActionRow} from './ActionRow';
 
 export const Demo: React.FC = () => {
@@ -20,6 +20,8 @@ export const Demo: React.FC = () => {
 			});
 	}, []);
 
+	const strokeColor = colorMode === 'dark' ? 'gray' : 'black';
+
 	return (
 		<div>
 			<br />
@@ -36,8 +38,8 @@ export const Demo: React.FC = () => {
 				controls
 				clickToPlay={false}
 				style={{
-					border: '2px solid black',
-					borderBottom: '4px solid black',
+					border: '2px solid ' + strokeColor,
+					borderBottom: '4px solid ' + strokeColor,
 					borderRadius: 8,
 					width: '100%',
 				}}
