@@ -99,7 +99,7 @@ export const MediaVolumeSlider: React.FC<{
 	const volumeSlider = useMemo(() => {
 		return (focused || hover) && !mediaMuted && !Internals.isIosSafari()
 			? (renderVolumeSlider ?? renderDefaultVolumeSlider)({
-					isNarrow: displayVerticalVolumeSlider,
+					isVertical: displayVerticalVolumeSlider,
 					volume: mediaVolume,
 					onBlur: () => setFocused(false),
 					inputRef,

@@ -7,7 +7,7 @@ const KNOB_SIZE = 12;
 
 type RenderVolumeSliderProps = {
 	readonly volume: number;
-	readonly isNarrow: boolean;
+	readonly isVertical: boolean;
 	readonly onBlur: () => void;
 	readonly inputRef: React.RefObject<HTMLInputElement>;
 	readonly setVolume: (u: number) => void;
@@ -21,7 +21,7 @@ const BAR_HEIGHT = 5;
 
 const DefaultVolumeSlider: React.FC<RenderVolumeSliderProps> = ({
 	volume,
-	isNarrow,
+	isVertical,
 	onBlur,
 	inputRef,
 	setVolume,
@@ -36,7 +36,7 @@ const DefaultVolumeSlider: React.FC<RenderVolumeSliderProps> = ({
 			alignItems: 'center',
 		};
 
-		if (isNarrow) {
+		if (isVertical) {
 			return {
 				...common,
 				position: 'absolute',
@@ -49,7 +49,7 @@ const DefaultVolumeSlider: React.FC<RenderVolumeSliderProps> = ({
 		return {
 			...common,
 		};
-	}, [isNarrow]);
+	}, [isVertical]);
 
 	// Need to import it from React to fix React 17 ESM support.
 	const randomId =
@@ -80,7 +80,7 @@ const DefaultVolumeSlider: React.FC<RenderVolumeSliderProps> = ({
 				white ${volume * 100}%, rgba(255, 255, 255, 0) ${volume * 100}%
 			)`,
 		};
-		if (isNarrow) {
+		if (isVertical) {
 			return {
 				...commonStyle,
 				bottom: ICON_SIZE + VOLUME_SLIDER_WIDTH / 2,
@@ -88,7 +88,7 @@ const DefaultVolumeSlider: React.FC<RenderVolumeSliderProps> = ({
 		}
 
 		return commonStyle;
-	}, [isNarrow, volume]);
+	}, [isVertical, volume]);
 
 	const sliderStyle = `
 	.${randomClass}::-webkit-slider-thumb {
