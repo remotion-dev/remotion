@@ -1,8 +1,8 @@
 ---
 image: /generated/articles-docs-player-api.png
-title: "<Player>"
+title: '<Player>'
 slug: /player/player
-crumb: "@remotion/player"
+crumb: '@remotion/player'
 ---
 
 A component which can be rendered in a regular React App (for example: [Next.JS](https://nextjs.org), [Vite.js](https://vitejs.dev), [Create React App](https://create-react-app.dev/)) to display a Remotion video.
@@ -14,8 +14,8 @@ export const MyVideo = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
-import { Player } from "@remotion/player";
-import { MyVideo } from "./remotion/MyVideo";
+import {Player} from '@remotion/player';
+import {MyVideo} from './remotion/MyVideo';
 
 export const App: React.FC = () => {
   return (
@@ -185,9 +185,9 @@ A callback function that allows you to return a custom UI that gets displayed wh
 The first parameter of the callback function contains the `height` and `width` of the player as it gets rendered.
 
 ```tsx twoslash
-import { Player, RenderLoading } from "@remotion/player";
-import { useCallback } from "react";
-import { AbsoluteFill } from "remotion";
+import {Player, RenderLoading} from '@remotion/player';
+import {useCallback} from 'react';
+import {AbsoluteFill} from 'remotion';
 
 const Component: React.FC = () => null;
 
@@ -195,9 +195,9 @@ const Component: React.FC = () => null;
 
 const MyApp: React.FC = () => {
   // `RenderLoading` type can be imported from "@remotion/player"
-  const renderLoading: RenderLoading = useCallback(({ height, width }) => {
+  const renderLoading: RenderLoading = useCallback(({height, width}) => {
     return (
-      <AbsoluteFill style={{ backgroundColor: "gray" }}>
+      <AbsoluteFill style={{backgroundColor: 'gray'}}>
         Loading player ({height}x{width})
       </AbsoluteFill>
     );
@@ -231,24 +231,24 @@ You can control when the poster gets rendered using the props [`showPosterWhenUn
 The first parameter contains the `height` and `width` of the Player as it gets rendered.
 
 ```tsx twoslash
-import { useCallback } from "react";
-import { AbsoluteFill } from "remotion";
+import {useCallback} from 'react';
+import {AbsoluteFill} from 'remotion';
 
 const Component: React.FC = () => null;
 const Spinner: React.FC = () => null;
 
 // ---cut---
 
-import type { RenderPoster } from "@remotion/player";
-import { Player } from "@remotion/player";
+import type {RenderPoster} from '@remotion/player';
+import {Player} from '@remotion/player';
 
 const MyApp: React.FC = () => {
   const renderPoster: RenderPoster = useCallback(
-    ({ height, width, isBuffering }) => {
+    ({height, width, isBuffering}) => {
       if (isBuffering) {
         return (
           <AbsoluteFill
-            style={{ justifyContent: "center", alignItems: "center" }}
+            style={{justifyContent: 'center', alignItems: 'center'}}
           >
             <Spinner />
           </AbsoluteFill>
@@ -256,7 +256,7 @@ const MyApp: React.FC = () => {
       }
 
       return (
-        <AbsoluteFill style={{ backgroundColor: "gray" }}>
+        <AbsoluteFill style={{backgroundColor: 'gray'}}>
           Click to play! ({height}x{width})
         </AbsoluteFill>
       );
@@ -333,18 +333,18 @@ _optional_
 Allows you to customize the Play/Pause button of the controls.  
 Must be a callback function that returns a valid React element.
 
-```tsx twoslash
+```tsx twoslash title="App.tsx"
 const MyPlayButton: React.FC = () => null;
 const MyPauseButton: React.FC = () => null;
 const MySpinner: React.FC = () => null;
 const MyVideo: React.FC = () => null;
 // ---cut---
-import { Player, RenderPlayPauseButton } from "@remotion/player";
-import { useCallback } from "react";
+import {Player, RenderPlayPauseButton} from '@remotion/player';
+import {useCallback} from 'react';
 
 export const App: React.FC = () => {
   const renderPlayPauseButton: RenderPlayPauseButton = useCallback(
-    ({ playing, isBuffering }) => {
+    ({playing, isBuffering}) => {
       // Since v4.0.111, isBuffering is available
       if (playing && isBuffering) {
         return <MySpinner />;
@@ -387,12 +387,12 @@ const FullScreenButton: React.FC = () => null;
 const MinimiseButton: React.FC = () => null;
 const MyVideo: React.FC = () => null;
 // ---cut---
-import { Player, RenderFullscreenButton } from "@remotion/player";
-import { useCallback } from "react";
+import {Player, RenderFullscreenButton} from '@remotion/player';
+import {useCallback} from 'react';
 
 export const App: React.FC = () => {
   const renderFullscreenButton: RenderFullscreenButton = useCallback(
-    ({ isFullscreen }) => {
+    ({isFullscreen}) => {
       if (isFullscreen) {
         return <MinimiseButton />;
       }
@@ -410,6 +410,80 @@ export const App: React.FC = () => {
       compositionHeight={1080}
       fps={30}
       renderFullscreenButton={renderFullscreenButton}
+    />
+  );
+};
+```
+
+### `renderMuteButton`<AvailableFrom v="4.0.188" />
+
+_optional_
+
+Allows you to customize the Mute button of the controls, must return a valid React element.  
+Action is disabled, you must attach click handlers yourself using the [`PlayerRef`](#playerref).  
+If unmuting a video, we recommend setting both [`.setVolume(1)`](#setvolume) and [`.setMuted(false)`](#setmuted).
+
+```tsx twoslash
+const VolumeOnIcon: React.FC = () => null;
+const VolumeOffIcon: React.FC = () => null;
+const MyVideo: React.FC = () => null;
+// ---cut---
+import {Player, RenderMuteButton} from '@remotion/player';
+import {useCallback} from 'react';
+
+export const App: React.FC = () => {
+  const renderMuteButton: RenderMuteButton = useCallback(({muted, volume}) => {
+    const isMutedOrVolumeZero = muted || volume === 0;
+    if (isMutedOrVolumeZero) {
+      return <VolumeOffIcon />;
+    }
+
+    return <VolumeOnIcon />;
+  }, []);
+
+  return (
+    <Player
+      fps={30}
+      component={MyVideo}
+      durationInFrames={120}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      renderMuteButton={renderMuteButton}
+    />
+  );
+};
+```
+
+### `renderVolumeSlider`<AvailableFrom v="4.0.188" />
+
+Allows for a custom implementation of the volume slider, must return a valid React element.  
+See the default implementation [here](https://github.com/remotion-dev/remotion/blob/main/packages/player/src/render-volume-slider.tsx).  
+The default implementation makes the volume slider vertical (`isVertical`) and is keyboard navigateable using the Tab key (`onBlur`, `inputRef`).
+
+```tsx twoslash title="App.tsx"
+const VolumeOnIcon: React.FC = () => null;
+const VolumeOffIcon: React.FC = () => null;
+const MyVideo: React.FC = () => null;
+// ---cut---
+import {useCallback} from 'react';
+import {Player, type RenderVolumeSlider} from '@remotion/player';
+
+export const App: React.FC = () => {
+  const renderVolumeSlider: RenderVolumeSlider = useCallback(
+    ({isVertical, volume, onBlur, inputRef, setVolume}) => {
+      return null; // Your volume slider implementation
+    },
+    [],
+  );
+
+  return (
+    <Player
+      fps={30}
+      component={MyVideo}
+      durationInFrames={120}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      renderVolumeSlider={renderVolumeSlider}
     />
   );
 };
@@ -474,9 +548,9 @@ export const MyComposition: React.FC = () => null;
 
 // @filename: index.tsx
 // ---cut---
-import { Player, PlayerRef } from "@remotion/player";
-import { useEffect, useRef } from "react";
-import { MyComposition } from "./MyComposition";
+import {Player, PlayerRef} from '@remotion/player';
+import {useEffect, useRef} from 'react';
+import {MyComposition} from './MyComposition';
 
 const MyComp: React.FC = () => {
   const playerRef = useRef<PlayerRef>(null);
@@ -538,8 +612,8 @@ Returns a boolean indicating whether the video is playing.
 Gets the container `HTMLDivElement` of the player. Useful if you'd like to manually attach listeners to the player element.
 
 ```tsx twoslash
-import { PlayerRef } from "@remotion/player";
-import { useEffect, useRef } from "react";
+import {PlayerRef} from '@remotion/player';
+import {useEffect, useRef} from 'react';
 // ---cut---
 const playerRef = useRef<PlayerRef>(null);
 
@@ -553,12 +627,12 @@ useEffect(() => {
   }
 
   const onClick = () => {
-    console.log("player got clicked");
+    console.log('player got clicked');
   };
 
-  container.addEventListener("click", onClick);
+  container.addEventListener('click', onClick);
   return () => {
-    container.removeEventListener("click", onClick);
+    container.removeEventListener('click', onClick);
   };
 }, []);
 ```
@@ -628,89 +702,89 @@ Stop listening to an event. See the [Events](#events) section to see the functio
 Using a [player ref](#playerref), you can bind event listeners to get notified of certain events of the player.
 
 ```tsx twoslash
-import { PlayerRef } from "@remotion/player";
-import { useEffect, useRef } from "react";
+import {PlayerRef} from '@remotion/player';
+import {useEffect, useRef} from 'react';
 // ---cut---
-import { CallbackListener } from "@remotion/player";
+import {CallbackListener} from '@remotion/player';
 const playerRef = useRef<PlayerRef>(null);
 
 useEffect(() => {
   if (!playerRef.current) {
     return;
   }
-  const onPlay: CallbackListener<"play"> = () => {
-    console.log("play");
+  const onPlay: CallbackListener<'play'> = () => {
+    console.log('play');
   };
-  const onRateChange: CallbackListener<"ratechange"> = (e) => {
-    console.log("ratechange", e.detail.playbackRate);
+  const onRateChange: CallbackListener<'ratechange'> = (e) => {
+    console.log('ratechange', e.detail.playbackRate);
   };
-  const onVolumeChange: CallbackListener<"volumechange"> = (e) => {
-    console.log("new volume", e.detail.volume);
-  };
-
-  const onPause: CallbackListener<"pause"> = () => {
-    console.log("pausing");
+  const onVolumeChange: CallbackListener<'volumechange'> = (e) => {
+    console.log('new volume', e.detail.volume);
   };
 
-  const onSeeked: CallbackListener<"seeked"> = (e) => {
-    console.log("seeked to " + e.detail.frame);
+  const onPause: CallbackListener<'pause'> = () => {
+    console.log('pausing');
   };
 
-  const onTimeupdate: CallbackListener<"timeupdate"> = (e) => {
-    console.log("time has updated to " + e.detail.frame);
+  const onSeeked: CallbackListener<'seeked'> = (e) => {
+    console.log('seeked to ' + e.detail.frame);
   };
 
-  const onEnded: CallbackListener<"ended"> = () => {
-    console.log("ended");
+  const onTimeupdate: CallbackListener<'timeupdate'> = (e) => {
+    console.log('time has updated to ' + e.detail.frame);
   };
 
-  const onError: CallbackListener<"error"> = (e) => {
-    console.log("error", e.detail.error);
+  const onEnded: CallbackListener<'ended'> = () => {
+    console.log('ended');
   };
 
-  const onFullscreenChange: CallbackListener<"fullscreenchange"> = (e) => {
-    console.log("fullscreenchange", e.detail.isFullscreen);
+  const onError: CallbackListener<'error'> = (e) => {
+    console.log('error', e.detail.error);
   };
 
-  const onScaleChange: CallbackListener<"scalechange"> = (e) => {
-    console.log("scalechange", e.detail.scale);
+  const onFullscreenChange: CallbackListener<'fullscreenchange'> = (e) => {
+    console.log('fullscreenchange', e.detail.isFullscreen);
   };
 
-  const onMuteChange: CallbackListener<"mutechange"> = (e) => {
-    console.log("mutechange", e.detail.isMuted);
+  const onScaleChange: CallbackListener<'scalechange'> = (e) => {
+    console.log('scalechange', e.detail.scale);
   };
 
-  playerRef.current.addEventListener("play", onPlay);
-  playerRef.current.addEventListener("ratechange", onRateChange);
-  playerRef.current.addEventListener("volumechange", onVolumeChange);
-  playerRef.current.addEventListener("pause", onPause);
-  playerRef.current.addEventListener("ended", onEnded);
-  playerRef.current.addEventListener("error", onError);
-  playerRef.current.addEventListener("fullscreenchange", onFullscreenChange);
-  playerRef.current.addEventListener("scalechange", onScaleChange);
-  playerRef.current.addEventListener("mutechange", onMuteChange);
+  const onMuteChange: CallbackListener<'mutechange'> = (e) => {
+    console.log('mutechange', e.detail.isMuted);
+  };
+
+  playerRef.current.addEventListener('play', onPlay);
+  playerRef.current.addEventListener('ratechange', onRateChange);
+  playerRef.current.addEventListener('volumechange', onVolumeChange);
+  playerRef.current.addEventListener('pause', onPause);
+  playerRef.current.addEventListener('ended', onEnded);
+  playerRef.current.addEventListener('error', onError);
+  playerRef.current.addEventListener('fullscreenchange', onFullscreenChange);
+  playerRef.current.addEventListener('scalechange', onScaleChange);
+  playerRef.current.addEventListener('mutechange', onMuteChange);
 
   // See below for difference between `seeked` and `timeupdate`
-  playerRef.current.addEventListener("seeked", onSeeked);
-  playerRef.current.addEventListener("timeupdate", onTimeupdate);
+  playerRef.current.addEventListener('seeked', onSeeked);
+  playerRef.current.addEventListener('timeupdate', onTimeupdate);
 
   return () => {
     // Make sure to clean up event listeners
     if (playerRef.current) {
-      playerRef.current.removeEventListener("play", onPlay);
-      playerRef.current.removeEventListener("ratechange", onRateChange);
-      playerRef.current.removeEventListener("volumechange", onVolumeChange);
-      playerRef.current.removeEventListener("pause", onPause);
-      playerRef.current.removeEventListener("ended", onEnded);
-      playerRef.current.removeEventListener("error", onError);
+      playerRef.current.removeEventListener('play', onPlay);
+      playerRef.current.removeEventListener('ratechange', onRateChange);
+      playerRef.current.removeEventListener('volumechange', onVolumeChange);
+      playerRef.current.removeEventListener('pause', onPause);
+      playerRef.current.removeEventListener('ended', onEnded);
+      playerRef.current.removeEventListener('error', onError);
       playerRef.current.removeEventListener(
-        "fullscreenchange",
+        'fullscreenchange',
         onFullscreenChange,
       );
-      playerRef.current.removeEventListener("scalechange", onScaleChange);
-      playerRef.current.removeEventListener("mutechange", onMuteChange);
-      playerRef.current.removeEventListener("seeked", onSeeked);
-      playerRef.current.removeEventListener("timeupdate", onTimeupdate);
+      playerRef.current.removeEventListener('scalechange', onScaleChange);
+      playerRef.current.removeEventListener('mutechange', onMuteChange);
+      playerRef.current.removeEventListener('seeked', onSeeked);
+      playerRef.current.removeEventListener('timeupdate', onTimeupdate);
     }
   };
 }, []);
@@ -721,15 +795,15 @@ useEffect(() => {
 Fired when the time position is changed by the user using the playback bar or using [`seek()`](#seek). You may get the current frame by reading it from `e.detail.frame`.
 
 ```tsx twoslash
-import { PlayerRef } from "@remotion/player";
-import { useRef } from "react";
+import {PlayerRef} from '@remotion/player';
+import {useRef} from 'react';
 const playerRef = useRef<PlayerRef>(null);
 if (!playerRef.current) {
   throw new Error();
 }
 // ---cut---
-playerRef.current.addEventListener("seeked", (e) => {
-  console.log("seeked to " + e.detail.frame); // seeked to 120
+playerRef.current.addEventListener('seeked', (e) => {
+  console.log('seeked to ' + e.detail.frame); // seeked to 120
 });
 ```
 
@@ -766,15 +840,15 @@ Fires when the video has paused or ended.
 Fires periodic time updates when the video is playing. Unlike the [`seeked`](#seeked) event, frames are skipped, and the event is throttled to only fire a few times a second at most every 250ms.
 
 ```tsx twoslash
-import { PlayerRef } from "@remotion/player";
-import { useRef } from "react";
+import {PlayerRef} from '@remotion/player';
+import {useRef} from 'react';
 const playerRef = useRef<PlayerRef>(null);
 if (!playerRef.current) {
   throw new Error();
 }
 // ---cut---
-playerRef.current.addEventListener("timeupdate", (e) => {
-  console.log("current frame is " + e.detail.frame); // current frame is 120
+playerRef.current.addEventListener('timeupdate', (e) => {
+  console.log('current frame is ' + e.detail.frame); // current frame is 120
 });
 ```
 
@@ -787,15 +861,15 @@ Prefer the [`frameupdate`](#frameupdate) event if you need an update for every s
 Fires whenever the current time has changed, during both playback and seeking.
 
 ```tsx twoslash
-import { PlayerRef } from "@remotion/player";
-import { useRef } from "react";
+import {PlayerRef} from '@remotion/player';
+import {useRef} from 'react';
 const playerRef = useRef<PlayerRef>(null);
 if (!playerRef.current) {
   throw new Error();
 }
 // ---cut---
-playerRef.current.addEventListener("frameupdate", (e) => {
-  console.log("current frame is " + e.detail.frame); // current frame is 120
+playerRef.current.addEventListener('frameupdate', (e) => {
+  console.log('current frame is ' + e.detail.frame); // current frame is 120
 });
 ```
 
@@ -808,15 +882,15 @@ Prefer the [`timeupdate`](#timeupdate) event if you only need periodical updates
 Fires when the player enters or exits fullscreen. By reading `e.detail.isFullscreen` or calling `playerRef.isFullscreen()` you can determine if the player is currently in fullscreen or not.
 
 ```tsx twoslash
-import { PlayerRef } from "@remotion/player";
-import { useRef } from "react";
+import {PlayerRef} from '@remotion/player';
+import {useRef} from 'react';
 const playerRef = useRef<PlayerRef>(null);
 if (!playerRef.current) {
   throw new Error();
 }
 // ---cut---
-playerRef.current.addEventListener("fullscreenchange", (e) => {
-  console.log("is fullscreen" + e.detail.isFullscreen); // is fullscreen true
+playerRef.current.addEventListener('fullscreenchange', (e) => {
+  console.log('is fullscreen' + e.detail.isFullscreen); // is fullscreen true
 });
 ```
 
@@ -825,15 +899,15 @@ playerRef.current.addEventListener("fullscreenchange", (e) => {
 Fires when the player's audio is muted or not. Also returned by [`isMuted()`](#ismuted).
 
 ```tsx twoslash
-import { PlayerRef } from "@remotion/player";
-import { useRef } from "react";
+import {PlayerRef} from '@remotion/player';
+import {useRef} from 'react';
 const playerRef = useRef<PlayerRef>(null);
 if (!playerRef.current) {
   throw new Error();
 }
 // ---cut---
-playerRef.current.addEventListener("mutechange", (e) => {
-  console.log("is mute" + e.detail.isMuted); // is mute true
+playerRef.current.addEventListener('mutechange', (e) => {
+  console.log('is mute' + e.detail.isMuted); // is mute true
 });
 ```
 
@@ -844,12 +918,12 @@ Fires when an error or uncaught exception has happened in the video.
 You may get the error by reading the `e.detail.error` value:
 
 ```tsx twoslash
-import { PlayerRef } from "@remotion/player";
-import { useRef } from "react";
+import {PlayerRef} from '@remotion/player';
+import {useRef} from 'react';
 const ref = useRef<PlayerRef>(null);
 // ---cut---
-ref.current?.addEventListener("error", (e) => {
-  console.log("error ", e.detail.error); // error [Error: undefined is not a function]
+ref.current?.addEventListener('error', (e) => {
+  console.log('error ', e.detail.error); // error [Error: undefined is not a function]
 });
 ```
 
@@ -877,9 +951,9 @@ This feature is implemented using an [error boundary](https://react.dev/referenc
 You can customize the error message that is shown if a video crashes:
 
 ```tsx twoslash
-import { ErrorFallback, Player } from "@remotion/player";
-import { useCallback } from "react";
-import { AbsoluteFill } from "remotion";
+import {ErrorFallback, Player} from '@remotion/player';
+import {useCallback} from 'react';
+import {AbsoluteFill} from 'remotion';
 
 const Component: React.FC = () => null;
 
@@ -887,13 +961,13 @@ const Component: React.FC = () => null;
 
 const MyApp: React.FC = () => {
   // `ErrorFallback` type can be imported from "@remotion/player"
-  const errorFallback: ErrorFallback = useCallback(({ error }) => {
+  const errorFallback: ErrorFallback = useCallback(({error}) => {
     return (
       <AbsoluteFill
         style={{
-          backgroundColor: "yellow",
-          justifyContent: "center",
-          alignItems: "center",
+          backgroundColor: 'yellow',
+          justifyContent: 'center',
+          alignItems: 'center',
         }}
       >
         Sorry about this! An error occurred: {error.message}
