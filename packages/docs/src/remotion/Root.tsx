@@ -75,6 +75,10 @@ export const RemotionRoot: React.FC = () => {
 				fps={30}
 				defaultProps={{
 					theme: 'light',
+					location: {
+						country: 'US',
+						city: 'New York',
+					},
 				}}
 				schema={schema}
 			/>

@@ -187,6 +187,7 @@ const Card: React.FC<{
 			let translateX = 0;
 			let translateY = 0;
 			refToUse.current.classList.add(styles.active);
+			refToUse.current.style.cursor = 'grabbing';
 
 			const onMove = (evt: PointerEvent) => {
 				refsToUse.forEach((r) => {
@@ -247,6 +248,8 @@ const Card: React.FC<{
 					refToUse.current.style.left = `${cardLeft + translateX}px`;
 					refToUse.current.style.top = `${cardTop + translateY}px`;
 					refToUse.current.style.transform = `translateX(0px) translateY(0px)`;
+					refToUse.current.style.cursor = 'grab';
+
 					refToUse.current.removeEventListener('pointermove', onMove);
 					applyPositions(null);
 				},
@@ -280,6 +283,7 @@ const Card: React.FC<{
 				border: `1px solid ${color}`,
 				borderRadius: 13,
 				overflow: 'hidden',
+				cursor: 'grab',
 			}}
 		>
 			<AbsoluteFill
