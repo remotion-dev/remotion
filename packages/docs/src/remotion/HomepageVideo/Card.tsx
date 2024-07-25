@@ -4,6 +4,7 @@ import {CurrentCountry} from './CurrentCountry';
 import {Temperature} from './Temperature';
 import {TrendingRepos} from './TrendingRepos';
 import styles from './player-styles.module.css';
+import type {Location} from './types';
 
 export const paddingAndMargin = 20;
 const height = 360;
@@ -297,7 +298,8 @@ export const Cards: React.FC<{
 	readonly onUpdate: (newIndices: number[]) => void;
 	readonly indices: number[];
 	readonly theme: 'dark' | 'light';
-}> = ({onUpdate, indices, theme}) => {
+	readonly location: Location;
+}> = ({onUpdate, indices, theme, location}) => {
 	const [refs] = useState(() => {
 		return new Array(4).fill(true).map(() => {
 			return createRef<HTMLDivElement>();
@@ -317,7 +319,7 @@ export const Cards: React.FC<{
 					) : index === 1 ? (
 						<Temperature theme={theme} />
 					) : index === 2 ? (
-						<CurrentCountry theme={theme} />
+						<CurrentCountry location={location} theme={theme} />
 					) : (
 						'🐹'
 					);

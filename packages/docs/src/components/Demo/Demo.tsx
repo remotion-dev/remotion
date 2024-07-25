@@ -1,11 +1,25 @@
 import {useColorMode} from '@docusaurus/theme-common';
 import {Player} from '@remotion/player';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
+import type {Location} from '../../remotion/HomepageVideo/Comp';
 import {HomepageVideoComp} from '../../remotion/HomepageVideo/Comp';
 import {ActionRow} from './ActionRow';
 
 export const Demo: React.FC = () => {
 	const {colorMode} = useColorMode();
+	const [location, setLocation] = useState<Location | null>(null);
+
+	useEffect(() => {
+		fetch('https://bugs-git-homepage-player-remotion.vercel.app/api/location')
+			.then((res) => res.json())
+			.then((data: Location) => {
+				setLocation(data);
+			})
+			.catch((err) => {
+				console.error(err);
+			});
+	}, []);
+
 	return (
 		<div>
 			<br />
@@ -29,6 +43,7 @@ export const Demo: React.FC = () => {
 				}}
 				inputProps={{
 					theme: colorMode,
+					location,
 				}}
 				loop
 			/>
