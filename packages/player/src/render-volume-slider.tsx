@@ -32,6 +32,8 @@ const DefaultVolumeSlider: React.FC<RenderVolumeSliderProps> = ({
 			paddingLeft,
 			height: ICON_SIZE,
 			width: VOLUME_SLIDER_WIDTH,
+			display: 'inline-flex',
+			alignItems: 'center',
 		};
 
 		if (isNarrow) {
