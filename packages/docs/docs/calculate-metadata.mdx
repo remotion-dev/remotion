@@ -17,6 +17,11 @@ Use it if you:
 to do <a href="/docs/data-fetching">data fetching</a>
 <br />
 <Step>3</Step> want to add a per-composition default codec
+<br />
+<Step>4</Step> want to run code once, before the actual render starts.
+
+The `calculateMetadata()` function is called a single time, independently from the concurrency of the render.  
+It runs in a separate tab, as part of the render process calling [`selectComposition()`](/docs/renderer/select-composition).
 
 ## Usage / API
 
