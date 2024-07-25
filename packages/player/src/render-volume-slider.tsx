@@ -1,14 +1,16 @@
-import {useCallback, useMemo} from 'react';
-import {Internals} from 'remotion';
+import React, {useCallback, useMemo, useState} from 'react';
+import {random} from 'remotion';
 import {VOLUME_SLIDER_WIDTH} from './MediaVolumeSlider';
 import {ICON_SIZE} from './icons';
 
+const KNOB_SIZE = 12;
+
 type RenderVolumeSliderProps = {
-	volume: number;
-	isNarrow: boolean;
-	className: string;
-	onBlur: () => void;
-	inputRef: React.RefObject<HTMLInputElement>;
+	readonly volume: number;
+	readonly isNarrow: boolean;
+	readonly onBlur: () => void;
+	readonly inputRef: React.RefObject<HTMLInputElement>;
+	readonly setVolume: (u: number) => void;
 };
 
 export type RenderVolumeSlider = (
@@ -20,12 +22,10 @@ const BAR_HEIGHT = 5;
 const DefaultVolumeSlider: React.FC<RenderVolumeSliderProps> = ({
 	volume,
 	isNarrow,
-	className,
 	onBlur,
 	inputRef,
+	setVolume,
 }) => {
-	const [, setMediaVolume] = Internals.useMediaVolumeState();
-
 	const sliderContainer = useMemo((): React.CSSProperties => {
 		const paddingLeft = 5;
 		const common: React.CSSProperties = {
@@ -49,11 +49,20 @@ const DefaultVolumeSlider: React.FC<RenderVolumeSliderProps> = ({
 		};
 	}, [isNarrow]);
 
+	// Need to import it from React to fix React 17 ESM support.
+	const randomId =
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		typeof React.useId === 'undefined' ? 'volume-slider' : React.useId();
+
+	const [randomClass] = useState(() =>
+		`__remotion-volume-slider-${random(randomId)}`.replace('.', ''),
+	);
+
 	const onVolumeChange = useCallback(
 		(e: React.ChangeEvent<HTMLInputElement>) => {
-			setMediaVolume(parseFloat(e.target.value));
+			setVolume(parseFloat(e.target.value));
 		},
-		[setMediaVolume],
+		[setVolume],
 	);
 
 	const inputStyle = useMemo((): React.CSSProperties => {
@@ -79,12 +88,38 @@ const DefaultVolumeSlider: React.FC<RenderVolumeSliderProps> = ({
 		return commonStyle;
 	}, [isNarrow, volume]);
 
+	const sliderStyle = `
+	.${randomClass}::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		background-color: white;
+		border-radius: ${KNOB_SIZE / 2}px;
+		box-shadow: 0 0 2px black;
+		height: ${KNOB_SIZE}px;
+		width: ${KNOB_SIZE}px;
+	}
+
+	.${randomClass}::-moz-range-thumb {
+		-webkit-appearance: none;
+		background-color: white;
+		border-radius: ${KNOB_SIZE / 2}px;
+		box-shadow: 0 0 2px black;
+		height: ${KNOB_SIZE}px;
+		width: ${KNOB_SIZE}px;
+	}
+`;
+
 	return (
 		<div style={sliderContainer}>
+			<style
+				// eslint-disable-next-line react/no-danger
+				dangerouslySetInnerHTML={{
+					__html: sliderStyle,
+				}}
+			/>
 			<input
 				ref={inputRef}
 				aria-label="Change volume"
-				className={className}
+				className={randomClass}
 				max={1}
 				min={0}
 				onBlur={onBlur}

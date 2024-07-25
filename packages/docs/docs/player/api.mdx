@@ -454,6 +454,41 @@ export const App: React.FC = () => {
 };
 ```
 
+### `renderVolumeSlider`<AvailableFrom v="4.0.188" />
+
+Allows for a custom implementation of the volume slider, must return a valid React element.  
+See the default implementation [here](https://github.com/remotion-dev/remotion/blob/main/packages/player/src/render-volume-slider.tsx).  
+The default implementation makes the volume slider vertical (`isNarrow`) and is keyboard navigateable using the Tab key (`onBlur`, `inputRef`).
+
+```tsx twoslash title="App.tsx"
+const VolumeOnIcon: React.FC = () => null;
+const VolumeOffIcon: React.FC = () => null;
+const MyVideo: React.FC = () => null;
+// ---cut---
+import {useCallback} from 'react';
+import {Player, type RenderVolumeSlider} from '@remotion/player';
+
+export const App: React.FC = () => {
+  const renderVolumeSlider: RenderVolumeSlider = useCallback(
+    ({isNarrow, volume, className, onBlur, inputRef, setVolume}) => {
+      return null; // Your volume slider implementation
+    },
+    [],
+  );
+
+  return (
+    <Player
+      fps={30}
+      component={MyVideo}
+      durationInFrames={120}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      renderVolumeSlider={renderVolumeSlider}
+    />
+  );
+};
+```
+
 ### `alwaysShowControls`<AvailableFrom v="3.3.55" />
 
 _optional_

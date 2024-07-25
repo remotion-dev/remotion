@@ -1,11 +1,10 @@
 import React, {useCallback, useMemo, useRef, useState} from 'react';
-import {Internals, random} from 'remotion';
+import {Internals} from 'remotion';
 import {ICON_SIZE, VolumeOffIcon, VolumeOnIcon} from './icons.js';
 import type {RenderVolumeSlider} from './render-volume-slider.js';
 import {renderDefaultVolumeSlider} from './render-volume-slider.js';
 import {useHoverState} from './use-hover-state.js';
 
-const KNOB_SIZE = 12;
 export const VOLUME_SLIDER_WIDTH = 100;
 
 export type RenderMuteButton = (props: {
@@ -24,15 +23,6 @@ export const MediaVolumeSlider: React.FC<{
 	const parentDivRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const hover = useHoverState(parentDivRef, false);
-
-	// Need to import it from React to fix React 17 ESM support.
-	const randomId =
-		// eslint-disable-next-line react-hooks/rules-of-hooks
-		typeof React.useId === 'undefined' ? 'volume-slider' : React.useId();
-
-	const [randomClass] = useState(() =>
-		`__remotion-volume-slider-${random(randomId)}`.replace('.', ''),
-	);
 
 	const onBlur = useCallback(() => {
 		setTimeout(() => {
@@ -80,26 +70,6 @@ export const MediaVolumeSlider: React.FC<{
 		};
 	}, []);
 
-	const sliderStyle = `
-	.${randomClass}::-webkit-slider-thumb {
-		-webkit-appearance: none;
-		background-color: white;
-		border-radius: ${KNOB_SIZE / 2}px;
-		box-shadow: 0 0 2px black;
-		height: ${KNOB_SIZE}px;
-		width: ${KNOB_SIZE}px;
-	}
-
-	.${randomClass}::-moz-range-thumb {
-		-webkit-appearance: none;
-		background-color: white;
-		border-radius: ${KNOB_SIZE / 2}px;
-		box-shadow: 0 0 2px black;
-		height: ${KNOB_SIZE}px;
-		width: ${KNOB_SIZE}px;
-	}
-`;
-
 	const renderDefaultMuteButton: RenderMuteButton = useCallback(
 		({muted, volume}) => {
 			const isMutedOrZero = muted || volume === 0;
@@ -120,26 +90,36 @@ export const MediaVolumeSlider: React.FC<{
 		[onBlur, onClick, volumeContainer],
 	);
 
+	const muteButton = useMemo(() => {
+		return renderMuteButton
+			? renderMuteButton({muted: mediaMuted, volume: mediaVolume})
+			: renderDefaultMuteButton({muted: mediaMuted, volume: mediaVolume});
+	}, [mediaMuted, mediaVolume, renderDefaultMuteButton, renderMuteButton]);
+
+	const volumeSlider = useMemo(() => {
+		return (focused || hover) && !mediaMuted && !Internals.isIosSafari()
+			? (renderVolumeSlider ?? renderDefaultVolumeSlider)({
+					isNarrow: displayVerticalVolumeSlider,
+					volume: mediaVolume,
+					onBlur: () => setFocused(false),
+					inputRef,
+					setVolume: setMediaVolume,
+				})
+			: null;
+	}, [
+		displayVerticalVolumeSlider,
+		focused,
+		hover,
+		mediaMuted,
+		mediaVolume,
+		renderVolumeSlider,
+		setMediaVolume,
+	]);
+
 	return (
 		<div ref={parentDivRef} style={parentDivStyle}>
-			<style
-				// eslint-disable-next-line react/no-danger
-				dangerouslySetInnerHTML={{
-					__html: sliderStyle,
-				}}
-			/>
-			{renderMuteButton
-				? renderMuteButton({muted: mediaMuted, volume: mediaVolume})
-				: renderDefaultMuteButton({muted: mediaMuted, volume: mediaVolume})}
-			{(focused || hover) && !mediaMuted && !Internals.isIosSafari()
-				? (renderVolumeSlider ?? renderDefaultVolumeSlider)({
-						className: randomClass,
-						isNarrow: displayVerticalVolumeSlider,
-						volume: mediaVolume,
-						onBlur: () => setFocused(false),
-						inputRef,
-					})
-				: null}
+			{muteButton}
+			{volumeSlider}
 		</div>
 	);
 };
