@@ -21,20 +21,21 @@ import type {
 	ServerlessStatusPayload,
 	WebhookOption,
 } from '@remotion/serverless/client';
-import {ServerlessRoutines} from '@remotion/serverless/client';
-import {VERSION} from 'remotion/version';
-import type {AwsRegion, DeleteAfter} from '../client';
-import {awsImplementation} from '../functions/aws-implementation';
 import {
+	ServerlessRoutines,
 	compressInputProps,
 	getNeedsToUpload,
 	serializeOrThrow,
-} from '../shared/compress-props';
+} from '@remotion/serverless/client';
+import {VERSION} from 'remotion/version';
+import type {AwsRegion, DeleteAfter} from '../client';
+import {awsImplementation} from '../functions/aws-implementation';
+
+import {validateWebhook} from '@remotion/serverless';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import {validateLambdaCodec} from '../shared/validate-lambda-codec';
 import {validateServeUrl} from '../shared/validate-serveurl';
-import {validateWebhook} from '../shared/validate-webhook';
 import type {GetRenderProgressInput} from './get-render-progress';
 import type {RenderStillOnLambdaNonNullInput} from './render-still-on-lambda';
 

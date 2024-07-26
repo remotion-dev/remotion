@@ -4,18 +4,18 @@ import {RenderInternals} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {forgetBrowserEventLoop, getBrowserInstance} from '@remotion/serverless';
 import type {ServerlessPayload} from '@remotion/serverless/client';
-import {ServerlessRoutines} from '@remotion/serverless/client';
+import {
+	ServerlessRoutines,
+	compressInputProps,
+	decompressInputProps,
+	getNeedsToUpload,
+	serializeOrThrow,
+} from '@remotion/serverless/client';
 import {existsSync, mkdirSync, rmSync} from 'fs';
 import {join} from 'path';
 import {VERSION} from 'remotion/version';
 import {type EventEmitter} from 'stream';
 import type {AwsRegion} from '../regions';
-import {
-	compressInputProps,
-	decompressInputProps,
-	getNeedsToUpload,
-	serializeOrThrow,
-} from '../shared/compress-props';
 import type {PostRenderData, RenderMetadata} from '../shared/constants';
 import {
 	CONCAT_FOLDER_TOKEN,

@@ -4,10 +4,10 @@ import {forgetBrowserEventLoop, getBrowserInstance} from '@remotion/serverless';
 import type {ServerlessPayload} from '@remotion/serverless/client';
 import {
 	ServerlessRoutines,
+	decompressInputProps,
 	internalGetOrCreateBucket,
 } from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
-import {decompressInputProps} from '../shared/compress-props';
 
 type Options = {
 	expectedBucketOwner: string;

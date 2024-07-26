@@ -1,16 +1,16 @@
 import type {ChromiumOptions, ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import {ServerlessRoutines} from '@remotion/serverless/client';
+import {
+	ServerlessRoutines,
+	compressInputProps,
+	getNeedsToUpload,
+	serializeOrThrow,
+} from '@remotion/serverless/client';
 import type {VideoConfig} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../client';
 import {awsImplementation} from '../functions/aws-implementation';
 import {callLambda} from '../shared/call-lambda';
-import {
-	compressInputProps,
-	getNeedsToUpload,
-	serializeOrThrow,
-} from '../shared/compress-props';
 
 export type GetCompositionsOnLambdaInput = {
 	chromiumOptions?: ChromiumOptions;

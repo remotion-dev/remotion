@@ -1,5 +1,11 @@
 export {Await} from './await';
 export {
+	compressInputProps,
+	decompressInputProps,
+	getNeedsToUpload,
+	serializeOrThrow,
+} from './compress-props';
+export {
 	REMOTION_BUCKET_PREFIX,
 	ServerlessCodec,
 	ServerlessPayload,

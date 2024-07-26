@@ -1,12 +1,9 @@
-import type {ProviderSpecifics} from '@remotion/serverless';
-import {
-	inputPropsKey,
-	internalGetOrCreateBucket,
-	resolvedPropsKey,
-	streamToString,
-	type SerializedInputProps,
-} from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
+import type {SerializedInputProps} from './constants';
+import {internalGetOrCreateBucket} from './get-or-create-bucket';
+import {inputPropsKey, resolvedPropsKey} from './input-props-keys';
+import type {ProviderSpecifics} from './provider-implementation';
+import {streamToString} from './stream-to-string';
 import {MAX_WEBHOOK_CUSTOM_DATA_SIZE} from './validate-webhook';
 
 type PropsType = 'input-props' | 'resolved-props';

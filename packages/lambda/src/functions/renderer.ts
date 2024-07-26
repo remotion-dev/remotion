@@ -8,11 +8,13 @@ import {RenderInternals} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {forgetBrowserEventLoop, getBrowserInstance} from '@remotion/serverless';
 import type {ServerlessPayload} from '@remotion/serverless/client';
-import {ServerlessRoutines} from '@remotion/serverless/client';
+import {
+	ServerlessRoutines,
+	decompressInputProps,
+} from '@remotion/serverless/client';
 import fs from 'node:fs';
 import path from 'node:path';
 import {VERSION} from 'remotion/version';
-import {decompressInputProps} from '../shared/compress-props';
 import {RENDERER_PATH_TOKEN} from '../shared/constants';
 import {isFlakyError} from '../shared/is-flaky-error';
 import {truthy} from '../shared/truthy';
