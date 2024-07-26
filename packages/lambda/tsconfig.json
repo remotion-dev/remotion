@@ -12,6 +12,7 @@
 		{"path": "../bundler"},
 		{"path": "../cli"},
 		{"path": "../streaming"},
+		{"path": "../serverless"},
 		{"path": "../renderer"}
 	]
 }
