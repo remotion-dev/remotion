@@ -62,7 +62,10 @@ const innerHandler = async <Region extends string>({
 	const currentUserId = context.invokedFunctionArn.split(':')[4];
 	if (params.type === ServerlessRoutines.still) {
 		validateDeleteAfter(params.deleteAfter);
-		const renderId = generateRandomHashWithLifeCycleRule(params.deleteAfter);
+		const renderId = generateRandomHashWithLifeCycleRule(
+			params.deleteAfter,
+			providerSpecifics,
+		);
 		printCloudwatchHelper(
 			ServerlessRoutines.still,
 			{

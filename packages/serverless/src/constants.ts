@@ -297,3 +297,5 @@ export type ServerlessPayloads<Region extends string> = {
 
 export type ServerlessPayload<Region extends string> =
 	ServerlessPayloads<Region>[ServerlessRoutines];
+
+export const REMOTION_BUCKET_PREFIX = 'remotionlambda-';

@@ -56,9 +56,6 @@ vi.mock('../api/get-functions', () =>
 vi.mock('../api/delete-function', () =>
 	vi.importActual('../api/__mocks__/delete-function'),
 );
-vi.mock('../shared/random-hash', () =>
-	vi.importActual('../shared/__mocks__/random-hash'),
-);
 vi.mock('../shared/check-credentials', () =>
 	vi.importActual('../shared/__mocks__/check-credentials'),
 );

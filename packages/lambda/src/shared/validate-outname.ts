@@ -1,7 +1,7 @@
 import type {AudioCodec, Codec} from '@remotion/renderer';
 import {NoReactAPIs} from '@remotion/renderer/pure';
+import {validateBucketName} from '@remotion/serverless/client';
 import type {OutNameInputWithoutCredentials} from './constants';
-import {validateBucketName} from './validate-bucketname';
 
 const validateS3Key = (s3Key: string) => {
 	if (typeof s3Key !== 'string') {

@@ -1,7 +1,7 @@
 import type {LifecycleRule} from '@aws-sdk/client-s3';
+import type {ProviderSpecifics} from '@remotion/serverless';
 import type {DeleteAfter} from '@remotion/serverless/client';
 import {expiryDays} from '@remotion/serverless/client';
-import {randomHash} from '../../shared/random-hash';
 import {truthy} from '../../shared/truthy';
 
 const getEnabledLifeCycleRule = ({
@@ -29,12 +29,11 @@ export const getLifeCycleRules = (): LifecycleRule[] => {
 	);
 };
 
-export const generateRandomHashWithLifeCycleRule = (
+export const generateRandomHashWithLifeCycleRule = <Region extends string>(
 	deleteAfter: DeleteAfter | null,
+	providerSpecifics: ProviderSpecifics<Region>,
 ) => {
-	return [deleteAfter, randomHash({randomInTests: true})]
-		.filter(truthy)
-		.join('-');
+	return [deleteAfter, providerSpecifics.randomHash()].filter(truthy).join('-');
 };
 
 export const validateDeleteAfter = (lifeCycleValue: unknown) => {

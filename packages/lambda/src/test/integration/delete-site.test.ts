@@ -1,8 +1,7 @@
+import {internalGetOrCreateBucket} from '@remotion/serverless/client';
 import {expect, test} from 'vitest';
 import {internalDeleteSite} from '../../api/delete-site';
 import {internalDeploySite} from '../../api/deploy-site';
-import {internalGetOrCreateBucket} from '../../api/get-or-create-bucket';
-import {randomHash} from '../../shared/random-hash';
 import {mockImplementation} from '../mock-implementation';
 
 test('Return 0 total size if site did not exist', async () => {
@@ -39,7 +38,7 @@ test('Return more than 0 total size if site did not exist', async () => {
 		options: {},
 		privacy: 'public',
 		throwIfSiteExists: false,
-		siteName: randomHash(),
+		siteName: mockImplementation.randomHash(),
 	});
 	expect(
 		(

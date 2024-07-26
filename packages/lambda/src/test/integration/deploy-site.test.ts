@@ -1,9 +1,8 @@
+import {internalGetOrCreateBucket} from '@remotion/serverless/client';
 import {expect, test} from 'vitest';
 import {internalDeleteSite} from '../../api/delete-site';
 import {internalDeploySite} from '../../api/deploy-site';
-import {internalGetOrCreateBucket} from '../../api/get-or-create-bucket';
 import {getDirFiles} from '../../api/upload-dir';
-import {randomHash} from '../../shared/random-hash';
 import {mockImplementation} from '../mock-implementation';
 
 test('Should throw on wrong prefix', async () => {
@@ -18,7 +17,7 @@ test('Should throw on wrong prefix', async () => {
 			logLevel: 'info',
 			options: {},
 			privacy: 'public',
-			siteName: randomHash(),
+			siteName: mockImplementation.randomHash(),
 			throwIfSiteExists: true,
 		}),
 	).rejects.toThrow(/The bucketName parameter must start /);

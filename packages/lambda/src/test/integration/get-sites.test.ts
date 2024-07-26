@@ -1,6 +1,6 @@
+import {internalGetOrCreateBucket} from '@remotion/serverless/client';
 import {expect, test} from 'vitest';
 import {internalDeploySite} from '../../api/deploy-site';
-import {internalGetOrCreateBucket} from '../../api/get-or-create-bucket';
 import {internalGetSites} from '../../api/get-sites';
 import {mockImplementation} from '../mock-implementation';
 

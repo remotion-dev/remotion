@@ -62,4 +62,5 @@ export const mockImplementation: ProviderSpecifics<AwsRegion> = {
 	bucketExists: ({bucketName, region}) => {
 		return Promise.resolve(mockBucketExists(bucketName, region));
 	},
+	randomHash: () => 'abcdef',
 };

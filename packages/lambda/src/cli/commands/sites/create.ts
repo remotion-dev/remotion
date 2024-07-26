@@ -4,13 +4,14 @@ import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 
 import type {ProviderSpecifics} from '@remotion/serverless';
-import type {Privacy} from '@remotion/serverless/client';
+import {
+	internalGetOrCreateBucket,
+	type Privacy,
+} from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
-import {internalGetOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {LambdaInternals} from '../../../internals';
 import type {AwsRegion} from '../../../regions';
 import {BINARY_NAME} from '../../../shared/constants';
-import {randomHash} from '../../../shared/random-hash';
 import {validateSiteName} from '../../../shared/validate-site-name';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
@@ -153,7 +154,7 @@ export const sitesCreateSubcommand = async (
 
 	const {serveUrl, siteName, stats} = await LambdaInternals.internalDeploySite({
 		entryPoint: file,
-		siteName: desiredSiteName ?? randomHash(),
+		siteName: desiredSiteName ?? implementation.randomHash(),
 		bucketName,
 		options: {
 			publicDir,

@@ -9,13 +9,15 @@ import type {
 	CustomCredentials,
 	ServerlessPayload,
 } from '@remotion/serverless/client';
-import {ServerlessRoutines} from '@remotion/serverless/client';
+import {
+	ServerlessRoutines,
+	internalGetOrCreateBucket,
+} from '@remotion/serverless/client';
 import fs from 'node:fs';
 import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import {estimatePrice} from '../api/estimate-price';
-import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
 import type {AwsRegion} from '../regions';
 import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
 import {decompressInputProps} from '../shared/compress-props';

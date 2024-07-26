@@ -1,9 +1,11 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import type {ProviderSpecifics} from '@remotion/serverless';
 import type {ServerlessPayload} from '@remotion/serverless/client';
-import {ServerlessRoutines} from '@remotion/serverless/client';
+import {
+	ServerlessRoutines,
+	internalGetOrCreateBucket,
+} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
-import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
 import type {AwsRegion} from '../regions';
 import {getLambdaClient} from '../shared/aws-clients';
 import {overallProgressKey} from '../shared/constants';
@@ -59,7 +61,10 @@ export const startHandler = async <Region extends string>(
 	});
 
 	validateDeleteAfter(params.deleteAfter);
-	const renderId = generateRandomHashWithLifeCycleRule(params.deleteAfter);
+	const renderId = generateRandomHashWithLifeCycleRule(
+		params.deleteAfter,
+		providerSpecifics,
+	);
 
 	const initialFile = lambdaWriteFile({
 		bucketName,

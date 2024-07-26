@@ -1,15 +1,14 @@
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {
 	inputPropsKey,
+	internalGetOrCreateBucket,
 	resolvedPropsKey,
 	streamToString,
 	type SerializedInputProps,
 } from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
-import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
 import type {AwsRegion} from '../client';
 import {lambdaReadFile, lambdaWriteFile} from '../functions/helpers/io';
-import {randomHash} from './random-hash';
 import {MAX_WEBHOOK_CUSTOM_DATA_SIZE} from './validate-webhook';
 
 type PropsType = 'input-props' | 'resolved-props';
@@ -79,7 +78,7 @@ export const compressInputProps = async <Region extends string>({
 	needsToUpload: boolean;
 	providerSpecifics: ProviderSpecifics<Region>;
 }): Promise<SerializedInputProps> => {
-	const hash = randomHash();
+	const hash = providerSpecifics.randomHash();
 
 	if (needsToUpload) {
 		const bucketName =

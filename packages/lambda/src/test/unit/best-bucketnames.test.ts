@@ -1,8 +1,6 @@
+import {makeBucketName} from '@remotion/serverless/client';
 import {expect, test} from 'vitest';
-import {
-	makeBucketName,
-	parseBucketName,
-} from '../../shared/validate-bucketname';
+import {parseBucketName} from '../../shared/validate-bucketname';
 
 test('Generate and parse bucket names correctly', () => {
 	const name = makeBucketName('us-east-1');

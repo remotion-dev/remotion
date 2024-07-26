@@ -1,4 +1,8 @@
-import type {CustomCredentials} from '@remotion/serverless/client';
+import type {
+	CustomCredentials,
+	GetOrCreateBucketInput,
+	GetOrCreateBucketOutput,
+} from '@remotion/serverless/client';
 import type {DeleteFunctionInput} from './api/delete-function';
 import {deleteFunction} from './api/delete-function';
 import type {DeleteRenderInput} from './api/delete-render';
@@ -30,10 +34,6 @@ import type {FunctionInfo, GetFunctionInfoInput} from './api/get-function-info';
 import {getFunctionInfo} from './api/get-function-info';
 import type {GetFunctionsInput} from './api/get-functions';
 import {getFunctions} from './api/get-functions';
-import type {
-	GetOrCreateBucketInput,
-	GetOrCreateBucketOutput,
-} from './api/get-or-create-bucket';
 import {getOrCreateBucket} from './api/get-or-create-bucket';
 import {getRegions} from './api/get-regions';
 import type {GetRenderProgressInput} from './api/get-render-progress';

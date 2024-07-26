@@ -3,6 +3,7 @@ import type {ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {ProviderSpecifics} from '@remotion/serverless';
+import {validateBucketName} from '@remotion/serverless/client';
 import fs from 'node:fs';
 import {awsImplementation} from '../functions/aws-implementation';
 import type {AwsRegion} from '../regions';
@@ -11,9 +12,7 @@ import {getSitesKey} from '../shared/constants';
 import {getAccountId} from '../shared/get-account-id';
 import {getS3DiffOperations} from '../shared/get-s3-operations';
 import {makeS3ServeUrl} from '../shared/make-s3-url';
-import {randomHash} from '../shared/random-hash';
 import {validateAwsRegion} from '../shared/validate-aws-region';
-import {validateBucketName} from '../shared/validate-bucketname';
 import {validatePrivacy} from '../shared/validate-privacy';
 import {validateSiteName} from '../shared/validate-site-name';
 import type {UploadDirProgress} from './upload-dir';
@@ -191,7 +190,7 @@ export const deploySite = (args: DeploySiteInput) => {
 		gitSource: args.gitSource ?? null,
 		options: args.options ?? {},
 		privacy: args.privacy ?? 'public',
-		siteName: args.siteName ?? randomHash(),
+		siteName: args.siteName ?? awsImplementation.randomHash(),
 		indent: false,
 		logLevel: 'info',
 		throwIfSiteExists: args.throwIfSiteExists ?? false,

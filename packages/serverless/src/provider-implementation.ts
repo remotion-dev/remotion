@@ -51,6 +51,8 @@ type BucketExists<Region extends string> = (params: {
 	expectedBucketOwner: string | null;
 }) => Promise<boolean>;
 
+type RandomHash = () => string;
+
 export type ProviderSpecifics<Region extends string> = {
 	getChromiumPath: () => string | null;
 	getCurrentRegionInFunction: () => Region;
@@ -61,4 +63,5 @@ export type ProviderSpecifics<Region extends string> = {
 	listObjects: ListObjects<Region>;
 	deleteFile: DeleteFile<Region>;
 	bucketExists: BucketExists<Region>;
+	randomHash: RandomHash;
 };
