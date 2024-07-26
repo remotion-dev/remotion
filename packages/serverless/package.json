@@ -21,10 +21,19 @@
 		"access": "public"
 	},
 	"dependencies": {
+		"remotion": "workspace:*",
 		"@remotion/renderer": "workspace:*"
 	},
 	"exports": {
 		".": "./dist/index.js",
+		"./client": "./dist/client.js",
 		"./package.json": "./package.json"
+	},
+	"typesVersions": {
+		">=1.0": {
+			"client": [
+				"dist/client.d.ts"
+			]
+		}
 	}
 }

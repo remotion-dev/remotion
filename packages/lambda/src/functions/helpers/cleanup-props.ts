@@ -1,4 +1,4 @@
-import type {SerializedInputProps} from '../../defaults';
+import type {SerializedInputProps} from '@remotion/serverless/client';
 import {
 	cleanupSerializedInputProps,
 	cleanupSerializedResolvedProps,

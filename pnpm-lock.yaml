@@ -1071,6 +1071,9 @@ importers:
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
+      '@remotion/serverless':
+        specifier: workspace:*
+        version: link:../serverless
       '@remotion/streaming':
         specifier: workspace:*
         version: link:../streaming
@@ -1336,6 +1339,9 @@ importers:
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
+      remotion:
+        specifier: workspace:*
+        version: link:../core
 
   packages/shapes:
     dependencies:

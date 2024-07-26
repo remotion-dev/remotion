@@ -5,12 +5,13 @@ import type {
 	OnArtifact,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {LambdaPayload} from '@remotion/serverless/client';
+import {LambdaRoutines} from '@remotion/serverless/client';
 import fs from 'node:fs';
 import path from 'node:path';
 import {VERSION} from 'remotion/version';
 import {decompressInputProps} from '../shared/compress-props';
-import type {LambdaPayload} from '../shared/constants';
-import {LambdaRoutines, RENDERER_PATH_TOKEN} from '../shared/constants';
+import {RENDERER_PATH_TOKEN} from '../shared/constants';
 import {isFlakyError} from '../shared/is-flaky-error';
 import {truthy} from '../shared/truthy';
 import {enableNodeIntrospection} from '../shared/why-is-node-running';

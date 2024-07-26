@@ -1,5 +1,4 @@
-import type {AwsRegion} from '../pricing/aws-regions';
-import type {CustomCredentials} from '../shared/aws-clients';
+import type {AwsRegion, CustomCredentials} from '@remotion/serverless/client';
 import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
 import {applyLifeCyleOperation} from '../shared/lifecycle-rules';
 import {makeBucketName} from '../shared/validate-bucketname';

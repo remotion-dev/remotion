@@ -1,15 +1,8 @@
+import type {DownloadBehavior} from '@remotion/serverless/client';
+
 // By setting the Content-Disposition header in an S3 object,
 // you can control if the user downloads the item if you
 // visit the link
-
-export type DownloadBehavior =
-	| {
-			type: 'play-in-browser';
-	  }
-	| {
-			type: 'download';
-			fileName: string | null;
-	  };
 
 const problematicCharacters = {
 	'%3A': ':',

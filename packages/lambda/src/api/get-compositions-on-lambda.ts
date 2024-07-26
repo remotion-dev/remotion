@@ -1,9 +1,9 @@
 import type {ChromiumOptions, ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
+import {LambdaRoutines} from '@remotion/serverless/client';
 import type {VideoConfig} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../client';
-import {LambdaRoutines} from '../defaults';
 import {callLambda} from '../shared/call-lambda';
 import {
 	compressInputProps,

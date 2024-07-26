@@ -1,12 +1,11 @@
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {AwsRegion, CustomCredentials} from '@remotion/serverless/client';
 import path from 'node:path';
 import {getExpectedOutName} from '../functions/helpers/expected-out-name';
 import {getOverallProgressS3} from '../functions/helpers/get-overall-progress-s3';
 import type {LambdaReadFileProgress} from '../functions/helpers/read-with-progress';
 import {lambdaDownloadFileWithProgress} from '../functions/helpers/read-with-progress';
-import type {AwsRegion} from '../pricing/aws-regions';
-import type {CustomCredentials} from '../shared/aws-clients';
 import {getAccountId} from '../shared/get-account-id';
 
 export type DownloadMediaInput = {

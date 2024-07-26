@@ -1,5 +1,5 @@
+import type {CustomCredentials} from '@remotion/serverless/client';
 import type {RenderMetadata} from '../../defaults';
-import type {CustomCredentials} from '../../shared/aws-clients';
 import {getExpectedOutName} from './expected-out-name';
 import {getCurrentRegionInFunction} from './get-current-region';
 

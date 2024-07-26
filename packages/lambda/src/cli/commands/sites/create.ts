@@ -3,10 +3,10 @@ import {ConfigInternals} from '@remotion/cli/config';
 import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 
+import type {Privacy} from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {internalGetOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {LambdaInternals} from '../../../internals';
-import type {Privacy} from '../../../shared/constants';
 import {BINARY_NAME} from '../../../shared/constants';
 import {randomHash} from '../../../shared/random-hash';
 import {validateSiteName} from '../../../shared/validate-site-name';

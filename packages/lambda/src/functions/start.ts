@@ -1,9 +1,10 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
+import type {LambdaPayload} from '@remotion/serverless/client';
+import {LambdaRoutines} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
 import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
 import {getLambdaClient} from '../shared/aws-clients';
-import type {LambdaPayload} from '../shared/constants';
-import {LambdaRoutines, overallProgressKey} from '../shared/constants';
+import {overallProgressKey} from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';

@@ -1,16 +1,5 @@
-const lambdaCodecs = [
-	'h264',
-	'h265',
-	'vp8',
-	'vp9',
-	'mp3',
-	'aac',
-	'wav',
-	'gif',
-	'prores',
-] as const;
-
-export type LambdaCodec = (typeof lambdaCodecs)[number];
+import type {LambdaCodec} from '@remotion/serverless/client';
+import {lambdaCodecs} from '@remotion/serverless/client';
 
 export const validateLambdaCodec = (codec: unknown): LambdaCodec => {
 	if (typeof codec !== 'string') {

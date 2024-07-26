@@ -5,8 +5,8 @@ import {S3Client} from '@aws-sdk/client-s3';
 import {ServiceQuotasClient} from '@aws-sdk/client-service-quotas';
 import {STSClient} from '@aws-sdk/client-sts';
 import {fromIni} from '@aws-sdk/credential-providers';
+import type {AwsRegion, CustomCredentials} from '@remotion/serverless/client';
 import {random} from 'remotion/no-react';
-import type {AwsRegion} from '../pricing/aws-regions';
 import {checkCredentials} from './check-credentials';
 import {MAX_FUNCTIONS_PER_RENDER} from './constants';
 import {isInsideLambda} from './is-in-lambda';
@@ -149,16 +149,6 @@ export type ServiceMapping = {
 	lambda: LambdaClient;
 	servicequotas: ServiceQuotasClient;
 	sts: STSClient;
-};
-
-export type CustomCredentialsWithoutSensitiveData = {
-	endpoint: string;
-};
-
-export type CustomCredentials = CustomCredentialsWithoutSensitiveData & {
-	accessKeyId: string | null;
-	secretAccessKey: string | null;
-	region?: AwsRegion;
 };
 
 export const getServiceClient = <T extends keyof ServiceMapping>({

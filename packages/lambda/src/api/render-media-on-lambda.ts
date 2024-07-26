@@ -9,11 +9,16 @@ import type {
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
-import type {AwsRegion} from '../pricing/aws-regions';
+import type {
+	AwsRegion,
+	DownloadBehavior,
+	LambdaCodec,
+	OutNameInput,
+	Privacy,
+	WebhookOption,
+} from '@remotion/serverless/client';
+import {LambdaRoutines} from '@remotion/serverless/client';
 import {callLambda} from '../shared/call-lambda';
-import type {OutNameInput, Privacy, WebhookOption} from '../shared/constants';
-import {LambdaRoutines} from '../shared/constants';
-import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {
 	getCloudwatchMethodUrl,
 	getCloudwatchRendererUrl,
@@ -21,7 +26,6 @@ import {
 	getProgressJsonUrl,
 	getS3RenderUrl,
 } from '../shared/get-aws-urls';
-import type {LambdaCodec} from '../shared/validate-lambda-codec';
 import type {InnerRenderMediaOnLambdaInput} from './make-lambda-payload';
 import {makeLambdaRenderMediaPayload} from './make-lambda-payload';
 

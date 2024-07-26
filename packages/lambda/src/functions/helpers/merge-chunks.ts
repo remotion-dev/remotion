@@ -1,14 +1,13 @@
 import type {AudioCodec, LogLevel} from '@remotion/renderer';
-import fs from 'fs';
-import type {CustomCredentials} from '../../shared/aws-clients';
 import type {
-	PostRenderData,
+	CustomCredentials,
+	DownloadBehavior,
+	LambdaCodec,
 	Privacy,
-	RenderMetadata,
 	SerializedInputProps,
-} from '../../shared/constants';
-import type {DownloadBehavior} from '../../shared/content-disposition-header';
-import type {LambdaCodec} from '../../shared/validate-lambda-codec';
+} from '@remotion/serverless/client';
+import fs from 'fs';
+import type {PostRenderData, RenderMetadata} from '../../shared/constants';
 import {cleanupProps} from './cleanup-props';
 import {concatVideos} from './concat-videos';
 import {createPostRenderData} from './create-post-render-data';

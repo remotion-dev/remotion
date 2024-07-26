@@ -11,26 +11,26 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import {VERSION} from 'remotion/version';
-import type {AwsRegion, DeleteAfter} from '../client';
 import type {
+	DownloadBehavior,
+	LambdaCodec,
 	LambdaPayloads,
 	LambdaStartPayload,
 	LambdaStatusPayload,
 	OutNameInput,
 	Privacy,
 	WebhookOption,
-} from '../defaults';
-import {LambdaRoutines} from '../defaults';
+} from '@remotion/serverless/client';
+import {LambdaRoutines} from '@remotion/serverless/client';
+import {VERSION} from 'remotion/version';
+import type {AwsRegion, DeleteAfter} from '../client';
 import {
 	compressInputProps,
 	getNeedsToUpload,
 	serializeOrThrow,
 } from '../shared/compress-props';
-import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
-import type {LambdaCodec} from '../shared/validate-lambda-codec';
 import {validateLambdaCodec} from '../shared/validate-lambda-codec';
 import {validateServeUrl} from '../shared/validate-serveurl';
 import {validateWebhook} from '../shared/validate-webhook';

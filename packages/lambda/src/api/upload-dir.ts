@@ -1,10 +1,9 @@
 import {Upload} from '@aws-sdk/lib-storage';
+import type {AwsRegion, Privacy} from '@remotion/serverless/client';
 import mimeTypes from 'mime-types';
 import type {Dirent} from 'node:fs';
 import {createReadStream, promises as fs} from 'node:fs';
 import path from 'node:path';
-import type {Privacy} from '../defaults';
-import type {AwsRegion} from '../pricing/aws-regions';
 import {getS3Client} from '../shared/aws-clients';
 import {makeS3Key} from '../shared/make-s3-key';
 import {pLimit} from '../shared/p-limit';

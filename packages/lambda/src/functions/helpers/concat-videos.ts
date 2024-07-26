@@ -1,12 +1,12 @@
 import type {AudioCodec, CancelSignal, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {LambdaCodec} from '@remotion/serverless/client';
 import fs from 'node:fs';
 import {join} from 'node:path';
 import {
 	REMOTION_CONCATED_TOKEN,
 	REMOTION_FILELIST_TOKEN,
 } from '../../shared/constants';
-import type {LambdaCodec} from '../../shared/validate-lambda-codec';
 import {
 	canConcatAudioSeamlessly,
 	canConcatVideoSeamlessly,

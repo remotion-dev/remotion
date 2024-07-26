@@ -2,13 +2,12 @@ import {
 	DeleteBucketLifecycleCommand,
 	PutBucketLifecycleConfigurationCommand,
 } from '@aws-sdk/client-s3';
-import type {AwsRegion} from '../client';
+import type {AwsRegion, CustomCredentials} from '@remotion/serverless/client';
 import {
 	createLifeCycleInput,
 	deleteLifeCycleInput,
 } from '../functions/helpers/apply-lifecyle';
 import {getLifeCycleRules} from '../functions/helpers/lifecycle';
-import type {CustomCredentials} from './aws-clients';
 import {getS3Client} from './aws-clients';
 
 const createLCRules = async ({

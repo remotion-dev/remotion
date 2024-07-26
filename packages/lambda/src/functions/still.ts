@@ -1,5 +1,7 @@
 import type {EmittedArtifact, StillImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {LambdaPayload} from '@remotion/serverless/client';
+import {LambdaRoutines} from '@remotion/serverless/client';
 import fs from 'node:fs';
 import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
@@ -8,13 +10,8 @@ import {estimatePrice} from '../api/estimate-price';
 import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
 import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
 import {decompressInputProps} from '../shared/compress-props';
-import type {
-	CostsInfo,
-	LambdaPayload,
-	RenderMetadata,
-} from '../shared/constants';
+import type {CostsInfo, RenderMetadata} from '../shared/constants';
 import {
-	LambdaRoutines,
 	MAX_EPHEMERAL_STORAGE_IN_MB,
 	artifactName,
 	overallProgressKey,

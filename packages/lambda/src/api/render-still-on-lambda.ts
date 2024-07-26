@@ -5,13 +5,15 @@ import type {
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
+import type {AwsRegion, DownloadBehavior} from '@remotion/serverless/client';
+import {LambdaRoutines} from '@remotion/serverless/client';
 import type {ReceivedArtifact} from '../functions/helpers/overall-render-progress';
 import type {RenderStillLambdaResponsePayload} from '../functions/still';
-import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambdaWithStreaming} from '../shared/call-lambda';
-import type {CostsInfo, OutNameInput, Privacy} from '../shared/constants';
-import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
-import type {DownloadBehavior} from '../shared/content-disposition-header';
+
+import type {OutNameInput, Privacy} from '@remotion/serverless/client';
+import type {CostsInfo} from '../shared/constants';
+import {DEFAULT_MAX_RETRIES} from '../shared/constants';
 import {
 	getCloudwatchMethodUrl,
 	getLambdaInsightsUrl,

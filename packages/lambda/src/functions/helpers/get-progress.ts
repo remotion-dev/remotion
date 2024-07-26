@@ -1,7 +1,6 @@
 import {RenderInternals} from '@remotion/renderer';
+import type {AwsRegion, CustomCredentials} from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
-import type {AwsRegion} from '../../pricing/aws-regions';
-import type {CustomCredentials} from '../../shared/aws-clients';
 import type {CleanupInfo, RenderProgress} from '../../shared/constants';
 import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../../shared/constants';
 import {truthy} from '../../shared/truthy';

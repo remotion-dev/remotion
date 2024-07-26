@@ -1,5 +1,5 @@
-import type {AwsRegion} from '../pricing/aws-regions';
-import {DEFAULT_AWS_REGIONS} from '../pricing/aws-regions';
+import type {AwsRegion} from '@remotion/serverless/client';
+import {DEFAULT_AWS_REGIONS} from '@remotion/serverless/client';
 import {AWS_REGIONS} from '../regions';
 
 type Options = {
