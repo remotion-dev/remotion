@@ -1,7 +1,7 @@
 import {expect, test} from 'vitest';
-import {deleteSite} from '../../api/delete-site';
-import {deploySite, internalDeploySite} from '../../api/deploy-site';
-import {getOrCreateBucket} from '../../api/get-or-create-bucket';
+import {internalDeleteSite} from '../../api/delete-site';
+import {internalDeploySite} from '../../api/deploy-site';
+import {internalGetOrCreateBucket} from '../../api/get-or-create-bucket';
 import {getDirFiles} from '../../api/upload-dir';
 import {randomHash} from '../../shared/random-hash';
 import {mockImplementation} from '../mock-implementation';
@@ -64,8 +64,11 @@ test("Should throw if bucket doesn't exist", () => {
 });
 
 test('Should apply name if given', async () => {
-	const {bucketName} = await getOrCreateBucket({
+	const {bucketName} = await internalGetOrCreateBucket({
 		region: 'ap-northeast-1',
+		providerSpecifics: mockImplementation,
+		customCredentials: null,
+		enableFolderExpiry: false,
 	});
 	expect(
 		await internalDeploySite({
@@ -93,17 +96,27 @@ test('Should apply name if given', async () => {
 	});
 });
 
-test('Should use a random hash if no siteName is given', async () => {
-	const {bucketName} = await getOrCreateBucket({
+test('Should overwrite site if given siteName is already taken', async () => {
+	const {bucketName} = await internalGetOrCreateBucket({
 		region: 'ap-northeast-1',
+		providerSpecifics: mockImplementation,
+		customCredentials: null,
+		enableFolderExpiry: false,
 	});
+
 	expect(
-		await deploySite({
+		await internalDeploySite({
 			bucketName,
 			entryPoint: 'first',
 			region: 'ap-northeast-1',
 			siteName: 'testing',
 			gitSource: null,
+			providerSpecifics: mockImplementation,
+			indent: false,
+			logLevel: 'info',
+			options: {},
+			privacy: 'public',
+			throwIfSiteExists: false,
 		}),
 	).toEqual({
 		siteName: 'testing',
@@ -118,23 +131,38 @@ test('Should use a random hash if no siteName is given', async () => {
 });
 
 test('Should delete the previous site if deploying the new one', async () => {
-	const {bucketName} = await getOrCreateBucket({
+	const {bucketName} = await internalGetOrCreateBucket({
 		region: 'ap-northeast-1',
+		providerSpecifics: mockImplementation,
+		customCredentials: null,
+		enableFolderExpiry: false,
 	});
 
-	await deploySite({
+	await internalDeploySite({
 		bucketName,
 		entryPoint: 'first',
 		region: 'ap-northeast-1',
 		siteName: 'testing',
 		gitSource: null,
+		providerSpecifics: mockImplementation,
+		indent: false,
+		logLevel: 'info',
+		options: {},
+		privacy: 'public',
+		throwIfSiteExists: false,
 	});
-	await deploySite({
+	await internalDeploySite({
 		bucketName,
 		entryPoint: 'second',
 		region: 'ap-northeast-1',
 		siteName: 'testing',
 		gitSource: null,
+		providerSpecifics: mockImplementation,
+		indent: false,
+		logLevel: 'info',
+		options: {},
+		privacy: 'public',
+		throwIfSiteExists: false,
 	});
 
 	const files = await mockImplementation.listObjects({
@@ -156,23 +184,38 @@ test('Should delete the previous site if deploying the new one', async () => {
 });
 
 test('Should keep the previous site if deploying the new one with different ID', async () => {
-	const {bucketName} = await getOrCreateBucket({
+	const {bucketName} = await internalGetOrCreateBucket({
 		region: 'ap-northeast-1',
+		providerSpecifics: mockImplementation,
+		customCredentials: null,
+		enableFolderExpiry: false,
 	});
 
-	await deploySite({
+	await internalDeploySite({
 		bucketName,
 		entryPoint: 'first',
 		region: 'ap-northeast-1',
 		siteName: 'testing',
 		gitSource: null,
+		providerSpecifics: mockImplementation,
+		indent: false,
+		logLevel: 'info',
+		options: {},
+		privacy: 'public',
+		throwIfSiteExists: false,
 	});
-	await deploySite({
+	await internalDeploySite({
 		bucketName,
 		entryPoint: 'second',
 		region: 'ap-northeast-1',
 		siteName: 'testing-2',
 		gitSource: null,
+		providerSpecifics: mockImplementation,
+		indent: false,
+		logLevel: 'info',
+		options: {},
+		privacy: 'public',
+		throwIfSiteExists: false,
 	});
 
 	const files = await mockImplementation.listObjects({
@@ -183,15 +226,17 @@ test('Should keep the previous site if deploying the new one with different ID',
 		continuationToken: undefined,
 	});
 
-	await deleteSite({
+	await internalDeleteSite({
 		bucketName,
 		region: 'ap-northeast-1',
 		siteName: 'testing',
+		providerSpecifics: mockImplementation,
 	});
-	await deleteSite({
+	await internalDeleteSite({
 		bucketName,
 		region: 'ap-northeast-1',
 		siteName: 'testing-2',
+		providerSpecifics: mockImplementation,
 	});
 	expect(
 		files.map((f) => {
@@ -208,30 +253,51 @@ test('Should keep the previous site if deploying the new one with different ID',
 });
 
 test('Should not delete site with same prefix', async () => {
-	const {bucketName} = await getOrCreateBucket({
+	const {bucketName} = await internalGetOrCreateBucket({
 		region: 'ap-northeast-1',
+		providerSpecifics: mockImplementation,
+		customCredentials: null,
+		enableFolderExpiry: false,
 	});
 
-	await deploySite({
+	await internalDeploySite({
 		gitSource: null,
 		bucketName,
 		entryPoint: 'first',
 		region: 'ap-northeast-1',
 		siteName: 'my-site',
+		providerSpecifics: mockImplementation,
+		indent: false,
+		logLevel: 'info',
+		options: {},
+		privacy: 'public',
+		throwIfSiteExists: false,
 	});
-	await deploySite({
+	await internalDeploySite({
 		gitSource: null,
 		bucketName,
 		entryPoint: 'second',
 		region: 'ap-northeast-1',
 		siteName: 'my-site-staging',
+		providerSpecifics: mockImplementation,
+		indent: false,
+		logLevel: 'info',
+		options: {},
+		privacy: 'public',
+		throwIfSiteExists: false,
 	});
-	await deploySite({
+	await internalDeploySite({
 		gitSource: null,
 		bucketName,
 		entryPoint: 'first',
 		region: 'ap-northeast-1',
 		siteName: 'my-site',
+		providerSpecifics: mockImplementation,
+		indent: false,
+		logLevel: 'info',
+		options: {},
+		privacy: 'public',
+		throwIfSiteExists: false,
 	});
 
 	const files = await mockImplementation.listObjects({

@@ -16,7 +16,6 @@ import {validateAwsRegion} from '../shared/validate-aws-region';
 import {validateBucketName} from '../shared/validate-bucketname';
 import {validatePrivacy} from '../shared/validate-privacy';
 import {validateSiteName} from '../shared/validate-site-name';
-import {bucketExistsInRegion} from './bucket-exists';
 import type {UploadDirProgress} from './upload-dir';
 import {uploadDir} from './upload-dir';
 
@@ -79,7 +78,7 @@ const mandatoryDeploySite = async ({
 
 	const accountId = await getAccountId({region});
 
-	const bucketExists = await bucketExistsInRegion({
+	const bucketExists = await providerSpecifics.bucketExists({
 		bucketName,
 		region,
 		expectedBucketOwner: accountId,

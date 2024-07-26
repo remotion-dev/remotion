@@ -44,9 +44,6 @@ vi.mock('../shared/read-dir', () =>
 vi.mock('../api/upload-dir', () =>
 	vi.importActual('../api/__mocks__/upload-dir'),
 );
-vi.mock('../api/bucket-exists', () =>
-	vi.importActual('../api/__mocks__/bucket-exists'),
-);
 vi.mock('../api/clean-items', () =>
 	vi.importActual('../api/__mocks__/clean-items'),
 );

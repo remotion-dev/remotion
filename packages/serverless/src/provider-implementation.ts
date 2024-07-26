@@ -45,6 +45,12 @@ type DeleteFile<Region extends string> = (params: {
 	customCredentials: CustomCredentials<Region> | null;
 }) => Promise<void>;
 
+type BucketExists<Region extends string> = (params: {
+	bucketName: string;
+	region: Region;
+	expectedBucketOwner: string | null;
+}) => Promise<boolean>;
+
 export type ProviderSpecifics<Region extends string> = {
 	getChromiumPath: () => string | null;
 	getCurrentRegionInFunction: () => Region;
@@ -54,4 +60,5 @@ export type ProviderSpecifics<Region extends string> = {
 	applyLifeCycle: ApplyLifeCycle<Region>;
 	listObjects: ListObjects<Region>;
 	deleteFile: DeleteFile<Region>;
+	bucketExists: BucketExists<Region>;
 };

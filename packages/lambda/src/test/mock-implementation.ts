@@ -4,6 +4,7 @@ import {
 	addMockBucket,
 	getMockBuckets,
 	getS3FilesInBucket,
+	mockBucketExists,
 	mockDeleteS3File,
 } from './mocks/mock-store';
 
@@ -57,5 +58,8 @@ export const mockImplementation: ProviderSpecifics<AwsRegion> = {
 			region,
 		});
 		return Promise.resolve();
+	},
+	bucketExists: ({bucketName, region}) => {
+		return Promise.resolve(mockBucketExists(bucketName, region));
 	},
 };

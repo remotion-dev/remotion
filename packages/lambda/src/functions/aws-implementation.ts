@@ -1,4 +1,5 @@
 import type {ProviderSpecifics} from '@remotion/serverless';
+import {bucketExistsInRegionImplementation} from '../api/bucket-exists';
 import {createBucket} from '../api/create-bucket';
 import {getRemotionBuckets} from '../api/get-buckets';
 import {lambdaDeleteFileImplementation} from '../io/delete-file';
@@ -30,4 +31,5 @@ export const awsImplementation: ProviderSpecifics<AwsRegion> = {
 	applyLifeCycle: applyLifeCyleOperation,
 	listObjects: lambdaLsImplementation,
 	deleteFile: lambdaDeleteFileImplementation,
+	bucketExists: bucketExistsInRegionImplementation,
 };
