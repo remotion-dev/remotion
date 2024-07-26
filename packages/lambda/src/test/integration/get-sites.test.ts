@@ -1,12 +1,14 @@
 import {expect, test} from 'vitest';
 import {deploySite} from '../../api/deploy-site';
 import {getOrCreateBucket} from '../../api/get-or-create-bucket';
-import {getSites} from '../../api/get-sites';
+import {getSites, internalGetSites} from '../../api/get-sites';
+import {mockImplementation} from '../mock-implementation';
 
 test('Should have no buckets at first', async () => {
 	expect(
-		await getSites({
+		await internalGetSites({
 			region: 'us-east-1',
+			providerSpecifics: mockImplementation,
 		}),
 	).toEqual({buckets: [], sites: []});
 });
