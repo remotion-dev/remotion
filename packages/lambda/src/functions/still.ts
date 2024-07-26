@@ -306,8 +306,9 @@ const innerStillHandler = async <Region extends string>({
 	await Promise.all([
 		fs.promises.rm(outputPath, {recursive: true}),
 		cleanupSerializedInputProps({
-			region: providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
+			region: providerSpecifics.getCurrentRegionInFunction(),
 			serialized: lambdaParams.inputProps,
+			providerSpecifics,
 		}),
 		server.closeServer(true),
 	]);

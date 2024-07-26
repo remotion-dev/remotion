@@ -1,6 +1,5 @@
 import type {_Object} from '@aws-sdk/client-s3';
 import {
-	DeleteObjectCommand,
 	GetObjectCommand,
 	HeadObjectCommand,
 	PutObjectCommand,
@@ -25,25 +24,6 @@ export type LambdaLSInput = {
 	continuationToken?: string;
 };
 export type LambdaLsReturnType = Promise<_Object[]>;
-
-export const lambdaDeleteFile = async ({
-	bucketName,
-	key,
-	region,
-	customCredentials,
-}: {
-	region: AwsRegion;
-	bucketName: string;
-	key: string;
-	customCredentials: CustomCredentials<AwsRegion> | null;
-}) => {
-	await getS3Client(region, customCredentials).send(
-		new DeleteObjectCommand({
-			Bucket: bucketName,
-			Key: key,
-		}),
-	);
-};
 
 type LambdaWriteFileInput<Region extends string> = {
 	bucketName: string;

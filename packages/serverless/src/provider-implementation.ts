@@ -38,6 +38,13 @@ type ListObjects<Region extends string> = (params: {
 	continuationToken?: string;
 }) => Promise<BucketObject[]>;
 
+type DeleteFile<Region extends string> = (params: {
+	bucketName: string;
+	key: string;
+	region: Region;
+	customCredentials: CustomCredentials<Region> | null;
+}) => Promise<void>;
+
 export type ProviderSpecifics<Region extends string> = {
 	getChromiumPath: () => string | null;
 	getCurrentRegionInFunction: () => Region;
@@ -46,4 +53,5 @@ export type ProviderSpecifics<Region extends string> = {
 	createBucket: CreateBucket<Region>;
 	applyLifeCycle: ApplyLifeCycle<Region>;
 	listObjects: ListObjects<Region>;
+	deleteFile: DeleteFile<Region>;
 };

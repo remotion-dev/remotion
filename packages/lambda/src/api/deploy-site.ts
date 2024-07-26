@@ -5,7 +5,6 @@ import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {ProviderSpecifics} from '@remotion/serverless';
 import fs from 'node:fs';
 import {awsImplementation} from '../functions/aws-implementation';
-import {lambdaDeleteFile} from '../functions/helpers/io';
 import type {AwsRegion} from '../regions';
 import {bundleSite} from '../shared/bundle-site';
 import {getSitesKey} from '../shared/constants';
@@ -65,6 +64,7 @@ const mandatoryDeploySite = async ({
 	privacy,
 	gitSource,
 	throwIfSiteExists,
+	providerSpecifics,
 }: MandatoryParameters &
 	OptionalParameters & {
 		providerSpecifics: ProviderSpecifics<AwsRegion>;
@@ -145,7 +145,7 @@ const mandatoryDeploySite = async ({
 		}),
 		Promise.all(
 			toDelete.map((d) => {
-				return lambdaDeleteFile({
+				return providerSpecifics.deleteFile({
 					bucketName,
 					customCredentials: null,
 					key: d.Key as string,

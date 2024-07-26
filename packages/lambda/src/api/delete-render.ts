@@ -3,7 +3,6 @@ import {rendersPrefix} from '../defaults';
 import {awsImplementation} from '../functions/aws-implementation';
 import {getExpectedOutName} from '../functions/helpers/expected-out-name';
 import {getOverallProgressS3} from '../functions/helpers/get-overall-progress-s3';
-import {lambdaDeleteFile} from '../functions/helpers/io';
 import type {AwsRegion} from '../regions';
 import {getAccountId} from '../shared/get-account-id';
 import {cleanItems} from './clean-items';
@@ -45,7 +44,7 @@ export const deleteRender = async (input: DeleteRenderInput) => {
 		input.customCredentials ?? null,
 	);
 
-	await lambdaDeleteFile({
+	await awsImplementation.deleteFile({
 		bucketName: renderBucketName,
 		customCredentials,
 		key,

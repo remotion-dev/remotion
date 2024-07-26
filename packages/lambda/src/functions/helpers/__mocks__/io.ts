@@ -1,16 +1,11 @@
 import {Readable} from 'stream';
 
 import type {
-	lambdaDeleteFile as deleteOriginal,
 	lambdaHeadCommand as headOriginal,
 	lambdaReadFile as readOriginal,
 	lambdaWriteFile as writeOriginal,
 } from '../../../functions/helpers/io';
-import {
-	mockDeleteS3File,
-	readMockS3File,
-	writeMockS3File,
-} from '../../../test/mocks/mock-store';
+import {readMockS3File, writeMockS3File} from '../../../test/mocks/mock-store';
 
 export const lambdaReadFile: typeof readOriginal = ({
 	bucketName,
@@ -41,19 +36,6 @@ export const lambdaWriteFile: typeof writeOriginal = ({
 		bucketName,
 		key,
 		privacy,
-		region,
-	});
-	return Promise.resolve(undefined);
-};
-
-export const lambdaDeleteFile: typeof deleteOriginal = ({
-	bucketName,
-	key,
-	region,
-}) => {
-	mockDeleteS3File({
-		bucketName,
-		key,
 		region,
 	});
 	return Promise.resolve(undefined);

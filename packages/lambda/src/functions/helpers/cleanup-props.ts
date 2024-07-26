@@ -17,10 +17,12 @@ export const cleanupProps = <Region extends string>({
 	const cleanupSerializedInputPropsProm = cleanupSerializedInputProps({
 		region: providerSpecifics.getCurrentRegionInFunction(),
 		serialized: inputProps,
+		providerSpecifics,
 	});
 	const cleanupResolvedInputPropsProm = cleanupSerializedResolvedProps({
 		region: providerSpecifics.getCurrentRegionInFunction(),
 		serialized: serializedResolvedProps,
+		providerSpecifics,
 	});
 
 	return Promise.all([

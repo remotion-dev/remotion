@@ -4,6 +4,7 @@ import {
 	addMockBucket,
 	getMockBuckets,
 	getS3FilesInBucket,
+	mockDeleteS3File,
 } from './mocks/mock-store';
 
 export const mockImplementation: ProviderSpecifics<AwsRegion> = {
@@ -48,5 +49,13 @@ export const mockImplementation: ProviderSpecifics<AwsRegion> = {
 					};
 				}),
 		);
+	},
+	deleteFile: ({bucketName, key, region}) => {
+		mockDeleteS3File({
+			bucketName,
+			key,
+			region,
+		});
+		return Promise.resolve();
 	},
 };
