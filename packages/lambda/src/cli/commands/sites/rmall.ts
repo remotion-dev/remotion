@@ -3,6 +3,7 @@ import type {LogLevel} from '@remotion/renderer';
 import {deleteSite} from '../../../api/delete-site';
 import {internalGetOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {getSites} from '../../../api/get-sites';
+import {awsImplementation} from '../../../functions/aws-implementation';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {confirmCli} from '../../helpers/confirm';
@@ -23,6 +24,7 @@ export const sitesRmallSubcommand = async (logLevel: LogLevel) => {
 				region,
 				enableFolderExpiry: false,
 				customCredentials: null,
+				providerSpecifics: awsImplementation,
 			})
 		).bucketName;
 

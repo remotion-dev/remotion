@@ -132,10 +132,14 @@ const innerHandler = async <Region extends string>({
 			params.logLevel,
 		);
 
-		const response = await startHandler(params, {
-			expectedBucketOwner: currentUserId,
-			timeoutInMilliseconds,
-		});
+		const response = await startHandler(
+			params,
+			{
+				expectedBucketOwner: currentUserId,
+				timeoutInMilliseconds,
+			},
+			providerSpecifics,
+		);
 
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));
 		await responseWriter.end();

@@ -5,6 +5,7 @@ import type {ServerlessPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
 import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
+import type {AwsRegion} from '../regions';
 import {decompressInputProps} from '../shared/compress-props';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
@@ -35,7 +36,7 @@ export const compositionsHandler = async <Region extends string>(
 	}
 
 	try {
-		const region = getCurrentRegionInFunction();
+		const region = providerSpecifics.getCurrentRegionInFunction();
 
 		const browserInstancePromise = getBrowserInstance({
 			logLevel: lambdaParams.logLevel,
@@ -49,6 +50,7 @@ export const compositionsHandler = async <Region extends string>(
 					region,
 					enableFolderExpiry: null,
 					customCredentials: null,
+					providerSpecifics,
 				}).then((b) => b.bucketName);
 
 		const bucketName = await bucketNamePromise;
@@ -62,7 +64,7 @@ export const compositionsHandler = async <Region extends string>(
 
 		const realServeUrl = convertToServeUrl({
 			urlOrId: lambdaParams.serveUrl,
-			region,
+			region: region as AwsRegion,
 			bucketName,
 		});
 

@@ -4,6 +4,7 @@ import {ServerlessRoutines} from '@remotion/serverless/client';
 import type {VideoConfig} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../client';
+import {awsImplementation} from '../functions/aws-implementation';
 import {callLambda} from '../shared/call-lambda';
 import {
 	compressInputProps,
@@ -65,6 +66,7 @@ export const getCompositionsOnLambda = async ({
 		needsToUpload: getNeedsToUpload('video-or-audio', [
 			stringifiedInputProps.length,
 		]),
+		providerSpecifics: awsImplementation,
 	});
 
 	try {

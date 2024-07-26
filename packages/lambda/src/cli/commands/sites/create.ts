@@ -6,6 +6,7 @@ import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {Privacy} from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {internalGetOrCreateBucket} from '../../../api/get-or-create-bucket';
+import {awsImplementation} from '../../../functions/aws-implementation';
 import {LambdaInternals} from '../../../internals';
 import {BINARY_NAME} from '../../../shared/constants';
 import {randomHash} from '../../../shared/random-hash';
@@ -125,6 +126,7 @@ export const sitesCreateSubcommand = async (
 				region: getAwsRegion(),
 				enableFolderExpiry,
 				customCredentials: null,
+				providerSpecifics: awsImplementation,
 			})
 		).bucketName;
 

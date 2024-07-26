@@ -1,3 +1,4 @@
+import type {ProviderSpecifics} from '@remotion/serverless';
 import {
 	inputPropsKey,
 	resolvedPropsKey,
@@ -63,18 +64,20 @@ export const getNeedsToUpload = (
 	return false;
 };
 
-export const compressInputProps = async ({
+export const compressInputProps = async <Region extends string>({
 	stringifiedInputProps,
 	region,
 	userSpecifiedBucketName,
 	propsType,
 	needsToUpload,
+	providerSpecifics,
 }: {
 	stringifiedInputProps: string;
-	region: AwsRegion;
+	region: Region;
 	userSpecifiedBucketName: string | null;
 	propsType: PropsType;
 	needsToUpload: boolean;
+	providerSpecifics: ProviderSpecifics<Region>;
 }): Promise<SerializedInputProps> => {
 	const hash = randomHash();
 
@@ -86,13 +89,14 @@ export const compressInputProps = async ({
 					region,
 					enableFolderExpiry: null,
 					customCredentials: null,
+					providerSpecifics,
 				})
 			).bucketName;
 
 		await lambdaWriteFile({
 			body: stringifiedInputProps,
 			bucketName,
-			region,
+			region: region as AwsRegion,
 			customCredentials: null,
 			downloadBehavior: null,
 			expectedBucketOwner: null,

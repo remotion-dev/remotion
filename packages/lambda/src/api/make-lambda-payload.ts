@@ -24,6 +24,7 @@ import type {
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion, DeleteAfter} from '../client';
+import {awsImplementation} from '../functions/aws-implementation';
 import {
 	compressInputProps,
 	getNeedsToUpload,
@@ -148,6 +149,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		]),
 		userSpecifiedBucketName: bucketName ?? null,
 		propsType: 'input-props',
+		providerSpecifics: awsImplementation,
 	});
 	return {
 		rendererFunctionName,
@@ -251,6 +253,7 @@ export const makeLambdaRenderStillPayload = async ({
 		needsToUpload: getNeedsToUpload('still', [stringifiedInputProps.length]),
 		userSpecifiedBucketName: forceBucketName ?? null,
 		propsType: 'input-props',
+		providerSpecifics: awsImplementation,
 	});
 
 	return {

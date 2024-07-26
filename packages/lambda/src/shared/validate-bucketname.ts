@@ -54,7 +54,7 @@ export const parseBucketName = (
 	return {region: realRegionFound ?? null};
 };
 
-export const makeBucketName = (region: AwsRegion) => {
+export const makeBucketName = <Region extends string>(region: Region) => {
 	return `${REMOTION_BUCKET_PREFIX}${region.replace(/-/g, '')}-${randomHash({
 		randomInTests: false,
 	})}`;

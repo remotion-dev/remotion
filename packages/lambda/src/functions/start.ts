@@ -1,8 +1,10 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
+import type {ProviderSpecifics} from '@remotion/serverless';
 import type {ServerlessPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
 import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
+import type {AwsRegion} from '../regions';
 import {getLambdaClient} from '../shared/aws-clients';
 import {overallProgressKey} from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
@@ -22,6 +24,7 @@ type Options = {
 export const startHandler = async <Region extends string>(
 	params: ServerlessPayload<Region>,
 	options: Options,
+	providerSpecifics: ProviderSpecifics<Region>,
 ) => {
 	if (params.type !== ServerlessRoutines.start) {
 		throw new TypeError('Expected type start');
@@ -39,19 +42,20 @@ export const startHandler = async <Region extends string>(
 		);
 	}
 
-	const region = getCurrentRegionInFunction();
+	const region = providerSpecifics.getCurrentRegionInFunction();
 	const bucketName =
 		params.bucketName ??
 		(
 			await internalGetOrCreateBucket({
-				region: getCurrentRegionInFunction(),
+				region: providerSpecifics.getCurrentRegionInFunction(),
 				enableFolderExpiry: null,
 				customCredentials: null,
+				providerSpecifics,
 			})
 		).bucketName;
 	const realServeUrl = convertToServeUrl({
 		urlOrId: params.serveUrl,
-		region,
+		region: region as AwsRegion,
 		bucketName,
 	});
 
@@ -61,7 +65,7 @@ export const startHandler = async <Region extends string>(
 	const initialFile = lambdaWriteFile({
 		bucketName,
 		downloadBehavior: null,
-		region,
+		region: region as AwsRegion,
 		body: JSON.stringify(
 			makeInitialOverallRenderProgress(
 				options.timeoutInMilliseconds + Date.now(),

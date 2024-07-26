@@ -209,10 +209,11 @@ const innerLaunchHandler = async <Region extends string>({
 
 	const serializedResolvedProps = await compressInputProps({
 		propsType: 'resolved-props',
-		region: getCurrentRegionInFunction(),
+		region: providerSpecifics.getCurrentRegionInFunction(),
 		stringifiedInputProps: serializedResolved,
 		userSpecifiedBucketName: params.bucketName,
 		needsToUpload,
+		providerSpecifics,
 	});
 
 	registerCleanupTask(() => {

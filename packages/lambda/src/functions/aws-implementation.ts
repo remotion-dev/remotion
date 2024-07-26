@@ -1,6 +1,8 @@
 import type {ProviderSpecifics} from '@remotion/serverless';
+import {createBucket} from '../api/create-bucket';
 import {getRemotionBuckets} from '../api/get-buckets';
 import type {AwsRegion} from '../regions';
+import {applyLifeCyleOperation} from '../shared/lifecycle-rules';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 
 if (
@@ -22,4 +24,6 @@ export const awsImplementation: ProviderSpecifics<AwsRegion> = {
 	getCurrentRegionInFunction,
 	regionType: 'us-east-1',
 	getBuckets: getRemotionBuckets,
+	createBucket,
+	applyLifeCycle: applyLifeCyleOperation,
 };

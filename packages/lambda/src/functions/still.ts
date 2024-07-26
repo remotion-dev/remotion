@@ -98,9 +98,10 @@ const innerStillHandler = async <Region extends string>({
 	const bucketNamePromise =
 		lambdaParams.bucketName ??
 		internalGetOrCreateBucket({
-			region: getCurrentRegionInFunction(),
+			region: providerSpecifics.getCurrentRegionInFunction(),
 			enableFolderExpiry: null,
 			customCredentials: null,
+			providerSpecifics,
 		}).then((b) => b.bucketName);
 
 	const outputDir = RenderInternals.tmpDir('remotion-render-');
