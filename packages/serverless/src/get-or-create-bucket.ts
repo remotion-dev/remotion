@@ -51,7 +51,7 @@ export const internalGetOrCreateBucket = async <Region extends string>(
 		return {bucketName: remotionBuckets[0].name, alreadyExisted: true};
 	}
 
-	const bucketName = makeBucketName(params.region);
+	const bucketName = makeBucketName(params.region, params.providerSpecifics);
 
 	await params.providerSpecifics.createBucket({
 		bucketName,
