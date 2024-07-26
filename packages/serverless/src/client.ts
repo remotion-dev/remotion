@@ -1,3 +1,4 @@
+export {Await} from './await';
 export {
 	LambdaCodec,
 	LambdaPayload,

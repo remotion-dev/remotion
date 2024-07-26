@@ -1,7 +1,7 @@
 import type {ChromiumOptions, LogLevel, openBrowser} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {Await} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
-import type {Await} from '../../shared/await';
 import {executablePath} from './get-chromium-executable-path';
 
 type LaunchedBrowser = {
