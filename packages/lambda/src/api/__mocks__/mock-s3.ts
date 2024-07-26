@@ -1,6 +1,6 @@
+import type {Privacy} from '@remotion/serverless/client';
 import type {ReadStream} from 'node:fs';
-import type {Privacy} from '../../defaults';
-import type {AwsRegion} from '../../pricing/aws-regions';
+import type {AwsRegion} from '../../regions';
 
 type S3MockFile = {
 	bucketName: string;

@@ -24,7 +24,7 @@ type ApplyLifeCycle<Region extends string> = (params: {
 }) => Promise<void>;
 
 export type ProviderSpecifics<Region extends string> = {
-	getChromiumPath: () => string;
+	getChromiumPath: () => string | null;
 	getCurrentRegionInFunction: () => Region;
 	regionType: Region;
 	getBuckets: GetBuckets<Region>;

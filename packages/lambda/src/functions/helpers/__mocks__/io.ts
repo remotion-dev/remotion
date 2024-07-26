@@ -40,7 +40,7 @@ export const lambdaWriteFile: typeof writeOriginal = ({
 	region,
 }) => {
 	writeMockS3File({
-		body,
+		body: body as string,
 		bucketName,
 		key,
 		privacy,

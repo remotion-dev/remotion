@@ -1,9 +1,9 @@
 import {openBrowser} from '@remotion/renderer';
-import type {Await} from '../../../shared/await';
 import type {
 	forgetBrowserEventLoop as originalForget,
 	getBrowserInstance as originalGetBrowserInstance,
-} from '../../helpers/get-browser-instance';
+} from '@remotion/serverless';
+import type {Await} from '@remotion/serverless/client';
 
 let _browserInstance: Await<ReturnType<typeof openBrowser>> | null;
 

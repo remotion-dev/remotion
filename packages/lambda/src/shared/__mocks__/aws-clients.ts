@@ -1,5 +1,6 @@
 import type {LambdaClient} from '@aws-sdk/client-lambda';
 
+import {awsImplementation} from '../../functions/aws-implementation';
 import {ResponseStream} from '../../functions/helpers/streamify-response';
 import type {getLambdaClient as original} from '../../shared/aws-clients';
 export const getLambdaClient: typeof original = (region, timeoutInTest) => {
@@ -22,11 +23,16 @@ export const getLambdaClient: typeof original = (region, timeoutInTest) => {
 			const {routine} = await import('../../functions/index');
 
 			const responseStream = new ResponseStream();
-			const prom = routine(payload, responseStream, {
-				invokedFunctionArn: 'arn:fake',
-				getRemainingTimeInMillis: () => timeoutInTest ?? 120000,
-				awsRequestId: 'fake',
-			});
+			const prom = routine(
+				payload,
+				responseStream,
+				{
+					invokedFunctionArn: 'arn:fake',
+					getRemainingTimeInMillis: () => timeoutInTest ?? 120000,
+					awsRequestId: 'fake',
+				},
+				awsImplementation,
+			);
 			if (
 				params.input.InvocationType === 'RequestResponse' ||
 				params.input.InvocationType === 'Event'

@@ -1,8 +1,5 @@
 import {vi} from 'vitest';
 
-vi.mock('../api/get-buckets', () =>
-	vi.importActual('../api/__mocks__/get-buckets'),
-);
 vi.mock('../cli/helpers/quit', () =>
 	vi.importActual('../cli/helpers/__mocks__/quit'),
 );
@@ -43,9 +40,6 @@ vi.mock('../shared/get-account-id', () =>
 );
 vi.mock('../shared/aws-clients', () =>
 	vi.importActual('../shared/__mocks__/aws-clients'),
-);
-vi.mock('../api/create-bucket', () =>
-	vi.importActual('../api/__mocks__/create-bucket'),
 );
 vi.mock('../shared/read-dir', () =>
 	vi.importActual('../shared/__mocks__/read-dir'),
