@@ -1,13 +1,13 @@
 export {Await} from './await';
 export {
-	LambdaCodec,
-	LambdaPayload,
-	LambdaPayloads,
-	LambdaStartPayload,
-	LambdaStatusPayload,
+	ServerlessCodec,
+	ServerlessPayload,
+	ServerlessPayloads,
 	ServerlessRoutines,
+	ServerlessStartPayload,
+	ServerlessStatusPayload,
 	expiryDays,
-	lambdaCodecs,
+	serverlessCodecs,
 	type CustomCredentials,
 	type CustomCredentialsWithoutSensitiveData,
 	type DeleteAfter,
@@ -17,5 +17,6 @@ export {
 	type SerializedInputProps,
 	type WebhookOption,
 } from './constants';
+
 export {inputPropsKey, resolvedPropsKey} from './input-props-keys';
 export {streamToString} from './stream-to-string';

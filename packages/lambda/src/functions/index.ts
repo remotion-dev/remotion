@@ -1,7 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {infoHandler} from '@remotion/serverless';
-import type {LambdaPayload} from '@remotion/serverless/client';
+import type {ServerlessPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {COMMAND_NOT_FOUND} from '../shared/constants';
 import {compositionsHandler} from './compositions';
@@ -34,7 +34,7 @@ const innerHandler = async <Region extends string>({
 	context,
 	providerSpecifics,
 }: {
-	params: LambdaPayload<Region>;
+	params: ServerlessPayload<Region>;
 	responseWriter: ResponseStreamWriter;
 	context: RequestContext;
 	providerSpecifics: ProviderSpecifics<Region>;
@@ -293,7 +293,7 @@ export type OrError<T> =
 	  };
 
 export const routine = async <Region extends string>(
-	params: LambdaPayload<Region>,
+	params: ServerlessPayload<Region>,
 	responseStream: ResponseStream,
 	context: RequestContext,
 	providerSpecifics: ProviderSpecifics<Region>,

@@ -2,9 +2,9 @@ import type {AudioCodec, LogLevel} from '@remotion/renderer';
 import type {
 	CustomCredentials,
 	DownloadBehavior,
-	LambdaCodec,
 	Privacy,
 	SerializedInputProps,
+	ServerlessCodec,
 } from '@remotion/serverless/client';
 import fs from 'fs';
 import type {AwsRegion} from '../../regions';
@@ -26,7 +26,7 @@ export const mergeChunksAndFinishRender = async <
 	renderId: string;
 	expectedBucketOwner: string;
 	numberOfFrames: number;
-	codec: LambdaCodec;
+	codec: ServerlessCodec;
 	chunkCount: number;
 	fps: number;
 	numberOfGifLoops: number | null;

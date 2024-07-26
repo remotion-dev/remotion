@@ -10,7 +10,7 @@ import {getRenderProgress} from '../../../api/get-render-progress';
 import {internalRenderMediaOnLambdaRaw} from '../../../api/render-media-on-lambda';
 import type {EnhancedErrorInfo} from '../../../functions/helpers/write-lambda-error';
 
-import type {LambdaCodec} from '@remotion/serverless/client';
+import type {ServerlessCodec} from '@remotion/serverless/client';
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
@@ -271,7 +271,7 @@ export const renderCommand = async (
 		functionName,
 		serveUrl,
 		inputProps,
-		codec: codec as LambdaCodec,
+		codec: codec as ServerlessCodec,
 		imageFormat,
 		crf: crf ?? undefined,
 		envVariables,

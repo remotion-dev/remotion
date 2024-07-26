@@ -1,4 +1,4 @@
-import type {LambdaPayload} from '@remotion/serverless/client';
+import type {ServerlessPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
 import type {RenderProgress} from '../shared/constants';
@@ -12,7 +12,7 @@ type Options = {
 };
 
 export const progressHandler = async <Region extends string>(
-	lambdaParams: LambdaPayload<Region>,
+	lambdaParams: ServerlessPayload<Region>,
 	options: Options,
 ): Promise<RenderProgress> => {
 	if (lambdaParams.type !== ServerlessRoutines.status) {

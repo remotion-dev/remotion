@@ -1,7 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {forgetBrowserEventLoop, getBrowserInstance} from '@remotion/serverless';
-import type {LambdaPayload} from '@remotion/serverless/client';
+import type {ServerlessPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
 import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
@@ -14,7 +14,7 @@ type Options = {
 };
 
 export const compositionsHandler = async <Region extends string>(
-	lambdaParams: LambdaPayload<Region>,
+	lambdaParams: ServerlessPayload<Region>,
 	options: Options,
 	providerSpecifics: ProviderSpecifics<Region>,
 ) => {

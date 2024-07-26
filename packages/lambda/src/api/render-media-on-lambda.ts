@@ -11,9 +11,9 @@ import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {
 	DownloadBehavior,
-	LambdaCodec,
 	OutNameInput,
 	Privacy,
+	ServerlessCodec,
 	WebhookOption,
 } from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
@@ -35,7 +35,7 @@ export type RenderMediaOnLambdaInput = {
 	serveUrl: string;
 	composition: string;
 	inputProps?: Record<string, unknown>;
-	codec: LambdaCodec;
+	codec: ServerlessCodec;
 	imageFormat?: VideoImageFormat;
 	crf?: number | undefined;
 	envVariables?: Record<string, string>;

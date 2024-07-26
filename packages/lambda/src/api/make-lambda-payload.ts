@@ -13,12 +13,12 @@ import type {
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import type {
 	DownloadBehavior,
-	LambdaCodec,
-	LambdaPayloads,
-	LambdaStartPayload,
-	LambdaStatusPayload,
 	OutNameInput,
 	Privacy,
+	ServerlessCodec,
+	ServerlessPayloads,
+	ServerlessStartPayload,
+	ServerlessStatusPayload,
 	WebhookOption,
 } from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
@@ -43,7 +43,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	serveUrl: string;
 	composition: string;
 	inputProps: Record<string, unknown>;
-	codec: LambdaCodec;
+	codec: ServerlessCodec;
 	imageFormat: VideoImageFormat;
 	crf: number | undefined;
 	envVariables: Record<string, string>;
@@ -123,7 +123,9 @@ export const makeLambdaRenderMediaPayload = async ({
 	deleteAfter,
 	colorSpace,
 	preferLossless,
-}: InnerRenderMediaOnLambdaInput): Promise<LambdaStartPayload<AwsRegion>> => {
+}: InnerRenderMediaOnLambdaInput): Promise<
+	ServerlessStartPayload<AwsRegion>
+> => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
 	validateFramesPerLambda({
@@ -198,7 +200,7 @@ export const getRenderProgressPayload = ({
 	renderId,
 	s3OutputProvider,
 	logLevel,
-}: GetRenderProgressInput): LambdaStatusPayload<AwsRegion> => {
+}: GetRenderProgressInput): ServerlessStatusPayload<AwsRegion> => {
 	return {
 		type: ServerlessRoutines.status,
 		bucketName,
@@ -233,7 +235,7 @@ export const makeLambdaRenderStillPayload = async ({
 	offthreadVideoCacheSizeInBytes,
 	deleteAfter,
 }: RenderStillOnLambdaNonNullInput): Promise<
-	LambdaPayloads<AwsRegion>[ServerlessRoutines.still]
+	ServerlessPayloads<AwsRegion>[ServerlessRoutines.still]
 > => {
 	if (quality) {
 		throw new Error(

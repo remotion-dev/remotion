@@ -1,6 +1,6 @@
 import type {EmittedArtifact, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {LambdaPayload} from '@remotion/serverless/client';
+import type {ServerlessPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {writeFileSync} from 'fs';
 import {join} from 'path';
@@ -29,7 +29,7 @@ const streamRenderer = <Region extends string>({
 	logLevel,
 	onArtifact,
 }: {
-	payload: LambdaPayload<Region>;
+	payload: ServerlessPayload<Region>;
 	functionName: string;
 	outdir: string;
 	overallProgress: OverallProgressHelper;
@@ -187,7 +187,7 @@ export const streamRendererFunctionWithRetry = async <Region extends string>({
 	logLevel,
 	onArtifact,
 }: {
-	payload: LambdaPayload<Region>;
+	payload: ServerlessPayload<Region>;
 	functionName: string;
 	outdir: string;
 	overallProgress: OverallProgressHelper;

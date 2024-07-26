@@ -8,10 +8,10 @@ import type {
 	CustomCredentialsWithoutSensitiveData,
 	DeleteAfter,
 	DownloadBehavior,
-	LambdaCodec,
 	OutNameInput,
 	Privacy,
 	SerializedInputProps,
+	ServerlessCodec,
 } from '@remotion/serverless/client';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import type {ReceivedArtifact} from '../functions/helpers/overall-render-progress';
@@ -111,7 +111,7 @@ type Discriminated =
 			muted: boolean;
 			frameRange: [number, number];
 			everyNthFrame: number;
-			codec: LambdaCodec;
+			codec: ServerlessCodec;
 	  };
 
 export type RenderMetadata = Discriminated & {

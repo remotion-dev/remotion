@@ -1,5 +1,5 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import type {LambdaPayload} from '@remotion/serverless/client';
+import type {ServerlessPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
 import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
@@ -20,7 +20,7 @@ type Options = {
 };
 
 export const startHandler = async <Region extends string>(
-	params: LambdaPayload<Region>,
+	params: ServerlessPayload<Region>,
 	options: Options,
 ) => {
 	if (params.type !== ServerlessRoutines.start) {
@@ -73,7 +73,7 @@ export const startHandler = async <Region extends string>(
 		customCredentials: null,
 	});
 
-	const payload: LambdaPayload<Region> = {
+	const payload: ServerlessPayload<Region> = {
 		type: ServerlessRoutines.launch,
 		framesPerLambda: params.framesPerLambda,
 		composition: params.composition,

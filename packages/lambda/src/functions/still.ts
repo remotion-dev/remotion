@@ -7,7 +7,7 @@ import {
 } from '@remotion/serverless';
 import type {
 	CustomCredentials,
-	LambdaPayload,
+	ServerlessPayload,
 } from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import fs from 'node:fs';
@@ -46,7 +46,7 @@ import {getTmpDirStateIfENoSp} from './helpers/write-lambda-error';
 import type {OnStream} from './streaming/streaming';
 
 type Options<Region extends string> = {
-	params: LambdaPayload<Region>;
+	params: ServerlessPayload<Region>;
 	renderId: string;
 	expectedBucketOwner: string;
 	onStream: OnStream;

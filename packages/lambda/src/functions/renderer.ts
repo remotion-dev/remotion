@@ -7,7 +7,7 @@ import type {
 import {RenderInternals} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {forgetBrowserEventLoop, getBrowserInstance} from '@remotion/serverless';
-import type {LambdaPayload} from '@remotion/serverless/client';
+import type {ServerlessPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -43,7 +43,7 @@ const renderHandler = async <Region extends string>({
 	onStream,
 	platformImplementation: providerSpecifics,
 }: {
-	params: LambdaPayload<Region>;
+	params: ServerlessPayload<Region>;
 	options: Options;
 	logs: BrowserLog[];
 	onStream: OnStream;
@@ -393,7 +393,7 @@ export const rendererHandler = async <Region extends string>({
 	providerSpecifics,
 	requestContext,
 }: {
-	params: LambdaPayload<Region>;
+	params: ServerlessPayload<Region>;
 	options: Options;
 	onStream: OnStream;
 	requestContext: RequestContext;
