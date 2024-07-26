@@ -10,17 +10,15 @@ export type BucketWithLocation = {
 	region: AwsRegion;
 };
 
-export const getRemotionS3Buckets = async (
+export const getRemotionBuckets = async (
 	region: AwsRegion,
 	forceBucketName?: string,
-): Promise<{
-	remotionBuckets: BucketWithLocation[];
-}> => {
+): Promise<BucketWithLocation[]> => {
 	const {Buckets} = await getS3Client(region, null).send(
 		new ListBucketsCommand({}),
 	);
 	if (!Buckets) {
-		return {remotionBuckets: []};
+		return [];
 	}
 
 	const remotionBuckets = Buckets.filter((b) => {
@@ -66,9 +64,8 @@ export const getRemotionS3Buckets = async (
 			};
 		})
 		.filter((b) => b.region);
-	return {
-		remotionBuckets: bucketsWithLocation.filter((bucket) => {
-			return bucket.region === region;
-		}),
-	};
+
+	return bucketsWithLocation.filter((bucket) => {
+		return bucket.region === region;
+	});
 };

@@ -4,7 +4,7 @@ import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
 import {applyLifeCyleOperation} from '../shared/lifecycle-rules';
 import {makeBucketName} from '../shared/validate-bucketname';
 import {createBucket} from './create-bucket';
-import {getRemotionS3Buckets} from './get-buckets';
+import {getRemotionBuckets} from './get-buckets';
 
 type GetOrCreateBucketInputInner = {
 	region: AwsRegion;
@@ -26,7 +26,7 @@ export type GetOrCreateBucketOutput = {
 export const internalGetOrCreateBucket = async (
 	params: GetOrCreateBucketInputInner,
 ): Promise<GetOrCreateBucketOutput> => {
-	const {remotionBuckets} = await getRemotionS3Buckets(params.region);
+	const remotionBuckets = await getRemotionBuckets(params.region);
 	if (remotionBuckets.length > 1) {
 		throw new Error(
 			`You have multiple buckets (${remotionBuckets.map(

@@ -4,7 +4,7 @@ import {getSitesKey} from '../shared/constants';
 import {getAccountId} from '../shared/get-account-id';
 import {makeS3ServeUrl} from '../shared/make-s3-url';
 import type {BucketWithLocation} from './get-buckets';
-import {getRemotionS3Buckets} from './get-buckets';
+import {getRemotionBuckets} from './get-buckets';
 
 type Site = {
 	sizeInBytes: number;
@@ -34,9 +34,9 @@ export const getSites = async ({
 	region,
 	forceBucketName,
 }: GetSitesInput): Promise<GetSitesOutput> => {
-	const {remotionBuckets} = forceBucketName
-		? await getRemotionS3Buckets(region, forceBucketName)
-		: await getRemotionS3Buckets(region);
+	const remotionBuckets = forceBucketName
+		? await getRemotionBuckets(region, forceBucketName)
+		: await getRemotionBuckets(region);
 	const accountId = await getAccountId({region});
 
 	const sites: {[key: string]: Site} = {};

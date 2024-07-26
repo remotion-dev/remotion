@@ -1,4 +1,5 @@
 import type {ProviderSpecifics} from '@remotion/serverless';
+import {getRemotionBuckets} from '../api/get-buckets';
 import type {AwsRegion} from '../regions';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 
@@ -20,4 +21,5 @@ export const awsImplementation: ProviderSpecifics<AwsRegion> = {
 	},
 	getCurrentRegionInFunction,
 	regionType: 'us-east-1',
+	getBuckets: getRemotionBuckets,
 };
