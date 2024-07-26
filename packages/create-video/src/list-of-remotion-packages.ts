@@ -22,6 +22,7 @@ export const listOfRemotionPackages = [
 	'@remotion/three',
 	'@remotion/rive',
 	'@remotion/gif',
+	'@remotion/serverless',
 	'@remotion/shapes',
 	'@remotion/studio',
 	'@remotion/studio-server',

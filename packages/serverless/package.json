@@ -1,0 +1,30 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/serverless"
+	},
+	"name": "@remotion/serverless",
+	"version": "4.0.187",
+	"description": "A runtime for distributed rendering",
+	"main": "dist",
+	"sideEffects": false,
+	"scripts": {
+		"lint": "eslint src --ext ts,tsx",
+		"formatting": "prettier src --check"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"contributors": [],
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"dependencies": {
+		"@remotion/renderer": "workspace:*"
+	},
+	"exports": {
+		".": "./dist/index.js",
+		"./package.json": "./package.json"
+	}
+}
