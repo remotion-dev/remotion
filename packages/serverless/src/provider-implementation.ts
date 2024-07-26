@@ -1,3 +1,4 @@
-export type ProviderSpecifics = {
+export type ProviderSpecifics<Region extends string> = {
 	getChromiumPath: () => string;
+	getCurrentRegionInFunction: () => Region;
 };

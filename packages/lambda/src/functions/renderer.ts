@@ -36,7 +36,7 @@ type Options = {
 	isWarm: boolean;
 };
 
-const renderHandler = async ({
+const renderHandler = async <Region extends string>({
 	params,
 	options,
 	logs,
@@ -47,7 +47,7 @@ const renderHandler = async ({
 	options: Options;
 	logs: BrowserLog[];
 	onStream: OnStream;
-	platformImplementation: ProviderSpecifics;
+	platformImplementation: ProviderSpecifics<Region>;
 }): Promise<{}> => {
 	if (params.type !== ServerlessRoutines.renderer) {
 		throw new Error('Params must be renderer');
@@ -386,7 +386,7 @@ const renderHandler = async ({
 
 const ENABLE_SLOW_LEAK_DETECTION = false;
 
-export const rendererHandler = async ({
+export const rendererHandler = async <Region extends string>({
 	onStream,
 	options,
 	params,
@@ -397,7 +397,7 @@ export const rendererHandler = async ({
 	options: Options;
 	onStream: OnStream;
 	requestContext: RequestContext;
-	providerSpecifics: ProviderSpecifics;
+	providerSpecifics: ProviderSpecifics<Region>;
 }): Promise<{
 	type: 'success';
 }> => {

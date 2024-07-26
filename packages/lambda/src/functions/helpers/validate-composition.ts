@@ -10,7 +10,7 @@ import type {ProviderSpecifics} from '@remotion/serverless';
 import type {Await} from '@remotion/serverless/client';
 import type {VideoConfig} from 'remotion/no-react';
 
-type ValidateCompositionOptions = {
+type ValidateCompositionOptions<Region extends string> = {
 	serveUrl: string;
 	composition: string;
 	browserInstance: Await<ReturnType<typeof openBrowser>>;
@@ -26,10 +26,10 @@ type ValidateCompositionOptions = {
 	offthreadVideoCacheSizeInBytes: number | null;
 	onBrowserDownload: OnBrowserDownload;
 	onServeUrlVisited: () => void;
-	providerSpecifics: ProviderSpecifics;
+	providerSpecifics: ProviderSpecifics<Region>;
 };
 
-export const validateComposition = async ({
+export const validateComposition = async <Region extends string>({
 	serveUrl,
 	composition,
 	browserInstance,
@@ -46,7 +46,7 @@ export const validateComposition = async ({
 	onBrowserDownload,
 	onServeUrlVisited,
 	providerSpecifics,
-}: ValidateCompositionOptions): Promise<VideoConfig> => {
+}: ValidateCompositionOptions<Region>): Promise<VideoConfig> => {
 	const {metadata: comp} = await RenderInternals.internalSelectComposition({
 		id: composition,
 		puppeteerInstance: browserInstance,

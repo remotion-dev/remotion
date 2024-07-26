@@ -51,7 +51,7 @@ type Options = {
 	getRemainingTimeInMillis: () => number;
 };
 
-const innerLaunchHandler = async ({
+const innerLaunchHandler = async <Region extends string>({
 	functionName,
 	params,
 	options,
@@ -64,7 +64,7 @@ const innerLaunchHandler = async ({
 	options: Options;
 	overallProgress: OverallProgressHelper;
 	registerCleanupTask: (cleanupTask: CleanupTask) => void;
-	providerSpecifics: ProviderSpecifics;
+	providerSpecifics: ProviderSpecifics<Region>;
 }): Promise<PostRenderData> => {
 	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
@@ -467,10 +467,10 @@ const innerLaunchHandler = async ({
 
 type CleanupTask = () => Promise<unknown>;
 
-export const launchHandler = async (
+export const launchHandler = async <Region extends string>(
 	params: LambdaPayload,
 	options: Options,
-	providerSpecifics: ProviderSpecifics,
+	providerSpecifics: ProviderSpecifics<Region>,
 ): Promise<{
 	type: 'success';
 }> => {

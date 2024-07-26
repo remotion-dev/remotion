@@ -1,4 +1,6 @@
 import type {ProviderSpecifics} from '@remotion/serverless';
+import type {AwsRegion} from '../client';
+import {getCurrentRegionInFunction} from './helpers/get-current-region';
 
 if (
 	/^AWS_Lambda_nodejs(?:18|20)[.]x$/.test(
@@ -12,8 +14,9 @@ if (
 	process.env.NO_COLOR = '1';
 }
 
-export const awsImplementation: ProviderSpecifics = {
+export const awsImplementation: ProviderSpecifics<AwsRegion> = {
 	getChromiumPath() {
 		return '/opt/bin/chromium';
 	},
+	getCurrentRegionInFunction,
 };

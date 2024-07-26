@@ -41,23 +41,23 @@ import {validateComposition} from './helpers/validate-composition';
 import {getTmpDirStateIfENoSp} from './helpers/write-lambda-error';
 import type {OnStream} from './streaming/streaming';
 
-type Options = {
+type Options<Region extends string> = {
 	params: LambdaPayload;
 	renderId: string;
 	expectedBucketOwner: string;
 	onStream: OnStream;
 	timeoutInMilliseconds: number;
-	providerSpecifics: ProviderSpecifics;
+	providerSpecifics: ProviderSpecifics<Region>;
 };
 
-const innerStillHandler = async ({
+const innerStillHandler = async <Region extends string>({
 	params: lambdaParams,
 	expectedBucketOwner,
 	renderId,
 	onStream,
 	timeoutInMilliseconds,
 	providerSpecifics,
-}: Options) => {
+}: Options<Region>) => {
 	if (lambdaParams.type !== ServerlessRoutines.still) {
 		throw new TypeError('Expected still type');
 	}
@@ -354,8 +354,8 @@ export type RenderStillLambdaResponsePayload = {
 	receivedArtifacts: ReceivedArtifact[];
 };
 
-export const stillHandler = async (
-	options: Options,
+export const stillHandler = async <Region extends string>(
+	options: Options<Region>,
 ): Promise<
 	| {
 			type: 'success';

@@ -28,7 +28,7 @@ import {
 import type {StreamingPayload} from './streaming/streaming';
 import {makeStreamPayload} from './streaming/streaming';
 
-const innerHandler = async ({
+const innerHandler = async <Region extends string>({
 	params,
 	responseWriter,
 	context,
@@ -37,7 +37,7 @@ const innerHandler = async ({
 	params: LambdaPayload;
 	responseWriter: ResponseStreamWriter;
 	context: RequestContext;
-	providerSpecifics: ProviderSpecifics;
+	providerSpecifics: ProviderSpecifics<Region>;
 }): Promise<void> => {
 	setCurrentRequestId(context.awsRequestId);
 	process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA = 'true';
@@ -292,11 +292,11 @@ export type OrError<T> =
 			stack: string;
 	  };
 
-export const routine = async (
+export const routine = async <Region extends string>(
 	params: LambdaPayload,
 	responseStream: ResponseStream,
 	context: RequestContext,
-	providerSpecifics: ProviderSpecifics,
+	providerSpecifics: ProviderSpecifics<Region>,
 ): Promise<void> => {
 	const responseWriter = streamWriter(responseStream);
 
