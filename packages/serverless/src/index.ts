@@ -1,3 +1,1 @@
-export const func = () => {
-	console.log('Hello World!');
-};
+export {infoHandler} from './info';

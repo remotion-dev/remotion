@@ -1,4 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
+import {infoHandler} from '@remotion/serverless';
 import type {LambdaPayload} from '@remotion/serverless/client';
 import {LambdaRoutines} from '@remotion/serverless/client';
 import {COMMAND_NOT_FOUND} from '../shared/constants';
@@ -14,7 +15,6 @@ import {printCloudwatchHelper} from './helpers/print-cloudwatch-helper';
 import type {RequestContext} from './helpers/request-context';
 import type {ResponseStream} from './helpers/streamify-response';
 import {streamifyResponse} from './helpers/streamify-response';
-import {infoHandler} from './info';
 import {launchHandler} from './launch';
 import {progressHandler} from './progress';
 import {rendererHandler} from './renderer';

@@ -1,6 +1,6 @@
+import type {infoHandler} from '@remotion/serverless';
 import type {LambdaRoutines} from '@remotion/serverless/client';
 import type {compositionsHandler} from '../functions/compositions';
-import type {infoHandler} from '../functions/info';
 import type {launchHandler} from '../functions/launch';
 import type {progressHandler} from '../functions/progress';
 import type {rendererHandler} from '../functions/renderer';
