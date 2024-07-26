@@ -1,9 +1,10 @@
 import {CliInternals} from '@remotion/cli';
 import type {LogLevel} from '@remotion/renderer';
+import type {ProviderSpecifics} from '@remotion/serverless';
 import {deleteSite} from '../../../api/delete-site';
 import {internalGetOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {getSites} from '../../../api/get-sites';
-import {awsImplementation} from '../../../functions/aws-implementation';
+import type {AwsRegion} from '../../../regions';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {confirmCli} from '../../helpers/confirm';
@@ -11,7 +12,10 @@ import {Log} from '../../log';
 
 export const SITES_RMALL_COMMAND = 'rmall';
 
-export const sitesRmallSubcommand = async (logLevel: LogLevel) => {
+export const sitesRmallSubcommand = async (
+	logLevel: LogLevel,
+	implementation: ProviderSpecifics<AwsRegion>,
+) => {
 	const region = getAwsRegion();
 	const deployedSites = await getSites({
 		region,
@@ -24,7 +28,7 @@ export const sitesRmallSubcommand = async (logLevel: LogLevel) => {
 				region,
 				enableFolderExpiry: false,
 				customCredentials: null,
-				providerSpecifics: awsImplementation,
+				providerSpecifics: implementation,
 			})
 		).bucketName;
 

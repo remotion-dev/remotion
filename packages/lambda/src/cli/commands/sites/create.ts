@@ -3,11 +3,12 @@ import {ConfigInternals} from '@remotion/cli/config';
 import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 
+import type {ProviderSpecifics} from '@remotion/serverless';
 import type {Privacy} from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {internalGetOrCreateBucket} from '../../../api/get-or-create-bucket';
-import {awsImplementation} from '../../../functions/aws-implementation';
 import {LambdaInternals} from '../../../internals';
+import type {AwsRegion} from '../../../regions';
 import {BINARY_NAME} from '../../../shared/constants';
 import {randomHash} from '../../../shared/random-hash';
 import {validateSiteName} from '../../../shared/validate-site-name';
@@ -39,6 +40,7 @@ export const sitesCreateSubcommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
+	implementation: ProviderSpecifics<AwsRegion>,
 ) => {
 	const {file, reason} = CliInternals.findEntryPoint({
 		args,
@@ -126,7 +128,7 @@ export const sitesCreateSubcommand = async (
 				region: getAwsRegion(),
 				enableFolderExpiry,
 				customCredentials: null,
-				providerSpecifics: awsImplementation,
+				providerSpecifics: implementation,
 			})
 		).bucketName;
 

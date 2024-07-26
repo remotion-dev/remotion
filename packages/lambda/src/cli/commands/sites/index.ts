@@ -1,5 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import type {LogLevel} from '@remotion/renderer';
+import type {ProviderSpecifics} from '@remotion/serverless';
+import type {AwsRegion} from '../../../regions';
 import {BINARY_NAME} from '../../../shared/constants';
 import {quit} from '../../helpers/quit';
 import {SITES_CREATE_SUBCOMMAND, sitesCreateSubcommand} from './create';
@@ -58,21 +60,27 @@ export const sitesCommand = (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
+	implementation: ProviderSpecifics<AwsRegion>,
 ) => {
 	if (args[0] === SITES_LS_SUBCOMMAND) {
 		return sitesLsSubcommand(logLevel);
 	}
 
 	if (args[0] === SITES_RM_COMMAND) {
-		return sitesRmSubcommand(args.slice(1), logLevel);
+		return sitesRmSubcommand(args.slice(1), logLevel, implementation);
 	}
 
 	if (args[0] === SITES_RMALL_COMMAND) {
-		return sitesRmallSubcommand(logLevel);
+		return sitesRmallSubcommand(logLevel, implementation);
 	}
 
 	if (args[0] === SITES_CREATE_SUBCOMMAND) {
-		return sitesCreateSubcommand(args.slice(1), remotionRoot, logLevel);
+		return sitesCreateSubcommand(
+			args.slice(1),
+			remotionRoot,
+			logLevel,
+			implementation,
+		);
 	}
 
 	if (args[0]) {

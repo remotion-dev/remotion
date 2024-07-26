@@ -1,8 +1,9 @@
 import type {LambdaClient} from '@aws-sdk/client-lambda';
 
-import {awsImplementation} from '../../functions/aws-implementation';
 import {ResponseStream} from '../../functions/helpers/streamify-response';
 import type {getLambdaClient as original} from '../../shared/aws-clients';
+import {mockImplementation} from '../../test/mock-implementation';
+
 export const getLambdaClient: typeof original = (region, timeoutInTest) => {
 	return {
 		config: {
@@ -31,7 +32,7 @@ export const getLambdaClient: typeof original = (region, timeoutInTest) => {
 					getRemainingTimeInMillis: () => timeoutInTest ?? 120000,
 					awsRequestId: 'fake',
 				},
-				awsImplementation,
+				mockImplementation,
 			);
 			if (
 				params.input.InvocationType === 'RequestResponse' ||
