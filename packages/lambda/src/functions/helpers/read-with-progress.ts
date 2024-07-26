@@ -2,8 +2,7 @@ import {GetObjectCommand} from '@aws-sdk/client-s3';
 import {getSignedUrl} from '@aws-sdk/s3-request-presigner';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {AwsRegion} from '../../pricing/aws-regions';
-import type {CustomCredentials} from '../../shared/aws-clients';
+import type {AwsRegion, CustomCredentials} from '@remotion/serverless/client';
 import {getS3Client} from '../../shared/aws-clients';
 
 export type LambdaReadFileProgress = (progress: {

@@ -1,8 +1,8 @@
 import {RenderInternals} from '@remotion/renderer';
+import type {LambdaPayload} from '@remotion/serverless/client';
+import {LambdaRoutines} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
 import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
-import type {LambdaPayload} from '../defaults';
-import {LambdaRoutines} from '../defaults';
 import {decompressInputProps} from '../shared/compress-props';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {

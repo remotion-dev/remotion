@@ -1,10 +1,10 @@
 import {RenderInternals} from '@remotion/renderer';
+import {LambdaRoutines} from '@remotion/serverless/client';
 import path from 'path';
 import {VERSION} from 'remotion/version';
 import {makeLambdaRenderMediaPayload} from '../../api/make-lambda-payload';
 import type {RenderMediaOnLambdaInput} from '../../api/render-media-on-lambda';
 import {renderMediaOnLambdaOptionalToRequired} from '../../api/render-media-on-lambda';
-import {LambdaRoutines} from '../../defaults';
 import {lambdaReadFile} from '../../functions/helpers/io';
 import {callLambda} from '../../shared/call-lambda';
 

@@ -1,6 +1,7 @@
+import type {LambdaPayload} from '@remotion/serverless/client';
+import {LambdaRoutines} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
-import type {LambdaPayload, RenderProgress} from '../shared/constants';
-import {LambdaRoutines} from '../shared/constants';
+import type {RenderProgress} from '../shared/constants';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getProgress} from './helpers/get-progress';
 

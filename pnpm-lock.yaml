@@ -1071,9 +1071,15 @@ importers:
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
+      '@remotion/serverless':
+        specifier: workspace:*
+        version: link:../serverless
       '@remotion/streaming':
         specifier: workspace:*
         version: link:../streaming
+      '@remotion/studio-server':
+        specifier: workspace:*
+        version: link:../studio-server
       '@smithy/abort-controller':
         specifier: 3.0.0
         version: 3.0.0
@@ -1327,6 +1333,15 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+
+  packages/serverless:
+    dependencies:
+      '@remotion/renderer':
+        specifier: workspace:*
+        version: link:../renderer
+      remotion:
+        specifier: workspace:*
+        version: link:../core
 
   packages/shapes:
     dependencies:

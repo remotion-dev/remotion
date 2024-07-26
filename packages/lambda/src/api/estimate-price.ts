@@ -1,5 +1,5 @@
+import type {AwsRegion} from '@remotion/serverless/client';
 import {MIN_EPHEMERAL_STORAGE_IN_MB} from '../defaults';
-import type {AwsRegion} from '../pricing/aws-regions';
 import {pricing} from '../pricing/price-per-1-s';
 import {validateAwsRegion} from '../shared/validate-aws-region';
 import {validateDiskSizeInMb} from '../shared/validate-disk-size-in-mb';

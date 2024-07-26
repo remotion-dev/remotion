@@ -1,6 +1,6 @@
 import {RenderInternals} from '@remotion/renderer';
+import {LambdaRoutines} from '@remotion/serverless/client';
 import {afterAll, expect, test} from 'vitest';
-import {LambdaRoutines} from '../../../defaults';
 import {callLambda} from '../../../shared/call-lambda';
 
 afterAll(async () => {

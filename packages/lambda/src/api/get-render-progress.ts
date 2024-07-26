@@ -1,9 +1,8 @@
 import type {LogLevel} from '@remotion/renderer';
-import type {AwsRegion} from '../pricing/aws-regions';
-import type {CustomCredentials} from '../shared/aws-clients';
+import type {AwsRegion, CustomCredentials} from '@remotion/serverless/client';
+import {LambdaRoutines} from '@remotion/serverless/client';
 import {callLambda} from '../shared/call-lambda';
 import type {RenderProgress} from '../shared/constants';
-import {LambdaRoutines} from '../shared/constants';
 import {getRenderProgressPayload} from './make-lambda-payload';
 
 export type GetRenderProgressInput = {

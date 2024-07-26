@@ -1,5 +1,8 @@
-import type {OutNameInput, RenderMetadata} from '../../defaults';
-import type {CustomCredentials} from '../../shared/aws-clients';
+import type {
+	CustomCredentials,
+	OutNameInput,
+} from '@remotion/serverless/client';
+import type {RenderMetadata} from '../../defaults';
 
 export const getCustomOutName = ({
 	renderMetadata,

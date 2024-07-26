@@ -1,6 +1,6 @@
 import {GetFunctionCommand} from '@aws-sdk/client-lambda';
 import type {LogLevel} from '@remotion/renderer';
-import type {AwsRegion} from '../pricing/aws-regions';
+import type {AwsRegion} from '@remotion/serverless/client';
 import {getLambdaClient} from '../shared/aws-clients';
 import {DEFAULT_EPHEMERAL_STORAGE_IN_MB} from '../shared/constants';
 import {getFunctionVersion} from '../shared/get-function-version';

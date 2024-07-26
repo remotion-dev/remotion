@@ -1,8 +1,11 @@
 import type {Codec} from '@remotion/renderer';
 import {NoReactAPIs} from '@remotion/renderer/pure';
-import type {OutNameInput, OutNameOutput, RenderMetadata} from '../../defaults';
+import type {
+	CustomCredentials,
+	OutNameInput,
+} from '@remotion/serverless/client';
+import type {OutNameOutput, RenderMetadata} from '../../defaults';
 import {customOutName, outName, outStillName} from '../../defaults';
-import type {CustomCredentials} from '../../shared/aws-clients';
 import {validateOutname} from '../../shared/validate-outname';
 import {getCustomOutName} from './get-custom-out-name';
 

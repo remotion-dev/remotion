@@ -1,6 +1,6 @@
 // From https://calculator.aws/pricing/2.0/meteredUnitMaps/lambda/USD/current/lambda.json
 
-import type {AwsRegion} from './aws-regions';
+import type {AwsRegion} from '@remotion/serverless/client';
 
 export const pricing: {
 	[key in AwsRegion]: {

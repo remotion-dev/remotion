@@ -1,9 +1,9 @@
 import type {EmittedArtifact, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {LambdaPayload} from '@remotion/serverless/client';
+import {LambdaRoutines} from '@remotion/serverless/client';
 import {writeFileSync} from 'fs';
 import {join} from 'path';
-import type {LambdaPayload} from '../../defaults';
-import {LambdaRoutines} from '../../defaults';
 import {callLambdaWithStreaming} from '../../shared/call-lambda';
 import type {OnMessage} from '../streaming/streaming';
 import {getCurrentRegionInFunction} from './get-current-region';

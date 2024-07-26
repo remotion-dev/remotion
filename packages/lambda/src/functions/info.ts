@@ -1,6 +1,6 @@
+import type {LambdaPayload} from '@remotion/serverless/client';
+import {LambdaRoutines} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
-import type {LambdaPayload} from '../shared/constants';
-import {LambdaRoutines} from '../shared/constants';
 
 export const infoHandler = (lambdaParams: LambdaPayload) => {
 	if (lambdaParams.type !== LambdaRoutines.info) {

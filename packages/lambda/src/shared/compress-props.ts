@@ -1,8 +1,8 @@
+import type {SerializedInputProps} from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
 import type {AwsRegion} from '../client';
 import {lambdaReadFile, lambdaWriteFile} from '../functions/helpers/io';
-import type {SerializedInputProps} from './constants';
 import {inputPropsKey, resolvedPropsKey} from './constants';
 import {randomHash} from './random-hash';
 import {streamToString} from './stream-to-string';

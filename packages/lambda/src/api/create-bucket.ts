@@ -4,7 +4,7 @@ import {
 	DeletePublicAccessBlockCommand,
 	PutBucketAclCommand,
 } from '@aws-sdk/client-s3';
-import type {AwsRegion} from '../pricing/aws-regions';
+import type {AwsRegion} from '@remotion/serverless/client';
 import {getS3Client} from '../shared/aws-clients';
 
 export const createBucket = async ({

@@ -2,8 +2,7 @@ import {CliInternals} from '@remotion/cli';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import type {DeleteAfter} from '../client';
 
-import type {AwsRegion} from '../pricing/aws-regions';
-import type {Privacy} from '../shared/constants';
+import type {AwsRegion, Privacy} from '@remotion/serverless/client';
 
 type LambdaCommandLineOptions = {
 	help: boolean;

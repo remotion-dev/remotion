@@ -10,6 +10,7 @@ import {getRenderProgress} from '../../../api/get-render-progress';
 import {internalRenderMediaOnLambdaRaw} from '../../../api/render-media-on-lambda';
 import type {EnhancedErrorInfo} from '../../../functions/helpers/write-lambda-error';
 
+import type {LambdaCodec} from '@remotion/serverless/client';
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
@@ -17,7 +18,6 @@ import {
 } from '../../../shared/constants';
 import {sleep} from '../../../shared/sleep';
 import {validateFramesPerLambda} from '../../../shared/validate-frames-per-lambda';
-import type {LambdaCodec} from '../../../shared/validate-lambda-codec';
 import {validatePrivacy} from '../../../shared/validate-privacy';
 import {validateMaxRetries} from '../../../shared/validate-retries';
 import {validateServeUrl} from '../../../shared/validate-serveurl';

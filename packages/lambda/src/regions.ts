@@ -1,3 +1,3 @@
-import {AWS_REGIONS} from './pricing/aws-regions';
+import {AWS_REGIONS} from '@remotion/serverless/client';
 
 export {AWS_REGIONS};

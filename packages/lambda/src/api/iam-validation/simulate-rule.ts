@@ -1,5 +1,5 @@
 import {SimulatePrincipalPolicyCommand} from '@aws-sdk/client-iam';
-import type {AwsRegion} from '../../pricing/aws-regions';
+import type {AwsRegion} from '@remotion/serverless/client';
 import {getIamClient} from '../../shared/aws-clients';
 
 export type EvalDecision = 'allowed' | 'explicitDeny' | 'implicitDeny';

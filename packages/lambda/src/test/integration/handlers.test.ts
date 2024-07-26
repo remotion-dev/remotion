@@ -1,6 +1,6 @@
+import {LambdaRoutines} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
 import {expect, test} from 'vitest';
-import {LambdaRoutines} from '../../defaults';
 import {callLambda} from '../../shared/call-lambda';
 
 test('Call function locally', async () => {

@@ -6,14 +6,16 @@ import {
 	ListObjectsV2Command,
 	PutObjectCommand,
 } from '@aws-sdk/client-s3';
+import type {
+	AwsRegion,
+	CustomCredentials,
+	DownloadBehavior,
+	Privacy,
+} from '@remotion/serverless/client';
 import mimeTypes from 'mime-types';
 import type {ReadStream} from 'node:fs';
 import type {Readable} from 'stream';
-import type {AwsRegion} from '../../pricing/aws-regions';
-import type {CustomCredentials} from '../../shared/aws-clients';
 import {getS3Client} from '../../shared/aws-clients';
-import type {Privacy} from '../../shared/constants';
-import type {DownloadBehavior} from '../../shared/content-disposition-header';
 import {getContentDispositionHeader} from '../../shared/content-disposition-header';
 
 export type LambdaLSInput = {

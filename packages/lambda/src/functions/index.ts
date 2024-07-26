@@ -1,6 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
-import type {LambdaPayload} from '../shared/constants';
-import {COMMAND_NOT_FOUND, LambdaRoutines} from '../shared/constants';
+import type {LambdaPayload} from '@remotion/serverless/client';
+import {LambdaRoutines} from '@remotion/serverless/client';
+import {COMMAND_NOT_FOUND} from '../shared/constants';
 import {compositionsHandler} from './compositions';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {getWarm, setWarm} from './helpers/is-warm';

@@ -1,5 +1,5 @@
+import {LambdaRoutines} from '@remotion/serverless/client';
 import type {RenderMetadata} from '../../defaults';
-import {LambdaRoutines} from '../../defaults';
 import {DOCS_URL} from '../../shared/docs-url';
 import {
 	getCloudwatchMethodUrl,

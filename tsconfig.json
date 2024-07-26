@@ -142,6 +142,9 @@
 			"path": "./packages/streaming"
 		},
 		{
+			"path": "./packages/serverless"
+		},
+		{
 			"path": "./packages/docusaurus-plugin"
 		},
 		{

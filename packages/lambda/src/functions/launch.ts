@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type {EmittedArtifact, LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {LambdaPayload} from '@remotion/serverless/client';
+import {LambdaRoutines} from '@remotion/serverless/client';
 import {existsSync, mkdirSync, rmSync} from 'fs';
 import {join} from 'path';
 import {VERSION} from 'remotion/version';
@@ -11,14 +13,9 @@ import {
 	getNeedsToUpload,
 	serializeOrThrow,
 } from '../shared/compress-props';
-import type {
-	LambdaPayload,
-	PostRenderData,
-	RenderMetadata,
-} from '../shared/constants';
+import type {PostRenderData, RenderMetadata} from '../shared/constants';
 import {
 	CONCAT_FOLDER_TOKEN,
-	LambdaRoutines,
 	MAX_FUNCTIONS_PER_RENDER,
 	artifactName,
 } from '../shared/constants';

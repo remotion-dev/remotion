@@ -1,4 +1,4 @@
-import type {AwsRegion} from '../../pricing/aws-regions';
+import type {AwsRegion} from '@remotion/serverless/client';
 import {isInsideLambda} from '../../shared/is-in-lambda';
 
 export const getCurrentRegionInFunction = () => {
