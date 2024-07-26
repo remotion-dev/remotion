@@ -27,7 +27,6 @@ import {
 	artifactName,
 	overallProgressKey,
 } from '../shared/constants';
-import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {isFlakyError} from '../shared/is-flaky-error';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateOutname} from '../shared/validate-outname';
@@ -119,9 +118,9 @@ const innerStillHandler = async <Region extends string>({
 		providerSpecifics,
 	});
 
-	const serveUrl = convertToServeUrl({
+	const serveUrl = providerSpecifics.convertToServeUrl({
 		urlOrId: lambdaParams.serveUrl,
-		region: region as AwsRegion,
+		region,
 		bucketName,
 	});
 

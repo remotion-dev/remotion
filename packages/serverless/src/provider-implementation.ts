@@ -92,6 +92,12 @@ type HeadFile<Region extends string> = (
 
 type RandomHash = () => string;
 
+type ConvertToServeUrl<Region extends string> = (params: {
+	urlOrId: string;
+	region: Region;
+	bucketName: string;
+}) => string;
+
 export type ProviderSpecifics<Region extends string> = {
 	getChromiumPath: () => string | null;
 	getCurrentRegionInFunction: () => Region;
@@ -106,4 +112,5 @@ export type ProviderSpecifics<Region extends string> = {
 	readFile: ReadFile<Region>;
 	writeFile: WriteFile<Region>;
 	headFile: HeadFile<Region>;
+	convertToServeUrl: ConvertToServeUrl<Region>;
 };

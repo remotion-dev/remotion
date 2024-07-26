@@ -8,6 +8,7 @@ import {lambdaLsImplementation} from '../io/list-objects';
 import {lambdaReadFileImplementation} from '../io/read-file';
 import {lambdaWriteFileImplementation} from '../io/write-file';
 import type {AwsRegion} from '../regions';
+import {convertToServeUrlImplementation} from '../shared/convert-to-serve-url';
 import {applyLifeCyleOperation} from '../shared/lifecycle-rules';
 import {randomHashImplementation} from '../shared/random-hash';
 import {getCurrentRegionInFunctionImplementation} from './helpers/get-current-region';
@@ -40,4 +41,5 @@ export const awsImplementation: ProviderSpecifics<AwsRegion> = {
 	readFile: lambdaReadFileImplementation,
 	writeFile: lambdaWriteFileImplementation,
 	headFile: lambdaHeadFileImplementation,
+	convertToServeUrl: convertToServeUrlImplementation,
 };

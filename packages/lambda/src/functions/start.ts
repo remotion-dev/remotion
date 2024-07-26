@@ -9,7 +9,6 @@ import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../regions';
 import {getLambdaClient} from '../shared/aws-clients';
 import {overallProgressKey} from '../shared/constants';
-import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {
 	generateRandomHashWithLifeCycleRule,
 	validateDeleteAfter,
@@ -53,9 +52,9 @@ export const startHandler = async <Region extends string>(
 				providerSpecifics,
 			})
 		).bucketName;
-	const realServeUrl = convertToServeUrl({
+	const realServeUrl = providerSpecifics.convertToServeUrl({
 		urlOrId: params.serveUrl,
-		region: region as AwsRegion,
+		region,
 		bucketName,
 	});
 

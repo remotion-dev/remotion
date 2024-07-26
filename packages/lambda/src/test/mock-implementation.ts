@@ -1,6 +1,7 @@
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {Readable} from 'stream';
 import type {AwsRegion} from '../regions';
+import {convertToServeUrlImplementation} from '../shared/convert-to-serve-url';
 import {
 	addMockBucket,
 	getMockBuckets,
@@ -105,4 +106,5 @@ export const mockImplementation: ProviderSpecifics<AwsRegion> = {
 			LastModified: new Date(),
 		});
 	},
+	convertToServeUrl: convertToServeUrlImplementation,
 };

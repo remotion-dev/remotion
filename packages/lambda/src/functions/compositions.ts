@@ -7,9 +7,7 @@ import {
 	internalGetOrCreateBucket,
 } from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
-import type {AwsRegion} from '../regions';
 import {decompressInputProps} from '../shared/compress-props';
-import {convertToServeUrl} from '../shared/convert-to-serve-url';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -64,9 +62,9 @@ export const compositionsHandler = async <Region extends string>(
 			providerSpecifics,
 		});
 
-		const realServeUrl = convertToServeUrl({
+		const realServeUrl = providerSpecifics.convertToServeUrl({
 			urlOrId: lambdaParams.serveUrl,
-			region: region as AwsRegion,
+			region,
 			bucketName,
 		});
 
