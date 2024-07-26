@@ -56,7 +56,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	framesPerLambda: number | null;
 	logLevel: LogLevel;
 	frameRange: FrameRange | null;
-	outName: OutNameInput | null;
+	outName: OutNameInput<AwsRegion> | null;
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
@@ -123,7 +123,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	deleteAfter,
 	colorSpace,
 	preferLossless,
-}: InnerRenderMediaOnLambdaInput): Promise<LambdaStartPayload> => {
+}: InnerRenderMediaOnLambdaInput): Promise<LambdaStartPayload<AwsRegion>> => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
 	validateFramesPerLambda({
@@ -198,7 +198,7 @@ export const getRenderProgressPayload = ({
 	renderId,
 	s3OutputProvider,
 	logLevel,
-}: GetRenderProgressInput): LambdaStatusPayload => {
+}: GetRenderProgressInput): LambdaStatusPayload<AwsRegion> => {
 	return {
 		type: ServerlessRoutines.status,
 		bucketName,
@@ -233,7 +233,7 @@ export const makeLambdaRenderStillPayload = async ({
 	offthreadVideoCacheSizeInBytes,
 	deleteAfter,
 }: RenderStillOnLambdaNonNullInput): Promise<
-	LambdaPayloads[ServerlessRoutines.still]
+	LambdaPayloads<AwsRegion>[ServerlessRoutines.still]
 > => {
 	if (quality) {
 		throw new Error(

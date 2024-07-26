@@ -1,6 +1,6 @@
-import type {AwsRegion} from '@remotion/serverless/client';
 import {getSitesKey} from '../defaults';
 import {lambdaLs} from '../functions/helpers/io';
+import type {AwsRegion} from '../regions';
 import {getAccountId} from '../shared/get-account-id';
 import {cleanItems} from './clean-items';
 

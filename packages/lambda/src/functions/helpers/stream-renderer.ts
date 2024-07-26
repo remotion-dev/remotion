@@ -20,7 +20,7 @@ type StreamRendererResponse =
 			shouldRetry: boolean;
 	  };
 
-const streamRenderer = ({
+const streamRenderer = <Region extends string>({
 	payload,
 	functionName,
 	outdir,
@@ -29,7 +29,7 @@ const streamRenderer = ({
 	logLevel,
 	onArtifact,
 }: {
-	payload: LambdaPayload;
+	payload: LambdaPayload<Region>;
 	functionName: string;
 	outdir: string;
 	overallProgress: OverallProgressHelper;
@@ -178,7 +178,7 @@ const streamRenderer = ({
 	});
 };
 
-export const streamRendererFunctionWithRetry = async ({
+export const streamRendererFunctionWithRetry = async <Region extends string>({
 	payload,
 	files,
 	functionName,
@@ -187,7 +187,7 @@ export const streamRendererFunctionWithRetry = async ({
 	logLevel,
 	onArtifact,
 }: {
-	payload: LambdaPayload;
+	payload: LambdaPayload<Region>;
 	functionName: string;
 	outdir: string;
 	overallProgress: OverallProgressHelper;

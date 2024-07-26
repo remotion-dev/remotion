@@ -14,7 +14,7 @@ type Options = {
 };
 
 export const compositionsHandler = async <Region extends string>(
-	lambdaParams: LambdaPayload,
+	lambdaParams: LambdaPayload<Region>,
 	options: Options,
 	providerSpecifics: ProviderSpecifics<Region>,
 ) => {

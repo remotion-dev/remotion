@@ -5,7 +5,10 @@ import {
 	getBrowserInstance,
 	type ProviderSpecifics,
 } from '@remotion/serverless';
-import type {LambdaPayload} from '@remotion/serverless/client';
+import type {
+	CustomCredentials,
+	LambdaPayload,
+} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -13,6 +16,7 @@ import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import {estimatePrice} from '../api/estimate-price';
 import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
+import type {AwsRegion} from '../regions';
 import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
 import {decompressInputProps} from '../shared/compress-props';
 import type {CostsInfo, RenderMetadata} from '../shared/constants';
@@ -42,7 +46,7 @@ import {getTmpDirStateIfENoSp} from './helpers/write-lambda-error';
 import type {OnStream} from './streaming/streaming';
 
 type Options<Region extends string> = {
-	params: LambdaPayload;
+	params: LambdaPayload<Region>;
 	renderId: string;
 	expectedBucketOwner: string;
 	onStream: OnStream;
@@ -321,7 +325,7 @@ const innerStillHandler = async <Region extends string>({
 	const {key: outKey, url} = getOutputUrlFromMetadata(
 		renderMetadata,
 		bucketName,
-		customCredentials,
+		customCredentials as CustomCredentials<AwsRegion>,
 	);
 
 	const payload: RenderStillLambdaResponsePayload = {

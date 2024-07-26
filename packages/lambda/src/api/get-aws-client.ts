@@ -12,7 +12,7 @@ import {getServiceClient} from '../shared/aws-clients';
 export type GetAwsClientInput<T extends keyof ServiceMapping> = {
 	region: AwsRegion;
 	service: T;
-	customCredentials?: CustomCredentials | null;
+	customCredentials?: CustomCredentials<AwsRegion> | null;
 };
 
 type SdkMapping = {

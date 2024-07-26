@@ -1,4 +1,5 @@
-import type {AwsRegion, CustomCredentials} from '@remotion/serverless/client';
+import type {CustomCredentials} from '@remotion/serverless/client';
+import type {AwsRegion} from '../regions';
 import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
 import {applyLifeCyleOperation} from '../shared/lifecycle-rules';
 import {makeBucketName} from '../shared/validate-bucketname';
@@ -8,13 +9,13 @@ import {getRemotionS3Buckets} from './get-buckets';
 type GetOrCreateBucketInputInner = {
 	region: AwsRegion;
 	enableFolderExpiry: boolean | null;
-	customCredentials: CustomCredentials | null;
+	customCredentials: CustomCredentials<AwsRegion> | null;
 };
 
 export type GetOrCreateBucketInput = {
 	region: AwsRegion;
 	enableFolderExpiry?: boolean;
-	customCredentials?: CustomCredentials;
+	customCredentials?: CustomCredentials<AwsRegion>;
 };
 
 export type GetOrCreateBucketOutput = {

@@ -1,8 +1,9 @@
-import type {AwsRegion, CustomCredentials} from '@remotion/serverless/client';
+import type {CustomCredentials} from '@remotion/serverless/client';
 import {rendersPrefix} from '../defaults';
 import {getExpectedOutName} from '../functions/helpers/expected-out-name';
 import {getOverallProgressS3} from '../functions/helpers/get-overall-progress-s3';
 import {lambdaDeleteFile, lambdaLs} from '../functions/helpers/io';
+import type {AwsRegion} from '../regions';
 import {getAccountId} from '../shared/get-account-id';
 import {cleanItems} from './clean-items';
 
@@ -10,7 +11,7 @@ export type DeleteRenderInput = {
 	region: AwsRegion;
 	bucketName: string;
 	renderId: string;
-	customCredentials?: CustomCredentials;
+	customCredentials?: CustomCredentials<AwsRegion>;
 };
 
 /**

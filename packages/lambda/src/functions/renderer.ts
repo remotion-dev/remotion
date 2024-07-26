@@ -43,7 +43,7 @@ const renderHandler = async <Region extends string>({
 	onStream,
 	platformImplementation: providerSpecifics,
 }: {
-	params: LambdaPayload;
+	params: LambdaPayload<Region>;
 	options: Options;
 	logs: BrowserLog[];
 	onStream: OnStream;
@@ -393,7 +393,7 @@ export const rendererHandler = async <Region extends string>({
 	providerSpecifics,
 	requestContext,
 }: {
-	params: LambdaPayload;
+	params: LambdaPayload<Region>;
 	options: Options;
 	onStream: OnStream;
 	requestContext: RequestContext;

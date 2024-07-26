@@ -11,8 +11,8 @@ type Options = {
 	retriesRemaining: number;
 };
 
-export const progressHandler = async (
-	lambdaParams: LambdaPayload,
+export const progressHandler = async <Region extends string>(
+	lambdaParams: LambdaPayload<Region>,
 	options: Options,
 ): Promise<RenderProgress> => {
 	if (lambdaParams.type !== ServerlessRoutines.status) {

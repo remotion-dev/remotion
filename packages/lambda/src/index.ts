@@ -1,4 +1,4 @@
-import type {AwsRegion, CustomCredentials} from '@remotion/serverless/client';
+import type {CustomCredentials} from '@remotion/serverless/client';
 import type {DeleteFunctionInput} from './api/delete-function';
 import {deleteFunction} from './api/delete-function';
 import type {DeleteRenderInput} from './api/delete-render';
@@ -70,6 +70,7 @@ import type {
 	LambdaErrorInfo,
 } from './functions/helpers/write-lambda-error';
 import {LambdaInternals} from './internals';
+import type {AwsRegion} from './regions';
 import type {RenderProgress} from './shared/constants';
 import type {WebhookPayload} from './shared/invoke-webhook';
 

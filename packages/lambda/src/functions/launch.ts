@@ -3,12 +3,16 @@ import type {EmittedArtifact, LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {forgetBrowserEventLoop, getBrowserInstance} from '@remotion/serverless';
-import type {LambdaPayload} from '@remotion/serverless/client';
+import type {
+	CustomCredentials,
+	LambdaPayload,
+} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {existsSync, mkdirSync, rmSync} from 'fs';
 import {join} from 'path';
 import {VERSION} from 'remotion/version';
 import {type EventEmitter} from 'stream';
+import type {AwsRegion} from '../regions';
 import {
 	compressInputProps,
 	decompressInputProps,
@@ -60,7 +64,7 @@ const innerLaunchHandler = async <Region extends string>({
 	providerSpecifics,
 }: {
 	functionName: string;
-	params: LambdaPayload;
+	params: LambdaPayload<Region>;
 	options: Options;
 	overallProgress: OverallProgressHelper;
 	registerCleanupTask: (cleanupTask: CleanupTask) => void;
@@ -225,7 +229,7 @@ const innerLaunchHandler = async <Region extends string>({
 	const progressEveryNthFrame = Math.ceil(chunks.length / 15);
 
 	const lambdaPayloads = chunks.map((chunkPayload) => {
-		const payload: LambdaPayload = {
+		const payload: LambdaPayload<Region> = {
 			type: ServerlessRoutines.renderer,
 			frameRange: chunkPayload,
 			serveUrl: params.serveUrl,
@@ -329,7 +333,7 @@ const innerLaunchHandler = async <Region extends string>({
 		);
 		const output = await findOutputFileInBucket({
 			bucketName: params.bucketName,
-			customCredentials,
+			customCredentials: customCredentials as CustomCredentials<AwsRegion>,
 			renderMetadata,
 			region: getCurrentRegionInFunction(),
 		});
@@ -468,7 +472,7 @@ const innerLaunchHandler = async <Region extends string>({
 type CleanupTask = () => Promise<unknown>;
 
 export const launchHandler = async <Region extends string>(
-	params: LambdaPayload,
+	params: LambdaPayload<Region>,
 	options: Options,
 	providerSpecifics: ProviderSpecifics<Region>,
 ): Promise<{

@@ -1,6 +1,6 @@
 import type {LogLevel} from '@remotion/renderer';
-import type {AwsRegion} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
+import type {AwsRegion} from '../regions';
 import {callLambda} from './call-lambda';
 import {COMMAND_NOT_FOUND} from './constants';
 

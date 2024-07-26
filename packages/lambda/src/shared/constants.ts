@@ -4,7 +4,6 @@ import type {
 	VideoImageFormat,
 } from '@remotion/renderer';
 import type {
-	AwsRegion,
 	CustomCredentials,
 	CustomCredentialsWithoutSensitiveData,
 	DeleteAfter,
@@ -17,6 +16,7 @@ import type {
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import type {ReceivedArtifact} from '../functions/helpers/overall-render-progress';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
+import type {AwsRegion} from '../regions';
 import type {ExpensiveChunk} from './get-most-expensive-chunks';
 
 export const MIN_MEMORY = 512;
@@ -61,10 +61,10 @@ export type OutNameInputWithoutCredentials =
 			s3OutputProvider?: CustomCredentialsWithoutSensitiveData;
 	  };
 
-export type OutNameOutput = {
+export type OutNameOutput<Region extends string> = {
 	renderBucketName: string;
 	key: string;
-	customCredentials: CustomCredentials | null;
+	customCredentials: CustomCredentials<Region> | null;
 };
 
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
@@ -74,11 +74,11 @@ export const outStillName = (renderId: string, imageFormat: StillImageFormat) =>
 	`${rendersPrefix(renderId)}/out.${imageFormat}`;
 export const artifactName = (renderId: string, name: string) =>
 	`${rendersPrefix(renderId)}/artifacts/${name}`;
-export const customOutName = (
+export const customOutName = <Region extends string>(
 	renderId: string,
 	bucketName: string,
-	name: OutNameInput,
-): OutNameOutput => {
+	name: OutNameInput<Region>,
+): OutNameOutput<Region> => {
 	if (typeof name === 'string') {
 		return {
 			renderBucketName: bucketName,

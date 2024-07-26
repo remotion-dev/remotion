@@ -1,5 +1,5 @@
 import {DeleteObjectCommand} from '@aws-sdk/client-s3';
-import type {AwsRegion} from '@remotion/serverless/client';
+import type {AwsRegion} from '../regions';
 import {getS3Client} from '../shared/aws-clients';
 import {pLimit} from '../shared/p-limit';
 

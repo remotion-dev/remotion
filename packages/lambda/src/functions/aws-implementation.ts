@@ -1,5 +1,5 @@
 import type {ProviderSpecifics} from '@remotion/serverless';
-import type {AwsRegion} from '../client';
+import type {AwsRegion} from '../regions';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 
 if (
@@ -19,4 +19,5 @@ export const awsImplementation: ProviderSpecifics<AwsRegion> = {
 		return '/opt/bin/chromium';
 	},
 	getCurrentRegionInFunction,
+	regionType: 'us-east-1',
 };

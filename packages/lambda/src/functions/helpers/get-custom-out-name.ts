@@ -4,13 +4,13 @@ import type {
 } from '@remotion/serverless/client';
 import type {RenderMetadata} from '../../defaults';
 
-export const getCustomOutName = ({
+export const getCustomOutName = <Region extends string>({
 	renderMetadata,
 	customCredentials,
 }: {
 	renderMetadata: RenderMetadata;
-	customCredentials: CustomCredentials | null;
-}): OutNameInput | null => {
+	customCredentials: CustomCredentials<Region> | null;
+}): OutNameInput<Region> | null => {
 	if (!renderMetadata.outName) {
 		return null;
 	}

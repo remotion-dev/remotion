@@ -19,7 +19,10 @@ type Options = {
 	timeoutInMilliseconds: number;
 };
 
-export const startHandler = async (params: LambdaPayload, options: Options) => {
+export const startHandler = async <Region extends string>(
+	params: LambdaPayload<Region>,
+	options: Options,
+) => {
 	if (params.type !== ServerlessRoutines.start) {
 		throw new TypeError('Expected type start');
 	}
@@ -70,7 +73,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		customCredentials: null,
 	});
 
-	const payload: LambdaPayload = {
+	const payload: LambdaPayload<Region> = {
 		type: ServerlessRoutines.launch,
 		framesPerLambda: params.framesPerLambda,
 		composition: params.composition,

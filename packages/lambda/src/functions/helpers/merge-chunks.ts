@@ -7,6 +7,7 @@ import type {
 	SerializedInputProps,
 } from '@remotion/serverless/client';
 import fs from 'fs';
+import type {AwsRegion} from '../../regions';
 import type {PostRenderData, RenderMetadata} from '../../shared/constants';
 import {cleanupProps} from './cleanup-props';
 import {concatVideos} from './concat-videos';
@@ -18,7 +19,9 @@ import {lambdaWriteFile} from './io';
 import type {OverallProgressHelper} from './overall-render-progress';
 import {timer} from './timer';
 
-export const mergeChunksAndFinishRender = async (options: {
+export const mergeChunksAndFinishRender = async <
+	Region extends string,
+>(options: {
 	bucketName: string;
 	renderId: string;
 	expectedBucketOwner: string;
@@ -29,7 +32,7 @@ export const mergeChunksAndFinishRender = async (options: {
 	numberOfGifLoops: number | null;
 	audioCodec: AudioCodec | null;
 	renderBucketName: string;
-	customCredentials: CustomCredentials | null;
+	customCredentials: CustomCredentials<Region> | null;
 	downloadBehavior: DownloadBehavior;
 	key: string;
 	privacy: Privacy;
@@ -108,7 +111,7 @@ export const mergeChunksAndFinishRender = async (options: {
 	const {url: outputUrl} = getOutputUrlFromMetadata(
 		options.renderMetadata,
 		options.bucketName,
-		options.customCredentials,
+		options.customCredentials as CustomCredentials<AwsRegion>,
 	);
 
 	const postRenderData = createPostRenderData({

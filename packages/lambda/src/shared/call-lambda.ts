@@ -8,7 +8,6 @@ import {
 	InvokeWithResponseStreamCommand,
 } from '@aws-sdk/client-lambda';
 import type {
-	AwsRegion,
 	LambdaPayloads,
 	ServerlessRoutines,
 } from '@remotion/serverless/client';
@@ -23,6 +22,7 @@ import {
 	formatMap,
 	messageTypeIdToMessageType,
 } from '../functions/streaming/streaming';
+import type {AwsRegion} from '../regions';
 import {getLambdaClient} from './aws-clients';
 import type {LambdaReturnValues} from './return-values';
 
@@ -31,7 +31,7 @@ const INVALID_JSON_MESSAGE = 'Cannot parse Lambda response as JSON';
 type Options<T extends ServerlessRoutines> = {
 	functionName: string;
 	type: T;
-	payload: Omit<LambdaPayloads[T], 'type'>;
+	payload: Omit<LambdaPayloads<AwsRegion>[T], 'type'>;
 	region: AwsRegion;
 	timeoutInTest: number;
 };

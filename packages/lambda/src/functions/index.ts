@@ -34,7 +34,7 @@ const innerHandler = async <Region extends string>({
 	context,
 	providerSpecifics,
 }: {
-	params: LambdaPayload;
+	params: LambdaPayload<Region>;
 	responseWriter: ResponseStreamWriter;
 	context: RequestContext;
 	providerSpecifics: ProviderSpecifics<Region>;
@@ -293,7 +293,7 @@ export type OrError<T> =
 	  };
 
 export const routine = async <Region extends string>(
-	params: LambdaPayload,
+	params: LambdaPayload<Region>,
 	responseStream: ResponseStream,
 	context: RequestContext,
 	providerSpecifics: ProviderSpecifics<Region>,

@@ -7,7 +7,6 @@ import {
 	PutObjectCommand,
 } from '@aws-sdk/client-s3';
 import type {
-	AwsRegion,
 	CustomCredentials,
 	DownloadBehavior,
 	Privacy,
@@ -15,6 +14,7 @@ import type {
 import mimeTypes from 'mime-types';
 import type {ReadStream} from 'node:fs';
 import type {Readable} from 'stream';
+import type {AwsRegion} from '../../regions';
 import {getS3Client} from '../../shared/aws-clients';
 import {getContentDispositionHeader} from '../../shared/content-disposition-header';
 
@@ -88,7 +88,7 @@ export const lambdaDeleteFile = async ({
 	region: AwsRegion;
 	bucketName: string;
 	key: string;
-	customCredentials: CustomCredentials | null;
+	customCredentials: CustomCredentials<AwsRegion> | null;
 }) => {
 	await getS3Client(region, customCredentials).send(
 		new DeleteObjectCommand({
@@ -98,7 +98,7 @@ export const lambdaDeleteFile = async ({
 	);
 };
 
-type LambdaWriteFileInput = {
+type LambdaWriteFileInput<Region extends string> = {
 	bucketName: string;
 	key: string;
 	body: ReadStream | string | Uint8Array;
@@ -106,10 +106,10 @@ type LambdaWriteFileInput = {
 	privacy: Privacy;
 	expectedBucketOwner: string | null;
 	downloadBehavior: DownloadBehavior | null;
-	customCredentials: CustomCredentials | null;
+	customCredentials: CustomCredentials<Region> | null;
 };
 
-const tryLambdaWriteFile = async ({
+const tryLambdaWriteFile = async <Region extends string>({
 	bucketName,
 	key,
 	body,
@@ -118,8 +118,11 @@ const tryLambdaWriteFile = async ({
 	expectedBucketOwner,
 	downloadBehavior,
 	customCredentials,
-}: LambdaWriteFileInput): Promise<void> => {
-	await getS3Client(region, customCredentials).send(
+}: LambdaWriteFileInput<Region>): Promise<void> => {
+	await getS3Client(
+		region,
+		customCredentials as CustomCredentials<AwsRegion>,
+	).send(
 		new PutObjectCommand({
 			Bucket: bucketName,
 			Key: key,
@@ -139,8 +142,8 @@ const tryLambdaWriteFile = async ({
 	);
 };
 
-export const lambdaWriteFile = async (
-	params: LambdaWriteFileInput & {
+export const lambdaWriteFile = async <Region extends string>(
+	params: LambdaWriteFileInput<Region> & {
 		retries?: number;
 	},
 ): Promise<void> => {
@@ -198,7 +201,7 @@ export const lambdaHeadCommand = async ({
 	bucketName: string;
 	key: string;
 	region: AwsRegion;
-	customCredentials: CustomCredentials | null;
+	customCredentials: CustomCredentials<AwsRegion> | null;
 }): Promise<{
 	LastModified?: Date | undefined;
 	ContentLength?: number | undefined;

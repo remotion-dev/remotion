@@ -1,6 +1,7 @@
 import type {LogLevel} from '@remotion/renderer';
-import type {AwsRegion, CustomCredentials} from '@remotion/serverless/client';
+import type {CustomCredentials} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
+import type {AwsRegion} from '../regions';
 import {callLambda} from '../shared/call-lambda';
 import type {RenderProgress} from '../shared/constants';
 import {getRenderProgressPayload} from './make-lambda-payload';
@@ -11,7 +12,7 @@ export type GetRenderProgressInput = {
 	renderId: string;
 	region: AwsRegion;
 	logLevel?: LogLevel;
-	s3OutputProvider?: CustomCredentials;
+	s3OutputProvider?: CustomCredentials<AwsRegion>;
 };
 
 /**

@@ -1,6 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
-import type {AwsRegion, CustomCredentials} from '@remotion/serverless/client';
+import type {CustomCredentials} from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
+import type {AwsRegion} from '../../regions';
 import type {CleanupInfo, RenderProgress} from '../../shared/constants';
 import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../../shared/constants';
 import {truthy} from '../../shared/truthy';
@@ -15,7 +16,7 @@ import {makeTimeoutError} from './make-timeout-error';
 import {lambdaRenderHasAudioVideo} from './render-has-audio-video';
 import type {EnhancedErrorInfo} from './write-lambda-error';
 
-export const getProgress = async ({
+export const getProgress = async <Region extends string>({
 	bucketName,
 	renderId,
 	expectedBucketOwner,
@@ -30,7 +31,7 @@ export const getProgress = async ({
 	region: AwsRegion;
 	memorySizeInMb: number;
 	timeoutInMilliseconds: number;
-	customCredentials: CustomCredentials | null;
+	customCredentials: CustomCredentials<Region> | null;
 }): Promise<RenderProgress> => {
 	const overallProgress = await getOverallProgressS3({
 		renderId,

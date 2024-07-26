@@ -18,4 +18,3 @@ export {
 	type WebhookOption,
 } from './constants';
 export {inputPropsKey, resolvedPropsKey} from './input-props-keys';
-export {AWS_REGIONS, AwsRegion, DEFAULT_AWS_REGIONS} from './region';

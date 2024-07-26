@@ -12,10 +12,10 @@ import {
 } from '@aws-sdk/client-lambda';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {AwsRegion} from '@remotion/serverless/client';
 import {readFileSync} from 'node:fs';
 import {VERSION} from 'remotion/version';
 import {LOG_GROUP_PREFIX} from '../defaults';
+import type {AwsRegion} from '../regions';
 import {getCloudWatchLogsClient, getLambdaClient} from '../shared/aws-clients';
 import {hostedLayers, v5HostedLayers} from '../shared/hosted-layers';
 import {lambdaInsightsExtensions} from '../shared/lambda-insights-extensions';

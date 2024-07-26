@@ -10,7 +10,6 @@ import type {
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {
-	AwsRegion,
 	DownloadBehavior,
 	LambdaCodec,
 	OutNameInput,
@@ -18,6 +17,7 @@ import type {
 	WebhookOption,
 } from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
+import type {AwsRegion} from '../regions';
 import {callLambda} from '../shared/call-lambda';
 import {
 	getCloudwatchMethodUrl,
@@ -50,7 +50,7 @@ export type RenderMediaOnLambdaInput = {
 	maxRetries?: number;
 	framesPerLambda?: number;
 	frameRange?: FrameRange;
-	outName?: OutNameInput;
+	outName?: OutNameInput<AwsRegion>;
 	chromiumOptions?: Omit<ChromiumOptions, 'enableMultiProcessOnLinux'>;
 	scale?: number;
 	everyNthFrame?: number;

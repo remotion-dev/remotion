@@ -1,5 +1,6 @@
-import type {AwsRegion, CustomCredentials} from '@remotion/serverless/client';
+import type {CustomCredentials} from '@remotion/serverless/client';
 import {ROLE_NAME} from '../../api/iam-validation/suggested-policy';
+import type {AwsRegion} from '../../regions';
 import type {RenderMetadata} from '../../shared/constants';
 import {getExpectedOutName} from './expected-out-name';
 import {getOutputUrlFromMetadata} from './get-output-url-from-metadata';
@@ -18,7 +19,7 @@ export const findOutputFileInBucket = async ({
 	region: AwsRegion;
 	renderMetadata: RenderMetadata;
 	bucketName: string;
-	customCredentials: CustomCredentials | null;
+	customCredentials: CustomCredentials<AwsRegion> | null;
 }): Promise<OutputFileMetadata | null> => {
 	if (!renderMetadata) {
 		throw new Error('unexpectedly did not get renderMetadata');

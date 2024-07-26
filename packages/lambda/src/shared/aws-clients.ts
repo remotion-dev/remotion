@@ -5,8 +5,9 @@ import {S3Client} from '@aws-sdk/client-s3';
 import {ServiceQuotasClient} from '@aws-sdk/client-service-quotas';
 import {STSClient} from '@aws-sdk/client-sts';
 import {fromIni} from '@aws-sdk/credential-providers';
-import type {AwsRegion, CustomCredentials} from '@remotion/serverless/client';
+import type {CustomCredentials} from '@remotion/serverless/client';
 import {random} from 'remotion/no-react';
+import type {AwsRegion} from '../regions';
 import {checkCredentials} from './check-credentials';
 import {MAX_FUNCTIONS_PER_RENDER} from './constants';
 import {isInsideLambda} from './is-in-lambda';
@@ -100,7 +101,7 @@ const getCredentialsHash = ({
 	service,
 }: {
 	region: AwsRegion;
-	customCredentials: CustomCredentials | null;
+	customCredentials: CustomCredentials<AwsRegion> | null;
 	service: keyof ServiceMapping;
 }): string => {
 	const hashComponents: {[key: string]: unknown} = {};
@@ -158,7 +159,7 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 }: {
 	region: AwsRegion;
 	service: T;
-	customCredentials: CustomCredentials | null;
+	customCredentials: CustomCredentials<AwsRegion> | null;
 }): ServiceMapping[T] => {
 	const Client = (() => {
 		if (service === 'cloudwatch') {
@@ -252,7 +253,7 @@ export const getCloudWatchLogsClient = (
 
 export const getS3Client = (
 	region: AwsRegion,
-	customCredentials: CustomCredentials | null,
+	customCredentials: CustomCredentials<AwsRegion> | null,
 ): S3Client => {
 	return getServiceClient({
 		region: customCredentials?.region ?? region,

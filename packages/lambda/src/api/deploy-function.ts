@@ -1,9 +1,9 @@
 import type {LogLevel} from '@remotion/renderer';
 import {NoReactAPIs} from '@remotion/renderer/pure';
-import type {AwsRegion} from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import {getFunctions} from '../api/get-functions';
+import type {AwsRegion} from '../regions';
 import {
 	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,

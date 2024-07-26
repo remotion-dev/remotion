@@ -1,5 +1,5 @@
-import type {AwsRegion} from '@remotion/serverless/client';
 import {lambdaLs} from '../functions/helpers/io';
+import type {AwsRegion} from '../regions';
 import {getSitesKey} from '../shared/constants';
 import {getAccountId} from '../shared/get-account-id';
 import {makeS3ServeUrl} from '../shared/make-s3-url';
