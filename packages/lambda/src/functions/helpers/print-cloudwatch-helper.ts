@@ -1,9 +1,9 @@
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {LambdaRoutines} from '@remotion/serverless/client';
+import type {ServerlessRoutines} from '@remotion/serverless/client';
 
 export const printCloudwatchHelper = (
-	type: LambdaRoutines,
+	type: ServerlessRoutines,
 	data: Record<string, string | boolean>,
 	logLevel: LogLevel,
 ) => {

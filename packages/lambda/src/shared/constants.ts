@@ -94,14 +94,6 @@ export const customOutName = (
 	};
 };
 
-export const inputPropsKey = (hash: string) => {
-	return `input-props/${hash}.json`;
-};
-
-export const resolvedPropsKey = (hash: string) => {
-	return `resolved-props/${hash}.json`;
-};
-
 export const RENDERER_PATH_TOKEN = 'remotion-bucket';
 export const CONCAT_FOLDER_TOKEN = 'remotion-concat';
 export const REMOTION_CONCATED_TOKEN = 'remotion-concated-token';

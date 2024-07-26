@@ -1,6 +1,6 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import type {LambdaPayload} from '@remotion/serverless/client';
-import {LambdaRoutines} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
 import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
 import {getLambdaClient} from '../shared/aws-clients';
@@ -20,7 +20,7 @@ type Options = {
 };
 
 export const startHandler = async (params: LambdaPayload, options: Options) => {
-	if (params.type !== LambdaRoutines.start) {
+	if (params.type !== ServerlessRoutines.start) {
 		throw new TypeError('Expected type start');
 	}
 
@@ -71,7 +71,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 	});
 
 	const payload: LambdaPayload = {
-		type: LambdaRoutines.launch,
+		type: ServerlessRoutines.launch,
 		framesPerLambda: params.framesPerLambda,
 		composition: params.composition,
 		serveUrl: realServeUrl,

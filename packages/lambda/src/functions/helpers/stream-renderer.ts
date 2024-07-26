@@ -1,7 +1,7 @@
 import type {EmittedArtifact, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {LambdaPayload} from '@remotion/serverless/client';
-import {LambdaRoutines} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless/client';
 import {writeFileSync} from 'fs';
 import {join} from 'path';
 import {callLambdaWithStreaming} from '../../shared/call-lambda';
@@ -37,7 +37,7 @@ const streamRenderer = ({
 	logLevel: LogLevel;
 	onArtifact: (asset: EmittedArtifact) => {alreadyExisted: boolean};
 }) => {
-	if (payload.type !== LambdaRoutines.renderer) {
+	if (payload.type !== ServerlessRoutines.renderer) {
 		throw new Error('Expected renderer type');
 	}
 
@@ -160,7 +160,7 @@ const streamRenderer = ({
 			retriesRemaining: 1,
 			region: getCurrentRegionInFunction(),
 			timeoutInTest: 12000,
-			type: LambdaRoutines.renderer,
+			type: ServerlessRoutines.renderer,
 			receivedStreamingPayload,
 		})
 			.then(() => {
@@ -195,7 +195,7 @@ export const streamRendererFunctionWithRetry = async ({
 	logLevel: LogLevel;
 	onArtifact: (asset: EmittedArtifact) => {alreadyExisted: boolean};
 }): Promise<unknown> => {
-	if (payload.type !== LambdaRoutines.renderer) {
+	if (payload.type !== ServerlessRoutines.renderer) {
 		throw new Error('Expected renderer type');
 	}
 

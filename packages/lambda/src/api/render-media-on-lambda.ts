@@ -17,7 +17,7 @@ import type {
 	Privacy,
 	WebhookOption,
 } from '@remotion/serverless/client';
-import {LambdaRoutines} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless/client';
 import {callLambda} from '../shared/call-lambda';
 import {
 	getCloudwatchMethodUrl,
@@ -87,7 +87,7 @@ export const internalRenderMediaOnLambdaRaw = async (
 	try {
 		const res = await callLambda({
 			functionName,
-			type: LambdaRoutines.start,
+			type: ServerlessRoutines.start,
 			payload: await makeLambdaRenderMediaPayload(input),
 			region,
 			timeoutInTest: 120000,
@@ -106,7 +106,7 @@ export const internalRenderMediaOnLambdaRaw = async (
 			cloudWatchMainLogs: getCloudwatchMethodUrl({
 				renderId: res.renderId,
 				functionName,
-				method: LambdaRoutines.launch,
+				method: ServerlessRoutines.launch,
 				region,
 				rendererFunctionName: rendererFunctionName ?? null,
 			}),

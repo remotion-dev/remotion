@@ -1,7 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
 import {infoHandler} from '@remotion/serverless';
 import type {LambdaPayload} from '@remotion/serverless/client';
-import {LambdaRoutines} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless/client';
 import {COMMAND_NOT_FOUND} from '../shared/constants';
 import {compositionsHandler} from './compositions';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
@@ -57,11 +57,11 @@ const innerHandler = async ({
 	setWarm();
 
 	const currentUserId = context.invokedFunctionArn.split(':')[4];
-	if (params.type === LambdaRoutines.still) {
+	if (params.type === ServerlessRoutines.still) {
 		validateDeleteAfter(params.deleteAfter);
 		const renderId = generateRandomHashWithLifeCycleRule(params.deleteAfter);
 		printCloudwatchHelper(
-			LambdaRoutines.still,
+			ServerlessRoutines.still,
 			{
 				renderId,
 				inputProps: JSON.stringify(params.inputProps),
@@ -118,9 +118,9 @@ const innerHandler = async ({
 		return;
 	}
 
-	if (params.type === LambdaRoutines.start) {
+	if (params.type === ServerlessRoutines.start) {
 		printCloudwatchHelper(
-			LambdaRoutines.start,
+			ServerlessRoutines.start,
 			{
 				inputProps: JSON.stringify(params.inputProps),
 				isWarm,
@@ -138,9 +138,9 @@ const innerHandler = async ({
 		return;
 	}
 
-	if (params.type === LambdaRoutines.launch) {
+	if (params.type === ServerlessRoutines.launch) {
 		printCloudwatchHelper(
-			LambdaRoutines.launch,
+			ServerlessRoutines.launch,
 			{
 				renderId: params.renderId,
 				inputProps: JSON.stringify(params.inputProps),
@@ -159,9 +159,9 @@ const innerHandler = async ({
 		return;
 	}
 
-	if (params.type === LambdaRoutines.status) {
+	if (params.type === ServerlessRoutines.status) {
 		printCloudwatchHelper(
-			LambdaRoutines.status,
+			ServerlessRoutines.status,
 			{
 				renderId: params.renderId,
 				isWarm,
@@ -179,9 +179,9 @@ const innerHandler = async ({
 		return;
 	}
 
-	if (params.type === LambdaRoutines.renderer) {
+	if (params.type === ServerlessRoutines.renderer) {
 		printCloudwatchHelper(
-			LambdaRoutines.renderer,
+			ServerlessRoutines.renderer,
 			{
 				renderId: params.renderId,
 				chunk: String(params.chunk),
@@ -234,9 +234,9 @@ const innerHandler = async ({
 		return;
 	}
 
-	if (params.type === LambdaRoutines.info) {
+	if (params.type === ServerlessRoutines.info) {
 		printCloudwatchHelper(
-			LambdaRoutines.info,
+			ServerlessRoutines.info,
 			{
 				isWarm,
 			},
@@ -249,9 +249,9 @@ const innerHandler = async ({
 		return;
 	}
 
-	if (params.type === LambdaRoutines.compositions) {
+	if (params.type === ServerlessRoutines.compositions) {
 		printCloudwatchHelper(
-			LambdaRoutines.compositions,
+			ServerlessRoutines.compositions,
 			{
 				isWarm,
 			},

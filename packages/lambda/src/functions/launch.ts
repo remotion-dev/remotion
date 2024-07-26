@@ -2,7 +2,7 @@
 import type {EmittedArtifact, LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {LambdaPayload} from '@remotion/serverless/client';
-import {LambdaRoutines} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless/client';
 import {existsSync, mkdirSync, rmSync} from 'fs';
 import {join} from 'path';
 import {VERSION} from 'remotion/version';
@@ -66,7 +66,7 @@ const innerLaunchHandler = async ({
 	overallProgress: OverallProgressHelper;
 	registerCleanupTask: (cleanupTask: CleanupTask) => void;
 }): Promise<PostRenderData> => {
-	if (params.type !== LambdaRoutines.launch) {
+	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
 
@@ -224,7 +224,7 @@ const innerLaunchHandler = async ({
 
 	const lambdaPayloads = chunks.map((chunkPayload) => {
 		const payload: LambdaPayload = {
-			type: LambdaRoutines.renderer,
+			type: ServerlessRoutines.renderer,
 			frameRange: chunkPayload,
 			serveUrl: params.serveUrl,
 			chunk: sortedChunks.indexOf(chunkPayload),
@@ -471,7 +471,7 @@ export const launchHandler = async (
 ): Promise<{
 	type: 'success';
 }> => {
-	if (params.type !== LambdaRoutines.launch) {
+	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
 

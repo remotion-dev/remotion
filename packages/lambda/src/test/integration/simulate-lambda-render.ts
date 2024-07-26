@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import {LambdaRoutines} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless/client';
 import path from 'path';
 import {VERSION} from 'remotion/version';
 import {makeLambdaRenderMediaPayload} from '../../api/make-lambda-payload';
@@ -14,7 +14,7 @@ const waitUntilDone = async (bucketName: string, renderId: string) => {
 	// eslint-disable-next-line no-constant-condition
 	while (true) {
 		const progress = await callLambda({
-			type: LambdaRoutines.status,
+			type: ServerlessRoutines.status,
 			payload: {
 				bucketName,
 				renderId,
@@ -59,7 +59,7 @@ export const simulateLambdaRender = async (
 	});
 
 	const res = await callLambda({
-		type: LambdaRoutines.start,
+		type: ServerlessRoutines.start,
 		payload: await makeLambdaRenderMediaPayload(
 			renderMediaOnLambdaOptionalToRequired({
 				...input,

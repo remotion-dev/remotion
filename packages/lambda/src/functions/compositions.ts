@@ -1,6 +1,6 @@
 import {RenderInternals} from '@remotion/renderer';
 import type {LambdaPayload} from '@remotion/serverless/client';
-import {LambdaRoutines} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
 import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
 import {decompressInputProps} from '../shared/compress-props';
@@ -19,7 +19,7 @@ export const compositionsHandler = async (
 	lambdaParams: LambdaPayload,
 	options: Options,
 ) => {
-	if (lambdaParams.type !== LambdaRoutines.compositions) {
+	if (lambdaParams.type !== ServerlessRoutines.compositions) {
 		throw new TypeError('Expected info compositions');
 	}
 

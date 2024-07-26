@@ -10,7 +10,7 @@ import {
 import type {
 	AwsRegion,
 	LambdaPayloads,
-	LambdaRoutines,
+	ServerlessRoutines,
 } from '@remotion/serverless/client';
 import {makeStreamer} from '@remotion/streaming';
 import type {OrError} from '../functions';
@@ -28,7 +28,7 @@ import type {LambdaReturnValues} from './return-values';
 
 const INVALID_JSON_MESSAGE = 'Cannot parse Lambda response as JSON';
 
-type Options<T extends LambdaRoutines> = {
+type Options<T extends ServerlessRoutines> = {
 	functionName: string;
 	type: T;
 	payload: Omit<LambdaPayloads[T], 'type'>;
@@ -45,7 +45,7 @@ const parseJsonOrThrowSource = (data: Uint8Array, type: string) => {
 	}
 };
 
-export const callLambda = async <T extends LambdaRoutines>(
+export const callLambda = async <T extends ServerlessRoutines>(
 	options: Options<T> & {},
 ): Promise<LambdaReturnValues[T]> => {
 	// Do not remove this await
@@ -59,7 +59,7 @@ export const callLambda = async <T extends LambdaRoutines>(
 	return res;
 };
 
-export const callLambdaWithStreaming = async <T extends LambdaRoutines>(
+export const callLambdaWithStreaming = async <T extends ServerlessRoutines>(
 	options: Options<T> & {
 		receivedStreamingPayload: OnMessage;
 		retriesRemaining: number;
@@ -94,7 +94,7 @@ export const callLambdaWithStreaming = async <T extends LambdaRoutines>(
 	}
 };
 
-const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
+const callLambdaWithoutRetry = async <T extends ServerlessRoutines>({
 	functionName,
 	type,
 	payload,
@@ -162,7 +162,9 @@ const invokeStreamOrTimeout = async ({
 	return res;
 };
 
-const callLambdaWithStreamingWithoutRetry = async <T extends LambdaRoutines>({
+const callLambdaWithStreamingWithoutRetry = async <
+	T extends ServerlessRoutines,
+>({
 	functionName,
 	type,
 	payload,

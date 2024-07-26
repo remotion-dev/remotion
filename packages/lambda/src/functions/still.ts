@@ -1,7 +1,7 @@
 import type {EmittedArtifact, StillImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {LambdaPayload} from '@remotion/serverless/client';
-import {LambdaRoutines} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless/client';
 import fs from 'node:fs';
 import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
@@ -56,7 +56,7 @@ const innerStillHandler = async ({
 	onStream,
 	timeoutInMilliseconds,
 }: Options) => {
-	if (lambdaParams.type !== LambdaRoutines.still) {
+	if (lambdaParams.type !== ServerlessRoutines.still) {
 		throw new TypeError('Expected still type');
 	}
 
@@ -364,7 +364,7 @@ export const stillHandler = async (
 > => {
 	const {params} = options;
 
-	if (params.type !== LambdaRoutines.still) {
+	if (params.type !== ServerlessRoutines.still) {
 		throw new Error('Params must be renderer');
 	}
 
@@ -417,7 +417,7 @@ export const stillHandler = async (
 		};
 	} finally {
 		forgetBrowserEventLoop(
-			options.params.type === LambdaRoutines.still
+			options.params.type === ServerlessRoutines.still
 				? options.params.logLevel
 				: 'error',
 		);

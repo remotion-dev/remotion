@@ -6,7 +6,7 @@ import type {
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {LambdaPayload} from '@remotion/serverless/client';
-import {LambdaRoutines} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless/client';
 import fs from 'node:fs';
 import path from 'node:path';
 import {VERSION} from 'remotion/version';
@@ -50,7 +50,7 @@ const renderHandler = async ({
 	logs: BrowserLog[];
 	onStream: OnStream;
 }): Promise<{}> => {
-	if (params.type !== LambdaRoutines.renderer) {
+	if (params.type !== ServerlessRoutines.renderer) {
 		throw new Error('Params must be renderer');
 	}
 
@@ -394,7 +394,7 @@ export const rendererHandler = async (
 ): Promise<{
 	type: 'success';
 }> => {
-	if (params.type !== LambdaRoutines.renderer) {
+	if (params.type !== ServerlessRoutines.renderer) {
 		throw new Error('Params must be renderer');
 	}
 

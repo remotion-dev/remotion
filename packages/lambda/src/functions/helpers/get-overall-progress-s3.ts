@@ -1,6 +1,6 @@
+import {streamToString} from '@remotion/serverless';
 import type {AwsRegion} from '../../client';
 import {overallProgressKey} from '../../shared/constants';
-import {streamToString} from '../../shared/stream-to-string';
 import {lambdaReadFile} from './io';
 import type {OverallRenderProgress} from './overall-render-progress';
 

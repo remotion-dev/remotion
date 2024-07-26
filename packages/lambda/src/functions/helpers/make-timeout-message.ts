@@ -1,4 +1,4 @@
-import {LambdaRoutines} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless/client';
 import type {RenderMetadata} from '../../defaults';
 import {DOCS_URL} from '../../shared/docs-url';
 import {
@@ -75,7 +75,7 @@ export const makeTimeoutMessage = ({
 	const cloudWatchLaunchUrl = getCloudwatchMethodUrl({
 		renderId,
 		functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
-		method: LambdaRoutines.launch,
+		method: ServerlessRoutines.launch,
 		region: getCurrentRegionInFunction(),
 		rendererFunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
 	});

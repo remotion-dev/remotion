@@ -1,9 +1,9 @@
 import {VERSION} from 'remotion/version';
 import type {LambdaPayload} from './constants';
-import {LambdaRoutines} from './constants';
+import {ServerlessRoutines} from './constants';
 
 export const infoHandler = (lambdaParams: LambdaPayload) => {
-	if (lambdaParams.type !== LambdaRoutines.info) {
+	if (lambdaParams.type !== ServerlessRoutines.info) {
 		throw new TypeError('Expected info type');
 	}
 

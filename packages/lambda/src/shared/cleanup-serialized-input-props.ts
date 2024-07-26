@@ -1,7 +1,10 @@
-import type {SerializedInputProps} from '@remotion/serverless/client';
+import {
+	inputPropsKey,
+	resolvedPropsKey,
+	type SerializedInputProps,
+} from '@remotion/serverless/client';
 import type {AwsRegion} from '../client';
 import {lambdaDeleteFile} from '../functions/helpers/io';
-import {inputPropsKey, resolvedPropsKey} from './constants';
 
 export const cleanupSerializedInputProps = async ({
 	serialized,

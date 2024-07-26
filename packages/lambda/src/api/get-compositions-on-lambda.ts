@@ -1,6 +1,6 @@
 import type {ChromiumOptions, ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import {LambdaRoutines} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless/client';
 import type {VideoConfig} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../client';
@@ -70,7 +70,7 @@ export const getCompositionsOnLambda = async ({
 	try {
 		const res = await callLambda({
 			functionName,
-			type: LambdaRoutines.compositions,
+			type: ServerlessRoutines.compositions,
 			payload: {
 				chromiumOptions: chromiumOptions ?? {},
 				serveUrl,

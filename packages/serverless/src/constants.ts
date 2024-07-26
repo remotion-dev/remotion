@@ -24,7 +24,7 @@ export const expiryDays = {
 
 export type DeleteAfter = keyof typeof expiryDays;
 
-export enum LambdaRoutines {
+export enum ServerlessRoutines {
 	info = 'info',
 	start = 'start',
 	launch = 'launch',
@@ -104,7 +104,7 @@ export type WebhookOption = Prettify<
 >;
 
 export type LambdaStatusPayload = {
-	type: LambdaRoutines.status;
+	type: ServerlessRoutines.status;
 	bucketName: string;
 	renderId: string;
 	version: string;
@@ -114,7 +114,7 @@ export type LambdaStatusPayload = {
 
 export type LambdaStartPayload = {
 	rendererFunctionName: string | null;
-	type: LambdaRoutines.start;
+	type: ServerlessRoutines.start;
 	serveUrl: string;
 	composition: string;
 	framesPerLambda: number | null;
@@ -159,13 +159,13 @@ export type LambdaStartPayload = {
 
 export type LambdaPayloads = {
 	info: {
-		type: LambdaRoutines.info;
+		type: ServerlessRoutines.info;
 		logLevel: LogLevel;
 	};
 	start: LambdaStartPayload;
 	launch: {
 		rendererFunctionName: string | null;
-		type: LambdaRoutines.launch;
+		type: ServerlessRoutines.launch;
 		serveUrl: string;
 		composition: string;
 		framesPerLambda: number | null;
@@ -210,7 +210,7 @@ export type LambdaPayloads = {
 	status: LambdaStatusPayload;
 	renderer: {
 		concurrencyPerLambda: number;
-		type: LambdaRoutines.renderer;
+		type: ServerlessRoutines.renderer;
 		serveUrl: string;
 		frameRange: [number, number];
 		chunk: number;
@@ -256,7 +256,7 @@ export type LambdaPayloads = {
 		progressEveryNthFrame: number;
 	};
 	still: {
-		type: LambdaRoutines.still;
+		type: ServerlessRoutines.still;
 		serveUrl: string;
 		composition: string;
 		inputProps: SerializedInputProps;
@@ -282,7 +282,7 @@ export type LambdaPayloads = {
 		streamed: boolean;
 	};
 	compositions: {
-		type: LambdaRoutines.compositions;
+		type: ServerlessRoutines.compositions;
 		version: string;
 		chromiumOptions: ChromiumOptions;
 		logLevel: LogLevel;
@@ -295,4 +295,4 @@ export type LambdaPayloads = {
 	};
 };
 
-export type LambdaPayload = LambdaPayloads[LambdaRoutines];
+export type LambdaPayload = LambdaPayloads[ServerlessRoutines];

@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import {LambdaRoutines} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless/client';
 import {afterAll, expect, test} from 'vitest';
 import {callLambda} from '../../../shared/call-lambda';
 
@@ -12,7 +12,7 @@ test('Should fail when using an incompatible version', async () => {
 
 	try {
 		const aha = await callLambda({
-			type: LambdaRoutines.launch,
+			type: ServerlessRoutines.launch,
 			payload: {
 				serveUrl: 'https://competent-mccarthy-56f7c9.netlify.app/',
 				chromiumOptions: {},

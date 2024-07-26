@@ -21,7 +21,7 @@ import type {
 	Privacy,
 	WebhookOption,
 } from '@remotion/serverless/client';
-import {LambdaRoutines} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion, DeleteAfter} from '../client';
 import {
@@ -185,7 +185,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		forceWidth: forceWidth ?? null,
 		bucketName: bucketName ?? null,
 		audioCodec: audioCodec ?? null,
-		type: LambdaRoutines.start,
+		type: ServerlessRoutines.start,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		deleteAfter: deleteAfter ?? null,
 		colorSpace: colorSpace ?? null,
@@ -200,7 +200,7 @@ export const getRenderProgressPayload = ({
 	logLevel,
 }: GetRenderProgressInput): LambdaStatusPayload => {
 	return {
-		type: LambdaRoutines.status,
+		type: ServerlessRoutines.status,
 		bucketName,
 		renderId,
 		version: VERSION,
@@ -233,7 +233,7 @@ export const makeLambdaRenderStillPayload = async ({
 	offthreadVideoCacheSizeInBytes,
 	deleteAfter,
 }: RenderStillOnLambdaNonNullInput): Promise<
-	LambdaPayloads[LambdaRoutines.still]
+	LambdaPayloads[ServerlessRoutines.still]
 > => {
 	if (quality) {
 		throw new Error(
@@ -274,7 +274,7 @@ export const makeLambdaRenderStillPayload = async ({
 		bucketName: forceBucketName,
 		offthreadVideoCacheSizeInBytes,
 		deleteAfter,
-		type: LambdaRoutines.still,
+		type: ServerlessRoutines.still,
 		streamed: true,
 	};
 };
