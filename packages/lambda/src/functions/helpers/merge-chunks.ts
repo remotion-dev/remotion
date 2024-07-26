@@ -15,7 +15,6 @@ import {concatVideos} from './concat-videos';
 import {createPostRenderData} from './create-post-render-data';
 import {getOutputUrlFromMetadata} from './get-output-url-from-metadata';
 import {inspectErrors} from './inspect-errors';
-import {lambdaWriteFile} from './io';
 import type {OverallProgressHelper} from './overall-render-progress';
 import {timer} from './timer';
 
@@ -82,23 +81,23 @@ export const mergeChunksAndFinishRender = async <
 
 	const outputSize = fs.statSync(outfile).size;
 
-	const writeToS3 = timer(
-		`Writing to S3 (${outputSize} bytes)`,
+	const writeToBucket = timer(
+		`Writing to bucket (${outputSize} bytes)`,
 		options.logLevel,
 	);
 
-	await lambdaWriteFile({
+	await options.providerSpecifics.writeFile({
 		bucketName: options.renderBucketName,
 		key: options.key,
 		body: fs.createReadStream(outfile),
-		region: options.providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
+		region: options.providerSpecifics.getCurrentRegionInFunction(),
 		privacy: options.privacy,
 		expectedBucketOwner: options.expectedBucketOwner,
 		downloadBehavior: options.downloadBehavior,
 		customCredentials: options.customCredentials,
 	});
 
-	writeToS3.end();
+	writeToBucket.end();
 
 	const errorExplanations = inspectErrors({
 		errors: options.overallProgress.get().errors,

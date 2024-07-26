@@ -38,7 +38,6 @@ import {
 } from './helpers/expected-out-name';
 import {formatCostsInfo} from './helpers/format-costs-info';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
-import {lambdaWriteFile} from './helpers/io';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
 import type {ReceivedArtifact} from './helpers/overall-render-progress';
 import {makeInitialOverallRenderProgress} from './helpers/overall-render-progress';
@@ -188,11 +187,11 @@ const innerStillHandler = async <Region extends string>({
 	const still = makeInitialOverallRenderProgress(timeoutInMilliseconds);
 	still.renderMetadata = renderMetadata;
 
-	await lambdaWriteFile({
+	await providerSpecifics.writeFile({
 		bucketName,
 		key: overallProgressKey(renderId),
 		body: JSON.stringify(still),
-		region: providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
+		region: providerSpecifics.getCurrentRegionInFunction(),
 		privacy: 'private',
 		expectedBucketOwner,
 		downloadBehavior: null,
@@ -229,16 +228,17 @@ const innerStillHandler = async <Region extends string>({
 			{indent: false, logLevel: lambdaParams.logLevel},
 			'Writing artifact ' + artifact.filename + ' to S3',
 		);
-		lambdaWriteFile({
-			bucketName: renderBucketName,
-			key: s3Key,
-			body: artifact.content,
-			region: region as AwsRegion,
-			privacy: lambdaParams.privacy,
-			expectedBucketOwner,
-			downloadBehavior: lambdaParams.downloadBehavior,
-			customCredentials,
-		})
+		providerSpecifics
+			.writeFile({
+				bucketName: renderBucketName,
+				key: s3Key,
+				body: artifact.content,
+				region,
+				privacy: lambdaParams.privacy,
+				expectedBucketOwner,
+				downloadBehavior: lambdaParams.downloadBehavior,
+				customCredentials,
+			})
 			.then(() => {
 				RenderInternals.Log.info(
 					{indent: false, logLevel: lambdaParams.logLevel},
@@ -295,13 +295,13 @@ const innerStillHandler = async <Region extends string>({
 
 	const {size} = await fs.promises.stat(outputPath);
 
-	await lambdaWriteFile({
+	await providerSpecifics.writeFile({
 		bucketName: renderBucketName,
 		key,
 		privacy: lambdaParams.privacy,
 		body: fs.createReadStream(outputPath),
 		expectedBucketOwner,
-		region: providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
+		region: providerSpecifics.getCurrentRegionInFunction(),
 		downloadBehavior: lambdaParams.downloadBehavior,
 		customCredentials,
 	});

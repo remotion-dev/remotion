@@ -10,7 +10,6 @@ import type {AwsRegion} from '../regions';
 import {getLambdaClient} from '../shared/aws-clients';
 import {overallProgressKey} from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
-import {lambdaWriteFile} from './helpers/io';
 import {
 	generateRandomHashWithLifeCycleRule,
 	validateDeleteAfter,
@@ -66,10 +65,10 @@ export const startHandler = async <Region extends string>(
 		providerSpecifics,
 	);
 
-	const initialFile = lambdaWriteFile({
+	const initialFile = providerSpecifics.writeFile({
 		bucketName,
 		downloadBehavior: null,
-		region: region as AwsRegion,
+		region,
 		body: JSON.stringify(
 			makeInitialOverallRenderProgress(
 				options.timeoutInMilliseconds + Date.now(),

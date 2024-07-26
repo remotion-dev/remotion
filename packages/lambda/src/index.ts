@@ -64,7 +64,6 @@ import type {
 } from './api/render-still-on-lambda';
 import {renderStillOnLambda as deprecatedRenderStillOnLambda} from './api/render-still-on-lambda';
 import {validateWebhookSignature} from './api/validate-webhook-signature';
-import type {LambdaLSInput, LambdaLsReturnType} from './functions/helpers/io';
 import type {
 	EnhancedErrorInfo,
 	LambdaErrorInfo,
@@ -148,8 +147,6 @@ export type {
 	GetSitesInput,
 	GetSitesOutput,
 	LambdaErrorInfo,
-	LambdaLSInput,
-	LambdaLsReturnType,
 	RenderMediaOnLambdaInput,
 	RenderMediaOnLambdaOutput,
 	RenderProgress,

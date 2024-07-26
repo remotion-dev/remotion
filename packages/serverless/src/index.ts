@@ -3,4 +3,4 @@ export {
 	getBrowserInstance,
 } from './get-browser-instance';
 export {infoHandler} from './info';
-export {ProviderSpecifics} from './provider-implementation';
+export {ProviderSpecifics, WriteFileInput} from './provider-implementation';

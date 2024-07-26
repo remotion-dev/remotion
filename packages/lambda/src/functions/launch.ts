@@ -3,10 +3,7 @@ import type {EmittedArtifact, LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {forgetBrowserEventLoop, getBrowserInstance} from '@remotion/serverless';
-import type {
-	CustomCredentials,
-	ServerlessPayload,
-} from '@remotion/serverless/client';
+import type {ServerlessPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {existsSync, mkdirSync, rmSync} from 'fs';
 import {join} from 'path';
@@ -40,7 +37,6 @@ import {bestFramesPerLambdaParam} from './helpers/best-frames-per-lambda-param';
 import {cleanupProps} from './helpers/cleanup-props';
 import {getExpectedOutName} from './helpers/expected-out-name';
 import {findOutputFileInBucket} from './helpers/find-output-file-in-bucket';
-import {lambdaWriteFile} from './helpers/io';
 import {mergeChunksAndFinishRender} from './helpers/merge-chunks';
 import type {OverallProgressHelper} from './helpers/overall-render-progress';
 import {makeOverallRenderProgress} from './helpers/overall-render-progress';
@@ -335,11 +331,11 @@ const innerLaunchHandler = async <Region extends string>({
 		);
 		const output = await findOutputFileInBucket({
 			bucketName: params.bucketName,
-			customCredentials: customCredentials as CustomCredentials<AwsRegion>,
+			customCredentials,
 			renderMetadata,
-			region: providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
-			currentRegion:
-				providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
+			region: providerSpecifics.getCurrentRegionInFunction(),
+			currentRegion: providerSpecifics.getCurrentRegionInFunction(),
+			providerSpecifics,
 		});
 		if (output) {
 			throw new TypeError(
@@ -380,16 +376,17 @@ const innerLaunchHandler = async <Region extends string>({
 			{indent: false, logLevel: params.logLevel},
 			'Writing artifact ' + artifact.filename + ' to S3',
 		);
-		lambdaWriteFile({
-			bucketName: renderBucketName,
-			key: s3Key,
-			body: artifact.content,
-			region: region as AwsRegion,
-			privacy: params.privacy,
-			expectedBucketOwner: options.expectedBucketOwner,
-			downloadBehavior: params.downloadBehavior,
-			customCredentials,
-		})
+		providerSpecifics
+			.writeFile({
+				bucketName: renderBucketName,
+				key: s3Key,
+				body: artifact.content,
+				region,
+				privacy: params.privacy,
+				expectedBucketOwner: options.expectedBucketOwner,
+				downloadBehavior: params.downloadBehavior,
+				customCredentials,
+			})
 			.then(() => {
 				RenderInternals.Log.info(
 					{indent: false, logLevel: params.logLevel},
@@ -632,9 +629,10 @@ export const launchHandler = async <Region extends string>(
 		renderId: params.renderId,
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
-		region: providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
+		region: providerSpecifics.getCurrentRegionInFunction(),
 		timeoutTimestamp: options.getRemainingTimeInMillis() + Date.now(),
 		logLevel: params.logLevel,
+		providerSpecifics,
 	});
 
 	try {

@@ -7,8 +7,6 @@ import {
 	type SerializedInputProps,
 } from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
-import type {AwsRegion} from '../client';
-import {lambdaWriteFile} from '../functions/helpers/io';
 import {MAX_WEBHOOK_CUSTOM_DATA_SIZE} from './validate-webhook';
 
 type PropsType = 'input-props' | 'resolved-props';
@@ -92,10 +90,10 @@ export const compressInputProps = async <Region extends string>({
 				})
 			).bucketName;
 
-		await lambdaWriteFile({
+		await providerSpecifics.writeFile({
 			body: stringifiedInputProps,
 			bucketName,
-			region: region as AwsRegion,
+			region,
 			customCredentials: null,
 			downloadBehavior: null,
 			expectedBucketOwner: null,

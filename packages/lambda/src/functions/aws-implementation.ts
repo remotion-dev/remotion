@@ -3,8 +3,10 @@ import {bucketExistsInRegionImplementation} from '../api/bucket-exists';
 import {createBucket} from '../api/create-bucket';
 import {getRemotionBuckets} from '../api/get-buckets';
 import {lambdaDeleteFileImplementation} from '../io/delete-file';
+import {lambdaHeadFileImplementation} from '../io/head-file';
 import {lambdaLsImplementation} from '../io/list-objects';
 import {lambdaReadFileImplementation} from '../io/read-file';
+import {lambdaWriteFileImplementation} from '../io/write-file';
 import type {AwsRegion} from '../regions';
 import {applyLifeCyleOperation} from '../shared/lifecycle-rules';
 import {randomHashImplementation} from '../shared/random-hash';
@@ -36,4 +38,6 @@ export const awsImplementation: ProviderSpecifics<AwsRegion> = {
 	bucketExists: bucketExistsInRegionImplementation,
 	randomHash: randomHashImplementation,
 	readFile: lambdaReadFileImplementation,
+	writeFile: lambdaWriteFileImplementation,
+	headFile: lambdaHeadFileImplementation,
 };

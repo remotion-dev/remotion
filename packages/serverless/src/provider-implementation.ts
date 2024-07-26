@@ -1,5 +1,5 @@
 import type {Readable} from 'stream';
-import type {CustomCredentials} from './constants';
+import type {CustomCredentials, DownloadBehavior, Privacy} from './constants';
 
 export type BucketWithLocation<Region extends string> = {
 	name: string;
@@ -59,6 +59,37 @@ type ReadFile<Region extends string> = (params: {
 	expectedBucketOwner: string;
 }) => Promise<Readable>;
 
+export type WriteFileInput<Region extends string> = {
+	bucketName: string;
+	key: string;
+	body: Readable | string | Uint8Array;
+	region: Region;
+	privacy: Privacy;
+	expectedBucketOwner: string | null;
+	downloadBehavior: DownloadBehavior | null;
+	customCredentials: CustomCredentials<Region> | null;
+};
+
+type WriteFile<Region extends string> = (
+	params: WriteFileInput<Region>,
+) => Promise<void>;
+
+type HeadFileInput<Region extends string> = {
+	bucketName: string;
+	key: string;
+	region: Region;
+	customCredentials: CustomCredentials<Region> | null;
+};
+
+type HeadFileOutput = {
+	LastModified?: Date | undefined;
+	ContentLength?: number | undefined;
+};
+
+type HeadFile<Region extends string> = (
+	params: HeadFileInput<Region>,
+) => Promise<HeadFileOutput>;
+
 type RandomHash = () => string;
 
 export type ProviderSpecifics<Region extends string> = {
@@ -73,4 +104,6 @@ export type ProviderSpecifics<Region extends string> = {
 	bucketExists: BucketExists<Region>;
 	randomHash: RandomHash;
 	readFile: ReadFile<Region>;
+	writeFile: WriteFile<Region>;
+	headFile: HeadFile<Region>;
 };

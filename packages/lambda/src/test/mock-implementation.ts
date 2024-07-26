@@ -8,6 +8,7 @@ import {
 	mockBucketExists,
 	mockDeleteS3File,
 	readMockS3File,
+	writeMockS3File,
 } from './mocks/mock-store';
 
 export const mockImplementation: ProviderSpecifics<AwsRegion> = {
@@ -76,5 +77,32 @@ export const mockImplementation: ProviderSpecifics<AwsRegion> = {
 		}
 
 		return Promise.resolve(file.content);
+	},
+	writeFile: ({body, bucketName, key, privacy, region}) => {
+		writeMockS3File({
+			body: body as string,
+			bucketName,
+			key,
+			privacy,
+			region,
+		});
+		return Promise.resolve(undefined);
+	},
+	headFile: ({bucketName, key, region}) => {
+		const read = readMockS3File({
+			bucketName,
+			key,
+			region,
+		});
+		if (!read) {
+			const err = new Error('File not found');
+			err.name = 'NotFound';
+			throw err;
+		}
+
+		return Promise.resolve({
+			ContentLength: read.content.toString().length,
+			LastModified: new Date(),
+		});
 	},
 };

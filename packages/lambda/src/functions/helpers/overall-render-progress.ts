@@ -1,11 +1,10 @@
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {AwsRegion} from '../../client';
+import type {ProviderSpecifics} from '@remotion/serverless';
 import type {PostRenderData, RenderMetadata} from '../../shared/constants';
 import {overallProgressKey} from '../../shared/constants';
 import type {ParsedTiming} from '../../shared/parse-lambda-timings-key';
 import type {ChunkRetry} from './get-retry-stats';
-import {lambdaWriteFile} from './io';
 import type {LambdaErrorInfo} from './write-lambda-error';
 
 export type OverallRenderProgress = {
@@ -92,20 +91,22 @@ export const makeInitialOverallRenderProgress = (
 	};
 };
 
-export const makeOverallRenderProgress = ({
+export const makeOverallRenderProgress = <Region extends string>({
 	renderId,
 	bucketName,
 	expectedBucketOwner,
 	region,
 	timeoutTimestamp,
 	logLevel,
+	providerSpecifics,
 }: {
 	renderId: string;
 	bucketName: string;
 	expectedBucketOwner: string;
-	region: AwsRegion;
+	region: Region;
 	timeoutTimestamp: number;
 	logLevel: LogLevel;
+	providerSpecifics: ProviderSpecifics<Region>;
 }): OverallProgressHelper => {
 	let framesRendered: number[] = [];
 	let framesEncoded: number[] = [];
@@ -138,16 +139,17 @@ export const makeOverallRenderProgress = ({
 		const toWrite = JSON.stringify(getCurrentProgress());
 
 		const start = Date.now();
-		currentUploadPromise = lambdaWriteFile({
-			body: toWrite,
-			bucketName,
-			customCredentials: null,
-			downloadBehavior: null,
-			expectedBucketOwner,
-			key: overallProgressKey(renderId),
-			privacy: 'private',
-			region,
-		})
+		currentUploadPromise = providerSpecifics
+			.writeFile({
+				body: toWrite,
+				bucketName,
+				customCredentials: null,
+				downloadBehavior: null,
+				expectedBucketOwner,
+				key: overallProgressKey(renderId),
+				privacy: 'private',
+				region,
+			})
 			.then(() => {
 				// By default, upload is way too fast (~20 requests per second)
 				// Space out the requests a bit
