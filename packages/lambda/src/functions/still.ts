@@ -1,5 +1,6 @@
 import type {EmittedArtifact, StillImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {ProviderSpecifics} from '@remotion/serverless';
 import type {LambdaPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import fs from 'node:fs';
@@ -30,7 +31,6 @@ import {
 	forgetBrowserEventLoop,
 	getBrowserInstance,
 } from './helpers/get-browser-instance';
-import {executablePath} from './helpers/get-chromium-executable-path';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {lambdaWriteFile} from './helpers/io';
@@ -47,6 +47,7 @@ type Options = {
 	expectedBucketOwner: string;
 	onStream: OnStream;
 	timeoutInMilliseconds: number;
+	providerSpecifics: ProviderSpecifics;
 };
 
 const innerStillHandler = async ({
@@ -55,6 +56,7 @@ const innerStillHandler = async ({
 	renderId,
 	onStream,
 	timeoutInMilliseconds,
+	providerSpecifics,
 }: Options) => {
 	if (lambdaParams.type !== ServerlessRoutines.still) {
 		throw new TypeError('Expected still type');
@@ -87,6 +89,7 @@ const innerStillHandler = async ({
 		lambdaParams.logLevel,
 		false,
 		lambdaParams.chromiumOptions,
+		providerSpecifics,
 	);
 	const bucketNamePromise =
 		lambdaParams.bucketName ??
@@ -147,6 +150,7 @@ const innerStillHandler = async ({
 			throw new Error('Should not download a browser in Lambda');
 		},
 		onServeUrlVisited: () => undefined,
+		providerSpecifics,
 	});
 
 	const renderMetadata: RenderMetadata = {
@@ -262,7 +266,7 @@ const innerStillHandler = async ({
 		chromiumOptions: lambdaParams.chromiumOptions,
 		scale: lambdaParams.scale,
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
-		browserExecutable: executablePath(),
+		browserExecutable: providerSpecifics.getChromiumPath(),
 		cancelSignal: null,
 		indent: false,
 		onBrowserLog: null,

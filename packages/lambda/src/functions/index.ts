@@ -1,4 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
+import type {ProviderSpecifics} from '@remotion/serverless';
 import {infoHandler} from '@remotion/serverless';
 import type {LambdaPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
@@ -31,10 +32,12 @@ const innerHandler = async ({
 	params,
 	responseWriter,
 	context,
+	providerSpecifics,
 }: {
 	params: LambdaPayload;
 	responseWriter: ResponseStreamWriter;
 	context: RequestContext;
+	providerSpecifics: ProviderSpecifics;
 }): Promise<void> => {
 	setCurrentRequestId(context.awsRequestId);
 	process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA = 'true';
@@ -102,6 +105,7 @@ const innerHandler = async ({
 					renderId,
 					onStream,
 					timeoutInMilliseconds,
+					providerSpecifics,
 				})
 					.then((r) => {
 						resolve(r);
@@ -149,10 +153,14 @@ const innerHandler = async ({
 			params.logLevel,
 		);
 
-		const response = await launchHandler(params, {
-			expectedBucketOwner: currentUserId,
-			getRemainingTimeInMillis: context.getRemainingTimeInMillis,
-		});
+		const response = await launchHandler(
+			params,
+			{
+				expectedBucketOwner: currentUserId,
+				getRemainingTimeInMillis: context.getRemainingTimeInMillis,
+			},
+			providerSpecifics,
+		);
 
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));
 		await responseWriter.end();
@@ -195,13 +203,13 @@ const innerHandler = async ({
 		);
 
 		await new Promise((resolve, reject) => {
-			rendererHandler(
+			rendererHandler({
 				params,
-				{
+				options: {
 					expectedBucketOwner: currentUserId,
 					isWarm,
 				},
-				(payload) => {
+				onStream: (payload) => {
 					const message = makeStreamPayload({
 						message: payload,
 					});
@@ -219,8 +227,9 @@ const innerHandler = async ({
 							});
 					});
 				},
-				context,
-			)
+				requestContext: context,
+				providerSpecifics,
+			})
 				.then((res) => {
 					resolve(res);
 				})
@@ -258,9 +267,13 @@ const innerHandler = async ({
 			params.logLevel,
 		);
 
-		const response = await compositionsHandler(params, {
-			expectedBucketOwner: currentUserId,
-		});
+		const response = await compositionsHandler(
+			params,
+			{
+				expectedBucketOwner: currentUserId,
+			},
+			providerSpecifics,
+		);
 
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));
 		await responseWriter.end();
@@ -283,6 +296,7 @@ export const routine = async (
 	params: LambdaPayload,
 	responseStream: ResponseStream,
 	context: RequestContext,
+	providerSpecifics: ProviderSpecifics,
 ): Promise<void> => {
 	const responseWriter = streamWriter(responseStream);
 
@@ -291,6 +305,7 @@ export const routine = async (
 			params,
 			responseWriter,
 			context,
+			providerSpecifics,
 		});
 	} catch (err) {
 		const res: OrError<0> = {

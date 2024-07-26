@@ -1,4 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
+import type {ProviderSpecifics} from '@remotion/serverless';
 import type {LambdaPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
@@ -18,6 +19,7 @@ type Options = {
 export const compositionsHandler = async (
 	lambdaParams: LambdaPayload,
 	options: Options,
+	providerSpecifics: ProviderSpecifics,
 ) => {
 	if (lambdaParams.type !== ServerlessRoutines.compositions) {
 		throw new TypeError('Expected info compositions');
@@ -42,6 +44,7 @@ export const compositionsHandler = async (
 			lambdaParams.logLevel,
 			false,
 			lambdaParams.chromiumOptions,
+			providerSpecifics,
 		);
 		const bucketNamePromise = lambdaParams.bucketName
 			? Promise.resolve(lambdaParams.bucketName)

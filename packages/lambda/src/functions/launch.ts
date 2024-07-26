@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type {EmittedArtifact, LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {ProviderSpecifics} from '@remotion/serverless';
 import type {LambdaPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {existsSync, mkdirSync, rmSync} from 'fs';
@@ -59,12 +60,14 @@ const innerLaunchHandler = async ({
 	options,
 	overallProgress,
 	registerCleanupTask,
+	providerSpecifics,
 }: {
 	functionName: string;
 	params: LambdaPayload;
 	options: Options;
 	overallProgress: OverallProgressHelper;
 	registerCleanupTask: (cleanupTask: CleanupTask) => void;
+	providerSpecifics: ProviderSpecifics;
 }): Promise<PostRenderData> => {
 	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
@@ -76,6 +79,7 @@ const innerLaunchHandler = async ({
 		params.logLevel,
 		false,
 		params.chromiumOptions,
+		providerSpecifics,
 	);
 
 	const inputPropsPromise = decompressInputProps({
@@ -124,6 +128,7 @@ const innerLaunchHandler = async ({
 		onServeUrlVisited: () => {
 			overallProgress.setServeUrlOpened(Date.now());
 		},
+		providerSpecifics,
 	});
 	overallProgress.setCompositionValidated(Date.now());
 	RenderInternals.Log.info(
@@ -468,6 +473,7 @@ type CleanupTask = () => Promise<unknown>;
 export const launchHandler = async (
 	params: LambdaPayload,
 	options: Options,
+	providerSpecifics: ProviderSpecifics,
 ): Promise<{
 	type: 'success';
 }> => {
@@ -631,6 +637,7 @@ export const launchHandler = async (
 			options,
 			overallProgress,
 			registerCleanupTask,
+			providerSpecifics,
 		});
 		clearTimeout(webhookDueToTimeout);
 

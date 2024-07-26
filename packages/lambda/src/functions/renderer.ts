@@ -5,6 +5,7 @@ import type {
 	OnArtifact,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {ProviderSpecifics} from '@remotion/serverless';
 import type {LambdaPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import fs from 'node:fs';
@@ -24,7 +25,6 @@ import {
 	forgetBrowserEventLoop,
 	getBrowserInstance,
 } from './helpers/get-browser-instance';
-import {executablePath} from './helpers/get-chromium-executable-path';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {startLeakDetection} from './helpers/leak-detection';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
@@ -44,11 +44,13 @@ const renderHandler = async ({
 	options,
 	logs,
 	onStream,
+	platformImplementation,
 }: {
 	params: LambdaPayload;
 	options: Options;
 	logs: BrowserLog[];
 	onStream: OnStream;
+	platformImplementation: ProviderSpecifics;
 }): Promise<{}> => {
 	if (params.type !== ServerlessRoutines.renderer) {
 		throw new Error('Params must be renderer');
@@ -80,6 +82,7 @@ const renderHandler = async ({
 		params.logLevel,
 		false,
 		params.chromiumOptions,
+		platformImplementation,
 	);
 
 	const outputPath = RenderInternals.tmpDir('remotion-render-');
@@ -290,7 +293,7 @@ const renderHandler = async ({
 			encodingMaxRate: params.encodingMaxRate,
 			audioCodec,
 			preferLossless: params.preferLossless,
-			browserExecutable: executablePath(),
+			browserExecutable: platformImplementation.getChromiumPath(),
 			cancelSignal: undefined,
 			disallowParallelEncoding: false,
 			ffmpegOverride: ({args}) => args,
@@ -386,12 +389,19 @@ const renderHandler = async ({
 
 const ENABLE_SLOW_LEAK_DETECTION = false;
 
-export const rendererHandler = async (
-	params: LambdaPayload,
-	options: Options,
-	onStream: OnStream,
-	requestContext: RequestContext,
-): Promise<{
+export const rendererHandler = async ({
+	onStream,
+	options,
+	params,
+	providerSpecifics,
+	requestContext,
+}: {
+	params: LambdaPayload;
+	options: Options;
+	onStream: OnStream;
+	requestContext: RequestContext;
+	providerSpecifics: ProviderSpecifics;
+}): Promise<{
 	type: 'success';
 }> => {
 	if (params.type !== ServerlessRoutines.renderer) {
@@ -403,7 +413,13 @@ export const rendererHandler = async (
 	const leakDetection = enableNodeIntrospection(ENABLE_SLOW_LEAK_DETECTION);
 
 	try {
-		await renderHandler({params, options, logs, onStream});
+		await renderHandler({
+			params,
+			options,
+			logs,
+			onStream,
+			platformImplementation: providerSpecifics,
+		});
 		return {
 			type: 'success',
 		};

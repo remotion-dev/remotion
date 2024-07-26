@@ -6,9 +6,9 @@ import type {
 	RemotionServer,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {ProviderSpecifics} from '@remotion/serverless';
 import type {Await} from '@remotion/serverless/client';
 import type {VideoConfig} from 'remotion/no-react';
-import {executablePath} from './get-chromium-executable-path';
 
 type ValidateCompositionOptions = {
 	serveUrl: string;
@@ -26,6 +26,7 @@ type ValidateCompositionOptions = {
 	offthreadVideoCacheSizeInBytes: number | null;
 	onBrowserDownload: OnBrowserDownload;
 	onServeUrlVisited: () => void;
+	providerSpecifics: ProviderSpecifics;
 };
 
 export const validateComposition = async ({
@@ -44,6 +45,7 @@ export const validateComposition = async ({
 	offthreadVideoCacheSizeInBytes,
 	onBrowserDownload,
 	onServeUrlVisited,
+	providerSpecifics,
 }: ValidateCompositionOptions): Promise<VideoConfig> => {
 	const {metadata: comp} = await RenderInternals.internalSelectComposition({
 		id: composition,
@@ -53,7 +55,7 @@ export const validateComposition = async ({
 		timeoutInMilliseconds,
 		chromiumOptions,
 		port,
-		browserExecutable: executablePath(),
+		browserExecutable: providerSpecifics.getChromiumPath(),
 		serveUrl,
 		logLevel,
 		indent: false,

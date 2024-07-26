@@ -1,8 +1,8 @@
 import type {ChromiumOptions, LogLevel, openBrowser} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {ProviderSpecifics} from '@remotion/serverless';
 import type {Await} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
-import {executablePath} from './get-chromium-executable-path';
 
 type LaunchedBrowser = {
 	instance: Await<ReturnType<typeof openBrowser>>;
@@ -56,6 +56,7 @@ export const getBrowserInstance = async (
 	logLevel: LogLevel,
 	indent: boolean,
 	chromiumOptions: ChromiumOptions,
+	providerSpecifics: ProviderSpecifics,
 ): Promise<LaunchedBrowser> => {
 	const actualChromiumOptions: ChromiumOptions = {
 		...chromiumOptions,
@@ -90,7 +91,7 @@ export const getBrowserInstance = async (
 		);
 		launching = true;
 
-		const execPath = executablePath();
+		const execPath = providerSpecifics.getChromiumPath();
 
 		const instance = await RenderInternals.internalOpenBrowser({
 			browser: 'chrome',
@@ -136,7 +137,12 @@ export const getBrowserInstance = async (
 		_browserInstance.instance.rememberEventLoop();
 		await _browserInstance.instance.close(true, logLevel, indent);
 		_browserInstance = null;
-		return getBrowserInstance(logLevel, indent, chromiumOptions);
+		return getBrowserInstance(
+			logLevel,
+			indent,
+			chromiumOptions,
+			providerSpecifics,
+		);
 	}
 
 	RenderInternals.Log.info(
