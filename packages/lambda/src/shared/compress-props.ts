@@ -1,7 +1,7 @@
-import {streamToString} from '@remotion/serverless';
 import {
 	inputPropsKey,
 	resolvedPropsKey,
+	streamToString,
 	type SerializedInputProps,
 } from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';

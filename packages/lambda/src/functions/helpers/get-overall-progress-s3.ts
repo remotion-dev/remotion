@@ -1,4 +1,4 @@
-import {streamToString} from '@remotion/serverless';
+import {streamToString} from '@remotion/serverless/client';
 import type {AwsRegion} from '../../client';
 import {overallProgressKey} from '../../shared/constants';
 import {lambdaReadFile} from './io';

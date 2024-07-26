@@ -18,3 +18,4 @@ export {
 	type WebhookOption,
 } from './constants';
 export {inputPropsKey, resolvedPropsKey} from './input-props-keys';
+export {streamToString} from './stream-to-string';
