@@ -31,6 +31,7 @@
 		"@remotion/bundler": "workspace:*",
 		"@remotion/cli": "workspace:*",
 		"@remotion/renderer": "workspace:*",
+		"@remotion/studio-server": "workspace:*",
 		"@remotion/streaming": "workspace:*",
 		"mime-types": "2.1.34",
 		"remotion": "workspace:*",
