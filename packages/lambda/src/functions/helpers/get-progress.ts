@@ -2,7 +2,6 @@ import {RenderInternals} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
 import type {CustomCredentials} from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
-import type {AwsRegion} from '../../regions';
 import type {CleanupInfo, RenderProgress} from '../../shared/constants';
 import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../../shared/constants';
 import {truthy} from '../../shared/truthy';
@@ -30,7 +29,7 @@ export const getProgress = async <Region extends string>({
 	bucketName: string;
 	renderId: string;
 	expectedBucketOwner: string;
-	region: AwsRegion;
+	region: Region;
 	memorySizeInMb: number;
 	timeoutInMilliseconds: number;
 	customCredentials: CustomCredentials<Region> | null;
@@ -41,6 +40,7 @@ export const getProgress = async <Region extends string>({
 		bucketName,
 		expectedBucketOwner,
 		region,
+		providerSpecifics,
 	});
 
 	if (overallProgress.postRenderData) {

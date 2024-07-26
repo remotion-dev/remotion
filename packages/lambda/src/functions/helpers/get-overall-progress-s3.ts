@@ -1,22 +1,23 @@
+import type {ProviderSpecifics} from '@remotion/serverless';
 import {streamToString} from '@remotion/serverless/client';
-import type {AwsRegion} from '../../client';
 import {overallProgressKey} from '../../shared/constants';
-import {lambdaReadFile} from './io';
 import type {OverallRenderProgress} from './overall-render-progress';
 
-export const getOverallProgressS3 = async ({
+export const getOverallProgressS3 = async <Region extends string>({
 	renderId,
 	bucketName,
 	expectedBucketOwner,
 	region,
+	providerSpecifics,
 }: {
 	renderId: string;
 	expectedBucketOwner: string;
 	bucketName: string;
-	region: AwsRegion;
+	region: Region;
+	providerSpecifics: ProviderSpecifics<Region>;
 }) => {
 	try {
-		const Body = await lambdaReadFile({
+		const Body = await providerSpecifics.readFile({
 			bucketName,
 			key: overallProgressKey(renderId),
 			expectedBucketOwner,

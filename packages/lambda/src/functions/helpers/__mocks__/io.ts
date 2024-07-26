@@ -1,28 +1,8 @@
-import {Readable} from 'stream';
-
 import type {
 	lambdaHeadCommand as headOriginal,
-	lambdaReadFile as readOriginal,
 	lambdaWriteFile as writeOriginal,
 } from '../../../functions/helpers/io';
 import {readMockS3File, writeMockS3File} from '../../../test/mocks/mock-store';
-
-export const lambdaReadFile: typeof readOriginal = ({
-	bucketName,
-	key,
-	region,
-}) => {
-	const file = readMockS3File({region, key, bucketName});
-	if (!file) {
-		throw new Error(`no file ${key}`);
-	}
-
-	if (typeof file.content === 'string') {
-		return Promise.resolve(Readable.from(Buffer.from(file.content)));
-	}
-
-	return Promise.resolve(file.content);
-};
 
 export const lambdaWriteFile: typeof writeOriginal = ({
 	body,

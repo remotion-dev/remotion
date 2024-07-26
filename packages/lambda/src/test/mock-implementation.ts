@@ -1,4 +1,5 @@
 import type {ProviderSpecifics} from '@remotion/serverless';
+import {Readable} from 'stream';
 import type {AwsRegion} from '../regions';
 import {
 	addMockBucket,
@@ -6,6 +7,7 @@ import {
 	getS3FilesInBucket,
 	mockBucketExists,
 	mockDeleteS3File,
+	readMockS3File,
 } from './mocks/mock-store';
 
 export const mockImplementation: ProviderSpecifics<AwsRegion> = {
@@ -63,4 +65,16 @@ export const mockImplementation: ProviderSpecifics<AwsRegion> = {
 		return Promise.resolve(mockBucketExists(bucketName, region));
 	},
 	randomHash: () => 'abcdef',
+	readFile: ({bucketName, key, region}) => {
+		const file = readMockS3File({region, key, bucketName});
+		if (!file) {
+			throw new Error(`no file ${key}`);
+		}
+
+		if (typeof file.content === 'string') {
+			return Promise.resolve(Readable.from(Buffer.from(file.content)));
+		}
+
+		return Promise.resolve(file.content);
+	},
 };

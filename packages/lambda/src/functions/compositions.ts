@@ -61,6 +61,7 @@ export const compositionsHandler = async <Region extends string>(
 			region: providerSpecifics.getCurrentRegionInFunction(),
 			serialized: lambdaParams.inputProps,
 			propsType: 'input-props',
+			providerSpecifics,
 		});
 
 		const realServeUrl = convertToServeUrl({

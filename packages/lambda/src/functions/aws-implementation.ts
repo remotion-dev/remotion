@@ -4,6 +4,7 @@ import {createBucket} from '../api/create-bucket';
 import {getRemotionBuckets} from '../api/get-buckets';
 import {lambdaDeleteFileImplementation} from '../io/delete-file';
 import {lambdaLsImplementation} from '../io/list-objects';
+import {lambdaReadFileImplementation} from '../io/read-file';
 import type {AwsRegion} from '../regions';
 import {applyLifeCyleOperation} from '../shared/lifecycle-rules';
 import {randomHashImplementation} from '../shared/random-hash';
@@ -34,4 +35,5 @@ export const awsImplementation: ProviderSpecifics<AwsRegion> = {
 	deleteFile: lambdaDeleteFileImplementation,
 	bucketExists: bucketExistsInRegionImplementation,
 	randomHash: randomHashImplementation,
+	readFile: lambdaReadFileImplementation,
 };

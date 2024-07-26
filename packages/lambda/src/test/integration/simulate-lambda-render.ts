@@ -5,9 +5,9 @@ import {VERSION} from 'remotion/version';
 import {makeLambdaRenderMediaPayload} from '../../api/make-lambda-payload';
 import type {RenderMediaOnLambdaInput} from '../../api/render-media-on-lambda';
 import {renderMediaOnLambdaOptionalToRequired} from '../../api/render-media-on-lambda';
-import {lambdaReadFile} from '../../functions/helpers/io';
 import type {AwsRegion} from '../../regions';
 import {callLambda} from '../../shared/call-lambda';
+import {mockImplementation} from '../mock-implementation';
 
 const functionName = 'remotion-dev-render';
 
@@ -77,7 +77,7 @@ export const simulateLambdaRender = async (
 
 	const progress = await waitUntilDone(res.bucketName, res.renderId);
 
-	const file = await lambdaReadFile({
+	const file = await mockImplementation.readFile({
 		bucketName: progress.outBucket as string,
 		key: progress.outKey as string,
 		expectedBucketOwner: 'abc',

@@ -1,3 +1,4 @@
+import type {Readable} from 'stream';
 import type {CustomCredentials} from './constants';
 
 export type BucketWithLocation<Region extends string> = {
@@ -51,6 +52,13 @@ type BucketExists<Region extends string> = (params: {
 	expectedBucketOwner: string | null;
 }) => Promise<boolean>;
 
+type ReadFile<Region extends string> = (params: {
+	bucketName: string;
+	key: string;
+	region: Region;
+	expectedBucketOwner: string;
+}) => Promise<Readable>;
+
 type RandomHash = () => string;
 
 export type ProviderSpecifics<Region extends string> = {
@@ -64,4 +72,5 @@ export type ProviderSpecifics<Region extends string> = {
 	deleteFile: DeleteFile<Region>;
 	bucketExists: BucketExists<Region>;
 	randomHash: RandomHash;
+	readFile: ReadFile<Region>;
 };

@@ -61,11 +61,11 @@ const matchCommand = (
 	}
 
 	if (args[0] === RENDER_COMMAND) {
-		return renderCommand(args.slice(1), remotionRoot, logLevel);
+		return renderCommand(args.slice(1), remotionRoot, logLevel, implementation);
 	}
 
 	if (args[0] === STILL_COMMAND) {
-		return stillCommand(args.slice(1), remotionRoot, logLevel);
+		return stillCommand(args.slice(1), remotionRoot, logLevel, implementation);
 	}
 
 	if (args[0] === COMPOSITIONS_COMMAND) {

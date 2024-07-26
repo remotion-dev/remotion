@@ -28,6 +28,7 @@ export const internalDeleteRender = async (
 		expectedBucketOwner,
 		region: input.region,
 		renderId: input.renderId,
+		providerSpecifics: input.providerSpecifics,
 	});
 
 	// Render did not start yet

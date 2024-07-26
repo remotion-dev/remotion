@@ -3,10 +3,12 @@ import {ConfigInternals} from '@remotion/cli/config';
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
+import type {ProviderSpecifics} from '@remotion/serverless';
 import path from 'path';
 import {NoReactInternals} from 'remotion/no-react';
-import {downloadMedia} from '../../api/download-media';
+import {internalDownloadMedia} from '../../api/download-media';
 import {renderStillOnLambda} from '../../api/render-still-on-lambda';
+import type {AwsRegion} from '../../regions';
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
@@ -50,6 +52,7 @@ export const stillCommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
+	implementation: ProviderSpecifics<AwsRegion>,
 ) => {
 	const serveUrl = args[0];
 
@@ -296,12 +299,13 @@ export const stillCommand = async (
 	);
 
 	if (downloadName) {
-		const {outputPath, sizeInBytes} = await downloadMedia({
+		const {outputPath, sizeInBytes} = await internalDownloadMedia({
 			bucketName: res.bucketName,
 			outPath: downloadName,
 			region,
 			renderId: res.renderId,
 			logLevel,
+			providerSpecifics: implementation,
 		});
 		const relativePath = path.relative(process.cwd(), outputPath);
 		Log.info(

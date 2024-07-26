@@ -1,7 +1,9 @@
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {ProviderSpecifics} from '@remotion/serverless';
 import type {CustomCredentials} from '@remotion/serverless/client';
 import path from 'node:path';
+import {awsImplementation} from '../functions/aws-implementation';
 import {getExpectedOutName} from '../functions/helpers/expected-out-name';
 import {getOverallProgressS3} from '../functions/helpers/get-overall-progress-s3';
 import type {LambdaReadFileProgress} from '../functions/helpers/read-with-progress';
@@ -24,20 +26,10 @@ export type DownloadMediaOutput = {
 	sizeInBytes: number;
 };
 
-/**
- * @description Downloads a rendered video, audio or still to the disk of the machine this API is called from.
- * @see [Documentation](https://remotion.dev/docs/lambda/downloadmedia)
- * @param params.region The AWS region in which the media resides.
- * @param params.bucketName The `bucketName` that was specified during the render.
- * @param params.renderId The `renderId` that was obtained after triggering the render.
- * @param params.outPath Where to save the media.
- * @param params.onProgress Progress callback function - see docs for details.
- * @param params.customCredentials If the file was saved to a foreign cloud, pass credentials for reading from it.
- * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
- */
-
-export const downloadMedia = async (
-	input: DownloadMediaInput,
+export const internalDownloadMedia = async (
+	input: DownloadMediaInput & {
+		providerSpecifics: ProviderSpecifics<AwsRegion>;
+	},
 ): Promise<DownloadMediaOutput> => {
 	const expectedBucketOwner = await getAccountId({
 		region: input.region,
@@ -47,6 +39,7 @@ export const downloadMedia = async (
 		expectedBucketOwner,
 		region: input.region,
 		renderId: input.renderId,
+		providerSpecifics: input.providerSpecifics,
 	});
 
 	if (!overallProgress.renderMetadata) {
@@ -77,4 +70,25 @@ export const downloadMedia = async (
 		outputPath,
 		sizeInBytes,
 	};
+};
+
+/**
+ * @description Downloads a rendered video, audio or still to the disk of the machine this API is called from.
+ * @see [Documentation](https://remotion.dev/docs/lambda/downloadmedia)
+ * @param params.region The AWS region in which the media resides.
+ * @param params.bucketName The `bucketName` that was specified during the render.
+ * @param params.renderId The `renderId` that was obtained after triggering the render.
+ * @param params.outPath Where to save the media.
+ * @param params.onProgress Progress callback function - see docs for details.
+ * @param params.customCredentials If the file was saved to a foreign cloud, pass credentials for reading from it.
+ * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
+ */
+
+export const downloadMedia = (
+	input: DownloadMediaInput,
+): Promise<DownloadMediaOutput> => {
+	return internalDownloadMedia({
+		...input,
+		providerSpecifics: awsImplementation,
+	});
 };

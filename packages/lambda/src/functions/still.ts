@@ -117,6 +117,7 @@ const innerStillHandler = async <Region extends string>({
 		region,
 		serialized: lambdaParams.inputProps,
 		propsType: 'input-props',
+		providerSpecifics,
 	});
 
 	const serveUrl = convertToServeUrl({

@@ -1,9 +1,5 @@
 import type {_Object} from '@aws-sdk/client-s3';
-import {
-	GetObjectCommand,
-	HeadObjectCommand,
-	PutObjectCommand,
-} from '@aws-sdk/client-s3';
+import {HeadObjectCommand, PutObjectCommand} from '@aws-sdk/client-s3';
 import type {
 	CustomCredentials,
 	DownloadBehavior,
@@ -11,7 +7,6 @@ import type {
 } from '@remotion/serverless/client';
 import mimeTypes from 'mime-types';
 import type {ReadStream} from 'node:fs';
-import type {Readable} from 'stream';
 import type {AwsRegion} from '../../regions';
 import {getContentDispositionHeader} from '../../shared/content-disposition-header';
 import {getS3Client} from '../../shared/get-s3-client';
@@ -96,27 +91,6 @@ export const lambdaWriteFile = async <Region extends string>(
 			retries: remainingRetries - 1,
 		});
 	}
-};
-
-export const lambdaReadFile = async ({
-	bucketName,
-	key,
-	region,
-	expectedBucketOwner,
-}: {
-	bucketName: string;
-	key: string;
-	region: AwsRegion;
-	expectedBucketOwner: string;
-}): Promise<Readable> => {
-	const {Body} = await getS3Client(region, null).send(
-		new GetObjectCommand({
-			Bucket: bucketName,
-			Key: key,
-			ExpectedBucketOwner: expectedBucketOwner,
-		}),
-	);
-	return Body as Readable;
 };
 
 export const lambdaHeadCommand = async ({

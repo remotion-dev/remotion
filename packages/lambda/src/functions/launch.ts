@@ -88,6 +88,7 @@ const innerLaunchHandler = async <Region extends string>({
 		region: providerSpecifics.getCurrentRegionInFunction(),
 		serialized: params.inputProps,
 		propsType: 'input-props',
+		providerSpecifics,
 	});
 
 	const logOptions: LogOptions = {

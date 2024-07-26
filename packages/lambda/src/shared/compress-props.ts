@@ -8,7 +8,7 @@ import {
 } from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
 import type {AwsRegion} from '../client';
-import {lambdaReadFile, lambdaWriteFile} from '../functions/helpers/io';
+import {lambdaWriteFile} from '../functions/helpers/io';
 import {MAX_WEBHOOK_CUSTOM_DATA_SIZE} from './validate-webhook';
 
 type PropsType = 'input-props' | 'resolved-props';
@@ -122,23 +122,25 @@ export const decompressInputProps = async <Region extends string>({
 	bucketName,
 	expectedBucketOwner,
 	propsType,
+	providerSpecifics,
 }: {
 	serialized: SerializedInputProps;
 	region: Region;
 	bucketName: string;
 	expectedBucketOwner: string;
 	propsType: PropsType;
+	providerSpecifics: ProviderSpecifics<Region>;
 }): Promise<string> => {
 	if (serialized.type === 'payload') {
 		return serialized.payload;
 	}
 
 	try {
-		const response = await lambdaReadFile({
+		const response = await providerSpecifics.readFile({
 			bucketName,
 			expectedBucketOwner,
 			key: makeKey(propsType, serialized.hash),
-			region: region as AwsRegion,
+			region,
 		});
 
 		const body = await streamToString(response);

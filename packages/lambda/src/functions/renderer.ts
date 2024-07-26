@@ -64,6 +64,7 @@ const renderHandler = async <Region extends string>({
 		region: providerSpecifics.getCurrentRegionInFunction(),
 		serialized: params.inputProps,
 		propsType: 'input-props',
+		providerSpecifics,
 	});
 
 	const resolvedPropsPromise = decompressInputProps({
@@ -72,6 +73,7 @@ const renderHandler = async <Region extends string>({
 		region: providerSpecifics.getCurrentRegionInFunction(),
 		serialized: params.resolvedProps,
 		propsType: 'resolved-props',
+		providerSpecifics,
 	});
 
 	const browserInstance = await getBrowserInstance({
