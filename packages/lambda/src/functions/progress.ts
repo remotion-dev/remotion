@@ -1,19 +1,21 @@
+import type {ProviderSpecifics} from '@remotion/serverless';
 import type {ServerlessPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
+import type {AwsRegion} from '../regions';
 import type {RenderProgress} from '../shared/constants';
-import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getProgress} from './helpers/get-progress';
 
-type Options = {
+type Options<Region extends string> = {
 	expectedBucketOwner: string;
 	timeoutInMilliseconds: number;
 	retriesRemaining: number;
+	providerSpecifics: ProviderSpecifics<Region>;
 };
 
 export const progressHandler = async <Region extends string>(
 	lambdaParams: ServerlessPayload<Region>,
-	options: Options,
+	options: Options<Region>,
 ): Promise<RenderProgress> => {
 	if (lambdaParams.type !== ServerlessRoutines.status) {
 		throw new TypeError('Expected status type');
@@ -36,10 +38,12 @@ export const progressHandler = async <Region extends string>(
 			bucketName: lambdaParams.bucketName,
 			renderId: lambdaParams.renderId,
 			expectedBucketOwner: options.expectedBucketOwner,
-			region: getCurrentRegionInFunction(),
+			region:
+				options.providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
 			memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 			timeoutInMilliseconds: options.timeoutInMilliseconds,
 			customCredentials: lambdaParams.s3OutputProvider ?? null,
+			providerSpecifics: options.providerSpecifics,
 		});
 		return progress;
 	} catch (err) {
@@ -55,6 +59,7 @@ export const progressHandler = async <Region extends string>(
 				expectedBucketOwner: options.expectedBucketOwner,
 				timeoutInMilliseconds: options.timeoutInMilliseconds,
 				retriesRemaining: options.retriesRemaining - 1,
+				providerSpecifics: options.providerSpecifics,
 			});
 		}
 

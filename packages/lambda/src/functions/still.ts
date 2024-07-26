@@ -35,7 +35,6 @@ import {
 	getExpectedOutName,
 } from './helpers/expected-out-name';
 import {formatCostsInfo} from './helpers/format-costs-info';
-import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {lambdaWriteFile} from './helpers/io';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
@@ -108,7 +107,7 @@ const innerStillHandler = async <Region extends string>({
 
 	const outputPath = path.join(outputDir, 'output');
 
-	const region = getCurrentRegionInFunction();
+	const region = providerSpecifics.getCurrentRegionInFunction();
 	const bucketName = await bucketNamePromise;
 	const serializedInputPropsWithCustomSchema = await decompressInputProps({
 		bucketName,
@@ -120,7 +119,7 @@ const innerStillHandler = async <Region extends string>({
 
 	const serveUrl = convertToServeUrl({
 		urlOrId: lambdaParams.serveUrl,
-		region,
+		region: region as AwsRegion,
 		bucketName,
 	});
 
@@ -172,7 +171,7 @@ const innerStillHandler = async <Region extends string>({
 		lambdaVersion: VERSION,
 		framesPerLambda: 1,
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
-		region: getCurrentRegionInFunction(),
+		region: providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
 		renderId,
 		outName: lambdaParams.outName ?? undefined,
 		privacy: lambdaParams.privacy,
@@ -190,7 +189,7 @@ const innerStillHandler = async <Region extends string>({
 		bucketName,
 		key: overallProgressKey(renderId),
 		body: JSON.stringify(still),
-		region: getCurrentRegionInFunction(),
+		region: providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
 		privacy: 'private',
 		expectedBucketOwner,
 		downloadBehavior: null,
@@ -231,7 +230,7 @@ const innerStillHandler = async <Region extends string>({
 			bucketName: renderBucketName,
 			key: s3Key,
 			body: artifact.content,
-			region,
+			region: region as AwsRegion,
 			privacy: lambdaParams.privacy,
 			expectedBucketOwner,
 			downloadBehavior: lambdaParams.downloadBehavior,
@@ -299,7 +298,7 @@ const innerStillHandler = async <Region extends string>({
 		privacy: lambdaParams.privacy,
 		body: fs.createReadStream(outputPath),
 		expectedBucketOwner,
-		region: getCurrentRegionInFunction(),
+		region: providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
 		downloadBehavior: lambdaParams.downloadBehavior,
 		customCredentials,
 	});
@@ -307,7 +306,7 @@ const innerStillHandler = async <Region extends string>({
 	await Promise.all([
 		fs.promises.rm(outputPath, {recursive: true}),
 		cleanupSerializedInputProps({
-			region: getCurrentRegionInFunction(),
+			region: providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
 			serialized: lambdaParams.inputProps,
 		}),
 		server.closeServer(true),
@@ -316,7 +315,7 @@ const innerStillHandler = async <Region extends string>({
 	const estimatedPrice = estimatePrice({
 		durationInMilliseconds: Date.now() - start + 100,
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
-		region: getCurrentRegionInFunction(),
+		region: providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
 		lambdasInvoked: 1,
 		// We cannot determine the ephemeral storage size, so we
 		// overestimate the price, but will only have a miniscule effect (~0.2%)
@@ -327,6 +326,7 @@ const innerStillHandler = async <Region extends string>({
 		renderMetadata,
 		bucketName,
 		customCredentials as CustomCredentials<AwsRegion>,
+		providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
 	);
 
 	const payload: RenderStillLambdaResponsePayload = {

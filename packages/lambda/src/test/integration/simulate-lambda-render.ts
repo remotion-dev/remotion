@@ -6,6 +6,7 @@ import {makeLambdaRenderMediaPayload} from '../../api/make-lambda-payload';
 import type {RenderMediaOnLambdaInput} from '../../api/render-media-on-lambda';
 import {renderMediaOnLambdaOptionalToRequired} from '../../api/render-media-on-lambda';
 import {lambdaReadFile} from '../../functions/helpers/io';
+import type {AwsRegion} from '../../regions';
 import {callLambda} from '../../shared/call-lambda';
 
 const functionName = 'remotion-dev-render';
@@ -58,15 +59,17 @@ export const simulateLambdaRender = async (
 		forceIPv4: false,
 	});
 
-	const res = await callLambda({
+	const payload = await makeLambdaRenderMediaPayload(
+		renderMediaOnLambdaOptionalToRequired({
+			...input,
+			serveUrl: `http://localhost:${port}`,
+			functionName,
+		}),
+	);
+
+	const res = await callLambda<ServerlessRoutines.start, AwsRegion>({
 		type: ServerlessRoutines.start,
-		payload: await makeLambdaRenderMediaPayload(
-			renderMediaOnLambdaOptionalToRequired({
-				...input,
-				serveUrl: `http://localhost:${port}`,
-				functionName,
-			}),
-		),
+		payload,
 		functionName: 'remotion-dev-lambda',
 		region: 'eu-central-1',
 		timeoutInTest: 120000,

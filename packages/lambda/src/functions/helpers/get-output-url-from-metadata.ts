@@ -2,12 +2,12 @@ import type {CustomCredentials} from '@remotion/serverless/client';
 import type {RenderMetadata} from '../../defaults';
 import type {AwsRegion} from '../../regions';
 import {getExpectedOutName} from './expected-out-name';
-import {getCurrentRegionInFunction} from './get-current-region';
 
 export const getOutputUrlFromMetadata = (
 	renderMetadata: RenderMetadata,
 	bucketName: string,
 	customCredentials: CustomCredentials<AwsRegion> | null,
+	currentRegion: AwsRegion,
 ) => {
 	const {key, renderBucketName} = getExpectedOutName(
 		renderMetadata,
@@ -15,7 +15,7 @@ export const getOutputUrlFromMetadata = (
 		customCredentials,
 	);
 	return {
-		url: `https://s3.${getCurrentRegionInFunction()}.amazonaws.com/${renderBucketName}/${key}`,
+		url: `https://s3.${currentRegion}.amazonaws.com/${renderBucketName}/${key}`,
 		key,
 	};
 };

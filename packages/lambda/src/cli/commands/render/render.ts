@@ -10,9 +10,7 @@ import {getRenderProgress} from '../../../api/get-render-progress';
 import {internalRenderMediaOnLambdaRaw} from '../../../api/render-media-on-lambda';
 import type {EnhancedErrorInfo} from '../../../functions/helpers/write-lambda-error';
 
-import type {ProviderSpecifics} from '@remotion/serverless';
 import type {ServerlessCodec} from '@remotion/serverless/client';
-import type {AwsRegion} from '../../../regions';
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
@@ -60,7 +58,6 @@ export const renderCommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
-	providerSpecifics: ProviderSpecifics<AwsRegion>,
 ) => {
 	const serveUrl = args[0];
 	if (!serveUrl) {
@@ -270,63 +267,58 @@ export const renderCommand = async (
 
 	const webhookCustomData = getWebhookCustomData(logLevel);
 
-	const res = await internalRenderMediaOnLambdaRaw(
-		{
-			functionName,
-			serveUrl,
-			inputProps,
-			codec: codec as ServerlessCodec,
-			imageFormat,
-			crf: crf ?? undefined,
-			envVariables,
-			pixelFormat,
-			proResProfile,
-			jpegQuality,
-			region,
-			maxRetries,
-			composition,
-			framesPerLambda: framesPerLambda ?? null,
-			privacy,
-			logLevel,
-			frameRange: frameRange ?? null,
-			outName: parsedLambdaCli['out-name'] ?? null,
-			timeoutInMilliseconds,
-			chromiumOptions,
-			scale,
-			numberOfGifLoops,
-			everyNthFrame,
-			concurrencyPerLambda: parsedLambdaCli['concurrency-per-lambda'] ?? 1,
-			muted,
-			overwrite,
-			audioBitrate,
-			videoBitrate,
-			encodingBufferSize,
-			encodingMaxRate,
-			forceHeight: height,
-			forceWidth: width,
-			webhook: parsedLambdaCli.webhook
-				? {
-						url: parsedLambdaCli.webhook,
-						secret: parsedLambdaCli['webhook-secret'] ?? null,
-						customData: webhookCustomData,
-					}
-				: null,
-			rendererFunctionName: parsedLambdaCli['renderer-function-name'] ?? null,
-			forceBucketName: parsedLambdaCli['force-bucket-name'] ?? null,
-			audioCodec:
-				CliInternals.parsedCli[
-					BrowserSafeApis.options.audioCodecOption.cliFlag
-				],
-			deleteAfter: deleteAfter ?? null,
-			colorSpace,
-			downloadBehavior: {type: 'play-in-browser'},
-			offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
-			x264Preset: x264Preset ?? null,
-			preferLossless,
-			indent: false,
-		},
-		providerSpecifics,
-	);
+	const res = await internalRenderMediaOnLambdaRaw({
+		functionName,
+		serveUrl,
+		inputProps,
+		codec: codec as ServerlessCodec,
+		imageFormat,
+		crf: crf ?? undefined,
+		envVariables,
+		pixelFormat,
+		proResProfile,
+		jpegQuality,
+		region,
+		maxRetries,
+		composition,
+		framesPerLambda: framesPerLambda ?? null,
+		privacy,
+		logLevel,
+		frameRange: frameRange ?? null,
+		outName: parsedLambdaCli['out-name'] ?? null,
+		timeoutInMilliseconds,
+		chromiumOptions,
+		scale,
+		numberOfGifLoops,
+		everyNthFrame,
+		concurrencyPerLambda: parsedLambdaCli['concurrency-per-lambda'] ?? 1,
+		muted,
+		overwrite,
+		audioBitrate,
+		videoBitrate,
+		encodingBufferSize,
+		encodingMaxRate,
+		forceHeight: height,
+		forceWidth: width,
+		webhook: parsedLambdaCli.webhook
+			? {
+					url: parsedLambdaCli.webhook,
+					secret: parsedLambdaCli['webhook-secret'] ?? null,
+					customData: webhookCustomData,
+				}
+			: null,
+		rendererFunctionName: parsedLambdaCli['renderer-function-name'] ?? null,
+		forceBucketName: parsedLambdaCli['force-bucket-name'] ?? null,
+		audioCodec:
+			CliInternals.parsedCli[BrowserSafeApis.options.audioCodecOption.cliFlag],
+		deleteAfter: deleteAfter ?? null,
+		colorSpace,
+		downloadBehavior: {type: 'play-in-browser'},
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		x264Preset: x264Preset ?? null,
+		preferLossless,
+		indent: false,
+	});
 
 	const progressBar = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),

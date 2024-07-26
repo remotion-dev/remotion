@@ -15,11 +15,13 @@ export const findOutputFileInBucket = async ({
 	renderMetadata,
 	bucketName,
 	customCredentials,
+	currentRegion,
 }: {
 	region: AwsRegion;
 	renderMetadata: RenderMetadata;
 	bucketName: string;
 	customCredentials: CustomCredentials<AwsRegion> | null;
+	currentRegion: AwsRegion;
 }): Promise<OutputFileMetadata | null> => {
 	if (!renderMetadata) {
 		throw new Error('unexpectedly did not get renderMetadata');
@@ -43,6 +45,7 @@ export const findOutputFileInBucket = async ({
 				renderMetadata,
 				bucketName,
 				customCredentials,
+				currentRegion,
 			).url,
 		};
 	} catch (err) {

@@ -22,7 +22,6 @@ import {
 	canConcatAudioSeamlessly,
 	canConcatVideoSeamlessly,
 } from './helpers/can-concat-seamlessly';
-import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {startLeakDetection} from './helpers/leak-detection';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
 import type {RequestContext} from './helpers/request-context';
@@ -41,13 +40,13 @@ const renderHandler = async <Region extends string>({
 	options,
 	logs,
 	onStream,
-	platformImplementation: providerSpecifics,
+	providerSpecifics,
 }: {
 	params: ServerlessPayload<Region>;
 	options: Options;
 	logs: BrowserLog[];
 	onStream: OnStream;
-	platformImplementation: ProviderSpecifics<Region>;
+	providerSpecifics: ProviderSpecifics<Region>;
 }): Promise<{}> => {
 	if (params.type !== ServerlessRoutines.renderer) {
 		throw new Error('Params must be renderer');
@@ -62,7 +61,7 @@ const renderHandler = async <Region extends string>({
 	const inputPropsPromise = decompressInputProps({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
-		region: getCurrentRegionInFunction(),
+		region: providerSpecifics.getCurrentRegionInFunction(),
 		serialized: params.inputProps,
 		propsType: 'input-props',
 	});
@@ -70,7 +69,7 @@ const renderHandler = async <Region extends string>({
 	const resolvedPropsPromise = decompressInputProps({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
-		region: getCurrentRegionInFunction(),
+		region: providerSpecifics.getCurrentRegionInFunction(),
 		serialized: params.resolvedProps,
 		propsType: 'resolved-props',
 	});
@@ -415,7 +414,7 @@ export const rendererHandler = async <Region extends string>({
 			options,
 			logs,
 			onStream,
-			platformImplementation: providerSpecifics,
+			providerSpecifics,
 		});
 		return {
 			type: 'success',

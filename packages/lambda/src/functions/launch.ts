@@ -40,7 +40,6 @@ import {bestFramesPerLambdaParam} from './helpers/best-frames-per-lambda-param';
 import {cleanupProps} from './helpers/cleanup-props';
 import {getExpectedOutName} from './helpers/expected-out-name';
 import {findOutputFileInBucket} from './helpers/find-output-file-in-bucket';
-import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
 import {mergeChunksAndFinishRender} from './helpers/merge-chunks';
 import type {OverallProgressHelper} from './helpers/overall-render-progress';
@@ -86,7 +85,7 @@ const innerLaunchHandler = async <Region extends string>({
 	const inputPropsPromise = decompressInputProps({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
-		region: getCurrentRegionInFunction(),
+		region: providerSpecifics.getCurrentRegionInFunction(),
 		serialized: params.inputProps,
 		propsType: 'input-props',
 	});
@@ -220,6 +219,7 @@ const innerLaunchHandler = async <Region extends string>({
 		return cleanupProps({
 			serializedResolvedProps,
 			inputProps: params.inputProps,
+			providerSpecifics,
 		});
 	});
 
@@ -305,7 +305,7 @@ const innerLaunchHandler = async <Region extends string>({
 		lambdaVersion: VERSION,
 		framesPerLambda,
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
-		region: getCurrentRegionInFunction(),
+		region: providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
 		renderId: params.renderId,
 		outName: params.outName ?? undefined,
 		privacy: params.privacy,
@@ -336,11 +336,13 @@ const innerLaunchHandler = async <Region extends string>({
 			bucketName: params.bucketName,
 			customCredentials: customCredentials as CustomCredentials<AwsRegion>,
 			renderMetadata,
-			region: getCurrentRegionInFunction(),
+			region: providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
+			currentRegion:
+				providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
 		});
 		if (output) {
 			throw new TypeError(
-				`Output file "${key}" in bucket "${renderBucketName}" in region "${getCurrentRegionInFunction()}" already exists. Delete it before re-rendering, or set the 'overwrite' option in renderMediaOnLambda() to overwrite it."`,
+				`Output file "${key}" in bucket "${renderBucketName}" in region "${providerSpecifics.getCurrentRegionInFunction()}" already exists. Delete it before re-rendering, or set the 'overwrite' option in renderMediaOnLambda() to overwrite it."`,
 			);
 		}
 
@@ -369,7 +371,7 @@ const innerLaunchHandler = async <Region extends string>({
 			return {alreadyExisted: true};
 		}
 
-		const region = getCurrentRegionInFunction();
+		const region = providerSpecifics.getCurrentRegionInFunction();
 		const s3Key = artifactName(renderMetadata.renderId, artifact.filename);
 
 		const start = Date.now();
@@ -381,7 +383,7 @@ const innerLaunchHandler = async <Region extends string>({
 			bucketName: renderBucketName,
 			key: s3Key,
 			body: artifact.content,
-			region,
+			region: region as AwsRegion,
 			privacy: params.privacy,
 			expectedBucketOwner: options.expectedBucketOwner,
 			downloadBehavior: params.downloadBehavior,
@@ -433,6 +435,7 @@ const innerLaunchHandler = async <Region extends string>({
 				payload,
 				logLevel: params.logLevel,
 				onArtifact,
+				providerSpecifics,
 			});
 		}),
 	);
@@ -465,6 +468,7 @@ const innerLaunchHandler = async <Region extends string>({
 		files: files.sort(),
 		overallProgress,
 		startTime,
+		providerSpecifics,
 	});
 
 	return postRenderData;
@@ -627,7 +631,7 @@ export const launchHandler = async <Region extends string>(
 		renderId: params.renderId,
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
-		region: getCurrentRegionInFunction(),
+		region: providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
 		timeoutTimestamp: options.getRemainingTimeInMillis() + Date.now(),
 		logLevel: params.logLevel,
 	});

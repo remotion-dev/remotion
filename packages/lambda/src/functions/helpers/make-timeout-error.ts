@@ -1,23 +1,27 @@
+import type {ProviderSpecifics} from '@remotion/serverless';
 import type {RenderMetadata} from '../../defaults';
 import {makeTimeoutMessage} from './make-timeout-message';
 import type {EnhancedErrorInfo} from './write-lambda-error';
 
-export const makeTimeoutError = ({
+export const makeTimeoutError = <Region extends string>({
 	timeoutInMilliseconds,
 	missingChunks,
 	renderMetadata,
 	renderId,
+	providerSpecifics,
 }: {
 	timeoutInMilliseconds: number;
 	renderMetadata: RenderMetadata;
 	renderId: string;
 	missingChunks: number[];
+	providerSpecifics: ProviderSpecifics<Region>;
 }): EnhancedErrorInfo => {
 	const message = makeTimeoutMessage({
 		missingChunks,
 		renderMetadata,
 		timeoutInMilliseconds,
 		renderId,
+		providerSpecifics,
 	});
 
 	const error = new Error(message);

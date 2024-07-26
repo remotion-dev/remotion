@@ -3,7 +3,7 @@ import {createBucket} from '../api/create-bucket';
 import {getRemotionBuckets} from '../api/get-buckets';
 import type {AwsRegion} from '../regions';
 import {applyLifeCyleOperation} from '../shared/lifecycle-rules';
-import {getCurrentRegionInFunction} from './helpers/get-current-region';
+import {getCurrentRegionInFunctionImplementation} from './helpers/get-current-region';
 
 if (
 	/^AWS_Lambda_nodejs(?:18|20)[.]x$/.test(
@@ -21,7 +21,7 @@ export const awsImplementation: ProviderSpecifics<AwsRegion> = {
 	getChromiumPath() {
 		return '/opt/bin/chromium';
 	},
-	getCurrentRegionInFunction,
+	getCurrentRegionInFunction: getCurrentRegionInFunctionImplementation,
 	regionType: 'us-east-1',
 	getBuckets: getRemotionBuckets,
 	createBucket,

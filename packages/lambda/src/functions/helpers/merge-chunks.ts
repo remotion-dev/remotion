@@ -1,4 +1,5 @@
 import type {AudioCodec, LogLevel} from '@remotion/renderer';
+import type {ProviderSpecifics} from '@remotion/serverless';
 import type {
 	CustomCredentials,
 	DownloadBehavior,
@@ -12,7 +13,6 @@ import type {PostRenderData, RenderMetadata} from '../../shared/constants';
 import {cleanupProps} from './cleanup-props';
 import {concatVideos} from './concat-videos';
 import {createPostRenderData} from './create-post-render-data';
-import {getCurrentRegionInFunction} from './get-current-region';
 import {getOutputUrlFromMetadata} from './get-output-url-from-metadata';
 import {inspectErrors} from './inspect-errors';
 import {lambdaWriteFile} from './io';
@@ -49,6 +49,7 @@ export const mergeChunksAndFinishRender = async <
 	files: string[];
 	overallProgress: OverallProgressHelper;
 	startTime: number;
+	providerSpecifics: ProviderSpecifics<Region>;
 }): Promise<PostRenderData> => {
 	const onProgress = (framesEncoded: number) => {
 		options.overallProgress.setCombinedFrames(framesEncoded);
@@ -90,7 +91,7 @@ export const mergeChunksAndFinishRender = async <
 		bucketName: options.renderBucketName,
 		key: options.key,
 		body: fs.createReadStream(outfile),
-		region: getCurrentRegionInFunction(),
+		region: options.providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
 		privacy: options.privacy,
 		expectedBucketOwner: options.expectedBucketOwner,
 		downloadBehavior: options.downloadBehavior,
@@ -106,16 +107,18 @@ export const mergeChunksAndFinishRender = async <
 	const cleanupProm = cleanupProps({
 		inputProps: options.inputProps,
 		serializedResolvedProps: options.serializedResolvedProps,
+		providerSpecifics: options.providerSpecifics,
 	});
 
 	const {url: outputUrl} = getOutputUrlFromMetadata(
 		options.renderMetadata,
 		options.bucketName,
 		options.customCredentials as CustomCredentials<AwsRegion>,
+		options.providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
 	);
 
 	const postRenderData = createPostRenderData({
-		region: getCurrentRegionInFunction(),
+		region: options.providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		renderMetadata: options.renderMetadata,
 		errorExplanations,

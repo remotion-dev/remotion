@@ -8,7 +8,6 @@ import type {AwsRegion} from '../regions';
 import {getLambdaClient} from '../shared/aws-clients';
 import {overallProgressKey} from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
-import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
 import {
 	generateRandomHashWithLifeCycleRule,
@@ -123,7 +122,9 @@ export const startHandler = async <Region extends string>(
 	};
 
 	// Don't replace with callLambda(), we want to return before the render is snone
-	const result = await getLambdaClient(getCurrentRegionInFunction()).send(
+	const result = await getLambdaClient(
+		providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
+	).send(
 		new InvokeCommand({
 			FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
 			Payload: JSON.stringify(payload),

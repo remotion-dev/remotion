@@ -184,6 +184,7 @@ const innerHandler = async <Region extends string>({
 			expectedBucketOwner: currentUserId,
 			timeoutInMilliseconds,
 			retriesRemaining: 2,
+			providerSpecifics,
 		});
 
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));

@@ -6,12 +6,12 @@ import {
 import type {AwsRegion} from '../client';
 import {lambdaDeleteFile} from '../functions/helpers/io';
 
-export const cleanupSerializedInputProps = async ({
+export const cleanupSerializedInputProps = async <Region extends string>({
 	serialized,
 	region,
 }: {
 	serialized: SerializedInputProps;
-	region: AwsRegion;
+	region: Region;
 }): Promise<number> => {
 	if (serialized.type === 'payload') {
 		return 0;
@@ -21,19 +21,19 @@ export const cleanupSerializedInputProps = async ({
 	await lambdaDeleteFile({
 		bucketName: serialized.bucketName,
 		key: inputPropsKey(serialized.hash),
-		region,
+		region: region as AwsRegion,
 		customCredentials: null,
 	});
 
 	return Date.now() - time;
 };
 
-export const cleanupSerializedResolvedProps = async ({
+export const cleanupSerializedResolvedProps = async <Region extends string>({
 	serialized,
 	region,
 }: {
 	serialized: SerializedInputProps;
-	region: AwsRegion;
+	region: Region;
 }): Promise<number> => {
 	if (serialized.type === 'payload') {
 		return 0;
@@ -43,7 +43,7 @@ export const cleanupSerializedResolvedProps = async ({
 	await lambdaDeleteFile({
 		bucketName: serialized.bucketName,
 		key: resolvedPropsKey(serialized.hash),
-		region,
+		region: region as AwsRegion,
 		customCredentials: null,
 	});
 

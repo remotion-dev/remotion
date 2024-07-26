@@ -61,7 +61,7 @@ const matchCommand = (
 	}
 
 	if (args[0] === RENDER_COMMAND) {
-		return renderCommand(args.slice(1), remotionRoot, logLevel, implementation);
+		return renderCommand(args.slice(1), remotionRoot, logLevel);
 	}
 
 	if (args[0] === STILL_COMMAND) {

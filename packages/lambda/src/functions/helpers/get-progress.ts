@@ -1,4 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
+import type {ProviderSpecifics} from '@remotion/serverless';
 import type {CustomCredentials} from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
 import type {AwsRegion} from '../../regions';
@@ -24,6 +25,7 @@ export const getProgress = async <Region extends string>({
 	memorySizeInMb,
 	timeoutInMilliseconds,
 	customCredentials,
+	providerSpecifics,
 }: {
 	bucketName: string;
 	renderId: string;
@@ -32,6 +34,7 @@ export const getProgress = async <Region extends string>({
 	memorySizeInMb: number;
 	timeoutInMilliseconds: number;
 	customCredentials: CustomCredentials<Region> | null;
+	providerSpecifics: ProviderSpecifics<Region>;
 }): Promise<RenderProgress> => {
 	const overallProgress = await getOverallProgressS3({
 		renderId,
@@ -134,6 +137,7 @@ export const getProgress = async <Region extends string>({
 		// overestimate the price, but will only have a miniscule effect (~0.2%)
 		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
 		timings: overallProgress.timings ?? [],
+		providerSpecifics,
 	});
 
 	const {hasAudio, hasVideo} = renderMetadata
@@ -191,6 +195,7 @@ export const getProgress = async <Region extends string>({
 					renderMetadata,
 					renderId,
 					missingChunks: missingChunks ?? [],
+					providerSpecifics,
 				})
 			: null,
 		...errorExplanations,

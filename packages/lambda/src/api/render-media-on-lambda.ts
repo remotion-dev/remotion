@@ -9,7 +9,6 @@ import type {
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
-import type {ProviderSpecifics} from '@remotion/serverless';
 import type {
 	DownloadBehavior,
 	OutNameInput,
@@ -18,7 +17,6 @@ import type {
 	WebhookOption,
 } from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
-import {awsImplementation} from '../functions/aws-implementation';
 import type {AwsRegion} from '../regions';
 import {callLambda} from '../shared/call-lambda';
 import {
@@ -83,7 +81,6 @@ export type RenderMediaOnLambdaOutput = {
 
 export const internalRenderMediaOnLambdaRaw = async (
 	input: InnerRenderMediaOnLambdaInput,
-	providerSpecifics: ProviderSpecifics<AwsRegion>,
 ): Promise<RenderMediaOnLambdaOutput> => {
 	const {functionName, region, rendererFunctionName} = input;
 
@@ -222,10 +219,7 @@ export const renderMediaOnLambda = (
 		);
 	}
 
-	return wrapped(
-		renderMediaOnLambdaOptionalToRequired(options),
-		awsImplementation,
-	);
+	return wrapped(renderMediaOnLambdaOptionalToRequired(options));
 };
 
 /**

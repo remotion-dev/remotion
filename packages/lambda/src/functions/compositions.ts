@@ -8,7 +8,6 @@ import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
 import type {AwsRegion} from '../regions';
 import {decompressInputProps} from '../shared/compress-props';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
-import {getCurrentRegionInFunction} from './helpers/get-current-region';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -57,7 +56,7 @@ export const compositionsHandler = async <Region extends string>(
 		const serializedInputPropsWithCustomSchema = await decompressInputProps({
 			bucketName: await bucketNamePromise,
 			expectedBucketOwner: options.expectedBucketOwner,
-			region: getCurrentRegionInFunction(),
+			region: providerSpecifics.getCurrentRegionInFunction(),
 			serialized: lambdaParams.inputProps,
 			propsType: 'input-props',
 		});

@@ -117,7 +117,7 @@ export const compressInputProps = async <Region extends string>({
 	};
 };
 
-export const decompressInputProps = async ({
+export const decompressInputProps = async <Region extends string>({
 	serialized,
 	region,
 	bucketName,
@@ -125,7 +125,7 @@ export const decompressInputProps = async ({
 	propsType,
 }: {
 	serialized: SerializedInputProps;
-	region: AwsRegion;
+	region: Region;
 	bucketName: string;
 	expectedBucketOwner: string;
 	propsType: PropsType;
@@ -139,7 +139,7 @@ export const decompressInputProps = async ({
 			bucketName,
 			expectedBucketOwner,
 			key: makeKey(propsType, serialized.hash),
-			region,
+			region: region as AwsRegion,
 		});
 
 		const body = await streamToString(response);
