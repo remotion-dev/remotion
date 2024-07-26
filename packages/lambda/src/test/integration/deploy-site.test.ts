@@ -1,41 +1,62 @@
 import {expect, test} from 'vitest';
 import {deleteSite} from '../../api/delete-site';
-import {deploySite} from '../../api/deploy-site';
+import {deploySite, internalDeploySite} from '../../api/deploy-site';
 import {getOrCreateBucket} from '../../api/get-or-create-bucket';
 import {getDirFiles} from '../../api/upload-dir';
+import {randomHash} from '../../shared/random-hash';
 import {mockImplementation} from '../mock-implementation';
 
 test('Should throw on wrong prefix', async () => {
 	await expect(() =>
-		deploySite({
+		internalDeploySite({
 			bucketName: 'wrongprefix',
 			entryPoint: 'first',
 			region: 'us-east-1',
 			gitSource: null,
+			providerSpecifics: mockImplementation,
+			indent: false,
+			logLevel: 'info',
+			options: {},
+			privacy: 'public',
+			siteName: randomHash(),
+			throwIfSiteExists: true,
 		}),
 	).rejects.toThrow(/The bucketName parameter must start /);
 });
 
 test('Should throw if invalid region was passed', () => {
 	expect(() =>
-		deploySite({
+		internalDeploySite({
 			bucketName: 'remotionlambda-testing',
 			entryPoint: 'first',
 			// @ts-expect-error
 			region: 'ap-northeast-9',
 			siteName: 'testing',
+			gitSource: null,
+			providerSpecifics: mockImplementation,
+			indent: false,
+			logLevel: 'info',
+			options: {},
+			privacy: 'public',
+			throwIfSiteExists: true,
 		}),
 	).rejects.toThrow(/ap-northeast-9 is not a valid AWS region/);
 });
 
 test("Should throw if bucket doesn't exist", () => {
 	expect(() =>
-		deploySite({
+		internalDeploySite({
 			bucketName: 'remotionlambda-non-existed',
 			entryPoint: 'first',
 			region: 'ap-northeast-1',
 			siteName: 'testing',
 			gitSource: null,
+			providerSpecifics: mockImplementation,
+			indent: false,
+			logLevel: 'info',
+			options: {},
+			privacy: 'public',
+			throwIfSiteExists: true,
 		}),
 	).rejects.toThrow(
 		/No bucket with the name remotionlambda-non-existed exists/,
@@ -47,12 +68,18 @@ test('Should apply name if given', async () => {
 		region: 'ap-northeast-1',
 	});
 	expect(
-		await deploySite({
+		await internalDeploySite({
 			bucketName,
 			entryPoint: 'first',
 			region: 'ap-northeast-1',
 			siteName: 'testing',
 			gitSource: null,
+			indent: false,
+			logLevel: 'info',
+			options: {},
+			privacy: 'public',
+			throwIfSiteExists: true,
+			providerSpecifics: mockImplementation,
 		}),
 	).toEqual({
 		siteName: 'testing',

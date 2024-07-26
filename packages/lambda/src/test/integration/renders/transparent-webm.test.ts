@@ -3,7 +3,7 @@ import fs, {createWriteStream} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {afterAll, expect, test} from 'vitest';
-import {deleteRender} from '../../../api/delete-render';
+import {internalDeleteRender} from '../../../api/delete-render';
 import {rendersPrefix} from '../../../defaults';
 import {mockImplementation} from '../../mock-implementation';
 import {simulateLambdaRender} from '../simulate-lambda-render';
@@ -55,10 +55,11 @@ test('Should make a transparent video', async () => {
 
 	expect(files.length).toBe(2);
 
-	await deleteRender({
+	await internalDeleteRender({
 		bucketName: progress.outBucket as string,
 		region: 'eu-central-1',
 		renderId,
+		providerSpecifics: mockImplementation,
 	});
 
 	const expectFiles = await mockImplementation.listObjects({

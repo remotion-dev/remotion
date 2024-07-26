@@ -91,7 +91,7 @@ const mandatoryDeploySite = async ({
 	const subFolder = getSitesKey(siteName);
 
 	const [files, bundled] = await Promise.all([
-		awsImplementation.listObjects({
+		providerSpecifics.listObjects({
 			bucketName,
 			expectedBucketOwner: accountId,
 			region,

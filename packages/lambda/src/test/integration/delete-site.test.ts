@@ -1,11 +1,18 @@
 import {expect, test} from 'vitest';
 import {deleteSite} from '../../api/delete-site';
 import {deploySite} from '../../api/deploy-site';
-import {getOrCreateBucket} from '../../api/get-or-create-bucket';
+import {
+	getOrCreateBucket,
+	internalGetOrCreateBucket,
+} from '../../api/get-or-create-bucket';
+import {mockImplementation} from '../mock-implementation';
 
 test('Return 0 total size if site did not exist', async () => {
-	const {bucketName} = await getOrCreateBucket({
+	const {bucketName} = await internalGetOrCreateBucket({
 		region: 'eu-west-1',
+		providerSpecifics: mockImplementation,
+		customCredentials: null,
+		enableFolderExpiry: null,
 	});
 	expect(
 		await deleteSite({

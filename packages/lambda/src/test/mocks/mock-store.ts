@@ -89,13 +89,13 @@ export const readMockS3File = ({
 	);
 };
 
-export const mockDeleteS3File = ({
+export const mockDeleteS3File = <Region extends string>({
 	key,
 	region,
 	bucketName,
 }: {
 	key: string;
-	region: AwsRegion;
+	region: Region;
 	bucketName: string;
 }) => {
 	mockS3Store = mockS3Store.filter(
