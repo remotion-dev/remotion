@@ -1,6 +1,7 @@
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {createBucket} from '../api/create-bucket';
 import {getRemotionBuckets} from '../api/get-buckets';
+import {lambdaLsImplementation} from '../io/list-objects';
 import type {AwsRegion} from '../regions';
 import {applyLifeCyleOperation} from '../shared/lifecycle-rules';
 import {getCurrentRegionInFunctionImplementation} from './helpers/get-current-region';
@@ -26,4 +27,5 @@ export const awsImplementation: ProviderSpecifics<AwsRegion> = {
 	getBuckets: getRemotionBuckets,
 	createBucket,
 	applyLifeCycle: applyLifeCyleOperation,
+	listObjects: lambdaLsImplementation,
 };

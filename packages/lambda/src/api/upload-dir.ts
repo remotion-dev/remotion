@@ -5,7 +5,7 @@ import type {Dirent} from 'node:fs';
 import {createReadStream, promises as fs} from 'node:fs';
 import path from 'node:path';
 import type {AwsRegion} from '../regions';
-import {getS3Client} from '../shared/aws-clients';
+import {getS3Client} from '../shared/get-s3-client';
 import {makeS3Key} from '../shared/make-s3-key';
 import {pLimit} from '../shared/p-limit';
 

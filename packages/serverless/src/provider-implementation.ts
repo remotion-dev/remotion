@@ -23,6 +23,21 @@ type ApplyLifeCycle<Region extends string> = (params: {
 	customCredentials: CustomCredentials<Region> | null;
 }) => Promise<void>;
 
+type BucketObject = {
+	Key: string;
+	LastModified: Date;
+	ETag: string;
+	Size: number;
+};
+
+type ListObjects<Region extends string> = (params: {
+	bucketName: string;
+	prefix: string;
+	region: Region;
+	expectedBucketOwner: string | null;
+	continuationToken?: string;
+}) => Promise<BucketObject[]>;
+
 export type ProviderSpecifics<Region extends string> = {
 	getChromiumPath: () => string | null;
 	getCurrentRegionInFunction: () => Region;
@@ -30,4 +45,5 @@ export type ProviderSpecifics<Region extends string> = {
 	getBuckets: GetBuckets<Region>;
 	createBucket: CreateBucket<Region>;
 	applyLifeCycle: ApplyLifeCycle<Region>;
+	listObjects: ListObjects<Region>;
 };

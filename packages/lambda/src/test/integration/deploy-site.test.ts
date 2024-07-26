@@ -3,7 +3,7 @@ import {deleteSite} from '../../api/delete-site';
 import {deploySite} from '../../api/deploy-site';
 import {getOrCreateBucket} from '../../api/get-or-create-bucket';
 import {getDirFiles} from '../../api/upload-dir';
-import {lambdaLs} from '../../functions/helpers/io';
+import {mockImplementation} from '../mock-implementation';
 
 test('Should throw on wrong prefix', async () => {
 	await expect(() =>
@@ -110,7 +110,7 @@ test('Should delete the previous site if deploying the new one', async () => {
 		gitSource: null,
 	});
 
-	const files = await lambdaLs({
+	const files = await mockImplementation.listObjects({
 		bucketName,
 		expectedBucketOwner: null,
 		prefix: 'sites/testing',
@@ -148,7 +148,7 @@ test('Should keep the previous site if deploying the new one with different ID',
 		gitSource: null,
 	});
 
-	const files = await lambdaLs({
+	const files = await mockImplementation.listObjects({
 		bucketName,
 		expectedBucketOwner: null,
 		prefix: 'sites/',
@@ -207,7 +207,7 @@ test('Should not delete site with same prefix', async () => {
 		siteName: 'my-site',
 	});
 
-	const files = await lambdaLs({
+	const files = await mockImplementation.listObjects({
 		bucketName,
 		expectedBucketOwner: null,
 		prefix: 'sites/',

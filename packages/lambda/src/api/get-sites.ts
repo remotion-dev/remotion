@@ -1,6 +1,5 @@
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {awsImplementation} from '../functions/aws-implementation';
-import {lambdaLs} from '../functions/helpers/io';
 import type {AwsRegion} from '../regions';
 import {getSitesKey} from '../shared/constants';
 import {getAccountId} from '../shared/get-account-id';
@@ -40,7 +39,7 @@ export const internalGetSites = async ({
 	const sites: {[key: string]: Site} = {};
 
 	for (const bucket of remotionBuckets) {
-		const ls = await lambdaLs({
+		const ls = await providerSpecifics.listObjects({
 			bucketName: bucket.name,
 			prefix: getSitesKey(''),
 			region,

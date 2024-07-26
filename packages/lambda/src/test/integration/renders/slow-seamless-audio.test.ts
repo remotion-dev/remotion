@@ -4,7 +4,7 @@ import path from 'path';
 import {afterAll, expect, test} from 'vitest';
 import {deleteRender} from '../../../api/delete-render';
 import {rendersPrefix} from '../../../defaults';
-import {lambdaLs} from '../../../functions/helpers/io';
+import {mockImplementation} from '../../mock-implementation';
 import {Wavedraw} from '../draw-wav';
 import {simulateLambdaRender} from '../simulate-lambda-render';
 
@@ -62,7 +62,7 @@ test('Should make slowed down seamless audio', async () => {
 
 	wd.drawWave(options); // outputs wave drawing to example1.png
 
-	const files = await lambdaLs({
+	const files = await mockImplementation.listObjects({
 		bucketName: progress.outBucket as string,
 		region: 'eu-central-1',
 		expectedBucketOwner: 'abc',
@@ -77,7 +77,7 @@ test('Should make slowed down seamless audio', async () => {
 		renderId,
 	});
 
-	const expectFiles = await lambdaLs({
+	const expectFiles = await mockImplementation.listObjects({
 		bucketName: progress.outBucket as string,
 		region: 'eu-central-1',
 		expectedBucketOwner: 'abc',

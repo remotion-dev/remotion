@@ -1,19 +1,16 @@
-import type {_Object} from '@aws-sdk/client-s3';
 import {Readable} from 'stream';
-import {
-	getS3FilesInBucket,
-	mockDeleteS3File,
-	readMockS3File,
-	writeMockS3File,
-} from '../../../api/__mocks__/mock-s3';
+
 import type {
 	lambdaDeleteFile as deleteOriginal,
 	lambdaHeadCommand as headOriginal,
-	lambdaLs as lsOriginal,
 	lambdaReadFile as readOriginal,
 	lambdaWriteFile as writeOriginal,
 } from '../../../functions/helpers/io';
-import type {LambdaLSInput, LambdaLsReturnType} from '../io';
+import {
+	mockDeleteS3File,
+	readMockS3File,
+	writeMockS3File,
+} from '../../../test/mocks/mock-store';
 
 export const lambdaReadFile: typeof readOriginal = ({
 	bucketName,
@@ -82,33 +79,4 @@ export const lambdaHeadCommand: typeof headOriginal = ({
 		ContentLength: read.content.toString().length,
 		LastModified: new Date(),
 	});
-};
-
-export const lambdaLs: typeof lsOriginal = (
-	input: LambdaLSInput,
-): LambdaLsReturnType => {
-	if (!input) {
-		throw new Error('need to pass input');
-	}
-
-	const files = getS3FilesInBucket({
-		bucketName: input.bucketName,
-		region: input.region,
-	});
-
-	return Promise.resolve(
-		files
-			.filter((p) => p.key.startsWith(input.prefix))
-			.map((file): _Object => {
-				const size = typeof file.content === 'string' ? file.content.length : 0;
-				return {
-					Key: file.key,
-					ETag: 'etag',
-					LastModified: new Date(0),
-					Owner: undefined,
-					Size: size,
-					StorageClass: undefined,
-				};
-			}),
-	);
 };

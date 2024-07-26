@@ -1,8 +1,9 @@
 import type {CustomCredentials} from '@remotion/serverless/client';
 import {rendersPrefix} from '../defaults';
+import {awsImplementation} from '../functions/aws-implementation';
 import {getExpectedOutName} from '../functions/helpers/expected-out-name';
 import {getOverallProgressS3} from '../functions/helpers/get-overall-progress-s3';
-import {lambdaDeleteFile, lambdaLs} from '../functions/helpers/io';
+import {lambdaDeleteFile} from '../functions/helpers/io';
 import type {AwsRegion} from '../regions';
 import {getAccountId} from '../shared/get-account-id';
 import {cleanItems} from './clean-items';
@@ -51,7 +52,7 @@ export const deleteRender = async (input: DeleteRenderInput) => {
 		region: input.region,
 	});
 
-	let files = await lambdaLs({
+	let files = await awsImplementation.listObjects({
 		bucketName: input.bucketName,
 		prefix: rendersPrefix(input.renderId),
 		region: input.region,
@@ -71,7 +72,7 @@ export const deleteRender = async (input: DeleteRenderInput) => {
 			onBeforeItemDeleted: () => undefined,
 			region: input.region,
 		});
-		files = await lambdaLs({
+		files = await awsImplementation.listObjects({
 			bucketName: input.bucketName,
 			prefix: rendersPrefix(input.renderId),
 			region: input.region,

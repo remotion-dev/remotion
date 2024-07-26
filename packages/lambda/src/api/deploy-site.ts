@@ -2,8 +2,10 @@ import {type GitSource, type WebpackOverrideFn} from '@remotion/bundler';
 import type {ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
+import type {ProviderSpecifics} from '@remotion/serverless';
 import fs from 'node:fs';
-import {lambdaDeleteFile, lambdaLs} from '../functions/helpers/io';
+import {awsImplementation} from '../functions/aws-implementation';
+import {lambdaDeleteFile} from '../functions/helpers/io';
 import type {AwsRegion} from '../regions';
 import {bundleSite} from '../shared/bundle-site';
 import {getSitesKey} from '../shared/constants';
@@ -63,7 +65,10 @@ const mandatoryDeploySite = async ({
 	privacy,
 	gitSource,
 	throwIfSiteExists,
-}: MandatoryParameters & OptionalParameters): DeploySiteOutput => {
+}: MandatoryParameters &
+	OptionalParameters & {
+		providerSpecifics: ProviderSpecifics<AwsRegion>;
+	}): DeploySiteOutput => {
 	validateAwsRegion(region);
 	validateBucketName(bucketName, {
 		mustStartWithRemotion: !options?.bypassBucketNameValidation,
@@ -86,7 +91,7 @@ const mandatoryDeploySite = async ({
 	const subFolder = getSitesKey(siteName);
 
 	const [files, bundled] = await Promise.all([
-		lambdaLs({
+		awsImplementation.listObjects({
 			bucketName,
 			expectedBucketOwner: accountId,
 			region,
@@ -191,5 +196,6 @@ export const deploySite = (args: DeploySiteInput) => {
 		indent: false,
 		logLevel: 'info',
 		throwIfSiteExists: args.throwIfSiteExists ?? false,
+		providerSpecifics: awsImplementation,
 	});
 };

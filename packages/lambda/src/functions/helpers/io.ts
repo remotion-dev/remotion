@@ -3,7 +3,6 @@ import {
 	DeleteObjectCommand,
 	GetObjectCommand,
 	HeadObjectCommand,
-	ListObjectsV2Command,
 	PutObjectCommand,
 } from '@aws-sdk/client-s3';
 import type {
@@ -15,8 +14,8 @@ import mimeTypes from 'mime-types';
 import type {ReadStream} from 'node:fs';
 import type {Readable} from 'stream';
 import type {AwsRegion} from '../../regions';
-import {getS3Client} from '../../shared/aws-clients';
 import {getContentDispositionHeader} from '../../shared/content-disposition-header';
+import {getS3Client} from '../../shared/get-s3-client';
 
 export type LambdaLSInput = {
 	bucketName: string;
@@ -26,58 +25,6 @@ export type LambdaLSInput = {
 	continuationToken?: string;
 };
 export type LambdaLsReturnType = Promise<_Object[]>;
-
-export const lambdaLs = async ({
-	bucketName,
-	prefix,
-	region,
-	expectedBucketOwner,
-	continuationToken,
-}: LambdaLSInput): LambdaLsReturnType => {
-	try {
-		const list = await getS3Client(region, null).send(
-			new ListObjectsV2Command({
-				Bucket: bucketName,
-				Prefix: prefix,
-				ExpectedBucketOwner: expectedBucketOwner ?? undefined,
-				ContinuationToken: continuationToken,
-			}),
-		);
-		if (list.NextContinuationToken) {
-			return [
-				...(list.Contents ?? []),
-				...(await lambdaLs({
-					bucketName,
-					prefix,
-					expectedBucketOwner,
-					region,
-					continuationToken: list.NextContinuationToken,
-				})),
-			];
-		}
-
-		return list.Contents ?? [];
-	} catch (err) {
-		if (!expectedBucketOwner) {
-			throw err;
-		}
-
-		// Prevent from accessing a foreign bucket, retry without ExpectedBucketOwner and see if it works. If it works then it's an owner mismatch.
-		if ((err as Error).stack?.includes('AccessDenied')) {
-			await getS3Client(region, null).send(
-				new ListObjectsV2Command({
-					Bucket: bucketName,
-					Prefix: prefix,
-				}),
-			);
-			throw new Error(
-				`Bucket owner mismatch: Expected the bucket ${bucketName} to be owned by you (AWS Account ID: ${expectedBucketOwner}) but it's not the case. Did you accidentially specify the wrong bucket?`,
-			);
-		}
-
-		throw err;
-	}
-};
 
 export const lambdaDeleteFile = async ({
 	bucketName,

@@ -1,5 +1,5 @@
 import {getSitesKey} from '../defaults';
-import {lambdaLs} from '../functions/helpers/io';
+import {awsImplementation} from '../functions/aws-implementation';
 import type {AwsRegion} from '../regions';
 import {getAccountId} from '../shared/get-account-id';
 import {cleanItems} from './clean-items';
@@ -33,7 +33,7 @@ export const deleteSite = async ({
 }: DeleteSiteInput): Promise<DeleteSiteOutput> => {
 	const accountId = await getAccountId({region});
 
-	let files = await lambdaLs({
+	let files = await awsImplementation.listObjects({
 		bucketName,
 		// The `/` is important to not accidentially delete sites with the same name but containing a suffix.
 		prefix: `${getSitesKey(siteName)}/`,
@@ -54,7 +54,7 @@ export const deleteSite = async ({
 			onBeforeItemDeleted: () => undefined,
 			region,
 		});
-		files = await lambdaLs({
+		files = await awsImplementation.listObjects({
 			bucketName,
 			// The `/` is important to not accidentially delete sites with the same name but containing a suffix.
 			prefix: `${getSitesKey(siteName)}/`,

@@ -189,6 +189,7 @@ export const sitesCreateSubcommand = async (
 		indent: false,
 		logLevel,
 		throwIfSiteExists,
+		providerSpecifics: implementation,
 	});
 
 	const uploadDuration = Date.now() - uploadStart;

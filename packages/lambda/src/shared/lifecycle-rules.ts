@@ -9,7 +9,7 @@ import {
 } from '../functions/helpers/apply-lifecyle';
 import {getLifeCycleRules} from '../functions/helpers/lifecycle';
 import type {AwsRegion} from '../regions';
-import {getS3Client} from './aws-clients';
+import {getS3Client} from './get-s3-client';
 
 const createLCRules = async ({
 	bucketName,
