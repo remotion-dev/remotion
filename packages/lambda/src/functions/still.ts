@@ -1,6 +1,10 @@
 import type {EmittedArtifact, StillImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {ProviderSpecifics} from '@remotion/serverless';
+import {
+	forgetBrowserEventLoop,
+	getBrowserInstance,
+	type ProviderSpecifics,
+} from '@remotion/serverless';
 import type {LambdaPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import fs from 'node:fs';
@@ -27,10 +31,6 @@ import {
 	getExpectedOutName,
 } from './helpers/expected-out-name';
 import {formatCostsInfo} from './helpers/format-costs-info';
-import {
-	forgetBrowserEventLoop,
-	getBrowserInstance,
-} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {lambdaWriteFile} from './helpers/io';
@@ -85,12 +85,12 @@ const innerStillHandler = async ({
 
 	const start = Date.now();
 
-	const browserInstancePromise = getBrowserInstance(
-		lambdaParams.logLevel,
-		false,
-		lambdaParams.chromiumOptions,
+	const browserInstancePromise = getBrowserInstance({
+		logLevel: lambdaParams.logLevel,
+		indent: false,
+		chromiumOptions: lambdaParams.chromiumOptions,
 		providerSpecifics,
-	);
+	});
 	const bucketNamePromise =
 		lambdaParams.bucketName ??
 		internalGetOrCreateBucket({

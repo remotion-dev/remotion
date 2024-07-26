@@ -2,6 +2,7 @@
 import type {EmittedArtifact, LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
+import {forgetBrowserEventLoop, getBrowserInstance} from '@remotion/serverless';
 import type {LambdaPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {existsSync, mkdirSync, rmSync} from 'fs';
@@ -35,10 +36,6 @@ import {bestFramesPerLambdaParam} from './helpers/best-frames-per-lambda-param';
 import {cleanupProps} from './helpers/cleanup-props';
 import {getExpectedOutName} from './helpers/expected-out-name';
 import {findOutputFileInBucket} from './helpers/find-output-file-in-bucket';
-import {
-	forgetBrowserEventLoop,
-	getBrowserInstance,
-} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
 import {mergeChunksAndFinishRender} from './helpers/merge-chunks';
@@ -75,12 +72,12 @@ const innerLaunchHandler = async ({
 
 	const startedDate = Date.now();
 
-	const browserInstance = getBrowserInstance(
-		params.logLevel,
-		false,
-		params.chromiumOptions,
+	const browserInstance = getBrowserInstance({
+		logLevel: params.logLevel,
+		indent: false,
+		chromiumOptions: params.chromiumOptions,
 		providerSpecifics,
-	);
+	});
 
 	const inputPropsPromise = decompressInputProps({
 		bucketName: params.bucketName,

@@ -1,8 +1,8 @@
 import type {ChromiumOptions, LogLevel, openBrowser} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {ProviderSpecifics} from '@remotion/serverless';
-import type {Await} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
+import type {Await} from './await';
+import type {ProviderSpecifics} from './provider-implementation';
 
 type LaunchedBrowser = {
 	instance: Await<ReturnType<typeof openBrowser>>;
@@ -52,12 +52,17 @@ export const forgetBrowserEventLoop = (logLevel: LogLevel) => {
 	_browserInstance?.instance.forgetEventLoop();
 };
 
-export const getBrowserInstance = async (
-	logLevel: LogLevel,
-	indent: boolean,
-	chromiumOptions: ChromiumOptions,
-	providerSpecifics: ProviderSpecifics,
-): Promise<LaunchedBrowser> => {
+export const getBrowserInstance = async ({
+	logLevel,
+	indent,
+	chromiumOptions,
+	providerSpecifics,
+}: {
+	logLevel: LogLevel;
+	indent: boolean;
+	chromiumOptions: ChromiumOptions;
+	providerSpecifics: ProviderSpecifics;
+}): Promise<LaunchedBrowser> => {
 	const actualChromiumOptions: ChromiumOptions = {
 		...chromiumOptions,
 		// Override the `null` value, which might come from CLI with swANGLE
@@ -87,7 +92,7 @@ export const getBrowserInstance = async (
 	if (!_browserInstance) {
 		RenderInternals.Log.info(
 			{indent: false, logLevel},
-			'Cold Lambda function, launching new browser instance',
+			'Cold function, launching new browser instance',
 		);
 		launching = true;
 
@@ -102,7 +107,7 @@ export const getBrowserInstance = async (
 			viewport: null,
 			logLevel,
 			onBrowserDownload: () => {
-				throw new Error('Should not download a browser in Lambda');
+				throw new Error('Should not download a browser in serverless');
 			},
 		});
 		instance.on('disconnected', () => {
@@ -132,22 +137,22 @@ export const getBrowserInstance = async (
 	if (_browserInstance.configurationString !== configurationString) {
 		RenderInternals.Log.info(
 			{indent: false, logLevel},
-			'Warm Lambda function, but Browser configuration changed. Killing old browser instance.',
+			'Warm function, but Browser configuration changed. Killing old browser instance.',
 		);
 		_browserInstance.instance.rememberEventLoop();
 		await _browserInstance.instance.close(true, logLevel, indent);
 		_browserInstance = null;
-		return getBrowserInstance(
+		return getBrowserInstance({
 			logLevel,
 			indent,
 			chromiumOptions,
 			providerSpecifics,
-		);
+		});
 	}
 
 	RenderInternals.Log.info(
 		{indent: false, logLevel},
-		'Warm Lambda function, reusing browser instance',
+		'Warm function, reusing browser instance',
 	);
 	_browserInstance.instance.rememberEventLoop();
 	return _browserInstance;

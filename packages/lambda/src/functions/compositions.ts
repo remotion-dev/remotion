@@ -1,15 +1,12 @@
 import {RenderInternals} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
+import {forgetBrowserEventLoop, getBrowserInstance} from '@remotion/serverless';
 import type {LambdaPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
 import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
 import {decompressInputProps} from '../shared/compress-props';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
-import {
-	forgetBrowserEventLoop,
-	getBrowserInstance,
-} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 
 type Options = {
@@ -40,12 +37,12 @@ export const compositionsHandler = async (
 	try {
 		const region = getCurrentRegionInFunction();
 
-		const browserInstancePromise = getBrowserInstance(
-			lambdaParams.logLevel,
-			false,
-			lambdaParams.chromiumOptions,
+		const browserInstancePromise = getBrowserInstance({
+			logLevel: lambdaParams.logLevel,
+			indent: false,
+			chromiumOptions: lambdaParams.chromiumOptions,
 			providerSpecifics,
-		);
+		});
 		const bucketNamePromise = lambdaParams.bucketName
 			? Promise.resolve(lambdaParams.bucketName)
 			: internalGetOrCreateBucket({

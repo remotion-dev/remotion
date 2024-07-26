@@ -6,6 +6,7 @@ import type {
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
+import {forgetBrowserEventLoop, getBrowserInstance} from '@remotion/serverless';
 import type {LambdaPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import fs from 'node:fs';
@@ -21,10 +22,6 @@ import {
 	canConcatAudioSeamlessly,
 	canConcatVideoSeamlessly,
 } from './helpers/can-concat-seamlessly';
-import {
-	forgetBrowserEventLoop,
-	getBrowserInstance,
-} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {startLeakDetection} from './helpers/leak-detection';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
@@ -44,7 +41,7 @@ const renderHandler = async ({
 	options,
 	logs,
 	onStream,
-	platformImplementation,
+	platformImplementation: providerSpecifics,
 }: {
 	params: LambdaPayload;
 	options: Options;
@@ -78,12 +75,12 @@ const renderHandler = async ({
 		propsType: 'resolved-props',
 	});
 
-	const browserInstance = await getBrowserInstance(
-		params.logLevel,
-		false,
-		params.chromiumOptions,
-		platformImplementation,
-	);
+	const browserInstance = await getBrowserInstance({
+		logLevel: params.logLevel,
+		indent: false,
+		chromiumOptions: params.chromiumOptions,
+		providerSpecifics,
+	});
 
 	const outputPath = RenderInternals.tmpDir('remotion-render-');
 
@@ -293,7 +290,7 @@ const renderHandler = async ({
 			encodingMaxRate: params.encodingMaxRate,
 			audioCodec,
 			preferLossless: params.preferLossless,
-			browserExecutable: platformImplementation.getChromiumPath(),
+			browserExecutable: providerSpecifics.getChromiumPath(),
 			cancelSignal: undefined,
 			disallowParallelEncoding: false,
 			ffmpegOverride: ({args}) => args,
