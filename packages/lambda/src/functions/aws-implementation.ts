@@ -1,7 +1,4 @@
-import {
-	printLoggingGrepHelper,
-	type ProviderSpecifics,
-} from '@remotion/serverless';
+import {type ProviderSpecifics} from '@remotion/serverless';
 import {bucketExistsInRegionImplementation} from '../api/bucket-exists';
 import {createBucket} from '../api/create-bucket';
 import {getRemotionBuckets} from '../api/get-buckets';
@@ -46,6 +43,6 @@ export const awsImplementation: ProviderSpecifics<AwsRegion> = {
 	writeFile: lambdaWriteFileImplementation,
 	headFile: lambdaHeadFileImplementation,
 	convertToServeUrl: convertToServeUrlImplementation,
-	printLoggingHelper: printLoggingGrepHelper,
+	printLoggingHelper: true,
 	getFolderFiles,
 };

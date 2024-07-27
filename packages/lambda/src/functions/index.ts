@@ -13,6 +13,7 @@ import {
 	generateRandomHashWithLifeCycleRule,
 	validateDeleteAfter,
 } from './helpers/lifecycle';
+import {printLoggingGrepHelper} from './helpers/print-logging-helper';
 import type {RequestContext} from './helpers/request-context';
 import type {ResponseStream} from './helpers/streamify-response';
 import {streamifyResponse} from './helpers/streamify-response';
@@ -66,15 +67,17 @@ const innerHandler = async <Region extends string>({
 			params.deleteAfter,
 			providerSpecifics,
 		);
-		providerSpecifics.printLoggingHelper(
-			ServerlessRoutines.still,
-			{
-				renderId,
-				inputProps: JSON.stringify(params.inputProps),
-				isWarm,
-			},
-			params.logLevel,
-		);
+		if (providerSpecifics.printLoggingHelper) {
+			printLoggingGrepHelper(
+				ServerlessRoutines.still,
+				{
+					renderId,
+					inputProps: JSON.stringify(params.inputProps),
+					isWarm,
+				},
+				params.logLevel,
+			);
+		}
 
 		try {
 			await new Promise((resolve, reject) => {
@@ -126,14 +129,16 @@ const innerHandler = async <Region extends string>({
 	}
 
 	if (params.type === ServerlessRoutines.start) {
-		providerSpecifics.printLoggingHelper(
-			ServerlessRoutines.start,
-			{
-				inputProps: JSON.stringify(params.inputProps),
-				isWarm,
-			},
-			params.logLevel,
-		);
+		if (providerSpecifics.printLoggingHelper) {
+			printLoggingGrepHelper(
+				ServerlessRoutines.start,
+				{
+					inputProps: JSON.stringify(params.inputProps),
+					isWarm,
+				},
+				params.logLevel,
+			);
+		}
 
 		const response = await startHandler(
 			params,
@@ -150,15 +155,17 @@ const innerHandler = async <Region extends string>({
 	}
 
 	if (params.type === ServerlessRoutines.launch) {
-		providerSpecifics.printLoggingHelper(
-			ServerlessRoutines.launch,
-			{
-				renderId: params.renderId,
-				inputProps: JSON.stringify(params.inputProps),
-				isWarm,
-			},
-			params.logLevel,
-		);
+		if (providerSpecifics.printLoggingHelper) {
+			printLoggingGrepHelper(
+				ServerlessRoutines.launch,
+				{
+					renderId: params.renderId,
+					inputProps: JSON.stringify(params.inputProps),
+					isWarm,
+				},
+				params.logLevel,
+			);
+		}
 
 		const response = await launchHandler(
 			params,
@@ -175,14 +182,17 @@ const innerHandler = async <Region extends string>({
 	}
 
 	if (params.type === ServerlessRoutines.status) {
-		providerSpecifics.printLoggingHelper(
-			ServerlessRoutines.status,
-			{
-				renderId: params.renderId,
-				isWarm,
-			},
-			params.logLevel,
-		);
+		if (providerSpecifics.printLoggingHelper) {
+			printLoggingGrepHelper(
+				ServerlessRoutines.status,
+				{
+					renderId: params.renderId,
+					isWarm,
+				},
+				params.logLevel,
+			);
+		}
+
 		const response = await progressHandler(params, {
 			expectedBucketOwner: currentUserId,
 			timeoutInMilliseconds,
@@ -196,19 +206,21 @@ const innerHandler = async <Region extends string>({
 	}
 
 	if (params.type === ServerlessRoutines.renderer) {
-		providerSpecifics.printLoggingHelper(
-			ServerlessRoutines.renderer,
-			{
-				renderId: params.renderId,
-				chunk: String(params.chunk),
-				dumpLogs: String(
-					RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
-				),
-				resolvedProps: JSON.stringify(params.resolvedProps),
-				isWarm,
-			},
-			params.logLevel,
-		);
+		if (providerSpecifics.printLoggingHelper) {
+			printLoggingGrepHelper(
+				ServerlessRoutines.renderer,
+				{
+					renderId: params.renderId,
+					chunk: String(params.chunk),
+					dumpLogs: String(
+						RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
+					),
+					resolvedProps: JSON.stringify(params.resolvedProps),
+					isWarm,
+				},
+				params.logLevel,
+			);
+		}
 
 		await new Promise((resolve, reject) => {
 			rendererHandler({
@@ -252,13 +264,15 @@ const innerHandler = async <Region extends string>({
 	}
 
 	if (params.type === ServerlessRoutines.info) {
-		providerSpecifics.printLoggingHelper(
-			ServerlessRoutines.info,
-			{
-				isWarm,
-			},
-			params.logLevel,
-		);
+		if (providerSpecifics.printLoggingHelper) {
+			printLoggingGrepHelper(
+				ServerlessRoutines.info,
+				{
+					isWarm,
+				},
+				params.logLevel,
+			);
+		}
 
 		const response = await infoHandler(params);
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));
@@ -267,13 +281,15 @@ const innerHandler = async <Region extends string>({
 	}
 
 	if (params.type === ServerlessRoutines.compositions) {
-		providerSpecifics.printLoggingHelper(
-			ServerlessRoutines.compositions,
-			{
-				isWarm,
-			},
-			params.logLevel,
-		);
+		if (providerSpecifics.printLoggingHelper) {
+			printLoggingGrepHelper(
+				ServerlessRoutines.compositions,
+				{
+					isWarm,
+				},
+				params.logLevel,
+			);
+		}
 
 		const response = await compositionsHandler(
 			params,

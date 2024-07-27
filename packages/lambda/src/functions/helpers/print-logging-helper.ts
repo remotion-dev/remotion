@@ -1,6 +1,6 @@
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {ServerlessRoutines} from './constants';
+import type {ServerlessRoutines} from '@remotion/serverless/client';
 
 export type PrintLoggingHelper = (
 	type: ServerlessRoutines,

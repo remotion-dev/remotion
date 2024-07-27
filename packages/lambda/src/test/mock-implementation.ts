@@ -107,7 +107,7 @@ export const mockImplementation: ProviderSpecifics<AwsRegion> = {
 		});
 	},
 	convertToServeUrl: convertToServeUrlImplementation,
-	printLoggingHelper: () => undefined,
+	printLoggingHelper: false,
 	getFolderFiles: () => [
 		{
 			filename: 'something',
