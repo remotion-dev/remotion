@@ -34,3 +34,4 @@ export {inputPropsKey, resolvedPropsKey} from './input-props-keys';
 export {makeBucketName} from './make-bucket-name';
 export {streamToString} from './stream-to-string';
 export {validateBucketName} from './validate-bucket-name';
+export {validateWebhook} from './validate-webhook';

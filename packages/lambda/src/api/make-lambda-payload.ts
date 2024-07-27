@@ -31,7 +31,7 @@ import {VERSION} from 'remotion/version';
 import type {AwsRegion, DeleteAfter} from '../client';
 import {awsImplementation} from '../functions/aws-implementation';
 
-import {validateWebhook} from '@remotion/serverless';
+import {validateWebhook} from '@remotion/serverless/client';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import {validateLambdaCodec} from '../shared/validate-lambda-codec';
