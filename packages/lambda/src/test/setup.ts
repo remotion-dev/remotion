@@ -12,19 +12,8 @@ vi.mock('../functions/helpers/timer', () =>
 vi.mock('../functions/helpers/get-browser-instance', () =>
 	vi.importActual('../functions/helpers/__mocks__/get-browser-instance'),
 );
-vi.mock('../functions/helpers/check-if-render-exists', () =>
-	vi.importActual('../functions/helpers/__mocks__/check-if-render-exists'),
-);
-vi.mock('../functions/helpers/get-files-in-folder', () =>
-	vi.importActual('../functions/helpers/__mocks__/get-files-in-folder'),
-);
 vi.mock('../functions/helpers/leak-detection', () =>
 	vi.importActual('../functions/helpers/__mocks__/leak-detection'),
-);
-vi.mock('../functions/helpers/get-chromium-executable-path', () =>
-	vi.importActual(
-		'../functions/helpers/__mocks__/get-chromium-executable-path',
-	),
 );
 vi.mock('../shared/bundle-site', () =>
 	vi.importActual('../shared/__mocks__/bundle-site'),

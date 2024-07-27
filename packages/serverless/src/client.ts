@@ -30,6 +30,7 @@ export {
 	internalGetOrCreateBucket,
 } from './get-or-create-bucket';
 
+export {FileNameAndSize, GetFolderFiles} from './get-files-in-folder';
 export {inputPropsKey, resolvedPropsKey} from './input-props-keys';
 export {makeBucketName} from './make-bucket-name';
 export {streamToString} from './stream-to-string';

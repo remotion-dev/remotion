@@ -457,7 +457,10 @@ export const rendererHandler = async <Region extends string>({
 					frame: null,
 					type: 'renderer',
 					isFatal: !shouldRetry,
-					tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
+					tmpDir: getTmpDirStateIfENoSp(
+						(err as Error).stack as string,
+						providerSpecifics,
+					),
 					attempt: params.attempt,
 					totalAttempts: params.retriesLeft + params.attempt,
 					willRetry: shouldRetry,

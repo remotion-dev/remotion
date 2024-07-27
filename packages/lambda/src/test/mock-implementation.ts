@@ -108,4 +108,10 @@ export const mockImplementation: ProviderSpecifics<AwsRegion> = {
 	},
 	convertToServeUrl: convertToServeUrlImplementation,
 	printLoggingHelper: () => undefined,
+	getFolderFiles: () => [
+		{
+			filename: 'something',
+			size: 0,
+		},
+	],
 };

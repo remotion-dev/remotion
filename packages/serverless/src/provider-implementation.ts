@@ -1,5 +1,6 @@
 import type {Readable} from 'stream';
 import type {CustomCredentials, DownloadBehavior, Privacy} from './constants';
+import type {GetFolderFiles} from './get-files-in-folder';
 import type {PrintLoggingHelper} from './logging-grep-helper';
 
 export type BucketWithLocation<Region extends string> = {
@@ -115,4 +116,5 @@ export type ProviderSpecifics<Region extends string> = {
 	headFile: HeadFile<Region>;
 	convertToServeUrl: ConvertToServeUrl<Region>;
 	printLoggingHelper: PrintLoggingHelper;
+	getFolderFiles: GetFolderFiles;
 };

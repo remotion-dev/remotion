@@ -725,7 +725,10 @@ export const launchHandler = async <Region extends string>(
 			stack: (err as Error).stack as string,
 			type: 'stitcher',
 			isFatal: true,
-			tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
+			tmpDir: getTmpDirStateIfENoSp(
+				(err as Error).stack as string,
+				providerSpecifics,
+			),
 			attempt: 1,
 			totalAttempts: 1,
 			willRetry: false,

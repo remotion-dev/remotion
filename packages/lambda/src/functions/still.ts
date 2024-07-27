@@ -410,7 +410,10 @@ export const stillHandler = async <Region extends string>(
 						frame: params.frame,
 						type: 'renderer',
 						isFatal: false,
-						tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
+						tmpDir: getTmpDirStateIfENoSp(
+							(err as Error).stack as string,
+							options.providerSpecifics,
+						),
 						attempt: params.attempt,
 						totalAttempts: 1 + params.maxRetries,
 						willRetry: true,

@@ -15,6 +15,7 @@ import {convertToServeUrlImplementation} from '../shared/convert-to-serve-url';
 import {applyLifeCyleOperation} from '../shared/lifecycle-rules';
 import {randomHashImplementation} from '../shared/random-hash';
 import {getCurrentRegionInFunctionImplementation} from './helpers/get-current-region';
+import {getFolderFiles} from './helpers/get-folder-files';
 
 if (
 	/^AWS_Lambda_nodejs(?:18|20)[.]x$/.test(
@@ -46,4 +47,5 @@ export const awsImplementation: ProviderSpecifics<AwsRegion> = {
 	headFile: lambdaHeadFileImplementation,
 	convertToServeUrl: convertToServeUrlImplementation,
 	printLoggingHelper: printLoggingGrepHelper,
+	getFolderFiles,
 };
