@@ -6,9 +6,9 @@ import type {
 	RemotionServer,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {ProviderSpecifics} from '@remotion/serverless';
-import type {Await} from '@remotion/serverless/client';
 import type {VideoConfig} from 'remotion/no-react';
+import type {Await} from './await';
+import type {ProviderSpecifics} from './provider-implementation';
 
 type ValidateCompositionOptions<Region extends string> = {
 	serveUrl: string;

@@ -2,7 +2,11 @@
 import type {EmittedArtifact, LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
-import {forgetBrowserEventLoop, getBrowserInstance} from '@remotion/serverless';
+import {
+	forgetBrowserEventLoop,
+	getBrowserInstance,
+	validateComposition,
+} from '@remotion/serverless';
 import type {ServerlessPayload} from '@remotion/serverless/client';
 import {
 	ServerlessRoutines,
@@ -41,7 +45,6 @@ import type {OverallProgressHelper} from './helpers/overall-render-progress';
 import {makeOverallRenderProgress} from './helpers/overall-render-progress';
 import {streamRendererFunctionWithRetry} from './helpers/stream-renderer';
 import {timer} from './helpers/timer';
-import {validateComposition} from './helpers/validate-composition';
 import {getTmpDirStateIfENoSp} from './helpers/write-lambda-error';
 
 type Options = {

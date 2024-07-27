@@ -3,6 +3,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {
 	forgetBrowserEventLoop,
 	getBrowserInstance,
+	validateComposition,
 	type ProviderSpecifics,
 } from '@remotion/serverless';
 import type {ServerlessPayload} from '@remotion/serverless/client';
@@ -37,7 +38,6 @@ import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
 import type {ReceivedArtifact} from './helpers/overall-render-progress';
 import {makeInitialOverallRenderProgress} from './helpers/overall-render-progress';
-import {validateComposition} from './helpers/validate-composition';
 import {getTmpDirStateIfENoSp} from './helpers/write-lambda-error';
 import type {OnStream} from './streaming/streaming';
 
