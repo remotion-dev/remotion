@@ -107,4 +107,5 @@ export const mockImplementation: ProviderSpecifics<AwsRegion> = {
 		});
 	},
 	convertToServeUrl: convertToServeUrlImplementation,
+	printLoggingHelper: () => undefined,
 };

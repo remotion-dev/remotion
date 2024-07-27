@@ -13,7 +13,6 @@ import {
 	generateRandomHashWithLifeCycleRule,
 	validateDeleteAfter,
 } from './helpers/lifecycle';
-import {printCloudwatchHelper} from './helpers/print-cloudwatch-helper';
 import type {RequestContext} from './helpers/request-context';
 import type {ResponseStream} from './helpers/streamify-response';
 import {streamifyResponse} from './helpers/streamify-response';
@@ -67,7 +66,7 @@ const innerHandler = async <Region extends string>({
 			params.deleteAfter,
 			providerSpecifics,
 		);
-		printCloudwatchHelper(
+		providerSpecifics.printLoggingHelper(
 			ServerlessRoutines.still,
 			{
 				renderId,
@@ -127,7 +126,7 @@ const innerHandler = async <Region extends string>({
 	}
 
 	if (params.type === ServerlessRoutines.start) {
-		printCloudwatchHelper(
+		providerSpecifics.printLoggingHelper(
 			ServerlessRoutines.start,
 			{
 				inputProps: JSON.stringify(params.inputProps),
@@ -151,7 +150,7 @@ const innerHandler = async <Region extends string>({
 	}
 
 	if (params.type === ServerlessRoutines.launch) {
-		printCloudwatchHelper(
+		providerSpecifics.printLoggingHelper(
 			ServerlessRoutines.launch,
 			{
 				renderId: params.renderId,
@@ -176,7 +175,7 @@ const innerHandler = async <Region extends string>({
 	}
 
 	if (params.type === ServerlessRoutines.status) {
-		printCloudwatchHelper(
+		providerSpecifics.printLoggingHelper(
 			ServerlessRoutines.status,
 			{
 				renderId: params.renderId,
@@ -197,7 +196,7 @@ const innerHandler = async <Region extends string>({
 	}
 
 	if (params.type === ServerlessRoutines.renderer) {
-		printCloudwatchHelper(
+		providerSpecifics.printLoggingHelper(
 			ServerlessRoutines.renderer,
 			{
 				renderId: params.renderId,
@@ -253,7 +252,7 @@ const innerHandler = async <Region extends string>({
 	}
 
 	if (params.type === ServerlessRoutines.info) {
-		printCloudwatchHelper(
+		providerSpecifics.printLoggingHelper(
 			ServerlessRoutines.info,
 			{
 				isWarm,
@@ -268,7 +267,7 @@ const innerHandler = async <Region extends string>({
 	}
 
 	if (params.type === ServerlessRoutines.compositions) {
-		printCloudwatchHelper(
+		providerSpecifics.printLoggingHelper(
 			ServerlessRoutines.compositions,
 			{
 				isWarm,
@@ -301,10 +300,11 @@ export type OrError<T> =
 			stack: string;
 	  };
 
-export const routine = async (
-	params: ServerlessPayload<AwsRegion>,
+export const innerRoutine = async <Region extends string>(
+	params: ServerlessPayload<Region>,
 	responseStream: ResponseStream,
 	context: RequestContext,
+	providerSpecifics: ProviderSpecifics<Region>,
 ): Promise<void> => {
 	const responseWriter = streamWriter(responseStream);
 
@@ -313,7 +313,7 @@ export const routine = async (
 			params,
 			responseWriter,
 			context,
-			providerSpecifics: awsImplementation,
+			providerSpecifics,
 		});
 	} catch (err) {
 		const res: OrError<0> = {
@@ -325,6 +325,14 @@ export const routine = async (
 		await responseWriter.write(Buffer.from(JSON.stringify(res)));
 		await responseWriter.end();
 	}
+};
+
+export const routine = (
+	params: ServerlessPayload<AwsRegion>,
+	responseStream: ResponseStream,
+	context: RequestContext,
+): Promise<void> => {
+	return innerRoutine(params, responseStream, context, awsImplementation);
 };
 
 export const handler = streamifyResponse(routine);

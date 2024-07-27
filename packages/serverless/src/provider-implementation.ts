@@ -1,5 +1,6 @@
 import type {Readable} from 'stream';
 import type {CustomCredentials, DownloadBehavior, Privacy} from './constants';
+import type {PrintLoggingHelper} from './logging-grep-helper';
 
 export type BucketWithLocation<Region extends string> = {
 	name: string;
@@ -113,4 +114,5 @@ export type ProviderSpecifics<Region extends string> = {
 	writeFile: WriteFile<Region>;
 	headFile: HeadFile<Region>;
 	convertToServeUrl: ConvertToServeUrl<Region>;
+	printLoggingHelper: PrintLoggingHelper;
 };

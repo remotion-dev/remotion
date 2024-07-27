@@ -21,10 +21,10 @@ export const getLambdaClient: typeof original = (region, timeoutInTest) => {
 		}) => {
 			const payload = JSON.parse(params.input.Payload);
 
-			const {routine} = await import('../../functions/index');
+			const {innerRoutine} = await import('../../functions/index');
 
 			const responseStream = new ResponseStream();
-			const prom = routine(
+			const prom = innerRoutine(
 				payload,
 				responseStream,
 				{
