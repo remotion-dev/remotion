@@ -113,7 +113,7 @@ type Discriminated =
 			codec: ServerlessCodec;
 	  };
 
-export type RenderMetadata = Discriminated & {
+export type RenderMetadata<Region extends string> = Discriminated & {
 	siteId: string;
 	startedDate: number;
 	totalChunks: number;
@@ -125,7 +125,7 @@ export type RenderMetadata = Discriminated & {
 	framesPerLambda: number;
 	memorySizeInMb: number;
 	lambdaVersion: string;
-	region: AwsRegion;
+	region: Region;
 	renderId: string;
 	outName: OutNameInputWithoutCredentials | undefined;
 	privacy: Privacy;
@@ -183,13 +183,13 @@ type EncodingProgress = {
 	timeToCombine: number | null;
 };
 
-export type RenderProgress = {
+export type GenericRenderProgress<Region extends string> = {
 	chunks: number;
 	done: boolean;
 	encodingStatus: EncodingProgress | null;
 	costs: CostsInfo;
 	renderId: string;
-	renderMetadata: RenderMetadata | null;
+	renderMetadata: RenderMetadata<Region> | null;
 	bucket: string;
 	outputFile: string | null;
 	outKey: string | null;
@@ -219,5 +219,7 @@ export type RenderProgress = {
 	compositionValidated: number | null;
 	artifacts: ReceivedArtifact[];
 };
+
+export type RenderProgress = GenericRenderProgress<AwsRegion>;
 
 export const LAMBDA_CONCURRENCY_LIMIT_QUOTA = 'L-B99A9384';

@@ -5,10 +5,7 @@ import {
 	getBrowserInstance,
 	type ProviderSpecifics,
 } from '@remotion/serverless';
-import type {
-	CustomCredentials,
-	ServerlessPayload,
-} from '@remotion/serverless/client';
+import type {ServerlessPayload} from '@remotion/serverless/client';
 import {
 	ServerlessRoutines,
 	decompressInputProps,
@@ -158,7 +155,7 @@ const innerStillHandler = async <Region extends string>({
 		providerSpecifics,
 	});
 
-	const renderMetadata: RenderMetadata = {
+	const renderMetadata: RenderMetadata<Region> = {
 		startedDate: Date.now(),
 		codec: null,
 		compositionId: lambdaParams.composition,
@@ -172,7 +169,7 @@ const innerStillHandler = async <Region extends string>({
 		lambdaVersion: VERSION,
 		framesPerLambda: 1,
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
-		region: providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
+		region: providerSpecifics.getCurrentRegionInFunction(),
 		renderId,
 		outName: lambdaParams.outName ?? undefined,
 		privacy: lambdaParams.privacy,
@@ -328,8 +325,8 @@ const innerStillHandler = async <Region extends string>({
 	const {key: outKey, url} = getOutputUrlFromMetadata(
 		renderMetadata,
 		bucketName,
-		customCredentials as CustomCredentials<AwsRegion>,
-		providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
+		customCredentials,
+		providerSpecifics.getCurrentRegionInFunction(),
 	);
 
 	const payload: RenderStillLambdaResponsePayload = {

@@ -13,7 +13,7 @@ export const estimatePriceFromBucket = <Region extends string>({
 	timings,
 	providerSpecifics,
 }: {
-	renderMetadata: RenderMetadata | null;
+	renderMetadata: RenderMetadata<Region> | null;
 	memorySizeInMb: number;
 	diskSizeInMb: number;
 	lambdasInvoked: number;

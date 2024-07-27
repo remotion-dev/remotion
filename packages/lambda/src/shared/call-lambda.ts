@@ -50,7 +50,7 @@ export const callLambda = async <
 	Region extends string,
 >(
 	options: Options<T, Region> & {},
-): Promise<LambdaReturnValues[T]> => {
+): Promise<LambdaReturnValues<Region>[T]> => {
 	// Do not remove this await
 	const res = await callLambdaWithoutRetry<T, Region>(options);
 	if (res.type === 'error') {
@@ -109,7 +109,7 @@ const callLambdaWithoutRetry = async <
 	payload,
 	region,
 	timeoutInTest,
-}: Options<T, Region>): Promise<OrError<LambdaReturnValues[T]>> => {
+}: Options<T, Region>): Promise<OrError<LambdaReturnValues<Region>[T]>> => {
 	const Payload = JSON.stringify({type, ...payload});
 	const res = await getLambdaClient(region as AwsRegion, timeoutInTest).send(
 		new InvokeCommand({
@@ -122,7 +122,7 @@ const callLambdaWithoutRetry = async <
 	const decoded = new TextDecoder('utf-8').decode(res.Payload);
 
 	try {
-		return JSON.parse(decoded) as OrError<LambdaReturnValues[T]>;
+		return JSON.parse(decoded) as OrError<LambdaReturnValues<Region>[T]>;
 	} catch (err) {
 		throw new Error(`Invalid JSON (${type}): ${JSON.stringify(decoded)}`);
 	}

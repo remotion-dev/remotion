@@ -15,7 +15,6 @@ import {existsSync, mkdirSync, rmSync} from 'fs';
 import {join} from 'path';
 import {VERSION} from 'remotion/version';
 import {type EventEmitter} from 'stream';
-import type {AwsRegion} from '../regions';
 import type {PostRenderData, RenderMetadata} from '../shared/constants';
 import {
 	CONCAT_FOLDER_TOKEN,
@@ -61,7 +60,7 @@ const innerLaunchHandler = async <Region extends string>({
 	functionName: string;
 	params: ServerlessPayload<Region>;
 	options: Options;
-	overallProgress: OverallProgressHelper;
+	overallProgress: OverallProgressHelper<Region>;
 	registerCleanupTask: (cleanupTask: CleanupTask) => void;
 	providerSpecifics: ProviderSpecifics<Region>;
 }): Promise<PostRenderData> => {
@@ -283,7 +282,7 @@ const innerLaunchHandler = async <Region extends string>({
 		chunks.map((c, i) => `Chunk ${i} (Frames ${c[0]} - ${c[1]})`).join(', '),
 	);
 
-	const renderMetadata: RenderMetadata = {
+	const renderMetadata: RenderMetadata<Region> = {
 		startedDate,
 		totalChunks: chunks.length,
 		estimatedTotalLambdaInvokations: [
@@ -302,7 +301,7 @@ const innerLaunchHandler = async <Region extends string>({
 		lambdaVersion: VERSION,
 		framesPerLambda,
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
-		region: providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
+		region: providerSpecifics.getCurrentRegionInFunction(),
 		renderId: params.renderId,
 		outName: params.outName ?? undefined,
 		privacy: params.privacy,

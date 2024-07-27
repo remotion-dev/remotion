@@ -2,7 +2,7 @@ import type {ProviderSpecifics} from '@remotion/serverless';
 import type {ServerlessPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
-import type {RenderProgress} from '../shared/constants';
+import type {GenericRenderProgress} from '../shared/constants';
 import {getProgress} from './helpers/get-progress';
 
 type Options<Region extends string> = {
@@ -15,7 +15,7 @@ type Options<Region extends string> = {
 export const progressHandler = async <Region extends string>(
 	lambdaParams: ServerlessPayload<Region>,
 	options: Options<Region>,
-): Promise<RenderProgress> => {
+): Promise<GenericRenderProgress<Region>> => {
 	if (lambdaParams.type !== ServerlessRoutines.status) {
 		throw new TypeError('Expected status type');
 	}

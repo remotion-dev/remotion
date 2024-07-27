@@ -1,10 +1,11 @@
 import {expect, test} from 'vitest';
 import type {RenderMetadata} from '../../defaults';
 import {getExpectedOutName} from '../../functions/helpers/expected-out-name';
+import type {AwsRegion} from '../../regions';
 
 const bucketName = 'remotionlambda-98fsduf';
 
-const testRenderMetadata: RenderMetadata = {
+const testRenderMetadata: RenderMetadata<AwsRegion> = {
 	compositionId: 'react-svg',
 	estimatedRenderLambdaInvokations: 100,
 	estimatedTotalLambdaInvokations: 100,
@@ -44,7 +45,7 @@ test('Should get a custom outname', () => {
 });
 
 test('Should save to a different outname', () => {
-	const newRenderMetadata: RenderMetadata = {
+	const newRenderMetadata: RenderMetadata<AwsRegion> = {
 		...testRenderMetadata,
 		outName: {
 			bucketName: 'my-bucket',
@@ -59,7 +60,7 @@ test('Should save to a different outname', () => {
 });
 
 test('For stills', () => {
-	const newRenderMetadata: RenderMetadata = {
+	const newRenderMetadata: RenderMetadata<AwsRegion> = {
 		...testRenderMetadata,
 		codec: null,
 		type: 'still',
@@ -73,7 +74,7 @@ test('For stills', () => {
 });
 
 test('Just a custom name', () => {
-	const newRenderMetadata: RenderMetadata = {
+	const newRenderMetadata: RenderMetadata<AwsRegion> = {
 		...testRenderMetadata,
 		type: 'still',
 		imageFormat: 'jpeg',
@@ -88,7 +89,7 @@ test('Just a custom name', () => {
 });
 
 test('Should throw on invalid names', () => {
-	const newRenderMetadata: RenderMetadata = {
+	const newRenderMetadata: RenderMetadata<AwsRegion> = {
 		...testRenderMetadata,
 		type: 'still',
 		imageFormat: 'png',
@@ -101,7 +102,7 @@ test('Should throw on invalid names', () => {
 });
 
 test('Should allow outName an outname with a slash', () => {
-	const newRenderMetadata: RenderMetadata = {
+	const newRenderMetadata: RenderMetadata<AwsRegion> = {
 		...testRenderMetadata,
 		codec: null,
 		audioCodec: null,
@@ -117,7 +118,7 @@ test('Should allow outName an outname with a slash', () => {
 });
 
 test('Should allow outName an outname with colon', () => {
-	const newRenderMetadata: RenderMetadata = {
+	const newRenderMetadata: RenderMetadata<AwsRegion> = {
 		...testRenderMetadata,
 		codec: null,
 		audioCodec: null,

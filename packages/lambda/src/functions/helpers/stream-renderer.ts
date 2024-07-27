@@ -33,7 +33,7 @@ const streamRenderer = <Region extends string>({
 	payload: ServerlessPayload<Region>;
 	functionName: string;
 	outdir: string;
-	overallProgress: OverallProgressHelper;
+	overallProgress: OverallProgressHelper<Region>;
 	files: string[];
 	logLevel: LogLevel;
 	onArtifact: (asset: EmittedArtifact) => {alreadyExisted: boolean};
@@ -193,7 +193,7 @@ export const streamRendererFunctionWithRetry = async <Region extends string>({
 	payload: ServerlessPayload<Region>;
 	functionName: string;
 	outdir: string;
-	overallProgress: OverallProgressHelper;
+	overallProgress: OverallProgressHelper<Region>;
 	files: string[];
 	logLevel: LogLevel;
 	onArtifact: (asset: EmittedArtifact) => {alreadyExisted: boolean};

@@ -8,7 +8,7 @@ export const getCustomOutName = <Region extends string>({
 	renderMetadata,
 	customCredentials,
 }: {
-	renderMetadata: RenderMetadata;
+	renderMetadata: RenderMetadata<Region>;
 	customCredentials: CustomCredentials<Region> | null;
 }): OutNameInput<Region> | null => {
 	if (!renderMetadata.outName) {

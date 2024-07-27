@@ -11,7 +11,7 @@ export const makeTimeoutError = <Region extends string>({
 	providerSpecifics,
 }: {
 	timeoutInMilliseconds: number;
-	renderMetadata: RenderMetadata;
+	renderMetadata: RenderMetadata<Region>;
 	renderId: string;
 	missingChunks: number[];
 	providerSpecifics: ProviderSpecifics<Region>;

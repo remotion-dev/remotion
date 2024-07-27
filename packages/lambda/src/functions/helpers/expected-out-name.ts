@@ -28,7 +28,7 @@ export const getCredentialsFromOutName = <Region extends string>(
 };
 
 export const getExpectedOutName = <Region extends string>(
-	renderMetadata: RenderMetadata,
+	renderMetadata: RenderMetadata<Region>,
 	bucketName: string,
 	customCredentials: CustomCredentials<Region> | null,
 ): OutNameOutput<Region> => {

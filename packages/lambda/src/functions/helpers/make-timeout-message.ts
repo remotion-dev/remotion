@@ -16,7 +16,7 @@ const makeChunkMissingMessage = <Region extends string>({
 	providerSpecifics,
 }: {
 	missingChunks: number[];
-	renderMetadata: RenderMetadata;
+	renderMetadata: RenderMetadata<Region>;
 	providerSpecifics: ProviderSpecifics<Region>;
 }) => {
 	if (missingChunks.length === 0) {
@@ -65,7 +65,7 @@ export const makeTimeoutMessage = <Region extends string>({
 }: {
 	timeoutInMilliseconds: number;
 	missingChunks: number[];
-	renderMetadata: RenderMetadata;
+	renderMetadata: RenderMetadata<Region>;
 	renderId: string;
 	providerSpecifics: ProviderSpecifics<Region>;
 }) => {

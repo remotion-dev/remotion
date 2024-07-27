@@ -8,7 +8,6 @@ import type {
 	ServerlessCodec,
 } from '@remotion/serverless/client';
 import fs from 'fs';
-import type {AwsRegion} from '../../regions';
 import type {PostRenderData, RenderMetadata} from '../../shared/constants';
 import {cleanupProps} from './cleanup-props';
 import {concatVideos} from './concat-videos';
@@ -37,7 +36,7 @@ export const mergeChunksAndFinishRender = async <
 	privacy: Privacy;
 	inputProps: SerializedInputProps;
 	serializedResolvedProps: SerializedInputProps;
-	renderMetadata: RenderMetadata;
+	renderMetadata: RenderMetadata<Region>;
 	audioBitrate: string | null;
 	logLevel: LogLevel;
 	framesPerLambda: number;
@@ -46,7 +45,7 @@ export const mergeChunksAndFinishRender = async <
 	compositionStart: number;
 	outdir: string;
 	files: string[];
-	overallProgress: OverallProgressHelper;
+	overallProgress: OverallProgressHelper<Region>;
 	startTime: number;
 	providerSpecifics: ProviderSpecifics<Region>;
 }): Promise<PostRenderData> => {
@@ -112,12 +111,12 @@ export const mergeChunksAndFinishRender = async <
 	const {url: outputUrl} = getOutputUrlFromMetadata(
 		options.renderMetadata,
 		options.bucketName,
-		options.customCredentials as CustomCredentials<AwsRegion>,
-		options.providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
+		options.customCredentials,
+		options.providerSpecifics.getCurrentRegionInFunction(),
 	);
 
 	const postRenderData = createPostRenderData({
-		region: options.providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
+		region: options.providerSpecifics.getCurrentRegionInFunction(),
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		renderMetadata: options.renderMetadata,
 		errorExplanations,

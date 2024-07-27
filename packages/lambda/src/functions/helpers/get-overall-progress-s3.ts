@@ -25,7 +25,7 @@ export const getOverallProgressS3 = async <Region extends string>({
 		});
 
 		const str = await streamToString(Body);
-		return JSON.parse(str) as OverallRenderProgress;
+		return JSON.parse(str) as OverallRenderProgress<Region>;
 	} catch (err) {
 		if ((err as Error).name === 'NotFound') {
 			throw new TypeError(

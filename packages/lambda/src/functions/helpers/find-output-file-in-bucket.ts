@@ -1,7 +1,6 @@
 import type {ProviderSpecifics} from '@remotion/serverless';
 import type {CustomCredentials} from '@remotion/serverless/client';
 import {ROLE_NAME} from '../../api/iam-validation/suggested-policy';
-import type {AwsRegion} from '../../regions';
 import type {RenderMetadata} from '../../shared/constants';
 import {getExpectedOutName} from './expected-out-name';
 import {getOutputUrlFromMetadata} from './get-output-url-from-metadata';
@@ -19,7 +18,7 @@ export const findOutputFileInBucket = async <Region extends string>({
 	providerSpecifics,
 }: {
 	region: Region;
-	renderMetadata: RenderMetadata;
+	renderMetadata: RenderMetadata<Region>;
 	bucketName: string;
 	customCredentials: CustomCredentials<Region> | null;
 	currentRegion: Region;
@@ -46,8 +45,8 @@ export const findOutputFileInBucket = async <Region extends string>({
 			url: getOutputUrlFromMetadata(
 				renderMetadata,
 				bucketName,
-				customCredentials as CustomCredentials<AwsRegion>,
-				currentRegion as AwsRegion,
+				customCredentials,
+				currentRegion,
 			).url,
 		};
 	} catch (err) {

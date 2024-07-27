@@ -1,8 +1,8 @@
 import {RenderInternals} from '@remotion/renderer';
 import type {RenderMetadata} from '../../defaults';
 
-export const lambdaRenderHasAudioVideo = (
-	renderMetadata: RenderMetadata,
+export const lambdaRenderHasAudioVideo = <Region extends string>(
+	renderMetadata: RenderMetadata<Region>,
 ): {
 	hasAudio: boolean;
 	hasVideo: boolean;
