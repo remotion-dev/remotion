@@ -3,9 +3,6 @@ import {vi} from 'vitest';
 vi.mock('../cli/helpers/quit', () =>
 	vi.importActual('../cli/helpers/__mocks__/quit'),
 );
-vi.mock('../functions/helpers/io', () =>
-	vi.importActual('../functions/helpers/__mocks__/io'),
-);
 vi.mock('../functions/helpers/timer', () =>
 	vi.importActual('../functions/helpers/__mocks__/timer'),
 );
