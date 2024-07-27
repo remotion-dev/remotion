@@ -4,11 +4,12 @@ import type {
 	CustomCredentials,
 	DownloadBehavior,
 	Privacy,
+	RenderMetadata,
 	SerializedInputProps,
 	ServerlessCodec,
 } from '@remotion/serverless/client';
 import fs from 'fs';
-import type {PostRenderData, RenderMetadata} from '../../shared/constants';
+import type {PostRenderData} from '../../shared/constants';
 import {cleanupProps} from './cleanup-props';
 import {concatVideos} from './concat-videos';
 import {createPostRenderData} from './create-post-render-data';

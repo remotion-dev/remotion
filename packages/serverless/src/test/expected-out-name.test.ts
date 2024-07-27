@@ -1,9 +1,10 @@
-import {expect, test} from 'vitest';
-import type {RenderMetadata} from '../../defaults';
-import {getExpectedOutName} from '../../functions/helpers/expected-out-name';
-import type {AwsRegion} from '../../regions';
+import {expect, test} from 'bun:test';
+import {getExpectedOutName} from '../expected-out-name';
+import type {RenderMetadata} from '../render-metadata';
 
 const bucketName = 'remotionlambda-98fsduf';
+
+type AwsRegion = 'eu-central-1';
 
 const testRenderMetadata: RenderMetadata<AwsRegion> = {
 	compositionId: 'react-svg',

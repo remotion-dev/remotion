@@ -1,10 +1,10 @@
 import {RenderInternals, getVideoMetadata} from '@remotion/renderer';
+import {rendersPrefix} from '@remotion/serverless/client';
 import {createWriteStream, unlinkSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'path';
 import {afterAll, expect, test} from 'vitest';
 import {internalDeleteRender} from '../../../api/delete-render';
-import {rendersPrefix} from '../../../defaults';
 import {mockImplementation} from '../../mock-implementation';
 import {simulateLambdaRender} from '../simulate-lambda-render';
 

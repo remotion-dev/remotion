@@ -1,6 +1,6 @@
 import type {ProviderSpecifics} from '@remotion/serverless';
+import type {RenderMetadata} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
-import type {RenderMetadata} from '../../defaults';
 import type {AwsRegion} from '../../regions';
 import {DOCS_URL} from '../../shared/docs-url';
 import {

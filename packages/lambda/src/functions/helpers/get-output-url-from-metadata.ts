@@ -1,6 +1,8 @@
-import type {CustomCredentials} from '@remotion/serverless/client';
-import type {RenderMetadata} from '../../defaults';
-import {getExpectedOutName} from './expected-out-name';
+import type {RenderMetadata} from '@remotion/serverless/client';
+import {
+	getExpectedOutName,
+	type CustomCredentials,
+} from '@remotion/serverless/client';
 
 export const getOutputUrlFromMetadata = <Region extends string>(
 	renderMetadata: RenderMetadata<Region>,

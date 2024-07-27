@@ -3,13 +3,19 @@ import {RenderInternals} from '@remotion/renderer';
 import {
 	forgetBrowserEventLoop,
 	getBrowserInstance,
+	getCredentialsFromOutName,
 	validateComposition,
+	validateOutname,
 	type ProviderSpecifics,
 } from '@remotion/serverless';
-import type {ServerlessPayload} from '@remotion/serverless/client';
+import type {
+	RenderMetadata,
+	ServerlessPayload,
+} from '@remotion/serverless/client';
 import {
 	ServerlessRoutines,
 	decompressInputProps,
+	getExpectedOutName,
 	internalGetOrCreateBucket,
 } from '@remotion/serverless/client';
 import fs from 'node:fs';
@@ -19,7 +25,7 @@ import {VERSION} from 'remotion/version';
 import {estimatePrice} from '../api/estimate-price';
 import type {AwsRegion} from '../regions';
 import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
-import type {CostsInfo, RenderMetadata} from '../shared/constants';
+import type {CostsInfo} from '../shared/constants';
 import {
 	MAX_EPHEMERAL_STORAGE_IN_MB,
 	artifactName,
@@ -27,12 +33,8 @@ import {
 } from '../shared/constants';
 import {isFlakyError} from '../shared/is-flaky-error';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
-import {validateOutname} from '../shared/validate-outname';
 import {validatePrivacy} from '../shared/validate-privacy';
-import {
-	getCredentialsFromOutName,
-	getExpectedOutName,
-} from './helpers/expected-out-name';
+
 import {formatCostsInfo} from './helpers/format-costs-info';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';

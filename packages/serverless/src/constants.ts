@@ -299,3 +299,45 @@ export type ServerlessPayload<Region extends string> =
 	ServerlessPayloads<Region>[ServerlessRoutines];
 
 export const REMOTION_BUCKET_PREFIX = 'remotionlambda-';
+
+export type OutNameOutput<Region extends string> = {
+	renderBucketName: string;
+	key: string;
+	customCredentials: CustomCredentials<Region> | null;
+};
+
+export type OutNameInputWithoutCredentials =
+	| string
+	| {
+			bucketName: string;
+			key: string;
+			s3OutputProvider?: CustomCredentialsWithoutSensitiveData;
+	  };
+
+export const rendersPrefix = (renderId: string) => `renders/${renderId}`;
+
+export const outStillName = (renderId: string, imageFormat: StillImageFormat) =>
+	`${rendersPrefix(renderId)}/out.${imageFormat}`;
+
+export const outName = (renderId: string, extension: string) =>
+	`${rendersPrefix(renderId)}/out.${extension}`;
+
+export const customOutName = <Region extends string>(
+	renderId: string,
+	bucketName: string,
+	name: OutNameInput<Region>,
+): OutNameOutput<Region> => {
+	if (typeof name === 'string') {
+		return {
+			renderBucketName: bucketName,
+			key: `${rendersPrefix(renderId)}/${name}`,
+			customCredentials: null,
+		};
+	}
+
+	return {
+		key: name.key,
+		renderBucketName: name.bucketName,
+		customCredentials: name.s3OutputProvider ?? null,
+	};
+};

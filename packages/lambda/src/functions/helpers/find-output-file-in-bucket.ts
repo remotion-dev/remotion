@@ -1,8 +1,10 @@
 import type {ProviderSpecifics} from '@remotion/serverless';
-import type {CustomCredentials} from '@remotion/serverless/client';
+import {
+	getExpectedOutName,
+	type CustomCredentials,
+	type RenderMetadata,
+} from '@remotion/serverless/client';
 import {ROLE_NAME} from '../../api/iam-validation/suggested-policy';
-import type {RenderMetadata} from '../../shared/constants';
-import {getExpectedOutName} from './expected-out-name';
 import {getOutputUrlFromMetadata} from './get-output-url-from-metadata';
 
 export type OutputFileMetadata = {

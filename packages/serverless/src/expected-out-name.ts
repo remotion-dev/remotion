@@ -1,13 +1,16 @@
 import type {Codec} from '@remotion/renderer';
 import {NoReactAPIs} from '@remotion/renderer/pure';
-import type {
-	CustomCredentials,
-	OutNameInput,
-} from '@remotion/serverless/client';
-import type {OutNameOutput, RenderMetadata} from '../../defaults';
-import {customOutName, outName, outStillName} from '../../defaults';
-import {validateOutname} from '../../shared/validate-outname';
+import {
+	customOutName,
+	outName,
+	outStillName,
+	type CustomCredentials,
+	type OutNameInput,
+	type OutNameOutput,
+} from './constants';
 import {getCustomOutName} from './get-custom-out-name';
+import type {RenderMetadata} from './render-metadata';
+import {validateOutname} from './validate-outname';
 
 export const getCredentialsFromOutName = <Region extends string>(
 	name: OutNameInput<Region> | null,

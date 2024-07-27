@@ -1,8 +1,10 @@
 import type {ProviderSpecifics} from '@remotion/serverless';
-import type {CustomCredentials} from '@remotion/serverless/client';
-import {rendersPrefix} from '../defaults';
+import {
+	getExpectedOutName,
+	rendersPrefix,
+	type CustomCredentials,
+} from '@remotion/serverless/client';
 import {awsImplementation} from '../functions/aws-implementation';
-import {getExpectedOutName} from '../functions/helpers/expected-out-name';
 import {getOverallProgressS3} from '../functions/helpers/get-overall-progress-s3';
 import type {AwsRegion} from '../regions';
 import {getAccountId} from '../shared/get-account-id';

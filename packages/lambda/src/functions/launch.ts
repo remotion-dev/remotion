@@ -6,12 +6,17 @@ import {
 	forgetBrowserEventLoop,
 	getBrowserInstance,
 	validateComposition,
+	validateOutname,
 } from '@remotion/serverless';
-import type {ServerlessPayload} from '@remotion/serverless/client';
+import type {
+	RenderMetadata,
+	ServerlessPayload,
+} from '@remotion/serverless/client';
 import {
 	ServerlessRoutines,
 	compressInputProps,
 	decompressInputProps,
+	getExpectedOutName,
 	getNeedsToUpload,
 	serializeOrThrow,
 } from '@remotion/serverless/client';
@@ -19,7 +24,7 @@ import {existsSync, mkdirSync, rmSync} from 'fs';
 import {join} from 'path';
 import {VERSION} from 'remotion/version';
 import {type EventEmitter} from 'stream';
-import type {PostRenderData, RenderMetadata} from '../shared/constants';
+import type {PostRenderData} from '../shared/constants';
 import {
 	CONCAT_FOLDER_TOKEN,
 	MAX_FUNCTIONS_PER_RENDER,
@@ -33,12 +38,10 @@ import {
 	validateFps,
 } from '../shared/validate';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
-import {validateOutname} from '../shared/validate-outname';
 import {validatePrivacy} from '../shared/validate-privacy';
 import {planFrameRanges} from './chunk-optimization/plan-frame-ranges';
 import {bestFramesPerLambdaParam} from './helpers/best-frames-per-lambda-param';
 import {cleanupProps} from './helpers/cleanup-props';
-import {getExpectedOutName} from './helpers/expected-out-name';
 import {findOutputFileInBucket} from './helpers/find-output-file-in-bucket';
 import {mergeChunksAndFinishRender} from './helpers/merge-chunks';
 import type {OverallProgressHelper} from './helpers/overall-render-progress';

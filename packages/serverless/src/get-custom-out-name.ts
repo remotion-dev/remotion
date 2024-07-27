@@ -1,8 +1,5 @@
-import type {
-	CustomCredentials,
-	OutNameInput,
-} from '@remotion/serverless/client';
-import type {RenderMetadata} from '../../defaults';
+import type {CustomCredentials, OutNameInput} from './constants';
+import type {RenderMetadata} from './render-metadata';
 
 export const getCustomOutName = <Region extends string>({
 	renderMetadata,

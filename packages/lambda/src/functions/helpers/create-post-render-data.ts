@@ -1,6 +1,7 @@
+import type {RenderMetadata} from '@remotion/serverless/client';
 import {estimatePrice} from '../../api/estimate-price';
 import type {AwsRegion} from '../../regions';
-import type {PostRenderData, RenderMetadata} from '../../shared/constants';
+import type {PostRenderData} from '../../shared/constants';
 import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../../shared/constants';
 import {
 	OVERHEAD_TIME_PER_LAMBDA,

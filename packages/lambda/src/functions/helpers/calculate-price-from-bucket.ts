@@ -1,7 +1,7 @@
 import type {ProviderSpecifics} from '@remotion/serverless';
+import type {RenderMetadata} from '@remotion/serverless/client';
 import {estimatePrice} from '../../api/estimate-price';
 import type {AwsRegion} from '../../regions';
-import type {RenderMetadata} from '../../shared/constants';
 import type {ParsedTiming} from '../../shared/parse-lambda-timings-key';
 import {calculateChunkTimes} from './calculate-chunk-times';
 

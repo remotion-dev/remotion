@@ -1,13 +1,15 @@
 import {RenderInternals} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
-import type {CustomCredentials} from '@remotion/serverless/client';
+import {
+	getExpectedOutName,
+	type CustomCredentials,
+} from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
 import type {CleanupInfo, GenericRenderProgress} from '../../shared/constants';
 import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../../shared/constants';
 import {truthy} from '../../shared/truthy';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import {estimatePriceFromBucket} from './calculate-price-from-bucket';
-import {getExpectedOutName} from './expected-out-name';
 import {formatCostsInfo} from './format-costs-info';
 import {getOverallProgress} from './get-overall-progress';
 import {getOverallProgressS3} from './get-overall-progress-s3';

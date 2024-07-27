@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import type {RenderMetadata} from '../../defaults';
+import type {RenderMetadata} from '@remotion/serverless/client';
 
 export const lambdaRenderHasAudioVideo = <Region extends string>(
 	renderMetadata: RenderMetadata<Region>,
