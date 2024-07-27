@@ -8,9 +8,8 @@ import {
 	InvokeWithResponseStreamCommand,
 } from '@aws-sdk/client-lambda';
 import type {
-	AwsRegion,
-	LambdaPayloads,
-	LambdaRoutines,
+	ServerlessPayloads,
+	ServerlessRoutines,
 } from '@remotion/serverless/client';
 import {makeStreamer} from '@remotion/streaming';
 import type {OrError} from '../functions';
@@ -23,16 +22,17 @@ import {
 	formatMap,
 	messageTypeIdToMessageType,
 } from '../functions/streaming/streaming';
+import type {AwsRegion} from '../regions';
 import {getLambdaClient} from './aws-clients';
 import type {LambdaReturnValues} from './return-values';
 
 const INVALID_JSON_MESSAGE = 'Cannot parse Lambda response as JSON';
 
-type Options<T extends LambdaRoutines> = {
+type Options<T extends ServerlessRoutines, Region extends string> = {
 	functionName: string;
 	type: T;
-	payload: Omit<LambdaPayloads[T], 'type'>;
-	region: AwsRegion;
+	payload: Omit<ServerlessPayloads<Region>[T], 'type'>;
+	region: Region;
 	timeoutInTest: number;
 };
 
@@ -45,11 +45,14 @@ const parseJsonOrThrowSource = (data: Uint8Array, type: string) => {
 	}
 };
 
-export const callLambda = async <T extends LambdaRoutines>(
-	options: Options<T> & {},
-): Promise<LambdaReturnValues[T]> => {
+export const callLambda = async <
+	T extends ServerlessRoutines,
+	Region extends string,
+>(
+	options: Options<T, Region> & {},
+): Promise<LambdaReturnValues<Region>[T]> => {
 	// Do not remove this await
-	const res = await callLambdaWithoutRetry<T>(options);
+	const res = await callLambdaWithoutRetry<T, Region>(options);
 	if (res.type === 'error') {
 		const err = new Error(res.message);
 		err.stack = res.stack;
@@ -59,8 +62,11 @@ export const callLambda = async <T extends LambdaRoutines>(
 	return res;
 };
 
-export const callLambdaWithStreaming = async <T extends LambdaRoutines>(
-	options: Options<T> & {
+export const callLambdaWithStreaming = async <
+	T extends ServerlessRoutines,
+	Region extends string,
+>(
+	options: Options<T, Region> & {
 		receivedStreamingPayload: OnMessage;
 		retriesRemaining: number;
 	},
@@ -70,7 +76,7 @@ export const callLambdaWithStreaming = async <T extends LambdaRoutines>(
 
 	try {
 		// Do not remove this await
-		await callLambdaWithStreamingWithoutRetry<T>(options);
+		await callLambdaWithStreamingWithoutRetry<T, Region>(options);
 	} catch (err) {
 		if (options.retriesRemaining === 0) {
 			throw err;
@@ -94,15 +100,18 @@ export const callLambdaWithStreaming = async <T extends LambdaRoutines>(
 	}
 };
 
-const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
+const callLambdaWithoutRetry = async <
+	T extends ServerlessRoutines,
+	Region extends string,
+>({
 	functionName,
 	type,
 	payload,
 	region,
 	timeoutInTest,
-}: Options<T>): Promise<OrError<LambdaReturnValues[T]>> => {
+}: Options<T, Region>): Promise<OrError<LambdaReturnValues<Region>[T]>> => {
 	const Payload = JSON.stringify({type, ...payload});
-	const res = await getLambdaClient(region, timeoutInTest).send(
+	const res = await getLambdaClient(region as AwsRegion, timeoutInTest).send(
 		new InvokeCommand({
 			FunctionName: functionName,
 			Payload,
@@ -113,7 +122,7 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 	const decoded = new TextDecoder('utf-8').decode(res.Payload);
 
 	try {
-		return JSON.parse(decoded) as OrError<LambdaReturnValues[T]>;
+		return JSON.parse(decoded) as OrError<LambdaReturnValues<Region>[T]>;
 	} catch (err) {
 		throw new Error(`Invalid JSON (${type}): ${JSON.stringify(decoded)}`);
 	}
@@ -122,20 +131,20 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 const STREAM_STALL_TIMEOUT = 30000;
 const LAMBDA_STREAM_STALL = `AWS did not invoke Lambda in ${STREAM_STALL_TIMEOUT}ms`;
 
-const invokeStreamOrTimeout = async ({
+const invokeStreamOrTimeout = async <Region extends string>({
 	region,
 	timeoutInTest,
 	functionName,
 	type,
 	payload,
 }: {
-	region: AwsRegion;
+	region: Region;
 	timeoutInTest: number;
 	functionName: string;
 	type: string;
 	payload: Record<string, unknown>;
 }) => {
-	const resProm = getLambdaClient(region, timeoutInTest).send(
+	const resProm = getLambdaClient(region as AwsRegion, timeoutInTest).send(
 		new InvokeWithResponseStreamCommand({
 			FunctionName: functionName,
 			Payload: JSON.stringify({type, ...payload}),
@@ -162,14 +171,17 @@ const invokeStreamOrTimeout = async ({
 	return res;
 };
 
-const callLambdaWithStreamingWithoutRetry = async <T extends LambdaRoutines>({
+const callLambdaWithStreamingWithoutRetry = async <
+	T extends ServerlessRoutines,
+	Region extends string,
+>({
 	functionName,
 	type,
 	payload,
 	region,
 	timeoutInTest,
 	receivedStreamingPayload,
-}: Options<T> & {
+}: Options<T, Region> & {
 	receivedStreamingPayload: OnMessage;
 }): Promise<void> => {
 	const res = await invokeStreamOrTimeout({

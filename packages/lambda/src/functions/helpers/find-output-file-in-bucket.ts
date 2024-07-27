@@ -1,24 +1,28 @@
-import type {AwsRegion, CustomCredentials} from '@remotion/serverless/client';
+import type {ProviderSpecifics} from '@remotion/serverless';
+import type {CustomCredentials} from '@remotion/serverless/client';
 import {ROLE_NAME} from '../../api/iam-validation/suggested-policy';
 import type {RenderMetadata} from '../../shared/constants';
 import {getExpectedOutName} from './expected-out-name';
 import {getOutputUrlFromMetadata} from './get-output-url-from-metadata';
-import {lambdaHeadCommand} from './io';
 
 export type OutputFileMetadata = {
 	url: string;
 };
 
-export const findOutputFileInBucket = async ({
+export const findOutputFileInBucket = async <Region extends string>({
 	region,
 	renderMetadata,
 	bucketName,
 	customCredentials,
+	currentRegion,
+	providerSpecifics,
 }: {
-	region: AwsRegion;
-	renderMetadata: RenderMetadata;
+	region: Region;
+	renderMetadata: RenderMetadata<Region>;
 	bucketName: string;
-	customCredentials: CustomCredentials | null;
+	customCredentials: CustomCredentials<Region> | null;
+	currentRegion: Region;
+	providerSpecifics: ProviderSpecifics<Region>;
 }): Promise<OutputFileMetadata | null> => {
 	if (!renderMetadata) {
 		throw new Error('unexpectedly did not get renderMetadata');
@@ -31,7 +35,7 @@ export const findOutputFileInBucket = async ({
 	);
 
 	try {
-		await lambdaHeadCommand({
+		await providerSpecifics.headFile({
 			bucketName,
 			key,
 			region,
@@ -42,6 +46,7 @@ export const findOutputFileInBucket = async ({
 				renderMetadata,
 				bucketName,
 				customCredentials,
+				currentRegion,
 			).url,
 		};
 	} catch (err) {

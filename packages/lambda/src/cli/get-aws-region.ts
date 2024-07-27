@@ -1,4 +1,4 @@
-import type {AwsRegion} from '@remotion/serverless/client';
+import type {AwsRegion} from '../regions';
 import {DEFAULT_REGION} from '../shared/constants';
 import {isInsideLambda} from '../shared/is-in-lambda';
 import {validateAwsRegion} from '../shared/validate-aws-region';

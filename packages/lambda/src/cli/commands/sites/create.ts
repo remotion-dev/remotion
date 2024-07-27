@@ -3,12 +3,15 @@ import {ConfigInternals} from '@remotion/cli/config';
 import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 
-import type {Privacy} from '@remotion/serverless/client';
+import type {ProviderSpecifics} from '@remotion/serverless';
+import {
+	internalGetOrCreateBucket,
+	type Privacy,
+} from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
-import {internalGetOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {LambdaInternals} from '../../../internals';
+import type {AwsRegion} from '../../../regions';
 import {BINARY_NAME} from '../../../shared/constants';
-import {randomHash} from '../../../shared/random-hash';
 import {validateSiteName} from '../../../shared/validate-site-name';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
@@ -38,6 +41,7 @@ export const sitesCreateSubcommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
+	implementation: ProviderSpecifics<AwsRegion>,
 ) => {
 	const {file, reason} = CliInternals.findEntryPoint({
 		args,
@@ -125,6 +129,7 @@ export const sitesCreateSubcommand = async (
 				region: getAwsRegion(),
 				enableFolderExpiry,
 				customCredentials: null,
+				providerSpecifics: implementation,
 			})
 		).bucketName;
 
@@ -149,7 +154,7 @@ export const sitesCreateSubcommand = async (
 
 	const {serveUrl, siteName, stats} = await LambdaInternals.internalDeploySite({
 		entryPoint: file,
-		siteName: desiredSiteName ?? randomHash(),
+		siteName: desiredSiteName ?? implementation.randomHash(),
 		bucketName,
 		options: {
 			publicDir,
@@ -185,6 +190,7 @@ export const sitesCreateSubcommand = async (
 		indent: false,
 		logLevel,
 		throwIfSiteExists,
+		providerSpecifics: implementation,
 	});
 
 	const uploadDuration = Date.now() - uploadStart;

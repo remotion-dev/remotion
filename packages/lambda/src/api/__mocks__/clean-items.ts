@@ -1,5 +1,5 @@
+import {mockDeleteS3File} from '../../test/mocks/mock-store';
 import type {cleanItems as original} from '../clean-items';
-import {mockDeleteS3File} from './mock-s3';
 
 export const cleanItems: typeof original = (input) => {
 	for (const item of input.list) {

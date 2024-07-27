@@ -1,6 +1,6 @@
 import type {AudioCodec, CancelSignal, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {LambdaCodec} from '@remotion/serverless/client';
+import type {ServerlessCodec} from '@remotion/serverless/client';
 import fs from 'node:fs';
 import {join} from 'node:path';
 import {
@@ -32,7 +32,7 @@ export const concatVideos = async ({
 }: {
 	onProgress: (frames: number) => void;
 	numberOfFrames: number;
-	codec: LambdaCodec;
+	codec: ServerlessCodec;
 	fps: number;
 	numberOfGifLoops: number | null;
 	files: string[];

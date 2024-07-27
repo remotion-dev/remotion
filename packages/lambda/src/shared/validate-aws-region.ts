@@ -1,5 +1,5 @@
-import type {AwsRegion} from '@remotion/serverless/client';
-import {AWS_REGIONS} from '@remotion/serverless/client';
+import type {AwsRegion} from '../regions';
+import {AWS_REGIONS} from '../regions';
 
 export function validateAwsRegion(
 	region: unknown,

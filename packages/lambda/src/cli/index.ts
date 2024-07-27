@@ -1,8 +1,11 @@
 import {CliInternals} from '@remotion/cli';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {ProviderSpecifics} from '@remotion/serverless';
 import {ROLE_NAME} from '../api/iam-validation/suggested-policy';
 import {BINARY_NAME} from '../defaults';
+import {awsImplementation} from '../functions/aws-implementation';
+import type {AwsRegion} from '../regions';
 import {checkCredentials} from '../shared/check-credentials';
 import {DOCS_URL} from '../shared/docs-url';
 import {parsedLambdaCli} from './args';
@@ -46,6 +49,7 @@ const matchCommand = (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
+	implementation: ProviderSpecifics<AwsRegion>,
 ) => {
 	if (parsedLambdaCli.help || args.length === 0) {
 		printHelp(logLevel);
@@ -57,11 +61,11 @@ const matchCommand = (
 	}
 
 	if (args[0] === RENDER_COMMAND) {
-		return renderCommand(args.slice(1), remotionRoot, logLevel);
+		return renderCommand(args.slice(1), remotionRoot, logLevel, implementation);
 	}
 
 	if (args[0] === STILL_COMMAND) {
-		return stillCommand(args.slice(1), remotionRoot, logLevel);
+		return stillCommand(args.slice(1), remotionRoot, logLevel, implementation);
 	}
 
 	if (args[0] === COMPOSITIONS_COMMAND) {
@@ -85,7 +89,7 @@ const matchCommand = (
 	}
 
 	if (args[0] === SITES_COMMAND) {
-		return sitesCommand(args.slice(1), remotionRoot, logLevel);
+		return sitesCommand(args.slice(1), remotionRoot, logLevel, implementation);
 	}
 
 	if (args[0] === 'upload') {
@@ -141,10 +145,16 @@ export const executeCommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
+	implementation: ProviderSpecifics<AwsRegion> | null,
 ) => {
 	try {
 		setIsCli(true);
-		await matchCommand(args, remotionRoot, logLevel);
+		await matchCommand(
+			args,
+			remotionRoot,
+			logLevel,
+			implementation ?? awsImplementation,
+		);
 	} catch (err) {
 		const error = err as Error;
 		if (
@@ -246,5 +256,10 @@ export const cli = async (logLevel: LogLevel) => {
 	const remotionRoot = RenderInternals.findRemotionRoot();
 	await CliInternals.initializeCli(remotionRoot);
 
-	await executeCommand(parsedLambdaCli._, remotionRoot, logLevel);
+	await executeCommand(
+		parsedLambdaCli._,
+		remotionRoot,
+		logLevel,
+		awsImplementation,
+	);
 };

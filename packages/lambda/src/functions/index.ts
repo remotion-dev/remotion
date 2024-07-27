@@ -1,8 +1,11 @@
 import {RenderInternals} from '@remotion/renderer';
-import type {LambdaPayload} from '@remotion/serverless/client';
-import {LambdaRoutines} from '@remotion/serverless/client';
+import type {ProviderSpecifics} from '@remotion/serverless';
+import {compositionsHandler, infoHandler} from '@remotion/serverless';
+import type {ServerlessPayload} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless/client';
+import type {AwsRegion} from '../regions';
 import {COMMAND_NOT_FOUND} from '../shared/constants';
-import {compositionsHandler} from './compositions';
+import {awsImplementation} from './aws-implementation';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {getWarm, setWarm} from './helpers/is-warm';
 import {setCurrentRequestId, stopLeakDetection} from './helpers/leak-detection';
@@ -10,11 +13,10 @@ import {
 	generateRandomHashWithLifeCycleRule,
 	validateDeleteAfter,
 } from './helpers/lifecycle';
-import {printCloudwatchHelper} from './helpers/print-cloudwatch-helper';
+import {printLoggingGrepHelper} from './helpers/print-logging-helper';
 import type {RequestContext} from './helpers/request-context';
 import type {ResponseStream} from './helpers/streamify-response';
 import {streamifyResponse} from './helpers/streamify-response';
-import {infoHandler} from './info';
 import {launchHandler} from './launch';
 import {progressHandler} from './progress';
 import {rendererHandler} from './renderer';
@@ -27,14 +29,16 @@ import {
 import type {StreamingPayload} from './streaming/streaming';
 import {makeStreamPayload} from './streaming/streaming';
 
-const innerHandler = async ({
+const innerHandler = async <Region extends string>({
 	params,
 	responseWriter,
 	context,
+	providerSpecifics,
 }: {
-	params: LambdaPayload;
+	params: ServerlessPayload<Region>;
 	responseWriter: ResponseStreamWriter;
 	context: RequestContext;
+	providerSpecifics: ProviderSpecifics<Region>;
 }): Promise<void> => {
 	setCurrentRequestId(context.awsRequestId);
 	process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA = 'true';
@@ -57,18 +61,23 @@ const innerHandler = async ({
 	setWarm();
 
 	const currentUserId = context.invokedFunctionArn.split(':')[4];
-	if (params.type === LambdaRoutines.still) {
+	if (params.type === ServerlessRoutines.still) {
 		validateDeleteAfter(params.deleteAfter);
-		const renderId = generateRandomHashWithLifeCycleRule(params.deleteAfter);
-		printCloudwatchHelper(
-			LambdaRoutines.still,
-			{
-				renderId,
-				inputProps: JSON.stringify(params.inputProps),
-				isWarm,
-			},
-			params.logLevel,
+		const renderId = generateRandomHashWithLifeCycleRule(
+			params.deleteAfter,
+			providerSpecifics,
 		);
+		if (providerSpecifics.printLoggingHelper) {
+			printLoggingGrepHelper(
+				ServerlessRoutines.still,
+				{
+					renderId,
+					inputProps: JSON.stringify(params.inputProps),
+					isWarm,
+				},
+				params.logLevel,
+			);
+		}
 
 		try {
 			await new Promise((resolve, reject) => {
@@ -102,6 +111,7 @@ const innerHandler = async ({
 					renderId,
 					onStream,
 					timeoutInMilliseconds,
+					providerSpecifics,
 				})
 					.then((r) => {
 						resolve(r);
@@ -118,60 +128,76 @@ const innerHandler = async ({
 		return;
 	}
 
-	if (params.type === LambdaRoutines.start) {
-		printCloudwatchHelper(
-			LambdaRoutines.start,
-			{
-				inputProps: JSON.stringify(params.inputProps),
-				isWarm,
-			},
-			params.logLevel,
-		);
+	if (params.type === ServerlessRoutines.start) {
+		if (providerSpecifics.printLoggingHelper) {
+			printLoggingGrepHelper(
+				ServerlessRoutines.start,
+				{
+					inputProps: JSON.stringify(params.inputProps),
+					isWarm,
+				},
+				params.logLevel,
+			);
+		}
 
-		const response = await startHandler(params, {
-			expectedBucketOwner: currentUserId,
-			timeoutInMilliseconds,
-		});
+		const response = await startHandler(
+			params,
+			{
+				expectedBucketOwner: currentUserId,
+				timeoutInMilliseconds,
+			},
+			providerSpecifics,
+		);
 
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));
 		await responseWriter.end();
 		return;
 	}
 
-	if (params.type === LambdaRoutines.launch) {
-		printCloudwatchHelper(
-			LambdaRoutines.launch,
-			{
-				renderId: params.renderId,
-				inputProps: JSON.stringify(params.inputProps),
-				isWarm,
-			},
-			params.logLevel,
-		);
+	if (params.type === ServerlessRoutines.launch) {
+		if (providerSpecifics.printLoggingHelper) {
+			printLoggingGrepHelper(
+				ServerlessRoutines.launch,
+				{
+					renderId: params.renderId,
+					inputProps: JSON.stringify(params.inputProps),
+					isWarm,
+				},
+				params.logLevel,
+			);
+		}
 
-		const response = await launchHandler(params, {
-			expectedBucketOwner: currentUserId,
-			getRemainingTimeInMillis: context.getRemainingTimeInMillis,
-		});
+		const response = await launchHandler(
+			params,
+			{
+				expectedBucketOwner: currentUserId,
+				getRemainingTimeInMillis: context.getRemainingTimeInMillis,
+			},
+			providerSpecifics,
+		);
 
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));
 		await responseWriter.end();
 		return;
 	}
 
-	if (params.type === LambdaRoutines.status) {
-		printCloudwatchHelper(
-			LambdaRoutines.status,
-			{
-				renderId: params.renderId,
-				isWarm,
-			},
-			params.logLevel,
-		);
+	if (params.type === ServerlessRoutines.status) {
+		if (providerSpecifics.printLoggingHelper) {
+			printLoggingGrepHelper(
+				ServerlessRoutines.status,
+				{
+					renderId: params.renderId,
+					isWarm,
+				},
+				params.logLevel,
+			);
+		}
+
 		const response = await progressHandler(params, {
 			expectedBucketOwner: currentUserId,
 			timeoutInMilliseconds,
 			retriesRemaining: 2,
+			providerSpecifics,
 		});
 
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));
@@ -179,29 +205,31 @@ const innerHandler = async ({
 		return;
 	}
 
-	if (params.type === LambdaRoutines.renderer) {
-		printCloudwatchHelper(
-			LambdaRoutines.renderer,
-			{
-				renderId: params.renderId,
-				chunk: String(params.chunk),
-				dumpLogs: String(
-					RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
-				),
-				resolvedProps: JSON.stringify(params.resolvedProps),
-				isWarm,
-			},
-			params.logLevel,
-		);
+	if (params.type === ServerlessRoutines.renderer) {
+		if (providerSpecifics.printLoggingHelper) {
+			printLoggingGrepHelper(
+				ServerlessRoutines.renderer,
+				{
+					renderId: params.renderId,
+					chunk: String(params.chunk),
+					dumpLogs: String(
+						RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
+					),
+					resolvedProps: JSON.stringify(params.resolvedProps),
+					isWarm,
+				},
+				params.logLevel,
+			);
+		}
 
 		await new Promise((resolve, reject) => {
-			rendererHandler(
+			rendererHandler({
 				params,
-				{
+				options: {
 					expectedBucketOwner: currentUserId,
 					isWarm,
 				},
-				(payload) => {
+				onStream: (payload) => {
 					const message = makeStreamPayload({
 						message: payload,
 					});
@@ -219,8 +247,9 @@ const innerHandler = async ({
 							});
 					});
 				},
-				context,
-			)
+				requestContext: context,
+				providerSpecifics,
+			})
 				.then((res) => {
 					resolve(res);
 				})
@@ -234,14 +263,16 @@ const innerHandler = async ({
 		return;
 	}
 
-	if (params.type === LambdaRoutines.info) {
-		printCloudwatchHelper(
-			LambdaRoutines.info,
-			{
-				isWarm,
-			},
-			params.logLevel,
-		);
+	if (params.type === ServerlessRoutines.info) {
+		if (providerSpecifics.printLoggingHelper) {
+			printLoggingGrepHelper(
+				ServerlessRoutines.info,
+				{
+					isWarm,
+				},
+				params.logLevel,
+			);
+		}
 
 		const response = await infoHandler(params);
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));
@@ -249,18 +280,24 @@ const innerHandler = async ({
 		return;
 	}
 
-	if (params.type === LambdaRoutines.compositions) {
-		printCloudwatchHelper(
-			LambdaRoutines.compositions,
-			{
-				isWarm,
-			},
-			params.logLevel,
-		);
+	if (params.type === ServerlessRoutines.compositions) {
+		if (providerSpecifics.printLoggingHelper) {
+			printLoggingGrepHelper(
+				ServerlessRoutines.compositions,
+				{
+					isWarm,
+				},
+				params.logLevel,
+			);
+		}
 
-		const response = await compositionsHandler(params, {
-			expectedBucketOwner: currentUserId,
-		});
+		const response = await compositionsHandler(
+			params,
+			{
+				expectedBucketOwner: currentUserId,
+			},
+			providerSpecifics,
+		);
 
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));
 		await responseWriter.end();
@@ -279,10 +316,11 @@ export type OrError<T> =
 			stack: string;
 	  };
 
-export const routine = async (
-	params: LambdaPayload,
+export const innerRoutine = async <Region extends string>(
+	params: ServerlessPayload<Region>,
 	responseStream: ResponseStream,
 	context: RequestContext,
+	providerSpecifics: ProviderSpecifics<Region>,
 ): Promise<void> => {
 	const responseWriter = streamWriter(responseStream);
 
@@ -291,6 +329,7 @@ export const routine = async (
 			params,
 			responseWriter,
 			context,
+			providerSpecifics,
 		});
 	} catch (err) {
 		const res: OrError<0> = {
@@ -302,6 +341,14 @@ export const routine = async (
 		await responseWriter.write(Buffer.from(JSON.stringify(res)));
 		await responseWriter.end();
 	}
+};
+
+export const routine = (
+	params: ServerlessPayload<AwsRegion>,
+	responseStream: ResponseStream,
+	context: RequestContext,
+): Promise<void> => {
+	return innerRoutine(params, responseStream, context, awsImplementation);
 };
 
 export const handler = streamifyResponse(routine);

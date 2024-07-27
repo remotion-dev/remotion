@@ -1,12 +1,12 @@
 import type {EmittedArtifact, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {LambdaPayload} from '@remotion/serverless/client';
-import {LambdaRoutines} from '@remotion/serverless/client';
+import type {ProviderSpecifics} from '@remotion/serverless';
+import type {ServerlessPayload} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless/client';
 import {writeFileSync} from 'fs';
 import {join} from 'path';
 import {callLambdaWithStreaming} from '../../shared/call-lambda';
 import type {OnMessage} from '../streaming/streaming';
-import {getCurrentRegionInFunction} from './get-current-region';
 import type {OverallProgressHelper} from './overall-render-progress';
 import {deserializeArtifact} from './serialize-artifact';
 
@@ -20,7 +20,7 @@ type StreamRendererResponse =
 			shouldRetry: boolean;
 	  };
 
-const streamRenderer = ({
+const streamRenderer = <Region extends string>({
 	payload,
 	functionName,
 	outdir,
@@ -28,16 +28,18 @@ const streamRenderer = ({
 	files,
 	logLevel,
 	onArtifact,
+	providerSpecifics,
 }: {
-	payload: LambdaPayload;
+	payload: ServerlessPayload<Region>;
 	functionName: string;
 	outdir: string;
-	overallProgress: OverallProgressHelper;
+	overallProgress: OverallProgressHelper<Region>;
 	files: string[];
 	logLevel: LogLevel;
 	onArtifact: (asset: EmittedArtifact) => {alreadyExisted: boolean};
+	providerSpecifics: ProviderSpecifics<Region>;
 }) => {
-	if (payload.type !== LambdaRoutines.renderer) {
+	if (payload.type !== ServerlessRoutines.renderer) {
 		throw new Error('Expected renderer type');
 	}
 
@@ -158,9 +160,9 @@ const streamRenderer = ({
 			functionName,
 			payload,
 			retriesRemaining: 1,
-			region: getCurrentRegionInFunction(),
+			region: providerSpecifics.getCurrentRegionInFunction(),
 			timeoutInTest: 12000,
-			type: LambdaRoutines.renderer,
+			type: ServerlessRoutines.renderer,
 			receivedStreamingPayload,
 		})
 			.then(() => {
@@ -178,7 +180,7 @@ const streamRenderer = ({
 	});
 };
 
-export const streamRendererFunctionWithRetry = async ({
+export const streamRendererFunctionWithRetry = async <Region extends string>({
 	payload,
 	files,
 	functionName,
@@ -186,16 +188,18 @@ export const streamRendererFunctionWithRetry = async ({
 	overallProgress,
 	logLevel,
 	onArtifact,
+	providerSpecifics,
 }: {
-	payload: LambdaPayload;
+	payload: ServerlessPayload<Region>;
 	functionName: string;
 	outdir: string;
-	overallProgress: OverallProgressHelper;
+	overallProgress: OverallProgressHelper<Region>;
 	files: string[];
 	logLevel: LogLevel;
 	onArtifact: (asset: EmittedArtifact) => {alreadyExisted: boolean};
+	providerSpecifics: ProviderSpecifics<Region>;
 }): Promise<unknown> => {
-	if (payload.type !== LambdaRoutines.renderer) {
+	if (payload.type !== ServerlessRoutines.renderer) {
 		throw new Error('Expected renderer type');
 	}
 
@@ -207,6 +211,7 @@ export const streamRendererFunctionWithRetry = async ({
 		payload,
 		logLevel,
 		onArtifact,
+		providerSpecifics,
 	});
 
 	if (result.type === 'error') {
@@ -232,6 +237,7 @@ export const streamRendererFunctionWithRetry = async ({
 			},
 			logLevel,
 			onArtifact,
+			providerSpecifics,
 		});
 	}
 };

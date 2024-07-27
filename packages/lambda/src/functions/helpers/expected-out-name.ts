@@ -9,9 +9,9 @@ import {customOutName, outName, outStillName} from '../../defaults';
 import {validateOutname} from '../../shared/validate-outname';
 import {getCustomOutName} from './get-custom-out-name';
 
-export const getCredentialsFromOutName = (
-	name: OutNameInput | null,
-): CustomCredentials | null => {
+export const getCredentialsFromOutName = <Region extends string>(
+	name: OutNameInput<Region> | null,
+): CustomCredentials<Region> | null => {
 	if (typeof name === 'string') {
 		return null;
 	}
@@ -27,11 +27,11 @@ export const getCredentialsFromOutName = (
 	return name.s3OutputProvider ?? null;
 };
 
-export const getExpectedOutName = (
-	renderMetadata: RenderMetadata,
+export const getExpectedOutName = <Region extends string>(
+	renderMetadata: RenderMetadata<Region>,
 	bucketName: string,
-	customCredentials: CustomCredentials | null,
-): OutNameOutput => {
+	customCredentials: CustomCredentials<Region> | null,
+): OutNameOutput<Region> => {
 	const outNameValue = getCustomOutName({
 		customCredentials,
 		renderMetadata,

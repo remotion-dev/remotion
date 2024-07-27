@@ -10,14 +10,14 @@ import type {
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {
-	AwsRegion,
 	DownloadBehavior,
-	LambdaCodec,
 	OutNameInput,
 	Privacy,
+	ServerlessCodec,
 	WebhookOption,
 } from '@remotion/serverless/client';
-import {LambdaRoutines} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless/client';
+import type {AwsRegion} from '../regions';
 import {callLambda} from '../shared/call-lambda';
 import {
 	getCloudwatchMethodUrl,
@@ -35,7 +35,7 @@ export type RenderMediaOnLambdaInput = {
 	serveUrl: string;
 	composition: string;
 	inputProps?: Record<string, unknown>;
-	codec: LambdaCodec;
+	codec: ServerlessCodec;
 	imageFormat?: VideoImageFormat;
 	crf?: number | undefined;
 	envVariables?: Record<string, string>;
@@ -50,7 +50,7 @@ export type RenderMediaOnLambdaInput = {
 	maxRetries?: number;
 	framesPerLambda?: number;
 	frameRange?: FrameRange;
-	outName?: OutNameInput;
+	outName?: OutNameInput<AwsRegion>;
 	chromiumOptions?: Omit<ChromiumOptions, 'enableMultiProcessOnLinux'>;
 	scale?: number;
 	everyNthFrame?: number;
@@ -87,7 +87,7 @@ export const internalRenderMediaOnLambdaRaw = async (
 	try {
 		const res = await callLambda({
 			functionName,
-			type: LambdaRoutines.start,
+			type: ServerlessRoutines.start,
 			payload: await makeLambdaRenderMediaPayload(input),
 			region,
 			timeoutInTest: 120000,
@@ -106,7 +106,7 @@ export const internalRenderMediaOnLambdaRaw = async (
 			cloudWatchMainLogs: getCloudwatchMethodUrl({
 				renderId: res.renderId,
 				functionName,
-				method: LambdaRoutines.launch,
+				method: ServerlessRoutines.launch,
 				region,
 				rendererFunctionName: rendererFunctionName ?? null,
 			}),

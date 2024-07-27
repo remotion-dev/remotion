@@ -1,10 +1,10 @@
-import type {AwsRegion} from '@remotion/serverless/client';
-import {lambdaLs} from '../functions/helpers/io';
+import type {ProviderSpecifics} from '@remotion/serverless';
+import {awsImplementation} from '../functions/aws-implementation';
+import type {AwsRegion} from '../regions';
 import {getSitesKey} from '../shared/constants';
 import {getAccountId} from '../shared/get-account-id';
 import {makeS3ServeUrl} from '../shared/make-s3-url';
 import type {BucketWithLocation} from './get-buckets';
-import {getRemotionS3Buckets} from './get-buckets';
 
 type Site = {
 	sizeInBytes: number;
@@ -24,25 +24,22 @@ export type GetSitesOutput = {
 	buckets: BucketWithLocation[];
 };
 
-/**
- * @description Gets all the deployed sites for a certain AWS region.
- * @see [Documentation](https://remotion.dev/docs/lambda/getsites)
- * @param {AwsRegion} params.region The AWS region that you want to query for.
- * @returns {Promise<GetSitesOutput>} A Promise containing an object with `sites` and `bucket` keys. Consult documentation for details.
- */
-export const getSites = async ({
+export const internalGetSites = async ({
 	region,
 	forceBucketName,
-}: GetSitesInput): Promise<GetSitesOutput> => {
-	const {remotionBuckets} = forceBucketName
-		? await getRemotionS3Buckets(region, forceBucketName)
-		: await getRemotionS3Buckets(region);
+	providerSpecifics,
+}: GetSitesInput & {
+	providerSpecifics: ProviderSpecifics<AwsRegion>;
+}): Promise<GetSitesOutput> => {
+	const remotionBuckets = forceBucketName
+		? await providerSpecifics.getBuckets(region, forceBucketName)
+		: await providerSpecifics.getBuckets(region);
 	const accountId = await getAccountId({region});
 
 	const sites: {[key: string]: Site} = {};
 
 	for (const bucket of remotionBuckets) {
-		const ls = await lambdaLs({
+		const ls = await providerSpecifics.listObjects({
 			bucketName: bucket.name,
 			prefix: getSitesKey(''),
 			region,
@@ -94,4 +91,21 @@ export const getSites = async ({
 		return sites[siteId];
 	});
 	return {sites: sitesArray, buckets: remotionBuckets};
+};
+
+/**
+ * @description Gets all the deployed sites for a certain AWS region.
+ * @see [Documentation](https://remotion.dev/docs/lambda/getsites)
+ * @param {AwsRegion} params.region The AWS region that you want to query for.
+ * @returns {Promise<GetSitesOutput>} A Promise containing an object with `sites` and `bucket` keys. Consult documentation for details.
+ */
+export const getSites = ({
+	region,
+	forceBucketName,
+}: GetSitesInput): Promise<GetSitesOutput> => {
+	return internalGetSites({
+		region,
+		forceBucketName,
+		providerSpecifics: awsImplementation,
+	});
 };

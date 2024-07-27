@@ -1,7 +1,7 @@
+import {REMOTION_BUCKET_PREFIX} from '@remotion/serverless/client';
 import {
 	LAMBDA_INSIGHTS_PREFIX,
 	LOG_GROUP_PREFIX,
-	REMOTION_BUCKET_PREFIX,
 	RENDER_FN_PREFIX,
 } from '../../shared/constants';
 

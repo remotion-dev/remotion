@@ -1,25 +1,25 @@
 import {RenderInternals} from '@remotion/renderer';
-import type {LambdaPayload} from '@remotion/serverless/client';
-import {LambdaRoutines} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
-import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
-import {decompressInputProps} from '../shared/compress-props';
-import {convertToServeUrl} from '../shared/convert-to-serve-url';
+import {decompressInputProps} from './compress-props';
+import type {ServerlessPayload} from './constants';
+import {ServerlessRoutines} from './constants';
 import {
 	forgetBrowserEventLoop,
 	getBrowserInstance,
-} from './helpers/get-browser-instance';
-import {getCurrentRegionInFunction} from './helpers/get-current-region';
+} from './get-browser-instance';
+import {internalGetOrCreateBucket} from './get-or-create-bucket';
+import type {ProviderSpecifics} from './provider-implementation';
 
 type Options = {
 	expectedBucketOwner: string;
 };
 
-export const compositionsHandler = async (
-	lambdaParams: LambdaPayload,
+export const compositionsHandler = async <Region extends string>(
+	lambdaParams: ServerlessPayload<Region>,
 	options: Options,
+	providerSpecifics: ProviderSpecifics<Region>,
 ) => {
-	if (lambdaParams.type !== LambdaRoutines.compositions) {
+	if (lambdaParams.type !== ServerlessRoutines.compositions) {
 		throw new TypeError('Expected info compositions');
 	}
 
@@ -36,31 +36,34 @@ export const compositionsHandler = async (
 	}
 
 	try {
-		const region = getCurrentRegionInFunction();
+		const region = providerSpecifics.getCurrentRegionInFunction();
 
-		const browserInstancePromise = getBrowserInstance(
-			lambdaParams.logLevel,
-			false,
-			lambdaParams.chromiumOptions,
-		);
+		const browserInstancePromise = getBrowserInstance({
+			logLevel: lambdaParams.logLevel,
+			indent: false,
+			chromiumOptions: lambdaParams.chromiumOptions,
+			providerSpecifics,
+		});
 		const bucketNamePromise = lambdaParams.bucketName
 			? Promise.resolve(lambdaParams.bucketName)
 			: internalGetOrCreateBucket({
 					region,
 					enableFolderExpiry: null,
 					customCredentials: null,
+					providerSpecifics,
 				}).then((b) => b.bucketName);
 
 		const bucketName = await bucketNamePromise;
 		const serializedInputPropsWithCustomSchema = await decompressInputProps({
 			bucketName: await bucketNamePromise,
 			expectedBucketOwner: options.expectedBucketOwner,
-			region: getCurrentRegionInFunction(),
+			region: providerSpecifics.getCurrentRegionInFunction(),
 			serialized: lambdaParams.inputProps,
 			propsType: 'input-props',
+			providerSpecifics,
 		});
 
-		const realServeUrl = convertToServeUrl({
+		const realServeUrl = providerSpecifics.convertToServeUrl({
 			urlOrId: lambdaParams.serveUrl,
 			region,
 			bucketName,

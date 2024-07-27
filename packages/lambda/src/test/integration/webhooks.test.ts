@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import {LambdaRoutines} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless/client';
 import path from 'path';
 import {VERSION} from 'remotion/version';
 import {beforeAll, beforeEach, describe, expect, test, vi} from 'vitest';
@@ -57,7 +57,7 @@ describe('Webhooks', () => {
 		});
 
 		const res = await callLambda({
-			type: LambdaRoutines.start,
+			type: ServerlessRoutines.start,
 			payload: {
 				serveUrl: `http://localhost:${port}`,
 				chromiumOptions: {},
@@ -119,7 +119,7 @@ describe('Webhooks', () => {
 		const parsed = res;
 
 		await callLambda({
-			type: LambdaRoutines.status,
+			type: ServerlessRoutines.status,
 			payload: {
 				bucketName: parsed.bucketName,
 				renderId: parsed.renderId,
@@ -171,7 +171,7 @@ describe('Webhooks', () => {
 		await callLambda({
 			functionName: 'remotion-dev-lambda',
 			region: 'us-east-1',
-			type: LambdaRoutines.launch,
+			type: ServerlessRoutines.launch,
 			payload: {
 				offthreadVideoCacheSizeInBytes: null,
 				serveUrl: `http://localhost:${port}`,

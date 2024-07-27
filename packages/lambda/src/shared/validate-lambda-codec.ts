@@ -1,17 +1,17 @@
-import type {LambdaCodec} from '@remotion/serverless/client';
-import {lambdaCodecs} from '@remotion/serverless/client';
+import type {ServerlessCodec} from '@remotion/serverless/client';
+import {serverlessCodecs} from '@remotion/serverless/client';
 
-export const validateLambdaCodec = (codec: unknown): LambdaCodec => {
+export const validateLambdaCodec = (codec: unknown): ServerlessCodec => {
 	if (typeof codec !== 'string') {
 		throw new TypeError('"codec" must be a string ');
 	}
 
-	if (!(lambdaCodecs as readonly string[]).includes(codec)) {
+	if (!(serverlessCodecs as readonly string[]).includes(codec)) {
 		throw new TypeError(
 			"'" +
 				codec +
 				"' is not a valid codec for Lambda. The following values are supported: " +
-				lambdaCodecs.join(', '),
+				serverlessCodecs.join(', '),
 		);
 	}
 
@@ -23,5 +23,5 @@ export const validateLambdaCodec = (codec: unknown): LambdaCodec => {
 		return 'h264';
 	}
 
-	return codec as LambdaCodec;
+	return codec as ServerlessCodec;
 };

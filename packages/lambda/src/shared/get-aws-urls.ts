@@ -1,4 +1,4 @@
-import type {LambdaRoutines} from '@remotion/serverless/client';
+import type {ServerlessRoutines} from '@remotion/serverless/client';
 import type {AwsRegion} from '../client';
 import {encodeAwsUrlParams} from './encode-aws-url-params';
 
@@ -25,7 +25,7 @@ export const getCloudwatchMethodUrl = ({
 }: {
 	region: AwsRegion;
 	functionName: string;
-	method: LambdaRoutines;
+	method: ServerlessRoutines;
 	rendererFunctionName: string | null;
 	renderId: string;
 }) => {

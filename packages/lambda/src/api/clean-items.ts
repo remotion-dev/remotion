@@ -1,22 +1,22 @@
-import {DeleteObjectCommand} from '@aws-sdk/client-s3';
-import type {AwsRegion} from '@remotion/serverless/client';
-import {getS3Client} from '../shared/aws-clients';
+import type {ProviderSpecifics} from '@remotion/serverless';
 import {pLimit} from '../shared/p-limit';
 
 const limit = pLimit(10);
 
-export const cleanItems = ({
+export const cleanItems = <Region extends string>({
 	bucket,
 	onAfterItemDeleted,
 	onBeforeItemDeleted,
 	region,
 	list,
+	providerSpecifics,
 }: {
 	bucket: string;
-	region: AwsRegion;
+	region: Region;
 	list: string[];
 	onBeforeItemDeleted: (data: {bucketName: string; itemName: string}) => void;
 	onAfterItemDeleted: (data: {bucketName: string; itemName: string}) => void;
+	providerSpecifics: ProviderSpecifics<Region>;
 }) => {
 	return Promise.all(
 		list.map((object) =>
@@ -25,12 +25,12 @@ export const cleanItems = ({
 					bucketName: bucket,
 					itemName: object,
 				});
-				await getS3Client(region, null).send(
-					new DeleteObjectCommand({
-						Bucket: bucket,
-						Key: object,
-					}),
-				);
+				await providerSpecifics.deleteFile({
+					bucketName: bucket,
+					key: object,
+					region,
+					customCredentials: null,
+				});
 				onAfterItemDeleted({
 					bucketName: bucket,
 					itemName: object,

@@ -1,12 +1,10 @@
-import fs from 'node:fs';
-import path from 'node:path';
-
-export type FileNameAndSize = {
-	filename: string;
-	size: number;
-};
-
-export function getFolderFiles(folder: string) {
+import type {
+	FileNameAndSize,
+	GetFolderFiles,
+} from '@remotion/serverless/client';
+import fs from 'fs';
+import path from 'path';
+export const getFolderFiles: GetFolderFiles = (folder) => {
 	const files = fs.readdirSync(folder);
 	const paths: FileNameAndSize[] = [];
 	files.forEach((file) => {
@@ -31,4 +29,4 @@ export function getFolderFiles(folder: string) {
 		}
 	});
 	return paths;
-}
+};

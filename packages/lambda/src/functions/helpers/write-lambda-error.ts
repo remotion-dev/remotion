@@ -1,5 +1,5 @@
-import type {FileNameAndSize} from './get-files-in-folder';
-import {getFolderFiles} from './get-files-in-folder';
+import type {ProviderSpecifics} from '@remotion/serverless';
+import type {FileNameAndSize} from '@remotion/serverless/client';
 import {errorIsOutOfSpaceError} from './is-enosp-err';
 
 export type LambdaErrorInfo = {
@@ -16,14 +16,15 @@ export type LambdaErrorInfo = {
 	tmpDir: {files: FileNameAndSize[]; total: number} | null;
 };
 
-export const getTmpDirStateIfENoSp = (
+export const getTmpDirStateIfENoSp = <Region extends string>(
 	err: string,
+	providerSpecifics: ProviderSpecifics<Region>,
 ): LambdaErrorInfo['tmpDir'] => {
 	if (!errorIsOutOfSpaceError(err)) {
 		return null;
 	}
 
-	const files = getFolderFiles('/tmp');
+	const files = providerSpecifics.getFolderFiles('/tmp');
 	return {
 		files: files
 			.slice(0)

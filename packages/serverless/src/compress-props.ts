@@ -1,10 +1,8 @@
-import type {SerializedInputProps} from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
-import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
-import type {AwsRegion} from '../client';
-import {lambdaReadFile, lambdaWriteFile} from '../functions/helpers/io';
-import {inputPropsKey, resolvedPropsKey} from './constants';
-import {randomHash} from './random-hash';
+import type {SerializedInputProps} from './constants';
+import {internalGetOrCreateBucket} from './get-or-create-bucket';
+import {inputPropsKey, resolvedPropsKey} from './input-props-keys';
+import type {ProviderSpecifics} from './provider-implementation';
 import {streamToString} from './stream-to-string';
 import {MAX_WEBHOOK_CUSTOM_DATA_SIZE} from './validate-webhook';
 
@@ -60,20 +58,22 @@ export const getNeedsToUpload = (
 	return false;
 };
 
-export const compressInputProps = async ({
+export const compressInputProps = async <Region extends string>({
 	stringifiedInputProps,
 	region,
 	userSpecifiedBucketName,
 	propsType,
 	needsToUpload,
+	providerSpecifics,
 }: {
 	stringifiedInputProps: string;
-	region: AwsRegion;
+	region: Region;
 	userSpecifiedBucketName: string | null;
 	propsType: PropsType;
 	needsToUpload: boolean;
+	providerSpecifics: ProviderSpecifics<Region>;
 }): Promise<SerializedInputProps> => {
-	const hash = randomHash();
+	const hash = providerSpecifics.randomHash();
 
 	if (needsToUpload) {
 		const bucketName =
@@ -83,10 +83,11 @@ export const compressInputProps = async ({
 					region,
 					enableFolderExpiry: null,
 					customCredentials: null,
+					providerSpecifics,
 				})
 			).bucketName;
 
-		await lambdaWriteFile({
+		await providerSpecifics.writeFile({
 			body: stringifiedInputProps,
 			bucketName,
 			region,
@@ -110,25 +111,27 @@ export const compressInputProps = async ({
 	};
 };
 
-export const decompressInputProps = async ({
+export const decompressInputProps = async <Region extends string>({
 	serialized,
 	region,
 	bucketName,
 	expectedBucketOwner,
 	propsType,
+	providerSpecifics,
 }: {
 	serialized: SerializedInputProps;
-	region: AwsRegion;
+	region: Region;
 	bucketName: string;
 	expectedBucketOwner: string;
 	propsType: PropsType;
+	providerSpecifics: ProviderSpecifics<Region>;
 }): Promise<string> => {
 	if (serialized.type === 'payload') {
 		return serialized.payload;
 	}
 
 	try {
-		const response = await lambdaReadFile({
+		const response = await providerSpecifics.readFile({
 			bucketName,
 			expectedBucketOwner,
 			key: makeKey(propsType, serialized.hash),

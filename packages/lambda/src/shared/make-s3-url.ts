@@ -1,4 +1,4 @@
-import type {AwsRegion} from '@remotion/serverless/client';
+import type {AwsRegion} from '../regions';
 
 export const makeS3ServeUrl = ({
 	bucketName,

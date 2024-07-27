@@ -1,4 +1,4 @@
-import type {WebhookOption} from '@remotion/serverless/client';
+import type {WebhookOption} from './constants';
 
 export const MAX_WEBHOOK_CUSTOM_DATA_SIZE = 1024;
 

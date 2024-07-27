@@ -7,10 +7,10 @@ import type {
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {VideoConfig} from 'remotion/no-react';
-import type {Await} from '../../shared/await';
-import {executablePath} from './get-chromium-executable-path';
+import type {Await} from './await';
+import type {ProviderSpecifics} from './provider-implementation';
 
-type ValidateCompositionOptions = {
+type ValidateCompositionOptions<Region extends string> = {
 	serveUrl: string;
 	composition: string;
 	browserInstance: Await<ReturnType<typeof openBrowser>>;
@@ -26,9 +26,10 @@ type ValidateCompositionOptions = {
 	offthreadVideoCacheSizeInBytes: number | null;
 	onBrowserDownload: OnBrowserDownload;
 	onServeUrlVisited: () => void;
+	providerSpecifics: ProviderSpecifics<Region>;
 };
 
-export const validateComposition = async ({
+export const validateComposition = async <Region extends string>({
 	serveUrl,
 	composition,
 	browserInstance,
@@ -44,7 +45,8 @@ export const validateComposition = async ({
 	offthreadVideoCacheSizeInBytes,
 	onBrowserDownload,
 	onServeUrlVisited,
-}: ValidateCompositionOptions): Promise<VideoConfig> => {
+	providerSpecifics,
+}: ValidateCompositionOptions<Region>): Promise<VideoConfig> => {
 	const {metadata: comp} = await RenderInternals.internalSelectComposition({
 		id: composition,
 		puppeteerInstance: browserInstance,
@@ -53,7 +55,7 @@ export const validateComposition = async ({
 		timeoutInMilliseconds,
 		chromiumOptions,
 		port,
-		browserExecutable: executablePath(),
+		browserExecutable: providerSpecifics.getChromiumPath(),
 		serveUrl,
 		logLevel,
 		indent: false,

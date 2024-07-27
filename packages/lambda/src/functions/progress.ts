@@ -1,21 +1,22 @@
-import type {LambdaPayload} from '@remotion/serverless/client';
-import {LambdaRoutines} from '@remotion/serverless/client';
+import type {ProviderSpecifics} from '@remotion/serverless';
+import type {ServerlessPayload} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
-import type {RenderProgress} from '../shared/constants';
-import {getCurrentRegionInFunction} from './helpers/get-current-region';
+import type {GenericRenderProgress} from '../shared/constants';
 import {getProgress} from './helpers/get-progress';
 
-type Options = {
+type Options<Region extends string> = {
 	expectedBucketOwner: string;
 	timeoutInMilliseconds: number;
 	retriesRemaining: number;
+	providerSpecifics: ProviderSpecifics<Region>;
 };
 
-export const progressHandler = async (
-	lambdaParams: LambdaPayload,
-	options: Options,
-): Promise<RenderProgress> => {
-	if (lambdaParams.type !== LambdaRoutines.status) {
+export const progressHandler = async <Region extends string>(
+	lambdaParams: ServerlessPayload<Region>,
+	options: Options<Region>,
+): Promise<GenericRenderProgress<Region>> => {
+	if (lambdaParams.type !== ServerlessRoutines.status) {
 		throw new TypeError('Expected status type');
 	}
 
@@ -36,10 +37,11 @@ export const progressHandler = async (
 			bucketName: lambdaParams.bucketName,
 			renderId: lambdaParams.renderId,
 			expectedBucketOwner: options.expectedBucketOwner,
-			region: getCurrentRegionInFunction(),
+			region: options.providerSpecifics.getCurrentRegionInFunction(),
 			memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 			timeoutInMilliseconds: options.timeoutInMilliseconds,
 			customCredentials: lambdaParams.s3OutputProvider ?? null,
+			providerSpecifics: options.providerSpecifics,
 		});
 		return progress;
 	} catch (err) {
@@ -55,6 +57,7 @@ export const progressHandler = async (
 				expectedBucketOwner: options.expectedBucketOwner,
 				timeoutInMilliseconds: options.timeoutInMilliseconds,
 				retriesRemaining: options.retriesRemaining - 1,
+				providerSpecifics: options.providerSpecifics,
 			});
 		}
 

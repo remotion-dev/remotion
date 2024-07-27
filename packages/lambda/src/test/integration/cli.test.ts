@@ -8,6 +8,7 @@ import {
 } from '../../defaults';
 import {LambdaInternals} from '../../internals';
 import {LAMBDA_VERSION_STRING} from '../../shared/lambda-version-string';
+import {mockImplementation} from '../mock-implementation';
 import {getProcessWriteOutput} from './console-hooks';
 
 const remotionRoot = process.cwd();
@@ -16,7 +17,8 @@ test('Deploy function', async () => {
 	await LambdaInternals.executeCommand(
 		['functions', 'deploy'],
 		remotionRoot,
-		'info',
+		'verbose',
+		mockImplementation,
 	);
 	expect(getProcessWriteOutput()).toContain(
 		`Deployed as remotion-render-${LAMBDA_VERSION_STRING}-mem${DEFAULT_MEMORY_SIZE}mb-disk${DEFAULT_EPHEMERAL_STORAGE_IN_MB}mb-${DEFAULT_TIMEOUT}sec\n`,
@@ -28,11 +30,13 @@ test('Deploy function and list it', async () => {
 		['functions', 'deploy'],
 		remotionRoot,
 		'info',
+		mockImplementation,
 	);
 	await LambdaInternals.executeCommand(
 		['functions', 'ls'],
 		remotionRoot,
 		'info',
+		mockImplementation,
 	);
 	expect(getProcessWriteOutput()).toContain('Getting functions...');
 	expect(getProcessWriteOutput()).toContain('Memory (MB)');
@@ -44,11 +48,13 @@ test('Deploy function and it already exists should fail', async () => {
 		['functions', 'deploy'],
 		remotionRoot,
 		'info',
+		mockImplementation,
 	);
 	await LambdaInternals.executeCommand(
 		['functions', 'deploy'],
 		remotionRoot,
 		'info',
+		mockImplementation,
 	);
 
 	expect(getProcessWriteOutput()).toMatch(/Already exists as remotion-render/);
@@ -60,6 +66,7 @@ test('If no functions are there and is quiet, should return "()"', async () => {
 		['functions', 'ls'],
 		remotionRoot,
 		'info',
+		mockImplementation,
 	);
 	expect(getProcessWriteOutput()).toBe('()');
 });
@@ -69,6 +76,7 @@ test('Should handle functions rm called with no functions', async () => {
 		['functions', 'rm', '()'],
 		remotionRoot,
 		'info',
+		mockImplementation,
 	);
 	expect(getProcessWriteOutput()).toBe('No functions to remove.');
 });

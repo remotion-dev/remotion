@@ -12,7 +12,6 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import type {AwsRegion} from './region';
 
 // Needs to be in sync with renderer/src/options/delete-after.ts#L7
 export const expiryDays = {
@@ -24,7 +23,7 @@ export const expiryDays = {
 
 export type DeleteAfter = keyof typeof expiryDays;
 
-export enum LambdaRoutines {
+export enum ServerlessRoutines {
 	info = 'info',
 	start = 'start',
 	launch = 'launch',
@@ -38,18 +37,19 @@ export type CustomCredentialsWithoutSensitiveData = {
 	endpoint: string;
 };
 
-export type CustomCredentials = CustomCredentialsWithoutSensitiveData & {
-	accessKeyId: string | null;
-	secretAccessKey: string | null;
-	region?: AwsRegion;
-};
+export type CustomCredentials<Region extends string> =
+	CustomCredentialsWithoutSensitiveData & {
+		accessKeyId: string | null;
+		secretAccessKey: string | null;
+		region?: Region;
+	};
 
-export type OutNameInput =
+export type OutNameInput<Region extends string> =
 	| string
 	| {
 			bucketName: string;
 			key: string;
-			s3OutputProvider?: CustomCredentials;
+			s3OutputProvider?: CustomCredentials<Region>;
 	  };
 
 export type SerializedInputProps =
@@ -63,7 +63,7 @@ export type SerializedInputProps =
 			payload: string;
 	  };
 
-export const lambdaCodecs = [
+export const serverlessCodecs = [
 	'h264',
 	'h265',
 	'vp8',
@@ -75,7 +75,7 @@ export const lambdaCodecs = [
 	'prores',
 ] as const;
 
-export type LambdaCodec = (typeof lambdaCodecs)[number];
+export type ServerlessCodec = (typeof serverlessCodecs)[number];
 export type Privacy = 'public' | 'private' | 'no-acl';
 
 export type DownloadBehavior =
@@ -103,23 +103,23 @@ export type WebhookOption = Prettify<
 	  >)
 >;
 
-export type LambdaStatusPayload = {
-	type: LambdaRoutines.status;
+export type ServerlessStatusPayload<Region extends string> = {
+	type: ServerlessRoutines.status;
 	bucketName: string;
 	renderId: string;
 	version: string;
 	logLevel: LogLevel;
-	s3OutputProvider?: CustomCredentials;
+	s3OutputProvider?: CustomCredentials<Region>;
 };
 
-export type LambdaStartPayload = {
+export type ServerlessStartPayload<Region extends string> = {
 	rendererFunctionName: string | null;
-	type: LambdaRoutines.start;
+	type: ServerlessRoutines.start;
 	serveUrl: string;
 	composition: string;
 	framesPerLambda: number | null;
 	inputProps: SerializedInputProps;
-	codec: LambdaCodec;
+	codec: ServerlessCodec;
 	audioCodec: AudioCodec | null;
 	imageFormat: VideoImageFormat;
 	crf: number | undefined;
@@ -132,7 +132,7 @@ export type LambdaStartPayload = {
 	privacy: Privacy;
 	logLevel: LogLevel;
 	frameRange: FrameRange | null;
-	outName: OutNameInput | null;
+	outName: OutNameInput<Region> | null;
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
@@ -157,15 +157,15 @@ export type LambdaStartPayload = {
 	preferLossless: boolean;
 };
 
-export type LambdaPayloads = {
+export type ServerlessPayloads<Region extends string> = {
 	info: {
-		type: LambdaRoutines.info;
+		type: ServerlessRoutines.info;
 		logLevel: LogLevel;
 	};
-	start: LambdaStartPayload;
+	start: ServerlessStartPayload<Region>;
 	launch: {
 		rendererFunctionName: string | null;
-		type: LambdaRoutines.launch;
+		type: ServerlessRoutines.launch;
 		serveUrl: string;
 		composition: string;
 		framesPerLambda: number | null;
@@ -173,7 +173,7 @@ export type LambdaPayloads = {
 		inputProps: SerializedInputProps;
 		renderId: string;
 		imageFormat: VideoImageFormat;
-		codec: LambdaCodec;
+		codec: ServerlessCodec;
 		audioCodec: AudioCodec | null;
 		crf: number | undefined;
 		envVariables: Record<string, string> | undefined;
@@ -185,7 +185,7 @@ export type LambdaPayloads = {
 		privacy: Privacy;
 		logLevel: LogLevel;
 		frameRange: FrameRange | null;
-		outName: OutNameInput | null;
+		outName: OutNameInput<Region> | null;
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
@@ -207,10 +207,10 @@ export type LambdaPayloads = {
 		colorSpace: ColorSpace | null;
 		preferLossless: boolean;
 	};
-	status: LambdaStatusPayload;
+	status: ServerlessStatusPayload<Region>;
 	renderer: {
 		concurrencyPerLambda: number;
-		type: LambdaRoutines.renderer;
+		type: ServerlessRoutines.renderer;
 		serveUrl: string;
 		frameRange: [number, number];
 		chunk: number;
@@ -224,7 +224,7 @@ export type LambdaPayloads = {
 		inputProps: SerializedInputProps;
 		renderId: string;
 		imageFormat: VideoImageFormat;
-		codec: LambdaCodec;
+		codec: ServerlessCodec;
 		crf: number | undefined;
 		proResProfile: ProResProfile | undefined;
 		x264Preset: X264Preset | null;
@@ -256,7 +256,7 @@ export type LambdaPayloads = {
 		progressEveryNthFrame: number;
 	};
 	still: {
-		type: LambdaRoutines.still;
+		type: ServerlessRoutines.still;
 		serveUrl: string;
 		composition: string;
 		inputProps: SerializedInputProps;
@@ -268,7 +268,7 @@ export type LambdaPayloads = {
 		frame: number;
 		privacy: Privacy;
 		logLevel: LogLevel;
-		outName: OutNameInput | null;
+		outName: OutNameInput<Region> | null;
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
@@ -282,7 +282,7 @@ export type LambdaPayloads = {
 		streamed: boolean;
 	};
 	compositions: {
-		type: LambdaRoutines.compositions;
+		type: ServerlessRoutines.compositions;
 		version: string;
 		chromiumOptions: ChromiumOptions;
 		logLevel: LogLevel;
@@ -295,4 +295,7 @@ export type LambdaPayloads = {
 	};
 };
 
-export type LambdaPayload = LambdaPayloads[LambdaRoutines];
+export type ServerlessPayload<Region extends string> =
+	ServerlessPayloads<Region>[ServerlessRoutines];
+
+export const REMOTION_BUCKET_PREFIX = 'remotionlambda-';

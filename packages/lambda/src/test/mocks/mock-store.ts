@@ -1,6 +1,9 @@
+import type {Privacy} from '@remotion/serverless/client';
 import type {ReadStream} from 'node:fs';
-import type {Privacy} from '../../defaults';
-import type {AwsRegion} from '../../pricing/aws-regions';
+import type {BucketWithLocation} from '../../api/get-buckets';
+import type {AwsRegion} from '../../regions';
+
+export const mockBucketStore: BucketWithLocation[] = [];
 
 type S3MockFile = {
 	bucketName: string;
@@ -11,6 +14,32 @@ type S3MockFile = {
 };
 
 let mockS3Store: S3MockFile[] = [];
+
+export const addMockBucket = (bucket: BucketWithLocation) => {
+	mockBucketStore.push(bucket);
+};
+
+export const getMockBuckets = () => {
+	return mockBucketStore;
+};
+
+export const mockBucketExists = (bucketName: string, region: string) => {
+	return Boolean(
+		mockBucketStore.find((s) => s.name === bucketName && s.region === region),
+	);
+};
+
+export const getS3FilesInBucket = ({
+	bucketName,
+	region,
+}: {
+	bucketName: string;
+	region: string;
+}) => {
+	return mockS3Store.filter(
+		(s) => s.bucketName === bucketName && s.region === region,
+	);
+};
 
 export const writeMockS3File = ({
 	body,
@@ -60,25 +89,13 @@ export const readMockS3File = ({
 	);
 };
 
-export const getS3FilesInBucket = ({
-	bucketName,
-	region,
-}: {
-	bucketName: string;
-	region: string;
-}) => {
-	return mockS3Store.filter(
-		(s) => s.bucketName === bucketName && s.region === region,
-	);
-};
-
-export const mockDeleteS3File = ({
+export const mockDeleteS3File = <Region extends string>({
 	key,
 	region,
 	bucketName,
 }: {
 	key: string;
-	region: AwsRegion;
+	region: Region;
 	bucketName: string;
 }) => {
 	mockS3Store = mockS3Store.filter(

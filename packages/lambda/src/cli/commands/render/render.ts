@@ -5,12 +5,14 @@ import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import path from 'path';
 import {NoReactInternals} from 'remotion/no-react';
-import {downloadMedia} from '../../../api/download-media';
+import {internalDownloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
 import {internalRenderMediaOnLambdaRaw} from '../../../api/render-media-on-lambda';
 import type {EnhancedErrorInfo} from '../../../functions/helpers/write-lambda-error';
 
-import type {LambdaCodec} from '@remotion/serverless/client';
+import type {ProviderSpecifics} from '@remotion/serverless';
+import type {ServerlessCodec} from '@remotion/serverless/client';
+import type {AwsRegion} from '../../../regions';
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
@@ -58,6 +60,7 @@ export const renderCommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
+	implementation: ProviderSpecifics<AwsRegion>,
 ) => {
 	const serveUrl = args[0];
 	if (!serveUrl) {
@@ -271,7 +274,7 @@ export const renderCommand = async (
 		functionName,
 		serveUrl,
 		inputProps,
-		codec: codec as LambdaCodec,
+		codec: codec as ServerlessCodec,
 		imageFormat,
 		crf: crf ?? undefined,
 		envVariables,
@@ -445,7 +448,7 @@ export const renderCommand = async (
 
 			if (downloadName) {
 				const downloadStart = Date.now();
-				const download = await downloadMedia({
+				const download = await internalDownloadMedia({
 					bucketName: res.bucketName,
 					outPath: downloadName,
 					region: getAwsRegion(),
@@ -464,6 +467,7 @@ export const renderCommand = async (
 							false,
 						);
 					},
+					providerSpecifics: implementation,
 				});
 				downloadOrNothing = download;
 				progressBar.update(

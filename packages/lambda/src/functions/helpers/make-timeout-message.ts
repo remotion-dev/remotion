@@ -1,20 +1,23 @@
-import {LambdaRoutines} from '@remotion/serverless/client';
+import type {ProviderSpecifics} from '@remotion/serverless';
+import {ServerlessRoutines} from '@remotion/serverless/client';
 import type {RenderMetadata} from '../../defaults';
+import type {AwsRegion} from '../../regions';
 import {DOCS_URL} from '../../shared/docs-url';
 import {
 	getCloudwatchMethodUrl,
 	getCloudwatchRendererUrl,
 } from '../../shared/get-aws-urls';
-import {getCurrentRegionInFunction} from './get-current-region';
 
 const MAX_MISSING_CHUNKS = 5;
 
-const makeChunkMissingMessage = ({
+const makeChunkMissingMessage = <Region extends string>({
 	missingChunks,
 	renderMetadata,
+	providerSpecifics,
 }: {
 	missingChunks: number[];
-	renderMetadata: RenderMetadata;
+	renderMetadata: RenderMetadata<Region>;
+	providerSpecifics: ProviderSpecifics<Region>;
 }) => {
 	if (missingChunks.length === 0) {
 		return 'All chunks have been successfully rendered, but the main function has timed out.';
@@ -42,7 +45,7 @@ const makeChunkMissingMessage = ({
 					msg,
 					`▸ Logs for chunk ${ch}: ${getCloudwatchRendererUrl({
 						functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
-						region: getCurrentRegionInFunction(),
+						region: providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
 						rendererFunctionName: null,
 						renderId: renderMetadata.renderId,
 						chunk: ch,
@@ -53,21 +56,23 @@ const makeChunkMissingMessage = ({
 	].join('\n');
 };
 
-export const makeTimeoutMessage = ({
+export const makeTimeoutMessage = <Region extends string>({
 	timeoutInMilliseconds,
 	missingChunks,
 	renderMetadata,
 	renderId,
+	providerSpecifics,
 }: {
 	timeoutInMilliseconds: number;
 	missingChunks: number[];
-	renderMetadata: RenderMetadata;
+	renderMetadata: RenderMetadata<Region>;
 	renderId: string;
+	providerSpecifics: ProviderSpecifics<Region>;
 }) => {
 	const cloudWatchRendererUrl = getCloudwatchRendererUrl({
 		renderId,
 		functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
-		region: getCurrentRegionInFunction(),
+		region: providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
 		rendererFunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
 		chunk: null,
 	});
@@ -75,14 +80,14 @@ export const makeTimeoutMessage = ({
 	const cloudWatchLaunchUrl = getCloudwatchMethodUrl({
 		renderId,
 		functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
-		method: LambdaRoutines.launch,
-		region: getCurrentRegionInFunction(),
+		method: ServerlessRoutines.launch,
+		region: providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
 		rendererFunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
 	});
 
 	const message = [
 		`The main function timed out after ${timeoutInMilliseconds}ms.`,
-		makeChunkMissingMessage({missingChunks, renderMetadata}),
+		makeChunkMissingMessage({missingChunks, renderMetadata, providerSpecifics}),
 		'',
 		`Consider increasing the timeout of your function.`,
 		`▸ You can use the "--timeout" parameter when deploying a function via CLI, or the "timeoutInSeconds" parameter when using the deployFunction() API.`,

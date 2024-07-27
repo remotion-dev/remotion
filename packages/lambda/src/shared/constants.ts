@@ -4,19 +4,19 @@ import type {
 	VideoImageFormat,
 } from '@remotion/renderer';
 import type {
-	AwsRegion,
 	CustomCredentials,
 	CustomCredentialsWithoutSensitiveData,
 	DeleteAfter,
 	DownloadBehavior,
-	LambdaCodec,
 	OutNameInput,
 	Privacy,
 	SerializedInputProps,
+	ServerlessCodec,
 } from '@remotion/serverless/client';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import type {ReceivedArtifact} from '../functions/helpers/overall-render-progress';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
+import type {AwsRegion} from '../regions';
 import type {ExpensiveChunk} from './get-most-expensive-chunks';
 
 export const MIN_MEMORY = 512;
@@ -45,7 +45,6 @@ export const DEFAULT_OUTPUT_PRIVACY: Privacy = 'public';
 
 export const DEFAULT_CLOUDWATCH_RETENTION_PERIOD = 14;
 
-export const REMOTION_BUCKET_PREFIX = 'remotionlambda-';
 export const RENDER_FN_PREFIX = 'remotion-render-';
 export const LOG_GROUP_PREFIX = '/aws/lambda/';
 export const LAMBDA_INSIGHTS_PREFIX = '/aws/lambda-insights';
@@ -61,10 +60,10 @@ export type OutNameInputWithoutCredentials =
 			s3OutputProvider?: CustomCredentialsWithoutSensitiveData;
 	  };
 
-export type OutNameOutput = {
+export type OutNameOutput<Region extends string> = {
 	renderBucketName: string;
 	key: string;
-	customCredentials: CustomCredentials | null;
+	customCredentials: CustomCredentials<Region> | null;
 };
 
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
@@ -74,11 +73,11 @@ export const outStillName = (renderId: string, imageFormat: StillImageFormat) =>
 	`${rendersPrefix(renderId)}/out.${imageFormat}`;
 export const artifactName = (renderId: string, name: string) =>
 	`${rendersPrefix(renderId)}/artifacts/${name}`;
-export const customOutName = (
+export const customOutName = <Region extends string>(
 	renderId: string,
 	bucketName: string,
-	name: OutNameInput,
-): OutNameOutput => {
+	name: OutNameInput<Region>,
+): OutNameOutput<Region> => {
 	if (typeof name === 'string') {
 		return {
 			renderBucketName: bucketName,
@@ -92,14 +91,6 @@ export const customOutName = (
 		renderBucketName: name.bucketName,
 		customCredentials: name.s3OutputProvider ?? null,
 	};
-};
-
-export const inputPropsKey = (hash: string) => {
-	return `input-props/${hash}.json`;
-};
-
-export const resolvedPropsKey = (hash: string) => {
-	return `resolved-props/${hash}.json`;
 };
 
 export const RENDERER_PATH_TOKEN = 'remotion-bucket';
@@ -119,10 +110,10 @@ type Discriminated =
 			muted: boolean;
 			frameRange: [number, number];
 			everyNthFrame: number;
-			codec: LambdaCodec;
+			codec: ServerlessCodec;
 	  };
 
-export type RenderMetadata = Discriminated & {
+export type RenderMetadata<Region extends string> = Discriminated & {
 	siteId: string;
 	startedDate: number;
 	totalChunks: number;
@@ -134,7 +125,7 @@ export type RenderMetadata = Discriminated & {
 	framesPerLambda: number;
 	memorySizeInMb: number;
 	lambdaVersion: string;
-	region: AwsRegion;
+	region: Region;
 	renderId: string;
 	outName: OutNameInputWithoutCredentials | undefined;
 	privacy: Privacy;
@@ -192,13 +183,13 @@ type EncodingProgress = {
 	timeToCombine: number | null;
 };
 
-export type RenderProgress = {
+export type GenericRenderProgress<Region extends string> = {
 	chunks: number;
 	done: boolean;
 	encodingStatus: EncodingProgress | null;
 	costs: CostsInfo;
 	renderId: string;
-	renderMetadata: RenderMetadata | null;
+	renderMetadata: RenderMetadata<Region> | null;
 	bucket: string;
 	outputFile: string | null;
 	outKey: string | null;
@@ -228,5 +219,7 @@ export type RenderProgress = {
 	compositionValidated: number | null;
 	artifacts: ReceivedArtifact[];
 };
+
+export type RenderProgress = GenericRenderProgress<AwsRegion>;
 
 export const LAMBDA_CONCURRENCY_LIMIT_QUOTA = 'L-B99A9384';

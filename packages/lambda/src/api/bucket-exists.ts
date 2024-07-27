@@ -1,30 +1,24 @@
 import {GetBucketLocationCommand} from '@aws-sdk/client-s3';
-import type {AwsRegion} from '@remotion/serverless/client';
-import {getS3Client} from '../shared/aws-clients';
+import type {ProviderSpecifics} from '@remotion/serverless';
+import type {AwsRegion} from '../regions';
+import {getS3Client} from '../shared/get-s3-client';
 
-export const bucketExistsInRegion = async ({
-	bucketName,
-	region,
-	expectedBucketOwner,
-}: {
-	bucketName: string;
-	region: AwsRegion;
-	expectedBucketOwner: string | null;
-}) => {
-	try {
-		const bucket = await getS3Client(region, null).send(
-			new GetBucketLocationCommand({
-				Bucket: bucketName,
-				ExpectedBucketOwner: expectedBucketOwner ?? undefined,
-			}),
-		);
+export const bucketExistsInRegionImplementation: ProviderSpecifics<AwsRegion>['bucketExists'] =
+	async ({bucketName, region, expectedBucketOwner}) => {
+		try {
+			const bucket = await getS3Client(region, null).send(
+				new GetBucketLocationCommand({
+					Bucket: bucketName,
+					ExpectedBucketOwner: expectedBucketOwner ?? undefined,
+				}),
+			);
 
-		return (bucket.LocationConstraint ?? 'us-east-1') === region;
-	} catch (err) {
-		if ((err as {Code: string}).Code === 'NoSuchBucket') {
-			return false;
+			return (bucket.LocationConstraint ?? 'us-east-1') === region;
+		} catch (err) {
+			if ((err as {Code: string}).Code === 'NoSuchBucket') {
+				return false;
+			}
+
+			throw err;
 		}
-
-		throw err;
-	}
-};
+	};

@@ -1,7 +1,8 @@
 import {RenderInternals} from '@remotion/renderer';
-import type {AwsRegion, CustomCredentials} from '@remotion/serverless/client';
+import type {ProviderSpecifics} from '@remotion/serverless';
+import type {CustomCredentials} from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
-import type {CleanupInfo, RenderProgress} from '../../shared/constants';
+import type {CleanupInfo, GenericRenderProgress} from '../../shared/constants';
 import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../../shared/constants';
 import {truthy} from '../../shared/truthy';
 import {calculateChunkTimes} from './calculate-chunk-times';
@@ -15,7 +16,7 @@ import {makeTimeoutError} from './make-timeout-error';
 import {lambdaRenderHasAudioVideo} from './render-has-audio-video';
 import type {EnhancedErrorInfo} from './write-lambda-error';
 
-export const getProgress = async ({
+export const getProgress = async <Region extends string>({
 	bucketName,
 	renderId,
 	expectedBucketOwner,
@@ -23,20 +24,23 @@ export const getProgress = async ({
 	memorySizeInMb,
 	timeoutInMilliseconds,
 	customCredentials,
+	providerSpecifics,
 }: {
 	bucketName: string;
 	renderId: string;
 	expectedBucketOwner: string;
-	region: AwsRegion;
+	region: Region;
 	memorySizeInMb: number;
 	timeoutInMilliseconds: number;
-	customCredentials: CustomCredentials | null;
-}): Promise<RenderProgress> => {
+	customCredentials: CustomCredentials<Region> | null;
+	providerSpecifics: ProviderSpecifics<Region>;
+}): Promise<GenericRenderProgress<Region>> => {
 	const overallProgress = await getOverallProgressS3({
 		renderId,
 		bucketName,
 		expectedBucketOwner,
 		region,
+		providerSpecifics,
 	});
 
 	if (overallProgress.postRenderData) {
@@ -133,6 +137,7 @@ export const getProgress = async ({
 		// overestimate the price, but will only have a miniscule effect (~0.2%)
 		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
 		timings: overallProgress.timings ?? [],
+		providerSpecifics,
 	});
 
 	const {hasAudio, hasVideo} = renderMetadata
@@ -190,6 +195,7 @@ export const getProgress = async ({
 					renderMetadata,
 					renderId,
 					missingChunks: missingChunks ?? [],
+					providerSpecifics,
 				})
 			: null,
 		...errorExplanations,

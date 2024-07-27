@@ -1,5 +1,5 @@
-import type {AwsRegion} from '@remotion/serverless/client';
 import {estimatePrice} from '../../api/estimate-price';
+import type {AwsRegion} from '../../regions';
 import type {PostRenderData, RenderMetadata} from '../../shared/constants';
 import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../../shared/constants';
 import {
@@ -11,7 +11,7 @@ import type {OutputFileMetadata} from './find-output-file-in-bucket';
 import type {OverallRenderProgress} from './overall-render-progress';
 import type {EnhancedErrorInfo} from './write-lambda-error';
 
-export const createPostRenderData = ({
+export const createPostRenderData = <Region extends string>({
 	region,
 	memorySizeInMb,
 	renderMetadata,
@@ -23,14 +23,14 @@ export const createPostRenderData = ({
 	timeToFinish,
 	outputSize,
 }: {
-	region: AwsRegion;
+	region: Region;
 	memorySizeInMb: number;
-	renderMetadata: RenderMetadata;
+	renderMetadata: RenderMetadata<Region>;
 	timeToDelete: number;
 	errorExplanations: EnhancedErrorInfo[];
 	outputFile: OutputFileMetadata;
 	timeToCombine: number | null;
-	overallProgress: OverallRenderProgress;
+	overallProgress: OverallRenderProgress<Region>;
 	timeToFinish: number;
 	outputSize: number;
 }): PostRenderData => {
@@ -43,7 +43,7 @@ export const createPostRenderData = ({
 	const cost = estimatePrice({
 		durationInMilliseconds: estimatedBillingDurationInMilliseconds,
 		memorySizeInMb,
-		region,
+		region: region as AwsRegion,
 		lambdasInvoked: renderMetadata.estimatedTotalLambdaInvokations,
 		// We cannot determine the ephemeral storage size, so we
 		// overestimate the price, but will only have a miniscule effect (~0.2%)

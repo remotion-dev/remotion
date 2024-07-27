@@ -6,13 +6,15 @@ import * as ServiceQuotasSDK from '@aws-sdk/client-service-quotas';
 import * as StsSdk from '@aws-sdk/client-sts';
 import type {CustomCredentials} from '@remotion/serverless/client';
 import type {AwsRegion} from '../client';
-import type {ServiceMapping} from '../shared/aws-clients';
-import {getServiceClient} from '../shared/aws-clients';
+import {
+	getServiceClient,
+	type ServiceMapping,
+} from '../shared/get-service-client';
 
 export type GetAwsClientInput<T extends keyof ServiceMapping> = {
 	region: AwsRegion;
 	service: T;
-	customCredentials?: CustomCredentials | null;
+	customCredentials?: CustomCredentials<AwsRegion> | null;
 };
 
 type SdkMapping = {

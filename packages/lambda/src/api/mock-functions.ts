@@ -1,4 +1,4 @@
-import type {AwsRegion} from '@remotion/serverless/client';
+import type {AwsRegion} from '../regions';
 import type {FunctionInfo} from './get-function-info';
 
 export let mockFunctionsStore: (FunctionInfo & {
