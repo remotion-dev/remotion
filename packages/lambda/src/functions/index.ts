@@ -3,7 +3,9 @@ import type {ProviderSpecifics} from '@remotion/serverless';
 import {compositionsHandler, infoHandler} from '@remotion/serverless';
 import type {ServerlessPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
+import type {AwsRegion} from '../regions';
 import {COMMAND_NOT_FOUND} from '../shared/constants';
+import {awsImplementation} from './aws-implementation';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {getWarm, setWarm} from './helpers/is-warm';
 import {setCurrentRequestId, stopLeakDetection} from './helpers/leak-detection';
@@ -299,11 +301,10 @@ export type OrError<T> =
 			stack: string;
 	  };
 
-export const routine = async <Region extends string>(
-	params: ServerlessPayload<Region>,
+export const routine = async (
+	params: ServerlessPayload<AwsRegion>,
 	responseStream: ResponseStream,
 	context: RequestContext,
-	providerSpecifics: ProviderSpecifics<Region>,
 ): Promise<void> => {
 	const responseWriter = streamWriter(responseStream);
 
@@ -312,7 +313,7 @@ export const routine = async <Region extends string>(
 			params,
 			responseWriter,
 			context,
-			providerSpecifics,
+			providerSpecifics: awsImplementation,
 		});
 	} catch (err) {
 		const res: OrError<0> = {
