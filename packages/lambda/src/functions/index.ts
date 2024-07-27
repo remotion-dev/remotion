@@ -1,10 +1,9 @@
 import {RenderInternals} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
-import {infoHandler} from '@remotion/serverless';
+import {compositionsHandler, infoHandler} from '@remotion/serverless';
 import type {ServerlessPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {COMMAND_NOT_FOUND} from '../shared/constants';
-import {compositionsHandler} from './compositions';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {getWarm, setWarm} from './helpers/is-warm';
 import {setCurrentRequestId, stopLeakDetection} from './helpers/leak-detection';

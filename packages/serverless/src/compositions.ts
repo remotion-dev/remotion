@@ -1,13 +1,14 @@
 import {RenderInternals} from '@remotion/renderer';
-import type {ProviderSpecifics} from '@remotion/serverless';
-import {forgetBrowserEventLoop, getBrowserInstance} from '@remotion/serverless';
-import type {ServerlessPayload} from '@remotion/serverless/client';
-import {
-	ServerlessRoutines,
-	decompressInputProps,
-	internalGetOrCreateBucket,
-} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
+import {decompressInputProps} from './compress-props';
+import type {ServerlessPayload} from './constants';
+import {ServerlessRoutines} from './constants';
+import {
+	forgetBrowserEventLoop,
+	getBrowserInstance,
+} from './get-browser-instance';
+import {internalGetOrCreateBucket} from './get-or-create-bucket';
+import type {ProviderSpecifics} from './provider-implementation';
 
 type Options = {
 	expectedBucketOwner: string;

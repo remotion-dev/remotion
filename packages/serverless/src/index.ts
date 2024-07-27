@@ -1,3 +1,4 @@
+export {compositionsHandler} from './compositions';
 export {
 	forgetBrowserEventLoop,
 	getBrowserInstance,

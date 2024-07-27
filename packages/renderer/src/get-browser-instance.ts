@@ -35,7 +35,9 @@ export const getPageAndCleanupFn = async ({
 				// Close puppeteer page and don't wait for it to finish.
 				// Keep browser open.
 				page.close().catch((err) => {
-					console.error('Was not able to close puppeteer page', err);
+					if (!(err as Error).message.includes('Target closed')) {
+						console.error('Was not able to close puppeteer page', err);
+					}
 				});
 				return Promise.resolve();
 			},
@@ -63,7 +65,9 @@ export const getPageAndCleanupFn = async ({
 		cleanup: () => {
 			// Close whole browser that was just created and don't wait for it to finish.
 			browserInstance.close(true, logLevel, indent).catch((err) => {
-				console.error('Was not able to close puppeteer page', err);
+				if (!(err as Error).message.includes('Target closed')) {
+					console.error('Was not able to close puppeteer page', err);
+				}
 			});
 			return Promise.resolve();
 		},
