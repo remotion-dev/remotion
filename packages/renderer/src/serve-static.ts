@@ -73,7 +73,7 @@ export const serveStatic = async (
 
 	let selectedPort: number | null = null;
 
-	const maxTries = 5;
+	const maxTries = 10;
 
 	const portConfig = getPortConfig(options.forceIPv4);
 
