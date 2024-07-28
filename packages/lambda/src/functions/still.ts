@@ -14,9 +14,11 @@ import type {
 } from '@remotion/serverless/client';
 import {
 	ServerlessRoutines,
+	artifactName,
 	decompressInputProps,
 	getExpectedOutName,
 	internalGetOrCreateBucket,
+	overallProgressKey,
 } from '@remotion/serverless/client';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -26,11 +28,7 @@ import {estimatePrice} from '../api/estimate-price';
 import type {AwsRegion} from '../regions';
 import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
 import type {CostsInfo} from '../shared/constants';
-import {
-	MAX_EPHEMERAL_STORAGE_IN_MB,
-	artifactName,
-	overallProgressKey,
-} from '../shared/constants';
+import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../shared/constants';
 import {isFlakyError} from '../shared/is-flaky-error';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validatePrivacy} from '../shared/validate-privacy';

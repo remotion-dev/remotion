@@ -1,9 +1,11 @@
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
-import type {RenderMetadata} from '@remotion/serverless/client';
+import {
+	overallProgressKey,
+	type RenderMetadata,
+} from '@remotion/serverless/client';
 import type {PostRenderData} from '../../shared/constants';
-import {overallProgressKey} from '../../shared/constants';
 import type {ParsedTiming} from '../../shared/parse-lambda-timings-key';
 import type {ChunkRetry} from './get-retry-stats';
 import type {LambdaErrorInfo} from './write-lambda-error';

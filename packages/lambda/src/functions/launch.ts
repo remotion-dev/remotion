@@ -14,6 +14,7 @@ import type {
 } from '@remotion/serverless/client';
 import {
 	ServerlessRoutines,
+	artifactName,
 	compressInputProps,
 	decompressInputProps,
 	getExpectedOutName,
@@ -28,7 +29,6 @@ import type {PostRenderData} from '../shared/constants';
 import {
 	CONCAT_FOLDER_TOKEN,
 	MAX_FUNCTIONS_PER_RENDER,
-	artifactName,
 } from '../shared/constants';
 import {DOCS_URL} from '../shared/docs-url';
 import {invokeWebhook} from '../shared/invoke-webhook';

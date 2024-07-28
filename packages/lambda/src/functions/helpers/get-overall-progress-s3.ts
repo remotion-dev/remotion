@@ -1,6 +1,5 @@
 import type {ProviderSpecifics} from '@remotion/serverless';
-import {streamToString} from '@remotion/serverless/client';
-import {overallProgressKey} from '../../shared/constants';
+import {overallProgressKey, streamToString} from '@remotion/serverless/client';
 import type {OverallRenderProgress} from './overall-render-progress';
 
 export const getOverallProgressS3 = async <Region extends string>({

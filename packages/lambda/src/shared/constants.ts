@@ -1,5 +1,4 @@
 import {
-	rendersPrefix,
 	type DeleteAfter,
 	type Privacy,
 	type RenderMetadata,
@@ -39,12 +38,8 @@ export const DEFAULT_CLOUDWATCH_RETENTION_PERIOD = 14;
 export const RENDER_FN_PREFIX = 'remotion-render-';
 export const LOG_GROUP_PREFIX = '/aws/lambda/';
 export const LAMBDA_INSIGHTS_PREFIX = '/aws/lambda-insights';
-export const overallProgressKey = (renderId: string) =>
-	`${rendersPrefix(renderId)}/progress.json`;
 
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
-export const artifactName = (renderId: string, name: string) =>
-	`${rendersPrefix(renderId)}/artifacts/${name}`;
 
 export const RENDERER_PATH_TOKEN = 'remotion-bucket';
 export const CONCAT_FOLDER_TOKEN = 'remotion-concat';

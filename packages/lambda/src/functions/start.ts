@@ -4,11 +4,11 @@ import type {ServerlessPayload} from '@remotion/serverless/client';
 import {
 	ServerlessRoutines,
 	internalGetOrCreateBucket,
+	overallProgressKey,
 } from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../regions';
 import {getLambdaClient} from '../shared/aws-clients';
-import {overallProgressKey} from '../shared/constants';
 import {
 	generateRandomHashWithLifeCycleRule,
 	validateDeleteAfter,

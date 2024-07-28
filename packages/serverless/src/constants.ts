@@ -341,3 +341,9 @@ export const customOutName = <Region extends string>(
 		customCredentials: name.s3OutputProvider ?? null,
 	};
 };
+
+export const overallProgressKey = (renderId: string) =>
+	`${rendersPrefix(renderId)}/progress.json`;
+
+export const artifactName = (renderId: string, name: string) =>
+	`${rendersPrefix(renderId)}/artifacts/${name}`;
