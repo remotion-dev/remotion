@@ -9,11 +9,13 @@ import type {
 import {
 	compositionsHandler,
 	infoHandler,
-	makeStreamPayload,
 	streamWriter,
 } from '@remotion/serverless';
 import type {ServerlessPayload} from '@remotion/serverless/client';
-import {ServerlessRoutines} from '@remotion/serverless/client';
+import {
+	ServerlessRoutines,
+	makeStreamPayload,
+} from '@remotion/serverless/client';
 import type {AwsRegion} from '../regions';
 import {COMMAND_NOT_FOUND} from '../shared/constants';
 import {awsImplementation} from './aws-implementation';

@@ -44,6 +44,12 @@ export {inputPropsKey, resolvedPropsKey} from './input-props-keys';
 export {makeBucketName} from './make-bucket-name';
 export {RenderMetadata} from './render-metadata';
 export {streamToString} from './stream-to-string';
+export {
+	MessageTypeId,
+	formatMap,
+	makeStreamPayload,
+	messageTypeIdToMessageType,
+} from './streaming/streaming';
 export {truthy} from './truthy';
 export {validateBucketName} from './validate-bucket-name';
 export {validateWebhook} from './validate-webhook';

@@ -21,14 +21,10 @@ export {
 export {ResponseStream} from './streaming/response-stream';
 export {ResponseStreamWriter, streamWriter} from './streaming/stream-writer';
 export {
-	MessageTypeId,
-	StreamingMessage,
-	StreamingPayload,
-	formatMap,
-	makeStreamPayload,
-	messageTypeIdToMessageType,
 	type OnMessage,
 	type OnStream,
+	type StreamingMessage,
+	type StreamingPayload,
 } from './streaming/streaming';
 export {validateComposition} from './validate-composition';
 export {validateOutname} from './validate-outname';

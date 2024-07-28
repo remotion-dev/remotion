@@ -9,14 +9,17 @@ import {
 } from '@aws-sdk/client-lambda';
 import type {
 	CloudProvider,
-	MessageTypeId,
 	OnMessage,
 	StreamingMessage,
 } from '@remotion/serverless';
-import {formatMap, messageTypeIdToMessageType} from '@remotion/serverless';
 import type {
+	MessageTypeId,
 	ServerlessPayloads,
 	ServerlessRoutines,
+} from '@remotion/serverless/client';
+import {
+	formatMap,
+	messageTypeIdToMessageType,
 } from '@remotion/serverless/client';
 import {makeStreamer} from '@remotion/streaming';
 import type {OrError} from '../functions';
