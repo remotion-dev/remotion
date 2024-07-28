@@ -3,10 +3,7 @@ import {pLimit} from '../shared/p-limit';
 
 const limit = pLimit(10);
 
-export const cleanItems = <
-	Provider extends CloudProvider,
-	Region extends string,
->({
+export const cleanItems = <Provider extends CloudProvider>({
 	bucket,
 	onAfterItemDeleted,
 	onBeforeItemDeleted,
@@ -15,11 +12,11 @@ export const cleanItems = <
 	providerSpecifics,
 }: {
 	bucket: string;
-	region: Region;
+	region: Provider['region'];
 	list: string[];
 	onBeforeItemDeleted: (data: {bucketName: string; itemName: string}) => void;
 	onAfterItemDeleted: (data: {bucketName: string; itemName: string}) => void;
-	providerSpecifics: ProviderSpecifics<Provider, Region>;
+	providerSpecifics: ProviderSpecifics<Provider>;
 }) => {
 	return Promise.all(
 		list.map((object) =>

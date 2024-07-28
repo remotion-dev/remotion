@@ -1,5 +1,6 @@
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {getSitesKey} from '../defaults';
+import type {AwsProvider} from '../functions/aws-implementation';
 import {awsImplementation} from '../functions/aws-implementation';
 import type {AwsRegion} from '../regions';
 import {getAccountId} from '../shared/get-account-id';
@@ -23,7 +24,7 @@ export const internalDeleteSite = async ({
 	onAfterItemDeleted,
 	providerSpecifics,
 }: DeleteSiteInput & {
-	providerSpecifics: ProviderSpecifics<'aws', AwsRegion>;
+	providerSpecifics: ProviderSpecifics<AwsProvider>;
 }): Promise<DeleteSiteOutput> => {
 	const accountId = await getAccountId({region});
 

@@ -22,7 +22,7 @@ type StreamRendererResponse =
 			shouldRetry: boolean;
 	  };
 
-const streamRenderer = <Provider extends CloudProvider, Region extends string>({
+const streamRenderer = <Provider extends CloudProvider>({
 	payload,
 	functionName,
 	outdir,
@@ -32,14 +32,14 @@ const streamRenderer = <Provider extends CloudProvider, Region extends string>({
 	onArtifact,
 	providerSpecifics,
 }: {
-	payload: ServerlessPayload<Region>;
+	payload: ServerlessPayload<Provider>;
 	functionName: string;
 	outdir: string;
-	overallProgress: OverallProgressHelper<Provider, Region>;
+	overallProgress: OverallProgressHelper<Provider>;
 	files: string[];
 	logLevel: LogLevel;
 	onArtifact: (asset: EmittedArtifact) => {alreadyExisted: boolean};
-	providerSpecifics: ProviderSpecifics<Provider, Region>;
+	providerSpecifics: ProviderSpecifics<Provider>;
 }) => {
 	if (payload.type !== ServerlessRoutines.renderer) {
 		throw new Error('Expected renderer type');
@@ -184,7 +184,6 @@ const streamRenderer = <Provider extends CloudProvider, Region extends string>({
 
 export const streamRendererFunctionWithRetry = async <
 	Provider extends CloudProvider,
-	Region extends string,
 >({
 	payload,
 	files,
@@ -195,14 +194,14 @@ export const streamRendererFunctionWithRetry = async <
 	onArtifact,
 	providerSpecifics,
 }: {
-	payload: ServerlessPayload<Region>;
+	payload: ServerlessPayload<Provider>;
 	functionName: string;
 	outdir: string;
-	overallProgress: OverallProgressHelper<Provider, Region>;
+	overallProgress: OverallProgressHelper<Provider>;
 	files: string[];
 	logLevel: LogLevel;
 	onArtifact: (asset: EmittedArtifact) => {alreadyExisted: boolean};
-	providerSpecifics: ProviderSpecifics<Provider, Region>;
+	providerSpecifics: ProviderSpecifics<Provider>;
 }): Promise<unknown> => {
 	if (payload.type !== ServerlessRoutines.renderer) {
 		throw new Error('Expected renderer type');

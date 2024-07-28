@@ -8,6 +8,7 @@ import {
 	type Privacy,
 	type RenderMetadata,
 } from '@remotion/serverless/client';
+import type {AwsProvider} from '../functions/aws-implementation';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import type {AwsRegion} from '../regions';
 import type {ExpensiveChunk} from './get-most-expensive-chunks';
@@ -97,16 +98,13 @@ type EncodingProgress = {
 	timeToCombine: number | null;
 };
 
-export type GenericRenderProgress<
-	Provider extends CloudProvider,
-	Region extends string,
-> = {
+export type GenericRenderProgress<Provider extends CloudProvider> = {
 	chunks: number;
 	done: boolean;
 	encodingStatus: EncodingProgress | null;
 	costs: CostsInfo;
 	renderId: string;
-	renderMetadata: RenderMetadata<Region> | null;
+	renderMetadata: RenderMetadata<Provider> | null;
 	bucket: string;
 	outputFile: string | null;
 	outKey: string | null;
@@ -137,6 +135,6 @@ export type GenericRenderProgress<
 	artifacts: ReceivedArtifact<Provider>[];
 };
 
-export type RenderProgress = GenericRenderProgress<'aws', AwsRegion>;
+export type RenderProgress = GenericRenderProgress<AwsProvider>;
 
 export const LAMBDA_CONCURRENCY_LIMIT_QUOTA = 'L-B99A9384';

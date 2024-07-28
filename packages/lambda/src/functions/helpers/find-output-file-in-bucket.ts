@@ -11,10 +11,7 @@ export type OutputFileMetadata = {
 	url: string;
 };
 
-export const findOutputFileInBucket = async <
-	Provider extends CloudProvider,
-	Region extends string,
->({
+export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 	region,
 	renderMetadata,
 	bucketName,
@@ -22,12 +19,12 @@ export const findOutputFileInBucket = async <
 	currentRegion,
 	providerSpecifics,
 }: {
-	region: Region;
-	renderMetadata: RenderMetadata<Region>;
+	region: Provider['region'];
+	renderMetadata: RenderMetadata<Provider>;
 	bucketName: string;
-	customCredentials: CustomCredentials<Region> | null;
-	currentRegion: Region;
-	providerSpecifics: ProviderSpecifics<Provider, Region>;
+	customCredentials: CustomCredentials<Provider> | null;
+	currentRegion: Provider['region'];
+	providerSpecifics: ProviderSpecifics<Provider>;
 }): Promise<OutputFileMetadata | null> => {
 	if (!renderMetadata) {
 		throw new Error('unexpectedly did not get renderMetadata');

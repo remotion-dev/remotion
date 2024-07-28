@@ -11,10 +11,7 @@ import type {Await} from './await';
 import type {ProviderSpecifics} from './provider-implementation';
 import type {CloudProvider} from './still';
 
-type ValidateCompositionOptions<
-	Provider extends CloudProvider,
-	Region extends string,
-> = {
+type ValidateCompositionOptions<Provider extends CloudProvider> = {
 	serveUrl: string;
 	composition: string;
 	browserInstance: Await<ReturnType<typeof openBrowser>>;
@@ -30,13 +27,10 @@ type ValidateCompositionOptions<
 	offthreadVideoCacheSizeInBytes: number | null;
 	onBrowserDownload: OnBrowserDownload;
 	onServeUrlVisited: () => void;
-	providerSpecifics: ProviderSpecifics<Provider, Region>;
+	providerSpecifics: ProviderSpecifics<Provider>;
 };
 
-export const validateComposition = async <
-	Provider extends CloudProvider,
-	Region extends string,
->({
+export const validateComposition = async <Provider extends CloudProvider>({
 	serveUrl,
 	composition,
 	browserInstance,
@@ -53,7 +47,7 @@ export const validateComposition = async <
 	onBrowserDownload,
 	onServeUrlVisited,
 	providerSpecifics,
-}: ValidateCompositionOptions<Provider, Region>): Promise<VideoConfig> => {
+}: ValidateCompositionOptions<Provider>): Promise<VideoConfig> => {
 	const {metadata: comp} = await RenderInternals.internalSelectComposition({
 		id: composition,
 		puppeteerInstance: browserInstance,

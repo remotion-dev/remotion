@@ -4,9 +4,9 @@ import type {RenderMetadata} from '../render-metadata';
 
 const bucketName = 'remotionlambda-98fsduf';
 
-type AwsRegion = 'eu-central-1';
+type MockProvider = {type: 'aws'; region: 'eu-central'};
 
-const testRenderMetadata: RenderMetadata<AwsRegion> = {
+const testRenderMetadata: RenderMetadata<MockProvider> = {
 	compositionId: 'react-svg',
 	estimatedRenderLambdaInvokations: 100,
 	estimatedTotalLambdaInvokations: 100,
@@ -20,7 +20,7 @@ const testRenderMetadata: RenderMetadata<AwsRegion> = {
 	lambdaVersion: '2022-02-14',
 	memorySizeInMb: 2048,
 	outName: undefined,
-	region: 'eu-central-1',
+	region: 'eu-central',
 	renderId: '9n8dsfafs',
 	siteId: 'my-site',
 	startedDate: Date.now(),
@@ -46,7 +46,7 @@ test('Should get a custom outname', () => {
 });
 
 test('Should save to a different outname', () => {
-	const newRenderMetadata: RenderMetadata<AwsRegion> = {
+	const newRenderMetadata: RenderMetadata<MockProvider> = {
 		...testRenderMetadata,
 		outName: {
 			bucketName: 'my-bucket',
@@ -61,7 +61,7 @@ test('Should save to a different outname', () => {
 });
 
 test('For stills', () => {
-	const newRenderMetadata: RenderMetadata<AwsRegion> = {
+	const newRenderMetadata: RenderMetadata<MockProvider> = {
 		...testRenderMetadata,
 		codec: null,
 		type: 'still',
@@ -75,7 +75,7 @@ test('For stills', () => {
 });
 
 test('Just a custom name', () => {
-	const newRenderMetadata: RenderMetadata<AwsRegion> = {
+	const newRenderMetadata: RenderMetadata<MockProvider> = {
 		...testRenderMetadata,
 		type: 'still',
 		imageFormat: 'jpeg',
@@ -90,7 +90,7 @@ test('Just a custom name', () => {
 });
 
 test('Should throw on invalid names', () => {
-	const newRenderMetadata: RenderMetadata<AwsRegion> = {
+	const newRenderMetadata: RenderMetadata<MockProvider> = {
 		...testRenderMetadata,
 		type: 'still',
 		imageFormat: 'png',
@@ -103,7 +103,7 @@ test('Should throw on invalid names', () => {
 });
 
 test('Should allow outName an outname with a slash', () => {
-	const newRenderMetadata: RenderMetadata<AwsRegion> = {
+	const newRenderMetadata: RenderMetadata<MockProvider> = {
 		...testRenderMetadata,
 		codec: null,
 		audioCodec: null,
@@ -119,7 +119,7 @@ test('Should allow outName an outname with a slash', () => {
 });
 
 test('Should allow outName an outname with colon', () => {
-	const newRenderMetadata: RenderMetadata<AwsRegion> = {
+	const newRenderMetadata: RenderMetadata<MockProvider> = {
 		...testRenderMetadata,
 		codec: null,
 		audioCodec: null,

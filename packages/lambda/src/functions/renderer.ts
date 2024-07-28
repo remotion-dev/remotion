@@ -43,21 +43,18 @@ type Options = {
 	isWarm: boolean;
 };
 
-const renderHandler = async <
-	Provider extends CloudProvider,
-	Region extends string,
->({
+const renderHandler = async <Provider extends CloudProvider>({
 	params,
 	options,
 	logs,
 	onStream,
 	providerSpecifics,
 }: {
-	params: ServerlessPayload<Region>;
+	params: ServerlessPayload<Provider>;
 	options: Options;
 	logs: BrowserLog[];
 	onStream: OnStream<Provider>;
-	providerSpecifics: ProviderSpecifics<Provider, Region>;
+	providerSpecifics: ProviderSpecifics<Provider>;
 }): Promise<{}> => {
 	if (params.type !== ServerlessRoutines.renderer) {
 		throw new Error('Params must be renderer');
@@ -398,21 +395,18 @@ const renderHandler = async <
 
 const ENABLE_SLOW_LEAK_DETECTION = false;
 
-export const rendererHandler = async <
-	Provider extends CloudProvider,
-	Region extends string,
->({
+export const rendererHandler = async <Provider extends CloudProvider>({
 	onStream,
 	options,
 	params,
 	providerSpecifics,
 	requestContext,
 }: {
-	params: ServerlessPayload<Region>;
+	params: ServerlessPayload<Provider>;
 	options: Options;
 	onStream: OnStream<Provider>;
 	requestContext: RequestContext;
-	providerSpecifics: ProviderSpecifics<Provider, Region>;
+	providerSpecifics: ProviderSpecifics<Provider>;
 }): Promise<{
 	type: 'success';
 }> => {

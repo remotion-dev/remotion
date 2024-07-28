@@ -4,20 +4,17 @@ import {makeBucketName} from './make-bucket-name';
 import type {ProviderSpecifics} from './provider-implementation';
 import type {CloudProvider} from './still';
 
-type GetOrCreateBucketInputInner<
-	Provider extends CloudProvider,
-	Region extends string,
-> = {
-	region: Region;
+type GetOrCreateBucketInputInner<Provider extends CloudProvider> = {
+	region: Provider['region'];
 	enableFolderExpiry: boolean | null;
-	customCredentials: CustomCredentials<Region> | null;
-	providerSpecifics: ProviderSpecifics<Provider, Region>;
+	customCredentials: CustomCredentials<Provider> | null;
+	providerSpecifics: ProviderSpecifics<Provider>;
 };
 
-export type GetOrCreateBucketInput<Region extends string> = {
-	region: Region;
+export type GetOrCreateBucketInput<Provider extends CloudProvider> = {
+	region: Provider['region'];
 	enableFolderExpiry?: boolean;
-	customCredentials?: CustomCredentials<Region>;
+	customCredentials?: CustomCredentials<Provider>;
 };
 
 export type GetOrCreateBucketOutput = {
@@ -25,11 +22,8 @@ export type GetOrCreateBucketOutput = {
 	alreadyExisted: boolean;
 };
 
-export const internalGetOrCreateBucket = async <
-	Provider extends CloudProvider,
-	Region extends string,
->(
-	params: GetOrCreateBucketInputInner<Provider, Region>,
+export const internalGetOrCreateBucket = async <Provider extends CloudProvider>(
+	params: GetOrCreateBucketInputInner<Provider>,
 ): Promise<GetOrCreateBucketOutput> => {
 	const remotionBuckets = await params.providerSpecifics.getBuckets(
 		params.region,

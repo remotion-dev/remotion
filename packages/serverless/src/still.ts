@@ -1,4 +1,7 @@
-export type CloudProvider = 'aws' | 'gcp';
+export interface CloudProvider<T extends string = string> {
+	type: string;
+	region: T;
+}
 
 // TODO: Should not use AWS terminology here
 export type ReceivedArtifact<Provider extends CloudProvider> = {
@@ -6,7 +9,7 @@ export type ReceivedArtifact<Provider extends CloudProvider> = {
 	sizeInBytes: number;
 	s3Url: string;
 	s3Key: string;
-} & (Provider extends 'aws'
+} & (Provider['type'] extends 'aws'
 	? {
 			s3Url: string;
 			s3Key: string;

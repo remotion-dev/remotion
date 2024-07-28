@@ -17,12 +17,9 @@ export type LambdaErrorInfo = {
 	tmpDir: {files: FileNameAndSize[]; total: number} | null;
 };
 
-export const getTmpDirStateIfENoSp = <
-	Provider extends CloudProvider,
-	Region extends string,
->(
+export const getTmpDirStateIfENoSp = <Provider extends CloudProvider>(
 	err: string,
-	providerSpecifics: ProviderSpecifics<Provider, Region>,
+	providerSpecifics: ProviderSpecifics<Provider>,
 ): LambdaErrorInfo['tmpDir'] => {
 	if (!errorIsOutOfSpaceError(err)) {
 		return null;

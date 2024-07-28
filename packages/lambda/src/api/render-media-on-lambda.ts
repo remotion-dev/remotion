@@ -17,6 +17,7 @@ import type {
 	WebhookOption,
 } from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
+import type {AwsProvider} from '../functions/aws-implementation';
 import type {AwsRegion} from '../regions';
 import {callLambda} from '../shared/call-lambda';
 import {
@@ -50,7 +51,7 @@ export type RenderMediaOnLambdaInput = {
 	maxRetries?: number;
 	framesPerLambda?: number;
 	frameRange?: FrameRange;
-	outName?: OutNameInput<AwsRegion>;
+	outName?: OutNameInput<AwsProvider>;
 	chromiumOptions?: Omit<ChromiumOptions, 'enableMultiProcessOnLinux'>;
 	scale?: number;
 	everyNthFrame?: number;

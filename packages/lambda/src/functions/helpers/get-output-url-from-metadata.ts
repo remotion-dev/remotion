@@ -1,14 +1,15 @@
+import type {CloudProvider} from '@remotion/serverless';
 import type {RenderMetadata} from '@remotion/serverless/client';
 import {
 	getExpectedOutName,
 	type CustomCredentials,
 } from '@remotion/serverless/client';
 
-export const getOutputUrlFromMetadata = <Region extends string>(
-	renderMetadata: RenderMetadata<Region>,
+export const getOutputUrlFromMetadata = <Provider extends CloudProvider>(
+	renderMetadata: RenderMetadata<Provider>,
 	bucketName: string,
-	customCredentials: CustomCredentials<Region> | null,
-	currentRegion: Region,
+	customCredentials: CustomCredentials<Provider> | null,
+	currentRegion: Provider['region'],
 ) => {
 	const {key, renderBucketName} = getExpectedOutName(
 		renderMetadata,

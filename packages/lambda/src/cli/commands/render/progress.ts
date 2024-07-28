@@ -203,7 +203,6 @@ const makeTopRow = (overall: RenderProgress) => {
 
 export const makeArtifactProgress = <Provider extends CloudProvider>(
 	artifactProgress: ReceivedArtifact<Provider>[],
-	provider: Provider,
 ) => {
 	if (artifactProgress.length === 0) {
 		return null;
@@ -212,11 +211,8 @@ export const makeArtifactProgress = <Provider extends CloudProvider>(
 	return artifactProgress
 		.map((artifact) => {
 			return [
-				CliInternals.chalk.blue(
-					('+ ' + (provider === 'aws' ? 'S3' : 'GCS')).padEnd(
-						CliInternals.LABEL_WIDTH,
-					),
-				),
+				// TODO: Whitelabel S3
+				CliInternals.chalk.blue(`+ S3`.padEnd(CliInternals.LABEL_WIDTH)),
 				CliInternals.chalk.blue(
 					CliInternals.makeHyperlink({
 						url: artifact.s3Url,
@@ -236,11 +232,9 @@ export const makeArtifactProgress = <Provider extends CloudProvider>(
 export const makeProgressString = ({
 	downloadInfo,
 	overall,
-	provider,
 }: {
 	overall: RenderProgress;
 	downloadInfo: DownloadedInfo | null;
-	provider: CloudProvider;
 }) => {
 	return [
 		makeTopRow(overall),
@@ -249,7 +243,7 @@ export const makeProgressString = ({
 		...makeRenderProgress(overall),
 		makeCombinationProgress(overall),
 		downloadInfo ? makeDownloadProgress(downloadInfo) : null,
-		makeArtifactProgress(overall.artifacts, provider),
+		makeArtifactProgress(overall.artifacts),
 	]
 		.filter(NoReactInternals.truthy)
 		.join('\n');

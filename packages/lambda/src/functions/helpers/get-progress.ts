@@ -21,10 +21,7 @@ import {inspectErrors} from './inspect-errors';
 import {makeTimeoutError} from './make-timeout-error';
 import {lambdaRenderHasAudioVideo} from './render-has-audio-video';
 
-export const getProgress = async <
-	Provider extends CloudProvider,
-	Region extends string,
->({
+export const getProgress = async <Provider extends CloudProvider>({
 	bucketName,
 	renderId,
 	expectedBucketOwner,
@@ -37,12 +34,12 @@ export const getProgress = async <
 	bucketName: string;
 	renderId: string;
 	expectedBucketOwner: string;
-	region: Region;
+	region: Provider['region'];
 	memorySizeInMb: number;
 	timeoutInMilliseconds: number;
-	customCredentials: CustomCredentials<Region> | null;
-	providerSpecifics: ProviderSpecifics<Provider, Region>;
-}): Promise<GenericRenderProgress<Provider, Region>> => {
+	customCredentials: CustomCredentials<Provider> | null;
+	providerSpecifics: ProviderSpecifics<Provider>;
+}): Promise<GenericRenderProgress<Provider>> => {
 	const overallProgress = await getOverallProgressS3({
 		renderId,
 		bucketName,

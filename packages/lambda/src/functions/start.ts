@@ -20,13 +20,10 @@ type Options = {
 	timeoutInMilliseconds: number;
 };
 
-export const startHandler = async <
-	Provider extends CloudProvider,
-	Region extends string,
->(
-	params: ServerlessPayload<Region>,
+export const startHandler = async <Provider extends CloudProvider>(
+	params: ServerlessPayload<Provider>,
 	options: Options,
-	providerSpecifics: ProviderSpecifics<Provider, Region>,
+	providerSpecifics: ProviderSpecifics<Provider>,
 ) => {
 	if (params.type !== ServerlessRoutines.start) {
 		throw new TypeError('Expected type start');
@@ -82,7 +79,7 @@ export const startHandler = async <
 		customCredentials: null,
 	});
 
-	const payload: ServerlessPayload<Region> = {
+	const payload: ServerlessPayload<Provider> = {
 		type: ServerlessRoutines.launch,
 		framesPerLambda: params.framesPerLambda,
 		composition: params.composition,

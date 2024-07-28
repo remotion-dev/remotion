@@ -5,10 +5,7 @@ import type {AwsRegion} from '../../regions';
 import type {ParsedTiming} from '../../shared/parse-lambda-timings-key';
 import {calculateChunkTimes} from './calculate-chunk-times';
 
-export const estimatePriceFromBucket = <
-	Provider extends CloudProvider,
-	Region extends string,
->({
+export const estimatePriceFromBucket = <Provider extends CloudProvider>({
 	renderMetadata,
 	memorySizeInMb,
 	diskSizeInMb,
@@ -16,12 +13,12 @@ export const estimatePriceFromBucket = <
 	timings,
 	providerSpecifics,
 }: {
-	renderMetadata: RenderMetadata<Region> | null;
+	renderMetadata: RenderMetadata<Provider> | null;
 	memorySizeInMb: number;
 	diskSizeInMb: number;
 	lambdasInvoked: number;
 	timings: ParsedTiming[];
-	providerSpecifics: ProviderSpecifics<Provider, Region>;
+	providerSpecifics: ProviderSpecifics<Provider>;
 }) => {
 	if (!renderMetadata) {
 		return null;

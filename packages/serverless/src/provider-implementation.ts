@@ -3,27 +3,27 @@ import type {CustomCredentials, DownloadBehavior, Privacy} from './constants';
 import type {GetFolderFiles} from './get-files-in-folder';
 import type {CloudProvider} from './still';
 
-export type BucketWithLocation<Region extends string> = {
+export type BucketWithLocation<Provider extends CloudProvider> = {
 	name: string;
 	creationDate: number;
-	region: Region;
+	region: Provider['region'];
 };
 
-type GetBuckets<Region extends string> = (
-	region: Region,
+type GetBuckets<Provider extends CloudProvider> = (
+	region: Provider['region'],
 	forceBucketName?: string,
-) => Promise<BucketWithLocation<Region>[]>;
+) => Promise<BucketWithLocation<Provider>[]>;
 
-type CreateBucket<Region extends string> = (params: {
-	region: Region;
+type CreateBucket<Provider extends CloudProvider> = (params: {
+	region: Provider['region'];
 	bucketName: string;
 }) => Promise<void>;
 
-type ApplyLifeCycle<Region extends string> = (params: {
+type ApplyLifeCycle<Provider extends CloudProvider> = (params: {
 	enableFolderExpiry: boolean | null;
 	bucketName: string;
-	region: Region;
-	customCredentials: CustomCredentials<Region> | null;
+	region: Provider['region'];
+	customCredentials: CustomCredentials<Provider> | null;
 }) => Promise<void>;
 
 type BucketObject = {
@@ -33,54 +33,54 @@ type BucketObject = {
 	Size: number;
 };
 
-type ListObjects<Region extends string> = (params: {
+type ListObjects<Provider extends CloudProvider> = (params: {
 	bucketName: string;
 	prefix: string;
-	region: Region;
+	region: Provider['region'];
 	expectedBucketOwner: string | null;
 	continuationToken?: string;
 }) => Promise<BucketObject[]>;
 
-type DeleteFile<Region extends string> = (params: {
+type DeleteFile<Provider extends CloudProvider> = (params: {
 	bucketName: string;
 	key: string;
-	region: Region;
-	customCredentials: CustomCredentials<Region> | null;
+	region: Provider['region'];
+	customCredentials: CustomCredentials<Provider> | null;
 }) => Promise<void>;
 
-type BucketExists<Region extends string> = (params: {
+type BucketExists<Provider extends CloudProvider> = (params: {
 	bucketName: string;
-	region: Region;
+	region: Provider['region'];
 	expectedBucketOwner: string | null;
 }) => Promise<boolean>;
 
-type ReadFile<Region extends string> = (params: {
+type ReadFile<Provider extends CloudProvider> = (params: {
 	bucketName: string;
 	key: string;
-	region: Region;
+	region: Provider['region'];
 	expectedBucketOwner: string;
 }) => Promise<Readable>;
 
-export type WriteFileInput<Region extends string> = {
+export type WriteFileInput<Provider extends CloudProvider> = {
 	bucketName: string;
 	key: string;
 	body: Readable | string | Uint8Array;
-	region: Region;
+	region: Provider['region'];
 	privacy: Privacy;
 	expectedBucketOwner: string | null;
 	downloadBehavior: DownloadBehavior | null;
-	customCredentials: CustomCredentials<Region> | null;
+	customCredentials: CustomCredentials<Provider> | null;
 };
 
-type WriteFile<Region extends string> = (
-	params: WriteFileInput<Region>,
+type WriteFile<Provider extends CloudProvider> = (
+	params: WriteFileInput<Provider>,
 ) => Promise<void>;
 
-type HeadFileInput<Region extends string> = {
+type HeadFileInput<Provider extends CloudProvider> = {
 	bucketName: string;
 	key: string;
-	region: Region;
-	customCredentials: CustomCredentials<Region> | null;
+	region: Provider['region'];
+	customCredentials: CustomCredentials<Provider> | null;
 };
 
 type HeadFileOutput = {
@@ -88,36 +88,32 @@ type HeadFileOutput = {
 	ContentLength?: number | undefined;
 };
 
-type HeadFile<Region extends string> = (
-	params: HeadFileInput<Region>,
+type HeadFile<Provider extends CloudProvider> = (
+	params: HeadFileInput<Provider>,
 ) => Promise<HeadFileOutput>;
 
 type RandomHash = () => string;
 
-type ConvertToServeUrl<Region extends string> = (params: {
+type ConvertToServeUrl<Provider extends CloudProvider> = (params: {
 	urlOrId: string;
-	region: Region;
+	region: Provider['region'];
 	bucketName: string;
 }) => string;
 
-export type ProviderSpecifics<
-	Provider extends CloudProvider,
-	Region extends string,
-> = {
+export type ProviderSpecifics<Provider extends CloudProvider> = {
 	getChromiumPath: () => string | null;
-	getCurrentRegionInFunction: () => Region;
-	regionType: Region;
-	getBuckets: GetBuckets<Region>;
-	createBucket: CreateBucket<Region>;
-	applyLifeCycle: ApplyLifeCycle<Region>;
-	listObjects: ListObjects<Region>;
-	deleteFile: DeleteFile<Region>;
-	bucketExists: BucketExists<Region>;
+	getCurrentRegionInFunction: () => Provider['region'];
+	getBuckets: GetBuckets<Provider>;
+	createBucket: CreateBucket<Provider>;
+	applyLifeCycle: ApplyLifeCycle<Provider>;
+	listObjects: ListObjects<Provider>;
+	deleteFile: DeleteFile<Provider>;
+	bucketExists: BucketExists<Provider>;
 	randomHash: RandomHash;
-	readFile: ReadFile<Region>;
-	writeFile: WriteFile<Region>;
-	headFile: HeadFile<Region>;
-	convertToServeUrl: ConvertToServeUrl<Region>;
+	readFile: ReadFile<Provider>;
+	writeFile: WriteFile<Provider>;
+	headFile: HeadFile<Provider>;
+	convertToServeUrl: ConvertToServeUrl<Provider>;
 	printLoggingHelper: boolean;
 	getFolderFiles: GetFolderFiles;
 	provider: Provider;

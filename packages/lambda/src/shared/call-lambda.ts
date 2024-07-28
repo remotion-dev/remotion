@@ -29,11 +29,11 @@ import type {LambdaReturnValues} from './return-values';
 
 const INVALID_JSON_MESSAGE = 'Cannot parse Lambda response as JSON';
 
-type Options<T extends ServerlessRoutines, Region extends string> = {
+type Options<T extends ServerlessRoutines, Provider extends CloudProvider> = {
 	functionName: string;
 	type: T;
-	payload: Omit<ServerlessPayloads<Region>[T], 'type'>;
-	region: Region;
+	payload: Omit<ServerlessPayloads<Provider>[T], 'type'>;
+	region: Provider['region'];
 	timeoutInTest: number;
 };
 
@@ -47,14 +47,13 @@ const parseJsonOrThrowSource = (data: Uint8Array, type: string) => {
 };
 
 export const callLambda = async <
-	T extends ServerlessRoutines,
 	Provider extends CloudProvider,
-	Region extends string,
+	T extends ServerlessRoutines,
 >(
-	options: Options<T, Region> & {},
-): Promise<LambdaReturnValues<Provider, Region>[T]> => {
+	options: Options<T, Provider>,
+): Promise<LambdaReturnValues<Provider>[T]> => {
 	// Do not remove this await
-	const res = await callLambdaWithoutRetry<T, Provider, Region>(options);
+	const res = await callLambdaWithoutRetry<T, Provider>(options);
 	if (res.type === 'error') {
 		const err = new Error(res.message);
 		err.stack = res.stack;
@@ -67,9 +66,8 @@ export const callLambda = async <
 export const callLambdaWithStreaming = async <
 	T extends ServerlessRoutines,
 	Provider extends CloudProvider,
-	Region extends string,
 >(
-	options: Options<T, Region> & {
+	options: Options<T, Provider> & {
 		receivedStreamingPayload: OnMessage<Provider>;
 		retriesRemaining: number;
 	},
@@ -79,7 +77,7 @@ export const callLambdaWithStreaming = async <
 
 	try {
 		// Do not remove this await
-		await callLambdaWithStreamingWithoutRetry<T, Provider, Region>(options);
+		await callLambdaWithStreamingWithoutRetry<T, Provider>(options);
 	} catch (err) {
 		if (options.retriesRemaining === 0) {
 			throw err;
@@ -106,16 +104,13 @@ export const callLambdaWithStreaming = async <
 const callLambdaWithoutRetry = async <
 	T extends ServerlessRoutines,
 	Provider extends CloudProvider,
-	Region extends string,
 >({
 	functionName,
 	type,
 	payload,
 	region,
 	timeoutInTest,
-}: Options<T, Region>): Promise<
-	OrError<LambdaReturnValues<Provider, Region>[T]>
-> => {
+}: Options<T, Provider>): Promise<OrError<LambdaReturnValues<Provider>[T]>> => {
 	const Payload = JSON.stringify({type, ...payload});
 	const res = await getLambdaClient(region as AwsRegion, timeoutInTest).send(
 		new InvokeCommand({
@@ -128,9 +123,7 @@ const callLambdaWithoutRetry = async <
 	const decoded = new TextDecoder('utf-8').decode(res.Payload);
 
 	try {
-		return JSON.parse(decoded) as OrError<
-			LambdaReturnValues<Provider, Region>[T]
-		>;
+		return JSON.parse(decoded) as OrError<LambdaReturnValues<Provider>[T]>;
 	} catch (err) {
 		throw new Error(`Invalid JSON (${type}): ${JSON.stringify(decoded)}`);
 	}
@@ -139,14 +132,14 @@ const callLambdaWithoutRetry = async <
 const STREAM_STALL_TIMEOUT = 30000;
 const LAMBDA_STREAM_STALL = `AWS did not invoke Lambda in ${STREAM_STALL_TIMEOUT}ms`;
 
-const invokeStreamOrTimeout = async <Region extends string>({
+const invokeStreamOrTimeout = async <Provider extends CloudProvider>({
 	region,
 	timeoutInTest,
 	functionName,
 	type,
 	payload,
 }: {
-	region: Region;
+	region: Provider['region'];
 	timeoutInTest: number;
 	functionName: string;
 	type: string;
@@ -182,7 +175,6 @@ const invokeStreamOrTimeout = async <Region extends string>({
 const callLambdaWithStreamingWithoutRetry = async <
 	T extends ServerlessRoutines,
 	Provider extends CloudProvider,
-	Region extends string,
 >({
 	functionName,
 	type,
@@ -190,7 +182,7 @@ const callLambdaWithStreamingWithoutRetry = async <
 	region,
 	timeoutInTest,
 	receivedStreamingPayload,
-}: Options<T, Region> & {
+}: Options<T, Provider> & {
 	receivedStreamingPayload: OnMessage<Provider>;
 }): Promise<void> => {
 	const res = await invokeStreamOrTimeout({

@@ -20,7 +20,6 @@ import {timer} from './timer';
 
 export const mergeChunksAndFinishRender = async <
 	Provider extends CloudProvider,
-	Region extends string,
 >(options: {
 	bucketName: string;
 	renderId: string;
@@ -32,13 +31,13 @@ export const mergeChunksAndFinishRender = async <
 	numberOfGifLoops: number | null;
 	audioCodec: AudioCodec | null;
 	renderBucketName: string;
-	customCredentials: CustomCredentials<Region> | null;
+	customCredentials: CustomCredentials<Provider> | null;
 	downloadBehavior: DownloadBehavior;
 	key: string;
 	privacy: Privacy;
 	inputProps: SerializedInputProps;
 	serializedResolvedProps: SerializedInputProps;
-	renderMetadata: RenderMetadata<Region>;
+	renderMetadata: RenderMetadata<Provider>;
 	audioBitrate: string | null;
 	logLevel: LogLevel;
 	framesPerLambda: number;
@@ -47,9 +46,9 @@ export const mergeChunksAndFinishRender = async <
 	compositionStart: number;
 	outdir: string;
 	files: string[];
-	overallProgress: OverallProgressHelper<Provider, Region>;
+	overallProgress: OverallProgressHelper<Provider>;
 	startTime: number;
-	providerSpecifics: ProviderSpecifics<Provider, Region>;
+	providerSpecifics: ProviderSpecifics<Provider>;
 }): Promise<PostRenderData<Provider>> => {
 	const onProgress = (framesEncoded: number) => {
 		options.overallProgress.setCombinedFrames(framesEncoded);

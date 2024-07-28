@@ -4,7 +4,7 @@ import type {ProviderSpecifics} from '@remotion/serverless';
 import {internalGetOrCreateBucket} from '@remotion/serverless/client';
 import {deleteSite} from '../../../api/delete-site';
 import {getSites} from '../../../api/get-sites';
-import type {AwsRegion} from '../../../regions';
+import type {AwsProvider} from '../../../functions/aws-implementation';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {confirmCli} from '../../helpers/confirm';
@@ -14,7 +14,7 @@ export const SITES_RMALL_COMMAND = 'rmall';
 
 export const sitesRmallSubcommand = async (
 	logLevel: LogLevel,
-	implementation: ProviderSpecifics<'aws', AwsRegion>,
+	implementation: ProviderSpecifics<AwsProvider>,
 ) => {
 	const region = getAwsRegion();
 	const deployedSites = await getSites({

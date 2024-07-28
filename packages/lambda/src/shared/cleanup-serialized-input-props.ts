@@ -7,15 +7,14 @@ import {
 
 export const cleanupSerializedInputProps = async <
 	Provider extends CloudProvider,
-	Region extends string,
 >({
 	serialized,
 	region,
 	providerSpecifics,
 }: {
 	serialized: SerializedInputProps;
-	region: Region;
-	providerSpecifics: ProviderSpecifics<Provider, Region>;
+	region: Provider['region'];
+	providerSpecifics: ProviderSpecifics<Provider>;
 }): Promise<number> => {
 	if (serialized.type === 'payload') {
 		return 0;
@@ -34,15 +33,14 @@ export const cleanupSerializedInputProps = async <
 
 export const cleanupSerializedResolvedProps = async <
 	Provider extends CloudProvider,
-	Region extends string,
 >({
 	serialized,
 	region,
 	providerSpecifics,
 }: {
 	serialized: SerializedInputProps;
-	region: Region;
-	providerSpecifics: ProviderSpecifics<Provider, Region>;
+	region: Provider['region'];
+	providerSpecifics: ProviderSpecifics<Provider>;
 }): Promise<number> => {
 	if (serialized.type === 'payload') {
 		return 0;

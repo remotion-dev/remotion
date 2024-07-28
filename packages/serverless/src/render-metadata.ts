@@ -11,6 +11,7 @@ import type {
 	SerializedInputProps,
 	ServerlessCodec,
 } from './constants';
+import type {CloudProvider} from './still';
 
 type Discriminated =
 	| {
@@ -27,7 +28,7 @@ type Discriminated =
 			codec: ServerlessCodec;
 	  };
 
-export type RenderMetadata<Region extends string> = Discriminated & {
+export type RenderMetadata<Provider extends CloudProvider> = Discriminated & {
 	siteId: string;
 	startedDate: number;
 	totalChunks: number;
@@ -39,7 +40,7 @@ export type RenderMetadata<Region extends string> = Discriminated & {
 	framesPerLambda: number;
 	memorySizeInMb: number;
 	lambdaVersion: string;
-	region: Region;
+	region: Provider['region'];
 	renderId: string;
 	outName: OutNameInputWithoutCredentials | undefined;
 	privacy: Privacy;

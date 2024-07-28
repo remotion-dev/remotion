@@ -38,31 +38,29 @@ import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-pr
 import {isFlakyError} from '../shared/is-flaky-error';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validatePrivacy} from '../shared/validate-privacy';
+import type {AwsProvider} from './aws-implementation';
 import {formatCostsInfo} from './helpers/format-costs-info';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
 import {makeInitialOverallRenderProgress} from './helpers/overall-render-progress';
 
-type Options<Provider extends CloudProvider, Region extends string> = {
-	params: ServerlessPayload<Region>;
+type Options<Provider extends CloudProvider> = {
+	params: ServerlessPayload<Provider>;
 	renderId: string;
 	expectedBucketOwner: string;
 	onStream: OnStream<Provider>;
 	timeoutInMilliseconds: number;
-	providerSpecifics: ProviderSpecifics<Provider, Region>;
+	providerSpecifics: ProviderSpecifics<Provider>;
 };
 
-const innerStillHandler = async <
-	Provider extends CloudProvider,
-	Region extends string,
->({
+const innerStillHandler = async <Provider extends CloudProvider>({
 	params: lambdaParams,
 	expectedBucketOwner,
 	renderId,
 	onStream,
 	timeoutInMilliseconds,
 	providerSpecifics,
-}: Options<Provider, Region>) => {
+}: Options<Provider>) => {
 	if (lambdaParams.type !== ServerlessRoutines.still) {
 		throw new TypeError('Expected still type');
 	}
@@ -160,7 +158,7 @@ const innerStillHandler = async <
 		providerSpecifics,
 	});
 
-	const renderMetadata: RenderMetadata<Region> = {
+	const renderMetadata: RenderMetadata<Provider> = {
 		startedDate: Date.now(),
 		codec: null,
 		compositionId: lambdaParams.composition,
@@ -217,12 +215,12 @@ const innerStillHandler = async <
 		}
 
 		const s3Key = artifactName(renderMetadata.renderId, artifact.filename);
-		if (providerSpecifics.provider !== 'aws') {
+		if (providerSpecifics.provider.type !== 'aws') {
 			throw new Error('artifacts not supported for gcp yet');
 		}
 
 		// TODO: Make typesafer
-		(receivedArtifact as ReceivedArtifact<'aws'>[]).push({
+		(receivedArtifact as ReceivedArtifact<AwsProvider>[]).push({
 			filename: artifact.filename,
 			sizeInBytes: artifact.content.length,
 			s3Url: `https://s3.${region}.amazonaws.com/${renderBucketName}/${s3Key}`,
@@ -357,11 +355,8 @@ const innerStillHandler = async <
 	});
 };
 
-export const stillHandler = async <
-	Provider extends CloudProvider,
-	Region extends string,
->(
-	options: Options<Provider, Region>,
+export const stillHandler = async <Provider extends CloudProvider>(
+	options: Options<Provider>,
 ): Promise<
 	| {
 			type: 'success';

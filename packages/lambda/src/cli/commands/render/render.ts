@@ -11,7 +11,7 @@ import {internalRenderMediaOnLambdaRaw} from '../../../api/render-media-on-lambd
 
 import type {EnhancedErrorInfo, ProviderSpecifics} from '@remotion/serverless';
 import type {ServerlessCodec} from '@remotion/serverless/client';
-import type {AwsRegion} from '../../../regions';
+import type {AwsProvider} from '../../../functions/aws-implementation';
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
@@ -59,7 +59,7 @@ export const renderCommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
-	implementation: ProviderSpecifics<'aws', AwsRegion>,
+	implementation: ProviderSpecifics<AwsProvider>,
 ) => {
 	const serveUrl = args[0];
 	if (!serveUrl) {
@@ -420,7 +420,6 @@ export const renderCommand = async (
 		makeProgressString({
 			downloadInfo: null,
 			overall: status,
-			provider: implementation.provider,
 		}),
 		false,
 	);
@@ -439,7 +438,6 @@ export const renderCommand = async (
 			makeProgressString({
 				downloadInfo: null,
 				overall: newStatus,
-				provider: implementation.provider,
 			}),
 			false,
 		);
@@ -464,7 +462,6 @@ export const renderCommand = async (
 									totalSize,
 								},
 								overall: newStatus,
-								provider: implementation.provider,
 							}),
 							false,
 						);
@@ -480,7 +477,6 @@ export const renderCommand = async (
 							totalSize: download.sizeInBytes,
 						},
 						overall: newStatus,
-						provider: implementation.provider,
 					}),
 					false,
 				);

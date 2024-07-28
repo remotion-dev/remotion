@@ -53,10 +53,7 @@ export const forgetBrowserEventLoop = (logLevel: LogLevel) => {
 	_browserInstance?.instance.forgetEventLoop();
 };
 
-export const getBrowserInstance = async <
-	Provider extends CloudProvider,
-	Region extends string,
->({
+export const getBrowserInstance = async <Provider extends CloudProvider>({
 	logLevel,
 	indent,
 	chromiumOptions,
@@ -65,7 +62,7 @@ export const getBrowserInstance = async <
 	logLevel: LogLevel;
 	indent: boolean;
 	chromiumOptions: ChromiumOptions;
-	providerSpecifics: ProviderSpecifics<Provider, Region>;
+	providerSpecifics: ProviderSpecifics<Provider>;
 }): Promise<LaunchedBrowser> => {
 	const actualChromiumOptions: ChromiumOptions = {
 		...chromiumOptions,

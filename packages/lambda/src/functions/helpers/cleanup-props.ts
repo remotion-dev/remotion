@@ -5,17 +5,14 @@ import {
 	cleanupSerializedResolvedProps,
 } from '../../shared/cleanup-serialized-input-props';
 
-export const cleanupProps = <
-	Provider extends CloudProvider,
-	Region extends string,
->({
+export const cleanupProps = <Provider extends CloudProvider>({
 	serializedResolvedProps,
 	inputProps,
 	providerSpecifics,
 }: {
 	serializedResolvedProps: SerializedInputProps;
 	inputProps: SerializedInputProps;
-	providerSpecifics: ProviderSpecifics<Provider, Region>;
+	providerSpecifics: ProviderSpecifics<Provider>;
 }): Promise<[number, number]> => {
 	const cleanupSerializedInputPropsProm = cleanupSerializedInputProps({
 		region: providerSpecifics.getCurrentRegionInFunction(),

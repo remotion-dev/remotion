@@ -26,12 +26,16 @@ if (
 	process.env.NO_COLOR = '1';
 }
 
-export const awsImplementation: ProviderSpecifics<'aws', AwsRegion> = {
+export type AwsProvider = {
+	type: 'aws';
+	region: AwsRegion;
+};
+
+export const awsImplementation: ProviderSpecifics<AwsProvider> = {
 	getChromiumPath() {
 		return '/opt/bin/chromium';
 	},
 	getCurrentRegionInFunction: getCurrentRegionInFunctionImplementation,
-	regionType: 'us-east-1',
 	getBuckets: getRemotionBuckets,
 	createBucket,
 	applyLifeCycle: applyLifeCyleOperation,
@@ -45,5 +49,5 @@ export const awsImplementation: ProviderSpecifics<'aws', AwsRegion> = {
 	convertToServeUrl: convertToServeUrlImplementation,
 	printLoggingHelper: true,
 	getFolderFiles,
-	provider: 'aws',
+	provider: {type: 'aws', region: 'us-east-1'},
 };

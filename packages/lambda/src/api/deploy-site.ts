@@ -5,6 +5,7 @@ import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {validateBucketName} from '@remotion/serverless/client';
 import fs from 'node:fs';
+import type {AwsProvider} from '../functions/aws-implementation';
 import {awsImplementation} from '../functions/aws-implementation';
 import type {AwsRegion} from '../regions';
 import {bundleSite} from '../shared/bundle-site';
@@ -65,7 +66,7 @@ const mandatoryDeploySite = async ({
 	providerSpecifics,
 }: MandatoryParameters &
 	OptionalParameters & {
-		providerSpecifics: ProviderSpecifics<'aws', AwsRegion>;
+		providerSpecifics: ProviderSpecifics<AwsProvider>;
 	}): DeploySiteOutput => {
 	validateAwsRegion(region);
 	validateBucketName(bucketName, {

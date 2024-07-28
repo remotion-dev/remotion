@@ -12,10 +12,7 @@ import {calculateChunkTimes} from './calculate-chunk-times';
 import type {OutputFileMetadata} from './find-output-file-in-bucket';
 import type {OverallRenderProgress} from './overall-render-progress';
 
-export const createPostRenderData = <
-	Provider extends CloudProvider,
-	Region extends string,
->({
+export const createPostRenderData = <Provider extends CloudProvider>({
 	region,
 	memorySizeInMb,
 	renderMetadata,
@@ -27,14 +24,14 @@ export const createPostRenderData = <
 	timeToFinish,
 	outputSize,
 }: {
-	region: Region;
+	region: Provider['region'];
 	memorySizeInMb: number;
-	renderMetadata: RenderMetadata<Region>;
+	renderMetadata: RenderMetadata<Provider>;
 	timeToDelete: number;
 	errorExplanations: EnhancedErrorInfo[];
 	outputFile: OutputFileMetadata;
 	timeToCombine: number | null;
-	overallProgress: OverallRenderProgress<Provider, Region>;
+	overallProgress: OverallRenderProgress<Provider>;
 	timeToFinish: number;
 	outputSize: number;
 }): PostRenderData<Provider> => {

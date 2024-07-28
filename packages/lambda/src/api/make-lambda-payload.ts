@@ -29,6 +29,7 @@ import {
 } from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion, DeleteAfter} from '../client';
+import type {AwsProvider} from '../functions/aws-implementation';
 import {awsImplementation} from '../functions/aws-implementation';
 
 import {validateWebhook} from '@remotion/serverless/client';
@@ -58,7 +59,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	framesPerLambda: number | null;
 	logLevel: LogLevel;
 	frameRange: FrameRange | null;
-	outName: OutNameInput<AwsRegion> | null;
+	outName: OutNameInput<AwsProvider> | null;
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
@@ -126,7 +127,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	colorSpace,
 	preferLossless,
 }: InnerRenderMediaOnLambdaInput): Promise<
-	ServerlessStartPayload<AwsRegion>
+	ServerlessStartPayload<AwsProvider>
 > => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
@@ -203,7 +204,7 @@ export const getRenderProgressPayload = ({
 	renderId,
 	s3OutputProvider,
 	logLevel,
-}: GetRenderProgressInput): ServerlessStatusPayload<AwsRegion> => {
+}: GetRenderProgressInput): ServerlessStatusPayload<AwsProvider> => {
 	return {
 		type: ServerlessRoutines.status,
 		bucketName,
@@ -238,7 +239,7 @@ export const makeLambdaRenderStillPayload = async ({
 	offthreadVideoCacheSizeInBytes,
 	deleteAfter,
 }: RenderStillOnLambdaNonNullInput): Promise<
-	ServerlessPayloads<AwsRegion>[ServerlessRoutines.still]
+	ServerlessPayloads<AwsProvider>[ServerlessRoutines.still]
 > => {
 	if (quality) {
 		throw new Error(

@@ -1,6 +1,6 @@
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {Readable} from 'stream';
-import type {AwsRegion} from '../regions';
+import type {AwsProvider} from '../functions/aws-implementation';
 import {convertToServeUrlImplementation} from '../shared/convert-to-serve-url';
 import {
 	addMockBucket,
@@ -12,9 +12,8 @@ import {
 	writeMockS3File,
 } from './mocks/mock-store';
 
-export const mockImplementation: ProviderSpecifics<'aws', AwsRegion> = {
+export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 	applyLifeCycle: () => Promise.resolve(),
-	regionType: 'us-east-1',
 	getChromiumPath() {
 		return null;
 	},
@@ -114,5 +113,5 @@ export const mockImplementation: ProviderSpecifics<'aws', AwsRegion> = {
 			size: 0,
 		},
 	],
-	provider: 'aws',
+	provider: {type: 'aws', region: 'af-south-1'},
 };

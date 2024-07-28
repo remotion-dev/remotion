@@ -6,6 +6,7 @@ import {ServiceQuotasClient} from '@aws-sdk/client-service-quotas';
 import {STSClient} from '@aws-sdk/client-sts';
 import {random} from 'remotion/no-react';
 import type {CustomCredentials} from '../client';
+import type {AwsProvider} from '../functions/aws-implementation';
 import type {AwsRegion} from '../regions';
 import {checkCredentials} from './check-credentials';
 import {MAX_FUNCTIONS_PER_RENDER} from './constants';
@@ -26,7 +27,7 @@ const getCredentialsHash = ({
 	service,
 }: {
 	region: AwsRegion;
-	customCredentials: CustomCredentials<AwsRegion> | null;
+	customCredentials: CustomCredentials<AwsProvider> | null;
 	service: keyof ServiceMapping;
 }): string => {
 	const hashComponents: {[key: string]: unknown} = {};
@@ -87,7 +88,7 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 }: {
 	region: AwsRegion;
 	service: T;
-	customCredentials: CustomCredentials<AwsRegion> | null;
+	customCredentials: CustomCredentials<AwsProvider> | null;
 }): ServiceMapping[T] => {
 	const Client = (() => {
 		if (service === 'cloudwatch') {

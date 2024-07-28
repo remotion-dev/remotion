@@ -9,8 +9,8 @@ import {
 	type Privacy,
 } from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
+import type {AwsProvider} from '../../../functions/aws-implementation';
 import {LambdaInternals} from '../../../internals';
-import type {AwsRegion} from '../../../regions';
 import {BINARY_NAME} from '../../../shared/constants';
 import {validateSiteName} from '../../../shared/validate-site-name';
 import {parsedLambdaCli} from '../../args';
@@ -41,7 +41,7 @@ export const sitesCreateSubcommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
-	implementation: ProviderSpecifics<'aws', AwsRegion>,
+	implementation: ProviderSpecifics<AwsProvider>,
 ) => {
 	const {file, reason} = CliInternals.findEntryPoint({
 		args,

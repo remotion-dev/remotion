@@ -15,13 +15,10 @@ type Options = {
 	expectedBucketOwner: string;
 };
 
-export const compositionsHandler = async <
-	Provider extends CloudProvider,
-	Region extends string,
->(
-	lambdaParams: ServerlessPayload<Region>,
+export const compositionsHandler = async <Provider extends CloudProvider>(
+	lambdaParams: ServerlessPayload<Provider>,
 	options: Options,
-	providerSpecifics: ProviderSpecifics<Provider, Region>,
+	providerSpecifics: ProviderSpecifics<Provider>,
 ) => {
 	if (lambdaParams.type !== ServerlessRoutines.compositions) {
 		throw new TypeError('Expected info compositions');

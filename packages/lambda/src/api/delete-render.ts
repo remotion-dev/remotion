@@ -4,6 +4,7 @@ import {
 	rendersPrefix,
 	type CustomCredentials,
 } from '@remotion/serverless/client';
+import type {AwsProvider} from '../functions/aws-implementation';
 import {awsImplementation} from '../functions/aws-implementation';
 import {getOverallProgressS3} from '../functions/helpers/get-overall-progress-s3';
 import type {AwsRegion} from '../regions';
@@ -14,12 +15,12 @@ export type DeleteRenderInput = {
 	region: AwsRegion;
 	bucketName: string;
 	renderId: string;
-	customCredentials?: CustomCredentials<AwsRegion>;
+	customCredentials?: CustomCredentials<AwsProvider>;
 };
 
 export const internalDeleteRender = async (
 	input: DeleteRenderInput & {
-		providerSpecifics: ProviderSpecifics<'aws', AwsRegion>;
+		providerSpecifics: ProviderSpecifics<AwsProvider>;
 	},
 ) => {
 	const expectedBucketOwner = await getAccountId({

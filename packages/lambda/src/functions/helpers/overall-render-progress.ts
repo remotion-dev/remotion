@@ -14,10 +14,7 @@ import type {PostRenderData} from '../../shared/constants';
 import type {ParsedTiming} from '../../shared/parse-lambda-timings-key';
 import type {ChunkRetry} from './get-retry-stats';
 
-export type OverallRenderProgress<
-	Provider extends CloudProvider,
-	Region extends string,
-> = {
+export type OverallRenderProgress<Provider extends CloudProvider> = {
 	chunks: number[];
 	framesRendered: number;
 	framesEncoded: number;
@@ -29,7 +26,7 @@ export type OverallRenderProgress<
 	retries: ChunkRetry[];
 	postRenderData: PostRenderData<Provider> | null;
 	timings: ParsedTiming[];
-	renderMetadata: RenderMetadata<Region> | null;
+	renderMetadata: RenderMetadata<Provider> | null;
 	errors: LambdaErrorInfo[];
 	timeoutTimestamp: number;
 	functionLaunched: number;
@@ -38,10 +35,7 @@ export type OverallRenderProgress<
 	receivedArtifact: ReceivedArtifact<Provider>[];
 };
 
-export type OverallProgressHelper<
-	Provider extends CloudProvider,
-	Region extends string,
-> = {
+export type OverallProgressHelper<Provider extends CloudProvider> = {
 	upload: () => Promise<void>;
 	setFrames: ({
 		encoded,
@@ -62,10 +56,10 @@ export type OverallProgressHelper<
 	setTimeToCombine: (timeToCombine: number) => void;
 	addRetry: (retry: ChunkRetry) => void;
 	setPostRenderData: (postRenderData: PostRenderData<Provider>) => void;
-	setRenderMetadata: (renderMetadata: RenderMetadata<Region>) => void;
+	setRenderMetadata: (renderMetadata: RenderMetadata<Provider>) => void;
 	addErrorWithoutUpload: (errorInfo: LambdaErrorInfo) => void;
 	setExpectedChunks: (expectedChunks: number) => void;
-	get: () => OverallRenderProgress<Provider, Region>;
+	get: () => OverallRenderProgress<Provider>;
 	setServeUrlOpened: (timestamp: number) => void;
 	setCompositionValidated: (timestamp: number) => void;
 	addReceivedArtifact: (asset: ReceivedArtifact<Provider>) => void;
@@ -75,10 +69,9 @@ export type OverallProgressHelper<
 
 export const makeInitialOverallRenderProgress = <
 	Provider extends CloudProvider,
-	Region extends string,
 >(
 	timeoutTimestamp: number,
-): OverallRenderProgress<Provider, Region> => {
+): OverallRenderProgress<Provider> => {
 	return {
 		chunks: [],
 		framesRendered: 0,
@@ -101,10 +94,7 @@ export const makeInitialOverallRenderProgress = <
 	};
 };
 
-export const makeOverallRenderProgress = <
-	Provider extends CloudProvider,
-	Region extends string,
->({
+export const makeOverallRenderProgress = <Provider extends CloudProvider>({
 	renderId,
 	bucketName,
 	expectedBucketOwner,
@@ -116,16 +106,16 @@ export const makeOverallRenderProgress = <
 	renderId: string;
 	bucketName: string;
 	expectedBucketOwner: string;
-	region: Region;
+	region: Provider['region'];
 	timeoutTimestamp: number;
 	logLevel: LogLevel;
-	providerSpecifics: ProviderSpecifics<Provider, Region>;
-}): OverallProgressHelper<Provider, Region> => {
+	providerSpecifics: ProviderSpecifics<Provider>;
+}): OverallProgressHelper<Provider> => {
 	let framesRendered: number[] = [];
 	let framesEncoded: number[] = [];
 	let lambdasInvoked: boolean[] = [];
 
-	const renderProgress: OverallRenderProgress<Provider, Region> =
+	const renderProgress: OverallRenderProgress<Provider> =
 		makeInitialOverallRenderProgress(timeoutTimestamp);
 
 	let currentUploadPromise: Promise<void> | null = null;

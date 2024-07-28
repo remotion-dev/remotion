@@ -1,7 +1,7 @@
 import type {GetOrCreateBucketInput} from '@remotion/serverless/client';
 import {internalGetOrCreateBucket} from '@remotion/serverless/client';
+import type {AwsProvider} from '../functions/aws-implementation';
 import {awsImplementation} from '../functions/aws-implementation';
-import type {AwsRegion} from '../regions';
 
 /**
  * @description Creates a bucket for Remotion Lambda in your S3 account. If one already exists, it will get returned instead.
@@ -10,7 +10,7 @@ import type {AwsRegion} from '../regions';
  * @returns {Promise<GetOrCreateBucketOutput>} An object containing the `bucketName`.
  */
 export const getOrCreateBucket = (
-	options: GetOrCreateBucketInput<AwsRegion>,
+	options: GetOrCreateBucketInput<AwsProvider>,
 ) => {
 	return internalGetOrCreateBucket({
 		region: options.region,

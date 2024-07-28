@@ -2,7 +2,7 @@ import {PutObjectCommand} from '@aws-sdk/client-s3';
 import type {WriteFileInput} from '@remotion/serverless';
 import mimeTypes from 'mime-types';
 import type {CustomCredentials} from '../client';
-import type {AwsRegion} from '../regions';
+import type {AwsProvider} from '../functions/aws-implementation';
 import {getContentDispositionHeader} from '../shared/content-disposition-header';
 import {getS3Client} from '../shared/get-s3-client';
 
@@ -15,10 +15,10 @@ const tryLambdaWriteFile = async ({
 	expectedBucketOwner,
 	downloadBehavior,
 	customCredentials,
-}: WriteFileInput<AwsRegion>): Promise<void> => {
+}: WriteFileInput<AwsProvider>): Promise<void> => {
 	await getS3Client(
 		region,
-		customCredentials as CustomCredentials<AwsRegion>,
+		customCredentials as CustomCredentials<AwsProvider>,
 	).send(
 		new PutObjectCommand({
 			Bucket: bucketName,
@@ -40,7 +40,7 @@ const tryLambdaWriteFile = async ({
 };
 
 export const lambdaWriteFileImplementation = async (
-	params: WriteFileInput<AwsRegion> & {
+	params: WriteFileInput<AwsProvider> & {
 		retries?: number;
 	},
 ): Promise<void> => {

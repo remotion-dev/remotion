@@ -26,7 +26,6 @@ import {existsSync, mkdirSync, rmSync} from 'fs';
 import {join} from 'path';
 import {VERSION} from 'remotion/version';
 import {type EventEmitter} from 'stream';
-import type {AwsRegion} from '../regions';
 import type {PostRenderData} from '../shared/constants';
 import {
 	CONCAT_FOLDER_TOKEN,
@@ -41,6 +40,7 @@ import {
 } from '../shared/validate';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import {validatePrivacy} from '../shared/validate-privacy';
+import type {AwsProvider} from './aws-implementation';
 import {planFrameRanges} from './chunk-optimization/plan-frame-ranges';
 import {bestFramesPerLambdaParam} from './helpers/best-frames-per-lambda-param';
 import {cleanupProps} from './helpers/cleanup-props';
@@ -56,10 +56,7 @@ type Options = {
 	getRemainingTimeInMillis: () => number;
 };
 
-const innerLaunchHandler = async <
-	Provider extends CloudProvider,
-	Region extends string,
->({
+const innerLaunchHandler = async <Provider extends CloudProvider>({
 	functionName,
 	params,
 	options,
@@ -68,11 +65,11 @@ const innerLaunchHandler = async <
 	providerSpecifics,
 }: {
 	functionName: string;
-	params: ServerlessPayload<Region>;
+	params: ServerlessPayload<Provider>;
 	options: Options;
-	overallProgress: OverallProgressHelper<Provider, Region>;
+	overallProgress: OverallProgressHelper<Provider>;
 	registerCleanupTask: (cleanupTask: CleanupTask) => void;
-	providerSpecifics: ProviderSpecifics<Provider, Region>;
+	providerSpecifics: ProviderSpecifics<Provider>;
 }): Promise<PostRenderData<Provider>> => {
 	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
@@ -236,7 +233,7 @@ const innerLaunchHandler = async <
 	const progressEveryNthFrame = Math.ceil(chunks.length / 15);
 
 	const lambdaPayloads = chunks.map((chunkPayload) => {
-		const payload: ServerlessPayload<Region> = {
+		const payload: ServerlessPayload<Provider> = {
 			type: ServerlessRoutines.renderer,
 			frameRange: chunkPayload,
 			serveUrl: params.serveUrl,
@@ -292,7 +289,7 @@ const innerLaunchHandler = async <
 		chunks.map((c, i) => `Chunk ${i} (Frames ${c[0]} - ${c[1]})`).join(', '),
 	);
 
-	const renderMetadata: RenderMetadata<Region> = {
+	const renderMetadata: RenderMetadata<Provider> = {
 		startedDate,
 		totalChunks: chunks.length,
 		estimatedTotalLambdaInvokations: [
@@ -402,13 +399,13 @@ const innerLaunchHandler = async <
 					`Wrote artifact to S3 in ${Date.now() - start}ms`,
 				);
 
-				if (overallProgress.provider !== 'aws') {
+				if (overallProgress.provider.type !== 'aws') {
 					throw new Error('artifacts not supported for gcp yet');
 				}
 
 				// TODO: Make typesafer
 				(
-					overallProgress as unknown as OverallProgressHelper<'aws', AwsRegion>
+					overallProgress as unknown as OverallProgressHelper<AwsProvider>
 				).addReceivedArtifact({
 					filename: artifact.filename,
 					sizeInBytes: artifact.content.length,
@@ -491,13 +488,10 @@ const innerLaunchHandler = async <
 
 type CleanupTask = () => Promise<unknown>;
 
-export const launchHandler = async <
-	Provider extends CloudProvider,
-	Region extends string,
->(
-	params: ServerlessPayload<Region>,
+export const launchHandler = async <Provider extends CloudProvider>(
+	params: ServerlessPayload<Provider>,
 	options: Options,
-	providerSpecifics: ProviderSpecifics<Provider, Region>,
+	providerSpecifics: ProviderSpecifics<Provider>,
 ): Promise<{
 	type: 'success';
 }> => {

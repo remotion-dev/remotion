@@ -10,17 +10,14 @@ import {
 
 const MAX_MISSING_CHUNKS = 5;
 
-const makeChunkMissingMessage = <
-	Provider extends CloudProvider,
-	Region extends string,
->({
+const makeChunkMissingMessage = <Provider extends CloudProvider>({
 	missingChunks,
 	renderMetadata,
 	providerSpecifics,
 }: {
 	missingChunks: number[];
-	renderMetadata: RenderMetadata<Region>;
-	providerSpecifics: ProviderSpecifics<Provider, Region>;
+	renderMetadata: RenderMetadata<Provider>;
+	providerSpecifics: ProviderSpecifics<Provider>;
 }) => {
 	if (missingChunks.length === 0) {
 		return 'All chunks have been successfully rendered, but the main function has timed out.';
@@ -59,10 +56,7 @@ const makeChunkMissingMessage = <
 	].join('\n');
 };
 
-export const makeTimeoutMessage = <
-	Provider extends CloudProvider,
-	Region extends string,
->({
+export const makeTimeoutMessage = <Provider extends CloudProvider>({
 	timeoutInMilliseconds,
 	missingChunks,
 	renderMetadata,
@@ -71,9 +65,9 @@ export const makeTimeoutMessage = <
 }: {
 	timeoutInMilliseconds: number;
 	missingChunks: number[];
-	renderMetadata: RenderMetadata<Region>;
+	renderMetadata: RenderMetadata<Provider>;
 	renderId: string;
-	providerSpecifics: ProviderSpecifics<Provider, Region>;
+	providerSpecifics: ProviderSpecifics<Provider>;
 }) => {
 	const cloudWatchRendererUrl = getCloudwatchRendererUrl({
 		renderId,
