@@ -218,6 +218,7 @@ const callLambdaWithStreamingWithoutRetry = async <
 		clear();
 	};
 
+	// @ts-expect-error - We are adding a listener to a global variable
 	if (globalThis._dumpUnreleasedBuffers) {
 		// @ts-expect-error - We are adding a listener to a global variable
 		(globalThis._dumpUnreleasedBuffers as EventEmitter).addListener(
@@ -258,6 +259,7 @@ const callLambdaWithStreamingWithoutRetry = async <
 		// Don't put a `break` statement here, as it will cause the socket to not properly exit.
 	}
 
+	// @ts-expect-error - We are adding a listener to a global variable
 	if (globalThis._dumpUnreleasedBuffers) {
 		// @ts-expect-error - We are adding a listener to a global variable
 		(globalThis._dumpUnreleasedBuffers as EventEmitter).removeListener(
