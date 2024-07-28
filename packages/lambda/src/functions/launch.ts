@@ -535,9 +535,12 @@ export const launchHandler = async <Provider extends CloudProvider>(
 		);
 
 		// @ts-expect-error - We are adding a listener to a global variable
-		(globalThis._dumpUnreleasedBuffers as EventEmitter).emit(
-			'dump-unreleased-buffers',
-		);
+		if (globalThis._dumpUnreleasedBuffers) {
+			// @ts-expect-error - We are adding a listener to a global variable
+			(globalThis._dumpUnreleasedBuffers as EventEmitter).emit(
+				'dump-unreleased-buffers',
+			);
+		}
 
 		runCleanupTasks();
 
