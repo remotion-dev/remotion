@@ -2,12 +2,12 @@ import {RenderInternals} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {
 	getExpectedOutName,
+	truthy,
 	type CustomCredentials,
 } from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
 import type {CleanupInfo, GenericRenderProgress} from '../../shared/constants';
 import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../../shared/constants';
-import {truthy} from '../../shared/truthy';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import {estimatePriceFromBucket} from './calculate-price-from-bucket';
 import {formatCostsInfo} from './format-costs-info';
