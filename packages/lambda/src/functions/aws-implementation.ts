@@ -25,6 +25,12 @@ if (
 
 	process.env.DISABLE_FROM_SURFACE = '1';
 	process.env.NO_COLOR = '1';
+
+	// @ts-expect-error
+	globalThis._dumpUnreleasedBuffers = new EventEmitter();
+
+	// @ts-expect-error
+	(globalThis._dumpUnreleasedBuffers as EventEmitter).setMaxListeners(201);
 }
 
 export type AwsProvider = {

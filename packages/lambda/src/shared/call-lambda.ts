@@ -22,6 +22,7 @@ import {
 	messageTypeIdToMessageType,
 } from '@remotion/serverless/client';
 import {makeStreamer} from '@remotion/streaming';
+import type {EventEmitter} from 'stream';
 import type {OrError} from '../functions';
 import type {AwsRegion} from '../regions';
 import {getLambdaClient} from './aws-clients';
@@ -213,6 +214,16 @@ const callLambdaWithStreamingWithoutRetry = async <
 		receivedStreamingPayload(message);
 	});
 
+	const dumpBuffers = () => {
+		clear();
+	};
+
+	// @ts-expect-error - We are adding a listener to a global variable
+	(globalThis._dumpUnreleasedBuffers as EventEmitter).addListener(
+		'dump-unreleased-buffers',
+		dumpBuffers,
+	);
+
 	const events =
 		res.EventStream as AsyncIterable<InvokeWithResponseStreamResponseEvent>;
 
@@ -244,6 +255,12 @@ const callLambdaWithStreamingWithoutRetry = async <
 
 		// Don't put a `break` statement here, as it will cause the socket to not properly exit.
 	}
+
+	// @ts-expect-error - We are adding a listener to a global variable
+	(globalThis._dumpUnreleasedBuffers as EventEmitter).removeListener(
+		'dump-unreleased-buffers',
+		dumpBuffers,
+	);
 
 	clear();
 };

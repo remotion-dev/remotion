@@ -534,7 +534,7 @@ export const launchHandler = async <Provider extends CloudProvider>(
 			'Function is about to time out. Can not finish render.',
 		);
 
-		// @ts-expect-error
+		// @ts-expect-error - We are adding a listener to a global variable
 		(globalThis._dumpUnreleasedBuffers as EventEmitter).emit(
 			'dump-unreleased-buffers',
 		);
