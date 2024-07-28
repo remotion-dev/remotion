@@ -8,20 +8,17 @@ import {
 	InvokeWithResponseStreamCommand,
 } from '@aws-sdk/client-lambda';
 import type {
+	MessageTypeId,
+	OnMessage,
+	StreamingMessage,
+} from '@remotion/serverless';
+import {formatMap, messageTypeIdToMessageType} from '@remotion/serverless';
+import type {
 	ServerlessPayloads,
 	ServerlessRoutines,
 } from '@remotion/serverless/client';
 import {makeStreamer} from '@remotion/streaming';
 import type {OrError} from '../functions';
-import type {
-	MessageTypeId,
-	OnMessage,
-	StreamingMessage,
-} from '../functions/streaming/streaming';
-import {
-	formatMap,
-	messageTypeIdToMessageType,
-} from '../functions/streaming/streaming';
 import type {AwsRegion} from '../regions';
 import {getLambdaClient} from './aws-clients';
 import type {LambdaReturnValues} from './return-values';

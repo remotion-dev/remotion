@@ -1,6 +1,16 @@
 import {RenderInternals} from '@remotion/renderer';
-import type {ProviderSpecifics} from '@remotion/serverless';
-import {compositionsHandler, infoHandler} from '@remotion/serverless';
+import type {
+	ProviderSpecifics,
+	ResponseStream,
+	ResponseStreamWriter,
+	StreamingPayload,
+} from '@remotion/serverless';
+import {
+	compositionsHandler,
+	infoHandler,
+	makeStreamPayload,
+	streamWriter,
+} from '@remotion/serverless';
 import type {ServerlessPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import type {AwsRegion} from '../regions';
@@ -15,19 +25,12 @@ import {
 } from './helpers/lifecycle';
 import {printLoggingGrepHelper} from './helpers/print-logging-helper';
 import type {RequestContext} from './helpers/request-context';
-import type {ResponseStream} from './helpers/streamify-response';
 import {streamifyResponse} from './helpers/streamify-response';
 import {launchHandler} from './launch';
 import {progressHandler} from './progress';
 import {rendererHandler} from './renderer';
 import {startHandler} from './start';
 import {stillHandler} from './still';
-import {
-	streamWriter,
-	type ResponseStreamWriter,
-} from './streaming/stream-writer';
-import type {StreamingPayload} from './streaming/streaming';
-import {makeStreamPayload} from './streaming/streaming';
 
 const innerHandler = async <Region extends string>({
 	params,

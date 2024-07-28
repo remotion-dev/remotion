@@ -8,9 +8,8 @@ import {NoReactInternals} from 'remotion/no-react';
 import {internalDownloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
 import {internalRenderMediaOnLambdaRaw} from '../../../api/render-media-on-lambda';
-import type {EnhancedErrorInfo} from '../../../functions/helpers/write-lambda-error';
 
-import type {ProviderSpecifics} from '@remotion/serverless';
+import type {EnhancedErrorInfo, ProviderSpecifics} from '@remotion/serverless';
 import type {ServerlessCodec} from '@remotion/serverless/client';
 import type {AwsRegion} from '../../../regions';
 import {

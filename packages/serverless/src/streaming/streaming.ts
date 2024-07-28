@@ -1,7 +1,7 @@
 import {makeStreamPayloadMessage} from '@remotion/streaming';
-import type {SerializedArtifact} from '../helpers/serialize-artifact';
-import type {LambdaErrorInfo} from '../helpers/write-lambda-error';
+import type {SerializedArtifact} from '../serialize-artifact';
 import type {RenderStillLambdaResponsePayload} from '../still';
+import type {LambdaErrorInfo} from '../write-lambda-error';
 
 const framesRendered = 'frames-rendered' as const;
 const errorOccurred = 'error-occurred' as const;

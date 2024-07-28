@@ -7,10 +7,12 @@ import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {DownloadBehavior} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
-import type {ReceivedArtifact} from '../functions/helpers/overall-render-progress';
-import type {RenderStillLambdaResponsePayload} from '../functions/still';
 import {callLambdaWithStreaming} from '../shared/call-lambda';
 
+import type {
+	ReceivedArtifact,
+	RenderStillLambdaResponsePayload,
+} from '@remotion/serverless';
 import type {OutNameInput, Privacy} from '@remotion/serverless/client';
 import type {AwsRegion} from '../regions';
 import type {CostsInfo} from '../shared/constants';

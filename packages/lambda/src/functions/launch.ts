@@ -5,6 +5,7 @@ import type {ProviderSpecifics} from '@remotion/serverless';
 import {
 	forgetBrowserEventLoop,
 	getBrowserInstance,
+	getTmpDirStateIfENoSp,
 	validateComposition,
 	validateOutname,
 } from '@remotion/serverless';
@@ -48,7 +49,6 @@ import type {OverallProgressHelper} from './helpers/overall-render-progress';
 import {makeOverallRenderProgress} from './helpers/overall-render-progress';
 import {streamRendererFunctionWithRetry} from './helpers/stream-renderer';
 import {timer} from './helpers/timer';
-import {getTmpDirStateIfENoSp} from './helpers/write-lambda-error';
 
 type Options = {
 	expectedBucketOwner: string;

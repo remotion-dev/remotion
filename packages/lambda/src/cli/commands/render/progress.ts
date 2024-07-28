@@ -1,9 +1,9 @@
 import {CliInternals} from '@remotion/cli';
 import {RenderInternals} from '@remotion/renderer';
+import type {ReceivedArtifact} from '@remotion/serverless';
 import {truthy} from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderProgress} from '../../../defaults';
-import type {ReceivedArtifact} from '../../../functions/helpers/overall-render-progress';
 
 type LambdaInvokeProgress = {
 	totalLambdas: number | null;

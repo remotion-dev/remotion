@@ -23,7 +23,8 @@
 	},
 	"dependencies": {
 		"remotion": "workspace:*",
-		"@remotion/renderer": "workspace:*"
+		"@remotion/renderer": "workspace:*",
+		"@remotion/streaming": "workspace:*"
 	},
 	"exports": {
 		".": "./dist/index.js",

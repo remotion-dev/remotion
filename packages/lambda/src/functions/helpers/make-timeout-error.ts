@@ -1,7 +1,6 @@
-import type {ProviderSpecifics} from '@remotion/serverless';
+import type {EnhancedErrorInfo, ProviderSpecifics} from '@remotion/serverless';
 import type {RenderMetadata} from '@remotion/serverless/client';
 import {makeTimeoutMessage} from './make-timeout-message';
-import type {EnhancedErrorInfo} from './write-lambda-error';
 
 export const makeTimeoutError = <Region extends string>({
 	timeoutInMilliseconds,

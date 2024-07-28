@@ -1,6 +1,6 @@
-import type {ProviderSpecifics} from '@remotion/serverless';
-import type {FileNameAndSize} from '@remotion/serverless/client';
-import {errorIsOutOfSpaceError} from './is-enosp-err';
+import {errorIsOutOfSpaceError} from './error-category';
+import type {FileNameAndSize} from './get-files-in-folder';
+import type {ProviderSpecifics} from './provider-implementation';
 
 export type LambdaErrorInfo = {
 	type: 'renderer' | 'browser' | 'stitcher' | 'webhook' | 'artifact';

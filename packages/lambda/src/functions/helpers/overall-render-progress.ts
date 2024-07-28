@@ -1,6 +1,10 @@
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {ProviderSpecifics} from '@remotion/serverless';
+import type {
+	LambdaErrorInfo,
+	ProviderSpecifics,
+	ReceivedArtifact,
+} from '@remotion/serverless';
 import {
 	overallProgressKey,
 	type RenderMetadata,
@@ -8,7 +12,6 @@ import {
 import type {PostRenderData} from '../../shared/constants';
 import type {ParsedTiming} from '../../shared/parse-lambda-timings-key';
 import type {ChunkRetry} from './get-retry-stats';
-import type {LambdaErrorInfo} from './write-lambda-error';
 
 export type OverallRenderProgress<Region extends string> = {
 	chunks: number[];
@@ -29,13 +32,6 @@ export type OverallRenderProgress<Region extends string> = {
 	serveUrlOpened: number | null;
 	compositionValidated: number | null;
 	receivedArtifact: ReceivedArtifact[];
-};
-
-export type ReceivedArtifact = {
-	filename: string;
-	sizeInBytes: number;
-	s3Url: string;
-	s3Key: string;
 };
 
 export type OverallProgressHelper<Region extends string> = {

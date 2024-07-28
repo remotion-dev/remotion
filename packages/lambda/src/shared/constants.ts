@@ -1,11 +1,10 @@
+import type {EnhancedErrorInfo, ReceivedArtifact} from '@remotion/serverless';
 import {
 	type DeleteAfter,
 	type Privacy,
 	type RenderMetadata,
 } from '@remotion/serverless/client';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
-import type {ReceivedArtifact} from '../functions/helpers/overall-render-progress';
-import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import type {AwsRegion} from '../regions';
 import type {ExpensiveChunk} from './get-most-expensive-chunks';
 

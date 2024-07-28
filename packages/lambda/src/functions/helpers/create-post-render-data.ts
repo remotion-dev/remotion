@@ -1,3 +1,4 @@
+import type {EnhancedErrorInfo} from '@remotion/serverless';
 import type {RenderMetadata} from '@remotion/serverless/client';
 import {estimatePrice} from '../../api/estimate-price';
 import type {AwsRegion} from '../../regions';
@@ -10,7 +11,6 @@ import {
 import {calculateChunkTimes} from './calculate-chunk-times';
 import type {OutputFileMetadata} from './find-output-file-in-bucket';
 import type {OverallRenderProgress} from './overall-render-progress';
-import type {EnhancedErrorInfo} from './write-lambda-error';
 
 export const createPostRenderData = <Region extends string>({
 	region,

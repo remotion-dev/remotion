@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import type {ProviderSpecifics} from '@remotion/serverless';
+import type {EnhancedErrorInfo, ProviderSpecifics} from '@remotion/serverless';
 import {
 	getExpectedOutName,
 	truthy,
@@ -16,7 +16,6 @@ import {getOverallProgressS3} from './get-overall-progress-s3';
 import {inspectErrors} from './inspect-errors';
 import {makeTimeoutError} from './make-timeout-error';
 import {lambdaRenderHasAudioVideo} from './render-has-audio-video';
-import type {EnhancedErrorInfo} from './write-lambda-error';
 
 export const getProgress = async <Region extends string>({
 	bucketName,

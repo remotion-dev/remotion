@@ -1339,6 +1339,9 @@ importers:
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
+      '@remotion/streaming':
+        specifier: workspace:*
+        version: link:../streaming
       remotion:
         specifier: workspace:*
         version: link:../core

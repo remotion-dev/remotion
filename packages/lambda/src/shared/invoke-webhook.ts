@@ -1,9 +1,9 @@
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {EnhancedErrorInfo} from '@remotion/serverless';
 import https from 'https';
 import * as Crypto from 'node:crypto';
 import http from 'node:http';
-import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import type {AfterRenderCost} from './constants';
 
 /**

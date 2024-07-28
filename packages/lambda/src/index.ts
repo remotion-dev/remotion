@@ -1,3 +1,4 @@
+import type {EnhancedErrorInfo, LambdaErrorInfo} from '@remotion/serverless';
 import type {
 	CustomCredentials,
 	GetOrCreateBucketInput,
@@ -64,10 +65,6 @@ import type {
 } from './api/render-still-on-lambda';
 import {renderStillOnLambda as deprecatedRenderStillOnLambda} from './api/render-still-on-lambda';
 import {validateWebhookSignature} from './api/validate-webhook-signature';
-import type {
-	EnhancedErrorInfo,
-	LambdaErrorInfo,
-} from './functions/helpers/write-lambda-error';
 import {LambdaInternals} from './internals';
 import type {AwsRegion} from './regions';
 import type {RenderProgress} from './shared/constants';
