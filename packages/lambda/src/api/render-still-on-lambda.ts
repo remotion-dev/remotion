@@ -4,11 +4,11 @@ import type {
 	ToOptions,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {DownloadBehavior} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {callLambdaWithStreaming} from '../shared/call-lambda';
 
+import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import type {
 	ReceivedArtifact,
 	RenderStillLambdaResponsePayload,
@@ -155,9 +155,7 @@ const internalRenderStillOnLambda = async (
 	}
 };
 
-const errorHandled = NoReactAPIs.wrapWithErrorHandling(
-	internalRenderStillOnLambda,
-);
+const errorHandled = wrapWithErrorHandling(internalRenderStillOnLambda);
 
 /**
  * @description Renders a still frame on Lambda

@@ -1,7 +1,7 @@
 import {type GitSource, type WebpackOverrideFn} from '@remotion/bundler';
 import type {ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import {NoReactAPIs} from '@remotion/renderer/pure';
+import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {validateBucketName} from '@remotion/serverless/client';
 import fs from 'node:fs';
@@ -171,8 +171,7 @@ const mandatoryDeploySite = async ({
 	};
 };
 
-export const internalDeploySite =
-	NoReactAPIs.wrapWithErrorHandling(mandatoryDeploySite);
+export const internalDeploySite = wrapWithErrorHandling(mandatoryDeploySite);
 
 /**
  * @description Deploys a Remotion project to an S3 bucket to prepare it for rendering on AWS Lambda.

@@ -8,7 +8,7 @@ import type {
 	VideoImageFormat,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import {NoReactAPIs} from '@remotion/renderer/pure';
+import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import type {
 	DownloadBehavior,
 	OutNameInput,
@@ -188,9 +188,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 	};
 };
 
-const wrapped = NoReactAPIs.wrapWithErrorHandling(
-	internalRenderMediaOnLambdaRaw,
-);
+const wrapped = wrapWithErrorHandling(internalRenderMediaOnLambdaRaw);
 
 /**
  * @description Triggers a render on a lambda given a composition and a lambda function.

@@ -1005,6 +1005,9 @@ importers:
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
+      '@remotion/serverless':
+        specifier: workspace:*
+        version: link:../serverless
       '@remotion/shapes':
         specifier: workspace:*
         version: link:../shapes
