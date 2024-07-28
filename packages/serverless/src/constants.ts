@@ -12,6 +12,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
+import type {CloudProvider} from './still';
 
 // Needs to be in sync with renderer/src/options/delete-after.ts#L7
 export const expiryDays = {
@@ -37,19 +38,19 @@ export type CustomCredentialsWithoutSensitiveData = {
 	endpoint: string;
 };
 
-export type CustomCredentials<Region extends string> =
+export type CustomCredentials<Provider extends CloudProvider> =
 	CustomCredentialsWithoutSensitiveData & {
 		accessKeyId: string | null;
 		secretAccessKey: string | null;
-		region?: Region;
+		region?: Provider['region'];
 	};
 
-export type OutNameInput<Region extends string> =
+export type OutNameInput<Provider extends CloudProvider> =
 	| string
 	| {
 			bucketName: string;
 			key: string;
-			s3OutputProvider?: CustomCredentials<Region>;
+			s3OutputProvider?: CustomCredentials<Provider>;
 	  };
 
 export type SerializedInputProps =
@@ -103,16 +104,16 @@ export type WebhookOption = Prettify<
 	  >)
 >;
 
-export type ServerlessStatusPayload<Region extends string> = {
+export type ServerlessStatusPayload<Provider extends CloudProvider> = {
 	type: ServerlessRoutines.status;
 	bucketName: string;
 	renderId: string;
 	version: string;
 	logLevel: LogLevel;
-	s3OutputProvider?: CustomCredentials<Region>;
+	s3OutputProvider?: CustomCredentials<Provider>;
 };
 
-export type ServerlessStartPayload<Region extends string> = {
+export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	rendererFunctionName: string | null;
 	type: ServerlessRoutines.start;
 	serveUrl: string;
@@ -132,7 +133,7 @@ export type ServerlessStartPayload<Region extends string> = {
 	privacy: Privacy;
 	logLevel: LogLevel;
 	frameRange: FrameRange | null;
-	outName: OutNameInput<Region> | null;
+	outName: OutNameInput<Provider> | null;
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
@@ -157,12 +158,12 @@ export type ServerlessStartPayload<Region extends string> = {
 	preferLossless: boolean;
 };
 
-export type ServerlessPayloads<Region extends string> = {
+export type ServerlessPayloads<Provider extends CloudProvider> = {
 	info: {
 		type: ServerlessRoutines.info;
 		logLevel: LogLevel;
 	};
-	start: ServerlessStartPayload<Region>;
+	start: ServerlessStartPayload<Provider>;
 	launch: {
 		rendererFunctionName: string | null;
 		type: ServerlessRoutines.launch;
@@ -185,7 +186,7 @@ export type ServerlessPayloads<Region extends string> = {
 		privacy: Privacy;
 		logLevel: LogLevel;
 		frameRange: FrameRange | null;
-		outName: OutNameInput<Region> | null;
+		outName: OutNameInput<Provider> | null;
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
@@ -207,7 +208,7 @@ export type ServerlessPayloads<Region extends string> = {
 		colorSpace: ColorSpace | null;
 		preferLossless: boolean;
 	};
-	status: ServerlessStatusPayload<Region>;
+	status: ServerlessStatusPayload<Provider>;
 	renderer: {
 		concurrencyPerLambda: number;
 		type: ServerlessRoutines.renderer;
@@ -268,7 +269,7 @@ export type ServerlessPayloads<Region extends string> = {
 		frame: number;
 		privacy: Privacy;
 		logLevel: LogLevel;
-		outName: OutNameInput<Region> | null;
+		outName: OutNameInput<Provider> | null;
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
@@ -295,7 +296,55 @@ export type ServerlessPayloads<Region extends string> = {
 	};
 };
 
-export type ServerlessPayload<Region extends string> =
-	ServerlessPayloads<Region>[ServerlessRoutines];
+export type ServerlessPayload<Provider extends CloudProvider> =
+	ServerlessPayloads<Provider>[ServerlessRoutines];
 
 export const REMOTION_BUCKET_PREFIX = 'remotionlambda-';
+
+export type OutNameOutput<Provider extends CloudProvider> = {
+	renderBucketName: string;
+	key: string;
+	customCredentials: CustomCredentials<Provider> | null;
+};
+
+export type OutNameInputWithoutCredentials =
+	| string
+	| {
+			bucketName: string;
+			key: string;
+			s3OutputProvider?: CustomCredentialsWithoutSensitiveData;
+	  };
+
+export const rendersPrefix = (renderId: string) => `renders/${renderId}`;
+
+export const outStillName = (renderId: string, imageFormat: StillImageFormat) =>
+	`${rendersPrefix(renderId)}/out.${imageFormat}`;
+
+export const outName = (renderId: string, extension: string) =>
+	`${rendersPrefix(renderId)}/out.${extension}`;
+
+export const customOutName = <Provider extends CloudProvider>(
+	renderId: string,
+	bucketName: string,
+	name: OutNameInput<Provider>,
+): OutNameOutput<Provider> => {
+	if (typeof name === 'string') {
+		return {
+			renderBucketName: bucketName,
+			key: `${rendersPrefix(renderId)}/${name}`,
+			customCredentials: null,
+		};
+	}
+
+	return {
+		key: name.key,
+		renderBucketName: name.bucketName,
+		customCredentials: name.s3OutputProvider ?? null,
+	};
+};
+
+export const overallProgressKey = (renderId: string) =>
+	`${rendersPrefix(renderId)}/progress.json`;
+
+export const artifactName = (renderId: string, name: string) =>
+	`${rendersPrefix(renderId)}/artifacts/${name}`;

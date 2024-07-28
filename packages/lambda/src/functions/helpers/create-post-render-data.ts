@@ -1,6 +1,8 @@
+import type {CloudProvider, EnhancedErrorInfo} from '@remotion/serverless';
+import type {RenderMetadata} from '@remotion/serverless/client';
 import {estimatePrice} from '../../api/estimate-price';
 import type {AwsRegion} from '../../regions';
-import type {PostRenderData, RenderMetadata} from '../../shared/constants';
+import type {PostRenderData} from '../../shared/constants';
 import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../../shared/constants';
 import {
 	OVERHEAD_TIME_PER_LAMBDA,
@@ -9,9 +11,8 @@ import {
 import {calculateChunkTimes} from './calculate-chunk-times';
 import type {OutputFileMetadata} from './find-output-file-in-bucket';
 import type {OverallRenderProgress} from './overall-render-progress';
-import type {EnhancedErrorInfo} from './write-lambda-error';
 
-export const createPostRenderData = <Region extends string>({
+export const createPostRenderData = <Provider extends CloudProvider>({
 	region,
 	memorySizeInMb,
 	renderMetadata,
@@ -23,17 +24,17 @@ export const createPostRenderData = <Region extends string>({
 	timeToFinish,
 	outputSize,
 }: {
-	region: Region;
+	region: Provider['region'];
 	memorySizeInMb: number;
-	renderMetadata: RenderMetadata<Region>;
+	renderMetadata: RenderMetadata<Provider>;
 	timeToDelete: number;
 	errorExplanations: EnhancedErrorInfo[];
 	outputFile: OutputFileMetadata;
 	timeToCombine: number | null;
-	overallProgress: OverallRenderProgress<Region>;
+	overallProgress: OverallRenderProgress<Provider>;
 	timeToFinish: number;
 	outputSize: number;
-}): PostRenderData => {
+}): PostRenderData<Provider> => {
 	const parsedTimings = overallProgress.timings;
 
 	const estimatedBillingDurationInMilliseconds = parsedTimings

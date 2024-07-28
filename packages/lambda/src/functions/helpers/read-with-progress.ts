@@ -5,6 +5,7 @@ import {RenderInternals} from '@remotion/renderer';
 import type {CustomCredentials} from '@remotion/serverless/client';
 import type {AwsRegion} from '../../regions';
 import {getS3Client} from '../../shared/get-s3-client';
+import type {AwsProvider} from '../aws-implementation';
 
 export type LambdaReadFileProgress = (progress: {
 	totalSize: number;
@@ -28,7 +29,7 @@ export const lambdaDownloadFileWithProgress = async ({
 	expectedBucketOwner: string;
 	outputPath: string;
 	onProgress: LambdaReadFileProgress;
-	customCredentials: CustomCredentials<AwsRegion> | null;
+	customCredentials: CustomCredentials<AwsProvider> | null;
 	logLevel: LogLevel;
 }): Promise<{sizeInBytes: number; to: string}> => {
 	const client = getS3Client(region, customCredentials);

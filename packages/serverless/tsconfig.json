@@ -7,5 +7,12 @@
 		"skipLibCheck": true
 	},
 	"include": ["src"],
-	"references": []
+	"references": [
+		{
+			"path": "../renderer"
+		},
+		{
+			"path": "../streaming"
+		}
+	]
 }

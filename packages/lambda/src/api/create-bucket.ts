@@ -5,10 +5,10 @@ import {
 	PutBucketAclCommand,
 } from '@aws-sdk/client-s3';
 import type {ProviderSpecifics} from '@remotion/serverless';
-import type {AwsRegion} from '../regions';
+import type {AwsProvider} from '../functions/aws-implementation';
 import {getS3Client} from '../shared/get-s3-client';
 
-export const createBucket: ProviderSpecifics<AwsRegion>['createBucket'] =
+export const createBucket: ProviderSpecifics<AwsProvider>['createBucket'] =
 	async ({region, bucketName}) => {
 		await getS3Client(region, null).send(
 			new CreateBucketCommand({

@@ -1,17 +1,24 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type {EmittedArtifact, LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {ProviderSpecifics} from '@remotion/serverless';
+import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
 import {
 	forgetBrowserEventLoop,
 	getBrowserInstance,
+	getTmpDirStateIfENoSp,
 	validateComposition,
+	validateOutname,
 } from '@remotion/serverless';
-import type {ServerlessPayload} from '@remotion/serverless/client';
+import type {
+	RenderMetadata,
+	ServerlessPayload,
+} from '@remotion/serverless/client';
 import {
 	ServerlessRoutines,
+	artifactName,
 	compressInputProps,
 	decompressInputProps,
+	getExpectedOutName,
 	getNeedsToUpload,
 	serializeOrThrow,
 } from '@remotion/serverless/client';
@@ -19,11 +26,10 @@ import {existsSync, mkdirSync, rmSync} from 'fs';
 import {join} from 'path';
 import {VERSION} from 'remotion/version';
 import {type EventEmitter} from 'stream';
-import type {PostRenderData, RenderMetadata} from '../shared/constants';
+import type {PostRenderData} from '../shared/constants';
 import {
 	CONCAT_FOLDER_TOKEN,
 	MAX_FUNCTIONS_PER_RENDER,
-	artifactName,
 } from '../shared/constants';
 import {DOCS_URL} from '../shared/docs-url';
 import {invokeWebhook} from '../shared/invoke-webhook';
@@ -33,26 +39,23 @@ import {
 	validateFps,
 } from '../shared/validate';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
-import {validateOutname} from '../shared/validate-outname';
 import {validatePrivacy} from '../shared/validate-privacy';
 import {planFrameRanges} from './chunk-optimization/plan-frame-ranges';
 import {bestFramesPerLambdaParam} from './helpers/best-frames-per-lambda-param';
 import {cleanupProps} from './helpers/cleanup-props';
-import {getExpectedOutName} from './helpers/expected-out-name';
 import {findOutputFileInBucket} from './helpers/find-output-file-in-bucket';
 import {mergeChunksAndFinishRender} from './helpers/merge-chunks';
 import type {OverallProgressHelper} from './helpers/overall-render-progress';
 import {makeOverallRenderProgress} from './helpers/overall-render-progress';
 import {streamRendererFunctionWithRetry} from './helpers/stream-renderer';
 import {timer} from './helpers/timer';
-import {getTmpDirStateIfENoSp} from './helpers/write-lambda-error';
 
 type Options = {
 	expectedBucketOwner: string;
 	getRemainingTimeInMillis: () => number;
 };
 
-const innerLaunchHandler = async <Region extends string>({
+const innerLaunchHandler = async <Provider extends CloudProvider>({
 	functionName,
 	params,
 	options,
@@ -61,12 +64,12 @@ const innerLaunchHandler = async <Region extends string>({
 	providerSpecifics,
 }: {
 	functionName: string;
-	params: ServerlessPayload<Region>;
+	params: ServerlessPayload<Provider>;
 	options: Options;
-	overallProgress: OverallProgressHelper<Region>;
+	overallProgress: OverallProgressHelper<Provider>;
 	registerCleanupTask: (cleanupTask: CleanupTask) => void;
-	providerSpecifics: ProviderSpecifics<Region>;
-}): Promise<PostRenderData> => {
+	providerSpecifics: ProviderSpecifics<Provider>;
+}): Promise<PostRenderData<Provider>> => {
 	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
@@ -229,7 +232,7 @@ const innerLaunchHandler = async <Region extends string>({
 	const progressEveryNthFrame = Math.ceil(chunks.length / 15);
 
 	const lambdaPayloads = chunks.map((chunkPayload) => {
-		const payload: ServerlessPayload<Region> = {
+		const payload: ServerlessPayload<Provider> = {
 			type: ServerlessRoutines.renderer,
 			frameRange: chunkPayload,
 			serveUrl: params.serveUrl,
@@ -285,7 +288,7 @@ const innerLaunchHandler = async <Region extends string>({
 		chunks.map((c, i) => `Chunk ${i} (Frames ${c[0]} - ${c[1]})`).join(', '),
 	);
 
-	const renderMetadata: RenderMetadata<Region> = {
+	const renderMetadata: RenderMetadata<Provider> = {
 		startedDate,
 		totalChunks: chunks.length,
 		estimatedTotalLambdaInvokations: [
@@ -371,7 +374,7 @@ const innerLaunchHandler = async <Region extends string>({
 		}
 
 		const region = providerSpecifics.getCurrentRegionInFunction();
-		const s3Key = artifactName(renderMetadata.renderId, artifact.filename);
+		const storageKey = artifactName(renderMetadata.renderId, artifact.filename);
 
 		const start = Date.now();
 		RenderInternals.Log.info(
@@ -381,7 +384,7 @@ const innerLaunchHandler = async <Region extends string>({
 		providerSpecifics
 			.writeFile({
 				bucketName: renderBucketName,
-				key: s3Key,
+				key: storageKey,
 				body: artifact.content,
 				region,
 				privacy: params.privacy,
@@ -394,12 +397,15 @@ const innerLaunchHandler = async <Region extends string>({
 					{indent: false, logLevel: params.logLevel},
 					`Wrote artifact to S3 in ${Date.now() - start}ms`,
 				);
-				overallProgress.addReceivedArtifact({
-					filename: artifact.filename,
-					sizeInBytes: artifact.content.length,
-					s3Url: `https://s3.${region}.amazonaws.com/${renderBucketName}/${s3Key}`,
-					s3Key,
-				});
+
+				overallProgress.addReceivedArtifact(
+					providerSpecifics.makeArtifactWithDetails({
+						region,
+						renderBucketName,
+						storageKey,
+						artifact,
+					}),
+				);
 			})
 			.catch((err) => {
 				overallProgress.addErrorWithoutUpload({
@@ -476,10 +482,10 @@ const innerLaunchHandler = async <Region extends string>({
 
 type CleanupTask = () => Promise<unknown>;
 
-export const launchHandler = async <Region extends string>(
-	params: ServerlessPayload<Region>,
+export const launchHandler = async <Provider extends CloudProvider>(
+	params: ServerlessPayload<Provider>,
 	options: Options,
-	providerSpecifics: ProviderSpecifics<Region>,
+	providerSpecifics: ProviderSpecifics<Provider>,
 ): Promise<{
 	type: 'success';
 }> => {
@@ -528,10 +534,13 @@ export const launchHandler = async <Region extends string>(
 			'Function is about to time out. Can not finish render.',
 		);
 
-		// @ts-expect-error
-		(globalThis._dumpUnreleasedBuffers as EventEmitter).emit(
-			'dump-unreleased-buffers',
-		);
+		// @ts-expect-error - We are adding a listener to a global variable
+		if (globalThis._dumpUnreleasedBuffers) {
+			// @ts-expect-error - We are adding a listener to a global variable
+			(globalThis._dumpUnreleasedBuffers as EventEmitter).emit(
+				'dump-unreleased-buffers',
+			);
+		}
 
 		runCleanupTasks();
 

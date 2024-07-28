@@ -1,10 +1,13 @@
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
-import type {CustomCredentials} from '@remotion/serverless/client';
+import {
+	getExpectedOutName,
+	type CustomCredentials,
+} from '@remotion/serverless/client';
 import path from 'node:path';
+import type {AwsProvider} from '../functions/aws-implementation';
 import {awsImplementation} from '../functions/aws-implementation';
-import {getExpectedOutName} from '../functions/helpers/expected-out-name';
 import {getOverallProgressS3} from '../functions/helpers/get-overall-progress-s3';
 import type {LambdaReadFileProgress} from '../functions/helpers/read-with-progress';
 import {lambdaDownloadFileWithProgress} from '../functions/helpers/read-with-progress';
@@ -17,7 +20,7 @@ export type DownloadMediaInput = {
 	renderId: string;
 	outPath: string;
 	onProgress?: LambdaReadFileProgress;
-	customCredentials?: CustomCredentials<AwsRegion>;
+	customCredentials?: CustomCredentials<AwsProvider>;
 	logLevel?: LogLevel;
 };
 
@@ -28,7 +31,7 @@ export type DownloadMediaOutput = {
 
 export const internalDownloadMedia = async (
 	input: DownloadMediaInput & {
-		providerSpecifics: ProviderSpecifics<AwsRegion>;
+		providerSpecifics: ProviderSpecifics<AwsProvider>;
 	},
 ): Promise<DownloadMediaOutput> => {
 	const expectedBucketOwner = await getAccountId({

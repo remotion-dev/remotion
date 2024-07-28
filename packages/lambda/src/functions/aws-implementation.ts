@@ -13,6 +13,7 @@ import {applyLifeCyleOperation} from '../shared/lifecycle-rules';
 import {randomHashImplementation} from '../shared/random-hash';
 import {getCurrentRegionInFunctionImplementation} from './helpers/get-current-region';
 import {getFolderFiles} from './helpers/get-folder-files';
+import {makeAwsArtifact} from './helpers/make-aws-artifact';
 
 if (
 	/^AWS_Lambda_nodejs(?:18|20)[.]x$/.test(
@@ -24,14 +25,28 @@ if (
 
 	process.env.DISABLE_FROM_SURFACE = '1';
 	process.env.NO_COLOR = '1';
+
+	// @ts-expect-error
+	globalThis._dumpUnreleasedBuffers = new EventEmitter();
+
+	// @ts-expect-error
+	(globalThis._dumpUnreleasedBuffers as EventEmitter).setMaxListeners(201);
 }
 
-export const awsImplementation: ProviderSpecifics<AwsRegion> = {
+export type AwsProvider = {
+	type: 'aws';
+	region: AwsRegion;
+	receivedArtifactType: {
+		s3Key: string;
+		s3Url: string;
+	};
+};
+
+export const awsImplementation: ProviderSpecifics<AwsProvider> = {
 	getChromiumPath() {
 		return '/opt/bin/chromium';
 	},
 	getCurrentRegionInFunction: getCurrentRegionInFunctionImplementation,
-	regionType: 'us-east-1',
 	getBuckets: getRemotionBuckets,
 	createBucket,
 	applyLifeCycle: applyLifeCyleOperation,
@@ -45,4 +60,5 @@ export const awsImplementation: ProviderSpecifics<AwsRegion> = {
 	convertToServeUrl: convertToServeUrlImplementation,
 	printLoggingHelper: true,
 	getFolderFiles,
+	makeArtifactWithDetails: makeAwsArtifact,
 };

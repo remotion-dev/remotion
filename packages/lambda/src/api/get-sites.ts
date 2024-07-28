@@ -1,4 +1,5 @@
 import type {ProviderSpecifics} from '@remotion/serverless';
+import type {AwsProvider} from '../functions/aws-implementation';
 import {awsImplementation} from '../functions/aws-implementation';
 import type {AwsRegion} from '../regions';
 import {getSitesKey} from '../shared/constants';
@@ -29,7 +30,7 @@ export const internalGetSites = async ({
 	forceBucketName,
 	providerSpecifics,
 }: GetSitesInput & {
-	providerSpecifics: ProviderSpecifics<AwsRegion>;
+	providerSpecifics: ProviderSpecifics<AwsProvider>;
 }): Promise<GetSitesOutput> => {
 	const remotionBuckets = forceBucketName
 		? await providerSpecifics.getBuckets(region, forceBucketName)

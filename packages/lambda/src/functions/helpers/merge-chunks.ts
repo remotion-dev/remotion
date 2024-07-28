@@ -1,14 +1,15 @@
 import type {AudioCodec, LogLevel} from '@remotion/renderer';
-import type {ProviderSpecifics} from '@remotion/serverless';
+import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
 import type {
 	CustomCredentials,
 	DownloadBehavior,
 	Privacy,
+	RenderMetadata,
 	SerializedInputProps,
 	ServerlessCodec,
 } from '@remotion/serverless/client';
 import fs from 'fs';
-import type {PostRenderData, RenderMetadata} from '../../shared/constants';
+import type {PostRenderData} from '../../shared/constants';
 import {cleanupProps} from './cleanup-props';
 import {concatVideos} from './concat-videos';
 import {createPostRenderData} from './create-post-render-data';
@@ -18,7 +19,7 @@ import type {OverallProgressHelper} from './overall-render-progress';
 import {timer} from './timer';
 
 export const mergeChunksAndFinishRender = async <
-	Region extends string,
+	Provider extends CloudProvider,
 >(options: {
 	bucketName: string;
 	renderId: string;
@@ -30,13 +31,13 @@ export const mergeChunksAndFinishRender = async <
 	numberOfGifLoops: number | null;
 	audioCodec: AudioCodec | null;
 	renderBucketName: string;
-	customCredentials: CustomCredentials<Region> | null;
+	customCredentials: CustomCredentials<Provider> | null;
 	downloadBehavior: DownloadBehavior;
 	key: string;
 	privacy: Privacy;
 	inputProps: SerializedInputProps;
 	serializedResolvedProps: SerializedInputProps;
-	renderMetadata: RenderMetadata<Region>;
+	renderMetadata: RenderMetadata<Provider>;
 	audioBitrate: string | null;
 	logLevel: LogLevel;
 	framesPerLambda: number;
@@ -45,10 +46,10 @@ export const mergeChunksAndFinishRender = async <
 	compositionStart: number;
 	outdir: string;
 	files: string[];
-	overallProgress: OverallProgressHelper<Region>;
+	overallProgress: OverallProgressHelper<Provider>;
 	startTime: number;
-	providerSpecifics: ProviderSpecifics<Region>;
-}): Promise<PostRenderData> => {
+	providerSpecifics: ProviderSpecifics<Provider>;
+}): Promise<PostRenderData<Provider>> => {
 	const onProgress = (framesEncoded: number) => {
 		options.overallProgress.setCombinedFrames(framesEncoded);
 	};

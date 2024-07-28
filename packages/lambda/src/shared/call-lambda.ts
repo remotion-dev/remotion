@@ -8,31 +8,33 @@ import {
 	InvokeWithResponseStreamCommand,
 } from '@aws-sdk/client-lambda';
 import type {
+	CloudProvider,
+	OnMessage,
+	StreamingMessage,
+} from '@remotion/serverless';
+import type {
+	MessageTypeId,
 	ServerlessPayloads,
 	ServerlessRoutines,
 } from '@remotion/serverless/client';
-import {makeStreamer} from '@remotion/streaming';
-import type {OrError} from '../functions';
-import type {
-	MessageTypeId,
-	OnMessage,
-	StreamingMessage,
-} from '../functions/streaming/streaming';
 import {
 	formatMap,
 	messageTypeIdToMessageType,
-} from '../functions/streaming/streaming';
+} from '@remotion/serverless/client';
+import {makeStreamer} from '@remotion/streaming';
+import type {EventEmitter} from 'stream';
+import type {OrError} from '../functions';
 import type {AwsRegion} from '../regions';
 import {getLambdaClient} from './aws-clients';
 import type {LambdaReturnValues} from './return-values';
 
 const INVALID_JSON_MESSAGE = 'Cannot parse Lambda response as JSON';
 
-type Options<T extends ServerlessRoutines, Region extends string> = {
+type Options<T extends ServerlessRoutines, Provider extends CloudProvider> = {
 	functionName: string;
 	type: T;
-	payload: Omit<ServerlessPayloads<Region>[T], 'type'>;
-	region: Region;
+	payload: Omit<ServerlessPayloads<Provider>[T], 'type'>;
+	region: Provider['region'];
 	timeoutInTest: number;
 };
 
@@ -46,13 +48,13 @@ const parseJsonOrThrowSource = (data: Uint8Array, type: string) => {
 };
 
 export const callLambda = async <
+	Provider extends CloudProvider,
 	T extends ServerlessRoutines,
-	Region extends string,
 >(
-	options: Options<T, Region> & {},
-): Promise<LambdaReturnValues<Region>[T]> => {
+	options: Options<T, Provider>,
+): Promise<LambdaReturnValues<Provider>[T]> => {
 	// Do not remove this await
-	const res = await callLambdaWithoutRetry<T, Region>(options);
+	const res = await callLambdaWithoutRetry<T, Provider>(options);
 	if (res.type === 'error') {
 		const err = new Error(res.message);
 		err.stack = res.stack;
@@ -63,11 +65,11 @@ export const callLambda = async <
 };
 
 export const callLambdaWithStreaming = async <
+	Provider extends CloudProvider,
 	T extends ServerlessRoutines,
-	Region extends string,
 >(
-	options: Options<T, Region> & {
-		receivedStreamingPayload: OnMessage;
+	options: Options<T, Provider> & {
+		receivedStreamingPayload: OnMessage<Provider>;
 		retriesRemaining: number;
 	},
 ): Promise<void> => {
@@ -76,7 +78,7 @@ export const callLambdaWithStreaming = async <
 
 	try {
 		// Do not remove this await
-		await callLambdaWithStreamingWithoutRetry<T, Region>(options);
+		await callLambdaWithStreamingWithoutRetry<T, Provider>(options);
 	} catch (err) {
 		if (options.retriesRemaining === 0) {
 			throw err;
@@ -102,14 +104,14 @@ export const callLambdaWithStreaming = async <
 
 const callLambdaWithoutRetry = async <
 	T extends ServerlessRoutines,
-	Region extends string,
+	Provider extends CloudProvider,
 >({
 	functionName,
 	type,
 	payload,
 	region,
 	timeoutInTest,
-}: Options<T, Region>): Promise<OrError<LambdaReturnValues<Region>[T]>> => {
+}: Options<T, Provider>): Promise<OrError<LambdaReturnValues<Provider>[T]>> => {
 	const Payload = JSON.stringify({type, ...payload});
 	const res = await getLambdaClient(region as AwsRegion, timeoutInTest).send(
 		new InvokeCommand({
@@ -122,7 +124,7 @@ const callLambdaWithoutRetry = async <
 	const decoded = new TextDecoder('utf-8').decode(res.Payload);
 
 	try {
-		return JSON.parse(decoded) as OrError<LambdaReturnValues<Region>[T]>;
+		return JSON.parse(decoded) as OrError<LambdaReturnValues<Provider>[T]>;
 	} catch (err) {
 		throw new Error(`Invalid JSON (${type}): ${JSON.stringify(decoded)}`);
 	}
@@ -131,14 +133,14 @@ const callLambdaWithoutRetry = async <
 const STREAM_STALL_TIMEOUT = 30000;
 const LAMBDA_STREAM_STALL = `AWS did not invoke Lambda in ${STREAM_STALL_TIMEOUT}ms`;
 
-const invokeStreamOrTimeout = async <Region extends string>({
+const invokeStreamOrTimeout = async <Provider extends CloudProvider>({
 	region,
 	timeoutInTest,
 	functionName,
 	type,
 	payload,
 }: {
-	region: Region;
+	region: Provider['region'];
 	timeoutInTest: number;
 	functionName: string;
 	type: string;
@@ -173,7 +175,7 @@ const invokeStreamOrTimeout = async <Region extends string>({
 
 const callLambdaWithStreamingWithoutRetry = async <
 	T extends ServerlessRoutines,
-	Region extends string,
+	Provider extends CloudProvider,
 >({
 	functionName,
 	type,
@@ -181,8 +183,8 @@ const callLambdaWithStreamingWithoutRetry = async <
 	region,
 	timeoutInTest,
 	receivedStreamingPayload,
-}: Options<T, Region> & {
-	receivedStreamingPayload: OnMessage;
+}: Options<T, Provider> & {
+	receivedStreamingPayload: OnMessage<Provider>;
 }): Promise<void> => {
 	const res = await invokeStreamOrTimeout({
 		functionName,
@@ -201,7 +203,7 @@ const callLambdaWithStreamingWithoutRetry = async <
 				? parseJsonOrThrowSource(data, messageType)
 				: data;
 
-		const message: StreamingMessage = {
+		const message: StreamingMessage<Provider> = {
 			successType: status,
 			message: {
 				type: messageType,
@@ -211,6 +213,19 @@ const callLambdaWithStreamingWithoutRetry = async <
 
 		receivedStreamingPayload(message);
 	});
+
+	const dumpBuffers = () => {
+		clear();
+	};
+
+	// @ts-expect-error - We are adding a listener to a global variable
+	if (globalThis._dumpUnreleasedBuffers) {
+		// @ts-expect-error - We are adding a listener to a global variable
+		(globalThis._dumpUnreleasedBuffers as EventEmitter).addListener(
+			'dump-unreleased-buffers',
+			dumpBuffers,
+		);
+	}
 
 	const events =
 		res.EventStream as AsyncIterable<InvokeWithResponseStreamResponseEvent>;
@@ -242,6 +257,15 @@ const callLambdaWithStreamingWithoutRetry = async <
 		}
 
 		// Don't put a `break` statement here, as it will cause the socket to not properly exit.
+	}
+
+	// @ts-expect-error - We are adding a listener to a global variable
+	if (globalThis._dumpUnreleasedBuffers) {
+		// @ts-expect-error - We are adding a listener to a global variable
+		(globalThis._dumpUnreleasedBuffers as EventEmitter).removeListener(
+			'dump-unreleased-buffers',
+			dumpBuffers,
+		);
 	}
 
 	clear();

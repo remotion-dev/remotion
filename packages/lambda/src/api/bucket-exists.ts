@@ -1,9 +1,9 @@
 import {GetBucketLocationCommand} from '@aws-sdk/client-s3';
 import type {ProviderSpecifics} from '@remotion/serverless';
-import type {AwsRegion} from '../regions';
+import type {AwsProvider} from '../functions/aws-implementation';
 import {getS3Client} from '../shared/get-s3-client';
 
-export const bucketExistsInRegionImplementation: ProviderSpecifics<AwsRegion>['bucketExists'] =
+export const bucketExistsInRegionImplementation: ProviderSpecifics<AwsProvider>['bucketExists'] =
 	async ({bucketName, region, expectedBucketOwner}) => {
 		try {
 			const bucket = await getS3Client(region, null).send(

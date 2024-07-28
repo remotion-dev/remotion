@@ -29,6 +29,7 @@
 		"@remotion/layout-utils": "workspace:*",
 		"@remotion/install-whisper-cpp": "workspace:*",
 		"@remotion/google-fonts": "workspace:*",
+		"@remotion/serverless": "workspace:*",
 		"@remotion/studio-server": "workspace:*",
 		"@remotion/transitions": "workspace:*",
 		"@types/sharp": "^0.28.5",

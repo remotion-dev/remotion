@@ -5,7 +5,7 @@ import {VERSION} from 'remotion/version';
 import {makeLambdaRenderMediaPayload} from '../../api/make-lambda-payload';
 import type {RenderMediaOnLambdaInput} from '../../api/render-media-on-lambda';
 import {renderMediaOnLambdaOptionalToRequired} from '../../api/render-media-on-lambda';
-import type {AwsRegion} from '../../regions';
+import type {AwsProvider} from '../../functions/aws-implementation';
 import {callLambda} from '../../shared/call-lambda';
 import {mockImplementation} from '../mock-implementation';
 
@@ -67,7 +67,7 @@ export const simulateLambdaRender = async (
 		}),
 	);
 
-	const res = await callLambda<ServerlessRoutines.start, AwsRegion>({
+	const res = await callLambda<AwsProvider, ServerlessRoutines.start>({
 		type: ServerlessRoutines.start,
 		payload,
 		functionName: 'remotion-dev-lambda',

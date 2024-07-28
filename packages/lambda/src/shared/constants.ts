@@ -1,21 +1,15 @@
 import type {
-	AudioCodec,
-	StillImageFormat,
-	VideoImageFormat,
-} from '@remotion/renderer';
-import type {
-	CustomCredentials,
-	CustomCredentialsWithoutSensitiveData,
-	DeleteAfter,
-	DownloadBehavior,
-	OutNameInput,
-	Privacy,
-	SerializedInputProps,
-	ServerlessCodec,
+	CloudProvider,
+	EnhancedErrorInfo,
+	ReceivedArtifact,
+} from '@remotion/serverless';
+import {
+	type DeleteAfter,
+	type Privacy,
+	type RenderMetadata,
 } from '@remotion/serverless/client';
+import type {AwsProvider} from '../functions/aws-implementation';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
-import type {ReceivedArtifact} from '../functions/helpers/overall-render-progress';
-import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import type {AwsRegion} from '../regions';
 import type {ExpensiveChunk} from './get-most-expensive-chunks';
 
@@ -48,92 +42,13 @@ export const DEFAULT_CLOUDWATCH_RETENTION_PERIOD = 14;
 export const RENDER_FN_PREFIX = 'remotion-render-';
 export const LOG_GROUP_PREFIX = '/aws/lambda/';
 export const LAMBDA_INSIGHTS_PREFIX = '/aws/lambda-insights';
-export const rendersPrefix = (renderId: string) => `renders/${renderId}`;
-export const overallProgressKey = (renderId: string) =>
-	`${rendersPrefix(renderId)}/progress.json`;
-
-export type OutNameInputWithoutCredentials =
-	| string
-	| {
-			bucketName: string;
-			key: string;
-			s3OutputProvider?: CustomCredentialsWithoutSensitiveData;
-	  };
-
-export type OutNameOutput<Region extends string> = {
-	renderBucketName: string;
-	key: string;
-	customCredentials: CustomCredentials<Region> | null;
-};
 
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
-export const outName = (renderId: string, extension: string) =>
-	`${rendersPrefix(renderId)}/out.${extension}`;
-export const outStillName = (renderId: string, imageFormat: StillImageFormat) =>
-	`${rendersPrefix(renderId)}/out.${imageFormat}`;
-export const artifactName = (renderId: string, name: string) =>
-	`${rendersPrefix(renderId)}/artifacts/${name}`;
-export const customOutName = <Region extends string>(
-	renderId: string,
-	bucketName: string,
-	name: OutNameInput<Region>,
-): OutNameOutput<Region> => {
-	if (typeof name === 'string') {
-		return {
-			renderBucketName: bucketName,
-			key: `${rendersPrefix(renderId)}/${name}`,
-			customCredentials: null,
-		};
-	}
-
-	return {
-		key: name.key,
-		renderBucketName: name.bucketName,
-		customCredentials: name.s3OutputProvider ?? null,
-	};
-};
 
 export const RENDERER_PATH_TOKEN = 'remotion-bucket';
 export const CONCAT_FOLDER_TOKEN = 'remotion-concat';
 export const REMOTION_CONCATED_TOKEN = 'remotion-concated-token';
 export const REMOTION_FILELIST_TOKEN = 'remotion-filelist';
-
-type Discriminated =
-	| {
-			type: 'still';
-			imageFormat: StillImageFormat;
-			codec: null;
-	  }
-	| {
-			type: 'video';
-			imageFormat: VideoImageFormat;
-			muted: boolean;
-			frameRange: [number, number];
-			everyNthFrame: number;
-			codec: ServerlessCodec;
-	  };
-
-export type RenderMetadata<Region extends string> = Discriminated & {
-	siteId: string;
-	startedDate: number;
-	totalChunks: number;
-	estimatedTotalLambdaInvokations: number;
-	estimatedRenderLambdaInvokations: number;
-	compositionId: string;
-	audioCodec: AudioCodec | null;
-	inputProps: SerializedInputProps;
-	framesPerLambda: number;
-	memorySizeInMb: number;
-	lambdaVersion: string;
-	region: Region;
-	renderId: string;
-	outName: OutNameInputWithoutCredentials | undefined;
-	privacy: Privacy;
-	deleteAfter: DeleteAfter | null;
-	numberOfGifLoops: number | null;
-	audioBitrate: string | null;
-	downloadBehavior: DownloadBehavior;
-};
 
 export type AfterRenderCost = {
 	estimatedCost: number;
@@ -142,7 +57,7 @@ export type AfterRenderCost = {
 	disclaimer: string;
 };
 
-export type PostRenderData = {
+export type PostRenderData<Provider extends CloudProvider> = {
 	cost: AfterRenderCost;
 	outputFile: string;
 	outputSize: number;
@@ -161,7 +76,7 @@ export type PostRenderData = {
 	estimatedBillingDurationInMilliseconds: number;
 	deleteAfter: DeleteAfter | null;
 	timeToCombine: number | null;
-	artifactProgress: ReceivedArtifact[];
+	artifactProgress: ReceivedArtifact<Provider>[];
 };
 
 export type CostsInfo = {
@@ -183,13 +98,13 @@ type EncodingProgress = {
 	timeToCombine: number | null;
 };
 
-export type GenericRenderProgress<Region extends string> = {
+export type GenericRenderProgress<Provider extends CloudProvider> = {
 	chunks: number;
 	done: boolean;
 	encodingStatus: EncodingProgress | null;
 	costs: CostsInfo;
 	renderId: string;
-	renderMetadata: RenderMetadata<Region> | null;
+	renderMetadata: RenderMetadata<Provider> | null;
 	bucket: string;
 	outputFile: string | null;
 	outKey: string | null;
@@ -217,9 +132,9 @@ export type GenericRenderProgress<Region extends string> = {
 	functionLaunched: number;
 	serveUrlOpened: number | null;
 	compositionValidated: number | null;
-	artifacts: ReceivedArtifact[];
+	artifacts: ReceivedArtifact<Provider>[];
 };
 
-export type RenderProgress = GenericRenderProgress<AwsRegion>;
+export type RenderProgress = GenericRenderProgress<AwsProvider>;
 
 export const LAMBDA_CONCURRENCY_LIMIT_QUOTA = 'L-B99A9384';

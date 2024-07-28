@@ -1,10 +1,23 @@
 import {RenderInternals} from '@remotion/renderer';
-import type {ProviderSpecifics} from '@remotion/serverless';
-import {compositionsHandler, infoHandler} from '@remotion/serverless';
+import type {
+	CloudProvider,
+	ProviderSpecifics,
+	ResponseStream,
+	ResponseStreamWriter,
+	StreamingPayload,
+} from '@remotion/serverless';
+import {
+	compositionsHandler,
+	infoHandler,
+	streamWriter,
+} from '@remotion/serverless';
 import type {ServerlessPayload} from '@remotion/serverless/client';
-import {ServerlessRoutines} from '@remotion/serverless/client';
-import type {AwsRegion} from '../regions';
+import {
+	ServerlessRoutines,
+	makeStreamPayload,
+} from '@remotion/serverless/client';
 import {COMMAND_NOT_FOUND} from '../shared/constants';
+import type {AwsProvider} from './aws-implementation';
 import {awsImplementation} from './aws-implementation';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {getWarm, setWarm} from './helpers/is-warm';
@@ -15,30 +28,23 @@ import {
 } from './helpers/lifecycle';
 import {printLoggingGrepHelper} from './helpers/print-logging-helper';
 import type {RequestContext} from './helpers/request-context';
-import type {ResponseStream} from './helpers/streamify-response';
 import {streamifyResponse} from './helpers/streamify-response';
 import {launchHandler} from './launch';
 import {progressHandler} from './progress';
 import {rendererHandler} from './renderer';
 import {startHandler} from './start';
 import {stillHandler} from './still';
-import {
-	streamWriter,
-	type ResponseStreamWriter,
-} from './streaming/stream-writer';
-import type {StreamingPayload} from './streaming/streaming';
-import {makeStreamPayload} from './streaming/streaming';
 
-const innerHandler = async <Region extends string>({
+const innerHandler = async <Provider extends CloudProvider>({
 	params,
 	responseWriter,
 	context,
 	providerSpecifics,
 }: {
-	params: ServerlessPayload<Region>;
+	params: ServerlessPayload<Provider>;
 	responseWriter: ResponseStreamWriter;
 	context: RequestContext;
-	providerSpecifics: ProviderSpecifics<Region>;
+	providerSpecifics: ProviderSpecifics<Provider>;
 }): Promise<void> => {
 	setCurrentRequestId(context.awsRequestId);
 	process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA = 'true';
@@ -81,7 +87,7 @@ const innerHandler = async <Region extends string>({
 
 		try {
 			await new Promise((resolve, reject) => {
-				const onStream = (payload: StreamingPayload) => {
+				const onStream = (payload: StreamingPayload<Provider>) => {
 					const message = makeStreamPayload({
 						message: payload,
 					});
@@ -316,11 +322,11 @@ export type OrError<T> =
 			stack: string;
 	  };
 
-export const innerRoutine = async <Region extends string>(
-	params: ServerlessPayload<Region>,
+export const innerRoutine = async <Provider extends CloudProvider>(
+	params: ServerlessPayload<Provider>,
 	responseStream: ResponseStream,
 	context: RequestContext,
-	providerSpecifics: ProviderSpecifics<Region>,
+	providerSpecifics: ProviderSpecifics<Provider>,
 ): Promise<void> => {
 	const responseWriter = streamWriter(responseStream);
 
@@ -344,7 +350,7 @@ export const innerRoutine = async <Region extends string>(
 };
 
 export const routine = (
-	params: ServerlessPayload<AwsRegion>,
+	params: ServerlessPayload<AwsProvider>,
 	responseStream: ResponseStream,
 	context: RequestContext,
 ): Promise<void> => {

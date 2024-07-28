@@ -3,6 +3,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import type {Await} from './await';
 import type {ProviderSpecifics} from './provider-implementation';
+import type {CloudProvider} from './still';
 
 type LaunchedBrowser = {
 	instance: Await<ReturnType<typeof openBrowser>>;
@@ -52,7 +53,7 @@ export const forgetBrowserEventLoop = (logLevel: LogLevel) => {
 	_browserInstance?.instance.forgetEventLoop();
 };
 
-export const getBrowserInstance = async <Region extends string>({
+export const getBrowserInstance = async <Provider extends CloudProvider>({
 	logLevel,
 	indent,
 	chromiumOptions,
@@ -61,7 +62,7 @@ export const getBrowserInstance = async <Region extends string>({
 	logLevel: LogLevel;
 	indent: boolean;
 	chromiumOptions: ChromiumOptions;
-	providerSpecifics: ProviderSpecifics<Region>;
+	providerSpecifics: ProviderSpecifics<Provider>;
 }): Promise<LaunchedBrowser> => {
 	const actualChromiumOptions: ChromiumOptions = {
 		...chromiumOptions,

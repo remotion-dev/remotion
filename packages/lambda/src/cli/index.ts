@@ -4,8 +4,8 @@ import {RenderInternals} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {ROLE_NAME} from '../api/iam-validation/suggested-policy';
 import {BINARY_NAME} from '../defaults';
+import type {AwsProvider} from '../functions/aws-implementation';
 import {awsImplementation} from '../functions/aws-implementation';
-import type {AwsRegion} from '../regions';
 import {checkCredentials} from '../shared/check-credentials';
 import {DOCS_URL} from '../shared/docs-url';
 import {parsedLambdaCli} from './args';
@@ -49,7 +49,7 @@ const matchCommand = (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
-	implementation: ProviderSpecifics<AwsRegion>,
+	implementation: ProviderSpecifics<AwsProvider>,
 ) => {
 	if (parsedLambdaCli.help || args.length === 0) {
 		printHelp(logLevel);
@@ -145,7 +145,7 @@ export const executeCommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
-	implementation: ProviderSpecifics<AwsRegion> | null,
+	implementation: ProviderSpecifics<AwsProvider> | null,
 ) => {
 	try {
 		setIsCli(true);

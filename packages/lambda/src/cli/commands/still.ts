@@ -8,7 +8,7 @@ import path from 'path';
 import {NoReactInternals} from 'remotion/no-react';
 import {internalDownloadMedia} from '../../api/download-media';
 import {renderStillOnLambda} from '../../api/render-still-on-lambda';
-import type {AwsRegion} from '../../regions';
+import type {AwsProvider} from '../../functions/aws-implementation';
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
@@ -52,7 +52,7 @@ export const stillCommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
-	implementation: ProviderSpecifics<AwsRegion>,
+	implementation: ProviderSpecifics<AwsProvider>,
 ) => {
 	const serveUrl = args[0];
 

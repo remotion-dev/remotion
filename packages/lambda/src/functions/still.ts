@@ -1,63 +1,65 @@
 import type {EmittedArtifact, StillImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {
+	CloudProvider,
+	OnStream,
+	ReceivedArtifact,
+	RenderStillLambdaResponsePayload,
+} from '@remotion/serverless';
 import {
 	forgetBrowserEventLoop,
 	getBrowserInstance,
+	getCredentialsFromOutName,
+	getTmpDirStateIfENoSp,
 	validateComposition,
+	validateOutname,
 	type ProviderSpecifics,
 } from '@remotion/serverless';
-import type {ServerlessPayload} from '@remotion/serverless/client';
+import type {
+	RenderMetadata,
+	ServerlessPayload,
+} from '@remotion/serverless/client';
 import {
 	ServerlessRoutines,
+	artifactName,
 	decompressInputProps,
+	getExpectedOutName,
 	internalGetOrCreateBucket,
+	overallProgressKey,
 } from '@remotion/serverless/client';
 import fs from 'node:fs';
 import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import {estimatePrice} from '../api/estimate-price';
+import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../defaults';
 import type {AwsRegion} from '../regions';
 import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
-import type {CostsInfo, RenderMetadata} from '../shared/constants';
-import {
-	MAX_EPHEMERAL_STORAGE_IN_MB,
-	artifactName,
-	overallProgressKey,
-} from '../shared/constants';
 import {isFlakyError} from '../shared/is-flaky-error';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
-import {validateOutname} from '../shared/validate-outname';
 import {validatePrivacy} from '../shared/validate-privacy';
-import {
-	getCredentialsFromOutName,
-	getExpectedOutName,
-} from './helpers/expected-out-name';
 import {formatCostsInfo} from './helpers/format-costs-info';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
-import type {ReceivedArtifact} from './helpers/overall-render-progress';
 import {makeInitialOverallRenderProgress} from './helpers/overall-render-progress';
-import {getTmpDirStateIfENoSp} from './helpers/write-lambda-error';
-import type {OnStream} from './streaming/streaming';
 
-type Options<Region extends string> = {
-	params: ServerlessPayload<Region>;
+type Options<Provider extends CloudProvider> = {
+	params: ServerlessPayload<Provider>;
 	renderId: string;
 	expectedBucketOwner: string;
-	onStream: OnStream;
+	onStream: OnStream<Provider>;
 	timeoutInMilliseconds: number;
-	providerSpecifics: ProviderSpecifics<Region>;
+	providerSpecifics: ProviderSpecifics<Provider>;
 };
 
-const innerStillHandler = async <Region extends string>({
+const innerStillHandler = async <Provider extends CloudProvider>({
 	params: lambdaParams,
 	expectedBucketOwner,
 	renderId,
 	onStream,
 	timeoutInMilliseconds,
 	providerSpecifics,
-}: Options<Region>) => {
+}: Options<Provider>) => {
 	if (lambdaParams.type !== ServerlessRoutines.still) {
 		throw new TypeError('Expected still type');
 	}
@@ -155,7 +157,7 @@ const innerStillHandler = async <Region extends string>({
 		providerSpecifics,
 	});
 
-	const renderMetadata: RenderMetadata<Region> = {
+	const renderMetadata: RenderMetadata<Provider> = {
 		startedDate: Date.now(),
 		codec: null,
 		compositionId: lambdaParams.composition,
@@ -198,7 +200,7 @@ const innerStillHandler = async <Region extends string>({
 		throw new Error('Should not download a browser in Lambda');
 	};
 
-	const receivedArtifact: ReceivedArtifact[] = [];
+	const receivedArtifact: ReceivedArtifact<Provider>[] = [];
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
 		renderMetadata,
@@ -211,13 +213,16 @@ const innerStillHandler = async <Region extends string>({
 			return {alreadyExisted: true};
 		}
 
-		const s3Key = artifactName(renderMetadata.renderId, artifact.filename);
-		receivedArtifact.push({
-			filename: artifact.filename,
-			sizeInBytes: artifact.content.length,
-			s3Url: `https://s3.${region}.amazonaws.com/${renderBucketName}/${s3Key}`,
-			s3Key,
-		});
+		const storageKey = artifactName(renderMetadata.renderId, artifact.filename);
+
+		receivedArtifact.push(
+			providerSpecifics.makeArtifactWithDetails({
+				storageKey,
+				artifact,
+				region,
+				renderBucketName,
+			}),
+		);
 
 		const startTime = Date.now();
 		RenderInternals.Log.info(
@@ -227,7 +232,7 @@ const innerStillHandler = async <Region extends string>({
 		providerSpecifics
 			.writeFile({
 				bucketName: renderBucketName,
-				key: s3Key,
+				key: storageKey,
 				body: artifact.content,
 				region,
 				privacy: lambdaParams.privacy,
@@ -329,7 +334,7 @@ const innerStillHandler = async <Region extends string>({
 		providerSpecifics.getCurrentRegionInFunction(),
 	);
 
-	const payload: RenderStillLambdaResponsePayload = {
+	const payload: RenderStillLambdaResponsePayload<Provider> = {
 		type: 'success' as const,
 		output: url,
 		size,
@@ -347,20 +352,8 @@ const innerStillHandler = async <Region extends string>({
 	});
 };
 
-export type RenderStillLambdaResponsePayload = {
-	type: 'success';
-	output: string;
-	outKey: string;
-	size: number;
-	bucketName: string;
-	sizeInBytes: number;
-	estimatedPrice: CostsInfo;
-	renderId: string;
-	receivedArtifacts: ReceivedArtifact[];
-};
-
-export const stillHandler = async <Region extends string>(
-	options: Options<Region>,
+export const stillHandler = async <Provider extends CloudProvider>(
+	options: Options<Provider>,
 ): Promise<
 	| {
 			type: 'success';

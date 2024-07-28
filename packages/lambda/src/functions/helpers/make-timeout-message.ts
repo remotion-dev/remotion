@@ -1,6 +1,6 @@
-import type {ProviderSpecifics} from '@remotion/serverless';
+import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
+import type {RenderMetadata} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
-import type {RenderMetadata} from '../../defaults';
 import type {AwsRegion} from '../../regions';
 import {DOCS_URL} from '../../shared/docs-url';
 import {
@@ -10,14 +10,14 @@ import {
 
 const MAX_MISSING_CHUNKS = 5;
 
-const makeChunkMissingMessage = <Region extends string>({
+const makeChunkMissingMessage = <Provider extends CloudProvider>({
 	missingChunks,
 	renderMetadata,
 	providerSpecifics,
 }: {
 	missingChunks: number[];
-	renderMetadata: RenderMetadata<Region>;
-	providerSpecifics: ProviderSpecifics<Region>;
+	renderMetadata: RenderMetadata<Provider>;
+	providerSpecifics: ProviderSpecifics<Provider>;
 }) => {
 	if (missingChunks.length === 0) {
 		return 'All chunks have been successfully rendered, but the main function has timed out.';
@@ -56,7 +56,7 @@ const makeChunkMissingMessage = <Region extends string>({
 	].join('\n');
 };
 
-export const makeTimeoutMessage = <Region extends string>({
+export const makeTimeoutMessage = <Provider extends CloudProvider>({
 	timeoutInMilliseconds,
 	missingChunks,
 	renderMetadata,
@@ -65,9 +65,9 @@ export const makeTimeoutMessage = <Region extends string>({
 }: {
 	timeoutInMilliseconds: number;
 	missingChunks: number[];
-	renderMetadata: RenderMetadata<Region>;
+	renderMetadata: RenderMetadata<Provider>;
 	renderId: string;
-	providerSpecifics: ProviderSpecifics<Region>;
+	providerSpecifics: ProviderSpecifics<Provider>;
 }) => {
 	const cloudWatchRendererUrl = getCloudwatchRendererUrl({
 		renderId,

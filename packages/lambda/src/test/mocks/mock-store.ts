@@ -1,19 +1,21 @@
+import type {CloudProvider} from '@remotion/serverless';
 import type {Privacy} from '@remotion/serverless/client';
 import type {ReadStream} from 'node:fs';
 import type {BucketWithLocation} from '../../api/get-buckets';
+import type {AwsProvider} from '../../functions/aws-implementation';
 import type {AwsRegion} from '../../regions';
 
 export const mockBucketStore: BucketWithLocation[] = [];
 
-type S3MockFile = {
+type S3MockFile<Provider extends CloudProvider> = {
 	bucketName: string;
-	region: AwsRegion;
+	region: Provider['region'];
 	acl: 'public-read' | 'private' | 'none';
 	key: string;
 	content: string | ReadStream;
 };
 
-let mockS3Store: S3MockFile[] = [];
+let mockS3Store: S3MockFile<AwsProvider>[] = [];
 
 export const addMockBucket = (bucket: BucketWithLocation) => {
 	mockBucketStore.push(bucket);
@@ -89,13 +91,13 @@ export const readMockS3File = ({
 	);
 };
 
-export const mockDeleteS3File = <Region extends string>({
+export const mockDeleteS3File = <Provider extends CloudProvider>({
 	key,
 	region,
 	bucketName,
 }: {
 	key: string;
-	region: Region;
+	region: Provider['region'];
 	bucketName: string;
 }) => {
 	mockS3Store = mockS3Store.filter(

@@ -1,6 +1,7 @@
 import {GetBucketLocationCommand, ListBucketsCommand} from '@aws-sdk/client-s3';
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {REMOTION_BUCKET_PREFIX} from '@remotion/serverless/client';
+import type {AwsProvider} from '../functions/aws-implementation';
 import type {AwsRegion} from '../regions';
 import {getS3Client} from '../shared/get-s3-client';
 import {parseBucketName} from '../shared/validate-bucketname';
@@ -11,7 +12,7 @@ export type BucketWithLocation = {
 	region: AwsRegion;
 };
 
-export const getRemotionBuckets: ProviderSpecifics<AwsRegion>['getBuckets'] =
+export const getRemotionBuckets: ProviderSpecifics<AwsProvider>['getBuckets'] =
 	async (region, forceBucketName): Promise<BucketWithLocation[]> => {
 		const {Buckets} = await getS3Client(region, null).send(
 			new ListBucketsCommand({}),

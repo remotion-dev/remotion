@@ -1,16 +1,14 @@
-import type {
-	CustomCredentials,
-	OutNameInput,
-} from '@remotion/serverless/client';
-import type {RenderMetadata} from '../../defaults';
+import type {CustomCredentials, OutNameInput} from './constants';
+import type {RenderMetadata} from './render-metadata';
+import type {CloudProvider} from './still';
 
-export const getCustomOutName = <Region extends string>({
+export const getCustomOutName = <Provider extends CloudProvider>({
 	renderMetadata,
 	customCredentials,
 }: {
-	renderMetadata: RenderMetadata<Region>;
-	customCredentials: CustomCredentials<Region> | null;
-}): OutNameInput<Region> | null => {
+	renderMetadata: RenderMetadata<Provider>;
+	customCredentials: CustomCredentials<Provider> | null;
+}): OutNameInput<Provider> | null => {
 	if (!renderMetadata.outName) {
 		return null;
 	}

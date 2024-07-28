@@ -1,18 +1,18 @@
-import type {ProviderSpecifics} from '@remotion/serverless';
+import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
 import type {SerializedInputProps} from '@remotion/serverless/client';
 import {
 	cleanupSerializedInputProps,
 	cleanupSerializedResolvedProps,
 } from '../../shared/cleanup-serialized-input-props';
 
-export const cleanupProps = <Region extends string>({
+export const cleanupProps = <Provider extends CloudProvider>({
 	serializedResolvedProps,
 	inputProps,
 	providerSpecifics,
 }: {
 	serializedResolvedProps: SerializedInputProps;
 	inputProps: SerializedInputProps;
-	providerSpecifics: ProviderSpecifics<Region>;
+	providerSpecifics: ProviderSpecifics<Provider>;
 }): Promise<[number, number]> => {
 	const cleanupSerializedInputPropsProm = cleanupSerializedInputProps({
 		region: providerSpecifics.getCurrentRegionInFunction(),

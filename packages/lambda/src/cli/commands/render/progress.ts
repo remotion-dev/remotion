@@ -1,9 +1,9 @@
 import {CliInternals} from '@remotion/cli';
 import {RenderInternals} from '@remotion/renderer';
+import type {CloudProvider, ReceivedArtifact} from '@remotion/serverless';
+import {truthy} from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderProgress} from '../../../defaults';
-import type {ReceivedArtifact} from '../../../functions/helpers/overall-render-progress';
-import {truthy} from '../../../shared/truthy';
 
 type LambdaInvokeProgress = {
 	totalLambdas: number | null;
@@ -201,7 +201,9 @@ const makeTopRow = (overall: RenderProgress) => {
 	return CliInternals.chalk.gray(str);
 };
 
-export const makeArtifactProgress = (artifactProgress: ReceivedArtifact[]) => {
+export const makeArtifactProgress = <Provider extends CloudProvider>(
+	artifactProgress: ReceivedArtifact<Provider>[],
+) => {
 	if (artifactProgress.length === 0) {
 		return null;
 	}
@@ -209,7 +211,8 @@ export const makeArtifactProgress = (artifactProgress: ReceivedArtifact[]) => {
 	return artifactProgress
 		.map((artifact) => {
 			return [
-				CliInternals.chalk.blue('+ S3'.padEnd(CliInternals.LABEL_WIDTH)),
+				// TODO: Whitelabel S3
+				CliInternals.chalk.blue(`+ S3`.padEnd(CliInternals.LABEL_WIDTH)),
 				CliInternals.chalk.blue(
 					CliInternals.makeHyperlink({
 						url: artifact.s3Url,

@@ -4,14 +4,17 @@ import type {
 	ToOptions,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {DownloadBehavior} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
-import type {ReceivedArtifact} from '../functions/helpers/overall-render-progress';
-import type {RenderStillLambdaResponsePayload} from '../functions/still';
 import {callLambdaWithStreaming} from '../shared/call-lambda';
 
+import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
+import type {
+	ReceivedArtifact,
+	RenderStillLambdaResponsePayload,
+} from '@remotion/serverless';
 import type {OutNameInput, Privacy} from '@remotion/serverless/client';
+import type {AwsProvider} from '../functions/aws-implementation';
 import type {AwsRegion} from '../regions';
 import type {CostsInfo} from '../shared/constants';
 import {DEFAULT_MAX_RETRIES} from '../shared/constants';
@@ -39,7 +42,7 @@ type OptionalParameters = {
 	 */
 	quality?: never;
 	frame: number;
-	outName: OutNameInput<AwsRegion> | null;
+	outName: OutNameInput<AwsProvider> | null;
 	chromiumOptions: ChromiumOptions;
 	downloadBehavior: DownloadBehavior;
 	forceWidth: number | null;
@@ -71,7 +74,7 @@ export type RenderStillOnLambdaOutput = {
 	bucketName: string;
 	renderId: string;
 	cloudWatchLogs: string;
-	artifacts: ReceivedArtifact[];
+	artifacts: ReceivedArtifact<AwsProvider>[];
 };
 
 const internalRenderStillOnLambda = async (
@@ -80,50 +83,50 @@ const internalRenderStillOnLambda = async (
 	const {functionName, region, onInit} = input;
 	try {
 		const payload = await makeLambdaRenderStillPayload(input);
-		const res = await new Promise<RenderStillLambdaResponsePayload>(
-			(resolve, reject) => {
-				callLambdaWithStreaming({
-					functionName,
-					type: ServerlessRoutines.still,
-					payload,
-					region,
-					receivedStreamingPayload: ({message}) => {
-						if (message.type === 'render-id-determined') {
-							onInit?.({
+		const res = await new Promise<
+			RenderStillLambdaResponsePayload<AwsProvider>
+		>((resolve, reject) => {
+			callLambdaWithStreaming<AwsProvider, ServerlessRoutines.still>({
+				functionName,
+				type: ServerlessRoutines.still,
+				payload,
+				region,
+				receivedStreamingPayload: ({message}) => {
+					if (message.type === 'render-id-determined') {
+						onInit?.({
+							renderId: message.payload.renderId,
+							cloudWatchLogs: getCloudwatchMethodUrl({
+								functionName,
+								method: ServerlessRoutines.still,
+								region,
+								rendererFunctionName: null,
 								renderId: message.payload.renderId,
-								cloudWatchLogs: getCloudwatchMethodUrl({
-									functionName,
-									method: ServerlessRoutines.still,
-									region,
-									rendererFunctionName: null,
-									renderId: message.payload.renderId,
-								}),
-								lambdaInsightsUrl: getLambdaInsightsUrl({
-									functionName,
-									region,
-								}),
-							});
-						}
+							}),
+							lambdaInsightsUrl: getLambdaInsightsUrl({
+								functionName,
+								region,
+							}),
+						});
+					}
 
-						if (message.type === 'error-occurred') {
-							reject(new Error(message.payload.error));
-						}
+					if (message.type === 'error-occurred') {
+						reject(new Error(message.payload.error));
+					}
 
-						if (message.type === 'still-rendered') {
-							resolve(message.payload);
-						}
-					},
-					timeoutInTest: 120000,
-					retriesRemaining: input.maxRetries,
+					if (message.type === 'still-rendered') {
+						resolve(message.payload);
+					}
+				},
+				timeoutInTest: 120000,
+				retriesRemaining: input.maxRetries,
+			})
+				.then(() => {
+					reject(new Error('Expected response to be streamed'));
 				})
-					.then(() => {
-						reject(new Error('Expected response to be streamed'));
-					})
-					.catch((err) => {
-						reject(err);
-					});
-			},
-		);
+				.catch((err) => {
+					reject(err);
+				});
+		});
 
 		return {
 			estimatedPrice: res.estimatedPrice,
@@ -152,9 +155,7 @@ const internalRenderStillOnLambda = async (
 	}
 };
 
-const errorHandled = NoReactAPIs.wrapWithErrorHandling(
-	internalRenderStillOnLambda,
-);
+const errorHandled = wrapWithErrorHandling(internalRenderStillOnLambda);
 
 /**
  * @description Renders a still frame on Lambda

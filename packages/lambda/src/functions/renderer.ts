@@ -5,19 +5,28 @@ import type {
 	OnArtifact,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {ProviderSpecifics} from '@remotion/serverless';
-import {forgetBrowserEventLoop, getBrowserInstance} from '@remotion/serverless';
+import type {
+	CloudProvider,
+	OnStream,
+	ProviderSpecifics,
+} from '@remotion/serverless';
+import {
+	forgetBrowserEventLoop,
+	getBrowserInstance,
+	getTmpDirStateIfENoSp,
+	serializeArtifact,
+} from '@remotion/serverless';
 import type {ServerlessPayload} from '@remotion/serverless/client';
 import {
 	ServerlessRoutines,
 	decompressInputProps,
+	truthy,
 } from '@remotion/serverless/client';
 import fs from 'node:fs';
 import path from 'node:path';
 import {VERSION} from 'remotion/version';
 import {RENDERER_PATH_TOKEN} from '../shared/constants';
 import {isFlakyError} from '../shared/is-flaky-error';
-import {truthy} from '../shared/truthy';
 import {enableNodeIntrospection} from '../shared/why-is-node-running';
 import type {ObjectChunkTimingData} from './chunk-optimization/types';
 import {
@@ -27,28 +36,25 @@ import {
 import {startLeakDetection} from './helpers/leak-detection';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
 import type {RequestContext} from './helpers/request-context';
-import {serializeArtifact} from './helpers/serialize-artifact';
 import {timer} from './helpers/timer';
-import {getTmpDirStateIfENoSp} from './helpers/write-lambda-error';
-import type {OnStream} from './streaming/streaming';
 
 type Options = {
 	expectedBucketOwner: string;
 	isWarm: boolean;
 };
 
-const renderHandler = async <Region extends string>({
+const renderHandler = async <Provider extends CloudProvider>({
 	params,
 	options,
 	logs,
 	onStream,
 	providerSpecifics,
 }: {
-	params: ServerlessPayload<Region>;
+	params: ServerlessPayload<Provider>;
 	options: Options;
 	logs: BrowserLog[];
-	onStream: OnStream;
-	providerSpecifics: ProviderSpecifics<Region>;
+	onStream: OnStream<Provider>;
+	providerSpecifics: ProviderSpecifics<Provider>;
 }): Promise<{}> => {
 	if (params.type !== ServerlessRoutines.renderer) {
 		throw new Error('Params must be renderer');
@@ -389,18 +395,18 @@ const renderHandler = async <Region extends string>({
 
 const ENABLE_SLOW_LEAK_DETECTION = false;
 
-export const rendererHandler = async <Region extends string>({
+export const rendererHandler = async <Provider extends CloudProvider>({
 	onStream,
 	options,
 	params,
 	providerSpecifics,
 	requestContext,
 }: {
-	params: ServerlessPayload<Region>;
+	params: ServerlessPayload<Provider>;
 	options: Options;
-	onStream: OnStream;
+	onStream: OnStream<Provider>;
 	requestContext: RequestContext;
-	providerSpecifics: ProviderSpecifics<Region>;
+	providerSpecifics: ProviderSpecifics<Provider>;
 }): Promise<{
 	type: 'success';
 }> => {

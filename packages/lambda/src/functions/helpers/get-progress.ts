@@ -1,22 +1,27 @@
 import {RenderInternals} from '@remotion/renderer';
-import type {ProviderSpecifics} from '@remotion/serverless';
-import type {CustomCredentials} from '@remotion/serverless/client';
+import type {
+	CloudProvider,
+	EnhancedErrorInfo,
+	ProviderSpecifics,
+} from '@remotion/serverless';
+import {
+	getExpectedOutName,
+	truthy,
+	type CustomCredentials,
+} from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
 import type {CleanupInfo, GenericRenderProgress} from '../../shared/constants';
 import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../../shared/constants';
-import {truthy} from '../../shared/truthy';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import {estimatePriceFromBucket} from './calculate-price-from-bucket';
-import {getExpectedOutName} from './expected-out-name';
 import {formatCostsInfo} from './format-costs-info';
 import {getOverallProgress} from './get-overall-progress';
 import {getOverallProgressS3} from './get-overall-progress-s3';
 import {inspectErrors} from './inspect-errors';
 import {makeTimeoutError} from './make-timeout-error';
 import {lambdaRenderHasAudioVideo} from './render-has-audio-video';
-import type {EnhancedErrorInfo} from './write-lambda-error';
 
-export const getProgress = async <Region extends string>({
+export const getProgress = async <Provider extends CloudProvider>({
 	bucketName,
 	renderId,
 	expectedBucketOwner,
@@ -29,12 +34,12 @@ export const getProgress = async <Region extends string>({
 	bucketName: string;
 	renderId: string;
 	expectedBucketOwner: string;
-	region: Region;
+	region: Provider['region'];
 	memorySizeInMb: number;
 	timeoutInMilliseconds: number;
-	customCredentials: CustomCredentials<Region> | null;
-	providerSpecifics: ProviderSpecifics<Region>;
-}): Promise<GenericRenderProgress<Region>> => {
+	customCredentials: CustomCredentials<Provider> | null;
+	providerSpecifics: ProviderSpecifics<Provider>;
+}): Promise<GenericRenderProgress<Provider>> => {
 	const overallProgress = await getOverallProgressS3({
 		renderId,
 		bucketName,

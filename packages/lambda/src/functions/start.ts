@@ -1,14 +1,14 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import type {ProviderSpecifics} from '@remotion/serverless';
+import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
 import type {ServerlessPayload} from '@remotion/serverless/client';
 import {
 	ServerlessRoutines,
 	internalGetOrCreateBucket,
+	overallProgressKey,
 } from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../regions';
 import {getLambdaClient} from '../shared/aws-clients';
-import {overallProgressKey} from '../shared/constants';
 import {
 	generateRandomHashWithLifeCycleRule,
 	validateDeleteAfter,
@@ -20,10 +20,10 @@ type Options = {
 	timeoutInMilliseconds: number;
 };
 
-export const startHandler = async <Region extends string>(
-	params: ServerlessPayload<Region>,
+export const startHandler = async <Provider extends CloudProvider>(
+	params: ServerlessPayload<Provider>,
 	options: Options,
-	providerSpecifics: ProviderSpecifics<Region>,
+	providerSpecifics: ProviderSpecifics<Provider>,
 ) => {
 	if (params.type !== ServerlessRoutines.start) {
 		throw new TypeError('Expected type start');
@@ -79,7 +79,7 @@ export const startHandler = async <Region extends string>(
 		customCredentials: null,
 	});
 
-	const payload: ServerlessPayload<Region> = {
+	const payload: ServerlessPayload<Provider> = {
 		type: ServerlessRoutines.launch,
 		framesPerLambda: params.framesPerLambda,
 		composition: params.composition,

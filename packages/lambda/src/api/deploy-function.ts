@@ -1,5 +1,5 @@
 import type {LogLevel} from '@remotion/renderer';
-import {NoReactAPIs} from '@remotion/renderer/pure';
+import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import {getFunctions} from '../api/get-functions';
@@ -109,7 +109,7 @@ export const internalDeployFunction = async (
 	};
 };
 
-const errorHandled = NoReactAPIs.wrapWithErrorHandling(internalDeployFunction);
+const errorHandled = wrapWithErrorHandling(internalDeployFunction);
 
 /**
  * @description Creates an AWS Lambda function in your account that will be able to render a video in the cloud.

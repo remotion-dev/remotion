@@ -9,8 +9,9 @@ import {RenderInternals} from '@remotion/renderer';
 import type {VideoConfig} from 'remotion/no-react';
 import type {Await} from './await';
 import type {ProviderSpecifics} from './provider-implementation';
+import type {CloudProvider} from './still';
 
-type ValidateCompositionOptions<Region extends string> = {
+type ValidateCompositionOptions<Provider extends CloudProvider> = {
 	serveUrl: string;
 	composition: string;
 	browserInstance: Await<ReturnType<typeof openBrowser>>;
@@ -26,10 +27,10 @@ type ValidateCompositionOptions<Region extends string> = {
 	offthreadVideoCacheSizeInBytes: number | null;
 	onBrowserDownload: OnBrowserDownload;
 	onServeUrlVisited: () => void;
-	providerSpecifics: ProviderSpecifics<Region>;
+	providerSpecifics: ProviderSpecifics<Provider>;
 };
 
-export const validateComposition = async <Region extends string>({
+export const validateComposition = async <Provider extends CloudProvider>({
 	serveUrl,
 	composition,
 	browserInstance,
@@ -46,7 +47,7 @@ export const validateComposition = async <Region extends string>({
 	onBrowserDownload,
 	onServeUrlVisited,
 	providerSpecifics,
-}: ValidateCompositionOptions<Region>): Promise<VideoConfig> => {
+}: ValidateCompositionOptions<Provider>): Promise<VideoConfig> => {
 	const {metadata: comp} = await RenderInternals.internalSelectComposition({
 		id: composition,
 		puppeteerInstance: browserInstance,

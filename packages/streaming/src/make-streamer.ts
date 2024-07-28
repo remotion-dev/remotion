@@ -1,12 +1,4 @@
-import {EventEmitter} from 'stream';
-
 export const streamingKey = 'remotion_buffer:';
-
-// @ts-expect-error
-globalThis._dumpUnreleasedBuffers = new EventEmitter();
-
-// @ts-expect-error
-(globalThis._dumpUnreleasedBuffers as EventEmitter).setMaxListeners(201);
 
 export const makeStreamer = (
 	onMessage: (
@@ -135,16 +127,6 @@ export const makeStreamer = (
 		processInput();
 	};
 
-	const dumpBuffers = () => {
-		console.log('Request with unused data', {missingData, unprocessedBuffers});
-	};
-
-	// @ts-expect-error
-	(globalThis._dumpUnreleasedBuffers as EventEmitter).addListener(
-		'dump-unreleased-buffers',
-		dumpBuffers,
-	);
-
 	const onData = (data: Uint8Array) => {
 		unprocessedBuffers.push(data);
 
@@ -181,11 +163,6 @@ export const makeStreamer = (
 		clear: () => {
 			unprocessedBuffers = [];
 			outputBuffer = new Uint8Array(0);
-			// @ts-expect-error
-			(globalThis._dumpUnreleasedBuffers as EventEmitter).removeListener(
-				'dump-unreleased-buffers',
-				dumpBuffers,
-			);
 		},
 	};
 };

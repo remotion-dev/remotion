@@ -1,4 +1,4 @@
-import type {ResponseStream} from '../helpers/streamify-response';
+import type {ResponseStream} from './response-stream';
 
 export type ResponseStreamWriter = {
 	write: (message: Uint8Array) => Promise<void>;

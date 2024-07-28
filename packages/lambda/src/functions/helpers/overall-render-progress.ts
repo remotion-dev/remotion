@@ -1,13 +1,20 @@
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {ProviderSpecifics} from '@remotion/serverless';
-import type {PostRenderData, RenderMetadata} from '../../shared/constants';
-import {overallProgressKey} from '../../shared/constants';
+import type {
+	CloudProvider,
+	LambdaErrorInfo,
+	ProviderSpecifics,
+	ReceivedArtifact,
+} from '@remotion/serverless';
+import {
+	overallProgressKey,
+	type RenderMetadata,
+} from '@remotion/serverless/client';
+import type {PostRenderData} from '../../shared/constants';
 import type {ParsedTiming} from '../../shared/parse-lambda-timings-key';
 import type {ChunkRetry} from './get-retry-stats';
-import type {LambdaErrorInfo} from './write-lambda-error';
 
-export type OverallRenderProgress<Region extends string> = {
+export type OverallRenderProgress<Provider extends CloudProvider> = {
 	chunks: number[];
 	framesRendered: number;
 	framesEncoded: number;
@@ -17,25 +24,18 @@ export type OverallRenderProgress<Region extends string> = {
 	timeToRenderFrames: number | null;
 	lambdasInvoked: number;
 	retries: ChunkRetry[];
-	postRenderData: PostRenderData | null;
+	postRenderData: PostRenderData<Provider> | null;
 	timings: ParsedTiming[];
-	renderMetadata: RenderMetadata<Region> | null;
+	renderMetadata: RenderMetadata<Provider> | null;
 	errors: LambdaErrorInfo[];
 	timeoutTimestamp: number;
 	functionLaunched: number;
 	serveUrlOpened: number | null;
 	compositionValidated: number | null;
-	receivedArtifact: ReceivedArtifact[];
+	receivedArtifact: ReceivedArtifact<Provider>[];
 };
 
-export type ReceivedArtifact = {
-	filename: string;
-	sizeInBytes: number;
-	s3Url: string;
-	s3Key: string;
-};
-
-export type OverallProgressHelper<Region extends string> = {
+export type OverallProgressHelper<Provider extends CloudProvider> = {
 	upload: () => Promise<void>;
 	setFrames: ({
 		encoded,
@@ -55,20 +55,22 @@ export type OverallProgressHelper<Region extends string> = {
 	setCombinedFrames: (framesEncoded: number) => void;
 	setTimeToCombine: (timeToCombine: number) => void;
 	addRetry: (retry: ChunkRetry) => void;
-	setPostRenderData: (postRenderData: PostRenderData) => void;
-	setRenderMetadata: (renderMetadata: RenderMetadata<Region>) => void;
+	setPostRenderData: (postRenderData: PostRenderData<Provider>) => void;
+	setRenderMetadata: (renderMetadata: RenderMetadata<Provider>) => void;
 	addErrorWithoutUpload: (errorInfo: LambdaErrorInfo) => void;
 	setExpectedChunks: (expectedChunks: number) => void;
-	get: () => OverallRenderProgress<Region>;
+	get: () => OverallRenderProgress<Provider>;
 	setServeUrlOpened: (timestamp: number) => void;
 	setCompositionValidated: (timestamp: number) => void;
-	addReceivedArtifact: (asset: ReceivedArtifact) => void;
-	getReceivedArtifacts: () => ReceivedArtifact[];
+	addReceivedArtifact: (asset: ReceivedArtifact<Provider>) => void;
+	getReceivedArtifacts: () => ReceivedArtifact<Provider>[];
 };
 
-export const makeInitialOverallRenderProgress = <Region extends string>(
+export const makeInitialOverallRenderProgress = <
+	Provider extends CloudProvider,
+>(
 	timeoutTimestamp: number,
-): OverallRenderProgress<Region> => {
+): OverallRenderProgress<Provider> => {
 	return {
 		chunks: [],
 		framesRendered: 0,
@@ -91,7 +93,7 @@ export const makeInitialOverallRenderProgress = <Region extends string>(
 	};
 };
 
-export const makeOverallRenderProgress = <Region extends string>({
+export const makeOverallRenderProgress = <Provider extends CloudProvider>({
 	renderId,
 	bucketName,
 	expectedBucketOwner,
@@ -103,16 +105,16 @@ export const makeOverallRenderProgress = <Region extends string>({
 	renderId: string;
 	bucketName: string;
 	expectedBucketOwner: string;
-	region: Region;
+	region: Provider['region'];
 	timeoutTimestamp: number;
 	logLevel: LogLevel;
-	providerSpecifics: ProviderSpecifics<Region>;
-}): OverallProgressHelper<Region> => {
+	providerSpecifics: ProviderSpecifics<Provider>;
+}): OverallProgressHelper<Provider> => {
 	let framesRendered: number[] = [];
 	let framesEncoded: number[] = [];
 	let lambdasInvoked: boolean[] = [];
 
-	const renderProgress: OverallRenderProgress<Region> =
+	const renderProgress: OverallRenderProgress<Provider> =
 		makeInitialOverallRenderProgress(timeoutTimestamp);
 
 	let currentUploadPromise: Promise<void> | null = null;

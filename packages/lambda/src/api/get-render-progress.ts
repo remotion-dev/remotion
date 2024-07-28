@@ -1,6 +1,7 @@
 import type {LogLevel} from '@remotion/renderer';
 import type {CustomCredentials} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
+import type {AwsProvider} from '../functions/aws-implementation';
 import type {AwsRegion} from '../regions';
 import {callLambda} from '../shared/call-lambda';
 import type {RenderProgress} from '../shared/constants';
@@ -12,7 +13,7 @@ export type GetRenderProgressInput = {
 	renderId: string;
 	region: AwsRegion;
 	logLevel?: LogLevel;
-	s3OutputProvider?: CustomCredentials<AwsRegion>;
+	s3OutputProvider?: CustomCredentials<AwsProvider>;
 };
 
 /**
@@ -28,7 +29,7 @@ export type GetRenderProgressInput = {
 export const getRenderProgress = async (
 	input: GetRenderProgressInput,
 ): Promise<RenderProgress> => {
-	const result = await callLambda({
+	const result = await callLambda<AwsProvider, ServerlessRoutines.status>({
 		functionName: input.functionName,
 		type: ServerlessRoutines.status,
 		payload: getRenderProgressPayload(input),

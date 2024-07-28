@@ -1,18 +1,20 @@
-import type {ProviderSpecifics} from '@remotion/serverless';
+import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
 import {
 	inputPropsKey,
 	resolvedPropsKey,
 	type SerializedInputProps,
 } from '@remotion/serverless/client';
 
-export const cleanupSerializedInputProps = async <Region extends string>({
+export const cleanupSerializedInputProps = async <
+	Provider extends CloudProvider,
+>({
 	serialized,
 	region,
 	providerSpecifics,
 }: {
 	serialized: SerializedInputProps;
-	region: Region;
-	providerSpecifics: ProviderSpecifics<Region>;
+	region: Provider['region'];
+	providerSpecifics: ProviderSpecifics<Provider>;
 }): Promise<number> => {
 	if (serialized.type === 'payload') {
 		return 0;
@@ -29,14 +31,16 @@ export const cleanupSerializedInputProps = async <Region extends string>({
 	return Date.now() - time;
 };
 
-export const cleanupSerializedResolvedProps = async <Region extends string>({
+export const cleanupSerializedResolvedProps = async <
+	Provider extends CloudProvider,
+>({
 	serialized,
 	region,
 	providerSpecifics,
 }: {
 	serialized: SerializedInputProps;
-	region: Region;
-	providerSpecifics: ProviderSpecifics<Region>;
+	region: Provider['region'];
+	providerSpecifics: ProviderSpecifics<Provider>;
 }): Promise<number> => {
 	if (serialized.type === 'payload') {
 		return 0;

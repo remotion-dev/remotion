@@ -1,17 +1,21 @@
 import type {Codec} from '@remotion/renderer';
 import {NoReactAPIs} from '@remotion/renderer/pure';
-import type {
-	CustomCredentials,
-	OutNameInput,
-} from '@remotion/serverless/client';
-import type {OutNameOutput, RenderMetadata} from '../../defaults';
-import {customOutName, outName, outStillName} from '../../defaults';
-import {validateOutname} from '../../shared/validate-outname';
+import {
+	customOutName,
+	outName,
+	outStillName,
+	type CustomCredentials,
+	type OutNameInput,
+	type OutNameOutput,
+} from './constants';
 import {getCustomOutName} from './get-custom-out-name';
+import type {RenderMetadata} from './render-metadata';
+import type {CloudProvider} from './still';
+import {validateOutname} from './validate-outname';
 
-export const getCredentialsFromOutName = <Region extends string>(
-	name: OutNameInput<Region> | null,
-): CustomCredentials<Region> | null => {
+export const getCredentialsFromOutName = <Provider extends CloudProvider>(
+	name: OutNameInput<Provider> | null,
+): CustomCredentials<Provider> | null => {
 	if (typeof name === 'string') {
 		return null;
 	}
@@ -27,11 +31,11 @@ export const getCredentialsFromOutName = <Region extends string>(
 	return name.s3OutputProvider ?? null;
 };
 
-export const getExpectedOutName = <Region extends string>(
-	renderMetadata: RenderMetadata<Region>,
+export const getExpectedOutName = <Provider extends CloudProvider>(
+	renderMetadata: RenderMetadata<Provider>,
 	bucketName: string,
-	customCredentials: CustomCredentials<Region> | null,
-): OutNameOutput<Region> => {
+	customCredentials: CustomCredentials<Provider> | null,
+): OutNameOutput<Provider> => {
 	const outNameValue = getCustomOutName({
 		customCredentials,
 		renderMetadata,

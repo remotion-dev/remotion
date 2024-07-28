@@ -9,7 +9,8 @@
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
-		"formatting": "prettier src --check"
+		"formatting": "prettier src --check",
+		"test": "bun test src"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -22,7 +23,8 @@
 	},
 	"dependencies": {
 		"remotion": "workspace:*",
-		"@remotion/renderer": "workspace:*"
+		"@remotion/renderer": "workspace:*",
+		"@remotion/streaming": "workspace:*"
 	},
 	"exports": {
 		".": "./dist/index.js",

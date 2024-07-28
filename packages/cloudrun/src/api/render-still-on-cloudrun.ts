@@ -4,7 +4,7 @@ import type {
 	ToOptions,
 } from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import {NoReactAPIs} from '@remotion/renderer/pure';
+import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import type {
@@ -212,9 +212,7 @@ const internalRenderStillOnCloudRun = async ({
 	return renderResponse;
 };
 
-const errorHandled = NoReactAPIs.wrapWithErrorHandling(
-	internalRenderStillOnCloudRun,
-);
+const errorHandled = wrapWithErrorHandling(internalRenderStillOnCloudRun);
 
 export const renderStillOnCloudrun = (options: RenderStillOnCloudrunInput) => {
 	return errorHandled({
