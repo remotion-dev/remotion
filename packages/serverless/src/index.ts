@@ -12,7 +12,12 @@ export {
 export {infoHandler} from './info';
 export {ProviderSpecifics, WriteFileInput} from './provider-implementation';
 export {deserializeArtifact, serializeArtifact} from './serialize-artifact';
-export {ReceivedArtifact, RenderStillLambdaResponsePayload} from './still';
+export {
+	CloudProvider,
+	CostsInfo,
+	ReceivedArtifact,
+	RenderStillLambdaResponsePayload,
+} from './still';
 export {ResponseStream} from './streaming/response-stream';
 export {ResponseStreamWriter, streamWriter} from './streaming/stream-writer';
 export {

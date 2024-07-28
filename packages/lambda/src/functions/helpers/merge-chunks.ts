@@ -1,5 +1,5 @@
 import type {AudioCodec, LogLevel} from '@remotion/renderer';
-import type {ProviderSpecifics} from '@remotion/serverless';
+import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
 import type {
 	CustomCredentials,
 	DownloadBehavior,
@@ -19,6 +19,7 @@ import type {OverallProgressHelper} from './overall-render-progress';
 import {timer} from './timer';
 
 export const mergeChunksAndFinishRender = async <
+	Provider extends CloudProvider,
 	Region extends string,
 >(options: {
 	bucketName: string;
@@ -46,10 +47,10 @@ export const mergeChunksAndFinishRender = async <
 	compositionStart: number;
 	outdir: string;
 	files: string[];
-	overallProgress: OverallProgressHelper<Region>;
+	overallProgress: OverallProgressHelper<Provider, Region>;
 	startTime: number;
-	providerSpecifics: ProviderSpecifics<Region>;
-}): Promise<PostRenderData> => {
+	providerSpecifics: ProviderSpecifics<Provider, Region>;
+}): Promise<PostRenderData<Provider>> => {
 	const onProgress = (framesEncoded: number) => {
 		options.overallProgress.setCombinedFrames(framesEncoded);
 	};

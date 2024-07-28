@@ -29,7 +29,7 @@ export const internalGetSites = async ({
 	forceBucketName,
 	providerSpecifics,
 }: GetSitesInput & {
-	providerSpecifics: ProviderSpecifics<AwsRegion>;
+	providerSpecifics: ProviderSpecifics<'aws', AwsRegion>;
 }): Promise<GetSitesOutput> => {
 	const remotionBuckets = forceBucketName
 		? await providerSpecifics.getBuckets(region, forceBucketName)

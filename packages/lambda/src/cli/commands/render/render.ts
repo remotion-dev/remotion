@@ -59,7 +59,7 @@ export const renderCommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
-	implementation: ProviderSpecifics<AwsRegion>,
+	implementation: ProviderSpecifics<'aws', AwsRegion>,
 ) => {
 	const serveUrl = args[0];
 	if (!serveUrl) {
@@ -420,6 +420,7 @@ export const renderCommand = async (
 		makeProgressString({
 			downloadInfo: null,
 			overall: status,
+			provider: implementation.provider,
 		}),
 		false,
 	);
@@ -438,6 +439,7 @@ export const renderCommand = async (
 			makeProgressString({
 				downloadInfo: null,
 				overall: newStatus,
+				provider: implementation.provider,
 			}),
 			false,
 		);
@@ -462,6 +464,7 @@ export const renderCommand = async (
 									totalSize,
 								},
 								overall: newStatus,
+								provider: implementation.provider,
 							}),
 							false,
 						);
@@ -477,6 +480,7 @@ export const renderCommand = async (
 							totalSize: download.sizeInBytes,
 						},
 						overall: newStatus,
+						provider: implementation.provider,
 					}),
 					false,
 				);

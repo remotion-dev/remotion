@@ -23,7 +23,7 @@ export const internalDeleteSite = async ({
 	onAfterItemDeleted,
 	providerSpecifics,
 }: DeleteSiteInput & {
-	providerSpecifics: ProviderSpecifics<AwsRegion>;
+	providerSpecifics: ProviderSpecifics<'aws', AwsRegion>;
 }): Promise<DeleteSiteOutput> => {
 	const accountId = await getAccountId({region});
 

@@ -1,6 +1,7 @@
 import {errorIsOutOfSpaceError} from './error-category';
 import type {FileNameAndSize} from './get-files-in-folder';
 import type {ProviderSpecifics} from './provider-implementation';
+import type {CloudProvider} from './still';
 
 export type LambdaErrorInfo = {
 	type: 'renderer' | 'browser' | 'stitcher' | 'webhook' | 'artifact';
@@ -16,9 +17,12 @@ export type LambdaErrorInfo = {
 	tmpDir: {files: FileNameAndSize[]; total: number} | null;
 };
 
-export const getTmpDirStateIfENoSp = <Region extends string>(
+export const getTmpDirStateIfENoSp = <
+	Provider extends CloudProvider,
+	Region extends string,
+>(
 	err: string,
-	providerSpecifics: ProviderSpecifics<Region>,
+	providerSpecifics: ProviderSpecifics<Provider, Region>,
 ): LambdaErrorInfo['tmpDir'] => {
 	if (!errorIsOutOfSpaceError(err)) {
 		return null;

@@ -3,6 +3,7 @@ import type {SerializedInputProps} from './constants';
 import {internalGetOrCreateBucket} from './get-or-create-bucket';
 import {inputPropsKey, resolvedPropsKey} from './input-props-keys';
 import type {ProviderSpecifics} from './provider-implementation';
+import type {CloudProvider} from './still';
 import {streamToString} from './stream-to-string';
 import {MAX_WEBHOOK_CUSTOM_DATA_SIZE} from './validate-webhook';
 
@@ -58,7 +59,10 @@ export const getNeedsToUpload = (
 	return false;
 };
 
-export const compressInputProps = async <Region extends string>({
+export const compressInputProps = async <
+	Provider extends CloudProvider,
+	Region extends string,
+>({
 	stringifiedInputProps,
 	region,
 	userSpecifiedBucketName,
@@ -71,7 +75,7 @@ export const compressInputProps = async <Region extends string>({
 	userSpecifiedBucketName: string | null;
 	propsType: PropsType;
 	needsToUpload: boolean;
-	providerSpecifics: ProviderSpecifics<Region>;
+	providerSpecifics: ProviderSpecifics<Provider, Region>;
 }): Promise<SerializedInputProps> => {
 	const hash = providerSpecifics.randomHash();
 
@@ -111,7 +115,10 @@ export const compressInputProps = async <Region extends string>({
 	};
 };
 
-export const decompressInputProps = async <Region extends string>({
+export const decompressInputProps = async <
+	Provider extends CloudProvider,
+	Region extends string,
+>({
 	serialized,
 	region,
 	bucketName,
@@ -124,7 +131,7 @@ export const decompressInputProps = async <Region extends string>({
 	bucketName: string;
 	expectedBucketOwner: string;
 	propsType: PropsType;
-	providerSpecifics: ProviderSpecifics<Region>;
+	providerSpecifics: ProviderSpecifics<Provider, Region>;
 }): Promise<string> => {
 	if (serialized.type === 'payload') {
 		return serialized.payload;

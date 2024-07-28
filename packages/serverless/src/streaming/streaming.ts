@@ -1,6 +1,6 @@
 import {makeStreamPayloadMessage} from '@remotion/streaming';
 import type {SerializedArtifact} from '../serialize-artifact';
-import type {RenderStillLambdaResponsePayload} from '../still';
+import type {CloudProvider, RenderStillLambdaResponsePayload} from '../still';
 import type {LambdaErrorInfo} from '../write-lambda-error';
 
 const framesRendered = 'frames-rendered' as const;
@@ -40,7 +40,7 @@ export const formatMap: {[key in MessageType]: 'json' | 'binary'} = {
 	[artifactEmitted]: 'json',
 };
 
-export type StreamingPayload =
+export type StreamingPayload<Provider extends CloudProvider> =
 	| {
 			type: typeof framesRendered;
 			payload: {
@@ -72,7 +72,7 @@ export type StreamingPayload =
 	  }
 	| {
 			type: typeof stillRendered;
-			payload: RenderStillLambdaResponsePayload;
+			payload: RenderStillLambdaResponsePayload<Provider>;
 	  }
 	| {
 			type: typeof chunkComplete;
@@ -117,16 +117,24 @@ const messageTypeToMessageId = (messageType: MessageType): MessageTypeId => {
 	return id;
 };
 
-export type StreamingMessage = {
+export type StreamingMessage<Provider extends CloudProvider> = {
 	successType: 'error' | 'success';
-	message: StreamingPayload;
+	message: StreamingPayload<Provider>;
 };
 
-export type OnMessage = (options: StreamingMessage) => void;
+export type OnMessage<Provider extends CloudProvider> = (
+	options: StreamingMessage<Provider>,
+) => void;
 
-export type OnStream = (payload: StreamingPayload) => Promise<void>;
+export type OnStream<Provider extends CloudProvider> = (
+	payload: StreamingPayload<Provider>,
+) => Promise<void>;
 
-export const makeStreamPayload = ({message}: {message: StreamingPayload}) => {
+export const makeStreamPayload = <Provider extends CloudProvider>({
+	message,
+}: {
+	message: StreamingPayload<Provider>;
+}) => {
 	const body =
 		formatMap[message.type] === 'json'
 			? new TextEncoder().encode(JSON.stringify(message.payload))

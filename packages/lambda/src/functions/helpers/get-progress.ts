@@ -1,5 +1,9 @@
 import {RenderInternals} from '@remotion/renderer';
-import type {EnhancedErrorInfo, ProviderSpecifics} from '@remotion/serverless';
+import type {
+	CloudProvider,
+	EnhancedErrorInfo,
+	ProviderSpecifics,
+} from '@remotion/serverless';
 import {
 	getExpectedOutName,
 	truthy,
@@ -17,7 +21,10 @@ import {inspectErrors} from './inspect-errors';
 import {makeTimeoutError} from './make-timeout-error';
 import {lambdaRenderHasAudioVideo} from './render-has-audio-video';
 
-export const getProgress = async <Region extends string>({
+export const getProgress = async <
+	Provider extends CloudProvider,
+	Region extends string,
+>({
 	bucketName,
 	renderId,
 	expectedBucketOwner,
@@ -34,8 +41,8 @@ export const getProgress = async <Region extends string>({
 	memorySizeInMb: number;
 	timeoutInMilliseconds: number;
 	customCredentials: CustomCredentials<Region> | null;
-	providerSpecifics: ProviderSpecifics<Region>;
-}): Promise<GenericRenderProgress<Region>> => {
+	providerSpecifics: ProviderSpecifics<Provider, Region>;
+}): Promise<GenericRenderProgress<Provider, Region>> => {
 	const overallProgress = await getOverallProgressS3({
 		renderId,
 		bucketName,

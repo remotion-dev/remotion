@@ -1,4 +1,8 @@
-import type {EnhancedErrorInfo, ReceivedArtifact} from '@remotion/serverless';
+import type {
+	CloudProvider,
+	EnhancedErrorInfo,
+	ReceivedArtifact,
+} from '@remotion/serverless';
 import {
 	type DeleteAfter,
 	type Privacy,
@@ -52,7 +56,7 @@ export type AfterRenderCost = {
 	disclaimer: string;
 };
 
-export type PostRenderData = {
+export type PostRenderData<Provider extends CloudProvider> = {
 	cost: AfterRenderCost;
 	outputFile: string;
 	outputSize: number;
@@ -71,7 +75,7 @@ export type PostRenderData = {
 	estimatedBillingDurationInMilliseconds: number;
 	deleteAfter: DeleteAfter | null;
 	timeToCombine: number | null;
-	artifactProgress: ReceivedArtifact[];
+	artifactProgress: ReceivedArtifact<Provider>[];
 };
 
 export type CostsInfo = {
@@ -93,7 +97,10 @@ type EncodingProgress = {
 	timeToCombine: number | null;
 };
 
-export type GenericRenderProgress<Region extends string> = {
+export type GenericRenderProgress<
+	Provider extends CloudProvider,
+	Region extends string,
+> = {
 	chunks: number;
 	done: boolean;
 	encodingStatus: EncodingProgress | null;
@@ -127,9 +134,9 @@ export type GenericRenderProgress<Region extends string> = {
 	functionLaunched: number;
 	serveUrlOpened: number | null;
 	compositionValidated: number | null;
-	artifacts: ReceivedArtifact[];
+	artifacts: ReceivedArtifact<Provider>[];
 };
 
-export type RenderProgress = GenericRenderProgress<AwsRegion>;
+export type RenderProgress = GenericRenderProgress<'aws', AwsRegion>;
 
 export const LAMBDA_CONCURRENCY_LIMIT_QUOTA = 'L-B99A9384';

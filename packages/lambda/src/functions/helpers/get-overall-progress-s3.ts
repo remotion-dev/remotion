@@ -1,8 +1,11 @@
-import type {ProviderSpecifics} from '@remotion/serverless';
+import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
 import {overallProgressKey, streamToString} from '@remotion/serverless/client';
 import type {OverallRenderProgress} from './overall-render-progress';
 
-export const getOverallProgressS3 = async <Region extends string>({
+export const getOverallProgressS3 = async <
+	Provider extends CloudProvider,
+	Region extends string,
+>({
 	renderId,
 	bucketName,
 	expectedBucketOwner,
@@ -13,7 +16,7 @@ export const getOverallProgressS3 = async <Region extends string>({
 	expectedBucketOwner: string;
 	bucketName: string;
 	region: Region;
-	providerSpecifics: ProviderSpecifics<Region>;
+	providerSpecifics: ProviderSpecifics<Provider, Region>;
 }) => {
 	try {
 		const Body = await providerSpecifics.readFile({
@@ -24,7 +27,7 @@ export const getOverallProgressS3 = async <Region extends string>({
 		});
 
 		const str = await streamToString(Body);
-		return JSON.parse(str) as OverallRenderProgress<Region>;
+		return JSON.parse(str) as OverallRenderProgress<Provider, Region>;
 	} catch (err) {
 		if ((err as Error).name === 'NotFound') {
 			throw new TypeError(

@@ -60,7 +60,7 @@ export const sitesCommand = (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
-	implementation: ProviderSpecifics<AwsRegion>,
+	implementation: ProviderSpecifics<'aws', AwsRegion>,
 ) => {
 	if (args[0] === SITES_LS_SUBCOMMAND) {
 		return sitesLsSubcommand(logLevel);

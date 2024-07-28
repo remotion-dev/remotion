@@ -1,10 +1,20 @@
+export type CloudProvider = 'aws' | 'gcp';
+
 // TODO: Should not use AWS terminology here
-export type ReceivedArtifact = {
+export type ReceivedArtifact<Provider extends CloudProvider> = {
 	filename: string;
 	sizeInBytes: number;
 	s3Url: string;
 	s3Key: string;
-};
+} & (Provider extends 'aws'
+	? {
+			s3Url: string;
+			s3Key: string;
+		}
+	: {
+			cloudStorageUrl: string;
+			cloudStorageKey: string;
+		});
 
 export type CostsInfo = {
 	accruedSoFar: number;
@@ -13,7 +23,7 @@ export type CostsInfo = {
 	disclaimer: string;
 };
 
-export type RenderStillLambdaResponsePayload = {
+export type RenderStillLambdaResponsePayload<Provider extends CloudProvider> = {
 	type: 'success';
 	output: string;
 	outKey: string;
@@ -22,5 +32,5 @@ export type RenderStillLambdaResponsePayload = {
 	sizeInBytes: number;
 	estimatedPrice: CostsInfo;
 	renderId: string;
-	receivedArtifacts: ReceivedArtifact[];
+	receivedArtifacts: ReceivedArtifact<Provider>[];
 };

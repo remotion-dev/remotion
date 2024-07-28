@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type {EmittedArtifact, LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {ProviderSpecifics} from '@remotion/serverless';
+import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
 import {
 	forgetBrowserEventLoop,
 	getBrowserInstance,
@@ -26,6 +26,7 @@ import {existsSync, mkdirSync, rmSync} from 'fs';
 import {join} from 'path';
 import {VERSION} from 'remotion/version';
 import {type EventEmitter} from 'stream';
+import type {AwsRegion} from '../regions';
 import type {PostRenderData} from '../shared/constants';
 import {
 	CONCAT_FOLDER_TOKEN,
@@ -55,7 +56,10 @@ type Options = {
 	getRemainingTimeInMillis: () => number;
 };
 
-const innerLaunchHandler = async <Region extends string>({
+const innerLaunchHandler = async <
+	Provider extends CloudProvider,
+	Region extends string,
+>({
 	functionName,
 	params,
 	options,
@@ -66,10 +70,10 @@ const innerLaunchHandler = async <Region extends string>({
 	functionName: string;
 	params: ServerlessPayload<Region>;
 	options: Options;
-	overallProgress: OverallProgressHelper<Region>;
+	overallProgress: OverallProgressHelper<Provider, Region>;
 	registerCleanupTask: (cleanupTask: CleanupTask) => void;
-	providerSpecifics: ProviderSpecifics<Region>;
-}): Promise<PostRenderData> => {
+	providerSpecifics: ProviderSpecifics<Provider, Region>;
+}): Promise<PostRenderData<Provider>> => {
 	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
@@ -397,7 +401,15 @@ const innerLaunchHandler = async <Region extends string>({
 					{indent: false, logLevel: params.logLevel},
 					`Wrote artifact to S3 in ${Date.now() - start}ms`,
 				);
-				overallProgress.addReceivedArtifact({
+
+				if (overallProgress.provider !== 'aws') {
+					throw new Error('artifacts not supported for gcp yet');
+				}
+
+				// TODO: Make typesafer
+				(
+					overallProgress as unknown as OverallProgressHelper<'aws', AwsRegion>
+				).addReceivedArtifact({
 					filename: artifact.filename,
 					sizeInBytes: artifact.content.length,
 					s3Url: `https://s3.${region}.amazonaws.com/${renderBucketName}/${s3Key}`,
@@ -479,10 +491,13 @@ const innerLaunchHandler = async <Region extends string>({
 
 type CleanupTask = () => Promise<unknown>;
 
-export const launchHandler = async <Region extends string>(
+export const launchHandler = async <
+	Provider extends CloudProvider,
+	Region extends string,
+>(
 	params: ServerlessPayload<Region>,
 	options: Options,
-	providerSpecifics: ProviderSpecifics<Region>,
+	providerSpecifics: ProviderSpecifics<Provider, Region>,
 ): Promise<{
 	type: 'success';
 }> => {

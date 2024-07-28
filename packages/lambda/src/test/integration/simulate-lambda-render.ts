@@ -67,7 +67,7 @@ export const simulateLambdaRender = async (
 		}),
 	);
 
-	const res = await callLambda<ServerlessRoutines.start, AwsRegion>({
+	const res = await callLambda<ServerlessRoutines.start, 'aws', AwsRegion>({
 		type: ServerlessRoutines.start,
 		payload,
 		functionName: 'remotion-dev-lambda',

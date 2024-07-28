@@ -73,7 +73,7 @@ export type RenderStillOnLambdaOutput = {
 	bucketName: string;
 	renderId: string;
 	cloudWatchLogs: string;
-	artifacts: ReceivedArtifact[];
+	artifacts: ReceivedArtifact<'aws'>[];
 };
 
 const internalRenderStillOnLambda = async (
@@ -82,7 +82,7 @@ const internalRenderStillOnLambda = async (
 	const {functionName, region, onInit} = input;
 	try {
 		const payload = await makeLambdaRenderStillPayload(input);
-		const res = await new Promise<RenderStillLambdaResponsePayload>(
+		const res = await new Promise<RenderStillLambdaResponsePayload<'aws'>>(
 			(resolve, reject) => {
 				callLambdaWithStreaming({
 					functionName,

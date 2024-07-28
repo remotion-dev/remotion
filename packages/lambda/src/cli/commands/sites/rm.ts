@@ -15,7 +15,7 @@ export const SITES_RM_COMMAND = 'rm';
 export const sitesRmSubcommand = async (
 	args: string[],
 	logLevel: LogLevel,
-	implementation: ProviderSpecifics<AwsRegion>,
+	implementation: ProviderSpecifics<'aws', AwsRegion>,
 ) => {
 	if (args.length === 0) {
 		Log.error(

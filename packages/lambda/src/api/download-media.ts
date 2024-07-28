@@ -30,7 +30,7 @@ export type DownloadMediaOutput = {
 
 export const internalDownloadMedia = async (
 	input: DownloadMediaInput & {
-		providerSpecifics: ProviderSpecifics<AwsRegion>;
+		providerSpecifics: ProviderSpecifics<'aws', AwsRegion>;
 	},
 ): Promise<DownloadMediaOutput> => {
 	const expectedBucketOwner = await getAccountId({

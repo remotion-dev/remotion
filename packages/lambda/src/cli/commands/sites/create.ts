@@ -41,7 +41,7 @@ export const sitesCreateSubcommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
-	implementation: ProviderSpecifics<AwsRegion>,
+	implementation: ProviderSpecifics<'aws', AwsRegion>,
 ) => {
 	const {file, reason} = CliInternals.findEntryPoint({
 		args,

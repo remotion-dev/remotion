@@ -1,6 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {RenderInternals} from '@remotion/renderer';
-import type {ReceivedArtifact} from '@remotion/serverless';
+import type {CloudProvider, ReceivedArtifact} from '@remotion/serverless';
 import {truthy} from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderProgress} from '../../../defaults';
@@ -201,7 +201,10 @@ const makeTopRow = (overall: RenderProgress) => {
 	return CliInternals.chalk.gray(str);
 };
 
-export const makeArtifactProgress = (artifactProgress: ReceivedArtifact[]) => {
+export const makeArtifactProgress = <Provider extends CloudProvider>(
+	artifactProgress: ReceivedArtifact<Provider>[],
+	provider: Provider,
+) => {
 	if (artifactProgress.length === 0) {
 		return null;
 	}
@@ -209,7 +212,11 @@ export const makeArtifactProgress = (artifactProgress: ReceivedArtifact[]) => {
 	return artifactProgress
 		.map((artifact) => {
 			return [
-				CliInternals.chalk.blue('+ S3'.padEnd(CliInternals.LABEL_WIDTH)),
+				CliInternals.chalk.blue(
+					('+ ' + (provider === 'aws' ? 'S3' : 'GCS')).padEnd(
+						CliInternals.LABEL_WIDTH,
+					),
+				),
 				CliInternals.chalk.blue(
 					CliInternals.makeHyperlink({
 						url: artifact.s3Url,
@@ -229,9 +236,11 @@ export const makeArtifactProgress = (artifactProgress: ReceivedArtifact[]) => {
 export const makeProgressString = ({
 	downloadInfo,
 	overall,
+	provider,
 }: {
 	overall: RenderProgress;
 	downloadInfo: DownloadedInfo | null;
+	provider: CloudProvider;
 }) => {
 	return [
 		makeTopRow(overall),
@@ -240,7 +249,7 @@ export const makeProgressString = ({
 		...makeRenderProgress(overall),
 		makeCombinationProgress(overall),
 		downloadInfo ? makeDownloadProgress(downloadInfo) : null,
-		makeArtifactProgress(overall.artifacts),
+		makeArtifactProgress(overall.artifacts, provider),
 	]
 		.filter(NoReactInternals.truthy)
 		.join('\n');

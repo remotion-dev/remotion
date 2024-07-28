@@ -1,6 +1,7 @@
 import type {EmittedArtifact, StillImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {
+	CloudProvider,
 	OnStream,
 	ReceivedArtifact,
 	RenderStillLambdaResponsePayload,
@@ -42,23 +43,26 @@ import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
 import {makeInitialOverallRenderProgress} from './helpers/overall-render-progress';
 
-type Options<Region extends string> = {
+type Options<Provider extends CloudProvider, Region extends string> = {
 	params: ServerlessPayload<Region>;
 	renderId: string;
 	expectedBucketOwner: string;
-	onStream: OnStream;
+	onStream: OnStream<Provider>;
 	timeoutInMilliseconds: number;
-	providerSpecifics: ProviderSpecifics<Region>;
+	providerSpecifics: ProviderSpecifics<Provider, Region>;
 };
 
-const innerStillHandler = async <Region extends string>({
+const innerStillHandler = async <
+	Provider extends CloudProvider,
+	Region extends string,
+>({
 	params: lambdaParams,
 	expectedBucketOwner,
 	renderId,
 	onStream,
 	timeoutInMilliseconds,
 	providerSpecifics,
-}: Options<Region>) => {
+}: Options<Provider, Region>) => {
 	if (lambdaParams.type !== ServerlessRoutines.still) {
 		throw new TypeError('Expected still type');
 	}
@@ -199,7 +203,7 @@ const innerStillHandler = async <Region extends string>({
 		throw new Error('Should not download a browser in Lambda');
 	};
 
-	const receivedArtifact: ReceivedArtifact[] = [];
+	const receivedArtifact: ReceivedArtifact<Provider>[] = [];
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
 		renderMetadata,
@@ -213,7 +217,12 @@ const innerStillHandler = async <Region extends string>({
 		}
 
 		const s3Key = artifactName(renderMetadata.renderId, artifact.filename);
-		receivedArtifact.push({
+		if (providerSpecifics.provider !== 'aws') {
+			throw new Error('artifacts not supported for gcp yet');
+		}
+
+		// TODO: Make typesafer
+		(receivedArtifact as ReceivedArtifact<'aws'>[]).push({
 			filename: artifact.filename,
 			sizeInBytes: artifact.content.length,
 			s3Url: `https://s3.${region}.amazonaws.com/${renderBucketName}/${s3Key}`,
@@ -330,7 +339,7 @@ const innerStillHandler = async <Region extends string>({
 		providerSpecifics.getCurrentRegionInFunction(),
 	);
 
-	const payload: RenderStillLambdaResponsePayload = {
+	const payload: RenderStillLambdaResponsePayload<Provider> = {
 		type: 'success' as const,
 		output: url,
 		size,
@@ -348,8 +357,11 @@ const innerStillHandler = async <Region extends string>({
 	});
 };
 
-export const stillHandler = async <Region extends string>(
-	options: Options<Region>,
+export const stillHandler = async <
+	Provider extends CloudProvider,
+	Region extends string,
+>(
+	options: Options<Provider, Region>,
 ): Promise<
 	| {
 			type: 'success';

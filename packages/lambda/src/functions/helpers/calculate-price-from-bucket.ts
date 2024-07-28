@@ -1,11 +1,14 @@
-import type {ProviderSpecifics} from '@remotion/serverless';
+import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
 import type {RenderMetadata} from '@remotion/serverless/client';
 import {estimatePrice} from '../../api/estimate-price';
 import type {AwsRegion} from '../../regions';
 import type {ParsedTiming} from '../../shared/parse-lambda-timings-key';
 import {calculateChunkTimes} from './calculate-chunk-times';
 
-export const estimatePriceFromBucket = <Region extends string>({
+export const estimatePriceFromBucket = <
+	Provider extends CloudProvider,
+	Region extends string,
+>({
 	renderMetadata,
 	memorySizeInMb,
 	diskSizeInMb,
@@ -18,7 +21,7 @@ export const estimatePriceFromBucket = <Region extends string>({
 	diskSizeInMb: number;
 	lambdasInvoked: number;
 	timings: ParsedTiming[];
-	providerSpecifics: ProviderSpecifics<Region>;
+	providerSpecifics: ProviderSpecifics<Provider, Region>;
 }) => {
 	if (!renderMetadata) {
 		return null;

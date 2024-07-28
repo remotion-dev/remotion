@@ -19,7 +19,7 @@ export type DeleteRenderInput = {
 
 export const internalDeleteRender = async (
 	input: DeleteRenderInput & {
-		providerSpecifics: ProviderSpecifics<AwsRegion>;
+		providerSpecifics: ProviderSpecifics<'aws', AwsRegion>;
 	},
 ) => {
 	const expectedBucketOwner = await getAccountId({

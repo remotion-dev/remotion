@@ -1,4 +1,4 @@
-import type {EnhancedErrorInfo} from '@remotion/serverless';
+import type {CloudProvider, EnhancedErrorInfo} from '@remotion/serverless';
 import type {RenderMetadata} from '@remotion/serverless/client';
 import {estimatePrice} from '../../api/estimate-price';
 import type {AwsRegion} from '../../regions';
@@ -12,7 +12,10 @@ import {calculateChunkTimes} from './calculate-chunk-times';
 import type {OutputFileMetadata} from './find-output-file-in-bucket';
 import type {OverallRenderProgress} from './overall-render-progress';
 
-export const createPostRenderData = <Region extends string>({
+export const createPostRenderData = <
+	Provider extends CloudProvider,
+	Region extends string,
+>({
 	region,
 	memorySizeInMb,
 	renderMetadata,
@@ -31,10 +34,10 @@ export const createPostRenderData = <Region extends string>({
 	errorExplanations: EnhancedErrorInfo[];
 	outputFile: OutputFileMetadata;
 	timeToCombine: number | null;
-	overallProgress: OverallRenderProgress<Region>;
+	overallProgress: OverallRenderProgress<Provider, Region>;
 	timeToFinish: number;
 	outputSize: number;
-}): PostRenderData => {
+}): PostRenderData<Provider> => {
 	const parsedTimings = overallProgress.timings;
 
 	const estimatedBillingDurationInMilliseconds = parsedTimings

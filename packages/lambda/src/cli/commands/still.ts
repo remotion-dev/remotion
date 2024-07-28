@@ -52,7 +52,7 @@ export const stillCommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
-	implementation: ProviderSpecifics<AwsRegion>,
+	implementation: ProviderSpecifics<'aws', AwsRegion>,
 ) => {
 	const serveUrl = args[0];
 
@@ -274,14 +274,17 @@ export const stillCommand = async (
 		),
 	);
 
-	const artifactProgress = makeArtifactProgress(res.artifacts);
+	const artifactProgress = makeArtifactProgress(
+		res.artifacts,
+		implementation.provider,
+	);
 	if (artifactProgress) {
 		Log.info(
 			{
 				indent: false,
 				logLevel,
 			},
-			makeArtifactProgress(res.artifacts),
+			makeArtifactProgress(res.artifacts, implementation.provider),
 		);
 	}
 

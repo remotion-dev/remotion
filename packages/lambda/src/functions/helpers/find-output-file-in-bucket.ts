@@ -1,4 +1,4 @@
-import type {ProviderSpecifics} from '@remotion/serverless';
+import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
 import {
 	getExpectedOutName,
 	type CustomCredentials,
@@ -11,7 +11,10 @@ export type OutputFileMetadata = {
 	url: string;
 };
 
-export const findOutputFileInBucket = async <Region extends string>({
+export const findOutputFileInBucket = async <
+	Provider extends CloudProvider,
+	Region extends string,
+>({
 	region,
 	renderMetadata,
 	bucketName,
@@ -24,7 +27,7 @@ export const findOutputFileInBucket = async <Region extends string>({
 	bucketName: string;
 	customCredentials: CustomCredentials<Region> | null;
 	currentRegion: Region;
-	providerSpecifics: ProviderSpecifics<Region>;
+	providerSpecifics: ProviderSpecifics<Provider, Region>;
 }): Promise<OutputFileMetadata | null> => {
 	if (!renderMetadata) {
 		throw new Error('unexpectedly did not get renderMetadata');

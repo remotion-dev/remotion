@@ -1,5 +1,5 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import type {ProviderSpecifics} from '@remotion/serverless';
+import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
 import type {ServerlessPayload} from '@remotion/serverless/client';
 import {
 	ServerlessRoutines,
@@ -20,10 +20,13 @@ type Options = {
 	timeoutInMilliseconds: number;
 };
 
-export const startHandler = async <Region extends string>(
+export const startHandler = async <
+	Provider extends CloudProvider,
+	Region extends string,
+>(
 	params: ServerlessPayload<Region>,
 	options: Options,
-	providerSpecifics: ProviderSpecifics<Region>,
+	providerSpecifics: ProviderSpecifics<Provider, Region>,
 ) => {
 	if (params.type !== ServerlessRoutines.start) {
 		throw new TypeError('Expected type start');

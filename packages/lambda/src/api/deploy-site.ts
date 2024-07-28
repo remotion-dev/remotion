@@ -65,7 +65,7 @@ const mandatoryDeploySite = async ({
 	providerSpecifics,
 }: MandatoryParameters &
 	OptionalParameters & {
-		providerSpecifics: ProviderSpecifics<AwsRegion>;
+		providerSpecifics: ProviderSpecifics<'aws', AwsRegion>;
 	}): DeploySiteOutput => {
 	validateAwsRegion(region);
 	validateBucketName(bucketName, {

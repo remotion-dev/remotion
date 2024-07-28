@@ -1,5 +1,6 @@
 import {RenderInternals} from '@remotion/renderer';
 import type {
+	CloudProvider,
 	ProviderSpecifics,
 	ResponseStream,
 	ResponseStreamWriter,
@@ -32,7 +33,10 @@ import {rendererHandler} from './renderer';
 import {startHandler} from './start';
 import {stillHandler} from './still';
 
-const innerHandler = async <Region extends string>({
+const innerHandler = async <
+	Provider extends CloudProvider,
+	Region extends string,
+>({
 	params,
 	responseWriter,
 	context,
@@ -41,7 +45,7 @@ const innerHandler = async <Region extends string>({
 	params: ServerlessPayload<Region>;
 	responseWriter: ResponseStreamWriter;
 	context: RequestContext;
-	providerSpecifics: ProviderSpecifics<Region>;
+	providerSpecifics: ProviderSpecifics<Provider, Region>;
 }): Promise<void> => {
 	setCurrentRequestId(context.awsRequestId);
 	process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA = 'true';
@@ -84,7 +88,7 @@ const innerHandler = async <Region extends string>({
 
 		try {
 			await new Promise((resolve, reject) => {
-				const onStream = (payload: StreamingPayload) => {
+				const onStream = (payload: StreamingPayload<Provider>) => {
 					const message = makeStreamPayload({
 						message: payload,
 					});
@@ -319,11 +323,14 @@ export type OrError<T> =
 			stack: string;
 	  };
 
-export const innerRoutine = async <Region extends string>(
+export const innerRoutine = async <
+	Provider extends CloudProvider,
+	Region extends string,
+>(
 	params: ServerlessPayload<Region>,
 	responseStream: ResponseStream,
 	context: RequestContext,
-	providerSpecifics: ProviderSpecifics<Region>,
+	providerSpecifics: ProviderSpecifics<Provider, Region>,
 ): Promise<void> => {
 	const responseWriter = streamWriter(responseStream);
 

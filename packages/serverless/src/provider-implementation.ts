@@ -1,6 +1,7 @@
 import type {Readable} from 'stream';
 import type {CustomCredentials, DownloadBehavior, Privacy} from './constants';
 import type {GetFolderFiles} from './get-files-in-folder';
+import type {CloudProvider} from './still';
 
 export type BucketWithLocation<Region extends string> = {
 	name: string;
@@ -99,7 +100,10 @@ type ConvertToServeUrl<Region extends string> = (params: {
 	bucketName: string;
 }) => string;
 
-export type ProviderSpecifics<Region extends string> = {
+export type ProviderSpecifics<
+	Provider extends CloudProvider,
+	Region extends string,
+> = {
 	getChromiumPath: () => string | null;
 	getCurrentRegionInFunction: () => Region;
 	regionType: Region;
@@ -116,4 +120,5 @@ export type ProviderSpecifics<Region extends string> = {
 	convertToServeUrl: ConvertToServeUrl<Region>;
 	printLoggingHelper: boolean;
 	getFolderFiles: GetFolderFiles;
+	provider: Provider;
 };

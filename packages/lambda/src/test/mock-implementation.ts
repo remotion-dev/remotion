@@ -12,7 +12,7 @@ import {
 	writeMockS3File,
 } from './mocks/mock-store';
 
-export const mockImplementation: ProviderSpecifics<AwsRegion> = {
+export const mockImplementation: ProviderSpecifics<'aws', AwsRegion> = {
 	applyLifeCycle: () => Promise.resolve(),
 	regionType: 'us-east-1',
 	getChromiumPath() {
@@ -114,4 +114,5 @@ export const mockImplementation: ProviderSpecifics<AwsRegion> = {
 			size: 0,
 		},
 	],
+	provider: 'aws',
 };

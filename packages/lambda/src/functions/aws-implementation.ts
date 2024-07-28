@@ -26,7 +26,7 @@ if (
 	process.env.NO_COLOR = '1';
 }
 
-export const awsImplementation: ProviderSpecifics<AwsRegion> = {
+export const awsImplementation: ProviderSpecifics<'aws', AwsRegion> = {
 	getChromiumPath() {
 		return '/opt/bin/chromium';
 	},
@@ -45,4 +45,5 @@ export const awsImplementation: ProviderSpecifics<AwsRegion> = {
 	convertToServeUrl: convertToServeUrlImplementation,
 	printLoggingHelper: true,
 	getFolderFiles,
+	provider: 'aws',
 };

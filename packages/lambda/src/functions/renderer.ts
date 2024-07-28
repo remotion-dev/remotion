@@ -5,7 +5,11 @@ import type {
 	OnArtifact,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {OnStream, ProviderSpecifics} from '@remotion/serverless';
+import type {
+	CloudProvider,
+	OnStream,
+	ProviderSpecifics,
+} from '@remotion/serverless';
 import {
 	forgetBrowserEventLoop,
 	getBrowserInstance,
@@ -39,7 +43,10 @@ type Options = {
 	isWarm: boolean;
 };
 
-const renderHandler = async <Region extends string>({
+const renderHandler = async <
+	Provider extends CloudProvider,
+	Region extends string,
+>({
 	params,
 	options,
 	logs,
@@ -49,8 +56,8 @@ const renderHandler = async <Region extends string>({
 	params: ServerlessPayload<Region>;
 	options: Options;
 	logs: BrowserLog[];
-	onStream: OnStream;
-	providerSpecifics: ProviderSpecifics<Region>;
+	onStream: OnStream<Provider>;
+	providerSpecifics: ProviderSpecifics<Provider, Region>;
 }): Promise<{}> => {
 	if (params.type !== ServerlessRoutines.renderer) {
 		throw new Error('Params must be renderer');
@@ -391,7 +398,10 @@ const renderHandler = async <Region extends string>({
 
 const ENABLE_SLOW_LEAK_DETECTION = false;
 
-export const rendererHandler = async <Region extends string>({
+export const rendererHandler = async <
+	Provider extends CloudProvider,
+	Region extends string,
+>({
 	onStream,
 	options,
 	params,
@@ -400,9 +410,9 @@ export const rendererHandler = async <Region extends string>({
 }: {
 	params: ServerlessPayload<Region>;
 	options: Options;
-	onStream: OnStream;
+	onStream: OnStream<Provider>;
 	requestContext: RequestContext;
-	providerSpecifics: ProviderSpecifics<Region>;
+	providerSpecifics: ProviderSpecifics<Provider, Region>;
 }): Promise<{
 	type: 'success';
 }> => {

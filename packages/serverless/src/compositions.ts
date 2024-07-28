@@ -9,15 +9,19 @@ import {
 } from './get-browser-instance';
 import {internalGetOrCreateBucket} from './get-or-create-bucket';
 import type {ProviderSpecifics} from './provider-implementation';
+import type {CloudProvider} from './still';
 
 type Options = {
 	expectedBucketOwner: string;
 };
 
-export const compositionsHandler = async <Region extends string>(
+export const compositionsHandler = async <
+	Provider extends CloudProvider,
+	Region extends string,
+>(
 	lambdaParams: ServerlessPayload<Region>,
 	options: Options,
-	providerSpecifics: ProviderSpecifics<Region>,
+	providerSpecifics: ProviderSpecifics<Provider, Region>,
 ) => {
 	if (lambdaParams.type !== ServerlessRoutines.compositions) {
 		throw new TypeError('Expected info compositions');

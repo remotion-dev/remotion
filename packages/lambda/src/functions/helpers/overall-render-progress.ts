@@ -1,6 +1,7 @@
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {
+	CloudProvider,
 	LambdaErrorInfo,
 	ProviderSpecifics,
 	ReceivedArtifact,
@@ -13,7 +14,10 @@ import type {PostRenderData} from '../../shared/constants';
 import type {ParsedTiming} from '../../shared/parse-lambda-timings-key';
 import type {ChunkRetry} from './get-retry-stats';
 
-export type OverallRenderProgress<Region extends string> = {
+export type OverallRenderProgress<
+	Provider extends CloudProvider,
+	Region extends string,
+> = {
 	chunks: number[];
 	framesRendered: number;
 	framesEncoded: number;
@@ -23,7 +27,7 @@ export type OverallRenderProgress<Region extends string> = {
 	timeToRenderFrames: number | null;
 	lambdasInvoked: number;
 	retries: ChunkRetry[];
-	postRenderData: PostRenderData | null;
+	postRenderData: PostRenderData<Provider> | null;
 	timings: ParsedTiming[];
 	renderMetadata: RenderMetadata<Region> | null;
 	errors: LambdaErrorInfo[];
@@ -31,10 +35,13 @@ export type OverallRenderProgress<Region extends string> = {
 	functionLaunched: number;
 	serveUrlOpened: number | null;
 	compositionValidated: number | null;
-	receivedArtifact: ReceivedArtifact[];
+	receivedArtifact: ReceivedArtifact<Provider>[];
 };
 
-export type OverallProgressHelper<Region extends string> = {
+export type OverallProgressHelper<
+	Provider extends CloudProvider,
+	Region extends string,
+> = {
 	upload: () => Promise<void>;
 	setFrames: ({
 		encoded,
@@ -54,20 +61,24 @@ export type OverallProgressHelper<Region extends string> = {
 	setCombinedFrames: (framesEncoded: number) => void;
 	setTimeToCombine: (timeToCombine: number) => void;
 	addRetry: (retry: ChunkRetry) => void;
-	setPostRenderData: (postRenderData: PostRenderData) => void;
+	setPostRenderData: (postRenderData: PostRenderData<Provider>) => void;
 	setRenderMetadata: (renderMetadata: RenderMetadata<Region>) => void;
 	addErrorWithoutUpload: (errorInfo: LambdaErrorInfo) => void;
 	setExpectedChunks: (expectedChunks: number) => void;
-	get: () => OverallRenderProgress<Region>;
+	get: () => OverallRenderProgress<Provider, Region>;
 	setServeUrlOpened: (timestamp: number) => void;
 	setCompositionValidated: (timestamp: number) => void;
-	addReceivedArtifact: (asset: ReceivedArtifact) => void;
-	getReceivedArtifacts: () => ReceivedArtifact[];
+	addReceivedArtifact: (asset: ReceivedArtifact<Provider>) => void;
+	getReceivedArtifacts: () => ReceivedArtifact<Provider>[];
+	provider: Provider;
 };
 
-export const makeInitialOverallRenderProgress = <Region extends string>(
+export const makeInitialOverallRenderProgress = <
+	Provider extends CloudProvider,
+	Region extends string,
+>(
 	timeoutTimestamp: number,
-): OverallRenderProgress<Region> => {
+): OverallRenderProgress<Provider, Region> => {
 	return {
 		chunks: [],
 		framesRendered: 0,
@@ -90,7 +101,10 @@ export const makeInitialOverallRenderProgress = <Region extends string>(
 	};
 };
 
-export const makeOverallRenderProgress = <Region extends string>({
+export const makeOverallRenderProgress = <
+	Provider extends CloudProvider,
+	Region extends string,
+>({
 	renderId,
 	bucketName,
 	expectedBucketOwner,
@@ -105,13 +119,13 @@ export const makeOverallRenderProgress = <Region extends string>({
 	region: Region;
 	timeoutTimestamp: number;
 	logLevel: LogLevel;
-	providerSpecifics: ProviderSpecifics<Region>;
-}): OverallProgressHelper<Region> => {
+	providerSpecifics: ProviderSpecifics<Provider, Region>;
+}): OverallProgressHelper<Provider, Region> => {
 	let framesRendered: number[] = [];
 	let framesEncoded: number[] = [];
 	let lambdasInvoked: boolean[] = [];
 
-	const renderProgress: OverallRenderProgress<Region> =
+	const renderProgress: OverallRenderProgress<Provider, Region> =
 		makeInitialOverallRenderProgress(timeoutTimestamp);
 
 	let currentUploadPromise: Promise<void> | null = null;
@@ -294,5 +308,6 @@ export const makeOverallRenderProgress = <Region extends string>({
 			return renderProgress.receivedArtifact;
 		},
 		get: () => renderProgress,
+		provider: providerSpecifics.provider,
 	};
 };

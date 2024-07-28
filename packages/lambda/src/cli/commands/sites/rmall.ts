@@ -14,7 +14,7 @@ export const SITES_RMALL_COMMAND = 'rmall';
 
 export const sitesRmallSubcommand = async (
 	logLevel: LogLevel,
-	implementation: ProviderSpecifics<AwsRegion>,
+	implementation: ProviderSpecifics<'aws', AwsRegion>,
 ) => {
 	const region = getAwsRegion();
 	const deployedSites = await getSites({

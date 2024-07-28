@@ -1,9 +1,12 @@
-import type {ProviderSpecifics} from '@remotion/serverless';
+import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
 import {pLimit} from '../shared/p-limit';
 
 const limit = pLimit(10);
 
-export const cleanItems = <Region extends string>({
+export const cleanItems = <
+	Provider extends CloudProvider,
+	Region extends string,
+>({
 	bucket,
 	onAfterItemDeleted,
 	onBeforeItemDeleted,
@@ -16,7 +19,7 @@ export const cleanItems = <Region extends string>({
 	list: string[];
 	onBeforeItemDeleted: (data: {bucketName: string; itemName: string}) => void;
 	onAfterItemDeleted: (data: {bucketName: string; itemName: string}) => void;
-	providerSpecifics: ProviderSpecifics<Region>;
+	providerSpecifics: ProviderSpecifics<Provider, Region>;
 }) => {
 	return Promise.all(
 		list.map((object) =>

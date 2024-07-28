@@ -1,10 +1,10 @@
 import type {LambdaClient} from '@aws-sdk/client-lambda';
 
-import {ResponseStream} from '../../functions/helpers/streamify-response';
+import {ResponseStream} from '@remotion/serverless';
 import type {getLambdaClient as original} from '../../shared/aws-clients';
 import {mockImplementation} from '../../test/mock-implementation';
 
-export const getLambdaClient: typeof original = (region, timeoutInTest) => {
+export const getLambdaClient: typeof original = (_region, timeoutInTest) => {
 	return {
 		config: {
 			requestHandler: {},

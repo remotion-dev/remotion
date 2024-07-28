@@ -1,21 +1,24 @@
-import type {ProviderSpecifics} from '@remotion/serverless';
+import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
 import type {ServerlessPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
 import type {GenericRenderProgress} from '../shared/constants';
 import {getProgress} from './helpers/get-progress';
 
-type Options<Region extends string> = {
+type Options<Provider extends CloudProvider, Region extends string> = {
 	expectedBucketOwner: string;
 	timeoutInMilliseconds: number;
 	retriesRemaining: number;
-	providerSpecifics: ProviderSpecifics<Region>;
+	providerSpecifics: ProviderSpecifics<Provider, Region>;
 };
 
-export const progressHandler = async <Region extends string>(
+export const progressHandler = async <
+	Provider extends CloudProvider,
+	Region extends string,
+>(
 	lambdaParams: ServerlessPayload<Region>,
-	options: Options<Region>,
-): Promise<GenericRenderProgress<Region>> => {
+	options: Options<Provider, Region>,
+): Promise<GenericRenderProgress<Provider, Region>> => {
 	if (lambdaParams.type !== ServerlessRoutines.status) {
 		throw new TypeError('Expected status type');
 	}

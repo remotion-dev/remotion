@@ -1,6 +1,6 @@
 import type {EmittedArtifact, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {OnMessage} from '@remotion/serverless';
+import type {CloudProvider, OnMessage} from '@remotion/serverless';
 import {
 	deserializeArtifact,
 	type ProviderSpecifics,
@@ -22,7 +22,7 @@ type StreamRendererResponse =
 			shouldRetry: boolean;
 	  };
 
-const streamRenderer = <Region extends string>({
+const streamRenderer = <Provider extends CloudProvider, Region extends string>({
 	payload,
 	functionName,
 	outdir,
@@ -35,18 +35,18 @@ const streamRenderer = <Region extends string>({
 	payload: ServerlessPayload<Region>;
 	functionName: string;
 	outdir: string;
-	overallProgress: OverallProgressHelper<Region>;
+	overallProgress: OverallProgressHelper<Provider, Region>;
 	files: string[];
 	logLevel: LogLevel;
 	onArtifact: (asset: EmittedArtifact) => {alreadyExisted: boolean};
-	providerSpecifics: ProviderSpecifics<Region>;
+	providerSpecifics: ProviderSpecifics<Provider, Region>;
 }) => {
 	if (payload.type !== ServerlessRoutines.renderer) {
 		throw new Error('Expected renderer type');
 	}
 
 	return new Promise<StreamRendererResponse>((resolve) => {
-		const receivedStreamingPayload: OnMessage = ({message}) => {
+		const receivedStreamingPayload: OnMessage<Provider> = ({message}) => {
 			if (message.type === 'lambda-invoked') {
 				overallProgress.setLambdaInvoked(payload.chunk);
 				return;
@@ -182,7 +182,10 @@ const streamRenderer = <Region extends string>({
 	});
 };
 
-export const streamRendererFunctionWithRetry = async <Region extends string>({
+export const streamRendererFunctionWithRetry = async <
+	Provider extends CloudProvider,
+	Region extends string,
+>({
 	payload,
 	files,
 	functionName,
@@ -195,11 +198,11 @@ export const streamRendererFunctionWithRetry = async <Region extends string>({
 	payload: ServerlessPayload<Region>;
 	functionName: string;
 	outdir: string;
-	overallProgress: OverallProgressHelper<Region>;
+	overallProgress: OverallProgressHelper<Provider, Region>;
 	files: string[];
 	logLevel: LogLevel;
 	onArtifact: (asset: EmittedArtifact) => {alreadyExisted: boolean};
-	providerSpecifics: ProviderSpecifics<Region>;
+	providerSpecifics: ProviderSpecifics<Provider, Region>;
 }): Promise<unknown> => {
 	if (payload.type !== ServerlessRoutines.renderer) {
 		throw new Error('Expected renderer type');

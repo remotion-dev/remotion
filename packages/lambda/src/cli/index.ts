@@ -49,7 +49,7 @@ const matchCommand = (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
-	implementation: ProviderSpecifics<AwsRegion>,
+	implementation: ProviderSpecifics<'aws', AwsRegion>,
 ) => {
 	if (parsedLambdaCli.help || args.length === 0) {
 		printHelp(logLevel);
@@ -145,7 +145,7 @@ export const executeCommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
-	implementation: ProviderSpecifics<AwsRegion> | null,
+	implementation: ProviderSpecifics<'aws', AwsRegion> | null,
 ) => {
 	try {
 		setIsCli(true);
