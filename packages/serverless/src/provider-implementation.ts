@@ -1,7 +1,8 @@
+import type {EmittedArtifact} from '@remotion/renderer';
 import type {Readable} from 'stream';
 import type {CustomCredentials, DownloadBehavior, Privacy} from './constants';
 import type {GetFolderFiles} from './get-files-in-folder';
-import type {CloudProvider} from './still';
+import type {CloudProvider, ReceivedArtifact} from './still';
 
 export type BucketWithLocation<Provider extends CloudProvider> = {
 	name: string;
@@ -100,6 +101,13 @@ type ConvertToServeUrl<Provider extends CloudProvider> = (params: {
 	bucketName: string;
 }) => string;
 
+export type MakeArtifactWithDetails<Provider extends CloudProvider> = (params: {
+	region: Provider['region'];
+	renderBucketName: string;
+	storageKey: string;
+	artifact: EmittedArtifact;
+}) => ReceivedArtifact<Provider>;
+
 export type ProviderSpecifics<Provider extends CloudProvider> = {
 	getChromiumPath: () => string | null;
 	getCurrentRegionInFunction: () => Provider['region'];
@@ -116,5 +124,5 @@ export type ProviderSpecifics<Provider extends CloudProvider> = {
 	convertToServeUrl: ConvertToServeUrl<Provider>;
 	printLoggingHelper: boolean;
 	getFolderFiles: GetFolderFiles;
-	provider: Provider;
+	makeArtifactWithDetails: MakeArtifactWithDetails<Provider>;
 };

@@ -10,7 +10,11 @@ export {
 	getBrowserInstance,
 } from './get-browser-instance';
 export {infoHandler} from './info';
-export {ProviderSpecifics, WriteFileInput} from './provider-implementation';
+export {
+	MakeArtifactWithDetails,
+	ProviderSpecifics,
+	WriteFileInput,
+} from './provider-implementation';
 export {deserializeArtifact, serializeArtifact} from './serialize-artifact';
 export {
 	CloudProvider,

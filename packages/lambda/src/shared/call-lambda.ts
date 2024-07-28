@@ -64,8 +64,8 @@ export const callLambda = async <
 };
 
 export const callLambdaWithStreaming = async <
-	T extends ServerlessRoutines,
 	Provider extends CloudProvider,
+	T extends ServerlessRoutines,
 >(
 	options: Options<T, Provider> & {
 		receivedStreamingPayload: OnMessage<Provider>;

@@ -86,7 +86,7 @@ const internalRenderStillOnLambda = async (
 		const res = await new Promise<
 			RenderStillLambdaResponsePayload<AwsProvider>
 		>((resolve, reject) => {
-			callLambdaWithStreaming({
+			callLambdaWithStreaming<AwsProvider, ServerlessRoutines.still>({
 				functionName,
 				type: ServerlessRoutines.still,
 				payload,

@@ -64,7 +64,6 @@ export type OverallProgressHelper<Provider extends CloudProvider> = {
 	setCompositionValidated: (timestamp: number) => void;
 	addReceivedArtifact: (asset: ReceivedArtifact<Provider>) => void;
 	getReceivedArtifacts: () => ReceivedArtifact<Provider>[];
-	provider: Provider;
 };
 
 export const makeInitialOverallRenderProgress = <
@@ -298,6 +297,5 @@ export const makeOverallRenderProgress = <Provider extends CloudProvider>({
 			return renderProgress.receivedArtifact;
 		},
 		get: () => renderProgress,
-		provider: providerSpecifics.provider,
 	};
 };

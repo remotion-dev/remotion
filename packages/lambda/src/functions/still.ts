@@ -38,7 +38,6 @@ import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-pr
 import {isFlakyError} from '../shared/is-flaky-error';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validatePrivacy} from '../shared/validate-privacy';
-import type {AwsProvider} from './aws-implementation';
 import {formatCostsInfo} from './helpers/format-costs-info';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
@@ -214,18 +213,16 @@ const innerStillHandler = async <Provider extends CloudProvider>({
 			return {alreadyExisted: true};
 		}
 
-		const s3Key = artifactName(renderMetadata.renderId, artifact.filename);
-		if (providerSpecifics.provider.type !== 'aws') {
-			throw new Error('artifacts not supported for gcp yet');
-		}
+		const storageKey = artifactName(renderMetadata.renderId, artifact.filename);
 
-		// TODO: Make typesafer
-		(receivedArtifact as ReceivedArtifact<AwsProvider>[]).push({
-			filename: artifact.filename,
-			sizeInBytes: artifact.content.length,
-			s3Url: `https://s3.${region}.amazonaws.com/${renderBucketName}/${s3Key}`,
-			s3Key,
-		});
+		receivedArtifact.push(
+			providerSpecifics.makeArtifactWithDetails({
+				storageKey,
+				artifact,
+				region,
+				renderBucketName,
+			}),
+		);
 
 		const startTime = Date.now();
 		RenderInternals.Log.info(
@@ -235,7 +232,7 @@ const innerStillHandler = async <Provider extends CloudProvider>({
 		providerSpecifics
 			.writeFile({
 				bucketName: renderBucketName,
-				key: s3Key,
+				key: storageKey,
 				body: artifact.content,
 				region,
 				privacy: lambdaParams.privacy,

@@ -4,7 +4,14 @@ import type {RenderMetadata} from '../render-metadata';
 
 const bucketName = 'remotionlambda-98fsduf';
 
-type MockProvider = {type: 'aws'; region: 'eu-central'};
+type MockProvider = {
+	type: 'aws';
+	region: 'eu-central';
+	receivedArtifactType: {
+		s3Key: string;
+		s3Url: string;
+	};
+};
 
 const testRenderMetadata: RenderMetadata<MockProvider> = {
 	compositionId: 'react-svg',

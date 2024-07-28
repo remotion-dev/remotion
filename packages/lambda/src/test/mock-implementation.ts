@@ -113,5 +113,10 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 			size: 0,
 		},
 	],
-	provider: {type: 'aws', region: 'af-south-1'},
+	makeArtifactWithDetails: () => ({
+		filename: 'something',
+		sizeInBytes: 0,
+		s3Url: 'https://s3.af-south-1.amazonaws.com/bucket/key',
+		s3Key: 'key',
+	}),
 };

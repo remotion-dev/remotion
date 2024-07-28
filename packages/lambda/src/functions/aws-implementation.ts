@@ -13,6 +13,7 @@ import {applyLifeCyleOperation} from '../shared/lifecycle-rules';
 import {randomHashImplementation} from '../shared/random-hash';
 import {getCurrentRegionInFunctionImplementation} from './helpers/get-current-region';
 import {getFolderFiles} from './helpers/get-folder-files';
+import {makeAwsArtifact} from './helpers/make-aws-artifact';
 
 if (
 	/^AWS_Lambda_nodejs(?:18|20)[.]x$/.test(
@@ -29,6 +30,10 @@ if (
 export type AwsProvider = {
 	type: 'aws';
 	region: AwsRegion;
+	receivedArtifactType: {
+		s3Key: string;
+		s3Url: string;
+	};
 };
 
 export const awsImplementation: ProviderSpecifics<AwsProvider> = {
@@ -49,5 +54,5 @@ export const awsImplementation: ProviderSpecifics<AwsProvider> = {
 	convertToServeUrl: convertToServeUrlImplementation,
 	printLoggingHelper: true,
 	getFolderFiles,
-	provider: {type: 'aws', region: 'us-east-1'},
+	makeArtifactWithDetails: makeAwsArtifact,
 };

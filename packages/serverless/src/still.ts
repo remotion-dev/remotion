@@ -1,23 +1,21 @@
-export interface CloudProvider<T extends string = string> {
+export interface CloudProvider<
+	Region extends string = string,
+	ReceivedArtifactType extends Record<string, unknown> = Record<
+		string,
+		unknown
+	>,
+> {
 	type: string;
-	region: T;
+	region: Region;
+	receivedArtifactType: ReceivedArtifactType;
 }
 
-// TODO: Should not use AWS terminology here
 export type ReceivedArtifact<Provider extends CloudProvider> = {
 	filename: string;
 	sizeInBytes: number;
 	s3Url: string;
 	s3Key: string;
-} & (Provider['type'] extends 'aws'
-	? {
-			s3Url: string;
-			s3Key: string;
-		}
-	: {
-			cloudStorageUrl: string;
-			cloudStorageKey: string;
-		});
+} & Provider['receivedArtifactType'];
 
 export type CostsInfo = {
 	accruedSoFar: number;

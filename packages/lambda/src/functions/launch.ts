@@ -40,7 +40,6 @@ import {
 } from '../shared/validate';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import {validatePrivacy} from '../shared/validate-privacy';
-import type {AwsProvider} from './aws-implementation';
 import {planFrameRanges} from './chunk-optimization/plan-frame-ranges';
 import {bestFramesPerLambdaParam} from './helpers/best-frames-per-lambda-param';
 import {cleanupProps} from './helpers/cleanup-props';
@@ -375,7 +374,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		}
 
 		const region = providerSpecifics.getCurrentRegionInFunction();
-		const s3Key = artifactName(renderMetadata.renderId, artifact.filename);
+		const storageKey = artifactName(renderMetadata.renderId, artifact.filename);
 
 		const start = Date.now();
 		RenderInternals.Log.info(
@@ -385,7 +384,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		providerSpecifics
 			.writeFile({
 				bucketName: renderBucketName,
-				key: s3Key,
+				key: storageKey,
 				body: artifact.content,
 				region,
 				privacy: params.privacy,
@@ -399,19 +398,14 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 					`Wrote artifact to S3 in ${Date.now() - start}ms`,
 				);
 
-				if (overallProgress.provider.type !== 'aws') {
-					throw new Error('artifacts not supported for gcp yet');
-				}
-
-				// TODO: Make typesafer
-				(
-					overallProgress as unknown as OverallProgressHelper<AwsProvider>
-				).addReceivedArtifact({
-					filename: artifact.filename,
-					sizeInBytes: artifact.content.length,
-					s3Url: `https://s3.${region}.amazonaws.com/${renderBucketName}/${s3Key}`,
-					s3Key,
-				});
+				overallProgress.addReceivedArtifact(
+					providerSpecifics.makeArtifactWithDetails({
+						region,
+						renderBucketName,
+						storageKey,
+						artifact,
+					}),
+				);
 			})
 			.catch((err) => {
 				overallProgress.addErrorWithoutUpload({
