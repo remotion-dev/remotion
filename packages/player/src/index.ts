@@ -1,3 +1,4 @@
+import './_check-rsc.js';
 import {BufferingIndicator} from './BufferingIndicator.js';
 import {calculateCanvasTransformation} from './calculate-scale.js';
 import {PlayerEventEmitterContext} from './emitter-context.js';
