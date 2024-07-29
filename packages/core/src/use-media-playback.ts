@@ -106,6 +106,7 @@ export const useMediaPlayback = ({
 		mediaRef,
 		mediaType,
 		onVariableFpsVideoDetected,
+		pauseWhenBuffering,
 	});
 
 	const playbackRate = localPlaybackRate * globalPlaybackRate;
