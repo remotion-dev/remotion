@@ -6,11 +6,11 @@ if (typeof createContext !== 'function') {
 		'If you are in a React Server Component, turn it into a client component by adding "use client" at the top of the file.',
 		'',
 		'Before:',
-		'  import {useCurrentFrame} from "remotion";',
+		'  import {Player} from "@remotion/player";',
 		'',
 		'After:',
 		'  "use client";',
-		'  import {useCurrentFrame} from "remotion";',
+		'  import {Player} from "@remotion/player";',
 	];
 
 	throw new Error(err.join('\n'));
