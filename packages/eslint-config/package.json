@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/eslint-config"
 	},
 	"name": "@remotion/eslint-config",
-	"version": "4.0.187",
+	"version": "4.0.188",
 	"description": "Default configuration for Remotion templates",
 	"main": "dist/index.js",
 	"files": [
