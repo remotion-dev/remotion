@@ -6,11 +6,13 @@ export const useBufferUntilFirstFrame = ({
 	mediaType,
 	onVariableFpsVideoDetected,
 	pauseWhenBuffering,
+	currentTime,
 }: {
 	mediaRef: React.RefObject<HTMLVideoElement | HTMLAudioElement>;
 	mediaType: 'video' | 'audio';
 	onVariableFpsVideoDetected: () => void;
 	pauseWhenBuffering: boolean;
+	currentTime: React.MutableRefObject<number | null>;
 }) => {
 	const bufferingRef = useRef<boolean>(false);
 	const {delayPlayback} = useBufferState();
