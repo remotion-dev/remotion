@@ -14,7 +14,7 @@ export const webReader: ReaderInterface = {
 			return Promise.reject(
 				new Error(
 					resolvedUrl +
-						' is not a URL - needs to start with http:// or https://. If you want to read a local file, pass `nodeReader` to getVideoMetadata().',
+						' is not a URL - needs to start with http:// or https://. If you want to read a local file, pass `nodeReader` to parseMedia().',
 				),
 			);
 		}
