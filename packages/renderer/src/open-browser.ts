@@ -1,3 +1,4 @@
+import type {NoReactInternals} from 'remotion/no-react';
 import type {Browser} from './browser';
 import {addHeadlessBrowser} from './browser-instances';
 import type {HeadlessBrowser} from './browser/Browser';
@@ -79,12 +80,18 @@ type InternalOpenBrowserOptions = {
 	onBrowserDownload: OnBrowserDownload;
 };
 
+type LogOptions =
+	typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES extends true
+		? {
+				logLevel?: LogLevel;
+			}
+		: {shouldDumpIo?: boolean; logLevel?: LogLevel};
+
 export type OpenBrowserOptions = {
-	shouldDumpIo?: boolean;
 	browserExecutable?: string | null;
 	chromiumOptions?: ChromiumOptions;
 	forceDeviceScaleFactor?: number;
-};
+} & LogOptions;
 
 export const internalOpenBrowser = async ({
 	browser,
@@ -225,15 +232,12 @@ export const openBrowser = (
 	browser: Browser,
 	options?: OpenBrowserOptions,
 ): Promise<HeadlessBrowser> => {
-	const {
-		browserExecutable,
-		chromiumOptions,
-		forceDeviceScaleFactor,
-		shouldDumpIo,
-	} = options ?? {};
+	const {browserExecutable, chromiumOptions, forceDeviceScaleFactor} =
+		options ?? {};
 
 	const indent = false;
-	const logLevel = shouldDumpIo ? 'verbose' : 'info';
+	const logLevel =
+		options?.logLevel ?? (options?.shouldDumpIo ? 'verbose' : 'info');
 
 	return internalOpenBrowser({
 		browser,
