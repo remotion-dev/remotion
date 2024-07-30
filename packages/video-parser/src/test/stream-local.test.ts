@@ -22,10 +22,15 @@ test('Should stream WebM with no duration', async () => {
 		{
 			durationInSeconds: true,
 			fps: true,
+			dimensions: true,
 			boxes: true,
 		},
 		nodeReader,
 	);
 	expect(result.durationInSeconds).toBe(6.57);
 	expect(result.fps).toBe(null);
+	expect(result.dimensions).toEqual({
+		width: 1470,
+		height: 690,
+	});
 });

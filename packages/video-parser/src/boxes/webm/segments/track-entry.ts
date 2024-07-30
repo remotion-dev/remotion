@@ -11,6 +11,7 @@ export const parseTrackEntry = (
 	iterator: BufferIterator,
 ): TrackEntrySegment => {
 	const offset = iterator.counter.getOffset();
+
 	const length = iterator.getVint(8);
 
 	return {
@@ -50,7 +51,8 @@ export type TrackUIDSegment = {
 
 export const parseTrackUID = (iterator: BufferIterator): TrackUIDSegment => {
 	const length = iterator.getVint(1);
-	if (length !== 8) {
+	// Observation: AV1 has 8 bytes, WebM has 7
+	if (length !== 8 && length !== 7) {
 		throw new Error('Expected track number to be 8 byte');
 	}
 
@@ -185,13 +187,15 @@ export type VideoSegment = {
 };
 
 export const parseVideoSegment = (iterator: BufferIterator): VideoSegment => {
-	const length = iterator.getVint(8);
+	const offset = iterator.counter.getOffset();
+
+	const length = iterator.getVint(1);
 
 	return {
 		type: 'video-segment',
 		children: expectChildren(
 			iterator,
-			length - (iterator.counter.getOffset() - iterator.counter.getOffset()),
+			length - (iterator.counter.getOffset() - offset),
 		),
 	};
 };
@@ -252,5 +256,40 @@ export const parseAlphaModeSegment = (
 	return {
 		type: 'alpha-mode-segment',
 		alphaMode,
+	};
+};
+
+export type MaxBlockAdditionId = {
+	type: 'max-block-addition-id-segment';
+	maxBlockAdditionId: number;
+};
+
+export const parseMaxBlockAdditionId = (
+	iterator: BufferIterator,
+): MaxBlockAdditionId => {
+	const length = iterator.getVint(1);
+	if (length !== 1) {
+		throw new Error('Expected alpha mode segment to be 1 byte');
+	}
+
+	const maxBlockAdditionId = iterator.getUint8();
+
+	return {
+		type: 'max-block-addition-id-segment',
+		maxBlockAdditionId,
+	};
+};
+
+export type ColorSegment = {
+	type: 'color-segment';
+};
+
+export const parseColorSegment = (iterator: BufferIterator): ColorSegment => {
+	const length = iterator.getVint(1);
+
+	iterator.discard(length - 1);
+
+	return {
+		type: 'color-segment',
 	};
 };

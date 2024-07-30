@@ -18,10 +18,12 @@ import {parseTimestampScaleSegment} from './segments/timestamp-scale';
 import type {
 	AlphaModeSegment,
 	CodecSegment,
+	ColorSegment,
 	DefaultDurationSegment,
 	FlagLacingSegment,
 	HeightSegment,
 	LanguageSegment,
+	MaxBlockAdditionId,
 	TrackEntrySegment,
 	TrackNumberSegment,
 	TrackTypeSegment,
@@ -32,10 +34,12 @@ import type {
 import {
 	parseAlphaModeSegment,
 	parseCodecSegment,
+	parseColorSegment,
 	parseDefaultDurationSegment,
 	parseFlagLacing,
 	parseHeightSegment,
 	parseLanguageSegment,
+	parseMaxBlockAdditionId,
 	parseTrackEntry,
 	parseTrackNumber,
 	parseTrackTypeSegment,
@@ -76,7 +80,9 @@ export type MatroskaSegment =
 	| VideoSegment
 	| WidthSegment
 	| HeightSegment
-	| AlphaModeSegment;
+	| AlphaModeSegment
+	| MaxBlockAdditionId
+	| ColorSegment;
 
 export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 	const segmentId = iterator.getMatroskaSegmentId();
@@ -158,6 +164,14 @@ export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 
 	if (segmentId === '0x83') {
 		return parseTrackTypeSegment(iterator);
+	}
+
+	if (segmentId === '0x55ee') {
+		return parseMaxBlockAdditionId(iterator);
+	}
+
+	if (segmentId === '0x55b0') {
+		return parseColorSegment(iterator);
 	}
 
 	if (segmentId === '0x23e383') {

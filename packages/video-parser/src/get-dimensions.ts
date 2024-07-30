@@ -1,3 +1,4 @@
+import type {MainSegment} from './boxes/webm/segments/main';
 import type {AnySegment} from './parse-result';
 
 export type Dimensions = {
@@ -5,7 +6,55 @@ export type Dimensions = {
 	height: number;
 };
 
+const getDimensionsFromMatroska = (segments: MainSegment): Dimensions => {
+	const tracksSegment = segments.children.find(
+		(b) => b.type === 'tracks-segment',
+	);
+	if (!tracksSegment || tracksSegment.type !== 'tracks-segment') {
+		throw new Error('No tracks segment');
+	}
+
+	// TODO: What if there are multiple video tracks, or audio track is first?
+	const trackEntrySegment = tracksSegment.children.find(
+		(b) => b.type === 'track-entry-segment',
+	);
+	if (!trackEntrySegment || trackEntrySegment.type !== 'track-entry-segment') {
+		throw new Error('No track entry segment');
+	}
+
+	const videoSegment = trackEntrySegment.children.find(
+		(b) => b.type === 'video-segment',
+	);
+	if (!videoSegment || videoSegment.type !== 'video-segment') {
+		throw new Error('No video segment');
+	}
+
+	const widthSegment = videoSegment.children.find(
+		(b) => b.type === 'width-segment',
+	);
+	if (!widthSegment || widthSegment.type !== 'width-segment') {
+		throw new Error('No width segment');
+	}
+
+	const heightSegment = videoSegment.children.find(
+		(b) => b.type === 'height-segment',
+	);
+	if (!heightSegment || heightSegment.type !== 'height-segment') {
+		throw new Error('No height segment');
+	}
+
+	return {
+		width: widthSegment.width,
+		height: heightSegment.height,
+	};
+};
+
 export const getDimensions = (boxes: AnySegment[]): Dimensions => {
+	const matroskaBox = boxes.find((b) => b.type === 'main-segment');
+	if (matroskaBox && matroskaBox.type === 'main-segment') {
+		return getDimensionsFromMatroska(matroskaBox);
+	}
+
 	const moovBox = boxes.find((b) => b.type === 'moov-box');
 	if (!moovBox || moovBox.type !== 'moov-box') {
 		throw new Error('Expected moov box');
