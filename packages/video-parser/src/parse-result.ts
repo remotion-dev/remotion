@@ -5,6 +5,7 @@ import type {MvhdBox} from './boxes/iso-base-media/mvhd';
 import type {KeysBox} from './boxes/iso-base-media/stsd/keys';
 import type {MebxBox} from './boxes/iso-base-media/stsd/mebx';
 import type {StsdBox} from './boxes/iso-base-media/stsd/stsd';
+import type {SttsBox} from './boxes/iso-base-media/stts/stts';
 import type {TkhdBox} from './boxes/iso-base-media/tkhd';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import type {MatroskaSegment} from './boxes/webm/segments';
@@ -26,7 +27,8 @@ export type IsoBaseMediaBox =
 	| MebxBox
 	| KeysBox
 	| MoovBox
-	| TrakBox;
+	| TrakBox
+	| SttsBox;
 
 export type AnySegment = MatroskaSegment | IsoBaseMediaBox;
 

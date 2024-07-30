@@ -6,6 +6,7 @@ import {parseMoov} from './moov/moov';
 import {parseMvhd} from './mvhd';
 import {parseMebx} from './stsd/mebx';
 import {parseStsd} from './stsd/stsd';
+import {parseStts} from './stts/stts';
 import {parseTkhd} from './tkhd';
 import {parseTrak} from './trak/trak';
 
@@ -114,7 +115,7 @@ const processBox = ({
 	}
 
 	if (boxType === 'mebx') {
-		const box = parseMebx({iterator, offset: 0, size: boxSize});
+		const box = parseMebx({iterator, offset: fileOffset, size: boxSize});
 
 		return {
 			type: 'complete',
@@ -138,6 +139,20 @@ const processBox = ({
 			data: iterator,
 			size: boxSize,
 			offsetAtStart: fileOffset,
+		});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+		};
+	}
+
+	if (boxType === 'stts') {
+		const box = parseStts({
+			data: iterator,
+			size: boxSize,
+			fileOffset,
 		});
 
 		return {
