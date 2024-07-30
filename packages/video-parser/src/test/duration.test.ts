@@ -1,10 +1,10 @@
 import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
 import {nodeReader} from '../from-node';
-import {getVideoMetadata} from '../get-video-metadata';
+import {parseMedia} from '../get-video-metadata';
 
 test('Should get duration of video', async () => {
-	const parsed = await getVideoMetadata(
+	const parsed = await parseMedia(
 		RenderInternals.exampleVideos.framer24fps,
 		{
 			durationInSeconds: true,
@@ -18,7 +18,7 @@ test('Should get duration of video', async () => {
 });
 
 test('Should get duration of HEVC video', async () => {
-	const parsed = await getVideoMetadata(
+	const parsed = await parseMedia(
 		RenderInternals.exampleVideos.iphonehevc,
 		{durationInSeconds: true, dimensions: true},
 		nodeReader,

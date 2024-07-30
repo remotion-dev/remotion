@@ -1,10 +1,10 @@
 import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
 import {nodeReader} from '../from-node';
-import {getVideoMetadata} from '../get-video-metadata';
+import {parseMedia} from '../get-video-metadata';
 
 test('Should get duration of AV1 video', async () => {
-	const parsed = await getVideoMetadata(
+	const parsed = await parseMedia(
 		RenderInternals.exampleVideos.av1,
 		{
 			durationInSeconds: true,

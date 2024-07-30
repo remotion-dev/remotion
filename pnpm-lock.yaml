@@ -795,6 +795,9 @@ importers:
       '@remotion/transitions':
         specifier: workspace:*
         version: link:../transitions
+      '@remotion/video-parser':
+        specifier: workspace:*
+        version: link:../video-parser
       '@remotion/zod-types':
         specifier: workspace:*
         version: link:../zod-types

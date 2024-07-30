@@ -3,10 +3,10 @@ import {webReader} from './from-web';
 import {getDimensions} from './get-dimensions';
 import {getDuration} from './get-duration';
 import {hasAllInfo} from './has-all-info';
-import type {GetVideoMetadata, Metadata} from './options';
+import type {Metadata, ParseMedia} from './options';
 import {parseVideo} from './parse-video';
 
-export const getVideoMetadata: GetVideoMetadata = async (
+export const parseMedia: ParseMedia = async (
 	src,
 	options,
 	readerInterface = webReader,

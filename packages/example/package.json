@@ -58,6 +58,7 @@
 		"@remotion/tailwind": "workspace:*",
 		"@remotion/three": "workspace:*",
 		"@remotion/transitions": "workspace:*",
+		"@remotion/video-parser": "workspace:*",
 		"@remotion/zod-types": "workspace:*",
 		"@shopify/react-native-skia": "1.2.2",
 		"@types/express": "^4.17.11",

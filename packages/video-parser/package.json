@@ -38,6 +38,5 @@
 		"video",
 		"react",
 		"player"
-	],
-	"private": true
+	]
 }

@@ -1,10 +1,10 @@
 import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
 import {nodeReader} from '../from-node';
-import {getVideoMetadata} from '../get-video-metadata';
+import {parseMedia} from '../get-video-metadata';
 
 test('should be able to parse a WebM', async () => {
-	const webm = await getVideoMetadata(
+	const webm = await parseMedia(
 		RenderInternals.exampleVideos.transparentWebm,
 		{
 			durationInSeconds: true,

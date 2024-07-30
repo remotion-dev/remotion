@@ -1,10 +1,10 @@
 import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
 import {nodeReader} from '../from-node';
-import {getVideoMetadata} from '../get-video-metadata';
+import {parseMedia} from '../get-video-metadata';
 
 test('Parse Big Buck bunny', async () => {
-	const data = await getVideoMetadata(
+	const data = await parseMedia(
 		RenderInternals.exampleVideos.bigBuckBunny,
 		{
 			boxes: true,
@@ -31,7 +31,7 @@ test('Parse Big Buck bunny', async () => {
 });
 
 test('Parse an iPhone video', async () => {
-	const data = await getVideoMetadata(
+	const data = await parseMedia(
 		RenderInternals.exampleVideos.iphonevideo,
 		{durationInSeconds: true, dimensions: true},
 		nodeReader,
@@ -45,7 +45,7 @@ test('Parse an iPhone video', async () => {
 });
 
 test('Parse framer', async () => {
-	const parsed = await getVideoMetadata(
+	const parsed = await parseMedia(
 		RenderInternals.exampleVideos.framerWithoutFileExtension,
 		{
 			boxes: true,
@@ -72,7 +72,7 @@ test('Parse framer', async () => {
 });
 
 test('Parse a full video', async () => {
-	const data = await getVideoMetadata(
+	const data = await parseMedia(
 		RenderInternals.exampleVideos.framer24fps,
 		{boxes: true},
 		nodeReader,
@@ -106,7 +106,7 @@ test('Parse a full video', async () => {
 });
 
 test('Should warn if missing node reader', () => {
-	const data = getVideoMetadata(RenderInternals.exampleVideos.framer24fps, {
+	const data = parseMedia(RenderInternals.exampleVideos.framer24fps, {
 		boxes: true,
 	});
 	expect(data).rejects.toThrow(/node/);

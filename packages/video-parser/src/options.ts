@@ -20,7 +20,7 @@ export type Metadata<
 	(EnableDuration extends true ? {durationInSeconds: number | null} : {}) &
 	(EnableBoxes extends true ? {boxes: AnySegment[]} : {});
 
-export type GetVideoMetadata = <
+export type ParseMedia = <
 	EnableDimensions extends boolean,
 	EnableDuration extends boolean,
 	EnableBoxes extends boolean,
