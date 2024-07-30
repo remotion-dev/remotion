@@ -6,8 +6,14 @@ const cliFlag = 'separate-audio-to';
 
 export const separateAudioOption = {
 	cliFlag,
-	description: () =>
-		`If set, the audio will not be included in the main output but rendered as a separate file at the location you pass. It is recommended to use an absolute path. If a relative path is passed, it is relative to the Remotion Root.`,
+	description: () => (
+		<>
+			If set, the audio will not be included in the main output but rendered as
+			a separate file at the location you pass. It is recommended to use an
+			absolute path. If a relative path is passed, it is relative to the{' '}
+			<a href="/docs/terminology/remotion-root">Remotion Root</a>.
+		</>
+	),
 	docLink: 'https://remotion.dev/docs/renderer/render-media',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag]) {
