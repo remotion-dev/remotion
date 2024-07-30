@@ -9,9 +9,10 @@ test('Should stream', async () => {
 		{
 			durationInSeconds: true,
 			boxes: true,
+			fps: true,
 		},
 		nodeReader,
 	);
-	await Bun.write('boxes.json', JSON.stringify(result.boxes, null, 2));
 	expect(result.durationInSeconds).toBe(12.568333333333333);
+	expect(result.fps).toBe(29.99602174777881);
 });
