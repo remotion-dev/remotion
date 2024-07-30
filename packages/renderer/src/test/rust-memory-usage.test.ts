@@ -1,7 +1,7 @@
 import {expect, test} from 'bun:test';
 import {execSync} from 'node:child_process';
 import {startLongRunningCompositor} from '../compositor/compositor';
-import {exampleVideos} from './example-videos';
+import {exampleVideos} from '../example-videos';
 
 test('Memory usage should be determined ', async () => {
 	if (process.platform !== 'darwin') {

@@ -21,10 +21,12 @@
 		"@docusaurus/module-type-aliases",
 		"@docusaurus/theme-classic"
 	],
+
 	"references": [
 		{"path": "../player"},
 		{"path": "../core"},
 		{"path": "../media-utils"},
+		{"path": "../docusaurus-plugin"},
 		{"path": "../babel-loader"},
 		{"path": "../cloudrun"},
 		{"path": "../create-video"},
@@ -40,6 +42,7 @@
 		{"path": "../shapes"},
 		{"path": "../gif"},
 		{"path": "../motion-blur"},
+		{"path": "../animated-emoji"},
 		{"path": "../lambda"},
 		{"path": "../bundler"},
 		{"path": "../renderer"},

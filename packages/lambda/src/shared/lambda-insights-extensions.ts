@@ -1,4 +1,4 @@
-import type {AwsRegion} from '../pricing/aws-regions';
+import type {AwsRegion} from '../regions';
 
 export const lambdaInsightsExtensions: {[region in AwsRegion]: string} = {
 	'us-east-1':

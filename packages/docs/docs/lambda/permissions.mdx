@@ -2,7 +2,7 @@
 image: /generated/articles-docs-lambda-permissions.png
 sidebar_label: Permissions
 title: Permissions
-crumb: "Lambda"
+crumb: 'Lambda'
 ---
 
 import {UserPolicy} from '../../components/lambda/user-permissions.tsx';
@@ -17,9 +17,10 @@ For a step by step guide on how to set up permissions, [follow the setup guide](
 This policy should be assigned to the **AWS user**. To do so, go to the [AWS console](https://console.aws.amazon.com/console/home) ➞ [IAM](https://console.aws.amazon.com/iam/home) ➞ [Users](https://console.aws.amazon.com/iamv2/home#/users) ➞ Your created Remotion user ➞ Permissions tab ➞ Add inline policy ➞ JSON.
 
 <details>
-<summary>Show full user permissions JSON file for latest Remotion Lambda version
-</summary>
-<UserPolicy />
+  <summary>
+    Show full user permissions JSON file for latest Remotion Lambda version
+  </summary>
+  <UserPolicy />
 </details>
 
 :::info
@@ -33,7 +34,8 @@ This policy should be assigned to the **role `remotion-lambda-role`** in your AW
 To assign, go to [AWS console](https://console.aws.amazon.com/console/home) ➞ [IAM](https://console.aws.amazon.com/iam/home) ➞ [Roles](https://console.aws.amazon.com/iamv2/home#/roles) ➞ [`remotion-lambda-role`](https://console.aws.amazon.com/iam/home#/roles/remotion-lambda-role) ➞ Permissions tab ➞ [Add inline policy](https://console.aws.amazon.com/iam/home#/roles/remotion-lambda-role$createPolicy?step=edit).
 
 <details>
-<summary>Show full role permissions JSON file for latest Remotion Lambda version
+  <summary>
+    Show full role permissions JSON file for latest Remotion Lambda version
   </summary>
   <RolePolicy />
 </details>

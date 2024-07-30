@@ -1,4 +1,4 @@
-import type {AwsRegion} from '../pricing/aws-regions';
+import type {AwsRegion} from '../regions';
 import type {FunctionInfo} from './get-function-info';
 
 export let mockFunctionsStore: (FunctionInfo & {

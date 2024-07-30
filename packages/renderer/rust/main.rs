@@ -21,10 +21,7 @@ use commands::execute_command;
 use errors::{error_to_json, ErrorWithBacktrace};
 use global_printer::{_print_verbose, set_verbose_logging};
 use memory::{get_ideal_maximum_frame_cache_size, is_about_to_run_out_of_memory};
-use std::{
-    env, thread,
-    time::{SystemTime, UNIX_EPOCH},
-};
+use std::{ env, thread};
 
 use payloads::payloads::{parse_cli, CliInputCommand, CliInputCommandPayload};
 

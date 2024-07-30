@@ -3,14 +3,17 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/video-parser"
 	},
 	"name": "@remotion/video-parser",
-	"version": "4.0.181",
+	"version": "4.0.188",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"test": "bun test",
+		"test": "bun test src/test",
 		"watch": "tsc -w"
+	},
+	"devDependencies": {
+		"@remotion/renderer": "workspace:*"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"

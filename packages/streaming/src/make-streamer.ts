@@ -1,14 +1,4 @@
-import {EventEmitter} from 'stream';
-
 export const streamingKey = 'remotion_buffer:';
-
-const magicWordStr = 'remotion_buffer:';
-
-// @ts-expect-error
-globalThis._dumpUnreleasedBuffers = new EventEmitter();
-
-// @ts-expect-error
-(globalThis._dumpUnreleasedBuffers as EventEmitter).setMaxListeners(201);
 
 export const makeStreamer = (
 	onMessage: (
@@ -17,9 +7,9 @@ export const makeStreamer = (
 		data: Uint8Array,
 	) => void,
 ) => {
-	const separator = new Uint8Array(magicWordStr.length);
-	for (let i = 0; i < magicWordStr.length; i++) {
-		separator[i] = magicWordStr.charCodeAt(i);
+	const separator = new Uint8Array(streamingKey.length);
+	for (let i = 0; i < streamingKey.length; i++) {
+		separator[i] = streamingKey.charCodeAt(i);
 	}
 
 	let unprocessedBuffers: Uint8Array[] = [];
@@ -28,14 +18,32 @@ export const makeStreamer = (
 		dataMissing: number;
 	} = null;
 
+	const findSeparatorIndex = () => {
+		let searchIndex = 0;
+
+		// eslint-disable-next-line no-constant-condition
+		while (true) {
+			const separatorIndex = outputBuffer.indexOf(separator[0], searchIndex); // Start checking for the first byte of the separator
+			if (separatorIndex === -1) {
+				return -1;
+			}
+
+			if (
+				outputBuffer
+					.subarray(separatorIndex, separatorIndex + separator.length)
+					.toString() !== separator.toString()
+			) {
+				searchIndex = separatorIndex + 1;
+				continue;
+			}
+
+			return separatorIndex;
+		}
+	};
+
 	const processInput = () => {
-		let separatorIndex = outputBuffer.indexOf(separator[0]); // Start checking for the first byte of the separator
-		if (
-			separatorIndex === -1 ||
-			outputBuffer
-				.subarray(separatorIndex, separatorIndex + separator.length)
-				.toString() !== separator.toString()
-		) {
+		let separatorIndex = findSeparatorIndex(); // Start checking for the first byte of the separator
+		if (separatorIndex === -1) {
 			return;
 		}
 
@@ -119,40 +127,33 @@ export const makeStreamer = (
 		processInput();
 	};
 
-	const dumpBuffers = () => {
-		console.log('Request with unused data', {missingData, unprocessedBuffers});
-	};
-
-	// @ts-expect-error
-	(globalThis._dumpUnreleasedBuffers as EventEmitter).addListener(
-		'dump-unreleased-buffers',
-		dumpBuffers,
-	);
-
 	const onData = (data: Uint8Array) => {
 		unprocessedBuffers.push(data);
-		const separatorIndex = data.indexOf(separator[0]);
-		if (separatorIndex === -1) {
-			if (missingData) {
-				missingData.dataMissing -= data.length;
-			}
 
-			if (!missingData || missingData.dataMissing > 0) {
-				return;
-			}
+		if (missingData) {
+			missingData.dataMissing -= data.length;
 		}
 
-		unprocessedBuffers.unshift(outputBuffer);
-		outputBuffer = new Uint8Array(
-			unprocessedBuffers.reduce((acc, val) => acc + val.length, 0),
+		if (missingData && missingData.dataMissing > 0) {
+			return;
+		}
+
+		const newBuffer = new Uint8Array(
+			outputBuffer.length +
+				unprocessedBuffers.reduce((acc, val) => acc + val.length, 0),
 		);
-		let offset = 0;
+		newBuffer.set(outputBuffer, 0);
+
+		let offset = outputBuffer.length;
 		for (const buf of unprocessedBuffers) {
-			outputBuffer.set(buf, offset);
+			newBuffer.set(buf, offset);
 			offset += buf.length;
 		}
 
+		outputBuffer = newBuffer;
+
 		unprocessedBuffers = [];
+
 		processInput();
 	};
 
@@ -162,11 +163,6 @@ export const makeStreamer = (
 		clear: () => {
 			unprocessedBuffers = [];
 			outputBuffer = new Uint8Array(0);
-			// @ts-expect-error
-			(globalThis._dumpUnreleasedBuffers as EventEmitter).removeListener(
-				'dump-unreleased-buffers',
-				dumpBuffers,
-			);
 		},
 	};
 };
@@ -181,7 +177,7 @@ export const makeStreamPayloadMessage = ({
 	body: Uint8Array;
 }): Uint8Array => {
 	const nonceArr = new TextEncoder().encode(nonce);
-	const magicWordArr = new TextEncoder().encode(magicWordStr);
+	const magicWordArr = new TextEncoder().encode(streamingKey);
 	const separatorArr = new TextEncoder().encode(':');
 	const bodyLengthArr = new TextEncoder().encode(body.length.toString());
 	const statusArr = new TextEncoder().encode(String(status));

@@ -2,7 +2,7 @@ import type {
 	Artboard,
 	CanvasRenderer,
 	File,
-	FileAssetLoader,
+	FileAsset,
 	LinearAnimationInstance,
 	RiveCanvas,
 } from '@rive-app/canvas-advanced';
@@ -27,6 +27,7 @@ import type {
 } from './map-enums.js';
 import {mapToAlignment, mapToFit} from './map-enums.js';
 
+type assetLoadCallback = (asset: FileAsset, bytes: Uint8Array) => boolean;
 type onLoadCallback = (file: File) => void;
 
 interface RiveProps {
@@ -37,7 +38,7 @@ interface RiveProps {
 	readonly animation?: string | number;
 	readonly onLoad?: onLoadCallback | null;
 	readonly enableRiveAssetCdn?: boolean;
-	readonly assetLoader?: FileAssetLoader;
+	readonly assetLoader?: assetLoadCallback;
 }
 
 export type RiveCanvasRef = {
@@ -79,6 +80,7 @@ const RemotionRiveCanvasForwardRefFunction: React.ForwardRefRenderFunction<
 		animation: LinearAnimationInstance;
 		renderer: CanvasRenderer;
 		artboard: Artboard;
+		file: File;
 	} | null>(null);
 
 	useImperativeHandle(
@@ -124,11 +126,20 @@ const RemotionRiveCanvasForwardRefFunction: React.ForwardRefRenderFunction<
 		const renderer = riveCanvasInstance.makeRenderer(
 			canvas.current as HTMLCanvasElement,
 		);
+
 		fetch(new Request(src))
 			.then((f) => f.arrayBuffer())
 			.then((b) => {
 				riveCanvasInstance
-					.load(new Uint8Array(b), assetLoader, enableRiveAssetCdn)
+					.load(
+						new Uint8Array(b),
+						assetLoader
+							? new riveCanvasInstance.CustomFileAssetLoader({
+									loadContents: assetLoader,
+								})
+							: undefined,
+						enableRiveAssetCdn,
+					)
 					.then((file) => {
 						const artboard =
 							typeof artboardName === 'string'
@@ -148,10 +159,8 @@ const RemotionRiveCanvasForwardRefFunction: React.ForwardRefRenderFunction<
 							animation,
 							artboard,
 							renderer,
+							file,
 						});
-						if (onLoad) {
-							onLoad(file);
-						}
 					});
 			})
 			.catch((newErr) => {
@@ -166,6 +175,12 @@ const RemotionRiveCanvasForwardRefFunction: React.ForwardRefRenderFunction<
 		assetLoader,
 		enableRiveAssetCdn,
 	]);
+
+	useEffect(() => {
+		if (onLoad && rive) {
+			onLoad(rive.file);
+		}
+	}, [onLoad, rive]);
 
 	React.useEffect(() => {
 		if (!riveCanvasInstance) {

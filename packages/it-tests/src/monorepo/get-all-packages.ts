@@ -5,6 +5,7 @@ import path from 'path';
 export const packages = [
 	'ai-improvements',
 	'animation-utils',
+	'animated-emoji',
 	'astro-example',
 	'babel-loader',
 	'bugs',
@@ -22,6 +23,7 @@ export const packages = [
 	'core',
 	'create-video',
 	'discord-poster',
+	'docusaurus-plugin',
 	'docs',
 	'enable-scss',
 	'eslint-config',
@@ -52,6 +54,7 @@ export const packages = [
 	'shapes',
 	'skia',
 	'streaming',
+	'serverless',
 	'studio-server',
 	'studio-shared',
 	'studio',
@@ -176,6 +179,9 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'ai-improvements': null,
 	'discord-poster': null,
 	'cli-autocomplete': null,
+	'docusaurus-plugin': null,
+	'animated-emoji': 'Google Fonts Animated Emojis as Remotion components',
+	serverless: 'A runtime for distributed rendering',
 };
 
 export const apiDocs: {[key in Pkgs]: string | null} = {
@@ -208,6 +214,7 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	'ai-improvements': null,
 	'discord-poster': null,
 	'cli-autocomplete': null,
+	'docusaurus-plugin': null,
 	'animation-utils': null,
 	'example-without-zod': null,
 	'lambda-go': null,
@@ -237,6 +244,8 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	skia: 'https://www.remotion.dev/docs/skia',
 	three: 'https://www.remotion.dev/docs/three',
 	streaming: null,
+	serverless: null,
 	studio: null,
 	transitions: 'https://www.remotion.dev/transitions',
+	'animated-emoji': 'https://www.remotion.dev/docs/animated-emoji',
 };

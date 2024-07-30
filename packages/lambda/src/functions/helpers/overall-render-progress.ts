@@ -1,14 +1,20 @@
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {AwsRegion} from '../../client';
-import type {PostRenderData, RenderMetadata} from '../../shared/constants';
-import {overallProgressKey} from '../../shared/constants';
+import type {
+	CloudProvider,
+	LambdaErrorInfo,
+	ProviderSpecifics,
+	ReceivedArtifact,
+} from '@remotion/serverless';
+import {
+	overallProgressKey,
+	type RenderMetadata,
+} from '@remotion/serverless/client';
+import type {PostRenderData} from '../../shared/constants';
 import type {ParsedTiming} from '../../shared/parse-lambda-timings-key';
 import type {ChunkRetry} from './get-retry-stats';
-import {lambdaWriteFile} from './io';
-import type {LambdaErrorInfo} from './write-lambda-error';
 
-export type OverallRenderProgress = {
+export type OverallRenderProgress<Provider extends CloudProvider> = {
 	chunks: number[];
 	framesRendered: number;
 	framesEncoded: number;
@@ -18,25 +24,18 @@ export type OverallRenderProgress = {
 	timeToRenderFrames: number | null;
 	lambdasInvoked: number;
 	retries: ChunkRetry[];
-	postRenderData: PostRenderData | null;
+	postRenderData: PostRenderData<Provider> | null;
 	timings: ParsedTiming[];
-	renderMetadata: RenderMetadata | null;
+	renderMetadata: RenderMetadata<Provider> | null;
 	errors: LambdaErrorInfo[];
 	timeoutTimestamp: number;
 	functionLaunched: number;
 	serveUrlOpened: number | null;
 	compositionValidated: number | null;
-	receivedArtifact: ReceivedArtifact[];
+	receivedArtifact: ReceivedArtifact<Provider>[];
 };
 
-export type ReceivedArtifact = {
-	filename: string;
-	sizeInBytes: number;
-	s3Url: string;
-	s3Key: string;
-};
-
-export type OverallProgressHelper = {
+export type OverallProgressHelper<Provider extends CloudProvider> = {
 	upload: () => Promise<void>;
 	setFrames: ({
 		encoded,
@@ -56,20 +55,22 @@ export type OverallProgressHelper = {
 	setCombinedFrames: (framesEncoded: number) => void;
 	setTimeToCombine: (timeToCombine: number) => void;
 	addRetry: (retry: ChunkRetry) => void;
-	setPostRenderData: (postRenderData: PostRenderData) => void;
-	setRenderMetadata: (renderMetadata: RenderMetadata) => void;
+	setPostRenderData: (postRenderData: PostRenderData<Provider>) => void;
+	setRenderMetadata: (renderMetadata: RenderMetadata<Provider>) => void;
 	addErrorWithoutUpload: (errorInfo: LambdaErrorInfo) => void;
 	setExpectedChunks: (expectedChunks: number) => void;
-	get: () => OverallRenderProgress;
+	get: () => OverallRenderProgress<Provider>;
 	setServeUrlOpened: (timestamp: number) => void;
 	setCompositionValidated: (timestamp: number) => void;
-	addReceivedArtifact: (asset: ReceivedArtifact) => void;
-	getReceivedArtifacts: () => ReceivedArtifact[];
+	addReceivedArtifact: (asset: ReceivedArtifact<Provider>) => void;
+	getReceivedArtifacts: () => ReceivedArtifact<Provider>[];
 };
 
-export const makeInitialOverallRenderProgress = (
+export const makeInitialOverallRenderProgress = <
+	Provider extends CloudProvider,
+>(
 	timeoutTimestamp: number,
-): OverallRenderProgress => {
+): OverallRenderProgress<Provider> => {
 	return {
 		chunks: [],
 		framesRendered: 0,
@@ -92,26 +93,28 @@ export const makeInitialOverallRenderProgress = (
 	};
 };
 
-export const makeOverallRenderProgress = ({
+export const makeOverallRenderProgress = <Provider extends CloudProvider>({
 	renderId,
 	bucketName,
 	expectedBucketOwner,
 	region,
 	timeoutTimestamp,
 	logLevel,
+	providerSpecifics,
 }: {
 	renderId: string;
 	bucketName: string;
 	expectedBucketOwner: string;
-	region: AwsRegion;
+	region: Provider['region'];
 	timeoutTimestamp: number;
 	logLevel: LogLevel;
-}): OverallProgressHelper => {
+	providerSpecifics: ProviderSpecifics<Provider>;
+}): OverallProgressHelper<Provider> => {
 	let framesRendered: number[] = [];
 	let framesEncoded: number[] = [];
 	let lambdasInvoked: boolean[] = [];
 
-	const renderProgress: OverallRenderProgress =
+	const renderProgress: OverallRenderProgress<Provider> =
 		makeInitialOverallRenderProgress(timeoutTimestamp);
 
 	let currentUploadPromise: Promise<void> | null = null;
@@ -138,16 +141,17 @@ export const makeOverallRenderProgress = ({
 		const toWrite = JSON.stringify(getCurrentProgress());
 
 		const start = Date.now();
-		currentUploadPromise = lambdaWriteFile({
-			body: toWrite,
-			bucketName,
-			customCredentials: null,
-			downloadBehavior: null,
-			expectedBucketOwner,
-			key: overallProgressKey(renderId),
-			privacy: 'private',
-			region,
-		})
+		currentUploadPromise = providerSpecifics
+			.writeFile({
+				body: toWrite,
+				bucketName,
+				customCredentials: null,
+				downloadBehavior: null,
+				expectedBucketOwner,
+				key: overallProgressKey(renderId),
+				privacy: 'private',
+				region,
+			})
 			.then(() => {
 				// By default, upload is way too fast (~20 requests per second)
 				// Space out the requests a bit

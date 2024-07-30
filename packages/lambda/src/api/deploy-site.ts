@@ -1,21 +1,21 @@
 import {type GitSource, type WebpackOverrideFn} from '@remotion/bundler';
 import type {ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import {NoReactAPIs} from '@remotion/renderer/pure';
+import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
+import type {ProviderSpecifics} from '@remotion/serverless';
+import {validateBucketName} from '@remotion/serverless/client';
 import fs from 'node:fs';
-import {lambdaDeleteFile, lambdaLs} from '../functions/helpers/io';
-import type {AwsRegion} from '../pricing/aws-regions';
+import type {AwsProvider} from '../functions/aws-implementation';
+import {awsImplementation} from '../functions/aws-implementation';
+import type {AwsRegion} from '../regions';
 import {bundleSite} from '../shared/bundle-site';
 import {getSitesKey} from '../shared/constants';
 import {getAccountId} from '../shared/get-account-id';
 import {getS3DiffOperations} from '../shared/get-s3-operations';
 import {makeS3ServeUrl} from '../shared/make-s3-url';
-import {randomHash} from '../shared/random-hash';
 import {validateAwsRegion} from '../shared/validate-aws-region';
-import {validateBucketName} from '../shared/validate-bucketname';
 import {validatePrivacy} from '../shared/validate-privacy';
 import {validateSiteName} from '../shared/validate-site-name';
-import {bucketExistsInRegion} from './bucket-exists';
 import type {UploadDirProgress} from './upload-dir';
 import {uploadDir} from './upload-dir';
 
@@ -63,7 +63,11 @@ const mandatoryDeploySite = async ({
 	privacy,
 	gitSource,
 	throwIfSiteExists,
-}: MandatoryParameters & OptionalParameters): DeploySiteOutput => {
+	providerSpecifics,
+}: MandatoryParameters &
+	OptionalParameters & {
+		providerSpecifics: ProviderSpecifics<AwsProvider>;
+	}): DeploySiteOutput => {
 	validateAwsRegion(region);
 	validateBucketName(bucketName, {
 		mustStartWithRemotion: !options?.bypassBucketNameValidation,
@@ -74,7 +78,7 @@ const mandatoryDeploySite = async ({
 
 	const accountId = await getAccountId({region});
 
-	const bucketExists = await bucketExistsInRegion({
+	const bucketExists = await providerSpecifics.bucketExists({
 		bucketName,
 		region,
 		expectedBucketOwner: accountId,
@@ -86,7 +90,7 @@ const mandatoryDeploySite = async ({
 	const subFolder = getSitesKey(siteName);
 
 	const [files, bundled] = await Promise.all([
-		lambdaLs({
+		providerSpecifics.listObjects({
 			bucketName,
 			expectedBucketOwner: accountId,
 			region,
@@ -140,7 +144,7 @@ const mandatoryDeploySite = async ({
 		}),
 		Promise.all(
 			toDelete.map((d) => {
-				return lambdaDeleteFile({
+				return providerSpecifics.deleteFile({
 					bucketName,
 					customCredentials: null,
 					key: d.Key as string,
@@ -167,8 +171,7 @@ const mandatoryDeploySite = async ({
 	};
 };
 
-export const internalDeploySite =
-	NoReactAPIs.wrapWithErrorHandling(mandatoryDeploySite);
+export const internalDeploySite = wrapWithErrorHandling(mandatoryDeploySite);
 
 /**
  * @description Deploys a Remotion project to an S3 bucket to prepare it for rendering on AWS Lambda.
@@ -187,9 +190,10 @@ export const deploySite = (args: DeploySiteInput) => {
 		gitSource: args.gitSource ?? null,
 		options: args.options ?? {},
 		privacy: args.privacy ?? 'public',
-		siteName: args.siteName ?? randomHash(),
+		siteName: args.siteName ?? awsImplementation.randomHash(),
 		indent: false,
 		logLevel: 'info',
 		throwIfSiteExists: args.throwIfSiteExists ?? false,
+		providerSpecifics: awsImplementation,
 	});
 };

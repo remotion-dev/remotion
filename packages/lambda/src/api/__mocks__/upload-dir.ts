@@ -1,5 +1,5 @@
+import {writeMockS3File} from '../../test/mocks/mock-store';
 import type {MockFile, uploadDir as original} from '../upload-dir';
-import {writeMockS3File} from './mock-s3';
 
 export const getDirFiles = (dir: string): MockFile[] => {
 	if (dir === '/path/to/bundle-1') {

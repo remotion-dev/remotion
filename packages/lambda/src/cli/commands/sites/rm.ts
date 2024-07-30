@@ -1,8 +1,10 @@
 import {CliInternals} from '@remotion/cli';
 import type {LogLevel} from '@remotion/renderer';
+import type {ProviderSpecifics} from '@remotion/serverless';
+import {internalGetOrCreateBucket} from '@remotion/serverless/client';
 import {deleteSite} from '../../../api/delete-site';
-import {internalGetOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {getSites} from '../../../api/get-sites';
+import type {AwsProvider} from '../../../functions/aws-implementation';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {confirmCli} from '../../helpers/confirm';
@@ -10,7 +12,11 @@ import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 export const SITES_RM_COMMAND = 'rm';
 
-export const sitesRmSubcommand = async (args: string[], logLevel: LogLevel) => {
+export const sitesRmSubcommand = async (
+	args: string[],
+	logLevel: LogLevel,
+	implementation: ProviderSpecifics<AwsProvider>,
+) => {
 	if (args.length === 0) {
 		Log.error(
 			{indent: false, logLevel},
@@ -37,6 +43,7 @@ export const sitesRmSubcommand = async (args: string[], logLevel: LogLevel) => {
 				region,
 				enableFolderExpiry: false,
 				customCredentials: null,
+				providerSpecifics: implementation,
 			})
 		).bucketName;
 

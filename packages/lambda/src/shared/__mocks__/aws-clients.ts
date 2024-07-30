@@ -1,8 +1,10 @@
 import type {LambdaClient} from '@aws-sdk/client-lambda';
 
-import {ResponseStream} from '../../functions/helpers/streamify-response';
+import {ResponseStream} from '@remotion/serverless';
 import type {getLambdaClient as original} from '../../shared/aws-clients';
-export const getLambdaClient: typeof original = (region, timeoutInTest) => {
+import {mockImplementation} from '../../test/mock-implementation';
+
+export const getLambdaClient: typeof original = (_region, timeoutInTest) => {
 	return {
 		config: {
 			requestHandler: {},
@@ -19,14 +21,19 @@ export const getLambdaClient: typeof original = (region, timeoutInTest) => {
 		}) => {
 			const payload = JSON.parse(params.input.Payload);
 
-			const {routine} = await import('../../functions/index');
+			const {innerRoutine} = await import('../../functions/index');
 
 			const responseStream = new ResponseStream();
-			const prom = routine(payload, responseStream, {
-				invokedFunctionArn: 'arn:fake',
-				getRemainingTimeInMillis: () => timeoutInTest ?? 120000,
-				awsRequestId: 'fake',
-			});
+			const prom = innerRoutine(
+				payload,
+				responseStream,
+				{
+					invokedFunctionArn: 'arn:fake',
+					getRemainingTimeInMillis: () => timeoutInTest ?? 120000,
+					awsRequestId: 'fake',
+				},
+				mockImplementation,
+			);
 			if (
 				params.input.InvocationType === 'RequestResponse' ||
 				params.input.InvocationType === 'Event'

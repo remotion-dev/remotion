@@ -2,14 +2,15 @@ import {
 	DeleteBucketLifecycleCommand,
 	PutBucketLifecycleConfigurationCommand,
 } from '@aws-sdk/client-s3';
-import type {AwsRegion} from '../client';
+import type {CustomCredentials} from '@remotion/serverless/client';
+import type {AwsProvider} from '../functions/aws-implementation';
 import {
 	createLifeCycleInput,
 	deleteLifeCycleInput,
 } from '../functions/helpers/apply-lifecyle';
 import {getLifeCycleRules} from '../functions/helpers/lifecycle';
-import type {CustomCredentials} from './aws-clients';
-import {getS3Client} from './aws-clients';
+import type {AwsRegion} from '../regions';
+import {getS3Client} from './get-s3-client';
 
 const createLCRules = async ({
 	bucketName,
@@ -18,7 +19,7 @@ const createLCRules = async ({
 }: {
 	bucketName: string;
 	region: AwsRegion;
-	customCredentials: CustomCredentials | null;
+	customCredentials: CustomCredentials<AwsProvider> | null;
 }) => {
 	const lcRules = getLifeCycleRules();
 	// create the lifecyle rules
@@ -47,7 +48,7 @@ const deleteLCRules = async ({
 }: {
 	bucketName: string;
 	region: AwsRegion;
-	customCredentials: CustomCredentials | null;
+	customCredentials: CustomCredentials<AwsProvider> | null;
 }) => {
 	const deleteCommandInput = deleteLifeCycleInput({
 		bucketName,
@@ -74,7 +75,7 @@ export const applyLifeCyleOperation = async ({
 	enableFolderExpiry: boolean | null;
 	bucketName: string;
 	region: AwsRegion;
-	customCredentials: CustomCredentials | null;
+	customCredentials: CustomCredentials<AwsProvider> | null;
 }) => {
 	if (enableFolderExpiry === null) {
 		return;

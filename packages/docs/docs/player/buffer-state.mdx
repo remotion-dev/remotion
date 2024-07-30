@@ -1,6 +1,6 @@
 ---
 image: /generated/articles-docs-player-buffer-state.png
-title: "The Player buffer state"
+title: 'The Player buffer state'
 sidebar_label: Buffer state
 id: buffer-state
 crumb: Best practices
@@ -26,8 +26,8 @@ By doing so, the Player will briefly pause until your media is loaded.
 A component can tell the player to switch into a buffer state by first using the [`useBufferState()`](/docs/use-buffer-state) hook and then calling `buffer.delayPlayback()`:
 
 ```tsx twoslash title="MyComp.tsx"
-import React from "react";
-import { useBufferState } from "remotion";
+import React from 'react';
+import {useBufferState} from 'remotion';
 
 const MyComp: React.FC = () => {
   const buffer = useBufferState();
@@ -59,8 +59,8 @@ The user might seek to a different portion of the video which is immediately ava
 Use the cleanup function of <code>useEffect()</code> to clear the handle when your component is unmounted.
 
 ```tsx twoslash title="❌ Causes problems with React strict mode"
-import React, { useState } from "react";
-import { useBufferState } from "remotion";
+import React, {useState} from 'react';
+import {useBufferState} from 'remotion';
 
 const MyComp: React.FC = () => {
   const buffer = useBufferState();
@@ -83,8 +83,8 @@ const MyComp: React.FC = () => {
 While the following implementation works in production, it fails in React Strict mode, because the `useState()` hook is called twice, which causes the first invocation of the buffer to never be cleared.
 
 ```tsx twoslash title="❌ Doesn't clear the buffer handle when seeking to a different portion of a video"
-import React, { useState } from "react";
-import { useBufferState } from "remotion";
+import React, {useState} from 'react';
+import {useBufferState} from 'remotion';
 
 const MyComp: React.FC = () => {
   const buffer = useBufferState();
@@ -112,8 +112,8 @@ const MyComp: React.FC = () => {
 If you are loading data, you might want to delay the screenshotting of your component during rendering and delay the playback of the video in preview, in which case you need to use both APIs together.
 
 ```tsx twoslash title="Using delayRender() and delayPlayback() together"
-import React from "react";
-import { useBufferState, delayRender, continueRender } from "remotion";
+import React from 'react';
+import {useBufferState, delayRender, continueRender} from 'remotion';
 
 const MyComp: React.FC = () => {
   const buffer = useBufferState();
@@ -159,9 +159,11 @@ By default, Remotion will display the following UI based on the state of the pla
   When in State <InlineStep>1</InlineStep> a Pause button is shown. <br />
 </p>
 <p>
-
-When in State <InlineStep>2</InlineStep> at first a Pause button, then after <a href="#indicating-buffering-in-the-ui">
-a delay</a>, a <a href="/docs/player/buffer-state#indicating-buffering-in-the-ui">customizable spinner</a> is shown.</p>
+  When in State <InlineStep>2</InlineStep> at first a Pause button, then after{' '}
+  <a href="#indicating-buffering-in-the-ui">a delay</a>, a{' '}
+  <a href="/docs/player/buffer-state#indicating-buffering-in-the-ui">customizable spinner</a>{' '}
+  is shown.
+</p>
 
 <p>Otherwise, the Play button is shown.</p>
 
@@ -179,16 +181,16 @@ export const MyVideo = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
-import { Player, PlayerRef } from "@remotion/player";
-import { useEffect, useRef, useState } from "react";
-import { MyVideo } from "./remotion/MyVideo";
+import {Player, PlayerRef} from '@remotion/player';
+import {useEffect, useRef, useState} from 'react';
+import {MyVideo} from './remotion/MyVideo';
 
 export const App: React.FC = () => {
   const playerRef = useRef<PlayerRef>(null);
   const [buffering, setBuffering] = useState(false);
 
   useEffect(() => {
-    const { current } = playerRef;
+    const {current} = playerRef;
     if (!current) {
       return;
     }
@@ -200,11 +202,11 @@ export const App: React.FC = () => {
       setBuffering(false);
     };
 
-    current.addEventListener("waiting", onBuffering);
-    current.addEventListener("resume", onResume);
+    current.addEventListener('waiting', onBuffering);
+    current.addEventListener('resume', onResume);
     return () => {
-      current.removeEventListener("waiting", onBuffering);
-      current.removeEventListener("resume", onResume);
+      current.removeEventListener('waiting', onBuffering);
+      current.removeEventListener('resume', onResume);
     };
   }, [setBuffering]);
 
@@ -244,9 +246,9 @@ export const MyVideo = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
-import { Player, PlayerRef } from "@remotion/player";
-import { useEffect, useRef, useState } from "react";
-import { MyVideo } from "./remotion/MyVideo";
+import {Player, PlayerRef} from '@remotion/player';
+import {useEffect, useRef, useState} from 'react';
+import {MyVideo} from './remotion/MyVideo';
 
 export const App: React.FC = () => {
   return (
@@ -265,7 +267,7 @@ export const App: React.FC = () => {
 In the Studio, you can change the delay in the [config file](/docs/config#setbufferstatedelayinmilliseconds):
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 
 Config.setBufferStateDelayInMilliseconds(0);
 ```
@@ -278,12 +280,12 @@ const MyPauseButton: React.FC = () => null;
 const MySpinner: React.FC = () => null;
 const MyVideo: React.FC = () => null;
 // ---cut---
-import { Player, RenderPlayPauseButton } from "@remotion/player";
-import { useCallback } from "react";
+import {Player, RenderPlayPauseButton} from '@remotion/player';
+import {useCallback} from 'react';
 
 export const App: React.FC = () => {
   const renderPlayPauseButton: RenderPlayPauseButton = useCallback(
-    ({ playing, isBuffering }) => {
+    ({playing, isBuffering}) => {
       if (playing && isBuffering) {
         return <MySpinner />;
       }
@@ -309,24 +311,22 @@ export const App: React.FC = () => {
 To display a loading UI layered on top of the Player (e.g. a spinner), you can set [`showPosterWhenBuffering`](/docs/player/player#showposterwhenbuffering) to `true` and pass a [`renderPoster()`](/docs/player/player#renderposter) prop:
 
 ```tsx twoslash title="Rendering a custom spinner on top of the Player"
-import { useCallback } from "react";
-import { AbsoluteFill } from "remotion";
+import {useCallback} from 'react';
+import {AbsoluteFill} from 'remotion';
 
 const Component: React.FC = () => null;
 const Spinner: React.FC = () => null;
 
 // ---cut---
 
-import type { RenderPoster } from "@remotion/player";
-import { Player } from "@remotion/player";
+import type {RenderPoster} from '@remotion/player';
+import {Player} from '@remotion/player';
 
 const MyApp: React.FC = () => {
-  const renderPoster: RenderPoster = useCallback(({ isBuffering }) => {
+  const renderPoster: RenderPoster = useCallback(({isBuffering}) => {
     if (isBuffering) {
       return (
-        <AbsoluteFill
-          style={{ justifyContent: "center", alignItems: "center" }}
-        >
+        <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
           <Spinner />
         </AbsoluteFill>
       );

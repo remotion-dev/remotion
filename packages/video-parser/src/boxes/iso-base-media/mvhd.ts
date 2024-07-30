@@ -1,4 +1,5 @@
-import {getArrayBufferIterator} from '../../read-and-increment-offset';
+import type {BufferIterator} from '../../buffer-iterator';
+import {getArrayBufferIterator} from '../../buffer-iterator';
 import type {BaseBox} from './base-type';
 import {toUnixTimestamp} from './to-date';
 
@@ -27,14 +28,15 @@ export interface MvhdBox extends BaseBox {
 	type: 'mvhd-box';
 }
 
-export const parseMvhd = (data: ArrayBuffer, offset: number): MvhdBox => {
-	const iterator = getArrayBufferIterator(data, 0);
-	const size = iterator.getUint32();
-	const atom = iterator.getAtom();
-	if (atom !== 'mvhd') {
-		throw new Error(`Expected mvhd atom, got ${atom}`);
-	}
-
+export const parseMvhd = ({
+	iterator,
+	offset,
+	size,
+}: {
+	iterator: BufferIterator;
+	offset: number;
+	size: number;
+}): MvhdBox => {
 	const version = iterator.getUint8();
 	if (version !== 0) {
 		throw new Error(`Unsupported MVHD version ${version}`);
@@ -57,7 +59,7 @@ export const parseMvhd = (data: ArrayBuffer, offset: number): MvhdBox => {
 	const durationInSeconds = durationInUnits / timeScale;
 
 	const rateArray = iterator.getSlice(4);
-	const rateView = getArrayBufferIterator(rateArray, 0);
+	const rateView = getArrayBufferIterator(rateArray);
 	const rate =
 		rateView.getInt8() * 10 +
 		rateView.getInt8() +
@@ -65,7 +67,7 @@ export const parseMvhd = (data: ArrayBuffer, offset: number): MvhdBox => {
 		rateView.getInt8() * 0.01;
 
 	const volumeArray = iterator.getSlice(2);
-	const volumeView = getArrayBufferIterator(volumeArray, 0);
+	const volumeView = getArrayBufferIterator(volumeArray);
 
 	const volume = volumeView.getInt8() + volumeView.getInt8() * 0.1;
 
@@ -99,7 +101,7 @@ export const parseMvhd = (data: ArrayBuffer, offset: number): MvhdBox => {
 		matrix: matrix as ThreeDMatrix,
 		nextTrackId,
 		type: 'mvhd-box',
-		boxSize: data.byteLength,
+		boxSize: size,
 		offset,
 	};
 };

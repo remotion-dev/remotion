@@ -137,6 +137,7 @@ import {killAllBrowsers} from './browser-instances';
 import {codecSupportsMedia} from './codec-supports-media';
 import {makeFileExecutableIfItIsNot} from './compositor/make-file-executable';
 import {internalEnsureBrowser} from './ensure-browser';
+import {exampleVideos} from './example-videos';
 import type {AudioCodec} from './options/audio-codec';
 import {
 	getDefaultAudioCodec,
@@ -240,6 +241,7 @@ export const RenderInternals = {
 	codecSupportsMedia,
 	toMegabytes,
 	internalEnsureBrowser,
+	exampleVideos,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

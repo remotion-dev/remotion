@@ -59,6 +59,7 @@ pub fn make_tone_map_filtergraph(graph: FilterGraph) -> Result<(Graph, bool), ff
         TransferCharacteristic::BT2020_12 => "2020_12",
         TransferCharacteristic::BT709 => "709",
         TransferCharacteristic::Linear => "linear",
+        TransferCharacteristic::ARIB_STD_B67 => "arib-std-b67",
         // Handle file that was not tagged with transfer characteristic
         // by z0w0 on Discord (03/21/2024)
         TransferCharacteristic::Unspecified => match video_primaries {
@@ -90,7 +91,17 @@ pub fn make_tone_map_filtergraph(graph: FilterGraph) -> Result<(Graph, bool), ff
 
     // zimg does not yet support HLG
     // Submitted video: hlg.mp4 by Augie
-    let is_unsupported = transfer_characteristic == TransferCharacteristic::ARIB_STD_B67;
+
+    // we get a crash on
+    // > matrix_in: input transfer_in: input primaries: 2020 transfer_characteristic: ARIB_STD_B67
+    // but actually this is supported (clean_shoes.mp4 in testbed):
+    // > matrix_in: 2020_ncl transfer_in: input primaries: 2020 transfer_characteristic: ARIB_STD_B67
+
+    // Potentially fixed in zimg 3.0
+    // https://github.com/sekrit-twc/zimg/blob/master/ChangeLog
+
+    let is_unsupported =
+        transfer_characteristic == TransferCharacteristic::ARIB_STD_B67 && matrix_in == "input";
     let should_convert =
         !(matrix_is_target && transfer_is_target && primaries_is_target) && !is_unsupported;
 

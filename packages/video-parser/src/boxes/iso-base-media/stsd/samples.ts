@@ -1,4 +1,4 @@
-import {getArrayBufferIterator} from '../../../read-and-increment-offset';
+import type {BufferIterator} from '../../../buffer-iterator';
 
 type SampleBase = {
 	format: string;
@@ -17,10 +17,10 @@ type AudioSample = SampleBase & {
 	compressionId: number;
 	packetSize: number;
 	sampleRate: number;
-	samplesPerPacket: number;
-	bytesPerPacket: number;
-	bytesPerFrame: number;
-	bitsPerSample: number;
+	samplesPerPacket: number | null;
+	bytesPerPacket: number | null;
+	bytesPerFrame: number | null;
+	bitsPerSample: number | null;
 };
 
 type VideoSample = SampleBase & {
@@ -46,8 +46,6 @@ export type Sample = AudioSample | VideoSample | UnknownSample;
 
 type SampleAndNext = {
 	sample: Sample | null;
-	next: ArrayBuffer;
-	size: number;
 };
 
 // https://developer.apple.com/documentation/quicktime-file-format/video_sample_description
@@ -109,25 +107,24 @@ const audioTags = [
 	'ac-3',
 ];
 
-export const processSampleAndSubtract = ({
-	data,
-	fileOffset,
+export const processSample = ({
+	iterator,
 }: {
-	data: ArrayBuffer;
-	fileOffset: number;
+	iterator: BufferIterator;
 }): SampleAndNext => {
-	const iterator = getArrayBufferIterator(data, 0);
+	const fileOffset = iterator.counter.getOffset();
+	const bytesRemaining = iterator.bytesRemaining();
 	const boxSize = iterator.getUint32();
-	if (boxSize !== data.byteLength) {
-		throw new Error(`Expected box size of ${data.byteLength}, got ${boxSize}`);
+
+	if (bytesRemaining < boxSize) {
+		throw new Error(`Expected box size of ${bytesRemaining}, got ${boxSize}`);
 	}
 
 	const boxFormat = iterator.getAtom();
+
 	const isVideo = videoTags.includes(boxFormat);
 	const isAudio =
 		audioTags.includes(boxFormat) || audioTags.includes(Number(boxFormat));
-
-	const next = data.slice(boxSize);
 
 	// 6 reserved bytes
 	iterator.discard(6);
@@ -138,6 +135,10 @@ export const processSampleAndSubtract = ({
 	const vendor = iterator.getSlice(4);
 
 	if (!isVideo && !isAudio) {
+		const bytesRemainingInBox =
+			boxSize - (iterator.counter.getOffset() - fileOffset);
+		iterator.discard(bytesRemainingInBox);
+
 		return {
 			sample: {
 				type: 'unknown',
@@ -149,49 +150,83 @@ export const processSampleAndSubtract = ({
 				size: boxSize,
 				format: boxFormat,
 			},
-			next,
-			size: boxSize,
 		};
 	}
 
 	if (isAudio) {
-		if (version !== 1) {
-			throw new Error(`Unsupported version ${version}`);
+		if (version === 0) {
+			const numberOfChannels = iterator.getUint16();
+			const sampleSize = iterator.getUint16();
+			const compressionId = iterator.getUint16();
+			const packetSize = iterator.getUint16();
+			const sampleRate = iterator.getFixedPoint1616Number();
+
+			const bytesRemainingInBox =
+				boxSize - (iterator.counter.getOffset() - fileOffset);
+			iterator.discard(bytesRemainingInBox);
+
+			return {
+				sample: {
+					format: boxFormat,
+					offset: fileOffset,
+					dataReferenceIndex,
+					version,
+					revisionLevel,
+					vendor: [...Array.from(new Uint8Array(vendor))],
+					size: boxSize,
+					type: 'audio',
+					numberOfChannels,
+					sampleSize,
+					compressionId,
+					packetSize,
+					sampleRate,
+					samplesPerPacket: null,
+					bytesPerPacket: null,
+					bytesPerFrame: null,
+					bitsPerSample: null,
+				},
+			};
 		}
 
-		const numberOfChannels = iterator.getUint16();
-		const sampleSize = iterator.getUint16();
-		const compressionId = iterator.getUint16();
-		const packetSize = iterator.getUint16();
-		const sampleRate = iterator.getFixedPoint1616Number();
-		const samplesPerPacket = iterator.getUint16();
-		const bytesPerPacket = iterator.getUint16();
-		const bytesPerFrame = iterator.getUint16();
-		const bitsPerSample = iterator.getUint16();
+		if (version === 1) {
+			const numberOfChannels = iterator.getUint16();
+			const sampleSize = iterator.getUint16();
+			const compressionId = iterator.getUint16();
+			const packetSize = iterator.getUint16();
+			const sampleRate = iterator.getFixedPoint1616Number();
+			const samplesPerPacket = iterator.getUint16();
+			const bytesPerPacket = iterator.getUint16();
+			const bytesPerFrame = iterator.getUint16();
+			const bitsPerSample = iterator.getUint16();
 
-		return {
-			sample: {
-				format: boxFormat,
-				offset: fileOffset,
-				dataReferenceIndex,
-				version,
-				revisionLevel,
-				vendor: [...Array.from(new Uint8Array(vendor))],
-				size: boxSize,
-				type: 'audio',
-				numberOfChannels,
-				sampleSize,
-				compressionId,
-				packetSize,
-				sampleRate,
-				samplesPerPacket,
-				bytesPerPacket,
-				bytesPerFrame,
-				bitsPerSample,
-			},
-			next,
-			size: boxSize,
-		};
+			const bytesRemainingInBox =
+				boxSize - (iterator.counter.getOffset() - fileOffset);
+			iterator.discard(bytesRemainingInBox);
+
+			return {
+				sample: {
+					format: boxFormat,
+					offset: fileOffset,
+					dataReferenceIndex,
+					version,
+					revisionLevel,
+					vendor: [...Array.from(new Uint8Array(vendor))],
+					size: boxSize,
+					type: 'audio',
+					numberOfChannels,
+					sampleSize,
+					compressionId,
+					packetSize,
+					sampleRate,
+					samplesPerPacket,
+					bytesPerPacket,
+					bytesPerFrame,
+					bitsPerSample,
+				},
+			};
+		}
+
+		throw new Error(`Unsupported version ${version}`);
 	}
 
 	if (isVideo) {
@@ -207,7 +242,9 @@ export const processSampleAndSubtract = ({
 		const depth = iterator.getUint16();
 		const colorTableId = iterator.getInt16();
 
-		iterator.discard(4);
+		const bytesRemainingInBox =
+			boxSize - (iterator.counter.getOffset() - fileOffset);
+		iterator.discard(bytesRemainingInBox);
 
 		return {
 			sample: {
@@ -231,8 +268,6 @@ export const processSampleAndSubtract = ({
 				depth,
 				colorTableId,
 			},
-			next,
-			size: boxSize,
 		};
 	}
 
@@ -240,25 +275,23 @@ export const processSampleAndSubtract = ({
 };
 
 export const parseSamples = (
-	data: ArrayBuffer,
-	fileOffset: number,
+	iterator: BufferIterator,
+	maxBytes: number,
 ): Sample[] => {
 	const samples: Sample[] = [];
-	let remaining = data;
-	let bytesConsumed = fileOffset;
+	const initialOffset = iterator.counter.getOffset();
 
-	while (remaining.byteLength > 0) {
-		const {next, sample, size} = processSampleAndSubtract({
-			data: remaining,
-			fileOffset: bytesConsumed,
+	while (
+		iterator.bytesRemaining() > 0 &&
+		iterator.counter.getOffset() - initialOffset < maxBytes
+	) {
+		const {sample} = processSample({
+			iterator,
 		});
 
-		remaining = next;
 		if (sample) {
 			samples.push(sample);
 		}
-
-		bytesConsumed += size;
 	}
 
 	return samples;

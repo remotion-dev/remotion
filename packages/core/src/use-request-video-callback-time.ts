@@ -1,10 +1,17 @@
 import type {RefObject} from 'react';
 import {useEffect, useRef} from 'react';
 
-export const useRequestVideoCallbackTime = (
-	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>,
-	mediaType: 'video' | 'audio',
-) => {
+export const useRequestVideoCallbackTime = ({
+	mediaRef,
+	mediaType,
+	lastSeek,
+	onVariableFpsVideoDetected,
+}: {
+	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>;
+	mediaType: 'video' | 'audio';
+	lastSeek: React.MutableRefObject<number | null>;
+	onVariableFpsVideoDetected: () => void;
+}) => {
 	const currentTime = useRef<number | null>(null);
 
 	useEffect(() => {
@@ -35,6 +42,26 @@ export const useRequestVideoCallbackTime = (
 			}
 
 			const cb = videoTag.requestVideoFrameCallback((_, info) => {
+				if (currentTime.current !== null) {
+					const difference = Math.abs(currentTime.current - info.mediaTime);
+					const differenceToLastSeek = Math.abs(
+						lastSeek.current === null
+							? Infinity
+							: info.mediaTime - lastSeek.current,
+					);
+					// If a video suddenly jumps to a position much further than previously
+					// and there was no relevant seek
+					// Case to be seen with 66a4a49b0862333a56c7d03c.mp4 and autoPlay and pauseWhenBuffering
+
+					if (
+						difference > 0.5 &&
+						differenceToLastSeek > 0.5 &&
+						info.mediaTime > currentTime.current
+					) {
+						onVariableFpsVideoDetected();
+					}
+				}
+
 				currentTime.current = info.mediaTime;
 				request();
 			});
@@ -50,7 +77,7 @@ export const useRequestVideoCallbackTime = (
 		return () => {
 			cancel();
 		};
-	}, [mediaRef, mediaType]);
+	}, [lastSeek, mediaRef, mediaType, onVariableFpsVideoDetected]);
 
 	return currentTime;
 };

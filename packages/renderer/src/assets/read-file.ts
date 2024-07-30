@@ -58,7 +58,10 @@ export const readFile = async (
 			);
 		}
 
-		return readFile(file.headers.location, redirectsSoFar + 1);
+		const {origin} = new URL(url);
+		const redirectUrl = new URL(file.headers.location, origin).toString();
+
+		return readFile(redirectUrl, redirectsSoFar + 1);
 	}
 
 	if ((file.statusCode as number) >= 400) {

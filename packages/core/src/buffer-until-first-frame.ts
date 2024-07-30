@@ -5,10 +5,12 @@ export const useBufferUntilFirstFrame = ({
 	mediaRef,
 	mediaType,
 	onVariableFpsVideoDetected,
+	pauseWhenBuffering,
 }: {
 	mediaRef: React.RefObject<HTMLVideoElement | HTMLAudioElement>;
 	mediaType: 'video' | 'audio';
 	onVariableFpsVideoDetected: () => void;
+	pauseWhenBuffering: boolean;
 }) => {
 	const bufferingRef = useRef<boolean>(false);
 	const {delayPlayback} = useBufferState();
@@ -16,6 +18,10 @@ export const useBufferUntilFirstFrame = ({
 	const bufferUntilFirstFrame = useCallback(
 		(requestedTime: number) => {
 			if (mediaType !== 'video') {
+				return;
+			}
+
+			if (!pauseWhenBuffering) {
 				return;
 			}
 
@@ -68,7 +74,13 @@ export const useBufferUntilFirstFrame = ({
 			current.addEventListener('ended', onEndedOrPause, {once: true});
 			current.addEventListener('pause', onEndedOrPause, {once: true});
 		},
-		[delayPlayback, mediaRef, mediaType, onVariableFpsVideoDetected],
+		[
+			delayPlayback,
+			mediaRef,
+			mediaType,
+			onVariableFpsVideoDetected,
+			pauseWhenBuffering,
+		],
 	);
 
 	return useMemo(() => {

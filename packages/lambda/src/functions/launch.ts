@@ -1,26 +1,35 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type {EmittedArtifact, LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
+import {
+	forgetBrowserEventLoop,
+	getBrowserInstance,
+	getTmpDirStateIfENoSp,
+	validateComposition,
+	validateOutname,
+} from '@remotion/serverless';
+import type {
+	RenderMetadata,
+	ServerlessPayload,
+} from '@remotion/serverless/client';
+import {
+	ServerlessRoutines,
+	artifactName,
+	compressInputProps,
+	decompressInputProps,
+	getExpectedOutName,
+	getNeedsToUpload,
+	serializeOrThrow,
+} from '@remotion/serverless/client';
 import {existsSync, mkdirSync, rmSync} from 'fs';
 import {join} from 'path';
 import {VERSION} from 'remotion/version';
 import {type EventEmitter} from 'stream';
-import {
-	compressInputProps,
-	decompressInputProps,
-	getNeedsToUpload,
-	serializeOrThrow,
-} from '../shared/compress-props';
-import type {
-	LambdaPayload,
-	PostRenderData,
-	RenderMetadata,
-} from '../shared/constants';
+import type {PostRenderData} from '../shared/constants';
 import {
 	CONCAT_FOLDER_TOKEN,
-	LambdaRoutines,
 	MAX_FUNCTIONS_PER_RENDER,
-	artifactName,
 } from '../shared/constants';
 import {DOCS_URL} from '../shared/docs-url';
 import {invokeWebhook} from '../shared/invoke-webhook';
@@ -30,63 +39,57 @@ import {
 	validateFps,
 } from '../shared/validate';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
-import {validateOutname} from '../shared/validate-outname';
 import {validatePrivacy} from '../shared/validate-privacy';
 import {planFrameRanges} from './chunk-optimization/plan-frame-ranges';
 import {bestFramesPerLambdaParam} from './helpers/best-frames-per-lambda-param';
 import {cleanupProps} from './helpers/cleanup-props';
-import {getExpectedOutName} from './helpers/expected-out-name';
 import {findOutputFileInBucket} from './helpers/find-output-file-in-bucket';
-import {
-	forgetBrowserEventLoop,
-	getBrowserInstance,
-} from './helpers/get-browser-instance';
-import {getCurrentRegionInFunction} from './helpers/get-current-region';
-import {lambdaWriteFile} from './helpers/io';
 import {mergeChunksAndFinishRender} from './helpers/merge-chunks';
 import type {OverallProgressHelper} from './helpers/overall-render-progress';
 import {makeOverallRenderProgress} from './helpers/overall-render-progress';
 import {streamRendererFunctionWithRetry} from './helpers/stream-renderer';
 import {timer} from './helpers/timer';
-import {validateComposition} from './helpers/validate-composition';
-import {getTmpDirStateIfENoSp} from './helpers/write-lambda-error';
 
 type Options = {
 	expectedBucketOwner: string;
 	getRemainingTimeInMillis: () => number;
 };
 
-const innerLaunchHandler = async ({
+const innerLaunchHandler = async <Provider extends CloudProvider>({
 	functionName,
 	params,
 	options,
 	overallProgress,
 	registerCleanupTask,
+	providerSpecifics,
 }: {
 	functionName: string;
-	params: LambdaPayload;
+	params: ServerlessPayload<Provider>;
 	options: Options;
-	overallProgress: OverallProgressHelper;
+	overallProgress: OverallProgressHelper<Provider>;
 	registerCleanupTask: (cleanupTask: CleanupTask) => void;
-}): Promise<PostRenderData> => {
-	if (params.type !== LambdaRoutines.launch) {
+	providerSpecifics: ProviderSpecifics<Provider>;
+}): Promise<PostRenderData<Provider>> => {
+	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
 
 	const startedDate = Date.now();
 
-	const browserInstance = getBrowserInstance(
-		params.logLevel,
-		false,
-		params.chromiumOptions,
-	);
+	const browserInstance = getBrowserInstance({
+		logLevel: params.logLevel,
+		indent: false,
+		chromiumOptions: params.chromiumOptions,
+		providerSpecifics,
+	});
 
 	const inputPropsPromise = decompressInputProps({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
-		region: getCurrentRegionInFunction(),
+		region: providerSpecifics.getCurrentRegionInFunction(),
 		serialized: params.inputProps,
 		propsType: 'input-props',
+		providerSpecifics,
 	});
 
 	const logOptions: LogOptions = {
@@ -127,6 +130,7 @@ const innerLaunchHandler = async ({
 		onServeUrlVisited: () => {
 			overallProgress.setServeUrlOpened(Date.now());
 		},
+		providerSpecifics,
 	});
 	overallProgress.setCompositionValidated(Date.now());
 	RenderInternals.Log.info(
@@ -187,7 +191,7 @@ const innerLaunchHandler = async ({
 
 	if (chunks.length > MAX_FUNCTIONS_PER_RENDER) {
 		throw new Error(
-			`Too many functions: This render would cause ${chunks.length} functions to spawn. We limit this amount to ${MAX_FUNCTIONS_PER_RENDER} functions as more would result in diminishing returns. Values set: frameCount = ${frameCount}, framesPerLambda=${framesPerLambda}. See ${DOCS_URL}/docs/lambda/concurrency#too-many-functions for help.`,
+			`Too many functions: This render would cause ${chunks.length} functions to spawn. We limit this amount to ${MAX_FUNCTIONS_PER_RENDER} functions as more would result in diminishing returns. Values set: frameCount = ${frameCount.length}, framesPerLambda=${framesPerLambda}. See ${DOCS_URL}/docs/lambda/concurrency#too-many-functions for help.`,
 		);
 	}
 
@@ -206,16 +210,18 @@ const innerLaunchHandler = async ({
 
 	const serializedResolvedProps = await compressInputProps({
 		propsType: 'resolved-props',
-		region: getCurrentRegionInFunction(),
+		region: providerSpecifics.getCurrentRegionInFunction(),
 		stringifiedInputProps: serializedResolved,
 		userSpecifiedBucketName: params.bucketName,
 		needsToUpload,
+		providerSpecifics,
 	});
 
 	registerCleanupTask(() => {
 		return cleanupProps({
 			serializedResolvedProps,
 			inputProps: params.inputProps,
+			providerSpecifics,
 		});
 	});
 
@@ -226,8 +232,8 @@ const innerLaunchHandler = async ({
 	const progressEveryNthFrame = Math.ceil(chunks.length / 15);
 
 	const lambdaPayloads = chunks.map((chunkPayload) => {
-		const payload: LambdaPayload = {
-			type: LambdaRoutines.renderer,
+		const payload: ServerlessPayload<Provider> = {
+			type: ServerlessRoutines.renderer,
 			frameRange: chunkPayload,
 			serveUrl: params.serveUrl,
 			chunk: sortedChunks.indexOf(chunkPayload),
@@ -282,7 +288,7 @@ const innerLaunchHandler = async ({
 		chunks.map((c, i) => `Chunk ${i} (Frames ${c[0]} - ${c[1]})`).join(', '),
 	);
 
-	const renderMetadata: RenderMetadata = {
+	const renderMetadata: RenderMetadata<Provider> = {
 		startedDate,
 		totalChunks: chunks.length,
 		estimatedTotalLambdaInvokations: [
@@ -301,7 +307,7 @@ const innerLaunchHandler = async ({
 		lambdaVersion: VERSION,
 		framesPerLambda,
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
-		region: getCurrentRegionInFunction(),
+		region: providerSpecifics.getCurrentRegionInFunction(),
 		renderId: params.renderId,
 		outName: params.outName ?? undefined,
 		privacy: params.privacy,
@@ -332,11 +338,13 @@ const innerLaunchHandler = async ({
 			bucketName: params.bucketName,
 			customCredentials,
 			renderMetadata,
-			region: getCurrentRegionInFunction(),
+			region: providerSpecifics.getCurrentRegionInFunction(),
+			currentRegion: providerSpecifics.getCurrentRegionInFunction(),
+			providerSpecifics,
 		});
 		if (output) {
 			throw new TypeError(
-				`Output file "${key}" in bucket "${renderBucketName}" in region "${getCurrentRegionInFunction()}" already exists. Delete it before re-rendering, or set the 'overwrite' option in renderMediaOnLambda() to overwrite it."`,
+				`Output file "${key}" in bucket "${renderBucketName}" in region "${providerSpecifics.getCurrentRegionInFunction()}" already exists. Delete it before re-rendering, or set the 'overwrite' option in renderMediaOnLambda() to overwrite it."`,
 			);
 		}
 
@@ -365,35 +373,39 @@ const innerLaunchHandler = async ({
 			return {alreadyExisted: true};
 		}
 
-		const region = getCurrentRegionInFunction();
-		const s3Key = artifactName(renderMetadata.renderId, artifact.filename);
+		const region = providerSpecifics.getCurrentRegionInFunction();
+		const storageKey = artifactName(renderMetadata.renderId, artifact.filename);
 
 		const start = Date.now();
 		RenderInternals.Log.info(
 			{indent: false, logLevel: params.logLevel},
 			'Writing artifact ' + artifact.filename + ' to S3',
 		);
-		lambdaWriteFile({
-			bucketName: renderBucketName,
-			key: s3Key,
-			body: artifact.content,
-			region,
-			privacy: params.privacy,
-			expectedBucketOwner: options.expectedBucketOwner,
-			downloadBehavior: params.downloadBehavior,
-			customCredentials,
-		})
+		providerSpecifics
+			.writeFile({
+				bucketName: renderBucketName,
+				key: storageKey,
+				body: artifact.content,
+				region,
+				privacy: params.privacy,
+				expectedBucketOwner: options.expectedBucketOwner,
+				downloadBehavior: params.downloadBehavior,
+				customCredentials,
+			})
 			.then(() => {
 				RenderInternals.Log.info(
 					{indent: false, logLevel: params.logLevel},
 					`Wrote artifact to S3 in ${Date.now() - start}ms`,
 				);
-				overallProgress.addReceivedArtifact({
-					filename: artifact.filename,
-					sizeInBytes: artifact.content.length,
-					s3Url: `https://s3.${region}.amazonaws.com/${renderBucketName}/${s3Key}`,
-					s3Key,
-				});
+
+				overallProgress.addReceivedArtifact(
+					providerSpecifics.makeArtifactWithDetails({
+						region,
+						renderBucketName,
+						storageKey,
+						artifact,
+					}),
+				);
 			})
 			.catch((err) => {
 				overallProgress.addErrorWithoutUpload({
@@ -429,6 +441,7 @@ const innerLaunchHandler = async ({
 				payload,
 				logLevel: params.logLevel,
 				onArtifact,
+				providerSpecifics,
 			});
 		}),
 	);
@@ -461,6 +474,7 @@ const innerLaunchHandler = async ({
 		files: files.sort(),
 		overallProgress,
 		startTime,
+		providerSpecifics,
 	});
 
 	return postRenderData;
@@ -468,13 +482,14 @@ const innerLaunchHandler = async ({
 
 type CleanupTask = () => Promise<unknown>;
 
-export const launchHandler = async (
-	params: LambdaPayload,
+export const launchHandler = async <Provider extends CloudProvider>(
+	params: ServerlessPayload<Provider>,
 	options: Options,
+	providerSpecifics: ProviderSpecifics<Provider>,
 ): Promise<{
 	type: 'success';
 }> => {
-	if (params.type !== LambdaRoutines.launch) {
+	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
 
@@ -519,10 +534,13 @@ export const launchHandler = async (
 			'Function is about to time out. Can not finish render.',
 		);
 
-		// @ts-expect-error
-		(globalThis._dumpUnreleasedBuffers as EventEmitter).emit(
-			'dump-unreleased-buffers',
-		);
+		// @ts-expect-error - We are adding a listener to a global variable
+		if (globalThis._dumpUnreleasedBuffers) {
+			// @ts-expect-error - We are adding a listener to a global variable
+			(globalThis._dumpUnreleasedBuffers as EventEmitter).emit(
+				'dump-unreleased-buffers',
+			);
+		}
 
 		runCleanupTasks();
 
@@ -622,9 +640,10 @@ export const launchHandler = async (
 		renderId: params.renderId,
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
-		region: getCurrentRegionInFunction(),
+		region: providerSpecifics.getCurrentRegionInFunction(),
 		timeoutTimestamp: options.getRemainingTimeInMillis() + Date.now(),
 		logLevel: params.logLevel,
+		providerSpecifics,
 	});
 
 	try {
@@ -634,6 +653,7 @@ export const launchHandler = async (
 			options,
 			overallProgress,
 			registerCleanupTask,
+			providerSpecifics,
 		});
 		clearTimeout(webhookDueToTimeout);
 
@@ -717,7 +737,10 @@ export const launchHandler = async (
 			stack: (err as Error).stack as string,
 			type: 'stitcher',
 			isFatal: true,
-			tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
+			tmpDir: getTmpDirStateIfENoSp(
+				(err as Error).stack as string,
+				providerSpecifics,
+			),
 			attempt: 1,
 			totalAttempts: 1,
 			willRetry: false,

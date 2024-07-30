@@ -1,7 +1,7 @@
 import {expect, test} from 'bun:test';
 import {interpolate} from 'remotion';
 import {startLongRunningCompositor} from '../compositor/compositor';
-import {exampleVideos} from './example-videos';
+import {exampleVideos} from '../example-videos';
 
 const BMP_HEADER_SIZE = 54;
 
@@ -581,7 +581,7 @@ test('Should handle a video with no frames at the beginning', async () => {
 
 test('Two different starting times should not result in big seeking', async () => {
 	const compositor = startLongRunningCompositor({
-		maximumFrameCacheItemsInBytes: 300 * 1024 * 1024,
+		maximumFrameCacheItemsInBytes: 500 * 1024 * 1024,
 		logLevel: 'info',
 		indent: false,
 		binariesDirectory: null,

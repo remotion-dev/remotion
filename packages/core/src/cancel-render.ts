@@ -1,4 +1,8 @@
 const isErrorLike = (err: unknown): boolean => {
+	if (err instanceof Error) {
+		return true;
+	}
+
 	if (err === null) {
 		return false;
 	}
@@ -39,6 +43,9 @@ export function cancelRender(err: unknown): never {
 
 	if (isErrorLike(err)) {
 		error = err as Error;
+		if (!error.stack) {
+			error.stack = new Error(error.message).stack;
+		}
 	} else if (typeof err === 'string') {
 		error = Error(err);
 	} else {

@@ -36,6 +36,7 @@ export const useMediaInTimeline = ({
 	stack,
 	showInTimeline,
 	premountDisplay,
+	onAutoPlayError,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
@@ -48,6 +49,7 @@ export const useMediaInTimeline = ({
 	stack: string | null;
 	showInTimeline: boolean;
 	premountDisplay: number | null;
+	onAutoPlayError: null | (() => void);
 }) => {
 	const videoConfig = useVideoConfig();
 	const {rootId, audioAndVideoTags} = useContext(TimelineContext);
@@ -167,7 +169,11 @@ export const useMediaInTimeline = ({
 					return;
 				}
 
-				return playAndHandleNotAllowedError(mediaRef, mediaType);
+				return playAndHandleNotAllowedError(
+					mediaRef,
+					mediaType,
+					onAutoPlayError,
+				);
 			},
 		};
 		audioAndVideoTags.current.push(tag);
@@ -177,5 +183,5 @@ export const useMediaInTimeline = ({
 				(a) => a.id !== id,
 			);
 		};
-	}, [audioAndVideoTags, id, mediaRef, mediaType, playing]);
+	}, [audioAndVideoTags, id, mediaRef, mediaType, onAutoPlayError, playing]);
 };

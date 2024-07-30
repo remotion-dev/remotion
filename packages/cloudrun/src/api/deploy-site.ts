@@ -5,7 +5,7 @@ import {
 } from '@remotion/bundler';
 import type {ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import {NoReactAPIs} from '@remotion/renderer/pure';
+import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import {cloudrunDeleteFile, cloudrunLs} from '../functions/helpers/io';
 import {getSitesKey} from '../shared/constants';
 import {getStorageDiffOperations} from '../shared/get-storage-operations';
@@ -136,8 +136,7 @@ export const internalDeploySiteRaw = async ({
 	};
 };
 
-const errorHandled = NoReactAPIs.wrapWithErrorHandling(internalDeploySiteRaw);
-
+const errorHandled = wrapWithErrorHandling(internalDeploySiteRaw);
 /**
  * @description Deploys a Remotion project to a GCP storage bucket to prepare it for rendering on Cloud Run.
  * @link https://remotion.dev/docs/cloudrun/deploysite

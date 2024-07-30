@@ -5,11 +5,13 @@ import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import path from 'path';
 import {NoReactInternals} from 'remotion/no-react';
-import {downloadMedia} from '../../../api/download-media';
+import {internalDownloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
 import {internalRenderMediaOnLambdaRaw} from '../../../api/render-media-on-lambda';
-import type {EnhancedErrorInfo} from '../../../functions/helpers/write-lambda-error';
 
+import type {EnhancedErrorInfo, ProviderSpecifics} from '@remotion/serverless';
+import type {ServerlessCodec} from '@remotion/serverless/client';
+import type {AwsProvider} from '../../../functions/aws-implementation';
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
@@ -17,7 +19,6 @@ import {
 } from '../../../shared/constants';
 import {sleep} from '../../../shared/sleep';
 import {validateFramesPerLambda} from '../../../shared/validate-frames-per-lambda';
-import type {LambdaCodec} from '../../../shared/validate-lambda-codec';
 import {validatePrivacy} from '../../../shared/validate-privacy';
 import {validateMaxRetries} from '../../../shared/validate-retries';
 import {validateServeUrl} from '../../../shared/validate-serveurl';
@@ -58,6 +59,7 @@ export const renderCommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
+	implementation: ProviderSpecifics<AwsProvider>,
 ) => {
 	const serveUrl = args[0];
 	if (!serveUrl) {
@@ -271,7 +273,7 @@ export const renderCommand = async (
 		functionName,
 		serveUrl,
 		inputProps,
-		codec: codec as LambdaCodec,
+		codec: codec as ServerlessCodec,
 		imageFormat,
 		crf: crf ?? undefined,
 		envVariables,
@@ -344,6 +346,18 @@ export const renderCommand = async (
 		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			`Render ID: ${CliInternals.makeHyperlink({text: res.renderId, fallback: res.renderId, url: res.folderInS3Console})}`,
+		),
+	);
+	Log.info(
+		{indent: false, logLevel},
+		CliInternals.chalk.gray(
+			`progress.json: ${CliInternals.makeHyperlink({
+				text: (clickInstruction) => {
+					return `${clickInstruction} to view`;
+				},
+				fallback: res.progressJsonInConsole,
+				url: res.progressJsonInConsole,
+			})}`,
 		),
 	);
 	Log.info(
@@ -433,7 +447,7 @@ export const renderCommand = async (
 
 			if (downloadName) {
 				const downloadStart = Date.now();
-				const download = await downloadMedia({
+				const download = await internalDownloadMedia({
 					bucketName: res.bucketName,
 					outPath: downloadName,
 					region: getAwsRegion(),
@@ -452,6 +466,7 @@ export const renderCommand = async (
 							false,
 						);
 					},
+					providerSpecifics: implementation,
 				});
 				downloadOrNothing = download;
 				progressBar.update(

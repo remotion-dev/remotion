@@ -8,19 +8,25 @@ import type {
 	VideoImageFormat,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import {NoReactAPIs} from '@remotion/renderer/pure';
-import type {AwsRegion} from '../pricing/aws-regions';
+import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
+import type {
+	DownloadBehavior,
+	OutNameInput,
+	Privacy,
+	ServerlessCodec,
+	WebhookOption,
+} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless/client';
+import type {AwsProvider} from '../functions/aws-implementation';
+import type {AwsRegion} from '../regions';
 import {callLambda} from '../shared/call-lambda';
-import type {OutNameInput, Privacy, WebhookOption} from '../shared/constants';
-import {LambdaRoutines} from '../shared/constants';
-import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {
 	getCloudwatchMethodUrl,
 	getCloudwatchRendererUrl,
 	getLambdaInsightsUrl,
+	getProgressJsonUrl,
 	getS3RenderUrl,
 } from '../shared/get-aws-urls';
-import type {LambdaCodec} from '../shared/validate-lambda-codec';
 import type {InnerRenderMediaOnLambdaInput} from './make-lambda-payload';
 import {makeLambdaRenderMediaPayload} from './make-lambda-payload';
 
@@ -30,7 +36,7 @@ export type RenderMediaOnLambdaInput = {
 	serveUrl: string;
 	composition: string;
 	inputProps?: Record<string, unknown>;
-	codec: LambdaCodec;
+	codec: ServerlessCodec;
 	imageFormat?: VideoImageFormat;
 	crf?: number | undefined;
 	envVariables?: Record<string, string>;
@@ -45,7 +51,7 @@ export type RenderMediaOnLambdaInput = {
 	maxRetries?: number;
 	framesPerLambda?: number;
 	frameRange?: FrameRange;
-	outName?: OutNameInput;
+	outName?: OutNameInput<AwsProvider>;
 	chromiumOptions?: Omit<ChromiumOptions, 'enableMultiProcessOnLinux'>;
 	scale?: number;
 	everyNthFrame?: number;
@@ -71,6 +77,7 @@ export type RenderMediaOnLambdaOutput = {
 	cloudWatchMainLogs: string;
 	lambdaInsightsLogs: string;
 	folderInS3Console: string;
+	progressJsonInConsole: string;
 };
 
 export const internalRenderMediaOnLambdaRaw = async (
@@ -81,7 +88,7 @@ export const internalRenderMediaOnLambdaRaw = async (
 	try {
 		const res = await callLambda({
 			functionName,
-			type: LambdaRoutines.start,
+			type: ServerlessRoutines.start,
 			payload: await makeLambdaRenderMediaPayload(input),
 			region,
 			timeoutInTest: 120000,
@@ -100,7 +107,7 @@ export const internalRenderMediaOnLambdaRaw = async (
 			cloudWatchMainLogs: getCloudwatchMethodUrl({
 				renderId: res.renderId,
 				functionName,
-				method: LambdaRoutines.launch,
+				method: ServerlessRoutines.launch,
 				region,
 				rendererFunctionName: rendererFunctionName ?? null,
 			}),
@@ -111,6 +118,11 @@ export const internalRenderMediaOnLambdaRaw = async (
 			}),
 			lambdaInsightsLogs: getLambdaInsightsUrl({
 				functionName,
+				region,
+			}),
+			progressJsonInConsole: getProgressJsonUrl({
+				bucketName: res.bucketName,
+				renderId: res.renderId,
 				region,
 			}),
 		};
@@ -176,9 +188,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 	};
 };
 
-const wrapped = NoReactAPIs.wrapWithErrorHandling(
-	internalRenderMediaOnLambdaRaw,
-);
+const wrapped = wrapWithErrorHandling(internalRenderMediaOnLambdaRaw);
 
 /**
  * @description Triggers a render on a lambda given a composition and a lambda function.

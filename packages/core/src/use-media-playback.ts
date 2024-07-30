@@ -42,6 +42,7 @@ export const useMediaPlayback = ({
 	pauseWhenBuffering,
 	isPremounting,
 	debugSeeking,
+	onAutoPlayError,
 }: {
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>;
 	src: string | undefined;
@@ -52,6 +53,7 @@ export const useMediaPlayback = ({
 	pauseWhenBuffering: boolean;
 	isPremounting: boolean;
 	debugSeeking: boolean;
+	onAutoPlayError: null | (() => void);
 }) => {
 	const {playbackRate: globalPlaybackRate} = useContext(TimelineContext);
 	const frame = useCurrentFrame();
@@ -61,27 +63,13 @@ export const useMediaPlayback = ({
 	const {fps} = useVideoConfig();
 	const mediaStartsAt = useMediaStartsAt();
 	const lastSeekDueToShift = useRef<number | null>(null);
+	const lastSeek = useRef<number | null>(null);
 
 	if (!buffering) {
 		throw new Error(
 			'useMediaPlayback must be used inside a <BufferingContext>',
 		);
 	}
-
-	const currentTime = useRequestVideoCallbackTime(mediaRef, mediaType);
-
-	const desiredUnclampedTime = getMediaTime({
-		frame,
-		playbackRate: localPlaybackRate,
-		startFrom: -mediaStartsAt,
-		fps,
-	});
-
-	const isMediaTagBuffering = useMediaBuffering({
-		element: mediaRef,
-		shouldBuffer: pauseWhenBuffering,
-		isPremounting,
-	});
 
 	const isVariableFpsVideoMap = useRef<Record<string, boolean>>({});
 
@@ -100,10 +88,31 @@ export const useMediaPlayback = ({
 		isVariableFpsVideoMap.current[src] = true;
 	}, [debugSeeking, src]);
 
+	const currentTime = useRequestVideoCallbackTime({
+		mediaRef,
+		mediaType,
+		lastSeek,
+		onVariableFpsVideoDetected,
+	});
+
+	const desiredUnclampedTime = getMediaTime({
+		frame,
+		playbackRate: localPlaybackRate,
+		startFrom: -mediaStartsAt,
+		fps,
+	});
+
+	const isMediaTagBuffering = useMediaBuffering({
+		element: mediaRef,
+		shouldBuffer: pauseWhenBuffering,
+		isPremounting,
+	});
+
 	const {bufferUntilFirstFrame, isBuffering} = useBufferUntilFirstFrame({
 		mediaRef,
 		mediaType,
 		onVariableFpsVideoDetected,
+		pauseWhenBuffering,
 	});
 
 	const playbackRate = localPlaybackRate * globalPlaybackRate;
@@ -201,15 +210,17 @@ export const useMediaPlayback = ({
 					isTime: mediaTagTime,
 					rvcTime,
 					timeShift,
+					isVariableFpsVideo,
 				});
 			}
 
 			seek(mediaRef, shouldBeTime);
+			lastSeek.current = shouldBeTime;
 			lastSeekDueToShift.current = shouldBeTime;
 			if (playing && !isVariableFpsVideo) {
 				bufferUntilFirstFrame(shouldBeTime);
 				if (mediaRef.current.paused) {
-					playAndHandleNotAllowedError(mediaRef, mediaType);
+					playAndHandleNotAllowedError(mediaRef, mediaType, onAutoPlayError);
 				}
 			}
 
@@ -240,6 +251,7 @@ export const useMediaPlayback = ({
 		if (!playing || isSomethingElseBuffering) {
 			if (makesSenseToSeek) {
 				seek(mediaRef, shouldBeTime);
+				lastSeek.current = shouldBeTime;
 			}
 
 			return;
@@ -252,9 +264,10 @@ export const useMediaPlayback = ({
 		) {
 			if (makesSenseToSeek) {
 				seek(mediaRef, shouldBeTime);
+				lastSeek.current = shouldBeTime;
 			}
 
-			playAndHandleNotAllowedError(mediaRef, mediaType);
+			playAndHandleNotAllowedError(mediaRef, mediaType, onAutoPlayError);
 			if (!isVariableFpsVideo) {
 				bufferUntilFirstFrame(shouldBeTime);
 			}
@@ -275,5 +288,6 @@ export const useMediaPlayback = ({
 		playbackRate,
 		playing,
 		src,
+		onAutoPlayError,
 	]);
 };

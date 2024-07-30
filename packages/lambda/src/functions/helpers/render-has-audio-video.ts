@@ -1,8 +1,9 @@
 import {RenderInternals} from '@remotion/renderer';
-import type {RenderMetadata} from '../../defaults';
+import type {CloudProvider} from '@remotion/serverless';
+import type {RenderMetadata} from '@remotion/serverless/client';
 
-export const lambdaRenderHasAudioVideo = (
-	renderMetadata: RenderMetadata,
+export const lambdaRenderHasAudioVideo = <Provider extends CloudProvider>(
+	renderMetadata: RenderMetadata<Provider>,
 ): {
 	hasAudio: boolean;
 	hasVideo: boolean;

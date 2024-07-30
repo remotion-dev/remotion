@@ -1,10 +1,12 @@
-import {DOCS_URL} from '../../shared/docs-url';
 import {
 	errorIsOutOfSpaceError,
 	isBrowserCrashedError,
 	isErrInsufficientResourcesErr,
-} from './is-enosp-err';
-import type {EnhancedErrorInfo, LambdaErrorInfo} from './write-lambda-error';
+	type EnhancedErrorInfo,
+	type LambdaErrorInfo,
+} from '@remotion/serverless';
+
+import {DOCS_URL} from '../../shared/docs-url';
 
 const FAILED_TO_LAUNCH_TOKEN = 'Failed to launch browser.';
 

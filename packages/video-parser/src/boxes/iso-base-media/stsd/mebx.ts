@@ -1,5 +1,5 @@
-import type {IsoBaseMediaBox} from '../../../parse-video';
-import {getArrayBufferIterator} from '../../../read-and-increment-offset';
+import type {BufferIterator} from '../../../buffer-iterator';
+import type {AnySegment} from '../../../parse-result';
 import type {BaseBox} from '../base-type';
 import {parseBoxes} from '../process-box';
 
@@ -7,37 +7,40 @@ export interface MebxBox extends BaseBox {
 	type: 'mebx-box';
 	dataReferenceIndex: number;
 	format: string;
-	children: IsoBaseMediaBox[];
+	children: AnySegment[];
 }
 
-export const parseMebx = (data: ArrayBuffer, offset: number): MebxBox => {
-	const iterator = getArrayBufferIterator(data, 0);
-	const size = iterator.getUint32();
-	if (size !== data.byteLength) {
-		throw new Error(`Expected mebx size of ${data.byteLength}, got ${size}`);
-	}
-
-	const atom = iterator.getAtom();
-	if (atom !== 'mebx') {
-		throw new Error(`Expected mebx type of mebx, got ${atom}`);
-	}
-
+export const parseMebx = ({
+	iterator,
+	offset,
+	size,
+}: {
+	iterator: BufferIterator;
+	offset: number;
+	size: number;
+}): MebxBox => {
 	// reserved, 6 bit
 	iterator.discard(6);
 
 	const dataReferenceIndex = iterator.getUint16();
 
-	const children = parseBoxes(
-		iterator.data.slice(iterator.counter.getOffset()),
-		offset + iterator.counter.getOffset(),
-	);
+	const children = parseBoxes({
+		iterator,
+		maxBytes: iterator.counter.getOffset() - offset,
+		allowIncompleteBoxes: false,
+		initialBoxes: [],
+	});
+
+	if (children.status === 'incomplete') {
+		throw new Error('Incomplete boxes are not allowed');
+	}
 
 	return {
 		type: 'mebx-box',
-		boxSize: data.byteLength,
+		boxSize: size,
 		offset,
 		dataReferenceIndex,
 		format: 'mebx',
-		children,
+		children: children.segments,
 	};
 };

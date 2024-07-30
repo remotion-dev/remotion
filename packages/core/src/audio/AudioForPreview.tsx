@@ -160,6 +160,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		stack: _remotionInternalStack,
 		showInTimeline,
 		premountDisplay: null,
+		onAutoPlayError: null,
 	});
 
 	useMediaPlayback({
@@ -173,6 +174,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		isPremounting: Boolean(sequenceContext?.premounting),
 		pauseWhenBuffering,
 		debugSeeking: _remotionDebugSeeking,
+		onAutoPlayError: null,
 	});
 
 	useImperativeHandle(
