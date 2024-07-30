@@ -16,15 +16,21 @@ import type {OnBrowserDownload} from './options/on-browser-download';
 
 type OpenGlRenderer = (typeof validOpenGlRenderers)[number];
 
+type OnlyV4Options =
+	typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES extends true
+		? {}
+		: {
+				headless?: boolean;
+			};
+
 // ⚠️ When adding new options, also add them to the hash in lambda/get-browser-instance.ts!
 export type ChromiumOptions = {
 	ignoreCertificateErrors?: boolean;
 	disableWebSecurity?: boolean;
 	gl?: OpenGlRenderer | null;
-	headless?: boolean;
 	userAgent?: string | null;
 	enableMultiProcessOnLinux?: boolean;
-};
+} & OnlyV4Options;
 
 const featuresToEnable = (option?: OpenGlRenderer | null) => {
 	const renderer = option ?? DEFAULT_OPENGL_RENDERER;
