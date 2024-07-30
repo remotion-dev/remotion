@@ -65,67 +65,70 @@ export const getDimensions = (boxes: AnySegment[]): Dimensions => {
 		throw new Error('Expected moov box children');
 	}
 
-	const trakBoxes = children.filter((b) => b.type === 'trak-box');
-	const tracks = trakBoxes
-		.map((t) => {
-			if (t.type !== 'trak-box') {
-				throw new Error('Expected trak box');
-			}
+	const t = children.find((b) => b.type === 'trak-box');
 
-			const mdiaBox = t.children.find(
-				(c) => c.type === 'regular-box' && c.boxType === 'mdia',
-			);
-			if (!mdiaBox) {
-				throw new Error('Expected mdia box');
-			}
+	if (!t || t.type !== 'trak-box') {
+		throw new Error('Expected trak box');
+	}
 
-			if (mdiaBox.type !== 'regular-box') {
-				throw new Error('Expected mdia box');
-			}
+	const mdiaBox = t.children.find(
+		(c) => c.type === 'regular-box' && c.boxType === 'mdia',
+	);
+	const tkhdBox = t.children.find((c) => c.type === 'tkhd-box');
+	if (tkhdBox && tkhdBox.type === 'tkhd-box') {
+		return {
+			width: tkhdBox.width,
+			height: tkhdBox.height,
+		};
+	}
 
-			const minfBox = mdiaBox.children.find(
-				(c) => c.type === 'regular-box' && c.boxType === 'minf',
-			);
-			if (!minfBox) {
-				throw new Error('Expected minf box');
-			}
+	if (!mdiaBox) {
+		throw new Error('Expected mdia box');
+	}
 
-			if (minfBox.type !== 'regular-box') {
-				throw new Error('Expected minf box');
-			}
+	if (mdiaBox.type !== 'regular-box') {
+		throw new Error('Expected mdia box');
+	}
 
-			const stblBox = minfBox.children.find(
-				(c) => c.type === 'regular-box' && c.boxType === 'stbl',
-			);
+	const minfBox = mdiaBox.children.find(
+		(c) => c.type === 'regular-box' && c.boxType === 'minf',
+	);
+	if (!minfBox) {
+		throw new Error('Expected minf box');
+	}
 
-			if (!stblBox) {
-				throw new Error('Expected stbl box');
-			}
+	if (minfBox.type !== 'regular-box') {
+		throw new Error('Expected minf box');
+	}
 
-			if (stblBox.type !== 'regular-box') {
-				throw new Error('Expected stbl box');
-			}
+	const stblBox = minfBox.children.find(
+		(c) => c.type === 'regular-box' && c.boxType === 'stbl',
+	);
 
-			const stsdBox = stblBox.children.find((c) => c.type === 'stsd-box');
+	if (!stblBox) {
+		throw new Error('Expected stbl box');
+	}
 
-			if (!stsdBox) {
-				throw new Error('Expected stsd box');
-			}
+	if (stblBox.type !== 'regular-box') {
+		throw new Error('Expected stbl box');
+	}
 
-			if (stsdBox.type !== 'stsd-box') {
-				throw new Error('Expected stsd box');
-			}
+	const stsdBox = stblBox.children.find((c) => c.type === 'stsd-box');
 
-			const videoSamples = stsdBox.samples.filter((s) => s.type === 'video');
-			return videoSamples[0];
-		})
-		.filter(Boolean);
+	if (!stsdBox) {
+		throw new Error('Expected stsd box');
+	}
 
-	if (tracks.length === 0) {
+	if (stsdBox.type !== 'stsd-box') {
+		throw new Error('Expected stsd box');
+	}
+
+	const videoSamples = stsdBox.samples.filter((s) => s.type === 'video');
+	if (videoSamples.length === 0) {
 		throw new Error('Has no video stream');
 	}
 
-	const [firstTrack] = tracks;
+	const [firstTrack] = videoSamples;
 	if (firstTrack.type !== 'video') {
 		throw new Error('Expected video track');
 	}

@@ -76,9 +76,15 @@ export const parseTkhd = ({
 		iterator.getUint32(),
 		iterator.getUint32(),
 	];
+	const widthWithoutRotationApplied =
+		iterator.getUint32() / (matrix[0] === 0 ? 1 : matrix[0]);
+	const heightWithoutRotationApplied =
+		iterator.getUint32() / (matrix[4] === 0 ? 1 : matrix[4]);
 
-	const width = iterator.getUint32();
-	const height = iterator.getUint32();
+	// TODO: This is not correct, HEVC videos with matrix is wrong
+	const width = widthWithoutRotationApplied / (matrix[1] === 0 ? 1 : matrix[1]);
+	const height =
+		heightWithoutRotationApplied / (matrix[1] === 0 ? 1 : matrix[1]);
 
 	return {
 		offset,

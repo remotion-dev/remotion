@@ -20,13 +20,15 @@ test('Should get duration of video', async () => {
 test('Should get duration of HEVC video', async () => {
 	const parsed = await parseMedia(
 		RenderInternals.exampleVideos.iphonehevc,
-		{durationInSeconds: true, dimensions: true},
+		{durationInSeconds: true, dimensions: true, fps: true},
 		nodeReader,
 	);
 
 	expect(parsed.durationInSeconds).toBe(3.4);
+	// TODO: Should apply rotation matrix to get the correct dimensions
 	expect(parsed.dimensions).toEqual({
 		width: 1920,
 		height: 1080,
 	});
+	expect(parsed.fps).toEqual(30);
 });

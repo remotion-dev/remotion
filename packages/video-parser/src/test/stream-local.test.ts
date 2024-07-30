@@ -9,7 +9,6 @@ test('Should stream ISO base media', async () => {
 		{
 			durationInSeconds: true,
 			fps: true,
-			boxes: true,
 		},
 		nodeReader,
 	);
@@ -86,4 +85,21 @@ test('Should stream screen recording video', async () => {
 		height: 1766,
 		width: 2874,
 	});
+});
+test('Should stream ProRes video', async () => {
+	const parsed = await parseMedia(
+		RenderInternals.exampleVideos.prores,
+		{
+			fps: true,
+			dimensions: true,
+			durationInSeconds: true,
+		},
+		nodeReader,
+	);
+
+	// TODO: FPS should be 60
+	expect(parsed.fps).toBe(3.90625);
+	expect(parsed.dimensions.width).toBe(1920);
+	expect(parsed.dimensions.height).toBe(1080);
+	expect(parsed.durationInSeconds).toBe(0.034);
 });

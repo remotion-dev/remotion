@@ -8,7 +8,6 @@ test('should be able to parse a WebM', async () => {
 		RenderInternals.exampleVideos.transparentWebm,
 		{
 			durationInSeconds: true,
-			boxes: true,
 		},
 		nodeReader,
 	);
