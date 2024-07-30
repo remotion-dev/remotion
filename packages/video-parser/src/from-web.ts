@@ -2,16 +2,24 @@ import type {ReaderInterface} from './reader';
 
 export const webReader: ReaderInterface = {
 	read: async (src, range) => {
-		if (!src.startsWith('https://') && !src.startsWith('http://')) {
+		const resolvedUrl =
+			typeof window !== 'undefined' && typeof window.location !== 'undefined'
+				? new URL(src, window.location.origin).toString()
+				: src;
+
+		if (
+			!resolvedUrl.startsWith('https://') &&
+			!resolvedUrl.startsWith('http://')
+		) {
 			return Promise.reject(
 				new Error(
-					src +
+					resolvedUrl +
 						' is not a URL - needs to start with http:// or https://. If you want to read a local file, pass `nodeReader` to getVideoMetadata().',
 				),
 			);
 		}
 
-		const res = await fetch(src, {
+		const res = await fetch(resolvedUrl, {
 			headers:
 				range === null
 					? {}

@@ -1,27 +1,28 @@
+import {getVideoMetadata} from '@remotion/media-utils';
 import {parseMedia} from '@remotion/video-parser';
 import {useEffect} from 'react';
+import {staticFile} from 'remotion';
+
+const src = staticFile('blush-2x.mp4');
 
 export const VideoParser: React.FC = () => {
 	useEffect(() => {
 		const start = Date.now();
-		parseMedia(
-			'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-			{
-				durationInSeconds: true,
-			},
-		).then(({durationInSeconds}) => {
+		parseMedia(src, {
+			durationInSeconds: true,
+			dimensions: true,
+		}).then(({durationInSeconds, dimensions}) => {
 			console.log(
 				'@remotion/video-parser',
 				durationInSeconds,
+				dimensions,
 				'in ',
 				Date.now() - start,
 				'ms',
 			);
 		});
-		/*
-		GetVideoMetadata(
-			'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-		).then(({durationInSeconds}) => {
+
+		getVideoMetadata(src).then(({durationInSeconds}) => {
 			console.log(
 				'getVideoMetadata',
 				durationInSeconds,
@@ -30,7 +31,6 @@ export const VideoParser: React.FC = () => {
 				'ms',
 			);
 		});
-		*/
 	}, []);
 
 	return <div>VideoParser</div>;
