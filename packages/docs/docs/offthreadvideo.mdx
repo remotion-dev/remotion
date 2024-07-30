@@ -336,12 +336,14 @@ export const RemotionRoot: React.FC = () => {
         const fps = 30;
 
         return {
-          durationInFrames: Math.floor(durationInSeconds * fps),
+          // Set any duration, here as an example, we loop the video 5 times
+          durationInFrames: Math.floor(durationInSeconds * fps * 5),
           fps,
           width,
           height,
           props: {
             ...props,
+            // Pass the durationInSeconds as prop to the React component
             durationInSeconds,
           }
         };
