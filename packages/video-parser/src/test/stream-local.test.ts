@@ -49,3 +49,41 @@ test('Should stream AV1 with no duration', async () => {
 		height: 1080,
 	});
 });
+
+test('Should stream corrupted video', async () => {
+	const parsed = await parseMedia(
+		RenderInternals.exampleVideos.corrupted,
+		{
+			durationInSeconds: true,
+			dimensions: true,
+			fps: true,
+		},
+		nodeReader,
+	);
+
+	expect(parsed.durationInSeconds).toBe(30.03);
+	expect(parsed.fps).toBe(23.976023976023978);
+	expect(parsed.dimensions).toEqual({
+		width: 1920,
+		height: 1080,
+	});
+});
+
+test('Should stream screen recording video', async () => {
+	const parsed = await parseMedia(
+		RenderInternals.exampleVideos.screenrecording,
+		{
+			durationInSeconds: true,
+			dimensions: true,
+			fps: true,
+		},
+		nodeReader,
+	);
+
+	expect(parsed.durationInSeconds).toBe(5.866666666666666);
+	expect(parsed.fps).toBe(58.98305084745763);
+	expect(parsed.dimensions).toEqual({
+		height: 1766,
+		width: 2874,
+	});
+});
