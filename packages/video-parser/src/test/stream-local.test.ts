@@ -20,9 +20,14 @@ test('Should stream ISO base media', async () => {
 test('Should stream WebM with no duration', async () => {
 	const result = await parseMedia(
 		RenderInternals.exampleVideos.nofps,
-		{fps: true, durationInSeconds: true, boxes: true},
+		{fps: true, durationInSeconds: true, dimensions: true},
 		nodeReader,
 	);
+	expect(result.durationInSeconds).toBe(6.57);
+	expect(result.dimensions).toEqual({
+		width: 1470,
+		height: 690,
+	});
 	expect(result.fps).toBeDefined();
 });
 
