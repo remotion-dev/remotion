@@ -253,8 +253,8 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
 
   packages/cli-autocomplete:
     devDependencies:
@@ -304,8 +304,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/compositor-linux-x64-gnu':
         specifier: workspace:*
@@ -361,8 +361,8 @@ importers:
         specifier: 5.83.1
         version: 5.83.1
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
 
   packages/create-video:
     dependencies:
@@ -595,8 +595,8 @@ importers:
         specifier: 0.31.1
         version: 0.31.1(happy-dom@14.5.1)(jsdom@21.1.0)
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@tsconfig/docusaurus':
         specifier: ^1.0.5
@@ -880,8 +880,8 @@ importers:
         specifier: 0.31.1
         version: 0.31.1(sass@1.77.2)
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       prettier-plugin-organize-imports:
         specifier: 3.2.4
@@ -1093,8 +1093,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/compositor-linux-arm64-gnu':
         specifier: workspace:*
@@ -1221,8 +1221,8 @@ importers:
         specifier: 5.83.1
         version: 5.83.1
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
 
   packages/player-example:
     dependencies:
@@ -1435,8 +1435,8 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
 
   packages/studio-server:
     dependencies:
@@ -1600,8 +1600,8 @@ importers:
         version: link:../core
     devDependencies:
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
 
 packages:
 
@@ -24556,6 +24556,10 @@ packages:
 
   /zod@3.22.3:
     resolution: {integrity: sha512-EjIevzuJRiRPbVH4mGc8nApb/lVLKVpmUhAaR5R5doKGfAnGJ6Gr3CViAVjP+4FWSxCsybeWQdcgCtbX+7oZug==}
+    dev: false
+
+  /zod@3.23.8:
+    resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
 
   /zustand@3.7.2(react@18.3.1):
     resolution: {integrity: sha512-PIJDIZKtokhof+9+60cpockVOq05sJzHCriyvaLBmEJixseQ1a5Kdov6fWZfWOu5SK9c+FhH1jU0tntLxRJYMA==}
