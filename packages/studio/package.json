@@ -34,7 +34,7 @@
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"@types/semver": "^7.3.4",
-		"zod": "3.22.3",
+		"zod": "3.23.8",
 		"@remotion/zod-types": "workspace:*"
 	},
 	"publishConfig": {

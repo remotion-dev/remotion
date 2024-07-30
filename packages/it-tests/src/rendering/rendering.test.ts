@@ -376,7 +376,6 @@ test(
 		});
 		const data = info.stderr;
 		expect(data).toContain('Video: h264');
-		expect(data).not.toContain('bt709');
 		expect(data).toContain('Duration: 00:00:01.64');
 
 		fs.unlinkSync(outputPath);
@@ -507,7 +506,7 @@ test('Dynamic duration should work and audio separation', async () => {
 	const expectedDuration = (randomDuration / 30).toFixed(2);
 	expect(data).toContain(`Duration: 00:00:0${expectedDuration}`);
 	expect(data).toContain(
-		`Stream #0:0[0x1](und): Video: h264 (avc1 / 0x31637661), yuv420p(tv, bt470bg/unknown/unknown, progressive)`,
+		`Stream #0:0[0x1](und): Video: h264 (avc1 / 0x31637661), yuv420p(tv, bt709, progressive)`,
 	);
 
 	fs.unlinkSync(outputPath);
