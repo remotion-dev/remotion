@@ -167,6 +167,9 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 				'0xec01',
 				'0x73c5',
 				'0x53c0',
+				'0x4d80',
+				'0x5741',
+				'0x4489',
 			];
 
 			const firstTwoString = `${firstOneString}${Array.from(

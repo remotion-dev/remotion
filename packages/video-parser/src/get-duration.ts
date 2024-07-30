@@ -12,20 +12,22 @@ const getDurationFromMatroska = (segments: AnySegment[]): number | null => {
 	}
 
 	const infoSegment = children.find((s) => s.type === 'info-segment');
-	if (!infoSegment || infoSegment.type !== 'info-segment') {
-		return null;
-	}
 
-	const timestampScale = infoSegment.children.find(
+	const relevantBoxes = [
+		...mainSegment.children,
+		...(infoSegment && infoSegment.type === 'info-segment'
+			? infoSegment.children
+			: []),
+	];
+
+	const timestampScale = relevantBoxes.find(
 		(s) => s.type === 'timestamp-scale-segment',
 	);
 	if (!timestampScale || timestampScale.type !== 'timestamp-scale-segment') {
 		return null;
 	}
 
-	const duration = infoSegment.children.find(
-		(s) => s.type === 'duration-segment',
-	);
+	const duration = relevantBoxes.find((s) => s.type === 'duration-segment');
 	if (!duration || duration.type !== 'duration-segment') {
 		return null;
 	}
