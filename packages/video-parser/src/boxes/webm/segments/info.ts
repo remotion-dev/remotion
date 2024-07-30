@@ -9,7 +9,7 @@ export type InfoSegment = {
 };
 
 export const parseInfoSegment = (iterator: BufferIterator): InfoSegment => {
-	const length = iterator.getVint(1);
+	const length = iterator.getVint();
 	const children = expectChildren(iterator, length);
 
 	return {

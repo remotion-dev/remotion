@@ -8,7 +8,7 @@ export type WritingAppSegment = {
 export const parseWritingSegment = (
 	iterator: BufferIterator,
 ): WritingAppSegment => {
-	const length = iterator.getVint(1);
+	const length = iterator.getVint();
 	const value = iterator.getByteString(length);
 
 	return {

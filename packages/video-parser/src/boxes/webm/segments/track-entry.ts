@@ -12,7 +12,7 @@ export const parseTrackEntry = (
 ): TrackEntrySegment => {
 	const offset = iterator.counter.getOffset();
 
-	const length = iterator.getVint(8);
+	const length = iterator.getVint();
 
 	return {
 		type: 'track-entry-segment',
@@ -31,7 +31,7 @@ export type TrackNumberSegment = {
 export const parseTrackNumber = (
 	iterator: BufferIterator,
 ): TrackNumberSegment => {
-	const length = iterator.getVint(1);
+	const length = iterator.getVint();
 	if (length !== 1) {
 		throw new Error('Expected track number to be 1 byte');
 	}
@@ -50,7 +50,7 @@ export type TrackUIDSegment = {
 };
 
 export const parseTrackUID = (iterator: BufferIterator): TrackUIDSegment => {
-	const length = iterator.getVint(1);
+	const length = iterator.getVint();
 	// Observation: AV1 has 8 bytes, WebM has 7
 	if (length !== 8 && length !== 7) {
 		throw new Error('Expected track number to be 8 byte');
@@ -75,7 +75,7 @@ export type FlagLacingSegment = {
 export const parseFlagLacing = (
 	iterator: BufferIterator,
 ): FlagLacingSegment => {
-	const length = iterator.getVint(1);
+	const length = iterator.getVint();
 	if (length !== 1) {
 		throw new Error('Expected flag lacing to be 1 byte');
 	}
@@ -100,7 +100,7 @@ export type LanguageSegment = {
 export const parseLanguageSegment = (
 	iterator: BufferIterator,
 ): LanguageSegment => {
-	const length = iterator.getVint(1);
+	const length = iterator.getVint();
 	if (length !== 3) {
 		throw new Error('Expected language segment to be 3 bytes');
 	}
@@ -119,7 +119,7 @@ export type CodecSegment = {
 };
 
 export const parseCodecSegment = (iterator: BufferIterator): CodecSegment => {
-	const length = iterator.getVint(1);
+	const length = iterator.getVint();
 
 	// Could make a TypeScript enum with it
 	// https://www.matroska.org/technical/codec_specs.html
@@ -139,7 +139,7 @@ export type TrackTypeSegment = {
 export const parseTrackTypeSegment = (
 	iterator: BufferIterator,
 ): TrackTypeSegment => {
-	const length = iterator.getVint(1);
+	const length = iterator.getVint();
 	if (length !== 1) {
 		throw new Error('Expected track type segment to be 1 byte');
 	}
@@ -170,7 +170,7 @@ export type DefaultDurationSegment = {
 export const parseDefaultDurationSegment = (
 	iterator: BufferIterator,
 ): DefaultDurationSegment => {
-	const length = iterator.getVint(1);
+	const length = iterator.getVint();
 
 	const defaultDuration = iterator.getDecimalBytes(length);
 
@@ -189,7 +189,7 @@ export type VideoSegment = {
 export const parseVideoSegment = (iterator: BufferIterator): VideoSegment => {
 	const offset = iterator.counter.getOffset();
 
-	const length = iterator.getVint(1);
+	const length = iterator.getVint();
 
 	return {
 		type: 'video-segment',
@@ -206,7 +206,7 @@ export type WidthSegment = {
 };
 
 export const parseWidthSegment = (iterator: BufferIterator): WidthSegment => {
-	const length = iterator.getVint(1);
+	const length = iterator.getVint();
 	if (length !== 2) {
 		throw new Error('Expected width segment to be 2 bytes');
 	}
@@ -225,7 +225,7 @@ export type HeightSegment = {
 };
 
 export const parseHeightSegment = (iterator: BufferIterator): HeightSegment => {
-	const length = iterator.getVint(1);
+	const length = iterator.getVint();
 	if (length !== 2) {
 		throw new Error('Expected height segment to be 2 bytes');
 	}
@@ -246,7 +246,7 @@ export type AlphaModeSegment = {
 export const parseAlphaModeSegment = (
 	iterator: BufferIterator,
 ): AlphaModeSegment => {
-	const length = iterator.getVint(1);
+	const length = iterator.getVint();
 	if (length !== 1) {
 		throw new Error('Expected alpha mode segment to be 1 byte');
 	}
@@ -267,7 +267,7 @@ export type MaxBlockAdditionId = {
 export const parseMaxBlockAdditionId = (
 	iterator: BufferIterator,
 ): MaxBlockAdditionId => {
-	const length = iterator.getVint(1);
+	const length = iterator.getVint();
 	if (length !== 1) {
 		throw new Error('Expected alpha mode segment to be 1 byte');
 	}
@@ -285,7 +285,7 @@ export type ColorSegment = {
 };
 
 export const parseColorSegment = (iterator: BufferIterator): ColorSegment => {
-	const length = iterator.getVint(1);
+	const length = iterator.getVint();
 
 	iterator.discard(length - 1);
 

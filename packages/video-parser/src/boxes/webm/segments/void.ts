@@ -6,7 +6,7 @@ export type VoidSegment = {
 };
 
 export const parseVoidSegment = (iterator: BufferIterator): VoidSegment => {
-	const length = iterator.getVint(8);
+	const length = iterator.getVint();
 	iterator.discard(length);
 
 	return {

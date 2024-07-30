@@ -216,10 +216,9 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 				})
 				.join('')}`;
 		},
-		getVint: (bytes: number) => {
-			const slice = getSlice(bytes);
-			const d = [...Array.from(new Uint8Array(slice))];
-			const totalLength = d[0];
+		getVint: () => {
+			const firstByte = getUint8();
+			const totalLength = firstByte;
 
 			if (totalLength === 0) {
 				return 0;
@@ -231,8 +230,10 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 				actualLength++;
 			}
 
-			actualLength += 1; // Include the first byte set as 1
+			const slice = getSlice(actualLength);
+			const d = [firstByte, ...Array.from(new Uint8Array(slice))];
 
+			actualLength += 1; // Include the first byte set as 1
 			// Combine the numbers to form the integer value
 			let value = 0;
 

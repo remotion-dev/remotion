@@ -9,11 +9,18 @@ test('Should get duration of AV1 video', async () => {
 		{
 			durationInSeconds: true,
 			boxes: true,
+			dimensions: true,
+			fps: true,
 		},
 		nodeReader,
 	);
 
 	expect(parsed.durationInSeconds).toBe(1);
+	expect(parsed.fps).toBe(null);
+	expect(parsed.dimensions).toEqual({
+		width: 1920,
+		height: 1080,
+	});
 	expect(parsed.boxes).toEqual([
 		{
 			type: 'main-segment',
@@ -139,13 +146,13 @@ test('Should get duration of AV1 video', async () => {
 							],
 						},
 						{
-							id: '0x42abbfc3',
+							id: '0x0c000a0e',
 							type: 'unknown-segment',
 						},
 					],
 				},
 				{
-					id: '0x6d577901',
+					id: '0x',
 					type: 'unknown-segment',
 				},
 			],

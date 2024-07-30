@@ -8,7 +8,7 @@ export type MainSegment = {
 };
 
 export const parseMainSegment = (iterator: BufferIterator): MainSegment => {
-	const length = iterator.getVint(8);
+	const length = iterator.getVint();
 
 	const children = expectChildren(iterator, length);
 

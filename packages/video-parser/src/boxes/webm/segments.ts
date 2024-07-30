@@ -86,7 +86,6 @@ export type MatroskaSegment =
 
 export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 	const segmentId = iterator.getMatroskaSegmentId();
-
 	if (segmentId === '0x') {
 		return {
 			type: 'unknown-segment',
@@ -194,7 +193,7 @@ export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 		return parseAlphaModeSegment(iterator);
 	}
 
-	const length = iterator.getVint(8);
+	const length = iterator.getVint();
 
 	const bytesRemaining = iterator.byteLength() - iterator.counter.getOffset();
 	const toDiscard = Math.min(

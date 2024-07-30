@@ -8,7 +8,7 @@ export type MuxingAppSegment = {
 export const parseMuxingSegment = (
 	iterator: BufferIterator,
 ): MuxingAppSegment => {
-	const length = iterator.getVint(1);
+	const length = iterator.getVint();
 	const value = iterator.getByteString(length);
 
 	return {

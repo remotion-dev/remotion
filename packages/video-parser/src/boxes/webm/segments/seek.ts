@@ -10,7 +10,7 @@ export type SeekSegment = {
 
 export const parseSeekSegment = (iterator: BufferIterator): SeekSegment => {
 	// length
-	iterator.getVint(4);
+	iterator.discard(4);
 
 	const seekId = iterator.getMatroskaSegmentId();
 	const child = expectSegment(iterator);
