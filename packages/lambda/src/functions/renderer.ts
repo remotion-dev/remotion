@@ -417,6 +417,7 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 	const logs: BrowserLog[] = [];
 
 	const leakDetection = enableNodeIntrospection(ENABLE_SLOW_LEAK_DETECTION);
+	let shouldKeepBrowserOpen = true;
 
 	try {
 		await renderHandler({
@@ -438,6 +439,9 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
 		const isRetryableError = isFlakyError(err as Error);
+		if (isRetryableError) {
+			shouldKeepBrowserOpen = false;
+		}
 
 		const shouldNotRetry = (err as Error).name === 'CancelledError';
 
@@ -476,7 +480,19 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 
 		throw err;
 	} finally {
-		forgetBrowserEventLoop(params.logLevel);
+		if (shouldKeepBrowserOpen) {
+			forgetBrowserEventLoop(params.logLevel);
+		} else {
+			RenderInternals.Log.info(
+				{indent: false, logLevel: params.logLevel},
+				'Lambda did not succeed with flaky error, not keeping browser open.',
+			);
+			RenderInternals.Log.info(
+				{indent: false, logLevel: params.logLevel},
+				'Quitting Lambda forcefully now to force not keeping the Lambda warm.',
+			);
+			process.exit(0);
+		}
 
 		if (ENABLE_SLOW_LEAK_DETECTION) {
 			startLeakDetection(leakDetection, requestContext.awsRequestId);
