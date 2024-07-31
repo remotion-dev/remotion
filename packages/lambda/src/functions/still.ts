@@ -180,6 +180,7 @@ const innerStillHandler = async <Provider extends CloudProvider>({
 		numberOfGifLoops: null,
 		downloadBehavior: lambdaParams.downloadBehavior,
 		audioBitrate: null,
+		functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
 	};
 
 	const still = makeInitialOverallRenderProgress(timeoutInMilliseconds);

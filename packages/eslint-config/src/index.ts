@@ -291,17 +291,7 @@ const getRules = (typescript: boolean) => {
 				properties: 'always',
 			},
 		],
-		'capitalized-comments': [
-			'error',
-			'always',
-			{
-				// You can also ignore this rule by wrapping the first word in quotes.
-				// c8 => https://github.com/bcoe/c8
-				ignorePattern: /pragma|ignore|prettier-ignore|webpack\w+:|c8/.source,
-				ignoreInlineComments: true,
-				ignoreConsecutiveComments: true,
-			},
-		],
+		'capitalized-comments': ['off'],
 		'func-name-matching': [
 			'error',
 			{
