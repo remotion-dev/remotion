@@ -9,6 +9,10 @@
 	"files": [
 		"dist"
 	],
+	"scripts": {
+		"lint": "eslint src --ext ts,tsx",
+		"formatting": "prettier src --check"
+	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
