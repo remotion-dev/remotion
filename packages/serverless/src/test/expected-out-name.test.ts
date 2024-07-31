@@ -26,6 +26,7 @@ const testRenderMetadata: RenderMetadata<MockProvider> = {
 	},
 	lambdaVersion: '2022-02-14',
 	memorySizeInMb: 2048,
+	functionName: 'remotion-render-4-0-187-mem3000mb-disk10000mb-120sec',
 	outName: undefined,
 	region: 'eu-central',
 	renderId: '9n8dsfafs',

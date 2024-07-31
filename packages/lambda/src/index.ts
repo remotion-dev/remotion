@@ -65,7 +65,11 @@ import type {
 } from './api/render-still-on-lambda';
 import {renderStillOnLambda as deprecatedRenderStillOnLambda} from './api/render-still-on-lambda';
 import {validateWebhookSignature} from './api/validate-webhook-signature';
-import {LambdaInternals} from './internals';
+import {
+	LambdaInternals,
+	_InternalAwsProvider,
+	_InternalOverallRenderProgress,
+} from './internals';
 import type {AwsRegion} from './regions';
 import type {RenderProgress} from './shared/constants';
 import type {WebhookPayload} from './shared/invoke-webhook';
@@ -153,3 +157,5 @@ export type {
 	SimulatePermissionsOutput,
 	WebhookPayload,
 };
+
+export {_InternalAwsProvider, _InternalOverallRenderProgress};
