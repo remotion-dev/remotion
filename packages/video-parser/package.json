@@ -20,13 +20,13 @@
 	},
 	"exports": {
 		".": "./dist/index.js",
-		"./config": "./dist/config/index.js",
+		"./node": "./dist/from-node.js",
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
 		">=1.0": {
-			"config": [
-				"dist/config/index.d.ts"
+			"node": [
+				"dist/from-node.d.ts"
 			]
 		}
 	},

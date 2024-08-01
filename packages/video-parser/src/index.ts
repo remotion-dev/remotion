@@ -1,1 +1,1 @@
-export {parseMedia} from './get-video-metadata';
+export {parseMedia} from './parse-media';

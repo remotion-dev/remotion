@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {parseMedia} from '../get-video-metadata';
+import {parseMedia} from '../parse-media';
 
 test('Should stream', async () => {
 	const result = await parseMedia(

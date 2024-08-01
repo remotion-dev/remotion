@@ -552,6 +552,15 @@ module.exports = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/video-parser',
+			link: {
+				type: 'doc',
+				id: 'video-parser/index',
+			},
+			items: ['video-parser/index', 'video-parser/parse-media'],
+		},
+		{
+			type: 'category',
 			label: '@remotion/install-whisper-cpp',
 			link: {
 				type: 'doc',

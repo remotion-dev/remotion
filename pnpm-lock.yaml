@@ -522,6 +522,9 @@ importers:
       '@remotion/transitions':
         specifier: workspace:*
         version: link:../transitions
+      '@remotion/video-parser':
+        specifier: workspace:*
+        version: link:../video-parser
       '@rive-app/canvas-advanced':
         specifier: 2.3.0
         version: 2.3.0
