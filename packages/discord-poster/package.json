@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/discord-poster"
 	},
 	"name": "@remotion/discord-poster",
-	"version": "4.0.188",
+	"version": "4.0.189",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"type": "module",
 	"scripts": {

@@ -2,7 +2,7 @@
 image: /generated/articles-docs-renderer-stitch-frames-to-video.png
 id: stitch-frames-to-video
 title: stitchFramesToVideo()
-crumb: "@remotion/renderer"
+crumb: '@remotion/renderer'
 ---
 
 _Part of the `@remotion/renderer` package._
@@ -16,10 +16,6 @@ In Remotion 3.0, we added the [`renderMedia()`](/docs/renderer/render-media) API
 ## Arguments
 
 An object with the following properties:
-
-### `dir`
-
-A `string` containing the absolute path of the directory where the frames are located. This will be the directory where the `ffmpeg` command will be executed.
 
 ### `fps`
 
@@ -35,7 +31,8 @@ A `number` specifying the desired output height in pixels for the video.
 
 ### `assetsInfo`
 
-Information about the audio mix. This is part of the return value of [renderFrames()](/docs/renderer/render-frames#return-value).
+Information about the frames and audio mix. This is part of the return value of [`renderFrames()`](/docs/renderer/render-frames#return-value).  
+The data structure is not stable between Remotion versions.
 
 ### `outputLocation?`
 
@@ -78,19 +75,19 @@ Refer to the [Encoding guide](/docs/encoding/#audio-codec) to see defaults and s
 
 ### `audioBitrate?`<AvailableFrom v="3.2.32" />
 
-<Options id="audio-bitrate"/>
+<Options id="audio-bitrate" />
 
 ### `videoBitrate?`<AvailableFrom v="3.2.32" />
 
-<Options id="video-bitrate"/>
+<Options id="video-bitrate" />
 
 ### `bufferSize?`<AvailableFrom v="4.0.78" />
 
-<Options id="buffer-size"/>
+<Options id="buffer-size" />
 
 ### `maxRate?`<AvailableFrom v="4.0.78" />
 
-<Options id="max-rate"/>
+<Options id="max-rate" />
 
 ### `crf?`
 
@@ -152,13 +149,31 @@ _optional_
 
 A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
 
+### `enforceAudioTrack?`<AvailableFrom v="3.2.1" />
+
+Render a silent audio track if there wouldn't be any otherwise.
+
 ### `binariesDirectory?`<AvailableFrom v="4.0.120" />
 
 <Options id="binaries-directory" />
 
+### `separateAudioTo?`<AvailableFrom v="4.0.123" />
+
+<Options cli id="separate-audio-to" />
+
 ### `forSeamlessAacConcatenation?`<AvailableFrom v="4.0.123" />
 
 <Options id="for-seamless-aac-concatenation" />
+
+### `x264Preset?`
+
+_string - optional_
+
+<Options id="x264-preset" />
+
+### `colorSpace?`<AvailableFrom v="4.0.28"/>
+
+<Options id="color-space" />
 
 ### `ffmpegOverride?`<AvailableFrom v="3.2.22" />
 
@@ -167,11 +182,11 @@ _function - optional_
 Modifies the FFMPEG command that Remotion uses under the hood. It works reducer-style, meaning that you pass a function that takes a command as an argument and returns a new command.
 
 ```tsx twoslash
-import type { FfmpegOverrideFn } from "@remotion/renderer";
+import type {FfmpegOverrideFn} from '@remotion/renderer';
 
-const ffmpegOverride: FfmpegOverrideFn = ({ type, args }) => {
+const ffmpegOverride: FfmpegOverrideFn = ({type, args}) => {
   console.log(type); // "stitcher" | "pre-stitcher
-  return [...args, "-vf", "eq=brightness=0:saturation=1"];
+  return [...args, '-vf', 'eq=brightness=0:saturation=1'];
 };
 ```
 

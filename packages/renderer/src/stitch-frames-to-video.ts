@@ -43,8 +43,8 @@ import {validateBitrate} from './validate-videobitrate';
 type InternalStitchFramesToVideoOptions = {
 	audioBitrate: string | null;
 	videoBitrate: string | null;
-	encodingMaxRate: string | null;
-	encodingBufferSize: string | null;
+	maxRate: string | null;
+	bufferSize: string | null;
 	fps: number;
 	width: number;
 	height: number;
@@ -73,16 +73,16 @@ type InternalStitchFramesToVideoOptions = {
 } & ToOptions<typeof optionsMap.stitchFramesToVideo>;
 
 export type StitchFramesToVideoOptions = {
-	audioBitrate?: string | null;
-	videoBitrate?: string | null;
-	encodingMaxRate?: string | null;
-	encodingBufferSize?: string | null;
 	fps: number;
 	width: number;
 	height: number;
-	outputLocation?: string | null;
-	force: boolean;
 	assetsInfo: RenderAssetInfo;
+	force?: boolean;
+	audioBitrate?: string | null;
+	videoBitrate?: string | null;
+	maxRate?: string | null;
+	bufferSize?: string | null;
+	outputLocation?: string | null;
 	pixelFormat?: PixelFormat;
 	numberOfGifLoops?: number | null;
 	codec?: Codec;
@@ -126,8 +126,8 @@ const innerStitchFramesToVideo = async (
 		proResProfile,
 		logLevel,
 		videoBitrate,
-		encodingMaxRate,
-		encodingBufferSize,
+		maxRate,
+		bufferSize,
 		width,
 		numberOfGifLoops,
 		onProgress,
@@ -154,9 +154,9 @@ const innerStitchFramesToVideo = async (
 
 	validateBitrate(audioBitrate, 'audioBitrate');
 	validateBitrate(videoBitrate, 'videoBitrate');
-	validateBitrate(encodingMaxRate, 'encodingMaxRate');
-	// encodingBufferSize is not a bitrate but need to be validated using the same format
-	validateBitrate(encodingBufferSize, 'encodingBufferSize');
+	validateBitrate(maxRate, 'maxRate');
+	// bufferSize is not a bitrate but need to be validated using the same format
+	validateBitrate(bufferSize, 'bufferSize');
 	validateFps(fps, 'in `stitchFramesToVideo()`', false);
 	assetsInfo.downloadMap.preventCleanup();
 
@@ -249,8 +249,8 @@ const innerStitchFramesToVideo = async (
 		crf,
 		codec,
 		videoBitrate,
-		encodingMaxRate,
-		encodingBufferSize,
+		encodingMaxRate: maxRate,
+		encodingBufferSize: bufferSize,
 	});
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
@@ -351,8 +351,8 @@ const innerStitchFramesToVideo = async (
 			codec,
 			crf,
 			videoBitrate,
-			encodingMaxRate,
-			encodingBufferSize,
+			encodingMaxRate: maxRate,
+			encodingBufferSize: bufferSize,
 			hasPreencoded: Boolean(preEncodedFileLocation),
 			proResProfileName,
 			pixelFormat,
@@ -514,8 +514,8 @@ export const stitchFramesToVideo = ({
 	proResProfile,
 	verbose,
 	videoBitrate,
-	encodingMaxRate,
-	encodingBufferSize,
+	maxRate,
+	bufferSize,
 	x264Preset,
 	colorSpace,
 	binariesDirectory,
@@ -524,15 +524,15 @@ export const stitchFramesToVideo = ({
 	return internalStitchFramesToVideo({
 		assetsInfo,
 		audioBitrate: audioBitrate ?? null,
-		encodingMaxRate: encodingMaxRate ?? null,
-		encodingBufferSize: encodingBufferSize ?? null,
+		maxRate: maxRate ?? null,
+		bufferSize: bufferSize ?? null,
 		audioCodec: audioCodec ?? null,
 		cancelSignal: cancelSignal ?? null,
 		codec: codec ?? DEFAULT_CODEC,
 		crf: crf ?? null,
 		enforceAudioTrack: enforceAudioTrack ?? false,
 		ffmpegOverride: ffmpegOverride ?? null,
-		force,
+		force: force ?? true,
 		fps,
 		height,
 		indent: false,

@@ -38,6 +38,7 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 			downloadBehavior: {type: 'play-in-browser'},
 			numberOfGifLoops: null,
 			muted: false,
+			functionName: 'remotion-render-la8ffw',
 		},
 		diskSizeInMb: 512,
 		lambdasInvoked: 1,

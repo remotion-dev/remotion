@@ -13,3 +13,6 @@ export const LambdaInternals = {
 	makeLambdaRenderStillPayload,
 	internalDeploySite,
 };
+
+export {AwsProvider as _InternalAwsProvider} from './functions/aws-implementation';
+export {OverallRenderProgress as _InternalOverallRenderProgress} from './functions/helpers/overall-render-progress';

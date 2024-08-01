@@ -2,7 +2,7 @@
 image: /generated/articles-docs-renderer-open-browser.png
 title: openBrowser()
 id: open-browser
-crumb: "@remotion/renderer"
+crumb: '@remotion/renderer'
 ---
 
 _Available since v3.0 - Part of the `@remotion/renderer` package._
@@ -32,11 +32,18 @@ _optional_
 
 An object containing one or more of the following options:
 
-#### `shouldDumpIo?`
+#### ~`shouldDumpIo?`~
+
+_optional, deprecated since v4.0.189, scheduled for removal in v5.0_
+
+If set to `true`, logs and other browser diagnostics are being printed to standard output. This setting is useful for debugging.  
+**Will be removed in 5.0:** Use `logLevel` instead.
+
+#### `logLevel?`<AvailableFrom v="4.0.189"/>
 
 _optional_
 
-If set to `true`, logs and other browser diagnostics are being printed to standard output. This setting is useful for debugging.
+<Options id="log" />
 
 #### `browserExecutable?`
 
