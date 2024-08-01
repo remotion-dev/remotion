@@ -552,12 +552,12 @@ module.exports = {
 		},
 		{
 			type: 'category',
-			label: '@remotion/video-parser',
+			label: '@remotion/media-parser',
 			link: {
 				type: 'doc',
-				id: 'video-parser/index',
+				id: 'media-parser/index',
 			},
-			items: ['video-parser/index', 'video-parser/parse-media'],
+			items: ['media-parser/index', 'media-parser/parse-media'],
 		},
 		{
 			type: 'category',

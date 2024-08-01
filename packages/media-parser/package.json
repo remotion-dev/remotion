@@ -1,8 +1,8 @@
 {
 	"repository": {
-		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/video-parser"
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/media-parser"
 	},
-	"name": "@remotion/video-parser",
+	"name": "@remotion/media-parser",
 	"version": "4.0.188",
 	"main": "dist/index.js",
 	"sideEffects": false,

@@ -1,5 +1,5 @@
+import {parseMedia} from '@remotion/media-parser';
 import {getVideoMetadata} from '@remotion/media-utils';
-import {parseMedia} from '@remotion/video-parser';
 import {useEffect} from 'react';
 import {staticFile} from 'remotion';
 
@@ -13,7 +13,7 @@ export const VideoParser: React.FC = () => {
 			dimensions: true,
 		}).then(({durationInSeconds, dimensions}) => {
 			console.log(
-				'@remotion/video-parser',
+				'@remotion/media-parser',
 				durationInSeconds,
 				dimensions,
 				'in ',

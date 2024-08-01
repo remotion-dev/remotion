@@ -1,11 +1,12 @@
 ---
+image: /generated/articles-docs-video-parser-parse-media.png
 id: parse-media
 title: 'parseMedia()'
-slug: /video-parser/parse-media
-crumb: '@remotion/video-parser'
+slug: /media-parser/parse-media
+crumb: '@remotion/media-parser'
 ---
 
-_Part of the [`@remotion/video-parser`](/docs/video-parser) package._
+_Part of the [`@remotion/media-parser`](/docs/media-parser) package._
 _available from v4.0.190_
 
 :::warning
@@ -17,7 +18,7 @@ _available from v4.0.190_
 ```tsx twoslash title="Parsing a hosted video"
 // @module: es2022
 // @target: es2017
-import {parseMedia} from '@remotion/video-parser';
+import {parseMedia} from '@remotion/media-parser';
 
 const result = await parseMedia('https://example.com/my-video.mp4', {
   durationInSeconds: true,
@@ -31,8 +32,8 @@ console.log(result.dimensions); // {width: 1920, height: 1080}
 ```tsx twoslash title="Parsing a local file"
 // @module: es2022
 // @target: es2017
-import {parseMedia} from '@remotion/video-parser';
-import {nodeReader} from '@remotion/video-parser/node';
+import {parseMedia} from '@remotion/media-parser';
+import {nodeReader} from '@remotion/media-parser/node';
 
 const result = await parseMedia(
   '/Users/jonnyburger/Downloads/my-video.mp4',
@@ -90,5 +91,5 @@ If you pass `nodeReader`, you must also pass a local file path as the `src` argu
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/video-parser/src/parse-media.ts)
-- [`@remotion/video-parser`](/docs/video-parser)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-parser/src/parse-media.ts)
+- [`@remotion/media-parser`](/docs/media-parser)

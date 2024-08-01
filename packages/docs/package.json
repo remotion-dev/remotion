@@ -60,7 +60,7 @@
 		"@remotion/enable-scss": "workspace:*",
 		"@remotion/three": "workspace:*",
 		"@remotion/transitions": "workspace:*",
-		"@remotion/video-parser": "workspace:*",
+		"@remotion/media-parser": "workspace:*",
 		"@rive-app/canvas-advanced": "2.3.0",
 		"@shopify/react-native-skia": "^1.2.2",
 		"@swc/core": "^1.3.80",

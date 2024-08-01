@@ -480,6 +480,9 @@ importers:
       '@remotion/lottie':
         specifier: workspace:*
         version: link:../lottie
+      '@remotion/media-parser':
+        specifier: workspace:*
+        version: link:../media-parser
       '@remotion/media-utils':
         specifier: workspace:*
         version: link:../media-utils
@@ -522,9 +525,6 @@ importers:
       '@remotion/transitions':
         specifier: workspace:*
         version: link:../transitions
-      '@remotion/video-parser':
-        specifier: workspace:*
-        version: link:../video-parser
       '@rive-app/canvas-advanced':
         specifier: 2.3.0
         version: 2.3.0
@@ -756,6 +756,9 @@ importers:
       '@remotion/lottie':
         specifier: workspace:*
         version: link:../lottie
+      '@remotion/media-parser':
+        specifier: workspace:*
+        version: link:../media-parser
       '@remotion/media-utils':
         specifier: workspace:*
         version: link:../media-utils
@@ -798,9 +801,6 @@ importers:
       '@remotion/transitions':
         specifier: workspace:*
         version: link:../transitions
-      '@remotion/video-parser':
-        specifier: workspace:*
-        version: link:../video-parser
       '@remotion/zod-types':
         specifier: workspace:*
         version: link:../zod-types
@@ -1165,6 +1165,12 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+
+  packages/media-parser:
+    devDependencies:
+      '@remotion/renderer':
+        specifier: workspace:*
+        version: link:../renderer
 
   packages/media-utils:
     dependencies:
@@ -1592,12 +1598,6 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
-
-  packages/video-parser:
-    devDependencies:
-      '@remotion/renderer':
-        specifier: workspace:*
-        version: link:../renderer
 
   packages/zod-types:
     dependencies:

@@ -6,7 +6,7 @@ export const TableOfContents: React.FC = () => {
 	return (
 		<div>
 			<Grid>
-				<TOCItem link="/docs/video-parser/parse-media">
+				<TOCItem link="/docs/media-parser/parse-media">
 					<strong>{'parseMedia()'}</strong>
 					<div>Parse a media file.</div>
 				</TOCItem>

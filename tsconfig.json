@@ -133,7 +133,7 @@
 			"path": "./packages/transitions"
 		},
 		{
-			"path": "./packages/video-parser"
+			"path": "./packages/media-parser"
 		},
 		{
 			"path": "./packages/enable-scss"

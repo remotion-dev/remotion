@@ -34,7 +34,7 @@
 		{"path": "../three"},
 		{"path": "../transitions"},
 		{"path": "../zod-types"},
-		{"path": "../video-parser"},
+		{"path": "../media-parser"},
 		{"path": "../layout-utils"}
 	]
 }
