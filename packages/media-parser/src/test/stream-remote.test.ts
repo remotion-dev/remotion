@@ -12,8 +12,7 @@ test('Should stream', async () => {
 		},
 	);
 	expect(result.durationInSeconds).toBe(10);
-	// TODO: Wrong
-	expect(result.fps).toBe(3.90625);
+	expect(result.fps).toBe(60);
 	expect(result.dimensions).toEqual({
 		width: 1920,
 		height: 1080,

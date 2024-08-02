@@ -1,5 +1,6 @@
 import type {BaseBox} from './boxes/iso-base-media/base-type';
 import type {FtypBox} from './boxes/iso-base-media/ftyp';
+import type {MdhdBox} from './boxes/iso-base-media/mdhd';
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';
 import type {MvhdBox} from './boxes/iso-base-media/mvhd';
 import type {KeysBox} from './boxes/iso-base-media/stsd/keys';
@@ -28,7 +29,8 @@ export type IsoBaseMediaBox =
 	| KeysBox
 	| MoovBox
 	| TrakBox
-	| SttsBox;
+	| SttsBox
+	| MdhdBox;
 
 export type AnySegment = MatroskaSegment | IsoBaseMediaBox;
 
