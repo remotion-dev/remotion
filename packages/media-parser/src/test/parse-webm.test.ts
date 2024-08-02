@@ -8,8 +8,11 @@ test('should be able to parse a WebM', async () => {
 		RenderInternals.exampleVideos.transparentWebm,
 		{
 			durationInSeconds: true,
+			videoCodec: true,
+			boxes: true,
 		},
 		nodeReader,
 	);
 	expect(webm.durationInSeconds).toBe(5);
+	expect(webm.videoCodec).toBe('vp8');
 });

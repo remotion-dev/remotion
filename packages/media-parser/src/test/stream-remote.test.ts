@@ -19,5 +19,5 @@ test('Should stream', async () => {
 		width: 1920,
 		height: 1080,
 	});
-	expect(result.codec).toEqual('h264');
+	expect(result.videoCodec).toEqual('h264');
 });

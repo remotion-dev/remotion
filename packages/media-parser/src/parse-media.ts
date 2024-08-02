@@ -1,9 +1,9 @@
 import {getArrayBufferIterator} from './buffer-iterator';
 import {webReader} from './from-web';
-import {getVideoCodec} from './get-codec';
 import {getDimensions} from './get-dimensions';
 import {getDuration} from './get-duration';
 import {getFps} from './get-fps';
+import {getVideoCodec} from './get-video-codec';
 import {hasAllInfo} from './has-all-info';
 import type {Metadata, ParseMedia} from './options';
 import {parseVideo} from './parse-video';
@@ -51,7 +51,7 @@ export const parseMedia: ParseMedia = async (
 	}
 
 	if (options.videoCodec) {
-		returnValue.codec = getVideoCodec(parseResult.segments);
+		returnValue.videoCodec = getVideoCodec(parseResult.segments);
 	}
 
 	if (options.boxes) {

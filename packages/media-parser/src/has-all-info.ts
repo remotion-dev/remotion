@@ -1,7 +1,7 @@
-import {hasVideoCodec} from './get-codec';
 import {hasDimensions} from './get-dimensions';
 import {hasDuration} from './get-duration';
 import {hasFps} from './get-fps';
+import {hasVideoCodec} from './get-video-codec';
 import type {Options} from './options';
 import type {ParseResult} from './parse-result';
 

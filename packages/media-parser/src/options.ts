@@ -2,7 +2,7 @@ import type {Dimensions} from './get-dimensions';
 import type {AnySegment} from './parse-result';
 import type {ReaderInterface} from './reader';
 
-export type KnownVideoCodecs = 'h264';
+export type KnownVideoCodecs = 'h264' | 'vp8';
 
 export type Options<
 	EnableDimensions extends boolean,
@@ -28,7 +28,7 @@ export type Metadata<
 	(EnableDuration extends true ? {durationInSeconds: number | null} : {}) &
 	(EnableBoxes extends true ? {boxes: AnySegment[]} : {}) &
 	(EnableFps extends true ? {fps: number | null} : {}) &
-	(EnableVideoCodec extends true ? {codec: KnownVideoCodecs | null} : {});
+	(EnableVideoCodec extends true ? {videoCodec: KnownVideoCodecs | null} : {});
 
 export type ParseMedia = <
 	EnableDimensions extends boolean,
