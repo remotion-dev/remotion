@@ -36,6 +36,7 @@ type VideoForPreviewProps = RemotionVideoProps & {
 	readonly _remotionDebugSeeking: boolean;
 	readonly showInTimeline: boolean;
 	readonly onVideoFrame: null | OnVideoFrame;
+	readonly crossOrigin: '' | 'anonymous' | 'use-credentials' | undefined;
 };
 
 const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
@@ -66,6 +67,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		onError,
 		onAutoPlayError,
 		onVideoFrame,
+		crossOrigin,
 		...nativeProps
 	} = props;
 
@@ -245,6 +247,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		};
 	}, [isSequenceHidden, style]);
 
+	const crossOriginValue = crossOrigin ?? (onVideoFrame ? 'anonymous' : '');
+
 	return (
 		<video
 			ref={videoRef}
@@ -254,6 +258,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			loop={_remotionInternalNativeLoopPassed}
 			style={actualStyle}
 			disableRemotePlayback
+			crossOrigin={crossOriginValue}
 			{...nativeProps}
 		/>
 	);

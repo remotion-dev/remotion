@@ -35,6 +35,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		showInTimeline,
 		onAutoPlayError,
 		onVideoFrame,
+		crossOrigin,
 		...otherProps
 	} = props;
 	const {loop, _remotionDebugSeeking, ...propsOtherThanLoop} = props;
@@ -144,6 +145,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 			_remotionDebugSeeking={_remotionDebugSeeking ?? false}
 			showInTimeline={showInTimeline ?? true}
 			onAutoPlayError={onAutoPlayError ?? undefined}
+			crossOrigin={crossOrigin}
 		/>
 	);
 };

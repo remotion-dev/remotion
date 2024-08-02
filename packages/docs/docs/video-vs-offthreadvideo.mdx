@@ -5,32 +5,19 @@ title: "<Video> vs. <OffthreadVideo>"
 crumb: "Comparison"
 ---
 
-We offer two components for including other videos in your video: [`<Video />`](/docs/video) and [`<OffthreadVideo />`](/docs/offthreadvideo).
+We offer two components for including other videos in your video: [`<Video />`](/docs/video) and [`<OffthreadVideo />`](/docs/offthreadvideo).  
 This page offers a comparison to help you decide which tag to use.
-
-## [`<Video />`](/docs/video)
-
-Is based on the native HTML5 `<video>` element and therefore behaves similar to it.
-
-**Pros**
-
-✅ &nbsp; You can attach a ref and [draw the video to a canvas](/docs/video-manipulation).  
-✅ &nbsp; Can be rendered without having to be downloaded fully (only if you don't need audio and pass `muted`).  
-✅ &nbsp; [Renders embedded transparent videos quickly](/docs/transparent-videos).
-
-**Cons**
-
-⛔ &nbsp; Chrome may throttle video tags if the page is heavy.  
-⛔ &nbsp; If too many video tags get rendered simultaneously, a timeout may occur.  
-⛔ &nbsp; If the input video framerate does not match with the output framerate, some duplicate frames may occur in the output.  
-⛔ &nbsp; A Google Chrome build with proprietary codecs is required.
 
 ## [`<OffthreadVideo />`](/docs/offthreadvideo)
 
+:::info
+Prefer [`<OffthreadVideo />`](/docs/offthreadvideo) whenever possible.
+:::
+
 A more sophisticated way of embedding a video, which:
 
-- renders a `<video>` tag during preview
-- displays the exact frame in an [`<Img>`](/docs/img) tag during rendering, that frame gets extracted using FFmpeg outside the browser
+- **During preview:** renders a HTML5 `<video>` tag.
+- **While rendering:** Extracts the exact frame outside the browser and displays it in an [`<Img>`](/docs/img) tag.
 
 **Pros**
 
@@ -42,9 +29,24 @@ A more sophisticated way of embedding a video, which:
 **Cons**
 
 ⛔ &nbsp; The video needs to be downloaded fully before a frame can be rendered.  
-⛔ &nbsp; No ref can be attached to this element, as it is `<video>` during preview but a `<Img/>` during render.  
-⛔ &nbsp; Does not natively support the `loop` attribute. Checkout [looping an offthread video](/docs/offthreadvideo#looping-a-video) for more info.  
-⛔ &nbsp; The video cannot be drawn to a canvas.  
-⛔ &nbsp; Supports embedded transparent videos only if [`transparent`](/docs/offthreadvideo#transparent-) is set which leads to a performance penalty.
+⛔ &nbsp; No ref can be attached to this element.  
+⛔ &nbsp; More work is required to loop a video. Check out: [Looping an `<Offthread>` video](/docs/offthreadvideo#looping-a-video).  
+⛔ &nbsp; Supports transparent videos only if the [`transparent`](/docs/offthreadvideo#transparent-) is set which is a bit slower.
 
-Prefer [`<OffthreadVideo />`](/docs/offthreadvideo) whenever possible.
+## [`<Video />`](/docs/video)
+
+Is based on the native HTML5 `<video>` element and therefore behaves similar to it.
+
+**Pros**
+
+✅ &nbsp; Can render a video without having it to be downloaded fully (if you don't pass the [`muted`](/docs/video/#muted) prop, the video will still be downloaded fully to extract its audio).  
+✅ &nbsp; You can attach a ref to the `<video>` element.  
+
+**Cons**
+
+⛔ &nbsp; Fewer codecs are supported.  
+⛔ &nbsp; Chrome may throttle video tags if the page is heavy.  
+⛔ &nbsp; If too many video tags get rendered simultaneously, a timeout may occur.  
+⛔ &nbsp; If the input video framerate does not match with the output framerate, some duplicate frames may occur in the output.  
+⛔ &nbsp; A Google Chrome build with proprietary codecs is required.  
+

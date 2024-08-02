@@ -73,6 +73,7 @@ export type OffthreadVideoProps = {
 	showInTimeline?: boolean;
 	onAutoPlayError?: null | (() => void);
 	onVideoFrame?: OnVideoFrame;
+	crossOrigin?: '' | 'anonymous' | 'use-credentials';
 } & RemotionMainVideoProps &
 	DeprecatedOffthreadVideoProps;
 
