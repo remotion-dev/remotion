@@ -8,7 +8,6 @@ test('Should stream', async () => {
 			durationInSeconds: true,
 			fps: true,
 			dimensions: true,
-			boxes: true,
 			videoCodec: true,
 		},
 	);
