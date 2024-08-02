@@ -44,7 +44,7 @@ export const Greenscreen: React.FC<{
 				<OffthreadVideo
 					style={{opacity: 0}}
 					onVideoFrame={onVideoFrame}
-					src="https://remotion-assets.s3.eu-central-1.amazonaws.com/just-do-it.mp4"
+					src="https://remotion-assets.s3.eu-central-1.amazonaws.com/just-do-it-short.mp4"
 				/>
 			</AbsoluteFill>
 			<AbsoluteFill>
