@@ -9,7 +9,6 @@ test('should be able to parse a WebM', async () => {
 		{
 			durationInSeconds: true,
 			videoCodec: true,
-			boxes: true,
 		},
 		nodeReader,
 	);
