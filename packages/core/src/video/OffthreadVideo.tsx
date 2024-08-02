@@ -73,6 +73,8 @@ export const OffthreadVideo: React.FC<OffthreadVideoProps> = (props) => {
 		toneMapped,
 		_remotionDebugSeeking,
 		onAutoPlayError,
+		onVideoFrame,
+		crossOrigin,
 		...withoutTransparent
 	} = otherProps;
 
@@ -86,6 +88,8 @@ export const OffthreadVideo: React.FC<OffthreadVideoProps> = (props) => {
 			pauseWhenBuffering={pauseWhenBuffering ?? false}
 			showInTimeline={showInTimeline ?? true}
 			onAutoPlayError={onAutoPlayError ?? undefined}
+			onVideoFrame={onVideoFrame ?? null}
+			crossOrigin={crossOrigin}
 			{...withoutTransparent}
 		/>
 	);
