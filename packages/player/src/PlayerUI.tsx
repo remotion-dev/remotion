@@ -511,7 +511,13 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		);
 
 	const onSingleClick = useCallback(
-		(e: SyntheticEvent | PointerEvent) => {
+		(e: SyntheticEvent<Element, PointerEvent> | PointerEvent) => {
+			const rightClick =
+				e instanceof MouseEvent ? e.button === 2 : e.nativeEvent.button;
+			if (rightClick) {
+				return;
+			}
+
 			toggle(e);
 		},
 		[toggle],
@@ -674,7 +680,13 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					onDoubleClick={
 						doubleClickToFullscreen ? handleDoubleClick : undefined
 					}
-					onPointerDown={clickToPlay ? handlePointerDown : undefined}
+					onPointerDown={
+						clickToPlay
+							? (handlePointerDown as (
+									e: SyntheticEvent<Element, Event> | PointerEvent,
+								) => void)
+							: undefined
+					}
 					renderMuteButton={renderMuteButton}
 					renderVolumeSlider={renderVolumeSlider}
 				/>
