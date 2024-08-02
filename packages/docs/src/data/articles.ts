@@ -312,14 +312,14 @@ export const articles = [
 		title: 'openBrowser()',
 		relativePath: 'docs/renderer/open-browser.mdx',
 		compId: 'articles-docs-renderer-open-browser',
-		crumb: '@remotion/renderer',
+		crumb: "'@remotion/renderer'",
 	},
 	{
 		id: 'stitch-frames-to-video',
 		title: 'stitchFramesToVideo()',
 		relativePath: 'docs/renderer/stitch-frames-to-video.mdx',
 		compId: 'articles-docs-renderer-stitch-frames-to-video',
-		crumb: '@remotion/renderer',
+		crumb: "'@remotion/renderer'",
 	},
 	{
 		id: 'ensure-ffprobe',
@@ -1097,20 +1097,6 @@ export const articles = [
 		relativePath: 'docs/use-img-and-iframe.mdx',
 		compId: 'articles-docs-use-img-and-iframe',
 		crumb: 'Best practices',
-	},
-	{
-		id: 'parse-media',
-		title: "'parseMedia()'",
-		relativePath: 'docs/video-parser/parse-media.mdx',
-		compId: 'articles-docs-video-parser-parse-media',
-		crumb: "'@remotion/media-parser'",
-	},
-	{
-		id: 'video-parser/index',
-		title: "'@remotion/media-parser'",
-		relativePath: 'docs/video-parser/index.mdx',
-		compId: 'articles-docs-video-parser-index',
-		crumb: null,
 	},
 	{
 		id: 'font-picker',
@@ -3344,6 +3330,20 @@ export const articles = [
 		relativePath: 'docs/video.mdx',
 		compId: 'articles-docs-video',
 		crumb: 'API',
+	},
+	{
+		id: 'parse-media',
+		title: 'parseMedia()',
+		relativePath: 'docs/media-parser/parse-media.mdx',
+		compId: 'articles-docs-media-parser-parse-media',
+		crumb: '@remotion/media-parser',
+	},
+	{
+		id: 'media-parser/index',
+		title: '@remotion/media-parser',
+		relativePath: 'docs/media-parser/index.mdx',
+		compId: 'articles-docs-media-parser-index',
+		crumb: null,
 	},
 	{
 		id: 'measure-spring',
