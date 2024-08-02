@@ -23,7 +23,7 @@ import {
 	useMediaMutedState,
 	useMediaVolumeState,
 } from '../volume-position-state.js';
-import type {RemotionVideoProps} from './props';
+import type {OnVideoFrame, RemotionVideoProps} from './props';
 import {isIosSafari, useAppendVideoFragment} from './video-fragment.js';
 
 type VideoForPreviewProps = RemotionVideoProps & {
@@ -34,6 +34,7 @@ type VideoForPreviewProps = RemotionVideoProps & {
 	readonly _remotionInternalStack: string | null;
 	readonly _remotionDebugSeeking: boolean;
 	readonly showInTimeline: boolean;
+	readonly onVideoFrame: null | OnVideoFrame;
 };
 
 const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<

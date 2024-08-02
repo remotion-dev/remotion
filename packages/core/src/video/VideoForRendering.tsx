@@ -24,11 +24,12 @@ import {useCurrentFrame} from '../use-current-frame.js';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
 import {evaluateVolume} from '../volume-prop.js';
 import {getMediaTime} from './get-current-time.js';
-import type {RemotionVideoProps} from './props';
+import type {OnVideoFrame, RemotionVideoProps} from './props';
 import {seekToTimeMultipleUntilRight} from './seek-until-right.js';
 
 type VideoForRenderingProps = RemotionVideoProps & {
 	readonly onDuration: (src: string, durationInSeconds: number) => void;
+	readonly onVideoFrame: null | OnVideoFrame;
 };
 
 const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<

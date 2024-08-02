@@ -27,6 +27,7 @@ export type ImgProps = Omit<
 	readonly pauseWhenLoading?: boolean;
 	readonly delayRenderRetries?: number;
 	readonly delayRenderTimeoutInMilliseconds?: number;
+	readonly onImageFrame?: (imgelement: HTMLImageElement) => void;
 	readonly src: string;
 };
 
@@ -41,6 +42,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		pauseWhenLoading,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
+		onImageFrame,
 		...props
 	},
 	ref,
@@ -156,6 +158,10 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 					);
 				}
 
+				if (current) {
+					onImageFrame?.(current);
+				}
+
 				unblock();
 				continueRender(newHandle);
 			};
@@ -184,6 +190,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 			delayRenderTimeoutInMilliseconds,
 			pauseWhenLoading,
 			isPremounting,
+			onImageFrame,
 		]);
 	}
 
