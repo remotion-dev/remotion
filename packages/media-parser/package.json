@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/media-parser"
 	},
 	"name": "@remotion/media-parser",
-	"version": "4.0.190",
+	"version": "4.0.191",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
@@ -14,6 +14,9 @@
 	},
 	"devDependencies": {
 		"@remotion/renderer": "workspace:*"
+	},
+	"publishConfig": {
+		"access": "public"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"

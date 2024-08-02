@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/cloudrun"
 	},
 	"name": "@remotion/cloudrun",
-	"version": "4.0.190",
+	"version": "4.0.191",
 	"description": "Render Remotion videos on Google Cloud Run",
 	"main": "dist/index.js",
 	"sideEffects": false,
