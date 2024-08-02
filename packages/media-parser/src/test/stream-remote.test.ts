@@ -9,7 +9,6 @@ test('Should stream', async () => {
 			fps: true,
 			dimensions: true,
 			videoCodec: true,
-			boxes: true,
 		},
 	);
 	expect(result.durationInSeconds).toBe(10);

@@ -77,6 +77,7 @@ const videoTags = [
 	'v410',
 	'v210',
 	'hvc1',
+	'ap4h',
 ];
 
 // https://developer.apple.com/documentation/quicktime-file-format/sound_sample_descriptions
