@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/media-parser"
 	},
 	"name": "@remotion/media-parser",
-	"version": "4.0.189",
+	"version": "4.0.190",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
@@ -38,5 +38,7 @@
 		"video",
 		"react",
 		"player"
-	]
+	],
+	"homepage": "https://www.remotion.dev/docs/media-parser",
+	"description": "A pure JavaScript library for parsing video files"
 }
