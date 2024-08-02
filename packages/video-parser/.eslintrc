@@ -1,7 +1,0 @@
-{
-  "extends": "@jonny/eslint-config",
-  "rules": {
-    "no-bitwise": "off",
-    "@typescript-eslint/no-use-before-define": "off"
-  }
-}

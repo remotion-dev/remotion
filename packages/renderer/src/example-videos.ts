@@ -34,5 +34,6 @@ export const exampleVideos = {
 		'public',
 		'transparent-with-dar.webm',
 	),
+	prores: path.join(examplePackage, 'public', 'prores.mov'),
 	iphonehevc: path.join(examplePackage, 'public', 'iphone-hevc.mov'),
 };

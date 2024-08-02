@@ -480,6 +480,9 @@ importers:
       '@remotion/lottie':
         specifier: workspace:*
         version: link:../lottie
+      '@remotion/media-parser':
+        specifier: workspace:*
+        version: link:../media-parser
       '@remotion/media-utils':
         specifier: workspace:*
         version: link:../media-utils
@@ -753,6 +756,9 @@ importers:
       '@remotion/lottie':
         specifier: workspace:*
         version: link:../lottie
+      '@remotion/media-parser':
+        specifier: workspace:*
+        version: link:../media-parser
       '@remotion/media-utils':
         specifier: workspace:*
         version: link:../media-utils
@@ -1159,6 +1165,12 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+
+  packages/media-parser:
+    devDependencies:
+      '@remotion/renderer':
+        specifier: workspace:*
+        version: link:../renderer
 
   packages/media-utils:
     dependencies:
@@ -1586,12 +1598,6 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
-
-  packages/video-parser:
-    devDependencies:
-      '@remotion/renderer':
-        specifier: workspace:*
-        version: link:../renderer
 
   packages/zod-types:
     dependencies:

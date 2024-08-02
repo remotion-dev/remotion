@@ -1,0 +1,42 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/media-parser"
+	},
+	"name": "@remotion/media-parser",
+	"version": "4.0.189",
+	"main": "dist/index.js",
+	"sideEffects": false,
+	"scripts": {
+		"formatting": "prettier src --check",
+		"lint": "eslint src --ext ts,tsx",
+		"test": "bun test src/test",
+		"watch": "tsc -w"
+	},
+	"devDependencies": {
+		"@remotion/renderer": "workspace:*"
+	},
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"exports": {
+		".": "./dist/index.js",
+		"./node": "./dist/from-node.js",
+		"./package.json": "./package.json"
+	},
+	"typesVersions": {
+		">=1.0": {
+			"node": [
+				"dist/from-node.d.ts"
+			]
+		}
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"license": "SEE LICENSE IN LICENSE.md",
+	"keywords": [
+		"remotion",
+		"ffmpeg",
+		"video",
+		"react",
+		"player"
+	]
+}

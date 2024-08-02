@@ -62,7 +62,7 @@ export const packages = [
 	'test-utils',
 	'three',
 	'transitions',
-	'video-parser',
+	'media-parser',
 	'zod-types',
 ] as const;
 
@@ -156,7 +156,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 		'Internal package for shared objects between the Studio backend and frontend',
 	tailwind: 'Enable TailwindCSS support in Remotion',
 	streaming: 'Utilities for streaming data between programs',
-	'video-parser': null,
+	'media-parser': 'A pure JavaScript library for parsing video files',
 	rive: 'Embed Rive animations in a Remotion video',
 	paths: 'Utilities for working with SVG paths',
 	studio: 'APIs for interacting with the Remotion Studio',
@@ -236,7 +236,7 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	'enable-scss': 'https://www.remotion.dev/docs/enable-scss/overview',
 	'create-video': 'https://remotion.dev/templates',
 	'studio-shared': null,
-	'video-parser': null,
+	'media-parser': 'https://www.remotion.dev/docs/media-parser',
 	fonts: 'https://www.remotion.dev/docs/fonts-api',
 	paths: 'https://www.remotion.dev/paths',
 	rive: 'https://www.remotion.dev/docs/rive',
