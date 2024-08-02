@@ -13,6 +13,7 @@ module.exports = {
 			files: ['*.md', '*.mdx'],
 			options: {
 				useTabs: false,
+				singleQuote: false,
 			},
 		},
 	],
