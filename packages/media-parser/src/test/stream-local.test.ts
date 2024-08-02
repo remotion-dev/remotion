@@ -108,7 +108,6 @@ test('Should stream ProRes video', async () => {
 		nodeReader,
 	);
 
-	await Bun.write('prores.json', JSON.stringify(parsed, null, 2));
 	// TODO: FPS should be 60
 	expect(parsed.fps).toBe(3.90625);
 	expect(parsed.dimensions.width).toBe(1920);
