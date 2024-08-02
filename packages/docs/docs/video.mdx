@@ -248,6 +248,14 @@ If you don't pass a callback, the video will be muted and be retried once.
 This prop is useful if you want to handle the error yourself, e.g. for pausing the Player.  
 Read more here about [autoplay restrictions](/docs/player/autoplay).
 
+### `onVideoFrame`<AvailableFrom v="4.0.190" />
+
+A callback function that gets called when a frame is extracted from the video.  
+Useful for [video manipulation](/docs/video-manipulation).  
+The callback is called with a [`CanvasImageSource`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasImageSource) object.  
+When you use the `<Video>` tag, it is always a `HTMLVideoElement` object.
+
+
 ## Speed up renders for video with silent audio
 
 Remotion will download the whole video during render in order to mix its audio. If the video contains a silent audio track, you can add the muted property to signal to Remotion that it does not need to download the video and make the render more efficient.
