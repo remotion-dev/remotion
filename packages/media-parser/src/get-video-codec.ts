@@ -51,7 +51,9 @@ export const getVideoCodec = (boxes: AnySegment[]): KnownVideoCodecs | null => {
 									return 'h264';
 								}
 
-								console.log({videoSample});
+								if (videoSample.format === 'ap4h') {
+									return 'prores';
+								}
 							}
 						}
 					}
