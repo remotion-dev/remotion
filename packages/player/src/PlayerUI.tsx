@@ -176,11 +176,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		}
 
 		const onFullscreenChange = () => {
-			setIsFullscreen(
+			const newValue =
 				document.fullscreenElement === current ||
-					// @ts-expect-error Types not defined
-					document.webkitFullscreenElement === current,
-			);
+				// @ts-expect-error Types not defined
+				document.webkitFullscreenElement === current;
+
+			setIsFullscreen(newValue);
 		};
 
 		document.addEventListener('fullscreenchange', onFullscreenChange);
@@ -390,7 +391,19 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 					player.seek(frameToSeekTo);
 				},
-				isFullscreen: () => isFullscreen,
+				isFullscreen: () => {
+					const {current} = container;
+					if (!current) {
+						return false;
+					}
+
+					const newValue =
+						document.fullscreenElement === current ||
+						// @ts-expect-error Types not defined
+						document.webkitFullscreenElement === current;
+
+					return newValue;
+				},
 				requestFullscreen,
 				exitFullscreen,
 				getVolume: () => {
@@ -438,7 +451,6 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		[
 			durationInFrames,
 			exitFullscreen,
-			isFullscreen,
 			loop,
 			mediaMuted,
 			isMuted,
