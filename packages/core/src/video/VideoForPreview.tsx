@@ -23,6 +23,7 @@ import {
 	useMediaMutedState,
 	useMediaVolumeState,
 } from '../volume-position-state.js';
+import {useEmitVideoFrame} from './emit-video-frame.js';
 import type {OnVideoFrame, RemotionVideoProps} from './props';
 import {isIosSafari, useAppendVideoFragment} from './video-fragment.js';
 
@@ -64,6 +65,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		loopVolumeCurveBehavior,
 		onError,
 		onAutoPlayError,
+		onVideoFrame,
 		...nativeProps
 	} = props;
 
@@ -191,6 +193,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	const currentOnDurationCallback =
 		useRef<VideoForPreviewProps['onDuration']>();
 	currentOnDurationCallback.current = onDuration;
+
+	useEmitVideoFrame({ref: videoRef, onVideoFrame});
 
 	useEffect(() => {
 		const {current} = videoRef;

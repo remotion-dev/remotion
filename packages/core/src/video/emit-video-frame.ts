@@ -1,13 +1,20 @@
 import {useEffect} from 'react';
 import type {OnVideoFrame} from './props';
 
-export const useEmitVideoFrame = (
-	ref: React.RefObject<HTMLVideoElement>,
-	onVideoFrame: OnVideoFrame,
-) => {
+export const useEmitVideoFrame = ({
+	ref,
+	onVideoFrame,
+}: {
+	ref: React.RefObject<HTMLVideoElement>;
+	onVideoFrame: OnVideoFrame | null;
+}) => {
 	useEffect(() => {
 		const {current} = ref;
 		if (!current) {
+			return;
+		}
+
+		if (!onVideoFrame) {
 			return;
 		}
 

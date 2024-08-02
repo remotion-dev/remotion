@@ -38,6 +38,7 @@ import {
 	OffthreadRemoteVideo,
 	calculateMetadataFn,
 } from './OffthreadRemoteVideo/OffthreadRemoteVideo';
+import {OffthreadVideoToCanvas} from './OffthreadVideoToCanvas';
 import {OrbScene} from './Orb';
 import {ShapesMorph} from './Paths/ShapesMorph';
 import {SlicePath} from './Paths/SlicePath';
@@ -620,6 +621,14 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						src: staticFile('vid1.mp4'),
 					}}
+				/>
+				<Composition
+					id="OffthreadVideoToCanvas"
+					component={OffthreadVideoToCanvas}
+					fps={30}
+					height={1080}
+					width={1080}
+					durationInFrames={100}
 				/>
 				<Composition
 					id="video-testing-webm"
