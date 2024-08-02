@@ -108,8 +108,7 @@ test('Should stream ProRes video', async () => {
 		nodeReader,
 	);
 
-	// TODO: FPS should be 60
-	expect(parsed.fps).toBe(58.8235294117647);
+	expect(parsed.fps).toBe(60);
 	expect(parsed.dimensions.width).toBe(1920);
 	expect(parsed.dimensions.height).toBe(1080);
 	expect(parsed.durationInSeconds).toBe(0.034);

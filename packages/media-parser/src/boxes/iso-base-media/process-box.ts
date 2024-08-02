@@ -2,6 +2,7 @@ import type {BufferIterator} from '../../buffer-iterator';
 import type {IsoBaseMediaBox, ParseResult} from '../../parse-result';
 import type {BoxAndNext} from '../../parse-video';
 import {parseFtyp} from './ftyp';
+import {parseMdhd} from './mdhd';
 import {parseMoov} from './moov/moov';
 import {parseMvhd} from './mvhd';
 import {parseMebx} from './stsd/mebx';
@@ -150,6 +151,20 @@ const processBox = ({
 
 	if (boxType === 'stts') {
 		const box = parseStts({
+			data: iterator,
+			size: boxSize,
+			fileOffset,
+		});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+		};
+	}
+
+	if (boxType === 'mdhd') {
+		const box = parseMdhd({
 			data: iterator,
 			size: boxSize,
 			fileOffset,
