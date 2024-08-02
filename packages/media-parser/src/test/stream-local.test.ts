@@ -61,7 +61,7 @@ test('Should stream corrupted video', async () => {
 	);
 
 	expect(parsed.durationInSeconds).toBe(30.03);
-	expect(parsed.fps).toBe(23.976023976023978);
+	expect(parsed.fps).toBe(23.976023976023974);
 	expect(parsed.dimensions).toEqual({
 		width: 1920,
 		height: 1080,
@@ -80,7 +80,7 @@ test('Should stream screen recording video', async () => {
 	);
 
 	expect(parsed.durationInSeconds).toBe(5.866666666666666);
-	expect(parsed.fps).toBe(58.98305084745763);
+	expect(parsed.fps).toBe(58.983050847457626);
 	expect(parsed.dimensions).toEqual({
 		height: 1766,
 		width: 2874,
@@ -98,7 +98,7 @@ test('Should stream ProRes video', async () => {
 	);
 
 	// TODO: FPS should be 60
-	expect(parsed.fps).toBe(3.90625);
+	expect(parsed.fps).toBe(58.8235294117647);
 	expect(parsed.dimensions.width).toBe(1920);
 	expect(parsed.dimensions.height).toBe(1080);
 	expect(parsed.durationInSeconds).toBe(0.034);

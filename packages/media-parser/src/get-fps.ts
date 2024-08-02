@@ -1,15 +1,28 @@
 import type {SttsBox} from './boxes/iso-base-media/stts/stts';
 import type {AnySegment} from './parse-result';
 
-const calculateFps = (sttsBox: SttsBox, timeScale: number) => {
-	let sum = 0;
+const calculateFps = ({
+	sttsBox,
+	timeScale,
+	durationInSamples,
+}: {
+	sttsBox: SttsBox;
+	timeScale: number;
+	durationInSamples: number;
+}) => {
+	let totalTimeUnits = 0;
 	let totalSamples = 0;
+
 	for (const sample of sttsBox.sampleDistribution) {
-		sum += sample.sampleCount * sample.sampleDelta;
+		totalTimeUnits += sample.sampleCount * sample.sampleDelta;
 		totalSamples += sample.sampleCount;
 	}
 
-	return timeScale / (sum / totalSamples);
+	const durationInSeconds =
+		Math.min(totalTimeUnits, durationInSamples) / timeScale;
+	const fps = totalSamples / durationInSeconds;
+
+	return fps;
 };
 
 export const getFps = (segments: AnySegment[]) => {
@@ -23,7 +36,7 @@ export const getFps = (segments: AnySegment[]) => {
 		return null;
 	}
 
-	const {timeScale} = mvhdBox;
+	const {timeScale, durationInUnits} = mvhdBox;
 
 	const {children} = moovBox;
 	const trackBoxes = children.filter((c) => c.type === 'trak-box');
@@ -80,7 +93,7 @@ export const getFps = (segments: AnySegment[]) => {
 		return null;
 	}
 
-	return calculateFps(sttsBox, timeScale);
+	return calculateFps({sttsBox, timeScale, durationInSamples: durationInUnits});
 };
 
 export const hasFps = (boxes: AnySegment[]): boolean => {
