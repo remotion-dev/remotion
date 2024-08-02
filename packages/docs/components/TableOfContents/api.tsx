@@ -96,6 +96,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>@remotion/shapes</strong>
 					<div>Generate SVG shapes</div>
 				</TOCItem>
+				<TOCItem link="/docs/studio/api">
+					<strong>@remotion/studio</strong>
+					<div>APIs for controlling theRemotion Studio</div>
+				</TOCItem>
 				<TOCItem link="/docs/transitions">
 					<strong>@remotion/transitions</strong>
 					<div>Transition between scenes</div>
