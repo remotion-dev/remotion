@@ -397,12 +397,11 @@ const PlayerUI: React.ForwardRefRenderFunction<
 						return false;
 					}
 
-					const newValue =
+					return (
 						document.fullscreenElement === current ||
 						// @ts-expect-error Types not defined
-						document.webkitFullscreenElement === current;
-
-					return newValue;
+						document.webkitFullscreenElement === current
+					);
 				},
 				requestFullscreen,
 				exitFullscreen,
