@@ -89,7 +89,6 @@ export const getTimescaleAndDuration = (
 		return null;
 	}
 
-	// TODO: What if the video track is not the first track?
 	const trackBox = trackBoxes.find(trakBoxContainsVideo);
 	if (!trackBox || trackBox.type !== 'trak-box') {
 		return null;
