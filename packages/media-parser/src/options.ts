@@ -2,7 +2,13 @@ import type {Dimensions} from './get-dimensions';
 import type {AnySegment} from './parse-result';
 import type {ReaderInterface} from './reader';
 
-export type KnownVideoCodecs = 'h264' | 'h265' | 'vp8' | 'av1' | 'prores';
+export type KnownVideoCodecs =
+	| 'h264'
+	| 'h265'
+	| 'vp8'
+	| 'vp9'
+	| 'av1'
+	| 'prores';
 
 export type Options<
 	EnableDimensions extends boolean,

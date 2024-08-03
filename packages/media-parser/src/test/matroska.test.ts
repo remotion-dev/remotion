@@ -137,17 +137,17 @@ test('Should get duration of AV1 video', async () => {
 										{
 											type: 'color-segment',
 										},
+										{
+											id: '0x0163a294',
+											type: 'unknown-segment',
+										},
 									],
 								},
 								{
-									id: '0x0163a294',
+									id: '0x0c000a0e',
 									type: 'unknown-segment',
 								},
 							],
-						},
-						{
-							id: '0x0c000a0e',
-							type: 'unknown-segment',
 						},
 					],
 				},

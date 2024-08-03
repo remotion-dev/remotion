@@ -8,10 +8,13 @@ const src = staticFile('blush-2x.mp4');
 export const VideoParser: React.FC = () => {
 	useEffect(() => {
 		const start = Date.now();
-		parseMedia(src, {
-			durationInSeconds: true,
-			dimensions: true,
-		}).then(({durationInSeconds, dimensions}) => {
+		parseMedia(
+			'https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.720p.vp9.webm',
+			{
+				durationInSeconds: true,
+				dimensions: true,
+			},
+		).then(({durationInSeconds, dimensions}) => {
 			console.log(
 				'@remotion/media-parser',
 				durationInSeconds,

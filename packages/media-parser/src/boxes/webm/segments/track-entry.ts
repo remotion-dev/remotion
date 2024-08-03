@@ -51,10 +51,6 @@ export type TrackUIDSegment = {
 
 export const parseTrackUID = (iterator: BufferIterator): TrackUIDSegment => {
 	const length = iterator.getVint();
-	// Observation: AV1 has 8 bytes, WebM has 7
-	if (length !== 8 && length !== 7) {
-		throw new Error('Expected track number to be 8 byte');
-	}
 
 	const bytes = iterator.getSlice(length);
 
@@ -187,16 +183,11 @@ export type VideoSegment = {
 };
 
 export const parseVideoSegment = (iterator: BufferIterator): VideoSegment => {
-	const offset = iterator.counter.getOffset();
-
 	const length = iterator.getVint();
 
 	return {
 		type: 'video-segment',
-		children: expectChildren(
-			iterator,
-			length - (iterator.counter.getOffset() - offset),
-		),
+		children: expectChildren(iterator, length),
 	};
 };
 
@@ -291,5 +282,41 @@ export const parseColorSegment = (iterator: BufferIterator): ColorSegment => {
 
 	return {
 		type: 'color-segment',
+	};
+};
+
+export type TitleSegment = {
+	type: 'title-segment';
+	title: string;
+};
+
+export const parseTitleSegment = (iterator: BufferIterator): TitleSegment => {
+	const length = iterator.getVint();
+	const title = iterator.getByteString(length);
+
+	return {
+		type: 'title-segment',
+		title,
+	};
+};
+
+export type InterlacedSegment = {
+	type: 'interlaced-segment';
+	interlaced: boolean;
+};
+
+export const parseInterlacedSegment = (
+	iterator: BufferIterator,
+): InterlacedSegment => {
+	const length = iterator.getVint();
+	if (length !== 1) {
+		throw new Error('Expected interlaced segment to be 1 byte');
+	}
+
+	const interlaced = iterator.getUint8();
+
+	return {
+		type: 'interlaced-segment',
+		interlaced: Boolean(interlaced),
 	};
 };

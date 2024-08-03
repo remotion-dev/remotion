@@ -154,6 +154,7 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 				'0xe0',
 				'0xb0',
 				'0xba',
+				'0x9a',
 			];
 			if (knownIdsWithOneLength.includes(firstOneString)) {
 				return firstOneString;
@@ -172,6 +173,7 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 				'0x4489',
 				'0x55ee',
 				'0x55b0',
+				'0x7ba9',
 			];
 
 			const firstTwoString = `${firstOneString}${Array.from(

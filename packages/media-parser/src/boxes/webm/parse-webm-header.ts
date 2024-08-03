@@ -5,7 +5,7 @@ import {expectSegment} from './segments';
 // Parsing according to https://darkcoding.net/software/reading-mediarecorders-webm-opus-output/
 export const parseWebm = (counter: BufferIterator): ParseResult => {
 	counter.discard(4);
-	const length = counter.getEBML();
+	const length = counter.getVint();
 
 	if (length !== 31) {
 		throw new Error(`Expected header length 31, got ${length}`);
