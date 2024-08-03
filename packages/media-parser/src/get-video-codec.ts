@@ -1,4 +1,5 @@
 /* eslint-disable max-depth */
+import {trakBoxContainsVideo} from './get-fps';
 import type {KnownVideoCodecs} from './options';
 import type {AnySegment} from './parse-result';
 
@@ -13,7 +14,9 @@ export const hasVideoCodec = (boxes: AnySegment[]): boolean => {
 export const getVideoCodec = (boxes: AnySegment[]): KnownVideoCodecs | null => {
 	const moovBox = boxes.find((b) => b.type === 'moov-box');
 	if (moovBox && moovBox.type === 'moov-box') {
-		const trakBox = moovBox.children.find((b) => b.type === 'trak-box');
+		const trakBox = moovBox.children.find(
+			(b) => b.type === 'trak-box' && trakBoxContainsVideo(b),
+		);
 		if (trakBox && trakBox.type === 'trak-box') {
 			const mdiaBox = trakBox.children.find(
 				(b) => b.type === 'regular-box' && b.boxType === 'mdia',

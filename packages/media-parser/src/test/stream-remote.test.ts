@@ -40,3 +40,14 @@ test('Should stream from Wikipedia', async () => {
 	});
 	expect(result.videoCodec).toEqual('vp9');
 });
+
+test('Should handle redirect', async () => {
+	const result = await parseMedia('https://remotion.dev/bbb.mp4', {
+		fps: true,
+		videoCodec: true,
+		durationInSeconds: true,
+	});
+	expect(result.videoCodec).toEqual('h264');
+	expect(result.fps).toEqual(24);
+	expect(result.durationInSeconds).toEqual(596.4733333333334);
+});

@@ -27,6 +27,54 @@ type TimescaleAndDuration = {
 	duration: number;
 };
 
+export const trakBoxContainsVideo = (trakBox: AnySegment): boolean => {
+	if (trakBox.type !== 'trak-box') {
+		return false;
+	}
+
+	const {children} = trakBox;
+	const mediaBoxes = children.filter(
+		(c) => c.type === 'regular-box' && c.boxType === 'mdia',
+	);
+	if (!mediaBoxes || mediaBoxes.length === 0) {
+		return false;
+	}
+
+	const firstMediaBox = mediaBoxes[0];
+	if (
+		firstMediaBox.type !== 'regular-box' ||
+		firstMediaBox.boxType !== 'mdia'
+	) {
+		return false;
+	}
+
+	const minf = firstMediaBox.children.find(
+		(c) => c.type === 'regular-box' && c.boxType === 'minf',
+	);
+	if (!minf || minf.type !== 'regular-box' || minf.boxType !== 'minf') {
+		return false;
+	}
+
+	const stbl = minf.children.find(
+		(c) => c.type === 'regular-box' && c.boxType === 'stbl',
+	);
+	if (!stbl || stbl.type !== 'regular-box' || stbl.boxType !== 'stbl') {
+		return false;
+	}
+
+	const stsd = stbl.children.find((c) => c.type === 'stsd-box');
+	if (!stsd || stsd.type !== 'stsd-box') {
+		return false;
+	}
+
+	const videoSample = stsd.samples.find((s) => s.type === 'video');
+	if (!videoSample || videoSample.type !== 'video') {
+		return false;
+	}
+
+	return true;
+};
+
 export const getTimescaleAndDuration = (
 	boxes: AnySegment[],
 ): TimescaleAndDuration | null => {
@@ -42,7 +90,7 @@ export const getTimescaleAndDuration = (
 	}
 
 	// TODO: What if the video track is not the first track?
-	const trackBox = trackBoxes[0];
+	const trackBox = trackBoxes.find(trakBoxContainsVideo);
 	if (!trackBox || trackBox.type !== 'trak-box') {
 		return null;
 	}
@@ -99,8 +147,7 @@ export const getFps = (segments: AnySegment[]) => {
 		return null;
 	}
 
-	// TODO: What if the video track is not the first track?
-	const trackBox = trackBoxes[0];
+	const trackBox = trackBoxes.find(trakBoxContainsVideo);
 	if (!trackBox || trackBox.type !== 'trak-box') {
 		return null;
 	}
