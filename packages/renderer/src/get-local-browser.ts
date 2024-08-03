@@ -1,7 +1,12 @@
 import fs from 'fs';
 import {homedir} from 'node:os';
+import {NoReactInternals} from 'remotion/no-react';
 
 const getSearchPathsForProduct = () => {
+	if (NoReactInternals.ENABLE_V5_BREAKING_CHANGES) {
+		return [];
+	}
+
 	return [
 		process.env.PUPPETEER_EXECUTABLE_PATH ?? null,
 		process.platform === 'darwin'

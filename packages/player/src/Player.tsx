@@ -17,6 +17,7 @@ import type {
 import {Composition, Internals} from 'remotion';
 import type {AnyZodObject} from 'zod';
 import {PlayerEmitterProvider} from './EmitterProvider.js';
+import type {RenderMuteButton} from './MediaVolumeSlider.js';
 import type {
 	RenderFullscreenButton,
 	RenderPlayPauseButton,
@@ -26,6 +27,7 @@ import PlayerUI from './PlayerUI.js';
 import {PLAYER_COMP_ID, SharedPlayerContexts} from './SharedPlayerContext.js';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
 import type {PlayerRef} from './player-methods.js';
+import type {RenderVolumeSlider} from './render-volume-slider.js';
 import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 import {validateInOutFrames} from './utils/validate-in-out-frame.js';
 import {validateInitialFrame} from './utils/validate-initial-frame.js';
@@ -73,6 +75,8 @@ export type PlayerProps<
 	readonly initiallyShowControls?: number | boolean;
 	readonly renderPlayPauseButton?: RenderPlayPauseButton;
 	readonly renderFullscreenButton?: RenderFullscreenButton;
+	readonly renderMuteButton?: RenderMuteButton;
+	readonly renderVolumeSlider?: RenderVolumeSlider;
 	readonly alwaysShowControls?: boolean;
 	readonly schema?: Schema;
 	readonly initiallyMuted?: boolean;
@@ -133,6 +137,7 @@ const PlayerFn = <
 		initiallyShowControls,
 		renderFullscreenButton,
 		renderPlayPauseButton,
+		renderVolumeSlider,
 		alwaysShowControls = false,
 		initiallyMuted = false,
 		showPlaybackRateControl = false,
@@ -140,6 +145,7 @@ const PlayerFn = <
 		bufferStateDelayInMilliseconds,
 		hideControlsWhenPointerDoesntMove = true,
 		overflowVisible = false,
+		renderMuteButton,
 		...componentProps
 	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>,
@@ -390,6 +396,8 @@ const PlayerFn = <
 							initiallyShowControls={initiallyShowControls ?? true}
 							renderFullscreen={renderFullscreenButton ?? null}
 							renderPlayPauseButton={renderPlayPauseButton ?? null}
+							renderMuteButton={renderMuteButton ?? null}
+							renderVolumeSlider={renderVolumeSlider ?? null}
 							alwaysShowControls={alwaysShowControls}
 							showPlaybackRateControl={showPlaybackRateControl}
 							bufferStateDelayInMilliseconds={

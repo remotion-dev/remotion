@@ -7,7 +7,7 @@
 		"name": "Chetan Karwa",
 		"email": "cbkarwa@gmail.com"
 	},
-	"version": "4.0.187",
+	"version": "4.0.191",
 	"description": "Helpers for animating CSS properties",
 	"main": "./dist/index.js",
 	"module": "./dist/index.mjs",

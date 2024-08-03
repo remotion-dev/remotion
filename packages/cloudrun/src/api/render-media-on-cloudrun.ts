@@ -9,7 +9,7 @@ import type {
 	VideoImageFormat,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import {NoReactAPIs} from '@remotion/renderer/pure';
+import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import type {
@@ -270,7 +270,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 	return renderResponse;
 };
 
-export const internalRenderMediaOnCloudrun = NoReactAPIs.wrapWithErrorHandling(
+export const internalRenderMediaOnCloudrun = wrapWithErrorHandling(
 	internalRenderMediaOnCloudrunRaw,
 ) as typeof internalRenderMediaOnCloudrunRaw;
 

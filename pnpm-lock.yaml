@@ -480,6 +480,9 @@ importers:
       '@remotion/lottie':
         specifier: workspace:*
         version: link:../lottie
+      '@remotion/media-parser':
+        specifier: workspace:*
+        version: link:../media-parser
       '@remotion/media-utils':
         specifier: workspace:*
         version: link:../media-utils
@@ -753,6 +756,9 @@ importers:
       '@remotion/lottie':
         specifier: workspace:*
         version: link:../lottie
+      '@remotion/media-parser':
+        specifier: workspace:*
+        version: link:../media-parser
       '@remotion/media-utils':
         specifier: workspace:*
         version: link:../media-utils
@@ -1005,6 +1011,9 @@ importers:
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
+      '@remotion/serverless':
+        specifier: workspace:*
+        version: link:../serverless
       '@remotion/shapes':
         specifier: workspace:*
         version: link:../shapes
@@ -1071,9 +1080,15 @@ importers:
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
+      '@remotion/serverless':
+        specifier: workspace:*
+        version: link:../serverless
       '@remotion/streaming':
         specifier: workspace:*
         version: link:../streaming
+      '@remotion/studio-server':
+        specifier: workspace:*
+        version: link:../studio-server
       '@smithy/abort-controller':
         specifier: 3.0.0
         version: 3.0.0
@@ -1150,6 +1165,12 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+
+  packages/media-parser:
+    devDependencies:
+      '@remotion/renderer':
+        specifier: workspace:*
+        version: link:../renderer
 
   packages/media-utils:
     dependencies:
@@ -1327,6 +1348,18 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+
+  packages/serverless:
+    dependencies:
+      '@remotion/renderer':
+        specifier: workspace:*
+        version: link:../renderer
+      '@remotion/streaming':
+        specifier: workspace:*
+        version: link:../streaming
+      remotion:
+        specifier: workspace:*
+        version: link:../core
 
   packages/shapes:
     dependencies:
@@ -1565,12 +1598,6 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
-
-  packages/video-parser:
-    devDependencies:
-      '@remotion/renderer':
-        specifier: workspace:*
-        version: link:../renderer
 
   packages/zod-types:
     dependencies:

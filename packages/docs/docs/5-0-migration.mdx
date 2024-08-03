@@ -56,6 +56,29 @@ It never made sense to have this prop as transitioned elements need to be positi
 
 **Required action**: Remove the `layout` prop.
 
+## Zod should be upgraded to 3.23.8
+
+Remotion previously used the types of Zod 3.22.3. With Remotion 5.0, the types of 3.23.8 are used.  
+
+**Required action**: If you use Zod, Upgrade Zod to 3.23.8.
+
+## `measureSpring()` does not accept `from` and `to` options anymore
+
+The values passed in there did not influence the calculation at all. Therefore we removed those options.  
+
+**Required action**: Remove the `from` and `to` options from your code.
+
+## `overwrite` is now `true` by default in `renderMediaOnLambda()`
+
+The default value of `overwrite` has been changed to `true` in `renderMediaOnLambda()`. This skips a check that the file already exists in the S3 bucket, which makes the render start faster.
+
+**Required action**: If you want to keep the old behavior, set `overwrite: false`, explicitly.
+
+## `openBrowser()` now takes a `logLevel` instead of `shouldDumpIo`
+
+The `shouldDumpIo` option has been be removed in 5.0.  
+Use `logLevel` instead.
+
 ## License changes
 
 Remotion 5.0 has an updated license. View the [license](https://github.com/remotion-dev/remotion/blob/5-0-license/LICENSE.md) here or compare the [changes](https://github.com/remotion-dev/remotion/pull/3750).

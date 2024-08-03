@@ -1,5 +1,5 @@
+import type {ServerlessRoutines} from '@remotion/serverless/client';
 import type {AwsRegion} from '../client';
-import type {LambdaRoutines} from './constants';
 import {encodeAwsUrlParams} from './encode-aws-url-params';
 
 const cloudWatchUrlWithQuery = ({
@@ -25,7 +25,7 @@ export const getCloudwatchMethodUrl = ({
 }: {
 	region: AwsRegion;
 	functionName: string;
-	method: LambdaRoutines;
+	method: ServerlessRoutines;
 	rendererFunctionName: string | null;
 	renderId: string;
 }) => {

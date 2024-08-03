@@ -133,13 +133,16 @@
 			"path": "./packages/transitions"
 		},
 		{
-			"path": "./packages/video-parser"
+			"path": "./packages/media-parser"
 		},
 		{
 			"path": "./packages/enable-scss"
 		},
 		{
 			"path": "./packages/streaming"
+		},
+		{
+			"path": "./packages/serverless"
 		},
 		{
 			"path": "./packages/docusaurus-plugin"

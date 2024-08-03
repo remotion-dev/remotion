@@ -2,16 +2,24 @@ use crate::compositor::draw_layer;
 use crate::copy_clipboard::copy_to_clipboard;
 use crate::errors::ErrorWithBacktrace;
 use crate::image::{save_as_jpeg, save_as_png};
+use crate::memory::is_about_to_run_out_of_memory;
 use crate::opened_video_manager::OpenedVideoManager;
 use crate::payloads::payloads::CliInputCommandPayload;
-use crate::{ffmpeg, get_silent_parts};
+use crate::{ffmpeg, get_silent_parts, max_cache_size};
 use std::io::ErrorKind;
 
-pub fn execute_command(
-    opts: CliInputCommandPayload,
-    maximum_frame_cache_size_in_bytes: Option<u128>,
-) -> Result<Vec<u8>, ErrorWithBacktrace> {
-    match opts {
+pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWithBacktrace> {
+    let current_maximum_cache_size = max_cache_size::get_instance().lock().unwrap().get_value();
+
+    if is_about_to_run_out_of_memory() && current_maximum_cache_size.is_some() {
+        ffmpeg::emergency_memory_free_up().unwrap();
+        max_cache_size::get_instance()
+            .lock()
+            .unwrap()
+            .set_value(Some(current_maximum_cache_size.unwrap() / 2));
+    }
+
+    let res = match opts {
         CliInputCommandPayload::ExtractFrame(command) => {
             let res = ffmpeg::extract_frame(
                 command.src,
@@ -19,7 +27,7 @@ pub fn execute_command(
                 command.time,
                 command.transparent,
                 command.tone_mapped,
-                maximum_frame_cache_size_in_bytes,
+                max_cache_size::get_instance().lock().unwrap().get_value(),
             )?;
             Ok(res)
         }
@@ -99,5 +107,11 @@ pub fn execute_command(
             ffmpeg::extract_audio(&_command.input_path, &_command.output_path)?;
             Ok(vec![])
         }
+    };
+    if current_maximum_cache_size.is_some() {
+        ffmpeg::keep_only_latest_frames_and_close_videos(current_maximum_cache_size.unwrap())
+            .unwrap();
     }
+
+    return res;
 }

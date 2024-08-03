@@ -1,6 +1,8 @@
+import type {CloudProvider, EnhancedErrorInfo} from '@remotion/serverless';
+import type {RenderMetadata} from '@remotion/serverless/client';
 import {estimatePrice} from '../../api/estimate-price';
-import type {AwsRegion} from '../../pricing/aws-regions';
-import type {PostRenderData, RenderMetadata} from '../../shared/constants';
+import type {AwsRegion} from '../../regions';
+import type {PostRenderData} from '../../shared/constants';
 import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../../shared/constants';
 import {
 	OVERHEAD_TIME_PER_LAMBDA,
@@ -9,9 +11,8 @@ import {
 import {calculateChunkTimes} from './calculate-chunk-times';
 import type {OutputFileMetadata} from './find-output-file-in-bucket';
 import type {OverallRenderProgress} from './overall-render-progress';
-import type {EnhancedErrorInfo} from './write-lambda-error';
 
-export const createPostRenderData = ({
+export const createPostRenderData = <Provider extends CloudProvider>({
 	region,
 	memorySizeInMb,
 	renderMetadata,
@@ -23,17 +24,17 @@ export const createPostRenderData = ({
 	timeToFinish,
 	outputSize,
 }: {
-	region: AwsRegion;
+	region: Provider['region'];
 	memorySizeInMb: number;
-	renderMetadata: RenderMetadata;
+	renderMetadata: RenderMetadata<Provider>;
 	timeToDelete: number;
 	errorExplanations: EnhancedErrorInfo[];
 	outputFile: OutputFileMetadata;
 	timeToCombine: number | null;
-	overallProgress: OverallRenderProgress;
+	overallProgress: OverallRenderProgress<Provider>;
 	timeToFinish: number;
 	outputSize: number;
-}): PostRenderData => {
+}): PostRenderData<Provider> => {
 	const parsedTimings = overallProgress.timings;
 
 	const estimatedBillingDurationInMilliseconds = parsedTimings
@@ -43,7 +44,7 @@ export const createPostRenderData = ({
 	const cost = estimatePrice({
 		durationInMilliseconds: estimatedBillingDurationInMilliseconds,
 		memorySizeInMb,
-		region,
+		region: region as AwsRegion,
 		lambdasInvoked: renderMetadata.estimatedTotalLambdaInvokations,
 		// We cannot determine the ephemeral storage size, so we
 		// overestimate the price, but will only have a miniscule effect (~0.2%)

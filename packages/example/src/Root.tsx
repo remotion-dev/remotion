@@ -4,9 +4,9 @@ import {
 	CalculateMetadataFunction,
 	Composition,
 	Folder,
-	Still,
 	getInputProps,
 	staticFile,
+	Still,
 } from 'remotion';
 import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
@@ -35,9 +35,10 @@ import {ManyAudio} from './ManyAudio';
 import {HandleAudioRenderError} from './MediaErrorHandling/HandleAudioRenderError';
 import {MissingImg} from './MissingImg';
 import {
-	OffthreadRemoteVideo,
 	calculateMetadataFn,
+	OffthreadRemoteVideo,
 } from './OffthreadRemoteVideo/OffthreadRemoteVideo';
+import {OffthreadVideoToCanvas} from './OffthreadVideoToCanvas';
 import {OrbScene} from './Orb';
 import {ShapesMorph} from './Paths/ShapesMorph';
 import {SlicePath} from './Paths/SlicePath';
@@ -50,8 +51,8 @@ import RiveVehicle from './Rive/RiveExample';
 import {ScalePath} from './ScalePath';
 import {
 	ArrayTest,
-	SchemaTest,
 	schemaArrayTestSchema,
+	SchemaTest,
 	schemaTestSchema,
 } from './SchemaTest';
 import {Scripts} from './Scripts';
@@ -77,6 +78,7 @@ import {
 } from './StudioApis/SaveDefaultProps';
 import {TriggerCalculateMetadata} from './StudioApis/TriggerCalculateMetadata';
 import {WriteStaticFile} from './StudioApis/WriteStaticFile';
+import './style.css';
 import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
@@ -95,7 +97,6 @@ import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
-import './style.css';
 import {WatchStaticDemo} from './watch-static';
 
 if (alias !== 'alias') {
@@ -106,6 +107,7 @@ const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
 
 // @ts-expect-error no types
 import styles from './styles.module.scss';
+import {VideoParser} from './VideoParser';
 
 class Vector2 {
 	readonly x: number;
@@ -620,6 +622,14 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						src: staticFile('vid1.mp4'),
 					}}
+				/>
+				<Composition
+					id="OffthreadVideoToCanvas"
+					component={OffthreadVideoToCanvas}
+					fps={30}
+					height={1080}
+					width={1080}
+					durationInFrames={100}
 				/>
 				<Composition
 					id="video-testing-webm"
@@ -1413,6 +1423,16 @@ export const Index: React.FC = () => {
 				<Composition
 					id="AnimatedEmojis"
 					component={UseanimatedEmojis}
+					fps={30}
+					height={1080}
+					width={1080}
+					durationInFrames={10_000}
+				/>
+			</Folder>
+			<Folder name="VideoParser">
+				<Composition
+					id="VideoParser"
+					component={VideoParser}
 					fps={30}
 					height={1080}
 					width={1080}

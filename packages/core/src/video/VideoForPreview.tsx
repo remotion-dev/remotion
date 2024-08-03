@@ -23,7 +23,8 @@ import {
 	useMediaMutedState,
 	useMediaVolumeState,
 } from '../volume-position-state.js';
-import type {RemotionVideoProps} from './props';
+import {useEmitVideoFrame} from './emit-video-frame.js';
+import type {OnVideoFrame, RemotionVideoProps} from './props';
 import {isIosSafari, useAppendVideoFragment} from './video-fragment.js';
 
 type VideoForPreviewProps = RemotionVideoProps & {
@@ -34,6 +35,8 @@ type VideoForPreviewProps = RemotionVideoProps & {
 	readonly _remotionInternalStack: string | null;
 	readonly _remotionDebugSeeking: boolean;
 	readonly showInTimeline: boolean;
+	readonly onVideoFrame: null | OnVideoFrame;
+	readonly crossOrigin: '' | 'anonymous' | 'use-credentials' | undefined;
 };
 
 const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
@@ -63,6 +66,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		loopVolumeCurveBehavior,
 		onError,
 		onAutoPlayError,
+		onVideoFrame,
+		crossOrigin,
 		...nativeProps
 	} = props;
 
@@ -191,6 +196,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		useRef<VideoForPreviewProps['onDuration']>();
 	currentOnDurationCallback.current = onDuration;
 
+	useEmitVideoFrame({ref: videoRef, onVideoFrame});
+
 	useEffect(() => {
 		const {current} = videoRef;
 		if (!current) {
@@ -240,6 +247,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		};
 	}, [isSequenceHidden, style]);
 
+	const crossOriginValue = crossOrigin ?? (onVideoFrame ? 'anonymous' : '');
+
 	return (
 		<video
 			ref={videoRef}
@@ -249,6 +258,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			loop={_remotionInternalNativeLoopPassed}
 			style={actualStyle}
 			disableRemotePlayback
+			crossOrigin={crossOriginValue}
 			{...nativeProps}
 		/>
 	);

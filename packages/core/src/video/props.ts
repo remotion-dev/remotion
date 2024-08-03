@@ -10,6 +10,7 @@ export type RemotionMainVideoProps = {
 	 */
 	_remotionInternalNativeLoopPassed?: boolean;
 	_remotionDebugSeeking?: boolean;
+	onVideoFrame?: OnVideoFrame;
 };
 
 export type RemotionVideoProps = Omit<
@@ -71,5 +72,9 @@ export type OffthreadVideoProps = {
 	stack?: string;
 	showInTimeline?: boolean;
 	onAutoPlayError?: null | (() => void);
+	onVideoFrame?: OnVideoFrame;
+	crossOrigin?: '' | 'anonymous' | 'use-credentials';
 } & RemotionMainVideoProps &
 	DeprecatedOffthreadVideoProps;
+
+export type OnVideoFrame = (frame: CanvasImageSource) => void;

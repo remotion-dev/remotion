@@ -46,6 +46,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	loopVolumeCurveBehavior,
 	delayRenderRetries,
 	delayRenderTimeoutInMilliseconds,
+	onVideoFrame,
 	...props
 }) => {
 	const absoluteFrame = useTimelinePosition();
@@ -201,6 +202,15 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 					handle: newHandle,
 				});
 			} catch (err) {
+				// If component is unmounted, we should not throw
+				if ((err as Error).message.includes('aborted')) {
+					return;
+				}
+
+				if (controller.signal.aborted) {
+					return;
+				}
+
 				if (onError) {
 					onError(err as Error);
 				} else {
@@ -244,6 +254,15 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			.join(' ');
 	}, [props.className]);
 
+	const onImageFrame = useCallback(
+		(img: HTMLImageElement) => {
+			if (onVideoFrame) {
+				onVideoFrame(img);
+			}
+		},
+		[onVideoFrame],
+	);
+
 	if (!imageSrc) {
 		return null;
 	}
@@ -256,6 +275,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			className={className}
 			delayRenderRetries={delayRenderRetries}
 			delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
+			onImageFrame={onImageFrame}
 			{...props}
 			onError={onErr}
 		/>

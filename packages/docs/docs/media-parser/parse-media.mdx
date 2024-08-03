@@ -1,0 +1,99 @@
+---
+image: /generated/articles-docs-media-parser-parse-media.png
+id: parse-media
+title: parseMedia()
+slug: /media-parser/parse-media
+crumb: "@remotion/media-parser"
+---
+
+_Part of the [`@remotion/media-parser`](/docs/media-parser) package._
+_available from v4.0.190_
+
+:::warning
+**Unstable API**: This package is experimental. We might change the API at any time, until we remove this notice.
+:::
+
+## Examples
+
+```tsx twoslash title="Parsing a hosted video"
+// @module: es2022
+// @target: es2017
+import {parseMedia} from '@remotion/media-parser';
+
+const result = await parseMedia('https://example.com/my-video.mp4', {
+  durationInSeconds: true,
+  dimensions: true,
+});
+
+console.log(result.durationInSeconds); // 10
+console.log(result.dimensions); // {width: 1920, height: 1080}
+```
+
+```tsx twoslash title="Parsing a local file"
+// @module: es2022
+// @target: es2017
+import {parseMedia} from '@remotion/media-parser';
+import {nodeReader} from '@remotion/media-parser/node';
+
+const result = await parseMedia(
+  '/Users/jonnyburger/Downloads/my-video.mp4',
+  {
+    durationInSeconds: true,
+    dimensions: true,
+  },
+  nodeReader,
+);
+```
+
+## API
+
+:::warning
+**Unstable API**: This package is experimental. We might change the API at any time, until we remove this notice.
+:::
+
+### `src`
+
+Either a local file path, or a URL.  
+If you pass a local file path, you must also pass `nodeReader` as the `reader` argument.
+
+### `fields`
+
+An object specifying which fields you'd like to receive.  
+Possible fields are:
+
+#### `dimensions`
+
+_`{width: number, height: number}`_
+
+The dimensions of the video.
+
+#### `durationInSeconds`
+
+_number | null_
+
+The duration of the video in seconds.
+
+#### `boxes`
+
+The internal structure of the video. Unstable, internal data structure, refer to the TypeScript types to see what's inside.
+
+#### `fps`
+
+_number | null_
+
+The frame rate of the video.
+
+#### `videoCodec`
+
+The video codec of the video. One of `"h264"`, `"h265"`, `"vp8"`, `"vp9"`, `"av1"`, `"prores"` or `null` (in case of an unknown codec).
+
+### `reader`
+
+A reader interface.  
+Default value: `webReader`, which uses `fetch()` to read the video.  
+If you pass `nodeReader`, you must also pass a local file path as the `src` argument.
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-parser/src/parse-media.ts)
+- [`@remotion/media-parser`](/docs/media-parser)

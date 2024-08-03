@@ -2,7 +2,7 @@ import type {FunctionConfiguration} from '@aws-sdk/client-lambda';
 import {ListFunctionsCommand} from '@aws-sdk/client-lambda';
 import type {LogLevel} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
-import type {AwsRegion} from '../pricing/aws-regions';
+import type {AwsRegion} from '../regions';
 import {getLambdaClient} from '../shared/aws-clients';
 import {
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,

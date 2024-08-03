@@ -1,10 +1,10 @@
+import {ServerlessRoutines} from '@remotion/serverless/client';
 import {expect, test} from 'vitest';
 import {callLambda} from '../../shared/call-lambda';
-import {LambdaRoutines} from '../../shared/constants';
 
 test('Info handler should return version', async () => {
 	const response = await callLambda({
-		type: LambdaRoutines.info,
+		type: ServerlessRoutines.info,
 		payload: {
 			logLevel: 'info',
 		},

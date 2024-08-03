@@ -1,16 +1,7 @@
 import type {LifecycleRule} from '@aws-sdk/client-s3';
-import {randomHash} from '../../shared/random-hash';
-import {truthy} from '../../shared/truthy';
-
-// Needs to be in sync with renderer/src/options/delete-after.ts#L7
-const expiryDays = {
-	'1-day': 1,
-	'3-days': 3,
-	'7-days': 7,
-	'30-days': 30,
-} as const;
-
-export type DeleteAfter = keyof typeof expiryDays;
+import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
+import type {DeleteAfter} from '@remotion/serverless/client';
+import {expiryDays, truthy} from '@remotion/serverless/client';
 
 const getEnabledLifeCycleRule = ({
 	key,
@@ -37,12 +28,13 @@ export const getLifeCycleRules = (): LifecycleRule[] => {
 	);
 };
 
-export const generateRandomHashWithLifeCycleRule = (
+export const generateRandomHashWithLifeCycleRule = <
+	Provider extends CloudProvider,
+>(
 	deleteAfter: DeleteAfter | null,
+	providerSpecifics: ProviderSpecifics<Provider>,
 ) => {
-	return [deleteAfter, randomHash({randomInTests: true})]
-		.filter(truthy)
-		.join('-');
+	return [deleteAfter, providerSpecifics.randomHash()].filter(truthy).join('-');
 };
 
 export const validateDeleteAfter = (lifeCycleValue: unknown) => {

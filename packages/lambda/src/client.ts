@@ -23,19 +23,17 @@ import {renderStillOnLambda} from './api/render-still-on-lambda';
 import type {SpeculateFunctionNameInput} from './api/speculate-function-name';
 import {speculateFunctionName} from './api/speculate-function-name';
 import {validateWebhookSignature} from './api/validate-webhook-signature';
-import {DeleteAfter} from './functions/helpers/lifecycle';
-import type {AwsRegion} from './pricing/aws-regions';
 import type {RenderProgress} from './shared/constants';
 import type {WebhookPayload} from './shared/invoke-webhook';
 
+export {CustomCredentials, DeleteAfter} from '@remotion/serverless/client';
 export {
 	GetAwsClientInput,
 	GetAwsClientOutput,
 	getAwsClient,
 } from './api/get-aws-client';
-export {CustomCredentials} from './shared/aws-clients';
+export type {AwsRegion} from './regions';
 export {
-	DeleteAfter,
 	deleteRender,
 	getCompositionsOnLambda,
 	getFunctions,
@@ -49,7 +47,6 @@ export {
 	validateWebhookSignature,
 };
 export type {
-	AwsRegion,
 	DeleteRenderInput,
 	GetRenderProgressInput,
 	PresignUrlInput,

@@ -1,42 +1,43 @@
 import type {AudioCodec, LogLevel} from '@remotion/renderer';
-import fs from 'fs';
-import type {CustomCredentials} from '../../shared/aws-clients';
+import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
 import type {
-	PostRenderData,
+	CustomCredentials,
+	DownloadBehavior,
 	Privacy,
 	RenderMetadata,
 	SerializedInputProps,
-} from '../../shared/constants';
-import type {DownloadBehavior} from '../../shared/content-disposition-header';
-import type {LambdaCodec} from '../../shared/validate-lambda-codec';
+	ServerlessCodec,
+} from '@remotion/serverless/client';
+import fs from 'fs';
+import type {PostRenderData} from '../../shared/constants';
 import {cleanupProps} from './cleanup-props';
 import {concatVideos} from './concat-videos';
 import {createPostRenderData} from './create-post-render-data';
-import {getCurrentRegionInFunction} from './get-current-region';
 import {getOutputUrlFromMetadata} from './get-output-url-from-metadata';
 import {inspectErrors} from './inspect-errors';
-import {lambdaWriteFile} from './io';
 import type {OverallProgressHelper} from './overall-render-progress';
 import {timer} from './timer';
 
-export const mergeChunksAndFinishRender = async (options: {
+export const mergeChunksAndFinishRender = async <
+	Provider extends CloudProvider,
+>(options: {
 	bucketName: string;
 	renderId: string;
 	expectedBucketOwner: string;
 	numberOfFrames: number;
-	codec: LambdaCodec;
+	codec: ServerlessCodec;
 	chunkCount: number;
 	fps: number;
 	numberOfGifLoops: number | null;
 	audioCodec: AudioCodec | null;
 	renderBucketName: string;
-	customCredentials: CustomCredentials | null;
+	customCredentials: CustomCredentials<Provider> | null;
 	downloadBehavior: DownloadBehavior;
 	key: string;
 	privacy: Privacy;
 	inputProps: SerializedInputProps;
 	serializedResolvedProps: SerializedInputProps;
-	renderMetadata: RenderMetadata;
+	renderMetadata: RenderMetadata<Provider>;
 	audioBitrate: string | null;
 	logLevel: LogLevel;
 	framesPerLambda: number;
@@ -45,9 +46,10 @@ export const mergeChunksAndFinishRender = async (options: {
 	compositionStart: number;
 	outdir: string;
 	files: string[];
-	overallProgress: OverallProgressHelper;
+	overallProgress: OverallProgressHelper<Provider>;
 	startTime: number;
-}): Promise<PostRenderData> => {
+	providerSpecifics: ProviderSpecifics<Provider>;
+}): Promise<PostRenderData<Provider>> => {
 	const onProgress = (framesEncoded: number) => {
 		options.overallProgress.setCombinedFrames(framesEncoded);
 	};
@@ -79,23 +81,23 @@ export const mergeChunksAndFinishRender = async (options: {
 
 	const outputSize = fs.statSync(outfile).size;
 
-	const writeToS3 = timer(
-		`Writing to S3 (${outputSize} bytes)`,
+	const writeToBucket = timer(
+		`Writing to bucket (${outputSize} bytes)`,
 		options.logLevel,
 	);
 
-	await lambdaWriteFile({
+	await options.providerSpecifics.writeFile({
 		bucketName: options.renderBucketName,
 		key: options.key,
 		body: fs.createReadStream(outfile),
-		region: getCurrentRegionInFunction(),
+		region: options.providerSpecifics.getCurrentRegionInFunction(),
 		privacy: options.privacy,
 		expectedBucketOwner: options.expectedBucketOwner,
 		downloadBehavior: options.downloadBehavior,
 		customCredentials: options.customCredentials,
 	});
 
-	writeToS3.end();
+	writeToBucket.end();
 
 	const errorExplanations = inspectErrors({
 		errors: options.overallProgress.get().errors,
@@ -104,16 +106,18 @@ export const mergeChunksAndFinishRender = async (options: {
 	const cleanupProm = cleanupProps({
 		inputProps: options.inputProps,
 		serializedResolvedProps: options.serializedResolvedProps,
+		providerSpecifics: options.providerSpecifics,
 	});
 
 	const {url: outputUrl} = getOutputUrlFromMetadata(
 		options.renderMetadata,
 		options.bucketName,
 		options.customCredentials,
+		options.providerSpecifics.getCurrentRegionInFunction(),
 	);
 
 	const postRenderData = createPostRenderData({
-		region: getCurrentRegionInFunction(),
+		region: options.providerSpecifics.getCurrentRegionInFunction(),
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		renderMetadata: options.renderMetadata,
 		errorExplanations,

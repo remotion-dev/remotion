@@ -1,12 +1,15 @@
-import type {RenderMetadata} from '../../defaults';
-import type {CustomCredentials} from '../../shared/aws-clients';
-import {getExpectedOutName} from './expected-out-name';
-import {getCurrentRegionInFunction} from './get-current-region';
+import type {CloudProvider} from '@remotion/serverless';
+import type {RenderMetadata} from '@remotion/serverless/client';
+import {
+	getExpectedOutName,
+	type CustomCredentials,
+} from '@remotion/serverless/client';
 
-export const getOutputUrlFromMetadata = (
-	renderMetadata: RenderMetadata,
+export const getOutputUrlFromMetadata = <Provider extends CloudProvider>(
+	renderMetadata: RenderMetadata<Provider>,
 	bucketName: string,
-	customCredentials: CustomCredentials | null,
+	customCredentials: CustomCredentials<Provider> | null,
+	currentRegion: Provider['region'],
 ) => {
 	const {key, renderBucketName} = getExpectedOutName(
 		renderMetadata,
@@ -14,7 +17,7 @@ export const getOutputUrlFromMetadata = (
 		customCredentials,
 	);
 	return {
-		url: `https://s3.${getCurrentRegionInFunction()}.amazonaws.com/${renderBucketName}/${key}`,
+		url: `https://s3.${currentRegion}.amazonaws.com/${renderBucketName}/${key}`,
 		key,
 	};
 };

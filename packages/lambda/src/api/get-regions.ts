@@ -1,6 +1,5 @@
-import type {AwsRegion} from '../pricing/aws-regions';
-import {DEFAULT_AWS_REGIONS} from '../pricing/aws-regions';
-import {AWS_REGIONS} from '../regions';
+import type {AwsRegion} from '../regions';
+import {AWS_REGIONS, DEFAULT_AWS_REGIONS} from '../regions';
 
 type Options = {
 	enabledByDefaultOnly?: boolean;

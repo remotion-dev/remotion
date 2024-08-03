@@ -1,5 +1,5 @@
 import type {LogLevel} from '@remotion/renderer';
-import {NoReactAPIs} from '@remotion/renderer/pure';
+import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import {
 	DEFAULT_MAX_INSTANCES,
 	DEFAULT_MIN_INSTANCES,
@@ -116,8 +116,7 @@ const deployServiceRaw = async ({
 	};
 };
 
-export const internalDeployService =
-	NoReactAPIs.wrapWithErrorHandling(deployServiceRaw);
+export const internalDeployService = wrapWithErrorHandling(deployServiceRaw);
 
 /**
  * @description Creates a Cloud Run service in your project that will be able to render a video in GCP.

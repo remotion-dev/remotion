@@ -1,12 +1,14 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
+import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
+import type {ServerlessPayload} from '@remotion/serverless/client';
+import {
+	ServerlessRoutines,
+	internalGetOrCreateBucket,
+	overallProgressKey,
+} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
-import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
+import type {AwsRegion} from '../regions';
 import {getLambdaClient} from '../shared/aws-clients';
-import type {LambdaPayload} from '../shared/constants';
-import {LambdaRoutines, overallProgressKey} from '../shared/constants';
-import {convertToServeUrl} from '../shared/convert-to-serve-url';
-import {getCurrentRegionInFunction} from './helpers/get-current-region';
-import {lambdaWriteFile} from './helpers/io';
 import {
 	generateRandomHashWithLifeCycleRule,
 	validateDeleteAfter,
@@ -18,8 +20,12 @@ type Options = {
 	timeoutInMilliseconds: number;
 };
 
-export const startHandler = async (params: LambdaPayload, options: Options) => {
-	if (params.type !== LambdaRoutines.start) {
+export const startHandler = async <Provider extends CloudProvider>(
+	params: ServerlessPayload<Provider>,
+	options: Options,
+	providerSpecifics: ProviderSpecifics<Provider>,
+) => {
+	if (params.type !== ServerlessRoutines.start) {
 		throw new TypeError('Expected type start');
 	}
 
@@ -35,26 +41,30 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		);
 	}
 
-	const region = getCurrentRegionInFunction();
+	const region = providerSpecifics.getCurrentRegionInFunction();
 	const bucketName =
 		params.bucketName ??
 		(
 			await internalGetOrCreateBucket({
-				region: getCurrentRegionInFunction(),
+				region: providerSpecifics.getCurrentRegionInFunction(),
 				enableFolderExpiry: null,
 				customCredentials: null,
+				providerSpecifics,
 			})
 		).bucketName;
-	const realServeUrl = convertToServeUrl({
+	const realServeUrl = providerSpecifics.convertToServeUrl({
 		urlOrId: params.serveUrl,
 		region,
 		bucketName,
 	});
 
 	validateDeleteAfter(params.deleteAfter);
-	const renderId = generateRandomHashWithLifeCycleRule(params.deleteAfter);
+	const renderId = generateRandomHashWithLifeCycleRule(
+		params.deleteAfter,
+		providerSpecifics,
+	);
 
-	const initialFile = lambdaWriteFile({
+	const initialFile = providerSpecifics.writeFile({
 		bucketName,
 		downloadBehavior: null,
 		region,
@@ -69,8 +79,8 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		customCredentials: null,
 	});
 
-	const payload: LambdaPayload = {
-		type: LambdaRoutines.launch,
+	const payload: ServerlessPayload<Provider> = {
+		type: ServerlessRoutines.launch,
 		framesPerLambda: params.framesPerLambda,
 		composition: params.composition,
 		serveUrl: realServeUrl,
@@ -115,7 +125,9 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 	};
 
 	// Don't replace with callLambda(), we want to return before the render is snone
-	const result = await getLambdaClient(getCurrentRegionInFunction()).send(
+	const result = await getLambdaClient(
+		providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
+	).send(
 		new InvokeCommand({
 			FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
 			Payload: JSON.stringify(payload),

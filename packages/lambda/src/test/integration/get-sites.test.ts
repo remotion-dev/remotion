@@ -1,27 +1,38 @@
+import {internalGetOrCreateBucket} from '@remotion/serverless/client';
 import {expect, test} from 'vitest';
-import {deploySite} from '../../api/deploy-site';
-import {getOrCreateBucket} from '../../api/get-or-create-bucket';
-import {getSites} from '../../api/get-sites';
+import {internalDeploySite} from '../../api/deploy-site';
+import {internalGetSites} from '../../api/get-sites';
+import {mockImplementation} from '../mock-implementation';
 
 test('Should have no buckets at first', async () => {
 	expect(
-		await getSites({
+		await internalGetSites({
 			region: 'us-east-1',
+			providerSpecifics: mockImplementation,
 		}),
 	).toEqual({buckets: [], sites: []});
 });
 
 test('Should have a site after deploying', async () => {
-	await getOrCreateBucket({
+	await internalGetOrCreateBucket({
 		region: 'eu-central-1',
+		providerSpecifics: mockImplementation,
+		customCredentials: null,
+		enableFolderExpiry: null,
 	});
 	expect(
-		await deploySite({
+		await internalDeploySite({
 			bucketName: 'remotionlambda-eucentral1-abcdef',
 			entryPoint: 'first',
 			region: 'eu-central-1',
 			siteName: 'testing',
 			gitSource: null,
+			logLevel: 'info',
+			indent: false,
+			providerSpecifics: mockImplementation,
+			privacy: 'public',
+			throwIfSiteExists: true,
+			options: {},
 		}),
 	).toEqual({
 		serveUrl:
@@ -33,7 +44,12 @@ test('Should have a site after deploying', async () => {
 			uploadedFiles: 2,
 		},
 	});
-	expect(await getSites({region: 'eu-central-1'})).toEqual({
+	expect(
+		await internalGetSites({
+			region: 'eu-central-1',
+			providerSpecifics: mockImplementation,
+		}),
+	).toEqual({
 		buckets: [
 			{
 				creationDate: 0,

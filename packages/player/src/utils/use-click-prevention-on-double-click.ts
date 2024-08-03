@@ -5,19 +5,21 @@ import {delay} from './delay.js';
 import {useCancellablePromises} from './use-cancellable-promises.js';
 
 type ReturnVal = {
-	handlePointerDown: (e: SyntheticEvent | PointerEvent) => void;
+	handlePointerDown: (
+		e: SyntheticEvent<Element, PointerEvent> | PointerEvent,
+	) => void;
 	handleDoubleClick: () => void;
 };
 
 const useClickPreventionOnDoubleClick = (
-	onClick: (e: PointerEvent | SyntheticEvent) => void,
+	onClick: (e: PointerEvent | SyntheticEvent<Element, PointerEvent>) => void,
 	onDoubleClick: () => void,
 	doubleClickToFullscreen: boolean,
 ): ReturnVal => {
 	const api = useCancellablePromises();
 
 	const handleClick = useCallback(
-		async (e: SyntheticEvent | PointerEvent) => {
+		async (e: SyntheticEvent<Element, PointerEvent> | PointerEvent) => {
 			// UnSupported double click on touch.(mobile)
 			if (
 				e instanceof PointerEvent

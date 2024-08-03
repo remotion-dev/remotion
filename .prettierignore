@@ -1,3 +1,4 @@
 # Prettier for docs is temporarily disabled:
 # https://github.com/prettier/prettier/issues/12209
 packages/docs/docs/**.mdx
+packages/docs/docs/**/*.mdx

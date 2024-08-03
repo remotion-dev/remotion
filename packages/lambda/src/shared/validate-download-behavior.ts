@@ -1,4 +1,4 @@
-import type {DownloadBehavior} from './content-disposition-header';
+import type {DownloadBehavior} from '@remotion/serverless/client';
 
 export const validateDownloadBehavior = (downloadBehavior: unknown) => {
 	if (downloadBehavior === null || downloadBehavior === undefined) {
