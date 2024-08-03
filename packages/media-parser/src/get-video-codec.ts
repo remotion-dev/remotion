@@ -82,6 +82,10 @@ export const getVideoCodec = (boxes: AnySegment[]): KnownVideoCodecs | null => {
 					return 'vp8';
 				}
 
+				if (trackType.codec === 'V_VP9') {
+					return 'vp9';
+				}
+
 				if (trackType.codec === 'V_AV1') {
 					return 'av1';
 				}
