@@ -3,7 +3,8 @@ import {AbsoluteFill} from 'remotion';
 
 export const TrendingRepos: React.FC<{
 	readonly theme: 'dark' | 'light';
-}> = ({theme}) => {
+	readonly trending: string[];
+}> = ({theme, trending}) => {
 	const item: React.CSSProperties = {
 		lineHeight: 1.1,
 		fontFamily: 'GT Planar',
@@ -45,9 +46,9 @@ export const TrendingRepos: React.FC<{
 					>
 						Trending repositories
 					</div>
-					<div style={item}>1. maybe-finance/maybe</div>
-					<div style={item}>2. excalidraw/excalidraw</div>
-					<div style={item}>3. atuinsh/atuin</div>
+					<div style={item}>1. {trending[0]}</div>
+					<div style={item}>2. {trending[1]}</div>
+					<div style={item}>3. {trending[2]}</div>
 				</div>
 			</AbsoluteFill>
 		</AbsoluteFill>

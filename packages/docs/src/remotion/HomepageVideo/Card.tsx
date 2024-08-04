@@ -184,6 +184,10 @@ const Card: React.FC<{
 			const startX = e.clientX;
 			const startY = e.clientY;
 
+			if (e.button === 2) {
+				return;
+			}
+
 			let translateX = 0;
 			let translateY = 0;
 			refToUse.current.classList.add(styles.active);
@@ -240,11 +244,6 @@ const Card: React.FC<{
 						x: cardLeft + translateX,
 						y: cardTop + translateY,
 					};
-					console.log(
-						'release',
-						positions.current[index].x,
-						positions.current[index].y,
-					);
 					refToUse.current.style.left = `${cardLeft + translateX}px`;
 					refToUse.current.style.top = `${cardTop + translateY}px`;
 					refToUse.current.style.transform = `translateX(0px) translateY(0px)`;
@@ -303,7 +302,8 @@ export const Cards: React.FC<{
 	readonly indices: number[];
 	readonly theme: 'dark' | 'light';
 	readonly location: Location;
-}> = ({onUpdate, indices, theme, location}) => {
+	readonly trending: string[];
+}> = ({onUpdate, indices, theme, location, trending}) => {
 	const [refs] = useState(() => {
 		return new Array(4).fill(true).map(() => {
 			return createRef<HTMLDivElement>();
@@ -319,7 +319,7 @@ export const Cards: React.FC<{
 				const index = indices[i];
 				const content =
 					index === 0 ? (
-						<TrendingRepos theme={theme} />
+						<TrendingRepos trending={trending} theme={theme} />
 					) : index === 1 ? (
 						<Temperature theme={theme} />
 					) : index === 2 ? (
