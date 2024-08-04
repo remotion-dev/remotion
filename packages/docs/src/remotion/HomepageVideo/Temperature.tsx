@@ -1,5 +1,6 @@
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
+import {TemperatureNumber} from './TemperatureNumber';
 
 export const Temperature: React.FC<{
 	readonly theme: 'dark' | 'light';
@@ -26,19 +27,8 @@ export const Temperature: React.FC<{
 				>
 					Temperature
 				</div>
-				<div
-					style={{
-						lineHeight: 1.1,
-						fontFamily: 'GT Planar',
-						textAlign: 'center',
-						fontWeight: 'bold',
-						fontSize: 60,
-						color: theme === 'dark' ? 'white' : 'black',
-						fontFeatureSettings: "'ss03' 1",
-					}}
-				>
-					23°C
-				</div>
+
+				<TemperatureNumber theme={theme} num={23} />
 			</AbsoluteFill>
 		</AbsoluteFill>
 	);

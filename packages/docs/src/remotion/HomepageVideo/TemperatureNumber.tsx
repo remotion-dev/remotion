@@ -2,7 +2,8 @@ import React from 'react';
 
 export const TemperatureNumber: React.FC<{
 	readonly theme: 'dark' | 'light';
-}> = ({theme}) => {
+	readonly num: number;
+}> = ({theme, num}) => {
 	return (
 		<div
 			style={{
@@ -13,9 +14,10 @@ export const TemperatureNumber: React.FC<{
 				fontSize: 60,
 				color: theme === 'dark' ? 'white' : 'black',
 				fontFeatureSettings: "'ss03' 1",
+				fontVariantNumeric: 'tabular-nums',
 			}}
 		>
-			23°C
+			{num}°C
 		</div>
 	);
 };
