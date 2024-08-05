@@ -16,15 +16,20 @@ export type LocationAndTrending = {
 };
 
 export const getDataAndProps = async () => {
-	const trending = await fetch('https://bugs.remotion.dev/trending')
+	const location = (await fetch(
+		'https://bugs-git-homepage-player-remotion.vercel.app/api/location',
+	).then((res) => res.json())) as Location;
+
+	const trending = await fetch(
+		'https://bugs.remotion.dev/trending?lat=' +
+			location.lat +
+			'&lng=' +
+			location.lng,
+	)
 		.then((res) => res.json())
 		.then((data) => {
 			return {repos: data.repos.slice(0, 3), date: data.dateFetched};
 		});
-
-	const location = (await fetch(
-		'https://bugs-git-homepage-player-remotion.vercel.app/api/location',
-	).then((res) => res.json())) as Location;
 
 	return {trending, location};
 };
