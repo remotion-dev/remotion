@@ -75,7 +75,7 @@ The Lambda function needs to spawn a headless browser and visit this URL in orde
 The items in the bucket cannot be made private because they need to be accessible via URL in the headless browser.
 
 Make sure to not hardcode sensitive data in your code, such as API keys, or user data.  
-Instead, use the `inputProps` and `envVariables` options to pass data during the render.  
+Instead, use the [`inputProps`](/docs/lambda/rendermediaonlambda#inputprops) and [`envVariables`](/docs/lambda/rendermediaonlambda#envvariables) options of [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) to pass data during the render.  
 Those values will never be publicly accessible.  
 
 By making your site available under a Serve URL, you may expose your minified React code.  
