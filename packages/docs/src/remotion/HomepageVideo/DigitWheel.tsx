@@ -21,10 +21,10 @@ export const Wheel: React.FC<{
 
 	const singleDur = DURATION;
 
-	const progress = new Array(digits.length - 1).fill(true).map((p, i) => {
+	const progress = new Array(digits.length - 1).fill(true).map((_, i) => {
 		const current = digits[i];
-		const previous = digits[i - 1];
-		if (current === previous) {
+		const next = digits[i + 1];
+		if (current === next) {
 			return 1;
 		}
 
@@ -46,6 +46,7 @@ export const Wheel: React.FC<{
 
 		return next - r;
 	});
+	console.log(progress, rotations, offsets);
 
 	const rotation =
 		progress
