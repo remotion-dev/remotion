@@ -25,8 +25,8 @@ export const TemperatureNumber: React.FC<{
 			}}
 		>
 			{digits.map((digit, i) => (
-				// eslint-disable-next-line react/no-array-index-key
 				<div
+					// eslint-disable-next-line react/no-array-index-key
 					key={i}
 					style={{
 						position: 'relative',
@@ -37,8 +37,7 @@ export const TemperatureNumber: React.FC<{
 				>
 					<Wheel
 						delay={i * 4}
-						endDigit={Number(digit)}
-						startDigit={Number(digit) - 1}
+						digits={[Number(digit) - 1, Number(digit), Number(digit) + 1]}
 					/>
 				</div>
 			))}

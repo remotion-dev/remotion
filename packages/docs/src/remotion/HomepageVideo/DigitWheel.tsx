@@ -12,26 +12,32 @@ const DURATION = 25;
 const items = 10;
 
 export const Wheel: React.FC<{
-	endDigit: number;
-	startDigit: number;
 	delay: number;
-}> = ({endDigit, startDigit, delay}) => {
+	digits: number[];
+}> = ({delay, digits}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 
 	const singleDur = DURATION;
 
-	const progress = spring({
-		fps,
-		frame,
-		config: {},
-		durationInFrames: singleDur,
-		delay,
-	});
+	const progress = new Array(digits.length - 1)
+		.fill(true)
+		.map((p, i) => {
+			return spring({
+				fps,
+				frame,
+				config: {},
+				durationInFrames: singleDur,
+				delay: i * 50 + delay,
+			});
+		})
+		.reduce((a, b) => a + b, 0);
 
-	const startRotation = 1 / items + startDigit / 10;
-	const endRotation = 1 / items + endDigit / 10;
-	const rotation = interpolate(progress, [0, 1], [startRotation, endRotation]);
+	const rotation = interpolate(
+		progress,
+		new Array(digits.length).fill(true).map((_, i) => i),
+		digits.map((d) => 1 / items + d / 10),
+	);
 
 	return (
 		<AbsoluteFill
