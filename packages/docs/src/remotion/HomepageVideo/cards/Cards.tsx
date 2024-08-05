@@ -88,6 +88,7 @@ export const Cards: React.FC<{
 						shouldBePositions={shouldBePositions}
 						indices={indices}
 						theme={theme}
+						withSwitcher={index === 3}
 					/>
 				);
 			})}

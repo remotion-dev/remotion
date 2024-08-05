@@ -27,7 +27,6 @@ export const TemperatureNumber: React.FC<{
 				fontWeight: 'bold',
 				fontSize: 60,
 				color: theme === 'dark' ? 'white' : 'black',
-				fontFeatureSettings: "'ss03' 1",
 				fontVariantNumeric: 'tabular-nums',
 				display: 'flex',
 				flexDirection: 'row',

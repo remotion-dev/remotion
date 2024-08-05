@@ -13,7 +13,7 @@ const DURATION = 25;
 
 const items = 10;
 
-export const NUM_WIDTH = 40;
+export const NUM_WIDTH = 36;
 
 export const Wheel: React.FC<{
 	delay: number;
@@ -163,9 +163,10 @@ export const Wheel: React.FC<{
 									style={{
 										lineHeight: 1,
 										display: 'inline',
+										fontFeatureSettings: "'ss03' on",
 									}}
 								>
-									<span>{renderDigit(i)}</span>
+									{renderDigit(i)}
 								</div>
 							</div>
 						</AbsoluteFill>

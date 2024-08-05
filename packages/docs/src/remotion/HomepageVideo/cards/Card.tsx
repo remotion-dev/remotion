@@ -1,6 +1,7 @@
 import React, {useCallback, useRef} from 'react';
 import {AbsoluteFill, spring} from 'remotion';
 import styles from '../player-styles.module.css';
+import {Switcher} from './Switcher';
 import {
 	cardHeight,
 	cardWidth,
@@ -25,6 +26,7 @@ export const Card: React.FC<{
 	readonly shouldBePositions: React.MutableRefObject<Position[]>;
 	readonly indices: number[];
 	readonly theme: 'dark' | 'light';
+	readonly withSwitcher: boolean;
 }> = ({
 	positions,
 	shouldBePositions,
@@ -34,6 +36,7 @@ export const Card: React.FC<{
 	content,
 	indices,
 	theme,
+	withSwitcher,
 }) => {
 	const refToUse = refsToUse[index];
 	const stopPrevious = useRef<(() => void)[]>([]);
@@ -241,18 +244,24 @@ export const Card: React.FC<{
 				userSelect: 'none',
 				border: `1px solid ${color}`,
 				borderRadius: 13,
-				overflow: 'hidden',
 				cursor: 'grab',
 			}}
 		>
 			<AbsoluteFill
 				style={{
 					backgroundColor: color,
+					borderRadius: 12,
 				}}
 				className={styles.content}
 			>
 				{content}
 			</AbsoluteFill>
+			{withSwitcher ? (
+				<>
+					<Switcher type="left" />
+					<Switcher type="right" />
+				</>
+			) : null}
 		</div>
 	);
 };
