@@ -14,7 +14,8 @@ const items = 10;
 export const Wheel: React.FC<{
 	delay: number;
 	digits: number[];
-}> = ({delay, digits}) => {
+	renderDigit: (i: number) => React.ReactNode;
+}> = ({delay, digits, renderDigit}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 
@@ -23,6 +24,12 @@ export const Wheel: React.FC<{
 	const progress = new Array(digits.length - 1)
 		.fill(true)
 		.map((p, i) => {
+			const current = digits[i];
+			const next = digits[i + 1];
+			if (current === next) {
+				return 1;
+			}
+
 			return spring({
 				fps,
 				frame,
@@ -40,53 +47,62 @@ export const Wheel: React.FC<{
 	);
 
 	return (
-		<AbsoluteFill
+		<div
 			style={{
-				perspective: 5000,
-				maskImage: `linear-gradient(to bottom, transparent 0%, #000 28%, #000 72%, transparent 100%)`,
+				position: 'relative',
+				width: 40,
+				display: 'inline-block',
+				height: 90,
 			}}
 		>
-			{new Array(items).fill(true).map((_, i) => {
-				const index = i / items + rotation;
+			<AbsoluteFill
+				style={{
+					perspective: 5000,
+					maskImage: `linear-gradient(to bottom, transparent 0%, #000 28%, #000 72%, transparent 100%)`,
+				}}
+			>
+				{new Array(items).fill(true).map((_, i) => {
+					const index = i / items + rotation;
 
-				const z = Math.cos(index * -Math.PI * 2) * 120;
-				const y = Math.sin(index * Math.PI * 2) * -120;
-				const r = interpolate(index, [0, 1], [0, Math.PI * 2]);
+					const z = Math.cos(index * -Math.PI * 2) * 120;
+					const y = Math.sin(index * Math.PI * 2) * -120;
+					const r = interpolate(index, [0, 1], [0, Math.PI * 2]);
 
-				return (
-					// eslint-disable-next-line react/jsx-key
-					<AbsoluteFill
-						style={{
-							justifyContent: 'center',
-							alignItems: 'center',
-							fontSize: 60,
-							fontVariationSettings: `"wght" 400`,
-							transform: `translateZ(${z}px) translateY(${y}px) rotateX(${r}deg)`,
-							backfaceVisibility: 'hidden',
-							perspective: 1000,
-						}}
-					>
-						<div
+					return (
+						// eslint-disable-next-line react/jsx-key
+						<AbsoluteFill
 							style={{
-								transform: `rotateX(-${r}rad)`,
-								backfaceVisibility: 'hidden',
-								display: 'flex',
-								flexDirection: 'row',
-								alignItems: 'center',
 								justifyContent: 'center',
+								alignItems: 'center',
+								fontSize: 60,
+								fontVariationSettings: `"wght" 400`,
+								transform: `translateZ(${z}px) translateY(${y}px) rotateX(${r}deg)`,
+								backfaceVisibility: 'hidden',
+								perspective: 1000,
 							}}
 						>
 							<div
 								style={{
-									lineHeight: 1,
+									transform: `rotateX(-${r}rad)`,
+									backfaceVisibility: 'hidden',
+									display: 'flex',
+									flexDirection: 'row',
+									alignItems: 'center',
+									justifyContent: 'center',
 								}}
 							>
-								{9 - i}
+								<div
+									style={{
+										lineHeight: 1,
+									}}
+								>
+									{renderDigit(i)}
+								</div>
 							</div>
-						</div>
-					</AbsoluteFill>
-				);
-			})}
-		</AbsoluteFill>
+						</AbsoluteFill>
+					);
+				})}
+			</AbsoluteFill>
+		</div>
 	);
 };
