@@ -46,6 +46,7 @@ export const Demo: React.FC = () => {
 				inputProps={{
 					theme: colorMode,
 					location,
+					trending: null,
 				}}
 				loop
 			/>

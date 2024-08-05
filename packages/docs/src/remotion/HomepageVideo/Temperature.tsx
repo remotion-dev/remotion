@@ -22,7 +22,7 @@ export const Temperature: React.FC<{
 						fontWeight: '500',
 						fontSize: 13,
 						textAlign: 'center',
-						marginTop: -7,
+						marginTop: 5,
 					}}
 				>
 					Temperature

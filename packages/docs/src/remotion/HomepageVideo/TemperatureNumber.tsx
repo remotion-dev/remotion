@@ -1,24 +1,6 @@
 import React from 'react';
 import {Wheel} from './DigitWheel';
 
-const Digit: React.FC<{
-	digit: string;
-	delay: number;
-}> = ({digit, delay}) => {
-	return (
-		<div
-			style={{
-				position: 'relative',
-				width: 40,
-				display: 'inline-block',
-				height: 70,
-			}}
-		>
-			<Wheel delay={delay} digit={digit} topLayer={false} />
-		</div>
-	);
-};
-
 export const TemperatureNumber: React.FC<{
 	readonly theme: 'dark' | 'light';
 	readonly num: number;
@@ -39,11 +21,26 @@ export const TemperatureNumber: React.FC<{
 				display: 'flex',
 				flexDirection: 'row',
 				alignItems: 'center',
+				marginTop: -10,
 			}}
 		>
 			{digits.map((digit, i) => (
 				// eslint-disable-next-line react/no-array-index-key
-				<Digit key={i} delay={i * 4} digit={digit} />
+				<div
+					key={i}
+					style={{
+						position: 'relative',
+						width: 40,
+						display: 'inline-block',
+						height: 90,
+					}}
+				>
+					<Wheel
+						delay={i * 4}
+						endDigit={Number(digit)}
+						startDigit={Number(digit) - 1}
+					/>
+				</div>
 			))}
 			°C
 		</div>
