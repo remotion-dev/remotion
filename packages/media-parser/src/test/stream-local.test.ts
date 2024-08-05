@@ -11,7 +11,6 @@ test('Should stream ISO base media', async () => {
 			fps: true,
 			videoCodec: true,
 			audioCodec: true,
-			boxes: true,
 		},
 		nodeReader,
 	);
@@ -24,7 +23,13 @@ test('Should stream ISO base media', async () => {
 test('Should stream WebM with no duration', async () => {
 	const result = await parseMedia(
 		RenderInternals.exampleVideos.nofps,
-		{fps: true, durationInSeconds: true, dimensions: true, videoCodec: true},
+		{
+			fps: true,
+			durationInSeconds: true,
+			dimensions: true,
+			videoCodec: true,
+			audioCodec: true,
+		},
 		nodeReader,
 	);
 	expect(result.durationInSeconds).toBe(6.57);
@@ -34,6 +39,7 @@ test('Should stream WebM with no duration', async () => {
 	});
 	expect(result.fps).toBeDefined();
 	expect(result.videoCodec).toBe('vp8');
+	expect(result.audioCodec).toBe(null);
 });
 
 test('Should stream AV1 with no duration', async () => {
@@ -44,6 +50,7 @@ test('Should stream AV1 with no duration', async () => {
 			dimensions: true,
 			fps: true,
 			videoCodec: true,
+			audioCodec: true,
 		},
 		nodeReader,
 	);
@@ -55,6 +62,7 @@ test('Should stream AV1 with no duration', async () => {
 		height: 1080,
 	});
 	expect(parsed.videoCodec).toBe('av1');
+	expect(parsed.audioCodec).toBe(null);
 });
 
 test('Should stream corrupted video', async () => {
@@ -65,9 +73,12 @@ test('Should stream corrupted video', async () => {
 			dimensions: true,
 			fps: true,
 			videoCodec: true,
+			audioCodec: true,
 		},
 		nodeReader,
 	);
+
+	await Bun.write('bun.json', JSON.stringify(parsed, null, 2));
 
 	expect(parsed.durationInSeconds).toBe(30.03);
 	expect(parsed.fps).toBe(23.976023976023974);
@@ -76,6 +87,7 @@ test('Should stream corrupted video', async () => {
 		height: 1080,
 	});
 	expect(parsed.videoCodec).toBe('h264');
+	expect(parsed.audioCodec).toBe('aac');
 });
 
 test('Should stream screen recording video', async () => {
@@ -86,6 +98,7 @@ test('Should stream screen recording video', async () => {
 			dimensions: true,
 			fps: true,
 			videoCodec: true,
+			audioCodec: true,
 		},
 		nodeReader,
 	);
@@ -97,6 +110,7 @@ test('Should stream screen recording video', async () => {
 		width: 2874,
 	});
 	expect(parsed.videoCodec).toBe('h264');
+	expect(parsed.audioCodec).toBe(null);
 });
 test('Should stream ProRes video', async () => {
 	const parsed = await parseMedia(
@@ -106,14 +120,17 @@ test('Should stream ProRes video', async () => {
 			dimensions: true,
 			durationInSeconds: true,
 			videoCodec: true,
+			audioCodec: true,
 			boxes: true,
 		},
 		nodeReader,
 	);
 
+	await Bun.write('bun.json', JSON.stringify(parsed, null, 2));
 	expect(parsed.fps).toBe(60);
 	expect(parsed.dimensions.width).toBe(1920);
 	expect(parsed.dimensions.height).toBe(1080);
 	expect(parsed.durationInSeconds).toBe(0.034);
 	expect(parsed.videoCodec).toBe('prores');
+	expect(parsed.audioCodec).toBe('aiff');
 });

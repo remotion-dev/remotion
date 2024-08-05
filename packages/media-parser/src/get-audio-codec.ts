@@ -49,6 +49,10 @@ export const getAudioCodec = (boxes: AnySegment[]): KnownAudioCodecs | null => {
 								if (videoSample.format === 'mp4a') {
 									return 'aac';
 								}
+
+								if (videoSample.format === 'sowt') {
+									return 'aiff';
+								}
 							}
 						}
 					}
