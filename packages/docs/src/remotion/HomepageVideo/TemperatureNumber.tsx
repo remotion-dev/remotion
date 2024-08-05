@@ -63,7 +63,6 @@ export const TemperatureNumber: React.FC<{
 				renderDigit={(_i) => (_i % 2 === 0 ? 'C' : 'F')}
 				isLeadingDigit={false}
 				isNegative={[false, false, false]}
-				alignLeft
 			/>
 		</div>
 	);

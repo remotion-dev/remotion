@@ -21,8 +21,7 @@ export const Wheel: React.FC<{
 	renderDigit: (i: number) => React.ReactNode;
 	isLeadingDigit: boolean;
 	isNegative: boolean[];
-	alignLeft: boolean;
-}> = ({delay, digits, renderDigit, isLeadingDigit, isNegative, alignLeft}) => {
+}> = ({delay, digits, renderDigit, isLeadingDigit, isNegative}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 
@@ -166,7 +165,7 @@ export const Wheel: React.FC<{
 										display: 'inline',
 									}}
 								>
-									{renderDigit(i)}
+									<span>{renderDigit(i)}</span>
 								</div>
 							</div>
 						</AbsoluteFill>
