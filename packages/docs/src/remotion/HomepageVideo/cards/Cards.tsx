@@ -34,7 +34,7 @@ export const Cards: React.FC<{
 }) => {
 	const container = useRef<HTMLDivElement>(null);
 
-	const [emojiPosition, setEmojiPosition] = useState(0);
+	const [emojiPosition, setEmojiPosition] = useState(10000000 * 3);
 
 	const [refs] = useState(() => {
 		return new Array(4).fill(true).map(() => {

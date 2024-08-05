@@ -15,8 +15,12 @@ export const EmojiCard: React.FC<{
 	const closestRatio = closestInteger / ratio;
 
 	const emoji: EmojiName = useMemo(() => {
-		if (emojiPosition % 2 === 0) {
+		if (emojiPosition % 3 === 0) {
 			return 'partying-face';
+		}
+
+		if (emojiPosition % 3 === 1) {
+			return 'melting';
 		}
 
 		return 'fire';
