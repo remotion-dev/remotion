@@ -1,4 +1,5 @@
 import React from 'react';
+import type {SpringConfig} from 'remotion';
 import {
 	AbsoluteFill,
 	interpolate,
@@ -11,6 +12,8 @@ const DURATION = 25;
 
 const items = 10;
 
+export const NUM_WIDTH = 40;
+
 export const Wheel: React.FC<{
 	delay: number;
 	digits: number[];
@@ -22,24 +25,39 @@ export const Wheel: React.FC<{
 
 	const singleDur = DURATION;
 
-	const progresses = new Array(digits.length - 1).fill(true).map((_, i) => {
-		const current = digits[i];
-		const next = digits[i + 1];
-		if (current === next) {
-			return 1;
-		}
+	const progressesMaker = (
+		springConfig: Partial<SpringConfig>,
+		durationInFrames: number,
+	) =>
+		new Array(digits.length - 1).fill(true).map((_, i) => {
+			const current = digits[i];
+			const next = digits[i + 1];
+			if (current === next) {
+				return 1;
+			}
 
-		return spring({
-			fps,
-			frame,
-			config: {
-				mass: 0.7,
-				damping: 12,
-			},
-			durationInFrames: singleDur,
-			delay: i * 50 + delay,
+			return spring({
+				fps,
+				frame,
+				config: springConfig,
+				durationInFrames,
+				delay: i * 50 + delay,
+			});
 		});
-	});
+
+	const progresses = progressesMaker(
+		{
+			mass: 0.7,
+			damping: 12,
+		},
+		singleDur,
+	);
+	const softProgresses = progressesMaker(
+		{
+			damping: 200,
+		},
+		singleDur / 2,
+	);
 
 	const rotations = digits.map((d) => 1 / items + d / 10);
 
@@ -54,18 +72,19 @@ export const Wheel: React.FC<{
 
 	const opacity = isLeadingDigit
 		? interpolate(
-				progresses.reduce((a, b) => a + b, 0),
+				softProgresses.reduce((a, b) => a + b, 0),
 				new Array(digits.length).fill(true).map((_, i) => i),
-				digits.map((digit) => (digit === 0 ? -0.5 : 1)),
+				digits.map((digit) => (digit === 0 ? 0 : 1)),
 			)
 		: 1;
 
-	console.log(
-		new Array(digits.length).fill(true).map((_, i) => i),
-		new Array(digits.length).fill(true).map((digit) => (digit === 0 ? 0 : 1)),
-		digits,
-		isLeadingDigit,
-	);
+	const shiftLeft = isLeadingDigit
+		? interpolate(
+				softProgresses.reduce((a, b) => a + b, 0),
+				new Array(digits.length).fill(true).map((_, i) => i),
+				digits.map((digit) => (digit === 0 ? -40 : 0)),
+			)
+		: 1;
 
 	const rotation =
 		progresses
@@ -78,9 +97,10 @@ export const Wheel: React.FC<{
 		<div
 			style={{
 				position: 'relative',
-				width: 40,
+				width: NUM_WIDTH,
 				display: 'inline-block',
 				height: 90,
+				marginLeft: shiftLeft,
 			}}
 		>
 			<AbsoluteFill
