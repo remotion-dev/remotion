@@ -18,7 +18,6 @@ export const TemperatureNumber: React.FC<{
 	const paddedFahrenheitDegree = fahrenheitDegree
 		.padStart(paddedCelsiusDegree.length, '0')
 		.split('');
-	console.log(paddedCelsiusDegree, paddedFahrenheitDegree);
 
 	return (
 		<div
@@ -55,7 +54,7 @@ export const TemperatureNumber: React.FC<{
 				// eslint-disable-next-line react/no-array-index-key
 				delay={paddedCelsiusDegree.length * 4 - 2}
 				digits={[1, 1, 0]}
-				renderDigit={(_i) => (_i % 2 === 0 ? 'C' : 'F')}
+				renderDigit={(_i) => (_i % 2 === 0 ? 'F' : 'C')}
 			/>
 		</div>
 	);

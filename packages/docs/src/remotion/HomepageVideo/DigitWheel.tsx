@@ -21,32 +21,38 @@ export const Wheel: React.FC<{
 
 	const singleDur = DURATION;
 
-	const progress = new Array(digits.length - 1)
-		.fill(true)
-		.map((p, i) => {
-			const current = digits[i];
-			const next = digits[i + 1];
-			if (current === next) {
-				return 1;
-			}
+	const progress = new Array(digits.length - 1).fill(true).map((p, i) => {
+		const current = digits[i];
+		const previous = digits[i - 1];
+		if (current === previous) {
+			return 1;
+		}
 
-			return spring({
-				fps,
-				frame,
-				config: {},
-				durationInFrames: singleDur,
-				delay: i * 50 + delay,
-			});
-		})
-		.reduce((a, b) => a + b, 0);
+		return spring({
+			fps,
+			frame,
+			config: {},
+			durationInFrames: singleDur,
+			delay: i * 50 + delay,
+		});
+	});
+	const rotations = digits.map((d) => 1 / items + d / 10);
 
-	console.log(progress);
+	const offsets = rotations.map((r, i) => {
+		const next = rotations[i + 1];
+		if (next === undefined) {
+			return 0;
+		}
 
-	const rotation = interpolate(
-		progress,
-		new Array(digits.length).fill(true).map((_, i) => i),
-		digits.map((d) => 1 / items + d / 10),
-	);
+		return next - r;
+	});
+
+	const rotation =
+		progress
+			.map((p, i) => {
+				return p * offsets[i];
+			})
+			.reduce((a, b) => a + b, 0) + rotations[0];
 
 	return (
 		<div
@@ -71,8 +77,8 @@ export const Wheel: React.FC<{
 					const r = interpolate(index, [0, 1], [0, Math.PI * 2]);
 
 					return (
-						// eslint-disable-next-line react/jsx-key
 						<AbsoluteFill
+							// eslint-disable-next-line react/jsx-key, react/no-array-index-key
 							key={i}
 							style={{
 								justifyContent: 'center',
