@@ -19,6 +19,7 @@ export const AnimatedEmoji = ({
 	emoji,
 	scale = '1',
 	calculateSrc = defaultCalculateEmojiSrc,
+	playbackRate = 1,
 	...props
 }: AnimatedEmojiProps) => {
 	const {fps} = useVideoConfig();
@@ -33,11 +34,14 @@ export const AnimatedEmoji = ({
 	return (
 		<Loop
 			layout="none"
-			durationInFrames={Math.floor(emojiData.durationInSeconds * fps)}
+			durationInFrames={Math.floor(
+				(emojiData.durationInSeconds * fps) / playbackRate,
+			)}
 		>
 			<OffthreadVideo
 				{...props}
 				muted
+				playbackRate={playbackRate}
 				src={calculateSrc({emoji, scale, format: isWebkit() ? 'hevc' : 'webm'})}
 			/>
 		</Loop>
