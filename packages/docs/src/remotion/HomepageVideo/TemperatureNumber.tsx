@@ -3,9 +3,22 @@ import {Wheel} from './DigitWheel';
 
 export const TemperatureNumber: React.FC<{
 	readonly theme: 'dark' | 'light';
-	readonly num: number;
-}> = ({theme, num}) => {
-	const digits = String(num).split('');
+	readonly temperatureInCelsius: number;
+}> = ({theme, temperatureInCelsius}) => {
+	const temperatureInFahrenheit = ((temperatureInCelsius * 9) / 5 + 32).toFixed(
+		0,
+	);
+
+	const celsiusDegree = String(temperatureInCelsius);
+	const fahrenheitDegree = String(temperatureInFahrenheit);
+
+	const paddedCelsiusDegree = celsiusDegree
+		.padStart(fahrenheitDegree.length, '0')
+		.split('');
+	const paddedFahrenheitDegree = fahrenheitDegree
+		.padStart(paddedCelsiusDegree.length, '0')
+		.split('');
+	console.log(paddedCelsiusDegree, paddedFahrenheitDegree);
 
 	return (
 		<div
@@ -24,21 +37,25 @@ export const TemperatureNumber: React.FC<{
 				marginTop: -10,
 			}}
 		>
-			{digits.map((digit, i) => (
+			{paddedCelsiusDegree.map((digit, i) => (
 				<Wheel
 					// eslint-disable-next-line react/no-array-index-key
 					key={i}
 					delay={i * 4}
 					renderDigit={(_i) => 9 - _i}
-					digits={[Number(digit) - 1, Number(digit), Number(digit) + 1]}
+					digits={[
+						Number(digit) - 1,
+						Number(digit),
+						Number(paddedFahrenheitDegree[i]),
+					]}
 				/>
 			))}
 			°
 			<Wheel
 				// eslint-disable-next-line react/no-array-index-key
-				delay={digits.length * 4}
+				delay={paddedCelsiusDegree.length * 4 - 2}
 				digits={[1, 1, 0]}
-				renderDigit={(_i) => (_i % 2 === 0 ? 'F' : 'C')}
+				renderDigit={(_i) => (_i % 2 === 0 ? 'C' : 'F')}
 			/>
 		</div>
 	);

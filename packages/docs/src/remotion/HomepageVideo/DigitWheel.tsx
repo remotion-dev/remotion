@@ -40,6 +40,8 @@ export const Wheel: React.FC<{
 		})
 		.reduce((a, b) => a + b, 0);
 
+	console.log(progress);
+
 	const rotation = interpolate(
 		progress,
 		new Array(digits.length).fill(true).map((_, i) => i),
@@ -71,6 +73,7 @@ export const Wheel: React.FC<{
 					return (
 						// eslint-disable-next-line react/jsx-key
 						<AbsoluteFill
+							key={i}
 							style={{
 								justifyContent: 'center',
 								alignItems: 'center',
