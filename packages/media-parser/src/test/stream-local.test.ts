@@ -121,12 +121,10 @@ test('Should stream ProRes video', async () => {
 			durationInSeconds: true,
 			videoCodec: true,
 			audioCodec: true,
-			boxes: true,
 		},
 		nodeReader,
 	);
 
-	await Bun.write('bun.json', JSON.stringify(parsed, null, 2));
 	expect(parsed.fps).toBe(60);
 	expect(parsed.dimensions.width).toBe(1920);
 	expect(parsed.dimensions.height).toBe(1080);
