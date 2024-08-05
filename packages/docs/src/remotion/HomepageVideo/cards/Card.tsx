@@ -27,6 +27,8 @@ export const Card: React.FC<{
 	readonly indices: number[];
 	readonly theme: 'dark' | 'light';
 	readonly withSwitcher: boolean;
+	readonly onLeft: () => void;
+	readonly onRight: () => void;
 }> = ({
 	positions,
 	shouldBePositions,
@@ -37,6 +39,8 @@ export const Card: React.FC<{
 	indices,
 	theme,
 	withSwitcher,
+	onLeft,
+	onRight,
 }) => {
 	const refToUse = refsToUse[index];
 	const stopPrevious = useRef<(() => void)[]>([]);
@@ -258,8 +262,8 @@ export const Card: React.FC<{
 			</AbsoluteFill>
 			{withSwitcher ? (
 				<>
-					<Switcher type="left" />
-					<Switcher type="right" />
+					<Switcher onTap={onLeft} type="left" theme={theme} />
+					<Switcher onTap={onRight} type="right" theme={theme} />
 				</>
 			) : null}
 		</div>

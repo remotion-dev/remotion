@@ -54,6 +54,8 @@ export const calculateMetadata: CalculateMetadataFunction<
 			trending,
 			location,
 			temperatureInCelsius: trending?.temperatureInCelsius ?? 10,
+			onToggle() {},
+			theme: 'light',
 		},
 	};
 };

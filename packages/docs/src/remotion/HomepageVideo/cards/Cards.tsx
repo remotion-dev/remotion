@@ -1,4 +1,10 @@
-import React, {createRef, useEffect, useRef, useState} from 'react';
+import React, {
+	createRef,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
 import {AbsoluteFill} from 'remotion';
 import type {Trending} from '../Comp';
 import {CurrentCountry} from '../CurrentCountry';
@@ -27,6 +33,8 @@ export const Cards: React.FC<{
 	temperatureInCelsius,
 }) => {
 	const container = useRef<HTMLDivElement>(null);
+
+	const [emojiPosition, setEmojiPosition] = useState(0);
 
 	const [refs] = useState(() => {
 		return new Array(4).fill(true).map(() => {
@@ -58,6 +66,14 @@ export const Cards: React.FC<{
 		};
 	}, [onToggle]);
 
+	const onLeft = useCallback(() => {
+		setEmojiPosition((i) => i + 1);
+	}, []);
+
+	const onRight = useCallback(() => {
+		setEmojiPosition((i) => i - 1);
+	}, []);
+
 	return (
 		<AbsoluteFill ref={container}>
 			{new Array(4).fill(true).map((_, i) => {
@@ -74,8 +90,9 @@ export const Cards: React.FC<{
 					) : index === 2 ? (
 						<CurrentCountry location={location} theme={theme} />
 					) : (
-						<EmojiCard />
+						<EmojiCard emojiPosition={emojiPosition} />
 					);
+
 				return (
 					<Card
 						// eslint-disable-next-line react/no-array-index-key
@@ -89,6 +106,8 @@ export const Cards: React.FC<{
 						indices={indices}
 						theme={theme}
 						withSwitcher={index === 3}
+						onLeft={onLeft}
+						onRight={onRight}
 					/>
 				);
 			})}
