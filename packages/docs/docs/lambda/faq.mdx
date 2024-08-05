@@ -65,3 +65,28 @@ If you are using the Node.JS APIs, the following APIs are useful: [`getFunctions
 The code that is run inside the Lambda is an executor binary that is provided by Remotion. You cannot write code to run inside the function that Remotion deploys for you, but you can make use of many configuration options and call a Remotion Lambda function from another Lambda function using APIs like [renderMediaOnLambda](/docs/lambda/rendermediaonlambda).
 
 The source code of what is run inside a Remotion Lambda function [can be found here](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/functions/index.ts) and forked if necessary. We recommend to reach out to the Remotion team first and check if a fork is really necessary.
+
+### Can I make a site private?
+
+When you render a video on Lambda, you specify a [Serve URL](/docs/terminology/serve-url) pointing to a Webpack bundle of Remotion code.  
+This is a URL that, if known, can be publicly accessed by anyone.  
+
+The Lambda function needs to spawn a headless browser and visit this URL in order to render the video.  
+The items in the bucket cannot be made private because they need to be accessible via URL in the headless browser.
+
+Make sure to not hardcode sensitive data in your code, such as API keys, or user data.  
+Instead, use the `inputProps` and `envVariables` options to pass data during the render.  
+Those values will never be publicly accessible.  
+
+By making your site available under a Serve URL, you may expose your minified React code.  
+This is normally not a problem, because any website will expose their minified frontend code.  
+
+If you would like to make your site more private, you can:
+
+- Use a longer site name that is harder to guess
+- Place a `robots.txt` in the root of your bucket with a `Disallow: /` rule to prevent crawlers from accessing your site and your site showing up in search results.
+
+#### Only you can trigger renders on your account
+
+Making the site accessible via a Serve URL will not allow anyone to trigger a Lambda render on your account.  
+The URL only serves HTML, JavaScript and assets, but does expose access to invoking any computation on your AWS account.
