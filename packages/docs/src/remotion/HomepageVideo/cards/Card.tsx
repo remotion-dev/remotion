@@ -259,13 +259,13 @@ export const Card: React.FC<{
 				className={styles.content}
 			>
 				{content}
+				{withSwitcher ? (
+					<>
+						<Switcher onTap={onLeft} type="left" theme={theme} />
+						<Switcher onTap={onRight} type="right" theme={theme} />
+					</>
+				) : null}
 			</AbsoluteFill>
-			{withSwitcher ? (
-				<>
-					<Switcher onTap={onLeft} type="left" theme={theme} />
-					<Switcher onTap={onRight} type="right" theme={theme} />
-				</>
-			) : null}
 		</div>
 	);
 };
