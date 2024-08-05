@@ -7,6 +7,7 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
+import {Minus} from './Minus';
 
 const DURATION = 25;
 
@@ -19,7 +20,8 @@ export const Wheel: React.FC<{
 	digits: number[];
 	renderDigit: (i: number) => React.ReactNode;
 	isLeadingDigit: boolean;
-}> = ({delay, digits, renderDigit, isLeadingDigit}) => {
+	isNegative: boolean[];
+}> = ({delay, digits, renderDigit, isLeadingDigit, isNegative}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 
@@ -78,6 +80,15 @@ export const Wheel: React.FC<{
 			)
 		: 1;
 
+	const minusSignOpacity = isLeadingDigit
+		? interpolate(
+				softProgresses.reduce((a, b) => a + b, 0),
+				new Array(digits.length).fill(true).map((_, i) => i),
+				isNegative.map((negative) => (negative ? 1 : 0)),
+			)
+		: 1;
+	console.log({isNegative});
+
 	const shiftLeft = isLeadingDigit
 		? interpolate(
 				softProgresses.reduce((a, b) => a + b, 0),
@@ -103,6 +114,9 @@ export const Wheel: React.FC<{
 				marginLeft: shiftLeft,
 			}}
 		>
+			{isLeadingDigit ? (
+				<Minus minusSignOpacity={minusSignOpacity} leftOffset={shiftLeft} />
+			) : null}
 			<AbsoluteFill
 				style={{
 					perspective: 5000,

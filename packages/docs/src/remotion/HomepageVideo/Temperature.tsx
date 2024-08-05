@@ -28,7 +28,7 @@ export const Temperature: React.FC<{
 					Temperature
 				</div>
 
-				<TemperatureNumber theme={theme} temperatureInCelsius={9} />
+				<TemperatureNumber theme={theme} temperatureInCelsius={-9} />
 			</AbsoluteFill>
 		</AbsoluteFill>
 	);

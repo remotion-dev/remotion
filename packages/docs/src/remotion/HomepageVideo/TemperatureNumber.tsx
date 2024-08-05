@@ -5,17 +5,16 @@ export const TemperatureNumber: React.FC<{
 	readonly theme: 'dark' | 'light';
 	readonly temperatureInCelsius: number;
 }> = ({theme, temperatureInCelsius}) => {
-	const temperatureInFahrenheit = ((temperatureInCelsius * 9) / 5 + 32).toFixed(
-		0,
-	);
+	const temperatureInFahrenheit = (temperatureInCelsius * 9) / 5 + 32;
 
-	const celsiusDegree = String(temperatureInCelsius);
-	const fahrenheitDegree = String(temperatureInFahrenheit);
+	const celsiusDegree = Math.abs(temperatureInCelsius);
+	const fahrenheitDegree = Math.abs(temperatureInFahrenheit);
 
-	const paddedCelsiusDegree = celsiusDegree
-		.padStart(fahrenheitDegree.length, '0')
+	const paddedCelsiusDegree = String(celsiusDegree)
+		.padStart(fahrenheitDegree.toFixed(0).length, '0')
 		.split('');
 	const paddedFahrenheitDegree = fahrenheitDegree
+		.toFixed(0)
 		.padStart(paddedCelsiusDegree.length, '0')
 		.split('');
 
@@ -47,6 +46,11 @@ export const TemperatureNumber: React.FC<{
 						Number(digit),
 						Number(paddedFahrenheitDegree[i]),
 					]}
+					isNegative={[
+						temperatureInFahrenheit < 0,
+						temperatureInCelsius < 0,
+						temperatureInFahrenheit < 0,
+					]}
 					isLeadingDigit={i === 0}
 				/>
 			))}
@@ -57,6 +61,7 @@ export const TemperatureNumber: React.FC<{
 				digits={[0, 1, 0]}
 				renderDigit={(_i) => (_i % 2 === 0 ? 'C' : 'F')}
 				isLeadingDigit={false}
+				isNegative={[false, false, false]}
 			/>
 		</div>
 	);
