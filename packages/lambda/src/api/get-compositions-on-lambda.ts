@@ -65,6 +65,7 @@ export const getCompositionsOnLambda = async ({
 		propsType: 'input-props',
 		needsToUpload: getNeedsToUpload('video-or-audio', [
 			stringifiedInputProps.length,
+			JSON.stringify(envVariables).length,
 		]),
 		providerSpecifics: awsImplementation,
 	});

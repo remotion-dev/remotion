@@ -206,6 +206,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		params.inputProps.type === 'bucket-url'
 			? params.inputProps.hash.length
 			: params.inputProps.payload.length,
+		JSON.stringify(params.envVariables).length,
 	]);
 
 	const serializedResolvedProps = await compressInputProps({

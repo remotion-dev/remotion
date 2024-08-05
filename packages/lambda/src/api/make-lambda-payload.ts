@@ -149,6 +149,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		region,
 		needsToUpload: getNeedsToUpload('video-or-audio', [
 			stringifiedInputProps.length,
+			JSON.stringify(envVariables).length,
 		]),
 		userSpecifiedBucketName: bucketName ?? null,
 		propsType: 'input-props',
@@ -253,7 +254,10 @@ export const makeLambdaRenderStillPayload = async ({
 	const serializedInputProps = await compressInputProps({
 		stringifiedInputProps,
 		region,
-		needsToUpload: getNeedsToUpload('still', [stringifiedInputProps.length]),
+		needsToUpload: getNeedsToUpload('still', [
+			stringifiedInputProps.length,
+			JSON.stringify(envVariables).length,
+		]),
 		userSpecifiedBucketName: forceBucketName ?? null,
 		propsType: 'input-props',
 		providerSpecifics: awsImplementation,
