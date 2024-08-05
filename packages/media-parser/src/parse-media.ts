@@ -1,5 +1,6 @@
 import {getArrayBufferIterator} from './buffer-iterator';
 import {webReader} from './from-web';
+import {getAudioCodec} from './get-audio-codec';
 import {getDimensions} from './get-dimensions';
 import {getDuration} from './get-duration';
 import {getFps} from './get-fps';
@@ -15,7 +16,7 @@ export const parseMedia: ParseMedia = async (
 ) => {
 	const reader = await readerInterface.read(src, null);
 
-	const returnValue = {} as Metadata<true, true, true, true, true>;
+	const returnValue = {} as Metadata<true, true, true, true, true, true>;
 
 	const iterator = getArrayBufferIterator(new Uint8Array([]));
 	let parseResult = parseVideo(iterator);
@@ -52,6 +53,10 @@ export const parseMedia: ParseMedia = async (
 
 	if (options.videoCodec) {
 		returnValue.videoCodec = getVideoCodec(parseResult.segments);
+	}
+
+	if (options.audioCodec) {
+		returnValue.audioCodec = getAudioCodec(parseResult.segments);
 	}
 
 	if (options.boxes) {

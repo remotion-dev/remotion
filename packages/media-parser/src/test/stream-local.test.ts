@@ -10,12 +10,15 @@ test('Should stream ISO base media', async () => {
 			durationInSeconds: true,
 			fps: true,
 			videoCodec: true,
+			audioCodec: true,
+			boxes: true,
 		},
 		nodeReader,
 	);
 	expect(result.durationInSeconds).toBe(12.568333333333333);
 	expect(result.fps).toBe(29.99602174777881);
 	expect(result.videoCodec).toBe('h265');
+	expect(result.audioCodec).toBe('aac');
 });
 
 test('Should stream WebM with no duration', async () => {
