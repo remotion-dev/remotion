@@ -1,9 +1,10 @@
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
+import type {Trending} from './Comp';
 
 export const TrendingRepos: React.FC<{
 	readonly theme: 'dark' | 'light';
-	readonly trending: string[];
+	readonly trending: Trending;
 }> = ({theme, trending}) => {
 	const item: React.CSSProperties = {
 		lineHeight: 1.1,
@@ -33,7 +34,11 @@ export const TrendingRepos: React.FC<{
 							fontSize: 12,
 						}}
 					>
-						Saturday, January 13th
+						{new Intl.DateTimeFormat('en-US', {
+							weekday: 'long',
+							month: 'long',
+							day: 'numeric',
+						}).format(new Date(trending.date))}
 					</div>
 					<div
 						style={{
@@ -46,9 +51,9 @@ export const TrendingRepos: React.FC<{
 					>
 						Trending repositories
 					</div>
-					<div style={item}>1. {trending[0]}</div>
-					<div style={item}>2. {trending[1]}</div>
-					<div style={item}>3. {trending[2]}</div>
+					<div style={item}>1. {trending.repos[0]}</div>
+					<div style={item}>2. {trending.repos[1]}</div>
+					<div style={item}>3. {trending.repos[2]}</div>
 				</div>
 			</AbsoluteFill>
 		</AbsoluteFill>

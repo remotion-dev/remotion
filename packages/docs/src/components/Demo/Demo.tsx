@@ -10,12 +10,11 @@ import {ActionRow} from './ActionRow';
 
 export const Demo: React.FC = () => {
 	const {colorMode} = useColorMode();
-	const [location, setLocationAndTrending] =
-		useState<LocationAndTrending | null>(null);
+	const [data, setData] = useState<LocationAndTrending | null>(null);
 
 	useEffect(() => {
-		getDataAndProps().then((data) => {
-			setLocationAndTrending(data);
+		getDataAndProps().then((d) => {
+			setData(d);
 		});
 	}, []);
 
@@ -27,7 +26,7 @@ export const Demo: React.FC = () => {
 			<br />
 			<br />
 			<h1>Try it out</h1>
-			{location ? (
+			{data ? (
 				<Player
 					component={HomepageVideoComp}
 					compositionWidth={640}
@@ -45,7 +44,7 @@ export const Demo: React.FC = () => {
 					}}
 					inputProps={{
 						theme: colorMode,
-						...location,
+						...data,
 					}}
 					loop
 				/>

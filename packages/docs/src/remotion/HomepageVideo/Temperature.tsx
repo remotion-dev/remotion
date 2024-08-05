@@ -4,7 +4,8 @@ import {TemperatureNumber} from './TemperatureNumber';
 
 export const Temperature: React.FC<{
 	readonly theme: 'dark' | 'light';
-}> = ({theme}) => {
+	readonly city: string;
+}> = ({theme, city}) => {
 	return (
 		<AbsoluteFill>
 			<AbsoluteFill
@@ -25,7 +26,7 @@ export const Temperature: React.FC<{
 						marginTop: 5,
 					}}
 				>
-					Temperature
+					Temperature in {city}
 				</div>
 
 				<TemperatureNumber theme={theme} temperatureInCelsius={-9} />

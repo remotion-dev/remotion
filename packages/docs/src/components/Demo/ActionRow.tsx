@@ -2,8 +2,17 @@ import {useColorMode} from '@docusaurus/theme-common';
 import React from 'react';
 import styles from './action-row.module.css';
 
+const link: React.CSSProperties = {
+	color: 'var(--ifm-color-primary)',
+	cursor: 'pointer',
+};
+
 export const ActionRow: React.FC = () => {
-	const {colorMode} = useColorMode();
+	const {colorMode, setColorMode} = useColorMode();
+
+	const toggleTheme = () => {
+		setColorMode(colorMode === 'dark' ? 'light' : 'dark');
+	};
 
 	return (
 		<div className={styles.row}>
@@ -18,8 +27,10 @@ export const ActionRow: React.FC = () => {
 					{colorMode === 'dark' ? 'Light theme' : 'Dark theme'}
 				</h2>
 				<p>
-					Switch to {colorMode === 'dark' ? 'light' : 'dark'} mode and see the
-					video adjust!
+					<a style={link} onClick={toggleTheme}>
+						Switch to {colorMode === 'dark' ? 'light' : 'dark'} mode
+					</a>{' '}
+					and see the video adjust!
 				</p>
 			</div>
 			<div className={styles.action}>

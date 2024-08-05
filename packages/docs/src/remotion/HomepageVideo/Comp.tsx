@@ -5,15 +5,22 @@ import {z} from 'zod';
 import {Cards} from './Card';
 import type {Location} from './types';
 
+export type Trending = {
+	repos: string[];
+	date: string;
+};
+
 export type LocationAndTrending = {
 	location: Location;
-	trending: string[];
+	trending: Trending;
 };
 
 export const getDataAndProps = async () => {
-	const trending = (await fetch('https://bugs.remotion.dev/trending')
+	const trending = await fetch('https://bugs.remotion.dev/trending')
 		.then((res) => res.json())
-		.then((data) => data.repos.slice(0, 3))) as string[];
+		.then((data) => {
+			return {repos: data.repos.slice(0, 3), date: data.dateFetched};
+		});
 
 	const location = (await fetch(
 		'https://bugs-git-homepage-player-remotion.vercel.app/api/location',
@@ -42,7 +49,7 @@ export const calculateMetadata: CalculateMetadataFunction<
 
 type Props = {
 	readonly location: Location;
-	readonly trending: null | string[];
+	readonly trending: null | Trending;
 };
 
 export const schema = z.object({

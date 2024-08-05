@@ -1,5 +1,6 @@
 import React, {createRef, useCallback, useRef, useState} from 'react';
 import {AbsoluteFill, spring} from 'remotion';
+import type {Trending} from './Comp';
 import {CurrentCountry} from './CurrentCountry';
 import {Temperature} from './Temperature';
 import {TrendingRepos} from './TrendingRepos';
@@ -302,7 +303,7 @@ export const Cards: React.FC<{
 	readonly indices: number[];
 	readonly theme: 'dark' | 'light';
 	readonly location: Location;
-	readonly trending: string[];
+	readonly trending: Trending;
 }> = ({onUpdate, indices, theme, location, trending}) => {
 	const [refs] = useState(() => {
 		return new Array(4).fill(true).map(() => {
@@ -321,7 +322,7 @@ export const Cards: React.FC<{
 					index === 0 ? (
 						<TrendingRepos trending={trending} theme={theme} />
 					) : index === 1 ? (
-						<Temperature theme={theme} />
+						<Temperature city={location.city} theme={theme} />
 					) : index === 2 ? (
 						<CurrentCountry location={location} theme={theme} />
 					) : (
