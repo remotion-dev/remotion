@@ -15,13 +15,14 @@ export const Wheel: React.FC<{
 	delay: number;
 	digits: number[];
 	renderDigit: (i: number) => React.ReactNode;
-}> = ({delay, digits, renderDigit}) => {
+	isLeadingDigit: boolean;
+}> = ({delay, digits, renderDigit, isLeadingDigit}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 
 	const singleDur = DURATION;
 
-	const progress = new Array(digits.length - 1).fill(true).map((_, i) => {
+	const progresses = new Array(digits.length - 1).fill(true).map((_, i) => {
 		const current = digits[i];
 		const next = digits[i + 1];
 		if (current === next) {
@@ -31,11 +32,15 @@ export const Wheel: React.FC<{
 		return spring({
 			fps,
 			frame,
-			config: {},
+			config: {
+				mass: 0.7,
+				damping: 12,
+			},
 			durationInFrames: singleDur,
 			delay: i * 50 + delay,
 		});
 	});
+
 	const rotations = digits.map((d) => 1 / items + d / 10);
 
 	const offsets = rotations.map((r, i) => {
@@ -46,10 +51,24 @@ export const Wheel: React.FC<{
 
 		return next - r;
 	});
-	console.log(progress, rotations, offsets);
+
+	const opacity = isLeadingDigit
+		? interpolate(
+				progresses.reduce((a, b) => a + b, 0),
+				new Array(digits.length).fill(true).map((_, i) => i),
+				digits.map((digit) => (digit === 0 ? -0.5 : 1)),
+			)
+		: 1;
+
+	console.log(
+		new Array(digits.length).fill(true).map((_, i) => i),
+		new Array(digits.length).fill(true).map((digit) => (digit === 0 ? 0 : 1)),
+		digits,
+		isLeadingDigit,
+	);
 
 	const rotation =
-		progress
+		progresses
 			.map((p, i) => {
 				return p * offsets[i];
 			})
@@ -99,6 +118,7 @@ export const Wheel: React.FC<{
 									flexDirection: 'row',
 									alignItems: 'center',
 									justifyContent: 'center',
+									opacity,
 								}}
 							>
 								<div

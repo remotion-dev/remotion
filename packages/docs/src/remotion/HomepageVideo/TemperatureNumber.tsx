@@ -43,18 +43,20 @@ export const TemperatureNumber: React.FC<{
 					delay={i * 4}
 					renderDigit={(_i) => 9 - _i}
 					digits={[
-						Number(digit) - 1,
+						Number(paddedFahrenheitDegree[i]),
 						Number(digit),
 						Number(paddedFahrenheitDegree[i]),
 					]}
+					isLeadingDigit={i === 0}
 				/>
 			))}
 			°
 			<Wheel
 				// eslint-disable-next-line react/no-array-index-key
 				delay={paddedCelsiusDegree.length * 4 - 2}
-				digits={[1, 1, 0]}
+				digits={[0, 1, 0]}
 				renderDigit={(_i) => (_i % 2 === 0 ? 'C' : 'F')}
+				isLeadingDigit={false}
 			/>
 		</div>
 	);
