@@ -6,13 +6,7 @@ import {AbsoluteFill, useVideoConfig} from 'remotion';
 export const EmojiCard: React.FC<{
 	emojiPosition: number;
 }> = ({emojiPosition}) => {
-	const partyDuration = getAvailableEmojis().find(
-		(e) => e.name === 'partying-face',
-	).durationInSeconds;
 	const {durationInFrames, fps} = useVideoConfig();
-	const ratio = durationInFrames / fps / partyDuration;
-	const closestInteger = Math.round(ratio);
-	const closestRatio = closestInteger / ratio;
 
 	const emoji: EmojiName = useMemo(() => {
 		if (emojiPosition % 3 === 0) {
@@ -25,6 +19,14 @@ export const EmojiCard: React.FC<{
 
 		return 'fire';
 	}, [emojiPosition]);
+
+	const partyDuration = getAvailableEmojis().find(
+		(e) => e.name === emoji,
+	).durationInSeconds;
+
+	const ratio = durationInFrames / fps / partyDuration;
+	const closestInteger = Math.round(ratio);
+	const closestRatio = closestInteger / ratio;
 
 	return (
 		<AbsoluteFill
@@ -54,6 +56,13 @@ export const EmojiCard: React.FC<{
 				emoji={emoji}
 				scale="0.5"
 				playbackRate={closestRatio}
+				onError={(e) => {
+					if (e.message.includes('PIPELINE_ERROR')) {
+						return;
+					}
+
+					throw e;
+				}}
 			/>
 		</AbsoluteFill>
 	);
