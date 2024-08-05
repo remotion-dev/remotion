@@ -1,6 +1,7 @@
 import {useColorMode} from '@docusaurus/theme-common';
+import type {PlayerRef} from '@remotion/player';
 import {Player} from '@remotion/player';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import type {LocationAndTrending} from '../../remotion/HomepageVideo/Comp';
 import {
 	HomepageVideoComp,
@@ -11,6 +12,7 @@ import {ActionRow} from './ActionRow';
 export const Demo: React.FC = () => {
 	const {colorMode} = useColorMode();
 	const [data, setData] = useState<LocationAndTrending | null>(null);
+	const ref = useRef<PlayerRef>(null);
 
 	useEffect(() => {
 		getDataAndProps().then((d) => {
@@ -28,6 +30,7 @@ export const Demo: React.FC = () => {
 			<h1>Try it out</h1>
 			{data ? (
 				<Player
+					ref={ref}
 					component={HomepageVideoComp}
 					compositionWidth={640}
 					compositionHeight={360}
@@ -44,6 +47,9 @@ export const Demo: React.FC = () => {
 					}}
 					inputProps={{
 						theme: colorMode,
+						onToggle: () => {
+							ref.current?.toggle();
+						},
 						...data,
 					}}
 					loop

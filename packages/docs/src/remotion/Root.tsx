@@ -84,6 +84,7 @@ export const RemotionRoot: React.FC = () => {
 						city: 'New York',
 					},
 					trending: null,
+					onToggle: () => undefined,
 				}}
 				schema={schema}
 				calculateMetadata={calculateMetadata}

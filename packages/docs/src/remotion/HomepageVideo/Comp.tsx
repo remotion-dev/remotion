@@ -50,6 +50,7 @@ export const calculateMetadata: CalculateMetadataFunction<
 type Props = {
 	readonly location: Location;
 	readonly trending: null | Trending;
+	readonly onToggle: () => void;
 };
 
 export const schema = z.object({
@@ -60,6 +61,7 @@ export const HomepageVideoComp: React.FC<z.infer<typeof schema> & Props> = ({
 	theme,
 	location,
 	trending,
+	onToggle,
 }) => {
 	const [state, setRerenders] = useState({
 		rerenders: 0,
@@ -94,6 +96,7 @@ export const HomepageVideoComp: React.FC<z.infer<typeof schema> & Props> = ({
 				theme={theme}
 				location={location}
 				trending={trending}
+				onToggle={onToggle}
 			/>
 		</AbsoluteFill>
 	);

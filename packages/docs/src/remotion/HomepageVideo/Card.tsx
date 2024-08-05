@@ -1,4 +1,10 @@
-import React, {createRef, useCallback, useRef, useState} from 'react';
+import React, {
+	createRef,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
 import {AbsoluteFill, spring} from 'remotion';
 import type {Trending} from './Comp';
 import {CurrentCountry} from './CurrentCountry';
@@ -304,7 +310,10 @@ export const Cards: React.FC<{
 	readonly theme: 'dark' | 'light';
 	readonly location: Location;
 	readonly trending: Trending;
-}> = ({onUpdate, indices, theme, location, trending}) => {
+	onToggle: () => void;
+}> = ({onUpdate, indices, theme, location, trending, onToggle}) => {
+	const container = useRef<HTMLDivElement>(null);
+
 	const [refs] = useState(() => {
 		return new Array(4).fill(true).map(() => {
 			return createRef<HTMLDivElement>();
@@ -314,8 +323,29 @@ export const Cards: React.FC<{
 	const positions = useRef(getInitialPositions());
 	const shouldBePositions = useRef(getInitialPositions());
 
+	useEffect(() => {
+		const {current} = container;
+		if (!current) {
+			return;
+		}
+
+		const onClick = (e: MouseEvent) => {
+			if (e.target !== current) {
+				return;
+			}
+
+			onToggle();
+		};
+
+		current.addEventListener('click', onClick);
+
+		return () => {
+			current.removeEventListener('click', onClick);
+		};
+	}, [onToggle]);
+
 	return (
-		<AbsoluteFill>
+		<AbsoluteFill ref={container}>
 			{new Array(4).fill(true).map((_, i) => {
 				const index = indices[i];
 				const content =
