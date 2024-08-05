@@ -2,7 +2,7 @@ import React, {useCallback, useState} from 'react';
 import type {CalculateMetadataFunction} from 'remotion';
 import {AbsoluteFill} from 'remotion';
 import {z} from 'zod';
-import {Cards} from './Card';
+import {Cards} from './cards/Cards';
 import type {Location} from './types';
 
 export type Trending = {

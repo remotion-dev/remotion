@@ -1,62 +1,14 @@
-import React, {
-	createRef,
-	useCallback,
-	useEffect,
-	useRef,
-	useState,
-} from 'react';
+import React, {useCallback, useRef} from 'react';
 import {AbsoluteFill, spring} from 'remotion';
-import type {Trending} from './Comp';
-import {CurrentCountry} from './CurrentCountry';
-import {EmojiCard} from './EmojiCard';
-import {Temperature} from './Temperature';
-import {TrendingRepos} from './TrendingRepos';
-import styles from './player-styles.module.css';
-import type {Location} from './types';
-
-export const paddingAndMargin = 20;
-const height = 360;
-const width = 640;
-export const cardHeight = (height - paddingAndMargin * 3) / 2;
-export const cardWidth = (width - paddingAndMargin * 3) / 2;
-
-type Position = {
-	x: number;
-	y: number;
-};
-
-const getPositionForIndex = (index: number): Position => {
-	const x =
-		index % 2 === 0 ? paddingAndMargin : cardWidth + paddingAndMargin * 2;
-	const y = index < 2 ? paddingAndMargin : cardHeight + paddingAndMargin * 2;
-
-	return {x, y};
-};
-
-const getInitialPositions = () => {
-	return new Array(4).fill(true).map((_, i) => getPositionForIndex(i));
-};
-
-const getIndexFromPosition = (clientX: number, clientY: number) => {
-	const left = clientX < cardWidth / 2 + paddingAndMargin;
-	const top = clientY < cardHeight / 2 + paddingAndMargin;
-
-	if (left && top) {
-		return 0;
-	}
-
-	if (!left && top) {
-		return 1;
-	}
-
-	if (left && !top) {
-		return 2;
-	}
-
-	if (!left && !top) {
-		return 3;
-	}
-};
+import styles from '../player-styles.module.css';
+import {
+	cardHeight,
+	cardWidth,
+	getIndexFromPosition,
+	getInitialPositions,
+	getPositionForIndex,
+	type Position,
+} from './math';
 
 const arePositionsEqual = (a: Position[], b: Position[]) => {
 	return a.every((pos, i) => {
@@ -64,7 +16,7 @@ const arePositionsEqual = (a: Position[], b: Position[]) => {
 	});
 };
 
-const Card: React.FC<{
+export const Card: React.FC<{
 	readonly index: number;
 	readonly refsToUse: React.MutableRefObject<HTMLDivElement>[];
 	readonly onUpdate: (newIndices: number[]) => void;
@@ -302,91 +254,5 @@ const Card: React.FC<{
 				{content}
 			</AbsoluteFill>
 		</div>
-	);
-};
-
-export const Cards: React.FC<{
-	readonly onUpdate: (newIndices: number[]) => void;
-	readonly indices: number[];
-	readonly theme: 'dark' | 'light';
-	readonly location: Location;
-	readonly trending: Trending;
-	readonly temperatureInCelsius: number;
-	onToggle: () => void;
-}> = ({
-	onUpdate,
-	indices,
-	theme,
-	location,
-	trending,
-	onToggle,
-	temperatureInCelsius,
-}) => {
-	const container = useRef<HTMLDivElement>(null);
-
-	const [refs] = useState(() => {
-		return new Array(4).fill(true).map(() => {
-			return createRef<HTMLDivElement>();
-		});
-	});
-
-	const positions = useRef(getInitialPositions());
-	const shouldBePositions = useRef(getInitialPositions());
-
-	useEffect(() => {
-		const {current} = container;
-		if (!current) {
-			return;
-		}
-
-		const onClick = (e: MouseEvent) => {
-			if (e.target !== current) {
-				return;
-			}
-
-			onToggle();
-		};
-
-		current.addEventListener('click', onClick);
-
-		return () => {
-			current.removeEventListener('click', onClick);
-		};
-	}, [onToggle]);
-
-	return (
-		<AbsoluteFill ref={container}>
-			{new Array(4).fill(true).map((_, i) => {
-				const index = indices[i];
-				const content =
-					index === 0 ? (
-						<TrendingRepos trending={trending} theme={theme} />
-					) : index === 1 ? (
-						<Temperature
-							city={location.city}
-							theme={theme}
-							temperatureInCelsius={temperatureInCelsius}
-						/>
-					) : index === 2 ? (
-						<CurrentCountry location={location} theme={theme} />
-					) : (
-						<EmojiCard />
-					);
-				return (
-					<Card
-						// eslint-disable-next-line react/no-array-index-key
-						key={i}
-						onUpdate={onUpdate}
-						refsToUse={refs}
-						index={i}
-						content={content}
-						positions={positions}
-						shouldBePositions={shouldBePositions}
-						indices={indices}
-						theme={theme}
-					/>
-				);
-			})}
-		</AbsoluteFill>
 	);
 };
