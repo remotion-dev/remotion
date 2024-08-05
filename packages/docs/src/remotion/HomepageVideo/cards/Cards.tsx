@@ -8,9 +8,9 @@ import React, {
 import {AbsoluteFill} from 'remotion';
 import type {Trending} from '../Comp';
 import {CurrentCountry} from '../CurrentCountry';
-import {EmojiCard} from '../EmojiCard';
 import {Temperature} from '../Temperature';
 import {TrendingRepos} from '../TrendingRepos';
+import {EmojiCard} from '../emoji/EmojiCard';
 import type {Location} from '../types';
 import {Card} from './Card';
 import {getInitialPositions} from './math';

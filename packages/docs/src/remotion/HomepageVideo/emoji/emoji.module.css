@@ -1,0 +1,8 @@
+.next {
+	transform: translateX(200%);
+	transition: none !important;
+}
+
+.prev {
+	transform: translateX(-200%);
+}
