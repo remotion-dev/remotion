@@ -78,8 +78,6 @@ test('Should stream corrupted video', async () => {
 		nodeReader,
 	);
 
-	await Bun.write('bun.json', JSON.stringify(parsed, null, 2));
-
 	expect(parsed.durationInSeconds).toBe(30.03);
 	expect(parsed.fps).toBe(23.976023976023974);
 	expect(parsed.dimensions).toEqual({
@@ -154,6 +152,26 @@ test('Should stream variable fps video', async () => {
 	expect(parsed.audioCodec).toBe('opus');
 });
 
+test('Should stream variable fps video', async () => {
+	const parsed = await parseMedia(
+		RenderInternals.exampleVideos.variablefps,
+		{
+			fps: true,
+			dimensions: true,
+			durationInSeconds: true,
+			videoCodec: true,
+			audioCodec: true,
+		},
+		nodeReader,
+	);
+
+	expect(parsed.dimensions.width).toBe(1280);
+	expect(parsed.dimensions.height).toBe(720);
+	expect(parsed.durationInSeconds).toBe(22.901);
+	expect(parsed.videoCodec).toBe('vp8');
+	expect(parsed.audioCodec).toBe('opus');
+});
+
 test('Should stream MKV video', async () => {
 	const parsed = await parseMedia(
 		RenderInternals.exampleVideos.matroskaPcm16,
@@ -171,5 +189,32 @@ test('Should stream MKV video', async () => {
 	expect(parsed.dimensions.height).toBe(1080);
 	expect(parsed.durationInSeconds).toBe(0.333);
 	expect(parsed.videoCodec).toBe('h264');
-	expect(parsed.audioCodec).toBe('opus');
+	expect(parsed.audioCodec).toBe('pcm');
+});
+
+test('Should stream MP3 in MP4 video', async () => {
+	const parsed = await parseMedia(
+		RenderInternals.exampleVideos.mp4withmp3,
+		{
+			fps: true,
+			dimensions: true,
+			durationInSeconds: true,
+			videoCodec: true,
+			audioCodec: true,
+			boxes: true,
+		},
+		nodeReader,
+	);
+
+	await Bun.write('bun.json', JSON.stringify(parsed, null, 2));
+
+	expect(parsed.dimensions.width).toBe(1080);
+	expect(parsed.dimensions.height).toBe(1080);
+	expect(parsed.durationInSeconds).toBe(0.337);
+	expect(parsed.videoCodec).toBe('h264');
+	// TODO: Wrong, should take a look at esds box
+	// https://chromium.googlesource.com/chromium/src/media/+/master/formats/mp4/es_descriptor.h
+	// 0x40 = aac
+	// 0x6b = mp3
+	expect(parsed.audioCodec).toBe('mp3');
 });
