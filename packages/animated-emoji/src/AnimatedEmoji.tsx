@@ -6,7 +6,10 @@ import {emojis} from './emoji-data';
 import type {EmojiName} from './get-available-emoji';
 import {isWebkit} from './is-webkit';
 
-export type AnimatedEmojiProps = Omit<RemotionOffthreadVideoProps, 'src'> & {
+export type AnimatedEmojiProps = Omit<
+	RemotionOffthreadVideoProps,
+	'src' | 'muted'
+> & {
 	readonly emoji: EmojiName;
 	readonly scale?: Scale;
 	readonly calculateSrc?: CalculateEmojiSrc;
@@ -34,6 +37,7 @@ export const AnimatedEmoji = ({
 		>
 			<OffthreadVideo
 				{...props}
+				muted
 				src={calculateSrc({emoji, scale, format: isWebkit() ? 'hevc' : 'webm'})}
 			/>
 		</Loop>

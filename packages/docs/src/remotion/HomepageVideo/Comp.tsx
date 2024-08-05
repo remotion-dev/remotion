@@ -8,6 +8,7 @@ import type {Location} from './types';
 export type Trending = {
 	repos: string[];
 	date: string;
+	temperatureInCelsius: number;
 };
 
 export type LocationAndTrending = {
@@ -31,6 +32,7 @@ export const getDataAndProps = async () => {
 			return {
 				repos: data.trending.repos.slice(0, 3),
 				date: data.trending.dateFetched,
+				temperatureInCelsius: Math.round(data.temperature),
 			};
 		});
 
@@ -51,6 +53,7 @@ export const calculateMetadata: CalculateMetadataFunction<
 			...props,
 			trending,
 			location,
+			temperatureInCelsius: trending?.temperatureInCelsius ?? 10,
 		},
 	};
 };
@@ -105,6 +108,7 @@ export const HomepageVideoComp: React.FC<z.infer<typeof schema> & Props> = ({
 				location={location}
 				trending={trending}
 				onToggle={onToggle}
+				temperatureInCelsius={trending.temperatureInCelsius}
 			/>
 		</AbsoluteFill>
 	);

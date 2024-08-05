@@ -311,8 +311,17 @@ export const Cards: React.FC<{
 	readonly theme: 'dark' | 'light';
 	readonly location: Location;
 	readonly trending: Trending;
+	readonly temperatureInCelsius: number;
 	onToggle: () => void;
-}> = ({onUpdate, indices, theme, location, trending, onToggle}) => {
+}> = ({
+	onUpdate,
+	indices,
+	theme,
+	location,
+	trending,
+	onToggle,
+	temperatureInCelsius,
+}) => {
 	const container = useRef<HTMLDivElement>(null);
 
 	const [refs] = useState(() => {
@@ -353,7 +362,11 @@ export const Cards: React.FC<{
 					index === 0 ? (
 						<TrendingRepos trending={trending} theme={theme} />
 					) : index === 1 ? (
-						<Temperature city={location.city} theme={theme} />
+						<Temperature
+							city={location.city}
+							theme={theme}
+							temperatureInCelsius={temperatureInCelsius}
+						/>
 					) : index === 2 ? (
 						<CurrentCountry location={location} theme={theme} />
 					) : (
