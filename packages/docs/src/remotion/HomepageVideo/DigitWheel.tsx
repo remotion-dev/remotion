@@ -21,7 +21,8 @@ export const Wheel: React.FC<{
 	renderDigit: (i: number) => React.ReactNode;
 	isLeadingDigit: boolean;
 	isNegative: boolean[];
-}> = ({delay, digits, renderDigit, isLeadingDigit, isNegative}) => {
+	alignLeft: boolean;
+}> = ({delay, digits, renderDigit, isLeadingDigit, isNegative, alignLeft}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 
@@ -87,7 +88,8 @@ export const Wheel: React.FC<{
 				isNegative.map((negative) => (negative ? 1 : 0)),
 			)
 		: 1;
-	console.log({isNegative});
+
+	const minusSignMarginLeft = interpolate(minusSignOpacity, [0, 1], [10, 0]);
 
 	const shiftLeft = isLeadingDigit
 		? interpolate(
@@ -115,7 +117,10 @@ export const Wheel: React.FC<{
 			}}
 		>
 			{isLeadingDigit ? (
-				<Minus minusSignOpacity={minusSignOpacity} leftOffset={shiftLeft} />
+				<Minus
+					minusSignOpacity={minusSignOpacity}
+					leftOffset={shiftLeft + minusSignMarginLeft}
+				/>
 			) : null}
 			<AbsoluteFill
 				style={{
@@ -158,6 +163,7 @@ export const Wheel: React.FC<{
 								<div
 									style={{
 										lineHeight: 1,
+										display: 'inline',
 									}}
 								>
 									{renderDigit(i)}
