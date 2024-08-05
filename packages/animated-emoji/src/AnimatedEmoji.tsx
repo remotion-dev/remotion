@@ -1,4 +1,4 @@
-import type {RemotionOffthreadVideoProps} from 'remotion';
+import type {LayoutAndStyle, RemotionOffthreadVideoProps} from 'remotion';
 import {Loop, OffthreadVideo, useVideoConfig} from 'remotion';
 import type {CalculateEmojiSrc, Scale} from './calculate-emoji-src';
 import {defaultCalculateEmojiSrc} from './calculate-emoji-src';
@@ -10,7 +10,7 @@ export type AnimatedEmojiProps = Omit<RemotionOffthreadVideoProps, 'src'> & {
 	readonly emoji: EmojiName;
 	readonly scale?: Scale;
 	readonly calculateSrc?: CalculateEmojiSrc;
-};
+} & LayoutAndStyle;
 
 export const AnimatedEmoji = ({
 	emoji,
@@ -28,7 +28,10 @@ export const AnimatedEmoji = ({
 	}
 
 	return (
-		<Loop durationInFrames={Math.floor(emojiData.durationInSeconds * fps)}>
+		<Loop
+			layout="none"
+			durationInFrames={Math.floor(emojiData.durationInSeconds * fps)}
+		>
 			<OffthreadVideo
 				{...props}
 				src={calculateSrc({emoji, scale, format: isWebkit() ? 'hevc' : 'webm'})}

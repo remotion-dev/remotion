@@ -82,6 +82,8 @@ export const RemotionRoot: React.FC = () => {
 					location: {
 						country: 'US',
 						city: 'New York',
+						latitude: 40.7128,
+						longitude: -74.006,
 					},
 					trending: null,
 					onToggle: () => undefined,

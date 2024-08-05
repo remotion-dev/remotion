@@ -8,6 +8,7 @@ import React, {
 import {AbsoluteFill, spring} from 'remotion';
 import type {Trending} from './Comp';
 import {CurrentCountry} from './CurrentCountry';
+import {EmojiCard} from './EmojiCard';
 import {Temperature} from './Temperature';
 import {TrendingRepos} from './TrendingRepos';
 import styles from './player-styles.module.css';
@@ -356,7 +357,7 @@ export const Cards: React.FC<{
 					) : index === 2 ? (
 						<CurrentCountry location={location} theme={theme} />
 					) : (
-						'🐹'
+						<EmojiCard />
 					);
 				return (
 					<Card
