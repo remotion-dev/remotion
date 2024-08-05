@@ -32,7 +32,6 @@ export const TemperatureNumber: React.FC<{
 				display: 'flex',
 				flexDirection: 'row',
 				alignItems: 'center',
-				marginTop: -10,
 			}}
 		>
 			{paddedCelsiusDegree.map((digit, i) => (

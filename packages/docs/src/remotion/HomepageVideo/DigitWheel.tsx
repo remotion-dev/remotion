@@ -111,7 +111,7 @@ export const Wheel: React.FC<{
 				position: 'relative',
 				width: NUM_WIDTH,
 				display: 'inline-block',
-				height: 90,
+				height: 80,
 				marginLeft: shiftLeft,
 			}}
 		>
