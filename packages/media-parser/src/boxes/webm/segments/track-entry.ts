@@ -278,7 +278,7 @@ export type ColorSegment = {
 export const parseColorSegment = (iterator: BufferIterator): ColorSegment => {
 	const length = iterator.getVint();
 
-	iterator.discard(length - 1);
+	iterator.discard(length);
 
 	return {
 		type: 'color-segment',
@@ -318,5 +318,70 @@ export const parseInterlacedSegment = (
 	return {
 		type: 'interlaced-segment',
 		interlaced: Boolean(interlaced),
+	};
+};
+
+export type CodecPrivateSegment = {
+	type: 'codec-private-segment';
+	codecPrivateData: number[];
+};
+
+export const parseCodecPrivateSegment = (
+	iterator: BufferIterator,
+): CodecPrivateSegment => {
+	const length = iterator.getVint();
+
+	return {
+		type: 'codec-private-segment',
+		codecPrivateData: [...iterator.getSlice(length)],
+	};
+};
+
+export type Crc32Segment = {
+	type: 'crc32-segment';
+	crc32: number[];
+};
+
+export const parseCrc32Segment = (iterator: BufferIterator): Crc32Segment => {
+	const length = iterator.getVint();
+
+	return {
+		type: 'crc32-segment',
+		crc32: [...iterator.getSlice(length)],
+	};
+};
+
+export type SegmentUUIDSegment = {
+	type: 'segment-uuid-segment';
+	segmentUUID: string;
+};
+
+export const parseSegmentUUIDSegment = (
+	iterator: BufferIterator,
+): SegmentUUIDSegment => {
+	const length = iterator.getVint();
+
+	return {
+		type: 'segment-uuid-segment',
+		segmentUUID: iterator.getSlice(length).toString(),
+	};
+};
+
+export type DefaultFlagSegment = {
+	type: 'default-flag-segment';
+	defaultFlag: boolean;
+};
+
+export const parseDefaultFlagSegment = (
+	iterator: BufferIterator,
+): DefaultFlagSegment => {
+	const length = iterator.getVint();
+	if (length !== 1) {
+		throw new Error('Expected default flag segment to be 1 byte');
+	}
+
+	return {
+		type: 'default-flag-segment',
+		defaultFlag: Boolean(iterator.getUint8()),
 	};
 };

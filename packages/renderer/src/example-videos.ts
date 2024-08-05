@@ -36,4 +36,5 @@ export const exampleVideos = {
 	),
 	prores: path.join(examplePackage, 'public', 'prores.mov'),
 	iphonehevc: path.join(examplePackage, 'public', 'iphone-hevc.mov'),
+	matroskaPcm16: path.join(examplePackage, 'public', 'matroska-pcm16.mkv'),
 };

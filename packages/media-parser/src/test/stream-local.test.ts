@@ -112,6 +112,7 @@ test('Should stream screen recording video', async () => {
 	expect(parsed.videoCodec).toBe('h264');
 	expect(parsed.audioCodec).toBe(null);
 });
+
 test('Should stream ProRes video', async () => {
 	const parsed = await parseMedia(
 		RenderInternals.exampleVideos.prores,
@@ -131,4 +132,44 @@ test('Should stream ProRes video', async () => {
 	expect(parsed.durationInSeconds).toBe(0.034);
 	expect(parsed.videoCodec).toBe('prores');
 	expect(parsed.audioCodec).toBe('aiff');
+});
+
+test('Should stream variable fps video', async () => {
+	const parsed = await parseMedia(
+		RenderInternals.exampleVideos.variablefps,
+		{
+			fps: true,
+			dimensions: true,
+			durationInSeconds: true,
+			videoCodec: true,
+			audioCodec: true,
+		},
+		nodeReader,
+	);
+
+	expect(parsed.dimensions.width).toBe(1280);
+	expect(parsed.dimensions.height).toBe(720);
+	expect(parsed.durationInSeconds).toBe(22.901);
+	expect(parsed.videoCodec).toBe('vp8');
+	expect(parsed.audioCodec).toBe('opus');
+});
+
+test('Should stream MKV video', async () => {
+	const parsed = await parseMedia(
+		RenderInternals.exampleVideos.matroskaPcm16,
+		{
+			fps: true,
+			dimensions: true,
+			durationInSeconds: true,
+			videoCodec: true,
+			audioCodec: true,
+		},
+		nodeReader,
+	);
+
+	expect(parsed.dimensions.width).toBe(1080);
+	expect(parsed.dimensions.height).toBe(1080);
+	expect(parsed.durationInSeconds).toBe(0.333);
+	expect(parsed.videoCodec).toBe('h264');
+	expect(parsed.audioCodec).toBe('opus');
 });

@@ -77,7 +77,13 @@ export const getAudioCodec = (boxes: AnySegment[]): KnownAudioCodecs | null => {
 		if (track.type === 'track-entry-segment') {
 			const trackType = track.children.find((b) => b.type === 'codec-segment');
 			if (trackType && trackType.type === 'codec-segment') {
-				// TODO: Add more codecs
+				if (trackType.codec === 'A_OPUS') {
+					return 'opus';
+				}
+
+				if (trackType.codec === 'A_PCM/INT/LIT') {
+					return 'pcm';
+				}
 			}
 		}
 	}
