@@ -152,26 +152,6 @@ test('Should stream variable fps video', async () => {
 	expect(parsed.audioCodec).toBe('opus');
 });
 
-test('Should stream variable fps video', async () => {
-	const parsed = await parseMedia(
-		RenderInternals.exampleVideos.variablefps,
-		{
-			fps: true,
-			dimensions: true,
-			durationInSeconds: true,
-			videoCodec: true,
-			audioCodec: true,
-		},
-		nodeReader,
-	);
-
-	expect(parsed.dimensions.width).toBe(1280);
-	expect(parsed.dimensions.height).toBe(720);
-	expect(parsed.durationInSeconds).toBe(22.901);
-	expect(parsed.videoCodec).toBe('vp8');
-	expect(parsed.audioCodec).toBe('opus');
-});
-
 test('Should stream MKV video', async () => {
 	const parsed = await parseMedia(
 		RenderInternals.exampleVideos.matroskaPcm16,

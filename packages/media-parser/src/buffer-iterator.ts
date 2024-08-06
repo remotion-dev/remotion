@@ -48,8 +48,16 @@ const makeOffsetCounter = (): OffsetCounter => {
 	return new OffsetCounter(0);
 };
 
-export const getArrayBufferIterator = (initialData: Uint8Array) => {
-	let data = initialData;
+export const getArrayBufferIterator = (
+	initialData: Uint8Array,
+	maxBytes?: number,
+) => {
+	const buf = new ArrayBuffer(initialData.byteLength, {
+		maxByteLength: maxBytes ?? 1_000_000_000,
+	});
+	let data = new Uint8Array(buf);
+	data.set(initialData);
+
 	let view = new DataView(data.buffer);
 	const counter = makeOffsetCounter();
 
@@ -92,11 +100,11 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 	};
 
 	const addData = (newData: Uint8Array) => {
-		const newArray = new Uint8Array(
-			data.buffer.byteLength + newData.byteLength,
-		);
-		newArray.set(data);
-		newArray.set(new Uint8Array(newData), data.byteLength);
+		const oldLength = buf.byteLength;
+		const newLength = oldLength + newData.byteLength;
+		buf.resize(newLength);
+		const newArray = new Uint8Array(buf);
+		newArray.set(newData, oldLength);
 		data = newArray;
 		view = new DataView(data.buffer);
 	};
@@ -120,9 +128,9 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 	const removeBytesRead = () => {
 		const bytesToRemove = counter.getDiscardedOffset();
 		counter.discardBytes(bytesToRemove);
-		const newArray = new Uint8Array(data.buffer.byteLength - bytesToRemove);
-		newArray.set(data.slice(bytesToRemove));
-		data = newArray;
+		const newData = data.slice(bytesToRemove);
+		data.set(newData);
+		buf.resize(newData.byteLength);
 		view = new DataView(data.buffer);
 	};
 

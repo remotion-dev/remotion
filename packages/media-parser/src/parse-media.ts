@@ -1,3 +1,4 @@
+import type {BufferIterator} from './buffer-iterator';
 import {getArrayBufferIterator} from './buffer-iterator';
 import {webReader} from './from-web';
 import {getAudioCodec} from './get-audio-codec';
@@ -7,6 +8,7 @@ import {getFps} from './get-fps';
 import {getVideoCodec} from './get-video-codec';
 import {hasAllInfo} from './has-all-info';
 import type {Metadata, ParseMedia} from './options';
+import type {ParseResult} from './parse-result';
 import {parseVideo} from './parse-video';
 
 export const parseMedia: ParseMedia = async (
@@ -18,17 +20,26 @@ export const parseMedia: ParseMedia = async (
 
 	const returnValue = {} as Metadata<true, true, true, true, true, true>;
 
-	const iterator = getArrayBufferIterator(new Uint8Array([]));
-	let parseResult = parseVideo(iterator);
+	let iterator: BufferIterator | null = null;
+	let parseResult: ParseResult | null = null;
 
-	while (parseResult.status === 'incomplete') {
+	while (parseResult === null || parseResult.status === 'incomplete') {
 		const result = await reader.read();
 		if (result.done) {
 			break;
 		}
 
-		iterator.addData(result.value);
-		parseResult = parseResult.continueParsing();
+		if (iterator) {
+			iterator.addData(result.value);
+		} else {
+			iterator = getArrayBufferIterator(result.value);
+		}
+
+		if (parseResult) {
+			parseResult = parseResult.continueParsing();
+		} else {
+			parseResult = parseVideo(iterator);
+		}
 
 		if (hasAllInfo(options, parseResult)) {
 			if (!reader.closed) {
@@ -37,6 +48,10 @@ export const parseMedia: ParseMedia = async (
 
 			break;
 		}
+	}
+
+	if (!parseResult) {
+		throw new Error('Could not parse video');
 	}
 
 	if (options.dimensions) {
