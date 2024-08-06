@@ -10,18 +10,28 @@ export type KnownVideoCodecs =
 	| 'av1'
 	| 'prores';
 
+export type KnownAudioCodecs =
+	| 'aac'
+	| 'mp3'
+	| 'aiff'
+	| 'opus'
+	| 'pcm'
+	| 'unknown';
+
 export type Options<
 	EnableDimensions extends boolean,
 	EnableDuration extends boolean,
 	EnableBoxes extends boolean,
 	EnableFps extends boolean,
 	EnableVideoCodec extends boolean,
+	EnableAudioCodec extends boolean,
 > = {
 	dimensions?: EnableDimensions;
 	durationInSeconds?: EnableDuration;
 	boxes?: EnableBoxes;
 	fps?: EnableFps;
 	videoCodec?: EnableVideoCodec;
+	audioCodec?: EnableAudioCodec;
 };
 
 export type Metadata<
@@ -30,11 +40,13 @@ export type Metadata<
 	EnableBoxes extends boolean,
 	EnableFps extends boolean,
 	EnableVideoCodec extends boolean,
+	EnableAudioCodec extends boolean,
 > = (EnableDimensions extends true ? {dimensions: Dimensions} : {}) &
 	(EnableDuration extends true ? {durationInSeconds: number | null} : {}) &
 	(EnableBoxes extends true ? {boxes: AnySegment[]} : {}) &
 	(EnableFps extends true ? {fps: number | null} : {}) &
-	(EnableVideoCodec extends true ? {videoCodec: KnownVideoCodecs | null} : {});
+	(EnableVideoCodec extends true ? {videoCodec: KnownVideoCodecs | null} : {}) &
+	(EnableAudioCodec extends true ? {audioCodec: KnownAudioCodecs | null} : {});
 
 export type ParseMedia = <
 	EnableDimensions extends boolean,
@@ -42,6 +54,7 @@ export type ParseMedia = <
 	EnableBoxes extends boolean,
 	EnableFps extends boolean,
 	EnableVideoCodec extends boolean,
+	EnableAudioCodec extends boolean,
 >(
 	src: string,
 	options: Options<
@@ -49,7 +62,8 @@ export type ParseMedia = <
 		EnableDuration,
 		EnableBoxes,
 		EnableFps,
-		EnableVideoCodec
+		EnableVideoCodec,
+		EnableAudioCodec
 	>,
 	readerInterface?: ReaderInterface,
 ) => Promise<
@@ -58,6 +72,7 @@ export type ParseMedia = <
 		EnableDuration,
 		EnableBoxes,
 		EnableFps,
-		EnableVideoCodec
+		EnableVideoCodec,
+		EnableAudioCodec
 	>
 >;

@@ -48,8 +48,16 @@ const makeOffsetCounter = (): OffsetCounter => {
 	return new OffsetCounter(0);
 };
 
-export const getArrayBufferIterator = (initialData: Uint8Array) => {
-	let data = initialData;
+export const getArrayBufferIterator = (
+	initialData: Uint8Array,
+	maxBytes?: number,
+) => {
+	const buf = new ArrayBuffer(initialData.byteLength, {
+		maxByteLength: maxBytes ?? 1_000_000_000,
+	});
+	let data = new Uint8Array(buf);
+	data.set(initialData);
+
 	let view = new DataView(data.buffer);
 	const counter = makeOffsetCounter();
 
@@ -76,6 +84,15 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 		);
 	};
 
+	const getPaddedFourByteNumber = () => {
+		let lastInt = 128;
+		while (((lastInt = getUint8()), lastInt === 128)) {
+			// Do nothing
+		}
+
+		return lastInt;
+	};
+
 	const getUint32 = () => {
 		const val = view.getUint32(counter.getDiscardedOffset());
 		counter.increment(4);
@@ -83,11 +100,11 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 	};
 
 	const addData = (newData: Uint8Array) => {
-		const newArray = new Uint8Array(
-			data.buffer.byteLength + newData.byteLength,
-		);
-		newArray.set(data);
-		newArray.set(new Uint8Array(newData), data.byteLength);
+		const oldLength = buf.byteLength;
+		const newLength = oldLength + newData.byteLength;
+		buf.resize(newLength);
+		const newArray = new Uint8Array(buf);
+		newArray.set(newData, oldLength);
 		data = newArray;
 		view = new DataView(data.buffer);
 	};
@@ -111,9 +128,9 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 	const removeBytesRead = () => {
 		const bytesToRemove = counter.getDiscardedOffset();
 		counter.discardBytes(bytesToRemove);
-		const newArray = new Uint8Array(data.buffer.byteLength - bytesToRemove);
-		newArray.set(data.slice(bytesToRemove));
-		data = newArray;
+		const newData = data.slice(bytesToRemove);
+		data.set(newData);
+		buf.resize(newData.byteLength);
 		view = new DataView(data.buffer);
 	};
 
@@ -134,6 +151,7 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 			const atom = getSlice(4);
 			return new TextDecoder().decode(atom);
 		},
+		getPaddedFourByteNumber,
 		getMatroskaSegmentId: () => {
 			const first = getSlice(1);
 			const firstOneString = `0x${Array.from(new Uint8Array(first))
@@ -155,6 +173,9 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 				'0xb0',
 				'0xba',
 				'0x9a',
+				'0xe1',
+				'0xbf',
+				'0x88',
 			];
 			if (knownIdsWithOneLength.includes(firstOneString)) {
 				return firstOneString;
@@ -174,6 +195,8 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 				'0x55ee',
 				'0x55b0',
 				'0x7ba9',
+				'0x63a2',
+				'0x73a4',
 			];
 
 			const firstTwoString = `${firstOneString}${Array.from(
@@ -267,6 +290,7 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 			counter.increment(2);
 			return val;
 		},
+
 		getInt16: () => {
 			const val = view.getInt16(counter.getDiscardedOffset());
 			counter.increment(2);

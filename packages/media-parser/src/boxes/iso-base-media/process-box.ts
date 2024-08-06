@@ -1,6 +1,7 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import type {IsoBaseMediaBox, ParseResult} from '../../parse-result';
 import type {BoxAndNext} from '../../parse-video';
+import {parseEsds} from './esds/esds';
 import {parseFtyp} from './ftyp';
 import {parseMdhd} from './mdhd';
 import {parseMoov} from './moov/moov';
@@ -25,6 +26,7 @@ const getChildren = ({
 		boxType === 'minf' ||
 		boxType === 'stbl' ||
 		boxType === 'dims' ||
+		boxType === 'wave' ||
 		boxType === 'stsb';
 
 	if (parseChildren) {
@@ -40,6 +42,10 @@ const getChildren = ({
 		}
 
 		return parsed.segments;
+	}
+
+	if (bytesRemainingInBox < 0) {
+		throw new Error('Box size is too big ' + JSON.stringify({boxType}));
 	}
 
 	iterator.discard(bytesRemainingInBox);
@@ -165,6 +171,20 @@ const processBox = ({
 
 	if (boxType === 'mdhd') {
 		const box = parseMdhd({
+			data: iterator,
+			size: boxSize,
+			fileOffset,
+		});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+		};
+	}
+
+	if (boxType === 'esds') {
+		const box = parseEsds({
 			data: iterator,
 			size: boxSize,
 			fileOffset,

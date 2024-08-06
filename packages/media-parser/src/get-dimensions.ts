@@ -14,10 +14,17 @@ const getDimensionsFromMatroska = (segments: MainSegment): Dimensions => {
 		throw new Error('No tracks segment');
 	}
 
-	// TODO: What if there are multiple video tracks, or audio track is first?
-	const trackEntrySegment = tracksSegment.children.find(
-		(b) => b.type === 'track-entry-segment',
-	);
+	const trackEntrySegment = tracksSegment.children.find((b) => {
+		if (b.type !== 'track-entry-segment') {
+			return false;
+		}
+
+		return (
+			b.children.find(
+				(c) => c.type === 'codec-segment' && c.codec.startsWith('V_'),
+			) !== undefined
+		);
+	});
 	if (!trackEntrySegment || trackEntrySegment.type !== 'track-entry-segment') {
 		throw new Error('No track entry segment');
 	}

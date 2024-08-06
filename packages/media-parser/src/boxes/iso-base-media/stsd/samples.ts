@@ -1,4 +1,6 @@
 import type {BufferIterator} from '../../../buffer-iterator';
+import type {AnySegment} from '../../../parse-result';
+import {parseBoxes} from '../process-box';
 
 type SampleBase = {
 	format: string;
@@ -21,6 +23,7 @@ type AudioSample = SampleBase & {
 	bytesPerPacket: number | null;
 	bytesPerFrame: number | null;
 	bitsPerSample: number | null;
+	children: AnySegment[];
 };
 
 type VideoSample = SampleBase & {
@@ -164,7 +167,16 @@ export const processSample = ({
 
 			const bytesRemainingInBox =
 				boxSize - (iterator.counter.getOffset() - fileOffset);
-			iterator.discard(bytesRemainingInBox);
+			const children = parseBoxes({
+				iterator,
+				allowIncompleteBoxes: false,
+				maxBytes: bytesRemainingInBox,
+				initialBoxes: [],
+			});
+
+			if (children.status === 'incomplete') {
+				throw new Error('Incomplete boxes are not allowed');
+			}
 
 			return {
 				sample: {
@@ -185,6 +197,7 @@ export const processSample = ({
 					bytesPerPacket: null,
 					bytesPerFrame: null,
 					bitsPerSample: null,
+					children: children.segments,
 				},
 			};
 		}
@@ -192,17 +205,29 @@ export const processSample = ({
 		if (version === 1) {
 			const numberOfChannels = iterator.getUint16();
 			const sampleSize = iterator.getUint16();
-			const compressionId = iterator.getUint16();
+			const compressionId = iterator.getInt16();
 			const packetSize = iterator.getUint16();
 			const sampleRate = iterator.getFixedPoint1616Number();
-			const samplesPerPacket = iterator.getUint16();
-			const bytesPerPacket = iterator.getUint16();
-			const bytesPerFrame = iterator.getUint16();
-			const bitsPerSample = iterator.getUint16();
+
+			const samplesPerPacket = iterator.getUint32();
+
+			const bytesPerPacket = iterator.getUint32();
+			const bytesPerFrame = iterator.getUint32();
+			const bytesPerSample = iterator.getUint32();
 
 			const bytesRemainingInBox =
 				boxSize - (iterator.counter.getOffset() - fileOffset);
-			iterator.discard(bytesRemainingInBox);
+
+			const children = parseBoxes({
+				iterator,
+				allowIncompleteBoxes: false,
+				maxBytes: bytesRemainingInBox,
+				initialBoxes: [],
+			});
+
+			if (children.status === 'incomplete') {
+				throw new Error('Incomplete boxes are not allowed');
+			}
 
 			return {
 				sample: {
@@ -222,7 +247,8 @@ export const processSample = ({
 					samplesPerPacket,
 					bytesPerPacket,
 					bytesPerFrame,
-					bitsPerSample,
+					bitsPerSample: bytesPerSample,
+					children: children.segments,
 				},
 			};
 		}
@@ -245,6 +271,7 @@ export const processSample = ({
 
 		const bytesRemainingInBox =
 			boxSize - (iterator.counter.getOffset() - fileOffset);
+
 		iterator.discard(bytesRemainingInBox);
 
 		return {

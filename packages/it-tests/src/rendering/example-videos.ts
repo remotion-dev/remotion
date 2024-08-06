@@ -26,4 +26,6 @@ export const exampleVideos = {
 		'resources',
 		'framer-24fps.mp4',
 	),
+	matroskaPcm16: path.join(examplePackage, 'public', 'matroska-pcm16.mkv'),
+	mp4withmp3: path.join(examplePackage, 'public', 'mp4-mp3.mp4'),
 };

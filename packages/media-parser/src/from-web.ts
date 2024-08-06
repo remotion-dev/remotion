@@ -31,9 +31,16 @@ export const webReader: ReaderInterface = {
 			throw new Error('No body');
 		}
 
+		const length = res.headers.get('content-length');
+		if (!length) {
+			throw new Error('No content-length');
+		}
+
+		const contentLength = length === null ? null : parseInt(length, 10);
+
 		const reader = res.body.getReader();
 
-		return reader;
+		return {reader, contentLength};
 	},
 	getLength: async (src) => {
 		const res = await fetch(src, {

@@ -92,6 +92,10 @@ export const getVideoCodec = (boxes: AnySegment[]): KnownVideoCodecs | null => {
 				if (trackType.codec === 'V_AV1') {
 					return 'av1';
 				}
+
+				if (trackType.codec === 'V_MPEG4/ISO/AVC') {
+					return 'h264';
+				}
 			}
 		}
 	}
