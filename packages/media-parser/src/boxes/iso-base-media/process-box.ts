@@ -73,18 +73,24 @@ const processBox = ({
 			iterator.counter.decrement(4);
 
 			if (type === 'mdat') {
-				return {
-					type: 'complete',
-					box: {
-						type: 'regular-box',
-						boxType: 'mdat',
-						children: [],
-						boxSize,
-						offset: fileOffset,
-					},
-					size: boxSize,
-					skipTo: fileOffset + boxSize,
-				};
+				const skipTo = fileOffset + boxSize;
+				const bytesToSkip = skipTo - iterator.counter.getOffset();
+
+				// If there is a huge mdat chunk, we can skip it because we don't need it for the metadata
+				if (bytesToSkip > 1_000_000) {
+					return {
+						type: 'complete',
+						box: {
+							type: 'regular-box',
+							boxType: 'mdat',
+							children: [],
+							boxSize,
+							offset: fileOffset,
+						},
+						size: boxSize,
+						skipTo: fileOffset + boxSize,
+					};
+				}
 			}
 		}
 
