@@ -8,6 +8,7 @@ export type BoxAndNext =
 			type: 'complete';
 			box: IsoBaseMediaBox;
 			size: number;
+			skipTo: number | null;
 	  }
 	| {
 			type: 'incomplete';
@@ -21,6 +22,7 @@ export const parseVideo = (iterator: BufferIterator): ParseResult => {
 			continueParsing: () => {
 				return parseVideo(iterator);
 			},
+			skipTo: null,
 		};
 	}
 

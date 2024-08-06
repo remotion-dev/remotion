@@ -68,6 +68,32 @@ const processBox = ({
 	}
 
 	if (bytesRemaining < boxSize) {
+		if (bytesRemaining >= 4) {
+			const type = iterator.getByteString(4);
+			iterator.counter.decrement(4);
+
+			if (type === 'mdat') {
+				const skipTo = fileOffset + boxSize;
+				const bytesToSkip = skipTo - iterator.counter.getOffset();
+
+				// If there is a huge mdat chunk, we can skip it because we don't need it for the metadata
+				if (bytesToSkip > 1_000_000) {
+					return {
+						type: 'complete',
+						box: {
+							type: 'regular-box',
+							boxType: 'mdat',
+							children: [],
+							boxSize,
+							offset: fileOffset,
+						},
+						size: boxSize,
+						skipTo: fileOffset + boxSize,
+					};
+				}
+			}
+		}
+
 		iterator.counter.decrement(iterator.counter.getOffset() - fileOffset);
 		if (allowIncompleteBoxes) {
 			return {
@@ -88,6 +114,7 @@ const processBox = ({
 			type: 'complete',
 			box,
 			size: boxSize,
+			skipTo: null,
 		};
 	}
 
@@ -98,6 +125,7 @@ const processBox = ({
 			type: 'complete',
 			box,
 			size: boxSize,
+			skipTo: null,
 		};
 	}
 
@@ -108,6 +136,7 @@ const processBox = ({
 			type: 'complete',
 			box,
 			size: boxSize,
+			skipTo: null,
 		};
 	}
 
@@ -118,6 +147,7 @@ const processBox = ({
 			type: 'complete',
 			box,
 			size: boxSize,
+			skipTo: null,
 		};
 	}
 
@@ -128,6 +158,7 @@ const processBox = ({
 			type: 'complete',
 			box,
 			size: boxSize,
+			skipTo: null,
 		};
 	}
 
@@ -138,6 +169,7 @@ const processBox = ({
 			type: 'complete',
 			box,
 			size: boxSize,
+			skipTo: null,
 		};
 	}
 
@@ -152,6 +184,7 @@ const processBox = ({
 			type: 'complete',
 			box,
 			size: boxSize,
+			skipTo: null,
 		};
 	}
 
@@ -166,6 +199,7 @@ const processBox = ({
 			type: 'complete',
 			box,
 			size: boxSize,
+			skipTo: null,
 		};
 	}
 
@@ -180,6 +214,7 @@ const processBox = ({
 			type: 'complete',
 			box,
 			size: boxSize,
+			skipTo: null,
 		};
 	}
 
@@ -194,6 +229,7 @@ const processBox = ({
 			type: 'complete',
 			box,
 			size: boxSize,
+			skipTo: null,
 		};
 	}
 
@@ -216,6 +252,7 @@ const processBox = ({
 			offset: fileOffset,
 		},
 		size: boxSize,
+		skipTo: null,
 	};
 };
 
@@ -257,10 +294,28 @@ export const parseBoxes = ({
 						initialBoxes: boxes,
 					});
 				},
+				skipTo: null,
 			};
 		}
 
 		boxes.push(result.box);
+
+		if (result.skipTo !== null) {
+			return {
+				status: 'incomplete',
+				segments: boxes,
+				continueParsing: () => {
+					return parseBoxes({
+						iterator,
+						maxBytes,
+						allowIncompleteBoxes,
+						initialBoxes: boxes,
+					});
+				},
+				skipTo: result.skipTo,
+			};
+		}
+
 		iterator.discardFirstBytes();
 	}
 
