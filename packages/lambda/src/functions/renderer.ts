@@ -137,7 +137,11 @@ const renderHandler = async <Provider extends CloudProvider>({
 	);
 
 	const chunkCodec: Codec =
-		seamlessVideo && params.codec === 'h264' ? 'h264-ts' : params.codec;
+		seamlessVideo && params.codec === 'h264'
+			? 'h264-ts'
+			: params.codec === 'gif'
+				? 'h264-ts'
+				: params.codec;
 	const audioCodec: AudioCodec | null =
 		defaultAudioCodec === null
 			? null
