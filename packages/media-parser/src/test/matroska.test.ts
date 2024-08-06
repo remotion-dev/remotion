@@ -137,22 +137,21 @@ test('Should get duration of AV1 video', async () => {
 										{
 											type: 'color-segment',
 										},
-										{
-											id: '0x0163a294',
-											type: 'unknown-segment',
-										},
 									],
 								},
 								{
-									id: '0x0c000a0e',
-									type: 'unknown-segment',
+									codecPrivateData: [
+										129, 8, 12, 0, 10, 14, 0, 0, 0, 66, 171, 191, 195, 118, 0,
+										8, 8, 8, 8, 32,
+									],
+									type: 'codec-private-segment',
 								},
 							],
 						},
 					],
 				},
 				{
-					id: '0x',
+					id: '0x1254c367',
 					type: 'unknown-segment',
 				},
 			],
