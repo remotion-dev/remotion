@@ -4,7 +4,7 @@ type ReadResult = {
 };
 type ReadContent = (
 	src: string,
-	range: [number, number] | null,
+	range: [number, number] | number | null,
 ) => Promise<ReadResult>;
 type GetLength = (src: string) => Promise<number>;
 

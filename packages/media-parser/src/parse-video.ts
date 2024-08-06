@@ -11,6 +11,7 @@ export type BoxAndNext =
 	  }
 	| {
 			type: 'incomplete';
+			skipTo: number | null;
 	  };
 
 export const parseVideo = (iterator: BufferIterator): ParseResult => {
@@ -21,6 +22,7 @@ export const parseVideo = (iterator: BufferIterator): ParseResult => {
 			continueParsing: () => {
 				return parseVideo(iterator);
 			},
+			skipTo: null,
 		};
 	}
 

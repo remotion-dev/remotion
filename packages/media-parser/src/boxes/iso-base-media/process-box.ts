@@ -67,11 +67,23 @@ const processBox = ({
 		throw new Error(`Expected box size of not 0, got ${boxSize}`);
 	}
 
+	let skipTo: number | null = null;
+
 	if (bytesRemaining < boxSize) {
+		if (bytesRemaining >= 4) {
+			const type = iterator.getByteString(4);
+			if (type === 'mdat') {
+				skipTo = fileOffset + boxSize;
+			}
+
+			iterator.counter.decrement(4);
+		}
+
 		iterator.counter.decrement(iterator.counter.getOffset() - fileOffset);
 		if (allowIncompleteBoxes) {
 			return {
 				type: 'incomplete',
+				skipTo,
 			};
 		}
 
@@ -257,6 +269,7 @@ export const parseBoxes = ({
 						initialBoxes: boxes,
 					});
 				},
+				skipTo: result.skipTo,
 			};
 		}
 

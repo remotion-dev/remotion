@@ -23,18 +23,19 @@ export const webReader: ReaderInterface = {
 			headers:
 				range === null
 					? {}
-					: {
-							Range: `bytes=${`${range[0]}-${range[1]}`}`,
-						},
+					: typeof range === 'number'
+						? {
+								Range: `bytes=${range}`,
+							}
+						: {
+								Range: `bytes=${`${range[0]}-${range[1]}`}`,
+							},
 		});
 		if (!res.body) {
 			throw new Error('No body');
 		}
 
 		const length = res.headers.get('content-length');
-		if (!length) {
-			throw new Error('No content-length');
-		}
 
 		const contentLength = length === null ? null : parseInt(length, 10);
 
