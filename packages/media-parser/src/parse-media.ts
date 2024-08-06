@@ -16,7 +16,7 @@ export const parseMedia: ParseMedia = async (
 	options,
 	readerInterface = webReader,
 ) => {
-	const reader = await readerInterface.read(src, null);
+	const {reader, contentLength} = await readerInterface.read(src, null);
 
 	const returnValue = {} as Metadata<true, true, true, true, true, true>;
 
@@ -32,7 +32,10 @@ export const parseMedia: ParseMedia = async (
 		if (iterator) {
 			iterator.addData(result.value);
 		} else {
-			iterator = getArrayBufferIterator(result.value);
+			iterator = getArrayBufferIterator(
+				result.value,
+				contentLength ?? undefined,
+			);
 		}
 
 		if (parseResult) {

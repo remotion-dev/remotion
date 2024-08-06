@@ -1,7 +1,11 @@
+type ReadResult = {
+	reader: ReadableStreamDefaultReader<Uint8Array>;
+	contentLength: number | null;
+};
 type ReadContent = (
 	src: string,
 	range: [number, number] | null,
-) => Promise<ReadableStreamDefaultReader<Uint8Array>>;
+) => Promise<ReadResult>;
 type GetLength = (src: string) => Promise<number>;
 
 export type ReaderInterface = {
