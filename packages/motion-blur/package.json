@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/motion-blur"
 	},
 	"name": "@remotion/motion-blur",
-	"version": "4.0.192",
+	"version": "4.0.193",
 	"description": "Motion blur effect for Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
