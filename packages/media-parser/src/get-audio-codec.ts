@@ -46,8 +46,19 @@ export const getAudioCodec = (boxes: AnySegment[]): KnownAudioCodecs | null => {
 								(s) => s.type === 'audio',
 							);
 							if (videoSample && videoSample.type === 'audio') {
-								if (videoSample.format === 'mp4a') {
-									return 'aac';
+								const child = videoSample.children.find(
+									(c) => c.type === 'esds-box',
+								);
+								if (child && child.type === 'esds-box') {
+									const descriptor = child.descriptors.find(
+										(d) => d.type === 'decoder-config-descriptor',
+									);
+									if (
+										descriptor &&
+										descriptor.type === 'decoder-config-descriptor'
+									) {
+										return descriptor.objectTypeIndication;
+									}
 								}
 
 								if (videoSample.format === 'sowt') {

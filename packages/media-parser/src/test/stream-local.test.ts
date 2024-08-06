@@ -201,20 +201,13 @@ test('Should stream MP3 in MP4 video', async () => {
 			durationInSeconds: true,
 			videoCodec: true,
 			audioCodec: true,
-			boxes: true,
 		},
 		nodeReader,
 	);
-
-	await Bun.write('bun.json', JSON.stringify(parsed, null, 2));
 
 	expect(parsed.dimensions.width).toBe(1080);
 	expect(parsed.dimensions.height).toBe(1080);
 	expect(parsed.durationInSeconds).toBe(0.337);
 	expect(parsed.videoCodec).toBe('h264');
-	// TODO: Wrong, should take a look at esds box
-	// https://chromium.googlesource.com/chromium/src/media/+/master/formats/mp4/es_descriptor.h
-	// 0x40 = aac
-	// 0x6b = mp3
 	expect(parsed.audioCodec).toBe('mp3');
 });

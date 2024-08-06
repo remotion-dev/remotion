@@ -76,6 +76,20 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 		);
 	};
 
+	const getPaddedFourByteNumber = () => {
+		const first = getUint8();
+		const second = getUint8();
+		const third = getUint8();
+		const fourth = getUint8();
+
+		return (
+			((first === 128 ? 0 : first) << 24) |
+			((second === 128 ? 0 : second) << 16) |
+			((third === 128 ? 0 : third) << 8) |
+			fourth
+		);
+	};
+
 	const getUint32 = () => {
 		const val = view.getUint32(counter.getDiscardedOffset());
 		counter.increment(4);
@@ -134,6 +148,7 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 			const atom = getSlice(4);
 			return new TextDecoder().decode(atom);
 		},
+		getPaddedFourByteNumber,
 		getMatroskaSegmentId: () => {
 			const first = getSlice(1);
 			const firstOneString = `0x${Array.from(new Uint8Array(first))

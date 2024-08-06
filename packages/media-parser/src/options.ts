@@ -10,7 +10,13 @@ export type KnownVideoCodecs =
 	| 'av1'
 	| 'prores';
 
-export type KnownAudioCodecs = 'aac' | 'mp3' | 'aiff' | 'opus' | 'pcm';
+export type KnownAudioCodecs =
+	| 'aac'
+	| 'mp3'
+	| 'aiff'
+	| 'opus'
+	| 'pcm'
+	| 'unknown';
 
 export type Options<
 	EnableDimensions extends boolean,

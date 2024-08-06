@@ -67,6 +67,7 @@ test('Should be able to parse a STSD audio box correctly', () => {
 				bytesPerFrame: 0,
 				bytesPerPacket: 1024,
 				sampleRate: 44100,
+				children: [],
 			},
 		],
 	});
