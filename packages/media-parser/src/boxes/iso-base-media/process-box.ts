@@ -26,6 +26,7 @@ const getChildren = ({
 		boxType === 'minf' ||
 		boxType === 'stbl' ||
 		boxType === 'dims' ||
+		boxType === 'wave' ||
 		boxType === 'stsb';
 
 	if (parseChildren) {

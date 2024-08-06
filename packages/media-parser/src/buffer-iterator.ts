@@ -287,6 +287,7 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 			counter.increment(2);
 			return val;
 		},
+
 		getInt16: () => {
 			const val = view.getInt16(counter.getDiscardedOffset());
 			counter.increment(2);

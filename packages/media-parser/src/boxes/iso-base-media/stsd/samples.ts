@@ -205,18 +205,30 @@ export const processSample = ({
 		if (version === 1) {
 			const numberOfChannels = iterator.getUint16();
 			const sampleSize = iterator.getUint16();
-			const compressionId = iterator.getUint16();
+			const compressionId = iterator.getInt16();
 			const packetSize = iterator.getUint16();
 			const sampleRate = iterator.getFixedPoint1616Number();
-			const samplesPerPacket = iterator.getUint16();
-			const bytesPerPacket = iterator.getUint16();
-			const bytesPerFrame = iterator.getUint16();
-			const bitsPerSample = iterator.getUint16();
+
+			const samplesPerPacket = iterator.getUint32();
+
+			const bytesPerPacket = iterator.getUint32();
+			const bytesPerFrame = iterator.getUint32();
+			const bytesPerSample = iterator.getUint32();
 
 			const bytesRemainingInBox =
 				boxSize - (iterator.counter.getOffset() - fileOffset);
 
-			iterator.discard(bytesRemainingInBox);
+			const children = parseBoxes({
+				iterator,
+				allowIncompleteBoxes: false,
+				maxBytes: bytesRemainingInBox,
+				initialBoxes: [],
+			});
+
+			if (children.status === 'incomplete') {
+				throw new Error('Incomplete boxes are not allowed');
+			}
+
 			return {
 				sample: {
 					format: boxFormat,
@@ -235,8 +247,8 @@ export const processSample = ({
 					samplesPerPacket,
 					bytesPerPacket,
 					bytesPerFrame,
-					bitsPerSample,
-					children: [],
+					bitsPerSample: bytesPerSample,
+					children: children.segments,
 				},
 			};
 		}
