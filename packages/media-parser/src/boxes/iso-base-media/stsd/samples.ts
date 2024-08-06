@@ -216,17 +216,7 @@ export const processSample = ({
 			const bytesRemainingInBox =
 				boxSize - (iterator.counter.getOffset() - fileOffset);
 
-			const children = parseBoxes({
-				iterator,
-				allowIncompleteBoxes: false,
-				maxBytes: bytesRemainingInBox,
-				initialBoxes: [],
-			});
-
-			if (children.status === 'incomplete') {
-				throw new Error('Incomplete boxes are not allowed');
-			}
-
+			iterator.discard(bytesRemainingInBox);
 			return {
 				sample: {
 					format: boxFormat,
@@ -246,7 +236,7 @@ export const processSample = ({
 					bytesPerPacket,
 					bytesPerFrame,
 					bitsPerSample,
-					children: children.segments,
+					children: [],
 				},
 			};
 		}
