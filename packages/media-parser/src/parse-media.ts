@@ -17,6 +17,7 @@ export const parseMedia: ParseMedia = async (
 	readerInterface = webReader,
 ) => {
 	const {reader, contentLength} = await readerInterface.read(src, null);
+	let currentReader = reader;
 
 	const returnValue = {} as Metadata<true, true, true, true, true, true>;
 
@@ -24,7 +25,7 @@ export const parseMedia: ParseMedia = async (
 	let parseResult: ParseResult | null = null;
 
 	while (parseResult === null || parseResult.status === 'incomplete') {
-		const result = await reader.read();
+		const result = await currentReader.read();
 		if (result.done) {
 			break;
 		}
@@ -45,11 +46,28 @@ export const parseMedia: ParseMedia = async (
 		}
 
 		if (hasAllInfo(options, parseResult)) {
-			if (!reader.closed) {
-				reader.cancel(new Error('has all information'));
+			if (!currentReader.closed) {
+				currentReader.cancel(new Error('has all information'));
 			}
 
 			break;
+		}
+
+		if (
+			parseResult &&
+			parseResult.status === 'incomplete' &&
+			parseResult.skipTo !== null
+		) {
+			if (!currentReader.closed) {
+				currentReader.cancel(new Error('skipped ahead'));
+			}
+
+			const {reader: newReader} = await readerInterface.read(
+				src,
+				parseResult.skipTo,
+			);
+			currentReader = newReader;
+			iterator.skipTo(parseResult.skipTo);
 		}
 	}
 

@@ -127,6 +127,12 @@ export const getArrayBufferIterator = (
 
 	const removeBytesRead = () => {
 		const bytesToRemove = counter.getDiscardedOffset();
+
+		// Only to this operation if it is really worth it 😇
+		if (bytesToRemove < 100_000) {
+			return;
+		}
+
 		counter.discardBytes(bytesToRemove);
 		const newData = data.slice(bytesToRemove);
 		data.set(newData);
@@ -134,7 +140,15 @@ export const getArrayBufferIterator = (
 		view = new DataView(data.buffer);
 	};
 
+	const skipTo = (offset: number) => {
+		buf.resize(offset);
+		const currentOffset = counter.getOffset();
+		counter.increment(offset - currentOffset);
+		removeBytesRead();
+	};
+
 	return {
+		skipTo,
 		addData,
 		counter,
 		byteLength,
