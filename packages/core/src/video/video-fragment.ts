@@ -20,6 +20,26 @@ const isIOSSafariAndBlob = (actualSrc: string) => {
 	return isIosSafari() && actualSrc.startsWith('blob:');
 };
 
+const getVideoFragmentStart = ({
+	actualFrom,
+	fps,
+}: {
+	actualFrom: number;
+	fps: number;
+}) => {
+	return toSeconds(Math.max(0, -actualFrom), fps);
+};
+
+const getVideoFragmentEnd = ({
+	duration,
+	fps,
+}: {
+	duration: number;
+	fps: number;
+}) => {
+	return toSeconds(duration, fps);
+};
+
 export const appendVideoFragment = ({
 	actualSrc,
 	actualFrom,
@@ -55,15 +75,13 @@ export const appendVideoFragment = ({
 		return actualSrc;
 	}
 
-	actualSrc += `#t=${toSeconds(Math.max(0, -actualFrom), fps)}`;
+	const withStartHash = `${actualSrc}#t=${getVideoFragmentStart({actualFrom, fps})}`;
 
 	if (!Number.isFinite(duration)) {
-		return actualSrc;
+		return withStartHash;
 	}
 
-	actualSrc += `,${toSeconds(duration, fps)}`;
-
-	return actualSrc;
+	return `${withStartHash},${getVideoFragmentEnd({duration, fps})}`;
 };
 
 const isSubsetOfDuration = ({
@@ -71,14 +89,29 @@ const isSubsetOfDuration = ({
 	newStartFrom,
 	prevDuration,
 	newDuration,
+	fps,
 }: {
 	prevStartFrom: number;
 	newStartFrom: number;
 	prevDuration: number;
 	newDuration: number;
-}) =>
-	prevStartFrom <= newStartFrom &&
-	prevStartFrom + prevDuration >= newStartFrom + newDuration;
+	fps: number;
+}) => {
+	const previousFrom = getVideoFragmentStart({actualFrom: prevStartFrom, fps});
+	const newFrom = getVideoFragmentStart({actualFrom: newStartFrom, fps});
+	const previousEnd = getVideoFragmentEnd({duration: prevDuration, fps});
+	const newEnd = getVideoFragmentEnd({duration: newDuration, fps});
+
+	if (newFrom < previousFrom) {
+		return false;
+	}
+
+	if (newEnd > previousEnd) {
+		return false;
+	}
+
+	return true;
+};
 
 export const useAppendVideoFragment = ({
 	actualSrc: initialActualSrc,
@@ -101,6 +134,7 @@ export const useAppendVideoFragment = ({
 			newStartFrom: initialActualFrom,
 			prevDuration: actualDuration.current,
 			newDuration: initialDuration,
+			fps,
 		}) ||
 		initialActualSrc !== actualSrc.current
 	) {
