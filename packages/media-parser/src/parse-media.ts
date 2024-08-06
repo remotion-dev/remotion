@@ -45,6 +45,14 @@ export const parseMedia: ParseMedia = async (
 			parseResult = parseVideo(iterator);
 		}
 
+		if (hasAllInfo(options, parseResult)) {
+			if (!currentReader.closed) {
+				currentReader.cancel(new Error('has all information'));
+			}
+
+			break;
+		}
+
 		if (
 			parseResult &&
 			parseResult.status === 'incomplete' &&
@@ -60,14 +68,6 @@ export const parseMedia: ParseMedia = async (
 			);
 			currentReader = newReader;
 			iterator.skipTo(parseResult.skipTo);
-		}
-
-		if (hasAllInfo(options, parseResult)) {
-			if (!currentReader.closed) {
-				currentReader.cancel(new Error('has all information'));
-			}
-
-			break;
 		}
 	}
 
