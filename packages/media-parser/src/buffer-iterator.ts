@@ -77,17 +77,12 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 	};
 
 	const getPaddedFourByteNumber = () => {
-		const first = getUint8();
-		const second = getUint8();
-		const third = getUint8();
-		const fourth = getUint8();
+		let lastInt = 128;
+		while (((lastInt = getUint8()), lastInt === 128)) {
+			// Do nothing
+		}
 
-		return (
-			((first === 128 ? 0 : first) << 24) |
-			((second === 128 ? 0 : second) << 16) |
-			((third === 128 ? 0 : third) << 8) |
-			fourth
-		);
+		return lastInt;
 	};
 
 	const getUint32 = () => {

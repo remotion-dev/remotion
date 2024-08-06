@@ -1,5 +1,5 @@
 import type {BaseBox} from './boxes/iso-base-media/base-type';
-import type {EsdsBox} from './boxes/iso-base-media/esds';
+import type {EsdsBox} from './boxes/iso-base-media/esds/esds';
 import type {FtypBox} from './boxes/iso-base-media/ftyp';
 import type {MdhdBox} from './boxes/iso-base-media/mdhd';
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';

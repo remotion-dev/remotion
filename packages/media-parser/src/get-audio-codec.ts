@@ -21,6 +21,8 @@ const onEsdsBox = (child: AnySegment): KnownAudioCodecs | null => {
 			return descriptor.objectTypeIndication;
 		}
 	}
+
+	return null;
 };
 
 const onSample = (sample: Sample): KnownAudioCodecs | null | undefined => {

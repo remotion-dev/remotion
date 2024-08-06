@@ -1,7 +1,7 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import type {IsoBaseMediaBox, ParseResult} from '../../parse-result';
 import type {BoxAndNext} from '../../parse-video';
-import {parseEsds} from './esds';
+import {parseEsds} from './esds/esds';
 import {parseFtyp} from './ftyp';
 import {parseMdhd} from './mdhd';
 import {parseMoov} from './moov/moov';

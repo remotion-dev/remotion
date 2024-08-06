@@ -1,4 +1,4 @@
-import type {BufferIterator} from '../../buffer-iterator';
+import type {BufferIterator} from '../../../buffer-iterator';
 import type {Descriptor} from './esds-descriptors';
 import {parseDescriptors} from './esds-descriptors';
 

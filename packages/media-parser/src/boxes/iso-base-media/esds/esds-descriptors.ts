@@ -1,4 +1,4 @@
-import type {BufferIterator} from '../../buffer-iterator';
+import type {BufferIterator} from '../../../buffer-iterator';
 
 type AudioObjectType = 'aac' | 'mp3' | 'unknown';
 
