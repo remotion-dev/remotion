@@ -9,15 +9,13 @@ import {
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../regions';
 import {getLambdaClient} from '../shared/aws-clients';
-import {
-	generateRandomHashWithLifeCycleRule,
-	validateDeleteAfter,
-} from './helpers/lifecycle';
+import {validateDeleteAfter} from './helpers/lifecycle';
 import {makeInitialOverallRenderProgress} from './helpers/overall-render-progress';
 
 type Options = {
 	expectedBucketOwner: string;
 	timeoutInMilliseconds: number;
+	renderId: string;
 };
 
 export const startHandler = async <Provider extends CloudProvider>(
@@ -59,10 +57,6 @@ export const startHandler = async <Provider extends CloudProvider>(
 	});
 
 	validateDeleteAfter(params.deleteAfter);
-	const renderId = generateRandomHashWithLifeCycleRule(
-		params.deleteAfter,
-		providerSpecifics,
-	);
 
 	const initialFile = providerSpecifics.writeFile({
 		bucketName,
@@ -74,7 +68,7 @@ export const startHandler = async <Provider extends CloudProvider>(
 			),
 		),
 		expectedBucketOwner: options.expectedBucketOwner,
-		key: overallProgressKey(renderId),
+		key: overallProgressKey(options.renderId),
 		privacy: 'private',
 		customCredentials: null,
 	});
@@ -86,7 +80,7 @@ export const startHandler = async <Provider extends CloudProvider>(
 		serveUrl: realServeUrl,
 		inputProps: params.inputProps,
 		bucketName,
-		renderId,
+		renderId: options.renderId,
 		codec: params.codec,
 		imageFormat: params.imageFormat,
 		crf: params.crf,
@@ -124,13 +118,21 @@ export const startHandler = async <Provider extends CloudProvider>(
 		preferLossless: params.preferLossless,
 	};
 
+	const stringifiedPayload = JSON.stringify(payload);
+
+	if (stringifiedPayload.length > 256 * 1024) {
+		throw new Error(
+			`Payload is too big: ${stringifiedPayload.length} bytes. Maximum size is 256 KB. This should not happen, please report this to the Remotion team. Payload: ${stringifiedPayload}`,
+		);
+	}
+
 	// Don't replace with callLambda(), we want to return before the render is snone
 	const result = await getLambdaClient(
 		providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
 	).send(
 		new InvokeCommand({
 			FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
-			Payload: JSON.stringify(payload),
+			Payload: stringifiedPayload,
 			InvocationType: 'Event',
 		}),
 	);
@@ -145,6 +147,6 @@ export const startHandler = async <Provider extends CloudProvider>(
 	return {
 		type: 'success' as const,
 		bucketName,
-		renderId,
+		renderId: options.renderId,
 	};
 };
