@@ -58,6 +58,8 @@ export const combineVideoStreams = async ({
 		numberOfGifLoops === null
 			? null
 			: convertNumberOfGifLoopsToFfmpegSyntax(numberOfGifLoops),
+		codec === 'gif' ? '-filter_complex' : null,
+		codec === 'gif' ? 'split[v],palettegen,[v]paletteuse' : null,
 		'-an',
 		'-c:v',
 		encoder,
