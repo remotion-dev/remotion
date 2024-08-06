@@ -67,23 +67,31 @@ const processBox = ({
 		throw new Error(`Expected box size of not 0, got ${boxSize}`);
 	}
 
-	let skipTo: number | null = null;
-
 	if (bytesRemaining < boxSize) {
 		if (bytesRemaining >= 4) {
 			const type = iterator.getByteString(4);
-			if (type === 'mdat') {
-				skipTo = fileOffset + boxSize;
-			}
-
 			iterator.counter.decrement(4);
+
+			if (type === 'mdat') {
+				return {
+					type: 'complete',
+					box: {
+						type: 'regular-box',
+						boxType: 'mdat',
+						children: [],
+						boxSize,
+						offset: fileOffset,
+					},
+					size: boxSize,
+					skipTo: fileOffset + boxSize,
+				};
+			}
 		}
 
 		iterator.counter.decrement(iterator.counter.getOffset() - fileOffset);
 		if (allowIncompleteBoxes) {
 			return {
 				type: 'incomplete',
-				skipTo,
 			};
 		}
 
@@ -100,6 +108,7 @@ const processBox = ({
 			type: 'complete',
 			box,
 			size: boxSize,
+			skipTo: null,
 		};
 	}
 
@@ -110,6 +119,7 @@ const processBox = ({
 			type: 'complete',
 			box,
 			size: boxSize,
+			skipTo: null,
 		};
 	}
 
@@ -120,6 +130,7 @@ const processBox = ({
 			type: 'complete',
 			box,
 			size: boxSize,
+			skipTo: null,
 		};
 	}
 
@@ -130,6 +141,7 @@ const processBox = ({
 			type: 'complete',
 			box,
 			size: boxSize,
+			skipTo: null,
 		};
 	}
 
@@ -140,6 +152,7 @@ const processBox = ({
 			type: 'complete',
 			box,
 			size: boxSize,
+			skipTo: null,
 		};
 	}
 
@@ -150,6 +163,7 @@ const processBox = ({
 			type: 'complete',
 			box,
 			size: boxSize,
+			skipTo: null,
 		};
 	}
 
@@ -164,6 +178,7 @@ const processBox = ({
 			type: 'complete',
 			box,
 			size: boxSize,
+			skipTo: null,
 		};
 	}
 
@@ -178,6 +193,7 @@ const processBox = ({
 			type: 'complete',
 			box,
 			size: boxSize,
+			skipTo: null,
 		};
 	}
 
@@ -192,6 +208,7 @@ const processBox = ({
 			type: 'complete',
 			box,
 			size: boxSize,
+			skipTo: null,
 		};
 	}
 
@@ -206,6 +223,7 @@ const processBox = ({
 			type: 'complete',
 			box,
 			size: boxSize,
+			skipTo: null,
 		};
 	}
 
@@ -228,6 +246,7 @@ const processBox = ({
 			offset: fileOffset,
 		},
 		size: boxSize,
+		skipTo: null,
 	};
 };
 
@@ -269,11 +288,28 @@ export const parseBoxes = ({
 						initialBoxes: boxes,
 					});
 				},
-				skipTo: result.skipTo,
+				skipTo: null,
 			};
 		}
 
 		boxes.push(result.box);
+
+		if (result.skipTo !== null) {
+			return {
+				status: 'incomplete',
+				segments: boxes,
+				continueParsing: () => {
+					return parseBoxes({
+						iterator,
+						maxBytes,
+						allowIncompleteBoxes,
+						initialBoxes: boxes,
+					});
+				},
+				skipTo: result.skipTo,
+			};
+		}
+
 		iterator.discardFirstBytes();
 	}
 
