@@ -122,7 +122,7 @@ export const startHandler = async <Provider extends CloudProvider>(
 
 	if (stringifiedPayload.length > 256 * 1024) {
 		throw new Error(
-			`Payload is too big: ${stringifiedPayload.length} bytes. Maximum size is 256 KB. This should not happen, please report this tot the Remotion team. Payload: ${stringifiedPayload}`,
+			`Payload is too big: ${stringifiedPayload.length} bytes. Maximum size is 256 KB. This should not happen, please report this to the Remotion team. Payload: ${stringifiedPayload}`,
 		);
 	}
 
