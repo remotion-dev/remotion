@@ -7,12 +7,21 @@ import type {Options} from './options';
 import type {ParseResult} from './parse-result';
 
 export const hasAllInfo = (
-	options: Options<boolean, boolean, boolean, boolean, boolean, boolean>,
+	options: Options<
+		boolean,
+		boolean,
+		boolean,
+		boolean,
+		boolean,
+		boolean,
+		boolean
+	>,
 	parseResult: ParseResult,
 ) => {
 	const keys = Object.entries(options)
 		.filter(([, value]) => value)
 		.map(([key]) => key) as (keyof Options<
+		true,
 		true,
 		true,
 		true,
@@ -44,6 +53,11 @@ export const hasAllInfo = (
 
 		if (key === 'audioCodec') {
 			return hasAudioCodec(parseResult.segments) !== null;
+		}
+
+		if (key === 'samples') {
+			// TODO: Make this real
+			return true;
 		}
 
 		throw new Error(`Unknown key: ${key satisfies never}`);

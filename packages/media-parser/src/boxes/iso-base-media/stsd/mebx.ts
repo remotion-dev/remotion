@@ -14,10 +14,12 @@ export const parseMebx = ({
 	iterator,
 	offset,
 	size,
+	canSkipVideoData,
 }: {
 	iterator: BufferIterator;
 	offset: number;
 	size: number;
+	canSkipVideoData: boolean;
 }): MebxBox => {
 	// reserved, 6 bit
 	iterator.discard(6);
@@ -29,6 +31,7 @@ export const parseMebx = ({
 		maxBytes: iterator.counter.getOffset() - offset,
 		allowIncompleteBoxes: false,
 		initialBoxes: [],
+		canSkipVideoData,
 	});
 
 	if (children.status === 'incomplete') {

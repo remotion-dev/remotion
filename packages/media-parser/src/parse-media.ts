@@ -19,7 +19,7 @@ export const parseMedia: ParseMedia = async (
 	const {reader, contentLength} = await readerInterface.read(src, null);
 	let currentReader = reader;
 
-	const returnValue = {} as Metadata<true, true, true, true, true, true>;
+	const returnValue = {} as Metadata<true, true, true, true, true, true, true>;
 
 	let iterator: BufferIterator | null = null;
 	let parseResult: ParseResult | null = null;
@@ -42,7 +42,7 @@ export const parseMedia: ParseMedia = async (
 		if (parseResult) {
 			parseResult = parseResult.continueParsing();
 		} else {
-			parseResult = parseVideo(iterator);
+			parseResult = parseVideo(iterator, Boolean(options.samples));
 		}
 
 		if (hasAllInfo(options, parseResult)) {

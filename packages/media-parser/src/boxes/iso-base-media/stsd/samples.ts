@@ -113,8 +113,10 @@ const audioTags = [
 
 export const processSample = ({
 	iterator,
+	canSkipVideoData,
 }: {
 	iterator: BufferIterator;
+	canSkipVideoData: boolean;
 }): SampleAndNext => {
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
@@ -172,6 +174,7 @@ export const processSample = ({
 				allowIncompleteBoxes: false,
 				maxBytes: bytesRemainingInBox,
 				initialBoxes: [],
+				canSkipVideoData,
 			});
 
 			if (children.status === 'incomplete') {
@@ -223,6 +226,7 @@ export const processSample = ({
 				allowIncompleteBoxes: false,
 				maxBytes: bytesRemainingInBox,
 				initialBoxes: [],
+				canSkipVideoData,
 			});
 
 			if (children.status === 'incomplete') {
@@ -305,6 +309,7 @@ export const processSample = ({
 export const parseSamples = (
 	iterator: BufferIterator,
 	maxBytes: number,
+	canSkipVideoData: boolean,
 ): Sample[] => {
 	const samples: Sample[] = [];
 	const initialOffset = iterator.counter.getOffset();
@@ -315,6 +320,7 @@ export const parseSamples = (
 	) {
 		const {sample} = processSample({
 			iterator,
+			canSkipVideoData,
 		});
 
 		if (sample) {

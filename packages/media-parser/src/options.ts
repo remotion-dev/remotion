@@ -25,6 +25,7 @@ export type Options<
 	EnableFps extends boolean,
 	EnableVideoCodec extends boolean,
 	EnableAudioCodec extends boolean,
+	EnableSamples extends boolean,
 > = {
 	dimensions?: EnableDimensions;
 	durationInSeconds?: EnableDuration;
@@ -32,6 +33,7 @@ export type Options<
 	fps?: EnableFps;
 	videoCodec?: EnableVideoCodec;
 	audioCodec?: EnableAudioCodec;
+	samples?: EnableSamples;
 };
 
 export type Metadata<
@@ -41,12 +43,14 @@ export type Metadata<
 	EnableFps extends boolean,
 	EnableVideoCodec extends boolean,
 	EnableAudioCodec extends boolean,
+	EnableSamples extends boolean,
 > = (EnableDimensions extends true ? {dimensions: Dimensions} : {}) &
 	(EnableDuration extends true ? {durationInSeconds: number | null} : {}) &
 	(EnableBoxes extends true ? {boxes: AnySegment[]} : {}) &
 	(EnableFps extends true ? {fps: number | null} : {}) &
 	(EnableVideoCodec extends true ? {videoCodec: KnownVideoCodecs | null} : {}) &
-	(EnableAudioCodec extends true ? {audioCodec: KnownAudioCodecs | null} : {});
+	(EnableAudioCodec extends true ? {audioCodec: KnownAudioCodecs | null} : {}) &
+	(EnableSamples extends true ? {samples: number | null} : {});
 
 export type ParseMedia = <
 	EnableDimensions extends boolean,
@@ -55,6 +59,7 @@ export type ParseMedia = <
 	EnableFps extends boolean,
 	EnableVideoCodec extends boolean,
 	EnableAudioCodec extends boolean,
+	EnableSamples extends boolean,
 >(
 	src: string,
 	options: Options<
@@ -63,7 +68,8 @@ export type ParseMedia = <
 		EnableBoxes,
 		EnableFps,
 		EnableVideoCodec,
-		EnableAudioCodec
+		EnableAudioCodec,
+		EnableSamples
 	>,
 	readerInterface?: ReaderInterface,
 ) => Promise<
@@ -73,6 +79,7 @@ export type ParseMedia = <
 		EnableBoxes,
 		EnableFps,
 		EnableVideoCodec,
-		EnableAudioCodec
+		EnableAudioCodec,
+		EnableSamples
 	>
 >;

@@ -13,10 +13,12 @@ export const parseStsd = ({
 	iterator,
 	offset,
 	size,
+	canSkipVideoData,
 }: {
 	iterator: BufferIterator;
 	offset: number;
 	size: number;
+	canSkipVideoData: boolean;
 }): StsdBox => {
 	const version = iterator.getUint8();
 	if (version !== 0) {
@@ -30,7 +32,7 @@ export const parseStsd = ({
 
 	const bytesRemainingInBox = size - (iterator.counter.getOffset() - offset);
 
-	const boxes = parseSamples(iterator, bytesRemainingInBox);
+	const boxes = parseSamples(iterator, bytesRemainingInBox, canSkipVideoData);
 
 	if (boxes.length !== numberOfEntries) {
 		throw new Error(

@@ -16,10 +16,12 @@ const getChildren = ({
 	boxType,
 	iterator,
 	bytesRemainingInBox,
+	canSkipVideoData,
 }: {
 	boxType: string;
 	iterator: BufferIterator;
 	bytesRemainingInBox: number;
+	canSkipVideoData: boolean;
 }) => {
 	const parseChildren =
 		boxType === 'mdia' ||
@@ -35,6 +37,7 @@ const getChildren = ({
 			maxBytes: bytesRemainingInBox,
 			allowIncompleteBoxes: false,
 			initialBoxes: [],
+			canSkipVideoData,
 		});
 
 		if (parsed.status === 'incomplete') {
@@ -55,9 +58,11 @@ const getChildren = ({
 const processBox = ({
 	iterator,
 	allowIncompleteBoxes,
+	canSkipVideoData,
 }: {
 	iterator: BufferIterator;
 	allowIncompleteBoxes: boolean;
+	canSkipVideoData: boolean;
 }): BoxAndNext => {
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
@@ -72,7 +77,7 @@ const processBox = ({
 			const type = iterator.getByteString(4);
 			iterator.counter.decrement(4);
 
-			if (type === 'mdat') {
+			if (type === 'mdat' && canSkipVideoData) {
 				const skipTo = fileOffset + boxSize;
 				const bytesToSkip = skipTo - iterator.counter.getOffset();
 
@@ -141,7 +146,12 @@ const processBox = ({
 	}
 
 	if (boxType === 'stsd') {
-		const box = parseStsd({iterator, offset: fileOffset, size: boxSize});
+		const box = parseStsd({
+			iterator,
+			offset: fileOffset,
+			size: boxSize,
+			canSkipVideoData,
+		});
 
 		return {
 			type: 'complete',
@@ -152,7 +162,12 @@ const processBox = ({
 	}
 
 	if (boxType === 'mebx') {
-		const box = parseMebx({iterator, offset: fileOffset, size: boxSize});
+		const box = parseMebx({
+			iterator,
+			offset: fileOffset,
+			size: boxSize,
+			canSkipVideoData,
+		});
 
 		return {
 			type: 'complete',
@@ -178,6 +193,7 @@ const processBox = ({
 			data: iterator,
 			size: boxSize,
 			offsetAtStart: fileOffset,
+			canSkipVideoData,
 		});
 
 		return {
@@ -240,6 +256,7 @@ const processBox = ({
 		boxType,
 		iterator,
 		bytesRemainingInBox,
+		canSkipVideoData,
 	});
 
 	return {
@@ -261,11 +278,13 @@ export const parseBoxes = ({
 	maxBytes,
 	allowIncompleteBoxes,
 	initialBoxes,
+	canSkipVideoData,
 }: {
 	iterator: BufferIterator;
 	maxBytes: number;
 	allowIncompleteBoxes: boolean;
 	initialBoxes: IsoBaseMediaBox[];
+	canSkipVideoData: boolean;
 }): ParseResult => {
 	const boxes: IsoBaseMediaBox[] = initialBoxes;
 	const initialOffset = iterator.counter.getOffset();
@@ -277,6 +296,7 @@ export const parseBoxes = ({
 		const result = processBox({
 			iterator,
 			allowIncompleteBoxes,
+			canSkipVideoData,
 		});
 		if (result.type === 'incomplete') {
 			if (Number.isFinite(maxBytes)) {
@@ -292,6 +312,7 @@ export const parseBoxes = ({
 						maxBytes,
 						allowIncompleteBoxes,
 						initialBoxes: boxes,
+						canSkipVideoData,
 					});
 				},
 				skipTo: null,
@@ -310,6 +331,7 @@ export const parseBoxes = ({
 						maxBytes,
 						allowIncompleteBoxes,
 						initialBoxes: boxes,
+						canSkipVideoData,
 					});
 				},
 				skipTo: result.skipTo,

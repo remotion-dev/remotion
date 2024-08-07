@@ -14,13 +14,16 @@ export type BoxAndNext =
 			type: 'incomplete';
 	  };
 
-export const parseVideo = (iterator: BufferIterator): ParseResult => {
+export const parseVideo = (
+	iterator: BufferIterator,
+	canSkipVideoData: boolean,
+): ParseResult => {
 	if (iterator.bytesRemaining() === 0) {
 		return {
 			status: 'incomplete',
 			segments: [],
 			continueParsing: () => {
-				return parseVideo(iterator);
+				return parseVideo(iterator, canSkipVideoData);
 			},
 			skipTo: null,
 		};
@@ -32,6 +35,7 @@ export const parseVideo = (iterator: BufferIterator): ParseResult => {
 			maxBytes: Infinity,
 			allowIncompleteBoxes: true,
 			initialBoxes: [],
+			canSkipVideoData,
 		});
 	}
 

@@ -22,6 +22,7 @@ export const parseMoov = ({
 		maxBytes: size - (iterator.counter.getOffset() - offset),
 		allowIncompleteBoxes: false,
 		initialBoxes: [],
+		canSkipVideoData: true,
 	});
 
 	if (children.status === 'incomplete') {

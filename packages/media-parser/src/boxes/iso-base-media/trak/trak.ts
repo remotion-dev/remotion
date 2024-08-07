@@ -12,16 +12,19 @@ export const parseTrak = ({
 	data,
 	size,
 	offsetAtStart,
+	canSkipVideoData,
 }: {
 	data: BufferIterator;
 	size: number;
 	offsetAtStart: number;
+	canSkipVideoData: boolean;
 }): TrakBox => {
 	const children = parseBoxes({
 		iterator: data,
 		maxBytes: size - (data.counter.getOffset() - offsetAtStart),
 		allowIncompleteBoxes: false,
 		initialBoxes: [],
+		canSkipVideoData,
 	});
 
 	if (children.status === 'incomplete') {
