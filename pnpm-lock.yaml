@@ -314,12 +314,6 @@ importers:
         specifier: 1.2.2
         version: 1.2.2
 
-  packages/cloudrun/container:
-    dependencies:
-      '@google-cloud/functions-framework':
-        specifier: ^3.1.3
-        version: 3.1.3
-
   packages/compositor-darwin-arm64: {}
 
   packages/compositor-darwin-x64: {}
@@ -7824,23 +7818,6 @@ packages:
       - supports-color
     dev: false
 
-  /@google-cloud/functions-framework@3.1.3:
-    resolution: {integrity: sha512-gNKEkbud/+QkS5+vn+UEvBX6L522OpyTOjM83/cR1JRhSsBTNn3kPe4L17ZQMjJHFvO9xIxF3FaPDTfOx1Umpw==}
-    engines: {node: '>=10.0.0'}
-    hasBin: true
-    dependencies:
-      '@types/express': 4.17.13
-      body-parser: 1.19.2
-      cloudevents: 6.0.4
-      express: 4.17.3
-      minimist: 1.2.8
-      on-finished: 2.3.0
-      read-pkg-up: 7.0.1
-      semver: 7.3.5
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
-
   /@google-cloud/functions-framework@3.4.0:
     resolution: {integrity: sha512-TAh4h8bspgWkZBgFEUfali5C1NQBgqEGIIKdBjrAeG3vaPtI4CjV4AzGNA6TrEBidLIXXqHb3naO2lI1eqT7+A==}
     engines: {node: '>=10.0.0'}
@@ -10897,7 +10874,7 @@ packages:
     resolution: {integrity: sha512-H0TSyFNDMomMNJQBn8wFV5YC/2eJ+VXECwOadZJT554xP6cODZHPX3H9QMQECxvrgiSOP1pHjy1sMWQVYJOUOA==}
     engines: {node: '>= 14'}
     dependencies:
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.6
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -11634,7 +11611,7 @@ packages:
     dependencies:
       caniuse-lite: 1.0.30001636
       electron-to-chromium: 1.4.397
-      escalade: 3.1.1
+      escalade: 3.1.2
       node-releases: 1.1.77
     dev: false
 
@@ -12050,17 +12027,6 @@ packages:
   /clone@1.0.4:
     resolution: {integrity: sha512-JQHZ2QMW6l3aH/j6xCqQThY/9OH4D/9ls34cgkUBiEeocRTU04tHfKPBsUK1PqZCUQM7GiA0IIXJSuXHI64Kbg==}
     engines: {node: '>=0.8'}
-    dev: false
-
-  /cloudevents@6.0.4:
-    resolution: {integrity: sha512-Vay81bTsutFkZxHnM2K0rev95d0x7aTZ3G+Bmm8/GnIzsVtGfeBkLcXFD4czZ08RoOn6POKl+rIXaBS+Xn+jIA==}
-    engines: {node: '>=12 <20.0.0'}
-    dependencies:
-      ajv: 8.11.0
-      ajv-formats: 2.1.1(ajv@8.11.0)
-      process: 0.11.10
-      util: 0.12.5
-      uuid: 8.3.2
     dev: false
 
   /cloudevents@8.0.1:
@@ -12857,6 +12823,18 @@ packages:
     dependencies:
       ms: 2.1.2
       supports-color: 5.5.0
+
+  /debug@4.3.6:
+    resolution: {integrity: sha512-O/09Bd4Z1fBrU4VzkhFqVgpPzaGbw6Sm9FEkBT1A/YBXQFGuuSxa1dN2nxgxS34JmKXqYx8CZAwEVoJFImUXIg==}
+    engines: {node: '>=6.0'}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
+    dependencies:
+      ms: 2.1.2
+    dev: false
 
   /decimal.js@10.4.3:
     resolution: {integrity: sha512-VBBaLc1MgL5XpzgIP7ny5Z6Nx3UrRkIViUkPUdtl9aya5amy3De1gsUUSB1g3+3sExYNjCAsAznmukyxCb1GRA==}
@@ -13717,14 +13695,9 @@ packages:
       '@esbuild/win32-ia32': 0.18.6
       '@esbuild/win32-x64': 0.18.6
 
-  /escalade@3.1.1:
-    resolution: {integrity: sha512-k0er2gUkLf8O0zKJiAhmkTnJlTvINGv7ygDNPbeIsX/TJjGJZHuh9B2UxbsaEkmlEo9MfhrSzmhIlhRlI2GXnw==}
-    engines: {node: '>=6'}
-
   /escalade@3.1.2:
     resolution: {integrity: sha512-ErCHMCae19vR8vQGe50xIsVomy19rg6gFu3+r3jkEO46suLMWBksvVyoGgQV+jOfl84ZSOSlmv6Gxa89PmTGmA==}
     engines: {node: '>=6'}
-    dev: false
 
   /escape-goat@4.0.0:
     resolution: {integrity: sha512-2Sd4ShcWxbx6OY1IHyla/CVNwvg7XwZVoXZHcSu9w9SReNP1EzzD5T8NWKIR38fIqEns9kDWKUQTXXAmlDrdPg==}
@@ -15610,7 +15583,7 @@ packages:
     engines: {node: '>= 14'}
     dependencies:
       agent-base: 7.1.1
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.6
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -16520,7 +16493,7 @@ packages:
     resolution: {integrity: sha512-OfCBkGEw4nN6JLtgRidPX6QxjBQGQf72q3si2uvqyFEMbycSFFHwAZeXx6cJgFM9wmLrf9zBwCP3Ivqa+LLZPw==}
     engines: {node: '>=6'}
     dependencies:
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       js-yaml: 3.14.1
       pify: 4.0.1
       strip-bom: 3.0.0
@@ -21225,7 +21198,7 @@ packages:
     engines: {node: '>=12.0.0'}
     hasBin: true
     dependencies:
-      escalade: 3.1.1
+      escalade: 3.1.2
       picocolors: 1.0.0
       postcss: 8.4.33
       strip-json-comments: 3.1.1
@@ -21455,14 +21428,6 @@ packages:
   /semver@7.0.0:
     resolution: {integrity: sha512-+GB6zVA9LWh6zovYQLALHwv5rb2PHGlJi3lfiqIHxR0uuwCgefcOJc59v9fv1w8GbStwxuuqqAjI9NMAOOgq1A==}
     hasBin: true
-    dev: false
-
-  /semver@7.3.5:
-    resolution: {integrity: sha512-PoeGJYh8HK4BTO/a9Tf6ZG3veo/A7ZVsYrSA6J8ny9nb3B1VrpkuN+z9OE5wfE5p6H4LchYZsegiQgbJD94ZFQ==}
-    engines: {node: '>=10'}
-    hasBin: true
-    dependencies:
-      lru-cache: 6.0.0
     dev: false
 
   /semver@7.3.8:
@@ -23339,7 +23304,7 @@ packages:
       browserslist: '>= 4.21.0'
     dependencies:
       browserslist: 4.21.5
-      escalade: 3.1.1
+      escalade: 3.1.2
       picocolors: 1.0.0
 
   /update-browserslist-db@1.0.13(browserslist@4.22.2):
@@ -23349,7 +23314,7 @@ packages:
       browserslist: '>= 4.21.0'
     dependencies:
       browserslist: 4.22.2
-      escalade: 3.1.1
+      escalade: 3.1.2
       picocolors: 1.0.0
 
   /update-browserslist-db@1.1.0(browserslist@4.23.2):
@@ -24541,7 +24506,7 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       cliui: 8.0.1
-      escalade: 3.1.1
+      escalade: 3.1.2
       get-caller-file: 2.0.5
       require-directory: 2.1.1
       string-width: 4.2.3
