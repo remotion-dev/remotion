@@ -17,6 +17,7 @@
 		{"path": "../core"},
 		{"path": "../babel-loader"},
 		{"path": "../bundler"},
+		{"path": "../browser-renderer"},
 		{"path": "../cli"},
 		{"path": "../eslint-config"},
 		{"path": "../eslint-plugin"},
