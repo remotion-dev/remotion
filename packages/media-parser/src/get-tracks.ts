@@ -6,6 +6,7 @@ import {
 	getMoovBox,
 	getMvhdBox,
 	getStcoBox,
+	getStscBox,
 	getStszBox,
 	getTkhdBox,
 	getTraks,
@@ -45,7 +46,9 @@ export const getTracks = (segments: AnySegment[]): Track[] => {
 	for (const track of tracks) {
 		const stszBox = getStszBox(track);
 		const stcoBox = getStcoBox(track);
+		const stscBox = getStscBox(track);
 		const tkhdBox = getTkhdBox(track);
+
 		if (!tkhdBox) {
 			throw new Error('Expected tkhd box in trak box');
 		}

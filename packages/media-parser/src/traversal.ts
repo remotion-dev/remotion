@@ -1,6 +1,7 @@
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';
 import type {MvhdBox} from './boxes/iso-base-media/mvhd';
 import type {StcoBox} from './boxes/iso-base-media/stsd/stco';
+import type {StscBox} from './boxes/iso-base-media/stsd/stsc';
 import type {StsdBox} from './boxes/iso-base-media/stsd/stsd';
 import type {StszBox} from './boxes/iso-base-media/stsd/stsz';
 import type {TkhdBox} from './boxes/iso-base-media/tkhd';
@@ -116,4 +117,12 @@ export const getStszBox = (trakBox: TrakBox): StszBox | null => {
 	) as StszBox | null;
 
 	return stszBox;
+};
+
+export const getStscBox = (trakBox: TrakBox): StscBox | null => {
+	const stcoBox = trakBox.children.find(
+		(b) => b.type === 'stsc-box',
+	) as StscBox | null;
+
+	return stcoBox;
 };
