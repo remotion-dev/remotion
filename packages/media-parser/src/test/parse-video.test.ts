@@ -97,11 +97,8 @@ test('Parse a full video', async () => {
 		children: [],
 	});
 	expect(third).toEqual({
-		offset: 40,
+		type: 'mdat-box',
 		boxSize: 57014,
-		boxType: 'mdat',
-		children: [],
-		type: 'regular-box',
 	});
 });
 

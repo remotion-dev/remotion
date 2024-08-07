@@ -3,11 +3,13 @@ import type {IsoBaseMediaBox, ParseResult} from '../../parse-result';
 import type {BoxAndNext} from '../../parse-video';
 import {parseEsds} from './esds/esds';
 import {parseFtyp} from './ftyp';
+import {parseMdat} from './mdat/mdat';
 import {parseMdhd} from './mdhd';
 import {parseMoov} from './moov/moov';
 import {parseMvhd} from './mvhd';
 import {parseMebx} from './stsd/mebx';
 import {parseStsd} from './stsd/stsd';
+import {parseStsz} from './stsd/stsz';
 import {parseStts} from './stts/stts';
 import {parseTkhd} from './tkhd';
 import {parseTrak} from './trak/trak';
@@ -161,6 +163,21 @@ const processBox = ({
 		};
 	}
 
+	if (boxType === 'stsz') {
+		const box = parseStsz({
+			iterator,
+			offset: fileOffset,
+			size: boxSize,
+		});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
 	if (boxType === 'mebx') {
 		const box = parseMebx({
 			iterator,
@@ -236,6 +253,21 @@ const processBox = ({
 
 	if (boxType === 'esds') {
 		const box = parseEsds({
+			data: iterator,
+			size: boxSize,
+			fileOffset,
+		});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
+	if (boxType === 'mdat') {
+		const box = parseMdat({
 			data: iterator,
 			size: boxSize,
 			fileOffset,
