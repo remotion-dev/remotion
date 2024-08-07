@@ -1,5 +1,6 @@
 import type {MainSegment} from './boxes/webm/segments/main';
 import type {AnySegment} from './parse-result';
+import {getMoovBox} from './traversal';
 
 export type Dimensions = {
 	width: number;
@@ -62,8 +63,8 @@ export const getDimensions = (boxes: AnySegment[]): Dimensions => {
 		return getDimensionsFromMatroska(matroskaBox);
 	}
 
-	const moovBox = boxes.find((b) => b.type === 'moov-box');
-	if (!moovBox || moovBox.type !== 'moov-box') {
+	const moovBox = getMoovBox(boxes);
+	if (!moovBox) {
 		throw new Error('Expected moov box');
 	}
 

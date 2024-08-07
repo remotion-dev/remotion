@@ -1,5 +1,7 @@
 import type {SttsBox} from './boxes/iso-base-media/stts/stts';
+import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import type {AnySegment} from './parse-result';
+import {getMoovBox, getMvhdBox, getTraks} from './traversal';
 
 const calculateFps = ({
 	sttsBox,
@@ -27,11 +29,7 @@ type TimescaleAndDuration = {
 	duration: number;
 };
 
-export const trakBoxContainsAudio = (trakBox: AnySegment): boolean => {
-	if (trakBox.type !== 'trak-box') {
-		return false;
-	}
-
+export const trakBoxContainsAudio = (trakBox: TrakBox): boolean => {
 	const {children} = trakBox;
 	const mediaBoxes = children.filter(
 		(c) => c.type === 'regular-box' && c.boxType === 'mdia',
@@ -75,11 +73,7 @@ export const trakBoxContainsAudio = (trakBox: AnySegment): boolean => {
 	return true;
 };
 
-export const trakBoxContainsVideo = (trakBox: AnySegment): boolean => {
-	if (trakBox.type !== 'trak-box') {
-		return false;
-	}
-
+export const trakBoxContainsVideo = (trakBox: TrakBox): boolean => {
 	const {children} = trakBox;
 	const mediaBoxes = children.filter(
 		(c) => c.type === 'regular-box' && c.boxType === 'mdia',
@@ -126,16 +120,12 @@ export const trakBoxContainsVideo = (trakBox: AnySegment): boolean => {
 export const getTimescaleAndDuration = (
 	boxes: AnySegment[],
 ): TimescaleAndDuration | null => {
-	const moovBox = boxes.find((s) => s.type === 'moov-box');
-	if (!moovBox || moovBox.type !== 'moov-box') {
+	const moovBox = getMoovBox(boxes);
+	if (!moovBox) {
 		return null;
 	}
 
-	const {children} = moovBox;
-	const trackBoxes = children.filter((c) => c.type === 'trak-box');
-	if (!trackBoxes || trackBoxes.length === 0) {
-		return null;
-	}
+	const trackBoxes = getTraks(moovBox);
 
 	const trackBox = trackBoxes.find(trakBoxContainsVideo);
 	if (!trackBox || trackBox.type !== 'trak-box') {
@@ -163,8 +153,8 @@ export const getTimescaleAndDuration = (
 		return {timescale: mdhdBox.timescale, duration: mdhdBox.duration};
 	}
 
-	const mvhdBox = moovBox.children.find((c) => c.type === 'mvhd-box');
-	if (!mvhdBox || mvhdBox.type !== 'mvhd-box') {
+	const mvhdBox = getMvhdBox(moovBox);
+	if (!mvhdBox) {
 		return null;
 	}
 
@@ -178,21 +168,17 @@ export const getFps = (segments: AnySegment[]) => {
 		return null;
 	}
 
-	const moovBox = segments.find((s) => s.type === 'moov-box');
-	if (!moovBox || moovBox.type !== 'moov-box') {
+	const moovBox = getMoovBox(segments);
+	if (!moovBox) {
 		return null;
 	}
 
-	const mvhdBox = moovBox.children.find((c) => c.type === 'mvhd-box');
-	if (!mvhdBox || mvhdBox.type !== 'mvhd-box') {
+	const mvhdBox = getMvhdBox(moovBox);
+	if (!mvhdBox) {
 		return null;
 	}
 
-	const {children} = moovBox;
-	const trackBoxes = children.filter((c) => c.type === 'trak-box');
-	if (!trackBoxes || trackBoxes.length === 0) {
-		return null;
-	}
+	const trackBoxes = getTraks(moovBox);
 
 	const trackBox = trackBoxes.find(trakBoxContainsVideo);
 	if (!trackBox || trackBox.type !== 'trak-box') {

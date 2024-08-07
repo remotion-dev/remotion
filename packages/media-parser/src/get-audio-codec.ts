@@ -3,6 +3,7 @@ import type {Sample} from './boxes/iso-base-media/stsd/samples';
 import {trakBoxContainsAudio} from './get-fps';
 import type {KnownAudioCodecs} from './options';
 import type {AnySegment} from './parse-result';
+import {getMoovBox} from './traversal';
 
 export const hasAudioCodec = (boxes: AnySegment[]): boolean => {
 	try {
@@ -49,8 +50,8 @@ const onSample = (sample: Sample): KnownAudioCodecs | null | undefined => {
 };
 
 export const getAudioCodec = (boxes: AnySegment[]): KnownAudioCodecs | null => {
-	const moovBox = boxes.find((b) => b.type === 'moov-box');
-	if (moovBox && moovBox.type === 'moov-box') {
+	const moovBox = getMoovBox(boxes);
+	if (moovBox) {
 		const trakBox = moovBox.children.find(
 			(b) => b.type === 'trak-box' && trakBoxContainsAudio(b),
 		);

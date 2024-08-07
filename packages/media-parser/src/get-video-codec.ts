@@ -2,6 +2,7 @@
 import {trakBoxContainsVideo} from './get-fps';
 import type {KnownVideoCodecs} from './options';
 import type {AnySegment} from './parse-result';
+import {getMoovBox} from './traversal';
 
 export const hasVideoCodec = (boxes: AnySegment[]): boolean => {
 	try {
@@ -12,8 +13,8 @@ export const hasVideoCodec = (boxes: AnySegment[]): boolean => {
 };
 
 export const getVideoCodec = (boxes: AnySegment[]): KnownVideoCodecs | null => {
-	const moovBox = boxes.find((b) => b.type === 'moov-box');
-	if (moovBox && moovBox.type === 'moov-box') {
+	const moovBox = getMoovBox(boxes);
+	if (moovBox) {
 		const trakBox = moovBox.children.find(
 			(b) => b.type === 'trak-box' && trakBoxContainsVideo(b),
 		);

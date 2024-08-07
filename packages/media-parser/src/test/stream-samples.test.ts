@@ -1,10 +1,11 @@
 import {RenderInternals} from '@remotion/renderer';
-import {test} from 'bun:test';
+import {expect, test} from 'bun:test';
 import {nodeReader} from '../from-node';
+import {getTracks} from '../get-tracks';
 import {parseMedia} from '../parse-media';
 
 test('Stream samples', async () => {
-	await parseMedia({
+	const {boxes} = await parseMedia({
 		src: RenderInternals.exampleVideos.mp4withmp3,
 		fields: {
 			samples: true,
@@ -12,4 +13,9 @@ test('Stream samples', async () => {
 		},
 		readerInterface: nodeReader,
 	});
+
+	const tracks = getTracks(boxes);
+	expect(tracks).toEqual([{type: 'video'}, {type: 'audio'}]);
+
+	await Bun.write('stream-samples.json', JSON.stringify(boxes, null, 2));
 });
