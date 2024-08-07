@@ -55,6 +55,12 @@ export const getArrayBufferIterator = (
 	const buf = new ArrayBuffer(initialData.byteLength, {
 		maxByteLength: maxBytes ?? 1_000_000_000,
 	});
+	if (!buf.resize) {
+		throw new Error(
+			'`ArrayBuffer.resize` is not supported in this Runtime. Use at least Node.js 20 or Bun.',
+		);
+	}
+
 	let data = new Uint8Array(buf);
 	data.set(initialData);
 
