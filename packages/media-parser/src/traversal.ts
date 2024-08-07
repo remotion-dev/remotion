@@ -38,12 +38,22 @@ export const getTkhdBox = (trakBox: TrakBox): TkhdBox | null => {
 	return tkhdBox;
 };
 
-export const getStblBox = (trakBox: TrakBox): RegularBox | null => {
+export const getMdiaBox = (trakBox: TrakBox): RegularBox | null => {
 	const mdiaBox = trakBox.children.find(
 		(s) => s.type === 'regular-box' && s.boxType === 'mdia',
 	);
 
 	if (!mdiaBox || mdiaBox.type !== 'regular-box') {
+		return null;
+	}
+
+	return mdiaBox;
+};
+
+export const getStblBox = (trakBox: TrakBox): RegularBox | null => {
+	const mdiaBox = getMdiaBox(trakBox);
+
+	if (!mdiaBox) {
 		return null;
 	}
 

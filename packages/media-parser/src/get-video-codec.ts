@@ -2,7 +2,7 @@
 import {trakBoxContainsVideo} from './get-fps';
 import type {KnownVideoCodecs} from './options';
 import type {AnySegment} from './parse-result';
-import {getMoovBox} from './traversal';
+import {getMoovBox, getStsdBox, getTraks} from './traversal';
 
 export const hasVideoCodec = (boxes: AnySegment[]): boolean => {
 	try {
@@ -15,51 +15,22 @@ export const hasVideoCodec = (boxes: AnySegment[]): boolean => {
 export const getVideoCodec = (boxes: AnySegment[]): KnownVideoCodecs | null => {
 	const moovBox = getMoovBox(boxes);
 	if (moovBox) {
-		const trakBox = moovBox.children.find(
-			(b) => b.type === 'trak-box' && trakBoxContainsVideo(b),
-		);
-		if (trakBox && trakBox.type === 'trak-box') {
-			const mdiaBox = trakBox.children.find(
-				(b) => b.type === 'regular-box' && b.boxType === 'mdia',
-			);
-			if (
-				mdiaBox &&
-				mdiaBox.type === 'regular-box' &&
-				mdiaBox.boxType === 'mdia'
-			) {
-				const minfBox = mdiaBox?.children.find(
-					(b) => b.type === 'regular-box' && b.boxType === 'minf',
-				);
-				if (
-					minfBox &&
-					minfBox.type === 'regular-box' &&
-					minfBox.boxType === 'minf'
-				) {
-					const stblBox = minfBox?.children.find(
-						(b) => b.type === 'regular-box' && b.boxType === 'stbl',
-					);
-					if (stblBox && stblBox.type === 'regular-box') {
-						const stsdBox = stblBox?.children.find(
-							(b) => b.type === 'stsd-box',
-						);
-						if (stsdBox && stsdBox.type === 'stsd-box') {
-							const videoSample = stsdBox.samples.find(
-								(s) => s.type === 'video',
-							);
-							if (videoSample && videoSample.type === 'video') {
-								if (videoSample.format === 'hvc1') {
-									return 'h265';
-								}
+		const trakBox = getTraks(moovBox).filter((t) => trakBoxContainsVideo(t))[0];
+		if (trakBox) {
+			const stsdBox = getStsdBox(trakBox);
+			if (stsdBox && stsdBox.type === 'stsd-box') {
+				const videoSample = stsdBox.samples.find((s) => s.type === 'video');
+				if (videoSample && videoSample.type === 'video') {
+					if (videoSample.format === 'hvc1') {
+						return 'h265';
+					}
 
-								if (videoSample.format === 'avc1') {
-									return 'h264';
-								}
+					if (videoSample.format === 'avc1') {
+						return 'h264';
+					}
 
-								if (videoSample.format === 'ap4h') {
-									return 'prores';
-								}
-							}
-						}
+					if (videoSample.format === 'ap4h') {
+						return 'prores';
 					}
 				}
 			}

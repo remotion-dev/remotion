@@ -1,6 +1,7 @@
 import type {MainSegment} from './boxes/webm/segments/main';
+import {trakBoxContainsVideo} from './get-fps';
 import type {AnySegment} from './parse-result';
-import {getMoovBox} from './traversal';
+import {getMoovBox, getStsdBox, getTkhdBox, getTraks} from './traversal';
 
 export type Dimensions = {
 	width: number;
@@ -68,66 +69,23 @@ export const getDimensions = (boxes: AnySegment[]): Dimensions => {
 		throw new Error('Expected moov box');
 	}
 
-	const {children} = moovBox;
-	if (!children) {
-		throw new Error('Expected moov box children');
-	}
+	const trakBox = getTraks(moovBox).filter((t) => trakBoxContainsVideo(t))[0];
 
-	const t = children.find((b) => b.type === 'trak-box');
-
-	if (!t || t.type !== 'trak-box') {
+	if (!trakBox) {
 		throw new Error('Expected trak box');
 	}
 
-	const mdiaBox = t.children.find(
-		(c) => c.type === 'regular-box' && c.boxType === 'mdia',
-	);
-	const tkhdBox = t.children.find((c) => c.type === 'tkhd-box');
-	if (tkhdBox && tkhdBox.type === 'tkhd-box') {
+	const tkhdBox = getTkhdBox(trakBox);
+	if (tkhdBox) {
 		return {
 			width: tkhdBox.width,
 			height: tkhdBox.height,
 		};
 	}
 
-	if (!mdiaBox) {
-		throw new Error('Expected mdia box');
-	}
-
-	if (mdiaBox.type !== 'regular-box') {
-		throw new Error('Expected mdia box');
-	}
-
-	const minfBox = mdiaBox.children.find(
-		(c) => c.type === 'regular-box' && c.boxType === 'minf',
-	);
-	if (!minfBox) {
-		throw new Error('Expected minf box');
-	}
-
-	if (minfBox.type !== 'regular-box') {
-		throw new Error('Expected minf box');
-	}
-
-	const stblBox = minfBox.children.find(
-		(c) => c.type === 'regular-box' && c.boxType === 'stbl',
-	);
-
-	if (!stblBox) {
-		throw new Error('Expected stbl box');
-	}
-
-	if (stblBox.type !== 'regular-box') {
-		throw new Error('Expected stbl box');
-	}
-
-	const stsdBox = stblBox.children.find((c) => c.type === 'stsd-box');
+	const stsdBox = getStsdBox(trakBox);
 
 	if (!stsdBox) {
-		throw new Error('Expected stsd box');
-	}
-
-	if (stsdBox.type !== 'stsd-box') {
 		throw new Error('Expected stsd box');
 	}
 
