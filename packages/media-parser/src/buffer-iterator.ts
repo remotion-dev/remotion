@@ -153,10 +153,17 @@ export const getArrayBufferIterator = (
 		removeBytesRead();
 	};
 
+	const peek = (length: number) => {
+		// eslint-disable-next-line no-console
+		console.log(getSlice(length));
+		counter.decrement(length);
+	};
+
 	return {
 		skipTo,
 		addData,
 		counter,
+		peek,
 		byteLength,
 		bytesRemaining,
 		isIsoBaseMedia,
