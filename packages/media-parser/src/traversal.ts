@@ -120,7 +120,13 @@ export const getStszBox = (trakBox: TrakBox): StszBox | null => {
 };
 
 export const getStscBox = (trakBox: TrakBox): StscBox | null => {
-	const stcoBox = trakBox.children.find(
+	const stblBox = getStblBox(trakBox);
+
+	if (!stblBox || stblBox.type !== 'regular-box') {
+		return null;
+	}
+
+	const stcoBox = stblBox.children.find(
 		(b) => b.type === 'stsc-box',
 	) as StscBox | null;
 

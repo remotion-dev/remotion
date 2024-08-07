@@ -1,14 +1,22 @@
 import type {BufferIterator} from '../../../buffer-iterator';
 import type {BaseBox} from '../base-type';
 
-export interface StszBox extends BaseBox {
+type Discriminated =
+	| {
+			countType: 'fixed';
+			sampleSize: number;
+	  }
+	| {
+			countType: 'variable';
+			entries: number[];
+	  };
+
+export type StszBox = BaseBox & {
 	type: 'stsz-box';
 	version: number;
 	flags: number[];
-	sampleSize: number;
 	sampleCount: number;
-	samples: number[];
-}
+} & Discriminated;
 
 export const parseStsz = ({
 	iterator,
@@ -29,6 +37,19 @@ export const parseStsz = ({
 	const sampleSize = iterator.getUint32();
 	const sampleCount = iterator.getUint32();
 
+	if (sampleSize !== 0) {
+		return {
+			type: 'stsz-box',
+			boxSize: size,
+			offset,
+			version,
+			flags: [...flags],
+			sampleCount,
+			countType: 'fixed',
+			sampleSize,
+		};
+	}
+
 	const samples: number[] = [];
 	for (let i = 0; i < sampleCount; i++) {
 		const bytesRemaining = size - (iterator.counter.getOffset() - offset);
@@ -47,8 +68,8 @@ export const parseStsz = ({
 		offset,
 		version,
 		flags: [...flags],
-		sampleSize,
 		sampleCount,
-		samples,
+		countType: 'variable',
+		entries: samples,
 	};
 };

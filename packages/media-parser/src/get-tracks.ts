@@ -1,6 +1,6 @@
-import type {StcoBox} from './boxes/iso-base-media/stsd/stco';
-import type {StszBox} from './boxes/iso-base-media/stsd/stsz';
 import {trakBoxContainsAudio, trakBoxContainsVideo} from './get-fps';
+import type {SamplePosition} from './get-sample-positions';
+import {getSamplePositions} from './get-sample-positions';
 import type {AnySegment} from './parse-result';
 import {
 	getMoovBox,
@@ -14,8 +14,7 @@ import {
 
 type Track = {
 	type: 'audio' | 'video';
-	stcoBox: StcoBox | null;
-	stszBox: StszBox | null;
+	samplePositions: SamplePosition[];
 	trackId: number;
 };
 
@@ -53,11 +52,28 @@ export const getTracks = (segments: AnySegment[]): Track[] => {
 			throw new Error('Expected tkhd box in trak box');
 		}
 
+		if (!stszBox) {
+			throw new Error('Expected stsz box in trak box');
+		}
+
+		if (!stcoBox) {
+			throw new Error('Expected stco box in trak box');
+		}
+
+		if (!stscBox) {
+			throw new Error('Expected stsc box in trak box');
+		}
+
+		const samplePositions = getSamplePositions({
+			stcoBox,
+			stscBox,
+			stszBox,
+		});
+
 		if (trakBoxContainsAudio(track)) {
 			foundTracks.push({
 				type: 'audio',
-				stcoBox,
-				stszBox,
+				samplePositions,
 				trackId: tkhdBox.trackId,
 			});
 		}
@@ -65,8 +81,7 @@ export const getTracks = (segments: AnySegment[]): Track[] => {
 		if (trakBoxContainsVideo(track)) {
 			foundTracks.push({
 				type: 'video',
-				stcoBox,
-				stszBox,
+				samplePositions,
 				trackId: tkhdBox.trackId,
 			});
 		}
