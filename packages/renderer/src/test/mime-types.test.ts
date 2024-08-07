@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {getExt, mimeLookup} from '../mime-types';
 
 test('Should get mime types', () => {

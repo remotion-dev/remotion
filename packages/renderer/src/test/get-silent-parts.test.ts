@@ -1,7 +1,7 @@
+import {expect, test} from 'bun:test';
 import path from 'path';
-import {expect, test} from 'vitest';
+import {exampleVideos} from '../example-videos';
 import {getSilentParts} from '../get-silent-parts';
-import {exampleVideos} from './example-videos';
 
 test('Should be able to get the silences from a video', async () => {
 	const {silentParts, audibleParts} = await getSilentParts({

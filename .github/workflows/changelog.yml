@@ -1,6 +1,6 @@
 on:
   release:
-    types: [edited, published]
+    types: [published]
   workflow_dispatch:
 name: Publish latest release
 
@@ -10,12 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@main
-      - uses: actions/setup-node@v3
+      - uses: oven-sh/setup-bun@v1
         with:
-          node-version: 18
+          bun-version: 1.1.9
       - name: Push changelog
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
         run: |
           cd packages/discord-poster
-          node post.mjs
+          bun post.ts

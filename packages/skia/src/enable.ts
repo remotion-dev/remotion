@@ -59,14 +59,11 @@ export const enableSkia: WebpackOverrideFn = (currentConfiguration) => {
 			],
 			alias: {
 				...currentConfiguration.resolve?.alias,
-				'react-native$': 'react-native-web',
+				'react-native-reanimated': "require('react-native-reanimated')",
+				'react-native-reanimated/lib/reanimated2/core':
+					"require('react-native-reanimated/lib/reanimated2/core')",
+				'react-native/Libraries/Image/AssetRegistry': false,
 			},
-		},
-		externals: {
-			...((currentConfiguration.externals as Record<string, string>) ?? {}),
-			'react-native-reanimated': "require('react-native-reanimated')",
-			'react-native-reanimated/lib/reanimated2/core':
-				"require('react-native-reanimated/lib/reanimated2/core')",
 		},
 	};
 };

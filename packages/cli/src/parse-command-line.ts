@@ -10,9 +10,9 @@ import type {
 } from '@remotion/renderer';
 import type {TypeOfOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import minimist from 'minimist';
 import {Config, ConfigInternals} from './config';
 import {Log} from './log';
+import {parsedCli} from './parsed-cli';
 
 const {
 	beepOnFinishOption,
@@ -30,9 +30,10 @@ const {
 	audioBitrateOption,
 	videoBitrateOption,
 	audioCodecOption,
+	publicPathOption,
 } = BrowserSafeApis.options;
 
-type CommandLineOptions = {
+export type CommandLineOptions = {
 	['browser-executable']: BrowserExecutable;
 	['pixel-format']: PixelFormat;
 	['image-format']: VideoImageFormat | StillImageFormat;
@@ -63,6 +64,7 @@ type CommandLineOptions = {
 	>;
 	[encodingMaxRateOption.cliFlag]: TypeOfOption<typeof encodingMaxRateOption>;
 	[audioCodecOption.cliFlag]: AudioCodec;
+	[publicPathOption.cliFlag]: string;
 	crf: number;
 	force: boolean;
 	output: string;
@@ -96,6 +98,7 @@ type CommandLineOptions = {
 	['browser-args']: string;
 	['user-agent']: string;
 	['out-dir']: string;
+	ipv4: boolean;
 	[deleteAfterOption.cliFlag]: TypeOfOption<typeof deleteAfterOption>;
 	[folderExpiryOption.cliFlag]: TypeOfOption<typeof folderExpiryOption>;
 	[enableMultiprocessOnLinuxOption.cliFlag]: TypeOfOption<
@@ -104,47 +107,7 @@ type CommandLineOptions = {
 	repro: boolean;
 };
 
-export const BooleanFlags = [
-	'overwrite',
-	'force',
-	'sequence',
-	'help',
-	'quiet',
-	'q',
-	'muted',
-	enforceAudioOption.cliFlag,
-	// Lambda flags
-	'force',
-	'disable-chunk-optimization',
-	'save-browser-logs',
-	'disable-cloudwatch',
-	'enable-lambda-insights',
-	'yes',
-	'y',
-	'disable-web-security',
-	'ignore-certificate-errors',
-	'disable-headless',
-	'disable-keyboard-shortcuts',
-	'default-only',
-	'no-open',
-	beepOnFinishOption.cliFlag,
-	'repro',
-];
-
-export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
-	boolean: BooleanFlags,
-	default: {
-		overwrite: true,
-	},
-}) as CommandLineOptions & {
-	_: string[];
-};
-
 export const parseCommandLine = () => {
-	if (parsedCli.repro) {
-		Config.setRepro(true);
-	}
-
 	if (parsedCli['pixel-format']) {
 		Config.setPixelFormat(parsedCli['pixel-format']);
 	}
@@ -227,25 +190,7 @@ export const parseCommandLine = () => {
 		);
 	}
 
-	if (typeof parsedCli['public-dir'] !== 'undefined') {
-		Config.setPublicDir(parsedCli['public-dir']);
-	}
-
 	if (typeof parsedCli['webpack-poll'] !== 'undefined') {
 		Config.setWebpackPollingInMilliseconds(parsedCli['webpack-poll']);
 	}
-
-	if (typeof parsedCli['audio-bitrate'] !== 'undefined') {
-		Config.setAudioBitrate(parsedCli['audio-bitrate']);
-	}
-
-	if (typeof parsedCli['video-bitrate'] !== 'undefined') {
-		Config.setVideoBitrate(parsedCli['video-bitrate']);
-	}
-
-	if (typeof parsedCli['buffer-size'] !== 'undefined') {
-		Config.setEncodingBufferSize(parsedCli['buffer-size']);
-	}
 };
-
-export const quietFlagProvided = () => parsedCli.quiet || parsedCli.q;

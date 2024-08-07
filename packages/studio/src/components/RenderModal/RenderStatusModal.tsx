@@ -2,13 +2,13 @@ import React, {useCallback, useContext} from 'react';
 import {makeRetryPayload} from '../../helpers/retry-payload';
 import {ModalsContext} from '../../state/modals';
 import {Button} from '../Button';
-import {Flex, SPACING_UNIT} from '../layout';
 import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
-import {sendErrorNotification} from '../Notifications/NotificationCenter';
+import {showNotification} from '../Notifications/NotificationCenter';
 import {cancelRenderJob, removeRenderJob} from '../RenderQueue/actions';
 import {RenderQueueContext} from '../RenderQueue/context';
+import {Flex, SPACING_UNIT} from '../layout';
 import {GuiRenderStatus} from './GuiRenderStatus';
 
 const container: React.CSSProperties = {
@@ -58,13 +58,13 @@ export const RenderStatusModal: React.FC<{jobId: string}> = ({jobId}) => {
 	const onClickOnRemove = useCallback(() => {
 		setSelectedModal(null);
 		removeRenderJob(job).catch((err) => {
-			sendErrorNotification(`Could not remove job: ${err.message}`);
+			showNotification(`Could not remove job: ${err.message}`, 2000);
 		});
 	}, [job, setSelectedModal]);
 
 	const onClickOnCancel = useCallback(() => {
 		cancelRenderJob(job).catch((err) => {
-			sendErrorNotification(`Could not cancel job: ${err.message}`);
+			showNotification(`Could not cancel job: ${err.message}`, 2000);
 		});
 	}, [job]);
 

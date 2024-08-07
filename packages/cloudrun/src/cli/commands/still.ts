@@ -52,6 +52,7 @@ export const stillCommand = async (
 	} = CliInternals.getCliOptions({
 		isStill: false,
 		logLevel,
+		indent: false,
 	});
 
 	let composition = args[1];
@@ -106,13 +107,16 @@ export const stillCommand = async (
 			webpackConfigOrServeUrl: serveUrl,
 			offthreadVideoCacheSizeInBytes,
 			binariesDirectory,
+			forceIPv4: false,
 		});
+
+		const indent = false;
 
 		const {compositionId} =
 			await CliInternals.getCompositionWithDimensionOverride({
 				args: args.slice(1),
 				compositionIdFromUi: null,
-				indent: false,
+				indent,
 				serveUrlOrWebpackUrl: serveUrl,
 				logLevel,
 				browserExecutable,
@@ -132,6 +136,11 @@ export const stillCommand = async (
 				server: await server,
 				offthreadVideoCacheSizeInBytes,
 				binariesDirectory,
+				onBrowserDownload: CliInternals.defaultBrowserDownloadProgress({
+					indent,
+					logLevel,
+					quiet: CliInternals.quietFlagProvided(),
+				}),
 			});
 		composition = compositionId;
 	}

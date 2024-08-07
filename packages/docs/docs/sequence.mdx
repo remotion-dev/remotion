@@ -14,7 +14,7 @@ const BlueSquare: React.FC = () => <div></div>
 
 By using a sequence, you can time-shift the display of your components or parts of your animation in the video.
 
-```tsx twoslash
+```tsx twoslash title="MyTrailer.tsx"
 import { Sequence } from "remotion";
 
 export const Intro = () => <></>;
@@ -26,13 +26,13 @@ export const Outro = () => <></>;
 const MyTrailer = () => {
   return (
     <>
-      <Sequence durationInFrames={10}>
+      <Sequence durationInFrames={30}>
         <Intro />
       </Sequence>
-      <Sequence from={10}>
+      <Sequence from={30} durationInFrames={30}>
         <Clip />
       </Sequence>
-      <Sequence from={20}>
+      <Sequence from={60}>
         <Outro />
       </Sequence>
     </>
@@ -40,72 +40,63 @@ const MyTrailer = () => {
 };
 ```
 
-All child components inside a `<Sequence>` will have their value of [`useCurrentFrame()`](/docs/use-current-frame) shifted by the `from` value.
+<sub>
+  <em>
+    <code>&lt;Intro&gt;</code>
+  </em>{" "}
+  will show from frame 0-29.
+</sub>
+<br />
+<sub>
+  <em>
+    <code>&lt;Clip&gt;</code>
+  </em>{" "}
+  will show from frame 30 on until frame 59.
+</sub>
+<br />
+<sub>
+  <em>
+    <code>&lt;Outro&gt;</code>
+  </em>{" "}
+  will show from frame 60 on until the end of the composition.
+</sub>
+<br />
+<br />
 
-Using the `durationInFrames` prop, you can define for how long the children of a `<Sequence>` should be mounted.
+All children of a `<Sequence>` that call [`useCurrentFrame()`](/docs/use-current-frame) will receive a value that is shifted by [`from`](#from).
 
-By default, the children of a `<Sequence>` are wrapped in an [`<AbsoluteFill>`](/docs/absolute-fill) component. If you don't want this behavior, add `layout="none"` as a prop.
+```tsx twoslash title="MyTrailer.tsx"
+import { Sequence, useCurrentFrame } from "remotion";
 
-## Props
+const Intro = () => <div>{useCurrentFrame()}</div>;
 
-The Sequence component is a high order component and accepts, besides children, the following props:
+const MyTrailer = () => {
+  return (
+    <>
+      <Intro />
+      <Sequence from={30}>
+        <Intro />
+      </Sequence>
+    </>
+  );
+};
+```
 
-### `from`
+<sub>
+  At frame <code>0</code>, this would render{" "}
+  <code>&lt;div&gt;0&lt;/div&gt;</code>.
+</sub>
+<br />
+<sub>
+  At frame <code>30</code>, this would render{" "}
+  <code>&lt;div&gt;30&lt;/div&gt;&lt;div&gt;0&lt;/div&gt;</code>.
+</sub>
+<br />
+<br />
 
-_optional_ (From v3.2.36, _required_ in previous versions)
+Using the [`durationInFrames`](#durationinframes) prop, you can define for how long the children of a `<Sequence>` should be mounted.
 
-At which frame it's children should assume the video starts. When the sequence is at `frame`, it's children are at frame `0`.
-From v3.2.36 onwards, this prop will be optional; by default, it will be 0.
-
-### `durationInFrames`
-
-_optional_
-
-For how many frames the sequence should be displayed. Children are unmounted if they are not within the time range of display. By default it will be `Infinity` to avoid limit the duration of the sequence.
-
-### `height`<AvailableFrom v="4.0.80"/>
-
-_optional_
-
-Gives the sequence a specific `style={{height: height}}` style and overrides `height` that is returned by the [`useVideoConfig()`](/docs/use-video-config) hook in child components. Useful for including a component that was designed for a specific height.
-
-### `width`<AvailableFrom v="4.0.80"/>
-
-_optional_
-
-Gives the sequence a specific `style={{width: width}}` style and overrides `width` that is returned by the [`useVideoConfig()`](/docs/use-video-config) hook in child components. Useful for including a component that was designed for a specific width.
-
-### `name`
-
-_optional_
-
-You can give your sequence a name and it will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of sequences in the timeline.
-
-### `layout`
-
-_optional_
-
-Either `"absolute-fill"` _(default)_ or `"none"` By default, your sequences will be absolutely positioned, so they will overlay each other. If you would like to opt out of it and handle layouting yourself, pass `layout="none"`. Available since v1.4.
-
-### `style`<AvailableFrom v="3.0.27"/>
-
-_optional_
-
-CSS styles to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
-
-### `className`<AvailableFrom v="3.3.45"/>
-
-_optional_
-
-A class name to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
-
-### `showInTimeline`<AvailableFrom v="4.0.110" />
-
-_optional_
-
-If set to `false`, the track will not be shown in the Studio's timeline.  
-Child `<Sequence>`'s will show by default, unless `showInTimeline` is also set to false.  
-This behavior is stable as of v4.0.110, previously the behavior was different, but this prop not documented.
+By default, the children of a `<Sequence>` are wrapped in an [`<AbsoluteFill>`](/docs/absolute-fill) component. If you don't want this behavior, add [`layout="none"`](#layout) as a prop.
 
 ## Cascading
 
@@ -213,6 +204,73 @@ const TrimAndDelayExample: React.FC = () => {
 ## Play Sequences sequentially
 
 See the [`<Series />`](/docs/series) helper component, which helps you calculate markup that makes sequences play after each other.
+
+## Props
+
+The Sequence component is a high order component and accepts, besides children, the following props:
+
+### `from`
+
+_optional_ (From v3.2.36, _required_ in previous versions)
+
+At which frame it's children should assume the video starts. When the sequence is at `frame`, it's children are at frame `0`.
+From v3.2.36 onwards, this prop will be optional; by default, it will be 0.
+
+### `durationInFrames`
+
+_optional_
+
+For how many frames the sequence should be displayed. Children are unmounted if they are not within the time range of display. By default it will be `Infinity` to avoid limit the duration of the sequence.
+
+### `height`<AvailableFrom v="4.0.80"/>
+
+_optional_
+
+Gives the sequence a specific `style={{height: height}}` style and overrides `height` that is returned by the [`useVideoConfig()`](/docs/use-video-config) hook in child components. Useful for including a component that was designed for a specific height.
+
+### `width`<AvailableFrom v="4.0.80"/>
+
+_optional_
+
+Gives the sequence a specific `style={{width: width}}` style and overrides `width` that is returned by the [`useVideoConfig()`](/docs/use-video-config) hook in child components. Useful for including a component that was designed for a specific width.
+
+### `name`
+
+_optional_
+
+You can give your sequence a name and it will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of sequences in the timeline.
+
+### `layout`
+
+_optional_
+
+Either `"absolute-fill"` _(default)_ or `"none"` By default, your sequences will be absolutely positioned, so they will overlay each other. If you would like to opt out of it and handle layouting yourself, pass `layout="none"`. Available since v1.4.
+
+### `style`<AvailableFrom v="3.0.27"/>
+
+_optional_
+
+CSS styles to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
+
+### `className`<AvailableFrom v="3.3.45"/>
+
+_optional_
+
+A class name to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
+
+### `premountFor`<AvailableFrom v="4.0.140" />
+
+_optional_
+
+[Premount](/docs/player/premounting) the sequence for a set number of frames.
+
+### `showInTimeline`<AvailableFrom v="4.0.110" />
+
+_optional_
+
+If set to `false`, the track will not be shown in the Studio's timeline.  
+Child `<Sequence>`'s will show by default, unless `showInTimeline` is also set to false.  
+This behavior is stable as of v4.0.110, previously the behavior was different, but this prop not documented.
 
 ## Adding a ref
 

@@ -9,10 +9,10 @@ import {
 import React, {useMemo, useState} from 'react';
 import {
 	AbsoluteFill,
+	SpringConfig,
 	measureSpring,
 	random,
 	spring,
-	SpringConfig,
 	useVideoConfig,
 } from 'remotion';
 import {Letter} from './BasicTransition';

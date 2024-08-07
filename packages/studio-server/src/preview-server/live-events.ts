@@ -16,13 +16,14 @@ type Client = {
 export type LiveEventsServer = {
 	sendEventToClient: (event: EventSourceEvent) => void;
 	router: (request: IncomingMessage, response: ServerResponse) => void;
+	closeConnections: () => Promise<void>;
 };
 
 const serializeMessage = (message: EventSourceEvent) => {
 	return `data: ${JSON.stringify(message)}\n\n`;
 };
 
-let printPortMessageTimeout: NodeJS.Timeout | null = null;
+let printPortMessageTimeout: Timer | null = null;
 
 export const makeLiveEventsRouter = (logLevel: LogLevel): LiveEventsServer => {
 	let clients: Client[] = [];
@@ -79,6 +80,17 @@ export const makeLiveEventsRouter = (logLevel: LogLevel): LiveEventsServer => {
 	return {
 		sendEventToClient,
 		router,
+		closeConnections: () => {
+			return Promise.all(
+				clients.map((client) => {
+					return new Promise<void>((resolve) => {
+						client.response.end(() => {
+							resolve();
+						});
+					});
+				}),
+			).then(() => undefined);
+		},
 	};
 };
 
@@ -102,4 +114,7 @@ export const waitForLiveEventsListener = (): Promise<LiveEventsServer> => {
 export const setLiveEventsListener = (listener: LiveEventsServer) => {
 	liveEventsListener = listener;
 	waiters.forEach((w) => w(listener));
+	return () => {
+		liveEventsListener = null;
+	};
 };

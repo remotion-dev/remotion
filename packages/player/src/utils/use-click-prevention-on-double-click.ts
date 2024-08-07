@@ -4,17 +4,28 @@ import {cancellablePromise} from './cancellable-promise.js';
 import {delay} from './delay.js';
 import {useCancellablePromises} from './use-cancellable-promises.js';
 
+type ReturnVal = {
+	handlePointerDown: (
+		e: SyntheticEvent<Element, PointerEvent> | PointerEvent,
+	) => void;
+	handleDoubleClick: () => void;
+};
+
 const useClickPreventionOnDoubleClick = (
-	onClick: (e: SyntheticEvent) => void,
+	onClick: (e: PointerEvent | SyntheticEvent<Element, PointerEvent>) => void,
 	onDoubleClick: () => void,
 	doubleClickToFullscreen: boolean,
-): [(e: SyntheticEvent) => void, () => void] => {
+): ReturnVal => {
 	const api = useCancellablePromises();
 
 	const handleClick = useCallback(
-		async (e: SyntheticEvent) => {
+		async (e: SyntheticEvent<Element, PointerEvent> | PointerEvent) => {
 			// UnSupported double click on touch.(mobile)
-			if ((e.nativeEvent as PointerEvent).pointerType === 'touch') {
+			if (
+				e instanceof PointerEvent
+					? e.pointerType === 'touch'
+					: (e.nativeEvent as PointerEvent).pointerType === 'touch'
+			) {
 				onClick(e);
 				return;
 			}
@@ -39,18 +50,30 @@ const useClickPreventionOnDoubleClick = (
 		[api, onClick],
 	);
 
+	const handlePointerDown = useCallback(() => {
+		document.addEventListener(
+			'pointerup',
+			(newEvt) => {
+				handleClick(newEvt);
+			},
+			{
+				once: true,
+			},
+		);
+	}, [handleClick]);
+
 	const handleDoubleClick = useCallback(() => {
 		api.clearPendingPromises();
 		onDoubleClick();
 	}, [api, onDoubleClick]);
 
-	const returnValue = useMemo((): [(e: SyntheticEvent) => void, () => void] => {
+	const returnValue = useMemo((): ReturnVal => {
 		if (!doubleClickToFullscreen) {
-			return [onClick, () => undefined];
+			return {handlePointerDown: onClick, handleDoubleClick: () => undefined};
 		}
 
-		return [handleClick, handleDoubleClick];
-	}, [doubleClickToFullscreen, handleClick, handleDoubleClick, onClick]);
+		return {handlePointerDown, handleDoubleClick};
+	}, [doubleClickToFullscreen, handleDoubleClick, handlePointerDown, onClick]);
 
 	return returnValue;
 };

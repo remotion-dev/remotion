@@ -1,14 +1,18 @@
-import type {RenderMediaOnDownload} from '@remotion/renderer';
+import type {LogLevel, RenderMediaOnDownload} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 
-export const onDownloadsHelper = (): RenderMediaOnDownload => {
+export const onDownloadsHelper = (
+	logLevel: LogLevel,
+): RenderMediaOnDownload => {
 	const downloads: Record<string, number> = {};
 
 	return (src: string) => {
-		console.log('Downloading', src);
+		RenderInternals.Log.info({indent: false, logLevel}, 'Downloading', src);
 		downloads[src] = 0;
 		return ({percent, downloaded}) => {
 			if (percent === null) {
-				console.log(
+				RenderInternals.Log.info(
+					{indent: false, logLevel},
 					`Download progress (${src}): ${downloaded} bytes. Don't know final size of download, no Content-Length header.`,
 				);
 				return;
@@ -23,13 +27,17 @@ export const onDownloadsHelper = (): RenderMediaOnDownload => {
 			}
 
 			downloads[src] = percent;
-			console.log(
+			RenderInternals.Log.info(
+				{indent: false, logLevel},
 				`Download progress (${src}): ${downloaded} bytes, ${(
 					percent * 100
 				).toFixed(1)}%`,
 			);
 			if (percent === 1) {
-				console.log(`Download complete: ${src}`);
+				RenderInternals.Log.info(
+					{indent: false, logLevel},
+					`Download complete: ${src}`,
+				);
 			}
 		};
 	};

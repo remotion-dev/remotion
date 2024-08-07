@@ -1,4 +1,4 @@
-import {describe, expect, test} from 'vitest';
+import {describe, expect, test} from 'bun:test';
 import {renderFrames} from '../render-frames';
 
 describe('Should validate invalid data passed to renderFrames', () => {
@@ -17,7 +17,7 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					defaultCodec: null,
 				},
 			}),
-		).rejects.toMatch(
+		).toThrow(
 			/"fps" must be positive, but got -1 in the `config` object of `renderFrames\(\)`/,
 		);
 	});
@@ -36,7 +36,7 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					defaultCodec: null,
 				},
 			}),
-		).rejects.toMatch(
+		).toThrow(
 			/The "durationInFrames" prop in the `config` object passed to `renderFrames\(\)` must be an integer, but got 0.5./,
 		);
 	});
@@ -55,7 +55,7 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					defaultCodec: null,
 				},
 			}),
-		).rejects.toMatch(
+		).toThrow(
 			/The "height" prop in the `config` object passed to `renderFrames\(\)` must be an integer, but is 1000.5./,
 		);
 	});
@@ -74,7 +74,7 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					defaultCodec: null,
 				},
 			}),
-		).rejects.toMatch(
+		).toThrow(
 			/The "width" prop in the `config` object passed to `renderFrames\(\)` must be an integer, but is 1000.5./,
 		);
 	});

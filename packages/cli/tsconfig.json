@@ -5,7 +5,6 @@
 		"outDir": "dist",
 		"jsx": "react-jsx",
 		"skipLibCheck": true,
-		"types": ["bun-types", "node"],
 		"lib": ["dom"]
 	},
 	"references": [
@@ -17,5 +16,5 @@
 		{"path": "../studio-server"},
 		{"path": "../zod-types"}
 	],
-	"exclude": ["vitest.config.mts", "dist"]
+	"exclude": ["dist"]
 }

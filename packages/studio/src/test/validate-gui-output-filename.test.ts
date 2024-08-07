@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {validateOutnameGui} from '../components/RenderModal/out-name-checker';
 
 test('Should catch dot after slash', () => {

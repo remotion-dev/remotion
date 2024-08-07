@@ -1,10 +1,10 @@
 .row {
-  display: flex;
-  flex-direction: row;
+	display: flex;
+	flex-direction: row;
 }
 
 @media screen and (max-width: 900px) {
-  .row {
-    flex-direction: column;
-  }
+	.row {
+		flex-direction: column;
+	}
 }

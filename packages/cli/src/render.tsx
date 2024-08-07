@@ -8,7 +8,7 @@ import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
-import {parsedCli, quietFlagProvided} from './parse-command-line';
+import {parsedCli, quietFlagProvided} from './parsed-cli';
 import {renderVideoFlow} from './render-flows/render';
 
 const {
@@ -35,6 +35,8 @@ const {
 	forSeamlessAacConcatenationOption,
 	separateAudioOption,
 	audioCodecOption,
+	publicPathOption,
+	publicDirOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -46,7 +48,7 @@ export const render = async (
 		file,
 		remainingArgs,
 		reason: entryPointReason,
-	} = findEntryPoint(args, remotionRoot, logLevel);
+	} = findEntryPoint({args, remotionRoot, logLevel, allowDirectory: true});
 
 	if (!file) {
 		Log.error(
@@ -85,7 +87,6 @@ export const render = async (
 		userAgent,
 		disableWebSecurity,
 		ignoreCertificateErrors,
-		publicDir,
 		height,
 		width,
 		ffmpegOverride,
@@ -94,6 +95,7 @@ export const render = async (
 	} = getCliOptions({
 		isStill: false,
 		logLevel,
+		indent: false,
 	});
 
 	const x264Preset = x264Option.getValue({commandLine: parsedCli}).value;
@@ -160,6 +162,7 @@ export const render = async (
 	const separateAudioTo = separateAudioOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
@@ -171,6 +174,7 @@ export const render = async (
 	};
 
 	const audioCodec = audioCodecOption.getValue({commandLine: parsedCli}).value;
+	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
 
 	await renderVideoFlow({
 		fullEntryPoint,
@@ -231,5 +235,6 @@ export const render = async (
 		binariesDirectory,
 		forSeamlessAacConcatenation,
 		separateAudioTo,
+		publicPath,
 	});
 };

@@ -1,7 +1,10 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/zod-types"
+	},
 	"name": "@remotion/zod-types",
-	"version": "4.0.123",
-	"description": "A color validator for Zod",
+	"version": "4.0.193",
+	"description": "Zod types for Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -9,15 +12,11 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"watch": "tsc -w",
-		"build": "rollup --failAfterWarnings --config rollup.config.js && tsc -d"
+		"build": "bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger",
 	"contributors": [],
 	"license": "MIT",
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
@@ -25,16 +24,10 @@
 		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
-		"zod": "^3.22.3"
+		"zod": "3.22.3"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.276",
-		"@rollup/plugin-typescript": "^8.2.0",
-		"eslint": "8.42.0",
-		"prettier": "3.1.1",
-		"prettier-plugin-organize-imports": "3.2.4",
-		"rollup": "^2.70.1",
-		"zod": "^3.22.3"
+		"zod": "3.22.3"
 	},
 	"keywords": [
 		"zod",
@@ -52,5 +45,6 @@
 			"import": "./dist/esm/index.mjs",
 			"require": "./dist/cjs/index.js"
 		}
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/zod-types"
 }

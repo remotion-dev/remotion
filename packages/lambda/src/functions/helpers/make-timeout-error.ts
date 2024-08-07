@@ -1,25 +1,30 @@
-import type {_Object} from '@aws-sdk/client-s3';
-import type {RenderMetadata} from '../../defaults';
+import type {
+	CloudProvider,
+	EnhancedErrorInfo,
+	ProviderSpecifics,
+} from '@remotion/serverless';
+import type {RenderMetadata} from '@remotion/serverless/client';
 import {makeTimeoutMessage} from './make-timeout-message';
-import type {EnhancedErrorInfo} from './write-lambda-error';
 
-export const makeTimeoutError = ({
+export const makeTimeoutError = <Provider extends CloudProvider>({
 	timeoutInMilliseconds,
 	missingChunks,
 	renderMetadata,
 	renderId,
+	providerSpecifics,
 }: {
 	timeoutInMilliseconds: number;
-	chunks: _Object[];
-	renderMetadata: RenderMetadata;
+	renderMetadata: RenderMetadata<Provider>;
 	renderId: string;
 	missingChunks: number[];
+	providerSpecifics: ProviderSpecifics<Provider>;
 }): EnhancedErrorInfo => {
 	const message = makeTimeoutMessage({
 		missingChunks,
 		renderMetadata,
 		timeoutInMilliseconds,
 		renderId,
+		providerSpecifics,
 	});
 
 	const error = new Error(message);

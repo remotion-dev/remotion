@@ -12,6 +12,8 @@
 	},
 	"include": ["src"],
 	"references": [
+		{"path": "../animated-emoji"},
+		{"path": "../animation-utils"},
 		{"path": "../core"},
 		{"path": "../babel-loader"},
 		{"path": "../bundler"},
@@ -19,6 +21,7 @@
 		{"path": "../eslint-config"},
 		{"path": "../eslint-plugin"},
 		{"path": "../gif"},
+		{"path": "../fonts"},
 		{"path": "../lambda"},
 		{"path": "../lottie"},
 		{"path": "../media-utils"},
@@ -31,6 +34,7 @@
 		{"path": "../three"},
 		{"path": "../transitions"},
 		{"path": "../zod-types"},
+		{"path": "../media-parser"},
 		{"path": "../layout-utils"}
 	]
 }

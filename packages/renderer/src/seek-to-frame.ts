@@ -113,7 +113,7 @@ export const waitForReady = ({
 						args: [],
 						frame,
 						page,
-						timeoutInMilliseconds,
+						timeoutInMilliseconds: 5000,
 					})
 						.then((res) => {
 							reject(
@@ -141,17 +141,33 @@ export const waitForReady = ({
 			});
 	});
 
+	const onDisposedPromise = new Promise((_, reject) => {
+		const onDispose = () => {
+			reject(new Error('Target closed (page disposed)'));
+		};
+
+		page.on(PageEmittedEvents.Disposed, onDispose);
+
+		cleanups.push(() => {
+			page.off(PageEmittedEvents.Disposed, onDispose);
+		});
+	});
+
+	const onClosedSilentPromise = new Promise((_, reject) => {
+		const onClosedSilent = () => {
+			reject(new Error('Target closed'));
+		};
+
+		page.browser.on(BrowserEmittedEvents.ClosedSilent, onClosedSilent);
+
+		cleanups.push(() => {
+			page.browser.off(BrowserEmittedEvents.ClosedSilent, onClosedSilent);
+		});
+	});
+
 	return Promise.race([
-		new Promise((_, reject) => {
-			page.on(PageEmittedEvents.Disposed, () => {
-				reject(new Error('Target closed (page disposed)'));
-			});
-		}),
-		new Promise((_, reject) => {
-			page.browser.on(BrowserEmittedEvents.ClosedSilent, () => {
-				reject(new Error('Target closed'));
-			});
-		}),
+		onDisposedPromise,
+		onClosedSilentPromise,
 		waitForReadyProm,
 	]).finally(() => {
 		cleanups.forEach((cleanup) => {
@@ -167,6 +183,7 @@ export const seekToFrame = async ({
 	timeoutInMilliseconds,
 	logLevel,
 	indent,
+	attempt,
 }: {
 	frame: number;
 	composition: string;
@@ -174,6 +191,7 @@ export const seekToFrame = async ({
 	timeoutInMilliseconds: number;
 	logLevel: LogLevel;
 	indent: boolean;
+	attempt: number;
 }) => {
 	await waitForReady({
 		page,
@@ -183,10 +201,10 @@ export const seekToFrame = async ({
 		logLevel,
 	});
 	await puppeteerEvaluateWithCatchAndTimeout({
-		pageFunction: (f: number, c: string) => {
-			window.remotion_setFrame(f, c);
+		pageFunction: (f: number, c: string, a: number) => {
+			window.remotion_setFrame(f, c, a);
 		},
-		args: [frame, composition],
+		args: [frame, composition, attempt],
 		frame,
 		page,
 		timeoutInMilliseconds,

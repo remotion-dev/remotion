@@ -1,6 +1,6 @@
+import {ServerlessRoutines} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
 import {expect, test} from 'vitest';
-import {LambdaRoutines} from '../../defaults';
 import {callLambda} from '../../shared/call-lambda';
 
 test('Call function locally', async () => {
@@ -9,12 +9,10 @@ test('Call function locally', async () => {
 			payload: {
 				logLevel: 'info',
 			},
-			type: LambdaRoutines.info,
+			type: ServerlessRoutines.info,
 			functionName: 'remotion-dev-lambda',
 			region: 'us-east-1',
-			receivedStreamingPayload: () => undefined,
 			timeoutInTest: 120000,
-			retriesRemaining: 0,
 		}),
 	).toEqual({type: 'success', version: VERSION});
 });

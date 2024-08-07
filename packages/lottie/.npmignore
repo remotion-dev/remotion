@@ -5,10 +5,6 @@ tsconfig.tsbuildinfo
 .prettierrc
 *.tgz
 .turbo
-vitest.config.mts
-dist/tsconfig-esm.tsbuildinfo
 dist/tsconfig.tsbuildinfo
-tsconfig-esm.json
 tsconfig.json
-rollup.config.js
 .prettierrc.js

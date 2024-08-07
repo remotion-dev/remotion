@@ -1,23 +1,29 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import {VERSION} from 'remotion/version';
-import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
-import {getLambdaClient} from '../shared/aws-clients';
-import type {LambdaPayload} from '../shared/constants';
-import {initalizedMetadataKey, LambdaRoutines} from '../shared/constants';
-import {convertToServeUrl} from '../shared/convert-to-serve-url';
-import {getCurrentRegionInFunction} from './helpers/get-current-region';
-import {lambdaWriteFile} from './helpers/io';
+import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
+import type {ServerlessPayload} from '@remotion/serverless/client';
 import {
-	generateRandomHashWithLifeCycleRule,
-	validateDeleteAfter,
-} from './helpers/lifecycle';
+	ServerlessRoutines,
+	internalGetOrCreateBucket,
+	overallProgressKey,
+} from '@remotion/serverless/client';
+import {VERSION} from 'remotion/version';
+import type {AwsRegion} from '../regions';
+import {getLambdaClient} from '../shared/aws-clients';
+import {validateDeleteAfter} from './helpers/lifecycle';
+import {makeInitialOverallRenderProgress} from './helpers/overall-render-progress';
 
 type Options = {
 	expectedBucketOwner: string;
+	timeoutInMilliseconds: number;
+	renderId: string;
 };
 
-export const startHandler = async (params: LambdaPayload, options: Options) => {
-	if (params.type !== LambdaRoutines.start) {
+export const startHandler = async <Provider extends CloudProvider>(
+	params: ServerlessPayload<Provider>,
+	options: Options,
+	providerSpecifics: ProviderSpecifics<Provider>,
+) => {
+	if (params.type !== ServerlessRoutines.start) {
 		throw new TypeError('Expected type start');
 	}
 
@@ -33,44 +39,48 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		);
 	}
 
-	const region = getCurrentRegionInFunction();
+	const region = providerSpecifics.getCurrentRegionInFunction();
 	const bucketName =
 		params.bucketName ??
 		(
 			await internalGetOrCreateBucket({
-				region: getCurrentRegionInFunction(),
+				region: providerSpecifics.getCurrentRegionInFunction(),
 				enableFolderExpiry: null,
 				customCredentials: null,
+				providerSpecifics,
 			})
 		).bucketName;
-	const realServeUrl = convertToServeUrl({
+	const realServeUrl = providerSpecifics.convertToServeUrl({
 		urlOrId: params.serveUrl,
 		region,
 		bucketName,
 	});
 
 	validateDeleteAfter(params.deleteAfter);
-	const renderId = generateRandomHashWithLifeCycleRule(params.deleteAfter);
 
-	const initialFile = lambdaWriteFile({
+	const initialFile = providerSpecifics.writeFile({
 		bucketName,
 		downloadBehavior: null,
 		region,
-		body: 'Render was initialized',
+		body: JSON.stringify(
+			makeInitialOverallRenderProgress(
+				options.timeoutInMilliseconds + Date.now(),
+			),
+		),
 		expectedBucketOwner: options.expectedBucketOwner,
-		key: initalizedMetadataKey(renderId),
+		key: overallProgressKey(options.renderId),
 		privacy: 'private',
 		customCredentials: null,
 	});
 
-	const payload: LambdaPayload = {
-		type: LambdaRoutines.launch,
+	const payload: ServerlessPayload<Provider> = {
+		type: ServerlessRoutines.launch,
 		framesPerLambda: params.framesPerLambda,
 		composition: params.composition,
 		serveUrl: realServeUrl,
 		inputProps: params.inputProps,
 		bucketName,
-		renderId,
+		renderId: options.renderId,
 		codec: params.codec,
 		imageFormat: params.imageFormat,
 		crf: params.crf,
@@ -108,19 +118,35 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		preferLossless: params.preferLossless,
 	};
 
+	const stringifiedPayload = JSON.stringify(payload);
+
+	if (stringifiedPayload.length > 256 * 1024) {
+		throw new Error(
+			`Payload is too big: ${stringifiedPayload.length} bytes. Maximum size is 256 KB. This should not happen, please report this to the Remotion team. Payload: ${stringifiedPayload}`,
+		);
+	}
+
 	// Don't replace with callLambda(), we want to return before the render is snone
-	await getLambdaClient(getCurrentRegionInFunction()).send(
+	const result = await getLambdaClient(
+		providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
+	).send(
 		new InvokeCommand({
 			FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
-			Payload: JSON.stringify(payload),
+			Payload: stringifiedPayload,
 			InvocationType: 'Event',
 		}),
 	);
+	if (result.FunctionError) {
+		throw new Error(
+			`Lambda function returned error: ${result.FunctionError} ${result.LogResult}`,
+		);
+	}
+
 	await initialFile;
 
 	return {
 		type: 'success' as const,
 		bucketName,
-		renderId,
+		renderId: options.renderId,
 	};
 };

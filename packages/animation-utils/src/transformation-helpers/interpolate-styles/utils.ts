@@ -1,4 +1,4 @@
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {ColorMatchers, CSSPropertiesValue} from '../../type';
 import {NUMBER, PERCENTAGE} from './constants';
 
@@ -110,7 +110,7 @@ const classifyArgsOfFunction = (value: string) => {
 };
 
 const isColorValue = (value: string) => {
-	if (Object.keys(Internals.colorNames).includes(value)) {
+	if (Object.keys(NoReactInternals.colorNames).includes(value)) {
 		return true;
 	}
 
@@ -178,4 +178,4 @@ const breakDownValueIntoUnitNumberAndFunctions = (
 	return classifyParts(valueParts);
 };
 
-export {getColorMatchers, breakDownValueIntoUnitNumberAndFunctions};
+export {breakDownValueIntoUnitNumberAndFunctions, getColorMatchers};

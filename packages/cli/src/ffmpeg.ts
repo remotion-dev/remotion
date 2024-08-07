@@ -3,7 +3,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {spawnSync} from 'node:child_process';
 import path from 'node:path';
-import {parsedCli} from './parse-command-line';
+import {parsedCli} from './parsed-cli';
 
 export const dynamicLibEnv = (
 	indent: boolean,

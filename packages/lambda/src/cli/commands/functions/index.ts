@@ -2,10 +2,10 @@ import {CliInternals} from '@remotion/cli';
 import type {LogLevel} from '@remotion/renderer';
 import {BINARY_NAME} from '../../../shared/constants';
 import {quit} from '../../helpers/quit';
-import {functionsDeploySubcommand, FUNCTIONS_DEPLOY_SUBCOMMAND} from './deploy';
-import {functionsLsCommand, FUNCTIONS_LS_SUBCOMMAND} from './ls';
-import {functionsRmCommand, FUNCTIONS_RM_SUBCOMMAND} from './rm';
-import {functionsRmallCommand, FUNCTIONS_RMALL_SUBCOMMAND} from './rmall';
+import {FUNCTIONS_DEPLOY_SUBCOMMAND, functionsDeploySubcommand} from './deploy';
+import {FUNCTIONS_LS_SUBCOMMAND, functionsLsCommand} from './ls';
+import {FUNCTIONS_RM_SUBCOMMAND, functionsRmCommand} from './rm';
+import {FUNCTIONS_RMALL_SUBCOMMAND, functionsRmallCommand} from './rmall';
 
 export const FUNCTIONS_COMMAND = 'functions';
 

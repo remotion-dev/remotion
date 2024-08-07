@@ -17,6 +17,9 @@ export const fillTextBox = ({
 			fontSize,
 			letterSpacing,
 			fontVariantNumeric,
+			validateFontIsLoaded,
+			textTransform,
+			additionalStyles,
 		}: Word): {
 			exceedsBox: boolean;
 			newLine: boolean;
@@ -40,6 +43,9 @@ export const fillTextBox = ({
 					fontSize,
 					letterSpacing,
 					fontVariantNumeric,
+					validateFontIsLoaded,
+					textTransform,
+					additionalStyles,
 				},
 			];
 

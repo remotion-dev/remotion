@@ -1,10 +1,11 @@
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
+import {defaultBrowserDownloadProgress} from './browser-download-bar';
 import {chalk} from './chalk';
 import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
-import {parsedCli} from './parse-command-line';
+import {parsedCli, quietFlagProvided} from './parsed-cli';
 
 export const GPU_COMMAND = 'gpu';
 
@@ -24,6 +25,7 @@ export const gpuCommand = async (logLevel: LogLevel) => {
 	} = getCliOptions({
 		isStill: false,
 		logLevel,
+		indent: false,
 	});
 
 	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
@@ -52,6 +54,11 @@ export const gpuCommand = async (logLevel: LogLevel) => {
 		logLevel,
 		chromiumOptions,
 		timeoutInMilliseconds: puppeteerTimeout,
+		onBrowserDownload: defaultBrowserDownloadProgress({
+			indent: false,
+			logLevel,
+			quiet: quietFlagProvided(),
+		}),
 	});
 	for (const {feature, status} of statuses) {
 		Log.info({indent: false, logLevel}, `${feature}: ${colorStatus(status)}`);

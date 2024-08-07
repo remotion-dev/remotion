@@ -15,7 +15,7 @@ import { TableOfContents } from "../../components/TableOfContents/install-whispe
 
 ## Example usage
 
-Install Whisper v1.5.4 and the `base.en` model to the `whisper.cpp` folder.
+Install Whisper `1.5.5` (the latest version at the time of writing that we find works well and supports token-level timestamps) and the `medium.en` model to the `whisper.cpp` folder.
 
 ```tsx twoslash title="install-whisper.cpp"
 // @module: esnext
@@ -24,19 +24,42 @@ import path from "path";
 import {
   downloadWhisperModel,
   installWhisperCpp,
+  transcribe,
+  convertToCaptions,
 } from "@remotion/install-whisper-cpp";
 
 const to = path.join(process.cwd(), "whisper.cpp");
 
 await installWhisperCpp({
   to,
-  version: "1.5.4",
+  version: "1.5.5",
 });
 
 await downloadWhisperModel({
-  model: "base.en",
+  model: "medium.en",
   folder: to,
 });
+
+const { transcription } = await transcribe({
+  model: "medium.en",
+  whisperPath: to,
+  inputPath: "/path/to/audio.wav",
+  tokenLevelTimestamps: true,
+});
+
+for (const token of transcription) {
+  console.log(token.timestamps.from, token.timestamps.to, token.text);
+}
+
+// Optional: Apply our recommended postprocessing
+const { captions } = convertToCaptions({
+  transcription,
+  combineTokensWithinMilliseconds: 200,
+});
+
+for (const line of captions) {
+  console.log(line.text, line.startInSeconds);
+}
 ```
 
 ## Functions

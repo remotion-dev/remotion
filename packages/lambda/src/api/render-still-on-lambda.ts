@@ -4,19 +4,27 @@ import type {
 	ToOptions,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import {NoReactAPIs} from '@remotion/renderer/pure';
-import type {AwsRegion} from '../pricing/aws-regions';
-import {callLambda} from '../shared/call-lambda';
-import type {CostsInfo, OutNameInput, Privacy} from '../shared/constants';
-import {LambdaRoutines} from '../shared/constants';
-import type {DownloadBehavior} from '../shared/content-disposition-header';
+import type {DownloadBehavior} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless/client';
+import {callLambdaWithStreaming} from '../shared/call-lambda';
+
+import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
+import type {
+	ReceivedArtifact,
+	RenderStillLambdaResponsePayload,
+} from '@remotion/serverless';
+import type {OutNameInput, Privacy} from '@remotion/serverless/client';
+import type {AwsProvider} from '../functions/aws-implementation';
+import type {AwsRegion} from '../regions';
+import type {CostsInfo} from '../shared/constants';
+import {DEFAULT_MAX_RETRIES} from '../shared/constants';
 import {
 	getCloudwatchMethodUrl,
 	getLambdaInsightsUrl,
 } from '../shared/get-aws-urls';
 import {makeLambdaRenderStillPayload} from './make-lambda-payload';
 
-export type RenderStillOnLambdaInput = {
+type MandatoryParameters = {
 	region: AwsRegion;
 	functionName: string;
 	serveUrl: string;
@@ -24,84 +32,117 @@ export type RenderStillOnLambdaInput = {
 	inputProps: Record<string, unknown>;
 	imageFormat: StillImageFormat;
 	privacy: Privacy;
-	maxRetries?: number;
-	envVariables?: Record<string, string>;
+};
+
+type OptionalParameters = {
+	maxRetries: number;
+	envVariables: Record<string, string>;
 	/**
 	 * @deprecated Renamed to `jpegQuality`
 	 */
 	quality?: never;
-	frame?: number;
-	outName?: OutNameInput;
-	chromiumOptions?: ChromiumOptions;
-	downloadBehavior?: DownloadBehavior;
-	forceWidth?: number | null;
-	forceHeight?: number | null;
-	forceBucketName?: string;
+	frame: number;
+	outName: OutNameInput<AwsProvider> | null;
+	chromiumOptions: ChromiumOptions;
+	downloadBehavior: DownloadBehavior;
+	forceWidth: number | null;
+	forceHeight: number | null;
+	forceBucketName: string | null;
 	/**
-	 * @deprecated Renamed to `dumpBrowserLogs`
+	 * @deprecated Renamed to `logLevel`
 	 */
-	dumpBrowserLogs?: boolean;
-	onInit?: (data: {
+	dumpBrowserLogs: boolean;
+	onInit: (data: {
 		renderId: string;
 		cloudWatchLogs: string;
 		lambdaInsightsUrl: string;
 	}) => void;
-} & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderStillOnLambda>>;
+	indent: boolean;
+} & ToOptions<typeof BrowserSafeApis.optionsMap.renderStillOnLambda>;
+
+export type RenderStillOnLambdaNonNullInput = MandatoryParameters &
+	OptionalParameters;
+
+export type RenderStillOnLambdaInput = MandatoryParameters &
+	Partial<OptionalParameters>;
 
 export type RenderStillOnLambdaOutput = {
 	estimatedPrice: CostsInfo;
 	url: string;
+	outKey: string;
 	sizeInBytes: number;
 	bucketName: string;
 	renderId: string;
 	cloudWatchLogs: string;
+	artifacts: ReceivedArtifact<AwsProvider>[];
 };
 
-const renderStillOnLambdaRaw = async (
-	input: RenderStillOnLambdaInput,
+const internalRenderStillOnLambda = async (
+	input: RenderStillOnLambdaNonNullInput,
 ): Promise<RenderStillOnLambdaOutput> => {
 	const {functionName, region, onInit} = input;
 	try {
-		const res = await callLambda({
-			functionName,
-			type: LambdaRoutines.still,
-			payload: await makeLambdaRenderStillPayload(input),
-			region,
-			receivedStreamingPayload: (payload) => {
-				if (payload.type === 'render-id-determined') {
-					onInit?.({
-						renderId: payload.renderId,
-						cloudWatchLogs: getCloudwatchMethodUrl({
-							functionName,
-							method: LambdaRoutines.still,
-							region,
-							rendererFunctionName: null,
-							renderId: payload.renderId,
-						}),
-						lambdaInsightsUrl: getLambdaInsightsUrl({
-							functionName,
-							region,
-						}),
-					});
-				}
-			},
-			timeoutInTest: 120000,
-			retriesRemaining: 0,
+		const payload = await makeLambdaRenderStillPayload(input);
+		const res = await new Promise<
+			RenderStillLambdaResponsePayload<AwsProvider>
+		>((resolve, reject) => {
+			callLambdaWithStreaming<AwsProvider, ServerlessRoutines.still>({
+				functionName,
+				type: ServerlessRoutines.still,
+				payload,
+				region,
+				receivedStreamingPayload: ({message}) => {
+					if (message.type === 'render-id-determined') {
+						onInit?.({
+							renderId: message.payload.renderId,
+							cloudWatchLogs: getCloudwatchMethodUrl({
+								functionName,
+								method: ServerlessRoutines.still,
+								region,
+								rendererFunctionName: null,
+								renderId: message.payload.renderId,
+							}),
+							lambdaInsightsUrl: getLambdaInsightsUrl({
+								functionName,
+								region,
+							}),
+						});
+					}
+
+					if (message.type === 'error-occurred') {
+						reject(new Error(message.payload.error));
+					}
+
+					if (message.type === 'still-rendered') {
+						resolve(message.payload);
+					}
+				},
+				timeoutInTest: 120000,
+				retriesRemaining: input.maxRetries,
+			})
+				.then(() => {
+					reject(new Error('Expected response to be streamed'));
+				})
+				.catch((err) => {
+					reject(err);
+				});
 		});
 
 		return {
 			estimatedPrice: res.estimatedPrice,
 			url: res.output,
+			outKey: res.outKey,
 			sizeInBytes: res.size,
 			bucketName: res.bucketName,
 			renderId: res.renderId,
 			cloudWatchLogs: getCloudwatchMethodUrl({
 				functionName,
-				method: LambdaRoutines.still,
+				method: ServerlessRoutines.still,
 				region,
 				renderId: res.renderId,
 				rendererFunctionName: null,
 			}),
+			artifacts: res.receivedArtifacts,
 		};
 	} catch (err) {
 		if ((err as Error).stack?.includes('UnrecognizedClientException')) {
@@ -113,6 +154,8 @@ const renderStillOnLambdaRaw = async (
 		throw err;
 	}
 };
+
+const errorHandled = wrapWithErrorHandling(internalRenderStillOnLambda);
 
 /**
  * @description Renders a still frame on Lambda
@@ -130,6 +173,34 @@ const renderStillOnLambdaRaw = async (
  * @param params.privacy Whether the item in the S3 bucket should be public. Possible values: `"private"` and `"public"`
  * @returns {Promise<RenderStillOnLambdaOutput>} See documentation for exact response structure.
  */
-export const renderStillOnLambda = NoReactAPIs.wrapWithErrorHandling(
-	renderStillOnLambdaRaw,
-) as typeof renderStillOnLambdaRaw;
+export const renderStillOnLambda = (input: RenderStillOnLambdaInput) => {
+	return errorHandled({
+		chromiumOptions: input.chromiumOptions ?? {},
+		composition: input.composition,
+		deleteAfter: input.deleteAfter ?? null,
+		downloadBehavior: input.downloadBehavior ?? {type: 'play-in-browser'},
+		envVariables: input.envVariables ?? {},
+		forceBucketName: input.forceBucketName ?? null,
+		forceHeight: input.forceHeight ?? null,
+		forceWidth: input.forceWidth ?? null,
+		frame: input.frame ?? 0,
+		functionName: input.functionName,
+		imageFormat: input.imageFormat,
+		indent: false,
+		inputProps: input.inputProps,
+		maxRetries: input.maxRetries ?? DEFAULT_MAX_RETRIES,
+		onInit: input.onInit ?? (() => undefined),
+		outName: input.outName ?? null,
+		privacy: input.privacy,
+		quality: undefined,
+		region: input.region,
+		serveUrl: input.serveUrl,
+		jpegQuality: input.jpegQuality ?? 80,
+		logLevel: input.dumpBrowserLogs ? 'verbose' : input.logLevel ?? 'info',
+		offthreadVideoCacheSizeInBytes:
+			input.offthreadVideoCacheSizeInBytes ?? null,
+		scale: input.scale ?? 1,
+		timeoutInMilliseconds: input.timeoutInMilliseconds ?? 30000,
+		dumpBrowserLogs: false,
+	});
+};

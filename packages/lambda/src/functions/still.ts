@@ -1,62 +1,66 @@
-import type {StillImageFormat} from '@remotion/renderer';
+import type {EmittedArtifact, StillImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {
+	CloudProvider,
+	OnStream,
+	ReceivedArtifact,
+	RenderStillLambdaResponsePayload,
+} from '@remotion/serverless';
+import {
+	forgetBrowserEventLoop,
+	getBrowserInstance,
+	getCredentialsFromOutName,
+	getTmpDirStateIfENoSp,
+	validateComposition,
+	validateOutname,
+	type ProviderSpecifics,
+} from '@remotion/serverless';
+import type {
+	RenderMetadata,
+	ServerlessPayload,
+} from '@remotion/serverless/client';
+import {
+	ServerlessRoutines,
+	artifactName,
+	decompressInputProps,
+	getExpectedOutName,
+	internalGetOrCreateBucket,
+	overallProgressKey,
+} from '@remotion/serverless/client';
 import fs from 'node:fs';
 import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import {estimatePrice} from '../api/estimate-price';
-import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
-import {callLambda} from '../shared/call-lambda';
+import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../defaults';
+import type {AwsRegion} from '../regions';
 import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
-import {decompressInputProps} from '../shared/compress-props';
-import type {
-	CostsInfo,
-	LambdaPayload,
-	LambdaPayloads,
-	RenderMetadata,
-} from '../shared/constants';
-import {
-	LambdaRoutines,
-	MAX_EPHEMERAL_STORAGE_IN_MB,
-	renderMetadataKey,
-} from '../shared/constants';
-import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {isFlakyError} from '../shared/is-flaky-error';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
-import {validateOutname} from '../shared/validate-outname';
 import {validatePrivacy} from '../shared/validate-privacy';
-import {
-	getCredentialsFromOutName,
-	getExpectedOutName,
-} from './helpers/expected-out-name';
 import {formatCostsInfo} from './helpers/format-costs-info';
-import {
-	forgetBrowserEventLoop,
-	getBrowserInstance,
-} from './helpers/get-browser-instance';
-import {executablePath} from './helpers/get-chromium-executable-path';
-import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
-import {lambdaWriteFile} from './helpers/io';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
-import {validateComposition} from './helpers/validate-composition';
-import {
-	getTmpDirStateIfENoSp,
-	writeLambdaError,
-} from './helpers/write-lambda-error';
+import {makeInitialOverallRenderProgress} from './helpers/overall-render-progress';
 
-type Options = {
-	params: LambdaPayload;
+type Options<Provider extends CloudProvider> = {
+	params: ServerlessPayload<Provider>;
 	renderId: string;
 	expectedBucketOwner: string;
+	onStream: OnStream<Provider>;
+	timeoutInMilliseconds: number;
+	providerSpecifics: ProviderSpecifics<Provider>;
 };
 
-const innerStillHandler = async ({
+const innerStillHandler = async <Provider extends CloudProvider>({
 	params: lambdaParams,
 	expectedBucketOwner,
 	renderId,
-}: Options) => {
-	if (lambdaParams.type !== LambdaRoutines.still) {
+	onStream,
+	timeoutInMilliseconds,
+	providerSpecifics,
+}: Options<Provider>) => {
+	if (lambdaParams.type !== ServerlessRoutines.still) {
 		throw new TypeError('Expected still type');
 	}
 
@@ -83,24 +87,26 @@ const innerStillHandler = async ({
 
 	const start = Date.now();
 
-	const browserInstancePromise = getBrowserInstance(
-		lambdaParams.logLevel,
-		false,
-		lambdaParams.chromiumOptions,
-	);
+	const browserInstancePromise = getBrowserInstance({
+		logLevel: lambdaParams.logLevel,
+		indent: false,
+		chromiumOptions: lambdaParams.chromiumOptions,
+		providerSpecifics,
+	});
 	const bucketNamePromise =
 		lambdaParams.bucketName ??
 		internalGetOrCreateBucket({
-			region: getCurrentRegionInFunction(),
+			region: providerSpecifics.getCurrentRegionInFunction(),
 			enableFolderExpiry: null,
 			customCredentials: null,
+			providerSpecifics,
 		}).then((b) => b.bucketName);
 
 	const outputDir = RenderInternals.tmpDir('remotion-render-');
 
 	const outputPath = path.join(outputDir, 'output');
 
-	const region = getCurrentRegionInFunction();
+	const region = providerSpecifics.getCurrentRegionInFunction();
 	const bucketName = await bucketNamePromise;
 	const serializedInputPropsWithCustomSchema = await decompressInputProps({
 		bucketName,
@@ -108,9 +114,10 @@ const innerStillHandler = async ({
 		region,
 		serialized: lambdaParams.inputProps,
 		propsType: 'input-props',
+		providerSpecifics,
 	});
 
-	const serveUrl = convertToServeUrl({
+	const serveUrl = providerSpecifics.convertToServeUrl({
 		urlOrId: lambdaParams.serveUrl,
 		region,
 		bucketName,
@@ -125,6 +132,7 @@ const innerStillHandler = async ({
 		webpackConfigOrServeUrl: serveUrl,
 		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
 		binariesDirectory: null,
+		forceIPv4: false,
 	});
 
 	const browserInstance = await browserInstancePromise;
@@ -142,11 +150,15 @@ const innerStillHandler = async ({
 		logLevel: lambdaParams.logLevel,
 		server,
 		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
+		onBrowserDownload: () => {
+			throw new Error('Should not download a browser in Lambda');
+		},
+		onServeUrlVisited: () => undefined,
+		providerSpecifics,
 	});
 
-	const renderMetadata: RenderMetadata = {
+	const renderMetadata: RenderMetadata<Provider> = {
 		startedDate: Date.now(),
-		videoConfig: composition,
 		codec: null,
 		compositionId: lambdaParams.composition,
 		estimatedTotalLambdaInvokations: 1,
@@ -159,7 +171,7 @@ const innerStillHandler = async ({
 		lambdaVersion: VERSION,
 		framesPerLambda: 1,
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
-		region: getCurrentRegionInFunction(),
+		region: providerSpecifics.getCurrentRegionInFunction(),
 		renderId,
 		outName: lambdaParams.outName ?? undefined,
 		privacy: lambdaParams.privacy,
@@ -168,18 +180,83 @@ const innerStillHandler = async ({
 		numberOfGifLoops: null,
 		downloadBehavior: lambdaParams.downloadBehavior,
 		audioBitrate: null,
+		functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
 	};
 
-	await lambdaWriteFile({
+	const still = makeInitialOverallRenderProgress(timeoutInMilliseconds);
+	still.renderMetadata = renderMetadata;
+
+	await providerSpecifics.writeFile({
 		bucketName,
-		key: renderMetadataKey(renderId),
-		body: JSON.stringify(renderMetadata),
-		region: getCurrentRegionInFunction(),
+		key: overallProgressKey(renderId),
+		body: JSON.stringify(still),
+		region: providerSpecifics.getCurrentRegionInFunction(),
 		privacy: 'private',
 		expectedBucketOwner,
 		downloadBehavior: null,
 		customCredentials: null,
 	});
+
+	const onBrowserDownload = () => {
+		throw new Error('Should not download a browser in Lambda');
+	};
+
+	const receivedArtifact: ReceivedArtifact<Provider>[] = [];
+
+	const {key, renderBucketName, customCredentials} = getExpectedOutName(
+		renderMetadata,
+		bucketName,
+		getCredentialsFromOutName(lambdaParams.outName),
+	);
+
+	const onArtifact = (artifact: EmittedArtifact): {alreadyExisted: boolean} => {
+		if (receivedArtifact.find((a) => a.filename === artifact.filename)) {
+			return {alreadyExisted: true};
+		}
+
+		const storageKey = artifactName(renderMetadata.renderId, artifact.filename);
+
+		receivedArtifact.push(
+			providerSpecifics.makeArtifactWithDetails({
+				storageKey,
+				artifact,
+				region,
+				renderBucketName,
+			}),
+		);
+
+		const startTime = Date.now();
+		RenderInternals.Log.info(
+			{indent: false, logLevel: lambdaParams.logLevel},
+			'Writing artifact ' + artifact.filename + ' to S3',
+		);
+		providerSpecifics
+			.writeFile({
+				bucketName: renderBucketName,
+				key: storageKey,
+				body: artifact.content,
+				region,
+				privacy: lambdaParams.privacy,
+				expectedBucketOwner,
+				downloadBehavior: lambdaParams.downloadBehavior,
+				customCredentials,
+			})
+			.then(() => {
+				RenderInternals.Log.info(
+					{indent: false, logLevel: lambdaParams.logLevel},
+					`Wrote artifact to S3 in ${Date.now() - startTime}ms`,
+				);
+			})
+			.catch((err) => {
+				RenderInternals.Log.error(
+					{indent: false, logLevel: lambdaParams.logLevel},
+					'Failed to write artifact to S3',
+					err,
+				);
+			});
+		return {alreadyExisted: false};
+	};
+
 	await RenderInternals.internalRenderStill({
 		composition,
 		output: outputPath,
@@ -198,11 +275,11 @@ const innerStillHandler = async ({
 		chromiumOptions: lambdaParams.chromiumOptions,
 		scale: lambdaParams.scale,
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
-		browserExecutable: executablePath(),
+		browserExecutable: providerSpecifics.getChromiumPath(),
 		cancelSignal: null,
 		indent: false,
 		onBrowserLog: null,
-		onDownload: onDownloadsHelper(),
+		onDownload: onDownloadsHelper(lambdaParams.logLevel),
 		port: null,
 		server,
 		logLevel: lambdaParams.logLevel,
@@ -214,23 +291,19 @@ const innerStillHandler = async ({
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
 		binariesDirectory: null,
+		onBrowserDownload,
+		onArtifact,
 	});
-
-	const {key, renderBucketName, customCredentials} = getExpectedOutName(
-		renderMetadata,
-		bucketName,
-		getCredentialsFromOutName(lambdaParams.outName),
-	);
 
 	const {size} = await fs.promises.stat(outputPath);
 
-	await lambdaWriteFile({
+	await providerSpecifics.writeFile({
 		bucketName: renderBucketName,
 		key,
 		privacy: lambdaParams.privacy,
 		body: fs.createReadStream(outputPath),
 		expectedBucketOwner,
-		region: getCurrentRegionInFunction(),
+		region: providerSpecifics.getCurrentRegionInFunction(),
 		downloadBehavior: lambdaParams.downloadBehavior,
 		customCredentials,
 	});
@@ -238,9 +311,9 @@ const innerStillHandler = async ({
 	await Promise.all([
 		fs.promises.rm(outputPath, {recursive: true}),
 		cleanupSerializedInputProps({
-			bucketName,
-			region: getCurrentRegionInFunction(),
+			region: providerSpecifics.getCurrentRegionInFunction(),
 			serialized: lambdaParams.inputProps,
+			providerSpecifics,
 		}),
 		server.closeServer(true),
 	]);
@@ -248,107 +321,109 @@ const innerStillHandler = async ({
 	const estimatedPrice = estimatePrice({
 		durationInMilliseconds: Date.now() - start + 100,
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
-		region: getCurrentRegionInFunction(),
+		region: providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
 		lambdasInvoked: 1,
 		// We cannot determine the ephemeral storage size, so we
 		// overestimate the price, but will only have a miniscule effect (~0.2%)
 		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
 	});
 
-	return {
+	const {key: outKey, url} = getOutputUrlFromMetadata(
+		renderMetadata,
+		bucketName,
+		customCredentials,
+		providerSpecifics.getCurrentRegionInFunction(),
+	);
+
+	const payload: RenderStillLambdaResponsePayload<Provider> = {
 		type: 'success' as const,
-		output: getOutputUrlFromMetadata(
-			renderMetadata,
-			bucketName,
-			customCredentials,
-		),
+		output: url,
 		size,
+		sizeInBytes: size,
 		bucketName,
 		estimatedPrice: formatCostsInfo(estimatedPrice),
 		renderId,
+		outKey,
+		receivedArtifacts: receivedArtifact,
 	};
+
+	onStream({
+		type: 'still-rendered',
+		payload,
+	});
 };
 
-type RenderStillLambdaResponsePayload = {
-	type: 'success';
-	output: string;
-	size: number;
-	bucketName: string;
-	estimatedPrice: CostsInfo;
-	renderId: string;
-};
-
-export const stillHandler = async (
-	options: Options,
-): Promise<RenderStillLambdaResponsePayload> => {
+export const stillHandler = async <Provider extends CloudProvider>(
+	options: Options<Provider>,
+): Promise<
+	| {
+			type: 'success';
+	  }
+	| {
+			type: 'error';
+			message: string;
+			stack: string;
+	  }
+> => {
 	const {params} = options;
 
-	if (params.type !== LambdaRoutines.still) {
+	if (params.type !== ServerlessRoutines.still) {
 		throw new Error('Params must be renderer');
 	}
 
 	try {
-		return await innerStillHandler(options);
+		await innerStillHandler(options);
+		return {type: 'success'};
 	} catch (err) {
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
 		const isBrowserError = isFlakyError(err as Error);
 		const willRetry = isBrowserError || params.maxRetries > 0;
 
-		if (!willRetry) {
-			throw err;
+		RenderInternals.Log.error(
+			{
+				indent: false,
+				logLevel: params.logLevel,
+			},
+			'Got error:',
+			(err as Error).stack,
+			'Will retry.',
+		);
+
+		if (params.streamed) {
+			await options.onStream({
+				type: 'error-occurred',
+				payload: {
+					error: (err as Error).stack as string,
+					shouldRetry: willRetry,
+					errorInfo: {
+						name: (err as Error).name as string,
+						message: (err as Error).message as string,
+						stack: (err as Error).stack as string,
+						chunk: null,
+						frame: params.frame,
+						type: 'renderer',
+						isFatal: false,
+						tmpDir: getTmpDirStateIfENoSp(
+							(err as Error).stack as string,
+							options.providerSpecifics,
+						),
+						attempt: params.attempt,
+						totalAttempts: 1 + params.maxRetries,
+						willRetry: true,
+					},
+				},
+			});
 		}
 
-		const retryPayload: LambdaPayloads[LambdaRoutines.still] = {
-			...params,
-			maxRetries: params.maxRetries - 1,
-			attempt: params.attempt + 1,
+		return {
+			type: 'error',
+			message: (err as Error).message,
+			stack: (err as Error).stack as string,
 		};
-
-		const res = await callLambda({
-			functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
-			payload: retryPayload,
-			region: getCurrentRegionInFunction(),
-			type: LambdaRoutines.still,
-			receivedStreamingPayload: () => undefined,
-			timeoutInTest: 120000,
-			retriesRemaining: 0,
-		});
-		const bucketName =
-			params.bucketName ??
-			(
-				await internalGetOrCreateBucket({
-					region: getCurrentRegionInFunction(),
-					enableFolderExpiry: null,
-					customCredentials: null,
-				})
-			).bucketName;
-
-		// `await` elided on purpose here; using `void` to mark it as intentional
-		// eslint-disable-next-line no-void
-		void writeLambdaError({
-			bucketName,
-			errorInfo: {
-				chunk: null,
-				frame: null,
-				isFatal: false,
-				name: (err as Error).name,
-				message: (err as Error).message,
-				stack: (err as Error).stack as string,
-				type: 'browser',
-				tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
-				attempt: params.attempt,
-				totalAttempts: params.attempt + params.maxRetries,
-				willRetry,
-			},
-			expectedBucketOwner: options.expectedBucketOwner,
-			renderId: options.renderId,
-		});
-
-		return res;
 	} finally {
 		forgetBrowserEventLoop(
-			options.params.type === LambdaRoutines.still
+			options.params.type === ServerlessRoutines.still
 				? options.params.logLevel
 				: 'error',
 		);

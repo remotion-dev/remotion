@@ -25,18 +25,16 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import type {AnyComposition, VideoConfig} from 'remotion';
-import {Internals} from 'remotion';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
-import {BLUE, BLUE_DISABLED, LIGHT_TEXT} from '../../helpers/colors';
+import {BLUE, BLUE_DISABLED} from '../../helpers/colors';
 import {
 	envVariablesArrayToObject,
 	envVariablesObjectToArray,
 } from '../../helpers/convert-env-variables';
 import {useRenderModalSections} from '../../helpers/render-modal-sections';
 import {useKeybinding} from '../../helpers/use-keybinding';
-import {AudioIcon} from '../../icons/audio';
 import {Checkmark} from '../../icons/Checkmark';
+import {AudioIcon} from '../../icons/audio';
 import {DataIcon} from '../../icons/data';
 import {FileIcon} from '../../icons/file';
 import {PicIcon} from '../../icons/frame';
@@ -45,16 +43,11 @@ import {GifIcon} from '../../icons/gif';
 import {ModalsContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
 import {Button} from '../Button';
-import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
-import {inlineCodeSnippet} from '../Menu/styles';
-import {
-	getMaxModalHeight,
-	getMaxModalWidth,
-	ModalContainer,
-} from '../ModalContainer';
+import {getMaxModalHeight, getMaxModalWidth} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {DismissableModal} from '../NewComposition/DismissableModal';
 import {
 	optionsSidebarTabs,
 	persistSelectedOptionsSidebarPanel,
@@ -66,13 +59,9 @@ import {
 } from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
-import {Spinner} from '../Spinner';
 import {VerticalTab} from '../Tabs/vertical';
 import {useCrfState} from './CrfSetting';
 import {DataEditor} from './DataEditor';
-import {getDefaultCodecs} from './get-default-codecs';
-import {getStringBeforeSuffix} from './get-string-before-suffix';
-import {validateOutnameGui} from './out-name-checker';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalAdvanced} from './RenderModalAdvanced';
 import {RenderModalAudio} from './RenderModalAudio';
@@ -80,6 +69,13 @@ import {RenderModalBasic} from './RenderModalBasic';
 import {RenderModalGif} from './RenderModalGif';
 import type {QualityControl} from './RenderModalPicture';
 import {RenderModalPicture} from './RenderModalPicture';
+import {
+	ResolveCompositionBeforeModal,
+	ResolvedCompositionContext,
+} from './ResolveCompositionBeforeModal';
+import {getDefaultCodecs} from './get-default-codecs';
+import {getStringBeforeSuffix} from './get-string-before-suffix';
+import {validateOutnameGui} from './out-name-checker';
 
 type State =
 	| {
@@ -199,53 +195,51 @@ const outer: React.CSSProperties = {
 };
 
 type RenderModalProps = {
-	compositionId: string;
-	initialFrame: number;
-	initialVideoImageFormat: VideoImageFormat;
-	initialStillImageFormat: StillImageFormat;
-	initialJpegQuality: number;
-	initialScale: number;
-	initialLogLevel: LogLevel;
-	initialConcurrency: number;
-	minConcurrency: number;
-	maxConcurrency: number;
-	initialMuted: boolean;
-	initialEnforceAudioTrack: boolean;
-	initialProResProfile: ProResProfile;
-	initialx264Preset: X264Preset;
-	initialPixelFormat: PixelFormat;
-	initialVideoBitrate: string | null;
-	initialAudioBitrate: string | null;
-	initialEveryNthFrame: number;
-	initialNumberOfGifLoops: number | null;
-	initialDelayRenderTimeout: number;
-	initialEnvVariables: Record<string, string>;
-	initialDisableWebSecurity: boolean;
-	initialGl: OpenGlRenderer | null;
-	initialIgnoreCertificateErrors: boolean;
-	initialOffthreadVideoCacheSizeInBytes: number | null;
-	initialHeadless: boolean;
-	initialColorSpace: ColorSpace;
-	initialEncodingMaxRate: string | null;
-	initialEncodingBufferSize: string | null;
-	initialUserAgent: string | null;
-	initialBeep: boolean;
-	initialRepro: boolean;
-	defaultProps: Record<string, unknown>;
-	inFrameMark: number | null;
-	outFrameMark: number | null;
-	initialMultiProcessOnLinux: boolean;
-	defaultConfigurationVideoCodec: Codec | null;
-	defaultConfigurationAudioCodec: AudioCodec | null;
-	initialForSeamlessAacConcatenation: boolean;
+	readonly compositionId: string;
+	readonly initialFrame: number;
+	readonly initialVideoImageFormat: VideoImageFormat;
+	readonly initialStillImageFormat: StillImageFormat;
+	readonly initialJpegQuality: number;
+	readonly initialScale: number;
+	readonly initialLogLevel: LogLevel;
+	readonly initialConcurrency: number;
+	readonly minConcurrency: number;
+	readonly maxConcurrency: number;
+	readonly initialMuted: boolean;
+	readonly initialEnforceAudioTrack: boolean;
+	readonly initialProResProfile: ProResProfile;
+	readonly initialx264Preset: X264Preset;
+	readonly initialPixelFormat: PixelFormat;
+	readonly initialVideoBitrate: string | null;
+	readonly initialAudioBitrate: string | null;
+	readonly initialEveryNthFrame: number;
+	readonly initialNumberOfGifLoops: number | null;
+	readonly initialDelayRenderTimeout: number;
+	readonly initialEnvVariables: Record<string, string>;
+	readonly initialDisableWebSecurity: boolean;
+	readonly initialGl: OpenGlRenderer | null;
+	readonly initialIgnoreCertificateErrors: boolean;
+	readonly initialOffthreadVideoCacheSizeInBytes: number | null;
+	readonly initialHeadless: boolean;
+	readonly initialColorSpace: ColorSpace;
+	readonly initialEncodingMaxRate: string | null;
+	readonly initialEncodingBufferSize: string | null;
+	readonly initialUserAgent: string | null;
+	readonly initialBeep: boolean;
+	readonly initialRepro: boolean;
+	readonly defaultProps: Record<string, unknown>;
+	readonly inFrameMark: number | null;
+	readonly outFrameMark: number | null;
+	readonly initialMultiProcessOnLinux: boolean;
+	readonly defaultConfigurationVideoCodec: Codec | null;
+	readonly defaultConfigurationAudioCodec: AudioCodec | null;
+	readonly initialForSeamlessAacConcatenation: boolean;
+	readonly renderTypeOfLastRender: RenderType | null;
 };
 
 const RenderModal: React.FC<
 	Omit<RenderModalProps, 'compositionId'> & {
-		onClose: () => void;
-		resolvedComposition: VideoConfig;
-		unresolvedComposition: AnyComposition;
-		defaultConfigurationVideoCodec: Codec | null;
+		readonly defaultConfigurationVideoCodec: Codec | null;
 	}
 > = ({
 	initialFrame,
@@ -279,9 +273,6 @@ const RenderModal: React.FC<
 	defaultProps,
 	inFrameMark,
 	outFrameMark,
-	onClose,
-	resolvedComposition,
-	unresolvedComposition,
 	initialColorSpace,
 	initialMultiProcessOnLinux,
 	defaultConfigurationAudioCodec,
@@ -289,7 +280,22 @@ const RenderModal: React.FC<
 	initialBeep,
 	initialRepro,
 	initialForSeamlessAacConcatenation,
+	renderTypeOfLastRender,
 }) => {
+	const {setSelectedModal} = useContext(ModalsContext);
+
+	const context = useContext(ResolvedCompositionContext);
+	if (!context) {
+		throw new Error(
+			'Should not be able to render without resolving comp first',
+		);
+	}
+
+	const {
+		resolved: {result: resolvedComposition},
+		unresolved: unresolvedComposition,
+	} = context;
+
 	const isMounted = useRef(true);
 
 	const [isVideo] = useState(() => {
@@ -311,7 +317,7 @@ const RenderModal: React.FC<
 			defaultConfigurationVideoCodec,
 			compositionDefaultVideoCodec: resolvedComposition.defaultCodec,
 			defaultConfigurationAudioCodec,
-			renderType: isVideo ? 'video' : 'still',
+			renderType: renderTypeOfLastRender ?? (isVideo ? 'video' : 'still'),
 		});
 	});
 
@@ -345,12 +351,15 @@ const RenderModal: React.FC<
 	const [initialOutName] = useState(() => {
 		return getDefaultOutLocation({
 			compositionName: resolvedComposition.id,
-			defaultExtension: isVideo
-				? BrowserSafeApis.getFileExtensionFromCodec(
-						initialVideoCodec,
-						initialAudioCodec,
-					)
-				: initialStillImageFormat,
+			defaultExtension:
+				initialRenderType === 'still'
+					? initialStillImageFormat
+					: isVideo
+						? BrowserSafeApis.getFileExtensionFromCodec(
+								initialVideoCodec,
+								initialAudioCodec,
+							)
+						: initialStillImageFormat,
 			type: 'asset',
 		});
 	});
@@ -733,7 +742,7 @@ const RenderModal: React.FC<
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
-				onClose();
+				setSelectedModal(null);
 			})
 			.catch(() => {
 				dispatchIfMounted({type: 'fail'});
@@ -755,7 +764,7 @@ const RenderModal: React.FC<
 		offthreadVideoCacheSizeInBytes,
 		multiProcessOnLinux,
 		beepOnFinish,
-		onClose,
+		setSelectedModal,
 	]);
 
 	const [everyNthFrameSetting, setEveryNthFrameSetting] = useState(
@@ -828,7 +837,7 @@ const RenderModal: React.FC<
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
-				onClose();
+				setSelectedModal(null);
 			})
 			.catch(() => {
 				dispatchIfMounted({type: 'fail'});
@@ -873,7 +882,7 @@ const RenderModal: React.FC<
 		repro,
 		forSeamlessAacConcatenation,
 		separateAudioTo,
-		onClose,
+		setSelectedModal,
 	]);
 
 	const onClickSequence = useCallback(() => {
@@ -903,7 +912,7 @@ const RenderModal: React.FC<
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
-				onClose();
+				setSelectedModal(null);
 			})
 			.catch(() => {
 				dispatchIfMounted({type: 'fail'});
@@ -929,7 +938,7 @@ const RenderModal: React.FC<
 		multiProcessOnLinux,
 		beepOnFinish,
 		repro,
-		onClose,
+		setSelectedModal,
 	]);
 
 	useEffect(() => {
@@ -1116,10 +1125,6 @@ const RenderModal: React.FC<
 	const renderDisabled = state.type === 'load' || !outnameValidation.valid;
 
 	const trigger = useCallback(() => {
-		if (renderDisabled) {
-			return;
-		}
-
 		if (renderMode === 'still') {
 			onClickStill();
 		} else if (renderMode === 'sequence') {
@@ -1127,9 +1132,13 @@ const RenderModal: React.FC<
 		} else {
 			onClickVideo();
 		}
-	}, [renderDisabled, renderMode, onClickStill, onClickSequence, onClickVideo]);
+	}, [renderMode, onClickStill, onClickSequence, onClickVideo]);
 
 	useEffect(() => {
+		if (renderDisabled) {
+			return;
+		}
+
 		const enter = registerKeybinding({
 			callback() {
 				trigger();
@@ -1144,7 +1153,7 @@ const RenderModal: React.FC<
 		return () => {
 			enter.unregister();
 		};
-	}, [registerKeybinding, trigger]);
+	}, [registerKeybinding, renderDisabled, trigger]);
 
 	const pixelFormatOptions = useMemo((): ComboboxValue[] => {
 		return availablePixelFormats.map((option) => {
@@ -1346,8 +1355,8 @@ const RenderModal: React.FC<
 						/>
 					) : tab === 'data' ? (
 						<DataEditor
-							inputProps={inputProps}
-							setInputProps={setInputProps}
+							defaultProps={inputProps}
+							setDefaultProps={setInputProps}
 							unresolvedComposition={unresolvedComposition}
 							mayShowSaveButton={false}
 							propsEditType="input-props"
@@ -1402,96 +1411,11 @@ const RenderModal: React.FC<
 };
 
 export const RenderModalWithLoader: React.FC<RenderModalProps> = (props) => {
-	const {setSelectedModal} = useContext(ModalsContext);
-
-	const onQuit = useCallback(() => {
-		setSelectedModal(null);
-	}, [setSelectedModal]);
-
-	useEffect(() => {
-		const {current} = Internals.resolveCompositionsRef;
-		if (!current) {
-			throw new Error('resolveCompositionsRef');
-		}
-
-		current.setCurrentRenderModalComposition(props.compositionId);
-		return () => {
-			current.setCurrentRenderModalComposition(null);
-		};
-	}, [props.compositionId]);
-
-	const resolved = Internals.useResolvedVideoConfig(props.compositionId);
-	const unresolvedContext = useContext(Internals.CompositionManager);
-	const unresolved = unresolvedContext.compositions.find(
-		(c) => props.compositionId === c.id,
-	);
-
-	if (!unresolved) {
-		throw new Error('Composition not found: ' + props.compositionId);
-	}
-
-	if (!resolved) {
-		return null;
-	}
-
-	if (resolved.type === 'loading') {
-		return (
-			<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
-				<div style={loaderContainer}>
-					<Spinner duration={1} size={30} />
-					<Spacing y={2} />
-					<div style={loaderLabel}>
-						Running <code style={inlineCodeSnippet}>calculateMetadata()</code>
-					</div>
-				</div>
-			</ModalContainer>
-		);
-	}
-
-	if (resolved.type === 'error') {
-		return (
-			<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
-				<div style={loaderContainer}>
-					<Spacing y={2} />
-					<div style={loaderLabel}>
-						Running <code style={inlineCodeSnippet}>calculateMetadata()</code>{' '}
-						yielded an error:
-					</div>
-					<Spacing y={1} />
-					<div style={loaderLabel}>
-						{resolved.error.message || 'Unknown error'}
-					</div>
-				</div>
-			</ModalContainer>
-		);
-	}
-
 	return (
-		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
-			<RenderModal
-				unresolvedComposition={unresolved}
-				{...props}
-				onClose={onQuit}
-				resolvedComposition={resolved.result}
-			/>
-		</ModalContainer>
+		<DismissableModal>
+			<ResolveCompositionBeforeModal compositionId={props.compositionId}>
+				<RenderModal {...props} />
+			</ResolveCompositionBeforeModal>
+		</DismissableModal>
 	);
-};
-
-const loaderContainer: React.CSSProperties = {
-	paddingTop: 40,
-	paddingBottom: 40,
-	paddingLeft: 100,
-	paddingRight: 100,
-	display: 'flex',
-	justifyContent: 'center',
-	alignItems: 'center',
-	flexDirection: 'column',
-};
-
-const loaderLabel: React.CSSProperties = {
-	fontSize: 14,
-	color: LIGHT_TEXT,
-	fontFamily: 'sans-serif',
-	lineHeight: 1.5,
 };

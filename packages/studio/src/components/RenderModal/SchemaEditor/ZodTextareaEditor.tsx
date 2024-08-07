@@ -1,16 +1,16 @@
 import React, {useCallback} from 'react';
 import type {z} from 'zod';
+import {RemTextarea} from '../../NewComposition/RemTextarea';
 import {
 	useZodIfPossible,
 	useZodTypesIfPossible,
 } from '../../get-zod-if-possible';
-import {RemTextarea} from '../../NewComposition/RemTextarea';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
-import type {JSONPath} from './zod-types';
 import {ZodFieldValidation} from './ZodFieldValidation';
 import type {UpdaterFunction} from './ZodSwitch';
+import {useLocalState} from './local-state';
+import type {JSONPath} from './zod-types';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
@@ -22,17 +22,17 @@ const textareaStyle: React.CSSProperties = {
 };
 
 export const ZodTextareaEditor: React.FC<{
-	schema: z.ZodTypeAny;
-	jsonPath: JSONPath;
-	value: string;
-	defaultValue: string;
-	setValue: UpdaterFunction<string>;
-	onSave: UpdaterFunction<string>;
-	onRemove: null | (() => void);
-	showSaveButton: boolean;
-	saving: boolean;
-	saveDisabledByParent: boolean;
-	mayPad: boolean;
+	readonly schema: z.ZodTypeAny;
+	readonly jsonPath: JSONPath;
+	readonly value: string;
+	readonly defaultValue: string;
+	readonly setValue: UpdaterFunction<string>;
+	readonly onSave: UpdaterFunction<string>;
+	readonly onRemove: null | (() => void);
+	readonly showSaveButton: boolean;
+	readonly saving: boolean;
+	readonly saveDisabledByParent: boolean;
+	readonly mayPad: boolean;
 }> = ({
 	jsonPath,
 	value,
@@ -63,8 +63,8 @@ export const ZodTextareaEditor: React.FC<{
 	} = useLocalState({
 		schema,
 		setValue,
-		value,
-		defaultValue,
+		unsavedValue: value,
+		savedValue: defaultValue,
 	});
 
 	const onChange: React.ChangeEventHandler<HTMLTextAreaElement> = useCallback(

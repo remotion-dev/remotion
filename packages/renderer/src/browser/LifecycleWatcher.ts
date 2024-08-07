@@ -22,7 +22,6 @@ import {FrameManagerEmittedEvents} from './FrameManager';
 import type {HTTPRequest} from './HTTPRequest';
 import type {HTTPResponse} from './HTTPResponse';
 import {NetworkManagerEmittedEvents} from './NetworkManager';
-import type {PuppeteerEventListener} from './util';
 import {addEventListener, removeEventListeners} from './util';
 export type PuppeteerLifeCycleEvent = 'load';
 
@@ -41,7 +40,7 @@ export class LifecycleWatcher {
 	#frame: Frame;
 	#timeout: number;
 	#navigationRequest: HTTPRequest | null = null;
-	#eventListeners: PuppeteerEventListener[];
+	#eventListeners: (() => void)[];
 
 	#sameDocumentNavigationCompleteCallback: (x?: Error) => void = noop;
 	#sameDocumentNavigationPromise = new Promise<Error | undefined>((fulfill) => {
@@ -67,7 +66,7 @@ export class LifecycleWatcher {
 
 	#timeoutPromise: Promise<TimeoutError | undefined>;
 
-	#maximumTimer?: NodeJS.Timeout;
+	#maximumTimer?: Timer;
 	#hasSameDocumentNavigation?: boolean;
 	#newDocumentNavigation?: boolean;
 	#swapped?: boolean;

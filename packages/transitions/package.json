@@ -1,24 +1,23 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/transitions"
+	},
 	"name": "@remotion/transitions",
-	"version": "4.0.123",
-	"description": "Transition presets for Remotion",
+	"version": "4.0.193",
+	"description": "Library for creating transitions in Remotion",
 	"sideEffects": false,
 	"main": "dist/esm/index.mjs",
 	"module": "dist/esm/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
-		"test": "vitest --run",
+		"test": "bun test src",
 		"lint": "eslint src --ext ts,tsx",
 		"formatting": "prettier src --check",
-		"watch": "tsc -w",
-		"build": "tsc -d && rollup --config rollup.config.js"
+		"build": "bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger",
 	"contributors": [],
 	"license": "UNLICENSED",
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
@@ -28,20 +27,12 @@
 		"@remotion/paths": "workspace:*"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.276",
-		"eslint": "8.42.0",
-		"prettier": "3.1.1",
-		"prettier-plugin-organize-imports": "3.2.4",
+		"@happy-dom/global-registrator": "14.5.1",
 		"remotion": "workspace:*",
-		"react": "18.2.0",
-		"react-dom": "18.2.0",
-		"vitest": "0.31.1",
-		"@types/react": "18.2.48",
-		"@types/react-dom": "18.2.18",
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
 		"@remotion/test-utils": "workspace:*",
-		"@vitejs/plugin-react": "^2.0.0",
-		"rollup": "^2.70.1",
-		"@rollup/plugin-typescript": "^8.2.0"
+		"@vitejs/plugin-react": "^2.0.0"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
@@ -91,6 +82,12 @@
 			"require": "./dist/presentations/clock-wipe.js",
 			"types": "./dist/presentations/clock-wipe.d.ts"
 		},
+		"./none": {
+			"module": "./dist/esm/none.mjs",
+			"import": "./dist/esm/none.mjs",
+			"require": "./dist/presentations/none.js",
+			"types": "./dist/presentations/none.d.ts"
+		},
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
@@ -107,9 +104,13 @@
 			"fade": [
 				"dist/presentations/fade.d.ts"
 			],
+			"none": [
+				"dist/presentations/none.d.ts"
+			],
 			"clock-wipe": [
 				"dist/presentations/clock-wipe.d.ts"
 			]
 		}
-	}
+	},
+	"homepage": "https://www.remotion.dev/transitions"
 }

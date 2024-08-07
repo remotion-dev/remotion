@@ -2,8 +2,8 @@ import {formatBytes} from '@remotion/studio-shared';
 export {
 	ApiRoutes,
 	CopyStillToClipboardRequest,
-	getDefaultOutLocation,
 	OpenInFileExplorerRequest,
+	getDefaultOutLocation,
 } from '@remotion/studio-shared';
 export type {
 	AggregateRenderProgress,
@@ -15,16 +15,17 @@ export type {
 	ModuleMap,
 	PackageManager,
 	ProjectInfo,
-	RenderingProgressInput,
 	RenderJob,
 	RenderJobWithCleanup,
-	RenderStep,
+	RenderingProgressInput,
 	RequiredChromiumOptions,
 	StitchingProgressInput,
 	UiOpenGlOptions,
 } from '@remotion/studio-shared';
 
 import {AnsiDiff} from './ansi-diff';
+import {openBrowser} from './better-opn';
+import {parseAndApplyCodemod} from './codemods/duplicate-composition';
 import {installFileWatcher} from './file-watcher';
 import {getLatestRemotionVersion} from './get-latest-remotion-version';
 import {
@@ -51,4 +52,6 @@ export const StudioServerInternals = {
 	installFileWatcher,
 	AnsiDiff,
 	formatBytes,
+	parseAndApplyCodemod,
+	openBrowser,
 };

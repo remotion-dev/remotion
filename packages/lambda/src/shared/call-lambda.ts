@@ -1,143 +1,242 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import type {InvokeWithResponseStreamResponseEvent} from '@aws-sdk/client-lambda';
-import {InvokeWithResponseStreamCommand} from '@aws-sdk/client-lambda';
-import type {StreamingPayloads} from '../functions/helpers/streaming-payloads';
-import {isStreamingPayload} from '../functions/helpers/streaming-payloads';
-import type {AwsRegion} from '../pricing/aws-regions';
+import type {
+	InvokeWithResponseStreamCommandOutput,
+	InvokeWithResponseStreamResponseEvent,
+} from '@aws-sdk/client-lambda';
+import {
+	InvokeCommand,
+	InvokeWithResponseStreamCommand,
+} from '@aws-sdk/client-lambda';
+import type {
+	CloudProvider,
+	OnMessage,
+	StreamingMessage,
+} from '@remotion/serverless';
+import type {
+	MessageTypeId,
+	ServerlessPayloads,
+	ServerlessRoutines,
+} from '@remotion/serverless/client';
+import {
+	formatMap,
+	messageTypeIdToMessageType,
+} from '@remotion/serverless/client';
+import {makeStreamer} from '@remotion/streaming';
+import type {EventEmitter} from 'stream';
+import type {OrError} from '../functions';
+import type {AwsRegion} from '../regions';
 import {getLambdaClient} from './aws-clients';
-import type {LambdaPayloads, LambdaRoutines} from './constants';
-import type {LambdaReturnValues, OrError} from './return-values';
+import type {LambdaReturnValues} from './return-values';
 
 const INVALID_JSON_MESSAGE = 'Cannot parse Lambda response as JSON';
 
-type Options<T extends LambdaRoutines> = {
+type Options<T extends ServerlessRoutines, Provider extends CloudProvider> = {
 	functionName: string;
 	type: T;
-	payload: Omit<LambdaPayloads[T], 'type'>;
-	region: AwsRegion;
-	receivedStreamingPayload: (streamPayload: StreamingPayloads) => void;
+	payload: Omit<ServerlessPayloads<Provider>[T], 'type'>;
+	region: Provider['region'];
 	timeoutInTest: number;
 };
 
-const parseJsonWithErrorSurfacing = (input: string) => {
+const parseJsonOrThrowSource = (data: Uint8Array, type: string) => {
+	const asString = new TextDecoder('utf-8').decode(data);
 	try {
-		return JSON.parse(input);
-	} catch {
-		throw new Error(`${INVALID_JSON_MESSAGE}. Response: ${input}`);
+		return JSON.parse(asString);
+	} catch (err) {
+		throw new Error(`Invalid JSON (${type}): ${asString}`);
 	}
 };
 
-const parseJson = <T extends LambdaRoutines>(input: string) => {
-	let json = parseJsonWithErrorSurfacing(input) as
-		| OrError<Awaited<LambdaReturnValues[T]>>
-		| {
-				errorType: string;
-				errorMessage: string;
-				trace: string[];
-		  }
-		| {
-				statusCode: string;
-				body: string;
-		  };
-
-	if ('statusCode' in json) {
-		json = parseJsonWithErrorSurfacing(json.body) as
-			| OrError<Awaited<LambdaReturnValues[T]>>
-			| {
-					errorType: string;
-					errorMessage: string;
-					trace: string[];
-			  };
-	}
-
-	if ('errorMessage' in json) {
-		const err = new Error(json.errorMessage);
-		err.name = json.errorType;
-		err.stack = (json.trace ?? []).join('\n');
+export const callLambda = async <
+	Provider extends CloudProvider,
+	T extends ServerlessRoutines,
+>(
+	options: Options<T, Provider>,
+): Promise<LambdaReturnValues<Provider>[T]> => {
+	// Do not remove this await
+	const res = await callLambdaWithoutRetry<T, Provider>(options);
+	if (res.type === 'error') {
+		const err = new Error(res.message);
+		err.stack = res.stack;
 		throw err;
 	}
 
-	// This will not happen, it is for narrowing purposes
-	if ('statusCode' in json) {
-		throw new Error(
-			`Lambda function failed with status code ${json.statusCode}`,
-		);
-	}
-
-	if (json.type === 'error') {
-		const err = new Error(json.message);
-		err.stack = json.stack;
-		throw err;
-	}
-
-	return json;
+	return res;
 };
 
-export const callLambda = async <T extends LambdaRoutines>(
-	options: Options<T> & {
+export const callLambdaWithStreaming = async <
+	Provider extends CloudProvider,
+	T extends ServerlessRoutines,
+>(
+	options: Options<T, Provider> & {
+		receivedStreamingPayload: OnMessage<Provider>;
 		retriesRemaining: number;
 	},
-): Promise<LambdaReturnValues[T]> => {
+): Promise<void> => {
 	// As of August 2023, Lambda streaming sometimes misses parts of the JSON response.
 	// Handling this for now by applying a retry mechanism.
 
 	try {
 		// Do not remove this await
-		const res = await callLambdaWithoutRetry<T>(options);
-		return res;
+		await callLambdaWithStreamingWithoutRetry<T, Provider>(options);
 	} catch (err) {
 		if (options.retriesRemaining === 0) {
 			throw err;
 		}
 
-		if (!(err as Error).message.includes(INVALID_JSON_MESSAGE)) {
+		if (
+			!(err as Error).message.includes(INVALID_JSON_MESSAGE) &&
+			!(err as Error).message.includes(LAMBDA_STREAM_STALL) &&
+			!(err as Error).message.includes('aborted')
+		) {
 			throw err;
 		}
 
-		return callLambda({
+		console.error(err);
+		console.error('Retries remaining', options.retriesRemaining);
+
+		return callLambdaWithStreaming({
 			...options,
 			retriesRemaining: options.retriesRemaining - 1,
 		});
 	}
 };
 
-const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
+const callLambdaWithoutRetry = async <
+	T extends ServerlessRoutines,
+	Provider extends CloudProvider,
+>({
 	functionName,
 	type,
 	payload,
 	region,
-	receivedStreamingPayload,
 	timeoutInTest,
-}: Options<T>): Promise<LambdaReturnValues[T]> => {
-	const res = await getLambdaClient(region, timeoutInTest).send(
+}: Options<T, Provider>): Promise<OrError<LambdaReturnValues<Provider>[T]>> => {
+	const Payload = JSON.stringify({type, ...payload});
+	const res = await getLambdaClient(region as AwsRegion, timeoutInTest).send(
+		new InvokeCommand({
+			FunctionName: functionName,
+			Payload,
+			InvocationType: 'RequestResponse',
+		}),
+	);
+
+	const decoded = new TextDecoder('utf-8').decode(res.Payload);
+
+	try {
+		return JSON.parse(decoded) as OrError<LambdaReturnValues<Provider>[T]>;
+	} catch (err) {
+		throw new Error(`Invalid JSON (${type}): ${JSON.stringify(decoded)}`);
+	}
+};
+
+const STREAM_STALL_TIMEOUT = 30000;
+const LAMBDA_STREAM_STALL = `AWS did not invoke Lambda in ${STREAM_STALL_TIMEOUT}ms`;
+
+const invokeStreamOrTimeout = async <Provider extends CloudProvider>({
+	region,
+	timeoutInTest,
+	functionName,
+	type,
+	payload,
+}: {
+	region: Provider['region'];
+	timeoutInTest: number;
+	functionName: string;
+	type: string;
+	payload: Record<string, unknown>;
+}) => {
+	const resProm = getLambdaClient(region as AwsRegion, timeoutInTest).send(
 		new InvokeWithResponseStreamCommand({
 			FunctionName: functionName,
 			Payload: JSON.stringify({type, ...payload}),
 		}),
 	);
 
+	let cleanup = () => undefined;
+
+	const timeout = new Promise<InvokeWithResponseStreamCommandOutput>(
+		(_resolve, reject) => {
+			const int = setTimeout(() => {
+				reject(new Error(LAMBDA_STREAM_STALL));
+			}, STREAM_STALL_TIMEOUT);
+			cleanup = () => {
+				clearTimeout(int);
+			};
+		},
+	);
+
+	const res = await Promise.race([resProm, timeout]);
+
+	cleanup();
+
+	return res;
+};
+
+const callLambdaWithStreamingWithoutRetry = async <
+	T extends ServerlessRoutines,
+	Provider extends CloudProvider,
+>({
+	functionName,
+	type,
+	payload,
+	region,
+	timeoutInTest,
+	receivedStreamingPayload,
+}: Options<T, Provider> & {
+	receivedStreamingPayload: OnMessage<Provider>;
+}): Promise<void> => {
+	const res = await invokeStreamOrTimeout({
+		functionName,
+		payload,
+		region,
+		timeoutInTest,
+		type,
+	});
+
+	const {onData, clear} = makeStreamer((status, messageTypeId, data) => {
+		const messageType = messageTypeIdToMessageType(
+			messageTypeId as MessageTypeId,
+		);
+		const innerPayload =
+			formatMap[messageType] === 'json'
+				? parseJsonOrThrowSource(data, messageType)
+				: data;
+
+		const message: StreamingMessage<Provider> = {
+			successType: status,
+			message: {
+				type: messageType,
+				payload: innerPayload,
+			},
+		};
+
+		receivedStreamingPayload(message);
+	});
+
+	const dumpBuffers = () => {
+		clear();
+	};
+
+	// @ts-expect-error - We are adding a listener to a global variable
+	if (globalThis._dumpUnreleasedBuffers) {
+		// @ts-expect-error - We are adding a listener to a global variable
+		(globalThis._dumpUnreleasedBuffers as EventEmitter).addListener(
+			'dump-unreleased-buffers',
+			dumpBuffers,
+		);
+	}
+
 	const events =
 		res.EventStream as AsyncIterable<InvokeWithResponseStreamResponseEvent>;
-	let responsePayload = '';
 
 	for await (const event of events) {
 		// There are two types of events you can get on a stream.
 
 		// `PayloadChunk`: These contain the actual raw bytes of the chunk
 		// It has a single property: `Payload`
-		if (event.PayloadChunk) {
-			// Decode the raw bytes into a string a human can read
-			const decoded = new TextDecoder('utf-8').decode(
-				event.PayloadChunk.Payload,
-			);
-			const streamPayload = isStreamingPayload(decoded);
-
-			if (streamPayload) {
-				receivedStreamingPayload(streamPayload);
-				continue;
-			}
-
-			responsePayload += decoded;
+		if (event.PayloadChunk && event.PayloadChunk.Payload) {
+			onData(event.PayloadChunk.Payload);
 		}
 
 		if (event.InvokeComplete) {
@@ -156,9 +255,18 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 				);
 			}
 		}
+
+		// Don't put a `break` statement here, as it will cause the socket to not properly exit.
 	}
 
-	const json = parseJson<T>(responsePayload.trim());
+	// @ts-expect-error - We are adding a listener to a global variable
+	if (globalThis._dumpUnreleasedBuffers) {
+		// @ts-expect-error - We are adding a listener to a global variable
+		(globalThis._dumpUnreleasedBuffers as EventEmitter).removeListener(
+			'dump-unreleased-buffers',
+			dumpBuffers,
+		);
+	}
 
-	return json;
+	clear();
 };

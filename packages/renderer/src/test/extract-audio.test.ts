@@ -1,7 +1,7 @@
+import {expect, test} from 'bun:test';
 import {unlinkSync} from 'node:fs';
-import {expect, test} from 'vitest';
+import {exampleVideos} from '../example-videos';
 import {extractAudio} from '../extract-audio';
-import {exampleVideos} from './example-videos';
 
 test('Should be able to extract the audio from a mp4 format video', async () => {
 	const audioOutput = exampleVideos.bigBuckBunny.replace(
@@ -27,9 +27,7 @@ test('Should not be able to extract the audio with the wrong audio format', asyn
 			audioOutput,
 			logLevel: 'info',
 		});
-	}).rejects.toMatch(
-		/Input audio codec: 'AV_CODEC_ID_OPUS'. Error: Invalid argument/,
-	);
+	}).toThrow(/Input audio codec: 'AV_CODEC_ID_OPUS'. Error: Invalid argument/);
 });
 
 test('Should be able to extract the audio from a webm with the right format', async () => {

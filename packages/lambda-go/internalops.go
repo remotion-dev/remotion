@@ -78,7 +78,7 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		internalParams.Privacy = options.Privacy
 	}
 	if options.ColorSpace == "" {
-		internalParams.ColorSpace = "default"
+		internalParams.ColorSpace = nil
 	} else {
 		internalParams.ColorSpace = options.ColorSpace
 	}

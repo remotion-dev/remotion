@@ -2,33 +2,21 @@ import React, {
 	createRef,
 	useCallback,
 	useContext,
+	useEffect,
 	useImperativeHandle,
 	useMemo,
 	useState,
 } from 'react';
 import type {AnyComposition} from 'remotion';
 import {Internals} from 'remotion';
-import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
-import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
+import {BACKGROUND} from '../helpers/colors';
+import {useMobileLayout} from '../helpers/mobile-layout';
+import {GlobalPropsEditorUpdateButton} from './GlobalPropsEditorUpdateButton';
 import {DataEditor} from './RenderModal/DataEditor';
 import {deepEqual} from './RenderModal/SchemaEditor/deep-equal';
 import {RenderQueue} from './RenderQueue';
 import {RendersTab} from './RendersTab';
 import {Tab, Tabs} from './Tabs';
-
-const container: React.CSSProperties = {
-	height: '100%',
-	width: '100%',
-	position: 'absolute',
-	display: 'flex',
-	flexDirection: 'column',
-};
-
-const circle: React.CSSProperties = {
-	width: 8,
-	height: 8,
-	borderRadius: 4,
-};
 
 type OptionsSidebarPanel = 'input-props' | 'renders';
 
@@ -62,10 +50,27 @@ export const optionsSidebarTabs = createRef<{
 }>();
 
 export const OptionsPanel: React.FC<{
-	readOnlyStudio: boolean;
+	readonly readOnlyStudio: boolean;
 }> = ({readOnlyStudio}) => {
-	const {props, updateProps} = useContext(Internals.EditorPropsContext);
+	const {props, updateProps, resetUnsaved} = useContext(
+		Internals.EditorPropsContext,
+	);
 	const [saving, setSaving] = useState(false);
+
+	const isMobileLayout = useMobileLayout();
+
+	const container: React.CSSProperties = useMemo(
+		() => ({
+			height: '100%',
+			width: '100%',
+			display: 'flex',
+			position: isMobileLayout ? 'relative' : 'absolute',
+			flexDirection: 'column',
+			flex: 1,
+		}),
+		[isMobileLayout],
+	);
+
 	const [panel, setPanel] = useState<OptionsSidebarPanel>(() =>
 		getSelectedPanel(readOnlyStudio),
 	);
@@ -95,15 +100,6 @@ export const OptionsPanel: React.FC<{
 	const {compositions, canvasContent} = useContext(
 		Internals.CompositionManager,
 	);
-	const circleStyle = useMemo((): React.CSSProperties => {
-		const onTabColor = saving ? LIGHT_TEXT : 'white';
-
-		return {
-			...circle,
-			backgroundColor: panel === 'input-props' ? onTabColor : LIGHT_TEXT,
-			cursor: 'help',
-		};
-	}, [panel, saving]);
 
 	const composition = useMemo((): AnyComposition | null => {
 		if (canvasContent === null || canvasContent.type !== 'composition') {
@@ -119,13 +115,7 @@ export const OptionsPanel: React.FC<{
 		return null;
 	}, [canvasContent, compositions]);
 
-	const saveToolTip = useMemo(() => {
-		return process.env.KEYBOARD_SHORTCUTS_ENABLED
-			? `Save using ${cmdOrCtrlCharacter}+S`
-			: 'There are unsaved changes';
-	}, []);
-
-	const setInputProps = useCallback(
+	const setDefaultProps = useCallback(
 		(
 			newProps:
 				| Record<string, unknown>
@@ -134,6 +124,8 @@ export const OptionsPanel: React.FC<{
 			if (composition === null) {
 				return;
 			}
+
+			window.remotion_ignoreFastRefreshUpdate = null;
 
 			updateProps({
 				id: composition.id,
@@ -144,7 +136,7 @@ export const OptionsPanel: React.FC<{
 		[composition, updateProps],
 	);
 
-	const actualProps = useMemo(() => {
+	const currentDefaultProps = useMemo(() => {
 		if (composition === null) {
 			return {};
 		}
@@ -157,8 +149,20 @@ export const OptionsPanel: React.FC<{
 			return false;
 		}
 
-		return !deepEqual(composition.defaultProps, actualProps);
-	}, [actualProps, composition]);
+		return !deepEqual(composition.defaultProps, currentDefaultProps);
+	}, [currentDefaultProps, composition]);
+
+	const reset = useCallback(() => {
+		resetUnsaved();
+	}, [resetUnsaved]);
+
+	useEffect(() => {
+		window.addEventListener(Internals.PROPS_UPDATED_EXTERNALLY, reset);
+
+		return () => {
+			window.removeEventListener(Internals.PROPS_UPDATED_EXTERNALLY, reset);
+		};
+	}, [reset]);
 
 	return (
 		<div style={container} className="css-reset">
@@ -172,7 +176,10 @@ export const OptionsPanel: React.FC<{
 						>
 							Props
 							{unsavedChangesExist ? (
-								<div title={saveToolTip} style={circleStyle} />
+								<GlobalPropsEditorUpdateButton
+									compositionId={composition.id}
+									currentDefaultProps={currentDefaultProps}
+								/>
 							) : null}
 						</Tab>
 					) : null}
@@ -188,8 +195,8 @@ export const OptionsPanel: React.FC<{
 				<DataEditor
 					key={composition.id}
 					unresolvedComposition={composition}
-					inputProps={actualProps}
-					setInputProps={setInputProps}
+					defaultProps={currentDefaultProps}
+					setDefaultProps={setDefaultProps}
 					mayShowSaveButton
 					propsEditType="default-props"
 					saving={saving}

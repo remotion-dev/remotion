@@ -1,11 +1,13 @@
 import {CliInternals} from '@remotion/cli';
 import type {LogLevel} from '@remotion/renderer';
+import type {ProviderSpecifics} from '@remotion/serverless';
+import type {AwsProvider} from '../../../functions/aws-implementation';
 import {BINARY_NAME} from '../../../shared/constants';
 import {quit} from '../../helpers/quit';
-import {sitesCreateSubcommand, SITES_CREATE_SUBCOMMAND} from './create';
-import {sitesLsSubcommand, SITES_LS_SUBCOMMAND} from './ls';
-import {sitesRmSubcommand, SITES_RM_COMMAND} from './rm';
-import {sitesRmallSubcommand, SITES_RMALL_COMMAND} from './rmall';
+import {SITES_CREATE_SUBCOMMAND, sitesCreateSubcommand} from './create';
+import {SITES_LS_SUBCOMMAND, sitesLsSubcommand} from './ls';
+import {SITES_RM_COMMAND, sitesRmSubcommand} from './rm';
+import {SITES_RMALL_COMMAND, sitesRmallSubcommand} from './rmall';
 
 export const SITES_COMMAND = 'sites';
 
@@ -58,21 +60,27 @@ export const sitesCommand = (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
+	implementation: ProviderSpecifics<AwsProvider>,
 ) => {
 	if (args[0] === SITES_LS_SUBCOMMAND) {
 		return sitesLsSubcommand(logLevel);
 	}
 
 	if (args[0] === SITES_RM_COMMAND) {
-		return sitesRmSubcommand(args.slice(1), logLevel);
+		return sitesRmSubcommand(args.slice(1), logLevel, implementation);
 	}
 
 	if (args[0] === SITES_RMALL_COMMAND) {
-		return sitesRmallSubcommand(logLevel);
+		return sitesRmallSubcommand(logLevel, implementation);
 	}
 
 	if (args[0] === SITES_CREATE_SUBCOMMAND) {
-		return sitesCreateSubcommand(args.slice(1), remotionRoot, logLevel);
+		return sitesCreateSubcommand(
+			args.slice(1),
+			remotionRoot,
+			logLevel,
+			implementation,
+		);
 	}
 
 	if (args[0]) {

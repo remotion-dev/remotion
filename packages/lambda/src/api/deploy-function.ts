@@ -1,7 +1,9 @@
-import {NoReactAPIs} from '@remotion/renderer/pure';
+import type {LogLevel} from '@remotion/renderer';
+import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
+import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import {getFunctions} from '../api/get-functions';
-import type {AwsRegion} from '../pricing/aws-regions';
+import type {AwsRegion} from '../regions';
 import {
 	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
@@ -18,38 +20,47 @@ import {validateCloudWatchRetentionPeriod} from '../shared/validate-retention-pe
 import {validateTimeout} from '../shared/validate-timeout';
 import {createFunction} from './create-function';
 
-export type DeployFunctionInput = {
+type MandatoryParameters = {
 	createCloudWatchLogGroup: boolean;
 	cloudWatchLogRetentionPeriodInDays?: number;
 	region: AwsRegion;
 	timeoutInSeconds: number;
 	memorySizeInMb: number;
-	diskSizeInMb?: number;
-	customRoleArn?: string;
-	enableLambdaInsights?: boolean;
 };
+
+type OptionalParameters = {
+	diskSizeInMb: number;
+	customRoleArn: string | undefined;
+	enableLambdaInsights: boolean;
+	indent: boolean;
+	logLevel: LogLevel;
+	enableV5Runtime: boolean;
+	vpcSubnetIds: string | undefined;
+	vpcSecurityGroupIds: string | undefined;
+};
+
+export type DeployFunctionInput = MandatoryParameters &
+	Partial<OptionalParameters>;
 
 export type DeployFunctionOutput = {
 	functionName: string;
 	alreadyExisted: boolean;
 };
 
-const deployFunctionRaw = async (
-	params: DeployFunctionInput,
+export const internalDeployFunction = async (
+	params: MandatoryParameters & OptionalParameters,
 ): Promise<DeployFunctionOutput> => {
-	const diskSizeInMb = params.diskSizeInMb ?? DEFAULT_EPHEMERAL_STORAGE_IN_MB;
-
 	validateMemorySize(params.memorySizeInMb);
 	validateTimeout(params.timeoutInSeconds);
 	validateAwsRegion(params.region);
 	validateCloudWatchRetentionPeriod(params.cloudWatchLogRetentionPeriodInDays);
-	validateDiskSizeInMb(diskSizeInMb);
+	validateDiskSizeInMb(params.diskSizeInMb);
 	validateCustomRoleArn(params.customRoleArn);
 
 	const fnNameRender = [
 		`${RENDER_FN_PREFIX}${LAMBDA_VERSION_STRING}`,
 		`mem${params.memorySizeInMb}mb`,
-		`disk${diskSizeInMb}mb`,
+		`disk${params.diskSizeInMb}mb`,
 		`${params.timeoutInSeconds}sec`,
 	].join('-');
 	const accountId = await getAccountId({region: params.region});
@@ -64,7 +75,7 @@ const deployFunctionRaw = async (
 			f.version === VERSION &&
 			f.memorySizeInMb === params.memorySizeInMb &&
 			f.timeoutInSeconds === params.timeoutInSeconds &&
-			f.diskSizeInMb === diskSizeInMb,
+			f.diskSizeInMb === params.diskSizeInMb,
 	);
 
 	const created = await createFunction({
@@ -79,9 +90,13 @@ const deployFunctionRaw = async (
 			params.cloudWatchLogRetentionPeriodInDays ??
 			DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
 		alreadyCreated: Boolean(alreadyDeployed),
-		ephemerealStorageInMb: diskSizeInMb,
+		ephemerealStorageInMb: params.diskSizeInMb,
 		customRoleArn: params.customRoleArn as string,
 		enableLambdaInsights: params.enableLambdaInsights ?? false,
+		enableV5Runtime: params.enableV5Runtime,
+		logLevel: params.logLevel,
+		vpcSubnetIds: params.vpcSubnetIds as string,
+		vpcSecurityGroupIds: params.vpcSecurityGroupIds as string,
 	});
 
 	if (!created.FunctionName) {
@@ -93,6 +108,8 @@ const deployFunctionRaw = async (
 		alreadyExisted: Boolean(alreadyDeployed),
 	};
 };
+
+const errorHandled = wrapWithErrorHandling(internalDeployFunction);
 
 /**
  * @description Creates an AWS Lambda function in your account that will be able to render a video in the cloud.
@@ -106,7 +123,37 @@ const deployFunctionRaw = async (
  * @param params.diskSizeInMb The amount of storage the function should be allocated. The higher, the longer videos you can render. Default 512.
  * @returns {Promise<DeployFunctionOutput>} An object that contains the `functionName` property
  */
+export const deployFunction = ({
+	createCloudWatchLogGroup,
+	memorySizeInMb,
+	region,
+	timeoutInSeconds,
+	cloudWatchLogRetentionPeriodInDays,
+	customRoleArn,
+	enableLambdaInsights,
+	indent,
+	logLevel,
+	enableV5Runtime,
+	vpcSubnetIds,
+	vpcSecurityGroupIds,
+	...options
+}: DeployFunctionInput) => {
+	const diskSizeInMb = options.diskSizeInMb ?? DEFAULT_EPHEMERAL_STORAGE_IN_MB;
 
-export const deployFunction = NoReactAPIs.wrapWithErrorHandling(
-	deployFunctionRaw,
-) as typeof deployFunctionRaw;
+	return errorHandled({
+		indent: indent ?? false,
+		logLevel: logLevel ?? 'info',
+		createCloudWatchLogGroup,
+		customRoleArn: customRoleArn ?? undefined,
+		diskSizeInMb,
+		enableLambdaInsights: enableLambdaInsights ?? false,
+		memorySizeInMb,
+		region,
+		timeoutInSeconds,
+		cloudWatchLogRetentionPeriodInDays,
+		enableV5Runtime:
+			enableV5Runtime ?? NoReactInternals.ENABLE_V5_BREAKING_CHANGES,
+		vpcSubnetIds,
+		vpcSecurityGroupIds,
+	});
+};

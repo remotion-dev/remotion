@@ -23,7 +23,7 @@ import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import type {AudioCodec} from './options/audio-codec';
 import {resolveAudioCodec} from './options/audio-codec';
-import type {ColorSpace} from './options/color-space';
+import {DEFAULT_COLOR_SPACE, type ColorSpace} from './options/color-space';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
 import type {X264Preset} from './options/x264-preset';
@@ -35,6 +35,7 @@ import {
 } from './pixel-format';
 import type {ProResProfile} from './prores-profile';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
+import {getShouldRenderAudio} from './render-has-audio';
 import {validateDimension, validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateBitrate} from './validate-videobitrate';
@@ -42,8 +43,8 @@ import {validateBitrate} from './validate-videobitrate';
 type InternalStitchFramesToVideoOptions = {
 	audioBitrate: string | null;
 	videoBitrate: string | null;
-	encodingMaxRate: string | null;
-	encodingBufferSize: string | null;
+	maxRate: string | null;
+	bufferSize: string | null;
 	fps: number;
 	width: number;
 	height: number;
@@ -67,21 +68,21 @@ type InternalStitchFramesToVideoOptions = {
 	x264Preset: X264Preset | null;
 	enforceAudioTrack: boolean;
 	ffmpegOverride: null | FfmpegOverrideFn;
-	colorSpace: ColorSpace;
+	colorSpace: ColorSpace | null;
 	binariesDirectory: string | null;
 } & ToOptions<typeof optionsMap.stitchFramesToVideo>;
 
 export type StitchFramesToVideoOptions = {
-	audioBitrate?: string | null;
-	videoBitrate?: string | null;
-	encodingMaxRate?: string | null;
-	encodingBufferSize?: string | null;
 	fps: number;
 	width: number;
 	height: number;
-	outputLocation?: string | null;
-	force: boolean;
 	assetsInfo: RenderAssetInfo;
+	force?: boolean;
+	audioBitrate?: string | null;
+	videoBitrate?: string | null;
+	maxRate?: string | null;
+	bufferSize?: string | null;
+	outputLocation?: string | null;
 	pixelFormat?: PixelFormat;
 	numberOfGifLoops?: number | null;
 	codec?: Codec;
@@ -125,8 +126,8 @@ const innerStitchFramesToVideo = async (
 		proResProfile,
 		logLevel,
 		videoBitrate,
-		encodingMaxRate,
-		encodingBufferSize,
+		maxRate,
+		bufferSize,
 		width,
 		numberOfGifLoops,
 		onProgress,
@@ -134,7 +135,6 @@ const innerStitchFramesToVideo = async (
 		colorSpace,
 		binariesDirectory,
 		separateAudioTo,
-		forSeamlessAacConcatenation,
 	}: InternalStitchFramesToVideoOptions,
 	remotionRoot: string,
 ): Promise<ReturnType> => {
@@ -154,9 +154,9 @@ const innerStitchFramesToVideo = async (
 
 	validateBitrate(audioBitrate, 'audioBitrate');
 	validateBitrate(videoBitrate, 'videoBitrate');
-	validateBitrate(encodingMaxRate, 'encodingMaxRate');
-	// encodingBufferSize is not a bitrate but need to be validated using the same format
-	validateBitrate(encodingBufferSize, 'encodingBufferSize');
+	validateBitrate(maxRate, 'maxRate');
+	// bufferSize is not a bitrate but need to be validated using the same format
+	validateBitrate(bufferSize, 'bufferSize');
 	validateFps(fps, 'in `stitchFramesToVideo()`', false);
 	assetsInfo.downloadMap.preventCleanup();
 
@@ -164,11 +164,19 @@ const innerStitchFramesToVideo = async (
 
 	const mediaSupport = codecSupportsMedia(codec);
 
-	const shouldRenderAudio =
-		mediaSupport.audio &&
-		(assetsInfo.assets.flat(1).length > 0 || enforceAudioTrack) &&
-		!muted;
+	const renderAudioEvaluation = getShouldRenderAudio({
+		assetsInfo,
+		codec,
+		enforceAudioTrack,
+		muted,
+	});
+	if (renderAudioEvaluation === 'maybe') {
+		throw new Error(
+			'Remotion is not sure whether to render audio. Please report this in the Remotion repo.',
+		);
+	}
 
+	const shouldRenderAudio = renderAudioEvaluation === 'yes';
 	const shouldRenderVideo = mediaSupport.video;
 
 	if (!shouldRenderAudio && !shouldRenderVideo) {
@@ -241,12 +249,10 @@ const innerStitchFramesToVideo = async (
 		crf,
 		codec,
 		videoBitrate,
-		encodingMaxRate,
-		encodingBufferSize,
+		encodingMaxRate: maxRate,
+		encodingBufferSize: bufferSize,
 	});
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
-
-	const expectedFrames = assetsInfo.assets.length;
 
 	const updateProgress = (muxProgress: number) => {
 		onProgress?.(muxProgress);
@@ -258,9 +264,19 @@ const innerStitchFramesToVideo = async (
 					assets: assetsInfo.assets,
 					onDownload,
 					fps,
-					expectedFrames,
+					chunkLengthInSeconds: assetsInfo.chunkLengthInSeconds,
 					logLevel,
-					onProgress: () => updateProgress(0),
+					onProgress: (progress) => {
+						// TODO: This can be added to the overall progress calcuation
+						Log.verbose(
+							{
+								indent,
+								logLevel,
+								tag: 'audio',
+							},
+							`Encoding progress: ${Math.round(progress * 100)}%`,
+						);
+					},
 					downloadMap: assetsInfo.downloadMap,
 					remotionRoot,
 					indent,
@@ -268,7 +284,9 @@ const innerStitchFramesToVideo = async (
 					audioBitrate,
 					audioCodec: resolvedAudioCodec,
 					cancelSignal: cancelSignal ?? undefined,
-					forSeamlessAacConcatenation,
+					trimLeftOffset: assetsInfo.trimLeftOffset,
+					trimRightOffset: assetsInfo.trimRightOffset,
+					forSeamlessAacConcatenation: assetsInfo.forSeamlessAacConcatenation,
 				})
 			: null;
 
@@ -292,7 +310,7 @@ const innerStitchFramesToVideo = async (
 		}
 
 		cpSync(audio, outputLocation ?? (tempFile as string));
-		onProgress?.(expectedFrames);
+		onProgress?.(Math.round(assetsInfo.chunkLengthInSeconds * fps));
 		deleteDirectory(path.dirname(audio));
 
 		const file = await new Promise<Buffer | null>((resolve, reject) => {
@@ -333,8 +351,8 @@ const innerStitchFramesToVideo = async (
 			codec,
 			crf,
 			videoBitrate,
-			encodingMaxRate,
-			encodingBufferSize,
+			encodingMaxRate: maxRate,
+			encodingBufferSize: bufferSize,
 			hasPreencoded: Boolean(preEncodedFileLocation),
 			proResProfileName,
 			pixelFormat,
@@ -360,7 +378,7 @@ const innerStitchFramesToVideo = async (
 			logLevel,
 			tag: 'stitchFramesToVideo()',
 		},
-		'Generated final FFMPEG command:',
+		'Generated final FFmpeg command:',
 	);
 	Log.verbose(
 		{
@@ -391,7 +409,7 @@ const innerStitchFramesToVideo = async (
 			// Example repo: https://github.com/JonnyBurger/ffmpeg-repro (access can be given upon request)
 			if (parsed !== undefined) {
 				// If two times in a row the finishing frame is logged, we quit the render
-				if (parsed === expectedFrames) {
+				if (parsed === assetsInfo.assets.length) {
 					if (isFinished) {
 						task.stdin?.write('q');
 					} else {
@@ -452,11 +470,11 @@ const innerStitchFramesToVideo = async (
 	});
 };
 
-export const internalStitchFramesToVideo = async (
+export const internalStitchFramesToVideo = (
 	options: InternalStitchFramesToVideoOptions,
 ): Promise<Buffer | null> => {
 	const remotionRoot = findRemotionRoot();
-	const task = await innerStitchFramesToVideo(options, remotionRoot);
+	const task = innerStitchFramesToVideo(options, remotionRoot);
 
 	return Promise.race([
 		task,
@@ -469,8 +487,10 @@ export const internalStitchFramesToVideo = async (
 };
 
 /**
- * @description Takes a series of images and audio information generated by renderFrames() and encodes it to a video.
+ * Takes a series of images and audio information generated by renderFrames() and encodes it to a video.
  * @see [Documentation](https://www.remotion.dev/docs/renderer/stitch-frames-to-video)
+ * @param {StitchFramesToVideoOptions} options The configuration options for stitching frames into a video
+ * @returns {Promise<Buffer | null>} A promise that resolves with the video buffer or null if the output was written to a file
  */
 export const stitchFramesToVideo = ({
 	assetsInfo,
@@ -494,26 +514,25 @@ export const stitchFramesToVideo = ({
 	proResProfile,
 	verbose,
 	videoBitrate,
-	encodingMaxRate,
-	encodingBufferSize,
+	maxRate,
+	bufferSize,
 	x264Preset,
 	colorSpace,
 	binariesDirectory,
 	separateAudioTo,
-	forSeamlessAacConcatenation,
 }: StitchFramesToVideoOptions): Promise<Buffer | null> => {
 	return internalStitchFramesToVideo({
 		assetsInfo,
 		audioBitrate: audioBitrate ?? null,
-		encodingMaxRate: encodingMaxRate ?? null,
-		encodingBufferSize: encodingBufferSize ?? null,
+		maxRate: maxRate ?? null,
+		bufferSize: bufferSize ?? null,
 		audioCodec: audioCodec ?? null,
 		cancelSignal: cancelSignal ?? null,
 		codec: codec ?? DEFAULT_CODEC,
 		crf: crf ?? null,
 		enforceAudioTrack: enforceAudioTrack ?? false,
 		ffmpegOverride: ffmpegOverride ?? null,
-		force,
+		force: force ?? true,
 		fps,
 		height,
 		indent: false,
@@ -530,9 +549,8 @@ export const stitchFramesToVideo = ({
 		preEncodedFileLocation: null,
 		preferLossless: false,
 		x264Preset: x264Preset ?? null,
-		colorSpace: colorSpace ?? 'default',
+		colorSpace: colorSpace ?? DEFAULT_COLOR_SPACE,
 		binariesDirectory: binariesDirectory ?? null,
 		separateAudioTo: separateAudioTo ?? null,
-		forSeamlessAacConcatenation: forSeamlessAacConcatenation ?? false,
 	});
 };

@@ -4,11 +4,5 @@ src
 tsconfig.tsbuildinfo
 *.tgz
 .turbo
-vitest.config.mts
 tsconfig.json
 .prettierrc.js
-.rollup
-.rollup.cache
-rollup.config.js
-tsconfig-esm.json
-dist/tsconfig-esm.tsbuildinfo

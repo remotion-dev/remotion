@@ -217,10 +217,10 @@ class RemotionClient:
                     disclaimer=body_object['estimatedPrice']['disclaimer']
                 ),
                 url=body_object['output'],
-                size_in_bytes=body_object['size'],
+                size_in_bytes=body_object['sizeInBytes'],
                 bucket_name=body_object['bucketName'],
                 render_id=body_object['renderId'],
-                # cloud_watch_logs=body_object['cloud_watch_logs']
+                outKey=body_object['outKey'],
             )
 
         return None

@@ -1,6 +1,8 @@
 import type {AnyRemotionOption} from './option';
 
-let multiProcessOnLinux = false;
+const DEFAULT_VALUE = true;
+
+let multiProcessOnLinux = DEFAULT_VALUE;
 
 const cliFlag = 'enable-multiprocess-on-linux' as const;
 
@@ -13,6 +15,11 @@ export const enableMultiprocessOnLinuxOption = {
 			Chromium on Linux by default. This will make the render faster because
 			multiple processes can be used, but may cause issues with some Linux
 			distributions or if window server libraries are missing.
+			<br />
+			Default: <code>false</code> until v4.0.136, then <code>true</code> from
+			v4.0.137 on because newer Chrome versions {"don't"} allow rendering with
+			the <code>--single-process</code> flag. <br />
+			This flag will be removed in Remotion v5.0.
 		</>
 	),
 	ssrName: 'chromiumOptions.enableMultiprocessOnLinux',
@@ -35,7 +42,7 @@ export const enableMultiprocessOnLinuxOption = {
 
 		return {
 			source: 'default',
-			value: false,
+			value: DEFAULT_VALUE,
 		};
 	},
 	setConfig: (value: boolean) => {

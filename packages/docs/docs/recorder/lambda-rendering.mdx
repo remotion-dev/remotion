@@ -1,0 +1,75 @@
+---
+image: /generated/articles-docs-recorder-lambda-rendering.png
+title: Render on Lambda
+crumb: Recorder
+---
+
+If you want to render long videos faster or you want to render different versions of your videos at the same time, you can take advantage of [@remotion/lambda](/docs/lambda).
+
+## Setup Lambda
+
+First you need to set up [Remotion Lambda](/docs/lambda).  
+Follow steps 1-7 of the instructions shown [here](/docs/lambda/setup).
+
+## Deploy and render
+
+:::note
+Your site will get a URL that is publicly accessible. Make sure to keep it private and do not share it with anyone.
+:::
+
+Add the following function and site deployment commands as well as the render command into a shell script you can execute each time you want to render a video:
+
+```shell
+bunx remotion lambda functions deploy --memory=3009
+bunx remotion lambda sites create --site-name=remotion-recorder --enable-folder-expiry
+bunx remotion lambda render remotion-recorder <composition-id> --delete-after="7-days"
+```
+
+Explanation:
+
+1. [Deploy](/docs/lambda/cli/functions#deploy) a Lambda function. Setting memory to 3009MB will give you [3 vCPUs](/docs/lambda/runtime#core-count--vcpus). If the function already exists, nothing will happen, therefore it is safe to run the command every time.
+2. [Upload](/docs/lambda/cli/sites#create) the Recorder and your Recordings to S3. Give the site the name `remotion-recorder`, you may choose a different name if you like. The [`--enable-folder-expiry`](/docs/lambda/cli/sites#--enable-folder-expiry) flag will make it possible to render videos that automatically delete. If a site with this name already existed, it will update it.
+3. [Render](/docs/lambda/cli/render) the video. Pass the site name and [composition ID](/docs/terminology/composition#composition-id) to the command. The [`--delete-after`](/docs/lambda/cli/render#--delete-after) flag will delete the video after the specified time, you may remove this flag if you want to keep the video.
+
+## Rendering for a specific platform
+
+You may use [`--props`](/docs/lambda/cli/render#--props) to override the default props that you set in your composition.  
+Here is a script to render a video for all platforms:
+
+```shell
+bunx remotion lambda render --props='{"platform": "youtube", "layout": "landscape"}' remotion-recorder <composition-id>
+bunx remotion lambda render --props='{"platform": "x", "layout": "square"}' remotion-recorder <composition-id>
+bunx remotion lambda render --props='{"platform": "linkedin", "layout": "square"}' remotion-recorder <composition-id>
+```
+
+## Our script
+
+For rendering our videos, we create a TypeScript file and run it with `bun lambda.ts`.
+
+```tsx title="lambda.ts"
+import { $ } from "bun";
+
+const siteName = "our-recorder";
+const compositionId = "installwhispercpp";
+
+const configs = [
+  {
+    canvasLayout: "square",
+    platform: "linkedin",
+  },
+  {
+    canvasLayout: "square",
+    platform: "x",
+  },
+  {
+    canvasLayout: "landscape",
+    platform: "youtube",
+  },
+];
+
+await $`bunx remotion lambda sites create --site-name=${siteName}`;
+
+for (const config of configs) {
+  await $`bunx remotion lambda render ${siteName} ${compositionId} --props='${JSON.stringify(config)}'`;
+}
+```

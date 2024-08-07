@@ -348,7 +348,7 @@ export class NetworkManager extends EventEmitter {
 		if (!event.canceled) {
 			Log.warn(
 				{indent: this.#indent, logLevel: this.#logLevel},
-				`Browser failed to load ${request._url}: ${event.errorText}`,
+				`Browser failed to load ${request._url} (${event.type}): ${event.errorText}`,
 			);
 		}
 

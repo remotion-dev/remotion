@@ -1,9 +1,8 @@
 import type React from 'react';
 import {useContext, useEffect} from 'react';
-import type {CanvasContent} from 'remotion';
 import {Internals} from 'remotion';
-import {getRoute} from '../helpers/url-state';
 import {TimelineZoomCtx} from '../state/timeline-zoom';
+import {deriveCanvasContentFromUrl} from './load-canvas-content-from-url';
 
 const makeKey = () => {
 	return `remotion.zoom-map`;
@@ -16,35 +15,6 @@ const persistCurrentZoom = (zoom: Record<string, number>) => {
 export const getZoomFromLocalStorage = (): Record<string, number> => {
 	const zoom = localStorage.getItem(makeKey());
 	return zoom ? JSON.parse(zoom) : {};
-};
-
-export const deriveCanvasContentFromUrl = (): CanvasContent | null => {
-	const substrings = getRoute().split('/').filter(Boolean);
-
-	const lastPart = substrings[substrings.length - 1];
-
-	if (substrings[0] === 'assets') {
-		return {
-			type: 'asset',
-			asset: decodeURIComponent(getRoute().substring('/assets/'.length)),
-		};
-	}
-
-	if (substrings[0] === 'outputs') {
-		return {
-			type: 'output',
-			path: decodeURIComponent(getRoute().substring('/outputs/'.length)),
-		};
-	}
-
-	if (lastPart) {
-		return {
-			type: 'composition',
-			compositionId: lastPart,
-		};
-	}
-
-	return null;
 };
 
 export const ZoomPersistor: React.FC = () => {

@@ -1,28 +1,33 @@
-import type {GitSource, WebpackOverrideFn} from '@remotion/bundler';
-import {NoReactAPIs} from '@remotion/renderer/pure';
+import {type GitSource, type WebpackOverrideFn} from '@remotion/bundler';
+import type {ToOptions} from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
+import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
+import type {ProviderSpecifics} from '@remotion/serverless';
+import {validateBucketName} from '@remotion/serverless/client';
 import fs from 'node:fs';
-import {lambdaDeleteFile, lambdaLs} from '../functions/helpers/io';
-import type {AwsRegion} from '../pricing/aws-regions';
+import type {AwsProvider} from '../functions/aws-implementation';
+import {awsImplementation} from '../functions/aws-implementation';
+import type {AwsRegion} from '../regions';
 import {bundleSite} from '../shared/bundle-site';
 import {getSitesKey} from '../shared/constants';
 import {getAccountId} from '../shared/get-account-id';
 import {getS3DiffOperations} from '../shared/get-s3-operations';
 import {makeS3ServeUrl} from '../shared/make-s3-url';
-import {randomHash} from '../shared/random-hash';
 import {validateAwsRegion} from '../shared/validate-aws-region';
-import {validateBucketName} from '../shared/validate-bucketname';
 import {validatePrivacy} from '../shared/validate-privacy';
 import {validateSiteName} from '../shared/validate-site-name';
-import {bucketExistsInRegion} from './bucket-exists';
 import type {UploadDirProgress} from './upload-dir';
 import {uploadDir} from './upload-dir';
 
-export type DeploySiteInput = {
+type MandatoryParameters = {
 	entryPoint: string;
 	bucketName: string;
 	region: AwsRegion;
-	siteName?: string;
-	options?: {
+};
+
+type OptionalParameters = {
+	siteName: string;
+	options: {
 		onBundleProgress?: (progress: number) => void;
 		onUploadProgress?: (upload: UploadDirProgress) => void;
 		webpackOverride?: WebpackOverrideFn;
@@ -32,9 +37,12 @@ export type DeploySiteInput = {
 		rootDir?: string;
 		bypassBucketNameValidation?: boolean;
 	};
-	privacy?: 'public' | 'no-acl';
-	gitSource?: GitSource | null;
-};
+	privacy: 'public' | 'no-acl';
+	gitSource: GitSource | null;
+	indent: boolean;
+} & ToOptions<typeof BrowserSafeApis.optionsMap.deploySiteLambda>;
+
+export type DeploySiteInput = MandatoryParameters & Partial<OptionalParameters>;
 
 export type DeploySiteOutput = Promise<{
 	serveUrl: string;
@@ -46,28 +54,31 @@ export type DeploySiteOutput = Promise<{
 	};
 }>;
 
-const deploySiteRaw = async ({
+const mandatoryDeploySite = async ({
 	bucketName,
 	entryPoint,
 	siteName,
 	options,
 	region,
-	privacy: passedPrivacy,
+	privacy,
 	gitSource,
-}: DeploySiteInput): DeploySiteOutput => {
+	throwIfSiteExists,
+	providerSpecifics,
+}: MandatoryParameters &
+	OptionalParameters & {
+		providerSpecifics: ProviderSpecifics<AwsProvider>;
+	}): DeploySiteOutput => {
 	validateAwsRegion(region);
 	validateBucketName(bucketName, {
 		mustStartWithRemotion: !options?.bypassBucketNameValidation,
 	});
 
-	const siteId = siteName ?? randomHash();
-	validateSiteName(siteId);
-	const privacy = passedPrivacy ?? 'public';
+	validateSiteName(siteName);
 	validatePrivacy(privacy, false);
 
 	const accountId = await getAccountId({region});
 
-	const bucketExists = await bucketExistsInRegion({
+	const bucketExists = await providerSpecifics.bucketExists({
 		bucketName,
 		region,
 		expectedBucketOwner: accountId,
@@ -76,10 +87,10 @@ const deploySiteRaw = async ({
 		throw new Error(`No bucket with the name ${bucketName} exists`);
 	}
 
-	const subFolder = getSitesKey(siteId);
+	const subFolder = getSitesKey(siteName);
 
 	const [files, bundled] = await Promise.all([
-		lambdaLs({
+		providerSpecifics.listObjects({
 			bucketName,
 			expectedBucketOwner: accountId,
 			region,
@@ -90,14 +101,30 @@ const deploySiteRaw = async ({
 			publicPath: `/${subFolder}/`,
 			webpackOverride: options?.webpackOverride ?? ((f) => f),
 			enableCaching: options?.enableCaching ?? true,
-			publicDir: options?.publicDir,
-			rootDir: options?.rootDir,
-			ignoreRegisterRootWarning: options?.ignoreRegisterRootWarning,
+			publicDir: options?.publicDir ?? null,
+			rootDir: options?.rootDir ?? null,
+			ignoreRegisterRootWarning: options?.ignoreRegisterRootWarning ?? false,
 			onProgress: options?.onBundleProgress ?? (() => undefined),
 			entryPoint,
 			gitSource,
+			bufferStateDelayInMilliseconds: null,
+			maxTimelineTracks: null,
+			onDirectoryCreated: () => undefined,
+			onPublicDirCopyProgress: () => undefined,
+			onSymlinkDetected: () => undefined,
+			outDir: null,
 		}),
 	]);
+
+	if (throwIfSiteExists && files.length > 0) {
+		throw new Error(
+			'`throwIfSiteExists` was passed as true, but there are already files in this folder: ' +
+				files
+					.slice(0, 5)
+					.map((f) => f.Key)
+					.join(', '),
+		);
+	}
 
 	const {toDelete, toUpload, existingCount} = await getS3DiffOperations({
 		objects: files,
@@ -117,7 +144,7 @@ const deploySiteRaw = async ({
 		}),
 		Promise.all(
 			toDelete.map((d) => {
-				return lambdaDeleteFile({
+				return providerSpecifics.deleteFile({
 					bucketName,
 					customCredentials: null,
 					key: d.Key as string,
@@ -135,7 +162,7 @@ const deploySiteRaw = async ({
 
 	return {
 		serveUrl: makeS3ServeUrl({bucketName, subFolder, region}),
-		siteName: siteId,
+		siteName,
 		stats: {
 			uploadedFiles: toUpload.length,
 			deletedFiles: toDelete.length,
@@ -143,6 +170,8 @@ const deploySiteRaw = async ({
 		},
 	};
 };
+
+export const internalDeploySite = wrapWithErrorHandling(mandatoryDeploySite);
 
 /**
  * @description Deploys a Remotion project to an S3 bucket to prepare it for rendering on AWS Lambda.
@@ -153,6 +182,18 @@ const deploySiteRaw = async ({
  * @param {string} params.siteName The name of the folder in which the project gets deployed to.
  * @param {object} params.options Further options, see documentation page for this function.
  */
-export const deploySite = NoReactAPIs.wrapWithErrorHandling(
-	deploySiteRaw,
-) as typeof deploySiteRaw;
+export const deploySite = (args: DeploySiteInput) => {
+	return internalDeploySite({
+		bucketName: args.bucketName,
+		entryPoint: args.entryPoint,
+		region: args.region,
+		gitSource: args.gitSource ?? null,
+		options: args.options ?? {},
+		privacy: args.privacy ?? 'public',
+		siteName: args.siteName ?? awsImplementation.randomHash(),
+		indent: false,
+		logLevel: 'info',
+		throwIfSiteExists: args.throwIfSiteExists ?? false,
+		providerSpecifics: awsImplementation,
+	});
+};

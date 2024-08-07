@@ -158,7 +158,7 @@ class WaitTask {
 	#runCount = 0;
 	#resolve: (x: JSHandle) => void = noop;
 	#reject: (x: Error) => void = noop;
-	#timeoutTimer?: NodeJS.Timeout;
+	#timeoutTimer?: Timer;
 	#terminated = false;
 	#browser: HeadlessBrowser;
 

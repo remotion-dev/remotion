@@ -1,3 +1,4 @@
+import './_check-rsc.js';
 import './asset-types.js';
 import {Clipper} from './Clipper.js';
 import type {Codec} from './codec.js';
@@ -23,7 +24,10 @@ declare global {
 	interface Window {
 		remotion_renderReady: boolean;
 		remotion_delayRenderTimeouts: {
-			[key: string]: {label: string | null; timeout: number | NodeJS.Timeout};
+			[key: string]: {
+				label: string | null;
+				timeout: number | Timer;
+			};
 		};
 		remotion_cancelledError: string | undefined;
 		remotion_getCompositionNames: () => string[];
@@ -34,13 +38,20 @@ declare global {
 		remotion_setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
 		remotion_staticFiles: StaticFile[];
+		remotion_publicPath: string;
 		remotion_publicFolderExists: string | null;
 		remotion_editorName: string | null;
+		remotion_ignoreFastRefreshUpdate: number | null;
 		remotion_numberOfAudioTags: number;
 		remotion_projectName: string;
 		remotion_cwd: string;
 		remotion_studioServerCommand: string;
-		remotion_setFrame: (frame: number, composition: string) => void;
+		remotion_setFrame: (
+			frame: number,
+			composition: string,
+			attempt: number,
+		) => void;
+		remotion_attempt: number;
 		remotion_initialFrame: number;
 		remotion_proxyPort: number;
 		remotion_audioEnabled: boolean;
@@ -54,7 +65,7 @@ declare global {
 		remotion_isStudio: boolean;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
-		siteVersion: '10';
+		siteVersion: '11';
 		remotion_version: string;
 		remotion_imported: string | boolean;
 		remotion_unsavedProps: boolean | undefined;
@@ -81,6 +92,7 @@ export type BundleState =
 
 checkMultipleRemotionVersions();
 export * from './AbsoluteFill.js';
+export {Artifact} from './Artifact.js';
 export * from './audio/index.js';
 export {cancelRender} from './cancel-render.js';
 export {
@@ -93,6 +105,7 @@ export {
 export {
 	AnyCompMetadata,
 	AnyComposition,
+	AudioOrVideoAsset,
 	SmallTCompMetadata,
 	TCompMetadata,
 	TRenderAsset,
@@ -122,6 +135,7 @@ export {
 export {prefetch, PrefetchOnProgress} from './prefetch.js';
 export {registerRoot} from './register-root.js';
 export {
+	AbsoluteFillLayout,
 	LayoutAndStyle,
 	Sequence,
 	SequenceProps,

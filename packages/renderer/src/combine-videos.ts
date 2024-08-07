@@ -33,9 +33,24 @@ type Options = {
 	cancelSignal: CancelSignal | undefined;
 	seamlessAudio: boolean;
 	seamlessVideo: boolean;
+	muted: boolean;
 };
 
-export const combineVideos = async ({
+const codecSupportsFastStart: {[key in Codec]: boolean} = {
+	'h264-mkv': false,
+	'h264-ts': false,
+	h264: true,
+	h265: true,
+	aac: false,
+	gif: false,
+	mp3: false,
+	prores: false,
+	vp8: false,
+	vp9: false,
+	wav: false,
+};
+
+export const combineChunks = async ({
 	files,
 	filelistDir,
 	output,
@@ -53,14 +68,17 @@ export const combineVideos = async ({
 	cancelSignal,
 	seamlessAudio,
 	seamlessVideo,
+	muted,
 }: Options) => {
-	const shouldCreateAudio = resolvedAudioCodec !== null;
+	const shouldCreateAudio = resolvedAudioCodec !== null && !muted;
 	const shouldCreateVideo = !isAudioCodec(codec);
 
-	const videoOutput = join(
-		filelistDir,
-		`video.${getFileExtensionFromCodec(codec, resolvedAudioCodec)}`,
-	);
+	const videoOutput = shouldCreateVideo
+		? join(
+				filelistDir,
+				`video.${getFileExtensionFromCodec(codec, resolvedAudioCodec)}`,
+			)
+		: null;
 
 	const audioOutput = shouldCreateAudio
 		? join(
@@ -89,19 +107,29 @@ export const combineVideos = async ({
 	Log.verbose(
 		{indent, logLevel},
 		`Combining chunks, audio = ${
-			seamlessAudio ? 'seamlessly' : 'normally'
-		}, video = ${seamlessVideo ? 'seamlessly' : 'normally'}`,
+			shouldCreateAudio === false
+				? 'no'
+				: seamlessAudio
+					? 'seamlessly'
+					: 'normally'
+		}, video = ${
+			shouldCreateVideo === false
+				? 'no'
+				: seamlessVideo
+					? 'seamlessly'
+					: 'normally'
+		}`,
 	);
 	await Promise.all(
 		[
-			shouldCreateAudio
+			shouldCreateAudio && audioOutput
 				? createCombinedAudio({
 						audioBitrate,
 						filelistDir,
 						files: audioFiles,
 						indent,
 						logLevel,
-						output: shouldCreateVideo ? (audioOutput as string) : output,
+						output: audioOutput,
 						resolvedAudioCodec,
 						seamless: seamlessAudio,
 						chunkDurationInSeconds,
@@ -116,7 +144,7 @@ export const combineVideos = async ({
 					})
 				: null,
 
-			shouldCreateVideo && !seamlessVideo
+			shouldCreateVideo && !seamlessVideo && videoOutput
 				? combineVideoStreams({
 						codec,
 						filelistDir,
@@ -124,7 +152,7 @@ export const combineVideos = async ({
 						indent,
 						logLevel,
 						numberOfGifLoops,
-						output: shouldCreateAudio ? videoOutput : output,
+						output: videoOutput,
 						files: videoFiles,
 						addRemotionMetadata: !shouldCreateAudio,
 						binariesDirectory,
@@ -137,11 +165,6 @@ export const combineVideos = async ({
 				: null,
 		].filter(truthy),
 	);
-
-	if (!(audioOutput && shouldCreateVideo)) {
-		rmSync(filelistDir, {recursive: true});
-		return;
-	}
 
 	try {
 		await muxVideoAndAudio({
@@ -159,6 +182,7 @@ export const combineVideos = async ({
 			binariesDirectory,
 			fps,
 			cancelSignal,
+			addFaststart: codecSupportsFastStart[codec],
 		});
 		onProgress(numberOfFrames);
 		rmSync(filelistDir, {recursive: true});

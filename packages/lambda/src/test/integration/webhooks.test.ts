@@ -1,10 +1,10 @@
 import {RenderInternals} from '@remotion/renderer';
+import {ServerlessRoutines} from '@remotion/serverless/client';
+import path from 'path';
 import {VERSION} from 'remotion/version';
 import {beforeAll, beforeEach, describe, expect, test, vi} from 'vitest';
-import {LambdaRoutines} from '../../defaults';
 import {callLambda} from '../../shared/call-lambda';
 import {mockableHttpClients} from '../../shared/invoke-webhook';
-import {disableLogs, enableLogs} from '../disable-logs';
 
 const originalFetch = mockableHttpClients.http;
 beforeEach(() => {
@@ -30,10 +30,7 @@ beforeEach(() => {
 });
 
 beforeAll(() => {
-	disableLogs();
 	return async () => {
-		enableLogs();
-
 		await RenderInternals.killAllBrowsers();
 	};
 });
@@ -45,11 +42,24 @@ describe('Webhooks', () => {
 		process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 		process.env.AWS_LAMBDA_FUNCTION_NAME = 'remotion-dev-lambda';
 
+		const exampleBuild = path.join(process.cwd(), '..', 'example', 'build');
+
+		const {port, close} = await RenderInternals.serveStatic(exampleBuild, {
+			binariesDirectory: null,
+			concurrency: 1,
+			downloadMap: RenderInternals.makeDownloadMap(),
+			indent: false,
+			logLevel: 'error',
+			offthreadVideoCacheSizeInBytes: null,
+			port: null,
+			remotionRoot: path.dirname(exampleBuild),
+			forceIPv4: false,
+		});
+
 		const res = await callLambda({
-			type: LambdaRoutines.start,
+			type: ServerlessRoutines.start,
 			payload: {
-				serveUrl:
-					'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
+				serveUrl: `http://localhost:${port}`,
 				chromiumOptions: {},
 				codec: 'h264',
 				composition: 'react-svg',
@@ -99,19 +109,17 @@ describe('Webhooks', () => {
 				audioCodec: null,
 				offthreadVideoCacheSizeInBytes: null,
 				deleteAfter: null,
-				colorSpace: 'default',
+				colorSpace: null,
 				preferLossless: false,
 			},
 			functionName: 'remotion-dev-lambda',
-			receivedStreamingPayload: () => undefined,
 			region: 'us-east-1',
 			timeoutInTest: 120000,
-			retriesRemaining: 0,
 		});
 		const parsed = res;
 
 		await callLambda({
-			type: LambdaRoutines.status,
+			type: ServerlessRoutines.status,
 			payload: {
 				bucketName: parsed.bucketName,
 				renderId: parsed.renderId,
@@ -119,10 +127,8 @@ describe('Webhooks', () => {
 				logLevel: 'info',
 			},
 			functionName: 'remotion-dev-lambda',
-			receivedStreamingPayload: () => undefined,
 			region: 'us-east-1',
 			timeoutInTest: 120000,
-			retriesRemaining: 0,
 		});
 
 		expect(mockableHttpClients.http).toHaveBeenCalledTimes(1);
@@ -141,20 +147,34 @@ describe('Webhooks', () => {
 			},
 			expect.anything(),
 		);
+		await close();
 	});
 
 	test('Should call webhook upon timeout', async () => {
 		process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 
+		const exampleBuild = path.join(process.cwd(), '..', 'example', 'build');
+
+		// Maybe this can use simulateLambdaRender instead
+		const {port, close} = await RenderInternals.serveStatic(exampleBuild, {
+			binariesDirectory: null,
+			concurrency: 1,
+			downloadMap: RenderInternals.makeDownloadMap(),
+			indent: false,
+			logLevel: 'error',
+			offthreadVideoCacheSizeInBytes: null,
+			port: null,
+			remotionRoot: path.dirname(exampleBuild),
+			forceIPv4: false,
+		});
+
 		await callLambda({
 			functionName: 'remotion-dev-lambda',
-			receivedStreamingPayload: () => undefined,
 			region: 'us-east-1',
-			type: LambdaRoutines.launch,
+			type: ServerlessRoutines.launch,
 			payload: {
 				offthreadVideoCacheSizeInBytes: null,
-				serveUrl:
-					'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
+				serveUrl: `http://localhost:${port}`,
 				chromiumOptions: {},
 				codec: 'h264',
 				composition: 'react-svg',
@@ -201,11 +221,10 @@ describe('Webhooks', () => {
 				rendererFunctionName: null,
 				audioCodec: null,
 				deleteAfter: null,
-				colorSpace: 'default',
+				colorSpace: null,
 				preferLossless: false,
 			},
 			timeoutInTest: 1000,
-			retriesRemaining: 0,
 		});
 
 		await new Promise((resolve) => {
@@ -227,5 +246,6 @@ describe('Webhooks', () => {
 			},
 			expect.anything(),
 		);
+		await close();
 	});
 });

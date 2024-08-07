@@ -1,8 +1,8 @@
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import type {RenderDefaults} from '@remotion/studio';
+import type {RenderDefaults} from '@remotion/studio-shared';
 import {ConfigInternals} from './config';
-import {parsedCli} from './parse-command-line';
+import {parsedCli} from './parsed-cli';
 
 const {
 	x264Option,
@@ -34,7 +34,7 @@ export const getRenderDefaults = (): RenderDefaults => {
 	}).value;
 	const logLevel = logLevelOption.getValue({commandLine: parsedCli}).value;
 	const defaultCodec = ConfigInternals.getOutputCodecOrUndefined();
-	const concurrency = RenderInternals.getActualConcurrency(
+	const concurrency = RenderInternals.resolveConcurrency(
 		ConfigInternals.getConcurrency(),
 	);
 	const pixelFormat = ConfigInternals.getPixelFormat();

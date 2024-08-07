@@ -1,7 +1,10 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lottie"
+	},
 	"name": "@remotion/lottie",
-	"version": "4.0.123",
-	"description": "Remotion Lottie",
+	"version": "4.0.193",
+	"description": "Include Lottie animations in Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -9,12 +12,8 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"test": "vitest --run",
-		"build": "rollup --config rollup.config.js && tsc -d",
-		"watch": "tsc -w"
-	},
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
+		"test": "bun test src",
+		"build": "bun --env-file=../.env.bundle bundle.ts"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
@@ -43,18 +42,8 @@
 		}
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.276",
-		"@rollup/plugin-typescript": "^8.2.0",
-		"@types/node": "18.14.6",
-		"@types/react": "18.2.48",
-		"@types/react-dom": "18.2.18",
-		"eslint": "8.42.0",
-		"prettier": "3.1.1",
-		"prettier-plugin-organize-imports": "3.2.4",
-		"react": "18.2.0",
-		"react-dom": "18.2.0",
-		"rollup": "^2.70.1",
-		"vitest": "0.31.1"
+		"react": "18.3.1",
+		"react-dom": "18.3.1"
 	},
 	"keywords": [
 		"remotion",
@@ -66,5 +55,6 @@
 	],
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/lottie"
 }

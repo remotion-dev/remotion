@@ -1,0 +1,114 @@
+---
+image: /generated/articles-docs-schemas.png
+id: schemas
+title: Defining a schema for your props
+sidebar_label: Defining a schema
+crumb: "How To"
+---
+
+As an alternative to [using TypeScript types](/docs/parameterized-rendering) to define the shape of the props your component accepts, you may use [Zod](https://zod.dev/) to define a schema for your props. You may do so if you want to edit the props visually in the Remotion Studio.
+
+## Prerequisites
+
+If you want to use this feature, install `zod@3.22.3` and [`@remotion/zod-types`](/docs/zod-types/) for Remotion-specific types:
+
+<Installation pkg="@remotion/zod-types zod@3.22.3"/>
+
+## Defining a schema
+
+To define a schema for your props, use [`z.object()`](https://zod.dev/?id=objects):
+
+```tsx twoslash
+import { z } from "zod";
+
+export const myCompSchema = z.object({
+  propOne: z.string(),
+  propTwo: z.string(),
+});
+```
+
+Using `z.infer()`, you can turn the schema into a type:
+
+```tsx twoslash
+import { z } from "zod";
+
+export const myCompSchema = z.object({
+  propOne: z.string(),
+  propTwo: z.string(),
+});
+// ---cut---
+export const MyComp: React.FC<z.infer<typeof myCompSchema>> = ({
+  propOne,
+  propTwo,
+}) => {
+  return (
+    <div>
+      props: {propOne}, {propTwo}
+    </div>
+  );
+};
+```
+
+## Adding a schema to your composition
+
+Use the [`schema`](/docs/composition#schema) prop to attach the schema to your [`<Composition>`](/docs/composition). Remotion will require you to specify matching [`defaultProps`](/docs/composition#schema).
+
+```tsx twoslash title="src/Root.tsx" {3,14-18}
+// @filename: MyComponent.tsx
+import React from "react";
+import { z } from "zod";
+
+export const myCompSchema = z.object({
+  propOne: z.string(),
+  propTwo: z.string(),
+});
+
+export const MyComponent: React.FC<z.infer<typeof myCompSchema>> = ({
+  propOne,
+  propTwo,
+}) => {
+  return (
+    <div>
+      <h1>{propOne}</h1>
+      <h2>{propTwo}</h2>
+    </div>
+  );
+};
+
+// @filename: Root.tsx
+// organize-imports-ignore
+// ---cut---
+import React from "react";
+import { Composition } from "remotion";
+import { MyComponent, myCompSchema } from "./MyComponent";
+
+export const RemotionRoot: React.FC = () => {
+  return (
+    <Composition
+      id="my-video"
+      component={MyComponent}
+      durationInFrames={100}
+      fps={30}
+      width={1920}
+      height={1080}
+      schema={myCompSchema}
+      defaultProps={{
+        propOne: "Hello World",
+        propTwo: "Welcome to Remotion",
+      }}
+    />
+  );
+};
+```
+
+## Editing props visually
+
+When you have defined a schema for your props, you can [edit them visually in the Remotion Studio](/docs/visual-editing). This is useful if you want to quickly try out different values for your props.
+
+## Supported types
+
+All schemas that are supported by [Zod](https://zod.dev/) are supported by Remotion.
+
+Remotion requires that the top-level type is a `z.object()`, because the collection of props of a React component is always an object.
+
+In addition to the built in types, the `@remotion/zod-types` package also provides [`zColor()`](/docs/zod-types/z-color), including a color picker interface for the Remotion Studio.

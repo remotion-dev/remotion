@@ -1,5 +1,5 @@
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import {afterEach, beforeAll, expect, test} from 'vitest';
+import {afterEach, beforeAll, expect, test} from 'bun:test';
 import {expectToThrow} from './expect-to-throw';
 
 const invalidOverwrite = 555;

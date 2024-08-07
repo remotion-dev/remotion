@@ -1,30 +1,30 @@
 import React, {useCallback, useMemo} from 'react';
 import type {z} from 'zod';
 import {Checkmark} from '../../../icons/Checkmark';
-import {useZodIfPossible} from '../../get-zod-if-possible';
 import type {ComboboxValue} from '../../NewComposition/ComboBox';
 import {Combobox} from '../../NewComposition/ComboBox';
+import {useZodIfPossible} from '../../get-zod-if-possible';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
-import type {JSONPath} from './zod-types';
 import {ZodFieldValidation} from './ZodFieldValidation';
 import type {UpdaterFunction} from './ZodSwitch';
+import {useLocalState} from './local-state';
+import type {JSONPath} from './zod-types';
 
 const container: React.CSSProperties = {
 	width: '100%',
 };
 
 export const ZodEnumEditor: React.FC<{
-	schema: z.ZodTypeAny;
-	jsonPath: JSONPath;
-	value: string;
-	defaultValue: string;
-	setValue: UpdaterFunction<string>;
-	onSave: UpdaterFunction<string>;
-	showSaveButton: boolean;
-	onRemove: null | (() => void);
-	saving: boolean;
+	readonly schema: z.ZodTypeAny;
+	readonly jsonPath: JSONPath;
+	readonly value: string;
+	readonly defaultValue: string;
+	readonly setValue: UpdaterFunction<string>;
+	readonly onSave: UpdaterFunction<string>;
+	readonly showSaveButton: boolean;
+	readonly onRemove: null | (() => void);
+	readonly saving: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -48,8 +48,8 @@ export const ZodEnumEditor: React.FC<{
 	} = useLocalState({
 		schema,
 		setValue,
-		value,
-		defaultValue,
+		unsavedValue: value,
+		savedValue: defaultValue,
 	});
 
 	const def = schema._def;

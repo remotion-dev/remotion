@@ -1,8 +1,12 @@
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {JobProgressCallback, RenderJob} from '@remotion/studio-server';
 import {getRendererPortFromConfigFile} from '../config/preview-server';
 import {convertEntryPointToServeUrl} from '../convert-entry-point-to-serve-url';
 import {getCliOptions} from '../get-cli-options';
+import {parsedCli} from '../parsed-cli';
 import {renderStillFlow} from '../render-flows/still';
+
+const {publicDirOption} = BrowserSafeApis.options;
 
 export const processStill = async ({
 	job,
@@ -21,10 +25,15 @@ export const processStill = async ({
 		throw new Error('Expected still job');
 	}
 
-	const {publicDir, browserExecutable} = getCliOptions({
+	const {browserExecutable} = getCliOptions({
 		isStill: true,
 		logLevel: job.logLevel,
+		indent: true,
 	});
+
+	const publicDir = publicDirOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);
 
@@ -58,5 +67,6 @@ export const processStill = async ({
 		outputLocationFromUi: job.outName,
 		offthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
 		binariesDirectory: job.binariesDirectory,
+		publicPath: null,
 	});
 };

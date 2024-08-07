@@ -15,12 +15,12 @@ import type {
 } from 'remotion';
 import {
 	AbsoluteFill,
+	Internals,
+	VERSION,
 	continueRender,
 	delayRender,
 	getInputProps,
 	getRemotionEnvironment,
-	Internals,
-	VERSION,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 
@@ -37,7 +37,7 @@ const getBundleMode = () => {
 };
 
 Internals.CSSUtils.injectCSS(
-	Internals.CSSUtils.makeDefaultCSS(null, '#1f2428'),
+	Internals.CSSUtils.makeDefaultPreviewCSS(null, '#1f2428'),
 );
 
 const getCanSerializeDefaultProps = (object: unknown) => {
@@ -190,6 +190,9 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 
 const waitForRootHandle = delayRender(
 	'Loading root component - See https://remotion.dev/docs/troubleshooting/loading-root-component if you experience a timeout',
+	{
+		timeoutInMilliseconds: 10000,
+	},
 );
 
 const videoContainer = document.getElementById(
@@ -208,15 +211,21 @@ const getRootForElement = () => {
 };
 
 const renderToDOM = (content: React.ReactElement) => {
-	// @ts-expect-error
-	if (ReactDOM.createRoot) {
-		getRootForElement().render(content);
-	} else {
+	if (!ReactDOM.createRoot) {
+		if (NoReactInternals.ENABLE_V5_BREAKING_CHANGES) {
+			throw new Error(
+				'Remotion 5.0 does only support React 18+. However, ReactDOM.createRoot() is undefined.',
+			);
+		}
+
 		(ReactDOM as unknown as {render: typeof render}).render(
 			content,
 			videoContainer,
 		);
+		return;
 	}
+
+	getRootForElement().render(content);
 };
 
 const renderContent = (Root: React.FC) => {
@@ -254,9 +263,9 @@ const renderContent = (Root: React.FC) => {
 				<DelayedSpinner />
 			</div>,
 		);
-		import('@remotion/studio')
-			.then(({Studio}) => {
-				renderToDOM(<Studio readOnly rootComponent={Root} />);
+		import('@remotion/studio/internals')
+			.then(({StudioInternals}) => {
+				renderToDOM(<StudioInternals.Studio readOnly rootComponent={Root} />);
 			})
 			.catch((err) => {
 				renderToDOM(<div>Failed to load Remotion Studio: {err.message}</div>);
@@ -337,11 +346,21 @@ if (typeof window !== 'undefined') {
 					`Running calculateMetadata() for composition ${c.id}. If you didn't want to evaluate this composition, use "selectComposition()" instead of "getCompositions()"`,
 				);
 
+				const originalProps = {
+					...(c.defaultProps ?? {}),
+					...(inputProps ?? {}),
+				};
+
 				const comp = Internals.resolveVideoConfig({
-					composition: c,
-					editorProps: {},
+					calculateMetadata: c.calculateMetadata,
+					compositionDurationInFrames: c.durationInFrames ?? null,
+					compositionFps: c.fps ?? null,
+					compositionHeight: c.height ?? null,
+					compositionWidth: c.width ?? null,
 					signal: new AbortController().signal,
-					inputProps,
+					originalProps,
+					defaultProps: c.defaultProps ?? {},
+					compositionId: c.id,
 				});
 
 				const resolved = await Promise.resolve(comp);
@@ -375,7 +394,11 @@ if (typeof window !== 'undefined') {
 		const compositions = getUnevaluatedComps();
 		const selectedComp = compositions.find((c) => c.id === compId);
 		if (!selectedComp) {
-			throw new Error(`Could not find composition with ID ${compId}`);
+			throw new Error(
+				`Could not find composition with ID ${compId}. Available compositions: ${compositions
+					.map((c) => c.id)
+					.join(', ')}`,
+			);
 		}
 
 		const abortController = new AbortController();
@@ -388,12 +411,22 @@ if (typeof window !== 'undefined') {
 				? {}
 				: getInputProps() ?? {};
 
+		const originalProps = {
+			...(selectedComp.defaultProps ?? {}),
+			...(inputProps ?? {}),
+		};
+
 		const prom = await Promise.resolve(
 			Internals.resolveVideoConfig({
-				composition: selectedComp,
-				editorProps: {},
+				calculateMetadata: selectedComp.calculateMetadata,
+				compositionDurationInFrames: selectedComp.durationInFrames ?? null,
+				compositionFps: selectedComp.fps ?? null,
+				compositionHeight: selectedComp.height ?? null,
+				compositionWidth: selectedComp.width ?? null,
+				originalProps,
 				signal: abortController.signal,
-				inputProps,
+				defaultProps: selectedComp.defaultProps ?? {},
+				compositionId: selectedComp.id,
 			}),
 		);
 		continueRender(handle);
@@ -416,7 +449,7 @@ if (typeof window !== 'undefined') {
 		};
 	};
 
-	window.siteVersion = '10';
+	window.siteVersion = '11';
 	window.remotion_version = VERSION;
 	window.remotion_setBundleMode = setBundleModeAndUpdate;
 }

@@ -1,5 +1,6 @@
 import React, {useContext, useState} from 'react';
 import {Internals} from 'remotion';
+import {checkFullscreenSupport} from '../helpers/check-fullscreen-support';
 import {BACKGROUND} from '../helpers/colors';
 import {
 	useIsStill,
@@ -10,17 +11,17 @@ import {loadLoopOption} from '../state/loop';
 import {CheckboardToggle} from './CheckboardToggle';
 import {FpsCounter} from './FpsCounter';
 import {FullScreenToggle} from './FullscreenToggle';
-import {Flex, Spacing} from './layout';
 import {LoopToggle} from './LoopToggle';
 import {MuteToggle} from './MuteToggle';
+import {PlayPause} from './PlayPause';
 import {PlaybackKeyboardShortcutsManager} from './PlaybackKeyboardShortcutsManager';
 import {PlaybackRatePersistor} from './PlaybackRatePersistor';
 import {PlaybackRateSelector} from './PlaybackRateSelector';
-import {PlayPause} from './PlayPause';
 import {RenderButton} from './RenderButton';
 import {SizeSelector} from './SizeSelector';
 import {TimelineZoomControls} from './Timeline/TimelineZoomControls';
 import {TimelineInOutPointToggle} from './TimelineInOutToggle';
+import {Flex, Spacing} from './layout';
 
 const container: React.CSSProperties = {
 	display: 'flex',
@@ -46,8 +47,8 @@ const padding: React.CSSProperties = {
 };
 
 export const PreviewToolbar: React.FC<{
-	readOnlyStudio: boolean;
-	bufferStateDelayInMilliseconds: number;
+	readonly readOnlyStudio: boolean;
+	readonly bufferStateDelayInMilliseconds: number;
 }> = ({readOnlyStudio, bufferStateDelayInMilliseconds}) => {
 	const {playbackRate, setPlaybackRate} = useContext(
 		Internals.Timeline.TimelineContext,
@@ -60,8 +61,7 @@ export const PreviewToolbar: React.FC<{
 
 	const [loop, setLoop] = useState(loadLoopOption());
 
-	const isFullscreenSupported =
-		document.fullscreenEnabled || document.webkitFullscreenEnabled;
+	const isFullscreenSupported = checkFullscreenSupport();
 
 	return (
 		<div style={container} className="css-reset">
@@ -91,10 +91,10 @@ export const PreviewToolbar: React.FC<{
 					<Spacing x={2} />
 					<TimelineInOutPointToggle />
 					<Spacing x={2} />
-					<CheckboardToggle />
-					<Spacing x={1} />
 				</>
 			) : null}
+			<CheckboardToggle />
+			<Spacing x={1} />
 			{isFullscreenSupported && <FullScreenToggle />}
 			<Flex />
 			<div style={sideContainer}>

@@ -1,10 +1,12 @@
 import React, {
 	forwardRef,
 	useCallback,
+	useContext,
 	useImperativeHandle,
 	useLayoutEffect,
 	useRef,
 } from 'react';
+import {SequenceContext} from './SequenceContext.js';
 import {cancelRender} from './cancel-render.js';
 import {continueRender, delayRender} from './delay-render.js';
 import {usePreload} from './prefetch.js';
@@ -21,18 +23,34 @@ export type ImgProps = Omit<
 	>,
 	'src'
 > & {
-	maxRetries?: number;
-	pauseWhenLoading?: boolean;
-	src: string;
+	readonly maxRetries?: number;
+	readonly pauseWhenLoading?: boolean;
+	readonly delayRenderRetries?: number;
+	readonly delayRenderTimeoutInMilliseconds?: number;
+	readonly onImageFrame?: (imgelement: HTMLImageElement) => void;
+	readonly src: string;
 };
 
 const ImgRefForwarding: React.ForwardRefRenderFunction<
 	HTMLImageElement,
 	ImgProps
-> = ({onError, maxRetries = 2, src, pauseWhenLoading, ...props}, ref) => {
+> = (
+	{
+		onError,
+		maxRetries = 2,
+		src,
+		pauseWhenLoading,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
+		onImageFrame,
+		...props
+	},
+	ref,
+) => {
 	const imageRef = useRef<HTMLImageElement>(null);
 	const errors = useRef<Record<string, number>>({});
 	const {delayPlayback} = useBufferState();
+	const sequenceContext = useContext(SequenceContext);
 
 	if (!src) {
 		throw new Error('No "src" prop was passed to <Img>.');
@@ -112,16 +130,21 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 	);
 
 	if (typeof window !== 'undefined') {
+		const isPremounting = Boolean(sequenceContext?.premounting);
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useLayoutEffect(() => {
-			if (process.env.NODE_ENV === 'test') {
+			if (window.process?.env?.NODE_ENV === 'test') {
 				return;
 			}
 
-			const newHandle = delayRender('Loading <Img> with src=' + actualSrc);
-			const unblock = pauseWhenLoading
-				? delayPlayback().unblock
-				: () => undefined;
+			const newHandle = delayRender('Loading <Img> with src=' + actualSrc, {
+				retries: delayRenderRetries ?? undefined,
+				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+			});
+			const unblock =
+				pauseWhenLoading && !isPremounting
+					? delayPlayback().unblock
+					: () => undefined;
 			const {current} = imageRef;
 
 			const onComplete = () => {
@@ -133,6 +156,10 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 							imageRef.current?.src as string
 						} is now loaded`,
 					);
+				}
+
+				if (current) {
+					onImageFrame?.(current);
 				}
 
 				unblock();
@@ -156,7 +183,15 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 
 				continueRender(newHandle);
 			};
-		}, [actualSrc, delayPlayback, pauseWhenLoading]);
+		}, [
+			actualSrc,
+			delayPlayback,
+			delayRenderRetries,
+			delayRenderTimeoutInMilliseconds,
+			pauseWhenLoading,
+			isPremounting,
+			onImageFrame,
+		]);
 	}
 
 	return (

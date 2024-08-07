@@ -1,5 +1,5 @@
 import type {LogLevel} from '@remotion/renderer';
-import {NoReactAPIs} from '@remotion/renderer/pure';
+import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import {
 	DEFAULT_MAX_INSTANCES,
 	DEFAULT_MIN_INSTANCES,
@@ -23,6 +23,7 @@ type InternalDeployServiceInput = {
 	projectID: string;
 	region: string;
 	logLevel: LogLevel;
+	indent: boolean;
 };
 export type DeployServiceInput = {
 	performImageVersionValidation?: boolean;
@@ -115,8 +116,7 @@ const deployServiceRaw = async ({
 	};
 };
 
-export const internalDeployService =
-	NoReactAPIs.wrapWithErrorHandling(deployServiceRaw);
+export const internalDeployService = wrapWithErrorHandling(deployServiceRaw);
 
 /**
  * @description Creates a Cloud Run service in your project that will be able to render a video in GCP.
@@ -151,5 +151,6 @@ export const deployService = ({
 		projectID,
 		region,
 		logLevel: logLevel ?? 'info',
+		indent: false,
 	});
 };

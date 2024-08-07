@@ -6,8 +6,9 @@ import fs, {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
+import {makeHyperlink} from './hyperlinks/make-link';
 import {Log} from './log';
-import {parsedCli} from './parse-command-line';
+import {parsedCli} from './parsed-cli';
 
 function getProcessEnv(): Record<string, string> {
 	const env: Record<string, string> = {};
@@ -98,7 +99,11 @@ const getEnvForEnvFile = ({
 			}
 		}
 
-		Log.verbose({indent, logLevel}, `Loaded env file from ${envFile}.`);
+		const relativeEnvFile = path.relative(process.cwd(), envFile);
+		Log.verbose(
+			{indent, logLevel},
+			`Loaded env file from ${makeHyperlink({fallback: envFile, text: relativeEnvFile, url: 'file://' + envFile})}.`,
+		);
 
 		return {
 			...processEnv,

@@ -1,3 +1,9 @@
+import type {EnhancedErrorInfo, LambdaErrorInfo} from '@remotion/serverless';
+import type {
+	CustomCredentials,
+	GetOrCreateBucketInput,
+	GetOrCreateBucketOutput,
+} from '@remotion/serverless/client';
 import type {DeleteFunctionInput} from './api/delete-function';
 import {deleteFunction} from './api/delete-function';
 import type {DeleteRenderInput} from './api/delete-render';
@@ -29,10 +35,6 @@ import type {FunctionInfo, GetFunctionInfoInput} from './api/get-function-info';
 import {getFunctionInfo} from './api/get-function-info';
 import type {GetFunctionsInput} from './api/get-functions';
 import {getFunctions} from './api/get-functions';
-import type {
-	GetOrCreateBucketInput,
-	GetOrCreateBucketOutput,
-} from './api/get-or-create-bucket';
 import {getOrCreateBucket} from './api/get-or-create-bucket';
 import {getRegions} from './api/get-regions';
 import type {GetRenderProgressInput} from './api/get-render-progress';
@@ -63,14 +65,12 @@ import type {
 } from './api/render-still-on-lambda';
 import {renderStillOnLambda as deprecatedRenderStillOnLambda} from './api/render-still-on-lambda';
 import {validateWebhookSignature} from './api/validate-webhook-signature';
-import type {LambdaLSInput, LambdaLsReturnType} from './functions/helpers/io';
-import type {
-	EnhancedErrorInfo,
-	LambdaErrorInfo,
-} from './functions/helpers/write-lambda-error';
-import {LambdaInternals} from './internals';
-import type {AwsRegion} from './pricing/aws-regions';
-import type {CustomCredentials} from './shared/aws-clients';
+import {
+	LambdaInternals,
+	_InternalAwsProvider,
+	_InternalOverallRenderProgress,
+} from './internals';
+import type {AwsRegion} from './regions';
 import type {RenderProgress} from './shared/constants';
 import type {WebhookPayload} from './shared/invoke-webhook';
 
@@ -95,67 +95,67 @@ const presignUrl = deprecatedPresignUrl;
 const getSites = deprecatedGetSites;
 
 export {
+	LambdaInternals,
+	deleteFunction,
+	deleteRender,
 	deleteSite,
 	deployFunction,
 	deploySite,
 	downloadMedia,
+	estimatePrice,
+	getAwsClient,
+	getCompositionsOnLambda,
+	getFunctionInfo,
 	getFunctions,
-	getUserPolicy,
+	getOrCreateBucket,
+	getRegions,
+	getRenderProgress,
 	getRolePolicy,
 	getSites,
-	getOrCreateBucket,
-	getRenderProgress,
-	renderVideoOnLambda,
-	renderMediaOnLambda,
-	simulatePermissions,
-	deleteFunction,
-	getFunctionInfo,
-	estimatePrice,
-	LambdaInternals,
-	renderStillOnLambda,
-	getRegions,
-	getAwsClient,
+	getUserPolicy,
 	presignUrl,
-	deleteRender,
+	renderMediaOnLambda,
+	renderStillOnLambda,
+	renderVideoOnLambda,
+	simulatePermissions,
 	validateWebhookSignature,
-	getCompositionsOnLambda,
 };
 export type {
 	AwsRegion,
-	RenderProgress,
-	DeploySiteInput,
-	DeploySiteOutput,
-	LambdaLsReturnType,
-	LambdaLSInput,
+	CustomCredentials,
+	DeleteFunctionInput,
+	DeleteRenderInput,
 	DeleteSiteInput,
 	DeleteSiteOutput,
-	EstimatePriceInput,
 	DeployFunctionInput,
 	DeployFunctionOutput,
-	DeleteFunctionInput,
-	GetFunctionInfoInput,
-	FunctionInfo,
-	GetFunctionsInput,
-	GetSitesInput,
-	GetSitesOutput,
+	DeploySiteInput,
+	DeploySiteOutput,
 	DownloadMediaInput,
 	DownloadMediaOutput,
+	EnhancedErrorInfo,
+	EstimatePriceInput,
+	FunctionInfo,
+	GetAwsClientInput,
+	GetAwsClientOutput,
+	GetCompositionsOnLambdaInput,
+	GetCompositionsOnLambdaOutput,
+	GetFunctionInfoInput,
+	GetFunctionsInput,
 	GetOrCreateBucketInput,
 	GetOrCreateBucketOutput,
 	GetRenderProgressInput,
+	GetSitesInput,
+	GetSitesOutput,
+	LambdaErrorInfo,
 	RenderMediaOnLambdaInput,
 	RenderMediaOnLambdaOutput,
+	RenderProgress,
 	RenderStillOnLambdaInput,
 	RenderStillOnLambdaOutput,
 	SimulatePermissionsInput,
 	SimulatePermissionsOutput,
-	GetAwsClientInput,
-	GetAwsClientOutput,
-	CustomCredentials,
 	WebhookPayload,
-	LambdaErrorInfo,
-	EnhancedErrorInfo,
-	DeleteRenderInput,
-	GetCompositionsOnLambdaOutput,
-	GetCompositionsOnLambdaInput,
 };
+
+export {_InternalAwsProvider, _InternalOverallRenderProgress};

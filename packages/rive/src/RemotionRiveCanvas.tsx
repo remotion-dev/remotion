@@ -2,11 +2,19 @@ import type {
 	Artboard,
 	CanvasRenderer,
 	File,
+	FileAsset,
 	LinearAnimationInstance,
 	RiveCanvas,
 } from '@rive-app/canvas-advanced';
 import riveCanvas from '@rive-app/canvas-advanced';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {
+	forwardRef,
+	useEffect,
+	useImperativeHandle,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {
 	continueRender,
 	delayRender,
@@ -19,25 +27,43 @@ import type {
 } from './map-enums.js';
 import {mapToAlignment, mapToFit} from './map-enums.js';
 
+type assetLoadCallback = (asset: FileAsset, bytes: Uint8Array) => boolean;
 type onLoadCallback = (file: File) => void;
 
 interface RiveProps {
-	src: string;
-	fit?: RemotionRiveCanvasFit;
-	alignment?: RemotionRiveCanvasAlignment;
-	artboard?: string | number;
-	animation?: string | number;
-	onLoad?: onLoadCallback | null;
+	readonly src: string;
+	readonly fit?: RemotionRiveCanvasFit;
+	readonly alignment?: RemotionRiveCanvasAlignment;
+	readonly artboard?: string | number;
+	readonly animation?: string | number;
+	readonly onLoad?: onLoadCallback | null;
+	readonly enableRiveAssetCdn?: boolean;
+	readonly assetLoader?: assetLoadCallback;
 }
 
-export const RemotionRiveCanvas: React.FC<RiveProps> = ({
-	src,
-	fit = 'contain',
-	alignment = 'center',
-	artboard: artboardName,
-	animation: animationIndex,
-	onLoad = null,
-}) => {
+export type RiveCanvasRef = {
+	getAnimationInstance: () => LinearAnimationInstance | null;
+	getArtboard: () => Artboard | null;
+	getRenderer: () => CanvasRenderer | null;
+	getCanvas: () => RiveCanvas | null;
+};
+
+const RemotionRiveCanvasForwardRefFunction: React.ForwardRefRenderFunction<
+	RiveCanvasRef,
+	RiveProps
+> = (
+	{
+		src,
+		fit = 'contain',
+		alignment = 'center',
+		artboard: artboardName,
+		animation: animationIndex,
+		onLoad = null,
+		assetLoader,
+		enableRiveAssetCdn = true,
+	},
+	ref,
+) => {
 	const {width, fps, height} = useVideoConfig();
 	const frame = useCurrentFrame();
 	const canvas = useRef<HTMLCanvasElement>(null);
@@ -54,12 +80,34 @@ export const RemotionRiveCanvas: React.FC<RiveProps> = ({
 		animation: LinearAnimationInstance;
 		renderer: CanvasRenderer;
 		artboard: Artboard;
+		file: File;
 	} | null>(null);
+
+	useImperativeHandle(
+		ref,
+		() => {
+			return {
+				getAnimationInstance() {
+					return rive?.animation ?? null;
+				},
+				getArtboard() {
+					return rive?.artboard ?? null;
+				},
+				getRenderer() {
+					return rive?.renderer ?? null;
+				},
+				getCanvas() {
+					return riveCanvasInstance ?? null;
+				},
+			};
+		},
+		[rive, riveCanvasInstance],
+	);
 
 	useEffect(() => {
 		riveCanvas({
 			locateFile: () =>
-				'https://unpkg.com/@rive-app/canvas-advanced@2.3.0/rive.wasm',
+				'https://unpkg.com/@rive-app/canvas-advanced@2.19.3/rive.wasm',
 		})
 			.then((riveInstance) => {
 				setRiveCanvas(riveInstance);
@@ -78,38 +126,61 @@ export const RemotionRiveCanvas: React.FC<RiveProps> = ({
 		const renderer = riveCanvasInstance.makeRenderer(
 			canvas.current as HTMLCanvasElement,
 		);
+
 		fetch(new Request(src))
 			.then((f) => f.arrayBuffer())
 			.then((b) => {
-				riveCanvasInstance.load(new Uint8Array(b)).then((file) => {
-					const artboard =
-						typeof artboardName === 'string'
-							? file.artboardByName(artboardName)
-							: typeof artboardName === 'number'
-								? file.artboardByIndex(artboardName)
-								: file.defaultArtboard();
-					const animation = new riveCanvasInstance.LinearAnimationInstance(
-						typeof animationIndex === 'number'
-							? artboard.animationByIndex(animationIndex)
-							: typeof animationIndex === 'string'
-								? artboard.animationByName(animationIndex)
-								: artboard.animationByIndex(0),
-						artboard,
-					);
-					setRive({
-						animation,
-						artboard,
-						renderer,
+				riveCanvasInstance
+					.load(
+						new Uint8Array(b),
+						assetLoader
+							? new riveCanvasInstance.CustomFileAssetLoader({
+									loadContents: assetLoader,
+								})
+							: undefined,
+						enableRiveAssetCdn,
+					)
+					.then((file) => {
+						const artboard =
+							typeof artboardName === 'string'
+								? file.artboardByName(artboardName)
+								: typeof artboardName === 'number'
+									? file.artboardByIndex(artboardName)
+									: file.defaultArtboard();
+						const animation = new riveCanvasInstance.LinearAnimationInstance(
+							typeof animationIndex === 'number'
+								? artboard.animationByIndex(animationIndex)
+								: typeof animationIndex === 'string'
+									? artboard.animationByName(animationIndex)
+									: artboard.animationByIndex(0),
+							artboard,
+						);
+						setRive({
+							animation,
+							artboard,
+							renderer,
+							file,
+						});
 					});
-					if (onLoad) {
-						onLoad(file);
-					}
-				});
 			})
 			.catch((newErr) => {
 				setError(newErr);
 			});
-	}, [animationIndex, artboardName, riveCanvasInstance, src, onLoad]);
+	}, [
+		animationIndex,
+		artboardName,
+		riveCanvasInstance,
+		src,
+		onLoad,
+		assetLoader,
+		enableRiveAssetCdn,
+	]);
+
+	useEffect(() => {
+		if (onLoad && rive) {
+			onLoad(rive.file);
+		}
+	}, [onLoad, rive]);
 
 	React.useEffect(() => {
 		if (!riveCanvasInstance) {
@@ -162,3 +233,7 @@ export const RemotionRiveCanvas: React.FC<RiveProps> = ({
 
 	return <canvas ref={canvas} width={width} height={height} style={style} />;
 };
+
+export const RemotionRiveCanvas = forwardRef(
+	RemotionRiveCanvasForwardRefFunction,
+);

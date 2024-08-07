@@ -1,7 +1,6 @@
 import fs, {existsSync} from 'fs';
-import {Readable} from 'node:stream';
-import type {ReadableStream} from 'node:stream/web';
 import path from 'path';
+import {downloadFile, type OnProgress} from './download';
 
 const models = [
 	'tiny',
@@ -17,17 +16,36 @@ const models = [
 	'large-v3',
 ] as const;
 
+const modelSizes: {[key in WhisperModel]: number} = {
+	'medium.en': 1533774781,
+	'base.en': 147964211,
+	'large-v1': 3094623691,
+	'large-v2': 3094623691,
+	'large-v3': 3095033483,
+	small: 487601967,
+	tiny: 77691713,
+	'small.en': 487614201,
+	'tiny.en': 77704715,
+	base: 147951465,
+	medium: 1533774781,
+};
+
 export type WhisperModel = (typeof models)[number];
-export type OnProgress = (downloadedBytes: number, totalBytes: number) => void;
+
+export const getModelPath = (folder: string, model: WhisperModel) => {
+	return path.join(folder, `ggml-${model}.bin`);
+};
 
 export const downloadWhisperModel = async ({
 	model,
 	folder,
 	printOutput = true,
 	onProgress,
+	signal,
 }: {
 	model: WhisperModel;
 	folder: string;
+	signal?: AbortSignal;
 	printOutput?: boolean;
 	onProgress?: OnProgress;
 }): Promise<{
@@ -39,13 +57,25 @@ export const downloadWhisperModel = async ({
 		);
 	}
 
-	const filePath = path.join(folder, `ggml-${model}.bin`);
+	const filePath = getModelPath(folder, model);
+
 	if (existsSync(filePath)) {
-		if (printOutput) {
-			console.log(`Model already exists at ${filePath}`);
+		const {size} = fs.statSync(filePath);
+		if (size === modelSizes[model]) {
+			if (printOutput) {
+				console.log(`Model already exists at ${filePath}`);
+			}
+
+			return Promise.resolve({alreadyExisted: true});
 		}
 
-		return Promise.resolve({alreadyExisted: true});
+		if (printOutput) {
+			throw new Error(
+				`Model ${model} already exists at ${filePath}, but the size is ${size} bytes (expected ${modelSizes[model]} bytes). Delete ${filePath} and try again.`,
+			);
+		}
+
+		return Promise.resolve({alreadyExisted: false});
 	}
 
 	const baseModelUrl = `https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-${model}.bin`;
@@ -55,54 +85,12 @@ export const downloadWhisperModel = async ({
 
 	const fileStream = fs.createWriteStream(filePath);
 
-	const {body, headers} = await fetch(baseModelUrl);
-	const contentLength = headers.get('content-length');
-
-	if (body === null) {
-		throw new Error('Failed to download whisper model');
-	}
-
-	if (contentLength === null) {
-		throw new Error('Content-Length header not found');
-	}
-
-	const totalFileSize = parseInt(contentLength, 10);
-
-	let downloaded = 0;
-	let lastPrinted = 0;
-
-	const readable = Readable.fromWeb(body as ReadableStream);
-
-	await new Promise<void>((resolve, reject) => {
-		readable.on('error', (err) => {
-			reject(err);
-		});
-
-		readable.on('data', (chunk) => {
-			downloaded += chunk.length;
-			if (printOutput) {
-				if (
-					downloaded - lastPrinted > 1024 * 1024 * 10 ||
-					downloaded === totalFileSize
-				) {
-					console.log(
-						`Downloaded ${downloaded} of ${contentLength} bytes (${(
-							(downloaded / Number(contentLength)) *
-							100
-						).toFixed(2)}%)`,
-					);
-					lastPrinted = downloaded;
-				}
-			}
-
-			fileStream.write(chunk, () => {
-				onProgress?.(downloaded, totalFileSize);
-				if (downloaded === totalFileSize) {
-					fileStream.end();
-					resolve();
-				}
-			});
-		});
+	await downloadFile({
+		fileStream,
+		url: baseModelUrl,
+		printOutput,
+		onProgress,
+		signal: signal ?? null,
 	});
 
 	return {alreadyExisted: false};

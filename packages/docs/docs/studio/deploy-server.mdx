@@ -49,6 +49,13 @@ CMD ["npx", "remotion studio"]
 To deploy the Remotion Studio to [Fly.io](https://fly.io):
 
 - First add the above `Dockerfile` to the repo.
+- Make the following change to the `Dockerfile` (works from v4.0.125):
+
+```diff
+- CMD ["npx", "remotion studio"]
++ CMD ["npx", "remotion studio", "--ipv4"]
+```
+
 - Ensure you are on a paid plan (free plan has too little memory)
 - Use the following command:
 

@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {translatePath} from '../translate-path';
 
 test('Should be able to translate simple path, update x', () => {

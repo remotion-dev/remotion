@@ -10,14 +10,14 @@ import {noop} from '../../helpers/noop';
 import {getClickLock, setClickLock} from '../../state/input-dragger-click-lock';
 import {HigherZIndex} from '../../state/z-index';
 import type {RemInputStatus} from './RemInput';
-import {inputBaseStyle, RemotionInput} from './RemInput';
+import {RemotionInput, inputBaseStyle} from './RemInput';
 
 type Props = InputHTMLAttributes<HTMLInputElement> & {
-	onValueChange: (newVal: number) => void;
-	onTextChange: (newVal: string) => void;
-	status: RemInputStatus;
-	formatter?: (str: number | string) => string;
-	rightAlign: boolean;
+	readonly onValueChange: (newVal: number) => void;
+	readonly onTextChange: (newVal: string) => void;
+	readonly status: RemInputStatus;
+	readonly formatter?: (str: number | string) => string;
+	readonly rightAlign: boolean;
 };
 
 const isInt = (num: number) => {
@@ -59,6 +59,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			color: BLUE,
 			cursor: 'ew-resize',
 			userSelect: 'none',
+			WebkitUserSelect: 'none',
 			fontSize: 13,
 			fontVariantNumeric: 'tabular-nums',
 		}),

@@ -7,7 +7,7 @@ import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
-import {parsedCli} from './parse-command-line';
+import {parsedCli} from './parsed-cli';
 import {renderStillFlow} from './render-flows/still';
 
 const {
@@ -20,6 +20,8 @@ const {
 	headlessOption,
 	overwriteOption,
 	binariesDirectoryOption,
+	publicPathOption,
+	publicDirOption,
 } = BrowserSafeApis.options;
 
 export const still = async (
@@ -31,7 +33,7 @@ export const still = async (
 		file,
 		remainingArgs,
 		reason: entryPointReason,
-	} = findEntryPoint(args, remotionRoot, logLevel);
+	} = findEntryPoint({args, remotionRoot, logLevel, allowDirectory: true});
 
 	if (!file) {
 		Log.error(
@@ -64,7 +66,6 @@ export const still = async (
 		envVariables,
 		height,
 		inputProps,
-		publicDir,
 		stillFrame,
 		width,
 		disableWebSecurity,
@@ -73,6 +74,7 @@ export const still = async (
 	} = getCliOptions({
 		isStill: true,
 		logLevel,
+		indent: false,
 	});
 
 	const jpegQuality = jpegQualityOption.getValue({
@@ -100,6 +102,12 @@ export const still = async (
 		true,
 	).value;
 	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const publicPath = publicPathOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const publicDir = publicDirOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 
@@ -148,5 +156,6 @@ export const still = async (
 		outputLocationFromUi: null,
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
+		publicPath,
 	});
 };

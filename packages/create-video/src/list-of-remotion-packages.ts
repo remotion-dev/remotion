@@ -6,6 +6,7 @@ export const listOfRemotionPackages = [
 	'@remotion/cloudrun',
 	'@remotion/eslint-config',
 	'@remotion/eslint-plugin',
+	'@remotion/enable-scss',
 	'@remotion/renderer',
 	'@remotion/skia',
 	'@remotion/lottie',
@@ -21,6 +22,7 @@ export const listOfRemotionPackages = [
 	'@remotion/three',
 	'@remotion/rive',
 	'@remotion/gif',
+	'@remotion/serverless',
 	'@remotion/shapes',
 	'@remotion/studio',
 	'@remotion/studio-server',
@@ -30,5 +32,7 @@ export const listOfRemotionPackages = [
 	'@remotion/transitions',
 	'@remotion/install-whisper-cpp',
 	'@remotion/animation-utils',
+	'@remotion/animated-emoji',
+	'@remotion/media-parser',
 	'remotion',
 ];

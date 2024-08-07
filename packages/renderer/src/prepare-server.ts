@@ -37,6 +37,7 @@ type PrepareServerOptions = {
 	indent: boolean;
 	offthreadVideoCacheSizeInBytes: number | null;
 	binariesDirectory: string | null;
+	forceIPv4: boolean;
 };
 
 export const prepareServer = async ({
@@ -48,6 +49,7 @@ export const prepareServer = async ({
 	indent,
 	offthreadVideoCacheSizeInBytes,
 	binariesDirectory,
+	forceIPv4,
 }: PrepareServerOptions): Promise<RemotionServer> => {
 	const downloadMap = makeDownloadMap();
 	Log.verbose(
@@ -70,6 +72,7 @@ export const prepareServer = async ({
 			indent,
 			offthreadVideoCacheSizeInBytes,
 			binariesDirectory,
+			forceIPv4,
 		});
 
 		let remoteSourceMap: AnySourceMapConsumer | null = null;
@@ -143,6 +146,7 @@ export const prepareServer = async ({
 		indent,
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
+		forceIPv4,
 	});
 
 	return Promise.resolve({
@@ -171,9 +175,7 @@ export const makeOrReuseServer = async (
 	config: PrepareServerOptions,
 	{
 		onDownload,
-		onError,
 	}: {
-		onError: (err: Error) => void;
 		onDownload: RenderMediaOnDownload | null;
 	},
 ): Promise<{
@@ -186,18 +188,10 @@ export const makeOrReuseServer = async (
 			onDownload,
 		);
 
-		const cleanupError = server.downloadMap.emitter.addEventListener(
-			'error',
-			({detail: {error}}) => {
-				onError(error);
-			},
-		);
-
 		return {
 			server,
 			cleanupServer: () => {
 				cleanupOnDownload();
-				cleanupError();
 				return Promise.resolve();
 			},
 		};
@@ -210,18 +204,10 @@ export const makeOrReuseServer = async (
 		onDownload,
 	);
 
-	const cleanupErrorNew = newServer.downloadMap.emitter.addEventListener(
-		'error',
-		({detail: {error}}) => {
-			onError(error);
-		},
-	);
-
 	return {
 		server: newServer,
 		cleanupServer: (force: boolean) => {
 			cleanupOnDownloadNew();
-			cleanupErrorNew();
 			return Promise.all([newServer.closeServer(force)]);
 		},
 	};

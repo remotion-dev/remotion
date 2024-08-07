@@ -10,7 +10,7 @@ import {getGitSource} from './get-github-repository';
 import {getInputProps} from './get-input-props';
 import {getRenderDefaults} from './get-render-defaults';
 import {Log} from './log';
-import {parsedCli} from './parse-command-line';
+import {parsedCli} from './parsed-cli';
 import {
 	addJob,
 	cancelJob,
@@ -31,12 +31,20 @@ const getPort = () => {
 	return null;
 };
 
+const {binariesDirectoryOption, publicDirOption, disableGitSourceOption} =
+	BrowserSafeApis.options;
+
 export const studioCommand = async (
 	remotionRoot: string,
 	args: string[],
 	logLevel: LogLevel,
 ) => {
-	const {file, reason} = findEntryPoint(args, remotionRoot, logLevel);
+	const {file, reason} = findEntryPoint({
+		args,
+		remotionRoot,
+		logLevel,
+		allowDirectory: false,
+	});
 
 	Log.verbose(
 		{indent: false, logLevel},
@@ -89,12 +97,19 @@ export const studioCommand = async (
 	const keyboardShortcutsEnabled =
 		ConfigInternals.getKeyboardShortcutsEnabled();
 
-	const gitSource = getGitSource(remotionRoot);
+	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
-	const binariesDirectory =
-		BrowserSafeApis.options.binariesDirectoryOption.getValue({
-			commandLine: parsedCli,
-		}).value;
+	const disableGitSource = disableGitSourceOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	const relativePublicDir = publicDirOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	const gitSource = getGitSource({remotionRoot, disableGitSource});
 
 	await StudioServerInternals.startStudio({
 		previewEntry: require.resolve('@remotion/studio/entry'),
@@ -109,7 +124,7 @@ export const studioCommand = async (
 		keyboardShortcutsEnabled,
 		maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 		remotionRoot,
-		userPassedPublicDir: ConfigInternals.getPublicDir(),
+		relativePublicDir,
 		webpackOverride: ConfigInternals.getWebpackOverrideFn(),
 		poll: ConfigInternals.getWebpackPolling(),
 		getRenderDefaults,
@@ -128,5 +143,9 @@ export const studioCommand = async (
 		bufferStateDelayInMilliseconds:
 			ConfigInternals.getBufferStateDelayInMilliseconds(),
 		binariesDirectory,
+		forceIPv4: parsedCli.ipv4,
 	});
+
+	// If the server is restarted through the UI, let's do the whole thing again.
+	await studioCommand(remotionRoot, args, logLevel);
 };

@@ -2,7 +2,7 @@ import type {EventSourceEvent} from '@remotion/studio-shared';
 import React, {useCallback, useEffect, useMemo, useRef} from 'react';
 import type {WatchRemotionStaticFilesPayload} from 'remotion';
 import {Internals} from 'remotion';
-import {sendErrorNotification} from '../components/Notifications/NotificationCenter';
+import {showNotification} from '../components/Notifications/NotificationCenter';
 import playBeepSound from '../components/PlayBeepSound';
 import {renderJobsRef} from '../components/RenderQueue/context';
 import {reloadUrl} from './url-state';
@@ -42,8 +42,8 @@ type Listeners = {
 }[];
 
 export const PreviewServerConnection: React.FC<{
-	children: React.ReactNode;
-	readOnlyStudio: boolean;
+	readonly children: React.ReactNode;
+	readonly readOnlyStudio: boolean;
 }> = ({children, readOnlyStudio}) => {
 	const listeners = useRef<Listeners>([]);
 
@@ -92,7 +92,7 @@ export const PreviewServerConnection: React.FC<{
 			}
 
 			if (newEvent.type === 'render-job-failed') {
-				sendErrorNotification(`Rendering "${newEvent.compositionId}" failed`);
+				showNotification(`Rendering "${newEvent.compositionId}" failed`, 2000);
 			}
 
 			if (newEvent.type === 'new-public-folder') {
@@ -100,13 +100,14 @@ export const PreviewServerConnection: React.FC<{
 					files: newEvent.files,
 				};
 
+				window.remotion_staticFiles = newEvent.files;
+				window.remotion_publicFolderExists = newEvent.folderExists;
+
 				window.dispatchEvent(
 					new CustomEvent(Internals.WATCH_REMOTION_STATIC_FILES, {
 						detail: payload,
 					}),
 				);
-				window.remotion_staticFiles = newEvent.files;
-				window.remotion_publicFolderExists = newEvent.folderExists;
 			}
 
 			listeners.current.forEach((l) => {

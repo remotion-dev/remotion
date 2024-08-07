@@ -38,10 +38,24 @@ const getFreeMemoryFromProcMeminfo = (): number | null => {
 	}
 };
 
+export const maxLambdaMemory = () => {
+	if (process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE) {
+		return (
+			parseInt(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE, 10) * 1024 * 1024
+		);
+	}
+
+	return Infinity;
+};
+
 export const getAvailableMemory = (logLevel: LogLevel) => {
+	const maxMemory = maxLambdaMemory();
 	if (existsSync('/proc/meminfo')) {
 		try {
-			getFreeMemoryFromProcMeminfo();
+			const val = getFreeMemoryFromProcMeminfo();
+			if (val !== null) {
+				return Math.min(val, maxMemory);
+			}
 		} catch (err) {
 			Log.warn(
 				{indent: false, logLevel},
@@ -51,5 +65,5 @@ export const getAvailableMemory = (logLevel: LogLevel) => {
 		}
 	}
 
-	return freemem();
+	return Math.min(freemem(), maxMemory);
 };

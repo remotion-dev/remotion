@@ -1,7 +1,7 @@
+import os
 
 from remotion_lambda import RenderStillParams, Privacy, ValidStillImageFormats
 from remotion_lambda import RemotionClient
-import os
 from dotenv import load_dotenv
 
 

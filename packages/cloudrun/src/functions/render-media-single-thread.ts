@@ -1,11 +1,16 @@
 import type * as ff from '@google-cloud/functions-framework';
 import {Storage} from '@google-cloud/storage';
-import type {ChromiumOptions, RenderMediaOnProgress} from '@remotion/renderer';
+import type {
+	ChromiumOptions,
+	OnArtifact,
+	RenderMediaOnProgress,
+} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
+import {getDownloadBehaviorSetting} from './helpers/get-download-behavior-setting';
 import type {
 	CloudRunPayloadType,
 	RenderMediaOnCloudrunOutput,
@@ -57,6 +62,10 @@ export const renderMediaSingleThread = async (
 			// Override the `null` value, which might come from CLI with swANGLE
 			gl: body.chromiumOptions?.gl ?? 'swangle',
 			enableMultiProcessOnLinux: true,
+		};
+
+		const onArtifact: OnArtifact = () => {
+			throw new Error('Emitting artifacts is not supported in Cloud Run');
 		};
 
 		await RenderInternals.internalRenderMedia({
@@ -119,10 +128,14 @@ export const renderMediaSingleThread = async (
 			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
 			colorSpace: body.colorSpace,
 			repro: false,
-			finishRenderProgress: () => undefined,
 			binariesDirectory: null,
 			separateAudioTo: null,
 			forSeamlessAacConcatenation: false,
+			compositionStart: 0,
+			onBrowserDownload: () => {
+				throw new Error('Should not download a browser in Cloud Run');
+			},
+			onArtifact,
 		});
 
 		const storage = new Storage();
@@ -134,6 +147,7 @@ export const renderMediaSingleThread = async (
 			.upload(tempFilePath, {
 				destination: `renders/${renderId}/${body.outName ?? defaultOutName}`,
 				predefinedAcl: publicUpload ? 'publicRead' : 'projectPrivate',
+				metadata: getDownloadBehaviorSetting(body.downloadBehavior),
 			});
 
 		const uploadedFile = uploadedResponse[0];

@@ -1,6 +1,5 @@
 import {bundle} from '@remotion/bundler';
 import {
-	getCompositions,
 	RenderInternals,
 	renderMedia,
 	renderStill,
@@ -11,7 +10,6 @@ import {execSync} from 'node:child_process';
 import {existsSync, readFileSync, unlinkSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
-import {VideoConfig} from 'remotion';
 import sharp from 'sharp';
 import {afterAll, beforeAll, expect, test} from 'vitest';
 // @ts-expect-error it does work
@@ -33,11 +31,11 @@ afterAll(() => {
 test(
 	'Can render a still png using Node.JS APIs',
 	async () => {
-		const compositions = await getCompositions(bundled);
-
-		const composition = compositions.find(
-			(c) => c.id === 'react-svg',
-		) as VideoConfig;
+		const composition = await selectComposition({
+			serveUrl: bundled,
+			id: 'react-svg',
+			inputProps: {},
+		});
 
 		const folder = path.join(tmpdir(), 'remotion-test', 'render-still');
 		const testOut = path.join(folder, 'still.png');
@@ -100,6 +98,7 @@ test(
 		const composition = await selectComposition({
 			serveUrl: bundled,
 			id: 'tiles',
+			inputProps: {},
 		});
 
 		const testOut = path.join(folder, `.${imageFormat}`);
@@ -127,6 +126,7 @@ test('Bt709 encoding should work', async () => {
 	const composition = await selectComposition({
 		serveUrl: bundled,
 		id: 'green',
+		inputProps: {},
 	});
 
 	const still = await renderStill({
@@ -151,7 +151,6 @@ test('Bt709 encoding should work', async () => {
 		codec: 'h264',
 		composition,
 		imageFormat: 'png',
-		colorSpace: 'bt709',
 		serveUrl: bundled,
 		muted: true,
 	});

@@ -43,9 +43,11 @@ export const Log = {
 	},
 	info: (options: LogOptions, ...args: Parameters<typeof console.log>) => {
 		writeInRepro('info', ...args);
-		return console.log(
-			...[options.indent ? INDENT_TOKEN : null].filter(truthy).concat(args),
-		);
+		if (isEqualOrBelowLogLevel(options.logLevel, 'info')) {
+			return console.log(
+				...[options.indent ? INDENT_TOKEN : null].filter(truthy).concat(args),
+			);
+		}
 	},
 	warn: (options: LogOptions, ...args: Parameters<typeof console.log>) => {
 		writeInRepro('warn', ...args);

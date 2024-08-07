@@ -1,20 +1,20 @@
 import {useCallback, useMemo} from 'react';
-import type {z, ZodDiscriminatedUnionOption} from 'zod';
+import type {ZodDiscriminatedUnionOption, z} from 'zod';
 import {Checkmark} from '../../../icons/Checkmark';
+import type {ComboboxValue} from '../../NewComposition/ComboBox';
+import {Combobox} from '../../NewComposition/ComboBox';
 import {
 	useZodIfPossible,
 	useZodTypesIfPossible,
 } from '../../get-zod-if-possible';
-import type {ComboboxValue} from '../../NewComposition/ComboBox';
-import {Combobox} from '../../NewComposition/ComboBox';
-import {createZodValues} from './create-zod-values';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
-import type {JSONPath} from './zod-types';
 import type {ObjectDiscrimatedUnionReplacement} from './ZodObjectEditor';
 import {ZodObjectEditor} from './ZodObjectEditor';
 import type {UpdaterFunction} from './ZodSwitch';
+import {createZodValues} from './create-zod-values';
+import {useLocalState} from './local-state';
+import type {JSONPath} from './zod-types';
 
 export const ZodDiscriminatedUnionEditor: React.FC<{
 	schema: z.ZodTypeAny;
@@ -61,8 +61,8 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 	} = useLocalState({
 		schema,
 		setValue,
-		value,
-		defaultValue,
+		unsavedValue: value,
+		savedValue: defaultValue,
 	});
 
 	const comboBoxValues = useMemo(() => {
@@ -156,7 +156,7 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 			key={value[typedSchema.discriminator] as string}
 			jsonPath={jsonPath}
 			mayPad={mayPad}
-			defaultValue={defaultValue}
+			savedValue={defaultValue}
 			onRemove={onRemove}
 			onSave={onSave as UpdaterFunction<Record<string, unknown>>}
 			saveDisabledByParent={saveDisabledByParent}
@@ -168,7 +168,7 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 			}
 			setValue={setLocalValue}
 			showSaveButton={showSaveButton}
-			value={value}
+			unsavedValue={value}
 			discriminatedUnionReplacement={discriminatedUnionReplacement}
 		/>
 	);

@@ -31,23 +31,36 @@ export const getAudioChannelsAndDurationWithoutCache = async ({
 		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
 		.filter(Boolean) as string[];
 
-	const task = await callFf({
-		bin: 'ffprobe',
-		args,
-		indent,
-		logLevel,
-		binariesDirectory,
-		cancelSignal,
-	});
+	try {
+		const task = await callFf({
+			bin: 'ffprobe',
+			args,
+			indent,
+			logLevel,
+			binariesDirectory,
+			cancelSignal,
+		});
+		const channels = task.stdout.match(/channels=([0-9]+)/);
+		const duration = task.stdout.match(/duration=([0-9.]+)/);
 
-	const channels = task.stdout.match(/channels=([0-9]+)/);
-	const duration = task.stdout.match(/duration=([0-9.]+)/);
+		const result: AudioChannelsAndDurationResultCache = {
+			channels: channels ? parseInt(channels[1], 10) : 0,
+			duration: duration ? parseFloat(duration[1]) : null,
+		};
+		return result;
+	} catch (err) {
+		if (
+			(err as Error).message.includes(
+				'This file cannot be read by `ffprobe`. Is it a valid multimedia file?',
+			)
+		) {
+			throw new Error(
+				'This file cannot be read by `ffprobe`. Is it a valid multimedia file?',
+			);
+		}
 
-	const result: AudioChannelsAndDurationResultCache = {
-		channels: channels ? parseInt(channels[1], 10) : 0,
-		duration: duration ? parseFloat(duration[1]) : null,
-	};
-	return result;
+		throw err;
+	}
 };
 
 async function getAudioChannelsAndDurationUnlimited({

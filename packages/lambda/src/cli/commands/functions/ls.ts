@@ -1,6 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import type {LogLevel} from '@remotion/renderer';
 import {getFunctions} from '../../../api/get-functions';
+import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 
 const NAME_COLS = 70;
@@ -23,9 +24,11 @@ export const functionsLsCommand = async (logLevel: LogLevel) => {
 	});
 	fetchingOutput.update('Getting functions...', false);
 
+	const compatibleOnly = parsedLambdaCli['compatible-only'] || false;
+
 	const functions = await getFunctions({
 		region,
-		compatibleOnly: false,
+		compatibleOnly,
 	});
 
 	if (CliInternals.quietFlagProvided()) {

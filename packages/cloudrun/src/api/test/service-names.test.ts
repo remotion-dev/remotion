@@ -1,5 +1,5 @@
+import {expect, test} from 'bun:test';
 import {VERSION} from 'remotion';
-import {expect, test} from 'vitest';
 import type {GcpRegion} from '../../pricing/gcp-regions';
 import {getGcpParent, parseServiceName} from '../helpers/parse-service-name';
 import {speculateServiceName} from '../speculate-service-name';

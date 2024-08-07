@@ -6,97 +6,97 @@
  */
 
 .heroBanner {
-  padding: 4rem 0;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
+	padding: 4rem 0;
+	text-align: center;
+	position: relative;
+	overflow: hidden;
 }
 
 @media screen and (max-width: 966px) {
-  .heroBanner {
-    padding: 2rem;
-  }
+	.heroBanner {
+		padding: 2rem;
+	}
 }
 
 .buttons {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .featureImage {
-  height: 200px;
-  width: 300px;
+	height: 200px;
+	width: 300px;
 }
 
 .container * {
-  color: white;
+	color: white;
 }
 
 /* snippets part : */
 
 .snippets {
-  max-width: 450px;
-  margin-top: 40px;
-  margin-bottom: 30px;
-  margin-left: auto;
-  margin-right: auto;
+	max-width: 450px;
+	margin-top: 40px;
+	margin-bottom: 30px;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 .snippetsTitle {
-  font-size: 1.3em;
-  font-weight: 700;
-  line-height: 1.4;
-  margin-bottom: 20px;
+	font-size: 1.3em;
+	font-weight: 700;
+	line-height: 1.4;
+	margin-bottom: 20px;
 }
 
 .snippet {
-  max-width: 400px;
-  padding: 12px 12px 10px 20px;
-  background-color: #111111;
-  margin-bottom: 10px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  position: relative;
-  border-radius: 0.4rem;
+	max-width: 400px;
+	padding: 12px 12px 10px 20px;
+	background-color: #111111;
+	margin-bottom: 10px;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	position: relative;
+	border-radius: 0.4rem;
 }
 
 .snippetValue {
-  color: white;
-  font-size: 1.5em;
-  font-family: monospace;
+	color: white;
+	font-size: 1.5em;
+	font-family: monospace;
 }
 
 .copySnippet {
-  color: white;
-  right: 15px;
-  padding: 2px 10px;
-  border-radius: 0.4rem;
-  position: absolute;
-  width: fit-content;
+	color: white;
+	right: 15px;
+	padding: 2px 10px;
+	border-radius: 0.4rem;
+	position: absolute;
+	width: fit-content;
 }
 
 .copySnippet:hover {
-  cursor: pointer;
-  background-color: rgba(255, 255, 255, 0.15);
+	cursor: pointer;
+	background-color: rgba(255, 255, 255, 0.15);
 }
 
 @media screen and (max-width: 1200px) {
-  .snippet {
-    margin: 0 auto;
-    margin-bottom: 3rem;
-  }
+	.snippet {
+		margin: 0 auto;
+		margin-bottom: 3rem;
+	}
 }
 
 @media screen and (max-width: 600px) {
-  .heroBanner {
-    padding: 1rem;
-  }
-  .snippetValue {
-    font-size: 1.25em;
-  }
-  .copySnippet {
-    font-size: 0.75em;
-  }
+	.heroBanner {
+		padding: 1rem;
+	}
+	.snippetValue {
+		font-size: 1.25em;
+	}
+	.copySnippet {
+		font-size: 0.75em;
+	}
 }

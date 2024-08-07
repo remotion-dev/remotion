@@ -9,6 +9,8 @@ import esbuild = require('esbuild');
 
 import {NoReactInternals} from 'remotion/no-react';
 import type {Configuration} from 'webpack';
+import {CaseSensitivePathsPlugin} from './case-sensitive-paths';
+import {AllowDependencyExpressionPlugin} from './hide-expression-dependency';
 import {AllowOptionalDependenciesPlugin} from './optional-dependencies';
 export type WebpackConfiguration = Configuration;
 
@@ -27,7 +29,9 @@ if (reactDomVersion === '0') {
 	);
 }
 
-const shouldUseReactDomClient = parseInt(reactDomVersion, 10) >= 18;
+const shouldUseReactDomClient = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+	? true
+	: parseInt(reactDomVersion, 10) >= 18;
 
 const esbuildLoaderOptions: LoaderOptions = {
 	target: 'chrome85',
@@ -117,14 +121,16 @@ export const webpackConfig = async ({
 			environment === 'development'
 				? [
 						new ReactFreshWebpackPlugin(),
+						new CaseSensitivePathsPlugin(),
 						new webpack.HotModuleReplacementPlugin(),
 						define,
 						new AllowOptionalDependenciesPlugin(),
+						new AllowDependencyExpressionPlugin(),
 					]
 				: [
 						new ProgressPlugin((p) => {
 							if (onProgress) {
-								if (p === 1 || p - lastProgress > 0.05) {
+								if ((p === 1 && p > lastProgress) || p - lastProgress > 0.05) {
 									lastProgress = p;
 									onProgress(Number((p * 100).toFixed(2)));
 								}
@@ -132,6 +138,7 @@ export const webpackConfig = async ({
 						}),
 						define,
 						new AllowOptionalDependenciesPlugin(),
+						new AllowDependencyExpressionPlugin(),
 					],
 		output: {
 			hashFunction: 'xxhash64',

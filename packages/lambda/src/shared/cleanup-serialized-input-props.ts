@@ -1,24 +1,28 @@
-import type {AwsRegion} from '../client';
-import {lambdaDeleteFile} from '../functions/helpers/io';
-import type {SerializedInputProps} from './constants';
-import {inputPropsKey, resolvedPropsKey} from './constants';
+import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
+import {
+	inputPropsKey,
+	resolvedPropsKey,
+	type SerializedInputProps,
+} from '@remotion/serverless/client';
 
-export const cleanupSerializedInputProps = async ({
+export const cleanupSerializedInputProps = async <
+	Provider extends CloudProvider,
+>({
 	serialized,
 	region,
-	bucketName,
+	providerSpecifics,
 }: {
 	serialized: SerializedInputProps;
-	region: AwsRegion;
-	bucketName: string;
+	region: Provider['region'];
+	providerSpecifics: ProviderSpecifics<Provider>;
 }): Promise<number> => {
 	if (serialized.type === 'payload') {
 		return 0;
 	}
 
 	const time = Date.now();
-	await lambdaDeleteFile({
-		bucketName,
+	await providerSpecifics.deleteFile({
+		bucketName: serialized.bucketName,
 		key: inputPropsKey(serialized.hash),
 		region,
 		customCredentials: null,
@@ -27,22 +31,24 @@ export const cleanupSerializedInputProps = async ({
 	return Date.now() - time;
 };
 
-export const cleanupSerializedResolvedProps = async ({
+export const cleanupSerializedResolvedProps = async <
+	Provider extends CloudProvider,
+>({
 	serialized,
 	region,
-	bucketName,
+	providerSpecifics,
 }: {
 	serialized: SerializedInputProps;
-	region: AwsRegion;
-	bucketName: string;
+	region: Provider['region'];
+	providerSpecifics: ProviderSpecifics<Provider>;
 }): Promise<number> => {
 	if (serialized.type === 'payload') {
 		return 0;
 	}
 
 	const time = Date.now();
-	await lambdaDeleteFile({
-		bucketName,
+	await providerSpecifics.deleteFile({
+		bucketName: serialized.bucketName,
 		key: resolvedPropsKey(serialized.hash),
 		region,
 		customCredentials: null,

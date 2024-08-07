@@ -1,6 +1,9 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/player-example"
+	},
 	"name": "@remotion/player-example",
-	"version": "4.0.123",
+	"version": "4.0.193",
 	"private": true,
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"maintainers": [
@@ -14,17 +17,10 @@
 		"@remotion/google-fonts": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/preload": "workspace:*",
-		"@types/react": "18.2.48",
-		"@types/react-dom": "18.2.18",
-		"eslint": "8.42.0",
-		"next": "^13.5.1",
-		"react": "18.2.0",
-		"react-dom": "18.2.0",
+		"next": "14.1.4",
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
 		"remotion": "workspace:*"
-	},
-	"devDependencies": {
-		"prettier": "3.1.1",
-		"prettier-plugin-organize-imports": "3.2.4"
 	},
 	"scripts": {
 		"formatting": "prettier src --check",

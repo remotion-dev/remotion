@@ -6,6 +6,7 @@ import type {
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
+import {defaultBrowserDownloadProgress} from './browser-download-bar';
 import {chalk} from './chalk';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
@@ -16,7 +17,7 @@ import {getCliOptions} from './get-cli-options';
 import {getVideoImageFormat} from './image-formats';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
-import {parsedCli, quietFlagProvided} from './parse-command-line';
+import {parsedCli, quietFlagProvided} from './parsed-cli';
 import {createOverwriteableCliOutput} from './progress-bar';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
@@ -47,13 +48,15 @@ const {
 	overwriteOption,
 	binariesDirectoryOption,
 	forSeamlessAacConcatenationOption,
+	publicPathOption,
+	publicDirOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
 	const {concurrencies} = parsedCli;
 
 	if (!concurrencies) {
-		return [RenderInternals.getActualConcurrency(cliConcurrency)];
+		return [RenderInternals.resolveConcurrency(cliConcurrency)];
 	}
 
 	return (concurrencies as string)
@@ -150,7 +153,7 @@ const makeBenchmarkProgressBar = ({
 
 	return [
 		`Rendering (${run + 1} out of ${totalRuns} runs)`,
-		makeProgressBar(totalProgress),
+		makeProgressBar(totalProgress, false),
 		doneIn === null
 			? `${(totalProgress * 100).toFixed(2)}% `
 			: chalk.gray(doneIn),
@@ -164,11 +167,12 @@ export const benchmarkCommand = async (
 ) => {
 	const runs: number = parsedCli.runs ?? DEFAULT_RUNS;
 
-	const {file, reason, remainingArgs} = findEntryPoint(
+	const {file, reason, remainingArgs} = findEntryPoint({
 		args,
 		remotionRoot,
 		logLevel,
-	);
+		allowDirectory: true,
+	});
 
 	if (!file) {
 		Log.error({indent: false, logLevel}, 'No entry file passed.');
@@ -187,7 +191,6 @@ export const benchmarkCommand = async (
 		inputProps,
 		envVariables,
 		browserExecutable,
-		publicDir,
 		proResProfile,
 		frameRange: defaultFrameRange,
 		pixelFormat,
@@ -202,6 +205,7 @@ export const benchmarkCommand = async (
 	} = getCliOptions({
 		isStill: false,
 		logLevel,
+		indent: false,
 	});
 
 	Log.verbose(
@@ -218,6 +222,8 @@ export const benchmarkCommand = async (
 	}).value;
 	const gl = glOption.getValue({commandLine: parsedCli}).value;
 	const headless = headlessOption.getValue({commandLine: parsedCli}).value;
+	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
+	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
@@ -228,14 +234,30 @@ export const benchmarkCommand = async (
 		userAgent,
 	};
 
+	const onBrowserDownload = defaultBrowserDownloadProgress({
+		indent: false,
+		logLevel,
+		quiet: quietFlagProvided(),
+	});
+
+	const indent = false;
+
+	await RenderInternals.internalEnsureBrowser({
+		browserExecutable,
+		indent,
+		logLevel,
+		onBrowserDownload,
+	});
+
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser: 'chrome',
 		browserExecutable,
 		chromiumOptions,
 		forceDeviceScaleFactor: scale,
-		indent: false,
+		indent,
 		viewport: null,
 		logLevel,
+		onBrowserDownload,
 	});
 
 	const {urlOrBundle: bundleLocation, cleanup: cleanupBundle} =
@@ -246,8 +268,6 @@ export const benchmarkCommand = async (
 			onProgress: () => undefined,
 			indentOutput: false,
 			logLevel,
-			bundlingStep: 0,
-			steps: 1,
 			onDirectoryCreated: (dir) => {
 				registerCleanupJob(() => RenderInternals.deleteDirectory(dir));
 			},
@@ -258,6 +278,7 @@ export const benchmarkCommand = async (
 			gitSource: null,
 			bufferStateDelayInMilliseconds: null,
 			maxTimelineTracks: null,
+			publicPath,
 		});
 
 	registerCleanupJob(() => cleanupBundle());
@@ -294,6 +315,7 @@ export const benchmarkCommand = async (
 		binariesDirectory: binariesDirectoryOption.getValue({
 			commandLine: parsedCli,
 		}).value,
+		onBrowserDownload,
 	});
 
 	const ids = (
@@ -460,12 +482,14 @@ export const benchmarkCommand = async (
 					binariesDirectory: binariesDirectoryOption.getValue({
 						commandLine: parsedCli,
 					}).value,
-					finishRenderProgress: () => undefined,
 					separateAudioTo: null,
 					forSeamlessAacConcatenation:
 						forSeamlessAacConcatenationOption.getValue({
 							commandLine: parsedCli,
 						}).value,
+					compositionStart: 0,
+					onBrowserDownload,
+					onArtifact: () => undefined,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

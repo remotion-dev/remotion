@@ -1,15 +1,16 @@
 import type {ChromiumOptions, ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import type {VideoConfig} from 'remotion/no-react';
-import {VERSION} from 'remotion/version';
-import type {AwsRegion} from '../client';
-import {LambdaRoutines} from '../defaults';
-import {callLambda} from '../shared/call-lambda';
 import {
+	ServerlessRoutines,
 	compressInputProps,
 	getNeedsToUpload,
 	serializeOrThrow,
-} from '../shared/compress-props';
+} from '@remotion/serverless/client';
+import type {VideoConfig} from 'remotion/no-react';
+import {VERSION} from 'remotion/version';
+import type {AwsRegion} from '../client';
+import {awsImplementation} from '../functions/aws-implementation';
+import {callLambda} from '../shared/call-lambda';
 
 export type GetCompositionsOnLambdaInput = {
 	chromiumOptions?: ChromiumOptions;
@@ -64,13 +65,15 @@ export const getCompositionsOnLambda = async ({
 		propsType: 'input-props',
 		needsToUpload: getNeedsToUpload('video-or-audio', [
 			stringifiedInputProps.length,
+			JSON.stringify(envVariables).length,
 		]),
+		providerSpecifics: awsImplementation,
 	});
 
 	try {
 		const res = await callLambda({
 			functionName,
-			type: LambdaRoutines.compositions,
+			type: ServerlessRoutines.compositions,
 			payload: {
 				chromiumOptions: chromiumOptions ?? {},
 				serveUrl,
@@ -83,9 +86,7 @@ export const getCompositionsOnLambda = async ({
 				offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 			},
 			region,
-			receivedStreamingPayload: () => undefined,
 			timeoutInTest: 120000,
-			retriesRemaining: 0,
 		});
 		return res.compositions;
 	} catch (err) {

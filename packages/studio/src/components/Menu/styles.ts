@@ -5,12 +5,14 @@ export const MENU_VERTICAL_PADDING = 4;
 export const SUBMENU_LEFT_INSET = -8;
 
 export const MAX_MENU_WIDTH = 400;
+export const MAX_MOBILE_MENU_WIDTH = 300;
 
 const menuContainer: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 	position: 'fixed',
 	color: 'white',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 export const SHADOW_TOWARDS_BOTTOM = '0 2px 8px rgba(0, 0, 0, 0.5)';

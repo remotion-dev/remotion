@@ -13,7 +13,6 @@ export function isMusl({
 	indent: boolean;
 	logLevel: LogLevel;
 }) {
-	// @ts-expect-error bun no types
 	if (!process.report && typeof Bun !== 'undefined') {
 		if (!warned) {
 			Log.warn(
@@ -26,8 +25,21 @@ export function isMusl({
 		return false;
 	}
 
+	const report = process.report?.getReport();
+	if (report && typeof report === 'string') {
+		if (!warned) {
+			Log.warn(
+				{indent, logLevel},
+				'Bun limitation: Could not determine if your Windows is using musl or glibc. Assuming glibc.',
+			);
+		}
+
+		warned = true;
+		return false;
+	}
+
 	// @ts-expect-error no types
-	const {glibcVersionRuntime} = process.report.getReport().header;
+	const {glibcVersionRuntime} = report.header;
 	return !glibcVersionRuntime;
 }
 

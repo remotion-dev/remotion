@@ -1,6 +1,7 @@
+import {expect, test} from 'bun:test';
 import type {TRenderAsset} from 'remotion';
-import {expect, test} from 'vitest';
 import {calculateAssetPositions} from '../assets/calculate-asset-positions';
+import {onlyAudioAndVideoAssets} from '../filter-asset-types';
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T; // from lodash
 
@@ -9,7 +10,11 @@ function truthy<T>(value: T): value is Truthy<T> {
 }
 
 test('Dont skip assets', () => {
-	const assetPositions = calculateAssetPositions(mock);
+	const onlyAudioAndVideo = mock.map((m) => {
+		return onlyAudioAndVideoAssets(m);
+	});
+
+	const assetPositions = calculateAssetPositions(onlyAudioAndVideo);
 	expect(assetPositions).toEqual([
 		{
 			src: 'http://localhost:3000/4793bac32f610ffba8197b8a3422456f.mp3',
@@ -22,6 +27,7 @@ test('Dont skip assets', () => {
 			playbackRate: 1,
 			allowAmplificationDuringRender: false,
 			toneFrequency: null,
+			audioStartFrame: 0,
 		},
 		{
 			src: 'http://localhost:3000/e15ac5e3d531199ebb1828ca6a99100d.webm',
@@ -34,6 +40,7 @@ test('Dont skip assets', () => {
 			playbackRate: 1,
 			allowAmplificationDuringRender: false,
 			toneFrequency: null,
+			audioStartFrame: 0,
 		},
 	]);
 });
@@ -54,6 +61,7 @@ const mock: TRenderAsset[][] = new Array(2934)
 						mediaFrame: 0,
 						allowAmplificationDuringRender: false,
 						toneFrequency: null,
+						audioStartFrame: 0,
 					}
 				: null,
 			{
@@ -66,6 +74,7 @@ const mock: TRenderAsset[][] = new Array(2934)
 				mediaFrame: k,
 				allowAmplificationDuringRender: false,
 				toneFrequency: null,
+				audioStartFrame: 0,
 			},
 		].filter(truthy);
 	});

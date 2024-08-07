@@ -7,11 +7,10 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {usePreload} from '../prefetch.js';
-import {random} from '../random.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
-import {useMediaBuffering} from '../use-media-buffering.js';
+import {usePreload} from '../prefetch.js';
+import {random} from '../random.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {
 	DEFAULT_ACCEPTABLE_TIMESHIFT,
@@ -23,17 +22,20 @@ import {
 	useMediaMutedState,
 	useMediaVolumeState,
 } from '../volume-position-state.js';
+import {evaluateVolume} from '../volume-prop.js';
 import type {RemotionAudioProps} from './props.js';
 import {useSharedAudio} from './shared-audio-tags.js';
 import {useFrameForVolumeProp} from './use-audio-frame.js';
 
 type AudioForPreviewProps = RemotionAudioProps & {
-	shouldPreMountAudioTags: boolean;
-	onDuration: (src: string, durationInSeconds: number) => void;
-	pauseWhenBuffering: boolean;
-	_remotionInternalNativeLoopPassed: boolean;
-	_remotionInternalStack: string | null;
-	showInTimeline: boolean;
+	readonly shouldPreMountAudioTags: boolean;
+	readonly onDuration: (src: string, durationInSeconds: number) => void;
+	readonly pauseWhenBuffering: boolean;
+	readonly _remotionInternalNativeLoopPassed: boolean;
+	readonly _remotionInternalStack: string | null;
+	readonly _remotionDebugSeeking: boolean;
+	readonly showInTimeline: boolean;
+	readonly stack?: string | undefined;
 };
 
 const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
@@ -49,11 +51,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	const [mediaVolume] = useMediaVolumeState();
-	const [mediaMuted] = useMediaMutedState();
-
-	const volumePropFrame = useFrameForVolumeProp();
-
 	const {
 		volume,
 		muted,
@@ -65,12 +62,23 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		_remotionInternalNeedsDurationCalculation,
 		_remotionInternalNativeLoopPassed,
 		_remotionInternalStack,
+		_remotionDebugSeeking,
 		allowAmplificationDuringRender,
 		name,
 		pauseWhenBuffering,
 		showInTimeline,
+		loopVolumeCurveBehavior,
+		stack,
 		...nativeProps
 	} = props;
+
+	const [mediaVolume] = useMediaVolumeState();
+	const [mediaMuted] = useMediaMutedState();
+
+	const volumePropFrame = useFrameForVolumeProp(
+		loopVolumeCurveBehavior ?? 'repeat',
+	);
+
 	const {hidden} = useContext(SequenceVisibilityToggleContext);
 
 	if (!src) {
@@ -85,9 +93,17 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 
 	const isSequenceHidden = hidden[timelineId] ?? false;
 
+	const userPreferredVolume = evaluateVolume({
+		frame: volumePropFrame,
+		volume,
+		mediaVolume,
+		allowAmplificationDuringRender: false,
+	});
+
 	const propsToPass = useMemo((): RemotionAudioProps => {
 		return {
-			muted: muted || mediaMuted || isSequenceHidden,
+			muted:
+				muted || mediaMuted || isSequenceHidden || userPreferredVolume <= 0,
 			src: preloadedSrc,
 			loop: _remotionInternalNativeLoopPassed,
 			...nativeProps,
@@ -99,6 +115,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		muted,
 		nativeProps,
 		preloadedSrc,
+		userPreferredVolume,
 	]);
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time deterministic. We use it to combat strict mode issues.
@@ -142,6 +159,8 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		id: timelineId,
 		stack: _remotionInternalStack,
 		showInTimeline,
+		premountDisplay: null,
+		onAutoPlayError: null,
 	});
 
 	useMediaPlayback({
@@ -152,9 +171,11 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		onlyWarnForMediaSeekingError: false,
 		acceptableTimeshift:
 			acceptableTimeShiftInSeconds ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
+		isPremounting: Boolean(sequenceContext?.premounting),
+		pauseWhenBuffering,
+		debugSeeking: _remotionDebugSeeking,
+		onAutoPlayError: null,
 	});
-
-	useMediaBuffering(audioRef, pauseWhenBuffering);
 
 	useImperativeHandle(
 		ref,

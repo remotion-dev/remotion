@@ -7,11 +7,10 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
-import {usePreload} from '../prefetch.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
-import {useMediaBuffering} from '../use-media-buffering.js';
+import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
+import {usePreload} from '../prefetch.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {
 	DEFAULT_ACCEPTABLE_TIMESHIFT,
@@ -24,16 +23,20 @@ import {
 	useMediaMutedState,
 	useMediaVolumeState,
 } from '../volume-position-state.js';
-import type {RemotionVideoProps} from './props.js';
+import {useEmitVideoFrame} from './emit-video-frame.js';
+import type {OnVideoFrame, RemotionVideoProps} from './props';
 import {isIosSafari, useAppendVideoFragment} from './video-fragment.js';
 
 type VideoForPreviewProps = RemotionVideoProps & {
-	onlyWarnForMediaSeekingError: boolean;
-	onDuration: (src: string, durationInSeconds: number) => void;
-	pauseWhenBuffering: boolean;
-	_remotionInternalNativeLoopPassed: boolean;
-	_remotionInternalStack: string | null;
-	showInTimeline: boolean;
+	readonly onlyWarnForMediaSeekingError: boolean;
+	readonly onDuration: (src: string, durationInSeconds: number) => void;
+	readonly pauseWhenBuffering: boolean;
+	readonly _remotionInternalNativeLoopPassed: boolean;
+	readonly _remotionInternalStack: string | null;
+	readonly _remotionDebugSeeking: boolean;
+	readonly showInTimeline: boolean;
+	readonly onVideoFrame: null | OnVideoFrame;
+	readonly crossOrigin: '' | 'anonymous' | 'use-credentials' | undefined;
 };
 
 const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
@@ -41,14 +44,6 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	VideoForPreviewProps
 > = (props, ref) => {
 	const videoRef = useRef<HTMLVideoElement>(null);
-
-	const volumePropFrame = useFrameForVolumeProp();
-	const {fps, durationInFrames} = useVideoConfig();
-	const parentSequence = useContext(SequenceContext);
-	const {hidden} = useContext(SequenceVisibilityToggleContext);
-
-	const [timelineId] = useState(() => String(Math.random()));
-	const isSequenceHidden = hidden[timelineId] ?? false;
 
 	const {
 		volume,
@@ -64,11 +59,28 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		name,
 		_remotionInternalNativeLoopPassed,
 		_remotionInternalStack,
+		_remotionDebugSeeking,
 		style,
 		pauseWhenBuffering,
 		showInTimeline,
+		loopVolumeCurveBehavior,
+		onError,
+		onAutoPlayError,
+		onVideoFrame,
+		crossOrigin,
 		...nativeProps
 	} = props;
+
+	const volumePropFrame = useFrameForVolumeProp(
+		loopVolumeCurveBehavior ?? 'repeat',
+	);
+	const {fps, durationInFrames} = useVideoConfig();
+	const parentSequence = useContext(SequenceContext);
+	const {hidden} = useContext(SequenceVisibilityToggleContext);
+
+	const [timelineId] = useState(() => String(Math.random()));
+	const isSequenceHidden = hidden[timelineId] ?? false;
+
 	if (typeof acceptableTimeShift !== 'undefined') {
 		throw new Error(
 			'acceptableTimeShift has been removed. Use acceptableTimeShiftInSeconds instead.',
@@ -91,6 +103,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		id: timelineId,
 		stack: _remotionInternalStack,
 		showInTimeline,
+		premountDisplay: null,
+		onAutoPlayError: onAutoPlayError ?? null,
 	});
 
 	useSyncVolumeWithMediaTag({
@@ -109,13 +123,13 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		onlyWarnForMediaSeekingError,
 		acceptableTimeshift:
 			acceptableTimeShiftInSeconds ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
+		isPremounting: Boolean(parentSequence?.premounting),
+		pauseWhenBuffering,
+		debugSeeking: _remotionDebugSeeking,
+		onAutoPlayError: onAutoPlayError ?? null,
 	});
 
-	useMediaBuffering(videoRef, pauseWhenBuffering);
-
-	const actualFrom = parentSequence
-		? parentSequence.relativeFrom + parentSequence.cumulatedFrom
-		: 0;
+	const actualFrom = parentSequence ? parentSequence.relativeFrom : 0;
 	const duration = parentSequence
 		? Math.min(parentSequence.durationInFrames, durationInFrames)
 		: durationInFrames;
@@ -142,11 +156,16 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		}
 
 		const errorHandler = () => {
-			if (current?.error) {
+			if (current.error) {
 				// eslint-disable-next-line no-console
 				console.error('Error occurred in video', current?.error);
+
 				// If user is handling the error, we don't cause an unhandled exception
-				if (props.onError) {
+				if (onError) {
+					const err = new Error(
+						`Code ${current.error.code}: ${current.error.message}`,
+					);
+					onError(err);
 					return;
 				}
 
@@ -154,7 +173,16 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 					`The browser threw an error while playing the video ${src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help. Pass an onError() prop to handle the error.`,
 				);
 			} else {
-				throw new Error('The browser threw an error');
+				// If user is handling the error, we don't cause an unhandled exception
+				if (onError) {
+					const err = new Error(
+						`The browser threw an error while playing the video ${src}`,
+					);
+					onError(err);
+					return;
+				}
+
+				throw new Error('The browser threw an error while playing the video');
 			}
 		};
 
@@ -162,11 +190,13 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		return () => {
 			current.removeEventListener('error', errorHandler);
 		};
-	}, [props.onError, src]);
+	}, [onError, src]);
 
 	const currentOnDurationCallback =
 		useRef<VideoForPreviewProps['onDuration']>();
 	currentOnDurationCallback.current = onDuration;
+
+	useEmitVideoFrame({ref: videoRef, onVideoFrame});
 
 	useEffect(() => {
 		const {current} = videoRef;
@@ -217,6 +247,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		};
 	}, [isSequenceHidden, style]);
 
+	const crossOriginValue = crossOrigin ?? (onVideoFrame ? 'anonymous' : '');
+
 	return (
 		<video
 			ref={videoRef}
@@ -225,6 +257,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			src={actualSrc}
 			loop={_remotionInternalNativeLoopPassed}
 			style={actualStyle}
+			disableRemotePlayback
+			crossOrigin={crossOriginValue}
 			{...nativeProps}
 		/>
 	);

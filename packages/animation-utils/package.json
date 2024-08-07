@@ -1,43 +1,33 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/animation-utils"
+	},
 	"name": "@remotion/animation-utils",
 	"author": {
 		"name": "Chetan Karwa",
 		"email": "cbkarwa@gmail.com"
 	},
-	"version": "4.0.123",
-	"description": "A set of animation utilities for Remotion",
+	"version": "4.0.193",
+	"description": "Helpers for animating CSS properties",
 	"main": "./dist/index.js",
 	"module": "./dist/index.mjs",
 	"types": "./dist/index.d.ts",
 	"scripts": {
-		"dev": "tsup src/index.ts --format cjs,esm --dts --watch",
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"watch": "tsc -w",
-		"build": "tsc -d && rollup --config rollup.config.js",
-		"test": "vitest --run"
+		"build": "bun --env-file=../.env.bundle bundle.ts",
+		"test": "bun test src"
 	},
 	"dependencies": {
 		"remotion": "workspace:*"
 	},
 	"files": [
 		"dist",
-		"!dist/tsconfig-esm.tsbuildinfo",
 		"!dist/test"
 	],
 	"peerDependencies": {
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0"
-	},
-	"devDependencies": {
-		"@types/react": "18.2.48",
-		"@types/node": "18.14.6",
-		"prettier": "3.1.1",
-		"prettier-plugin-organize-imports": "3.2.4",
-		"eslint": "8.42.0",
-		"@jonny/eslint-config": "3.0.276",
-		"vitest": "0.31.1",
-		"rollup": "^2.70.1"
 	},
 	"exports": {
 		"./package.json": "./package.json",

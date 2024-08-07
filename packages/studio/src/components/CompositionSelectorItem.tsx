@@ -1,20 +1,22 @@
 import type {KeyboardEvent, MouseEvent} from 'react';
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {type AnyComposition} from 'remotion';
 import {
 	BACKGROUND,
-	getBackgroundFromHoverState,
 	LIGHT_TEXT,
+	getBackgroundFromHoverState,
 } from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {StillIcon} from '../icons/still';
 import {FilmIcon} from '../icons/video';
+import {ModalsContext} from '../state/modals';
+import {CompositionContextButton} from './CompositionContextButton';
 import {ContextMenu} from './ContextMenu';
-import {Row, Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
-import {notificationCenter} from './Notifications/NotificationCenter';
+import {showNotification} from './Notifications/NotificationCenter';
 import {SidebarRenderButton} from './SidebarRenderButton';
+import {Row, Spacing} from './layout';
 
 const COMPOSITION_ITEM_HEIGHT = 32;
 
@@ -68,12 +70,15 @@ export type CompositionSelectorItemType =
 	  };
 
 export const CompositionSelectorItem: React.FC<{
-	item: CompositionSelectorItemType;
-	currentComposition: string | null;
-	tabIndex: number;
-	selectComposition: (c: AnyComposition, push: boolean) => void;
-	toggleFolder: (folderName: string, parentName: string | null) => void;
-	level: number;
+	readonly item: CompositionSelectorItemType;
+	readonly currentComposition: string | null;
+	readonly tabIndex: number;
+	readonly selectComposition: (c: AnyComposition, push: boolean) => void;
+	readonly toggleFolder: (
+		folderName: string,
+		parentName: string | null,
+	) => void;
+	readonly level: number;
 }> = ({
 	item,
 	level,
@@ -134,11 +139,69 @@ export const CompositionSelectorItem: React.FC<{
 		[onClick],
 	);
 
+	const {setSelectedModal} = useContext(ModalsContext);
+
 	const contextMenu = useMemo((): ComboboxValue[] => {
 		if (item.type === 'composition') {
 			return [
 				{
-					id: '1',
+					id: 'duplicate',
+					keyHint: null,
+					label: `Duplicate...`,
+					leftItem: null,
+					onClick: () => {
+						setSelectedModal({
+							type: 'duplicate-comp',
+							compositionId: item.composition.id,
+							compositionType:
+								item.composition.durationInFrames === 1
+									? 'still'
+									: 'composition',
+						});
+					},
+					quickSwitcherLabel: null,
+					subMenu: null,
+					type: 'item',
+					value: 'duplicate',
+				},
+				{
+					id: 'rename',
+					keyHint: null,
+					label: `Rename...`,
+					leftItem: null,
+					onClick: () => {
+						setSelectedModal({
+							type: 'rename-comp',
+							compositionId: item.composition.id,
+						});
+					},
+					quickSwitcherLabel: null,
+					subMenu: null,
+					type: 'item',
+					value: 'rename',
+				},
+				{
+					id: 'delete',
+					keyHint: null,
+					label: `Delete...`,
+					leftItem: null,
+					onClick: () => {
+						setSelectedModal({
+							type: 'delete-comp',
+							compositionId: item.composition.id,
+						});
+					},
+					quickSwitcherLabel: null,
+					subMenu: null,
+					type: 'item',
+					value: 'delete',
+				},
+				{
+					type: 'divider',
+					id: 'copy-id-divider',
+				},
+				{
+					id: 'copy-id',
 					keyHint: null,
 					label: `Copy ID`,
 					leftItem: null,
@@ -146,20 +209,13 @@ export const CompositionSelectorItem: React.FC<{
 						navigator.clipboard
 							.writeText(item.composition.id)
 							.catch((err) => {
-								notificationCenter.current?.addNotification({
-									content: `Could not copy to clipboard: ${err.message}`,
-									created: Date.now(),
-									duration: 1000,
-									id: String(Math.random()),
-								});
+								showNotification(
+									`Could not copy to clipboard: ${err.message}`,
+									1000,
+								);
 							})
 							.then(() => {
-								notificationCenter.current?.addNotification({
-									content: 'Copied to clipboard',
-									created: Date.now(),
-									duration: 1000,
-									id: String(Math.random()),
-								});
+								showNotification('Copied to clipboard', 1000);
 							});
 					},
 					quickSwitcherLabel: null,
@@ -171,7 +227,7 @@ export const CompositionSelectorItem: React.FC<{
 		}
 
 		return [];
-	}, [item]);
+	}, [item, setSelectedModal]);
 
 	if (item.type === 'folder') {
 		return (
@@ -247,12 +303,11 @@ export const CompositionSelectorItem: React.FC<{
 					<Spacing x={1} />
 					<div style={label}>{item.composition.id}</div>
 					<Spacing x={0.5} />
-					<div>
-						<SidebarRenderButton
-							visible={hovered}
-							composition={item.composition}
-						/>
-					</div>
+					<CompositionContextButton values={contextMenu} visible={hovered} />
+					<SidebarRenderButton
+						visible={hovered}
+						composition={item.composition}
+					/>
 				</a>
 			</Row>
 		</ContextMenu>

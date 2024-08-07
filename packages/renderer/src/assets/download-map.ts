@@ -1,8 +1,8 @@
 import fs, {mkdirSync} from 'node:fs';
 import path from 'node:path';
-import type {TRenderAsset} from 'remotion/no-react';
 import {deleteDirectory} from '../delete-directory';
 import {OffthreadVideoServerEmitter} from '../offthread-video-server';
+import type {FrameAndAssets} from '../render-frames';
 import {tmpDir} from '../tmp-dir';
 import type {RenderMediaOnDownload} from './download-and-map-assets-to-file';
 
@@ -46,10 +46,14 @@ export type DownloadMap = {
 };
 
 export type RenderAssetInfo = {
-	assets: TRenderAsset[][];
+	assets: FrameAndAssets[];
 	imageSequenceName: string;
 	firstFrameIndex: number;
 	downloadMap: DownloadMap;
+	chunkLengthInSeconds: number;
+	trimLeftOffset: number;
+	trimRightOffset: number;
+	forSeamlessAacConcatenation: boolean;
 };
 
 const makeAndReturn = (dir: string, name: string) => {

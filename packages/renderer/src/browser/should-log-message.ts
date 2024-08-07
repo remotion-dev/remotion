@@ -35,6 +35,26 @@ export const shouldLogBrowserMessage = (message: string) => {
 		return false;
 	}
 
+	if (
+		message.includes(
+			'AttributionReportingCrossAppWeb cannot be enabled in this configuration',
+		)
+	) {
+		return false;
+	}
+
+	if (
+		message.includes(
+			'Trying to Produce a Memory representation from a non-existent mailbox.',
+		)
+	) {
+		return false;
+	}
+
+	if (message.includes('Received HEADERS for invalid stream')) {
+		return false;
+	}
+
 	return true;
 };
 

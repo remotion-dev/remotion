@@ -1,24 +1,27 @@
 import {CliInternals} from '@remotion/cli';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {ProviderSpecifics} from '@remotion/serverless';
 import {ROLE_NAME} from '../api/iam-validation/suggested-policy';
 import {BINARY_NAME} from '../defaults';
+import type {AwsProvider} from '../functions/aws-implementation';
+import {awsImplementation} from '../functions/aws-implementation';
 import {checkCredentials} from '../shared/check-credentials';
 import {DOCS_URL} from '../shared/docs-url';
 import {parsedLambdaCli} from './args';
 import {
-	compositionsCommand,
 	COMPOSITIONS_COMMAND,
+	compositionsCommand,
 } from './commands/compositions';
-import {functionsCommand, FUNCTIONS_COMMAND} from './commands/functions';
-import {policiesCommand, POLICIES_COMMAND} from './commands/policies/policies';
+import {FUNCTIONS_COMMAND, functionsCommand} from './commands/functions';
+import {POLICIES_COMMAND, policiesCommand} from './commands/policies/policies';
 import {ROLE_SUBCOMMAND} from './commands/policies/role';
 import {USER_SUBCOMMAND} from './commands/policies/user';
-import {quotasCommand, QUOTAS_COMMAND} from './commands/quotas';
-import {regionsCommand, REGIONS_COMMAND} from './commands/regions';
-import {renderCommand, RENDER_COMMAND} from './commands/render/render';
-import {sitesCommand, SITES_COMMAND} from './commands/sites';
-import {stillCommand, STILL_COMMAND} from './commands/still';
+import {QUOTAS_COMMAND, quotasCommand} from './commands/quotas';
+import {REGIONS_COMMAND, regionsCommand} from './commands/regions';
+import {RENDER_COMMAND, renderCommand} from './commands/render/render';
+import {SITES_COMMAND, sitesCommand} from './commands/sites';
+import {STILL_COMMAND, stillCommand} from './commands/still';
 import {printHelp} from './help';
 import {quit} from './helpers/quit';
 import {setIsCli} from './is-cli';
@@ -46,6 +49,7 @@ const matchCommand = (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
+	implementation: ProviderSpecifics<AwsProvider>,
 ) => {
 	if (parsedLambdaCli.help || args.length === 0) {
 		printHelp(logLevel);
@@ -57,11 +61,11 @@ const matchCommand = (
 	}
 
 	if (args[0] === RENDER_COMMAND) {
-		return renderCommand(args.slice(1), remotionRoot, logLevel);
+		return renderCommand(args.slice(1), remotionRoot, logLevel, implementation);
 	}
 
 	if (args[0] === STILL_COMMAND) {
-		return stillCommand(args.slice(1), remotionRoot, logLevel);
+		return stillCommand(args.slice(1), remotionRoot, logLevel, implementation);
 	}
 
 	if (args[0] === COMPOSITIONS_COMMAND) {
@@ -85,7 +89,7 @@ const matchCommand = (
 	}
 
 	if (args[0] === SITES_COMMAND) {
-		return sitesCommand(args.slice(1), remotionRoot, logLevel);
+		return sitesCommand(args.slice(1), remotionRoot, logLevel, implementation);
 	}
 
 	if (args[0] === 'upload') {
@@ -141,10 +145,16 @@ export const executeCommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
+	implementation: ProviderSpecifics<AwsProvider> | null,
 ) => {
 	try {
 		setIsCli(true);
-		await matchCommand(args, remotionRoot, logLevel);
+		await matchCommand(
+			args,
+			remotionRoot,
+			logLevel,
+			implementation ?? awsImplementation,
+		);
 	} catch (err) {
 		const error = err as Error;
 		if (
@@ -246,5 +256,10 @@ export const cli = async (logLevel: LogLevel) => {
 	const remotionRoot = RenderInternals.findRemotionRoot();
 	await CliInternals.initializeCli(remotionRoot);
 
-	await executeCommand(parsedLambdaCli._, remotionRoot, logLevel);
+	await executeCommand(
+		parsedLambdaCli._,
+		remotionRoot,
+		logLevel,
+		awsImplementation,
+	);
 };

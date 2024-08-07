@@ -1,24 +1,32 @@
 import {BundlerInternals} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
 import {existsSync, readdirSync, readFileSync, rmSync, writeFileSync} from 'fs';
 import path from 'path';
 import {chalk} from './chalk';
 import {findEntryPoint} from './entry-point';
-import {getCliOptions} from './get-cli-options';
 import {getGitSource} from './get-github-repository';
 import {Log} from './log';
-import {parsedCli, quietFlagProvided} from './parse-command-line';
+import {parsedCli, quietFlagProvided} from './parsed-cli';
 import {bundleOnCli} from './setup-cache';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {yesOrNo} from './yes-or-no';
+
+const {publicPathOption, publicDirOption, disableGitSourceOption} =
+	BrowserSafeApis.options;
 
 export const bundleCommand = async (
 	remotionRoot: string,
 	args: string[],
 	logLevel: LogLevel,
 ) => {
-	const {file, reason} = findEntryPoint(args, remotionRoot, logLevel);
+	const {file, reason} = findEntryPoint({
+		args,
+		remotionRoot,
+		logLevel,
+		allowDirectory: false,
+	});
 	const explicitlyPassed = args[0];
 	if (
 		explicitlyPassed &&
@@ -50,10 +58,11 @@ export const bundleCommand = async (
 		process.exit(1);
 	}
 
-	const {publicDir} = getCliOptions({
-		isStill: false,
-		logLevel,
-	});
+	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
+	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
+	const disableGitSource = disableGitSourceOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const outputPath = parsedCli['out-dir']
 		? path.resolve(process.cwd(), parsedCli['out-dir'])
@@ -86,17 +95,15 @@ export const bundleCommand = async (
 		rmSync(outputPath, {recursive: true});
 	}
 
-	const gitSource = getGitSource(remotionRoot);
+	const gitSource = getGitSource({remotionRoot, disableGitSource});
 
 	const output = await bundleOnCli({
 		fullPath: file,
 		logLevel,
 		onDirectoryCreated: () => {},
-		bundlingStep: 0,
 		indent: false,
 		quietProgress: updatesDontOverwrite,
 		publicDir,
-		steps: 1,
 		remotionRoot,
 		onProgressCallback: ({bundling, copying}) => {
 			// Handle floating point inaccuracies
@@ -122,6 +129,7 @@ export const bundleCommand = async (
 		gitSource,
 		bufferStateDelayInMilliseconds: null,
 		maxTimelineTracks: null,
+		publicPath,
 	});
 
 	Log.info(

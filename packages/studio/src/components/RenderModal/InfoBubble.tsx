@@ -20,8 +20,8 @@ const container: React.CSSProperties = {
 };
 
 export const InfoBubble: React.FC<{
-	title: string;
-	children: React.ReactNode;
+	readonly title: string;
+	readonly children: React.ReactNode;
 }> = ({title, children}) => {
 	const [hovered, setIsHovered] = useState(false);
 	const [opened, setOpened] = useState(false);
@@ -116,6 +116,7 @@ export const InfoBubble: React.FC<{
 		return {
 			...container,
 			userSelect: 'none',
+			WebkitUserSelect: 'none',
 			color: 'white',
 			display: 'inline-flex',
 			flexDirection: 'row',

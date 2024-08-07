@@ -5,8 +5,8 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import type {StaticFile} from 'remotion';
-import {getStaticFiles} from 'remotion';
+import {getStaticFiles, type StaticFile} from '../api/get-static-files';
+import {writeStaticFile} from '../api/write-static-file';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BACKGROUND, CLEAR_HOVER, LIGHT_TEXT} from '../helpers/colors';
 import {buildAssetFolderStructure} from '../helpers/create-folder-tree';
@@ -17,7 +17,7 @@ import {FolderContext} from '../state/folders';
 import {useZIndex} from '../state/z-index';
 import {AssetFolderTree} from './AssetSelectorItem';
 import {inlineCodeSnippet} from './Menu/styles';
-import {handleUploadFile} from './utils';
+import {showNotification} from './Notifications/NotificationCenter';
 
 const container: React.CSSProperties = {
 	display: 'flex',
@@ -54,7 +54,7 @@ type State = {
 };
 
 export const AssetSelector: React.FC<{
-	readOnlyStudio: boolean;
+	readonly readOnlyStudio: boolean;
 }> = ({readOnlyStudio}) => {
 	const {tabIndex} = useZIndex();
 	const {assetFoldersExpanded, setAssetFoldersExpanded} =
@@ -123,11 +123,30 @@ export const AssetSelector: React.FC<{
 	);
 
 	const onDrop: React.DragEventHandler<HTMLDivElement> = useCallback(
-		(e) => {
-			e.preventDefault();
-			e.stopPropagation();
-			handleUploadFile(e.dataTransfer.files[0], dropLocation || '/');
-			setDropLocation(null);
+		async (e) => {
+			try {
+				e.preventDefault();
+				e.stopPropagation();
+				const {files} = e.dataTransfer;
+				const assetPath = dropLocation || '/';
+				for (const file of files) {
+					const body = await file.arrayBuffer();
+					await writeStaticFile({
+						contents: body,
+						filePath: file.name,
+					});
+				}
+
+				if (files.length === 1) {
+					showNotification(`Added ${files[0].name} to ${assetPath}`, 3000);
+				} else {
+					showNotification(`Added ${files.length} files to ${assetPath}`, 3000);
+				}
+			} catch (error) {
+				showNotification(`Error during upload: ${error}`, 3000);
+			} finally {
+				setDropLocation(null);
+			}
 		},
 		[dropLocation],
 	);

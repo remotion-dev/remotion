@@ -4,30 +4,30 @@ import {
 	useZodIfPossible,
 	useZodTypesIfPossible,
 } from '../../get-zod-if-possible';
-import {createZodValues} from './create-zod-values';
-import {deepEqual} from './deep-equal';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import {SchemaArrayItemSeparationLine} from './SchemaSeparationLine';
 import {SchemaVerticalGuide} from './SchemaVerticalGuide';
-import type {JSONPath} from './zod-types';
 import {ZodArrayItemEditor} from './ZodArrayItemEditor';
 import {ZodFieldValidation} from './ZodFieldValidation';
 import type {UpdaterFunction} from './ZodSwitch';
+import {createZodValues} from './create-zod-values';
+import {deepEqual} from './deep-equal';
+import {useLocalState} from './local-state';
+import type {JSONPath} from './zod-types';
 
 export const ZodArrayEditor: React.FC<{
-	schema: z.ZodTypeAny;
-	jsonPath: JSONPath;
-	value: unknown[];
-	defaultValue: unknown[];
-	setValue: UpdaterFunction<unknown[]>;
-	onSave: UpdaterFunction<unknown[]>;
-	showSaveButton: boolean;
-	onRemove: null | (() => void);
-	saving: boolean;
-	saveDisabledByParent: boolean;
-	mayPad: boolean;
+	readonly schema: z.ZodTypeAny;
+	readonly jsonPath: JSONPath;
+	readonly value: unknown[];
+	readonly defaultValue: unknown[];
+	readonly setValue: UpdaterFunction<unknown[]>;
+	readonly onSave: UpdaterFunction<unknown[]>;
+	readonly showSaveButton: boolean;
+	readonly onRemove: null | (() => void);
+	readonly saving: boolean;
+	readonly saveDisabledByParent: boolean;
+	readonly mayPad: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -42,10 +42,10 @@ export const ZodArrayEditor: React.FC<{
 	mayPad,
 }) => {
 	const {localValue, onChange, RevisionContextProvider, reset} = useLocalState({
-		value,
+		unsavedValue: value,
 		schema,
 		setValue,
-		defaultValue,
+		savedValue: defaultValue,
 	});
 
 	const [expanded, setExpanded] = useState(true);

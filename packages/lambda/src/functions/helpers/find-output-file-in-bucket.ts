@@ -1,27 +1,30 @@
-import type {AwsRegion} from '../..';
+import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
+import {
+	getExpectedOutName,
+	type CustomCredentials,
+	type RenderMetadata,
+} from '@remotion/serverless/client';
 import {ROLE_NAME} from '../../api/iam-validation/suggested-policy';
-import type {CustomCredentials} from '../../shared/aws-clients';
-import type {RenderMetadata} from '../../shared/constants';
-import {getExpectedOutName} from './expected-out-name';
 import {getOutputUrlFromMetadata} from './get-output-url-from-metadata';
-import {lambdaHeadCommand} from './io';
 
 export type OutputFileMetadata = {
 	url: string;
-	size: number;
-	lastModified: number;
 };
 
-export const findOutputFileInBucket = async ({
+export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 	region,
 	renderMetadata,
 	bucketName,
 	customCredentials,
+	currentRegion,
+	providerSpecifics,
 }: {
-	region: AwsRegion;
-	renderMetadata: RenderMetadata;
+	region: Provider['region'];
+	renderMetadata: RenderMetadata<Provider>;
 	bucketName: string;
-	customCredentials: CustomCredentials | null;
+	customCredentials: CustomCredentials<Provider> | null;
+	currentRegion: Provider['region'];
+	providerSpecifics: ProviderSpecifics<Provider>;
 }): Promise<OutputFileMetadata | null> => {
 	if (!renderMetadata) {
 		throw new Error('unexpectedly did not get renderMetadata');
@@ -30,23 +33,23 @@ export const findOutputFileInBucket = async ({
 	const {renderBucketName, key} = getExpectedOutName(
 		renderMetadata,
 		bucketName,
-		null,
+		customCredentials,
 	);
 
 	try {
-		const head = await lambdaHeadCommand({
+		await providerSpecifics.headFile({
 			bucketName,
 			key,
 			region,
+			customCredentials,
 		});
 		return {
-			lastModified: head.LastModified?.getTime() as number,
-			size: head.ContentLength as number,
 			url: getOutputUrlFromMetadata(
 				renderMetadata,
 				bucketName,
 				customCredentials,
-			),
+				currentRegion,
+			).url,
 		};
 	} catch (err) {
 		if ((err as Error).name === 'NotFound') {

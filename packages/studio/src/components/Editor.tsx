@@ -1,15 +1,17 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useEffect, useMemo, useRef} from 'react';
+import React, {useCallback, useEffect, useMemo} from 'react';
 import type {CurrentScaleContextType} from 'remotion';
 import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {noop} from '../helpers/noop';
+import {drawRef} from '../state/canvas-ref';
 import {TimelineZoomContext} from '../state/timeline-zoom';
 import {HigherZIndex} from '../state/z-index';
 import {EditorContent} from './EditorContent';
 import {GlobalKeybindings} from './GlobalKeybindings';
 import {Modals} from './Modals';
 import {NotificationCenter} from './Notifications/NotificationCenter';
+import {TopPanel} from './TopPanel';
 
 const background: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
@@ -23,16 +25,15 @@ const background: React.CSSProperties = {
 const DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS = 300;
 
 export const BUFFER_STATE_DELAY_IN_MILLISECONDS =
-	typeof process.env.BUFFER_STATE_DELAY_IN_MILLISECONDS === 'undefined'
+	typeof process.env.BUFFER_STATE_DELAY_IN_MILLISECONDS === 'undefined' ||
+	process.env.BUFFER_STATE_DELAY_IN_MILLISECONDS === null
 		? DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS
 		: Number(process.env.BUFFER_STATE_DELAY_IN_MILLISECONDS);
 
-export const Editor: React.FC<{Root: React.FC; readOnlyStudio: boolean}> = ({
-	Root,
-	readOnlyStudio,
-}) => {
-	const drawRef = useRef<HTMLDivElement>(null);
-
+export const Editor: React.FC<{
+	readonly Root: React.FC;
+	readonly readOnlyStudio: boolean;
+}> = ({Root, readOnlyStudio}) => {
 	const size = PlayerInternals.useElementSize(drawRef, {
 		triggerOnWindowResize: false,
 		shouldApplyCssTransforms: true,
@@ -83,21 +84,23 @@ export const Editor: React.FC<{Root: React.FC; readOnlyStudio: boolean}> = ({
 					<div style={background}>
 						{canvasMounted ? <MemoRoot /> : null}
 						<Internals.CanUseRemotionHooksProvider>
-							<EditorContent
-								drawRef={drawRef}
-								size={size}
-								onMounted={onMounted}
-								readOnlyStudio={readOnlyStudio}
-								bufferStateDelayInMilliseconds={
-									BUFFER_STATE_DELAY_IN_MILLISECONDS
-								}
-							/>
+							<EditorContent readOnlyStudio={readOnlyStudio}>
+								<TopPanel
+									size={size}
+									drawRef={drawRef}
+									bufferStateDelayInMilliseconds={
+										BUFFER_STATE_DELAY_IN_MILLISECONDS
+									}
+									onMounted={onMounted}
+									readOnlyStudio={readOnlyStudio}
+								/>
+							</EditorContent>
 							<GlobalKeybindings />
 						</Internals.CanUseRemotionHooksProvider>
-						<NotificationCenter />
 					</div>
 				</Internals.CurrentScaleContext.Provider>
 				<Modals readOnlyStudio={readOnlyStudio} />
+				<NotificationCenter />
 			</TimelineZoomContext>
 		</HigherZIndex>
 	);

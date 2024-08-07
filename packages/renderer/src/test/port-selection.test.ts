@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {getDesiredPort} from '../get-port';
 
 test('Port selection should only be freed once the previous result has been used', async () => {

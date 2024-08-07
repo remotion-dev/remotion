@@ -85,6 +85,7 @@ export const renderCommand = async (
 	} = CliInternals.getCliOptions({
 		isStill: false,
 		logLevel,
+		indent: false,
 	});
 
 	const offthreadVideoCacheSizeInBytes =
@@ -138,7 +139,10 @@ export const renderCommand = async (
 			webpackConfigOrServeUrl: serveUrl,
 			offthreadVideoCacheSizeInBytes,
 			binariesDirectory,
+			forceIPv4: false,
 		});
+
+		const indent = false;
 
 		const {compositionId} =
 			await CliInternals.getCompositionWithDimensionOverride({
@@ -148,7 +152,7 @@ export const renderCommand = async (
 				chromiumOptions,
 				envVariables,
 				height,
-				indent: false,
+				indent,
 				port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 				puppeteerInstance: undefined,
 				serveUrlOrWebpackUrl: serveUrl,
@@ -164,6 +168,11 @@ export const renderCommand = async (
 					}).serializedString,
 				offthreadVideoCacheSizeInBytes,
 				binariesDirectory,
+				onBrowserDownload: CliInternals.defaultBrowserDownloadProgress({
+					indent,
+					logLevel,
+					quiet: CliInternals.quietFlagProvided(),
+				}),
 			});
 		composition = compositionId;
 	}
@@ -206,7 +215,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		progressBar.update(
 			[
 				`Rendering on Cloud Run: `,
-				CliInternals.makeProgressBar(renderProgress.progress),
+				CliInternals.makeProgressBar(renderProgress.progress, false),
 				`${renderProgress.doneIn === null ? 'Rendering' : 'Rendered'}`,
 				renderProgress.doneIn === null
 					? `${Math.round(renderProgress.progress * 100)}%`
@@ -309,6 +318,8 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		preferLossless: false,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
+		indent: false,
+		downloadBehavior: {type: 'play-in-browser'},
 	});
 
 	if (res.type === 'crash') {

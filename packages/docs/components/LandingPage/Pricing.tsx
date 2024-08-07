@@ -18,37 +18,64 @@ export const Pricing: React.FC = () => {
       <EnterpriseLicense />
       <div
         style={{
-          fontFamily: "GTPlanar",
+          justifyContent: "center",
+          display: "flex",
         }}
       >
-        See our <a href="https://remotion.pro/license">FAQ</a> and{" "}
-        <a href="https://www.remotion.pro/terms">Terms and conditions</a> for
-        more details.
-      </div>
-      <div style={{ fontFamily: "GTPlanar" }}>
-        Want a 20-minute call to evaluate if Remotion is right for you?{" "}
-        <a
+        <div
           style={{
-            color: "var(--ifm-color-primary)",
-            textDecoration: "none",
+            fontFamily: "GTPlanar",
           }}
-          target="_blank"
-          href="https://cal.com/remotion/evaluate"
         >
-          Contact us
-        </a>
+          See our{" "}
+          <a target="_blank" href="https://remotion.pro/faq">
+            FAQ
+          </a>{" "}
+          and{" "}
+          <a target="_blank" href="https://www.remotion.pro/terms">
+            Terms and Conditions
+          </a>{" "}
+          for more details.
+        </div>
       </div>
-      <div style={{ marginTop: 0, fontFamily: "GTPlanar" }}>
-        Looking for help realizing your project?{" "}
-        <a
-          style={{
-            color: "var(--ifm-color-primary)",
-            textDecoration: "none",
-          }}
-          href="/experts"
-        >
-          Find experts
-        </a>
+      <div
+        style={{
+          justifyContent: "center",
+          display: "flex",
+        }}
+      >
+        <div style={{ fontFamily: "GTPlanar" }}>
+          Want a 20-minute call to evaluate if Remotion is right for you?{" "}
+          <a
+            style={{
+              color: "var(--ifm-color-primary)",
+              textDecoration: "none",
+            }}
+            target="_blank"
+            href="https://cal.com/remotion/evaluate"
+          >
+            Contact us
+          </a>
+        </div>
+      </div>
+      <div
+        style={{
+          justifyContent: "center",
+          display: "flex",
+        }}
+      >
+        <div style={{ marginTop: 0, fontFamily: "GTPlanar" }}>
+          Looking for help realizing your project?{" "}
+          <a
+            style={{
+              color: "var(--ifm-color-primary)",
+              textDecoration: "none",
+            }}
+            href="/experts"
+          >
+            Find experts
+          </a>
+        </div>
       </div>
     </div>
   );

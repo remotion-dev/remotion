@@ -8,9 +8,11 @@ export type BundleProgress = {
 
 export const makeBundleProgress = ({progress, doneIn}: BundleProgress) => {
 	return [
-		`(1/3)`,
-		CliInternals.makeProgressBar(progress / 100),
-		`${doneIn === null ? 'Bundling' : 'Bundled'} video`,
+		`${doneIn === null ? 'Bundling' : 'Bundled'} video`.padEnd(
+			CliInternals.LABEL_WIDTH,
+			' ',
+		),
+		CliInternals.makeProgressBar(progress / 100, false),
 		doneIn === null
 			? `${Math.round(progress)}%`
 			: CliInternals.chalk.gray(`${doneIn}ms`),
@@ -19,10 +21,10 @@ export const makeBundleProgress = ({progress, doneIn}: BundleProgress) => {
 
 export type BucketCreationProgress = {
 	creationState:
-		| 'Checking for existing bucket'
-		| 'Creating new bucket'
+		| 'Checking bucket'
+		| 'Creating bucket'
 		| 'Created bucket'
-		| 'Using existing bucket';
+		| 'Used bucket';
 	doneIn: number | null;
 };
 
@@ -34,11 +36,11 @@ export const makeBucketProgress = ({
 	let statesFinished = 0;
 
 	switch (creationState) {
-		case 'Checking for existing bucket':
+		case 'Checking bucket':
 			progress = 1;
 			break;
 
-		case 'Creating new bucket':
+		case 'Creating bucket':
 			progress = 2 / 3;
 			statesFinished = 2;
 			break;
@@ -48,7 +50,7 @@ export const makeBucketProgress = ({
 			statesFinished = 3;
 			break;
 
-		case 'Using existing bucket':
+		case 'Used bucket':
 			progress = 3 / 3;
 			statesFinished = 3;
 			break;
@@ -59,9 +61,8 @@ export const makeBucketProgress = ({
 	}
 
 	return [
-		`(2/3)`,
-		CliInternals.makeProgressBar(progress),
-		creationState,
+		creationState.padEnd(CliInternals.LABEL_WIDTH, ' '),
+		CliInternals.makeProgressBar(progress, false),
 		doneIn === null
 			? `${statesFinished} / ${3}`
 			: CliInternals.chalk.gray(`${doneIn}ms`),
@@ -109,14 +110,16 @@ export const makeDeployProgressBar = ({
 }: DeployToStorageProgress) => {
 	const progress = totalSize === null ? 0 : sizeUploaded / totalSize;
 	return [
-		`(3/3)`,
-		CliInternals.makeProgressBar(progress),
-		`${doneIn === null ? 'Uploading' : 'Uploaded'} to GCP Storage Bucket`,
+		`${doneIn === null ? 'Uploading' : 'Uploaded'}`.padEnd(
+			CliInternals.LABEL_WIDTH,
+			' ',
+		),
+		CliInternals.makeProgressBar(progress, false),
 		doneIn === null
 			? typeof totalSize === 'number'
 				? `${CliInternals.formatBytes(sizeUploaded)}/${CliInternals.formatBytes(
 						totalSize,
-				  )}`
+					)}`
 				: ''
 			: CliInternals.chalk.gray(`${doneIn}ms`),
 		makeUploadDiff({stats}),

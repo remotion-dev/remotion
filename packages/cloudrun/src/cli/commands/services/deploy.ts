@@ -87,6 +87,7 @@ ${[
 			projectID,
 			region,
 			logLevel,
+			indent: false,
 		});
 
 		if (!deployResult.fullName) {

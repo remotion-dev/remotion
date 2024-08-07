@@ -1,7 +1,10 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/three"
+	},
 	"name": "@remotion/three",
-	"version": "4.0.123",
-	"description": "Utility functions for using react-three-fiber with remotion",
+	"version": "4.0.193",
+	"description": "Include React Three Fiber components in a Remotion video",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -9,15 +12,11 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"watch": "tsc -w",
-		"build": "rollup --failAfterWarnings --config rollup.config.js && tsc -d"
+		"build": "bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Björn Zeutzheim",
 	"contributors": [],
 	"license": "MIT",
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
@@ -32,21 +31,13 @@
 		"remotion": "workspace:*"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.276",
 		"@react-three/fiber": "8.13.5",
-		"@rollup/plugin-typescript": "^8.2.0",
-		"@types/node": "18.14.6",
-		"@types/react": "18.2.48",
 		"@types/react-reconciler": "^0.26.4",
 		"@types/three": "0.157.2",
 		"@types/web": "0.0.78",
-		"eslint": "8.42.0",
-		"prettier": "3.1.1",
-		"prettier-plugin-organize-imports": "3.2.4",
-		"react": "18.2.0",
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
 		"remotion": "workspace:*",
-		"react-dom": "18.2.0",
-		"rollup": "^2.70.1",
 		"three": "0.158.0"
 	},
 	"keywords": [
@@ -68,5 +59,6 @@
 			"import": "./dist/esm/index.mjs",
 			"require": "./dist/cjs/index.js"
 		}
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/three"
 }

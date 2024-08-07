@@ -17,11 +17,12 @@ import { installWhisperCpp } from "@remotion/install-whisper-cpp";
 
 const { alreadyExisted } = await installWhisperCpp({
   to: path.join(process.cwd(), "whisper.cpp"),
-  version: "1.5.4",
+  version: "1.5.5", // A Whisper.cpp semver or git tag
 });
 ```
 
-On Windows, a binary is downloaded.  
+On Windows, if the provided version is not in semantic version format (e.g., `1.5.4`), the installation will throw an error. The function expects a precompiled semantic versioned release available for download.
+
 On other platforms, the source is cloned from GitHub and built.
 
 If you install Whisper.cpp into a folder which is in a Git repository, you should add the folder to the `.gitignore` file.
@@ -39,16 +40,27 @@ The folder to install Whisper.cpp into.
 ### `version`
 
 The version of Whisper.cpp to install. Don't include the `v` prefix.
+This can be either a hash of a Whisper.cpp commit or a semantic version of an official release.
+
+:::info
+On Windows, currently only release tags of Whisper.cpp are supported (e.g `1.5.4`).
+:::
 
 ### `printOutput?`
 
 Whether to print the output of the installation process to the console. Defaults to `true`.
 
+### `signal?`<AvailableFrom v="4.0.156" />
+
+A signal from an [`AbortController`](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) to cancel the installation process.
+
 ## Return value
+
+Returns a `Promise` that resolves to an object with the following property:
 
 ### `alreadyExisted`
 
-Whether the folder already existed. If it did, the function did not do anything and returned `true`.
+Whether the folder already existed. If it did, and contains the necessary executable, the function did not perform any installation and returned `true`. If the executable is missing in the existing folder, the function expects manual deletion of the folder before attempting another installation.
 
 ## See also
 

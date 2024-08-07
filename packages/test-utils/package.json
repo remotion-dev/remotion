@@ -1,33 +1,24 @@
 {
-  "name": "@remotion/test-utils",
-  "version": "4.0.123",
-  "description": "Utilities for using tailwind css in Remotion",
-  "main": "dist",
-  "sideEffects": false,
-  "scripts": {
-    "lint": "eslint src --ext ts,tsx",
-    "watch": "tsc -w",
-    "build": "tsc -d"
-  },
-  "author": "Jonny Burger <jonny@remotion.dev>",
-  "contributors": [],
-  "license": "MIT",
-  "repository": {
-    "url": "https://github.com/remotion-dev/remotion"
-  },
-  "bugs": {
-    "url": "https://github.com/remotion-dev/remotion/issues"
-  },
-  "devDependencies": {
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "remotion": "workspace:*",
-    "@jonny/eslint-config": "3.0.266",
-    "@types/node": "18.14.6",
-    "@types/react": "18.2.48",
-    "eslint": "8.42.0",
-    "prettier": "3.1.1",
-    "prettier-plugin-organize-imports": "3.2.4"
-  },
-  "private": true
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/test-utils"
+	},
+	"name": "@remotion/test-utils",
+	"version": "4.0.193",
+	"main": "dist",
+	"sideEffects": false,
+	"scripts": {
+		"lint": "eslint src --ext ts,tsx"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"contributors": [],
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"devDependencies": {
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
+		"remotion": "workspace:*"
+	},
+	"private": true
 }

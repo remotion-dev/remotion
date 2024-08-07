@@ -30,6 +30,7 @@ export type Template = {
 		| 'javascript'
 		| 'blank'
 		| 'next'
+		| 'next-tailwind'
 		| 'next-pages-dir'
 		| 'remix'
 		| 'three'
@@ -41,9 +42,11 @@ export type Template = {
 		| 'tailwind'
 		| 'overlay'
 		| 'stargazer'
-		| 'tiktok';
+		| 'tiktok'
+		| 'code-hike';
 	defaultBranch: string;
 	featuredOnHomePage: string | null;
+	previewURL?: string | null;
 } & DynamicTemplate;
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
@@ -71,6 +74,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: 'Hello World',
+		previewURL: 'https://remotion-helloworld.vercel.app/?/HelloWorld',
 	},
 	{
 		homePageLabel: 'Next.js (App dir)',
@@ -89,6 +93,24 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: 'Next.js',
+	},
+	{
+		homePageLabel: 'Next.js (App dir + TailwindCSS)',
+		shortName: 'Next.js (App dir + TailwindCSS)',
+		org: 'remotion-dev',
+		repoName: 'template-next-app-dir-tailwind',
+		description: 'SaaS template for video generation apps',
+		longerDescription:
+			'A SaaS starter kit which has the Remotion Player and rendering via Remotion Lambda built-in. Our recommended choice for people who want to build an app that can generate videos.',
+		promoVideo: {
+			width: 1280,
+			height: 720,
+			muxId: 'RufnZIJZh6L1MAaeG02jnXuM9pK96tNuHRxmXHbWqCBI',
+		},
+		cliId: 'next-tailwind' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
 	},
 	{
 		homePageLabel: 'Next.js (Pages dir)',
@@ -126,6 +148,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: 'Blank',
+		previewURL: 'https://template-empty.vercel.app/?/MyComp',
 	},
 	{
 		homePageLabel: 'JavaScript',
@@ -144,6 +167,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: 'JavaScript',
+		previewURL:
+			'https://template-helloworld-javascript.vercel.app/?/HelloWorld',
 	},
 	{
 		homePageLabel: 'Remix',
@@ -180,6 +205,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
+		previewURL: 'https://template-three-remotion.vercel.app/',
 	},
 	{
 		homePageLabel: 'Stills',
@@ -198,6 +224,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
+		previewURL: 'https://template-still.vercel.app/?/PreviewCard',
 	},
 	{
 		homePageLabel: 'Text-To-Speech (Azure)',
@@ -238,8 +265,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 	{
 		homePageLabel: 'Audiogram',
 		shortName: 'Audiogram',
-		org: 'marcusstenbeck',
-		repoName: 'remotion-template-audiogram',
+		org: 'remotion-dev',
+		repoName: 'template-audiogram',
 		description: 'Text and waveform visualization for podcasts',
 		longerDescription:
 			'A template that turns podcast snippets into videos that can be posted on Social Media.',
@@ -287,6 +314,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
+		previewURL: 'https://template-tailwind-remotion.vercel.app/?/MyComp',
 	},
 	{
 		homePageLabel: 'Overlay',
@@ -310,6 +338,30 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
+	},
+	{
+		homePageLabel: 'Code Hike',
+		shortName: 'Code Hike',
+		org: 'remotion-dev',
+		repoName: 'template-code-hike',
+		description: 'Beautiful code animations',
+		longerDescription: (
+			<>
+				Add code snippets and animate between them using{' '}
+				<a href="https://codehike.org/">Code Hike</a>. Supports many languages,
+				TypeScript error annotations, and many themes.
+			</>
+		),
+		promoVideo: {
+			muxId: 'fKwnpTAOqvnZpu00fwEezi00cpF3927NumGcS1gGdUj8A',
+			width: 1080,
+			height: 1080,
+		},
+		cliId: 'code-hike' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
+		previewURL: 'https://template-code-hike.vercel.app/',
 	},
 	{
 		homePageLabel: 'Stargazer',

@@ -1,11 +1,11 @@
 import React, {useCallback} from 'react';
-import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {Sequence} from '../Sequence.js';
+import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {validateMediaProps} from '../validate-media-props.js';
 import {validateStartFromProps} from '../validate-start-from-props.js';
 import {OffthreadVideoForRendering} from './OffthreadVideoForRendering.js';
-import type {OffthreadVideoProps} from './props.js';
 import {VideoForPreview} from './VideoForPreview.js';
+import type {OffthreadVideoProps} from './props.js';
 
 /**
  * @description This method imports and displays a video, similar to <Video />. During rendering, it extracts the exact frame from the video and displays it in an <img> tag
@@ -68,16 +68,28 @@ export const OffthreadVideo: React.FC<OffthreadVideoProps> = (props) => {
 		return <OffthreadVideoForRendering {...otherProps} />;
 	}
 
-	const {transparent, toneMapped, ...withoutTransparent} = otherProps;
+	const {
+		transparent,
+		toneMapped,
+		_remotionDebugSeeking,
+		onAutoPlayError,
+		onVideoFrame,
+		crossOrigin,
+		...withoutTransparent
+	} = otherProps;
 
 	return (
 		<VideoForPreview
 			_remotionInternalStack={stack ?? null}
 			_remotionInternalNativeLoopPassed={false}
+			_remotionDebugSeeking={_remotionDebugSeeking ?? false}
 			onDuration={onDuration}
 			onlyWarnForMediaSeekingError
 			pauseWhenBuffering={pauseWhenBuffering ?? false}
 			showInTimeline={showInTimeline ?? true}
+			onAutoPlayError={onAutoPlayError ?? undefined}
+			onVideoFrame={onVideoFrame ?? null}
+			crossOrigin={crossOrigin}
 			{...withoutTransparent}
 		/>
 	);

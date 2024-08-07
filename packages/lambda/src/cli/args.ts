@@ -1,9 +1,8 @@
 import {CliInternals} from '@remotion/cli';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import type {DeleteAfter} from '../client';
+import type {AwsRegion, DeleteAfter} from '../client';
 
-import type {AwsRegion} from '../pricing/aws-regions';
-import type {Privacy} from '../shared/constants';
+import type {Privacy} from '@remotion/serverless/client';
 
 type LambdaCommandLineOptions = {
 	help: boolean;
@@ -37,6 +36,9 @@ type LambdaCommandLineOptions = {
 	['force-bucket-name']: string | undefined;
 	[BrowserSafeApis.options.deleteAfterOption.cliFlag]: DeleteAfter | undefined;
 	[BrowserSafeApis.options.folderExpiryOption.cliFlag]: boolean | undefined;
+	['vpc-subnet-ids']: string | undefined;
+	['vpc-security-group-ids']: string | undefined;
+	['compatible-only']: boolean;
 };
 
 export const parsedLambdaCli = CliInternals.minimist<LambdaCommandLineOptions>(

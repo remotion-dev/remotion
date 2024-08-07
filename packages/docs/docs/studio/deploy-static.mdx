@@ -50,6 +50,47 @@ Connect your repository to Netlify.
 - **Publish directory**: `build`
 - **Functions directory**: _Leave default_
 
+## Deploy to GitHub Pages
+
+<Step>1</Step> Create the following file in your repo:
+
+```yaml title=".github/workflows/deploy-studio.yml"
+name: Deploy Remotion studio
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+permissions:
+  contents: write
+jobs:
+  render:
+    name: Render video
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: install packages
+        run: npm i
+      - name: Bundle Studio
+        run: npx remotion bundle --public-path="./"
+      - name: Deploy Studio
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: build
+```
+
+The above code will deploy the bundled Remotion Studio to a branch `gh-pages`.
+
+:::note
+The --public-path flag for `npx remotion bundle` is available only from remotion version `4.0.127`
+:::
+
+<Step>3</Step> Go to the settings of your repository (github.com/[username]/[repo]/settings/pages) <br />
+
+<Step>4</Step> In the Branch section, select the <code>gh-pages</code> branch and
+click save.
+
 ## Rendering from a URL
 
 The deployed URL is a [Serve URL](/docs/terminology/serve-url) can also be used to render a video:
@@ -150,7 +191,7 @@ npx remotion cloudrun render https://remotion-helloworld.vercel.app HelloWorld -
 // @module: esnext
 // @target: es2017
 // ---cut---
-import { renderMediaOnCloudrun } from "@remotion/cloudrun";
+import { renderMediaOnCloudrun } from "@remotion/cloudrun/client";
 
 const result = await renderMediaOnCloudrun({
   region: "us-east1",

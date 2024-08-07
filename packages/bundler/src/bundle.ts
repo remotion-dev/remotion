@@ -41,16 +41,18 @@ const trimTrailingSlash = (p: string): string => {
 	return p;
 };
 
-export type LegacyBundleOptions = {
-	webpackOverride?: WebpackOverrideFn;
-	outDir?: string;
-	enableCaching?: boolean;
-	publicPath?: string;
-	rootDir?: string;
-	publicDir?: string | null;
-	onPublicDirCopyProgress?: (bytes: number) => void;
-	onSymlinkDetected?: (path: string) => void;
+export type MandatoryLegacyBundleOptions = {
+	webpackOverride: WebpackOverrideFn;
+	outDir: string | null;
+	enableCaching: boolean;
+	publicPath: string | null;
+	rootDir: string | null;
+	publicDir: string | null;
+	onPublicDirCopyProgress: (bytes: number) => void;
+	onSymlinkDetected: (path: string) => void;
 };
+
+export type LegacyBundleOptions = Partial<MandatoryLegacyBundleOptions>;
 
 export const getConfig = ({
 	entryPoint,
@@ -77,7 +79,9 @@ export const getConfig = ({
 		outDir,
 		environment: 'production',
 		webpackOverride: options?.webpackOverride ?? ((f) => f),
-		onProgress,
+		onProgress: (p) => {
+			onProgress?.(p);
+		},
 		enableCaching: options?.enableCaching ?? true,
 		maxTimelineTracks,
 		remotionRoot: resolvedRemotionRoot,
@@ -87,15 +91,25 @@ export const getConfig = ({
 	});
 };
 
+type NewBundleOptions = {
+	entryPoint: string;
+	onProgress: (progress: number) => void;
+	ignoreRegisterRootWarning: boolean;
+	onDirectoryCreated: (dir: string) => void;
+	gitSource: GitSource | null;
+	maxTimelineTracks: number | null;
+	bufferStateDelayInMilliseconds: number | null;
+};
+
+type MandatoryBundleOptions = {
+	entryPoint: string;
+} & NewBundleOptions &
+	MandatoryLegacyBundleOptions;
+
 export type BundleOptions = {
 	entryPoint: string;
-	onProgress?: (progress: number) => void;
-	ignoreRegisterRootWarning?: boolean;
-	onDirectoryCreated?: (dir: string) => void;
-	gitSource?: GitSource | null;
-	maxTimelineTracks?: number;
-	bufferStateDelayInMilliseconds?: number;
-} & LegacyBundleOptions;
+} & Partial<NewBundleOptions> &
+	LegacyBundleOptions;
 
 type Arguments =
 	| [options: BundleOptions]
@@ -164,12 +178,9 @@ const validateEntryPoint = async (entryPoint: string) => {
 	}
 };
 
-/**
- * @description The method bundles a Remotion project using Webpack and prepares it for rendering using renderMedia()
- * @see [Documentation](https://www.remotion.dev/docs/bundle)
- */
-export async function bundle(...args: Arguments): Promise<string> {
-	const actualArgs = convertArgumentsIntoOptions(args);
+export const internalBundle = async (
+	actualArgs: MandatoryBundleOptions,
+): Promise<string> => {
 	const entryPoint = path.resolve(process.cwd(), actualArgs.entryPoint);
 	const resolvedRemotionRoot =
 		actualArgs?.rootDir ??
@@ -218,10 +229,10 @@ export async function bundle(...args: Arguments): Promise<string> {
 		throw new Error(errors[0].message + '\n' + errors[0].details);
 	}
 
-	const baseDir = actualArgs?.publicPath ?? '/';
+	const publicPath = actualArgs?.publicPath ?? '/';
 	const staticHash =
 		'/' +
-		[trimTrailingSlash(trimLeadingSlash(baseDir)), 'public']
+		[trimTrailingSlash(trimLeadingSlash(publicPath)), 'public']
 			.filter(Boolean)
 			.join('/');
 
@@ -253,7 +264,9 @@ export async function bundle(...args: Arguments): Promise<string> {
 			src: from,
 			dest: to,
 			onSymlinkDetected: showSymlinkWarning,
-			onProgress: (prog) => options.onPublicDirCopyProgress?.(prog),
+			onProgress: (prog) => {
+				return options.onPublicDirCopyProgress?.(prog);
+			},
 			copiedBytes: 0,
 			lastReportedProgress: 0,
 		});
@@ -261,7 +274,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 
 	const html = indexHtml({
 		staticHash,
-		baseDir,
+		publicPath,
 		editorName: null,
 		inputProps: null,
 		remotionRoot: resolvedRemotionRoot,
@@ -279,10 +292,10 @@ export async function bundle(...args: Arguments): Promise<string> {
 				name: f.name.split(path.sep).join('/'),
 			};
 		}),
-		includeFavicon: false,
+		includeFavicon: true,
 		title: 'Remotion Bundle',
 		renderDefaults: undefined,
-		publicFolderExists: `${baseDir + (baseDir.endsWith('/') ? '' : '/')}public`,
+		publicFolderExists: `${publicPath + (publicPath.endsWith('/') ? '' : '/')}public`,
 		gitSource: actualArgs.gitSource ?? null,
 		projectName: getProjectName({
 			gitSource: actualArgs.gitSource ?? null,
@@ -301,4 +314,31 @@ export async function bundle(...args: Arguments): Promise<string> {
 		path.join(outDir, SOURCE_MAP_ENDPOINT.replace('/', '')),
 	);
 	return outDir;
+};
+
+/**
+ * @description The method bundles a Remotion project using Webpack and prepares it for rendering.
+ * @see [Documentation](https://www.remotion.dev/docs/bundle)
+ */
+export async function bundle(...args: Arguments): Promise<string> {
+	const actualArgs = convertArgumentsIntoOptions(args);
+	const result = await internalBundle({
+		bufferStateDelayInMilliseconds:
+			actualArgs.bufferStateDelayInMilliseconds ?? null,
+		enableCaching: actualArgs.enableCaching ?? true,
+		entryPoint: actualArgs.entryPoint,
+		gitSource: actualArgs.gitSource ?? null,
+		ignoreRegisterRootWarning: actualArgs.ignoreRegisterRootWarning ?? false,
+		maxTimelineTracks: actualArgs.maxTimelineTracks ?? null,
+		onDirectoryCreated: actualArgs.onDirectoryCreated ?? (() => {}),
+		onProgress: actualArgs.onProgress ?? (() => {}),
+		onPublicDirCopyProgress: actualArgs.onPublicDirCopyProgress ?? (() => {}),
+		onSymlinkDetected: actualArgs.onSymlinkDetected ?? (() => {}),
+		outDir: actualArgs.outDir ?? null,
+		publicDir: actualArgs.publicDir ?? null,
+		publicPath: actualArgs.publicPath ?? null,
+		rootDir: actualArgs.rootDir ?? null,
+		webpackOverride: actualArgs.webpackOverride ?? ((f) => f),
+	});
+	return result;
 }

@@ -1,33 +1,33 @@
 import React, {useCallback, useMemo} from 'react';
-import {getStaticFiles} from 'remotion';
 import type {z} from 'zod';
+import {getStaticFiles} from '../../../api/get-static-files';
 import {Checkmark} from '../../../icons/Checkmark';
-import {useZodIfPossible} from '../../get-zod-if-possible';
 import type {ComboboxValue} from '../../NewComposition/ComboBox';
 import {Combobox} from '../../NewComposition/ComboBox';
+import {useZodIfPossible} from '../../get-zod-if-possible';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
-import type {JSONPath} from './zod-types';
 import {ZodFieldValidation} from './ZodFieldValidation';
 import type {UpdaterFunction} from './ZodSwitch';
+import {useLocalState} from './local-state';
+import type {JSONPath} from './zod-types';
 
 const container: React.CSSProperties = {
 	width: '100%',
 };
 
 export const ZodStaticFileEditor: React.FC<{
-	schema: z.ZodTypeAny;
-	jsonPath: JSONPath;
-	value: string;
-	defaultValue: string;
-	setValue: UpdaterFunction<string>;
-	onSave: (updater: (oldState: string) => string) => void;
-	showSaveButton: boolean;
-	onRemove: null | (() => void);
-	saving: boolean;
-	saveDisabledByParent: boolean;
-	mayPad: boolean;
+	readonly schema: z.ZodTypeAny;
+	readonly jsonPath: JSONPath;
+	readonly value: string;
+	readonly defaultValue: string;
+	readonly setValue: UpdaterFunction<string>;
+	readonly onSave: (updater: (oldState: string) => string) => void;
+	readonly showSaveButton: boolean;
+	readonly onRemove: null | (() => void);
+	readonly saving: boolean;
+	readonly saveDisabledByParent: boolean;
+	readonly mayPad: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -53,8 +53,8 @@ export const ZodStaticFileEditor: React.FC<{
 	} = useLocalState({
 		schema,
 		setValue,
-		value,
-		defaultValue,
+		unsavedValue: value,
+		savedValue: defaultValue,
 	});
 
 	const def = schema._def;

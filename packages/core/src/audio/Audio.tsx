@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import React, {forwardRef, useCallback, useContext} from 'react';
+import {Sequence} from '../Sequence.js';
 import {getAbsoluteSrc} from '../absolute-src.js';
 import {calculateLoopDuration} from '../calculate-loop.js';
 import {cancelRender} from '../cancel-render.js';
@@ -7,7 +8,6 @@ import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {Loop} from '../loop/index.js';
 import {usePreload} from '../prefetch.js';
-import {Sequence} from '../Sequence.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {validateMediaProps} from '../validate-media-props.js';
 import {validateStartFromProps} from '../validate-start-from-props.js';
@@ -24,7 +24,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			/**
 			 * @deprecated For internal use only
 			 */
-			stack?: string;
+			readonly stack?: string;
 		}
 > = (props, ref) => {
 	const audioContext = useContext(SharedAudioContext);
@@ -35,6 +35,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		stack,
 		pauseWhenBuffering,
 		showInTimeline,
+		_remotionDebugSeeking,
 		...otherProps
 	} = props;
 	const {loop, ...propsOtherThanLoop} = props;
@@ -146,6 +147,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			_remotionInternalNativeLoopPassed={
 				props._remotionInternalNativeLoopPassed ?? false
 			}
+			_remotionDebugSeeking={_remotionDebugSeeking ?? false}
 			_remotionInternalStack={stack ?? null}
 			shouldPreMountAudioTags={
 				audioContext !== null && audioContext.numberOfAudioTags > 0

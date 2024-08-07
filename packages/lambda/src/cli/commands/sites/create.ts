@@ -3,10 +3,14 @@ import {ConfigInternals} from '@remotion/cli/config';
 import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 
+import type {ProviderSpecifics} from '@remotion/serverless';
+import {
+	internalGetOrCreateBucket,
+	type Privacy,
+} from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
-import {deploySite} from '../../../api/deploy-site';
-import {internalGetOrCreateBucket} from '../../../api/get-or-create-bucket';
-import type {Privacy} from '../../../shared/constants';
+import type {AwsProvider} from '../../../functions/aws-implementation';
+import {LambdaInternals} from '../../../internals';
 import {BINARY_NAME} from '../../../shared/constants';
 import {validateSiteName} from '../../../shared/validate-site-name';
 import {parsedLambdaCli} from '../../args';
@@ -26,16 +30,25 @@ import {Log} from '../../log';
 
 export const SITES_CREATE_SUBCOMMAND = 'create';
 
+const {
+	folderExpiryOption,
+	publicDirOption,
+	throwIfSiteExistsOption,
+	disableGitSourceOption,
+} = BrowserSafeApis.options;
+
 export const sitesCreateSubcommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
+	implementation: ProviderSpecifics<AwsProvider>,
 ) => {
-	const {file, reason} = CliInternals.findEntryPoint(
+	const {file, reason} = CliInternals.findEntryPoint({
 		args,
 		remotionRoot,
 		logLevel,
-	);
+		allowDirectory: false,
+	});
 	if (!file) {
 		Log.error({indent: false, logLevel}, 'No entry file passed.');
 		Log.info(
@@ -92,23 +105,22 @@ export const sitesCreateSubcommand = async (
 		},
 	};
 
-	const updateProgress = () => {
+	const updateProgress = (newLine: boolean) => {
 		progressBar.update(
 			[
 				makeBundleProgress(multiProgress.bundleProgress),
 				makeBucketProgress(multiProgress.bucketProgress),
 				makeDeployProgressBar(multiProgress.deployProgress),
 			].join('\n'),
-			false,
+			newLine,
 		);
 	};
 
 	const bucketStart = Date.now();
 
-	const enableFolderExpiry =
-		BrowserSafeApis.options.folderExpiryOption.getValue({
-			commandLine: CliInternals.parsedCli,
-		}).value;
+	const enableFolderExpiry = folderExpiryOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	const cliBucketName = parsedLambdaCli['force-bucket-name'] ?? null;
 	const bucketName =
 		cliBucketName ??
@@ -117,20 +129,36 @@ export const sitesCreateSubcommand = async (
 				region: getAwsRegion(),
 				enableFolderExpiry,
 				customCredentials: null,
+				providerSpecifics: implementation,
 			})
 		).bucketName;
 
 	multiProgress.bucketProgress.doneIn = Date.now() - bucketStart;
-	updateProgress();
+	updateProgress(false);
 
 	const bundleStart = Date.now();
 	let uploadStart = Date.now();
 
-	const {serveUrl, siteName, stats} = await deploySite({
+	const publicDir = publicDirOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+
+	const throwIfSiteExists = throwIfSiteExistsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const disableGitSource = disableGitSourceOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+
+	const gitSource = CliInternals.getGitSource({remotionRoot, disableGitSource});
+
+	const {serveUrl, siteName, stats} = await LambdaInternals.internalDeploySite({
 		entryPoint: file,
-		siteName: desiredSiteName,
+		siteName: desiredSiteName ?? implementation.randomHash(),
 		bucketName,
 		options: {
+			publicDir,
+			rootDir: remotionRoot,
 			onBundleProgress: (progress: number) => {
 				multiProgress.bundleProgress = {
 					progress,
@@ -140,7 +168,7 @@ export const sitesCreateSubcommand = async (
 					uploadStart = Date.now();
 				}
 
-				updateProgress();
+				updateProgress(false);
 			},
 			onUploadProgress: (p) => {
 				multiProgress.deployProgress = {
@@ -149,16 +177,22 @@ export const sitesCreateSubcommand = async (
 					doneIn: null,
 					stats: null,
 				};
-				updateProgress();
+				updateProgress(false);
 			},
 			enableCaching: ConfigInternals.getWebpackCaching(),
 			webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
 			bypassBucketNameValidation: Boolean(parsedLambdaCli['force-bucket-name']),
 		},
 		region: getAwsRegion(),
-		privacy: parsedLambdaCli.privacy as Exclude<Privacy, 'private'> | undefined,
-		gitSource: null,
+		privacy:
+			(parsedLambdaCli.privacy as Exclude<Privacy, 'private'>) ?? 'public',
+		gitSource,
+		indent: false,
+		logLevel,
+		throwIfSiteExists,
+		providerSpecifics: implementation,
 	});
+
 	const uploadDuration = Date.now() - uploadStart;
 	multiProgress.deployProgress = {
 		sizeUploaded: 1,
@@ -170,20 +204,28 @@ export const sitesCreateSubcommand = async (
 			untouchedFiles: stats.untouchedFiles,
 		},
 	};
-	updateProgress();
+	updateProgress(true);
 
-	Log.info({indent: false, logLevel});
-	Log.info({indent: false, logLevel});
-	Log.info({indent: false, logLevel}, 'Deployed to S3!');
-
-	Log.info({indent: false, logLevel}, `Serve URL: ${serveUrl}`);
-	Log.info({indent: false, logLevel}, `Site Name: ${siteName}`);
+	CliInternals.printFact('info')({
+		indent: false,
+		left: 'Serve URL',
+		logLevel,
+		right: serveUrl,
+		color: 'blueBright',
+	});
+	CliInternals.printFact('info')({
+		indent: false,
+		left: 'Site name',
+		logLevel,
+		right: siteName,
+		color: 'blueBright',
+	});
 
 	Log.info({indent: false, logLevel});
 	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.blueBright(
-			'ℹ️ If you make changes to your code, you need to redeploy the site. You can overwrite the existing site by running:',
+			'ℹ️   Redeploy your site everytime you make changes to it. You can overwrite the existing site by running:',
 		),
 	);
 	Log.info(

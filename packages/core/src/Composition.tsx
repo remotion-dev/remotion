@@ -7,18 +7,19 @@ import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
 } from './CanUseRemotionHooks.js';
-import type {Codec} from './codec.js';
 import {CompositionManager} from './CompositionManagerContext.js';
-import {continueRender, delayRender} from './delay-render.js';
 import {FolderContext} from './Folder.js';
+import {NativeLayersContext} from './NativeLayers.js';
+import {useResolvedVideoConfig} from './ResolveCompositionConfig.js';
+import type {Codec} from './codec.js';
+import {continueRender, delayRender} from './delay-render.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
+import {serializeThenDeserializeInStudio} from './input-props-serialization.js';
 import {useIsPlayer} from './is-player.js';
 import {Loading} from './loading-indicator.js';
-import {NativeLayersContext} from './NativeLayers.js';
 import {useNonce} from './nonce.js';
 import {portalNode} from './portal-node.js';
 import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
-import {useResolvedVideoConfig} from './ResolveCompositionConfig.js';
 import {useLazyComponent} from './use-lazy-component.js';
 import {useVideo} from './use-video.js';
 import {validateCompositionId} from './validation/validate-composition-id.js';
@@ -122,8 +123,8 @@ export type CompositionProps<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
 > = {
-	id: string;
-	schema?: Schema;
+	readonly id: string;
+	readonly schema?: Schema;
 } & CompositionCalculateMetadataOrExplicit<Schema, Props> &
 	CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
@@ -194,7 +195,9 @@ export const Composition = <
 			id,
 			folderName,
 			component: lazy,
-			defaultProps: defaultProps as z.output<Schema> & Props,
+			defaultProps: serializeThenDeserializeInStudio(
+				(defaultProps ?? {}) as z.output<Schema> & Props,
+			) as z.output<Schema> & Props,
 			nonce,
 			parentFolderName: parentName,
 			schema: schema ?? null,

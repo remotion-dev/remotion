@@ -1,10 +1,10 @@
-import type {
-	InvokeWithResponseStreamCommandInput,
-	LambdaClient,
-} from '@aws-sdk/client-lambda';
+import type {LambdaClient} from '@aws-sdk/client-lambda';
 
+import {ResponseStream} from '@remotion/serverless';
 import type {getLambdaClient as original} from '../../shared/aws-clients';
-export const getLambdaClient: typeof original = (region, timeoutInTest) => {
+import {mockImplementation} from '../../test/mock-implementation';
+
+export const getLambdaClient: typeof original = (_region, timeoutInTest) => {
 	return {
 		config: {
 			requestHandler: {},
@@ -13,19 +13,43 @@ export const getLambdaClient: typeof original = (region, timeoutInTest) => {
 		destroy: () => undefined,
 		middlewareStack: undefined,
 		send: async (params: {
-			FunctionName: undefined;
-			Payload: InvokeWithResponseStreamCommandInput;
-			InvocationType: 'Event';
+			input: {
+				FunctionName: undefined;
+				Payload: string;
+				InvocationType: 'Event' | 'RequestResponse' | undefined;
+			};
 		}) => {
-			// @ts-expect-error
 			const payload = JSON.parse(params.input.Payload);
 
-			const {handler} = await import('../../functions/index');
+			const {innerRoutine} = await import('../../functions/index');
 
-			return handler(payload, {
-				invokedFunctionArn: 'arn:fake',
-				getRemainingTimeInMillis: () => timeoutInTest ?? 120000,
+			const responseStream = new ResponseStream();
+			const prom = innerRoutine(
+				payload,
+				responseStream,
+				{
+					invokedFunctionArn: 'arn:fake',
+					getRemainingTimeInMillis: () => timeoutInTest ?? 120000,
+					awsRequestId: 'fake',
+				},
+				mockImplementation,
+			);
+			if (
+				params.input.InvocationType === 'RequestResponse' ||
+				params.input.InvocationType === 'Event'
+			) {
+				await prom;
+				return {Payload: responseStream.getBufferedData()};
+			}
+
+			prom.then(() => {
+				responseStream._finish();
+				responseStream.end();
 			});
+			// When streaming, we should not consume the response
+			return {
+				EventStream: responseStream,
+			};
 		},
 	} as unknown as LambdaClient;
 };

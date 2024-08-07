@@ -5,6 +5,7 @@ import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
+import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
@@ -17,6 +18,7 @@ import {makeOrReuseServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {waitForReady} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
+import type {RequiredInputPropsInV5} from './v5-required-input-props';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {wrapWithErrorHandling} from './wrap-with-error-handling';
 
@@ -32,10 +34,10 @@ type InternalSelectCompositionsConfig = {
 	server: RemotionServer | undefined;
 	serveUrl: string;
 	id: string;
+	onServeUrlVisited: () => void;
 } & ToOptions<typeof optionsMap.selectComposition>;
 
-export type SelectCompositionOptions = {
-	inputProps?: Record<string, unknown> | null;
+export type SelectCompositionOptions = RequiredInputPropsInV5 & {
 	envVariables?: Record<string, string>;
 	puppeteerInstance?: HeadlessBrowser;
 	onBrowserLog?: (log: BrowserLog) => void;
@@ -71,6 +73,7 @@ const innerSelectComposition = async ({
 	id,
 	indent,
 	logLevel,
+	onServeUrlVisited,
 }: InnerSelectCompositionConfig): Promise<InternalReturnType> => {
 	if (onBrowserLog) {
 		page.on('console', (log) => {
@@ -97,6 +100,7 @@ const innerSelectComposition = async ({
 		videoEnabled: false,
 		indent,
 		logLevel,
+		onServeUrlVisited,
 	});
 
 	await puppeteerEvaluateWithCatch({
@@ -195,6 +199,8 @@ export const internalSelectCompositionRaw = async (
 		timeoutInMilliseconds,
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
+		onBrowserDownload,
+		onServeUrlVisited,
 	} = options;
 
 	const {page, cleanup: cleanupPage} = await getPageAndCleanupFn({
@@ -204,6 +210,7 @@ export const internalSelectCompositionRaw = async (
 		forceDeviceScaleFactor: undefined,
 		indent,
 		logLevel,
+		onBrowserDownload,
 	});
 	cleanup.push(() => cleanupPage());
 
@@ -229,10 +236,10 @@ export const internalSelectCompositionRaw = async (
 				indent,
 				offthreadVideoCacheSizeInBytes,
 				binariesDirectory,
+				forceIPv4: false,
 			},
 			{
 				onDownload: () => undefined,
-				onError,
 			},
 		)
 			.then(({server: {serveUrl, offthreadPort, sourceMap}, cleanupServer}) => {
@@ -256,6 +263,8 @@ export const internalSelectCompositionRaw = async (
 					server,
 					offthreadVideoCacheSizeInBytes,
 					binariesDirectory,
+					onBrowserDownload,
+					onServeUrlVisited,
 				});
 			})
 
@@ -270,7 +279,7 @@ export const internalSelectCompositionRaw = async (
 					// Must prevent unhandled exception in cleanup function.
 					// Promise has already been resolved, so we can't reject it.
 					c().catch((err) => {
-						console.log('Cleanup error:', err);
+						Log.error({indent, logLevel}, 'Cleanup error:', err);
 					});
 				});
 			});
@@ -300,10 +309,14 @@ export const selectComposition = async (
 		puppeteerInstance,
 		timeoutInMilliseconds,
 		verbose,
-		logLevel,
+		logLevel: passedLogLevel,
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
+		onBrowserDownload,
 	} = options;
+
+	const indent = false;
+	const logLevel = passedLogLevel ?? verbose ? 'verbose' : 'info';
 
 	const data = await internalSelectComposition({
 		id,
@@ -321,11 +334,19 @@ export const selectComposition = async (
 		port: port ?? null,
 		puppeteerInstance,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
-		logLevel: logLevel ?? verbose ? 'verbose' : 'info',
-		indent: false,
+		logLevel,
+		indent,
 		server: undefined,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		binariesDirectory: binariesDirectory ?? null,
+		onBrowserDownload:
+			onBrowserDownload ??
+			defaultBrowserDownloadProgress({
+				indent,
+				logLevel,
+				api: 'selectComposition()',
+			}),
+		onServeUrlVisited: () => undefined,
 	});
 	return data.metadata;
 };

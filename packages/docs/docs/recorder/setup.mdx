@@ -1,0 +1,57 @@
+---
+image: /generated/articles-docs-recorder-setup.png
+title: Setup
+crumb: Recorder
+---
+
+# Setup
+
+First, [purchase](/docs/recorder/buy) the Recorder to [get access to the repo](https://github.com/remotion-dev/recorder).
+
+## 1. Fork and clone
+
+[Create a fork](https://github.com/remotion-dev/recorder/fork) of the `remotion-dev/recorder` repository.  
+Clone the repository using `git clone` and `cd` into the directory.
+
+:::note
+You need to keep your fork **private** to not leak the source code of the Remotion Recorder.
+:::
+
+Then, clone your fork to get the project locally.
+
+## 2. Install Bun
+
+The Remotion Recorder requires [Bun](https://bun.sh/), with the minimum version being 1.1.11. To install it, run
+
+```bash
+curl -fsSL https://bun.sh/install | bash
+```
+
+## 3. Install dependencies
+
+Once Bun is installed, run
+
+```bash
+bun i
+```
+
+to install all the neccessary dependencies.
+
+## 4. Install Whisper.cpp
+
+_optional_
+
+This is a good time to initialize Whisper.cpp for captioning.  
+This will install Whisper.cpp and download the model (the default being 1.5GB).
+
+```
+bun sub.ts
+```
+
+## 5. Run the Remotion Recorder
+
+Once done, you are ready to start the Remotion Recorder:
+
+```bash
+bun start
+```

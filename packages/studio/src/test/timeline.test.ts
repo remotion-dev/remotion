@@ -1,5 +1,6 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {calculateTimeline} from '../helpers/calculate-timeline';
+
 test('Should calculate timeline with no sequences', () => {
 	const calculated = calculateTimeline({
 		sequences: [],
@@ -17,6 +18,7 @@ test('Should calculate timeline with no sequences', () => {
 				rootId: '-',
 				showInTimeline: true,
 				nonce: 0,
+				premountDisplay: null,
 				loopDisplay: undefined,
 				stack: null,
 			},
@@ -40,6 +42,7 @@ test('Should calculate a basic timeline', () => {
 				type: 'sequence',
 				nonce: 0,
 				stack: null,
+				premountDisplay: null,
 				loopDisplay: undefined,
 			},
 		],
@@ -56,6 +59,7 @@ test('Should calculate a basic timeline', () => {
 				parent: null,
 				rootId: '0.1',
 				showInTimeline: true,
+				premountDisplay: null,
 				loopDisplay: undefined,
 				stack: null,
 				type: 'sequence',
@@ -80,6 +84,7 @@ test('Should follow order of nesting', () => {
 				type: 'sequence',
 				nonce: 0,
 				stack: null,
+				premountDisplay: null,
 				loopDisplay: undefined,
 			},
 			{
@@ -87,6 +92,7 @@ test('Should follow order of nesting', () => {
 				duration: 100,
 				from: 0,
 				id: '0.1',
+				premountDisplay: null,
 				loopDisplay: undefined,
 				parent: null,
 				rootId: '0.1',
@@ -105,6 +111,7 @@ test('Should follow order of nesting', () => {
 				duration: 100,
 				from: 0,
 				id: '0.1',
+				premountDisplay: null,
 				loopDisplay: undefined,
 				parent: null,
 				rootId: '0.1',
@@ -128,6 +135,7 @@ test('Should follow order of nesting', () => {
 				type: 'sequence',
 				nonce: 0,
 				stack: null,
+				premountDisplay: null,
 				loopDisplay: undefined,
 			},
 			depth: 1,

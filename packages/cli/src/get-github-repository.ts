@@ -1,5 +1,5 @@
 import {BundlerInternals} from '@remotion/bundler';
-import type {GitSource} from '@remotion/studio';
+import type {GitSource} from '@remotion/studio-shared';
 import {execSync} from 'child_process';
 import {existsSync, readFileSync} from 'fs';
 import path from 'path';
@@ -129,7 +129,17 @@ const getFromEnvVariables = (): GitSource | null => {
 	return null;
 };
 
-export const getGitSource = (remotionRoot: string): GitSource | null => {
+export const getGitSource = ({
+	remotionRoot,
+	disableGitSource,
+}: {
+	remotionRoot: string;
+	disableGitSource: boolean;
+}): GitSource | null => {
+	if (disableGitSource) {
+		return null;
+	}
+
 	const fromEnv = getFromEnvVariables();
 	if (fromEnv) {
 		return getFromEnvVariables();

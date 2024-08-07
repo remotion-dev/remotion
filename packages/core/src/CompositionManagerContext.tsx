@@ -32,6 +32,10 @@ export type CompositionManagerContext = {
 	>(
 		comp: TComposition<Schema, Props>,
 	) => void;
+	updateCompositionDefaultProps: (
+		id: string,
+		newDefaultProps: Record<string, unknown>,
+	) => void;
 	unregisterComposition: (name: string) => void;
 	registerFolder: (name: string, parent: string | null) => void;
 	unregisterFolder: (name: string, parent: string | null) => void;
@@ -49,6 +53,7 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 	registerFolder: () => undefined,
 	unregisterFolder: () => undefined,
 	setCurrentCompositionMetadata: () => undefined,
+	updateCompositionDefaultProps: () => undefined,
 	folders: [],
 	currentCompositionMetadata: null,
 	canvasContent: null,

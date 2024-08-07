@@ -1,9 +1,33 @@
-use sysinfo::{System, SystemExt};
+use sysinfo::System;
+
+use crate::global_printer::_print_verbose;
+
+pub fn get_max_lambda_memory() -> u64 {
+    match std::env::var("AWS_LAMBDA_FUNCTION_MEMORY_SIZE") {
+        Ok(val) => val.parse::<u64>().unwrap() * 1024 * 1024,
+        Err(_) => std::u64::MAX,
+    }
+}
 
 pub fn get_available_memory() -> u64 {
     let mut sys = System::new();
     sys.refresh_memory();
-    return sys.total_memory() - sys.used_memory();
+    let total_memory = sys.total_memory().min(get_max_lambda_memory());
+    let used_memory = sys.used_memory();
+
+    // Underflow can only happen in release mode, is prevented in debug
+    // At least with sysinfo 0.29.9, we spotted an underflow
+    // https://github.com/remotion-dev/remotion/issues/3576
+    if used_memory >= total_memory {
+        _print_verbose(&format!(
+            "Warning: Detected total memory as {} bytes, free memory as {} bytes. This implies a non-positive amount of free memory. Free memory detection might be broken on this system, please report this at https://remotion.dev/issue",
+            total_memory, used_memory
+        ))
+        .unwrap();
+
+        return 0;
+    }
+    return total_memory - used_memory;
 }
 
 // Is there less than 100MB of memory left?

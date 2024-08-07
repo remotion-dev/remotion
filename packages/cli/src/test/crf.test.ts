@@ -1,5 +1,5 @@
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import {describe, test} from 'vitest';
+import {describe, test} from 'bun:test';
 import {expectToThrow} from './expect-to-throw';
 
 describe('set crf invalid input', () => {

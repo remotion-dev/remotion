@@ -1,7 +1,7 @@
 import type {VideoImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {ConfigInternals} from './config';
-import {parsedCli} from './parse-command-line';
+import {parsedCli} from './parsed-cli';
 
 export const getVideoImageFormat = ({
 	codec,

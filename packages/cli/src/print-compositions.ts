@@ -1,7 +1,7 @@
 import type {LogLevel} from '@remotion/renderer';
 import type {VideoConfig} from 'remotion';
 import {Log} from './log';
-import {quietFlagProvided} from './parse-command-line';
+import {quietFlagProvided} from './parsed-cli';
 
 const max = (arr: number[]) => {
 	if (arr.length === 0) {

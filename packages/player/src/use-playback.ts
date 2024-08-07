@@ -72,7 +72,7 @@ export const usePlayback = ({
 			  }
 			| {
 					type: 'timeout';
-					id: NodeJS.Timeout;
+					id: Timer;
 			  }
 			| null = null;
 		let startedTime = performance.now();

@@ -1,0 +1,25 @@
+import {GetObjectCommand} from '@aws-sdk/client-s3';
+import type {Readable} from 'stream';
+import type {AwsRegion} from '../regions';
+import {getS3Client} from '../shared/get-s3-client';
+
+export const lambdaReadFileImplementation = async ({
+	bucketName,
+	key,
+	region,
+	expectedBucketOwner,
+}: {
+	bucketName: string;
+	key: string;
+	region: AwsRegion;
+	expectedBucketOwner: string;
+}): Promise<Readable> => {
+	const {Body} = await getS3Client(region, null).send(
+		new GetObjectCommand({
+			Bucket: bucketName,
+			Key: key,
+			ExpectedBucketOwner: expectedBucketOwner,
+		}),
+	);
+	return Body as Readable;
+};

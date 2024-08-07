@@ -1,4 +1,5 @@
 import type {LogLevel} from '@remotion/renderer';
+import {BROWSER_COMMAND} from './browser';
 import {chalk} from './chalk';
 import {GPU_COMMAND} from './gpu';
 import {Log} from './log';
@@ -130,6 +131,20 @@ export const printHelp = (logLevel: LogLevel) => {
 	Log.info(
 		{indent: false, logLevel},
 		chalk.gray('https://www.remotion.dev/docs/cli/upgrade'),
+	);
+
+	Log.info({indent: false, logLevel});
+	Log.info(
+		{indent: false, logLevel},
+		chalk.blue(`remotion ${BROWSER_COMMAND}`),
+	);
+	Log.info(
+		{indent: false, logLevel},
+		'Ensure Remotion has a browser it can use for rendering.',
+	);
+	Log.info(
+		{indent: false, logLevel},
+		chalk.gray('https://www.remotion.dev/docs/cli/browser'),
 	);
 
 	Log.info({indent: false, logLevel});

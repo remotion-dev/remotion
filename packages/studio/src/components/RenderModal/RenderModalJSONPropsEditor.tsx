@@ -6,12 +6,12 @@ import {FAIL_COLOR} from '../../helpers/colors';
 import {setUnsavedProps} from '../../helpers/document-title';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {Button} from '../Button';
-import {Flex, Row, Spacing} from '../layout';
 import {RemTextarea} from '../NewComposition/RemTextarea';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
+import {Flex, Row, Spacing} from '../layout';
 import type {State} from './DataEditor';
-import {deepEqual} from './SchemaEditor/deep-equal';
 import {ZodErrorMessages} from './SchemaEditor/ZodErrorMessages';
+import {deepEqual} from './SchemaEditor/deep-equal';
 
 const style: React.CSSProperties = {
 	fontFamily: 'monospace',
@@ -36,13 +36,15 @@ const parseJSON = (str: string, schema: z.ZodTypeAny): State => {
 };
 
 export const RenderModalJSONPropsEditor: React.FC<{
-	value: unknown;
-	setValue: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
-	onSave: () => void;
-	showSaveButton: boolean;
-	serializedJSON: SerializedJSONWithCustomFields | null;
-	defaultProps: Record<string, unknown>;
-	schema: z.ZodTypeAny;
+	readonly value: unknown;
+	readonly setValue: React.Dispatch<
+		React.SetStateAction<Record<string, unknown>>
+	>;
+	readonly onSave: () => void;
+	readonly showSaveButton: boolean;
+	readonly serializedJSON: SerializedJSONWithCustomFields | null;
+	readonly defaultProps: Record<string, unknown>;
+	readonly schema: z.ZodTypeAny;
 }> = ({
 	setValue,
 	value,

@@ -5,6 +5,7 @@ import type {Page} from './browser/BrowserPage';
 import type {LogLevel} from './log-level';
 import type {ChromiumOptions} from './open-browser';
 import {internalOpenBrowser} from './open-browser';
+import type {OnBrowserDownload} from './options/on-browser-download';
 
 export const getPageAndCleanupFn = async ({
 	passedInInstance,
@@ -13,6 +14,7 @@ export const getPageAndCleanupFn = async ({
 	forceDeviceScaleFactor,
 	indent,
 	logLevel,
+	onBrowserDownload,
 }: {
 	passedInInstance: HeadlessBrowser | undefined;
 	browserExecutable: BrowserExecutable | null;
@@ -20,6 +22,7 @@ export const getPageAndCleanupFn = async ({
 	indent: boolean;
 	forceDeviceScaleFactor: number | undefined;
 	logLevel: LogLevel;
+	onBrowserDownload: OnBrowserDownload;
 }): Promise<{
 	cleanup: () => Promise<void>;
 	page: Page;
@@ -32,7 +35,9 @@ export const getPageAndCleanupFn = async ({
 				// Close puppeteer page and don't wait for it to finish.
 				// Keep browser open.
 				page.close().catch((err) => {
-					console.error('Was not able to close puppeteer page', err);
+					if (!(err as Error).message.includes('Target closed')) {
+						console.error('Was not able to close puppeteer page', err);
+					}
 				});
 				return Promise.resolve();
 			},
@@ -47,6 +52,7 @@ export const getPageAndCleanupFn = async ({
 		indent,
 		viewport: null,
 		logLevel,
+		onBrowserDownload,
 	});
 	const browserPage = await browserInstance.newPage(
 		() => null,
@@ -59,7 +65,9 @@ export const getPageAndCleanupFn = async ({
 		cleanup: () => {
 			// Close whole browser that was just created and don't wait for it to finish.
 			browserInstance.close(true, logLevel, indent).catch((err) => {
-				console.error('Was not able to close puppeteer page', err);
+				if (!(err as Error).message.includes('Target closed')) {
+					console.error('Was not able to close puppeteer page', err);
+				}
 			});
 			return Promise.resolve();
 		},

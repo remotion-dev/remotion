@@ -19,7 +19,11 @@ import {compositionsRef} from './CompositionManager.js';
 import type {CompositionManagerContext} from './CompositionManagerContext.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import * as CSSUtils from './default-css.js';
-import {EditorPropsContext, EditorPropsProvider} from './EditorProps.js';
+import {
+	EditorPropsContext,
+	EditorPropsProvider,
+	editorPropsProviderRef,
+} from './EditorProps.js';
 import {
 	addSequenceStackTraces,
 	enableSequenceStackTraces,
@@ -31,8 +35,6 @@ import {
 import type {RemotionEnvironment} from './get-remotion-environment.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import type {SerializedJSONWithCustomFields} from './input-props-serialization.js';
-import {DATE_TOKEN, FILE_TOKEN} from './input-props-serialization.js';
-import {colorNames} from './interpolate-colors.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import {NativeLayersProvider} from './NativeLayers.js';
 import {NonceContext} from './nonce.js';
@@ -44,6 +46,7 @@ import {RemotionRoot} from './RemotionRoot.js';
 import {RenderAssetManager} from './RenderAssetManager.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
 import {
+	PROPS_UPDATED_EXTERNALLY,
 	ResolveCompositionConfig,
 	resolveCompositionsRef,
 	useResolvedVideoConfig,
@@ -72,6 +75,7 @@ import {
 import {useLazyComponent} from './use-lazy-component.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {useVideo} from './use-video.js';
+import {validateRenderAsset} from './validation/validate-artifact.js';
 import {
 	invalidCompositionErrorMessage,
 	isCompositionIdValid,
@@ -144,8 +148,6 @@ export const Internals = {
 	RenderAssetManager,
 	persistCurrentFrame,
 	useTimelineSetFrame,
-	FILE_TOKEN,
-	DATE_TOKEN,
 	NativeLayersProvider,
 	ClipComposition,
 	isIosSafari,
@@ -155,25 +157,27 @@ export const Internals = {
 	BufferingProvider,
 	BufferingContextReact,
 	enableSequenceStackTraces,
-	colorNames,
 	CurrentScaleContext,
 	PreviewSizeContext,
 	calculateScale,
+	editorPropsProviderRef,
+	PROPS_UPDATED_EXTERNALLY,
+	validateRenderAsset,
 } as const;
 
 export type {
-	TComposition,
-	TimelinePosition as Timeline,
-	TCompMetadata,
-	TSequence,
-	TRenderAsset as TAsset,
-	TimelineContextValue,
-	SetTimelineContextValue,
-	CompProps,
 	CompositionManagerContext,
+	CompProps,
 	MediaVolumeContextValue,
-	SetMediaVolumeContextValue,
 	RemotionEnvironment,
 	SerializedJSONWithCustomFields,
+	SetMediaVolumeContextValue,
+	SetTimelineContextValue,
+	TRenderAsset as TAsset,
+	TCompMetadata,
+	TComposition,
+	TimelinePosition as Timeline,
+	TimelineContextValue,
+	TSequence,
 	WatchRemotionStaticFilesPayload,
 };

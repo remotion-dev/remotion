@@ -1,7 +1,10 @@
-export const openFolderKey = (
-	folderName: string,
-	parentName: string | null,
-) => {
+export const openFolderKey = ({
+	folderName,
+	parentName,
+}: {
+	folderName: string;
+	parentName: string | null;
+}) => {
 	return [parentName ?? 'no-parent', folderName].join('/');
 };
 

@@ -1,10 +1,11 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 import type {LogLevel} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {existsSync, lstatSync} from 'fs';
 import {Internals} from 'remotion';
 import {displaySiteInfo} from '.';
-import {deploySite} from '../../../api/deploy-site';
+import {internalDeploySiteRaw} from '../../../api/deploy-site';
 import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {BINARY_NAME} from '../../../shared/constants';
 import {validateSiteName} from '../../../shared/validate-site-name';
@@ -30,11 +31,12 @@ export const sitesCreateSubcommand = async (
 	remotionRoot: string,
 	logLevel: LogLevel,
 ) => {
-	const {file, reason} = CliInternals.findEntryPoint(
+	const {file, reason} = CliInternals.findEntryPoint({
 		args,
 		remotionRoot,
 		logLevel,
-	);
+		allowDirectory: false,
+	});
 	if (!file) {
 		Log.error({indent: false, logLevel}, 'No entry file passed.');
 		Log.info(
@@ -97,7 +99,7 @@ export const sitesCreateSubcommand = async (
 		},
 		bucketProgress: {
 			doneIn: null,
-			creationState: 'Checking for existing bucket',
+			creationState: 'Checking bucket',
 		},
 		deployProgress: {
 			doneIn: null,
@@ -107,14 +109,14 @@ export const sitesCreateSubcommand = async (
 		},
 	};
 
-	const updateProgress = () => {
+	const updateProgress = (newLine: boolean) => {
 		progressBar.update(
 			[
 				makeBundleProgress(multiProgress.bundleProgress),
 				makeBucketProgress(multiProgress.bucketProgress),
 				makeDeployProgressBar(multiProgress.deployProgress),
 			].join('\n'),
-			false,
+			newLine,
 		);
 	};
 
@@ -126,17 +128,24 @@ export const sitesCreateSubcommand = async (
 		region,
 		updateBucketState: (state) => {
 			multiProgress.bucketProgress.creationState = state;
-			updateProgress();
+			updateProgress(false);
 		},
 	});
 
 	multiProgress.bucketProgress.doneIn = Date.now() - bucketStart;
-	updateProgress();
+	updateProgress(false);
 
 	const bundleStart = Date.now();
 	let uploadStart = Date.now();
 
-	const {serveUrl, siteName, stats} = await deploySite({
+	const disableGitSource =
+		BrowserSafeApis.options.disableGitSourceOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value;
+
+	const gitSource = CliInternals.getGitSource({remotionRoot, disableGitSource});
+
+	const {serveUrl, siteName, stats} = await internalDeploySiteRaw({
 		entryPoint: file,
 		siteName: desiredSiteName,
 		bucketName,
@@ -157,15 +166,21 @@ export const sitesCreateSubcommand = async (
 					doneIn: null,
 					stats: null,
 				};
-				updateProgress();
+				updateProgress(false);
 			},
 			enableCaching: ConfigInternals.getWebpackCaching(),
 			webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
-			gitSource: null,
+			gitSource,
+			bypassBucketNameValidation: true,
+			ignoreRegisterRootWarning: true,
+			publicDir: null,
+			rootDir: remotionRoot,
 		},
+		indent: false,
+		logLevel,
 	});
 
-	updateProgress();
+	updateProgress(false);
 
 	const uploadDuration = Date.now() - uploadStart;
 
@@ -179,12 +194,7 @@ export const sitesCreateSubcommand = async (
 			untouchedFiles: stats.untouchedFiles,
 		},
 	};
-	updateProgress();
-
-	Log.info({indent: false, logLevel});
-	Log.info({indent: false, logLevel});
-	Log.info({indent: false, logLevel}, 'Deployed to GCP Storage!');
-	Log.info({indent: false, logLevel});
+	updateProgress(true);
 
 	Log.info(
 		{indent: false, logLevel},
@@ -200,7 +210,7 @@ export const sitesCreateSubcommand = async (
 	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.blueBright(
-			'ℹ️ If you make changes to your code, you need to redeploy the site. You can overwrite the existing site by running:',
+			'ℹ️   Redeploy your site everytime you make changes to it. You can overwrite the existing site by running:',
 		),
 	);
 	Log.info(

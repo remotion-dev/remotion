@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {evolvePath} from '../evolve-path';
 
 test('Should be able to interpolate path', () => {

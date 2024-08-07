@@ -6,7 +6,7 @@ import {getBackgroundFromHoverState} from '../../helpers/colors';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {MenuContent} from '../NewComposition/MenuContent';
-import {isMenuItem, MENU_INITIATOR_CLASSNAME} from './is-menu-item';
+import {MENU_INITIATOR_CLASSNAME, isMenuItem} from './is-menu-item';
 import {getPortal} from './portals';
 import {menuContainerTowardsBottom, outerPortal} from './styles';
 
@@ -19,6 +19,7 @@ const container: React.CSSProperties = {
 	paddingTop: 8,
 	paddingBottom: 8,
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	border: 'none',
 };
 
@@ -32,16 +33,16 @@ export type Menu = {
 };
 
 export const MenuItem: React.FC<{
-	label: React.ReactNode;
-	id: MenuId;
-	selected: boolean;
-	onItemSelected: (s: SetStateAction<string | null>) => void;
-	onItemHovered: (id: MenuId) => void;
-	onItemQuit: () => void;
-	onPreviousMenu: () => void;
-	onNextMenu: () => void;
-	menu: Menu;
-	leaveLeftPadding: boolean;
+	readonly label: React.ReactNode;
+	readonly id: MenuId;
+	readonly selected: boolean;
+	readonly onItemSelected: (s: SetStateAction<string | null>) => void;
+	readonly onItemHovered: (id: MenuId) => void;
+	readonly onItemQuit: () => void;
+	readonly onPreviousMenu: () => void;
+	readonly onNextMenu: () => void;
+	readonly menu: Menu;
+	readonly leaveLeftPadding: boolean;
 }> = ({
 	label: itemName,
 	selected,

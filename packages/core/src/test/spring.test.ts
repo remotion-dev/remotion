@@ -1,7 +1,7 @@
 import {describe, expect, test} from 'vitest';
-import {isApproximatelyTheSame} from '../is-approximately-the-same.js';
-import {spring} from '../spring/index.js';
-import {measureSpring} from '../spring/measure-spring.js';
+import {isApproximatelyTheSame} from '../is-approximately-the-same';
+import {spring} from '../spring/index';
+import {measureSpring} from '../spring/measure-spring';
 
 test('Basic spring to equal 0', () => {
 	expect(
@@ -222,4 +222,18 @@ test('spring should not end too early', () => {
 			durationInFrames: 10,
 		}),
 	).toBeCloseTo(1);
+});
+
+test('from / to', () => {
+	expect(
+		spring({
+			fps: 30,
+			frame: 10,
+			from: 0,
+			to: 200,
+			config: {
+				damping: 200,
+			},
+		}),
+	).toBeCloseTo(169.082);
 });

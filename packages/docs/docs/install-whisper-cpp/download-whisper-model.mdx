@@ -16,7 +16,7 @@ import path from "path";
 import { downloadWhisperModel } from "@remotion/install-whisper-cpp";
 
 const { alreadyExisted } = await downloadWhisperModel({
-  model: "base.en",
+  model: "medium.en",
   folder: path.join(process.cwd(), "whisper.cpp"),
 });
 ```
@@ -50,10 +50,17 @@ const onProgress: OnProgress = (
 
 Print human-readable progress to the console. Default: `true`.
 
+### `signal?`<AvailableFrom v="4.0.156" />
+
+A signal from an [`AbortController`](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) to cancel the download process.
+
 ## Return Value
 
-Whether a file at the output path already existed.  
-If it did, the function did not do anything and returned `true`.
+Returns an object with the following property:
+
+### `alreadyExisted`
+
+Indicates whether a file at the output path already existed. If it did, the function did not do anything and this property is set to `true`.
 
 ## See also
 

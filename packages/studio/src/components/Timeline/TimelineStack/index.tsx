@@ -20,20 +20,22 @@ import {getGitRefUrl} from '../../../helpers/get-git-menu-item';
 import {openInEditor} from '../../../helpers/open-in-editor';
 import {pushUrl} from '../../../helpers/url-state';
 import {useSelectAsset} from '../../InitialCompositionLoader';
-import {Spacing} from '../../layout';
-import {sendErrorNotification} from '../../Notifications/NotificationCenter';
+import {showNotification} from '../../Notifications/NotificationCenter';
 import {Spinner} from '../../Spinner';
+import {Spacing} from '../../layout';
 import {getOriginalLocationFromStack} from './get-stack';
 import {getOriginalSourceAttribution} from './source-attribution';
 
 // @ts-expect-error
 SourceMapConsumer.initialize({
-	'lib/mappings.wasm': SOURCE_MAP_ENDPOINT,
+	'lib/mappings.wasm':
+		(window.remotion_publicPath === '/' ? '' : window.remotion_publicPath) +
+		SOURCE_MAP_ENDPOINT,
 });
 
 export const TimelineStack: React.FC<{
-	isCompact: boolean;
-	sequence: TSequence;
+	readonly isCompact: boolean;
+	readonly sequence: TSequence;
 }> = ({isCompact, sequence}) => {
 	const [originalLocation, setOriginalLocation] =
 		useState<OriginalPosition | null>(null);
@@ -86,7 +88,7 @@ export const TimelineStack: React.FC<{
 				originalScriptCode: null,
 			});
 		} catch (err) {
-			sendErrorNotification((err as Error).message);
+			showNotification((err as Error).message, 2000);
 		} finally {
 			setOpening(false);
 		}
@@ -217,6 +219,7 @@ export const TimelineStack: React.FC<{
 			lineHeight: 1,
 			color: opening && isCompact ? VERY_LIGHT_TEXT : LIGHT_COLOR,
 			userSelect: 'none',
+			WebkitUserSelect: 'none',
 			borderBottom: hoverEffect ? '1px solid #fff' : 'none',
 			cursor: hoverEffect ? 'pointer' : undefined,
 		};

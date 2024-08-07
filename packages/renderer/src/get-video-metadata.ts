@@ -1,3 +1,4 @@
+import {resolve} from 'node:path';
 import {startLongRunningCompositor} from './compositor/compositor';
 import type {VideoMetadata} from './compositor/payloads';
 import type {LogLevel} from './log-level';
@@ -15,9 +16,11 @@ export const getVideoMetadata = async (
 		binariesDirectory: options?.binariesDirectory ?? null,
 	});
 	const metadataResponse = await compositor.executeCommand('GetVideoMetadata', {
-		src: videoSource,
+		src: resolve(process.cwd(), videoSource),
 	});
 	await compositor.finishCommands();
 	await compositor.waitForDone();
-	return JSON.parse(metadataResponse.toString('utf-8')) as VideoMetadata;
+	return JSON.parse(
+		new TextDecoder('utf-8').decode(metadataResponse),
+	) as VideoMetadata;
 };

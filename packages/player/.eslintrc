@@ -1,6 +1,5 @@
 {
-	"extends": ["@jonny", "plugin:require-extensions/recommended"],
-	"plugins": ["require-extensions"],
+	"extends": ["@jonny/eslint-config/react"],
 	"rules": {
 		"no-console": "error",
 		"@typescript-eslint/no-restricted-imports": [
@@ -10,10 +9,10 @@
 					{
 						"name": "zod",
 						"message": "Can only import zod as a type",
-						"allowTypeImports": true
-					}
-				]
-			}
-		]
-	}
+						"allowTypeImports": true,
+					},
+				],
+			},
+		],
+	},
 }

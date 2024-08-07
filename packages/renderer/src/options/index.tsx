@@ -5,6 +5,7 @@ import {binariesDirectoryOption} from './binaries-directory';
 import {colorSpaceOption} from './color-space';
 import {crfOption} from './crf';
 import {deleteAfterOption} from './delete-after';
+import {disableGitSourceOption} from './disable-git-source';
 import {enableLambdaInsights} from './enable-lambda-insights';
 import {enableMultiprocessOnLinuxOption} from './enable-multiprocess-on-linux';
 import {encodingBufferSizeOption} from './encoding-buffer-size';
@@ -19,12 +20,16 @@ import {logLevelOption} from './log-level';
 import {mutedOption} from './mute';
 import {numberOfGifLoopsOption} from './number-of-gif-loops';
 import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size';
+import {onBrowserDownloadOption} from './on-browser-download';
 import type {AnyRemotionOption} from './option';
 import {overwriteOption} from './overwrite';
 import {preferLosslessAudioOption} from './prefer-lossless';
+import {publicDirOption} from './public-dir';
+import {publicPathOption} from './public-path';
 import {reproOption} from './repro';
 import {scaleOption} from './scale';
 import {separateAudioOption} from './separate-audio';
+import {throwIfSiteExistsOption} from './throw-if-site-exists';
 import {delayRenderTimeoutInMillisecondsOption} from './timeout';
 import {videoBitrateOption} from './video-bitrate';
 import {videoCodecOption} from './video-codec';
@@ -63,9 +68,13 @@ export const allOptions = {
 	binariesDirectoryOption,
 	forSeamlessAacConcatenationOption,
 	separateAudioOption,
+	publicPathOption,
+	publicDirOption,
+	onBrowserDownloadOption,
+	throwIfSiteExistsOption,
+	disableGitSourceOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;
-export type TypeOfOption<Type> = Type extends AnyRemotionOption<infer X>
-	? X
-	: never;
+export type TypeOfOption<Type> =
+	Type extends AnyRemotionOption<infer X> ? X : never;

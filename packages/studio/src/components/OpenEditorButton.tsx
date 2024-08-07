@@ -6,7 +6,7 @@ import {
 	getGitSourceName,
 } from '../helpers/get-git-menu-item';
 import {openInEditor} from '../helpers/open-in-editor';
-import {sendErrorNotification} from './Notifications/NotificationCenter';
+import {showNotification} from './Notifications/NotificationCenter';
 
 const svgStyle: React.CSSProperties = {
 	width: 11,
@@ -42,15 +42,19 @@ export const OpenEditorButton: React.FC<{
 				.then((res) => res.json())
 				.then(({success}) => {
 					if (!success) {
-						sendErrorNotification(
+						showNotification(
 							`Could not open ${window.remotion_editorName}`,
+							2000,
 						);
 					}
 				})
 				.catch((err) => {
 					// eslint-disable-next-line no-console
 					console.error(err);
-					sendErrorNotification(`Could not open ${window.remotion_editorName}`);
+					showNotification(
+						`Could not open ${window.remotion_editorName}`,
+						2000,
+					);
 				});
 		}
 

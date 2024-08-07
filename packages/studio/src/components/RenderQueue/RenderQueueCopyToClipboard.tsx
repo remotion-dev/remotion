@@ -3,10 +3,7 @@ import {useCallback} from 'react';
 import {ClipboardIcon} from '../../icons/clipboard';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
-import {
-	notificationCenter,
-	sendErrorNotification,
-} from '../Notifications/NotificationCenter';
+import {showNotification} from '../Notifications/NotificationCenter';
 import {copyToClipboard} from './actions';
 
 const revealIconStyle: React.CSSProperties = {
@@ -49,15 +46,10 @@ export const RenderQueueCopyToClipboard: React.FC<{
 				binariesDirectory: job.binariesDirectory,
 			})
 				.catch((err) => {
-					sendErrorNotification(`Could not copy to clipboard: ${err.message}`);
+					showNotification(`Could not copy to clipboard: ${err.message}`, 2000);
 				})
 				.then(() => {
-					notificationCenter.current?.addNotification({
-						content: 'Copied to clipboard',
-						created: Date.now(),
-						duration: 1000,
-						id: String(Math.random()),
-					});
+					showNotification('Copied to clipboard', 1000);
 				});
 		},
 		[job.binariesDirectory, job.outName],

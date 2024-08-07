@@ -9,6 +9,7 @@ import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
+import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import type {Codec} from './codec';
 import {codecSupportsMedia} from './codec-supports-media';
@@ -19,7 +20,7 @@ import {ensureOutputDirectory} from './ensure-output-directory';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
 import {findRemotionRoot} from './find-closest-package-json';
 import type {FrameRange} from './frame-range';
-import {getActualConcurrency} from './get-concurrency';
+import {resolveConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
@@ -35,7 +36,7 @@ import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {isAudioCodec} from './options/audio-codec';
-import type {ColorSpace} from './options/color-space';
+import {DEFAULT_COLOR_SPACE, type ColorSpace} from './options/color-space';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
 import {validateSelectedCodecAndPresetCombination} from './options/x264-preset';
@@ -52,6 +53,7 @@ import {prespawnFfmpeg} from './prespawn-ffmpeg';
 import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
 import type {ProResProfile} from './prores-profile';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
+import type {OnArtifact} from './render-frames';
 import {internalRenderFrames} from './render-frames';
 import {
 	disableRepro,
@@ -60,6 +62,7 @@ import {
 	isReproEnabled,
 } from './repro';
 import {internalStitchFramesToVideo} from './stitch-frames-to-video';
+import {succeedOrCancel} from './succeed-or-cancel';
 import type {OnStartData} from './types';
 import {validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
@@ -82,6 +85,7 @@ export type RenderMediaOnProgress = (progress: {
 	encodedFrames: number;
 	encodedDoneIn: number | null;
 	renderedDoneIn: number | null;
+	renderEstimatedTime: number;
 	progress: number;
 	stitchStage: StitchingState;
 }) => void;
@@ -120,8 +124,9 @@ export type InternalRenderMediaOptions = {
 	disallowParallelEncoding: boolean;
 	serveUrl: string;
 	concurrency: number | string | null;
-	finishRenderProgress: () => void;
 	binariesDirectory: string | null;
+	compositionStart: number;
+	onArtifact: OnArtifact | null;
 } & MoreRenderMediaOptions;
 
 type Prettify<T> = {
@@ -176,6 +181,7 @@ export type RenderMediaOptions = Prettify<{
 	colorSpace?: ColorSpace;
 	repro?: boolean;
 	binariesDirectory?: string | null;
+	onArtifact?: OnArtifact;
 }> &
 	Partial<MoreRenderMediaOptions>;
 
@@ -233,10 +239,12 @@ const internalRenderMediaRaw = ({
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
 	repro,
-	finishRenderProgress,
 	binariesDirectory,
 	separateAudioTo,
 	forSeamlessAacConcatenation,
+	compositionStart,
+	onBrowserDownload,
+	onArtifact,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	if (repro) {
 		enableRepro({
@@ -289,7 +297,7 @@ const internalRenderMediaRaw = ({
 
 	validateFfmpegOverride(ffmpegOverride);
 
-	validateEveryNthFrame(everyNthFrame, codec);
+	validateEveryNthFrame(everyNthFrame);
 	validateNumberOfGifLoops(numberOfGifLoops, codec);
 
 	let stitchStage: StitchingState = 'encoding';
@@ -298,10 +306,11 @@ const internalRenderMediaRaw = ({
 	let encodedFrames = 0;
 	let muxedFrames = 0;
 	let renderedFrames = 0;
-	let totalFramesToRender = 0;
 	let renderedDoneIn: number | null = null;
 	let encodedDoneIn: number | null = null;
 	let cancelled = false;
+	let renderEstimatedTime = 0;
+	let totalTimeSpentOnFrames = 0;
 
 	const renderStart = Date.now();
 
@@ -327,7 +336,7 @@ const internalRenderMediaRaw = ({
 		'Estimated usage parallel encoding',
 		estimatedUsage,
 	);
-	const actualConcurrency = getActualConcurrency(concurrency);
+	const resolvedConcurrency = resolveConcurrency(concurrency);
 	Log.verbose(
 		{
 			indent,
@@ -335,7 +344,7 @@ const internalRenderMediaRaw = ({
 			tag: 'renderMedia()',
 		},
 		'Using concurrency:',
-		actualConcurrency,
+		resolvedConcurrency,
 	);
 	Log.verbose(
 		{
@@ -413,6 +422,10 @@ const internalRenderMediaRaw = ({
 		composition.durationInFrames,
 		frameRange,
 	);
+	const totalFramesToRender = getFramesToRender(
+		realFrameRange,
+		everyNthFrame,
+	).length;
 
 	Log.verbose(
 		{indent, logLevel, tag: 'renderMedia()'},
@@ -421,12 +434,12 @@ const internalRenderMediaRaw = ({
 
 	const callUpdate = () => {
 		const encoded = Math.round(0.8 * encodedFrames + 0.2 * muxedFrames);
-
 		onProgress?.({
 			encodedDoneIn,
 			encodedFrames: encoded,
 			renderedDoneIn,
 			renderedFrames,
+			renderEstimatedTime,
 			stitchStage,
 			progress:
 				Math.round((70 * renderedFrames + 30 * encoded) / totalFramesToRender) /
@@ -480,7 +493,9 @@ const internalRenderMediaRaw = ({
 		}
 	};
 
-	const waitForPrestitcherIfNecessary = async () => {
+	const waitForPrestitcherIfNecessary = async (): Promise<{
+		usesParallelEncoding: boolean;
+	}> => {
 		if (stitcherFfmpeg) {
 			await waitForFinish();
 			stitcherFfmpeg?.stdin?.end();
@@ -490,6 +505,8 @@ const internalRenderMediaRaw = ({
 				throw new Error(preStitcher?.getLogs());
 			}
 		}
+
+		return {usesParallelEncoding: Boolean(stitcherFfmpeg)};
 	};
 
 	const mediaSupport = codecSupportsMedia(codec);
@@ -534,7 +551,7 @@ const internalRenderMediaRaw = ({
 				return makeOrReuseServer(
 					reusedServer,
 					{
-						concurrency: actualConcurrency,
+						concurrency: resolvedConcurrency,
 						indent,
 						port,
 						remotionRoot: findRemotionRoot(),
@@ -543,10 +560,10 @@ const internalRenderMediaRaw = ({
 						offthreadVideoCacheSizeInBytes:
 							offthreadVideoCacheSizeInBytes ?? null,
 						binariesDirectory,
+						forceIPv4: false,
 					},
 					{
 						onDownload,
-						onError: (err) => reject(err),
 					},
 				);
 			})
@@ -560,6 +577,15 @@ const internalRenderMediaRaw = ({
 						timeToRenderInMilliseconds,
 					) => {
 						renderedFrames = frame;
+
+						totalTimeSpentOnFrames += timeToRenderInMilliseconds;
+						const newAverage = totalTimeSpentOnFrames / renderedFrames;
+
+						const remainingFrames = totalFramesToRender - renderedFrames;
+
+						// Get estimated time by multiplying the avarage render time by the remaining frames
+						renderEstimatedTime = Math.round(remainingFrames * newAverage);
+
 						callUpdate();
 						recordFrameTime(frameIndex, timeToRenderInMilliseconds);
 					},
@@ -567,7 +593,6 @@ const internalRenderMediaRaw = ({
 					outputDir: parallelEncoding ? null : workingDir,
 					onStart: (data) => {
 						renderedFrames = 0;
-						totalFramesToRender = data.frameCount;
 						callUpdate();
 						onStart?.(data);
 					},
@@ -624,6 +649,10 @@ const internalRenderMediaRaw = ({
 					offthreadVideoCacheSizeInBytes,
 					parallelEncodingEnabled: parallelEncoding,
 					binariesDirectory,
+					compositionStart,
+					forSeamlessAacConcatenation,
+					onBrowserDownload,
+					onArtifact,
 				});
 
 				return renderFramesProc;
@@ -637,7 +666,6 @@ const internalRenderMediaRaw = ({
 			.then(([{assetsInfo}]) => {
 				renderedDoneIn = Date.now() - renderStart;
 
-				callUpdate();
 				Log.verbose(
 					{indent, logLevel},
 					'Rendering frames done in',
@@ -648,57 +676,56 @@ const internalRenderMediaRaw = ({
 				}
 
 				const stitchStart = Date.now();
-				return Promise.all([
-					internalStitchFramesToVideo({
-						width: composition.width * scale,
-						height: composition.height * scale,
-						fps,
-						outputLocation: absoluteOutputLocation,
-						preEncodedFileLocation,
-						preferLossless,
-						indent,
-						force: overwrite,
-						pixelFormat,
-						codec,
-						proResProfile,
-						crf,
-						assetsInfo,
-						onProgress: (frame: number) => {
-							stitchStage = 'muxing';
-							if (preEncodedFileLocation) {
-								muxedFrames = frame;
-							} else {
-								muxedFrames = frame;
-								encodedFrames = frame;
-							}
+				return internalStitchFramesToVideo({
+					width: composition.width * scale,
+					height: composition.height * scale,
+					fps,
+					outputLocation: absoluteOutputLocation,
+					preEncodedFileLocation,
+					preferLossless,
+					indent,
+					force: overwrite,
+					pixelFormat,
+					codec,
+					proResProfile,
+					crf,
+					assetsInfo,
+					onProgress: (frame: number) => {
+						stitchStage = 'muxing';
+						if (preEncodedFileLocation) {
+							muxedFrames = frame;
+						} else {
+							muxedFrames = frame;
+							encodedFrames = frame;
+						}
 
+						if (encodedFrames === totalFramesToRender) {
+							encodedDoneIn = Date.now() - stitchStart;
+						}
+
+						if (frame > 0) {
 							callUpdate();
-						},
-						onDownload,
-						numberOfGifLoops,
-						logLevel,
-						cancelSignal: cancelStitcher.cancelSignal,
-						muted: disableAudio,
-						enforceAudioTrack,
-						ffmpegOverride: ffmpegOverride ?? null,
-						audioBitrate,
-						videoBitrate,
-						encodingBufferSize,
-						encodingMaxRate,
-						audioCodec,
-						x264Preset: x264Preset ?? null,
-						colorSpace,
-						binariesDirectory,
-						separateAudioTo,
-						forSeamlessAacConcatenation,
-					}),
-					stitchStart,
-				]);
+						}
+					},
+					onDownload,
+					numberOfGifLoops,
+					logLevel,
+					cancelSignal: cancelStitcher.cancelSignal,
+					muted: disableAudio,
+					enforceAudioTrack,
+					ffmpegOverride: ffmpegOverride ?? null,
+					audioBitrate,
+					videoBitrate,
+					bufferSize: encodingBufferSize,
+					maxRate: encodingMaxRate,
+					audioCodec,
+					x264Preset: x264Preset ?? null,
+					colorSpace,
+					binariesDirectory,
+					separateAudioTo,
+				});
 			})
-			.then(([buffer, stitchStart]) => {
-				encodedFrames = getFramesToRender(realFrameRange, everyNthFrame).length;
-				encodedDoneIn = Date.now() - stitchStart;
-				callUpdate();
+			.then((buffer) => {
 				Log.verbose(
 					{indent, logLevel},
 					'Stitching done in',
@@ -710,7 +737,6 @@ const internalRenderMediaRaw = ({
 					slowestFrames,
 				};
 
-				finishRenderProgress();
 				if (isReproEnabled()) {
 					getReproWriter()
 						.onRenderSucceed({indent, logLevel, output: absoluteOutputLocation})
@@ -773,14 +799,11 @@ const internalRenderMediaRaw = ({
 			});
 	});
 
-	return Promise.race([
+	return succeedOrCancel({
 		happyPath,
-		new Promise<RenderMediaResult>((_resolve, reject) => {
-			cancelSignal?.(() => {
-				reject(new Error(cancelErrorMessages.renderMedia));
-			});
-		}),
-	]);
+		cancelSignal,
+		cancelMessage: cancelErrorMessages.renderMedia,
+	});
 };
 
 export const internalRenderMedia = wrapWithErrorHandling(
@@ -788,9 +811,11 @@ export const internalRenderMedia = wrapWithErrorHandling(
 );
 
 /**
+ * Render a video from a composition. You can specify various options such as the codec, output location, input properties, and more.
+ * @see [Documentation](https://remotion.dev/docs/renderer/render-media)
+ * @param {RenderMediaOptions} options Configuration options for rendering the media.
+ * @returns {Promise<RenderMediaResult>} A promise that resolves to the rendering result, including a buffer and information about the slowest frames.
  *
- * @description Render a video from a composition
- * @see [Documentation](https://www.remotion.dev/docs/renderer/render-media)
  */
 export const renderMedia = ({
 	proResProfile,
@@ -834,19 +859,25 @@ export const renderMedia = ({
 	preferLossless,
 	verbose,
 	quality,
-	logLevel,
+	logLevel: passedLogLevel,
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
 	repro,
 	binariesDirectory,
 	separateAudioTo,
 	forSeamlessAacConcatenation,
+	onBrowserDownload,
+	onArtifact,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	if (quality !== undefined) {
 		console.warn(
 			`The "quality" option has been renamed. Please use "jpegQuality" instead.`,
 		);
 	}
+
+	const indent = false;
+	const logLevel =
+		verbose || dumpBrowserLogs ? 'verbose' : passedLogLevel ?? 'info';
 
 	return internalRenderMedia({
 		proResProfile: proResProfile ?? undefined,
@@ -891,9 +922,9 @@ export const renderMedia = ({
 		videoBitrate: videoBitrate ?? null,
 		encodingMaxRate: encodingMaxRate ?? null,
 		encodingBufferSize: encodingBufferSize ?? null,
-		logLevel: verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
+		logLevel,
 		preferLossless: preferLossless ?? false,
-		indent: false,
+		indent,
 		onCtrlCExit: () => undefined,
 		server: undefined,
 		serializedResolvedPropsWithCustomSchema:
@@ -903,11 +934,16 @@ export const renderMedia = ({
 				data: composition.props ?? {},
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
-		colorSpace: colorSpace ?? 'default',
+		colorSpace: colorSpace ?? DEFAULT_COLOR_SPACE,
 		repro: repro ?? false,
-		finishRenderProgress: () => undefined,
 		binariesDirectory: binariesDirectory ?? null,
 		separateAudioTo: separateAudioTo ?? null,
 		forSeamlessAacConcatenation: forSeamlessAacConcatenation ?? false,
+		onBrowserDownload:
+			onBrowserDownload ??
+			defaultBrowserDownloadProgress({indent, logLevel, api: 'renderMedia()'}),
+		onArtifact: onArtifact ?? null,
+		// TODO: In the future, introduce this as a public API when launching the distributed rendering API
+		compositionStart: 0,
 	});
 };

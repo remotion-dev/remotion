@@ -1,22 +1,20 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/babel-loader"
+	},
 	"name": "@remotion/babel-loader",
-	"version": "4.0.123",
-	"description": "babel-loader polyfill for Remotion",
+	"version": "4.0.193",
+	"description": "Babel loader for Remotion",
 	"main": "dist/index.js",
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
-		"watch": "tsc -w",
-		"build": "tsc -d"
+		"lint": "eslint src --ext ts,tsx"
 	},
 	"files": [
 		"dist"
 	],
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
@@ -32,12 +30,7 @@
 		"webpack": "5.83.1"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.276",
 		"@remotion/bundler": "workspace:*",
-		"@types/node": "18.14.6",
-		"eslint": "8.42.0",
-		"prettier": "3.1.1",
-		"prettier-plugin-organize-imports": "3.2.4",
 		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
@@ -52,5 +45,6 @@
 	],
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/legacy-babel"
 }

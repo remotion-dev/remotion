@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {validateInOutFrames} from '../utils/validate-in-out-frame.js';
 
 test('Validate in out frames', () => {

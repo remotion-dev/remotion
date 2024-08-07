@@ -13,9 +13,11 @@ export const logLevelOption = {
 	description: () => (
 		<>
 			One of <code>verbose</code>, <code>info</code>, <code>warn</code>,{' '}
-			<code>error</code>. Determines how much is being logged to the console.{' '}
-			<code>verbose</code> will also log <code>console.log</code>
-			{"'"}s from the browser. Default <code>info</code>.
+			<code>error</code>.<br /> Determines how much is being logged to the
+			console.
+			<br /> <code>verbose</code> will also log <code>console.log</code>
+			{"'"}s from the browser.
+			<br /> Default <code>info</code>.
 		</>
 	),
 	docLink: 'https://www.remotion.dev/docs/troubleshooting/debug-failed-render',

@@ -14,6 +14,14 @@ export const TableOfContents: React.FC = () => {
           <strong>downloadWhisperModel()</strong>
           <div>Download a Whisper model</div>
         </TOCItem>
+        <TOCItem link="/docs/install-whisper-cpp/transcribe">
+          <strong>transcribe()</strong>
+          <div>Transcribe an audio file</div>
+        </TOCItem>
+        <TOCItem link="/docs/install-whisper-cpp/convert-to-captions">
+          <strong>convertToCaptions()</strong>
+          <div>Postprocessing for TikTok-style captions</div>
+        </TOCItem>
       </Grid>
     </div>
   );

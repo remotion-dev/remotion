@@ -1,8 +1,8 @@
 {
-  "name": "bugs",
-  "dependencies": {
-    "@types/node": "^20.6.5"
-  },
-  "private": true,
-  "version": "4.0.123"
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/bugs"
+	},
+	"name": "bugs",
+	"private": true,
+	"version": "4.0.193"
 }

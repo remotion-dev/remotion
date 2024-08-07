@@ -1,16 +1,9 @@
 import {RenderInternals} from '@remotion/renderer';
-import {afterAll, beforeAll, expect, test} from 'vitest';
-import {LambdaRoutines} from '../../../defaults';
+import {ServerlessRoutines} from '@remotion/serverless/client';
+import {afterAll, expect, test} from 'vitest';
 import {callLambda} from '../../../shared/call-lambda';
-import {disableLogs, enableLogs} from '../../disable-logs';
-
-beforeAll(() => {
-	disableLogs();
-});
 
 afterAll(async () => {
-	enableLogs();
-
 	await RenderInternals.killAllBrowsers();
 });
 
@@ -19,7 +12,7 @@ test('Should fail when using an incompatible version', async () => {
 
 	try {
 		const aha = await callLambda({
-			type: LambdaRoutines.launch,
+			type: ServerlessRoutines.launch,
 			payload: {
 				serveUrl: 'https://competent-mccarthy-56f7c9.netlify.app/',
 				chromiumOptions: {},
@@ -65,14 +58,12 @@ test('Should fail when using an incompatible version', async () => {
 				renderId: 'test',
 				offthreadVideoCacheSizeInBytes: null,
 				deleteAfter: null,
-				colorSpace: 'default',
+				colorSpace: null,
 				preferLossless: false,
 			},
 			functionName: 'remotion-dev-render',
-			receivedStreamingPayload: () => undefined,
 			region: 'us-east-1',
 			timeoutInTest: 120000,
-			retriesRemaining: 0,
 		});
 		console.log(aha);
 		throw new Error('Should not reach this');

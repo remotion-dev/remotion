@@ -2,27 +2,27 @@ import React from 'react';
 import type {z} from 'zod';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
-import type {JSONPath} from './zod-types';
 import {ZodFieldValidation} from './ZodFieldValidation';
 import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
+import {useLocalState} from './local-state';
+import type {JSONPath} from './zod-types';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
 };
 
 export const ZodEffectEditor: React.FC<{
-	schema: z.ZodTypeAny;
-	jsonPath: JSONPath;
-	value: unknown;
-	setValue: UpdaterFunction<unknown>;
-	defaultValue: unknown;
-	onSave: UpdaterFunction<unknown>;
-	showSaveButton: boolean;
-	onRemove: null | (() => void);
-	saving: boolean;
-	mayPad: boolean;
+	readonly schema: z.ZodTypeAny;
+	readonly jsonPath: JSONPath;
+	readonly value: unknown;
+	readonly setValue: UpdaterFunction<unknown>;
+	readonly defaultValue: unknown;
+	readonly onSave: UpdaterFunction<unknown>;
+	readonly showSaveButton: boolean;
+	readonly onRemove: null | (() => void);
+	readonly saving: boolean;
+	readonly mayPad: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -41,10 +41,10 @@ export const ZodEffectEditor: React.FC<{
 	}
 
 	const {localValue, onChange} = useLocalState({
-		value,
+		unsavedValue: value,
 		schema,
 		setValue: updateValue,
-		defaultValue,
+		savedValue: defaultValue,
 	});
 
 	const def = schema._def;

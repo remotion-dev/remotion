@@ -3,14 +3,18 @@ import {ConfigInternals} from '@remotion/cli/config';
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
+import type {ProviderSpecifics} from '@remotion/serverless';
+import path from 'path';
 import {NoReactInternals} from 'remotion/no-react';
-import {downloadMedia} from '../../api/download-media';
+import {internalDownloadMedia} from '../../api/download-media';
 import {renderStillOnLambda} from '../../api/render-still-on-lambda';
+import type {AwsProvider} from '../../functions/aws-implementation';
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
 	DEFAULT_OUTPUT_PRIVACY,
 } from '../../shared/constants';
+import {getS3RenderUrl} from '../../shared/get-aws-urls';
 import {validatePrivacy} from '../../shared/validate-privacy';
 import {validateMaxRetries} from '../../shared/validate-retries';
 import {validateServeUrl} from '../../shared/validate-serveurl';
@@ -19,6 +23,7 @@ import {getAwsRegion} from '../get-aws-region';
 import {findFunctionName} from '../helpers/find-function-name';
 import {quit} from '../helpers/quit';
 import {Log} from '../log';
+import {makeArtifactProgress} from './render/progress';
 
 const {
 	offthreadVideoCacheSizeInBytesOption,
@@ -47,6 +52,7 @@ export const stillCommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
+	implementation: ProviderSpecifics<AwsProvider>,
 ) => {
 	const serveUrl = args[0];
 
@@ -77,6 +83,7 @@ export const stillCommand = async (
 	} = getCliOptions({
 		isStill: true,
 		logLevel,
+		indent: false,
 	});
 
 	const region = getAwsRegion();
@@ -134,12 +141,15 @@ export const stillCommand = async (
 			webpackConfigOrServeUrl: serveUrl,
 			offthreadVideoCacheSizeInBytes,
 			binariesDirectory,
+			forceIPv4: false,
 		});
+
+		const indent = false;
 
 		const {compositionId} = await getCompositionWithDimensionOverride({
 			args: args.slice(1),
 			compositionIdFromUi: null,
-			indent: false,
+			indent,
 			serveUrlOrWebpackUrl: serveUrl,
 			logLevel,
 			browserExecutable,
@@ -159,6 +169,11 @@ export const stillCommand = async (
 			server,
 			offthreadVideoCacheSizeInBytes,
 			binariesDirectory,
+			onBrowserDownload: CliInternals.defaultBrowserDownloadProgress({
+				indent,
+				logLevel,
+				quiet: CliInternals.quietFlagProvided(),
+			}),
 		});
 		composition = compositionId;
 	}
@@ -188,7 +203,14 @@ export const stillCommand = async (
 	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray(
-			`functionName = ${functionName}, imageFormat = ${imageFormat} (${imageFormatReason})`,
+			`Function: ${CliInternals.makeHyperlink({text: functionName, fallback: functionName, url: `https://${getAwsRegion()}.console.aws.amazon.com/lambda/home#/functions/${functionName}?tab=code`})}`,
+		),
+	);
+
+	Log.info(
+		{indent: false, logLevel},
+		CliInternals.chalk.gray(
+			`Image Format = ${imageFormat} (${imageFormatReason})`,
 		),
 	);
 
@@ -219,41 +241,84 @@ export const stillCommand = async (
 		scale,
 		forceHeight: height,
 		forceWidth: width,
-		onInit: ({cloudWatchLogs, renderId, lambdaInsightsUrl}) => {
-			Log.info(
+		onInit: ({cloudWatchLogs, lambdaInsightsUrl}) => {
+			Log.verbose(
 				{indent: false, logLevel},
-				chalk.gray(`Render invoked with ID = ${renderId}`),
+				`${CliInternals.makeHyperlink({
+					text: 'CloudWatch Logs',
+					url: cloudWatchLogs,
+					fallback: `CloudWatch Logs: ${cloudWatchLogs}`,
+				})} (if enabled)`,
 			);
 			Log.verbose(
 				{indent: false, logLevel},
-				`CloudWatch logs (if enabled): ${cloudWatchLogs}`,
-			);
-			Log.verbose(
-				{indent: false, logLevel},
-				`Lambda Insights (if enabled): ${lambdaInsightsUrl}`,
+				`${CliInternals.makeHyperlink({
+					text: 'Lambda Insights',
+					url: lambdaInsightsUrl,
+					fallback: `Lambda Insights: ${lambdaInsightsUrl}`,
+				})} (if enabled)`,
 			);
 		},
 		deleteAfter,
 	});
+	Log.info(
+		{indent: false, logLevel},
+		CliInternals.chalk.gray(
+			`Render ID: ${CliInternals.makeHyperlink({text: res.renderId, fallback: res.renderId, url: getS3RenderUrl({bucketName: res.bucketName, renderId: res.renderId, region: getAwsRegion()})})}`,
+		),
+	);
+	Log.info(
+		{indent: false, logLevel},
+		CliInternals.chalk.gray(
+			`Bucket: ${CliInternals.makeHyperlink({text: res.bucketName, fallback: res.bucketName, url: `https://${getAwsRegion()}.console.aws.amazon.com/s3/buckets/${res.bucketName}/?region=${getAwsRegion()}`})}`,
+		),
+	);
+
+	const artifactProgress = makeArtifactProgress(res.artifacts);
+	if (artifactProgress) {
+		Log.info(
+			{
+				indent: false,
+				logLevel,
+			},
+			makeArtifactProgress(res.artifacts),
+		);
+	}
+
+	Log.info(
+		{indent: false, logLevel},
+		chalk.blue('+ S3'.padEnd(CliInternals.LABEL_WIDTH)),
+		chalk.blue(
+			CliInternals.makeHyperlink({
+				fallback: res.url,
+				url: res.url,
+				text: res.outKey,
+			}),
+		),
+		chalk.gray(formatBytes(res.sizeInBytes)),
+	);
 
 	if (downloadName) {
-		Log.info({indent: false, logLevel}, 'Finished rendering. Downloading...');
-		const {outputPath, sizeInBytes} = await downloadMedia({
+		const {outputPath, sizeInBytes} = await internalDownloadMedia({
 			bucketName: res.bucketName,
 			outPath: downloadName,
 			region,
 			renderId: res.renderId,
 			logLevel,
+			providerSpecifics: implementation,
 		});
+		const relativePath = path.relative(process.cwd(), outputPath);
 		Log.info(
 			{indent: false, logLevel},
-			'Done!',
-			outputPath,
-			formatBytes(sizeInBytes),
+			chalk.blue('↓'.padEnd(CliInternals.LABEL_WIDTH)),
+			chalk.blue(
+				CliInternals.makeHyperlink({
+					url: 'file://' + outputPath,
+					text: relativePath,
+					fallback: outputPath,
+				}),
+			),
+			chalk.gray(formatBytes(sizeInBytes)),
 		);
-	} else {
-		Log.info({indent: false, logLevel}, `Finished still!`);
-		Log.info({indent: false, logLevel});
-		Log.info({indent: false, logLevel}, res.url);
 	}
 };

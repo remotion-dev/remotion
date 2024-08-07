@@ -1,0 +1,21 @@
+import type {BufferIterator} from '../../../buffer-iterator';
+import {type MatroskaSegment} from '../segments';
+import {expectChildren} from './parse-children';
+
+export type SeekHeadSegment = {
+	type: 'seek-head-segment';
+	children: MatroskaSegment[];
+	length: number;
+};
+
+export const parseSeekHeadSegment = (
+	iterator: BufferIterator,
+): SeekHeadSegment => {
+	const length = iterator.getVint();
+
+	return {
+		type: 'seek-head-segment',
+		length,
+		children: expectChildren(iterator, length),
+	};
+};

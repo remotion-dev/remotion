@@ -1,7 +1,6 @@
 import {cpSync} from 'node:fs';
 import {callFf} from './call-ffmpeg';
 import type {LogLevel} from './log-level';
-import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import type {AudioCodec} from './options/audio-codec';
 import {mapAudioCodecToFfmpegAudioCodecName} from './options/audio-codec';
@@ -18,7 +17,7 @@ export const compressAudio = async ({
 	cancelSignal,
 	inName,
 	onProgress,
-	expectedFrames,
+	chunkLengthInSeconds,
 	fps,
 }: {
 	audioCodec: AudioCodec;
@@ -30,7 +29,7 @@ export const compressAudio = async ({
 	cancelSignal: CancelSignal | undefined;
 	inName: string;
 	onProgress: (progress: number) => void;
-	expectedFrames: number;
+	chunkLengthInSeconds: number;
 	fps: number;
 }) => {
 	if (audioCodec === 'pcm-16') {
@@ -39,6 +38,7 @@ export const compressAudio = async ({
 	}
 
 	const args = [
+		['-hide_banner'],
 		['-i', inName],
 		['-c:a', mapAudioCodecToFfmpegAudioCodecName(audioCodec)],
 		audioCodec === 'aac' ? ['-f', 'adts'] : null,
@@ -62,10 +62,8 @@ export const compressAudio = async ({
 	task.stderr?.on('data', (data: Buffer) => {
 		const utf8 = data.toString('utf8');
 		const parsed = parseFfmpegProgress(utf8, fps);
-		if (parsed === undefined) {
-			Log.verbose({indent, logLevel}, utf8);
-		} else {
-			onProgress(parsed / expectedFrames);
+		if (parsed !== undefined) {
+			onProgress(parsed / (chunkLengthInSeconds * fps));
 		}
 	});
 

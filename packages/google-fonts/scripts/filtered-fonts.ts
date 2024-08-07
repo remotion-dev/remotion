@@ -5,6 +5,7 @@ export const filteredFonts = googleFonts.filter((f) => {
   return (
     !f.family.includes("Material Icons") &&
     !f.family.includes("Material Symbols") &&
+    !f.family.includes("Material Symbols Rounded") &&
     !f.family.includes("Wavefont")
   );
 });

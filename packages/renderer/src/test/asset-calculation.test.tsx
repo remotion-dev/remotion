@@ -1,12 +1,9 @@
-/* eslint-disable no-restricted-imports */
-/**
- * @vitest-environment jsdom
- */
+import {expect, test} from 'bun:test';
 import React from 'react';
-import {Audio, interpolate, Sequence, useCurrentFrame, Video} from 'remotion';
-import {expect, test} from 'vitest';
+import {Audio, Sequence, Video, interpolate, useCurrentFrame} from 'remotion';
 import {calculateAssetPositions} from '../assets/calculate-asset-positions';
 import type {MediaAsset} from '../assets/types';
+import {onlyAudioAndVideoAssets} from '../filter-asset-types';
 import {getAssetsForMarkup} from './get-assets-for-markup';
 
 const basicConfig = {
@@ -19,7 +16,11 @@ const basicConfig = {
 
 const getPositions = async (Markup: React.FC) => {
 	const assets = await getAssetsForMarkup(Markup, basicConfig);
-	return calculateAssetPositions(assets);
+	const onlyAudioAndVideo = assets.map((ass) => {
+		return onlyAudioAndVideoAssets(ass);
+	});
+
+	return calculateAssetPositions(onlyAudioAndVideo);
 };
 
 const withoutId = (asset: MediaAsset) => {
@@ -42,6 +43,7 @@ test('Should be able to collect assets', async () => {
 		playbackRate: 1,
 		allowAmplificationDuringRender: false,
 		toneFrequency: null,
+		audioStartFrame: 0,
 	});
 });
 
@@ -63,6 +65,7 @@ test('Should get multiple assets', async () => {
 		playbackRate: 1,
 		allowAmplificationDuringRender: false,
 		toneFrequency: null,
+		audioStartFrame: 0,
 	});
 	expect(withoutId(assetPositions[1])).toEqual({
 		type: 'audio',
@@ -74,6 +77,7 @@ test('Should get multiple assets', async () => {
 		playbackRate: 1,
 		allowAmplificationDuringRender: false,
 		toneFrequency: null,
+		audioStartFrame: 0,
 	});
 });
 
@@ -99,6 +103,7 @@ test('Should handle jumps inbetween', async () => {
 		playbackRate: 1,
 		allowAmplificationDuringRender: false,
 		toneFrequency: null,
+		audioStartFrame: 0,
 	});
 	expect(withoutId(assetPositions[1])).toEqual({
 		type: 'video',
@@ -110,6 +115,7 @@ test('Should handle jumps inbetween', async () => {
 		playbackRate: 1,
 		allowAmplificationDuringRender: false,
 		toneFrequency: null,
+		audioStartFrame: 0,
 	});
 });
 
@@ -132,6 +138,7 @@ test('Should support sequencing', async () => {
 		playbackRate: 1,
 		allowAmplificationDuringRender: false,
 		toneFrequency: null,
+		audioStartFrame: 20,
 	});
 });
 
@@ -164,6 +171,7 @@ test('Should calculate volumes correctly', async () => {
 			.filter((f) => f > 0),
 		allowAmplificationDuringRender: false,
 		toneFrequency: null,
+		audioStartFrame: 0,
 	});
 });
 
@@ -206,5 +214,6 @@ test('Should calculate startFrom correctly', async () => {
 			.filter((i) => i > 0),
 		allowAmplificationDuringRender: false,
 		toneFrequency: null,
+		audioStartFrame: 100,
 	});
 });

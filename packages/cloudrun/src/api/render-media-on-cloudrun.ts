@@ -2,18 +2,20 @@ import type {
 	AudioCodec,
 	ChromiumOptions,
 	FrameRange,
+	LogLevel,
 	PixelFormat,
 	ProResProfile,
 	ToOptions,
 	VideoImageFormat,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import {NoReactAPIs} from '@remotion/renderer/pure';
+import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import type {
 	CloudRunCrashResponse,
 	CloudRunPayloadType,
+	DownloadBehavior,
 	ErrorResponsePayload,
 	RenderMediaOnCloudrunOutput,
 } from '../functions/helpers/payloads';
@@ -53,6 +55,9 @@ type InternalRenderMediaOnCloudrun = {
 	forceHeight?: number | null;
 	concurrency: number | string | null;
 	preferLossless: boolean | undefined;
+	indent: boolean;
+	logLevel: LogLevel;
+	downloadBehavior: DownloadBehavior;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>>;
 
 export type RenderMediaOnCloudrunInput = {
@@ -81,6 +86,7 @@ export type RenderMediaOnCloudrunInput = {
 	forceHeight?: number | null;
 	concurrency?: number | string | null;
 	preferLossless?: boolean;
+	downloadBehavior?: DownloadBehavior;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>>;
 
 const internalRenderMediaOnCloudrunRaw = async ({
@@ -122,6 +128,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 	preferLossless,
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
+	downloadBehavior,
 }: InternalRenderMediaOnCloudrun): Promise<
 	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 > => {
@@ -178,8 +185,9 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		enforceAudioTrack: enforceAudioTrack ?? false,
 		preferLossless: preferLossless ?? false,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
-		colorSpace: colorSpace ?? 'default',
+		colorSpace: colorSpace ?? null,
 		clientVersion: VERSION,
+		downloadBehavior,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);
@@ -262,7 +270,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 	return renderResponse;
 };
 
-export const internalRenderMediaOnCloudrun = NoReactAPIs.wrapWithErrorHandling(
+export const internalRenderMediaOnCloudrun = wrapWithErrorHandling(
 	internalRenderMediaOnCloudrunRaw,
 ) as typeof internalRenderMediaOnCloudrunRaw;
 
@@ -278,7 +286,7 @@ export const internalRenderMediaOnCloudrun = NoReactAPIs.wrapWithErrorHandling(
  * @param params.codec The media codec which should be used for encoding.
  * @param params.forceBucketName The name of the bucket that the output file should be uploaded to.
  * @param params.privacy Whether the output file should be public or private.
- * @param params.outputFile The name of the output file.
+ * @param params.outName The name of the output file.
  * @param params.updateRenderProgress A callback that is called with the progress of the render.
  * @param params.jpegQuality JPEG quality if JPEG was selected as the image format.
  * @param params.audioCodec The encoding of the audio of the output video.
@@ -346,6 +354,7 @@ export const renderMediaOnCloudrun = ({
 	preferLossless,
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
+	downloadBehavior,
 }: RenderMediaOnCloudrunInput): Promise<
 	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 > => {
@@ -381,7 +390,7 @@ export const renderMediaOnCloudrun = ({
 		muted: muted ?? undefined,
 		forceWidth: forceWidth ?? null,
 		forceHeight: forceHeight ?? null,
-		logLevel: logLevel ?? undefined,
+		logLevel: logLevel ?? 'info',
 		delayRenderTimeoutInMilliseconds:
 			delayRenderTimeoutInMilliseconds ?? undefined,
 		concurrency: concurrency ?? null,
@@ -389,5 +398,9 @@ export const renderMediaOnCloudrun = ({
 		preferLossless: preferLossless ?? undefined,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? undefined,
 		colorSpace: colorSpace ?? undefined,
+		indent: false,
+		downloadBehavior: downloadBehavior ?? {
+			type: 'play-in-browser',
+		},
 	});
 };

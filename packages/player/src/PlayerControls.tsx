@@ -1,17 +1,19 @@
-import type {MouseEventHandler, ReactNode} from 'react';
+import type {MouseEventHandler, ReactNode, SyntheticEvent} from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {DefaultPlayPauseButton} from './DefaultPlayPauseButton.js';
-import {formatTime} from './format-time.js';
-import {FullscreenIcon} from './icons.js';
+import type {RenderMuteButton} from './MediaVolumeSlider.js';
 import {MediaVolumeSlider} from './MediaVolumeSlider.js';
 import {PlaybackrateControl, playerButtonStyle} from './PlaybackrateControl.js';
 import {PlayerSeekBar} from './PlayerSeekBar.js';
+import {formatTime} from './format-time.js';
+import {FullscreenIcon} from './icons.js';
+import type {RenderVolumeSlider} from './render-volume-slider.js';
 import {useHoverState} from './use-hover-state.js';
 import type {usePlayer} from './use-player.js';
 import {
-	useVideoControlsResize,
 	X_PADDING,
+	useVideoControlsResize,
 } from './use-video-controls-resize.js';
 import type {Size} from './utils/use-element-size.js';
 
@@ -65,12 +67,14 @@ const controlsRow: React.CSSProperties = {
 	alignItems: 'center',
 	justifyContent: 'center',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 const leftPartStyle: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	alignItems: 'center',
 };
 
@@ -88,42 +92,35 @@ const flex1: React.CSSProperties = {
 
 const fullscreen: React.CSSProperties = {};
 
-declare global {
-	interface Document {
-		webkitFullscreenEnabled?: boolean;
-		webkitFullscreenElement?: Element;
-		webkitExitFullscreen?: Document['exitFullscreen'];
-	}
-	interface HTMLDivElement {
-		webkitRequestFullScreen: HTMLDivElement['requestFullscreen'];
-	}
-}
-
 export const Controls: React.FC<{
-	fps: number;
-	durationInFrames: number;
-	showVolumeControls: boolean;
-	player: ReturnType<typeof usePlayer>;
-	onFullscreenButtonClick: MouseEventHandler<HTMLButtonElement>;
-	isFullscreen: boolean;
-	allowFullscreen: boolean;
-	onExitFullscreenButtonClick: MouseEventHandler<HTMLButtonElement>;
-	spaceKeyToPlayOrPause: boolean;
-	onSeekEnd: () => void;
-	onSeekStart: () => void;
-	inFrame: number | null;
-	outFrame: number | null;
-	initiallyShowControls: number | boolean;
-	canvasSize: Size | null;
-	renderPlayPauseButton: RenderPlayPauseButton | null;
-	renderFullscreenButton: RenderFullscreenButton | null;
-	alwaysShowControls: boolean;
-	showPlaybackRateControl: boolean | number[];
-	containerRef: React.RefObject<HTMLDivElement>;
-	buffering: boolean;
-	hideControlsWhenPointerDoesntMove: boolean | number;
-	onPointerUp: React.PointerEventHandler<HTMLDivElement> | undefined;
-	onDoubleClick: MouseEventHandler<HTMLDivElement> | undefined;
+	readonly fps: number;
+	readonly durationInFrames: number;
+	readonly showVolumeControls: boolean;
+	readonly player: ReturnType<typeof usePlayer>;
+	readonly onFullscreenButtonClick: MouseEventHandler<HTMLButtonElement>;
+	readonly isFullscreen: boolean;
+	readonly allowFullscreen: boolean;
+	readonly onExitFullscreenButtonClick: MouseEventHandler<HTMLButtonElement>;
+	readonly spaceKeyToPlayOrPause: boolean;
+	readonly onSeekEnd: () => void;
+	readonly onSeekStart: () => void;
+	readonly inFrame: number | null;
+	readonly outFrame: number | null;
+	readonly initiallyShowControls: number | boolean;
+	readonly canvasSize: Size | null;
+	readonly renderPlayPauseButton: RenderPlayPauseButton | null;
+	readonly renderFullscreenButton: RenderFullscreenButton | null;
+	readonly alwaysShowControls: boolean;
+	readonly showPlaybackRateControl: boolean | number[];
+	readonly containerRef: React.RefObject<HTMLDivElement>;
+	readonly buffering: boolean;
+	readonly hideControlsWhenPointerDoesntMove: boolean | number;
+	readonly onPointerDown:
+		| ((ev: PointerEvent | SyntheticEvent) => void)
+		| undefined;
+	readonly onDoubleClick: MouseEventHandler<HTMLDivElement> | undefined;
+	readonly renderMuteButton: RenderMuteButton | null;
+	readonly renderVolumeSlider: RenderVolumeSlider | null;
 }> = ({
 	durationInFrames,
 	isFullscreen,
@@ -147,8 +144,10 @@ export const Controls: React.FC<{
 	containerRef,
 	buffering,
 	hideControlsWhenPointerDoesntMove,
-	onPointerUp,
+	onPointerDown,
 	onDoubleClick,
+	renderMuteButton,
+	renderVolumeSlider,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
@@ -218,7 +217,9 @@ export const Controls: React.FC<{
 		// Must be handled client-side to avoid SSR hydration mismatch
 		setSupportsFullscreen(
 			(typeof document !== 'undefined' &&
-				(document.fullscreenEnabled || document.webkitFullscreenEnabled)) ??
+				(document.fullscreenEnabled ||
+					// @ts-expect-error Types not defined
+					document.webkitFullscreenEnabled)) ??
 				false,
 		);
 	}, []);
@@ -278,16 +279,17 @@ export const Controls: React.FC<{
 	const ref = useRef<HTMLDivElement | null>(null);
 	const flexRef = useRef<HTMLDivElement | null>(null);
 
-	const onPointerUpIfContainer: React.PointerEventHandler<HTMLDivElement> =
+	const onPointerDownIfContainer: React.PointerEventHandler<HTMLDivElement> =
 		useCallback(
 			(e) => {
 				// Only if pressing the container
 				if (e.target === ref.current || e.target === flexRef.current) {
-					onPointerUp?.(e);
+					onPointerDown?.(e);
 				}
 			},
-			[onPointerUp],
+			[onPointerDown],
 		);
+
 	const onDoubleClickIfContainer: MouseEventHandler<HTMLDivElement> =
 		useCallback(
 			(e) => {
@@ -303,7 +305,7 @@ export const Controls: React.FC<{
 		<div
 			ref={ref}
 			style={containerCss}
-			onPointerUp={onPointerUpIfContainer}
+			onPointerDown={onPointerDownIfContainer}
 			onDoubleClick={onDoubleClickIfContainer}
 		>
 			<div ref={flexRef} style={controlsRow}>
@@ -337,6 +339,8 @@ export const Controls: React.FC<{
 						<>
 							<div style={xSpacer} />
 							<MediaVolumeSlider
+								renderMuteButton={renderMuteButton}
+								renderVolumeSlider={renderVolumeSlider}
 								displayVerticalVolumeSlider={displayVerticalVolumeSlider}
 							/>
 						</>

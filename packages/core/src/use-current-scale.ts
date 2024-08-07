@@ -1,4 +1,5 @@
 import React, {createContext} from 'react';
+import {getRemotionEnvironment} from './get-remotion-environment';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 
 export type CurrentScaleContextType =
@@ -71,6 +72,10 @@ export const useCurrentScale = (options?: Options) => {
 
 	if (hasContext === null || config === null || zoomContext === null) {
 		if (options?.dontThrowIfOutsideOfRemotion) {
+			return 1;
+		}
+
+		if (getRemotionEnvironment().isRendering) {
 			return 1;
 		}
 

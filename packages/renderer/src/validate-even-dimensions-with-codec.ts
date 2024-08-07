@@ -18,7 +18,12 @@ export const validateEvenDimensionsWithCodec = ({
 		return;
 	}
 
-	if (codec !== 'h264-mkv' && codec !== 'h264' && codec !== 'h265') {
+	if (
+		codec !== 'h264-mkv' &&
+		codec !== 'h264' &&
+		codec !== 'h265' &&
+		codec !== 'h264-ts'
+	) {
 		return;
 	}
 

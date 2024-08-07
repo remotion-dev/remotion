@@ -1,7 +1,7 @@
 import React from 'react';
-import {Column, Spacing} from '../layout';
 import {RemotionInput} from '../NewComposition/RemInput';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
+import {Column, Spacing} from '../layout';
 import {label, optionRow, rightRow} from './layout';
 
 type Props = {
@@ -26,7 +26,6 @@ export const RenderModalOutputName = ({
 			<Column>
 				<div style={label}>{labelText}</div>
 			</Column>
-
 			<div style={rightRow}>
 				<div>
 					<RemotionInput

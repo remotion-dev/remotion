@@ -9,6 +9,7 @@ mod get_silent_parts;
 mod global_printer;
 mod image;
 mod logger;
+mod max_cache_size;
 mod memory;
 mod opened_stream;
 mod opened_video;
@@ -17,11 +18,12 @@ mod payloads;
 mod rotation;
 mod scalable_frame;
 mod tone_map;
+
 use commands::execute_command;
 use errors::{error_to_json, ErrorWithBacktrace};
 use global_printer::{_print_verbose, set_verbose_logging};
-use memory::{get_ideal_maximum_frame_cache_size, is_about_to_run_out_of_memory};
-use std::env;
+use memory::get_ideal_maximum_frame_cache_size;
+use std::{env, thread};
 
 use payloads::payloads::{parse_cli, CliInputCommand, CliInputCommandPayload};
 
@@ -57,7 +59,7 @@ fn mainfn() -> Result<(), ErrorWithBacktrace> {
             start_long_running_process(payload.concurrency, max_video_cache_size)?;
         }
         _ => {
-            let data = execute_command(opts.payload, None)?;
+            let data = execute_command(opts.payload)?;
             global_printer::synchronized_write_buf(0, &opts.nonce, &data)?;
         }
     }
@@ -79,6 +81,11 @@ fn start_long_running_process(
         .num_threads(threads)
         .build()?;
 
+    max_cache_size::get_instance()
+        .lock()
+        .unwrap()
+        .set_value(Some(maximum_frame_cache_size_in_bytes));
+
     loop {
         let mut input = String::new();
         let matched = match std::io::stdin().read_line(&mut input) {
@@ -94,10 +101,26 @@ fn start_long_running_process(
         }
         let opts: CliInputCommand = parse_cli(&input)?;
 
-        let mut current_maximum_cache_size = maximum_frame_cache_size_in_bytes;
+        if threads > 1 {
+            pool.install(move || {
+                let handle = thread::spawn(move || {
+                    match execute_command(opts.payload) {
+                        Ok(res) => {
+                            global_printer::synchronized_write_buf(0, &opts.nonce, &res).unwrap()
+                        }
+                        Err(err) => global_printer::synchronized_write_buf(
+                            1,
+                            &opts.nonce,
+                            &error_to_json(err).unwrap().as_bytes(),
+                        )
+                        .unwrap(),
+                    };
+                });
 
-        pool.install(move || {
-            match execute_command(opts.payload, Some(current_maximum_cache_size)) {
+                handle.join().unwrap();
+            });
+        } else {
+            match execute_command(opts.payload) {
                 Ok(res) => global_printer::synchronized_write_buf(0, &opts.nonce, &res).unwrap(),
                 Err(err) => global_printer::synchronized_write_buf(
                     1,
@@ -106,13 +129,7 @@ fn start_long_running_process(
                 )
                 .unwrap(),
             };
-            if is_about_to_run_out_of_memory() {
-                ffmpeg::emergency_memory_free_up().unwrap();
-                current_maximum_cache_size = current_maximum_cache_size / 2;
-            }
-
-            ffmpeg::keep_only_latest_frames_and_close_videos(current_maximum_cache_size).unwrap();
-        });
+        }
     }
 
     Ok(())

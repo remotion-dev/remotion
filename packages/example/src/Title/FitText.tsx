@@ -20,6 +20,7 @@ export const FitText: React.FC<z.infer<typeof fitTextSchema>> = ({line}) => {
 			text: line,
 			withinWidth: boxWidth,
 			fontWeight,
+			textTransform: 'uppercase',
 		}).fontSize,
 	);
 
@@ -43,6 +44,7 @@ export const FitText: React.FC<z.infer<typeof fitTextSchema>> = ({line}) => {
 						display: 'flex',
 						alignItems: 'center',
 						color: 'white',
+						textTransform: 'uppercase',
 					}}
 				>
 					{line}

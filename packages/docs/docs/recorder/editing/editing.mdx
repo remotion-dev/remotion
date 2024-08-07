@@ -1,0 +1,35 @@
+---
+image: /generated/articles-docs-recorder-editing-editing.png
+title: Start editing
+crumb: Recorder
+---
+
+To start the editing environment, run
+
+```
+bun start
+```
+
+This will start the development server and open a Remotion Studio instance in a new window.
+
+## Create a new composition
+
+A composition is a video that you can edit and render.
+
+In the left sidebar, create a new composition by right-clicking the `empty` composition and selecting `Duplicate` and give it an ID.  
+The ID should be the same as the name of the subfolder of `public` where you store your videos.
+**Example**: If you store your recordings in `public/hello-world`, the ID should be `hello-world`.
+
+## Add new scenes to the composition
+
+Open the right sidebar. By default there are no scenes.  
+Click the `+` button to add a new scene.
+
+<img style={{ width: 300 }} src="/recorder/add-scene.png" />
+
+By default, it will add a video scene, which will consume the first recording in the `public/[composition-id]` folder.
+
+You can also switch the scene type to something different like `endcard` or `title`.  
+Each scene type has its own settings which you can configure in the right sidebar.
+
+To save the scenes, click the disk icon or use `Ctrl+S` / `Cmd+S`.

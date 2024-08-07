@@ -22,15 +22,15 @@ import {
 	unsmoothenZoom,
 } from '../helpers/smooth-zoom';
 import {useKeybinding} from '../helpers/use-keybinding';
-import {canvasRef as ref} from '../state/canvas-ref';
+import {canvasRef} from '../state/canvas-ref';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import EditorGuides from './EditorGuides';
 import {EditorRulers} from './EditorRuler';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
-import {SPACING_UNIT} from './layout';
 import {VideoPreview} from './Preview';
 import {ResetZoomButton} from './ResetZoomButton';
+import {SPACING_UNIT} from './layout';
 
 const container: React.CSSProperties = {
 	flex: 1,
@@ -49,9 +49,10 @@ const resetZoom: React.CSSProperties = {
 const ZOOM_PX_FACTOR = 0.003;
 
 export const Canvas: React.FC<{
-	canvasContent: CanvasContent;
-	size: Size;
-}> = ({canvasContent, size}) => {
+	readonly canvasContent: CanvasContent;
+	readonly size: Size;
+	readonly isRefreshing: boolean;
+}> = ({canvasContent, size, isRefreshing}) => {
 	const {setSize, size: previewSize} = useContext(Internals.PreviewSizeContext);
 	const {editorZoomGestures} = useContext(EditorZoomGesturesContext);
 	const keybindings = useKeybinding();
@@ -183,7 +184,7 @@ export const Canvas: React.FC<{
 	);
 
 	useEffect(() => {
-		const {current} = ref;
+		const {current} = canvasRef;
 		if (!current) {
 			return;
 		}
@@ -315,13 +316,14 @@ export const Canvas: React.FC<{
 
 	return (
 		<>
-			<div ref={ref} style={container}>
+			<div ref={canvasRef} style={container}>
 				{size ? (
 					<VideoPreview
 						canvasContent={canvasContent}
 						contentDimensions={contentDimensions}
 						canvasSize={size}
 						assetMetadata={assetResolution}
+						isRefreshing={isRefreshing}
 					/>
 				) : null}
 				{isFit ? null : (
@@ -342,7 +344,7 @@ export const Canvas: React.FC<{
 					contentDimensions={contentDimensions}
 					canvasSize={size}
 					assetMetadata={assetResolution}
-					containerRef={ref}
+					containerRef={canvasRef}
 				/>
 			)}
 		</>

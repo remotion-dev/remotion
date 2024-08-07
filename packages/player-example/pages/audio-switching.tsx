@@ -1,7 +1,6 @@
-import React from 'react';
 import {Player} from '@remotion/player';
+import React, {useState} from 'react';
 import {Audio, prefetch, staticFile} from 'remotion';
-import {useState} from 'react';
 
 const Comp1: React.FC<{
 	audioSrc: string;
@@ -24,7 +23,7 @@ export default function ErrorRemake() {
 	const [activeCompositionId, setActiveCompositionId] =
 		useState<string>('FirstComp');
 	const [audioUrl, setAudioUrl] = useState(
-		'https://file-examples.com/storage/feeb72b10363daaeba4c0c9/2017/11/file_example_MP3_2MG.mp3'
+		'https://file-examples.com/storage/feeb72b10363daaeba4c0c9/2017/11/file_example_MP3_2MG.mp3',
 	);
 
 	if (activeCompositionId === 'ThirdComp') {

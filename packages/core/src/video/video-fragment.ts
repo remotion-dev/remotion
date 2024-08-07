@@ -5,15 +5,39 @@ const toSeconds = (time: number, fps: number) => {
 };
 
 export const isIosSafari = () => {
-	return typeof window === 'undefined'
-		? false
-		: /iP(ad|od|hone)/i.test(window.navigator.userAgent) &&
-				Boolean(navigator.userAgent.match(/Version\/[\d.]+.*Safari/));
+	if (typeof window === 'undefined') {
+		return false;
+	}
+
+	const isIpadIPodIPhone = /iP(ad|od|hone)/i.test(window.navigator.userAgent);
+	const isAppleWebKit = /AppleWebKit/.test(window.navigator.userAgent);
+
+	return isIpadIPodIPhone && isAppleWebKit;
 };
 
 // https://github.com/remotion-dev/remotion/issues/1655
 const isIOSSafariAndBlob = (actualSrc: string) => {
 	return isIosSafari() && actualSrc.startsWith('blob:');
+};
+
+const getVideoFragmentStart = ({
+	actualFrom,
+	fps,
+}: {
+	actualFrom: number;
+	fps: number;
+}) => {
+	return toSeconds(Math.max(0, -actualFrom), fps);
+};
+
+const getVideoFragmentEnd = ({
+	duration,
+	fps,
+}: {
+	duration: number;
+	fps: number;
+}) => {
+	return toSeconds(duration, fps);
 };
 
 export const appendVideoFragment = ({
@@ -51,27 +75,42 @@ export const appendVideoFragment = ({
 		return actualSrc;
 	}
 
-	actualSrc += `#t=${toSeconds(-actualFrom, fps)}`;
+	const withStartHash = `${actualSrc}#t=${getVideoFragmentStart({actualFrom, fps})}`;
 
 	if (!Number.isFinite(duration)) {
-		return actualSrc;
+		return withStartHash;
 	}
 
-	actualSrc += `,${toSeconds(duration, fps)}`;
-
-	return actualSrc;
+	return `${withStartHash},${getVideoFragmentEnd({duration, fps})}`;
 };
 
-const isSubsetOfDuration = (
-	prevStartFrom: number,
-	newStartFrom: number,
-	prevDuration: number,
-	newDuration: number,
-) => {
-	return (
-		prevStartFrom <= newStartFrom &&
-		prevStartFrom + prevDuration >= newStartFrom + newDuration
-	);
+const isSubsetOfDuration = ({
+	prevStartFrom,
+	newStartFrom,
+	prevDuration,
+	newDuration,
+	fps,
+}: {
+	prevStartFrom: number;
+	newStartFrom: number;
+	prevDuration: number;
+	newDuration: number;
+	fps: number;
+}) => {
+	const previousFrom = getVideoFragmentStart({actualFrom: prevStartFrom, fps});
+	const newFrom = getVideoFragmentStart({actualFrom: newStartFrom, fps});
+	const previousEnd = getVideoFragmentEnd({duration: prevDuration, fps});
+	const newEnd = getVideoFragmentEnd({duration: newDuration, fps});
+
+	if (newFrom < previousFrom) {
+		return false;
+	}
+
+	if (newEnd > previousEnd) {
+		return false;
+	}
+
+	return true;
 };
 
 export const useAppendVideoFragment = ({
@@ -89,7 +128,16 @@ export const useAppendVideoFragment = ({
 	const actualDuration = useRef(initialDuration);
 	const actualSrc = useRef(initialActualSrc);
 
-	if (!isSubsetOfDuration || initialActualSrc !== actualSrc.current) {
+	if (
+		!isSubsetOfDuration({
+			prevStartFrom: actualFromRef.current,
+			newStartFrom: initialActualFrom,
+			prevDuration: actualDuration.current,
+			newDuration: initialDuration,
+			fps,
+		}) ||
+		initialActualSrc !== actualSrc.current
+	) {
 		actualFromRef.current = initialActualFrom;
 		actualDuration.current = initialDuration;
 		actualSrc.current = initialActualSrc;

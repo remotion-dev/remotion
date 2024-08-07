@@ -1,7 +1,7 @@
 import type {MouseEventHandler, SyntheticEvent} from 'react';
 import React, {
-	forwardRef,
 	Suspense,
+	forwardRef,
 	useCallback,
 	useContext,
 	useEffect,
@@ -12,6 +12,12 @@ import React, {
 } from 'react';
 import type {CurrentScaleContextType} from 'remotion';
 import {Internals} from 'remotion';
+import type {RenderMuteButton} from './MediaVolumeSlider.js';
+import type {
+	RenderFullscreenButton,
+	RenderPlayPauseButton,
+} from './PlayerControls.js';
+import {Controls} from './PlayerControls.js';
 import {
 	calculateCanvasTransformation,
 	calculateContainerStyle,
@@ -21,11 +27,7 @@ import {
 import {ErrorBoundary} from './error-boundary.js';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
 import type {PlayerMethods, PlayerRef} from './player-methods.js';
-import type {
-	RenderFullscreenButton,
-	RenderPlayPauseButton,
-} from './PlayerControls.js';
-import {Controls} from './PlayerControls.js';
+import type {RenderVolumeSlider} from './render-volume-slider.js';
 import {usePlayback} from './use-playback.js';
 import {usePlayer} from './use-player.js';
 import {IS_NODE} from './utils/is-node.js';
@@ -52,36 +54,39 @@ const doesReactVersionSupportSuspense = parseInt(reactVersion, 10) >= 18;
 const PlayerUI: React.ForwardRefRenderFunction<
 	PlayerRef,
 	{
-		controls: boolean;
-		loop: boolean;
-		autoPlay: boolean;
-		allowFullscreen: boolean;
-		inputProps: Record<string, unknown>;
-		showVolumeControls: boolean;
-		style?: React.CSSProperties;
-		clickToPlay: boolean;
-		doubleClickToFullscreen: boolean;
-		spaceKeyToPlayOrPause: boolean;
-		errorFallback: ErrorFallback;
-		playbackRate: number;
-		renderLoading: RenderLoading | undefined;
-		renderPoster: RenderPoster | undefined;
-		className: string | undefined;
-		moveToBeginningWhenEnded: boolean;
-		showPosterWhenPaused: boolean;
-		showPosterWhenEnded: boolean;
-		showPosterWhenUnplayed: boolean;
-		showPosterWhenBuffering: boolean;
-		inFrame: number | null;
-		outFrame: number | null;
-		initiallyShowControls: number | boolean;
-		renderPlayPauseButton: RenderPlayPauseButton | null;
-		renderFullscreen: RenderFullscreenButton | null;
-		alwaysShowControls: boolean;
-		showPlaybackRateControl: boolean | number[];
-		posterFillMode: PosterFillMode;
-		bufferStateDelayInMilliseconds: number;
-		hideControlsWhenPointerDoesntMove: boolean | number;
+		readonly controls: boolean;
+		readonly loop: boolean;
+		readonly autoPlay: boolean;
+		readonly allowFullscreen: boolean;
+		readonly inputProps: Record<string, unknown>;
+		readonly showVolumeControls: boolean;
+		readonly style?: React.CSSProperties;
+		readonly clickToPlay: boolean;
+		readonly doubleClickToFullscreen: boolean;
+		readonly spaceKeyToPlayOrPause: boolean;
+		readonly errorFallback: ErrorFallback;
+		readonly playbackRate: number;
+		readonly renderLoading: RenderLoading | undefined;
+		readonly renderPoster: RenderPoster | undefined;
+		readonly className: string | undefined;
+		readonly moveToBeginningWhenEnded: boolean;
+		readonly showPosterWhenPaused: boolean;
+		readonly showPosterWhenEnded: boolean;
+		readonly showPosterWhenUnplayed: boolean;
+		readonly showPosterWhenBuffering: boolean;
+		readonly inFrame: number | null;
+		readonly outFrame: number | null;
+		readonly initiallyShowControls: number | boolean;
+		readonly renderPlayPauseButton: RenderPlayPauseButton | null;
+		readonly renderFullscreen: RenderFullscreenButton | null;
+		readonly renderMuteButton: RenderMuteButton | null;
+		readonly renderVolumeSlider: RenderVolumeSlider | null;
+		readonly alwaysShowControls: boolean;
+		readonly showPlaybackRateControl: boolean | number[];
+		readonly posterFillMode: PosterFillMode;
+		readonly bufferStateDelayInMilliseconds: number;
+		readonly hideControlsWhenPointerDoesntMove: boolean | number;
+		readonly overflowVisible: boolean;
 	}
 > = (
 	{
@@ -110,11 +115,14 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		initiallyShowControls,
 		renderFullscreen: renderFullscreenButton,
 		renderPlayPauseButton,
+		renderMuteButton,
+		renderVolumeSlider,
 		alwaysShowControls,
 		showPlaybackRateControl,
 		posterFillMode,
 		bufferStateDelayInMilliseconds,
 		hideControlsWhenPointerDoesntMove,
+		overflowVisible,
 	},
 	ref,
 ) => {
@@ -137,7 +145,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		}
 
 		return Boolean(
-			document.fullscreenEnabled || document.webkitFullscreenEnabled,
+			document.fullscreenEnabled ||
+				// @ts-expect-error Types not defined
+				document.webkitFullscreenEnabled,
 		);
 	}, []);
 
@@ -166,10 +176,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		}
 
 		const onFullscreenChange = () => {
-			setIsFullscreen(
+			const newValue =
 				document.fullscreenElement === current ||
-					document.webkitFullscreenElement === current,
-			);
+				// @ts-expect-error Types not defined
+				document.webkitFullscreenElement === current;
+
+			setIsFullscreen(newValue);
 		};
 
 		document.addEventListener('fullscreenchange', onFullscreenChange);
@@ -184,7 +196,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	}, []);
 
 	const toggle = useCallback(
-		(e?: SyntheticEvent) => {
+		(e?: SyntheticEvent | PointerEvent) => {
 			if (player.isPlaying()) {
 				player.pause();
 			} else {
@@ -207,7 +219,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			throw new Error('No player ref found');
 		}
 
+		// @ts-expect-error Types not defined
 		if (container.current.webkitRequestFullScreen) {
+			// @ts-expect-error Types not defined
 			container.current.webkitRequestFullScreen();
 		} else {
 			container.current.requestFullscreen();
@@ -215,7 +229,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	}, [allowFullscreen, supportsFullScreen]);
 
 	const exitFullscreen = useCallback(() => {
+		// @ts-expect-error Types not defined
 		if (document.webkitExitFullscreen) {
+			// @ts-expect-error Types not defined
 			document.webkitExitFullscreen();
 		} else {
 			document.exitFullscreen();
@@ -230,7 +246,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 		const fullscreenChange = () => {
 			const element =
-				document.webkitFullscreenElement ?? document.fullscreenElement;
+				// @ts-expect-error Types not defined
+				document.webkitFullscreenElement ??
+				// defined
+				document.fullscreenElement;
 
 			if (element && element === container.current) {
 				player.emitter.dispatchFullscreenChange({
@@ -296,10 +315,11 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const [showBufferIndicator, setShowBufferState] = useState<boolean>(false);
 
 	useEffect(() => {
-		let timeout: NodeJS.Timeout | null = null;
+		let timeout: NodeJS.Timeout | Timer | null = null;
 		let stopped = false;
 
 		const onBuffer = () => {
+			stopped = false;
 			requestAnimationFrame(() => {
 				if (bufferStateDelayInMilliseconds === 0) {
 					setShowBufferState(true);
@@ -315,6 +335,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 		const onResume = () => {
 			requestAnimationFrame(() => {
+				stopped = true;
 				setShowBufferState(false);
 				if (timeout) {
 					clearTimeout(timeout);
@@ -352,7 +373,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				toggle,
 				getContainerNode: () => container.current,
 				getCurrentFrame: player.getCurrentFrame,
-				isPlaying: () => player.playing,
+				isPlaying: player.isPlaying,
 				seekTo: (f) => {
 					const lastFrame = durationInFrames - 1;
 					const frameToSeekTo = Math.max(0, Math.min(lastFrame, f));
@@ -370,7 +391,18 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 					player.seek(frameToSeekTo);
 				},
-				isFullscreen: () => isFullscreen,
+				isFullscreen: () => {
+					const {current} = container;
+					if (!current) {
+						return false;
+					}
+
+					return (
+						document.fullscreenElement === current ||
+						// @ts-expect-error Types not defined
+						document.webkitFullscreenElement === current
+					);
+				},
 				requestFullscreen,
 				exitFullscreen,
 				getVolume: () => {
@@ -418,7 +450,6 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		[
 			durationInFrames,
 			exitFullscreen,
-			isFullscreen,
 			loop,
 			mediaMuted,
 			isMuted,
@@ -435,16 +466,22 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const VideoComponent = video ? video.component : null;
 
 	const outerStyle: React.CSSProperties = useMemo(() => {
-		return calculateOuterStyle({canvasSize, config, style});
-	}, [canvasSize, config, style]);
+		return calculateOuterStyle({canvasSize, config, style, overflowVisible});
+	}, [canvasSize, config, overflowVisible, style]);
 
 	const outer = useMemo(() => {
-		return calculateOuter({config, layout, scale});
-	}, [config, layout, scale]);
+		return calculateOuter({config, layout, scale, overflowVisible});
+	}, [config, layout, overflowVisible, scale]);
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
-		return calculateContainerStyle({canvasSize, config, layout, scale});
-	}, [canvasSize, config, layout, scale]);
+		return calculateContainerStyle({
+			canvasSize,
+			config,
+			layout,
+			scale,
+			overflowVisible,
+		});
+	}, [canvasSize, config, layout, overflowVisible, scale]);
 
 	const onError = useCallback(
 		(error: Error) => {
@@ -474,7 +511,13 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		);
 
 	const onSingleClick = useCallback(
-		(e: SyntheticEvent) => {
+		(e: SyntheticEvent<Element, PointerEvent> | PointerEvent) => {
+			const rightClick =
+				e instanceof MouseEvent ? e.button === 2 : e.nativeEvent.button;
+			if (rightClick) {
+				return;
+			}
+
 			toggle(e);
 		},
 		[toggle],
@@ -496,11 +539,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		}
 	}, [exitFullscreen, isFullscreen, requestFullscreen]);
 
-	const [handleClick, handleDoubleClick] = useClickPreventionOnDoubleClick(
-		onSingleClick,
-		onDoubleClick,
-		doubleClickToFullscreen && allowFullscreen && supportsFullScreen,
-	);
+	const {handlePointerDown, handleDoubleClick} =
+		useClickPreventionOnDoubleClick(
+			onSingleClick,
+			onDoubleClick,
+			doubleClickToFullscreen && allowFullscreen && supportsFullScreen,
+		);
 
 	useEffect(() => {
 		if (shouldAutoplay) {
@@ -565,7 +609,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		<>
 			<div
 				style={outer}
-				onPointerUp={clickToPlay ? handleClick : undefined}
+				onPointerDown={clickToPlay ? handlePointerDown : undefined}
 				onDoubleClick={doubleClickToFullscreen ? handleDoubleClick : undefined}
 			>
 				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
@@ -588,7 +632,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 								width: config.width,
 								height: config.height,
 							}}
-							onPointerUp={clickToPlay ? handleClick : undefined}
+							onPointerDown={clickToPlay ? handlePointerDown : undefined}
 							onDoubleClick={
 								doubleClickToFullscreen ? handleDoubleClick : undefined
 							}
@@ -601,7 +645,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			{shouldShowPoster && posterFillMode === 'player-size' ? (
 				<div
 					style={outer}
-					onPointerUp={clickToPlay ? handleClick : undefined}
+					onPointerDown={clickToPlay ? handlePointerDown : undefined}
 					onDoubleClick={
 						doubleClickToFullscreen ? handleDoubleClick : undefined
 					}
@@ -636,7 +680,15 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					onDoubleClick={
 						doubleClickToFullscreen ? handleDoubleClick : undefined
 					}
-					onPointerUp={clickToPlay ? handleClick : undefined}
+					onPointerDown={
+						clickToPlay
+							? (handlePointerDown as (
+									e: SyntheticEvent<Element, Event> | PointerEvent,
+								) => void)
+							: undefined
+					}
+					renderMuteButton={renderMuteButton}
+					renderVolumeSlider={renderVolumeSlider}
 				/>
 			) : null}
 		</>

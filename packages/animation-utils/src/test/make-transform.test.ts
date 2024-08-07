@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {
 	makeTransform,
 	perspective,
@@ -22,7 +22,7 @@ test('makeTransform() should work well - base case', () => {
 
 test('makeTransform() should work well - forgetting to pass a param', () => {
 	// @ts-expect-error
-	expect(() => makeTransform([scale(), translateX(100)])).throws(
+	expect(() => makeTransform([scale(), translateX(100)])).toThrow(
 		'Argument passed to "scale" for param "x" is undefined',
 	);
 });

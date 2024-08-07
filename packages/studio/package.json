@@ -1,22 +1,21 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/studio"
+	},
 	"name": "@remotion/studio",
-	"version": "4.0.123",
-	"description": "Remotion Editor",
+	"version": "4.0.193",
+	"description": "APIs for interacting with the Remotion Studio",
 	"main": "dist",
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
-		"watch": "tsc -w",
-		"build": "tsc -d",
-		"test": "vitest --run",
+		"build": "bun --env-file=../.env.bundle bundle.ts",
+		"test": "bun test src",
 		"formatting": "prettier src --check"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
 	"license": "MIT",
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
@@ -32,33 +31,29 @@
 		"open": "^8.4.2"
 	},
 	"devDependencies": {
-		"react": "18.2.0",
-		"react-dom": "18.2.0",
-		"@jonny/eslint-config": "3.0.276",
-		"@types/node": "18.14.6",
-		"@types/react": "18.2.48",
-		"@types/react-dom": "18.2.18",
-		"eslint": "8.42.0",
-		"eslint-plugin-10x": "1.5.2",
-		"eslint-plugin-react": "7.32.2",
-		"eslint-plugin-react-hooks": "4.4.0",
-		"prettier": "3.1.1",
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
 		"@types/semver": "^7.3.4",
-		"prettier-plugin-organize-imports": "3.2.4",
-		"vitest": "0.31.1",
-		"zod": "^3.22.3",
+		"zod": "3.22.3",
 		"@remotion/zod-types": "workspace:*"
 	},
 	"publishConfig": {
 		"access": "public"
 	},
 	"exports": {
-		".": {
-			"import": "./dist/index.js",
-			"require": "./dist/index.js",
-			"types": "./dist/index.d.js"
-		},
 		"./package.json": "./package.json",
-		"./entry": "./dist/previewEntry.js"
+		".": {
+			"types": "./dist/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
+			"require": "./dist/index.js"
+		},
+		"./entry": "./dist/previewEntry.js",
+		"./internals": {
+			"types": "./dist/internals.d.ts",
+			"module": "./dist/esm/internals.mjs",
+			"import": "./dist/esm/internals.mjs",
+			"require": "./dist/internals.js"
+		}
 	}
 }

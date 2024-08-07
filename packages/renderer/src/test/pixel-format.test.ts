@@ -1,4 +1,4 @@
-import {describe, expect, test} from 'vitest';
+import {describe, expect, test} from 'bun:test';
 import type {Codec} from '../codec';
 import type {PixelFormat} from '../pixel-format';
 import {validateSelectedPixelFormatAndCodecCombination} from '../pixel-format';

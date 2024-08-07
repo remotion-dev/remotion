@@ -3,9 +3,9 @@ import type {LogLevel} from '@remotion/renderer';
 import {BINARY_NAME} from '../../../shared/constants';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
-import {roleSubcommand, ROLE_SUBCOMMAND} from './role';
-import {userSubcommand, USER_SUBCOMMAND} from './user';
-import {validateSubcommand, VALIDATE_SUBCOMMAND} from './validate';
+import {ROLE_SUBCOMMAND, roleSubcommand} from './role';
+import {USER_SUBCOMMAND, userSubcommand} from './user';
+import {VALIDATE_SUBCOMMAND, validateSubcommand} from './validate';
 
 export const POLICIES_COMMAND = 'policies';
 
