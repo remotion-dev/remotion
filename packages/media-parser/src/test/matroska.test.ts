@@ -4,16 +4,16 @@ import {nodeReader} from '../from-node';
 import {parseMedia} from '../parse-media';
 
 test('Should get duration of AV1 video', async () => {
-	const parsed = await parseMedia(
-		RenderInternals.exampleVideos.av1,
-		{
+	const parsed = await parseMedia({
+		src: RenderInternals.exampleVideos.av1,
+		fields: {
 			durationInSeconds: true,
 			boxes: true,
 			dimensions: true,
 			fps: true,
 		},
-		nodeReader,
-	);
+		readerInterface: nodeReader,
+	});
 
 	expect(parsed.durationInSeconds).toBe(1);
 	expect(parsed.fps).toBe(null);

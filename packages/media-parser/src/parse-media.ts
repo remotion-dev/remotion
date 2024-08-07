@@ -11,11 +11,11 @@ import type {Metadata, ParseMedia} from './options';
 import type {ParseResult} from './parse-result';
 import {parseVideo} from './parse-video';
 
-export const parseMedia: ParseMedia = async (
+export const parseMedia: ParseMedia = async ({
 	src,
-	options,
+	fields,
 	readerInterface = webReader,
-) => {
+}) => {
 	const {reader, contentLength} = await readerInterface.read(src, null);
 	let currentReader = reader;
 
@@ -42,10 +42,10 @@ export const parseMedia: ParseMedia = async (
 		if (parseResult) {
 			parseResult = parseResult.continueParsing();
 		} else {
-			parseResult = parseVideo(iterator, Boolean(options.samples));
+			parseResult = parseVideo(iterator, Boolean(fields.samples));
 		}
 
-		if (hasAllInfo(options, parseResult)) {
+		if (hasAllInfo(fields, parseResult)) {
 			if (!currentReader.closed) {
 				currentReader.cancel(new Error('has all information'));
 			}
@@ -75,27 +75,27 @@ export const parseMedia: ParseMedia = async (
 		throw new Error('Could not parse video');
 	}
 
-	if (options.dimensions) {
+	if (fields.dimensions) {
 		returnValue.dimensions = getDimensions(parseResult.segments);
 	}
 
-	if (options.durationInSeconds) {
+	if (fields.durationInSeconds) {
 		returnValue.durationInSeconds = getDuration(parseResult.segments);
 	}
 
-	if (options.fps) {
+	if (fields.fps) {
 		returnValue.fps = getFps(parseResult.segments);
 	}
 
-	if (options.videoCodec) {
+	if (fields.videoCodec) {
 		returnValue.videoCodec = getVideoCodec(parseResult.segments);
 	}
 
-	if (options.audioCodec) {
+	if (fields.audioCodec) {
 		returnValue.audioCodec = getAudioCodec(parseResult.segments);
 	}
 
-	if (options.boxes) {
+	if (fields.boxes) {
 		returnValue.boxes = parseResult.segments;
 	}
 

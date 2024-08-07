@@ -4,16 +4,16 @@ import {nodeReader} from '../from-node';
 import {parseMedia} from '../parse-media';
 
 test('Should stream ISO base media', async () => {
-	const result = await parseMedia(
-		RenderInternals.exampleVideos.iphonevideo,
-		{
+	const result = await parseMedia({
+		src: RenderInternals.exampleVideos.iphonevideo,
+		fields: {
 			durationInSeconds: true,
 			fps: true,
 			videoCodec: true,
 			audioCodec: true,
 		},
-		nodeReader,
-	);
+		readerInterface: nodeReader,
+	});
 	expect(result.durationInSeconds).toBe(12.568333333333333);
 	expect(result.fps).toBe(29.99602174777881);
 	expect(result.videoCodec).toBe('h265');
@@ -21,17 +21,17 @@ test('Should stream ISO base media', async () => {
 });
 
 test('Should stream WebM with no duration', async () => {
-	const result = await parseMedia(
-		RenderInternals.exampleVideos.nofps,
-		{
+	const result = await parseMedia({
+		src: RenderInternals.exampleVideos.nofps,
+		fields: {
 			fps: true,
 			durationInSeconds: true,
 			dimensions: true,
 			videoCodec: true,
 			audioCodec: true,
 		},
-		nodeReader,
-	);
+		readerInterface: nodeReader,
+	});
 	expect(result.durationInSeconds).toBe(6.57);
 	expect(result.dimensions).toEqual({
 		width: 1470,
@@ -43,17 +43,17 @@ test('Should stream WebM with no duration', async () => {
 });
 
 test('Should stream AV1 with no duration', async () => {
-	const parsed = await parseMedia(
-		RenderInternals.exampleVideos.av1,
-		{
+	const parsed = await parseMedia({
+		src: RenderInternals.exampleVideos.av1,
+		fields: {
 			durationInSeconds: true,
 			dimensions: true,
 			fps: true,
 			videoCodec: true,
 			audioCodec: true,
 		},
-		nodeReader,
-	);
+		readerInterface: nodeReader,
+	});
 
 	expect(parsed.durationInSeconds).toBe(1);
 	expect(parsed.fps).toBe(null);
@@ -66,17 +66,17 @@ test('Should stream AV1 with no duration', async () => {
 });
 
 test('Should stream corrupted video', async () => {
-	const parsed = await parseMedia(
-		RenderInternals.exampleVideos.corrupted,
-		{
+	const parsed = await parseMedia({
+		src: RenderInternals.exampleVideos.corrupted,
+		fields: {
 			durationInSeconds: true,
 			dimensions: true,
 			fps: true,
 			videoCodec: true,
 			audioCodec: true,
 		},
-		nodeReader,
-	);
+		readerInterface: nodeReader,
+	});
 
 	expect(parsed.durationInSeconds).toBe(30.03);
 	expect(parsed.fps).toBe(23.976023976023974);
@@ -89,17 +89,17 @@ test('Should stream corrupted video', async () => {
 });
 
 test('Should stream screen recording video', async () => {
-	const parsed = await parseMedia(
-		RenderInternals.exampleVideos.screenrecording,
-		{
+	const parsed = await parseMedia({
+		src: RenderInternals.exampleVideos.screenrecording,
+		fields: {
 			durationInSeconds: true,
 			dimensions: true,
 			fps: true,
 			videoCodec: true,
 			audioCodec: true,
 		},
-		nodeReader,
-	);
+		readerInterface: nodeReader,
+	});
 
 	expect(parsed.durationInSeconds).toBe(5.866666666666666);
 	expect(parsed.fps).toBe(58.983050847457626);
@@ -112,17 +112,17 @@ test('Should stream screen recording video', async () => {
 });
 
 test('Should stream ProRes video', async () => {
-	const parsed = await parseMedia(
-		RenderInternals.exampleVideos.prores,
-		{
+	const parsed = await parseMedia({
+		src: RenderInternals.exampleVideos.prores,
+		fields: {
 			fps: true,
 			dimensions: true,
 			durationInSeconds: true,
 			videoCodec: true,
 			audioCodec: true,
 		},
-		nodeReader,
-	);
+		readerInterface: nodeReader,
+	});
 
 	expect(parsed.fps).toBe(60);
 	expect(parsed.dimensions.width).toBe(1920);
@@ -133,17 +133,17 @@ test('Should stream ProRes video', async () => {
 });
 
 test('Should stream variable fps video', async () => {
-	const parsed = await parseMedia(
-		RenderInternals.exampleVideos.variablefps,
-		{
+	const parsed = await parseMedia({
+		src: RenderInternals.exampleVideos.variablefps,
+		fields: {
 			fps: true,
 			dimensions: true,
 			durationInSeconds: true,
 			videoCodec: true,
 			audioCodec: true,
 		},
-		nodeReader,
-	);
+		readerInterface: nodeReader,
+	});
 
 	expect(parsed.dimensions.width).toBe(1280);
 	expect(parsed.dimensions.height).toBe(720);
@@ -153,17 +153,17 @@ test('Should stream variable fps video', async () => {
 });
 
 test('Should stream MKV video', async () => {
-	const parsed = await parseMedia(
-		RenderInternals.exampleVideos.matroskaPcm16,
-		{
+	const parsed = await parseMedia({
+		src: RenderInternals.exampleVideos.matroskaPcm16,
+		fields: {
 			fps: true,
 			dimensions: true,
 			durationInSeconds: true,
 			videoCodec: true,
 			audioCodec: true,
 		},
-		nodeReader,
-	);
+		readerInterface: nodeReader,
+	});
 
 	expect(parsed.dimensions.width).toBe(1080);
 	expect(parsed.dimensions.height).toBe(1080);
@@ -173,17 +173,17 @@ test('Should stream MKV video', async () => {
 });
 
 test('Should stream MP3 in MP4 video', async () => {
-	const parsed = await parseMedia(
-		RenderInternals.exampleVideos.mp4withmp3,
-		{
+	const parsed = await parseMedia({
+		src: RenderInternals.exampleVideos.mp4withmp3,
+		fields: {
 			fps: true,
 			dimensions: true,
 			durationInSeconds: true,
 			videoCodec: true,
 			audioCodec: true,
 		},
-		nodeReader,
-	);
+		readerInterface: nodeReader,
+	});
 
 	expect(parsed.dimensions.width).toBe(1080);
 	expect(parsed.dimensions.height).toBe(1080);

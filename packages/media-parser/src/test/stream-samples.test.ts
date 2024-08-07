@@ -4,12 +4,12 @@ import {nodeReader} from '../from-node';
 import {parseMedia} from '../parse-media';
 
 test('Stream samples', async () => {
-	const a = await parseMedia(
-		RenderInternals.exampleVideos.mp4withmp3,
-		{
+	await parseMedia({
+		src: RenderInternals.exampleVideos.mp4withmp3,
+		fields: {
 			samples: true,
 			boxes: true,
 		},
-		nodeReader,
-	);
+		readerInterface: nodeReader,
+	});
 });

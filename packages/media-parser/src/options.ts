@@ -60,9 +60,9 @@ export type ParseMedia = <
 	EnableVideoCodec extends boolean,
 	EnableAudioCodec extends boolean,
 	EnableSamples extends boolean,
->(
-	src: string,
-	options: Options<
+>(options: {
+	src: string;
+	fields: Options<
 		EnableDimensions,
 		EnableDuration,
 		EnableBoxes,
@@ -70,9 +70,9 @@ export type ParseMedia = <
 		EnableVideoCodec,
 		EnableAudioCodec,
 		EnableSamples
-	>,
-	readerInterface?: ReaderInterface,
-) => Promise<
+	>;
+	readerInterface?: ReaderInterface;
+}) => Promise<
 	Metadata<
 		EnableDimensions,
 		EnableDuration,
