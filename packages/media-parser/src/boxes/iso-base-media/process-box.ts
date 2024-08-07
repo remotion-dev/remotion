@@ -8,6 +8,7 @@ import {parseMdhd} from './mdhd';
 import {parseMoov} from './moov/moov';
 import {parseMvhd} from './mvhd';
 import {parseMebx} from './stsd/mebx';
+import {parseStco} from './stsd/stco';
 import {parseStsd} from './stsd/stsd';
 import {parseStsz} from './stsd/stsz';
 import {parseStts} from './stts/stts';
@@ -165,6 +166,21 @@ const processBox = ({
 
 	if (boxType === 'stsz') {
 		const box = parseStsz({
+			iterator,
+			offset: fileOffset,
+			size: boxSize,
+		});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
+	if (boxType === 'stco') {
+		const box = parseStco({
 			iterator,
 			offset: fileOffset,
 			size: boxSize,
