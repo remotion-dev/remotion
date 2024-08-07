@@ -24,7 +24,6 @@ test('Should stream from Wikipedia', async () => {
 	const result = await parseMedia({
 		src: 'https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.720p.vp9.webm',
 		fields: {
-			boxes: true,
 			durationInSeconds: true,
 			fps: true,
 			dimensions: true,

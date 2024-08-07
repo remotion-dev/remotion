@@ -3,7 +3,7 @@ import type {Sample} from './boxes/iso-base-media/stsd/samples';
 import {trakBoxContainsAudio} from './get-fps';
 import type {KnownAudioCodecs} from './options';
 import type {AnySegment} from './parse-result';
-import {getMoovBox} from './traversal';
+import {getMoovBox, getStsdBox} from './traversal';
 
 export const hasAudioCodec = (boxes: AnySegment[]): boolean => {
 	try {
@@ -51,60 +51,34 @@ const onSample = (sample: Sample): KnownAudioCodecs | null | undefined => {
 
 export const getAudioCodec = (boxes: AnySegment[]): KnownAudioCodecs | null => {
 	const moovBox = getMoovBox(boxes);
+
 	if (moovBox) {
 		const trakBox = moovBox.children.find(
 			(b) => b.type === 'trak-box' && trakBoxContainsAudio(b),
 		);
 		if (trakBox && trakBox.type === 'trak-box') {
-			const mdiaBox = trakBox.children.find(
-				(b) => b.type === 'regular-box' && b.boxType === 'mdia',
-			);
-			if (
-				mdiaBox &&
-				mdiaBox.type === 'regular-box' &&
-				mdiaBox.boxType === 'mdia'
-			) {
-				const minfBox = mdiaBox?.children.find(
-					(b) => b.type === 'regular-box' && b.boxType === 'minf',
-				);
-				if (
-					minfBox &&
-					minfBox.type === 'regular-box' &&
-					minfBox.boxType === 'minf'
-				) {
-					const stblBox = minfBox?.children.find(
-						(b) => b.type === 'regular-box' && b.boxType === 'stbl',
-					);
-					if (stblBox && stblBox.type === 'regular-box') {
-						const stsdBox = stblBox?.children.find(
-							(b) => b.type === 'stsd-box',
-						);
-						if (stsdBox && stsdBox.type === 'stsd-box') {
-							const sample = stsdBox.samples.find((s) => s.type === 'audio');
-							if (sample && sample.type === 'audio') {
-								const ret = onSample(sample);
-								if (ret) {
-									return ret;
-								}
+			const stsdBox = getStsdBox(trakBox);
+			if (stsdBox) {
+				const sample = stsdBox.samples.find((s) => s.type === 'audio');
+				if (sample && sample.type === 'audio') {
+					const ret = onSample(sample);
+					if (ret) {
+						return ret;
+					}
 
-								const waveBox = sample.children.find(
-									(b) => b.type === 'regular-box' && b.boxType === 'wave',
-								);
-								if (
-									waveBox &&
-									waveBox.type === 'regular-box' &&
-									waveBox.boxType === 'wave'
-								) {
-									const esdsBox = waveBox.children.find(
-										(b) => b.type === 'esds-box',
-									);
-									if (esdsBox && esdsBox.type === 'esds-box') {
-										const ret2 = onEsdsBox(esdsBox);
-										if (ret2) {
-											return ret2;
-										}
-									}
-								}
+					const waveBox = sample.children.find(
+						(b) => b.type === 'regular-box' && b.boxType === 'wave',
+					);
+					if (
+						waveBox &&
+						waveBox.type === 'regular-box' &&
+						waveBox.boxType === 'wave'
+					) {
+						const esdsBox = waveBox.children.find((b) => b.type === 'esds-box');
+						if (esdsBox && esdsBox.type === 'esds-box') {
+							const ret2 = onEsdsBox(esdsBox);
+							if (ret2) {
+								return ret2;
 							}
 						}
 					}

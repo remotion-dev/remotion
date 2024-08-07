@@ -15,7 +15,7 @@ import type {TkhdBox} from './boxes/iso-base-media/tkhd';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import type {MatroskaSegment} from './boxes/webm/segments';
 
-interface RegularBox extends BaseBox {
+export interface RegularBox extends BaseBox {
 	boxType: string;
 	boxSize: number;
 	children: AnySegment[];

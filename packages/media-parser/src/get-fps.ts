@@ -1,7 +1,7 @@
 import type {SttsBox} from './boxes/iso-base-media/stts/stts';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import type {AnySegment} from './parse-result';
-import {getMoovBox, getMvhdBox, getTraks} from './traversal';
+import {getMoovBox, getMvhdBox, getStsdBox, getTraks} from './traversal';
 
 const calculateFps = ({
 	sttsBox,
@@ -30,38 +30,8 @@ type TimescaleAndDuration = {
 };
 
 export const trakBoxContainsAudio = (trakBox: TrakBox): boolean => {
-	const {children} = trakBox;
-	const mediaBoxes = children.filter(
-		(c) => c.type === 'regular-box' && c.boxType === 'mdia',
-	);
-	if (!mediaBoxes || mediaBoxes.length === 0) {
-		return false;
-	}
-
-	const firstMediaBox = mediaBoxes[0];
-	if (
-		firstMediaBox.type !== 'regular-box' ||
-		firstMediaBox.boxType !== 'mdia'
-	) {
-		return false;
-	}
-
-	const minf = firstMediaBox.children.find(
-		(c) => c.type === 'regular-box' && c.boxType === 'minf',
-	);
-	if (!minf || minf.type !== 'regular-box' || minf.boxType !== 'minf') {
-		return false;
-	}
-
-	const stbl = minf.children.find(
-		(c) => c.type === 'regular-box' && c.boxType === 'stbl',
-	);
-	if (!stbl || stbl.type !== 'regular-box' || stbl.boxType !== 'stbl') {
-		return false;
-	}
-
-	const stsd = stbl.children.find((c) => c.type === 'stsd-box');
-	if (!stsd || stsd.type !== 'stsd-box') {
+	const stsd = getStsdBox(trakBox);
+	if (!stsd) {
 		return false;
 	}
 
@@ -74,38 +44,8 @@ export const trakBoxContainsAudio = (trakBox: TrakBox): boolean => {
 };
 
 export const trakBoxContainsVideo = (trakBox: TrakBox): boolean => {
-	const {children} = trakBox;
-	const mediaBoxes = children.filter(
-		(c) => c.type === 'regular-box' && c.boxType === 'mdia',
-	);
-	if (!mediaBoxes || mediaBoxes.length === 0) {
-		return false;
-	}
-
-	const firstMediaBox = mediaBoxes[0];
-	if (
-		firstMediaBox.type !== 'regular-box' ||
-		firstMediaBox.boxType !== 'mdia'
-	) {
-		return false;
-	}
-
-	const minf = firstMediaBox.children.find(
-		(c) => c.type === 'regular-box' && c.boxType === 'minf',
-	);
-	if (!minf || minf.type !== 'regular-box' || minf.boxType !== 'minf') {
-		return false;
-	}
-
-	const stbl = minf.children.find(
-		(c) => c.type === 'regular-box' && c.boxType === 'stbl',
-	);
-	if (!stbl || stbl.type !== 'regular-box' || stbl.boxType !== 'stbl') {
-		return false;
-	}
-
-	const stsd = stbl.children.find((c) => c.type === 'stsd-box');
-	if (!stsd || stsd.type !== 'stsd-box') {
+	const stsd = getStsdBox(trakBox);
+	if (!stsd) {
 		return false;
 	}
 
