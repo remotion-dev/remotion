@@ -30,6 +30,8 @@ export const webReader: ReaderInterface = {
 						: {
 								Range: `bytes=${`${range[0]}-${range[1]}`}`,
 							},
+			// Disable Next.js caching
+			cache: 'no-store',
 		});
 		if (!res.body) {
 			throw new Error('No body');
