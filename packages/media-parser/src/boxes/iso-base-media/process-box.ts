@@ -1,5 +1,9 @@
 import type {BufferIterator} from '../../buffer-iterator';
-import type {IsoBaseMediaBox, ParseResult} from '../../parse-result';
+import type {
+	AnySegment,
+	IsoBaseMediaBox,
+	ParseResult,
+} from '../../parse-result';
 import type {BoxAndNext} from '../../parse-video';
 import {parseEsds} from './esds/esds';
 import {parseFtyp} from './ftyp';
@@ -62,10 +66,12 @@ const processBox = ({
 	iterator,
 	allowIncompleteBoxes,
 	canSkipVideoData,
+	parsedBoxes,
 }: {
 	iterator: BufferIterator;
 	allowIncompleteBoxes: boolean;
 	canSkipVideoData: boolean;
+	parsedBoxes: AnySegment[];
 }): BoxAndNext => {
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
@@ -287,6 +293,7 @@ const processBox = ({
 			data: iterator,
 			size: boxSize,
 			fileOffset,
+			existingBoxes: parsedBoxes,
 		});
 
 		return {
@@ -345,6 +352,7 @@ export const parseBoxes = ({
 			iterator,
 			allowIncompleteBoxes,
 			canSkipVideoData,
+			parsedBoxes: initialBoxes,
 		});
 		if (result.type === 'incomplete') {
 			if (Number.isFinite(maxBytes)) {
