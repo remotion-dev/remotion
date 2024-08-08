@@ -106,7 +106,9 @@ export const parseMedia: ParseMedia = async ({
 	}
 
 	if (fields.tracks) {
-		returnValue.tracks = getTracks(parseResult.segments);
+		const {audioTracks, videoTracks} = getTracks(parseResult.segments);
+		returnValue.audioTracks = audioTracks;
+		returnValue.videoTracks = videoTracks;
 	}
 
 	if (fields.boxes) {

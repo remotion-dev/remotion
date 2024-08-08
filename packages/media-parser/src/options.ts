@@ -55,7 +55,9 @@ export type Metadata<
 	(EnableFps extends true ? {fps: number | null} : {}) &
 	(EnableVideoCodec extends true ? {videoCodec: KnownVideoCodecs | null} : {}) &
 	(EnableAudioCodec extends true ? {audioCodec: KnownAudioCodecs | null} : {}) &
-	(EnableTracks extends true ? {tracks: Track[]} : {});
+	(EnableTracks extends true
+		? {videoTracks: Track[]; audioTracks: Track[]}
+		: {});
 
 export type ParseMedia = <
 	EnableDimensions extends boolean,

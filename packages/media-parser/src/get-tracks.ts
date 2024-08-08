@@ -51,13 +51,22 @@ export const hasTracks = (segments: AnySegment[]): boolean => {
 	return tracks.length === numberOfTracks;
 };
 
-export const getTracks = (segments: AnySegment[]): Track[] => {
+export const getTracks = (
+	segments: AnySegment[],
+): {
+	videoTracks: Track[];
+	audioTracks: Track[];
+} => {
 	const moovBox = getMoovBox(segments);
 	if (!moovBox) {
-		return [];
+		return {
+			videoTracks: [],
+			audioTracks: [],
+		};
 	}
 
-	const foundTracks: Track[] = [];
+	const videoTracks: Track[] = [];
+	const audioTracks: Track[] = [];
 	const tracks = getTraks(moovBox);
 
 	for (const track of tracks) {
@@ -90,7 +99,7 @@ export const getTracks = (segments: AnySegment[]): Track[] => {
 		});
 
 		if (trakBoxContainsAudio(track)) {
-			foundTracks.push({
+			audioTracks.push({
 				type: 'audio',
 				samplePositions,
 				trackId: tkhdBox.trackId,
@@ -99,7 +108,7 @@ export const getTracks = (segments: AnySegment[]): Track[] => {
 		}
 
 		if (trakBoxContainsVideo(track)) {
-			foundTracks.push({
+			videoTracks.push({
 				type: 'video',
 				samplePositions,
 				trackId: tkhdBox.trackId,
@@ -108,5 +117,8 @@ export const getTracks = (segments: AnySegment[]): Track[] => {
 		}
 	}
 
-	return foundTracks;
+	return {
+		videoTracks,
+		audioTracks,
+	};
 };

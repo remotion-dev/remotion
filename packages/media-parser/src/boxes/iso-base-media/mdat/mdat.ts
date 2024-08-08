@@ -51,8 +51,9 @@ export const parseMdat = ({
 	}
 
 	const tracks = getTracks(existingBoxes);
+	const allTracks = [...tracks.videoTracks, ...tracks.audioTracks];
 
-	const flatSamples = tracks
+	const flatSamples = allTracks
 		.map((track) => {
 			return track.samplePositions.map((samplePosition) => {
 				return {

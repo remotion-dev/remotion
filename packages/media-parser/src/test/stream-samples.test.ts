@@ -4,7 +4,7 @@ import {nodeReader} from '../from-node';
 import {parseMedia} from '../parse-media';
 
 test('Stream samples', async () => {
-	const {tracks} = await parseMedia({
+	const {videoTracks, audioTracks} = await parseMedia({
 		src: RenderInternals.exampleVideos.mp4withmp3,
 		fields: {
 			tracks: true,
@@ -18,7 +18,7 @@ test('Stream samples', async () => {
 		140, 176, 1, 0, 6, 104, 235, 224, 140, 178, 44, 253, 248, 248, 0,
 	]);
 
-	expect(tracks).toEqual([
+	expect(videoTracks).toEqual([
 		{
 			type: 'video',
 			trackId: 1,
@@ -66,6 +66,9 @@ test('Stream samples', async () => {
 			],
 			description,
 		},
+	]);
+
+	expect(audioTracks).toEqual([
 		{
 			type: 'audio',
 			trackId: 2,
