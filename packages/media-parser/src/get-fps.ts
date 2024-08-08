@@ -1,4 +1,4 @@
-import type {SttsBox} from './boxes/iso-base-media/stts/stts';
+import type {SttsBox} from './boxes/iso-base-media/stsd/stts';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import type {AnySegment} from './parse-result';
 import {

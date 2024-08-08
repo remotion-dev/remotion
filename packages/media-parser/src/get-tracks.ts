@@ -8,6 +8,7 @@ import type {SamplePosition} from './get-sample-positions';
 import {getSamplePositions} from './get-sample-positions';
 import type {AnySegment} from './parse-result';
 import {
+	getCttsBox,
 	getFtypBox,
 	getMoovBox,
 	getMvhdBox,
@@ -83,6 +84,7 @@ export const getTracks = (
 		const stssBox = getStssBox(track);
 		const sttsBox = getSttsBox(track);
 		const tkhdBox = getTkhdBox(track);
+		const cttsBox = getCttsBox(track);
 		const videoDescriptors = getVideoDescriptors(track);
 		const timescaleAndDuration = getTimescaleAndDuration(track);
 
@@ -116,6 +118,7 @@ export const getTracks = (
 			stszBox,
 			stssBox,
 			sttsBox,
+			cttsBox,
 		});
 
 		if (trakBoxContainsAudio(track)) {

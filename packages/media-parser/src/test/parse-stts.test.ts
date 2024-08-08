@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {parseStts} from '../boxes/iso-base-media/stts/stts';
+import {parseStts} from '../boxes/iso-base-media/stsd/stts';
 import {getArrayBufferIterator} from '../buffer-iterator';
 
 const buffer = new Uint8Array([

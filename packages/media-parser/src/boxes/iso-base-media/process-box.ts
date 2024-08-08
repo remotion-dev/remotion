@@ -15,13 +15,14 @@ import {parseMdat} from './mdat/mdat';
 import {parseMdhd} from './mdhd';
 import {parseMoov} from './moov/moov';
 import {parseMvhd} from './mvhd';
+import {parseCtts} from './stsd/ctts';
 import {parseMebx} from './stsd/mebx';
 import {parseStco} from './stsd/stco';
 import {parseStsc} from './stsd/stsc';
 import {parseStsd} from './stsd/stsd';
 import {parseStss} from './stsd/stss';
 import {parseStsz} from './stsd/stsz';
-import {parseStts} from './stts/stts';
+import {parseStts} from './stsd/stts';
 import {parseTkhd} from './tkhd';
 import {parseTrak} from './trak/trak';
 
@@ -222,6 +223,21 @@ const processBox = ({
 			iterator,
 			offset: fileOffset,
 			boxSize,
+		});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
+	if (boxType === 'ctts') {
+		const box = parseCtts({
+			iterator,
+			offset: fileOffset,
+			size: boxSize,
 		});
 
 		return {

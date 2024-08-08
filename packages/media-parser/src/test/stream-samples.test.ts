@@ -29,6 +29,7 @@ test('Stream samples', async () => {
 					isKeyframe: true,
 					dts: 0,
 					duration: 512,
+					cts: 1024,
 				},
 				{
 					offset: 6471,
@@ -36,6 +37,7 @@ test('Stream samples', async () => {
 					isKeyframe: false,
 					dts: 512,
 					duration: 512,
+					cts: 1536,
 				},
 				{
 					offset: 7868,
@@ -43,6 +45,7 @@ test('Stream samples', async () => {
 					isKeyframe: false,
 					dts: 1024,
 					duration: 512,
+					cts: 2048,
 				},
 				{
 					offset: 10486,
@@ -50,6 +53,7 @@ test('Stream samples', async () => {
 					isKeyframe: false,
 					dts: 1536,
 					duration: 512,
+					cts: 2560,
 				},
 				{
 					offset: 12041,
@@ -57,6 +61,7 @@ test('Stream samples', async () => {
 					isKeyframe: false,
 					dts: 2048,
 					duration: 512,
+					cts: 3072,
 				},
 				{
 					offset: 14509,
@@ -64,6 +69,7 @@ test('Stream samples', async () => {
 					isKeyframe: false,
 					dts: 2560,
 					duration: 512,
+					cts: 3584,
 				},
 				{
 					offset: 16080,
@@ -71,6 +77,7 @@ test('Stream samples', async () => {
 					isKeyframe: false,
 					dts: 3072,
 					duration: 512,
+					cts: 4096,
 				},
 				{
 					offset: 17741,
@@ -78,6 +85,7 @@ test('Stream samples', async () => {
 					isKeyframe: false,
 					dts: 3584,
 					duration: 512,
+					cts: 4608,
 				},
 				{
 					offset: 20196,
@@ -85,6 +93,7 @@ test('Stream samples', async () => {
 					isKeyframe: false,
 					dts: 4096,
 					duration: 512,
+					cts: 5120,
 				},
 				{
 					offset: 21932,
@@ -92,6 +101,7 @@ test('Stream samples', async () => {
 					isKeyframe: false,
 					dts: 4608,
 					duration: 512,
+					cts: 5632,
 				},
 			],
 			description,
@@ -110,6 +120,7 @@ test('Stream samples', async () => {
 					isKeyframe: true,
 					dts: 0,
 					duration: 1152,
+					cts: 0,
 				},
 				{
 					offset: 8566,
@@ -117,6 +128,7 @@ test('Stream samples', async () => {
 					isKeyframe: true,
 					dts: 1152,
 					duration: 1152,
+					cts: 1152,
 				},
 				{
 					offset: 9526,
@@ -124,6 +136,7 @@ test('Stream samples', async () => {
 					isKeyframe: true,
 					dts: 2304,
 					duration: 1152,
+					cts: 2304,
 				},
 				{
 					offset: 11081,
@@ -131,6 +144,7 @@ test('Stream samples', async () => {
 					isKeyframe: true,
 					dts: 3456,
 					duration: 1152,
+					cts: 3456,
 				},
 				{
 					offset: 12589,
@@ -138,6 +152,7 @@ test('Stream samples', async () => {
 					isKeyframe: true,
 					dts: 4608,
 					duration: 1152,
+					cts: 4608,
 				},
 				{
 					offset: 13549,
@@ -145,6 +160,7 @@ test('Stream samples', async () => {
 					isKeyframe: true,
 					dts: 5760,
 					duration: 1152,
+					cts: 5760,
 				},
 				{
 					offset: 15120,
@@ -152,6 +168,7 @@ test('Stream samples', async () => {
 					isKeyframe: true,
 					dts: 6912,
 					duration: 1152,
+					cts: 6912,
 				},
 				{
 					offset: 16781,
@@ -159,6 +176,7 @@ test('Stream samples', async () => {
 					isKeyframe: true,
 					dts: 8064,
 					duration: 1152,
+					cts: 8064,
 				},
 				{
 					offset: 18276,
@@ -166,6 +184,7 @@ test('Stream samples', async () => {
 					isKeyframe: true,
 					dts: 9216,
 					duration: 1152,
+					cts: 9216,
 				},
 				{
 					offset: 19236,
@@ -173,6 +192,7 @@ test('Stream samples', async () => {
 					isKeyframe: true,
 					dts: 10368,
 					duration: 1152,
+					cts: 10368,
 				},
 				{
 					offset: 20972,
@@ -180,6 +200,7 @@ test('Stream samples', async () => {
 					isKeyframe: true,
 					dts: 11520,
 					duration: 1152,
+					cts: 11520,
 				},
 				{
 					offset: 22518,
@@ -187,6 +208,7 @@ test('Stream samples', async () => {
 					isKeyframe: true,
 					dts: 12672,
 					duration: 1152,
+					cts: 12672,
 				},
 				{
 					offset: 23478,
@@ -194,6 +216,7 @@ test('Stream samples', async () => {
 					isKeyframe: true,
 					dts: 13824,
 					duration: 1152,
+					cts: 13824,
 				},
 				{
 					offset: 24438,
@@ -201,6 +224,7 @@ test('Stream samples', async () => {
 					isKeyframe: true,
 					dts: 14976,
 					duration: 1152,
+					cts: 14976,
 				},
 				{
 					offset: 25398,
@@ -208,6 +232,7 @@ test('Stream samples', async () => {
 					isKeyframe: true,
 					dts: 16128,
 					duration: 1152,
+					cts: 16128,
 				},
 			],
 			description: null,

@@ -1,14 +1,16 @@
+import type {CttsBox} from './boxes/iso-base-media/stsd/ctts';
 import type {StcoBox} from './boxes/iso-base-media/stsd/stco';
 import type {StscBox} from './boxes/iso-base-media/stsd/stsc';
 import type {StssBox} from './boxes/iso-base-media/stsd/stss';
 import type {StszBox} from './boxes/iso-base-media/stsd/stsz';
-import type {SttsBox} from './boxes/iso-base-media/stts/stts';
+import type {SttsBox} from './boxes/iso-base-media/stsd/stts';
 
 export type SamplePosition = {
 	offset: number;
 	size: number;
 	isKeyframe: boolean;
 	dts: number;
+	cts: number;
 	duration: number;
 };
 
@@ -18,17 +20,28 @@ export const getSamplePositions = ({
 	stscBox,
 	stssBox,
 	sttsBox,
+	cttsBox,
 }: {
 	stcoBox: StcoBox;
 	stszBox: StszBox;
 	stscBox: StscBox;
 	stssBox: StssBox | null;
 	sttsBox: SttsBox;
+	cttsBox: CttsBox | null;
 }) => {
-	const deltas: number[] = [];
+	const sttsDeltas: number[] = [];
 	for (const distribution of sttsBox.sampleDistribution) {
 		for (let i = 0; i < distribution.sampleCount; i++) {
-			deltas.push(distribution.sampleDelta);
+			sttsDeltas.push(distribution.sampleDelta);
+		}
+	}
+
+	const cttsEntries: number[] = [];
+	for (const entry of cttsBox?.entries ?? [
+		{sampleCount: sttsDeltas.length, sampleOffset: 0},
+	]) {
+		for (let i = 0; i < entry.sampleCount; i++) {
+			cttsEntries.push(entry.sampleOffset);
 		}
 	}
 
@@ -59,13 +72,16 @@ export const getSamplePositions = ({
 				? stssBox.sampleNumber.includes(samples.length + 1)
 				: true;
 
-			const delta = deltas[samples.length];
+			const delta = sttsDeltas[samples.length];
+			const ctsOffset = cttsEntries[samples.length];
+			const cts = dts + ctsOffset;
 
 			samples.push({
 				offset: chunks[i] + offsetInThisChunk,
 				size,
 				isKeyframe,
 				dts,
+				cts,
 				duration: delta,
 			});
 			dts += delta;
