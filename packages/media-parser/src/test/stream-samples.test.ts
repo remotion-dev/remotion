@@ -8,7 +8,6 @@ test('Stream samples', async () => {
 	const {boxes} = await parseMedia({
 		src: RenderInternals.exampleVideos.mp4withmp3,
 		fields: {
-			samples: true,
 			boxes: true,
 		},
 		readerInterface: nodeReader,
