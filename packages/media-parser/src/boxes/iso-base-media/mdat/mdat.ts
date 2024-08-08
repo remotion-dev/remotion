@@ -1,10 +1,11 @@
 import type {BufferIterator} from '../../../buffer-iterator';
-import {getTracks} from '../../../get-tracks';
+import {getTracks, hasTracks} from '../../../get-tracks';
 import type {AnySegment} from '../../../parse-result';
 import type {ParserContext} from '../../../parser-context';
 
 export interface MdatBox {
 	type: 'mdat-box';
+	samplesProcessed: boolean;
 	boxSize: number;
 }
 
@@ -25,6 +26,7 @@ export type VideoSample = {
 export type OnAudioSample = (sample: AudioSample) => void;
 export type OnVideoSample = (sample: VideoSample) => void;
 
+// TODO: Parse mdat only gets called when all of the atom is downloaded
 export const parseMdat = ({
 	data,
 	size,
@@ -38,7 +40,16 @@ export const parseMdat = ({
 	existingBoxes: AnySegment[];
 	options: ParserContext;
 }): MdatBox => {
-	// TODO: Do something cool with it
+	const alreadyHas = hasTracks(existingBoxes);
+	if (!alreadyHas) {
+		data.discard(size - 8);
+		return {
+			type: 'mdat-box',
+			boxSize: size,
+			samplesProcessed: false,
+		};
+	}
+
 	const tracks = getTracks(existingBoxes);
 
 	const flatSamples = tracks
@@ -91,5 +102,6 @@ export const parseMdat = ({
 	return {
 		type: 'mdat-box',
 		boxSize: size,
+		samplesProcessed: true,
 	};
 };

@@ -4,6 +4,7 @@ import type {SamplePosition} from './get-sample-positions';
 import {getSamplePositions} from './get-sample-positions';
 import type {AnySegment} from './parse-result';
 import {
+	getFtypBox,
 	getMoovBox,
 	getMvhdBox,
 	getStcoBox,
@@ -33,7 +34,13 @@ export const getNumberOfTracks = (moovBox: MoovBox): number => {
 
 export const hasTracks = (segments: AnySegment[]): boolean => {
 	const moovBox = getMoovBox(segments);
+	const ftypBox = getFtypBox(segments);
+
 	if (!moovBox) {
+		if (ftypBox) {
+			return false;
+		}
+
 		// TODO: Support Matroska
 		return true;
 	}

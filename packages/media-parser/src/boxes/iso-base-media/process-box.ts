@@ -1,4 +1,6 @@
+/* eslint-disable max-depth */
 import type {BufferIterator} from '../../buffer-iterator';
+import {hasTracks} from '../../get-tracks';
 import type {
 	AnySegment,
 	IsoBaseMediaBox,
@@ -97,24 +99,27 @@ const processBox = ({
 			const type = iterator.getByteString(4);
 			iterator.counter.decrement(4);
 
-			if (type === 'mdat' && options.canSkipVideoData) {
-				const skipTo = fileOffset + boxSize;
-				const bytesToSkip = skipTo - iterator.counter.getOffset();
+			if (type === 'mdat') {
+				const shouldSkip = options.canSkipVideoData || !hasTracks(parsedBoxes);
+				if (shouldSkip) {
+					const skipTo = fileOffset + boxSize;
+					const bytesToSkip = skipTo - iterator.counter.getOffset();
 
-				// If there is a huge mdat chunk, we can skip it because we don't need it for the metadata
-				if (bytesToSkip > 1_000_000) {
-					return {
-						type: 'complete',
-						box: {
-							type: 'regular-box',
-							boxType: 'mdat',
-							children: [],
-							boxSize,
-							offset: fileOffset,
-						},
-						size: boxSize,
-						skipTo: fileOffset + boxSize,
-					};
+					// If there is a huge mdat chunk, we can skip it because we don't need it for the metadata
+					if (bytesToSkip > 1_000_000) {
+						return {
+							type: 'complete',
+							box: {
+								type: 'regular-box',
+								boxType: 'mdat',
+								children: [],
+								boxSize,
+								offset: fileOffset,
+							},
+							size: boxSize,
+							skipTo: fileOffset + boxSize,
+						};
+					}
 				}
 			}
 		}
