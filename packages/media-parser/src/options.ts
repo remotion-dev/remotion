@@ -3,6 +3,7 @@ import type {
 	OnVideoSample,
 } from './boxes/iso-base-media/mdat/mdat';
 import type {Dimensions} from './get-dimensions';
+import type {Track} from './get-tracks';
 import type {AnySegment} from './parse-result';
 import type {ReaderInterface} from './reader';
 
@@ -29,6 +30,7 @@ export type Options<
 	EnableFps extends boolean,
 	EnableVideoCodec extends boolean,
 	EnableAudioCodec extends boolean,
+	EnableTracks extends boolean,
 > = {
 	dimensions?: EnableDimensions;
 	durationInSeconds?: EnableDuration;
@@ -36,6 +38,7 @@ export type Options<
 	fps?: EnableFps;
 	videoCodec?: EnableVideoCodec;
 	audioCodec?: EnableAudioCodec;
+	tracks?: EnableTracks;
 };
 
 export type Metadata<
@@ -45,12 +48,14 @@ export type Metadata<
 	EnableFps extends boolean,
 	EnableVideoCodec extends boolean,
 	EnableAudioCodec extends boolean,
+	EnableTracks extends boolean,
 > = (EnableDimensions extends true ? {dimensions: Dimensions} : {}) &
 	(EnableDuration extends true ? {durationInSeconds: number | null} : {}) &
 	(EnableBoxes extends true ? {boxes: AnySegment[]} : {}) &
 	(EnableFps extends true ? {fps: number | null} : {}) &
 	(EnableVideoCodec extends true ? {videoCodec: KnownVideoCodecs | null} : {}) &
-	(EnableAudioCodec extends true ? {audioCodec: KnownAudioCodecs | null} : {});
+	(EnableAudioCodec extends true ? {audioCodec: KnownAudioCodecs | null} : {}) &
+	(EnableTracks extends true ? {tracks: Track[]} : {});
 
 export type ParseMedia = <
 	EnableDimensions extends boolean,
@@ -59,6 +64,7 @@ export type ParseMedia = <
 	EnableFps extends boolean,
 	EnableVideoCodec extends boolean,
 	EnableAudioCodec extends boolean,
+	EnableTracks extends boolean,
 >(options: {
 	src: string | File;
 	fields: Options<
@@ -67,7 +73,8 @@ export type ParseMedia = <
 		EnableBoxes,
 		EnableFps,
 		EnableVideoCodec,
-		EnableAudioCodec
+		EnableAudioCodec,
+		EnableTracks
 	>;
 	readerInterface?: ReaderInterface;
 	onAudioSample?: OnAudioSample;
@@ -79,6 +86,7 @@ export type ParseMedia = <
 		EnableBoxes,
 		EnableFps,
 		EnableVideoCodec,
-		EnableAudioCodec
+		EnableAudioCodec,
+		EnableTracks
 	>
 >;

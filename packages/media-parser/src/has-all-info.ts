@@ -2,6 +2,7 @@ import {hasAudioCodec} from './get-audio-codec';
 import {hasDimensions} from './get-dimensions';
 import {hasDuration} from './get-duration';
 import {hasFps} from './get-fps';
+import {hasTracks} from './get-tracks';
 import {hasVideoCodec} from './get-video-codec';
 import type {Options} from './options';
 import type {ParseResult} from './parse-result';
@@ -55,9 +56,8 @@ export const hasAllInfo = (
 			return hasAudioCodec(parseResult.segments) !== null;
 		}
 
-		if (key === 'samples') {
-			// TODO: Make this real
-			return true;
+		if (key === 'tracks') {
+			return hasTracks(parseResult.segments);
 		}
 
 		throw new Error(`Unknown key: ${key satisfies never}`);

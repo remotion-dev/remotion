@@ -5,6 +5,7 @@ import {getAudioCodec} from './get-audio-codec';
 import {getDimensions} from './get-dimensions';
 import {getDuration} from './get-duration';
 import {getFps} from './get-fps';
+import {getTracks} from './get-tracks';
 import {getVideoCodec} from './get-video-codec';
 import {hasAllInfo} from './has-all-info';
 import type {Metadata, ParseMedia} from './options';
@@ -21,7 +22,7 @@ export const parseMedia: ParseMedia = async ({
 	const {reader, contentLength} = await readerInterface.read(src, null);
 	let currentReader = reader;
 
-	const returnValue = {} as Metadata<true, true, true, true, true, true>;
+	const returnValue = {} as Metadata<true, true, true, true, true, true, true>;
 
 	let iterator: BufferIterator | null = null;
 	let parseResult: ParseResult | null = null;
@@ -102,6 +103,10 @@ export const parseMedia: ParseMedia = async ({
 
 	if (fields.audioCodec) {
 		returnValue.audioCodec = getAudioCodec(parseResult.segments);
+	}
+
+	if (fields.tracks) {
+		returnValue.tracks = getTracks(parseResult.segments);
 	}
 
 	if (fields.boxes) {

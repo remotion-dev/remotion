@@ -1,3 +1,4 @@
+import type {MoovBox} from './boxes/iso-base-media/moov/moov';
 import {trakBoxContainsAudio, trakBoxContainsVideo} from './get-fps';
 import type {SamplePosition} from './get-sample-positions';
 import {getSamplePositions} from './get-sample-positions';
@@ -13,7 +14,7 @@ import {
 	getVideoDescriptors,
 } from './traversal';
 
-type Track = {
+export type Track = {
 	type: 'audio' | 'video';
 	samplePositions: SamplePosition[];
 	trackId: number;
@@ -21,18 +22,26 @@ type Track = {
 };
 
 // TODO: Use this to determine if all tracks are present
-export const getNumberOfTracks = (segments: AnySegment[]): number => {
-	const moovBox = getMoovBox(segments);
-	if (!moovBox) {
-		return 0;
-	}
-
+export const getNumberOfTracks = (moovBox: MoovBox): number => {
 	const mvHdBox = getMvhdBox(moovBox);
 	if (!mvHdBox) {
 		return 0;
 	}
 
 	return mvHdBox.nextTrackId - 1;
+};
+
+export const hasTracks = (segments: AnySegment[]): boolean => {
+	const moovBox = getMoovBox(segments);
+	if (!moovBox) {
+		// TODO: Support Matroska
+		return true;
+	}
+
+	const numberOfTracks = getNumberOfTracks(moovBox);
+	const tracks = getTraks(moovBox);
+
+	return tracks.length === numberOfTracks;
 };
 
 export const getTracks = (segments: AnySegment[]): Track[] => {
