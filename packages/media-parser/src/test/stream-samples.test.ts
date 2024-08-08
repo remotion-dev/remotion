@@ -75,6 +75,7 @@ test('Stream samples', async () => {
 				},
 			],
 			description,
+			timescale: 15360,
 		},
 	]);
 
@@ -160,6 +161,7 @@ test('Stream samples', async () => {
 				},
 			],
 			description: null,
+			timescale: 48000,
 		},
 	]);
 });

@@ -1,5 +1,9 @@
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';
-import {trakBoxContainsAudio, trakBoxContainsVideo} from './get-fps';
+import {
+	getTimescaleAndDuration,
+	trakBoxContainsAudio,
+	trakBoxContainsVideo,
+} from './get-fps';
 import type {SamplePosition} from './get-sample-positions';
 import {getSamplePositions} from './get-sample-positions';
 import type {AnySegment} from './parse-result';
@@ -21,6 +25,7 @@ export type Track = {
 	samplePositions: SamplePosition[];
 	trackId: number;
 	description: Uint8Array | null;
+	timescale: number;
 };
 
 // TODO: Use this to determine if all tracks are present
@@ -77,6 +82,7 @@ export const getTracks = (
 		const stssBox = getStssBox(track);
 		const tkhdBox = getTkhdBox(track);
 		const videoDescriptors = getVideoDescriptors(track);
+		const timescaleAndDuration = getTimescaleAndDuration(track);
 
 		if (!tkhdBox) {
 			throw new Error('Expected tkhd box in trak box');
@@ -94,6 +100,10 @@ export const getTracks = (
 			throw new Error('Expected stsc box in trak box');
 		}
 
+		if (!timescaleAndDuration) {
+			throw new Error('Expected timescale and duration in trak box');
+		}
+
 		const samplePositions = getSamplePositions({
 			stcoBox,
 			stscBox,
@@ -107,6 +117,7 @@ export const getTracks = (
 				samplePositions,
 				trackId: tkhdBox.trackId,
 				description: null,
+				timescale: timescaleAndDuration.timescale,
 			});
 		}
 
@@ -116,6 +127,7 @@ export const getTracks = (
 				samplePositions,
 				trackId: tkhdBox.trackId,
 				description: videoDescriptors,
+				timescale: timescaleAndDuration.timescale,
 			});
 		}
 	}
