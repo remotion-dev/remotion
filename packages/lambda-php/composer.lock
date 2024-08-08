@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "69625a978388af44b27b2e4472dd41d7",
+    "content-hash": "2183520645bd5490495a76c25568cec4",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -62,16 +62,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.317.2",
+            "version": "3.319.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "890ca1841a49317db884d1b87f7c08613213f852"
+                "reference": "a5c408d4cd1945d5fc817f45e46383634b610497"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/890ca1841a49317db884d1b87f7c08613213f852",
-                "reference": "890ca1841a49317db884d1b87f7c08613213f852",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/a5c408d4cd1945d5fc817f45e46383634b610497",
+                "reference": "a5c408d4cd1945d5fc817f45e46383634b610497",
                 "shasum": ""
             },
             "require": {
@@ -124,7 +124,10 @@
                 ],
                 "psr-4": {
                     "Aws\\": "src/"
-                }
+                },
+                "exclude-from-classmap": [
+                    "src/data/"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -151,9 +154,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.317.2"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.319.0"
             },
-            "time": "2024-08-05T18:08:05+00:00"
+            "time": "2024-08-07T18:05:51+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",

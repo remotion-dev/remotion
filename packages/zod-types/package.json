@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/zod-types"
 	},
 	"name": "@remotion/zod-types",
-	"version": "4.0.193",
+	"version": "4.0.194",
 	"description": "Zod types for Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
