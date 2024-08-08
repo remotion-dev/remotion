@@ -22,6 +22,8 @@ export type VideoSample = {
 	duration: number;
 	trackId: number;
 	type: 'key' | 'delta';
+	cts: number;
+	dts: number;
 };
 
 export type OnAudioSample = (sample: AudioSample) => void;
@@ -58,8 +60,7 @@ export const parseMdat = ({
 		.map((track) => {
 			return track.samplePositions.map((samplePosition) => {
 				return {
-					type: track.type,
-					trackId: track.trackId,
+					track,
 					samplePosition,
 				};
 			});
@@ -77,22 +78,30 @@ export const parseMdat = ({
 
 		const bytes = data.getSlice(sampleWithIndex.samplePosition.size);
 
-		if (sampleWithIndex.type === 'audio' && options.onAudioSample) {
+		if (sampleWithIndex.track.type === 'audio' && options.onAudioSample) {
 			options.onAudioSample({
 				bytes,
 				timestamp: sampleWithIndex.samplePosition.offset,
 				offset: data.counter.getOffset(),
-				trackId: sampleWithIndex.trackId,
+				trackId: sampleWithIndex.track.trackId,
 			});
 		}
 
-		if (sampleWithIndex.type === 'video' && options.onVideoSample) {
-			const timestamp = sampleWithIndex.samplePosition.offset;
+		if (sampleWithIndex.track.type === 'video' && options.onVideoSample) {
+			const timestamp =
+				(sampleWithIndex.samplePosition.cts * 1_000_000) /
+				sampleWithIndex.track.timescale;
+			const duration =
+				(sampleWithIndex.samplePosition.duration * 1_000_000) /
+				sampleWithIndex.track.timescale;
+
 			options.onVideoSample({
 				bytes,
 				timestamp,
-				duration: data.counter.getOffset() - timestamp,
-				trackId: sampleWithIndex.trackId,
+				duration,
+				cts: sampleWithIndex.samplePosition.cts,
+				dts: sampleWithIndex.samplePosition.dts,
+				trackId: sampleWithIndex.track.trackId,
 				type: sampleWithIndex.samplePosition.isKeyframe ? 'key' : 'delta',
 			});
 		}
