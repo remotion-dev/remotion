@@ -26,42 +26,52 @@ test('Stream samples', async () => {
 				{
 					offset: 1637,
 					size: 4834,
+					isKeyframe: true,
 				},
 				{
 					offset: 6471,
 					size: 437,
+					isKeyframe: false,
 				},
 				{
 					offset: 7868,
 					size: 698,
+					isKeyframe: false,
 				},
 				{
 					offset: 10486,
 					size: 595,
+					isKeyframe: false,
 				},
 				{
 					offset: 12041,
 					size: 548,
+					isKeyframe: false,
 				},
 				{
 					offset: 14509,
 					size: 611,
+					isKeyframe: false,
 				},
 				{
 					offset: 16080,
 					size: 701,
+					isKeyframe: false,
 				},
 				{
 					offset: 17741,
 					size: 535,
+					isKeyframe: false,
 				},
 				{
 					offset: 20196,
 					size: 776,
+					isKeyframe: false,
 				},
 				{
 					offset: 21932,
 					size: 586,
+					isKeyframe: false,
 				},
 			],
 			description,
@@ -76,62 +86,77 @@ test('Stream samples', async () => {
 				{
 					offset: 6908,
 					size: 960,
+					isKeyframe: true,
 				},
 				{
 					offset: 8566,
 					size: 960,
+					isKeyframe: true,
 				},
 				{
 					offset: 9526,
 					size: 960,
+					isKeyframe: true,
 				},
 				{
 					offset: 11081,
 					size: 960,
+					isKeyframe: true,
 				},
 				{
 					offset: 12589,
 					size: 960,
+					isKeyframe: true,
 				},
 				{
 					offset: 13549,
 					size: 960,
+					isKeyframe: true,
 				},
 				{
 					offset: 15120,
 					size: 960,
+					isKeyframe: true,
 				},
 				{
 					offset: 16781,
 					size: 960,
+					isKeyframe: true,
 				},
 				{
 					offset: 18276,
 					size: 960,
+					isKeyframe: true,
 				},
 				{
 					offset: 19236,
 					size: 960,
+					isKeyframe: true,
 				},
 				{
 					offset: 20972,
 					size: 960,
+					isKeyframe: true,
 				},
 				{
 					offset: 22518,
 					size: 960,
+					isKeyframe: true,
 				},
 				{
 					offset: 23478,
 					size: 960,
+					isKeyframe: true,
 				},
 				{
 					offset: 24438,
 					size: 960,
+					isKeyframe: true,
 				},
 				{
 					offset: 25398,
 					size: 960,
+					isKeyframe: true,
 				},
 			],
 			description: null,

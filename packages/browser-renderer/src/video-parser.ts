@@ -47,6 +47,15 @@ export const parseVideo = async (file: File) => {
 			durationInSeconds: true,
 		},
 		onVideoSample: (video) => {
+			const chunk = new EncodedVideoChunk({
+				type: video.type,
+				timestamp: video.timestamp,
+				duration: video.duration,
+				data: video.bytes,
+			});
+
+			decoder.decode(chunk);
+
 			console.log('video sample', video);
 		},
 	});

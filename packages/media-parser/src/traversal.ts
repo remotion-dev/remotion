@@ -4,6 +4,7 @@ import type {MvhdBox} from './boxes/iso-base-media/mvhd';
 import type {StcoBox} from './boxes/iso-base-media/stsd/stco';
 import type {StscBox} from './boxes/iso-base-media/stsd/stsc';
 import type {StsdBox} from './boxes/iso-base-media/stsd/stsd';
+import type {StssBox} from './boxes/iso-base-media/stsd/stss';
 import type {StszBox} from './boxes/iso-base-media/stsd/stsz';
 import type {TkhdBox} from './boxes/iso-base-media/tkhd';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
@@ -163,4 +164,18 @@ export const getStscBox = (trakBox: TrakBox): StscBox | null => {
 	) as StscBox | null;
 
 	return stcoBox;
+};
+
+export const getStssBox = (trakBox: TrakBox): StssBox | null => {
+	const stblBox = getStblBox(trakBox);
+
+	if (!stblBox || stblBox.type !== 'regular-box') {
+		return null;
+	}
+
+	const stssBox = stblBox.children.find(
+		(b) => b.type === 'stss-box',
+	) as StssBox | null;
+
+	return stssBox;
 };

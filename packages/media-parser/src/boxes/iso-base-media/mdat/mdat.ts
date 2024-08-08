@@ -11,16 +11,17 @@ export interface MdatBox {
 
 export type AudioSample = {
 	bytes: Uint8Array;
-	start: number;
+	timestamp: number;
 	offset: number;
 	trackId: number;
 };
 
 export type VideoSample = {
 	bytes: Uint8Array;
-	start: number;
-	offset: number;
+	timestamp: number;
+	duration: number;
 	trackId: number;
+	type: 'key' | 'delta';
 };
 
 export type OnAudioSample = (sample: AudioSample) => void;
@@ -79,18 +80,20 @@ export const parseMdat = ({
 		if (sampleWithIndex.type === 'audio' && options.onAudioSample) {
 			options.onAudioSample({
 				bytes,
-				start: sampleWithIndex.samplePosition.offset,
+				timestamp: sampleWithIndex.samplePosition.offset,
 				offset: data.counter.getOffset(),
 				trackId: sampleWithIndex.trackId,
 			});
 		}
 
 		if (sampleWithIndex.type === 'video' && options.onVideoSample) {
+			const timestamp = sampleWithIndex.samplePosition.offset;
 			options.onVideoSample({
 				bytes,
-				start: sampleWithIndex.samplePosition.offset,
-				offset: data.counter.getOffset(),
+				timestamp,
+				duration: data.counter.getOffset() - timestamp,
 				trackId: sampleWithIndex.trackId,
+				type: sampleWithIndex.samplePosition.isKeyframe ? 'key' : 'delta',
 			});
 		}
 

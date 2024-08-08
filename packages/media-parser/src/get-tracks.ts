@@ -9,6 +9,7 @@ import {
 	getMvhdBox,
 	getStcoBox,
 	getStscBox,
+	getStssBox,
 	getStszBox,
 	getTkhdBox,
 	getTraks,
@@ -73,6 +74,7 @@ export const getTracks = (
 		const stszBox = getStszBox(track);
 		const stcoBox = getStcoBox(track);
 		const stscBox = getStscBox(track);
+		const stssBox = getStssBox(track);
 		const tkhdBox = getTkhdBox(track);
 		const videoDescriptors = getVideoDescriptors(track);
 
@@ -96,6 +98,7 @@ export const getTracks = (
 			stcoBox,
 			stscBox,
 			stszBox,
+			stssBox,
 		});
 
 		if (trakBoxContainsAudio(track)) {

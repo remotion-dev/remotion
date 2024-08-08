@@ -19,6 +19,7 @@ import {parseMebx} from './stsd/mebx';
 import {parseStco} from './stsd/stco';
 import {parseStsc} from './stsd/stsc';
 import {parseStsd} from './stsd/stsd';
+import {parseStss} from './stsd/stss';
 import {parseStsz} from './stsd/stsz';
 import {parseStts} from './stts/stts';
 import {parseTkhd} from './tkhd';
@@ -206,6 +207,21 @@ const processBox = ({
 			iterator,
 			offset: fileOffset,
 			size: boxSize,
+		});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
+	if (boxType === 'stss') {
+		const box = parseStss({
+			iterator,
+			offset: fileOffset,
+			boxSize,
 		});
 
 		return {

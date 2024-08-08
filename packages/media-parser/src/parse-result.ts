@@ -11,6 +11,7 @@ import type {MebxBox} from './boxes/iso-base-media/stsd/mebx';
 import type {StcoBox} from './boxes/iso-base-media/stsd/stco';
 import type {StscBox} from './boxes/iso-base-media/stsd/stsc';
 import type {StsdBox} from './boxes/iso-base-media/stsd/stsd';
+import type {StssBox} from './boxes/iso-base-media/stsd/stss';
 import type {StszBox} from './boxes/iso-base-media/stsd/stsz';
 import type {SttsBox} from './boxes/iso-base-media/stts/stts';
 import type {TkhdBox} from './boxes/iso-base-media/tkhd';
@@ -45,7 +46,8 @@ export type IsoBaseMediaBox =
 	| StscBox
 	| AvccBox
 	| HvccBox
-	| VoidBox;
+	| VoidBox
+	| StssBox;
 
 export type AnySegment = MatroskaSegment | IsoBaseMediaBox;
 
