@@ -91,6 +91,24 @@ const readJson = async (jsonPath: string) => {
 
 export type TranscribeOnProgress = (progress: number) => void;
 
+// https://github.com/ggerganov/whisper.cpp/blob/fe36c909715e6751277ddb020e7892c7670b61d4/examples/main/main.cpp#L989-L999
+// https://github.com/remotion-dev/remotion/issues/4168
+export const modelToDtw = (model: WhisperModel): string => {
+	if (model === 'large-v3') {
+		return 'large.v3';
+	}
+
+	if (model === 'large-v2') {
+		return 'large.v2';
+	}
+
+	if (model === 'large-v1') {
+		return 'large.v1';
+	}
+
+	return model;
+};
+
 const transcribeToTemporaryFile = async ({
 	fileToTranscribe,
 	whisperPath,
@@ -140,7 +158,7 @@ const transcribeToTemporaryFile = async ({
 		'--output-json',
 		tokensPerItem ? ['--max-len', tokensPerItem] : null,
 		'-ojf', // Output full JSON
-		tokenLevelTimestamps ? ['--dtw', model] : null,
+		tokenLevelTimestamps ? ['--dtw', modelToDtw(model)] : null,
 		model ? [`-m`, `${modelPath}`] : null,
 		['-pp'], // print progress
 		translate ? '-tr' : null,
