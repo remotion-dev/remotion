@@ -15,6 +15,7 @@ import {
 	getStscBox,
 	getStssBox,
 	getStszBox,
+	getSttsBox,
 	getTkhdBox,
 	getTraks,
 	getVideoDescriptors,
@@ -80,6 +81,7 @@ export const getTracks = (
 		const stcoBox = getStcoBox(track);
 		const stscBox = getStscBox(track);
 		const stssBox = getStssBox(track);
+		const sttsBox = getSttsBox(track);
 		const tkhdBox = getTkhdBox(track);
 		const videoDescriptors = getVideoDescriptors(track);
 		const timescaleAndDuration = getTimescaleAndDuration(track);
@@ -100,6 +102,10 @@ export const getTracks = (
 			throw new Error('Expected stsc box in trak box');
 		}
 
+		if (!sttsBox) {
+			throw new Error('Expected stts box in trak box');
+		}
+
 		if (!timescaleAndDuration) {
 			throw new Error('Expected timescale and duration in trak box');
 		}
@@ -109,6 +115,7 @@ export const getTracks = (
 			stscBox,
 			stszBox,
 			stssBox,
+			sttsBox,
 		});
 
 		if (trakBoxContainsAudio(track)) {

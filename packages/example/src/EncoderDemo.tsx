@@ -1,4 +1,4 @@
-import {parseVideo, reEncodeVideo} from '@remotion/browser-renderer';
+import {parseVideo, reencodeVideo} from '@remotion/browser-renderer';
 import React from 'react';
 
 export const EncoderDemo: React.FC = () => {
@@ -10,7 +10,7 @@ export const EncoderDemo: React.FC = () => {
 			/>
 			<input
 				type="file"
-				onChange={(e) => reEncodeVideo(e.target.files?.[0] as File)}
+				onChange={(e) => reencodeVideo(e.target.files?.[0] as File)}
 			/>
 		</>
 	);
