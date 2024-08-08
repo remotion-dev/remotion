@@ -41,7 +41,11 @@ test('Should be able to parse a STSD audio box correctly', () => {
 		iterator,
 		offset: 0,
 		size: 159,
-		canSkipVideoData: true,
+		options: {
+			canSkipVideoData: true,
+			onAudioSample: null,
+			onVideoSample: null,
+		},
 	});
 
 	expect(parsed).toEqual({
@@ -182,7 +186,11 @@ test('Should be able to parse a STSD video box correctly', () => {
 
 	const parsed = processSample({
 		iterator: getArrayBufferIterator(buffer),
-		canSkipVideoData: true,
+		options: {
+			canSkipVideoData: true,
+			onAudioSample: null,
+			onVideoSample: null,
+		},
 	});
 	expect(parsed.sample).toEqual({
 		size: 158,

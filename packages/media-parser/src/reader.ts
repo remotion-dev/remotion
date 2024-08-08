@@ -3,10 +3,10 @@ type ReadResult = {
 	contentLength: number | null;
 };
 type ReadContent = (
-	src: string,
+	src: string | File,
 	range: [number, number] | number | null,
 ) => Promise<ReadResult>;
-type GetLength = (src: string) => Promise<number>;
+type GetLength = (src: string | File) => Promise<number>;
 
 export type ReaderInterface = {
 	read: ReadContent;

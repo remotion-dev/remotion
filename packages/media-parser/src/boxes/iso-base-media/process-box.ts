@@ -5,6 +5,7 @@ import type {
 	ParseResult,
 } from '../../parse-result';
 import type {BoxAndNext} from '../../parse-video';
+import type {ParserContext} from '../../parser-context';
 import {parseEsds} from './esds/esds';
 import {parseFtyp} from './ftyp';
 import {parseMdat} from './mdat/mdat';
@@ -24,12 +25,12 @@ const getChildren = ({
 	boxType,
 	iterator,
 	bytesRemainingInBox,
-	canSkipVideoData,
+	options,
 }: {
 	boxType: string;
 	iterator: BufferIterator;
 	bytesRemainingInBox: number;
-	canSkipVideoData: boolean;
+	options: ParserContext;
 }) => {
 	const parseChildren =
 		boxType === 'mdia' ||
@@ -45,7 +46,7 @@ const getChildren = ({
 			maxBytes: bytesRemainingInBox,
 			allowIncompleteBoxes: false,
 			initialBoxes: [],
-			canSkipVideoData,
+			options,
 		});
 
 		if (parsed.status === 'incomplete') {
@@ -66,13 +67,13 @@ const getChildren = ({
 const processBox = ({
 	iterator,
 	allowIncompleteBoxes,
-	canSkipVideoData,
 	parsedBoxes,
+	options,
 }: {
 	iterator: BufferIterator;
 	allowIncompleteBoxes: boolean;
-	canSkipVideoData: boolean;
 	parsedBoxes: AnySegment[];
+	options: ParserContext;
 }): BoxAndNext => {
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
@@ -87,7 +88,7 @@ const processBox = ({
 			const type = iterator.getByteString(4);
 			iterator.counter.decrement(4);
 
-			if (type === 'mdat' && canSkipVideoData) {
+			if (type === 'mdat' && options.canSkipVideoData) {
 				const skipTo = fileOffset + boxSize;
 				const bytesToSkip = skipTo - iterator.counter.getOffset();
 
@@ -160,7 +161,7 @@ const processBox = ({
 			iterator,
 			offset: fileOffset,
 			size: boxSize,
-			canSkipVideoData,
+			options,
 		});
 
 		return {
@@ -221,7 +222,7 @@ const processBox = ({
 			iterator,
 			offset: fileOffset,
 			size: boxSize,
-			canSkipVideoData,
+			options,
 		});
 
 		return {
@@ -233,7 +234,12 @@ const processBox = ({
 	}
 
 	if (boxType === 'moov') {
-		const box = parseMoov({iterator, offset: fileOffset, size: boxSize});
+		const box = parseMoov({
+			iterator,
+			offset: fileOffset,
+			size: boxSize,
+			options,
+		});
 
 		return {
 			type: 'complete',
@@ -248,7 +254,7 @@ const processBox = ({
 			data: iterator,
 			size: boxSize,
 			offsetAtStart: fileOffset,
-			canSkipVideoData,
+			options,
 		});
 
 		return {
@@ -310,6 +316,7 @@ const processBox = ({
 			size: boxSize,
 			fileOffset,
 			existingBoxes: parsedBoxes,
+			options,
 		});
 
 		return {
@@ -327,7 +334,7 @@ const processBox = ({
 		boxType,
 		iterator,
 		bytesRemainingInBox,
-		canSkipVideoData,
+		options,
 	});
 
 	return {
@@ -349,13 +356,13 @@ export const parseBoxes = ({
 	maxBytes,
 	allowIncompleteBoxes,
 	initialBoxes,
-	canSkipVideoData,
+	options,
 }: {
 	iterator: BufferIterator;
 	maxBytes: number;
 	allowIncompleteBoxes: boolean;
 	initialBoxes: IsoBaseMediaBox[];
-	canSkipVideoData: boolean;
+	options: ParserContext;
 }): ParseResult => {
 	const boxes: IsoBaseMediaBox[] = initialBoxes;
 	const initialOffset = iterator.counter.getOffset();
@@ -367,8 +374,8 @@ export const parseBoxes = ({
 		const result = processBox({
 			iterator,
 			allowIncompleteBoxes,
-			canSkipVideoData,
 			parsedBoxes: initialBoxes,
+			options,
 		});
 		if (result.type === 'incomplete') {
 			if (Number.isFinite(maxBytes)) {
@@ -384,7 +391,7 @@ export const parseBoxes = ({
 						maxBytes,
 						allowIncompleteBoxes,
 						initialBoxes: boxes,
-						canSkipVideoData,
+						options,
 					});
 				},
 				skipTo: null,
@@ -403,7 +410,7 @@ export const parseBoxes = ({
 						maxBytes,
 						allowIncompleteBoxes,
 						initialBoxes: boxes,
-						canSkipVideoData,
+						options,
 					});
 				},
 				skipTo: result.skipTo,

@@ -2,6 +2,7 @@ import {parseBoxes} from './boxes/iso-base-media/process-box';
 import {parseWebm} from './boxes/webm/parse-webm-header';
 import type {BufferIterator} from './buffer-iterator';
 import type {IsoBaseMediaBox, ParseResult} from './parse-result';
+import type {ParserContext} from './parser-context';
 
 export type BoxAndNext =
 	| {
@@ -14,16 +15,22 @@ export type BoxAndNext =
 			type: 'incomplete';
 	  };
 
-export const parseVideo = (
-	iterator: BufferIterator,
-	canSkipVideoData: boolean,
-): ParseResult => {
+export const parseVideo = ({
+	iterator,
+	options,
+}: {
+	iterator: BufferIterator;
+	options: ParserContext;
+}): ParseResult => {
 	if (iterator.bytesRemaining() === 0) {
 		return {
 			status: 'incomplete',
 			segments: [],
 			continueParsing: () => {
-				return parseVideo(iterator, canSkipVideoData);
+				return parseVideo({
+					iterator,
+					options,
+				});
 			},
 			skipTo: null,
 		};
@@ -35,7 +42,7 @@ export const parseVideo = (
 			maxBytes: Infinity,
 			allowIncompleteBoxes: true,
 			initialBoxes: [],
-			canSkipVideoData,
+			options,
 		});
 	}
 

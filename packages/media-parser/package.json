@@ -24,12 +24,16 @@
 	"exports": {
 		".": "./dist/index.js",
 		"./node": "./dist/from-node.js",
+		"./web-file": "./dist/from-web-file.js",
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
 		">=1.0": {
 			"node": [
 				"dist/from-node.d.ts"
+			],
+			"web-file": [
+				"dist/from-web-file.d.ts"
 			]
 		}
 	},

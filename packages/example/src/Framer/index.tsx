@@ -1,4 +1,3 @@
-import {reEncodeVideo} from '@remotion/browser-renderer';
 import {Audio, Sequence, random, staticFile, useCurrentFrame} from 'remotion';
 
 export function selectColor(color: string, frame: number): number {
@@ -26,10 +25,6 @@ export const Framer: React.FC<{
 				paddingBottom: 100,
 			}}
 		>
-			<input
-				type="file"
-				onChange={(e) => reEncodeVideo(e.target.files?.[0] as File)}
-			/>
 			<h1 style={{fontSize: 120}}>{frame} 😁</h1>
 			<Sequence from={30}>
 				<Audio

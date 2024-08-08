@@ -15,6 +15,8 @@ export const parseMedia: ParseMedia = async ({
 	src,
 	fields,
 	readerInterface = webReader,
+	onAudioSample,
+	onVideoSample,
 }) => {
 	const {reader, contentLength} = await readerInterface.read(src, null);
 	let currentReader = reader;
@@ -42,7 +44,14 @@ export const parseMedia: ParseMedia = async ({
 		if (parseResult) {
 			parseResult = parseResult.continueParsing();
 		} else {
-			parseResult = parseVideo(iterator, Boolean(fields.samples));
+			parseResult = parseVideo({
+				iterator,
+				options: {
+					canSkipVideoData: Boolean(fields.samples),
+					onAudioSample: onAudioSample ?? null,
+					onVideoSample: onVideoSample ?? null,
+				},
+			});
 		}
 
 		if (hasAllInfo(fields, parseResult)) {

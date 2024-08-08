@@ -5,6 +5,10 @@ import type {ReaderInterface} from './reader';
 
 export const nodeReader: ReaderInterface = {
 	read: async (src, range) => {
+		if (typeof src !== 'string') {
+			throw new Error('src must be a string when using `nodeReader`');
+		}
+
 		const stream = createReadStream(src, {
 			start: range === null ? 0 : typeof range === 'number' ? range : range[0],
 			end:
@@ -23,6 +27,10 @@ export const nodeReader: ReaderInterface = {
 		};
 	},
 	getLength: async (src) => {
+		if (typeof src !== 'string') {
+			throw new Error('src must be a string when using `nodeReader`');
+		}
+
 		const stats = await stat(src);
 		return stats.size;
 	},

@@ -1,3 +1,7 @@
+import type {
+	OnAudioSample,
+	OnVideoSample,
+} from './boxes/iso-base-media/mdat/mdat';
 import type {Dimensions} from './get-dimensions';
 import type {AnySegment} from './parse-result';
 import type {ReaderInterface} from './reader';
@@ -61,7 +65,7 @@ export type ParseMedia = <
 	EnableAudioCodec extends boolean,
 	EnableSamples extends boolean,
 >(options: {
-	src: string;
+	src: string | File;
 	fields: Options<
 		EnableDimensions,
 		EnableDuration,
@@ -72,6 +76,8 @@ export type ParseMedia = <
 		EnableSamples
 	>;
 	readerInterface?: ReaderInterface;
+	onAudioSample?: OnAudioSample;
+	onVideoSample?: OnVideoSample;
 }) => Promise<
 	Metadata<
 		EnableDimensions,

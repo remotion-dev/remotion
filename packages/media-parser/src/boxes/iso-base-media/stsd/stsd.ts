@@ -1,4 +1,5 @@
 import type {BufferIterator} from '../../../buffer-iterator';
+import type {ParserContext} from '../../../parser-context';
 import type {BaseBox} from '../base-type';
 import type {Sample} from './samples';
 import {parseSamples} from './samples';
@@ -13,12 +14,12 @@ export const parseStsd = ({
 	iterator,
 	offset,
 	size,
-	canSkipVideoData,
+	options,
 }: {
 	iterator: BufferIterator;
 	offset: number;
 	size: number;
-	canSkipVideoData: boolean;
+	options: ParserContext;
 }): StsdBox => {
 	const version = iterator.getUint8();
 	if (version !== 0) {
@@ -32,7 +33,11 @@ export const parseStsd = ({
 
 	const bytesRemainingInBox = size - (iterator.counter.getOffset() - offset);
 
-	const boxes = parseSamples(iterator, bytesRemainingInBox, canSkipVideoData);
+	const boxes = parseSamples({
+		iterator,
+		maxBytes: bytesRemainingInBox,
+		options,
+	});
 
 	if (boxes.length !== numberOfEntries) {
 		throw new Error(

@@ -1,5 +1,6 @@
 import type {BufferIterator} from '../../../buffer-iterator';
 import type {AnySegment} from '../../../parse-result';
+import type {ParserContext} from '../../../parser-context';
 import type {BaseBox} from '../base-type';
 import {parseBoxes} from '../process-box';
 
@@ -12,17 +13,19 @@ export const parseMoov = ({
 	iterator,
 	offset,
 	size,
+	options,
 }: {
 	iterator: BufferIterator;
 	offset: number;
 	size: number;
+	options: ParserContext;
 }): MoovBox => {
 	const children = parseBoxes({
 		iterator,
 		maxBytes: size - (iterator.counter.getOffset() - offset),
 		allowIncompleteBoxes: false,
 		initialBoxes: [],
-		canSkipVideoData: true,
+		options,
 	});
 
 	if (children.status === 'incomplete') {

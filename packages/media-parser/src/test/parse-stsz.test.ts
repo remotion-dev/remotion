@@ -25,8 +25,8 @@ test('parse stsz box 1', () => {
 		version: 0,
 		flags: [0, 0, 0],
 		sampleCount: 10,
-		sampleSize: 0,
-		samples: [4834, 437, 698, 595, 548, 611, 701, 535, 776, 586],
+		countType: 'variable',
+		entries: [4834, 437, 698, 595, 548, 611, 701, 535, 776, 586],
 	});
 });
 
@@ -52,6 +52,6 @@ test('parse stsz box 2', () => {
 		flags: [0, 0, 0],
 		sampleCount: 15,
 		sampleSize: 960,
-		samples: [],
+		countType: 'fixed',
 	});
 });

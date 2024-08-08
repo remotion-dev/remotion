@@ -1,5 +1,6 @@
 import type {BufferIterator} from '../../../buffer-iterator';
 import type {AnySegment} from '../../../parse-result';
+import type {ParserContext} from '../../../parser-context';
 import {parseBoxes} from '../process-box';
 
 type SampleBase = {
@@ -113,10 +114,10 @@ const audioTags = [
 
 export const processSample = ({
 	iterator,
-	canSkipVideoData,
+	options,
 }: {
 	iterator: BufferIterator;
-	canSkipVideoData: boolean;
+	options: ParserContext;
 }): SampleAndNext => {
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
@@ -174,7 +175,7 @@ export const processSample = ({
 				allowIncompleteBoxes: false,
 				maxBytes: bytesRemainingInBox,
 				initialBoxes: [],
-				canSkipVideoData,
+				options,
 			});
 
 			if (children.status === 'incomplete') {
@@ -226,7 +227,7 @@ export const processSample = ({
 				allowIncompleteBoxes: false,
 				maxBytes: bytesRemainingInBox,
 				initialBoxes: [],
-				canSkipVideoData,
+				options,
 			});
 
 			if (children.status === 'incomplete') {
@@ -306,11 +307,15 @@ export const processSample = ({
 	throw new Error(`Unknown sample format ${boxFormat}`);
 };
 
-export const parseSamples = (
-	iterator: BufferIterator,
-	maxBytes: number,
-	canSkipVideoData: boolean,
-): Sample[] => {
+export const parseSamples = ({
+	iterator,
+	maxBytes,
+	options,
+}: {
+	iterator: BufferIterator;
+	maxBytes: number;
+	options: ParserContext;
+}): Sample[] => {
 	const samples: Sample[] = [];
 	const initialOffset = iterator.counter.getOffset();
 
@@ -320,7 +325,7 @@ export const parseSamples = (
 	) {
 		const {sample} = processSample({
 			iterator,
-			canSkipVideoData,
+			options,
 		});
 
 		if (sample) {
