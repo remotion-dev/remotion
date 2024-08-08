@@ -1,7 +1,6 @@
 {
 	"name": "@remotion/browser-renderer",
-	"version": "4.0.123",
-	"description": "Render client-side with ",
+	"version": "4.0.194",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"repository": {
@@ -31,7 +30,5 @@
 		"@types/dom-webcodecs": "0.1.11"
 	},
 	"keywords": [],
-	"publishConfig": {
-		"access": "public"
-	}
+	"private": true
 }
