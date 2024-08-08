@@ -1,0 +1,25 @@
+.row {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	margin-top: 40px;
+}
+
+.action {
+	flex: 1;
+	text-wrap: balance;
+}
+
+.action-title {
+	font-family: 'GT Planar';
+}
+
+@media screen and (max-width: 900px) {
+	.row {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+	.action {
+		margin-top: 20px;
+	}
+}

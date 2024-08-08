@@ -14,6 +14,7 @@ import {LightningFastEditor} from '../../components/LandingPage/editor';
 import {IfYouKnowReact} from '../../components/LandingPage/if-you-know-react';
 import {Parametrize} from '../../components/LandingPage/parametrize';
 import {RealMP4Videos} from '../../components/LandingPage/real-mp4-videos';
+import {Demo} from '../components/Demo/Demo';
 import styles from './landing.module.css';
 
 const NewLanding: React.FC = () => {
@@ -41,6 +42,8 @@ const NewLanding: React.FC = () => {
 					<IfYouKnowReact />
 					<br />
 					<br />
+
+					<Demo />
 					<br />
 					<br />
 					<br />
