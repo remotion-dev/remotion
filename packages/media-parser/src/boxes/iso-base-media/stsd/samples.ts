@@ -40,6 +40,7 @@ type VideoSample = SampleBase & {
 	frameCountPerSample: number;
 	depth: number;
 	colorTableId: number;
+	descriptors: AnySegment[];
 };
 
 type UnknownSample = SampleBase & {
@@ -277,7 +278,17 @@ export const processSample = ({
 		const bytesRemainingInBox =
 			boxSize - (iterator.counter.getOffset() - fileOffset);
 
-		iterator.discard(bytesRemainingInBox);
+		const children = parseBoxes({
+			iterator,
+			allowIncompleteBoxes: false,
+			maxBytes: bytesRemainingInBox,
+			initialBoxes: [],
+			options,
+		});
+
+		if (children.status === 'incomplete') {
+			throw new Error('Incomplete boxes are not allowed');
+		}
 
 		return {
 			sample: {
@@ -300,6 +311,7 @@ export const processSample = ({
 				compressorName,
 				depth,
 				colorTableId,
+				descriptors: children.segments,
 			},
 		};
 	}

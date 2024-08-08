@@ -6,6 +6,7 @@ import type {
 } from '../../parse-result';
 import type {BoxAndNext} from '../../parse-video';
 import type {ParserContext} from '../../parser-context';
+import {parseAvcc, parseHvcc} from './avcc';
 import {parseEsds} from './esds/esds';
 import {parseFtyp} from './ftyp';
 import {parseMdat} from './mdat/mdat';
@@ -270,6 +271,34 @@ const processBox = ({
 			data: iterator,
 			size: boxSize,
 			fileOffset,
+		});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
+	if (boxType === 'avcC') {
+		const box = parseAvcc({
+			data: iterator,
+			size: boxSize,
+		});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
+	if (boxType === 'hvcC') {
+		const box = parseHvcc({
+			data: iterator,
+			size: boxSize,
 		});
 
 		return {

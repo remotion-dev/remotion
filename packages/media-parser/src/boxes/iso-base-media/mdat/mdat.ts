@@ -62,9 +62,11 @@ export const parseMdat = ({
 			throw new Error('Could not find sample');
 		}
 
+		const bytes = data.getSlice(sampleWithIndex.samplePosition.size);
+
 		if (sampleWithIndex.type === 'audio' && options.onAudioSample) {
 			options.onAudioSample({
-				bytes: data.getSlice(sampleWithIndex.samplePosition.size),
+				bytes,
 				start: sampleWithIndex.samplePosition.offset,
 				offset: data.counter.getOffset(),
 				trackId: sampleWithIndex.trackId,
@@ -72,7 +74,6 @@ export const parseMdat = ({
 		}
 
 		if (sampleWithIndex.type === 'video' && options.onVideoSample) {
-			const bytes = data.getSlice(sampleWithIndex.samplePosition.size);
 			options.onVideoSample({
 				bytes,
 				start: sampleWithIndex.samplePosition.offset,

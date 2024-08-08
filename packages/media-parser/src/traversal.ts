@@ -91,6 +91,28 @@ export const getStsdBox = (trakBox: TrakBox): StsdBox | null => {
 	return stsdBox;
 };
 
+export const getVideoDescriptors = (trakBox: TrakBox): Uint8Array | null => {
+	const stsdBox = getStsdBox(trakBox);
+
+	if (!stsdBox) {
+		return null;
+	}
+
+	const descriptors = stsdBox.samples.map((s) => {
+		return s.type === 'video'
+			? s.descriptors.map((d) => {
+					return d.type === 'avcc-box'
+						? d.data
+						: d.type === 'hvcc-box'
+							? d.data
+							: null;
+				})
+			: [];
+	});
+
+	return descriptors.flat(1).filter(Boolean)[0] ?? null;
+};
+
 export const getStcoBox = (trakBox: TrakBox): StcoBox | null => {
 	const stblBox = getStblBox(trakBox);
 

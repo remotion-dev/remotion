@@ -1,3 +1,4 @@
+import type {AvccBox, HvccBox} from './boxes/iso-base-media/avcc';
 import type {BaseBox} from './boxes/iso-base-media/base-type';
 import type {EsdsBox} from './boxes/iso-base-media/esds/esds';
 import type {FtypBox} from './boxes/iso-base-media/ftyp';
@@ -40,7 +41,9 @@ export type IsoBaseMediaBox =
 	| MdatBox
 	| StszBox
 	| StcoBox
-	| StscBox;
+	| StscBox
+	| AvccBox
+	| HvccBox;
 
 export type AnySegment = MatroskaSegment | IsoBaseMediaBox;
 

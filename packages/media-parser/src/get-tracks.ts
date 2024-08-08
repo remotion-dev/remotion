@@ -10,12 +10,14 @@ import {
 	getStszBox,
 	getTkhdBox,
 	getTraks,
+	getVideoDescriptors,
 } from './traversal';
 
 type Track = {
 	type: 'audio' | 'video';
 	samplePositions: SamplePosition[];
 	trackId: number;
+	description: Uint8Array | null;
 };
 
 // TODO: Use this to determine if all tracks are present
@@ -47,6 +49,7 @@ export const getTracks = (segments: AnySegment[]): Track[] => {
 		const stcoBox = getStcoBox(track);
 		const stscBox = getStscBox(track);
 		const tkhdBox = getTkhdBox(track);
+		const videoDescriptors = getVideoDescriptors(track);
 
 		if (!tkhdBox) {
 			throw new Error('Expected tkhd box in trak box');
@@ -75,6 +78,7 @@ export const getTracks = (segments: AnySegment[]): Track[] => {
 				type: 'audio',
 				samplePositions,
 				trackId: tkhdBox.trackId,
+				description: null,
 			});
 		}
 
@@ -83,6 +87,7 @@ export const getTracks = (segments: AnySegment[]): Track[] => {
 				type: 'video',
 				samplePositions,
 				trackId: tkhdBox.trackId,
+				description: videoDescriptors,
 			});
 		}
 	}

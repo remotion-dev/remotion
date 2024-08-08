@@ -1,0 +1,633 @@
+[
+  {
+    "type": "ftyp-box",
+    "majorBrand": "isom",
+    "minorVersion": 512,
+    "compatibleBrands": [
+      "isom",
+      "iso2",
+      "avc1",
+      "mp41"
+    ],
+    "offset": 0,
+    "boxSize": 32
+  },
+  {
+    "offset": 32,
+    "boxSize": 1589,
+    "type": "moov-box",
+    "children": [
+      {
+        "creationTime": null,
+        "modificationTime": null,
+        "timeScale": 1000,
+        "durationInUnits": 337,
+        "durationInSeconds": 0.337,
+        "rate": 1,
+        "volume": 1,
+        "matrix": [
+          65536,
+          0,
+          0,
+          0,
+          65536,
+          0,
+          0,
+          0,
+          1073741824
+        ],
+        "nextTrackId": 3,
+        "type": "mvhd-box",
+        "boxSize": 108,
+        "offset": 40
+      },
+      {
+        "offset": 148,
+        "boxSize": 712,
+        "type": "trak-box",
+        "children": [
+          {
+            "offset": 156,
+            "boxSize": 92,
+            "type": "tkhd-box",
+            "creationTime": null,
+            "modificationTime": null,
+            "trackId": 1,
+            "duration": 334,
+            "layer": 0,
+            "alternateGroup": 0,
+            "volume": 0,
+            "matrix": [
+              65536,
+              0,
+              0,
+              0,
+              65536,
+              0,
+              0,
+              0,
+              1073741824
+            ],
+            "width": 1080,
+            "height": 1080,
+            "version": 0
+          },
+          {
+            "type": "regular-box",
+            "boxType": "edts",
+            "boxSize": 36,
+            "children": [],
+            "offset": 248
+          },
+          {
+            "type": "regular-box",
+            "boxType": "mdia",
+            "boxSize": 576,
+            "children": [
+              {
+                "type": "mdhd-box",
+                "duration": 5120,
+                "timescale": 15360,
+                "version": 0,
+                "language": 21956,
+                "quality": 0
+              },
+              {
+                "type": "regular-box",
+                "boxType": "hdlr",
+                "boxSize": 45,
+                "children": [],
+                "offset": 324
+              },
+              {
+                "type": "regular-box",
+                "boxType": "minf",
+                "boxSize": 491,
+                "children": [
+                  {
+                    "type": "regular-box",
+                    "boxType": "vmhd",
+                    "boxSize": 20,
+                    "children": [],
+                    "offset": 377
+                  },
+                  {
+                    "type": "regular-box",
+                    "boxType": "dinf",
+                    "boxSize": 36,
+                    "children": [],
+                    "offset": 397
+                  },
+                  {
+                    "type": "regular-box",
+                    "boxType": "stbl",
+                    "boxSize": 427,
+                    "children": [
+                      {
+                        "type": "stsd-box",
+                        "boxSize": 199,
+                        "offset": 441,
+                        "numberOfEntries": 1,
+                        "samples": [
+                          {
+                            "format": "avc1",
+                            "offset": 457,
+                            "dataReferenceIndex": 1,
+                            "version": 0,
+                            "revisionLevel": 0,
+                            "vendor": [
+                              0,
+                              0,
+                              0,
+                              0
+                            ],
+                            "size": 183,
+                            "type": "video",
+                            "width": 1080,
+                            "height": 1080,
+                            "horizontalResolutionPpi": 72,
+                            "verticalResolutionPpi": 72,
+                            "spacialQuality": 0,
+                            "temporalQuality": 0,
+                            "dataSize": 0,
+                            "frameCountPerSample": 1,
+                            "compressorName": [
+                              21,
+                              76,
+                              97,
+                              118,
+                              99,
+                              54,
+                              48,
+                              46,
+                              51,
+                              49,
+                              46,
+                              49,
+                              48,
+                              50,
+                              32,
+                              108,
+                              105,
+                              98,
+                              120,
+                              50,
+                              54,
+                              52,
+                              0,
+                              0,
+                              0,
+                              0,
+                              0,
+                              0,
+                              0,
+                              0,
+                              0,
+                              0
+                            ],
+                            "depth": 24,
+                            "colorTableId": -1,
+                            "descriptors": [
+                              {
+                                "type": "avcc-box",
+                                "data": {
+                                  "0": 1,
+                                  "1": 100,
+                                  "2": 0,
+                                  "3": 32,
+                                  "4": 255,
+                                  "5": 225,
+                                  "6": 0,
+                                  "7": 32,
+                                  "8": 103,
+                                  "9": 100,
+                                  "10": 0,
+                                  "11": 32,
+                                  "12": 172,
+                                  "13": 217,
+                                  "14": 64,
+                                  "15": 68,
+                                  "16": 2,
+                                  "17": 39,
+                                  "18": 150,
+                                  "19": 92,
+                                  "20": 5,
+                                  "21": 168,
+                                  "22": 16,
+                                  "23": 16,
+                                  "24": 45,
+                                  "25": 40,
+                                  "26": 0,
+                                  "27": 0,
+                                  "28": 3,
+                                  "29": 0,
+                                  "30": 8,
+                                  "31": 0,
+                                  "32": 0,
+                                  "33": 3,
+                                  "34": 1,
+                                  "35": 224,
+                                  "36": 120,
+                                  "37": 193,
+                                  "38": 140,
+                                  "39": 176,
+                                  "40": 1,
+                                  "41": 0,
+                                  "42": 6,
+                                  "43": 104,
+                                  "44": 235,
+                                  "45": 224,
+                                  "46": 140,
+                                  "47": 178,
+                                  "48": 44,
+                                  "49": 253,
+                                  "50": 248,
+                                  "51": 248,
+                                  "52": 0
+                                }
+                              },
+                              {
+                                "type": "regular-box",
+                                "boxType": "pasp",
+                                "boxSize": 16,
+                                "children": [],
+                                "offset": 604
+                              },
+                              {
+                                "type": "regular-box",
+                                "boxType": "btrt",
+                                "boxSize": 20,
+                                "children": [],
+                                "offset": 620
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "stts-box",
+                        "sampleDistribution": [
+                          {
+                            "sampleCount": 10,
+                            "sampleDelta": 512
+                          }
+                        ]
+                      },
+                      {
+                        "type": "regular-box",
+                        "boxType": "stss",
+                        "boxSize": 20,
+                        "children": [],
+                        "offset": 664
+                      },
+                      {
+                        "type": "regular-box",
+                        "boxType": "ctts",
+                        "boxSize": 24,
+                        "children": [],
+                        "offset": 684
+                      },
+                      {
+                        "type": "stsc-box",
+                        "boxSize": 40,
+                        "offset": 708,
+                        "version": 0,
+                        "flags": [
+                          0,
+                          0,
+                          0
+                        ],
+                        "entryCount": 2,
+                        "entries": [
+                          {
+                            "firstChunk": 1,
+                            "samplesPerChunk": 2
+                          },
+                          {
+                            "firstChunk": 2,
+                            "samplesPerChunk": 1
+                          }
+                        ]
+                      },
+                      {
+                        "type": "stsz-box",
+                        "boxSize": 60,
+                        "offset": 748,
+                        "version": 0,
+                        "flags": [
+                          0,
+                          0,
+                          0
+                        ],
+                        "sampleCount": 10,
+                        "countType": "variable",
+                        "entries": [
+                          4834,
+                          437,
+                          698,
+                          595,
+                          548,
+                          611,
+                          701,
+                          535,
+                          776,
+                          586
+                        ]
+                      },
+                      {
+                        "type": "stco-box",
+                        "boxSize": 52,
+                        "offset": 808,
+                        "version": 0,
+                        "flags": [
+                          0,
+                          0,
+                          0
+                        ],
+                        "entries": [
+                          1637,
+                          7868,
+                          10486,
+                          12041,
+                          14509,
+                          16080,
+                          17741,
+                          20196,
+                          21932
+                        ],
+                        "entryCount": 9
+                      }
+                    ],
+                    "offset": 433
+                  }
+                ],
+                "offset": 369
+              }
+            ],
+            "offset": 284
+          }
+        ]
+      },
+      {
+        "offset": 860,
+        "boxSize": 613,
+        "type": "trak-box",
+        "children": [
+          {
+            "offset": 868,
+            "boxSize": 92,
+            "type": "tkhd-box",
+            "creationTime": null,
+            "modificationTime": null,
+            "trackId": 2,
+            "duration": 337,
+            "layer": 0,
+            "alternateGroup": 1,
+            "volume": 256,
+            "matrix": [
+              65536,
+              0,
+              0,
+              0,
+              65536,
+              0,
+              0,
+              0,
+              1073741824
+            ],
+            "width": 0,
+            "height": 0,
+            "version": 0
+          },
+          {
+            "type": "regular-box",
+            "boxType": "edts",
+            "boxSize": 36,
+            "children": [],
+            "offset": 960
+          },
+          {
+            "type": "regular-box",
+            "boxType": "mdia",
+            "boxSize": 477,
+            "children": [
+              {
+                "type": "mdhd-box",
+                "duration": 17280,
+                "timescale": 48000,
+                "version": 0,
+                "language": 21956,
+                "quality": 0
+              },
+              {
+                "type": "regular-box",
+                "boxType": "hdlr",
+                "boxSize": 45,
+                "children": [],
+                "offset": 1036
+              },
+              {
+                "type": "regular-box",
+                "boxType": "minf",
+                "boxSize": 392,
+                "children": [
+                  {
+                    "type": "regular-box",
+                    "boxType": "smhd",
+                    "boxSize": 16,
+                    "children": [],
+                    "offset": 1089
+                  },
+                  {
+                    "type": "regular-box",
+                    "boxType": "dinf",
+                    "boxSize": 36,
+                    "children": [],
+                    "offset": 1105
+                  },
+                  {
+                    "type": "regular-box",
+                    "boxType": "stbl",
+                    "boxSize": 332,
+                    "children": [
+                      {
+                        "type": "stsd-box",
+                        "boxSize": 116,
+                        "offset": 1149,
+                        "numberOfEntries": 1,
+                        "samples": [
+                          {
+                            "format": "mp4a",
+                            "offset": 1165,
+                            "dataReferenceIndex": 1,
+                            "version": 0,
+                            "revisionLevel": 0,
+                            "vendor": [
+                              0,
+                              0,
+                              0,
+                              0
+                            ],
+                            "size": 100,
+                            "type": "audio",
+                            "numberOfChannels": 2,
+                            "sampleSize": 16,
+                            "compressionId": 0,
+                            "packetSize": 0,
+                            "sampleRate": 48000,
+                            "samplesPerPacket": null,
+                            "bytesPerPacket": null,
+                            "bytesPerFrame": null,
+                            "bitsPerSample": null,
+                            "children": [
+                              {
+                                "type": "esds-box",
+                                "version": 0,
+                                "tag": 3,
+                                "sizeOfInstance": 27,
+                                "esId": 2,
+                                "descriptors": [
+                                  {
+                                    "type": "decoder-config-descriptor",
+                                    "objectTypeIndication": "mp3"
+                                  },
+                                  {
+                                    "type": "sl-config-descriptor"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "regular-box",
+                                "boxType": "btrt",
+                                "boxSize": 20,
+                                "children": [],
+                                "offset": 1245
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "stts-box",
+                        "sampleDistribution": [
+                          {
+                            "sampleCount": 15,
+                            "sampleDelta": 1152
+                          }
+                        ]
+                      },
+                      {
+                        "type": "stsc-box",
+                        "boxSize": 112,
+                        "offset": 1289,
+                        "version": 0,
+                        "flags": [
+                          0,
+                          0,
+                          0
+                        ],
+                        "entryCount": 8,
+                        "entries": [
+                          {
+                            "firstChunk": 1,
+                            "samplesPerChunk": 1
+                          },
+                          {
+                            "firstChunk": 2,
+                            "samplesPerChunk": 2
+                          },
+                          {
+                            "firstChunk": 3,
+                            "samplesPerChunk": 1
+                          },
+                          {
+                            "firstChunk": 4,
+                            "samplesPerChunk": 2
+                          },
+                          {
+                            "firstChunk": 5,
+                            "samplesPerChunk": 1
+                          },
+                          {
+                            "firstChunk": 7,
+                            "samplesPerChunk": 2
+                          },
+                          {
+                            "firstChunk": 8,
+                            "samplesPerChunk": 1
+                          },
+                          {
+                            "firstChunk": 9,
+                            "samplesPerChunk": 4
+                          }
+                        ]
+                      },
+                      {
+                        "type": "stsz-box",
+                        "boxSize": 20,
+                        "offset": 1401,
+                        "version": 0,
+                        "flags": [
+                          0,
+                          0,
+                          0
+                        ],
+                        "sampleCount": 15,
+                        "countType": "fixed",
+                        "sampleSize": 960
+                      },
+                      {
+                        "type": "stco-box",
+                        "boxSize": 52,
+                        "offset": 1421,
+                        "version": 0,
+                        "flags": [
+                          0,
+                          0,
+                          0
+                        ],
+                        "entries": [
+                          6908,
+                          8566,
+                          11081,
+                          12589,
+                          15120,
+                          16781,
+                          18276,
+                          20972,
+                          22518
+                        ],
+                        "entryCount": 9
+                      }
+                    ],
+                    "offset": 1141
+                  }
+                ],
+                "offset": 1081
+              }
+            ],
+            "offset": 996
+          }
+        ]
+      },
+      {
+        "type": "regular-box",
+        "boxType": "udta",
+        "boxSize": 148,
+        "children": [],
+        "offset": 1473
+      }
+    ]
+  },
+  {
+    "type": "regular-box",
+    "boxType": "free",
+    "boxSize": 8,
+    "children": [],
+    "offset": 1621
+  },
+  {
+    "type": "mdat-box",
+    "boxSize": 24729
+  }
+]
