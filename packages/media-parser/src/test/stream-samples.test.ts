@@ -1,14 +1,13 @@
 import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
 import {nodeReader} from '../from-node';
-import {getTracks} from '../get-tracks';
 import {parseMedia} from '../parse-media';
 
 test('Stream samples', async () => {
-	const {boxes} = await parseMedia({
+	const {tracks} = await parseMedia({
 		src: RenderInternals.exampleVideos.mp4withmp3,
 		fields: {
-			boxes: true,
+			tracks: true,
 		},
 		readerInterface: nodeReader,
 	});
@@ -19,7 +18,6 @@ test('Stream samples', async () => {
 		140, 176, 1, 0, 6, 104, 235, 224, 140, 178, 44, 253, 248, 248, 0,
 	]);
 
-	const tracks = getTracks(boxes);
 	expect(tracks).toEqual([
 		{
 			type: 'video',

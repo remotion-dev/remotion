@@ -15,6 +15,7 @@ import type {StszBox} from './boxes/iso-base-media/stsd/stsz';
 import type {SttsBox} from './boxes/iso-base-media/stts/stts';
 import type {TkhdBox} from './boxes/iso-base-media/tkhd';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
+import type {VoidBox} from './boxes/iso-base-media/void-box';
 import type {MatroskaSegment} from './boxes/webm/segments';
 
 export interface RegularBox extends BaseBox {
@@ -43,7 +44,8 @@ export type IsoBaseMediaBox =
 	| StcoBox
 	| StscBox
 	| AvccBox
-	| HvccBox;
+	| HvccBox
+	| VoidBox;
 
 export type AnySegment = MatroskaSegment | IsoBaseMediaBox;
 

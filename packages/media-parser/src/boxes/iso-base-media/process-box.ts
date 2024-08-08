@@ -81,7 +81,15 @@ const processBox = ({
 
 	const boxSize = iterator.getFourByteNumber();
 	if (boxSize === 0) {
-		throw new Error(`Expected box size of not 0, got ${boxSize}`);
+		return {
+			type: 'complete',
+			box: {
+				type: 'void-box',
+				boxSize: 0,
+			},
+			size: 4,
+			skipTo: null,
+		};
 	}
 
 	if (bytesRemaining < boxSize) {

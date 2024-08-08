@@ -48,7 +48,7 @@ export const parseMedia: ParseMedia = async ({
 			parseResult = parseVideo({
 				iterator,
 				options: {
-					canSkipVideoData: Boolean(onAudioSample || onVideoSample),
+					canSkipVideoData: !(onAudioSample || onVideoSample),
 					onAudioSample: onAudioSample ?? null,
 					onVideoSample: onVideoSample ?? null,
 				},
