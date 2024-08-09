@@ -30,6 +30,7 @@ export const parseMedia: ParseMedia = async ({
 		true,
 		true,
 		true,
+		true,
 		true
 	>;
 
@@ -99,6 +100,14 @@ export const parseMedia: ParseMedia = async ({
 		returnValue.dimensions = {
 			width: dimensions.width,
 			height: dimensions.height,
+		};
+	}
+
+	if (fields.unrotatedDimension) {
+		const dimensions = getDimensions(parseResult.segments);
+		returnValue.unrotatedDimension = {
+			width: dimensions.unrotatedWidth,
+			height: dimensions.unrotatedHeight,
 		};
 	}
 

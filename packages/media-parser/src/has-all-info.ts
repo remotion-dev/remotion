@@ -15,6 +15,8 @@ export const hasAllInfo = (
 		boolean,
 		boolean,
 		boolean,
+		boolean,
+		boolean,
 		boolean
 	>,
 	parseResult: ParseResult,
@@ -22,6 +24,7 @@ export const hasAllInfo = (
 	const keys = Object.entries(options)
 		.filter(([, value]) => value)
 		.map(([key]) => key) as (keyof Options<
+		true,
 		true,
 		true,
 		true,
@@ -41,7 +44,11 @@ export const hasAllInfo = (
 			return hasDuration(parseResult.segments);
 		}
 
-		if (key === 'dimensions' || key === 'rotation') {
+		if (
+			key === 'dimensions' ||
+			key === 'rotation' ||
+			key === 'unrotatedDimension'
+		) {
 			return hasDimensions(parseResult.segments);
 		}
 

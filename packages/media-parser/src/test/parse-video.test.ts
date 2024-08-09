@@ -30,20 +30,6 @@ test('Parse Big Buck bunny', async () => {
 	]);
 });
 
-test('Parse an iPhone video', async () => {
-	const data = await parseMedia({
-		src: RenderInternals.exampleVideos.iphonevideo,
-		fields: {durationInSeconds: true, dimensions: true},
-		reader: nodeReader,
-	});
-
-	expect(data.durationInSeconds).toBe(12.568333333333333);
-	expect(data.dimensions).toEqual({
-		width: 2160,
-		height: 3840,
-	});
-});
-
 test('Parse framer', async () => {
 	const parsed = await parseMedia({
 		src: RenderInternals.exampleVideos.framerWithoutFileExtension,

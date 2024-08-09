@@ -14,6 +14,7 @@ test('Should stream ISO base media', async () => {
 			tracks: true,
 			dimensions: true,
 			rotation: true,
+			unrotatedDimension: true,
 		},
 		reader: nodeReader,
 	});
@@ -28,6 +29,10 @@ test('Should stream ISO base media', async () => {
 	expect(result.videoTracks.length).toBe(1);
 	expect(result.videoTracks[0].codecString).toBe('hvc1.2.4.L150.b0');
 	expect(result.rotation).toBe(-90);
+	expect(result.unrotatedDimension).toEqual({
+		height: 2160,
+		width: 3840,
+	});
 });
 
 test('Should stream WebM with no duration', async () => {
@@ -232,4 +237,39 @@ test('Should stream MP3 in MP4 video', async () => {
 	expect(parsed.audioTracks.length).toEqual(1);
 	expect(parsed.audioTracks[0].codecString).toBe('mp4a.6b');
 	expect(parsed.rotation).toBe(0);
+});
+
+test('Should get duration of HEVC video', async () => {
+	const parsed = await parseMedia({
+		src: RenderInternals.exampleVideos.iphonehevc,
+		fields: {
+			durationInSeconds: true,
+			dimensions: true,
+			fps: true,
+			audioCodec: true,
+			rotation: true,
+			tracks: true,
+			unrotatedDimension: true,
+			videoCodec: true,
+		},
+		reader: nodeReader,
+	});
+
+	expect(parsed.durationInSeconds).toBe(3.4);
+	expect(parsed.dimensions).toEqual({
+		width: 1080,
+		height: 1920,
+	});
+	expect(parsed.fps).toEqual(30);
+	expect(parsed.audioCodec).toBe('aac');
+	expect(parsed.rotation).toBe(-90);
+	expect(parsed.videoTracks.length).toBe(1);
+	expect(parsed.videoTracks[0].codecString).toBe('hvc1.2.4.L120.b0');
+	expect(parsed.audioTracks.length).toBe(1);
+	expect(parsed.audioTracks[0].codecString).toBe('mp4a');
+	expect(parsed.unrotatedDimension).toEqual({
+		width: 1920,
+		height: 1080,
+	});
+	expect(parsed.videoCodec).toBe('h265');
 });
