@@ -447,8 +447,11 @@ export const parseTimestampSegment = (
 	iterator: BufferIterator,
 ): TimestampSegment => {
 	const length = iterator.getVint();
+	if (length !== 1) {
+		throw new Error('Expected timestamp segment to be 1 byte');
+	}
+
 	const value = iterator.getUint8();
-	iterator.discard(length);
 
 	return {
 		type: 'timestamp-segment',

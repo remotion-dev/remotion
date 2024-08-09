@@ -171,7 +171,7 @@ test('Should get duration of AV1 video', async () => {
 							timestamp: 0,
 						},
 						{
-							id: '0x24430b81',
+							id: '0xa324430b',
 							type: 'unknown-segment',
 						},
 					],

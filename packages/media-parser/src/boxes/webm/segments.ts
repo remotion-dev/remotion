@@ -121,6 +121,7 @@ export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 	}
 
 	const segmentId = iterator.getMatroskaSegmentId();
+
 	if (segmentId === '0x') {
 		return {
 			type: 'unknown-segment',
