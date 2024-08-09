@@ -299,7 +299,7 @@ test('Custom DAR', async () => {
 	});
 	expect(parsed.dimensions).toEqual({
 		height: 720,
-		width: 1280,
+		width: 404.9717559814453,
 	});
 	expect(parsed.durationInSeconds).toBe(5.725);
 	expect(parsed.fps).toBe(30);

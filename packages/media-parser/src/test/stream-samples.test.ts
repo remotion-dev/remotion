@@ -113,6 +113,8 @@ test('Stream samples', async () => {
 				numerator: 1,
 				denominator: 1,
 			},
+			width: 1080,
+			height: 1080,
 		},
 	]);
 

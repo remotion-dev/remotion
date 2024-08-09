@@ -5,7 +5,7 @@ import {
 	trakBoxContainsAudio,
 	trakBoxContainsVideo,
 } from './get-fps';
-import {getSampleAspectRatio} from './get-sample-aspect-ratio';
+import {getSampleAspectRatio, getVideoSample} from './get-sample-aspect-ratio';
 import type {SamplePosition} from './get-sample-positions';
 import {getSamplePositions} from './get-sample-positions';
 import {getVideoCodecString} from './get-video-codec';
@@ -38,6 +38,8 @@ export type VideoTrack = {
 	timescale: number;
 	codecString: string | null;
 	sampleAspectRatio: SampleAspectRatio;
+	width: number;
+	height: number;
 };
 
 export type AudioTrack = {
@@ -152,6 +154,11 @@ export const getTracks = (
 		}
 
 		if (trakBoxContainsVideo(track)) {
+			const videoSample = getVideoSample(track);
+			if (!videoSample) {
+				throw new Error('No video sample');
+			}
+
 			videoTracks.push({
 				type: 'video',
 				samplePositions,
@@ -160,6 +167,8 @@ export const getTracks = (
 				timescale: timescaleAndDuration.timescale,
 				codecString: getVideoCodecString(track),
 				sampleAspectRatio: getSampleAspectRatio(track),
+				width: videoSample.width,
+				height: videoSample.height,
 			});
 		}
 	}

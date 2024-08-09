@@ -1,6 +1,6 @@
 use std::{io::ErrorKind, time::SystemTime};
 
-use ffmpeg_next::Rational;
+use ffmpeg_next::{format, Rational};
 use remotionffmpeg::{codec::Id, frame::Video, media::Type, Dictionary, StreamMut};
 extern crate ffmpeg_next as remotionffmpeg;
 use std::time::UNIX_EPOCH;
@@ -543,6 +543,10 @@ pub fn open_stream(
 
     let display_aspect_ratio = get_display_aspect_ratio(&mut_stream);
 
+    _print_verbose(&format!("Display aspect ratio: {:?}", display_aspect_ratio))?;
+    _print_verbose(&format!("Sample aspect ratio: {} {}", sar_x, sar_y))?;
+    _print_verbose(&format!("Original width: {}, original height: {}", original_width, original_height))?;
+
     let (scaled_width, scaled_height) = calculate_display_video_size(
         display_aspect_ratio.0,
         display_aspect_ratio.1,
@@ -551,6 +555,8 @@ pub fn open_stream(
         original_width,
         original_height,
     );
+    _print_verbose(&format!("new width: {}, new height: {}", scaled_width, scaled_height))?;
+
 
     let filter_graph = FilterGraph {
         original_width,
