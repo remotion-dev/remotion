@@ -1,6 +1,8 @@
 /* eslint-disable max-depth */
+import type {EsdsBox} from './boxes/iso-base-media/esds/esds';
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';
-import type {Sample} from './boxes/iso-base-media/stsd/samples';
+import type {AudioSample} from './boxes/iso-base-media/stsd/samples';
+import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import {trakBoxContainsAudio} from './get-fps';
 import type {KnownAudioCodecs} from './options';
 import type {AnySegment} from './parse-result';
@@ -14,52 +16,42 @@ export const hasAudioCodec = (boxes: AnySegment[]): boolean => {
 	}
 };
 
-const onEsdsBox = (child: AnySegment): KnownAudioCodecs | null => {
-	if (child && child.type === 'esds-box') {
-		const descriptor = child.descriptors.find(
-			(d) => d.type === 'decoder-config-descriptor',
-		);
-		if (descriptor && descriptor.type === 'decoder-config-descriptor') {
-			return descriptor.objectTypeIndication;
-		}
+const getCodecSpecificatorFromEsdsBox = ({child}: {child: EsdsBox}): number => {
+	const descriptor = child.descriptors.find(
+		(d) => d.type === 'decoder-config-descriptor',
+	);
+	if (!descriptor) {
+		throw new Error('No decoder-config-descriptor');
 	}
 
-	return null;
+	if (descriptor.type !== 'decoder-config-descriptor') {
+		throw new Error('Expected decoder-config-descriptor');
+	}
+
+	return descriptor.asNumber;
 };
 
-const onSample = (sample: Sample): KnownAudioCodecs | null | undefined => {
-	if (!sample) {
-		return null;
-	}
+type AudioCodecInfo = {
+	format: string;
+	specificator: number | null;
+};
 
-	if (sample.type !== 'audio') {
-		return null;
-	}
-
-	if (sample.format === 'sowt') {
-		return 'aiff';
-	}
-
+const onSample = (sample: AudioSample): AudioCodecInfo | null => {
 	const child = sample.children.find((c) => c.type === 'esds-box');
 
 	if (child && child.type === 'esds-box') {
-		const ret = onEsdsBox(child);
-		if (ret) {
-			return ret;
-		}
+		const ret = getCodecSpecificatorFromEsdsBox({child});
+		return {format: sample.format, specificator: ret};
 	}
+
+	return {
+		format: sample.format,
+		specificator: null,
+	};
 };
 
-export const getAudioCodecFromIso = (moov: MoovBox) => {
-	const traks = getTraks(moov);
-	const trakBox = traks.find(
-		(b) => b.type === 'trak-box' && trakBoxContainsAudio(b),
-	);
-	if (!trakBox) {
-		return null;
-	}
-
-	const stsdBox = getStsdBox(trakBox);
+export const getAudioCodecFromTrak = (trak: TrakBox): AudioCodecInfo | null => {
+	const stsdBox = getStsdBox(trak);
 	if (!stsdBox) {
 		return null;
 	}
@@ -80,19 +72,66 @@ export const getAudioCodecFromIso = (moov: MoovBox) => {
 	if (waveBox && waveBox.type === 'regular-box' && waveBox.boxType === 'wave') {
 		const esdsBox = waveBox.children.find((b) => b.type === 'esds-box');
 		if (esdsBox && esdsBox.type === 'esds-box') {
-			const ret2 = onEsdsBox(esdsBox);
+			const ret2 = getCodecSpecificatorFromEsdsBox({child: esdsBox});
 			if (ret2) {
-				return ret2;
+				return {
+					format: sample.format,
+					specificator: ret2,
+				};
 			}
+
+			return {
+				format: sample.format,
+				specificator: null,
+			};
 		}
 	}
+
+	return null;
+};
+
+export const getAudioCodecFromIso = (moov: MoovBox) => {
+	const traks = getTraks(moov);
+	const trakBox = traks.find(
+		(b) => b.type === 'trak-box' && trakBoxContainsAudio(b),
+	);
+	if (!trakBox) {
+		return null;
+	}
+
+	return getAudioCodecFromTrak(trakBox);
 };
 
 export const getAudioCodec = (boxes: AnySegment[]): KnownAudioCodecs | null => {
 	const moovBox = getMoovBox(boxes);
 
 	if (moovBox) {
-		return getAudioCodecFromIso(moovBox) ?? null;
+		const codec = getAudioCodecFromIso(moovBox);
+		if (!codec) {
+			return null;
+		}
+
+		if (codec.format === 'sowt') {
+			return 'aiff';
+		}
+
+		if (codec.format === 'mp4a') {
+			if (codec.specificator === 0x40) {
+				return 'aac';
+			}
+
+			if (codec.specificator === 0x6b) {
+				return 'mp3';
+			}
+
+			if (codec.specificator === null) {
+				return 'aac';
+			}
+
+			throw new Error('Unknown mp4a codec: ' + codec.specificator);
+		}
+
+		throw new Error('Unknown audio format: ' + codec.format);
 	}
 
 	const mainSegment = boxes.find((b) => b.type === 'main-segment');

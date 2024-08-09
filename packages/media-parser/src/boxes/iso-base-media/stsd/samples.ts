@@ -13,7 +13,7 @@ type SampleBase = {
 	size: number;
 };
 
-type AudioSample = SampleBase & {
+export type AudioSample = SampleBase & {
 	type: 'audio';
 	numberOfChannels: number;
 	sampleSize: number;

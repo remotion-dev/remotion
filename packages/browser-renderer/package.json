@@ -13,8 +13,7 @@
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"build": "tsc -d",
-		"watch": "tsc -w",
-		"test": "vitest --run"
+		"watch": "tsc -w"
 	},
 	"files": [
 		"dist"
