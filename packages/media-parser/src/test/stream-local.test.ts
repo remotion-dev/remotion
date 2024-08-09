@@ -13,6 +13,7 @@ test('Should stream ISO base media', async () => {
 			audioCodec: true,
 			tracks: true,
 			dimensions: true,
+			rotation: true,
 		},
 		reader: nodeReader,
 	});
@@ -26,6 +27,7 @@ test('Should stream ISO base media', async () => {
 	expect(result.audioCodec).toBe('aac');
 	expect(result.videoTracks.length).toBe(1);
 	expect(result.videoTracks[0].codecString).toBe('hvc1.2.4.L150.b0');
+	expect(result.rotation).toBe(-90);
 });
 
 test('Should stream WebM with no duration', async () => {
@@ -37,6 +39,7 @@ test('Should stream WebM with no duration', async () => {
 			dimensions: true,
 			videoCodec: true,
 			audioCodec: true,
+			rotation: true,
 			// TODO: Return WebM tracks
 		},
 		reader: nodeReader,
@@ -49,6 +52,7 @@ test('Should stream WebM with no duration', async () => {
 	expect(result.fps).toBe(null);
 	expect(result.videoCodec).toBe('vp8');
 	expect(result.audioCodec).toBe(null);
+	expect(result.rotation).toBe(0);
 });
 
 test('Should stream AV1 with no duration', async () => {
@@ -60,6 +64,7 @@ test('Should stream AV1 with no duration', async () => {
 			fps: true,
 			videoCodec: true,
 			audioCodec: true,
+			rotation: true,
 			// TODO: Return WebM tracks
 		},
 		reader: nodeReader,
@@ -73,6 +78,7 @@ test('Should stream AV1 with no duration', async () => {
 	});
 	expect(parsed.videoCodec).toBe('av1');
 	expect(parsed.audioCodec).toBe(null);
+	expect(parsed.rotation).toBe(0);
 });
 
 test('Should stream corrupted video', async () => {
@@ -85,6 +91,7 @@ test('Should stream corrupted video', async () => {
 			videoCodec: true,
 			audioCodec: true,
 			tracks: true,
+			rotation: true,
 		},
 		reader: nodeReader,
 	});
@@ -99,6 +106,7 @@ test('Should stream corrupted video', async () => {
 	expect(parsed.audioCodec).toBe('aac');
 	expect(parsed.videoTracks.length).toEqual(1);
 	expect(parsed.videoTracks[0].codecString).toBe('avc1.640028');
+	expect(parsed.rotation).toBe(0);
 });
 
 test('Should stream screen recording video', async () => {
@@ -111,6 +119,7 @@ test('Should stream screen recording video', async () => {
 			videoCodec: true,
 			audioCodec: true,
 			tracks: true,
+			rotation: true,
 		},
 		reader: nodeReader,
 	});
@@ -125,6 +134,7 @@ test('Should stream screen recording video', async () => {
 	expect(parsed.audioCodec).toBe(null);
 	expect(parsed.videoTracks.length).toEqual(1);
 	expect(parsed.videoTracks[0].codecString).toBe('avc1.4d0033');
+	expect(parsed.rotation).toBe(0);
 });
 
 test('Should stream ProRes video', async () => {
@@ -137,6 +147,7 @@ test('Should stream ProRes video', async () => {
 			videoCodec: true,
 			audioCodec: true,
 			tracks: true,
+			rotation: true,
 		},
 		reader: nodeReader,
 	});
@@ -149,6 +160,7 @@ test('Should stream ProRes video', async () => {
 	expect(parsed.audioCodec).toBe('aiff');
 	expect(parsed.videoTracks.length).toEqual(1);
 	expect(parsed.videoTracks[0].codecString).toBe('ap4h');
+	expect(parsed.rotation).toBe(0);
 });
 
 test('Should stream variable fps video', async () => {
@@ -160,6 +172,7 @@ test('Should stream variable fps video', async () => {
 			durationInSeconds: true,
 			videoCodec: true,
 			audioCodec: true,
+			rotation: true,
 		},
 		reader: nodeReader,
 	});
@@ -169,6 +182,7 @@ test('Should stream variable fps video', async () => {
 	expect(parsed.durationInSeconds).toBe(22.901);
 	expect(parsed.videoCodec).toBe('vp8');
 	expect(parsed.audioCodec).toBe('opus');
+	expect(parsed.rotation).toBe(0);
 });
 
 test('Should stream MKV video', async () => {
@@ -180,6 +194,7 @@ test('Should stream MKV video', async () => {
 			durationInSeconds: true,
 			videoCodec: true,
 			audioCodec: true,
+			rotation: true,
 		},
 		reader: nodeReader,
 	});
@@ -189,6 +204,7 @@ test('Should stream MKV video', async () => {
 	expect(parsed.durationInSeconds).toBe(0.333);
 	expect(parsed.videoCodec).toBe('h264');
 	expect(parsed.audioCodec).toBe('pcm');
+	expect(parsed.rotation).toBe(0);
 });
 
 test('Should stream MP3 in MP4 video', async () => {
@@ -201,6 +217,7 @@ test('Should stream MP3 in MP4 video', async () => {
 			videoCodec: true,
 			audioCodec: true,
 			tracks: true,
+			rotation: true,
 		},
 		reader: nodeReader,
 	});
@@ -214,4 +231,5 @@ test('Should stream MP3 in MP4 video', async () => {
 	expect(parsed.videoTracks[0].codecString).toBe('avc1.640020');
 	expect(parsed.audioTracks.length).toEqual(1);
 	expect(parsed.audioTracks[0].codecString).toBe('mp4a.6b');
+	expect(parsed.rotation).toBe(0);
 });

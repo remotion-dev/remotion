@@ -28,6 +28,7 @@ export const hasAllInfo = (
 		true,
 		true,
 		true,
+		true,
 		true
 	>)[];
 
@@ -40,7 +41,7 @@ export const hasAllInfo = (
 			return hasDuration(parseResult.segments);
 		}
 
-		if (key === 'dimensions') {
+		if (key === 'dimensions' || key === 'rotation') {
 			return hasDimensions(parseResult.segments);
 		}
 

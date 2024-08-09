@@ -22,7 +22,16 @@ export const parseMedia: ParseMedia = async ({
 	const {reader, contentLength} = await readerInterface.read(src, null);
 	let currentReader = reader;
 
-	const returnValue = {} as Metadata<true, true, true, true, true, true, true>;
+	const returnValue = {} as Metadata<
+		true,
+		true,
+		true,
+		true,
+		true,
+		true,
+		true,
+		true
+	>;
 
 	let iterator: BufferIterator | null = null;
 	let parseResult: ParseResult | null = null;
@@ -86,7 +95,16 @@ export const parseMedia: ParseMedia = async ({
 	}
 
 	if (fields.dimensions) {
-		returnValue.dimensions = getDimensions(parseResult.segments);
+		const dimensions = getDimensions(parseResult.segments);
+		returnValue.dimensions = {
+			width: dimensions.width,
+			height: dimensions.height,
+		};
+	}
+
+	if (fields.rotation) {
+		const dimensions = getDimensions(parseResult.segments);
+		returnValue.rotation = dimensions.rotation;
 	}
 
 	if (fields.durationInSeconds) {
