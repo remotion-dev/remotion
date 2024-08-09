@@ -1,4 +1,4 @@
-import type {BufferIterator} from '../../buffer-iterator';
+import type {BufferIterator} from '../../../buffer-iterator';
 
 export interface AvccBox {
 	type: 'avcc-box';

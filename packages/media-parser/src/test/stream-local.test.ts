@@ -273,3 +273,43 @@ test('Should get duration of HEVC video', async () => {
 	});
 	expect(parsed.videoCodec).toBe('h265');
 });
+
+test('Custom DAR', async () => {
+	const parsed = await parseMedia({
+		src: RenderInternals.exampleVideos.customDar,
+		fields: {
+			durationInSeconds: true,
+			fps: true,
+			videoCodec: true,
+			audioCodec: true,
+			tracks: true,
+			dimensions: true,
+			rotation: true,
+			unrotatedDimension: true,
+			boxes: true,
+		},
+		reader: nodeReader,
+	});
+
+	await Bun.write('dar.json', JSON.stringify(parsed.boxes, null, 2));
+
+	expect(parsed.videoTracks[0].sampleAspectRatio).toEqual({
+		numerator: 56,
+		denominator: 177,
+	});
+	expect(parsed.dimensions).toEqual({
+		height: 720,
+		width: 1280,
+	});
+	expect(parsed.durationInSeconds).toBe(5.725);
+	expect(parsed.fps).toBe(30);
+	expect(parsed.videoCodec).toBe('h264');
+	expect(parsed.audioCodec).toBe('aac');
+	expect(parsed.videoTracks.length).toEqual(1);
+	expect(parsed.videoTracks[0].codecString).toBe('avc1.64001f');
+	expect(parsed.rotation).toBe(0);
+	expect(parsed.unrotatedDimension).toEqual({
+		height: 720,
+		width: 404.9717559814453,
+	});
+});

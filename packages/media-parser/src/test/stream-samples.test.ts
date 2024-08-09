@@ -109,6 +109,10 @@ test('Stream samples', async () => {
 			description,
 			timescale: 15360,
 			codecString: 'avc1.640020',
+			sampleAspectRatio: {
+				numerator: 1,
+				denominator: 1,
+			},
 		},
 	]);
 

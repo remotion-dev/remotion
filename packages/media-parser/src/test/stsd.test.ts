@@ -228,10 +228,10 @@ test('Should be able to parse a STSD video box correctly', () => {
 			},
 			{
 				boxSize: 16,
-				boxType: 'pasp',
-				children: [],
 				offset: 142,
-				type: 'regular-box',
+				type: 'pasp-box',
+				hSpacing: 1,
+				vSpacing: 1,
 			},
 		],
 	});
