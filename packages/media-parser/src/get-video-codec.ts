@@ -31,6 +31,8 @@ export const getVideoCodecString = (trakBox: TrakBox): string | null => {
 			if (hvccBox && hvccBox.type === 'hvcc-box') {
 				return `${videoSample.format}.${hvccBox.configurationString}`;
 			}
+
+			return videoSample.format;
 		}
 	}
 
