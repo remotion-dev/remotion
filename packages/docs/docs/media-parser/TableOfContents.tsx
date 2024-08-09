@@ -20,6 +20,12 @@ export const TableOfContents: React.FC = () => {
 						Read a file using <code>fetch()</code>.
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/media-parser/web-file-reader">
+					<strong>{'fetchReader'}</strong>
+					<div>
+						Read a file from <code>&lt;input type=&quot;file&quot;&gt;</code>.
+					</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);
