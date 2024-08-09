@@ -210,6 +210,7 @@ export const getArrayBufferIterator = (
 				'0xbf',
 				'0x88',
 				'0xe7',
+				'0xa3',
 			];
 			if (knownIdsWithOneLength.includes(firstOneString)) {
 				return firstOneString;

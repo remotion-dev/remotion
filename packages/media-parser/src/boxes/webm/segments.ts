@@ -30,6 +30,7 @@ import type {
 	LanguageSegment,
 	MaxBlockAdditionId,
 	SegmentUUIDSegment,
+	SimpleBlockSegment,
 	TagSegment,
 	TagsSegment,
 	TimestampSegment,
@@ -56,6 +57,7 @@ import {
 	parseLanguageSegment,
 	parseMaxBlockAdditionId,
 	parseSegmentUUIDSegment,
+	parseSimpleBlockSegment,
 	parseTagSegment,
 	parseTagsSegment,
 	parseTimestampSegment,
@@ -112,7 +114,8 @@ export type MatroskaSegment =
 	| TagsSegment
 	| TagSegment
 	| ClusterSegment
-	| TimestampSegment;
+	| TimestampSegment
+	| SimpleBlockSegment;
 
 export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 	const bytesRemaining_ = iterator.byteLength() - iterator.counter.getOffset();
@@ -267,6 +270,10 @@ export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 
 	if (segmentId === '0xe7') {
 		return parseTimestampSegment(iterator);
+	}
+
+	if (segmentId === '0xa3') {
+		return parseSimpleBlockSegment(iterator);
 	}
 
 	const length = iterator.getVint();

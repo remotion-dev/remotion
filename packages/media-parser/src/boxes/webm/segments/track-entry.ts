@@ -458,3 +458,46 @@ export const parseTimestampSegment = (
 		timestamp: value,
 	};
 };
+
+export type SimpleBlockSegment = {
+	type: 'simple-block-segment';
+	length: number;
+	trackNumber: number;
+	timecode: number;
+	headerFlags: number;
+	keyframe: boolean;
+	lacing: [number, number];
+	invisible: boolean;
+	children: MatroskaSegment[];
+};
+
+export const parseSimpleBlockSegment = (
+	iterator: BufferIterator,
+): SimpleBlockSegment => {
+	const length = iterator.getVint();
+	const offset = iterator.counter.getOffset();
+	const trackNumber = iterator.getVint();
+	const timecode = iterator.getUint16();
+	const headerFlags = iterator.getUint8();
+
+	const invisible = Boolean((headerFlags >> 5) & 1);
+	const pos6 = (headerFlags >> 6) & 1;
+	const pos7 = (headerFlags >> 6) & 1;
+	const keyframe = Boolean((headerFlags >> 7) & 1);
+
+	const remaining = length - (iterator.counter.getOffset() - offset);
+
+	const children = expectChildren(iterator, remaining);
+
+	return {
+		type: 'simple-block-segment',
+		length,
+		trackNumber,
+		timecode,
+		headerFlags,
+		keyframe,
+		lacing: [pos6, pos7],
+		invisible,
+		children,
+	};
+};
