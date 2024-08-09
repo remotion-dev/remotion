@@ -1,4 +1,5 @@
 /* eslint-disable max-depth */
+import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import {trakBoxContainsVideo} from './get-fps';
 import type {KnownVideoCodecs} from './options';
 import type {AnySegment} from './parse-result';
@@ -10,6 +11,25 @@ export const hasVideoCodec = (boxes: AnySegment[]): boolean => {
 	} catch (e) {
 		return false;
 	}
+};
+
+export const getVideoCodecString = (trakBox: TrakBox): string | null => {
+	const stsdBox = getStsdBox(trakBox);
+	if (stsdBox && stsdBox.type === 'stsd-box') {
+		const videoSample = stsdBox.samples.find((s) => s.type === 'video');
+		if (videoSample && videoSample.type === 'video') {
+			const avccBox = videoSample.descriptors.find(
+				(c) => c.type === 'avcc-box',
+			);
+			if (!avccBox || avccBox.type !== 'avcc-box') {
+				return null;
+			}
+
+			return `${videoSample.format}.${avccBox.configurationString}`;
+		}
+	}
+
+	return null;
 };
 
 export const getVideoCodec = (boxes: AnySegment[]): KnownVideoCodecs | null => {

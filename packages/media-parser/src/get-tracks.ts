@@ -6,6 +6,7 @@ import {
 } from './get-fps';
 import type {SamplePosition} from './get-sample-positions';
 import {getSamplePositions} from './get-sample-positions';
+import {getVideoCodecString} from './get-video-codec';
 import type {AnySegment} from './parse-result';
 import {
 	getCttsBox,
@@ -28,6 +29,7 @@ export type VideoTrack = {
 	trackId: number;
 	description: Uint8Array | null;
 	timescale: number;
+	codecString: string | null;
 };
 
 export type AudioTrack = {
@@ -35,6 +37,7 @@ export type AudioTrack = {
 	samplePositions: SamplePosition[];
 	trackId: number;
 	timescale: number;
+	codecString: string | null;
 };
 
 export type Track = VideoTrack | AudioTrack;
@@ -136,6 +139,7 @@ export const getTracks = (
 				samplePositions,
 				trackId: tkhdBox.trackId,
 				timescale: timescaleAndDuration.timescale,
+				codecString: null,
 			});
 		}
 
@@ -146,6 +150,7 @@ export const getTracks = (
 				trackId: tkhdBox.trackId,
 				description: videoDescriptors,
 				timescale: timescaleAndDuration.timescale,
+				codecString: getVideoCodecString(track),
 			});
 		}
 	}

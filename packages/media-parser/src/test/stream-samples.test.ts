@@ -8,6 +8,7 @@ test('Stream samples', async () => {
 		src: RenderInternals.exampleVideos.mp4withmp3,
 		fields: {
 			tracks: true,
+			videoCodec: true,
 		},
 		readerInterface: nodeReader,
 	});
@@ -106,6 +107,7 @@ test('Stream samples', async () => {
 			],
 			description,
 			timescale: 15360,
+			codecString: 'avc1.640020',
 		},
 	]);
 
@@ -236,6 +238,7 @@ test('Stream samples', async () => {
 				},
 			],
 			timescale: 48000,
+			codecString: null,
 		},
 	]);
 });
