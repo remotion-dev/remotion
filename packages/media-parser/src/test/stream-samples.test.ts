@@ -239,7 +239,7 @@ test('Stream samples', async () => {
 				},
 			],
 			timescale: 48000,
-			codecString: null,
+			codecString: 'mp4a.6b',
 		},
 	]);
 });

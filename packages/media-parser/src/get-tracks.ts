@@ -1,4 +1,5 @@
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';
+import {getAudioCodecStringFromTrak} from './get-audio-codec';
 import {
 	getTimescaleAndDuration,
 	trakBoxContainsAudio,
@@ -139,7 +140,7 @@ export const getTracks = (
 				samplePositions,
 				trackId: tkhdBox.trackId,
 				timescale: timescaleAndDuration.timescale,
-				codecString: null,
+				codecString: getAudioCodecStringFromTrak(track),
 			});
 		}
 

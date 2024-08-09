@@ -3,6 +3,7 @@ import type {EsdsBox} from './boxes/iso-base-media/esds/esds';
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';
 import type {AudioSample} from './boxes/iso-base-media/stsd/samples';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
+import type {MainSegment} from './boxes/webm/segments/main';
 import {trakBoxContainsAudio} from './get-fps';
 import type {KnownAudioCodecs} from './options';
 import type {AnySegment} from './parse-result';
@@ -102,11 +103,52 @@ export const getAudioCodecFromIso = (moov: MoovBox) => {
 	return getAudioCodecFromTrak(trakBox);
 };
 
+export const getAudioCodecFromMatroska = (mainSegment: MainSegment) => {
+	const tracksSegment = mainSegment.children.find(
+		(b) => b.type === 'tracks-segment',
+	);
+	if (!tracksSegment || tracksSegment.type !== 'tracks-segment') {
+		return null;
+	}
+
+	for (const track of tracksSegment.children) {
+		if (track.type === 'track-entry-segment') {
+			const trackType = track.children.find((b) => b.type === 'codec-segment');
+			if (trackType && trackType.type === 'codec-segment') {
+				if (trackType.codec === 'A_OPUS') {
+					return 'opus';
+				}
+
+				if (trackType.codec === 'A_PCM/INT/LIT') {
+					return 'pcm';
+				}
+			}
+		}
+	}
+
+	return null;
+};
+
+export const getAudioCodecStringFromTrak = (trak: TrakBox): string | null => {
+	const codec = getAudioCodecFromTrak(trak);
+	if (!codec) {
+		return null;
+	}
+
+	return (
+		[
+			codec.format,
+			codec.specificator ? codec.specificator.toString(16) : null,
+		].filter(Boolean) as string[]
+	).join('.');
+};
+
 export const getAudioCodec = (boxes: AnySegment[]): KnownAudioCodecs | null => {
 	const moovBox = getMoovBox(boxes);
 
 	if (moovBox) {
 		const codec = getAudioCodecFromIso(moovBox);
+
 		if (!codec) {
 			return null;
 		}
@@ -139,27 +181,5 @@ export const getAudioCodec = (boxes: AnySegment[]): KnownAudioCodecs | null => {
 		return null;
 	}
 
-	const tracksSegment = mainSegment.children.find(
-		(b) => b.type === 'tracks-segment',
-	);
-	if (!tracksSegment || tracksSegment.type !== 'tracks-segment') {
-		return null;
-	}
-
-	for (const track of tracksSegment.children) {
-		if (track.type === 'track-entry-segment') {
-			const trackType = track.children.find((b) => b.type === 'codec-segment');
-			if (trackType && trackType.type === 'codec-segment') {
-				if (trackType.codec === 'A_OPUS') {
-					return 'opus';
-				}
-
-				if (trackType.codec === 'A_PCM/INT/LIT') {
-					return 'pcm';
-				}
-			}
-		}
-	}
-
-	return null;
+	return getAudioCodecFromMatroska(mainSegment);
 };
