@@ -421,3 +421,37 @@ export const parseTagSegment = (iterator: BufferIterator): TagSegment => {
 		length,
 	};
 };
+
+export type ClusterSegment = {
+	type: 'cluster-segment';
+	children: MatroskaSegment[];
+};
+
+export const parseClusterSegment = (
+	iterator: BufferIterator,
+): ClusterSegment => {
+	const length = iterator.getVint();
+
+	return {
+		type: 'cluster-segment',
+		children: expectChildren(iterator, length),
+	};
+};
+
+export type TimestampSegment = {
+	type: 'timestamp-segment';
+	timestamp: number;
+};
+
+export const parseTimestampSegment = (
+	iterator: BufferIterator,
+): TimestampSegment => {
+	const length = iterator.getVint();
+	const value = iterator.getUint8();
+	iterator.discard(length);
+
+	return {
+		type: 'timestamp-segment',
+		timestamp: value,
+	};
+};
