@@ -4,7 +4,7 @@
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/browser-renderer"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
@@ -29,5 +29,6 @@
 		"@types/dom-webcodecs": "0.1.11"
 	},
 	"keywords": [],
-	"private": true
+	"private": true,
+	"description": "Private experimental package"
 }
