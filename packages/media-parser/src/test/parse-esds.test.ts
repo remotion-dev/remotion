@@ -30,6 +30,7 @@ test('Parse ESDS box', () => {
 			{
 				type: 'decoder-config-descriptor',
 				objectTypeIndication: 'mp3',
+				asNumber: 107,
 			},
 			{
 				type: 'sl-config-descriptor',
@@ -66,6 +67,7 @@ test('Parse two ESDS', () => {
 			{
 				objectTypeIndication: 'aac',
 				type: 'decoder-config-descriptor',
+				asNumber: 64,
 			},
 			{
 				type: 'sl-config-descriptor',

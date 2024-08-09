@@ -9,6 +9,7 @@ test('Stream samples', async () => {
 		fields: {
 			tracks: true,
 			videoCodec: true,
+			audioCodec: true,
 		},
 		readerInterface: nodeReader,
 	});

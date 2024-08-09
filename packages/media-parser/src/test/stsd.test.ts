@@ -96,6 +96,7 @@ test('Should be able to parse a STSD audio box correctly', () => {
 									{
 										objectTypeIndication: 'aac',
 										type: 'decoder-config-descriptor',
+										asNumber: 64,
 									},
 									{
 										type: 'sl-config-descriptor',
@@ -223,6 +224,7 @@ test('Should be able to parse a STSD video box correctly', () => {
 					0, 6, 104, 235, 224, 140, 178, 44, 253, 248, 248, 0,
 				]),
 				type: 'avcc-box',
+				configurationString: '640020',
 			},
 			{
 				boxSize: 16,
