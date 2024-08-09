@@ -1,4 +1,5 @@
 import type {BufferIterator} from '../../../buffer-iterator';
+import type {BaseBox} from '../base-type';
 
 type CttsEntry = {
 	sampleCount: number;

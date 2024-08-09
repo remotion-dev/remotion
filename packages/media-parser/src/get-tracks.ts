@@ -22,13 +22,22 @@ import {
 	getVideoDescriptors,
 } from './traversal';
 
-export type Track = {
-	type: 'audio' | 'video';
+export type VideoTrack = {
+	type: 'video';
 	samplePositions: SamplePosition[];
 	trackId: number;
 	description: Uint8Array | null;
 	timescale: number;
 };
+
+export type AudioTrack = {
+	type: 'audio';
+	samplePositions: SamplePosition[];
+	trackId: number;
+	timescale: number;
+};
+
+export type Track = VideoTrack | AudioTrack;
 
 // TODO: Use this to determine if all tracks are present
 export const getNumberOfTracks = (moovBox: MoovBox): number => {
@@ -62,8 +71,8 @@ export const hasTracks = (segments: AnySegment[]): boolean => {
 export const getTracks = (
 	segments: AnySegment[],
 ): {
-	videoTracks: Track[];
-	audioTracks: Track[];
+	videoTracks: VideoTrack[];
+	audioTracks: AudioTrack[];
 } => {
 	const moovBox = getMoovBox(segments);
 	if (!moovBox) {
@@ -73,8 +82,8 @@ export const getTracks = (
 		};
 	}
 
-	const videoTracks: Track[] = [];
-	const audioTracks: Track[] = [];
+	const videoTracks: VideoTrack[] = [];
+	const audioTracks: AudioTrack[] = [];
 	const tracks = getTraks(moovBox);
 
 	for (const track of tracks) {
@@ -126,7 +135,6 @@ export const getTracks = (
 				type: 'audio',
 				samplePositions,
 				trackId: tkhdBox.trackId,
-				description: null,
 				timescale: timescaleAndDuration.timescale,
 			});
 		}

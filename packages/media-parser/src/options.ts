@@ -3,7 +3,7 @@ import type {
 	OnVideoSample,
 } from './boxes/iso-base-media/mdat/mdat';
 import type {Dimensions} from './get-dimensions';
-import type {Track} from './get-tracks';
+import type {AudioTrack, VideoTrack} from './get-tracks';
 import type {AnySegment} from './parse-result';
 import type {ReaderInterface} from './reader';
 
@@ -56,7 +56,7 @@ export type Metadata<
 	(EnableVideoCodec extends true ? {videoCodec: KnownVideoCodecs | null} : {}) &
 	(EnableAudioCodec extends true ? {audioCodec: KnownAudioCodecs | null} : {}) &
 	(EnableTracks extends true
-		? {videoTracks: Track[]; audioTracks: Track[]}
+		? {videoTracks: VideoTrack[]; audioTracks: AudioTrack[]}
 		: {});
 
 export type ParseMedia = <

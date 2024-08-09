@@ -235,7 +235,6 @@ test('Stream samples', async () => {
 					cts: 16128,
 				},
 			],
-			description: null,
 			timescale: 48000,
 		},
 	]);
