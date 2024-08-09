@@ -4,34 +4,51 @@ import {nodeReader} from '../from-node';
 import {parseMedia} from '../parse-media';
 
 test('Should stream ISO base media', async () => {
-	const result = await parseMedia(
-		RenderInternals.exampleVideos.iphonevideo,
-		{
+	const result = await parseMedia({
+		src: RenderInternals.exampleVideos.iphonevideo,
+		fields: {
 			durationInSeconds: true,
 			fps: true,
 			videoCodec: true,
 			audioCodec: true,
+			tracks: true,
+			dimensions: true,
+			rotation: true,
+			unrotatedDimension: true,
 		},
-		nodeReader,
-	);
+		reader: nodeReader,
+	});
+	expect(result.dimensions).toEqual({
+		width: 2160,
+		height: 3840,
+	});
 	expect(result.durationInSeconds).toBe(12.568333333333333);
 	expect(result.fps).toBe(29.99602174777881);
 	expect(result.videoCodec).toBe('h265');
 	expect(result.audioCodec).toBe('aac');
+	expect(result.videoTracks.length).toBe(1);
+	expect(result.videoTracks[0].codecString).toBe('hvc1.2.4.L150.b0');
+	expect(result.rotation).toBe(-90);
+	expect(result.unrotatedDimension).toEqual({
+		height: 2160,
+		width: 3840,
+	});
 });
 
 test('Should stream WebM with no duration', async () => {
-	const result = await parseMedia(
-		RenderInternals.exampleVideos.nofps,
-		{
+	const result = await parseMedia({
+		src: RenderInternals.exampleVideos.nofps,
+		fields: {
 			fps: true,
 			durationInSeconds: true,
 			dimensions: true,
 			videoCodec: true,
 			audioCodec: true,
+			rotation: true,
+			// TODO: Return WebM tracks
 		},
-		nodeReader,
-	);
+		reader: nodeReader,
+	});
 	expect(result.durationInSeconds).toBe(6.57);
 	expect(result.dimensions).toEqual({
 		width: 1470,
@@ -40,20 +57,23 @@ test('Should stream WebM with no duration', async () => {
 	expect(result.fps).toBe(null);
 	expect(result.videoCodec).toBe('vp8');
 	expect(result.audioCodec).toBe(null);
+	expect(result.rotation).toBe(0);
 });
 
 test('Should stream AV1 with no duration', async () => {
-	const parsed = await parseMedia(
-		RenderInternals.exampleVideos.av1,
-		{
+	const parsed = await parseMedia({
+		src: RenderInternals.exampleVideos.av1,
+		fields: {
 			durationInSeconds: true,
 			dimensions: true,
 			fps: true,
 			videoCodec: true,
 			audioCodec: true,
+			rotation: true,
+			// TODO: Return WebM tracks
 		},
-		nodeReader,
-	);
+		reader: nodeReader,
+	});
 
 	expect(parsed.durationInSeconds).toBe(1);
 	expect(parsed.fps).toBe(null);
@@ -63,20 +83,23 @@ test('Should stream AV1 with no duration', async () => {
 	});
 	expect(parsed.videoCodec).toBe('av1');
 	expect(parsed.audioCodec).toBe(null);
+	expect(parsed.rotation).toBe(0);
 });
 
 test('Should stream corrupted video', async () => {
-	const parsed = await parseMedia(
-		RenderInternals.exampleVideos.corrupted,
-		{
+	const parsed = await parseMedia({
+		src: RenderInternals.exampleVideos.corrupted,
+		fields: {
 			durationInSeconds: true,
 			dimensions: true,
 			fps: true,
 			videoCodec: true,
 			audioCodec: true,
+			tracks: true,
+			rotation: true,
 		},
-		nodeReader,
-	);
+		reader: nodeReader,
+	});
 
 	expect(parsed.durationInSeconds).toBe(30.03);
 	expect(parsed.fps).toBe(23.976023976023974);
@@ -86,20 +109,25 @@ test('Should stream corrupted video', async () => {
 	});
 	expect(parsed.videoCodec).toBe('h264');
 	expect(parsed.audioCodec).toBe('aac');
+	expect(parsed.videoTracks.length).toEqual(1);
+	expect(parsed.videoTracks[0].codecString).toBe('avc1.640028');
+	expect(parsed.rotation).toBe(0);
 });
 
 test('Should stream screen recording video', async () => {
-	const parsed = await parseMedia(
-		RenderInternals.exampleVideos.screenrecording,
-		{
+	const parsed = await parseMedia({
+		src: RenderInternals.exampleVideos.screenrecording,
+		fields: {
 			durationInSeconds: true,
 			dimensions: true,
 			fps: true,
 			videoCodec: true,
 			audioCodec: true,
+			tracks: true,
+			rotation: true,
 		},
-		nodeReader,
-	);
+		reader: nodeReader,
+	});
 
 	expect(parsed.durationInSeconds).toBe(5.866666666666666);
 	expect(parsed.fps).toBe(58.983050847457626);
@@ -109,20 +137,25 @@ test('Should stream screen recording video', async () => {
 	});
 	expect(parsed.videoCodec).toBe('h264');
 	expect(parsed.audioCodec).toBe(null);
+	expect(parsed.videoTracks.length).toEqual(1);
+	expect(parsed.videoTracks[0].codecString).toBe('avc1.4d0033');
+	expect(parsed.rotation).toBe(0);
 });
 
 test('Should stream ProRes video', async () => {
-	const parsed = await parseMedia(
-		RenderInternals.exampleVideos.prores,
-		{
+	const parsed = await parseMedia({
+		src: RenderInternals.exampleVideos.prores,
+		fields: {
 			fps: true,
 			dimensions: true,
 			durationInSeconds: true,
 			videoCodec: true,
 			audioCodec: true,
+			tracks: true,
+			rotation: true,
 		},
-		nodeReader,
-	);
+		reader: nodeReader,
+	});
 
 	expect(parsed.fps).toBe(60);
 	expect(parsed.dimensions.width).toBe(1920);
@@ -130,64 +163,113 @@ test('Should stream ProRes video', async () => {
 	expect(parsed.durationInSeconds).toBe(0.034);
 	expect(parsed.videoCodec).toBe('prores');
 	expect(parsed.audioCodec).toBe('aiff');
+	expect(parsed.videoTracks.length).toEqual(1);
+	expect(parsed.videoTracks[0].codecString).toBe('ap4h');
+	expect(parsed.rotation).toBe(0);
 });
 
 test('Should stream variable fps video', async () => {
-	const parsed = await parseMedia(
-		RenderInternals.exampleVideos.variablefps,
-		{
+	const parsed = await parseMedia({
+		src: RenderInternals.exampleVideos.variablefps,
+		fields: {
 			fps: true,
 			dimensions: true,
 			durationInSeconds: true,
 			videoCodec: true,
 			audioCodec: true,
+			rotation: true,
 		},
-		nodeReader,
-	);
+		reader: nodeReader,
+	});
 
 	expect(parsed.dimensions.width).toBe(1280);
 	expect(parsed.dimensions.height).toBe(720);
 	expect(parsed.durationInSeconds).toBe(22.901);
 	expect(parsed.videoCodec).toBe('vp8');
 	expect(parsed.audioCodec).toBe('opus');
+	expect(parsed.rotation).toBe(0);
 });
 
 test('Should stream MKV video', async () => {
-	const parsed = await parseMedia(
-		RenderInternals.exampleVideos.matroskaPcm16,
-		{
+	const parsed = await parseMedia({
+		src: RenderInternals.exampleVideos.matroskaPcm16,
+		fields: {
 			fps: true,
 			dimensions: true,
 			durationInSeconds: true,
 			videoCodec: true,
 			audioCodec: true,
+			rotation: true,
 		},
-		nodeReader,
-	);
+		reader: nodeReader,
+	});
 
 	expect(parsed.dimensions.width).toBe(1080);
 	expect(parsed.dimensions.height).toBe(1080);
 	expect(parsed.durationInSeconds).toBe(0.333);
 	expect(parsed.videoCodec).toBe('h264');
 	expect(parsed.audioCodec).toBe('pcm');
+	expect(parsed.rotation).toBe(0);
 });
 
 test('Should stream MP3 in MP4 video', async () => {
-	const parsed = await parseMedia(
-		RenderInternals.exampleVideos.mp4withmp3,
-		{
+	const parsed = await parseMedia({
+		src: RenderInternals.exampleVideos.mp4withmp3,
+		fields: {
 			fps: true,
 			dimensions: true,
 			durationInSeconds: true,
 			videoCodec: true,
 			audioCodec: true,
+			tracks: true,
+			rotation: true,
 		},
-		nodeReader,
-	);
+		reader: nodeReader,
+	});
 
 	expect(parsed.dimensions.width).toBe(1080);
 	expect(parsed.dimensions.height).toBe(1080);
 	expect(parsed.durationInSeconds).toBe(0.337);
 	expect(parsed.videoCodec).toBe('h264');
 	expect(parsed.audioCodec).toBe('mp3');
+	expect(parsed.videoTracks.length).toEqual(1);
+	expect(parsed.videoTracks[0].codecString).toBe('avc1.640020');
+	expect(parsed.audioTracks.length).toEqual(1);
+	expect(parsed.audioTracks[0].codecString).toBe('mp4a.6b');
+	expect(parsed.rotation).toBe(0);
+});
+
+test('Should get duration of HEVC video', async () => {
+	const parsed = await parseMedia({
+		src: RenderInternals.exampleVideos.iphonehevc,
+		fields: {
+			durationInSeconds: true,
+			dimensions: true,
+			fps: true,
+			audioCodec: true,
+			rotation: true,
+			tracks: true,
+			unrotatedDimension: true,
+			videoCodec: true,
+		},
+		reader: nodeReader,
+	});
+
+	expect(parsed.durationInSeconds).toBe(3.4);
+	expect(parsed.dimensions).toEqual({
+		width: 1080,
+		height: 1920,
+	});
+	expect(parsed.fps).toEqual(30);
+	expect(parsed.audioCodec).toBe('aac');
+	expect(parsed.rotation).toBe(-90);
+	expect(parsed.videoTracks.length).toBe(1);
+	expect(parsed.videoTracks[0].codecString).toBe('hvc1.2.4.L120.b0');
+	expect(parsed.audioTracks.length).toBe(1);
+	expect(parsed.audioTracks[0].codecString).toBe('mp4a');
+	expect(parsed.unrotatedDimension).toEqual({
+		width: 1920,
+		height: 1080,
+	});
+	expect(parsed.videoCodec).toBe('h265');
 });

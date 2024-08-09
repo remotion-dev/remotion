@@ -151,6 +151,9 @@
 			"path": "./packages/animated-emoji"
 		},
 		{
+			"path": "./packages/browser-renderer"
+		},
+		{
 			"path": "./packages/zod-types"
 		}
 	]

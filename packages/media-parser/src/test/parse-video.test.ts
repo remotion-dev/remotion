@@ -4,13 +4,13 @@ import {nodeReader} from '../from-node';
 import {parseMedia} from '../parse-media';
 
 test('Parse Big Buck bunny', async () => {
-	const data = await parseMedia(
-		RenderInternals.exampleVideos.bigBuckBunny,
-		{
+	const data = await parseMedia({
+		src: RenderInternals.exampleVideos.bigBuckBunny,
+		fields: {
 			boxes: true,
 		},
-		nodeReader,
-	);
+		reader: nodeReader,
+	});
 	expect(data.boxes.slice(0, 2)).toEqual([
 		{
 			offset: 0,
@@ -30,28 +30,14 @@ test('Parse Big Buck bunny', async () => {
 	]);
 });
 
-test('Parse an iPhone video', async () => {
-	const data = await parseMedia(
-		RenderInternals.exampleVideos.iphonevideo,
-		{durationInSeconds: true, dimensions: true},
-		nodeReader,
-	);
-
-	expect(data.durationInSeconds).toBe(12.568333333333333);
-	expect(data.dimensions).toEqual({
-		width: 3840,
-		height: 2160,
-	});
-});
-
 test('Parse framer', async () => {
-	const parsed = await parseMedia(
-		RenderInternals.exampleVideos.framerWithoutFileExtension,
-		{
+	const parsed = await parseMedia({
+		src: RenderInternals.exampleVideos.framerWithoutFileExtension,
+		fields: {
 			boxes: true,
 		},
-		nodeReader,
-	);
+		reader: nodeReader,
+	});
 	expect(parsed.boxes.slice(0, 2)).toEqual([
 		{
 			offset: 0,
@@ -72,11 +58,11 @@ test('Parse framer', async () => {
 });
 
 test('Parse a full video', async () => {
-	const data = await parseMedia(
-		RenderInternals.exampleVideos.framer24fps,
-		{boxes: true},
-		nodeReader,
-	);
+	const data = await parseMedia({
+		src: RenderInternals.exampleVideos.framer24fps,
+		fields: {boxes: true},
+		reader: nodeReader,
+	});
 	if (!data) throw new Error('No data');
 
 	const [first, second, third] = data.boxes;
@@ -97,17 +83,18 @@ test('Parse a full video', async () => {
 		children: [],
 	});
 	expect(third).toEqual({
-		offset: 40,
+		type: 'mdat-box',
 		boxSize: 57014,
-		boxType: 'mdat',
-		children: [],
-		type: 'regular-box',
+		samplesProcessed: false,
 	});
 });
 
 test('Should warn if missing node reader', () => {
-	const data = parseMedia(RenderInternals.exampleVideos.framer24fps, {
-		boxes: true,
+	const data = parseMedia({
+		src: RenderInternals.exampleVideos.framer24fps,
+		fields: {
+			boxes: true,
+		},
 	});
 	expect(data).rejects.toThrow(/node/);
 });

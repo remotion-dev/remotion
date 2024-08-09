@@ -1,0 +1,34 @@
+{
+	"name": "@remotion/browser-renderer",
+	"version": "4.0.194",
+	"main": "dist/index.js",
+	"sideEffects": false,
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/browser-renderer"
+	},
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"scripts": {
+		"formatting": "prettier src --check",
+		"lint": "eslint src --ext ts,tsx",
+		"build": "tsc -d",
+		"watch": "tsc -w"
+	},
+	"files": [
+		"dist"
+	],
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"license": "SEE LICENSE IN LICENSE.md",
+	"dependencies": {
+		"mp4box": "0.5.2"
+	},
+	"peerDependencies": {},
+	"devDependencies": {
+		"@remotion/media-parser": "workspace:*",
+		"@types/dom-webcodecs": "0.1.11"
+	},
+	"keywords": [],
+	"private": true,
+	"description": "Private experimental package"
+}

@@ -1,5 +1,6 @@
 import type {BufferIterator} from '../../../buffer-iterator';
 import type {AnySegment} from '../../../parse-result';
+import type {ParserContext} from '../../../parser-context';
 import type {BaseBox} from '../base-type';
 import {parseBoxes} from '../process-box';
 
@@ -14,10 +15,12 @@ export const parseMebx = ({
 	iterator,
 	offset,
 	size,
+	options,
 }: {
 	iterator: BufferIterator;
 	offset: number;
 	size: number;
+	options: ParserContext;
 }): MebxBox => {
 	// reserved, 6 bit
 	iterator.discard(6);
@@ -29,6 +32,7 @@ export const parseMebx = ({
 		maxBytes: iterator.counter.getOffset() - offset,
 		allowIncompleteBoxes: false,
 		initialBoxes: [],
+		options,
 	});
 
 	if (children.status === 'incomplete') {

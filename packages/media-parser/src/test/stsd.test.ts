@@ -41,6 +41,11 @@ test('Should be able to parse a STSD audio box correctly', () => {
 		iterator,
 		offset: 0,
 		size: 159,
+		options: {
+			canSkipVideoData: true,
+			onAudioSample: null,
+			onVideoSample: null,
+		},
 	});
 
 	expect(parsed).toEqual({
@@ -91,6 +96,7 @@ test('Should be able to parse a STSD audio box correctly', () => {
 									{
 										objectTypeIndication: 'aac',
 										type: 'decoder-config-descriptor',
+										asNumber: 64,
 									},
 									{
 										type: 'sl-config-descriptor',
@@ -181,6 +187,11 @@ test('Should be able to parse a STSD video box correctly', () => {
 
 	const parsed = processSample({
 		iterator: getArrayBufferIterator(buffer),
+		options: {
+			canSkipVideoData: true,
+			onAudioSample: null,
+			onVideoSample: null,
+		},
 	});
 	expect(parsed.sample).toEqual({
 		size: 158,
@@ -205,5 +216,23 @@ test('Should be able to parse a STSD video box correctly', () => {
 		offset: 0,
 		depth: 24,
 		colorTableId: -1,
+		descriptors: [
+			{
+				data: new Uint8Array([
+					1, 100, 0, 32, 255, 225, 0, 27, 103, 100, 0, 32, 172, 217, 64, 68, 2,
+					39, 150, 92, 4, 64, 0, 0, 3, 0, 64, 0, 0, 12, 3, 198, 12, 101, 128, 1,
+					0, 6, 104, 235, 224, 140, 178, 44, 253, 248, 248, 0,
+				]),
+				type: 'avcc-box',
+				configurationString: '640020',
+			},
+			{
+				boxSize: 16,
+				boxType: 'pasp',
+				children: [],
+				offset: 142,
+				type: 'regular-box',
+			},
+		],
 	});
 });

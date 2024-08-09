@@ -1,5 +1,6 @@
 import type {BufferIterator} from '../../../buffer-iterator';
 import type {AnySegment} from '../../../parse-result';
+import type {ParserContext} from '../../../parser-context';
 import type {BaseBox} from '../base-type';
 import {parseBoxes} from '../process-box';
 
@@ -12,16 +13,19 @@ export const parseTrak = ({
 	data,
 	size,
 	offsetAtStart,
+	options,
 }: {
 	data: BufferIterator;
 	size: number;
 	offsetAtStart: number;
+	options: ParserContext;
 }): TrakBox => {
 	const children = parseBoxes({
 		iterator: data,
 		maxBytes: size - (data.counter.getOffset() - offsetAtStart),
 		allowIncompleteBoxes: false,
 		initialBoxes: [],
+		options,
 	});
 
 	if (children.status === 'incomplete') {

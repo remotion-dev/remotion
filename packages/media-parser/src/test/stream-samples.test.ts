@@ -1,0 +1,245 @@
+import {RenderInternals} from '@remotion/renderer';
+import {expect, test} from 'bun:test';
+import {nodeReader} from '../from-node';
+import {parseMedia} from '../parse-media';
+
+test('Stream samples', async () => {
+	const {videoTracks, audioTracks} = await parseMedia({
+		src: RenderInternals.exampleVideos.mp4withmp3,
+		fields: {
+			tracks: true,
+			videoCodec: true,
+			audioCodec: true,
+		},
+		reader: nodeReader,
+	});
+
+	const description = new Uint8Array([
+		1, 100, 0, 32, 255, 225, 0, 32, 103, 100, 0, 32, 172, 217, 64, 68, 2, 39,
+		150, 92, 5, 168, 16, 16, 45, 40, 0, 0, 3, 0, 8, 0, 0, 3, 1, 224, 120, 193,
+		140, 176, 1, 0, 6, 104, 235, 224, 140, 178, 44, 253, 248, 248, 0,
+	]);
+
+	expect(videoTracks).toEqual([
+		{
+			type: 'video',
+			trackId: 1,
+			samplePositions: [
+				{
+					offset: 1637,
+					size: 4834,
+					isKeyframe: true,
+					dts: 0,
+					duration: 512,
+					cts: 1024,
+				},
+				{
+					offset: 6471,
+					size: 437,
+					isKeyframe: false,
+					dts: 512,
+					duration: 512,
+					cts: 1536,
+				},
+				{
+					offset: 7868,
+					size: 698,
+					isKeyframe: false,
+					dts: 1024,
+					duration: 512,
+					cts: 2048,
+				},
+				{
+					offset: 10486,
+					size: 595,
+					isKeyframe: false,
+					dts: 1536,
+					duration: 512,
+					cts: 2560,
+				},
+				{
+					offset: 12041,
+					size: 548,
+					isKeyframe: false,
+					dts: 2048,
+					duration: 512,
+					cts: 3072,
+				},
+				{
+					offset: 14509,
+					size: 611,
+					isKeyframe: false,
+					dts: 2560,
+					duration: 512,
+					cts: 3584,
+				},
+				{
+					offset: 16080,
+					size: 701,
+					isKeyframe: false,
+					dts: 3072,
+					duration: 512,
+					cts: 4096,
+				},
+				{
+					offset: 17741,
+					size: 535,
+					isKeyframe: false,
+					dts: 3584,
+					duration: 512,
+					cts: 4608,
+				},
+				{
+					offset: 20196,
+					size: 776,
+					isKeyframe: false,
+					dts: 4096,
+					duration: 512,
+					cts: 5120,
+				},
+				{
+					offset: 21932,
+					size: 586,
+					isKeyframe: false,
+					dts: 4608,
+					duration: 512,
+					cts: 5632,
+				},
+			],
+			description,
+			timescale: 15360,
+			codecString: 'avc1.640020',
+		},
+	]);
+
+	expect(audioTracks).toEqual([
+		{
+			type: 'audio',
+			trackId: 2,
+			samplePositions: [
+				{
+					offset: 6908,
+					size: 960,
+					isKeyframe: true,
+					dts: 0,
+					duration: 1152,
+					cts: 0,
+				},
+				{
+					offset: 8566,
+					size: 960,
+					isKeyframe: true,
+					dts: 1152,
+					duration: 1152,
+					cts: 1152,
+				},
+				{
+					offset: 9526,
+					size: 960,
+					isKeyframe: true,
+					dts: 2304,
+					duration: 1152,
+					cts: 2304,
+				},
+				{
+					offset: 11081,
+					size: 960,
+					isKeyframe: true,
+					dts: 3456,
+					duration: 1152,
+					cts: 3456,
+				},
+				{
+					offset: 12589,
+					size: 960,
+					isKeyframe: true,
+					dts: 4608,
+					duration: 1152,
+					cts: 4608,
+				},
+				{
+					offset: 13549,
+					size: 960,
+					isKeyframe: true,
+					dts: 5760,
+					duration: 1152,
+					cts: 5760,
+				},
+				{
+					offset: 15120,
+					size: 960,
+					isKeyframe: true,
+					dts: 6912,
+					duration: 1152,
+					cts: 6912,
+				},
+				{
+					offset: 16781,
+					size: 960,
+					isKeyframe: true,
+					dts: 8064,
+					duration: 1152,
+					cts: 8064,
+				},
+				{
+					offset: 18276,
+					size: 960,
+					isKeyframe: true,
+					dts: 9216,
+					duration: 1152,
+					cts: 9216,
+				},
+				{
+					offset: 19236,
+					size: 960,
+					isKeyframe: true,
+					dts: 10368,
+					duration: 1152,
+					cts: 10368,
+				},
+				{
+					offset: 20972,
+					size: 960,
+					isKeyframe: true,
+					dts: 11520,
+					duration: 1152,
+					cts: 11520,
+				},
+				{
+					offset: 22518,
+					size: 960,
+					isKeyframe: true,
+					dts: 12672,
+					duration: 1152,
+					cts: 12672,
+				},
+				{
+					offset: 23478,
+					size: 960,
+					isKeyframe: true,
+					dts: 13824,
+					duration: 1152,
+					cts: 13824,
+				},
+				{
+					offset: 24438,
+					size: 960,
+					isKeyframe: true,
+					dts: 14976,
+					duration: 1152,
+					cts: 14976,
+				},
+				{
+					offset: 25398,
+					size: 960,
+					isKeyframe: true,
+					dts: 16128,
+					duration: 1152,
+					cts: 16128,
+				},
+			],
+			timescale: 48000,
+			codecString: 'mp4a.6b',
+		},
+	]);
+});

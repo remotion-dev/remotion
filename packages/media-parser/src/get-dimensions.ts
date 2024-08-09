@@ -1,12 +1,22 @@
 import type {MainSegment} from './boxes/webm/segments/main';
+import {trakBoxContainsVideo} from './get-fps';
 import type {AnySegment} from './parse-result';
+import {getMoovBox, getStsdBox, getTkhdBox, getTraks} from './traversal';
 
 export type Dimensions = {
 	width: number;
 	height: number;
 };
 
-const getDimensionsFromMatroska = (segments: MainSegment): Dimensions => {
+export type ExpandedDimensions = Dimensions & {
+	rotation: number;
+	unrotatedWidth: number;
+	unrotatedHeight: number;
+};
+
+const getDimensionsFromMatroska = (
+	segments: MainSegment,
+): ExpandedDimensions => {
 	const tracksSegment = segments.children.find(
 		(b) => b.type === 'tracks-segment',
 	);
@@ -53,80 +63,43 @@ const getDimensionsFromMatroska = (segments: MainSegment): Dimensions => {
 	return {
 		width: widthSegment.width,
 		height: heightSegment.height,
+		rotation: 0,
+		unrotatedHeight: heightSegment.height,
+		unrotatedWidth: widthSegment.width,
 	};
 };
 
-export const getDimensions = (boxes: AnySegment[]): Dimensions => {
+export const getDimensions = (boxes: AnySegment[]): ExpandedDimensions => {
 	const matroskaBox = boxes.find((b) => b.type === 'main-segment');
 	if (matroskaBox && matroskaBox.type === 'main-segment') {
 		return getDimensionsFromMatroska(matroskaBox);
 	}
 
-	const moovBox = boxes.find((b) => b.type === 'moov-box');
-	if (!moovBox || moovBox.type !== 'moov-box') {
+	const moovBox = getMoovBox(boxes);
+	if (!moovBox) {
 		throw new Error('Expected moov box');
 	}
 
-	const {children} = moovBox;
-	if (!children) {
-		throw new Error('Expected moov box children');
-	}
+	const trakBox = getTraks(moovBox).filter((t) => trakBoxContainsVideo(t))[0];
 
-	const t = children.find((b) => b.type === 'trak-box');
-
-	if (!t || t.type !== 'trak-box') {
+	if (!trakBox) {
 		throw new Error('Expected trak box');
 	}
 
-	const mdiaBox = t.children.find(
-		(c) => c.type === 'regular-box' && c.boxType === 'mdia',
-	);
-	const tkhdBox = t.children.find((c) => c.type === 'tkhd-box');
-	if (tkhdBox && tkhdBox.type === 'tkhd-box') {
+	const tkhdBox = getTkhdBox(trakBox);
+	if (tkhdBox) {
 		return {
 			width: tkhdBox.width,
 			height: tkhdBox.height,
+			rotation: tkhdBox.rotation,
+			unrotatedHeight: tkhdBox.unrotatedHeight,
+			unrotatedWidth: tkhdBox.unrotatedWidth,
 		};
 	}
 
-	if (!mdiaBox) {
-		throw new Error('Expected mdia box');
-	}
-
-	if (mdiaBox.type !== 'regular-box') {
-		throw new Error('Expected mdia box');
-	}
-
-	const minfBox = mdiaBox.children.find(
-		(c) => c.type === 'regular-box' && c.boxType === 'minf',
-	);
-	if (!minfBox) {
-		throw new Error('Expected minf box');
-	}
-
-	if (minfBox.type !== 'regular-box') {
-		throw new Error('Expected minf box');
-	}
-
-	const stblBox = minfBox.children.find(
-		(c) => c.type === 'regular-box' && c.boxType === 'stbl',
-	);
-
-	if (!stblBox) {
-		throw new Error('Expected stbl box');
-	}
-
-	if (stblBox.type !== 'regular-box') {
-		throw new Error('Expected stbl box');
-	}
-
-	const stsdBox = stblBox.children.find((c) => c.type === 'stsd-box');
+	const stsdBox = getStsdBox(trakBox);
 
 	if (!stsdBox) {
-		throw new Error('Expected stsd box');
-	}
-
-	if (stsdBox.type !== 'stsd-box') {
 		throw new Error('Expected stsd box');
 	}
 
@@ -135,12 +108,18 @@ export const getDimensions = (boxes: AnySegment[]): Dimensions => {
 		throw new Error('Has no video stream');
 	}
 
-	const [firstTrack] = videoSamples;
-	if (firstTrack.type !== 'video') {
+	const [firstSample] = videoSamples;
+	if (firstSample.type !== 'video') {
 		throw new Error('Expected video track');
 	}
 
-	return {width: firstTrack.width, height: firstTrack.height};
+	return {
+		width: firstSample.width,
+		height: firstSample.height,
+		rotation: 0,
+		unrotatedHeight: firstSample.height,
+		unrotatedWidth: firstSample.width,
+	};
 };
 
 // TODO: An audio track should return 'hasDimensions' = true on an audio file

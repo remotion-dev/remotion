@@ -22,6 +22,7 @@ import {ComplexSounds} from './ComplexSounds';
 import {MyCtx, WrappedInContext} from './Context';
 import CorruptVideo from './CorruptVideo';
 import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
+import {EncoderDemo} from './EncoderDemo';
 import {ErrorOnFrame10} from './ErrorOnFrame10';
 import {Expert} from './Expert';
 import {FontDemo} from './Fonts';
@@ -1439,6 +1440,12 @@ export const Index: React.FC = () => {
 					durationInFrames={10_000}
 				/>
 			</Folder>
+			<Still
+				id="EncoderDemo"
+				component={EncoderDemo}
+				height={500}
+				width={500}
+			/>
 		</>
 	);
 };

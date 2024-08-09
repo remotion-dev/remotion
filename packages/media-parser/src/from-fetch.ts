@@ -1,7 +1,11 @@
 import type {ReaderInterface} from './reader';
 
-export const webReader: ReaderInterface = {
+export const fetchReader: ReaderInterface = {
 	read: async (src, range) => {
+		if (typeof src !== 'string') {
+			throw new Error('src must be a string when using `webReader`');
+		}
+
 		const resolvedUrl =
 			typeof window !== 'undefined' && typeof window.location !== 'undefined'
 				? new URL(src, window.location.origin).toString()
@@ -46,6 +50,10 @@ export const webReader: ReaderInterface = {
 		return {reader, contentLength};
 	},
 	getLength: async (src) => {
+		if (typeof src !== 'string') {
+			throw new Error('src must be a string when using `webReader`');
+		}
+
 		const res = await fetch(src, {
 			method: 'HEAD',
 		});

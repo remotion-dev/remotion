@@ -5,6 +5,7 @@ type AudioObjectType = 'aac' | 'mp3' | 'unknown';
 type DecoderConfigDescriptor = {
 	type: 'decoder-config-descriptor';
 	objectTypeIndication: AudioObjectType;
+	asNumber: number;
 };
 
 const mapToObjectAudioIndicator = (num: number): AudioObjectType => {
@@ -58,6 +59,7 @@ export const processDescriptor = ({
 			descriptor: {
 				type: 'decoder-config-descriptor',
 				objectTypeIndication: mapToObjectAudioIndicator(objectTypeIndication),
+				asNumber: objectTypeIndication,
 			},
 		};
 	}

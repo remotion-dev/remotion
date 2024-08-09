@@ -1,25 +1,38 @@
 import type {BufferIterator} from './buffer-iterator';
 import {getArrayBufferIterator} from './buffer-iterator';
-import {webReader} from './from-web';
+import {fetchReader} from './from-fetch';
 import {getAudioCodec} from './get-audio-codec';
 import {getDimensions} from './get-dimensions';
 import {getDuration} from './get-duration';
 import {getFps} from './get-fps';
+import {getTracks} from './get-tracks';
 import {getVideoCodec} from './get-video-codec';
 import {hasAllInfo} from './has-all-info';
 import type {Metadata, ParseMedia} from './options';
 import type {ParseResult} from './parse-result';
 import {parseVideo} from './parse-video';
 
-export const parseMedia: ParseMedia = async (
+export const parseMedia: ParseMedia = async ({
 	src,
-	options,
-	readerInterface = webReader,
-) => {
+	fields,
+	reader: readerInterface = fetchReader,
+	onAudioSample,
+	onVideoSample,
+}) => {
 	const {reader, contentLength} = await readerInterface.read(src, null);
 	let currentReader = reader;
 
-	const returnValue = {} as Metadata<true, true, true, true, true, true>;
+	const returnValue = {} as Metadata<
+		true,
+		true,
+		true,
+		true,
+		true,
+		true,
+		true,
+		true,
+		true
+	>;
 
 	let iterator: BufferIterator | null = null;
 	let parseResult: ParseResult | null = null;
@@ -42,10 +55,17 @@ export const parseMedia: ParseMedia = async (
 		if (parseResult) {
 			parseResult = parseResult.continueParsing();
 		} else {
-			parseResult = parseVideo(iterator);
+			parseResult = parseVideo({
+				iterator,
+				options: {
+					canSkipVideoData: !(onAudioSample || onVideoSample),
+					onAudioSample: onAudioSample ?? null,
+					onVideoSample: onVideoSample ?? null,
+				},
+			});
 		}
 
-		if (hasAllInfo(options, parseResult)) {
+		if (hasAllInfo(fields, parseResult)) {
 			if (!currentReader.closed) {
 				currentReader.cancel(new Error('has all information'));
 			}
@@ -75,27 +95,50 @@ export const parseMedia: ParseMedia = async (
 		throw new Error('Could not parse video');
 	}
 
-	if (options.dimensions) {
-		returnValue.dimensions = getDimensions(parseResult.segments);
+	if (fields.dimensions) {
+		const dimensions = getDimensions(parseResult.segments);
+		returnValue.dimensions = {
+			width: dimensions.width,
+			height: dimensions.height,
+		};
 	}
 
-	if (options.durationInSeconds) {
+	if (fields.unrotatedDimension) {
+		const dimensions = getDimensions(parseResult.segments);
+		returnValue.unrotatedDimension = {
+			width: dimensions.unrotatedWidth,
+			height: dimensions.unrotatedHeight,
+		};
+	}
+
+	if (fields.rotation) {
+		const dimensions = getDimensions(parseResult.segments);
+		returnValue.rotation = dimensions.rotation;
+	}
+
+	if (fields.durationInSeconds) {
 		returnValue.durationInSeconds = getDuration(parseResult.segments);
 	}
 
-	if (options.fps) {
+	if (fields.fps) {
 		returnValue.fps = getFps(parseResult.segments);
 	}
 
-	if (options.videoCodec) {
+	if (fields.videoCodec) {
 		returnValue.videoCodec = getVideoCodec(parseResult.segments);
 	}
 
-	if (options.audioCodec) {
+	if (fields.audioCodec) {
 		returnValue.audioCodec = getAudioCodec(parseResult.segments);
 	}
 
-	if (options.boxes) {
+	if (fields.tracks) {
+		const {audioTracks, videoTracks} = getTracks(parseResult.segments);
+		returnValue.audioTracks = audioTracks;
+		returnValue.videoTracks = videoTracks;
+	}
+
+	if (fields.boxes) {
 		returnValue.boxes = parseResult.segments;
 	}
 

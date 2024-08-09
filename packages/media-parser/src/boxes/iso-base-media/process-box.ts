@@ -1,14 +1,28 @@
+/* eslint-disable max-depth */
 import type {BufferIterator} from '../../buffer-iterator';
-import type {IsoBaseMediaBox, ParseResult} from '../../parse-result';
+import {hasTracks} from '../../get-tracks';
+import type {
+	AnySegment,
+	IsoBaseMediaBox,
+	ParseResult,
+} from '../../parse-result';
 import type {BoxAndNext} from '../../parse-video';
+import type {ParserContext} from '../../parser-context';
+import {parseAvcc, parseHvcc} from './avcc-hvcc';
 import {parseEsds} from './esds/esds';
 import {parseFtyp} from './ftyp';
+import {parseMdat} from './mdat/mdat';
 import {parseMdhd} from './mdhd';
 import {parseMoov} from './moov/moov';
 import {parseMvhd} from './mvhd';
+import {parseCtts} from './stsd/ctts';
 import {parseMebx} from './stsd/mebx';
+import {parseStco} from './stsd/stco';
+import {parseStsc} from './stsd/stsc';
 import {parseStsd} from './stsd/stsd';
-import {parseStts} from './stts/stts';
+import {parseStss} from './stsd/stss';
+import {parseStsz} from './stsd/stsz';
+import {parseStts} from './stsd/stts';
 import {parseTkhd} from './tkhd';
 import {parseTrak} from './trak/trak';
 
@@ -16,10 +30,12 @@ const getChildren = ({
 	boxType,
 	iterator,
 	bytesRemainingInBox,
+	options,
 }: {
 	boxType: string;
 	iterator: BufferIterator;
 	bytesRemainingInBox: number;
+	options: ParserContext;
 }) => {
 	const parseChildren =
 		boxType === 'mdia' ||
@@ -35,6 +51,7 @@ const getChildren = ({
 			maxBytes: bytesRemainingInBox,
 			allowIncompleteBoxes: false,
 			initialBoxes: [],
+			options,
 		});
 
 		if (parsed.status === 'incomplete') {
@@ -55,16 +72,28 @@ const getChildren = ({
 const processBox = ({
 	iterator,
 	allowIncompleteBoxes,
+	parsedBoxes,
+	options,
 }: {
 	iterator: BufferIterator;
 	allowIncompleteBoxes: boolean;
+	parsedBoxes: AnySegment[];
+	options: ParserContext;
 }): BoxAndNext => {
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
 
 	const boxSize = iterator.getFourByteNumber();
 	if (boxSize === 0) {
-		throw new Error(`Expected box size of not 0, got ${boxSize}`);
+		return {
+			type: 'complete',
+			box: {
+				type: 'void-box',
+				boxSize: 0,
+			},
+			size: 4,
+			skipTo: null,
+		};
 	}
 
 	if (bytesRemaining < boxSize) {
@@ -73,23 +102,26 @@ const processBox = ({
 			iterator.counter.decrement(4);
 
 			if (type === 'mdat') {
-				const skipTo = fileOffset + boxSize;
-				const bytesToSkip = skipTo - iterator.counter.getOffset();
+				const shouldSkip = options.canSkipVideoData || !hasTracks(parsedBoxes);
+				if (shouldSkip) {
+					const skipTo = fileOffset + boxSize;
+					const bytesToSkip = skipTo - iterator.counter.getOffset();
 
-				// If there is a huge mdat chunk, we can skip it because we don't need it for the metadata
-				if (bytesToSkip > 1_000_000) {
-					return {
-						type: 'complete',
-						box: {
-							type: 'regular-box',
-							boxType: 'mdat',
-							children: [],
-							boxSize,
-							offset: fileOffset,
-						},
-						size: boxSize,
-						skipTo: fileOffset + boxSize,
-					};
+					// If there is a huge mdat chunk, we can skip it because we don't need it for the metadata
+					if (bytesToSkip > 1_000_000) {
+						return {
+							type: 'complete',
+							box: {
+								type: 'regular-box',
+								boxType: 'mdat',
+								children: [],
+								boxSize,
+								offset: fileOffset,
+							},
+							size: boxSize,
+							skipTo: fileOffset + boxSize,
+						};
+					}
 				}
 			}
 		}
@@ -141,7 +173,87 @@ const processBox = ({
 	}
 
 	if (boxType === 'stsd') {
-		const box = parseStsd({iterator, offset: fileOffset, size: boxSize});
+		const box = parseStsd({
+			iterator,
+			offset: fileOffset,
+			size: boxSize,
+			options,
+		});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
+	if (boxType === 'stsz') {
+		const box = parseStsz({
+			iterator,
+			offset: fileOffset,
+			size: boxSize,
+		});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
+	if (boxType === 'stco') {
+		const box = parseStco({
+			iterator,
+			offset: fileOffset,
+			size: boxSize,
+		});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
+	if (boxType === 'stss') {
+		const box = parseStss({
+			iterator,
+			offset: fileOffset,
+			boxSize,
+		});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
+	if (boxType === 'ctts') {
+		const box = parseCtts({
+			iterator,
+			offset: fileOffset,
+			size: boxSize,
+		});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
+	if (boxType === 'stsc') {
+		const box = parseStsc({
+			iterator,
+			offset: fileOffset,
+			size: boxSize,
+		});
 
 		return {
 			type: 'complete',
@@ -152,7 +264,12 @@ const processBox = ({
 	}
 
 	if (boxType === 'mebx') {
-		const box = parseMebx({iterator, offset: fileOffset, size: boxSize});
+		const box = parseMebx({
+			iterator,
+			offset: fileOffset,
+			size: boxSize,
+			options,
+		});
 
 		return {
 			type: 'complete',
@@ -163,7 +280,12 @@ const processBox = ({
 	}
 
 	if (boxType === 'moov') {
-		const box = parseMoov({iterator, offset: fileOffset, size: boxSize});
+		const box = parseMoov({
+			iterator,
+			offset: fileOffset,
+			size: boxSize,
+			options,
+		});
 
 		return {
 			type: 'complete',
@@ -178,6 +300,7 @@ const processBox = ({
 			data: iterator,
 			size: boxSize,
 			offsetAtStart: fileOffset,
+			options,
 		});
 
 		return {
@@ -193,6 +316,35 @@ const processBox = ({
 			data: iterator,
 			size: boxSize,
 			fileOffset,
+		});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
+	if (boxType === 'avcC') {
+		const box = parseAvcc({
+			data: iterator,
+			size: boxSize,
+		});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
+	if (boxType === 'hvcC') {
+		const box = parseHvcc({
+			data: iterator,
+			size: boxSize,
+			offset: fileOffset,
 		});
 
 		return {
@@ -233,6 +385,23 @@ const processBox = ({
 		};
 	}
 
+	if (boxType === 'mdat') {
+		const box = parseMdat({
+			data: iterator,
+			size: boxSize,
+			fileOffset,
+			existingBoxes: parsedBoxes,
+			options,
+		});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
 	const bytesRemainingInBox =
 		boxSize - (iterator.counter.getOffset() - fileOffset);
 
@@ -240,6 +409,7 @@ const processBox = ({
 		boxType,
 		iterator,
 		bytesRemainingInBox,
+		options,
 	});
 
 	return {
@@ -261,11 +431,13 @@ export const parseBoxes = ({
 	maxBytes,
 	allowIncompleteBoxes,
 	initialBoxes,
+	options,
 }: {
 	iterator: BufferIterator;
 	maxBytes: number;
 	allowIncompleteBoxes: boolean;
 	initialBoxes: IsoBaseMediaBox[];
+	options: ParserContext;
 }): ParseResult => {
 	const boxes: IsoBaseMediaBox[] = initialBoxes;
 	const initialOffset = iterator.counter.getOffset();
@@ -277,6 +449,8 @@ export const parseBoxes = ({
 		const result = processBox({
 			iterator,
 			allowIncompleteBoxes,
+			parsedBoxes: initialBoxes,
+			options,
 		});
 		if (result.type === 'incomplete') {
 			if (Number.isFinite(maxBytes)) {
@@ -292,6 +466,7 @@ export const parseBoxes = ({
 						maxBytes,
 						allowIncompleteBoxes,
 						initialBoxes: boxes,
+						options,
 					});
 				},
 				skipTo: null,
@@ -310,6 +485,7 @@ export const parseBoxes = ({
 						maxBytes,
 						allowIncompleteBoxes,
 						initialBoxes: boxes,
+						options,
 					});
 				},
 				skipTo: result.skipTo,

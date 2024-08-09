@@ -24,12 +24,20 @@
 	"exports": {
 		".": "./dist/index.js",
 		"./node": "./dist/from-node.js",
+		"./fetch": "./dist/from-fetch.js",
+		"./web-file": "./dist/from-web-file.js",
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
 		">=1.0": {
 			"node": [
 				"dist/from-node.d.ts"
+			],
+			"fetch": [
+				"dist/from-fetch.d.ts"
+			],
+			"web-file": [
+				"dist/from-web-file.d.ts"
 			]
 		}
 	},
