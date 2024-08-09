@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 // https://github.com/gpac/mp4box.js/issues/233
 
 declare module 'mp4box' {
@@ -454,20 +455,6 @@ declare module 'mp4box' {
 			writeHeader(stream: any): void;
 		}
 
-		export class HintSampleEntry extends SampleEntry {
-			constructor(type: any, size: any);
-		}
-
-		export class MetadataSampleEntry extends SampleEntry {
-			constructor(type: any, size: any);
-
-			isMetadata(): any;
-		}
-
-		export class OpusSampleEntry extends SampleEntry {
-			constructor(size: any);
-		}
-
 		export class SampleEntry extends Box {
 			constructor(type: any, size: any, hdr_size: any, start: any);
 
@@ -489,6 +476,20 @@ declare module 'mp4box' {
 			write(stream: any): void;
 			writeFooter(stream: any): void;
 			writeHeader(stream: any): void;
+		}
+
+		export class HintSampleEntry extends SampleEntry {
+			constructor(type: any, size: any);
+		}
+
+		export class MetadataSampleEntry extends SampleEntry {
+			constructor(type: any, size: any);
+
+			isMetadata(): any;
+		}
+
+		export class OpusSampleEntry extends SampleEntry {
+			constructor(size: any);
 		}
 
 		export class SampleGroupEntry {

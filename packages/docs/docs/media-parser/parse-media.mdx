@@ -68,7 +68,9 @@ Possible fields are:
 
 _`{width: number, height: number}`_
 
-The dimensions of the video.
+The dimensions of the video.  
+Any rotation is already applied - the dimensions are like a media player would show them.  
+Use `unrotatedDimensions` to get the dimensions before rotation.
 
 #### `durationInSeconds`
 
@@ -97,6 +99,23 @@ One of `"h264"`, `"h265"`, `"vp8"`, `"vp9"`, `"av1"`, `"prores"` or `null` (in c
 The audio codec of the file.  
 If multiple audio tracks are present, this will be the first audio track.  
 One of `'aac'`, `'mp3'`, `'aiff'`, `'opus'`, `'pcm'`, `'unknown'` (audio is there but not recognized) or `null` (in case of no audio detected).
+
+#### `tracks`
+
+Returns two arrays `videoTracks` and `audioTracks`.  
+The data structure of them is not yet stable.
+
+#### `unrotatedDimensions`
+
+_`{width: number, height: number}`_
+
+The dimensions of the video before rotation.  
+
+#### `rotation`
+
+_number_
+
+The rotation of the video in degrees (e.g. `-90` for a 90° counter-clockwise rotation).
 
 ### `reader`
 
