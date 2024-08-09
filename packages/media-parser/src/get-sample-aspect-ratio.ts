@@ -102,19 +102,16 @@ export const applyAspectRatios = ({
 		return dimensions;
 	}
 
-	const newWidth = Math.max(
-		Math.round(
-			(dimensions.width * sampleAspectRatio.numerator) /
-				sampleAspectRatio.denominator,
-		),
-		dimensions.width,
+	const newWidth = Math.round(
+		(dimensions.width * sampleAspectRatio.numerator) /
+			sampleAspectRatio.denominator,
 	);
-	const newHeight = Math.round(
+	const newHeight = Math.floor(
 		newWidth / (displayAspectRatio.numerator / displayAspectRatio.denominator),
 	);
 
 	return {
-		width: newWidth,
+		width: Math.floor(newWidth),
 		height: newHeight,
 	};
 };

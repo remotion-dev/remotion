@@ -115,6 +115,8 @@ test('Stream samples', async () => {
 			},
 			width: 1080,
 			height: 1080,
+			untransformedWidth: 1080,
+			untransformedHeight: 1080,
 		},
 	]);
 

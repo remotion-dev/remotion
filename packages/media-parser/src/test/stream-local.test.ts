@@ -307,6 +307,10 @@ test('Custom DAR', async () => {
 	expect(parsed.audioCodec).toBe('aac');
 	expect(parsed.videoTracks.length).toEqual(1);
 	expect(parsed.videoTracks[0].codecString).toBe('avc1.64001f');
+	expect(parsed.videoTracks[0].width).toBe(405);
+	expect(parsed.videoTracks[0].height).toBe(720);
+	expect(parsed.videoTracks[0].untransformedWidth).toBe(1280);
+	expect(parsed.videoTracks[0].untransformedHeight).toBe(720);
 	expect(parsed.rotation).toBe(0);
 	expect(parsed.unrotatedDimension).toEqual({
 		height: 720,

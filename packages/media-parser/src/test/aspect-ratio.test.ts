@@ -36,7 +36,7 @@ test('Should calculate sample aspect ratio', () => {
 		},
 	});
 	expect(applied).toEqual({
-		width: 1280,
-		height: 2276,
+		width: 405,
+		height: 720,
 	});
 });
