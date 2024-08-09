@@ -230,6 +230,7 @@ export const getArrayBufferIterator = (
 				'0x7ba9',
 				'0x63a2',
 				'0x73a4',
+				'0x7373',
 			];
 
 			const firstTwoString = `${firstOneString}${Array.from(

@@ -273,6 +273,7 @@ export const parseMaxBlockAdditionId = (
 
 export type ColorSegment = {
 	type: 'color-segment';
+	length: number;
 };
 
 export const parseColorSegment = (iterator: BufferIterator): ColorSegment => {
@@ -282,6 +283,7 @@ export const parseColorSegment = (iterator: BufferIterator): ColorSegment => {
 
 	return {
 		type: 'color-segment',
+		length,
 	};
 };
 
@@ -383,5 +385,39 @@ export const parseDefaultFlagSegment = (
 	return {
 		type: 'default-flag-segment',
 		defaultFlag: Boolean(iterator.getUint8()),
+	};
+};
+
+export type TagsSegment = {
+	type: 'tags-segment';
+	children: MatroskaSegment[];
+};
+
+export const parseTagsSegment = (iterator: BufferIterator): TagsSegment => {
+	const offset = iterator.counter.getOffset();
+	const length = iterator.getVint();
+
+	return {
+		type: 'tags-segment',
+		children: expectChildren(
+			iterator,
+			length - (iterator.counter.getOffset() - offset),
+		),
+	};
+};
+
+export type TagSegment = {
+	type: 'tag-segment';
+	length: number;
+};
+
+export const parseTagSegment = (iterator: BufferIterator): TagSegment => {
+	const length = iterator.getVint();
+
+	iterator.discard(length);
+
+	return {
+		type: 'tag-segment',
+		length,
 	};
 };
