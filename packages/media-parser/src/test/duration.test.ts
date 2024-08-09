@@ -25,10 +25,9 @@ test('Should get duration of HEVC video', async () => {
 	});
 
 	expect(parsed.durationInSeconds).toBe(3.4);
-	// TODO: Should apply rotation matrix to get the correct dimensions
 	expect(parsed.dimensions).toEqual({
-		width: 1920,
-		height: 1080,
+		width: 1080,
+		height: 1920,
 	});
 	expect(parsed.fps).toEqual(30);
 });

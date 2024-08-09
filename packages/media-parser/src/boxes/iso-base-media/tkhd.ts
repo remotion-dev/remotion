@@ -18,6 +18,24 @@ export interface TkhdBox extends BaseBox {
 	height: number;
 }
 
+const applyRotation = ({
+	matrix,
+	width,
+	height,
+}: {
+	matrix: readonly [number, number, number, number];
+	width: number;
+	height: number;
+}) => {
+	const newWidth = matrix[0] * width + matrix[1] * height; // 0*3840 + 1*2160
+	const newHeight = matrix[2] * width + matrix[3] * height; // -1*3840 + 0*2160
+
+	return {
+		width: Math.abs(newWidth),
+		height: Math.abs(newHeight),
+	};
+};
+
 export const parseTkhd = ({
 	iterator,
 	offset,
@@ -66,25 +84,28 @@ export const parseTkhd = ({
 	iterator.discard(2);
 
 	const matrix = [
-		iterator.getUint32(),
-		iterator.getUint32(),
-		iterator.getUint32(),
-		iterator.getUint32(),
-		iterator.getUint32(),
-		iterator.getUint32(),
-		iterator.getUint32(),
-		iterator.getUint32(),
-		iterator.getUint32(),
+		iterator.getFixedPointSigned1616Number(),
+		iterator.getFixedPointSigned1616Number(),
+		iterator.getFixedPointSigned230Number(),
+		iterator.getFixedPointSigned1616Number(),
+		iterator.getFixedPointSigned1616Number(),
+		iterator.getFixedPointSigned230Number(),
+		iterator.getFixedPointSigned1616Number(),
+		iterator.getFixedPointSigned1616Number(),
+		iterator.getFixedPointSigned230Number(),
 	];
-	const widthWithoutRotationApplied =
-		iterator.getUint32() / (matrix[0] === 0 ? 1 : matrix[0]);
-	const heightWithoutRotationApplied =
-		iterator.getUint32() / (matrix[4] === 0 ? 1 : matrix[4]);
 
-	// TODO: This is not correct, HEVC videos with matrix is wrong
-	const width = widthWithoutRotationApplied / (matrix[1] === 0 ? 1 : matrix[1]);
-	const height =
-		heightWithoutRotationApplied / (matrix[1] === 0 ? 1 : matrix[1]);
+	const rotationMatrix = [matrix[0], matrix[1], matrix[3], matrix[4]] as const;
+
+	const widthWithoutRotationApplied =
+		iterator.getFixedPointUnsigned1616Number();
+	const heightWithoutRotationApplied = iterator.getFixedPointSigned1616Number();
+
+	const {width, height} = applyRotation({
+		matrix: rotationMatrix,
+		width: widthWithoutRotationApplied,
+		height: heightWithoutRotationApplied,
+	});
 
 	return {
 		offset,

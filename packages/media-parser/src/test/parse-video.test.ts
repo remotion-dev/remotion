@@ -39,8 +39,8 @@ test('Parse an iPhone video', async () => {
 
 	expect(data.durationInSeconds).toBe(12.568333333333333);
 	expect(data.dimensions).toEqual({
-		width: 3840,
-		height: 2160,
+		width: 2160,
+		height: 3840,
 	});
 });
 

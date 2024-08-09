@@ -12,8 +12,13 @@ test('Should stream ISO base media', async () => {
 			videoCodec: true,
 			audioCodec: true,
 			tracks: true,
+			dimensions: true,
 		},
 		reader: nodeReader,
+	});
+	expect(result.dimensions).toEqual({
+		width: 2160,
+		height: 3840,
 	});
 	expect(result.durationInSeconds).toBe(12.568333333333333);
 	expect(result.fps).toBe(29.99602174777881);

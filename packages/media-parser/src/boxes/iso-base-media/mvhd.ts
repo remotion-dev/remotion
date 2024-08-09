@@ -81,7 +81,11 @@ export const parseMvhd = ({
 	// matrix
 	const matrix: number[] = [];
 	for (let i = 0; i < 9; i++) {
-		matrix.push(iterator.getUint32());
+		if (i % 3 === 2) {
+			matrix.push(iterator.getFixedPointSigned230Number());
+		} else {
+			matrix.push(iterator.getFixedPointSigned1616Number());
+		}
 	}
 
 	// pre-defined

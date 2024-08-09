@@ -167,7 +167,7 @@ export const processSample = ({
 			const sampleSize = iterator.getUint16();
 			const compressionId = iterator.getUint16();
 			const packetSize = iterator.getUint16();
-			const sampleRate = iterator.getFixedPoint1616Number();
+			const sampleRate = iterator.getFixedPointUnsigned1616Number();
 
 			const bytesRemainingInBox =
 				boxSize - (iterator.counter.getOffset() - fileOffset);
@@ -212,7 +212,7 @@ export const processSample = ({
 			const sampleSize = iterator.getUint16();
 			const compressionId = iterator.getInt16();
 			const packetSize = iterator.getUint16();
-			const sampleRate = iterator.getFixedPoint1616Number();
+			const sampleRate = iterator.getFixedPointUnsigned1616Number();
 
 			const samplesPerPacket = iterator.getUint32();
 
@@ -267,8 +267,8 @@ export const processSample = ({
 		const spacialQuality = iterator.getUint32();
 		const width = iterator.getUint16();
 		const height = iterator.getUint16();
-		const horizontalResolution = iterator.getFixedPoint1616Number();
-		const verticalResolution = iterator.getFixedPoint1616Number();
+		const horizontalResolution = iterator.getFixedPointUnsigned1616Number();
+		const verticalResolution = iterator.getFixedPointUnsigned1616Number();
 		const dataSize = iterator.getUint32();
 		const frameCountPerSample = iterator.getUint16();
 		const compressorName = iterator.getPascalString();
