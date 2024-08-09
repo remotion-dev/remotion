@@ -32,8 +32,13 @@ export const parseVideo = async (file: File) => {
 		throw new Error('No video description found');
 	}
 
+	// TODO: Once matroska is supported, make description not nullable
+	if (!firstVideoTrack.codecString) {
+		throw new Error('No video codec string found');
+	}
+
 	decoder.configure({
-		codec: 'avc1.640020',
+		codec: firstVideoTrack.codecString,
 		codedHeight: dimensions.height,
 		codedWidth: dimensions.width,
 		hardwareAcceleration: 'prefer-hardware',

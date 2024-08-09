@@ -21,11 +21,16 @@ export const getVideoCodecString = (trakBox: TrakBox): string | null => {
 			const avccBox = videoSample.descriptors.find(
 				(c) => c.type === 'avcc-box',
 			);
-			if (!avccBox || avccBox.type !== 'avcc-box') {
-				return null;
+			if (avccBox && avccBox.type === 'avcc-box') {
+				return `${videoSample.format}.${avccBox.configurationString}`;
 			}
 
-			return `${videoSample.format}.${avccBox.configurationString}`;
+			const hvccBox = videoSample.descriptors.find(
+				(c) => c.type === 'hvcc-box',
+			);
+			if (hvccBox && hvccBox.type === 'hvcc-box') {
+				return `${videoSample.format}.${hvccBox.configurationString}`;
+			}
 		}
 	}
 

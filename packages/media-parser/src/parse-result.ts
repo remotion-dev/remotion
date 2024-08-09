@@ -1,4 +1,4 @@
-import type {AvccBox, HvccBox} from './boxes/iso-base-media/avcc';
+import type {AvccBox, HvccBox} from './boxes/iso-base-media/avcc-hvcc';
 import type {BaseBox} from './boxes/iso-base-media/base-type';
 import type {EsdsBox} from './boxes/iso-base-media/esds/esds';
 import type {FtypBox} from './boxes/iso-base-media/ftyp';

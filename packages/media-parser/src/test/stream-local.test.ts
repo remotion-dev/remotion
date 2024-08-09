@@ -11,6 +11,7 @@ test('Should stream ISO base media', async () => {
 			fps: true,
 			videoCodec: true,
 			audioCodec: true,
+			tracks: true,
 		},
 		readerInterface: nodeReader,
 	});
@@ -18,6 +19,8 @@ test('Should stream ISO base media', async () => {
 	expect(result.fps).toBe(29.99602174777881);
 	expect(result.videoCodec).toBe('h265');
 	expect(result.audioCodec).toBe('aac');
+	expect(result.videoTracks.length).toBe(1);
+	expect(result.videoTracks[0].codecString).toBe('hvc1.2.4.L150.b0');
 });
 
 test('Should stream WebM with no duration', async () => {

@@ -8,7 +8,7 @@ import type {
 } from '../../parse-result';
 import type {BoxAndNext} from '../../parse-video';
 import type {ParserContext} from '../../parser-context';
-import {parseAvcc, parseHvcc} from './avcc';
+import {parseAvcc, parseHvcc} from './avcc-hvcc';
 import {parseEsds} from './esds/esds';
 import {parseFtyp} from './ftyp';
 import {parseMdat} from './mdat/mdat';
@@ -344,6 +344,7 @@ const processBox = ({
 		const box = parseHvcc({
 			data: iterator,
 			size: boxSize,
+			offset: fileOffset,
 		});
 
 		return {

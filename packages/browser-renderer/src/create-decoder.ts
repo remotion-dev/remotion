@@ -1,41 +1,41 @@
 export const createDecoder = ({
-  onProgress,
-  onFrame,
+	onProgress,
+	onFrame,
 }: {
-  onProgress: (decoded: number) => void;
-  onFrame: (frame: VideoFrame, keyframe: boolean) => void;
+	onProgress: (decoded: number) => void;
+	onFrame: (frame: VideoFrame, keyframe: boolean) => void;
 }) => {
-  let decodedFrames = 0;
-  let nextKeyFrameTimestamp = 0;
+	let decodedFrames = 0;
+	let nextKeyFrameTimestamp = 0;
 
-  const decoder = new VideoDecoder({
-    async output(inputFrame) {
-      const bitmap = await createImageBitmap(inputFrame);
+	const decoder = new VideoDecoder({
+		async output(inputFrame) {
+			const bitmap = await createImageBitmap(inputFrame);
 
-      const keyFrameEveryHowManySeconds = 2;
-      let keyFrame = false;
-      if (inputFrame.timestamp >= nextKeyFrameTimestamp) {
-        keyFrame = true;
-        nextKeyFrameTimestamp =
-          inputFrame.timestamp + keyFrameEveryHowManySeconds * 1e6;
-      }
+			const keyFrameEveryHowManySeconds = 2;
+			let keyFrame = false;
+			if (inputFrame.timestamp >= nextKeyFrameTimestamp) {
+				keyFrame = true;
+				nextKeyFrameTimestamp =
+					inputFrame.timestamp + keyFrameEveryHowManySeconds * 1e6;
+			}
 
-      const outputFrame = new VideoFrame(bitmap, {
-        timestamp: inputFrame.timestamp,
-        duration: inputFrame.duration as number,
-      });
+			const outputFrame = new VideoFrame(bitmap, {
+				timestamp: inputFrame.timestamp,
+				duration: inputFrame.duration as number,
+			});
 
-      onFrame(outputFrame, keyFrame);
+			onFrame(outputFrame, keyFrame);
 
-      inputFrame.close();
+			inputFrame.close();
 
-      decodedFrames++;
-      onProgress(decodedFrames);
-    },
-    error(error) {
-      console.error(error);
-    },
-  });
+			decodedFrames++;
+			onProgress(decodedFrames);
+		},
+		error(error) {
+			console.error(error);
+		},
+	});
 
-  return { decoder };
+	return {decoder};
 };
