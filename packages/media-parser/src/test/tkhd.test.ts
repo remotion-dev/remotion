@@ -80,5 +80,8 @@ test('Should be able to parse a TKHD box', () => {
 		matrix: [1, 0, 0, 0, 1, 0, 0, 0, 1],
 		width: 0,
 		height: 0,
+		rotation: 0,
+		unrotatedWidth: 0,
+		unrotatedHeight: 0,
 	});
 });

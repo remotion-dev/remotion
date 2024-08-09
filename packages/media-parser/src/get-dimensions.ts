@@ -8,7 +8,15 @@ export type Dimensions = {
 	height: number;
 };
 
-const getDimensionsFromMatroska = (segments: MainSegment): Dimensions => {
+export type ExpandedDimensions = Dimensions & {
+	rotation: number;
+	unrotatedWidth: number;
+	unrotatedHeight: number;
+};
+
+const getDimensionsFromMatroska = (
+	segments: MainSegment,
+): ExpandedDimensions => {
 	const tracksSegment = segments.children.find(
 		(b) => b.type === 'tracks-segment',
 	);
@@ -55,10 +63,13 @@ const getDimensionsFromMatroska = (segments: MainSegment): Dimensions => {
 	return {
 		width: widthSegment.width,
 		height: heightSegment.height,
+		rotation: 0,
+		unrotatedHeight: heightSegment.height,
+		unrotatedWidth: widthSegment.width,
 	};
 };
 
-export const getDimensions = (boxes: AnySegment[]): Dimensions => {
+export const getDimensions = (boxes: AnySegment[]): ExpandedDimensions => {
 	const matroskaBox = boxes.find((b) => b.type === 'main-segment');
 	if (matroskaBox && matroskaBox.type === 'main-segment') {
 		return getDimensionsFromMatroska(matroskaBox);
@@ -80,6 +91,9 @@ export const getDimensions = (boxes: AnySegment[]): Dimensions => {
 		return {
 			width: tkhdBox.width,
 			height: tkhdBox.height,
+			rotation: tkhdBox.rotation,
+			unrotatedHeight: tkhdBox.unrotatedHeight,
+			unrotatedWidth: tkhdBox.unrotatedWidth,
 		};
 	}
 
@@ -94,12 +108,18 @@ export const getDimensions = (boxes: AnySegment[]): Dimensions => {
 		throw new Error('Has no video stream');
 	}
 
-	const [firstTrack] = videoSamples;
-	if (firstTrack.type !== 'video') {
+	const [firstSample] = videoSamples;
+	if (firstSample.type !== 'video') {
 		throw new Error('Expected video track');
 	}
 
-	return {width: firstTrack.width, height: firstTrack.height};
+	return {
+		width: firstSample.width,
+		height: firstSample.height,
+		rotation: 0,
+		unrotatedHeight: firstSample.height,
+		unrotatedWidth: firstSample.width,
+	};
 };
 
 // TODO: An audio track should return 'hasDimensions' = true on an audio file

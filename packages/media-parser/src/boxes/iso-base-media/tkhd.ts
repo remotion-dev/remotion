@@ -16,6 +16,27 @@ export interface TkhdBox extends BaseBox {
 	matrix: ThreeDMatrix;
 	width: number;
 	height: number;
+	unrotatedWidth: number;
+	unrotatedHeight: number;
+	rotation: number;
+}
+
+type Matrix2x2 = readonly [number, number, number, number];
+
+function getRotationAngleFromMatrix(matrix: Matrix2x2): number {
+	// Extract elements from the matrix
+	const [a, b, c, d] = matrix;
+
+	// Check if the matrix is a valid rotation matrix
+	if (Math.round(a * a + b * b) !== 1 || Math.round(c * c + d * d) !== 1) {
+		throw new Error('The provided matrix is not a valid rotation matrix.');
+	}
+
+	// Calculate the angle using the atan2 function
+	const angleRadians = Math.atan2(c, a); // atan2(sin(θ), cos(θ))
+	const angleDegrees = angleRadians * (180 / Math.PI); // Convert radians to degrees
+
+	return angleDegrees;
 }
 
 const applyRotation = ({
@@ -23,7 +44,7 @@ const applyRotation = ({
 	width,
 	height,
 }: {
-	matrix: readonly [number, number, number, number];
+	matrix: Matrix2x2;
 	width: number;
 	height: number;
 }) => {
@@ -107,6 +128,8 @@ export const parseTkhd = ({
 		height: heightWithoutRotationApplied,
 	});
 
+	const rotation = getRotationAngleFromMatrix(rotationMatrix);
+
 	return {
 		offset,
 		boxSize: size,
@@ -122,5 +145,8 @@ export const parseTkhd = ({
 		width,
 		height,
 		version,
+		rotation,
+		unrotatedWidth: widthWithoutRotationApplied,
+		unrotatedHeight: heightWithoutRotationApplied,
 	};
 };
