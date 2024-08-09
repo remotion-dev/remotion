@@ -29,6 +29,8 @@ import type {
 	LanguageSegment,
 	MaxBlockAdditionId,
 	SegmentUUIDSegment,
+	TagSegment,
+	TagsSegment,
 	TitleSegment,
 	TrackEntrySegment,
 	TrackNumberSegment,
@@ -51,6 +53,8 @@ import {
 	parseLanguageSegment,
 	parseMaxBlockAdditionId,
 	parseSegmentUUIDSegment,
+	parseTagSegment,
+	parseTagsSegment,
 	parseTitleSegment,
 	parseTrackEntry,
 	parseTrackNumber,
@@ -100,7 +104,9 @@ export type MatroskaSegment =
 	| CodecPrivateSegment
 	| Crc32Segment
 	| SegmentUUIDSegment
-	| DefaultFlagSegment;
+	| DefaultFlagSegment
+	| TagsSegment
+	| TagSegment;
 
 export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 	const segmentId = iterator.getMatroskaSegmentId();
@@ -233,6 +239,14 @@ export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 
 	if (segmentId === '0x88') {
 		return parseDefaultFlagSegment(iterator);
+	}
+
+	if (segmentId === '0x1254c367') {
+		return parseTagsSegment(iterator);
+	}
+
+	if (segmentId === '0x7373') {
+		return parseTagSegment(iterator);
 	}
 
 	const length = iterator.getVint();

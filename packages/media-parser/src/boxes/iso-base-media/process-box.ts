@@ -8,15 +8,16 @@ import type {
 } from '../../parse-result';
 import type {BoxAndNext} from '../../parse-video';
 import type {ParserContext} from '../../parser-context';
-import {parseAvcc, parseHvcc} from './avcc-hvcc';
 import {parseEsds} from './esds/esds';
 import {parseFtyp} from './ftyp';
 import {parseMdat} from './mdat/mdat';
 import {parseMdhd} from './mdhd';
 import {parseMoov} from './moov/moov';
 import {parseMvhd} from './mvhd';
+import {parseAvcc, parseHvcc} from './stsd/avcc-hvcc';
 import {parseCtts} from './stsd/ctts';
 import {parseMebx} from './stsd/mebx';
+import {parsePasp} from './stsd/pasp';
 import {parseStco} from './stsd/stco';
 import {parseStsc} from './stsd/stsc';
 import {parseStsd} from './stsd/stsd';
@@ -205,6 +206,21 @@ const processBox = ({
 
 	if (boxType === 'stco') {
 		const box = parseStco({
+			iterator,
+			offset: fileOffset,
+			size: boxSize,
+		});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
+	if (boxType === 'pasp') {
+		const box = parsePasp({
 			iterator,
 			offset: fileOffset,
 			size: boxSize,

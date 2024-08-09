@@ -27,7 +27,7 @@ export type AudioSample = SampleBase & {
 	children: AnySegment[];
 };
 
-type VideoSample = SampleBase & {
+export type VideoSample = SampleBase & {
 	type: 'video';
 	temporalQuality: number;
 	spacialQuality: number;

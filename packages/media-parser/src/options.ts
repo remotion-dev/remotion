@@ -66,7 +66,7 @@ export type Metadata<
 		: {}) &
 	(EnableRotation extends true ? {rotation: number | null} : {}) &
 	(EnableUnrotatedDimensions extends true
-		? {unrotatedDimension: Dimensions | null}
+		? {unrotatedDimension: Dimensions}
 		: {});
 
 export type ParseMedia = <
