@@ -9,7 +9,7 @@ test('Parse Big Buck bunny', async () => {
 		fields: {
 			boxes: true,
 		},
-		readerInterface: nodeReader,
+		reader: nodeReader,
 	});
 	expect(data.boxes.slice(0, 2)).toEqual([
 		{
@@ -34,7 +34,7 @@ test('Parse an iPhone video', async () => {
 	const data = await parseMedia({
 		src: RenderInternals.exampleVideos.iphonevideo,
 		fields: {durationInSeconds: true, dimensions: true},
-		readerInterface: nodeReader,
+		reader: nodeReader,
 	});
 
 	expect(data.durationInSeconds).toBe(12.568333333333333);
@@ -50,7 +50,7 @@ test('Parse framer', async () => {
 		fields: {
 			boxes: true,
 		},
-		readerInterface: nodeReader,
+		reader: nodeReader,
 	});
 	expect(parsed.boxes.slice(0, 2)).toEqual([
 		{
@@ -75,7 +75,7 @@ test('Parse a full video', async () => {
 	const data = await parseMedia({
 		src: RenderInternals.exampleVideos.framer24fps,
 		fields: {boxes: true},
-		readerInterface: nodeReader,
+		reader: nodeReader,
 	});
 	if (!data) throw new Error('No data');
 

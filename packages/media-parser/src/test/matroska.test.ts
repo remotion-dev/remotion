@@ -12,7 +12,7 @@ test('Should get duration of AV1 video', async () => {
 			dimensions: true,
 			fps: true,
 		},
-		readerInterface: nodeReader,
+		reader: nodeReader,
 	});
 
 	expect(parsed.durationInSeconds).toBe(1);

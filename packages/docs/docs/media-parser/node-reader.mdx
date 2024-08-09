@@ -1,0 +1,32 @@
+---
+id: node-reader
+title: nodeReader
+slug: /media-parser/node-reader
+crumb: "@remotion/media-parser"
+---
+
+:::warning
+**Unstable API**: This package is experimental. We might change the API at any time, until we remove this notice.
+:::
+
+
+A reader for `@remotion/media-parser` that reads from the local file system using Node.js `fs` module.  
+It also works with Bun.  
+
+## Example
+
+```tsx twoslash title="Reading a local file"
+// @module: es2022
+// @target: es2017
+import {parseMedia} from '@remotion/media-parser';
+import {nodeReader} from '@remotion/media-parser/node';
+
+const result = await parseMedia({
+  src: '/Users/jonnyburger/Downloads/my-video.mp4',
+  fields: {
+    durationInSeconds: true,
+    dimensions: true,
+  },
+  reader: nodeReader,
+});
+```

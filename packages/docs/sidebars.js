@@ -557,7 +557,13 @@ module.exports = {
 				type: 'doc',
 				id: 'media-parser/index',
 			},
-			items: ['media-parser/index', 'media-parser/parse-media'],
+			items: [
+				'media-parser/index',
+				'media-parser/parse-media',
+				'media-parser/node-reader',
+				'media-parser/fetch-reader',
+				'media-parser/web-file-reader',
+			],
 		},
 		{
 			type: 'category',

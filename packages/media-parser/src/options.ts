@@ -78,7 +78,7 @@ export type ParseMedia = <
 		EnableAudioCodec,
 		EnableTracks
 	>;
-	readerInterface?: ReaderInterface;
+	reader?: ReaderInterface;
 	onAudioSample?: OnAudioSample;
 	onVideoSample?: OnVideoSample;
 }) => Promise<

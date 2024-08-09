@@ -1,0 +1,33 @@
+---
+id: fetch-reader
+title: fetchReader
+slug: /media-parser/fetch-reader
+crumb: "@remotion/media-parser"
+---
+
+:::warning
+**Unstable API**: This package is experimental. We might change the API at any time, until we remove this notice.
+:::
+
+
+A reader for `@remotion/media-parser` that reads from a URL using `fetch()`.  
+It works in the browser, Node.js and Bun.  
+This is the default reader for `@remotion/media-parser`, so you don't need to explicitly specify it.
+
+## Example
+
+```tsx twoslash title="Reading a local file"
+// @module: es2022
+// @target: es2017
+import {parseMedia} from '@remotion/media-parser';
+import {fetchReader} from '@remotion/media-parser/fetch';
+
+const result = await parseMedia({
+  src: '/Users/jonnyburger/Downloads/my-video.mp4',
+  fields: {
+    durationInSeconds: true,
+    dimensions: true,
+  },
+  reader: fetchReader,
+});
+```

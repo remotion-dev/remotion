@@ -20,9 +20,12 @@ _available from v4.0.190_
 // @target: es2017
 import {parseMedia} from '@remotion/media-parser';
 
-const result = await parseMedia('https://example.com/my-video.mp4', {
-  durationInSeconds: true,
-  dimensions: true,
+const result = await parseMedia({
+  src: 'https://example.com/my-video.mp4',
+  fields: {
+    durationInSeconds: true,
+    dimensions: true,
+  },
 });
 
 console.log(result.durationInSeconds); // 10
@@ -35,14 +38,14 @@ console.log(result.dimensions); // {width: 1920, height: 1080}
 import {parseMedia} from '@remotion/media-parser';
 import {nodeReader} from '@remotion/media-parser/node';
 
-const result = await parseMedia(
-  '/Users/jonnyburger/Downloads/my-video.mp4',
-  {
+const result = await parseMedia({
+  src:  '/Users/jonnyburger/Downloads/my-video.mp4',
+  fields: {
     durationInSeconds: true,
     dimensions: true,
   },
-  nodeReader,
-);
+  reader: nodeReader,
+});
 ```
 
 ## API

@@ -5,7 +5,7 @@ import {createDecoder} from './create-decoder';
 export const parseVideo = async (file: File) => {
 	const {dimensions, videoTracks} = await parseMedia({
 		src: file,
-		readerInterface: webFileReader,
+		reader: webFileReader,
 		fields: {
 			dimensions: true,
 			tracks: true,
@@ -47,7 +47,7 @@ export const parseVideo = async (file: File) => {
 
 	const result = await parseMedia({
 		src: file,
-		readerInterface: webFileReader,
+		reader: webFileReader,
 		fields: {
 			durationInSeconds: true,
 		},

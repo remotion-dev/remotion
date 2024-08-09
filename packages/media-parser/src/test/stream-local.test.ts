@@ -13,7 +13,7 @@ test('Should stream ISO base media', async () => {
 			audioCodec: true,
 			tracks: true,
 		},
-		readerInterface: nodeReader,
+		reader: nodeReader,
 	});
 	expect(result.durationInSeconds).toBe(12.568333333333333);
 	expect(result.fps).toBe(29.99602174777881);
@@ -34,7 +34,7 @@ test('Should stream WebM with no duration', async () => {
 			audioCodec: true,
 			// TODO: Return WebM tracks
 		},
-		readerInterface: nodeReader,
+		reader: nodeReader,
 	});
 	expect(result.durationInSeconds).toBe(6.57);
 	expect(result.dimensions).toEqual({
@@ -57,7 +57,7 @@ test('Should stream AV1 with no duration', async () => {
 			audioCodec: true,
 			// TODO: Return WebM tracks
 		},
-		readerInterface: nodeReader,
+		reader: nodeReader,
 	});
 
 	expect(parsed.durationInSeconds).toBe(1);
@@ -81,7 +81,7 @@ test('Should stream corrupted video', async () => {
 			audioCodec: true,
 			tracks: true,
 		},
-		readerInterface: nodeReader,
+		reader: nodeReader,
 	});
 
 	expect(parsed.durationInSeconds).toBe(30.03);
@@ -107,7 +107,7 @@ test('Should stream screen recording video', async () => {
 			audioCodec: true,
 			tracks: true,
 		},
-		readerInterface: nodeReader,
+		reader: nodeReader,
 	});
 
 	expect(parsed.durationInSeconds).toBe(5.866666666666666);
@@ -133,7 +133,7 @@ test('Should stream ProRes video', async () => {
 			audioCodec: true,
 			tracks: true,
 		},
-		readerInterface: nodeReader,
+		reader: nodeReader,
 	});
 
 	expect(parsed.fps).toBe(60);
@@ -156,7 +156,7 @@ test('Should stream variable fps video', async () => {
 			videoCodec: true,
 			audioCodec: true,
 		},
-		readerInterface: nodeReader,
+		reader: nodeReader,
 	});
 
 	expect(parsed.dimensions.width).toBe(1280);
@@ -176,7 +176,7 @@ test('Should stream MKV video', async () => {
 			videoCodec: true,
 			audioCodec: true,
 		},
-		readerInterface: nodeReader,
+		reader: nodeReader,
 	});
 
 	expect(parsed.dimensions.width).toBe(1080);
@@ -197,7 +197,7 @@ test('Should stream MP3 in MP4 video', async () => {
 			audioCodec: true,
 			tracks: true,
 		},
-		readerInterface: nodeReader,
+		reader: nodeReader,
 	});
 
 	expect(parsed.dimensions.width).toBe(1080);

@@ -1,6 +1,6 @@
 import type {BufferIterator} from './buffer-iterator';
 import {getArrayBufferIterator} from './buffer-iterator';
-import {webReader} from './from-web';
+import {fetchReader} from './from-fetch';
 import {getAudioCodec} from './get-audio-codec';
 import {getDimensions} from './get-dimensions';
 import {getDuration} from './get-duration';
@@ -15,7 +15,7 @@ import {parseVideo} from './parse-video';
 export const parseMedia: ParseMedia = async ({
 	src,
 	fields,
-	readerInterface = webReader,
+	reader: readerInterface = fetchReader,
 	onAudioSample,
 	onVideoSample,
 }) => {

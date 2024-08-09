@@ -1,0 +1,35 @@
+---
+id: web-file-reader
+title: webFileReader
+slug: /media-parser/web-file-reader
+crumb: "@remotion/media-parser"
+---
+
+:::warning
+**Unstable API**: This package is experimental. We might change the API at any time, until we remove this notice.
+:::
+
+
+A reader for `@remotion/media-parser` that reads from a [`File`](https://developer.mozilla.org/en-US/docs/Web/API/File) object.  
+It only works in the browser.  
+Useful if you want to parse a video from a `<input type="file">` element.
+
+## Example
+
+```tsx twoslash title="Reading a local file"
+// @module: es2022
+// @target: es2017
+import {parseMedia} from '@remotion/media-parser';
+import {webFileReader} from '@remotion/media-parser/web-file';
+
+const onFile = async (file: File) => {
+  const result = await parseMedia({
+    src: '/Users/jonnyburger/Downloads/my-video.mp4',
+    fields: {
+      durationInSeconds: true,
+      dimensions: true,
+    },
+    reader: webFileReader,
+  });
+};
+```

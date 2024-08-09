@@ -1,6 +1,6 @@
 import type {ReaderInterface} from './reader';
 
-export const webReader: ReaderInterface = {
+export const fetchReader: ReaderInterface = {
 	read: async (src, range) => {
 		if (typeof src !== 'string') {
 			throw new Error('src must be a string when using `webReader`');

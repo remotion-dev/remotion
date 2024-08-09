@@ -10,7 +10,7 @@ test('should be able to parse a WebM', async () => {
 			durationInSeconds: true,
 			videoCodec: true,
 		},
-		readerInterface: nodeReader,
+		reader: nodeReader,
 	});
 	expect(webm.durationInSeconds).toBe(5);
 	expect(webm.videoCodec).toBe('vp8');
