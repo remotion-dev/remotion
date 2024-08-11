@@ -173,7 +173,7 @@ export const getArrayBufferIterator = (
 		let byte;
 
 		do {
-			byte = getUint8();
+			byte = getBits(8);
 			result |= (byte & 0x7f) << shift;
 			shift += 7;
 		} while (byte >= 0x80); // Continue if the high bit is set
@@ -181,11 +181,51 @@ export const getArrayBufferIterator = (
 		return result;
 	};
 
+	let bitIndex = 0;
+
+	const stopReadingBits = () => {
+		bitIndex = 0;
+	};
+
+	let byteToShift = 0;
+
+	const startReadingBits = () => {
+		byteToShift = getUint8();
+	};
+
+	const getBits = (bits: number) => {
+		let result = 0;
+		let bitsCollected = 0;
+
+		while (bitsCollected < bits) {
+			if (bitIndex >= 8) {
+				bitIndex = 0;
+				byteToShift = getUint8();
+			}
+
+			const remainingBitsInByte = 8 - bitIndex;
+			const bitsToReadNow = Math.min(bits - bitsCollected, remainingBitsInByte);
+			const mask = (1 << bitsToReadNow) - 1;
+			const shift = remainingBitsInByte - bitsToReadNow;
+
+			result <<= bitsToReadNow;
+			result |= (byteToShift >> shift) & mask;
+
+			bitsCollected += bitsToReadNow;
+			bitIndex += bitsToReadNow;
+		}
+
+		return result;
+	};
+
 	return {
+		startReadingBits,
+		stopReadingBits,
 		skipTo,
 		addData,
 		counter,
 		peek,
+		getBits,
 		byteLength,
 		bytesRemaining,
 		isIsoBaseMedia,

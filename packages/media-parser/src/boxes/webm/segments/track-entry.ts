@@ -516,6 +516,7 @@ export type SimpleBlockSegment = {
 	keyframe: boolean;
 	lacing: [number, number];
 	invisible: boolean;
+	children: MatroskaSegment[];
 };
 
 export type GetTracks = () => TrackEntrySegment[];
@@ -545,7 +546,7 @@ export const parseSimpleBlockSegment = (
 		throw new Error('Could not find codec for track ' + trackNumber);
 	}
 
-	console.log('block', start.toString(16));
+	const children: MatroskaSegment[] = [];
 
 	if (codec.codec === 'V_AV1') {
 		let remainingNow = length - (iterator.counter.getOffset() - start);
@@ -554,6 +555,8 @@ export const parseSimpleBlockSegment = (
 		while (true) {
 			const bitStream = av1Bitstream(iterator, remainingNow);
 			remainingNow = length - (iterator.counter.getOffset() - start);
+
+			children.push(bitStream.segment);
 			if (!bitStream.discarded) {
 				iterator.discard(remainingNow);
 				break;
@@ -574,6 +577,7 @@ export const parseSimpleBlockSegment = (
 		keyframe,
 		lacing: [pos6, pos7],
 		invisible,
+		children,
 	};
 };
 

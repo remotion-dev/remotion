@@ -1,32 +1,52 @@
 import type {BufferIterator} from '../../../buffer-iterator';
+import {
+	parseAv1BitstreamHeaderSegment,
+	type Av1BitstreamHeaderSegment,
+} from './av1/header-segment';
 
-type Av1Packet = {
-	type: 'av1-packet';
-	discarded: boolean;
+type Av1BitstreamUimplementedSegment = {
+	type: 'av1-bitstream-unimplemented';
 };
 
-export const av1Bitstream = (stream: BufferIterator, length: number) => {
+export type Av1BitstreamSegment =
+	| Av1BitstreamHeaderSegment
+	| Av1BitstreamUimplementedSegment;
+
+export const av1Bitstream = (
+	stream: BufferIterator,
+	length: number,
+): {
+	discarded: boolean;
+	segment: Av1BitstreamSegment;
+} => {
 	const address = stream.counter.getOffset();
 
-	const firstByte = stream.getUint8();
+	stream.startReadingBits();
+
 	// log this to understand:
 	// (firstByte.toString(2).padStart(8, '0'));
 
 	// get bit 0
-	const obuForbiddenBit = (firstByte >> 7) & 1;
+	const obuForbiddenBit = stream.getBits(1);
+	if (obuForbiddenBit) {
+		throw new Error('obuForbiddenBit is not 0');
+	}
+
 	// get bits 1-3
-	const obuType = (firstByte >> 3) & 0b1111;
+	const obuType = stream.getBits(4);
+
 	// get bit 4
-	const obuExtensionFlag = (firstByte >> 2) & 1;
+	const obuExtensionFlag = stream.getBits(1);
 	// get bit 5
-	const obuHasSizeField = (firstByte >> 1) & 1;
-	const reservedBit = (firstByte >> 0) & 1;
+	const obuHasSizeField = stream.getBits(1);
+	// reserved bit
+	stream.getBits(1);
 
 	let size: number | null = null;
 
 	if (obuExtensionFlag) {
 		// extension
-		stream.getUint8();
+		stream.getBits(6);
 	}
 
 	if (obuHasSizeField) {
@@ -34,6 +54,7 @@ export const av1Bitstream = (stream: BufferIterator, length: number) => {
 		size = stream.leb128();
 	}
 
+	/*
 	console.log(
 		address.toString(16),
 		firstByte.toString(2).padStart(8, '0'),
@@ -44,11 +65,22 @@ export const av1Bitstream = (stream: BufferIterator, length: number) => {
 		reservedBit,
 		size,
 	);
+	*/
+
+	stream.peek(10);
+	const segment: Av1BitstreamSegment =
+		obuType === 1
+			? parseAv1BitstreamHeaderSegment(stream)
+			: {
+					type: 'av1-bitstream-unimplemented',
+				};
+
+	stream.stopReadingBits();
 
 	if (size === null) {
 		return {
-			type: 'av1-packet',
 			discarded: false,
+			segment,
 		};
 	}
 
@@ -61,8 +93,7 @@ export const av1Bitstream = (stream: BufferIterator, length: number) => {
 	}
 
 	return {
-		type: 'av1-packet',
 		discarded: Boolean(size),
-		remainingNow,
+		segment,
 	};
 };

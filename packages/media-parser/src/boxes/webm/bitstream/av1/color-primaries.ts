@@ -1,0 +1,14 @@
+export const colorPrimaries = {
+	CP_BT_709: 1,
+	CP_UNSPECIFIED: 2,
+	CP_BT_470_M: 4,
+	CP_BT_470_B_G: 5,
+	CP_BT_601: 6,
+	CP_SMPTE_240: 7,
+	CP_GENERIC_FILM: 8,
+	CP_BT_2020: 9,
+	CP_XYZ: 10,
+	CP_SMPTE_431: 11,
+	CP_SMPTE_432: 12,
+	CP_EBU_3213: 22,
+};

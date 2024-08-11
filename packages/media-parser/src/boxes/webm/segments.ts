@@ -1,6 +1,7 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
+import type {Av1BitstreamSegment} from './bitstream/av1';
 import type {DurationSegment} from './segments/duration';
 import {parseDurationSegment} from './segments/duration';
 import type {InfoSegment} from './segments/info';
@@ -128,7 +129,8 @@ export type MatroskaSegment =
 	| SimpleBlockSegment
 	| BlockGroupSegment
 	| BlockElement
-	| SeekIdSegment;
+	| SeekIdSegment
+	| Av1BitstreamSegment;
 
 export type OnTrackEntrySegment = (trackEntry: TrackEntrySegment) => void;
 

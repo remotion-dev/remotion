@@ -1,0 +1,17 @@
+export const matrixCoefficients = {
+	MC_IDENTITY: 0,
+	MC_BT_709: 1,
+	MC_UNSPECIFIED: 2,
+	MC_RESERVED_3: 3,
+	MC_FCC: 4,
+	MC_BT_470_B_G: 5,
+	MC_BT_601: 6,
+	MC_SMPTE_240: 7,
+	MC_SMPTE_YCGCO: 8,
+	MC_BT_2020_NCL: 9,
+	MC_BT_2020_CL: 10,
+	MC_SMPTE_2085: 11,
+	MC_CHROMAT_NCL: 12,
+	MC_CHROMAT_CL: 13,
+	MC_ICTCP: 14,
+};
