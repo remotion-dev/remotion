@@ -1,5 +1,6 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import type {ParseResult} from '../../parse-result';
+import type {ParserContext} from '../../parser-context';
 import type {DurationSegment} from './segments/duration';
 import {parseDurationSegment} from './segments/duration';
 import type {InfoSegment} from './segments/info';
@@ -129,14 +130,18 @@ export type MatroskaSegment =
 	| BlockElement
 	| SeekIdSegment;
 
+export type OnTrackEntrySegment = (trackEntry: TrackEntrySegment) => void;
+
 const parseSegment = ({
 	segmentId,
 	iterator,
 	length,
+	parserContext,
 }: {
 	segmentId: string;
 	iterator: BufferIterator;
 	length: number;
+	parserContext: ParserContext;
 }): MatroskaSegment => {
 	if (length === 0) {
 		throw new Error('Expected length to be greater than 0');
@@ -150,7 +155,7 @@ const parseSegment = ({
 	}
 
 	if (segmentId === '0x114d9b74') {
-		return parseSeekHeadSegment(iterator, length);
+		return parseSeekHeadSegment(iterator, length, parserContext);
 	}
 
 	if (segmentId === '0x53ab') {
@@ -158,7 +163,7 @@ const parseSegment = ({
 	}
 
 	if (segmentId === '0x4dbb') {
-		return parseSeekSegment(iterator, length);
+		return parseSeekSegment(iterator, length, parserContext);
 	}
 
 	if (segmentId === '0x53ac') {
@@ -170,7 +175,7 @@ const parseSegment = ({
 	}
 
 	if (segmentId === '0x1549a966') {
-		return parseInfoSegment(iterator, length);
+		return parseInfoSegment(iterator, length, parserContext);
 	}
 
 	if (segmentId === '0x2ad7b1') {
@@ -190,11 +195,13 @@ const parseSegment = ({
 	}
 
 	if (segmentId === '0x1654ae6b') {
-		return parseTracksSegment(iterator, length);
+		return parseTracksSegment(iterator, length, parserContext);
 	}
 
 	if (segmentId === '0xae') {
-		return parseTrackEntry(iterator, length);
+		const trackEntry = parseTrackEntry(iterator, length, parserContext);
+		parserContext.onTrackEntrySegment(trackEntry);
+		return trackEntry;
 	}
 
 	if (segmentId === '0xd7') {
@@ -234,7 +241,7 @@ const parseSegment = ({
 	}
 
 	if (segmentId === '0xe0') {
-		return parseVideoSegment(iterator, length);
+		return parseVideoSegment(iterator, length, parserContext);
 	}
 
 	if (segmentId === '0xb0') {
@@ -274,7 +281,7 @@ const parseSegment = ({
 	}
 
 	if (segmentId === '0x1254c367') {
-		return parseTagsSegment(iterator, length);
+		return parseTagsSegment(iterator, length, parserContext);
 	}
 
 	if (segmentId === '0x7373') {
@@ -286,11 +293,11 @@ const parseSegment = ({
 	}
 
 	if (segmentId === '0xa3') {
-		return parseSimpleBlockSegment(iterator, length);
+		return parseSimpleBlockSegment(iterator, length, parserContext);
 	}
 
 	if (segmentId === '0xa0') {
-		return parseBlockGroupSegment(iterator, length);
+		return parseBlockGroupSegment(iterator, length, parserContext);
 	}
 
 	if (segmentId === '0xa1') {
@@ -307,14 +314,17 @@ const parseSegment = ({
 	return child;
 };
 
-export const expectSegment = (iterator: BufferIterator): ParseResult => {
+export const expectSegment = (
+	iterator: BufferIterator,
+	parserContext: ParserContext,
+): ParseResult => {
 	const bytesRemaining_ = iterator.bytesRemaining();
 	if (bytesRemaining_ === 0) {
 		return {
 			status: 'incomplete',
 			segments: [],
 			continueParsing: () => {
-				return expectSegment(iterator);
+				return expectSegment(iterator, parserContext);
 			},
 			skipTo: null,
 		};
@@ -341,6 +351,7 @@ export const expectSegment = (iterator: BufferIterator): ParseResult => {
 							type: 'cluster-segment',
 							children: s,
 						}),
+			parserContext,
 		});
 		if (main.status === 'incomplete') {
 			return {
@@ -364,13 +375,18 @@ export const expectSegment = (iterator: BufferIterator): ParseResult => {
 			status: 'incomplete',
 			segments: [],
 			continueParsing: () => {
-				return expectSegment(iterator);
+				return expectSegment(iterator, parserContext);
 			},
 			skipTo: null,
 		};
 	}
 
-	const segment = parseSegment({segmentId, iterator, length});
+	const segment = parseSegment({
+		segmentId,
+		iterator,
+		length,
+		parserContext,
+	});
 	return {
 		status: 'done',
 		segments: [segment],

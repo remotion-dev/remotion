@@ -1,3 +1,5 @@
+import type {OnTrackEntrySegment} from './boxes/webm/segments';
+import type {TrackEntrySegment} from './boxes/webm/segments/track-entry';
 import type {BufferIterator} from './buffer-iterator';
 import {getArrayBufferIterator} from './buffer-iterator';
 import {fetchReader} from './from-fetch';
@@ -37,6 +39,12 @@ export const parseMedia: ParseMedia = async ({
 	let iterator: BufferIterator | null = null;
 	let parseResult: ParseResult | null = null;
 
+	const trackEntries: TrackEntrySegment[] = [];
+
+	const onTrackEntrySegment: OnTrackEntrySegment = (trackEntry) => {
+		trackEntries.push(trackEntry);
+	};
+
 	while (parseResult === null || parseResult.status === 'incomplete') {
 		const result = await currentReader.read();
 
@@ -64,6 +72,8 @@ export const parseMedia: ParseMedia = async ({
 					canSkipVideoData: !(onAudioSample || onVideoSample),
 					onAudioSample: onAudioSample ?? null,
 					onVideoSample: onVideoSample ?? null,
+					onTrackEntrySegment,
+					getTracks: () => trackEntries,
 					// TODO: Skip frames if onSimpleBlock is null
 				},
 			});

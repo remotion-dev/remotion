@@ -1,5 +1,8 @@
 import type {BufferIterator} from '../../../buffer-iterator';
+import type {ParserContext} from '../../../parser-context';
+import {av1Bitstream} from '../bitstream/av1';
 import type {MatroskaSegment} from '../segments';
+import {getTrackByNumber, getTrackCodec} from '../traversal';
 import {expectChildren} from './parse-children';
 
 export type TrackEntrySegment = {
@@ -10,12 +13,14 @@ export type TrackEntrySegment = {
 export const parseTrackEntry = (
 	iterator: BufferIterator,
 	length: number,
+	parserContext: ParserContext,
 ): TrackEntrySegment => {
 	const children = expectChildren({
 		iterator,
 		length,
 		initialChildren: [],
 		wrap: null,
+		parserContext,
 	});
 	if (children.status === 'incomplete') {
 		throw new Error('Incomplete children ' + length);
@@ -206,12 +211,14 @@ export type VideoSegment = {
 export const parseVideoSegment = (
 	iterator: BufferIterator,
 	length: number,
+	parserContext: ParserContext,
 ): VideoSegment => {
 	const children = expectChildren({
 		iterator,
 		length,
 		initialChildren: [],
 		wrap: null,
+		parserContext,
 	});
 
 	if (children.status === 'incomplete') {
@@ -437,12 +444,14 @@ export type TagsSegment = {
 export const parseTagsSegment = (
 	iterator: BufferIterator,
 	length: number,
+	parserContext: ParserContext,
 ): TagsSegment => {
 	const children = expectChildren({
 		iterator,
 		length,
 		initialChildren: [],
 		wrap: null,
+		parserContext,
 	});
 
 	if (children.status === 'incomplete') {
@@ -509,10 +518,14 @@ export type SimpleBlockSegment = {
 	invisible: boolean;
 };
 
+export type GetTracks = () => TrackEntrySegment[];
+
 export const parseSimpleBlockSegment = (
 	iterator: BufferIterator,
 	length: number,
+	parserContext: ParserContext,
 ): SimpleBlockSegment => {
+	const start = iterator.counter.getOffset();
 	const trackNumber = iterator.getVint();
 	const timecode = iterator.getUint16();
 	const headerFlags = iterator.getUint8();
@@ -522,7 +535,35 @@ export const parseSimpleBlockSegment = (
 	const pos7 = (headerFlags >> 6) & 1;
 	const keyframe = Boolean((headerFlags >> 7) & 1);
 
-	const bitstream = iterator.getSlice(length - 4);
+	const track = getTrackByNumber(parserContext.getTracks(), trackNumber);
+	if (!track) {
+		throw new Error('Could not find track ' + trackNumber);
+	}
+
+	const codec = getTrackCodec(track);
+	if (!codec) {
+		throw new Error('Could not find codec for track ' + trackNumber);
+	}
+
+	console.log('block', start.toString(16));
+
+	if (codec.codec === 'V_AV1') {
+		let remainingNow = length - (iterator.counter.getOffset() - start);
+
+		// eslint-disable-next-line no-constant-condition
+		while (true) {
+			const bitStream = av1Bitstream(iterator, remainingNow);
+			remainingNow = length - (iterator.counter.getOffset() - start);
+			if (!bitStream.discarded) {
+				iterator.discard(remainingNow);
+				break;
+			}
+
+			if (remainingNow === 0) {
+				break;
+			}
+		}
+	}
 
 	return {
 		type: 'simple-block-segment',
@@ -560,12 +601,14 @@ export type BlockGroupSegment = {
 export const parseBlockGroupSegment = (
 	iterator: BufferIterator,
 	length: number,
+	parserContext: ParserContext,
 ): BlockGroupSegment => {
 	const children = expectChildren({
 		iterator,
 		length,
 		initialChildren: [],
 		wrap: null,
+		parserContext,
 	});
 	if (children.status === 'incomplete') {
 		throw new Error('Incomplete boxes are not allowed');

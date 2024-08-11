@@ -1,5 +1,6 @@
 import type {BufferIterator} from '../../../buffer-iterator';
 import type {ParseResult} from '../../../parse-result';
+import type {ParserContext} from '../../../parser-context';
 import type {MatroskaSegment} from '../segments';
 import {expectSegment} from '../segments';
 
@@ -10,11 +11,13 @@ export const expectChildren = ({
 	length,
 	initialChildren,
 	wrap,
+	parserContext,
 }: {
 	iterator: BufferIterator;
 	length: number;
 	initialChildren: MatroskaSegment[];
 	wrap: WrapChildren | null;
+	parserContext: ParserContext;
 }): ParseResult => {
 	const children: MatroskaSegment[] = [...initialChildren];
 	const startOffset = iterator.counter.getOffset();
@@ -25,7 +28,7 @@ export const expectChildren = ({
 			break;
 		}
 
-		const child = expectSegment(iterator);
+		const child = expectSegment(iterator, parserContext);
 
 		if (child.status === 'incomplete') {
 			const endOffset = iterator.counter.getOffset();
@@ -40,6 +43,7 @@ export const expectChildren = ({
 						length: length - (blockOffset - startOffset),
 						initialChildren: children,
 						wrap,
+						parserContext,
 					});
 				},
 				skipTo: null,

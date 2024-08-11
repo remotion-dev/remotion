@@ -167,6 +167,20 @@ export const getArrayBufferIterator = (
 		counter.decrement(length);
 	};
 
+	const leb128 = () => {
+		let result = 0;
+		let shift = 0;
+		let byte;
+
+		do {
+			byte = getUint8();
+			result |= (byte & 0x7f) << shift;
+			shift += 7;
+		} while (byte >= 0x80); // Continue if the high bit is set
+
+		return result;
+	};
+
 	return {
 		skipTo,
 		addData,
@@ -175,6 +189,7 @@ export const getArrayBufferIterator = (
 		byteLength,
 		bytesRemaining,
 		isIsoBaseMedia,
+		leb128,
 		discardFirstBytes: removeBytesRead,
 		isWebm,
 		discard: (length: number) => {

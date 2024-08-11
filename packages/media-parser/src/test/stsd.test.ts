@@ -45,6 +45,8 @@ test('Should be able to parse a STSD audio box correctly', () => {
 			canSkipVideoData: true,
 			onAudioSample: null,
 			onVideoSample: null,
+			onTrackEntrySegment: () => undefined,
+			getTracks: () => [],
 		},
 	});
 
@@ -191,6 +193,8 @@ test('Should be able to parse a STSD video box correctly', () => {
 			canSkipVideoData: true,
 			onAudioSample: null,
 			onVideoSample: null,
+			onTrackEntrySegment: () => undefined,
+			getTracks: () => [],
 		},
 	});
 	expect(parsed.sample).toEqual({
