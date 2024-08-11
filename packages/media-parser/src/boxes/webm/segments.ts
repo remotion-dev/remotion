@@ -7,7 +7,12 @@ import {parseInfoSegment} from './segments/info';
 import {type MainSegment} from './segments/main';
 import {parseMuxingSegment, type MuxingAppSegment} from './segments/muxing';
 import {expectChildren} from './segments/parse-children';
-import {parseSeekSegment, type SeekSegment} from './segments/seek';
+import type {SeekIdSegment} from './segments/seek';
+import {
+	parseSeekIdSegment,
+	parseSeekSegment,
+	type SeekSegment,
+} from './segments/seek';
 import type {SeekHeadSegment} from './segments/seek-head';
 import {parseSeekHeadSegment} from './segments/seek-head';
 import {
@@ -18,6 +23,8 @@ import type {TimestampScaleSegment} from './segments/timestamp-scale';
 import {parseTimestampScaleSegment} from './segments/timestamp-scale';
 import type {
 	AlphaModeSegment,
+	BlockElement,
+	BlockGroupSegment,
 	ClusterSegment,
 	CodecPrivateSegment,
 	CodecSegment,
@@ -45,6 +52,8 @@ import type {
 } from './segments/track-entry';
 import {
 	parseAlphaModeSegment,
+	parseBlockElementSegment,
+	parseBlockGroupSegment,
 	parseCodecPrivateSegment,
 	parseCodecSegment,
 	parseColorSegment,
@@ -115,7 +124,10 @@ export type MatroskaSegment =
 	| TagSegment
 	| ClusterSegment
 	| TimestampSegment
-	| SimpleBlockSegment;
+	| SimpleBlockSegment
+	| BlockGroupSegment
+	| BlockElement
+	| SeekIdSegment;
 
 const parseSegment = (
 	segmentId: string,
@@ -137,12 +149,16 @@ const parseSegment = (
 		return parseSeekHeadSegment(iterator, length);
 	}
 
+	if (segmentId === '0x53ab') {
+		return parseSeekIdSegment(iterator);
+	}
+
 	if (segmentId === '0x4dbb') {
-		return parseSeekSegment(iterator);
+		return parseSeekSegment(iterator, length);
 	}
 
 	if (segmentId === '0x53ac') {
-		return parseSeekPositionSegment(iterator);
+		return parseSeekPositionSegment(iterator, length);
 	}
 
 	if (segmentId === '0xec') {
@@ -267,6 +283,14 @@ const parseSegment = (
 
 	if (segmentId === '0xa3') {
 		return parseSimpleBlockSegment(iterator, length);
+	}
+
+	if (segmentId === '0xa0') {
+		return parseBlockGroupSegment(iterator, length);
+	}
+
+	if (segmentId === '0xa1') {
+		return parseBlockElementSegment(iterator, length);
 	}
 
 	const bytesRemaining = iterator.byteLength() - iterator.counter.getOffset();

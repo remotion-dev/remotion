@@ -14,7 +14,7 @@ export const parseTrackEntry = (
 ): TrackEntrySegment => {
 	const children = expectChildren(iterator, length, [], null);
 	if (children.status === 'incomplete') {
-		throw new Error('Incomplete children');
+		throw new Error('Incomplete children ' + length);
 	}
 
 	return {
@@ -537,5 +537,42 @@ export const parseTrackNumber = (
 	return {
 		type: 'track-number-segment',
 		trackNumber,
+	};
+};
+
+export type BlockGroupSegment = {
+	type: 'block-group-segment';
+	children: MatroskaSegment[];
+};
+
+export const parseBlockGroupSegment = (
+	iterator: BufferIterator,
+	length: number,
+): BlockGroupSegment => {
+	const children = expectChildren(iterator, length, [], null);
+	if (children.status === 'incomplete') {
+		throw new Error('Incomplete boxes are not allowed');
+	}
+
+	return {
+		type: 'block-group-segment',
+		children: children.segments as MatroskaSegment[],
+	};
+};
+
+export type BlockElement = {
+	type: 'block-element-segment';
+	length: number;
+};
+
+export const parseBlockElementSegment = (
+	iterator: BufferIterator,
+	length: number,
+): BlockElement => {
+	iterator.discard(length);
+
+	return {
+		type: 'block-element-segment',
+		length,
 	};
 };

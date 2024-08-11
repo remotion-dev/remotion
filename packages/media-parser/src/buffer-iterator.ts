@@ -212,6 +212,8 @@ export const getArrayBufferIterator = (
 				'0xe7',
 				'0xa3',
 				'0xa0',
+				'0xa1',
+				'0xfb',
 			];
 			if (knownIdsWithOneLength.includes(firstOneString)) {
 				return firstOneString;
@@ -234,6 +236,10 @@ export const getArrayBufferIterator = (
 				'0x63a2',
 				'0x73a4',
 				'0x7373',
+				'0x75a1',
+				'0x53ab',
+				'0x56aa',
+				'0x56bb',
 			];
 
 			const firstTwoString = `${firstOneString}${Array.from(

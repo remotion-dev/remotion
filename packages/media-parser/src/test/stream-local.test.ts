@@ -76,8 +76,6 @@ test('Should stream AV1 with no duration', async () => {
 		reader: nodeReader,
 	});
 
-	await Bun.write('av1.json', JSON.stringify(parsed.boxes, null, 2));
-
 	expect(parsed.durationInSeconds).toBe(1);
 	expect(parsed.fps).toBe(null);
 	expect(parsed.dimensions).toEqual({

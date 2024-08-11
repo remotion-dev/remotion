@@ -21,7 +21,6 @@ test('Should get duration of AV1 video', async () => {
 		width: 1920,
 		height: 1080,
 	});
-	await Bun.write('parsed.json', JSON.stringify(parsed, null, 2));
 	expect(parsed.boxes).toEqual([
 		{
 			type: 'main-segment',
@@ -32,17 +31,61 @@ test('Should get duration of AV1 video', async () => {
 					children: [
 						{
 							type: 'seek-segment',
-							seekId: '0x53ab8415',
-							child: {
-								id: '0x49a96653',
-								type: 'unknown-segment',
-							},
+							children: [
+								{
+									type: 'seek-id-segment',
+									seekId: '0x1549a966',
+								},
+								{
+									type: 'seek-position-segment',
+									seekPosition: 161,
+								},
+							],
 						},
 						{
-							id: '0x054cc1ec',
-							type: 'unknown-segment',
+							children: [
+								{
+									seekId: '0x1654ae6b',
+									type: 'seek-id-segment',
+								},
+								{
+									seekPosition: 214,
+									type: 'seek-position-segment',
+								},
+							],
+							type: 'seek-segment',
+						},
+						{
+							children: [
+								{
+									seekId: '0x1254c367',
+									type: 'seek-id-segment',
+								},
+								{
+									seekPosition: 322,
+									type: 'seek-position-segment',
+								},
+							],
+							type: 'seek-segment',
+						},
+						{
+							children: [
+								{
+									seekId: '0x1c53bb6b',
+									type: 'seek-id-segment',
+								},
+								{
+									seekPosition: 347329,
+									type: 'seek-position-segment',
+								},
+							],
+							type: 'seek-segment',
 						},
 					],
+				},
+				{
+					type: 'void-segment',
+					length: 88,
 				},
 				{
 					type: 'info-segment',
