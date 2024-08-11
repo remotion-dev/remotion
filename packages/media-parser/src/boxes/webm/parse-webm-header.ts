@@ -1,13 +1,9 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import {expectSegment} from './segments';
-import type {OnSimpleBlock} from './segments/track-entry';
 
 // Parsing according to https://darkcoding.net/software/reading-mediarecorders-webm-opus-output/
-export const parseWebm = (
-	counter: BufferIterator,
-	onSimpleBlock: OnSimpleBlock,
-): ParseResult => {
+export const parseWebm = (counter: BufferIterator): ParseResult => {
 	counter.discard(4);
 	const length = counter.getVint();
 
@@ -18,5 +14,5 @@ export const parseWebm = (
 	// Discard header for now
 	counter.discard(length);
 
-	return expectSegment(counter, onSimpleBlock);
+	return expectSegment(counter);
 };

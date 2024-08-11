@@ -37,7 +37,6 @@ import type {
 	InterlacedSegment,
 	LanguageSegment,
 	MaxBlockAdditionId,
-	OnSimpleBlock,
 	SegmentUUIDSegment,
 	SimpleBlockSegment,
 	TagSegment,
@@ -134,12 +133,10 @@ const parseSegment = ({
 	segmentId,
 	iterator,
 	length,
-	onSimpleBlock,
 }: {
 	segmentId: string;
 	iterator: BufferIterator;
 	length: number;
-	onSimpleBlock: OnSimpleBlock;
 }): MatroskaSegment => {
 	if (length === 0) {
 		throw new Error('Expected length to be greater than 0');
@@ -153,7 +150,7 @@ const parseSegment = ({
 	}
 
 	if (segmentId === '0x114d9b74') {
-		return parseSeekHeadSegment(iterator, length, onSimpleBlock);
+		return parseSeekHeadSegment(iterator, length);
 	}
 
 	if (segmentId === '0x53ab') {
@@ -161,7 +158,7 @@ const parseSegment = ({
 	}
 
 	if (segmentId === '0x4dbb') {
-		return parseSeekSegment(iterator, length, onSimpleBlock);
+		return parseSeekSegment(iterator, length);
 	}
 
 	if (segmentId === '0x53ac') {
@@ -173,7 +170,7 @@ const parseSegment = ({
 	}
 
 	if (segmentId === '0x1549a966') {
-		return parseInfoSegment(iterator, length, onSimpleBlock);
+		return parseInfoSegment(iterator, length);
 	}
 
 	if (segmentId === '0x2ad7b1') {
@@ -193,11 +190,11 @@ const parseSegment = ({
 	}
 
 	if (segmentId === '0x1654ae6b') {
-		return parseTracksSegment(iterator, length, onSimpleBlock);
+		return parseTracksSegment(iterator, length);
 	}
 
 	if (segmentId === '0xae') {
-		return parseTrackEntry(iterator, length, onSimpleBlock);
+		return parseTrackEntry(iterator, length);
 	}
 
 	if (segmentId === '0xd7') {
@@ -237,7 +234,7 @@ const parseSegment = ({
 	}
 
 	if (segmentId === '0xe0') {
-		return parseVideoSegment(iterator, length, onSimpleBlock);
+		return parseVideoSegment(iterator, length);
 	}
 
 	if (segmentId === '0xb0') {
@@ -277,7 +274,7 @@ const parseSegment = ({
 	}
 
 	if (segmentId === '0x1254c367') {
-		return parseTagsSegment(iterator, length, onSimpleBlock);
+		return parseTagsSegment(iterator, length);
 	}
 
 	if (segmentId === '0x7373') {
@@ -289,11 +286,11 @@ const parseSegment = ({
 	}
 
 	if (segmentId === '0xa3') {
-		return parseSimpleBlockSegment(iterator, length, onSimpleBlock);
+		return parseSimpleBlockSegment(iterator, length);
 	}
 
 	if (segmentId === '0xa0') {
-		return parseBlockGroupSegment(iterator, length, onSimpleBlock);
+		return parseBlockGroupSegment(iterator, length);
 	}
 
 	if (segmentId === '0xa1') {
@@ -310,17 +307,14 @@ const parseSegment = ({
 	return child;
 };
 
-export const expectSegment = (
-	iterator: BufferIterator,
-	onSimpleBlock: OnSimpleBlock,
-): ParseResult => {
+export const expectSegment = (iterator: BufferIterator): ParseResult => {
 	const bytesRemaining_ = iterator.bytesRemaining();
 	if (bytesRemaining_ === 0) {
 		return {
 			status: 'incomplete',
 			segments: [],
 			continueParsing: () => {
-				return expectSegment(iterator, onSimpleBlock);
+				return expectSegment(iterator);
 			},
 			skipTo: null,
 		};
@@ -347,7 +341,6 @@ export const expectSegment = (
 							type: 'cluster-segment',
 							children: s,
 						}),
-			onSimpleBlock,
 		});
 		if (main.status === 'incomplete') {
 			return {
@@ -371,13 +364,13 @@ export const expectSegment = (
 			status: 'incomplete',
 			segments: [],
 			continueParsing: () => {
-				return expectSegment(iterator, onSimpleBlock);
+				return expectSegment(iterator);
 			},
 			skipTo: null,
 		};
 	}
 
-	const segment = parseSegment({segmentId, iterator, length, onSimpleBlock});
+	const segment = parseSegment({segmentId, iterator, length});
 	return {
 		status: 'done',
 		segments: [segment],

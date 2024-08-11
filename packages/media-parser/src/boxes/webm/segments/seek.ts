@@ -1,7 +1,6 @@
 import type {BufferIterator} from '../../../buffer-iterator';
 import type {MatroskaSegment} from '../segments';
 import {expectChildren} from './parse-children';
-import type {OnSimpleBlock} from './track-entry';
 
 export type SeekSegment = {
 	type: 'seek-segment';
@@ -11,15 +10,12 @@ export type SeekSegment = {
 export const parseSeekSegment = (
 	iterator: BufferIterator,
 	length: number,
-	onSimpleBlock: OnSimpleBlock,
 ): SeekSegment => {
 	const children = expectChildren({
 		iterator,
 		length,
 		initialChildren: [],
 		wrap: null,
-		onSimpleBlock,
-		allowIncomplete: false,
 	});
 	if (children.status === 'incomplete') {
 		throw new Error('Incomplete children');

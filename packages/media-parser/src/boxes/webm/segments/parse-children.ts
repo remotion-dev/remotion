@@ -2,7 +2,6 @@ import type {BufferIterator} from '../../../buffer-iterator';
 import type {ParseResult} from '../../../parse-result';
 import type {MatroskaSegment} from '../segments';
 import {expectSegment} from '../segments';
-import type {OnSimpleBlock} from './track-entry';
 
 type WrapChildren = (segments: MatroskaSegment[]) => MatroskaSegment;
 
@@ -11,13 +10,11 @@ export const expectChildren = ({
 	length,
 	initialChildren,
 	wrap,
-	onSimpleBlock,
 }: {
 	iterator: BufferIterator;
 	length: number;
 	initialChildren: MatroskaSegment[];
 	wrap: WrapChildren | null;
-	onSimpleBlock: OnSimpleBlock;
 }): ParseResult => {
 	const children: MatroskaSegment[] = [...initialChildren];
 	const startOffset = iterator.counter.getOffset();
@@ -28,7 +25,7 @@ export const expectChildren = ({
 			break;
 		}
 
-		const child = expectSegment(iterator, onSimpleBlock);
+		const child = expectSegment(iterator);
 
 		if (child.status === 'incomplete') {
 			const endOffset = iterator.counter.getOffset();
@@ -43,7 +40,6 @@ export const expectChildren = ({
 						length: length - (blockOffset - startOffset),
 						initialChildren: children,
 						wrap,
-						onSimpleBlock,
 					});
 				},
 				skipTo: null,

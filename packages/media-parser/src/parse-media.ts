@@ -1,7 +1,3 @@
-import type {
-	OnSimpleBlock,
-	OnSimpleBlockData,
-} from './boxes/webm/segments/track-entry';
 import type {BufferIterator} from './buffer-iterator';
 import {getArrayBufferIterator} from './buffer-iterator';
 import {fetchReader} from './from-fetch';
@@ -41,12 +37,6 @@ export const parseMedia: ParseMedia = async ({
 	let iterator: BufferIterator | null = null;
 	let parseResult: ParseResult | null = null;
 
-	const simpleBlockQueue: OnSimpleBlockData[] = [];
-
-	const onSimpleBlock: OnSimpleBlock = (params) => {
-		simpleBlockQueue.push(params);
-	};
-
 	while (parseResult === null || parseResult.status === 'incomplete') {
 		const result = await currentReader.read();
 
@@ -75,27 +65,8 @@ export const parseMedia: ParseMedia = async ({
 					onAudioSample: onAudioSample ?? null,
 					onVideoSample: onVideoSample ?? null,
 					// TODO: Skip frames if onSimpleBlock is null
-					onSimpleBlock,
 				},
 			});
-		}
-
-		if (simpleBlockQueue.length > 0) {
-			const {audioTracks, videoTracks} = getTracks(parseResult.segments);
-
-			for (const block of simpleBlockQueue) {
-				const matchingAudioTrack = audioTracks.find(
-					(t) => t.type === 'audio' && t.trackId === block.trackNumber,
-				);
-				const matchingVideoTrack = videoTracks.find(
-					(t) => t.type === 'video' && t.trackId === block.trackNumber,
-				);
-				if (!matchingAudioTrack && !matchingVideoTrack) {
-					throw new Error('No track found for block');
-				}
-			}
-
-			simpleBlockQueue.length = 0;
 		}
 
 		if (hasAllInfo(fields, parseResult)) {
