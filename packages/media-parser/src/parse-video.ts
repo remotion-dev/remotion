@@ -1,7 +1,7 @@
 import {parseBoxes} from './boxes/iso-base-media/process-box';
 import {parseWebm} from './boxes/webm/parse-webm-header';
 import type {BufferIterator} from './buffer-iterator';
-import type {AnySegment, IsoBaseMediaBox, ParseResult} from './parse-result';
+import type {IsoBaseMediaBox, ParseResult} from './parse-result';
 import type {ParserContext} from './parser-context';
 
 export type BoxAndNext =
@@ -18,11 +18,9 @@ export type BoxAndNext =
 export const parseVideo = ({
 	iterator,
 	options,
-	getCurrentStructure,
 }: {
 	iterator: BufferIterator;
 	options: ParserContext;
-	getCurrentStructure: () => AnySegment[];
 }): ParseResult => {
 	if (iterator.bytesRemaining() === 0) {
 		return {
@@ -32,7 +30,6 @@ export const parseVideo = ({
 				return parseVideo({
 					iterator,
 					options,
-					getCurrentStructure,
 				});
 			},
 			skipTo: null,
