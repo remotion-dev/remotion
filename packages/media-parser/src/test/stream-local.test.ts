@@ -70,11 +70,13 @@ test('Should stream AV1 with no duration', async () => {
 			videoCodec: true,
 			audioCodec: true,
 			rotation: true,
+			tracks: true,
 			boxes: true,
-			// TODO: Return WebM tracks
 		},
 		reader: nodeReader,
 	});
+
+	await Bun.write('av1.json', JSON.stringify(parsed.boxes, null, 2));
 
 	expect(parsed.durationInSeconds).toBe(1);
 	expect(parsed.fps).toBe(null);
@@ -85,6 +87,27 @@ test('Should stream AV1 with no duration', async () => {
 	expect(parsed.videoCodec).toBe('av1');
 	expect(parsed.audioCodec).toBe(null);
 	expect(parsed.rotation).toBe(0);
+	expect(parsed.videoTracks.length).toBe(1);
+	expect(parsed.videoTracks[0]).toEqual({
+		type: 'video',
+		// TODO: it is the wrong one
+		// <sample entry 4CC>.<profile>.<level><tier>.<bitDepth>.<monochrome>.<chromaSubsampling>.
+		// <colorPrimaries>.<transferCharacteristics>.<matrixCoefficients>.<videoFullRangeFlag>
+		codecString: 'av01.',
+		description: null,
+		sampleAspectRatio: {
+			denominator: 1,
+			numerator: 1,
+		},
+		samplePositions: [],
+		timescale: 1000000,
+		trackId: 1,
+		untransformedHeight: 1080,
+		untransformedWidth: 1920,
+		height: 1080,
+		width: 1920,
+	});
+	expect(parsed.audioTracks.length).toBe(0);
 });
 
 test('Should stream corrupted video', async () => {
@@ -181,6 +204,8 @@ test('Should stream variable fps video', async () => {
 			audioCodec: true,
 			rotation: true,
 			unrotatedDimension: true,
+			tracks: true,
+			boxes: true,
 		},
 		reader: nodeReader,
 	});
@@ -193,6 +218,31 @@ test('Should stream variable fps video', async () => {
 	expect(parsed.videoCodec).toBe('vp8');
 	expect(parsed.audioCodec).toBe('opus');
 	expect(parsed.rotation).toBe(0);
+	expect(parsed.videoTracks.length).toBe(1);
+	expect(parsed.videoTracks[0]).toEqual({
+		type: 'video',
+		codecString: 'vp8',
+		description: null,
+		sampleAspectRatio: {
+			denominator: 1,
+			numerator: 1,
+		},
+		samplePositions: [],
+		timescale: 1000000,
+		trackId: 2,
+		untransformedHeight: 720,
+		untransformedWidth: 1280,
+		height: 720,
+		width: 1280,
+	});
+	expect(parsed.audioTracks.length).toBe(1);
+	expect(parsed.audioTracks[0]).toEqual({
+		type: 'audio',
+		codecString: 'opus',
+		samplePositions: null,
+		timescale: 1000000,
+		trackId: 1,
+	});
 });
 
 test('Should stream MKV video', async () => {
@@ -292,12 +342,9 @@ test('Custom DAR', async () => {
 			dimensions: true,
 			rotation: true,
 			unrotatedDimension: true,
-			boxes: true,
 		},
 		reader: nodeReader,
 	});
-
-	await Bun.write('dar.json', JSON.stringify(parsed.boxes, null, 2));
 
 	expect(parsed.videoTracks[0].sampleAspectRatio).toEqual({
 		numerator: 56,

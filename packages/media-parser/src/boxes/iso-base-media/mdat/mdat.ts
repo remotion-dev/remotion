@@ -58,6 +58,10 @@ export const parseMdat = ({
 
 	const flatSamples = allTracks
 		.map((track) => {
+			if (!track.samplePositions) {
+				throw new Error('No sample positions');
+			}
+
 			return track.samplePositions.map((samplePosition) => {
 				return {
 					track,

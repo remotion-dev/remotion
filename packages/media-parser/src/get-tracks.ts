@@ -1,4 +1,7 @@
+import {av1CodecStringToString} from './av1-codec-string';
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';
+import type {MainSegment} from './boxes/webm/segments/main';
+import type {TrackEntrySegment} from './boxes/webm/segments/track-entry';
 import {getAudioCodecStringFromTrak} from './get-audio-codec';
 import {
 	getTimescaleAndDuration,
@@ -37,7 +40,7 @@ type SampleAspectRatio = {
 
 export type VideoTrack = {
 	type: 'video';
-	samplePositions: SamplePosition[];
+	samplePositions: SamplePosition[] | null;
 	trackId: number;
 	description: Uint8Array | null;
 	timescale: number;
@@ -51,7 +54,7 @@ export type VideoTrack = {
 
 export type AudioTrack = {
 	type: 'audio';
-	samplePositions: SamplePosition[];
+	samplePositions: SamplePosition[] | null;
 	trackId: number;
 	timescale: number;
 	codecString: string | null;
@@ -88,12 +91,157 @@ export const hasTracks = (segments: AnySegment[]): boolean => {
 	return tracks.length === numberOfTracks;
 };
 
+const getMatroskaVideoCodecString = (track: TrackEntrySegment): string => {
+	const codec = track.children.find((b) => b.type === 'codec-segment');
+
+	if (!codec || codec.type !== 'codec-segment') {
+		throw new Error('Expected codec segment');
+	}
+
+	if (codec.codec === 'V_VP8') {
+		return 'vp8';
+	}
+
+	if (codec.codec === 'V_AV1') {
+		return av1CodecStringToString(track);
+	}
+
+	throw new Error(`Unknown codec: ${codec.codec}`);
+};
+
+const getMatroskaAudioCodecString = (track: TrackEntrySegment): string => {
+	const codec = track.children.find((b) => b.type === 'codec-segment');
+
+	if (!codec || codec.type !== 'codec-segment') {
+		throw new Error('Expected codec segment');
+	}
+
+	if (codec.codec === 'A_OPUS') {
+		return 'opus';
+	}
+
+	throw new Error(`Unknown codec: ${codec.codec}`);
+};
+
+const getTracksFromMatroska = (
+	segment: MainSegment,
+): {videoTracks: VideoTrack[]; audioTracks: AudioTrack[]} => {
+	const tracksSegment = segment.children.find(
+		(b) => b.type === 'tracks-segment',
+	);
+	if (!tracksSegment || tracksSegment.type !== 'tracks-segment') {
+		throw new Error('No tracks segment');
+	}
+
+	const infoSegment = segment.children.find((b) => b.type === 'info-segment');
+
+	if (!infoSegment || infoSegment.type !== 'info-segment') {
+		throw new Error('No info segment');
+	}
+
+	const timescale = infoSegment.children.find(
+		(b) => b.type === 'timestamp-scale-segment',
+	);
+
+	if (!timescale || timescale.type !== 'timestamp-scale-segment') {
+		throw new Error('No timescale segment');
+	}
+
+	const videoTracks: VideoTrack[] = [];
+	const audioTracks: AudioTrack[] = [];
+
+	for (const track of tracksSegment.children) {
+		if (track.type !== 'track-entry-segment') {
+			throw new Error('Expected track entry segment');
+		}
+
+		const trackType = track.children.find(
+			(b) => b.type === 'track-type-segment',
+		);
+
+		if (!trackType || trackType.type !== 'track-type-segment') {
+			throw new Error('Expected track type segment');
+		}
+
+		const trackId = track.children.find(
+			(b) => b.type === 'track-number-segment',
+		);
+
+		if (!trackId || trackId.type !== 'track-number-segment') {
+			throw new Error('Expected track id segment');
+		}
+
+		if (trackType.trackType === 'video') {
+			const videoSegment = track.children.find(
+				(b) => b.type === 'video-segment',
+			);
+
+			if (!videoSegment || videoSegment.type !== 'video-segment') {
+				throw new Error('Expected video segment');
+			}
+
+			const width = videoSegment.children.find(
+				(b) => b.type === 'width-segment',
+			);
+
+			if (!width || width.type !== 'width-segment') {
+				throw new Error('Expected width segment');
+			}
+
+			const height = videoSegment.children.find(
+				(b) => b.type === 'height-segment',
+			);
+
+			if (!height || height.type !== 'height-segment') {
+				throw new Error('Expected height segment');
+			}
+
+			videoTracks.push({
+				type: 'video',
+				trackId: trackId.trackNumber,
+				codecString: getMatroskaVideoCodecString(track),
+				description: null,
+				height: height.height,
+				width: width.width,
+				sampleAspectRatio: {
+					numerator: 1,
+					denominator: 1,
+				},
+				timescale: timescale.timestampScale,
+				samplePositions: [],
+				untransformedHeight: height.height,
+				untransformedWidth: width.width,
+			});
+		}
+
+		if (trackType.trackType === 'audio') {
+			audioTracks.push({
+				type: 'audio',
+				trackId: trackId.trackNumber,
+				codecString: getMatroskaAudioCodecString(track),
+				samplePositions: null,
+				timescale: timescale.timestampScale,
+			});
+		}
+	}
+
+	return {
+		videoTracks,
+		audioTracks,
+	};
+};
+
 export const getTracks = (
 	segments: AnySegment[],
 ): {
 	videoTracks: VideoTrack[];
 	audioTracks: AudioTrack[];
 } => {
+	const mainSegment = segments.find((s) => s.type === 'main-segment');
+	if (mainSegment && mainSegment.type === 'main-segment') {
+		return getTracksFromMatroska(mainSegment);
+	}
+
 	const moovBox = getMoovBox(segments);
 	if (!moovBox) {
 		return {

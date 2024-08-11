@@ -117,7 +117,7 @@ test('Should get duration of AV1 video', async () => {
 								},
 								{
 									type: 'track-type-segment',
-									trackType: 1,
+									trackType: 'video',
 								},
 								{
 									type: 'default-duration-segment',

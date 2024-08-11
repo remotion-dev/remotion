@@ -123,7 +123,10 @@ export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 		throw new Error('No bytes remaining');
 	}
 
+	const offset = iterator.counter.getOffset();
+	iterator.peek(10);
 	const segmentId = iterator.getMatroskaSegmentId();
+	console.log('offset', offset, segmentId);
 
 	if (segmentId === '0x') {
 		return {

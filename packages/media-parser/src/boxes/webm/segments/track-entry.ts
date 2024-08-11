@@ -1,3 +1,4 @@
+import {expectAv1Bitstream} from '../../../bitstream/av1';
 import type {BufferIterator} from '../../../buffer-iterator';
 import type {MatroskaSegment} from '../segments';
 import {expectChildren} from './parse-children';
@@ -127,9 +128,39 @@ export const parseCodecSegment = (iterator: BufferIterator): CodecSegment => {
 	};
 };
 
+type TrackType =
+	| 'video'
+	| 'audio'
+	| 'complex'
+	| 'subtitle'
+	| 'button'
+	| 'control'
+	| 'metadata';
+
 export type TrackTypeSegment = {
 	type: 'track-type-segment';
-	trackType: number;
+	trackType: TrackType;
+};
+
+const trackTypeToString = (trackType: number): TrackType => {
+	switch (trackType) {
+		case 1:
+			return 'video';
+		case 2:
+			return 'audio';
+		case 3:
+			return 'complex';
+		case 4:
+			return 'subtitle';
+		case 5:
+			return 'button';
+		case 6:
+			return 'control';
+		case 7:
+			return 'metadata';
+		default:
+			throw new Error(`Unknown track type: ${trackType}`);
+	}
 };
 
 export const parseTrackTypeSegment = (
@@ -141,6 +172,8 @@ export const parseTrackTypeSegment = (
 	}
 
 	const trackType = iterator.getUint8();
+
+	const trackTypeString = trackTypeToString(trackType);
 
 	// Could make the return type nicer
 	/* 1 - video,
@@ -154,7 +187,7 @@ export const parseTrackTypeSegment = (
     */
 	return {
 		type: 'track-type-segment',
-		trackType,
+		trackType: trackTypeString,
 	};
 };
 
@@ -468,14 +501,13 @@ export type SimpleBlockSegment = {
 	keyframe: boolean;
 	lacing: [number, number];
 	invisible: boolean;
-	children: MatroskaSegment[];
+	children: null;
 };
 
 export const parseSimpleBlockSegment = (
 	iterator: BufferIterator,
 ): SimpleBlockSegment => {
 	const length = iterator.getVint();
-	const offset = iterator.counter.getOffset();
 	const trackNumber = iterator.getVint();
 	const timecode = iterator.getUint16();
 	const headerFlags = iterator.getUint8();
@@ -485,9 +517,7 @@ export const parseSimpleBlockSegment = (
 	const pos7 = (headerFlags >> 6) & 1;
 	const keyframe = Boolean((headerFlags >> 7) & 1);
 
-	const remaining = length - (iterator.counter.getOffset() - offset);
-
-	const children = expectChildren(iterator, remaining);
+	const children = expectAv1Bitstream(iterator, length - 4);
 
 	return {
 		type: 'simple-block-segment',
@@ -498,6 +528,6 @@ export const parseSimpleBlockSegment = (
 		keyframe,
 		lacing: [pos6, pos7],
 		invisible,
-		children,
+		children: null,
 	};
 };
