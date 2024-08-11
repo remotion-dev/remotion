@@ -1,4 +1,3 @@
-import type {AvccBox, HvccBox} from './boxes/iso-base-media/avcc-hvcc';
 import type {BaseBox} from './boxes/iso-base-media/base-type';
 import type {EsdsBox} from './boxes/iso-base-media/esds/esds';
 import type {FtypBox} from './boxes/iso-base-media/ftyp';
@@ -6,9 +5,11 @@ import type {MdatBox} from './boxes/iso-base-media/mdat/mdat';
 import type {MdhdBox} from './boxes/iso-base-media/mdhd';
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';
 import type {MvhdBox} from './boxes/iso-base-media/mvhd';
+import type {AvccBox, HvccBox} from './boxes/iso-base-media/stsd/avcc-hvcc';
 import type {CttsBox} from './boxes/iso-base-media/stsd/ctts';
 import type {KeysBox} from './boxes/iso-base-media/stsd/keys';
 import type {MebxBox} from './boxes/iso-base-media/stsd/mebx';
+import type {PaspBox} from './boxes/iso-base-media/stsd/pasp';
 import type {StcoBox} from './boxes/iso-base-media/stsd/stco';
 import type {StscBox} from './boxes/iso-base-media/stsd/stsc';
 import type {StsdBox} from './boxes/iso-base-media/stsd/stsd';
@@ -49,6 +50,7 @@ export type IsoBaseMediaBox =
 	| HvccBox
 	| VoidBox
 	| StssBox
+	| PaspBox
 	| CttsBox;
 
 export type AnySegment = MatroskaSegment | IsoBaseMediaBox;

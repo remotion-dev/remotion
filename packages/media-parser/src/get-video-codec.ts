@@ -1,6 +1,11 @@
 /* eslint-disable max-depth */
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import {trakBoxContainsVideo} from './get-fps';
+import {
+	getAvccBox,
+	getHvccBox,
+	getVideoSample,
+} from './get-sample-aspect-ratio';
 import type {KnownVideoCodecs} from './options';
 import type {AnySegment} from './parse-result';
 import {getMoovBox, getStsdBox, getTraks} from './traversal';
@@ -14,29 +19,23 @@ export const hasVideoCodec = (boxes: AnySegment[]): boolean => {
 };
 
 export const getVideoCodecString = (trakBox: TrakBox): string | null => {
-	const stsdBox = getStsdBox(trakBox);
-	if (stsdBox && stsdBox.type === 'stsd-box') {
-		const videoSample = stsdBox.samples.find((s) => s.type === 'video');
-		if (videoSample && videoSample.type === 'video') {
-			const avccBox = videoSample.descriptors.find(
-				(c) => c.type === 'avcc-box',
-			);
-			if (avccBox && avccBox.type === 'avcc-box') {
-				return `${videoSample.format}.${avccBox.configurationString}`;
-			}
+	const videoSample = getVideoSample(trakBox);
+	const avccBox = getAvccBox(trakBox);
+	const hvccBox = getHvccBox(trakBox);
 
-			const hvccBox = videoSample.descriptors.find(
-				(c) => c.type === 'hvcc-box',
-			);
-			if (hvccBox && hvccBox.type === 'hvcc-box') {
-				return `${videoSample.format}.${hvccBox.configurationString}`;
-			}
-
-			return videoSample.format;
-		}
+	if (!videoSample) {
+		return null;
 	}
 
-	return null;
+	if (avccBox) {
+		return `${videoSample.format}.${avccBox.configurationString}`;
+	}
+
+	if (hvccBox) {
+		return `${videoSample.format}.${hvccBox.configurationString}`;
+	}
+
+	return videoSample.format;
 };
 
 export const getVideoCodec = (boxes: AnySegment[]): KnownVideoCodecs | null => {

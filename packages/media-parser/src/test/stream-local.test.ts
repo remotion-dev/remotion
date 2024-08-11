@@ -70,6 +70,7 @@ test('Should stream AV1 with no duration', async () => {
 			videoCodec: true,
 			audioCodec: true,
 			rotation: true,
+			boxes: true,
 			// TODO: Return WebM tracks
 		},
 		reader: nodeReader,
@@ -140,6 +141,7 @@ test('Should stream screen recording video', async () => {
 	expect(parsed.videoTracks.length).toEqual(1);
 	expect(parsed.videoTracks[0].codecString).toBe('avc1.4d0033');
 	expect(parsed.rotation).toBe(0);
+	expect(parsed.fps).toBe(58.983050847457626);
 });
 
 test('Should stream ProRes video', async () => {
@@ -178,12 +180,15 @@ test('Should stream variable fps video', async () => {
 			videoCodec: true,
 			audioCodec: true,
 			rotation: true,
+			unrotatedDimension: true,
 		},
 		reader: nodeReader,
 	});
 
 	expect(parsed.dimensions.width).toBe(1280);
 	expect(parsed.dimensions.height).toBe(720);
+	expect(parsed.unrotatedDimension.width).toBe(1280);
+	expect(parsed.unrotatedDimension.height).toBe(720);
 	expect(parsed.durationInSeconds).toBe(22.901);
 	expect(parsed.videoCodec).toBe('vp8');
 	expect(parsed.audioCodec).toBe('opus');
@@ -210,6 +215,7 @@ test('Should stream MKV video', async () => {
 	expect(parsed.videoCodec).toBe('h264');
 	expect(parsed.audioCodec).toBe('pcm');
 	expect(parsed.rotation).toBe(0);
+	expect(parsed.fps).toBe(null);
 });
 
 test('Should stream MP3 in MP4 video', async () => {
@@ -272,4 +278,48 @@ test('Should get duration of HEVC video', async () => {
 		height: 1080,
 	});
 	expect(parsed.videoCodec).toBe('h265');
+});
+
+test('Custom DAR', async () => {
+	const parsed = await parseMedia({
+		src: RenderInternals.exampleVideos.customDar,
+		fields: {
+			durationInSeconds: true,
+			fps: true,
+			videoCodec: true,
+			audioCodec: true,
+			tracks: true,
+			dimensions: true,
+			rotation: true,
+			unrotatedDimension: true,
+			boxes: true,
+		},
+		reader: nodeReader,
+	});
+
+	await Bun.write('dar.json', JSON.stringify(parsed.boxes, null, 2));
+
+	expect(parsed.videoTracks[0].sampleAspectRatio).toEqual({
+		numerator: 56,
+		denominator: 177,
+	});
+	expect(parsed.dimensions).toEqual({
+		height: 720,
+		width: 404.9717559814453,
+	});
+	expect(parsed.durationInSeconds).toBe(5.725);
+	expect(parsed.fps).toBe(30);
+	expect(parsed.videoCodec).toBe('h264');
+	expect(parsed.audioCodec).toBe('aac');
+	expect(parsed.videoTracks.length).toEqual(1);
+	expect(parsed.videoTracks[0].codecString).toBe('avc1.64001f');
+	expect(parsed.videoTracks[0].width).toBe(405);
+	expect(parsed.videoTracks[0].height).toBe(720);
+	expect(parsed.videoTracks[0].untransformedWidth).toBe(1280);
+	expect(parsed.videoTracks[0].untransformedHeight).toBe(720);
+	expect(parsed.rotation).toBe(0);
+	expect(parsed.unrotatedDimension).toEqual({
+		height: 720,
+		width: 404.9717559814453,
+	});
 });

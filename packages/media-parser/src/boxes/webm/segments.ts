@@ -17,6 +17,7 @@ import type {TimestampScaleSegment} from './segments/timestamp-scale';
 import {parseTimestampScaleSegment} from './segments/timestamp-scale';
 import type {
 	AlphaModeSegment,
+	ClusterSegment,
 	CodecPrivateSegment,
 	CodecSegment,
 	ColorSegment,
@@ -29,6 +30,10 @@ import type {
 	LanguageSegment,
 	MaxBlockAdditionId,
 	SegmentUUIDSegment,
+	SimpleBlockSegment,
+	TagSegment,
+	TagsSegment,
+	TimestampSegment,
 	TitleSegment,
 	TrackEntrySegment,
 	TrackNumberSegment,
@@ -39,6 +44,7 @@ import type {
 } from './segments/track-entry';
 import {
 	parseAlphaModeSegment,
+	parseClusterSegment,
 	parseCodecPrivateSegment,
 	parseCodecSegment,
 	parseColorSegment,
@@ -51,6 +57,10 @@ import {
 	parseLanguageSegment,
 	parseMaxBlockAdditionId,
 	parseSegmentUUIDSegment,
+	parseSimpleBlockSegment,
+	parseTagSegment,
+	parseTagsSegment,
+	parseTimestampSegment,
 	parseTitleSegment,
 	parseTrackEntry,
 	parseTrackNumber,
@@ -100,10 +110,21 @@ export type MatroskaSegment =
 	| CodecPrivateSegment
 	| Crc32Segment
 	| SegmentUUIDSegment
-	| DefaultFlagSegment;
+	| DefaultFlagSegment
+	| TagsSegment
+	| TagSegment
+	| ClusterSegment
+	| TimestampSegment
+	| SimpleBlockSegment;
 
 export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
+	const bytesRemaining_ = iterator.byteLength() - iterator.counter.getOffset();
+	if (bytesRemaining_ === 0) {
+		throw new Error('No bytes remaining');
+	}
+
 	const segmentId = iterator.getMatroskaSegmentId();
+
 	if (segmentId === '0x') {
 		return {
 			type: 'unknown-segment',
@@ -233,6 +254,26 @@ export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 
 	if (segmentId === '0x88') {
 		return parseDefaultFlagSegment(iterator);
+	}
+
+	if (segmentId === '0x1254c367') {
+		return parseTagsSegment(iterator);
+	}
+
+	if (segmentId === '0x7373') {
+		return parseTagSegment(iterator);
+	}
+
+	if (segmentId === '0x1f43b675') {
+		return parseClusterSegment(iterator);
+	}
+
+	if (segmentId === '0xe7') {
+		return parseTimestampSegment(iterator);
+	}
+
+	if (segmentId === '0xa3') {
+		return parseSimpleBlockSegment(iterator);
 	}
 
 	const length = iterator.getVint();

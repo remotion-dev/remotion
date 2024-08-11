@@ -273,6 +273,7 @@ export const parseMaxBlockAdditionId = (
 
 export type ColorSegment = {
 	type: 'color-segment';
+	length: number;
 };
 
 export const parseColorSegment = (iterator: BufferIterator): ColorSegment => {
@@ -282,6 +283,7 @@ export const parseColorSegment = (iterator: BufferIterator): ColorSegment => {
 
 	return {
 		type: 'color-segment',
+		length,
 	};
 };
 
@@ -383,5 +385,119 @@ export const parseDefaultFlagSegment = (
 	return {
 		type: 'default-flag-segment',
 		defaultFlag: Boolean(iterator.getUint8()),
+	};
+};
+
+export type TagsSegment = {
+	type: 'tags-segment';
+	children: MatroskaSegment[];
+};
+
+export const parseTagsSegment = (iterator: BufferIterator): TagsSegment => {
+	const offset = iterator.counter.getOffset();
+	const length = iterator.getVint();
+
+	return {
+		type: 'tags-segment',
+		children: expectChildren(
+			iterator,
+			length - (iterator.counter.getOffset() - offset),
+		),
+	};
+};
+
+export type TagSegment = {
+	type: 'tag-segment';
+	length: number;
+};
+
+export const parseTagSegment = (iterator: BufferIterator): TagSegment => {
+	const length = iterator.getVint();
+
+	iterator.discard(length);
+
+	return {
+		type: 'tag-segment',
+		length,
+	};
+};
+
+export type ClusterSegment = {
+	type: 'cluster-segment';
+	children: MatroskaSegment[];
+};
+
+export const parseClusterSegment = (
+	iterator: BufferIterator,
+): ClusterSegment => {
+	const length = iterator.getVint();
+
+	return {
+		type: 'cluster-segment',
+		children: expectChildren(iterator, length),
+	};
+};
+
+export type TimestampSegment = {
+	type: 'timestamp-segment';
+	timestamp: number;
+};
+
+export const parseTimestampSegment = (
+	iterator: BufferIterator,
+): TimestampSegment => {
+	const length = iterator.getVint();
+	if (length !== 1) {
+		throw new Error('Expected timestamp segment to be 1 byte');
+	}
+
+	const value = iterator.getUint8();
+
+	return {
+		type: 'timestamp-segment',
+		timestamp: value,
+	};
+};
+
+export type SimpleBlockSegment = {
+	type: 'simple-block-segment';
+	length: number;
+	trackNumber: number;
+	timecode: number;
+	headerFlags: number;
+	keyframe: boolean;
+	lacing: [number, number];
+	invisible: boolean;
+	children: MatroskaSegment[];
+};
+
+export const parseSimpleBlockSegment = (
+	iterator: BufferIterator,
+): SimpleBlockSegment => {
+	const length = iterator.getVint();
+	const offset = iterator.counter.getOffset();
+	const trackNumber = iterator.getVint();
+	const timecode = iterator.getUint16();
+	const headerFlags = iterator.getUint8();
+
+	const invisible = Boolean((headerFlags >> 5) & 1);
+	const pos6 = (headerFlags >> 6) & 1;
+	const pos7 = (headerFlags >> 6) & 1;
+	const keyframe = Boolean((headerFlags >> 7) & 1);
+
+	const remaining = length - (iterator.counter.getOffset() - offset);
+
+	const children = expectChildren(iterator, remaining);
+
+	return {
+		type: 'simple-block-segment',
+		length,
+		trackNumber,
+		timecode,
+		headerFlags,
+		keyframe,
+		lacing: [pos6, pos7],
+		invisible,
+		children,
 	};
 };

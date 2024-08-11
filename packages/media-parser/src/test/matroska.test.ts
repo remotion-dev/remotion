@@ -136,6 +136,7 @@ test('Should get duration of AV1 video', async () => {
 										},
 										{
 											type: 'color-segment',
+											length: 16,
 										},
 									],
 								},
@@ -151,8 +152,42 @@ test('Should get duration of AV1 video', async () => {
 					],
 				},
 				{
-					id: '0x1254c367',
-					type: 'unknown-segment',
+					type: 'tags-segment',
+					children: [
+						{
+							length: 31,
+							type: 'tag-segment',
+						},
+						{
+							length: 51,
+							type: 'tag-segment',
+						},
+					],
+				},
+				{
+					children: [
+						{
+							type: 'timestamp-segment',
+							timestamp: 0,
+						},
+						{
+							length: 279307,
+							type: 'simple-block-segment',
+							trackNumber: 1,
+							headerFlags: 128,
+							invisible: false,
+							keyframe: true,
+							lacing: [0, 0],
+							timecode: 0,
+							children: [
+								{
+									type: 'unknown-segment',
+									id: '0x0a0e0000',
+								},
+							],
+						},
+					],
+					type: 'cluster-segment',
 				},
 			],
 		},

@@ -5,6 +5,12 @@ import {
 	trakBoxContainsAudio,
 	trakBoxContainsVideo,
 } from './get-fps';
+import {
+	applyAspectRatios,
+	getDisplayAspectRatio,
+	getSampleAspectRatio,
+	getVideoSample,
+} from './get-sample-aspect-ratio';
 import type {SamplePosition} from './get-sample-positions';
 import {getSamplePositions} from './get-sample-positions';
 import {getVideoCodecString} from './get-video-codec';
@@ -24,6 +30,11 @@ import {
 	getVideoDescriptors,
 } from './traversal';
 
+type SampleAspectRatio = {
+	numerator: number;
+	denominator: number;
+};
+
 export type VideoTrack = {
 	type: 'video';
 	samplePositions: SamplePosition[];
@@ -31,6 +42,11 @@ export type VideoTrack = {
 	description: Uint8Array | null;
 	timescale: number;
 	codecString: string | null;
+	sampleAspectRatio: SampleAspectRatio;
+	width: number;
+	height: number;
+	untransformedWidth: number;
+	untransformedHeight: number;
 };
 
 export type AudioTrack = {
@@ -145,6 +161,22 @@ export const getTracks = (
 		}
 
 		if (trakBoxContainsVideo(track)) {
+			const videoSample = getVideoSample(track);
+			if (!videoSample) {
+				throw new Error('No video sample');
+			}
+
+			const sampleAspectRatio = getSampleAspectRatio(track);
+
+			const applied = applyAspectRatios({
+				dimensions: videoSample,
+				sampleAspectRatio,
+				displayAspectRatio: getDisplayAspectRatio({
+					sampleAspectRatio,
+					nativeDimensions: videoSample,
+				}),
+			});
+
 			videoTracks.push({
 				type: 'video',
 				samplePositions,
@@ -152,6 +184,11 @@ export const getTracks = (
 				description: videoDescriptors,
 				timescale: timescaleAndDuration.timescale,
 				codecString: getVideoCodecString(track),
+				sampleAspectRatio: getSampleAspectRatio(track),
+				width: applied.width,
+				height: applied.height,
+				untransformedWidth: videoSample.width,
+				untransformedHeight: videoSample.height,
 			});
 		}
 	}

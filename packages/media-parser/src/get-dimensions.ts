@@ -1,5 +1,6 @@
 import type {MainSegment} from './boxes/webm/segments/main';
 import {trakBoxContainsVideo} from './get-fps';
+import {getVideoSample} from './get-sample-aspect-ratio';
 import type {AnySegment} from './parse-result';
 import {getMoovBox, getStsdBox, getTkhdBox, getTraks} from './traversal';
 
@@ -103,22 +104,17 @@ export const getDimensions = (boxes: AnySegment[]): ExpandedDimensions => {
 		throw new Error('Expected stsd box');
 	}
 
-	const videoSamples = stsdBox.samples.filter((s) => s.type === 'video');
-	if (videoSamples.length === 0) {
-		throw new Error('Has no video stream');
-	}
-
-	const [firstSample] = videoSamples;
-	if (firstSample.type !== 'video') {
-		throw new Error('Expected video track');
+	const videoSample = getVideoSample(trakBox);
+	if (!videoSample) {
+		throw new Error('Expected video sample');
 	}
 
 	return {
-		width: firstSample.width,
-		height: firstSample.height,
+		width: videoSample.width,
+		height: videoSample.height,
 		rotation: 0,
-		unrotatedHeight: firstSample.height,
-		unrotatedWidth: firstSample.width,
+		unrotatedHeight: videoSample.height,
+		unrotatedWidth: videoSample.width,
 	};
 };
 
