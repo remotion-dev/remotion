@@ -1,4 +1,3 @@
-import {expectBitstream} from '../../../bitstream/av1';
 import type {BufferIterator} from '../../../buffer-iterator';
 import type {MatroskaSegment} from '../segments';
 import {expectChildren} from './parse-children';
@@ -11,12 +10,14 @@ export type TrackEntrySegment = {
 export const parseTrackEntry = (
 	iterator: BufferIterator,
 	length: number,
+	onSimpleBlock: OnSimpleBlock,
 ): TrackEntrySegment => {
 	const children = expectChildren({
 		iterator,
 		length,
 		initialChildren: [],
 		wrap: null,
+		onSimpleBlock,
 	});
 	if (children.status === 'incomplete') {
 		throw new Error('Incomplete children ' + length);
@@ -207,12 +208,14 @@ export type VideoSegment = {
 export const parseVideoSegment = (
 	iterator: BufferIterator,
 	length: number,
+	onSimpleBlock: OnSimpleBlock,
 ): VideoSegment => {
 	const children = expectChildren({
 		iterator,
 		length,
 		initialChildren: [],
 		wrap: null,
+		onSimpleBlock,
 	});
 
 	if (children.status === 'incomplete') {
@@ -438,12 +441,14 @@ export type TagsSegment = {
 export const parseTagsSegment = (
 	iterator: BufferIterator,
 	length: number,
+	onSimpleBlock: OnSimpleBlock,
 ): TagsSegment => {
 	const children = expectChildren({
 		iterator,
 		length,
 		initialChildren: [],
 		wrap: null,
+		onSimpleBlock,
 	});
 
 	if (children.status === 'incomplete') {
@@ -508,12 +513,23 @@ export type SimpleBlockSegment = {
 	keyframe: boolean;
 	lacing: [number, number];
 	invisible: boolean;
-	children: null;
 };
+
+export type OnSimpleBlockData = {
+	data: Uint8Array;
+	trackNumber: number;
+	timecode: number;
+	keyframe: boolean;
+	lacing: [number, number];
+	invisible: boolean;
+};
+
+export type OnSimpleBlock = (params: OnSimpleBlockData) => void;
 
 export const parseSimpleBlockSegment = (
 	iterator: BufferIterator,
 	length: number,
+	onSimpleBlock: OnSimpleBlock,
 ): SimpleBlockSegment => {
 	const trackNumber = iterator.getVint();
 	const timecode = iterator.getUint16();
@@ -524,7 +540,16 @@ export const parseSimpleBlockSegment = (
 	const pos7 = (headerFlags >> 6) & 1;
 	const keyframe = Boolean((headerFlags >> 7) & 1);
 
-	const children = expectBitstream(iterator, length - 4);
+	const bitstream = iterator.getSlice(length - 4);
+
+	onSimpleBlock({
+		data: bitstream,
+		trackNumber,
+		timecode,
+		keyframe,
+		lacing: [pos6, pos7],
+		invisible,
+	});
 
 	return {
 		type: 'simple-block-segment',
@@ -535,7 +560,6 @@ export const parseSimpleBlockSegment = (
 		keyframe,
 		lacing: [pos6, pos7],
 		invisible,
-		children: null,
 	};
 };
 
@@ -563,12 +587,14 @@ export type BlockGroupSegment = {
 export const parseBlockGroupSegment = (
 	iterator: BufferIterator,
 	length: number,
+	onSimpleBlock: OnSimpleBlock,
 ): BlockGroupSegment => {
 	const children = expectChildren({
 		iterator,
 		length,
 		initialChildren: [],
 		wrap: null,
+		onSimpleBlock,
 	});
 	if (children.status === 'incomplete') {
 		throw new Error('Incomplete boxes are not allowed');

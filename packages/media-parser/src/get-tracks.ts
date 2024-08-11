@@ -102,6 +102,16 @@ const getMatroskaVideoCodecString = (track: TrackEntrySegment): string => {
 		return 'vp8';
 	}
 
+	if (codec.codec === 'V_VP9') {
+		return 'vp9';
+	}
+
+	if (codec.codec === 'V_MPEG4/ISO/AVC') {
+		// TODO: different avc1!
+		// Failing test: Should stream MKV video
+		return 'avc1';
+	}
+
 	if (codec.codec === 'V_AV1') {
 		return av1CodecStringToString(track);
 	}
@@ -118,6 +128,11 @@ const getMatroskaAudioCodecString = (track: TrackEntrySegment): string => {
 
 	if (codec.codec === 'A_OPUS') {
 		return 'opus';
+	}
+
+	// TODO: Wrong, see here how to parse it correctly
+	if (codec.codec === 'A_PCM/INT/LIT') {
+		return 'pcm-s16';
 	}
 
 	throw new Error(`Unknown codec: ${codec.codec}`);
@@ -151,6 +166,10 @@ const getTracksFromMatroska = (
 	const audioTracks: AudioTrack[] = [];
 
 	for (const track of tracksSegment.children) {
+		if (track.type === 'crc32-segment') {
+			continue;
+		}
+
 		if (track.type !== 'track-entry-segment') {
 			throw new Error('Expected track entry segment');
 		}

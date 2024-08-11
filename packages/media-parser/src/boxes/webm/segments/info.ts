@@ -1,6 +1,7 @@
 import type {BufferIterator} from '../../../buffer-iterator';
 import type {MatroskaSegment} from '../segments';
 import {expectChildren} from './parse-children';
+import type {OnSimpleBlock} from './track-entry';
 
 export type InfoSegment = {
 	type: 'info-segment';
@@ -11,12 +12,15 @@ export type InfoSegment = {
 export const parseInfoSegment = (
 	iterator: BufferIterator,
 	length: number,
+	onSimpleBlock: OnSimpleBlock,
 ): InfoSegment => {
 	const children = expectChildren({
 		iterator,
 		length,
 		initialChildren: [],
 		wrap: null,
+		onSimpleBlock,
+		allowIncomplete: false,
 	});
 
 	if (children.status === 'incomplete') {
