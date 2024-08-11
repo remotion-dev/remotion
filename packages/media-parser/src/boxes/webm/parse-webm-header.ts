@@ -14,7 +14,5 @@ export const parseWebm = (counter: BufferIterator): ParseResult => {
 	// Discard header for now
 	counter.discard(length);
 
-	const segments = expectSegment(counter);
-
-	return {status: 'done', segments: [segments]};
+	return expectSegment(counter);
 };

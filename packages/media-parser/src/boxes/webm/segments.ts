@@ -1,11 +1,12 @@
 import type {BufferIterator} from '../../buffer-iterator';
+import type {ParseResult} from '../../parse-result';
 import type {DurationSegment} from './segments/duration';
 import {parseDurationSegment} from './segments/duration';
 import type {InfoSegment} from './segments/info';
 import {parseInfoSegment} from './segments/info';
-import type {MainSegment} from './segments/main';
-import {parseMainSegment} from './segments/main';
+import {type MainSegment} from './segments/main';
 import {parseMuxingSegment, type MuxingAppSegment} from './segments/muxing';
+import {expectChildren} from './segments/parse-children';
 import {parseSeekSegment, type SeekSegment} from './segments/seek';
 import type {SeekHeadSegment} from './segments/seek-head';
 import {parseSeekHeadSegment} from './segments/seek-head';
@@ -44,7 +45,6 @@ import type {
 } from './segments/track-entry';
 import {
 	parseAlphaModeSegment,
-	parseClusterSegment,
 	parseCodecPrivateSegment,
 	parseCodecSegment,
 	parseColorSegment,
@@ -117,20 +117,13 @@ export type MatroskaSegment =
 	| TimestampSegment
 	| SimpleBlockSegment;
 
-export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
-	const bytesRemaining_ = iterator.byteLength() - iterator.counter.getOffset();
-	if (bytesRemaining_ === 0) {
-		throw new Error('No bytes remaining');
-	}
-
-	const segmentId = iterator.getMatroskaSegmentId();
-	const length = iterator.getVint();
-	const bytesRemainingNow =
-		iterator.byteLength() - iterator.counter.getOffset();
-	if (bytesRemainingNow < length) {
-		if (segmentId !== '0x18538067') {
-			throw new Error('Dont have the data yet for this segment ' + segmentId);
-		}
+const parseSegment = (
+	segmentId: string,
+	iterator: BufferIterator,
+	length: number,
+): MatroskaSegment => {
+	if (length === 0) {
+		throw new Error('Expected length to be greater than 0');
 	}
 
 	if (segmentId === '0x') {
@@ -138,10 +131,6 @@ export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 			type: 'unknown-segment',
 			id: segmentId,
 		};
-	}
-
-	if (segmentId === '0x18538067') {
-		return parseMainSegment(iterator, length);
 	}
 
 	if (segmentId === '0x114d9b74') {
@@ -272,10 +261,6 @@ export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 		return parseTagSegment(iterator, length);
 	}
 
-	if (segmentId === '0x1f43b675') {
-		return parseClusterSegment(iterator, length);
-	}
-
 	if (segmentId === '0xe7') {
 		return parseTimestampSegment(iterator, length);
 	}
@@ -292,4 +277,73 @@ export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 
 	const child = parseUnknownSegment(iterator, segmentId, toDiscard);
 	return child;
+};
+
+export const expectSegment = (iterator: BufferIterator): ParseResult => {
+	const bytesRemaining_ = iterator.bytesRemaining();
+	if (bytesRemaining_ === 0) {
+		return {
+			status: 'incomplete',
+			segments: [],
+			continueParsing: () => {
+				return expectSegment(iterator);
+			},
+			skipTo: null,
+		};
+	}
+
+	const offset = iterator.counter.getOffset();
+	const segmentId = iterator.getMatroskaSegmentId();
+	const length = iterator.getVint();
+	const bytesRemainingNow =
+		iterator.byteLength() - iterator.counter.getOffset();
+
+	if (segmentId === '0x18538067' || segmentId === '0x1f43b675') {
+		const main = expectChildren(
+			iterator,
+			length,
+			[],
+			segmentId === '0x18538067'
+				? (s) => ({
+						type: 'main-segment',
+						children: s,
+					})
+				: (s) => ({
+						type: 'cluster-segment',
+						children: s,
+					}),
+		);
+		if (main.status === 'incomplete') {
+			return {
+				status: 'incomplete',
+				segments: main.segments,
+				skipTo: null,
+				continueParsing: main.continueParsing,
+			};
+		}
+
+		return {
+			status: 'done',
+			segments: main.segments,
+		};
+	}
+
+	if (bytesRemainingNow < length) {
+		const bytesRead = iterator.counter.getOffset() - offset;
+		iterator.counter.decrement(bytesRead);
+		return {
+			status: 'incomplete',
+			segments: [],
+			continueParsing: () => {
+				return expectSegment(iterator);
+			},
+			skipTo: null,
+		};
+	}
+
+	const segment = parseSegment(segmentId, iterator, length);
+	return {
+		status: 'done',
+		segments: [segment],
+	};
 };

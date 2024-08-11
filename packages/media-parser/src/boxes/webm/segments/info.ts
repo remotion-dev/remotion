@@ -12,11 +12,15 @@ export const parseInfoSegment = (
 	iterator: BufferIterator,
 	length: number,
 ): InfoSegment => {
-	const children = expectChildren(iterator, length);
+	const children = expectChildren(iterator, length, [], null);
+
+	if (children.status === 'incomplete') {
+		throw new Error('Incomplete children');
+	}
 
 	return {
 		type: 'info-segment',
 		length,
-		children,
+		children: children.segments as MatroskaSegment[],
 	};
 };

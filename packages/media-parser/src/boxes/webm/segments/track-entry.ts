@@ -12,36 +12,20 @@ export const parseTrackEntry = (
 	iterator: BufferIterator,
 	length: number,
 ): TrackEntrySegment => {
-	const offset = iterator.counter.getOffset();
+	const children = expectChildren(iterator, length, [], null);
+	if (children.status === 'incomplete') {
+		throw new Error('Incomplete children');
+	}
 
 	return {
 		type: 'track-entry-segment',
-		children: expectChildren(
-			iterator,
-			length - (iterator.counter.getOffset() - offset),
-		),
+		children: children.segments as MatroskaSegment[],
 	};
 };
 
 export type TrackNumberSegment = {
 	type: 'track-number-segment';
 	trackNumber: number;
-};
-
-export const parseTrackNumber = (
-	iterator: BufferIterator,
-	length: number,
-): TrackNumberSegment => {
-	if (length !== 1) {
-		throw new Error('Expected track number to be 1 byte');
-	}
-
-	const trackNumber = iterator.getUint8();
-
-	return {
-		type: 'track-number-segment',
-		trackNumber,
-	};
 };
 
 export type TrackUIDSegment = {
@@ -219,9 +203,15 @@ export const parseVideoSegment = (
 	iterator: BufferIterator,
 	length: number,
 ): VideoSegment => {
+	const children = expectChildren(iterator, length, [], null);
+
+	if (children.status === 'incomplete') {
+		throw new Error('Incomplete children');
+	}
+
 	return {
 		type: 'video-segment',
-		children: expectChildren(iterator, length),
+		children: children.segments as MatroskaSegment[],
 	};
 };
 
@@ -353,7 +343,9 @@ export const parseInterlacedSegment = (
 	length: number,
 ): InterlacedSegment => {
 	if (length !== 1) {
-		throw new Error('Expected interlaced segment to be 1 byte');
+		throw new Error(
+			'Expected interlaced segment to be 1 byte, but is ' + length,
+		);
 	}
 
 	const interlaced = iterator.getUint8();
@@ -437,9 +429,15 @@ export const parseTagsSegment = (
 	iterator: BufferIterator,
 	length: number,
 ): TagsSegment => {
+	const children = expectChildren(iterator, length, [], null);
+
+	if (children.status === 'incomplete') {
+		throw new Error('Incomplete children');
+	}
+
 	return {
 		type: 'tags-segment',
-		children: expectChildren(iterator, length),
+		children: children.segments as MatroskaSegment[],
 	};
 };
 
@@ -465,16 +463,6 @@ export type ClusterSegment = {
 	children: MatroskaSegment[];
 };
 
-export const parseClusterSegment = (
-	iterator: BufferIterator,
-	length: number,
-): ClusterSegment => {
-	return {
-		type: 'cluster-segment',
-		children: expectChildren(iterator, length),
-	};
-};
-
 export type TimestampSegment = {
 	type: 'timestamp-segment';
 	timestamp: number;
@@ -484,11 +472,11 @@ export const parseTimestampSegment = (
 	iterator: BufferIterator,
 	length: number,
 ): TimestampSegment => {
-	if (length !== 1) {
-		throw new Error('Expected timestamp segment to be 1 byte');
+	if (length > 2) {
+		throw new Error('Expected timestamp segment to be 1 byte or 2 bytes');
 	}
 
-	const value = iterator.getUint8();
+	const value = length === 2 ? iterator.getUint16() : iterator.getUint8();
 
 	return {
 		type: 'timestamp-segment',
@@ -533,5 +521,21 @@ export const parseSimpleBlockSegment = (
 		lacing: [pos6, pos7],
 		invisible,
 		children: null,
+	};
+};
+
+export const parseTrackNumber = (
+	iterator: BufferIterator,
+	length: number,
+): TrackNumberSegment => {
+	if (length !== 1) {
+		throw new Error('Expected track number to be 1 byte');
+	}
+
+	const trackNumber = iterator.getUint8();
+
+	return {
+		type: 'track-number-segment',
+		trackNumber,
 	};
 };

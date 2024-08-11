@@ -11,13 +11,14 @@ export const parseTracksSegment = (
 	iterator: BufferIterator,
 	length: number,
 ): TracksSegment => {
-	const offset = iterator.counter.getOffset();
+	const children = expectChildren(iterator, length, [], null);
+
+	if (children.status === 'incomplete') {
+		throw new Error('Incomplete children');
+	}
 
 	return {
 		type: 'tracks-segment',
-		children: expectChildren(
-			iterator,
-			length - (iterator.counter.getOffset() - offset),
-		),
+		children: children.segments as MatroskaSegment[],
 	};
 };

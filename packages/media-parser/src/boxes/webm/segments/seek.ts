@@ -12,9 +12,13 @@ export const parseSeekSegment = (iterator: BufferIterator): SeekSegment => {
 	const seekId = iterator.getMatroskaSegmentId();
 	const child = expectSegment(iterator);
 
+	if (child.status === 'incomplete') {
+		throw new Error('Incomplete child');
+	}
+
 	return {
 		type: 'seek-segment',
 		seekId,
-		child,
+		child: child.segments[0] as MatroskaSegment,
 	};
 };
