@@ -8,8 +8,10 @@ export type InfoSegment = {
 	children: MatroskaSegment[];
 };
 
-export const parseInfoSegment = (iterator: BufferIterator): InfoSegment => {
-	const length = iterator.getVint();
+export const parseInfoSegment = (
+	iterator: BufferIterator,
+	length: number,
+): InfoSegment => {
 	const children = expectChildren(iterator, length);
 
 	return {

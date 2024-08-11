@@ -8,41 +8,17 @@
         "children": [
           {
             "type": "seek-segment",
-            "seekId": "0x1549a966",
+            "seekId": "0x53ab8415",
             "child": {
-              "type": "seek-position-segment",
-              "seekPosition": 161
+              "id": "0x49a96653",
+              "type": "unknown-segment"
             }
           },
           {
-            "type": "seek-segment",
-            "seekId": "0x1654ae6b",
-            "child": {
-              "type": "seek-position-segment",
-              "seekPosition": 214
-            }
-          },
-          {
-            "type": "seek-segment",
-            "seekId": "0x1254c367",
-            "child": {
-              "type": "seek-position-segment",
-              "seekPosition": 322
-            }
-          },
-          {
-            "type": "seek-segment",
-            "seekId": "0x1c53bb6b",
-            "child": {
-              "type": "seek-position-segment",
-              "seekPosition": 347329
-            }
+            "id": "0x054cc1ec",
+            "type": "unknown-segment"
           }
         ]
-      },
-      {
-        "type": "void-segment",
-        "length": 88
       },
       {
         "type": "info-segment",
@@ -163,32 +139,14 @@
         "type": "cluster-segment",
         "children": [
           {
-            "type": "timestamp-segment",
-            "timestamp": 0
-          },
-          {
-            "type": "simple-block-segment",
-            "length": 279307,
-            "trackNumber": 1,
-            "timecode": 0,
-            "headerFlags": 128,
-            "keyframe": true,
-            "lacing": [
-              0,
-              0
-            ],
-            "invisible": false,
-            "children": null
-          },
-          {
-            "type": "unknown-segment",
-            "id": "0x"
+            "id": "0x8100a324",
+            "type": "unknown-segment"
           }
         ]
       },
       {
-        "type": "unknown-segment",
-        "id": "0x"
+        "id": "0x01f5d31f",
+        "type": "unknown-segment"
       }
     ]
   }

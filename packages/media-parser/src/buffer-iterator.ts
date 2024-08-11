@@ -253,6 +253,7 @@ export const getArrayBufferIterator = (
 				'0x448988',
 				'0x22b59c',
 				'0x23e383',
+				'0x2ad7b1',
 			];
 
 			const firstThree = getSlice(1);

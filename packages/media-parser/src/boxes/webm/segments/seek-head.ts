@@ -10,9 +10,8 @@ export type SeekHeadSegment = {
 
 export const parseSeekHeadSegment = (
 	iterator: BufferIterator,
+	length: number,
 ): SeekHeadSegment => {
-	const length = iterator.getVint();
-
 	return {
 		type: 'seek-head-segment',
 		length,

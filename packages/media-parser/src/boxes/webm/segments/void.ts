@@ -5,8 +5,10 @@ export type VoidSegment = {
 	length: number;
 };
 
-export const parseVoidSegment = (iterator: BufferIterator): VoidSegment => {
-	const length = iterator.getVint();
+export const parseVoidSegment = (
+	iterator: BufferIterator,
+	length: number,
+): VoidSegment => {
 	iterator.discard(length);
 
 	return {

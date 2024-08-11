@@ -7,10 +7,11 @@ export type TracksSegment = {
 	children: MatroskaSegment[];
 };
 
-export const parseTracksSegment = (iterator: BufferIterator): TracksSegment => {
+export const parseTracksSegment = (
+	iterator: BufferIterator,
+	length: number,
+): TracksSegment => {
 	const offset = iterator.counter.getOffset();
-
-	const length = iterator.getVint();
 
 	return {
 		type: 'tracks-segment',

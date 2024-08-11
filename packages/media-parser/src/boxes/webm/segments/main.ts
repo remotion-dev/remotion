@@ -7,9 +7,10 @@ export type MainSegment = {
 	children: MatroskaSegment[];
 };
 
-export const parseMainSegment = (iterator: BufferIterator): MainSegment => {
-	const length = iterator.getVint();
-
+export const parseMainSegment = (
+	iterator: BufferIterator,
+	length: number,
+): MainSegment => {
 	const children = expectChildren(iterator, length);
 
 	return {

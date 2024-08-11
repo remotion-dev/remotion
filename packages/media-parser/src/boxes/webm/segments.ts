@@ -123,10 +123,15 @@ export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 		throw new Error('No bytes remaining');
 	}
 
-	const offset = iterator.counter.getOffset();
-	iterator.peek(10);
 	const segmentId = iterator.getMatroskaSegmentId();
-	console.log('offset', offset, segmentId);
+	const length = iterator.getVint();
+	const bytesRemainingNow =
+		iterator.byteLength() - iterator.counter.getOffset();
+	if (bytesRemainingNow < length) {
+		if (segmentId !== '0x18538067') {
+			throw new Error('Dont have the data yet for this segment ' + segmentId);
+		}
+	}
 
 	if (segmentId === '0x') {
 		return {
@@ -136,11 +141,11 @@ export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 	}
 
 	if (segmentId === '0x18538067') {
-		return parseMainSegment(iterator);
+		return parseMainSegment(iterator, length);
 	}
 
 	if (segmentId === '0x114d9b74') {
-		return parseSeekHeadSegment(iterator);
+		return parseSeekHeadSegment(iterator, length);
 	}
 
 	if (segmentId === '0x4dbb') {
@@ -152,134 +157,132 @@ export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 	}
 
 	if (segmentId === '0xec') {
-		return parseVoidSegment(iterator);
+		return parseVoidSegment(iterator, length);
 	}
 
 	if (segmentId === '0x1549a966') {
-		return parseInfoSegment(iterator);
+		return parseInfoSegment(iterator, length);
 	}
 
-	if (segmentId === '0x2ad7b183') {
+	if (segmentId === '0x2ad7b1') {
 		return parseTimestampScaleSegment(iterator);
 	}
 
 	if (segmentId === '0x4d80') {
-		return parseMuxingSegment(iterator);
+		return parseMuxingSegment(iterator, length);
 	}
 
 	if (segmentId === '0x5741') {
-		return parseWritingSegment(iterator);
+		return parseWritingSegment(iterator, length);
 	}
 
 	if (segmentId === '0x4489') {
-		return parseDurationSegment(iterator);
+		return parseDurationSegment(iterator, length);
 	}
 
 	if (segmentId === '0x1654ae6b') {
-		return parseTracksSegment(iterator);
+		return parseTracksSegment(iterator, length);
 	}
 
 	if (segmentId === '0xae') {
-		return parseTrackEntry(iterator);
+		return parseTrackEntry(iterator, length);
 	}
 
 	if (segmentId === '0xd7') {
-		return parseTrackNumber(iterator);
+		return parseTrackNumber(iterator, length);
 	}
 
 	if (segmentId === '0x73c5') {
-		return parseTrackUID(iterator);
+		return parseTrackUID(iterator, length);
 	}
 
 	if (segmentId === '0x9c') {
-		return parseFlagLacing(iterator);
+		return parseFlagLacing(iterator, length);
 	}
 
 	if (segmentId === '0x22b59c') {
-		return parseLanguageSegment(iterator);
+		return parseLanguageSegment(iterator, length);
 	}
 
 	if (segmentId === '0x86') {
-		return parseCodecSegment(iterator);
+		return parseCodecSegment(iterator, length);
 	}
 
 	if (segmentId === '0x83') {
-		return parseTrackTypeSegment(iterator);
+		return parseTrackTypeSegment(iterator, length);
 	}
 
 	if (segmentId === '0x55ee') {
-		return parseMaxBlockAdditionId(iterator);
+		return parseMaxBlockAdditionId(iterator, length);
 	}
 
 	if (segmentId === '0x55b0') {
-		return parseColorSegment(iterator);
+		return parseColorSegment(iterator, length);
 	}
 
 	if (segmentId === '0x23e383') {
-		return parseDefaultDurationSegment(iterator);
+		return parseDefaultDurationSegment(iterator, length);
 	}
 
 	if (segmentId === '0xe0') {
-		return parseVideoSegment(iterator);
+		return parseVideoSegment(iterator, length);
 	}
 
 	if (segmentId === '0xb0') {
-		return parseWidthSegment(iterator);
+		return parseWidthSegment(iterator, length);
 	}
 
 	if (segmentId === '0xba') {
-		return parseHeightSegment(iterator);
+		return parseHeightSegment(iterator, length);
 	}
 
 	if (segmentId === '0x9a') {
-		return parseInterlacedSegment(iterator);
+		return parseInterlacedSegment(iterator, length);
 	}
 
 	if (segmentId === '0x53c0') {
-		return parseAlphaModeSegment(iterator);
+		return parseAlphaModeSegment(iterator, length);
 	}
 
 	if (segmentId === '0x63a2') {
-		return parseCodecPrivateSegment(iterator);
+		return parseCodecPrivateSegment(iterator, length);
 	}
 
 	if (segmentId === '0x7ba9') {
-		return parseTitleSegment(iterator);
+		return parseTitleSegment(iterator, length);
 	}
 
 	if (segmentId === '0xbf') {
-		return parseCrc32Segment(iterator);
+		return parseCrc32Segment(iterator, length);
 	}
 
 	if (segmentId === '0x73a4') {
-		return parseSegmentUUIDSegment(iterator);
+		return parseSegmentUUIDSegment(iterator, length);
 	}
 
 	if (segmentId === '0x88') {
-		return parseDefaultFlagSegment(iterator);
+		return parseDefaultFlagSegment(iterator, length);
 	}
 
 	if (segmentId === '0x1254c367') {
-		return parseTagsSegment(iterator);
+		return parseTagsSegment(iterator, length);
 	}
 
 	if (segmentId === '0x7373') {
-		return parseTagSegment(iterator);
+		return parseTagSegment(iterator, length);
 	}
 
 	if (segmentId === '0x1f43b675') {
-		return parseClusterSegment(iterator);
+		return parseClusterSegment(iterator, length);
 	}
 
 	if (segmentId === '0xe7') {
-		return parseTimestampSegment(iterator);
+		return parseTimestampSegment(iterator, length);
 	}
 
 	if (segmentId === '0xa3') {
-		return parseSimpleBlockSegment(iterator);
+		return parseSimpleBlockSegment(iterator, length);
 	}
-
-	const length = iterator.getVint();
 
 	const bytesRemaining = iterator.byteLength() - iterator.counter.getOffset();
 	const toDiscard = Math.min(

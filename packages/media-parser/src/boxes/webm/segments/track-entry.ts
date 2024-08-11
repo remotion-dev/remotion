@@ -10,10 +10,9 @@ export type TrackEntrySegment = {
 
 export const parseTrackEntry = (
 	iterator: BufferIterator,
+	length: number,
 ): TrackEntrySegment => {
 	const offset = iterator.counter.getOffset();
-
-	const length = iterator.getVint();
 
 	return {
 		type: 'track-entry-segment',
@@ -31,8 +30,8 @@ export type TrackNumberSegment = {
 
 export const parseTrackNumber = (
 	iterator: BufferIterator,
+	length: number,
 ): TrackNumberSegment => {
-	const length = iterator.getVint();
 	if (length !== 1) {
 		throw new Error('Expected track number to be 1 byte');
 	}
@@ -50,9 +49,10 @@ export type TrackUIDSegment = {
 	trackUid: string;
 };
 
-export const parseTrackUID = (iterator: BufferIterator): TrackUIDSegment => {
-	const length = iterator.getVint();
-
+export const parseTrackUID = (
+	iterator: BufferIterator,
+	length: number,
+): TrackUIDSegment => {
 	const bytes = iterator.getSlice(length);
 
 	const asString = [...bytes]
@@ -71,8 +71,8 @@ export type FlagLacingSegment = {
 
 export const parseFlagLacing = (
 	iterator: BufferIterator,
+	length: number,
 ): FlagLacingSegment => {
-	const length = iterator.getVint();
 	if (length !== 1) {
 		throw new Error('Expected flag lacing to be 1 byte');
 	}
@@ -96,8 +96,8 @@ export type LanguageSegment = {
 
 export const parseLanguageSegment = (
 	iterator: BufferIterator,
+	length: number,
 ): LanguageSegment => {
-	const length = iterator.getVint();
 	if (length !== 3) {
 		throw new Error('Expected language segment to be 3 bytes');
 	}
@@ -115,9 +115,10 @@ export type CodecSegment = {
 	codec: string;
 };
 
-export const parseCodecSegment = (iterator: BufferIterator): CodecSegment => {
-	const length = iterator.getVint();
-
+export const parseCodecSegment = (
+	iterator: BufferIterator,
+	length: number,
+): CodecSegment => {
 	// Could make a TypeScript enum with it
 	// https://www.matroska.org/technical/codec_specs.html
 	const codec = iterator.getByteString(length);
@@ -165,8 +166,8 @@ const trackTypeToString = (trackType: number): TrackType => {
 
 export const parseTrackTypeSegment = (
 	iterator: BufferIterator,
+	length: number,
 ): TrackTypeSegment => {
-	const length = iterator.getVint();
 	if (length !== 1) {
 		throw new Error('Expected track type segment to be 1 byte');
 	}
@@ -198,9 +199,8 @@ export type DefaultDurationSegment = {
 
 export const parseDefaultDurationSegment = (
 	iterator: BufferIterator,
+	length: number,
 ): DefaultDurationSegment => {
-	const length = iterator.getVint();
-
 	const defaultDuration = iterator.getDecimalBytes(length);
 
 	return {
@@ -215,9 +215,10 @@ export type VideoSegment = {
 	children: MatroskaSegment[];
 };
 
-export const parseVideoSegment = (iterator: BufferIterator): VideoSegment => {
-	const length = iterator.getVint();
-
+export const parseVideoSegment = (
+	iterator: BufferIterator,
+	length: number,
+): VideoSegment => {
 	return {
 		type: 'video-segment',
 		children: expectChildren(iterator, length),
@@ -229,8 +230,10 @@ export type WidthSegment = {
 	width: number;
 };
 
-export const parseWidthSegment = (iterator: BufferIterator): WidthSegment => {
-	const length = iterator.getVint();
+export const parseWidthSegment = (
+	iterator: BufferIterator,
+	length: number,
+): WidthSegment => {
 	if (length !== 2) {
 		throw new Error('Expected width segment to be 2 bytes');
 	}
@@ -248,8 +251,10 @@ export type HeightSegment = {
 	height: number;
 };
 
-export const parseHeightSegment = (iterator: BufferIterator): HeightSegment => {
-	const length = iterator.getVint();
+export const parseHeightSegment = (
+	iterator: BufferIterator,
+	length: number,
+): HeightSegment => {
 	if (length !== 2) {
 		throw new Error('Expected height segment to be 2 bytes');
 	}
@@ -269,8 +274,8 @@ export type AlphaModeSegment = {
 
 export const parseAlphaModeSegment = (
 	iterator: BufferIterator,
+	length: number,
 ): AlphaModeSegment => {
-	const length = iterator.getVint();
 	if (length !== 1) {
 		throw new Error('Expected alpha mode segment to be 1 byte');
 	}
@@ -290,8 +295,8 @@ export type MaxBlockAdditionId = {
 
 export const parseMaxBlockAdditionId = (
 	iterator: BufferIterator,
+	length: number,
 ): MaxBlockAdditionId => {
-	const length = iterator.getVint();
 	if (length !== 1) {
 		throw new Error('Expected alpha mode segment to be 1 byte');
 	}
@@ -309,9 +314,10 @@ export type ColorSegment = {
 	length: number;
 };
 
-export const parseColorSegment = (iterator: BufferIterator): ColorSegment => {
-	const length = iterator.getVint();
-
+export const parseColorSegment = (
+	iterator: BufferIterator,
+	length: number,
+): ColorSegment => {
 	iterator.discard(length);
 
 	return {
@@ -325,8 +331,10 @@ export type TitleSegment = {
 	title: string;
 };
 
-export const parseTitleSegment = (iterator: BufferIterator): TitleSegment => {
-	const length = iterator.getVint();
+export const parseTitleSegment = (
+	iterator: BufferIterator,
+	length: number,
+): TitleSegment => {
 	const title = iterator.getByteString(length);
 
 	return {
@@ -342,8 +350,8 @@ export type InterlacedSegment = {
 
 export const parseInterlacedSegment = (
 	iterator: BufferIterator,
+	length: number,
 ): InterlacedSegment => {
-	const length = iterator.getVint();
 	if (length !== 1) {
 		throw new Error('Expected interlaced segment to be 1 byte');
 	}
@@ -363,9 +371,8 @@ export type CodecPrivateSegment = {
 
 export const parseCodecPrivateSegment = (
 	iterator: BufferIterator,
+	length: number,
 ): CodecPrivateSegment => {
-	const length = iterator.getVint();
-
 	return {
 		type: 'codec-private-segment',
 		codecPrivateData: [...iterator.getSlice(length)],
@@ -377,9 +384,10 @@ export type Crc32Segment = {
 	crc32: number[];
 };
 
-export const parseCrc32Segment = (iterator: BufferIterator): Crc32Segment => {
-	const length = iterator.getVint();
-
+export const parseCrc32Segment = (
+	iterator: BufferIterator,
+	length: number,
+): Crc32Segment => {
 	return {
 		type: 'crc32-segment',
 		crc32: [...iterator.getSlice(length)],
@@ -393,9 +401,8 @@ export type SegmentUUIDSegment = {
 
 export const parseSegmentUUIDSegment = (
 	iterator: BufferIterator,
+	length: number,
 ): SegmentUUIDSegment => {
-	const length = iterator.getVint();
-
 	return {
 		type: 'segment-uuid-segment',
 		segmentUUID: iterator.getSlice(length).toString(),
@@ -409,8 +416,8 @@ export type DefaultFlagSegment = {
 
 export const parseDefaultFlagSegment = (
 	iterator: BufferIterator,
+	length: number,
 ): DefaultFlagSegment => {
-	const length = iterator.getVint();
 	if (length !== 1) {
 		throw new Error('Expected default flag segment to be 1 byte');
 	}
@@ -426,16 +433,13 @@ export type TagsSegment = {
 	children: MatroskaSegment[];
 };
 
-export const parseTagsSegment = (iterator: BufferIterator): TagsSegment => {
-	const offset = iterator.counter.getOffset();
-	const length = iterator.getVint();
-
+export const parseTagsSegment = (
+	iterator: BufferIterator,
+	length: number,
+): TagsSegment => {
 	return {
 		type: 'tags-segment',
-		children: expectChildren(
-			iterator,
-			length - (iterator.counter.getOffset() - offset),
-		),
+		children: expectChildren(iterator, length),
 	};
 };
 
@@ -444,9 +448,10 @@ export type TagSegment = {
 	length: number;
 };
 
-export const parseTagSegment = (iterator: BufferIterator): TagSegment => {
-	const length = iterator.getVint();
-
+export const parseTagSegment = (
+	iterator: BufferIterator,
+	length: number,
+): TagSegment => {
 	iterator.discard(length);
 
 	return {
@@ -462,9 +467,8 @@ export type ClusterSegment = {
 
 export const parseClusterSegment = (
 	iterator: BufferIterator,
+	length: number,
 ): ClusterSegment => {
-	const length = iterator.getVint();
-
 	return {
 		type: 'cluster-segment',
 		children: expectChildren(iterator, length),
@@ -478,8 +482,8 @@ export type TimestampSegment = {
 
 export const parseTimestampSegment = (
 	iterator: BufferIterator,
+	length: number,
 ): TimestampSegment => {
-	const length = iterator.getVint();
 	if (length !== 1) {
 		throw new Error('Expected timestamp segment to be 1 byte');
 	}
@@ -506,8 +510,8 @@ export type SimpleBlockSegment = {
 
 export const parseSimpleBlockSegment = (
 	iterator: BufferIterator,
+	length: number,
 ): SimpleBlockSegment => {
-	const length = iterator.getVint();
 	const trackNumber = iterator.getVint();
 	const timecode = iterator.getUint16();
 	const headerFlags = iterator.getUint8();

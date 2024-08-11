@@ -7,8 +7,8 @@ export type DurationSegment = {
 
 export const parseDurationSegment = (
 	iterator: BufferIterator,
+	length: number,
 ): DurationSegment => {
-	const length = iterator.getVint();
 	if (length !== 8) {
 		throw new Error('Expected duration segment to be 8 bytes');
 	}
