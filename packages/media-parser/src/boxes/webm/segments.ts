@@ -129,11 +129,15 @@ export type MatroskaSegment =
 	| BlockElement
 	| SeekIdSegment;
 
-const parseSegment = (
-	segmentId: string,
-	iterator: BufferIterator,
-	length: number,
-): MatroskaSegment => {
+const parseSegment = ({
+	segmentId,
+	iterator,
+	length,
+}: {
+	segmentId: string;
+	iterator: BufferIterator;
+	length: number;
+}): MatroskaSegment => {
 	if (length === 0) {
 		throw new Error('Expected length to be greater than 0');
 	}
@@ -323,20 +327,21 @@ export const expectSegment = (iterator: BufferIterator): ParseResult => {
 		iterator.byteLength() - iterator.counter.getOffset();
 
 	if (segmentId === '0x18538067' || segmentId === '0x1f43b675') {
-		const main = expectChildren(
+		const main = expectChildren({
 			iterator,
 			length,
-			[],
-			segmentId === '0x18538067'
-				? (s) => ({
-						type: 'main-segment',
-						children: s,
-					})
-				: (s) => ({
-						type: 'cluster-segment',
-						children: s,
-					}),
-		);
+			initialChildren: [],
+			wrap:
+				segmentId === '0x18538067'
+					? (s) => ({
+							type: 'main-segment',
+							children: s,
+						})
+					: (s) => ({
+							type: 'cluster-segment',
+							children: s,
+						}),
+		});
 		if (main.status === 'incomplete') {
 			return {
 				status: 'incomplete',
@@ -365,7 +370,7 @@ export const expectSegment = (iterator: BufferIterator): ParseResult => {
 		};
 	}
 
-	const segment = parseSegment(segmentId, iterator, length);
+	const segment = parseSegment({segmentId, iterator, length});
 	return {
 		status: 'done',
 		segments: [segment],

@@ -161,7 +161,9 @@ export const getArrayBufferIterator = (
 
 	const peek = (length: number) => {
 		// eslint-disable-next-line no-console
-		console.log(getSlice(length));
+		console.log(
+			[...getSlice(length)].map((b) => b.toString(16).padStart(2, '0')),
+		);
 		counter.decrement(length);
 	};
 

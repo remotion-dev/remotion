@@ -5,12 +5,17 @@ import {expectSegment} from '../segments';
 
 type WrapChildren = (segments: MatroskaSegment[]) => MatroskaSegment;
 
-export const expectChildren = (
-	iterator: BufferIterator,
-	length: number,
-	initialChildren: MatroskaSegment[],
-	wrap: WrapChildren | null,
-): ParseResult => {
+export const expectChildren = ({
+	iterator,
+	length,
+	initialChildren,
+	wrap,
+}: {
+	iterator: BufferIterator;
+	length: number;
+	initialChildren: MatroskaSegment[];
+	wrap: WrapChildren | null;
+}): ParseResult => {
 	const children: MatroskaSegment[] = [...initialChildren];
 	const startOffset = iterator.counter.getOffset();
 
@@ -30,12 +35,12 @@ export const expectChildren = (
 				status: 'incomplete',
 				segments: wrap ? [wrap(children)] : children,
 				continueParsing: () => {
-					return expectChildren(
+					return expectChildren({
 						iterator,
-						length - (blockOffset - startOffset),
-						children,
+						length: length - (blockOffset - startOffset),
+						initialChildren: children,
 						wrap,
-					);
+					});
 				},
 				skipTo: null,
 			};

@@ -1,4 +1,4 @@
-import {expectAv1Bitstream} from '../../../bitstream/av1';
+import {expectBitstream} from '../../../bitstream/av1';
 import type {BufferIterator} from '../../../buffer-iterator';
 import type {MatroskaSegment} from '../segments';
 import {expectChildren} from './parse-children';
@@ -12,7 +12,12 @@ export const parseTrackEntry = (
 	iterator: BufferIterator,
 	length: number,
 ): TrackEntrySegment => {
-	const children = expectChildren(iterator, length, [], null);
+	const children = expectChildren({
+		iterator,
+		length,
+		initialChildren: [],
+		wrap: null,
+	});
 	if (children.status === 'incomplete') {
 		throw new Error('Incomplete children ' + length);
 	}
@@ -203,7 +208,12 @@ export const parseVideoSegment = (
 	iterator: BufferIterator,
 	length: number,
 ): VideoSegment => {
-	const children = expectChildren(iterator, length, [], null);
+	const children = expectChildren({
+		iterator,
+		length,
+		initialChildren: [],
+		wrap: null,
+	});
 
 	if (children.status === 'incomplete') {
 		throw new Error('Incomplete children');
@@ -429,7 +439,12 @@ export const parseTagsSegment = (
 	iterator: BufferIterator,
 	length: number,
 ): TagsSegment => {
-	const children = expectChildren(iterator, length, [], null);
+	const children = expectChildren({
+		iterator,
+		length,
+		initialChildren: [],
+		wrap: null,
+	});
 
 	if (children.status === 'incomplete') {
 		throw new Error('Incomplete children');
@@ -509,7 +524,7 @@ export const parseSimpleBlockSegment = (
 	const pos7 = (headerFlags >> 6) & 1;
 	const keyframe = Boolean((headerFlags >> 7) & 1);
 
-	const children = expectAv1Bitstream(iterator, length - 4);
+	const children = expectBitstream(iterator, length - 4);
 
 	return {
 		type: 'simple-block-segment',
@@ -549,7 +564,12 @@ export const parseBlockGroupSegment = (
 	iterator: BufferIterator,
 	length: number,
 ): BlockGroupSegment => {
-	const children = expectChildren(iterator, length, [], null);
+	const children = expectChildren({
+		iterator,
+		length,
+		initialChildren: [],
+		wrap: null,
+	});
 	if (children.status === 'incomplete') {
 		throw new Error('Incomplete boxes are not allowed');
 	}

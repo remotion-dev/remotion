@@ -12,7 +12,12 @@ export const parseSeekHeadSegment = (
 	iterator: BufferIterator,
 	length: number,
 ): SeekHeadSegment => {
-	const children = expectChildren(iterator, length, [], null);
+	const children = expectChildren({
+		iterator,
+		length,
+		initialChildren: [],
+		wrap: null,
+	});
 
 	if (children.status === 'incomplete') {
 		throw new Error('Incomplete children');
