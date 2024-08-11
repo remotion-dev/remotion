@@ -67,7 +67,6 @@ export const av1Bitstream = (
 	);
 	*/
 
-	stream.peek(10);
 	const segment: Av1BitstreamSegment =
 		obuType === 1
 			? parseAv1BitstreamHeaderSegment(stream)
