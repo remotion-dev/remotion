@@ -87,7 +87,6 @@ export const parseMdat = ({
 					}
 				}
 
-				console.log('byte string', possibleAtomLength, possibleAtom);
 				data.peekB(8);
 			}
 

@@ -22,6 +22,7 @@ export const parseVideo = async (file: File) => {
 				codedHeight: track.height,
 				codedWidth: track.width,
 				hardwareAcceleration: 'no-preference',
+				description: track.description ?? undefined,
 			});
 			return (videoSample) => {
 				const chunk = new EncodedVideoChunk({
