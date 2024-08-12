@@ -6,10 +6,6 @@ export const webFileReader: ReaderInterface = {
 			throw new Error('`inputTypeFileReader` only supports `File` objects');
 		}
 
-		if (range !== null) {
-			throw new Error('`inputTypeFileReader` does not support `range`');
-		}
-
 		const part =
 			range === null
 				? file
