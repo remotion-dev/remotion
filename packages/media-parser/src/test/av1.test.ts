@@ -121,6 +121,7 @@ test('AV1 in MP4', async () => {
 
 test('AV1 in MP4 with colr atom', async () => {
 	let tracks = 0;
+	let samples = 0;
 
 	const parsed = await parseMedia({
 		src: RenderInternals.exampleVideos.av1mp4WithColr,
@@ -137,8 +138,8 @@ test('AV1 in MP4 with colr atom', async () => {
 		reader: nodeReader,
 		onVideoTrack: () => {
 			tracks++;
-			return (sample) => {
-				console.log(sample);
+			return () => {
+				samples++;
 			};
 		},
 	});
@@ -239,4 +240,5 @@ test('AV1 in MP4 with colr atom', async () => {
 	});
 	expect(parsed.rotation).toBe(0);
 	expect(tracks).toBe(1);
+	expect(samples).toBe(25);
 });

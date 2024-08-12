@@ -352,3 +352,27 @@ export const getCodecSegment = (
 
 	return codec;
 };
+
+export const hasSkippedMdatProcessing = (anySegment: AnySegment[]) => {
+	const mdat = anySegment.find((b) => b.type === 'mdat-box');
+	if (!mdat) {
+		return {
+			skipped: false as const,
+		};
+	}
+
+	if (mdat.type !== 'mdat-box') {
+		throw new Error('Expected mdat-box');
+	}
+
+	if (mdat.samplesProcessed) {
+		return {
+			skipped: false as const,
+		};
+	}
+
+	return {
+		skipped: true,
+		fileOffset: mdat.fileOffset,
+	};
+};

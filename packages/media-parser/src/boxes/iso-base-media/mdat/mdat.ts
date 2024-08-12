@@ -7,6 +7,7 @@ export interface MdatBox {
 	type: 'mdat-box';
 	samplesProcessed: boolean;
 	boxSize: number;
+	fileOffset: number;
 }
 
 export type AudioSample = {
@@ -50,6 +51,7 @@ export const parseMdat = ({
 			type: 'mdat-box',
 			boxSize: size,
 			samplesProcessed: false,
+			fileOffset,
 		};
 	}
 
@@ -120,5 +122,6 @@ export const parseMdat = ({
 		type: 'mdat-box',
 		boxSize: size,
 		samplesProcessed: true,
+		fileOffset,
 	};
 };

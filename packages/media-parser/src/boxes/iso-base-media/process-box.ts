@@ -8,6 +8,7 @@ import type {
 } from '../../parse-result';
 import type {BoxAndNext} from '../../parse-video';
 import type {ParserContext} from '../../parser-context';
+import {hasSkippedMdatProcessing} from '../../traversal';
 import {parseEsds} from './esds/esds';
 import {parseFtyp} from './ftyp';
 import {makeBaseMediaTrack} from './make-track';
@@ -502,8 +503,9 @@ export const parseBoxes = ({
 	initialBoxes: IsoBaseMediaBox[];
 	options: ParserContext;
 }): ParseResult => {
-	const boxes: IsoBaseMediaBox[] = initialBoxes;
+	let boxes: IsoBaseMediaBox[] = initialBoxes;
 	const initialOffset = iterator.counter.getOffset();
+	const alreadyHasMdat = boxes.find((b) => b.type === 'mdat-box');
 
 	while (
 		iterator.bytesRemaining() > 0 &&
@@ -536,7 +538,13 @@ export const parseBoxes = ({
 			};
 		}
 
-		boxes.push(result.box);
+		if (result.box.type === 'mdat-box' && alreadyHasMdat) {
+			boxes = boxes.filter((b) => b.type !== 'mdat-box');
+			boxes.push(result.box);
+			break;
+		} else {
+			boxes.push(result.box);
+		}
 
 		if (result.skipTo !== null) {
 			return {
@@ -556,6 +564,24 @@ export const parseBoxes = ({
 		}
 
 		iterator.discardFirstBytes();
+	}
+
+	const mdatState = hasSkippedMdatProcessing(boxes);
+	if (mdatState.skipped && !options.canSkipVideoData) {
+		return {
+			status: 'incomplete',
+			segments: boxes,
+			continueParsing: () => {
+				return parseBoxes({
+					iterator,
+					maxBytes,
+					allowIncompleteBoxes,
+					initialBoxes: boxes,
+					options,
+				});
+			},
+			skipTo: mdatState.fileOffset,
+		};
 	}
 
 	return {

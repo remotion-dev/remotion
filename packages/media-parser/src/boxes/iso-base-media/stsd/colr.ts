@@ -14,22 +14,36 @@ export const parseColorParameterBox = ({
 	iterator: BufferIterator;
 }): ColorParameterBox => {
 	const byteString = iterator.getByteString(4);
-	if (byteString !== 'nclx') {
-		throw new Error('Expected nclx');
+	if (byteString === 'nclx') {
+		const primaries = iterator.getUint16();
+		const transfer = iterator.getUint16();
+		const matrixIndex = iterator.getUint16();
+		iterator.startReadingBits();
+		const fullRangeFlag = Boolean(iterator.getBits(1));
+		iterator.stopReadingBits();
+
+		return {
+			type: 'colr-box',
+			fullRangeFlag,
+			matrixIndex,
+			primaries,
+			transfer,
+		};
 	}
 
-	const primaries = iterator.getUint16();
-	const transfer = iterator.getUint16();
-	const matrixIndex = iterator.getUint16();
-	iterator.startReadingBits();
-	const fullRangeFlag = Boolean(iterator.getBits(1));
-	iterator.stopReadingBits();
+	if (byteString === 'nclc') {
+		const primaries = iterator.getUint16();
+		const transfer = iterator.getUint16();
+		const matrixIndex = iterator.getUint16();
 
-	return {
-		type: 'colr-box',
-		fullRangeFlag,
-		matrixIndex,
-		primaries,
-		transfer,
-	};
+		return {
+			type: 'colr-box',
+			fullRangeFlag: false,
+			matrixIndex,
+			primaries,
+			transfer,
+		};
+	}
+
+	throw new Error('Unexpected box type ' + byteString);
 };
