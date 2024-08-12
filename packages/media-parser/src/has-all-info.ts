@@ -53,7 +53,7 @@ export const hasAllInfo = (
 		}
 
 		if (key === 'fps') {
-			return hasFps(parseResult.segments);
+			return hasFps(parseResult.segments) !== null;
 		}
 
 		if (key === 'videoCodec') {

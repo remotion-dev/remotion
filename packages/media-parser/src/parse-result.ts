@@ -7,6 +7,7 @@ import type {MoovBox} from './boxes/iso-base-media/moov/moov';
 import type {MvhdBox} from './boxes/iso-base-media/mvhd';
 import type {Av1CBox} from './boxes/iso-base-media/stsd/av1c';
 import type {AvccBox} from './boxes/iso-base-media/stsd/avcc';
+import type {ColorParameterBox} from './boxes/iso-base-media/stsd/colr';
 import type {CttsBox} from './boxes/iso-base-media/stsd/ctts';
 import type {HvccBox} from './boxes/iso-base-media/stsd/hvcc';
 import type {KeysBox} from './boxes/iso-base-media/stsd/keys';
@@ -54,7 +55,8 @@ export type IsoBaseMediaBox =
 	| StssBox
 	| PaspBox
 	| CttsBox
-	| Av1CBox;
+	| Av1CBox
+	| ColorParameterBox;
 
 export type AnySegment = MatroskaSegment | IsoBaseMediaBox;
 

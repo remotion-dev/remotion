@@ -1,10 +1,11 @@
+import type {Av1CBox} from './boxes/iso-base-media/stsd/av1c';
 import type {AvccBox} from './boxes/iso-base-media/stsd/avcc';
+import type {ColorParameterBox} from './boxes/iso-base-media/stsd/colr';
 import type {HvccBox} from './boxes/iso-base-media/stsd/hvcc';
 import type {PaspBox} from './boxes/iso-base-media/stsd/pasp';
 import type {VideoSample} from './boxes/iso-base-media/stsd/samples';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import type {Dimensions} from './get-dimensions';
-import type {AnySegment} from './parse-result';
 import {getStsdBox} from './traversal';
 
 type AspectRatio = {
@@ -42,7 +43,7 @@ export const getAvccBox = (trakBox: TrakBox): AvccBox | null => {
 	return avccBox;
 };
 
-export const getAv1CBox = (trakBox: TrakBox): AnySegment | null => {
+export const getAv1CBox = (trakBox: TrakBox): Av1CBox | null => {
 	const videoSample = getVideoSample(trakBox);
 	if (!videoSample) {
 		return null;
@@ -50,7 +51,7 @@ export const getAv1CBox = (trakBox: TrakBox): AnySegment | null => {
 
 	const av1cBox = videoSample.descriptors.find((c) => c.type === 'av1C-box');
 
-	if (!av1cBox) {
+	if (!av1cBox || av1cBox.type !== 'av1C-box') {
 		return null;
 	}
 
@@ -100,6 +101,18 @@ export const getSampleAspectRatio = (trakBox: TrakBox): AspectRatio => {
 		numerator: paspBox.hSpacing,
 		denominator: paspBox.vSpacing,
 	};
+};
+
+export const getColrBox = (
+	videoSample: VideoSample,
+): ColorParameterBox | null => {
+	const colrBox = videoSample.descriptors.find((c) => c.type === 'colr-box');
+
+	if (!colrBox || colrBox.type !== 'colr-box') {
+		return null;
+	}
+
+	return colrBox;
 };
 
 export const applyAspectRatios = ({

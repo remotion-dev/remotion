@@ -1,8 +1,13 @@
 /* eslint-disable max-depth */
+import {constructAv1CodecString} from './av1-codec-string';
+import type {Av1CBox} from './boxes/iso-base-media/stsd/av1c';
+import type {ColorParameterBox} from './boxes/iso-base-media/stsd/colr';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import {trakBoxContainsVideo} from './get-fps';
 import {
+	getAv1CBox,
 	getAvccBox,
+	getColrBox,
 	getHvccBox,
 	getVideoSample,
 } from './get-sample-aspect-ratio';
@@ -18,10 +23,18 @@ export const hasVideoCodec = (boxes: AnySegment[]): boolean => {
 	}
 };
 
+const getAv01CodecString = (
+	av1cBox: Av1CBox,
+	colrAtom: ColorParameterBox | null,
+) => {
+	return constructAv1CodecString(av1cBox.av1HeaderSegment, colrAtom);
+};
+
 export const getVideoCodecString = (trakBox: TrakBox): string | null => {
 	const videoSample = getVideoSample(trakBox);
 	const avccBox = getAvccBox(trakBox);
 	const hvccBox = getHvccBox(trakBox);
+	const av1cBox = getAv1CBox(trakBox);
 
 	if (!videoSample) {
 		return null;
@@ -33,6 +46,11 @@ export const getVideoCodecString = (trakBox: TrakBox): string | null => {
 
 	if (hvccBox) {
 		return `${videoSample.format}.${hvccBox.configurationString}`;
+	}
+
+	if (av1cBox) {
+		const colrAtom = getColrBox(videoSample);
+		return getAv01CodecString(av1cBox, colrAtom);
 	}
 
 	return videoSample.format;
@@ -53,6 +71,10 @@ export const getVideoCodec = (boxes: AnySegment[]): KnownVideoCodecs | null => {
 
 					if (videoSample.format === 'avc1') {
 						return 'h264';
+					}
+
+					if (videoSample.format === 'av01') {
+						return 'av1';
 					}
 
 					if (videoSample.format === 'ap4h') {

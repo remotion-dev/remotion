@@ -1,5 +1,7 @@
 // https://aomediacodec.github.io/av1-isobmff/#codecsparam
 
+import type {ColorParameterBox} from './boxes/iso-base-media/stsd/colr';
+import type {Av1BitstreamHeaderSegment} from './boxes/webm/bitstream/av1/header-segment';
 import type {
 	ClusterSegment,
 	TrackEntrySegment,
@@ -7,30 +9,10 @@ import type {
 import {getAv1BitstreamHeader} from './boxes/webm/traversal';
 import {getCodecSegment} from './traversal';
 
-export const av1CodecStringToString = ({
-	track,
-	clusterSegment,
-}: {
-	track: TrackEntrySegment;
-	clusterSegment: ClusterSegment;
-}): string | null => {
-	const codecSegment = getCodecSegment(track);
-
-	if (!codecSegment) {
-		throw new Error('Expected codec segment');
-	}
-
-	if (codecSegment.codec !== 'V_AV1') {
-		throw new Error(
-			`Should not call this function if it is not AV1: ${codecSegment.codec}`,
-		);
-	}
-
-	const av1BitstreamHeader = getAv1BitstreamHeader(clusterSegment);
-	if (!av1BitstreamHeader) {
-		return null;
-	}
-
+export const constructAv1CodecString = (
+	av1BitstreamHeader: Av1BitstreamHeaderSegment,
+	colrAtom: ColorParameterBox | null,
+) => {
 	let str = 'av01.';
 
 	// Profile
@@ -75,11 +57,18 @@ export const av1CodecStringToString = ({
 
 	// The colorPrimaries, transferCharacteristics, matrixCoefficients, and videoFullRangeFlag parameter values are set as follows:
 	// If a colr box with colour_type set to nclx is present, the colorPrimaries, transferCharacteristics, matrixCoefficients, and videoFullRangeFlag parameter values SHALL equal the values of matching fields in the colr box.
-	// This is not implemented in matroska
-
+	if (colrAtom) {
+		str += colrAtom.primaries.toString().padStart(2, '0');
+		str += '.';
+		str += colrAtom.transfer.toString().padStart(2, '0');
+		str += '.';
+		str += colrAtom.matrixIndex.toString().padStart(2, '0');
+		str += '.';
+		str += colrAtom.fullRangeFlag ? '1' : '0';
+	}
 	// Otherwise, a colr box with colour_type set to nclx is absent.
 	// If the color_description_present_flag is set to 1 in the Sequence Header OBU, the colorPrimaries, transferCharacteristics, and matrixCoefficients parameter values SHALL equal the values of matching fields in the Sequence Header OBU.
-	if (av1BitstreamHeader.color_config.color_description_present_flag) {
+	else if (av1BitstreamHeader.color_config.color_description_present_flag) {
 		str += av1BitstreamHeader.color_config.color_primaries
 			.toString()
 			.padStart(2, '0');
@@ -117,4 +106,31 @@ export const av1CodecStringToString = ({
 	}
 
 	return str;
+};
+
+export const av1CodecStringToString = ({
+	track,
+	clusterSegment,
+}: {
+	track: TrackEntrySegment;
+	clusterSegment: ClusterSegment;
+}): string | null => {
+	const codecSegment = getCodecSegment(track);
+
+	if (!codecSegment) {
+		throw new Error('Expected codec segment');
+	}
+
+	if (codecSegment.codec !== 'V_AV1') {
+		throw new Error(
+			`Should not call this function if it is not AV1: ${codecSegment.codec}`,
+		);
+	}
+
+	const av1BitstreamHeader = getAv1BitstreamHeader(clusterSegment);
+	if (!av1BitstreamHeader) {
+		return null;
+	}
+
+	return constructAv1CodecString(av1BitstreamHeader, null);
 };

@@ -17,6 +17,7 @@ import {parseMoov} from './moov/moov';
 import {parseMvhd} from './mvhd';
 import {parseAv1C} from './stsd/av1c';
 import {parseAvcc} from './stsd/avcc';
+import {parseColorParameterBox} from './stsd/colr';
 import {parseCtts} from './stsd/ctts';
 import {parseHvcc} from './stsd/hvcc';
 import {parseMebx} from './stsd/mebx';
@@ -146,6 +147,18 @@ const processBox = ({
 
 	if (boxType === 'ftyp') {
 		const box = parseFtyp({iterator, size: boxSize, offset: fileOffset});
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
+	if (boxType === 'colr') {
+		const box = parseColorParameterBox({
+			iterator,
+		});
 		return {
 			type: 'complete',
 			box,
