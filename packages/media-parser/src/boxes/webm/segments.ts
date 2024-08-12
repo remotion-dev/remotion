@@ -291,11 +291,18 @@ const parseSegment = ({
 	}
 
 	if (segmentId === '0xe7') {
-		return parseTimestampSegment(iterator, length);
+		const timestamp = parseTimestampSegment(iterator, length);
+		parserContext.parserState.registerClusterTimestamp(timestamp.timestamp);
+		return timestamp;
 	}
 
 	if (segmentId === '0xa3') {
-		return parseSimpleBlockSegment(iterator, length, parserContext);
+		return parseSimpleBlockSegment({
+			iterator,
+			length,
+			parserContext,
+			onVideoSample: parserContext.parserState.onVideoSample,
+		});
 	}
 
 	if (segmentId === '0xa0') {

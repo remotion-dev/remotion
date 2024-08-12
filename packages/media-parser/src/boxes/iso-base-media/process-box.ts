@@ -322,11 +322,19 @@ const processBox = ({
 		const transformedTrack = makeBaseMediaTrack(box);
 		if (transformedTrack) {
 			if (transformedTrack.type === 'audio') {
-				options.onAudioTrack?.(transformedTrack);
+				const callback = options.onAudioTrack?.(transformedTrack);
+				options.parserState.registerAudioSampleCallback(
+					transformedTrack.trackId,
+					callback ?? null,
+				);
 			}
 
 			if (transformedTrack.type === 'video') {
-				options.onVideoTrack?.(transformedTrack);
+				const callback = options.onVideoTrack?.(transformedTrack);
+				options.parserState.registerVideoSampleCallback(
+					transformedTrack.trackId,
+					callback ?? null,
+				);
 			}
 		}
 

@@ -1,3 +1,4 @@
+/* eslint-disable max-depth */
 import {getTracksFromMatroska} from './boxes/webm/get-ready-tracks';
 import {getMainSegment} from './boxes/webm/traversal';
 import type {BufferIterator} from './buffer-iterator';
@@ -19,8 +20,6 @@ export const parseMedia: ParseMedia = async ({
 	src,
 	fields,
 	reader: readerInterface = fetchReader,
-	onAudioSample,
-	onVideoSample,
 	onAudioTrack,
 	onVideoTrack,
 }) => {
@@ -42,7 +41,10 @@ export const parseMedia: ParseMedia = async ({
 	let iterator: BufferIterator | null = null;
 	let parseResult: ParseResult | null = null;
 
-	const state = makeParserState();
+	const state = makeParserState({
+		hasAudioCallbacks: onAudioTrack !== null,
+		hasVideoCallbacks: onVideoTrack !== null,
+	});
 
 	while (parseResult === null || parseResult.status === 'incomplete') {
 		const result = await currentReader.read();
@@ -68,14 +70,7 @@ export const parseMedia: ParseMedia = async ({
 			parseResult = parseVideo({
 				iterator,
 				options: {
-					canSkipVideoData: !(
-						onAudioSample ||
-						onVideoSample ||
-						onAudioTrack ||
-						onVideoTrack
-					),
-					onAudioSample: onAudioSample ?? null,
-					onVideoSample: onVideoSample ?? null,
+					canSkipVideoData: !(onAudioTrack || onVideoTrack),
 					onAudioTrack: onAudioTrack ?? null,
 					onVideoTrack: onVideoTrack ?? null,
 					parserState: state,
@@ -94,7 +89,8 @@ export const parseMedia: ParseMedia = async ({
 
 				state.addEmittedCodecId(track.trackId);
 				if (onVideoTrack) {
-					onVideoTrack(track);
+					const callback = onVideoTrack(track);
+					state.registerVideoSampleCallback(track.trackId, callback ?? null);
 				}
 			}
 
@@ -105,7 +101,8 @@ export const parseMedia: ParseMedia = async ({
 
 				state.addEmittedCodecId(track.trackId);
 				if (onAudioTrack) {
-					onAudioTrack(track);
+					const callback = onAudioTrack(track);
+					state.registerAudioSampleCallback(track.trackId, callback ?? null);
 				}
 			}
 		}

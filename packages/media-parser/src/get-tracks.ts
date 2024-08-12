@@ -16,7 +16,7 @@ export type VideoTrack = {
 	trackId: number;
 	description: Uint8Array | null;
 	timescale: number;
-	codecString: string | null;
+	codecString: string;
 	sampleAspectRatio: SampleAspectRatio;
 	width: number;
 	height: number;

@@ -6,6 +6,8 @@ import {parseMedia} from '../parse-media';
 test('Should stream ISO base media', async () => {
 	let videoTracks = 0;
 	let audioTracks = 0;
+	let videoSamples = 0;
+	let audioSamples = 0;
 	const result = await parseMedia({
 		src: RenderInternals.exampleVideos.iphonevideo,
 		fields: {
@@ -21,9 +23,15 @@ test('Should stream ISO base media', async () => {
 		reader: nodeReader,
 		onVideoTrack: () => {
 			videoTracks++;
+			return () => {
+				videoSamples++;
+			};
 		},
 		onAudioTrack: () => {
 			audioTracks++;
+			return () => {
+				audioSamples++;
+			};
 		},
 	});
 	expect(result.dimensions).toEqual({
@@ -43,6 +51,9 @@ test('Should stream ISO base media', async () => {
 	});
 	expect(videoTracks).toBe(1);
 	expect(audioTracks).toBe(1);
+	// TODO: Should emit a video sample
+	expect(videoSamples).toBe(0);
+	expect(audioSamples).toBeGreaterThan(1);
 });
 
 test('Should stream WebM with no duration', async () => {
@@ -73,8 +84,9 @@ test('Should stream WebM with no duration', async () => {
 	expect(result.videoTracks[0].codecString).toBe('vp8');
 });
 
-test('Should stream AV1 with no duration', async () => {
+test('Should stream AV1', async () => {
 	let videoTracks = 0;
+	let videoSamples = 0;
 	const parsed = await parseMedia({
 		src: RenderInternals.exampleVideos.av1,
 		fields: {
@@ -90,6 +102,9 @@ test('Should stream AV1 with no duration', async () => {
 		reader: nodeReader,
 		onVideoTrack: () => {
 			videoTracks++;
+			return () => {
+				videoSamples++;
+			};
 		},
 	});
 
@@ -121,6 +136,7 @@ test('Should stream AV1 with no duration', async () => {
 	});
 	expect(parsed.audioTracks.length).toBe(0);
 	expect(videoTracks).toBe(1);
+	expect(videoSamples).toBeGreaterThan(1);
 });
 
 test('Should stream corrupted video', async () => {

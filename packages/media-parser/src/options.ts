@@ -23,8 +23,8 @@ export type KnownAudioCodecs =
 	| 'pcm'
 	| 'unknown';
 
-export type OnAudioTrack = (track: AudioTrack) => void;
-export type OnVideoTrack = (track: VideoTrack) => void;
+export type OnAudioTrack = (track: AudioTrack) => OnAudioSample | null;
+export type OnVideoTrack = (track: VideoTrack) => OnVideoSample | null;
 
 export type Options<
 	EnableDimensions extends boolean,
@@ -96,8 +96,6 @@ export type ParseMedia = <
 		EnableUnrotatedDimensions
 	>;
 	reader?: ReaderInterface;
-	onAudioSample?: OnAudioSample;
-	onVideoSample?: OnVideoSample;
 	onAudioTrack?: OnAudioTrack;
 	onVideoTrack?: OnVideoTrack;
 }) => Promise<

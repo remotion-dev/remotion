@@ -44,11 +44,12 @@ test('Should be able to parse a STSD audio box correctly', () => {
 		size: 159,
 		options: {
 			canSkipVideoData: true,
-			onAudioSample: null,
-			onVideoSample: null,
 			onAudioTrack: null,
 			onVideoTrack: null,
-			parserState: makeParserState(),
+			parserState: makeParserState({
+				hasAudioCallbacks: false,
+				hasVideoCallbacks: false,
+			}),
 		},
 	});
 
@@ -193,11 +194,12 @@ test('Should be able to parse a STSD video box correctly', () => {
 		iterator: getArrayBufferIterator(buffer),
 		options: {
 			canSkipVideoData: true,
-			onAudioSample: null,
-			onVideoSample: null,
 			onAudioTrack: null,
 			onVideoTrack: null,
-			parserState: makeParserState(),
+			parserState: makeParserState({
+				hasAudioCallbacks: false,
+				hasVideoCallbacks: false,
+			}),
 		},
 	});
 	expect(parsed.sample).toEqual({

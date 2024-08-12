@@ -1,5 +1,6 @@
 import type {BufferIterator} from '../../../buffer-iterator';
 import type {ParserContext} from '../../../parser-context';
+import type {VideoSample} from '../../iso-base-media/mdat/mdat';
 import {av1Bitstream} from '../bitstream/av1';
 import type {MatroskaSegment} from '../segments';
 import {expectChildren} from './parse-children';
@@ -520,11 +521,17 @@ export type SimpleBlockSegment = {
 
 export type GetTracks = () => TrackEntrySegment[];
 
-export const parseSimpleBlockSegment = (
-	iterator: BufferIterator,
-	length: number,
-	parserContext: ParserContext,
-): SimpleBlockSegment => {
+export const parseSimpleBlockSegment = ({
+	iterator,
+	length,
+	parserContext,
+	onVideoSample,
+}: {
+	iterator: BufferIterator;
+	length: number;
+	parserContext: ParserContext;
+	onVideoSample: (trackId: number, sample: VideoSample) => void;
+}): SimpleBlockSegment => {
 	const start = iterator.counter.getOffset();
 	const trackNumber = iterator.getVint();
 	const timecode = iterator.getUint16();
@@ -548,7 +555,14 @@ export const parseSimpleBlockSegment = (
 
 		// eslint-disable-next-line no-constant-condition
 		while (true) {
-			const bitStream = av1Bitstream(iterator, remainingNow);
+			const bitStream = av1Bitstream({
+				stream: iterator,
+				length: remainingNow,
+				onVideoSample,
+				trackNumber,
+				context: parserContext,
+				timecode,
+			});
 			remainingNow = length - (iterator.counter.getOffset() - start);
 
 			children.push(bitStream.segment);

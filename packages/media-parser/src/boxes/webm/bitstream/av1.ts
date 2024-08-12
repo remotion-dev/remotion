@@ -1,4 +1,6 @@
 import type {BufferIterator} from '../../../buffer-iterator';
+import type {ParserContext} from '../../../parser-context';
+import type {VideoSample} from '../../iso-base-media/mdat/mdat';
 import {
 	parseAv1BitstreamHeaderSegment,
 	type Av1BitstreamHeaderSegment,
@@ -12,10 +14,21 @@ export type Av1BitstreamSegment =
 	| Av1BitstreamHeaderSegment
 	| Av1BitstreamUimplementedSegment;
 
-export const av1Bitstream = (
-	stream: BufferIterator,
-	length: number,
-): {
+export const av1Bitstream = ({
+	stream,
+	length,
+	onVideoSample,
+	trackNumber,
+	context,
+	timecode,
+}: {
+	stream: BufferIterator;
+	length: number;
+	onVideoSample: (trackId: number, sample: VideoSample) => void;
+	trackNumber: number;
+	context: ParserContext;
+	timecode: number;
+}): {
 	discarded: boolean;
 	segment: Av1BitstreamSegment;
 } => {
@@ -73,6 +86,30 @@ export const av1Bitstream = (
 			: {
 					type: 'av1-bitstream-unimplemented',
 				};
+	if (obuType === 6) {
+		const bytesAdvanced = stream.counter.getOffset() - address;
+		stream.counter.decrement(bytesAdvanced);
+		if (size === null) {
+			throw new Error('Expected size in OBU');
+		}
+
+		const clusterTimestamp = context.parserState.getClusterTimestamp();
+		if (clusterTimestamp === null) {
+			throw new Error('Expected cluster timestamp');
+		}
+
+		const frame = stream.getSlice(size);
+		onVideoSample(trackNumber, {
+			bytes: frame,
+			timestamp: timecode + clusterTimestamp,
+			duration: undefined,
+			trackId: trackNumber,
+			cts: null,
+			dts: null,
+			// TODO: Fill out necessary stuff
+			type: 'key',
+		});
+	}
 
 	stream.stopReadingBits();
 

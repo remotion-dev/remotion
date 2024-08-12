@@ -1,9 +1,22 @@
+import type {
+	AudioSample,
+	OnAudioSample,
+	OnVideoSample,
+	VideoSample,
+} from './boxes/iso-base-media/mdat/mdat';
+import type {} from './boxes/iso-base-media/stsd/samples';
 import type {OnTrackEntrySegment} from './boxes/webm/segments';
 import type {CodecSegment} from './boxes/webm/segments/track-entry';
 import {getTrackCodec} from './boxes/webm/traversal';
 import {getTrackId} from './traversal';
 
-export const makeParserState = () => {
+export const makeParserState = ({
+	hasAudioCallbacks,
+	hasVideoCallbacks,
+}: {
+	hasAudioCallbacks: boolean;
+	hasVideoCallbacks: boolean;
+}) => {
 	const trackEntries: Record<number, CodecSegment> = {};
 	const onTrackEntrySegment: OnTrackEntrySegment = (trackEntry) => {
 		const codec = getTrackCodec(trackEntry);
@@ -19,7 +32,17 @@ export const makeParserState = () => {
 		trackEntries[trackId] = codec;
 	};
 
+	let clusterTimestamp: number | null = null;
+
 	const emittedCodecIds: number[] = [];
+
+	const videoSampleCallbacks: Record<number, OnVideoSample> = {};
+	const audioSampleCallbacks: Record<number, OnAudioSample> = {};
+
+	const queuedAudioSamples: Record<number, AudioSample[]> = {};
+	const queuedVideoSamples: Record<number, VideoSample[]> = {};
+
+	const declinedTrackNumbers: number[] = [];
 
 	return {
 		onTrackEntrySegment,
@@ -28,6 +51,80 @@ export const makeParserState = () => {
 			emittedCodecIds.push(id);
 		},
 		getTrackInfoByNumber: (id: number) => trackEntries[id],
+		registerVideoSampleCallback: (
+			id: number,
+			callback: OnVideoSample | null,
+		) => {
+			if (callback === null) {
+				delete videoSampleCallbacks[id];
+				declinedTrackNumbers.push(id);
+				return;
+			}
+
+			videoSampleCallbacks[id] = callback;
+			for (const queued of queuedVideoSamples[id] ?? []) {
+				callback(queued);
+			}
+
+			queuedVideoSamples[id] = [];
+		},
+		registerAudioSampleCallback: (
+			id: number,
+			callback: OnAudioSample | null,
+		) => {
+			if (callback === null) {
+				delete audioSampleCallbacks[id];
+				declinedTrackNumbers.push(id);
+				return;
+			}
+
+			audioSampleCallbacks[id] = callback;
+			for (const queued of queuedAudioSamples[id] ?? []) {
+				callback(queued);
+			}
+
+			queuedAudioSamples[id] = [];
+		},
+		onAudioSample: (trackId: number, audioSample: AudioSample) => {
+			const callback = audioSampleCallbacks[trackId];
+			if (callback) {
+				callback(audioSample);
+			} else {
+				if (declinedTrackNumbers.includes(trackId)) {
+					return;
+				}
+
+				if (!hasAudioCallbacks) {
+					return;
+				}
+
+				queuedAudioSamples[trackId] ??= [];
+				queuedAudioSamples[trackId].push(audioSample);
+			}
+		},
+		onVideoSample: (trackId: number, videoSample: VideoSample) => {
+			const callback = videoSampleCallbacks[trackId];
+			if (callback) {
+				callback(videoSample);
+			} else {
+				if (declinedTrackNumbers.includes(trackId)) {
+					return;
+				}
+
+				if (!hasVideoCallbacks) {
+					return;
+				}
+
+				queuedVideoSamples[trackId] ??= [];
+				queuedVideoSamples[trackId].push(videoSample);
+			}
+		},
+		registerClusterTimestamp: (timestamp: number) => {
+			clusterTimestamp = timestamp;
+		},
+		getClusterTimestamp: () => {
+			return clusterTimestamp;
+		},
 	};
 };
 
