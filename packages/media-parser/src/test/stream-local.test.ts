@@ -102,7 +102,7 @@ test('Should stream AV1', async () => {
 		reader: nodeReader,
 		onVideoTrack: () => {
 			videoTracks++;
-			return (sample) => {
+			return () => {
 				videoSamples++;
 			};
 		},

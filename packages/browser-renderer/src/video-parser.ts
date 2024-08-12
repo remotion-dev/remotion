@@ -12,13 +12,10 @@ export const parseVideo = async (file: File) => {
 		},
 	});
 
-	const result = await parseMedia({
+	await parseMedia({
 		src: file,
 		reader: webFileReader,
-		fields: {
-			durationInSeconds: true,
-			dimensions: true,
-		},
+		fields: {},
 		onVideoTrack: (track) => {
 			decoder.configure({
 				codec: track.codecString,
@@ -38,5 +35,4 @@ export const parseVideo = async (file: File) => {
 			};
 		},
 	});
-	console.log(result);
 };
