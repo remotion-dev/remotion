@@ -15,8 +15,10 @@ import {parseMdat} from './mdat/mdat';
 import {parseMdhd} from './mdhd';
 import {parseMoov} from './moov/moov';
 import {parseMvhd} from './mvhd';
-import {parseAvcc, parseHvcc} from './stsd/avcc-hvcc';
+import {parseAv1C} from './stsd/av1c';
+import {parseAvcc} from './stsd/avcc';
 import {parseCtts} from './stsd/ctts';
+import {parseHvcc} from './stsd/hvcc';
 import {parseMebx} from './stsd/mebx';
 import {parsePasp} from './stsd/pasp';
 import {parseStco} from './stsd/stco';
@@ -365,6 +367,19 @@ const processBox = ({
 		const box = parseAvcc({
 			data: iterator,
 			size: boxSize,
+		});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
+	if (boxType === 'av1C') {
+		const box = parseAv1C({
+			data: iterator,
 		});
 
 		return {

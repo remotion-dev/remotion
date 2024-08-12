@@ -1,8 +1,10 @@
-import type {AvccBox, HvccBox} from './boxes/iso-base-media/stsd/avcc-hvcc';
+import type {AvccBox} from './boxes/iso-base-media/stsd/avcc';
+import type {HvccBox} from './boxes/iso-base-media/stsd/hvcc';
 import type {PaspBox} from './boxes/iso-base-media/stsd/pasp';
 import type {VideoSample} from './boxes/iso-base-media/stsd/samples';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import type {Dimensions} from './get-dimensions';
+import type {AnySegment} from './parse-result';
 import {getStsdBox} from './traversal';
 
 type AspectRatio = {
@@ -38,6 +40,21 @@ export const getAvccBox = (trakBox: TrakBox): AvccBox | null => {
 	}
 
 	return avccBox;
+};
+
+export const getAv1CBox = (trakBox: TrakBox): AnySegment | null => {
+	const videoSample = getVideoSample(trakBox);
+	if (!videoSample) {
+		return null;
+	}
+
+	const av1cBox = videoSample.descriptors.find((c) => c.type === 'av1C-box');
+
+	if (!av1cBox) {
+		return null;
+	}
+
+	return av1cBox;
 };
 
 export const getPaspBox = (trakBox: TrakBox): PaspBox | null => {
