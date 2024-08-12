@@ -1,7 +1,7 @@
 import type {BufferIterator} from '../../../buffer-iterator';
 import {combineUint8Arrays} from '../../../combine-uint8array';
 import type {ParserContext} from '../../../parser-context';
-import type {VideoSample} from '../../iso-base-media/mdat/mdat';
+import type {VideoSample} from '../../../webcodec-sample-types';
 import {parseAv1Frame} from './av1/bitstream-frame';
 import {
 	parseAv1BitstreamHeaderSegment,

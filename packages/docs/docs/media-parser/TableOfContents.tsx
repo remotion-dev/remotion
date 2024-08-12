@@ -21,7 +21,7 @@ export const TableOfContents: React.FC = () => {
 					</div>
 				</TOCItem>
 				<TOCItem link="/docs/media-parser/web-file-reader">
-					<strong>{'fetchReader'}</strong>
+					<strong>{'webFileReader'}</strong>
 					<div>
 						Read a file from <code>&lt;input type=&quot;file&quot;&gt;</code>.
 					</div>

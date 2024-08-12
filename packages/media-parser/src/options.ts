@@ -1,11 +1,9 @@
-import type {
-	OnAudioSample,
-	OnVideoSample,
-} from './boxes/iso-base-media/mdat/mdat';
+import type {} from './boxes/iso-base-media/mdat/mdat';
 import type {Dimensions} from './get-dimensions';
 import type {AudioTrack, VideoTrack} from './get-tracks';
 import type {AnySegment} from './parse-result';
 import type {ReaderInterface} from './reader';
+import type {OnAudioTrack, OnVideoTrack} from './webcodec-sample-types';
 
 export type KnownVideoCodecs =
 	| 'h264'
@@ -22,9 +20,6 @@ export type KnownAudioCodecs =
 	| 'opus'
 	| 'pcm'
 	| 'unknown';
-
-export type OnAudioTrack = (track: AudioTrack) => OnAudioSample | null;
-export type OnVideoTrack = (track: VideoTrack) => OnVideoSample | null;
 
 export type Options<
 	EnableDimensions extends boolean,
