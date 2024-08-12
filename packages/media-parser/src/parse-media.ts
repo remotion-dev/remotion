@@ -74,7 +74,6 @@ export const parseMedia: ParseMedia = async ({
 					onAudioTrack: onAudioTrack ?? null,
 					onVideoTrack: onVideoTrack ?? null,
 					parserState: state,
-					// TODO: Skip frames if onSimpleBlock is null
 				},
 			});
 		}

@@ -96,10 +96,10 @@ export const getTracks = (
 
 		if (track.type === 'video') {
 			videoTracks.push(track);
-		}
-
-		if (track.type === 'audio') {
+		} else if (track.type === 'audio') {
 			audioTracks.push(track);
+		} else {
+			console.log('Unknown track type', track);
 		}
 	}
 

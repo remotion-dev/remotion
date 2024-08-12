@@ -82,6 +82,7 @@ export const makeBaseMediaTrack = (
 	}
 
 	if (!trakBoxContainsVideo(trakBox)) {
+		console.log(trakBox);
 		return null;
 	}
 
