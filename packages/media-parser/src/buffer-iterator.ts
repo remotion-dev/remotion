@@ -22,6 +22,10 @@ export class OffsetCounter {
 		return this.#offset - this.#discardedBytes;
 	}
 
+	setDiscardedOffset(offset: number) {
+		this.#discardedBytes = offset;
+	}
+
 	discardBytes(amount: number) {
 		this.#discardedBytes += amount;
 	}
@@ -153,10 +157,17 @@ export const getArrayBufferIterator = (
 	};
 
 	const skipTo = (offset: number) => {
-		buf.resize(offset);
-		const currentOffset = counter.getOffset();
-		counter.increment(offset - currentOffset);
-		removeBytesRead();
+		const becomesSmaller = offset < counter.getOffset();
+		if (becomesSmaller) {
+			buf.resize(0);
+			counter.decrement(counter.getOffset() - offset);
+			counter.setDiscardedOffset(offset);
+		} else {
+			buf.resize(offset);
+			const currentOffset = counter.getOffset();
+			counter.increment(offset - currentOffset);
+			removeBytesRead();
+		}
 	};
 
 	const peekB = (length: number) => {

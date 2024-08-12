@@ -64,7 +64,7 @@ export const parseMedia: ParseMedia = async ({
 			);
 		}
 
-		if (parseResult) {
+		if (parseResult && parseResult.status === 'incomplete') {
 			parseResult = parseResult.continueParsing();
 		} else {
 			parseResult = parseVideo({
@@ -108,6 +108,7 @@ export const parseMedia: ParseMedia = async ({
 		}
 
 		// TODO Better: Check if no active listeners are registered
+		// Also maybe check for canSkipVideoData
 		if (hasAllInfo(fields, parseResult) && !onVideoTrack && !onAudioTrack) {
 			if (!currentReader.closed) {
 				currentReader.cancel(new Error('has all information'));

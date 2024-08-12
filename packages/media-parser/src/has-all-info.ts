@@ -57,11 +57,11 @@ export const hasAllInfo = (
 		}
 
 		if (key === 'videoCodec') {
-			return hasVideoCodec(parseResult.segments) !== null;
+			return hasVideoCodec(parseResult.segments);
 		}
 
 		if (key === 'audioCodec') {
-			return hasAudioCodec(parseResult.segments) !== null;
+			return hasAudioCodec(parseResult.segments);
 		}
 
 		if (key === 'tracks') {

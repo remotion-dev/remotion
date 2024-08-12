@@ -399,3 +399,16 @@ test('Custom DAR', async () => {
 		width: 404.9717559814453,
 	});
 });
+
+test('Get tracks from an AV1 if no info is requested', async () => {
+	const parsed = await parseMedia({
+		src: RenderInternals.exampleVideos.av1mp4,
+		fields: {
+			tracks: true,
+		},
+		reader: nodeReader,
+	});
+	// TODO: Fix this
+	expect(parsed.videoTracks.length).toBeGreaterThan(0);
+	// This is true, there are no audio tracks
+});

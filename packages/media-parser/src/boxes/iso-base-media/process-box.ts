@@ -8,6 +8,7 @@ import type {
 } from '../../parse-result';
 import type {BoxAndNext} from '../../parse-video';
 import type {ParserContext} from '../../parser-context';
+import {hasSkippedMdatProcessing} from '../../traversal';
 import {parseEsds} from './esds/esds';
 import {parseFtyp} from './ftyp';
 import {makeBaseMediaTrack} from './make-track';
@@ -15,8 +16,11 @@ import {parseMdat} from './mdat/mdat';
 import {parseMdhd} from './mdhd';
 import {parseMoov} from './moov/moov';
 import {parseMvhd} from './mvhd';
-import {parseAvcc, parseHvcc} from './stsd/avcc-hvcc';
+import {parseAv1C} from './stsd/av1c';
+import {parseAvcc} from './stsd/avcc';
+import {parseColorParameterBox} from './stsd/colr';
 import {parseCtts} from './stsd/ctts';
+import {parseHvcc} from './stsd/hvcc';
 import {parseMebx} from './stsd/mebx';
 import {parsePasp} from './stsd/pasp';
 import {parseStco} from './stsd/stco';
@@ -144,6 +148,18 @@ const processBox = ({
 
 	if (boxType === 'ftyp') {
 		const box = parseFtyp({iterator, size: boxSize, offset: fileOffset});
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
+	if (boxType === 'colr') {
+		const box = parseColorParameterBox({
+			iterator,
+		});
 		return {
 			type: 'complete',
 			box,
@@ -375,6 +391,19 @@ const processBox = ({
 		};
 	}
 
+	if (boxType === 'av1C') {
+		const box = parseAv1C({
+			data: iterator,
+		});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
 	if (boxType === 'hvcC') {
 		const box = parseHvcc({
 			data: iterator,
@@ -474,8 +503,9 @@ export const parseBoxes = ({
 	initialBoxes: IsoBaseMediaBox[];
 	options: ParserContext;
 }): ParseResult => {
-	const boxes: IsoBaseMediaBox[] = initialBoxes;
+	let boxes: IsoBaseMediaBox[] = initialBoxes;
 	const initialOffset = iterator.counter.getOffset();
+	const alreadyHasMdat = boxes.find((b) => b.type === 'mdat-box');
 
 	while (
 		iterator.bytesRemaining() > 0 &&
@@ -508,7 +538,13 @@ export const parseBoxes = ({
 			};
 		}
 
-		boxes.push(result.box);
+		if (result.box.type === 'mdat-box' && alreadyHasMdat) {
+			boxes = boxes.filter((b) => b.type !== 'mdat-box');
+			boxes.push(result.box);
+			break;
+		} else {
+			boxes.push(result.box);
+		}
 
 		if (result.skipTo !== null) {
 			return {
@@ -528,6 +564,24 @@ export const parseBoxes = ({
 		}
 
 		iterator.discardFirstBytes();
+	}
+
+	const mdatState = hasSkippedMdatProcessing(boxes);
+	if (mdatState.skipped && !options.canSkipVideoData) {
+		return {
+			status: 'incomplete',
+			segments: boxes,
+			continueParsing: () => {
+				return parseBoxes({
+					iterator,
+					maxBytes,
+					allowIncompleteBoxes,
+					initialBoxes: boxes,
+					options,
+				});
+			},
+			skipTo: mdatState.fileOffset,
+		};
 	}
 
 	return {

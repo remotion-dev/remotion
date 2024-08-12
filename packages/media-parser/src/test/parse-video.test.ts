@@ -86,6 +86,7 @@ test('Parse a full video', async () => {
 		type: 'mdat-box',
 		boxSize: 57014,
 		samplesProcessed: false,
+		fileOffset: 40,
 	});
 });
 
