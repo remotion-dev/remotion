@@ -12,6 +12,16 @@ export const parseVideo = async (file: File) => {
 		},
 	});
 
+	const audioDecoder = new AudioDecoder({
+		output(inputFrame) {
+			console.log('audio frame', inputFrame);
+			inputFrame.close();
+		},
+		error(error) {
+			console.error(error);
+		},
+	});
+
 	await parseMedia({
 		src: file,
 		reader: webFileReader,
@@ -25,10 +35,10 @@ export const parseVideo = async (file: File) => {
 				description: track.description ?? undefined,
 			});
 			return (videoSample) => {
-				console.log('video sample', videoSample);
 				const chunk = new EncodedVideoChunk({
 					type: videoSample.type,
 					timestamp: videoSample.timestamp,
+					// TODO: Must it really be undefined?
 					duration: undefined,
 					data: videoSample.bytes,
 				});
@@ -38,7 +48,18 @@ export const parseVideo = async (file: File) => {
 		},
 		onAudioTrack: (track) => {
 			console.log('audio track', track);
-			return null;
+			audioDecoder.configure({
+				...track,
+				codec: track.codecString,
+			});
+			return (audioSample) => {
+				const chunk = new EncodedAudioChunk({
+					type: audioSample.type,
+					timestamp: audioSample.timestamp,
+					duration: undefined,
+					data: audioSample.bytes,
+				});
+			};
 		},
 	});
 };

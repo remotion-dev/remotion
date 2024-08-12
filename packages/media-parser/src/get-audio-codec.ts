@@ -129,10 +129,10 @@ export const getAudioCodecFromMatroska = (mainSegment: MainSegment) => {
 	return null;
 };
 
-export const getAudioCodecStringFromTrak = (trak: TrakBox): string | null => {
+export const getAudioCodecStringFromTrak = (trak: TrakBox): string => {
 	const codec = getAudioCodecFromTrak(trak);
 	if (!codec) {
-		return null;
+		throw new Error('Expected codec');
 	}
 
 	return (

@@ -30,7 +30,10 @@ export type AudioTrack = {
 	samplePositions: SamplePosition[] | null;
 	trackId: number;
 	timescale: number;
-	codecString: string | null;
+	codecString: string;
+	numberOfChannels: number;
+	sampleRate: number;
+	description: Uint8Array | undefined;
 };
 
 export type OtherTrack = {

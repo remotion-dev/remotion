@@ -5,6 +5,7 @@ export type AudioSample = {
 	timestamp: number;
 	offset: number;
 	trackId: number;
+	type: 'key' | 'delta';
 };
 
 export type VideoSample = {
