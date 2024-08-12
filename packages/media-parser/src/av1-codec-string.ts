@@ -109,5 +109,12 @@ export const av1CodecStringToString = ({
 		str += '0';
 	}
 
+	// If the codecs parameter string ends with ".0.110.01.01.01.0" (containing all the default values below), that trailing part of the string SHOULD be omitted.
+	const suffix = '.0.110.01.01.01.0';
+
+	if (str.endsWith(suffix)) {
+		str = str.slice(0, -suffix.length);
+	}
+
 	return str;
 };

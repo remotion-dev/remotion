@@ -1,5 +1,5 @@
-import type {OnTrackEntrySegment} from './boxes/webm/segments';
-import type {TrackEntrySegment} from './boxes/webm/segments/track-entry';
+import {getTracksFromMatroska} from './boxes/webm/get-ready-tracks';
+import {getMainSegment} from './boxes/webm/traversal';
 import type {BufferIterator} from './buffer-iterator';
 import {getArrayBufferIterator} from './buffer-iterator';
 import {fetchReader} from './from-fetch';
@@ -13,6 +13,7 @@ import {hasAllInfo} from './has-all-info';
 import type {Metadata, ParseMedia} from './options';
 import type {ParseResult} from './parse-result';
 import {parseVideo} from './parse-video';
+import {makeParserState} from './parser-state';
 
 export const parseMedia: ParseMedia = async ({
 	src,
@@ -41,11 +42,7 @@ export const parseMedia: ParseMedia = async ({
 	let iterator: BufferIterator | null = null;
 	let parseResult: ParseResult | null = null;
 
-	const trackEntries: TrackEntrySegment[] = [];
-
-	const onTrackEntrySegment: OnTrackEntrySegment = (trackEntry) => {
-		trackEntries.push(trackEntry);
-	};
+	const state = makeParserState();
 
 	while (parseResult === null || parseResult.status === 'incomplete') {
 		const result = await currentReader.read();
@@ -81,11 +78,36 @@ export const parseMedia: ParseMedia = async ({
 					onVideoSample: onVideoSample ?? null,
 					onAudioTrack: onAudioTrack ?? null,
 					onVideoTrack: onVideoTrack ?? null,
-					onTrackEntrySegment,
-					getTracks: () => trackEntries,
+					parserState: state,
 					// TODO: Skip frames if onSimpleBlock is null
 				},
 			});
+		}
+
+		const matroskaSegment = getMainSegment(parseResult.segments);
+		if (matroskaSegment) {
+			const tracks = getTracksFromMatroska(matroskaSegment);
+			for (const track of tracks.videoTracks) {
+				if (state.isEmitted(track.trackId)) {
+					continue;
+				}
+
+				state.addEmittedCodecId(track.trackId);
+				if (onVideoTrack) {
+					onVideoTrack(track);
+				}
+			}
+
+			for (const track of tracks.audioTracks) {
+				if (state.isEmitted(track.trackId)) {
+					continue;
+				}
+
+				state.addEmittedCodecId(track.trackId);
+				if (onAudioTrack) {
+					onAudioTrack(track);
+				}
+			}
 		}
 
 		if (hasAllInfo(fields, parseResult)) {

@@ -202,7 +202,7 @@ const parseSegment = ({
 
 	if (segmentId === '0xae') {
 		const trackEntry = parseTrackEntry(iterator, length, parserContext);
-		parserContext.onTrackEntrySegment(trackEntry);
+		parserContext.parserState.onTrackEntrySegment(trackEntry);
 		return trackEntry;
 	}
 
@@ -355,6 +355,7 @@ export const expectSegment = (
 						}),
 			parserContext,
 		});
+
 		if (main.status === 'incomplete') {
 			return {
 				status: 'incomplete',

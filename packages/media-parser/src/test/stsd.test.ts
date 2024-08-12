@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import {processSample} from '../boxes/iso-base-media/stsd/samples';
 import {parseStsd} from '../boxes/iso-base-media/stsd/stsd';
 import {getArrayBufferIterator} from '../buffer-iterator';
+import {makeParserState} from '../parser-state';
 
 test('Should be able to parse a STSD audio box correctly', () => {
 	const buffer = Uint8Array.from([
@@ -47,8 +48,7 @@ test('Should be able to parse a STSD audio box correctly', () => {
 			onVideoSample: null,
 			onAudioTrack: null,
 			onVideoTrack: null,
-			onTrackEntrySegment: () => undefined,
-			getTracks: () => [],
+			parserState: makeParserState(),
 		},
 	});
 
@@ -197,8 +197,7 @@ test('Should be able to parse a STSD video box correctly', () => {
 			onVideoSample: null,
 			onAudioTrack: null,
 			onVideoTrack: null,
-			onTrackEntrySegment: () => undefined,
-			getTracks: () => [],
+			parserState: makeParserState(),
 		},
 	});
 	expect(parsed.sample).toEqual({

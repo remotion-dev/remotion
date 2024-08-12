@@ -74,6 +74,7 @@ test('Should stream WebM with no duration', async () => {
 });
 
 test('Should stream AV1 with no duration', async () => {
+	let videoTracks = 0;
 	const parsed = await parseMedia({
 		src: RenderInternals.exampleVideos.av1,
 		fields: {
@@ -87,6 +88,9 @@ test('Should stream AV1 with no duration', async () => {
 			boxes: true,
 		},
 		reader: nodeReader,
+		onVideoTrack: () => {
+			videoTracks++;
+		},
 	});
 
 	expect(parsed.durationInSeconds).toBe(1);
@@ -101,7 +105,7 @@ test('Should stream AV1 with no duration', async () => {
 	expect(parsed.videoTracks.length).toBe(1);
 	expect(parsed.videoTracks[0]).toEqual({
 		type: 'video',
-		codecString: 'av01.0.08M.08.0.110.01.01.01.0',
+		codecString: 'av01.0.08M.08',
 		description: null,
 		sampleAspectRatio: {
 			denominator: 1,
@@ -116,6 +120,7 @@ test('Should stream AV1 with no duration', async () => {
 		width: 1920,
 	});
 	expect(parsed.audioTracks.length).toBe(0);
+	expect(videoTracks).toBe(1);
 });
 
 test('Should stream corrupted video', async () => {

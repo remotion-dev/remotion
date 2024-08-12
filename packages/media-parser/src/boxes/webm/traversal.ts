@@ -1,10 +1,16 @@
+import type {AnySegment} from '../../parse-result';
 import type {Av1BitstreamHeaderSegment} from './bitstream/av1/header-segment';
+import type {MainSegment} from './segments/main';
 import type {
 	ClusterSegment,
 	CodecSegment,
 	TrackEntrySegment,
 	TrackNumberSegment,
 } from './segments/track-entry';
+
+export const getMainSegment = (segments: AnySegment[]): MainSegment | null => {
+	return segments.find((s) => s.type === 'main-segment') as MainSegment | null;
+};
 
 export const getTrackNumber = (track: TrackEntrySegment) => {
 	const child = track.children.find(

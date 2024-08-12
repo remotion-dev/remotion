@@ -2,7 +2,6 @@ import type {BufferIterator} from '../../../buffer-iterator';
 import type {ParserContext} from '../../../parser-context';
 import {av1Bitstream} from '../bitstream/av1';
 import type {MatroskaSegment} from '../segments';
-import {getTrackByNumber, getTrackCodec} from '../traversal';
 import {expectChildren} from './parse-children';
 
 export type TrackEntrySegment = {
@@ -536,12 +535,8 @@ export const parseSimpleBlockSegment = (
 	const pos7 = (headerFlags >> 6) & 1;
 	const keyframe = Boolean((headerFlags >> 7) & 1);
 
-	const track = getTrackByNumber(parserContext.getTracks(), trackNumber);
-	if (!track) {
-		throw new Error('Could not find track ' + trackNumber);
-	}
+	const codec = parserContext.parserState.getTrackInfoByNumber(trackNumber);
 
-	const codec = getTrackCodec(track);
 	if (!codec) {
 		throw new Error('Could not find codec for track ' + trackNumber);
 	}
