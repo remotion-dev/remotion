@@ -45,10 +45,11 @@ test('Should stream WebM with no duration', async () => {
 			videoCodec: true,
 			audioCodec: true,
 			rotation: true,
-			// TODO: Return WebM tracks
+			tracks: true,
 		},
 		reader: nodeReader,
 	});
+
 	expect(result.durationInSeconds).toBe(6.57);
 	expect(result.dimensions).toEqual({
 		width: 1470,
@@ -58,6 +59,8 @@ test('Should stream WebM with no duration', async () => {
 	expect(result.videoCodec).toBe('vp8');
 	expect(result.audioCodec).toBe(null);
 	expect(result.rotation).toBe(0);
+	expect(result.videoTracks.length).toBe(1);
+	expect(result.videoTracks[0].codecString).toBe('vp8');
 });
 
 test('Should stream AV1 with no duration', async () => {
@@ -88,10 +91,7 @@ test('Should stream AV1 with no duration', async () => {
 	expect(parsed.videoTracks.length).toBe(1);
 	expect(parsed.videoTracks[0]).toEqual({
 		type: 'video',
-		// TODO: it is the wrong one
-		// <sample entry 4CC>.<profile>.<level><tier>.<bitDepth>.<monochrome>.<chromaSubsampling>.
-		// <colorPrimaries>.<transferCharacteristics>.<matrixCoefficients>.<videoFullRangeFlag>
-		codecString: 'av01.',
+		codecString: 'av01.0.08M.08.0.110.01.01.01.0',
 		description: null,
 		sampleAspectRatio: {
 			denominator: 1,

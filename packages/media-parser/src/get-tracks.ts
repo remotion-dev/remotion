@@ -1,7 +1,10 @@
 import {av1CodecStringToString} from './av1-codec-string';
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';
 import type {MainSegment} from './boxes/webm/segments/main';
-import type {TrackEntrySegment} from './boxes/webm/segments/track-entry';
+import type {
+	ClusterSegment,
+	TrackEntrySegment,
+} from './boxes/webm/segments/track-entry';
 import {getAudioCodecStringFromTrak} from './get-audio-codec';
 import {
 	getTimescaleAndDuration,
@@ -91,7 +94,10 @@ export const hasTracks = (segments: AnySegment[]): boolean => {
 	return tracks.length === numberOfTracks;
 };
 
-const getMatroskaVideoCodecString = (track: TrackEntrySegment): string => {
+const getMatroskaVideoCodecString = (
+	track: TrackEntrySegment,
+	cluster: ClusterSegment | null,
+): string => {
 	const codec = track.children.find((b) => b.type === 'codec-segment');
 
 	if (!codec || codec.type !== 'codec-segment') {
@@ -113,7 +119,11 @@ const getMatroskaVideoCodecString = (track: TrackEntrySegment): string => {
 	}
 
 	if (codec.codec === 'V_AV1') {
-		return av1CodecStringToString(track);
+		if (!cluster) {
+			throw new Error('No cluster segment');
+		}
+
+		return av1CodecStringToString({track, clusterSegment: cluster});
 	}
 
 	throw new Error(`Unknown codec: ${codec.codec}`);
@@ -161,6 +171,10 @@ const getTracksFromMatroska = (
 	if (!timescale || timescale.type !== 'timestamp-scale-segment') {
 		throw new Error('No timescale segment');
 	}
+
+	const clusterSegment = segment.children.find(
+		(b) => b.type === 'cluster-segment',
+	) as ClusterSegment | undefined;
 
 	const videoTracks: VideoTrack[] = [];
 	const audioTracks: AudioTrack[] = [];
@@ -218,7 +232,7 @@ const getTracksFromMatroska = (
 			videoTracks.push({
 				type: 'video',
 				trackId: trackId.trackNumber,
-				codecString: getMatroskaVideoCodecString(track),
+				codecString: getMatroskaVideoCodecString(track, clusterSegment ?? null),
 				description: null,
 				height: height.height,
 				width: width.width,

@@ -15,6 +15,8 @@ export type ColorConfig = {
 	subsampling_x: boolean;
 	subsampling_y: boolean;
 	chroma_sample_position: number;
+	mono_chrome: boolean;
+	color_description_present_flag: boolean;
 };
 
 export const getColorConfig = (
@@ -64,6 +66,8 @@ export const getColorConfig = (
 			subsampling_x,
 			subsampling_y,
 			chroma_sample_position,
+			mono_chrome,
+			color_description_present_flag,
 		};
 	}
 
@@ -113,5 +117,7 @@ export const getColorConfig = (
 		color_range,
 		subsampling_x,
 		subsampling_y,
+		mono_chrome,
+		color_description_present_flag,
 	};
 };
