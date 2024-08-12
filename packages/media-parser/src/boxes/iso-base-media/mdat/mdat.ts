@@ -9,26 +9,6 @@ export interface MdatBox {
 	boxSize: number;
 }
 
-export type AudioSample = {
-	bytes: Uint8Array;
-	timestamp: number;
-	offset: number;
-	trackId: number;
-};
-
-export type VideoSample = {
-	bytes: Uint8Array;
-	timestamp: number;
-	duration: number | undefined;
-	trackId: number;
-	type: 'key' | 'delta';
-	cts: number | null;
-	dts: number | null;
-};
-
-export type OnAudioSample = (sample: AudioSample) => void;
-export type OnVideoSample = (sample: VideoSample) => void;
-
 // TODO: Parse mdat only gets called when all of the atom is downloaded
 export const parseMdat = ({
 	data,

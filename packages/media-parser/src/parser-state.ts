@@ -1,15 +1,15 @@
-import type {
-	AudioSample,
-	OnAudioSample,
-	OnVideoSample,
-	VideoSample,
-} from './boxes/iso-base-media/mdat/mdat';
 import type {} from './boxes/iso-base-media/stsd/samples';
 import type {Av1BitstreamHeaderSegment} from './boxes/webm/bitstream/av1/header-segment';
 import type {OnTrackEntrySegment} from './boxes/webm/segments';
 import type {CodecSegment} from './boxes/webm/segments/track-entry';
 import {getTrackCodec} from './boxes/webm/traversal';
 import {getTrackId} from './traversal';
+import type {
+	AudioSample,
+	OnAudioSample,
+	OnVideoSample,
+	VideoSample,
+} from './webcodec-sample-types';
 
 export const makeParserState = ({
 	hasAudioCallbacks,

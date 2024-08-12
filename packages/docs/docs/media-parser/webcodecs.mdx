@@ -1,0 +1,92 @@
+---
+id: webcodecs
+title: WebCodecs
+slug: /media-parser/webcodecs
+crumb: "@remotion/media-parser"
+---
+
+:::warning
+**Unstable API**: This package is experimental. We might change the API at any time, until we remove this notice.
+:::
+
+[`parseMedia()`](/docs/media-parser/parse-media) is able to extract tracks and frames in a format that is suitable for passing to WebCodecs APIs.  
+
+## Support
+
+We plan support for extracting frames from common containers and codecs.  
+This is the current support:
+
+From MP4 videos:
+
+- [x] h.264
+- [ ] h.265
+- [ ] AV1
+- [ ] AAC
+- [ ] MP3
+- [ ] PCM
+
+From WebM videos:
+
+- [ ] h.264
+- [ ] h.265
+- [ ] vp8
+- [ ] vp9
+- [x] AV1
+- [ ] AAC
+- [ ] MP3
+- [ ] Opus
+- [ ] PCM
+
+## API
+
+```tsx twoslash title="Reading video and audio frames"
+// @module: es2022
+// @target: es2017
+import {parseMedia} from '@remotion/media-parser';
+
+const result = await parseMedia({
+  src: 'https://remotion.dev/bbb.mp4',
+  fields: {},
+  onVideoTrack: (track) => {
+    // const decoder = new VideoDecoder({...})
+    // decoder.configure({
+    //   codec: track.codec,
+    //   codedWidth: track.width,
+    //   codedHeight: track.height
+    // });
+    return (sample) => {
+      // const frame = new EncodedVideoChunk({
+      //   type: sample.type,
+      //   timestamp: sample.timestamp,
+      //   duration: sample.duration,
+      //   data: sample.bytes,
+      // })
+      // decoder.decode(frame);
+      console.log('New video sample', sample);
+    }
+  },
+  onAudioTrack: (track) => {
+    // const decoder = new AudioDecoder({...})
+    return (sample) => {
+      // const frame = new EncodedAudioChunk({
+      // });
+      console.log('New audio sample', sample);
+    }
+  }
+});
+```
+
+## Why is this useful?
+
+To use WebCodecs, the binary format of a video needs to be understood and parsed.  
+Parsing this is a meticulous and non-trivial task.  
+[`parseMedia()`](/docs/media-parser/parse-media) allows to to read an arbitrary media file and interface with it regardless of container, video codec and audio codec.  
+
+## How can I use this?
+
+You can extract frames by passing the `track` data into a [`VideoDecoder`](https://developer.mozilla.org/en-US/docs/Web/API/VideoDecoder).  
+
+Retrieved `sample` values can be passed to the [`EncodedVideoChunk()`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedVideoChunk) constructor and then passed to [`VideoDecoder.decode()`](https://developer.mozilla.org/en-US/docs/Web/API/VideoDecoder/decode).
+
+To encode the video into a different format is a non-trivial task still.  
+We plan to offer additional APIs in the future to help with this.
