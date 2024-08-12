@@ -10,6 +10,7 @@ import type {BoxAndNext} from '../../parse-video';
 import type {ParserContext} from '../../parser-context';
 import {parseEsds} from './esds/esds';
 import {parseFtyp} from './ftyp';
+import {makeBaseMediaTrack} from './make-track';
 import {parseMdat} from './mdat/mdat';
 import {parseMdhd} from './mdhd';
 import {parseMoov} from './moov/moov';
@@ -318,6 +319,16 @@ const processBox = ({
 			offsetAtStart: fileOffset,
 			options,
 		});
+		const transformedTrack = makeBaseMediaTrack(box);
+		if (transformedTrack) {
+			if (transformedTrack.type === 'audio') {
+				options.onAudioTrack?.(transformedTrack);
+			}
+
+			if (transformedTrack.type === 'video') {
+				options.onVideoTrack?.(transformedTrack);
+			}
+		}
 
 		return {
 			type: 'complete',

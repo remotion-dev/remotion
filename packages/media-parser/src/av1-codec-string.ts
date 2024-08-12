@@ -5,6 +5,7 @@ import type {
 	TrackEntrySegment,
 } from './boxes/webm/segments/track-entry';
 import {getAv1BitstreamHeader} from './boxes/webm/traversal';
+import {getCodecSegment} from './traversal';
 
 export const av1CodecStringToString = ({
 	track,
@@ -13,33 +14,22 @@ export const av1CodecStringToString = ({
 	track: TrackEntrySegment;
 	clusterSegment: ClusterSegment;
 }): string => {
-	const codecSegment = track.children.find((b) => b.type === 'codec-segment');
+	const codecSegment = getCodecSegment(track);
 
-	if (!codecSegment || codecSegment.type !== 'codec-segment') {
+	if (!codecSegment) {
 		throw new Error('Expected codec segment');
 	}
 
 	if (codecSegment.codec !== 'V_AV1') {
-		throw new Error(`Unknown codec: ${codecSegment.codec}`);
-	}
-
-	const simpleBlockSegment = clusterSegment.children.find((b) => {
-		if (b.type !== 'simple-block-segment') {
-			return false;
-		}
-
-		const child = b.children.find((c) => c.type === 'av1-bitstream-header');
-		return child;
-	});
-
-	if (
-		!simpleBlockSegment ||
-		simpleBlockSegment.type !== 'simple-block-segment'
-	) {
-		throw new Error('Could not find simple block segment');
+		throw new Error(
+			`Should not call this function if it is not AV1: ${codecSegment.codec}`,
+		);
 	}
 
 	const av1BitstreamHeader = getAv1BitstreamHeader(clusterSegment);
+	if (!av1BitstreamHeader) {
+		throw new Error('Could not find av1 bitstream header');
+	}
 
 	let str = 'av01.';
 

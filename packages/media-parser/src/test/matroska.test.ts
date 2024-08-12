@@ -241,6 +241,8 @@ test('Should get duration of AV1 video', async () => {
 										color_range: false,
 										subsampling_x: true,
 										subsampling_y: true,
+										color_description_present_flag: true,
+										mono_chrome: false,
 									},
 									film_grain_params_present: false,
 									enable_interintra_compound: 0,

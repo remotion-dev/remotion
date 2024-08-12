@@ -20,6 +20,8 @@ export const parseMedia: ParseMedia = async ({
 	reader: readerInterface = fetchReader,
 	onAudioSample,
 	onVideoSample,
+	onAudioTrack,
+	onVideoTrack,
 }) => {
 	const {reader, contentLength} = await readerInterface.read(src, null);
 	let currentReader = reader;
@@ -69,9 +71,16 @@ export const parseMedia: ParseMedia = async ({
 			parseResult = parseVideo({
 				iterator,
 				options: {
-					canSkipVideoData: !(onAudioSample || onVideoSample),
+					canSkipVideoData: !(
+						onAudioSample ||
+						onVideoSample ||
+						onAudioTrack ||
+						onVideoTrack
+					),
 					onAudioSample: onAudioSample ?? null,
 					onVideoSample: onVideoSample ?? null,
+					onAudioTrack: onAudioTrack ?? null,
+					onVideoTrack: onVideoTrack ?? null,
 					onTrackEntrySegment,
 					getTracks: () => trackEntries,
 					// TODO: Skip frames if onSimpleBlock is null

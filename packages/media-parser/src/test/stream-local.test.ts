@@ -4,6 +4,8 @@ import {nodeReader} from '../from-node';
 import {parseMedia} from '../parse-media';
 
 test('Should stream ISO base media', async () => {
+	let videoTracks = 0;
+	let audioTracks = 0;
 	const result = await parseMedia({
 		src: RenderInternals.exampleVideos.iphonevideo,
 		fields: {
@@ -17,6 +19,12 @@ test('Should stream ISO base media', async () => {
 			unrotatedDimension: true,
 		},
 		reader: nodeReader,
+		onVideoTrack: () => {
+			videoTracks++;
+		},
+		onAudioTrack: () => {
+			audioTracks++;
+		},
 	});
 	expect(result.dimensions).toEqual({
 		width: 2160,
@@ -33,6 +41,8 @@ test('Should stream ISO base media', async () => {
 		height: 2160,
 		width: 3840,
 	});
+	expect(videoTracks).toBe(1);
+	expect(audioTracks).toBe(1);
 });
 
 test('Should stream WebM with no duration', async () => {

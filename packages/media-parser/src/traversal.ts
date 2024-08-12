@@ -11,6 +11,17 @@ import type {StszBox} from './boxes/iso-base-media/stsd/stsz';
 import type {SttsBox} from './boxes/iso-base-media/stsd/stts';
 import type {TkhdBox} from './boxes/iso-base-media/tkhd';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
+import type {MainSegment} from './boxes/webm/segments/main';
+import type {TimestampScaleSegment} from './boxes/webm/segments/timestamp-scale';
+import type {
+	ClusterSegment,
+	CodecSegment,
+	HeightSegment,
+	TrackEntrySegment,
+	TrackTypeSegment,
+	VideoSegment,
+	WidthSegment,
+} from './boxes/webm/segments/track-entry';
 import type {AnySegment, RegularBox} from './parse-result';
 
 export const getFtypBox = (segments: AnySegment[]): FtypBox | null => {
@@ -223,4 +234,121 @@ export const getStssBox = (trakBox: TrakBox): StssBox | null => {
 	) as StssBox | null;
 
 	return stssBox;
+};
+
+export const getClusterSegment = (
+	segment: MainSegment,
+): ClusterSegment | null => {
+	const clusterSegment = segment.children.find(
+		(b) => b.type === 'cluster-segment',
+	) as ClusterSegment | undefined;
+
+	return clusterSegment ?? null;
+};
+
+export const getTracksSegment = (segment: MainSegment) => {
+	const tracksSegment = segment.children.find(
+		(b) => b.type === 'tracks-segment',
+	);
+	if (!tracksSegment || tracksSegment.type !== 'tracks-segment') {
+		return null;
+	}
+
+	return tracksSegment;
+};
+
+export const getTimescaleSegment = (
+	segment: MainSegment,
+): TimestampScaleSegment | null => {
+	const infoSegment = segment.children.find((b) => b.type === 'info-segment');
+
+	if (!infoSegment || infoSegment.type !== 'info-segment') {
+		return null;
+	}
+
+	const timescale = infoSegment.children.find(
+		(b) => b.type === 'timestamp-scale-segment',
+	);
+
+	if (!timescale || timescale.type !== 'timestamp-scale-segment') {
+		return null;
+	}
+
+	return timescale;
+};
+
+export const getVideoSegment = (
+	track: TrackEntrySegment,
+): VideoSegment | null => {
+	const videoSegment = track.children.find((b) => b.type === 'video-segment');
+	if (!videoSegment || videoSegment.type !== 'video-segment') {
+		return null;
+	}
+
+	return videoSegment ?? null;
+};
+
+export const getWidthSegment = (
+	track: TrackEntrySegment,
+): WidthSegment | null => {
+	const videoSegment = getVideoSegment(track);
+	if (!videoSegment) {
+		return null;
+	}
+
+	const width = videoSegment.children.find((b) => b.type === 'width-segment');
+
+	if (!width || width.type !== 'width-segment') {
+		return null;
+	}
+
+	return width;
+};
+
+export const getHeightSegment = (
+	track: TrackEntrySegment,
+): HeightSegment | null => {
+	const videoSegment = getVideoSegment(track);
+	if (!videoSegment) {
+		return null;
+	}
+
+	const height = videoSegment.children.find((b) => b.type === 'height-segment');
+
+	if (!height || height.type !== 'height-segment') {
+		return null;
+	}
+
+	return height;
+};
+
+export const getTrackTypeSegment = (
+	track: TrackEntrySegment,
+): TrackTypeSegment | null => {
+	const trackType = track.children.find((b) => b.type === 'track-type-segment');
+	if (!trackType || trackType.type !== 'track-type-segment') {
+		return null;
+	}
+
+	return trackType;
+};
+
+export const getTrackId = (track: TrackEntrySegment): number => {
+	const trackId = track.children.find((b) => b.type === 'track-number-segment');
+	if (!trackId || trackId.type !== 'track-number-segment') {
+		throw new Error('Expected track number segment');
+	}
+
+	return trackId.trackNumber;
+};
+
+export const getCodecSegment = (
+	track: TrackEntrySegment,
+): CodecSegment | null => {
+	const codec = track.children.find((b) => b.type === 'codec-segment');
+	if (!codec || codec.type !== 'codec-segment') {
+		return null;
+	}
+
+	return codec;
 };

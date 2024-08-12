@@ -29,7 +29,7 @@ export const getTrackByNumber = (tracks: TrackEntrySegment[], id: number) => {
 
 export const getAv1BitstreamHeader = (
 	clusterSegment: ClusterSegment,
-): Av1BitstreamHeaderSegment => {
+): Av1BitstreamHeaderSegment | null => {
 	const simpleBlockSegment = clusterSegment.children.find((b) => {
 		if (b.type !== 'simple-block-segment') {
 			return false;

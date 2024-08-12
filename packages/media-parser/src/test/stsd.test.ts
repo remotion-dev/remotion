@@ -23,7 +23,7 @@ test('Should be able to parse a STSD audio box correctly', () => {
 		0, 1,
 		// version
 		0, 1,
-		// revisioon level
+		// revision level
 		0, 0, 0, 0, 0, 0,
 		// revision level
 		0, 2, 0, 16, 255, 254, 0, 0, 172, 68, 0, 0, 0, 0, 4, 0, 0, 0, 0, 1, 0, 0, 0,
@@ -45,6 +45,8 @@ test('Should be able to parse a STSD audio box correctly', () => {
 			canSkipVideoData: true,
 			onAudioSample: null,
 			onVideoSample: null,
+			onAudioTrack: null,
+			onVideoTrack: null,
 			onTrackEntrySegment: () => undefined,
 			getTracks: () => [],
 		},
@@ -193,6 +195,8 @@ test('Should be able to parse a STSD video box correctly', () => {
 			canSkipVideoData: true,
 			onAudioSample: null,
 			onVideoSample: null,
+			onAudioTrack: null,
+			onVideoTrack: null,
 			onTrackEntrySegment: () => undefined,
 			getTracks: () => [],
 		},
