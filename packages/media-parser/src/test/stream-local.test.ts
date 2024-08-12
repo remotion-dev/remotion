@@ -136,7 +136,7 @@ test('Should stream AV1', async () => {
 	});
 	expect(parsed.audioTracks.length).toBe(0);
 	expect(videoTracks).toBe(1);
-	expect(videoSamples).toBeGreaterThan(1);
+	expect(videoSamples).toBe(25);
 });
 
 test('Should stream corrupted video', async () => {

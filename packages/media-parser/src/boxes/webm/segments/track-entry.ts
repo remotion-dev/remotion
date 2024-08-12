@@ -1,6 +1,6 @@
 import type {BufferIterator} from '../../../buffer-iterator';
 import type {ParserContext} from '../../../parser-context';
-import type {VideoSample} from '../../iso-base-media/mdat/mdat';
+import type {VideoSample} from '../../../webcodec-sample-types';
 import {av1Bitstream} from '../bitstream/av1';
 import type {MatroskaSegment} from '../segments';
 import {expectChildren} from './parse-children';

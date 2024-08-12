@@ -1,5 +1,5 @@
-import type {OnAudioTrack, OnVideoTrack} from './options';
 import type {ParserState} from './parser-state';
+import type {OnAudioTrack, OnVideoTrack} from './webcodec-sample-types';
 
 export type ParserContext = {
 	onAudioTrack: OnAudioTrack | null;
