@@ -43,43 +43,43 @@ test('Should get duration of AV1 video', async () => {
 							],
 						},
 						{
+							type: 'seek-segment',
 							children: [
 								{
+									type: 'seek-id-segment',
 									seekId: '0x1654ae6b',
-									type: 'seek-id-segment',
 								},
 								{
+									type: 'seek-position-segment',
 									seekPosition: 214,
-									type: 'seek-position-segment',
 								},
 							],
-							type: 'seek-segment',
 						},
 						{
+							type: 'seek-segment',
 							children: [
 								{
+									type: 'seek-id-segment',
 									seekId: '0x1254c367',
-									type: 'seek-id-segment',
 								},
 								{
-									seekPosition: 322,
 									type: 'seek-position-segment',
+									seekPosition: 322,
 								},
 							],
-							type: 'seek-segment',
 						},
 						{
+							type: 'seek-segment',
 							children: [
 								{
-									seekId: '0x1c53bb6b',
 									type: 'seek-id-segment',
+									seekId: '0x1c53bb6b',
 								},
 								{
-									seekPosition: 347329,
 									type: 'seek-position-segment',
+									seekPosition: 347329,
 								},
 							],
-							type: 'seek-segment',
 						},
 					],
 				},
@@ -200,7 +200,67 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: true,
 							lacing: [0, 0],
 							invisible: false,
-							children: [],
+							children: [
+								{
+									type: 'av1-bitstream-header',
+									seq_profile: 0,
+									still_picture: false,
+									reduced_still_picture_header: false,
+									timing_info_present_flag: false,
+									decoder_model_info_present_flag: false,
+									initial_display_delay_present_flag: false,
+									operating_points_cnt_minus_1: 0,
+									seq_level: [
+										{
+											operating_point_idc: 0,
+											seq_level_idx: 8,
+											seq_tier: 0,
+										},
+									],
+									timing_info: null,
+									decoder_model_info: null,
+									operating_parameters_info: [],
+									initial_display_delay_minus_1: [],
+									frame_width_bits_minus_1: 10,
+									frame_height_bits_minus_1: 10,
+									max_frame_width_minus_1: 1919,
+									max_frame_height_minus_1: 1079,
+									delta_frame_id_length_minus_2: null,
+									additional_frame_id_length_minus_1: null,
+									use_128x128_superblock: true,
+									enable_filter_intra: true,
+									enable_intra_edge_filter: false,
+									color_config: {
+										bitDepth: 8,
+										numPlanes: 3,
+										color_primaries: 1,
+										transfer_characteristics: 1,
+										matrix_coefficients: 1,
+										separate_uv_delta_q: 0,
+										chroma_sample_position: 0,
+										color_range: false,
+										subsampling_x: true,
+										subsampling_y: true,
+									},
+									film_grain_params_present: false,
+									enable_interintra_compound: 0,
+									enable_masked_compound: 0,
+									enable_warped_motion: 0,
+									enable_order_hint: 0,
+									enable_dual_filter: 0,
+									enable_jnt_comp: false,
+									enable_ref_frame_mvs: false,
+									seq_force_screen_content_tools: 0,
+									seq_force_integer_mv: 2,
+									enable_superres: false,
+									enable_cdef: false,
+									enable_restoration: false,
+									orderHintBits: 0,
+								},
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
 						},
 						{
 							type: 'simple-block-segment',
@@ -211,7 +271,11 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: [0, 0],
 							invisible: false,
-							children: [],
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
 						},
 						{
 							type: 'simple-block-segment',
@@ -222,7 +286,11 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: [0, 0],
 							invisible: false,
-							children: [],
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
 						},
 						{
 							type: 'simple-block-segment',
@@ -233,7 +301,11 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: [0, 0],
 							invisible: false,
-							children: [],
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
 						},
 						{
 							type: 'simple-block-segment',
@@ -244,7 +316,11 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: [0, 0],
 							invisible: false,
-							children: [],
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
 						},
 						{
 							type: 'simple-block-segment',
@@ -255,7 +331,11 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: [0, 0],
 							invisible: false,
-							children: [],
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
 						},
 						{
 							type: 'simple-block-segment',
@@ -266,7 +346,11 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: [0, 0],
 							invisible: false,
-							children: [],
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
 						},
 						{
 							type: 'simple-block-segment',
@@ -277,7 +361,11 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: [0, 0],
 							invisible: false,
-							children: [],
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
 						},
 						{
 							type: 'simple-block-segment',
@@ -288,7 +376,11 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: [0, 0],
 							invisible: false,
-							children: [],
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
 						},
 						{
 							type: 'simple-block-segment',
@@ -299,7 +391,11 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: [0, 0],
 							invisible: false,
-							children: [],
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
 						},
 						{
 							type: 'simple-block-segment',
@@ -310,7 +406,11 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: [0, 0],
 							invisible: false,
-							children: [],
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
 						},
 						{
 							type: 'simple-block-segment',
@@ -321,7 +421,11 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: [0, 0],
 							invisible: false,
-							children: [],
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
 						},
 						{
 							type: 'simple-block-segment',
@@ -332,7 +436,11 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: [0, 0],
 							invisible: false,
-							children: [],
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
 						},
 						{
 							type: 'simple-block-segment',
@@ -343,7 +451,11 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: [0, 0],
 							invisible: false,
-							children: [],
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
 						},
 						{
 							type: 'simple-block-segment',
@@ -354,7 +466,11 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: [0, 0],
 							invisible: false,
-							children: [],
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
 						},
 						{
 							type: 'simple-block-segment',
@@ -365,7 +481,11 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: [0, 0],
 							invisible: false,
-							children: [],
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
 						},
 						{
 							type: 'simple-block-segment',
@@ -376,7 +496,11 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: [0, 0],
 							invisible: false,
-							children: [],
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
 						},
 						{
 							type: 'simple-block-segment',
@@ -387,7 +511,11 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: [0, 0],
 							invisible: false,
-							children: [],
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
 						},
 						{
 							type: 'simple-block-segment',
@@ -398,7 +526,11 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: [0, 0],
 							invisible: false,
-							children: [],
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
 						},
 						{
 							type: 'simple-block-segment',
@@ -409,7 +541,11 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: [0, 0],
 							invisible: false,
-							children: [],
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
 						},
 						{
 							type: 'simple-block-segment',
@@ -420,7 +556,11 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: [0, 0],
 							invisible: false,
-							children: [],
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
 						},
 						{
 							type: 'simple-block-segment',
@@ -431,7 +571,11 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: [0, 0],
 							invisible: false,
-							children: [],
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
 						},
 						{
 							type: 'simple-block-segment',
@@ -442,7 +586,11 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: [0, 0],
 							invisible: false,
-							children: [],
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
 						},
 						{
 							type: 'simple-block-segment',
@@ -453,7 +601,11 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: [0, 0],
 							invisible: false,
-							children: [],
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
 						},
 						{
 							type: 'simple-block-segment',
@@ -464,7 +616,11 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: [0, 0],
 							invisible: false,
-							children: [],
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
 						},
 					],
 				},
