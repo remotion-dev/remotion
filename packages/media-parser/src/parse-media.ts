@@ -1,3 +1,6 @@
+/* eslint-disable max-depth */
+import {getTracksFromMatroska} from './boxes/webm/get-ready-tracks';
+import {getMainSegment} from './boxes/webm/traversal';
 import type {BufferIterator} from './buffer-iterator';
 import {getArrayBufferIterator} from './buffer-iterator';
 import {fetchReader} from './from-fetch';
@@ -11,13 +14,14 @@ import {hasAllInfo} from './has-all-info';
 import type {Metadata, ParseMedia} from './options';
 import type {ParseResult} from './parse-result';
 import {parseVideo} from './parse-video';
+import {makeParserState} from './parser-state';
 
 export const parseMedia: ParseMedia = async ({
 	src,
 	fields,
 	reader: readerInterface = fetchReader,
-	onAudioSample,
-	onVideoSample,
+	onAudioTrack,
+	onVideoTrack,
 }) => {
 	const {reader, contentLength} = await readerInterface.read(src, null);
 	let currentReader = reader;
@@ -37,15 +41,23 @@ export const parseMedia: ParseMedia = async ({
 	let iterator: BufferIterator | null = null;
 	let parseResult: ParseResult | null = null;
 
+	const state = makeParserState({
+		hasAudioCallbacks: onAudioTrack !== null,
+		hasVideoCallbacks: onVideoTrack !== null,
+	});
+
 	while (parseResult === null || parseResult.status === 'incomplete') {
 		const result = await currentReader.read();
-		if (result.done) {
-			break;
-		}
 
 		if (iterator) {
-			iterator.addData(result.value);
+			if (!result.done) {
+				iterator.addData(result.value);
+			}
 		} else {
+			if (result.done) {
+				throw new Error('Unexpectedly reached EOF');
+			}
+
 			iterator = getArrayBufferIterator(
 				result.value,
 				contentLength ?? undefined,
@@ -58,14 +70,45 @@ export const parseMedia: ParseMedia = async ({
 			parseResult = parseVideo({
 				iterator,
 				options: {
-					canSkipVideoData: !(onAudioSample || onVideoSample),
-					onAudioSample: onAudioSample ?? null,
-					onVideoSample: onVideoSample ?? null,
+					canSkipVideoData: !(onAudioTrack || onVideoTrack),
+					onAudioTrack: onAudioTrack ?? null,
+					onVideoTrack: onVideoTrack ?? null,
+					parserState: state,
+					// TODO: Skip frames if onSimpleBlock is null
 				},
 			});
 		}
 
-		if (hasAllInfo(fields, parseResult)) {
+		const matroskaSegment = getMainSegment(parseResult.segments);
+		if (matroskaSegment) {
+			const tracks = getTracksFromMatroska(matroskaSegment);
+			for (const track of tracks.videoTracks) {
+				if (state.isEmitted(track.trackId)) {
+					continue;
+				}
+
+				state.addEmittedCodecId(track.trackId);
+				if (onVideoTrack) {
+					const callback = onVideoTrack(track);
+					state.registerVideoSampleCallback(track.trackId, callback ?? null);
+				}
+			}
+
+			for (const track of tracks.audioTracks) {
+				if (state.isEmitted(track.trackId)) {
+					continue;
+				}
+
+				state.addEmittedCodecId(track.trackId);
+				if (onAudioTrack) {
+					const callback = onAudioTrack(track);
+					state.registerAudioSampleCallback(track.trackId, callback ?? null);
+				}
+			}
+		}
+
+		// TODO Better: Check if no active listeners are registered
+		if (hasAllInfo(fields, parseResult) && !onVideoTrack && !onAudioTrack) {
 			if (!currentReader.closed) {
 				currentReader.cancel(new Error('has all information'));
 			}

@@ -4,6 +4,10 @@ import {nodeReader} from '../from-node';
 import {parseMedia} from '../parse-media';
 
 test('Should stream ISO base media', async () => {
+	let videoTracks = 0;
+	let audioTracks = 0;
+	let videoSamples = 0;
+	let audioSamples = 0;
 	const result = await parseMedia({
 		src: RenderInternals.exampleVideos.iphonevideo,
 		fields: {
@@ -17,6 +21,18 @@ test('Should stream ISO base media', async () => {
 			unrotatedDimension: true,
 		},
 		reader: nodeReader,
+		onVideoTrack: () => {
+			videoTracks++;
+			return () => {
+				videoSamples++;
+			};
+		},
+		onAudioTrack: () => {
+			audioTracks++;
+			return () => {
+				audioSamples++;
+			};
+		},
 	});
 	expect(result.dimensions).toEqual({
 		width: 2160,
@@ -33,6 +49,11 @@ test('Should stream ISO base media', async () => {
 		height: 2160,
 		width: 3840,
 	});
+	expect(videoTracks).toBe(1);
+	expect(audioTracks).toBe(1);
+	// TODO: Should emit a video sample
+	expect(videoSamples).toBe(0);
+	expect(audioSamples).toBe(0);
 });
 
 test('Should stream WebM with no duration', async () => {
@@ -45,10 +66,11 @@ test('Should stream WebM with no duration', async () => {
 			videoCodec: true,
 			audioCodec: true,
 			rotation: true,
-			// TODO: Return WebM tracks
+			tracks: true,
 		},
 		reader: nodeReader,
 	});
+
 	expect(result.durationInSeconds).toBe(6.57);
 	expect(result.dimensions).toEqual({
 		width: 1470,
@@ -58,9 +80,13 @@ test('Should stream WebM with no duration', async () => {
 	expect(result.videoCodec).toBe('vp8');
 	expect(result.audioCodec).toBe(null);
 	expect(result.rotation).toBe(0);
+	expect(result.videoTracks.length).toBe(1);
+	expect(result.videoTracks[0].codecString).toBe('vp8');
 });
 
-test('Should stream AV1 with no duration', async () => {
+test('Should stream AV1', async () => {
+	let videoTracks = 0;
+	let videoSamples = 0;
 	const parsed = await parseMedia({
 		src: RenderInternals.exampleVideos.av1,
 		fields: {
@@ -70,10 +96,16 @@ test('Should stream AV1 with no duration', async () => {
 			videoCodec: true,
 			audioCodec: true,
 			rotation: true,
+			tracks: true,
 			boxes: true,
-			// TODO: Return WebM tracks
 		},
 		reader: nodeReader,
+		onVideoTrack: () => {
+			videoTracks++;
+			return () => {
+				videoSamples++;
+			};
+		},
 	});
 
 	expect(parsed.durationInSeconds).toBe(1);
@@ -85,6 +117,26 @@ test('Should stream AV1 with no duration', async () => {
 	expect(parsed.videoCodec).toBe('av1');
 	expect(parsed.audioCodec).toBe(null);
 	expect(parsed.rotation).toBe(0);
+	expect(parsed.videoTracks.length).toBe(1);
+	expect(parsed.videoTracks[0]).toEqual({
+		type: 'video',
+		codecString: 'av01.0.08M.08',
+		description: null,
+		sampleAspectRatio: {
+			denominator: 1,
+			numerator: 1,
+		},
+		samplePositions: [],
+		timescale: 1000000,
+		trackId: 1,
+		untransformedHeight: 1080,
+		untransformedWidth: 1920,
+		height: 1080,
+		width: 1920,
+	});
+	expect(parsed.audioTracks.length).toBe(0);
+	expect(videoTracks).toBe(1);
+	expect(videoSamples).toBeGreaterThan(1);
 });
 
 test('Should stream corrupted video', async () => {
@@ -181,6 +233,8 @@ test('Should stream variable fps video', async () => {
 			audioCodec: true,
 			rotation: true,
 			unrotatedDimension: true,
+			tracks: true,
+			boxes: true,
 		},
 		reader: nodeReader,
 	});
@@ -193,6 +247,31 @@ test('Should stream variable fps video', async () => {
 	expect(parsed.videoCodec).toBe('vp8');
 	expect(parsed.audioCodec).toBe('opus');
 	expect(parsed.rotation).toBe(0);
+	expect(parsed.videoTracks.length).toBe(1);
+	expect(parsed.videoTracks[0]).toEqual({
+		type: 'video',
+		codecString: 'vp8',
+		description: null,
+		sampleAspectRatio: {
+			denominator: 1,
+			numerator: 1,
+		},
+		samplePositions: [],
+		timescale: 1000000,
+		trackId: 2,
+		untransformedHeight: 720,
+		untransformedWidth: 1280,
+		height: 720,
+		width: 1280,
+	});
+	expect(parsed.audioTracks.length).toBe(1);
+	expect(parsed.audioTracks[0]).toEqual({
+		type: 'audio',
+		codecString: 'opus',
+		samplePositions: null,
+		timescale: 1000000,
+		trackId: 1,
+	});
 });
 
 test('Should stream MKV video', async () => {
@@ -292,12 +371,9 @@ test('Custom DAR', async () => {
 			dimensions: true,
 			rotation: true,
 			unrotatedDimension: true,
-			boxes: true,
 		},
 		reader: nodeReader,
 	});
-
-	await Bun.write('dar.json', JSON.stringify(parsed.boxes, null, 2));
 
 	expect(parsed.videoTracks[0].sampleAspectRatio).toEqual({
 		numerator: 56,

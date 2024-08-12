@@ -159,20 +159,84 @@ export const getArrayBufferIterator = (
 		removeBytesRead();
 	};
 
-	const peek = (length: number) => {
+	const peekB = (length: number) => {
 		// eslint-disable-next-line no-console
-		console.log(getSlice(length));
+		console.log(
+			[...getSlice(length)].map((b) => b.toString(16).padStart(2, '0')),
+		);
 		counter.decrement(length);
 	};
 
+	const peekD = (length: number) => {
+		// eslint-disable-next-line no-console
+		console.log([...getSlice(length)].map((b) => b));
+		counter.decrement(length);
+	};
+
+	const leb128 = () => {
+		let result = 0;
+		let shift = 0;
+		let byte;
+
+		do {
+			byte = getBits(8);
+			result |= (byte & 0x7f) << shift;
+			shift += 7;
+		} while (byte >= 0x80); // Continue if the high bit is set
+
+		return result;
+	};
+
+	let bitIndex = 0;
+
+	const stopReadingBits = () => {
+		bitIndex = 0;
+	};
+
+	let byteToShift = 0;
+
+	const startReadingBits = () => {
+		byteToShift = getUint8();
+	};
+
+	const getBits = (bits: number) => {
+		let result = 0;
+		let bitsCollected = 0;
+
+		while (bitsCollected < bits) {
+			if (bitIndex >= 8) {
+				bitIndex = 0;
+				byteToShift = getUint8();
+			}
+
+			const remainingBitsInByte = 8 - bitIndex;
+			const bitsToReadNow = Math.min(bits - bitsCollected, remainingBitsInByte);
+			const mask = (1 << bitsToReadNow) - 1;
+			const shift = remainingBitsInByte - bitsToReadNow;
+
+			result <<= bitsToReadNow;
+			result |= (byteToShift >> shift) & mask;
+
+			bitsCollected += bitsToReadNow;
+			bitIndex += bitsToReadNow;
+		}
+
+		return result;
+	};
+
 	return {
+		startReadingBits,
+		stopReadingBits,
 		skipTo,
 		addData,
 		counter,
-		peek,
+		peekB,
+		peekD,
+		getBits,
 		byteLength,
 		bytesRemaining,
 		isIsoBaseMedia,
+		leb128,
 		discardFirstBytes: removeBytesRead,
 		isWebm,
 		discard: (length: number) => {
@@ -211,6 +275,9 @@ export const getArrayBufferIterator = (
 				'0x88',
 				'0xe7',
 				'0xa3',
+				'0xa0',
+				'0xa1',
+				'0xfb',
 			];
 			if (knownIdsWithOneLength.includes(firstOneString)) {
 				return firstOneString;
@@ -233,6 +300,10 @@ export const getArrayBufferIterator = (
 				'0x63a2',
 				'0x73a4',
 				'0x7373',
+				'0x75a1',
+				'0x53ab',
+				'0x56aa',
+				'0x56bb',
 			];
 
 			const firstTwoString = `${firstOneString}${Array.from(
@@ -253,6 +324,7 @@ export const getArrayBufferIterator = (
 				'0x448988',
 				'0x22b59c',
 				'0x23e383',
+				'0x2ad7b1',
 			];
 
 			const firstThree = getSlice(1);

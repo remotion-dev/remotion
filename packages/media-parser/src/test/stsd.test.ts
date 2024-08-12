@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import {processSample} from '../boxes/iso-base-media/stsd/samples';
 import {parseStsd} from '../boxes/iso-base-media/stsd/stsd';
 import {getArrayBufferIterator} from '../buffer-iterator';
+import {makeParserState} from '../parser-state';
 
 test('Should be able to parse a STSD audio box correctly', () => {
 	const buffer = Uint8Array.from([
@@ -23,7 +24,7 @@ test('Should be able to parse a STSD audio box correctly', () => {
 		0, 1,
 		// version
 		0, 1,
-		// revisioon level
+		// revision level
 		0, 0, 0, 0, 0, 0,
 		// revision level
 		0, 2, 0, 16, 255, 254, 0, 0, 172, 68, 0, 0, 0, 0, 4, 0, 0, 0, 0, 1, 0, 0, 0,
@@ -43,8 +44,12 @@ test('Should be able to parse a STSD audio box correctly', () => {
 		size: 159,
 		options: {
 			canSkipVideoData: true,
-			onAudioSample: null,
-			onVideoSample: null,
+			onAudioTrack: null,
+			onVideoTrack: null,
+			parserState: makeParserState({
+				hasAudioCallbacks: false,
+				hasVideoCallbacks: false,
+			}),
 		},
 	});
 
@@ -189,8 +194,12 @@ test('Should be able to parse a STSD video box correctly', () => {
 		iterator: getArrayBufferIterator(buffer),
 		options: {
 			canSkipVideoData: true,
-			onAudioSample: null,
-			onVideoSample: null,
+			onAudioTrack: null,
+			onVideoTrack: null,
+			parserState: makeParserState({
+				hasAudioCallbacks: false,
+				hasVideoCallbacks: false,
+			}),
 		},
 	});
 	expect(parsed.sample).toEqual({

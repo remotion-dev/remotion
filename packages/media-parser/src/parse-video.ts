@@ -47,7 +47,7 @@ export const parseVideo = ({
 	}
 
 	if (iterator.isWebm()) {
-		return parseWebm(iterator);
+		return parseWebm(iterator, options);
 	}
 
 	throw new Error('Unknown video format');

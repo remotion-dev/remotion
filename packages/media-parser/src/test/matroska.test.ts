@@ -31,35 +31,55 @@ test('Should get duration of AV1 video', async () => {
 					children: [
 						{
 							type: 'seek-segment',
-							seekId: '0x1549a966',
-							child: {
-								type: 'seek-position-segment',
-								seekPosition: 161,
-							},
+							children: [
+								{
+									type: 'seek-id-segment',
+									seekId: '0x1549a966',
+								},
+								{
+									type: 'seek-position-segment',
+									seekPosition: 161,
+								},
+							],
 						},
 						{
 							type: 'seek-segment',
-							seekId: '0x1654ae6b',
-							child: {
-								type: 'seek-position-segment',
-								seekPosition: 214,
-							},
+							children: [
+								{
+									type: 'seek-id-segment',
+									seekId: '0x1654ae6b',
+								},
+								{
+									type: 'seek-position-segment',
+									seekPosition: 214,
+								},
+							],
 						},
 						{
 							type: 'seek-segment',
-							seekId: '0x1254c367',
-							child: {
-								type: 'seek-position-segment',
-								seekPosition: 322,
-							},
+							children: [
+								{
+									type: 'seek-id-segment',
+									seekId: '0x1254c367',
+								},
+								{
+									type: 'seek-position-segment',
+									seekPosition: 322,
+								},
+							],
 						},
 						{
 							type: 'seek-segment',
-							seekId: '0x1c53bb6b',
-							child: {
-								type: 'seek-position-segment',
-								seekPosition: 347329,
-							},
+							children: [
+								{
+									type: 'seek-id-segment',
+									seekId: '0x1c53bb6b',
+								},
+								{
+									type: 'seek-position-segment',
+									seekPosition: 347329,
+								},
+							],
 						},
 					],
 				},
@@ -117,7 +137,7 @@ test('Should get duration of AV1 video', async () => {
 								},
 								{
 									type: 'track-type-segment',
-									trackType: 1,
+									trackType: 'video',
 								},
 								{
 									type: 'default-duration-segment',
@@ -131,8 +151,8 @@ test('Should get duration of AV1 video', async () => {
 											width: 1920,
 										},
 										{
-											height: 1080,
 											type: 'height-segment',
+											height: 1080,
 										},
 										{
 											type: 'color-segment',
@@ -141,11 +161,11 @@ test('Should get duration of AV1 video', async () => {
 									],
 								},
 								{
+									type: 'codec-private-segment',
 									codecPrivateData: [
 										129, 8, 12, 0, 10, 14, 0, 0, 0, 66, 171, 191, 195, 118, 0,
 										8, 8, 8, 8, 32,
 									],
-									type: 'codec-private-segment',
 								},
 							],
 						},
@@ -155,39 +175,460 @@ test('Should get duration of AV1 video', async () => {
 					type: 'tags-segment',
 					children: [
 						{
-							length: 31,
 							type: 'tag-segment',
+							length: 31,
 						},
 						{
-							length: 51,
 							type: 'tag-segment',
+							length: 51,
 						},
 					],
 				},
 				{
+					type: 'cluster-segment',
 					children: [
 						{
 							type: 'timestamp-segment',
 							timestamp: 0,
 						},
 						{
-							length: 279307,
 							type: 'simple-block-segment',
+							length: 279307,
 							trackNumber: 1,
+							timecode: 0,
 							headerFlags: 128,
-							invisible: false,
 							keyframe: true,
 							lacing: [0, 0],
-							timecode: 0,
+							invisible: false,
 							children: [
 								{
-									type: 'unknown-segment',
-									id: '0x0a0e0000',
+									type: 'av1-bitstream-header',
+									seq_profile: 0,
+									still_picture: false,
+									reduced_still_picture_header: false,
+									timing_info_present_flag: false,
+									decoder_model_info_present_flag: false,
+									initial_display_delay_present_flag: false,
+									operating_points_cnt_minus_1: 0,
+									seq_level: [
+										{
+											operating_point_idc: 0,
+											seq_level_idx: 8,
+											seq_tier: 0,
+										},
+									],
+									timing_info: null,
+									decoder_model_info: null,
+									operating_parameters_info: [],
+									initial_display_delay_minus_1: [],
+									frame_width_bits_minus_1: 10,
+									frame_height_bits_minus_1: 10,
+									max_frame_width_minus_1: 1919,
+									max_frame_height_minus_1: 1079,
+									delta_frame_id_length_minus_2: null,
+									additional_frame_id_length_minus_1: null,
+									use_128x128_superblock: true,
+									enable_filter_intra: true,
+									enable_intra_edge_filter: false,
+									color_config: {
+										bitDepth: 8,
+										numPlanes: 3,
+										color_primaries: 1,
+										transfer_characteristics: 1,
+										matrix_coefficients: 1,
+										separate_uv_delta_q: 0,
+										chroma_sample_position: 0,
+										color_range: false,
+										subsampling_x: true,
+										subsampling_y: true,
+										color_description_present_flag: true,
+										mono_chrome: false,
+									},
+									film_grain_params_present: false,
+									enable_interintra_compound: 0,
+									enable_masked_compound: 0,
+									enable_warped_motion: 0,
+									enable_order_hint: 0,
+									enable_dual_filter: 0,
+									enable_jnt_comp: false,
+									enable_ref_frame_mvs: false,
+									seq_force_screen_content_tools: 0,
+									seq_force_integer_mv: 2,
+									enable_superres: false,
+									enable_cdef: false,
+									enable_restoration: false,
+									orderHintBits: 0,
+								},
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
+						},
+						{
+							type: 'simple-block-segment',
+							length: 96,
+							trackNumber: 1,
+							timecode: 40,
+							headerFlags: 0,
+							keyframe: false,
+							lacing: [0, 0],
+							invisible: false,
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
+						},
+						{
+							type: 'simple-block-segment',
+							length: 556,
+							trackNumber: 1,
+							timecode: 80,
+							headerFlags: 0,
+							keyframe: false,
+							lacing: [0, 0],
+							invisible: false,
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
+						},
+						{
+							type: 'simple-block-segment',
+							length: 948,
+							trackNumber: 1,
+							timecode: 120,
+							headerFlags: 0,
+							keyframe: false,
+							lacing: [0, 0],
+							invisible: false,
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
+						},
+						{
+							type: 'simple-block-segment',
+							length: 577,
+							trackNumber: 1,
+							timecode: 160,
+							headerFlags: 0,
+							keyframe: false,
+							lacing: [0, 0],
+							invisible: false,
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
+						},
+						{
+							type: 'simple-block-segment',
+							length: 779,
+							trackNumber: 1,
+							timecode: 200,
+							headerFlags: 0,
+							keyframe: false,
+							lacing: [0, 0],
+							invisible: false,
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
+						},
+						{
+							type: 'simple-block-segment',
+							length: 793,
+							trackNumber: 1,
+							timecode: 240,
+							headerFlags: 0,
+							keyframe: false,
+							lacing: [0, 0],
+							invisible: false,
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
+						},
+						{
+							type: 'simple-block-segment',
+							length: 740,
+							trackNumber: 1,
+							timecode: 280,
+							headerFlags: 0,
+							keyframe: false,
+							lacing: [0, 0],
+							invisible: false,
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
+						},
+						{
+							type: 'simple-block-segment',
+							length: 1095,
+							trackNumber: 1,
+							timecode: 320,
+							headerFlags: 0,
+							keyframe: false,
+							lacing: [0, 0],
+							invisible: false,
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
+						},
+						{
+							type: 'simple-block-segment',
+							length: 1097,
+							trackNumber: 1,
+							timecode: 360,
+							headerFlags: 0,
+							keyframe: false,
+							lacing: [0, 0],
+							invisible: false,
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
+						},
+						{
+							type: 'simple-block-segment',
+							length: 1155,
+							trackNumber: 1,
+							timecode: 400,
+							headerFlags: 0,
+							keyframe: false,
+							lacing: [0, 0],
+							invisible: false,
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
+						},
+						{
+							type: 'simple-block-segment',
+							length: 1526,
+							trackNumber: 1,
+							timecode: 440,
+							headerFlags: 0,
+							keyframe: false,
+							lacing: [0, 0],
+							invisible: false,
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
+						},
+						{
+							type: 'simple-block-segment',
+							length: 1487,
+							trackNumber: 1,
+							timecode: 480,
+							headerFlags: 0,
+							keyframe: false,
+							lacing: [0, 0],
+							invisible: false,
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
+						},
+						{
+							type: 'simple-block-segment',
+							length: 2046,
+							trackNumber: 1,
+							timecode: 520,
+							headerFlags: 0,
+							keyframe: false,
+							lacing: [0, 0],
+							invisible: false,
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
+						},
+						{
+							type: 'simple-block-segment',
+							length: 1372,
+							trackNumber: 1,
+							timecode: 560,
+							headerFlags: 0,
+							keyframe: false,
+							lacing: [0, 0],
+							invisible: false,
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
+						},
+						{
+							type: 'simple-block-segment',
+							length: 1441,
+							trackNumber: 1,
+							timecode: 600,
+							headerFlags: 0,
+							keyframe: false,
+							lacing: [0, 0],
+							invisible: false,
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
+						},
+						{
+							type: 'simple-block-segment',
+							length: 2947,
+							trackNumber: 1,
+							timecode: 640,
+							headerFlags: 0,
+							keyframe: false,
+							lacing: [0, 0],
+							invisible: false,
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
+						},
+						{
+							type: 'simple-block-segment',
+							length: 2652,
+							trackNumber: 1,
+							timecode: 680,
+							headerFlags: 0,
+							keyframe: false,
+							lacing: [0, 0],
+							invisible: false,
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
+						},
+						{
+							type: 'simple-block-segment',
+							length: 4199,
+							trackNumber: 1,
+							timecode: 720,
+							headerFlags: 0,
+							keyframe: false,
+							lacing: [0, 0],
+							invisible: false,
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
+						},
+						{
+							type: 'simple-block-segment',
+							length: 3998,
+							trackNumber: 1,
+							timecode: 760,
+							headerFlags: 0,
+							keyframe: false,
+							lacing: [0, 0],
+							invisible: false,
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
+						},
+						{
+							type: 'simple-block-segment',
+							length: 6373,
+							trackNumber: 1,
+							timecode: 800,
+							headerFlags: 0,
+							keyframe: false,
+							lacing: [0, 0],
+							invisible: false,
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
+						},
+						{
+							type: 'simple-block-segment',
+							length: 5955,
+							trackNumber: 1,
+							timecode: 840,
+							headerFlags: 0,
+							keyframe: false,
+							lacing: [0, 0],
+							invisible: false,
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
+						},
+						{
+							type: 'simple-block-segment',
+							length: 7943,
+							trackNumber: 1,
+							timecode: 880,
+							headerFlags: 0,
+							keyframe: false,
+							lacing: [0, 0],
+							invisible: false,
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
+						},
+						{
+							type: 'simple-block-segment',
+							length: 8241,
+							trackNumber: 1,
+							timecode: 920,
+							headerFlags: 0,
+							keyframe: false,
+							lacing: [0, 0],
+							invisible: false,
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
+								},
+							],
+						},
+						{
+							type: 'simple-block-segment',
+							length: 9506,
+							trackNumber: 1,
+							timecode: 960,
+							headerFlags: 0,
+							keyframe: false,
+							lacing: [0, 0],
+							invisible: false,
+							children: [
+								{
+									type: 'av1-bitstream-unimplemented',
 								},
 							],
 						},
 					],
-					type: 'cluster-segment',
+				},
+				{
+					id: '0x1c53bb6b',
+					type: 'unknown-segment',
 				},
 			],
 		},

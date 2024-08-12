@@ -7,9 +7,8 @@ export type SeekPositionSegment = {
 
 export const parseSeekPositionSegment = (
 	iterator: BufferIterator,
+	length: number,
 ): SeekPositionSegment => {
-	const length = iterator.getVint();
-
 	const seekPosition = iterator.getDecimalBytes(length);
 
 	return {

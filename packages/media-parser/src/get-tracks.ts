@@ -1,34 +1,9 @@
+import {makeBaseMediaTrack} from './boxes/iso-base-media/make-track';
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';
-import {getAudioCodecStringFromTrak} from './get-audio-codec';
-import {
-	getTimescaleAndDuration,
-	trakBoxContainsAudio,
-	trakBoxContainsVideo,
-} from './get-fps';
-import {
-	applyAspectRatios,
-	getDisplayAspectRatio,
-	getSampleAspectRatio,
-	getVideoSample,
-} from './get-sample-aspect-ratio';
+import {getTracksFromMatroska} from './boxes/webm/get-ready-tracks';
 import type {SamplePosition} from './get-sample-positions';
-import {getSamplePositions} from './get-sample-positions';
-import {getVideoCodecString} from './get-video-codec';
 import type {AnySegment} from './parse-result';
-import {
-	getCttsBox,
-	getFtypBox,
-	getMoovBox,
-	getMvhdBox,
-	getStcoBox,
-	getStscBox,
-	getStssBox,
-	getStszBox,
-	getSttsBox,
-	getTkhdBox,
-	getTraks,
-	getVideoDescriptors,
-} from './traversal';
+import {getFtypBox, getMoovBox, getMvhdBox, getTraks} from './traversal';
 
 type SampleAspectRatio = {
 	numerator: number;
@@ -37,11 +12,11 @@ type SampleAspectRatio = {
 
 export type VideoTrack = {
 	type: 'video';
-	samplePositions: SamplePosition[];
+	samplePositions: SamplePosition[] | null;
 	trackId: number;
 	description: Uint8Array | null;
 	timescale: number;
-	codecString: string | null;
+	codecString: string;
 	sampleAspectRatio: SampleAspectRatio;
 	width: number;
 	height: number;
@@ -51,7 +26,7 @@ export type VideoTrack = {
 
 export type AudioTrack = {
 	type: 'audio';
-	samplePositions: SamplePosition[];
+	samplePositions: SamplePosition[] | null;
 	trackId: number;
 	timescale: number;
 	codecString: string | null;
@@ -94,6 +69,11 @@ export const getTracks = (
 	videoTracks: VideoTrack[];
 	audioTracks: AudioTrack[];
 } => {
+	const mainSegment = segments.find((s) => s.type === 'main-segment');
+	if (mainSegment && mainSegment.type === 'main-segment') {
+		return getTracksFromMatroska(mainSegment);
+	}
+
 	const moovBox = getMoovBox(segments);
 	if (!moovBox) {
 		return {
@@ -106,90 +86,18 @@ export const getTracks = (
 	const audioTracks: AudioTrack[] = [];
 	const tracks = getTraks(moovBox);
 
-	for (const track of tracks) {
-		const stszBox = getStszBox(track);
-		const stcoBox = getStcoBox(track);
-		const stscBox = getStscBox(track);
-		const stssBox = getStssBox(track);
-		const sttsBox = getSttsBox(track);
-		const tkhdBox = getTkhdBox(track);
-		const cttsBox = getCttsBox(track);
-		const videoDescriptors = getVideoDescriptors(track);
-		const timescaleAndDuration = getTimescaleAndDuration(track);
-
-		if (!tkhdBox) {
-			throw new Error('Expected tkhd box in trak box');
+	for (const trakBox of tracks) {
+		const track = makeBaseMediaTrack(trakBox);
+		if (!track) {
+			continue;
 		}
 
-		if (!stszBox) {
-			throw new Error('Expected stsz box in trak box');
+		if (track.type === 'video') {
+			videoTracks.push(track);
 		}
 
-		if (!stcoBox) {
-			throw new Error('Expected stco box in trak box');
-		}
-
-		if (!stscBox) {
-			throw new Error('Expected stsc box in trak box');
-		}
-
-		if (!sttsBox) {
-			throw new Error('Expected stts box in trak box');
-		}
-
-		if (!timescaleAndDuration) {
-			throw new Error('Expected timescale and duration in trak box');
-		}
-
-		const samplePositions = getSamplePositions({
-			stcoBox,
-			stscBox,
-			stszBox,
-			stssBox,
-			sttsBox,
-			cttsBox,
-		});
-
-		if (trakBoxContainsAudio(track)) {
-			audioTracks.push({
-				type: 'audio',
-				samplePositions,
-				trackId: tkhdBox.trackId,
-				timescale: timescaleAndDuration.timescale,
-				codecString: getAudioCodecStringFromTrak(track),
-			});
-		}
-
-		if (trakBoxContainsVideo(track)) {
-			const videoSample = getVideoSample(track);
-			if (!videoSample) {
-				throw new Error('No video sample');
-			}
-
-			const sampleAspectRatio = getSampleAspectRatio(track);
-
-			const applied = applyAspectRatios({
-				dimensions: videoSample,
-				sampleAspectRatio,
-				displayAspectRatio: getDisplayAspectRatio({
-					sampleAspectRatio,
-					nativeDimensions: videoSample,
-				}),
-			});
-
-			videoTracks.push({
-				type: 'video',
-				samplePositions,
-				trackId: tkhdBox.trackId,
-				description: videoDescriptors,
-				timescale: timescaleAndDuration.timescale,
-				codecString: getVideoCodecString(track),
-				sampleAspectRatio: getSampleAspectRatio(track),
-				width: applied.width,
-				height: applied.height,
-				untransformedWidth: videoSample.width,
-				untransformedHeight: videoSample.height,
-			});
+		if (track.type === 'audio') {
+			audioTracks.push(track);
 		}
 	}
 

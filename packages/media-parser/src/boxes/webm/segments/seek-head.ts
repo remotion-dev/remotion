@@ -1,4 +1,5 @@
 import type {BufferIterator} from '../../../buffer-iterator';
+import type {ParserContext} from '../../../parser-context';
 import {type MatroskaSegment} from '../segments';
 import {expectChildren} from './parse-children';
 
@@ -10,12 +11,24 @@ export type SeekHeadSegment = {
 
 export const parseSeekHeadSegment = (
 	iterator: BufferIterator,
+	length: number,
+	parserContext: ParserContext,
 ): SeekHeadSegment => {
-	const length = iterator.getVint();
+	const children = expectChildren({
+		iterator,
+		length,
+		initialChildren: [],
+		wrap: null,
+		parserContext,
+	});
+
+	if (children.status === 'incomplete') {
+		throw new Error('Incomplete children');
+	}
 
 	return {
 		type: 'seek-head-segment',
 		length,
-		children: expectChildren(iterator, length),
+		children: children.segments as MatroskaSegment[],
 	};
 };

@@ -1,12 +1,20 @@
 import type {BufferIterator} from '../../buffer-iterator';
+import type {ParseResult} from '../../parse-result';
+import type {ParserContext} from '../../parser-context';
+import type {Av1BitstreamSegment} from './bitstream/av1';
 import type {DurationSegment} from './segments/duration';
 import {parseDurationSegment} from './segments/duration';
 import type {InfoSegment} from './segments/info';
 import {parseInfoSegment} from './segments/info';
-import type {MainSegment} from './segments/main';
-import {parseMainSegment} from './segments/main';
+import {type MainSegment} from './segments/main';
 import {parseMuxingSegment, type MuxingAppSegment} from './segments/muxing';
-import {parseSeekSegment, type SeekSegment} from './segments/seek';
+import {expectChildren} from './segments/parse-children';
+import type {SeekIdSegment} from './segments/seek';
+import {
+	parseSeekIdSegment,
+	parseSeekSegment,
+	type SeekSegment,
+} from './segments/seek';
 import type {SeekHeadSegment} from './segments/seek-head';
 import {parseSeekHeadSegment} from './segments/seek-head';
 import {
@@ -17,6 +25,8 @@ import type {TimestampScaleSegment} from './segments/timestamp-scale';
 import {parseTimestampScaleSegment} from './segments/timestamp-scale';
 import type {
 	AlphaModeSegment,
+	BlockElement,
+	BlockGroupSegment,
 	ClusterSegment,
 	CodecPrivateSegment,
 	CodecSegment,
@@ -44,7 +54,8 @@ import type {
 } from './segments/track-entry';
 import {
 	parseAlphaModeSegment,
-	parseClusterSegment,
+	parseBlockElementSegment,
+	parseBlockGroupSegment,
 	parseCodecPrivateSegment,
 	parseCodecSegment,
 	parseColorSegment,
@@ -115,15 +126,28 @@ export type MatroskaSegment =
 	| TagSegment
 	| ClusterSegment
 	| TimestampSegment
-	| SimpleBlockSegment;
+	| SimpleBlockSegment
+	| BlockGroupSegment
+	| BlockElement
+	| SeekIdSegment
+	| Av1BitstreamSegment;
 
-export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
-	const bytesRemaining_ = iterator.byteLength() - iterator.counter.getOffset();
-	if (bytesRemaining_ === 0) {
-		throw new Error('No bytes remaining');
+export type OnTrackEntrySegment = (trackEntry: TrackEntrySegment) => void;
+
+const parseSegment = ({
+	segmentId,
+	iterator,
+	length,
+	parserContext,
+}: {
+	segmentId: string;
+	iterator: BufferIterator;
+	length: number;
+	parserContext: ParserContext;
+}): MatroskaSegment => {
+	if (length === 0) {
+		throw new Error('Expected length to be greater than 0');
 	}
-
-	const segmentId = iterator.getMatroskaSegmentId();
 
 	if (segmentId === '0x') {
 		return {
@@ -132,151 +156,162 @@ export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 		};
 	}
 
-	if (segmentId === '0x18538067') {
-		return parseMainSegment(iterator);
+	if (segmentId === '0x114d9b74') {
+		return parseSeekHeadSegment(iterator, length, parserContext);
 	}
 
-	if (segmentId === '0x114d9b74') {
-		return parseSeekHeadSegment(iterator);
+	if (segmentId === '0x53ab') {
+		return parseSeekIdSegment(iterator);
 	}
 
 	if (segmentId === '0x4dbb') {
-		return parseSeekSegment(iterator);
+		return parseSeekSegment(iterator, length, parserContext);
 	}
 
 	if (segmentId === '0x53ac') {
-		return parseSeekPositionSegment(iterator);
+		return parseSeekPositionSegment(iterator, length);
 	}
 
 	if (segmentId === '0xec') {
-		return parseVoidSegment(iterator);
+		return parseVoidSegment(iterator, length);
 	}
 
 	if (segmentId === '0x1549a966') {
-		return parseInfoSegment(iterator);
+		return parseInfoSegment(iterator, length, parserContext);
 	}
 
-	if (segmentId === '0x2ad7b183') {
+	if (segmentId === '0x2ad7b1') {
 		return parseTimestampScaleSegment(iterator);
 	}
 
 	if (segmentId === '0x4d80') {
-		return parseMuxingSegment(iterator);
+		return parseMuxingSegment(iterator, length);
 	}
 
 	if (segmentId === '0x5741') {
-		return parseWritingSegment(iterator);
+		return parseWritingSegment(iterator, length);
 	}
 
 	if (segmentId === '0x4489') {
-		return parseDurationSegment(iterator);
+		return parseDurationSegment(iterator, length);
 	}
 
 	if (segmentId === '0x1654ae6b') {
-		return parseTracksSegment(iterator);
+		return parseTracksSegment(iterator, length, parserContext);
 	}
 
 	if (segmentId === '0xae') {
-		return parseTrackEntry(iterator);
+		const trackEntry = parseTrackEntry(iterator, length, parserContext);
+		parserContext.parserState.onTrackEntrySegment(trackEntry);
+		return trackEntry;
 	}
 
 	if (segmentId === '0xd7') {
-		return parseTrackNumber(iterator);
+		return parseTrackNumber(iterator, length);
 	}
 
 	if (segmentId === '0x73c5') {
-		return parseTrackUID(iterator);
+		return parseTrackUID(iterator, length);
 	}
 
 	if (segmentId === '0x9c') {
-		return parseFlagLacing(iterator);
+		return parseFlagLacing(iterator, length);
 	}
 
 	if (segmentId === '0x22b59c') {
-		return parseLanguageSegment(iterator);
+		return parseLanguageSegment(iterator, length);
 	}
 
 	if (segmentId === '0x86') {
-		return parseCodecSegment(iterator);
+		return parseCodecSegment(iterator, length);
 	}
 
 	if (segmentId === '0x83') {
-		return parseTrackTypeSegment(iterator);
+		return parseTrackTypeSegment(iterator, length);
 	}
 
 	if (segmentId === '0x55ee') {
-		return parseMaxBlockAdditionId(iterator);
+		return parseMaxBlockAdditionId(iterator, length);
 	}
 
 	if (segmentId === '0x55b0') {
-		return parseColorSegment(iterator);
+		return parseColorSegment(iterator, length);
 	}
 
 	if (segmentId === '0x23e383') {
-		return parseDefaultDurationSegment(iterator);
+		return parseDefaultDurationSegment(iterator, length);
 	}
 
 	if (segmentId === '0xe0') {
-		return parseVideoSegment(iterator);
+		return parseVideoSegment(iterator, length, parserContext);
 	}
 
 	if (segmentId === '0xb0') {
-		return parseWidthSegment(iterator);
+		return parseWidthSegment(iterator, length);
 	}
 
 	if (segmentId === '0xba') {
-		return parseHeightSegment(iterator);
+		return parseHeightSegment(iterator, length);
 	}
 
 	if (segmentId === '0x9a') {
-		return parseInterlacedSegment(iterator);
+		return parseInterlacedSegment(iterator, length);
 	}
 
 	if (segmentId === '0x53c0') {
-		return parseAlphaModeSegment(iterator);
+		return parseAlphaModeSegment(iterator, length);
 	}
 
 	if (segmentId === '0x63a2') {
-		return parseCodecPrivateSegment(iterator);
+		return parseCodecPrivateSegment(iterator, length);
 	}
 
 	if (segmentId === '0x7ba9') {
-		return parseTitleSegment(iterator);
+		return parseTitleSegment(iterator, length);
 	}
 
 	if (segmentId === '0xbf') {
-		return parseCrc32Segment(iterator);
+		return parseCrc32Segment(iterator, length);
 	}
 
 	if (segmentId === '0x73a4') {
-		return parseSegmentUUIDSegment(iterator);
+		return parseSegmentUUIDSegment(iterator, length);
 	}
 
 	if (segmentId === '0x88') {
-		return parseDefaultFlagSegment(iterator);
+		return parseDefaultFlagSegment(iterator, length);
 	}
 
 	if (segmentId === '0x1254c367') {
-		return parseTagsSegment(iterator);
+		return parseTagsSegment(iterator, length, parserContext);
 	}
 
 	if (segmentId === '0x7373') {
-		return parseTagSegment(iterator);
-	}
-
-	if (segmentId === '0x1f43b675') {
-		return parseClusterSegment(iterator);
+		return parseTagSegment(iterator, length);
 	}
 
 	if (segmentId === '0xe7') {
-		return parseTimestampSegment(iterator);
+		const timestamp = parseTimestampSegment(iterator, length);
+		parserContext.parserState.registerClusterTimestamp(timestamp.timestamp);
+		return timestamp;
 	}
 
 	if (segmentId === '0xa3') {
-		return parseSimpleBlockSegment(iterator);
+		return parseSimpleBlockSegment({
+			iterator,
+			length,
+			parserContext,
+			onVideoSample: parserContext.parserState.onVideoSample,
+		});
 	}
 
-	const length = iterator.getVint();
+	if (segmentId === '0xa0') {
+		return parseBlockGroupSegment(iterator, length, parserContext);
+	}
+
+	if (segmentId === '0xa1') {
+		return parseBlockElementSegment(iterator, length);
+	}
 
 	const bytesRemaining = iterator.byteLength() - iterator.counter.getOffset();
 	const toDiscard = Math.min(
@@ -286,4 +321,84 @@ export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
 
 	const child = parseUnknownSegment(iterator, segmentId, toDiscard);
 	return child;
+};
+
+export const expectSegment = (
+	iterator: BufferIterator,
+	parserContext: ParserContext,
+): ParseResult => {
+	const bytesRemaining_ = iterator.bytesRemaining();
+	if (bytesRemaining_ === 0) {
+		return {
+			status: 'incomplete',
+			segments: [],
+			continueParsing: () => {
+				return expectSegment(iterator, parserContext);
+			},
+			skipTo: null,
+		};
+	}
+
+	const offset = iterator.counter.getOffset();
+	const segmentId = iterator.getMatroskaSegmentId();
+	const length = iterator.getVint();
+	const bytesRemainingNow =
+		iterator.byteLength() - iterator.counter.getOffset();
+
+	if (segmentId === '0x18538067' || segmentId === '0x1f43b675') {
+		const main = expectChildren({
+			iterator,
+			length,
+			initialChildren: [],
+			wrap:
+				segmentId === '0x18538067'
+					? (s) => ({
+							type: 'main-segment',
+							children: s,
+						})
+					: (s) => ({
+							type: 'cluster-segment',
+							children: s,
+						}),
+			parserContext,
+		});
+
+		if (main.status === 'incomplete') {
+			return {
+				status: 'incomplete',
+				segments: main.segments,
+				skipTo: null,
+				continueParsing: main.continueParsing,
+			};
+		}
+
+		return {
+			status: 'done',
+			segments: main.segments,
+		};
+	}
+
+	if (bytesRemainingNow < length) {
+		const bytesRead = iterator.counter.getOffset() - offset;
+		iterator.counter.decrement(bytesRead);
+		return {
+			status: 'incomplete',
+			segments: [],
+			continueParsing: () => {
+				return expectSegment(iterator, parserContext);
+			},
+			skipTo: null,
+		};
+	}
+
+	const segment = parseSegment({
+		segmentId,
+		iterator,
+		length,
+		parserContext,
+	});
+	return {
+		status: 'done',
+		segments: [segment],
+	};
 };

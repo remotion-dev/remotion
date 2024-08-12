@@ -1,4 +1,5 @@
 import type {BufferIterator} from '../../../buffer-iterator';
+import type {ParserContext} from '../../../parser-context';
 import type {MatroskaSegment} from '../segments';
 import {expectChildren} from './parse-children';
 
@@ -8,13 +9,26 @@ export type InfoSegment = {
 	children: MatroskaSegment[];
 };
 
-export const parseInfoSegment = (iterator: BufferIterator): InfoSegment => {
-	const length = iterator.getVint();
-	const children = expectChildren(iterator, length);
+export const parseInfoSegment = (
+	iterator: BufferIterator,
+	length: number,
+	parserContext: ParserContext,
+): InfoSegment => {
+	const children = expectChildren({
+		iterator,
+		length,
+		initialChildren: [],
+		wrap: null,
+		parserContext,
+	});
+
+	if (children.status === 'incomplete') {
+		throw new Error('Incomplete children');
+	}
 
 	return {
 		type: 'info-segment',
 		length,
-		children,
+		children: children.segments as MatroskaSegment[],
 	};
 };

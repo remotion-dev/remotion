@@ -19,11 +19,11 @@ export type AudioSample = {
 export type VideoSample = {
 	bytes: Uint8Array;
 	timestamp: number;
-	duration: number;
+	duration: number | undefined;
 	trackId: number;
 	type: 'key' | 'delta';
-	cts: number;
-	dts: number;
+	cts: number | null;
+	dts: number | null;
 };
 
 export type OnAudioSample = (sample: AudioSample) => void;
@@ -58,6 +58,10 @@ export const parseMdat = ({
 
 	const flatSamples = allTracks
 		.map((track) => {
+			if (!track.samplePositions) {
+				throw new Error('No sample positions');
+			}
+
 			return track.samplePositions.map((samplePosition) => {
 				return {
 					track,
@@ -78,8 +82,8 @@ export const parseMdat = ({
 
 		const bytes = data.getSlice(sampleWithIndex.samplePosition.size);
 
-		if (sampleWithIndex.track.type === 'audio' && options.onAudioSample) {
-			options.onAudioSample({
+		if (sampleWithIndex.track.type === 'audio') {
+			options.parserState.onAudioSample(sampleWithIndex.track.trackId, {
 				bytes,
 				timestamp: sampleWithIndex.samplePosition.offset,
 				offset: data.counter.getOffset(),
@@ -87,7 +91,7 @@ export const parseMdat = ({
 			});
 		}
 
-		if (sampleWithIndex.track.type === 'video' && options.onVideoSample) {
+		if (sampleWithIndex.track.type === 'video') {
 			const timestamp =
 				(sampleWithIndex.samplePosition.cts * 1_000_000) /
 				sampleWithIndex.track.timescale;
@@ -95,7 +99,7 @@ export const parseMdat = ({
 				(sampleWithIndex.samplePosition.duration * 1_000_000) /
 				sampleWithIndex.track.timescale;
 
-			options.onVideoSample({
+			options.parserState.onVideoSample(sampleWithIndex.track.trackId, {
 				bytes,
 				timestamp,
 				duration,
