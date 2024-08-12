@@ -107,7 +107,8 @@ export const parseMedia: ParseMedia = async ({
 			}
 		}
 
-		if (hasAllInfo(fields, parseResult)) {
+		// TODO Better: Check if no active listeners are registered
+		if (hasAllInfo(fields, parseResult) && !onVideoTrack && !onAudioTrack) {
 			if (!currentReader.closed) {
 				currentReader.cancel(new Error('has all information'));
 			}

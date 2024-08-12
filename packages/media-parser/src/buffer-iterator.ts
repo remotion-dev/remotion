@@ -159,11 +159,17 @@ export const getArrayBufferIterator = (
 		removeBytesRead();
 	};
 
-	const peek = (length: number) => {
+	const peekB = (length: number) => {
 		// eslint-disable-next-line no-console
 		console.log(
 			[...getSlice(length)].map((b) => b.toString(16).padStart(2, '0')),
 		);
+		counter.decrement(length);
+	};
+
+	const peekD = (length: number) => {
+		// eslint-disable-next-line no-console
+		console.log([...getSlice(length)].map((b) => b));
 		counter.decrement(length);
 	};
 
@@ -224,7 +230,8 @@ export const getArrayBufferIterator = (
 		skipTo,
 		addData,
 		counter,
-		peek,
+		peekB,
+		peekD,
 		getBits,
 		byteLength,
 		bytesRemaining,

@@ -1,4 +1,5 @@
 import type {BufferIterator} from '../../../buffer-iterator';
+import {combineUint8Arrays} from '../../../combine-uint8array';
 import type {ParserContext} from '../../../parser-context';
 import type {VideoSample} from '../../iso-base-media/mdat/mdat';
 import {parseAv1Frame} from './av1/bitstream-frame';
@@ -81,6 +82,8 @@ export const av1Bitstream = ({
 	);
 	*/
 
+	const bytesReadSoFar = stream.counter.getOffset() - address;
+
 	const segment: Av1BitstreamSegment =
 		obuType === 1
 			? parseAv1BitstreamHeaderSegment(stream)
@@ -88,18 +91,25 @@ export const av1Bitstream = ({
 					type: 'av1-bitstream-unimplemented',
 				};
 	if (segment.type === 'av1-bitstream-header') {
-		context.parserState.setAv1BitstreamHeaderSegment(segment);
+		if (!size) {
+			throw new Error('Expected size');
+		}
+
+		const toSample = bytesReadSoFar + size;
+		stream.counter.decrement(stream.counter.getOffset() - address);
+		const header = stream.getSlice(toSample);
+		context.parserState.setAv1BitstreamHeaderSegment(segment, header);
 	}
 
 	if (obuType === 6) {
-		const headerSegment = context.parserState.getAv1BitstreamHeaderSegment();
-		if (!headerSegment) {
+		const head = context.parserState.getAv1BitstreamHeaderSegment();
+		if (!head) {
 			throw new Error('Expected header segment');
 		}
 
 		const header = parseAv1Frame({
 			stream,
-			headerSegment,
+			headerSegment: head.segment,
 		});
 
 		const bytesAdvanced = stream.counter.getOffset() - address;
@@ -113,9 +123,21 @@ export const av1Bitstream = ({
 			throw new Error('Expected cluster timestamp');
 		}
 
-		const frame = stream.getSlice(size);
+		const toSlice = size + bytesReadSoFar;
+
+		const frame = stream.getSlice(toSlice);
+		let extraBytes: Uint8Array | null = null;
+		if (!context.parserState.getIsFirstAv1FrameRead()) {
+			context.parserState.setIsFirstAv1FrameRead();
+			extraBytes =
+				context.parserState.getAv1BitstreamHeaderSegment()?.header ?? null;
+			if (!extraBytes) {
+				throw new Error('Expected extra bytes');
+			}
+		}
+
 		onVideoSample(trackNumber, {
-			bytes: frame,
+			bytes: combineUint8Arrays(extraBytes, frame),
 			timestamp: timecode + clusterTimestamp,
 			duration: undefined,
 			trackId: trackNumber,
@@ -123,6 +145,11 @@ export const av1Bitstream = ({
 			dts: null,
 			type: header.header.frameType === 'key' ? 'key' : 'delta',
 		});
+		stream.stopReadingBits();
+		return {
+			discarded: true,
+			segment,
+		};
 	}
 
 	stream.stopReadingBits();
@@ -135,11 +162,16 @@ export const av1Bitstream = ({
 	}
 
 	const end = stream.counter.getOffset();
-	const remaining = (size === null ? length : size + 2) - (end - address);
-	stream.discard(remaining);
+	const remaining =
+		(size === null ? length : size + bytesReadSoFar) - (end - address);
+
+	if (remaining > 0) {
+		stream.discard(remaining);
+	}
+
 	const remainingNow = length - (stream.counter.getOffset() - address);
 	if (remainingNow > 0 && remainingNow <= 2) {
-		stream.discard(remainingNow);
+		throw new Error('remainingNow > 0 && remainingNow <= 2');
 	}
 
 	return {

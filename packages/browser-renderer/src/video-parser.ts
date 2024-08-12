@@ -3,15 +3,6 @@ import {webFileReader} from '@remotion/media-parser/web-file';
 import {createDecoder} from './create-decoder';
 
 export const parseVideo = async (file: File) => {
-	const {dimensions} = await parseMedia({
-		src: file,
-		reader: webFileReader,
-		fields: {
-			dimensions: true,
-			tracks: true,
-		},
-	});
-
 	const {decoder} = createDecoder({
 		onFrame: (frame) => {
 			console.log('frame', frame);
@@ -26,20 +17,20 @@ export const parseVideo = async (file: File) => {
 		reader: webFileReader,
 		fields: {
 			durationInSeconds: true,
+			dimensions: true,
 		},
 		onVideoTrack: (track) => {
 			decoder.configure({
 				codec: track.codecString,
-				codedHeight: dimensions.height,
-				codedWidth: dimensions.width,
-				hardwareAcceleration: 'prefer-hardware',
-				description: track.description ?? undefined,
+				codedHeight: track.height,
+				codedWidth: track.width,
+				hardwareAcceleration: 'no-preference',
 			});
 			return (videoSample) => {
 				const chunk = new EncodedVideoChunk({
 					type: videoSample.type,
 					timestamp: videoSample.timestamp,
-					duration: videoSample.duration,
+					duration: undefined,
 					data: videoSample.bytes,
 				});
 

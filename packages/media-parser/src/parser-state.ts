@@ -45,7 +45,12 @@ export const makeParserState = ({
 
 	const declinedTrackNumbers: number[] = [];
 
-	let av1BitstreamHeaderSegment: Av1BitstreamHeaderSegment | null = null;
+	let isFirstAv1FrameRead = false;
+
+	let av1BitstreamHeaderSegment: {
+		segment: Av1BitstreamHeaderSegment;
+		header: Uint8Array;
+	} | null = null;
 
 	return {
 		onTrackEntrySegment,
@@ -128,10 +133,20 @@ export const makeParserState = ({
 		getClusterTimestamp: () => {
 			return clusterTimestamp;
 		},
-		setAv1BitstreamHeaderSegment: (segment: Av1BitstreamHeaderSegment) => {
-			av1BitstreamHeaderSegment = segment;
+		setAv1BitstreamHeaderSegment: (
+			segment: Av1BitstreamHeaderSegment,
+			header: Uint8Array,
+		) => {
+			av1BitstreamHeaderSegment = {
+				segment,
+				header,
+			};
 		},
 		getAv1BitstreamHeaderSegment: () => av1BitstreamHeaderSegment,
+		setIsFirstAv1FrameRead: () => {
+			isFirstAv1FrameRead = true;
+		},
+		getIsFirstAv1FrameRead: () => isFirstAv1FrameRead,
 	};
 };
 
