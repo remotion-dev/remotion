@@ -13,7 +13,7 @@ export const av1CodecStringToString = ({
 }: {
 	track: TrackEntrySegment;
 	clusterSegment: ClusterSegment;
-}): string => {
+}): string | null => {
 	const codecSegment = getCodecSegment(track);
 
 	if (!codecSegment) {
@@ -28,7 +28,7 @@ export const av1CodecStringToString = ({
 
 	const av1BitstreamHeader = getAv1BitstreamHeader(clusterSegment);
 	if (!av1BitstreamHeader) {
-		throw new Error('Could not find av1 bitstream header');
+		return null;
 	}
 
 	let str = 'av01.';

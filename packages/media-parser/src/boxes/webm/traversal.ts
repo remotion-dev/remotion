@@ -43,7 +43,7 @@ export const getAv1BitstreamHeader = (
 		!simpleBlockSegment ||
 		simpleBlockSegment.type !== 'simple-block-segment'
 	) {
-		throw new Error('Could not find simple block segment');
+		return null;
 	}
 
 	const av1BitstreamHeader = simpleBlockSegment.children.find(
@@ -54,8 +54,8 @@ export const getAv1BitstreamHeader = (
 		!av1BitstreamHeader ||
 		av1BitstreamHeader.type !== 'av1-bitstream-header'
 	) {
-		throw new Error('Could not find av1 bitstream header');
+		return null;
 	}
 
-	return av1BitstreamHeader ?? null;
+	return av1BitstreamHeader;
 };
