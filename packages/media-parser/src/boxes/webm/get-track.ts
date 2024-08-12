@@ -33,9 +33,12 @@ const getMatroskaVideoCodecString = ({
 	}
 
 	if (codec.codec === 'V_MPEG4/ISO/AVC') {
-		// TODO: different avc1!
-		// Failing test: Should stream MKV video
-		return 'avc1';
+		const priv = track.children.find((b) => b.type === 'codec-private-segment');
+		if (priv && priv.type === 'codec-private-segment') {
+			return `avc1.${priv.codecPrivateData[1].toString(16).padStart(2, '0')}${priv.codecPrivateData[2].toString(16).padStart(2, '0')}${priv.codecPrivateData[3].toString(16).padStart(2, '0')}`;
+		}
+
+		throw new Error('Could not find a CodecPrivate field in TrackEntry');
 	}
 
 	if (codec.codec === 'V_AV1') {

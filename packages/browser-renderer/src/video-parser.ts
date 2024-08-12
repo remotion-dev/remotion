@@ -1,23 +1,23 @@
 import {parseMedia} from '@remotion/media-parser';
 import {webFileReader} from '@remotion/media-parser/web-file';
-import {createDecoder} from './create-decoder';
 
 export const parseVideo = async (file: File) => {
-	const {decoder} = createDecoder({
-		onFrame: (frame) => {
-			console.log('frame', frame);
+	const videoDecoder = new VideoDecoder({
+		output(inputFrame) {
+			console.log('frame', inputFrame);
+			inputFrame.close();
 		},
-		onProgress: (decoded) => {
-			console.log('progress', decoded);
+		error(error) {
+			console.error(error);
 		},
 	});
 
 	await parseMedia({
 		src: file,
 		reader: webFileReader,
-		fields: {},
 		onVideoTrack: (track) => {
-			decoder.configure({
+			console.log(track);
+			videoDecoder.configure({
 				codec: track.codecString,
 				codedHeight: track.height,
 				codedWidth: track.width,
@@ -25,6 +25,7 @@ export const parseVideo = async (file: File) => {
 				description: track.description ?? undefined,
 			});
 			return (videoSample) => {
+				console.log('video sample', videoSample);
 				const chunk = new EncodedVideoChunk({
 					type: videoSample.type,
 					timestamp: videoSample.timestamp,
@@ -32,8 +33,12 @@ export const parseVideo = async (file: File) => {
 					data: videoSample.bytes,
 				});
 
-				decoder.decode(chunk);
+				videoDecoder.decode(chunk);
 			};
+		},
+		onAudioTrack: (track) => {
+			console.log('audio track', track);
+			return null;
 		},
 	});
 };

@@ -414,7 +414,19 @@ test('Get tracks from an AV1 if no info is requested', async () => {
 		},
 		reader: nodeReader,
 	});
-	// TODO: Fix this
-	expect(parsed.videoTracks.length).toBeGreaterThan(0);
+	expect(parsed.videoTracks.length).toBe(1);
 	// This is true, there are no audio tracks
+});
+
+test('Should get correct avc1 string from matroska', async () => {
+	const parsed = await parseMedia({
+		src: RenderInternals.exampleVideos.matroskaPcm16,
+		fields: {
+			tracks: true,
+			boxes: true,
+		},
+		reader: nodeReader,
+	});
+
+	expect(parsed.videoTracks[0].codecString).toBe('avc1.640020');
 });
