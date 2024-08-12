@@ -399,3 +399,32 @@ test('Custom DAR', async () => {
 		width: 404.9717559814453,
 	});
 });
+
+test('AV1 in MP4', async () => {
+	const parsed = await parseMedia({
+		src: RenderInternals.exampleVideos.av1bbb,
+		fields: {
+			durationInSeconds: true,
+			fps: true,
+			videoCodec: true,
+			tracks: true,
+			audioCodec: true,
+			dimensions: true,
+			rotation: true,
+		},
+		reader: nodeReader,
+	});
+	expect(parsed.durationInSeconds).toBe(10);
+	expect(parsed.fps).toBe(null);
+	expect(parsed.videoCodec).toBe('av1');
+	// TODO:
+	expect(parsed.videoTracks).toEqual([]);
+	// This is true, there are no audio tracks
+	expect(parsed.audioTracks).toEqual([]);
+	expect(parsed.audioCodec).toEqual(null);
+	expect(parsed.dimensions).toEqual({
+		width: 1920,
+		height: 1080,
+	});
+	expect(parsed.rotation).toBe(0);
+});
