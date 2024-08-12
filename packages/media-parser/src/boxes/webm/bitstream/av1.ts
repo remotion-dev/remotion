@@ -1,6 +1,7 @@
 import type {BufferIterator} from '../../../buffer-iterator';
 import type {ParserContext} from '../../../parser-context';
 import type {VideoSample} from '../../iso-base-media/mdat/mdat';
+import {parseAv1Frame} from './av1/bitstream-frame';
 import {
 	parseAv1BitstreamHeaderSegment,
 	type Av1BitstreamHeaderSegment,
@@ -86,7 +87,21 @@ export const av1Bitstream = ({
 			: {
 					type: 'av1-bitstream-unimplemented',
 				};
+	if (segment.type === 'av1-bitstream-header') {
+		context.parserState.setAv1BitstreamHeaderSegment(segment);
+	}
+
 	if (obuType === 6) {
+		const headerSegment = context.parserState.getAv1BitstreamHeaderSegment();
+		if (!headerSegment) {
+			throw new Error('Expected header segment');
+		}
+
+		const header = parseAv1Frame({
+			stream,
+			headerSegment,
+		});
+
 		const bytesAdvanced = stream.counter.getOffset() - address;
 		stream.counter.decrement(bytesAdvanced);
 		if (size === null) {
@@ -106,8 +121,7 @@ export const av1Bitstream = ({
 			trackId: trackNumber,
 			cts: null,
 			dts: null,
-			// TODO: Fill out necessary stuff
-			type: 'key',
+			type: header.header.frameType === 'key' ? 'key' : 'delta',
 		});
 	}
 

@@ -5,6 +5,7 @@ import type {
 	VideoSample,
 } from './boxes/iso-base-media/mdat/mdat';
 import type {} from './boxes/iso-base-media/stsd/samples';
+import type {Av1BitstreamHeaderSegment} from './boxes/webm/bitstream/av1/header-segment';
 import type {OnTrackEntrySegment} from './boxes/webm/segments';
 import type {CodecSegment} from './boxes/webm/segments/track-entry';
 import {getTrackCodec} from './boxes/webm/traversal';
@@ -43,6 +44,8 @@ export const makeParserState = ({
 	const queuedVideoSamples: Record<number, VideoSample[]> = {};
 
 	const declinedTrackNumbers: number[] = [];
+
+	let av1BitstreamHeaderSegment: Av1BitstreamHeaderSegment | null = null;
 
 	return {
 		onTrackEntrySegment,
@@ -125,6 +128,10 @@ export const makeParserState = ({
 		getClusterTimestamp: () => {
 			return clusterTimestamp;
 		},
+		setAv1BitstreamHeaderSegment: (segment: Av1BitstreamHeaderSegment) => {
+			av1BitstreamHeaderSegment = segment;
+		},
+		getAv1BitstreamHeaderSegment: () => av1BitstreamHeaderSegment,
 	};
 };
 
