@@ -11,7 +11,7 @@ import {
 	getVideoSample,
 } from '../../get-sample-aspect-ratio';
 import {getSamplePositions} from '../../get-sample-positions';
-import type {AudioTrack, VideoTrack} from '../../get-tracks';
+import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
 import {getVideoCodecString} from '../../get-video-codec';
 import {
 	getCttsBox,
@@ -27,7 +27,7 @@ import type {TrakBox} from './trak/trak';
 
 export const makeBaseMediaTrack = (
 	trakBox: TrakBox,
-): VideoTrack | AudioTrack | null => {
+): VideoTrack | AudioTrack | OtherTrack | null => {
 	const stszBox = getStszBox(trakBox);
 	const stcoBox = getStcoBox(trakBox);
 	const stscBox = getStscBox(trakBox);
@@ -82,8 +82,12 @@ export const makeBaseMediaTrack = (
 	}
 
 	if (!trakBoxContainsVideo(trakBox)) {
-		console.log(trakBox);
-		return null;
+		return {
+			type: 'other',
+			samplePositions,
+			trackId: tkhdBox.trackId,
+			timescale: timescaleAndDuration.timescale,
+		};
 	}
 
 	const videoSample = getVideoSample(trakBox);

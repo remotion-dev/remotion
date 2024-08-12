@@ -1,3 +1,4 @@
+/* eslint-disable max-depth */
 import type {BufferIterator} from '../../../buffer-iterator';
 import {getTracks, hasTracks} from '../../../get-tracks';
 import type {AnySegment} from '../../../parse-result';
@@ -36,7 +37,11 @@ export const parseMdat = ({
 	}
 
 	const tracks = getTracks(existingBoxes);
-	const allTracks = [...tracks.videoTracks, ...tracks.audioTracks];
+	const allTracks = [
+		...tracks.videoTracks,
+		...tracks.audioTracks,
+		...tracks.otherTracks,
+	];
 
 	const flatSamples = allTracks
 		.map((track) => {
@@ -59,7 +64,36 @@ export const parseMdat = ({
 			return sample.samplePosition.offset === data.counter.getOffset();
 		});
 		if (!sampleWithIndex) {
-			throw new Error('Could not find sample');
+			if (data.bytesRemaining() >= 8) {
+				const possibleAtomLength = data.getFourByteNumber();
+				const possibleAtom = data.getByteString(4);
+				data.counter.decrement(8);
+				// if a weird hoov atom appears, like in iphonevideo.hevc
+				// then we skip to the next sample
+				if (possibleAtom === 'hoov' || possibleAtom === 'moof') {
+					const nextSample = flatSamples
+						.filter((s) => s.samplePosition.offset > data.counter.getOffset())
+						.sort(
+							(a, b) => a.samplePosition.offset - b.samplePosition.offset,
+						)[0];
+					if (nextSample) {
+						data.discard(
+							nextSample.samplePosition.offset - data.counter.getOffset(),
+						);
+						continue;
+					} else {
+						data.discard(possibleAtomLength);
+						break;
+					}
+				}
+
+				console.log('byte string', possibleAtomLength, possibleAtom);
+				data.peekB(8);
+			}
+
+			throw new Error(
+				'Could not find sample with offset ' + data.counter.getOffset(),
+			);
 		}
 
 		const bytes = data.getSlice(sampleWithIndex.samplePosition.size);

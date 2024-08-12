@@ -75,7 +75,7 @@ const getChildren = ({
 	return [];
 };
 
-const processBox = ({
+export const processBox = ({
 	iterator,
 	allowIncompleteBoxes,
 	parsedBoxes,

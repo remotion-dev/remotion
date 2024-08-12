@@ -33,6 +33,13 @@ export type AudioTrack = {
 	codecString: string | null;
 };
 
+export type OtherTrack = {
+	type: 'other';
+	samplePositions: SamplePosition[] | null;
+	trackId: number;
+	timescale: number;
+};
+
 export type Track = VideoTrack | AudioTrack;
 
 // TODO: Use this to determine if all tracks are present
@@ -70,6 +77,7 @@ export const getTracks = (
 ): {
 	videoTracks: VideoTrack[];
 	audioTracks: AudioTrack[];
+	otherTracks: OtherTrack[];
 } => {
 	const mainSegment = segments.find((s) => s.type === 'main-segment');
 	if (mainSegment && mainSegment.type === 'main-segment') {
@@ -81,11 +89,13 @@ export const getTracks = (
 		return {
 			videoTracks: [],
 			audioTracks: [],
+			otherTracks: [],
 		};
 	}
 
 	const videoTracks: VideoTrack[] = [];
 	const audioTracks: AudioTrack[] = [];
+	const otherTracks: OtherTrack[] = [];
 	const tracks = getTraks(moovBox);
 
 	for (const trakBox of tracks) {
@@ -98,13 +108,14 @@ export const getTracks = (
 			videoTracks.push(track);
 		} else if (track.type === 'audio') {
 			audioTracks.push(track);
-		} else {
-			console.log('Unknown track type', track);
+		} else if (track.type === 'other') {
+			otherTracks.push(track);
 		}
 	}
 
 	return {
 		videoTracks,
 		audioTracks,
+		otherTracks,
 	};
 };

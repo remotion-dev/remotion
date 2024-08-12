@@ -51,9 +51,8 @@ test('Should stream ISO base media', async () => {
 	});
 	expect(videoTracks).toBe(1);
 	expect(audioTracks).toBe(1);
-	// TODO: Should emit a video sample
-	expect(videoSamples).toBe(0);
-	expect(audioSamples).toBe(0);
+	expect(videoSamples).toBe(377);
+	expect(audioSamples).toBe(544);
 });
 
 test('Should stream WebM with no duration', async () => {
@@ -363,7 +362,7 @@ test('Should get duration of HEVC video', async () => {
 		height: 1080,
 	});
 	expect(parsed.videoCodec).toBe('h265');
-	expect(videoSamples).toBe(1);
+	expect(videoSamples).toBe(102);
 });
 
 test('Custom DAR', async () => {
