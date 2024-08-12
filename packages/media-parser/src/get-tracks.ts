@@ -1,6 +1,7 @@
 import {makeBaseMediaTrack} from './boxes/iso-base-media/make-track';
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';
 import {getTracksFromMatroska} from './boxes/webm/get-ready-tracks';
+import {getMainSegment} from './boxes/webm/traversal';
 import type {SamplePosition} from './get-sample-positions';
 import type {AnySegment} from './parse-result';
 import {getFtypBox, getMoovBox, getMvhdBox, getTraks} from './traversal';
@@ -46,6 +47,7 @@ export const getNumberOfTracks = (moovBox: MoovBox): number => {
 
 export const hasTracks = (segments: AnySegment[]): boolean => {
 	const moovBox = getMoovBox(segments);
+	const mainSegment = getMainSegment(segments);
 	const ftypBox = getFtypBox(segments);
 
 	if (!moovBox) {
@@ -54,7 +56,7 @@ export const hasTracks = (segments: AnySegment[]): boolean => {
 		}
 
 		// TODO: Support Matroska
-		return true;
+		return Boolean(mainSegment);
 	}
 
 	const numberOfTracks = getNumberOfTracks(moovBox);

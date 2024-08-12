@@ -39,5 +39,5 @@ export const exampleVideos = {
 	matroskaPcm16: path.join(examplePackage, 'public', 'matroska-pcm16.mkv'),
 	mp4withmp3: path.join(examplePackage, 'public', 'mp4-mp3.mp4'),
 	av1bbb: path.join(examplePackage, 'public', 'av1-bbb.webm'),
-	av1mp4: path.join(examplePackage, 'public', 'av1-mp4.webm'),
+	av1mp4: path.join(examplePackage, 'public', 'av1-bbb.mp4'),
 };

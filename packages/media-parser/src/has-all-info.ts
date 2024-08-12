@@ -53,15 +53,15 @@ export const hasAllInfo = (
 		}
 
 		if (key === 'fps') {
-			return hasFps(parseResult.segments) !== null;
+			return hasFps(parseResult.segments);
 		}
 
 		if (key === 'videoCodec') {
-			return hasVideoCodec(parseResult.segments) !== null;
+			return hasVideoCodec(parseResult.segments);
 		}
 
 		if (key === 'audioCodec') {
-			return hasAudioCodec(parseResult.segments) !== null;
+			return hasAudioCodec(parseResult.segments);
 		}
 
 		if (key === 'tracks') {
