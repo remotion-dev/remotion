@@ -56,6 +56,7 @@ test('Should stream ISO base media', async () => {
 });
 
 test('Should stream WebM with no duration', async () => {
+	let videoSamples = 0;
 	const result = await parseMedia({
 		src: RenderInternals.exampleVideos.nofps,
 		fields: {
@@ -68,6 +69,13 @@ test('Should stream WebM with no duration', async () => {
 			tracks: true,
 		},
 		reader: nodeReader,
+		onVideoTrack: (track) => {
+			expect(track.codec).toBe('vp8');
+			expect(track.trackId).toBe(1);
+			return () => {
+				videoSamples++;
+			};
+		},
 	});
 
 	expect(result.durationInSeconds).toBe(6.57);
@@ -81,6 +89,7 @@ test('Should stream WebM with no duration', async () => {
 	expect(result.rotation).toBe(0);
 	expect(result.videoTracks.length).toBe(1);
 	expect(result.videoTracks[0].codec).toBe('vp8');
+	expect(videoSamples).toBe(7);
 });
 
 test('Should stream AV1', async () => {

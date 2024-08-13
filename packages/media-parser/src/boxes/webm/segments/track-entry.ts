@@ -604,6 +604,20 @@ export const parseSimpleBlockSegment = ({
 		}
 	}
 
+	if (codec.codec === 'V_VP8') {
+		const remainingNow = length - (iterator.counter.getOffset() - start);
+
+		parserContext.parserState.onVideoSample(trackNumber, {
+			data: iterator.getSlice(remainingNow),
+			cts: null,
+			dts: null,
+			duration: undefined,
+			type: keyframe ? 'key' : 'delta',
+			trackId: trackNumber,
+			timestamp: timecode,
+		});
+	}
+
 	const remainingNowAfter = length - (iterator.counter.getOffset() - start);
 	if (remainingNowAfter > 0) {
 		iterator.discard(remainingNowAfter);
