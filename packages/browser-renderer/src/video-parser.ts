@@ -20,8 +20,8 @@ export const parseVideo = async (file: File) => {
 				...track,
 				hardwareAcceleration: 'no-preference',
 			});
-			return () => {
-				// videoDecoder.decode(chunk);
+			return (chunk) => {
+				videoDecoder.decode(new EncodedVideoChunk(chunk));
 			};
 		},
 		onAudioTrack: (track) => {
@@ -34,14 +34,7 @@ export const parseVideo = async (file: File) => {
 					console.error(error);
 				},
 			});
-			AudioDecoder.isConfigSupported({
-				codec: track.codec,
-				sampleRate: track.sampleRate,
-				numberOfChannels: track.numberOfChannels,
-				description: track.description,
-			}).then((supported) => {
-				console.log({supported});
-			});
+
 			audioDecoder.configure({
 				codec: track.codec,
 				sampleRate: track.sampleRate,

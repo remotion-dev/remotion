@@ -300,6 +300,52 @@ export const parseHeightSegment = (
 	};
 };
 
+export type DisplayWidthSegment = {
+	type: 'display-width-segment';
+	displayWidth: number;
+};
+
+export const parseDisplayWidthSegment = (
+	iterator: BufferIterator,
+	length: number,
+): DisplayWidthSegment => {
+	if (length !== 2) {
+		throw new Error(
+			`Expected display width segment to be 2 bytes, got ${length}`,
+		);
+	}
+
+	const displayWidth = iterator.getUint16();
+
+	return {
+		type: 'display-width-segment',
+		displayWidth,
+	};
+};
+
+export type DisplayHeightSegment = {
+	type: 'display-height-segment';
+	displayHeight: number;
+};
+
+export const parseDisplayHeightSegment = (
+	iterator: BufferIterator,
+	length: number,
+): DisplayHeightSegment => {
+	if (length !== 2) {
+		throw new Error(
+			`Expected display height segment to be 2 bytes, got ${length}`,
+		);
+	}
+
+	const displayHeight = iterator.getUint16();
+
+	return {
+		type: 'display-height-segment',
+		displayHeight,
+	};
+};
+
 export type AlphaModeSegment = {
 	type: 'alpha-mode-segment';
 	alphaMode: number;
@@ -605,6 +651,20 @@ export const parseSimpleBlockSegment = ({
 	}
 
 	if (codec.codec === 'V_VP8') {
+		const remainingNow = length - (iterator.counter.getOffset() - start);
+
+		parserContext.parserState.onVideoSample(trackNumber, {
+			data: iterator.getSlice(remainingNow),
+			cts: null,
+			dts: null,
+			duration: undefined,
+			type: keyframe ? 'key' : 'delta',
+			trackId: trackNumber,
+			timestamp: timecode,
+		});
+	}
+
+	if (codec.codec === 'V_VP9') {
 		const remainingNow = length - (iterator.counter.getOffset() - start);
 
 		parserContext.parserState.onVideoSample(trackNumber, {

@@ -38,6 +38,8 @@ import type {
 	Crc32Segment,
 	DefaultDurationSegment,
 	DefaultFlagSegment,
+	DisplayHeightSegment,
+	DisplayWidthSegment,
 	FlagLacingSegment,
 	HeightSegment,
 	InterlacedSegment,
@@ -70,6 +72,8 @@ import {
 	parseCrc32Segment,
 	parseDefaultDurationSegment,
 	parseDefaultFlagSegment,
+	parseDisplayHeightSegment,
+	parseDisplayWidthSegment,
 	parseFlagLacing,
 	parseHeightSegment,
 	parseInterlacedSegment,
@@ -122,6 +126,8 @@ export type MatroskaSegment =
 	| VideoSegment
 	| WidthSegment
 	| HeightSegment
+	| DisplayWidthSegment
+	| DisplayHeightSegment
 	| AlphaModeSegment
 	| MaxBlockAdditionId
 	| ColorSegment
@@ -279,6 +285,14 @@ const parseSegment = ({
 
 	if (segmentId === '0xba') {
 		return parseHeightSegment(iterator, length);
+	}
+
+	if (segmentId === matroskaElements.DisplayWidth) {
+		return parseDisplayWidthSegment(iterator, length);
+	}
+
+	if (segmentId === matroskaElements.DisplayHeight) {
+		return parseDisplayHeightSegment(iterator, length);
 	}
 
 	if (segmentId === '0x9a') {

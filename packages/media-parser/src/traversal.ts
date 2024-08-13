@@ -17,6 +17,8 @@ import type {
 	AudioSegment,
 	ClusterSegment,
 	CodecSegment,
+	DisplayHeightSegment,
+	DisplayWidthSegment,
 	HeightSegment,
 	TrackEntrySegment,
 	TrackTypeSegment,
@@ -381,6 +383,44 @@ export const getHeightSegment = (
 	}
 
 	return height;
+};
+
+export const getDisplayWidthSegment = (
+	track: TrackEntrySegment,
+): DisplayWidthSegment | null => {
+	const videoSegment = getVideoSegment(track);
+	if (!videoSegment) {
+		return null;
+	}
+
+	const displayWidth = videoSegment.children.find(
+		(b) => b.type === 'display-width-segment',
+	);
+
+	if (!displayWidth || displayWidth.type !== 'display-width-segment') {
+		return null;
+	}
+
+	return displayWidth;
+};
+
+export const getDisplayHeightSegment = (
+	track: TrackEntrySegment,
+): DisplayHeightSegment | null => {
+	const videoSegment = getVideoSegment(track);
+	if (!videoSegment) {
+		return null;
+	}
+
+	const displayHeight = videoSegment.children.find(
+		(b) => b.type === 'display-height-segment',
+	);
+
+	if (!displayHeight || displayHeight.type !== 'display-height-segment') {
+		return null;
+	}
+
+	return displayHeight;
 };
 
 export const getTrackTypeSegment = (

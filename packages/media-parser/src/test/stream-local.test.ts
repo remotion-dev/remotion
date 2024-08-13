@@ -1,6 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
-import {writeFileSync} from 'node:fs';
 import {nodeReader} from '../from-node';
 import {parseMedia} from '../parse-media';
 
@@ -458,7 +457,7 @@ test('Should get correct avc1 string from matroska', async () => {
 	expect(parsed.videoTracks[0].codec).toBe('avc1.640020');
 });
 
-test('VP9 Vorbis', async () => {
+test('VP8 Vorbis', async () => {
 	let videoSamples = 0;
 	let audioSamples = 0;
 
@@ -479,8 +478,6 @@ test('VP9 Vorbis', async () => {
 			expect(track.timescale).toBe(1000000);
 			expect(track.description?.length).toBe(3097);
 
-			writeFileSync('header.bin', track.description as Uint8Array);
-
 			return () => {
 				audioSamples++;
 			};
@@ -490,4 +487,50 @@ test('VP9 Vorbis', async () => {
 
 	expect(videoSamples).toBe(812);
 	expect(audioSamples).toBe(1496);
+});
+
+test('VP9', async () => {
+	let videoSamples = 0;
+	await parseMedia({
+		src: RenderInternals.exampleVideos.vp9,
+		onVideoTrack: (track) => {
+			expect(track.codec).toBe('vp09.00.10.08');
+			return () => {
+				videoSamples++;
+			};
+		},
+		reader: nodeReader,
+	});
+
+	expect(videoSamples).toBe(300);
+});
+
+test('Stretched VP8', async () => {
+	// stretched-vp8.webm was recorded in 1440x1080 and stretched to 1920x1080
+	const {videoTracks} = await parseMedia({
+		src: RenderInternals.exampleVideos.stretchedVp8,
+		fields: {
+			tracks: true,
+		},
+		reader: nodeReader,
+	});
+
+	expect(videoTracks).toEqual([
+		{
+			codec: 'vp8',
+			codedHeight: 1080,
+			codedWidth: 1440,
+			description: undefined,
+			height: 1080,
+			sampleAspectRatio: {
+				denominator: 1,
+				numerator: 1,
+			},
+			samplePositions: [],
+			timescale: 1000000,
+			trackId: 1,
+			type: 'video',
+			width: 1920,
+		},
+	]);
 });

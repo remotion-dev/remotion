@@ -2,6 +2,8 @@ import {av1CodecStringToString} from '../../av1-codec-string';
 import type {AudioTrack, VideoTrack} from '../../get-tracks';
 import {
 	getCodecSegment,
+	getDisplayHeightSegment,
+	getDisplayWidthSegment,
 	getHeightSegment,
 	getNumberOfChannels,
 	getPrivateData,
@@ -33,7 +35,14 @@ const getMatroskaVideoCodecString = ({
 	}
 
 	if (codec.codec === 'V_VP9') {
-		return 'vp9';
+		const priv = getPrivateData(track);
+		if (priv) {
+			throw new Error(
+				'Private data is not implemented for VP9. Do you have an example file?',
+			);
+		}
+
+		return 'vp09.00.10.08';
 	}
 
 	if (codec.codec === 'V_MPEG4/ISO/AVC') {
@@ -114,6 +123,9 @@ export const getTrack = ({
 			throw new Error('Expected height segment');
 		}
 
+		const displayHeight = getDisplayHeightSegment(track);
+		const displayWidth = getDisplayWidthSegment(track);
+
 		const codec = getCodecSegment(track);
 		if (!codec) {
 			return null;
@@ -134,8 +146,8 @@ export const getTrack = ({
 			trackId,
 			codec: codecString,
 			description: undefined,
-			height: height.height,
-			width: width.width,
+			height: displayHeight ? displayHeight.displayHeight : height.height,
+			width: displayWidth ? displayWidth.displayWidth : width.width,
 			sampleAspectRatio: {
 				numerator: 1,
 				denominator: 1,

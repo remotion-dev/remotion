@@ -5,6 +5,10 @@
 		"outDir": "./dist",
 		"skipLibCheck": true
 	},
-	"references": [],
+	"references": [
+		{
+			"path": "../renderer"
+		}
+	],
 	"include": ["src"]
 }
