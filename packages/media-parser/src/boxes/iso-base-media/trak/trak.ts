@@ -9,7 +9,7 @@ export interface TrakBox extends BaseBox {
 	children: AnySegment[];
 }
 
-export const parseTrak = ({
+export const parseTrak = async ({
 	data,
 	size,
 	offsetAtStart,
@@ -19,13 +19,14 @@ export const parseTrak = ({
 	size: number;
 	offsetAtStart: number;
 	options: ParserContext;
-}): TrakBox => {
-	const children = parseBoxes({
+}): Promise<TrakBox> => {
+	const children = await parseBoxes({
 		iterator: data,
 		maxBytes: size - (data.counter.getOffset() - offsetAtStart),
 		allowIncompleteBoxes: false,
 		initialBoxes: [],
 		options,
+		continueMdat: false,
 	});
 
 	if (children.status === 'incomplete') {

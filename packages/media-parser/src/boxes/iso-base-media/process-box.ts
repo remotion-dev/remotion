@@ -6,7 +6,7 @@ import type {
 	IsoBaseMediaBox,
 	ParseResult,
 } from '../../parse-result';
-import type {BoxAndNext} from '../../parse-video';
+import type {BoxAndNext, PartialMdatBox} from '../../parse-video';
 import type {ParserContext} from '../../parser-context';
 import {hasSkippedMdatProcessing} from '../../traversal';
 import {parseEsds} from './esds/esds';
@@ -32,7 +32,7 @@ import {parseStts} from './stsd/stts';
 import {parseTkhd} from './tkhd';
 import {parseTrak} from './trak/trak';
 
-const getChildren = ({
+const getChildren = async ({
 	boxType,
 	iterator,
 	bytesRemainingInBox,
@@ -52,12 +52,13 @@ const getChildren = ({
 		boxType === 'stsb';
 
 	if (parseChildren) {
-		const parsed = parseBoxes({
+		const parsed = await parseBoxes({
 			iterator,
 			maxBytes: bytesRemainingInBox,
 			allowIncompleteBoxes: false,
 			initialBoxes: [],
 			options,
+			continueMdat: false,
 		});
 
 		if (parsed.status === 'incomplete') {
@@ -75,7 +76,48 @@ const getChildren = ({
 	return [];
 };
 
-export const processBox = ({
+export const parseMdatPartially = async ({
+	iterator,
+	boxSize,
+	fileOffset,
+	parsedBoxes,
+	options,
+}: {
+	iterator: BufferIterator;
+	boxSize: number;
+	fileOffset: number;
+	parsedBoxes: AnySegment[];
+	options: ParserContext;
+}): Promise<BoxAndNext> => {
+	const box = await parseMdat({
+		data: iterator,
+		size: boxSize,
+		fileOffset,
+		existingBoxes: parsedBoxes,
+		options,
+		partially: true,
+	});
+
+	if (
+		box.samplesProcessed &&
+		box.fileOffset + boxSize === iterator.counter.getOffset()
+	) {
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
+	return {
+		type: 'partial-mdat-box',
+		boxSize,
+		fileOffset,
+	};
+};
+
+export const processBox = async ({
 	iterator,
 	allowIncompleteBoxes,
 	parsedBoxes,
@@ -85,7 +127,7 @@ export const processBox = ({
 	allowIncompleteBoxes: boolean;
 	parsedBoxes: AnySegment[];
 	options: ParserContext;
-}): BoxAndNext => {
+}): Promise<BoxAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
 
@@ -109,6 +151,7 @@ export const processBox = ({
 
 			if (type === 'mdat') {
 				const shouldSkip = options.canSkipVideoData || !hasTracks(parsedBoxes);
+
 				if (shouldSkip) {
 					const skipTo = fileOffset + boxSize;
 					const bytesToSkip = skipTo - iterator.counter.getOffset();
@@ -127,6 +170,15 @@ export const processBox = ({
 							skipTo: fileOffset + boxSize,
 						};
 					}
+				} else {
+					iterator.discard(4);
+					return parseMdatPartially({
+						iterator,
+						boxSize,
+						fileOffset,
+						parsedBoxes,
+						options,
+					});
 				}
 			}
 		}
@@ -190,7 +242,7 @@ export const processBox = ({
 	}
 
 	if (boxType === 'stsd') {
-		const box = parseStsd({
+		const box = await parseStsd({
 			iterator,
 			offset: fileOffset,
 			size: boxSize,
@@ -296,7 +348,7 @@ export const processBox = ({
 	}
 
 	if (boxType === 'mebx') {
-		const box = parseMebx({
+		const box = await parseMebx({
 			iterator,
 			offset: fileOffset,
 			size: boxSize,
@@ -312,7 +364,7 @@ export const processBox = ({
 	}
 
 	if (boxType === 'moov') {
-		const box = parseMoov({
+		const box = await parseMoov({
 			iterator,
 			offset: fileOffset,
 			size: boxSize,
@@ -328,7 +380,7 @@ export const processBox = ({
 	}
 
 	if (boxType === 'trak') {
-		const box = parseTrak({
+		const box = await parseTrak({
 			data: iterator,
 			size: boxSize,
 			offsetAtStart: fileOffset,
@@ -449,12 +501,13 @@ export const processBox = ({
 	}
 
 	if (boxType === 'mdat') {
-		const box = parseMdat({
+		const box = await parseMdat({
 			data: iterator,
 			size: boxSize,
 			fileOffset,
 			existingBoxes: parsedBoxes,
 			options,
+			partially: false,
 		});
 
 		return {
@@ -468,7 +521,7 @@ export const processBox = ({
 	const bytesRemainingInBox =
 		boxSize - (iterator.counter.getOffset() - fileOffset);
 
-	const children = getChildren({
+	const children = await getChildren({
 		boxType,
 		iterator,
 		bytesRemainingInBox,
@@ -489,19 +542,21 @@ export const processBox = ({
 	};
 };
 
-export const parseBoxes = ({
+export const parseBoxes = async ({
 	iterator,
 	maxBytes,
 	allowIncompleteBoxes,
 	initialBoxes,
 	options,
+	continueMdat,
 }: {
 	iterator: BufferIterator;
 	maxBytes: number;
 	allowIncompleteBoxes: boolean;
 	initialBoxes: IsoBaseMediaBox[];
 	options: ParserContext;
-}): ParseResult => {
+	continueMdat: false | PartialMdatBox;
+}): Promise<ParseResult> => {
 	let boxes: IsoBaseMediaBox[] = initialBoxes;
 	const initialOffset = iterator.counter.getOffset();
 	const alreadyHasMdat = boxes.find((b) => b.type === 'mdat-box');
@@ -510,12 +565,21 @@ export const parseBoxes = ({
 		iterator.bytesRemaining() > 0 &&
 		iterator.counter.getOffset() - initialOffset < maxBytes
 	) {
-		const result = processBox({
-			iterator,
-			allowIncompleteBoxes,
-			parsedBoxes: initialBoxes,
-			options,
-		});
+		const result = continueMdat
+			? await parseMdatPartially({
+					iterator,
+					boxSize: continueMdat.boxSize,
+					fileOffset: continueMdat.fileOffset,
+					parsedBoxes: initialBoxes,
+					options,
+				})
+			: await processBox({
+					iterator,
+					allowIncompleteBoxes,
+					parsedBoxes: initialBoxes,
+					options,
+				});
+
 		if (result.type === 'incomplete') {
 			if (Number.isFinite(maxBytes)) {
 				throw new Error('maxBytes must be Infinity for top-level boxes');
@@ -531,7 +595,28 @@ export const parseBoxes = ({
 						allowIncompleteBoxes,
 						initialBoxes: boxes,
 						options,
+						continueMdat: false,
 					});
+				},
+				skipTo: null,
+			};
+		}
+
+		if (result.type === 'partial-mdat-box') {
+			return {
+				status: 'incomplete',
+				segments: boxes,
+				continueParsing: () => {
+					return Promise.resolve(
+						parseBoxes({
+							iterator,
+							maxBytes,
+							allowIncompleteBoxes,
+							initialBoxes: boxes,
+							options,
+							continueMdat: result,
+						}),
+					);
 				},
 				skipTo: null,
 			};
@@ -556,6 +641,7 @@ export const parseBoxes = ({
 						allowIncompleteBoxes,
 						initialBoxes: boxes,
 						options,
+						continueMdat: false,
 					});
 				},
 				skipTo: result.skipTo,
@@ -577,6 +663,7 @@ export const parseBoxes = ({
 					allowIncompleteBoxes,
 					initialBoxes: boxes,
 					options,
+					continueMdat: false,
 				});
 			},
 			skipTo: mdatState.fileOffset,

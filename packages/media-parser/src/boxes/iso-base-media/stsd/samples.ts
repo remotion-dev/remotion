@@ -114,13 +114,13 @@ const audioTags = [
 	'ac-3',
 ];
 
-export const processSample = ({
+export const processSample = async ({
 	iterator,
 	options,
 }: {
 	iterator: BufferIterator;
 	options: ParserContext;
-}): SampleAndNext => {
+}): Promise<SampleAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
 	const boxSize = iterator.getUint32();
@@ -172,12 +172,13 @@ export const processSample = ({
 
 			const bytesRemainingInBox =
 				boxSize - (iterator.counter.getOffset() - fileOffset);
-			const children = parseBoxes({
+			const children = await parseBoxes({
 				iterator,
 				allowIncompleteBoxes: false,
 				maxBytes: bytesRemainingInBox,
 				initialBoxes: [],
 				options,
+				continueMdat: false,
 			});
 
 			if (children.status === 'incomplete') {
@@ -224,12 +225,13 @@ export const processSample = ({
 			const bytesRemainingInBox =
 				boxSize - (iterator.counter.getOffset() - fileOffset);
 
-			const children = parseBoxes({
+			const children = await parseBoxes({
 				iterator,
 				allowIncompleteBoxes: false,
 				maxBytes: bytesRemainingInBox,
 				initialBoxes: [],
 				options,
+				continueMdat: false,
 			});
 
 			if (children.status === 'incomplete') {
@@ -279,12 +281,13 @@ export const processSample = ({
 		const bytesRemainingInBox =
 			boxSize - (iterator.counter.getOffset() - fileOffset);
 
-		const children = parseBoxes({
+		const children = await parseBoxes({
 			iterator,
 			allowIncompleteBoxes: false,
 			maxBytes: bytesRemainingInBox,
 			initialBoxes: [],
 			options,
+			continueMdat: false,
 		});
 
 		if (children.status === 'incomplete') {
@@ -320,7 +323,7 @@ export const processSample = ({
 	throw new Error(`Unknown sample format ${boxFormat}`);
 };
 
-export const parseSamples = ({
+export const parseSamples = async ({
 	iterator,
 	maxBytes,
 	options,
@@ -328,7 +331,7 @@ export const parseSamples = ({
 	iterator: BufferIterator;
 	maxBytes: number;
 	options: ParserContext;
-}): Sample[] => {
+}): Promise<Sample[]> => {
 	const samples: Sample[] = [];
 	const initialOffset = iterator.counter.getOffset();
 
@@ -336,7 +339,7 @@ export const parseSamples = ({
 		iterator.bytesRemaining() > 0 &&
 		iterator.counter.getOffset() - initialOffset < maxBytes
 	) {
-		const {sample} = processSample({
+		const {sample} = await processSample({
 			iterator,
 			options,
 		});

@@ -19,6 +19,8 @@ export const EncoderDemo: React.FC = () => {
 				</div>
 				<SrcEncoder src={staticFile('av1.webm')} />
 				<SrcEncoder src={staticFile('av1.mp4')} />
+				<SrcEncoder src={staticFile('mp4-mp3.mp4')} />
+				<SrcEncoder src={staticFile('bigbuckbunny.mp4')} />
 				<SrcEncoder src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
 			</div>
 		</>

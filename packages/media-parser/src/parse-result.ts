@@ -69,5 +69,5 @@ export type ParseResult =
 			status: 'incomplete';
 			segments: AnySegment[];
 			skipTo: number | null;
-			continueParsing: () => ParseResult;
+			continueParsing: () => Promise<ParseResult>;
 	  };

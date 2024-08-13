@@ -386,7 +386,7 @@ export const expectSegment = (
 			status: 'incomplete',
 			segments: [],
 			continueParsing: () => {
-				return expectSegment(iterator, parserContext);
+				return Promise.resolve(expectSegment(iterator, parserContext));
 			},
 			skipTo: null,
 		};
@@ -438,7 +438,7 @@ export const expectSegment = (
 			status: 'incomplete',
 			segments: [],
 			continueParsing: () => {
-				return expectSegment(iterator, parserContext);
+				return Promise.resolve(expectSegment(iterator, parserContext));
 			},
 			skipTo: null,
 		};

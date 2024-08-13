@@ -20,8 +20,8 @@ const processParseResult = ({
 		return {
 			status: 'incomplete',
 			segments: [],
-			continueParsing: () => {
-				const newParseResult = parseResult.continueParsing();
+			continueParsing: async () => {
+				const newParseResult = await parseResult.continueParsing();
 				return processParseResult({
 					children,
 					parseResult: newParseResult,
@@ -58,14 +58,14 @@ const continueParsingfunction =
 		parserContext: ParserContext;
 		length: number;
 	}) =>
-	(): ParseResult => {
+	async (): Promise<ParseResult> => {
 		if (result.status !== 'incomplete') {
 			throw new Error('expected incomplete');
 		}
 
 		const offset = iterator.counter.getOffset();
 
-		const continued = result.continueParsing();
+		const continued = await result.continueParsing();
 		if (continued.status === 'incomplete') {
 			return {
 				status: 'incomplete',

@@ -65,9 +65,9 @@ export const parseMedia: ParseMedia = async ({
 		}
 
 		if (parseResult && parseResult.status === 'incomplete') {
-			parseResult = parseResult.continueParsing();
+			parseResult = await parseResult.continueParsing();
 		} else {
-			parseResult = parseVideo({
+			parseResult = await parseVideo({
 				iterator,
 				options: {
 					canSkipVideoData: !(onAudioTrack || onVideoTrack),

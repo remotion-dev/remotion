@@ -10,7 +10,7 @@ export interface StsdBox extends BaseBox {
 	samples: Sample[];
 }
 
-export const parseStsd = ({
+export const parseStsd = async ({
 	iterator,
 	offset,
 	size,
@@ -20,7 +20,7 @@ export const parseStsd = ({
 	offset: number;
 	size: number;
 	options: ParserContext;
-}): StsdBox => {
+}): Promise<StsdBox> => {
 	const version = iterator.getUint8();
 	if (version !== 0) {
 		throw new Error(`Unsupported STSD version ${version}`);
@@ -33,7 +33,7 @@ export const parseStsd = ({
 
 	const bytesRemainingInBox = size - (iterator.counter.getOffset() - offset);
 
-	const boxes = parseSamples({
+	const boxes = await parseSamples({
 		iterator,
 		maxBytes: bytesRemainingInBox,
 		options,

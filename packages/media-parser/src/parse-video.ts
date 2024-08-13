@@ -4,6 +4,12 @@ import type {BufferIterator} from './buffer-iterator';
 import type {IsoBaseMediaBox, ParseResult} from './parse-result';
 import type {ParserContext} from './parser-context';
 
+export type PartialMdatBox = {
+	type: 'partial-mdat-box';
+	boxSize: number;
+	fileOffset: number;
+};
+
 export type BoxAndNext =
 	| {
 			type: 'complete';
@@ -13,7 +19,8 @@ export type BoxAndNext =
 	  }
 	| {
 			type: 'incomplete';
-	  };
+	  }
+	| PartialMdatBox;
 
 export const parseVideo = ({
 	iterator,
@@ -21,9 +28,9 @@ export const parseVideo = ({
 }: {
 	iterator: BufferIterator;
 	options: ParserContext;
-}): ParseResult => {
+}): Promise<ParseResult> => {
 	if (iterator.bytesRemaining() === 0) {
-		return {
+		return Promise.resolve({
 			status: 'incomplete',
 			segments: [],
 			continueParsing: () => {
@@ -33,7 +40,7 @@ export const parseVideo = ({
 				});
 			},
 			skipTo: null,
-		};
+		});
 	}
 
 	if (iterator.isIsoBaseMedia()) {
@@ -43,11 +50,12 @@ export const parseVideo = ({
 			allowIncompleteBoxes: true,
 			initialBoxes: [],
 			options,
+			continueMdat: false,
 		});
 	}
 
 	if (iterator.isWebm()) {
-		return parseWebm(iterator, options);
+		return Promise.resolve(parseWebm(iterator, options));
 	}
 
 	throw new Error('Unknown video format');

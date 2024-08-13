@@ -18,22 +18,24 @@ export const parseMdat = ({
 	fileOffset,
 	existingBoxes,
 	options,
+	partially,
 }: {
 	data: BufferIterator;
 	size: number;
 	fileOffset: number;
 	existingBoxes: AnySegment[];
 	options: ParserContext;
-}): MdatBox => {
+	partially: boolean;
+}): Promise<MdatBox> => {
 	const alreadyHas = hasTracks(existingBoxes);
 	if (!alreadyHas) {
 		data.discard(size - 8);
-		return {
+		return Promise.resolve({
 			type: 'mdat-box',
 			boxSize: size,
 			samplesProcessed: false,
 			fileOffset,
-		};
+		});
 	}
 
 	const tracks = getTracks(existingBoxes);
@@ -86,13 +88,21 @@ export const parseMdat = ({
 						break;
 					}
 				}
-
-				data.peekB(8);
 			}
+
+			if (partially) {
+				break;
+			}
+
+			data.peekB(8);
 
 			throw new Error(
 				'Could not find sample with offset ' + data.counter.getOffset(),
 			);
+		}
+
+		if (data.bytesRemaining() < sampleWithIndex.samplePosition.size) {
+			break;
 		}
 
 		const bytes = data.getSlice(sampleWithIndex.samplePosition.size);
@@ -132,10 +142,10 @@ export const parseMdat = ({
 		}
 	}
 
-	return {
+	return Promise.resolve({
 		type: 'mdat-box',
 		boxSize: size,
 		samplesProcessed: true,
 		fileOffset,
-	};
+	});
 };
