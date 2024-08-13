@@ -25,13 +25,25 @@ export const printError = async (err: Error, logLevel: LogLevel) => {
 
 		try {
 			const symbolicated = await RenderInternals.symbolicateError(err);
-			if (symbolicated.frame === null) {
-				output.update(chalk.red('An error occurred:'), true);
-			} else {
+			if (symbolicated.frame !== null && symbolicated.chunk !== null) {
+				output.update(
+					chalk.red(
+						`An error occurred while rendering frame ${err.frame} on chunk ${err.chunk}:`,
+					),
+					true,
+				);
+			} else if (symbolicated.frame !== null) {
 				output.update(
 					chalk.red(`An error occurred while rendering frame ${err.frame}:`),
 					true,
 				);
+			} else if (symbolicated.chunk !== null) {
+				output.update(
+					chalk.red(`An error occurred on chunk ${err.chunk}:`),
+					true,
+				);
+			} else {
+				output.update(chalk.red('An error occurred:'), true);
 			}
 
 			printCodeFrameAndStack(symbolicated, logLevel);
@@ -39,6 +51,8 @@ export const printError = async (err: Error, logLevel: LogLevel) => {
 			output.update(chalk.red(''), true);
 			Log.error({indent: false, logLevel});
 			Log.error({indent: false, logLevel}, err.stack || err);
+			Log.verbose({indent: false, logLevel}, 'Error symbolicating error');
+			Log.verbose({indent: false, logLevel}, e);
 		}
 
 		return;

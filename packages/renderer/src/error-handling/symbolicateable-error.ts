@@ -9,6 +9,7 @@ export class SymbolicateableError extends Error {
 	stackFrame: UnsymbolicatedStackFrame[] | null;
 	delayRenderCall: UnsymbolicatedStackFrame[] | null;
 	frame: number | null;
+	chunk: number | null;
 
 	constructor({
 		message,
@@ -16,17 +17,20 @@ export class SymbolicateableError extends Error {
 		stackFrame,
 		frame,
 		name,
+		chunk,
 	}: {
 		message: string;
 		stack: string | undefined;
 		frame: number | null;
 		name: string;
 		stackFrame: UnsymbolicatedStackFrame[] | null;
+		chunk: number | null;
 	}) {
 		super(message);
 		this.stack = stack;
 		this.stackFrame = stackFrame;
 		this.frame = frame;
+		this.chunk = chunk;
 		this.name = name;
 		this.delayRenderCall = stack ? parseDelayRenderEmbeddedStack(stack) : null;
 	}

@@ -8,6 +8,7 @@ import {SymbolicateableError} from './symbolicateable-error';
 export class ErrorWithStackFrame extends Error {
 	symbolicatedStackFrames: SymbolicatedStackFrame[] | null;
 	frame: number | null;
+	chunk: number | null;
 	name: string;
 	delayRenderCall: SymbolicatedStackFrame[] | null;
 
@@ -18,10 +19,12 @@ export class ErrorWithStackFrame extends Error {
 		name,
 		delayRenderCall,
 		stack,
+		chunk,
 	}: {
 		message: string;
 		symbolicatedStackFrames: SymbolicatedStackFrame[] | null;
 		frame: number | null;
+		chunk: number | null;
 		name: string;
 		delayRenderCall: SymbolicatedStackFrame[] | null;
 		stack: string | undefined;
@@ -29,6 +32,7 @@ export class ErrorWithStackFrame extends Error {
 		super(message);
 		this.symbolicatedStackFrames = symbolicatedStackFrames;
 		this.frame = frame;
+		this.chunk = chunk;
 		this.name = name;
 		this.delayRenderCall = delayRenderCall;
 		// If error symbolication did not yield any stack frames, we print the original stack
@@ -115,6 +119,7 @@ export const handleJavascriptException = ({
 			frame,
 			name: errorType,
 			stack: exception.exceptionDetails.exception?.description,
+			chunk: null,
 		});
 		onError(symbolicatedErr);
 	};

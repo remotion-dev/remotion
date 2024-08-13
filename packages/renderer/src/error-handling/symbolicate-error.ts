@@ -24,6 +24,7 @@ export const symbolicateError = async (
 		name: symbolicateableError.name,
 		delayRenderCall: delayRenderFrames,
 		stack: symbolicateableError.stack,
+		chunk: symbolicateableError.chunk,
 	});
 
 	return symbolicatedErr;
