@@ -6,6 +6,45 @@ import {expectSegment} from '../segments';
 
 type WrapChildren = (segments: MatroskaSegment[]) => MatroskaSegment;
 
+const processParseResult = ({
+	parseResult,
+	children,
+	wrap,
+}: {
+	children: MatroskaSegment[];
+	parseResult: ParseResult;
+	wrap: WrapChildren | null;
+}): ParseResult => {
+	if (parseResult.status === 'incomplete') {
+		// No need to decrement because expectSegment already does it
+		return {
+			status: 'incomplete',
+			segments: [],
+			continueParsing: () => {
+				const newParseResult = parseResult.continueParsing();
+				return processParseResult({
+					children,
+					parseResult: newParseResult,
+					wrap,
+				});
+			},
+			skipTo: null,
+		};
+	}
+
+	for (const segment of parseResult.segments) {
+		children.push(segment as MatroskaSegment);
+		if (segment.type === 'unknown-segment') {
+			break;
+		}
+	}
+
+	return {
+		status: 'done',
+		segments: wrap ? [wrap(children)] : children,
+	};
+};
+
 export const expectChildren = ({
 	iterator,
 	length,
@@ -23,38 +62,19 @@ export const expectChildren = ({
 	const startOffset = iterator.counter.getOffset();
 
 	while (iterator.counter.getOffset() < startOffset + length) {
-		const blockOffset = iterator.counter.getOffset();
 		if (iterator.bytesRemaining() === 0) {
 			break;
 		}
 
-		const child = expectSegment(iterator, parserContext);
+		const parseResult = expectSegment(iterator, parserContext);
 
+		const child = processParseResult({
+			children,
+			parseResult,
+			wrap,
+		});
 		if (child.status === 'incomplete') {
-			const endOffset = iterator.counter.getOffset();
-			const bytesRead = endOffset - blockOffset;
-			iterator.counter.decrement(bytesRead);
-			return {
-				status: 'incomplete',
-				segments: wrap ? [wrap(children)] : children,
-				continueParsing: () => {
-					return expectChildren({
-						iterator,
-						length: length - (blockOffset - startOffset),
-						initialChildren: children,
-						wrap,
-						parserContext,
-					});
-				},
-				skipTo: null,
-			};
-		}
-
-		for (const segment of child.segments) {
-			children.push(segment as MatroskaSegment);
-			if (segment.type === 'unknown-segment') {
-				break;
-			}
+			return child;
 		}
 	}
 
