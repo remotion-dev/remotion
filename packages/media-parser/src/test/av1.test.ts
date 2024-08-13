@@ -108,7 +108,7 @@ test('AV1 in MP4', async () => {
 	expect(parsed.durationInSeconds).toBe(10);
 	expect(parsed.fps).toBe(30);
 	expect(parsed.videoCodec).toBe('av1');
-	expect(parsed.videoTracks[0].codecString).toEqual('av01.0.08M.08');
+	expect(parsed.videoTracks[0].codec).toEqual('av01.0.08M.08');
 	// This is true, there are no audio tracks
 	expect(parsed.audioTracks).toEqual([]);
 	expect(parsed.audioCodec).toEqual(null);
@@ -230,7 +230,7 @@ test('AV1 in MP4 with colr atom', async () => {
 	expect(parsed.durationInSeconds).toBe(1);
 	expect(parsed.fps).toBe(25);
 	expect(parsed.videoCodec).toBe('av1');
-	expect(parsed.videoTracks[0].codecString).toEqual('av01.0.08M.08');
+	expect(parsed.videoTracks[0].codec).toEqual('av01.0.08M.08');
 	// This is true, there are no audio tracks
 	expect(parsed.audioTracks).toEqual([]);
 	expect(parsed.audioCodec).toEqual(null);

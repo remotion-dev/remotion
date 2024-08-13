@@ -1,4 +1,8 @@
-import {getAudioCodecStringFromTrak} from '../../get-audio-codec';
+import {
+	getAudioCodecStringFromTrak,
+	getNumberOfChannelsFromTrak,
+	getSampleRate,
+} from '../../get-audio-codec';
 import {
 	getTimescaleAndDuration,
 	trakBoxContainsAudio,
@@ -11,7 +15,7 @@ import {
 	getVideoSample,
 } from '../../get-sample-aspect-ratio';
 import {getSamplePositions} from '../../get-sample-positions';
-import type {AudioTrack, VideoTrack} from '../../get-tracks';
+import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
 import {getVideoCodecString} from '../../get-video-codec';
 import {
 	getCttsBox,
@@ -27,7 +31,7 @@ import type {TrakBox} from './trak/trak';
 
 export const makeBaseMediaTrack = (
 	trakBox: TrakBox,
-): VideoTrack | AudioTrack | null => {
+): VideoTrack | AudioTrack | OtherTrack | null => {
 	const stszBox = getStszBox(trakBox);
 	const stcoBox = getStcoBox(trakBox);
 	const stscBox = getStscBox(trakBox);
@@ -72,17 +76,37 @@ export const makeBaseMediaTrack = (
 	});
 
 	if (trakBoxContainsAudio(trakBox)) {
+		const numberOfChannels = getNumberOfChannelsFromTrak(trakBox);
+		if (numberOfChannels === null) {
+			throw new Error('Could not find number of channels');
+		}
+
+		const sampleRate = getSampleRate(trakBox);
+		if (sampleRate === null) {
+			throw new Error('Could not find sample rate');
+		}
+
+		const {codecString, description} = getAudioCodecStringFromTrak(trakBox);
+
 		return {
 			type: 'audio',
 			samplePositions,
 			trackId: tkhdBox.trackId,
 			timescale: timescaleAndDuration.timescale,
-			codecString: getAudioCodecStringFromTrak(trakBox),
+			codec: codecString,
+			numberOfChannels,
+			sampleRate,
+			description,
 		};
 	}
 
 	if (!trakBoxContainsVideo(trakBox)) {
-		return null;
+		return {
+			type: 'other',
+			samplePositions,
+			trackId: tkhdBox.trackId,
+			timescale: timescaleAndDuration.timescale,
+		};
 	}
 
 	const videoSample = getVideoSample(trakBox);
@@ -107,11 +131,11 @@ export const makeBaseMediaTrack = (
 		trackId: tkhdBox.trackId,
 		description: videoDescriptors,
 		timescale: timescaleAndDuration.timescale,
-		codecString: getVideoCodecString(trakBox),
+		codec: getVideoCodecString(trakBox),
 		sampleAspectRatio: getSampleAspectRatio(trakBox),
 		width: applied.width,
 		height: applied.height,
-		untransformedWidth: videoSample.width,
-		untransformedHeight: videoSample.height,
+		codedWidth: videoSample.width,
+		codedHeight: videoSample.height,
 	} as VideoTrack;
 };

@@ -1,14 +1,14 @@
 import type {AudioTrack, VideoTrack} from './get-tracks';
 
 export type AudioSample = {
-	bytes: Uint8Array;
+	data: Uint8Array;
 	timestamp: number;
 	offset: number;
 	trackId: number;
 };
 
 export type VideoSample = {
-	bytes: Uint8Array;
+	data: Uint8Array;
 	timestamp: number;
 	duration: number | undefined;
 	trackId: number;

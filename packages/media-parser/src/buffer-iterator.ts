@@ -1,3 +1,9 @@
+import {
+	knownIdsWithOneLength,
+	knownIdsWithThreeLength,
+	knownIdsWithTwoLength,
+} from './boxes/webm/segments/all-segments';
+
 export class OffsetCounter {
 	#offset: number;
 	#discardedBytes: number;
@@ -270,52 +276,12 @@ export const getArrayBufferIterator = (
 
 			// Catch void block
 			// https://www.matroska.org/technical/elements.html
-			const knownIdsWithOneLength = [
-				'0xec',
-				'0xae',
-				'0xd7',
-				'0x9c',
-				'0x86',
-				'0x83',
-				'0xe0',
-				'0xb0',
-				'0xba',
-				'0x9a',
-				'0xe1',
-				'0xbf',
-				'0x88',
-				'0xe7',
-				'0xa3',
-				'0xa0',
-				'0xa1',
-				'0xfb',
-			];
+
 			if (knownIdsWithOneLength.includes(firstOneString)) {
 				return firstOneString;
 			}
 
 			const firstTwo = getSlice(1);
-
-			const knownIdsWithTwoLength = [
-				'0x4dbb',
-				'0x53ac',
-				'0xec01',
-				'0x73c5',
-				'0x53c0',
-				'0x4d80',
-				'0x5741',
-				'0x4489',
-				'0x55ee',
-				'0x55b0',
-				'0x7ba9',
-				'0x63a2',
-				'0x73a4',
-				'0x7373',
-				'0x75a1',
-				'0x53ab',
-				'0x56aa',
-				'0x56bb',
-			];
 
 			const firstTwoString = `${firstOneString}${Array.from(
 				new Uint8Array(firstTwo),
@@ -328,15 +294,6 @@ export const getArrayBufferIterator = (
 			if (knownIdsWithTwoLength.includes(firstTwoString)) {
 				return firstTwoString;
 			}
-
-			const knownIdsWithThreeLength = [
-				'0x4d808c',
-				'0x57418c',
-				'0x448988',
-				'0x22b59c',
-				'0x23e383',
-				'0x2ad7b1',
-			];
 
 			const firstThree = getSlice(1);
 
@@ -450,6 +407,11 @@ export const getArrayBufferIterator = (
 		getFloat64: () => {
 			const val = view.getFloat64(counter.getDiscardedOffset());
 			counter.increment(8);
+			return val;
+		},
+		getFloat32: () => {
+			const val = view.getFloat32(counter.getDiscardedOffset());
+			counter.increment(4);
 			return val;
 		},
 	};

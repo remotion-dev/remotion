@@ -1,5 +1,5 @@
-import {createDecoder} from './create-decoder';
 import {createEncoder} from './create-encoder';
+import {createVideoDecoder} from './create-video-decoder';
 import {getDescription} from './get-description';
 import {getSamples} from './get-samples';
 import {loadMp4File} from './load-mp4-file';
@@ -20,10 +20,21 @@ export const reencodeVideo = async (file: File) => {
 			console.log(`Encoding frame ${encoded} (${encodingProgress}%)`);
 		},
 	});
+	let nextKeyFrameTimestamp = 0;
+	let keyFrame = false;
 
-	const {decoder} = createDecoder({
-		onFrame: (frame, keyframe) => {
-			encoder.encode(frame, {keyFrame: keyframe});
+	const keyFrameEveryHowManySeconds = 2;
+
+	const {decoder} = createVideoDecoder({
+		onFrame: (frame) => {
+			if (frame.timestamp >= nextKeyFrameTimestamp) {
+				keyFrame = true;
+
+				nextKeyFrameTimestamp =
+					frame.timestamp + keyFrameEveryHowManySeconds * 1e6;
+			}
+
+			encoder.encode(frame, {keyFrame});
 			frame.close();
 		},
 		onProgress: (decoded) => {
@@ -36,6 +47,7 @@ export const reencodeVideo = async (file: File) => {
 		codec: track.codec,
 		codedWidth: track.track_width,
 		codedHeight: track.track_height,
+		// TODO: Check first if hardware acceleration is supported
 		hardwareAcceleration: 'prefer-hardware',
 		description: getDescription({mp4File, track}),
 	});

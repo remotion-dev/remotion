@@ -74,7 +74,6 @@ export const parseMedia: ParseMedia = async ({
 					onAudioTrack: onAudioTrack ?? null,
 					onVideoTrack: onVideoTrack ?? null,
 					parserState: state,
-					// TODO: Skip frames if onSimpleBlock is null
 				},
 			});
 		}
@@ -109,7 +108,11 @@ export const parseMedia: ParseMedia = async ({
 
 		// TODO Better: Check if no active listeners are registered
 		// Also maybe check for canSkipVideoData
-		if (hasAllInfo(fields, parseResult) && !onVideoTrack && !onAudioTrack) {
+		if (
+			hasAllInfo(fields ?? {}, parseResult) &&
+			!onVideoTrack &&
+			!onAudioTrack
+		) {
 			if (!currentReader.closed) {
 				currentReader.cancel(new Error('has all information'));
 			}
@@ -139,7 +142,7 @@ export const parseMedia: ParseMedia = async ({
 		throw new Error('Could not parse video');
 	}
 
-	if (fields.dimensions) {
+	if (fields?.dimensions) {
 		const dimensions = getDimensions(parseResult.segments);
 		returnValue.dimensions = {
 			width: dimensions.width,
@@ -147,7 +150,7 @@ export const parseMedia: ParseMedia = async ({
 		};
 	}
 
-	if (fields.unrotatedDimension) {
+	if (fields?.unrotatedDimension) {
 		const dimensions = getDimensions(parseResult.segments);
 		returnValue.unrotatedDimension = {
 			width: dimensions.unrotatedWidth,
@@ -155,34 +158,34 @@ export const parseMedia: ParseMedia = async ({
 		};
 	}
 
-	if (fields.rotation) {
+	if (fields?.rotation) {
 		const dimensions = getDimensions(parseResult.segments);
 		returnValue.rotation = dimensions.rotation;
 	}
 
-	if (fields.durationInSeconds) {
+	if (fields?.durationInSeconds) {
 		returnValue.durationInSeconds = getDuration(parseResult.segments);
 	}
 
-	if (fields.fps) {
+	if (fields?.fps) {
 		returnValue.fps = getFps(parseResult.segments);
 	}
 
-	if (fields.videoCodec) {
+	if (fields?.videoCodec) {
 		returnValue.videoCodec = getVideoCodec(parseResult.segments);
 	}
 
-	if (fields.audioCodec) {
+	if (fields?.audioCodec) {
 		returnValue.audioCodec = getAudioCodec(parseResult.segments);
 	}
 
-	if (fields.tracks) {
+	if (fields?.tracks) {
 		const {audioTracks, videoTracks} = getTracks(parseResult.segments);
 		returnValue.audioTracks = audioTracks;
 		returnValue.videoTracks = videoTracks;
 	}
 
-	if (fields.boxes) {
+	if (fields?.boxes) {
 		returnValue.boxes = parseResult.segments;
 	}
 

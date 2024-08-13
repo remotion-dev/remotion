@@ -3,6 +3,8 @@ import type {AudioTrack, VideoTrack} from '../../get-tracks';
 import {
 	getCodecSegment,
 	getHeightSegment,
+	getNumberOfChannels,
+	getSampleRate,
 	getTimescaleSegment,
 	getTrackId,
 	getTrackTypeSegment,
@@ -33,9 +35,12 @@ const getMatroskaVideoCodecString = ({
 	}
 
 	if (codec.codec === 'V_MPEG4/ISO/AVC') {
-		// TODO: different avc1!
-		// Failing test: Should stream MKV video
-		return 'avc1';
+		const priv = track.children.find((b) => b.type === 'codec-private-segment');
+		if (priv && priv.type === 'codec-private-segment') {
+			return `avc1.${priv.codecPrivateData[1].toString(16).padStart(2, '0')}${priv.codecPrivateData[2].toString(16).padStart(2, '0')}${priv.codecPrivateData[3].toString(16).padStart(2, '0')}`;
+		}
+
+		throw new Error('Could not find a CodecPrivate field in TrackEntry');
 	}
 
 	if (codec.codec === 'V_AV1') {
@@ -121,8 +126,8 @@ export const getTrack = ({
 		return {
 			type: 'video',
 			trackId,
-			codecString,
-			description: null,
+			codec: codecString,
+			description: undefined,
 			height: height.height,
 			width: width.width,
 			sampleAspectRatio: {
@@ -131,18 +136,27 @@ export const getTrack = ({
 			},
 			timescale: timescale.timestampScale,
 			samplePositions: [],
-			untransformedHeight: height.height,
-			untransformedWidth: width.width,
+			codedHeight: height.height,
+			codedWidth: width.width,
 		};
 	}
 
 	if (trackType.trackType === 'audio') {
+		const sampleRate = getSampleRate(track);
+		const numberOfChannels = getNumberOfChannels(track);
+		if (sampleRate === null || numberOfChannels === null) {
+			throw new Error('Could not find sample rate or number of channels');
+		}
+
 		return {
 			type: 'audio',
 			trackId,
-			codecString: getMatroskaAudioCodecString(track),
+			codec: getMatroskaAudioCodecString(track),
 			samplePositions: null,
 			timescale: timescale.timestampScale,
+			numberOfChannels,
+			sampleRate,
+			description: undefined,
 		};
 	}
 
