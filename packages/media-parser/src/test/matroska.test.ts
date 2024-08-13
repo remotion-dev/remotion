@@ -625,11 +625,11 @@ test('Should get duration of AV1 video', async () => {
 								},
 							],
 						},
-						{
-							id: '0x1c53bb6b',
-							type: 'unknown-segment',
-						},
 					],
+				},
+				{
+					id: '0x1c53bb6b',
+					type: 'unknown-segment',
 				},
 			],
 		},

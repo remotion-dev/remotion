@@ -34,9 +34,6 @@ const processParseResult = ({
 
 	for (const segment of parseResult.segments) {
 		children.push(segment as MatroskaSegment);
-		if (segment.type === 'unknown-segment') {
-			break;
-		}
 	}
 
 	return {
@@ -66,6 +63,8 @@ const continueParsingfunction =
 			throw new Error('expected incomplete');
 		}
 
+		const offset = iterator.counter.getOffset();
+
 		const continued = result.continueParsing();
 		if (continued.status === 'incomplete') {
 			return {
@@ -76,7 +75,7 @@ const continueParsingfunction =
 					children,
 					wrap,
 					parserContext,
-					length,
+					length: length - (iterator.counter.getOffset() - offset),
 				}),
 				skipTo: continued.skipTo,
 				segments: wrap ? [wrap(children)] : children,
@@ -85,7 +84,7 @@ const continueParsingfunction =
 
 		return expectChildren({
 			iterator,
-			length,
+			length: length - (iterator.counter.getOffset() - offset),
 			initialChildren: children,
 			wrap,
 			parserContext,
@@ -130,7 +129,7 @@ export const expectChildren = ({
 					children,
 					wrap,
 					parserContext,
-					length,
+					length: length - (iterator.counter.getOffset() - startOffset),
 				}),
 				skipTo: child.skipTo,
 				segments: wrap ? [wrap(children)] : children,
