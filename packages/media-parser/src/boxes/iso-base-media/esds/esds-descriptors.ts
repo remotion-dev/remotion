@@ -1,4 +1,7 @@
+/* eslint-disable no-constant-condition */
 import type {BufferIterator} from '../../../buffer-iterator';
+import type {DecoderSpecificConfig} from './decoder-specific-config';
+import {parseDecoderSpecificConfig} from './decoder-specific-config';
 
 type AudioObjectType = 'aac' | 'mp3' | 'unknown';
 
@@ -6,6 +9,12 @@ type DecoderConfigDescriptor = {
 	type: 'decoder-config-descriptor';
 	objectTypeIndication: AudioObjectType;
 	asNumber: number;
+	streamType: number;
+	upStream: number;
+	bufferSizeDB: number;
+	maxBitrate: number;
+	avgBitrate: number;
+	decoderSpecificConfigs: DecoderSpecificConfig[];
 };
 
 const mapToObjectAudioIndicator = (num: number): AudioObjectType => {
@@ -52,14 +61,34 @@ export const processDescriptor = ({
 		const initialOffset = iterator.counter.getOffset();
 
 		const objectTypeIndication = iterator.getUint8();
+		iterator.startReadingBits();
+		const streamType = iterator.getBits(6);
+		const upStream = iterator.getBits(1);
+		// reserved
+		iterator.getBits(1);
+		const bufferSizeDB = iterator.getBits(24);
+		iterator.stopReadingBits();
+		const maxBitrate = iterator.getUint32();
+		const avgBitrate = iterator.getUint32();
 
-		const remaining = size - (iterator.counter.getOffset() - initialOffset);
-		iterator.discard(remaining);
+		const decoderSpecificConfigs: DecoderSpecificConfig[] = [];
+
+		while (size - (iterator.counter.getOffset() - initialOffset) >= 0) {
+			const decoderSpecificConfig = parseDecoderSpecificConfig(iterator);
+			decoderSpecificConfigs.push(decoderSpecificConfig);
+		}
+
 		return {
 			descriptor: {
 				type: 'decoder-config-descriptor',
 				objectTypeIndication: mapToObjectAudioIndicator(objectTypeIndication),
 				asNumber: objectTypeIndication,
+				bufferSizeDB,
+				streamType,
+				upStream,
+				avgBitrate,
+				maxBitrate,
+				decoderSpecificConfigs,
 			},
 		};
 	}

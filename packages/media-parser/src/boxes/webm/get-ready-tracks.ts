@@ -1,4 +1,4 @@
-import type {AudioTrack, VideoTrack} from '../../get-tracks';
+import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
 import {
 	getClusterSegment,
 	getTimescaleSegment,
@@ -9,7 +9,11 @@ import type {MainSegment} from './segments/main';
 
 export const getTracksFromMatroska = (
 	segment: MainSegment,
-): {videoTracks: VideoTrack[]; audioTracks: AudioTrack[]} => {
+): {
+	videoTracks: VideoTrack[];
+	audioTracks: AudioTrack[];
+	otherTracks: OtherTrack[];
+} => {
 	const tracksSegment = getTracksSegment(segment);
 	if (!tracksSegment) {
 		throw new Error('No tracks segment');
@@ -25,6 +29,7 @@ export const getTracksFromMatroska = (
 
 	const videoTracks: VideoTrack[] = [];
 	const audioTracks: AudioTrack[] = [];
+	const otherTracks: OtherTrack[] = [];
 
 	for (const trackEntrySegment of tracksSegment.children) {
 		if (trackEntrySegment.type === 'crc32-segment') {
@@ -53,5 +58,6 @@ export const getTracksFromMatroska = (
 	return {
 		videoTracks,
 		audioTracks,
+		otherTracks,
 	};
 };
