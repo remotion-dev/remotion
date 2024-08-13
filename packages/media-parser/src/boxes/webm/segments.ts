@@ -169,6 +169,16 @@ const parseSegment = ({
 		};
 	}
 
+	// Log this to debug
+	/*
+	console.log(
+		'segmentId',
+		segmentId,
+		getSegmentName(segmentId),
+		iterator.counter.getOffset(),
+	);
+	*/
+
 	if (segmentId === '0x114d9b74') {
 		return parseSeekHeadSegment(iterator, length, parserContext);
 	}

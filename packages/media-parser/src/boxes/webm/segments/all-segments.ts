@@ -261,6 +261,7 @@ export const matroskaElements = {
 	TagString: '0x4487',
 	TagBinary: '0x4485',
 	Void: '0xec',
+	Crc32: '0xbf',
 } as const;
 
 const matroskaIds = Object.values(matroskaElements);
@@ -277,8 +278,8 @@ export const knownIdsWithThreeLength = matroskaIds.filter(
 	(id) => id.length === 8,
 ) as string[];
 
-export const getName = (id: string) => {
+export const getSegmentName = (id: string) => {
 	return Object.entries(matroskaElements).find(
-		([key, value]) => value === id,
+		([, value]) => value === id,
 	)?.[0];
 };

@@ -324,8 +324,6 @@ test('Should stream MP3 in MP4 video', async () => {
 		reader: nodeReader,
 	});
 
-	await Bun.write('boxes.json', JSON.stringify(parsed.boxes, null, 2));
-
 	expect(parsed.dimensions.width).toBe(1080);
 	expect(parsed.dimensions.height).toBe(1080);
 	expect(parsed.durationInSeconds).toBe(0.337);
