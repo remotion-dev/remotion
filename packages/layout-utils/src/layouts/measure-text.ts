@@ -128,7 +128,7 @@ export const measureText = ({
 	validateFontIsLoaded,
 	additionalStyles,
 }: Word): Dimensions => {
-	const key = `${text}-${fontFamily}-${fontWeight}-${fontSize}-${letterSpacing}`;
+	const key = `${text}-${fontFamily}-${fontWeight}-${fontSize}-${letterSpacing}-${JSON.stringify(additionalStyles)}`;
 
 	if (wordCache.has(key)) {
 		return wordCache.get(key) as Dimensions;
