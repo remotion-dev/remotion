@@ -102,9 +102,23 @@ test('Should be able to parse a STSD audio box correctly', () => {
 										objectTypeIndication: 'aac',
 										type: 'decoder-config-descriptor',
 										asNumber: 64,
-									},
-									{
-										type: 'sl-config-descriptor',
+										avgBitrate: 0,
+										bufferSizeDB: 6144,
+										maxBitrate: 192000,
+										streamType: 5,
+										decoderSpecificConfigs: [
+											{
+												audioObjectType: 2,
+												channelConfiguration: 2,
+												samplingFrequencyIndex: 4,
+												type: 'audio-specific-config',
+												asBytes: new Uint8Array([18, 16]),
+											},
+											{
+												type: 'unknown-decoder-specific-config',
+											},
+										],
+										upStream: 0,
 									},
 								],
 								esId: 0,
