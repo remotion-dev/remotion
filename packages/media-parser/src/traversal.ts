@@ -17,6 +17,8 @@ import type {
 	AudioSegment,
 	ClusterSegment,
 	CodecSegment,
+	DisplayHeightSegment,
+	DisplayWidthSegment,
 	HeightSegment,
 	TrackEntrySegment,
 	TrackTypeSegment,
@@ -320,12 +322,10 @@ export const getSampleRate = (track: TrackEntrySegment): number | null => {
 	return samplingFrequency.samplingFrequency;
 };
 
-export const getNumberOfChannels = (
-	track: TrackEntrySegment,
-): number | null => {
+export const getNumberOfChannels = (track: TrackEntrySegment): number => {
 	const audioSegment = getAudioSegment(track);
 	if (!audioSegment) {
-		return null;
+		throw new Error('Could not find audio segment');
 	}
 
 	const channels = audioSegment.children.find(
@@ -333,10 +333,22 @@ export const getNumberOfChannels = (
 	);
 
 	if (!channels || channels.type !== 'channels-segment') {
-		return null;
+		return 1;
 	}
 
 	return channels.channels;
+};
+
+export const getPrivateData = (track: TrackEntrySegment): Uint8Array | null => {
+	const privateData = track.children.find(
+		(b) => b.type === 'codec-private-segment',
+	);
+
+	if (!privateData || privateData.type !== 'codec-private-segment') {
+		return null;
+	}
+
+	return privateData.codecPrivateData;
 };
 
 export const getWidthSegment = (
@@ -371,6 +383,44 @@ export const getHeightSegment = (
 	}
 
 	return height;
+};
+
+export const getDisplayWidthSegment = (
+	track: TrackEntrySegment,
+): DisplayWidthSegment | null => {
+	const videoSegment = getVideoSegment(track);
+	if (!videoSegment) {
+		return null;
+	}
+
+	const displayWidth = videoSegment.children.find(
+		(b) => b.type === 'display-width-segment',
+	);
+
+	if (!displayWidth || displayWidth.type !== 'display-width-segment') {
+		return null;
+	}
+
+	return displayWidth;
+};
+
+export const getDisplayHeightSegment = (
+	track: TrackEntrySegment,
+): DisplayHeightSegment | null => {
+	const videoSegment = getVideoSegment(track);
+	if (!videoSegment) {
+		return null;
+	}
+
+	const displayHeight = videoSegment.children.find(
+		(b) => b.type === 'display-height-segment',
+	);
+
+	if (!displayHeight || displayHeight.type !== 'display-height-segment') {
+		return null;
+	}
+
+	return displayHeight;
 };
 
 export const getTrackTypeSegment = (

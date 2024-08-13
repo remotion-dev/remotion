@@ -129,7 +129,7 @@ export const makeBaseMediaTrack = (
 		type: 'video',
 		samplePositions,
 		trackId: tkhdBox.trackId,
-		description: videoDescriptors,
+		description: videoDescriptors ?? undefined,
 		timescale: timescaleAndDuration.timescale,
 		codec: getVideoCodecString(trakBox),
 		sampleAspectRatio: getSampleAspectRatio(trakBox),
