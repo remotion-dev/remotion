@@ -456,7 +456,10 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 			{indent: false, logLevel: params.logLevel},
 			`Error occurred (will retry = ${String(shouldRetry)})`,
 		);
-		RenderInternals.Log.error({indent: false, logLevel: params.logLevel}, err);
+		RenderInternals.Log.error(
+			{indent: false, logLevel: params.logLevel},
+			(err as Error).stack,
+		);
 
 		onStream({
 			type: 'error-occurred',

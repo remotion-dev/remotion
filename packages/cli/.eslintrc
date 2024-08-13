@@ -2,6 +2,7 @@
 	"extends": "@jonny",
 	"rules": {
 		"no-console": "error",
+		"no-negated-condition": "off",
 		"no-restricted-imports": [
 			"error",
 			{
@@ -11,9 +12,9 @@
 					"remotion/src/*",
 					"@remotion/*/dist/*",
 					"@remotion/*/dist",
-					"remotion/dist/*"
-				]
-			}
+					"remotion/dist/*",
+				],
+			},
 		],
 		"@typescript-eslint/no-use-before-define": "off",
 		"@typescript-eslint/no-restricted-imports": [
@@ -23,15 +24,15 @@
 					{
 						"name": "zod",
 						"message": "Can only import zod as a type",
-						"allowTypeImports": true
+						"allowTypeImports": true,
 					},
 					{
 						"name": "@remotion/zod-types",
 						"message": "Can only import @remotion/zod-types as a type",
-						"allowTypeImports": true
-					}
-				]
-			}
-		]
-	}
+						"allowTypeImports": true,
+					},
+				],
+			},
+		],
+	},
 }

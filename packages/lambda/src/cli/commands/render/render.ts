@@ -570,6 +570,7 @@ export const renderCommand = async (
 					name: err.name,
 					stack: err.stack,
 					stackFrame: frames,
+					chunk: err.chunk,
 				});
 				await CliInternals.printError(errorWithStackFrame, logLevel);
 			}
