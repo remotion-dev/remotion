@@ -45,6 +45,53 @@ const processParseResult = ({
 	};
 };
 
+const continueParsingfunction =
+	({
+		result,
+		iterator,
+		children,
+		wrap,
+		parserContext,
+		length,
+	}: {
+		result: ParseResult;
+		iterator: BufferIterator;
+		children: MatroskaSegment[];
+		wrap: WrapChildren | null;
+		parserContext: ParserContext;
+		length: number;
+	}) =>
+	(): ParseResult => {
+		if (result.status !== 'incomplete') {
+			throw new Error('expected incomplete');
+		}
+
+		const continued = result.continueParsing();
+		if (continued.status === 'incomplete') {
+			return {
+				status: 'incomplete',
+				continueParsing: continueParsingfunction({
+					result: continued,
+					iterator,
+					children,
+					wrap,
+					parserContext,
+					length,
+				}),
+				skipTo: continued.skipTo,
+				segments: wrap ? [wrap(children)] : children,
+			};
+		}
+
+		return expectChildren({
+			iterator,
+			length,
+			initialChildren: children,
+			wrap,
+			parserContext,
+		});
+	};
+
 export const expectChildren = ({
 	iterator,
 	length,
@@ -73,8 +120,21 @@ export const expectChildren = ({
 			parseResult,
 			wrap,
 		});
+
 		if (child.status === 'incomplete') {
-			return child;
+			return {
+				status: 'incomplete',
+				continueParsing: continueParsingfunction({
+					result: child,
+					iterator,
+					children,
+					wrap,
+					parserContext,
+					length,
+				}),
+				skipTo: child.skipTo,
+				segments: wrap ? [wrap(children)] : children,
+			};
 		}
 	}
 

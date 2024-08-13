@@ -21,6 +21,7 @@ test('Should get duration of AV1 video', async () => {
 		width: 1920,
 		height: 1080,
 	});
+
 	expect(parsed.boxes).toEqual([
 		{
 			type: 'main-segment',
@@ -241,8 +242,8 @@ test('Should get duration of AV1 video', async () => {
 										color_range: false,
 										subsampling_x: true,
 										subsampling_y: true,
-										color_description_present_flag: true,
 										mono_chrome: false,
+										color_description_present_flag: true,
 									},
 									film_grain_params_present: false,
 									enable_interintra_compound: 0,
@@ -624,11 +625,11 @@ test('Should get duration of AV1 video', async () => {
 								},
 							],
 						},
+						{
+							id: '0x1c53bb6b',
+							type: 'unknown-segment',
+						},
 					],
-				},
-				{
-					id: '0x1c53bb6b',
-					type: 'unknown-segment',
 				},
 			],
 		},

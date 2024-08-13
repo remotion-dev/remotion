@@ -436,6 +436,7 @@ export const expectSegment = (
 		length,
 		parserContext,
 	});
+
 	return {
 		status: 'done',
 		segments: [segment],
