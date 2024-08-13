@@ -9,6 +9,7 @@ type AudioSpecificConfig = {
 	audioObjectType: number;
 	samplingFrequencyIndex: number;
 	channelConfiguration: number;
+	asBytes: Uint8Array;
 };
 
 export type DecoderSpecificConfig =
@@ -30,9 +31,19 @@ export const parseDecoderSpecificConfig = (
 		};
 	}
 
+	// https://csclub.uwaterloo.ca/~pbarfuss/ISO14496-3-2009.pdf
+	// 1.6.2.1 AudioSpecificConfig
+
+	const bytes = iterator.getSlice(layerSize);
+	iterator.counter.decrement(layerSize);
+
 	iterator.startReadingBits();
 	const audioObjectType = iterator.getBits(5);
 	const samplingFrequencyIndex = iterator.getBits(4);
+	if (samplingFrequencyIndex === 0xf) {
+		iterator.getBits(24);
+	}
+
 	const channelConfiguration = iterator.getBits(4);
 	iterator.stopReadingBits();
 	const read = iterator.counter.getOffset() - start;
@@ -45,5 +56,6 @@ export const parseDecoderSpecificConfig = (
 		audioObjectType,
 		samplingFrequencyIndex,
 		channelConfiguration,
+		asBytes: bytes,
 	};
 };

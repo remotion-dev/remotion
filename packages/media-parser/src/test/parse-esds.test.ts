@@ -86,6 +86,7 @@ test('Parse two ESDS', () => {
 						channelConfiguration: 2,
 						samplingFrequencyIndex: 3,
 						type: 'audio-specific-config',
+						asBytes: new Uint8Array([17, 144]),
 					},
 					{
 						type: 'unknown-decoder-specific-config',

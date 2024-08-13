@@ -112,6 +112,7 @@ test('Should be able to parse a STSD audio box correctly', () => {
 												channelConfiguration: 2,
 												samplingFrequencyIndex: 4,
 												type: 'audio-specific-config',
+												asBytes: new Uint8Array([18, 16]),
 											},
 											{
 												type: 'unknown-decoder-specific-config',

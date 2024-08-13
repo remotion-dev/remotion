@@ -86,15 +86,17 @@ export const makeBaseMediaTrack = (
 			throw new Error('Could not find sample rate');
 		}
 
+		const {codecString, description} = getAudioCodecStringFromTrak(trakBox);
+
 		return {
 			type: 'audio',
 			samplePositions,
 			trackId: tkhdBox.trackId,
 			timescale: timescaleAndDuration.timescale,
-			codec: getAudioCodecStringFromTrak(trakBox),
+			codec: codecString,
 			numberOfChannels,
 			sampleRate,
-			description: undefined,
+			description,
 		};
 	}
 

@@ -21,7 +21,11 @@ const getCodecSpecificatorFromEsdsBox = ({
 	child,
 }: {
 	child: EsdsBox;
-}): {primary: number; secondary: number | null} => {
+}): {
+	primary: number;
+	secondary: number | null;
+	description: Uint8Array | undefined;
+} => {
 	const descriptor = child.descriptors.find(
 		(d) => d.type === 'decoder-config-descriptor',
 	);
@@ -34,7 +38,11 @@ const getCodecSpecificatorFromEsdsBox = ({
 	}
 
 	if (descriptor.asNumber !== 0x40) {
-		return {primary: descriptor.asNumber, secondary: null};
+		return {
+			primary: descriptor.asNumber,
+			secondary: null,
+			description: undefined,
+		};
 	}
 
 	const audioSpecificConfig = descriptor.decoderSpecificConfigs.find((d) => {
@@ -50,6 +58,7 @@ const getCodecSpecificatorFromEsdsBox = ({
 	return {
 		primary: descriptor.asNumber,
 		secondary: audioSpecificConfig.audioObjectType,
+		description: audioSpecificConfig.asBytes,
 	};
 };
 
@@ -57,6 +66,7 @@ type AudioCodecInfo = {
 	format: string;
 	primarySpecificator: number | null;
 	secondarySpecificator: number | null;
+	description: Uint8Array | undefined;
 };
 
 const onSample = (
@@ -71,6 +81,7 @@ const onSample = (
 			format: sample.format,
 			primarySpecificator: ret.primary,
 			secondarySpecificator: ret.secondary,
+			description: ret.description,
 		};
 	}
 
@@ -78,6 +89,7 @@ const onSample = (
 		format: sample.format,
 		primarySpecificator: null,
 		secondarySpecificator: null,
+		description: undefined,
 	};
 };
 
@@ -176,21 +188,28 @@ export const getAudioCodecFromMatroska = (mainSegment: MainSegment) => {
 	return null;
 };
 
-export const getAudioCodecStringFromTrak = (trak: TrakBox): string => {
+export const getAudioCodecStringFromTrak = (
+	trak: TrakBox,
+): {codecString: string; description: Uint8Array | undefined} => {
 	const codec = getAudioCodecFromTrak(trak);
 	if (!codec) {
 		throw new Error('Expected codec');
 	}
 
-	return (
-		[
-			codec.format,
-			codec.primarySpecificator ? codec.primarySpecificator.toString(16) : null,
-			codec.secondarySpecificator
-				? codec.secondarySpecificator.toString().padStart(2, '0')
-				: null,
-		].filter(Boolean) as string[]
-	).join('.');
+	return {
+		codecString: (
+			[
+				codec.format,
+				codec.primarySpecificator
+					? codec.primarySpecificator.toString(16)
+					: null,
+				codec.secondarySpecificator
+					? codec.secondarySpecificator.toString().padStart(2, '0')
+					: null,
+			].filter(Boolean) as string[]
+		).join('.'),
+		description: codec.description,
+	};
 };
 
 export const getAudioCodec = (boxes: AnySegment[]): KnownAudioCodecs | null => {
