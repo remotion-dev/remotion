@@ -899,6 +899,9 @@ importers:
         specifier: 3.22.3
         version: 3.22.3
     devDependencies:
+      '@types/dom-webcodecs':
+        specifier: 0.1.11
+        version: 0.1.11
       prettier-plugin-organize-imports:
         specifier: 3.2.4
         version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)

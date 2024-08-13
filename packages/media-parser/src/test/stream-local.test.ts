@@ -321,6 +321,7 @@ test('Should stream MKV video', async () => {
 });
 
 test('Should stream MP3 in MP4 video', async () => {
+	let audioFrames = 0;
 	const parsed = await parseMedia({
 		src: RenderInternals.exampleVideos.mp4withmp3,
 		fields: {
@@ -332,6 +333,15 @@ test('Should stream MP3 in MP4 video', async () => {
 			tracks: true,
 			rotation: true,
 			boxes: true,
+		},
+		onAudioTrack: (track) => {
+			expect(track.type).toBe('audio');
+			expect(track.codec).toBe('mp4a.6b');
+			expect(track.sampleRate).toBe(48000);
+			expect(typeof track.description).toBe('undefined');
+			return () => {
+				audioFrames++;
+			};
 		},
 		reader: nodeReader,
 	});
@@ -346,6 +356,7 @@ test('Should stream MP3 in MP4 video', async () => {
 	expect(parsed.audioTracks.length).toEqual(1);
 	expect(parsed.audioTracks[0].codec).toBe('mp4a.6b');
 	expect(parsed.rotation).toBe(0);
+	expect(audioFrames).toBe(15);
 });
 
 test('Should get duration of HEVC video', async () => {
