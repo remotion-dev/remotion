@@ -204,7 +204,6 @@ export const parseDefaultDurationSegment = (
 
 export type VideoSegment = {
 	type: 'video-segment';
-
 	children: MatroskaSegment[];
 };
 
@@ -227,6 +226,34 @@ export const parseVideoSegment = (
 
 	return {
 		type: 'video-segment',
+		children: children.segments as MatroskaSegment[],
+	};
+};
+
+export type AudioSegment = {
+	type: 'audio-segment';
+	children: MatroskaSegment[];
+};
+
+export const parseAudioSegment = (
+	iterator: BufferIterator,
+	length: number,
+	parserContext: ParserContext,
+): AudioSegment => {
+	const children = expectChildren({
+		iterator,
+		length,
+		initialChildren: [],
+		wrap: null,
+		parserContext,
+	});
+
+	if (children.status === 'incomplete') {
+		throw new Error('Incomplete children');
+	}
+
+	return {
+		type: 'audio-segment',
 		children: children.segments as MatroskaSegment[],
 	};
 };
@@ -577,6 +604,11 @@ export const parseSimpleBlockSegment = ({
 		}
 	}
 
+	const remainingNowAfter = length - (iterator.counter.getOffset() - start);
+	if (remainingNowAfter > 0) {
+		iterator.discard(remainingNowAfter);
+	}
+
 	return {
 		type: 'simple-block-segment',
 		length,
@@ -647,5 +679,79 @@ export const parseBlockElementSegment = (
 	return {
 		type: 'block-element-segment',
 		length,
+	};
+};
+
+export type SamplingFrequencySegment = {
+	type: 'sampling-frequency-segment';
+	samplingFrequency: number;
+};
+
+export const parseSamplingFrequencySegment = (
+	iterator: BufferIterator,
+	length: number,
+): SamplingFrequencySegment => {
+	if (length === 4) {
+		return {
+			type: 'sampling-frequency-segment',
+			samplingFrequency: iterator.getFloat32(),
+		};
+	}
+
+	if (length === 8) {
+		return {
+			type: 'sampling-frequency-segment',
+			samplingFrequency: iterator.getFloat64(),
+		};
+	}
+
+	throw new Error(
+		`Expected length of sampling frequency segment to be 4 or 8, got ${length}`,
+	);
+};
+
+export type ChannelsSegment = {
+	type: 'channels-segment';
+	channels: number;
+};
+
+export const parseChannelsSegment = (
+	iterator: BufferIterator,
+	length: number,
+): ChannelsSegment => {
+	if (length !== 1) {
+		throw new Error(
+			`Expected length of channels segment to be 1, got ${length}`,
+		);
+	}
+
+	const channels = iterator.getUint8();
+
+	return {
+		type: 'channels-segment',
+		channels,
+	};
+};
+
+export type BitDepthSegment = {
+	type: 'bit-depth-segment';
+	bitDepth: number;
+};
+
+export const parseBitDepthSegment = (
+	iterator: BufferIterator,
+	length: number,
+): BitDepthSegment => {
+	if (length !== 1) {
+		throw new Error(
+			`Expected length of bit depth segment to be 1, got ${length}`,
+		);
+	}
+
+	const bitDepth = iterator.getUint8();
+
+	return {
+		type: 'bit-depth-segment',
+		bitDepth,
 	};
 };

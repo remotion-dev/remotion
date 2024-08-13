@@ -1,4 +1,7 @@
-import {getAudioCodecStringFromTrak} from '../../get-audio-codec';
+import {
+	getAudioCodecStringFromTrak,
+	getNumberOfChannelsFromTrak,
+} from '../../get-audio-codec';
 import {
 	getTimescaleAndDuration,
 	trakBoxContainsAudio,
@@ -72,12 +75,18 @@ export const makeBaseMediaTrack = (
 	});
 
 	if (trakBoxContainsAudio(trakBox)) {
+		const numberOfChannels = getNumberOfChannelsFromTrak(trakBox);
+		if (numberOfChannels === null) {
+			throw new Error('Could not find number of channels');
+		}
+
 		return {
 			type: 'audio',
 			samplePositions,
 			trackId: tkhdBox.trackId,
 			timescale: timescaleAndDuration.timescale,
 			codecString: getAudioCodecStringFromTrak(trakBox),
+			numberOfChannels,
 		};
 	}
 

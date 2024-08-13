@@ -222,6 +222,7 @@ test('Should stream ProRes video', async () => {
 });
 
 test('Should stream variable fps video', async () => {
+	let audioTracks = 0;
 	const parsed = await parseMedia({
 		src: RenderInternals.exampleVideos.variablefps,
 		fields: {
@@ -236,6 +237,15 @@ test('Should stream variable fps video', async () => {
 			boxes: true,
 		},
 		reader: nodeReader,
+		onAudioTrack: (track) => {
+			expect(track.type).toBe('audio');
+			expect(track.trackId).toBe(1);
+			expect(track.codecString).toBe('opus');
+			expect(track.numberOfChannels).toBe(1);
+			audioTracks++;
+			// TODO: Get samples
+			return null;
+		},
 	});
 
 	expect(parsed.dimensions.width).toBe(1280);
@@ -270,7 +280,9 @@ test('Should stream variable fps video', async () => {
 		samplePositions: null,
 		timescale: 1000000,
 		trackId: 1,
+		numberOfChannels: 1,
 	});
+	expect(audioTracks).toBe(1);
 });
 
 test('Should stream MKV video', async () => {
@@ -307,9 +319,12 @@ test('Should stream MP3 in MP4 video', async () => {
 			audioCodec: true,
 			tracks: true,
 			rotation: true,
+			boxes: true,
 		},
 		reader: nodeReader,
 	});
+
+	await Bun.write('boxes.json', JSON.stringify(parsed.boxes, null, 2));
 
 	expect(parsed.dimensions.width).toBe(1080);
 	expect(parsed.dimensions.height).toBe(1080);

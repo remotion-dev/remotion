@@ -21,6 +21,7 @@ export const parseVideo = async (file: File) => {
 			console.error(error);
 		},
 	});
+	console.log(audioDecoder);
 
 	await parseMedia({
 		src: file,
@@ -48,17 +49,8 @@ export const parseVideo = async (file: File) => {
 		},
 		onAudioTrack: (track) => {
 			console.log('audio track', track);
-			audioDecoder.configure({
-				...track,
-				codec: track.codecString,
-			});
 			return (audioSample) => {
-				const chunk = new EncodedAudioChunk({
-					type: audioSample.type,
-					timestamp: audioSample.timestamp,
-					duration: undefined,
-					data: audioSample.bytes,
-				});
+				console.log('audio sample', audioSample);
 			};
 		},
 	});

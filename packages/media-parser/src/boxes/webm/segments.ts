@@ -2,6 +2,7 @@ import type {BufferIterator} from '../../buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
 import type {Av1BitstreamSegment} from './bitstream/av1';
+import {matroskaElements} from './segments/all-segments';
 import type {DurationSegment} from './segments/duration';
 import {parseDurationSegment} from './segments/duration';
 import type {InfoSegment} from './segments/info';
@@ -25,8 +26,11 @@ import type {TimestampScaleSegment} from './segments/timestamp-scale';
 import {parseTimestampScaleSegment} from './segments/timestamp-scale';
 import type {
 	AlphaModeSegment,
+	AudioSegment,
+	BitDepthSegment,
 	BlockElement,
 	BlockGroupSegment,
+	ChannelsSegment,
 	ClusterSegment,
 	CodecPrivateSegment,
 	CodecSegment,
@@ -39,6 +43,7 @@ import type {
 	InterlacedSegment,
 	LanguageSegment,
 	MaxBlockAdditionId,
+	SamplingFrequencySegment,
 	SegmentUUIDSegment,
 	SimpleBlockSegment,
 	TagSegment,
@@ -54,8 +59,11 @@ import type {
 } from './segments/track-entry';
 import {
 	parseAlphaModeSegment,
+	parseAudioSegment,
+	parseBitDepthSegment,
 	parseBlockElementSegment,
 	parseBlockGroupSegment,
+	parseChannelsSegment,
 	parseCodecPrivateSegment,
 	parseCodecSegment,
 	parseColorSegment,
@@ -67,6 +75,7 @@ import {
 	parseInterlacedSegment,
 	parseLanguageSegment,
 	parseMaxBlockAdditionId,
+	parseSamplingFrequencySegment,
 	parseSegmentUUIDSegment,
 	parseSimpleBlockSegment,
 	parseTagSegment,
@@ -130,7 +139,11 @@ export type MatroskaSegment =
 	| BlockGroupSegment
 	| BlockElement
 	| SeekIdSegment
-	| Av1BitstreamSegment;
+	| Av1BitstreamSegment
+	| AudioSegment
+	| SamplingFrequencySegment
+	| ChannelsSegment
+	| BitDepthSegment;
 
 export type OnTrackEntrySegment = (trackEntry: TrackEntrySegment) => void;
 
@@ -146,7 +159,7 @@ const parseSegment = ({
 	parserContext: ParserContext;
 }): MatroskaSegment => {
 	if (length === 0) {
-		throw new Error('Expected length to be greater than 0');
+		throw new Error(`Expected length of ${segmentId} to be greater than 0`);
 	}
 
 	if (segmentId === '0x') {
@@ -246,6 +259,10 @@ const parseSegment = ({
 		return parseVideoSegment(iterator, length, parserContext);
 	}
 
+	if (segmentId === '0xe1') {
+		return parseAudioSegment(iterator, length, parserContext);
+	}
+
 	if (segmentId === '0xb0') {
 		return parseWidthSegment(iterator, length);
 	}
@@ -288,6 +305,18 @@ const parseSegment = ({
 
 	if (segmentId === '0x7373') {
 		return parseTagSegment(iterator, length);
+	}
+
+	if (segmentId === matroskaElements.SamplingFrequency) {
+		return parseSamplingFrequencySegment(iterator, length);
+	}
+
+	if (segmentId === matroskaElements.Channels) {
+		return parseChannelsSegment(iterator, length);
+	}
+
+	if (segmentId === matroskaElements.BitDepth) {
+		return parseBitDepthSegment(iterator, length);
 	}
 
 	if (segmentId === '0xe7') {

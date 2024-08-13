@@ -32,8 +32,6 @@ export type AudioTrack = {
 	timescale: number;
 	codecString: string;
 	numberOfChannels: number;
-	sampleRate: number;
-	description: Uint8Array | undefined;
 };
 
 export type OtherTrack = {

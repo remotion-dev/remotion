@@ -3,6 +3,8 @@ import type {AudioTrack, VideoTrack} from '../../get-tracks';
 import {
 	getCodecSegment,
 	getHeightSegment,
+	getNumberOfChannels,
+	getSampleRate,
 	getTimescaleSegment,
 	getTrackId,
 	getTrackTypeSegment,
@@ -140,12 +142,19 @@ export const getTrack = ({
 	}
 
 	if (trackType.trackType === 'audio') {
+		const sampleRate = getSampleRate(track);
+		const numberOfChannels = getNumberOfChannels(track);
+		if (sampleRate === null || numberOfChannels === null) {
+			throw new Error('Could not find sample rate or number of channels');
+		}
+
 		return {
 			type: 'audio',
 			trackId,
 			codecString: getMatroskaAudioCodecString(track),
 			samplePositions: null,
 			timescale: timescale.timestampScale,
+			numberOfChannels,
 		};
 	}
 
