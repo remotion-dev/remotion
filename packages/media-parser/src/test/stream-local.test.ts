@@ -1,5 +1,6 @@
 import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
+import {writeFileSync} from 'node:fs';
 import {nodeReader} from '../from-node';
 import {parseMedia} from '../parse-media';
 
@@ -455,4 +456,38 @@ test('Should get correct avc1 string from matroska', async () => {
 	});
 
 	expect(parsed.videoTracks[0].codec).toBe('avc1.640020');
+});
+
+test('VP9 Vorbis', async () => {
+	let videoSamples = 0;
+	let audioSamples = 0;
+
+	await parseMedia({
+		src: RenderInternals.exampleVideos.vp8Vorbis,
+		onVideoTrack: (track) => {
+			expect(track.codec).toBe('vp8');
+			expect(track.timescale).toBe(1000000);
+			expect(track.codedHeight).toBe(360);
+			expect(track.codedWidth).toBe(640);
+			expect(typeof track.description).toBe('undefined');
+			return () => {
+				videoSamples++;
+			};
+		},
+		onAudioTrack: (track) => {
+			expect(track.codec).toBe('vorbis');
+			expect(track.timescale).toBe(1000000);
+			expect(track.description?.length).toBe(3097);
+
+			writeFileSync('header.bin', track.description as Uint8Array);
+
+			return () => {
+				audioSamples++;
+			};
+		},
+		reader: nodeReader,
+	});
+
+	expect(videoSamples).toBe(812);
+	expect(audioSamples).toBe(1496);
 });

@@ -41,4 +41,5 @@ export const exampleVideos = {
 	av1bbb: path.join(examplePackage, 'public', 'av1-bbb.webm'),
 	av1mp4: path.join(examplePackage, 'public', 'av1-bbb.mp4'),
 	av1mp4WithColr: path.join(examplePackage, 'public', 'av1.mp4'),
+	vp8Vorbis: path.join(examplePackage, 'public', 'vp8-vorbis.webm'),
 };

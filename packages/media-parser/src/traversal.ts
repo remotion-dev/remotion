@@ -320,12 +320,10 @@ export const getSampleRate = (track: TrackEntrySegment): number | null => {
 	return samplingFrequency.samplingFrequency;
 };
 
-export const getNumberOfChannels = (
-	track: TrackEntrySegment,
-): number | null => {
+export const getNumberOfChannels = (track: TrackEntrySegment): number => {
 	const audioSegment = getAudioSegment(track);
 	if (!audioSegment) {
-		return null;
+		throw new Error('Could not find audio segment');
 	}
 
 	const channels = audioSegment.children.find(
@@ -333,10 +331,22 @@ export const getNumberOfChannels = (
 	);
 
 	if (!channels || channels.type !== 'channels-segment') {
-		return null;
+		return 1;
 	}
 
 	return channels.channels;
+};
+
+export const getPrivateData = (track: TrackEntrySegment): Uint8Array | null => {
+	const privateData = track.children.find(
+		(b) => b.type === 'codec-private-segment',
+	);
+
+	if (!privateData || privateData.type !== 'codec-private-segment') {
+		return null;
+	}
+
+	return privateData.codecPrivateData;
 };
 
 export const getWidthSegment = (

@@ -4,12 +4,14 @@ import {
 	getCodecSegment,
 	getHeightSegment,
 	getNumberOfChannels,
+	getPrivateData,
 	getSampleRate,
 	getTimescaleSegment,
 	getTrackId,
 	getTrackTypeSegment,
 	getWidthSegment,
 } from '../../traversal';
+import {getAudioDescription} from './description';
 import type {MainSegment} from './segments/main';
 import type {
 	ClusterSegment,
@@ -35,9 +37,9 @@ const getMatroskaVideoCodecString = ({
 	}
 
 	if (codec.codec === 'V_MPEG4/ISO/AVC') {
-		const priv = track.children.find((b) => b.type === 'codec-private-segment');
-		if (priv && priv.type === 'codec-private-segment') {
-			return `avc1.${priv.codecPrivateData[1].toString(16).padStart(2, '0')}${priv.codecPrivateData[2].toString(16).padStart(2, '0')}${priv.codecPrivateData[3].toString(16).padStart(2, '0')}`;
+		const priv = getPrivateData(track);
+		if (priv) {
+			return `avc1.${priv[1].toString(16).padStart(2, '0')}${priv[2].toString(16).padStart(2, '0')}${priv[3].toString(16).padStart(2, '0')}`;
 		}
 
 		throw new Error('Could not find a CodecPrivate field in TrackEntry');
@@ -62,6 +64,10 @@ const getMatroskaAudioCodecString = (track: TrackEntrySegment): string => {
 
 	if (codec.codec === 'A_OPUS') {
 		return 'opus';
+	}
+
+	if (codec.codec === 'A_VORBIS') {
+		return 'vorbis';
 	}
 
 	// TODO: Wrong, see here how to parse it correctly
@@ -144,7 +150,7 @@ export const getTrack = ({
 	if (trackType.trackType === 'audio') {
 		const sampleRate = getSampleRate(track);
 		const numberOfChannels = getNumberOfChannels(track);
-		if (sampleRate === null || numberOfChannels === null) {
+		if (sampleRate === null) {
 			throw new Error('Could not find sample rate or number of channels');
 		}
 
@@ -156,7 +162,7 @@ export const getTrack = ({
 			timescale: timescale.timestampScale,
 			numberOfChannels,
 			sampleRate,
-			description: undefined,
+			description: getAudioDescription(track),
 		};
 	}
 

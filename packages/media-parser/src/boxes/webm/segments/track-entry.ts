@@ -401,7 +401,7 @@ export const parseInterlacedSegment = (
 
 export type CodecPrivateSegment = {
 	type: 'codec-private-segment';
-	codecPrivateData: number[];
+	codecPrivateData: Uint8Array;
 };
 
 export const parseCodecPrivateSegment = (
@@ -410,7 +410,7 @@ export const parseCodecPrivateSegment = (
 ): CodecPrivateSegment => {
 	return {
 		type: 'codec-private-segment',
-		codecPrivateData: [...iterator.getSlice(length)],
+		codecPrivateData: iterator.getSlice(length),
 	};
 };
 
@@ -615,6 +615,17 @@ export const parseSimpleBlockSegment = ({
 			type: keyframe ? 'key' : 'delta',
 			trackId: trackNumber,
 			timestamp: timecode,
+		});
+	}
+
+	if (codec.codec === 'A_VORBIS') {
+		const vorbisRemaining = length - (iterator.counter.getOffset() - start);
+		parserContext.parserState.onAudioSample(trackNumber, {
+			data: iterator.getSlice(vorbisRemaining),
+			offset: timecode,
+			trackId: trackNumber,
+			timestamp: timecode,
+			type: 'key',
 		});
 	}
 

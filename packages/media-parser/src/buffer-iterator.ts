@@ -115,6 +115,18 @@ export const getArrayBufferIterator = (
 		return val;
 	};
 
+	const getUint32Le = () => {
+		const val = view.getUint32(counter.getDiscardedOffset(), true);
+		counter.increment(4);
+		return val;
+	};
+
+	const getInt32Le = () => {
+		const val = view.getInt32(counter.getDiscardedOffset(), true);
+		counter.increment(4);
+		return val;
+	};
+
 	const getInt32 = () => {
 		const val = view.getInt32(counter.getDiscardedOffset());
 		counter.increment(4);
@@ -414,6 +426,8 @@ export const getArrayBufferIterator = (
 			counter.increment(4);
 			return val;
 		},
+		getUint32Le,
+		getInt32Le,
 	};
 };
 

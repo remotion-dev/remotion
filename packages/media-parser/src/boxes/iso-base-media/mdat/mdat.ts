@@ -103,6 +103,7 @@ export const parseMdat = ({
 				timestamp: sampleWithIndex.samplePosition.offset,
 				offset: data.counter.getOffset(),
 				trackId: sampleWithIndex.track.trackId,
+				type: sampleWithIndex.samplePosition.isKeyframe ? 'key' : 'delta',
 			});
 		}
 
