@@ -15,14 +15,14 @@ export type VideoTrack = {
 	type: 'video';
 	samplePositions: SamplePosition[] | null;
 	trackId: number;
-	description: Uint8Array | null;
+	description: Uint8Array | undefined;
 	timescale: number;
-	codecString: string;
+	codec: string;
 	sampleAspectRatio: SampleAspectRatio;
 	width: number;
 	height: number;
-	untransformedWidth: number;
-	untransformedHeight: number;
+	codedWidth: number;
+	codedHeight: number;
 };
 
 export type AudioTrack = {
@@ -30,9 +30,10 @@ export type AudioTrack = {
 	samplePositions: SamplePosition[] | null;
 	trackId: number;
 	timescale: number;
-	codecString: string;
+	codec: string;
 	numberOfChannels: number;
 	sampleRate: number;
+	description: Uint8Array | undefined;
 };
 
 export type OtherTrack = {

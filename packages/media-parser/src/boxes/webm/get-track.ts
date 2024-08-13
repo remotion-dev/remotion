@@ -126,8 +126,8 @@ export const getTrack = ({
 		return {
 			type: 'video',
 			trackId,
-			codecString,
-			description: null,
+			codec: codecString,
+			description: undefined,
 			height: height.height,
 			width: width.width,
 			sampleAspectRatio: {
@@ -136,8 +136,8 @@ export const getTrack = ({
 			},
 			timescale: timescale.timestampScale,
 			samplePositions: [],
-			untransformedHeight: height.height,
-			untransformedWidth: width.width,
+			codedHeight: height.height,
+			codedWidth: width.width,
 		};
 	}
 
@@ -151,11 +151,12 @@ export const getTrack = ({
 		return {
 			type: 'audio',
 			trackId,
-			codecString: getMatroskaAudioCodecString(track),
+			codec: getMatroskaAudioCodecString(track),
 			samplePositions: null,
 			timescale: timescale.timestampScale,
 			numberOfChannels,
 			sampleRate,
+			description: undefined,
 		};
 	}
 

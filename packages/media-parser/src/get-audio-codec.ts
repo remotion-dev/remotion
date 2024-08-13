@@ -17,7 +17,11 @@ export const hasAudioCodec = (boxes: AnySegment[]): boolean => {
 	}
 };
 
-const getCodecSpecificatorFromEsdsBox = ({child}: {child: EsdsBox}): number => {
+const getCodecSpecificatorFromEsdsBox = ({
+	child,
+}: {
+	child: EsdsBox;
+}): {primary: number; secondary: number | null} => {
 	const descriptor = child.descriptors.find(
 		(d) => d.type === 'decoder-config-descriptor',
 	);
@@ -29,25 +33,51 @@ const getCodecSpecificatorFromEsdsBox = ({child}: {child: EsdsBox}): number => {
 		throw new Error('Expected decoder-config-descriptor');
 	}
 
-	return descriptor.asNumber;
+	if (descriptor.asNumber !== 0x40) {
+		return {primary: descriptor.asNumber, secondary: null};
+	}
+
+	const audioSpecificConfig = descriptor.decoderSpecificConfigs.find((d) => {
+		return d.type === 'audio-specific-config' ? d : null;
+	});
+	if (
+		!audioSpecificConfig ||
+		audioSpecificConfig.type !== 'audio-specific-config'
+	) {
+		throw new Error('No audio-specific-config');
+	}
+
+	return {
+		primary: descriptor.asNumber,
+		secondary: audioSpecificConfig.audioObjectType,
+	};
 };
 
 type AudioCodecInfo = {
 	format: string;
-	specificator: number | null;
+	primarySpecificator: number | null;
+	secondarySpecificator: number | null;
 };
 
-const onSample = (sample: AudioSample): AudioCodecInfo | null => {
-	const child = sample.children.find((c) => c.type === 'esds-box');
+const onSample = (
+	sample: AudioSample,
+	children: AnySegment[],
+): AudioCodecInfo | null => {
+	const child = children.find((c) => c.type === 'esds-box');
 
 	if (child && child.type === 'esds-box') {
 		const ret = getCodecSpecificatorFromEsdsBox({child});
-		return {format: sample.format, specificator: ret};
+		return {
+			format: sample.format,
+			primarySpecificator: ret.primary,
+			secondarySpecificator: ret.secondary,
+		};
 	}
 
 	return {
 		format: sample.format,
-		specificator: null,
+		primarySpecificator: null,
+		secondarySpecificator: null,
 	};
 };
 
@@ -90,30 +120,19 @@ export const getAudioCodecFromTrak = (trak: TrakBox): AudioCodecInfo | null => {
 		return null;
 	}
 
-	const ret = onSample(sample);
-	if (ret) {
-		return ret;
-	}
-
 	const waveBox = sample.children.find(
 		(b) => b.type === 'regular-box' && b.boxType === 'wave',
 	);
 	if (waveBox && waveBox.type === 'regular-box' && waveBox.boxType === 'wave') {
-		const esdsBox = waveBox.children.find((b) => b.type === 'esds-box');
-		if (esdsBox && esdsBox.type === 'esds-box') {
-			const ret2 = getCodecSpecificatorFromEsdsBox({child: esdsBox});
-			if (ret2) {
-				return {
-					format: sample.format,
-					specificator: ret2,
-				};
-			}
-
-			return {
-				format: sample.format,
-				specificator: null,
-			};
+		const esdsSample = onSample(sample, waveBox.children);
+		if (esdsSample) {
+			return esdsSample;
 		}
+	}
+
+	const ret = onSample(sample, sample.children);
+	if (ret) {
+		return ret;
 	}
 
 	return null;
@@ -166,7 +185,10 @@ export const getAudioCodecStringFromTrak = (trak: TrakBox): string => {
 	return (
 		[
 			codec.format,
-			codec.specificator ? codec.specificator.toString(16) : null,
+			codec.primarySpecificator ? codec.primarySpecificator.toString(16) : null,
+			codec.secondarySpecificator
+				? codec.secondarySpecificator.toString().padStart(2, '0')
+				: null,
 		].filter(Boolean) as string[]
 	).join('.');
 };
@@ -186,19 +208,19 @@ export const getAudioCodec = (boxes: AnySegment[]): KnownAudioCodecs | null => {
 		}
 
 		if (codec.format === 'mp4a') {
-			if (codec.specificator === 0x40) {
+			if (codec.primarySpecificator === 0x40) {
 				return 'aac';
 			}
 
-			if (codec.specificator === 0x6b) {
+			if (codec.primarySpecificator === 0x6b) {
 				return 'mp3';
 			}
 
-			if (codec.specificator === null) {
+			if (codec.primarySpecificator === null) {
 				return 'aac';
 			}
 
-			throw new Error('Unknown mp4a codec: ' + codec.specificator);
+			throw new Error('Unknown mp4a codec: ' + codec.primarySpecificator);
 		}
 
 		throw new Error('Unknown audio format: ' + codec.format);

@@ -99,7 +99,7 @@ export const parseMdat = ({
 
 		if (sampleWithIndex.track.type === 'audio') {
 			options.parserState.onAudioSample(sampleWithIndex.track.trackId, {
-				bytes,
+				data: bytes,
 				timestamp: sampleWithIndex.samplePosition.offset,
 				offset: data.counter.getOffset(),
 				trackId: sampleWithIndex.track.trackId,
@@ -115,7 +115,7 @@ export const parseMdat = ({
 				sampleWithIndex.track.timescale;
 
 			options.parserState.onVideoSample(sampleWithIndex.track.trackId, {
-				bytes,
+				data: bytes,
 				timestamp,
 				duration,
 				cts: sampleWithIndex.samplePosition.cts,

@@ -91,9 +91,10 @@ export const makeBaseMediaTrack = (
 			samplePositions,
 			trackId: tkhdBox.trackId,
 			timescale: timescaleAndDuration.timescale,
-			codecString: getAudioCodecStringFromTrak(trakBox),
+			codec: getAudioCodecStringFromTrak(trakBox),
 			numberOfChannels,
 			sampleRate,
+			description: undefined,
 		};
 	}
 
@@ -128,11 +129,11 @@ export const makeBaseMediaTrack = (
 		trackId: tkhdBox.trackId,
 		description: videoDescriptors,
 		timescale: timescaleAndDuration.timescale,
-		codecString: getVideoCodecString(trakBox),
+		codec: getVideoCodecString(trakBox),
 		sampleAspectRatio: getSampleAspectRatio(trakBox),
 		width: applied.width,
 		height: applied.height,
-		untransformedWidth: videoSample.width,
-		untransformedHeight: videoSample.height,
+		codedWidth: videoSample.width,
+		codedHeight: videoSample.height,
 	} as VideoTrack;
 };

@@ -31,9 +31,16 @@ test('Parse ESDS box', () => {
 				type: 'decoder-config-descriptor',
 				objectTypeIndication: 'mp3',
 				asNumber: 107,
-			},
-			{
-				type: 'sl-config-descriptor',
+				bufferSizeDB: 0,
+				streamType: 5,
+				upStream: 0,
+				avgBitrate: 320000,
+				maxBitrate: 320000,
+				decoderSpecificConfigs: [
+					{
+						type: 'unknown-decoder-specific-config',
+					},
+				],
 			},
 		],
 	});
@@ -68,9 +75,22 @@ test('Parse two ESDS', () => {
 				objectTypeIndication: 'aac',
 				type: 'decoder-config-descriptor',
 				asNumber: 64,
-			},
-			{
-				type: 'sl-config-descriptor',
+				bufferSizeDB: 6144,
+				streamType: 5,
+				upStream: 0,
+				avgBitrate: 320000,
+				maxBitrate: 320000,
+				decoderSpecificConfigs: [
+					{
+						audioObjectType: 2,
+						channelConfiguration: 2,
+						samplingFrequencyIndex: 3,
+						type: 'audio-specific-config',
+					},
+					{
+						type: 'unknown-decoder-specific-config',
+					},
+				],
 			},
 		],
 	});

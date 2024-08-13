@@ -137,7 +137,7 @@ export const av1Bitstream = ({
 		}
 
 		onVideoSample(trackNumber, {
-			bytes: combineUint8Arrays(extraBytes, frame),
+			data: combineUint8Arrays(extraBytes, frame),
 			timestamp: timecode + clusterTimestamp,
 			duration: undefined,
 			trackId: trackNumber,
