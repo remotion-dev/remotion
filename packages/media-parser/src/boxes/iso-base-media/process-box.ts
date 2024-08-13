@@ -75,7 +75,7 @@ const getChildren = ({
 	return [];
 };
 
-const processBox = ({
+export const processBox = ({
 	iterator,
 	allowIncompleteBoxes,
 	parsedBoxes,
@@ -118,11 +118,10 @@ const processBox = ({
 						return {
 							type: 'complete',
 							box: {
-								type: 'regular-box',
-								boxType: 'mdat',
-								children: [],
+								type: 'mdat-box',
 								boxSize,
-								offset: fileOffset,
+								fileOffset,
+								samplesProcessed: false,
 							},
 							size: boxSize,
 							skipTo: fileOffset + boxSize,

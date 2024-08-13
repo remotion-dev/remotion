@@ -15,14 +15,14 @@ export type VideoTrack = {
 	type: 'video';
 	samplePositions: SamplePosition[] | null;
 	trackId: number;
-	description: Uint8Array | null;
+	description: Uint8Array | undefined;
 	timescale: number;
-	codecString: string;
+	codec: string;
 	sampleAspectRatio: SampleAspectRatio;
 	width: number;
 	height: number;
-	untransformedWidth: number;
-	untransformedHeight: number;
+	codedWidth: number;
+	codedHeight: number;
 };
 
 export type AudioTrack = {
@@ -30,7 +30,17 @@ export type AudioTrack = {
 	samplePositions: SamplePosition[] | null;
 	trackId: number;
 	timescale: number;
-	codecString: string | null;
+	codec: string;
+	numberOfChannels: number;
+	sampleRate: number;
+	description: Uint8Array | undefined;
+};
+
+export type OtherTrack = {
+	type: 'other';
+	samplePositions: SamplePosition[] | null;
+	trackId: number;
+	timescale: number;
 };
 
 export type Track = VideoTrack | AudioTrack;
@@ -70,6 +80,7 @@ export const getTracks = (
 ): {
 	videoTracks: VideoTrack[];
 	audioTracks: AudioTrack[];
+	otherTracks: OtherTrack[];
 } => {
 	const mainSegment = segments.find((s) => s.type === 'main-segment');
 	if (mainSegment && mainSegment.type === 'main-segment') {
@@ -81,11 +92,13 @@ export const getTracks = (
 		return {
 			videoTracks: [],
 			audioTracks: [],
+			otherTracks: [],
 		};
 	}
 
 	const videoTracks: VideoTrack[] = [];
 	const audioTracks: AudioTrack[] = [];
+	const otherTracks: OtherTrack[] = [];
 	const tracks = getTraks(moovBox);
 
 	for (const trakBox of tracks) {
@@ -96,15 +109,16 @@ export const getTracks = (
 
 		if (track.type === 'video') {
 			videoTracks.push(track);
-		}
-
-		if (track.type === 'audio') {
+		} else if (track.type === 'audio') {
 			audioTracks.push(track);
+		} else if (track.type === 'other') {
+			otherTracks.push(track);
 		}
 	}
 
 	return {
 		videoTracks,
 		audioTracks,
+		otherTracks,
 	};
 };

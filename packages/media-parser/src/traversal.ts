@@ -14,6 +14,7 @@ import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import type {MainSegment} from './boxes/webm/segments/main';
 import type {TimestampScaleSegment} from './boxes/webm/segments/timestamp-scale';
 import type {
+	AudioSegment,
 	ClusterSegment,
 	CodecSegment,
 	HeightSegment,
@@ -286,6 +287,56 @@ export const getVideoSegment = (
 	}
 
 	return videoSegment ?? null;
+};
+
+export const getAudioSegment = (
+	track: TrackEntrySegment,
+): AudioSegment | null => {
+	const audioSegment = track.children.find((b) => b.type === 'audio-segment');
+	if (!audioSegment || audioSegment.type !== 'audio-segment') {
+		return null;
+	}
+
+	return audioSegment ?? null;
+};
+
+export const getSampleRate = (track: TrackEntrySegment): number | null => {
+	const audioSegment = getAudioSegment(track);
+	if (!audioSegment) {
+		return null;
+	}
+
+	const samplingFrequency = audioSegment.children.find(
+		(b) => b.type === 'sampling-frequency-segment',
+	);
+
+	if (
+		!samplingFrequency ||
+		samplingFrequency.type !== 'sampling-frequency-segment'
+	) {
+		return null;
+	}
+
+	return samplingFrequency.samplingFrequency;
+};
+
+export const getNumberOfChannels = (
+	track: TrackEntrySegment,
+): number | null => {
+	const audioSegment = getAudioSegment(track);
+	if (!audioSegment) {
+		return null;
+	}
+
+	const channels = audioSegment.children.find(
+		(b) => b.type === 'channels-segment',
+	);
+
+	if (!channels || channels.type !== 'channels-segment') {
+		return null;
+	}
+
+	return channels.channels;
 };
 
 export const getWidthSegment = (

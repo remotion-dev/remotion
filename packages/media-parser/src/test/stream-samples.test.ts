@@ -108,15 +108,15 @@ test('Stream samples', async () => {
 			],
 			description,
 			timescale: 15360,
-			codecString: 'avc1.640020',
+			codec: 'avc1.640020',
 			sampleAspectRatio: {
 				numerator: 1,
 				denominator: 1,
 			},
 			width: 1080,
 			height: 1080,
-			untransformedWidth: 1080,
-			untransformedHeight: 1080,
+			codedWidth: 1080,
+			codedHeight: 1080,
 		},
 	]);
 
@@ -247,7 +247,10 @@ test('Stream samples', async () => {
 				},
 			],
 			timescale: 48000,
-			codecString: 'mp4a.6b',
+			numberOfChannels: 2,
+			codec: 'mp4a.6b',
+			sampleRate: 48000,
+			description: undefined,
 		},
 	]);
 });

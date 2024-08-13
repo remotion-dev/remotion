@@ -79,7 +79,7 @@ export type ParseMedia = <
 	EnableUnrotatedDimensions extends boolean,
 >(options: {
 	src: string | File;
-	fields: Options<
+	fields?: Options<
 		EnableDimensions,
 		EnableDuration,
 		EnableBoxes,
