@@ -8,7 +8,6 @@ crumb: "Lambda CLI Reference"
 ---
 
 import { DefaultMemorySize } from "../../../components/lambda/default-memory-size";
-import { DefaultEphemerealStorageInMb } from "../../../components/lambda/default-disk-size";
 import { DefaultTimeout } from "../../../components/lambda/default-timeout";
 import { DefaultLogRetention } from "../../../components/lambda/default-log-retention";
 
@@ -62,7 +61,12 @@ Memory size in megabytes. Default: <DefaultMemorySize /> MB.
 
 ### `--disk`
 
-Disk size in megabytes. Default: <DefaultEphemerealStorageInMb /> MB. See also: [Disk size](/docs/lambda/disk-size).
+Disk size in megabytes. See also: [Disk size](/docs/lambda/disk-size).
+
+| Remotion Version | Default       |
+|------------------|---------------|
+| &lt;5.0.0        | 2048MB        |
+| &gt;=5.0.0       | 10240MB       |
 
 ### `--timeout`
 

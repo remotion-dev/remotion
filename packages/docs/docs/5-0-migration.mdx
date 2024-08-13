@@ -79,6 +79,15 @@ The default value of `overwrite` has been changed to `true` in `renderMediaOnLam
 The `shouldDumpIo` option has been be removed in 5.0.  
 Use `logLevel` instead.
 
+## `diskSizeInMb` is now 10240 by default
+
+For Remotion Lambda, the default disk size is now 10240 MB.  
+This will add a miniscule cost to your renders technically, but will lead to more reliable and faster renders, since Chrome is less likely to run out of disk cache.  
+
+**Required actions**:
+- If you want to keep the old behavior, set `diskSizeInMb: 2048`, explicitly.
+- If your Lambda function name is hardcoded to include `disk2048mb`, unhardcode it and use `speculateFunctionName()` to get the correct name.
+
 ## License changes
 
 Remotion 5.0 has an updated license. View the [license](https://github.com/remotion-dev/remotion/blob/5-0-license/LICENSE.md) here or compare the [changes](https://github.com/remotion-dev/remotion/pull/3750).
