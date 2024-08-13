@@ -65,6 +65,20 @@ export const getNumberOfChannelsFromTrak = (trak: TrakBox): number | null => {
 	return sample.numberOfChannels;
 };
 
+export const getSampleRate = (trak: TrakBox): number | null => {
+	const stsdBox = getStsdBox(trak);
+	if (!stsdBox) {
+		return null;
+	}
+
+	const sample = stsdBox.samples.find((s) => s.type === 'audio');
+	if (!sample || sample.type !== 'audio') {
+		return null;
+	}
+
+	return sample.sampleRate;
+};
+
 export const getAudioCodecFromTrak = (trak: TrakBox): AudioCodecInfo | null => {
 	const stsdBox = getStsdBox(trak);
 	if (!stsdBox) {

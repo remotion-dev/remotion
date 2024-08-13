@@ -155,6 +155,7 @@ export const getTrack = ({
 			samplePositions: null,
 			timescale: timescale.timestampScale,
 			numberOfChannels,
+			sampleRate,
 		};
 	}
 

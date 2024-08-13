@@ -249,6 +249,7 @@ test('Stream samples', async () => {
 			timescale: 48000,
 			numberOfChannels: 2,
 			codecString: 'mp4a.6b',
+			sampleRate: 48000,
 		},
 	]);
 });

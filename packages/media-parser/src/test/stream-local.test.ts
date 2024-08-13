@@ -242,6 +242,7 @@ test('Should stream variable fps video', async () => {
 			expect(track.trackId).toBe(1);
 			expect(track.codecString).toBe('opus');
 			expect(track.numberOfChannels).toBe(1);
+			expect(track.sampleRate).toBe(48000);
 			audioTracks++;
 			// TODO: Get samples
 			return null;
@@ -281,6 +282,7 @@ test('Should stream variable fps video', async () => {
 		timescale: 1000000,
 		trackId: 1,
 		numberOfChannels: 1,
+		sampleRate: 48000,
 	});
 	expect(audioTracks).toBe(1);
 });

@@ -1,6 +1,7 @@
 import {
 	getAudioCodecStringFromTrak,
 	getNumberOfChannelsFromTrak,
+	getSampleRate,
 } from '../../get-audio-codec';
 import {
 	getTimescaleAndDuration,
@@ -80,6 +81,11 @@ export const makeBaseMediaTrack = (
 			throw new Error('Could not find number of channels');
 		}
 
+		const sampleRate = getSampleRate(trakBox);
+		if (sampleRate === null) {
+			throw new Error('Could not find sample rate');
+		}
+
 		return {
 			type: 'audio',
 			samplePositions,
@@ -87,6 +93,7 @@ export const makeBaseMediaTrack = (
 			timescale: timescaleAndDuration.timescale,
 			codecString: getAudioCodecStringFromTrak(trakBox),
 			numberOfChannels,
+			sampleRate,
 		};
 	}
 
