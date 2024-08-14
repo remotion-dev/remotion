@@ -298,6 +298,8 @@ test('Should stream variable fps video', async () => {
 });
 
 test('Should stream MKV video', async () => {
+	let videoSamples = 0;
+	let audioSamples = 0;
 	const parsed = await parseMedia({
 		src: RenderInternals.exampleVideos.matroskaPcm16,
 		fields: {
@@ -307,6 +309,20 @@ test('Should stream MKV video', async () => {
 			videoCodec: true,
 			audioCodec: true,
 			rotation: true,
+			boxes: true,
+		},
+		onVideoTrack: (track) => {
+			expect(track.codec).toBe('avc1.640020');
+
+			return () => {
+				videoSamples++;
+			};
+		},
+		onAudioTrack: (track) => {
+			expect(track.codec).toBe('pcm-s16');
+			return () => {
+				audioSamples++;
+			};
 		},
 		reader: nodeReader,
 	});
@@ -318,6 +334,9 @@ test('Should stream MKV video', async () => {
 	expect(parsed.audioCodec).toBe('pcm');
 	expect(parsed.rotation).toBe(0);
 	expect(parsed.fps).toBe(null);
+
+	expect(videoSamples).toBe(3);
+	expect(audioSamples).toBe(3);
 });
 
 test('Should stream MP3 in MP4 video', async () => {
@@ -336,7 +355,7 @@ test('Should stream MP3 in MP4 video', async () => {
 		},
 		onAudioTrack: (track) => {
 			expect(track.type).toBe('audio');
-			expect(track.codec).toBe('mp4a.6b');
+			expect(track.codec).toBe('mp3');
 			expect(track.sampleRate).toBe(48000);
 			expect(typeof track.description).toBe('undefined');
 			return () => {
@@ -354,7 +373,7 @@ test('Should stream MP3 in MP4 video', async () => {
 	expect(parsed.videoTracks.length).toEqual(1);
 	expect(parsed.videoTracks[0].codec).toBe('avc1.640020');
 	expect(parsed.audioTracks.length).toEqual(1);
-	expect(parsed.audioTracks[0].codec).toBe('mp4a.6b');
+	expect(parsed.audioTracks[0].codec).toBe('mp3');
 	expect(parsed.rotation).toBe(0);
 	expect(audioFrames).toBe(15);
 });
@@ -472,7 +491,7 @@ test('VP8 Vorbis', async () => {
 	let videoSamples = 0;
 	let audioSamples = 0;
 
-	await parseMedia({
+	const {audioCodec} = await parseMedia({
 		src: RenderInternals.exampleVideos.vp8Vorbis,
 		onVideoTrack: (track) => {
 			expect(track.codec).toBe('vp8');
@@ -483,6 +502,9 @@ test('VP8 Vorbis', async () => {
 			return () => {
 				videoSamples++;
 			};
+		},
+		fields: {
+			audioCodec: true,
 		},
 		onAudioTrack: (track) => {
 			expect(track.codec).toBe('vorbis');
@@ -498,6 +520,8 @@ test('VP8 Vorbis', async () => {
 
 	expect(videoSamples).toBe(812);
 	expect(audioSamples).toBe(1496);
+
+	expect(audioCodec).toBe('vorbis');
 });
 
 test('VP9', async () => {

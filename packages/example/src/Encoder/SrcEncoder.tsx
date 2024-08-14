@@ -14,6 +14,7 @@ export const SrcEncoder: React.FC<{
 		parseMedia({
 			src,
 			onVideoTrack: (track) => {
+				console.log(track);
 				const videoDecoder = new VideoDecoder({
 					output(inputFrame) {
 						flushSync(() => {
@@ -47,6 +48,8 @@ export const SrcEncoder: React.FC<{
 				};
 			},
 			onAudioTrack: (track) => {
+				console.log(track);
+
 				if (typeof AudioDecoder === 'undefined') {
 					return null;
 				}
@@ -66,6 +69,7 @@ export const SrcEncoder: React.FC<{
 				audioDecoder.configure(track);
 
 				return async (audioSample) => {
+					console.log('audio sample', audioSample);
 					flushSync(() => {
 						setSamples((s) => s + 1);
 					});

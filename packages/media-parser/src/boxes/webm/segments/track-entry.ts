@@ -664,7 +664,7 @@ export const parseSimpleBlockSegment = async ({
 		});
 	}
 
-	if (codec.codec === 'V_VP9') {
+	if (codec.codec === 'V_VP9' || codec.codec === 'V_MPEG4/ISO/AVC') {
 		const remainingNow = length - (iterator.counter.getOffset() - start);
 
 		await parserContext.parserState.onVideoSample(trackNumber, {
@@ -682,6 +682,17 @@ export const parseSimpleBlockSegment = async ({
 		const vorbisRemaining = length - (iterator.counter.getOffset() - start);
 		await parserContext.parserState.onAudioSample(trackNumber, {
 			data: iterator.getSlice(vorbisRemaining),
+			offset: timecode,
+			trackId: trackNumber,
+			timestamp: timecode,
+			type: 'key',
+		});
+	}
+
+	if (codec.codec === 'A_PCM/INT/LIT') {
+		const pcmRemaining = length - (iterator.counter.getOffset() - start);
+		await parserContext.parserState.onAudioSample(trackNumber, {
+			data: iterator.getSlice(pcmRemaining),
 			offset: timecode,
 			trackId: trackNumber,
 			timestamp: timecode,

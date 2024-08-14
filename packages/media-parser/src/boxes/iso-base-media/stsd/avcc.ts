@@ -2,7 +2,7 @@ import type {BufferIterator} from '../../../buffer-iterator';
 
 export interface AvccBox {
 	type: 'avcc-box';
-	data: Uint8Array;
+	description: Uint8Array;
 	configurationString: string;
 }
 
@@ -26,9 +26,11 @@ export const parseAvcc = ({
 
 	data.counter.decrement(4);
 
+	const description = data.getSlice(size - 8);
+
 	return {
 		type: 'avcc-box',
-		data: data.getSlice(size - 8),
+		description,
 		configurationString: str,
 	};
 };

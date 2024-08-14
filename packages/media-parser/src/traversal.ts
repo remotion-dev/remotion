@@ -144,7 +144,7 @@ export const getVideoDescriptors = (trakBox: TrakBox): Uint8Array | null => {
 		return s.type === 'video'
 			? s.descriptors.map((d) => {
 					return d.type === 'avcc-box'
-						? d.data
+						? d.description
 						: d.type === 'hvcc-box'
 							? d.data
 							: null;
@@ -337,6 +337,23 @@ export const getNumberOfChannels = (track: TrackEntrySegment): number => {
 	}
 
 	return channels.channels;
+};
+
+export const getBitDepth = (track: TrackEntrySegment): number | null => {
+	const audioSegment = getAudioSegment(track);
+	if (!audioSegment) {
+		return null;
+	}
+
+	const bitDepth = audioSegment.children.find(
+		(b) => b.type === 'bit-depth-segment',
+	);
+
+	if (!bitDepth || bitDepth.type !== 'bit-depth-segment') {
+		return null;
+	}
+
+	return bitDepth.bitDepth;
 };
 
 export const getPrivateData = (track: TrackEntrySegment): Uint8Array | null => {

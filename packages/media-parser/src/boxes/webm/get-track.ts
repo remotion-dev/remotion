@@ -1,6 +1,7 @@
 import {av1CodecStringToString} from '../../av1-codec-string';
 import type {AudioTrack, VideoTrack} from '../../get-tracks';
 import {
+	getBitDepth,
 	getCodecSegment,
 	getDisplayHeightSegment,
 	getDisplayWidthSegment,
@@ -20,6 +21,22 @@ import type {
 	CodecSegment,
 	TrackEntrySegment,
 } from './segments/track-entry';
+
+const getDescription = (track: TrackEntrySegment): undefined | Uint8Array => {
+	const codec = getCodecSegment(track);
+	if (!codec) {
+		return undefined;
+	}
+
+	if (codec.codec === 'V_MPEG4/ISO/AVC') {
+		const priv = getPrivateData(track);
+		if (priv) {
+			return priv;
+		}
+	}
+
+	return undefined;
+};
 
 const getMatroskaVideoCodecString = ({
 	track,
@@ -79,9 +96,22 @@ const getMatroskaAudioCodecString = (track: TrackEntrySegment): string => {
 		return 'vorbis';
 	}
 
-	// TODO: Wrong, see here how to parse it correctly
 	if (codec.codec === 'A_PCM/INT/LIT') {
-		return 'pcm-s16';
+		// https://github.com/ietf-wg-cellar/matroska-specification/issues/142#issuecomment-330004950
+		// Audio samples MUST be considered as signed values, except if the audio bit depth is 8 which MUST be interpreted as unsigned values.
+
+		const bitDepth = getBitDepth(track);
+		if (bitDepth === null) {
+			throw new Error('Expected bit depth');
+		}
+
+		if (bitDepth === 8) {
+			return 'pcm-u8';
+		}
+
+		if (bitDepth === 16) {
+			return 'pcm-s' + bitDepth;
+		}
 	}
 
 	throw new Error(`Unknown codec: ${codec.codec}`);
@@ -145,7 +175,7 @@ export const getTrack = ({
 			type: 'video',
 			trackId,
 			codec: codecString,
-			description: undefined,
+			description: getDescription(track),
 			height: displayHeight ? displayHeight.displayHeight : height.height,
 			width: displayWidth ? displayWidth.displayWidth : width.width,
 			sampleAspectRatio: {

@@ -178,6 +178,10 @@ export const getAudioCodecFromMatroska = (mainSegment: MainSegment) => {
 					return 'opus';
 				}
 
+				if (trackType.codec === 'A_VORBIS') {
+					return 'vorbis';
+				}
+
 				if (trackType.codec === 'A_PCM/INT/LIT') {
 					return 'pcm';
 				}
@@ -196,18 +200,24 @@ export const getAudioCodecStringFromTrak = (
 		throw new Error('Expected codec');
 	}
 
+	const codecStringWithoutMp3Exception = (
+		[
+			codec.format,
+			codec.primarySpecificator ? codec.primarySpecificator.toString(16) : null,
+			codec.secondarySpecificator
+				? codec.secondarySpecificator.toString().padStart(2, '0')
+				: null,
+		].filter(Boolean) as string[]
+	).join('.');
+
+	// Really, MP3? 😔
+	const codecString =
+		codecStringWithoutMp3Exception === 'mp4a.6b'
+			? 'mp3' // or "mp4a.6B" would also work, with the uppercasing, but mp3 is probably more obvious
+			: codecStringWithoutMp3Exception;
+
 	return {
-		codecString: (
-			[
-				codec.format,
-				codec.primarySpecificator
-					? codec.primarySpecificator.toString(16)
-					: null,
-				codec.secondarySpecificator
-					? codec.secondarySpecificator.toString().padStart(2, '0')
-					: null,
-			].filter(Boolean) as string[]
-		).join('.'),
+		codecString,
 		description: codec.description,
 	};
 };

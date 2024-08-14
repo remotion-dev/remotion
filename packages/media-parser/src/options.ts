@@ -19,6 +19,7 @@ export type KnownAudioCodecs =
 	| 'aiff'
 	| 'opus'
 	| 'pcm'
+	| 'vorbis'
 	| 'unknown';
 
 export type Options<
