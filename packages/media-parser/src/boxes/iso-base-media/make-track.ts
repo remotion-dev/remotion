@@ -125,10 +125,6 @@ export const makeBaseMediaTrack = (
 		}),
 	});
 
-	if (getVideoCodecString(trakBox)?.startsWith('hvc')) {
-		console.log(getVideoCodecString(trakBox), videoDescriptors);
-	}
-
 	return {
 		type: 'video',
 		samplePositions,
