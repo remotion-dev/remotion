@@ -17,6 +17,7 @@ export const hasAllInfo = (
 		boolean,
 		boolean,
 		boolean,
+		boolean,
 		boolean
 	>,
 	parseResult: ParseResult,
@@ -24,6 +25,7 @@ export const hasAllInfo = (
 	const keys = Object.entries(options)
 		.filter(([, value]) => value)
 		.map(([key]) => key) as (keyof Options<
+		true,
 		true,
 		true,
 		true,
@@ -66,6 +68,10 @@ export const hasAllInfo = (
 
 		if (key === 'tracks') {
 			return hasTracks(parseResult.segments);
+		}
+
+		if (key === 'internalStats') {
+			return false;
 		}
 
 		throw new Error(`Unknown key: ${key satisfies never}`);

@@ -11,6 +11,10 @@ import type {
 	VideoSample,
 } from './webcodec-sample-types';
 
+export type InternalStats = {
+	samplesThatHadToBeQueued: number;
+};
+
 export const makeParserState = ({
 	hasAudioCallbacks,
 	hasVideoCallbacks,
@@ -39,6 +43,8 @@ export const makeParserState = ({
 
 	const videoSampleCallbacks: Record<number, OnVideoSample> = {};
 	const audioSampleCallbacks: Record<number, OnAudioSample> = {};
+
+	let samplesThatHadToBeQueued = 0;
 
 	const queuedAudioSamples: Record<number, AudioSample[]> = {};
 	const queuedVideoSamples: Record<number, VideoSample[]> = {};
@@ -109,6 +115,7 @@ export const makeParserState = ({
 
 				queuedAudioSamples[trackId] ??= [];
 				queuedAudioSamples[trackId].push(audioSample);
+				samplesThatHadToBeQueued++;
 			}
 		},
 		onVideoSample: async (trackId: number, videoSample: VideoSample) => {
@@ -126,6 +133,7 @@ export const makeParserState = ({
 
 				queuedVideoSamples[trackId] ??= [];
 				queuedVideoSamples[trackId].push(videoSample);
+				samplesThatHadToBeQueued++;
 			}
 		},
 		registerClusterTimestamp: (timestamp: number) => {
@@ -148,6 +156,11 @@ export const makeParserState = ({
 			isFirstAv1FrameRead = true;
 		},
 		getIsFirstAv1FrameRead: () => isFirstAv1FrameRead,
+		getInternalStats: () => {
+			return {
+				samplesThatHadToBeQueued,
+			};
+		},
 	};
 };
 

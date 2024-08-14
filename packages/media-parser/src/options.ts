@@ -2,6 +2,7 @@ import type {} from './boxes/iso-base-media/mdat/mdat';
 import type {Dimensions} from './get-dimensions';
 import type {AudioTrack, VideoTrack} from './get-tracks';
 import type {AnySegment} from './parse-result';
+import type {InternalStats} from './parser-state';
 import type {ReaderInterface} from './reader';
 import type {OnAudioTrack, OnVideoTrack} from './webcodec-sample-types';
 
@@ -32,6 +33,7 @@ export type Options<
 	EnableTracks extends boolean,
 	EnableRotation extends boolean,
 	EnableUnrotatedDimensions extends boolean,
+	EnableInternalStats extends boolean,
 > = {
 	dimensions?: EnableDimensions;
 	durationInSeconds?: EnableDuration;
@@ -42,6 +44,7 @@ export type Options<
 	tracks?: EnableTracks;
 	rotation?: EnableRotation;
 	unrotatedDimension?: EnableUnrotatedDimensions;
+	internalStats?: EnableInternalStats;
 };
 
 export type Metadata<
@@ -54,6 +57,7 @@ export type Metadata<
 	EnableTracks extends boolean,
 	EnableRotation extends boolean,
 	EnableUnrotatedDimensions extends boolean,
+	EnableInternalStats extends boolean,
 > = (EnableDimensions extends true ? {dimensions: Dimensions} : {}) &
 	(EnableDuration extends true ? {durationInSeconds: number | null} : {}) &
 	(EnableBoxes extends true ? {boxes: AnySegment[]} : {}) &
@@ -66,7 +70,8 @@ export type Metadata<
 	(EnableRotation extends true ? {rotation: number | null} : {}) &
 	(EnableUnrotatedDimensions extends true
 		? {unrotatedDimension: Dimensions}
-		: {});
+		: {}) &
+	(EnableInternalStats extends true ? {internalStats: InternalStats} : {});
 
 export type ParseMedia = <
 	EnableDimensions extends boolean,
@@ -78,6 +83,7 @@ export type ParseMedia = <
 	EnableTracks extends boolean,
 	EnableRotation extends boolean,
 	EnableUnrotatedDimensions extends boolean,
+	EnableInternalStats extends boolean,
 >(options: {
 	src: string | File;
 	fields?: Options<
@@ -89,7 +95,8 @@ export type ParseMedia = <
 		EnableAudioCodec,
 		EnableTracks,
 		EnableRotation,
-		EnableUnrotatedDimensions
+		EnableUnrotatedDimensions,
+		EnableInternalStats
 	>;
 	reader?: ReaderInterface;
 	onAudioTrack?: OnAudioTrack;
@@ -104,6 +111,7 @@ export type ParseMedia = <
 		EnableAudioCodec,
 		EnableTracks,
 		EnableRotation,
-		EnableUnrotatedDimensions
+		EnableUnrotatedDimensions,
+		EnableInternalStats
 	>
 >;

@@ -37,6 +37,7 @@ export const parseMedia: ParseMedia = async ({
 		true,
 		true,
 		true,
+		true,
 		true
 	>;
 
@@ -47,6 +48,13 @@ export const parseMedia: ParseMedia = async ({
 		hasAudioCallbacks: onAudioTrack !== null,
 		hasVideoCallbacks: onVideoTrack !== null,
 	});
+
+	const options: ParserContext = {
+		canSkipVideoData: !(onAudioTrack || onVideoTrack),
+		onAudioTrack: onAudioTrack ?? null,
+		onVideoTrack: onVideoTrack ?? null,
+		parserState: state,
+	};
 
 	while (parseResult === null || parseResult.status === 'incomplete') {
 		const result = await currentReader.read();
@@ -65,13 +73,6 @@ export const parseMedia: ParseMedia = async ({
 				contentLength ?? undefined,
 			);
 		}
-
-		const options: ParserContext = {
-			canSkipVideoData: !(onAudioTrack || onVideoTrack),
-			onAudioTrack: onAudioTrack ?? null,
-			onVideoTrack: onVideoTrack ?? null,
-			parserState: state,
-		};
 
 		if (parseResult && parseResult.status === 'incomplete') {
 			parseResult = await parseResult.continueParsing();
@@ -170,6 +171,10 @@ export const parseMedia: ParseMedia = async ({
 
 	if (fields?.boxes) {
 		returnValue.boxes = parseResult.segments;
+	}
+
+	if (fields?.internalStats) {
+		returnValue.internalStats = state.getInternalStats();
 	}
 
 	return returnValue;
