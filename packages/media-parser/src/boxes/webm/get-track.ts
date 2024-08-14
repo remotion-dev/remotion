@@ -1,4 +1,6 @@
+import {getArrayBufferIterator} from '../../buffer-iterator';
 import type {AudioTrack, VideoTrack} from '../../get-tracks';
+import {getHvc1CodecString} from '../../make-hvc1-codec-strings';
 import {
 	getBitDepth,
 	getCodecSegment,
@@ -22,7 +24,7 @@ const getDescription = (track: TrackEntrySegment): undefined | Uint8Array => {
 		return undefined;
 	}
 
-	if (codec.codec === 'V_MPEG4/ISO/AVC') {
+	if (codec.codec === 'V_MPEG4/ISO/AVC' || codec.codec === 'V_MPEGH/ISO/HEVC') {
 		const priv = getPrivateData(track);
 		if (priv) {
 			return priv;
@@ -47,7 +49,7 @@ const getMatroskaVideoCodecString = ({
 		const priv = getPrivateData(track);
 		if (priv) {
 			throw new Error(
-				'Private data is not implemented for VP9. Do you have an example file?',
+				'@remotion/media-parser cannot handle the private data for VP9. Do you have an example file you could send so we can implement it?',
 			);
 		}
 
@@ -71,6 +73,13 @@ const getMatroskaVideoCodecString = ({
 		}
 
 		return parseAv1PrivateData(priv, null);
+	}
+
+	if (codec.codec === 'V_MPEGH/ISO/HEVC') {
+		const priv = getPrivateData(track);
+		const iterator = getArrayBufferIterator(priv as Uint8Array);
+
+		return 'hvc1.' + getHvc1CodecString(iterator);
 	}
 
 	throw new Error(`Unknown codec: ${codec.codec}`);
@@ -106,6 +115,41 @@ const getMatroskaAudioCodecString = (track: TrackEntrySegment): string => {
 		if (bitDepth === 16) {
 			return 'pcm-s' + bitDepth;
 		}
+	}
+
+	if (codec.codec === 'A_AAC') {
+		const priv = getPrivateData(track);
+
+		const iterator = getArrayBufferIterator(priv as Uint8Array);
+
+		iterator.startReadingBits();
+		/**
+		 * ChatGPT
+		 * 	▪	The first 5 bits represent the AOT.
+				▪	Common values:
+				◦	1 for AAC Main
+				◦	2 for AAC LC (Low Complexity)
+				◦	3 for AAC SSR (Scalable Sample Rate)
+				◦	4 for AAC LTP (Long Term Prediction)
+				◦	5 for SBR (Spectral Band Replication)
+				◦	29 for HE-AAC (which uses SBR with AAC LC)
+		 */
+		/** 
+		 * Fully qualified codec: 
+		 * This codec has multiple possible codec strings:
+			"mp4a.40.2" — MPEG-4 AAC LC
+			"mp4a.40.02" — MPEG-4 AAC LC, leading 0 for Aud-OTI compatibility
+			"mp4a.40.5" — MPEG-4 HE-AAC v1 (AAC LC + SBR)
+			"mp4a.40.05" — MPEG-4 HE-AAC v1 (AAC LC + SBR), leading 0 for Aud-OTI compatibility
+			"mp4a.40.29" — MPEG-4 HE-AAC v2 (AAC LC + SBR + PS)
+			"mp4a.67" — MPEG-2 AAC LC
+		*/
+
+		const profile = iterator.getBits(5);
+		iterator.stopReadingBits();
+		iterator.destroy();
+
+		return `mp4a.40.${profile.toString().padStart(2, '0')}`;
 	}
 
 	throw new Error(`Unknown codec: ${codec.codec}`);

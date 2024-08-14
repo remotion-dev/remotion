@@ -185,6 +185,10 @@ export const getAudioCodecFromMatroska = (mainSegment: MainSegment) => {
 				if (trackType.codec === 'A_PCM/INT/LIT') {
 					return 'pcm';
 				}
+
+				if (trackType.codec === 'A_AAC') {
+					return 'aac';
+				}
 			}
 		}
 	}

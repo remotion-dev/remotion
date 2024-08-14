@@ -584,3 +584,38 @@ test('Stretched VP8', async () => {
 		},
 	]);
 });
+
+test('HEVC and AAC in Matroska', async () => {
+	let audioSamples = 0;
+	let videoSamples = 0;
+
+	const parsed = await parseMedia({
+		src: RenderInternals.exampleVideos.matroskaH265Aac,
+		fields: {
+			tracks: true,
+			videoCodec: true,
+			audioCodec: true,
+			boxes: true,
+		},
+		reader: nodeReader,
+		onAudioTrack: (audioTrack) => {
+			expect(audioTrack.codec).toEqual('mp4a.40.02');
+			return () => {
+				audioSamples++;
+			};
+		},
+		onVideoTrack: (videoTrack) => {
+			expect(videoTrack.codec).toEqual('hvc1.1.6.L93.90');
+			return () => {
+				videoSamples++;
+			};
+		},
+	});
+
+	expect(parsed.videoCodec).toEqual('h265');
+	expect(parsed.audioCodec).toEqual('aac');
+	expect(parsed.videoTracks.length).toBe(1);
+	expect(parsed.audioTracks.length).toBe(1);
+	expect(audioSamples).toBe(159);
+	expect(videoSamples).toBe(100);
+});

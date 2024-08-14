@@ -619,12 +619,7 @@ export const parseSimpleBlockSegment = async ({
 
 	const children: MatroskaSegment[] = [];
 
-	if (
-		codec.codec === 'V_VP8' ||
-		codec.codec === 'V_AV1' ||
-		codec.codec === 'V_VP9' ||
-		codec.codec === 'V_MPEG4/ISO/AVC'
-	) {
+	if (codec.codec.startsWith('V_')) {
 		const remainingNow = length - (iterator.counter.getOffset() - start);
 
 		await parserContext.parserState.onVideoSample(trackNumber, {
@@ -638,7 +633,7 @@ export const parseSimpleBlockSegment = async ({
 		});
 	}
 
-	if (codec.codec === 'A_VORBIS' || codec.codec === 'A_PCM/INT/LIT') {
+	if (codec.codec.startsWith('A_')) {
 		const vorbisRemaining = length - (iterator.counter.getOffset() - start);
 		await parserContext.parserState.onAudioSample(trackNumber, {
 			data: iterator.getSlice(vorbisRemaining),

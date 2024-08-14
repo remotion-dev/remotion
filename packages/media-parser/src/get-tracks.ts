@@ -46,7 +46,6 @@ export type OtherTrack = {
 
 export type Track = VideoTrack | AudioTrack | OtherTrack;
 
-// TODO: Use this to determine if all tracks are present
 export const getNumberOfTracks = (moovBox: MoovBox): number => {
 	const mvHdBox = getMvhdBox(moovBox);
 	if (!mvHdBox) {
