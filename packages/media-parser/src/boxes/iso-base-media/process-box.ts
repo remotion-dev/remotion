@@ -95,7 +95,6 @@ export const parseMdatPartially = async ({
 		fileOffset,
 		existingBoxes: parsedBoxes,
 		options,
-		partially: true,
 	});
 
 	if (
@@ -507,7 +506,6 @@ export const processBox = async ({
 			fileOffset,
 			existingBoxes: parsedBoxes,
 			options,
-			partially: false,
 		});
 
 		return {

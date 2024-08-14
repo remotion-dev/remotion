@@ -11,21 +11,18 @@ export interface MdatBox {
 	fileOffset: number;
 }
 
-// TODO: Parse mdat only gets called when all of the atom is downloaded
 export const parseMdat = async ({
 	data,
 	size,
 	fileOffset,
 	existingBoxes,
 	options,
-	partially,
 }: {
 	data: BufferIterator;
 	size: number;
 	fileOffset: number;
 	existingBoxes: AnySegment[];
 	options: ParserContext;
-	partially: boolean;
 }): Promise<MdatBox> => {
 	const alreadyHas = hasTracks(existingBoxes);
 	if (!alreadyHas) {
@@ -66,39 +63,22 @@ export const parseMdat = async ({
 			return sample.samplePosition.offset === data.counter.getOffset();
 		});
 		if (!sampleWithIndex) {
-			if (data.bytesRemaining() >= 8) {
-				const possibleAtomLength = data.getFourByteNumber();
-				const possibleAtom = data.getByteString(4);
-				data.counter.decrement(8);
-				// if a weird hoov atom appears, like in iphonevideo.hevc
-				// then we skip to the next sample
-				if (possibleAtom === 'hoov' || possibleAtom === 'moof') {
-					const nextSample = flatSamples
-						.filter((s) => s.samplePosition.offset > data.counter.getOffset())
-						.sort(
-							(a, b) => a.samplePosition.offset - b.samplePosition.offset,
-						)[0];
-					if (nextSample) {
-						data.discard(
-							nextSample.samplePosition.offset - data.counter.getOffset(),
-						);
-						continue;
-					} else {
-						data.discard(possibleAtomLength);
-						break;
-					}
-				}
-			}
-
-			if (partially) {
+			// There are various reasons why in mdat we find weird stuff:
+			// - iphonevideo.hevc has a fake hoov atom which is not mapped
+			// - corrupted.mp4 has a corrupt table
+			const nextSample_ = flatSamples
+				.filter((s) => s.samplePosition.offset > data.counter.getOffset())
+				.sort((a, b) => a.samplePosition.offset - b.samplePosition.offset)[0];
+			if (nextSample_) {
+				data.discard(
+					nextSample_.samplePosition.offset - data.counter.getOffset(),
+				);
+				continue;
+			} else {
+				const bytesRemaining = size + fileOffset - data.counter.getOffset();
+				data.discard(bytesRemaining);
 				break;
 			}
-
-			data.peekB(8);
-
-			throw new Error(
-				'Could not find sample with offset ' + data.counter.getOffset(),
-			);
 		}
 
 		if (data.bytesRemaining() < sampleWithIndex.samplePosition.size) {

@@ -21,7 +21,8 @@ test('Should stream ISO base media', async () => {
 			unrotatedDimension: true,
 		},
 		reader: nodeReader,
-		onVideoTrack: () => {
+		onVideoTrack: (track) => {
+			expect(track.timescale).toBe(600);
 			videoTracks++;
 			return () => {
 				videoSamples++;
@@ -70,6 +71,7 @@ test('Should stream WebM with no duration', async () => {
 		},
 		reader: nodeReader,
 		onVideoTrack: (track) => {
+			expect(track.timescale).toBe(1000000);
 			expect(track.codec).toBe('vp8');
 			expect(track.trackId).toBe(1);
 			return () => {
@@ -108,7 +110,9 @@ test('Should stream AV1', async () => {
 			boxes: true,
 		},
 		reader: nodeReader,
-		onVideoTrack: () => {
+		onVideoTrack: (track) => {
+			expect(track.timescale).toBe(1000000);
+
 			videoTracks++;
 			return () => {
 				videoSamples++;
@@ -148,6 +152,7 @@ test('Should stream AV1', async () => {
 });
 
 test('Should stream corrupted video', async () => {
+	let videoSamples = 0;
 	const parsed = await parseMedia({
 		src: RenderInternals.exampleVideos.corrupted,
 		fields: {
@@ -158,6 +163,12 @@ test('Should stream corrupted video', async () => {
 			audioCodec: true,
 			tracks: true,
 			rotation: true,
+		},
+		onVideoTrack: (track) => {
+			expect(track.timescale).toBe(24000);
+			return () => {
+				videoSamples++;
+			};
 		},
 		reader: nodeReader,
 	});
@@ -173,6 +184,7 @@ test('Should stream corrupted video', async () => {
 	expect(parsed.videoTracks.length).toEqual(1);
 	expect(parsed.videoTracks[0].codec).toBe('avc1.640028');
 	expect(parsed.rotation).toBe(0);
+	expect(videoSamples).toBe(720);
 });
 
 test('Should stream screen recording video', async () => {
@@ -187,6 +199,7 @@ test('Should stream screen recording video', async () => {
 			tracks: true,
 			rotation: true,
 		},
+
 		reader: nodeReader,
 	});
 
