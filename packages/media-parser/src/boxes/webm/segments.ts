@@ -1,7 +1,6 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
-import type {Av1BitstreamSegment} from './bitstream/av1';
 import {matroskaElements} from './segments/all-segments';
 import type {DurationSegment} from './segments/duration';
 import {parseDurationSegment} from './segments/duration';
@@ -145,7 +144,6 @@ export type MatroskaSegment =
 	| BlockGroupSegment
 	| BlockElement
 	| SeekIdSegment
-	| Av1BitstreamSegment
 	| AudioSegment
 	| SamplingFrequencySegment
 	| ChannelsSegment
@@ -354,7 +352,6 @@ const parseSegment = async ({
 			iterator,
 			length,
 			parserContext,
-			onVideoSample: parserContext.parserState.onVideoSample,
 		});
 	}
 

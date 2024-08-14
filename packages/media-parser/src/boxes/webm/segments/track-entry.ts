@@ -1,7 +1,5 @@
 import type {BufferIterator} from '../../../buffer-iterator';
 import type {ParserContext} from '../../../parser-context';
-import type {VideoSample} from '../../../webcodec-sample-types';
-import {av1Bitstream} from '../bitstream/av1';
 import type {MatroskaSegment} from '../segments';
 import {expectChildren} from './parse-children';
 
@@ -598,12 +596,10 @@ export const parseSimpleBlockSegment = async ({
 	iterator,
 	length,
 	parserContext,
-	onVideoSample,
 }: {
 	iterator: BufferIterator;
 	length: number;
 	parserContext: ParserContext;
-	onVideoSample: (trackId: number, sample: VideoSample) => void;
 }): Promise<SimpleBlockSegment> => {
 	const start = iterator.counter.getOffset();
 	const trackNumber = iterator.getVint();
@@ -623,34 +619,12 @@ export const parseSimpleBlockSegment = async ({
 
 	const children: MatroskaSegment[] = [];
 
-	if (codec.codec === 'V_AV1') {
-		let remainingNow = length - (iterator.counter.getOffset() - start);
-
-		// eslint-disable-next-line no-constant-condition
-		while (true) {
-			const bitStream = av1Bitstream({
-				stream: iterator,
-				length: remainingNow,
-				onVideoSample,
-				trackNumber,
-				context: parserContext,
-				timecode,
-			});
-			remainingNow = length - (iterator.counter.getOffset() - start);
-
-			children.push(bitStream.segment);
-			if (!bitStream.discarded) {
-				iterator.discard(remainingNow);
-				break;
-			}
-
-			if (remainingNow === 0) {
-				break;
-			}
-		}
-	}
-
-	if (codec.codec === 'V_VP8') {
+	if (
+		codec.codec === 'V_VP8' ||
+		codec.codec === 'V_AV1' ||
+		codec.codec === 'V_VP9' ||
+		codec.codec === 'V_MPEG4/ISO/AVC'
+	) {
 		const remainingNow = length - (iterator.counter.getOffset() - start);
 
 		await parserContext.parserState.onVideoSample(trackNumber, {
@@ -664,35 +638,10 @@ export const parseSimpleBlockSegment = async ({
 		});
 	}
 
-	if (codec.codec === 'V_VP9' || codec.codec === 'V_MPEG4/ISO/AVC') {
-		const remainingNow = length - (iterator.counter.getOffset() - start);
-
-		await parserContext.parserState.onVideoSample(trackNumber, {
-			data: iterator.getSlice(remainingNow),
-			cts: null,
-			dts: null,
-			duration: undefined,
-			type: keyframe ? 'key' : 'delta',
-			trackId: trackNumber,
-			timestamp: timecode,
-		});
-	}
-
-	if (codec.codec === 'A_VORBIS') {
+	if (codec.codec === 'A_VORBIS' || codec.codec === 'A_PCM/INT/LIT') {
 		const vorbisRemaining = length - (iterator.counter.getOffset() - start);
 		await parserContext.parserState.onAudioSample(trackNumber, {
 			data: iterator.getSlice(vorbisRemaining),
-			offset: timecode,
-			trackId: trackNumber,
-			timestamp: timecode,
-			type: 'key',
-		});
-	}
-
-	if (codec.codec === 'A_PCM/INT/LIT') {
-		const pcmRemaining = length - (iterator.counter.getOffset() - start);
-		await parserContext.parserState.onAudioSample(trackNumber, {
-			data: iterator.getSlice(pcmRemaining),
 			offset: timecode,
 			trackId: trackNumber,
 			timestamp: timecode,

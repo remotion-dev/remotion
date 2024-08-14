@@ -444,6 +444,7 @@ export const processBox = async ({
 	if (boxType === 'av1C') {
 		const box = parseAv1C({
 			data: iterator,
+			size: boxSize,
 		});
 
 		return {
