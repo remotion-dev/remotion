@@ -654,3 +654,27 @@ test('MP3 in matroska', async () => {
 	expect(audioSamples).toBe(139);
 	expect(videoSamples).toBe(100);
 });
+
+test('Should stream OPUS', async () => {
+	let audioSamples = 0;
+	const parsed = await parseMedia({
+		src: RenderInternals.exampleVideos.opusWebm,
+		fields: {
+			tracks: true,
+			audioCodec: true,
+		},
+		reader: nodeReader,
+		onAudioTrack: (track) => {
+			expect(track.codec).toEqual('opus');
+			expect(typeof track.description).toEqual('undefined');
+			return (samples) => {
+				expect(samples.type).toEqual('key');
+				audioSamples++;
+			};
+		},
+	});
+
+	expect(parsed.audioCodec).toEqual('opus');
+	expect(parsed.audioTracks.length).toBe(1);
+	expect(audioSamples).toBe(166);
+});
