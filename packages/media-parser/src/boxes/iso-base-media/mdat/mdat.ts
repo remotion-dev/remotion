@@ -12,7 +12,7 @@ export interface MdatBox {
 }
 
 // TODO: Parse mdat only gets called when all of the atom is downloaded
-export const parseMdat = ({
+export const parseMdat = async ({
 	data,
 	size,
 	fileOffset,
@@ -108,7 +108,7 @@ export const parseMdat = ({
 		const bytes = data.getSlice(sampleWithIndex.samplePosition.size);
 
 		if (sampleWithIndex.track.type === 'audio') {
-			options.parserState.onAudioSample(sampleWithIndex.track.trackId, {
+			await options.parserState.onAudioSample(sampleWithIndex.track.trackId, {
 				data: bytes,
 				timestamp: sampleWithIndex.samplePosition.offset,
 				offset: data.counter.getOffset(),
@@ -125,7 +125,7 @@ export const parseMdat = ({
 				(sampleWithIndex.samplePosition.duration * 1_000_000) /
 				sampleWithIndex.track.timescale;
 
-			options.parserState.onVideoSample(sampleWithIndex.track.trackId, {
+			await options.parserState.onVideoSample(sampleWithIndex.track.trackId, {
 				data: bytes,
 				timestamp,
 				duration,

@@ -7,7 +7,7 @@ import {expectSegment} from './segments';
 export const parseWebm = (
 	counter: BufferIterator,
 	parserContext: ParserContext,
-): ParseResult => {
+): Promise<ParseResult> => {
 	counter.discard(4);
 	const length = counter.getVint();
 

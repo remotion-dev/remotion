@@ -8,12 +8,12 @@ export type SeekSegment = {
 	children: MatroskaSegment[];
 };
 
-export const parseSeekSegment = (
+export const parseSeekSegment = async (
 	iterator: BufferIterator,
 	length: number,
 	parserContext: ParserContext,
-): SeekSegment => {
-	const children = expectChildren({
+): Promise<SeekSegment> => {
+	const children = await expectChildren({
 		iterator,
 		length,
 		initialChildren: [],

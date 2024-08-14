@@ -59,7 +59,7 @@ export const makeParserState = ({
 			emittedCodecIds.push(id);
 		},
 		getTrackInfoByNumber: (id: number) => trackEntries[id],
-		registerVideoSampleCallback: (
+		registerVideoSampleCallback: async (
 			id: number,
 			callback: OnVideoSample | null,
 		) => {
@@ -71,12 +71,12 @@ export const makeParserState = ({
 
 			videoSampleCallbacks[id] = callback;
 			for (const queued of queuedVideoSamples[id] ?? []) {
-				callback(queued);
+				await callback(queued);
 			}
 
 			queuedVideoSamples[id] = [];
 		},
-		registerAudioSampleCallback: (
+		registerAudioSampleCallback: async (
 			id: number,
 			callback: OnAudioSample | null,
 		) => {
@@ -88,15 +88,15 @@ export const makeParserState = ({
 
 			audioSampleCallbacks[id] = callback;
 			for (const queued of queuedAudioSamples[id] ?? []) {
-				callback(queued);
+				await callback(queued);
 			}
 
 			queuedAudioSamples[id] = [];
 		},
-		onAudioSample: (trackId: number, audioSample: AudioSample) => {
+		onAudioSample: async (trackId: number, audioSample: AudioSample) => {
 			const callback = audioSampleCallbacks[trackId];
 			if (callback) {
-				callback(audioSample);
+				await callback(audioSample);
 			} else {
 				if (declinedTrackNumbers.includes(trackId)) {
 					return;
@@ -110,10 +110,10 @@ export const makeParserState = ({
 				queuedAudioSamples[trackId].push(audioSample);
 			}
 		},
-		onVideoSample: (trackId: number, videoSample: VideoSample) => {
+		onVideoSample: async (trackId: number, videoSample: VideoSample) => {
 			const callback = videoSampleCallbacks[trackId];
 			if (callback) {
-				callback(videoSample);
+				await callback(videoSample);
 			} else {
 				if (declinedTrackNumbers.includes(trackId)) {
 					return;

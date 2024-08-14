@@ -26,19 +26,31 @@ export const SrcEncoder: React.FC<{
 					},
 				});
 				videoDecoder.configure(track);
-				return (chunk) => {
+				return async (chunk) => {
 					flushSync(() => {
 						setSamples((s) => s + 1);
 					});
-					console.log(videoDecoder);
+					if (videoDecoder.decodeQueueSize > 10) {
+						let resolve = () => {};
+
+						const cb = () => {
+							resolve();
+						};
+
+						await new Promise<void>((r) => {
+							resolve = r;
+							videoDecoder.addEventListener('dequeue', cb);
+						});
+						videoDecoder.removeEventListener('dequeue', cb);
+					}
 					videoDecoder.decode(new EncodedVideoChunk(chunk));
 				};
 			},
 			onAudioTrack: (track) => {
-				console.log(track);
 				if (typeof AudioDecoder === 'undefined') {
 					return null;
 				}
+
 				const audioDecoder = new AudioDecoder({
 					output(inputFrame) {
 						flushSync(() => {
@@ -53,10 +65,29 @@ export const SrcEncoder: React.FC<{
 
 				audioDecoder.configure(track);
 
-				return (audioSample) => {
+				return async (audioSample) => {
 					flushSync(() => {
 						setSamples((s) => s + 1);
 					});
+					if (audioDecoder.decodeQueueSize > 10) {
+						console.log(
+							'audio decoder queue size',
+							audioDecoder.decodeQueueSize,
+						);
+						let resolve = () => {};
+
+						const cb = () => {
+							resolve();
+						};
+
+						await new Promise<void>((r) => {
+							resolve = r;
+							// @ts-expect-error exists
+							audioDecoder.addEventListener('dequeue', cb);
+						});
+						// @ts-expect-error exists
+						audioDecoder.removeEventListener('dequeue', cb);
+					}
 					audioDecoder.decode(new EncodedAudioChunk(audioSample));
 				};
 			},

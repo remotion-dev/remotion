@@ -10,12 +10,12 @@ export type TrackEntrySegment = {
 	children: MatroskaSegment[];
 };
 
-export const parseTrackEntry = (
+export const parseTrackEntry = async (
 	iterator: BufferIterator,
 	length: number,
 	parserContext: ParserContext,
-): TrackEntrySegment => {
-	const children = expectChildren({
+): Promise<TrackEntrySegment> => {
+	const children = await expectChildren({
 		iterator,
 		length,
 		initialChildren: [],
@@ -207,12 +207,12 @@ export type VideoSegment = {
 	children: MatroskaSegment[];
 };
 
-export const parseVideoSegment = (
+export const parseVideoSegment = async (
 	iterator: BufferIterator,
 	length: number,
 	parserContext: ParserContext,
-): VideoSegment => {
-	const children = expectChildren({
+): Promise<VideoSegment> => {
+	const children = await expectChildren({
 		iterator,
 		length,
 		initialChildren: [],
@@ -235,12 +235,12 @@ export type AudioSegment = {
 	children: MatroskaSegment[];
 };
 
-export const parseAudioSegment = (
+export const parseAudioSegment = async (
 	iterator: BufferIterator,
 	length: number,
 	parserContext: ParserContext,
-): AudioSegment => {
-	const children = expectChildren({
+): Promise<AudioSegment> => {
+	const children = await expectChildren({
 		iterator,
 		length,
 		initialChildren: [],
@@ -514,12 +514,12 @@ export type TagsSegment = {
 	children: MatroskaSegment[];
 };
 
-export const parseTagsSegment = (
+export const parseTagsSegment = async (
 	iterator: BufferIterator,
 	length: number,
 	parserContext: ParserContext,
-): TagsSegment => {
-	const children = expectChildren({
+): Promise<TagsSegment> => {
+	const children = await expectChildren({
 		iterator,
 		length,
 		initialChildren: [],
@@ -594,7 +594,7 @@ export type SimpleBlockSegment = {
 
 export type GetTracks = () => TrackEntrySegment[];
 
-export const parseSimpleBlockSegment = ({
+export const parseSimpleBlockSegment = async ({
 	iterator,
 	length,
 	parserContext,
@@ -604,7 +604,7 @@ export const parseSimpleBlockSegment = ({
 	length: number;
 	parserContext: ParserContext;
 	onVideoSample: (trackId: number, sample: VideoSample) => void;
-}): SimpleBlockSegment => {
+}): Promise<SimpleBlockSegment> => {
 	const start = iterator.counter.getOffset();
 	const trackNumber = iterator.getVint();
 	const timecode = iterator.getUint16();
@@ -653,7 +653,7 @@ export const parseSimpleBlockSegment = ({
 	if (codec.codec === 'V_VP8') {
 		const remainingNow = length - (iterator.counter.getOffset() - start);
 
-		parserContext.parserState.onVideoSample(trackNumber, {
+		await parserContext.parserState.onVideoSample(trackNumber, {
 			data: iterator.getSlice(remainingNow),
 			cts: null,
 			dts: null,
@@ -667,7 +667,7 @@ export const parseSimpleBlockSegment = ({
 	if (codec.codec === 'V_VP9') {
 		const remainingNow = length - (iterator.counter.getOffset() - start);
 
-		parserContext.parserState.onVideoSample(trackNumber, {
+		await parserContext.parserState.onVideoSample(trackNumber, {
 			data: iterator.getSlice(remainingNow),
 			cts: null,
 			dts: null,
@@ -680,7 +680,7 @@ export const parseSimpleBlockSegment = ({
 
 	if (codec.codec === 'A_VORBIS') {
 		const vorbisRemaining = length - (iterator.counter.getOffset() - start);
-		parserContext.parserState.onAudioSample(trackNumber, {
+		await parserContext.parserState.onAudioSample(trackNumber, {
 			data: iterator.getSlice(vorbisRemaining),
 			offset: timecode,
 			trackId: trackNumber,
@@ -728,12 +728,12 @@ export type BlockGroupSegment = {
 	children: MatroskaSegment[];
 };
 
-export const parseBlockGroupSegment = (
+export const parseBlockGroupSegment = async (
 	iterator: BufferIterator,
 	length: number,
 	parserContext: ParserContext,
-): BlockGroupSegment => {
-	const children = expectChildren({
+): Promise<BlockGroupSegment> => {
+	const children = await expectChildren({
 		iterator,
 		length,
 		initialChildren: [],

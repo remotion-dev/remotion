@@ -18,8 +18,8 @@ export type VideoSample = {
 	dts: number | null;
 };
 
-export type OnAudioSample = (sample: AudioSample) => void;
-export type OnVideoSample = (sample: VideoSample) => void;
+export type OnAudioSample = (sample: AudioSample) => void | Promise<void>;
+export type OnVideoSample = (sample: VideoSample) => void | Promise<void>;
 
 export type OnAudioTrack = (track: AudioTrack) => OnAudioSample | null;
 export type OnVideoTrack = (track: VideoTrack) => OnVideoSample | null;
