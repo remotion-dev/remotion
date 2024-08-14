@@ -223,6 +223,7 @@ export const getTrack = ({
 			displayAspectWidth: displayWidth
 				? displayWidth.displayWidth
 				: width.width,
+			rotation: 0,
 		};
 	}
 

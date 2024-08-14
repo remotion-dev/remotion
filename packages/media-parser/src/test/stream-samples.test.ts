@@ -119,6 +119,7 @@ test('Stream samples', async () => {
 			codedHeight: 1080,
 			displayAspectHeight: 1080,
 			displayAspectWidth: 1080,
+			rotation: 0,
 		},
 	]);
 

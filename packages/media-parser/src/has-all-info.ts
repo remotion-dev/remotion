@@ -6,6 +6,7 @@ import {hasTracks} from './get-tracks';
 import {hasVideoCodec} from './get-video-codec';
 import type {Options} from './options';
 import type {ParseResult} from './parse-result';
+import type {ParserState} from './parser-state';
 
 export const hasAllInfo = (
 	options: Options<
@@ -21,6 +22,7 @@ export const hasAllInfo = (
 		boolean
 	>,
 	parseResult: ParseResult,
+	state: ParserState,
 ) => {
 	const keys = Object.entries(options)
 		.filter(([, value]) => value)
@@ -51,7 +53,7 @@ export const hasAllInfo = (
 			key === 'rotation' ||
 			key === 'unrotatedDimension'
 		) {
-			return hasDimensions(parseResult.segments);
+			return hasDimensions(parseResult.segments, state);
 		}
 
 		if (key === 'fps') {

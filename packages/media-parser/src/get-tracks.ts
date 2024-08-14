@@ -26,6 +26,7 @@ export type VideoTrack = {
 	displayAspectHeight: number;
 	codedWidth: number;
 	codedHeight: number;
+	rotation: number;
 };
 
 export type AudioTrack = {

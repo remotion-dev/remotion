@@ -10,6 +10,7 @@ import {
 } from '../../get-fps';
 import {
 	applyAspectRatios,
+	applyTkhdBox,
 	getDisplayAspectRatio,
 	getSampleAspectRatio,
 	getVideoSample,
@@ -39,6 +40,7 @@ export const makeBaseMediaTrack = (
 	const sttsBox = getSttsBox(trakBox);
 	const tkhdBox = getTkhdBox(trakBox);
 	const cttsBox = getCttsBox(trakBox);
+
 	const videoDescriptors = getVideoDescriptors(trakBox);
 	const timescaleAndDuration = getTimescaleAndDuration(trakBox);
 
@@ -116,7 +118,7 @@ export const makeBaseMediaTrack = (
 
 	const sampleAspectRatio = getSampleAspectRatio(trakBox);
 
-	const applied = applyAspectRatios({
+	const aspectRatioApplied = applyAspectRatios({
 		dimensions: videoSample,
 		sampleAspectRatio,
 		displayAspectRatio: getDisplayAspectRatio({
@@ -124,6 +126,9 @@ export const makeBaseMediaTrack = (
 			nativeDimensions: videoSample,
 		}),
 	});
+
+	const {displayAspectHeight, displayAspectWidth, height, rotation, width} =
+		applyTkhdBox(aspectRatioApplied, tkhdBox);
 
 	const codec = getVideoCodecString(trakBox);
 
@@ -139,12 +144,14 @@ export const makeBaseMediaTrack = (
 		timescale: timescaleAndDuration.timescale,
 		codec,
 		sampleAspectRatio: getSampleAspectRatio(trakBox),
-		width: applied.width,
-		height: applied.height,
+		width,
+		height,
 		codedWidth: videoSample.width,
 		codedHeight: videoSample.height,
-		displayAspectWidth: applied.width,
-		displayAspectHeight: applied.height,
+		// Repeating those keys because they get picked up by VideoDecoder
+		displayAspectWidth,
+		displayAspectHeight,
+		rotation,
 	};
 	return track;
 };

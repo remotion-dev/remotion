@@ -4,6 +4,7 @@ import type {ColorParameterBox} from './boxes/iso-base-media/stsd/colr';
 import type {HvccBox} from './boxes/iso-base-media/stsd/hvcc';
 import type {PaspBox} from './boxes/iso-base-media/stsd/pasp';
 import type {VideoSample} from './boxes/iso-base-media/stsd/samples';
+import type {TkhdBox} from './boxes/iso-base-media/tkhd';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import type {Dimensions} from './get-dimensions';
 import {getStsdBox} from './traversal';
@@ -113,6 +114,35 @@ export const getColrBox = (
 	}
 
 	return colrBox;
+};
+
+export const applyTkhdBox = (
+	aspectRatioApplied: Dimensions,
+	tkhdBox: TkhdBox,
+): {
+	displayAspectWidth: number;
+	displayAspectHeight: number;
+	width: number;
+	height: number;
+	rotation: number;
+} => {
+	if (tkhdBox === null || tkhdBox.rotation === 0) {
+		return {
+			displayAspectWidth: aspectRatioApplied.width,
+			displayAspectHeight: aspectRatioApplied.height,
+			width: aspectRatioApplied.width,
+			height: aspectRatioApplied.height,
+			rotation: 0,
+		};
+	}
+
+	return {
+		width: tkhdBox.width,
+		height: tkhdBox.height,
+		rotation: tkhdBox.rotation,
+		displayAspectWidth: aspectRatioApplied.width,
+		displayAspectHeight: aspectRatioApplied.height,
+	};
 };
 
 export const applyAspectRatios = ({

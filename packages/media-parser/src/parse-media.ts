@@ -83,7 +83,7 @@ export const parseMedia: ParseMedia = async ({
 		// TODO Better: Check if no active listeners are registered
 		// Also maybe check for canSkipVideoData
 		if (
-			hasAllInfo(fields ?? {}, parseResult) &&
+			hasAllInfo(fields ?? {}, parseResult, state) &&
 			!onVideoTrack &&
 			!onAudioTrack
 		) {
@@ -117,7 +117,7 @@ export const parseMedia: ParseMedia = async ({
 	}
 
 	if (fields?.dimensions) {
-		const dimensions = getDimensions(parseResult.segments);
+		const dimensions = getDimensions(parseResult.segments, state);
 		returnValue.dimensions = {
 			width: dimensions.width,
 			height: dimensions.height,
@@ -125,7 +125,7 @@ export const parseMedia: ParseMedia = async ({
 	}
 
 	if (fields?.unrotatedDimension) {
-		const dimensions = getDimensions(parseResult.segments);
+		const dimensions = getDimensions(parseResult.segments, state);
 		returnValue.unrotatedDimension = {
 			width: dimensions.unrotatedWidth,
 			height: dimensions.unrotatedHeight,
@@ -133,7 +133,7 @@ export const parseMedia: ParseMedia = async ({
 	}
 
 	if (fields?.rotation) {
-		const dimensions = getDimensions(parseResult.segments);
+		const dimensions = getDimensions(parseResult.segments, state);
 		returnValue.rotation = dimensions.rotation;
 	}
 

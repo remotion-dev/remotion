@@ -31,6 +31,7 @@ export const EncoderDemo: React.FC = () => {
 				<SrcEncoder src={staticFile('matroska-mp3.mkv')} />
 				<SrcEncoder src={staticFile('vid1.mp4')} />
 				<SrcEncoder src={staticFile('whip.mp3')} />
+				<SrcEncoder src={staticFile('iphone-hevc.mov')} />
 				<SrcEncoder src={staticFile('sample.aac')} />
 				<SrcEncoder src={staticFile('stretched-vp8.webm')} />
 				<SrcEncoder src={staticFile('opus.webm')} />

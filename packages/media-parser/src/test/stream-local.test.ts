@@ -147,6 +147,7 @@ test('Should stream AV1', async () => {
 		width: 1920,
 		displayAspectHeight: 1080,
 		displayAspectWidth: 1920,
+		rotation: 0,
 	});
 	expect(parsed.audioTracks.length).toBe(0);
 	expect(videoTracks).toBe(1);
@@ -299,6 +300,7 @@ test('Should stream variable fps video', async () => {
 		width: 1280,
 		displayAspectHeight: 720,
 		displayAspectWidth: 1280,
+		rotation: 0,
 	});
 	expect(parsed.audioTracks.length).toBe(1);
 	expect(parsed.audioTracks[0]).toEqual({
@@ -462,7 +464,7 @@ test('Custom DAR', async () => {
 	});
 	expect(parsed.dimensions).toEqual({
 		height: 720,
-		width: 404.9717559814453,
+		width: 405,
 	});
 	expect(parsed.durationInSeconds).toBe(5.725);
 	expect(parsed.fps).toBe(30);
@@ -477,7 +479,7 @@ test('Custom DAR', async () => {
 	expect(parsed.rotation).toBe(0);
 	expect(parsed.unrotatedDimension).toEqual({
 		height: 720,
-		width: 404.9717559814453,
+		width: 405,
 	});
 });
 
@@ -587,6 +589,7 @@ test('Stretched VP8', async () => {
 			width: 1920,
 			displayAspectHeight: 1080,
 			displayAspectWidth: 1920,
+			rotation: 0,
 		},
 	]);
 });
