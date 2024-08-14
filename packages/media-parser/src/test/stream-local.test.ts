@@ -145,6 +145,8 @@ test('Should stream AV1', async () => {
 		codedWidth: 1920,
 		height: 1080,
 		width: 1920,
+		displayAspectHeight: 1080,
+		displayAspectWidth: 1920,
 	});
 	expect(parsed.audioTracks.length).toBe(0);
 	expect(videoTracks).toBe(1);
@@ -295,6 +297,8 @@ test('Should stream variable fps video', async () => {
 		codedWidth: 1280,
 		height: 720,
 		width: 1280,
+		displayAspectHeight: 720,
+		displayAspectWidth: 1280,
 	});
 	expect(parsed.audioTracks.length).toBe(1);
 	expect(parsed.audioTracks[0]).toEqual({
@@ -581,6 +585,8 @@ test('Stretched VP8', async () => {
 			trackId: 1,
 			type: 'video',
 			width: 1920,
+			displayAspectHeight: 1080,
+			displayAspectWidth: 1920,
 		},
 	]);
 });

@@ -32,6 +32,7 @@ export const EncoderDemo: React.FC = () => {
 				<SrcEncoder src={staticFile('vid1.mp4')} />
 				<SrcEncoder src={staticFile('whip.mp3')} />
 				<SrcEncoder src={staticFile('sample.aac')} />
+				<SrcEncoder src={staticFile('stretched-vp8.webm')} />
 				<SrcEncoder src={staticFile('opus.webm')} />
 				<SrcEncoder src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
 			</div>

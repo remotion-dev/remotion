@@ -1,5 +1,5 @@
 import {OnAudioTrack, OnVideoTrack, parseMedia} from '@remotion/media-parser';
-import React, {useCallback} from 'react';
+import React, {useCallback, useRef} from 'react';
 import {flushSync} from 'react-dom';
 
 export const SrcEncoder: React.FC<{
@@ -9,6 +9,8 @@ export const SrcEncoder: React.FC<{
 	const [videoFrames, setVideoFrames] = React.useState<number>(0);
 	const [audioFrames, setAudioFrames] = React.useState<number>(0);
 
+	const ref = useRef<HTMLCanvasElement>(null);
+
 	const onVideoTrack: OnVideoTrack = useCallback(async (track) => {
 		const decoder = await VideoDecoder.isConfigSupported(track);
 
@@ -17,7 +19,13 @@ export const SrcEncoder: React.FC<{
 		}
 
 		const videoDecoder = new VideoDecoder({
-			output(inputFrame) {
+			async output(inputFrame) {
+				const image = await createImageBitmap(inputFrame, {
+					resizeHeight: 100,
+					resizeWidth: 100,
+				});
+
+				ref.current?.getContext('2d')?.drawImage(image, 0, 0);
 				flushSync(() => {
 					setVideoFrames((prev) => prev + 1);
 				});
@@ -78,7 +86,6 @@ export const SrcEncoder: React.FC<{
 		audioDecoder.configure(track);
 
 		return async (audioSample) => {
-			console.log('audio sample', audioSample);
 			flushSync(() => {
 				setSamples((s) => s + 1);
 			});
@@ -103,10 +110,13 @@ export const SrcEncoder: React.FC<{
 	}, []);
 
 	const onClick = useCallback(() => {
+		console.time('done');
 		parseMedia({
 			src,
 			onVideoTrack,
 			onAudioTrack,
+		}).then(() => {
+			console.timeEnd('done');
 		});
 	}, [onAudioTrack, onVideoTrack, src]);
 
@@ -119,6 +129,7 @@ export const SrcEncoder: React.FC<{
 			{samples > 0 && <div>{samples} samples</div>}
 			{videoFrames > 0 && <div>{videoFrames} video frames</div>}
 			{audioFrames > 0 && <div>{audioFrames} audio frames</div>}
+			<canvas ref={ref} width={100} height={50} />
 		</div>
 	);
 };

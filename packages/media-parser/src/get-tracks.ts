@@ -22,6 +22,8 @@ export type VideoTrack = {
 	sampleAspectRatio: SampleAspectRatio;
 	width: number;
 	height: number;
+	displayAspectWidth: number;
+	displayAspectHeight: number;
 	codedWidth: number;
 	codedHeight: number;
 };

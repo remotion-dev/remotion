@@ -217,6 +217,12 @@ export const getTrack = ({
 			samplePositions: [],
 			codedHeight: height.height,
 			codedWidth: width.width,
+			displayAspectHeight: displayHeight
+				? displayHeight.displayHeight
+				: height.height,
+			displayAspectWidth: displayWidth
+				? displayWidth.displayWidth
+				: width.width,
 		};
 	}
 

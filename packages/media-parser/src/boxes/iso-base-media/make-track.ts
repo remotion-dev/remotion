@@ -125,17 +125,26 @@ export const makeBaseMediaTrack = (
 		}),
 	});
 
-	return {
+	const codec = getVideoCodecString(trakBox);
+
+	if (!codec) {
+		throw new Error('Could not find video codec');
+	}
+
+	const track: VideoTrack = {
 		type: 'video',
 		samplePositions,
 		trackId: tkhdBox.trackId,
 		description: videoDescriptors ?? undefined,
 		timescale: timescaleAndDuration.timescale,
-		codec: getVideoCodecString(trakBox),
+		codec,
 		sampleAspectRatio: getSampleAspectRatio(trakBox),
 		width: applied.width,
 		height: applied.height,
 		codedWidth: videoSample.width,
 		codedHeight: videoSample.height,
-	} as VideoTrack;
+		displayAspectWidth: applied.width,
+		displayAspectHeight: applied.height,
+	};
+	return track;
 };
