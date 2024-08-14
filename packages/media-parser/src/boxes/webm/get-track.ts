@@ -1,4 +1,3 @@
-import {av1CodecStringToString} from '../../av1-codec-string';
 import type {AudioTrack, VideoTrack} from '../../get-tracks';
 import {
 	getBitDepth,
@@ -13,6 +12,7 @@ import {
 	getTrackTypeSegment,
 	getWidthSegment,
 } from '../../traversal';
+import {parseAv1PrivateData} from './av1-codec-private';
 import {getAudioDescription} from './description';
 import type {TimestampScaleSegment} from './segments/timestamp-scale';
 import type {
@@ -39,11 +39,9 @@ const getDescription = (track: TrackEntrySegment): undefined | Uint8Array => {
 
 const getMatroskaVideoCodecString = ({
 	track,
-	cluster,
 	codecSegment: codec,
 }: {
 	track: TrackEntrySegment;
-	cluster: ClusterSegment | null;
 	codecSegment: CodecSegment;
 }): string | null => {
 	if (codec.codec === 'V_VP8') {
@@ -71,11 +69,13 @@ const getMatroskaVideoCodecString = ({
 	}
 
 	if (codec.codec === 'V_AV1') {
-		if (!cluster) {
-			return null;
+		const priv = getPrivateData(track);
+
+		if (!priv) {
+			throw new Error('Expected private data in AV1 track');
 		}
 
-		return av1CodecStringToString({track, clusterSegment: cluster});
+		return parseAv1PrivateData(priv);
 	}
 
 	throw new Error(`Unknown codec: ${codec.codec}`);

@@ -177,5 +177,6 @@ export const parseMedia: ParseMedia = async ({
 		returnValue.internalStats = state.getInternalStats();
 	}
 
+	iterator?.destroy();
 	return returnValue;
 };

@@ -94,6 +94,8 @@ export const parseMvhd = ({
 	// next track id
 	const nextTrackId = iterator.getUint32();
 
+	volumeView.destroy();
+
 	return {
 		creationTime: toUnixTimestamp(creationTime),
 		modificationTime: toUnixTimestamp(modificationTime),

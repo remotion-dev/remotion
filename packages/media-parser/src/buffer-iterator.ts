@@ -253,6 +253,11 @@ export const getArrayBufferIterator = (
 		return result;
 	};
 
+	const destroy = () => {
+		data = new Uint8Array(0);
+		buf.resize(0);
+	};
+
 	return {
 		startReadingBits,
 		stopReadingBits,
@@ -428,6 +433,7 @@ export const getArrayBufferIterator = (
 		},
 		getUint32Le,
 		getInt32Le,
+		destroy,
 	};
 };
 
