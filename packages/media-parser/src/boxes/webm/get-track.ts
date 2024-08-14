@@ -9,13 +9,12 @@ import {
 	getNumberOfChannels,
 	getPrivateData,
 	getSampleRate,
-	getTimescaleSegment,
 	getTrackId,
 	getTrackTypeSegment,
 	getWidthSegment,
 } from '../../traversal';
 import {getAudioDescription} from './description';
-import type {MainSegment} from './segments/main';
+import type {TimestampScaleSegment} from './segments/timestamp-scale';
 import type {
 	ClusterSegment,
 	CodecSegment,
@@ -118,11 +117,11 @@ const getMatroskaAudioCodecString = (track: TrackEntrySegment): string => {
 };
 
 export const getTrack = ({
-	mainSegment,
+	timescale,
 	track,
 	clusterSegment,
 }: {
-	mainSegment: MainSegment;
+	timescale: TimestampScaleSegment;
 	track: TrackEntrySegment;
 	clusterSegment: ClusterSegment | null;
 }): VideoTrack | AudioTrack | null => {
@@ -133,12 +132,6 @@ export const getTrack = ({
 	}
 
 	const trackId = getTrackId(track);
-
-	const timescale = getTimescaleSegment(mainSegment);
-
-	if (!timescale) {
-		throw new Error('No timescale segment');
-	}
 
 	if (trackType.trackType === 'video') {
 		const width = getWidthSegment(track);

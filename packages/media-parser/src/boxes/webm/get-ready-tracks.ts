@@ -1,5 +1,9 @@
 import type {Track} from '../../get-tracks';
-import {getClusterSegment, getTracksSegment} from '../../traversal';
+import {
+	getClusterSegment,
+	getTimescaleSegment,
+	getTracksSegment,
+} from '../../traversal';
 import {getTrack} from './get-track';
 import type {MainSegment} from './segments/main';
 
@@ -10,6 +14,11 @@ export const getTracksFromMatroska = (segment: MainSegment): Track[] => {
 	}
 
 	const clusterSegment = getClusterSegment(segment);
+	const timescale = getTimescaleSegment(segment);
+
+	if (!timescale) {
+		throw new Error('No timescale segment');
+	}
 
 	const tracks: Track[] = [];
 
@@ -23,9 +32,9 @@ export const getTracksFromMatroska = (segment: MainSegment): Track[] => {
 		}
 
 		const track = getTrack({
-			mainSegment: segment,
 			clusterSegment,
 			track: trackEntrySegment,
+			timescale,
 		});
 		if (track) {
 			tracks.push(track);
