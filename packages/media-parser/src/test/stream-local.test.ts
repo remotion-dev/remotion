@@ -335,8 +335,8 @@ test('Should stream MKV video', async () => {
 	expect(parsed.rotation).toBe(0);
 	expect(parsed.fps).toBe(null);
 
-	expect(videoSamples).toBe(2);
-	expect(audioSamples).toBe(2);
+	expect(videoSamples).toBe(10);
+	expect(audioSamples).toBe(16);
 });
 
 test('Should stream MP3 in MP4 video', async () => {

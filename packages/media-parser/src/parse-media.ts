@@ -89,7 +89,10 @@ export const parseMedia: ParseMedia = async ({
 				state.addEmittedCodecId(track.trackId);
 				if (onVideoTrack) {
 					const callback = onVideoTrack(track);
-					state.registerVideoSampleCallback(track.trackId, callback ?? null);
+					await state.registerVideoSampleCallback(
+						track.trackId,
+						callback ?? null,
+					);
 				}
 			}
 
@@ -101,7 +104,10 @@ export const parseMedia: ParseMedia = async ({
 				state.addEmittedCodecId(track.trackId);
 				if (onAudioTrack) {
 					const callback = onAudioTrack(track);
-					state.registerAudioSampleCallback(track.trackId, callback ?? null);
+					await state.registerAudioSampleCallback(
+						track.trackId,
+						callback ?? null,
+					);
 				}
 			}
 		}

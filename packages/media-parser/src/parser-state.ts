@@ -70,6 +70,7 @@ export const makeParserState = ({
 			}
 
 			videoSampleCallbacks[id] = callback;
+
 			for (const queued of queuedVideoSamples[id] ?? []) {
 				await callback(queued);
 			}
