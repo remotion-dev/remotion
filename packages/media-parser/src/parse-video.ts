@@ -58,5 +58,9 @@ export const parseVideo = ({
 		return Promise.resolve(parseWebm(iterator, options));
 	}
 
-	throw new Error('Unknown video format');
+	if (iterator.isMp3()) {
+		return Promise.reject(new Error('MP3 files are not yet supported'));
+	}
+
+	return Promise.reject(new Error('Unknown video format'));
 };
