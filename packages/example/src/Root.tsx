@@ -1444,7 +1444,7 @@ export const Index: React.FC = () => {
 				id="EncoderDemo"
 				component={EncoderDemo}
 				height={500}
-				width={500}
+				width={800}
 			/>
 		</>
 	);

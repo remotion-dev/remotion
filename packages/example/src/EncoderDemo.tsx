@@ -6,7 +6,11 @@ import {SrcEncoder} from './Encoder/SrcEncoder';
 export const EncoderDemo: React.FC = () => {
 	return (
 		<>
-			<div>
+			<div
+				style={{
+					overflowY: 'scroll',
+				}}
+			>
 				<div>
 					<input
 						type="file"
