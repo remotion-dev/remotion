@@ -1,4 +1,5 @@
 /* eslint-disable max-depth */
+import {addNewMatroskaTracks as emitNewMatroskaTracks} from './add-new-matroska-tracks';
 import {getTracksFromMatroska} from './boxes/webm/get-ready-tracks';
 import {getMainSegment} from './boxes/webm/traversal';
 import type {BufferIterator} from './buffer-iterator';
@@ -14,6 +15,7 @@ import {hasAllInfo} from './has-all-info';
 import type {Metadata, ParseMedia} from './options';
 import type {ParseResult} from './parse-result';
 import {parseVideo} from './parse-video';
+import type {ParserContext} from './parser-context';
 import {makeParserState} from './parser-state';
 
 export const parseMedia: ParseMedia = async ({
@@ -64,52 +66,27 @@ export const parseMedia: ParseMedia = async ({
 			);
 		}
 
+		const options: ParserContext = {
+			canSkipVideoData: !(onAudioTrack || onVideoTrack),
+			onAudioTrack: onAudioTrack ?? null,
+			onVideoTrack: onVideoTrack ?? null,
+			parserState: state,
+		};
+
 		if (parseResult && parseResult.status === 'incomplete') {
 			parseResult = await parseResult.continueParsing();
 		} else {
 			parseResult = await parseVideo({
 				iterator,
-				options: {
-					canSkipVideoData: !(onAudioTrack || onVideoTrack),
-					onAudioTrack: onAudioTrack ?? null,
-					onVideoTrack: onVideoTrack ?? null,
-					parserState: state,
-				},
+				options,
 			});
 		}
 
 		const matroskaSegment = getMainSegment(parseResult.segments);
+
 		if (matroskaSegment) {
-			const tracks = getTracksFromMatroska(matroskaSegment);
-			for (const track of tracks.videoTracks) {
-				if (state.isEmitted(track.trackId)) {
-					continue;
-				}
-
-				state.addEmittedCodecId(track.trackId);
-				if (onVideoTrack) {
-					const callback = onVideoTrack(track);
-					await state.registerVideoSampleCallback(
-						track.trackId,
-						callback ?? null,
-					);
-				}
-			}
-
-			for (const track of tracks.audioTracks) {
-				if (state.isEmitted(track.trackId)) {
-					continue;
-				}
-
-				state.addEmittedCodecId(track.trackId);
-				if (onAudioTrack) {
-					const callback = onAudioTrack(track);
-					await state.registerAudioSampleCallback(
-						track.trackId,
-						callback ?? null,
-					);
-				}
-			}
+			const potentialTracks = getTracksFromMatroska(matroskaSegment);
+			await emitNewMatroskaTracks(potentialTracks, state, options);
 		}
 
 		// TODO Better: Check if no active listeners are registered

@@ -43,7 +43,7 @@ export type OtherTrack = {
 	timescale: number;
 };
 
-export type Track = VideoTrack | AudioTrack;
+export type Track = VideoTrack | AudioTrack | OtherTrack;
 
 // TODO: Use this to determine if all tracks are present
 export const getNumberOfTracks = (moovBox: MoovBox): number => {
@@ -82,23 +82,40 @@ export const getTracks = (
 	audioTracks: AudioTrack[];
 	otherTracks: OtherTrack[];
 } => {
+	const videoTracks: VideoTrack[] = [];
+	const audioTracks: AudioTrack[] = [];
+	const otherTracks: OtherTrack[] = [];
+
 	const mainSegment = segments.find((s) => s.type === 'main-segment');
 	if (mainSegment && mainSegment.type === 'main-segment') {
-		return getTracksFromMatroska(mainSegment);
+		const matroskaTracks = getTracksFromMatroska(mainSegment);
+
+		for (const track of matroskaTracks) {
+			if (track.type === 'video') {
+				videoTracks.push(track);
+			} else if (track.type === 'audio') {
+				audioTracks.push(track);
+			} else if (track.type === 'other') {
+				otherTracks.push(track);
+			}
+		}
+
+		return {
+			videoTracks,
+			audioTracks,
+			otherTracks,
+		};
 	}
 
 	const moovBox = getMoovBox(segments);
 	if (!moovBox) {
 		return {
-			videoTracks: [],
-			audioTracks: [],
-			otherTracks: [],
+			videoTracks,
+			audioTracks,
+			otherTracks,
 		};
 	}
 
-	const videoTracks: VideoTrack[] = [];
-	const audioTracks: AudioTrack[] = [];
-	const otherTracks: OtherTrack[] = [];
 	const tracks = getTraks(moovBox);
 
 	for (const trakBox of tracks) {
