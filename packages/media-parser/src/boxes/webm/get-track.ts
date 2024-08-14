@@ -112,9 +112,7 @@ const getMatroskaAudioCodecString = (track: TrackEntrySegment): string => {
 			return 'pcm-u8';
 		}
 
-		if (bitDepth === 16) {
-			return 'pcm-s' + bitDepth;
-		}
+		return 'pcm-s' + bitDepth;
 	}
 
 	if (codec.codec === 'A_AAC') {
@@ -150,6 +148,10 @@ const getMatroskaAudioCodecString = (track: TrackEntrySegment): string => {
 		iterator.destroy();
 
 		return `mp4a.40.${profile.toString().padStart(2, '0')}`;
+	}
+
+	if (codec.codec === 'A_MPEG/L3') {
+		return 'mp3';
 	}
 
 	throw new Error(`Unknown codec: ${codec.codec}`);

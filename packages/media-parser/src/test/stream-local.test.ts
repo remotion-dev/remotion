@@ -619,3 +619,38 @@ test('HEVC and AAC in Matroska', async () => {
 	expect(audioSamples).toBe(159);
 	expect(videoSamples).toBe(100);
 });
+
+test('MP3 in matroska', async () => {
+	let videoSamples = 0;
+	let audioSamples = 0;
+
+	const parsed = await parseMedia({
+		src: RenderInternals.exampleVideos.matroskaMp3,
+		fields: {
+			tracks: true,
+			videoCodec: true,
+			audioCodec: true,
+			boxes: true,
+		},
+		reader: nodeReader,
+		onAudioTrack: (audioTrack) => {
+			expect(audioTrack.codec).toEqual('mp3');
+			return () => {
+				audioSamples++;
+			};
+		},
+		onVideoTrack: (videoTrack) => {
+			expect(videoTrack.codec).toEqual('avc1.64001f');
+			return () => {
+				videoSamples++;
+			};
+		},
+	});
+
+	expect(parsed.videoCodec).toEqual('h264');
+	expect(parsed.audioCodec).toEqual('mp3');
+	expect(parsed.videoTracks.length).toBe(1);
+	expect(parsed.audioTracks.length).toBe(1);
+	expect(audioSamples).toBe(139);
+	expect(videoSamples).toBe(100);
+});

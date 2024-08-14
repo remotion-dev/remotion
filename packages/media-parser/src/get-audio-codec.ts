@@ -189,6 +189,10 @@ export const getAudioCodecFromMatroska = (mainSegment: MainSegment) => {
 				if (trackType.codec === 'A_AAC') {
 					return 'aac';
 				}
+
+				if (trackType.codec === 'A_MPEG/L3') {
+					return 'mp3';
+				}
 			}
 		}
 	}

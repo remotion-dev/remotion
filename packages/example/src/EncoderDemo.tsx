@@ -24,6 +24,8 @@ export const EncoderDemo: React.FC = () => {
 				<SrcEncoder src={staticFile('corrupted.mp4')} />
 				<SrcEncoder src={staticFile('matroska-pcm16.mkv')} />
 				<SrcEncoder src={staticFile('matroska-h265-aac.mkv')} />
+				<SrcEncoder src={staticFile('matroska-mp3.mkv')} />
+				<SrcEncoder src={staticFile('vid1.mp4')} />
 				<SrcEncoder src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
 			</div>
 		</>

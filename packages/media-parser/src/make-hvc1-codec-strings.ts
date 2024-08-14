@@ -6,8 +6,6 @@ export const getHvc1CodecString = (data: BufferIterator) => {
 		throw new Error(`Unsupported HVCC version ${configurationVersion}`);
 	}
 
-	data.peekD(300);
-
 	const generalProfileSpaceTierFlagAndIdc = data.getUint8();
 	let generalProfileCompatibility = data.getUint32();
 	//  unsigned int(2) general_profile_space;
