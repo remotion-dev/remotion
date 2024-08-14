@@ -67,7 +67,7 @@ export const getArrayBufferIterator = (
 	});
 	if (!buf.resize) {
 		throw new Error(
-			'`ArrayBuffer.resize` is not supported in this Runtime. Use at least Node.js 20 or Bun.',
+			'`ArrayBuffer.resize` is not supported in this Runtime. On the server: Use at least Node.js 20 or Bun. In the browser: Chrome 111, Edge 111, Safari 16.4, Firefox 128, Opera 111',
 		);
 	}
 

@@ -564,6 +564,7 @@ module.exports = {
 				'media-parser/fetch-reader',
 				'media-parser/web-file-reader',
 				'media-parser/webcodecs',
+				'media-parser/support',
 			],
 		},
 		{

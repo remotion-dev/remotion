@@ -12,12 +12,12 @@ export const registerTrack = async ({
 	track: Track;
 }) => {
 	if (track.type === 'video' && options.onVideoTrack) {
-		const callback = options.onVideoTrack(track);
+		const callback = await options.onVideoTrack(track);
 		await state.registerVideoSampleCallback(track.trackId, callback ?? null);
 	}
 
 	if (track.type === 'audio' && options.onAudioTrack) {
-		const callback = options.onAudioTrack(track);
+		const callback = await options.onAudioTrack(track);
 		await state.registerAudioSampleCallback(track.trackId, callback ?? null);
 	}
 };

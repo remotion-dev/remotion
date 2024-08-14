@@ -388,7 +388,7 @@ export const processBox = async ({
 		const transformedTrack = makeBaseMediaTrack(box);
 		if (transformedTrack) {
 			if (transformedTrack.type === 'audio') {
-				const callback = options.onAudioTrack?.(transformedTrack);
+				const callback = await options.onAudioTrack?.(transformedTrack);
 				await options.parserState.registerAudioSampleCallback(
 					transformedTrack.trackId,
 					callback ?? null,
@@ -396,7 +396,7 @@ export const processBox = async ({
 			}
 
 			if (transformedTrack.type === 'video') {
-				const callback = options.onVideoTrack?.(transformedTrack);
+				const callback = await options.onVideoTrack?.(transformedTrack);
 				await options.parserState.registerVideoSampleCallback(
 					transformedTrack.trackId,
 					callback ?? null,
