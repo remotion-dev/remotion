@@ -1,6 +1,6 @@
 use std::{io::ErrorKind, time::SystemTime};
 
-use ffmpeg_next::{format, Rational};
+use ffmpeg_next::Rational;
 use remotionffmpeg::{codec::Id, frame::Video, media::Type, Dictionary, StreamMut};
 extern crate ffmpeg_next as remotionffmpeg;
 use std::time::UNIX_EPOCH;

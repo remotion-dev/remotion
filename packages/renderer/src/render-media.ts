@@ -770,6 +770,7 @@ const internalRenderMediaRaw = ({
 						}, 2000);
 						(stitcherFfmpeg as ExecaChildProcess<string>).on('close', res);
 					});
+
 					stitcherFfmpeg.kill();
 					return promise.then(() => {
 						reject(err);
