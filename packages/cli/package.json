@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/cli"
 	},
 	"name": "@remotion/cli",
-	"version": "4.0.195",
+	"version": "4.0.196",
 	"description": "Control Remotion features using the `npx remotion` command",
 	"main": "dist/index.js",
 	"sideEffects": false,

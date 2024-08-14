@@ -10,6 +10,13 @@ export const bugs: Bug[] = [
 	{
 		title: 'Broken release',
 		description:
+			'This version of Remotion was not published correctly. Upgrade to 4.0.196.',
+		link: 'https://remotion.dev/changelog',
+		versions: ['4.0.195'],
+	},
+	{
+		title: 'Broken release',
+		description:
 			'This version of Remotion was not published correctly. Upgrade to 4.0.191.',
 		link: 'https://remotion.dev/changelog',
 		versions: ['4.0.190'],

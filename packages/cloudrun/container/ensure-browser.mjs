@@ -18,7 +18,7 @@ var __toESM = (mod, isNodeMode, target) => {
 var __commonJS = (cb, mod) => () => (mod || cb((mod = { exports: {} }).exports, mod), mod.exports);
 var __require = createRequire(import.meta.url);
 
-// /Users/jonathanburger/remotion/node_modules/.pnpm/debug@4.3.4_supports-color@5.5.0/node_modules/ms/index.js
+// /Users/jonathanburger/remotion/node_modules/.pnpm/debug@4.3.4/node_modules/ms/index.js
 var require_ms = __commonJS((exports, module) => {
   var parse = function(str) {
     str = String(str);
@@ -128,7 +128,7 @@ var require_ms = __commonJS((exports, module) => {
   };
 });
 
-// ../../node_modules/.pnpm/debug@4.3.4_supports-color@5.5.0/node_modules/debug/src/common.js
+// ../../node_modules/.pnpm/debug@4.3.4/node_modules/debug/src/common.js
 var require_common = __commonJS((exports, module) => {
   var setup = function(env) {
     createDebug.debug = createDebug;
@@ -289,7 +289,7 @@ var require_common = __commonJS((exports, module) => {
   module.exports = setup;
 });
 
-// ../../node_modules/.pnpm/debug@4.3.4_supports-color@5.5.0/node_modules/debug/src/browser.js
+// ../../node_modules/.pnpm/debug@4.3.4/node_modules/debug/src/browser.js
 var require_browser = __commonJS((exports, module) => {
   var useColors = function() {
     if (typeof window !== "undefined" && window.process && (window.process.type === "renderer" || window.process.__nwjs)) {
@@ -452,18 +452,17 @@ var require_browser = __commonJS((exports, module) => {
   };
 });
 
-// /Users/jonathanburger/remotion/node_modules/.pnpm/supports-color@5.5.0/node_modules/has-flag/index.js
+// /Users/jonathanburger/remotion/node_modules/.pnpm/supports-color@7.2.0/node_modules/has-flag/index.js
 var require_has_flag = __commonJS((exports, module) => {
-  module.exports = (flag, argv) => {
-    argv = argv || process.argv;
+  module.exports = (flag, argv = process.argv) => {
     const prefix = flag.startsWith("-") ? "" : flag.length === 1 ? "-" : "--";
-    const pos = argv.indexOf(prefix + flag);
-    const terminatorPos = argv.indexOf("--");
-    return pos !== -1 && (terminatorPos === -1 ? true : pos < terminatorPos);
+    const position = argv.indexOf(prefix + flag);
+    const terminatorPosition = argv.indexOf("--");
+    return position !== -1 && (terminatorPosition === -1 || position < terminatorPosition);
   };
 });
 
-// /Users/jonathanburger/remotion/node_modules/.pnpm/debug@4.3.4_supports-color@5.5.0/node_modules/supports-color/index.js
+// /Users/jonathanburger/remotion/node_modules/.pnpm/node_modules/supports-color/index.js
 var require_supports_color = __commonJS((exports, module) => {
   var translateLevel = function(level) {
     if (level === 0) {
@@ -476,8 +475,8 @@ var require_supports_color = __commonJS((exports, module) => {
       has16m: level >= 3
     };
   };
-  var supportsColor = function(stream) {
-    if (forceColor === false) {
+  var supportsColor = function(haveStream, streamIsTTY) {
+    if (forceColor === 0) {
       return 0;
     }
     if (hasFlag("color=16m") || hasFlag("color=full") || hasFlag("color=truecolor")) {
@@ -486,19 +485,22 @@ var require_supports_color = __commonJS((exports, module) => {
     if (hasFlag("color=256")) {
       return 2;
     }
-    if (stream && !stream.isTTY && forceColor !== true) {
+    if (haveStream && !streamIsTTY && forceColor === undefined) {
       return 0;
     }
-    const min = forceColor ? 1 : 0;
+    const min = forceColor || 0;
+    if (env.TERM === "dumb") {
+      return min;
+    }
     if (process.platform === "win32") {
       const osRelease = os.release().split(".");
-      if (Number(process.versions.node.split(".")[0]) >= 8 && Number(osRelease[0]) >= 10 && Number(osRelease[2]) >= 10586) {
+      if (Number(osRelease[0]) >= 10 && Number(osRelease[2]) >= 10586) {
         return Number(osRelease[2]) >= 14931 ? 3 : 2;
       }
       return 1;
     }
     if ("CI" in env) {
-      if (["TRAVIS", "CIRCLECI", "APPVEYOR", "GITLAB_CI"].some((sign) => (sign in env)) || env.CI_NAME === "codeship") {
+      if (["TRAVIS", "CIRCLECI", "APPVEYOR", "GITLAB_CI", "GITHUB_ACTIONS", "BUILDKITE"].some((sign) => (sign in env)) || env.CI_NAME === "codeship") {
         return 1;
       }
       return min;
@@ -527,35 +529,39 @@ var require_supports_color = __commonJS((exports, module) => {
     if ("COLORTERM" in env) {
       return 1;
     }
-    if (env.TERM === "dumb") {
-      return min;
-    }
     return min;
   };
   var getSupportLevel = function(stream) {
-    const level = supportsColor(stream);
+    const level = supportsColor(stream, stream && stream.isTTY);
     return translateLevel(level);
   };
   var os = __require("os");
+  var tty = __require("tty");
   var hasFlag = require_has_flag();
-  var env = process.env;
+  var { env } = process;
   var forceColor;
-  if (hasFlag("no-color") || hasFlag("no-colors") || hasFlag("color=false")) {
-    forceColor = false;
+  if (hasFlag("no-color") || hasFlag("no-colors") || hasFlag("color=false") || hasFlag("color=never")) {
+    forceColor = 0;
   } else if (hasFlag("color") || hasFlag("colors") || hasFlag("color=true") || hasFlag("color=always")) {
-    forceColor = true;
+    forceColor = 1;
   }
   if ("FORCE_COLOR" in env) {
-    forceColor = env.FORCE_COLOR.length === 0 || parseInt(env.FORCE_COLOR, 10) !== 0;
+    if (env.FORCE_COLOR === "true") {
+      forceColor = 1;
+    } else if (env.FORCE_COLOR === "false") {
+      forceColor = 0;
+    } else {
+      forceColor = env.FORCE_COLOR.length === 0 ? 1 : Math.min(parseInt(env.FORCE_COLOR, 10), 3);
+    }
   }
   module.exports = {
     supportsColor: getSupportLevel,
-    stdout: getSupportLevel(process.stdout),
-    stderr: getSupportLevel(process.stderr)
+    stdout: translateLevel(supportsColor(true, tty.isatty(1))),
+    stderr: translateLevel(supportsColor(true, tty.isatty(2)))
   };
 });
 
-// ../../node_modules/.pnpm/debug@4.3.4_supports-color@5.5.0/node_modules/debug/src/node.js
+// ../../node_modules/.pnpm/debug@4.3.4/node_modules/debug/src/node.js
 var require_node = __commonJS((exports, module) => {
   var useColors = function() {
     return "colors" in exports.inspectOpts ? Boolean(exports.inspectOpts.colors) : tty.isatty(process.stderr.fd);
