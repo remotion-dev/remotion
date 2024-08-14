@@ -11,7 +11,13 @@ export const SrcEncoder: React.FC<{
 
 	const ref = useRef<HTMLCanvasElement>(null);
 
+	const i = useRef(0);
+
 	const onVideoTrack: OnVideoTrack = useCallback(async (track) => {
+		if (typeof VideoDecoder === 'undefined') {
+			return null;
+		}
+
 		const decoder = await VideoDecoder.isConfigSupported(track);
 
 		if (!decoder.supported) {
@@ -20,12 +26,18 @@ export const SrcEncoder: React.FC<{
 
 		const videoDecoder = new VideoDecoder({
 			async output(inputFrame) {
-				const image = await createImageBitmap(inputFrame, {
-					resizeHeight: 100,
-					resizeWidth: 100,
-				});
+				i.current++;
+				if (i.current % 10 === 1) {
+					const aspectRatio =
+						track.displayAspectWidth / track.displayAspectHeight;
 
-				ref.current?.getContext('2d')?.drawImage(image, 0, 0);
+					const image = await createImageBitmap(inputFrame, {
+						resizeHeight: 100 / aspectRatio,
+						resizeWidth: 100,
+					});
+
+					ref.current?.getContext('2d')?.drawImage(image, 0, 0);
+				}
 				flushSync(() => {
 					setVideoFrames((prev) => prev + 1);
 				});
@@ -59,15 +71,13 @@ export const SrcEncoder: React.FC<{
 	}, []);
 
 	const onAudioTrack: OnAudioTrack = useCallback(async (track) => {
-		console.log(track);
+		if (typeof AudioDecoder === 'undefined') {
+			return null;
+		}
 
 		const {supported} = await AudioDecoder.isConfigSupported(track);
 
 		if (!supported) {
-			return null;
-		}
-
-		if (typeof AudioDecoder === 'undefined') {
 			return null;
 		}
 
@@ -121,7 +131,13 @@ export const SrcEncoder: React.FC<{
 	}, [onAudioTrack, onVideoTrack, src]);
 
 	return (
-		<div>
+		<div
+			style={{
+				height: 200,
+				width: 200,
+				background: 'red',
+			}}
+		>
 			{src}{' '}
 			<button type="button" onClick={onClick}>
 				Decode
