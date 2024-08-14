@@ -248,7 +248,7 @@ test('Stream samples', async () => {
 			],
 			timescale: 48000,
 			numberOfChannels: 2,
-			codec: 'mp4a.6b',
+			codec: 'mp3',
 			sampleRate: 48000,
 			description: undefined,
 		},
