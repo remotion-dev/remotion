@@ -21,23 +21,24 @@ export const makeParserState = ({
 	hasVideoCallbacks: boolean;
 }) => {
 	const trackEntries: Record<number, CodecSegment> = {};
-	const onTrackEntrySegment: OnTrackEntrySegment = (trackEntry) => {
-		const codec = getTrackCodec(trackEntry);
-		if (!codec) {
-			throw new Error('Expected codec');
-		}
 
+	const onTrackEntrySegment: OnTrackEntrySegment = (trackEntry) => {
 		const trackId = getTrackId(trackEntry);
 		if (!trackId) {
 			throw new Error('Expected track id');
 		}
 
+		if (trackEntries[trackId]) {
+			return;
+		}
+
+		const codec = getTrackCodec(trackEntry);
+		if (!codec) {
+			throw new Error('Expected codec');
+		}
+
 		trackEntries[trackId] = codec;
 	};
-
-	let clusterTimestamp: number | null = null;
-
-	const emittedCodecIds: number[] = [];
 
 	const videoSampleCallbacks: Record<number, OnVideoSample> = {};
 	const audioSampleCallbacks: Record<number, OnAudioSample> = {};
@@ -49,12 +50,22 @@ export const makeParserState = ({
 
 	const declinedTrackNumbers: number[] = [];
 
+	let timescale: number | null = null;
+
+	const getTimescale = () => {
+		if (timescale === null) {
+			throw new Error('Timescale not set');
+		}
+
+		return timescale;
+	};
+
+	const setTimescale = (newTimescale: number) => {
+		timescale = newTimescale;
+	};
+
 	return {
 		onTrackEntrySegment,
-		isEmitted: (id: number) => emittedCodecIds.includes(id),
-		addEmittedCodecId: (id: number) => {
-			emittedCodecIds.push(id);
-		},
 		getTrackInfoByNumber: (id: number) => trackEntries[id],
 		registerVideoSampleCallback: async (
 			id: number,
@@ -127,17 +138,13 @@ export const makeParserState = ({
 				samplesThatHadToBeQueued++;
 			}
 		},
-		registerClusterTimestamp: (timestamp: number) => {
-			clusterTimestamp = timestamp;
-		},
-		getClusterTimestamp: () => {
-			return clusterTimestamp;
-		},
 		getInternalStats: () => {
 			return {
 				samplesThatHadToBeQueued,
 			};
 		},
+		getTimescale,
+		setTimescale,
 	};
 };
 

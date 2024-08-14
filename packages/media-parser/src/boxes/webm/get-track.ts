@@ -14,7 +14,6 @@ import {
 } from '../../traversal';
 import {parseAv1PrivateData} from './av1-codec-private';
 import {getAudioDescription} from './description';
-import type {TimestampScaleSegment} from './segments/timestamp-scale';
 import type {CodecSegment, TrackEntrySegment} from './segments/track-entry';
 
 const getDescription = (track: TrackEntrySegment): undefined | Uint8Array => {
@@ -116,7 +115,7 @@ export const getTrack = ({
 	timescale,
 	track,
 }: {
-	timescale: TimestampScaleSegment;
+	timescale: number;
 	track: TrackEntrySegment;
 }): VideoTrack | AudioTrack | null => {
 	const trackType = getTrackTypeSegment(track);
@@ -168,7 +167,7 @@ export const getTrack = ({
 				numerator: 1,
 				denominator: 1,
 			},
-			timescale: timescale.timestampScale,
+			timescale,
 			samplePositions: [],
 			codedHeight: height.height,
 			codedWidth: width.width,
@@ -187,7 +186,7 @@ export const getTrack = ({
 			trackId,
 			codec: getMatroskaAudioCodecString(track),
 			samplePositions: null,
-			timescale: timescale.timestampScale,
+			timescale,
 			numberOfChannels,
 			sampleRate,
 			description: getAudioDescription(track),

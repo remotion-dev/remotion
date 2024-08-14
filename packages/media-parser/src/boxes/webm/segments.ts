@@ -1,6 +1,8 @@
+import {registerTrack} from '../../add-new-matroska-tracks';
 import type {BufferIterator} from '../../buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
+import {getTrack} from './get-track';
 import {matroskaElements} from './segments/all-segments';
 import type {DurationSegment} from './segments/duration';
 import {parseDurationSegment} from './segments/duration';
@@ -207,8 +209,10 @@ const parseSegment = async ({
 		return parseInfoSegment(iterator, length, parserContext);
 	}
 
-	if (segmentId === '0x2ad7b1') {
-		return parseTimestampScaleSegment(iterator);
+	if (segmentId === matroskaElements.TimestampScale) {
+		const timestampScale = parseTimestampScaleSegment(iterator);
+		parserContext.parserState.setTimescale(timestampScale.timestampScale);
+		return timestampScale;
 	}
 
 	if (segmentId === '0x4d80') {
@@ -227,9 +231,24 @@ const parseSegment = async ({
 		return parseTracksSegment(iterator, length, parserContext);
 	}
 
-	if (segmentId === '0xae') {
+	if (segmentId === matroskaElements.TrackEntry) {
 		const trackEntry = await parseTrackEntry(iterator, length, parserContext);
+
 		parserContext.parserState.onTrackEntrySegment(trackEntry);
+
+		const track = getTrack({
+			track: trackEntry,
+			timescale: parserContext.parserState.getTimescale(),
+		});
+
+		if (track) {
+			await registerTrack({
+				state: parserContext.parserState,
+				options: parserContext,
+				track,
+			});
+		}
+
 		return trackEntry;
 	}
 
@@ -342,9 +361,7 @@ const parseSegment = async ({
 	}
 
 	if (segmentId === '0xe7') {
-		const timestamp = parseTimestampSegment(iterator, length);
-		parserContext.parserState.registerClusterTimestamp(timestamp.timestamp);
-		return timestamp;
+		return parseTimestampSegment(iterator, length);
 	}
 
 	if (segmentId === '0xa3') {

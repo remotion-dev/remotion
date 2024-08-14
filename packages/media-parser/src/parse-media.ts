@@ -1,7 +1,4 @@
 /* eslint-disable max-depth */
-import {addNewMatroskaTracks as emitNewMatroskaTracks} from './add-new-matroska-tracks';
-import {getTracksFromMatroska} from './boxes/webm/get-ready-tracks';
-import {getMainSegment} from './boxes/webm/traversal';
 import type {BufferIterator} from './buffer-iterator';
 import {getArrayBufferIterator} from './buffer-iterator';
 import {fetchReader} from './from-fetch';
@@ -83,13 +80,6 @@ export const parseMedia: ParseMedia = async ({
 			});
 		}
 
-		const matroskaSegment = getMainSegment(parseResult.segments);
-
-		if (matroskaSegment) {
-			const potentialTracks = getTracksFromMatroska(matroskaSegment);
-			await emitNewMatroskaTracks(potentialTracks, state, options);
-		}
-
 		// TODO Better: Check if no active listeners are registered
 		// Also maybe check for canSkipVideoData
 		if (
@@ -164,7 +154,7 @@ export const parseMedia: ParseMedia = async ({
 	}
 
 	if (fields?.tracks) {
-		const {audioTracks, videoTracks} = getTracks(parseResult.segments);
+		const {audioTracks, videoTracks} = getTracks(parseResult.segments, state);
 		returnValue.audioTracks = audioTracks;
 		returnValue.videoTracks = videoTracks;
 	}

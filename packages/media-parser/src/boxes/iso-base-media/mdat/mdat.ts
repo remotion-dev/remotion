@@ -35,7 +35,7 @@ export const parseMdat = async ({
 		});
 	}
 
-	const tracks = getTracks(existingBoxes);
+	const tracks = getTracks(existingBoxes, options.parserState);
 	const allTracks = [
 		...tracks.videoTracks,
 		...tracks.audioTracks,
