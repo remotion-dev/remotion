@@ -47,6 +47,7 @@ export class OffsetCounter {
 
 const isoBaseMediaMp4Pattern = new TextEncoder().encode('ftyp');
 const webmPattern = new Uint8Array([0x1a, 0x45, 0xdf, 0xa3]);
+const mpegPattern = new Uint8Array([0xff, 0xf3, 0xe4, 0x64]);
 
 const matchesPattern = (pattern: Uint8Array) => {
 	return (data: Uint8Array) => {
@@ -67,7 +68,7 @@ export const getArrayBufferIterator = (
 	});
 	if (!buf.resize) {
 		throw new Error(
-			'`ArrayBuffer.resize` is not supported in this Runtime. Use at least Node.js 20 or Bun.',
+			'`ArrayBuffer.resize` is not supported in this Runtime. On the server: Use at least Node.js 20 or Bun. In the browser: Chrome 111, Edge 111, Safari 16.4, Firefox 128, Opera 111',
 		);
 	}
 
@@ -157,6 +158,10 @@ export const getArrayBufferIterator = (
 
 	const isWebm = () => {
 		return matchesPattern(webmPattern)(data.subarray(0, 4));
+	};
+
+	const isMp3 = () => {
+		return matchesPattern(mpegPattern)(data.subarray(0, 4));
 	};
 
 	const removeBytesRead = () => {
@@ -251,6 +256,11 @@ export const getArrayBufferIterator = (
 		}
 
 		return result;
+	};
+
+	const destroy = () => {
+		data = new Uint8Array(0);
+		buf.resize(0);
 	};
 
 	return {
@@ -428,6 +438,8 @@ export const getArrayBufferIterator = (
 		},
 		getUint32Le,
 		getInt32Le,
+		destroy,
+		isMp3,
 	};
 };
 

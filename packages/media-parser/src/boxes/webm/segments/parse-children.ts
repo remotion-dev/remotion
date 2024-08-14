@@ -20,8 +20,8 @@ const processParseResult = ({
 		return {
 			status: 'incomplete',
 			segments: [],
-			continueParsing: () => {
-				const newParseResult = parseResult.continueParsing();
+			continueParsing: async () => {
+				const newParseResult = await parseResult.continueParsing();
 				return processParseResult({
 					children,
 					parseResult: newParseResult,
@@ -58,14 +58,14 @@ const continueParsingfunction =
 		parserContext: ParserContext;
 		length: number;
 	}) =>
-	(): ParseResult => {
+	async (): Promise<ParseResult> => {
 		if (result.status !== 'incomplete') {
 			throw new Error('expected incomplete');
 		}
 
 		const offset = iterator.counter.getOffset();
 
-		const continued = result.continueParsing();
+		const continued = await result.continueParsing();
 		if (continued.status === 'incomplete') {
 			return {
 				status: 'incomplete',
@@ -91,7 +91,7 @@ const continueParsingfunction =
 		});
 	};
 
-export const expectChildren = ({
+export const expectChildren = async ({
 	iterator,
 	length,
 	initialChildren,
@@ -103,7 +103,7 @@ export const expectChildren = ({
 	initialChildren: MatroskaSegment[];
 	wrap: WrapChildren | null;
 	parserContext: ParserContext;
-}): ParseResult => {
+}): Promise<ParseResult> => {
 	const children: MatroskaSegment[] = [...initialChildren];
 	const startOffset = iterator.counter.getOffset();
 
@@ -112,7 +112,7 @@ export const expectChildren = ({
 			break;
 		}
 
-		const parseResult = expectSegment(iterator, parserContext);
+		const parseResult = await expectSegment(iterator, parserContext);
 
 		const child = processParseResult({
 			children,

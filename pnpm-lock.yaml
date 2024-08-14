@@ -635,6 +635,9 @@ importers:
       '@docusaurus/types':
         specifier: 3.4.0
         version: 3.4.0(react-dom@18.3.1)(react@18.3.1)
+      '@types/dom-webcodecs':
+        specifier: 0.1.11
+        version: 0.1.11
       '@typescript/twoslash':
         specifier: 3.2.1
         version: 3.2.1
@@ -899,6 +902,9 @@ importers:
         specifier: 3.22.3
         version: 3.22.3
     devDependencies:
+      '@types/dom-webcodecs':
+        specifier: 0.1.11
+        version: 0.1.11
       prettier-plugin-organize-imports:
         specifier: 3.2.4
         version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
@@ -9552,7 +9558,6 @@ packages:
 
   /@types/dom-webcodecs@0.1.11:
     resolution: {integrity: sha512-yPEZ3z7EohrmOxbk/QTAa0yonMFkNkjnVXqbGb7D4rMr+F1dGQ8ZUFxXkyLLJuiICPejZ0AZE9Rrk9wUCczx4A==}
-    dev: true
 
   /@types/draco3d@1.4.2:
     resolution: {integrity: sha512-goh23EGr6CLV6aKPwN1p8kBD/7tT5V/bLpToSbarKrwVejqNrspVrv8DhliteYkkhZYrlq/fwKZRRUzH4XN88w==}

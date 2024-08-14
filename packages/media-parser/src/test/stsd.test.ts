@@ -4,7 +4,7 @@ import {parseStsd} from '../boxes/iso-base-media/stsd/stsd';
 import {getArrayBufferIterator} from '../buffer-iterator';
 import {makeParserState} from '../parser-state';
 
-test('Should be able to parse a STSD audio box correctly', () => {
+test('Should be able to parse a STSD audio box correctly', async () => {
 	const buffer = Uint8Array.from([
 		// box size
 		0, 0, 0, 159,
@@ -38,7 +38,7 @@ test('Should be able to parse a STSD audio box correctly', () => {
 	const iterator = getArrayBufferIterator(buffer);
 	iterator.discard(8);
 
-	const parsed = parseStsd({
+	const parsed = await parseStsd({
 		iterator,
 		offset: 0,
 		size: 159,
@@ -144,7 +144,7 @@ test('Should be able to parse a STSD audio box correctly', () => {
 	});
 });
 
-test('Should be able to parse a STSD video box correctly', () => {
+test('Should be able to parse a STSD video box correctly', async () => {
 	const buffer = Uint8Array.from([
 		// box size
 		0, 0, 0, 158,
@@ -204,7 +204,7 @@ test('Should be able to parse a STSD video box correctly', () => {
 		0, 0, 0, 16, 112, 97, 115, 112, 0, 0, 0, 1, 0, 0, 0, 1,
 	]);
 
-	const parsed = processSample({
+	const parsed = await processSample({
 		iterator: getArrayBufferIterator(buffer),
 		options: {
 			canSkipVideoData: true,
@@ -241,7 +241,7 @@ test('Should be able to parse a STSD video box correctly', () => {
 		colorTableId: -1,
 		descriptors: [
 			{
-				data: new Uint8Array([
+				description: new Uint8Array([
 					1, 100, 0, 32, 255, 225, 0, 27, 103, 100, 0, 32, 172, 217, 64, 68, 2,
 					39, 150, 92, 4, 64, 0, 0, 3, 0, 64, 0, 0, 12, 3, 198, 12, 101, 128, 1,
 					0, 6, 104, 235, 224, 140, 178, 44, 253, 248, 248, 0,

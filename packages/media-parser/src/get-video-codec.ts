@@ -1,8 +1,6 @@
 /* eslint-disable max-depth */
-import {constructAv1CodecString} from './av1-codec-string';
-import type {Av1CBox} from './boxes/iso-base-media/stsd/av1c';
-import type {ColorParameterBox} from './boxes/iso-base-media/stsd/colr';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
+import {parseAv1PrivateData} from './boxes/webm/av1-codec-private';
 import {trakBoxContainsVideo} from './get-fps';
 import {
 	getAv1CBox,
@@ -21,13 +19,6 @@ export const hasVideoCodec = (boxes: AnySegment[]): boolean => {
 	} catch (e) {
 		return false;
 	}
-};
-
-const getAv01CodecString = (
-	av1cBox: Av1CBox,
-	colrAtom: ColorParameterBox | null,
-) => {
-	return constructAv1CodecString(av1cBox.av1HeaderSegment, colrAtom);
 };
 
 export const getVideoCodecString = (trakBox: TrakBox): string | null => {
@@ -50,7 +41,7 @@ export const getVideoCodecString = (trakBox: TrakBox): string | null => {
 
 	if (av1cBox) {
 		const colrAtom = getColrBox(videoSample);
-		return getAv01CodecString(av1cBox, colrAtom);
+		return parseAv1PrivateData(av1cBox.privateData, colrAtom);
 	}
 
 	return videoSample.format;
@@ -115,6 +106,10 @@ export const getVideoCodec = (boxes: AnySegment[]): KnownVideoCodecs | null => {
 
 				if (trackType.codec === 'V_MPEG4/ISO/AVC') {
 					return 'h264';
+				}
+
+				if (trackType.codec === 'V_MPEGH/ISO/HEVC') {
+					return 'h265';
 				}
 			}
 		}

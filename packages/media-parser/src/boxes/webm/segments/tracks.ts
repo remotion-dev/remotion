@@ -8,12 +8,12 @@ export type TracksSegment = {
 	children: MatroskaSegment[];
 };
 
-export const parseTracksSegment = (
+export const parseTracksSegment = async (
 	iterator: BufferIterator,
 	length: number,
 	parserContext: ParserContext,
-): TracksSegment => {
-	const children = expectChildren({
+): Promise<TracksSegment> => {
+	const children = await expectChildren({
 		iterator,
 		length,
 		initialChildren: [],

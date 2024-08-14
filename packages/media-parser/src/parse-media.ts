@@ -1,6 +1,4 @@
 /* eslint-disable max-depth */
-import {getTracksFromMatroska} from './boxes/webm/get-ready-tracks';
-import {getMainSegment} from './boxes/webm/traversal';
 import type {BufferIterator} from './buffer-iterator';
 import {getArrayBufferIterator} from './buffer-iterator';
 import {fetchReader} from './from-fetch';
@@ -14,6 +12,7 @@ import {hasAllInfo} from './has-all-info';
 import type {Metadata, ParseMedia} from './options';
 import type {ParseResult} from './parse-result';
 import {parseVideo} from './parse-video';
+import type {ParserContext} from './parser-context';
 import {makeParserState} from './parser-state';
 
 export const parseMedia: ParseMedia = async ({
@@ -35,6 +34,7 @@ export const parseMedia: ParseMedia = async ({
 		true,
 		true,
 		true,
+		true,
 		true
 	>;
 
@@ -45,6 +45,13 @@ export const parseMedia: ParseMedia = async ({
 		hasAudioCallbacks: onAudioTrack !== null,
 		hasVideoCallbacks: onVideoTrack !== null,
 	});
+
+	const options: ParserContext = {
+		canSkipVideoData: !(onAudioTrack || onVideoTrack),
+		onAudioTrack: onAudioTrack ?? null,
+		onVideoTrack: onVideoTrack ?? null,
+		parserState: state,
+	};
 
 	while (parseResult === null || parseResult.status === 'incomplete') {
 		const result = await currentReader.read();
@@ -65,51 +72,18 @@ export const parseMedia: ParseMedia = async ({
 		}
 
 		if (parseResult && parseResult.status === 'incomplete') {
-			parseResult = parseResult.continueParsing();
+			parseResult = await parseResult.continueParsing();
 		} else {
-			parseResult = parseVideo({
+			parseResult = await parseVideo({
 				iterator,
-				options: {
-					canSkipVideoData: !(onAudioTrack || onVideoTrack),
-					onAudioTrack: onAudioTrack ?? null,
-					onVideoTrack: onVideoTrack ?? null,
-					parserState: state,
-				},
+				options,
 			});
-		}
-
-		const matroskaSegment = getMainSegment(parseResult.segments);
-		if (matroskaSegment) {
-			const tracks = getTracksFromMatroska(matroskaSegment);
-			for (const track of tracks.videoTracks) {
-				if (state.isEmitted(track.trackId)) {
-					continue;
-				}
-
-				state.addEmittedCodecId(track.trackId);
-				if (onVideoTrack) {
-					const callback = onVideoTrack(track);
-					state.registerVideoSampleCallback(track.trackId, callback ?? null);
-				}
-			}
-
-			for (const track of tracks.audioTracks) {
-				if (state.isEmitted(track.trackId)) {
-					continue;
-				}
-
-				state.addEmittedCodecId(track.trackId);
-				if (onAudioTrack) {
-					const callback = onAudioTrack(track);
-					state.registerAudioSampleCallback(track.trackId, callback ?? null);
-				}
-			}
 		}
 
 		// TODO Better: Check if no active listeners are registered
 		// Also maybe check for canSkipVideoData
 		if (
-			hasAllInfo(fields ?? {}, parseResult) &&
+			hasAllInfo(fields ?? {}, parseResult, state) &&
 			!onVideoTrack &&
 			!onAudioTrack
 		) {
@@ -143,7 +117,7 @@ export const parseMedia: ParseMedia = async ({
 	}
 
 	if (fields?.dimensions) {
-		const dimensions = getDimensions(parseResult.segments);
+		const dimensions = getDimensions(parseResult.segments, state);
 		returnValue.dimensions = {
 			width: dimensions.width,
 			height: dimensions.height,
@@ -151,7 +125,7 @@ export const parseMedia: ParseMedia = async ({
 	}
 
 	if (fields?.unrotatedDimension) {
-		const dimensions = getDimensions(parseResult.segments);
+		const dimensions = getDimensions(parseResult.segments, state);
 		returnValue.unrotatedDimension = {
 			width: dimensions.unrotatedWidth,
 			height: dimensions.unrotatedHeight,
@@ -159,7 +133,7 @@ export const parseMedia: ParseMedia = async ({
 	}
 
 	if (fields?.rotation) {
-		const dimensions = getDimensions(parseResult.segments);
+		const dimensions = getDimensions(parseResult.segments, state);
 		returnValue.rotation = dimensions.rotation;
 	}
 
@@ -180,7 +154,7 @@ export const parseMedia: ParseMedia = async ({
 	}
 
 	if (fields?.tracks) {
-		const {audioTracks, videoTracks} = getTracks(parseResult.segments);
+		const {audioTracks, videoTracks} = getTracks(parseResult.segments, state);
 		returnValue.audioTracks = audioTracks;
 		returnValue.videoTracks = videoTracks;
 	}
@@ -189,5 +163,10 @@ export const parseMedia: ParseMedia = async ({
 		returnValue.boxes = parseResult.segments;
 	}
 
+	if (fields?.internalStats) {
+		returnValue.internalStats = state.getInternalStats();
+	}
+
+	iterator?.destroy();
 	return returnValue;
 };

@@ -9,7 +9,7 @@ export interface MoovBox extends BaseBox {
 	children: AnySegment[];
 }
 
-export const parseMoov = ({
+export const parseMoov = async ({
 	iterator,
 	offset,
 	size,
@@ -19,13 +19,14 @@ export const parseMoov = ({
 	offset: number;
 	size: number;
 	options: ParserContext;
-}): MoovBox => {
-	const children = parseBoxes({
+}): Promise<MoovBox> => {
+	const children = await parseBoxes({
 		iterator,
 		maxBytes: size - (iterator.counter.getOffset() - offset),
 		allowIncompleteBoxes: false,
 		initialBoxes: [],
 		options,
+		continueMdat: false,
 	});
 
 	if (children.status === 'incomplete') {

@@ -117,6 +117,9 @@ test('Stream samples', async () => {
 			height: 1080,
 			codedWidth: 1080,
 			codedHeight: 1080,
+			displayAspectHeight: 1080,
+			displayAspectWidth: 1080,
+			rotation: 0,
 		},
 	]);
 
@@ -248,7 +251,7 @@ test('Stream samples', async () => {
 			],
 			timescale: 48000,
 			numberOfChannels: 2,
-			codec: 'mp4a.6b',
+			codec: 'mp3',
 			sampleRate: 48000,
 			description: undefined,
 		},

@@ -1,6 +1,8 @@
-import {av1CodecStringToString} from '../../av1-codec-string';
+import {getArrayBufferIterator} from '../../buffer-iterator';
 import type {AudioTrack, VideoTrack} from '../../get-tracks';
+import {getHvc1CodecString} from '../../make-hvc1-codec-strings';
 import {
+	getBitDepth,
 	getCodecSegment,
 	getDisplayHeightSegment,
 	getDisplayWidthSegment,
@@ -8,26 +10,35 @@ import {
 	getNumberOfChannels,
 	getPrivateData,
 	getSampleRate,
-	getTimescaleSegment,
 	getTrackId,
 	getTrackTypeSegment,
 	getWidthSegment,
 } from '../../traversal';
+import {parseAv1PrivateData} from './av1-codec-private';
 import {getAudioDescription} from './description';
-import type {MainSegment} from './segments/main';
-import type {
-	ClusterSegment,
-	CodecSegment,
-	TrackEntrySegment,
-} from './segments/track-entry';
+import type {CodecSegment, TrackEntrySegment} from './segments/track-entry';
+
+const getDescription = (track: TrackEntrySegment): undefined | Uint8Array => {
+	const codec = getCodecSegment(track);
+	if (!codec) {
+		return undefined;
+	}
+
+	if (codec.codec === 'V_MPEG4/ISO/AVC' || codec.codec === 'V_MPEGH/ISO/HEVC') {
+		const priv = getPrivateData(track);
+		if (priv) {
+			return priv;
+		}
+	}
+
+	return undefined;
+};
 
 const getMatroskaVideoCodecString = ({
 	track,
-	cluster,
 	codecSegment: codec,
 }: {
 	track: TrackEntrySegment;
-	cluster: ClusterSegment | null;
 	codecSegment: CodecSegment;
 }): string | null => {
 	if (codec.codec === 'V_VP8') {
@@ -38,7 +49,7 @@ const getMatroskaVideoCodecString = ({
 		const priv = getPrivateData(track);
 		if (priv) {
 			throw new Error(
-				'Private data is not implemented for VP9. Do you have an example file?',
+				'@remotion/media-parser cannot handle the private data for VP9. Do you have an example file you could send so we can implement it?',
 			);
 		}
 
@@ -55,11 +66,20 @@ const getMatroskaVideoCodecString = ({
 	}
 
 	if (codec.codec === 'V_AV1') {
-		if (!cluster) {
-			return null;
+		const priv = getPrivateData(track);
+
+		if (!priv) {
+			throw new Error('Expected private data in AV1 track');
 		}
 
-		return av1CodecStringToString({track, clusterSegment: cluster});
+		return parseAv1PrivateData(priv, null);
+	}
+
+	if (codec.codec === 'V_MPEGH/ISO/HEVC') {
+		const priv = getPrivateData(track);
+		const iterator = getArrayBufferIterator(priv as Uint8Array);
+
+		return 'hvc1.' + getHvc1CodecString(iterator);
 	}
 
 	throw new Error(`Unknown codec: ${codec.codec}`);
@@ -79,22 +99,70 @@ const getMatroskaAudioCodecString = (track: TrackEntrySegment): string => {
 		return 'vorbis';
 	}
 
-	// TODO: Wrong, see here how to parse it correctly
 	if (codec.codec === 'A_PCM/INT/LIT') {
-		return 'pcm-s16';
+		// https://github.com/ietf-wg-cellar/matroska-specification/issues/142#issuecomment-330004950
+		// Audio samples MUST be considered as signed values, except if the audio bit depth is 8 which MUST be interpreted as unsigned values.
+
+		const bitDepth = getBitDepth(track);
+		if (bitDepth === null) {
+			throw new Error('Expected bit depth');
+		}
+
+		if (bitDepth === 8) {
+			return 'pcm-u8';
+		}
+
+		return 'pcm-s' + bitDepth;
+	}
+
+	if (codec.codec === 'A_AAC') {
+		const priv = getPrivateData(track);
+
+		const iterator = getArrayBufferIterator(priv as Uint8Array);
+
+		iterator.startReadingBits();
+		/**
+		 * ChatGPT
+		 * 	▪	The first 5 bits represent the AOT.
+				▪	Common values:
+				◦	1 for AAC Main
+				◦	2 for AAC LC (Low Complexity)
+				◦	3 for AAC SSR (Scalable Sample Rate)
+				◦	4 for AAC LTP (Long Term Prediction)
+				◦	5 for SBR (Spectral Band Replication)
+				◦	29 for HE-AAC (which uses SBR with AAC LC)
+		 */
+		/** 
+		 * Fully qualified codec: 
+		 * This codec has multiple possible codec strings:
+			"mp4a.40.2" — MPEG-4 AAC LC
+			"mp4a.40.02" — MPEG-4 AAC LC, leading 0 for Aud-OTI compatibility
+			"mp4a.40.5" — MPEG-4 HE-AAC v1 (AAC LC + SBR)
+			"mp4a.40.05" — MPEG-4 HE-AAC v1 (AAC LC + SBR), leading 0 for Aud-OTI compatibility
+			"mp4a.40.29" — MPEG-4 HE-AAC v2 (AAC LC + SBR + PS)
+			"mp4a.67" — MPEG-2 AAC LC
+		*/
+
+		const profile = iterator.getBits(5);
+		iterator.stopReadingBits();
+		iterator.destroy();
+
+		return `mp4a.40.${profile.toString().padStart(2, '0')}`;
+	}
+
+	if (codec.codec === 'A_MPEG/L3') {
+		return 'mp3';
 	}
 
 	throw new Error(`Unknown codec: ${codec.codec}`);
 };
 
 export const getTrack = ({
-	mainSegment,
+	timescale,
 	track,
-	clusterSegment,
 }: {
-	mainSegment: MainSegment;
+	timescale: number;
 	track: TrackEntrySegment;
-	clusterSegment: ClusterSegment | null;
 }): VideoTrack | AudioTrack | null => {
 	const trackType = getTrackTypeSegment(track);
 
@@ -103,12 +171,6 @@ export const getTrack = ({
 	}
 
 	const trackId = getTrackId(track);
-
-	const timescale = getTimescaleSegment(mainSegment);
-
-	if (!timescale) {
-		throw new Error('No timescale segment');
-	}
 
 	if (trackType.trackType === 'video') {
 		const width = getWidthSegment(track);
@@ -133,7 +195,6 @@ export const getTrack = ({
 
 		const codecString = getMatroskaVideoCodecString({
 			track,
-			cluster: clusterSegment ?? null,
 			codecSegment: codec,
 		});
 
@@ -145,17 +206,24 @@ export const getTrack = ({
 			type: 'video',
 			trackId,
 			codec: codecString,
-			description: undefined,
+			description: getDescription(track),
 			height: displayHeight ? displayHeight.displayHeight : height.height,
 			width: displayWidth ? displayWidth.displayWidth : width.width,
 			sampleAspectRatio: {
 				numerator: 1,
 				denominator: 1,
 			},
-			timescale: timescale.timestampScale,
+			timescale,
 			samplePositions: [],
 			codedHeight: height.height,
 			codedWidth: width.width,
+			displayAspectHeight: displayHeight
+				? displayHeight.displayHeight
+				: height.height,
+			displayAspectWidth: displayWidth
+				? displayWidth.displayWidth
+				: width.width,
+			rotation: 0,
 		};
 	}
 
@@ -171,7 +239,7 @@ export const getTrack = ({
 			trackId,
 			codec: getMatroskaAudioCodecString(track),
 			samplePositions: null,
-			timescale: timescale.timestampScale,
+			timescale,
 			numberOfChannels,
 			sampleRate,
 			description: getAudioDescription(track),

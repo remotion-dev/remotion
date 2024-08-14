@@ -1,5 +1,3 @@
-import type {} from './boxes/iso-base-media/stsd/samples';
-import type {Av1BitstreamHeaderSegment} from './boxes/webm/bitstream/av1/header-segment';
 import type {OnTrackEntrySegment} from './boxes/webm/segments';
 import type {CodecSegment} from './boxes/webm/segments/track-entry';
 import {getTrackCodec} from './boxes/webm/traversal';
@@ -11,6 +9,10 @@ import type {
 	VideoSample,
 } from './webcodec-sample-types';
 
+export type InternalStats = {
+	samplesThatHadToBeQueued: number;
+};
+
 export const makeParserState = ({
 	hasAudioCallbacks,
 	hasVideoCallbacks,
@@ -19,47 +21,53 @@ export const makeParserState = ({
 	hasVideoCallbacks: boolean;
 }) => {
 	const trackEntries: Record<number, CodecSegment> = {};
-	const onTrackEntrySegment: OnTrackEntrySegment = (trackEntry) => {
-		const codec = getTrackCodec(trackEntry);
-		if (!codec) {
-			throw new Error('Expected codec');
-		}
 
+	const onTrackEntrySegment: OnTrackEntrySegment = (trackEntry) => {
 		const trackId = getTrackId(trackEntry);
 		if (!trackId) {
 			throw new Error('Expected track id');
 		}
 
+		if (trackEntries[trackId]) {
+			return;
+		}
+
+		const codec = getTrackCodec(trackEntry);
+		if (!codec) {
+			throw new Error('Expected codec');
+		}
+
 		trackEntries[trackId] = codec;
 	};
 
-	let clusterTimestamp: number | null = null;
-
-	const emittedCodecIds: number[] = [];
-
 	const videoSampleCallbacks: Record<number, OnVideoSample> = {};
 	const audioSampleCallbacks: Record<number, OnAudioSample> = {};
+
+	let samplesThatHadToBeQueued = 0;
 
 	const queuedAudioSamples: Record<number, AudioSample[]> = {};
 	const queuedVideoSamples: Record<number, VideoSample[]> = {};
 
 	const declinedTrackNumbers: number[] = [];
 
-	let isFirstAv1FrameRead = false;
+	let timescale: number | null = null;
 
-	let av1BitstreamHeaderSegment: {
-		segment: Av1BitstreamHeaderSegment;
-		header: Uint8Array;
-	} | null = null;
+	const getTimescale = () => {
+		if (timescale === null) {
+			throw new Error('Timescale not set');
+		}
+
+		return timescale;
+	};
+
+	const setTimescale = (newTimescale: number) => {
+		timescale = newTimescale;
+	};
 
 	return {
 		onTrackEntrySegment,
-		isEmitted: (id: number) => emittedCodecIds.includes(id),
-		addEmittedCodecId: (id: number) => {
-			emittedCodecIds.push(id);
-		},
 		getTrackInfoByNumber: (id: number) => trackEntries[id],
-		registerVideoSampleCallback: (
+		registerVideoSampleCallback: async (
 			id: number,
 			callback: OnVideoSample | null,
 		) => {
@@ -70,13 +78,14 @@ export const makeParserState = ({
 			}
 
 			videoSampleCallbacks[id] = callback;
+
 			for (const queued of queuedVideoSamples[id] ?? []) {
-				callback(queued);
+				await callback(queued);
 			}
 
 			queuedVideoSamples[id] = [];
 		},
-		registerAudioSampleCallback: (
+		registerAudioSampleCallback: async (
 			id: number,
 			callback: OnAudioSample | null,
 		) => {
@@ -88,15 +97,15 @@ export const makeParserState = ({
 
 			audioSampleCallbacks[id] = callback;
 			for (const queued of queuedAudioSamples[id] ?? []) {
-				callback(queued);
+				await callback(queued);
 			}
 
 			queuedAudioSamples[id] = [];
 		},
-		onAudioSample: (trackId: number, audioSample: AudioSample) => {
+		onAudioSample: async (trackId: number, audioSample: AudioSample) => {
 			const callback = audioSampleCallbacks[trackId];
 			if (callback) {
-				callback(audioSample);
+				await callback(audioSample);
 			} else {
 				if (declinedTrackNumbers.includes(trackId)) {
 					return;
@@ -108,12 +117,13 @@ export const makeParserState = ({
 
 				queuedAudioSamples[trackId] ??= [];
 				queuedAudioSamples[trackId].push(audioSample);
+				samplesThatHadToBeQueued++;
 			}
 		},
-		onVideoSample: (trackId: number, videoSample: VideoSample) => {
+		onVideoSample: async (trackId: number, videoSample: VideoSample) => {
 			const callback = videoSampleCallbacks[trackId];
 			if (callback) {
-				callback(videoSample);
+				await callback(videoSample);
 			} else {
 				if (declinedTrackNumbers.includes(trackId)) {
 					return;
@@ -125,28 +135,16 @@ export const makeParserState = ({
 
 				queuedVideoSamples[trackId] ??= [];
 				queuedVideoSamples[trackId].push(videoSample);
+				samplesThatHadToBeQueued++;
 			}
 		},
-		registerClusterTimestamp: (timestamp: number) => {
-			clusterTimestamp = timestamp;
-		},
-		getClusterTimestamp: () => {
-			return clusterTimestamp;
-		},
-		setAv1BitstreamHeaderSegment: (
-			segment: Av1BitstreamHeaderSegment,
-			header: Uint8Array,
-		) => {
-			av1BitstreamHeaderSegment = {
-				segment,
-				header,
+		getInternalStats: () => {
+			return {
+				samplesThatHadToBeQueued,
 			};
 		},
-		getAv1BitstreamHeaderSegment: () => av1BitstreamHeaderSegment,
-		setIsFirstAv1FrameRead: () => {
-			isFirstAv1FrameRead = true;
-		},
-		getIsFirstAv1FrameRead: () => isFirstAv1FrameRead,
+		getTimescale,
+		setTimescale,
 	};
 };
 

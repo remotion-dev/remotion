@@ -4,7 +4,8 @@ import {getTracksFromMatroska} from './boxes/webm/get-ready-tracks';
 import {getMainSegment} from './boxes/webm/traversal';
 import type {SamplePosition} from './get-sample-positions';
 import type {AnySegment} from './parse-result';
-import {getFtypBox, getMoovBox, getMvhdBox, getTraks} from './traversal';
+import type {ParserState} from './parser-state';
+import {getMoovBox, getMvhdBox, getTracksSegment, getTraks} from './traversal';
 
 type SampleAspectRatio = {
 	numerator: number;
@@ -21,8 +22,11 @@ export type VideoTrack = {
 	sampleAspectRatio: SampleAspectRatio;
 	width: number;
 	height: number;
+	displayAspectWidth: number;
+	displayAspectHeight: number;
 	codedWidth: number;
 	codedHeight: number;
+	rotation: number;
 };
 
 export type AudioTrack = {
@@ -43,9 +47,8 @@ export type OtherTrack = {
 	timescale: number;
 };
 
-export type Track = VideoTrack | AudioTrack;
+export type Track = VideoTrack | AudioTrack | OtherTrack;
 
-// TODO: Use this to determine if all tracks are present
 export const getNumberOfTracks = (moovBox: MoovBox): number => {
 	const mvHdBox = getMvhdBox(moovBox);
 	if (!mvHdBox) {
@@ -56,17 +59,16 @@ export const getNumberOfTracks = (moovBox: MoovBox): number => {
 };
 
 export const hasTracks = (segments: AnySegment[]): boolean => {
-	const moovBox = getMoovBox(segments);
 	const mainSegment = getMainSegment(segments);
-	const ftypBox = getFtypBox(segments);
+
+	if (mainSegment) {
+		return getTracksSegment(mainSegment) !== null;
+	}
+
+	const moovBox = getMoovBox(segments);
 
 	if (!moovBox) {
-		if (ftypBox) {
-			return false;
-		}
-
-		// TODO: Support Matroska
-		return Boolean(mainSegment);
+		return false;
 	}
 
 	const numberOfTracks = getNumberOfTracks(moovBox);
@@ -77,28 +79,49 @@ export const hasTracks = (segments: AnySegment[]): boolean => {
 
 export const getTracks = (
 	segments: AnySegment[],
+	state: ParserState,
 ): {
 	videoTracks: VideoTrack[];
 	audioTracks: AudioTrack[];
 	otherTracks: OtherTrack[];
 } => {
+	const videoTracks: VideoTrack[] = [];
+	const audioTracks: AudioTrack[] = [];
+	const otherTracks: OtherTrack[] = [];
+
 	const mainSegment = segments.find((s) => s.type === 'main-segment');
 	if (mainSegment && mainSegment.type === 'main-segment') {
-		return getTracksFromMatroska(mainSegment);
+		const matroskaTracks = getTracksFromMatroska(
+			mainSegment,
+			state.getTimescale(),
+		);
+
+		for (const track of matroskaTracks) {
+			if (track.type === 'video') {
+				videoTracks.push(track);
+			} else if (track.type === 'audio') {
+				audioTracks.push(track);
+			} else if (track.type === 'other') {
+				otherTracks.push(track);
+			}
+		}
+
+		return {
+			videoTracks,
+			audioTracks,
+			otherTracks,
+		};
 	}
 
 	const moovBox = getMoovBox(segments);
 	if (!moovBox) {
 		return {
-			videoTracks: [],
-			audioTracks: [],
-			otherTracks: [],
+			videoTracks,
+			audioTracks,
+			otherTracks,
 		};
 	}
 
-	const videoTracks: VideoTrack[] = [];
-	const audioTracks: AudioTrack[] = [];
-	const otherTracks: OtherTrack[] = [];
 	const tracks = getTraks(moovBox);
 
 	for (const trakBox of tracks) {

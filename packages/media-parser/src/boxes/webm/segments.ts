@@ -1,7 +1,8 @@
+import {registerTrack} from '../../add-new-matroska-tracks';
 import type {BufferIterator} from '../../buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
-import type {Av1BitstreamSegment} from './bitstream/av1';
+import {getTrack} from './get-track';
 import {matroskaElements} from './segments/all-segments';
 import type {DurationSegment} from './segments/duration';
 import {parseDurationSegment} from './segments/duration';
@@ -145,7 +146,6 @@ export type MatroskaSegment =
 	| BlockGroupSegment
 	| BlockElement
 	| SeekIdSegment
-	| Av1BitstreamSegment
 	| AudioSegment
 	| SamplingFrequencySegment
 	| ChannelsSegment
@@ -153,7 +153,7 @@ export type MatroskaSegment =
 
 export type OnTrackEntrySegment = (trackEntry: TrackEntrySegment) => void;
 
-const parseSegment = ({
+const parseSegment = async ({
 	segmentId,
 	iterator,
 	length,
@@ -163,7 +163,7 @@ const parseSegment = ({
 	iterator: BufferIterator;
 	length: number;
 	parserContext: ParserContext;
-}): MatroskaSegment => {
+}): Promise<Promise<MatroskaSegment> | MatroskaSegment> => {
 	if (length === 0) {
 		throw new Error(`Expected length of ${segmentId} to be greater than 0`);
 	}
@@ -209,8 +209,10 @@ const parseSegment = ({
 		return parseInfoSegment(iterator, length, parserContext);
 	}
 
-	if (segmentId === '0x2ad7b1') {
-		return parseTimestampScaleSegment(iterator);
+	if (segmentId === matroskaElements.TimestampScale) {
+		const timestampScale = parseTimestampScaleSegment(iterator);
+		parserContext.parserState.setTimescale(timestampScale.timestampScale);
+		return timestampScale;
 	}
 
 	if (segmentId === '0x4d80') {
@@ -229,9 +231,24 @@ const parseSegment = ({
 		return parseTracksSegment(iterator, length, parserContext);
 	}
 
-	if (segmentId === '0xae') {
-		const trackEntry = parseTrackEntry(iterator, length, parserContext);
+	if (segmentId === matroskaElements.TrackEntry) {
+		const trackEntry = await parseTrackEntry(iterator, length, parserContext);
+
 		parserContext.parserState.onTrackEntrySegment(trackEntry);
+
+		const track = getTrack({
+			track: trackEntry,
+			timescale: parserContext.parserState.getTimescale(),
+		});
+
+		if (track) {
+			await registerTrack({
+				state: parserContext.parserState,
+				options: parserContext,
+				track,
+			});
+		}
+
 		return trackEntry;
 	}
 
@@ -344,9 +361,7 @@ const parseSegment = ({
 	}
 
 	if (segmentId === '0xe7') {
-		const timestamp = parseTimestampSegment(iterator, length);
-		parserContext.parserState.registerClusterTimestamp(timestamp.timestamp);
-		return timestamp;
+		return parseTimestampSegment(iterator, length);
 	}
 
 	if (segmentId === '0xa3') {
@@ -354,7 +369,6 @@ const parseSegment = ({
 			iterator,
 			length,
 			parserContext,
-			onVideoSample: parserContext.parserState.onVideoSample,
 		});
 	}
 
@@ -376,17 +390,17 @@ const parseSegment = ({
 	return child;
 };
 
-export const expectSegment = (
+export const expectSegment = async (
 	iterator: BufferIterator,
 	parserContext: ParserContext,
-): ParseResult => {
+): Promise<ParseResult> => {
 	const bytesRemaining_ = iterator.bytesRemaining();
 	if (bytesRemaining_ === 0) {
 		return {
 			status: 'incomplete',
 			segments: [],
 			continueParsing: () => {
-				return expectSegment(iterator, parserContext);
+				return Promise.resolve(expectSegment(iterator, parserContext));
 			},
 			skipTo: null,
 		};
@@ -399,7 +413,7 @@ export const expectSegment = (
 		iterator.byteLength() - iterator.counter.getOffset();
 
 	if (segmentId === '0x18538067' || segmentId === '0x1f43b675') {
-		const main = expectChildren({
+		const main = await expectChildren({
 			iterator,
 			length,
 			initialChildren: [],
@@ -438,13 +452,13 @@ export const expectSegment = (
 			status: 'incomplete',
 			segments: [],
 			continueParsing: () => {
-				return expectSegment(iterator, parserContext);
+				return Promise.resolve(expectSegment(iterator, parserContext));
 			},
 			skipTo: null,
 		};
 	}
 
-	const segment = parseSegment({
+	const segment = await parseSegment({
 		segmentId,
 		iterator,
 		length,

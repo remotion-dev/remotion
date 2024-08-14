@@ -44,4 +44,7 @@ export const exampleVideos = {
 	vp8Vorbis: path.join(examplePackage, 'public', 'vp8-vorbis.webm'),
 	vp9: path.join(examplePackage, 'public', 'vp9.webm'),
 	stretchedVp8: path.join(examplePackage, 'public', 'stretched-vp8.webm'),
+	matroskaMp3: path.join(examplePackage, 'public', 'matroska-mp3.mkv'),
+	matroskaH265Aac: path.join(examplePackage, 'public', 'matroska-h265-aac.mkv'),
+	opusWebm: path.join(examplePackage, 'public', 'opus.webm'),
 };

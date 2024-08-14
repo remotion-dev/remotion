@@ -17,6 +17,8 @@ export const parseKeys = (data: Uint8Array, offset: number): KeysBox => {
 		throw new Error(`Expected keys type of keys, got ${atom}`);
 	}
 
+	iterator.destroy();
+
 	return {
 		type: 'keys-box',
 		boxSize: data.byteLength,

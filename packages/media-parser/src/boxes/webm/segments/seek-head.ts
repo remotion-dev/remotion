@@ -9,12 +9,12 @@ export type SeekHeadSegment = {
 	length: number;
 };
 
-export const parseSeekHeadSegment = (
+export const parseSeekHeadSegment = async (
 	iterator: BufferIterator,
 	length: number,
 	parserContext: ParserContext,
-): SeekHeadSegment => {
-	const children = expectChildren({
+): Promise<SeekHeadSegment> => {
+	const children = await expectChildren({
 		iterator,
 		length,
 		initialChildren: [],

@@ -11,7 +11,7 @@ export interface MebxBox extends BaseBox {
 	children: AnySegment[];
 }
 
-export const parseMebx = ({
+export const parseMebx = async ({
 	iterator,
 	offset,
 	size,
@@ -21,18 +21,19 @@ export const parseMebx = ({
 	offset: number;
 	size: number;
 	options: ParserContext;
-}): MebxBox => {
+}): Promise<MebxBox> => {
 	// reserved, 6 bit
 	iterator.discard(6);
 
 	const dataReferenceIndex = iterator.getUint16();
 
-	const children = parseBoxes({
+	const children = await parseBoxes({
 		iterator,
 		maxBytes: iterator.counter.getOffset() - offset,
 		allowIncompleteBoxes: false,
 		initialBoxes: [],
 		options,
+		continueMdat: false,
 	});
 
 	if (children.status === 'incomplete') {
