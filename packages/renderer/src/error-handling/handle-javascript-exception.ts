@@ -110,7 +110,6 @@ export const handleJavascriptException = ({
 
 		const errorType = exception.exceptionDetails.exception?.className as string;
 
-		page.close();
 		const symbolicatedErr = new SymbolicateableError({
 			message: removeDelayRenderStack(cleanErrorMessage),
 			stackFrame: (
