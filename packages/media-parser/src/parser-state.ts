@@ -9,9 +9,7 @@ import type {
 	VideoSample,
 } from './webcodec-sample-types';
 
-export type InternalStats = {
-	samplesThatHadToBeQueued: number;
-};
+export type InternalStats = {};
 
 export const makeParserState = ({
 	hasAudioCallbacks,
@@ -42,8 +40,6 @@ export const makeParserState = ({
 
 	const videoSampleCallbacks: Record<number, OnVideoSample> = {};
 	const audioSampleCallbacks: Record<number, OnAudioSample> = {};
-
-	let samplesThatHadToBeQueued = 0;
 
 	const queuedAudioSamples: Record<number, AudioSample[]> = {};
 	const queuedVideoSamples: Record<number, VideoSample[]> = {};
@@ -112,12 +108,8 @@ export const makeParserState = ({
 				}
 
 				if (!hasAudioCallbacks) {
-					return;
+					throw new Error('No audio callbacks registered');
 				}
-
-				queuedAudioSamples[trackId] ??= [];
-				queuedAudioSamples[trackId].push(audioSample);
-				samplesThatHadToBeQueued++;
 			}
 		},
 		onVideoSample: async (trackId: number, videoSample: VideoSample) => {
@@ -130,19 +122,11 @@ export const makeParserState = ({
 				}
 
 				if (!hasVideoCallbacks) {
-					return;
+					throw new Error('No video callbacks registered');
 				}
-
-				queuedVideoSamples[trackId] ??= [];
-				queuedVideoSamples[trackId].push(videoSample);
-				samplesThatHadToBeQueued++;
 			}
 		},
-		getInternalStats: () => {
-			return {
-				samplesThatHadToBeQueued,
-			};
-		},
+		getInternalStats: () => ({}),
 		getTimescale,
 		setTimescale,
 	};
