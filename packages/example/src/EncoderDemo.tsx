@@ -22,6 +22,10 @@ export const EncoderDemo: React.FC = () => {
 					src={staticFile('matroska-pcm16.mkv')}
 				/>
 				<SrcEncoder
+					label="https://remotion.dev/bbb.mp4"
+					src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+				/>
+				<SrcEncoder
 					label="h265-with-aac.mkv"
 					src={staticFile('matroska-h265-aac.mkv')}
 				/>
@@ -35,14 +39,18 @@ export const EncoderDemo: React.FC = () => {
 					src={staticFile('iphone-hevc.mov')}
 				/>
 				<SrcEncoder
+					label="https://remotion.dev/bbb.webm"
+					src="https://remotion.dev/bbb.webm"
+				/>
+				<SrcEncoder
 					label="vp8-with-stretch.webm"
 					src={staticFile('stretched-vp8.webm')}
 				/>
-				<SrcEncoder label="opus-audio.webm" src={staticFile('opus.webm')} />
 				<SrcEncoder
-					label="https://remotion.dev/bbb.mp4"
-					src="https://remotion.dev/bbb.mp4"
+					label="vp8-vorbis.webm"
+					src={staticFile('stretched-vp8.webm')}
 				/>
+				<SrcEncoder label="opus-audio.webm" src={staticFile('opus.webm')} />
 			</div>
 		</>
 	);

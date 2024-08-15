@@ -190,6 +190,8 @@ export const SrcEncoder: React.FC<{
 			<AbsoluteFill
 				style={{
 					background: 'white',
+					textAlign: 'center',
+					fontFamily: 'Arial',
 				}}
 			>
 				<canvas
@@ -200,7 +202,16 @@ export const SrcEncoder: React.FC<{
 						background: 'black',
 					}}
 				/>
-				{label}{' '}
+				<div
+					style={{
+						color: 'white',
+						height: 20,
+						lineHeight: '20px',
+						marginTop: -20,
+					}}
+				>
+					{label}{' '}
+				</div>
 				<button type="button" onClick={onClick}>
 					Decode
 				</button>
