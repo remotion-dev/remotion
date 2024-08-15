@@ -350,6 +350,24 @@ export class NetworkManager extends EventEmitter {
 				{indent: this.#indent, logLevel: this.#logLevel},
 				`Browser failed to load ${request._url} (${event.type}): ${event.errorText}`,
 			);
+			if (
+				event.errorText === 'net::ERR_FAILED' &&
+				event.type === 'Fetch' &&
+				request._url?.includes('/proxy')
+			) {
+				Log.warn(
+					{indent: this.#indent, logLevel: this.#logLevel},
+					'This could be caused by Chrome rejecting the request because the disk space is low.',
+				);
+				Log.warn(
+					{indent: this.#indent, logLevel: this.#logLevel},
+					'This could be caused by Chrome rejecting the request because the disk space is low.',
+				);
+				Log.warn(
+					{indent: this.#indent, logLevel: this.#logLevel},
+					'Consider increasing the disk size of your Lambda function.',
+				);
+			}
 		}
 
 		this.#forgetRequest(request, true);

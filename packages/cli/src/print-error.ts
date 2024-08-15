@@ -47,6 +47,7 @@ export const printError = async (err: Error, logLevel: LogLevel) => {
 			}
 
 			printCodeFrameAndStack(symbolicated, logLevel);
+			RenderInternals.printUsefulErrorMessage(err, logLevel, false);
 		} catch (e) {
 			output.update(chalk.red(''), true);
 			Log.error({indent: false, logLevel});

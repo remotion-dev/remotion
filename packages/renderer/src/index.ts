@@ -146,6 +146,7 @@ import {
 	resolveAudioCodec,
 	supportedAudioCodecs,
 } from './options/audio-codec';
+import {printUsefulErrorMessage} from './print-useful-error-message';
 import {getShouldRenderAudio} from './render-has-audio';
 import {toMegabytes} from './to-megabytes';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
@@ -242,6 +243,7 @@ export const RenderInternals = {
 	toMegabytes,
 	internalEnsureBrowser,
 	exampleVideos,
+	printUsefulErrorMessage,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
