@@ -16,13 +16,14 @@ const SampleLabel: React.FC<{
 				height: 18,
 				width: 18,
 				fontSize: 11,
-				border: '1px solid black',
+				border: '1px solid white',
 				display: 'inline-flex',
 				justifyContent: 'center',
 				alignItems: 'center',
 				borderRadius: 5,
 				marginRight: 4,
 				fontFamily: 'Arial',
+				color: 'white',
 			}}
 		>
 			{children}
@@ -33,9 +34,10 @@ const SampleLabel: React.FC<{
 const SampleCount: React.FC<{
 	count: number;
 	label: string;
-}> = ({count, label}) => {
+	errored: boolean;
+}> = ({count, label, errored}) => {
 	return (
-		<div style={{display: 'inline-block'}}>
+		<div style={{display: 'inline-block', color: errored ? 'red' : 'white'}}>
 			<SampleLabel>{label}</SampleLabel>
 			{count}
 		</div>
@@ -49,6 +51,8 @@ export const SrcEncoder: React.FC<{
 	const [samples, setSamples] = React.useState<number>(0);
 	const [videoFrames, setVideoFrames] = React.useState<number>(0);
 	const [audioFrames, setAudioFrames] = React.useState<number>(0);
+	const [videoError, setVideoError] = React.useState<DOMException | null>(null);
+	const [audioError, setAudioError] = React.useState<DOMException | null>(null);
 
 	const ref = useRef<HTMLCanvasElement>(null);
 
@@ -59,33 +63,75 @@ export const SrcEncoder: React.FC<{
 			return null;
 		}
 
-		const decoder = await VideoDecoder.isConfigSupported(track);
+		const {supported} = await VideoDecoder.isConfigSupported(track);
 
-		if (!decoder.supported) {
+		if (!supported) {
+			setVideoError(new DOMException('Video decoder not supported'));
 			return null;
 		}
 
 		const videoDecoder = new VideoDecoder({
 			async output(inputFrame) {
 				i.current++;
+
 				if (i.current % 10 === 1) {
+					const rotatedWidth =
+						track.rotation === -90 || track.rotation === 90
+							? CANVAS_HEIGHT
+							: CANVAS_WIDTH;
+					const rotatedHeight =
+						track.rotation === -90 || track.rotation === 90
+							? CANVAS_WIDTH
+							: CANVAS_HEIGHT;
+
 					const fitted = fitElementSizeInContainer({
 						containerSize: {
-							width: CANVAS_WIDTH,
-							height: CANVAS_HEIGHT,
+							width: rotatedWidth,
+							height: rotatedHeight,
 						},
 						elementSize: {
-							width: inputFrame.displayWidth,
-							height: inputFrame.displayHeight,
+							width: track.displayAspectWidth,
+							height: track.displayAspectHeight,
 						},
 					});
 
 					const image = await createImageBitmap(inputFrame, {
-						resizeHeight: fitted.height,
-						resizeWidth: fitted.width,
+						resizeHeight: fitted.height * 2,
+						resizeWidth: fitted.width * 2,
 					});
 
-					ref.current?.getContext('2d')?.drawImage(image, fitted.left, 0);
+					if (!ref.current) {
+						return;
+					}
+
+					const context = ref.current.getContext('2d');
+					if (!context) {
+						return;
+					}
+					ref.current.width = CANVAS_WIDTH * window.devicePixelRatio;
+					ref.current.height = CANVAS_HEIGHT * window.devicePixelRatio;
+
+					if (track.rotation === -90) {
+						context.rotate((-track.rotation * Math.PI) / 180);
+						context.drawImage(
+							image,
+							fitted.left,
+							-CANVAS_WIDTH / 2 - fitted.height / 2,
+							fitted.width,
+							fitted.height,
+						);
+						context.setTransform(1, 0, 0, 1, 0, 0);
+					}
+					// TODO: Implement 90 and 180 rotations
+					else {
+						context.drawImage(
+							image,
+							fitted.left,
+							0,
+							fitted.width,
+							fitted.height,
+						);
+					}
 				}
 				flushSync(() => {
 					setVideoFrames((prev) => prev + 1);
@@ -93,7 +139,7 @@ export const SrcEncoder: React.FC<{
 				inputFrame.close();
 			},
 			error(error) {
-				console.error(error);
+				setVideoError(error);
 			},
 		});
 		videoDecoder.configure(track);
@@ -102,6 +148,11 @@ export const SrcEncoder: React.FC<{
 			flushSync(() => {
 				setSamples((s) => s + 1);
 			});
+
+			if (videoDecoder.state === 'closed') {
+				return;
+			}
+
 			if (videoDecoder.decodeQueueSize > 10) {
 				let resolve = () => {};
 
@@ -124,9 +175,10 @@ export const SrcEncoder: React.FC<{
 			return null;
 		}
 
-		const {supported} = await AudioDecoder.isConfigSupported(track);
+		const {supported, config} = await AudioDecoder.isConfigSupported(track);
 
 		if (!supported) {
+			setAudioError(new DOMException('Audio decoder not supported'));
 			return null;
 		}
 
@@ -138,16 +190,21 @@ export const SrcEncoder: React.FC<{
 				inputFrame.close();
 			},
 			error(error) {
-				console.error(error);
+				setAudioError(error);
 			},
 		});
 
-		audioDecoder.configure(track);
+		audioDecoder.configure(config);
 
 		return async (audioSample) => {
 			flushSync(() => {
 				setSamples((s) => s + 1);
 			});
+
+			if (audioDecoder.state === 'closed') {
+				return;
+			}
+
 			if (audioDecoder.decodeQueueSize > 10) {
 				console.log('audio decoder queue size', audioDecoder.decodeQueueSize);
 				let resolve = () => {};
@@ -164,6 +221,7 @@ export const SrcEncoder: React.FC<{
 				// @ts-expect-error exists
 				audioDecoder.removeEventListener('dequeue', cb);
 			}
+
 			audioDecoder.decode(new EncodedAudioChunk(audioSample));
 		};
 	}, []);
@@ -179,17 +237,17 @@ export const SrcEncoder: React.FC<{
 	return (
 		<div
 			style={{
-				height: 1024 / 4,
+				height: 200,
 				width: 1024 / 4,
 				padding: 10,
 				display: 'inline-block',
 				position: 'relative',
-				marginBottom: 0,
+				marginBottom: -4,
 			}}
 		>
 			<AbsoluteFill
 				style={{
-					background: 'white',
+					background: 'black',
 					textAlign: 'center',
 					fontFamily: 'Arial',
 				}}
@@ -206,8 +264,12 @@ export const SrcEncoder: React.FC<{
 					style={{
 						color: 'white',
 						height: 20,
-						lineHeight: '20px',
-						marginTop: -20,
+						position: 'absolute',
+						textAlign: 'left',
+						width: 1024 / 4,
+						wordBreak: 'break-word',
+						fontSize: 14,
+						padding: 5,
 					}}
 				>
 					{label}{' '}
@@ -215,10 +277,27 @@ export const SrcEncoder: React.FC<{
 				<button type="button" onClick={onClick}>
 					Decode
 				</button>
-				<div style={{display: 'flex', flexDirection: 'row', gap: 10}}>
-					<SampleCount count={samples} label="S" />
-					<SampleCount count={videoFrames} label="V" />
-					<SampleCount count={audioFrames} label="A" />
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'row',
+						gap: 10,
+						justifyContent: 'center',
+						alignItems: 'center',
+						height: 38,
+					}}
+				>
+					<SampleCount errored={false} count={samples} label="S" />
+					<SampleCount
+						errored={videoError !== null}
+						count={videoFrames}
+						label="V"
+					/>
+					<SampleCount
+						errored={audioError !== null}
+						count={audioFrames}
+						label="A"
+					/>
 				</div>
 			</AbsoluteFill>
 		</div>

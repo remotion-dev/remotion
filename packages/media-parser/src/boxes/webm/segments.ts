@@ -2,6 +2,7 @@ import {registerTrack} from '../../add-new-matroska-tracks';
 import type {BufferIterator} from '../../buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
+import type {VideoSample} from '../../webcodec-sample-types';
 import {getTrack} from './get-track';
 import {matroskaElements} from './segments/all-segments';
 import type {DurationSegment} from './segments/duration';
@@ -29,6 +30,7 @@ import type {
 	AlphaModeSegment,
 	AudioSegment,
 	BitDepthSegment,
+	BlockAdditionsSegment,
 	BlockElement,
 	BlockGroupSegment,
 	ChannelsSegment,
@@ -46,9 +48,10 @@ import type {
 	InterlacedSegment,
 	LanguageSegment,
 	MaxBlockAdditionId,
+	ReferenceBlockSegment,
 	SamplingFrequencySegment,
 	SegmentUUIDSegment,
-	SimpleBlockSegment,
+	SimpleBlockOrBlockSegment,
 	TagSegment,
 	TagsSegment,
 	TimestampSegment,
@@ -64,6 +67,7 @@ import {
 	parseAlphaModeSegment,
 	parseAudioSegment,
 	parseBitDepthSegment,
+	parseBlockAdditionsSegment,
 	parseBlockElementSegment,
 	parseBlockGroupSegment,
 	parseChannelsSegment,
@@ -80,9 +84,10 @@ import {
 	parseInterlacedSegment,
 	parseLanguageSegment,
 	parseMaxBlockAdditionId,
+	parseReferenceBlockSegment,
 	parseSamplingFrequencySegment,
 	parseSegmentUUIDSegment,
-	parseSimpleBlockSegment,
+	parseSimpleBlockOrBlockSegment,
 	parseTagSegment,
 	parseTagsSegment,
 	parseTimestampSegment,
@@ -142,14 +147,16 @@ export type MatroskaSegment =
 	| TagSegment
 	| ClusterSegment
 	| TimestampSegment
-	| SimpleBlockSegment
+	| SimpleBlockOrBlockSegment
 	| BlockGroupSegment
 	| BlockElement
 	| SeekIdSegment
 	| AudioSegment
 	| SamplingFrequencySegment
 	| ChannelsSegment
-	| BitDepthSegment;
+	| BitDepthSegment
+	| ReferenceBlockSegment
+	| BlockAdditionsSegment;
 
 export type OnTrackEntrySegment = (trackEntry: TrackEntrySegment) => void;
 
@@ -360,20 +367,75 @@ const parseSegment = async ({
 		return parseBitDepthSegment(iterator, length);
 	}
 
-	if (segmentId === '0xe7') {
-		return parseTimestampSegment(iterator, length);
+	if (segmentId === matroskaElements.Timestamp) {
+		const offset = iterator.counter.getOffset();
+		const timestampSegment = parseTimestampSegment(iterator, length);
+
+		parserContext.parserState.setTimestampOffset(
+			offset,
+			timestampSegment.timestamp,
+		);
+
+		return timestampSegment;
 	}
 
-	if (segmentId === '0xa3') {
-		return parseSimpleBlockSegment({
+	if (
+		segmentId === matroskaElements.SimpleBlock ||
+		segmentId === matroskaElements.Block
+	) {
+		return parseSimpleBlockOrBlockSegment({
 			iterator,
 			length,
 			parserContext,
+			type: segmentId,
 		});
 	}
 
+	if (segmentId === matroskaElements.ReferenceBlock) {
+		return parseReferenceBlockSegment(iterator, length);
+	}
+
+	if (segmentId === matroskaElements.BlockAdditions) {
+		return parseBlockAdditionsSegment(iterator, length);
+	}
+
 	if (segmentId === '0xa0') {
-		return parseBlockGroupSegment(iterator, length, parserContext);
+		const blockGroup = await parseBlockGroupSegment(
+			iterator,
+			length,
+			parserContext,
+		);
+
+		// Blocks don't have information about keyframes.
+		// https://ffmpeg.org/pipermail/ffmpeg-devel/2015-June/173825.html
+		// "For Blocks, keyframes is
+		// inferred by the absence of ReferenceBlock element (as done by matroskadec).""
+
+		const block = blockGroup.children.find(
+			(c) => c.type === 'simple-block-or-block-segment',
+		);
+		if (!block || block.type !== 'simple-block-or-block-segment') {
+			throw new Error('Expected block segment');
+		}
+
+		const hasReferenceBlock = blockGroup.children.find(
+			(c) => c.type === 'reference-block-segment',
+		);
+
+		const partialVideoSample = block.videoSample;
+
+		if (partialVideoSample) {
+			const completeFrame: VideoSample = {
+				...partialVideoSample,
+				type: hasReferenceBlock ? 'delta' : 'key',
+			};
+			await parserContext.parserState.onVideoSample(
+				partialVideoSample.trackId,
+				completeFrame,
+			);
+		}
+
+		return blockGroup;
 	}
 
 	if (segmentId === '0xa1') {

@@ -1443,7 +1443,7 @@ export const Index: React.FC = () => {
 			<Still
 				id="EncoderDemo"
 				component={EncoderDemo}
-				height={1024}
+				height={800}
 				width={1024}
 			/>
 		</>

@@ -22,7 +22,7 @@ export const EncoderDemo: React.FC = () => {
 					src={staticFile('matroska-pcm16.mkv')}
 				/>
 				<SrcEncoder
-					label="https://remotion.dev/bbb.mp4"
+					label="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
 					src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
 				/>
 				<SrcEncoder
@@ -39,8 +39,8 @@ export const EncoderDemo: React.FC = () => {
 					src={staticFile('iphone-hevc.mov')}
 				/>
 				<SrcEncoder
-					label="https://remotion.dev/bbb.webm"
-					src="https://remotion.dev/bbb.webm"
+					label="https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.720p.vp9.webm"
+					src="https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.720p.vp9.webm"
 				/>
 				<SrcEncoder
 					label="vp8-with-stretch.webm"
@@ -48,9 +48,13 @@ export const EncoderDemo: React.FC = () => {
 				/>
 				<SrcEncoder
 					label="vp8-vorbis.webm"
-					src={staticFile('stretched-vp8.webm')}
+					src={staticFile('vp8-vorbis.webm')}
 				/>
 				<SrcEncoder label="opus-audio.webm" src={staticFile('opus.webm')} />
+				<SrcEncoder
+					label="transparent-with-dar.webm"
+					src={staticFile('transparent-with-dar.webm')}
+				/>
 			</div>
 		</>
 	);

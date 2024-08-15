@@ -248,6 +248,7 @@ test('Should stream ProRes video', async () => {
 
 test('Should stream variable fps video', async () => {
 	let audioTracks = 0;
+	let samples = 0;
 	const parsed = await parseMedia({
 		src: RenderInternals.exampleVideos.variablefps,
 		fields: {
@@ -269,8 +270,9 @@ test('Should stream variable fps video', async () => {
 			expect(track.numberOfChannels).toBe(1);
 			expect(track.sampleRate).toBe(48000);
 			audioTracks++;
-			// TODO: Get samples
-			return null;
+			return () => {
+				samples++;
+			};
 		},
 	});
 
@@ -314,6 +316,7 @@ test('Should stream variable fps video', async () => {
 		description: undefined,
 	});
 	expect(audioTracks).toBe(1);
+	expect(samples).toBe(381);
 });
 
 test('Should stream MKV video', async () => {
@@ -660,7 +663,7 @@ test('MP3 in matroska', async () => {
 	expect(parsed.audioCodec).toEqual('mp3');
 	expect(parsed.videoTracks.length).toBe(1);
 	expect(parsed.audioTracks.length).toBe(1);
-	expect(audioSamples).toBe(139);
+	expect(audioSamples).toBe(140);
 	expect(videoSamples).toBe(100);
 });
 
@@ -685,5 +688,44 @@ test('Should stream OPUS', async () => {
 
 	expect(parsed.audioCodec).toEqual('opus');
 	expect(parsed.audioTracks.length).toBe(1);
-	expect(audioSamples).toBe(166);
+	expect(audioSamples).toBe(167);
+});
+
+test('Should stream transparent video', async () => {
+	let videoTracks = 0;
+	let audioTracks = 0;
+	let videoSamples = 0;
+	let keyFrames = 0;
+
+	await parseMedia({
+		src: RenderInternals.exampleVideos.transparentwithdar,
+		reader: nodeReader,
+		onVideoTrack: (track) => {
+			expect(track.codedHeight).toBe(512);
+			expect(track.codedWidth).toBe(512);
+			videoTracks++;
+			return (sample) => {
+				// https://ffmpeg.org/pipermail/ffmpeg-devel/2015-June/173825.html
+				// For Blocks, keyframes is
+				// inferred by the absence of ReferenceBlock element (as done by matroskadec).
+				if (sample.type === 'key') {
+					keyFrames++;
+				}
+
+				videoSamples++;
+			};
+		},
+		onAudioTrack: () => {
+			audioTracks++;
+			return null;
+		},
+		fields: {
+			tracks: true,
+		},
+	});
+
+	expect(videoTracks).toBe(1);
+	expect(audioTracks).toBe(0);
+	expect(videoSamples).toBe(39);
+	expect(keyFrames).toBe(1);
 });
