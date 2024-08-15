@@ -200,6 +200,7 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: true,
 							lacing: 0,
 							invisible: false,
+							videoSample: null,
 						},
 						{
 							type: 'simple-block-or-block-segment',
@@ -209,6 +210,7 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
+							videoSample: null,
 						},
 						{
 							type: 'simple-block-or-block-segment',
@@ -218,6 +220,7 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
+							videoSample: null,
 						},
 						{
 							type: 'simple-block-or-block-segment',
@@ -227,6 +230,7 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
+							videoSample: null,
 						},
 						{
 							type: 'simple-block-or-block-segment',
@@ -236,6 +240,7 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
+							videoSample: null,
 						},
 						{
 							type: 'simple-block-or-block-segment',
@@ -245,6 +250,7 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
+							videoSample: null,
 						},
 						{
 							type: 'simple-block-or-block-segment',
@@ -254,6 +260,7 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
+							videoSample: null,
 						},
 						{
 							type: 'simple-block-or-block-segment',
@@ -263,6 +270,7 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
+							videoSample: null,
 						},
 						{
 							type: 'simple-block-or-block-segment',
@@ -272,6 +280,7 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
+							videoSample: null,
 						},
 						{
 							type: 'simple-block-or-block-segment',
@@ -281,6 +290,7 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
+							videoSample: null,
 						},
 						{
 							type: 'simple-block-or-block-segment',
@@ -290,6 +300,7 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
+							videoSample: null,
 						},
 						{
 							type: 'simple-block-or-block-segment',
@@ -299,6 +310,7 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
+							videoSample: null,
 						},
 						{
 							type: 'simple-block-or-block-segment',
@@ -308,6 +320,7 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
+							videoSample: null,
 						},
 						{
 							type: 'simple-block-or-block-segment',
@@ -317,6 +330,7 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
+							videoSample: null,
 						},
 						{
 							type: 'simple-block-or-block-segment',
@@ -326,6 +340,7 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
+							videoSample: null,
 						},
 						{
 							type: 'simple-block-or-block-segment',
@@ -335,6 +350,7 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
+							videoSample: null,
 						},
 						{
 							type: 'simple-block-or-block-segment',
@@ -344,6 +360,7 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
+							videoSample: null,
 						},
 						{
 							type: 'simple-block-or-block-segment',
@@ -353,6 +370,7 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
+							videoSample: null,
 						},
 						{
 							type: 'simple-block-or-block-segment',
@@ -362,6 +380,7 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
+							videoSample: null,
 						},
 						{
 							type: 'simple-block-or-block-segment',
@@ -371,6 +390,7 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
+							videoSample: null,
 						},
 						{
 							type: 'simple-block-or-block-segment',
@@ -380,6 +400,7 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
+							videoSample: null,
 						},
 						{
 							type: 'simple-block-or-block-segment',
@@ -389,6 +410,7 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
+							videoSample: null,
 						},
 						{
 							type: 'simple-block-or-block-segment',
@@ -398,6 +420,7 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
+							videoSample: null,
 						},
 						{
 							type: 'simple-block-or-block-segment',
@@ -407,6 +430,7 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
+							videoSample: null,
 						},
 						{
 							type: 'simple-block-or-block-segment',
@@ -416,6 +440,7 @@ test('Should get duration of AV1 video', async () => {
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
+							videoSample: null,
 						},
 					],
 				},

@@ -1,5 +1,6 @@
 import type {BufferIterator} from '../../../buffer-iterator';
 import type {ParserContext} from '../../../parser-context';
+import type {VideoSample} from '../../../webcodec-sample-types';
 import type {MatroskaSegment} from '../segments';
 import type {matroskaElements} from './all-segments';
 import {parseBlockFlags} from './block-simple-block-flags';
@@ -598,6 +599,7 @@ export type SimpleBlockOrBlockSegment = {
 	keyframe: boolean | null;
 	lacing: number;
 	invisible: boolean;
+	videoSample: Omit<VideoSample, 'type'> | null;
 };
 
 export type GetTracks = () => TrackEntrySegment[];
@@ -639,22 +641,34 @@ export const parseSimpleBlockOrBlockSegment = async ({
 		throw new Error('Could not find codec for track ' + trackNumber);
 	}
 
-	if (codec.codec.startsWith('V_')) {
-		const remainingNow = length - (iterator.counter.getOffset() - start);
+	const remainingNow = length - (iterator.counter.getOffset() - start);
 
-		await parserContext.parserState.onVideoSample(trackNumber, {
+	let videoSample: Omit<VideoSample, 'type'> | null = null;
+
+	if (codec.codec.startsWith('V_')) {
+		const partialVideoSample: Omit<VideoSample, 'type'> = {
 			data: iterator.getSlice(remainingNow),
 			cts: null,
 			dts: null,
 			duration: undefined,
-			type: keyframe ? 'key' : 'delta',
 			trackId: trackNumber,
 			timestamp: timecode,
-		});
+		};
+
+		if (keyframe === null) {
+			// If we don't know if this is a keyframe, we know after we emit the BlockGroup
+			videoSample = partialVideoSample;
+		} else {
+			const sample: VideoSample = {
+				...partialVideoSample,
+				type: keyframe ? 'key' : 'delta',
+			};
+
+			await parserContext.parserState.onVideoSample(trackNumber, sample);
+		}
 	}
 
 	if (codec.codec.startsWith('A_')) {
-		const remainingNow = length - (iterator.counter.getOffset() - start);
 		await parserContext.parserState.onAudioSample(trackNumber, {
 			data: iterator.getSlice(remainingNow),
 			trackId: trackNumber,
@@ -676,6 +690,7 @@ export const parseSimpleBlockOrBlockSegment = async ({
 		keyframe,
 		lacing,
 		invisible,
+		videoSample,
 	};
 };
 

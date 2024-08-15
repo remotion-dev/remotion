@@ -705,6 +705,9 @@ test('Should stream transparent video', async () => {
 			expect(track.codedWidth).toBe(512);
 			videoTracks++;
 			return (sample) => {
+				// https://ffmpeg.org/pipermail/ffmpeg-devel/2015-June/173825.html
+				// For Blocks, keyframes is
+				// inferred by the absence of ReferenceBlock element (as done by matroskadec).
 				if (sample.type === 'key') {
 					keyFrames++;
 				}

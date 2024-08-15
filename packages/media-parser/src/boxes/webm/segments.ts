@@ -2,6 +2,7 @@ import {registerTrack} from '../../add-new-matroska-tracks';
 import type {BufferIterator} from '../../buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
+import type {VideoSample} from '../../webcodec-sample-types';
 import {getTrack} from './get-track';
 import {matroskaElements} from './segments/all-segments';
 import type {DurationSegment} from './segments/duration';
@@ -399,7 +400,42 @@ const parseSegment = async ({
 	}
 
 	if (segmentId === '0xa0') {
-		return parseBlockGroupSegment(iterator, length, parserContext);
+		const blockGroup = await parseBlockGroupSegment(
+			iterator,
+			length,
+			parserContext,
+		);
+
+		// Blocks don't have information about keyframes.
+		// https://ffmpeg.org/pipermail/ffmpeg-devel/2015-June/173825.html
+		// "For Blocks, keyframes is
+		// inferred by the absence of ReferenceBlock element (as done by matroskadec).""
+
+		const block = blockGroup.children.find(
+			(c) => c.type === 'simple-block-or-block-segment',
+		);
+		if (!block || block.type !== 'simple-block-or-block-segment') {
+			throw new Error('Expected block segment');
+		}
+
+		const hasReferenceBlock = blockGroup.children.find(
+			(c) => c.type === 'reference-block-segment',
+		);
+
+		const partialVideoSample = block.videoSample;
+
+		if (partialVideoSample) {
+			const completeFrame: VideoSample = {
+				...partialVideoSample,
+				type: hasReferenceBlock ? 'delta' : 'key',
+			};
+			await parserContext.parserState.onVideoSample(
+				partialVideoSample.trackId,
+				completeFrame,
+			);
+		}
+
+		return blockGroup;
 	}
 
 	if (segmentId === '0xa1') {
