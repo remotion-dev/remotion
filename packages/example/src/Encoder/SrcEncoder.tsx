@@ -16,13 +16,14 @@ const SampleLabel: React.FC<{
 				height: 18,
 				width: 18,
 				fontSize: 11,
-				border: '1px solid black',
+				border: '1px solid white',
 				display: 'inline-flex',
 				justifyContent: 'center',
 				alignItems: 'center',
 				borderRadius: 5,
 				marginRight: 4,
 				fontFamily: 'Arial',
+				color: 'white',
 			}}
 		>
 			{children}
@@ -36,7 +37,7 @@ const SampleCount: React.FC<{
 	errored: boolean;
 }> = ({count, label, errored}) => {
 	return (
-		<div style={{display: 'inline-block', color: errored ? 'red' : 'black'}}>
+		<div style={{display: 'inline-block', color: errored ? 'red' : 'white'}}>
 			<SampleLabel>{label}</SampleLabel>
 			{count}
 		</div>
@@ -174,7 +175,6 @@ export const SrcEncoder: React.FC<{
 			return null;
 		}
 
-		console.log(track);
 		const {supported, config} = await AudioDecoder.isConfigSupported(track);
 
 		if (!supported) {
@@ -247,7 +247,7 @@ export const SrcEncoder: React.FC<{
 		>
 			<AbsoluteFill
 				style={{
-					background: 'white',
+					background: 'black',
 					textAlign: 'center',
 					fontFamily: 'Arial',
 				}}
@@ -277,7 +277,16 @@ export const SrcEncoder: React.FC<{
 				<button type="button" onClick={onClick}>
 					Decode
 				</button>
-				<div style={{display: 'flex', flexDirection: 'row', gap: 10}}>
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'row',
+						gap: 10,
+						justifyContent: 'center',
+						alignItems: 'center',
+						height: 38,
+					}}
+				>
 					<SampleCount errored={false} count={samples} label="S" />
 					<SampleCount
 						errored={videoError !== null}
