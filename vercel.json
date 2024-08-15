@@ -14,6 +14,46 @@
 					"value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
 				}
 			]
+		},
+		{
+			"source": "/bbb.webm",
+			"permanent": false,
+			"headers": [
+				{
+					"key": "Location",
+					"value": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+				},
+
+				{"key": "Access-Control-Allow-Credentials", "value": "true"},
+				{"key": "Access-Control-Allow-Origin", "value": "*"},
+				{
+					"key": "Access-Control-Allow-Methods",
+					"value": "GET,OPTIONS,PATCH,DELETE,POST,PUT"
+				},
+				{
+					"key": "Access-Control-Allow-Headers",
+					"value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+				}
+			]
+		},
+		{
+			"source": "/bbb.mp4",
+			"headers": [
+				{
+					"key": "Location",
+					"value": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+				},
+				{"key": "Access-Control-Allow-Credentials", "value": "true"},
+				{"key": "Access-Control-Allow-Origin", "value": "*"},
+				{
+					"key": "Access-Control-Allow-Methods",
+					"value": "GET,OPTIONS,PATCH,DELETE,POST,PUT"
+				},
+				{
+					"key": "Access-Control-Allow-Headers",
+					"value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+				}
+			]
 		}
 	],
 	"redirects": [
@@ -326,46 +366,6 @@
 			"source": "/docs/miscellaneous/snippets/adding-animations",
 			"destination": "/docs/animation-math",
 			"permanent": false
-		},
-		{
-			"source": "/bbb.webm",
-			"permanent": false,
-			"headers": [
-				{
-					"key": "Location",
-					"value": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-				},
-
-				{"key": "Access-Control-Allow-Credentials", "value": "true"},
-				{"key": "Access-Control-Allow-Origin", "value": "*"},
-				{
-					"key": "Access-Control-Allow-Methods",
-					"value": "GET,OPTIONS,PATCH,DELETE,POST,PUT"
-				},
-				{
-					"key": "Access-Control-Allow-Headers",
-					"value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
-				}
-			]
-		},
-		{
-			"source": "/bbb.mp4",
-			"headers": [
-				{
-					"key": "Location",
-					"value": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-				},
-				{"key": "Access-Control-Allow-Credentials", "value": "true"},
-				{"key": "Access-Control-Allow-Origin", "value": "*"},
-				{
-					"key": "Access-Control-Allow-Methods",
-					"value": "GET,OPTIONS,PATCH,DELETE,POST,PUT"
-				},
-				{
-					"key": "Access-Control-Allow-Headers",
-					"value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
-				}
-			]
 		}
 	]
 }
