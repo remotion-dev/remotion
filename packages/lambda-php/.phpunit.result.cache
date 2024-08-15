@@ -1,1 +1,1 @@
-{"version":1,"defects":[],"times":{"Remotion\\LambdaPhp\\Tests\\PHPClientTest::testClient":0.024,"Remotion\\LambdaPhp\\Tests\\PHPRenderProgressTest::testClient":0.025}}
+{"version":1,"defects":[],"times":{"Remotion\\LambdaPhp\\Tests\\PHPClientTest::testClient":0.034,"Remotion\\LambdaPhp\\Tests\\PHPRenderProgressTest::testClient":0.018}}
