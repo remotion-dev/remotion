@@ -1,52 +1,52 @@
-import { execSync } from "node:child_process";
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
+import {execSync} from 'node:child_process';
 
 dotenv.config();
 const isTest = false;
-const pypiRepo = isTest ? "testpypi" : "pypi";
+const pypiRepo = isTest ? 'testpypi' : 'pypi';
 
 try {
-  /**
-   * creates an environment file that is referenced by twine
-   */
-  execSync(
-    `cat <<EOF > ~/.pypirc
+	/**
+	 * creates an environment file that is referenced by twine
+	 */
+	execSync(
+		`cat <<EOF > ~/.pypirc
 [${pypiRepo}]
 username = __token__
 password = ${process.env.PYPI_PASSWORD}
 EOF`,
-    {
-      stdio: "inherit",
-    }
-  );
+		{
+			stdio: 'inherit',
+		},
+	);
 
-  const commands = [
-    "python -m venv remotion-env",
-    ". ./remotion-env/bin/activate",
-    "pip install boto3 twine wheel",
-    "python setup.py sdist bdist_wheel",
-    `python -m twine upload --repository ${pypiRepo} dist/*`,
-    "deactivate",
-  ];
+	const commands = [
+		'python -m venv remotion-env',
+		'. ./remotion-env/bin/activate',
+		'pip install boto3 twine wheel setuptools',
+		'python setup.py sdist bdist_wheel',
+		`python -m twine upload --repository ${pypiRepo} dist/*`,
+		'deactivate',
+	];
 
-  execSync(commands.join(" && "), {
-    stdio: "inherit",
-  });
+	execSync(commands.join(' && '), {
+		stdio: 'inherit',
+	});
 
-  console.log("Remotion lambda published.");
+	console.log('Remotion lambda published.');
 } catch (error) {
-  console.log("Something went wrong whit publishing ", error);
+	console.log('Something went wrong whit publishing ', error);
 } finally {
-  console.log("Cleaning up....");
-  // clean up used folder
-  const rmComm = [
-    "rm -rf build",
-    "rm -rf dist",
-    "rm -rf remotion_lambda.*",
-    "rm -rf remotion-env",
-  ];
-  execSync(rmComm.join(" && "), {
-    stdio: "inherit",
-  });
-  console.log("Cleaning up successful.");
+	console.log('Cleaning up....');
+	// clean up used folder
+	const rmComm = [
+		'rm -rf build',
+		'rm -rf dist',
+		'rm -rf remotion_lambda.*',
+		'rm -rf remotion-env',
+	];
+	execSync(rmComm.join(' && '), {
+		stdio: 'inherit',
+	});
+	console.log('Cleaning up successful.');
 }
