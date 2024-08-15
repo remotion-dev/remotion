@@ -29,6 +29,7 @@ import type {
 	AlphaModeSegment,
 	AudioSegment,
 	BitDepthSegment,
+	BlockAdditionsSegment,
 	BlockElement,
 	BlockGroupSegment,
 	ChannelsSegment,
@@ -46,9 +47,10 @@ import type {
 	InterlacedSegment,
 	LanguageSegment,
 	MaxBlockAdditionId,
+	ReferenceBlockSegment,
 	SamplingFrequencySegment,
 	SegmentUUIDSegment,
-	SimpleBlockSegment,
+	SimpleBlockOrBlockSegment,
 	TagSegment,
 	TagsSegment,
 	TimestampSegment,
@@ -64,6 +66,7 @@ import {
 	parseAlphaModeSegment,
 	parseAudioSegment,
 	parseBitDepthSegment,
+	parseBlockAdditionsSegment,
 	parseBlockElementSegment,
 	parseBlockGroupSegment,
 	parseChannelsSegment,
@@ -80,9 +83,10 @@ import {
 	parseInterlacedSegment,
 	parseLanguageSegment,
 	parseMaxBlockAdditionId,
+	parseReferenceBlockSegment,
 	parseSamplingFrequencySegment,
 	parseSegmentUUIDSegment,
-	parseSimpleBlockSegment,
+	parseSimpleBlockOrBlockSegment,
 	parseTagSegment,
 	parseTagsSegment,
 	parseTimestampSegment,
@@ -142,14 +146,16 @@ export type MatroskaSegment =
 	| TagSegment
 	| ClusterSegment
 	| TimestampSegment
-	| SimpleBlockSegment
+	| SimpleBlockOrBlockSegment
 	| BlockGroupSegment
 	| BlockElement
 	| SeekIdSegment
 	| AudioSegment
 	| SamplingFrequencySegment
 	| ChannelsSegment
-	| BitDepthSegment;
+	| BitDepthSegment
+	| ReferenceBlockSegment
+	| BlockAdditionsSegment;
 
 export type OnTrackEntrySegment = (trackEntry: TrackEntrySegment) => void;
 
@@ -372,12 +378,24 @@ const parseSegment = async ({
 		return timestampSegment;
 	}
 
-	if (segmentId === '0xa3') {
-		return parseSimpleBlockSegment({
+	if (
+		segmentId === matroskaElements.SimpleBlock ||
+		segmentId === matroskaElements.Block
+	) {
+		return parseSimpleBlockOrBlockSegment({
 			iterator,
 			length,
 			parserContext,
+			type: segmentId,
 		});
+	}
+
+	if (segmentId === matroskaElements.ReferenceBlock) {
+		return parseReferenceBlockSegment(iterator, length);
+	}
+
+	if (segmentId === matroskaElements.BlockAdditions) {
+		return parseBlockAdditionsSegment(iterator, length);
 	}
 
 	if (segmentId === '0xa0') {

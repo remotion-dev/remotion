@@ -1,6 +1,8 @@
 import type {BufferIterator} from '../../../buffer-iterator';
 import type {ParserContext} from '../../../parser-context';
 import type {MatroskaSegment} from '../segments';
+import type {matroskaElements} from './all-segments';
+import {parseBlockFlags} from './block-simple-block-flags';
 import {expectChildren} from './parse-children';
 
 export type TrackEntrySegment = {
@@ -588,57 +590,54 @@ export const parseTimestampSegment = (
 	};
 };
 
-export type SimpleBlockSegment = {
-	type: 'simple-block-segment';
+export type SimpleBlockOrBlockSegment = {
+	type: 'simple-block-or-block-segment';
 	length: number;
 	trackNumber: number;
 	timecode: number;
-	headerFlags: number;
-	keyframe: boolean;
-	lacing: [number, number];
+	keyframe: boolean | null;
+	lacing: number;
 	invisible: boolean;
-	children: MatroskaSegment[];
 };
 
 export type GetTracks = () => TrackEntrySegment[];
 
-export const parseSimpleBlockSegment = async ({
+export const parseSimpleBlockOrBlockSegment = async ({
 	iterator,
 	length,
 	parserContext,
+	type,
 }: {
 	iterator: BufferIterator;
 	length: number;
 	parserContext: ParserContext;
-}): Promise<SimpleBlockSegment> => {
+	type:
+		| (typeof matroskaElements)['Block']
+		| (typeof matroskaElements)['SimpleBlock'];
+}): Promise<SimpleBlockOrBlockSegment> => {
 	const start = iterator.counter.getOffset();
 	const trackNumber = iterator.getVint();
 	const timecodeRelativeToCluster = iterator.getUint16();
-	const headerFlags = iterator.getUint8();
 
-	const invisible = Boolean((headerFlags >> 5) & 1);
-	const pos6 = (headerFlags >> 6) & 1;
-	const pos7 = (headerFlags >> 6) & 1;
-	const keyframe = Boolean((headerFlags >> 7) & 1);
+	const {invisible, lacing, keyframe} = parseBlockFlags(iterator, type);
 
 	const codec = parserContext.parserState.getTrackInfoByNumber(trackNumber);
-	const offset = parserContext.parserState.getTimestampOffsetForByteOffset(
-		iterator.counter.getOffset(),
-	);
+	const clusterOffset =
+		parserContext.parserState.getTimestampOffsetForByteOffset(
+			iterator.counter.getOffset(),
+		);
 
-	if (offset === undefined) {
+	if (clusterOffset === undefined) {
 		throw new Error(
 			'Could not find offset for byte offset ' + iterator.counter.getOffset(),
 		);
 	}
 
-	const timecode = timecodeRelativeToCluster;
+	const timecode = timecodeRelativeToCluster + clusterOffset;
 
 	if (!codec) {
 		throw new Error('Could not find codec for track ' + trackNumber);
 	}
-
-	const children: MatroskaSegment[] = [];
 
 	if (codec.codec.startsWith('V_')) {
 		const remainingNow = length - (iterator.counter.getOffset() - start);
@@ -661,7 +660,6 @@ export const parseSimpleBlockSegment = async ({
 			trackId: trackNumber,
 			timestamp: timecode,
 			type: 'key',
-			clusterOffset: offset,
 		});
 	}
 
@@ -671,15 +669,13 @@ export const parseSimpleBlockSegment = async ({
 	}
 
 	return {
-		type: 'simple-block-segment',
+		type: 'simple-block-or-block-segment',
 		length,
 		trackNumber,
 		timecode,
-		headerFlags,
 		keyframe,
-		lacing: [pos6, pos7],
+		lacing,
 		invisible,
-		children,
 	};
 };
 
@@ -723,6 +719,53 @@ export const parseBlockGroupSegment = async (
 	return {
 		type: 'block-group-segment',
 		children: children.segments as MatroskaSegment[],
+	};
+};
+
+export type ReferenceBlockSegment = {
+	type: 'reference-block-segment';
+	referenceBlock: number;
+};
+
+export const parseReferenceBlockSegment = (
+	iterator: BufferIterator,
+	length: number,
+): ReferenceBlockSegment => {
+	if (length > 4) {
+		throw new Error(
+			`Expected reference block segment to be 4 bytes, but got ${length}`,
+		);
+	}
+
+	const referenceBlock =
+		length === 4
+			? iterator.getUint32()
+			: length === 3
+				? iterator.getUint24()
+				: length === 2
+					? iterator.getUint16()
+					: iterator.getUint8();
+
+	return {
+		type: 'reference-block-segment',
+		referenceBlock,
+	};
+};
+
+export type BlockAdditionsSegment = {
+	type: 'block-additions-segment';
+	blockAdditions: Uint8Array;
+};
+
+export const parseBlockAdditionsSegment = (
+	iterator: BufferIterator,
+	length: number,
+): BlockAdditionsSegment => {
+	const blockAdditions = iterator.getSlice(length);
+
+	return {
+		type: 'block-additions-segment',
+		blockAdditions,
 	};
 };
 
