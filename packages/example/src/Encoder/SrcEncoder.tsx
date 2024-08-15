@@ -1,10 +1,51 @@
 import {OnAudioTrack, OnVideoTrack, parseMedia} from '@remotion/media-parser';
 import React, {useCallback, useRef} from 'react';
 import {flushSync} from 'react-dom';
+import {AbsoluteFill} from 'remotion';
+import {fitElementSizeInContainer} from './fit-element-size-in-container';
+
+const CANVAS_WIDTH = 1024 / 4;
+const CANVAS_HEIGHT = (CANVAS_WIDTH / 16) * 9;
+
+const SampleLabel: React.FC<{
+	children: React.ReactNode;
+}> = ({children}) => {
+	return (
+		<div
+			style={{
+				height: 18,
+				width: 18,
+				fontSize: 11,
+				border: '1px solid black',
+				display: 'inline-flex',
+				justifyContent: 'center',
+				alignItems: 'center',
+				borderRadius: 5,
+				marginRight: 4,
+				fontFamily: 'Arial',
+			}}
+		>
+			{children}
+		</div>
+	);
+};
+
+const SampleCount: React.FC<{
+	count: number;
+	label: string;
+}> = ({count, label}) => {
+	return (
+		<div style={{display: 'inline-block'}}>
+			<SampleLabel>{label}</SampleLabel>
+			{count}
+		</div>
+	);
+};
 
 export const SrcEncoder: React.FC<{
 	src: string;
-}> = ({src}) => {
+	label: string;
+}> = ({src, label}) => {
 	const [samples, setSamples] = React.useState<number>(0);
 	const [videoFrames, setVideoFrames] = React.useState<number>(0);
 	const [audioFrames, setAudioFrames] = React.useState<number>(0);
@@ -28,15 +69,23 @@ export const SrcEncoder: React.FC<{
 			async output(inputFrame) {
 				i.current++;
 				if (i.current % 10 === 1) {
-					const aspectRatio =
-						track.displayAspectWidth / track.displayAspectHeight;
-
-					const image = await createImageBitmap(inputFrame, {
-						resizeHeight: 100 / aspectRatio,
-						resizeWidth: 100,
+					const fitted = fitElementSizeInContainer({
+						containerSize: {
+							width: CANVAS_WIDTH,
+							height: CANVAS_HEIGHT,
+						},
+						elementSize: {
+							width: inputFrame.displayWidth,
+							height: inputFrame.displayHeight,
+						},
 					});
 
-					ref.current?.getContext('2d')?.drawImage(image, 0, 0);
+					const image = await createImageBitmap(inputFrame, {
+						resizeHeight: fitted.height,
+						resizeWidth: fitted.width,
+					});
+
+					ref.current?.getContext('2d')?.drawImage(image, fitted.left, 0);
 				}
 				flushSync(() => {
 					setVideoFrames((prev) => prev + 1);
@@ -120,32 +169,47 @@ export const SrcEncoder: React.FC<{
 	}, []);
 
 	const onClick = useCallback(() => {
-		console.time('done');
 		parseMedia({
 			src,
 			onVideoTrack,
 			onAudioTrack,
-		}).then(() => {
-			console.timeEnd('done');
-		});
+		}).then(() => {});
 	}, [onAudioTrack, onVideoTrack, src]);
 
 	return (
 		<div
 			style={{
-				height: 200,
-				width: 200,
-				background: 'red',
+				height: 1024 / 4,
+				width: 1024 / 4,
+				padding: 10,
+				display: 'inline-block',
+				position: 'relative',
+				marginBottom: 0,
 			}}
 		>
-			{src}{' '}
-			<button type="button" onClick={onClick}>
-				Decode
-			</button>
-			{samples > 0 && <div>{samples} samples</div>}
-			{videoFrames > 0 && <div>{videoFrames} video frames</div>}
-			{audioFrames > 0 && <div>{audioFrames} audio frames</div>}
-			<canvas ref={ref} width={100} height={50} />
+			<AbsoluteFill
+				style={{
+					background: 'white',
+				}}
+			>
+				<canvas
+					ref={ref}
+					width={CANVAS_WIDTH}
+					height={CANVAS_HEIGHT}
+					style={{
+						background: 'black',
+					}}
+				/>
+				{label}{' '}
+				<button type="button" onClick={onClick}>
+					Decode
+				</button>
+				<div style={{display: 'flex', flexDirection: 'row', gap: 10}}>
+					<SampleCount count={samples} label="S" />
+					<SampleCount count={videoFrames} label="V" />
+					<SampleCount count={audioFrames} label="A" />
+				</div>
+			</AbsoluteFill>
 		</div>
 	);
 };

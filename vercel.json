@@ -330,12 +330,36 @@
 		{
 			"source": "/bbb.webm",
 			"destination": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.720p.vp9.webm",
-			"permanent": false
+			"permanent": false,
+			"headers": [
+				{"key": "Access-Control-Allow-Credentials", "value": "true"},
+				{"key": "Access-Control-Allow-Origin", "value": "*"},
+				{
+					"key": "Access-Control-Allow-Methods",
+					"value": "GET,OPTIONS,PATCH,DELETE,POST,PUT"
+				},
+				{
+					"key": "Access-Control-Allow-Headers",
+					"value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+				}
+			]
 		},
 		{
 			"source": "/bbb.mp4",
 			"destination": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-			"permanent": false
+			"permanent": false,
+			"headers": [
+				{"key": "Access-Control-Allow-Credentials", "value": "true"},
+				{"key": "Access-Control-Allow-Origin", "value": "*"},
+				{
+					"key": "Access-Control-Allow-Methods",
+					"value": "GET,OPTIONS,PATCH,DELETE,POST,PUT"
+				},
+				{
+					"key": "Access-Control-Allow-Headers",
+					"value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+				}
+			]
 		}
 	]
 }
