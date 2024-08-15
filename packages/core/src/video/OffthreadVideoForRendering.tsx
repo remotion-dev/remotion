@@ -211,6 +211,14 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 					return;
 				}
 
+				if ((err as Error).message.includes('Failed to fetch')) {
+					// eslint-disable-next-line no-ex-assign
+					err = new Error(
+						`Failed to fetch ${actualSrc}. This could be caused by Chrome rejecting the request because the disk space is low. Consider increasing the disk size of your environment.`,
+						{cause: err},
+					);
+				}
+
 				if (onError) {
 					onError(err as Error);
 				} else {
