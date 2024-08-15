@@ -388,6 +388,13 @@ export const getArrayBufferIterator = (
 			counter.increment(2);
 			return val;
 		},
+		getUint24: () => {
+			const val1 = view.getUint8(counter.getDiscardedOffset());
+			const val2 = view.getUint8(counter.getDiscardedOffset());
+			const val3 = view.getUint8(counter.getDiscardedOffset());
+			counter.increment(3);
+			return (val1 << 16) | (val2 << 8) | val3;
+		},
 
 		getInt16: () => {
 			const val = view.getInt16(counter.getDiscardedOffset());

@@ -60,6 +60,30 @@ export const makeParserState = ({
 		timescale = newTimescale;
 	};
 
+	const timestampMap = new Map<number, number>();
+
+	const setTimestampOffset = (byteOffset: number, timestamp: number) => {
+		timestampMap.set(byteOffset, timestamp);
+	};
+
+	const getTimestampOffsetForByteOffset = (byteOffset: number) => {
+		const entries = Array.from(timestampMap.entries());
+		const sortedByByteOffset = entries
+			.sort((a, b) => {
+				return a[0] - b[0];
+			})
+			.reverse();
+		for (const [offset, timestamp] of sortedByByteOffset) {
+			if (offset >= byteOffset) {
+				continue;
+			}
+
+			return timestamp;
+		}
+
+		return timestampMap.get(byteOffset);
+	};
+
 	return {
 		onTrackEntrySegment,
 		getTrackInfoByNumber: (id: number) => trackEntries[id],
@@ -81,6 +105,8 @@ export const makeParserState = ({
 
 			queuedVideoSamples[id] = [];
 		},
+		setTimestampOffset,
+		getTimestampOffsetForByteOffset,
 		registerAudioSampleCallback: async (
 			id: number,
 			callback: OnAudioSample | null,

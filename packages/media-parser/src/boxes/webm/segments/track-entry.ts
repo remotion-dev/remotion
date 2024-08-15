@@ -566,8 +566,18 @@ export const parseTimestampSegment = (
 	iterator: BufferIterator,
 	length: number,
 ): TimestampSegment => {
-	if (length > 2) {
-		throw new Error('Expected timestamp segment to be 1 byte or 2 bytes');
+	if (length > 3) {
+		throw new Error(
+			'Expected timestamp segment to be 1 byte or 2 bytes, but is ' + length,
+		);
+	}
+
+	if (length === 3) {
+		const val = iterator.getUint24();
+		return {
+			type: 'timestamp-segment',
+			timestamp: val,
+		};
 	}
 
 	const value = length === 2 ? iterator.getUint16() : iterator.getUint8();
@@ -603,7 +613,7 @@ export const parseSimpleBlockSegment = async ({
 }): Promise<SimpleBlockSegment> => {
 	const start = iterator.counter.getOffset();
 	const trackNumber = iterator.getVint();
-	const timecode = iterator.getUint16();
+	const timecodeRelativeToCluster = iterator.getUint16();
 	const headerFlags = iterator.getUint8();
 
 	const invisible = Boolean((headerFlags >> 5) & 1);
@@ -612,6 +622,17 @@ export const parseSimpleBlockSegment = async ({
 	const keyframe = Boolean((headerFlags >> 7) & 1);
 
 	const codec = parserContext.parserState.getTrackInfoByNumber(trackNumber);
+	const offset = parserContext.parserState.getTimestampOffsetForByteOffset(
+		iterator.counter.getOffset(),
+	);
+
+	if (offset === undefined) {
+		throw new Error(
+			'Could not find offset for byte offset ' + iterator.counter.getOffset(),
+		);
+	}
+
+	const timecode = timecodeRelativeToCluster;
 
 	if (!codec) {
 		throw new Error('Could not find codec for track ' + trackNumber);
@@ -634,13 +655,13 @@ export const parseSimpleBlockSegment = async ({
 	}
 
 	if (codec.codec.startsWith('A_')) {
-		const vorbisRemaining = length - (iterator.counter.getOffset() - start);
+		const remainingNow = length - (iterator.counter.getOffset() - start);
 		await parserContext.parserState.onAudioSample(trackNumber, {
-			data: iterator.getSlice(vorbisRemaining),
-			offset: timecode,
+			data: iterator.getSlice(remainingNow),
 			trackId: trackNumber,
 			timestamp: timecode,
 			type: 'key',
+			clusterOffset: offset,
 		});
 	}
 

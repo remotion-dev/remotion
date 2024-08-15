@@ -360,8 +360,16 @@ const parseSegment = async ({
 		return parseBitDepthSegment(iterator, length);
 	}
 
-	if (segmentId === '0xe7') {
-		return parseTimestampSegment(iterator, length);
+	if (segmentId === matroskaElements.Timestamp) {
+		const offset = iterator.counter.getOffset();
+		const timestampSegment = parseTimestampSegment(iterator, length);
+
+		parserContext.parserState.setTimestampOffset(
+			offset,
+			timestampSegment.timestamp,
+		);
+
+		return timestampSegment;
 	}
 
 	if (segmentId === '0xa3') {

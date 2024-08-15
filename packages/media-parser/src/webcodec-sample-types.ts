@@ -3,9 +3,9 @@ import type {AudioTrack, VideoTrack} from './get-tracks';
 export type AudioSample = {
 	data: Uint8Array;
 	timestamp: number;
-	offset: number;
 	trackId: number;
 	type: 'key' | 'delta';
+	clusterOffset: number;
 };
 
 export type VideoSample = {
