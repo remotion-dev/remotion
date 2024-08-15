@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/browser-renderer",
-	"version": "4.0.198",
+	"version": "4.0.199",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"repository": {
