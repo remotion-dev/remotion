@@ -8,18 +8,18 @@ author_image_url: https://avatars2.githubusercontent.com/u/1629785?s=460&u=12eb9
 image: /img/seamless-aac.png
 ---
 
-import { AacFile } from "../components/Aac/AacFile";
-import { AacPadding } from "../components/Aac/AacPadding";
-import { AacConcatenationProblem } from "../components/Aac/AacConcatenationProblem";
-import { AacKeyframes } from "../components/Aac/AacKeyframes";
-import { AacConcatenationSolution } from "../components/Aac/AacConcatenationSolution";
-import { AacBenchmarks } from "../components/Aac/Benchmarks";
+import {AacFile} from '../components/Aac/AacFile';
+import {AacPadding} from '../components/Aac/AacPadding';
+import {AacConcatenationProblem} from '../components/Aac/AacConcatenationProblem';
+import {AacKeyframes} from '../components/Aac/AacKeyframes';
+import {AacConcatenationSolution} from '../components/Aac/AacConcatenationSolution';
+import {AacBenchmarks} from '../components/Aac/Benchmarks';
 
 With Remotion v4.0.130, [Remotion Lambda](/lambda) renders now complete significantly faster!  
 The longer the video, the higher the speedup.
 
 <AacBenchmarks />
-<sub style={{ opacity: 0.5, lineHeight: 0.7 }}>
+<sub style={{opacity: 0.5, lineHeight: 1.6}}>
   Rendering a 1920x1080px video with an <code>&lt;OffthreadVideo&gt;</code> tag
   loading a 15MB Full HD video and looping it. The Lambda function has been
   given 3000MB of memory.
