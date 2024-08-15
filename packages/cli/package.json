@@ -69,6 +69,8 @@
 		"react",
 		"player"
 	],
-	"private": true,
+	"publishConfig": {
+		"access": "public"
+	},
 	"homepage": "https://www.remotion.dev/docs/cli"
 }
