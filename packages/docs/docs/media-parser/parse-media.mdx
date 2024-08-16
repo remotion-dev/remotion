@@ -60,7 +60,7 @@ Either a local file path, or a URL, or a `File` object.
 If you pass a local file path, you must also pass `nodeReader` as the `reader` argument.
 If you pass a `File` object, you must also pass `webFileReader` as the `reader` argument.
 
-### `fields`
+### `fields?`
 
 An object specifying which fields you'd like to receive.  
 Possible fields are:
@@ -118,7 +118,7 @@ _number_
 
 The rotation of the video in degrees (e.g. `-90` for a 90° counter-clockwise rotation).
 
-### `reader`
+### `reader?`
 
 A reader interface.  
 Default value: `webReader`, which uses `fetch()` to read the video.  
@@ -126,7 +126,7 @@ If you pass `nodeReader`, you must also pass a local file path as the `src` argu
 If you pass `webFileReader`, you must also pass a `File` as the `src` argument.
 
 
-### `onVideoTrack`
+### `onVideoTrack?`
 
 A callback that is called when a video track is detected.  
 It receives a `VideoTrack` object (API not yet stable).  
@@ -148,7 +148,7 @@ const onVideoTrack: OnVideoTrack = (track) => {
 };
 ```
 
-### `onAudioTrack`
+### `onAudioTrack?`
 
 A callback that is called when an audio track is detected.  
 It receives a `AudioTrack` object (API not yet stable).  
@@ -170,6 +170,12 @@ const onAudioTrack: OnAudioTrack = (track) => {
   };
 };
 ```
+
+
+### `signal?`
+
+An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) instance.  
+If the signal is aborted, the parser will stop reading the media and stop the decoding process and throw an error.
 
 ## See also
 
