@@ -49,8 +49,10 @@ export const makeParserState = ({
 	let timescale: number | null = null;
 
 	const getTimescale = () => {
+		// https://www.matroska.org/technical/notes.html
+		// When using the default value of TimestampScale of “1,000,000”, one Segment Tick represents one millisecond.
 		if (timescale === null) {
-			throw new Error('Timescale not set');
+			return 1_000_000;
 		}
 
 		return timescale;
