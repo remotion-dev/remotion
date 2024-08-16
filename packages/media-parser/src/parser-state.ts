@@ -14,9 +14,11 @@ export type InternalStats = {};
 export const makeParserState = ({
 	hasAudioCallbacks,
 	hasVideoCallbacks,
+	signal,
 }: {
 	hasAudioCallbacks: boolean;
 	hasVideoCallbacks: boolean;
+	signal: AbortSignal | undefined;
 }) => {
 	const trackEntries: Record<number, CodecSegment> = {};
 

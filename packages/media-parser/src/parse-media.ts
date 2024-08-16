@@ -21,8 +21,14 @@ export const parseMedia: ParseMedia = async ({
 	reader: readerInterface = fetchReader,
 	onAudioTrack,
 	onVideoTrack,
+	signal,
 }) => {
-	const {reader, contentLength} = await readerInterface.read(src, null);
+	const state = makeParserState({
+		hasAudioCallbacks: onAudioTrack !== null,
+		hasVideoCallbacks: onVideoTrack !== null,
+		signal,
+	});
+	const {reader, contentLength} = await readerInterface.read(src, null, signal);
 	let currentReader = reader;
 
 	const returnValue = {} as Metadata<
@@ -41,11 +47,6 @@ export const parseMedia: ParseMedia = async ({
 	let iterator: BufferIterator | null = null;
 	let parseResult: ParseResult | null = null;
 
-	const state = makeParserState({
-		hasAudioCallbacks: onAudioTrack !== null,
-		hasVideoCallbacks: onVideoTrack !== null,
-	});
-
 	const options: ParserContext = {
 		canSkipVideoData: !(onAudioTrack || onVideoTrack),
 		onAudioTrack: onAudioTrack ?? null,
@@ -54,6 +55,10 @@ export const parseMedia: ParseMedia = async ({
 	};
 
 	while (parseResult === null || parseResult.status === 'incomplete') {
+		if (signal?.aborted) {
+			throw new Error('Aborted');
+		}
+
 		const result = await currentReader.read();
 
 		if (iterator) {
@@ -106,6 +111,7 @@ export const parseMedia: ParseMedia = async ({
 			const {reader: newReader} = await readerInterface.read(
 				src,
 				parseResult.skipTo,
+				signal,
 			);
 			currentReader = newReader;
 			iterator.skipTo(parseResult.skipTo);
