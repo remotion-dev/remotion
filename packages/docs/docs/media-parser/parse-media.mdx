@@ -121,9 +121,9 @@ The rotation of the video in degrees (e.g. `-90` for a 90° counter-clockwise ro
 ### `reader?`
 
 A reader interface.  
-Default value: `webReader`, which uses `fetch()` to read the video.  
-If you pass `nodeReader`, you must also pass a local file path as the `src` argument.
-If you pass `webFileReader`, you must also pass a `File` as the `src` argument.
+Default value: `fetchReader`, which uses `fetch()` to read the video.  
+If you pass [`nodeReader`](/docs/media-parser/node-reader), you must also pass a local file path as the `src` argument.
+If you pass [`webFileReader`](/docs/media-parser/web-file-reader), you must also pass a `File` as the `src` argument.
 
 
 ### `onVideoTrack?`

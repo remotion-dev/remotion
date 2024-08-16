@@ -37,11 +37,13 @@ const getChildren = async ({
 	iterator,
 	bytesRemainingInBox,
 	options,
+	littleEndian,
 }: {
 	boxType: string;
 	iterator: BufferIterator;
 	bytesRemainingInBox: number;
 	options: ParserContext;
+	littleEndian: boolean;
 }) => {
 	const parseChildren =
 		boxType === 'mdia' ||
@@ -59,6 +61,7 @@ const getChildren = async ({
 			initialBoxes: [],
 			options,
 			continueMdat: false,
+			littleEndian,
 		});
 
 		if (parsed.status === 'incomplete') {
@@ -121,16 +124,18 @@ export const processBox = async ({
 	allowIncompleteBoxes,
 	parsedBoxes,
 	options,
+	littleEndian,
 }: {
 	iterator: BufferIterator;
 	allowIncompleteBoxes: boolean;
 	parsedBoxes: AnySegment[];
 	options: ParserContext;
+	littleEndian: boolean;
 }): Promise<BoxAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
 
-	const boxSize = iterator.getFourByteNumber();
+	const boxSize = iterator.getFourByteNumber(littleEndian);
 	if (boxSize === 0) {
 		return {
 			type: 'complete',
@@ -352,6 +357,7 @@ export const processBox = async ({
 			offset: fileOffset,
 			size: boxSize,
 			options,
+			littleEndian,
 		});
 
 		return {
@@ -525,6 +531,7 @@ export const processBox = async ({
 		iterator,
 		bytesRemainingInBox,
 		options,
+		littleEndian,
 	});
 
 	return {
@@ -548,6 +555,7 @@ export const parseBoxes = async ({
 	initialBoxes,
 	options,
 	continueMdat,
+	littleEndian,
 }: {
 	iterator: BufferIterator;
 	maxBytes: number;
@@ -555,6 +563,7 @@ export const parseBoxes = async ({
 	initialBoxes: IsoBaseMediaBox[];
 	options: ParserContext;
 	continueMdat: false | PartialMdatBox;
+	littleEndian: boolean;
 }): Promise<ParseResult> => {
 	let boxes: IsoBaseMediaBox[] = initialBoxes;
 	const initialOffset = iterator.counter.getOffset();
@@ -577,6 +586,7 @@ export const parseBoxes = async ({
 					allowIncompleteBoxes,
 					parsedBoxes: initialBoxes,
 					options,
+					littleEndian,
 				});
 
 		if (result.type === 'incomplete') {
@@ -595,6 +605,7 @@ export const parseBoxes = async ({
 						initialBoxes: boxes,
 						options,
 						continueMdat: false,
+						littleEndian,
 					});
 				},
 				skipTo: null,
@@ -614,6 +625,7 @@ export const parseBoxes = async ({
 							initialBoxes: boxes,
 							options,
 							continueMdat: result,
+							littleEndian,
 						}),
 					);
 				},
@@ -641,6 +653,7 @@ export const parseBoxes = async ({
 						initialBoxes: boxes,
 						options,
 						continueMdat: false,
+						littleEndian,
 					});
 				},
 				skipTo: result.skipTo,
@@ -663,6 +676,7 @@ export const parseBoxes = async ({
 					initialBoxes: boxes,
 					options,
 					continueMdat: false,
+					littleEndian,
 				});
 			},
 			skipTo: mdatState.fileOffset,

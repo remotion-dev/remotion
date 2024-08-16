@@ -49,6 +49,7 @@ test('Should be able to parse a STSD audio box correctly', async () => {
 			parserState: makeParserState({
 				hasAudioCallbacks: false,
 				hasVideoCallbacks: false,
+				signal: undefined,
 			}),
 		},
 	});
@@ -213,6 +214,7 @@ test('Should be able to parse a STSD video box correctly', async () => {
 			parserState: makeParserState({
 				hasAudioCallbacks: false,
 				hasVideoCallbacks: false,
+				signal: undefined,
 			}),
 		},
 	});

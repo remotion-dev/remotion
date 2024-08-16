@@ -27,6 +27,7 @@ export const parseTrak = async ({
 		initialBoxes: [],
 		options,
 		continueMdat: false,
+		littleEndian: false,
 	});
 
 	if (children.status === 'incomplete') {
