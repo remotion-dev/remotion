@@ -20,17 +20,24 @@ Useful if you want to parse a video from a `<input type="file">` element.
 ```tsx twoslash title="Reading a local file"
 // @module: es2022
 // @target: es2017
+import React, {useCallback} from 'react';
 import {parseMedia} from '@remotion/media-parser';
 import {webFileReader} from '@remotion/media-parser/web-file';
 
-const onFile = async (file: File) => {
-  const result = await parseMedia({
-    src: '/Users/jonnyburger/Downloads/my-video.mp4',
-    fields: {
-      durationInSeconds: true,
-      dimensions: true,
-    },
-    reader: webFileReader,
-  });
-};
+const MyComp: React.FC = () => {
+  const onFile = useCallback(async (file: File) => {
+    const result = await parseMedia({
+      src: file,
+      fields: {
+        durationInSeconds: true,
+        dimensions: true,
+      },
+      reader: webFileReader,
+    });
+  }, []);
+
+  return (
+    <input type="file" onChange={(e) => onFile(e.target.files?.[0]!)} />
+  );
+}
 ```

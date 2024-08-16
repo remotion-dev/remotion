@@ -56,8 +56,9 @@ const result = await parseMedia({
 
 ### `src`
 
-Either a local file path, or a URL.  
+Either a local file path, or a URL, or a `File` object.  
 If you pass a local file path, you must also pass `nodeReader` as the `reader` argument.
+If you pass a `File` object, you must also pass `webFileReader` as the `reader` argument.
 
 ### `fields`
 
@@ -122,6 +123,53 @@ The rotation of the video in degrees (e.g. `-90` for a 90° counter-clockwise ro
 A reader interface.  
 Default value: `webReader`, which uses `fetch()` to read the video.  
 If you pass `nodeReader`, you must also pass a local file path as the `src` argument.
+If you pass `webFileReader`, you must also pass a `File` as the `src` argument.
+
+
+### `onVideoTrack`
+
+A callback that is called when a video track is detected.  
+It receives a `VideoTrack` object (API not yet stable).  
+You must return either `null` or a callback that is called for each sample that corresponds to the video track.
+
+The `sample` has the type `VideoSample` and while not all fields are stable, it has all the mandatory fields for the [`EncodedVideoChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedVideoChunk) constructor.
+
+```tsx twoslash title="Reading video frames"
+// @module: es2022
+// @target: es2017
+import {parseMedia, OnVideoTrack} from '@remotion/media-parser';
+
+const onVideoTrack: OnVideoTrack = (track) => {
+  console.log(track);
+
+  return (sample) => {
+    console.log(new EncodedVideoChunk(sample))
+  };
+};
+```
+
+### `onAudioTrack`
+
+A callback that is called when an audio track is detected.  
+It receives a `AudioTrack` object (API not yet stable).  
+You must return either `null` or a callback that is called for each sample that corresponds to the audio track.
+
+The `sample` has the type `AudioSample` and while not all fields are stable, it has all the mandatory fields for the [`EncodedAudioChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedAudioChunk) constructor.
+
+```tsx twoslash title="Reading audio frames"
+// @module: es2022
+// @target: es2017
+// @noErrors
+import {parseMedia, OnAudioTrack} from '@remotion/media-parser';
+
+const onAudioTrack: OnAudioTrack = (track) => {
+  console.log(track);
+
+  return (sample) => {
+    console.log(new EncodedAudioChunk(sample))
+  };
+};
+```
 
 ## See also
 
