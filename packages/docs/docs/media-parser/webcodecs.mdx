@@ -49,6 +49,7 @@ Video files usually come in one of two container formats: ISO BMFF (.mp4, .mov) 
 Libraries like mp4box.js do a good job of parsing these containers, but are scoped to the specific container format, meaning you need to mix multiple libraries.  
 
 [`parseMedia()`](/docs/media-parser/parse-media) allows to to read an arbitrary video file (in the future: an arbitrary media file) and interface with it regardless of container, video codec and audio codec.  
+
 It uses modern Web APIs like `fetch()`, `ReadableStream` and resizeable ArrayBuffers, and returns data structures that are designed to be used with WebCodecs APIs.
 
 ## Will Remotion switch to WebCodecs?
@@ -60,6 +61,8 @@ Remotion cannot export videos in the browser, because browsers don't have APIs f
 An exception is the `canvas` element, however Remotion supports all ways of drawing to the viewport: HTML, CSS, SVG, and Canvas.
 
 We are interested in WebCodecs because it still has the potential to solve a lot of problems for developers and `@remotion/media-parser` as a whole can solve a lot of problems for users.
+
+See also: [Can I render videos in the browser?](/docs/miscellaneous/render-in-browser).
 
 ## Practical considerations
 

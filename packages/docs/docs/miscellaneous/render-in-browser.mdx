@@ -9,7 +9,7 @@ crumb: "FAQ"
 
 ## Will it be supported in the future?
 
-Currently there is no browser API that allows to capture the viewport. A proposed API that would allow this is [Element Capture](https://github.com/WICG/proposals/issues/73).   
+Currently there is no browser API that allows to capture the viewport. There [are](https://x.com/fserb/status/1794058245901824349) [some](https://github.com/WICG/proposals/issues/73) proposed APIs for it.   
 If such an API gets introduced, we can consider supporting browser rendering in the future.
 
 ## Why not...
@@ -17,10 +17,6 @@ If such an API gets introduced, we can consider supporting browser rendering in 
 ### a Chrome extension?
 
 Chrome extensions do get the privilege of capturing the viewport. We may explore this in the future, but the combination of asking the user to install an extension and slow render times means we are not prioritizing this feature.
-
-### [ffmpeg.wasm](https://github.com/ffmpegwasm/ffmpeg.wasm)?
-
-It is an excellent project that allows us to encode videos in the browser, which may be part of a solution, but we can still not capture the viewport of the browser.
 
 ### [`canvas.getImageData()`](https://developer.mozilla.org/de/docs/Web/API/CanvasRenderingContext2D/getImageData)?
 
