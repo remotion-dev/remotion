@@ -48,6 +48,7 @@ export class OffsetCounter {
 
 const isoBaseMediaMp4Pattern = new TextEncoder().encode('ftyp');
 const mpegPattern = new Uint8Array([0xff, 0xf3, 0xe4, 0x64]);
+const riffPattern = new Uint8Array([0x52, 0x49, 0x46, 0x46]);
 
 const matchesPattern = (pattern: Uint8Array) => {
 	return (data: Uint8Array) => {
@@ -95,7 +96,15 @@ export const getArrayBufferIterator = (
 		return val;
 	};
 
-	const getFourByteNumber = () => {
+	const getFourByteNumber = (littleEndian = false) => {
+		if (littleEndian) {
+			const one = getUint8();
+			const two = getUint8();
+			const three = getUint8();
+			const four = getUint8();
+			return (four << 24) | (three << 16) | (two << 8) | one;
+		}
+
 		return (
 			(getUint8() << 24) | (getUint8() << 16) | (getUint8() << 8) | getUint8()
 		);
@@ -110,8 +119,8 @@ export const getArrayBufferIterator = (
 		return lastInt;
 	};
 
-	const getUint32 = () => {
-		const val = view.getUint32(counter.getDiscardedOffset());
+	const getUint32 = (littleEndian = false) => {
+		const val = view.getUint32(counter.getDiscardedOffset(), littleEndian);
 		counter.increment(4);
 		return val;
 	};
@@ -154,6 +163,10 @@ export const getArrayBufferIterator = (
 
 	const isIsoBaseMedia = () => {
 		return matchesPattern(isoBaseMediaMp4Pattern)(data.subarray(4, 8));
+	};
+
+	const isRiff = () => {
+		return matchesPattern(riffPattern)(data.subarray(0, 4));
 	};
 
 	const isWebm = () => {
@@ -287,6 +300,7 @@ export const getArrayBufferIterator = (
 			const atom = getSlice(4);
 			return new TextDecoder().decode(atom);
 		},
+		isRiff,
 		getPaddedFourByteNumber,
 		getMatroskaSegmentId: () => {
 			const first = getSlice(1);

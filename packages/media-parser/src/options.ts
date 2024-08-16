@@ -101,6 +101,7 @@ export type ParseMedia = <
 	reader?: ReaderInterface;
 	onAudioTrack?: OnAudioTrack;
 	onVideoTrack?: OnVideoTrack;
+	signal?: AbortSignal;
 }) => Promise<
 	Metadata<
 		EnableDimensions,

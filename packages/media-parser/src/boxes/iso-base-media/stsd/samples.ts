@@ -179,6 +179,7 @@ export const processSample = async ({
 				initialBoxes: [],
 				options,
 				continueMdat: false,
+				littleEndian: false,
 			});
 
 			if (children.status === 'incomplete') {
@@ -232,6 +233,7 @@ export const processSample = async ({
 				initialBoxes: [],
 				options,
 				continueMdat: false,
+				littleEndian: false,
 			});
 
 			if (children.status === 'incomplete') {
@@ -288,6 +290,7 @@ export const processSample = async ({
 			initialBoxes: [],
 			options,
 			continueMdat: false,
+			littleEndian: false,
 		});
 
 		if (children.status === 'incomplete') {

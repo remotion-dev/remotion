@@ -4,7 +4,7 @@ import {Readable} from 'stream';
 import type {ReaderInterface} from './reader';
 
 export const nodeReader: ReaderInterface = {
-	read: async (src, range) => {
+	read: async (src, range, signal) => {
 		if (typeof src !== 'string') {
 			throw new Error('src must be a string when using `nodeReader`');
 		}
@@ -17,12 +17,26 @@ export const nodeReader: ReaderInterface = {
 					: typeof range === 'number'
 						? Infinity
 						: range[1],
+			signal,
 		});
 		const stats = await stat(src);
+
+		const reader = Readable.toWeb(
+			stream,
+		).getReader() as ReadableStreamDefaultReader<Uint8Array>;
+
+		if (signal) {
+			signal.addEventListener(
+				'abort',
+				() => {
+					reader.cancel();
+				},
+				{once: true},
+			);
+		}
+
 		return {
-			reader: Readable.toWeb(
-				stream,
-			).getReader() as ReadableStreamDefaultReader<Uint8Array>,
+			reader,
 			contentLength: stats.size,
 		};
 	},

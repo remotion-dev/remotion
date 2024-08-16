@@ -27,6 +27,7 @@ export const parseMoov = async ({
 		initialBoxes: [],
 		options,
 		continueMdat: false,
+		littleEndian: false,
 	});
 
 	if (children.status === 'incomplete') {

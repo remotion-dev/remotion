@@ -16,11 +16,13 @@ export const parseMebx = async ({
 	offset,
 	size,
 	options,
+	littleEndian,
 }: {
 	iterator: BufferIterator;
 	offset: number;
 	size: number;
 	options: ParserContext;
+	littleEndian: boolean;
 }): Promise<MebxBox> => {
 	// reserved, 6 bit
 	iterator.discard(6);
@@ -34,6 +36,7 @@ export const parseMebx = async ({
 		initialBoxes: [],
 		options,
 		continueMdat: false,
+		littleEndian,
 	});
 
 	if (children.status === 'incomplete') {

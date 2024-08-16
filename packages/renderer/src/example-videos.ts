@@ -47,4 +47,5 @@ export const exampleVideos = {
 	matroskaMp3: path.join(examplePackage, 'public', 'matroska-mp3.mkv'),
 	matroskaH265Aac: path.join(examplePackage, 'public', 'matroska-h265-aac.mkv'),
 	opusWebm: path.join(examplePackage, 'public', 'opus.webm'),
+	avi: path.join(examplePackage, 'public', 'example.avi'),
 };

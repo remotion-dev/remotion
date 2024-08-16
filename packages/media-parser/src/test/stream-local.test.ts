@@ -729,3 +729,17 @@ test('Should stream transparent video', async () => {
 	expect(videoSamples).toBe(39);
 	expect(keyFrames).toBe(1);
 });
+
+test('Acknowledge there are .avi file', () => {
+	const parsed = parseMedia({
+		src: RenderInternals.exampleVideos.avi,
+		fields: {
+			tracks: true,
+			boxes: true,
+		},
+		reader: nodeReader,
+	});
+
+	expect(parsed).rejects.toThrow('AVI');
+	expect(parsed).rejects.toThrow('not yet supported');
+});

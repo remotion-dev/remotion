@@ -1,9 +1,9 @@
 import type {ReaderInterface} from './reader';
 
 export const fetchReader: ReaderInterface = {
-	read: async (src, range) => {
+	read: async (src, range, signal) => {
 		if (typeof src !== 'string') {
-			throw new Error('src must be a string when using `webReader`');
+			throw new Error('src must be a string when using `fetchReader`');
 		}
 
 		const resolvedUrl =
@@ -34,6 +34,7 @@ export const fetchReader: ReaderInterface = {
 						: {
 								Range: `bytes=${`${range[0]}-${range[1]}`}`,
 							},
+			signal,
 			// Disable Next.js caching
 			cache: 'no-store',
 		});
@@ -47,11 +48,21 @@ export const fetchReader: ReaderInterface = {
 
 		const reader = res.body.getReader();
 
+		if (signal) {
+			signal.addEventListener(
+				'abort',
+				() => {
+					reader.cancel();
+				},
+				{once: true},
+			);
+		}
+
 		return {reader, contentLength};
 	},
 	getLength: async (src) => {
 		if (typeof src !== 'string') {
-			throw new Error('src must be a string when using `webReader`');
+			throw new Error('src must be a string when using `fetchReader`');
 		}
 
 		const res = await fetch(src, {
