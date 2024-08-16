@@ -1,3 +1,4 @@
+import {webmPattern} from './boxes/webm/make-header';
 import {
 	knownIdsWithOneLength,
 	knownIdsWithThreeLength,
@@ -46,7 +47,6 @@ export class OffsetCounter {
 }
 
 const isoBaseMediaMp4Pattern = new TextEncoder().encode('ftyp');
-const webmPattern = new Uint8Array([0x1a, 0x45, 0xdf, 0xa3]);
 const mpegPattern = new Uint8Array([0xff, 0xf3, 0xe4, 0x64]);
 
 const matchesPattern = (pattern: Uint8Array) => {

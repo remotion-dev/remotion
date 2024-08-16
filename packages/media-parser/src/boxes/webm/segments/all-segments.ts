@@ -1,6 +1,11 @@
 export const matroskaElements = {
 	EBMLMaxIDLength: '0x42f2',
+	EBMLVersion: '0x4286',
+	EBMLReadVersion: '0x42F7',
 	EBMLMaxSizeLength: '0x42f3',
+	DocType: '0x4282',
+	DocTypeVersion: '0x4287',
+	DocTypeReadVersion: '0x4285',
 	Segment: '0x18538067',
 	SeekHead: '0x114d9b74',
 	Seek: '0x4dbb',
