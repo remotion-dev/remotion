@@ -21,6 +21,14 @@ For parsing a video, the following minimum versions are required:
 - Safari 16.4
 - Firefox 128
 
+### Feature detection
+
+Use this to check if the runtime supports `parseMedia()`:
+
+```tsx
+const canUseMediaParser = typeof fetch === 'function' && typeof new ArrayBuffer().resize === 'function';
+```
+
 ## For using WebCodecs
 
 WebCodecs support is not tied to `@remotion/media-parser` itself, but if you use it to extract samples, you need to use the following minimum versions:
@@ -29,49 +37,3 @@ WebCodecs support is not tied to `@remotion/media-parser` itself, but if you use
 - Edge 94
 - Safari 16.4 - No support for `AudioDecoder`
 - Firefox - No support, but in development
-
-To check for `AudioDecoder` support, use
-
-```ts
-const audioDecoderSupported = typeof AudioDecoder !== 'undefined';
-```
-
-To check if a video track can be decoded with WebCodecs, use
-
-```ts twoslash title="Checking if a video track can be decoded"
-import {OnVideoTrack} from '@remotion/media-parser';
-
-const onVideoTrack: OnVideoTrack = async (track) => {
-  const {supported} = await VideoDecoder.isConfigSupported(track);
-
-  if (!supported) {
-    // Don't receive unsupported video samples
-    return null;
-  }
-
-  return (videoSample) => {
-    console.log('New video sample !', videoSample);
-    // Accept video sample
-  }
-}
-```
-
-
-```ts twoslash title="Checking if a audio track can be decoded"
-// @noErrors
-import {OnAudioTrack} from '@remotion/media-parser';
-
-const onAudioTrack: OnAudioTrack = async (track) => {
-  const {supported} = await AudioDecoder.isConfigSupported(track);
-
-  if (!supported) {
-    // Don't receive unsupported audio samples
-    return null;
-  }
-
-  return (audioSample) => {
-    console.log('New audio sample!', audioSample);
-    // Accept audio sample
-  }
-}
-```

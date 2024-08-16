@@ -21,8 +21,8 @@ import {ColorInterpolation} from './ColorInterpolation';
 import {ComplexSounds} from './ComplexSounds';
 import {MyCtx, WrappedInContext} from './Context';
 import CorruptVideo from './CorruptVideo';
+import {DecoderDemo} from './DecoderDemo';
 import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
-import {EncoderDemo} from './EncoderDemo';
 import {ErrorOnFrame10} from './ErrorOnFrame10';
 import {Expert} from './Expert';
 import {FontDemo} from './Fonts';
@@ -1441,8 +1441,8 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Still
-				id="EncoderDemo"
-				component={EncoderDemo}
+				id="DecoderDemo"
+				component={DecoderDemo}
 				height={800}
 				width={1024}
 			/>

@@ -2,7 +2,7 @@ import React from 'react';
 import {staticFile} from 'remotion';
 import {SrcEncoder} from './Encoder/SrcEncoder';
 
-export const EncoderDemo: React.FC = () => {
+export const DecoderDemo: React.FC = () => {
 	return (
 		<>
 			<div style={{}}>
