@@ -127,6 +127,10 @@ export const makeParserState = ({
 			queuedAudioSamples[id] = [];
 		},
 		onAudioSample: async (trackId: number, audioSample: AudioSample) => {
+			if (signal?.aborted) {
+				throw new Error('Aborted');
+			}
+
 			const callback = audioSampleCallbacks[trackId];
 			if (callback) {
 				await callback(audioSample);
@@ -141,6 +145,10 @@ export const makeParserState = ({
 			}
 		},
 		onVideoSample: async (trackId: number, videoSample: VideoSample) => {
+			if (signal?.aborted) {
+				throw new Error('Aborted');
+			}
+
 			const callback = videoSampleCallbacks[trackId];
 			if (callback) {
 				await callback(videoSample);

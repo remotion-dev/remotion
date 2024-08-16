@@ -1,7 +1,7 @@
 import type {ReaderInterface} from './reader';
 
 export const webFileReader: ReaderInterface = {
-	read: (file, range) => {
+	read: (file, range, signal) => {
 		if (typeof file === 'string') {
 			throw new Error('`inputTypeFileReader` only supports `File` objects');
 		}
@@ -15,6 +15,16 @@ export const webFileReader: ReaderInterface = {
 
 		const reader = new FileReader();
 		reader.readAsArrayBuffer(file);
+
+		if (signal) {
+			signal.addEventListener(
+				'abort',
+				() => {
+					reader.abort();
+				},
+				{once: true},
+			);
+		}
 
 		return new Promise((resolve, reject) => {
 			reader.onload = () => {
