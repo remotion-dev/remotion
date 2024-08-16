@@ -159,6 +159,7 @@ The `sample` has the type `AudioSample` and while not all fields are stable, it 
 ```tsx twoslash title="Reading audio frames"
 // @module: es2022
 // @target: es2017
+// @noErrors
 import {parseMedia, OnAudioTrack} from '@remotion/media-parser';
 
 const onAudioTrack: OnAudioTrack = (track) => {
