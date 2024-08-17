@@ -313,6 +313,11 @@
 			"permanent": false
 		},
 		{
+			"source": "/media-parser",
+			"destination": "/docs/media-parser",
+			"permanent": false
+		},
+		{
 			"source": "/docs/chrome-headless-shell",
 			"destination": "/docs/miscellaneous/chrome-headless-shell",
 			"permanent": false
