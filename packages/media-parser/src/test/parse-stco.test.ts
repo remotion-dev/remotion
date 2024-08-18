@@ -18,6 +18,7 @@ test('Parse stco box', () => {
 		iterator,
 		size: buf.length - 8,
 		offset: 0,
+		mode64Bit: false,
 	});
 	expect(result).toEqual({
 		type: 'stco-box',
@@ -46,6 +47,7 @@ test('Parse stco box with empty chunk', () => {
 		iterator,
 		size: buf.length - 8,
 		offset: 0,
+		mode64Bit: false,
 	});
 	expect(result).toEqual({
 		type: 'stco-box',

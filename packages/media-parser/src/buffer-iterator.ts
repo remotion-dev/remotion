@@ -96,6 +96,41 @@ export const getArrayBufferIterator = (
 		return val;
 	};
 
+	const getEightByteNumber = (littleEndian = false) => {
+		if (littleEndian) {
+			const one = getUint8();
+			const two = getUint8();
+			const three = getUint8();
+			const four = getUint8();
+			const five = getUint8();
+			const six = getUint8();
+			const seven = getUint8();
+			const eight = getUint8();
+
+			return (
+				(eight << 56) |
+				(seven << 48) |
+				(six << 40) |
+				(five << 32) |
+				(four << 24) |
+				(three << 16) |
+				(two << 8) |
+				one
+			);
+		}
+
+		return (
+			(getUint8() << 56) |
+			(getUint8() << 48) |
+			(getUint8() << 40) |
+			(getUint8() << 32) |
+			(getUint8() << 24) |
+			(getUint8() << 16) |
+			(getUint8() << 8) |
+			getUint8()
+		);
+	};
+
 	const getFourByteNumber = (littleEndian = false) => {
 		if (littleEndian) {
 			const one = getUint8();
@@ -122,6 +157,12 @@ export const getArrayBufferIterator = (
 	const getUint32 = (littleEndian = false) => {
 		const val = view.getUint32(counter.getDiscardedOffset(), littleEndian);
 		counter.increment(4);
+		return val;
+	};
+
+	const getUint64 = (littleEndian = false) => {
+		const val = view.getBigUint64(counter.getDiscardedOffset(), littleEndian);
+		counter.increment(8);
 		return val;
 	};
 
@@ -294,6 +335,7 @@ export const getArrayBufferIterator = (
 		discard: (length: number) => {
 			counter.increment(length);
 		},
+		getEightByteNumber,
 		getFourByteNumber,
 		getSlice,
 		getAtom: () => {
@@ -416,6 +458,7 @@ export const getArrayBufferIterator = (
 			return val;
 		},
 		getUint32,
+		getUint64,
 		// https://developer.apple.com/documentation/quicktime-file-format/sound_sample_description_version_1
 		// A 32-bit unsigned fixed-point number (16.16) that indicates the rate at which the sound samples were obtained.
 		getFixedPointUnsigned1616Number: () => {

@@ -6,17 +6,19 @@ export interface StcoBox extends BaseBox {
 	version: number;
 	flags: number[];
 	entryCount: number;
-	entries: number[];
+	entries: (number | bigint)[];
 }
 
 export const parseStco = ({
 	iterator,
 	offset,
 	size,
+	mode64Bit,
 }: {
 	iterator: BufferIterator;
 	offset: number;
 	size: number;
+	mode64Bit: boolean;
 }): StcoBox => {
 	const version = iterator.getUint8();
 	if (version !== 0) {
@@ -26,14 +28,14 @@ export const parseStco = ({
 	const flags = iterator.getSlice(3);
 	const entryCount = iterator.getUint32();
 
-	const entries: number[] = [];
+	const entries: (number | bigint)[] = [];
 	for (let i = 0; i < entryCount; i++) {
 		const bytesRemaining = size - (iterator.counter.getOffset() - offset);
 		if (bytesRemaining < 4) {
 			break;
 		}
 
-		entries.push(iterator.getUint32());
+		entries.push(mode64Bit ? iterator.getUint64() : iterator.getUint32());
 	}
 
 	iterator.discard(size - (iterator.counter.getOffset() - offset));
