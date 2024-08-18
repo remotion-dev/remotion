@@ -1,14 +1,11 @@
 import {getVariableInt} from './ebml';
-import type {Ebml, EmblTypes, matroskaElements} from './segments/all-segments';
-import {
-	docType,
-	docTypeReadVersion,
-	docTypeVersion,
-	ebmlMaxIdLength,
-	ebmlMaxSizeLength,
-	ebmlReadVersion,
-	ebmlVersion,
+import type {
+	Ebml,
+	EmblTypes,
+	HeaderStructure,
+	matroskaElements,
 } from './segments/all-segments';
+import {matroskaHeaderStructure} from './segments/all-segments';
 
 export const webmPattern = new Uint8Array([0x1a, 0x45, 0xdf, 0xa3]);
 
@@ -42,16 +39,37 @@ const makeField = <T extends Ebml>(element: T, value: EmblTypes[T['type']]) => {
 	]);
 };
 
+type Numbers = '0' | '1' | '2' | '3' | '4' | '5' | '6';
+
+const makeFromHeaderStructure = <Struct extends HeaderStructure>(
+	struct: Struct,
+	fields: {
+		[key in keyof Struct &
+			Numbers as Struct[key]['name']]: EmblTypes[Struct[key]['type']];
+	},
+) => {
+	const arrays: Uint8Array[] = [];
+
+	for (const item of struct) {
+		// @ts-expect-error
+		arrays.push(makeField(item, fields[item.name]));
+	}
+
+	return arrays;
+};
+
 export const makeMatroskaHeader = () => {
-	const fields = combineUint8Arrays([
-		makeField(ebmlVersion, 1),
-		makeField(ebmlReadVersion, 1),
-		makeField(ebmlMaxIdLength, 4),
-		makeField(ebmlMaxSizeLength, 8),
-		makeField(docType, 'matroska'),
-		makeField(docTypeVersion, 4),
-		makeField(docTypeReadVersion, 2),
-	]);
+	const fields = combineUint8Arrays(
+		makeFromHeaderStructure(matroskaHeaderStructure, {
+			DocType: 'matroska',
+			DocTypeVersion: 4,
+			DocTypeReadVersion: 2,
+			EBMLMaxIDLength: 4,
+			EBMLMaxSizeLength: 8,
+			EBMLReadVersion: 1,
+			EBMLVersion: 1,
+		}),
+	);
 
 	return combineUint8Arrays([
 		webmPattern,

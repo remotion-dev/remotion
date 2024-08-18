@@ -301,43 +301,43 @@ export type Ebml = {
 };
 
 export const ebmlVersion = {
-	name: 'EBMLVersion',
+	name: 'EBMLVersion' as const,
 	value: matroskaElements.EBMLVersion,
 	type: 'uint-8',
 } satisfies Ebml;
 
 export const ebmlReadVersion = {
-	name: 'EBMLReadVersion',
+	name: 'EBMLReadVersion' as const,
 	value: matroskaElements.EBMLReadVersion,
 	type: 'uint-8',
 } satisfies Ebml;
 
 export const ebmlMaxIdLength = {
-	name: 'EBMLMaxIDLength',
+	name: 'EBMLMaxIDLength' as const,
 	value: matroskaElements.EBMLMaxIDLength,
 	type: 'uint-8',
 } satisfies Ebml;
 
 export const ebmlMaxSizeLength = {
-	name: 'EBMLMaxSizeLength',
+	name: 'EBMLMaxSizeLength' as const,
 	value: matroskaElements.EBMLMaxSizeLength,
 	type: 'uint-8',
 } satisfies Ebml;
 
 export const docType = {
-	name: 'DocType',
+	name: 'DocType' as const,
 	value: matroskaElements.DocType,
 	type: 'string',
 } satisfies Ebml;
 
 export const docTypeVersion = {
-	name: 'DocTypeVersion',
+	name: 'DocTypeVersion' as const,
 	value: matroskaElements.DocTypeVersion,
 	type: 'uint-8',
 } satisfies Ebml;
 
 export const docTypeReadVersion = {
-	name: 'DocTypeReadVersion',
+	name: 'DocTypeReadVersion' as const,
 	value: matroskaElements.DocTypeReadVersion,
 	type: 'uint-8',
 } satisfies Ebml;
@@ -346,3 +346,15 @@ export type EmblTypes = {
 	'uint-8': number;
 	string: string;
 };
+
+export type HeaderStructure = Ebml[];
+
+export const matroskaHeaderStructure = [
+	ebmlVersion,
+	ebmlReadVersion,
+	ebmlMaxIdLength,
+	ebmlMaxSizeLength,
+	docType,
+	docTypeVersion,
+	docTypeReadVersion,
+] as const satisfies HeaderStructure;
