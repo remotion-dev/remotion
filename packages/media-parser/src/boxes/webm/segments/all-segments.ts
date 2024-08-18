@@ -288,3 +288,73 @@ export const getSegmentName = (id: string) => {
 		([, value]) => value === id,
 	)?.[0];
 };
+
+export type MatroskaElement =
+	(typeof matroskaElements)[keyof typeof matroskaElements];
+
+type EbmlType = 'uint-8' | 'string';
+
+export type Ebml = {
+	name: string;
+	value: MatroskaElement;
+	type: EbmlType;
+};
+
+export const ebmlVersion = {
+	name: 'EBMLVersion' as const,
+	value: matroskaElements.EBMLVersion,
+	type: 'uint-8',
+} satisfies Ebml;
+
+export const ebmlReadVersion = {
+	name: 'EBMLReadVersion' as const,
+	value: matroskaElements.EBMLReadVersion,
+	type: 'uint-8',
+} satisfies Ebml;
+
+export const ebmlMaxIdLength = {
+	name: 'EBMLMaxIDLength' as const,
+	value: matroskaElements.EBMLMaxIDLength,
+	type: 'uint-8',
+} satisfies Ebml;
+
+export const ebmlMaxSizeLength = {
+	name: 'EBMLMaxSizeLength' as const,
+	value: matroskaElements.EBMLMaxSizeLength,
+	type: 'uint-8',
+} satisfies Ebml;
+
+export const docType = {
+	name: 'DocType' as const,
+	value: matroskaElements.DocType,
+	type: 'string',
+} satisfies Ebml;
+
+export const docTypeVersion = {
+	name: 'DocTypeVersion' as const,
+	value: matroskaElements.DocTypeVersion,
+	type: 'uint-8',
+} satisfies Ebml;
+
+export const docTypeReadVersion = {
+	name: 'DocTypeReadVersion' as const,
+	value: matroskaElements.DocTypeReadVersion,
+	type: 'uint-8',
+} satisfies Ebml;
+
+export type EmblTypes = {
+	'uint-8': number;
+	string: string;
+};
+
+export type HeaderStructure = Ebml[];
+
+export const matroskaHeaderStructure = [
+	ebmlVersion,
+	ebmlReadVersion,
+	ebmlMaxIdLength,
+	ebmlMaxSizeLength,
+	docType,
+	docTypeVersion,
+	docTypeReadVersion,
+] as const satisfies HeaderStructure;
