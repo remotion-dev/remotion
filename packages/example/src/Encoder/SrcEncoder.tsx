@@ -108,8 +108,8 @@ export const SrcEncoder: React.FC<{
 					if (!context) {
 						return;
 					}
-					ref.current.width = CANVAS_WIDTH * window.devicePixelRatio;
-					ref.current.height = CANVAS_HEIGHT * window.devicePixelRatio;
+					ref.current.width = CANVAS_WIDTH;
+					ref.current.height = CANVAS_HEIGHT;
 
 					if (track.rotation === -90) {
 						context.rotate((-track.rotation * Math.PI) / 180);
