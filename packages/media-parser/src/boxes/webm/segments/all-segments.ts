@@ -288,3 +288,61 @@ export const getSegmentName = (id: string) => {
 		([, value]) => value === id,
 	)?.[0];
 };
+
+export type MatroskaElement =
+	(typeof matroskaElements)[keyof typeof matroskaElements];
+
+type EbmlType = 'uint-8' | 'string';
+
+export type Ebml = {
+	name: string;
+	value: MatroskaElement;
+	type: EbmlType;
+};
+
+export const ebmlVersion = {
+	name: 'EBMLVersion',
+	value: matroskaElements.EBMLVersion,
+	type: 'uint-8',
+} satisfies Ebml;
+
+export const ebmlReadVersion = {
+	name: 'EBMLReadVersion',
+	value: matroskaElements.EBMLReadVersion,
+	type: 'uint-8',
+} satisfies Ebml;
+
+export const ebmlMaxIdLength = {
+	name: 'EBMLMaxIDLength',
+	value: matroskaElements.EBMLMaxIDLength,
+	type: 'uint-8',
+} satisfies Ebml;
+
+export const ebmlMaxSizeLength = {
+	name: 'EBMLMaxSizeLength',
+	value: matroskaElements.EBMLMaxSizeLength,
+	type: 'uint-8',
+} satisfies Ebml;
+
+export const docType = {
+	name: 'DocType',
+	value: matroskaElements.DocType,
+	type: 'string',
+} satisfies Ebml;
+
+export const docTypeVersion = {
+	name: 'DocTypeVersion',
+	value: matroskaElements.DocTypeVersion,
+	type: 'uint-8',
+} satisfies Ebml;
+
+export const docTypeReadVersion = {
+	name: 'DocTypeReadVersion',
+	value: matroskaElements.DocTypeReadVersion,
+	type: 'uint-8',
+} satisfies Ebml;
+
+export type EmblTypes = {
+	'uint-8': number;
+	string: string;
+};
