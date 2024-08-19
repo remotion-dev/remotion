@@ -182,7 +182,7 @@ const parseSegment = async ({
 	}
 
 	if (segmentId === '0x53ab') {
-		return parseSeekIdSegment(iterator);
+		return parseSeekIdSegment(iterator, length);
 	}
 
 	if (segmentId === '0x4dbb') {
@@ -473,16 +473,6 @@ export const expectSegment = async (
 			},
 			skipTo: null,
 		};
-	}
-
-	const jump = iterator.counter.getOffset() - offset;
-	if (segmentId !== '0xa3') {
-		iterator.counter.decrement(jump);
-		await Bun.write(
-			Bun.file(`vp8-segments/${iterator.counter.getOffset()}-${segmentId}`),
-			iterator.getSlice(length + jump),
-		);
-		iterator.counter.decrement(length);
 	}
 
 	const bytesRemainingNow =

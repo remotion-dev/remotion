@@ -2,6 +2,7 @@ import {getVariableInt} from './ebml';
 import type {
 	Ebml,
 	EbmlWithChildren,
+	EbmlWithHexString,
 	EbmlWithString,
 	EbmlWithUint8,
 	EmblTypes,
@@ -38,7 +39,9 @@ type SerializeValue<Struct extends Ebml> = Struct extends EbmlWithChildren
 		? string
 		: Struct extends EbmlWithUint8
 			? number
-			: undefined;
+			: Struct extends EbmlWithHexString
+				? string
+				: undefined;
 
 const makeFromHeaderStructure = <Struct extends Ebml>(
 	struct: Struct,
@@ -66,6 +69,17 @@ const makeFromHeaderStructure = <Struct extends Ebml>(
 
 	if (struct.type === 'uint-8') {
 		return new Uint8Array([fields as number]);
+	}
+
+	if (struct.type === 'hex-string') {
+		const hex = (fields as string).substring(2);
+		const arr = new Uint8Array(hex.length / 2);
+		for (let i = 0; i < hex.length; i += 2) {
+			const byte = parseInt(hex.substring(i, i + 2), 16);
+			arr[i / 2] = byte;
+		}
+
+		return arr;
 	}
 
 	if (struct.type === 'void') {

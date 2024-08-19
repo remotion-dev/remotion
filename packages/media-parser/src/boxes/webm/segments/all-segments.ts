@@ -318,6 +318,11 @@ export type EbmlWithUint8 = {
 	type: 'uint-8';
 };
 
+export type EbmlWithHexString = {
+	name: MatroskaKey;
+	type: 'hex-string';
+};
+
 export type EbmlWithString = {
 	name: MatroskaKey;
 	type: EbmlType;
@@ -338,7 +343,8 @@ export type Ebml =
 	| EbmlWithUint8
 	| EbmlWithChildren
 	| EbmlWithVoid
-	| EbmlWithFloat;
+	| EbmlWithFloat
+	| EbmlWithHexString;
 
 export const ebmlVersion = {
 	name: 'EBMLVersion',
@@ -386,6 +392,7 @@ export type EmblTypes = {
 	string: string;
 	children: HeaderStructure;
 	void: undefined;
+	'hex-string': string;
 };
 
 export type HeaderStructure = Ebml[];
@@ -404,6 +411,11 @@ export const matroskaHeader = {
 	name: 'Header',
 	type: 'children',
 	children: matroskaHeaderStructure,
+} as const satisfies Ebml;
+
+export const seekId = {
+	name: 'SeekID',
+	type: 'hex-string',
 } as const satisfies Ebml;
 
 export const voidHeader = {
