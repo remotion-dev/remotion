@@ -218,7 +218,10 @@ export const useMediaPlayback = ({
 			lastSeek.current = shouldBeTime;
 			lastSeekDueToShift.current = shouldBeTime;
 			if (playing && !isVariableFpsVideo) {
-				bufferUntilFirstFrame(shouldBeTime);
+				if (playbackRate > 0) {
+					bufferUntilFirstFrame(shouldBeTime);
+				}
+
 				if (mediaRef.current.paused) {
 					playAndHandleNotAllowedError(mediaRef, mediaType, onAutoPlayError);
 				}
@@ -269,7 +272,9 @@ export const useMediaPlayback = ({
 
 			playAndHandleNotAllowedError(mediaRef, mediaType, onAutoPlayError);
 			if (!isVariableFpsVideo) {
-				bufferUntilFirstFrame(shouldBeTime);
+				if (playbackRate > 0) {
+					bufferUntilFirstFrame(shouldBeTime);
+				}
 			}
 		}
 	}, [
