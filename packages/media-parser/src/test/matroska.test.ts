@@ -24,6 +24,47 @@ test('Should get duration of AV1 video', async () => {
 
 	expect(parsed.boxes).toEqual([
 		{
+			hex: '0x1a45dfa3',
+			type: 'Header',
+			value: [
+				{
+					hex: '0x4286',
+					type: 'EBMLVersion',
+					value: 1,
+				},
+				{
+					hex: '0x42f7',
+					type: 'EBMLReadVersion',
+					value: 1,
+				},
+				{
+					hex: '0x42f2',
+					type: 'EBMLMaxIDLength',
+					value: 4,
+				},
+				{
+					hex: '0x42f3',
+					type: 'EBMLMaxSizeLength',
+					value: 8,
+				},
+				{
+					hex: '0x4282',
+					type: 'DocType',
+					value: 'webm',
+				},
+				{
+					hex: '0x4287',
+					type: 'DocTypeVersion',
+					value: 2,
+				},
+				{
+					hex: '0x4285',
+					type: 'DocTypeReadVersion',
+					value: 2,
+				},
+			],
+		},
+		{
 			type: 'main-segment',
 			children: [
 				{
@@ -445,8 +486,9 @@ test('Should get duration of AV1 video', async () => {
 					],
 				},
 				{
-					id: '0x1c53bb6b',
-					type: 'unknown-segment',
+					hex: '0x1c53bb6b',
+					type: 'Cues',
+					value: undefined,
 				},
 			],
 		},

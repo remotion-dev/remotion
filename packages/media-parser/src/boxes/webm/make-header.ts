@@ -5,7 +5,7 @@ import type {
 	HeaderStructure,
 	matroskaElements,
 } from './segments/all-segments';
-import {matroskaHeaderStructure} from './segments/all-segments';
+import {getIdForName, matroskaHeaderStructure} from './segments/all-segments';
 
 export const webmPattern = new Uint8Array([0x1a, 0x45, 0xdf, 0xa3]);
 
@@ -33,7 +33,7 @@ const makeField = <T extends Ebml>(element: T, value: EmblTypes[T['type']]) => {
 	}
 
 	return combineUint8Arrays([
-		matroskaToHex(element.value),
+		matroskaToHex(getIdForName(element.name)),
 		getVariableInt(val.byteLength),
 		val,
 	]);
