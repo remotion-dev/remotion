@@ -55,21 +55,19 @@ const makeFromHeaderStructure = <Struct extends HeaderStructure>(
 		arrays.push(makeField(item, fields[item.name]));
 	}
 
-	return arrays;
+	return combineUint8Arrays(arrays);
 };
 
 export const makeMatroskaHeader = () => {
-	const fields = combineUint8Arrays(
-		makeFromHeaderStructure(matroskaHeaderStructure, {
-			DocType: 'matroska',
-			DocTypeVersion: 4,
-			DocTypeReadVersion: 2,
-			EBMLMaxIDLength: 4,
-			EBMLMaxSizeLength: 8,
-			EBMLReadVersion: 1,
-			EBMLVersion: 1,
-		}),
-	);
+	const fields = makeFromHeaderStructure(matroskaHeaderStructure, {
+		DocType: 'matroska',
+		DocTypeVersion: 4,
+		DocTypeReadVersion: 2,
+		EBMLMaxIDLength: 4,
+		EBMLMaxSizeLength: 8,
+		EBMLReadVersion: 1,
+		EBMLVersion: 1,
+	});
 
 	return combineUint8Arrays([
 		webmPattern,

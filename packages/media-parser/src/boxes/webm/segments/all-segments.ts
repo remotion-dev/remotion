@@ -1,7 +1,8 @@
 export const matroskaElements = {
+	Header: '0x1a45dfa3',
 	EBMLMaxIDLength: '0x42f2',
 	EBMLVersion: '0x4286',
-	EBMLReadVersion: '0x42F7',
+	EBMLReadVersion: '0x42f7',
 	EBMLMaxSizeLength: '0x42f3',
 	DocType: '0x4282',
 	DocTypeVersion: '0x4287',
@@ -292,13 +293,28 @@ export const getSegmentName = (id: string) => {
 export type MatroskaElement =
 	(typeof matroskaElements)[keyof typeof matroskaElements];
 
-type EbmlType = 'uint-8' | 'string';
+type EbmlType = 'string';
 
-export type Ebml = {
+type EbmlWithChildren = {
+	name: string;
+	value: MatroskaElement;
+	type: 'children';
+	children: HeaderStructure;
+};
+
+type EbmlWithUint8 = {
+	name: string;
+	value: MatroskaElement;
+	type: 'uint-8';
+};
+
+type EbmlWithString = {
 	name: string;
 	value: MatroskaElement;
 	type: EbmlType;
 };
+
+export type Ebml = EbmlWithString | EbmlWithUint8 | EbmlWithChildren;
 
 export const ebmlVersion = {
 	name: 'EBMLVersion' as const,
@@ -345,6 +361,7 @@ export const docTypeReadVersion = {
 export type EmblTypes = {
 	'uint-8': number;
 	string: string;
+	children: HeaderStructure;
 };
 
 export type HeaderStructure = Ebml[];
@@ -358,3 +375,31 @@ export const matroskaHeaderStructure = [
 	docTypeVersion,
 	docTypeReadVersion,
 ] as const satisfies HeaderStructure;
+
+export const matroskaHeader = {
+	name: 'Header' as const,
+	value: matroskaElements.Header,
+	type: 'children',
+	children: matroskaHeaderStructure,
+} as const satisfies Ebml;
+
+type Numbers = '0' | '1' | '2' | '3' | '4' | '5' | '6';
+
+type Prettify<T> = {
+	[K in keyof T]: T[K];
+} & {};
+
+type EbmlValue<T extends Ebml> = T extends EbmlWithUint8
+	? number
+	: T extends EbmlWithChildren
+		? {
+				[key in keyof T['children'] & Numbers]: Prettify<
+					EbmlParsed<T['children'][key]>
+				>;
+			}
+		: string;
+
+export type EbmlParsed<T extends Ebml> = {
+	type: T['name'];
+	value: EbmlValue<T>;
+};
