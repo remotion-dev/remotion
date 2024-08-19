@@ -26,7 +26,7 @@ export const parseMdat = async ({
 }): Promise<MdatBox> => {
 	const alreadyHas = hasTracks(existingBoxes);
 	if (!alreadyHas) {
-		data.discard(size - data.counter.getOffset() - fileOffset);
+		data.discard(size - (data.counter.getOffset() - fileOffset));
 		return Promise.resolve({
 			type: 'mdat-box',
 			boxSize: size,
