@@ -600,7 +600,7 @@ export type SimpleBlockOrBlockSegment = {
 	type: 'simple-block-or-block-segment';
 	length: number;
 	trackNumber: number;
-	timecode: number;
+	timecodeInMicroseconds: number;
 	keyframe: boolean | null;
 	lacing: number;
 	invisible: boolean;
@@ -640,14 +640,23 @@ export const parseSimpleBlockOrBlockSegment = async ({
 			iterator.counter.getOffset(),
 		);
 
+	const timescale = parserContext.parserState.getTimescale();
+
 	if (clusterOffset === undefined) {
 		throw new Error(
 			'Could not find offset for byte offset ' + iterator.counter.getOffset(),
 		);
 	}
 
-	const timecode =
-		(timecodeRelativeToCluster + clusterOffset) * (trackTimescale ?? 1);
+	// https://github.com/hubblec4/Matroska-Chapters-Specs/blob/master/notes.md/#timestampscale
+	// The TimestampScale Element is used to calculate the Raw Timestamp of a Block. The timestamp is obtained by adding the Block's timestamp to the Cluster's Timestamp Element, and then multiplying that result by the TimestampScale. The result will be the Block's Raw Timestamp in nanoseconds.
+	const timecodeInNanoSeconds =
+		(timecodeRelativeToCluster + clusterOffset) *
+		timescale *
+		(trackTimescale ?? 1);
+
+	// Timecode should be in microseconds
+	const timecodeInMicroseconds = timecodeInNanoSeconds / 1000;
 
 	if (!codec) {
 		throw new Error('Could not find codec for track ' + trackNumber);
@@ -664,7 +673,7 @@ export const parseSimpleBlockOrBlockSegment = async ({
 			dts: null,
 			duration: undefined,
 			trackId: trackNumber,
-			timestamp: timecode,
+			timestamp: timecodeInMicroseconds,
 		};
 
 		if (keyframe === null) {
@@ -684,7 +693,7 @@ export const parseSimpleBlockOrBlockSegment = async ({
 		await parserContext.parserState.onAudioSample(trackNumber, {
 			data: iterator.getSlice(remainingNow),
 			trackId: trackNumber,
-			timestamp: timecode,
+			timestamp: timecodeInMicroseconds,
 			type: 'key',
 		});
 	}
@@ -698,7 +707,7 @@ export const parseSimpleBlockOrBlockSegment = async ({
 		type: 'simple-block-or-block-segment',
 		length,
 		trackNumber,
-		timecode,
+		timecodeInMicroseconds,
 		keyframe,
 		lacing,
 		invisible,
