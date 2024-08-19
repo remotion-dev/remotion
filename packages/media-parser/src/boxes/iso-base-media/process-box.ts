@@ -135,8 +135,26 @@ export const processBox = async ({
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
 
-	const boxSize = iterator.getFourByteNumber(littleEndian);
-	if (boxSize === 0) {
+	const boxSizeRaw = iterator.getFourByteNumber(littleEndian);
+
+	// If `boxSize === 1`, the 8 bytes after the box type are the size of the box.
+	if (
+		(boxSizeRaw === 1 && iterator.bytesRemaining() < 12) ||
+		iterator.bytesRemaining() < 4
+	) {
+		iterator.counter.decrement(iterator.counter.getOffset() - fileOffset);
+		if (allowIncompleteBoxes) {
+			return {
+				type: 'incomplete',
+			};
+		}
+
+		throw new Error(
+			`Expected box size of ${bytesRemaining}, got ${boxSizeRaw}. Incomplete boxes are not allowed.`,
+		);
+	}
+
+	if (boxSizeRaw === 0) {
 		return {
 			type: 'complete',
 			box: {
@@ -148,42 +166,41 @@ export const processBox = async ({
 		};
 	}
 
+	const boxType = iterator.getByteString(4);
+
+	const boxSize =
+		boxSizeRaw === 1 ? iterator.getEightByteNumber(littleEndian) : boxSizeRaw;
+
 	if (bytesRemaining < boxSize) {
-		if (bytesRemaining >= 4) {
-			const type = iterator.getByteString(4);
-			iterator.counter.decrement(4);
+		if (boxType === 'mdat') {
+			const shouldSkip = options.canSkipVideoData || !hasTracks(parsedBoxes);
 
-			if (type === 'mdat') {
-				const shouldSkip = options.canSkipVideoData || !hasTracks(parsedBoxes);
+			if (shouldSkip) {
+				const skipTo = fileOffset + boxSize;
+				const bytesToSkip = skipTo - iterator.counter.getOffset();
 
-				if (shouldSkip) {
-					const skipTo = fileOffset + boxSize;
-					const bytesToSkip = skipTo - iterator.counter.getOffset();
-
-					// If there is a huge mdat chunk, we can skip it because we don't need it for the metadata
-					if (bytesToSkip > 1_000_000) {
-						return {
-							type: 'complete',
-							box: {
-								type: 'mdat-box',
-								boxSize,
-								fileOffset,
-								samplesProcessed: false,
-							},
-							size: boxSize,
-							skipTo: fileOffset + boxSize,
-						};
-					}
-				} else {
-					iterator.discard(4);
-					return parseMdatPartially({
-						iterator,
-						boxSize,
-						fileOffset,
-						parsedBoxes,
-						options,
-					});
+				// If there is a huge mdat chunk, we can skip it because we don't need it for the metadata
+				if (bytesToSkip > 1_000_000) {
+					return {
+						type: 'complete',
+						box: {
+							type: 'mdat-box',
+							boxSize,
+							fileOffset,
+							samplesProcessed: false,
+						},
+						size: boxSize,
+						skipTo: fileOffset + boxSize,
+					};
 				}
+			} else {
+				return parseMdatPartially({
+					iterator,
+					boxSize,
+					fileOffset,
+					parsedBoxes,
+					options,
+				});
 			}
 		}
 
@@ -198,8 +215,6 @@ export const processBox = async ({
 			`Expected box size of ${bytesRemaining}, got ${boxSize}. Incomplete boxes are not allowed.`,
 		);
 	}
-
-	const boxType = iterator.getByteString(4);
 
 	if (boxType === 'ftyp') {
 		const box = parseFtyp({iterator, size: boxSize, offset: fileOffset});
@@ -276,11 +291,12 @@ export const processBox = async ({
 		};
 	}
 
-	if (boxType === 'stco') {
+	if (boxType === 'stco' || boxType === 'co64') {
 		const box = parseStco({
 			iterator,
 			offset: fileOffset,
 			size: boxSize,
+			mode64Bit: boxType === 'co64',
 		});
 
 		return {
