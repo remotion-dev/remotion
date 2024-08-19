@@ -1,18 +1,21 @@
 import {getVariableInt} from './ebml';
 import type {
 	Ebml,
+	EbmlWithChildren,
+	EbmlWithString,
+	EbmlWithUint8,
 	EmblTypes,
 	HeaderStructure,
 	matroskaElements,
 } from './segments/all-segments';
-import {getIdForName, matroskaHeaderStructure} from './segments/all-segments';
+import {getIdForName} from './segments/all-segments';
 
 export const webmPattern = new Uint8Array([0x1a, 0x45, 0xdf, 0xa3]);
 
 const matroskaToHex = (
 	matrId: (typeof matroskaElements)[keyof typeof matroskaElements],
 ) => {
-	const numbers: Uint8Array = new Uint8Array(2);
+	const numbers: Uint8Array = new Uint8Array((matrId.length - 2) / 2);
 
 	for (let i = 2; i < matrId.length; i += 2) {
 		const hex = matrId.substring(i, i + 2);
@@ -22,57 +25,66 @@ const matroskaToHex = (
 	return numbers;
 };
 
-const makeField = <T extends Ebml>(element: T, value: EmblTypes[T['type']]) => {
-	let val;
-	if (typeof value === 'string') {
-		val = new TextEncoder().encode(value);
-	} else if (typeof value === 'number') {
-		val = new Uint8Array([value]);
-	} else {
-		throw new Error('element value');
-	}
-
-	return combineUint8Arrays([
-		matroskaToHex(getIdForName(element.name)),
-		getVariableInt(val.byteLength),
-		val,
-	]);
-};
-
 type Numbers = '0' | '1' | '2' | '3' | '4' | '5' | '6';
 
-const makeFromHeaderStructure = <Struct extends HeaderStructure>(
-	struct: Struct,
-	fields: {
-		[key in keyof Struct &
-			Numbers as Struct[key]['name']]: EmblTypes[Struct[key]['type']];
-	},
-) => {
-	const arrays: Uint8Array[] = [];
-
-	for (const item of struct) {
-		// @ts-expect-error
-		arrays.push(makeField(item, fields[item.name]));
-	}
-
-	return combineUint8Arrays(arrays);
+type ChildFields<Struct extends HeaderStructure> = {
+	[key in keyof Struct &
+		Numbers as Struct[key]['name']]: EmblTypes[Struct[key]['type']];
 };
 
-export const makeMatroskaHeader = () => {
-	const fields = makeFromHeaderStructure(matroskaHeaderStructure, {
-		DocType: 'matroska',
-		DocTypeVersion: 4,
-		DocTypeReadVersion: 2,
-		EBMLMaxIDLength: 4,
-		EBMLMaxSizeLength: 8,
-		EBMLReadVersion: 1,
-		EBMLVersion: 1,
-	});
+type SerializeValue<Struct extends Ebml> = Struct extends EbmlWithChildren
+	? ChildFields<Struct['children']>
+	: Struct extends EbmlWithString
+		? string
+		: Struct extends EbmlWithUint8
+			? number
+			: undefined;
+
+const makeFromHeaderStructure = <Struct extends Ebml>(
+	struct: Struct,
+	fields: SerializeValue<Struct>,
+): Uint8Array => {
+	const arrays: Uint8Array[] = [];
+
+	if (struct.type === 'children') {
+		for (const item of struct.children) {
+			arrays.push(
+				makeMatroskaHeader(
+					item,
+					// @ts-expect-error
+					fields[item.name],
+				),
+			);
+		}
+
+		return combineUint8Arrays(arrays);
+	}
+
+	if (struct.type === 'string') {
+		return new TextEncoder().encode(fields as string);
+	}
+
+	if (struct.type === 'uint-8') {
+		return new Uint8Array([fields as number]);
+	}
+
+	if (struct.type === 'void') {
+		throw new Error('Serializing Void is not implemented');
+	}
+
+	throw new Error('Unexpected type');
+};
+
+export const makeMatroskaHeader = <Struct extends Ebml>(
+	struct: Struct,
+	fields: SerializeValue<Struct>,
+) => {
+	const value = makeFromHeaderStructure(struct, fields);
 
 	return combineUint8Arrays([
-		webmPattern,
-		getVariableInt(fields.length),
-		fields,
+		matroskaToHex(getIdForName(struct.name)),
+		getVariableInt(value.length),
+		value,
 	]);
 };
 
