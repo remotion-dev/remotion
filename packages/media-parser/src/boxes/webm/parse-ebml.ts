@@ -28,8 +28,8 @@ export const parseEbml = (iterator: BufferIterator): Prettify<PossibleEbml> => {
 		);
 	}
 
-	if (hasInMap.type === 'uint-8') {
-		const value = iterator.getUint8();
+	if (hasInMap.type === 'uint') {
+		const value = iterator.getUint(size);
 
 		return {type: hasInMap.name, value, hex};
 	}

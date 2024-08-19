@@ -315,7 +315,7 @@ export type EbmlWithChildren = {
 
 export type EbmlWithUint8 = {
 	name: MatroskaKey;
-	type: 'uint-8';
+	type: 'uint';
 };
 
 export type EbmlWithHexString = {
@@ -348,22 +348,22 @@ export type Ebml =
 
 export const ebmlVersion = {
 	name: 'EBMLVersion',
-	type: 'uint-8',
+	type: 'uint',
 } satisfies Ebml;
 
 export const ebmlReadVersion = {
 	name: 'EBMLReadVersion',
-	type: 'uint-8',
+	type: 'uint',
 } satisfies Ebml;
 
 export const ebmlMaxIdLength = {
 	name: 'EBMLMaxIDLength',
-	type: 'uint-8',
+	type: 'uint',
 } satisfies Ebml;
 
 export const ebmlMaxSizeLength = {
 	name: 'EBMLMaxSizeLength',
-	type: 'uint-8',
+	type: 'uint',
 } satisfies Ebml;
 
 export const docType = {
@@ -373,12 +373,12 @@ export const docType = {
 
 export const docTypeVersion = {
 	name: 'DocTypeVersion',
-	type: 'uint-8',
+	type: 'uint',
 } satisfies Ebml;
 
 export const docTypeReadVersion = {
 	name: 'DocTypeReadVersion',
-	type: 'uint-8',
+	type: 'uint',
 } satisfies Ebml;
 
 export const voidEbml = {
@@ -387,7 +387,7 @@ export const voidEbml = {
 } satisfies Ebml;
 
 export type EmblTypes = {
-	'uint-8': number;
+	uint: number;
 	float: number;
 	string: string;
 	children: HeaderStructure;
@@ -416,6 +416,17 @@ export const matroskaHeader = {
 export const seekId = {
 	name: 'SeekID',
 	type: 'hex-string',
+} as const satisfies Ebml;
+
+export const seekPosition = {
+	name: 'SeekPosition',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const seek = {
+	name: 'Seek',
+	type: 'children',
+	children: [seekId, seekPosition],
 } as const satisfies Ebml;
 
 export const voidHeader = {

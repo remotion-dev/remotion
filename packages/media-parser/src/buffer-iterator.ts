@@ -501,7 +501,7 @@ export const getArrayBufferIterator = (
 			const val = getSlice(32);
 			return [...Array.from(new Uint8Array(val))];
 		},
-		getDecimalBytes(length: number): number {
+		getUint(length: number): number {
 			const bytes = getSlice(length);
 			const numbers = [...Array.from(new Uint8Array(bytes))];
 			return numbers.reduce(

@@ -200,7 +200,7 @@ export const parseDefaultDurationSegment = (
 	iterator: BufferIterator,
 	length: number,
 ): DefaultDurationSegment => {
-	const defaultDuration = iterator.getDecimalBytes(length);
+	const defaultDuration = iterator.getUint(length);
 
 	return {
 		type: 'default-duration-segment',
@@ -574,25 +574,9 @@ export const parseTimestampSegment = (
 	iterator: BufferIterator,
 	length: number,
 ): TimestampSegment => {
-	if (length > 3) {
-		throw new Error(
-			'Expected timestamp segment to be 1 byte or 2 bytes, but is ' + length,
-		);
-	}
-
-	if (length === 3) {
-		const val = iterator.getUint24();
-		return {
-			type: 'timestamp-segment',
-			timestamp: val,
-		};
-	}
-
-	const value = length === 2 ? iterator.getUint16() : iterator.getUint8();
-
 	return {
 		type: 'timestamp-segment',
-		timestamp: value,
+		timestamp: iterator.getUint(length),
 	};
 };
 

@@ -1,7 +1,11 @@
 import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
 import {makeMatroskaHeader} from '../boxes/webm/make-header';
-import {matroskaHeader, seekId} from '../boxes/webm/segments/all-segments';
+import {
+	matroskaHeader,
+	seek,
+	seekId,
+} from '../boxes/webm/segments/all-segments';
 
 test('Should make Matroska header that is same as input', async () => {
 	const exampleVideo = RenderInternals.exampleVideos.matroskaMp3;
@@ -27,6 +31,18 @@ test('Should be able to create SeekIdBox', async () => {
 		await Bun.file('vp8-segments/56-0x53ab').arrayBuffer(),
 	);
 
-	const custom = makeMatroskaHeader(seekId, '0x1549A966');
+	const custom = makeMatroskaHeader(seekId, '0x1549a966');
+	expect(custom).toEqual(file);
+});
+
+test('Should be able to create Seek', async () => {
+	const file = new Uint8Array(
+		await Bun.file('vp8-segments/53-0x4dbb').arrayBuffer(),
+	);
+
+	const custom = makeMatroskaHeader(seek, {
+		SeekID: '0x1549a966',
+		SeekPosition: 0x40,
+	});
 	expect(custom).toEqual(file);
 });

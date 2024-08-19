@@ -43,6 +43,25 @@ type SerializeValue<Struct extends Ebml> = Struct extends EbmlWithChildren
 				? string
 				: undefined;
 
+function putUintDynamic(number: number) {
+	if (number < 0) {
+		throw new Error(
+			'This function is designed for non-negative integers only.',
+		);
+	}
+
+	// Calculate the minimum number of bytes needed to store the integer
+	const length = Math.ceil(Math.log2(number + 1) / 8);
+	const bytes = new Uint8Array(length);
+
+	for (let i = 0; i < length; i++) {
+		// Extract each byte from the number
+		bytes[length - 1 - i] = (number >> (8 * i)) & 0xff;
+	}
+
+	return bytes;
+}
+
 const makeFromHeaderStructure = <Struct extends Ebml>(
 	struct: Struct,
 	fields: SerializeValue<Struct>,
@@ -67,8 +86,8 @@ const makeFromHeaderStructure = <Struct extends Ebml>(
 		return new TextEncoder().encode(fields as string);
 	}
 
-	if (struct.type === 'uint-8') {
-		return new Uint8Array([fields as number]);
+	if (struct.type === 'uint') {
+		return putUintDynamic(fields as number);
 	}
 
 	if (struct.type === 'hex-string') {
