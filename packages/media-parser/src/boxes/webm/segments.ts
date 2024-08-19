@@ -436,8 +436,8 @@ export const expectSegment = async (
 	iterator: BufferIterator,
 	parserContext: ParserContext,
 ): Promise<ParseResult> => {
-	const bytesRemaining_ = iterator.bytesRemaining();
-	if (bytesRemaining_ < 4) {
+	const offset = iterator.counter.getOffset();
+	if (iterator.bytesRemaining() === 0) {
 		return {
 			status: 'incomplete',
 			segments: [],
@@ -448,9 +448,32 @@ export const expectSegment = async (
 		};
 	}
 
-	const offset = iterator.counter.getOffset();
 	const segmentId = iterator.getMatroskaSegmentId();
+	if (segmentId === null) {
+		iterator.counter.decrement(iterator.counter.getOffset() - offset);
+		return {
+			status: 'incomplete',
+			segments: [],
+			continueParsing: () => {
+				return Promise.resolve(expectSegment(iterator, parserContext));
+			},
+			skipTo: null,
+		};
+	}
+
 	const length = iterator.getVint();
+	if (length === null) {
+		iterator.counter.decrement(iterator.counter.getOffset() - offset);
+		return {
+			status: 'incomplete',
+			segments: [],
+			continueParsing: () => {
+				return Promise.resolve(expectSegment(iterator, parserContext));
+			},
+			skipTo: null,
+		};
+	}
+
 	const bytesRemainingNow =
 		iterator.byteLength() - iterator.counter.getOffset();
 

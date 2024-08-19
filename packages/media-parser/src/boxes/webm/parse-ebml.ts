@@ -14,6 +14,11 @@ export const parseEbml = (
 	iterator: BufferIterator,
 ): Prettify<EbmlParsed<Ebml>> => {
 	const hex = iterator.getMatroskaSegmentId();
+	if (hex === null) {
+		throw new Error(
+			'Not enough bytes left to parse EBML - this should not happen',
+		);
+	}
 
 	const hasInMap = ebmlMap[hex as keyof typeof ebmlMap];
 	if (!hasInMap) {
@@ -23,6 +28,11 @@ export const parseEbml = (
 	}
 
 	const size = iterator.getVint();
+	if (size === null) {
+		throw new Error(
+			'Not enough bytes left to parse EBML - this should not happen',
+		);
+	}
 
 	if (hasInMap.type === 'uint-8') {
 		const value = iterator.getUint8();

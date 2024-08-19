@@ -37,6 +37,9 @@ export type SeekIdSegment = {
 
 export const parseSeekIdSegment = (iterator: BufferIterator): SeekIdSegment => {
 	const seekId = iterator.getMatroskaSegmentId();
+	if (seekId === null) {
+		throw new Error('Not enough bytes to parse seek id');
+	}
 
 	return {
 		type: 'seek-id-segment',

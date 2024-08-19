@@ -619,6 +619,10 @@ export const parseSimpleBlockOrBlockSegment = async ({
 }): Promise<SimpleBlockOrBlockSegment> => {
 	const start = iterator.counter.getOffset();
 	const trackNumber = iterator.getVint();
+	if (trackNumber === null) {
+		throw new Error('Not enough data to get track number, should not happen');
+	}
+
 	const timecodeRelativeToCluster = iterator.getUint16();
 
 	const {invisible, lacing, keyframe} = parseBlockFlags(iterator, type);

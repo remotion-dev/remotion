@@ -465,4 +465,8 @@ export const ebmlMap: Partial<Record<MatroskaElement, Ebml>> = {
 		name: 'Position' as const,
 		type: 'void',
 	},
+	[matroskaElements.SliceDuration]: {
+		name: 'SliceDuration' as const,
+		type: 'void',
+	},
 };
