@@ -438,43 +438,43 @@ export const ebmlMap = {
 	[matroskaElements.EBMLMaxSizeLength]: ebmlMaxSizeLength,
 	[matroskaElements.Void]: voidEbml,
 	[matroskaElements.Cues]: {
-		name: 'Cues' as const,
+		name: 'Cues',
 		type: 'void',
 	},
 	[matroskaElements.DateUTC]: {
-		name: 'DateUTC' as const,
+		name: 'DateUTC',
 		type: 'void',
 	},
 	[matroskaElements.TrackTimestampScale]: {
-		name: 'TrackTimestampScale' as const,
+		name: 'TrackTimestampScale',
 		type: 'float',
 	},
 	[matroskaElements.CodecDelay]: {
-		name: 'CodecDelay' as const,
+		name: 'CodecDelay',
 		type: 'void',
 	},
 	[matroskaElements.SeekPreRoll]: {
-		name: 'SeekPreRoll' as const,
+		name: 'SeekPreRoll',
 		type: 'void',
 	},
 	[matroskaElements.DiscardPadding]: {
-		name: 'DiscardPadding' as const,
+		name: 'DiscardPadding',
 		type: 'void',
 	},
 	[matroskaElements.OutputSamplingFrequency]: {
-		name: 'OutputSamplingFrequency' as const,
+		name: 'OutputSamplingFrequency',
 		type: 'void',
 	},
 	[matroskaElements.CodecName]: {
-		name: 'CodecName' as const,
+		name: 'CodecName',
 		type: 'void',
 	},
 	[matroskaElements.Position]: {
-		name: 'Position' as const,
+		name: 'Position',
 		type: 'void',
 	},
 	[matroskaElements.SliceDuration]: {
-		name: 'SliceDuration' as const,
+		name: 'SliceDuration',
 		type: 'void',
 	},
 } as const satisfies Partial<Record<MatroskaElement, Ebml>>;
