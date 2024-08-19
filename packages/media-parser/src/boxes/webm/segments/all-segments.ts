@@ -328,11 +328,17 @@ export type EbmlWithVoid = {
 	type: 'void';
 };
 
+export type EbmlWithFloat = {
+	name: MatroskaKey;
+	type: 'float';
+};
+
 export type Ebml =
 	| EbmlWithString
 	| EbmlWithUint8
 	| EbmlWithChildren
-	| EbmlWithVoid;
+	| EbmlWithVoid
+	| EbmlWithFloat;
 
 export const ebmlVersion = {
 	name: 'EBMLVersion',
@@ -376,6 +382,7 @@ export const voidEbml = {
 
 export type EmblTypes = {
 	'uint-8': number;
+	float: number;
 	string: string;
 	children: HeaderStructure;
 	void: undefined;
@@ -410,7 +417,9 @@ export type EbmlValue<T extends Ebml> = T extends EbmlWithUint8
 		? undefined
 		: T extends EbmlWithString
 			? string
-			: EbmlParsed<Ebml>[];
+			: T extends EbmlWithFloat
+				? number
+				: EbmlParsed<Ebml>[];
 
 export type EbmlParsed<T extends Ebml> = {
 	type: T['name'];
@@ -436,10 +445,9 @@ export const ebmlMap: Partial<Record<MatroskaElement, Ebml>> = {
 		name: 'DateUTC' as const,
 		type: 'void',
 	},
-	// TODO: Handle this better
 	[matroskaElements.TrackTimestampScale]: {
 		name: 'TrackTimestampScale' as const,
-		type: 'void',
+		type: 'float',
 	},
 	[matroskaElements.CodecDelay]: {
 		name: 'CodecDelay' as const,

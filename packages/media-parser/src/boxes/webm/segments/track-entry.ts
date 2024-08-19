@@ -109,6 +109,11 @@ export type CodecSegment = {
 	codec: string;
 };
 
+export type TrackInfo = {
+	codec: string;
+	trackTimescale: number | null;
+};
+
 export const parseCodecSegment = (
 	iterator: BufferIterator,
 	length: number,
@@ -627,7 +632,9 @@ export const parseSimpleBlockOrBlockSegment = async ({
 
 	const {invisible, lacing, keyframe} = parseBlockFlags(iterator, type);
 
-	const codec = parserContext.parserState.getTrackInfoByNumber(trackNumber);
+	const {codec, trackTimescale} =
+		parserContext.parserState.getTrackInfoByNumber(trackNumber);
+
 	const clusterOffset =
 		parserContext.parserState.getTimestampOffsetForByteOffset(
 			iterator.counter.getOffset(),
@@ -639,7 +646,8 @@ export const parseSimpleBlockOrBlockSegment = async ({
 		);
 	}
 
-	const timecode = timecodeRelativeToCluster + clusterOffset;
+	const timecode =
+		(timecodeRelativeToCluster + clusterOffset) * (trackTimescale ?? 1);
 
 	if (!codec) {
 		throw new Error('Could not find codec for track ' + trackNumber);
@@ -649,7 +657,7 @@ export const parseSimpleBlockOrBlockSegment = async ({
 
 	let videoSample: Omit<VideoSample, 'type'> | null = null;
 
-	if (codec.codec.startsWith('V_')) {
+	if (codec.startsWith('V_')) {
 		const partialVideoSample: Omit<VideoSample, 'type'> = {
 			data: iterator.getSlice(remainingNow),
 			cts: null,
@@ -672,7 +680,7 @@ export const parseSimpleBlockOrBlockSegment = async ({
 		}
 	}
 
-	if (codec.codec.startsWith('A_')) {
+	if (codec.startsWith('A_')) {
 		await parserContext.parserState.onAudioSample(trackNumber, {
 			data: iterator.getSlice(remainingNow),
 			trackId: trackNumber,

@@ -24,6 +24,19 @@ export const getTrackCodec = (track: TrackEntrySegment) => {
 	return child ?? null;
 };
 
+export const getTrackTimestampScale = (track: TrackEntrySegment) => {
+	const child = track.children.find((b) => b.type === 'TrackTimestampScale');
+	if (!child) {
+		return null;
+	}
+
+	if (child.type !== 'TrackTimestampScale') {
+		throw new Error('Expected TrackTimestampScale');
+	}
+
+	return child.value as number;
+};
+
 export const getTrackByNumber = (tracks: TrackEntrySegment[], id: number) => {
 	return tracks.find((track) => {
 		const trackNumber = getTrackNumber(track);

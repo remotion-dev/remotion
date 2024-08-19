@@ -1,5 +1,6 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import type {
+	EbmlWithFloat,
 	EbmlWithString,
 	EbmlWithUint8,
 	EbmlWithVoid,
@@ -48,6 +49,16 @@ export const parseEbml = (
 			value,
 			hex,
 		} as EbmlParsed<EbmlWithString>;
+	}
+
+	if (hasInMap.type === 'float') {
+		const value = size === 4 ? iterator.getFloat32() : iterator.getFloat64();
+
+		return {
+			type: hasInMap.name,
+			value,
+			hex,
+		} as EbmlParsed<EbmlWithFloat>;
 	}
 
 	if (hasInMap.type === 'void') {

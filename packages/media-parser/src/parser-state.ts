@@ -1,6 +1,6 @@
 import type {OnTrackEntrySegment} from './boxes/webm/segments';
-import type {CodecSegment} from './boxes/webm/segments/track-entry';
-import {getTrackCodec} from './boxes/webm/traversal';
+import type {TrackInfo} from './boxes/webm/segments/track-entry';
+import {getTrackCodec, getTrackTimestampScale} from './boxes/webm/traversal';
 import {getTrackId} from './traversal';
 import type {
 	AudioSample,
@@ -20,7 +20,7 @@ export const makeParserState = ({
 	hasVideoCallbacks: boolean;
 	signal: AbortSignal | undefined;
 }) => {
-	const trackEntries: Record<number, CodecSegment> = {};
+	const trackEntries: Record<number, TrackInfo> = {};
 
 	const onTrackEntrySegment: OnTrackEntrySegment = (trackEntry) => {
 		const trackId = getTrackId(trackEntry);
@@ -37,7 +37,12 @@ export const makeParserState = ({
 			throw new Error('Expected codec');
 		}
 
-		trackEntries[trackId] = codec;
+		const trackTimescale = getTrackTimestampScale(trackEntry);
+
+		trackEntries[trackId] = {
+			codec: codec.codec,
+			trackTimescale,
+		};
 	};
 
 	const videoSampleCallbacks: Record<number, OnVideoSample> = {};
