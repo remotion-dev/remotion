@@ -5,7 +5,7 @@ import type {ParserContext} from '../../parser-context';
 import type {VideoSample} from '../../webcodec-sample-types';
 import {getTrack} from './get-track';
 import {parseEbml} from './parse-ebml';
-import type {Ebml, EbmlParsed} from './segments/all-segments';
+import type {PossibleEbml} from './segments/all-segments';
 import {matroskaElements} from './segments/all-segments';
 import type {DurationSegment} from './segments/duration';
 import {parseDurationSegment} from './segments/duration';
@@ -156,7 +156,7 @@ export type MatroskaSegment =
 	| BitDepthSegment
 	| ReferenceBlockSegment
 	| BlockAdditionsSegment
-	| EbmlParsed<Ebml>;
+	| PossibleEbml;
 
 export type OnTrackEntrySegment = (trackEntry: TrackEntrySegment) => void;
 

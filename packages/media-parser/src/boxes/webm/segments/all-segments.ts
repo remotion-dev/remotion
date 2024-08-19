@@ -427,7 +427,7 @@ export type EbmlParsed<T extends Ebml> = {
 	hex: string;
 };
 
-export const ebmlMap: Partial<Record<MatroskaElement, Ebml>> = {
+export const ebmlMap = {
 	[matroskaElements.Header]: matroskaHeader,
 	[matroskaElements.DocType]: docType,
 	[matroskaElements.DocTypeVersion]: docTypeVersion,
@@ -477,4 +477,12 @@ export const ebmlMap: Partial<Record<MatroskaElement, Ebml>> = {
 		name: 'SliceDuration' as const,
 		type: 'void',
 	},
-};
+} as const satisfies Partial<Record<MatroskaElement, Ebml>>;
+
+export type PossibleEbml = {
+	[key in keyof typeof ebmlMap]: {
+		type: (typeof ebmlMap)[key]['name'];
+		value: EbmlValue<(typeof ebmlMap)[key]>;
+		hex: string;
+	};
+}[keyof typeof ebmlMap];

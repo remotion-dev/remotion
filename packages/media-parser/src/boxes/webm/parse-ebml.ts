@@ -1,19 +1,12 @@
 import type {BufferIterator} from '../../buffer-iterator';
-import type {
-	EbmlWithFloat,
-	EbmlWithString,
-	EbmlWithUint8,
-	EbmlWithVoid,
-} from './segments/all-segments';
+import type {PossibleEbml} from './segments/all-segments';
 import {ebmlMap, type Ebml, type EbmlParsed} from './segments/all-segments';
 
 type Prettify<T> = {
 	[K in keyof T]: T[K];
 } & {};
 
-export const parseEbml = (
-	iterator: BufferIterator,
-): Prettify<EbmlParsed<Ebml>> => {
+export const parseEbml = (iterator: BufferIterator): Prettify<PossibleEbml> => {
 	const hex = iterator.getMatroskaSegmentId();
 	if (hex === null) {
 		throw new Error(
@@ -38,7 +31,7 @@ export const parseEbml = (
 	if (hasInMap.type === 'uint-8') {
 		const value = iterator.getUint8();
 
-		return {type: hasInMap.name, value, hex} as EbmlParsed<EbmlWithUint8>;
+		return {type: hasInMap.name, value, hex};
 	}
 
 	if (hasInMap.type === 'string') {
@@ -48,7 +41,7 @@ export const parseEbml = (
 			type: hasInMap.name,
 			value,
 			hex,
-		} as EbmlParsed<EbmlWithString>;
+		};
 	}
 
 	if (hasInMap.type === 'float') {
@@ -58,7 +51,7 @@ export const parseEbml = (
 			type: hasInMap.name,
 			value,
 			hex,
-		} as EbmlParsed<EbmlWithFloat>;
+		};
 	}
 
 	if (hasInMap.type === 'void') {
@@ -68,7 +61,7 @@ export const parseEbml = (
 			type: hasInMap.name,
 			value: undefined,
 			hex,
-		} as EbmlParsed<EbmlWithVoid>;
+		};
 	}
 
 	if (hasInMap.type === 'children') {

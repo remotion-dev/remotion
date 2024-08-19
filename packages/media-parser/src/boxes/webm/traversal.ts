@@ -34,7 +34,7 @@ export const getTrackTimestampScale = (track: TrackEntrySegment) => {
 		throw new Error('Expected TrackTimestampScale');
 	}
 
-	return child.value as number;
+	return child.value;
 };
 
 export const getTrackByNumber = (tracks: TrackEntrySegment[], id: number) => {
