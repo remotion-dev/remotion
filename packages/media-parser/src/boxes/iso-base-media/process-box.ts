@@ -676,7 +676,7 @@ export const parseBoxes = async ({
 			};
 		}
 
-		iterator.discardFirstBytes();
+		iterator.removeBytesRead();
 	}
 
 	const mdatState = hasSkippedMdatProcessing(boxes);
