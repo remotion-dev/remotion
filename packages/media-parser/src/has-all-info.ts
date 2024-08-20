@@ -51,7 +51,7 @@ export const hasAllInfo = (
 		if (
 			key === 'dimensions' ||
 			key === 'rotation' ||
-			key === 'unrotatedDimension'
+			key === 'unrotatedDimensions'
 		) {
 			return hasDimensions(parseResult.segments, state);
 		}

@@ -43,7 +43,7 @@ export type Options<
 	audioCodec?: EnableAudioCodec;
 	tracks?: EnableTracks;
 	rotation?: EnableRotation;
-	unrotatedDimension?: EnableUnrotatedDimensions;
+	unrotatedDimensions?: EnableUnrotatedDimensions;
 	internalStats?: EnableInternalStats;
 };
 
@@ -69,7 +69,7 @@ export type Metadata<
 		: {}) &
 	(EnableRotation extends true ? {rotation: number | null} : {}) &
 	(EnableUnrotatedDimensions extends true
-		? {unrotatedDimension: Dimensions}
+		? {unrotatedDimensions: Dimensions}
 		: {}) &
 	(EnableInternalStats extends true ? {internalStats: InternalStats} : {});
 
