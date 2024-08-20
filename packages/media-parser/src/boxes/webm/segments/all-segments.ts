@@ -429,6 +429,12 @@ export const seek = {
 	children: [seekId, seekPosition],
 } as const satisfies Ebml;
 
+export const seekHead = {
+	name: 'SeekHead',
+	type: 'children',
+	children: [seek],
+} as const satisfies Ebml;
+
 export const voidHeader = {
 	name: 'Void',
 	type: 'void',
@@ -442,7 +448,9 @@ export type EbmlValue<T extends Ebml> = T extends EbmlWithUint8
 			? string
 			: T extends EbmlWithFloat
 				? number
-				: EbmlParsed<Ebml>[];
+				: T extends EbmlWithHexString
+					? string
+					: EbmlParsed<Ebml>[];
 
 export type EbmlParsed<T extends Ebml> = {
 	type: T['name'];
@@ -500,6 +508,10 @@ export const ebmlMap = {
 		name: 'SliceDuration',
 		type: 'void',
 	},
+	[matroskaElements.SeekHead]: seekHead,
+	[matroskaElements.Seek]: seek,
+	[matroskaElements.SeekID]: seekId,
+	[matroskaElements.SeekPosition]: seekPosition,
 } as const satisfies Partial<Record<MatroskaElement, Ebml>>;
 
 export type PossibleEbml = {

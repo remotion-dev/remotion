@@ -2,7 +2,7 @@ import type {BufferIterator} from '../../buffer-iterator';
 import type {PossibleEbml} from './segments/all-segments';
 import {ebmlMap, type Ebml, type EbmlParsed} from './segments/all-segments';
 
-type Prettify<T> = {
+export type Prettify<T> = {
 	[K in keyof T]: T[K];
 } & {};
 
@@ -60,6 +60,18 @@ export const parseEbml = (iterator: BufferIterator): Prettify<PossibleEbml> => {
 		return {
 			type: hasInMap.name,
 			value: undefined,
+			hex,
+		};
+	}
+
+	if (hasInMap.type === 'hex-string') {
+		return {
+			type: hasInMap.name,
+			value:
+				'0x' +
+				[...iterator.getSlice(size)]
+					.map((b) => b.toString(16).padStart(2, '0'))
+					.join(''),
 			hex,
 		};
 	}

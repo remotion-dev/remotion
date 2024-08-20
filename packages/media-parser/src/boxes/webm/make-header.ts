@@ -1,11 +1,11 @@
 import {getVariableInt} from './ebml';
+import type {Prettify} from './parse-ebml';
 import type {
 	Ebml,
 	EbmlWithChildren,
 	EbmlWithHexString,
 	EbmlWithString,
 	EbmlWithUint8,
-	EmblTypes,
 	HeaderStructure,
 	matroskaElements,
 } from './segments/all-segments';
@@ -28,13 +28,13 @@ const matroskaToHex = (
 
 type Numbers = '0' | '1' | '2' | '3' | '4' | '5' | '6';
 
-type ChildFields<Struct extends HeaderStructure> = {
-	[key in keyof Struct &
-		Numbers as Struct[key]['name']]: EmblTypes[Struct[key]['type']];
+type ChildFields<StructArray extends HeaderStructure> = {
+	[key in keyof StructArray &
+		Numbers as StructArray[key]['name']]: SerializeValue<StructArray[key]>;
 };
 
 type SerializeValue<Struct extends Ebml> = Struct extends EbmlWithChildren
-	? ChildFields<Struct['children']>
+	? Prettify<ChildFields<Struct['children']>>
 	: Struct extends EbmlWithString
 		? string
 		: Struct extends EbmlWithUint8
