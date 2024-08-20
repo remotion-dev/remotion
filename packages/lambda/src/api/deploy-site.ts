@@ -30,6 +30,7 @@ type OptionalParameters = {
 	options: {
 		onBundleProgress?: (progress: number) => void;
 		onUploadProgress?: (upload: UploadDirProgress) => void;
+		onDiffingProgress?: (bytes: number, done: boolean) => void;
 		webpackOverride?: WebpackOverrideFn;
 		ignoreRegisterRootWarning?: boolean;
 		enableCaching?: boolean;
@@ -126,11 +127,21 @@ const mandatoryDeploySite = async ({
 		);
 	}
 
+	options.onDiffingProgress?.(0, false);
+
+	let totalBytes = 0;
+
 	const {toDelete, toUpload, existingCount} = await getS3DiffOperations({
 		objects: files,
 		bundle: bundled,
 		prefix: subFolder,
+		onProgress: (bytes) => {
+			totalBytes = bytes;
+			options.onDiffingProgress?.(bytes, false);
+		},
 	});
+
+	options.onDiffingProgress?.(totalBytes, true);
 
 	await Promise.all([
 		uploadDir({
