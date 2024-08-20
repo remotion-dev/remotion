@@ -2,36 +2,9 @@ import type {BufferIterator} from '../../../buffer-iterator';
 import type {ParserContext} from '../../../parser-context';
 import type {VideoSample} from '../../../webcodec-sample-types';
 import type {MatroskaSegment} from '../segments';
-import type {matroskaElements} from './all-segments';
+import type {TrackEntrySegment, matroskaElements} from './all-segments';
 import {parseBlockFlags} from './block-simple-block-flags';
 import {expectChildren} from './parse-children';
-
-export type TrackEntrySegment = {
-	type: 'track-entry-segment';
-	children: MatroskaSegment[];
-};
-
-export const parseTrackEntry = async (
-	iterator: BufferIterator,
-	length: number,
-	parserContext: ParserContext,
-): Promise<TrackEntrySegment> => {
-	const children = await expectChildren({
-		iterator,
-		length,
-		initialChildren: [],
-		wrap: null,
-		parserContext,
-	});
-	if (children.status === 'incomplete') {
-		throw new Error('Incomplete children ' + length);
-	}
-
-	return {
-		type: 'track-entry-segment',
-		children: children.segments as MatroskaSegment[],
-	};
-};
 
 export type TrackInfo = {
 	codec: string;
@@ -231,22 +204,5 @@ export const parseBlockGroupSegment = async (
 	return {
 		type: 'block-group-segment',
 		children: children.segments as MatroskaSegment[],
-	};
-};
-
-export type BlockElement = {
-	type: 'block-element-segment';
-	length: number;
-};
-
-export const parseBlockElementSegment = (
-	iterator: BufferIterator,
-	length: number,
-): BlockElement => {
-	iterator.discard(length);
-
-	return {
-		type: 'block-element-segment',
-		length,
 	};
 };

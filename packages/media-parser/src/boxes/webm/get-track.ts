@@ -16,11 +16,8 @@ import {
 } from '../../traversal';
 import {parseAv1PrivateData} from './av1-codec-private';
 import {getAudioDescription} from './description';
-import type {CodecIdSegment} from './segments/all-segments';
-import {
-	trackTypeToString,
-	type TrackEntrySegment,
-} from './segments/track-entry';
+import type {CodecIdSegment, TrackEntrySegment} from './segments/all-segments';
+import {trackTypeToString} from './segments/track-entry';
 
 const getDescription = (track: TrackEntrySegment): undefined | Uint8Array => {
 	const codec = getCodecSegment(track);

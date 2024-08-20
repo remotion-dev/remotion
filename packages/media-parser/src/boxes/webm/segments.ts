@@ -5,24 +5,20 @@ import type {ParserContext} from '../../parser-context';
 import type {VideoSample} from '../../webcodec-sample-types';
 import {getTrack} from './get-track';
 import {parseEbml} from './parse-ebml';
-import type {PossibleEbml} from './segments/all-segments';
+import type {PossibleEbml, TrackEntrySegment} from './segments/all-segments';
 import {matroskaElements} from './segments/all-segments';
 import {type MainSegment} from './segments/main';
 import {expectChildren} from './segments/parse-children';
 import type {
-	BlockElement,
 	BlockGroupSegment,
 	ClusterSegment,
 	SimpleBlockOrBlockSegment,
 	TimestampSegment,
-	TrackEntrySegment,
 } from './segments/track-entry';
 import {
-	parseBlockElementSegment,
 	parseBlockGroupSegment,
 	parseSimpleBlockOrBlockSegment,
 	parseTimestampSegment,
-	parseTrackEntry,
 } from './segments/track-entry';
 import type {TracksSegment} from './segments/tracks';
 import {parseTracksSegment} from './segments/tracks';
@@ -35,7 +31,6 @@ export type MatroskaSegment =
 	| TimestampSegment
 	| SimpleBlockOrBlockSegment
 	| BlockGroupSegment
-	| BlockElement
 	| PossibleEbml;
 
 export type OnTrackEntrySegment = (trackEntry: TrackEntrySegment) => void;
@@ -59,27 +54,6 @@ const parseSegment = async ({
 
 	if (segmentId === '0x1654ae6b') {
 		return parseTracksSegment(iterator, length, parserContext);
-	}
-
-	if (segmentId === matroskaElements.TrackEntry) {
-		const trackEntry = await parseTrackEntry(iterator, length, parserContext);
-
-		parserContext.parserState.onTrackEntrySegment(trackEntry);
-
-		const track = getTrack({
-			track: trackEntry,
-			timescale: parserContext.parserState.getTimescale(),
-		});
-
-		if (track) {
-			await registerTrack({
-				state: parserContext.parserState,
-				options: parserContext,
-				track,
-			});
-		}
-
-		return trackEntry;
 	}
 
 	if (segmentId === matroskaElements.Timestamp) {
@@ -145,15 +119,28 @@ const parseSegment = async ({
 		return blockGroup;
 	}
 
-	if (segmentId === '0xa1') {
-		return parseBlockElementSegment(iterator, length);
-	}
-
 	iterator.counter.decrement(headerReadSoFar);
 
 	const ebml = parseEbml(iterator);
 	if (ebml.type === 'TimestampScale') {
 		parserContext.parserState.setTimescale(ebml.value);
+	}
+
+	if (ebml.type === 'TrackEntry') {
+		parserContext.parserState.onTrackEntrySegment(ebml);
+
+		const track = getTrack({
+			track: ebml,
+			timescale: parserContext.parserState.getTimescale(),
+		});
+
+		if (track) {
+			await registerTrack({
+				state: parserContext.parserState,
+				options: parserContext,
+				track,
+			});
+		}
 	}
 
 	return ebml;

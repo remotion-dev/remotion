@@ -171,8 +171,8 @@ export const getAudioCodecFromMatroska = (mainSegment: MainSegment) => {
 	}
 
 	for (const track of tracksSegment.children) {
-		if (track.type === 'track-entry-segment') {
-			const trackType = track.children.find((b) => b.type === 'CodecID');
+		if (track.type === 'TrackEntry') {
+			const trackType = track.value.find((b) => b.type === 'CodecID');
 			if (trackType && trackType.type === 'CodecID') {
 				if (trackType.value === 'A_OPUS') {
 					return 'opus';

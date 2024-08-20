@@ -89,8 +89,8 @@ export const getVideoCodec = (boxes: AnySegment[]): KnownVideoCodecs | null => {
 	}
 
 	for (const track of tracksSegment.children) {
-		if (track.type === 'track-entry-segment') {
-			const trackType = track.children.find((b) => b.type === 'CodecID');
+		if (track.type === 'TrackEntry') {
+			const trackType = track.value.find((b) => b.type === 'CodecID');
 			if (trackType && trackType.type === 'CodecID') {
 				if (trackType.value === 'V_VP8') {
 					return 'vp8';

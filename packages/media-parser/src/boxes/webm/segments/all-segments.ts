@@ -613,6 +613,36 @@ export const referenceBlock = {
 	type: 'uint',
 } as const satisfies Ebml;
 
+export const blockElement = {
+	name: 'Block',
+	type: 'void',
+} as const satisfies Ebml;
+
+export const codecName = {
+	name: 'CodecName',
+	type: 'string',
+} as const satisfies Ebml;
+
+export const trackTimestampScale = {
+	name: 'TrackTimestampScale',
+	type: 'float',
+} as const satisfies Ebml;
+
+export const trackEntry = {
+	name: 'TrackEntry',
+	type: 'children',
+	children: [
+		trackNumber,
+		trackUID,
+		defaultDuration,
+		trackTimestampScale,
+		trackType,
+		flagDefault,
+		audioSegment,
+		videoSegment,
+	],
+} as const satisfies Ebml;
+
 export type CodecIdSegment = EbmlParsed<typeof codecID>;
 export type TrackTypeSegment = EbmlParsed<typeof trackType>;
 export type WidthSegment = EbmlParsed<typeof widthType>;
@@ -624,6 +654,7 @@ export type DisplayHeightSegment = EbmlParsed<typeof displayHeight>;
 export type TrackNumberSegment = EbmlParsed<typeof trackNumber>;
 export type AudioSegment = EbmlParsed<typeof audioSegment>;
 export type VideoSegment = EbmlParsed<typeof videoSegment>;
+export type TrackEntrySegment = EbmlParsed<typeof trackEntry>;
 
 export type EbmlValue<T extends Ebml> = T extends EbmlWithUint8
 	? number
@@ -664,10 +695,7 @@ export const ebmlMap = {
 		name: 'DateUTC',
 		type: 'void',
 	},
-	[matroskaElements.TrackTimestampScale]: {
-		name: 'TrackTimestampScale',
-		type: 'float',
-	},
+	[matroskaElements.TrackTimestampScale]: trackTimestampScale,
 	[matroskaElements.CodecDelay]: {
 		name: 'CodecDelay',
 		type: 'void',
@@ -684,10 +712,7 @@ export const ebmlMap = {
 		name: 'OutputSamplingFrequency',
 		type: 'void',
 	},
-	[matroskaElements.CodecName]: {
-		name: 'CodecName',
-		type: 'void',
-	},
+	[matroskaElements.CodecName]: codecName,
 	[matroskaElements.Position]: {
 		name: 'Position',
 		type: 'void',
@@ -746,6 +771,7 @@ export const ebmlMap = {
 	[matroskaElements.Video]: videoSegment,
 	[matroskaElements.FlagDefault]: flagDefault,
 	[matroskaElements.ReferenceBlock]: referenceBlock,
+	[matroskaElements.TrackEntry]: trackEntry,
 } as const satisfies Partial<Record<MatroskaElement, Ebml>>;
 
 export type PossibleEbml = Prettify<

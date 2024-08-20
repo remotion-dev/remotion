@@ -19,7 +19,7 @@ export const getTracksFromMatroska = (
 			continue;
 		}
 
-		if (trackEntrySegment.type !== 'track-entry-segment') {
+		if (trackEntrySegment.type !== 'TrackEntry') {
 			throw new Error('Expected track entry segment');
 		}
 
