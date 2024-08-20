@@ -78,7 +78,10 @@ const getMatroskaVideoCodecString = ({
 
 	if (codec.value === 'V_MPEGH/ISO/HEVC') {
 		const priv = getPrivateData(track);
-		const iterator = getArrayBufferIterator(priv as Uint8Array);
+		const iterator = getArrayBufferIterator(
+			priv as Uint8Array,
+			(priv as Uint8Array).length,
+		);
 
 		return 'hvc1.' + getHvc1CodecString(iterator);
 	}
@@ -119,7 +122,10 @@ const getMatroskaAudioCodecString = (track: TrackEntrySegment): string => {
 	if (codec.value === 'A_AAC') {
 		const priv = getPrivateData(track);
 
-		const iterator = getArrayBufferIterator(priv as Uint8Array);
+		const iterator = getArrayBufferIterator(
+			priv as Uint8Array,
+			(priv as Uint8Array).length,
+		);
 
 		iterator.startReadingBits();
 		/**

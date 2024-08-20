@@ -206,9 +206,12 @@ export const postprocessEbml = async ({
 			(c) => c.type === 'ReferenceBlock',
 		);
 
-		const sample = getSampleFromBlock(block, parserContext, offset);
+		const sample =
+			block.value.length === 0
+				? null
+				: getSampleFromBlock(block, parserContext, offset);
 
-		if (sample.type === 'partial-video-sample') {
+		if (sample && sample.type === 'partial-video-sample') {
 			const completeFrame: VideoSample = {
 				...sample.partialVideoSample,
 				type: hasReferenceBlock ? 'delta' : 'key',

@@ -72,7 +72,7 @@ export const parseMedia: ParseMedia = async ({
 
 			iterator = getArrayBufferIterator(
 				result.value,
-				contentLength ?? undefined,
+				contentLength ?? 1_000_000_000,
 			);
 		}
 

@@ -59,7 +59,10 @@ export const getAudioDescription = (
 
 	const vorbisBooks = privateData.slice(offset);
 
-	const bufferIterator = getArrayBufferIterator(vorbisInfo.slice(0));
+	const bufferIterator = getArrayBufferIterator(
+		vorbisInfo.slice(0),
+		vorbisInfo.length,
+	);
 
 	// type
 	bufferIterator.getUint8();

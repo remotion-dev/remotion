@@ -37,7 +37,7 @@ test('Should make Matroska header that is same as input', async () => {
 		EBMLReadVersion: 1,
 	});
 
-	const iterator = getArrayBufferIterator(headerOutput);
+	const iterator = getArrayBufferIterator(headerOutput, headerOutput.length);
 	const parsed = await parseEbml(iterator, options);
 
 	expect(parsed).toEqual({
@@ -113,7 +113,7 @@ test('Should parse seekHead', async () => {
 	});
 	expect(custom).toEqual(file);
 
-	const iterator = getArrayBufferIterator(file);
+	const iterator = getArrayBufferIterator(file, file.length);
 	const parsed = await parseEbml(iterator, options);
 
 	expect(parsed).toEqual({

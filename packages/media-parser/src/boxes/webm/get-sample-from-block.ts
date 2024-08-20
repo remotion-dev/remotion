@@ -27,8 +27,7 @@ export const getSampleFromBlock = (
 	parserContext: ParserContext,
 	offset: number,
 ): SampleResult => {
-	console.log('get sample');
-	const iterator = getArrayBufferIterator(ebml.value);
+	const iterator = getArrayBufferIterator(ebml.value, ebml.value.length);
 	const trackNumber = iterator.getVint();
 	if (trackNumber === null) {
 		throw new Error('Not enough data to get track number, should not happen');
