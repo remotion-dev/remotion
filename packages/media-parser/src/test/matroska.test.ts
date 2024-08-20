@@ -24,41 +24,33 @@ test('Should get duration of AV1 video', async () => {
 
 	expect(parsed.boxes).toEqual([
 		{
-			hex: '0x1a45dfa3',
 			type: 'Header',
 			value: [
 				{
-					hex: '0x4286',
 					type: 'EBMLVersion',
 					value: 1,
 				},
 				{
-					hex: '0x42f7',
 					type: 'EBMLReadVersion',
 					value: 1,
 				},
 				{
-					hex: '0x42f2',
 					type: 'EBMLMaxIDLength',
 					value: 4,
 				},
 				{
-					hex: '0x42f3',
 					type: 'EBMLMaxSizeLength',
 					value: 8,
 				},
 				{
-					hex: '0x4282',
 					type: 'DocType',
 					value: 'webm',
 				},
 				{
-					hex: '0x4287',
 					type: 'DocTypeVersion',
 					value: 2,
 				},
 				{
-					hex: '0x4285',
 					type: 'DocTypeReadVersion',
 					value: 2,
 				},
@@ -68,143 +60,141 @@ test('Should get duration of AV1 video', async () => {
 			type: 'main-segment',
 			children: [
 				{
-					type: 'seek-head-segment',
-					length: 59,
-					children: [
+					type: 'SeekHead',
+					value: [
 						{
-							type: 'seek-segment',
-							children: [
+							type: 'Seek',
+							value: [
 								{
-									type: 'seek-id-segment',
-									seekId: '0x1549a966',
+									type: 'SeekID',
+									value: '0x1549a966',
 								},
 								{
-									type: 'seek-position-segment',
-									seekPosition: 161,
+									type: 'SeekPosition',
+									value: 161,
 								},
 							],
 						},
 						{
-							type: 'seek-segment',
-							children: [
+							type: 'Seek',
+							value: [
 								{
-									type: 'seek-id-segment',
-									seekId: '0x1654ae6b',
+									type: 'SeekID',
+									value: '0x1654ae6b',
 								},
 								{
-									type: 'seek-position-segment',
-									seekPosition: 214,
-								},
-							],
-						},
-						{
-							type: 'seek-segment',
-							children: [
-								{
-									type: 'seek-id-segment',
-									seekId: '0x1254c367',
-								},
-								{
-									type: 'seek-position-segment',
-									seekPosition: 322,
+									type: 'SeekPosition',
+									value: 214,
 								},
 							],
 						},
 						{
-							type: 'seek-segment',
-							children: [
+							type: 'Seek',
+							value: [
 								{
-									type: 'seek-id-segment',
-									seekId: '0x1c53bb6b',
+									type: 'SeekID',
+									value: '0x1254c367',
 								},
 								{
-									type: 'seek-position-segment',
-									seekPosition: 347329,
+									type: 'SeekPosition',
+									value: 322,
+								},
+							],
+						},
+						{
+							type: 'Seek',
+							value: [
+								{
+									type: 'SeekID',
+									value: '0x1c53bb6b',
+								},
+								{
+									type: 'SeekPosition',
+									value: 347329,
 								},
 							],
 						},
 					],
 				},
 				{
-					type: 'void-segment',
-					length: 88,
+					type: 'Void',
+					value: undefined,
 				},
 				{
-					type: 'info-segment',
-					length: 48,
-					children: [
+					type: 'Info',
+					value: [
 						{
-							type: 'timestamp-scale-segment',
-							timestampScale: 1000000,
+							type: 'TimestampScale',
+							value: 1000000,
 						},
 						{
-							type: 'muxing-app-segment',
+							type: 'MuxingApp',
 							value: 'Lavf60.3.100',
 						},
 						{
-							type: 'writing-app-segment',
+							type: 'WritingApp',
 							value: 'Lavf60.3.100',
 						},
 						{
-							type: 'duration-segment',
-							duration: 1000,
+							type: 'Duration',
+							value: 1000,
 						},
 					],
 				},
 				{
-					type: 'tracks-segment',
-					children: [
+					type: 'Tracks',
+					value: [
 						{
-							type: 'track-entry-segment',
-							children: [
+							type: 'TrackEntry',
+							value: [
 								{
-									type: 'track-number-segment',
-									trackNumber: 1,
+									type: 'TrackNumber',
+									value: 1,
 								},
 								{
-									type: 'track-uid-segment',
-									trackUid: 'ab2171012bb9020a',
+									type: 'TrackUID',
+									value: '0xab2171012bb9020a',
 								},
 								{
-									type: 'flag-lacing-segment',
-									lacing: false,
+									type: 'FlagLacing',
+									value: 0,
 								},
 								{
-									type: 'language-segment',
-									language: 'und',
+									type: 'Language',
+									value: 'und',
 								},
 								{
-									type: 'codec-segment',
-									codec: 'V_AV1',
+									type: 'CodecID',
+									value: 'V_AV1',
 								},
 								{
-									type: 'track-type-segment',
-									trackType: 'video',
+									type: 'TrackType',
+									value: 1,
 								},
 								{
-									type: 'default-duration-segment',
-									defaultDuration: 40000000,
+									type: 'DefaultDuration',
+									value: 40000000,
 								},
 								{
-									type: 'video-segment',
-									children: [
+									type: 'Video',
+									value: [
 										{
-											type: 'width-segment',
-											width: 1920,
+											type: 'PixelWidth',
+											value: 1920,
 										},
 										{
-											type: 'height-segment',
-											height: 1080,
+											type: 'PixelHeight',
+											value: 1080,
 										},
 										{
-											type: 'color-segment',
-											length: 16,
+											type: 'Colour',
+											value: undefined,
 										},
 									],
 								},
 								{
-									type: 'codec-private-segment',
-									codecPrivateData: new Uint8Array([
+									type: 'CodecPrivate',
+									value: new Uint8Array([
 										129, 8, 12, 0, 10, 14, 0, 0, 0, 66, 171, 191, 195, 118, 0,
 										8, 8, 8, 8, 32,
 									]),
@@ -214,15 +204,15 @@ test('Should get duration of AV1 video', async () => {
 					],
 				},
 				{
-					type: 'tags-segment',
-					children: [
+					type: 'Tags',
+					value: [
 						{
-							type: 'tag-segment',
-							length: 31,
+							type: 'Tag',
+							value: undefined,
 						},
 						{
-							type: 'tag-segment',
-							length: 51,
+							type: 'Tag',
+							value: undefined,
 						},
 					],
 				},
@@ -230,8 +220,8 @@ test('Should get duration of AV1 video', async () => {
 					type: 'cluster-segment',
 					children: [
 						{
-							type: 'timestamp-segment',
-							timestamp: 0,
+							type: 'Timestamp',
+							value: 0,
 						},
 						{
 							type: 'simple-block-or-block-segment',
@@ -486,7 +476,6 @@ test('Should get duration of AV1 video', async () => {
 					],
 				},
 				{
-					hex: '0x1c53bb6b',
 					type: 'Cues',
 					value: undefined,
 				},

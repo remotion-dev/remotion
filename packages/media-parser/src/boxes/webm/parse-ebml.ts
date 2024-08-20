@@ -1,12 +1,18 @@
+import {registerTrack} from '../../add-new-matroska-tracks';
 import type {BufferIterator} from '../../buffer-iterator';
+import type {ParserContext} from '../../parser-context';
+import {getTrack} from './get-track';
 import type {PossibleEbml} from './segments/all-segments';
-import {ebmlMap, type Ebml, type EbmlParsed} from './segments/all-segments';
+import {ebmlMap} from './segments/all-segments';
 
-type Prettify<T> = {
+export type Prettify<T> = {
 	[K in keyof T]: T[K];
 } & {};
 
-export const parseEbml = (iterator: BufferIterator): Prettify<PossibleEbml> => {
+export const parseEbml = async (
+	iterator: BufferIterator,
+	parserContext: ParserContext,
+): Promise<Prettify<PossibleEbml>> => {
 	const hex = iterator.getMatroskaSegmentId();
 	if (hex === null) {
 		throw new Error(
@@ -31,7 +37,7 @@ export const parseEbml = (iterator: BufferIterator): Prettify<PossibleEbml> => {
 	if (hasInMap.type === 'uint') {
 		const value = iterator.getUint(size);
 
-		return {type: hasInMap.name, value, hex};
+		return {type: hasInMap.name, value};
 	}
 
 	if (hasInMap.type === 'string') {
@@ -40,7 +46,6 @@ export const parseEbml = (iterator: BufferIterator): Prettify<PossibleEbml> => {
 		return {
 			type: hasInMap.name,
 			value,
-			hex,
 		};
 	}
 
@@ -50,7 +55,6 @@ export const parseEbml = (iterator: BufferIterator): Prettify<PossibleEbml> => {
 		return {
 			type: hasInMap.name,
 			value,
-			hex,
 		};
 	}
 
@@ -60,18 +64,38 @@ export const parseEbml = (iterator: BufferIterator): Prettify<PossibleEbml> => {
 		return {
 			type: hasInMap.name,
 			value: undefined,
-			hex,
+		};
+	}
+
+	if (hasInMap.type === 'hex-string') {
+		return {
+			type: hasInMap.name,
+			value:
+				'0x' +
+				[...iterator.getSlice(size)]
+					.map((b) => b.toString(16).padStart(2, '0'))
+					.join(''),
+		};
+	}
+
+	if (hasInMap.type === 'uint8array') {
+		return {
+			type: hasInMap.name,
+			value: iterator.getSlice(size),
 		};
 	}
 
 	if (hasInMap.type === 'children') {
-		const children: EbmlParsed<Ebml>[] = [];
+		const children: PossibleEbml[] = [];
 		const startOffset = iterator.counter.getOffset();
 
 		// eslint-disable-next-line no-constant-condition
 		while (true) {
-			const value = parseEbml(iterator);
+			const offset = iterator.counter.getOffset();
+			const value = await parseEbml(iterator, parserContext);
+			await postprocessEbml(offset, value, parserContext);
 			children.push(value);
+
 			const offsetNow = iterator.counter.getOffset();
 
 			if (offsetNow - startOffset > size) {
@@ -85,9 +109,40 @@ export const parseEbml = (iterator: BufferIterator): Prettify<PossibleEbml> => {
 			}
 		}
 
-		return {type: hasInMap.name, value: children as EbmlParsed<Ebml>[], hex};
+		return {type: hasInMap.name, value: children};
 	}
 
 	// @ts-expect-error
 	throw new Error(`Unknown segment type ${hasInMap.type}`);
+};
+
+export const postprocessEbml = async (
+	offset: number,
+	ebml: Prettify<PossibleEbml>,
+	parserContext: ParserContext,
+) => {
+	if (ebml.type === 'TimestampScale') {
+		parserContext.parserState.setTimescale(ebml.value);
+	}
+
+	if (ebml.type === 'TrackEntry') {
+		parserContext.parserState.onTrackEntrySegment(ebml);
+
+		const track = getTrack({
+			track: ebml,
+			timescale: parserContext.parserState.getTimescale(),
+		});
+
+		if (track) {
+			await registerTrack({
+				state: parserContext.parserState,
+				options: parserContext,
+				track,
+			});
+		}
+	}
+
+	if (ebml.type === 'Timestamp') {
+		parserContext.parserState.setTimestampOffset(offset, ebml.value);
+	}
 };

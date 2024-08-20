@@ -1,12 +1,12 @@
 import {getArrayBufferIterator} from '../../buffer-iterator';
 import {getCodecSegment, getPrivateData} from '../../traversal';
-import type {TrackEntrySegment} from './segments/track-entry';
+import type {TrackEntrySegment} from './segments/all-segments';
 
 export const getAudioDescription = (
 	track: TrackEntrySegment,
 ): undefined | Uint8Array => {
 	const codec = getCodecSegment(track);
-	if (!codec || codec.codec !== 'A_VORBIS') {
+	if (!codec || codec.value !== 'A_VORBIS') {
 		return undefined;
 	}
 

@@ -1,3 +1,4 @@
+import type {DurationSegment} from './boxes/webm/segments/all-segments';
 import type {AnySegment} from './parse-result';
 import {getMoovBox, getMvhdBox} from './traversal';
 
@@ -12,28 +13,26 @@ const getDurationFromMatroska = (segments: AnySegment[]): number | null => {
 		return null;
 	}
 
-	const infoSegment = children.find((s) => s.type === 'info-segment');
+	const infoSegment = children.find((s) => s.type === 'Info');
 
 	const relevantBoxes = [
 		...mainSegment.children,
-		...(infoSegment && infoSegment.type === 'info-segment'
-			? infoSegment.children
-			: []),
+		...(infoSegment && infoSegment.type === 'Info' ? infoSegment.value : []),
 	];
 
-	const timestampScale = relevantBoxes.find(
-		(s) => s.type === 'timestamp-scale-segment',
-	);
-	if (!timestampScale || timestampScale.type !== 'timestamp-scale-segment') {
+	const timestampScale = relevantBoxes.find((s) => s.type === 'TimestampScale');
+	if (!timestampScale || timestampScale.type !== 'TimestampScale') {
 		return null;
 	}
 
-	const duration = relevantBoxes.find((s) => s.type === 'duration-segment');
-	if (!duration || duration.type !== 'duration-segment') {
+	const duration = relevantBoxes.find(
+		(s) => s.type === 'Duration',
+	) as DurationSegment;
+	if (!duration || duration.type !== 'Duration') {
 		return null;
 	}
 
-	return (duration.duration / timestampScale.timestampScale) * 1000;
+	return (duration.value / timestampScale.value) * 1000;
 };
 
 export const getDuration = (boxes: AnySegment[]): number | null => {

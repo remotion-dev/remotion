@@ -40,7 +40,7 @@ export const makeParserState = ({
 		const trackTimescale = getTrackTimestampScale(trackEntry);
 
 		trackEntries[trackId] = {
-			codec: codec.codec,
+			codec: codec.value,
 			trackTimescale,
 		};
 	};
