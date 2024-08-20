@@ -65,7 +65,9 @@ export const getArrayBufferIterator = (
 	maxBytes?: number,
 ) => {
 	const buf = new ArrayBuffer(initialData.byteLength, {
-		maxByteLength: maxBytes ?? 1_000_000_000,
+		maxByteLength: maxBytes
+			? Math.min(maxBytes as number, 2 ** 32)
+			: 1_000_000_000,
 	});
 	if (!buf.resize) {
 		throw new Error(
@@ -119,16 +121,27 @@ export const getArrayBufferIterator = (
 			);
 		}
 
-		return (
-			(getUint8() << 56) |
-			(getUint8() << 48) |
-			(getUint8() << 40) |
-			(getUint8() << 32) |
-			(getUint8() << 24) |
-			(getUint8() << 16) |
-			(getUint8() << 8) |
-			getUint8()
-		);
+		function byteArrayToBigInt(byteArray: number[]): BigInt {
+			let result = BigInt(0);
+			for (let i = 0; i < byteArray.length; i++) {
+				result = (result << BigInt(8)) + BigInt(byteArray[i]);
+			}
+
+			return result;
+		}
+
+		const bigInt = byteArrayToBigInt([
+			getUint8(),
+			getUint8(),
+			getUint8(),
+			getUint8(),
+			getUint8(),
+			getUint8(),
+			getUint8(),
+			getUint8(),
+		]);
+
+		return Number(bigInt);
 	};
 
 	const getFourByteNumber = (littleEndian = false) => {
@@ -240,7 +253,6 @@ export const getArrayBufferIterator = (
 			counter.decrement(counter.getOffset() - offset);
 			counter.setDiscardedOffset(offset);
 		} else {
-			buf.resize(offset);
 			const currentOffset = counter.getOffset();
 			counter.increment(offset - currentOffset);
 			removeBytesRead();
@@ -330,7 +342,7 @@ export const getArrayBufferIterator = (
 		bytesRemaining,
 		isIsoBaseMedia,
 		leb128,
-		discardFirstBytes: removeBytesRead,
+		removeBytesRead,
 		isWebm,
 		discard: (length: number) => {
 			counter.increment(length);
