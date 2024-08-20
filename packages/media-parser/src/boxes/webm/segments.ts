@@ -29,7 +29,6 @@ import type {
 	DisplayHeightSegment,
 	DisplayWidthSegment,
 	FlagLacingSegment,
-	HeightSegment,
 	InterlacedSegment,
 	LanguageSegment,
 	MaxBlockAdditionId,
@@ -44,7 +43,6 @@ import type {
 	TrackNumberSegment,
 	TrackUIDSegment,
 	VideoSegment,
-	WidthSegment,
 } from './segments/track-entry';
 import {
 	parseAlphaModeSegment,
@@ -61,7 +59,6 @@ import {
 	parseDisplayHeightSegment,
 	parseDisplayWidthSegment,
 	parseFlagLacing,
-	parseHeightSegment,
 	parseInterlacedSegment,
 	parseLanguageSegment,
 	parseMaxBlockAdditionId,
@@ -76,7 +73,6 @@ import {
 	parseTrackNumber,
 	parseTrackUID,
 	parseVideoSegment,
-	parseWidthSegment,
 } from './segments/track-entry';
 import type {TracksSegment} from './segments/tracks';
 import {parseTracksSegment} from './segments/tracks';
@@ -93,8 +89,6 @@ export type MatroskaSegment =
 	| LanguageSegment
 	| DefaultDurationSegment
 	| VideoSegment
-	| WidthSegment
-	| HeightSegment
 	| DisplayWidthSegment
 	| DisplayHeightSegment
 	| AlphaModeSegment
@@ -207,14 +201,6 @@ const parseSegment = async ({
 
 	if (segmentId === '0xe1') {
 		return parseAudioSegment(iterator, length, parserContext);
-	}
-
-	if (segmentId === '0xb0') {
-		return parseWidthSegment(iterator, length);
-	}
-
-	if (segmentId === '0xba') {
-		return parseHeightSegment(iterator, length);
 	}
 
 	if (segmentId === matroskaElements.DisplayWidth) {

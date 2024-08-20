@@ -212,48 +212,6 @@ export const parseAudioSegment = async (
 	};
 };
 
-export type WidthSegment = {
-	type: 'width-segment';
-	width: number;
-};
-
-export const parseWidthSegment = (
-	iterator: BufferIterator,
-	length: number,
-): WidthSegment => {
-	if (length !== 2) {
-		throw new Error('Expected width segment to be 2 bytes');
-	}
-
-	const width = iterator.getUint16();
-
-	return {
-		type: 'width-segment',
-		width,
-	};
-};
-
-export type HeightSegment = {
-	type: 'height-segment';
-	height: number;
-};
-
-export const parseHeightSegment = (
-	iterator: BufferIterator,
-	length: number,
-): HeightSegment => {
-	if (length !== 2) {
-		throw new Error('Expected height segment to be 2 bytes');
-	}
-
-	const height = iterator.getUint16();
-
-	return {
-		type: 'height-segment',
-		height,
-	};
-};
-
 export type DisplayWidthSegment = {
 	type: 'display-width-segment';
 	displayWidth: number;

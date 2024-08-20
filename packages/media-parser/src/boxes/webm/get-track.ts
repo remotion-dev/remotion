@@ -211,22 +211,22 @@ export const getTrack = ({
 			trackId,
 			codec: codecString,
 			description: getDescription(track),
-			height: displayHeight ? displayHeight.displayHeight : height.height,
-			width: displayWidth ? displayWidth.displayWidth : width.width,
+			height: displayHeight ? displayHeight.displayHeight : height.value,
+			width: displayWidth ? displayWidth.displayWidth : width.value,
 			sampleAspectRatio: {
 				numerator: 1,
 				denominator: 1,
 			},
 			timescale,
 			samplePositions: [],
-			codedHeight: height.height,
-			codedWidth: width.width,
+			codedHeight: height.value,
+			codedWidth: width.value,
 			displayAspectHeight: displayHeight
 				? displayHeight.displayHeight
-				: height.height,
+				: height.value,
 			displayAspectWidth: displayWidth
 				? displayWidth.displayWidth
-				: width.width,
+				: width.value,
 			rotation: 0,
 		};
 	}

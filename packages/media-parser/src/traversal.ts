@@ -13,7 +13,9 @@ import type {TkhdBox} from './boxes/iso-base-media/tkhd';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import type {
 	CodecIdSegment,
+	HeightSegment,
 	TrackTypeSegment,
+	WidthSegment,
 } from './boxes/webm/segments/all-segments';
 import type {MainSegment} from './boxes/webm/segments/main';
 import type {TimestampScaleSegment} from './boxes/webm/segments/timestamp-scale';
@@ -22,10 +24,8 @@ import type {
 	ClusterSegment,
 	DisplayHeightSegment,
 	DisplayWidthSegment,
-	HeightSegment,
 	TrackEntrySegment,
 	VideoSegment,
-	WidthSegment,
 } from './boxes/webm/segments/track-entry';
 import type {AnySegment, RegularBox} from './parse-result';
 
@@ -378,9 +378,9 @@ export const getWidthSegment = (
 		return null;
 	}
 
-	const width = videoSegment.children.find((b) => b.type === 'width-segment');
+	const width = videoSegment.children.find((b) => b.type === 'PixelWidth');
 
-	if (!width || width.type !== 'width-segment') {
+	if (!width || width.type !== 'PixelWidth') {
 		return null;
 	}
 
@@ -395,9 +395,9 @@ export const getHeightSegment = (
 		return null;
 	}
 
-	const height = videoSegment.children.find((b) => b.type === 'height-segment');
+	const height = videoSegment.children.find((b) => b.type === 'PixelHeight');
 
-	if (!height || height.type !== 'height-segment') {
+	if (!height || height.type !== 'PixelHeight') {
 		return null;
 	}
 

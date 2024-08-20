@@ -208,12 +208,14 @@ test('Should get duration of AV1 video', async () => {
 									type: 'video-segment',
 									children: [
 										{
-											type: 'width-segment',
-											width: 1920,
+											type: 'PixelWidth',
+											value: 1920,
+											hex: matroskaElements.PixelWidth,
 										},
 										{
-											type: 'height-segment',
-											height: 1080,
+											type: 'PixelHeight',
+											value: 1080,
+											hex: matroskaElements.PixelHeight,
 										},
 										{
 											type: 'color-segment',

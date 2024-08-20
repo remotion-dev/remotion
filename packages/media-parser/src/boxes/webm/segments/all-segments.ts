@@ -450,8 +450,20 @@ export const trackType = {
 	type: 'uint',
 } as const satisfies Ebml;
 
+export const widthType = {
+	name: 'PixelWidth',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const heightType = {
+	name: 'PixelHeight',
+	type: 'uint',
+} as const satisfies Ebml;
+
 export type CodecIdSegment = EbmlParsed<typeof codecID>;
 export type TrackTypeSegment = EbmlParsed<typeof trackType>;
+export type WidthSegment = EbmlParsed<typeof widthType>;
+export type HeightSegment = EbmlParsed<typeof heightType>;
 
 export type EbmlValue<T extends Ebml> = T extends EbmlWithUint8
 	? number
@@ -550,6 +562,8 @@ export const ebmlMap = {
 		type: 'string',
 	},
 	[matroskaElements.TrackType]: trackType,
+	[matroskaElements.PixelWidth]: widthType,
+	[matroskaElements.PixelHeight]: heightType,
 } as const satisfies Partial<Record<MatroskaElement, Ebml>>;
 
 export type PossibleEbml = {
