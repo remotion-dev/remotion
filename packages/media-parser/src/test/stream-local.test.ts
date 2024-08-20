@@ -18,7 +18,7 @@ test('Should stream ISO base media', async () => {
 			tracks: true,
 			dimensions: true,
 			rotation: true,
-			unrotatedDimension: true,
+			unrotatedDimensions: true,
 		},
 		reader: nodeReader,
 		onVideoTrack: (track) => {
@@ -46,7 +46,7 @@ test('Should stream ISO base media', async () => {
 	expect(result.videoTracks.length).toBe(1);
 	expect(result.videoTracks[0].codec).toBe('hvc1.2.4.L150.b0');
 	expect(result.rotation).toBe(-90);
-	expect(result.unrotatedDimension).toEqual({
+	expect(result.unrotatedDimensions).toEqual({
 		height: 2160,
 		width: 3840,
 	});
@@ -258,7 +258,7 @@ test('Should stream variable fps video', async () => {
 			videoCodec: true,
 			audioCodec: true,
 			rotation: true,
-			unrotatedDimension: true,
+			unrotatedDimensions: true,
 			tracks: true,
 			boxes: true,
 		},
@@ -278,8 +278,8 @@ test('Should stream variable fps video', async () => {
 
 	expect(parsed.dimensions.width).toBe(1280);
 	expect(parsed.dimensions.height).toBe(720);
-	expect(parsed.unrotatedDimension.width).toBe(1280);
-	expect(parsed.unrotatedDimension.height).toBe(720);
+	expect(parsed.unrotatedDimensions.width).toBe(1280);
+	expect(parsed.unrotatedDimensions.height).toBe(720);
 	expect(parsed.durationInSeconds).toBe(22.901);
 	expect(parsed.videoCodec).toBe('vp8');
 	expect(parsed.audioCodec).toBe('opus');
@@ -413,7 +413,7 @@ test('Should get duration of HEVC video', async () => {
 			audioCodec: true,
 			rotation: true,
 			tracks: true,
-			unrotatedDimension: true,
+			unrotatedDimensions: true,
 			videoCodec: true,
 		},
 		onVideoTrack: () => {
@@ -437,7 +437,7 @@ test('Should get duration of HEVC video', async () => {
 	expect(parsed.audioTracks.length).toBe(1);
 	expect(parsed.audioTracks[0].codec).toBe('mp4a.40.02');
 	expect(parsed.audioTracks[0].description).toEqual(new Uint8Array([18, 16]));
-	expect(parsed.unrotatedDimension).toEqual({
+	expect(parsed.unrotatedDimensions).toEqual({
 		width: 1920,
 		height: 1080,
 	});
@@ -456,7 +456,7 @@ test('Custom DAR', async () => {
 			tracks: true,
 			dimensions: true,
 			rotation: true,
-			unrotatedDimension: true,
+			unrotatedDimensions: true,
 		},
 		reader: nodeReader,
 	});
@@ -480,7 +480,7 @@ test('Custom DAR', async () => {
 	expect(parsed.videoTracks[0].codedWidth).toBe(1280);
 	expect(parsed.videoTracks[0].codedHeight).toBe(720);
 	expect(parsed.rotation).toBe(0);
-	expect(parsed.unrotatedDimension).toEqual({
+	expect(parsed.unrotatedDimensions).toEqual({
 		height: 720,
 		width: 405,
 	});

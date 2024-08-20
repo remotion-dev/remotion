@@ -130,9 +130,9 @@ export const parseMedia: ParseMedia = async ({
 		};
 	}
 
-	if (fields?.unrotatedDimension) {
+	if (fields?.unrotatedDimensions) {
 		const dimensions = getDimensions(parseResult.segments, state);
-		returnValue.unrotatedDimension = {
+		returnValue.unrotatedDimensions = {
 			width: dimensions.unrotatedWidth,
 			height: dimensions.unrotatedHeight,
 		};
