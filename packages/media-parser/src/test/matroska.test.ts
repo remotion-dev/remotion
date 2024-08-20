@@ -118,7 +118,7 @@ test('Should get duration of AV1 video', async () => {
 				},
 				{
 					type: 'Void',
-					value: undefined,
+					value: new Uint8Array([]),
 				},
 				{
 					type: 'Info',
@@ -137,7 +137,10 @@ test('Should get duration of AV1 video', async () => {
 						},
 						{
 							type: 'Duration',
-							value: 1000,
+							value: {
+								value: 1000,
+								size: '32',
+							},
 						},
 					],
 				},
@@ -188,7 +191,7 @@ test('Should get duration of AV1 video', async () => {
 										},
 										{
 											type: 'Colour',
-											value: undefined,
+											value: new Uint8Array([]),
 										},
 									],
 								},
@@ -208,11 +211,11 @@ test('Should get duration of AV1 video', async () => {
 					value: [
 						{
 							type: 'Tag',
-							value: undefined,
+							value: new Uint8Array([]),
 						},
 						{
 							type: 'Tag',
-							value: undefined,
+							value: new Uint8Array([]),
 						},
 					],
 				},
@@ -327,7 +330,7 @@ test('Should get duration of AV1 video', async () => {
 				},
 				{
 					type: 'Cues',
-					value: undefined,
+					value: new Uint8Array([]),
 				},
 			],
 		},

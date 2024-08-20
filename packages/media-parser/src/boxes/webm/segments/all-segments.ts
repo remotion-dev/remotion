@@ -329,11 +329,6 @@ export type EbmlWithString = {
 	type: EbmlType;
 };
 
-export type EbmlWithVoid = {
-	name: MatroskaKey;
-	type: 'void';
-};
-
 export type EbmlWithFloat = {
 	name: MatroskaKey;
 	type: 'float';
@@ -348,7 +343,6 @@ export type Ebml =
 	| EbmlWithString
 	| EbmlWithUint8
 	| EbmlWithChildren
-	| EbmlWithVoid
 	| EbmlWithFloat
 	| EbmlWithHexString
 	| EbmlWithUint8Array;
@@ -388,9 +382,9 @@ export const docTypeReadVersion = {
 	type: 'uint',
 } satisfies Ebml;
 
-export const voidEbml = {
+const voidEbml = {
 	name: 'Void',
-	type: 'void',
+	type: 'uint8array',
 } satisfies Ebml;
 
 export type EmblTypes = {
@@ -402,16 +396,6 @@ export type EmblTypes = {
 	'hex-string': string;
 	uint8array: Uint8Array;
 };
-
-export const matroskaHeaderStructure = [
-	ebmlVersion,
-	ebmlReadVersion,
-	ebmlMaxIdLength,
-	ebmlMaxSizeLength,
-	docType,
-	docTypeVersion,
-	docTypeReadVersion,
-] as const satisfies Ebml[];
 
 export const matroskaHeader = {
 	name: 'Header',
@@ -440,7 +424,7 @@ export const seekHead = {
 
 export const voidHeader = {
 	name: 'Void',
-	type: 'void',
+	type: 'uint8array',
 } as const satisfies Ebml;
 
 export const codecID = {
@@ -535,7 +519,7 @@ export const flagLacing = {
 
 export const tagSegment = {
 	name: 'Tag',
-	type: 'void',
+	type: 'uint8array',
 } as const satisfies Ebml;
 
 export const tags = {
@@ -555,7 +539,7 @@ export const trackUID = {
 
 export const color = {
 	name: 'Colour',
-	type: 'void',
+	type: 'uint8array',
 } as const satisfies Ebml;
 
 export const language = {
@@ -595,7 +579,7 @@ export const videoSegment = {
 
 export const flagDefault = {
 	name: 'FlagDefault',
-	type: 'void',
+	type: 'uint8array',
 } as const satisfies Ebml;
 
 export const referenceBlock = {
@@ -605,7 +589,7 @@ export const referenceBlock = {
 
 export const blockElement = {
 	name: 'Block',
-	type: 'void',
+	type: 'uint8array',
 } as const satisfies Ebml;
 
 export const codecName = {
@@ -675,24 +659,24 @@ export type SimpleBlockSegment = EbmlParsed<typeof simpleBlock>;
 export type MainSegment = EbmlParsed<typeof segment>;
 export type ClusterSegment = EbmlParsed<typeof cluster>;
 
+export type FloatWithSize = {value: number; size: '32' | '64'};
+
 export type EbmlValue<
 	T extends Ebml,
 	Child = PossibleEbml,
 > = T extends EbmlWithUint8
 	? number
-	: T extends EbmlWithVoid
-		? undefined
-		: T extends EbmlWithString
-			? string
-			: T extends EbmlWithFloat
-				? number
-				: T extends EbmlWithHexString
-					? string
-					: T extends EbmlWithUint8Array
-						? Uint8Array
-						: T extends EbmlWithChildren
-							? Child[]
-							: never;
+	: T extends EbmlWithString
+		? string
+		: T extends EbmlWithFloat
+			? FloatWithSize
+			: T extends EbmlWithHexString
+				? string
+				: T extends EbmlWithUint8Array
+					? Uint8Array
+					: T extends EbmlWithChildren
+						? Child[]
+						: never;
 
 export type EbmlValueOrUint8Array<T extends Ebml> =
 	| Uint8Array
@@ -720,37 +704,37 @@ export const ebmlMap = {
 	[matroskaElements.Void]: voidEbml,
 	[matroskaElements.Cues]: {
 		name: 'Cues',
-		type: 'void',
+		type: 'uint8array',
 	},
 	[matroskaElements.DateUTC]: {
 		name: 'DateUTC',
-		type: 'void',
+		type: 'uint8array',
 	},
 	[matroskaElements.TrackTimestampScale]: trackTimestampScale,
 	[matroskaElements.CodecDelay]: {
 		name: 'CodecDelay',
-		type: 'void',
+		type: 'uint8array',
 	},
 	[matroskaElements.SeekPreRoll]: {
 		name: 'SeekPreRoll',
-		type: 'void',
+		type: 'uint8array',
 	},
 	[matroskaElements.DiscardPadding]: {
 		name: 'DiscardPadding',
-		type: 'void',
+		type: 'uint8array',
 	},
 	[matroskaElements.OutputSamplingFrequency]: {
 		name: 'OutputSamplingFrequency',
-		type: 'void',
+		type: 'uint8array',
 	},
 	[matroskaElements.CodecName]: codecName,
 	[matroskaElements.Position]: {
 		name: 'Position',
-		type: 'void',
+		type: 'uint8array',
 	},
 	[matroskaElements.SliceDuration]: {
 		name: 'SliceDuration',
-		type: 'void',
+		type: 'uint8array',
 	},
 	[matroskaElements.SeekHead]: seekHead,
 	[matroskaElements.Seek]: seek,
@@ -758,7 +742,7 @@ export const ebmlMap = {
 	[matroskaElements.SeekPosition]: seekPosition,
 	[matroskaElements.Crc32]: {
 		name: 'Crc32',
-		type: 'void',
+		type: 'uint8array',
 	},
 	[matroskaElements.MuxingApp]: muxingApp,
 	[matroskaElements.WritingApp]: {

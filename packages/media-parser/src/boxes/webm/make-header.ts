@@ -1,5 +1,6 @@
 import {getVariableInt} from './ebml';
 import type {
+	FloatWithSize,
 	PossibleEbml,
 	PossibleEbmlOrUint8Array,
 	matroskaElements,
@@ -51,6 +52,10 @@ const makeFromHeaderStructure = (
 
 	const struct = ebmlMap[getIdForName(fields.type)];
 
+	if (struct.type === 'uint8array') {
+		return fields.value as Uint8Array;
+	}
+
 	if (struct.type === 'children') {
 		for (const item of fields.value as PossibleEbml[]) {
 			arrays.push(makeMatroskaBytes(item));
@@ -78,8 +83,17 @@ const makeFromHeaderStructure = (
 		return arr;
 	}
 
-	if (struct.type === 'void') {
-		throw new Error('Serializing Void is not implemented');
+	if (struct.type === 'float') {
+		const value = fields.value as FloatWithSize;
+		if (value.size === '32') {
+			const dataView = new DataView(new ArrayBuffer(4));
+			dataView.setFloat32(0, value.value);
+			return new Uint8Array(dataView.buffer);
+		}
+
+		const dataView2 = new DataView(new ArrayBuffer(8));
+		dataView2.setFloat64(0, fields.value as number);
+		return new Uint8Array(dataView2.buffer);
 	}
 
 	throw new Error('Unexpected type');
@@ -99,7 +113,15 @@ export const makeMatroskaBytes = (fields: PossibleEbmlOrUint8Array) => {
 	]);
 };
 
-const combineUint8Arrays = (arrays: Uint8Array[]) => {
+export const combineUint8Arrays = (arrays: Uint8Array[]) => {
+	if (arrays.length === 0) {
+		return new Uint8Array([]);
+	}
+
+	if (arrays.length === 1) {
+		return arrays[0];
+	}
+
 	let totalLength = 0;
 	for (const array of arrays) {
 		totalLength += array.length;

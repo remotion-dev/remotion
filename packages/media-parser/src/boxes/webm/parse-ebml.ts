@@ -56,16 +56,10 @@ export const parseEbml = async (
 
 		return {
 			type: hasInMap.name,
-			value,
-		};
-	}
-
-	if (hasInMap.type === 'void') {
-		iterator.discard(size);
-
-		return {
-			type: hasInMap.name,
-			value: undefined,
+			value: {
+				value,
+				size: size === 4 ? '32' : '64',
+			},
 		};
 	}
 

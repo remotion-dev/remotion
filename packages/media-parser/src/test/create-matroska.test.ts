@@ -1,7 +1,12 @@
+import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
-import {makeMatroskaBytes} from '../boxes/webm/make-header';
+import {statSync} from 'fs';
+import {combineUint8Arrays, makeMatroskaBytes} from '../boxes/webm/make-header';
 import {parseEbml} from '../boxes/webm/parse-ebml';
+import type {MatroskaSegment} from '../boxes/webm/segments';
 import {getArrayBufferIterator} from '../buffer-iterator';
+import {nodeReader} from '../from-node';
+import {parseMedia} from '../parse-media';
 import type {ParserContext} from '../parser-context';
 import {makeParserState} from '../parser-state';
 
@@ -177,4 +182,28 @@ test('Should parse seekHead', async () => {
 	});
 });
 
-test('Can we disassemble a Matroska file and assembled it again', () => {});
+test('Can we disassemble a Matroska file and assembled it again', async () => {
+	process.env.KEEP_SAMPLES = 'true';
+	const originalFile = statSync(RenderInternals.exampleVideos.opusWebm);
+	const {boxes} = await parseMedia({
+		src: RenderInternals.exampleVideos.opusWebm,
+		fields: {
+			boxes: true,
+		},
+		reader: nodeReader,
+	});
+	let bytesTotal = 0;
+	const buffers: Uint8Array[] = [];
+	for (const box of boxes) {
+		const bytes = makeMatroskaBytes(box as MatroskaSegment);
+		bytesTotal += bytes.length;
+		buffers.push(bytes);
+	}
+
+	const combined = combineUint8Arrays(buffers);
+
+	// TODO: Remove this
+	await Bun.write('combined.webm', combined);
+
+	expect(bytesTotal).toBe(originalFile.size);
+});

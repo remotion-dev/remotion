@@ -312,7 +312,7 @@ export const getSampleRate = (track: TrackEntrySegment): number | null => {
 		return null;
 	}
 
-	return samplingFrequency.value;
+	return samplingFrequency.value.value;
 };
 
 export const getNumberOfChannels = (track: TrackEntrySegment): number => {
