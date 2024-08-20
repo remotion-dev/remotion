@@ -513,12 +513,29 @@ export const interlaced = {
 	type: 'uint',
 } as const satisfies Ebml;
 
+export const bitDepth = {
+	name: 'BitDepth',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const displayWidth = {
+	name: 'DisplayWidth',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const displayHeight = {
+	name: 'DisplayHeight',
+	type: 'uint',
+} as const satisfies Ebml;
+
 export type CodecIdSegment = EbmlParsed<typeof codecID>;
 export type TrackTypeSegment = EbmlParsed<typeof trackType>;
 export type WidthSegment = EbmlParsed<typeof widthType>;
 export type HeightSegment = EbmlParsed<typeof heightType>;
 export type TimestampScaleSegment = EbmlParsed<typeof timestampScale>;
 export type DurationSegment = EbmlParsed<typeof duration>;
+export type DisplayWidthSegment = EbmlParsed<typeof displayWidth>;
+export type DisplayHeightSegment = EbmlParsed<typeof displayHeight>;
 
 export type EbmlValue<T extends Ebml> = T extends EbmlWithUint8
 	? number
@@ -620,6 +637,9 @@ export const ebmlMap = {
 	[matroskaElements.Channels]: channels,
 	[matroskaElements.AlphaMode]: alphaMode,
 	[matroskaElements.FlagInterlaced]: interlaced,
+	[matroskaElements.BitDepth]: bitDepth,
+	[matroskaElements.DisplayHeight]: displayHeight,
+	[matroskaElements.DisplayWidth]: displayWidth,
 } as const satisfies Partial<Record<MatroskaElement, Ebml>>;
 
 export type PossibleEbml = Prettify<

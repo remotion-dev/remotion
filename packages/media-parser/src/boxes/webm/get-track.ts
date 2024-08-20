@@ -211,8 +211,8 @@ export const getTrack = ({
 			trackId,
 			codec: codecString,
 			description: getDescription(track),
-			height: displayHeight ? displayHeight.displayHeight : height.value,
-			width: displayWidth ? displayWidth.displayWidth : width.value,
+			height: displayHeight ? displayHeight.value : height.value,
+			width: displayWidth ? displayWidth.value : width.value,
 			sampleAspectRatio: {
 				numerator: 1,
 				denominator: 1,
@@ -221,12 +221,8 @@ export const getTrack = ({
 			samplePositions: [],
 			codedHeight: height.value,
 			codedWidth: width.value,
-			displayAspectHeight: displayHeight
-				? displayHeight.displayHeight
-				: height.value,
-			displayAspectWidth: displayWidth
-				? displayWidth.displayWidth
-				: width.value,
+			displayAspectHeight: displayHeight ? displayHeight.value : height.value,
+			displayAspectWidth: displayWidth ? displayWidth.value : width.value,
 			rotation: 0,
 		};
 	}

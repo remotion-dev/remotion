@@ -13,6 +13,8 @@ import type {TkhdBox} from './boxes/iso-base-media/tkhd';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import type {
 	CodecIdSegment,
+	DisplayHeightSegment,
+	DisplayWidthSegment,
 	HeightSegment,
 	TimestampScaleSegment,
 	TrackTypeSegment,
@@ -22,8 +24,6 @@ import type {MainSegment} from './boxes/webm/segments/main';
 import type {
 	AudioSegment,
 	ClusterSegment,
-	DisplayHeightSegment,
-	DisplayWidthSegment,
 	TrackEntrySegment,
 	VideoSegment,
 } from './boxes/webm/segments/track-entry';
@@ -340,15 +340,13 @@ export const getBitDepth = (track: TrackEntrySegment): number | null => {
 		return null;
 	}
 
-	const bitDepth = audioSegment.children.find(
-		(b) => b.type === 'bit-depth-segment',
-	);
+	const bitDepth = audioSegment.children.find((b) => b.type === 'BitDepth');
 
-	if (!bitDepth || bitDepth.type !== 'bit-depth-segment') {
+	if (!bitDepth || bitDepth.type !== 'BitDepth') {
 		return null;
 	}
 
-	return bitDepth.bitDepth;
+	return bitDepth.value;
 };
 
 export const getPrivateData = (track: TrackEntrySegment): Uint8Array | null => {
@@ -406,10 +404,10 @@ export const getDisplayWidthSegment = (
 	}
 
 	const displayWidth = videoSegment.children.find(
-		(b) => b.type === 'display-width-segment',
+		(b) => b.type === 'DisplayWidth',
 	);
 
-	if (!displayWidth || displayWidth.type !== 'display-width-segment') {
+	if (!displayWidth || displayWidth.type !== 'DisplayWidth') {
 		return null;
 	}
 
@@ -425,10 +423,10 @@ export const getDisplayHeightSegment = (
 	}
 
 	const displayHeight = videoSegment.children.find(
-		(b) => b.type === 'display-height-segment',
+		(b) => b.type === 'DisplayHeight',
 	);
 
-	if (!displayHeight || displayHeight.type !== 'display-height-segment') {
+	if (!displayHeight || displayHeight.type !== 'DisplayHeight') {
 		return null;
 	}
 

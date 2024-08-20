@@ -11,7 +11,6 @@ import {type MainSegment} from './segments/main';
 import {expectChildren} from './segments/parse-children';
 import type {
 	AudioSegment,
-	BitDepthSegment,
 	BlockAdditionsSegment,
 	BlockElement,
 	BlockGroupSegment,
@@ -20,8 +19,6 @@ import type {
 	ColorSegment,
 	DefaultDurationSegment,
 	DefaultFlagSegment,
-	DisplayHeightSegment,
-	DisplayWidthSegment,
 	FlagLacingSegment,
 	LanguageSegment,
 	MaxBlockAdditionId,
@@ -37,7 +34,6 @@ import type {
 } from './segments/track-entry';
 import {
 	parseAudioSegment,
-	parseBitDepthSegment,
 	parseBlockAdditionsSegment,
 	parseBlockElementSegment,
 	parseBlockGroupSegment,
@@ -45,8 +41,6 @@ import {
 	parseColorSegment,
 	parseDefaultDurationSegment,
 	parseDefaultFlagSegment,
-	parseDisplayHeightSegment,
-	parseDisplayWidthSegment,
 	parseFlagLacing,
 	parseLanguageSegment,
 	parseMaxBlockAdditionId,
@@ -73,8 +67,6 @@ export type MatroskaSegment =
 	| LanguageSegment
 	| DefaultDurationSegment
 	| VideoSegment
-	| DisplayWidthSegment
-	| DisplayHeightSegment
 	| MaxBlockAdditionId
 	| ColorSegment
 	| CodecPrivateSegment
@@ -87,7 +79,6 @@ export type MatroskaSegment =
 	| BlockGroupSegment
 	| BlockElement
 	| AudioSegment
-	| BitDepthSegment
 	| ReferenceBlockSegment
 	| BlockAdditionsSegment
 	| PossibleEbml;
@@ -172,14 +163,6 @@ const parseSegment = async ({
 		return parseAudioSegment(iterator, length, parserContext);
 	}
 
-	if (segmentId === matroskaElements.DisplayWidth) {
-		return parseDisplayWidthSegment(iterator, length);
-	}
-
-	if (segmentId === matroskaElements.DisplayHeight) {
-		return parseDisplayHeightSegment(iterator, length);
-	}
-
 	if (segmentId === '0x63a2') {
 		return parseCodecPrivateSegment(iterator, length);
 	}
@@ -194,10 +177,6 @@ const parseSegment = async ({
 
 	if (segmentId === '0x7373') {
 		return parseTagSegment(iterator, length);
-	}
-
-	if (segmentId === matroskaElements.BitDepth) {
-		return parseBitDepthSegment(iterator, length);
 	}
 
 	if (segmentId === matroskaElements.Timestamp) {

@@ -212,52 +212,6 @@ export const parseAudioSegment = async (
 	};
 };
 
-export type DisplayWidthSegment = {
-	type: 'display-width-segment';
-	displayWidth: number;
-};
-
-export const parseDisplayWidthSegment = (
-	iterator: BufferIterator,
-	length: number,
-): DisplayWidthSegment => {
-	if (length !== 2) {
-		throw new Error(
-			`Expected display width segment to be 2 bytes, got ${length}`,
-		);
-	}
-
-	const displayWidth = iterator.getUint16();
-
-	return {
-		type: 'display-width-segment',
-		displayWidth,
-	};
-};
-
-export type DisplayHeightSegment = {
-	type: 'display-height-segment';
-	displayHeight: number;
-};
-
-export const parseDisplayHeightSegment = (
-	iterator: BufferIterator,
-	length: number,
-): DisplayHeightSegment => {
-	if (length !== 2) {
-		throw new Error(
-			`Expected display height segment to be 2 bytes, got ${length}`,
-		);
-	}
-
-	const displayHeight = iterator.getUint16();
-
-	return {
-		type: 'display-height-segment',
-		displayHeight,
-	};
-};
-
 export type MaxBlockAdditionId = {
 	type: 'max-block-addition-id-segment';
 	maxBlockAdditionId: number;
@@ -618,28 +572,5 @@ export const parseBlockElementSegment = (
 	return {
 		type: 'block-element-segment',
 		length,
-	};
-};
-
-export type BitDepthSegment = {
-	type: 'bit-depth-segment';
-	bitDepth: number;
-};
-
-export const parseBitDepthSegment = (
-	iterator: BufferIterator,
-	length: number,
-): BitDepthSegment => {
-	if (length !== 1) {
-		throw new Error(
-			`Expected length of bit depth segment to be 1, got ${length}`,
-		);
-	}
-
-	const bitDepth = iterator.getUint8();
-
-	return {
-		type: 'bit-depth-segment',
-		bitDepth,
 	};
 };
