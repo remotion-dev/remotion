@@ -76,12 +76,12 @@ export const getVideoCodec = (boxes: AnySegment[]): KnownVideoCodecs | null => {
 		}
 	}
 
-	const mainSegment = boxes.find((b) => b.type === 'main-segment');
-	if (!mainSegment || mainSegment.type !== 'main-segment') {
+	const mainSegment = boxes.find((b) => b.type === 'Segment');
+	if (!mainSegment || mainSegment.type !== 'Segment') {
 		return null;
 	}
 
-	const tracksSegment = mainSegment.children.find((b) => b.type === 'Tracks');
+	const tracksSegment = mainSegment.value.find((b) => b.type === 'Tracks');
 	if (!tracksSegment || tracksSegment.type !== 'Tracks') {
 		return null;
 	}

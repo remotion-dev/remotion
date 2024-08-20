@@ -648,6 +648,16 @@ export const blockGroup = {
 	type: 'children',
 } as const satisfies Ebml;
 
+export const segment = {
+	name: 'Segment',
+	type: 'children',
+} as const satisfies Ebml;
+
+export const cluster = {
+	name: 'Cluster',
+	type: 'children',
+} as const satisfies Ebml;
+
 export type CodecIdSegment = EbmlParsed<typeof codecID>;
 export type TrackTypeSegment = EbmlParsed<typeof trackType>;
 export type WidthSegment = EbmlParsed<typeof widthType>;
@@ -662,8 +672,13 @@ export type VideoSegment = EbmlParsed<typeof videoSegment>;
 export type TrackEntrySegment = EbmlParsed<typeof trackEntry>;
 export type BlockSegment = EbmlParsed<typeof block>;
 export type SimpleBlockSegment = EbmlParsed<typeof simpleBlock>;
+export type MainSegment = EbmlParsed<typeof segment>;
+export type ClusterSegment = EbmlParsed<typeof cluster>;
 
-export type EbmlValue<T extends Ebml> = T extends EbmlWithUint8
+export type EbmlValue<
+	T extends Ebml,
+	Child = PossibleEbml,
+> = T extends EbmlWithUint8
 	? number
 	: T extends EbmlWithVoid
 		? undefined
@@ -676,12 +691,21 @@ export type EbmlValue<T extends Ebml> = T extends EbmlWithUint8
 					: T extends EbmlWithUint8Array
 						? Uint8Array
 						: T extends EbmlWithChildren
-							? PossibleEbml[]
+							? Child[]
 							: never;
+
+export type EbmlValueOrUint8Array<T extends Ebml> =
+	| Uint8Array
+	| EbmlValue<T, PossibleEbmlOrUint8Array>;
 
 export type EbmlParsed<T extends Ebml> = {
 	type: T['name'];
 	value: EbmlValue<T>;
+};
+
+export type EbmlParsedOrUint8Array<T extends Ebml> = {
+	type: T['name'];
+	value: EbmlValueOrUint8Array<T>;
 };
 
 export const ebmlMap = {
@@ -787,6 +811,14 @@ export const ebmlMap = {
 	[matroskaElements.Block]: block,
 	[matroskaElements.SimpleBlock]: simpleBlock,
 	[matroskaElements.BlockGroup]: blockGroup,
+	[matroskaElements.Segment]: {
+		name: 'Segment',
+		type: 'children',
+	},
+	[matroskaElements.Cluster]: {
+		name: 'Cluster',
+		type: 'children',
+	},
 } as const satisfies Partial<Record<MatroskaElement, Ebml>>;
 
 export type PossibleEbml = Prettify<
@@ -794,5 +826,15 @@ export type PossibleEbml = Prettify<
 		[key in keyof typeof ebmlMap]: EbmlParsed<(typeof ebmlMap)[key]>;
 	}[keyof typeof ebmlMap]
 >;
+
+export type PossibleEbmlOrUint8Array =
+	| Prettify<
+			{
+				[key in keyof typeof ebmlMap]: EbmlParsedOrUint8Array<
+					(typeof ebmlMap)[key]
+				>;
+			}[keyof typeof ebmlMap]
+	  >
+	| Uint8Array;
 
 export type EbmlMapKey = keyof typeof ebmlMap;

@@ -1,4 +1,3 @@
-import type {MatroskaSegment} from '../segments';
 import type {TrackEntrySegment} from './all-segments';
 
 export type TrackInfo = {
@@ -34,11 +33,6 @@ export const trackTypeToString = (trackType: number): TrackType => {
 		default:
 			throw new Error(`Unknown track type: ${trackType}`);
 	}
-};
-
-export type ClusterSegment = {
-	type: 'cluster-segment';
-	children: MatroskaSegment[];
 };
 
 export type GetTracks = () => TrackEntrySegment[];

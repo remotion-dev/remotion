@@ -57,8 +57,8 @@ test('Should get duration of AV1 video', async () => {
 			],
 		},
 		{
-			type: 'main-segment',
-			children: [
+			type: 'Segment',
+			value: [
 				{
 					type: 'SeekHead',
 					value: [
@@ -217,7 +217,7 @@ test('Should get duration of AV1 video', async () => {
 					],
 				},
 				{
-					children: [
+					value: [
 						{
 							type: 'Timestamp',
 							value: 0,
@@ -323,7 +323,7 @@ test('Should get duration of AV1 video', async () => {
 							value: new Uint8Array(),
 						},
 					],
-					type: 'cluster-segment',
+					type: 'Cluster',
 				},
 				{
 					type: 'Cues',

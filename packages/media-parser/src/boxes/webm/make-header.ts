@@ -1,5 +1,9 @@
 import {getVariableInt} from './ebml';
-import type {PossibleEbml, matroskaElements} from './segments/all-segments';
+import type {
+	PossibleEbml,
+	PossibleEbmlOrUint8Array,
+	matroskaElements,
+} from './segments/all-segments';
 import {ebmlMap, getIdForName} from './segments/all-segments';
 
 export const webmPattern = new Uint8Array([0x1a, 0x45, 0xdf, 0xa3]);
@@ -36,7 +40,13 @@ function putUintDynamic(number: number) {
 	return bytes;
 }
 
-const makeFromHeaderStructure = (fields: PossibleEbml): Uint8Array => {
+const makeFromHeaderStructure = (
+	fields: PossibleEbmlOrUint8Array,
+): Uint8Array => {
+	if (fields instanceof Uint8Array) {
+		return fields;
+	}
+
 	const arrays: Uint8Array[] = [];
 
 	const struct = ebmlMap[getIdForName(fields.type)];
@@ -75,7 +85,7 @@ const makeFromHeaderStructure = (fields: PossibleEbml): Uint8Array => {
 	throw new Error('Unexpected type');
 };
 
-export const makeMatroskaBytes = (fields: PossibleEbml | Uint8Array) => {
+export const makeMatroskaBytes = (fields: PossibleEbmlOrUint8Array) => {
 	if (fields instanceof Uint8Array) {
 		return fields;
 	}

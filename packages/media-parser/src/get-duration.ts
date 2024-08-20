@@ -3,12 +3,12 @@ import type {AnySegment} from './parse-result';
 import {getMoovBox, getMvhdBox} from './traversal';
 
 const getDurationFromMatroska = (segments: AnySegment[]): number | null => {
-	const mainSegment = segments.find((s) => s.type === 'main-segment');
-	if (!mainSegment || mainSegment.type !== 'main-segment') {
+	const mainSegment = segments.find((s) => s.type === 'Segment');
+	if (!mainSegment || mainSegment.type !== 'Segment') {
 		return null;
 	}
 
-	const {children} = mainSegment;
+	const {value: children} = mainSegment;
 	if (!children) {
 		return null;
 	}
@@ -16,7 +16,7 @@ const getDurationFromMatroska = (segments: AnySegment[]): number | null => {
 	const infoSegment = children.find((s) => s.type === 'Info');
 
 	const relevantBoxes = [
-		...mainSegment.children,
+		...mainSegment.value,
 		...(infoSegment && infoSegment.type === 'Info' ? infoSegment.value : []),
 	];
 
@@ -36,7 +36,7 @@ const getDurationFromMatroska = (segments: AnySegment[]): number | null => {
 };
 
 export const getDuration = (boxes: AnySegment[]): number | null => {
-	const matroskaBox = boxes.find((b) => b.type === 'main-segment');
+	const matroskaBox = boxes.find((b) => b.type === 'Segment');
 	if (matroskaBox) {
 		return getDurationFromMatroska(boxes);
 	}

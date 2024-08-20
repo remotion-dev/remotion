@@ -132,6 +132,11 @@ test('Should parse seekHead', async () => {
 		await Bun.file('vp8-segments/2165155-0x114d9b74').arrayBuffer(),
 	);
 
+	const seekPosition = makeMatroskaBytes({
+		type: 'SeekPosition',
+		value: 3911,
+	});
+
 	const custom = makeMatroskaBytes({
 		type: 'SeekHead',
 		value: [
@@ -142,10 +147,7 @@ test('Should parse seekHead', async () => {
 						type: 'SeekID',
 						value: '0x1f43b675',
 					},
-					{
-						type: 'SeekPosition',
-						value: 3911,
-					},
+					seekPosition,
 				],
 			},
 		],
@@ -174,3 +176,5 @@ test('Should parse seekHead', async () => {
 		],
 	});
 });
+
+test('Can we disassemble a Matroska file and assembled it again', () => {});

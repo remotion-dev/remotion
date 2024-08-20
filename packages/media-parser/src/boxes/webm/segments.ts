@@ -3,11 +3,9 @@ import type {ParseResult} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
 import {parseEbml, postprocessEbml} from './parse-ebml';
 import type {PossibleEbml, TrackEntrySegment} from './segments/all-segments';
-import {type MainSegment} from './segments/main';
 import {expectChildren} from './segments/parse-children';
-import type {ClusterSegment} from './segments/track-entry';
 
-export type MatroskaSegment = MainSegment | ClusterSegment | PossibleEbml;
+export type MatroskaSegment = PossibleEbml;
 
 export type OnTrackEntrySegment = (trackEntry: TrackEntrySegment) => void;
 
@@ -91,12 +89,12 @@ export const expectSegment = async (
 			wrap:
 				segmentId === '0x18538067'
 					? (s) => ({
-							type: 'main-segment',
-							children: s,
+							type: 'Segment',
+							value: s,
 						})
 					: (s) => ({
-							type: 'cluster-segment',
-							children: s,
+							type: 'Cluster',
+							value: s,
 						}),
 			parserContext,
 		});

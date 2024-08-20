@@ -13,18 +13,18 @@ import type {TkhdBox} from './boxes/iso-base-media/tkhd';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import type {
 	AudioSegment,
+	ClusterSegment,
 	CodecIdSegment,
 	DisplayHeightSegment,
 	DisplayWidthSegment,
 	HeightSegment,
+	MainSegment,
 	TimestampScaleSegment,
 	TrackEntrySegment,
 	TrackTypeSegment,
 	VideoSegment,
 	WidthSegment,
 } from './boxes/webm/segments/all-segments';
-import type {MainSegment} from './boxes/webm/segments/main';
-import type {ClusterSegment} from './boxes/webm/segments/track-entry';
 import type {AnySegment, RegularBox} from './parse-result';
 
 export const getFtypBox = (segments: AnySegment[]): FtypBox | null => {
@@ -242,15 +242,15 @@ export const getStssBox = (trakBox: TrakBox): StssBox | null => {
 export const getClusterSegment = (
 	segment: MainSegment,
 ): ClusterSegment | null => {
-	const clusterSegment = segment.children.find(
-		(b) => b.type === 'cluster-segment',
-	) as ClusterSegment | undefined;
+	const clusterSegment = segment.value.find((b) => b.type === 'Cluster') as
+		| ClusterSegment
+		| undefined;
 
 	return clusterSegment ?? null;
 };
 
 export const getTracksSegment = (segment: MainSegment) => {
-	const tracksSegment = segment.children.find((b) => b.type === 'Tracks');
+	const tracksSegment = segment.value.find((b) => b.type === 'Tracks');
 	if (!tracksSegment || tracksSegment.type !== 'Tracks') {
 		return null;
 	}
@@ -261,7 +261,7 @@ export const getTracksSegment = (segment: MainSegment) => {
 export const getTimescaleSegment = (
 	segment: MainSegment,
 ): TimestampScaleSegment | null => {
-	const infoSegment = segment.children.find((b) => b.type === 'Info');
+	const infoSegment = segment.value.find((b) => b.type === 'Info');
 
 	if (!infoSegment || infoSegment.type !== 'Info') {
 		return null;
