@@ -220,8 +220,8 @@ test('Should get duration of AV1 video', async () => {
 					type: 'cluster-segment',
 					children: [
 						{
-							type: 'timestamp-segment',
-							timestamp: 0,
+							type: 'Timestamp',
+							value: 0,
 						},
 						{
 							type: 'simple-block-or-block-segment',

@@ -13,12 +13,10 @@ import type {
 	BlockGroupSegment,
 	ClusterSegment,
 	SimpleBlockOrBlockSegment,
-	TimestampSegment,
 } from './segments/track-entry';
 import {
 	parseBlockGroupSegment,
 	parseSimpleBlockOrBlockSegment,
-	parseTimestampSegment,
 } from './segments/track-entry';
 import type {TracksSegment} from './tracks';
 import {parseTracksSegment} from './tracks';
@@ -28,7 +26,6 @@ export type MatroskaSegment =
 	| ClusterSegment
 	| SimpleBlockOrBlockSegment
 	| BlockGroupSegment
-	| TimestampSegment
 	| TracksSegment
 	| PossibleEbml;
 
@@ -65,18 +62,6 @@ const parseSegment = async ({
 			parserContext,
 			type: segmentId,
 		});
-	}
-
-	if (segmentId === matroskaElements.Timestamp) {
-		const off = iterator.counter.getOffset();
-		const timestampSegment = parseTimestampSegment(iterator, length);
-
-		parserContext.parserState.setTimestampOffset(
-			off,
-			timestampSegment.timestamp,
-		);
-
-		return timestampSegment;
 	}
 
 	if (segmentId === '0xa0') {
@@ -119,6 +104,7 @@ const parseSegment = async ({
 	}
 
 	iterator.counter.decrement(headerReadSoFar);
+	const off = iterator.counter.getOffset();
 
 	const ebml = parseEbml(iterator);
 	if (ebml.type === 'TimestampScale') {
@@ -140,6 +126,10 @@ const parseSegment = async ({
 				track,
 			});
 		}
+	}
+
+	if (ebml.type === 'Timestamp') {
+		parserContext.parserState.setTimestampOffset(off, ebml.value);
 	}
 
 	return ebml;

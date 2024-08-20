@@ -191,18 +191,3 @@ export const parseBlockGroupSegment = async (
 		children: children.segments as MatroskaSegment[],
 	};
 };
-
-export type TimestampSegment = {
-	type: 'timestamp-segment';
-	timestamp: number;
-};
-
-export const parseTimestampSegment = (
-	iterator: BufferIterator,
-	length: number,
-): TimestampSegment => {
-	return {
-		type: 'timestamp-segment',
-		timestamp: iterator.getUint(length),
-	};
-};

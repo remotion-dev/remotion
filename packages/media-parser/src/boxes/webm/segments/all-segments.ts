@@ -783,6 +783,10 @@ export const ebmlMap = {
 	[matroskaElements.FlagDefault]: flagDefault,
 	[matroskaElements.ReferenceBlock]: referenceBlock,
 	[matroskaElements.TrackEntry]: trackEntry,
+	[matroskaElements.Timestamp]: {
+		name: 'Timestamp',
+		type: 'uint',
+	},
 } as const satisfies Partial<Record<MatroskaElement, Ebml>>;
 
 export type PossibleEbml = Prettify<
