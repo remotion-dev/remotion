@@ -27,6 +27,7 @@ export const getSampleFromBlock = (
 	parserContext: ParserContext,
 	offset: number,
 ): SampleResult => {
+	console.log('get sample');
 	const iterator = getArrayBufferIterator(ebml.value);
 	const trackNumber = iterator.getVint();
 	if (trackNumber === null) {
@@ -35,7 +36,12 @@ export const getSampleFromBlock = (
 
 	const timecodeRelativeToCluster = iterator.getUint16();
 
-	const {keyframe} = parseBlockFlags(iterator, matroskaElements.Block);
+	const {keyframe} = parseBlockFlags(
+		iterator,
+		ebml.type === 'SimpleBlock'
+			? matroskaElements.SimpleBlock
+			: matroskaElements.Block,
+	);
 
 	const {codec, trackTimescale} =
 		parserContext.parserState.getTrackInfoByNumber(trackNumber);
@@ -76,6 +82,8 @@ export const getSampleFromBlock = (
 		};
 
 		if (keyframe === null) {
+			iterator.destroy();
+
 			return {
 				type: 'partial-video-sample',
 				partialVideoSample,
@@ -87,6 +95,8 @@ export const getSampleFromBlock = (
 			type: keyframe ? 'key' : 'delta',
 		};
 
+		iterator.destroy();
+
 		return {
 			type: 'video-sample',
 			videoSample: sample,
@@ -94,17 +104,22 @@ export const getSampleFromBlock = (
 	}
 
 	if (codec.startsWith('A_')) {
+		const audioSample: AudioSample = {
+			data: iterator.getSlice(remainingNow),
+			trackId: trackNumber,
+			timestamp: timecodeInMicroseconds,
+			type: 'key',
+		};
+
+		iterator.destroy();
+
 		return {
 			type: 'audio-sample',
-			audioSample: {
-				data: iterator.getSlice(remainingNow),
-				trackId: trackNumber,
-				timestamp: timecodeInMicroseconds,
-				type: 'key',
-			},
+			audioSample,
 		};
 	}
 
+	iterator.destroy();
 	return {
 		type: 'no-sample',
 	};

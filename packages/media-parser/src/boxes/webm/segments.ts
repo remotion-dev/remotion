@@ -32,9 +32,9 @@ const parseSegment = async ({
 
 	const offset = iterator.counter.getOffset();
 	const ebml = await parseEbml(iterator, parserContext);
-	await postprocessEbml(offset, ebml, parserContext);
+	const remapped = await postprocessEbml({offset, ebml, parserContext});
 
-	return ebml;
+	return remapped;
 };
 
 export const expectSegment = async (

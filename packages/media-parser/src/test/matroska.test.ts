@@ -216,7 +216,115 @@ test('Should get duration of AV1 video', async () => {
 						},
 					],
 				},
-
+				{
+					children: [
+						{
+							type: 'Timestamp',
+							value: 0,
+						},
+						{
+							type: 'Block',
+							value: new Uint8Array(),
+						},
+						{
+							type: 'Block',
+							value: new Uint8Array(),
+						},
+						{
+							type: 'Block',
+							value: new Uint8Array(),
+						},
+						{
+							type: 'Block',
+							value: new Uint8Array(),
+						},
+						{
+							type: 'Block',
+							value: new Uint8Array(),
+						},
+						{
+							type: 'Block',
+							value: new Uint8Array(),
+						},
+						{
+							type: 'Block',
+							value: new Uint8Array(),
+						},
+						{
+							type: 'Block',
+							value: new Uint8Array(),
+						},
+						{
+							type: 'Block',
+							value: new Uint8Array(),
+						},
+						{
+							type: 'Block',
+							value: new Uint8Array(),
+						},
+						{
+							type: 'Block',
+							value: new Uint8Array(),
+						},
+						{
+							type: 'Block',
+							value: new Uint8Array(),
+						},
+						{
+							type: 'Block',
+							value: new Uint8Array(),
+						},
+						{
+							type: 'Block',
+							value: new Uint8Array(),
+						},
+						{
+							type: 'Block',
+							value: new Uint8Array(),
+						},
+						{
+							type: 'Block',
+							value: new Uint8Array(),
+						},
+						{
+							type: 'Block',
+							value: new Uint8Array(),
+						},
+						{
+							type: 'Block',
+							value: new Uint8Array(),
+						},
+						{
+							type: 'Block',
+							value: new Uint8Array(),
+						},
+						{
+							type: 'Block',
+							value: new Uint8Array(),
+						},
+						{
+							type: 'Block',
+							value: new Uint8Array(),
+						},
+						{
+							type: 'Block',
+							value: new Uint8Array(),
+						},
+						{
+							type: 'Block',
+							value: new Uint8Array(),
+						},
+						{
+							type: 'Block',
+							value: new Uint8Array(),
+						},
+						{
+							type: 'Block',
+							value: new Uint8Array(),
+						},
+					],
+					type: 'cluster-segment',
+				},
 				{
 					type: 'Cues',
 					value: undefined,

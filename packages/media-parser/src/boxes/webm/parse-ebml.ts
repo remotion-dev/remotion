@@ -95,8 +95,12 @@ export const parseEbml = async (
 		while (true) {
 			const offset = iterator.counter.getOffset();
 			const value = await parseEbml(iterator, parserContext);
-			await postprocessEbml(offset, value, parserContext);
-			children.push(value);
+			const remapped = await postprocessEbml({
+				offset,
+				ebml: value,
+				parserContext,
+			});
+			children.push(remapped);
 
 			const offsetNow = iterator.counter.getOffset();
 
@@ -118,11 +122,15 @@ export const parseEbml = async (
 	throw new Error(`Unknown segment type ${hasInMap.type}`);
 };
 
-export const postprocessEbml = async (
-	offset: number,
-	ebml: Prettify<PossibleEbml>,
-	parserContext: ParserContext,
-) => {
+export const postprocessEbml = async ({
+	offset,
+	ebml,
+	parserContext,
+}: {
+	offset: number;
+	ebml: Prettify<PossibleEbml>;
+	parserContext: ParserContext;
+}): Promise<Prettify<PossibleEbml>> => {
 	if (ebml.type === 'TimestampScale') {
 		parserContext.parserState.setTimescale(ebml.value);
 	}
@@ -148,7 +156,7 @@ export const postprocessEbml = async (
 		parserContext.parserState.setTimestampOffset(offset, ebml.value);
 	}
 
-	if (ebml.type === 'Block') {
+	if (ebml.type === 'Block' || ebml.type === 'SimpleBlock') {
 		const sample = getSampleFromBlock(ebml, parserContext, offset);
 
 		if (sample.type === 'video-sample') {
@@ -156,6 +164,10 @@ export const postprocessEbml = async (
 				sample.videoSample.trackId,
 				sample.videoSample,
 			);
+			return {
+				type: 'Block',
+				value: new Uint8Array([]),
+			};
 		}
 
 		if (sample.type === 'audio-sample') {
@@ -163,6 +175,17 @@ export const postprocessEbml = async (
 				sample.audioSample.trackId,
 				sample.audioSample,
 			);
+			return {
+				type: 'Block',
+				value: new Uint8Array([]),
+			};
+		}
+
+		if (sample.type === 'no-sample') {
+			return {
+				type: 'Block',
+				value: new Uint8Array([]),
+			};
 		}
 	}
 
@@ -195,5 +218,12 @@ export const postprocessEbml = async (
 				completeFrame,
 			);
 		}
+
+		return {
+			type: 'BlockGroup',
+			value: [],
+		};
 	}
+
+	return ebml;
 };
