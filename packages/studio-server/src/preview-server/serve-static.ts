@@ -17,12 +17,14 @@ export const serveStatic = async function ({
 	path,
 	req,
 	res,
+	allowOutsidePublicFolder,
 }: {
 	root: string;
 	path: string;
 	req: IncomingMessage;
 	res: ServerResponse;
-}) {
+	allowOutsidePublicFolder: boolean;
+}): Promise<void> {
 	if (req.method !== 'GET' && req.method !== 'HEAD') {
 		// method not allowed
 		res.statusCode = 405;
@@ -32,7 +34,7 @@ export const serveStatic = async function ({
 		return;
 	}
 
-	if (!RenderInternals.isPathInside(path, root)) {
+	if (!RenderInternals.isPathInside(path, root) && !allowOutsidePublicFolder) {
 		res.writeHead(500);
 		res.write('Not allowed to read');
 		res.end();
@@ -48,6 +50,17 @@ export const serveStatic = async function ({
 	}
 
 	const lstat = await promises.lstat(path);
+	if (lstat.isSymbolicLink()) {
+		const target = await promises.readlink(path);
+		return serveStatic({
+			path: target,
+			root,
+			req,
+			res,
+			allowOutsidePublicFolder: true,
+		});
+	}
+
 	const isDirectory = lstat.isDirectory();
 
 	if (isDirectory) {
