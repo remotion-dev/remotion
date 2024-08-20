@@ -16,9 +16,7 @@ import type {
 	BlockGroupSegment,
 	ClusterSegment,
 	CodecPrivateSegment,
-	DefaultDurationSegment,
 	DefaultFlagSegment,
-	LanguageSegment,
 	MaxBlockAdditionId,
 	ReferenceBlockSegment,
 	SimpleBlockOrBlockSegment,
@@ -32,9 +30,7 @@ import {
 	parseBlockElementSegment,
 	parseBlockGroupSegment,
 	parseCodecPrivateSegment,
-	parseDefaultDurationSegment,
 	parseDefaultFlagSegment,
-	parseLanguageSegment,
 	parseMaxBlockAdditionId,
 	parseReferenceBlockSegment,
 	parseSimpleBlockOrBlockSegment,
@@ -49,8 +45,6 @@ export type MatroskaSegment =
 	| MainSegment
 	| TracksSegment
 	| TrackEntrySegment
-	| LanguageSegment
-	| DefaultDurationSegment
 	| VideoSegment
 	| MaxBlockAdditionId
 	| CodecPrivateSegment
@@ -109,16 +103,8 @@ const parseSegment = async ({
 		return trackEntry;
 	}
 
-	if (segmentId === '0x22b59c') {
-		return parseLanguageSegment(iterator, length);
-	}
-
 	if (segmentId === '0x55ee') {
 		return parseMaxBlockAdditionId(iterator, length);
-	}
-
-	if (segmentId === '0x23e383') {
-		return parseDefaultDurationSegment(iterator, length);
 	}
 
 	if (segmentId === '0xe0') {

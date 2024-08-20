@@ -559,6 +559,16 @@ export const color = {
 	type: 'void',
 } as const satisfies Ebml;
 
+export const language = {
+	name: 'Language',
+	type: 'string',
+} as const satisfies Ebml;
+
+export const defaultDuration = {
+	name: 'DefaultDuration',
+	type: 'uint',
+} as const satisfies Ebml;
+
 export type CodecIdSegment = EbmlParsed<typeof codecID>;
 export type TrackTypeSegment = EbmlParsed<typeof trackType>;
 export type WidthSegment = EbmlParsed<typeof widthType>;
@@ -677,6 +687,8 @@ export const ebmlMap = {
 	[matroskaElements.TrackNumber]: trackNumber,
 	[matroskaElements.TrackUID]: trackUID,
 	[matroskaElements.Colour]: color,
+	[matroskaElements.Language]: language,
+	[matroskaElements.DefaultDuration]: defaultDuration,
 } as const satisfies Partial<Record<MatroskaElement, Ebml>>;
 
 export type PossibleEbml = Prettify<

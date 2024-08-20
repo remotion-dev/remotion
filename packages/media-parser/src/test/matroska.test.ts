@@ -160,8 +160,8 @@ test('Should get duration of AV1 video', async () => {
 									value: 0,
 								},
 								{
-									type: 'language-segment',
-									language: 'und',
+									type: 'Language',
+									value: 'und',
 								},
 								{
 									type: 'CodecID',
@@ -172,8 +172,8 @@ test('Should get duration of AV1 video', async () => {
 									value: 1,
 								},
 								{
-									type: 'default-duration-segment',
-									defaultDuration: 40000000,
+									type: 'DefaultDuration',
+									value: 40000000,
 								},
 								{
 									type: 'video-segment',

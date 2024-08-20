@@ -33,27 +33,6 @@ export const parseTrackEntry = async (
 	};
 };
 
-export type LanguageSegment = {
-	type: 'language-segment';
-	language: string;
-};
-
-export const parseLanguageSegment = (
-	iterator: BufferIterator,
-	length: number,
-): LanguageSegment => {
-	if (length !== 3) {
-		throw new Error('Expected language segment to be 3 bytes');
-	}
-
-	const language = iterator.getByteString(length);
-
-	return {
-		type: 'language-segment',
-		language,
-	};
-};
-
 export type TrackInfo = {
 	codec: string;
 	trackTimescale: number | null;
@@ -87,23 +66,6 @@ export const trackTypeToString = (trackType: number): TrackType => {
 		default:
 			throw new Error(`Unknown track type: ${trackType}`);
 	}
-};
-
-export type DefaultDurationSegment = {
-	type: 'default-duration-segment';
-	defaultDuration: number;
-};
-
-export const parseDefaultDurationSegment = (
-	iterator: BufferIterator,
-	length: number,
-): DefaultDurationSegment => {
-	const defaultDuration = iterator.getUint(length);
-
-	return {
-		type: 'default-duration-segment',
-		defaultDuration,
-	};
 };
 
 export type VideoSegment = {
