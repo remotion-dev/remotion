@@ -19,7 +19,7 @@ You may pass a [Serve URL](/docs/terminology/serve-url) or an [entry point](/doc
 
 ### `--props`
 
-[Input Props to pass to the selected composition of your video.](/docs/parameterized-rendering#passing-input-props-in-the-cli).  
+[Input Props to pass to the selected composition of your video.](/docs/passing-props#passing-input-props-in-the-cli).  
 Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`).  
 From the root component the props can be read using [`getInputProps()`](/docs/get-input-props).  
 You may transform input props using [`calculateMetadata()`](/docs/calculate-metadata).
@@ -50,7 +50,7 @@ If you don't feel like passing command line flags every time, consider creating 
 
 ### `--port`
 
-[Set a custom HTTP server port to host the Webpack bundle](/docs/config#setPort). If not defined, Remotion will try to find a free port.
+[Set a custom HTTP server port to host the Webpack bundle](/docs/config#setport). If not defined, Remotion will try to find a free port.
 
 ### `--public-dir`<AvailableFrom v="3.2.13" />
 
@@ -102,13 +102,13 @@ Only prints the composition IDs, separated by a space.
 
 _removed in v4.0_
 
-[Set a custom `ffmpeg` executable](/docs/config#setFfmpegExecutable). If not defined, a `ffmpeg` executable will be searched in `PATH`.
+[Set a custom `ffmpeg` executable](/docs/config#setffmpegexecutable). If not defined, a `ffmpeg` executable will be searched in `PATH`.
 
 ### ~~`--ffprobe-executable`~~
 
 _removed in v4.0_
 
-[Set a custom `ffprobe` executable](/docs/config#setFfprobeExecutable). If not defined, a `ffprobe` executable will be searched in `PATH`.
+[Set a custom `ffprobe` executable](/docs/config#setffprobeexecutable). If not defined, a `ffprobe` executable will be searched in `PATH`.
 
 ## See also
 
