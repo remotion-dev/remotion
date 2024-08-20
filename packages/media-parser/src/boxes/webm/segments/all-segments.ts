@@ -557,7 +557,6 @@ export type EbmlValue<T extends Ebml> = T extends EbmlWithUint8
 export type EbmlParsed<T extends Ebml> = {
 	type: T['name'];
 	value: EbmlValue<T>;
-	hex: string;
 };
 
 export const ebmlMap = {

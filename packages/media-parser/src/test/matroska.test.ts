@@ -1,6 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
-import {matroskaElements} from '../boxes/webm/segments/all-segments';
 import {nodeReader} from '../from-node';
 import {parseMedia} from '../parse-media';
 
@@ -25,41 +24,33 @@ test('Should get duration of AV1 video', async () => {
 
 	expect(parsed.boxes).toEqual([
 		{
-			hex: '0x1a45dfa3',
 			type: 'Header',
 			value: [
 				{
-					hex: '0x4286',
 					type: 'EBMLVersion',
 					value: 1,
 				},
 				{
-					hex: '0x42f7',
 					type: 'EBMLReadVersion',
 					value: 1,
 				},
 				{
-					hex: '0x42f2',
 					type: 'EBMLMaxIDLength',
 					value: 4,
 				},
 				{
-					hex: '0x42f3',
 					type: 'EBMLMaxSizeLength',
 					value: 8,
 				},
 				{
-					hex: '0x4282',
 					type: 'DocType',
 					value: 'webm',
 				},
 				{
-					hex: '0x4287',
 					type: 'DocTypeVersion',
 					value: 2,
 				},
 				{
-					hex: '0x4285',
 					type: 'DocTypeReadVersion',
 					value: 2,
 				},
@@ -76,32 +67,26 @@ test('Should get duration of AV1 video', async () => {
 							value: [
 								{
 									type: 'SeekID',
-									hex: matroskaElements.SeekID,
 									value: '0x1549a966',
 								},
 								{
 									type: 'SeekPosition',
-									hex: matroskaElements.SeekPosition,
 									value: 161,
 								},
 							],
-							hex: matroskaElements.Seek,
 						},
 						{
 							type: 'Seek',
 							value: [
 								{
 									type: 'SeekID',
-									hex: matroskaElements.SeekID,
 									value: '0x1654ae6b',
 								},
 								{
 									type: 'SeekPosition',
 									value: 214,
-									hex: matroskaElements.SeekPosition,
 								},
 							],
-							hex: matroskaElements.Seek,
 						},
 						{
 							type: 'Seek',
@@ -109,15 +94,12 @@ test('Should get duration of AV1 video', async () => {
 								{
 									type: 'SeekID',
 									value: '0x1254c367',
-									hex: matroskaElements.SeekID,
 								},
 								{
 									type: 'SeekPosition',
 									value: 322,
-									hex: matroskaElements.SeekPosition,
 								},
 							],
-							hex: matroskaElements.Seek,
 						},
 						{
 							type: 'Seek',
@@ -125,47 +107,37 @@ test('Should get duration of AV1 video', async () => {
 								{
 									type: 'SeekID',
 									value: '0x1c53bb6b',
-									hex: matroskaElements.SeekID,
 								},
 								{
 									type: 'SeekPosition',
 									value: 347329,
-									hex: matroskaElements.SeekPosition,
 								},
 							],
-							hex: matroskaElements.Seek,
 						},
 					],
-					hex: matroskaElements.SeekHead,
 				},
 				{
 					type: 'Void',
 					value: undefined,
-					hex: matroskaElements.Void,
 				},
 				{
 					type: 'Info',
-					hex: matroskaElements.Info,
 					value: [
 						{
 							type: 'TimestampScale',
 							value: 1000000,
-							hex: matroskaElements.TimestampScale,
 						},
 						{
 							type: 'MuxingApp',
 							value: 'Lavf60.3.100',
-							hex: matroskaElements.MuxingApp,
 						},
 						{
 							type: 'WritingApp',
 							value: 'Lavf60.3.100',
-							hex: matroskaElements.WritingApp,
 						},
 						{
 							type: 'Duration',
 							value: 1000,
-							hex: matroskaElements.Duration,
 						},
 					],
 				},
@@ -186,7 +158,6 @@ test('Should get duration of AV1 video', async () => {
 								{
 									type: 'FlagLacing',
 									value: 0,
-									hex: matroskaElements.FlagLacing,
 								},
 								{
 									type: 'language-segment',
@@ -195,12 +166,10 @@ test('Should get duration of AV1 video', async () => {
 								{
 									type: 'CodecID',
 									value: 'V_AV1',
-									hex: matroskaElements.CodecID,
 								},
 								{
 									type: 'TrackType',
 									value: 1,
-									hex: matroskaElements.TrackType,
 								},
 								{
 									type: 'default-duration-segment',
@@ -212,12 +181,10 @@ test('Should get duration of AV1 video', async () => {
 										{
 											type: 'PixelWidth',
 											value: 1920,
-											hex: matroskaElements.PixelWidth,
 										},
 										{
 											type: 'PixelHeight',
 											value: 1080,
-											hex: matroskaElements.PixelHeight,
 										},
 										{
 											type: 'color-segment',
@@ -509,7 +476,6 @@ test('Should get duration of AV1 video', async () => {
 					],
 				},
 				{
-					hex: '0x1c53bb6b',
 					type: 'Cues',
 					value: undefined,
 				},

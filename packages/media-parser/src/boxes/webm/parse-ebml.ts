@@ -1,6 +1,6 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import type {PossibleEbml} from './segments/all-segments';
-import {ebmlMap, type Ebml, type EbmlParsed} from './segments/all-segments';
+import {ebmlMap} from './segments/all-segments';
 
 export type Prettify<T> = {
 	[K in keyof T]: T[K];
@@ -31,7 +31,7 @@ export const parseEbml = (iterator: BufferIterator): Prettify<PossibleEbml> => {
 	if (hasInMap.type === 'uint') {
 		const value = iterator.getUint(size);
 
-		return {type: hasInMap.name, value, hex};
+		return {type: hasInMap.name, value};
 	}
 
 	if (hasInMap.type === 'string') {
@@ -40,7 +40,6 @@ export const parseEbml = (iterator: BufferIterator): Prettify<PossibleEbml> => {
 		return {
 			type: hasInMap.name,
 			value,
-			hex,
 		};
 	}
 
@@ -50,7 +49,6 @@ export const parseEbml = (iterator: BufferIterator): Prettify<PossibleEbml> => {
 		return {
 			type: hasInMap.name,
 			value,
-			hex,
 		};
 	}
 
@@ -60,7 +58,6 @@ export const parseEbml = (iterator: BufferIterator): Prettify<PossibleEbml> => {
 		return {
 			type: hasInMap.name,
 			value: undefined,
-			hex,
 		};
 	}
 
@@ -72,12 +69,11 @@ export const parseEbml = (iterator: BufferIterator): Prettify<PossibleEbml> => {
 				[...iterator.getSlice(size)]
 					.map((b) => b.toString(16).padStart(2, '0'))
 					.join(''),
-			hex,
 		};
 	}
 
 	if (hasInMap.type === 'children') {
-		const children: EbmlParsed<Ebml>[] = [];
+		const children: PossibleEbml[] = [];
 		const startOffset = iterator.counter.getOffset();
 
 		// eslint-disable-next-line no-constant-condition
@@ -97,7 +93,7 @@ export const parseEbml = (iterator: BufferIterator): Prettify<PossibleEbml> => {
 			}
 		}
 
-		return {type: hasInMap.name, value: children as PossibleEbml[], hex};
+		return {type: hasInMap.name, value: children};
 	}
 
 	// @ts-expect-error

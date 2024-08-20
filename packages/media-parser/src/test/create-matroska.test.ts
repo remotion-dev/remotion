@@ -31,40 +31,32 @@ test('Should make Matroska header that is same as input', () => {
 			{
 				type: 'EBMLVersion',
 				value: 1,
-				hex: '0x4286',
 			},
 			{
 				type: 'EBMLReadVersion',
 				value: 1,
-				hex: '0x42f7',
 			},
 			{
 				type: 'EBMLMaxIDLength',
 				value: 4,
-				hex: '0x42f2',
 			},
 			{
 				type: 'EBMLMaxSizeLength',
 				value: 8,
-				hex: '0x42f3',
 			},
 			{
 				type: 'DocType',
 				value: 'webm',
-				hex: '0x4282',
 			},
 			{
 				type: 'DocTypeVersion',
 				value: 4,
-				hex: '0x4287',
 			},
 			{
 				type: 'DocTypeReadVersion',
 				value: 2,
-				hex: '0x4285',
 			},
 		],
-		hex: '0x1a45dfa3',
 	});
 });
 
@@ -118,17 +110,13 @@ test('Should parse seekHead', async () => {
 					{
 						type: 'SeekID',
 						value: '0x1f43b675',
-						hex: '0x53ab',
 					},
 					{
 						type: 'SeekPosition',
 						value: 3911,
-						hex: '0x53ac',
 					},
 				],
-				hex: '0x4dbb',
 			},
 		],
-		hex: '0x114d9b74',
 	});
 });
