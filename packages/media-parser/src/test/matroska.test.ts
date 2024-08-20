@@ -187,8 +187,8 @@ test('Should get duration of AV1 video', async () => {
 											value: 1080,
 										},
 										{
-											type: 'color-segment',
-											length: 16,
+											type: 'Colour',
+											value: undefined,
 										},
 									],
 								},

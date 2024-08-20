@@ -183,23 +183,6 @@ export const parseMaxBlockAdditionId = (
 	};
 };
 
-export type ColorSegment = {
-	type: 'color-segment';
-	length: number;
-};
-
-export const parseColorSegment = (
-	iterator: BufferIterator,
-	length: number,
-): ColorSegment => {
-	iterator.discard(length);
-
-	return {
-		type: 'color-segment',
-		length,
-	};
-};
-
 export type CodecPrivateSegment = {
 	type: 'codec-private-segment';
 	codecPrivateData: Uint8Array;
