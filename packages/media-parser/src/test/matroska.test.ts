@@ -1,5 +1,6 @@
 import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
+import {matroskaElements} from '../boxes/webm/segments/all-segments';
 import {nodeReader} from '../from-node';
 import {parseMedia} from '../parse-media';
 
@@ -68,66 +69,79 @@ test('Should get duration of AV1 video', async () => {
 			type: 'main-segment',
 			children: [
 				{
-					type: 'seek-head-segment',
-					length: 59,
-					children: [
+					type: 'SeekHead',
+					value: [
 						{
-							type: 'seek-segment',
-							children: [
+							type: 'Seek',
+							value: [
 								{
-									type: 'seek-id-segment',
-									seekId: '0x1549a966',
+									type: 'SeekID',
+									hex: matroskaElements.SeekID,
+									value: '0x1549a966',
 								},
 								{
-									type: 'seek-position-segment',
-									seekPosition: 161,
+									type: 'SeekPosition',
+									hex: matroskaElements.SeekPosition,
+									value: 161,
 								},
 							],
+							hex: matroskaElements.Seek,
 						},
 						{
-							type: 'seek-segment',
-							children: [
+							type: 'Seek',
+							value: [
 								{
-									type: 'seek-id-segment',
-									seekId: '0x1654ae6b',
+									type: 'SeekID',
+									hex: matroskaElements.SeekID,
+									value: '0x1654ae6b',
 								},
 								{
-									type: 'seek-position-segment',
-									seekPosition: 214,
+									type: 'SeekPosition',
+									value: 214,
+									hex: matroskaElements.SeekPosition,
 								},
 							],
+							hex: matroskaElements.Seek,
 						},
 						{
-							type: 'seek-segment',
-							children: [
+							type: 'Seek',
+							value: [
 								{
-									type: 'seek-id-segment',
-									seekId: '0x1254c367',
+									type: 'SeekID',
+									value: '0x1254c367',
+									hex: matroskaElements.SeekID,
 								},
 								{
-									type: 'seek-position-segment',
-									seekPosition: 322,
+									type: 'SeekPosition',
+									value: 322,
+									hex: matroskaElements.SeekPosition,
 								},
 							],
+							hex: matroskaElements.Seek,
 						},
 						{
-							type: 'seek-segment',
-							children: [
+							type: 'Seek',
+							value: [
 								{
-									type: 'seek-id-segment',
-									seekId: '0x1c53bb6b',
+									type: 'SeekID',
+									value: '0x1c53bb6b',
+									hex: matroskaElements.SeekID,
 								},
 								{
-									type: 'seek-position-segment',
-									seekPosition: 347329,
+									type: 'SeekPosition',
+									value: 347329,
+									hex: matroskaElements.SeekPosition,
 								},
 							],
+							hex: matroskaElements.Seek,
 						},
 					],
+					hex: matroskaElements.SeekHead,
 				},
 				{
-					type: 'void-segment',
-					length: 88,
+					type: 'Void',
+					value: undefined,
+					hex: matroskaElements.Void,
 				},
 				{
 					type: 'info-segment',

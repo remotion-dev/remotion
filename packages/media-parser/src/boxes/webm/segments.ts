@@ -14,18 +14,6 @@ import {parseInfoSegment} from './segments/info';
 import {type MainSegment} from './segments/main';
 import {parseMuxingSegment, type MuxingAppSegment} from './segments/muxing';
 import {expectChildren} from './segments/parse-children';
-import type {SeekIdSegment} from './segments/seek';
-import {
-	parseSeekIdSegment,
-	parseSeekSegment,
-	type SeekSegment,
-} from './segments/seek';
-import type {SeekHeadSegment} from './segments/seek-head';
-import {parseSeekHeadSegment} from './segments/seek-head';
-import {
-	parseSeekPositionSegment,
-	type SeekPositionSegment,
-} from './segments/seek-position';
 import type {TimestampScaleSegment} from './segments/timestamp-scale';
 import {parseTimestampScaleSegment} from './segments/timestamp-scale';
 import type {
@@ -103,17 +91,11 @@ import {
 } from './segments/track-entry';
 import type {TracksSegment} from './segments/tracks';
 import {parseTracksSegment} from './segments/tracks';
-import type {VoidSegment} from './segments/void';
-import {parseVoidSegment} from './segments/void';
 import type {WritingAppSegment} from './segments/writing';
 import {parseWritingSegment} from './segments/writing';
 
 export type MatroskaSegment =
 	| MainSegment
-	| SeekHeadSegment
-	| SeekSegment
-	| SeekPositionSegment
-	| VoidSegment
 	| InfoSegment
 	| TimestampScaleSegment
 	| MuxingAppSegment
@@ -149,7 +131,6 @@ export type MatroskaSegment =
 	| SimpleBlockOrBlockSegment
 	| BlockGroupSegment
 	| BlockElement
-	| SeekIdSegment
 	| AudioSegment
 	| SamplingFrequencySegment
 	| ChannelsSegment
@@ -175,26 +156,6 @@ const parseSegment = async ({
 }): Promise<Promise<MatroskaSegment> | MatroskaSegment> => {
 	if (length === 0) {
 		throw new Error(`Expected length of ${segmentId} to be greater than 0`);
-	}
-
-	if (segmentId === '0x114d9b74') {
-		return parseSeekHeadSegment(iterator, length, parserContext);
-	}
-
-	if (segmentId === '0x53ab') {
-		return parseSeekIdSegment(iterator, length);
-	}
-
-	if (segmentId === '0x4dbb') {
-		return parseSeekSegment(iterator, length, parserContext);
-	}
-
-	if (segmentId === '0x53ac') {
-		return parseSeekPositionSegment(iterator, length);
-	}
-
-	if (segmentId === '0xec') {
-		return parseVoidSegment(iterator, length);
 	}
 
 	if (segmentId === '0x1549a966') {

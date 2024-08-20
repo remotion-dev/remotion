@@ -512,6 +512,10 @@ export const ebmlMap = {
 	[matroskaElements.Seek]: seek,
 	[matroskaElements.SeekID]: seekId,
 	[matroskaElements.SeekPosition]: seekPosition,
+	[matroskaElements.Crc32]: {
+		name: 'Crc32',
+		type: 'void',
+	},
 } as const satisfies Partial<Record<MatroskaElement, Ebml>>;
 
 export type PossibleEbml = {
