@@ -82,9 +82,11 @@ test('Should be able to create Seek', async () => {
 		await Bun.file('vp8-segments/53-0x4dbb').arrayBuffer(),
 	);
 
+	const seekPositionBytes = makeMatroskaBytes(seekPosition, 0x40);
+
 	const custom = makeMatroskaBytes(seek, {
 		SeekID: '0x1549a966',
-		SeekPosition: 0x40,
+		SeekPosition: seekPositionBytes,
 	});
 	expect(custom).toEqual(file);
 });
