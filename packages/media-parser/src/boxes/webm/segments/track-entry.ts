@@ -259,51 +259,6 @@ export const parseDefaultFlagSegment = (
 	};
 };
 
-export type TagsSegment = {
-	type: 'tags-segment';
-	children: MatroskaSegment[];
-};
-
-export const parseTagsSegment = async (
-	iterator: BufferIterator,
-	length: number,
-	parserContext: ParserContext,
-): Promise<TagsSegment> => {
-	const children = await expectChildren({
-		iterator,
-		length,
-		initialChildren: [],
-		wrap: null,
-		parserContext,
-	});
-
-	if (children.status === 'incomplete') {
-		throw new Error('Incomplete children');
-	}
-
-	return {
-		type: 'tags-segment',
-		children: children.segments as MatroskaSegment[],
-	};
-};
-
-export type TagSegment = {
-	type: 'tag-segment';
-	length: number;
-};
-
-export const parseTagSegment = (
-	iterator: BufferIterator,
-	length: number,
-): TagSegment => {
-	iterator.discard(length);
-
-	return {
-		type: 'tag-segment',
-		length,
-	};
-};
-
 export type ClusterSegment = {
 	type: 'cluster-segment';
 	children: MatroskaSegment[];

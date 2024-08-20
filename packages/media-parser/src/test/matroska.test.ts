@@ -204,15 +204,15 @@ test('Should get duration of AV1 video', async () => {
 					],
 				},
 				{
-					type: 'tags-segment',
-					children: [
+					type: 'Tags',
+					value: [
 						{
-							type: 'tag-segment',
-							length: 31,
+							type: 'Tag',
+							value: undefined,
 						},
 						{
-							type: 'tag-segment',
-							length: 51,
+							type: 'Tag',
+							value: undefined,
 						},
 					],
 				},

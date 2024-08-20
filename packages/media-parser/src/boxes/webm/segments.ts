@@ -23,8 +23,6 @@ import type {
 	MaxBlockAdditionId,
 	ReferenceBlockSegment,
 	SimpleBlockOrBlockSegment,
-	TagSegment,
-	TagsSegment,
 	TimestampSegment,
 	TrackEntrySegment,
 	TrackNumberSegment,
@@ -44,8 +42,6 @@ import {
 	parseMaxBlockAdditionId,
 	parseReferenceBlockSegment,
 	parseSimpleBlockOrBlockSegment,
-	parseTagSegment,
-	parseTagsSegment,
 	parseTimestampSegment,
 	parseTrackEntry,
 	parseTrackNumber,
@@ -68,8 +64,6 @@ export type MatroskaSegment =
 	| ColorSegment
 	| CodecPrivateSegment
 	| DefaultFlagSegment
-	| TagsSegment
-	| TagSegment
 	| ClusterSegment
 	| TimestampSegment
 	| SimpleBlockOrBlockSegment
@@ -162,14 +156,6 @@ const parseSegment = async ({
 
 	if (segmentId === '0x88') {
 		return parseDefaultFlagSegment(iterator, length);
-	}
-
-	if (segmentId === '0x1254c367') {
-		return parseTagsSegment(iterator, length, parserContext);
-	}
-
-	if (segmentId === '0x7373') {
-		return parseTagSegment(iterator, length);
 	}
 
 	if (segmentId === matroskaElements.Timestamp) {
