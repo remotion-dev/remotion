@@ -258,27 +258,6 @@ export const parseDisplayHeightSegment = (
 	};
 };
 
-export type AlphaModeSegment = {
-	type: 'alpha-mode-segment';
-	alphaMode: number;
-};
-
-export const parseAlphaModeSegment = (
-	iterator: BufferIterator,
-	length: number,
-): AlphaModeSegment => {
-	if (length !== 1) {
-		throw new Error('Expected alpha mode segment to be 1 byte');
-	}
-
-	const alphaMode = iterator.getUint8();
-
-	return {
-		type: 'alpha-mode-segment',
-		alphaMode,
-	};
-};
-
 export type MaxBlockAdditionId = {
 	type: 'max-block-addition-id-segment';
 	maxBlockAdditionId: number;
@@ -314,29 +293,6 @@ export const parseColorSegment = (
 	return {
 		type: 'color-segment',
 		length,
-	};
-};
-
-export type InterlacedSegment = {
-	type: 'interlaced-segment';
-	interlaced: boolean;
-};
-
-export const parseInterlacedSegment = (
-	iterator: BufferIterator,
-	length: number,
-): InterlacedSegment => {
-	if (length !== 1) {
-		throw new Error(
-			'Expected interlaced segment to be 1 byte, but is ' + length,
-		);
-	}
-
-	const interlaced = iterator.getUint8();
-
-	return {
-		type: 'interlaced-segment',
-		interlaced: Boolean(interlaced),
 	};
 };
 
@@ -662,57 +618,6 @@ export const parseBlockElementSegment = (
 	return {
 		type: 'block-element-segment',
 		length,
-	};
-};
-
-export type SamplingFrequencySegment = {
-	type: 'sampling-frequency-segment';
-	samplingFrequency: number;
-};
-
-export const parseSamplingFrequencySegment = (
-	iterator: BufferIterator,
-	length: number,
-): SamplingFrequencySegment => {
-	if (length === 4) {
-		return {
-			type: 'sampling-frequency-segment',
-			samplingFrequency: iterator.getFloat32(),
-		};
-	}
-
-	if (length === 8) {
-		return {
-			type: 'sampling-frequency-segment',
-			samplingFrequency: iterator.getFloat64(),
-		};
-	}
-
-	throw new Error(
-		`Expected length of sampling frequency segment to be 4 or 8, got ${length}`,
-	);
-};
-
-export type ChannelsSegment = {
-	type: 'channels-segment';
-	channels: number;
-};
-
-export const parseChannelsSegment = (
-	iterator: BufferIterator,
-	length: number,
-): ChannelsSegment => {
-	if (length !== 1) {
-		throw new Error(
-			`Expected length of channels segment to be 1, got ${length}`,
-		);
-	}
-
-	const channels = iterator.getUint8();
-
-	return {
-		type: 'channels-segment',
-		channels,
 	};
 };
 

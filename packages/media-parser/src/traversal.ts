@@ -309,17 +309,14 @@ export const getSampleRate = (track: TrackEntrySegment): number | null => {
 	}
 
 	const samplingFrequency = audioSegment.children.find(
-		(b) => b.type === 'sampling-frequency-segment',
+		(b) => b.type === 'SamplingFrequency',
 	);
 
-	if (
-		!samplingFrequency ||
-		samplingFrequency.type !== 'sampling-frequency-segment'
-	) {
+	if (!samplingFrequency || samplingFrequency.type !== 'SamplingFrequency') {
 		return null;
 	}
 
-	return samplingFrequency.samplingFrequency;
+	return samplingFrequency.value;
 };
 
 export const getNumberOfChannels = (track: TrackEntrySegment): number => {
@@ -328,15 +325,13 @@ export const getNumberOfChannels = (track: TrackEntrySegment): number => {
 		throw new Error('Could not find audio segment');
 	}
 
-	const channels = audioSegment.children.find(
-		(b) => b.type === 'channels-segment',
-	);
+	const channels = audioSegment.children.find((b) => b.type === 'Channels');
 
-	if (!channels || channels.type !== 'channels-segment') {
+	if (!channels || channels.type !== 'Channels') {
 		return 1;
 	}
 
-	return channels.channels;
+	return channels.value;
 };
 
 export const getBitDepth = (track: TrackEntrySegment): number | null => {

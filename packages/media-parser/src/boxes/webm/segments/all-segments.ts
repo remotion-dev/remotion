@@ -493,6 +493,26 @@ export const titleType = {
 	type: 'string',
 } as const satisfies Ebml;
 
+export const samplingFrequency = {
+	name: 'SamplingFrequency',
+	type: 'float',
+} as const satisfies Ebml;
+
+export const channels = {
+	name: 'Channels',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const alphaMode = {
+	name: 'AlphaMode',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const interlaced = {
+	name: 'FlagInterlaced',
+	type: 'uint',
+} as const satisfies Ebml;
+
 export type CodecIdSegment = EbmlParsed<typeof codecID>;
 export type TrackTypeSegment = EbmlParsed<typeof trackType>;
 export type WidthSegment = EbmlParsed<typeof widthType>;
@@ -596,6 +616,10 @@ export const ebmlMap = {
 	[matroskaElements.TimestampScale]: timestampScale,
 	[matroskaElements.Info]: infoType,
 	[matroskaElements.Title]: titleType,
+	[matroskaElements.SamplingFrequency]: samplingFrequency,
+	[matroskaElements.Channels]: channels,
+	[matroskaElements.AlphaMode]: alphaMode,
+	[matroskaElements.FlagInterlaced]: interlaced,
 } as const satisfies Partial<Record<MatroskaElement, Ebml>>;
 
 export type PossibleEbml = Prettify<

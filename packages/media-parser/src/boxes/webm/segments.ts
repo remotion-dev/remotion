@@ -10,13 +10,11 @@ import {matroskaElements} from './segments/all-segments';
 import {type MainSegment} from './segments/main';
 import {expectChildren} from './segments/parse-children';
 import type {
-	AlphaModeSegment,
 	AudioSegment,
 	BitDepthSegment,
 	BlockAdditionsSegment,
 	BlockElement,
 	BlockGroupSegment,
-	ChannelsSegment,
 	ClusterSegment,
 	CodecPrivateSegment,
 	ColorSegment,
@@ -25,11 +23,9 @@ import type {
 	DisplayHeightSegment,
 	DisplayWidthSegment,
 	FlagLacingSegment,
-	InterlacedSegment,
 	LanguageSegment,
 	MaxBlockAdditionId,
 	ReferenceBlockSegment,
-	SamplingFrequencySegment,
 	SimpleBlockOrBlockSegment,
 	TagSegment,
 	TagsSegment,
@@ -40,13 +36,11 @@ import type {
 	VideoSegment,
 } from './segments/track-entry';
 import {
-	parseAlphaModeSegment,
 	parseAudioSegment,
 	parseBitDepthSegment,
 	parseBlockAdditionsSegment,
 	parseBlockElementSegment,
 	parseBlockGroupSegment,
-	parseChannelsSegment,
 	parseCodecPrivateSegment,
 	parseColorSegment,
 	parseDefaultDurationSegment,
@@ -54,11 +48,9 @@ import {
 	parseDisplayHeightSegment,
 	parseDisplayWidthSegment,
 	parseFlagLacing,
-	parseInterlacedSegment,
 	parseLanguageSegment,
 	parseMaxBlockAdditionId,
 	parseReferenceBlockSegment,
-	parseSamplingFrequencySegment,
 	parseSimpleBlockOrBlockSegment,
 	parseTagSegment,
 	parseTagsSegment,
@@ -83,10 +75,8 @@ export type MatroskaSegment =
 	| VideoSegment
 	| DisplayWidthSegment
 	| DisplayHeightSegment
-	| AlphaModeSegment
 	| MaxBlockAdditionId
 	| ColorSegment
-	| InterlacedSegment
 	| CodecPrivateSegment
 	| DefaultFlagSegment
 	| TagsSegment
@@ -97,8 +87,6 @@ export type MatroskaSegment =
 	| BlockGroupSegment
 	| BlockElement
 	| AudioSegment
-	| SamplingFrequencySegment
-	| ChannelsSegment
 	| BitDepthSegment
 	| ReferenceBlockSegment
 	| BlockAdditionsSegment
@@ -192,14 +180,6 @@ const parseSegment = async ({
 		return parseDisplayHeightSegment(iterator, length);
 	}
 
-	if (segmentId === '0x9a') {
-		return parseInterlacedSegment(iterator, length);
-	}
-
-	if (segmentId === '0x53c0') {
-		return parseAlphaModeSegment(iterator, length);
-	}
-
 	if (segmentId === '0x63a2') {
 		return parseCodecPrivateSegment(iterator, length);
 	}
@@ -214,14 +194,6 @@ const parseSegment = async ({
 
 	if (segmentId === '0x7373') {
 		return parseTagSegment(iterator, length);
-	}
-
-	if (segmentId === matroskaElements.SamplingFrequency) {
-		return parseSamplingFrequencySegment(iterator, length);
-	}
-
-	if (segmentId === matroskaElements.Channels) {
-		return parseChannelsSegment(iterator, length);
 	}
 
 	if (segmentId === matroskaElements.BitDepth) {
