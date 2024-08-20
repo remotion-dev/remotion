@@ -193,8 +193,8 @@ test('Should get duration of AV1 video', async () => {
 									],
 								},
 								{
-									type: 'codec-private-segment',
-									codecPrivateData: new Uint8Array([
+									type: 'CodecPrivate',
+									value: new Uint8Array([
 										129, 8, 12, 0, 10, 14, 0, 0, 0, 66, 171, 191, 195, 118, 0,
 										8, 8, 8, 8, 32,
 									]),

@@ -145,21 +145,6 @@ export const parseMaxBlockAdditionId = (
 	};
 };
 
-export type CodecPrivateSegment = {
-	type: 'codec-private-segment';
-	codecPrivateData: Uint8Array;
-};
-
-export const parseCodecPrivateSegment = (
-	iterator: BufferIterator,
-	length: number,
-): CodecPrivateSegment => {
-	return {
-		type: 'codec-private-segment',
-		codecPrivateData: iterator.getSlice(length),
-	};
-};
-
 export type DefaultFlagSegment = {
 	type: 'default-flag-segment';
 	defaultFlag: boolean;

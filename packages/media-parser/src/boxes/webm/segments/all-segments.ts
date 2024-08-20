@@ -340,13 +340,19 @@ export type EbmlWithFloat = {
 	type: 'float';
 };
 
+export type EbmlWithUint8Array = {
+	name: MatroskaKey;
+	type: 'uint8array';
+};
+
 export type Ebml =
 	| EbmlWithString
 	| EbmlWithUint8
 	| EbmlWithChildren
 	| EbmlWithVoid
 	| EbmlWithFloat
-	| EbmlWithHexString;
+	| EbmlWithHexString
+	| EbmlWithUint8Array;
 
 export const ebmlVersion = {
 	name: 'EBMLVersion',
@@ -395,6 +401,7 @@ export type EmblTypes = {
 	children: HeaderStructure;
 	void: undefined;
 	'hex-string': string;
+	uint8array: Uint8Array;
 };
 
 export type HeaderStructure = Ebml[];
@@ -569,6 +576,11 @@ export const defaultDuration = {
 	type: 'uint',
 } as const satisfies Ebml;
 
+export const codecPrivate = {
+	name: 'CodecPrivate',
+	type: 'uint8array',
+} as const satisfies Ebml;
+
 export type CodecIdSegment = EbmlParsed<typeof codecID>;
 export type TrackTypeSegment = EbmlParsed<typeof trackType>;
 export type WidthSegment = EbmlParsed<typeof widthType>;
@@ -589,7 +601,9 @@ export type EbmlValue<T extends Ebml> = T extends EbmlWithUint8
 				? number
 				: T extends EbmlWithHexString
 					? string
-					: PossibleEbml[];
+					: T extends EbmlWithUint8Array
+						? Uint8Array
+						: PossibleEbml[];
 
 export type EbmlParsed<T extends Ebml> = {
 	type: T['name'];
@@ -689,6 +703,7 @@ export const ebmlMap = {
 	[matroskaElements.Colour]: color,
 	[matroskaElements.Language]: language,
 	[matroskaElements.DefaultDuration]: defaultDuration,
+	[matroskaElements.CodecPrivate]: codecPrivate,
 } as const satisfies Partial<Record<MatroskaElement, Ebml>>;
 
 export type PossibleEbml = Prettify<

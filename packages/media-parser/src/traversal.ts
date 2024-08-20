@@ -350,15 +350,13 @@ export const getBitDepth = (track: TrackEntrySegment): number | null => {
 };
 
 export const getPrivateData = (track: TrackEntrySegment): Uint8Array | null => {
-	const privateData = track.children.find(
-		(b) => b.type === 'codec-private-segment',
-	);
+	const privateData = track.children.find((b) => b.type === 'CodecPrivate');
 
-	if (!privateData || privateData.type !== 'codec-private-segment') {
+	if (!privateData || privateData.type !== 'CodecPrivate') {
 		return null;
 	}
 
-	return privateData.codecPrivateData;
+	return privateData.value;
 };
 
 export const getWidthSegment = (

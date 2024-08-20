@@ -72,6 +72,13 @@ export const parseEbml = (iterator: BufferIterator): Prettify<PossibleEbml> => {
 		};
 	}
 
+	if (hasInMap.type === 'uint8array') {
+		return {
+			type: hasInMap.name,
+			value: iterator.getSlice(size),
+		};
+	}
+
 	if (hasInMap.type === 'children') {
 		const children: PossibleEbml[] = [];
 		const startOffset = iterator.counter.getOffset();
