@@ -51,6 +51,7 @@ test('Should be able to parse a STSD audio box correctly', async () => {
 				hasVideoCallbacks: false,
 				signal: undefined,
 			}),
+			nullifySamples: false,
 		},
 	});
 
@@ -216,6 +217,7 @@ test('Should be able to parse a STSD video box correctly', async () => {
 				hasVideoCallbacks: false,
 				signal: undefined,
 			}),
+			nullifySamples: false,
 		},
 	});
 	expect(parsed.sample).toEqual({

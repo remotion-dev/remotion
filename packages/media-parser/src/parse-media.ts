@@ -52,6 +52,11 @@ export const parseMedia: ParseMedia = async ({
 		onAudioTrack: onAudioTrack ?? null,
 		onVideoTrack: onVideoTrack ?? null,
 		parserState: state,
+		nullifySamples: !(
+			typeof process !== 'undefined' &&
+			typeof process.env !== 'undefined' &&
+			process.env.KEEP_SAMPLES === 'true'
+		),
 	};
 
 	while (parseResult === null || parseResult.status === 'incomplete') {

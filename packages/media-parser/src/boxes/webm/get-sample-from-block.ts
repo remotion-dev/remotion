@@ -65,7 +65,7 @@ export const getSampleFromBlock = (
 	const timecodeInMicroseconds = timecodeInNanoSeconds / 1000;
 
 	if (!codec) {
-		throw new Error('Could not find codec for track ' + trackNumber);
+		throw new Error(`Could not find codec for track ${trackNumber}`);
 	}
 
 	const remainingNow = ebml.value.length - (iterator.counter.getOffset() - 0);

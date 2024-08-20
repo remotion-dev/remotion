@@ -24,6 +24,7 @@ const options: ParserContext = {
 	onAudioTrack: null,
 	onVideoTrack: null,
 	parserState: state,
+	nullifySamples: false,
 };
 
 test('Should make Matroska header that is same as input', async () => {

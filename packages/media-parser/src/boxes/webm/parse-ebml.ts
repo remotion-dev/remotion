@@ -159,7 +159,7 @@ export const postprocessEbml = async ({
 	if (ebml.type === 'Block' || ebml.type === 'SimpleBlock') {
 		const sample = getSampleFromBlock(ebml, parserContext, offset);
 
-		if (sample.type === 'video-sample') {
+		if (sample.type === 'video-sample' && parserContext.nullifySamples) {
 			await parserContext.parserState.onVideoSample(
 				sample.videoSample.trackId,
 				sample.videoSample,
@@ -170,7 +170,7 @@ export const postprocessEbml = async ({
 			};
 		}
 
-		if (sample.type === 'audio-sample') {
+		if (sample.type === 'audio-sample' && parserContext.nullifySamples) {
 			await parserContext.parserState.onAudioSample(
 				sample.audioSample.trackId,
 				sample.audioSample,
@@ -181,7 +181,7 @@ export const postprocessEbml = async ({
 			};
 		}
 
-		if (sample.type === 'no-sample') {
+		if (sample.type === 'no-sample' && parserContext.nullifySamples) {
 			return {
 				type: 'Block',
 				value: new Uint8Array([]),
