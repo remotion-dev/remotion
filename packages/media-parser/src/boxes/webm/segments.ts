@@ -4,6 +4,8 @@ import type {ParseResult} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
 import type {VideoSample} from '../../webcodec-sample-types';
 import {getTrack} from './get-track';
+import {parseEbml} from './parse-ebml';
+import type {PossibleEbml} from './segments/all-segments';
 import {matroskaElements} from './segments/all-segments';
 import type {DurationSegment} from './segments/duration';
 import {parseDurationSegment} from './segments/duration';
@@ -101,8 +103,6 @@ import {
 } from './segments/track-entry';
 import type {TracksSegment} from './segments/tracks';
 import {parseTracksSegment} from './segments/tracks';
-import type {UnknownSegment} from './segments/unknown';
-import {parseUnknownSegment} from './segments/unknown';
 import type {VoidSegment} from './segments/void';
 import {parseVoidSegment} from './segments/void';
 import type {WritingAppSegment} from './segments/writing';
@@ -110,7 +110,6 @@ import {parseWritingSegment} from './segments/writing';
 
 export type MatroskaSegment =
 	| MainSegment
-	| UnknownSegment
 	| SeekHeadSegment
 	| SeekSegment
 	| SeekPositionSegment
@@ -156,7 +155,8 @@ export type MatroskaSegment =
 	| ChannelsSegment
 	| BitDepthSegment
 	| ReferenceBlockSegment
-	| BlockAdditionsSegment;
+	| BlockAdditionsSegment
+	| PossibleEbml;
 
 export type OnTrackEntrySegment = (trackEntry: TrackEntrySegment) => void;
 
@@ -165,39 +165,24 @@ const parseSegment = async ({
 	iterator,
 	length,
 	parserContext,
+	headerReadSoFar,
 }: {
 	segmentId: string;
 	iterator: BufferIterator;
 	length: number;
 	parserContext: ParserContext;
+	headerReadSoFar: number;
 }): Promise<Promise<MatroskaSegment> | MatroskaSegment> => {
 	if (length === 0) {
 		throw new Error(`Expected length of ${segmentId} to be greater than 0`);
 	}
-
-	if (segmentId === '0x') {
-		return {
-			type: 'unknown-segment',
-			id: segmentId,
-		};
-	}
-
-	// Log this to debug
-	/*
-	console.log(
-		'segmentId',
-		segmentId,
-		getSegmentName(segmentId),
-		iterator.counter.getOffset(),
-	);
-	*/
 
 	if (segmentId === '0x114d9b74') {
 		return parseSeekHeadSegment(iterator, length, parserContext);
 	}
 
 	if (segmentId === '0x53ab') {
-		return parseSeekIdSegment(iterator);
+		return parseSeekIdSegment(iterator, length);
 	}
 
 	if (segmentId === '0x4dbb') {
@@ -442,22 +427,17 @@ const parseSegment = async ({
 		return parseBlockElementSegment(iterator, length);
 	}
 
-	const bytesRemaining = iterator.byteLength() - iterator.counter.getOffset();
-	const toDiscard = Math.min(
-		bytesRemaining,
-		length > 0 ? length : bytesRemaining,
-	);
+	iterator.counter.decrement(headerReadSoFar);
 
-	const child = parseUnknownSegment(iterator, segmentId, toDiscard);
-	return child;
+	return parseEbml(iterator);
 };
 
 export const expectSegment = async (
 	iterator: BufferIterator,
 	parserContext: ParserContext,
 ): Promise<ParseResult> => {
-	const bytesRemaining_ = iterator.bytesRemaining();
-	if (bytesRemaining_ === 0) {
+	const offset = iterator.counter.getOffset();
+	if (iterator.bytesRemaining() === 0) {
 		return {
 			status: 'incomplete',
 			segments: [],
@@ -468,9 +448,33 @@ export const expectSegment = async (
 		};
 	}
 
-	const offset = iterator.counter.getOffset();
 	const segmentId = iterator.getMatroskaSegmentId();
+
+	if (segmentId === null) {
+		iterator.counter.decrement(iterator.counter.getOffset() - offset);
+		return {
+			status: 'incomplete',
+			segments: [],
+			continueParsing: () => {
+				return Promise.resolve(expectSegment(iterator, parserContext));
+			},
+			skipTo: null,
+		};
+	}
+
 	const length = iterator.getVint();
+	if (length === null) {
+		iterator.counter.decrement(iterator.counter.getOffset() - offset);
+		return {
+			status: 'incomplete',
+			segments: [],
+			continueParsing: () => {
+				return Promise.resolve(expectSegment(iterator, parserContext));
+			},
+			skipTo: null,
+		};
+	}
+
 	const bytesRemainingNow =
 		iterator.byteLength() - iterator.counter.getOffset();
 
@@ -525,6 +529,7 @@ export const expectSegment = async (
 		iterator,
 		length,
 		parserContext,
+		headerReadSoFar: iterator.counter.getOffset() - offset,
 	});
 
 	return {

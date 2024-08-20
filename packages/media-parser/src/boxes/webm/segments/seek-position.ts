@@ -9,7 +9,7 @@ export const parseSeekPositionSegment = (
 	iterator: BufferIterator,
 	length: number,
 ): SeekPositionSegment => {
-	const seekPosition = iterator.getDecimalBytes(length);
+	const seekPosition = iterator.getUint(length);
 
 	return {
 		type: 'seek-position-segment',

@@ -1,7 +1,8 @@
 export const matroskaElements = {
+	Header: '0x1a45dfa3',
 	EBMLMaxIDLength: '0x42f2',
 	EBMLVersion: '0x4286',
-	EBMLReadVersion: '0x42F7',
+	EBMLReadVersion: '0x42f7',
 	EBMLMaxSizeLength: '0x42f3',
 	DocType: '0x4282',
 	DocTypeVersion: '0x4287',
@@ -289,62 +290,109 @@ export const getSegmentName = (id: string) => {
 	)?.[0];
 };
 
-export type MatroskaElement =
-	(typeof matroskaElements)[keyof typeof matroskaElements];
+export const getIdForName = (name: string) => {
+	const value = Object.entries(matroskaElements).find(
+		([key]) => key === name,
+	)?.[1];
+	if (!value) {
+		throw new Error(`Could not find id for name ${name}`);
+	}
 
-type EbmlType = 'uint-8' | 'string';
+	return value;
+};
 
-export type Ebml = {
-	name: string;
-	value: MatroskaElement;
+export type MatroskaKey = keyof typeof matroskaElements;
+
+export type MatroskaElement = (typeof matroskaElements)[MatroskaKey];
+
+type EbmlType = 'string';
+
+export type EbmlWithChildren = {
+	name: MatroskaKey;
+	type: 'children';
+	children: HeaderStructure;
+};
+
+export type EbmlWithUint8 = {
+	name: MatroskaKey;
+	type: 'uint';
+};
+
+export type EbmlWithHexString = {
+	name: MatroskaKey;
+	type: 'hex-string';
+};
+
+export type EbmlWithString = {
+	name: MatroskaKey;
 	type: EbmlType;
 };
 
+export type EbmlWithVoid = {
+	name: MatroskaKey;
+	type: 'void';
+};
+
+export type EbmlWithFloat = {
+	name: MatroskaKey;
+	type: 'float';
+};
+
+export type Ebml =
+	| EbmlWithString
+	| EbmlWithUint8
+	| EbmlWithChildren
+	| EbmlWithVoid
+	| EbmlWithFloat
+	| EbmlWithHexString;
+
 export const ebmlVersion = {
-	name: 'EBMLVersion' as const,
-	value: matroskaElements.EBMLVersion,
-	type: 'uint-8',
+	name: 'EBMLVersion',
+	type: 'uint',
 } satisfies Ebml;
 
 export const ebmlReadVersion = {
-	name: 'EBMLReadVersion' as const,
-	value: matroskaElements.EBMLReadVersion,
-	type: 'uint-8',
+	name: 'EBMLReadVersion',
+	type: 'uint',
 } satisfies Ebml;
 
 export const ebmlMaxIdLength = {
-	name: 'EBMLMaxIDLength' as const,
-	value: matroskaElements.EBMLMaxIDLength,
-	type: 'uint-8',
+	name: 'EBMLMaxIDLength',
+	type: 'uint',
 } satisfies Ebml;
 
 export const ebmlMaxSizeLength = {
-	name: 'EBMLMaxSizeLength' as const,
-	value: matroskaElements.EBMLMaxSizeLength,
-	type: 'uint-8',
+	name: 'EBMLMaxSizeLength',
+	type: 'uint',
 } satisfies Ebml;
 
 export const docType = {
-	name: 'DocType' as const,
-	value: matroskaElements.DocType,
+	name: 'DocType',
 	type: 'string',
 } satisfies Ebml;
 
 export const docTypeVersion = {
-	name: 'DocTypeVersion' as const,
-	value: matroskaElements.DocTypeVersion,
-	type: 'uint-8',
+	name: 'DocTypeVersion',
+	type: 'uint',
 } satisfies Ebml;
 
 export const docTypeReadVersion = {
-	name: 'DocTypeReadVersion' as const,
-	value: matroskaElements.DocTypeReadVersion,
-	type: 'uint-8',
+	name: 'DocTypeReadVersion',
+	type: 'uint',
+} satisfies Ebml;
+
+export const voidEbml = {
+	name: 'Void',
+	type: 'void',
 } satisfies Ebml;
 
 export type EmblTypes = {
-	'uint-8': number;
+	uint: number;
+	float: number;
 	string: string;
+	children: HeaderStructure;
+	void: undefined;
+	'hex-string': string;
 };
 
 export type HeaderStructure = Ebml[];
@@ -358,3 +406,106 @@ export const matroskaHeaderStructure = [
 	docTypeVersion,
 	docTypeReadVersion,
 ] as const satisfies HeaderStructure;
+
+export const matroskaHeader = {
+	name: 'Header',
+	type: 'children',
+	children: matroskaHeaderStructure,
+} as const satisfies Ebml;
+
+export const seekId = {
+	name: 'SeekID',
+	type: 'hex-string',
+} as const satisfies Ebml;
+
+export const seekPosition = {
+	name: 'SeekPosition',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const seek = {
+	name: 'Seek',
+	type: 'children',
+	children: [seekId, seekPosition],
+} as const satisfies Ebml;
+
+export const voidHeader = {
+	name: 'Void',
+	type: 'void',
+} as const satisfies Ebml;
+
+export type EbmlValue<T extends Ebml> = T extends EbmlWithUint8
+	? number
+	: T extends EbmlWithVoid
+		? undefined
+		: T extends EbmlWithString
+			? string
+			: T extends EbmlWithFloat
+				? number
+				: EbmlParsed<Ebml>[];
+
+export type EbmlParsed<T extends Ebml> = {
+	type: T['name'];
+	value: EbmlValue<T>;
+	hex: string;
+};
+
+export const ebmlMap = {
+	[matroskaElements.Header]: matroskaHeader,
+	[matroskaElements.DocType]: docType,
+	[matroskaElements.DocTypeVersion]: docTypeVersion,
+	[matroskaElements.DocTypeReadVersion]: docTypeReadVersion,
+	[matroskaElements.EBMLVersion]: ebmlVersion,
+	[matroskaElements.EBMLReadVersion]: ebmlReadVersion,
+	[matroskaElements.EBMLMaxIDLength]: ebmlMaxIdLength,
+	[matroskaElements.EBMLMaxSizeLength]: ebmlMaxSizeLength,
+	[matroskaElements.Void]: voidEbml,
+	[matroskaElements.Cues]: {
+		name: 'Cues',
+		type: 'void',
+	},
+	[matroskaElements.DateUTC]: {
+		name: 'DateUTC',
+		type: 'void',
+	},
+	[matroskaElements.TrackTimestampScale]: {
+		name: 'TrackTimestampScale',
+		type: 'float',
+	},
+	[matroskaElements.CodecDelay]: {
+		name: 'CodecDelay',
+		type: 'void',
+	},
+	[matroskaElements.SeekPreRoll]: {
+		name: 'SeekPreRoll',
+		type: 'void',
+	},
+	[matroskaElements.DiscardPadding]: {
+		name: 'DiscardPadding',
+		type: 'void',
+	},
+	[matroskaElements.OutputSamplingFrequency]: {
+		name: 'OutputSamplingFrequency',
+		type: 'void',
+	},
+	[matroskaElements.CodecName]: {
+		name: 'CodecName',
+		type: 'void',
+	},
+	[matroskaElements.Position]: {
+		name: 'Position',
+		type: 'void',
+	},
+	[matroskaElements.SliceDuration]: {
+		name: 'SliceDuration',
+		type: 'void',
+	},
+} as const satisfies Partial<Record<MatroskaElement, Ebml>>;
+
+export type PossibleEbml = {
+	[key in keyof typeof ebmlMap]: {
+		type: (typeof ebmlMap)[key]['name'];
+		value: EbmlValue<(typeof ebmlMap)[key]>;
+		hex: string;
+	};
+}[keyof typeof ebmlMap];
