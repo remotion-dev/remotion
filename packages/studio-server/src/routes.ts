@@ -381,6 +381,7 @@ export const handleRoutes = ({
 			path: filePath,
 			req: request,
 			res: response,
+			allowOutsidePublicFolder: false,
 		});
 	}
 
@@ -400,6 +401,7 @@ export const handleRoutes = ({
 			path: filePath,
 			req: request,
 			res: response,
+			allowOutsidePublicFolder: false,
 		});
 	}
 

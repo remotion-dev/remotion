@@ -38,6 +38,14 @@ export const fetchReader: ReaderInterface = {
 			// Disable Next.js caching
 			cache: 'no-store',
 		});
+
+		if (
+			res.status.toString().startsWith('4') ||
+			res.status.toString().startsWith('5')
+		) {
+			throw new Error(`Server returned status code ${res.status} for ${src}`);
+		}
+
 		if (!res.body) {
 			throw new Error('No body');
 		}
