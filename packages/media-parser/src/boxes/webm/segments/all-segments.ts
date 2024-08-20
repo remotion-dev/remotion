@@ -581,6 +581,28 @@ export const codecPrivate = {
 	type: 'uint8array',
 } as const satisfies Ebml;
 
+export const blockAdditionsSegment = {
+	name: 'BlockAdditions',
+	type: 'uint8array',
+} as const satisfies Ebml;
+
+export const maxBlockAdditionIdSegment = {
+	name: 'MaxBlockAdditionID',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const audioSegment = {
+	name: 'Audio',
+	type: 'children',
+	children: [samplingFrequency, channels, bitDepth],
+} as const satisfies Ebml;
+
+export const videoSegment = {
+	name: 'Video',
+	type: 'children',
+	children: [heightType, displayHeight, displayWidth, widthType],
+} as const satisfies Ebml;
+
 export type CodecIdSegment = EbmlParsed<typeof codecID>;
 export type TrackTypeSegment = EbmlParsed<typeof trackType>;
 export type WidthSegment = EbmlParsed<typeof widthType>;
@@ -590,6 +612,8 @@ export type DurationSegment = EbmlParsed<typeof duration>;
 export type DisplayWidthSegment = EbmlParsed<typeof displayWidth>;
 export type DisplayHeightSegment = EbmlParsed<typeof displayHeight>;
 export type TrackNumberSegment = EbmlParsed<typeof trackNumber>;
+export type AudioSegment = EbmlParsed<typeof audioSegment>;
+export type VideoSegment = EbmlParsed<typeof videoSegment>;
 
 export type EbmlValue<T extends Ebml> = T extends EbmlWithUint8
 	? number
@@ -704,6 +728,10 @@ export const ebmlMap = {
 	[matroskaElements.Language]: language,
 	[matroskaElements.DefaultDuration]: defaultDuration,
 	[matroskaElements.CodecPrivate]: codecPrivate,
+	[matroskaElements.BlockAdditions]: blockAdditionsSegment,
+	[matroskaElements.MaxBlockAdditionID]: maxBlockAdditionIdSegment,
+	[matroskaElements.Audio]: audioSegment,
+	[matroskaElements.Video]: videoSegment,
 } as const satisfies Partial<Record<MatroskaElement, Ebml>>;
 
 export type PossibleEbml = Prettify<

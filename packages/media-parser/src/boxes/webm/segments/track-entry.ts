@@ -68,83 +68,6 @@ export const trackTypeToString = (trackType: number): TrackType => {
 	}
 };
 
-export type VideoSegment = {
-	type: 'video-segment';
-	children: MatroskaSegment[];
-};
-
-export const parseVideoSegment = async (
-	iterator: BufferIterator,
-	length: number,
-	parserContext: ParserContext,
-): Promise<VideoSegment> => {
-	const children = await expectChildren({
-		iterator,
-		length,
-		initialChildren: [],
-		wrap: null,
-		parserContext,
-	});
-
-	if (children.status === 'incomplete') {
-		throw new Error('Incomplete children');
-	}
-
-	return {
-		type: 'video-segment',
-		children: children.segments as MatroskaSegment[],
-	};
-};
-
-export type AudioSegment = {
-	type: 'audio-segment';
-	children: MatroskaSegment[];
-};
-
-export const parseAudioSegment = async (
-	iterator: BufferIterator,
-	length: number,
-	parserContext: ParserContext,
-): Promise<AudioSegment> => {
-	const children = await expectChildren({
-		iterator,
-		length,
-		initialChildren: [],
-		wrap: null,
-		parserContext,
-	});
-
-	if (children.status === 'incomplete') {
-		throw new Error('Incomplete children');
-	}
-
-	return {
-		type: 'audio-segment',
-		children: children.segments as MatroskaSegment[],
-	};
-};
-
-export type MaxBlockAdditionId = {
-	type: 'max-block-addition-id-segment';
-	maxBlockAdditionId: number;
-};
-
-export const parseMaxBlockAdditionId = (
-	iterator: BufferIterator,
-	length: number,
-): MaxBlockAdditionId => {
-	if (length !== 1) {
-		throw new Error('Expected alpha mode segment to be 1 byte');
-	}
-
-	const maxBlockAdditionId = iterator.getUint8();
-
-	return {
-		type: 'max-block-addition-id-segment',
-		maxBlockAdditionId,
-	};
-};
-
 export type DefaultFlagSegment = {
 	type: 'default-flag-segment';
 	defaultFlag: boolean;
@@ -357,23 +280,6 @@ export const parseReferenceBlockSegment = (
 	return {
 		type: 'reference-block-segment',
 		referenceBlock,
-	};
-};
-
-export type BlockAdditionsSegment = {
-	type: 'block-additions-segment';
-	blockAdditions: Uint8Array;
-};
-
-export const parseBlockAdditionsSegment = (
-	iterator: BufferIterator,
-	length: number,
-): BlockAdditionsSegment => {
-	const blockAdditions = iterator.getSlice(length);
-
-	return {
-		type: 'block-additions-segment',
-		blockAdditions,
 	};
 };
 

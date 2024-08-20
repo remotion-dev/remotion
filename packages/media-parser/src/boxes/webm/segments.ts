@@ -10,31 +10,23 @@ import {matroskaElements} from './segments/all-segments';
 import {type MainSegment} from './segments/main';
 import {expectChildren} from './segments/parse-children';
 import type {
-	AudioSegment,
-	BlockAdditionsSegment,
 	BlockElement,
 	BlockGroupSegment,
 	ClusterSegment,
 	DefaultFlagSegment,
-	MaxBlockAdditionId,
 	ReferenceBlockSegment,
 	SimpleBlockOrBlockSegment,
 	TimestampSegment,
 	TrackEntrySegment,
-	VideoSegment,
 } from './segments/track-entry';
 import {
-	parseAudioSegment,
-	parseBlockAdditionsSegment,
 	parseBlockElementSegment,
 	parseBlockGroupSegment,
 	parseDefaultFlagSegment,
-	parseMaxBlockAdditionId,
 	parseReferenceBlockSegment,
 	parseSimpleBlockOrBlockSegment,
 	parseTimestampSegment,
 	parseTrackEntry,
-	parseVideoSegment,
 } from './segments/track-entry';
 import type {TracksSegment} from './segments/tracks';
 import {parseTracksSegment} from './segments/tracks';
@@ -43,17 +35,13 @@ export type MatroskaSegment =
 	| MainSegment
 	| TracksSegment
 	| TrackEntrySegment
-	| VideoSegment
-	| MaxBlockAdditionId
 	| DefaultFlagSegment
 	| ClusterSegment
 	| TimestampSegment
 	| SimpleBlockOrBlockSegment
 	| BlockGroupSegment
 	| BlockElement
-	| AudioSegment
 	| ReferenceBlockSegment
-	| BlockAdditionsSegment
 	| PossibleEbml;
 
 export type OnTrackEntrySegment = (trackEntry: TrackEntrySegment) => void;
@@ -100,18 +88,6 @@ const parseSegment = async ({
 		return trackEntry;
 	}
 
-	if (segmentId === '0x55ee') {
-		return parseMaxBlockAdditionId(iterator, length);
-	}
-
-	if (segmentId === '0xe0') {
-		return parseVideoSegment(iterator, length, parserContext);
-	}
-
-	if (segmentId === '0xe1') {
-		return parseAudioSegment(iterator, length, parserContext);
-	}
-
 	if (segmentId === '0x88') {
 		return parseDefaultFlagSegment(iterator, length);
 	}
@@ -142,10 +118,6 @@ const parseSegment = async ({
 
 	if (segmentId === matroskaElements.ReferenceBlock) {
 		return parseReferenceBlockSegment(iterator, length);
-	}
-
-	if (segmentId === matroskaElements.BlockAdditions) {
-		return parseBlockAdditionsSegment(iterator, length);
 	}
 
 	if (segmentId === '0xa0') {

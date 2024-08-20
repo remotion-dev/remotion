@@ -176,8 +176,8 @@ test('Should get duration of AV1 video', async () => {
 									value: 40000000,
 								},
 								{
-									type: 'video-segment',
-									children: [
+									type: 'Video',
+									value: [
 										{
 											type: 'PixelWidth',
 											value: 1920,
