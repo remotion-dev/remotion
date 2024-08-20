@@ -1,15 +1,6 @@
 import {getVariableInt} from './ebml';
-import type {Prettify} from './parse-ebml';
-import type {
-	Ebml,
-	EbmlWithChildren,
-	EbmlWithHexString,
-	EbmlWithString,
-	EbmlWithUint8,
-	HeaderStructure,
-	matroskaElements,
-} from './segments/all-segments';
-import {getIdForName} from './segments/all-segments';
+import type {PossibleEbml, matroskaElements} from './segments/all-segments';
+import {ebmlMap, getIdForName} from './segments/all-segments';
 
 export const webmPattern = new Uint8Array([0x1a, 0x45, 0xdf, 0xa3]);
 
@@ -25,25 +16,6 @@ const matroskaToHex = (
 
 	return numbers;
 };
-
-type Numbers = '0' | '1' | '2' | '3' | '4' | '5' | '6';
-
-type ChildFields<StructArray extends HeaderStructure> = {
-	[key in keyof StructArray &
-		Numbers as StructArray[key]['name']]: SerializeValue<StructArray[key]>;
-};
-
-type SerializeValue<Struct extends Ebml> =
-	| Uint8Array
-	| (Struct extends EbmlWithChildren
-			? Prettify<ChildFields<Struct['children']>>
-			: Struct extends EbmlWithString
-				? string
-				: Struct extends EbmlWithUint8
-					? number
-					: Struct extends EbmlWithHexString
-						? string
-						: undefined);
 
 function putUintDynamic(number: number) {
 	if (number < 0) {
@@ -64,36 +36,29 @@ function putUintDynamic(number: number) {
 	return bytes;
 }
 
-const makeFromHeaderStructure = <Struct extends Ebml>(
-	struct: Struct,
-	fields: SerializeValue<Struct>,
-): Uint8Array => {
+const makeFromHeaderStructure = (fields: PossibleEbml): Uint8Array => {
 	const arrays: Uint8Array[] = [];
 
+	const struct = ebmlMap[getIdForName(fields.type)];
+
 	if (struct.type === 'children') {
-		for (const item of struct.children) {
-			arrays.push(
-				makeMatroskaBytes(
-					item,
-					// @ts-expect-error
-					fields[item.name],
-				),
-			);
+		for (const item of fields.value as PossibleEbml[]) {
+			arrays.push(makeMatroskaBytes(item));
 		}
 
 		return combineUint8Arrays(arrays);
 	}
 
 	if (struct.type === 'string') {
-		return new TextEncoder().encode(fields as string);
+		return new TextEncoder().encode(fields.value as string);
 	}
 
 	if (struct.type === 'uint') {
-		return putUintDynamic(fields as number);
+		return putUintDynamic(fields.value as number);
 	}
 
 	if (struct.type === 'hex-string') {
-		const hex = (fields as string).substring(2);
+		const hex = (fields.value as string).substring(2);
 		const arr = new Uint8Array(hex.length / 2);
 		for (let i = 0; i < hex.length; i += 2) {
 			const byte = parseInt(hex.substring(i, i + 2), 16);
@@ -110,18 +75,15 @@ const makeFromHeaderStructure = <Struct extends Ebml>(
 	throw new Error('Unexpected type');
 };
 
-export const makeMatroskaBytes = <Struct extends Ebml>(
-	struct: Struct,
-	fields: SerializeValue<Struct>,
-) => {
+export const makeMatroskaBytes = (fields: PossibleEbml | Uint8Array) => {
 	if (fields instanceof Uint8Array) {
 		return fields;
 	}
 
-	const value = makeFromHeaderStructure(struct, fields);
+	const value = makeFromHeaderStructure(fields);
 
 	return combineUint8Arrays([
-		matroskaToHex(getIdForName(struct.name)),
+		matroskaToHex(getIdForName(fields.type)),
 		getVariableInt(value.length),
 		value,
 	]);

@@ -292,7 +292,7 @@ export const getSegmentName = (id: string) => {
 	)?.[0];
 };
 
-export const getIdForName = (name: string) => {
+export const getIdForName = (name: string): EbmlMapKey => {
 	const value = Object.entries(matroskaElements).find(
 		([key]) => key === name,
 	)?.[1];
@@ -300,7 +300,7 @@ export const getIdForName = (name: string) => {
 		throw new Error(`Could not find id for name ${name}`);
 	}
 
-	return value;
+	return value as EbmlMapKey;
 };
 
 export type MatroskaKey = keyof typeof matroskaElements;
@@ -312,7 +312,6 @@ type EbmlType = 'string';
 export type EbmlWithChildren = {
 	name: MatroskaKey;
 	type: 'children';
-	children: HeaderStructure;
 };
 
 export type EbmlWithUint8 = {
@@ -398,13 +397,11 @@ export type EmblTypes = {
 	uint: number;
 	float: number;
 	string: string;
-	children: HeaderStructure;
+	children: Ebml[];
 	void: undefined;
 	'hex-string': string;
 	uint8array: Uint8Array;
 };
-
-export type HeaderStructure = Ebml[];
 
 export const matroskaHeaderStructure = [
 	ebmlVersion,
@@ -414,12 +411,11 @@ export const matroskaHeaderStructure = [
 	docType,
 	docTypeVersion,
 	docTypeReadVersion,
-] as const satisfies HeaderStructure;
+] as const satisfies Ebml[];
 
 export const matroskaHeader = {
 	name: 'Header',
 	type: 'children',
-	children: matroskaHeaderStructure,
 } as const satisfies Ebml;
 
 export const seekId = {
@@ -435,13 +431,11 @@ export const seekPosition = {
 export const seek = {
 	name: 'Seek',
 	type: 'children',
-	children: [seekId, seekPosition],
 } as const satisfies Ebml;
 
 export const seekHead = {
 	name: 'SeekHead',
 	type: 'children',
-	children: [seek],
 } as const satisfies Ebml;
 
 export const voidHeader = {
@@ -492,7 +486,6 @@ export const writingApp = {
 export const infoType = {
 	name: 'Info',
 	type: 'children',
-	children: [muxingApp, timestampScale, writingApp, duration],
 } as const satisfies Ebml;
 
 export const titleType = {
@@ -548,7 +541,6 @@ export const tagSegment = {
 export const tags = {
 	name: 'Tags',
 	type: 'children',
-	children: [tagSegment],
 } as const satisfies Ebml;
 
 export const trackNumber = {
@@ -594,13 +586,11 @@ export const maxBlockAdditionIdSegment = {
 export const audioSegment = {
 	name: 'Audio',
 	type: 'children',
-	children: [samplingFrequency, channels, bitDepth],
 } as const satisfies Ebml;
 
 export const videoSegment = {
 	name: 'Video',
 	type: 'children',
-	children: [heightType, displayHeight, displayWidth, widthType],
 } as const satisfies Ebml;
 
 export const flagDefault = {
@@ -631,22 +621,11 @@ export const trackTimestampScale = {
 export const trackEntry = {
 	name: 'TrackEntry',
 	type: 'children',
-	children: [
-		trackNumber,
-		trackUID,
-		defaultDuration,
-		trackTimestampScale,
-		trackType,
-		flagDefault,
-		audioSegment,
-		videoSegment,
-	],
 } as const satisfies Ebml;
 
 export const tracks = {
 	name: 'Tracks',
 	type: 'children',
-	children: [trackEntry],
 } as const satisfies Ebml;
 
 export const timestampEntry = {
@@ -667,7 +646,6 @@ export const simpleBlock = {
 export const blockGroup = {
 	name: 'BlockGroup',
 	type: 'children',
-	children: [],
 } as const satisfies Ebml;
 
 export type CodecIdSegment = EbmlParsed<typeof codecID>;
@@ -816,3 +794,5 @@ export type PossibleEbml = Prettify<
 		[key in keyof typeof ebmlMap]: EbmlParsed<(typeof ebmlMap)[key]>;
 	}[keyof typeof ebmlMap]
 >;
+
+export type EbmlMapKey = keyof typeof ebmlMap;
