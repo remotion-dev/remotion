@@ -11,7 +11,10 @@ import type {StszBox} from './boxes/iso-base-media/stsd/stsz';
 import type {SttsBox} from './boxes/iso-base-media/stsd/stts';
 import type {TkhdBox} from './boxes/iso-base-media/tkhd';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
-import type {CodecIdSegment} from './boxes/webm/segments/all-segments';
+import type {
+	CodecIdSegment,
+	TrackTypeSegment,
+} from './boxes/webm/segments/all-segments';
 import type {MainSegment} from './boxes/webm/segments/main';
 import type {TimestampScaleSegment} from './boxes/webm/segments/timestamp-scale';
 import type {
@@ -21,7 +24,6 @@ import type {
 	DisplayWidthSegment,
 	HeightSegment,
 	TrackEntrySegment,
-	TrackTypeSegment,
 	VideoSegment,
 	WidthSegment,
 } from './boxes/webm/segments/track-entry';
@@ -443,8 +445,8 @@ export const getDisplayHeightSegment = (
 export const getTrackTypeSegment = (
 	track: TrackEntrySegment,
 ): TrackTypeSegment | null => {
-	const trackType = track.children.find((b) => b.type === 'track-type-segment');
-	if (!trackType || trackType.type !== 'track-type-segment') {
+	const trackType = track.children.find((b) => b.type === 'TrackType');
+	if (!trackType || trackType.type !== 'TrackType') {
 		return null;
 	}
 

@@ -118,12 +118,7 @@ type TrackType =
 	| 'control'
 	| 'metadata';
 
-export type TrackTypeSegment = {
-	type: 'track-type-segment';
-	trackType: TrackType;
-};
-
-const trackTypeToString = (trackType: number): TrackType => {
+export const trackTypeToString = (trackType: number): TrackType => {
 	switch (trackType) {
 		case 1:
 			return 'video';
@@ -142,34 +137,6 @@ const trackTypeToString = (trackType: number): TrackType => {
 		default:
 			throw new Error(`Unknown track type: ${trackType}`);
 	}
-};
-
-export const parseTrackTypeSegment = (
-	iterator: BufferIterator,
-	length: number,
-): TrackTypeSegment => {
-	if (length !== 1) {
-		throw new Error('Expected track type segment to be 1 byte');
-	}
-
-	const trackType = iterator.getUint8();
-
-	const trackTypeString = trackTypeToString(trackType);
-
-	// Could make the return type nicer
-	/* 1 - video,
-  	2 - audio,
-		3 - complex,
-		16 - logo,
-		17 - subtitle,
-		18 - buttons,
-		32 - control,
-		33 - metadata;
-    */
-	return {
-		type: 'track-type-segment',
-		trackType: trackTypeString,
-	};
 };
 
 export type DefaultDurationSegment = {

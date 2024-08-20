@@ -42,7 +42,6 @@ import type {
 	TitleSegment,
 	TrackEntrySegment,
 	TrackNumberSegment,
-	TrackTypeSegment,
 	TrackUIDSegment,
 	VideoSegment,
 	WidthSegment,
@@ -75,7 +74,6 @@ import {
 	parseTitleSegment,
 	parseTrackEntry,
 	parseTrackNumber,
-	parseTrackTypeSegment,
 	parseTrackUID,
 	parseVideoSegment,
 	parseWidthSegment,
@@ -93,7 +91,6 @@ export type MatroskaSegment =
 	| TrackUIDSegment
 	| FlagLacingSegment
 	| LanguageSegment
-	| TrackTypeSegment
 	| DefaultDurationSegment
 	| VideoSegment
 	| WidthSegment
@@ -190,10 +187,6 @@ const parseSegment = async ({
 
 	if (segmentId === '0x22b59c') {
 		return parseLanguageSegment(iterator, length);
-	}
-
-	if (segmentId === '0x83') {
-		return parseTrackTypeSegment(iterator, length);
 	}
 
 	if (segmentId === '0x55ee') {

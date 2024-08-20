@@ -17,7 +17,10 @@ import {
 import {parseAv1PrivateData} from './av1-codec-private';
 import {getAudioDescription} from './description';
 import type {CodecIdSegment} from './segments/all-segments';
-import type {TrackEntrySegment} from './segments/track-entry';
+import {
+	trackTypeToString,
+	type TrackEntrySegment,
+} from './segments/track-entry';
 
 const getDescription = (track: TrackEntrySegment): undefined | Uint8Array => {
 	const codec = getCodecSegment(track);
@@ -173,7 +176,7 @@ export const getTrack = ({
 
 	const trackId = getTrackId(track);
 
-	if (trackType.trackType === 'video') {
+	if (trackTypeToString(trackType.value) === 'video') {
 		const width = getWidthSegment(track);
 
 		if (width === null) {
@@ -228,7 +231,7 @@ export const getTrack = ({
 		};
 	}
 
-	if (trackType.trackType === 'audio') {
+	if (trackTypeToString(trackType.value) === 'audio') {
 		const sampleRate = getSampleRate(track);
 		const numberOfChannels = getNumberOfChannels(track);
 		if (sampleRate === null) {

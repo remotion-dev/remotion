@@ -445,7 +445,13 @@ export const codecID = {
 	type: 'string',
 } as const satisfies Ebml;
 
+export const trackType = {
+	name: 'TrackType',
+	type: 'uint',
+} as const satisfies Ebml;
+
 export type CodecIdSegment = EbmlParsed<typeof codecID>;
+export type TrackTypeSegment = EbmlParsed<typeof trackType>;
 
 export type EbmlValue<T extends Ebml> = T extends EbmlWithUint8
 	? number
@@ -543,6 +549,7 @@ export const ebmlMap = {
 		name: 'CodecID',
 		type: 'string',
 	},
+	[matroskaElements.TrackType]: trackType,
 } as const satisfies Partial<Record<MatroskaElement, Ebml>>;
 
 export type PossibleEbml = {
