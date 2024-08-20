@@ -152,12 +152,14 @@ test('Should get duration of AV1 video', async () => {
 							timestampScale: 1000000,
 						},
 						{
-							type: 'muxing-app-segment',
+							type: 'MuxingApp',
 							value: 'Lavf60.3.100',
+							hex: matroskaElements.MuxingApp,
 						},
 						{
-							type: 'writing-app-segment',
+							type: 'WritingApp',
 							value: 'Lavf60.3.100',
+							hex: matroskaElements.WritingApp,
 						},
 						{
 							type: 'duration-segment',

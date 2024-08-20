@@ -15,7 +15,7 @@ export const getTracksFromMatroska = (
 	const tracks: Track[] = [];
 
 	for (const trackEntrySegment of tracksSegment.children) {
-		if (trackEntrySegment.type === 'crc32-segment') {
+		if (trackEntrySegment.type === 'Crc32') {
 			continue;
 		}
 

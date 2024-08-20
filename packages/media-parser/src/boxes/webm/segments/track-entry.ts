@@ -466,21 +466,6 @@ export const parseCodecPrivateSegment = (
 	};
 };
 
-export type Crc32Segment = {
-	type: 'crc32-segment';
-	crc32: number[];
-};
-
-export const parseCrc32Segment = (
-	iterator: BufferIterator,
-	length: number,
-): Crc32Segment => {
-	return {
-		type: 'crc32-segment',
-		crc32: [...iterator.getSlice(length)],
-	};
-};
-
 export type SegmentUUIDSegment = {
 	type: 'segment-uuid-segment';
 	segmentUUID: string;

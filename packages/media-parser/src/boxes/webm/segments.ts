@@ -12,7 +12,6 @@ import {parseDurationSegment} from './segments/duration';
 import type {InfoSegment} from './segments/info';
 import {parseInfoSegment} from './segments/info';
 import {type MainSegment} from './segments/main';
-import {parseMuxingSegment, type MuxingAppSegment} from './segments/muxing';
 import {expectChildren} from './segments/parse-children';
 import type {TimestampScaleSegment} from './segments/timestamp-scale';
 import {parseTimestampScaleSegment} from './segments/timestamp-scale';
@@ -28,7 +27,6 @@ import type {
 	CodecPrivateSegment,
 	CodecSegment,
 	ColorSegment,
-	Crc32Segment,
 	DefaultDurationSegment,
 	DefaultFlagSegment,
 	DisplayHeightSegment,
@@ -64,7 +62,6 @@ import {
 	parseCodecPrivateSegment,
 	parseCodecSegment,
 	parseColorSegment,
-	parseCrc32Segment,
 	parseDefaultDurationSegment,
 	parseDefaultFlagSegment,
 	parseDisplayHeightSegment,
@@ -91,15 +88,11 @@ import {
 } from './segments/track-entry';
 import type {TracksSegment} from './segments/tracks';
 import {parseTracksSegment} from './segments/tracks';
-import type {WritingAppSegment} from './segments/writing';
-import {parseWritingSegment} from './segments/writing';
 
 export type MatroskaSegment =
 	| MainSegment
 	| InfoSegment
 	| TimestampScaleSegment
-	| MuxingAppSegment
-	| WritingAppSegment
 	| DurationSegment
 	| TracksSegment
 	| TrackEntrySegment
@@ -121,7 +114,6 @@ export type MatroskaSegment =
 	| TitleSegment
 	| InterlacedSegment
 	| CodecPrivateSegment
-	| Crc32Segment
 	| SegmentUUIDSegment
 	| DefaultFlagSegment
 	| TagsSegment
@@ -166,14 +158,6 @@ const parseSegment = async ({
 		const timestampScale = parseTimestampScaleSegment(iterator);
 		parserContext.parserState.setTimescale(timestampScale.timestampScale);
 		return timestampScale;
-	}
-
-	if (segmentId === '0x4d80') {
-		return parseMuxingSegment(iterator, length);
-	}
-
-	if (segmentId === '0x5741') {
-		return parseWritingSegment(iterator, length);
 	}
 
 	if (segmentId === '0x4489') {
@@ -279,10 +263,6 @@ const parseSegment = async ({
 
 	if (segmentId === '0x7ba9') {
 		return parseTitleSegment(iterator, length);
-	}
-
-	if (segmentId === '0xbf') {
-		return parseCrc32Segment(iterator, length);
 	}
 
 	if (segmentId === '0x73a4') {

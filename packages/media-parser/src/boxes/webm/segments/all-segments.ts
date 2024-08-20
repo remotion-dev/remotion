@@ -516,6 +516,14 @@ export const ebmlMap = {
 		name: 'Crc32',
 		type: 'void',
 	},
+	[matroskaElements.MuxingApp]: {
+		name: 'MuxingApp',
+		type: 'string',
+	},
+	[matroskaElements.WritingApp]: {
+		name: 'WritingApp',
+		type: 'string',
+	},
 } as const satisfies Partial<Record<MatroskaElement, Ebml>>;
 
 export type PossibleEbml = {
