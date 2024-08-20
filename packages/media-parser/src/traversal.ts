@@ -14,11 +14,11 @@ import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import type {
 	CodecIdSegment,
 	HeightSegment,
+	TimestampScaleSegment,
 	TrackTypeSegment,
 	WidthSegment,
 } from './boxes/webm/segments/all-segments';
 import type {MainSegment} from './boxes/webm/segments/main';
-import type {TimestampScaleSegment} from './boxes/webm/segments/timestamp-scale';
 import type {
 	AudioSegment,
 	ClusterSegment,
@@ -265,21 +265,19 @@ export const getTracksSegment = (segment: MainSegment) => {
 export const getTimescaleSegment = (
 	segment: MainSegment,
 ): TimestampScaleSegment | null => {
-	const infoSegment = segment.children.find((b) => b.type === 'info-segment');
+	const infoSegment = segment.children.find((b) => b.type === 'Info');
 
-	if (!infoSegment || infoSegment.type !== 'info-segment') {
+	if (!infoSegment || infoSegment.type !== 'Info') {
 		return null;
 	}
 
-	const timescale = infoSegment.children.find(
-		(b) => b.type === 'timestamp-scale-segment',
-	);
+	const timescale = infoSegment.value.find((b) => b.type === 'TimestampScale');
 
-	if (!timescale || timescale.type !== 'timestamp-scale-segment') {
+	if (!timescale || timescale.type !== 'TimestampScale') {
 		return null;
 	}
 
-	return timescale;
+	return timescale as TimestampScaleSegment;
 };
 
 export const getVideoSegment = (

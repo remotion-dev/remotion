@@ -1,3 +1,5 @@
+import type {Prettify} from '../parse-ebml';
+
 export const matroskaElements = {
 	Header: '0x1a45dfa3',
 	EBMLMaxIDLength: '0x42f2',
@@ -460,10 +462,43 @@ export const heightType = {
 	type: 'uint',
 } as const satisfies Ebml;
 
+export const muxingApp = {
+	name: 'MuxingApp',
+	type: 'string',
+} as const satisfies Ebml;
+
+export const duration = {
+	name: 'Duration',
+	type: 'float',
+} as const satisfies Ebml;
+
+export const timestampScale = {
+	name: 'TimestampScale',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const writingApp = {
+	name: 'WritingApp',
+	type: 'string',
+} as const satisfies Ebml;
+
+export const infoType = {
+	name: 'Info',
+	type: 'children',
+	children: [muxingApp, timestampScale, writingApp, duration],
+} as const satisfies Ebml;
+
+export const titleType = {
+	name: 'Title',
+	type: 'string',
+} as const satisfies Ebml;
+
 export type CodecIdSegment = EbmlParsed<typeof codecID>;
 export type TrackTypeSegment = EbmlParsed<typeof trackType>;
 export type WidthSegment = EbmlParsed<typeof widthType>;
 export type HeightSegment = EbmlParsed<typeof heightType>;
+export type TimestampScaleSegment = EbmlParsed<typeof timestampScale>;
+export type DurationSegment = EbmlParsed<typeof duration>;
 
 export type EbmlValue<T extends Ebml> = T extends EbmlWithUint8
 	? number
@@ -475,7 +510,7 @@ export type EbmlValue<T extends Ebml> = T extends EbmlWithUint8
 				? number
 				: T extends EbmlWithHexString
 					? string
-					: EbmlParsed<Ebml>[];
+					: PossibleEbml[];
 
 export type EbmlParsed<T extends Ebml> = {
 	type: T['name'];
@@ -541,10 +576,7 @@ export const ebmlMap = {
 		name: 'Crc32',
 		type: 'void',
 	},
-	[matroskaElements.MuxingApp]: {
-		name: 'MuxingApp',
-		type: 'string',
-	},
+	[matroskaElements.MuxingApp]: muxingApp,
 	[matroskaElements.WritingApp]: {
 		name: 'WritingApp',
 		type: 'string',
@@ -553,10 +585,7 @@ export const ebmlMap = {
 		name: 'SegmentUUID',
 		type: 'string',
 	},
-	[matroskaElements.Duration]: {
-		name: 'Duration',
-		type: 'float',
-	},
+	[matroskaElements.Duration]: duration,
 	[matroskaElements.CodecID]: {
 		name: 'CodecID',
 		type: 'string',
@@ -564,12 +593,13 @@ export const ebmlMap = {
 	[matroskaElements.TrackType]: trackType,
 	[matroskaElements.PixelWidth]: widthType,
 	[matroskaElements.PixelHeight]: heightType,
+	[matroskaElements.TimestampScale]: timestampScale,
+	[matroskaElements.Info]: infoType,
+	[matroskaElements.Title]: titleType,
 } as const satisfies Partial<Record<MatroskaElement, Ebml>>;
 
-export type PossibleEbml = {
-	[key in keyof typeof ebmlMap]: {
-		type: (typeof ebmlMap)[key]['name'];
-		value: EbmlValue<(typeof ebmlMap)[key]>;
-		hex: string;
-	};
-}[keyof typeof ebmlMap];
+export type PossibleEbml = Prettify<
+	{
+		[key in keyof typeof ebmlMap]: EbmlParsed<(typeof ebmlMap)[key]>;
+	}[keyof typeof ebmlMap]
+>;

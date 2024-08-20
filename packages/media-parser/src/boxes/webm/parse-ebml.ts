@@ -97,7 +97,7 @@ export const parseEbml = (iterator: BufferIterator): Prettify<PossibleEbml> => {
 			}
 		}
 
-		return {type: hasInMap.name, value: children as EbmlParsed<Ebml>[], hex};
+		return {type: hasInMap.name, value: children as PossibleEbml[], hex};
 	}
 
 	// @ts-expect-error

@@ -7,12 +7,8 @@ import {getTrack} from './get-track';
 import {parseEbml} from './parse-ebml';
 import type {PossibleEbml} from './segments/all-segments';
 import {matroskaElements} from './segments/all-segments';
-import type {InfoSegment} from './segments/info';
-import {parseInfoSegment} from './segments/info';
 import {type MainSegment} from './segments/main';
 import {expectChildren} from './segments/parse-children';
-import type {TimestampScaleSegment} from './segments/timestamp-scale';
-import {parseTimestampScaleSegment} from './segments/timestamp-scale';
 import type {
 	AlphaModeSegment,
 	AudioSegment,
@@ -38,7 +34,6 @@ import type {
 	TagSegment,
 	TagsSegment,
 	TimestampSegment,
-	TitleSegment,
 	TrackEntrySegment,
 	TrackNumberSegment,
 	TrackUIDSegment,
@@ -68,7 +63,6 @@ import {
 	parseTagSegment,
 	parseTagsSegment,
 	parseTimestampSegment,
-	parseTitleSegment,
 	parseTrackEntry,
 	parseTrackNumber,
 	parseTrackUID,
@@ -79,8 +73,6 @@ import {parseTracksSegment} from './segments/tracks';
 
 export type MatroskaSegment =
 	| MainSegment
-	| InfoSegment
-	| TimestampScaleSegment
 	| TracksSegment
 	| TrackEntrySegment
 	| TrackNumberSegment
@@ -94,7 +86,6 @@ export type MatroskaSegment =
 	| AlphaModeSegment
 	| MaxBlockAdditionId
 	| ColorSegment
-	| TitleSegment
 	| InterlacedSegment
 	| CodecPrivateSegment
 	| DefaultFlagSegment
@@ -130,16 +121,6 @@ const parseSegment = async ({
 }): Promise<Promise<MatroskaSegment> | MatroskaSegment> => {
 	if (length === 0) {
 		throw new Error(`Expected length of ${segmentId} to be greater than 0`);
-	}
-
-	if (segmentId === '0x1549a966') {
-		return parseInfoSegment(iterator, length, parserContext);
-	}
-
-	if (segmentId === matroskaElements.TimestampScale) {
-		const timestampScale = parseTimestampScaleSegment(iterator);
-		parserContext.parserState.setTimescale(timestampScale.timestampScale);
-		return timestampScale;
 	}
 
 	if (segmentId === '0x1654ae6b') {
@@ -221,10 +202,6 @@ const parseSegment = async ({
 
 	if (segmentId === '0x63a2') {
 		return parseCodecPrivateSegment(iterator, length);
-	}
-
-	if (segmentId === '0x7ba9') {
-		return parseTitleSegment(iterator, length);
 	}
 
 	if (segmentId === '0x88') {
@@ -328,7 +305,12 @@ const parseSegment = async ({
 
 	iterator.counter.decrement(headerReadSoFar);
 
-	return parseEbml(iterator);
+	const ebml = parseEbml(iterator);
+	if (ebml.type === 'TimestampScale') {
+		parserContext.parserState.setTimescale(ebml.value);
+	}
+
+	return ebml;
 };
 
 export const expectSegment = async (

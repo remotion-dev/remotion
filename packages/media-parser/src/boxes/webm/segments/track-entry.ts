@@ -317,23 +317,6 @@ export const parseColorSegment = (
 	};
 };
 
-export type TitleSegment = {
-	type: 'title-segment';
-	title: string;
-};
-
-export const parseTitleSegment = (
-	iterator: BufferIterator,
-	length: number,
-): TitleSegment => {
-	const title = iterator.getByteString(length);
-
-	return {
-		type: 'title-segment',
-		title,
-	};
-};
-
 export type InterlacedSegment = {
 	type: 'interlaced-segment';
 	interlaced: boolean;

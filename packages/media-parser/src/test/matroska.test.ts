@@ -144,12 +144,13 @@ test('Should get duration of AV1 video', async () => {
 					hex: matroskaElements.Void,
 				},
 				{
-					type: 'info-segment',
-					length: 48,
-					children: [
+					type: 'Info',
+					hex: matroskaElements.Info,
+					value: [
 						{
-							type: 'timestamp-scale-segment',
-							timestampScale: 1000000,
+							type: 'TimestampScale',
+							value: 1000000,
+							hex: matroskaElements.TimestampScale,
 						},
 						{
 							type: 'MuxingApp',
