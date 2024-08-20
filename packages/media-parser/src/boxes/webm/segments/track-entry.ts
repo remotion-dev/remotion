@@ -46,21 +46,6 @@ export type ClusterSegment = {
 	children: MatroskaSegment[];
 };
 
-export type TimestampSegment = {
-	type: 'timestamp-segment';
-	timestamp: number;
-};
-
-export const parseTimestampSegment = (
-	iterator: BufferIterator,
-	length: number,
-): TimestampSegment => {
-	return {
-		type: 'timestamp-segment',
-		timestamp: iterator.getUint(length),
-	};
-};
-
 export type SimpleBlockOrBlockSegment = {
 	type: 'simple-block-or-block-segment';
 	length: number;
@@ -204,5 +189,20 @@ export const parseBlockGroupSegment = async (
 	return {
 		type: 'block-group-segment',
 		children: children.segments as MatroskaSegment[],
+	};
+};
+
+export type TimestampSegment = {
+	type: 'timestamp-segment';
+	timestamp: number;
+};
+
+export const parseTimestampSegment = (
+	iterator: BufferIterator,
+	length: number,
+): TimestampSegment => {
+	return {
+		type: 'timestamp-segment',
+		timestamp: iterator.getUint(length),
 	};
 };

@@ -1,7 +1,7 @@
-import type {BufferIterator} from '../../../buffer-iterator';
-import type {ParserContext} from '../../../parser-context';
-import type {MatroskaSegment} from '../segments';
-import {expectChildren} from './parse-children';
+import type {BufferIterator} from '../../buffer-iterator';
+import type {ParserContext} from '../../parser-context';
+import type {MatroskaSegment} from './segments';
+import {expectChildren} from './segments/parse-children';
 
 export type TracksSegment = {
 	type: 'tracks-segment';

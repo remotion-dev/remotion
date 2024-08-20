@@ -20,17 +20,16 @@ import {
 	parseSimpleBlockOrBlockSegment,
 	parseTimestampSegment,
 } from './segments/track-entry';
-import type {TracksSegment} from './segments/tracks';
-import {parseTracksSegment} from './segments/tracks';
+import type {TracksSegment} from './tracks';
+import {parseTracksSegment} from './tracks';
 
 export type MatroskaSegment =
 	| MainSegment
-	| TracksSegment
-	| TrackEntrySegment
 	| ClusterSegment
-	| TimestampSegment
 	| SimpleBlockOrBlockSegment
 	| BlockGroupSegment
+	| TimestampSegment
+	| TracksSegment
 	| PossibleEbml;
 
 export type OnTrackEntrySegment = (trackEntry: TrackEntrySegment) => void;
@@ -56,18 +55,6 @@ const parseSegment = async ({
 		return parseTracksSegment(iterator, length, parserContext);
 	}
 
-	if (segmentId === matroskaElements.Timestamp) {
-		const offset = iterator.counter.getOffset();
-		const timestampSegment = parseTimestampSegment(iterator, length);
-
-		parserContext.parserState.setTimestampOffset(
-			offset,
-			timestampSegment.timestamp,
-		);
-
-		return timestampSegment;
-	}
-
 	if (
 		segmentId === matroskaElements.SimpleBlock ||
 		segmentId === matroskaElements.Block
@@ -78,6 +65,18 @@ const parseSegment = async ({
 			parserContext,
 			type: segmentId,
 		});
+	}
+
+	if (segmentId === matroskaElements.Timestamp) {
+		const off = iterator.counter.getOffset();
+		const timestampSegment = parseTimestampSegment(iterator, length);
+
+		parserContext.parserState.setTimestampOffset(
+			off,
+			timestampSegment.timestamp,
+		);
+
+		return timestampSegment;
 	}
 
 	if (segmentId === '0xa0') {

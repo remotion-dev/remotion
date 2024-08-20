@@ -643,6 +643,17 @@ export const trackEntry = {
 	],
 } as const satisfies Ebml;
 
+export const tracks = {
+	name: 'Tracks',
+	type: 'children',
+	children: [trackEntry],
+} as const satisfies Ebml;
+
+export const timestampEntry = {
+	name: 'Timestamp',
+	type: 'uint',
+} as const satisfies Ebml;
+
 export type CodecIdSegment = EbmlParsed<typeof codecID>;
 export type TrackTypeSegment = EbmlParsed<typeof trackType>;
 export type WidthSegment = EbmlParsed<typeof widthType>;
