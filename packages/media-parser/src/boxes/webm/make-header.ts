@@ -33,15 +33,17 @@ type ChildFields<StructArray extends HeaderStructure> = {
 		Numbers as StructArray[key]['name']]: SerializeValue<StructArray[key]>;
 };
 
-type SerializeValue<Struct extends Ebml> = Struct extends EbmlWithChildren
-	? Prettify<ChildFields<Struct['children']>>
-	: Struct extends EbmlWithString
-		? string
-		: Struct extends EbmlWithUint8
-			? number
-			: Struct extends EbmlWithHexString
+type SerializeValue<Struct extends Ebml> =
+	| Uint8Array
+	| (Struct extends EbmlWithChildren
+			? Prettify<ChildFields<Struct['children']>>
+			: Struct extends EbmlWithString
 				? string
-				: undefined;
+				: Struct extends EbmlWithUint8
+					? number
+					: Struct extends EbmlWithHexString
+						? string
+						: undefined);
 
 function putUintDynamic(number: number) {
 	if (number < 0) {
@@ -71,7 +73,7 @@ const makeFromHeaderStructure = <Struct extends Ebml>(
 	if (struct.type === 'children') {
 		for (const item of struct.children) {
 			arrays.push(
-				makeMatroskaHeader(
+				makeMatroskaBytes(
 					item,
 					// @ts-expect-error
 					fields[item.name],
@@ -108,10 +110,14 @@ const makeFromHeaderStructure = <Struct extends Ebml>(
 	throw new Error('Unexpected type');
 };
 
-export const makeMatroskaHeader = <Struct extends Ebml>(
+export const makeMatroskaBytes = <Struct extends Ebml>(
 	struct: Struct,
 	fields: SerializeValue<Struct>,
 ) => {
+	if (fields instanceof Uint8Array) {
+		return fields;
+	}
+
 	const value = makeFromHeaderStructure(struct, fields);
 
 	return combineUint8Arrays([

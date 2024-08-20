@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {makeMatroskaHeader} from '../boxes/webm/make-header';
+import {makeMatroskaBytes} from '../boxes/webm/make-header';
 import {parseEbml} from '../boxes/webm/parse-ebml';
 import {
 	matroskaElements,
@@ -7,11 +7,12 @@ import {
 	seek,
 	seekHead,
 	seekId,
+	seekPosition,
 } from '../boxes/webm/segments/all-segments';
 import {getArrayBufferIterator} from '../buffer-iterator';
 
 test('Should make Matroska header that is same as input', () => {
-	const headerOutput = makeMatroskaHeader(matroskaHeader, {
+	const headerOutput = makeMatroskaBytes(matroskaHeader, {
 		EBMLVersion: 1,
 		DocTypeReadVersion: 2,
 		EBMLMaxIDLength: 4,
@@ -72,7 +73,7 @@ test('Should be able to create SeekIdBox', async () => {
 		await Bun.file('vp8-segments/56-0x53ab').arrayBuffer(),
 	);
 
-	const custom = makeMatroskaHeader(seekId, '0x1549a966');
+	const custom = makeMatroskaBytes(seekId, '0x1549a966');
 	expect(custom).toEqual(file);
 });
 
@@ -81,7 +82,7 @@ test('Should be able to create Seek', async () => {
 		await Bun.file('vp8-segments/53-0x4dbb').arrayBuffer(),
 	);
 
-	const custom = makeMatroskaHeader(seek, {
+	const custom = makeMatroskaBytes(seek, {
 		SeekID: '0x1549a966',
 		SeekPosition: 0x40,
 	});
@@ -93,10 +94,12 @@ test('Should parse seekHead', async () => {
 		await Bun.file('vp8-segments/2165155-0x114d9b74').arrayBuffer(),
 	);
 
-	const custom = makeMatroskaHeader(seekHead, {
+	const seekPosBytes = makeMatroskaBytes(seekPosition, 3911);
+
+	const custom = makeMatroskaBytes(seekHead, {
 		Seek: {
 			SeekID: matroskaElements.Cluster,
-			SeekPosition: 3911,
+			SeekPosition: seekPosBytes,
 		},
 	});
 	expect(custom).toEqual(file);
