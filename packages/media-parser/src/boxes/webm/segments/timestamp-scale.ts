@@ -8,7 +8,7 @@ export type TimestampScaleSegment = {
 export const parseTimestampScaleSegment = (
 	iterator: BufferIterator,
 ): TimestampScaleSegment => {
-	const timestampScale = iterator.getDecimalBytes(3);
+	const timestampScale = iterator.getUint(3);
 
 	return {
 		type: 'timestamp-scale-segment',

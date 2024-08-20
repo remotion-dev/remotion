@@ -109,6 +109,11 @@ export type CodecSegment = {
 	codec: string;
 };
 
+export type TrackInfo = {
+	codec: string;
+	trackTimescale: number | null;
+};
+
 export const parseCodecSegment = (
 	iterator: BufferIterator,
 	length: number,
@@ -195,7 +200,7 @@ export const parseDefaultDurationSegment = (
 	iterator: BufferIterator,
 	length: number,
 ): DefaultDurationSegment => {
-	const defaultDuration = iterator.getDecimalBytes(length);
+	const defaultDuration = iterator.getUint(length);
 
 	return {
 		type: 'default-duration-segment',
@@ -569,25 +574,9 @@ export const parseTimestampSegment = (
 	iterator: BufferIterator,
 	length: number,
 ): TimestampSegment => {
-	if (length > 3) {
-		throw new Error(
-			'Expected timestamp segment to be 1 byte or 2 bytes, but is ' + length,
-		);
-	}
-
-	if (length === 3) {
-		const val = iterator.getUint24();
-		return {
-			type: 'timestamp-segment',
-			timestamp: val,
-		};
-	}
-
-	const value = length === 2 ? iterator.getUint16() : iterator.getUint8();
-
 	return {
 		type: 'timestamp-segment',
-		timestamp: value,
+		timestamp: iterator.getUint(length),
 	};
 };
 
@@ -595,7 +584,7 @@ export type SimpleBlockOrBlockSegment = {
 	type: 'simple-block-or-block-segment';
 	length: number;
 	trackNumber: number;
-	timecode: number;
+	timecodeInMicroseconds: number;
 	keyframe: boolean | null;
 	lacing: number;
 	invisible: boolean;
@@ -619,15 +608,23 @@ export const parseSimpleBlockOrBlockSegment = async ({
 }): Promise<SimpleBlockOrBlockSegment> => {
 	const start = iterator.counter.getOffset();
 	const trackNumber = iterator.getVint();
+	if (trackNumber === null) {
+		throw new Error('Not enough data to get track number, should not happen');
+	}
+
 	const timecodeRelativeToCluster = iterator.getUint16();
 
 	const {invisible, lacing, keyframe} = parseBlockFlags(iterator, type);
 
-	const codec = parserContext.parserState.getTrackInfoByNumber(trackNumber);
+	const {codec, trackTimescale} =
+		parserContext.parserState.getTrackInfoByNumber(trackNumber);
+
 	const clusterOffset =
 		parserContext.parserState.getTimestampOffsetForByteOffset(
 			iterator.counter.getOffset(),
 		);
+
+	const timescale = parserContext.parserState.getTimescale();
 
 	if (clusterOffset === undefined) {
 		throw new Error(
@@ -635,7 +632,15 @@ export const parseSimpleBlockOrBlockSegment = async ({
 		);
 	}
 
-	const timecode = timecodeRelativeToCluster + clusterOffset;
+	// https://github.com/hubblec4/Matroska-Chapters-Specs/blob/master/notes.md/#timestampscale
+	// The TimestampScale Element is used to calculate the Raw Timestamp of a Block. The timestamp is obtained by adding the Block's timestamp to the Cluster's Timestamp Element, and then multiplying that result by the TimestampScale. The result will be the Block's Raw Timestamp in nanoseconds.
+	const timecodeInNanoSeconds =
+		(timecodeRelativeToCluster + clusterOffset) *
+		timescale *
+		(trackTimescale ?? 1);
+
+	// Timecode should be in microseconds
+	const timecodeInMicroseconds = timecodeInNanoSeconds / 1000;
 
 	if (!codec) {
 		throw new Error('Could not find codec for track ' + trackNumber);
@@ -645,14 +650,14 @@ export const parseSimpleBlockOrBlockSegment = async ({
 
 	let videoSample: Omit<VideoSample, 'type'> | null = null;
 
-	if (codec.codec.startsWith('V_')) {
+	if (codec.startsWith('V_')) {
 		const partialVideoSample: Omit<VideoSample, 'type'> = {
 			data: iterator.getSlice(remainingNow),
 			cts: null,
 			dts: null,
 			duration: undefined,
 			trackId: trackNumber,
-			timestamp: timecode,
+			timestamp: timecodeInMicroseconds,
 		};
 
 		if (keyframe === null) {
@@ -668,11 +673,11 @@ export const parseSimpleBlockOrBlockSegment = async ({
 		}
 	}
 
-	if (codec.codec.startsWith('A_')) {
+	if (codec.startsWith('A_')) {
 		await parserContext.parserState.onAudioSample(trackNumber, {
 			data: iterator.getSlice(remainingNow),
 			trackId: trackNumber,
-			timestamp: timecode,
+			timestamp: timecodeInMicroseconds,
 			type: 'key',
 		});
 	}
@@ -686,7 +691,7 @@ export const parseSimpleBlockOrBlockSegment = async ({
 		type: 'simple-block-or-block-segment',
 		length,
 		trackNumber,
-		timecode,
+		timecodeInMicroseconds,
 		keyframe,
 		lacing,
 		invisible,

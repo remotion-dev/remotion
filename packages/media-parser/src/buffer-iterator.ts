@@ -344,7 +344,11 @@ export const getArrayBufferIterator = (
 		},
 		isRiff,
 		getPaddedFourByteNumber,
-		getMatroskaSegmentId: () => {
+		getMatroskaSegmentId: (): string | null => {
+			if (bytesRemaining() === 0) {
+				return null;
+			}
+
 			const first = getSlice(1);
 			const firstOneString = `0x${Array.from(new Uint8Array(first))
 				.map((b) => {
@@ -357,6 +361,10 @@ export const getArrayBufferIterator = (
 
 			if (knownIdsWithOneLength.includes(firstOneString)) {
 				return firstOneString;
+			}
+
+			if (bytesRemaining() === 0) {
+				return null;
 			}
 
 			const firstTwo = getSlice(1);
@@ -373,6 +381,10 @@ export const getArrayBufferIterator = (
 				return firstTwoString;
 			}
 
+			if (bytesRemaining() === 0) {
+				return null;
+			}
+
 			const firstThree = getSlice(1);
 
 			const firstThreeString = `${firstTwoString}${Array.from(
@@ -387,6 +399,10 @@ export const getArrayBufferIterator = (
 				return firstThreeString;
 			}
 
+			if (bytesRemaining() === 0) {
+				return null;
+			}
+
 			const segmentId = getSlice(1);
 
 			return `${firstThreeString}${Array.from(new Uint8Array(segmentId))
@@ -395,7 +411,11 @@ export const getArrayBufferIterator = (
 				})
 				.join('')}`;
 		},
-		getVint: () => {
+		getVint: (): number | null => {
+			if (bytesRemaining() === 0) {
+				return null;
+			}
+
 			const firstByte = getUint8();
 			const totalLength = firstByte;
 
@@ -407,6 +427,10 @@ export const getArrayBufferIterator = (
 			let actualLength = 0;
 			while (((totalLength >> (7 - actualLength)) & 0x01) === 0) {
 				actualLength++;
+			}
+
+			if (bytesRemaining() < actualLength) {
+				return null;
 			}
 
 			const slice = getSlice(actualLength);
@@ -477,7 +501,7 @@ export const getArrayBufferIterator = (
 			const val = getSlice(32);
 			return [...Array.from(new Uint8Array(val))];
 		},
-		getDecimalBytes(length: number): number {
+		getUint(length: number): number {
 			const bytes = getSlice(length);
 			const numbers = [...Array.from(new Uint8Array(bytes))];
 			return numbers.reduce(
