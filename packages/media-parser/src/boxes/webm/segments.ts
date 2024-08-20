@@ -19,7 +19,6 @@ import type {
 	ColorSegment,
 	DefaultDurationSegment,
 	DefaultFlagSegment,
-	FlagLacingSegment,
 	LanguageSegment,
 	MaxBlockAdditionId,
 	ReferenceBlockSegment,
@@ -41,7 +40,6 @@ import {
 	parseColorSegment,
 	parseDefaultDurationSegment,
 	parseDefaultFlagSegment,
-	parseFlagLacing,
 	parseLanguageSegment,
 	parseMaxBlockAdditionId,
 	parseReferenceBlockSegment,
@@ -63,7 +61,6 @@ export type MatroskaSegment =
 	| TrackEntrySegment
 	| TrackNumberSegment
 	| TrackUIDSegment
-	| FlagLacingSegment
 	| LanguageSegment
 	| DefaultDurationSegment
 	| VideoSegment
@@ -133,10 +130,6 @@ const parseSegment = async ({
 
 	if (segmentId === '0x73c5') {
 		return parseTrackUID(iterator, length);
-	}
-
-	if (segmentId === '0x9c') {
-		return parseFlagLacing(iterator, length);
 	}
 
 	if (segmentId === '0x22b59c') {

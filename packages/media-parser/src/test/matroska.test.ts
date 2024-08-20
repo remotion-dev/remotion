@@ -184,8 +184,9 @@ test('Should get duration of AV1 video', async () => {
 									trackUid: 'ab2171012bb9020a',
 								},
 								{
-									type: 'flag-lacing-segment',
-									lacing: false,
+									type: 'FlagLacing',
+									value: 0,
+									hex: matroskaElements.FlagLacing,
 								},
 								{
 									type: 'language-segment',

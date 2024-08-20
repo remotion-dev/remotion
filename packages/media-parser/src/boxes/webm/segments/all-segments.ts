@@ -528,6 +528,11 @@ export const displayHeight = {
 	type: 'uint',
 } as const satisfies Ebml;
 
+export const flagLacing = {
+	name: 'FlagLacing',
+	type: 'uint',
+} as const satisfies Ebml;
+
 export type CodecIdSegment = EbmlParsed<typeof codecID>;
 export type TrackTypeSegment = EbmlParsed<typeof trackType>;
 export type WidthSegment = EbmlParsed<typeof widthType>;
@@ -640,6 +645,7 @@ export const ebmlMap = {
 	[matroskaElements.BitDepth]: bitDepth,
 	[matroskaElements.DisplayHeight]: displayHeight,
 	[matroskaElements.DisplayWidth]: displayWidth,
+	[matroskaElements.FlagLacing]: flagLacing,
 } as const satisfies Partial<Record<MatroskaElement, Ebml>>;
 
 export type PossibleEbml = Prettify<

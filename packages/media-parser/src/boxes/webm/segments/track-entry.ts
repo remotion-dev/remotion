@@ -58,31 +58,6 @@ export const parseTrackUID = (
 	};
 };
 
-export type FlagLacingSegment = {
-	type: 'flag-lacing-segment';
-	lacing: boolean;
-};
-
-export const parseFlagLacing = (
-	iterator: BufferIterator,
-	length: number,
-): FlagLacingSegment => {
-	if (length !== 1) {
-		throw new Error('Expected flag lacing to be 1 byte');
-	}
-
-	const bytes = iterator.getSlice(length);
-
-	if (bytes[0] !== 1 && bytes[0] !== 0) {
-		throw new Error('Expected lacing to be 1 or 0');
-	}
-
-	return {
-		type: 'flag-lacing-segment',
-		lacing: Boolean(bytes[0]),
-	};
-};
-
 export type LanguageSegment = {
 	type: 'language-segment';
 	language: string;
