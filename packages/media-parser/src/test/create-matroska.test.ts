@@ -10,8 +10,23 @@ import {
 	seekPosition,
 } from '../boxes/webm/segments/all-segments';
 import {getArrayBufferIterator} from '../buffer-iterator';
+import type {ParserContext} from '../parser-context';
+import {makeParserState} from '../parser-state';
 
-test('Should make Matroska header that is same as input', () => {
+const state = makeParserState({
+	hasAudioCallbacks: false,
+	hasVideoCallbacks: false,
+	signal: undefined,
+});
+
+const options: ParserContext = {
+	canSkipVideoData: true,
+	onAudioTrack: null,
+	onVideoTrack: null,
+	parserState: state,
+};
+
+test('Should make Matroska header that is same as input', async () => {
 	const headerOutput = makeMatroskaBytes(matroskaHeader, {
 		EBMLVersion: 1,
 		DocTypeReadVersion: 2,
@@ -23,7 +38,7 @@ test('Should make Matroska header that is same as input', () => {
 	});
 
 	const iterator = getArrayBufferIterator(headerOutput);
-	const parsed = parseEbml(iterator);
+	const parsed = await parseEbml(iterator, options);
 
 	expect(parsed).toEqual({
 		type: 'Header',
@@ -99,7 +114,7 @@ test('Should parse seekHead', async () => {
 	expect(custom).toEqual(file);
 
 	const iterator = getArrayBufferIterator(file);
-	const parsed = parseEbml(iterator);
+	const parsed = await parseEbml(iterator, options);
 
 	expect(parsed).toEqual({
 		type: 'SeekHead',

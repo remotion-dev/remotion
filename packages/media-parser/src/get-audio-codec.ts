@@ -163,14 +163,12 @@ export const getAudioCodecFromIso = (moov: MoovBox) => {
 };
 
 export const getAudioCodecFromMatroska = (mainSegment: MainSegment) => {
-	const tracksSegment = mainSegment.children.find(
-		(b) => b.type === 'tracks-segment',
-	);
-	if (!tracksSegment || tracksSegment.type !== 'tracks-segment') {
+	const tracksSegment = mainSegment.children.find((b) => b.type === 'Tracks');
+	if (!tracksSegment || tracksSegment.type !== 'Tracks') {
 		return null;
 	}
 
-	for (const track of tracksSegment.children) {
+	for (const track of tracksSegment.value) {
 		if (track.type === 'TrackEntry') {
 			const trackType = track.value.find((b) => b.type === 'CodecID');
 			if (trackType && trackType.type === 'CodecID') {

@@ -1,10 +1,8 @@
-import {registerTrack} from '../../add-new-matroska-tracks';
 import type {BufferIterator} from '../../buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
 import type {VideoSample} from '../../webcodec-sample-types';
-import {getTrack} from './get-track';
-import {parseEbml} from './parse-ebml';
+import {parseEbml, postprocessEbml} from './parse-ebml';
 import type {PossibleEbml, TrackEntrySegment} from './segments/all-segments';
 import {matroskaElements} from './segments/all-segments';
 import {type MainSegment} from './segments/main';
@@ -18,15 +16,12 @@ import {
 	parseBlockGroupSegment,
 	parseSimpleBlockOrBlockSegment,
 } from './segments/track-entry';
-import type {TracksSegment} from './tracks';
-import {parseTracksSegment} from './tracks';
 
 export type MatroskaSegment =
 	| MainSegment
 	| ClusterSegment
 	| SimpleBlockOrBlockSegment
 	| BlockGroupSegment
-	| TracksSegment
 	| PossibleEbml;
 
 export type OnTrackEntrySegment = (trackEntry: TrackEntrySegment) => void;
@@ -46,10 +41,6 @@ const parseSegment = async ({
 }): Promise<Promise<MatroskaSegment> | MatroskaSegment> => {
 	if (length === 0) {
 		throw new Error(`Expected length of ${segmentId} to be greater than 0`);
-	}
-
-	if (segmentId === '0x1654ae6b') {
-		return parseTracksSegment(iterator, length, parserContext);
 	}
 
 	if (
@@ -104,33 +95,10 @@ const parseSegment = async ({
 	}
 
 	iterator.counter.decrement(headerReadSoFar);
-	const off = iterator.counter.getOffset();
 
-	const ebml = parseEbml(iterator);
-	if (ebml.type === 'TimestampScale') {
-		parserContext.parserState.setTimescale(ebml.value);
-	}
-
-	if (ebml.type === 'TrackEntry') {
-		parserContext.parserState.onTrackEntrySegment(ebml);
-
-		const track = getTrack({
-			track: ebml,
-			timescale: parserContext.parserState.getTimescale(),
-		});
-
-		if (track) {
-			await registerTrack({
-				state: parserContext.parserState,
-				options: parserContext,
-				track,
-			});
-		}
-	}
-
-	if (ebml.type === 'Timestamp') {
-		parserContext.parserState.setTimestampOffset(off, ebml.value);
-	}
+	const offset = iterator.counter.getOffset();
+	const ebml = await parseEbml(iterator, parserContext);
+	await postprocessEbml(offset, ebml, parserContext);
 
 	return ebml;
 };

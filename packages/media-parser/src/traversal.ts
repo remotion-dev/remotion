@@ -250,10 +250,8 @@ export const getClusterSegment = (
 };
 
 export const getTracksSegment = (segment: MainSegment) => {
-	const tracksSegment = segment.children.find(
-		(b) => b.type === 'tracks-segment',
-	);
-	if (!tracksSegment || tracksSegment.type !== 'tracks-segment') {
+	const tracksSegment = segment.children.find((b) => b.type === 'Tracks');
+	if (!tracksSegment || tracksSegment.type !== 'Tracks') {
 		return null;
 	}
 
