@@ -28,12 +28,12 @@ const getDurationFromMatroska = (segments: AnySegment[]): number | null => {
 		return null;
 	}
 
-	const duration = relevantBoxes.find((s) => s.type === 'duration-segment');
-	if (!duration || duration.type !== 'duration-segment') {
+	const duration = relevantBoxes.find((s) => s.type === 'Duration');
+	if (!duration || duration.type !== 'Duration') {
 		return null;
 	}
 
-	return (duration.duration / timestampScale.timestampScale) * 1000;
+	return (duration.value / timestampScale.timestampScale) * 1000;
 };
 
 export const getDuration = (boxes: AnySegment[]): number | null => {

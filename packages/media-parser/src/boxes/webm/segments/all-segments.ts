@@ -440,6 +440,13 @@ export const voidHeader = {
 	type: 'void',
 } as const satisfies Ebml;
 
+export const codecID = {
+	name: 'CodecID',
+	type: 'string',
+} as const satisfies Ebml;
+
+export type CodecIdSegment = EbmlParsed<typeof codecID>;
+
 export type EbmlValue<T extends Ebml> = T extends EbmlWithUint8
 	? number
 	: T extends EbmlWithVoid
@@ -522,6 +529,18 @@ export const ebmlMap = {
 	},
 	[matroskaElements.WritingApp]: {
 		name: 'WritingApp',
+		type: 'string',
+	},
+	[matroskaElements.SegmentUUID]: {
+		name: 'SegmentUUID',
+		type: 'string',
+	},
+	[matroskaElements.Duration]: {
+		name: 'Duration',
+		type: 'float',
+	},
+	[matroskaElements.CodecID]: {
+		name: 'CodecID',
 		type: 'string',
 	},
 } as const satisfies Partial<Record<MatroskaElement, Ebml>>;

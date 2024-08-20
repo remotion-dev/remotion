@@ -11,12 +11,12 @@ import type {StszBox} from './boxes/iso-base-media/stsd/stsz';
 import type {SttsBox} from './boxes/iso-base-media/stsd/stts';
 import type {TkhdBox} from './boxes/iso-base-media/tkhd';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
+import type {CodecIdSegment} from './boxes/webm/segments/all-segments';
 import type {MainSegment} from './boxes/webm/segments/main';
 import type {TimestampScaleSegment} from './boxes/webm/segments/timestamp-scale';
 import type {
 	AudioSegment,
 	ClusterSegment,
-	CodecSegment,
 	DisplayHeightSegment,
 	DisplayWidthSegment,
 	HeightSegment,
@@ -462,9 +462,9 @@ export const getTrackId = (track: TrackEntrySegment): number => {
 
 export const getCodecSegment = (
 	track: TrackEntrySegment,
-): CodecSegment | null => {
-	const codec = track.children.find((b) => b.type === 'codec-segment');
-	if (!codec || codec.type !== 'codec-segment') {
+): CodecIdSegment | null => {
+	const codec = track.children.find((b) => b.type === 'CodecID');
+	if (!codec || codec.type !== 'CodecID') {
 		return null;
 	}
 

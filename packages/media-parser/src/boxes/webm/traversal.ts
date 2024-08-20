@@ -1,7 +1,7 @@
 import type {AnySegment} from '../../parse-result';
+import type {CodecIdSegment} from './segments/all-segments';
 import type {MainSegment} from './segments/main';
 import type {
-	CodecSegment,
 	TrackEntrySegment,
 	TrackNumberSegment,
 } from './segments/track-entry';
@@ -19,8 +19,8 @@ export const getTrackNumber = (track: TrackEntrySegment) => {
 
 export const getTrackCodec = (track: TrackEntrySegment) => {
 	const child = track.children.find(
-		(b) => b.type === 'codec-segment',
-	) as CodecSegment | null;
+		(b) => b.type === 'CodecID',
+	) as CodecIdSegment | null;
 	return child ?? null;
 };
 

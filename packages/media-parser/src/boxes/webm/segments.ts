@@ -7,8 +7,6 @@ import {getTrack} from './get-track';
 import {parseEbml} from './parse-ebml';
 import type {PossibleEbml} from './segments/all-segments';
 import {matroskaElements} from './segments/all-segments';
-import type {DurationSegment} from './segments/duration';
-import {parseDurationSegment} from './segments/duration';
 import type {InfoSegment} from './segments/info';
 import {parseInfoSegment} from './segments/info';
 import {type MainSegment} from './segments/main';
@@ -25,7 +23,6 @@ import type {
 	ChannelsSegment,
 	ClusterSegment,
 	CodecPrivateSegment,
-	CodecSegment,
 	ColorSegment,
 	DefaultDurationSegment,
 	DefaultFlagSegment,
@@ -38,7 +35,6 @@ import type {
 	MaxBlockAdditionId,
 	ReferenceBlockSegment,
 	SamplingFrequencySegment,
-	SegmentUUIDSegment,
 	SimpleBlockOrBlockSegment,
 	TagSegment,
 	TagsSegment,
@@ -60,7 +56,6 @@ import {
 	parseBlockGroupSegment,
 	parseChannelsSegment,
 	parseCodecPrivateSegment,
-	parseCodecSegment,
 	parseColorSegment,
 	parseDefaultDurationSegment,
 	parseDefaultFlagSegment,
@@ -73,7 +68,6 @@ import {
 	parseMaxBlockAdditionId,
 	parseReferenceBlockSegment,
 	parseSamplingFrequencySegment,
-	parseSegmentUUIDSegment,
 	parseSimpleBlockOrBlockSegment,
 	parseTagSegment,
 	parseTagsSegment,
@@ -93,14 +87,12 @@ export type MatroskaSegment =
 	| MainSegment
 	| InfoSegment
 	| TimestampScaleSegment
-	| DurationSegment
 	| TracksSegment
 	| TrackEntrySegment
 	| TrackNumberSegment
 	| TrackUIDSegment
 	| FlagLacingSegment
 	| LanguageSegment
-	| CodecSegment
 	| TrackTypeSegment
 	| DefaultDurationSegment
 	| VideoSegment
@@ -114,7 +106,6 @@ export type MatroskaSegment =
 	| TitleSegment
 	| InterlacedSegment
 	| CodecPrivateSegment
-	| SegmentUUIDSegment
 	| DefaultFlagSegment
 	| TagsSegment
 	| TagSegment
@@ -160,10 +151,6 @@ const parseSegment = async ({
 		return timestampScale;
 	}
 
-	if (segmentId === '0x4489') {
-		return parseDurationSegment(iterator, length);
-	}
-
 	if (segmentId === '0x1654ae6b') {
 		return parseTracksSegment(iterator, length, parserContext);
 	}
@@ -203,10 +190,6 @@ const parseSegment = async ({
 
 	if (segmentId === '0x22b59c') {
 		return parseLanguageSegment(iterator, length);
-	}
-
-	if (segmentId === '0x86') {
-		return parseCodecSegment(iterator, length);
 	}
 
 	if (segmentId === '0x83') {
@@ -263,10 +246,6 @@ const parseSegment = async ({
 
 	if (segmentId === '0x7ba9') {
 		return parseTitleSegment(iterator, length);
-	}
-
-	if (segmentId === '0x73a4') {
-		return parseSegmentUUIDSegment(iterator, length);
 	}
 
 	if (segmentId === '0x88') {

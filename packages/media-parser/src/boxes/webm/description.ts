@@ -6,7 +6,7 @@ export const getAudioDescription = (
 	track: TrackEntrySegment,
 ): undefined | Uint8Array => {
 	const codec = getCodecSegment(track);
-	if (!codec || codec.codec !== 'A_VORBIS') {
+	if (!codec || codec.value !== 'A_VORBIS') {
 		return undefined;
 	}
 

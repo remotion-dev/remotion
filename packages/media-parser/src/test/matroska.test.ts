@@ -162,8 +162,9 @@ test('Should get duration of AV1 video', async () => {
 							hex: matroskaElements.WritingApp,
 						},
 						{
-							type: 'duration-segment',
-							duration: 1000,
+							type: 'Duration',
+							value: 1000,
+							hex: matroskaElements.Duration,
 						},
 					],
 				},
@@ -190,8 +191,9 @@ test('Should get duration of AV1 video', async () => {
 									language: 'und',
 								},
 								{
-									type: 'codec-segment',
-									codec: 'V_AV1',
+									type: 'CodecID',
+									value: 'V_AV1',
+									hex: matroskaElements.CodecID,
 								},
 								{
 									type: 'track-type-segment',

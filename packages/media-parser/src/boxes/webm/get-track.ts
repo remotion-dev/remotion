@@ -16,7 +16,8 @@ import {
 } from '../../traversal';
 import {parseAv1PrivateData} from './av1-codec-private';
 import {getAudioDescription} from './description';
-import type {CodecSegment, TrackEntrySegment} from './segments/track-entry';
+import type {CodecIdSegment} from './segments/all-segments';
+import type {TrackEntrySegment} from './segments/track-entry';
 
 const getDescription = (track: TrackEntrySegment): undefined | Uint8Array => {
 	const codec = getCodecSegment(track);
@@ -24,7 +25,7 @@ const getDescription = (track: TrackEntrySegment): undefined | Uint8Array => {
 		return undefined;
 	}
 
-	if (codec.codec === 'V_MPEG4/ISO/AVC' || codec.codec === 'V_MPEGH/ISO/HEVC') {
+	if (codec.value === 'V_MPEG4/ISO/AVC' || codec.value === 'V_MPEGH/ISO/HEVC') {
 		const priv = getPrivateData(track);
 		if (priv) {
 			return priv;
@@ -39,13 +40,13 @@ const getMatroskaVideoCodecString = ({
 	codecSegment: codec,
 }: {
 	track: TrackEntrySegment;
-	codecSegment: CodecSegment;
+	codecSegment: CodecIdSegment;
 }): string | null => {
-	if (codec.codec === 'V_VP8') {
+	if (codec.value === 'V_VP8') {
 		return 'vp8';
 	}
 
-	if (codec.codec === 'V_VP9') {
+	if (codec.value === 'V_VP9') {
 		const priv = getPrivateData(track);
 		if (priv) {
 			throw new Error(
@@ -56,7 +57,7 @@ const getMatroskaVideoCodecString = ({
 		return 'vp09.00.10.08';
 	}
 
-	if (codec.codec === 'V_MPEG4/ISO/AVC') {
+	if (codec.value === 'V_MPEG4/ISO/AVC') {
 		const priv = getPrivateData(track);
 		if (priv) {
 			return `avc1.${priv[1].toString(16).padStart(2, '0')}${priv[2].toString(16).padStart(2, '0')}${priv[3].toString(16).padStart(2, '0')}`;
@@ -65,7 +66,7 @@ const getMatroskaVideoCodecString = ({
 		throw new Error('Could not find a CodecPrivate field in TrackEntry');
 	}
 
-	if (codec.codec === 'V_AV1') {
+	if (codec.value === 'V_AV1') {
 		const priv = getPrivateData(track);
 
 		if (!priv) {
@@ -75,14 +76,14 @@ const getMatroskaVideoCodecString = ({
 		return parseAv1PrivateData(priv, null);
 	}
 
-	if (codec.codec === 'V_MPEGH/ISO/HEVC') {
+	if (codec.value === 'V_MPEGH/ISO/HEVC') {
 		const priv = getPrivateData(track);
 		const iterator = getArrayBufferIterator(priv as Uint8Array);
 
 		return 'hvc1.' + getHvc1CodecString(iterator);
 	}
 
-	throw new Error(`Unknown codec: ${codec.codec}`);
+	throw new Error(`Unknown codec: ${codec.value}`);
 };
 
 const getMatroskaAudioCodecString = (track: TrackEntrySegment): string => {
@@ -91,15 +92,15 @@ const getMatroskaAudioCodecString = (track: TrackEntrySegment): string => {
 		throw new Error('Expected codec segment');
 	}
 
-	if (codec.codec === 'A_OPUS') {
+	if (codec.value === 'A_OPUS') {
 		return 'opus';
 	}
 
-	if (codec.codec === 'A_VORBIS') {
+	if (codec.value === 'A_VORBIS') {
 		return 'vorbis';
 	}
 
-	if (codec.codec === 'A_PCM/INT/LIT') {
+	if (codec.value === 'A_PCM/INT/LIT') {
 		// https://github.com/ietf-wg-cellar/matroska-specification/issues/142#issuecomment-330004950
 		// Audio samples MUST be considered as signed values, except if the audio bit depth is 8 which MUST be interpreted as unsigned values.
 
@@ -115,7 +116,7 @@ const getMatroskaAudioCodecString = (track: TrackEntrySegment): string => {
 		return 'pcm-s' + bitDepth;
 	}
 
-	if (codec.codec === 'A_AAC') {
+	if (codec.value === 'A_AAC') {
 		const priv = getPrivateData(track);
 
 		const iterator = getArrayBufferIterator(priv as Uint8Array);
@@ -150,11 +151,11 @@ const getMatroskaAudioCodecString = (track: TrackEntrySegment): string => {
 		return `mp4a.40.${profile.toString().padStart(2, '0')}`;
 	}
 
-	if (codec.codec === 'A_MPEG/L3') {
+	if (codec.value === 'A_MPEG/L3') {
 		return 'mp3';
 	}
 
-	throw new Error(`Unknown codec: ${codec.codec}`);
+	throw new Error(`Unknown codec: ${codec.value}`);
 };
 
 export const getTrack = ({

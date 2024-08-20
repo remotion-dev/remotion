@@ -104,28 +104,9 @@ export const parseLanguageSegment = (
 	};
 };
 
-export type CodecSegment = {
-	type: 'codec-segment';
-	codec: string;
-};
-
 export type TrackInfo = {
 	codec: string;
 	trackTimescale: number | null;
-};
-
-export const parseCodecSegment = (
-	iterator: BufferIterator,
-	length: number,
-): CodecSegment => {
-	// Could make a TypeScript enum with it
-	// https://www.matroska.org/technical/codec_specs.html
-	const codec = iterator.getByteString(length);
-
-	return {
-		type: 'codec-segment',
-		codec,
-	};
 };
 
 type TrackType =
@@ -463,21 +444,6 @@ export const parseCodecPrivateSegment = (
 	return {
 		type: 'codec-private-segment',
 		codecPrivateData: iterator.getSlice(length),
-	};
-};
-
-export type SegmentUUIDSegment = {
-	type: 'segment-uuid-segment';
-	segmentUUID: string;
-};
-
-export const parseSegmentUUIDSegment = (
-	iterator: BufferIterator,
-	length: number,
-): SegmentUUIDSegment => {
-	return {
-		type: 'segment-uuid-segment',
-		segmentUUID: iterator.getSlice(length).toString(),
 	};
 };
 

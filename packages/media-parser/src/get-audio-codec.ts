@@ -172,25 +172,25 @@ export const getAudioCodecFromMatroska = (mainSegment: MainSegment) => {
 
 	for (const track of tracksSegment.children) {
 		if (track.type === 'track-entry-segment') {
-			const trackType = track.children.find((b) => b.type === 'codec-segment');
-			if (trackType && trackType.type === 'codec-segment') {
-				if (trackType.codec === 'A_OPUS') {
+			const trackType = track.children.find((b) => b.type === 'CodecID');
+			if (trackType && trackType.type === 'CodecID') {
+				if (trackType.value === 'A_OPUS') {
 					return 'opus';
 				}
 
-				if (trackType.codec === 'A_VORBIS') {
+				if (trackType.value === 'A_VORBIS') {
 					return 'vorbis';
 				}
 
-				if (trackType.codec === 'A_PCM/INT/LIT') {
+				if (trackType.value === 'A_PCM/INT/LIT') {
 					return 'pcm';
 				}
 
-				if (trackType.codec === 'A_AAC') {
+				if (trackType.value === 'A_AAC') {
 					return 'aac';
 				}
 
-				if (trackType.codec === 'A_MPEG/L3') {
+				if (trackType.value === 'A_MPEG/L3') {
 					return 'mp3';
 				}
 			}
