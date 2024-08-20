@@ -7,7 +7,7 @@ author_url: https://github.com/JonnyBurger
 author_image_url: https://avatars2.githubusercontent.com/u/1629785?s=460&u=12eb94da6070d00fc924761ce06e3a428d01b7e9&v=4
 ---
 
-import { TransparentVideoDemo } from "../components/TransparentVideoDemo";
+import {TransparentVideoDemo} from '../components/TransparentVideoDemo';
 
 Welcome to the release notes of Remotion 1.4! This is a big release adding support for more use cases and makes Remotion more stable, intuitive and robust.
 
@@ -15,7 +15,7 @@ Welcome to the release notes of Remotion 1.4! This is a big release adding suppo
 
 Instead of just supporting H.264, you can now also encode a video in H.265 (HEVC), or as a WebM (in either VP8 or VP9 codec). These codecs will result in smaller file sizes, but have some trade-offs. To help you decide which codec to use, there is now an [encoding guide](/docs/encoding) in the docs. See also the
 documentation for changing the codec in [the config file](/docs/config#setcodec)
-as well as [in the CLI](/docs/cli#flags).
+as well as [in the CLI](/docs/cli/render#--jpeg-quality).
 
 ## Transparent videos
 
@@ -46,8 +46,8 @@ While this will work while previewing the video, during rendering, the random nu
 To help you avoid this mistake, there is now a new ESLint rule that will warn when you use `Math.random()`. Instead using it, you can use the new [`random()`](/docs/random) API. It will take a `seed` parameter and output a number between 0 and 1. The point of it is: As long as you pass the same seed, you get the same output! That way you don't get unintended effects while multithreaded rendering is performed.
 
 ```tsx twoslash {7-8}
-import { useState } from "react";
-import { random } from "remotion";
+import {useState} from 'react';
+import {random} from 'remotion';
 
 export const MyComp = () => {
   // ✅ Pseudo-random values that will be same across threads
