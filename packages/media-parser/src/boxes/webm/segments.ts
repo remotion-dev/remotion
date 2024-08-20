@@ -1,28 +1,13 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
-import type {VideoSample} from '../../webcodec-sample-types';
 import {parseEbml, postprocessEbml} from './parse-ebml';
 import type {PossibleEbml, TrackEntrySegment} from './segments/all-segments';
-import {matroskaElements} from './segments/all-segments';
 import {type MainSegment} from './segments/main';
 import {expectChildren} from './segments/parse-children';
-import type {
-	BlockGroupSegment,
-	ClusterSegment,
-	SimpleBlockOrBlockSegment,
-} from './segments/track-entry';
-import {
-	parseBlockGroupSegment,
-	parseSimpleBlockOrBlockSegment,
-} from './segments/track-entry';
+import type {ClusterSegment} from './segments/track-entry';
 
-export type MatroskaSegment =
-	| MainSegment
-	| ClusterSegment
-	| SimpleBlockOrBlockSegment
-	| BlockGroupSegment
-	| PossibleEbml;
+export type MatroskaSegment = MainSegment | ClusterSegment | PossibleEbml;
 
 export type OnTrackEntrySegment = (trackEntry: TrackEntrySegment) => void;
 
@@ -41,57 +26,6 @@ const parseSegment = async ({
 }): Promise<Promise<MatroskaSegment> | MatroskaSegment> => {
 	if (length === 0) {
 		throw new Error(`Expected length of ${segmentId} to be greater than 0`);
-	}
-
-	if (
-		segmentId === matroskaElements.SimpleBlock ||
-		segmentId === matroskaElements.Block
-	) {
-		return parseSimpleBlockOrBlockSegment({
-			iterator,
-			length,
-			parserContext,
-			type: segmentId,
-		});
-	}
-
-	if (segmentId === '0xa0') {
-		const blockGroup = await parseBlockGroupSegment(
-			iterator,
-			length,
-			parserContext,
-		);
-
-		// Blocks don't have information about keyframes.
-		// https://ffmpeg.org/pipermail/ffmpeg-devel/2015-June/173825.html
-		// "For Blocks, keyframes is
-		// inferred by the absence of ReferenceBlock element (as done by matroskadec).""
-
-		const block = blockGroup.children.find(
-			(c) => c.type === 'simple-block-or-block-segment',
-		);
-		if (!block || block.type !== 'simple-block-or-block-segment') {
-			throw new Error('Expected block segment');
-		}
-
-		const hasReferenceBlock = blockGroup.children.find(
-			(c) => c.type === 'ReferenceBlock',
-		);
-
-		const partialVideoSample = block.videoSample;
-
-		if (partialVideoSample) {
-			const completeFrame: VideoSample = {
-				...partialVideoSample,
-				type: hasReferenceBlock ? 'delta' : 'key',
-			};
-			await parserContext.parserState.onVideoSample(
-				partialVideoSample.trackId,
-				completeFrame,
-			);
-		}
-
-		return blockGroup;
 	}
 
 	iterator.counter.decrement(headerReadSoFar);

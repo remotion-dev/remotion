@@ -1,6 +1,8 @@
 import {registerTrack} from '../../add-new-matroska-tracks';
-import type {BufferIterator} from '../../buffer-iterator';
+import {type BufferIterator} from '../../buffer-iterator';
 import type {ParserContext} from '../../parser-context';
+import type {VideoSample} from '../../webcodec-sample-types';
+import {getSampleFromBlock} from './get-sample-from-block';
 import {getTrack} from './get-track';
 import type {PossibleEbml} from './segments/all-segments';
 import {ebmlMap} from './segments/all-segments';
@@ -144,5 +146,54 @@ export const postprocessEbml = async (
 
 	if (ebml.type === 'Timestamp') {
 		parserContext.parserState.setTimestampOffset(offset, ebml.value);
+	}
+
+	if (ebml.type === 'Block') {
+		const sample = getSampleFromBlock(ebml, parserContext, offset);
+
+		if (sample.type === 'video-sample') {
+			await parserContext.parserState.onVideoSample(
+				sample.videoSample.trackId,
+				sample.videoSample,
+			);
+		}
+
+		if (sample.type === 'audio-sample') {
+			await parserContext.parserState.onAudioSample(
+				sample.audioSample.trackId,
+				sample.audioSample,
+			);
+		}
+	}
+
+	if (ebml.type === 'BlockGroup') {
+		// Blocks don't have information about keyframes.
+		// https://ffmpeg.org/pipermail/ffmpeg-devel/2015-June/173825.html
+		// "For Blocks, keyframes is
+		// inferred by the absence of ReferenceBlock element (as done by matroskadec).""
+
+		const block = ebml.value.find(
+			(c) => c.type === 'SimpleBlock' || c.type === 'Block',
+		);
+		if (!block || (block.type !== 'SimpleBlock' && block.type !== 'Block')) {
+			throw new Error('Expected block segment');
+		}
+
+		const hasReferenceBlock = ebml.value.find(
+			(c) => c.type === 'ReferenceBlock',
+		);
+
+		const sample = getSampleFromBlock(block, parserContext, offset);
+
+		if (sample.type === 'partial-video-sample') {
+			const completeFrame: VideoSample = {
+				...sample.partialVideoSample,
+				type: hasReferenceBlock ? 'delta' : 'key',
+			};
+			await parserContext.parserState.onVideoSample(
+				sample.partialVideoSample.trackId,
+				completeFrame,
+			);
+		}
 	}
 };

@@ -654,6 +654,22 @@ export const timestampEntry = {
 	type: 'uint',
 } as const satisfies Ebml;
 
+export const block = {
+	name: 'Block',
+	type: 'uint8array',
+} as const satisfies Ebml;
+
+export const simpleBlock = {
+	name: 'SimpleBlock',
+	type: 'uint8array',
+} as const satisfies Ebml;
+
+export const blockGroup = {
+	name: 'BlockGroup',
+	type: 'children',
+	children: [],
+} as const satisfies Ebml;
+
 export type CodecIdSegment = EbmlParsed<typeof codecID>;
 export type TrackTypeSegment = EbmlParsed<typeof trackType>;
 export type WidthSegment = EbmlParsed<typeof widthType>;
@@ -666,6 +682,8 @@ export type TrackNumberSegment = EbmlParsed<typeof trackNumber>;
 export type AudioSegment = EbmlParsed<typeof audioSegment>;
 export type VideoSegment = EbmlParsed<typeof videoSegment>;
 export type TrackEntrySegment = EbmlParsed<typeof trackEntry>;
+export type BlockSegment = EbmlParsed<typeof block>;
+export type SimpleBlockSegment = EbmlParsed<typeof simpleBlock>;
 
 export type EbmlValue<T extends Ebml> = T extends EbmlWithUint8
 	? number
@@ -788,6 +806,9 @@ export const ebmlMap = {
 		type: 'uint',
 	},
 	[matroskaElements.Tracks]: tracks,
+	[matroskaElements.Block]: block,
+	[matroskaElements.SimpleBlock]: simpleBlock,
+	[matroskaElements.BlockGroup]: blockGroup,
 } as const satisfies Partial<Record<MatroskaElement, Ebml>>;
 
 export type PossibleEbml = Prettify<
