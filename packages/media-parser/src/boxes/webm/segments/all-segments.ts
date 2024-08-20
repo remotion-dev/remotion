@@ -544,6 +544,16 @@ export const tags = {
 	children: [tagSegment],
 } as const satisfies Ebml;
 
+export const trackNumber = {
+	name: 'TrackNumber',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const trackUID = {
+	name: 'TrackUID',
+	type: 'hex-string',
+} as const satisfies Ebml;
+
 export type CodecIdSegment = EbmlParsed<typeof codecID>;
 export type TrackTypeSegment = EbmlParsed<typeof trackType>;
 export type WidthSegment = EbmlParsed<typeof widthType>;
@@ -552,6 +562,7 @@ export type TimestampScaleSegment = EbmlParsed<typeof timestampScale>;
 export type DurationSegment = EbmlParsed<typeof duration>;
 export type DisplayWidthSegment = EbmlParsed<typeof displayWidth>;
 export type DisplayHeightSegment = EbmlParsed<typeof displayHeight>;
+export type TrackNumberSegment = EbmlParsed<typeof trackNumber>;
 
 export type EbmlValue<T extends Ebml> = T extends EbmlWithUint8
 	? number
@@ -658,6 +669,8 @@ export const ebmlMap = {
 	[matroskaElements.FlagLacing]: flagLacing,
 	[matroskaElements.Tags]: tags,
 	[matroskaElements.Tag]: tagSegment,
+	[matroskaElements.TrackNumber]: trackNumber,
+	[matroskaElements.TrackUID]: trackUID,
 } as const satisfies Partial<Record<MatroskaElement, Ebml>>;
 
 export type PossibleEbml = Prettify<

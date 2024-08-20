@@ -33,31 +33,6 @@ export const parseTrackEntry = async (
 	};
 };
 
-export type TrackNumberSegment = {
-	type: 'track-number-segment';
-	trackNumber: number;
-};
-
-export type TrackUIDSegment = {
-	type: 'track-uid-segment';
-	trackUid: string;
-};
-
-export const parseTrackUID = (
-	iterator: BufferIterator,
-	length: number,
-): TrackUIDSegment => {
-	const bytes = iterator.getSlice(length);
-
-	const asString = [...bytes]
-		.map((b) => b.toString(16).padStart(2, '0'))
-		.join('');
-	return {
-		type: 'track-uid-segment',
-		trackUid: asString,
-	};
-};
-
 export type LanguageSegment = {
 	type: 'language-segment';
 	language: string;
@@ -395,22 +370,6 @@ export const parseSimpleBlockOrBlockSegment = async ({
 		lacing,
 		invisible,
 		videoSample,
-	};
-};
-
-export const parseTrackNumber = (
-	iterator: BufferIterator,
-	length: number,
-): TrackNumberSegment => {
-	if (length !== 1) {
-		throw new Error('Expected track number to be 1 byte');
-	}
-
-	const trackNumber = iterator.getUint8();
-
-	return {
-		type: 'track-number-segment',
-		trackNumber,
 	};
 };
 

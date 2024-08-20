@@ -25,8 +25,6 @@ import type {
 	SimpleBlockOrBlockSegment,
 	TimestampSegment,
 	TrackEntrySegment,
-	TrackNumberSegment,
-	TrackUIDSegment,
 	VideoSegment,
 } from './segments/track-entry';
 import {
@@ -44,8 +42,6 @@ import {
 	parseSimpleBlockOrBlockSegment,
 	parseTimestampSegment,
 	parseTrackEntry,
-	parseTrackNumber,
-	parseTrackUID,
 	parseVideoSegment,
 } from './segments/track-entry';
 import type {TracksSegment} from './segments/tracks';
@@ -55,8 +51,6 @@ export type MatroskaSegment =
 	| MainSegment
 	| TracksSegment
 	| TrackEntrySegment
-	| TrackNumberSegment
-	| TrackUIDSegment
 	| LanguageSegment
 	| DefaultDurationSegment
 	| VideoSegment
@@ -116,14 +110,6 @@ const parseSegment = async ({
 		}
 
 		return trackEntry;
-	}
-
-	if (segmentId === '0xd7') {
-		return parseTrackNumber(iterator, length);
-	}
-
-	if (segmentId === '0x73c5') {
-		return parseTrackUID(iterator, length);
 	}
 
 	if (segmentId === '0x22b59c') {

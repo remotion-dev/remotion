@@ -445,12 +445,12 @@ export const getTrackTypeSegment = (
 };
 
 export const getTrackId = (track: TrackEntrySegment): number => {
-	const trackId = track.children.find((b) => b.type === 'track-number-segment');
-	if (!trackId || trackId.type !== 'track-number-segment') {
+	const trackId = track.children.find((b) => b.type === 'TrackNumber');
+	if (!trackId || trackId.type !== 'TrackNumber') {
 		throw new Error('Expected track number segment');
 	}
 
-	return trackId.trackNumber;
+	return trackId.value;
 };
 
 export const getCodecSegment = (

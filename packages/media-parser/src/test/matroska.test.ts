@@ -148,12 +148,12 @@ test('Should get duration of AV1 video', async () => {
 							type: 'track-entry-segment',
 							children: [
 								{
-									type: 'track-number-segment',
-									trackNumber: 1,
+									type: 'TrackNumber',
+									value: 1,
 								},
 								{
-									type: 'track-uid-segment',
-									trackUid: 'ab2171012bb9020a',
+									type: 'TrackUID',
+									value: '0xab2171012bb9020a',
 								},
 								{
 									type: 'FlagLacing',
