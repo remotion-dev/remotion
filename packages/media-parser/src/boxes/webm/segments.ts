@@ -13,8 +13,6 @@ import type {
 	BlockElement,
 	BlockGroupSegment,
 	ClusterSegment,
-	DefaultFlagSegment,
-	ReferenceBlockSegment,
 	SimpleBlockOrBlockSegment,
 	TimestampSegment,
 	TrackEntrySegment,
@@ -22,8 +20,6 @@ import type {
 import {
 	parseBlockElementSegment,
 	parseBlockGroupSegment,
-	parseDefaultFlagSegment,
-	parseReferenceBlockSegment,
 	parseSimpleBlockOrBlockSegment,
 	parseTimestampSegment,
 	parseTrackEntry,
@@ -35,13 +31,11 @@ export type MatroskaSegment =
 	| MainSegment
 	| TracksSegment
 	| TrackEntrySegment
-	| DefaultFlagSegment
 	| ClusterSegment
 	| TimestampSegment
 	| SimpleBlockOrBlockSegment
 	| BlockGroupSegment
 	| BlockElement
-	| ReferenceBlockSegment
 	| PossibleEbml;
 
 export type OnTrackEntrySegment = (trackEntry: TrackEntrySegment) => void;
@@ -88,10 +82,6 @@ const parseSegment = async ({
 		return trackEntry;
 	}
 
-	if (segmentId === '0x88') {
-		return parseDefaultFlagSegment(iterator, length);
-	}
-
 	if (segmentId === matroskaElements.Timestamp) {
 		const offset = iterator.counter.getOffset();
 		const timestampSegment = parseTimestampSegment(iterator, length);
@@ -116,10 +106,6 @@ const parseSegment = async ({
 		});
 	}
 
-	if (segmentId === matroskaElements.ReferenceBlock) {
-		return parseReferenceBlockSegment(iterator, length);
-	}
-
 	if (segmentId === '0xa0') {
 		const blockGroup = await parseBlockGroupSegment(
 			iterator,
@@ -140,7 +126,7 @@ const parseSegment = async ({
 		}
 
 		const hasReferenceBlock = blockGroup.children.find(
-			(c) => c.type === 'reference-block-segment',
+			(c) => c.type === 'ReferenceBlock',
 		);
 
 		const partialVideoSample = block.videoSample;

@@ -603,6 +603,16 @@ export const videoSegment = {
 	children: [heightType, displayHeight, displayWidth, widthType],
 } as const satisfies Ebml;
 
+export const flagDefault = {
+	name: 'FlagDefault',
+	type: 'void',
+} as const satisfies Ebml;
+
+export const referenceBlock = {
+	name: 'ReferenceBlock',
+	type: 'uint',
+} as const satisfies Ebml;
+
 export type CodecIdSegment = EbmlParsed<typeof codecID>;
 export type TrackTypeSegment = EbmlParsed<typeof trackType>;
 export type WidthSegment = EbmlParsed<typeof widthType>;
@@ -627,7 +637,9 @@ export type EbmlValue<T extends Ebml> = T extends EbmlWithUint8
 					? string
 					: T extends EbmlWithUint8Array
 						? Uint8Array
-						: PossibleEbml[];
+						: T extends EbmlWithChildren
+							? PossibleEbml[]
+							: never;
 
 export type EbmlParsed<T extends Ebml> = {
 	type: T['name'];
@@ -732,6 +744,8 @@ export const ebmlMap = {
 	[matroskaElements.MaxBlockAdditionID]: maxBlockAdditionIdSegment,
 	[matroskaElements.Audio]: audioSegment,
 	[matroskaElements.Video]: videoSegment,
+	[matroskaElements.FlagDefault]: flagDefault,
+	[matroskaElements.ReferenceBlock]: referenceBlock,
 } as const satisfies Partial<Record<MatroskaElement, Ebml>>;
 
 export type PossibleEbml = Prettify<

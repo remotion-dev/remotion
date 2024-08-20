@@ -68,25 +68,6 @@ export const trackTypeToString = (trackType: number): TrackType => {
 	}
 };
 
-export type DefaultFlagSegment = {
-	type: 'default-flag-segment';
-	defaultFlag: boolean;
-};
-
-export const parseDefaultFlagSegment = (
-	iterator: BufferIterator,
-	length: number,
-): DefaultFlagSegment => {
-	if (length !== 1) {
-		throw new Error('Expected default flag segment to be 1 byte');
-	}
-
-	return {
-		type: 'default-flag-segment',
-		defaultFlag: Boolean(iterator.getUint8()),
-	};
-};
-
 export type ClusterSegment = {
 	type: 'cluster-segment';
 	children: MatroskaSegment[];
@@ -250,36 +231,6 @@ export const parseBlockGroupSegment = async (
 	return {
 		type: 'block-group-segment',
 		children: children.segments as MatroskaSegment[],
-	};
-};
-
-export type ReferenceBlockSegment = {
-	type: 'reference-block-segment';
-	referenceBlock: number;
-};
-
-export const parseReferenceBlockSegment = (
-	iterator: BufferIterator,
-	length: number,
-): ReferenceBlockSegment => {
-	if (length > 4) {
-		throw new Error(
-			`Expected reference block segment to be 4 bytes, but got ${length}`,
-		);
-	}
-
-	const referenceBlock =
-		length === 4
-			? iterator.getUint32()
-			: length === 3
-				? iterator.getUint24()
-				: length === 2
-					? iterator.getUint16()
-					: iterator.getUint8();
-
-	return {
-		type: 'reference-block-segment',
-		referenceBlock,
 	};
 };
 
