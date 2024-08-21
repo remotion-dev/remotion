@@ -252,7 +252,7 @@ test('Can we disassemble a Matroska file and assembled it again', async () => {
 			if (child.type === 'Video') {
 				for (const attribute of child.value) {
 					if (attribute.type === 'DisplayHeight') {
-						attribute.value.value *= 3;
+						attribute.value.value *= 2;
 					}
 				}
 			}
