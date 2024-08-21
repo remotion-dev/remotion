@@ -29,10 +29,12 @@ export type AssetMetadata =
 			type: 'found';
 			size: number;
 			dimensions: Dimensions | 'none' | null;
+			fetchedAt: number;
 	  };
 
 export const getAssetMetadata = async (
 	canvasContent: CanvasContent,
+	addTime: boolean,
 ): Promise<AssetMetadata> => {
 	const src = getSrcFromCanvasContent(canvasContent);
 
@@ -55,14 +57,19 @@ export const getAssetMetadata = async (
 		throw new Error('Unexpected error: content-length is null');
 	}
 
+	const fetchedAt = Date.now();
+	const srcWithTime = addTime ? `${src}?date=${fetchedAt}` : src;
+
 	const fileType = getPreviewFileType(src);
 
 	if (fileType === 'video') {
-		const resolution = await getVideoMetadata(src);
+		const resolution = await getVideoMetadata(srcWithTime);
+		console.log(resolution);
 		return {
 			type: 'found',
 			size: Number(size),
 			dimensions: {width: resolution.width, height: resolution.height},
+			fetchedAt,
 		};
 	}
 
@@ -74,6 +81,7 @@ export const getAssetMetadata = async (
 					type: 'found',
 					size: Number(size),
 					dimensions: {width: img.width, height: img.height},
+					fetchedAt,
 				});
 			};
 
@@ -81,7 +89,7 @@ export const getAssetMetadata = async (
 				reject(new Error('Failed to load image'));
 			};
 
-			img.src = src;
+			img.src = srcWithTime;
 		});
 		return resolution;
 	}
@@ -90,5 +98,6 @@ export const getAssetMetadata = async (
 		type: 'found',
 		dimensions: 'none',
 		size: Number(size),
+		fetchedAt,
 	};
 };
