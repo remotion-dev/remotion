@@ -28,36 +28,45 @@ test('Should get duration of AV1 video', async () => {
 			value: [
 				{
 					type: 'EBMLVersion',
-					value: 1,
+					value: {value: 1, byteLength: 1},
+					minVintWidth: 1,
 				},
 				{
 					type: 'EBMLReadVersion',
-					value: 1,
+					value: {value: 1, byteLength: 1},
+					minVintWidth: 1,
 				},
 				{
 					type: 'EBMLMaxIDLength',
-					value: 4,
+					value: {value: 4, byteLength: 1},
+					minVintWidth: 1,
 				},
 				{
 					type: 'EBMLMaxSizeLength',
-					value: 8,
+					value: {value: 8, byteLength: 1},
+					minVintWidth: 1,
 				},
 				{
 					type: 'DocType',
 					value: 'webm',
+					minVintWidth: 1,
 				},
 				{
 					type: 'DocTypeVersion',
-					value: 2,
+					value: {value: 2, byteLength: 1},
+					minVintWidth: 1,
 				},
 				{
 					type: 'DocTypeReadVersion',
-					value: 2,
+					value: {value: 2, byteLength: 1},
+					minVintWidth: 1,
 				},
 			],
+			minVintWidth: 1,
 		},
 		{
 			type: 'Segment',
+			minVintWidth: 8,
 			value: [
 				{
 					type: 'SeekHead',
@@ -68,12 +77,15 @@ test('Should get duration of AV1 video', async () => {
 								{
 									type: 'SeekID',
 									value: '0x1549a966',
+									minVintWidth: 1,
 								},
 								{
 									type: 'SeekPosition',
-									value: 161,
+									value: {value: 161, byteLength: 1},
+									minVintWidth: 1,
 								},
 							],
+							minVintWidth: 1,
 						},
 						{
 							type: 'Seek',
@@ -81,12 +93,15 @@ test('Should get duration of AV1 video', async () => {
 								{
 									type: 'SeekID',
 									value: '0x1654ae6b',
+									minVintWidth: 1,
 								},
 								{
 									type: 'SeekPosition',
-									value: 214,
+									value: {value: 214, byteLength: 1},
+									minVintWidth: 1,
 								},
 							],
+							minVintWidth: 1,
 						},
 						{
 							type: 'Seek',
@@ -94,12 +109,15 @@ test('Should get duration of AV1 video', async () => {
 								{
 									type: 'SeekID',
 									value: '0x1254c367',
+									minVintWidth: 1,
 								},
 								{
 									type: 'SeekPosition',
-									value: 322,
+									value: {value: 322, byteLength: 2},
+									minVintWidth: 1,
 								},
 							],
+							minVintWidth: 1,
 						},
 						{
 							type: 'Seek',
@@ -107,14 +125,18 @@ test('Should get duration of AV1 video', async () => {
 								{
 									type: 'SeekID',
 									value: '0x1c53bb6b',
+									minVintWidth: 1,
 								},
 								{
 									type: 'SeekPosition',
-									value: 347329,
+									value: {value: 347329, byteLength: 3},
+									minVintWidth: 1,
 								},
 							],
+							minVintWidth: 1,
 						},
 					],
+					minVintWidth: 1,
 				},
 				{
 					type: 'Void',
@@ -124,21 +146,25 @@ test('Should get duration of AV1 video', async () => {
 						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 					]),
+					minVintWidth: 8,
 				},
 				{
 					type: 'Info',
 					value: [
 						{
 							type: 'TimestampScale',
-							value: 1000000,
+							value: {value: 1000000, byteLength: 3},
+							minVintWidth: 1,
 						},
 						{
 							type: 'MuxingApp',
 							value: 'Lavf60.3.100',
+							minVintWidth: 1,
 						},
 						{
 							type: 'WritingApp',
 							value: 'Lavf60.3.100',
+							minVintWidth: 1,
 						},
 						{
 							type: 'Duration',
@@ -146,8 +172,10 @@ test('Should get duration of AV1 video', async () => {
 								value: 1000,
 								size: '64',
 							},
+							minVintWidth: 1,
 						},
 					],
+					minVintWidth: 1,
 				},
 				{
 					type: 'Tracks',
@@ -157,42 +185,51 @@ test('Should get duration of AV1 video', async () => {
 							value: [
 								{
 									type: 'TrackNumber',
-									value: 1,
+									value: {value: 1, byteLength: 1},
+									minVintWidth: 1,
 								},
 								{
 									type: 'TrackUID',
 									value: '0xab2171012bb9020a',
+									minVintWidth: 1,
 								},
 								{
 									type: 'FlagLacing',
-									value: 0,
+									value: {value: 0, byteLength: 1},
+									minVintWidth: 1,
 								},
 								{
 									type: 'Language',
 									value: 'und',
+									minVintWidth: 1,
 								},
 								{
 									type: 'CodecID',
 									value: 'V_AV1',
+									minVintWidth: 1,
 								},
 								{
 									type: 'TrackType',
-									value: 1,
+									value: {value: 1, byteLength: 1},
+									minVintWidth: 1,
 								},
 								{
 									type: 'DefaultDuration',
-									value: 40000000,
+									value: {value: 40000000, byteLength: 4},
+									minVintWidth: 1,
 								},
 								{
 									type: 'Video',
 									value: [
 										{
 											type: 'PixelWidth',
-											value: 1920,
+											value: {value: 1920, byteLength: 2},
+											minVintWidth: 1,
 										},
 										{
 											type: 'PixelHeight',
-											value: 1080,
+											value: {value: 1080, byteLength: 2},
+											minVintWidth: 1,
 										},
 										{
 											type: 'Colour',
@@ -200,8 +237,10 @@ test('Should get duration of AV1 video', async () => {
 												85, 186, 129, 1, 85, 177, 129, 1, 85, 187, 129, 1, 85,
 												185, 129, 1,
 											]),
+											minVintWidth: 1,
 										},
 									],
+									minVintWidth: 1,
 								},
 								{
 									type: 'CodecPrivate',
@@ -209,10 +248,13 @@ test('Should get duration of AV1 video', async () => {
 										129, 8, 12, 0, 10, 14, 0, 0, 0, 66, 171, 191, 195, 118, 0,
 										8, 8, 8, 8, 32,
 									]),
+									minVintWidth: 1,
 								},
 							],
+							minVintWidth: 8,
 						},
 					],
+					minVintWidth: 1,
 				},
 				{
 					type: 'Tags',
@@ -224,6 +266,7 @@ test('Should get duration of AV1 video', async () => {
 								69, 82, 68, 135, 140, 76, 97, 118, 102, 54, 48, 46, 51, 46, 49,
 								48, 48,
 							]),
+							minVintWidth: 1,
 						},
 						{
 							type: 'Tag',
@@ -233,117 +276,146 @@ test('Should get duration of AV1 video', async () => {
 								135, 148, 48, 48, 58, 48, 48, 58, 48, 49, 46, 48, 48, 48, 48,
 								48, 48, 48, 48, 48, 0, 0,
 							]),
+							minVintWidth: 1,
 						},
 					],
+					minVintWidth: 1,
 				},
 				{
 					value: [
 						{
 							type: 'Timestamp',
-							value: 0,
+							value: {value: 0, byteLength: 1},
+							minVintWidth: 1,
 						},
 						{
 							type: 'Block',
 							value: new Uint8Array(),
+							minVintWidth: 3,
 						},
 						{
 							type: 'Block',
 							value: new Uint8Array(),
+							minVintWidth: 1,
 						},
 						{
 							type: 'Block',
 							value: new Uint8Array(),
+							minVintWidth: 2,
 						},
 						{
 							type: 'Block',
 							value: new Uint8Array(),
+							minVintWidth: 2,
 						},
 						{
 							type: 'Block',
 							value: new Uint8Array(),
+							minVintWidth: 2,
 						},
 						{
 							type: 'Block',
 							value: new Uint8Array(),
+							minVintWidth: 2,
 						},
 						{
 							type: 'Block',
 							value: new Uint8Array(),
+							minVintWidth: 2,
 						},
 						{
 							type: 'Block',
 							value: new Uint8Array(),
+							minVintWidth: 2,
 						},
 						{
 							type: 'Block',
 							value: new Uint8Array(),
+							minVintWidth: 2,
 						},
 						{
 							type: 'Block',
 							value: new Uint8Array(),
+							minVintWidth: 2,
 						},
 						{
 							type: 'Block',
 							value: new Uint8Array(),
+							minVintWidth: 2,
 						},
 						{
 							type: 'Block',
 							value: new Uint8Array(),
+							minVintWidth: 2,
 						},
 						{
 							type: 'Block',
 							value: new Uint8Array(),
+							minVintWidth: 2,
 						},
 						{
 							type: 'Block',
 							value: new Uint8Array(),
+							minVintWidth: 2,
 						},
 						{
 							type: 'Block',
 							value: new Uint8Array(),
+							minVintWidth: 2,
 						},
 						{
 							type: 'Block',
 							value: new Uint8Array(),
+							minVintWidth: 2,
 						},
 						{
 							type: 'Block',
 							value: new Uint8Array(),
+							minVintWidth: 2,
 						},
 						{
 							type: 'Block',
 							value: new Uint8Array(),
+							minVintWidth: 2,
 						},
 						{
 							type: 'Block',
 							value: new Uint8Array(),
+							minVintWidth: 2,
 						},
 						{
 							type: 'Block',
 							value: new Uint8Array(),
+							minVintWidth: 2,
 						},
 						{
 							type: 'Block',
 							value: new Uint8Array(),
+							minVintWidth: 2,
 						},
 						{
 							type: 'Block',
 							value: new Uint8Array(),
+							minVintWidth: 2,
 						},
 						{
 							type: 'Block',
 							value: new Uint8Array(),
+							minVintWidth: 2,
 						},
 						{
 							type: 'Block',
 							value: new Uint8Array(),
+							minVintWidth: 2,
 						},
 						{
 							type: 'Block',
 							value: new Uint8Array(),
+							minVintWidth: 2,
 						},
 					],
 					type: 'Cluster',
+					minVintWidth: 3,
 				},
 				{
 					type: 'Cues',
@@ -351,6 +423,7 @@ test('Should get duration of AV1 video', async () => {
 						187, 143, 179, 129, 0, 183, 138, 247, 129, 1, 241, 130, 1, 159, 240,
 						129, 3,
 					]),
+					minVintWidth: 1,
 				},
 			],
 		},

@@ -3,6 +3,7 @@ import type {
 	FloatWithSize,
 	PossibleEbml,
 	PossibleEbmlOrUint8Array,
+	UintWithSize,
 	matroskaElements,
 } from './segments/all-segments';
 import {ebmlMap, getIdForName} from './segments/all-segments';
@@ -22,7 +23,7 @@ const matroskaToHex = (
 	return numbers;
 };
 
-function putUintDynamic(number: number) {
+function putUintDynamic(number: number, minimumLength: number | null) {
 	if (number < 0) {
 		throw new Error(
 			'This function is designed for non-negative integers only.',
@@ -30,7 +31,10 @@ function putUintDynamic(number: number) {
 	}
 
 	// Calculate the minimum number of bytes needed to store the integer
-	const length = Math.ceil(Math.log2(number + 1) / 8);
+	const length = Math.max(
+		minimumLength ?? 0,
+		Math.ceil(Math.log2(number + 1) / 8),
+	);
 	const bytes = new Uint8Array(length);
 
 	for (let i = 0; i < length; i++) {
@@ -69,7 +73,10 @@ const makeFromHeaderStructure = (
 	}
 
 	if (struct.type === 'uint') {
-		return putUintDynamic(fields.value as number);
+		return putUintDynamic(
+			(fields.value as UintWithSize).value,
+			(fields.value as UintWithSize).byteLength,
+		);
 	}
 
 	if (struct.type === 'hex-string') {
@@ -92,7 +99,7 @@ const makeFromHeaderStructure = (
 		}
 
 		const dataView2 = new DataView(new ArrayBuffer(8));
-		dataView2.setFloat64(0, fields.value as number);
+		dataView2.setFloat64(0, value.value);
 		return new Uint8Array(dataView2.buffer);
 	}
 
@@ -108,7 +115,7 @@ export const makeMatroskaBytes = (fields: PossibleEbmlOrUint8Array) => {
 
 	return combineUint8Arrays([
 		matroskaToHex(getIdForName(fields.type)),
-		getVariableInt(value.length),
+		getVariableInt(value.length, fields.minVintWidth),
 		value,
 	]);
 };

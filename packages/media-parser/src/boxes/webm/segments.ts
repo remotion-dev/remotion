@@ -65,7 +65,10 @@ export const expectSegment = async (
 		};
 	}
 
+	const offsetBeforeVInt = iterator.counter.getOffset();
 	const length = iterator.getVint();
+	const offsetAfterVInt = iterator.counter.getOffset();
+
 	if (length === null) {
 		iterator.counter.decrement(iterator.counter.getOffset() - offset);
 		return {
@@ -91,10 +94,12 @@ export const expectSegment = async (
 					? (s) => ({
 							type: 'Segment',
 							value: s,
+							minVintWidth: offsetAfterVInt - offsetBeforeVInt,
 						})
 					: (s) => ({
 							type: 'Cluster',
 							value: s,
+							minVintWidth: offsetAfterVInt - offsetBeforeVInt,
 						}),
 			parserContext,
 		});

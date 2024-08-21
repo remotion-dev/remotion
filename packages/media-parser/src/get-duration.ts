@@ -32,7 +32,7 @@ const getDurationFromMatroska = (segments: AnySegment[]): number | null => {
 		return null;
 	}
 
-	return (duration.value.value / timestampScale.value) * 1000;
+	return (duration.value.value / timestampScale.value.value) * 1000;
 };
 
 export const getDuration = (boxes: AnySegment[]): number | null => {

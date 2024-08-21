@@ -179,7 +179,7 @@ export const getTrack = ({
 
 	const trackId = getTrackId(track);
 
-	if (trackTypeToString(trackType.value) === 'video') {
+	if (trackTypeToString(trackType.value.value) === 'video') {
 		const width = getWidthSegment(track);
 
 		if (width === null) {
@@ -214,23 +214,27 @@ export const getTrack = ({
 			trackId,
 			codec: codecString,
 			description: getDescription(track),
-			height: displayHeight ? displayHeight.value : height.value,
-			width: displayWidth ? displayWidth.value : width.value,
+			height: displayHeight ? displayHeight.value.value : height.value.value,
+			width: displayWidth ? displayWidth.value.value : width.value.value,
 			sampleAspectRatio: {
 				numerator: 1,
 				denominator: 1,
 			},
 			timescale,
 			samplePositions: [],
-			codedHeight: height.value,
-			codedWidth: width.value,
-			displayAspectHeight: displayHeight ? displayHeight.value : height.value,
-			displayAspectWidth: displayWidth ? displayWidth.value : width.value,
+			codedHeight: height.value.value,
+			codedWidth: width.value.value,
+			displayAspectHeight: displayHeight
+				? displayHeight.value.value
+				: height.value.value,
+			displayAspectWidth: displayWidth
+				? displayWidth.value.value
+				: width.value.value,
 			rotation: 0,
 		};
 	}
 
-	if (trackTypeToString(trackType.value) === 'audio') {
+	if (trackTypeToString(trackType.value.value) === 'audio') {
 		const sampleRate = getSampleRate(track);
 		const numberOfChannels = getNumberOfChannels(track);
 		if (sampleRate === null) {

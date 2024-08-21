@@ -40,6 +40,6 @@ export const getTrackTimestampScale = (track: TrackEntrySegment) => {
 export const getTrackByNumber = (tracks: TrackEntrySegment[], id: number) => {
 	return tracks.find((track) => {
 		const trackNumber = getTrackNumber(track);
-		return trackNumber === id;
+		return trackNumber?.value === id;
 	});
 };

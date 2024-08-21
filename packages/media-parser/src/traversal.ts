@@ -327,7 +327,7 @@ export const getNumberOfChannels = (track: TrackEntrySegment): number => {
 		return 1;
 	}
 
-	return channels.value;
+	return channels.value.value;
 };
 
 export const getBitDepth = (track: TrackEntrySegment): number | null => {
@@ -342,7 +342,7 @@ export const getBitDepth = (track: TrackEntrySegment): number | null => {
 		return null;
 	}
 
-	return bitDepth.value;
+	return bitDepth.value.value;
 };
 
 export const getPrivateData = (track: TrackEntrySegment): Uint8Array | null => {
@@ -444,7 +444,7 @@ export const getTrackId = (track: TrackEntrySegment): number => {
 		throw new Error('Expected track number segment');
 	}
 
-	return trackId.value;
+	return trackId.value.value;
 };
 
 export const getCodecSegment = (

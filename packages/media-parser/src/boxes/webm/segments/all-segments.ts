@@ -314,7 +314,7 @@ export type EbmlWithChildren = {
 	type: 'children';
 };
 
-export type EbmlWithUint8 = {
+export type EbmlWithUint = {
 	name: MatroskaKey;
 	type: 'uint';
 };
@@ -341,7 +341,7 @@ export type EbmlWithUint8Array = {
 
 export type Ebml =
 	| EbmlWithString
-	| EbmlWithUint8
+	| EbmlWithUint
 	| EbmlWithChildren
 	| EbmlWithFloat
 	| EbmlWithHexString
@@ -658,14 +658,16 @@ export type BlockSegment = EbmlParsed<typeof block>;
 export type SimpleBlockSegment = EbmlParsed<typeof simpleBlock>;
 export type MainSegment = EbmlParsed<typeof segment>;
 export type ClusterSegment = EbmlParsed<typeof cluster>;
+export type Tracks = EbmlParsed<typeof tracks>;
 
 export type FloatWithSize = {value: number; size: '32' | '64'};
+export type UintWithSize = {value: number; byteLength: number};
 
 export type EbmlValue<
 	T extends Ebml,
 	Child = PossibleEbml,
-> = T extends EbmlWithUint8
-	? number
+> = T extends EbmlWithUint
+	? UintWithSize
 	: T extends EbmlWithString
 		? string
 		: T extends EbmlWithFloat
@@ -685,11 +687,13 @@ export type EbmlValueOrUint8Array<T extends Ebml> =
 export type EbmlParsed<T extends Ebml> = {
 	type: T['name'];
 	value: EbmlValue<T>;
+	minVintWidth: number;
 };
 
 export type EbmlParsedOrUint8Array<T extends Ebml> = {
 	type: T['name'];
 	value: EbmlValueOrUint8Array<T>;
+	minVintWidth: number;
 };
 
 export const ebmlMap = {

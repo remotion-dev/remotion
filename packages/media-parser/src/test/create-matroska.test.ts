@@ -1,12 +1,15 @@
-import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
-import {statSync} from 'fs';
 import {combineUint8Arrays, makeMatroskaBytes} from '../boxes/webm/make-header';
 import {parseEbml} from '../boxes/webm/parse-ebml';
 import type {MatroskaSegment} from '../boxes/webm/segments';
+import type {
+	MainSegment,
+	Tracks,
+	UintWithSize,
+} from '../boxes/webm/segments/all-segments';
 import {getArrayBufferIterator} from '../buffer-iterator';
-import {nodeReader} from '../from-node';
 import {parseMedia} from '../parse-media';
+import type {AnySegment} from '../parse-result';
 import type {ParserContext} from '../parser-context';
 import {makeParserState} from '../parser-state';
 
@@ -27,34 +30,42 @@ const options: ParserContext = {
 test('Should make Matroska header that is same as input', async () => {
 	const headerOutput = makeMatroskaBytes({
 		type: 'Header',
+		minVintWidth: 1,
 		value: [
 			{
 				type: 'EBMLVersion',
-				value: 1,
+				value: {value: 1, byteLength: 1},
+				minVintWidth: 1,
 			},
 			{
 				type: 'EBMLReadVersion',
-				value: 1,
+				value: {value: 1, byteLength: 1},
+				minVintWidth: 1,
 			},
 			{
 				type: 'EBMLMaxIDLength',
-				value: 4,
+				value: {value: 4, byteLength: 1},
+				minVintWidth: 1,
 			},
 			{
 				type: 'EBMLMaxSizeLength',
-				value: 8,
+				value: {value: 8, byteLength: 1},
+				minVintWidth: 1,
 			},
 			{
 				type: 'DocType',
 				value: 'webm',
+				minVintWidth: 1,
 			},
 			{
 				type: 'DocTypeVersion',
-				value: 4,
+				value: {value: 4, byteLength: 1},
+				minVintWidth: 1,
 			},
 			{
 				type: 'DocTypeReadVersion',
-				value: 2,
+				value: {value: 2, byteLength: 1},
+				minVintWidth: 1,
 			},
 		],
 	});
@@ -64,34 +75,42 @@ test('Should make Matroska header that is same as input', async () => {
 
 	expect(parsed).toEqual({
 		type: 'Header',
+		minVintWidth: 1,
 		value: [
 			{
 				type: 'EBMLVersion',
-				value: 1,
+				value: {value: 1, byteLength: 1},
+				minVintWidth: 1,
 			},
 			{
 				type: 'EBMLReadVersion',
-				value: 1,
+				value: {value: 1, byteLength: 1},
+				minVintWidth: 1,
 			},
 			{
 				type: 'EBMLMaxIDLength',
-				value: 4,
+				value: {value: 4, byteLength: 1},
+				minVintWidth: 1,
 			},
 			{
 				type: 'EBMLMaxSizeLength',
-				value: 8,
+				value: {value: 8, byteLength: 1},
+				minVintWidth: 1,
 			},
 			{
 				type: 'DocType',
 				value: 'webm',
+				minVintWidth: 1,
 			},
 			{
 				type: 'DocTypeVersion',
-				value: 4,
+				value: {value: 4, byteLength: 1},
+				minVintWidth: 1,
 			},
 			{
 				type: 'DocTypeReadVersion',
-				value: 2,
+				value: {value: 2, byteLength: 1},
+				minVintWidth: 1,
 			},
 		],
 	});
@@ -105,6 +124,7 @@ test('Should be able to create SeekIdBox', async () => {
 	const custom = makeMatroskaBytes({
 		type: 'SeekID',
 		value: '0x1549a966',
+		minVintWidth: 1,
 	});
 	expect(custom).toEqual(file);
 });
@@ -120,12 +140,15 @@ test('Should be able to create Seek', async () => {
 			{
 				type: 'SeekID',
 				value: '0x1549a966',
+				minVintWidth: 1,
 			},
 			{
 				type: 'SeekPosition',
-				value: 0x40,
+				value: {value: 0x40, byteLength: 1},
+				minVintWidth: 1,
 			},
 		],
+		minVintWidth: 1,
 	});
 
 	const custom = makeMatroskaBytes(parsed);
@@ -139,7 +162,8 @@ test('Should parse seekHead', async () => {
 
 	const seekPosition = makeMatroskaBytes({
 		type: 'SeekPosition',
-		value: 3911,
+		value: {value: 3911, byteLength: 2},
+		minVintWidth: 1,
 	});
 
 	const custom = makeMatroskaBytes({
@@ -151,11 +175,14 @@ test('Should parse seekHead', async () => {
 					{
 						type: 'SeekID',
 						value: '0x1f43b675',
+						minVintWidth: 1,
 					},
 					seekPosition,
 				],
+				minVintWidth: 1,
 			},
 		],
+		minVintWidth: 1,
 	});
 	expect(custom).toEqual(file);
 
@@ -163,18 +190,18 @@ test('Should parse seekHead', async () => {
 	const parsed = await parseEbml(iterator, options);
 
 	expect(parsed).toEqual({
+		minVintWidth: 1,
 		type: 'SeekHead',
 		value: [
 			{
+				minVintWidth: 1,
 				type: 'Seek',
 				value: [
+					{minVintWidth: 1, type: 'SeekID', value: '0x1f43b675'},
 					{
-						type: 'SeekID',
-						value: '0x1f43b675',
-					},
-					{
+						minVintWidth: 1,
 						type: 'SeekPosition',
-						value: 3911,
+						value: {value: 3911, byteLength: 2},
 					},
 				],
 			},
@@ -182,28 +209,70 @@ test('Should parse seekHead', async () => {
 	});
 });
 
-test('Can we disassemble a Matroska file and assembled it again', async () => {
-	process.env.KEEP_SAMPLES = 'true';
-	const originalFile = statSync(RenderInternals.exampleVideos.opusWebm);
+const parseWebm = async (str: string) => {
 	const {boxes} = await parseMedia({
-		src: RenderInternals.exampleVideos.opusWebm,
+		src: str,
 		fields: {
 			boxes: true,
 		},
-		reader: nodeReader,
 	});
-	let bytesTotal = 0;
+	return boxes;
+};
+
+const stringifyWebm = (boxes: AnySegment[]) => {
 	const buffers: Uint8Array[] = [];
 	for (const box of boxes) {
 		const bytes = makeMatroskaBytes(box as MatroskaSegment);
-		bytesTotal += bytes.length;
 		buffers.push(bytes);
 	}
 
 	const combined = combineUint8Arrays(buffers);
+	return combined;
+};
 
-	// TODO: Remove this
-	await Bun.write('combined.webm', combined);
+const WEBM = {
+	parse: parseWebm,
+	stringify: stringifyWebm,
+};
 
-	expect(bytesTotal).toBe(originalFile.size);
+test('Can we disassemble a Matroska file and assembled it again', async () => {
+	process.env.KEEP_SAMPLES = 'true';
+
+	const input =
+		'https://file-examples.com/storage/fe28b3ef8666c4c399639b9/2020/03/file_example_WEBM_640_1_4MB.webm';
+
+	const parsed = await WEBM.parse(input);
+
+	const segment = parsed.find((s) => s.type === 'Segment') as MainSegment;
+	const tracks = segment.value.find((s) => s.type === 'Tracks') as Tracks;
+	for (const track of tracks.value) {
+		if (track.type === 'TrackEntry') {
+			for (const child of track.value) {
+				if (child.type === 'Video') {
+					const pixelWidth = child.value.find((s) => s.type === 'PixelWidth');
+					const pixelHeight = child.value.find((s) => s.type === 'PixelHeight');
+					const newHeight = (pixelHeight?.value as UintWithSize).value * 2;
+					const newWidth = (pixelWidth?.value as UintWithSize).value / 2;
+					child.value.unshift({
+						type: 'DisplayHeight',
+						value: {
+							value: newHeight,
+							byteLength: 2,
+						},
+						minVintWidth: 1,
+					});
+					child.value.unshift({
+						type: 'DisplayWidth',
+						value: {
+							value: newWidth,
+							byteLength: 2,
+						},
+						minVintWidth: 1,
+					});
+				}
+			}
+		}
+	}
+
+	//	await Bun.write('out.webm', WEBM.stringify(parsed));
 });

@@ -29,7 +29,10 @@ export const parseEbml = async (
 		);
 	}
 
+	const off = iterator.counter.getOffset();
 	const size = iterator.getVint();
+	const minVintWidth = iterator.counter.getOffset() - off;
+
 	if (size === null) {
 		throw new Error(
 			'Not enough bytes left to parse EBML - this should not happen',
@@ -37,9 +40,17 @@ export const parseEbml = async (
 	}
 
 	if (hasInMap.type === 'uint') {
+		const beforeUintOffset = iterator.counter.getOffset();
 		const value = iterator.getUint(size);
 
-		return {type: hasInMap.name, value};
+		return {
+			type: hasInMap.name,
+			value: {
+				value,
+				byteLength: iterator.counter.getOffset() - beforeUintOffset,
+			},
+			minVintWidth,
+		};
 	}
 
 	if (hasInMap.type === 'string') {
@@ -48,6 +59,7 @@ export const parseEbml = async (
 		return {
 			type: hasInMap.name,
 			value,
+			minVintWidth,
 		};
 	}
 
@@ -60,6 +72,7 @@ export const parseEbml = async (
 				value,
 				size: size === 4 ? '32' : '64',
 			},
+			minVintWidth,
 		};
 	}
 
@@ -71,6 +84,7 @@ export const parseEbml = async (
 				[...iterator.getSlice(size)]
 					.map((b) => b.toString(16).padStart(2, '0'))
 					.join(''),
+			minVintWidth,
 		};
 	}
 
@@ -78,6 +92,7 @@ export const parseEbml = async (
 		return {
 			type: hasInMap.name,
 			value: iterator.getSlice(size),
+			minVintWidth,
 		};
 	}
 
@@ -109,7 +124,7 @@ export const parseEbml = async (
 			}
 		}
 
-		return {type: hasInMap.name, value: children};
+		return {type: hasInMap.name, value: children, minVintWidth};
 	}
 
 	// @ts-expect-error
@@ -126,7 +141,7 @@ export const postprocessEbml = async ({
 	parserContext: ParserContext;
 }): Promise<Prettify<PossibleEbml>> => {
 	if (ebml.type === 'TimestampScale') {
-		parserContext.parserState.setTimescale(ebml.value);
+		parserContext.parserState.setTimescale(ebml.value.value);
 	}
 
 	if (ebml.type === 'TrackEntry') {
@@ -147,7 +162,7 @@ export const postprocessEbml = async ({
 	}
 
 	if (ebml.type === 'Timestamp') {
-		parserContext.parserState.setTimestampOffset(offset, ebml.value);
+		parserContext.parserState.setTimestampOffset(offset, ebml.value.value);
 	}
 
 	if (ebml.type === 'Block' || ebml.type === 'SimpleBlock') {
@@ -161,6 +176,7 @@ export const postprocessEbml = async ({
 			return {
 				type: 'Block',
 				value: new Uint8Array([]),
+				minVintWidth: ebml.minVintWidth,
 			};
 		}
 
@@ -172,6 +188,7 @@ export const postprocessEbml = async ({
 			return {
 				type: 'Block',
 				value: new Uint8Array([]),
+				minVintWidth: ebml.minVintWidth,
 			};
 		}
 
@@ -179,6 +196,7 @@ export const postprocessEbml = async ({
 			return {
 				type: 'Block',
 				value: new Uint8Array([]),
+				minVintWidth: ebml.minVintWidth,
 			};
 		}
 	}
@@ -216,10 +234,13 @@ export const postprocessEbml = async ({
 			);
 		}
 
-		return {
-			type: 'BlockGroup',
-			value: [],
-		};
+		if (parserContext.nullifySamples) {
+			return {
+				type: 'BlockGroup',
+				value: [],
+				minVintWidth: ebml.minVintWidth,
+			};
+		}
 	}
 
 	return ebml;

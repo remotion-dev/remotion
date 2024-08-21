@@ -32,10 +32,9 @@ export const measureEBMLVarInt = (value: number) => {
 	throw new Error('EBML VINT size not supported ' + value);
 };
 
-export const getVariableInt = (
-	value: number,
-	width: number = measureEBMLVarInt(value),
-) => {
+export const getVariableInt = (value: number, minWidth: number | null) => {
+	const width = Math.max(measureEBMLVarInt(value), minWidth ?? 0);
+
 	switch (width) {
 		case 1:
 			return new Uint8Array([(1 << 7) | value]);
@@ -66,6 +65,27 @@ export const getVariableInt = (
 		case 6:
 			return new Uint8Array([
 				(1 << 2) | ((value / 2 ** 40) & 0x3),
+				(value / 2 ** 32) | 0,
+				value >> 24,
+				value >> 16,
+				value >> 8,
+				value,
+			]);
+		case 7:
+			return new Uint8Array([
+				(1 << 1) | ((value / 2 ** 48) & 0x1),
+				(value / 2 ** 40) | 0,
+				(value / 2 ** 32) | 0,
+				value >> 24,
+				value >> 16,
+				value >> 8,
+				value,
+			]);
+		case 8:
+			return new Uint8Array([
+				(1 << 0) | ((value / 2 ** 56) & 0x1),
+				(value / 2 ** 48) | 0,
+				(value / 2 ** 40) | 0,
 				(value / 2 ** 32) | 0,
 				value >> 24,
 				value >> 16,
