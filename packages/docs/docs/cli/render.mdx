@@ -22,7 +22,7 @@ Besides choosing a video and output location with the command line arguments, th
 
 ### `--props`
 
-[Input Props to pass to the selected composition of your video.](/docs/parameterized-rendering#passing-input-props-in-the-cli).  
+[Input Props to pass to the selected composition of your video.](/docs/passing-props#passing-input-props-in-the-cli).  
 Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`).  
 From the root component the props can be read using [`getInputProps()`](/docs/get-input-props).  
 You may transform input props using [`calculateMetadata()`](/docs/calculate-metadata).
@@ -135,11 +135,11 @@ For example only every second frame, every third frame and so on. Only works for
 
 ### `--muted`<AvailableFrom v="3.2.1" />
 
-[Disables audio output.](/docs/config#setmuted) This option may only be used when rendering a video.
+[Disables audio output.](/docs/cli/render#--muted) This option may only be used when rendering a video.
 
 ### `--enforce-audio-track`<AvailableFrom v="3.2.1" />
 
-[Render a silent audio track if there wouldn't be one otherwise.](/docs/config#enforceaudiotrack).
+[Render a silent audio track if there wouldn't be one otherwise.](/docs/cli/render#--enforce-audio-track).
 
 ### `--number-of-gif-loops`<AvailableFrom v="3.1.0" />
 
@@ -221,10 +221,10 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 
 _removed in v4.0_
 
-[Set a custom `ffmpeg` executable](/docs/config#setFfmpegExecutable). If not defined, a `ffmpeg` executable will be searched in `PATH`.
+[Set a custom `ffmpeg` executable](/docs/config#setffmpegexecutable). If not defined, a `ffmpeg` executable will be searched in `PATH`.
 
 ### ~~`--ffprobe-executable`~~ <AvailableFrom v="3.0.17" />
 
 _removed in v4.0_
 
-[Set a custom `ffprobe` executable](/docs/config#setFfprobeExecutable). If not defined, a `ffprobe` executable will be searched in `PATH`.
+[Set a custom `ffprobe` executable](/docs/config#setffprobeexecutable). If not defined, a `ffprobe` executable will be searched in `PATH`.

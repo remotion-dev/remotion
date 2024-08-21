@@ -390,7 +390,7 @@ Lambda version: '2021-11-12'
 
 1. Update to the newest version of Remotion Lambda.
 1. Read [Step 2](/docs/lambda/setup#2-create-role-policy) of the setup guide and update the role with the newest policy (`npx remotion lambda policies role`).
-1. Read [Step 5](/docs/lambda/setup#5-add-permissions-to-your-user) of the setup guide and update the user with the newest policy (`npx remotion lambda policies user`).
+1. Read [Step 5](/docs/lambda/setup#5-create-an-access-key-for-the-user) of the setup guide and update the user with the newest policy (`npx remotion lambda policies user`).
 
 - **Breaking change**: If your application throws an error or exception, the render will now fail. This will be the default behavior of Remotion 3.0. See: [3.0 Migration](/docs/3-0-migration)
 - Added CloudWatch support, now you can read the logs inside the Lambda function. When you execute `npx remotion lambda render`, add the `--log=verbose` flag to print out an URL to CloudWatch.
