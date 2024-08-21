@@ -118,7 +118,12 @@ test('Should get duration of AV1 video', async () => {
 				},
 				{
 					type: 'Void',
-					value: new Uint8Array([]),
+					value: new Uint8Array([
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+					]),
 				},
 				{
 					type: 'Info',
@@ -139,7 +144,7 @@ test('Should get duration of AV1 video', async () => {
 							type: 'Duration',
 							value: {
 								value: 1000,
-								size: '32',
+								size: '64',
 							},
 						},
 					],
@@ -191,7 +196,10 @@ test('Should get duration of AV1 video', async () => {
 										},
 										{
 											type: 'Colour',
-											value: new Uint8Array([]),
+											value: new Uint8Array([
+												85, 186, 129, 1, 85, 177, 129, 1, 85, 187, 129, 1, 85,
+												185, 129, 1,
+											]),
 										},
 									],
 								},
@@ -211,11 +219,20 @@ test('Should get duration of AV1 video', async () => {
 					value: [
 						{
 							type: 'Tag',
-							value: new Uint8Array([]),
+							value: new Uint8Array([
+								99, 192, 128, 103, 200, 153, 69, 163, 135, 69, 78, 67, 79, 68,
+								69, 82, 68, 135, 140, 76, 97, 118, 102, 54, 48, 46, 51, 46, 49,
+								48, 48,
+							]),
 						},
 						{
 							type: 'Tag',
-							value: new Uint8Array([]),
+							value: new Uint8Array([
+								99, 192, 139, 99, 197, 136, 171, 33, 113, 1, 43, 185, 2, 10,
+								103, 200, 162, 69, 163, 136, 68, 85, 82, 65, 84, 73, 79, 78, 68,
+								135, 148, 48, 48, 58, 48, 48, 58, 48, 49, 46, 48, 48, 48, 48,
+								48, 48, 48, 48, 48, 0, 0,
+							]),
 						},
 					],
 				},
@@ -330,7 +347,10 @@ test('Should get duration of AV1 video', async () => {
 				},
 				{
 					type: 'Cues',
-					value: new Uint8Array([]),
+					value: new Uint8Array([
+						187, 143, 179, 129, 0, 183, 138, 247, 129, 1, 241, 130, 1, 159, 240,
+						129, 3,
+					]),
 				},
 			],
 		},
