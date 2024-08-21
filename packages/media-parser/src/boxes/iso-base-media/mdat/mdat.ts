@@ -116,6 +116,7 @@ export const parseMdat = async ({
 		}
 
 		const remaining = size - (data.counter.getOffset() - fileOffset);
+		data.removeBytesRead();
 		if (remaining === 0) {
 			break;
 		}

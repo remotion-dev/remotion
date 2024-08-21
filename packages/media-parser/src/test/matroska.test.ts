@@ -24,146 +24,177 @@ test('Should get duration of AV1 video', async () => {
 
 	expect(parsed.boxes).toEqual([
 		{
+			type: 'Header',
+			value: [
+				{
+					type: 'EBMLVersion',
+					value: 1,
+				},
+				{
+					type: 'EBMLReadVersion',
+					value: 1,
+				},
+				{
+					type: 'EBMLMaxIDLength',
+					value: 4,
+				},
+				{
+					type: 'EBMLMaxSizeLength',
+					value: 8,
+				},
+				{
+					type: 'DocType',
+					value: 'webm',
+				},
+				{
+					type: 'DocTypeVersion',
+					value: 2,
+				},
+				{
+					type: 'DocTypeReadVersion',
+					value: 2,
+				},
+			],
+		},
+		{
 			type: 'main-segment',
 			children: [
 				{
-					type: 'seek-head-segment',
-					length: 59,
-					children: [
+					type: 'SeekHead',
+					value: [
 						{
-							type: 'seek-segment',
-							children: [
+							type: 'Seek',
+							value: [
 								{
-									type: 'seek-id-segment',
-									seekId: '0x1549a966',
+									type: 'SeekID',
+									value: '0x1549a966',
 								},
 								{
-									type: 'seek-position-segment',
-									seekPosition: 161,
+									type: 'SeekPosition',
+									value: 161,
 								},
 							],
 						},
 						{
-							type: 'seek-segment',
-							children: [
+							type: 'Seek',
+							value: [
 								{
-									type: 'seek-id-segment',
-									seekId: '0x1654ae6b',
+									type: 'SeekID',
+									value: '0x1654ae6b',
 								},
 								{
-									type: 'seek-position-segment',
-									seekPosition: 214,
-								},
-							],
-						},
-						{
-							type: 'seek-segment',
-							children: [
-								{
-									type: 'seek-id-segment',
-									seekId: '0x1254c367',
-								},
-								{
-									type: 'seek-position-segment',
-									seekPosition: 322,
+									type: 'SeekPosition',
+									value: 214,
 								},
 							],
 						},
 						{
-							type: 'seek-segment',
-							children: [
+							type: 'Seek',
+							value: [
 								{
-									type: 'seek-id-segment',
-									seekId: '0x1c53bb6b',
+									type: 'SeekID',
+									value: '0x1254c367',
 								},
 								{
-									type: 'seek-position-segment',
-									seekPosition: 347329,
+									type: 'SeekPosition',
+									value: 322,
+								},
+							],
+						},
+						{
+							type: 'Seek',
+							value: [
+								{
+									type: 'SeekID',
+									value: '0x1c53bb6b',
+								},
+								{
+									type: 'SeekPosition',
+									value: 347329,
 								},
 							],
 						},
 					],
 				},
 				{
-					type: 'void-segment',
-					length: 88,
+					type: 'Void',
+					value: undefined,
 				},
 				{
-					type: 'info-segment',
-					length: 48,
-					children: [
+					type: 'Info',
+					value: [
 						{
-							type: 'timestamp-scale-segment',
-							timestampScale: 1000000,
+							type: 'TimestampScale',
+							value: 1000000,
 						},
 						{
-							type: 'muxing-app-segment',
+							type: 'MuxingApp',
 							value: 'Lavf60.3.100',
 						},
 						{
-							type: 'writing-app-segment',
+							type: 'WritingApp',
 							value: 'Lavf60.3.100',
 						},
 						{
-							type: 'duration-segment',
-							duration: 1000,
+							type: 'Duration',
+							value: 1000,
 						},
 					],
 				},
 				{
-					type: 'tracks-segment',
-					children: [
+					type: 'Tracks',
+					value: [
 						{
-							type: 'track-entry-segment',
-							children: [
+							type: 'TrackEntry',
+							value: [
 								{
-									type: 'track-number-segment',
-									trackNumber: 1,
+									type: 'TrackNumber',
+									value: 1,
 								},
 								{
-									type: 'track-uid-segment',
-									trackUid: 'ab2171012bb9020a',
+									type: 'TrackUID',
+									value: '0xab2171012bb9020a',
 								},
 								{
-									type: 'flag-lacing-segment',
-									lacing: false,
+									type: 'FlagLacing',
+									value: 0,
 								},
 								{
-									type: 'language-segment',
-									language: 'und',
+									type: 'Language',
+									value: 'und',
 								},
 								{
-									type: 'codec-segment',
-									codec: 'V_AV1',
+									type: 'CodecID',
+									value: 'V_AV1',
 								},
 								{
-									type: 'track-type-segment',
-									trackType: 'video',
+									type: 'TrackType',
+									value: 1,
 								},
 								{
-									type: 'default-duration-segment',
-									defaultDuration: 40000000,
+									type: 'DefaultDuration',
+									value: 40000000,
 								},
 								{
-									type: 'video-segment',
-									children: [
+									type: 'Video',
+									value: [
 										{
-											type: 'width-segment',
-											width: 1920,
+											type: 'PixelWidth',
+											value: 1920,
 										},
 										{
-											type: 'height-segment',
-											height: 1080,
+											type: 'PixelHeight',
+											value: 1080,
 										},
 										{
-											type: 'color-segment',
-											length: 16,
+											type: 'Colour',
+											value: undefined,
 										},
 									],
 								},
 								{
-									type: 'codec-private-segment',
-									codecPrivateData: new Uint8Array([
+									type: 'CodecPrivate',
+									value: new Uint8Array([
 										129, 8, 12, 0, 10, 14, 0, 0, 0, 66, 171, 191, 195, 118, 0,
 										8, 8, 8, 8, 32,
 									]),
@@ -173,15 +204,15 @@ test('Should get duration of AV1 video', async () => {
 					],
 				},
 				{
-					type: 'tags-segment',
-					children: [
+					type: 'Tags',
+					value: [
 						{
-							type: 'tag-segment',
-							length: 31,
+							type: 'Tag',
+							value: undefined,
 						},
 						{
-							type: 'tag-segment',
-							length: 51,
+							type: 'Tag',
+							value: undefined,
 						},
 					],
 				},
@@ -189,14 +220,14 @@ test('Should get duration of AV1 video', async () => {
 					type: 'cluster-segment',
 					children: [
 						{
-							type: 'timestamp-segment',
-							timestamp: 0,
+							type: 'Timestamp',
+							value: 0,
 						},
 						{
 							type: 'simple-block-or-block-segment',
 							length: 279307,
 							trackNumber: 1,
-							timecode: 0,
+							timecodeInMicroseconds: 0,
 							keyframe: true,
 							lacing: 0,
 							invisible: false,
@@ -206,7 +237,7 @@ test('Should get duration of AV1 video', async () => {
 							type: 'simple-block-or-block-segment',
 							length: 96,
 							trackNumber: 1,
-							timecode: 40,
+							timecodeInMicroseconds: 40000,
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
@@ -216,7 +247,7 @@ test('Should get duration of AV1 video', async () => {
 							type: 'simple-block-or-block-segment',
 							length: 556,
 							trackNumber: 1,
-							timecode: 80,
+							timecodeInMicroseconds: 80000,
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
@@ -226,7 +257,7 @@ test('Should get duration of AV1 video', async () => {
 							type: 'simple-block-or-block-segment',
 							length: 948,
 							trackNumber: 1,
-							timecode: 120,
+							timecodeInMicroseconds: 120000,
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
@@ -236,7 +267,7 @@ test('Should get duration of AV1 video', async () => {
 							type: 'simple-block-or-block-segment',
 							length: 577,
 							trackNumber: 1,
-							timecode: 160,
+							timecodeInMicroseconds: 160000,
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
@@ -246,7 +277,7 @@ test('Should get duration of AV1 video', async () => {
 							type: 'simple-block-or-block-segment',
 							length: 779,
 							trackNumber: 1,
-							timecode: 200,
+							timecodeInMicroseconds: 200000,
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
@@ -256,7 +287,7 @@ test('Should get duration of AV1 video', async () => {
 							type: 'simple-block-or-block-segment',
 							length: 793,
 							trackNumber: 1,
-							timecode: 240,
+							timecodeInMicroseconds: 240000,
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
@@ -266,7 +297,7 @@ test('Should get duration of AV1 video', async () => {
 							type: 'simple-block-or-block-segment',
 							length: 740,
 							trackNumber: 1,
-							timecode: 280,
+							timecodeInMicroseconds: 280000,
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
@@ -276,7 +307,7 @@ test('Should get duration of AV1 video', async () => {
 							type: 'simple-block-or-block-segment',
 							length: 1095,
 							trackNumber: 1,
-							timecode: 320,
+							timecodeInMicroseconds: 320000,
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
@@ -286,7 +317,7 @@ test('Should get duration of AV1 video', async () => {
 							type: 'simple-block-or-block-segment',
 							length: 1097,
 							trackNumber: 1,
-							timecode: 360,
+							timecodeInMicroseconds: 360000,
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
@@ -296,7 +327,7 @@ test('Should get duration of AV1 video', async () => {
 							type: 'simple-block-or-block-segment',
 							length: 1155,
 							trackNumber: 1,
-							timecode: 400,
+							timecodeInMicroseconds: 400000,
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
@@ -306,7 +337,7 @@ test('Should get duration of AV1 video', async () => {
 							type: 'simple-block-or-block-segment',
 							length: 1526,
 							trackNumber: 1,
-							timecode: 440,
+							timecodeInMicroseconds: 440000,
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
@@ -316,7 +347,7 @@ test('Should get duration of AV1 video', async () => {
 							type: 'simple-block-or-block-segment',
 							length: 1487,
 							trackNumber: 1,
-							timecode: 480,
+							timecodeInMicroseconds: 480000,
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
@@ -326,7 +357,7 @@ test('Should get duration of AV1 video', async () => {
 							type: 'simple-block-or-block-segment',
 							length: 2046,
 							trackNumber: 1,
-							timecode: 520,
+							timecodeInMicroseconds: 520000,
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
@@ -336,7 +367,7 @@ test('Should get duration of AV1 video', async () => {
 							type: 'simple-block-or-block-segment',
 							length: 1372,
 							trackNumber: 1,
-							timecode: 560,
+							timecodeInMicroseconds: 560000,
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
@@ -346,7 +377,7 @@ test('Should get duration of AV1 video', async () => {
 							type: 'simple-block-or-block-segment',
 							length: 1441,
 							trackNumber: 1,
-							timecode: 600,
+							timecodeInMicroseconds: 600000,
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
@@ -356,7 +387,7 @@ test('Should get duration of AV1 video', async () => {
 							type: 'simple-block-or-block-segment',
 							length: 2947,
 							trackNumber: 1,
-							timecode: 640,
+							timecodeInMicroseconds: 640000,
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
@@ -366,7 +397,7 @@ test('Should get duration of AV1 video', async () => {
 							type: 'simple-block-or-block-segment',
 							length: 2652,
 							trackNumber: 1,
-							timecode: 680,
+							timecodeInMicroseconds: 680000,
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
@@ -376,7 +407,7 @@ test('Should get duration of AV1 video', async () => {
 							type: 'simple-block-or-block-segment',
 							length: 4199,
 							trackNumber: 1,
-							timecode: 720,
+							timecodeInMicroseconds: 720000,
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
@@ -386,7 +417,7 @@ test('Should get duration of AV1 video', async () => {
 							type: 'simple-block-or-block-segment',
 							length: 3998,
 							trackNumber: 1,
-							timecode: 760,
+							timecodeInMicroseconds: 760000,
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
@@ -396,7 +427,7 @@ test('Should get duration of AV1 video', async () => {
 							type: 'simple-block-or-block-segment',
 							length: 6373,
 							trackNumber: 1,
-							timecode: 800,
+							timecodeInMicroseconds: 800000,
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
@@ -406,7 +437,7 @@ test('Should get duration of AV1 video', async () => {
 							type: 'simple-block-or-block-segment',
 							length: 5955,
 							trackNumber: 1,
-							timecode: 840,
+							timecodeInMicroseconds: 840000,
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
@@ -416,7 +447,7 @@ test('Should get duration of AV1 video', async () => {
 							type: 'simple-block-or-block-segment',
 							length: 7943,
 							trackNumber: 1,
-							timecode: 880,
+							timecodeInMicroseconds: 880000,
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
@@ -426,7 +457,7 @@ test('Should get duration of AV1 video', async () => {
 							type: 'simple-block-or-block-segment',
 							length: 8241,
 							trackNumber: 1,
-							timecode: 920,
+							timecodeInMicroseconds: 920000,
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
@@ -436,7 +467,7 @@ test('Should get duration of AV1 video', async () => {
 							type: 'simple-block-or-block-segment',
 							length: 9506,
 							trackNumber: 1,
-							timecode: 960,
+							timecodeInMicroseconds: 960000,
 							keyframe: false,
 							lacing: 0,
 							invisible: false,
@@ -445,8 +476,8 @@ test('Should get duration of AV1 video', async () => {
 					],
 				},
 				{
-					id: '0x1c53bb6b',
-					type: 'unknown-segment',
+					type: 'Cues',
+					value: undefined,
 				},
 			],
 		},

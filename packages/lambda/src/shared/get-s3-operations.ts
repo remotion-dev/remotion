@@ -5,33 +5,58 @@ export const getS3DiffOperations = async ({
 	objects,
 	bundle,
 	prefix,
+	onProgress,
 }: {
 	objects: _Object[];
 	bundle: string;
 	prefix: string;
+	onProgress: (bytes: number) => void;
 }) => {
-	const dir = await readDirectory({
+	let totalBytes = 0;
+	const dir = readDirectory({
 		dir: bundle,
 		etags: {},
 		originalDir: bundle,
+		onProgress: (bytes) => {
+			totalBytes += bytes;
+			onProgress(totalBytes);
+		},
 	});
 
-	const filesOnS3ButNotLocal = objects.filter((fileOnS3) => {
+	const filesOnS3ButNotLocal: _Object[] = [];
+	for (const fileOnS3 of objects) {
 		const key = fileOnS3.Key?.substring(prefix.length + 1) as string;
-		return !dir[key];
-	});
-	const localFilesNotOnS3 = Object.keys(dir).filter((d) => {
-		return !objects.find((o) => {
+		if (!dir[key]) {
+			filesOnS3ButNotLocal.push(fileOnS3);
+		}
+	}
+
+	const localFilesNotOnS3: string[] = [];
+	for (const d of Object.keys(dir)) {
+		let found: _Object | undefined;
+		for (const o of objects) {
 			const key = o.Key?.substring(prefix.length + 1) as string;
-			return key === d && o.ETag === dir[d];
-		});
-	});
-	const existing = Object.keys(dir).filter((d) => {
-		return objects.find((o) => {
+			if (key === d && o.ETag === (await dir[d]())) {
+				found = o;
+				break;
+			}
+		}
+
+		if (!found) {
+			localFilesNotOnS3.push(d);
+		}
+	}
+
+	const existing: string[] = [];
+	for (const d of Object.keys(dir)) {
+		for (const o of objects) {
 			const key = o.Key?.substring(prefix.length + 1) as string;
-			return key === d && o.ETag === dir[d];
-		});
-	});
+			if (key === d && o.ETag === (await dir[d]())) {
+				existing.push(d);
+				break;
+			}
+		}
+	}
 
 	return {
 		toDelete: filesOnS3ButNotLocal,

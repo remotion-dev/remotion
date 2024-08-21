@@ -81,34 +81,32 @@ export const getVideoCodec = (boxes: AnySegment[]): KnownVideoCodecs | null => {
 		return null;
 	}
 
-	const tracksSegment = mainSegment.children.find(
-		(b) => b.type === 'tracks-segment',
-	);
-	if (!tracksSegment || tracksSegment.type !== 'tracks-segment') {
+	const tracksSegment = mainSegment.children.find((b) => b.type === 'Tracks');
+	if (!tracksSegment || tracksSegment.type !== 'Tracks') {
 		return null;
 	}
 
-	for (const track of tracksSegment.children) {
-		if (track.type === 'track-entry-segment') {
-			const trackType = track.children.find((b) => b.type === 'codec-segment');
-			if (trackType && trackType.type === 'codec-segment') {
-				if (trackType.codec === 'V_VP8') {
+	for (const track of tracksSegment.value) {
+		if (track.type === 'TrackEntry') {
+			const trackType = track.value.find((b) => b.type === 'CodecID');
+			if (trackType && trackType.type === 'CodecID') {
+				if (trackType.value === 'V_VP8') {
 					return 'vp8';
 				}
 
-				if (trackType.codec === 'V_VP9') {
+				if (trackType.value === 'V_VP9') {
 					return 'vp9';
 				}
 
-				if (trackType.codec === 'V_AV1') {
+				if (trackType.value === 'V_AV1') {
 					return 'av1';
 				}
 
-				if (trackType.codec === 'V_MPEG4/ISO/AVC') {
+				if (trackType.value === 'V_MPEG4/ISO/AVC') {
 					return 'h264';
 				}
 
-				if (trackType.codec === 'V_MPEGH/ISO/HEVC') {
+				if (trackType.value === 'V_MPEGH/ISO/HEVC') {
 					return 'h265';
 				}
 			}

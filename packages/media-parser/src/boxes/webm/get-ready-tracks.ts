@@ -14,12 +14,12 @@ export const getTracksFromMatroska = (
 
 	const tracks: Track[] = [];
 
-	for (const trackEntrySegment of tracksSegment.children) {
-		if (trackEntrySegment.type === 'crc32-segment') {
+	for (const trackEntrySegment of tracksSegment.value) {
+		if (trackEntrySegment.type === 'Crc32') {
 			continue;
 		}
 
-		if (trackEntrySegment.type !== 'track-entry-segment') {
+		if (trackEntrySegment.type !== 'TrackEntry') {
 			throw new Error('Expected track entry segment');
 		}
 
