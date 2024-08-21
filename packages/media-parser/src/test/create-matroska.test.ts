@@ -233,15 +233,10 @@ const stringifyWebm = (boxes: AnySegment[]) => {
 	return combined;
 };
 
-const WEBM = {
-	parse: parseWebm,
-	stringify: stringifyWebm,
-};
-
 test('Can we disassemble a Matroska file and assembled it again', async () => {
 	process.env.KEEP_SAMPLES = 'true';
 
-	const parsed = await WEBM.parse('input.webm');
+	const parsed = await parseWebm('input.webm');
 
 	const segment = parsed.find((s) => s.type === 'Segment') as MainSegment;
 	const tracks = segment.value.flatMap((s) =>
@@ -259,5 +254,8 @@ test('Can we disassemble a Matroska file and assembled it again', async () => {
 		}
 	}
 
-	await Bun.write('out.webm', WEBM.stringify(parsed));
+	const bytes = await Bun.file('input.webm').arrayBuffer();
+	expect(stringifyWebm(parsed).byteLength).toEqual(
+		new Uint8Array(bytes).byteLength,
+	);
 });
