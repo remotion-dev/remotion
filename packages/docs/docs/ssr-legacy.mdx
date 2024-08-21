@@ -118,47 +118,6 @@ const start = async () => {
 start();
 ```
 
-## Render using a HTTP server
-
-In the [template](/docs#installation), we added a minimal example of an HTTP server that dynamically returns a video whenever you call the URL.
-
-The server is located under `server.tsx`, and you can run it using `npm run server`. Call the default URL with parameters, and it will return a video after some time! Try it out in the browser or using cURL:
-
-```bash
-curl "http://localhost:8000?titleText=Hello,+World!&titleColor=red" > output.mp4
-```
-
-Note that we only added a minimal example. For production, you should consider adding a queueing system and rate limiting.
-
-## Render using a HTTP server (Dockerized)
-
-We added a Dockerfile that includes FFMPEG and added it to the template. That means you can also run the server described in the section above using Docker.
-
-```bash
-docker build -t my-video .
-docker run -p 8000:8000 --privileged my-video
-```
-
-## Render using GitHub Actions
-
-The template includes a GitHub Actions workflow file
-under `.github/workflows/render-video.yml`. All you have to do is to adjust the props that your root component accepts in the workflow file and you can render a video right on GitHub.
-
-1. Commit the template to a GitHub repository
-2. On GitHub, click the 'Actions' tab.
-3. Select the 'Render video' workflow on the left.
-4. A 'Run workflow' button should appear. Click it
-5. Fill in the props of the root component and click 'Run workflow'.
-6. After the rendering is finished, you can download the video under 'Artifacts'.
-
-Note that running the workflow may incur costs. However, the workflow will only run if you actively trigger it.
-
-[See also: Passing props in GitHub Actions](/docs/passing-props#passing-input-props-in-github-actions)
-
-## Rendering a video using serverless
-
-We are working on a library which will help you render videos using AWS Lambda. Contact us if you are interested in testing an early version or read the `#lambda` channel on our Discord server.
-
 ## API reference
 
 - [bundle()](/docs/bundle)
