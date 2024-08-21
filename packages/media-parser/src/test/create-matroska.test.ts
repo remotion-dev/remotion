@@ -1,13 +1,15 @@
+/* eslint-disable padding-line-between-statements */
+/* eslint-disable max-depth */
 import {expect, test} from 'bun:test';
 import {combineUint8Arrays, makeMatroskaBytes} from '../boxes/webm/make-header';
 import {parseEbml} from '../boxes/webm/parse-ebml';
 import type {MatroskaSegment} from '../boxes/webm/segments';
 import type {
 	MainSegment,
-	Tracks,
-	UintWithSize,
+	TrackEntry,
 } from '../boxes/webm/segments/all-segments';
 import {getArrayBufferIterator} from '../buffer-iterator';
+import {nodeReader} from '../from-node';
 import {parseMedia} from '../parse-media';
 import type {AnySegment} from '../parse-result';
 import type {ParserContext} from '../parser-context';
@@ -215,6 +217,7 @@ const parseWebm = async (str: string) => {
 		fields: {
 			boxes: true,
 		},
+		reader: nodeReader,
 	});
 	return boxes;
 };
@@ -238,41 +241,23 @@ const WEBM = {
 test('Can we disassemble a Matroska file and assembled it again', async () => {
 	process.env.KEEP_SAMPLES = 'true';
 
-	const input =
-		'https://file-examples.com/storage/fe28b3ef8666c4c399639b9/2020/03/file_example_WEBM_640_1_4MB.webm';
-
-	const parsed = await WEBM.parse(input);
+	const parsed = await WEBM.parse('input.webm');
 
 	const segment = parsed.find((s) => s.type === 'Segment') as MainSegment;
-	const tracks = segment.value.find((s) => s.type === 'Tracks') as Tracks;
-	for (const track of tracks.value) {
-		if (track.type === 'TrackEntry') {
-			for (const child of track.value) {
-				if (child.type === 'Video') {
-					const pixelWidth = child.value.find((s) => s.type === 'PixelWidth');
-					const pixelHeight = child.value.find((s) => s.type === 'PixelHeight');
-					const newHeight = (pixelHeight?.value as UintWithSize).value * 2;
-					const newWidth = (pixelWidth?.value as UintWithSize).value / 2;
-					child.value.unshift({
-						type: 'DisplayHeight',
-						value: {
-							value: newHeight,
-							byteLength: 2,
-						},
-						minVintWidth: 1,
-					});
-					child.value.unshift({
-						type: 'DisplayWidth',
-						value: {
-							value: newWidth,
-							byteLength: 2,
-						},
-						minVintWidth: 1,
-					});
+	const tracks = segment.value.flatMap((s) =>
+		s.type === 'Tracks' ? s.value.filter((a) => a.type === 'TrackEntry') : [],
+	);
+	for (const track of tracks as TrackEntry[]) {
+		for (const child of track.value) {
+			if (child.type === 'Video') {
+				for (const attribute of child.value) {
+					if (attribute.type === 'DisplayHeight') {
+						attribute.value.value *= 3;
+					}
 				}
 			}
 		}
 	}
 
-	//	await Bun.write('out.webm', WEBM.stringify(parsed));
+	await Bun.write('out.webm', WEBM.stringify(parsed));
 });

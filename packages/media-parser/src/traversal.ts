@@ -20,7 +20,7 @@ import type {
 	HeightSegment,
 	MainSegment,
 	TimestampScaleSegment,
-	TrackEntrySegment,
+	TrackEntry,
 	TrackTypeSegment,
 	VideoSegment,
 	WidthSegment,
@@ -276,9 +276,7 @@ export const getTimescaleSegment = (
 	return timescale as TimestampScaleSegment;
 };
 
-export const getVideoSegment = (
-	track: TrackEntrySegment,
-): VideoSegment | null => {
+export const getVideoSegment = (track: TrackEntry): VideoSegment | null => {
 	const videoSegment = track.value.find((b) => b.type === 'Video');
 	if (!videoSegment || videoSegment.type !== 'Video') {
 		return null;
@@ -287,9 +285,7 @@ export const getVideoSegment = (
 	return videoSegment ?? null;
 };
 
-export const getAudioSegment = (
-	track: TrackEntrySegment,
-): AudioSegment | null => {
+export const getAudioSegment = (track: TrackEntry): AudioSegment | null => {
 	const audioSegment = track.value.find((b) => b.type === 'Audio');
 	if (!audioSegment || audioSegment.type !== 'Audio') {
 		return null;
@@ -298,7 +294,7 @@ export const getAudioSegment = (
 	return audioSegment ?? null;
 };
 
-export const getSampleRate = (track: TrackEntrySegment): number | null => {
+export const getSampleRate = (track: TrackEntry): number | null => {
 	const audioSegment = getAudioSegment(track);
 	if (!audioSegment) {
 		return null;
@@ -315,7 +311,7 @@ export const getSampleRate = (track: TrackEntrySegment): number | null => {
 	return samplingFrequency.value.value;
 };
 
-export const getNumberOfChannels = (track: TrackEntrySegment): number => {
+export const getNumberOfChannels = (track: TrackEntry): number => {
 	const audioSegment = getAudioSegment(track);
 	if (!audioSegment) {
 		throw new Error('Could not find audio segment');
@@ -330,7 +326,7 @@ export const getNumberOfChannels = (track: TrackEntrySegment): number => {
 	return channels.value.value;
 };
 
-export const getBitDepth = (track: TrackEntrySegment): number | null => {
+export const getBitDepth = (track: TrackEntry): number | null => {
 	const audioSegment = getAudioSegment(track);
 	if (!audioSegment) {
 		return null;
@@ -345,7 +341,7 @@ export const getBitDepth = (track: TrackEntrySegment): number | null => {
 	return bitDepth.value.value;
 };
 
-export const getPrivateData = (track: TrackEntrySegment): Uint8Array | null => {
+export const getPrivateData = (track: TrackEntry): Uint8Array | null => {
 	const privateData = track.value.find((b) => b.type === 'CodecPrivate');
 
 	if (!privateData || privateData.type !== 'CodecPrivate') {
@@ -355,9 +351,7 @@ export const getPrivateData = (track: TrackEntrySegment): Uint8Array | null => {
 	return privateData.value;
 };
 
-export const getWidthSegment = (
-	track: TrackEntrySegment,
-): WidthSegment | null => {
+export const getWidthSegment = (track: TrackEntry): WidthSegment | null => {
 	const videoSegment = getVideoSegment(track);
 	if (!videoSegment) {
 		return null;
@@ -372,9 +366,7 @@ export const getWidthSegment = (
 	return width;
 };
 
-export const getHeightSegment = (
-	track: TrackEntrySegment,
-): HeightSegment | null => {
+export const getHeightSegment = (track: TrackEntry): HeightSegment | null => {
 	const videoSegment = getVideoSegment(track);
 	if (!videoSegment) {
 		return null;
@@ -390,7 +382,7 @@ export const getHeightSegment = (
 };
 
 export const getDisplayWidthSegment = (
-	track: TrackEntrySegment,
+	track: TrackEntry,
 ): DisplayWidthSegment | null => {
 	const videoSegment = getVideoSegment(track);
 	if (!videoSegment) {
@@ -409,7 +401,7 @@ export const getDisplayWidthSegment = (
 };
 
 export const getDisplayHeightSegment = (
-	track: TrackEntrySegment,
+	track: TrackEntry,
 ): DisplayHeightSegment | null => {
 	const videoSegment = getVideoSegment(track);
 	if (!videoSegment) {
@@ -428,7 +420,7 @@ export const getDisplayHeightSegment = (
 };
 
 export const getTrackTypeSegment = (
-	track: TrackEntrySegment,
+	track: TrackEntry,
 ): TrackTypeSegment | null => {
 	const trackType = track.value.find((b) => b.type === 'TrackType');
 	if (!trackType || trackType.type !== 'TrackType') {
@@ -438,7 +430,7 @@ export const getTrackTypeSegment = (
 	return trackType;
 };
 
-export const getTrackId = (track: TrackEntrySegment): number => {
+export const getTrackId = (track: TrackEntry): number => {
 	const trackId = track.value.find((b) => b.type === 'TrackNumber');
 	if (!trackId || trackId.type !== 'TrackNumber') {
 		throw new Error('Expected track number segment');
@@ -447,9 +439,7 @@ export const getTrackId = (track: TrackEntrySegment): number => {
 	return trackId.value.value;
 };
 
-export const getCodecSegment = (
-	track: TrackEntrySegment,
-): CodecIdSegment | null => {
+export const getCodecSegment = (track: TrackEntry): CodecIdSegment | null => {
 	const codec = track.value.find((b) => b.type === 'CodecID');
 	if (!codec || codec.type !== 'CodecID') {
 		return null;

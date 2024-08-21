@@ -1,4 +1,4 @@
-import type {TrackEntrySegment} from './all-segments';
+import type {TrackEntry} from './all-segments';
 
 export type TrackInfo = {
 	codec: string;
@@ -35,4 +35,4 @@ export const trackTypeToString = (trackType: number): TrackType => {
 	}
 };
 
-export type GetTracks = () => TrackEntrySegment[];
+export type GetTracks = () => TrackEntry[];

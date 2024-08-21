@@ -16,10 +16,10 @@ import {
 } from '../../traversal';
 import {parseAv1PrivateData} from './av1-codec-private';
 import {getAudioDescription} from './description';
-import type {CodecIdSegment, TrackEntrySegment} from './segments/all-segments';
+import type {CodecIdSegment, TrackEntry} from './segments/all-segments';
 import {trackTypeToString} from './segments/track-entry';
 
-const getDescription = (track: TrackEntrySegment): undefined | Uint8Array => {
+const getDescription = (track: TrackEntry): undefined | Uint8Array => {
 	const codec = getCodecSegment(track);
 	if (!codec) {
 		return undefined;
@@ -39,7 +39,7 @@ const getMatroskaVideoCodecString = ({
 	track,
 	codecSegment: codec,
 }: {
-	track: TrackEntrySegment;
+	track: TrackEntry;
 	codecSegment: CodecIdSegment;
 }): string | null => {
 	if (codec.value === 'V_VP8') {
@@ -89,7 +89,7 @@ const getMatroskaVideoCodecString = ({
 	throw new Error(`Unknown codec: ${codec.value}`);
 };
 
-const getMatroskaAudioCodecString = (track: TrackEntrySegment): string => {
+const getMatroskaAudioCodecString = (track: TrackEntry): string => {
 	const codec = getCodecSegment(track);
 	if (!codec) {
 		throw new Error('Expected codec segment');
@@ -169,7 +169,7 @@ export const getTrack = ({
 	track,
 }: {
 	timescale: number;
-	track: TrackEntrySegment;
+	track: TrackEntry;
 }): VideoTrack | AudioTrack | null => {
 	const trackType = getTrackTypeSegment(track);
 

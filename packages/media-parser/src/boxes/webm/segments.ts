@@ -2,12 +2,12 @@ import type {BufferIterator} from '../../buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
 import {parseEbml, postprocessEbml} from './parse-ebml';
-import type {PossibleEbml, TrackEntrySegment} from './segments/all-segments';
+import type {PossibleEbml, TrackEntry} from './segments/all-segments';
 import {expectChildren} from './segments/parse-children';
 
 export type MatroskaSegment = PossibleEbml;
 
-export type OnTrackEntrySegment = (trackEntry: TrackEntrySegment) => void;
+export type OnTrackEntrySegment = (trackEntry: TrackEntry) => void;
 
 const parseSegment = async ({
 	segmentId,
