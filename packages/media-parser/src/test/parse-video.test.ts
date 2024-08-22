@@ -1,7 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
-import {nodeReader} from '../from-node';
 import {parseMedia} from '../parse-media';
+import {nodeReader} from '../readers/from-node';
 
 test('Parse Big Buck bunny', async () => {
 	const data = await parseMedia({

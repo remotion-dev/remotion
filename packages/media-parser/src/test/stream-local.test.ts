@@ -1,7 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
-import {nodeReader} from '../from-node';
 import {parseMedia} from '../parse-media';
+import {nodeReader} from '../readers/from-node';
 
 test('Should stream ISO base media', async () => {
 	let videoTracks = 0;

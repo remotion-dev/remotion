@@ -1,7 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
-import {nodeReader} from '../from-node';
 import {parseMedia} from '../parse-media';
+import {nodeReader} from '../readers/from-node';
 
 test('should be able to parse a WebM', async () => {
 	const webm = await parseMedia({

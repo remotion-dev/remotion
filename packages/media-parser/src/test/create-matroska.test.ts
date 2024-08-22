@@ -9,11 +9,11 @@ import type {
 	TrackEntry,
 } from '../boxes/webm/segments/all-segments';
 import {getArrayBufferIterator} from '../buffer-iterator';
-import {nodeReader} from '../from-node';
 import {parseMedia} from '../parse-media';
 import type {AnySegment} from '../parse-result';
 import type {ParserContext} from '../parser-context';
 import {makeParserState} from '../parser-state';
+import {nodeReader} from '../readers/from-node';
 
 const state = makeParserState({
 	hasAudioCallbacks: false,

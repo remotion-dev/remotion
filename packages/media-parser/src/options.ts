@@ -3,7 +3,7 @@ import type {Dimensions} from './get-dimensions';
 import type {AudioTrack, VideoTrack} from './get-tracks';
 import type {AnySegment} from './parse-result';
 import type {InternalStats} from './parser-state';
-import type {ReaderInterface} from './reader';
+import type {ReaderInterface} from './readers/reader';
 import type {OnAudioTrack, OnVideoTrack} from './webcodec-sample-types';
 
 export type KnownVideoCodecs =

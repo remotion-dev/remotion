@@ -1,9 +1,9 @@
 import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
-import {nodeReader} from '../from-node';
 import {trakBoxContainsVideo} from '../get-fps';
 import {getAv1CBox} from '../get-sample-aspect-ratio';
 import {parseMedia} from '../parse-media';
+import {nodeReader} from '../readers/from-node';
 import {getMoovBox, getTraks} from '../traversal';
 
 test('AV1 in MP4', async () => {

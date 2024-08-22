@@ -5,8 +5,9 @@ import {
 	VideoTrack,
 	parseMedia,
 } from '@remotion/media-parser';
+import {webFsWriter} from '@remotion/media-parser/web-fs';
 import {createDecoder, createEncoder} from '@remotion/webcodecs';
-import React, {useCallback, useRef} from 'react';
+import React, {useCallback, useRef, useState} from 'react';
 import {flushSync} from 'react-dom';
 import {AbsoluteFill} from 'remotion';
 import {fitElementSizeInContainer} from './fit-element-size-in-container';
@@ -61,9 +62,19 @@ export const SrcEncoder: React.FC<{
 	const [videoError, setVideoError] = React.useState<DOMException | null>(null);
 	const [audioError, setAudioError] = React.useState<DOMException | null>(null);
 
+	const [downloadFn, setDownloadFn] = useState<(() => Promise<void>) | null>(
+		() => null,
+	);
+
 	const ref = useRef<HTMLCanvasElement>(null);
 
 	const i = useRef(0);
+
+	const onDownload = useCallback(async () => {
+		if (downloadFn) {
+			await downloadFn();
+		}
+	}, [downloadFn]);
 
 	const onVideoFrame = useCallback(
 		async (inputFrame: VideoFrame, track: VideoTrack) => {
@@ -140,7 +151,8 @@ export const SrcEncoder: React.FC<{
 				return null;
 			}
 
-			const arr = await MediaParserInternals.createMedia();
+			const arr = await MediaParserInternals.createMedia(webFsWriter);
+			setDownloadFn(() => arr);
 
 			const videoDecoder = await createDecoder({
 				track,
@@ -293,6 +305,11 @@ export const SrcEncoder: React.FC<{
 						count={audioFrames}
 						label="A"
 					/>
+					{downloadFn ? (
+						<button type="button" onClick={onDownload}>
+							DL
+						</button>
+					) : null}
 				</div>
 			</AbsoluteFill>
 		</div>
