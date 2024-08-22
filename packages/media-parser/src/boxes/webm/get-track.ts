@@ -16,10 +16,10 @@ import {
 } from '../../traversal';
 import {parseAv1PrivateData} from './av1-codec-private';
 import {getAudioDescription} from './description';
-import type {CodecIdSegment, TrackEntrySegment} from './segments/all-segments';
+import type {CodecIdSegment, TrackEntry} from './segments/all-segments';
 import {trackTypeToString} from './segments/track-entry';
 
-const getDescription = (track: TrackEntrySegment): undefined | Uint8Array => {
+const getDescription = (track: TrackEntry): undefined | Uint8Array => {
 	const codec = getCodecSegment(track);
 	if (!codec) {
 		return undefined;
@@ -39,7 +39,7 @@ const getMatroskaVideoCodecString = ({
 	track,
 	codecSegment: codec,
 }: {
-	track: TrackEntrySegment;
+	track: TrackEntry;
 	codecSegment: CodecIdSegment;
 }): string | null => {
 	if (codec.value === 'V_VP8') {
@@ -78,7 +78,10 @@ const getMatroskaVideoCodecString = ({
 
 	if (codec.value === 'V_MPEGH/ISO/HEVC') {
 		const priv = getPrivateData(track);
-		const iterator = getArrayBufferIterator(priv as Uint8Array);
+		const iterator = getArrayBufferIterator(
+			priv as Uint8Array,
+			(priv as Uint8Array).length,
+		);
 
 		return 'hvc1.' + getHvc1CodecString(iterator);
 	}
@@ -86,7 +89,7 @@ const getMatroskaVideoCodecString = ({
 	throw new Error(`Unknown codec: ${codec.value}`);
 };
 
-const getMatroskaAudioCodecString = (track: TrackEntrySegment): string => {
+const getMatroskaAudioCodecString = (track: TrackEntry): string => {
 	const codec = getCodecSegment(track);
 	if (!codec) {
 		throw new Error('Expected codec segment');
@@ -119,7 +122,10 @@ const getMatroskaAudioCodecString = (track: TrackEntrySegment): string => {
 	if (codec.value === 'A_AAC') {
 		const priv = getPrivateData(track);
 
-		const iterator = getArrayBufferIterator(priv as Uint8Array);
+		const iterator = getArrayBufferIterator(
+			priv as Uint8Array,
+			(priv as Uint8Array).length,
+		);
 
 		iterator.startReadingBits();
 		/**
@@ -163,7 +169,7 @@ export const getTrack = ({
 	track,
 }: {
 	timescale: number;
-	track: TrackEntrySegment;
+	track: TrackEntry;
 }): VideoTrack | AudioTrack | null => {
 	const trackType = getTrackTypeSegment(track);
 
@@ -173,7 +179,7 @@ export const getTrack = ({
 
 	const trackId = getTrackId(track);
 
-	if (trackTypeToString(trackType.value) === 'video') {
+	if (trackTypeToString(trackType.value.value) === 'video') {
 		const width = getWidthSegment(track);
 
 		if (width === null) {
@@ -208,23 +214,27 @@ export const getTrack = ({
 			trackId,
 			codec: codecString,
 			description: getDescription(track),
-			height: displayHeight ? displayHeight.value : height.value,
-			width: displayWidth ? displayWidth.value : width.value,
+			height: displayHeight ? displayHeight.value.value : height.value.value,
+			width: displayWidth ? displayWidth.value.value : width.value.value,
 			sampleAspectRatio: {
 				numerator: 1,
 				denominator: 1,
 			},
 			timescale,
 			samplePositions: [],
-			codedHeight: height.value,
-			codedWidth: width.value,
-			displayAspectHeight: displayHeight ? displayHeight.value : height.value,
-			displayAspectWidth: displayWidth ? displayWidth.value : width.value,
+			codedHeight: height.value.value,
+			codedWidth: width.value.value,
+			displayAspectHeight: displayHeight
+				? displayHeight.value.value
+				: height.value.value,
+			displayAspectWidth: displayWidth
+				? displayWidth.value.value
+				: width.value.value,
 			rotation: 0,
 		};
 	}
 
-	if (trackTypeToString(trackType.value) === 'audio') {
+	if (trackTypeToString(trackType.value.value) === 'audio') {
 		const sampleRate = getSampleRate(track);
 		const numberOfChannels = getNumberOfChannels(track);
 		if (sampleRate === null) {

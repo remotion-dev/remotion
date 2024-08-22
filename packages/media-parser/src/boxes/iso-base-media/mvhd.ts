@@ -59,7 +59,7 @@ export const parseMvhd = ({
 	const durationInSeconds = durationInUnits / timeScale;
 
 	const rateArray = iterator.getSlice(4);
-	const rateView = getArrayBufferIterator(rateArray);
+	const rateView = getArrayBufferIterator(rateArray, rateArray.length);
 	const rate =
 		rateView.getInt8() * 10 +
 		rateView.getInt8() +
@@ -67,7 +67,7 @@ export const parseMvhd = ({
 		rateView.getInt8() * 0.01;
 
 	const volumeArray = iterator.getSlice(2);
-	const volumeView = getArrayBufferIterator(volumeArray);
+	const volumeView = getArrayBufferIterator(volumeArray, volumeArray.length);
 
 	const volume = volumeView.getInt8() + volumeView.getInt8() * 0.1;
 

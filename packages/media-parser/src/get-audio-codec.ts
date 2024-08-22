@@ -3,7 +3,7 @@ import type {EsdsBox} from './boxes/iso-base-media/esds/esds';
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';
 import type {AudioSample} from './boxes/iso-base-media/stsd/samples';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
-import type {MainSegment} from './boxes/webm/segments/main';
+import type {MainSegment} from './boxes/webm/segments/all-segments';
 import {trakBoxContainsAudio} from './get-fps';
 import type {KnownAudioCodecs} from './options';
 import type {AnySegment} from './parse-result';
@@ -163,7 +163,7 @@ export const getAudioCodecFromIso = (moov: MoovBox) => {
 };
 
 export const getAudioCodecFromMatroska = (mainSegment: MainSegment) => {
-	const tracksSegment = mainSegment.children.find((b) => b.type === 'Tracks');
+	const tracksSegment = mainSegment.value.find((b) => b.type === 'Tracks');
 	if (!tracksSegment || tracksSegment.type !== 'Tracks') {
 		return null;
 	}
@@ -261,8 +261,8 @@ export const getAudioCodec = (boxes: AnySegment[]): KnownAudioCodecs | null => {
 		throw new Error('Unknown audio format: ' + codec.format);
 	}
 
-	const mainSegment = boxes.find((b) => b.type === 'main-segment');
-	if (!mainSegment || mainSegment.type !== 'main-segment') {
+	const mainSegment = boxes.find((b) => b.type === 'Segment');
+	if (!mainSegment || mainSegment.type !== 'Segment') {
 		return null;
 	}
 

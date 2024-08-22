@@ -62,12 +62,13 @@ const makeOffsetCounter = (): OffsetCounter => {
 
 export const getArrayBufferIterator = (
 	initialData: Uint8Array,
-	maxBytes?: number,
+	maxBytes: number | null,
 ) => {
 	const buf = new ArrayBuffer(initialData.byteLength, {
-		maxByteLength: maxBytes
-			? Math.min(maxBytes as number, 2 ** 32)
-			: 1_000_000_000,
+		maxByteLength:
+			maxBytes === null
+				? initialData.byteLength
+				: Math.min(maxBytes as number, 2 ** 32),
 	});
 	if (!buf.resize) {
 		throw new Error(

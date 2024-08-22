@@ -1,7 +1,7 @@
 import type {Track} from '../../get-tracks';
 import {getTracksSegment} from '../../traversal';
 import {getTrack} from './get-track';
-import type {MainSegment} from './segments/main';
+import type {MainSegment} from './segments/all-segments';
 
 export const getTracksFromMatroska = (
 	segment: MainSegment,

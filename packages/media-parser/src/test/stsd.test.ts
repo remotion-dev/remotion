@@ -35,7 +35,7 @@ test('Should be able to parse a STSD audio box correctly', async () => {
 		2, 18, 16, 6, 128, 128, 128, 1, 2, 0, 0, 0, 8, 0, 0, 0, 0,
 	]);
 
-	const iterator = getArrayBufferIterator(buffer);
+	const iterator = getArrayBufferIterator(buffer, null);
 	iterator.discard(8);
 
 	const parsed = await parseStsd({
@@ -51,6 +51,7 @@ test('Should be able to parse a STSD audio box correctly', async () => {
 				hasVideoCallbacks: false,
 				signal: undefined,
 			}),
+			nullifySamples: false,
 		},
 	});
 
@@ -206,7 +207,7 @@ test('Should be able to parse a STSD video box correctly', async () => {
 	]);
 
 	const parsed = await processSample({
-		iterator: getArrayBufferIterator(buffer),
+		iterator: getArrayBufferIterator(buffer, null),
 		options: {
 			canSkipVideoData: true,
 			onAudioTrack: null,
@@ -216,6 +217,7 @@ test('Should be able to parse a STSD video box correctly', async () => {
 				hasVideoCallbacks: false,
 				signal: undefined,
 			}),
+			nullifySamples: false,
 		},
 	});
 	expect(parsed.sample).toEqual({

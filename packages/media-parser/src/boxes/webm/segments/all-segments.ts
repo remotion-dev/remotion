@@ -292,7 +292,7 @@ export const getSegmentName = (id: string) => {
 	)?.[0];
 };
 
-export const getIdForName = (name: string) => {
+export const getIdForName = (name: string): EbmlMapKey => {
 	const value = Object.entries(matroskaElements).find(
 		([key]) => key === name,
 	)?.[1];
@@ -300,7 +300,7 @@ export const getIdForName = (name: string) => {
 		throw new Error(`Could not find id for name ${name}`);
 	}
 
-	return value;
+	return value as EbmlMapKey;
 };
 
 export type MatroskaKey = keyof typeof matroskaElements;
@@ -312,10 +312,9 @@ type EbmlType = 'string';
 export type EbmlWithChildren = {
 	name: MatroskaKey;
 	type: 'children';
-	children: HeaderStructure;
 };
 
-export type EbmlWithUint8 = {
+export type EbmlWithUint = {
 	name: MatroskaKey;
 	type: 'uint';
 };
@@ -330,11 +329,6 @@ export type EbmlWithString = {
 	type: EbmlType;
 };
 
-export type EbmlWithVoid = {
-	name: MatroskaKey;
-	type: 'void';
-};
-
 export type EbmlWithFloat = {
 	name: MatroskaKey;
 	type: 'float';
@@ -347,9 +341,8 @@ export type EbmlWithUint8Array = {
 
 export type Ebml =
 	| EbmlWithString
-	| EbmlWithUint8
+	| EbmlWithUint
 	| EbmlWithChildren
-	| EbmlWithVoid
 	| EbmlWithFloat
 	| EbmlWithHexString
 	| EbmlWithUint8Array;
@@ -389,37 +382,24 @@ export const docTypeReadVersion = {
 	type: 'uint',
 } satisfies Ebml;
 
-export const voidEbml = {
+const voidEbml = {
 	name: 'Void',
-	type: 'void',
+	type: 'uint8array',
 } satisfies Ebml;
 
 export type EmblTypes = {
 	uint: number;
 	float: number;
 	string: string;
-	children: HeaderStructure;
+	children: Ebml[];
 	void: undefined;
 	'hex-string': string;
 	uint8array: Uint8Array;
 };
 
-export type HeaderStructure = Ebml[];
-
-export const matroskaHeaderStructure = [
-	ebmlVersion,
-	ebmlReadVersion,
-	ebmlMaxIdLength,
-	ebmlMaxSizeLength,
-	docType,
-	docTypeVersion,
-	docTypeReadVersion,
-] as const satisfies HeaderStructure;
-
 export const matroskaHeader = {
 	name: 'Header',
 	type: 'children',
-	children: matroskaHeaderStructure,
 } as const satisfies Ebml;
 
 export const seekId = {
@@ -435,18 +415,16 @@ export const seekPosition = {
 export const seek = {
 	name: 'Seek',
 	type: 'children',
-	children: [seekId, seekPosition],
 } as const satisfies Ebml;
 
 export const seekHead = {
 	name: 'SeekHead',
 	type: 'children',
-	children: [seek],
 } as const satisfies Ebml;
 
 export const voidHeader = {
 	name: 'Void',
-	type: 'void',
+	type: 'uint8array',
 } as const satisfies Ebml;
 
 export const codecID = {
@@ -492,7 +470,6 @@ export const writingApp = {
 export const infoType = {
 	name: 'Info',
 	type: 'children',
-	children: [muxingApp, timestampScale, writingApp, duration],
 } as const satisfies Ebml;
 
 export const titleType = {
@@ -542,13 +519,12 @@ export const flagLacing = {
 
 export const tagSegment = {
 	name: 'Tag',
-	type: 'void',
+	type: 'uint8array',
 } as const satisfies Ebml;
 
 export const tags = {
 	name: 'Tags',
 	type: 'children',
-	children: [tagSegment],
 } as const satisfies Ebml;
 
 export const trackNumber = {
@@ -563,7 +539,7 @@ export const trackUID = {
 
 export const color = {
 	name: 'Colour',
-	type: 'void',
+	type: 'uint8array',
 } as const satisfies Ebml;
 
 export const language = {
@@ -594,18 +570,16 @@ export const maxBlockAdditionIdSegment = {
 export const audioSegment = {
 	name: 'Audio',
 	type: 'children',
-	children: [samplingFrequency, channels, bitDepth],
 } as const satisfies Ebml;
 
 export const videoSegment = {
 	name: 'Video',
 	type: 'children',
-	children: [heightType, displayHeight, displayWidth, widthType],
 } as const satisfies Ebml;
 
 export const flagDefault = {
 	name: 'FlagDefault',
-	type: 'void',
+	type: 'uint8array',
 } as const satisfies Ebml;
 
 export const referenceBlock = {
@@ -615,7 +589,7 @@ export const referenceBlock = {
 
 export const blockElement = {
 	name: 'Block',
-	type: 'void',
+	type: 'uint8array',
 } as const satisfies Ebml;
 
 export const codecName = {
@@ -631,27 +605,41 @@ export const trackTimestampScale = {
 export const trackEntry = {
 	name: 'TrackEntry',
 	type: 'children',
-	children: [
-		trackNumber,
-		trackUID,
-		defaultDuration,
-		trackTimestampScale,
-		trackType,
-		flagDefault,
-		audioSegment,
-		videoSegment,
-	],
 } as const satisfies Ebml;
 
 export const tracks = {
 	name: 'Tracks',
 	type: 'children',
-	children: [trackEntry],
 } as const satisfies Ebml;
 
 export const timestampEntry = {
 	name: 'Timestamp',
 	type: 'uint',
+} as const satisfies Ebml;
+
+export const block = {
+	name: 'Block',
+	type: 'uint8array',
+} as const satisfies Ebml;
+
+export const simpleBlock = {
+	name: 'SimpleBlock',
+	type: 'uint8array',
+} as const satisfies Ebml;
+
+export const blockGroup = {
+	name: 'BlockGroup',
+	type: 'children',
+} as const satisfies Ebml;
+
+export const segment = {
+	name: 'Segment',
+	type: 'children',
+} as const satisfies Ebml;
+
+export const cluster = {
+	name: 'Cluster',
+	type: 'children',
 } as const satisfies Ebml;
 
 export type CodecIdSegment = EbmlParsed<typeof codecID>;
@@ -665,27 +653,47 @@ export type DisplayHeightSegment = EbmlParsed<typeof displayHeight>;
 export type TrackNumberSegment = EbmlParsed<typeof trackNumber>;
 export type AudioSegment = EbmlParsed<typeof audioSegment>;
 export type VideoSegment = EbmlParsed<typeof videoSegment>;
-export type TrackEntrySegment = EbmlParsed<typeof trackEntry>;
+export type TrackEntry = EbmlParsed<typeof trackEntry>;
+export type BlockSegment = EbmlParsed<typeof block>;
+export type SimpleBlockSegment = EbmlParsed<typeof simpleBlock>;
+export type MainSegment = EbmlParsed<typeof segment>;
+export type ClusterSegment = EbmlParsed<typeof cluster>;
+export type Tracks = EbmlParsed<typeof tracks>;
 
-export type EbmlValue<T extends Ebml> = T extends EbmlWithUint8
-	? number
-	: T extends EbmlWithVoid
-		? undefined
-		: T extends EbmlWithString
-			? string
-			: T extends EbmlWithFloat
-				? number
-				: T extends EbmlWithHexString
-					? string
-					: T extends EbmlWithUint8Array
-						? Uint8Array
-						: T extends EbmlWithChildren
-							? PossibleEbml[]
-							: never;
+export type FloatWithSize = {value: number; size: '32' | '64'};
+export type UintWithSize = {value: number; byteLength: number};
+
+export type EbmlValue<
+	T extends Ebml,
+	Child = PossibleEbml,
+> = T extends EbmlWithUint
+	? UintWithSize
+	: T extends EbmlWithString
+		? string
+		: T extends EbmlWithFloat
+			? FloatWithSize
+			: T extends EbmlWithHexString
+				? string
+				: T extends EbmlWithUint8Array
+					? Uint8Array
+					: T extends EbmlWithChildren
+						? Child[]
+						: never;
+
+export type EbmlValueOrUint8Array<T extends Ebml> =
+	| Uint8Array
+	| EbmlValue<T, PossibleEbmlOrUint8Array>;
 
 export type EbmlParsed<T extends Ebml> = {
 	type: T['name'];
 	value: EbmlValue<T>;
+	minVintWidth: number;
+};
+
+export type EbmlParsedOrUint8Array<T extends Ebml> = {
+	type: T['name'];
+	value: EbmlValueOrUint8Array<T>;
+	minVintWidth: number;
 };
 
 export const ebmlMap = {
@@ -700,37 +708,37 @@ export const ebmlMap = {
 	[matroskaElements.Void]: voidEbml,
 	[matroskaElements.Cues]: {
 		name: 'Cues',
-		type: 'void',
+		type: 'uint8array',
 	},
 	[matroskaElements.DateUTC]: {
 		name: 'DateUTC',
-		type: 'void',
+		type: 'uint8array',
 	},
 	[matroskaElements.TrackTimestampScale]: trackTimestampScale,
 	[matroskaElements.CodecDelay]: {
 		name: 'CodecDelay',
-		type: 'void',
+		type: 'uint8array',
 	},
 	[matroskaElements.SeekPreRoll]: {
 		name: 'SeekPreRoll',
-		type: 'void',
+		type: 'uint8array',
 	},
 	[matroskaElements.DiscardPadding]: {
 		name: 'DiscardPadding',
-		type: 'void',
+		type: 'uint8array',
 	},
 	[matroskaElements.OutputSamplingFrequency]: {
 		name: 'OutputSamplingFrequency',
-		type: 'void',
+		type: 'uint8array',
 	},
 	[matroskaElements.CodecName]: codecName,
 	[matroskaElements.Position]: {
 		name: 'Position',
-		type: 'void',
+		type: 'uint8array',
 	},
 	[matroskaElements.SliceDuration]: {
 		name: 'SliceDuration',
-		type: 'void',
+		type: 'uint8array',
 	},
 	[matroskaElements.SeekHead]: seekHead,
 	[matroskaElements.Seek]: seek,
@@ -738,7 +746,7 @@ export const ebmlMap = {
 	[matroskaElements.SeekPosition]: seekPosition,
 	[matroskaElements.Crc32]: {
 		name: 'Crc32',
-		type: 'void',
+		type: 'uint8array',
 	},
 	[matroskaElements.MuxingApp]: muxingApp,
 	[matroskaElements.WritingApp]: {
@@ -788,6 +796,17 @@ export const ebmlMap = {
 		type: 'uint',
 	},
 	[matroskaElements.Tracks]: tracks,
+	[matroskaElements.Block]: block,
+	[matroskaElements.SimpleBlock]: simpleBlock,
+	[matroskaElements.BlockGroup]: blockGroup,
+	[matroskaElements.Segment]: {
+		name: 'Segment',
+		type: 'children',
+	},
+	[matroskaElements.Cluster]: {
+		name: 'Cluster',
+		type: 'children',
+	},
 } as const satisfies Partial<Record<MatroskaElement, Ebml>>;
 
 export type PossibleEbml = Prettify<
@@ -795,3 +814,15 @@ export type PossibleEbml = Prettify<
 		[key in keyof typeof ebmlMap]: EbmlParsed<(typeof ebmlMap)[key]>;
 	}[keyof typeof ebmlMap]
 >;
+
+export type PossibleEbmlOrUint8Array =
+	| Prettify<
+			{
+				[key in keyof typeof ebmlMap]: EbmlParsedOrUint8Array<
+					(typeof ebmlMap)[key]
+				>;
+			}[keyof typeof ebmlMap]
+	  >
+	| Uint8Array;
+
+export type EbmlMapKey = keyof typeof ebmlMap;

@@ -89,8 +89,8 @@ export const getTracks = (
 	const audioTracks: AudioTrack[] = [];
 	const otherTracks: OtherTrack[] = [];
 
-	const mainSegment = segments.find((s) => s.type === 'main-segment');
-	if (mainSegment && mainSegment.type === 'main-segment') {
+	const mainSegment = segments.find((s) => s.type === 'Segment');
+	if (mainSegment && mainSegment.type === 'Segment') {
 		const matroskaTracks = getTracksFromMatroska(
 			mainSegment,
 			state.getTimescale(),

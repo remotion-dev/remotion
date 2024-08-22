@@ -1,30 +1,30 @@
 import type {AnySegment} from '../../parse-result';
 import type {
 	CodecIdSegment,
-	TrackEntrySegment,
+	MainSegment,
+	TrackEntry,
 	TrackNumberSegment,
 } from './segments/all-segments';
-import type {MainSegment} from './segments/main';
 
 export const getMainSegment = (segments: AnySegment[]): MainSegment | null => {
-	return segments.find((s) => s.type === 'main-segment') as MainSegment | null;
+	return segments.find((s) => s.type === 'Segment') as MainSegment | null;
 };
 
-export const getTrackNumber = (track: TrackEntrySegment) => {
+export const getTrackNumber = (track: TrackEntry) => {
 	const child = track.value.find(
 		(b) => b.type === 'TrackNumber',
 	) as TrackNumberSegment | null;
 	return child?.value ?? null;
 };
 
-export const getTrackCodec = (track: TrackEntrySegment) => {
+export const getTrackCodec = (track: TrackEntry) => {
 	const child = track.value.find(
 		(b) => b.type === 'CodecID',
 	) as CodecIdSegment | null;
 	return child ?? null;
 };
 
-export const getTrackTimestampScale = (track: TrackEntrySegment) => {
+export const getTrackTimestampScale = (track: TrackEntry) => {
 	const child = track.value.find((b) => b.type === 'TrackTimestampScale');
 	if (!child) {
 		return null;
@@ -37,9 +37,9 @@ export const getTrackTimestampScale = (track: TrackEntrySegment) => {
 	return child.value;
 };
 
-export const getTrackByNumber = (tracks: TrackEntrySegment[], id: number) => {
+export const getTrackByNumber = (tracks: TrackEntry[], id: number) => {
 	return tracks.find((track) => {
 		const trackNumber = getTrackNumber(track);
-		return trackNumber === id;
+		return trackNumber?.value === id;
 	});
 };
