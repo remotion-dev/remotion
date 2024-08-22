@@ -258,4 +258,5 @@ test('Can we disassemble a Matroska file and assembled it again', async () => {
 	expect(stringifyWebm(parsed).byteLength).toEqual(
 		new Uint8Array(bytes).byteLength,
 	);
+	process.env.KEEP_SAMPLES = 'false';
 });
