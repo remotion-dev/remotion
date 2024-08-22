@@ -5,13 +5,22 @@ import type {AwsRegion} from '../regions';
 import {getS3Client} from '../shared/get-s3-client';
 import {validatePresignExpiration} from '../shared/validate-presign-expiration';
 
-export type PresignUrlInput<CheckIfObjectExists extends boolean = boolean> = {
+type MandatoryParameters = {
 	region: AwsRegion;
 	bucketName: string;
 	objectKey: string;
-	checkIfObjectExists?: CheckIfObjectExists;
 	expiresInSeconds: number;
 };
+
+type OptionalParameters<CheckIfObjectExists extends boolean> = {
+	checkIfObjectExists: CheckIfObjectExists;
+	forcePathStyle: boolean;
+};
+
+export type PresignUrlInput<CheckIfObjectExists extends boolean = boolean> =
+	MandatoryParameters & Partial<OptionalParameters<CheckIfObjectExists>>;
+type PresignUrlInputInternal<CheckIfObjectExists extends boolean> =
+	MandatoryParameters & OptionalParameters<CheckIfObjectExists>;
 
 /**
  * @description Returns a public url of an object stored in Remotion's S3 bucket.
@@ -29,13 +38,18 @@ export const presignUrl = async <CheckIfObjectExists extends boolean = false>({
 	objectKey,
 	checkIfObjectExists,
 	expiresInSeconds,
-}: PresignUrlInput<CheckIfObjectExists>): Promise<
+	forcePathStyle,
+}: PresignUrlInputInternal<CheckIfObjectExists>): Promise<
 	CheckIfObjectExists extends true ? string | null : string
 > => {
 	validateBucketName(bucketName, {mustStartWithRemotion: false});
 	validatePresignExpiration(expiresInSeconds);
 
-	const s3Client = getS3Client(region, null);
+	const s3Client = getS3Client({
+		region,
+		customCredentials: null,
+		forcePathStyle,
+	});
 
 	if (checkIfObjectExists === true) {
 		try {

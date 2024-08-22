@@ -8,12 +8,14 @@ export const getOverallProgressS3 = async <Provider extends CloudProvider>({
 	expectedBucketOwner,
 	region,
 	providerSpecifics,
+	forcePathStyle,
 }: {
 	renderId: string;
 	expectedBucketOwner: string;
 	bucketName: string;
 	region: Provider['region'];
 	providerSpecifics: ProviderSpecifics<Provider>;
+	forcePathStyle: boolean;
 }) => {
 	try {
 		const Body = await providerSpecifics.readFile({
@@ -21,6 +23,7 @@ export const getOverallProgressS3 = async <Provider extends CloudProvider>({
 			key: overallProgressKey(renderId),
 			expectedBucketOwner,
 			region,
+			forcePathStyle,
 		});
 
 		const str = await streamToString(Body);

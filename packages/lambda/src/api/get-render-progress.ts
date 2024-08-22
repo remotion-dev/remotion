@@ -14,6 +14,7 @@ export type GetRenderProgressInput = {
 	region: AwsRegion;
 	logLevel?: LogLevel;
 	s3OutputProvider?: CustomCredentials<AwsProvider>;
+	forcePathStyle?: boolean;
 };
 
 /**

@@ -48,12 +48,17 @@ const {
 
 export const STILL_COMMAND = 'still';
 
-export const stillCommand = async (
-	args: string[],
-	remotionRoot: string,
-	logLevel: LogLevel,
-	implementation: ProviderSpecifics<AwsProvider>,
-) => {
+export const stillCommand = async ({
+	args,
+	remotionRoot,
+	logLevel,
+	implementation,
+}: {
+	args: string[];
+	remotionRoot: string;
+	logLevel: LogLevel;
+	implementation: ProviderSpecifics<AwsProvider>;
+}) => {
 	const serveUrl = args[0];
 
 	if (!serveUrl) {
@@ -306,6 +311,7 @@ export const stillCommand = async (
 			renderId: res.renderId,
 			logLevel,
 			providerSpecifics: implementation,
+			forcePathStyle: parsedLambdaCli['force-path-style'],
 		});
 		const relativePath = path.relative(process.cwd(), outputPath);
 		Log.info(

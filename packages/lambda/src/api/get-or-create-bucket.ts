@@ -17,5 +17,6 @@ export const getOrCreateBucket = (
 		enableFolderExpiry: options.enableFolderExpiry ?? null,
 		customCredentials: options.customCredentials ?? null,
 		providerSpecifics: awsImplementation,
+		forcePathStyle: false,
 	});
 };

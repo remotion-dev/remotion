@@ -52,6 +52,7 @@ test('Should make muted render audio', async () => {
 		region: 'eu-central-1',
 		expectedBucketOwner: 'abc',
 		prefix: rendersPrefix(renderId),
+		forcePathStyle: false,
 	});
 
 	expect(files.length).toBe(2);
@@ -61,6 +62,7 @@ test('Should make muted render audio', async () => {
 		region: 'eu-central-1',
 		renderId,
 		providerSpecifics: mockImplementation,
+		forcePathStyle: false,
 	});
 
 	const expectFiles = await mockImplementation.listObjects({
@@ -68,6 +70,7 @@ test('Should make muted render audio', async () => {
 		region: 'eu-central-1',
 		expectedBucketOwner: 'abc',
 		prefix: rendersPrefix(renderId),
+		forcePathStyle: false,
 	});
 
 	expect(expectFiles.length).toBe(0);

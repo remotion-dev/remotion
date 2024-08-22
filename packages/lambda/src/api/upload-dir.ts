@@ -81,6 +81,7 @@ export const uploadDir = async ({
 	keyPrefix,
 	privacy,
 	toUpload,
+	forcePathStyle,
 }: {
 	bucket: string;
 	region: AwsRegion;
@@ -89,6 +90,7 @@ export const uploadDir = async ({
 	onProgress: (progress: UploadDirProgress) => void;
 	privacy: Privacy;
 	toUpload: string[];
+	forcePathStyle: boolean;
 }) => {
 	const files = await getFiles(localDir, localDir, toUpload);
 	const progresses: {[key: string]: number} = {};
@@ -96,7 +98,7 @@ export const uploadDir = async ({
 		progresses[file.name] = 0;
 	}
 
-	const client = getS3Client(region, null);
+	const client = getS3Client({region, customCredentials: null, forcePathStyle});
 
 	const uploadAll = (async () => {
 		const uploads = files.map((filePath) =>

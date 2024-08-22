@@ -11,13 +11,15 @@ export const lambdaDeleteFileImplementation: ProviderSpecifics<AwsProvider>['del
 		key,
 		region,
 		customCredentials,
+		forcePathStyle,
 	}: {
 		region: AwsRegion;
 		bucketName: string;
 		key: string;
 		customCredentials: CustomCredentials<AwsProvider> | null;
+		forcePathStyle: boolean;
 	}) => {
-		await getS3Client(region, customCredentials).send(
+		await getS3Client({region, customCredentials, forcePathStyle}).send(
 			new DeleteObjectCommand({
 				Bucket: bucketName,
 				Key: key,
