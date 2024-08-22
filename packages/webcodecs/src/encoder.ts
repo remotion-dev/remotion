@@ -14,7 +14,12 @@ export const createEncoder = ({
 			console.error(error);
 		},
 		output(chunk, metadata) {
-			console.log('encoded as vp8', chunk, chunk, metadata?.decoderConfig);
+			console.log(
+				'encoded as vp8',
+				chunk,
+				chunk,
+				metadata?.decoderConfig?.colorSpace?.matrix,
+			);
 		},
 	});
 
@@ -27,7 +32,7 @@ export const createEncoder = ({
 
 	return {
 		encodeFrame: (_frame: VideoFrame) => {
-			// encoder.encode(frame);
+			encoder.encode(_frame);
 		},
 	};
 };

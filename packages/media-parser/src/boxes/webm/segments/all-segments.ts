@@ -360,7 +360,7 @@ export const ebmlReadVersion = {
 export const ebmlMaxIdLength = {
 	name: 'EBMLMaxIDLength',
 	type: 'uint',
-} satisfies Ebml;
+} as const satisfies Ebml;
 
 export const ebmlMaxSizeLength = {
 	name: 'EBMLMaxSizeLength',
@@ -539,7 +539,37 @@ export const trackUID = {
 
 export const color = {
 	name: 'Colour',
-	type: 'uint8array',
+	type: 'children',
+} as const satisfies Ebml;
+
+export const transfer = {
+	name: 'TransferCharacteristics',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const matrix = {
+	name: 'MatrixCoefficients',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const primaries = {
+	name: 'Primaries',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const range = {
+	name: 'Range',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const ChromaSitingHorz = {
+	name: 'ChromaSitingHorz',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const ChromaSitingVert = {
+	name: 'ChromaSitingVert',
+	type: 'uint',
 } as const satisfies Ebml;
 
 export const language = {
@@ -579,7 +609,7 @@ export const videoSegment = {
 
 export const flagDefault = {
 	name: 'FlagDefault',
-	type: 'uint8array',
+	type: 'uint',
 } as const satisfies Ebml;
 
 export const referenceBlock = {
@@ -807,6 +837,12 @@ export const ebmlMap = {
 		name: 'Cluster',
 		type: 'children',
 	},
+	[matroskaElements.TransferCharacteristics]: transfer,
+	[matroskaElements.MatrixCoefficients]: matrix,
+	[matroskaElements.Primaries]: primaries,
+	[matroskaElements.Range]: range,
+	[matroskaElements.ChromaSitingHorz]: ChromaSitingHorz,
+	[matroskaElements.ChromaSitingVert]: ChromaSitingVert,
 } as const satisfies Partial<Record<MatroskaElement, Ebml>>;
 
 export type PossibleEbml = Prettify<

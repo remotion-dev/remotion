@@ -233,10 +233,40 @@ test('Should get duration of AV1 video', async () => {
 										},
 										{
 											type: 'Colour',
-											value: new Uint8Array([
-												85, 186, 129, 1, 85, 177, 129, 1, 85, 187, 129, 1, 85,
-												185, 129, 1,
-											]),
+											value: [
+												{
+													minVintWidth: 1,
+													type: 'TransferCharacteristics',
+													value: {
+														byteLength: 1,
+														value: 1,
+													},
+												},
+												{
+													minVintWidth: 1,
+													type: 'MatrixCoefficients',
+													value: {
+														byteLength: 1,
+														value: 1,
+													},
+												},
+												{
+													minVintWidth: 1,
+													type: 'Primaries',
+													value: {
+														byteLength: 1,
+														value: 1,
+													},
+												},
+												{
+													minVintWidth: 1,
+													type: 'Range',
+													value: {
+														byteLength: 1,
+														value: 1,
+													},
+												},
+											],
 											minVintWidth: 1,
 										},
 									],

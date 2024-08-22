@@ -45,9 +45,7 @@ function putUintDynamic(number: number, minimumLength: number | null) {
 	return bytes;
 }
 
-const makeFromHeaderStructure = (
-	fields: PossibleEbmlOrUint8Array,
-): Uint8Array => {
+const makeFromStructure = (fields: PossibleEbmlOrUint8Array): Uint8Array => {
 	if (fields instanceof Uint8Array) {
 		return fields;
 	}
@@ -111,7 +109,7 @@ export const makeMatroskaBytes = (fields: PossibleEbmlOrUint8Array) => {
 		return fields;
 	}
 
-	const value = makeFromHeaderStructure(fields);
+	const value = makeFromStructure(fields);
 
 	return combineUint8Arrays([
 		matroskaToHex(getIdForName(fields.type)),

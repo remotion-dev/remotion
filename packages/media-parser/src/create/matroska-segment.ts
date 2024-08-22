@@ -1,9 +1,9 @@
 import {makeMatroskaBytes} from '../boxes/webm/make-header';
 
-export const createMatroskaSegment = (info: Uint8Array) => {
+export const createMatroskaSegment = (children: Uint8Array[]) => {
 	return makeMatroskaBytes({
 		type: 'Segment',
-		value: [info],
+		value: children,
 		minVintWidth: 8,
 	});
 };
