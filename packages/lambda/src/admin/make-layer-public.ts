@@ -38,7 +38,7 @@ const V5_RUNTIME = true;
 const makeLayerPublic = async () => {
 	const runtimes: Runtime[] = [V5_RUNTIME ? 'nodejs20.x' : 'nodejs18.x'];
 
-	const layers = ['fonts', 'chromium'] as const;
+	const layers = ['fonts', 'chromium', 'emoji'] as const;
 	for (const region of getRegions()) {
 		for (const layer of layers) {
 			const layerName = `remotion-binaries-${layer}-arm64`;
@@ -46,9 +46,12 @@ const makeLayerPublic = async () => {
 				new PublishLayerVersionCommand({
 					Content: {
 						S3Bucket: 'remotionlambda-binaries-' + region,
-						S3Key: V5_RUNTIME
-							? `remotion-layer-${layer}-v11-arm64.zip`
-							: `remotion-layer-${layer}-v10-arm64.zip`,
+						S3Key:
+							layer === 'emoji'
+								? 'remotion-layer-emoji-v1-arm64.zip'
+								: V5_RUNTIME
+									? `remotion-layer-${layer}-v11-arm64.zip`
+									: `remotion-layer-${layer}-v10-arm64.zip`,
 					},
 					LayerName: layerName,
 					LicenseInfo:
@@ -56,7 +59,9 @@ const makeLayerPublic = async () => {
 							? V5_RUNTIME
 								? 'Chromium 123.0.6312.86, compiled from source. Read Chromium License: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE'
 								: 'Chromium 114, compiled from source. Read Chromium License: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE'
-							: 'Contains Noto Sans font. Read Noto Sans License: https://fonts.google.com/noto/specimen/Noto+Sans/about',
+							: layer === 'emoji'
+								? 'Apple Emojis (https://github.com/samuelngs/apple-emoji-linux). For educational purposes only - Apple is a trademark of Apple Inc., registered in the U.S. and other countries.'
+								: 'Contains Noto Sans font. Read Noto Sans License: https://fonts.google.com/noto/specimen/Noto+Sans/about',
 					CompatibleRuntimes: runtimes,
 					Description: VERSION,
 				}),
