@@ -13,10 +13,16 @@ export type BucketWithLocation = {
 };
 
 export const getRemotionBuckets: ProviderSpecifics<AwsProvider>['getBuckets'] =
-	async (region, forceBucketName): Promise<BucketWithLocation[]> => {
-		const {Buckets} = await getS3Client(region, null).send(
-			new ListBucketsCommand({}),
-		);
+	async ({
+		region,
+		forceBucketName,
+		forcePathStyle,
+	}): Promise<BucketWithLocation[]> => {
+		const {Buckets} = await getS3Client({
+			region,
+			customCredentials: null,
+			forcePathStyle,
+		}).send(new ListBucketsCommand({}));
 		if (!Buckets) {
 			return [];
 		}
@@ -37,7 +43,11 @@ export const getRemotionBuckets: ProviderSpecifics<AwsProvider>['getBuckets'] =
 				}
 
 				try {
-					const result = await getS3Client(region, null).send(
+					const result = await getS3Client({
+						region,
+						customCredentials: null,
+						forcePathStyle,
+					}).send(
 						new GetBucketLocationCommand({
 							Bucket: bucket.Name as string,
 						}),

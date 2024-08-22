@@ -320,6 +320,7 @@ export const renderCommand = async (
 		x264Preset: x264Preset ?? null,
 		preferLossless,
 		indent: false,
+		forcePathStyle: parsedLambdaCli['force-path-style'] ?? false,
 	});
 
 	const progressBar = CliInternals.createOverwriteableCliOutput({
@@ -467,6 +468,7 @@ export const renderCommand = async (
 						);
 					},
 					providerSpecifics: implementation,
+					forcePathStyle: parsedLambdaCli['force-path-style'],
 				});
 				downloadOrNothing = download;
 				progressBar.update(

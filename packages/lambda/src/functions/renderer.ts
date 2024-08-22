@@ -73,6 +73,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 		serialized: params.inputProps,
 		propsType: 'input-props',
 		providerSpecifics,
+		forcePathStyle: params.forcePathStyle,
 	});
 
 	const resolvedPropsPromise = decompressInputProps({
@@ -82,6 +83,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 		serialized: params.resolvedProps,
 		propsType: 'resolved-props',
 		providerSpecifics,
+		forcePathStyle: params.forcePathStyle,
 	});
 
 	const browserInstance = await getBrowserInstance({

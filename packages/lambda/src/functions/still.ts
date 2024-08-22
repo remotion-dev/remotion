@@ -100,6 +100,7 @@ const innerStillHandler = async <Provider extends CloudProvider>({
 			enableFolderExpiry: null,
 			customCredentials: null,
 			providerSpecifics,
+			forcePathStyle: lambdaParams.forcePathStyle,
 		}).then((b) => b.bucketName);
 
 	const outputDir = RenderInternals.tmpDir('remotion-render-');
@@ -115,6 +116,7 @@ const innerStillHandler = async <Provider extends CloudProvider>({
 		serialized: lambdaParams.inputProps,
 		propsType: 'input-props',
 		providerSpecifics,
+		forcePathStyle: lambdaParams.forcePathStyle,
 	});
 
 	const serveUrl = providerSpecifics.convertToServeUrl({
@@ -195,6 +197,7 @@ const innerStillHandler = async <Provider extends CloudProvider>({
 		expectedBucketOwner,
 		downloadBehavior: null,
 		customCredentials: null,
+		forcePathStyle: lambdaParams.forcePathStyle,
 	});
 
 	const onBrowserDownload = () => {
@@ -240,6 +243,7 @@ const innerStillHandler = async <Provider extends CloudProvider>({
 				expectedBucketOwner,
 				downloadBehavior: lambdaParams.downloadBehavior,
 				customCredentials,
+				forcePathStyle: lambdaParams.forcePathStyle,
 			})
 			.then(() => {
 				RenderInternals.Log.info(
@@ -306,6 +310,7 @@ const innerStillHandler = async <Provider extends CloudProvider>({
 		region: providerSpecifics.getCurrentRegionInFunction(),
 		downloadBehavior: lambdaParams.downloadBehavior,
 		customCredentials,
+		forcePathStyle: lambdaParams.forcePathStyle,
 	});
 
 	await Promise.all([
@@ -314,6 +319,7 @@ const innerStillHandler = async <Provider extends CloudProvider>({
 			region: providerSpecifics.getCurrentRegionInFunction(),
 			serialized: lambdaParams.inputProps,
 			providerSpecifics,
+			forcePathStyle: lambdaParams.forcePathStyle,
 		}),
 		server.closeServer(true),
 	]);

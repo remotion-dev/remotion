@@ -68,6 +68,7 @@ export type RenderMediaOnLambdaInput = {
 	 * @deprecated in favor of `logLevel`: true
 	 */
 	dumpBrowserLogs?: boolean;
+	forcePathStyle?: boolean;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 export type RenderMediaOnLambdaOutput = {
@@ -184,6 +185,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		x264Preset: options.x264Preset ?? null,
 		deleteAfter: options.deleteAfter ?? null,
 		preferLossless: options.preferLossless ?? false,
+		forcePathStyle: options.forcePathStyle ?? false,
 		indent: false,
 	};
 };

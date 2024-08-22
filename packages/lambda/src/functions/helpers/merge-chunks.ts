@@ -49,6 +49,7 @@ export const mergeChunksAndFinishRender = async <
 	overallProgress: OverallProgressHelper<Provider>;
 	startTime: number;
 	providerSpecifics: ProviderSpecifics<Provider>;
+	forcePathStyle: boolean;
 }): Promise<PostRenderData<Provider>> => {
 	const onProgress = (framesEncoded: number) => {
 		options.overallProgress.setCombinedFrames(framesEncoded);
@@ -95,6 +96,7 @@ export const mergeChunksAndFinishRender = async <
 		expectedBucketOwner: options.expectedBucketOwner,
 		downloadBehavior: options.downloadBehavior,
 		customCredentials: options.customCredentials,
+		forcePathStyle: options.forcePathStyle,
 	});
 
 	writeToBucket.end();
@@ -107,6 +109,7 @@ export const mergeChunksAndFinishRender = async <
 		inputProps: options.inputProps,
 		serializedResolvedProps: options.serializedResolvedProps,
 		providerSpecifics: options.providerSpecifics,
+		forcePathStyle: options.forcePathStyle,
 	});
 
 	const {url: outputUrl} = getOutputUrlFromMetadata(

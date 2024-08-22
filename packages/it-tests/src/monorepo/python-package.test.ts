@@ -96,6 +96,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 		x264Preset: null,
 		preferLossless: false,
 		indent: false,
+		forcePathStyle: false,
 	});
 	const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 	const parsedJson = JSON.parse(jsonOutput);
@@ -171,6 +172,7 @@ test('Python package should create the same renderStill payload as normal Lambda
 		onInit: () => undefined,
 		dumpBrowserLogs: false,
 		quality: undefined,
+		forcePathStyle: false,
 	});
 	const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 	const {streamed: _, ...parsedJson} = JSON.parse(jsonOutput);

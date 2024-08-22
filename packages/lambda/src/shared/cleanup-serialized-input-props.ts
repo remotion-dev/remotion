@@ -11,10 +11,12 @@ export const cleanupSerializedInputProps = async <
 	serialized,
 	region,
 	providerSpecifics,
+	forcePathStyle,
 }: {
 	serialized: SerializedInputProps;
 	region: Provider['region'];
 	providerSpecifics: ProviderSpecifics<Provider>;
+	forcePathStyle: boolean;
 }): Promise<number> => {
 	if (serialized.type === 'payload') {
 		return 0;
@@ -26,6 +28,7 @@ export const cleanupSerializedInputProps = async <
 		key: inputPropsKey(serialized.hash),
 		region,
 		customCredentials: null,
+		forcePathStyle,
 	});
 
 	return Date.now() - time;
@@ -37,10 +40,12 @@ export const cleanupSerializedResolvedProps = async <
 	serialized,
 	region,
 	providerSpecifics,
+	forcePathStyle,
 }: {
 	serialized: SerializedInputProps;
 	region: Provider['region'];
 	providerSpecifics: ProviderSpecifics<Provider>;
+	forcePathStyle: boolean;
 }): Promise<number> => {
 	if (serialized.type === 'payload') {
 		return 0;
@@ -52,6 +57,7 @@ export const cleanupSerializedResolvedProps = async <
 		key: resolvedPropsKey(serialized.hash),
 		region,
 		customCredentials: null,
+		forcePathStyle,
 	});
 
 	return Date.now() - time;

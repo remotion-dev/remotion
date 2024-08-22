@@ -28,6 +28,7 @@ type RemotionOptions struct {
 	Muted                          bool                   `json:"muted"`
 	PreferLossless                 bool                   `json:"preferLossless"`
 	Overwrite                      bool                   `json:"overwrite"`
+	ForcePathStyle                 bool                   `json:"forcePathStyle"`
 	AudioBitrate                   interface{}            `json:"audioBitrate"`
 	VideoBitrate                   interface{}            `json:"videoBitrate"`
 	EncodingBufferSize             interface{}            `json:"encodingBufferSize"`
@@ -71,6 +72,7 @@ type renderInternalOptions struct {
 	DownloadBehavior               map[string]interface{} `json:"downloadBehavior"`
 	Muted                          bool                   `json:"muted"`
 	PreferLossless                 bool                   `json:"preferLossless"`
+	ForcePathStyle                 bool                   `json:"forcePathStyle"`
 	Version                        string                 `json:"version"`
 	Overwrite                      bool                   `json:"overwrite"`
 	AudioBitrate                   interface{}            `json:"audioBitrate"`

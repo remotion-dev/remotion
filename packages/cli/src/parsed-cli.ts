@@ -30,6 +30,7 @@ export const BooleanFlags = [
 	BrowserSafeApis.options.disableGitSourceOption.cliFlag,
 	'repro',
 	'compatible-only',
+	'force-path-style',
 ];
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {

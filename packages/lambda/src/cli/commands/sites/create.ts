@@ -140,6 +140,7 @@ export const sitesCreateSubcommand = async (
 				enableFolderExpiry,
 				customCredentials: null,
 				providerSpecifics: implementation,
+				forcePathStyle: false,
 			})
 		).bucketName;
 
@@ -213,6 +214,7 @@ export const sitesCreateSubcommand = async (
 		logLevel,
 		throwIfSiteExists,
 		providerSpecifics: implementation,
+		forcePathStyle: parsedLambdaCli['force-path-style'] ?? false,
 	});
 
 	const uploadDuration = Date.now() - uploadStart;

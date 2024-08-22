@@ -16,11 +16,13 @@ export type DeleteRenderInput = {
 	bucketName: string;
 	renderId: string;
 	customCredentials?: CustomCredentials<AwsProvider>;
+	forcePathStyle?: boolean;
 };
 
 export const internalDeleteRender = async (
 	input: DeleteRenderInput & {
 		providerSpecifics: ProviderSpecifics<AwsProvider>;
+		forcePathStyle: boolean;
 	},
 ) => {
 	const expectedBucketOwner = await getAccountId({
@@ -32,6 +34,7 @@ export const internalDeleteRender = async (
 		region: input.region,
 		renderId: input.renderId,
 		providerSpecifics: input.providerSpecifics,
+		forcePathStyle: input.forcePathStyle,
 	});
 
 	// Render did not start yet
@@ -50,6 +53,7 @@ export const internalDeleteRender = async (
 		customCredentials,
 		key,
 		region: input.region,
+		forcePathStyle: input.forcePathStyle,
 	});
 
 	let files = await input.providerSpecifics.listObjects({
@@ -57,6 +61,7 @@ export const internalDeleteRender = async (
 		prefix: rendersPrefix(input.renderId),
 		region: input.region,
 		expectedBucketOwner,
+		forcePathStyle: input.forcePathStyle,
 	});
 
 	let totalSize = 0;
@@ -72,12 +77,14 @@ export const internalDeleteRender = async (
 			onBeforeItemDeleted: () => undefined,
 			region: input.region,
 			providerSpecifics: input.providerSpecifics,
+			forcePathStyle: input.forcePathStyle,
 		});
 		files = await input.providerSpecifics.listObjects({
 			bucketName: input.bucketName,
 			prefix: rendersPrefix(input.renderId),
 			region: input.region,
 			expectedBucketOwner,
+			forcePathStyle: input.forcePathStyle,
 		});
 	}
 
@@ -98,5 +105,6 @@ export const deleteRender = (input: DeleteRenderInput) => {
 	return internalDeleteRender({
 		...input,
 		providerSpecifics: awsImplementation,
+		forcePathStyle: false,
 	});
 };

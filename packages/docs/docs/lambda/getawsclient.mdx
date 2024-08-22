@@ -78,9 +78,7 @@ One of the [supported regions](/docs/lambda/region-selection) of Remotion Lambda
 
 One of `lambda`, `cloudwatch`, `iam`, `servicequotas`, `s3` or `sts`.
 
-### `customCredentials`
-
-_available from v3.2.23_
+### `customCredentials?`<AvailableFrom v="3.2.23" />
 
 Allows you to connect to another cloud provider, useful if you [render your output to a different cloud](/docs/lambda/custom-destination). The value must satisfy the following type:
 
@@ -91,6 +89,11 @@ type CustomCredentials = {
   secretAccessKey: string | null;
 };
 ```
+
+### `forcePathStyle?`<AvailableFrom v="4.0.202" />
+
+Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.
+
 
 ## Return value
 

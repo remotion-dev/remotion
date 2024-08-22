@@ -4,9 +4,13 @@ import type {AwsProvider} from '../functions/aws-implementation';
 import {getS3Client} from '../shared/get-s3-client';
 
 export const bucketExistsInRegionImplementation: ProviderSpecifics<AwsProvider>['bucketExists'] =
-	async ({bucketName, region, expectedBucketOwner}) => {
+	async ({bucketName, region, expectedBucketOwner, forcePathStyle}) => {
 		try {
-			const bucket = await getS3Client(region, null).send(
+			const bucket = await getS3Client({
+				region,
+				customCredentials: null,
+				forcePathStyle,
+			}).send(
 				new GetBucketLocationCommand({
 					Bucket: bucketName,
 					ExpectedBucketOwner: expectedBucketOwner ?? undefined,

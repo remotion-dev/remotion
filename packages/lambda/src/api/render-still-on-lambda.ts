@@ -58,6 +58,7 @@ type OptionalParameters = {
 		lambdaInsightsUrl: string;
 	}) => void;
 	indent: boolean;
+	forcePathStyle: boolean;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderStillOnLambda>;
 
 export type RenderStillOnLambdaNonNullInput = MandatoryParameters &
@@ -202,5 +203,6 @@ export const renderStillOnLambda = (input: RenderStillOnLambdaInput) => {
 		scale: input.scale ?? 1,
 		timeoutInMilliseconds: input.timeoutInMilliseconds ?? 30000,
 		dumpBrowserLogs: false,
+		forcePathStyle: input.forcePathStyle ?? false,
 	});
 };

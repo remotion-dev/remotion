@@ -39,6 +39,7 @@ type LambdaCommandLineOptions = {
 	['vpc-subnet-ids']: string | undefined;
 	['vpc-security-group-ids']: string | undefined;
 	['compatible-only']: boolean;
+	['force-path-style']: boolean;
 };
 
 export const parsedLambdaCli = CliInternals.minimist<LambdaCommandLineOptions>(

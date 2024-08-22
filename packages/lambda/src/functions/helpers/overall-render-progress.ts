@@ -101,6 +101,7 @@ export const makeOverallRenderProgress = <Provider extends CloudProvider>({
 	timeoutTimestamp,
 	logLevel,
 	providerSpecifics,
+	forcePathStyle,
 }: {
 	renderId: string;
 	bucketName: string;
@@ -109,6 +110,7 @@ export const makeOverallRenderProgress = <Provider extends CloudProvider>({
 	timeoutTimestamp: number;
 	logLevel: LogLevel;
 	providerSpecifics: ProviderSpecifics<Provider>;
+	forcePathStyle: boolean;
 }): OverallProgressHelper<Provider> => {
 	let framesRendered: number[] = [];
 	let framesEncoded: number[] = [];
@@ -151,6 +153,7 @@ export const makeOverallRenderProgress = <Provider extends CloudProvider>({
 				key: overallProgressKey(renderId),
 				privacy: 'private',
 				region,
+				forcePathStyle,
 			})
 			.then(() => {
 				// By default, upload is way too fast (~20 requests per second)

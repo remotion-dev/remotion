@@ -48,6 +48,7 @@ export const startHandler = async <Provider extends CloudProvider>(
 				enableFolderExpiry: null,
 				customCredentials: null,
 				providerSpecifics,
+				forcePathStyle: params.forcePathStyle,
 			})
 		).bucketName;
 	const realServeUrl = providerSpecifics.convertToServeUrl({
@@ -71,6 +72,7 @@ export const startHandler = async <Provider extends CloudProvider>(
 		key: overallProgressKey(options.renderId),
 		privacy: 'private',
 		customCredentials: null,
+		forcePathStyle: params.forcePathStyle,
 	});
 
 	const payload: ServerlessPayload<Provider> = {
@@ -116,6 +118,7 @@ export const startHandler = async <Provider extends CloudProvider>(
 		deleteAfter: params.deleteAfter,
 		colorSpace: params.colorSpace,
 		preferLossless: params.preferLossless,
+		forcePathStyle: params.forcePathStyle,
 	};
 
 	const stringifiedPayload = JSON.stringify(payload);

@@ -9,12 +9,14 @@ type GetOrCreateBucketInputInner<Provider extends CloudProvider> = {
 	enableFolderExpiry: boolean | null;
 	customCredentials: CustomCredentials<Provider> | null;
 	providerSpecifics: ProviderSpecifics<Provider>;
+	forcePathStyle: boolean;
 };
 
 export type GetOrCreateBucketInput<Provider extends CloudProvider> = {
 	region: Provider['region'];
 	enableFolderExpiry?: boolean;
 	customCredentials?: CustomCredentials<Provider>;
+	forcePathStyle?: boolean;
 };
 
 export type GetOrCreateBucketOutput = {
@@ -25,9 +27,11 @@ export type GetOrCreateBucketOutput = {
 export const internalGetOrCreateBucket = async <Provider extends CloudProvider>(
 	params: GetOrCreateBucketInputInner<Provider>,
 ): Promise<GetOrCreateBucketOutput> => {
-	const remotionBuckets = await params.providerSpecifics.getBuckets(
-		params.region,
-	);
+	const remotionBuckets = await params.providerSpecifics.getBuckets({
+		region: params.region,
+		forceBucketName: null,
+		forcePathStyle: params.forcePathStyle,
+	});
 	if (remotionBuckets.length > 1) {
 		throw new Error(
 			`You have multiple buckets (${remotionBuckets.map(
@@ -47,6 +51,7 @@ export const internalGetOrCreateBucket = async <Provider extends CloudProvider>(
 			bucketName: existingBucketName,
 			region,
 			customCredentials: params.customCredentials,
+			forcePathStyle: params.forcePathStyle,
 		});
 
 		return {bucketName: remotionBuckets[0].name, alreadyExisted: true};
@@ -57,6 +62,7 @@ export const internalGetOrCreateBucket = async <Provider extends CloudProvider>(
 	await params.providerSpecifics.createBucket({
 		bucketName,
 		region: params.region,
+		forcePathStyle: params.forcePathStyle,
 	});
 
 	// apply to newly created bucket
@@ -65,6 +71,7 @@ export const internalGetOrCreateBucket = async <Provider extends CloudProvider>(
 		bucketName,
 		region,
 		customCredentials: params.customCredentials,
+		forcePathStyle: params.forcePathStyle,
 	});
 
 	return {bucketName, alreadyExisted: false};
