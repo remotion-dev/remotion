@@ -44,6 +44,11 @@ _optional, available from v3.2.23_
 
 If the render was saved to a [different cloud](/docs/lambda/custom-destination#saving-to-another-cloud), pass an object with the same `endpoint`, `accessKeyId` and `secretAccessKey` as you passed to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#outname) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#outname).
 
+### `forcePathStyle?`<AvailableFrom v="4.0.202" />
+
+Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.
+
+
 ## Return value
 
 Returns a promise resolving to an object with the following properties:
