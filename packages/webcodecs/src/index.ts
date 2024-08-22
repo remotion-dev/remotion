@@ -1,2 +1,2 @@
-export {reencodeVideo} from './reencode-video';
-export {parseVideo} from './video-parser';
+export {createDecoder} from './decoder';
+export {createEncoder} from './encoder';

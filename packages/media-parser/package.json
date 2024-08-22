@@ -13,7 +13,8 @@
 		"watch": "tsc -w"
 	},
 	"devDependencies": {
-		"@remotion/renderer": "workspace:*"
+		"@remotion/renderer": "workspace:*",
+		"@types/wicg-file-system-access": "2023.10.5"
 	},
 	"publishConfig": {
 		"access": "public"

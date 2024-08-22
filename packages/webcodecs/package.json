@@ -20,9 +20,7 @@
 	],
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
-	"dependencies": {
-		"mp4box": "0.5.2"
-	},
+	"dependencies": {},
 	"peerDependencies": {},
 	"devDependencies": {
 		"@remotion/media-parser": "workspace:*",

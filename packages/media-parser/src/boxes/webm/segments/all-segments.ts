@@ -661,7 +661,7 @@ export type ClusterSegment = EbmlParsed<typeof cluster>;
 export type Tracks = EbmlParsed<typeof tracks>;
 
 export type FloatWithSize = {value: number; size: '32' | '64'};
-export type UintWithSize = {value: number; byteLength: number};
+export type UintWithSize = {value: number; byteLength: number | null};
 
 export type EbmlValue<
 	T extends Ebml,
@@ -687,13 +687,13 @@ export type EbmlValueOrUint8Array<T extends Ebml> =
 export type EbmlParsed<T extends Ebml> = {
 	type: T['name'];
 	value: EbmlValue<T>;
-	minVintWidth: number;
+	minVintWidth: number | null;
 };
 
 export type EbmlParsedOrUint8Array<T extends Ebml> = {
 	type: T['name'];
 	value: EbmlValueOrUint8Array<T>;
-	minVintWidth: number;
+	minVintWidth: number | null;
 };
 
 export const ebmlMap = {

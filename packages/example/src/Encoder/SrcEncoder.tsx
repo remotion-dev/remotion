@@ -1,4 +1,11 @@
-import {OnAudioTrack, OnVideoTrack, parseMedia} from '@remotion/media-parser';
+import {
+	MediaParserInternals,
+	OnAudioTrack,
+	OnVideoTrack,
+	VideoTrack,
+	parseMedia,
+} from '@remotion/media-parser';
+import {createDecoder, createEncoder} from '@remotion/webcodecs';
 import React, {useCallback, useRef} from 'react';
 import {flushSync} from 'react-dom';
 import {AbsoluteFill} from 'remotion';
@@ -58,137 +65,105 @@ export const SrcEncoder: React.FC<{
 
 	const i = useRef(0);
 
-	const onVideoTrack: OnVideoTrack = useCallback(async (track) => {
-		if (
-			typeof VideoDecoder === 'undefined' ||
-			typeof VideoEncoder === 'undefined'
-		) {
-			return null;
-		}
+	const onVideoFrame = useCallback(
+		async (inputFrame: VideoFrame, track: VideoTrack) => {
+			i.current++;
 
-		const {supported} = await VideoDecoder.isConfigSupported(track);
+			if (i.current % 10 === 1) {
+				const rotatedWidth =
+					track.rotation === -90 || track.rotation === 90
+						? CANVAS_HEIGHT
+						: CANVAS_WIDTH;
+				const rotatedHeight =
+					track.rotation === -90 || track.rotation === 90
+						? CANVAS_WIDTH
+						: CANVAS_HEIGHT;
 
-		if (!supported) {
-			setVideoError(new DOMException('Video decoder not supported'));
-			return null;
-		}
+				const fitted = fitElementSizeInContainer({
+					containerSize: {
+						width: rotatedWidth,
+						height: rotatedHeight,
+					},
+					elementSize: {
+						width: track.displayAspectWidth,
+						height: track.displayAspectHeight,
+					},
+				});
 
-		const encoder = new VideoEncoder({
-			error(error) {
-				console.error(error);
-			},
-			output(chunk, metadata) {
-				console.log('encoded as vp8', metadata);
-			},
-		});
+				const image = await createImageBitmap(inputFrame, {
+					resizeHeight: fitted.height * 2,
+					resizeWidth: fitted.width * 2,
+				});
 
-		encoder.configure({
-			codec: 'vp8',
-			height: track.displayAspectWidth,
-			width: track.displayAspectHeight,
-			hardwareAcceleration: 'prefer-hardware',
-		});
-
-		const videoDecoder = new VideoDecoder({
-			async output(inputFrame) {
-				encoder.encode(inputFrame);
-				i.current++;
-
-				if (i.current % 10 === 1) {
-					const rotatedWidth =
-						track.rotation === -90 || track.rotation === 90
-							? CANVAS_HEIGHT
-							: CANVAS_WIDTH;
-					const rotatedHeight =
-						track.rotation === -90 || track.rotation === 90
-							? CANVAS_WIDTH
-							: CANVAS_HEIGHT;
-
-					const fitted = fitElementSizeInContainer({
-						containerSize: {
-							width: rotatedWidth,
-							height: rotatedHeight,
-						},
-						elementSize: {
-							width: track.displayAspectWidth,
-							height: track.displayAspectHeight,
-						},
-					});
-
-					const image = await createImageBitmap(inputFrame, {
-						resizeHeight: fitted.height * 2,
-						resizeWidth: fitted.width * 2,
-					});
-
-					if (!ref.current) {
-						return;
-					}
-
-					const context = ref.current.getContext('2d');
-					if (!context) {
-						return;
-					}
-					ref.current.width = CANVAS_WIDTH;
-					ref.current.height = CANVAS_HEIGHT;
-
-					if (track.rotation === -90) {
-						context.rotate((-track.rotation * Math.PI) / 180);
-						context.drawImage(
-							image,
-							fitted.left,
-							-CANVAS_WIDTH / 2 - fitted.height / 2,
-							fitted.width,
-							fitted.height,
-						);
-						context.setTransform(1, 0, 0, 1, 0, 0);
-					}
-					// TODO: Implement 90 and 180 rotations
-					else {
-						context.drawImage(
-							image,
-							fitted.left,
-							0,
-							fitted.width,
-							fitted.height,
-						);
-					}
+				if (!ref.current) {
+					return;
 				}
-				flushSync(() => {
-					setVideoFrames((prev) => prev + 1);
-				});
-				inputFrame.close();
-			},
-			error(error) {
-				setVideoError(error);
-			},
-		});
-		videoDecoder.configure(track);
 
-		return async (chunk) => {
+				const context = ref.current.getContext('2d');
+				if (!context) {
+					return;
+				}
+				ref.current.width = CANVAS_WIDTH;
+				ref.current.height = CANVAS_HEIGHT;
+
+				if (track.rotation === -90) {
+					context.rotate((-track.rotation * Math.PI) / 180);
+					context.drawImage(
+						image,
+						fitted.left,
+						-CANVAS_WIDTH / 2 - fitted.height / 2,
+						fitted.width,
+						fitted.height,
+					);
+					context.setTransform(1, 0, 0, 1, 0, 0);
+				}
+				// TODO: Implement 90 and 180 rotations
+				else {
+					context.drawImage(image, fitted.left, 0, fitted.width, fitted.height);
+				}
+			}
 			flushSync(() => {
-				setSamples((s) => s + 1);
+				setVideoFrames((prev) => prev + 1);
 			});
+		},
+		[],
+	);
 
-			if (videoDecoder.state === 'closed') {
-				return;
+	const onVideoTrack: OnVideoTrack = useCallback(
+		async (track) => {
+			const videoEncoder = createEncoder({
+				width: track.displayAspectWidth,
+				height: track.displayAspectHeight,
+			});
+			if (videoEncoder === null) {
+				setVideoError(new DOMException('Video encoder not supported'));
+				return null;
 			}
 
-			if (videoDecoder.decodeQueueSize > 10) {
-				let resolve = () => {};
+			const arr = await MediaParserInternals.createMedia();
 
-				const cb = () => {
-					resolve();
-				};
+			const videoDecoder = await createDecoder({
+				track,
+				onFrame: (frame) => {
+					onVideoFrame(frame, track);
+					videoEncoder.encodeFrame(frame);
+					frame.close();
+				},
+			});
+			if (videoDecoder === null) {
+				setVideoError(new DOMException('Video decoder not supported'));
+				return null;
+			}
 
-				await new Promise<void>((r) => {
-					resolve = r;
-					videoDecoder.addEventListener('dequeue', cb);
+			return async (chunk) => {
+				flushSync(() => {
+					setSamples((s) => s + 1);
 				});
-				videoDecoder.removeEventListener('dequeue', cb);
-			}
-			videoDecoder.decode(new EncodedVideoChunk(chunk));
-		};
-	}, []);
+				videoDecoder.processSample(chunk);
+			};
+		},
+		[onVideoFrame],
+	);
 
 	const onAudioTrack: OnAudioTrack = useCallback(async (track) => {
 		if (typeof AudioDecoder === 'undefined') {
