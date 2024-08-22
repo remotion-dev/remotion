@@ -22,17 +22,7 @@ export type PresignUrlInput<CheckIfObjectExists extends boolean = boolean> =
 type PresignUrlInputInternal<CheckIfObjectExists extends boolean> =
 	MandatoryParameters & OptionalParameters<CheckIfObjectExists>;
 
-/**
- * @description Returns a public url of an object stored in Remotion's S3 bucket.
- * @see [Documentation](https://remotion.dev/docs/lambda/presignurl)
- * @param {AwsRegion} params.region The region in which the S3 bucket resides in.
- * @param {string} params.bucketName The name of the bucket to fetch the object from.
- * @param {string} params.objectKey Key of the S3 object to get.
- * @param {string} params.expiresIn The number of seconds before the presigned URL expires. Default 120.
- * @param {boolean} params.checkIfObjectExists Whether the function should check if the object exists in the bucket before generating the presigned url.
- * @returns {Promise<string | null>} The public url of an object or `null` if `checkIfObjectExists=true` & object does not exist.
- */
-export const presignUrl = async <CheckIfObjectExists extends boolean = false>({
+const internalPresignUrl = async <CheckIfObjectExists extends boolean = false>({
 	region,
 	bucketName,
 	objectKey,
@@ -88,4 +78,34 @@ export const presignUrl = async <CheckIfObjectExists extends boolean = false>({
 	});
 
 	return publicUrl;
+};
+
+/**
+ * @description Returns a public url of an object stored in Remotion's S3 bucket.
+ * @see [Documentation](https://remotion.dev/docs/lambda/presignurl)
+ * @param {AwsRegion} params.region The region in which the S3 bucket resides in.
+ * @param {string} params.bucketName The name of the bucket to fetch the object from.
+ * @param {string} params.objectKey Key of the S3 object to get.
+ * @param {string} params.expiresIn The number of seconds before the presigned URL expires. Default 120.
+ * @param {boolean} params.checkIfObjectExists Whether the function should check if the object exists in the bucket before generating the presigned url.
+ * @returns {Promise<string | null>} The public url of an object or `null` if `checkIfObjectExists=true` & object does not exist.
+ */
+export const presignUrl = <CheckIfObjectExists extends boolean = false>({
+	region,
+	bucketName,
+	objectKey,
+	checkIfObjectExists,
+	expiresInSeconds,
+	forcePathStyle,
+}: PresignUrlInput<CheckIfObjectExists>): Promise<
+	CheckIfObjectExists extends true ? string | null : string
+> => {
+	return internalPresignUrl({
+		region,
+		bucketName,
+		objectKey,
+		checkIfObjectExists: checkIfObjectExists ?? false,
+		expiresInSeconds,
+		forcePathStyle: forcePathStyle ?? false,
+	});
 };
