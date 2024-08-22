@@ -1,10 +1,10 @@
 {
-	"name": "@remotion/browser-renderer",
+	"name": "@remotion/webcodecs",
 	"version": "4.0.201",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"repository": {
-		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/browser-renderer"
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/webcodecs"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"

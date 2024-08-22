@@ -151,7 +151,7 @@
 			"path": "./packages/animated-emoji"
 		},
 		{
-			"path": "./packages/browser-renderer"
+			"path": "./packages/webcodecs"
 		},
 		{
 			"path": "./packages/zod-types"

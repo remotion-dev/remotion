@@ -32,7 +32,7 @@
 		"@react-three/fiber": "8.13.5",
 		"@remotion/animated-emoji": "workspace:*",
 		"@remotion/babel-loader": "workspace:*",
-		"@remotion/browser-renderer": "workspace:*",
+		"@remotion/webcodecs": "workspace:*",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/cli": "workspace:*",
 		"@remotion/cloudrun": "workspace:*",

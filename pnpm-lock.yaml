@@ -152,19 +152,6 @@ importers:
         specifier: workspace:*
         version: link:../core
 
-  packages/browser-renderer:
-    dependencies:
-      mp4box:
-        specifier: 0.5.2
-        version: 0.5.2
-    devDependencies:
-      '@remotion/media-parser':
-        specifier: workspace:*
-        version: link:../media-parser
-      '@types/dom-webcodecs':
-        specifier: 0.1.11
-        version: 0.1.11
-
   packages/bundler:
     dependencies:
       '@remotion/studio':
@@ -730,9 +717,6 @@ importers:
       '@remotion/babel-loader':
         specifier: workspace:*
         version: link:../babel-loader
-      '@remotion/browser-renderer':
-        specifier: workspace:*
-        version: link:../browser-renderer
       '@remotion/bundler':
         specifier: workspace:*
         version: link:../bundler
@@ -814,6 +798,9 @@ importers:
       '@remotion/transitions':
         specifier: workspace:*
         version: link:../transitions
+      '@remotion/webcodecs':
+        specifier: workspace:*
+        version: link:../webcodecs
       '@remotion/zod-types':
         specifier: workspace:*
         version: link:../zod-types
@@ -1614,6 +1601,19 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+
+  packages/webcodecs:
+    dependencies:
+      mp4box:
+        specifier: 0.5.2
+        version: 0.5.2
+    devDependencies:
+      '@remotion/media-parser':
+        specifier: workspace:*
+        version: link:../media-parser
+      '@types/dom-webcodecs':
+        specifier: 0.1.11
+        version: 0.1.11
 
   packages/zod-types:
     dependencies:

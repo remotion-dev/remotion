@@ -64,7 +64,7 @@ export const packages = [
 	'transitions',
 	'media-parser',
 	'zod-types',
-	'browser-renderer',
+	'webcodecs',
 ] as const;
 
 export type Pkgs = (typeof packages)[number];
@@ -183,7 +183,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'docusaurus-plugin': null,
 	'animated-emoji': 'Google Fonts Animated Emojis as Remotion components',
 	serverless: 'A runtime for distributed rendering',
-	'browser-renderer': 'Private experimental package',
+	webcodecs: 'Private experimental package',
 };
 
 export const apiDocs: {[key in Pkgs]: string | null} = {
@@ -250,5 +250,5 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	studio: null,
 	transitions: 'https://www.remotion.dev/transitions',
 	'animated-emoji': 'https://www.remotion.dev/docs/animated-emoji',
-	'browser-renderer': null,
+	webcodecs: null,
 };
