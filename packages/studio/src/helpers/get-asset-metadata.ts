@@ -64,7 +64,6 @@ export const getAssetMetadata = async (
 
 	if (fileType === 'video') {
 		const resolution = await getVideoMetadata(srcWithTime);
-		console.log(resolution);
 		return {
 			type: 'found',
 			size: Number(size),
