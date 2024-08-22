@@ -59,7 +59,10 @@ export const SrcEncoder: React.FC<{
 	const i = useRef(0);
 
 	const onVideoTrack: OnVideoTrack = useCallback(async (track) => {
-		if (typeof VideoDecoder === 'undefined') {
+		if (
+			typeof VideoDecoder === 'undefined' ||
+			typeof VideoEncoder === 'undefined'
+		) {
 			return null;
 		}
 
@@ -70,8 +73,25 @@ export const SrcEncoder: React.FC<{
 			return null;
 		}
 
+		const encoder = new VideoEncoder({
+			error(error) {
+				console.error(error);
+			},
+			output(chunk, metadata) {
+				console.log('encoded as vp8', metadata);
+			},
+		});
+
+		encoder.configure({
+			codec: 'vp8',
+			height: track.displayAspectWidth,
+			width: track.displayAspectHeight,
+			hardwareAcceleration: 'prefer-hardware',
+		});
+
 		const videoDecoder = new VideoDecoder({
 			async output(inputFrame) {
+				encoder.encode(inputFrame);
 				i.current++;
 
 				if (i.current % 10 === 1) {
