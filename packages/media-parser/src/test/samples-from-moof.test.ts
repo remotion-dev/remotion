@@ -2202,12 +2202,17 @@ const defaultSamples: AnySegment = {
 	offset: 1113,
 };
 
-test('Should be able to parse sample positions from a moof atom', () => {
+test('Should be able to parse video sample positions from a moof atom', () => {
 	const samples = getSamplesFromMoof({
-		segment: defaultSamples,
+		moofBox: defaultSamples,
 		trackId: 1,
-	}).slice(0, 15);
-	expect(samples).toEqual([
+	});
+
+	const firstSamples = samples.slice(0, 16);
+	const lastSample = samples[samples.length - 1];
+	expect(samples.length).toBe(128);
+
+	expect(firstSamples).toEqual([
 		{
 			offset: 3457,
 			dts: 26,
@@ -2327,6 +2332,155 @@ test('Should be able to parse sample positions from a moof atom', () => {
 			duration: 22,
 			isKeyframe: false,
 			size: 35638,
+		},
+		{
+			cts: 327,
+			dts: 327,
+			duration: 19,
+			isKeyframe: true,
+			offset: 563595,
+			size: 34739,
+		},
+	]);
+
+	expect(lastSample).toEqual({
+		cts: 2567,
+		dts: 2567,
+		duration: 1,
+		isKeyframe: false,
+		offset: 5386320,
+		size: 45308,
+	});
+});
+
+test('Should be able to parse audio sample positions from a moof atom', () => {
+	const samplesFromMoof = getSamplesFromMoof({
+		moofBox: defaultSamples,
+		trackId: 2,
+	});
+
+	const samples = samplesFromMoof.slice(0, 15);
+	expect(samplesFromMoof.length).toBe(201);
+	expect(samples).toEqual([
+		{
+			cts: 0,
+			dts: 0,
+			duration: 1024,
+			isKeyframe: true,
+			offset: 563595,
+			size: 4,
+		},
+		{
+			cts: 1024,
+			dts: 1024,
+			duration: 1024,
+			isKeyframe: true,
+			offset: 563599,
+			size: 391,
+		},
+		{
+			cts: 2048,
+			dts: 2048,
+			duration: 1024,
+			isKeyframe: true,
+			offset: 563990,
+			size: 490,
+		},
+		{
+			cts: 3072,
+			dts: 3072,
+			duration: 1024,
+			isKeyframe: true,
+			offset: 564480,
+			size: 463,
+		},
+		{
+			cts: 4096,
+			dts: 4096,
+			duration: 1024,
+			isKeyframe: true,
+			offset: 564943,
+			size: 4,
+		},
+		{
+			cts: 5120,
+			dts: 5120,
+			duration: 1024,
+			isKeyframe: true,
+			offset: 564947,
+			size: 441,
+		},
+		{
+			cts: 6144,
+			dts: 6144,
+			duration: 1024,
+			isKeyframe: true,
+			offset: 565388,
+			size: 493,
+		},
+		{
+			cts: 7168,
+			dts: 7168,
+			duration: 1024,
+			isKeyframe: true,
+			offset: 565881,
+			size: 437,
+		},
+		{
+			cts: 8192,
+			dts: 8192,
+			duration: 1024,
+			isKeyframe: true,
+			offset: 566318,
+			size: 431,
+		},
+		{
+			cts: 9216,
+			dts: 9216,
+			duration: 1024,
+			isKeyframe: true,
+			offset: 566749,
+			size: 463,
+		},
+		{
+			cts: 10240,
+			dts: 10240,
+			duration: 1024,
+			isKeyframe: true,
+			offset: 567212,
+			size: 456,
+		},
+		{
+			cts: 11264,
+			dts: 11264,
+			duration: 1024,
+			isKeyframe: true,
+			offset: 567668,
+			size: 408,
+		},
+		{
+			cts: 12288,
+			dts: 12288,
+			duration: 1024,
+			isKeyframe: true,
+			offset: 568076,
+			size: 394,
+		},
+		{
+			cts: 13312,
+			dts: 13312,
+			duration: 1024,
+			isKeyframe: true,
+			offset: 568470,
+			size: 455,
+		},
+		{
+			cts: 14336,
+			dts: 14336,
+			duration: 1024,
+			isKeyframe: true,
+			offset: 568925,
+			size: 376,
 		},
 	]);
 });

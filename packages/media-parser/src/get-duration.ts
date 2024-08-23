@@ -67,12 +67,19 @@ export const getDuration = (
 
 	const tracks = getTracks(boxes, parserState);
 	const allTracks = [
-		...tracks.videoTracks.map((t) => t.samplePositions),
-		...tracks.audioTracks.map((t) => t.samplePositions),
-		...tracks.otherTracks.map((t) => t.samplePositions),
-	].flat(1);
-	console.log(allTracks);
-	return 0;
+		...tracks.videoTracks,
+		...tracks.audioTracks,
+		...tracks.otherTracks,
+	];
+	const allSamples = allTracks.map((t) => {
+		const {timescale: ts} = t;
+		const highest = t.samplePositions
+			?.map((sp) => (sp.cts + sp.duration) / ts)
+			.reduce((a, b) => Math.max(a, b), 0);
+		return highest ?? 0;
+	});
+	const highestTimestamp = Math.max(...allSamples);
+	return highestTimestamp;
 };
 
 export const hasDuration = (

@@ -18,13 +18,20 @@ const getSamplesFromTraf = (
 	const tfdtBox = getTfdtBox(trafSegment);
 	const trunBoxes = getTrunBoxes(trafSegment);
 
-	let offset = 0;
 	let time = 0;
+	let offset = 0;
+
+	let dataOffset = 0;
 
 	const samples: SamplePosition[] = [];
 
 	for (const trunBox of trunBoxes) {
 		let i = -1;
+
+		if (dataOffset === 0 && trunBox.dataOffset) {
+			dataOffset = trunBox.dataOffset;
+		}
+
 		for (const sample of trunBox.samples) {
 			i++;
 			const duration = sample.sampleDuration ?? defaultSampleDuration;
@@ -49,10 +56,12 @@ const getSamplesFromTraf = (
 
 			const keyframe = !((sampleFlags >> 16) & 0x1);
 
+			const dts = time + (tfdtBox?.baseMediaDecodeTime ?? 0);
+
 			const samplePosition: SamplePosition = {
-				offset: offset + (trunBox.dataOffset ?? 0) + (moofOffset ?? 0),
-				dts: time + (tfdtBox?.baseMediaDecodeTime ?? 0),
-				cts: time + (tfdtBox?.baseMediaDecodeTime ?? 0),
+				offset: offset + (moofOffset ?? 0) + (dataOffset ?? 0),
+				dts,
+				cts: dts,
 				duration,
 				isKeyframe: keyframe,
 				size,
@@ -67,17 +76,17 @@ const getSamplesFromTraf = (
 };
 
 export const getSamplesFromMoof = ({
-	segment,
+	moofBox,
 	trackId,
 }: {
-	segment: AnySegment;
+	moofBox: AnySegment;
 	trackId: number;
 }) => {
-	if (segment.type !== 'regular-box') {
+	if (moofBox.type !== 'regular-box') {
 		throw new Error('Expected moof-box');
 	}
 
-	const trafs = segment.children.filter(
+	const trafs = moofBox.children.filter(
 		(c) => c.type === 'regular-box' && c.boxType === 'traf',
 	) as IsoBaseMediaBox[];
 
@@ -85,7 +94,7 @@ export const getSamplesFromMoof = ({
 		const tfhdBox = getTfhdBox(traf);
 
 		return tfhdBox?.trackId === trackId
-			? getSamplesFromTraf(traf, segment.offset)
+			? getSamplesFromTraf(traf, moofBox.offset)
 			: [];
 	});
 	return mapped.flat(1);

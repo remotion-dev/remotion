@@ -48,6 +48,18 @@ export const getMoovBox = (segments: AnySegment[]): MoovBox | null => {
 	return moovBox;
 };
 
+export const getMoofBox = (main: AnySegment[]): IsoBaseMediaBox | null => {
+	const moofBox = main.find(
+		(s) => s.type === 'regular-box' && s.boxType === 'moof',
+	);
+
+	if (!moofBox || moofBox.type !== 'regular-box') {
+		return null;
+	}
+
+	return moofBox;
+};
+
 export const getMvhdBox = (moovBox: MoovBox): MvhdBox | null => {
 	const mvHdBox = moovBox.children.find((s) => s.type === 'mvhd-box');
 

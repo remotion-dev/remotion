@@ -5,7 +5,13 @@ import {getMainSegment} from './boxes/webm/traversal';
 import type {SamplePosition} from './get-sample-positions';
 import type {AnySegment} from './parse-result';
 import type {ParserState} from './parser-state';
-import {getMoovBox, getMvhdBox, getTracksSegment, getTraks} from './traversal';
+import {
+	getMoofBox,
+	getMoovBox,
+	getMvhdBox,
+	getTracksSegment,
+	getTraks,
+} from './traversal';
 
 type SampleAspectRatio = {
 	numerator: number;
@@ -125,7 +131,7 @@ export const getTracks = (
 	const tracks = getTraks(moovBox);
 
 	for (const trakBox of tracks) {
-		const track = makeBaseMediaTrack(trakBox);
+		const track = makeBaseMediaTrack(trakBox, getMoofBox(segments));
 		if (!track) {
 			continue;
 		}

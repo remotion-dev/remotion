@@ -18,6 +18,8 @@ import {
 import {getSamplePositions} from '../../get-sample-positions';
 import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
 import {getVideoCodecString} from '../../get-video-codec';
+import type {AnySegment} from '../../parse-result';
+import {getSamplesFromMoof} from '../../samples-from-moof';
 import {
 	getCttsBox,
 	getStcoBox,
@@ -32,6 +34,7 @@ import type {TrakBox} from './trak/trak';
 
 export const makeBaseMediaTrack = (
 	trakBox: TrakBox,
+	moofBox: AnySegment | null,
 ): VideoTrack | AudioTrack | OtherTrack | null => {
 	const stszBox = getStszBox(trakBox);
 	const stcoBox = getStcoBox(trakBox);
@@ -68,7 +71,7 @@ export const makeBaseMediaTrack = (
 		throw new Error('Expected timescale and duration in trak box');
 	}
 
-	const samplePositions = getSamplePositions({
+	let samplePositions = getSamplePositions({
 		stcoBox,
 		stscBox,
 		stszBox,
@@ -76,6 +79,10 @@ export const makeBaseMediaTrack = (
 		sttsBox,
 		cttsBox,
 	});
+
+	if (samplePositions.length === 0 && moofBox) {
+		samplePositions = getSamplesFromMoof({moofBox, trackId: tkhdBox.trackId});
+	}
 
 	if (trakBoxContainsAudio(trakBox)) {
 		const numberOfChannels = getNumberOfChannelsFromTrak(trakBox);

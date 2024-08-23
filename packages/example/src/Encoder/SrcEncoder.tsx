@@ -139,6 +139,7 @@ export const SrcEncoder: React.FC<{
 				inputFrame.close();
 			},
 			error(error) {
+				console.log(error);
 				setVideoError(error);
 			},
 		});
@@ -148,10 +149,6 @@ export const SrcEncoder: React.FC<{
 			flushSync(() => {
 				setSamples((s) => s + 1);
 			});
-
-			if (videoDecoder.state === 'closed') {
-				return;
-			}
 
 			if (videoDecoder.decodeQueueSize > 10) {
 				let resolve = () => {};
@@ -165,6 +162,10 @@ export const SrcEncoder: React.FC<{
 					videoDecoder.addEventListener('dequeue', cb);
 				});
 				videoDecoder.removeEventListener('dequeue', cb);
+			}
+
+			if (videoDecoder.state === 'closed') {
+				return;
 			}
 			videoDecoder.decode(new EncodedVideoChunk(chunk));
 		};

@@ -77,6 +77,7 @@ export const parseMdat = async ({
 			} else {
 				const bytesRemaining = size + fileOffset - data.counter.getOffset();
 				data.discard(bytesRemaining);
+				console.log('no next sample', data.counter.getOffset());
 				break;
 			}
 		}
@@ -97,12 +98,14 @@ export const parseMdat = async ({
 		}
 
 		if (sampleWithIndex.track.type === 'video') {
-			const timestamp =
+			const timestamp = Math.floor(
 				(sampleWithIndex.samplePosition.cts * 1_000_000) /
-				sampleWithIndex.track.timescale;
-			const duration =
+					sampleWithIndex.track.timescale,
+			);
+			const duration = Math.floor(
 				(sampleWithIndex.samplePosition.duration * 1_000_000) /
-				sampleWithIndex.track.timescale;
+					sampleWithIndex.track.timescale,
+			);
 
 			await options.parserState.onVideoSample(sampleWithIndex.track.trackId, {
 				data: bytes,
