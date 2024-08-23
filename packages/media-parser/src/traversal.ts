@@ -9,8 +9,11 @@ import type {StsdBox} from './boxes/iso-base-media/stsd/stsd';
 import type {StssBox} from './boxes/iso-base-media/stsd/stss';
 import type {StszBox} from './boxes/iso-base-media/stsd/stsz';
 import type {SttsBox} from './boxes/iso-base-media/stsd/stts';
+import type {TfdtBox} from './boxes/iso-base-media/tfdt';
+import type {TfhdBox} from './boxes/iso-base-media/tfhd';
 import type {TkhdBox} from './boxes/iso-base-media/tkhd';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
+import type {TrunBox} from './boxes/iso-base-media/trun';
 import type {
 	AudioSegment,
 	ClusterSegment,
@@ -25,7 +28,7 @@ import type {
 	VideoSegment,
 	WidthSegment,
 } from './boxes/webm/segments/all-segments';
-import type {AnySegment, RegularBox} from './parse-result';
+import type {AnySegment, IsoBaseMediaBox, RegularBox} from './parse-result';
 
 export const getFtypBox = (segments: AnySegment[]): FtypBox | null => {
 	const ftypBox = segments.find((s) => s.type === 'ftyp-box');
@@ -237,6 +240,46 @@ export const getStssBox = (trakBox: TrakBox): StssBox | null => {
 	) as StssBox | null;
 
 	return stssBox;
+};
+
+export const getTfdtBox = (segment: IsoBaseMediaBox): TfdtBox | null => {
+	if (segment.type !== 'regular-box' || segment.boxType !== 'traf') {
+		throw new Error('Expected traf-box');
+	}
+
+	const tfhdBox = segment.children.find((c) => c.type === 'tfdt-box');
+
+	if (!tfhdBox || tfhdBox.type !== 'tfdt-box') {
+		throw new Error('Expected tfhd-box');
+	}
+
+	return tfhdBox;
+};
+
+export const getTfhdBox = (segment: IsoBaseMediaBox): TfhdBox | null => {
+	if (segment.type !== 'regular-box' || segment.boxType !== 'traf') {
+		throw new Error('Expected traf-box');
+	}
+
+	const tfhdBox = segment.children.find(
+		(c) => c.type === 'tfhd-box',
+	) as TfhdBox;
+
+	if (!tfhdBox || tfhdBox.type !== 'tfhd-box') {
+		throw new Error('Expected tfhd-box');
+	}
+
+	return tfhdBox;
+};
+
+export const getTrunBoxes = (segment: IsoBaseMediaBox): TrunBox[] => {
+	if (segment.type !== 'regular-box' || segment.boxType !== 'traf') {
+		throw new Error('Expected traf-box');
+	}
+
+	const trunBoxes = segment.children.filter((c) => c.type === 'trun-box');
+
+	return trunBoxes as TrunBox[];
 };
 
 export const getClusterSegment = (

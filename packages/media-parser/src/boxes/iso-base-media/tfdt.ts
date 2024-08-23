@@ -4,6 +4,7 @@ export interface TfdtBox {
 	type: 'tfdt-box';
 	version: number;
 	baseMediaDecodeTime: number;
+	offset: number;
 }
 
 export const parseTfdt = ({
@@ -16,8 +17,8 @@ export const parseTfdt = ({
 	offset: number;
 }): TfdtBox => {
 	const version = iterator.getUint8();
-	// Flags, discard them
 	iterator.discard(3);
+	// Flags, discard them
 	const num =
 		version === 0 ? iterator.getUint32() : Number(iterator.getUint64());
 
@@ -31,5 +32,6 @@ export const parseTfdt = ({
 		type: 'tfdt-box',
 		version,
 		baseMediaDecodeTime: num,
+		offset,
 	};
 };
