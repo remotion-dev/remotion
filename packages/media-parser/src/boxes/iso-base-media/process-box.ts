@@ -31,6 +31,7 @@ import {parseStsz} from './stsd/stsz';
 import {parseStts} from './stsd/stts';
 import {parseTkhd} from './tkhd';
 import {parseTrak} from './trak/trak';
+import {parseTrun} from './trun';
 
 const getChildren = async ({
 	boxType,
@@ -49,8 +50,10 @@ const getChildren = async ({
 		boxType === 'mdia' ||
 		boxType === 'minf' ||
 		boxType === 'stbl' ||
+		boxType === 'moof' ||
 		boxType === 'dims' ||
 		boxType === 'wave' ||
+		boxType === 'traf' ||
 		boxType === 'stsb';
 
 	if (parseChildren) {
@@ -251,6 +254,17 @@ export const processBox = async ({
 
 	if (boxType === 'tkhd') {
 		const box = parseTkhd({iterator, offset: fileOffset, size: boxSize});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
+	if (boxType === 'trun') {
+		const box = parseTrun({iterator, offset: fileOffset, size: boxSize});
 
 		return {
 			type: 'complete',

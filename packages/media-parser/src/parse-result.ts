@@ -21,6 +21,7 @@ import type {StszBox} from './boxes/iso-base-media/stsd/stsz';
 import type {SttsBox} from './boxes/iso-base-media/stsd/stts';
 import type {TkhdBox} from './boxes/iso-base-media/tkhd';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
+import type {TrunBox} from './boxes/iso-base-media/trun';
 import type {VoidBox} from './boxes/iso-base-media/void-box';
 import type {MatroskaSegment} from './boxes/webm/segments';
 
@@ -56,6 +57,7 @@ export type IsoBaseMediaBox =
 	| PaspBox
 	| CttsBox
 	| Av1CBox
+	| TrunBox
 	| ColorParameterBox;
 
 export type AnySegment = MatroskaSegment | IsoBaseMediaBox;
