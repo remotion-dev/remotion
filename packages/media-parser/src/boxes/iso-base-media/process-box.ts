@@ -29,6 +29,8 @@ import {parseStsd} from './stsd/stsd';
 import {parseStss} from './stsd/stss';
 import {parseStsz} from './stsd/stsz';
 import {parseStts} from './stsd/stts';
+import {parseTfdt} from './tfdt';
+import {getTfhd} from './tfhd';
 import {parseTkhd} from './tkhd';
 import {parseTrak} from './trak/trak';
 import {parseTrun} from './trun';
@@ -274,6 +276,17 @@ export const processBox = async ({
 		};
 	}
 
+	if (boxType === 'tfdt') {
+		const box = parseTfdt({iterator, size: boxSize, offset: fileOffset});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
 	if (boxType === 'stsd') {
 		const box = await parseStsd({
 			iterator,
@@ -496,6 +509,21 @@ export const processBox = async ({
 			data: iterator,
 			size: boxSize,
 			offset: fileOffset,
+		});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
+	if (boxType === 'tfhd') {
+		const box = getTfhd({
+			iterator,
+			offset: fileOffset,
+			size: boxSize,
 		});
 
 		return {
