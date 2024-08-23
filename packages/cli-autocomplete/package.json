@@ -2,7 +2,7 @@
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/cli-autocomplete"
 	},
-	"version": "4.0.201",
+	"version": "4.0.202",
 	"name": "@remotion/fig-autocomplete",
 	"private": true,
 	"devDependencies": {
