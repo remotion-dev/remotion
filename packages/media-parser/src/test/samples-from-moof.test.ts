@@ -2360,6 +2360,7 @@ test('Should be able to parse audio sample positions from a moof atom', () => {
 	});
 
 	const samples = samplesFromMoof.slice(0, 15);
+	const lastSample = samplesFromMoof[samplesFromMoof.length - 1];
 	expect(samplesFromMoof.length).toBe(201);
 	expect(samples).toEqual([
 		{
@@ -2483,4 +2484,13 @@ test('Should be able to parse audio sample positions from a moof atom', () => {
 			size: 376,
 		},
 	]);
+
+	expect(lastSample).toEqual({
+		cts: 204800,
+		dts: 204800,
+		duration: 1024,
+		isKeyframe: true,
+		offset: 664534,
+		size: 698,
+	});
 });

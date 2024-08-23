@@ -1,8 +1,10 @@
+import {getSamplePositionsFromTrack} from './boxes/iso-base-media/get-sample-positions-from-track';
+import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import type {DurationSegment} from './boxes/webm/segments/all-segments';
 import {getTracks} from './get-tracks';
 import type {AnySegment} from './parse-result';
 import type {ParserState} from './parser-state';
-import {getMoovBox, getMvhdBox} from './traversal';
+import {getMoofBox, getMoovBox, getMvhdBox} from './traversal';
 
 const getDurationFromMatroska = (segments: AnySegment[]): number | null => {
 	const mainSegment = segments.find((s) => s.type === 'Segment');
@@ -51,6 +53,7 @@ export const getDuration = (
 		return null;
 	}
 
+	const moofBox = getMoofBox(boxes);
 	const mvhdBox = getMvhdBox(moovBox);
 
 	if (!mvhdBox) {
@@ -73,7 +76,12 @@ export const getDuration = (
 	];
 	const allSamples = allTracks.map((t) => {
 		const {timescale: ts} = t;
-		const highest = t.samplePositions
+		const samplePositions = getSamplePositionsFromTrack(
+			t.trakBox as TrakBox,
+			moofBox,
+		);
+
+		const highest = samplePositions
 			?.map((sp) => (sp.cts + sp.duration) / ts)
 			.reduce((a, b) => Math.max(a, b), 0);
 		return highest ?? 0;

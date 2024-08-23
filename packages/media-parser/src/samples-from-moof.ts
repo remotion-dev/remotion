@@ -13,7 +13,7 @@ const getSamplesFromTraf = (
 	const tfhdBox = getTfhdBox(trafSegment);
 	const defaultSampleDuration = tfhdBox?.defaultSampleDuration ?? null;
 	const defaultSampleSize = tfhdBox?.defaultSampleSize ?? null;
-	const defaultSampleFalgs = tfhdBox?.defaultSampleFlags ?? null;
+	const defaultSampleFlags = tfhdBox?.defaultSampleFlags ?? null;
 
 	const tfdtBox = getTfdtBox(trafSegment);
 	const trunBoxes = getTrunBoxes(trafSegment);
@@ -49,7 +49,7 @@ const getSamplesFromTraf = (
 				? sample.sampleFlags
 				: isFirstSample && trunBox.firstSampleFlags !== null
 					? trunBox.firstSampleFlags
-					: defaultSampleFalgs;
+					: defaultSampleFlags;
 			if (sampleFlags === null) {
 				throw new Error('Expected sample flags');
 			}

@@ -434,8 +434,7 @@ export const processBox = async ({
 			offsetAtStart: fileOffset,
 			options,
 		});
-		// TODO: Hmm
-		const transformedTrack = makeBaseMediaTrack(box, null);
+		const transformedTrack = makeBaseMediaTrack(box);
 		if (transformedTrack) {
 			if (transformedTrack.type === 'audio') {
 				const callback = await options.onAudioTrack?.(transformedTrack);
