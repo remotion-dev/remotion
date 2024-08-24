@@ -742,3 +742,20 @@ test('Acknowledge there are .avi file', () => {
 	expect(parsed).rejects.toThrow('AVI');
 	expect(parsed).rejects.toThrow('not yet supported');
 });
+
+test('mvhd version 1', async () => {
+	const parsed = await parseMedia({
+		src: '/Users/jonathanburger/Downloads/original-3b798673-e9e2-4c09-9174-f6653547eecf (2).mp4',
+		fields: {
+			dimensions: true,
+			durationInSeconds: true,
+			fps: true,
+			videoCodec: true,
+			audioCodec: true,
+			rotation: true,
+			unrotatedDimensions: true,
+		},
+		reader: nodeReader,
+	});
+	console.log(parsed);
+});

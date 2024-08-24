@@ -7,6 +7,8 @@ export interface MdhdBox {
 	duration: number;
 	language: number;
 	quality: number;
+	creationTime: number | null;
+	modificationTime: number | null;
 }
 
 export const parseMdhd = ({
@@ -19,21 +21,20 @@ export const parseMdhd = ({
 	fileOffset: number;
 }): MdhdBox => {
 	const version = data.getUint8();
-	if (version !== 0) {
-		throw new Error(`Unsupported MDHD version ${version}`);
-	}
 
 	// flags, we discard them
 	data.discard(3);
 
 	// creation time
-	data.discard(4);
+	const creationTime =
+		version === 1 ? Number(data.getUint64()) : data.getUint32();
 
 	// modification time
-	data.discard(4);
+	const modificationTime =
+		version === 1 ? Number(data.getUint64()) : data.getUint32();
 
 	const timescale = data.getUint32();
-	const duration = data.getUint32();
+	const duration = version === 1 ? data.getUint64() : data.getUint32();
 
 	const language = data.getUint16();
 
@@ -47,10 +48,12 @@ export const parseMdhd = ({
 
 	return {
 		type: 'mdhd-box',
-		duration,
+		duration: Number(duration),
 		timescale,
 		version,
 		language,
 		quality,
+		creationTime,
+		modificationTime,
 	};
 };
