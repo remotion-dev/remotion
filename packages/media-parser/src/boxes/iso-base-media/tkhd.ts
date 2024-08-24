@@ -26,6 +26,9 @@ type Matrix2x2 = readonly [number, number, number, number];
 function getRotationAngleFromMatrix(matrix: Matrix2x2): number {
 	// Extract elements from the matrix
 	const [a, b, c, d] = matrix;
+	if (a === 0 && b === 0 && c === 0 && d === 0) {
+		return 0;
+	}
 
 	// Check if the matrix is a valid rotation matrix
 	if (Math.round(a * a + b * b) !== 1 || Math.round(c * c + d * d) !== 1) {
