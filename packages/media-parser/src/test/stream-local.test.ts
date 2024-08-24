@@ -138,7 +138,6 @@ test('Should stream AV1', async () => {
 			denominator: 1,
 			numerator: 1,
 		},
-		samplePositions: [],
 		timescale: 1000000,
 		trackId: 1,
 		codedHeight: 1080,
@@ -148,6 +147,7 @@ test('Should stream AV1', async () => {
 		displayAspectHeight: 1080,
 		displayAspectWidth: 1920,
 		rotation: 0,
+		trakBox: null,
 	});
 	expect(parsed.audioTracks.length).toBe(0);
 	expect(videoTracks).toBe(1);
@@ -285,7 +285,8 @@ test('Should stream variable fps video', async () => {
 	expect(parsed.audioCodec).toBe('opus');
 	expect(parsed.rotation).toBe(0);
 	expect(parsed.videoTracks.length).toBe(1);
-	expect(parsed.videoTracks[0]).toEqual({
+	const [track] = parsed.videoTracks;
+	expect(track).toEqual({
 		type: 'video',
 		codec: 'vp8',
 		description: undefined,
@@ -293,7 +294,6 @@ test('Should stream variable fps video', async () => {
 			denominator: 1,
 			numerator: 1,
 		},
-		samplePositions: [],
 		timescale: 1000000,
 		trackId: 2,
 		codedHeight: 720,
@@ -303,17 +303,18 @@ test('Should stream variable fps video', async () => {
 		displayAspectHeight: 720,
 		displayAspectWidth: 1280,
 		rotation: 0,
+		trakBox: null,
 	});
 	expect(parsed.audioTracks.length).toBe(1);
 	expect(parsed.audioTracks[0]).toEqual({
 		type: 'audio',
 		codec: 'opus',
-		samplePositions: null,
 		timescale: 1000000,
 		trackId: 1,
 		numberOfChannels: 1,
 		sampleRate: 48000,
 		description: undefined,
+		trakBox: null,
 	});
 	expect(audioTracks).toBe(1);
 	expect(samples).toBe(381);
@@ -574,27 +575,25 @@ test('Stretched VP8', async () => {
 		reader: nodeReader,
 	});
 
-	expect(videoTracks).toEqual([
-		{
-			codec: 'vp8',
-			codedHeight: 1080,
-			codedWidth: 1440,
-			description: undefined,
-			height: 1080,
-			sampleAspectRatio: {
-				denominator: 1,
-				numerator: 1,
-			},
-			samplePositions: [],
-			timescale: 1000000,
-			trackId: 1,
-			type: 'video',
-			width: 1920,
-			displayAspectHeight: 1080,
-			displayAspectWidth: 1920,
-			rotation: 0,
+	const {trakBox, ...track} = videoTracks[0];
+	expect(track).toEqual({
+		codec: 'vp8',
+		codedHeight: 1080,
+		codedWidth: 1440,
+		description: undefined,
+		height: 1080,
+		sampleAspectRatio: {
+			denominator: 1,
+			numerator: 1,
 		},
-	]);
+		timescale: 1000000,
+		trackId: 1,
+		type: 'video',
+		width: 1920,
+		displayAspectHeight: 1080,
+		displayAspectWidth: 1920,
+		rotation: 0,
+	});
 });
 
 test('HEVC and AAC in Matroska', async () => {
