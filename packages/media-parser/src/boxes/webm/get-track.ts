@@ -221,7 +221,6 @@ export const getTrack = ({
 				denominator: 1,
 			},
 			timescale,
-			samplePositions: [],
 			codedHeight: height.value.value,
 			codedWidth: width.value.value,
 			displayAspectHeight: displayHeight
@@ -231,6 +230,7 @@ export const getTrack = ({
 				? displayWidth.value.value
 				: width.value.value,
 			rotation: 0,
+			trakBox: null,
 		};
 	}
 
@@ -245,11 +245,11 @@ export const getTrack = ({
 			type: 'audio',
 			trackId,
 			codec: getMatroskaAudioCodecString(track),
-			samplePositions: null,
 			timescale,
 			numberOfChannels,
 			sampleRate,
 			description: getAudioDescription(track),
+			trakBox: null,
 		};
 	}
 

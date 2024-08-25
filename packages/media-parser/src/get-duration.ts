@@ -1,6 +1,10 @@
+import {getSamplePositionsFromTrack} from './boxes/iso-base-media/get-sample-positions-from-track';
+import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import type {DurationSegment} from './boxes/webm/segments/all-segments';
+import {getTracks} from './get-tracks';
 import type {AnySegment} from './parse-result';
-import {getMoovBox, getMvhdBox} from './traversal';
+import type {ParserState} from './parser-state';
+import {getMoofBox, getMoovBox, getMvhdBox} from './traversal';
 
 const getDurationFromMatroska = (segments: AnySegment[]): number | null => {
 	const mainSegment = segments.find((s) => s.type === 'Segment');
@@ -35,7 +39,10 @@ const getDurationFromMatroska = (segments: AnySegment[]): number | null => {
 	return (duration.value.value / timestampScale.value.value) * 1000;
 };
 
-export const getDuration = (boxes: AnySegment[]): number | null => {
+export const getDuration = (
+	boxes: AnySegment[],
+	parserState: ParserState,
+): number | null => {
 	const matroskaBox = boxes.find((b) => b.type === 'Segment');
 	if (matroskaBox) {
 		return getDurationFromMatroska(boxes);
@@ -46,6 +53,7 @@ export const getDuration = (boxes: AnySegment[]): number | null => {
 		return null;
 	}
 
+	const moofBox = getMoofBox(boxes);
 	const mvhdBox = getMvhdBox(moovBox);
 
 	if (!mvhdBox) {
@@ -56,12 +64,39 @@ export const getDuration = (boxes: AnySegment[]): number | null => {
 		throw new Error('Expected mvhd-box');
 	}
 
-	return mvhdBox.durationInSeconds;
+	if (mvhdBox.durationInSeconds > 0) {
+		return mvhdBox.durationInSeconds;
+	}
+
+	const tracks = getTracks(boxes, parserState);
+	const allTracks = [
+		...tracks.videoTracks,
+		...tracks.audioTracks,
+		...tracks.otherTracks,
+	];
+	const allSamples = allTracks.map((t) => {
+		const {timescale: ts} = t;
+		const samplePositions = getSamplePositionsFromTrack(
+			t.trakBox as TrakBox,
+			moofBox,
+		);
+
+		const highest = samplePositions
+			?.map((sp) => (sp.cts + sp.duration) / ts)
+			.reduce((a, b) => Math.max(a, b), 0);
+		return highest ?? 0;
+	});
+	const highestTimestamp = Math.max(...allSamples);
+	return highestTimestamp;
 };
 
-export const hasDuration = (boxes: AnySegment[]): boolean => {
+export const hasDuration = (
+	boxes: AnySegment[],
+	parserState: ParserState,
+): boolean => {
 	try {
-		return getDuration(boxes) !== null;
+		const duration = getDuration(boxes, parserState);
+		return getDuration(boxes, parserState) !== null && duration !== 0;
 	} catch (err) {
 		return false;
 	}
