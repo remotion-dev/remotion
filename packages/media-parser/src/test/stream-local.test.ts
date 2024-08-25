@@ -263,12 +263,12 @@ test('Should stream variable fps video', async () => {
 			boxes: true,
 		},
 		reader: nodeReader,
-		onAudioTrack: (track) => {
-			expect(track.type).toBe('audio');
-			expect(track.trackId).toBe(1);
-			expect(track.codec).toBe('opus');
-			expect(track.numberOfChannels).toBe(1);
-			expect(track.sampleRate).toBe(48000);
+		onAudioTrack: (track_) => {
+			expect(track_.type).toBe('audio');
+			expect(track_.trackId).toBe(1);
+			expect(track_.codec).toBe('opus');
+			expect(track_.numberOfChannels).toBe(1);
+			expect(track_.sampleRate).toBe(48000);
 			audioTracks++;
 			return () => {
 				samples++;
@@ -285,8 +285,7 @@ test('Should stream variable fps video', async () => {
 	expect(parsed.audioCodec).toBe('opus');
 	expect(parsed.rotation).toBe(0);
 	expect(parsed.videoTracks.length).toBe(1);
-	const [track] = parsed.videoTracks;
-	expect(track).toEqual({
+	expect(parsed.videoTracks[0]).toEqual({
 		type: 'video',
 		codec: 'vp8',
 		description: undefined,
@@ -741,21 +740,4 @@ test('Acknowledge there are .avi file', () => {
 
 	expect(parsed).rejects.toThrow('AVI');
 	expect(parsed).rejects.toThrow('not yet supported');
-});
-
-test('mvhd version 1', async () => {
-	const parsed = await parseMedia({
-		src: '/Users/jonathanburger/Downloads/original-3b798673-e9e2-4c09-9174-f6653547eecf (2).mp4',
-		fields: {
-			dimensions: true,
-			durationInSeconds: true,
-			fps: true,
-			videoCodec: true,
-			audioCodec: true,
-			rotation: true,
-			unrotatedDimensions: true,
-		},
-		reader: nodeReader,
-	});
-	console.log(parsed);
 });
