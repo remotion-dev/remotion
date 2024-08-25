@@ -3,6 +3,9 @@ import type {BufferIterator} from '../../../buffer-iterator';
 import {getTracks, hasTracks} from '../../../get-tracks';
 import type {AnySegment} from '../../../parse-result';
 import type {ParserContext} from '../../../parser-context';
+import {getMoofBox} from '../../../traversal';
+import {getSamplePositionsFromTrack} from '../get-sample-positions-from-track';
+import type {TrakBox} from '../trak/trak';
 
 export interface MdatBox {
 	type: 'mdat-box';
@@ -44,13 +47,17 @@ export const parseMdat = async ({
 
 	const flatSamples = allTracks
 		.map((track) => {
-			if (!track.samplePositions) {
+			const samplePositions = getSamplePositionsFromTrack(
+				track.trakBox as TrakBox,
+				getMoofBox(existingBoxes),
+			);
+			if (!samplePositions) {
 				throw new Error('No sample positions');
 			}
 
-			return track.samplePositions.map((samplePosition) => {
+			return samplePositions.map((samplePosition) => {
 				return {
-					track,
+					track: {...track},
 					samplePosition,
 				};
 			});
@@ -59,10 +66,10 @@ export const parseMdat = async ({
 
 	// eslint-disable-next-line no-constant-condition
 	while (true) {
-		const sampleWithIndex = flatSamples.find((sample) => {
+		const samplesWithIndex = flatSamples.find((sample) => {
 			return sample.samplePosition.offset === data.counter.getOffset();
 		});
-		if (!sampleWithIndex) {
+		if (!samplesWithIndex) {
 			// There are various reasons why in mdat we find weird stuff:
 			// - iphonevideo.hevc has a fake hoov atom which is not mapped
 			// - corrupted.mp4 has a corrupt table
@@ -81,37 +88,39 @@ export const parseMdat = async ({
 			}
 		}
 
-		if (data.bytesRemaining() < sampleWithIndex.samplePosition.size) {
+		if (data.bytesRemaining() < samplesWithIndex.samplePosition.size) {
 			break;
 		}
 
-		const bytes = data.getSlice(sampleWithIndex.samplePosition.size);
+		const bytes = data.getSlice(samplesWithIndex.samplePosition.size);
 
-		if (sampleWithIndex.track.type === 'audio') {
-			await options.parserState.onAudioSample(sampleWithIndex.track.trackId, {
+		if (samplesWithIndex.track.type === 'audio') {
+			await options.parserState.onAudioSample(samplesWithIndex.track.trackId, {
 				data: bytes,
-				timestamp: sampleWithIndex.samplePosition.offset,
-				trackId: sampleWithIndex.track.trackId,
-				type: sampleWithIndex.samplePosition.isKeyframe ? 'key' : 'delta',
+				timestamp: samplesWithIndex.samplePosition.offset,
+				trackId: samplesWithIndex.track.trackId,
+				type: samplesWithIndex.samplePosition.isKeyframe ? 'key' : 'delta',
 			});
 		}
 
-		if (sampleWithIndex.track.type === 'video') {
-			const timestamp =
-				(sampleWithIndex.samplePosition.cts * 1_000_000) /
-				sampleWithIndex.track.timescale;
-			const duration =
-				(sampleWithIndex.samplePosition.duration * 1_000_000) /
-				sampleWithIndex.track.timescale;
+		if (samplesWithIndex.track.type === 'video') {
+			const timestamp = Math.floor(
+				(samplesWithIndex.samplePosition.cts * 1_000_000) /
+					samplesWithIndex.track.timescale,
+			);
+			const duration = Math.floor(
+				(samplesWithIndex.samplePosition.duration * 1_000_000) /
+					samplesWithIndex.track.timescale,
+			);
 
-			await options.parserState.onVideoSample(sampleWithIndex.track.trackId, {
+			await options.parserState.onVideoSample(samplesWithIndex.track.trackId, {
 				data: bytes,
 				timestamp,
 				duration,
-				cts: sampleWithIndex.samplePosition.cts,
-				dts: sampleWithIndex.samplePosition.dts,
-				trackId: sampleWithIndex.track.trackId,
-				type: sampleWithIndex.samplePosition.isKeyframe ? 'key' : 'delta',
+				cts: samplesWithIndex.samplePosition.cts,
+				dts: samplesWithIndex.samplePosition.dts,
+				trackId: samplesWithIndex.track.trackId,
+				type: samplesWithIndex.samplePosition.isKeyframe ? 'key' : 'delta',
 			});
 		}
 

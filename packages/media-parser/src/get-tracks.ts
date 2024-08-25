@@ -1,8 +1,8 @@
 import {makeBaseMediaTrack} from './boxes/iso-base-media/make-track';
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';
+import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import {getTracksFromMatroska} from './boxes/webm/get-ready-tracks';
 import {getMainSegment} from './boxes/webm/traversal';
-import type {SamplePosition} from './get-sample-positions';
 import type {AnySegment} from './parse-result';
 import type {ParserState} from './parser-state';
 import {getMoovBox, getMvhdBox, getTracksSegment, getTraks} from './traversal';
@@ -14,7 +14,6 @@ type SampleAspectRatio = {
 
 export type VideoTrack = {
 	type: 'video';
-	samplePositions: SamplePosition[] | null;
 	trackId: number;
 	description: Uint8Array | undefined;
 	timescale: number;
@@ -27,24 +26,25 @@ export type VideoTrack = {
 	codedWidth: number;
 	codedHeight: number;
 	rotation: number;
+	trakBox: TrakBox | null;
 };
 
 export type AudioTrack = {
 	type: 'audio';
-	samplePositions: SamplePosition[] | null;
 	trackId: number;
 	timescale: number;
 	codec: string;
 	numberOfChannels: number;
 	sampleRate: number;
 	description: Uint8Array | undefined;
+	trakBox: TrakBox | null;
 };
 
 export type OtherTrack = {
 	type: 'other';
-	samplePositions: SamplePosition[] | null;
 	trackId: number;
 	timescale: number;
+	trakBox: TrakBox | null;
 };
 
 export type Track = VideoTrack | AudioTrack | OtherTrack;
