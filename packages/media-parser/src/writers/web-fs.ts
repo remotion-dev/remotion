@@ -8,9 +8,12 @@ const createContent = async () => {
 	const f = await fileHandle.getFile();
 	const writable = await fileHandle.createWritable();
 
+	let written = 0;
+
 	return {
 		write: async (arr: Uint8Array) => {
 			await writable.write(arr);
+			written += arr.byteLength;
 		},
 		save: async () => {
 			const picker = await window.showSaveFilePicker({
@@ -21,6 +24,10 @@ const createContent = async () => {
 			await stream.pipeTo(pickerWriteable);
 
 			await writable.close();
+		},
+		getWrittenByteCount: () => written,
+		updateVIntAt: () => {
+			// TODO: Do something here...
 		},
 	};
 };

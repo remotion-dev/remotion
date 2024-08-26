@@ -1,4 +1,5 @@
 import {
+	MediaFn,
 	MediaParserInternals,
 	OnAudioTrack,
 	OnVideoTrack,
@@ -62,19 +63,17 @@ export const SrcEncoder: React.FC<{
 	const [videoError, setVideoError] = React.useState<DOMException | null>(null);
 	const [audioError, setAudioError] = React.useState<DOMException | null>(null);
 
-	const [downloadFn, setDownloadFn] = useState<(() => Promise<void>) | null>(
-		() => null,
-	);
+	const [mediaState, setMediaState] = useState<MediaFn | null>(() => null);
 
 	const ref = useRef<HTMLCanvasElement>(null);
 
 	const i = useRef(0);
 
 	const onDownload = useCallback(async () => {
-		if (downloadFn) {
-			await downloadFn();
+		if (mediaState) {
+			await mediaState.save();
 		}
-	}, [downloadFn]);
+	}, [mediaState]);
 
 	const onVideoFrame = useCallback(
 		async (inputFrame: VideoFrame, track: VideoTrack) => {
@@ -142,17 +141,21 @@ export const SrcEncoder: React.FC<{
 
 	const onVideoTrack: OnVideoTrack = useCallback(
 		async (track) => {
+			const arr = await MediaParserInternals.createMedia(webFsWriter);
+			setMediaState(arr);
+
 			const videoEncoder = createEncoder({
 				width: track.displayAspectWidth,
 				height: track.displayAspectHeight,
+				onChunk: async (chunk) => {
+					console.log('added sample');
+					await arr.addSample(chunk, track.trackId);
+				},
 			});
 			if (videoEncoder === null) {
 				setVideoError(new DOMException('Video encoder not supported'));
 				return null;
 			}
-
-			const arr = await MediaParserInternals.createMedia(webFsWriter);
-			setDownloadFn(() => arr);
 
 			const videoDecoder = await createDecoder({
 				track,
@@ -305,7 +308,7 @@ export const SrcEncoder: React.FC<{
 						count={audioFrames}
 						label="A"
 					/>
-					{downloadFn ? (
+					{mediaState ? (
 						<button type="button" onClick={onDownload}>
 							DL
 						</button>

@@ -11,6 +11,8 @@ export {
 	VideoSample,
 } from './webcodec-sample-types';
 
+export type {MediaFn} from './create/create-media';
+
 export const MediaParserInternals = {
 	createMedia,
 };

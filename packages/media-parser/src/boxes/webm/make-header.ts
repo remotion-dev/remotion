@@ -10,7 +10,7 @@ import {ebmlMap, getIdForName} from './segments/all-segments';
 
 export const webmPattern = new Uint8Array([0x1a, 0x45, 0xdf, 0xa3]);
 
-const matroskaToHex = (
+export const matroskaToHex = (
 	matrId: (typeof matroskaElements)[keyof typeof matroskaElements],
 ) => {
 	const numbers: Uint8Array = new Uint8Array((matrId.length - 2) / 2);
@@ -141,3 +141,16 @@ export const combineUint8Arrays = (arrays: Uint8Array[]) => {
 
 	return result;
 };
+
+export function serializeUint16(value: number): Uint8Array {
+	const buffer = new ArrayBuffer(2);
+
+	const view = new DataView(buffer);
+
+	view.setUint16(0, value); // Using little-endian as an example
+
+	// Create a Uint8Array from the ArrayBuffer
+	const result = new Uint8Array(buffer);
+
+	return result;
+}

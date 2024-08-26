@@ -1,9 +1,11 @@
 export const createEncoder = ({
 	width,
 	height,
+	onChunk,
 }: {
 	width: number;
 	height: number;
+	onChunk: (chunk: EncodedVideoChunk) => Promise<void>;
 }) => {
 	if (typeof VideoEncoder === 'undefined') {
 		return null;
@@ -13,7 +15,8 @@ export const createEncoder = ({
 		error(error) {
 			console.error(error);
 		},
-		output(chunk, metadata) {
+		async output(chunk, metadata) {
+			await onChunk(chunk);
 			console.log(
 				'encoded as vp8',
 				chunk,

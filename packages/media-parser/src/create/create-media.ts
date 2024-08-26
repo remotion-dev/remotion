@@ -1,4 +1,5 @@
 import type {WriterInterface} from '../writers/writer';
+import {createClusterSegment, makeSimpleBlock} from './cluster-segment';
 import {makeMatroskaHeader} from './matroska-header';
 import {makeMatroskaInfo} from './matroska-info';
 import {createMatroskaSegment} from './matroska-segment';
@@ -7,7 +8,14 @@ import {
 	makeMatroskaVideoTrackEntryBytes,
 } from './matroska-trackentry';
 
-export const createMedia = async (writer: WriterInterface) => {
+export type MediaFn = {
+	save: () => Promise<void>;
+	addSample: (chunk: EncodedVideoChunk, trackNumber: number) => Promise<void>;
+};
+
+export const createMedia = async (
+	writer: WriterInterface,
+): Promise<MediaFn> => {
 	const header = makeMatroskaHeader();
 
 	const w = await writer.createContent();
@@ -34,7 +42,29 @@ export const createMedia = async (writer: WriterInterface) => {
 
 	await w.write(matroskaSegment);
 
-	return async () => {
-		await w.save();
+	// TODO: Bad length
+	const position = w.getWrittenByteCount();
+	const cluster = createClusterSegment();
+	await w.write(cluster);
+
+	return {
+		save: async () => {
+			await w.save();
+		},
+		addSample: async (chunk: EncodedVideoChunk, trackNumber: number) => {
+			const arr = new Uint8Array(chunk.byteLength);
+			chunk.copyTo(arr);
+			const simpleBlock = makeSimpleBlock({
+				bytes: arr,
+				invisible: false,
+				keyframe: chunk.type === 'key',
+				lacing: 0,
+				trackNumber,
+				// TODO: Maybe this is bad, because it's in microseconds, but should be in timescale
+				// Maybe it only works by coincidence
+				timecodeRelativeToCluster: chunk.timestamp,
+			});
+			await w.write(simpleBlock);
+		},
 	};
 };
