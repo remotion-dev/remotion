@@ -2338,7 +2338,7 @@ test('Should be able to parse video sample positions from a moof atom', () => {
 			dts: 327,
 			duration: 19,
 			isKeyframe: true,
-			offset: 563595,
+			offset: 572709,
 			size: 34739,
 		},
 	]);
@@ -2348,7 +2348,7 @@ test('Should be able to parse video sample positions from a moof atom', () => {
 		dts: 2567,
 		duration: 1,
 		isKeyframe: false,
-		offset: 5386320,
+		offset: 5481634,
 		size: 45308,
 	});
 });
@@ -2490,7 +2490,7 @@ test('Should be able to parse audio sample positions from a moof atom', () => {
 		dts: 204800,
 		duration: 1024,
 		isKeyframe: true,
-		offset: 664534,
+		offset: 5532567,
 		size: 698,
 	});
 });
