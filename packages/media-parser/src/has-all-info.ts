@@ -45,7 +45,7 @@ export const hasAllInfo = (
 		}
 
 		if (key === 'durationInSeconds') {
-			return hasDuration(parseResult.segments);
+			return hasDuration(parseResult.segments, state);
 		}
 
 		if (

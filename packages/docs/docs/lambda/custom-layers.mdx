@@ -13,13 +13,41 @@ The Lambda function [includes Chrome and base fonts by default](/docs/lambda/run
 In some advanced use cases, you want to replace certain parts of the stack:
 
 - Use another Chrome version (you may need to [build it yourself](https://github.com/remotion-dev/chrome-build-instructions/tree/main))
-- Replace default fonts or emojis (such as [Apple Emoji font](https://github.com/samuelngs/apple-emoji-linux))
+- Replace default fonts or emojis
 
 Before you create a custom stack, feel free to contact us to see if Remotion can provide the changes upstream.
 
-Also consider that the AWS Lambda layers may not exceed 250MB extracted, so you need to sacrifice an equal amount of other files.
+Also consider that the AWS Lambda layers cumulatively may not exceed 250MB extracted, so you need to sacrifice an equal amount of other files.
 
 If you just want to add fonts, we recommend to use [Web fonts](/docs/fonts) instead.
+
+## Default layers<AvailableFrom v="4.0.205"/>
+
+Consider using our layer options before creating a custom stack:
+
+With the default option (`--runtime-preference=cjk` or no option):
+
+| Item         | Size   |
+|--------------|--------|
+| chromium     | 188 MB   |
+| emoji-google | 9.9 MB   |
+| fonts        | 1.9 MB   |
+| cjk          | 16 MB    |
+| **Total**    | 215.8 MB |
+
+With the option [`--runtime-preference=apple-emojis`](/docs/lambda/deployfunction#runtimepreference):
+
+| Item         | Size   |
+|--------------|--------|
+| chromium     | 188 MB   |
+| emoji-apple  | 45 MB    |
+| fonts        | 1.9 MB   |
+| **Total**    | 235.9 MB |
+
+:::note
+Note that by enabling the Apple Emojis, to stay under the 250 MB limit, support for CJK (Chinese, Japanese, Korean) characters will be removed.  
+Google Emojis are also removed.
+:::
 
 ## Ensure Remotion version
 

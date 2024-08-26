@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/player"
 	},
 	"name": "@remotion/player",
-	"version": "4.0.201",
+	"version": "4.0.204",
 	"description": "React component for embedding a Remotion preview into your app",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",

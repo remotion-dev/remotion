@@ -26,6 +26,9 @@ type Matrix2x2 = readonly [number, number, number, number];
 function getRotationAngleFromMatrix(matrix: Matrix2x2): number {
 	// Extract elements from the matrix
 	const [a, b, c, d] = matrix;
+	if (a === 0 && b === 0 && c === 0 && d === 0) {
+		return 0;
+	}
 
 	// Check if the matrix is a valid rotation matrix
 	if (Math.round(a * a + b * b) !== 1 || Math.round(c * c + d * d) !== 1) {
@@ -66,28 +69,23 @@ export const parseTkhd = ({
 	offset: number;
 	size: number;
 }): TkhdBox => {
-	if (size !== 92) {
-		throw new Error(`Expected tkhd size of version 0 to be 92, got ${size}`);
-	}
-
 	const version = iterator.getUint8();
-	if (version !== 0) {
-		throw new Error(`Unsupported TKHD version ${version}`);
-	}
 
 	// Flags, we discard them
 	iterator.discard(3);
 
-	const creationTime = iterator.getUint32();
+	const creationTime =
+		version === 1 ? iterator.getUint64() : iterator.getUint32();
 
-	const modificationTime = iterator.getUint32();
+	const modificationTime =
+		version === 1 ? iterator.getUint64() : iterator.getUint32();
 
 	const trackId = iterator.getUint32();
 
 	// reserved
 	iterator.discard(4);
 
-	const duration = iterator.getUint32();
+	const duration = version === 1 ? iterator.getUint64() : iterator.getUint32();
 
 	// reserved 2
 	iterator.discard(4);
@@ -134,10 +132,10 @@ export const parseTkhd = ({
 		offset,
 		boxSize: size,
 		type: 'tkhd-box',
-		creationTime: toUnixTimestamp(creationTime),
-		modificationTime: toUnixTimestamp(modificationTime),
+		creationTime: toUnixTimestamp(Number(creationTime)),
+		modificationTime: toUnixTimestamp(Number(modificationTime)),
 		trackId,
-		duration,
+		duration: Number(duration),
 		layer,
 		alternateGroup,
 		volume,

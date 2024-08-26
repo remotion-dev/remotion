@@ -483,8 +483,8 @@ export const getArrayBufferIterator = (
 		},
 		getUint24: () => {
 			const val1 = view.getUint8(counter.getDiscardedOffset());
-			const val2 = view.getUint8(counter.getDiscardedOffset());
-			const val3 = view.getUint8(counter.getDiscardedOffset());
+			const val2 = view.getUint8(counter.getDiscardedOffset() + 1);
+			const val3 = view.getUint8(counter.getDiscardedOffset() + 2);
 			counter.increment(3);
 			return (val1 << 16) | (val2 << 8) | val3;
 		},
@@ -539,6 +539,7 @@ export const getArrayBufferIterator = (
 		},
 		getUint32Le,
 		getInt32Le,
+		getInt32,
 		destroy,
 		isMp3,
 	};

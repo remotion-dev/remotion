@@ -149,7 +149,7 @@ export const parseMedia: ParseMedia = async ({
 	}
 
 	if (fields?.durationInSeconds) {
-		returnValue.durationInSeconds = getDuration(parseResult.segments);
+		returnValue.durationInSeconds = getDuration(parseResult.segments, state);
 	}
 
 	if (fields?.fps) {
