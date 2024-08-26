@@ -34,6 +34,7 @@ export const functionsDeploySubcommand = async (logLevel: LogLevel) => {
 	const vpcSubnetIds = parsedLambdaCli['vpc-subnet-ids'] ?? undefined;
 	const vpcSecurityGroupIds =
 		parsedLambdaCli['vpc-security-group-ids'] ?? undefined;
+	const runtimePreference = parsedLambdaCli['runtime-preference'] ?? 'default';
 
 	validateMemorySize(memorySizeInMb);
 	validateTimeout(timeoutInSeconds);
@@ -91,6 +92,7 @@ VPC Security Group IDs = ${vpcSecurityGroupIds}
 		logLevel,
 		vpcSubnetIds,
 		vpcSecurityGroupIds,
+		runtimePreference,
 	});
 	if (CliInternals.quietFlagProvided()) {
 		CliInternals.Log.info({indent: false, logLevel}, functionName);
