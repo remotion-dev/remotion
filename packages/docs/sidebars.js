@@ -683,6 +683,7 @@ module.exports = {
 				'gpu',
 				'miscellaneous/cloud-gpu',
 				'miscellaneous/cloud-gpu-docker',
+				'compare-ssr',
 			],
 		},
 		{
