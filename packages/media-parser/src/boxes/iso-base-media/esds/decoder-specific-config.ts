@@ -51,11 +51,18 @@ export const parseDecoderSpecificConfig = (
 		iterator.discard(layerSize - read);
 	}
 
+	// Working around Chrome bug
+	// https://issues.chromium.org/issues/360083330#comment5
+	const patchedAsBytes =
+		bytes.byteLength === 2 && bytes[0] === 17 && bytes[1] === 136
+			? new Uint8Array([17, 144])
+			: bytes;
+
 	return {
 		type: 'audio-specific-config',
 		audioObjectType,
 		samplingFrequencyIndex,
 		channelConfiguration,
-		asBytes: bytes,
+		asBytes: patchedAsBytes,
 	};
 };
