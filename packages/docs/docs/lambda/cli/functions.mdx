@@ -72,8 +72,8 @@ Disk size in megabytes. See also: [Disk size](/docs/lambda/disk-size).
 
 Timeout of the Lambda function. Default: <DefaultTimeout /> seconds.
 
-:::info
-Not to be confused with the [`--timeout` flag when rendering which defines the timeout for `delayRender()`](/docs/cli/render#--timeout).
+:::note
+Not to be confused with the [`--timeout` flag for `npx remotion lambda render` which defines the timeout for `delayRender()`](/docs/cli/render#--timeout).
 :::
 
 ### `--disable-cloudwatch`
@@ -107,6 +107,14 @@ Comma separated list of VPC subnet IDs to use for the Lambda function VPC config
 ### `--vpc-security-group-ids`<AvailableFrom v="4.0.160" />
 
 Comma separated list of VPC security group IDs to use for the Lambda function VPC configuration.
+
+### `--runtime-preference`<AvailableFrom v="4.0.205" />
+
+One of:
+
+- `default`: Currently resolving to `prefer-cjk`
+- `prefer-apple-emojis`: Use Apple Emojis instead of Google Emojis. CJK characters will be removed.
+- `prefer-cjk`: Include CJK (Chinese, Japanese, Korean) characters and Google Emojis. Apple Emojis will be removed.
 
 ## ls
 
