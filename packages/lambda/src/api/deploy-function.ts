@@ -11,7 +11,10 @@ import {
 } from '../shared/constants';
 import {FUNCTION_ZIP_ARM64} from '../shared/function-zip-path';
 import {getAccountId} from '../shared/get-account-id';
-import type {RuntimePreference} from '../shared/get-layers';
+import {
+	validateRuntimePreference,
+	type RuntimePreference,
+} from '../shared/get-layers';
 import {LAMBDA_VERSION_STRING} from '../shared/lambda-version-string';
 import {validateAwsRegion} from '../shared/validate-aws-region';
 import {validateCustomRoleArn} from '../shared/validate-custom-role-arn';
@@ -58,6 +61,7 @@ export const internalDeployFunction = async (
 	validateCloudWatchRetentionPeriod(params.cloudWatchLogRetentionPeriodInDays);
 	validateDiskSizeInMb(params.diskSizeInMb);
 	validateCustomRoleArn(params.customRoleArn);
+	validateRuntimePreference(params.runtimePreference);
 
 	const fnNameRender = [
 		`${RENDER_FN_PREFIX}${LAMBDA_VERSION_STRING}`,
