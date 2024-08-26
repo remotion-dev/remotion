@@ -581,6 +581,13 @@ export const articles = [
 		crumb: 'FAQ',
 	},
 	{
+		id: 'compare-ssr',
+		title: 'Comparison of server-side rendering options',
+		relativePath: 'docs/compare.mdx',
+		compId: 'articles-docs-compare',
+		crumb: 'Compare',
+	},
+	{
 		id: 'composition',
 		title: '<Composition>',
 		relativePath: 'docs/composition.mdx',
