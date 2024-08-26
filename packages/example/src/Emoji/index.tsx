@@ -11,7 +11,7 @@ export const EmojiTestbed: React.FC = () => {
 				fontSize: 100,
 			}}
 		>
-			😂
+			😂 Normal Test
 		</AbsoluteFill>
 	);
 };
