@@ -1,6 +1,4 @@
 import {getVariableInt} from '../boxes/webm/ebml';
-import {matroskaToHex} from '../boxes/webm/make-header';
-import {matroskaElements} from '../boxes/webm/segments/all-segments';
 import type {WriterInterface} from '../writers/writer';
 import {
 	CLUSTER_MIN_VINT_WIDTH,
@@ -49,11 +47,9 @@ export const createMedia = async (
 
 	await w.write(matroskaSegment.bytes);
 
-	const clusterVIntPosition =
-		w.getWrittenByteCount() +
-		matroskaToHex(matroskaElements.Cluster).byteLength;
-
 	const cluster = createClusterSegment();
+	const clusterVIntPosition = w.getWrittenByteCount() + cluster.offsets.offset;
+
 	let clusterSize = cluster.bytes.byteLength;
 	await w.write(cluster.bytes);
 

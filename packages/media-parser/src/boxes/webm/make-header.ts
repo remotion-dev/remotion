@@ -71,10 +71,12 @@ const makeFromStructure = (
 
 	if (struct.type === 'children') {
 		const children: OffsetAndChildren[] = [];
+		let bytesWritten = 0;
 		for (const item of fields.value as PossibleEbml[]) {
 			const {bytes, offsets} = makeMatroskaBytes(item);
 			arrays.push(bytes);
-			children.push(offsets);
+			children.push(incrementOffsetAndChildren(offsets, bytesWritten));
+			bytesWritten += bytes.byteLength;
 		}
 
 		return {bytes: combineUint8Arrays(arrays), offsets: {offset: 0, children}};
