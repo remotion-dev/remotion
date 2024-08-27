@@ -127,7 +127,7 @@ export const renderVideoFlow = async ({
 	port: number | null;
 	height: number | null;
 	width: number | null;
-	remainingArgs: string[];
+	remainingArgs: (string | number)[];
 	compositionIdFromUi: string | null;
 	outputLocationFromUI: string | null;
 	overwrite: boolean;

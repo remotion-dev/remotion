@@ -16,11 +16,11 @@ const getCompName = ({
 	cliArgs,
 	compositionIdFromUi,
 }: {
-	cliArgs: string[];
+	cliArgs: (string | number)[];
 	compositionIdFromUi: string | null;
 }): {
 	compName: string;
-	remainingArgs: string[];
+	remainingArgs: (string | number)[];
 	reason: string;
 } => {
 	if (compositionIdFromUi) {
@@ -33,7 +33,11 @@ const getCompName = ({
 
 	const [compName, ...remainingArgs] = cliArgs;
 
-	return {compName, remainingArgs, reason: 'Passed as argument'};
+	return {
+		compName: String(compName),
+		remainingArgs,
+		reason: 'Passed as argument',
+	};
 };
 
 export const getCompositionId = async ({
@@ -54,7 +58,7 @@ export const getCompositionId = async ({
 	binariesDirectory,
 	onBrowserDownload,
 }: {
-	args: string[];
+	args: (string | number)[];
 	compositionIdFromUi: string | null;
 	serializedInputPropsWithCustomSchema: string;
 	puppeteerInstance: HeadlessBrowser | undefined;
@@ -74,7 +78,7 @@ export const getCompositionId = async ({
 	compositionId: string;
 	reason: string;
 	config: VideoConfig;
-	argsAfterComposition: string[];
+	argsAfterComposition: (string | number)[];
 }> => {
 	const {
 		compName,

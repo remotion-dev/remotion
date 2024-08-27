@@ -41,7 +41,7 @@ const {
 
 export const render = async (
 	remotionRoot: string,
-	args: string[],
+	args: (string | number)[],
 	logLevel: LogLevel,
 ) => {
 	const {
