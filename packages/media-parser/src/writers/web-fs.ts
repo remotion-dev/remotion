@@ -2,10 +2,11 @@ import type {Writer, WriterInterface} from './writer';
 
 const createContent = async () => {
 	const directoryHandle = await navigator.storage.getDirectory();
-	const fileHandle = await directoryHandle.getFileHandle('out.web', {
+	const filename = `media-parser-${Math.random().toString().replace('0.', '')}.webm`;
+
+	const fileHandle = await directoryHandle.getFileHandle(filename, {
 		create: true,
 	});
-	const f = await fileHandle.getFile();
 	const writable = await fileHandle.createWritable();
 
 	let written = 0;
@@ -16,14 +17,22 @@ const createContent = async () => {
 			written += arr.byteLength;
 		},
 		save: async () => {
+			await writable.close();
 			const picker = await window.showSaveFilePicker({
 				suggestedName: `${Math.random().toString().replace('.', '')}.webm`,
 			});
+
+			const newHandle = await directoryHandle.getFileHandle(filename, {
+				create: true,
+			});
+			const newFile = await newHandle.getFile();
 			const pickerWriteable = await picker.createWritable();
-			const stream = f.stream();
+			const stream = newFile.stream();
 			await stream.pipeTo(pickerWriteable);
 
-			await writable.close();
+			await directoryHandle.removeEntry(filename, {
+				recursive: true,
+			});
 		},
 		getWrittenByteCount: () => written,
 		updateVIntAt: async (position: number, vint: Uint8Array) => {
