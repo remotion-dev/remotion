@@ -1,16 +1,10 @@
 export const decoderWaitForDequeue = async (videoDecoder: VideoDecoder) => {
-	if (videoDecoder.decodeQueueSize > 10) {
-		let resolve = () => {};
-
-		const cb = () => {
-			resolve();
-		};
-
+	while (videoDecoder.decodeQueueSize > 10) {
 		await new Promise<void>((r) => {
-			resolve = r;
-			videoDecoder.addEventListener('dequeue', cb);
+			videoDecoder.addEventListener('dequeue', () => r(), {
+				once: true,
+			});
 		});
-		videoDecoder.removeEventListener('dequeue', cb);
 	}
 };
 

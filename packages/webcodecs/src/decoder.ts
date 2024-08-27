@@ -34,15 +34,24 @@ export const createDecoder = async ({
 
 	videoDecoder.configure(actualConfig);
 
+	const processSample = async (sample: VideoSample) => {
+		if (videoDecoder.state === 'closed') {
+			return;
+		}
+
+		await decoderWaitForDequeue(videoDecoder);
+		if (sample.type === 'key') {
+			await videoDecoder.flush();
+		}
+
+		videoDecoder.decode(new EncodedVideoChunk(sample));
+	};
+
+	let queue = Promise.resolve();
+
 	return {
-		processSample: async (sample: VideoSample) => {
-			if (videoDecoder.state === 'closed') {
-				return;
-			}
-
-			await decoderWaitForDequeue(videoDecoder);
-
-			videoDecoder.decode(new EncodedVideoChunk(sample));
+		processSample: (sample: VideoSample) => {
+			queue = queue.then(() => processSample(sample));
 		},
 	};
 };
