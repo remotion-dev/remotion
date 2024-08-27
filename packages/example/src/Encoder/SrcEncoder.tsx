@@ -196,7 +196,7 @@ export const SrcEncoder: React.FC<{
 			}
 
 			return async (chunk) => {
-				videoDecoder.processSample(chunk);
+				await videoDecoder.processSample(chunk);
 			};
 		},
 		[onVideoFrame],

@@ -38,13 +38,20 @@ export const createEncoder = async ({
 
 	let framesProcessed = 0;
 
+	const encodeFrame = async (frame: VideoFrame) => {
+		await encoderWaitForDequeue(encoder);
+		encoder.encode(frame, {
+			keyFrame: framesProcessed % 40 === 0,
+		});
+		framesProcessed++;
+	};
+
+	let queue = Promise.resolve();
+
 	return {
-		encodeFrame: async (_frame: VideoFrame) => {
-			await encoderWaitForDequeue(encoder);
-			encoder.encode(_frame, {
-				keyFrame: framesProcessed % 40 === 0,
-			});
-			framesProcessed++;
+		encodeFrame: (frame: VideoFrame) => {
+			queue = queue.then(() => encodeFrame(frame));
+			return queue;
 		},
 	};
 };

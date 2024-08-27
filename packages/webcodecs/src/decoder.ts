@@ -52,6 +52,7 @@ export const createDecoder = async ({
 	return {
 		processSample: (sample: VideoSample) => {
 			queue = queue.then(() => processSample(sample));
+			return queue;
 		},
 	};
 };
