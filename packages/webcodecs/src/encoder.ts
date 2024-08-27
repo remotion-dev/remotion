@@ -33,7 +33,6 @@ export const createEncoder = async ({
 		return null;
 	}
 
-	// TODO: Enable hardware acceleration if possible
 	encoder.configure(config);
 
 	let framesProcessed = 0;

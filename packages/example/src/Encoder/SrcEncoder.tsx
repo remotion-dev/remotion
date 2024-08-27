@@ -23,7 +23,6 @@ const SampleLabel: React.FC<{
 		<div
 			style={{
 				height: 18,
-				width: 18,
 				fontSize: 11,
 				border: '1px solid white',
 				display: 'inline-flex',
@@ -31,6 +30,7 @@ const SampleLabel: React.FC<{
 				alignItems: 'center',
 				borderRadius: 5,
 				marginRight: 4,
+				padding: 3,
 				fontFamily: 'Arial',
 				color: 'white',
 			}}
@@ -65,13 +65,27 @@ export const SrcEncoder: React.FC<{
 	src: string;
 	label: string;
 }> = ({src, label}) => {
-	const [state, setState] = useState<State>({
+	const [state, setRawState] = useState<State>({
 		audioFrames: 0,
 		videoFrames: 0,
 		encodedVideoFrames: 0,
 		audioError: null,
 		videoError: null,
 	});
+	const stateRef = useRef(state);
+
+	const setState: React.Dispatch<React.SetStateAction<State>> = useCallback(
+		(newState) => {
+			if (typeof newState === 'function') {
+				stateRef.current = newState(stateRef.current);
+				setRawState(stateRef.current);
+				return;
+			}
+			stateRef.current = newState;
+			setRawState(newState);
+		},
+		[],
+	);
 
 	const [mediaState, setMediaState] = useState<MediaFn | null>(() => null);
 
@@ -146,8 +160,12 @@ export const SrcEncoder: React.FC<{
 				setState((s) => ({...s, videoFrames: s.videoFrames + 1}));
 			});
 		},
-		[],
+		[setState],
 	);
+
+	const getFramesInEncodingQueue = useCallback(() => {
+		return stateRef.current.videoFrames - stateRef.current.encodedVideoFrames;
+	}, []);
 
 	const onVideoTrack: OnVideoTrack = useCallback(
 		async (track) => {
@@ -196,69 +214,78 @@ export const SrcEncoder: React.FC<{
 			}
 
 			return async (chunk) => {
+				while (getFramesInEncodingQueue() > 50) {
+					await new Promise<void>((r) => {
+						setTimeout(r, 100);
+					});
+				}
+
 				await videoDecoder.processSample(chunk);
 			};
 		},
-		[onVideoFrame],
+		[getFramesInEncodingQueue, onVideoFrame, setState],
 	);
 
-	const onAudioTrack: OnAudioTrack = useCallback(async (track) => {
-		if (typeof AudioDecoder === 'undefined') {
-			return null;
-		}
+	const onAudioTrack: OnAudioTrack = useCallback(
+		async (track) => {
+			if (typeof AudioDecoder === 'undefined') {
+				return null;
+			}
 
-		const {supported, config} = await AudioDecoder.isConfigSupported(track);
+			const {supported, config} = await AudioDecoder.isConfigSupported(track);
 
-		if (!supported) {
-			setState((s) => ({
-				...s,
-				audioError: new DOMException('Audio decoder not supported'),
-			}));
-			return null;
-		}
+			if (!supported) {
+				setState((s) => ({
+					...s,
+					audioError: new DOMException('Audio decoder not supported'),
+				}));
+				return null;
+			}
 
-		const audioDecoder = new AudioDecoder({
-			output(inputFrame) {
+			const audioDecoder = new AudioDecoder({
+				output(inputFrame) {
+					flushSync(() => {
+						setState((s) => ({...s, audioFrames: s.audioFrames + 1}));
+					});
+					inputFrame.close();
+				},
+				error(error) {
+					setState((s) => ({...s, audioError: error}));
+				},
+			});
+
+			audioDecoder.configure(config);
+
+			return async (audioSample) => {
 				flushSync(() => {
 					setState((s) => ({...s, audioFrames: s.audioFrames + 1}));
 				});
-				inputFrame.close();
-			},
-			error(error) {
-				setState((s) => ({...s, audioError: error}));
-			},
-		});
 
-		audioDecoder.configure(config);
+				if (audioDecoder.state === 'closed') {
+					return;
+				}
 
-		return async (audioSample) => {
-			flushSync(() => {
-				setState((s) => ({...s, audioFrames: s.audioFrames + 1}));
-			});
+				if (audioDecoder.decodeQueueSize > 10) {
+					let resolve = () => {};
 
-			if (audioDecoder.state === 'closed') {
-				return;
-			}
+					const cb = () => {
+						resolve();
+					};
 
-			if (audioDecoder.decodeQueueSize > 10) {
-				let resolve = () => {};
-
-				const cb = () => {
-					resolve();
-				};
-
-				await new Promise<void>((r) => {
-					resolve = r;
+					await new Promise<void>((r) => {
+						resolve = r;
+						// @ts-expect-error exists
+						audioDecoder.addEventListener('dequeue', cb);
+					});
 					// @ts-expect-error exists
-					audioDecoder.addEventListener('dequeue', cb);
-				});
-				// @ts-expect-error exists
-				audioDecoder.removeEventListener('dequeue', cb);
-			}
+					audioDecoder.removeEventListener('dequeue', cb);
+				}
 
-			audioDecoder.decode(new EncodedAudioChunk(audioSample));
-		};
-	}, []);
+				audioDecoder.decode(new EncodedAudioChunk(audioSample));
+			};
+		},
+		[setState],
+	);
 
 	const onClick = useCallback(() => {
 		parseMedia({
@@ -324,18 +351,14 @@ export const SrcEncoder: React.FC<{
 					<SampleCount
 						errored={state.videoError !== null}
 						count={state.videoFrames}
-						label="V"
+						label="Decode"
 					/>
 					<SampleCount
 						errored={state.videoError !== null}
 						count={state.encodedVideoFrames}
-						label="E"
+						label="Encode"
 					/>
-					<SampleCount
-						errored={state.audioError !== null}
-						count={state.audioFrames}
-						label="A"
-					/>
+
 					{mediaState ? (
 						<button type="button" onClick={onDownload}>
 							DL
