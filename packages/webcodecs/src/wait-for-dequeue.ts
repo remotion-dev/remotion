@@ -1,5 +1,5 @@
 export const decoderWaitForDequeue = async (videoDecoder: VideoDecoder) => {
-	while (videoDecoder.decodeQueueSize > 10) {
+	if (videoDecoder.decodeQueueSize > 10) {
 		let resolve = () => {};
 
 		const cb = () => {
@@ -15,7 +15,7 @@ export const decoderWaitForDequeue = async (videoDecoder: VideoDecoder) => {
 };
 
 export const encoderWaitForDequeue = async (videoEncoder: VideoEncoder) => {
-	while (videoEncoder.encodeQueueSize > 10) {
+	if (videoEncoder.encodeQueueSize > 10) {
 		let resolve = () => {};
 
 		const cb = () => {

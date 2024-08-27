@@ -12,7 +12,12 @@ export const createDecoder = async ({
 		return null;
 	}
 
-	const {supported} = await VideoDecoder.isConfigSupported(track);
+	const actualConfig: VideoDecoderConfig = {
+		...track,
+		hardwareAcceleration: 'prefer-software',
+	};
+
+	const {supported} = await VideoDecoder.isConfigSupported(actualConfig);
 
 	if (!supported) {
 		return null;
@@ -27,7 +32,7 @@ export const createDecoder = async ({
 		},
 	});
 
-	videoDecoder.configure(track);
+	videoDecoder.configure(actualConfig);
 
 	return {
 		processSample: async (sample: VideoSample) => {

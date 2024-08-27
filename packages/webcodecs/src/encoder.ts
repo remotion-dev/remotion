@@ -27,12 +27,18 @@ export const createEncoder = ({
 		codec: 'vp8',
 		height,
 		width,
+		hardwareAcceleration: 'prefer-software',
 	});
+
+	let framesProcessed = 0;
 
 	return {
 		encodeFrame: async (_frame: VideoFrame) => {
 			await encoderWaitForDequeue(encoder);
-			encoder.encode(_frame);
+			encoder.encode(_frame, {
+				keyFrame: framesProcessed % 40 === 0,
+			});
+			framesProcessed++;
 		},
 	};
 };
