@@ -53,15 +53,25 @@ const SampleCount: React.FC<{
 	);
 };
 
+type State = {
+	videoFrames: number;
+	audioFrames: number;
+	encodedVideoFrames: number;
+	videoError: DOMException | null;
+	audioError: DOMException | null;
+};
+
 export const SrcEncoder: React.FC<{
 	src: string;
 	label: string;
 }> = ({src, label}) => {
-	const [samples, setSamples] = React.useState<number>(0);
-	const [videoFrames, setVideoFrames] = React.useState<number>(0);
-	const [audioFrames, setAudioFrames] = React.useState<number>(0);
-	const [videoError, setVideoError] = React.useState<DOMException | null>(null);
-	const [audioError, setAudioError] = React.useState<DOMException | null>(null);
+	const [state, setState] = useState<State>({
+		audioFrames: 0,
+		videoFrames: 0,
+		encodedVideoFrames: 0,
+		audioError: null,
+		videoError: null,
+	});
 
 	const [mediaState, setMediaState] = useState<MediaFn | null>(() => null);
 
@@ -133,7 +143,7 @@ export const SrcEncoder: React.FC<{
 				}
 			}
 			flushSync(() => {
-				setVideoFrames((prev) => prev + 1);
+				setState((s) => ({...s, videoFrames: s.videoFrames + 1}));
 			});
 		},
 		[],
@@ -152,11 +162,20 @@ export const SrcEncoder: React.FC<{
 					const newDuration = Math.round(
 						(chunk.timestamp + (chunk.duration ?? 0)) / 1000,
 					);
+					flushSync(() => {
+						setState((s) => ({
+							...s,
+							encodedVideoFrames: s.encodedVideoFrames + 1,
+						}));
+					});
 					await arr.updateDuration(newDuration);
 				},
 			});
 			if (videoEncoder === null) {
-				setVideoError(new DOMException('Video encoder not supported'));
+				setState((s) => ({
+					...s,
+					videoError: new DOMException('Video encoder not supported'),
+				}));
 				return null;
 			}
 
@@ -169,14 +188,14 @@ export const SrcEncoder: React.FC<{
 				},
 			});
 			if (videoDecoder === null) {
-				setVideoError(new DOMException('Video decoder not supported'));
+				setState((s) => ({
+					...s,
+					videoError: new DOMException('Video decoder not supported'),
+				}));
 				return null;
 			}
 
 			return async (chunk) => {
-				flushSync(() => {
-					setSamples((s) => s + 1);
-				});
 				videoDecoder.processSample(chunk);
 			};
 		},
@@ -191,19 +210,22 @@ export const SrcEncoder: React.FC<{
 		const {supported, config} = await AudioDecoder.isConfigSupported(track);
 
 		if (!supported) {
-			setAudioError(new DOMException('Audio decoder not supported'));
+			setState((s) => ({
+				...s,
+				audioError: new DOMException('Audio decoder not supported'),
+			}));
 			return null;
 		}
 
 		const audioDecoder = new AudioDecoder({
 			output(inputFrame) {
 				flushSync(() => {
-					setAudioFrames((prev) => prev + 1);
+					setState((s) => ({...s, audioFrames: s.audioFrames + 1}));
 				});
 				inputFrame.close();
 			},
 			error(error) {
-				setAudioError(error);
+				setState((s) => ({...s, audioError: error}));
 			},
 		});
 
@@ -211,7 +233,7 @@ export const SrcEncoder: React.FC<{
 
 		return async (audioSample) => {
 			flushSync(() => {
-				setSamples((s) => s + 1);
+				setState((s) => ({...s, audioFrames: s.audioFrames + 1}));
 			});
 
 			if (audioDecoder.state === 'closed') {
@@ -299,15 +321,19 @@ export const SrcEncoder: React.FC<{
 						height: 38,
 					}}
 				>
-					<SampleCount errored={false} count={samples} label="S" />
 					<SampleCount
-						errored={videoError !== null}
-						count={videoFrames}
+						errored={state.videoError !== null}
+						count={state.videoFrames}
 						label="V"
 					/>
 					<SampleCount
-						errored={audioError !== null}
-						count={audioFrames}
+						errored={state.videoError !== null}
+						count={state.encodedVideoFrames}
+						label="E"
+					/>
+					<SampleCount
+						errored={state.audioError !== null}
+						count={state.audioFrames}
 						label="A"
 					/>
 					{mediaState ? (

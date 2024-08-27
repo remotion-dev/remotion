@@ -14,7 +14,7 @@ export const createDecoder = async ({
 
 	const actualConfig: VideoDecoderConfig = {
 		...track,
-		hardwareAcceleration: 'prefer-software',
+		hardwareAcceleration: 'prefer-hardware',
 	};
 
 	const {supported} = await VideoDecoder.isConfigSupported(actualConfig);
