@@ -7,7 +7,11 @@ import {
 	parseMedia,
 } from '@remotion/media-parser';
 import {webFsWriter} from '@remotion/media-parser/web-fs';
-import {createDecoder, createEncoder} from '@remotion/webcodecs';
+import {
+	createAudioDecoder,
+	createEncoder,
+	createVideoDecoder,
+} from '@remotion/webcodecs';
 import React, {useCallback, useRef, useState} from 'react';
 import {flushSync} from 'react-dom';
 import {AbsoluteFill} from 'remotion';
@@ -57,6 +61,7 @@ type State = {
 	videoFrames: number;
 	audioFrames: number;
 	encodedVideoFrames: number;
+	encodedAudioFrames: number;
 	videoError: DOMException | null;
 	audioError: DOMException | null;
 };
@@ -69,6 +74,7 @@ export const SrcEncoder: React.FC<{
 		audioFrames: 0,
 		videoFrames: 0,
 		encodedVideoFrames: 0,
+		encodedAudioFrames: 0,
 		audioError: null,
 		videoError: null,
 	});
@@ -197,7 +203,7 @@ export const SrcEncoder: React.FC<{
 				return null;
 			}
 
-			const videoDecoder = await createDecoder({
+			const videoDecoder = await createVideoDecoder({
 				track,
 				onFrame: async (frame) => {
 					await onVideoFrame(frame, track);
@@ -228,13 +234,20 @@ export const SrcEncoder: React.FC<{
 
 	const onAudioTrack: OnAudioTrack = useCallback(
 		async (track) => {
-			if (typeof AudioDecoder === 'undefined') {
-				return null;
-			}
+			const audioDecoder = await createAudioDecoder({
+				track,
+				onFrame: async (frame) => {
+					flushSync(() => {
+						setState((s) => ({...s, audioFrames: s.audioFrames + 1}));
+					});
+					frame.close();
+				},
+				onError(error) {
+					setState((s) => ({...s, audioError: error}));
+				},
+			});
 
-			const {supported, config} = await AudioDecoder.isConfigSupported(track);
-
-			if (!supported) {
+			if (!audioDecoder) {
 				setState((s) => ({
 					...s,
 					audioError: new DOMException('Audio decoder not supported'),
@@ -242,46 +255,11 @@ export const SrcEncoder: React.FC<{
 				return null;
 			}
 
-			const audioDecoder = new AudioDecoder({
-				output(inputFrame) {
-					flushSync(() => {
-						setState((s) => ({...s, audioFrames: s.audioFrames + 1}));
-					});
-					inputFrame.close();
-				},
-				error(error) {
-					setState((s) => ({...s, audioError: error}));
-				},
-			});
-
-			audioDecoder.configure(config);
-
 			return async (audioSample) => {
+				audioDecoder.processSample(audioSample);
 				flushSync(() => {
 					setState((s) => ({...s, audioFrames: s.audioFrames + 1}));
 				});
-
-				if (audioDecoder.state === 'closed') {
-					return;
-				}
-
-				if (audioDecoder.decodeQueueSize > 10) {
-					let resolve = () => {};
-
-					const cb = () => {
-						resolve();
-					};
-
-					await new Promise<void>((r) => {
-						resolve = r;
-						// @ts-expect-error exists
-						audioDecoder.addEventListener('dequeue', cb);
-					});
-					// @ts-expect-error exists
-					audioDecoder.removeEventListener('dequeue', cb);
-				}
-
-				audioDecoder.decode(new EncodedAudioChunk(audioSample));
 			};
 		},
 		[setState],
@@ -351,14 +329,23 @@ export const SrcEncoder: React.FC<{
 					<SampleCount
 						errored={state.videoError !== null}
 						count={state.videoFrames}
-						label="Decode"
+						label="VD"
 					/>
 					<SampleCount
 						errored={state.videoError !== null}
 						count={state.encodedVideoFrames}
-						label="Encode"
+						label="VE"
 					/>
-
+					<SampleCount
+						errored={state.videoError !== null}
+						count={state.audioFrames}
+						label="AD"
+					/>
+					<SampleCount
+						errored={state.videoError !== null}
+						count={state.encodedAudioFrames}
+						label="AE"
+					/>
 					{mediaState ? (
 						<button type="button" onClick={onDownload}>
 							DL

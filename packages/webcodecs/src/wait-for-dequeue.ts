@@ -1,6 +1,9 @@
-export const decoderWaitForDequeue = async (videoDecoder: VideoDecoder) => {
+export const decoderWaitForDequeue = async (
+	videoDecoder: VideoDecoder | AudioDecoder,
+) => {
 	while (videoDecoder.decodeQueueSize > 10) {
 		await new Promise<void>((r) => {
+			// @ts-expect-error exists
 			videoDecoder.addEventListener('dequeue', () => r(), {
 				once: true,
 			});

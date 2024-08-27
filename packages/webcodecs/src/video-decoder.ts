@@ -1,7 +1,7 @@
 import type {VideoSample, VideoTrack} from '@remotion/media-parser';
 import {decoderWaitForDequeue} from './wait-for-dequeue';
 
-export const createDecoder = async ({
+export const createVideoDecoder = async ({
 	track,
 	onFrame,
 }: {
@@ -28,7 +28,7 @@ export const createDecoder = async ({
 			await onFrame(inputFrame);
 		},
 		error(error) {
-			console.error(error);
+			console.log(error);
 		},
 	});
 

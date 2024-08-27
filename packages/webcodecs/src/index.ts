@@ -1,2 +1,3 @@
-export {createDecoder} from './decoder';
-export {createEncoder} from './encoder';
+export {createAudioDecoder} from './audio-decoder';
+export {createVideoDecoder} from './video-decoder';
+export {createEncoder} from './video-encoder';
