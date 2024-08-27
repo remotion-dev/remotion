@@ -856,6 +856,18 @@ export type OffsetAndChildren = {
 	children: OffsetAndChildren[];
 };
 
+export const incrementOffsetAndChildren = (
+	offset: OffsetAndChildren,
+	increment: number,
+): OffsetAndChildren => {
+	return {
+		offset: offset.offset + increment,
+		children: offset.children.map((c) =>
+			incrementOffsetAndChildren(c, increment),
+		),
+	};
+};
+
 export type BytesAndOffset = {
 	bytes: Uint8Array;
 	offsets: OffsetAndChildren;

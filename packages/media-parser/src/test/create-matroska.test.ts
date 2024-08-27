@@ -189,6 +189,24 @@ test('Should parse seekHead', async () => {
 		],
 		minVintWidth: 1,
 	});
+	expect(custom.offsets).toEqual({
+		offset: 4,
+		children: [
+			{
+				offset: 6,
+				children: [
+					{
+						offset: 8,
+						children: [],
+					},
+					{
+						offset: 8,
+						children: [],
+					},
+				],
+			},
+		],
+	});
 	expect(custom.bytes).toEqual(file);
 
 	const iterator = getArrayBufferIterator(file, file.length);

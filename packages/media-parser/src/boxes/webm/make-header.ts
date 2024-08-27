@@ -8,7 +8,11 @@ import type {
 	UintWithSize,
 	matroskaElements,
 } from './segments/all-segments';
-import {ebmlMap, getIdForName} from './segments/all-segments';
+import {
+	ebmlMap,
+	getIdForName,
+	incrementOffsetAndChildren,
+} from './segments/all-segments';
 
 export const webmPattern = new Uint8Array([0x1a, 0x45, 0xdf, 0xa3]);
 
@@ -161,10 +165,7 @@ export const makeMatroskaBytes = (
 
 	return {
 		bytes,
-		offsets: {
-			children: [],
-			offset: 0,
-		},
+		offsets: incrementOffsetAndChildren(value.offsets, header.byteLength),
 	};
 };
 
