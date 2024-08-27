@@ -28,8 +28,9 @@ const getSamplesFromTraf = (
 	for (const trunBox of trunBoxes) {
 		let i = -1;
 
-		if (dataOffset === 0 && trunBox.dataOffset) {
+		if (trunBox.dataOffset) {
 			dataOffset = trunBox.dataOffset;
+			offset = 0;
 		}
 
 		for (const sample of trunBox.samples) {
