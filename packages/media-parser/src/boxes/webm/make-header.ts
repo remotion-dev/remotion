@@ -6,12 +6,12 @@ import type {
 	PossibleEbml,
 	PossibleEbmlOrUint8Array,
 	UintWithSize,
-	matroskaElements,
 } from './segments/all-segments';
 import {
 	ebmlMap,
 	getIdForName,
 	incrementOffsetAndChildren,
+	matroskaElements,
 } from './segments/all-segments';
 
 export const webmPattern = new Uint8Array([0x1a, 0x45, 0xdf, 0xa3]);
@@ -167,16 +167,55 @@ export const makeMatroskaBytes = (
 
 	const value = makeFromStructure(fields);
 	const header = matroskaToHex(getIdForName(fields.type));
-	const bytes = combineUint8Arrays([
-		header,
-		getVariableInt(value.bytes.length, fields.minVintWidth),
-		value.bytes,
-	]);
+	const size = getVariableInt(value.bytes.length, fields.minVintWidth);
+
+	const bytes = combineUint8Arrays([header, size, value.bytes]);
 
 	return {
 		bytes,
-		offsets: incrementOffsetAndChildren(value.offsets, header.byteLength),
+		offsets: {
+			offset: value.offsets.offset,
+			field: value.offsets.field,
+			children: value.offsets.children.map((c) => {
+				return incrementOffsetAndChildren(
+					c,
+					header.byteLength + size.byteLength,
+				);
+			}),
+		},
 	};
+};
+
+export const padMatroskaBytes = (
+	fields: PossibleEbmlOrUint8Array,
+	totalLength: number,
+): BytesAndOffset[] => {
+	const regular = makeMatroskaBytes(fields);
+	const paddingLength =
+		totalLength -
+		regular.bytes.byteLength -
+		matroskaToHex(matroskaElements.Void).byteLength;
+
+	if (paddingLength < 0) {
+		throw new Error('ooops');
+	}
+
+	const padding = makeMatroskaBytes({
+		type: 'Void',
+		value: new Uint8Array(paddingLength).fill(0),
+		minVintWidth: null,
+	});
+
+	return [
+		regular,
+		{
+			bytes: padding.bytes,
+			offsets: incrementOffsetAndChildren(
+				padding.offsets,
+				regular.bytes.length,
+			),
+		},
+	];
 };
 
 export const combineUint8Arrays = (arrays: Uint8Array[]) => {

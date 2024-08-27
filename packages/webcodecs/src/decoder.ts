@@ -6,7 +6,7 @@ export const createDecoder = async ({
 	onFrame,
 }: {
 	track: VideoTrack;
-	onFrame: (frame: VideoFrame) => void;
+	onFrame: (frame: VideoFrame) => Promise<void>;
 }) => {
 	if (typeof VideoDecoder === 'undefined') {
 		return null;
@@ -19,8 +19,8 @@ export const createDecoder = async ({
 	}
 
 	const videoDecoder = new VideoDecoder({
-		output(inputFrame) {
-			onFrame(inputFrame);
+		async output(inputFrame) {
+			await onFrame(inputFrame);
 		},
 		error(error) {
 			console.error(error);

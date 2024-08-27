@@ -2,7 +2,7 @@ export type Writer = {
 	write: (arr: Uint8Array) => Promise<void>;
 	save: () => Promise<void>;
 	getWrittenByteCount: () => number;
-	updateVIntAt: (position: number, vint: Uint8Array) => Promise<void>;
+	updateDataAt: (position: number, vint: Uint8Array) => Promise<void>;
 };
 
 type CreateContent = () => Promise<Writer>;

@@ -149,6 +149,10 @@ export const SrcEncoder: React.FC<{
 				height: track.displayAspectHeight,
 				onChunk: async (chunk) => {
 					await arr.addSample(chunk, track.trackId);
+					const newDuration = Math.round(
+						(chunk.timestamp + (chunk.duration ?? 0)) / 1000,
+					);
+					await arr.updateDuration(newDuration);
 				},
 			});
 			if (videoEncoder === null) {
@@ -158,9 +162,9 @@ export const SrcEncoder: React.FC<{
 
 			const videoDecoder = await createDecoder({
 				track,
-				onFrame: (frame) => {
-					onVideoFrame(frame, track);
-					videoEncoder.encodeFrame(frame);
+				onFrame: async (frame) => {
+					await onVideoFrame(frame, track);
+					await videoEncoder.encodeFrame(frame);
 					frame.close();
 				},
 			});

@@ -35,7 +35,7 @@ const createContent = async () => {
 			});
 		},
 		getWrittenByteCount: () => written,
-		updateVIntAt: async (position: number, vint: Uint8Array) => {
+		updateDataAt: async (position: number, vint: Uint8Array) => {
 			await writable.seek(position);
 			await writable.write(vint);
 			await writable.seek(written);

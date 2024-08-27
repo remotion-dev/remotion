@@ -1,4 +1,4 @@
-import {makeMatroskaBytes} from '../boxes/webm/make-header';
+import {makeMatroskaBytes, padMatroskaBytes} from '../boxes/webm/make-header';
 
 export const makeMatroskaInfo = ({
 	timescale,
@@ -28,14 +28,17 @@ export const makeMatroskaInfo = ({
 				value: '@remotion/media-parser',
 				minVintWidth: null,
 			},
-			{
-				type: 'Duration',
-				value: {
-					value: duration,
-					size: '64',
+			...padMatroskaBytes(
+				{
+					type: 'Duration',
+					value: {
+						value: duration,
+						size: '64',
+					},
+					minVintWidth: null,
 				},
-				minVintWidth: null,
-			},
+				1000,
+			),
 		],
 		minVintWidth: null,
 	});

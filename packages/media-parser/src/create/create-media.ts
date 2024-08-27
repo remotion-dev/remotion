@@ -1,4 +1,10 @@
 import {getVariableInt} from '../boxes/webm/ebml';
+import {
+	combineUint8Arrays,
+	matroskaToHex,
+	padMatroskaBytes,
+} from '../boxes/webm/make-header';
+import {matroskaElements} from '../boxes/webm/segments/all-segments';
 import type {WriterInterface} from '../writers/writer';
 import {
 	CLUSTER_MIN_VINT_WIDTH,
@@ -16,6 +22,7 @@ import {
 export type MediaFn = {
 	save: () => Promise<void>;
 	addSample: (chunk: EncodedVideoChunk, trackNumber: number) => Promise<void>;
+	updateDuration: (duration: number) => Promise<void>;
 };
 
 export const createMedia = async (
@@ -45,9 +52,10 @@ export const createMedia = async (
 	const matroskaTracks = makeMatroskaTracks([matroskaTrackEntry]);
 	const matroskaSegment = createMatroskaSegment([matroskaInfo, matroskaTracks]);
 
-	const durationOffset = matroskaSegment.offsets.children[0].children.find(
-		(c) => c.field === 'Duration',
-	)?.offset;
+	const durationOffset =
+		(matroskaSegment.offsets.children[0].children.find(
+			(c) => c.field === 'Duration',
+		)?.offset ?? 0) + w.getWrittenByteCount();
 	if (!durationOffset) {
 		throw new Error('could not get duration offset');
 	}
@@ -55,7 +63,10 @@ export const createMedia = async (
 	await w.write(matroskaSegment.bytes);
 
 	const cluster = createClusterSegment();
-	const clusterVIntPosition = w.getWrittenByteCount() + cluster.offsets.offset;
+	const clusterVIntPosition =
+		w.getWrittenByteCount() +
+		cluster.offsets.offset +
+		matroskaToHex(matroskaElements.Cluster).byteLength;
 
 	let clusterSize = cluster.bytes.byteLength;
 	await w.write(cluster.bytes);
@@ -74,22 +85,44 @@ export const createMedia = async (
 			timecodeRelativeToCluster: Math.round(chunk.timestamp / 1000),
 		});
 		clusterSize += simpleBlock.byteLength;
-		await w.updateVIntAt(
+		await w.updateDataAt(
 			clusterVIntPosition,
 			getVariableInt(clusterSize, CLUSTER_MIN_VINT_WIDTH),
 		);
 		await w.write(simpleBlock);
 	};
 
-	let addSampleProm = Promise.resolve();
+	const updateDuration = async (newDuration: number) => {
+		const blocks = padMatroskaBytes(
+			{
+				type: 'Duration',
+				value: {
+					value: newDuration,
+					size: '64',
+				},
+				minVintWidth: null,
+			},
+			1000,
+		);
+		await w.updateDataAt(
+			durationOffset,
+			combineUint8Arrays(blocks.map((b) => b.bytes)),
+		);
+	};
+
+	let operationProm = Promise.resolve();
 
 	return {
 		save: async () => {
 			await w.save();
 		},
 		addSample: (chunk, trackNumber) => {
-			addSampleProm = addSampleProm.then(() => addSample(chunk, trackNumber));
-			return addSampleProm;
+			operationProm = operationProm.then(() => addSample(chunk, trackNumber));
+			return operationProm;
+		},
+		updateDuration: (duration) => {
+			operationProm = operationProm.then(() => updateDuration(duration));
+			return operationProm;
 		},
 	};
 };

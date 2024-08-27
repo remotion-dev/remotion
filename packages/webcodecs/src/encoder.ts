@@ -1,3 +1,5 @@
+import {encoderWaitForDequeue} from './wait-for-dequeue';
+
 export const createEncoder = ({
 	width,
 	height,
@@ -28,7 +30,8 @@ export const createEncoder = ({
 	});
 
 	return {
-		encodeFrame: (_frame: VideoFrame) => {
+		encodeFrame: async (_frame: VideoFrame) => {
+			await encoderWaitForDequeue(encoder);
 			encoder.encode(_frame);
 		},
 	};
