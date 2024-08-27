@@ -198,14 +198,18 @@ test('Should parse seekHead', async () => {
 					{
 						offset: 8,
 						children: [],
+						field: 'SeekID',
 					},
 					{
-						offset: 8,
+						offset: 15,
 						children: [],
+						field: 'SeekPosition',
 					},
 				],
+				field: 'Seek',
 			},
 		],
+		field: 'SeekHead',
 	});
 	expect(custom.bytes).toEqual(file);
 

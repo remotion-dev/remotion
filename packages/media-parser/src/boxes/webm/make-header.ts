@@ -65,7 +65,7 @@ const makeFromStructure = (
 	if (struct.type === 'uint8array') {
 		return {
 			bytes: fields.value as Uint8Array,
-			offsets: {offset: 0, children: []},
+			offsets: {offset: 0, children: [], field: fields.type},
 		};
 	}
 
@@ -79,7 +79,10 @@ const makeFromStructure = (
 			bytesWritten += bytes.byteLength;
 		}
 
-		return {bytes: combineUint8Arrays(arrays), offsets: {offset: 0, children}};
+		return {
+			bytes: combineUint8Arrays(arrays),
+			offsets: {offset: 0, children, field: fields.type},
+		};
 	}
 
 	if (struct.type === 'string') {
@@ -88,6 +91,7 @@ const makeFromStructure = (
 			offsets: {
 				children: [],
 				offset: 0,
+				field: fields.type,
 			},
 		};
 	}
@@ -101,6 +105,7 @@ const makeFromStructure = (
 			offsets: {
 				children: [],
 				offset: 0,
+				field: fields.type,
 			},
 		};
 	}
@@ -118,6 +123,7 @@ const makeFromStructure = (
 			offsets: {
 				children: [],
 				offset: 0,
+				field: fields.type,
 			},
 		};
 	}
@@ -132,6 +138,7 @@ const makeFromStructure = (
 				offsets: {
 					children: [],
 					offset: 0,
+					field: fields.type,
 				},
 			};
 		}
@@ -143,6 +150,7 @@ const makeFromStructure = (
 			offsets: {
 				children: [],
 				offset: 0,
+				field: fields.type,
 			},
 		};
 	}

@@ -45,6 +45,13 @@ export const createMedia = async (
 	const matroskaTracks = makeMatroskaTracks([matroskaTrackEntry]);
 	const matroskaSegment = createMatroskaSegment([matroskaInfo, matroskaTracks]);
 
+	const durationOffset = matroskaSegment.offsets.children[0].children.find(
+		(c) => c.field === 'Duration',
+	)?.offset;
+	if (!durationOffset) {
+		throw new Error('could not get duration offset');
+	}
+
 	await w.write(matroskaSegment.bytes);
 
 	const cluster = createClusterSegment();

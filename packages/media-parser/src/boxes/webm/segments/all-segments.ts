@@ -854,6 +854,7 @@ export type PossibleEbml = Prettify<
 export type OffsetAndChildren = {
 	offset: number;
 	children: OffsetAndChildren[];
+	field: keyof typeof matroskaElements;
 };
 
 export const incrementOffsetAndChildren = (
@@ -865,6 +866,7 @@ export const incrementOffsetAndChildren = (
 		children: offset.children.map((c) =>
 			incrementOffsetAndChildren(c, increment),
 		),
+		field: offset.field,
 	};
 };
 
