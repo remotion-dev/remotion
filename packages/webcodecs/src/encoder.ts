@@ -15,14 +15,8 @@ export const createEncoder = ({
 		error(error) {
 			console.error(error);
 		},
-		async output(chunk, metadata) {
+		async output(chunk) {
 			await onChunk(chunk);
-			console.log(
-				'encoded as vp8',
-				chunk,
-				chunk,
-				metadata?.decoderConfig?.colorSpace?.matrix,
-			);
 		},
 	});
 

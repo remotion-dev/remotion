@@ -148,7 +148,6 @@ export const SrcEncoder: React.FC<{
 				width: track.displayAspectWidth,
 				height: track.displayAspectHeight,
 				onChunk: async (chunk) => {
-					console.log('added sample');
 					await arr.addSample(chunk, track.trackId);
 				},
 			});
@@ -216,7 +215,6 @@ export const SrcEncoder: React.FC<{
 			}
 
 			if (audioDecoder.decodeQueueSize > 10) {
-				console.log('audio decoder queue size', audioDecoder.decodeQueueSize);
 				let resolve = () => {};
 
 				const cb = () => {

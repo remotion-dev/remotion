@@ -1,4 +1,4 @@
-import type {WriterInterface} from './writer';
+import type {Writer, WriterInterface} from './writer';
 
 const createContent = async () => {
 	const directoryHandle = await navigator.storage.getDirectory();
@@ -10,7 +10,7 @@ const createContent = async () => {
 
 	let written = 0;
 
-	return {
+	const writer: Writer = {
 		write: async (arr: Uint8Array) => {
 			await writable.write(arr);
 			written += arr.byteLength;
@@ -26,10 +26,14 @@ const createContent = async () => {
 			await writable.close();
 		},
 		getWrittenByteCount: () => written,
-		updateVIntAt: () => {
-			// TODO: Do something here...
+		updateVIntAt: async (position: number, vint: Uint8Array) => {
+			await writable.seek(position);
+			await writable.write(vint);
+			await writable.seek(written);
 		},
 	};
+
+	return writer;
 };
 
 export const webFsWriter: WriterInterface = {

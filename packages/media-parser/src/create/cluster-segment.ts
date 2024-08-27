@@ -6,6 +6,8 @@ import {
 	serializeUint16,
 } from '../boxes/webm/make-header';
 
+export const CLUSTER_MIN_VINT_WIDTH = 8;
+
 export const createClusterSegment = () => {
 	return makeMatroskaBytes({
 		type: 'Cluster',
@@ -19,7 +21,7 @@ export const createClusterSegment = () => {
 				},
 			},
 		],
-		minVintWidth: 8,
+		minVintWidth: CLUSTER_MIN_VINT_WIDTH,
 	});
 };
 

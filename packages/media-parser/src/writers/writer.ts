@@ -1,8 +1,8 @@
-type Writer = {
+export type Writer = {
 	write: (arr: Uint8Array) => Promise<void>;
 	save: () => Promise<void>;
 	getWrittenByteCount: () => number;
-	updateVIntAt: (position: number, vint: number) => number;
+	updateVIntAt: (position: number, vint: Uint8Array) => Promise<void>;
 };
 
 type CreateContent = () => Promise<Writer>;
