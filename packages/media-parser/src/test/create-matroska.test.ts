@@ -72,7 +72,10 @@ test('Should make Matroska header that is same as input', async () => {
 		],
 	});
 
-	const iterator = getArrayBufferIterator(headerOutput, headerOutput.length);
+	const iterator = getArrayBufferIterator(
+		headerOutput.bytes,
+		headerOutput.bytes.length,
+	);
 	const parsed = await parseEbml(iterator, options);
 
 	expect(parsed).toEqual({
@@ -128,7 +131,7 @@ test('Should be able to create SeekIdBox', async () => {
 		value: '0x1549a966',
 		minVintWidth: 1,
 	});
-	expect(custom).toEqual(file);
+	expect(custom.bytes).toEqual(file);
 });
 
 test('Should be able to create Seek', async () => {
@@ -154,7 +157,7 @@ test('Should be able to create Seek', async () => {
 	});
 
 	const custom = makeMatroskaBytes(parsed);
-	expect(custom).toEqual(file);
+	expect(custom.bytes).toEqual(file);
 });
 
 test('Should parse seekHead', async () => {
@@ -186,7 +189,7 @@ test('Should parse seekHead', async () => {
 		],
 		minVintWidth: 1,
 	});
-	expect(custom).toEqual(file);
+	expect(custom.bytes).toEqual(file);
 
 	const iterator = getArrayBufferIterator(file, file.length);
 	const parsed = await parseEbml(iterator, options);
@@ -225,7 +228,7 @@ const parseWebm = async (str: string) => {
 const stringifyWebm = (boxes: AnySegment[]) => {
 	const buffers: Uint8Array[] = [];
 	for (const box of boxes) {
-		const bytes = makeMatroskaBytes(box as MatroskaSegment);
+		const {bytes} = makeMatroskaBytes(box as MatroskaSegment);
 		buffers.push(bytes);
 	}
 

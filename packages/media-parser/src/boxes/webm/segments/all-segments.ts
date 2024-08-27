@@ -851,6 +851,10 @@ export type PossibleEbml = Prettify<
 	}[keyof typeof ebmlMap]
 >;
 
+export type BytesAndOffset = {
+	bytes: Uint8Array;
+};
+
 export type PossibleEbmlOrUint8Array =
 	| Prettify<
 			{
@@ -859,6 +863,6 @@ export type PossibleEbmlOrUint8Array =
 				>;
 			}[keyof typeof ebmlMap]
 	  >
-	| Uint8Array;
+	| BytesAndOffset;
 
 export type EbmlMapKey = keyof typeof ebmlMap;

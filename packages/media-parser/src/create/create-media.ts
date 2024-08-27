@@ -26,7 +26,7 @@ export const createMedia = async (
 	const header = makeMatroskaHeader();
 
 	const w = await writer.createContent();
-	await w.write(header);
+	await w.write(header.bytes);
 	const matroskaInfo = makeMatroskaInfo({
 		timescale: 1_000_000,
 		duration: 2658,
@@ -47,15 +47,15 @@ export const createMedia = async (
 	const matroskaTracks = makeMatroskaTracks([matroskaTrackEntry]);
 	const matroskaSegment = createMatroskaSegment([matroskaInfo, matroskaTracks]);
 
-	await w.write(matroskaSegment);
+	await w.write(matroskaSegment.bytes);
 
 	const clusterVIntPosition =
 		w.getWrittenByteCount() +
 		matroskaToHex(matroskaElements.Cluster).byteLength;
 
 	const cluster = createClusterSegment();
-	let clusterSize = cluster.byteLength;
-	await w.write(cluster);
+	let clusterSize = cluster.bytes.byteLength;
+	await w.write(cluster.bytes);
 
 	const addSample = async (chunk: EncodedVideoChunk, trackNumber: number) => {
 		const arr = new Uint8Array(chunk.byteLength);

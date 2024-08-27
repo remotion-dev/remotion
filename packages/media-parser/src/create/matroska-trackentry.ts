@@ -1,4 +1,5 @@
 import {makeMatroskaBytes} from '../boxes/webm/make-header';
+import type {BytesAndOffset} from '../boxes/webm/segments/all-segments';
 
 export type MatroskaColorParams = {
 	transferChracteristics: 'bt709' | 'smpte170m' | 'iec61966-2-1' | null;
@@ -223,7 +224,7 @@ export const makeMatroskaVideoTrackEntryBytes = ({
 	});
 };
 
-export const makeMatroskaTracks = (tracks: Uint8Array[]): Uint8Array => {
+export const makeMatroskaTracks = (tracks: BytesAndOffset[]) => {
 	return makeMatroskaBytes({
 		type: 'Tracks',
 		value: tracks,
