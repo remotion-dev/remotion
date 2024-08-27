@@ -27,6 +27,7 @@ The following examples have been tested with the [Hello World](/templates/hello-
 
 ```docker title="Dockerfile"
 FROM node:20-bookworm
+
 # Install Chrome dependencies
 RUN apt-get update
 RUN apt install -y \
@@ -42,13 +43,17 @@ RUN apt install -y \
   libxdamage1 \
   libatk-bridge2.0-0 \
   libcups2
+
 # Copy everything from your project to the Docker image. Adjust if needed.
 COPY package.json package*.json yarn.lock* pnpm-lock.yaml* bun.lockb* tsconfig.json* remotion.config.* ./
 COPY src ./src
+
 # If you have a public folder:
 COPY public ./public
+
 # Install the right package manager and dependencies - see below for Yarn/PNPM
 RUN npm i
+
 # Install Chrome
 RUN npx remotion browser ensure
 
@@ -118,7 +123,7 @@ A normal DigitalOcean droplet does work, though.
 To deploy the [Scaleway Serverless Container](https://www.scaleway.com/en/serverless-containers/):
 
 - First add the above `Dockerfile` to the repository
-- Build your docker image and publish it to a docker registry (for example a [Scaleway Docker Registry](https://www.scaleway.com/en/docs/containers/container-registry/quickstart/))
+- Build your docker image and publish it to a Docker registry (for example a [Scaleway Docker Registry](https://www.scaleway.com/en/docs/containers/container-registry/quickstart/))
 - Then [create your Serverless container namespace](https://www.scaleway.com/en/docs/serverless/containers/how-to/create-a-containers-namespace/) and use [your published docker image](https://www.scaleway.com/en/docs/serverless/containers/how-to/deploy-a-container-from-scaleway-container-registry/).
 
 You can find [an example of a github action workflow that deploy Remotion Studio to Scaleway Serverless Container](https://github.com/lyonjs/shortvid.io/blob/main/.github/workflows/deploy-editor.yml).
