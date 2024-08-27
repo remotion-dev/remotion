@@ -60,7 +60,6 @@ export const createMedia = async (
 	const addSample = async (chunk: EncodedVideoChunk, trackNumber: number) => {
 		const arr = new Uint8Array(chunk.byteLength);
 		chunk.copyTo(arr);
-		console.log(chunk.timestamp / 1000);
 		const simpleBlock = makeSimpleBlock({
 			bytes: arr,
 			invisible: false,
@@ -69,7 +68,7 @@ export const createMedia = async (
 			trackNumber,
 			// TODO: Maybe this is bad, because it's in microseconds, but should be in timescale
 			// Maybe it only works by coincidence
-			timecodeRelativeToCluster: chunk.timestamp / 1000,
+			timecodeRelativeToCluster: Math.round(chunk.timestamp / 1000),
 		});
 		clusterSize += simpleBlock.byteLength;
 		await w.updateVIntAt(
