@@ -2,6 +2,7 @@ import {getVariableInt} from './ebml';
 import type {
 	BytesAndOffset,
 	FloatWithSize,
+	OffsetAndChildren,
 	PossibleEbml,
 	PossibleEbmlOrUint8Array,
 	UintWithSize,
@@ -58,19 +59,31 @@ const makeFromStructure = (
 	const struct = ebmlMap[getIdForName(fields.type)];
 
 	if (struct.type === 'uint8array') {
-		return {bytes: fields.value as Uint8Array};
+		return {
+			bytes: fields.value as Uint8Array,
+			offsets: {offset: 0, children: []},
+		};
 	}
 
 	if (struct.type === 'children') {
+		const children: OffsetAndChildren[] = [];
 		for (const item of fields.value as PossibleEbml[]) {
-			arrays.push(makeMatroskaBytes(item).bytes);
+			const {bytes, offsets} = makeMatroskaBytes(item);
+			arrays.push(bytes);
+			children.push(offsets);
 		}
 
-		return {bytes: combineUint8Arrays(arrays)};
+		return {bytes: combineUint8Arrays(arrays), offsets: {offset: 0, children}};
 	}
 
 	if (struct.type === 'string') {
-		return {bytes: new TextEncoder().encode(fields.value as string)};
+		return {
+			bytes: new TextEncoder().encode(fields.value as string),
+			offsets: {
+				children: [],
+				offset: 0,
+			},
+		};
 	}
 
 	if (struct.type === 'uint') {
@@ -79,6 +92,10 @@ const makeFromStructure = (
 				(fields.value as UintWithSize).value,
 				(fields.value as UintWithSize).byteLength,
 			),
+			offsets: {
+				children: [],
+				offset: 0,
+			},
 		};
 	}
 
@@ -90,7 +107,13 @@ const makeFromStructure = (
 			arr[i / 2] = byte;
 		}
 
-		return {bytes: arr};
+		return {
+			bytes: arr,
+			offsets: {
+				children: [],
+				offset: 0,
+			},
+		};
 	}
 
 	if (struct.type === 'float') {
@@ -98,12 +121,24 @@ const makeFromStructure = (
 		if (value.size === '32') {
 			const dataView = new DataView(new ArrayBuffer(4));
 			dataView.setFloat32(0, value.value);
-			return {bytes: new Uint8Array(dataView.buffer)};
+			return {
+				bytes: new Uint8Array(dataView.buffer),
+				offsets: {
+					children: [],
+					offset: 0,
+				},
+			};
 		}
 
 		const dataView2 = new DataView(new ArrayBuffer(8));
 		dataView2.setFloat64(0, value.value);
-		return {bytes: new Uint8Array(dataView2.buffer)};
+		return {
+			bytes: new Uint8Array(dataView2.buffer),
+			offsets: {
+				children: [],
+				offset: 0,
+			},
+		};
 	}
 
 	throw new Error('Unexpected type');
@@ -117,13 +152,20 @@ export const makeMatroskaBytes = (
 	}
 
 	const value = makeFromStructure(fields);
-
+	const header = matroskaToHex(getIdForName(fields.type));
 	const bytes = combineUint8Arrays([
-		matroskaToHex(getIdForName(fields.type)),
+		header,
 		getVariableInt(value.bytes.length, fields.minVintWidth),
 		value.bytes,
 	]);
-	return {bytes};
+
+	return {
+		bytes,
+		offsets: {
+			children: [],
+			offset: 0,
+		},
+	};
 };
 
 export const combineUint8Arrays = (arrays: Uint8Array[]) => {

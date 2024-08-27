@@ -851,8 +851,14 @@ export type PossibleEbml = Prettify<
 	}[keyof typeof ebmlMap]
 >;
 
+export type OffsetAndChildren = {
+	offset: number;
+	children: OffsetAndChildren[];
+};
+
 export type BytesAndOffset = {
 	bytes: Uint8Array;
+	offsets: OffsetAndChildren;
 };
 
 export type PossibleEbmlOrUint8Array =
