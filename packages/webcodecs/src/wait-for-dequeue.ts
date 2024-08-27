@@ -14,7 +14,9 @@ export const decoderWaitForDequeue = async (
 // TODO: This is weird
 // Queue goes way higher but this will eat more memory right?
 // But if not done this way, quality is worse
-export const encoderWaitForDequeue = async (videoEncoder: VideoEncoder) => {
+export const encoderWaitForDequeue = async (
+	videoEncoder: VideoEncoder | AudioEncoder,
+) => {
 	if (videoEncoder.encodeQueueSize > 10) {
 		let resolve = () => {};
 
@@ -24,8 +26,10 @@ export const encoderWaitForDequeue = async (videoEncoder: VideoEncoder) => {
 
 		await new Promise<void>((r) => {
 			resolve = r;
+			// @ts-expect-error exists
 			videoEncoder.addEventListener('dequeue', cb);
 		});
+		// @ts-expect-error exists
 		videoEncoder.removeEventListener('dequeue', cb);
 	}
 };

@@ -1,7 +1,7 @@
 import {getVideoEncoderConfigWithHardwareAcceleration} from './get-config';
 import {encoderWaitForDequeue} from './wait-for-dequeue';
 
-export const createEncoder = async ({
+export const createVideoEncoder = async ({
 	width,
 	height,
 	onChunk,
