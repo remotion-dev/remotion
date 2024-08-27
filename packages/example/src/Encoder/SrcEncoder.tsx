@@ -154,11 +154,11 @@ export const SrcEncoder: React.FC<{
 			const arr = await MediaParserInternals.createMedia(webFsWriter);
 			setMediaState(arr);
 
-			const videoEncoder = createEncoder({
+			const videoEncoder = await createEncoder({
 				width: track.displayAspectWidth,
 				height: track.displayAspectHeight,
 				onChunk: async (chunk) => {
-					await arr.addSample(chunk, track.trackId);
+					await arr.addSample(chunk, 1);
 					const newDuration = Math.round(
 						(chunk.timestamp + (chunk.duration ?? 0)) / 1000,
 					);

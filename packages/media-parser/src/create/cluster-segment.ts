@@ -47,6 +47,8 @@ export const makeSimpleBlock = ({
 
 	const body = combineUint8Arrays([
 		getVariableInt(trackNumber, null),
+		// TODO: Cannot encode long videos because of uint16 overflow
+		// need to make new cluster
 		serializeUint16(timecodeRelativeToCluster),
 		new Uint8Array([headerByte]),
 		bytes,

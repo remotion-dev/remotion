@@ -1,6 +1,7 @@
+import {getVideoEncoderConfigWithHardwareAcceleration} from './get-config';
 import {encoderWaitForDequeue} from './wait-for-dequeue';
 
-export const createEncoder = ({
+export const createEncoder = async ({
 	width,
 	height,
 	onChunk,
@@ -10,7 +11,7 @@ export const createEncoder = ({
 	onChunk: (chunk: EncodedVideoChunk) => Promise<void>;
 }) => {
 	if (typeof VideoEncoder === 'undefined') {
-		return null;
+		return Promise.resolve(null);
 	}
 
 	const encoder = new VideoEncoder({
@@ -22,13 +23,18 @@ export const createEncoder = ({
 		},
 	});
 
-	// TODO: Enable hardware acceleration if possible
-	encoder.configure({
+	const config = await getVideoEncoderConfigWithHardwareAcceleration({
 		codec: 'vp8',
 		height,
 		width,
-		hardwareAcceleration: 'prefer-software',
 	});
+
+	if (!config) {
+		return null;
+	}
+
+	// TODO: Enable hardware acceleration if possible
+	encoder.configure(config);
 
 	let framesProcessed = 0;
 
