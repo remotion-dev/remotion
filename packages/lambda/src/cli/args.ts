@@ -48,7 +48,7 @@ export const parsedLambdaCli = CliInternals.minimist<LambdaCommandLineOptions>(
 	process.argv.slice(2),
 	{
 		boolean: CliInternals.BooleanFlags,
-		string: ['_']
+		string: ['_'],
 	},
 );
 
