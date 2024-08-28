@@ -240,7 +240,7 @@ export const SrcEncoder: React.FC<{
 			}
 			const audioEncoder = await createAudioEncoder({
 				onChunk: async (chunk) => {
-					await mediaState.addSample(chunk, 1);
+					await mediaState.addSample(chunk, 2);
 
 					flushSync(() => {
 						setState((s) => ({
@@ -318,6 +318,7 @@ export const SrcEncoder: React.FC<{
 			});
 	}, [mediaState, onAudioTrack, onVideoTrack, src]);
 
+	console.log(state.videoError);
 	return (
 		<div
 			style={{

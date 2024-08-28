@@ -23,7 +23,7 @@ export const createAudioEncoder = async ({
 		// TODO: Hardcoded
 		numberOfChannels: 2,
 		// TODO: Hardcoded and fails if wrong
-		sampleRate: 44100,
+		sampleRate: 48000,
 		bitrate: 128000,
 	};
 
@@ -36,6 +36,7 @@ export const createAudioEncoder = async ({
 	encoder.configure(audioEncoderConfig);
 
 	const encodeFrame = async (audioData: AudioData) => {
+		console.log(audioData);
 		await encoderWaitForDequeue(encoder);
 
 		encoder.encode(audioData);

@@ -15,6 +15,7 @@ import {makeMatroskaHeader} from './matroska-header';
 import {makeMatroskaInfo} from './matroska-info';
 import {createMatroskaSegment} from './matroska-segment';
 import {
+	makeMatroskaAudioTrackEntryBytes,
 	makeMatroskaTracks,
 	makeMatroskaVideoTrackEntryBytes,
 } from './matroska-trackentry';
@@ -36,7 +37,7 @@ export const createMedia = async (
 		timescale: 1_000_000,
 		duration: 2658,
 	});
-	const matroskaTrackEntry = makeMatroskaVideoTrackEntryBytes({
+	const matroskaVideoTrackEntry = makeMatroskaVideoTrackEntryBytes({
 		color: {
 			transferChracteristics: 'bt709',
 			matrixCoefficients: 'bt709',
@@ -49,7 +50,14 @@ export const createMedia = async (
 		trackNumber: 1,
 		codecId: 'V_VP8',
 	});
-	const matroskaTracks = makeMatroskaTracks([matroskaTrackEntry]);
+	const matroskaAudioTrackEntry = makeMatroskaAudioTrackEntryBytes({
+		trackNumber: 2,
+		codecId: 'A_OPUS',
+	});
+	const matroskaTracks = makeMatroskaTracks([
+		matroskaVideoTrackEntry,
+		matroskaAudioTrackEntry,
+	]);
 	const matroskaSegment = createMatroskaSegment([matroskaInfo, matroskaTracks]);
 
 	const durationOffset =

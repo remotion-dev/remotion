@@ -140,6 +140,85 @@ export const makeMatroskaVideoBytes = ({
 	});
 };
 
+export const makeMatroskaAudioTrackEntryBytes = ({
+	trackNumber,
+	codecId,
+}: {
+	trackNumber: number;
+	codecId: string;
+}) => {
+	return makeMatroskaBytes({
+		type: 'TrackEntry',
+		minVintWidth: null,
+		value: [
+			{
+				type: 'TrackNumber',
+				value: {
+					value: trackNumber,
+					byteLength: null,
+				},
+				minVintWidth: null,
+			},
+			{
+				type: 'TrackUID',
+				value: '0x188FEB95C8EFABA',
+				minVintWidth: null,
+			},
+			{
+				type: 'TrackType',
+				value: {
+					value: 2,
+					byteLength: null,
+				},
+				minVintWidth: null,
+			},
+			{
+				type: 'TrackTimestampScale',
+				value: {
+					value: 1,
+					size: '64',
+				},
+				minVintWidth: null,
+			},
+			{
+				type: 'CodecID',
+				value: codecId,
+				minVintWidth: null,
+			},
+			{
+				type: 'Audio',
+				value: [
+					{
+						type: 'Channels',
+						minVintWidth: null,
+						value: {
+							value: 2,
+							byteLength: null,
+						},
+					},
+					{
+						type: 'SamplingFrequency',
+						minVintWidth: null,
+						value: {
+							value: 44100,
+							size: '64',
+						},
+					},
+					{
+						type: 'BitDepth',
+						minVintWidth: null,
+						value: {
+							value: 32,
+							byteLength: null,
+						},
+					},
+				],
+				minVintWidth: null,
+			},
+		],
+	});
+};
+
 export const makeMatroskaVideoTrackEntryBytes = ({
 	color,
 	width,
@@ -198,7 +277,6 @@ export const makeMatroskaVideoTrackEntryBytes = ({
 				value: codecId,
 				minVintWidth: null,
 			},
-
 			{
 				type: 'TrackType',
 				value: {
