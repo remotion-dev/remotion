@@ -22,8 +22,8 @@ const parseSegment = async ({
 	parserContext: ParserContext;
 	headerReadSoFar: number;
 }): Promise<Promise<MatroskaSegment> | MatroskaSegment> => {
-	if (length === 0) {
-		throw new Error(`Expected length of ${segmentId} to be greater than 0`);
+	if (length < 0) {
+		throw new Error(`Expected length of ${segmentId} to be greater or equal 0`);
 	}
 
 	iterator.counter.decrement(headerReadSoFar);
