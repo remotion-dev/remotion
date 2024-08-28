@@ -41,7 +41,7 @@ export const parseEbml = async (
 
 	if (hasInMap.type === 'uint') {
 		const beforeUintOffset = iterator.counter.getOffset();
-		const value = iterator.getUint(size);
+		const value = size === 0 ? 0 : iterator.getUint(size);
 
 		return {
 			type: hasInMap.name,
@@ -64,7 +64,12 @@ export const parseEbml = async (
 	}
 
 	if (hasInMap.type === 'float') {
-		const value = size === 4 ? iterator.getFloat32() : iterator.getFloat64();
+		const value =
+			size === 0
+				? 0.0
+				: size === 4
+					? iterator.getFloat32()
+					: iterator.getFloat64();
 
 		return {
 			type: hasInMap.name,
