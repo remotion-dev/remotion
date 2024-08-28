@@ -320,7 +320,7 @@ export const benchmarkCommand = async (
 
 	const ids = (
 		remainingArgs[0]
-			? remainingArgs[0]
+			? String(remainingArgs[0])
 					.split(',')
 					.map((c) => c.trim())
 					.filter(truthy)
