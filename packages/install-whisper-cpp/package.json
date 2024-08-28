@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/install-whisper-cpp"
 	},
 	"name": "@remotion/install-whisper-cpp",
-	"version": "4.0.205",
+	"version": "4.0.206",
 	"description": "Helpers for installing and using Whisper.cpp",
 	"main": "dist/index.js",
 	"sideEffects": false,
