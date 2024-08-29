@@ -7,9 +7,6 @@ type SampleBase = {
 	format: string;
 	offset: number;
 	dataReferenceIndex: number;
-	version: number;
-	revisionLevel: number;
-	vendor: number[];
 	size: number;
 };
 
@@ -25,6 +22,9 @@ export type AudioSample = SampleBase & {
 	bytesPerFrame: number | null;
 	bitsPerSample: number | null;
 	children: AnySegment[];
+	version: number;
+	revisionLevel: number;
+	vendor: number[];
 };
 
 export type VideoSample = SampleBase & {
@@ -41,6 +41,9 @@ export type VideoSample = SampleBase & {
 	depth: number;
 	colorTableId: number;
 	descriptors: AnySegment[];
+	version: number;
+	revisionLevel: number;
+	vendor: number[];
 };
 
 type UnknownSample = SampleBase & {
@@ -139,9 +142,6 @@ export const processSample = async ({
 	iterator.discard(6);
 
 	const dataReferenceIndex = iterator.getUint16();
-	const version = iterator.getUint16();
-	const revisionLevel = iterator.getUint16();
-	const vendor = iterator.getSlice(4);
 
 	if (!isVideo && !isAudio) {
 		const bytesRemainingInBox =
@@ -153,9 +153,6 @@ export const processSample = async ({
 				type: 'unknown',
 				offset: fileOffset,
 				dataReferenceIndex,
-				version,
-				revisionLevel,
-				vendor: [...Array.from(new Uint8Array(vendor))],
 				size: boxSize,
 				format: boxFormat,
 			},
@@ -163,6 +160,9 @@ export const processSample = async ({
 	}
 
 	if (isAudio) {
+		const version = iterator.getUint16();
+		const revisionLevel = iterator.getUint16();
+		const vendor = iterator.getSlice(4);
 		if (version === 0) {
 			const numberOfChannels = iterator.getUint16();
 			const sampleSize = iterator.getUint16();
@@ -268,6 +268,9 @@ export const processSample = async ({
 	}
 
 	if (isVideo) {
+		const version = iterator.getUint16();
+		const revisionLevel = iterator.getUint16();
+		const vendor = iterator.getSlice(4);
 		const temporalQuality = iterator.getUint32();
 		const spacialQuality = iterator.getUint32();
 		const width = iterator.getUint16();
