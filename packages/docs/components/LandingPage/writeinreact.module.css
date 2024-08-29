@@ -1,32 +1,32 @@
 .writeincss {
-  flex-direction: row;
-  display: flex;
+	flex-direction: row;
+	display: flex;
 }
 
 .writeincsstitle {
-  font-size: 5em;
-  font-weight: 900;
-  line-height: 1;
-  text-align: center;
-  text-shadow: 0 5px 30px var(--background);
+	font-size: 5em;
+	font-weight: 900;
+	line-height: 1;
+	text-align: center;
+	text-shadow: 0 5px 30px var(--background);
 }
 
 .text {
-  text-shadow: 0 5px 30px var(--background);
+	text-shadow: 0 5px 30px var(--background);
 }
 
 .writeright {
-  flex: 1;
+	flex: 1;
 }
 
 @media screen and (max-width: 900px) {
-  .writeincss {
-    flex-direction: column;
-  }
-  .writeincsstitle {
-    font-size: 3.5em;
-  }
-  .writeright {
-    margin-top: 30px;
-  }
+	.writeincss {
+		flex-direction: column;
+	}
+	.writeincsstitle {
+		font-size: 3.5em;
+	}
+	.writeright {
+		margin-top: 30px;
+	}
 }

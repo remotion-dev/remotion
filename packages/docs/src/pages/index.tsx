@@ -7,8 +7,12 @@ import {
 	VideoAppsTitle,
 } from '../../components/LambdaSplash/VideoAppsTitle';
 import {BackgroundAnimation} from '../../components/LandingPage/BackgroundAnimation';
+import DeveloperCommunityStats4 from '../../components/LandingPage/DeveloperCommunityStats4';
+import DeveloperCommunityStats6 from '../../components/LandingPage/DeveloperCommunityStats6';
+import EvaluateRemotionSection from '../../components/LandingPage/EvaluateRemotionSection';
 import {NewsletterButton} from '../../components/LandingPage/NewsletterButton';
 import {Pricing} from '../../components/LandingPage/Pricing';
+import TrustedByBanner from '../../components/LandingPage/TrustedByBanner';
 import {WriteInReact} from '../../components/LandingPage/WriteInReact';
 import {LightningFastEditor} from '../../components/LandingPage/editor';
 import {IfYouKnowReact} from '../../components/LandingPage/if-you-know-react';
@@ -33,10 +37,16 @@ const NewLanding: React.FC = () => {
 				<br />
 				<br />
 				<br />
-
 				<div className={styles.content}>
 					<WriteInReact />
 					<br />
+					<TrustedByBanner />
+					<br />
+					<EvaluateRemotionSection />
+					<br />
+					<DeveloperCommunityStats4 />
+					<br />
+					<DeveloperCommunityStats6 />
 					<br />
 					<IfYouKnowReact />
 					<br />

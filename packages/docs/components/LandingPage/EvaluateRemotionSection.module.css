@@ -1,0 +1,108 @@
+/* components/LandingPage/EvaluateRemotionSection.module.css */
+.container {
+	display: flex;
+	justify-content: center;
+	gap: 20px;
+	margin: 40px 0;
+	max-width: 1200px; /* Adjust this value based on the homepage's max-width */
+	width: 100%; /* Use the full width */
+}
+
+.card {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between; /* This will push the content to the top and the buttons/avatars to the bottom */
+	background-color: var(--ifm-background-surface-color);
+	border: 5px solid var(--text-color);
+	border-radius: 10px;
+	padding: 20px;
+	width: 100%;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	max-width: calc(50% - 10px);
+	position: relative;
+}
+
+.contentWrapper {
+	flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: top; /* Adjust this as needed */
+}
+
+.title {
+	font-size: 1.4em;
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
+.description {
+	margin-bottom: 30px;
+}
+
+.scheduleButton {
+	background-color: var(--ifm-color-primary);
+	color: white;
+	border: none;
+	padding: 8px 16px;
+	border-radius: 4px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	font-size: 0.9em;
+}
+
+.calendarIcon {
+	margin-right: 5px;
+}
+
+.expertsSection {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-end; /* Align items to the bottom with a little padding */
+	width: 100%;
+}
+
+.remotionIcon {
+	font-size: 1.2em;
+	margin-right: 5px;
+}
+
+.expertsInfo {
+	display: flex;
+	align-items: center; /* Center items vertically */
+	justify-content: flex-start; /* Align items to the left */
+	flex: 1; /* Take up the full width available */
+}
+
+.expertsText {
+	font-weight: bold;
+	margin-right: 10px;
+}
+
+.avatar {
+	width: 50px; /* Example width */
+	height: 50px; /* Example height */
+	border-radius: 50%; /* Circular avatars */
+	background-color: #ccc; /* Placeholder background color, replace with actual image */
+	background-size: cover; /* Ensure the image covers the avatar area */
+	background-position: center; /* Center the image within the avatar */
+	margin-left: -20px; /* Negative margin to create overlap. Adjust as needed */
+}
+
+.avatars {
+	display: flex;
+	justify-content: flex-end; /* Align avatars to the right */
+	align-items: flex-end; /* Align avatars to the bottom */
+	gap: 10px; /* Space between avatars */
+}
+
+@media screen and (max-width: 900px) {
+	.container {
+		flex-direction: column;
+		align-items: center;
+	}
+	.card {
+		width: 90%;
+		max-width: none; /* Allow cards to use the adjusted width on smaller screens */
+	}
+}
