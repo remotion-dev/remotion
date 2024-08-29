@@ -32,7 +32,7 @@
 		"@remotion/studio-shared": "workspace:*",
 		"style-loader": "2.0.0",
 		"source-map": "0.7.3",
-		"webpack": "5.83.1"
+		"webpack": "5.94.0"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
