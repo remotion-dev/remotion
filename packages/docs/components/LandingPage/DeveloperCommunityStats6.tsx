@@ -7,6 +7,7 @@ import {
 	PagesOfDocs,
 	TemplatesAndExamples,
 } from './DeveloperCommunityStats6-StatComponents';
+import './DeveloperCommunityStats6.module.css';
 
 const DeveloperCommunityStats6: React.FC = () => (
 	<div className="developer-stats-container">

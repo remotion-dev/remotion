@@ -4,7 +4,7 @@ import React from 'react';
 // Shared styles
 const useStyles = (isDarkTheme: boolean) => ({
 	container: {
-		maxWidth: '800px',
+		maxWidth: '700px',
 		margin: '0 auto',
 		textAlign: 'center' as const,
 		justifyContent: 'center',
@@ -40,8 +40,8 @@ const useStyles = (isDarkTheme: boolean) => ({
 		alignContent: 'center',
 		flex: '1 1 30%', // Flex-grow, flex-shrink, and flex-basis for responsive scaling
 		minWidth: '200px', // Minimum width to ensure readability
-		minHeight: '95px', // Minimum height to ensure readability
-		maxHeight: '100px', // Maximum height to ensure readability
+		minHeight: '80px', // Minimum height to ensure readability
+		maxHeight: '110px', // Maximum height to ensure readability
 	},
 });
 
@@ -268,13 +268,13 @@ const DiscordMembers: React.FC = () => {
 				>
 					<StatItemContent
 						content="4000"
-						width="139px"
+						width="142px"
 						fontSize="2.5rem"
 						fontWeight="bold"
 					/>
 					<StatItemContent
 						content="Discord members"
-						width="139px"
+						width="142px"
 						fontSize="1rem"
 						fontWeight="bold"
 					/>
