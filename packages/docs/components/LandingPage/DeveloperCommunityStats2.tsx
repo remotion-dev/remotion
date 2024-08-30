@@ -6,10 +6,10 @@ import {
 	InstallsPerMonth,
 	PagesOfDocs,
 	TemplatesAndExamples,
-} from './DeveloperCommunityStats6-StatComponents';
-import './DeveloperCommunityStats6.module.css';
+} from './DeveloperCommunityStats2-StatComponents';
+import './DeveloperCommunityStats2.module.css';
 
-const DeveloperCommunityStats6: React.FC = () => (
+const DeveloperCommunityStats2: React.FC = () => (
 	<div className="developer-stats-container">
 		<h2 className="developer-stats-title">Developer community stats</h2>
 		<p className="developer-stats-subtitle">
@@ -26,4 +26,4 @@ const DeveloperCommunityStats6: React.FC = () => (
 	</div>
 );
 
-export default DeveloperCommunityStats6;
+export default DeveloperCommunityStats2;

@@ -7,8 +7,8 @@ import {
 	VideoAppsTitle,
 } from '../../components/LambdaSplash/VideoAppsTitle';
 import {BackgroundAnimation} from '../../components/LandingPage/BackgroundAnimation';
-import DeveloperCommunityStats4 from '../../components/LandingPage/DeveloperCommunityStats4';
-import DeveloperCommunityStats6 from '../../components/LandingPage/DeveloperCommunityStats6';
+import DeveloperCommunityStats from '../../components/LandingPage/DeveloperCommunityStats';
+import DeveloperCommunityStats2 from '../../components/LandingPage/DeveloperCommunityStats2';
 import EvaluateRemotionSection from '../../components/LandingPage/EvaluateRemotionSection';
 import {NewsletterButton} from '../../components/LandingPage/NewsletterButton';
 import {Pricing} from '../../components/LandingPage/Pricing';
@@ -44,9 +44,9 @@ const NewLanding: React.FC = () => {
 					<br />
 					<EvaluateRemotionSection />
 					<br />
-					<DeveloperCommunityStats4 />
+					<DeveloperCommunityStats />
 					<br />
-					<DeveloperCommunityStats6 />
+					<DeveloperCommunityStats2 />
 					<br />
 					<IfYouKnowReact />
 					<br />

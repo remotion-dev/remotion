@@ -2,7 +2,7 @@ import React from 'react';
 import {
 	StatItemContent,
 	useSvgFillColor,
-} from './DeveloperCommunityStats6-SharedComponent';
+} from './DeveloperCommunityStats2-SharedComponent';
 
 export const InstallsPerMonth: React.FC = () => {
 	const svgFillColor = useSvgFillColor();
