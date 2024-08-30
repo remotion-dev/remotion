@@ -4,8 +4,7 @@ import React from 'react';
 // Shared styles
 const useStyles = (isDarkTheme: boolean) => ({
 	container: {
-		maxWidth: '67vw',
-		width: '67vw',
+		maxWidth: '800px',
 		margin: '0 auto',
 		textAlign: 'center' as const,
 		justifyContent: 'center',
@@ -41,7 +40,8 @@ const useStyles = (isDarkTheme: boolean) => ({
 		alignContent: 'center',
 		flex: '1 1 30%', // Flex-grow, flex-shrink, and flex-basis for responsive scaling
 		minWidth: '200px', // Minimum width to ensure readability
-		minHeight: '100px', // Minimum height to ensure readability
+		minHeight: '95px', // Minimum height to ensure readability
+		maxHeight: '100px', // Maximum height to ensure readability
 	},
 });
 
@@ -49,13 +49,25 @@ const useStyles = (isDarkTheme: boolean) => ({
 const StatItemContent: React.FC<{
 	content: React.ReactNode;
 	width: string;
+	minWidth?: string;
+	maxWidth?: string;
 	height?: string;
 	fontSize?: string;
 	fontWeight?: React.CSSProperties['fontWeight'];
-}> = ({content, width, height = 'auto', fontSize, fontWeight}) => (
+}> = ({
+	content,
+	width,
+	minWidth,
+	maxWidth,
+	height = 'auto',
+	fontSize,
+	fontWeight,
+}) => (
 	<div
 		style={{
 			width,
+			minWidth,
+			maxWidth,
 			height,
 			fontSize,
 			fontWeight,
@@ -70,40 +82,47 @@ const StatItemContent: React.FC<{
 	</div>
 );
 
-// Individual StatItem components
 const InstallsPerMonth: React.FC = () => {
 	const {isDarkTheme} = useColorMode();
 	const styles = useStyles(isDarkTheme);
 	const svgFillColor = isDarkTheme ? '#E3E3E3' : 'black';
 
 	return (
-		<div style={{...styles.statItem, width: '32.5%'}}>
-			<StatItemContent
-				content="100k"
-				width="50%"
-				fontSize="2.5rem"
-				fontWeight="bold"
-			/>
-			<StatItemContent
-				content={
-					<svg
-						width="40"
-						height="40"
-						viewBox="0 0 25 25"
-						fill="none"
-						xmlns="http://www.w3.org/2000/svg"
-					>
-						<path
-							d="M12.6367 2.47534C12.5488 2.44116 12.4512 2.44116 12.3584 2.47534L3.10547 5.98608L12.5 9.67749L21.8945 5.98608L12.6367 2.47534ZM2.34375 18.4519C2.34375 18.613 2.44629 18.7595 2.59766 18.8181L11.3281 22.1287V11.738L2.34375 8.20776V18.4519ZM13.6719 22.1287L22.4023 18.8181C22.5537 18.7595 22.6562 18.613 22.6562 18.4519V8.20776L13.6719 11.738V22.1287ZM11.5283 0.287842C12.1533 0.048584 12.8418 0.048584 13.4668 0.287842L23.2324 3.9939C24.2969 4.39429 25 5.40991 25 6.54761V18.4519C25 19.5896 24.2969 20.6052 23.2373 21.0105L13.4717 24.7166C12.8467 24.9558 12.1582 24.9558 11.5332 24.7166L1.76758 21.0105C0.703125 20.6052 0 19.5896 0 18.4519V6.54761C0 5.40991 0.703125 4.39429 1.7627 3.98901L11.5283 0.282959V0.287842Z"
-							fill={svgFillColor}
-						/>
-					</svg>
-				}
-				width="25%"
-			/>
+		<div style={{...styles.statItem, width: '30%', flexDirection: 'column'}}>
+			<div
+				style={{
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+				}}
+			>
+				<StatItemContent
+					content="100k"
+					width="100px"
+					fontSize="2.5rem"
+					fontWeight="bold"
+				/>
+				<StatItemContent
+					content={
+						<svg
+							width="40"
+							height="40"
+							viewBox="0 0 25 25"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path
+								d="M12.6367 2.47534C12.5488 2.44116 12.4512 2.44116 12.3584 2.47534L3.10547 5.98608L12.5 9.67749L21.8945 5.98608L12.6367 2.47534ZM2.34375 18.4519C2.34375 18.613 2.44629 18.7595 2.59766 18.8181L11.3281 22.1287V11.738L2.34375 8.20776V18.4519ZM13.6719 22.1287L22.4023 18.8181C22.5537 18.7595 22.6562 18.613 22.6562 18.4519V8.20776L13.6719 11.738V22.1287ZM11.5283 0.287842C12.1533 0.048584 12.8418 0.048584 13.4668 0.287842L23.2324 3.9939C24.2969 4.39429 25 5.40991 25 6.54761V18.4519C25 19.5896 24.2969 20.6052 23.2373 21.0105L13.4717 24.7166C12.8467 24.9558 12.1582 24.9558 11.5332 24.7166L1.76758 21.0105C0.703125 20.6052 0 19.5896 0 18.4519V6.54761C0 5.40991 0.703125 4.39429 1.7627 3.98901L11.5283 0.282959V0.287842Z"
+								fill={svgFillColor}
+							/>
+						</svg>
+					}
+					width="50px"
+				/>
+			</div>
 			<StatItemContent
 				content="installs per month"
-				width="75%"
+				width="150px"
 				fontSize="1.0rem"
 				fontWeight="bold"
 			/>
@@ -116,33 +135,36 @@ const PagesOfDocs: React.FC = () => {
 	const styles = useStyles(isDarkTheme);
 	const svgFillColor = isDarkTheme ? '#E3E3E3' : 'black';
 	return (
-		<div style={{...styles.statItem, width: '30%'}}>
-			<StatItemContent
-				content={
-					<svg
-						width="28"
-						height="41"
-						viewBox="0 0 18 21"
-						fill="none"
-						xmlns="http://www.w3.org/2000/svg"
-					>
-						<path
-							d="M0 3.60938C0 1.61602 1.58304 0 3.53571 0H17.0357H18V0.984375V15.4219V16.4062H17.0357H16.7143V19.0312H17.0357H18V21H17.0357H3.21429C1.43839 21 0 19.5316 0 17.7188C0 17.608 0.00401786 17.4973 0.0160714 17.3906H0V3.60938ZM3.21429 16.4062C2.50312 16.4062 1.92857 16.9928 1.92857 17.7188C1.92857 18.4447 2.50312 19.0312 3.21429 19.0312H14.7857V16.4062H3.21429ZM1.92857 14.7123C2.32232 14.5359 2.75625 14.4375 3.21429 14.4375H16.0714V1.96875H3.53571C2.64777 1.96875 1.92857 2.70293 1.92857 3.60938V14.7123ZM6.10714 4.59375H13.1786H14.1429V6.5625H13.1786H6.10714H5.14286V4.59375H6.10714ZM6.10714 7.875H13.1786H14.1429V9.84375H13.1786H6.10714H5.14286V7.875H6.10714Z"
-							fill={svgFillColor}
-						/>
-					</svg>
-				}
-				width="25%"
-			/>
-			<StatItemContent
-				content="400"
-				width="50%"
-				fontSize="2.5rem"
-				fontWeight="bold"
-			/>
+		<div style={{...styles.statItem, width: '30%', flexDirection: 'column'}}>
+			<div style={{display: 'flex', alignItems: 'center'}}>
+				<StatItemContent
+					content={
+						<svg
+							width="28"
+							height="40"
+							viewBox="0 0 18 21"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path
+								d="M0 3.60938C0 1.61602 1.58304 0 3.53571 0H17.0357H18V0.984375V15.4219V16.4062H17.0357H16.7143V19.0312H17.0357H18V21H17.0357H3.21429C1.43839 21 0 19.5316 0 17.7188C0 17.608 0.00401786 17.4973 0.0160714 17.3906H0V3.60938ZM3.21429 16.4062C2.50312 16.4062 1.92857 16.9928 1.92857 17.7188C1.92857 18.4447 2.50312 19.0312 3.21429 19.0312H14.7857V16.4062H3.21429ZM1.92857 14.7123C2.32232 14.5359 2.75625 14.4375 3.21429 14.4375H16.0714V1.96875H3.53571C2.64777 1.96875 1.92857 2.70293 1.92857 3.60938V14.7123ZM6.10714 4.59375H13.1786H14.1429V6.5625H13.1786H6.10714H5.14286V4.59375H6.10714ZM6.10714 7.875H13.1786H14.1429V9.84375H13.1786H6.10714H5.14286V7.875H6.10714Z"
+								fill={svgFillColor}
+							/>
+						</svg>
+					}
+					width="40px"
+				/>
+				<StatItemContent
+					content="400"
+					width="85px"
+					maxWidth="100px"
+					fontSize="2.5rem"
+					fontWeight="bold"
+				/>
+			</div>
 			<StatItemContent
 				content="pages of docs"
-				width="75%"
+				width="125px"
 				fontSize="1.0rem"
 				fontWeight="bold"
 			/>
@@ -165,14 +187,14 @@ const TemplatesAndExamples: React.FC = () => {
 		>
 			<StatItemContent
 				content="35"
-				width="35%"
-				fontSize="3.0rem"
+				width="60px"
+				fontSize="2.7rem"
 				fontWeight="bold"
 			/>
 			<StatItemContent
 				content="templates & examples"
-				width="65%"
-				fontSize="1.4rem"
+				width="135px"
+				fontSize="1.35rem"
 				fontWeight="bold"
 			/>
 		</div>
@@ -185,33 +207,35 @@ const GitHubStars: React.FC = () => {
 	const svgFillColor = isDarkTheme ? '#E3E3E3' : 'black';
 
 	return (
-		<div style={{...styles.statItem, width: '25%'}}>
-			<StatItemContent
-				content={
-					<svg
-						width="40"
-						height="40"
-						viewBox="0 0 26 24"
-						fill="none"
-						xmlns="http://www.w3.org/2000/svg"
-					>
-						<path
-							d="M12.9951 0C13.4424 0 13.8507 0.24375 14.0451 0.632812L17.3799 7.25625L24.8271 8.31562C25.2646 8.37656 25.6292 8.67188 25.7653 9.07969C25.9014 9.4875 25.7896 9.92812 25.4785 10.2281L20.0778 15.3937L21.3514 22.6875C21.4243 23.1094 21.2444 23.5359 20.8799 23.7891C20.5153 24.0422 20.0389 24.0703 19.65 23.8688L12.9903 20.4375L6.34027 23.8641C5.94652 24.0656 5.47014 24.0375 5.11041 23.7844C4.75069 23.5312 4.56597 23.1047 4.63889 22.6828L5.9125 15.3891L0.511803 10.2281C0.195831 9.92812 0.0888863 9.48281 0.224997 9.07969C0.361108 8.67656 0.725692 8.38125 1.16319 8.31562L8.61041 7.25625L11.9451 0.632812C12.1444 0.24375 12.5479 0 12.9951 0ZM12.9951 3.70312L10.4431 8.775C10.2729 9.10781 9.94722 9.34219 9.56319 9.39844L3.8125 10.2141L7.98819 14.2031C8.25555 14.4609 8.38194 14.8266 8.31875 15.1875L7.33194 20.7984L12.4458 18.1641C12.791 17.9859 13.2042 17.9859 13.5444 18.1641L18.6583 20.7984L17.6764 15.1922C17.6132 14.8313 17.7347 14.4656 18.0069 14.2078L22.1826 10.2188L16.4319 9.39844C16.0528 9.34219 15.7222 9.1125 15.5521 8.775L12.9951 3.70312Z"
-							fill={svgFillColor}
-						/>
-					</svg>
-				}
-				width="25%"
-			/>
-			<StatItemContent
-				content="20k"
-				width="50%"
-				fontSize="2.5rem"
-				fontWeight="bold"
-			/>
+		<div style={{...styles.statItem, width: '25%', flexDirection: 'column'}}>
+			<div style={{display: 'flex', alignItems: 'center'}}>
+				<StatItemContent
+					content={
+						<svg
+							width="40"
+							height="40"
+							viewBox="0 0 26 24"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path
+								d="M12.9951 0C13.4424 0 13.8507 0.24375 14.0451 0.632812L17.3799 7.25625L24.8271 8.31562C25.2646 8.37656 25.6292 8.67188 25.7653 9.07969C25.9014 9.4875 25.7896 9.92812 25.4785 10.2281L20.0778 15.3937L21.3514 22.6875C21.4243 23.1094 21.2444 23.5359 20.8799 23.7891C20.5153 24.0422 20.0389 24.0703 19.65 23.8688L12.9903 20.4375L6.34027 23.8641C5.94652 24.0656 5.47014 24.0375 5.11041 23.7844C4.75069 23.5312 4.56597 23.1047 4.63889 22.6828L5.9125 15.3891L0.511803 10.2281C0.195831 9.92812 0.0888863 9.48281 0.224997 9.07969C0.361108 8.67656 0.725692 8.38125 1.16319 8.31562L8.61041 7.25625L11.9451 0.632812C12.1444 0.24375 12.5479 0 12.9951 0ZM12.9951 3.70312L10.4431 8.775C10.2729 9.10781 9.94722 9.34219 9.56319 9.39844L3.8125 10.2141L7.98819 14.2031C8.25555 14.4609 8.38194 14.8266 8.31875 15.1875L7.33194 20.7984L12.4458 18.1641C12.791 17.9859 13.2042 17.9859 13.5444 18.1641L18.6583 20.7984L17.6764 15.1922C17.6132 14.8313 17.7347 14.4656 18.0069 14.2078L22.1826 10.2188L16.4319 9.39844C16.0528 9.34219 15.7222 9.1125 15.5521 8.775L12.9951 3.70312Z"
+								fill={svgFillColor}
+							/>
+						</svg>
+					}
+					width="45px"
+				/>
+				<StatItemContent
+					content="20k"
+					width="80px"
+					fontSize="2.5rem"
+					fontWeight="bold"
+				/>
+			</div>
 			<StatItemContent
 				content="GitHub stars"
-				width="75%"
+				width="125px"
 				fontSize="1.0rem"
 				fontWeight="bold"
 			/>
@@ -225,13 +249,13 @@ const DiscordMembers: React.FC = () => {
 	const svgFillColor = isDarkTheme ? '#E3E3E3' : 'black';
 
 	return (
-		<div style={{...styles.statItem, width: '37%'}}>
+		<div style={{...styles.statItem, width: '150px'}}>
 			<div
 				style={{
+					width: '80%',
 					display: 'flex',
-					justifyContent: 'center',
 					alignItems: 'center',
-					width: '100%',
+					justifyContent: 'center',
 				}}
 			>
 				<div
@@ -239,35 +263,33 @@ const DiscordMembers: React.FC = () => {
 						display: 'flex',
 						flexDirection: 'column',
 						alignItems: 'center',
-						width: '70%',
+						justifyContent: 'center',
 					}}
 				>
 					<StatItemContent
 						content="4000"
-						width="100%"
+						width="139px"
 						fontSize="2.5rem"
 						fontWeight="bold"
 					/>
 					<StatItemContent
 						content="Discord members"
-						width="100%"
-						fontSize="1.0rem"
+						width="139px"
+						fontSize="1rem"
 						fontWeight="bold"
 					/>
 				</div>
 				<div
 					style={{
-						width: '30%',
 						display: 'flex',
 						justifyContent: 'center',
-						alignItems: 'center',
 					}}
 				>
 					<StatItemContent
 						content={
 							<svg
-								width="51"
-								height="39"
+								width="61"
+								height="47"
 								viewBox="0 0 46 35"
 								fill="none"
 								xmlns="http://www.w3.org/2000/svg"
@@ -278,7 +300,7 @@ const DiscordMembers: React.FC = () => {
 								/>
 							</svg>
 						}
-						width="100%"
+						width="45px"
 					/>
 				</div>
 			</div>
@@ -309,7 +331,6 @@ const Contributors: React.FC = () => {
 			>
 				<div
 					style={{
-						width: '30%',
 						display: 'flex',
 						justifyContent: 'center',
 					}}
@@ -329,7 +350,7 @@ const Contributors: React.FC = () => {
 								/>
 							</svg>
 						}
-						width="150%"
+						width="65px"
 					/>
 				</div>
 				<div
@@ -337,19 +358,18 @@ const Contributors: React.FC = () => {
 						display: 'flex',
 						flexDirection: 'column',
 						alignItems: 'center',
-						width: '75%',
 						justifyContent: 'center',
 					}}
 				>
 					<StatItemContent
 						content="200"
-						width="90%"
+						width="100px"
 						fontSize="2.5rem"
 						fontWeight="bold"
 					/>
 					<StatItemContent
 						content="contributors"
-						width="90%"
+						width="100px"
 						fontSize="1.0rem"
 						fontWeight="bold"
 					/>
