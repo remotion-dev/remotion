@@ -4,8 +4,6 @@
 	justify-content: center;
 	gap: 20px;
 	margin: 40px 0;
-	max-width: 1200px; /* Adjust this value based on the homepage's max-width */
-	width: 100%; /* Use the full width */
 }
 
 .card {
@@ -87,6 +85,7 @@
 	background-size: cover; /* Ensure the image covers the avatar area */
 	background-position: center; /* Center the image within the avatar */
 	margin-left: -20px; /* Negative margin to create overlap. Adjust as needed */
+	border: 1px solid #000; /* Fine solid line around the avatars */
 }
 
 .avatars {
@@ -104,5 +103,11 @@
 	.card {
 		width: 90%;
 		max-width: none; /* Allow cards to use the adjusted width on smaller screens */
+	}
+}
+
+@media screen and (max-width: 440px) {
+	.avatars {
+		display: none; /* Hide avatars when the screen width is 450px or less */
 	}
 }
