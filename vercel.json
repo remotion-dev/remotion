@@ -341,6 +341,11 @@
 			"source": "/bbb.mp4",
 			"destination": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
 			"permanent": false
+		},
+		{
+			"source": "/leads",
+			"destination": "https://github.com/orgs/remotion-dev/projects/15/views/1",
+			"permanent": false
 		}
 	]
 }
