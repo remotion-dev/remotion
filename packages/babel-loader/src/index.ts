@@ -28,7 +28,7 @@ export const replaceLoadersWithBabel = (
 				}
 
 				// All modules that use require.resolve need to be added to cli/src/load-config -> external array
-				if (rule.test?.toString().includes('.tsx')) {
+				if (rule && rule.test?.toString().includes('.tsx')) {
 					return {
 						test: /\.tsx?$/,
 						use: [
@@ -64,7 +64,7 @@ export const replaceLoadersWithBabel = (
 					};
 				}
 
-				if (rule.test?.toString().includes('.jsx')) {
+				if (rule && rule.test?.toString().includes('.jsx')) {
 					return {
 						test: /\.jsx?$/,
 						loader: require.resolve('babel-loader'),
