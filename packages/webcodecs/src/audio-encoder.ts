@@ -1,4 +1,4 @@
-import {encoderWaitForDequeue} from './wait-for-dequeue';
+import {encoderWaitForDequeue, encoderWaitForFinish} from './wait-for-dequeue';
 
 export const createAudioEncoder = async ({
 	onChunk,
@@ -52,6 +52,9 @@ export const createAudioEncoder = async ({
 		encodeFrame: (audioData: AudioData) => {
 			queue = queue.then(() => encodeFrame(audioData));
 			return queue;
+		},
+		waitForFinish: async () => {
+			await encoderWaitForFinish(encoder);
 		},
 	};
 };

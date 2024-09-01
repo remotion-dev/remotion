@@ -1,5 +1,5 @@
 import type {AudioSample, AudioTrack} from '@remotion/media-parser';
-import {decoderWaitForDequeue} from './wait-for-dequeue';
+import {decoderWaitForDequeue, decoderWaitForFinish} from './wait-for-dequeue';
 
 export const createAudioDecoder = async ({
 	track,
@@ -50,6 +50,9 @@ export const createAudioDecoder = async ({
 		processSample: (sample: AudioSample) => {
 			queue = queue.then(() => processSample(sample));
 			return queue;
+		},
+		waitForFinish: async () => {
+			await decoderWaitForFinish(audioDecoder);
 		},
 	};
 };

@@ -11,25 +11,43 @@ export const decoderWaitForDequeue = async (
 	}
 };
 
-// TODO: This is weird
+export const decoderWaitForFinish = async (
+	videoDecoder: VideoDecoder | AudioDecoder,
+) => {
+	while (videoDecoder.decodeQueueSize > 0) {
+		await new Promise<void>((r) => {
+			// @ts-expect-error exists
+			videoDecoder.addEventListener('dequeue', () => r(), {
+				once: true,
+			});
+		});
+	}
+};
+
 // Queue goes way higher but this will eat more memory right?
 // But if not done this way, quality is worse
 export const encoderWaitForDequeue = async (
 	videoEncoder: VideoEncoder | AudioEncoder,
 ) => {
-	if (videoEncoder.encodeQueueSize > 10) {
-		let resolve = () => {};
-
-		const cb = () => {
-			resolve();
-		};
-
+	while (videoEncoder.encodeQueueSize > 10) {
 		await new Promise<void>((r) => {
-			resolve = r;
 			// @ts-expect-error exists
-			videoEncoder.addEventListener('dequeue', cb);
+			videoEncoder.addEventListener('dequeue', () => r(), {
+				once: true,
+			});
 		});
-		// @ts-expect-error exists
-		videoEncoder.removeEventListener('dequeue', cb);
+	}
+};
+
+export const encoderWaitForFinish = async (
+	videoEncoder: VideoEncoder | AudioEncoder,
+) => {
+	while (videoEncoder.encodeQueueSize > 0) {
+		await new Promise<void>((r) => {
+			// @ts-expect-error exists
+			videoEncoder.addEventListener('dequeue', () => r(), {
+				once: true,
+			});
+		});
 	}
 };

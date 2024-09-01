@@ -1,5 +1,5 @@
 import {getVideoEncoderConfigWithHardwareAcceleration} from './get-config';
-import {encoderWaitForDequeue} from './wait-for-dequeue';
+import {encoderWaitForDequeue, encoderWaitForFinish} from './wait-for-dequeue';
 
 export const createVideoEncoder = async ({
 	width,
@@ -55,6 +55,9 @@ export const createVideoEncoder = async ({
 		encodeFrame: (frame: VideoFrame) => {
 			queue = queue.then(() => encodeFrame(frame));
 			return queue;
+		},
+		waitForFinish: async () => {
+			await encoderWaitForFinish(encoder);
 		},
 	};
 };

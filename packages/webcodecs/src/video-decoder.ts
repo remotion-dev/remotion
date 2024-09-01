@@ -1,6 +1,6 @@
 import type {VideoSample, VideoTrack} from '@remotion/media-parser';
 import {getVideoDecoderConfigWithHardwareAcceleration} from './get-config';
-import {decoderWaitForDequeue} from './wait-for-dequeue';
+import {decoderWaitForDequeue, decoderWaitForFinish} from './wait-for-dequeue';
 
 export const createVideoDecoder = async ({
 	track,
@@ -49,6 +49,9 @@ export const createVideoDecoder = async ({
 		processSample: (sample: VideoSample) => {
 			queue = queue.then(() => processSample(sample));
 			return queue;
+		},
+		waitForFinish: async () => {
+			await decoderWaitForFinish(videoDecoder);
 		},
 	};
 };

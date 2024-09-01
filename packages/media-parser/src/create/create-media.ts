@@ -31,6 +31,8 @@ export type MediaFn = {
 			| Omit<MakeTrackAudio, 'trackNumber'>
 			| Omit<MakeTrackVideo, 'trackNumber'>,
 	) => Promise<{trackNumber: number}>;
+	addWaitForFinishPromise: (promise: () => Promise<void>) => void;
+	waitForFinish: () => Promise<void>;
 };
 
 export const createMedia = async (
@@ -132,6 +134,8 @@ export const createMedia = async (
 
 	let operationProm = Promise.resolve();
 
+	const waitForFinishPromises: (() => Promise<void>)[] = [];
+
 	return {
 		save: async () => {
 			await w.save();
@@ -155,6 +159,12 @@ export const createMedia = async (
 			operationProm = operationProm.then(() => addTrack(bytes));
 
 			return operationProm.then(() => ({trackNumber}));
+		},
+		addWaitForFinishPromise: (promise) => {
+			waitForFinishPromises.push(promise);
+		},
+		async waitForFinish() {
+			await Promise.all(waitForFinishPromises.map((p) => p()));
 		},
 	};
 };
