@@ -247,10 +247,7 @@ export function serializeUint16(value: number): Uint8Array {
 
 	const view = new DataView(buffer);
 
-	view.setUint16(0, value); // Using little-endian as an example
+	view.setUint16(0, value);
 
-	// Create a Uint8Array from the ArrayBuffer
-	const result = new Uint8Array(buffer);
-
-	return result;
+	return new Uint8Array(buffer);
 }
