@@ -61,7 +61,7 @@ The [AWS region](/docs/lambda/region-selection) to select. Both project and func
 
 ### `--props`
 
-[Input Props to pass to the selected composition of your video.](/docs/parameterized-rendering#passing-input-props-in-the-cli).  
+[Input Props to pass to the selected composition of your video.](/docs/passing-props#passing-input-props-in-the-cli).  
 Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`).  
 From the root component the props can be read using [`getInputProps()`](/docs/get-input-props).  
 You may transform input props using [`calculateMetadata()`](/docs/calculate-metadata).
@@ -117,3 +117,7 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 ### `--delete-after`<AvailableFrom v="4.0.32"/>
 
 <Options id="delete-after" cli/>
+
+### `--force-path-style`<AvailableFrom v="4.0.202" />
+
+Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.

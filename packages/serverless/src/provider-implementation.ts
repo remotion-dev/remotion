@@ -10,14 +10,16 @@ export type BucketWithLocation<Provider extends CloudProvider> = {
 	region: Provider['region'];
 };
 
-type GetBuckets<Provider extends CloudProvider> = (
-	region: Provider['region'],
-	forceBucketName?: string,
-) => Promise<BucketWithLocation<Provider>[]>;
+type GetBuckets<Provider extends CloudProvider> = (options: {
+	region: Provider['region'];
+	forceBucketName: string | null;
+	forcePathStyle: boolean;
+}) => Promise<BucketWithLocation<Provider>[]>;
 
 type CreateBucket<Provider extends CloudProvider> = (params: {
 	region: Provider['region'];
 	bucketName: string;
+	forcePathStyle: boolean;
 }) => Promise<void>;
 
 type ApplyLifeCycle<Provider extends CloudProvider> = (params: {
@@ -25,6 +27,7 @@ type ApplyLifeCycle<Provider extends CloudProvider> = (params: {
 	bucketName: string;
 	region: Provider['region'];
 	customCredentials: CustomCredentials<Provider> | null;
+	forcePathStyle: boolean;
 }) => Promise<void>;
 
 type BucketObject = {
@@ -39,6 +42,7 @@ type ListObjects<Provider extends CloudProvider> = (params: {
 	prefix: string;
 	region: Provider['region'];
 	expectedBucketOwner: string | null;
+	forcePathStyle: boolean;
 	continuationToken?: string;
 }) => Promise<BucketObject[]>;
 
@@ -47,12 +51,14 @@ type DeleteFile<Provider extends CloudProvider> = (params: {
 	key: string;
 	region: Provider['region'];
 	customCredentials: CustomCredentials<Provider> | null;
+	forcePathStyle: boolean;
 }) => Promise<void>;
 
 type BucketExists<Provider extends CloudProvider> = (params: {
 	bucketName: string;
 	region: Provider['region'];
 	expectedBucketOwner: string | null;
+	forcePathStyle: boolean;
 }) => Promise<boolean>;
 
 type ReadFile<Provider extends CloudProvider> = (params: {
@@ -60,6 +66,7 @@ type ReadFile<Provider extends CloudProvider> = (params: {
 	key: string;
 	region: Provider['region'];
 	expectedBucketOwner: string;
+	forcePathStyle: boolean;
 }) => Promise<Readable>;
 
 export type WriteFileInput<Provider extends CloudProvider> = {
@@ -71,6 +78,7 @@ export type WriteFileInput<Provider extends CloudProvider> = {
 	expectedBucketOwner: string | null;
 	downloadBehavior: DownloadBehavior | null;
 	customCredentials: CustomCredentials<Provider> | null;
+	forcePathStyle: boolean;
 };
 
 type WriteFile<Provider extends CloudProvider> = (
@@ -82,6 +90,7 @@ type HeadFileInput<Provider extends CloudProvider> = {
 	key: string;
 	region: Provider['region'];
 	customCredentials: CustomCredentials<Provider> | null;
+	forcePathStyle: boolean;
 };
 
 type HeadFileOutput = {

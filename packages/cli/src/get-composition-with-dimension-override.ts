@@ -31,7 +31,7 @@ export const getCompositionWithDimensionOverride = async ({
 }: {
 	height: number | null;
 	width: number | null;
-	args: string[];
+	args: (string | number)[];
 	compositionIdFromUi: string | null;
 	timeoutInMilliseconds: number;
 	puppeteerInstance: HeadlessBrowser | undefined;
@@ -51,7 +51,7 @@ export const getCompositionWithDimensionOverride = async ({
 	compositionId: string;
 	reason: string;
 	config: VideoConfig;
-	argsAfterComposition: string[];
+	argsAfterComposition: (string | number)[];
 }> => {
 	const returnValue = await getCompositionId({
 		args,

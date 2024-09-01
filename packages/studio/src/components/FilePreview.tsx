@@ -15,10 +15,10 @@ const msgStyle: React.CSSProperties = {
 };
 
 export const FilePreview: React.FC<{
-	src: string;
-	fileType: AssetFileType;
-	currentAsset: string;
-	assetMetadata: AssetMetadata | null;
+	readonly src: string;
+	readonly fileType: AssetFileType;
+	readonly currentAsset: string;
+	readonly assetMetadata: AssetMetadata | null;
 }> = ({fileType, src, currentAsset, assetMetadata}) => {
 	if (!assetMetadata) {
 		throw new Error('expected to have assetMetadata');

@@ -1,5 +1,6 @@
 import type {BufferIterator} from '../../../buffer-iterator';
 import type {AnySegment} from '../../../parse-result';
+import type {ParserContext} from '../../../parser-context';
 import type {BaseBox} from '../base-type';
 import {parseBoxes} from '../process-box';
 
@@ -8,20 +9,25 @@ export interface MoovBox extends BaseBox {
 	children: AnySegment[];
 }
 
-export const parseMoov = ({
+export const parseMoov = async ({
 	iterator,
 	offset,
 	size,
+	options,
 }: {
 	iterator: BufferIterator;
 	offset: number;
 	size: number;
-}): MoovBox => {
-	const children = parseBoxes({
+	options: ParserContext;
+}): Promise<MoovBox> => {
+	const children = await parseBoxes({
 		iterator,
 		maxBytes: size - (iterator.counter.getOffset() - offset),
 		allowIncompleteBoxes: false,
 		initialBoxes: [],
+		options,
+		continueMdat: false,
+		littleEndian: false,
 	});
 
 	if (children.status === 'incomplete') {

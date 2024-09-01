@@ -12,10 +12,17 @@ description: Introducing visual editing, Rust-powered architecture, and the Rend
 Welcome to the biggest Remotion update ever!  
 With Remotion 4.0, we offer significant improvements to every workflow.
 
-<iframe style={{
-  width: '100%',
-  aspectRatio: '16 / 9'
-}} src="https://www.youtube.com/embed/S3C9wlPNhkQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe
+  style={{
+    width: '100%',
+    aspectRatio: '16 / 9',
+  }}
+  src="https://www.youtube.com/embed/S3C9wlPNhkQ"
+  title="YouTube video player"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowfullscreen
+></iframe>
 
 <br />
 <br />
@@ -92,11 +99,13 @@ There are plenty of ways you can render stills: the new [Render button](/docs/re
 
 ## Easier data-driven videos
 
-We are introducing a new [`calculateMetadata()`](/docs/composition#composition) API for the `<Composition>` component. It helps if you want to:
+We are introducing a new [`calculateMetadata()`](/docs/composition#calculatemetadata) API for the `<Composition>` component. It helps if you want to:
 
-<Step>1</Step> Adjust the duration or resolution based on the props of the React component <br/>
-<Step>2</Step> Perform data fetching before the video renders <br/>
-<Step>3</Step> Precalculate props before mounting the React component <br/><br/>
+<Step>1</Step> Adjust the duration or resolution based on the props of the React
+component <br />
+<Step>2</Step> Perform data fetching before the video renders <br />
+<Step>3</Step> Precalculate props before mounting the React component <br />
+<br />
 
 To demonstrate the possibilities of the new API, we made a new section in the docs entirely dedicated to data-driven videos. See: [Parameterized rendering](/docs/parameterized-rendering).
 

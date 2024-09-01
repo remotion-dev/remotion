@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/example",
 	"private": true,
-	"version": "4.0.191",
+	"version": "4.0.206",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"author": "Jonny Burger",
 	"main": "dist/index.js",
@@ -32,6 +32,7 @@
 		"@react-three/fiber": "8.13.5",
 		"@remotion/animated-emoji": "workspace:*",
 		"@remotion/babel-loader": "workspace:*",
+		"@remotion/webcodecs": "workspace:*",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/cli": "workspace:*",
 		"@remotion/cloudrun": "workspace:*",
@@ -91,7 +92,8 @@
 	},
 	"devDependencies": {
 		"prettier-plugin-organize-imports": "3.2.4",
-		"sharp": "0.32.6"
+		"sharp": "0.32.6",
+		"@types/dom-webcodecs": "0.1.11"
 	},
 	"publishConfig": {
 		"access": "public"

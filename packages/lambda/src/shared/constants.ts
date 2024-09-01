@@ -8,6 +8,7 @@ import {
 	type Privacy,
 	type RenderMetadata,
 } from '@remotion/serverless/client';
+import {NoReactInternals} from 'remotion/no-react';
 import type {AwsProvider} from '../functions/aws-implementation';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import type {AwsRegion} from '../regions';
@@ -31,9 +32,12 @@ export const DEFAULT_MAX_RETRIES = 1;
 
 export const MAX_FUNCTIONS_PER_RENDER = 200;
 
-export const DEFAULT_EPHEMERAL_STORAGE_IN_MB = 2048;
-export const MIN_EPHEMERAL_STORAGE_IN_MB = 512;
 export const MAX_EPHEMERAL_STORAGE_IN_MB = 10240;
+export const DEFAULT_EPHEMERAL_STORAGE_IN_MB =
+	NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+		? MAX_EPHEMERAL_STORAGE_IN_MB
+		: 2048;
+export const MIN_EPHEMERAL_STORAGE_IN_MB = 512;
 
 export const DEFAULT_OUTPUT_PRIVACY: Privacy = 'public';
 

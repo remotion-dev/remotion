@@ -320,6 +320,7 @@ export const renderCommand = async (
 		x264Preset: x264Preset ?? null,
 		preferLossless,
 		indent: false,
+		forcePathStyle: parsedLambdaCli['force-path-style'] ?? false,
 	});
 
 	const progressBar = CliInternals.createOverwriteableCliOutput({
@@ -467,6 +468,7 @@ export const renderCommand = async (
 						);
 					},
 					providerSpecifics: implementation,
+					forcePathStyle: parsedLambdaCli['force-path-style'],
 				});
 				downloadOrNothing = download;
 				progressBar.update(
@@ -570,6 +572,7 @@ export const renderCommand = async (
 					name: err.name,
 					stack: err.stack,
 					stackFrame: frames,
+					chunk: err.chunk,
 				});
 				await CliInternals.printError(errorWithStackFrame, logLevel);
 			}

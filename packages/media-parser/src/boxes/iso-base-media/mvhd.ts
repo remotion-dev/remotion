@@ -38,28 +38,24 @@ export const parseMvhd = ({
 	size: number;
 }): MvhdBox => {
 	const version = iterator.getUint8();
-	if (version !== 0) {
-		throw new Error(`Unsupported MVHD version ${version}`);
-	}
-
-	if (size !== 108) {
-		throw new Error(`Expected mvhd size of version 0 to be 108, got ${size}`);
-	}
 
 	// Flags, we discard them
 	iterator.discard(3);
 
-	const creationTime = iterator.getUint32();
+	const creationTime =
+		version === 1 ? iterator.getUint64() : iterator.getUint32();
 
-	const modificationTime = iterator.getUint32();
+	const modificationTime =
+		version === 1 ? iterator.getUint64() : iterator.getUint32();
 
 	const timeScale = iterator.getUint32();
 
-	const durationInUnits = iterator.getUint32();
-	const durationInSeconds = durationInUnits / timeScale;
+	const durationInUnits =
+		version === 1 ? iterator.getUint64() : iterator.getUint32();
+	const durationInSeconds = Number(durationInUnits) / timeScale;
 
 	const rateArray = iterator.getSlice(4);
-	const rateView = getArrayBufferIterator(rateArray);
+	const rateView = getArrayBufferIterator(rateArray, rateArray.length);
 	const rate =
 		rateView.getInt8() * 10 +
 		rateView.getInt8() +
@@ -67,7 +63,7 @@ export const parseMvhd = ({
 		rateView.getInt8() * 0.01;
 
 	const volumeArray = iterator.getSlice(2);
-	const volumeView = getArrayBufferIterator(volumeArray);
+	const volumeView = getArrayBufferIterator(volumeArray, volumeArray.length);
 
 	const volume = volumeView.getInt8() + volumeView.getInt8() * 0.1;
 
@@ -81,7 +77,11 @@ export const parseMvhd = ({
 	// matrix
 	const matrix: number[] = [];
 	for (let i = 0; i < 9; i++) {
-		matrix.push(iterator.getUint32());
+		if (i % 3 === 2) {
+			matrix.push(iterator.getFixedPointSigned230Number());
+		} else {
+			matrix.push(iterator.getFixedPointSigned1616Number());
+		}
 	}
 
 	// pre-defined
@@ -90,11 +90,18 @@ export const parseMvhd = ({
 	// next track id
 	const nextTrackId = iterator.getUint32();
 
+	volumeView.destroy();
+
+	const bytesRemaining = size - (iterator.counter.getOffset() - offset);
+	if (bytesRemaining !== 0) {
+		throw new Error('expected 0 bytes ' + bytesRemaining);
+	}
+
 	return {
-		creationTime: toUnixTimestamp(creationTime),
-		modificationTime: toUnixTimestamp(modificationTime),
+		creationTime: toUnixTimestamp(Number(creationTime)),
+		modificationTime: toUnixTimestamp(Number(modificationTime)),
 		timeScale,
-		durationInUnits,
+		durationInUnits: Number(durationInUnits),
 		durationInSeconds,
 		rate,
 		volume,

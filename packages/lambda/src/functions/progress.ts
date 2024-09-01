@@ -42,6 +42,7 @@ export const progressHandler = async <Provider extends CloudProvider>(
 			timeoutInMilliseconds: options.timeoutInMilliseconds,
 			customCredentials: lambdaParams.s3OutputProvider ?? null,
 			providerSpecifics: options.providerSpecifics,
+			forcePathStyle: lambdaParams.forcePathStyle,
 		});
 		return progress;
 	} catch (err) {

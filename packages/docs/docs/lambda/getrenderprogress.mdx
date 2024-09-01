@@ -52,11 +52,14 @@ The region in which the Lambda function is located in.
 
 The name of the function that triggered the render.
 
-### `customCredentials`
-
-_optional, available from v3.2.23_
+### `customCredentials?`<AvailableFrom v="3.2.23" />
 
 If the render is going to be saved to a [different cloud](/docs/lambda/custom-destination#saving-to-another-cloud), pass an object with the same `endpoint`, `accessKeyId` and `secretAccessKey` as you passed to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#outname) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#outname).
+
+### `forcePathStyle?`<AvailableFrom v="4.0.202" />
+
+Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.
+
 
 ## Response
 
@@ -166,7 +169,7 @@ If the render is in progress, this is `null`. If the render is done, it is an ar
 
 ### `artifacts`<AvailableFrom v="4.0.176"/>
 
-Artifacts that were created so far during the render. [See here for an example of dealing with field.](/docs/artifacts#using-rendermediaonlambda)
+Artifacts that were created so far during the render. [See here for an example of dealing with field.](/docs/artifacts#using-rendermedia-renderstill-or-renderframes)
 
 ## See also
 

@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/media-parser"
 	},
 	"name": "@remotion/media-parser",
-	"version": "4.0.191",
+	"version": "4.0.206",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
@@ -24,12 +24,20 @@
 	"exports": {
 		".": "./dist/index.js",
 		"./node": "./dist/from-node.js",
+		"./fetch": "./dist/from-fetch.js",
+		"./web-file": "./dist/from-web-file.js",
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
 		">=1.0": {
 			"node": [
 				"dist/from-node.d.ts"
+			],
+			"fetch": [
+				"dist/from-fetch.d.ts"
+			],
+			"web-file": [
+				"dist/from-web-file.d.ts"
 			]
 		}
 	},

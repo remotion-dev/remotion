@@ -1,13 +1,14 @@
 {
 	"name": "cloud-run-render",
-	"version": "4.0.191",
+	"version": "4.0.206",
 	"description": "Render media and stills on GCP Cloud Run",
 	"main": "dist/index.js",
 	"scripts": {
 		"start": "functions-framework --target=renderOnCloudRun"
 	},
 	"dependencies": {
-		"@google-cloud/functions-framework": "^3.1.3"
+		"@google-cloud/functions-framework": "^3.1.3",
+		"@puppeteer/browsers": "^2.3.0"
 	},
 	"private": true
 }

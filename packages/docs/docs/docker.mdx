@@ -11,8 +11,21 @@ We recommend the following structure for your Dockerfile. Read below about the i
 ```docker title="Dockerfile"
 FROM node:20-bookworm
 
+# Install Chrome dependencies
 RUN apt-get update
-RUN apt-get install -y chromium
+RUN apt install -y \
+  libnss3 \
+  libdbus-1-3 \
+  libatk1.0-0 \
+  libgbm-dev \
+  libasound2 \
+  libxrandr2 \
+  libxkbcommon-dev \
+  libxfixes3 \
+  libxcomposite1 \
+  libxdamage1 \
+  libatk-bridge2.0-0 \
+  libcups2
 
 # Copy everything from your project to the Docker image. Adjust if needed.
 COPY package.json package*.json yarn.lock* pnpm-lock.yaml* bun.lockb* tsconfig.json* remotion.config.* ./
@@ -23,6 +36,9 @@ COPY public ./public
 
 # Install the right package manager and dependencies - see below for Yarn/PNPM
 RUN npm i
+
+# Install Chrome
+RUN npx remotion browser ensure
 
 # Run your application
 COPY render.mjs render.mjs
@@ -45,28 +61,33 @@ This Dockerfile is unable to render WebGL content. Suggestions on how to improve
 </p>
 
 ```docker
-FROM debian:bookworm
+FROM node:20-bookworm
 ```
 
 <p>
-  <Step>2</Step> Update the package lists on the Debian system.
+  <Step>2</Step> Update the package lists on the Debian system and install the needed [shared libraries](/docs/miscellaneous/linux-dependencies) for Chrome Headless Shell.
 </p>
 
 ```docker
 RUN apt-get update
+RUN apt install -y \
+  libnss3 \
+  libdbus-1-3 \
+  libatk1.0-0 \
+  libgbm-dev \
+  libasound2 \
+  libxrandr2 \
+  libxkbcommon-dev \
+  libxfixes3 \
+  libxcomposite1 \
+  libxdamage1 \
+  libatk-bridge2.0-0 \
+  libcups2
 ```
 
-<p>
-  <Step>3</Step> Download Remotion's dependencies: Node.JS (with NPM) and
-  Chromium.
-</p>
-
-```docker
-RUN apt-get install -y nodejs npm chromium
-```
 
 <p>
-  <Step>4</Step> Copy the files from your project. If you have additional source
+  <Step>3</Step> Copy the files from your project. If you have additional source
   files, add them here. If some files do not exist, remove them. The{" "}
   <code>COPY</code> syntax allows multiple files, but at least one file must
   exist. It is assumed <code>package.json</code>, <code>src</code> and{" "}
@@ -81,7 +102,7 @@ COPY public ./public
 ```
 
 <p>
-  <Step>5</Step> Install the right package manager and dependencies.
+  <Step>4</Step> Install the right package manager and dependencies.
 </p>
 
 - If you use NPM, put the following in your Dockerfile:
@@ -101,6 +122,14 @@ COPY public ./public
   RUN corepack enable
   RUN yarn
   ```
+
+<p>
+  <Step>5</Step> Install [Chrome Headless Shell](/docs/miscellaneous/chrome-headless-shell).
+</p>
+
+```docker
+RUN npx remotion browser ensure
+```
 
 <p>
   <Step>6</Step> Run your code. It can be a CLI command or a Node.JS app.

@@ -24,6 +24,7 @@ export type GetCompositionsOnLambdaInput = {
 	 * @deprecated in favor of `logLevel`: true
 	 */
 	dumpBrowserLogs?: boolean;
+	forcePathStyle?: boolean;
 } & Partial<
 	ToOptions<typeof BrowserSafeApis.optionsMap.getCompositionsOnLambda>
 >;
@@ -55,6 +56,7 @@ export const getCompositionsOnLambda = async ({
 	forceBucketName: bucketName,
 	dumpBrowserLogs,
 	offthreadVideoCacheSizeInBytes,
+	forcePathStyle,
 }: GetCompositionsOnLambdaInput): Promise<GetCompositionsOnLambdaOutput> => {
 	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
 
@@ -65,8 +67,10 @@ export const getCompositionsOnLambda = async ({
 		propsType: 'input-props',
 		needsToUpload: getNeedsToUpload('video-or-audio', [
 			stringifiedInputProps.length,
+			JSON.stringify(envVariables).length,
 		]),
 		providerSpecifics: awsImplementation,
+		forcePathStyle: forcePathStyle ?? false,
 	});
 
 	try {
@@ -83,6 +87,7 @@ export const getCompositionsOnLambda = async ({
 				version: VERSION,
 				bucketName: bucketName ?? null,
 				offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+				forcePathStyle: forcePathStyle ?? false,
 			},
 			region,
 			timeoutInTest: 120000,

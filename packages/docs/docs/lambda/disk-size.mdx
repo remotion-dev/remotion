@@ -5,21 +5,28 @@ title: Disk size
 crumb: "Lambda"
 ---
 
-By default, each Lambda function comes with an ephemereal disk size of 2048MB. This is enough storage to render a video of approximately 32 minutes of Full HD video.
+By default, each Lambda function comes with an ephemereal disk size of:
 
-If you want to render longer videos, you can increase the disk size, and [potentially also increase the timeout](/docs/timeout).
+| Remotion Version | Default       |
+|------------------|---------------|
+| &lt;5.0.0        | 2048MB        |
+| &gt;=5.0.0       | 10240MB       |
 
-Disk space need increases linearly with the length of your video, meaning that for each 8 minutes of Full HD video, you approximately need another 512MB of video.
+Increasing disk space will allow for longer videos, and speeds up renders because Chrome has access to more disk cache.  
+Disk.  
 
-The minimum disk size is 512MB, and the maximum disk size is 10240MB.
+Adding more disk space will almost not affect the cost of your renders at all (less than 1% more cost).  
+Therefore we recommend setting the disk size to the maximum possible value: 10240MB.
 
-The approximate maximum video duration length is therefore around ~160 minutes at Full HD (not yet practically confirmed).
+## Approximate maximum video length
+
+Note that we recommend setting the disk size to the maximum possible value: 10240MB.
 
 | Disk size         | Approximate Maximum video length |
 | ----------------- | -------------------------------- |
 | 512 MB            | 8 min - 1080p                    |
 | 1024 MB           | 16 min - 1080p                   |
-| 2048 MB (default) | 32 min - 1080p                   |
+| 2048 MB           | 32 min - 1080p                   |
 | 4096 MB           | 1h 4min - 1080p                  |
 | 8192 MB           | 2h 8min - 1080p                  |
 | 10240 MB          | 2h 40min - 1080p                 |
@@ -33,5 +40,7 @@ The approximate maximum video duration length is therefore around ~160 minutes a
 
 ## Pricing
 
-Using more disk space costs more. See the [Lambda pricing page](https://aws.amazon.com/lambda/pricing/) "Lambda Ephemereal Storage Pricing" section for pricing.  
+Using more disk space costs marginally more.  
+Setting the disk size to the maximum possible value: 10240MB will cost less than 1% more.  
+See the [Lambda pricing page](https://aws.amazon.com/lambda/pricing/) "Lambda Ephemereal Storage Pricing" section for pricing.  
 The [`estimatePrice()`](/docs/lambda/estimateprice) API does also factor disk size into account.

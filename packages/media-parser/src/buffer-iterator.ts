@@ -1,3 +1,10 @@
+import {webmPattern} from './boxes/webm/make-header';
+import {
+	knownIdsWithOneLength,
+	knownIdsWithThreeLength,
+	knownIdsWithTwoLength,
+} from './boxes/webm/segments/all-segments';
+
 export class OffsetCounter {
 	#offset: number;
 	#discardedBytes: number;
@@ -22,6 +29,10 @@ export class OffsetCounter {
 		return this.#offset - this.#discardedBytes;
 	}
 
+	setDiscardedOffset(offset: number) {
+		this.#discardedBytes = offset;
+	}
+
 	discardBytes(amount: number) {
 		this.#discardedBytes += amount;
 	}
@@ -36,7 +47,8 @@ export class OffsetCounter {
 }
 
 const isoBaseMediaMp4Pattern = new TextEncoder().encode('ftyp');
-const webmPattern = new Uint8Array([0x1a, 0x45, 0xdf, 0xa3]);
+const mpegPattern = new Uint8Array([0xff, 0xf3, 0xe4, 0x64]);
+const riffPattern = new Uint8Array([0x52, 0x49, 0x46, 0x46]);
 
 const matchesPattern = (pattern: Uint8Array) => {
 	return (data: Uint8Array) => {
@@ -48,8 +60,25 @@ const makeOffsetCounter = (): OffsetCounter => {
 	return new OffsetCounter(0);
 };
 
-export const getArrayBufferIterator = (initialData: Uint8Array) => {
-	let data = initialData;
+export const getArrayBufferIterator = (
+	initialData: Uint8Array,
+	maxBytes: number | null,
+) => {
+	const buf = new ArrayBuffer(initialData.byteLength, {
+		maxByteLength:
+			maxBytes === null
+				? initialData.byteLength
+				: Math.min(maxBytes as number, 2 ** 32),
+	});
+	if (!buf.resize) {
+		throw new Error(
+			'`ArrayBuffer.resize` is not supported in this Runtime. On the server: Use at least Node.js 20 or Bun. In the browser: Chrome 111, Edge 111, Safari 16.4, Firefox 128, Opera 111',
+		);
+	}
+
+	let data = new Uint8Array(buf);
+	data.set(initialData);
+
 	let view = new DataView(data.buffer);
 	const counter = makeOffsetCounter();
 
@@ -70,24 +99,111 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 		return val;
 	};
 
-	const getFourByteNumber = () => {
+	const getEightByteNumber = (littleEndian = false) => {
+		if (littleEndian) {
+			const one = getUint8();
+			const two = getUint8();
+			const three = getUint8();
+			const four = getUint8();
+			const five = getUint8();
+			const six = getUint8();
+			const seven = getUint8();
+			const eight = getUint8();
+
+			return (
+				(eight << 56) |
+				(seven << 48) |
+				(six << 40) |
+				(five << 32) |
+				(four << 24) |
+				(three << 16) |
+				(two << 8) |
+				one
+			);
+		}
+
+		function byteArrayToBigInt(byteArray: number[]): BigInt {
+			let result = BigInt(0);
+			for (let i = 0; i < byteArray.length; i++) {
+				result = (result << BigInt(8)) + BigInt(byteArray[i]);
+			}
+
+			return result;
+		}
+
+		const bigInt = byteArrayToBigInt([
+			getUint8(),
+			getUint8(),
+			getUint8(),
+			getUint8(),
+			getUint8(),
+			getUint8(),
+			getUint8(),
+			getUint8(),
+		]);
+
+		return Number(bigInt);
+	};
+
+	const getFourByteNumber = (littleEndian = false) => {
+		if (littleEndian) {
+			const one = getUint8();
+			const two = getUint8();
+			const three = getUint8();
+			const four = getUint8();
+			return (four << 24) | (three << 16) | (two << 8) | one;
+		}
+
 		return (
 			(getUint8() << 24) | (getUint8() << 16) | (getUint8() << 8) | getUint8()
 		);
 	};
 
-	const getUint32 = () => {
-		const val = view.getUint32(counter.getDiscardedOffset());
+	const getPaddedFourByteNumber = () => {
+		let lastInt = 128;
+		while (((lastInt = getUint8()), lastInt === 128)) {
+			// Do nothing
+		}
+
+		return lastInt;
+	};
+
+	const getUint32 = (littleEndian = false) => {
+		const val = view.getUint32(counter.getDiscardedOffset(), littleEndian);
+		counter.increment(4);
+		return val;
+	};
+
+	const getUint64 = (littleEndian = false) => {
+		const val = view.getBigUint64(counter.getDiscardedOffset(), littleEndian);
+		counter.increment(8);
+		return val;
+	};
+
+	const getUint32Le = () => {
+		const val = view.getUint32(counter.getDiscardedOffset(), true);
+		counter.increment(4);
+		return val;
+	};
+
+	const getInt32Le = () => {
+		const val = view.getInt32(counter.getDiscardedOffset(), true);
+		counter.increment(4);
+		return val;
+	};
+
+	const getInt32 = () => {
+		const val = view.getInt32(counter.getDiscardedOffset());
 		counter.increment(4);
 		return val;
 	};
 
 	const addData = (newData: Uint8Array) => {
-		const newArray = new Uint8Array(
-			data.buffer.byteLength + newData.byteLength,
-		);
-		newArray.set(data);
-		newArray.set(new Uint8Array(newData), data.byteLength);
+		const oldLength = buf.byteLength;
+		const newLength = oldLength + newData.byteLength;
+		buf.resize(newLength);
+		const newArray = new Uint8Array(buf);
+		newArray.set(newData, oldLength);
 		data = newArray;
 		view = new DataView(data.buffer);
 	};
@@ -104,37 +220,148 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 		return matchesPattern(isoBaseMediaMp4Pattern)(data.subarray(4, 8));
 	};
 
+	const isRiff = () => {
+		return matchesPattern(riffPattern)(data.subarray(0, 4));
+	};
+
 	const isWebm = () => {
 		return matchesPattern(webmPattern)(data.subarray(0, 4));
 	};
 
+	const isMp3 = () => {
+		return matchesPattern(mpegPattern)(data.subarray(0, 4));
+	};
+
 	const removeBytesRead = () => {
 		const bytesToRemove = counter.getDiscardedOffset();
+
+		// Only to this operation if it is really worth it 😇
+		if (bytesToRemove < 100_000) {
+			return;
+		}
+
 		counter.discardBytes(bytesToRemove);
-		const newArray = new Uint8Array(data.buffer.byteLength - bytesToRemove);
-		newArray.set(data.slice(bytesToRemove));
-		data = newArray;
+		const newData = data.slice(bytesToRemove);
+		data.set(newData);
+		buf.resize(newData.byteLength);
 		view = new DataView(data.buffer);
 	};
 
+	const skipTo = (offset: number) => {
+		const becomesSmaller = offset < counter.getOffset();
+		if (becomesSmaller) {
+			buf.resize(0);
+			counter.decrement(counter.getOffset() - offset);
+			counter.setDiscardedOffset(offset);
+		} else {
+			const currentOffset = counter.getOffset();
+			counter.increment(offset - currentOffset);
+			removeBytesRead();
+		}
+	};
+
+	const peekB = (length: number) => {
+		// eslint-disable-next-line no-console
+		console.log(
+			[...getSlice(length)].map((b) => b.toString(16).padStart(2, '0')),
+		);
+		counter.decrement(length);
+	};
+
+	const peekD = (length: number) => {
+		// eslint-disable-next-line no-console
+		console.log([...getSlice(length)].map((b) => b));
+		counter.decrement(length);
+	};
+
+	const leb128 = () => {
+		let result = 0;
+		let shift = 0;
+		let byte;
+
+		do {
+			byte = getBits(8);
+			result |= (byte & 0x7f) << shift;
+			shift += 7;
+		} while (byte >= 0x80); // Continue if the high bit is set
+
+		return result;
+	};
+
+	let bitIndex = 0;
+
+	const stopReadingBits = () => {
+		bitIndex = 0;
+	};
+
+	let byteToShift = 0;
+
+	const startReadingBits = () => {
+		byteToShift = getUint8();
+	};
+
+	const getBits = (bits: number) => {
+		let result = 0;
+		let bitsCollected = 0;
+
+		while (bitsCollected < bits) {
+			if (bitIndex >= 8) {
+				bitIndex = 0;
+				byteToShift = getUint8();
+			}
+
+			const remainingBitsInByte = 8 - bitIndex;
+			const bitsToReadNow = Math.min(bits - bitsCollected, remainingBitsInByte);
+			const mask = (1 << bitsToReadNow) - 1;
+			const shift = remainingBitsInByte - bitsToReadNow;
+
+			result <<= bitsToReadNow;
+			result |= (byteToShift >> shift) & mask;
+
+			bitsCollected += bitsToReadNow;
+			bitIndex += bitsToReadNow;
+		}
+
+		return result;
+	};
+
+	const destroy = () => {
+		data = new Uint8Array(0);
+		buf.resize(0);
+	};
+
 	return {
+		startReadingBits,
+		stopReadingBits,
+		skipTo,
 		addData,
 		counter,
+		peekB,
+		peekD,
+		getBits,
 		byteLength,
 		bytesRemaining,
 		isIsoBaseMedia,
-		discardFirstBytes: removeBytesRead,
+		leb128,
+		removeBytesRead,
 		isWebm,
 		discard: (length: number) => {
 			counter.increment(length);
 		},
+		getEightByteNumber,
 		getFourByteNumber,
 		getSlice,
 		getAtom: () => {
 			const atom = getSlice(4);
 			return new TextDecoder().decode(atom);
 		},
-		getMatroskaSegmentId: () => {
+		isRiff,
+		getPaddedFourByteNumber,
+		getMatroskaSegmentId: (): string | null => {
+			if (bytesRemaining() === 0) {
+				return null;
+			}
+
 			const first = getSlice(1);
 			const firstOneString = `0x${Array.from(new Uint8Array(first))
 				.map((b) => {
@@ -144,37 +371,16 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 
 			// Catch void block
 			// https://www.matroska.org/technical/elements.html
-			const knownIdsWithOneLength = [
-				'0xec',
-				'0xae',
-				'0xd7',
-				'0x9c',
-				'0x86',
-				'0x83',
-				'0xe0',
-				'0xb0',
-				'0xba',
-				'0x9a',
-			];
+
 			if (knownIdsWithOneLength.includes(firstOneString)) {
 				return firstOneString;
 			}
 
-			const firstTwo = getSlice(1);
+			if (bytesRemaining() === 0) {
+				return null;
+			}
 
-			const knownIdsWithTwoLength = [
-				'0x4dbb',
-				'0x53ac',
-				'0xec01',
-				'0x73c5',
-				'0x53c0',
-				'0x4d80',
-				'0x5741',
-				'0x4489',
-				'0x55ee',
-				'0x55b0',
-				'0x7ba9',
-			];
+			const firstTwo = getSlice(1);
 
 			const firstTwoString = `${firstOneString}${Array.from(
 				new Uint8Array(firstTwo),
@@ -188,13 +394,9 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 				return firstTwoString;
 			}
 
-			const knownIdsWithThreeLength = [
-				'0x4d808c',
-				'0x57418c',
-				'0x448988',
-				'0x22b59c',
-				'0x23e383',
-			];
+			if (bytesRemaining() === 0) {
+				return null;
+			}
 
 			const firstThree = getSlice(1);
 
@@ -210,6 +412,10 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 				return firstThreeString;
 			}
 
+			if (bytesRemaining() === 0) {
+				return null;
+			}
+
 			const segmentId = getSlice(1);
 
 			return `${firstThreeString}${Array.from(new Uint8Array(segmentId))
@@ -218,7 +424,11 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 				})
 				.join('')}`;
 		},
-		getVint: () => {
+		getVint: (): number | null => {
+			if (bytesRemaining() === 0) {
+				return null;
+			}
+
 			const firstByte = getUint8();
 			const totalLength = firstByte;
 
@@ -230,6 +440,10 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 			let actualLength = 0;
 			while (((totalLength >> (7 - actualLength)) & 0x01) === 0) {
 				actualLength++;
+			}
+
+			if (bytesRemaining() < actualLength) {
+				return null;
 			}
 
 			const slice = getSlice(actualLength);
@@ -267,23 +481,40 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 			counter.increment(2);
 			return val;
 		},
+		getUint24: () => {
+			const val1 = view.getUint8(counter.getDiscardedOffset());
+			const val2 = view.getUint8(counter.getDiscardedOffset() + 1);
+			const val3 = view.getUint8(counter.getDiscardedOffset() + 2);
+			counter.increment(3);
+			return (val1 << 16) | (val2 << 8) | val3;
+		},
+
 		getInt16: () => {
 			const val = view.getInt16(counter.getDiscardedOffset());
 			counter.increment(2);
 			return val;
 		},
 		getUint32,
+		getUint64,
 		// https://developer.apple.com/documentation/quicktime-file-format/sound_sample_description_version_1
 		// A 32-bit unsigned fixed-point number (16.16) that indicates the rate at which the sound samples were obtained.
-		getFixedPoint1616Number: () => {
+		getFixedPointUnsigned1616Number: () => {
 			const val = getUint32();
 			return val / 2 ** 16;
+		},
+		getFixedPointSigned1616Number: () => {
+			const val = getInt32();
+			return val / 2 ** 16;
+		},
+		getFixedPointSigned230Number: () => {
+			const val = getInt32();
+			return val / 2 ** 30;
 		},
 		getPascalString: () => {
 			const val = getSlice(32);
 			return [...Array.from(new Uint8Array(val))];
 		},
-		getDecimalBytes(length: number): number {
+		getUint(length: number): number {
 			const bytes = getSlice(length);
 			const numbers = [...Array.from(new Uint8Array(bytes))];
 			return numbers.reduce(
@@ -301,6 +532,16 @@ export const getArrayBufferIterator = (initialData: Uint8Array) => {
 			counter.increment(8);
 			return val;
 		},
+		getFloat32: () => {
+			const val = view.getFloat32(counter.getDiscardedOffset());
+			counter.increment(4);
+			return val;
+		},
+		getUint32Le,
+		getInt32Le,
+		getInt32,
+		destroy,
+		isMp3,
 	};
 };
 

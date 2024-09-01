@@ -64,7 +64,7 @@ test('Should be able to parse a MVHD box correctly', () => {
 		0, 0, 0, 2,
 	]);
 
-	const iterator = getArrayBufferIterator(buffer);
+	const iterator = getArrayBufferIterator(buffer, null);
 	iterator.discard(8);
 
 	const mvhd = parseMvhd({
@@ -80,7 +80,12 @@ test('Should be able to parse a MVHD box correctly', () => {
 		durationInSeconds: 4.167,
 		rate: 1,
 		volume: 1,
-		matrix: [65536, 0, 0, 0, 65536, 0, 0, 0, 1073741824],
+		// prettier-ignore
+		matrix: [
+			1, 0, 0,
+			0, 1, 0,
+			0, 0, 1
+		],
 		nextTrackId: 2,
 		type: 'mvhd-box',
 		boxSize: 108,

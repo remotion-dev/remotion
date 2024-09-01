@@ -15,7 +15,7 @@ export const getOutputFilename = ({
 	imageSequence: boolean;
 	compositionName: string;
 	defaultExtension: string;
-	args: string[];
+	args: (string | number)[];
 	fromUi: string | null;
 	indent: boolean;
 	logLevel: LogLevel;
@@ -32,7 +32,7 @@ export const getOutputFilename = ({
 		outputLocationFromUi: null,
 	});
 
-	const extension = RenderInternals.getExtensionOfFilename(filename);
+	const extension = RenderInternals.getExtensionOfFilename(String(filename));
 	if (imageSequence) {
 		if (extension !== null) {
 			throw new Error(
@@ -41,7 +41,7 @@ export const getOutputFilename = ({
 			);
 		}
 
-		return filename;
+		return String(filename);
 	}
 
 	if (extension === null && !imageSequence) {
@@ -52,5 +52,5 @@ export const getOutputFilename = ({
 		return `${filename}.${defaultExtension}`;
 	}
 
-	return filename;
+	return String(filename);
 };

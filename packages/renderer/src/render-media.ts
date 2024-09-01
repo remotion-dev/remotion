@@ -770,7 +770,15 @@ const internalRenderMediaRaw = ({
 						}, 2000);
 						(stitcherFfmpeg as ExecaChildProcess<string>).on('close', res);
 					});
-					stitcherFfmpeg.kill();
+
+					// An exception can happen here:
+					// https://discord.com/channels/809501355504959528/817306238811111454/1273184655348072468
+					try {
+						stitcherFfmpeg.kill();
+					} catch (e) {
+						// Ignore
+					}
+
 					return promise.then(() => {
 						reject(err);
 					});

@@ -183,6 +183,7 @@ class RenderProgressParams:
     function_name: str
     region: str
     log_level: str
+    force_path_style: Optional[bool] = None
 
     def serialize_params(self) -> Dict:
         """
@@ -196,6 +197,10 @@ class RenderProgressParams:
             "logLevel": self.log_level,
             "s3OutputProvider": None,
         }
+        if self.force_path_style is not None:
+            parameters['forcePathStyle'] = self.force_path_style
+        else:
+            parameters['forcePathStyle'] = False
         return parameters
 
 
@@ -279,6 +284,7 @@ class RenderMediaParams:
         default_factory=lambda: {'type': 'play-in-browser'})
     muted: bool = False
     overwrite: bool = False
+    force_path_style: Optional[bool] = None
     audio_bitrate: Optional[int] = None
     video_bitrate: Optional[int] = None
     webhook: Optional[Webhook] = None
@@ -355,6 +361,10 @@ class RenderMediaParams:
         if self.x264_preset is not None:
             parameters['x264Preset'] = self.x264_preset
 
+        if self.force_path_style is not None:
+            parameters['forcePathStyle'] = self.force_path_style
+        else:
+            parameters['forcePathStyle'] = False
         return parameters
 
 
@@ -386,6 +396,7 @@ class RenderStillParams:
     force_bucket_name: Optional[str] = None
     dump_browser_logs: Optional[bool] = None
     delete_after: Optional[DeleteAfter] = None
+    force_path_style: Optional[bool] = None
     offthreadvideo_cache_size_in_bytes: Optional[int] = None
     streamed: bool = False
 
@@ -431,8 +442,13 @@ class RenderStillParams:
             'deleteAfter': self.delete_after,
             'attempt': self.attempt,
             'offthreadVideoCacheSizeInBytes': self.offthreadvideo_cache_size_in_bytes,
-            'streamed': self.streamed
+            'streamed': self.streamed,
         }
+
+        if self.force_path_style is not None:
+            parameters['forcePathStyle'] = self.force_path_style
+        else:
+            parameters['forcePathStyle'] = False
 
         return parameters
 

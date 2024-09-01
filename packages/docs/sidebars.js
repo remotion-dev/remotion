@@ -557,7 +557,15 @@ module.exports = {
 				type: 'doc',
 				id: 'media-parser/index',
 			},
-			items: ['media-parser/index', 'media-parser/parse-media'],
+			items: [
+				'media-parser/index',
+				'media-parser/parse-media',
+				'media-parser/node-reader',
+				'media-parser/fetch-reader',
+				'media-parser/web-file-reader',
+				'media-parser/webcodecs',
+				'media-parser/support',
+			],
 		},
 		{
 			type: 'category',
@@ -675,6 +683,7 @@ module.exports = {
 				'gpu',
 				'miscellaneous/cloud-gpu',
 				'miscellaneous/cloud-gpu-docker',
+				'compare-ssr',
 			],
 		},
 		{

@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/babel-loader"
 	},
 	"name": "@remotion/babel-loader",
-	"version": "4.0.191",
+	"version": "4.0.206",
 	"description": "Babel loader for Remotion",
 	"main": "dist/index.js",
 	"scripts": {
@@ -27,7 +27,7 @@
 		"@webhotelier/webpack-fast-refresh": "5.1.0",
 		"babel-loader": "8.2.2",
 		"react-refresh": "0.9.0",
-		"webpack": "5.83.1"
+		"webpack": "5.94.0"
 	},
 	"devDependencies": {
 		"@remotion/bundler": "workspace:*",

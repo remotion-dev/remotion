@@ -79,7 +79,7 @@ The [AWS region](/docs/lambda/region-selection) to select. Both project and func
 
 ### `--props`
 
-[Input Props to pass to the selected composition of your video.](/docs/parameterized-rendering#passing-input-props-in-the-cli).  
+[Input Props to pass to the selected composition of your video.](/docs/passing-props#passing-input-props-in-the-cli).  
 Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`).  
 From the root component the props can be read using [`getInputProps()`](/docs/get-input-props).  
 You may transform input props using [`calculateMetadata()`](/docs/calculate-metadata).
@@ -98,7 +98,7 @@ One of:
 
 - `"public"` (_default_): The rendered media is publicly accessible under the S3 URL.
 - `"private"`: The rendered media is not publicly available, but signed links can be created using [presignUrl()](/docs/lambda/presignurl).
-- `"no-acl"` (_available from v.3.1.7_): The ACL option is not being set at all, this option is useful if you are writing to another bucket that does not support ACL using [`outName`](#outname).
+- `"no-acl"` (_available from v.3.1.7_): The ACL option is not being set at all, this option is useful if you are writing to another bucket that does not support ACL using [`outName`](/docs/lambda/cli/render#--out-name).
 
 ### `--max-retries`
 
@@ -129,7 +129,7 @@ Renamed to `jpegQuality` in `v4.0.0`.
 
 ### `--muted`<AvailableFrom v="3.2.1" />
 
-[Disables audio output.](/docs/config#setmuted) This option may only be used when rendering a video.
+[Disables audio output.](/docs/cli/render#--muted) This option may only be used when rendering a video.
 
 ### `--codec`
 
@@ -268,3 +268,7 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 ### `--prefer-lossless`<AvailableFrom v="4.0.110"/>
 
 <Options cli id="prefer-lossless" />
+
+### `--force-path-style`<AvailableFrom v="4.0.202" />
+
+Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.

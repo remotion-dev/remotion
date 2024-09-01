@@ -65,7 +65,12 @@ const matchCommand = (
 	}
 
 	if (args[0] === STILL_COMMAND) {
-		return stillCommand(args.slice(1), remotionRoot, logLevel, implementation);
+		return stillCommand({
+			args: args.slice(1),
+			remotionRoot,
+			logLevel,
+			implementation,
+		});
 	}
 
 	if (args[0] === COMPOSITIONS_COMMAND) {
@@ -244,6 +249,7 @@ AWS returned an error message "The security token included in the request is inv
 				name: error.name,
 				stack: error.stack,
 				stackFrame: frames,
+				chunk: null,
 			});
 			await CliInternals.printError(errorWithStackFrame, logLevel);
 		}

@@ -90,6 +90,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		serialized: params.inputProps,
 		propsType: 'input-props',
 		providerSpecifics,
+		forcePathStyle: params.forcePathStyle,
 	});
 
 	const logOptions: LogOptions = {
@@ -206,6 +207,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		params.inputProps.type === 'bucket-url'
 			? params.inputProps.hash.length
 			: params.inputProps.payload.length,
+		JSON.stringify(params.envVariables).length,
 	]);
 
 	const serializedResolvedProps = await compressInputProps({
@@ -215,6 +217,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		userSpecifiedBucketName: params.bucketName,
 		needsToUpload,
 		providerSpecifics,
+		forcePathStyle: params.forcePathStyle,
 	});
 
 	registerCleanupTask(() => {
@@ -222,6 +225,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			serializedResolvedProps,
 			inputProps: params.inputProps,
 			providerSpecifics,
+			forcePathStyle: params.forcePathStyle,
 		});
 	});
 
@@ -278,6 +282,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			compositionStart: realFrameRange[0],
 			framesPerLambda,
 			progressEveryNthFrame,
+			forcePathStyle: params.forcePathStyle,
 		};
 		return payload;
 	});
@@ -342,6 +347,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			region: providerSpecifics.getCurrentRegionInFunction(),
 			currentRegion: providerSpecifics.getCurrentRegionInFunction(),
 			providerSpecifics,
+			forcePathStyle: params.forcePathStyle,
 		});
 		if (output) {
 			throw new TypeError(
@@ -392,6 +398,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 				expectedBucketOwner: options.expectedBucketOwner,
 				downloadBehavior: params.downloadBehavior,
 				customCredentials,
+				forcePathStyle: params.forcePathStyle,
 			})
 			.then(() => {
 				RenderInternals.Log.info(
@@ -476,6 +483,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		overallProgress,
 		startTime,
 		providerSpecifics,
+		forcePathStyle: params.forcePathStyle,
 	});
 
 	return postRenderData;
@@ -645,6 +653,7 @@ export const launchHandler = async <Provider extends CloudProvider>(
 		timeoutTimestamp: options.getRemainingTimeInMillis() + Date.now(),
 		logLevel: params.logLevel,
 		providerSpecifics,
+		forcePathStyle: params.forcePathStyle,
 	});
 
 	try {

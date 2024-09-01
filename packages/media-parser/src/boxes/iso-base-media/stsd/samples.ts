@@ -1,16 +1,16 @@
 import type {BufferIterator} from '../../../buffer-iterator';
+import type {AnySegment} from '../../../parse-result';
+import type {ParserContext} from '../../../parser-context';
+import {parseBoxes} from '../process-box';
 
 type SampleBase = {
 	format: string;
 	offset: number;
 	dataReferenceIndex: number;
-	version: number;
-	revisionLevel: number;
-	vendor: number[];
 	size: number;
 };
 
-type AudioSample = SampleBase & {
+export type AudioSample = SampleBase & {
 	type: 'audio';
 	numberOfChannels: number;
 	sampleSize: number;
@@ -21,9 +21,13 @@ type AudioSample = SampleBase & {
 	bytesPerPacket: number | null;
 	bytesPerFrame: number | null;
 	bitsPerSample: number | null;
+	children: AnySegment[];
+	version: number;
+	revisionLevel: number;
+	vendor: number[];
 };
 
-type VideoSample = SampleBase & {
+export type VideoSample = SampleBase & {
 	type: 'video';
 	temporalQuality: number;
 	spacialQuality: number;
@@ -36,6 +40,10 @@ type VideoSample = SampleBase & {
 	frameCountPerSample: number;
 	depth: number;
 	colorTableId: number;
+	descriptors: AnySegment[];
+	version: number;
+	revisionLevel: number;
+	vendor: number[];
 };
 
 type UnknownSample = SampleBase & {
@@ -78,6 +86,7 @@ const videoTags = [
 	'v210',
 	'hvc1',
 	'ap4h',
+	'av01',
 ];
 
 // https://developer.apple.com/documentation/quicktime-file-format/sound_sample_descriptions
@@ -108,11 +117,13 @@ const audioTags = [
 	'ac-3',
 ];
 
-export const processSample = ({
+export const processSample = async ({
 	iterator,
+	options,
 }: {
 	iterator: BufferIterator;
-}): SampleAndNext => {
+	options: ParserContext;
+}): Promise<SampleAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
 	const boxSize = iterator.getUint32();
@@ -131,9 +142,6 @@ export const processSample = ({
 	iterator.discard(6);
 
 	const dataReferenceIndex = iterator.getUint16();
-	const version = iterator.getUint16();
-	const revisionLevel = iterator.getUint16();
-	const vendor = iterator.getSlice(4);
 
 	if (!isVideo && !isAudio) {
 		const bytesRemainingInBox =
@@ -145,9 +153,6 @@ export const processSample = ({
 				type: 'unknown',
 				offset: fileOffset,
 				dataReferenceIndex,
-				version,
-				revisionLevel,
-				vendor: [...Array.from(new Uint8Array(vendor))],
 				size: boxSize,
 				format: boxFormat,
 			},
@@ -155,16 +160,31 @@ export const processSample = ({
 	}
 
 	if (isAudio) {
+		const version = iterator.getUint16();
+		const revisionLevel = iterator.getUint16();
+		const vendor = iterator.getSlice(4);
 		if (version === 0) {
 			const numberOfChannels = iterator.getUint16();
 			const sampleSize = iterator.getUint16();
 			const compressionId = iterator.getUint16();
 			const packetSize = iterator.getUint16();
-			const sampleRate = iterator.getFixedPoint1616Number();
+			const sampleRate = iterator.getFixedPointUnsigned1616Number();
 
 			const bytesRemainingInBox =
 				boxSize - (iterator.counter.getOffset() - fileOffset);
-			iterator.discard(bytesRemainingInBox);
+			const children = await parseBoxes({
+				iterator,
+				allowIncompleteBoxes: false,
+				maxBytes: bytesRemainingInBox,
+				initialBoxes: [],
+				options,
+				continueMdat: false,
+				littleEndian: false,
+			});
+
+			if (children.status === 'incomplete') {
+				throw new Error('Incomplete boxes are not allowed');
+			}
 
 			return {
 				sample: {
@@ -185,6 +205,7 @@ export const processSample = ({
 					bytesPerPacket: null,
 					bytesPerFrame: null,
 					bitsPerSample: null,
+					children: children.segments,
 				},
 			};
 		}
@@ -192,17 +213,32 @@ export const processSample = ({
 		if (version === 1) {
 			const numberOfChannels = iterator.getUint16();
 			const sampleSize = iterator.getUint16();
-			const compressionId = iterator.getUint16();
+			const compressionId = iterator.getInt16();
 			const packetSize = iterator.getUint16();
-			const sampleRate = iterator.getFixedPoint1616Number();
-			const samplesPerPacket = iterator.getUint16();
-			const bytesPerPacket = iterator.getUint16();
-			const bytesPerFrame = iterator.getUint16();
-			const bitsPerSample = iterator.getUint16();
+			const sampleRate = iterator.getFixedPointUnsigned1616Number();
+
+			const samplesPerPacket = iterator.getUint32();
+
+			const bytesPerPacket = iterator.getUint32();
+			const bytesPerFrame = iterator.getUint32();
+			const bytesPerSample = iterator.getUint32();
 
 			const bytesRemainingInBox =
 				boxSize - (iterator.counter.getOffset() - fileOffset);
-			iterator.discard(bytesRemainingInBox);
+
+			const children = await parseBoxes({
+				iterator,
+				allowIncompleteBoxes: false,
+				maxBytes: bytesRemainingInBox,
+				initialBoxes: [],
+				options,
+				continueMdat: false,
+				littleEndian: false,
+			});
+
+			if (children.status === 'incomplete') {
+				throw new Error('Incomplete boxes are not allowed');
+			}
 
 			return {
 				sample: {
@@ -222,7 +258,8 @@ export const processSample = ({
 					samplesPerPacket,
 					bytesPerPacket,
 					bytesPerFrame,
-					bitsPerSample,
+					bitsPerSample: bytesPerSample,
+					children: children.segments,
 				},
 			};
 		}
@@ -231,12 +268,15 @@ export const processSample = ({
 	}
 
 	if (isVideo) {
+		const version = iterator.getUint16();
+		const revisionLevel = iterator.getUint16();
+		const vendor = iterator.getSlice(4);
 		const temporalQuality = iterator.getUint32();
 		const spacialQuality = iterator.getUint32();
 		const width = iterator.getUint16();
 		const height = iterator.getUint16();
-		const horizontalResolution = iterator.getFixedPoint1616Number();
-		const verticalResolution = iterator.getFixedPoint1616Number();
+		const horizontalResolution = iterator.getFixedPointUnsigned1616Number();
+		const verticalResolution = iterator.getFixedPointUnsigned1616Number();
 		const dataSize = iterator.getUint32();
 		const frameCountPerSample = iterator.getUint16();
 		const compressorName = iterator.getPascalString();
@@ -245,7 +285,20 @@ export const processSample = ({
 
 		const bytesRemainingInBox =
 			boxSize - (iterator.counter.getOffset() - fileOffset);
-		iterator.discard(bytesRemainingInBox);
+
+		const children = await parseBoxes({
+			iterator,
+			allowIncompleteBoxes: false,
+			maxBytes: bytesRemainingInBox,
+			initialBoxes: [],
+			options,
+			continueMdat: false,
+			littleEndian: false,
+		});
+
+		if (children.status === 'incomplete') {
+			throw new Error('Incomplete boxes are not allowed');
+		}
 
 		return {
 			sample: {
@@ -268,6 +321,7 @@ export const processSample = ({
 				compressorName,
 				depth,
 				colorTableId,
+				descriptors: children.segments,
 			},
 		};
 	}
@@ -275,10 +329,15 @@ export const processSample = ({
 	throw new Error(`Unknown sample format ${boxFormat}`);
 };
 
-export const parseSamples = (
-	iterator: BufferIterator,
-	maxBytes: number,
-): Sample[] => {
+export const parseSamples = async ({
+	iterator,
+	maxBytes,
+	options,
+}: {
+	iterator: BufferIterator;
+	maxBytes: number;
+	options: ParserContext;
+}): Promise<Sample[]> => {
 	const samples: Sample[] = [];
 	const initialOffset = iterator.counter.getOffset();
 
@@ -286,8 +345,9 @@ export const parseSamples = (
 		iterator.bytesRemaining() > 0 &&
 		iterator.counter.getOffset() - initialOffset < maxBytes
 	) {
-		const {sample} = processSample({
+		const {sample} = await processSample({
 			iterator,
+			options,
 		});
 
 		if (sample) {

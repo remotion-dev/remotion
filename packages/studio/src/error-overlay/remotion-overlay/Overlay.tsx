@@ -80,7 +80,8 @@ export const Overlay: React.FC = () => {
 				{errors.errors.map((err, i) => {
 					return (
 						<ErrorLoader
-							key={err.stack}
+							// eslint-disable-next-line react/no-array-index-key
+							key={(err.stack ?? '') + i}
 							keyboardShortcuts={i === 0}
 							error={err}
 							onRetry={null}

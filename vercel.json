@@ -313,6 +313,11 @@
 			"permanent": false
 		},
 		{
+			"source": "/media-parser",
+			"destination": "/docs/media-parser",
+			"permanent": false
+		},
+		{
 			"source": "/docs/chrome-headless-shell",
 			"destination": "/docs/miscellaneous/chrome-headless-shell",
 			"permanent": false
@@ -335,6 +340,11 @@
 		{
 			"source": "/bbb.mp4",
 			"destination": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+			"permanent": false
+		},
+		{
+			"source": "/leads",
+			"destination": "https://github.com/orgs/remotion-dev/projects/15/views/1",
 			"permanent": false
 		}
 	]

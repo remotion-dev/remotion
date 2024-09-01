@@ -71,15 +71,20 @@ impl ScalableFrame {
                 let mut planes: Vec<Vec<u8>>;
                 let format: Pixel;
                 let linesize: [i32; 8];
-                let (mut filter, should_filter) = make_tone_map_filtergraph(frame.filter_graph)?;
-                if frame.tone_mapped && should_filter {
+                let filter = make_tone_map_filtergraph(frame.filter_graph)?;
+                if frame.tone_mapped && filter.is_some() {
                     video = frame::Video::empty();
-                    filter
+                    let mut unwrapped_filter = filter.unwrap();
+                    unwrapped_filter
                         .get("in")
                         .unwrap()
                         .source()
                         .add(&frame.unscaled_frame)?;
-                    filter.get("out").unwrap().sink().frame(&mut video)?;
+                    unwrapped_filter
+                        .get("out")
+                        .unwrap()
+                        .sink()
+                        .frame(&mut video)?;
 
                     let amount_of_planes = video.planes();
 

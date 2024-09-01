@@ -43,4 +43,5 @@ Monthly downloads of Remotion packages
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/tailwind.svg?style=flat&color=black&label=@remotion/tailwind)](https://npmcharts.com/compare/@remotion/tailwind?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/three.svg?style=flat&color=black&label=@remotion/three)](https://npmcharts.com/compare/@remotion/three?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/transitions.svg?style=flat&color=black&label=@remotion/transitions)](https://npmcharts.com/compare/@remotion/transitions?minimal=true)  
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/webcodecs.svg?style=flat&color=black&label=@remotion/webcodecs)](https://npmcharts.com/compare/@remotion/webcodecs?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/zod-types.svg?style=flat&color=black&label=@remotion/zod-types)](https://npmcharts.com/compare/@remotion/zod-types?minimal=true)  

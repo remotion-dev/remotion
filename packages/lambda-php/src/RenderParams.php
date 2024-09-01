@@ -51,6 +51,7 @@ class RenderParams
     protected $pixelFormat = null;
     protected $x264Preset = null;
     protected $deleteAfter = null;
+    protected $forcePathStyle = false;
 
     public function __construct(
         ?array  $data = null,
@@ -91,7 +92,8 @@ class RenderParams
         ?string $deleteAfter = null,
         ?string $encodingBufferSize = null,
         ?string $maxRate = null,
-        ?bool   $preferLossless = false
+        ?bool   $preferLossless = false,
+        ?bool   $forcePathStyle = false
     )
     {
         if ($chromiumOptions === null) {
@@ -137,6 +139,7 @@ class RenderParams
         $this->x264Preset = $x264Preset;
         $this->deleteAfter = $deleteAfter;
         $this->preferLossless = $preferLossless;
+        $this->forcePathStyle = $forcePathStyle;
     }
 
     private array $inputProps = array();
@@ -181,6 +184,7 @@ class RenderParams
             'audioCodec' => $this->getAudioCodec(),
             'x264Preset' => $this->getX264Preset(),
             'deleteAfter' => $this->getDeleteAfter(),
+            'forcePathStyle' => $this->getForcePathStyle(),
             'type' => 'start'
         ];
 
@@ -208,6 +212,11 @@ class RenderParams
 
         return $parameters;
     }
+
+    public function getForcePathStyle()
+    {
+        return $this->forcePathStyle;
+    }   
 
     /**
      * Get the value of inputProps

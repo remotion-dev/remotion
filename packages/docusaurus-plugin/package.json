@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/docusaurus-plugin",
-	"version": "4.0.191",
+	"version": "4.0.206",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
@@ -19,7 +19,8 @@
 		"fenceparser": "^2.2.0",
 		"shiki": "0.10.1",
 		"@typescript/twoslash": "3.2.1",
-		"@docusaurus/types": "3.4.0"
+		"@docusaurus/types": "3.4.0",
+		"@types/dom-webcodecs": "0.1.11"
 	},
 	"private": true,
 	"repository": {

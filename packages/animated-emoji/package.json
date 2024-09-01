@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/animated-emoji",
-	"version": "4.0.191",
+	"version": "4.0.206",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",

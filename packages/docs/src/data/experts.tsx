@@ -82,7 +82,7 @@ export const experts: Expert[] = [
 				My services: SaaS platform from scratch including SSR, creating
 				individual videos and templates, and creating integrations for Remotion
 				with existing infrastructure <br />
-				Availability: 4 to 5 hours/day on weekdays, 5 to 6 hours/day on weekends{' '}
+				Availability: Not available through fall 2024{' '}
 			</div>
 		),
 	},

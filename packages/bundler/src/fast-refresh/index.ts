@@ -32,6 +32,7 @@
 // https://github.com/vercel/next.js/blob/canary/packages/react-refresh-utils/ReactRefreshWebpackPlugin.ts
 
 import type webpack from 'webpack';
+import type {Compilation} from 'webpack';
 import {RuntimeGlobals, RuntimeModule, Template, version} from 'webpack';
 
 class ReactRefreshRuntimeModule extends RuntimeModule {
@@ -40,7 +41,7 @@ class ReactRefreshRuntimeModule extends RuntimeModule {
 	}
 
 	generate() {
-		const {runtimeTemplate} = this.compilation;
+		const {runtimeTemplate} = this.compilation as Compilation;
 		return Template.asString([
 			`${
 				RuntimeGlobals.interceptModuleExecution

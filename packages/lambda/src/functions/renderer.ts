@@ -73,6 +73,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 		serialized: params.inputProps,
 		propsType: 'input-props',
 		providerSpecifics,
+		forcePathStyle: params.forcePathStyle,
 	});
 
 	const resolvedPropsPromise = decompressInputProps({
@@ -82,6 +83,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 		serialized: params.resolvedProps,
 		propsType: 'resolved-props',
 		providerSpecifics,
+		forcePathStyle: params.forcePathStyle,
 	});
 
 	const browserInstance = await getBrowserInstance({
@@ -137,7 +139,11 @@ const renderHandler = async <Provider extends CloudProvider>({
 	);
 
 	const chunkCodec: Codec =
-		seamlessVideo && params.codec === 'h264' ? 'h264-ts' : params.codec;
+		seamlessVideo && params.codec === 'h264'
+			? 'h264-ts'
+			: params.codec === 'gif'
+				? 'h264-ts'
+				: params.codec;
 	const audioCodec: AudioCodec | null =
 		defaultAudioCodec === null
 			? null
@@ -452,7 +458,10 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 			{indent: false, logLevel: params.logLevel},
 			`Error occurred (will retry = ${String(shouldRetry)})`,
 		);
-		RenderInternals.Log.error({indent: false, logLevel: params.logLevel}, err);
+		RenderInternals.Log.error(
+			{indent: false, logLevel: params.logLevel},
+			(err as Error).stack,
+		);
 
 		onStream({
 			type: 'error-occurred',

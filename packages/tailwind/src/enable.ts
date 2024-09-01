@@ -19,7 +19,8 @@ export const enableTailwind = ((
 					? currentConfiguration.module.rules
 					: []
 				).filter(
-					(rule) => rule !== '...' && !rule.test?.toString().includes('.css'),
+					(rule) =>
+						rule && rule !== '...' && !rule.test?.toString().includes('.css'),
 				),
 				{
 					test: /\.css$/i,

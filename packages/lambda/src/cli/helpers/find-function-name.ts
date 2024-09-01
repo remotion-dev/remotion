@@ -91,7 +91,7 @@ export const findFunctionName = async (logLevel: LogLevel) => {
 		);
 		Log.info(
 			logOptions,
-			`- Delete extraneous lambda functions in your AWS console or using:`,
+			`- Delete extraneous Lambda functions in your AWS console or using:`,
 		);
 		Log.info(
 			logOptions,

@@ -1,220 +1,147 @@
 import type {BufferIterator} from '../../buffer-iterator';
-import type {DurationSegment} from './segments/duration';
-import {parseDurationSegment} from './segments/duration';
-import type {InfoSegment} from './segments/info';
-import {parseInfoSegment} from './segments/info';
-import type {MainSegment} from './segments/main';
-import {parseMainSegment} from './segments/main';
-import {parseMuxingSegment, type MuxingAppSegment} from './segments/muxing';
-import {parseSeekSegment, type SeekSegment} from './segments/seek';
-import type {SeekHeadSegment} from './segments/seek-head';
-import {parseSeekHeadSegment} from './segments/seek-head';
-import {
-	parseSeekPositionSegment,
-	type SeekPositionSegment,
-} from './segments/seek-position';
-import type {TimestampScaleSegment} from './segments/timestamp-scale';
-import {parseTimestampScaleSegment} from './segments/timestamp-scale';
-import type {
-	AlphaModeSegment,
-	CodecSegment,
-	ColorSegment,
-	DefaultDurationSegment,
-	FlagLacingSegment,
-	HeightSegment,
-	InterlacedSegment,
-	LanguageSegment,
-	MaxBlockAdditionId,
-	TitleSegment,
-	TrackEntrySegment,
-	TrackNumberSegment,
-	TrackTypeSegment,
-	TrackUIDSegment,
-	VideoSegment,
-	WidthSegment,
-} from './segments/track-entry';
-import {
-	parseAlphaModeSegment,
-	parseCodecSegment,
-	parseColorSegment,
-	parseDefaultDurationSegment,
-	parseFlagLacing,
-	parseHeightSegment,
-	parseInterlacedSegment,
-	parseLanguageSegment,
-	parseMaxBlockAdditionId,
-	parseTitleSegment,
-	parseTrackEntry,
-	parseTrackNumber,
-	parseTrackTypeSegment,
-	parseTrackUID,
-	parseVideoSegment,
-	parseWidthSegment,
-} from './segments/track-entry';
-import type {TracksSegment} from './segments/tracks';
-import {parseTracksSegment} from './segments/tracks';
-import type {UnknownSegment} from './segments/unknown';
-import {parseUnknownSegment} from './segments/unknown';
-import type {VoidSegment} from './segments/void';
-import {parseVoidSegment} from './segments/void';
-import type {WritingAppSegment} from './segments/writing';
-import {parseWritingSegment} from './segments/writing';
+import type {ParseResult} from '../../parse-result';
+import type {ParserContext} from '../../parser-context';
+import {parseEbml, postprocessEbml} from './parse-ebml';
+import type {PossibleEbml, TrackEntry} from './segments/all-segments';
+import {expectChildren} from './segments/parse-children';
 
-export type MatroskaSegment =
-	| MainSegment
-	| UnknownSegment
-	| SeekHeadSegment
-	| SeekSegment
-	| SeekPositionSegment
-	| VoidSegment
-	| InfoSegment
-	| TimestampScaleSegment
-	| MuxingAppSegment
-	| WritingAppSegment
-	| DurationSegment
-	| TracksSegment
-	| TrackEntrySegment
-	| TrackNumberSegment
-	| TrackUIDSegment
-	| FlagLacingSegment
-	| LanguageSegment
-	| CodecSegment
-	| TrackTypeSegment
-	| DefaultDurationSegment
-	| VideoSegment
-	| WidthSegment
-	| HeightSegment
-	| AlphaModeSegment
-	| MaxBlockAdditionId
-	| ColorSegment
-	| TitleSegment
-	| InterlacedSegment;
+export type MatroskaSegment = PossibleEbml;
 
-export const expectSegment = (iterator: BufferIterator): MatroskaSegment => {
-	const segmentId = iterator.getMatroskaSegmentId();
-	if (segmentId === '0x') {
+export type OnTrackEntrySegment = (trackEntry: TrackEntry) => void;
+
+const parseSegment = async ({
+	segmentId,
+	iterator,
+	length,
+	parserContext,
+	headerReadSoFar,
+}: {
+	segmentId: string;
+	iterator: BufferIterator;
+	length: number;
+	parserContext: ParserContext;
+	headerReadSoFar: number;
+}): Promise<Promise<MatroskaSegment> | MatroskaSegment> => {
+	if (length < 0) {
+		throw new Error(`Expected length of ${segmentId} to be greater or equal 0`);
+	}
+
+	iterator.counter.decrement(headerReadSoFar);
+
+	const offset = iterator.counter.getOffset();
+	const ebml = await parseEbml(iterator, parserContext);
+	const remapped = await postprocessEbml({offset, ebml, parserContext});
+
+	return remapped;
+};
+
+export const expectSegment = async (
+	iterator: BufferIterator,
+	parserContext: ParserContext,
+): Promise<ParseResult> => {
+	const offset = iterator.counter.getOffset();
+	if (iterator.bytesRemaining() === 0) {
 		return {
-			type: 'unknown-segment',
-			id: segmentId,
+			status: 'incomplete',
+			segments: [],
+			continueParsing: () => {
+				return Promise.resolve(expectSegment(iterator, parserContext));
+			},
+			skipTo: null,
 		};
 	}
 
-	if (segmentId === '0x18538067') {
-		return parseMainSegment(iterator);
+	const segmentId = iterator.getMatroskaSegmentId();
+
+	if (segmentId === null) {
+		iterator.counter.decrement(iterator.counter.getOffset() - offset);
+		return {
+			status: 'incomplete',
+			segments: [],
+			continueParsing: () => {
+				return Promise.resolve(expectSegment(iterator, parserContext));
+			},
+			skipTo: null,
+		};
 	}
 
-	if (segmentId === '0x114d9b74') {
-		return parseSeekHeadSegment(iterator);
-	}
-
-	if (segmentId === '0x4dbb') {
-		return parseSeekSegment(iterator);
-	}
-
-	if (segmentId === '0x53ac') {
-		return parseSeekPositionSegment(iterator);
-	}
-
-	if (segmentId === '0xec') {
-		return parseVoidSegment(iterator);
-	}
-
-	if (segmentId === '0x1549a966') {
-		return parseInfoSegment(iterator);
-	}
-
-	if (segmentId === '0x2ad7b183') {
-		return parseTimestampScaleSegment(iterator);
-	}
-
-	if (segmentId === '0x4d80') {
-		return parseMuxingSegment(iterator);
-	}
-
-	if (segmentId === '0x5741') {
-		return parseWritingSegment(iterator);
-	}
-
-	if (segmentId === '0x4489') {
-		return parseDurationSegment(iterator);
-	}
-
-	if (segmentId === '0x1654ae6b') {
-		return parseTracksSegment(iterator);
-	}
-
-	if (segmentId === '0xae') {
-		return parseTrackEntry(iterator);
-	}
-
-	if (segmentId === '0xd7') {
-		return parseTrackNumber(iterator);
-	}
-
-	if (segmentId === '0x73c5') {
-		return parseTrackUID(iterator);
-	}
-
-	if (segmentId === '0x9c') {
-		return parseFlagLacing(iterator);
-	}
-
-	if (segmentId === '0x22b59c') {
-		return parseLanguageSegment(iterator);
-	}
-
-	if (segmentId === '0x86') {
-		return parseCodecSegment(iterator);
-	}
-
-	if (segmentId === '0x83') {
-		return parseTrackTypeSegment(iterator);
-	}
-
-	if (segmentId === '0x55ee') {
-		return parseMaxBlockAdditionId(iterator);
-	}
-
-	if (segmentId === '0x55b0') {
-		return parseColorSegment(iterator);
-	}
-
-	if (segmentId === '0x23e383') {
-		return parseDefaultDurationSegment(iterator);
-	}
-
-	if (segmentId === '0xe0') {
-		return parseVideoSegment(iterator);
-	}
-
-	if (segmentId === '0xb0') {
-		return parseWidthSegment(iterator);
-	}
-
-	if (segmentId === '0xba') {
-		return parseHeightSegment(iterator);
-	}
-
-	if (segmentId === '0x9a') {
-		return parseInterlacedSegment(iterator);
-	}
-
-	if (segmentId === '0x53c0') {
-		return parseAlphaModeSegment(iterator);
-	}
-
-	if (segmentId === '0x7ba9') {
-		return parseTitleSegment(iterator);
-	}
-
+	const offsetBeforeVInt = iterator.counter.getOffset();
 	const length = iterator.getVint();
+	const offsetAfterVInt = iterator.counter.getOffset();
 
-	const bytesRemaining = iterator.byteLength() - iterator.counter.getOffset();
-	const toDiscard = Math.min(
-		bytesRemaining,
-		length > 0 ? length : bytesRemaining,
-	);
+	if (length === null) {
+		iterator.counter.decrement(iterator.counter.getOffset() - offset);
+		return {
+			status: 'incomplete',
+			segments: [],
+			continueParsing: () => {
+				return Promise.resolve(expectSegment(iterator, parserContext));
+			},
+			skipTo: null,
+		};
+	}
 
-	const child = parseUnknownSegment(iterator, segmentId, toDiscard);
-	return child;
+	const bytesRemainingNow =
+		iterator.byteLength() - iterator.counter.getOffset();
+
+	if (segmentId === '0x18538067' || segmentId === '0x1f43b675') {
+		const main = await expectChildren({
+			iterator,
+			length,
+			initialChildren: [],
+			wrap:
+				segmentId === '0x18538067'
+					? (s) => ({
+							type: 'Segment',
+							value: s,
+							minVintWidth: offsetAfterVInt - offsetBeforeVInt,
+						})
+					: (s) => ({
+							type: 'Cluster',
+							value: s,
+							minVintWidth: offsetAfterVInt - offsetBeforeVInt,
+						}),
+			parserContext,
+		});
+
+		if (main.status === 'incomplete') {
+			return {
+				status: 'incomplete',
+				segments: main.segments,
+				skipTo: null,
+				continueParsing: main.continueParsing,
+			};
+		}
+
+		return {
+			status: 'done',
+			segments: main.segments,
+		};
+	}
+
+	if (bytesRemainingNow < length) {
+		const bytesRead = iterator.counter.getOffset() - offset;
+		iterator.counter.decrement(bytesRead);
+		return {
+			status: 'incomplete',
+			segments: [],
+			continueParsing: () => {
+				return Promise.resolve(expectSegment(iterator, parserContext));
+			},
+			skipTo: null,
+		};
+	}
+
+	const segment = await parseSegment({
+		segmentId,
+		iterator,
+		length,
+		parserContext,
+		headerReadSoFar: iterator.counter.getOffset() - offset,
+	});
+
+	return {
+		status: 'done',
+		segments: [segment],
+	};
 };

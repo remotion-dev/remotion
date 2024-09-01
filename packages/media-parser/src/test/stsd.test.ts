@@ -2,8 +2,9 @@ import {expect, test} from 'bun:test';
 import {processSample} from '../boxes/iso-base-media/stsd/samples';
 import {parseStsd} from '../boxes/iso-base-media/stsd/stsd';
 import {getArrayBufferIterator} from '../buffer-iterator';
+import {makeParserState} from '../parser-state';
 
-test('Should be able to parse a STSD audio box correctly', () => {
+test('Should be able to parse a STSD audio box correctly', async () => {
 	const buffer = Uint8Array.from([
 		// box size
 		0, 0, 0, 159,
@@ -23,7 +24,7 @@ test('Should be able to parse a STSD audio box correctly', () => {
 		0, 1,
 		// version
 		0, 1,
-		// revisioon level
+		// revision level
 		0, 0, 0, 0, 0, 0,
 		// revision level
 		0, 2, 0, 16, 255, 254, 0, 0, 172, 68, 0, 0, 0, 0, 4, 0, 0, 0, 0, 1, 0, 0, 0,
@@ -34,13 +35,24 @@ test('Should be able to parse a STSD audio box correctly', () => {
 		2, 18, 16, 6, 128, 128, 128, 1, 2, 0, 0, 0, 8, 0, 0, 0, 0,
 	]);
 
-	const iterator = getArrayBufferIterator(buffer);
+	const iterator = getArrayBufferIterator(buffer, null);
 	iterator.discard(8);
 
-	const parsed = parseStsd({
+	const parsed = await parseStsd({
 		iterator,
 		offset: 0,
 		size: 159,
+		options: {
+			canSkipVideoData: true,
+			onAudioTrack: null,
+			onVideoTrack: null,
+			parserState: makeParserState({
+				hasAudioCallbacks: false,
+				hasVideoCallbacks: false,
+				signal: undefined,
+			}),
+			nullifySamples: false,
+		},
 	});
 
 	expect(parsed).toEqual({
@@ -60,19 +72,81 @@ test('Should be able to parse a STSD audio box correctly', () => {
 				numberOfChannels: 2,
 				type: 'audio',
 				sampleSize: 16,
-				compressionId: 65534,
+				compressionId: -2,
 				packetSize: 0,
-				samplesPerPacket: 0,
-				bitsPerSample: 1,
-				bytesPerFrame: 0,
-				bytesPerPacket: 1024,
+				samplesPerPacket: 1024,
+				bitsPerSample: 2,
+				bytesPerFrame: 2,
+				bytesPerPacket: 1,
 				sampleRate: 44100,
+				children: [
+					{
+						boxSize: 91,
+						boxType: 'wave',
+						children: [
+							{
+								boxSize: 12,
+								boxType: 'frma',
+								children: [],
+								offset: 76,
+								type: 'regular-box',
+							},
+							{
+								boxSize: 12,
+								boxType: 'mp4a',
+								children: [],
+								offset: 88,
+								type: 'regular-box',
+							},
+							{
+								descriptors: [
+									{
+										objectTypeIndication: 'aac',
+										type: 'decoder-config-descriptor',
+										asNumber: 64,
+										avgBitrate: 0,
+										bufferSizeDB: 6144,
+										maxBitrate: 192000,
+										streamType: 5,
+										decoderSpecificConfigs: [
+											{
+												audioObjectType: 2,
+												channelConfiguration: 2,
+												samplingFrequencyIndex: 4,
+												type: 'audio-specific-config',
+												asBytes: new Uint8Array([18, 16]),
+											},
+											{
+												type: 'unknown-decoder-specific-config',
+											},
+										],
+										upStream: 0,
+									},
+								],
+								esId: 0,
+								sizeOfInstance: 34,
+								tag: 3,
+								type: 'esds-box',
+								version: 0,
+							},
+							{
+								boxSize: 8,
+								boxType: '\u0000\u0000\u0000\u0000',
+								children: [],
+								offset: 151,
+								type: 'regular-box',
+							},
+						],
+						offset: 68,
+						type: 'regular-box',
+					},
+				],
 			},
 		],
 	});
 });
 
-test('Should be able to parse a STSD video box correctly', () => {
+test('Should be able to parse a STSD video box correctly', async () => {
 	const buffer = Uint8Array.from([
 		// box size
 		0, 0, 0, 158,
@@ -132,8 +206,19 @@ test('Should be able to parse a STSD video box correctly', () => {
 		0, 0, 0, 16, 112, 97, 115, 112, 0, 0, 0, 1, 0, 0, 0, 1,
 	]);
 
-	const parsed = processSample({
-		iterator: getArrayBufferIterator(buffer),
+	const parsed = await processSample({
+		iterator: getArrayBufferIterator(buffer, null),
+		options: {
+			canSkipVideoData: true,
+			onAudioTrack: null,
+			onVideoTrack: null,
+			parserState: makeParserState({
+				hasAudioCallbacks: false,
+				hasVideoCallbacks: false,
+				signal: undefined,
+			}),
+			nullifySamples: false,
+		},
 	});
 	expect(parsed.sample).toEqual({
 		size: 158,
@@ -158,5 +243,23 @@ test('Should be able to parse a STSD video box correctly', () => {
 		offset: 0,
 		depth: 24,
 		colorTableId: -1,
+		descriptors: [
+			{
+				description: new Uint8Array([
+					1, 100, 0, 32, 255, 225, 0, 27, 103, 100, 0, 32, 172, 217, 64, 68, 2,
+					39, 150, 92, 4, 64, 0, 0, 3, 0, 64, 0, 0, 12, 3, 198, 12, 101, 128, 1,
+					0, 6, 104, 235, 224, 140, 178, 44, 253, 248, 248, 0,
+				]),
+				type: 'avcc-box',
+				configurationString: '640020',
+			},
+			{
+				boxSize: 16,
+				offset: 142,
+				type: 'pasp-box',
+				hSpacing: 1,
+				vSpacing: 1,
+			},
+		],
 	});
 });

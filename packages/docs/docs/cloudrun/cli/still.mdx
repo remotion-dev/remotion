@@ -51,7 +51,7 @@ The [GCP region](/docs/cloudrun/region-selection) to select. For lowest latency,
 
 ### `--props`
 
-[Input Props to pass to the selected composition of your video.](/docs/parameterized-rendering#passing-input-props-in-the-cli).  
+[Input Props to pass to the selected composition of your video.](/docs/passing-props#passing-input-props-in-the-cli).  
 Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`).  
 From the root component the props can be read using [`getInputProps()`](/docs/get-input-props).  
 You may transform input props using [`calculateMetadata()`](/docs/calculate-metadata).
@@ -77,7 +77,7 @@ Specify a specific bucket name to be used for the output. The resulting Google C
 
 ### `--image-format`
 
-[`jpeg` or `png` - JPEG is faster, but doesn't support transparency.](/docs/config#setStillImageFormat) The default image format is `jpeg`.
+[`jpeg` or `png` - JPEG is faster, but doesn't support transparency.](/docs/config#setstillimageformat) The default image format is `jpeg`.
 
 ### `--scale`
 

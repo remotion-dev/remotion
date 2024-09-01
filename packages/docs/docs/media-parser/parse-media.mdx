@@ -20,9 +20,12 @@ _available from v4.0.190_
 // @target: es2017
 import {parseMedia} from '@remotion/media-parser';
 
-const result = await parseMedia('https://example.com/my-video.mp4', {
-  durationInSeconds: true,
-  dimensions: true,
+const result = await parseMedia({
+  src: 'https://example.com/my-video.mp4',
+  fields: {
+    durationInSeconds: true,
+    dimensions: true,
+  },
 });
 
 console.log(result.durationInSeconds); // 10
@@ -35,14 +38,14 @@ console.log(result.dimensions); // {width: 1920, height: 1080}
 import {parseMedia} from '@remotion/media-parser';
 import {nodeReader} from '@remotion/media-parser/node';
 
-const result = await parseMedia(
-  '/Users/jonnyburger/Downloads/my-video.mp4',
-  {
+const result = await parseMedia({
+  src:  '/Users/jonnyburger/Downloads/my-video.mp4',
+  fields: {
     durationInSeconds: true,
     dimensions: true,
   },
-  nodeReader,
-);
+  reader: nodeReader,
+});
 ```
 
 ## API
@@ -53,10 +56,11 @@ const result = await parseMedia(
 
 ### `src`
 
-Either a local file path, or a URL.  
+Either a local file path, or a URL, or a `File` object.  
 If you pass a local file path, you must also pass `nodeReader` as the `reader` argument.
+If you pass a `File` object, you must also pass `webFileReader` as the `reader` argument.
 
-### `fields`
+### `fields?`
 
 An object specifying which fields you'd like to receive.  
 Possible fields are:
@@ -65,7 +69,9 @@ Possible fields are:
 
 _`{width: number, height: number}`_
 
-The dimensions of the video.
+The dimensions of the video.  
+Any rotation is already applied - the dimensions are like a media player would show them.  
+Use `unrotatedDimensions` to get the dimensions before rotation.
 
 #### `durationInSeconds`
 
@@ -85,13 +91,91 @@ The frame rate of the video.
 
 #### `videoCodec`
 
-The video codec of the video. One of `"h264"`, `"h265"`, `"vp8"`, `"vp9"`, `"av1"`, `"prores"` or `null` (in case of an unknown codec).
+The video codec of the file.  
+If multiple video tracks are present, this will be the first video track.  
+One of `"h264"`, `"h265"`, `"vp8"`, `"vp9"`, `"av1"`, `"prores"` or `null` (in case of an unknown codec).
 
-### `reader`
+#### `audioCodec`
+
+The audio codec of the file.  
+If multiple audio tracks are present, this will be the first audio track.  
+One of `'aac'`, `'mp3'`, `'aiff'`, `'opus'`, `'pcm'`, `'unknown'` (audio is there but not recognized) or `null` (in case of no audio detected).
+
+#### `tracks`
+
+Returns two arrays `videoTracks` and `audioTracks`.  
+The data structure of them is not yet stable.
+
+#### `unrotatedDimensions`
+
+_`{width: number, height: number}`_
+
+The dimensions of the video before rotation.  
+
+#### `rotation`
+
+_number_
+
+The rotation of the video in degrees (e.g. `-90` for a 90° counter-clockwise rotation).
+
+### `reader?`
 
 A reader interface.  
-Default value: `webReader`, which uses `fetch()` to read the video.  
-If you pass `nodeReader`, you must also pass a local file path as the `src` argument.
+Default value: `fetchReader`, which uses `fetch()` to read the video.  
+If you pass [`nodeReader`](/docs/media-parser/node-reader), you must also pass a local file path as the `src` argument.
+If you pass [`webFileReader`](/docs/media-parser/web-file-reader), you must also pass a `File` as the `src` argument.
+
+
+### `onVideoTrack?`
+
+A callback that is called when a video track is detected.  
+It receives a `VideoTrack` object (API not yet stable).  
+You must return either `null` or a callback that is called for each sample that corresponds to the video track.
+
+The `sample` has the type `VideoSample` and while not all fields are stable, it has all the mandatory fields for the [`EncodedVideoChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedVideoChunk) constructor.
+
+```tsx twoslash title="Reading video frames"
+// @module: es2022
+// @target: es2017
+import {parseMedia, OnVideoTrack} from '@remotion/media-parser';
+
+const onVideoTrack: OnVideoTrack = (track) => {
+  console.log(track);
+
+  return (sample) => {
+    console.log(new EncodedVideoChunk(sample))
+  };
+};
+```
+
+### `onAudioTrack?`
+
+A callback that is called when an audio track is detected.  
+It receives a `AudioTrack` object (API not yet stable).  
+You must return either `null` or a callback that is called for each sample that corresponds to the audio track.
+
+The `sample` has the type `AudioSample` and while not all fields are stable, it has all the mandatory fields for the [`EncodedAudioChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedAudioChunk) constructor.
+
+```tsx twoslash title="Reading audio frames"
+// @module: es2022
+// @target: es2017
+// @noErrors
+import {parseMedia, OnAudioTrack} from '@remotion/media-parser';
+
+const onAudioTrack: OnAudioTrack = (track) => {
+  console.log(track);
+
+  return (sample) => {
+    console.log(new EncodedAudioChunk(sample))
+  };
+};
+```
+
+
+### `signal?`
+
+An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) instance.  
+If the signal is aborted, the parser will stop reading the media and stop the decoding process and throw an error.
 
 ## See also
 

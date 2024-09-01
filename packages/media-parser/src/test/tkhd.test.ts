@@ -58,7 +58,7 @@ test('Should be able to parse a TKHD box', () => {
 		0, 0, 0, 0,
 	]);
 
-	const iterator = getArrayBufferIterator(buffer);
+	const iterator = getArrayBufferIterator(buffer, null);
 	iterator.discard(8);
 	const mvhd = parseTkhd({
 		iterator,
@@ -77,8 +77,11 @@ test('Should be able to parse a TKHD box', () => {
 		version: 0,
 		layer: 0,
 		volume: 0,
-		matrix: [65536, 0, 0, 0, 65536, 0, 0, 0, 1073741824],
+		matrix: [1, 0, 0, 0, 1, 0, 0, 0, 1],
 		width: 0,
 		height: 0,
+		rotation: 0,
+		unrotatedWidth: 0,
+		unrotatedHeight: 0,
 	});
 });
