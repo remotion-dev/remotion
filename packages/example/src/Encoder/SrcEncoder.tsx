@@ -1,5 +1,19 @@
-import {OnAudioTrack, OnVideoTrack, parseMedia} from '@remotion/media-parser';
-import React, {useCallback, useRef} from 'react';
+import {
+	MediaFn,
+	MediaParserInternals,
+	OnAudioTrack,
+	OnVideoTrack,
+	VideoTrack,
+	parseMedia,
+} from '@remotion/media-parser';
+import {webFsWriter} from '@remotion/media-parser/web-fs';
+import {
+	createAudioDecoder,
+	createAudioEncoder,
+	createVideoDecoder,
+	createVideoEncoder,
+} from '@remotion/webcodecs';
+import React, {useCallback, useRef, useState} from 'react';
 import {flushSync} from 'react-dom';
 import {AbsoluteFill} from 'remotion';
 import {fitElementSizeInContainer} from './fit-element-size-in-container';
@@ -14,7 +28,6 @@ const SampleLabel: React.FC<{
 		<div
 			style={{
 				height: 18,
-				width: 18,
 				fontSize: 11,
 				border: '1px solid white',
 				display: 'inline-flex',
@@ -22,6 +35,7 @@ const SampleLabel: React.FC<{
 				alignItems: 'center',
 				borderRadius: 5,
 				marginRight: 4,
+				padding: 3,
 				fontFamily: 'Arial',
 				color: 'white',
 			}}
@@ -44,195 +58,286 @@ const SampleCount: React.FC<{
 	);
 };
 
+type State = {
+	videoFrames: number;
+	audioFrames: number;
+	encodedVideoFrames: number;
+	encodedAudioFrames: number;
+	videoError: DOMException | null;
+	audioError: DOMException | null;
+};
+
 export const SrcEncoder: React.FC<{
 	src: string;
 	label: string;
 }> = ({src, label}) => {
-	const [samples, setSamples] = React.useState<number>(0);
-	const [videoFrames, setVideoFrames] = React.useState<number>(0);
-	const [audioFrames, setAudioFrames] = React.useState<number>(0);
-	const [videoError, setVideoError] = React.useState<DOMException | null>(null);
-	const [audioError, setAudioError] = React.useState<DOMException | null>(null);
+	const [state, setRawState] = useState<State>({
+		audioFrames: 0,
+		videoFrames: 0,
+		encodedVideoFrames: 0,
+		encodedAudioFrames: 0,
+		audioError: null,
+		videoError: null,
+	});
+	const stateRef = useRef(state);
+
+	const [downloadFn, setDownloadFn] = useState<null | (() => void)>(null);
+
+	const setState: React.Dispatch<React.SetStateAction<State>> = useCallback(
+		(newState) => {
+			if (typeof newState === 'function') {
+				stateRef.current = newState(stateRef.current);
+				setRawState(stateRef.current);
+				return;
+			}
+			stateRef.current = newState;
+			setRawState(newState);
+		},
+		[],
+	);
 
 	const ref = useRef<HTMLCanvasElement>(null);
 
 	const i = useRef(0);
 
-	const onVideoTrack: OnVideoTrack = useCallback(async (track) => {
-		if (typeof VideoDecoder === 'undefined') {
-			return null;
-		}
+	const onVideoFrame = useCallback(
+		async (inputFrame: VideoFrame, track: VideoTrack) => {
+			i.current++;
 
-		const {supported} = await VideoDecoder.isConfigSupported(track);
+			if (i.current % 10 === 1) {
+				const rotatedWidth =
+					track.rotation === -90 || track.rotation === 90
+						? CANVAS_HEIGHT
+						: CANVAS_WIDTH;
+				const rotatedHeight =
+					track.rotation === -90 || track.rotation === 90
+						? CANVAS_WIDTH
+						: CANVAS_HEIGHT;
 
-		if (!supported) {
-			setVideoError(new DOMException('Video decoder not supported'));
-			return null;
-		}
+				const fitted = fitElementSizeInContainer({
+					containerSize: {
+						width: rotatedWidth,
+						height: rotatedHeight,
+					},
+					elementSize: {
+						width: track.displayAspectWidth,
+						height: track.displayAspectHeight,
+					},
+				});
 
-		const videoDecoder = new VideoDecoder({
-			async output(inputFrame) {
-				i.current++;
+				const image = await createImageBitmap(inputFrame, {
+					resizeHeight: fitted.height * 2,
+					resizeWidth: fitted.width * 2,
+				});
 
-				if (i.current % 10 === 1) {
-					const rotatedWidth =
-						track.rotation === -90 || track.rotation === 90
-							? CANVAS_HEIGHT
-							: CANVAS_WIDTH;
-					const rotatedHeight =
-						track.rotation === -90 || track.rotation === 90
-							? CANVAS_WIDTH
-							: CANVAS_HEIGHT;
-
-					const fitted = fitElementSizeInContainer({
-						containerSize: {
-							width: rotatedWidth,
-							height: rotatedHeight,
-						},
-						elementSize: {
-							width: track.displayAspectWidth,
-							height: track.displayAspectHeight,
-						},
-					});
-
-					const image = await createImageBitmap(inputFrame, {
-						resizeHeight: fitted.height * 2,
-						resizeWidth: fitted.width * 2,
-					});
-
-					if (!ref.current) {
-						return;
-					}
-
-					const context = ref.current.getContext('2d');
-					if (!context) {
-						return;
-					}
-					ref.current.width = CANVAS_WIDTH;
-					ref.current.height = CANVAS_HEIGHT;
-
-					if (track.rotation === -90) {
-						context.rotate((-track.rotation * Math.PI) / 180);
-						context.drawImage(
-							image,
-							fitted.left,
-							-CANVAS_WIDTH / 2 - fitted.height / 2,
-							fitted.width,
-							fitted.height,
-						);
-						context.setTransform(1, 0, 0, 1, 0, 0);
-					}
-					// TODO: Implement 90 and 180 rotations
-					else {
-						context.drawImage(
-							image,
-							fitted.left,
-							0,
-							fitted.width,
-							fitted.height,
-						);
-					}
+				if (!ref.current) {
+					return;
 				}
-				flushSync(() => {
-					setVideoFrames((prev) => prev + 1);
-				});
-				inputFrame.close();
-			},
-			error(error) {
-				console.log(error);
-				setVideoError(error);
-			},
-		});
-		videoDecoder.configure(track);
 
-		return async (chunk) => {
+				const context = ref.current.getContext('2d');
+				if (!context) {
+					return;
+				}
+				ref.current.width = CANVAS_WIDTH;
+				ref.current.height = CANVAS_HEIGHT;
+
+				if (track.rotation === -90) {
+					context.rotate((-track.rotation * Math.PI) / 180);
+					context.drawImage(
+						image,
+						fitted.left,
+						-CANVAS_WIDTH / 2 - fitted.height / 2,
+						fitted.width,
+						fitted.height,
+					);
+					context.setTransform(1, 0, 0, 1, 0, 0);
+				}
+				// TODO: Implement 90 and 180 rotations
+				else {
+					context.drawImage(image, fitted.left, 0, fitted.width, fitted.height);
+				}
+			}
 			flushSync(() => {
-				setSamples((s) => s + 1);
+				setState((s) => ({...s, videoFrames: s.videoFrames + 1}));
 			});
+		},
+		[setState],
+	);
 
-			if (videoDecoder.decodeQueueSize > 10) {
-				let resolve = () => {};
-
-				const cb = () => {
-					resolve();
-				};
-
-				await new Promise<void>((r) => {
-					resolve = r;
-					videoDecoder.addEventListener('dequeue', cb);
-				});
-				videoDecoder.removeEventListener('dequeue', cb);
-			}
-
-			if (videoDecoder.state === 'closed') {
-				return;
-			}
-			videoDecoder.decode(new EncodedVideoChunk(chunk));
-		};
+	const getFramesInEncodingQueue = useCallback(() => {
+		return stateRef.current.videoFrames - stateRef.current.encodedVideoFrames;
 	}, []);
 
-	const onAudioTrack: OnAudioTrack = useCallback(async (track) => {
-		if (typeof AudioDecoder === 'undefined') {
-			return null;
-		}
+	const onVideoTrack = useCallback(
+		(mediaState: MediaFn): OnVideoTrack =>
+			async (track) => {
+				if (!mediaState) {
+					throw new Error('mediaState is null');
+				}
 
-		const {supported, config} = await AudioDecoder.isConfigSupported(track);
-
-		if (!supported) {
-			setAudioError(new DOMException('Audio decoder not supported'));
-			return null;
-		}
-
-		const audioDecoder = new AudioDecoder({
-			output(inputFrame) {
-				flushSync(() => {
-					setAudioFrames((prev) => prev + 1);
+				const {trackNumber} = await mediaState.addTrack({
+					type: 'video',
+					color: {
+						transferChracteristics: 'bt709',
+						matrixCoefficients: 'bt709',
+						primaries: 'bt709',
+						fullRange: true,
+					},
+					width: track.codedWidth,
+					height: track.codedHeight,
+					// TODO: Unhardcode
+					defaultDuration: 2658,
+					codecId: 'V_VP8',
 				});
-				inputFrame.close();
-			},
-			error(error) {
-				setAudioError(error);
-			},
-		});
 
-		audioDecoder.configure(config);
+				const videoEncoder = await createVideoEncoder({
+					width: track.displayAspectWidth,
+					height: track.displayAspectHeight,
+					onChunk: async (chunk) => {
+						await mediaState.addSample(chunk, trackNumber);
+						const newDuration = Math.round(
+							(chunk.timestamp + (chunk.duration ?? 0)) / 1000,
+						);
+						flushSync(() => {
+							setState((s) => ({
+								...s,
+								encodedVideoFrames: s.encodedVideoFrames + 1,
+							}));
+						});
+						await mediaState.updateDuration(newDuration);
+					},
+				});
+				if (videoEncoder === null) {
+					setState((s) => ({
+						...s,
+						videoError: new DOMException('Video encoder not supported'),
+					}));
+					return null;
+				}
 
-		return async (audioSample) => {
-			flushSync(() => {
-				setSamples((s) => s + 1);
-			});
+				const videoDecoder = await createVideoDecoder({
+					track,
+					onFrame: async (frame) => {
+						await onVideoFrame(frame, track);
+						await videoEncoder.encodeFrame(frame);
+						frame.close();
+					},
+				});
+				if (videoDecoder === null) {
+					setState((s) => ({
+						...s,
+						videoError: new DOMException('Video decoder not supported'),
+					}));
+					return null;
+				}
 
-			if (audioDecoder.state === 'closed') {
-				return;
-			}
+				mediaState.addWaitForFinishPromise(async () => {
+					await videoDecoder.waitForFinish();
+					await videoEncoder.waitForFinish();
+				});
 
-			if (audioDecoder.decodeQueueSize > 10) {
-				console.log('audio decoder queue size', audioDecoder.decodeQueueSize);
-				let resolve = () => {};
+				return async (chunk) => {
+					while (getFramesInEncodingQueue() > 50) {
+						await new Promise<void>((r) => {
+							setTimeout(r, 100);
+						});
+					}
 
-				const cb = () => {
-					resolve();
+					await videoDecoder.processSample(chunk);
 				};
+			},
+		[getFramesInEncodingQueue, onVideoFrame, setState],
+	);
 
-				await new Promise<void>((r) => {
-					resolve = r;
-					// @ts-expect-error exists
-					audioDecoder.addEventListener('dequeue', cb);
+	const onAudioTrack = useCallback(
+		(mediaState: MediaFn): OnAudioTrack =>
+			async (track) => {
+				const {trackNumber} = await mediaState.addTrack({
+					type: 'audio',
+					codecId: 'A_OPUS',
+					numberOfChannels: track.numberOfChannels,
+					sampleRate: track.sampleRate,
 				});
-				// @ts-expect-error exists
-				audioDecoder.removeEventListener('dequeue', cb);
-			}
 
-			audioDecoder.decode(new EncodedAudioChunk(audioSample));
-		};
-	}, []);
+				const audioEncoder = await createAudioEncoder({
+					onChunk: async (chunk) => {
+						await mediaState.addSample(chunk, trackNumber);
+
+						flushSync(() => {
+							setState((s) => ({
+								...s,
+								encodedAudioFrames: s.encodedAudioFrames + 1,
+							}));
+						});
+					},
+					sampleRate: track.sampleRate,
+					numberOfChannels: track.numberOfChannels,
+				});
+
+				if (!audioEncoder) {
+					setState((s) => ({
+						...s,
+						audioError: new DOMException('Audio encoder not supported'),
+					}));
+					return null;
+				}
+
+				const audioDecoder = await createAudioDecoder({
+					track,
+					onFrame: async (frame) => {
+						await audioEncoder.encodeFrame(frame);
+
+						flushSync(() => {
+							setState((s) => ({...s, audioFrames: s.audioFrames + 1}));
+						});
+						frame.close();
+					},
+					onError(error) {
+						setState((s) => ({...s, audioError: error}));
+					},
+				});
+
+				if (!audioDecoder) {
+					setState((s) => ({
+						...s,
+						audioError: new DOMException('Audio decoder not supported'),
+					}));
+					return null;
+				}
+
+				mediaState.addWaitForFinishPromise(async () => {
+					await audioDecoder.waitForFinish();
+					await audioEncoder.waitForFinish();
+				});
+
+				return async (audioSample) => {
+					await audioDecoder.processSample(audioSample);
+				};
+			},
+		[setState],
+	);
 
 	const onClick = useCallback(() => {
-		parseMedia({
-			src,
-			onVideoTrack,
-			onAudioTrack,
-		}).then(() => {});
+		MediaParserInternals.createMedia(webFsWriter)
+			.then((state) => {
+				parseMedia({
+					src,
+					onVideoTrack: onVideoTrack(state),
+					onAudioTrack: onAudioTrack(state),
+				})
+					.then(() => {
+						return state.waitForFinish();
+					})
+					.then(() => {
+						setDownloadFn(() => state.save);
+					})
+					.catch((err) => {
+						console.error(err);
+					});
+			})
+			.catch((err) => {
+				console.error(err);
+			});
 	}, [onAudioTrack, onVideoTrack, src]);
 
 	return (
@@ -288,17 +393,31 @@ export const SrcEncoder: React.FC<{
 						height: 38,
 					}}
 				>
-					<SampleCount errored={false} count={samples} label="S" />
 					<SampleCount
-						errored={videoError !== null}
-						count={videoFrames}
-						label="V"
+						errored={state.videoError !== null}
+						count={state.videoFrames}
+						label="VD"
 					/>
 					<SampleCount
-						errored={audioError !== null}
-						count={audioFrames}
-						label="A"
+						errored={state.videoError !== null}
+						count={state.encodedVideoFrames}
+						label="VE"
 					/>
+					<SampleCount
+						errored={state.videoError !== null}
+						count={state.audioFrames}
+						label="AD"
+					/>
+					<SampleCount
+						errored={state.videoError !== null}
+						count={state.encodedAudioFrames}
+						label="AE"
+					/>
+					{downloadFn ? (
+						<button type="button" onClick={downloadFn}>
+							DL
+						</button>
+					) : null}
 				</div>
 			</AbsoluteFill>
 		</div>

@@ -2,8 +2,8 @@ import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
 import {getSamplePositionsFromTrack} from '../boxes/iso-base-media/get-sample-positions-from-track';
 import type {TrakBox} from '../boxes/iso-base-media/trak/trak';
-import {nodeReader} from '../from-node';
 import {parseMedia} from '../parse-media';
+import {nodeReader} from '../readers/from-node';
 
 test('Stream samples', async () => {
 	const {videoTracks, audioTracks} = await parseMedia({

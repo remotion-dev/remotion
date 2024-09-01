@@ -43,8 +43,11 @@ export const parseEbml = async (
 		const beforeUintOffset = iterator.counter.getOffset();
 		const value = size === 0 ? 0 : iterator.getUint(size);
 
+		const {name} = hasInMap;
+
 		return {
-			type: hasInMap.name,
+			// To work around TS limit
+			type: name as 'SeekPosition',
 			value: {
 				value,
 				byteLength: iterator.counter.getOffset() - beforeUintOffset,

@@ -1,7 +1,6 @@
 /* eslint-disable max-depth */
 import type {BufferIterator} from './buffer-iterator';
 import {getArrayBufferIterator} from './buffer-iterator';
-import {fetchReader} from './from-fetch';
 import {getAudioCodec} from './get-audio-codec';
 import {getDimensions} from './get-dimensions';
 import {getDuration} from './get-duration';
@@ -14,6 +13,7 @@ import type {ParseResult} from './parse-result';
 import {parseVideo} from './parse-video';
 import type {ParserContext} from './parser-context';
 import {makeParserState} from './parser-state';
+import {fetchReader} from './readers/from-fetch';
 
 export const parseMedia: ParseMedia = async ({
 	src,

@@ -13,7 +13,8 @@
 		"watch": "tsc -w"
 	},
 	"devDependencies": {
-		"@remotion/renderer": "workspace:*"
+		"@remotion/renderer": "workspace:*",
+		"@types/wicg-file-system-access": "2023.10.5"
 	},
 	"publishConfig": {
 		"access": "public"
@@ -23,21 +24,25 @@
 	},
 	"exports": {
 		".": "./dist/index.js",
-		"./node": "./dist/from-node.js",
-		"./fetch": "./dist/from-fetch.js",
-		"./web-file": "./dist/from-web-file.js",
+		"./node": "./dist/readers/from-node.js",
+		"./fetch": "./dist/readers/from-fetch.js",
+		"./web-file": "./dist/readers/from-web-file.js",
+		"./web-fs": "./dist/writers/web-fs.js",
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
 		">=1.0": {
 			"node": [
-				"dist/from-node.d.ts"
+				"dist/readers/from-node.d.ts"
 			],
 			"fetch": [
-				"dist/from-fetch.d.ts"
+				"dist/readers/from-fetch.d.ts"
 			],
 			"web-file": [
-				"dist/from-web-file.d.ts"
+				"dist/readers/from-web-file.d.ts"
+			],
+			"web-fs": [
+				"dist/writers/web-fs.d.ts"
 			]
 		}
 	},
