@@ -319,6 +319,7 @@ export const makeMatroskaTracks = (tracks: BytesAndOffset[]) => {
 			value: tracks,
 			minVintWidth: null,
 		}),
+		// TODO: That's too much padding
 		1000,
 	);
 };

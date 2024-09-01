@@ -37,6 +37,7 @@ export const makeMatroskaInfo = ({
 					},
 					minVintWidth: null,
 				},
+				// TODO: That's too much padding
 				1000,
 			),
 		],

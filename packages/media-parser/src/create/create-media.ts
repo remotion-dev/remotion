@@ -44,6 +44,7 @@ export const createMedia = async (
 	await w.write(header.bytes);
 	const matroskaInfo = makeMatroskaInfo({
 		timescale: 1_000_000,
+		// TODO: Hardcoded
 		duration: 2658,
 	});
 
@@ -114,6 +115,7 @@ export const createMedia = async (
 				},
 				minVintWidth: null,
 			},
+			// TODO: That's too much padding
 			1000,
 		);
 		await w.updateDataAt(
