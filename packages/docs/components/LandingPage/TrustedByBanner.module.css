@@ -1,0 +1,38 @@
+.logoContainer {
+	max-width: 170px;
+	height: auto; /* Keeps the aspect ratio intact */
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-bottom: 1rem;
+}
+
+.homepageTitle {
+	text-align: center;
+	/* Add some margin to the top to separate from the header */
+	margin-top: 2rem;
+}
+
+.logos {
+	text-align: center;
+	display: flex;
+	flex-wrap: nowrap; /* Prevent wrapping to ensure single line */
+	justify-content: center;
+	gap: 30px; /* Reduced gap to help fit logos in a single line */
+	overflow-x: auto; /* Allows scrolling on very small screens */
+}
+
+.logo {
+	max-width: 30px; /* Scale down logos to fit in a single line */
+	height: auto; /* Maintain aspect ratio */
+}
+
+/* Allow logos to wrap for screens smaller than 700px */
+@media (max-width: 700px) {
+	.logos {
+		flex-wrap: wrap; /* Allow wrapping */
+	}
+	.logo {
+		max-width: 50px; /* Optionally adjust size back up if desired */
+	}
+}

@@ -1,0 +1,59 @@
+.developer-stats-container {
+	max-width: 67%;
+	width: 67%;
+	margin: 0 auto;
+	text-align: center;
+}
+
+.developer-stats-title {
+	font-size: 2.5rem;
+	font-weight: bold;
+	margin-bottom: 0.5rem;
+}
+
+.developer-stats-subtitle {
+	font-size: 1.25rem;
+	margin-bottom: 1.5rem;
+}
+
+.developer-stats-grid {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 1rem;
+	width: 100%;
+}
+
+.stat-item {
+	background-color: var(--ifm-background-surface-color);
+	border-radius: 0.5rem;
+	border: 5px solid #000000;
+	padding: 0.3rem;
+	box-shadow:
+		0 1px 3px rgba(0, 0, 0, 0.12),
+		0 1px 2px rgba(0, 0, 0, 0.24);
+	line-height: 1;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	align-content: center;
+}
+
+.stat-item-content {
+	border: 1px solid #000000;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+}
+
+.stat-item-large-text {
+	font-size: 2.5rem;
+	font-weight: bold;
+}
+
+.stat-item-small-text {
+	font-size: 1rem;
+	font-weight: bold;
+}
