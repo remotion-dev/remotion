@@ -39,6 +39,10 @@ export const createVideoEncoder = async ({
 
 	const encodeFrame = async (frame: VideoFrame) => {
 		await encoderWaitForDequeue(encoder);
+		if (encoder.state === 'closed') {
+			return;
+		}
+
 		encoder.encode(frame, {
 			keyFrame: framesProcessed % 40 === 0,
 		});

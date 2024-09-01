@@ -2,8 +2,12 @@ import {encoderWaitForDequeue} from './wait-for-dequeue';
 
 export const createAudioEncoder = async ({
 	onChunk,
+	sampleRate,
+	numberOfChannels,
 }: {
 	onChunk: (chunk: EncodedAudioChunk) => void;
+	sampleRate: number;
+	numberOfChannels: number;
 }) => {
 	if (typeof AudioEncoder === 'undefined') {
 		return null;
@@ -20,10 +24,8 @@ export const createAudioEncoder = async ({
 
 	const audioEncoderConfig: AudioEncoderConfig = {
 		codec: 'opus',
-		// TODO: Hardcoded
-		numberOfChannels: 2,
-		// TODO: Hardcoded and fails if wrong
-		sampleRate: 48000,
+		numberOfChannels,
+		sampleRate,
 		bitrate: 128000,
 	};
 
@@ -36,8 +38,20 @@ export const createAudioEncoder = async ({
 	encoder.configure(audioEncoderConfig);
 
 	const encodeFrame = async (audioData: AudioData) => {
+		console.log({
+			audioData: audioData.timestamp,
+			t: audioData.timestamp,
+			d: audioData.numberOfFrames,
+			s: audioData.numberOfChannels,
+			a: audioData.sampleRate,
+			f: audioData.format,
+		});
 		await encoderWaitForDequeue(encoder);
+		if (encoder.state === 'closed') {
+			return;
+		}
 
+		console.log(audioData.duration, audioData.timestamp);
 		encoder.encode(audioData);
 	};
 

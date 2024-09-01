@@ -1,4 +1,4 @@
-import {makeMatroskaBytes} from '../boxes/webm/make-header';
+import {makeMatroskaBytes, padMatroskaBytes} from '../boxes/webm/make-header';
 import type {BytesAndOffset} from '../boxes/webm/segments/all-segments';
 
 export type MatroskaColorParams = {
@@ -140,13 +140,26 @@ export const makeMatroskaVideoBytes = ({
 	});
 };
 
+export type MakeTrackAudio = {
+	trackNumber: number;
+	codecId: string;
+	type: 'audio';
+};
+
+export type MakeTrackVideo = {
+	color: MatroskaColorParams;
+	width: number;
+	height: number;
+	defaultDuration: number;
+	trackNumber: number;
+	codecId: string;
+	type: 'video';
+};
+
 export const makeMatroskaAudioTrackEntryBytes = ({
 	trackNumber,
 	codecId,
-}: {
-	trackNumber: number;
-	codecId: string;
-}) => {
+}: MakeTrackAudio) => {
 	return makeMatroskaBytes({
 		type: 'TrackEntry',
 		minVintWidth: null,
@@ -200,7 +213,7 @@ export const makeMatroskaAudioTrackEntryBytes = ({
 						type: 'SamplingFrequency',
 						minVintWidth: null,
 						value: {
-							value: 44100,
+							value: 48000,
 							size: '64',
 						},
 					},
@@ -226,14 +239,7 @@ export const makeMatroskaVideoTrackEntryBytes = ({
 	defaultDuration,
 	trackNumber,
 	codecId,
-}: {
-	color: MatroskaColorParams;
-	width: number;
-	height: number;
-	defaultDuration: number;
-	trackNumber: number;
-	codecId: string;
-}) => {
+}: MakeTrackVideo) => {
 	return makeMatroskaBytes({
 		type: 'TrackEntry',
 		minVintWidth: null,
@@ -303,9 +309,12 @@ export const makeMatroskaVideoTrackEntryBytes = ({
 };
 
 export const makeMatroskaTracks = (tracks: BytesAndOffset[]) => {
-	return makeMatroskaBytes({
-		type: 'Tracks',
-		value: tracks,
-		minVintWidth: null,
-	});
+	return padMatroskaBytes(
+		makeMatroskaBytes({
+			type: 'Tracks',
+			value: tracks,
+			minVintWidth: null,
+		}),
+		1000,
+	);
 };

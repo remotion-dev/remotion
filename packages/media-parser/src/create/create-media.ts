@@ -4,6 +4,7 @@ import {
 	matroskaToHex,
 	padMatroskaBytes,
 } from '../boxes/webm/make-header';
+import type {BytesAndOffset} from '../boxes/webm/segments/all-segments';
 import {matroskaElements} from '../boxes/webm/segments/all-segments';
 import type {WriterInterface} from '../writers/writer';
 import {
@@ -14,6 +15,7 @@ import {
 import {makeMatroskaHeader} from './matroska-header';
 import {makeMatroskaInfo} from './matroska-info';
 import {createMatroskaSegment} from './matroska-segment';
+import type {MakeTrackAudio, MakeTrackVideo} from './matroska-trackentry';
 import {
 	makeMatroskaAudioTrackEntryBytes,
 	makeMatroskaTracks,
@@ -24,6 +26,7 @@ export type MediaFn = {
 	save: () => Promise<void>;
 	addSample: (chunk: EncodedVideoChunk, trackNumber: number) => Promise<void>;
 	updateDuration: (duration: number) => Promise<void>;
+	addTrack: (track: MakeTrackAudio | MakeTrackVideo) => Promise<void>;
 };
 
 export const createMedia = async (
@@ -37,35 +40,29 @@ export const createMedia = async (
 		timescale: 1_000_000,
 		duration: 2658,
 	});
-	const matroskaVideoTrackEntry = makeMatroskaVideoTrackEntryBytes({
-		color: {
-			transferChracteristics: 'bt709',
-			matrixCoefficients: 'bt709',
-			primaries: 'bt709',
-			fullRange: true,
-		},
-		width: 1920,
-		height: 1080,
-		defaultDuration: 2658,
-		trackNumber: 1,
-		codecId: 'V_VP8',
-	});
-	const matroskaAudioTrackEntry = makeMatroskaAudioTrackEntryBytes({
-		trackNumber: 2,
-		codecId: 'A_OPUS',
-	});
-	const matroskaTracks = makeMatroskaTracks([
-		matroskaVideoTrackEntry,
-		matroskaAudioTrackEntry,
+
+	const currentTracks: BytesAndOffset[] = [];
+
+	const matroskaTracks = makeMatroskaTracks(currentTracks);
+	const matroskaSegment = createMatroskaSegment([
+		matroskaInfo,
+		...matroskaTracks,
 	]);
-	const matroskaSegment = createMatroskaSegment([matroskaInfo, matroskaTracks]);
 
 	const durationOffset =
 		(matroskaSegment.offsets.children[0].children.find(
 			(c) => c.field === 'Duration',
 		)?.offset ?? 0) + w.getWrittenByteCount();
+	const tracksOffset =
+		(matroskaSegment.offsets.children.find((o) => o.field === 'Tracks')
+			?.offset ?? 0) + w.getWrittenByteCount();
+
 	if (!durationOffset) {
 		throw new Error('could not get duration offset');
+	}
+
+	if (!tracksOffset) {
+		throw new Error('could not get tracks offset');
 	}
 
 	await w.write(matroskaSegment.bytes);
@@ -92,6 +89,7 @@ export const createMedia = async (
 			// Maybe it only works by coincidence
 			timecodeRelativeToCluster: Math.round(chunk.timestamp / 1000),
 		});
+
 		clusterSize += simpleBlock.byteLength;
 		await w.updateDataAt(
 			clusterVIntPosition,
@@ -118,6 +116,16 @@ export const createMedia = async (
 		);
 	};
 
+	const addTrack = async (track: BytesAndOffset) => {
+		currentTracks.push(track);
+		const newTracks = makeMatroskaTracks(currentTracks);
+
+		await w.updateDataAt(
+			tracksOffset,
+			combineUint8Arrays(newTracks.map((b) => b.bytes)),
+		);
+	};
+
 	let operationProm = Promise.resolve();
 
 	return {
@@ -130,6 +138,15 @@ export const createMedia = async (
 		},
 		updateDuration: (duration) => {
 			operationProm = operationProm.then(() => updateDuration(duration));
+			return operationProm;
+		},
+		addTrack: (track) => {
+			const bytes =
+				track.type === 'video'
+					? makeMatroskaVideoTrackEntryBytes(track)
+					: makeMatroskaAudioTrackEntryBytes(track);
+
+			operationProm = operationProm.then(() => addTrack(bytes));
 			return operationProm;
 		},
 	};

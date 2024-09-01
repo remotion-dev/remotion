@@ -179,11 +179,27 @@ export const SrcEncoder: React.FC<{
 			if (!mediaState) {
 				throw new Error('mediaState is null');
 			}
+
+			await mediaState.addTrack({
+				type: 'video',
+				color: {
+					transferChracteristics: 'bt709',
+					matrixCoefficients: 'bt709',
+					primaries: 'bt709',
+					fullRange: true,
+				},
+				width: 1920,
+				height: 1080,
+				defaultDuration: 2658,
+				trackNumber: 1,
+				codecId: 'V_VP8',
+			});
+
 			const videoEncoder = await createVideoEncoder({
 				width: track.displayAspectWidth,
 				height: track.displayAspectHeight,
 				onChunk: async (chunk) => {
-					await mediaState.addSample(chunk, 1);
+					// await mediaState.addSample(chunk, 1);
 					const newDuration = Math.round(
 						(chunk.timestamp + (chunk.duration ?? 0)) / 1000,
 					);
@@ -238,6 +254,13 @@ export const SrcEncoder: React.FC<{
 			if (!mediaState) {
 				throw new Error('mediaState is null');
 			}
+
+			await mediaState.addTrack({
+				type: 'audio',
+				trackNumber: 2,
+				codecId: 'A_OPUS',
+			});
+
 			const audioEncoder = await createAudioEncoder({
 				onChunk: async (chunk) => {
 					await mediaState.addSample(chunk, 2);
@@ -249,6 +272,8 @@ export const SrcEncoder: React.FC<{
 						}));
 					});
 				},
+				sampleRate: track.sampleRate,
+				numberOfChannels: track.numberOfChannels,
 			});
 
 			if (!audioEncoder) {
@@ -283,10 +308,8 @@ export const SrcEncoder: React.FC<{
 			}
 
 			return async (audioSample) => {
-				audioDecoder.processSample(audioSample);
-				flushSync(() => {
-					setState((s) => ({...s, audioFrames: s.audioFrames + 1}));
-				});
+				// await mediaState.addSample(new EncodedAudioChunk(audioSample), 2);
+				await audioDecoder.processSample(audioSample);
 			};
 		},
 		[mediaState, setState],

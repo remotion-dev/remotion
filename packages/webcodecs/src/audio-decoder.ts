@@ -42,7 +42,8 @@ export const createAudioDecoder = async ({
 			await audioDecoder.flush();
 		}
 
-		audioDecoder.decode(new EncodedAudioChunk(audioSample));
+		const chunk = new EncodedAudioChunk(audioSample);
+		audioDecoder.decode(chunk);
 	};
 
 	let queue = Promise.resolve();
