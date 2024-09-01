@@ -23,6 +23,26 @@ export const Demo: React.FC = () => {
 
 	const strokeColor = colorMode === 'dark' ? 'gray' : 'black';
 
+	const [isFullscreen, setIsFullscreen] = useState(false);
+
+	useEffect(() => {
+		const {current: playerRef} = ref;
+		if (!playerRef || !data) {
+			return;
+		}
+
+		const onFullscreenChange = () => {
+			setIsFullscreen(playerRef.isFullscreen());
+		};
+
+		playerRef.addEventListener('fullscreenchange', onFullscreenChange);
+
+		return () => {
+			playerRef.removeEventListener('fullscreenchange', onFullscreenChange);
+		};
+	}, [data]);
+	console.log({isFullscreen});
+
 	return (
 		<div>
 			<br />
@@ -39,7 +59,7 @@ export const Demo: React.FC = () => {
 						durationInFrames={120}
 						fps={30}
 						autoPlay
-						controls
+						controls={isFullscreen}
 						clickToPlay={false}
 						style={{
 							border: '2px solid ' + strokeColor,

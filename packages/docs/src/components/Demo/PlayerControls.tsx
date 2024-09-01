@@ -1,5 +1,6 @@
 import type {PlayerRef} from '@remotion/player';
 import React, {useCallback, useEffect} from 'react';
+import {PlayerFullscreen} from './PlayerFullscreen';
 import {PlayerSeekBar} from './PlayerSeekBar';
 
 const formatTime = (timeInSeconds: number) => {
@@ -42,7 +43,7 @@ const PlayButton: React.FC<{
 
 	return (
 		<button type="button" onClick={onToggle}>
-			{playing ? '▶' : '❚❚'}
+			{playing ? '❚❚' : '▶'}
 		</button>
 	);
 };
@@ -96,7 +97,7 @@ export const PlayerControls: React.FC<{
 				durationInFrames={durationInFrames}
 				fps={fps}
 			/>
-			<div style={{width: 500, height: 200}}>
+			<div style={{flex: 1}}>
 				<PlayerSeekBar
 					durationInFrames={durationInFrames}
 					playerRef={playerRef}
@@ -106,6 +107,7 @@ export const PlayerControls: React.FC<{
 					onSeekStart={() => undefined}
 				/>
 			</div>
+			<PlayerFullscreen playerRef={playerRef} />
 		</div>
 	);
 };
