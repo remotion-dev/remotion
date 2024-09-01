@@ -8,6 +8,7 @@ import {
 	getDataAndProps,
 } from '../../remotion/HomepageVideo/Comp';
 import {ActionRow} from './ActionRow';
+import {PlayerControls} from './PlayerControls';
 
 export const Demo: React.FC = () => {
 	const {colorMode} = useColorMode();
@@ -29,33 +30,35 @@ export const Demo: React.FC = () => {
 			<br />
 			<h1>Try it out</h1>
 			{data ? (
-				<Player
-					ref={ref}
-					component={HomepageVideoComp}
-					compositionWidth={640}
-					compositionHeight={360}
-					durationInFrames={120}
-					fps={30}
-					autoPlay
-					controls
-					clickToPlay={false}
-					style={{
-						border: '2px solid ' + strokeColor,
-						borderBottom: '4px solid ' + strokeColor,
-						borderRadius: 8,
-						width: '100%',
-					}}
-					inputProps={{
-						theme: colorMode,
-						onToggle: () => {
-							ref.current?.toggle();
-						},
-						...data,
-					}}
-					loop
-				/>
+				<>
+					<Player
+						ref={ref}
+						component={HomepageVideoComp}
+						compositionWidth={640}
+						compositionHeight={360}
+						durationInFrames={120}
+						fps={30}
+						autoPlay
+						controls
+						clickToPlay={false}
+						style={{
+							border: '2px solid ' + strokeColor,
+							borderBottom: '4px solid ' + strokeColor,
+							borderRadius: 8,
+							width: '100%',
+						}}
+						inputProps={{
+							theme: colorMode,
+							onToggle: () => {
+								ref.current?.toggle();
+							},
+							...data,
+						}}
+						loop
+					/>
+					<PlayerControls playerRef={ref} durationInFrames={120} fps={30} />
+				</>
 			) : null}
-
 			<ActionRow />
 		</div>
 	);
