@@ -17,16 +17,13 @@ export const ActionRow: React.FC = () => {
 	return (
 		<div className={styles.row}>
 			<div className={styles.action}>
-				<h2 className={styles['action-title']}>Drag & Drop</h2>
-				<p>
-					The video is interactive. Drag the cards around to change the video.
-				</p>
+				<h2 className={styles['action-title']}>Interactive</h2>
+				<p>Drag and drop the cards around to change the video.</p>
 			</div>
 			<div className={styles.action}>
-				<h2 className={styles['action-title']}>
-					{colorMode === 'dark' ? 'Light theme' : 'Dark theme'}
-				</h2>
+				<h2 className={styles['action-title']}>Data-driven</h2>
 				<p>
+					The preview is driven by dynamic data.{' '}
 					<a style={link} onClick={toggleTheme}>
 						Switch to {colorMode === 'dark' ? 'light' : 'dark'} mode
 					</a>{' '}

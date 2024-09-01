@@ -1,6 +1,6 @@
 import {getBoundingBox, resetPath} from '@remotion/paths';
 import React from 'react';
-import {AbsoluteFill} from 'remotion';
+import {AbsoluteFill, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {ISO_3166_ALPHA_2_MAPPINGS, countriesPaths} from './paths';
 import type {Location} from './types';
 
@@ -13,9 +13,28 @@ export const CurrentCountry: React.FC<{
 	const reset = resetPath(joined);
 	const boundingBox = getBoundingBox(reset);
 
+	const {fps} = useVideoConfig();
+	const frame = useCurrentFrame();
+
+	const progress = spring({
+		fps,
+		frame,
+		delay: 10,
+	});
+
+	const progress2 = spring({
+		fps,
+		frame,
+		delay: 20,
+	});
+
 	return (
 		<AbsoluteFill>
-			<AbsoluteFill style={{}}>
+			<AbsoluteFill
+				style={{
+					transform: `scale(${progress})`,
+				}}
+			>
 				<svg
 					viewBox={boundingBox.viewBox}
 					style={{
@@ -31,6 +50,7 @@ export const CurrentCountry: React.FC<{
 					justifyContent: 'center',
 					paddingLeft: 20,
 					paddingRight: 20,
+					transform: `scale(${progress2})`,
 				}}
 			>
 				<div

@@ -1,20 +1,58 @@
-import React from 'react';
-import {AbsoluteFill} from 'remotion';
+import React, {useMemo} from 'react';
+import {AbsoluteFill, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import type {Trending} from './Comp';
+
+const TrendingRepoItem: React.FC<{
+	repo: string;
+	theme: 'dark' | 'light';
+	number: number;
+}> = ({repo, theme, number}) => {
+	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+
+	const progress = spring({
+		fps,
+		frame,
+		config: {
+			damping: 200,
+		},
+		delay: number * 10 + 20,
+	});
+
+	const item: React.CSSProperties = useMemo(() => {
+		return {
+			lineHeight: 1.1,
+			fontFamily: 'GT Planar',
+			fontWeight: '500',
+			color: theme === 'dark' ? 'white' : 'black',
+			fontFeatureSettings: "'ss03' 1",
+			opacity: progress,
+		};
+	}, [progress, theme]);
+
+	return (
+		<div style={item}>
+			{number}. {repo}
+		</div>
+	);
+};
 
 export const TrendingRepos: React.FC<{
 	readonly theme: 'dark' | 'light';
 	readonly trending: Trending;
 }> = ({theme, trending}) => {
-	const item: React.CSSProperties = {
-		lineHeight: 1.1,
-		fontFamily: 'GT Planar',
-		fontWeight: '500',
-		color: theme === 'dark' ? 'white' : 'black',
-		fontFeatureSettings: "'ss03' 1",
-	};
-
 	const fill = theme === 'light' ? '#666' : '#999';
+	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+
+	const progress1 = spring({
+		fps,
+		frame,
+		config: {
+			damping: 200,
+		},
+		delay: 0,
+	});
 
 	return (
 		<AbsoluteFill>
@@ -32,6 +70,7 @@ export const TrendingRepos: React.FC<{
 							fontFamily: 'GT Planar',
 							fontWeight: '500',
 							fontSize: 12,
+							opacity: progress1,
 						}}
 					>
 						{new Intl.DateTimeFormat('en-US', {
@@ -46,14 +85,16 @@ export const TrendingRepos: React.FC<{
 							fontFamily: 'GT Planar',
 							fontWeight: '500',
 							fontSize: 16,
-							marginBottom: 10,
+							marginBottom: 15,
+							opacity: progress1,
+							lineHeight: 1,
 						}}
 					>
 						Trending repositories
 					</div>
-					<div style={item}>1. {trending.repos[0]}</div>
-					<div style={item}>2. {trending.repos[1]}</div>
-					<div style={item}>3. {trending.repos[2]}</div>
+					<TrendingRepoItem number={1} repo={trending.repos[0]} theme={theme} />
+					<TrendingRepoItem number={2} repo={trending.repos[1]} theme={theme} />
+					<TrendingRepoItem number={3} repo={trending.repos[2]} theme={theme} />
 				</div>
 			</AbsoluteFill>
 		</AbsoluteFill>
