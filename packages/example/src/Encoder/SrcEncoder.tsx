@@ -180,7 +180,7 @@ export const SrcEncoder: React.FC<{
 				throw new Error('mediaState is null');
 			}
 
-			await mediaState.addTrack({
+			const {trackNumber} = await mediaState.addTrack({
 				type: 'video',
 				color: {
 					transferChracteristics: 'bt709',
@@ -188,10 +188,9 @@ export const SrcEncoder: React.FC<{
 					primaries: 'bt709',
 					fullRange: true,
 				},
-				width: 1920,
-				height: 1080,
+				width: track.codedWidth,
+				height: track.codedHeight,
 				defaultDuration: 2658,
-				trackNumber: 1,
 				codecId: 'V_VP8',
 			});
 
@@ -199,7 +198,7 @@ export const SrcEncoder: React.FC<{
 				width: track.displayAspectWidth,
 				height: track.displayAspectHeight,
 				onChunk: async (chunk) => {
-					// await mediaState.addSample(chunk, 1);
+					await mediaState.addSample(chunk, trackNumber);
 					const newDuration = Math.round(
 						(chunk.timestamp + (chunk.duration ?? 0)) / 1000,
 					);
@@ -255,15 +254,16 @@ export const SrcEncoder: React.FC<{
 				throw new Error('mediaState is null');
 			}
 
-			await mediaState.addTrack({
+			const {trackNumber} = await mediaState.addTrack({
 				type: 'audio',
-				trackNumber: 2,
 				codecId: 'A_OPUS',
+				numberOfChannels: track.numberOfChannels,
+				sampleRate: track.sampleRate,
 			});
 
 			const audioEncoder = await createAudioEncoder({
 				onChunk: async (chunk) => {
-					await mediaState.addSample(chunk, 2);
+					await mediaState.addSample(chunk, trackNumber);
 
 					flushSync(() => {
 						setState((s) => ({

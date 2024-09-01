@@ -143,6 +143,8 @@ export const makeMatroskaVideoBytes = ({
 export type MakeTrackAudio = {
 	trackNumber: number;
 	codecId: string;
+	numberOfChannels: number;
+	sampleRate: number;
 	type: 'audio';
 };
 
@@ -159,6 +161,8 @@ export type MakeTrackVideo = {
 export const makeMatroskaAudioTrackEntryBytes = ({
 	trackNumber,
 	codecId,
+	numberOfChannels: audioChannels,
+	sampleRate,
 }: MakeTrackAudio) => {
 	return makeMatroskaBytes({
 		type: 'TrackEntry',
@@ -205,7 +209,7 @@ export const makeMatroskaAudioTrackEntryBytes = ({
 						type: 'Channels',
 						minVintWidth: null,
 						value: {
-							value: 2,
+							value: audioChannels,
 							byteLength: null,
 						},
 					},
@@ -213,7 +217,7 @@ export const makeMatroskaAudioTrackEntryBytes = ({
 						type: 'SamplingFrequency',
 						minVintWidth: null,
 						value: {
-							value: 48000,
+							value: sampleRate,
 							size: '64',
 						},
 					},

@@ -26,7 +26,11 @@ export type MediaFn = {
 	save: () => Promise<void>;
 	addSample: (chunk: EncodedVideoChunk, trackNumber: number) => Promise<void>;
 	updateDuration: (duration: number) => Promise<void>;
-	addTrack: (track: MakeTrackAudio | MakeTrackVideo) => Promise<void>;
+	addTrack: (
+		track:
+			| Omit<MakeTrackAudio, 'trackNumber'>
+			| Omit<MakeTrackVideo, 'trackNumber'>,
+	) => Promise<{trackNumber: number}>;
 };
 
 export const createMedia = async (
@@ -141,13 +145,16 @@ export const createMedia = async (
 			return operationProm;
 		},
 		addTrack: (track) => {
+			const trackNumber = currentTracks.length + 1;
+
 			const bytes =
 				track.type === 'video'
-					? makeMatroskaVideoTrackEntryBytes(track)
-					: makeMatroskaAudioTrackEntryBytes(track);
+					? makeMatroskaVideoTrackEntryBytes({...track, trackNumber})
+					: makeMatroskaAudioTrackEntryBytes({...track, trackNumber});
 
 			operationProm = operationProm.then(() => addTrack(bytes));
-			return operationProm;
+
+			return operationProm.then(() => ({trackNumber}));
 		},
 	};
 };
