@@ -38,9 +38,7 @@ export const createAudioDecoder = async ({
 
 		await decoderWaitForDequeue(audioDecoder);
 
-		if (audioSample.type === 'key') {
-			await audioDecoder.flush();
-		}
+		// Don't flush, it messes up the audio
 
 		const chunk = new EncodedAudioChunk(audioSample);
 		audioDecoder.decode(chunk);
