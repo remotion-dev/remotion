@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/test-utils"
 	},
 	"name": "@remotion/test-utils",
-	"version": "4.0.204",
+	"version": "4.0.206",
 	"main": "dist",
 	"sideEffects": false,
 	"scripts": {

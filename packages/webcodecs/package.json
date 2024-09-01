@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/webcodecs",
-	"version": "4.0.204",
+	"version": "4.0.206",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"repository": {

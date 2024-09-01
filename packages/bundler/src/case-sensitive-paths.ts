@@ -1,5 +1,5 @@
 import path from 'path';
-import type {Compiler} from 'webpack';
+import type {Compiler, InputFileSystem} from 'webpack';
 
 // Inlined from https://github.com/umijs/case-sensitive-paths-webpack-plugin/blob/master/src/index.ts
 
@@ -74,7 +74,7 @@ export class CaseSensitivePathsPlugin {
 				} else {
 					// read directory for the first time
 					deferrer = new Promise((resolve2) => {
-						this.fs.readdir(dir, (_, files = []) => {
+						(this.fs as InputFileSystem).readdir(dir, (_, files = []) => {
 							// save cache, resolve promise and release deferrer
 							this.cacheMap.set(dir, files as string[]);
 							resolve2(files as string[]);

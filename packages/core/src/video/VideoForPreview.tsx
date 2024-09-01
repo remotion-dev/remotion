@@ -247,7 +247,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		};
 	}, [isSequenceHidden, style]);
 
-	const crossOriginValue = crossOrigin ?? (onVideoFrame ? 'anonymous' : '');
+	const crossOriginValue =
+		crossOrigin ?? (onVideoFrame ? 'anonymous' : undefined);
 
 	return (
 		<video

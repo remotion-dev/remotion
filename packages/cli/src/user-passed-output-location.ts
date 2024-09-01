@@ -3,7 +3,7 @@ import {ConfigInternals} from './config';
 import {parsedCli} from './parsed-cli';
 
 export const getUserPassedOutputLocation = (
-	args: string[],
+	args: (string | number)[],
 	uiPassedOutName: string | null,
 ) => {
 	const filename =
@@ -12,7 +12,7 @@ export const getUserPassedOutputLocation = (
 		parsedCli.output ??
 		ConfigInternals.getOutputLocation();
 
-	return filename;
+	return String(filename);
 };
 
 export const getOutputLocation = ({
@@ -25,7 +25,7 @@ export const getOutputLocation = ({
 	compositionId: string;
 	outputLocationFromUi: string | null;
 	defaultExtension: string;
-	args: string[];
+	args: (string | number)[];
 	type: 'asset' | 'sequence';
 }) => {
 	if (
