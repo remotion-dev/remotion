@@ -190,10 +190,10 @@ test('Should parse seekHead', async () => {
 		minVintWidth: 1,
 	});
 	expect(custom.offsets).toEqual({
-		offset: 4,
+		offset: 0,
 		children: [
 			{
-				offset: 6,
+				offset: 5,
 				children: [
 					{
 						offset: 8,
