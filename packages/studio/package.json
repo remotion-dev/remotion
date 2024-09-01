@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/studio"
 	},
 	"name": "@remotion/studio",
-	"version": "4.0.206",
+	"version": "4.0.207",
 	"description": "APIs for interacting with the Remotion Studio",
 	"main": "dist",
 	"sideEffects": false,
