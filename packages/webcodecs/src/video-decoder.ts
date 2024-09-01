@@ -24,6 +24,7 @@ export const createVideoDecoder = async ({
 			await onFrame(inputFrame);
 		},
 		error(error) {
+			// TODO: Do error handling
 			console.log(error);
 		},
 	});
