@@ -38,45 +38,6 @@ export const Pricing: React.FC = () => {
 					for more details.
 				</div>
 			</div>
-			<div
-				style={{
-					justifyContent: 'center',
-					display: 'flex',
-				}}
-			>
-				<div style={{fontFamily: 'GTPlanar'}}>
-					Want a 20-minute call to evaluate if Remotion is right for you?{' '}
-					<a
-						style={{
-							color: 'var(--ifm-color-primary)',
-							textDecoration: 'none',
-						}}
-						target="_blank"
-						href="https://cal.com/remotion/evaluate"
-					>
-						Contact us
-					</a>
-				</div>
-			</div>
-			<div
-				style={{
-					justifyContent: 'center',
-					display: 'flex',
-				}}
-			>
-				<div style={{marginTop: 0, fontFamily: 'GTPlanar'}}>
-					Looking for help realizing your project?{' '}
-					<a
-						style={{
-							color: 'var(--ifm-color-primary)',
-							textDecoration: 'none',
-						}}
-						href="/experts"
-					>
-						Find experts
-					</a>
-				</div>
-			</div>
 		</div>
 	);
 };

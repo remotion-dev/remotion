@@ -101,7 +101,6 @@
 		align-items: center;
 	}
 	.card {
-		width: 90%;
 		max-width: none; /* Allow cards to use the adjusted width on smaller screens */
 	}
 }

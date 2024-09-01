@@ -20,6 +20,9 @@ import {Parametrize} from '../../components/LandingPage/parametrize';
 import {RealMP4Videos} from '../../components/LandingPage/real-mp4-videos';
 import styles from './landing.module.css';
 
+const SHOW_DEVELOPER_COMMUNITY_STATS = false;
+const SHOW_TRUSTED_BY_BANNER = false;
+
 const NewLanding: React.FC = () => {
 	return (
 		<Layout>
@@ -40,13 +43,15 @@ const NewLanding: React.FC = () => {
 				<div className={styles.content}>
 					<WriteInReact />
 					<br />
-					<TrustedByBanner />
+					{SHOW_TRUSTED_BY_BANNER && <TrustedByBanner />}
 					<br />
-					<EvaluateRemotionSection />
-					<br />
-					<DeveloperCommunityStats />
-					<br />
-					<DeveloperCommunityStats2 />
+					{SHOW_DEVELOPER_COMMUNITY_STATS && (
+						<>
+							<DeveloperCommunityStats />
+							<br />
+							<DeveloperCommunityStats2 />
+						</>
+					)}
 					<br />
 					<IfYouKnowReact />
 					<br />
@@ -73,7 +78,7 @@ const NewLanding: React.FC = () => {
 					<br />
 					<PricingTitle />
 					<Pricing />
-
+					<EvaluateRemotionSection />
 					<NewsletterButton />
 					<br />
 					<br />
