@@ -36,7 +36,6 @@ export const createAudioEncoder = async ({
 	encoder.configure(audioEncoderConfig);
 
 	const encodeFrame = async (audioData: AudioData) => {
-		console.log(audioData);
 		await encoderWaitForDequeue(encoder);
 
 		encoder.encode(audioData);

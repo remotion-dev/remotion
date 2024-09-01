@@ -318,7 +318,6 @@ export const SrcEncoder: React.FC<{
 			});
 	}, [mediaState, onAudioTrack, onVideoTrack, src]);
 
-	console.log(state.videoError);
 	return (
 		<div
 			style={{

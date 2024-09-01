@@ -1,4 +1,5 @@
 import type {VideoSample, VideoTrack} from '@remotion/media-parser';
+import {getVideoDecoderConfigWithHardwareAcceleration} from './get-config';
 import {decoderWaitForDequeue} from './wait-for-dequeue';
 
 export const createVideoDecoder = async ({
@@ -12,14 +13,9 @@ export const createVideoDecoder = async ({
 		return null;
 	}
 
-	const actualConfig: VideoDecoderConfig = {
-		...track,
-		hardwareAcceleration: 'prefer-hardware',
-	};
+	const config = await getVideoDecoderConfigWithHardwareAcceleration(track);
 
-	const {supported} = await VideoDecoder.isConfigSupported(actualConfig);
-
-	if (!supported) {
+	if (!config) {
 		return null;
 	}
 
@@ -32,7 +28,7 @@ export const createVideoDecoder = async ({
 		},
 	});
 
-	videoDecoder.configure(actualConfig);
+	videoDecoder.configure(config);
 
 	const processSample = async (sample: VideoSample) => {
 		if (videoDecoder.state === 'closed') {
