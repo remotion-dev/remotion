@@ -63,7 +63,7 @@ Set to `false` if you use an older version of Whisper.cpp.
 
 ### `model?`
 
-_optional - default: `base.en`_
+_default: `base.en`_
 
 Specify a specific Whisper model for the transcription.
 
@@ -73,7 +73,7 @@ Make sure the model you want to use exists in your `whisper.cpp/models` folder. 
 
 ### `modelFolder?`
 
-_optional - default: whisperPath/models_
+_default: whisperPath/models_
 
 If you saved Whisper models to a specific folder, pass its path here.
 
@@ -81,7 +81,7 @@ Uses the `whisper.cpp/models` folder at the location defined through `whisperPat
 
 ### `translateToEnglish?`
 
-_optional - default: false_
+_default: false_
 
 Set this boolean flag to `true` if you want to get a translated transcription of the provided file in English.
 Make sure to not use a \*.en model, as they will not be able to translate a foreign language to english.
@@ -96,7 +96,7 @@ Whether to print the output of the transcription process to the console. Default
 
 ### `tokensPerItem?`<AvailableFrom v="4.0.141" />
 
-_optional - default: `1`_
+_default: `1`_
 
 The maximum amount of tokens included in each transcription item.
 
@@ -106,9 +106,13 @@ Set this flag to `null`, to use `whisper.cpp`'s default token grouping (useful f
 `tokensPerItem` can only be set when `tokenLevelTimestamps` is set to `false`.
 :::
 
+### `splitOnWord?`<AvailableFrom v="4.0.208" />
+
+[Adds the `--split-on-word` flag to Whisper.cpp](https://github.com/remotion-dev/remotion/pull/4257) for cleaner word-for-word output.
+
 ### `language?`<AvailableFrom v="4.0.142" />
 
-_optional - default: null_
+_default: null_
 
 Passes the `-l` flag to Whisper.cpp to specific spoken language of the audio file.
 
