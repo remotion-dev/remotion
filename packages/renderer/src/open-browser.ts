@@ -20,6 +20,10 @@ type OnlyV4Options =
 	typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES extends true
 		? {}
 		: {
+				/**
+				 * @deprecated - Will be removed in v5.
+				 * Chrome Headless shell does not allow disabling headless mode anymore.
+				 */
 				headless?: boolean;
 			};
 
