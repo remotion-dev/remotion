@@ -24,6 +24,7 @@ beforeAll(() => {
 			defaultProps: {},
 			props: {},
 			defaultCodec: null,
+			baseFps: 30,
 		}));
 });
 afterAll(() => {

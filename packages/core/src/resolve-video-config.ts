@@ -18,12 +18,14 @@ const validateCalculated = ({
 	compositionHeight,
 	compositionWidth,
 	compositionDurationInFrames,
+	compositionBaseFps,
 }: {
 	calculated: CalcMetadataReturnType<Record<string, unknown>> | null;
 	compositionId: string;
 	compositionWidth: number | null;
 	compositionHeight: number | null;
 	compositionFps: number | null;
+	compositionBaseFps: number | null;
 	compositionDurationInFrames: number | null;
 }) => {
 	const calculateMetadataErrorLocation = `calculated by calculateMetadata() for the composition "${compositionId}"`;
@@ -53,6 +55,14 @@ const validateCalculated = ({
 		false,
 	);
 
+	const baseFps = calculated?.baseFps ?? compositionBaseFps ?? fps;
+
+	validateFps(
+		baseFps,
+		calculated?.baseFps ? calculateMetadataErrorLocation : defaultErrorLocation,
+		false,
+	);
+
 	const durationInFrames =
 		calculated?.durationInFrames ?? compositionDurationInFrames ?? null;
 
@@ -64,7 +74,7 @@ const validateCalculated = ({
 	const defaultCodec = calculated?.defaultCodec;
 	validateDefaultCodec(defaultCodec, calculateMetadataErrorLocation);
 
-	return {width, height, fps, durationInFrames, defaultCodec};
+	return {width, height, fps, baseFps, durationInFrames, defaultCodec};
 };
 
 type ResolveVideoConfigParams = {
@@ -73,6 +83,7 @@ type ResolveVideoConfigParams = {
 	compositionHeight: number | null;
 	compositionFps: number | null;
 	compositionDurationInFrames: number | null;
+	compositionBaseFps: number | null;
 	calculateMetadata: CalculateMetadataFunction<
 		InferProps<AnyZodObject, Record<string, unknown>>
 	> | null;
@@ -91,6 +102,7 @@ export const resolveVideoConfig = ({
 	compositionFps,
 	compositionHeight,
 	compositionWidth,
+	compositionBaseFps,
 }: ResolveVideoConfigParams): VideoConfig | Promise<VideoConfig> => {
 	const calculatedProm = calculateMetadata
 		? calculateMetadata({
@@ -107,7 +119,7 @@ export const resolveVideoConfig = ({
 		'then' in calculatedProm
 	) {
 		return calculatedProm.then((c) => {
-			const {height, width, durationInFrames, fps, defaultCodec} =
+			const {height, width, durationInFrames, fps, baseFps, defaultCodec} =
 				validateCalculated({
 					calculated: c,
 					compositionDurationInFrames,
@@ -115,11 +127,13 @@ export const resolveVideoConfig = ({
 					compositionHeight,
 					compositionWidth,
 					compositionId,
+					compositionBaseFps,
 				});
 			return {
 				width,
 				height,
 				fps,
+				baseFps,
 				durationInFrames,
 				id: compositionId,
 				defaultProps: serializeThenDeserializeInStudio(defaultProps),
@@ -136,6 +150,7 @@ export const resolveVideoConfig = ({
 		compositionHeight,
 		compositionWidth,
 		compositionId,
+		compositionBaseFps,
 	});
 
 	if (calculatedProm === null) {

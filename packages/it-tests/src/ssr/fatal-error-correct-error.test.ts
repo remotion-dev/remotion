@@ -10,6 +10,7 @@ test('Fatal error on frame 10 should yield correct error', async () => {
 			composition: {
 				durationInFrames: 1000000,
 				fps: 30,
+				baseFps: 30,
 				height: 720,
 				id: 'error-on-frame-10',
 				width: 1280,

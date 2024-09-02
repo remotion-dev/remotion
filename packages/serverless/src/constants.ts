@@ -221,6 +221,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		bucketName: string;
 		composition: string;
 		fps: number;
+		baseFps: number;
 		height: number;
 		width: number;
 		durationInFrames: number;

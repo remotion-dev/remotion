@@ -38,6 +38,7 @@ export type CompProps<Props> =
 export type CalcMetadataReturnType<T extends Record<string, unknown>> = {
 	durationInFrames?: number;
 	fps?: number;
+	baseFps?: number;
 	width?: number;
 	height?: number;
 	props?: T;
@@ -82,9 +83,11 @@ type CompositionCalculateMetadataOrExplicit<
 	| (OptionalDimensions<Schema, Props> & {
 			fps?: number;
 			durationInFrames?: number;
+			baseFps?: number;
 	  })
 	| (MandatoryDimensions<Schema, Props> & {
 			fps: number;
+			baseFps?: number;
 			durationInFrames: number;
 	  });
 
@@ -153,6 +156,7 @@ export const Composition = <
 	id,
 	defaultProps,
 	schema,
+	baseFps,
 	...compProps
 }: CompositionProps<Schema, Props>) => {
 	const {registerComposition, unregisterComposition} =
@@ -202,6 +206,7 @@ export const Composition = <
 			parentFolderName: parentName,
 			schema: schema ?? null,
 			calculateMetadata: compProps.calculateMetadata ?? null,
+			baseFps,
 		});
 
 		return () => {
@@ -222,6 +227,7 @@ export const Composition = <
 		parentName,
 		schema,
 		compProps.calculateMetadata,
+		baseFps,
 	]);
 	const resolved = useResolvedVideoConfig(id);
 

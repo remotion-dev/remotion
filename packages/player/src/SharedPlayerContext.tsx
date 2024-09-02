@@ -51,6 +51,7 @@ export const SharedPlayerContexts: React.FC<{
 					parentFolderName: null,
 					schema: null,
 					calculateMetadata: null,
+					baseFps: undefined,
 				},
 			],
 			folders: [],

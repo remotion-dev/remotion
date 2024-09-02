@@ -43,7 +43,7 @@ export const TimelineSlider: React.FC = () => {
 
 const Inner: React.FC = () => {
 	const videoConfig = useVideoConfig();
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const timelinePosition = Internals.Timeline.useTimelinePosition(false);
 	const ref = useRef<HTMLDivElement>(null);
 	const timelineWidth = useContext(TimelineWidthContext);
 

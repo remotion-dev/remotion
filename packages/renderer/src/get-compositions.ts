@@ -126,7 +126,7 @@ const innerGetCompositions = async ({
 	>;
 
 	return res.map((r) => {
-		const {width, durationInFrames, fps, height, id, defaultCodec} = r;
+		const {width, durationInFrames, fps, height, id, baseFps, defaultCodec} = r;
 
 		return {
 			id,
@@ -141,6 +141,7 @@ const innerGetCompositions = async ({
 				r.serializedDefaultPropsWithCustomSchema,
 			),
 			defaultCodec,
+			baseFps,
 		};
 	});
 };

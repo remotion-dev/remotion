@@ -21,7 +21,7 @@ export const usePlayback = ({
 	frameRef: React.MutableRefObject<number>;
 }) => {
 	const config = Internals.useUnsafeVideoConfig();
-	const frame = Internals.Timeline.useTimelinePosition();
+	const frame = Internals.Timeline.useTimelinePosition(false);
 	const {playing, pause, emitter} = usePlayer();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 	const buffering = useRef<null | number>(null);

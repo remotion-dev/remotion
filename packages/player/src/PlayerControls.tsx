@@ -150,7 +150,7 @@ export const Controls: React.FC<{
 	renderVolumeSlider,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
-	const frame = Internals.Timeline.useTimelinePosition();
+	const frame = Internals.Timeline.useTimelinePosition(false);
 	const [supportsFullscreen, setSupportsFullscreen] = useState(false);
 	const hovered = useHoverState(
 		containerRef,

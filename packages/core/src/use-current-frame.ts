@@ -22,7 +22,7 @@ export const useCurrentFrame = (): number => {
 		);
 	}
 
-	const frame = useTimelinePosition();
+	const frame = useTimelinePosition(true);
 	const context = useContext(SequenceContext);
 
 	const contextOffset = context

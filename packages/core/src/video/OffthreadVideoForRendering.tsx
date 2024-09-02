@@ -49,7 +49,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	onVideoFrame,
 	...props
 }) => {
-	const absoluteFrame = useTimelinePosition();
+	const absoluteFrame = useTimelinePosition(false);
 
 	const frame = useCurrentFrame();
 	const volumePropsFrame = useFrameForVolumeProp(

@@ -638,7 +638,8 @@ export const Index: React.FC = () => {
 					component={VideoTesting}
 					width={1080}
 					height={1080}
-					fps={30}
+					fps={60}
+					baseFps={30}
 					durationInFrames={100}
 					defaultProps={{
 						offthread: false,

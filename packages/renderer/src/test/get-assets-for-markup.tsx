@@ -93,6 +93,7 @@ export const getAssetsForMarkup = async (
 						fps: config.fps,
 						height: config.height,
 						width: config.width,
+						baseFps: undefined,
 					},
 				],
 				canvasContent: {

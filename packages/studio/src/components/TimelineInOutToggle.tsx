@@ -45,7 +45,7 @@ export const inOutHandles = createRef<{
 export const defaultInOutValue: InOutValue = {inFrame: null, outFrame: null};
 
 export const TimelineInOutPointToggle: React.FC = () => {
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const timelinePosition = Internals.Timeline.useTimelinePosition(false);
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const {setInAndOutFrames} = useTimelineSetInOutFramePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();

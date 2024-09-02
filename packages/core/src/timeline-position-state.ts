@@ -77,7 +77,7 @@ export const getFrameForComposition = (composition: string) => {
 	return window.remotion_initialFrame ?? 0;
 };
 
-export const useTimelinePosition = (): number => {
+export const useTimelinePosition = (fpsCorrected: boolean): number => {
 	const videoConfig = useVideo();
 	const state = useContext(TimelineContext);
 
@@ -93,7 +93,14 @@ export const useTimelinePosition = (): number => {
 			? 0
 			: getFrameForComposition(videoConfig.id));
 
-	return Math.min(videoConfig.durationInFrames - 1, unclamped);
+	const fpsRatio =
+		videoConfig.baseFps === videoConfig.fps
+			? 1
+			: fpsCorrected
+				? videoConfig.fps / videoConfig.baseFps
+				: 1;
+
+	return Math.min(videoConfig.durationInFrames - 1, unclamped) / fpsRatio;
 };
 
 export const useTimelineSetFrame = (): ((

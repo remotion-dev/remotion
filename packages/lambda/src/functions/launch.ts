@@ -243,6 +243,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			chunk: sortedChunks.indexOf(chunkPayload),
 			composition: params.composition,
 			fps: comp.fps,
+			baseFps: comp.baseFps,
 			height: comp.height,
 			width: comp.width,
 			durationInFrames: comp.durationInFrames,

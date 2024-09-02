@@ -10,6 +10,7 @@ test('Should be able to cancel render', async () => {
 			composition: {
 				durationInFrames: 1000000,
 				fps: 30,
+				baseFps: 30,
 				height: 720,
 				id: 'react-svg',
 				width: 1280,

@@ -29,7 +29,7 @@ export const usePlayer = (): UsePlayerMethods => {
 	const [playing, setPlaying, imperativePlaying] =
 		Internals.Timeline.usePlayingState();
 	const [hasPlayed, setHasPlayed] = useState(false);
-	const frame = Internals.Timeline.useTimelinePosition();
+	const frame = Internals.Timeline.useTimelinePosition(false);
 	const playStart = useRef(frame);
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 	const setTimelinePosition = Internals.Timeline.useTimelineSetFrame();

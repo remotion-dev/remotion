@@ -114,6 +114,7 @@ export const ResolveCompositionConfig: React.FC<
 			combinedProps,
 			compositionDurationInFrames,
 			compositionFps,
+			compositionBaseFps,
 			compositionHeight,
 			compositionId,
 			compositionWidth,
@@ -126,6 +127,7 @@ export const ResolveCompositionConfig: React.FC<
 			compositionWidth: number | null;
 			compositionHeight: number | null;
 			compositionFps: number | null;
+			compositionBaseFps: number | null;
 			compositionDurationInFrames: number | null;
 			defaultProps: Record<string, unknown>;
 			combinedProps: Record<string, unknown>;
@@ -147,6 +149,7 @@ export const ResolveCompositionConfig: React.FC<
 				compositionFps,
 				compositionHeight,
 				compositionWidth,
+				compositionBaseFps,
 			});
 			if (result.type === 'error') {
 				setResolvedConfigs((r) => ({
@@ -270,6 +273,7 @@ export const ResolveCompositionConfig: React.FC<
 						combinedProps: props,
 						compositionDurationInFrames: composition.durationInFrames ?? null,
 						compositionFps: composition.fps ?? null,
+						compositionBaseFps: composition.baseFps ?? null,
 						compositionHeight: composition.height ?? null,
 						compositionWidth: composition.width ?? null,
 						compositionId: composition.id,
@@ -324,6 +328,7 @@ export const ResolveCompositionConfig: React.FC<
 				compositionDurationInFrames:
 					selectedComposition.durationInFrames ?? null,
 				compositionFps: selectedComposition.fps ?? null,
+				compositionBaseFps: selectedComposition.baseFps ?? null,
 				compositionHeight: selectedComposition.height ?? null,
 				compositionWidth: selectedComposition.width ?? null,
 				defaultProps: currentDefaultProps,
@@ -339,6 +344,7 @@ export const ResolveCompositionConfig: React.FC<
 		currentDefaultProps,
 		doResolution,
 		originalProps,
+		selectedComposition?.baseFps,
 		selectedComposition?.calculateMetadata,
 		selectedComposition?.durationInFrames,
 		selectedComposition?.fps,
@@ -375,6 +381,7 @@ export const ResolveCompositionConfig: React.FC<
 				compositionHeight: renderModalComposition.height ?? null,
 				compositionId: renderModalComposition.id,
 				compositionWidth: renderModalComposition.width ?? null,
+				compositionBaseFps: renderModalComposition.baseFps ?? null,
 				defaultProps: currentDefaultProps,
 				combinedProps,
 			});
@@ -452,6 +459,7 @@ export const useResolvedVideoConfig = (
 					props: currentCompositionMetadata.props,
 					defaultProps: composition.defaultProps ?? {},
 					defaultCodec: currentCompositionMetadata.defaultCodec,
+					baseFps: currentCompositionMetadata.baseFps,
 				},
 			};
 		}
@@ -466,6 +474,14 @@ export const useResolvedVideoConfig = (
 				`in <Composition id="${composition.id}">`,
 				false,
 			);
+			if (composition.baseFps !== undefined) {
+				validateFps(
+					composition.baseFps,
+					`in <Composition id="${composition.id}">`,
+					false,
+				);
+			}
+
 			validateDimension(
 				composition.width,
 				'width',
@@ -482,6 +498,7 @@ export const useResolvedVideoConfig = (
 					width: composition.width as number,
 					height: composition.height as number,
 					fps: composition.fps as number,
+					baseFps: composition.baseFps ?? composition.fps,
 					id: composition.id,
 					durationInFrames: composition.durationInFrames as number,
 					defaultProps: composition.defaultProps ?? {},

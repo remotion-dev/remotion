@@ -28,6 +28,7 @@ export type TComposition<
 	width: number | undefined;
 	height: number | undefined;
 	fps: number | undefined;
+	baseFps: number | undefined;
 	durationInFrames: number | undefined;
 	id: string;
 	folderName: string | null;

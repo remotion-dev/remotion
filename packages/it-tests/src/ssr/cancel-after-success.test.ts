@@ -13,6 +13,7 @@ test('Cancelling after success should not throw error', async () => {
 		composition: {
 			durationInFrames: 4,
 			fps: 30,
+			baseFps: 30,
 			height: 720,
 			id: 'react-svg',
 			width: 1280,

@@ -4,6 +4,7 @@ export type VideoConfig = {
 	width: number;
 	height: number;
 	fps: number;
+	baseFps: number;
 	durationInFrames: number;
 	id: string;
 	defaultProps: Record<string, unknown>;

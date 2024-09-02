@@ -80,6 +80,7 @@ test('should fail on invalid CRF', async () => {
 			composition: {
 				durationInFrames: 10,
 				fps: 30,
+				baseFps: 30,
 				height: 1080,
 				id: 'hitehre',
 				width: 1080,
@@ -132,6 +133,7 @@ test('Should fail invalid serve URL', async () => {
 				defaultProps: {},
 				durationInFrames: 10,
 				fps: 30,
+				baseFps: 30,
 				height: 1080,
 				id: 'hitehre',
 				width: 1080,

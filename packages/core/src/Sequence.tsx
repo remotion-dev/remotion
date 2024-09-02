@@ -131,7 +131,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	const absoluteFrame = useTimelinePosition();
+	const absoluteFrame = useTimelinePosition(false);
 	const videoConfig = useVideoConfig();
 
 	const parentSequenceDuration = parentSequence

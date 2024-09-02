@@ -228,6 +228,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 				height: params.height,
 				width: params.width,
 				defaultCodec: null,
+				baseFps: params.baseFps,
 			},
 			imageFormat: params.imageFormat,
 			serializedInputPropsWithCustomSchema,

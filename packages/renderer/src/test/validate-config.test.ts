@@ -15,6 +15,7 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					defaultProps: {},
 					props: {},
 					defaultCodec: null,
+					baseFps: -1,
 				},
 			}),
 		).toThrow(
@@ -34,6 +35,7 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					defaultProps: {},
 					props: {},
 					defaultCodec: null,
+					baseFps: 30,
 				},
 			}),
 		).toThrow(
@@ -53,6 +55,7 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					defaultProps: {},
 					props: {},
 					defaultCodec: null,
+					baseFps: 30,
 				},
 			}),
 		).toThrow(
@@ -72,6 +75,7 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					defaultProps: {},
 					props: {},
 					defaultCodec: null,
+					baseFps: 30,
 				},
 			}),
 		).toThrow(

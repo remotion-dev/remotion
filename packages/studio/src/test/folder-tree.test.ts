@@ -37,6 +37,7 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', a
 				parentFolderName: null,
 				calculateMetadata: null,
 				schema: obj,
+				baseFps: undefined,
 			},
 			{
 				component,
@@ -51,6 +52,7 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', a
 				parentFolderName: null,
 				calculateMetadata: null,
 				schema: obj,
+				baseFps: undefined,
 			},
 		],
 		[
@@ -80,6 +82,7 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', a
 						width: 1080,
 						schema: obj,
 						calculateMetadata: null,
+						baseFps: undefined,
 					},
 					key: 'my-comp',
 					type: 'composition',
@@ -104,6 +107,7 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', a
 				width: 1080,
 				schema: obj,
 				calculateMetadata: null,
+				baseFps: undefined,
 			},
 			key: 'second-comp',
 			type: 'composition',
@@ -130,6 +134,7 @@ test('Should handle nested folders well', async () => {
 				parentFolderName: 'my-third-folder/my-second-folder',
 				calculateMetadata: null,
 				schema: obj,
+				baseFps: undefined,
 			},
 		],
 		[
@@ -184,6 +189,7 @@ test('Should handle nested folders well', async () => {
 										nonce: 0,
 										width: 1080,
 										schema: obj,
+										baseFps: undefined,
 									},
 									key: 'my-comp',
 									type: 'composition',

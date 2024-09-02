@@ -47,7 +47,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		...nativeProps
 	} = props;
 
-	const absoluteFrame = useTimelinePosition();
+	const absoluteFrame = useTimelinePosition(false);
 	const volumePropFrame = useFrameForVolumeProp(
 		loopVolumeCurveBehavior ?? 'repeat',
 	);

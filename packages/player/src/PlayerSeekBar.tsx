@@ -65,7 +65,7 @@ export const PlayerSeekBar: React.FC<{
 		shouldApplyCssTransforms: true,
 	});
 	const {seek, play, pause, playing} = usePlayer();
-	const frame = Internals.Timeline.useTimelinePosition();
+	const frame = Internals.Timeline.useTimelinePosition(false);
 
 	const [dragging, setDragging] = useState<
 		| {

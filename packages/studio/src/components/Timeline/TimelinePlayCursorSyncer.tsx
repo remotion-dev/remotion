@@ -31,7 +31,7 @@ let lastTimelinePositionWhileScrolling: TimelinePosition | null = null;
 export const TimelinePlayCursorSyncer: React.FC = () => {
 	const video = Internals.useVideo();
 	const timelineContext = useContext(Internals.Timeline.TimelineContext);
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const timelinePosition = Internals.Timeline.useTimelinePosition(false);
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {zoom: zoomMap} = useContext(TimelineZoomCtx);
 

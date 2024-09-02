@@ -15,6 +15,7 @@ test(
 					defaultProps: {},
 					props: {},
 					defaultCodec: null,
+					baseFps: 30,
 				},
 				frame: 0,
 				output: '/file/output.png',
@@ -42,6 +43,7 @@ test(
 				defaultProps: {},
 				props: {},
 				defaultCodec: null,
+				baseFps: 30,
 			},
 			frame: 0,
 			serveUrl:
@@ -69,6 +71,7 @@ test(
 					defaultProps: {},
 					props: {},
 					defaultCodec: null,
+					baseFps: 30,
 				},
 				frame: 200,
 				output: '/file/output.png',
@@ -97,6 +100,7 @@ test(
 					defaultProps: {},
 					props: {},
 					defaultCodec: null,
+					baseFps: 30,
 				},
 				// @ts-expect-error
 				imageFormat: 'jjj',
