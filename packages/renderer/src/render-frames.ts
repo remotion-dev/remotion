@@ -35,7 +35,7 @@ import {
 } from './get-frame-padded-index';
 import {getRealFrameRange} from './get-frame-to-render';
 import type {VideoImageFormat} from './image-format';
-import {getRetriesLeftFromError} from './is-delay-render-error-with.retry';
+import {getRetriesLeftFromError} from './is-delay-render-error-with-retry';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
