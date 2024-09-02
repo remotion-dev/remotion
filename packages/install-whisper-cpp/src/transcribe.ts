@@ -120,6 +120,7 @@ const transcribeToTemporaryFile = async ({
 	printOutput,
 	tokensPerItem,
 	language,
+	splitOnWord,
 	signal,
 	onProgress,
 }: {
@@ -133,6 +134,7 @@ const transcribeToTemporaryFile = async ({
 	printOutput: boolean;
 	tokensPerItem: number | null;
 	language: Language | null;
+	splitOnWord: boolean | null;
 	signal: AbortSignal | null;
 	onProgress: TranscribeOnProgress | null;
 }): Promise<{
@@ -163,6 +165,7 @@ const transcribeToTemporaryFile = async ({
 		['-pp'], // print progress
 		translate ? '-tr' : null,
 		language ? ['-l', language.toLowerCase()] : null,
+		splitOnWord ? ['--split-on-word', splitOnWord] : null,
 	]
 		.flat(1)
 		.filter(Boolean) as string[];
@@ -247,6 +250,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	printOutput = true,
 	tokensPerItem,
 	language,
+	splitOnWord,
 	signal,
 	onProgress,
 }: {
@@ -259,6 +263,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	printOutput?: boolean;
 	tokensPerItem?: true extends HasTokenLevelTimestamps ? never : number | null;
 	language?: Language | null;
+	splitOnWord?: boolean;
 	signal?: AbortSignal;
 	onProgress?: TranscribeOnProgress;
 }): Promise<TranscriptionJson<HasTokenLevelTimestamps>> => {
@@ -292,6 +297,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 		tokensPerItem: tokenLevelTimestamps ? 1 : tokensPerItem ?? 1,
 		language: language ?? null,
 		signal: signal ?? null,
+		splitOnWord: splitOnWord ?? null,
 		onProgress: onProgress ?? null,
 	});
 
