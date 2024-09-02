@@ -1,5 +1,10 @@
-import {expect, test} from 'bun:test';
+import {beforeAll, expect, test} from 'bun:test';
+import {ensureBrowser} from '../ensure-browser';
 import {renderStill} from '../render-still';
+
+beforeAll(async () => {
+	await ensureBrowser();
+});
 
 test(
 	'Need to pass valid metadata',
