@@ -86,5 +86,14 @@ export const isFlakyError = (err: Error): boolean => {
 		return true;
 	}
 
+	// ServiceException: We currently do not have sufficient capacity in the region you requested. Our system will be working on provisioning additional capacity. You can avoid getting this error by temporarily reducing your request rate.
+	if (
+		message.includes(
+			'ServiceException: We currently do not have sufficient capacity in the region you requested',
+		)
+	) {
+		return true;
+	}
+
 	return false;
 };

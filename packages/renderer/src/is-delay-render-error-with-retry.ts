@@ -1,16 +1,5 @@
 import {NoReactInternals} from 'remotion/no-react';
 
-export const isDelayRenderErrorWithRetry = (error: Error | undefined) => {
-	if (!error) {
-		return false;
-	}
-
-	const shouldRetryError = (error as Error).stack?.includes(
-		NoReactInternals.DELAY_RENDER_RETRY_TOKEN,
-	);
-	return shouldRetryError;
-};
-
 export const getRetriesLeftFromError = (error: Error | undefined): number => {
 	if (!error) {
 		throw new Error('Expected stack');

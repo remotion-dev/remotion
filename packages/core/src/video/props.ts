@@ -10,7 +10,6 @@ export type RemotionMainVideoProps = {
 	 */
 	_remotionInternalNativeLoopPassed?: boolean;
 	_remotionDebugSeeking?: boolean;
-	onVideoFrame?: OnVideoFrame;
 };
 
 export type RemotionVideoProps = Omit<
