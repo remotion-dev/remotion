@@ -3,7 +3,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {chalk} from './chalk';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
-import {createOverwriteableCliOutput} from './progress-bar';
+import {LABEL_WIDTH, createOverwriteableCliOutput} from './progress-bar';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {truthy} from './truthy';
 
@@ -19,9 +19,8 @@ const makeDownloadProgress = ({
 	const progress = bytesDownloaded / totalBytes;
 
 	return [
-		`    +`,
+		`${doneIn ? 'Got' : 'Getting'} Headless Shell`.padEnd(LABEL_WIDTH, ' '),
 		makeProgressBar(progress, false),
-		`${doneIn ? 'Got' : 'Getting'} Headless Shell`,
 		doneIn === null
 			? (progress * 100).toFixed(0) + '%'
 			: chalk.gray(`${doneIn}ms`),
@@ -40,10 +39,11 @@ export const defaultBrowserDownloadProgress = ({
 	quiet: boolean;
 }): OnBrowserDownload => {
 	return () => {
-		Log.info({indent, logLevel}, 'No local browser could be found.');
 		Log.info(
 			{indent, logLevel},
-			'Downloading Chrome Headless Shell https://www.remotion.dev/chrome-headless-shell',
+			chalk.gray(
+				'Downloading Chrome Headless Shell https://www.remotion.dev/chrome-headless-shell',
+			),
 		);
 
 		const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});

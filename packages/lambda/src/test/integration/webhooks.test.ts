@@ -1,4 +1,4 @@
-import {RenderInternals} from '@remotion/renderer';
+import {RenderInternals, ensureBrowser} from '@remotion/renderer';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import path from 'path';
 import {VERSION} from 'remotion/version';
@@ -29,7 +29,8 @@ beforeEach(() => {
 	};
 });
 
-beforeAll(() => {
+beforeAll(async () => {
+	await ensureBrowser();
 	return async () => {
 		await RenderInternals.killAllBrowsers();
 	};
