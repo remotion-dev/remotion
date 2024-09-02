@@ -344,7 +344,7 @@
 		},
 		{
 			"source": "/leads",
-			"destination": "https://github.com/orgs/remotion-dev/projects/15/views/1",
+			"destination": "https://github.com/orgs/remotion-dev/projects/15/views/1?filterQuery=-status%3ADone",
 			"permanent": false
 		},
 		{
