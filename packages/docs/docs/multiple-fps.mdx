@@ -1,0 +1,114 @@
+---
+image: /generated/articles-docs-multiple-fps.png
+title: Supporting multiple frame rates
+crumb: Building apps
+---
+
+You may want to support multiple frame rates for a composition.  
+For example, to build an option allow the user to export the video at either 30 FPS or 60 FPS.  
+This document outlines the best practices for doing so.
+
+## Write animations frame-rate-independently
+
+When animating over time, use the `fps` value from [`useVideoConfig()`](/docs/use-video-config) to calculate the current time.
+
+The following animation will change the speed if the frame rate is changed:
+
+```ts twoslash
+import {interpolate, useCurrentFrame} from 'remotion';
+const frame = useCurrentFrame();
+// ---cut---
+// Animate from second 1 to second 2
+const animationProgress = interpolate(frame, [30, 60], [0, 1], {
+  extrapolateLeft: 'clamp',
+  extrapolateRight: 'clamp',
+});
+```
+
+It is better to make it frame-rate-dependnt:
+
+```ts twoslash
+import {useVideoConfig, interpolate, useCurrentFrame} from 'remotion';
+const frame = useCurrentFrame();
+// ---cut---
+// Animate from second 1 to second 2
+const {fps} = useVideoConfig();
+const animationProgress = interpolate(frame, [1 * fps, 2 * fps], [0, 1], {
+  extrapolateLeft: 'clamp',
+  extrapolateRight: 'clamp',
+});
+```
+
+Also use the `fps` value when specifying `from` and `durationInFrames` of a `<Sequence>`:
+
+```tsx twoslash
+import React from 'react';
+import {interpolate, useCurrentFrame, Sequence, useVideoConfig} from 'remotion';
+const frame = useCurrentFrame();
+const {fps, durationInFrames} = useVideoConfig();
+// ---cut---
+// Show for 3 seconds
+<Sequence durationInFrames={3 * fps}>
+  <div />
+</Sequence>;
+```
+
+And when passing `fps`, `delay` and `durationInFrames` of a `spring()`:
+
+```ts twoslash
+import {spring, useCurrentFrame, useVideoConfig} from 'remotion';
+const frame = useCurrentFrame();
+const {fps} = useVideoConfig();
+// ---cut---
+const animationProgress = spring({
+  frame,
+  fps,
+  durationInFrames: 2 * fps,
+  delay: 1 * fps,
+});
+```
+
+## Change frame rate dynamically
+
+Here is how you could switch the `fps` of a [`<Composition>`](/docs/composition) based on an [input prop](/docs/terminology/input-props):
+
+```tsx twoslash
+import {Composition, useCurrentFrame, useVideoConfig} from 'remotion';
+
+const VariableFps: React.FC<{
+  frameRate: '30fps' | '60fps';
+}> = () => {
+  const {fps} = useVideoConfig();
+  return <div>{fps} FPS</div>;
+};
+
+export const Root: React.FC = () => {
+  return (
+    <Composition
+      id="VariableFps"
+      component={VariableFps}
+      width={1080}
+      height={1080}
+      durationInFrames={100}
+      calculateMetadata={({props}) => {
+        return {
+          fps: props.frameRate === '60fps' ? 60 : 30,
+        };
+      }}
+      defaultProps={{
+        frameRate: '30fps',
+      }}
+    />
+  );
+};
+```
+
+## FPS Convert is discouraged
+
+Previously, this page showed a FPS converter snippet.  
+It's usage is not recommended because it does not work with media tags (`<Video>`, `<Audio>`, `<OffthreadVideo>`, etc.).
+
+## See also
+
+- [Dynamic FPS, duration and dimensions](/docs/dynamic-metadata)
+- [`<Composition>`](/docs/composition)

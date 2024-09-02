@@ -346,6 +346,11 @@
 			"source": "/leads",
 			"destination": "https://github.com/orgs/remotion-dev/projects/15/views/1",
 			"permanent": false
+		},
+		{
+			"source": "/docs/snippets/fps-converter",
+			"destination": "/docs/multiple-fps",
+			"permanent": false
 		}
 	]
 }

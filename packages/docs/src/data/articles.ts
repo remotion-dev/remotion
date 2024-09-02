@@ -1876,13 +1876,6 @@ export const articles = [
 		crumb: 'FAQ',
 	},
 	{
-		id: 'miscellaneous/snippets/fps-converter',
-		title: 'FPS converter',
-		relativePath: 'docs/miscellaneous/snippets/fps-converter.mdx',
-		compId: 'articles-docs-miscellaneous-snippets-fps-converter',
-		crumb: 'Snippets',
-	},
-	{
 		id: 'hls',
 		title: 'HLS support (HTTP Live Streaming)',
 		relativePath: 'docs/miscellaneous/snippets/hls.mdx',
@@ -1967,6 +1960,13 @@ export const articles = [
 		relativePath: 'docs/motion-blur/trail.mdx',
 		compId: 'articles-docs-motion-blur-trail',
 		crumb: "'Motion blur'",
+	},
+	{
+		id: 'multiple-fps',
+		title: 'Supporting multiple frame rates',
+		relativePath: 'docs/multiple-fps.mdx',
+		compId: 'articles-docs-multiple-fps',
+		crumb: 'Building apps',
 	},
 	{
 		id: 'noise/index',
