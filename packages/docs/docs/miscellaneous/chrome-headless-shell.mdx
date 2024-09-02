@@ -5,26 +5,29 @@ title: Chrome Headless Shell
 crumb: "FAQ"
 ---
 
-# Chrome Headless Shell<AvailableFrom v="4.0.137"/>
+# Chrome Headless Shell<AvailableFrom v="4.0.208"/>
 
-Remotion will download [Chrome Headless Shell](https://developer.chrome.com/blog/chrome-headless-shell) if no local browser can be found and an API for rendering videos is used.
+From v4.0.208, Remotion will download [Chrome Headless Shell](https://developer.chrome.com/blog/chrome-headless-shell) before the first render.  
+This will future-proof your Remotion project, because headless mode will be removed in a future version of Chrome.  
 
 ## Supported platforms
 
 The following platforms are supported:
 
-- Linux (x64)
-- Windows (x64)
 - macOS (x64 and arm64)
+- Windows (x64)
+- Linux (x64 and arm64) - [install the Linux dependencies](/docs/miscellaneous/linux-dependencies)
 
-:::note
-[Remotion Lambda](/docs/lambda) is also support despite being arm64 on Linux.
-:::
 
-## Ensure a local browser is found
+## Ensure Headless Shell is available
 
-Use [`ensureBrowser()`](/docs/renderer/ensure-browser) or [`npx remotion browser ensure`](/docs/cli/browser/ensure) to ensure a local browser is found.  
-This function will download Chrome Headless Shell if no local browser is found.
+There are two ways to ensure Chrome Headless Shell is available:
+
+- [`npx remotion browser ensure`](/docs/cli/browser/ensure) on the command line
+- [`ensureBrowser()`](/docs/renderer/ensure-browser) as a Node.js / Bun API
+
+It is recommended use call these functions if you do server-side rendering.  
+That way, if a request comes in wanting to render a video, the browser is already downloaded and ready to go.
 
 ## Bring your own binary
 
@@ -47,12 +50,17 @@ Chrome Headless Shell will download to
 node_modules/.remotion/chrome-headless-shell/[platform]/chrome-headless-shell-[platform]
 ```
 
-`platform` can be one of `mac-arm64`, `mac-x64`, `linux64` or `win64`.
+`platform` can be one of `mac-arm64`, `mac-x64`, `linux64`, `linux-arm64` or `win64`.
 
 At this path, a folder with the necessary files will be created.  
 An executable `./chrome-headless-shell` (`.\chrome-headless-shell.exe` on Windows) will be created.
 
-## Chrome vs. Chrome Headless Shell
+## Why this change?
+
+Remotion previously used the desktop version of Chrome that many users had already installed.  
+This workflow is bound to break at some point, which is why Remotion is not picking up the desktop version of Chrome anymore.
+
+## What is Chrome Headless Shell?
 
 Chrome used to ship with a `--headless` flag, which Remotion would use.
 
@@ -66,16 +74,14 @@ The old headless mode is being extracted into "Chrome Headless Shell".
 
 Hence we encourage you to use Chrome Headless Shell to future-proof your Remotion application.
 
-## Chrome vs. Chromium
+## Version
 
-Chromium is the open-source project that Chrome is based on. Some versions of Chromium don't the necessary codecs for the [`<Video >`](/docs/video) tag as well as for functions in [`@remotion/media-utils`](/docs/media-utils).
+Remotion will download a well-tested Chrome version from the `123.0.6312` release line.  
+Upgrades may happen in a patch release and will be listed here.
 
-This is why we recommend Chrome over Chromium.
+## On Lambda and Cloud Run
 
-## Changes in Remotion v5.0
-
-Remotion 5.0 will not recognize your regular Chrome browser anymore.  
-You will need to use Chrome Headless Shell, because Chrome is [discontinuing the `--headless=old`](#chrome-vs-chrome-headless-shell) mode.
+If you are using [Remotion Lambda](/docs/lambda) or [Cloud Run](/docs/cloudrun), you don't need to worry about installing a browser - it is included in the runtime already.
 
 ## Thorium (v4.0.18 - v4.0.135)
 
