@@ -18,7 +18,7 @@ const getCompName = ({
 }: {
 	cliArgs: (string | number)[];
 	compositionIdFromUi: string | null;
-}): {
+}): null | {
 	compName: string;
 	remainingArgs: (string | number)[];
 	reason: string;
@@ -29,6 +29,10 @@ const getCompName = ({
 			remainingArgs: [],
 			reason: 'via UI',
 		};
+	}
+
+	if (cliArgs.length === 0) {
+		return null;
 	}
 
 	const [compName, ...remainingArgs] = cliArgs;
@@ -80,18 +84,15 @@ export const getCompositionId = async ({
 	config: VideoConfig;
 	argsAfterComposition: (string | number)[];
 }> => {
-	const {
-		compName,
-		remainingArgs,
-		reason: compReason,
-	} = getCompName({
+	const compNameResult = getCompName({
 		cliArgs: args,
 		compositionIdFromUi,
 	});
-	if (compName) {
+
+	if (compNameResult) {
 		const {metadata: config, propsSize} =
 			await RenderInternals.internalSelectComposition({
-				id: compName,
+				id: compNameResult.compName,
 				serializedInputPropsWithCustomSchema,
 				puppeteerInstance,
 				envVariables,
@@ -123,14 +124,16 @@ export const getCompositionId = async ({
 		}
 
 		if (!config) {
-			throw new Error(`Cannot find composition with ID "${compName}"`);
+			throw new Error(
+				`Cannot find composition with ID "${compNameResult.compName}"`,
+			);
 		}
 
 		return {
-			compositionId: compName,
-			reason: compReason,
+			compositionId: compNameResult.compName,
+			reason: compNameResult.reason,
 			config,
-			argsAfterComposition: remainingArgs,
+			argsAfterComposition: compNameResult.remainingArgs,
 		};
 	}
 
