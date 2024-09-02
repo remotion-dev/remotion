@@ -352,6 +352,15 @@ const internalRenderMediaRaw = ({
 			logLevel,
 			tag: 'renderMedia()',
 		},
+		'delayRender() timeout:',
+		timeoutInMilliseconds,
+	);
+	Log.verbose(
+		{
+			indent,
+			logLevel,
+			tag: 'renderMedia()',
+		},
 		'Codec supports parallel rendering:',
 		canUseParallelEncoding(codec),
 	);

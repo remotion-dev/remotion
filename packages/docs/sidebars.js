@@ -864,6 +864,7 @@ module.exports = {
 				'troubleshooting/browser-launch',
 				'troubleshooting/sigkill',
 				'troubleshooting/could-not-find-executable-to-run',
+				'troubleshooting/stuck-render',
 			],
 		},
 		{

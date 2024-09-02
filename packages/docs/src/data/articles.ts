@@ -3584,6 +3584,13 @@ export const articles = [
 		crumb: 'Common mistakes',
 	},
 	{
+		id: 'stuck-render',
+		title: 'Debugging stuck renders',
+		relativePath: 'docs/troubleshooting/render-stuck.mdx',
+		compId: 'articles-docs-troubleshooting-render-stuck',
+		crumb: 'Troubleshooting',
+	},
+	{
 		id: 'rosetta',
 		title: 'Apple Silicon under Rosetta',
 		relativePath: 'docs/troubleshooting/rosetta.mdx',
