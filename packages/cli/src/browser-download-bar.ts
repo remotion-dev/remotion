@@ -40,7 +40,6 @@ export const defaultBrowserDownloadProgress = ({
 	quiet: boolean;
 }): OnBrowserDownload => {
 	return () => {
-		Log.info({indent, logLevel}, 'No local browser could be found.');
 		Log.info(
 			{indent, logLevel},
 			'Downloading Chrome Headless Shell https://www.remotion.dev/chrome-headless-shell',
