@@ -60,6 +60,21 @@ An executable `./chrome-headless-shell` (`.\chrome-headless-shell.exe` on Window
 Remotion previously used the desktop version of Chrome that many users had already installed.  
 This workflow is bound to break at some point, which is why Remotion is not picking up the desktop version of Chrome anymore.
 
+## Best practices
+
+To ensure your project does not get disrupted by an upcoming Chrome change, you should use the Remotion mechanisms which uses and pins the version of Chrome Headless Shell.  
+
+- Use Remotion v4.0.208 or later to not pick up an externally installed browser.
+- Use [`npx remotion browser ensure`](/docs/cli/browser/ensure) to ensure Chrome Headless Shell is available.
+- Do not download Chrome in your Dockerfile, but do install [Linux dependencies](/docs/miscellaneous/linux-dependencies) if you use Linux.
+- Do not use `--browser-executable`, `browserExecutable` or `setBrowserExecutable()` options to override the Headless Shell with an incompatible Chrome version.
+
+:::warning
+Note: Most Linux distros do not allow you to pin a Chrome package.  
+If you use a Remotion version below v4.0.208, you are at risk of Chrome automatically being upgraded to a version that does not ship with a headless mode.  
+:::
+
+
 ## What is Chrome Headless Shell?
 
 Chrome used to ship with a `--headless` flag, which Remotion would use.
@@ -83,13 +98,16 @@ Upgrades may happen in a patch release and will be listed here.
 
 If you are using [Remotion Lambda](/docs/lambda) or [Cloud Run](/docs/cloudrun), you don't need to worry about installing a browser - it is included in the runtime already.
 
-## Thorium (v4.0.18 - v4.0.135)
+
+## Previous changes
+
+### Thorium (v4.0.18 - v4.0.135)
 
 In these versions, if no local browser can be found, an instance of [Thorium](https://thorium.rocks/) is downloaded.
 
 Thorium is a free and open-source browser forked off Chromium, which includes the codecs needed to render videos.
 
-## Chromium (before v4.0.18)
+### Chromium (before v4.0.18)
 
 In previous versions, Remotion would download the free version of Chromium, which would not include codecs for the proprietary H.264 and H.265 codecs.
 This would often lead to problems when using the [`<Video>`](/docs/video) tag.
