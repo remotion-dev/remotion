@@ -2,7 +2,6 @@ import {listOfInstallableRemotionPackages} from '@remotion/studio-shared';
 import {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {installPackage} from '../api/install-package';
 import {restartStudio} from '../api/restart-studio';
 import type {Menu} from '../components/Menu/MenuItem';
 import type {
@@ -665,13 +664,16 @@ export const useMenuStructure = (
 					label: pkg,
 					onClick: () => {
 						closeMenu();
-						installPackage(pkg);
+						setSelectedModal({
+							type: 'install-package',
+							packageName: pkg,
+						});
 					},
 					type: 'item' as const,
 					keyHint: null,
 					leftItem: null,
 					subMenu: null,
-					quickSwitcherLabel: null,
+					quickSwitcherLabel: `Install ${pkg}`,
 				})),
 			},
 			{

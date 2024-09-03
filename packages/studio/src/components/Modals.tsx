@@ -1,6 +1,7 @@
 import React, {useContext} from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {ModalsContext} from '../state/modals';
+import {InstallPackageModal} from './InstallPackage';
 import {DeleteComposition} from './NewComposition/DeleteComposition';
 import {DuplicateComposition} from './NewComposition/DuplicateComposition';
 import {RenameComposition} from './NewComposition/RenameComposition';
@@ -100,6 +101,9 @@ export const Modals: React.FC<{
 					info={modalContextType.info}
 					knownBugs={modalContextType.knownBugs}
 				/>
+			)}
+			{modalContextType && modalContextType.type === 'install-package' && (
+				<InstallPackageModal packageName={modalContextType.packageName} />
 			)}
 
 			{modalContextType && modalContextType.type === 'quick-switcher' && (

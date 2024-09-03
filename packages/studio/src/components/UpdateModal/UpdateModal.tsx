@@ -3,7 +3,7 @@ import {BLUE, SELECTED_BACKGROUND} from '../../helpers/colors';
 import {copyText} from '../../helpers/copy-text';
 import {CopyButton} from '../CopyButton';
 import {KnownBugs} from '../KnownBugs';
-import {NewCompHeader} from '../ModalHeader';
+import {ModalHeader} from '../ModalHeader';
 import {DismissableModal} from '../NewComposition/DismissableModal';
 import {showNotification} from '../Notifications/NotificationCenter';
 import type {Bug, UpdateInfo} from '../UpdateCheck';
@@ -65,7 +65,7 @@ export const UpdateModal: React.FC<{
 
 	return (
 		<DismissableModal>
-			<NewCompHeader title="Update available" />
+			<ModalHeader title="Update available" />
 			<div style={container}>
 				{hasKnownBugs ? (
 					<>
