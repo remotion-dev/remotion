@@ -192,7 +192,7 @@ export type RestartStudioRequest = {};
 export type RestartStudioResponse = {};
 
 export type InstallPackageRequest = {
-	packageName: InstallablePackage;
+	packageNames: InstallablePackage[];
 };
 export type InstallPackageResponse = {};
 

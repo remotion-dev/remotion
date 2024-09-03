@@ -1,19 +1,27 @@
-import type {InstallablePackage} from '@remotion/studio-shared';
+import {
+	listOfInstallableRemotionPackages,
+	type InstallablePackage,
+} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useEffect} from 'react';
 import {VERSION} from 'remotion';
-import {installPackage} from '../api/install-package';
+import {installPackages} from '../api/install-package';
 import {restartStudio} from '../api/restart-studio';
 import {ShortcutHint} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {LIGHT_TEXT} from '../helpers/colors';
 import {useKeybinding} from '../helpers/use-keybinding';
+import {Checkbox} from './Checkbox';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {ModalButton} from './ModalButton';
 import {ModalFooterContainer} from './ModalFooter';
 import {ModalHeader} from './ModalHeader';
 import {DismissableModal} from './NewComposition/DismissableModal';
-import {Flex, Row} from './layout';
+import {Flex, Row, Spacing} from './layout';
 
 const container: React.CSSProperties = {
 	padding: 20,
+	maxHeight: 400,
+	overflowY: 'auto',
 };
 
 const text: React.CSSProperties = {
@@ -38,11 +46,37 @@ type State =
 			type: 'restarting';
 	  };
 
-export const InstallPackageModal: React.FC<{
-	readonly packageName: InstallablePackage;
-}> = ({packageName}) => {
+export const InstallPackageModal: React.FC<{}> = () => {
 	const [state, setState] = React.useState<State>({type: 'idle'});
+	const [map, setMap] = React.useState<{[key in InstallablePackage]: boolean}>({
+		'@remotion/animated-emoji': false,
+		'@remotion/gif': false,
+		'@remotion/lottie': false,
+		'@remotion/media-utils': false,
+		'@remotion/animation-utils': false,
+		'@remotion/cloudrun': false,
+		'@remotion/google-fonts': false,
+		'@remotion/enable-scss': false,
+		'@remotion/lambda': false,
+		'@remotion/layout-utils': false,
+		'@remotion/media-parser': false,
+		'@remotion/motion-blur': false,
+		'@remotion/noise': false,
+		'@remotion/paths': false,
+		'@remotion/rive': false,
+		'@remotion/shapes': false,
+		'@remotion/skia': false,
+		'@remotion/studio': false,
+		'@remotion/tailwind': false,
+		'@remotion/three': false,
+		'@remotion/transitions': false,
+		'@remotion/zod-types': false,
+	});
 	const {previewServerState: ctx} = useContext(StudioServerConnectionCtx);
+
+	const selectedPackages = (Object.keys(map) as InstallablePackage[]).filter(
+		(pkg) => map[pkg],
+	);
 
 	const onClick = useCallback(async () => {
 		if (state.type === 'done') {
@@ -53,16 +87,18 @@ export const InstallPackageModal: React.FC<{
 
 		setState({type: 'installing'});
 		try {
-			await installPackage(packageName);
+			await installPackages(selectedPackages);
 			setState({type: 'done'});
 		} catch (err) {
 			setState({type: 'error', error: err as Error});
 		}
-	}, [packageName, state.type]);
+	}, [selectedPackages, state.type]);
+
+	const canSelectPackages = state.type === 'idle' && ctx.type === 'connected';
 
 	const disabled =
-		(state.type !== 'idle' && state.type !== 'done') ||
-		ctx.type !== 'connected';
+		!(canSelectPackages || state.type === 'done') ||
+		selectedPackages.length === 0;
 
 	const {registerKeybinding} = useKeybinding();
 	useEffect(() => {
@@ -89,26 +125,57 @@ export const InstallPackageModal: React.FC<{
 
 	return (
 		<DismissableModal>
-			<ModalHeader title="Install package" />
-			<div style={container}>
+			<ModalHeader title="Install packages" />
+			<div style={container} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 				{state.type === 'done' ? (
 					<div style={text}>
-						The package was installed. It is recommended to restart the server.
+						Installed package{selectedPackages.length === 1 ? '' : 's'}{' '}
+						successfully. Restart the server to complete.
 					</div>
 				) : state.type === 'restarting' ? (
 					<div style={text}>Restarting the Studio server...</div>
 				) : state.type === 'installing' ? (
 					<div style={text}>
-						The package is installing. Check your terminal for progress.
+						Installing package{selectedPackages.length === 1 ? '' : 's'}. Check
+						your terminal for progress.
 					</div>
 				) : (
 					<div style={text}>
-						This will install the package {packageName}@{VERSION} from npm.
+						{listOfInstallableRemotionPackages.map((pkg) => {
+							return (
+								<Row key={pkg} align="center">
+									<Checkbox
+										checked={map[pkg]}
+										name={pkg}
+										onChange={() => {
+											setMap((prev) => ({...prev, [pkg]: !prev[pkg]}));
+										}}
+										disabled={!canSelectPackages}
+									/>
+									<Spacing x={1.5} />
+									<div
+										style={{
+											color: LIGHT_TEXT,
+											fontSize: 15,
+											lineHeight: 1.8,
+										}}
+									>
+										{pkg}
+									</div>
+								</Row>
+							);
+						})}
 					</div>
 				)}
 			</div>
 			<ModalFooterContainer>
 				<Row align="center">
+					{state.type === 'idle' ? (
+						<span style={{color: LIGHT_TEXT, fontSize: 13, lineHeight: 1.2}}>
+							This will install {selectedPackages.length} package
+							{selectedPackages.length === 1 ? '' : 's'} (v{VERSION})
+						</span>
+					) : null}
 					<Flex />
 					<ModalButton onClick={onClick} disabled={disabled}>
 						{state.type === 'restarting'

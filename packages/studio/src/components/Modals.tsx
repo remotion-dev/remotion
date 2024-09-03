@@ -102,8 +102,8 @@ export const Modals: React.FC<{
 					knownBugs={modalContextType.knownBugs}
 				/>
 			)}
-			{modalContextType && modalContextType.type === 'install-package' && (
-				<InstallPackageModal packageName={modalContextType.packageName} />
+			{modalContextType && modalContextType.type === 'install-packages' && (
+				<InstallPackageModal />
 			)}
 
 			{modalContextType && modalContextType.type === 'quick-switcher' && (

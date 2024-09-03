@@ -34,11 +34,13 @@ const getInstallCommand = ({
 export const handleInstallPackage: ApiHandler<
 	InstallPackageRequest,
 	InstallPackageResponse
-> = async ({logLevel, remotionRoot, input: {packageName}}) => {
-	if (listOfInstallableRemotionPackages.includes(packageName) === false) {
-		return Promise.reject(
-			new Error(`Package ${packageName} is not allowed to be installed.`),
-		);
+> = async ({logLevel, remotionRoot, input: {packageNames}}) => {
+	for (const packageName of packageNames) {
+		if (listOfInstallableRemotionPackages.includes(packageName) === false) {
+			return Promise.reject(
+				new Error(`Package ${packageName} is not allowed to be installed.`),
+			);
+		}
 	}
 
 	// TODO: Should set this to "undefined" if not in development
@@ -53,7 +55,7 @@ export const handleInstallPackage: ApiHandler<
 
 	const command = getInstallCommand({
 		manager: manager.manager,
-		packages: [packageName],
+		packages: packageNames,
 		version: VERSION,
 	});
 

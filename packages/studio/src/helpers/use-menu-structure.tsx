@@ -1,4 +1,3 @@
-import {listOfInstallableRemotionPackages} from '@remotion/studio-shared';
 import {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -654,28 +653,31 @@ export const useMenuStructure = (
 				].filter(Internals.truthy),
 				quickSwitcherLabel: null,
 			},
-			{
-				id: 'install' as const,
-				label: 'Install',
-				leaveLeftPadding: false,
-				items: listOfInstallableRemotionPackages.map((pkg) => ({
-					id: pkg,
-					value: pkg,
-					label: pkg,
-					onClick: () => {
-						closeMenu();
-						setSelectedModal({
-							type: 'install-package',
-							packageName: pkg,
-						});
+			readOnlyStudio
+				? null
+				: {
+						id: 'install' as const,
+						label: 'Packages',
+						leaveLeftPadding: false,
+						items: [
+							{
+								id: 'install-packages',
+								value: 'install-packages',
+								label: 'Install...',
+								onClick: () => {
+									closeMenu();
+									setSelectedModal({
+										type: 'install-packages',
+									});
+								},
+								type: 'item' as const,
+								keyHint: null,
+								leftItem: null,
+								subMenu: null,
+								quickSwitcherLabel: `Install packages`,
+							},
+						],
 					},
-					type: 'item' as const,
-					keyHint: null,
-					leftItem: null,
-					subMenu: null,
-					quickSwitcherLabel: `Install ${pkg}`,
-				})),
-			},
 			{
 				id: 'help' as const,
 				label: 'Help',
