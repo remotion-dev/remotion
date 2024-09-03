@@ -5,6 +5,8 @@
 		"outDir": "dist",
 		"jsx": "react-jsx",
 		"skipLibCheck": true,
+		"strict": true,
+		"noUncheckedIndexedAccess": true,
 		"lib": ["dom"]
 	},
 	"references": [
