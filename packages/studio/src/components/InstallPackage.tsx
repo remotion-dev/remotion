@@ -142,6 +142,8 @@ export const InstallPackageModal: React.FC<{}> = () => {
 				) : (
 					<div style={text}>
 						{listOfInstallableRemotionPackages.map((pkg) => {
+							const isInstalled =
+								window.remotion_installedPackages?.includes(pkg) ?? false;
 							return (
 								<Row key={pkg} align="center">
 									<Checkbox
@@ -150,7 +152,7 @@ export const InstallPackageModal: React.FC<{}> = () => {
 										onChange={() => {
 											setMap((prev) => ({...prev, [pkg]: !prev[pkg]}));
 										}}
-										disabled={!canSelectPackages}
+										disabled={!canSelectPackages || isInstalled}
 									/>
 									<Spacing x={1.5} />
 									<div
@@ -160,7 +162,12 @@ export const InstallPackageModal: React.FC<{}> = () => {
 											lineHeight: 1.8,
 										}}
 									>
-										{pkg}
+										{pkg}{' '}
+										{isInstalled ? (
+											<span style={{opacity: 0.3, fontSize: 'inherit'}}>
+												(installed)
+											</span>
+										) : null}
 									</div>
 								</Row>
 							);

@@ -1,4 +1,8 @@
-import type {GitSource, RenderDefaults} from '@remotion/studio-shared';
+import type {
+	GitSource,
+	InstallablePackage,
+	RenderDefaults,
+} from '@remotion/studio-shared';
 import type {StaticFile} from 'remotion';
 import {Internals} from 'remotion';
 
@@ -19,6 +23,7 @@ export const indexHtml = ({
 	publicFolderExists,
 	gitSource,
 	projectName,
+	installedDependencies,
 }: {
 	staticHash: string;
 	publicPath: string;
@@ -36,6 +41,7 @@ export const indexHtml = ({
 	renderDefaults: RenderDefaults | undefined;
 	gitSource: GitSource | null;
 	projectName: string;
+	installedDependencies: InstallablePackage[] | null;
 }) =>
 	// Must setup remotion_editorName and remotion.remotion_projectName before bundle.js is loaded
 	`
@@ -98,6 +104,7 @@ export const indexHtml = ({
 				: ''
 		}
 		<script>window.remotion_staticFiles = ${JSON.stringify(publicFiles)}</script>
+		<script>window.remotion_installedPackages = ${JSON.stringify(installedDependencies)}</script>
 		<script>window.remotion_publicFolderExists = ${
 			publicFolderExists ? `"${publicFolderExists}"` : 'null'
 		};</script>

@@ -302,6 +302,7 @@ export const internalBundle = async (
 			resolvedRemotionRoot,
 			basename: path.basename,
 		}),
+		installedDependencies: null,
 	});
 
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);

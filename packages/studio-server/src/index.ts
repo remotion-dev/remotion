@@ -28,6 +28,7 @@ import {openBrowser} from './better-opn';
 import {parseAndApplyCodemod} from './codemods/duplicate-composition';
 import {installFileWatcher} from './file-watcher';
 import {getLatestRemotionVersion} from './get-latest-remotion-version';
+import {getInstalledDependencies} from './helpers/get-installed-dependencies';
 import {
 	getMaxTimelineTracks,
 	setMaxTimelineTracks,
@@ -54,4 +55,5 @@ export const StudioServerInternals = {
 	formatBytes,
 	parseAndApplyCodemod,
 	openBrowser,
+	getInstalledDependencies,
 };

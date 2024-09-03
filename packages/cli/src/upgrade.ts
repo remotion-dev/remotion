@@ -2,7 +2,6 @@ import {RenderInternals, type LogLevel} from '@remotion/renderer';
 import type {PackageManager} from '@remotion/studio-server';
 import {StudioServerInternals} from '@remotion/studio-server';
 import {spawn} from 'node:child_process';
-import path from 'node:path';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
 
@@ -32,14 +31,12 @@ export const upgrade = async (
 	version: string | undefined,
 	logLevel: LogLevel,
 ) => {
-	const packageJsonFilePath = path.join(remotionRoot, 'package.json');
-	const packageJson = require(packageJsonFilePath);
-	const dependencies = Object.keys(packageJson.dependencies);
-	const devDependencies = Object.keys(packageJson.devDependencies ?? {});
-	const optionalDependencies = Object.keys(
-		packageJson.optionalDependencies ?? {},
-	);
-	const peerDependencies = Object.keys(packageJson.peerDependencies ?? {});
+	const {
+		dependencies,
+		devDependencies,
+		optionalDependencies,
+		peerDependencies,
+	} = StudioServerInternals.getInstalledDependencies(remotionRoot);
 
 	let targetVersion: string;
 	if (version) {
