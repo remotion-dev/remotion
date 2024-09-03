@@ -10,8 +10,7 @@ import {VERSION} from 'remotion/version';
 import type {ApiHandler} from '../api-types';
 import {getPackageManager, lockFilePaths} from '../get-package-manager';
 
-// TODO: This can be shared with getUpgradeCommand
-const getInstallCommand = ({
+export const getInstallCommand = ({
 	manager,
 	packages,
 	version,
@@ -43,8 +42,7 @@ export const handleInstallPackage: ApiHandler<
 		}
 	}
 
-	// TODO: Should set this to "undefined" if not in development
-	const manager = getPackageManager(remotionRoot, 'pnpm');
+	const manager = getPackageManager(remotionRoot, undefined, 0);
 	if (manager === 'unknown') {
 		throw new Error(
 			`No lockfile was found in your project (one of ${lockFilePaths

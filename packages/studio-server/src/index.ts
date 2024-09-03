@@ -38,6 +38,7 @@ import {
 	lockFilePaths,
 } from './preview-server/get-package-manager';
 import {waitForLiveEventsListener} from './preview-server/live-events';
+import {getInstallCommand} from './preview-server/routes/install-dependency';
 import {getRemotionVersion} from './preview-server/update-available';
 import {startStudio} from './start-studio';
 
@@ -56,4 +57,5 @@ export const StudioServerInternals = {
 	parseAndApplyCodemod,
 	openBrowser,
 	getInstalledDependencies,
+	getInstallCommand,
 };

@@ -1,29 +1,8 @@
 import {RenderInternals, type LogLevel} from '@remotion/renderer';
-import type {PackageManager} from '@remotion/studio-server';
 import {StudioServerInternals} from '@remotion/studio-server';
 import {spawn} from 'node:child_process';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
-
-const getUpgradeCommand = ({
-	manager,
-	packages,
-	version,
-}: {
-	manager: PackageManager;
-	packages: string[];
-	version: string;
-}): string[] => {
-	const pkgList = packages.map((p) => `${p}@${version}`);
-	const commands: {[key in PackageManager]: string[]} = {
-		npm: ['i', '--save-exact', '--no-fund', '--no-audit', ...pkgList],
-		pnpm: ['i', ...pkgList],
-		yarn: ['add', '--exact', ...pkgList],
-		bun: ['i', ...pkgList],
-	};
-
-	return commands[manager];
-};
 
 export const upgrade = async (
 	remotionRoot: string,
@@ -57,6 +36,7 @@ export const upgrade = async (
 	const manager = StudioServerInternals.getPackageManager(
 		remotionRoot,
 		packageManager,
+		0,
 	);
 
 	if (manager === 'unknown') {
@@ -77,7 +57,7 @@ export const upgrade = async (
 
 	const task = spawn(
 		manager.manager,
-		getUpgradeCommand({
+		StudioServerInternals.getInstallCommand({
 			manager: manager.manager,
 			packages: toUpgrade,
 			version: targetVersion,
