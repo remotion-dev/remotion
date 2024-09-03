@@ -1,5 +1,7 @@
-import type {PackageManager} from '@remotion/studio-shared';
+import type {PackageManager, Pkgs} from '@remotion/studio-shared';
 import {
+	apiDocs,
+	descriptions,
 	listOfInstallableRemotionPackages,
 	type InstallablePackage,
 } from '@remotion/studio-shared';
@@ -12,6 +14,7 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT} from '../helpers/colors';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {Checkbox} from './Checkbox';
+import {InstallablePackageComp} from './InstallablePackage';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {ModalButton} from './ModalButton';
 import {ModalFooterContainer} from './ModalFooter';
@@ -147,6 +150,17 @@ export const InstallPackageModal: React.FC<{
 						{listOfInstallableRemotionPackages.map((pkg) => {
 							const isInstalled =
 								window.remotion_installedPackages?.includes(pkg) ?? false;
+							const link = apiDocs[pkg.replace('@remotion/', '') as Pkgs];
+							const description =
+								descriptions[pkg.replace('@remotion/', '') as Pkgs];
+							if (!link) {
+								throw new Error('No link for ' + pkg);
+							}
+
+							if (!description) {
+								throw new Error('No description for ' + pkg);
+							}
+
 							return (
 								<Row key={pkg} align="center">
 									<Checkbox
@@ -158,20 +172,12 @@ export const InstallPackageModal: React.FC<{
 										disabled={!canSelectPackages || isInstalled}
 									/>
 									<Spacing x={1.5} />
-									<div
-										style={{
-											color: LIGHT_TEXT,
-											fontSize: 15,
-											lineHeight: 1.8,
-										}}
-									>
-										{pkg}{' '}
-										{isInstalled ? (
-											<span style={{opacity: 0.3, fontSize: 'inherit'}}>
-												(installed)
-											</span>
-										) : null}
-									</div>
+									<InstallablePackageComp
+										description={description}
+										isInstalled={isInstalled}
+										link={link}
+										pkg={pkg}
+									/>
 								</Row>
 							);
 						})}
@@ -183,8 +189,9 @@ export const InstallPackageModal: React.FC<{
 					{state.type === 'idle' ? (
 						<span style={{color: LIGHT_TEXT, fontSize: 13, lineHeight: 1.2}}>
 							This will install {selectedPackages.length} package
-							{selectedPackages.length === 1 ? '' : 's'} (v{VERSION}) using{' '}
-							{packageManager}
+							{selectedPackages.length === 1 ? '' : 's'}
+							<br />
+							using {packageManager}, Remotion v{VERSION}
 						</span>
 					) : null}
 					<Flex />

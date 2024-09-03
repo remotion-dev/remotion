@@ -164,7 +164,7 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	'discord-poster': null,
 	'cli-autocomplete': null,
 	'docusaurus-plugin': null,
-	'animation-utils': null,
+	'animation-utils': 'https://www.remotion.dev/docs/animation-utils/',
 	'example-without-zod': null,
 	'lambda-go': null,
 	example: null,
