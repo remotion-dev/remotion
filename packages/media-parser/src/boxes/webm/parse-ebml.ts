@@ -110,6 +110,10 @@ export const parseEbml = async (
 
 		// eslint-disable-next-line no-constant-condition
 		while (true) {
+			if (size === 0) {
+				break;
+			}
+
 			const offset = iterator.counter.getOffset();
 			const value = await parseEbml(iterator, parserContext);
 			const remapped = await postprocessEbml({
