@@ -6,6 +6,7 @@ import {canUpdateDefaultPropsHandler} from './routes/can-update-default-props';
 import {handleCancelRender} from './routes/cancel-render';
 import {handleCopyStillToClipboard} from './routes/copy-still-to-clipboard-handler';
 import {deleteStaticFileHandler} from './routes/delete-static-file';
+import {handleInstallPackage} from './routes/install-dependency';
 import {handleOpenInFileExplorer} from './routes/open-in-file-explorer';
 import {projectInfoHandler} from './routes/project-info';
 import {handleRemoveRender} from './routes/remove-render';
@@ -35,4 +36,5 @@ export const allApiRoutes: {
 	'/api/project-info': projectInfoHandler,
 	'/api/delete-static-file': deleteStaticFileHandler,
 	'/api/restart-studio': handleRestartStudio,
+	'/api/install-package': handleInstallPackage,
 };

@@ -11,6 +11,8 @@ export {
 	CopyStillToClipboardRequest,
 	DeleteStaticFileRequest,
 	DeleteStaticFileResponse,
+	InstallPackageRequest,
+	InstallPackageResponse,
 	OpenInFileExplorerRequest,
 	ProjectInfoRequest,
 	ProjectInfoResponse,

@@ -190,6 +190,9 @@ export type ProjectInfoResponse = {
 export type RestartStudioRequest = {};
 export type RestartStudioResponse = {};
 
+export type InstallPackageRequest = {};
+export type InstallPackageResponse = {};
+
 export type ApiRoutes = {
 	'/api/cancel': ReqAndRes<CancelRenderRequest, CancelRenderResponse>;
 	'/api/render': ReqAndRes<AddRenderRequest, undefined>;
@@ -223,4 +226,8 @@ export type ApiRoutes = {
 		DeleteStaticFileResponse
 	>;
 	'/api/restart-studio': ReqAndRes<RestartStudioRequest, RestartStudioResponse>;
+	'/api/install-package': ReqAndRes<
+		InstallPackageRequest,
+		InstallPackageResponse
+	>;
 };

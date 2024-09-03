@@ -1,6 +1,7 @@
 import {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {restartStudio} from '../api/restart-studio';
 import type {Menu} from '../components/Menu/MenuItem';
 import type {
 	ComboboxValue,
@@ -246,6 +247,24 @@ export const useMenuStructure = (
 						leftItem: null,
 						subMenu: null,
 						quickSwitcherLabel: 'Help: Acknowledgements',
+					},
+					{
+						type: 'divider' as const,
+						id: 'timeline-divider-1',
+					},
+					{
+						id: 'restart-studio',
+						value: 'restart-studio',
+						label: 'Restart Studio Server',
+						onClick: () => {
+							closeMenu();
+							restartStudio();
+						},
+						type: 'item' as const,
+						keyHint: null,
+						leftItem: null,
+						subMenu: null,
+						quickSwitcherLabel: 'Restart Studio Server',
 					},
 				],
 				quickSwitcherLabel: null,
