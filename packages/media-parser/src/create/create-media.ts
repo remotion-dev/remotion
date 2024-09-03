@@ -1,13 +1,7 @@
-import {getVariableInt} from '../boxes/webm/ebml';
-import {combineUint8Arrays, matroskaToHex} from '../boxes/webm/make-header';
+import {combineUint8Arrays} from '../boxes/webm/make-header';
 import type {BytesAndOffset} from '../boxes/webm/segments/all-segments';
-import {matroskaElements} from '../boxes/webm/segments/all-segments';
 import type {WriterInterface} from '../writers/writer';
-import {
-	CLUSTER_MIN_VINT_WIDTH,
-	createClusterSegment,
-	makeSimpleBlock,
-} from './cluster-segment';
+import {makeCluster} from './cluster';
 import {makeDurationWithPadding} from './make-duration-with-padding';
 import {makeMatroskaHeader} from './matroska-header';
 import {makeMatroskaInfo} from './matroska-info';
@@ -70,35 +64,20 @@ export const createMedia = async (
 
 	await w.write(matroskaSegment.bytes);
 
-	const cluster = createClusterSegment();
-	const clusterVIntPosition =
-		w.getWrittenByteCount() +
-		cluster.offsets.offset +
-		matroskaToHex(matroskaElements.Cluster).byteLength;
+	let currentCluster = await makeCluster(w, 0);
 
-	let clusterSize = cluster.bytes.byteLength;
-	await w.write(cluster.bytes);
+	const getClusterOrMakeNew = async (chunk: EncodedVideoChunk) => {
+		if (!currentCluster.shouldMakeNewCluster(chunk)) {
+			return currentCluster;
+		}
+
+		currentCluster = await makeCluster(w, chunk.timestamp);
+		return currentCluster;
+	};
 
 	const addSample = async (chunk: EncodedVideoChunk, trackNumber: number) => {
-		const arr = new Uint8Array(chunk.byteLength);
-		chunk.copyTo(arr);
-		const simpleBlock = makeSimpleBlock({
-			bytes: arr,
-			invisible: false,
-			keyframe: chunk.type === 'key',
-			lacing: 0,
-			trackNumber,
-			timecodeRelativeToCluster: Math.round(
-				(chunk.timestamp / CREATE_TIME_SCALE) * 1000,
-			),
-		});
-
-		clusterSize += simpleBlock.byteLength;
-		await w.updateDataAt(
-			clusterVIntPosition,
-			getVariableInt(clusterSize, CLUSTER_MIN_VINT_WIDTH),
-		);
-		await w.write(simpleBlock);
+		const cluster = await getClusterOrMakeNew(chunk);
+		return cluster.addSample(chunk, trackNumber);
 	};
 
 	const updateDuration = async (newDuration: number) => {

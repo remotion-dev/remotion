@@ -8,15 +8,15 @@ import {
 
 export const CLUSTER_MIN_VINT_WIDTH = 8;
 
-export const createClusterSegment = () => {
+export const createClusterSegment = (timestamp: number) => {
 	return makeMatroskaBytes({
 		type: 'Cluster',
 		value: [
 			{
 				type: 'Timestamp',
-				minVintWidth: 4,
+				minVintWidth: null,
 				value: {
-					value: 0,
+					value: timestamp,
 					byteLength: null,
 				},
 			},
