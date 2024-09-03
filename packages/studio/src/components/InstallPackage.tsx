@@ -1,3 +1,4 @@
+import type {PackageManager} from '@remotion/studio-shared';
 import {
 	listOfInstallableRemotionPackages,
 	type InstallablePackage,
@@ -46,7 +47,9 @@ type State =
 			type: 'restarting';
 	  };
 
-export const InstallPackageModal: React.FC<{}> = () => {
+export const InstallPackageModal: React.FC<{
+	readonly packageManager: PackageManager;
+}> = ({packageManager}) => {
 	const [state, setState] = React.useState<State>({type: 'idle'});
 	const [map, setMap] = React.useState<{[key in InstallablePackage]: boolean}>({
 		'@remotion/animated-emoji': false,
@@ -180,7 +183,8 @@ export const InstallPackageModal: React.FC<{}> = () => {
 					{state.type === 'idle' ? (
 						<span style={{color: LIGHT_TEXT, fontSize: 13, lineHeight: 1.2}}>
 							This will install {selectedPackages.length} package
-							{selectedPackages.length === 1 ? '' : 's'} (v{VERSION})
+							{selectedPackages.length === 1 ? '' : 's'} (v{VERSION}) using{' '}
+							{packageManager}
 						</span>
 					) : null}
 					<Flex />

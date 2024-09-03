@@ -103,7 +103,7 @@ export const Modals: React.FC<{
 				/>
 			)}
 			{modalContextType && modalContextType.type === 'install-packages' && (
-				<InstallPackageModal />
+				<InstallPackageModal packageManager={modalContextType.packageManager} />
 			)}
 
 			{modalContextType && modalContextType.type === 'quick-switcher' && (

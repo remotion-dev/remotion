@@ -165,6 +165,8 @@ export const useMenuStructure = (
 
 	const isFullscreenSupported = checkFullscreenSupport();
 
+	const {remotion_packageManager} = window;
+
 	const mobileLayout = useMobileLayout();
 	const structure = useMemo((): Structure => {
 		let struct: Structure = [
@@ -653,7 +655,7 @@ export const useMenuStructure = (
 				].filter(Internals.truthy),
 				quickSwitcherLabel: null,
 			},
-			readOnlyStudio
+			readOnlyStudio || remotion_packageManager === 'unknown'
 				? null
 				: {
 						id: 'install' as const,
@@ -668,6 +670,7 @@ export const useMenuStructure = (
 									closeMenu();
 									setSelectedModal({
 										type: 'install-packages',
+										packageManager: remotion_packageManager,
 									});
 								},
 								type: 'item' as const,
@@ -856,6 +859,7 @@ export const useMenuStructure = (
 
 		return struct;
 	}, [
+		remotion_packageManager,
 		readOnlyStudio,
 		mobileLayout,
 		sizes,

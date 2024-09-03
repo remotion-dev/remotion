@@ -10,6 +10,7 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
+import type {PackageManager} from '@remotion/studio-shared';
 import type React from 'react';
 import {createContext} from 'react';
 import type {CompType} from '../components/NewComposition/DuplicateComposition';
@@ -87,6 +88,7 @@ export type ModalState =
 	  }
 	| {
 			type: 'install-packages';
+			packageManager: PackageManager;
 	  }
 	| {
 			type: 'quick-switcher';

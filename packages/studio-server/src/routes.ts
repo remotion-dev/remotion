@@ -102,6 +102,8 @@ const handleFallback = async ({
 				resolvedRemotionRoot: remotionRoot,
 			}),
 			installedDependencies,
+			packageManager:
+				packageManager === 'unknown' ? 'unknown' : packageManager.manager,
 		}),
 	);
 };
