@@ -27,7 +27,7 @@ const groupBy = (vals: [string, string][]) => {
 			groups[version] = [];
 		}
 
-		groups[version].push(pkg);
+		(groups[version] as string[]).push(pkg);
 	}
 
 	return groups;
@@ -72,7 +72,7 @@ export const validateVersionsBeforeCommand = async (
 	Log.warn(logOptions, 'Version mismatch:');
 	for (const version of installedVersions) {
 		Log.warn(logOptions, `- On version: ${version}`);
-		for (const pkg of grouped[version]) {
+		for (const pkg of grouped[version] ?? []) {
 			Log.warn(logOptions, `  - ${pkg}`);
 		}
 
@@ -122,7 +122,7 @@ export const versionsCommand = async (
 	Log.info({indent: false, logLevel});
 	for (const version of installedVersions) {
 		Log.info({indent: false, logLevel}, `On version: ${version}`);
-		for (const pkg of grouped[version]) {
+		for (const pkg of grouped[version] ?? []) {
 			Log.info({indent: false, logLevel}, `- ${pkg}`);
 			Log.verbose(
 				{indent: false, logLevel},

@@ -23,7 +23,7 @@ const getGitRemotes = (lines: string[]) => {
 				open = false;
 			}
 		} else if (open) {
-			sections[sections.length - 1].push(line);
+			(sections[sections.length - 1] as string[]).push(line);
 		}
 	}
 
@@ -31,7 +31,7 @@ const getGitRemotes = (lines: string[]) => {
 		const url = s.find((l) => l.trimStart().startsWith('url = '));
 
 		return {
-			remote: s[0].replace('[remote "', '').replace('"]', ''),
+			remote: (s[0] as string).replace('[remote "', '').replace('"]', ''),
 			url: url ? url.replace('url = ', '').trim() : null,
 		};
 	});
@@ -69,8 +69,8 @@ export const normalizeGitRemoteUrl = (url: string): ParsedGitRemote | null => {
 		if (matched) {
 			return {
 				type: 'github',
-				name: matched[2],
-				org: matched[1],
+				name: matched[2] as string,
+				org: matched[1] as string,
 			};
 		}
 	}
@@ -79,8 +79,8 @@ export const normalizeGitRemoteUrl = (url: string): ParsedGitRemote | null => {
 	if (gitHubMatch) {
 		return {
 			type: 'github',
-			name: gitHubMatch[2],
-			org: gitHubMatch[1],
+			name: gitHubMatch[2] as string,
+			org: gitHubMatch[1] as string,
 		};
 	}
 
@@ -88,8 +88,8 @@ export const normalizeGitRemoteUrl = (url: string): ParsedGitRemote | null => {
 	if (gitHubMatchWithoutGit) {
 		return {
 			type: 'github',
-			name: gitHubMatchWithoutGit[2],
-			org: gitHubMatchWithoutGit[1],
+			name: gitHubMatchWithoutGit[2] as string,
+			org: gitHubMatchWithoutGit[1] as string,
 		};
 	}
 

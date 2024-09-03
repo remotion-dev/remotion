@@ -49,7 +49,17 @@ export const loadConfigFile = async (
 		process.exit(1);
 	}
 
-	let str = new TextDecoder().decode(result.outputFiles[0].contents);
+	const firstOutfile = result.outputFiles[0];
+
+	if (!firstOutfile) {
+		Log.error(
+			{indent: false, logLevel: 'error'},
+			'No output files found in the config file.',
+		);
+		process.exit(1);
+	}
+
+	let str = new TextDecoder().decode(firstOutfile.contents);
 
 	const currentCwd = process.cwd();
 
