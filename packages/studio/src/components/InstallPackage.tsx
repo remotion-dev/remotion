@@ -46,6 +46,7 @@ export const InstallPackageModal: React.FC<{
 
 	const onClick = useCallback(async () => {
 		if (state.type === 'done') {
+			setState({type: 'restarting'});
 			restartStudio();
 			return;
 		}
@@ -78,8 +79,9 @@ export const InstallPackageModal: React.FC<{
 			event: 'keydown',
 			preventDefault: true,
 			triggerIfInputFieldFocused: true,
-			keepRegisteredWhenNotHighestContext: false,
+			keepRegisteredWhenNotHighestContext: true,
 		});
+
 		return () => {
 			enter.unregister();
 		};
@@ -92,6 +94,12 @@ export const InstallPackageModal: React.FC<{
 				{state.type === 'done' ? (
 					<div style={text}>
 						The package was installed. It is recommended to restart the server.
+					</div>
+				) : state.type === 'restarting' ? (
+					<div style={text}>Restarting the Studio server...</div>
+				) : state.type === 'installing' ? (
+					<div style={text}>
+						The package is installing. Check your terminal for progress.
 					</div>
 				) : (
 					<div style={text}>
@@ -110,7 +118,7 @@ export const InstallPackageModal: React.FC<{
 								: state.type === 'done'
 									? 'Restart Server'
 									: 'Install'}
-						<ShortcutHint keyToPress="↵" cmdOrCtrl />
+						{disabled ? null : <ShortcutHint keyToPress="↵" cmdOrCtrl />}
 					</ModalButton>
 				</Row>
 			</ModalFooterContainer>
