@@ -96,7 +96,7 @@ export const defaultBrowserDownloadProgress = ({
 						bytesDownloaded: progress.downloadedBytes,
 						totalBytes: progress.totalSizeInBytes,
 					}),
-					false,
+					progress.percent === 1,
 				);
 			},
 		};
