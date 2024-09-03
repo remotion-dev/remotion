@@ -48,8 +48,8 @@ const commands: {[key in UpdateInfo['packageManager']]: string} = {
 };
 
 export const UpdateModal: React.FC<{
-	info: UpdateInfo;
-	knownBugs: Bug[];
+	readonly info: UpdateInfo;
+	readonly knownBugs: Bug[];
 }> = ({info, knownBugs}) => {
 	const hasKnownBugs = useMemo(() => {
 		return knownBugs && knownBugs?.length > 0;

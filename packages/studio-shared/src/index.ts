@@ -45,6 +45,10 @@ export {
 	ModuleMap,
 	hotMiddlewareOptions,
 } from './hot-middleware';
+export {
+	InstallablePackage,
+	listOfInstallableRemotionPackages,
+} from './installable-packages';
 export {DEFAULT_TIMELINE_TRACKS} from './max-timeline-tracks';
 export {PackageManager} from './package-manager';
 export {ProjectInfo} from './project-info';

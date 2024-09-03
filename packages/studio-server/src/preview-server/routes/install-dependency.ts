@@ -1,8 +1,9 @@
 import {RenderInternals} from '@remotion/renderer';
-import type {
-	InstallPackageRequest,
-	InstallPackageResponse,
-	PackageManager,
+import {
+	listOfInstallableRemotionPackages,
+	type InstallPackageRequest,
+	type InstallPackageResponse,
+	type PackageManager,
 } from '@remotion/studio-shared';
 import {spawn} from 'node:child_process';
 import {VERSION} from 'remotion/version';
@@ -33,7 +34,13 @@ const getInstallCommand = ({
 export const handleInstallPackage: ApiHandler<
 	InstallPackageRequest,
 	InstallPackageResponse
-> = async ({logLevel, remotionRoot}) => {
+> = async ({logLevel, remotionRoot, input: {packageName}}) => {
+	if (listOfInstallableRemotionPackages.includes(packageName) === false) {
+		return Promise.reject(
+			new Error(`Package ${packageName} is not allowed to be installed.`),
+		);
+	}
+
 	// TODO: Should set this to "undefined" if not in development
 	const manager = getPackageManager(remotionRoot, 'pnpm');
 	if (manager === 'unknown') {
@@ -46,7 +53,7 @@ export const handleInstallPackage: ApiHandler<
 
 	const command = getInstallCommand({
 		manager: manager.manager,
-		packages: ['@remotion/tailwind'],
+		packages: [packageName],
 		version: VERSION,
 	});
 

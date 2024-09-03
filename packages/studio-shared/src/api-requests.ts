@@ -10,6 +10,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {RecastCodemod} from './codemods';
+import type {InstallablePackage} from './installable-packages';
 import type {PackageManager} from './package-manager';
 import type {ProjectInfo} from './project-info';
 import type {RequiredChromiumOptions} from './render-job';
@@ -190,7 +191,9 @@ export type ProjectInfoResponse = {
 export type RestartStudioRequest = {};
 export type RestartStudioResponse = {};
 
-export type InstallPackageRequest = {};
+export type InstallPackageRequest = {
+	packageName: InstallablePackage;
+};
 export type InstallPackageResponse = {};
 
 export type ApiRoutes = {
