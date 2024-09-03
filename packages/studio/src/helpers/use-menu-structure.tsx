@@ -1,6 +1,7 @@
 import {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {installPackage} from '../api/install-package';
 import {restartStudio} from '../api/restart-studio';
 import type {Menu} from '../components/Menu/MenuItem';
 import type {
@@ -615,13 +616,13 @@ export const useMenuStructure = (
 						: null,
 				].filter(Internals.truthy),
 			},
-			'EyeDropper' in window
-				? {
-						id: 'tools' as const,
-						label: 'Tools',
-						leaveLeftPadding: false,
-						items: [
-							{
+			{
+				id: 'tools' as const,
+				label: 'Tools',
+				leaveLeftPadding: false,
+				items: [
+					'EyeDropper' in window
+						? {
 								id: 'color-picker',
 								value: 'color-picker',
 								label: 'Color Picker',
@@ -634,25 +635,46 @@ export const useMenuStructure = (
 								subMenu: null,
 								type: 'item' as const,
 								quickSwitcherLabel: 'Show Color Picker',
-							},
-							{
-								id: 'spring-editor',
-								value: 'spring-editor',
-								label: 'spring() Editor',
-								onClick: () => {
-									closeMenu();
-									window.open('https://springs.remotion.dev', '_blank');
-								},
-								leftItem: null,
-								keyHint: null,
-								subMenu: null,
-								type: 'item' as const,
-								quickSwitcherLabel: 'Open spring() Editor',
-							},
-						],
-						quickSwitcherLabel: null,
-					}
-				: null,
+							}
+						: null,
+					{
+						id: 'spring-editor',
+						value: 'spring-editor',
+						label: 'spring() Editor',
+						onClick: () => {
+							closeMenu();
+							window.open('https://springs.remotion.dev', '_blank');
+						},
+						leftItem: null,
+						keyHint: null,
+						subMenu: null,
+						type: 'item' as const,
+						quickSwitcherLabel: 'Open spring() Editor',
+					},
+				].filter(Internals.truthy),
+				quickSwitcherLabel: null,
+			},
+			{
+				id: 'install' as const,
+				label: 'Install',
+				leaveLeftPadding: false,
+				items: [
+					{
+						id: 'install-dependency',
+						value: 'install-dependency',
+						label: 'Install dependency',
+						onClick: () => {
+							closeMenu();
+							installPackage();
+						},
+						type: 'item' as const,
+						keyHint: null,
+						leftItem: null,
+						subMenu: null,
+						quickSwitcherLabel: 'Install dependency',
+					},
+				],
+			},
 			{
 				id: 'help' as const,
 				label: 'Help',
