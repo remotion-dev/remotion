@@ -45,7 +45,7 @@ import {SidebarContext} from '../../state/sidebar';
 import {Button} from '../Button';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {getMaxModalHeight, getMaxModalWidth} from '../ModalContainer';
-import {NewCompHeader} from '../ModalHeader';
+import {ModalHeader} from '../ModalHeader';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {DismissableModal} from '../NewComposition/DismissableModal';
 import {
@@ -1174,7 +1174,7 @@ const RenderModal: React.FC<
 
 	return (
 		<div style={outer}>
-			<NewCompHeader title={`Render ${resolvedComposition.id}`} />
+			<ModalHeader title={`Render ${resolvedComposition.id}`} />
 			<div style={container}>
 				<SegmentedControl items={renderTabOptions} needsWrapping={false} />
 				<div style={flexer} />

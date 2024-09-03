@@ -19,6 +19,7 @@ export const cloudrunCommand = async (
 		const manager = StudioServerInternals.getPackageManager(
 			remotionRoot,
 			undefined,
+			0,
 		);
 		const installCommand =
 			manager === 'unknown' ? 'npm i' : manager.installCommand;

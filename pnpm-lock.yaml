@@ -1023,6 +1023,9 @@ importers:
       '@remotion/studio-server':
         specifier: workspace:*
         version: link:../studio-server
+      '@remotion/studio-shared':
+        specifier: workspace:*
+        version: link:../studio-shared
       '@remotion/transitions':
         specifier: workspace:*
         version: link:../transitions

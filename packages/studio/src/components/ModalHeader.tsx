@@ -22,8 +22,8 @@ const icon: React.CSSProperties = {
 	width: 20,
 };
 
-export const NewCompHeader: React.FC<{
-	title: string;
+export const ModalHeader: React.FC<{
+	readonly title: string;
 }> = ({title}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
