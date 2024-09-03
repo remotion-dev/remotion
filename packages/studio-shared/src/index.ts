@@ -50,6 +50,7 @@ export {
 	listOfInstallableRemotionPackages,
 } from './installable-packages';
 export {DEFAULT_TIMELINE_TRACKS} from './max-timeline-tracks';
+export {Pkgs, apiDocs, descriptions, packages} from './package-info';
 export {PackageManager} from './package-manager';
 export {ProjectInfo} from './project-info';
 export type {RenderDefaults} from './render-defaults';
