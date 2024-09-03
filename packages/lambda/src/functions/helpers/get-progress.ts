@@ -179,7 +179,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 				.map((_, i) => i)
 				.filter((index) => {
 					return (
-						typeof (overallProgress.chunks ?? []).find((c) => c === index) !==
+						typeof (overallProgress.chunks ?? []).find((c) => c === index) ===
 						'undefined'
 					);
 				})
