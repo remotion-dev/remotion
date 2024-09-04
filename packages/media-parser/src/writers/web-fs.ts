@@ -11,13 +11,31 @@ const createContent = async () => {
 
 	let written = 0;
 
+	let writPromise = Promise.resolve();
+
+	const write = async (arr: Uint8Array) => {
+		await writable.write(arr);
+		written += arr.byteLength;
+	};
+
+	const updateDataAt = async (position: number, data: Uint8Array) => {
+		await writable.seek(position);
+		await writable.write(data);
+		await writable.seek(written);
+	};
+
 	const writer: Writer = {
-		write: async (arr: Uint8Array) => {
-			await writable.write(arr);
-			written += arr.byteLength;
+		write: (arr: Uint8Array) => {
+			writPromise = writPromise.then(() => write(arr));
+			return writPromise;
 		},
 		save: async () => {
-			await writable.close();
+			try {
+				await writable.close();
+			} catch (err) {
+				// Ignore, could already be closed
+			}
+
 			const picker = await window.showSaveFilePicker({
 				suggestedName: `${Math.random().toString().replace('.', '')}.webm`,
 			});
@@ -35,10 +53,12 @@ const createContent = async () => {
 			});
 		},
 		getWrittenByteCount: () => written,
-		updateDataAt: async (position: number, vint: Uint8Array) => {
-			await writable.seek(position);
-			await writable.write(vint);
-			await writable.seek(written);
+		updateDataAt: (position: number, data: Uint8Array) => {
+			writPromise = writPromise.then(() => updateDataAt(position, data));
+			return writPromise;
+		},
+		waitForFinish: async () => {
+			await writPromise;
 		},
 	};
 

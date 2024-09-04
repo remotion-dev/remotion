@@ -1,15 +1,12 @@
-import {padMatroskaBytes} from '../boxes/webm/make-header';
+import {makeMatroskaBytes} from '../boxes/webm/make-header';
 
 export const makeDurationWithPadding = (newDuration: number) => {
-	return padMatroskaBytes(
-		{
-			type: 'Duration',
-			value: {
-				value: newDuration,
-				size: '64',
-			},
-			minVintWidth: null,
+	return makeMatroskaBytes({
+		type: 'Duration',
+		value: {
+			value: newDuration,
+			size: '64',
 		},
-		100,
-	);
+		minVintWidth: 8,
+	});
 };

@@ -23,7 +23,7 @@ export const makeMatroskaInfo = ({timescale}: {timescale: number}) => {
 				value: '@remotion/media-parser',
 				minVintWidth: null,
 			},
-			...makeDurationWithPadding(0),
+			makeDurationWithPadding(0),
 		],
 		minVintWidth: null,
 	});

@@ -19,9 +19,11 @@ export const createVideoDecoder = async ({
 		return null;
 	}
 
+	let prom = Promise.resolve();
+
 	const videoDecoder = new VideoDecoder({
-		async output(inputFrame) {
-			await onFrame(inputFrame);
+		output(inputFrame) {
+			prom = prom.then(() => onFrame(inputFrame));
 		},
 		error(error) {
 			// TODO: Do error handling
@@ -53,6 +55,10 @@ export const createVideoDecoder = async ({
 		},
 		waitForFinish: async () => {
 			await decoderWaitForFinish(videoDecoder);
+			await prom;
+		},
+		close: () => {
+			videoDecoder.close();
 		},
 	};
 };

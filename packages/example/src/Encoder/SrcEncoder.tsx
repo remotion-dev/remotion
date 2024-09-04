@@ -198,13 +198,13 @@ export const SrcEncoder: React.FC<{
 						const newDuration = Math.round(
 							(chunk.timestamp + (chunk.duration ?? 0)) / 1000,
 						);
+						await mediaState.updateDuration(newDuration);
 						flushSync(() => {
 							setState((s) => ({
 								...s,
 								encodedVideoFrames: s.encodedVideoFrames + 1,
 							}));
 						});
-						await mediaState.updateDuration(newDuration);
 					},
 				});
 				if (videoEncoder === null) {
@@ -234,6 +234,8 @@ export const SrcEncoder: React.FC<{
 				mediaState.addWaitForFinishPromise(async () => {
 					await videoDecoder.waitForFinish();
 					await videoEncoder.waitForFinish();
+					videoDecoder.close();
+					videoEncoder.close();
 				});
 
 				return async (chunk) => {
@@ -308,6 +310,8 @@ export const SrcEncoder: React.FC<{
 				mediaState.addWaitForFinishPromise(async () => {
 					await audioDecoder.waitForFinish();
 					await audioEncoder.waitForFinish();
+					audioDecoder.close();
+					audioEncoder.close();
 				});
 
 				return async (audioSample) => {

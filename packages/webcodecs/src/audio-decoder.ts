@@ -20,9 +20,11 @@ export const createAudioDecoder = async ({
 		return null;
 	}
 
+	let prom = Promise.resolve();
+
 	const audioDecoder = new AudioDecoder({
 		output(inputFrame) {
-			onFrame(inputFrame);
+			prom = prom.then(() => onFrame(inputFrame));
 		},
 		error(error) {
 			onError(error);
@@ -53,6 +55,10 @@ export const createAudioDecoder = async ({
 		},
 		waitForFinish: async () => {
 			await decoderWaitForFinish(audioDecoder);
+			await prom;
+		},
+		close: () => {
+			audioDecoder.close();
 		},
 	};
 };

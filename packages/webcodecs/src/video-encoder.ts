@@ -14,12 +14,14 @@ export const createVideoEncoder = async ({
 		return Promise.resolve(null);
 	}
 
+	let prom = Promise.resolve();
+
 	const encoder = new VideoEncoder({
 		error(error) {
 			console.error(error);
 		},
-		async output(chunk) {
-			await onChunk(chunk);
+		output(chunk) {
+			prom = prom.then(() => onChunk(chunk));
 		},
 	});
 
@@ -57,7 +59,11 @@ export const createVideoEncoder = async ({
 			return queue;
 		},
 		waitForFinish: async () => {
+			await prom;
 			await encoderWaitForFinish(encoder);
+		},
+		close: () => {
+			encoder.close();
 		},
 	};
 };
