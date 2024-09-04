@@ -1,10 +1,15 @@
 import {combineUint8Arrays} from '../boxes/webm/make-header';
-import type {BytesAndOffset} from '../boxes/webm/segments/all-segments';
+import {
+	matroskaElements,
+	type BytesAndOffset,
+} from '../boxes/webm/segments/all-segments';
 import type {WriterInterface} from '../writers/writer';
 import {makeCluster} from './cluster';
 import {makeDurationWithPadding} from './make-duration-with-padding';
 import {makeMatroskaHeader} from './matroska-header';
 import {makeMatroskaInfo} from './matroska-info';
+import type {Seek} from './matroska-seek';
+import {createMatroskaSeekHead} from './matroska-seek';
 import {createMatroskaSegment} from './matroska-segment';
 import type {MakeTrackAudio, MakeTrackVideo} from './matroska-trackentry';
 import {
@@ -40,10 +45,11 @@ export const createMedia = async (
 
 	const currentTracks: BytesAndOffset[] = [];
 
-	const matroskaTracks = makeMatroskaTracks(currentTracks);
+	const seeks: Seek[] = [];
 	const matroskaSegment = createMatroskaSegment([
 		matroskaInfo,
-		...matroskaTracks,
+		...createMatroskaSeekHead(seeks),
+		...makeMatroskaTracks(currentTracks),
 	]);
 
 	const durationOffset =
@@ -53,6 +59,13 @@ export const createMedia = async (
 	const tracksOffset =
 		(matroskaSegment.offsets.children.find((o) => o.field === 'Tracks')
 			?.offset ?? 0) + w.getWrittenByteCount();
+	const seekHeadOffset =
+		(matroskaSegment.offsets.children.find((o) => o.field === 'SeekHead')
+			?.offset ?? 0) + w.getWrittenByteCount();
+
+	if (!seekHeadOffset) {
+		throw new Error('could not get seek offset');
+	}
 
 	if (!durationOffset) {
 		throw new Error('could not get duration offset');
@@ -62,9 +75,28 @@ export const createMedia = async (
 		throw new Error('could not get tracks offset');
 	}
 
+	seeks.push({
+		hexString: matroskaElements.Tracks,
+		byte: tracksOffset - seekHeadOffset,
+	});
+
+	const updateSeekWrite = async () => {
+		const updatedSeek = createMatroskaSeekHead(seeks);
+		await w.updateDataAt(
+			seekHeadOffset,
+			combineUint8Arrays(updatedSeek.map((b) => b.bytes)),
+		);
+	};
+
 	await w.write(matroskaSegment.bytes);
 
+	const clusterOffset = w.getWrittenByteCount();
 	let currentCluster = await makeCluster(w, 0);
+	seeks.push({
+		hexString: matroskaElements.Cluster,
+		byte: clusterOffset - seekHeadOffset,
+	});
+	await updateSeekWrite();
 
 	const getClusterOrMakeNew = async (chunk: EncodedVideoChunk) => {
 		if (!currentCluster.shouldMakeNewCluster(chunk)) {
