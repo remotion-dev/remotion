@@ -12,10 +12,12 @@ export const createVideoEncoder = async ({
 	width,
 	height,
 	onChunk,
+	onError,
 }: {
 	width: number;
 	height: number;
 	onChunk: (chunk: EncodedVideoChunk) => Promise<void>;
+	onError: (error: DOMException) => void;
 }): Promise<WebCodecsVideoEncoder | null> => {
 	if (typeof VideoEncoder === 'undefined') {
 		return Promise.resolve(null);
@@ -27,7 +29,7 @@ export const createVideoEncoder = async ({
 
 	const encoder = new VideoEncoder({
 		error(error) {
-			console.error(error);
+			onError(error);
 		},
 		output(chunk) {
 			outputQueueSize++;

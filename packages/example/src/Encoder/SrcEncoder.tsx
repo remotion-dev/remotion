@@ -200,6 +200,10 @@ export const SrcEncoder: React.FC<{
 							}));
 						});
 					},
+					onError: (err) => {
+						// TODO: Do error handling
+						console.log(err);
+					},
 				});
 				if (videoEncoder === null) {
 					setState((s) => ({
@@ -215,6 +219,10 @@ export const SrcEncoder: React.FC<{
 						await onVideoFrame(frame, track);
 						await videoEncoder.encodeFrame(frame);
 						frame.close();
+					},
+					onError: (err) => {
+						// TODO: Do error handling
+						console.log(err);
 					},
 				});
 				if (videoDecoder === null) {
@@ -262,6 +270,10 @@ export const SrcEncoder: React.FC<{
 					},
 					sampleRate: track.sampleRate,
 					numberOfChannels: track.numberOfChannels,
+					onError: (err) => {
+						// TODO: Do error handling
+						console.log(err);
+					},
 				});
 
 				if (!audioEncoder) {
@@ -283,6 +295,7 @@ export const SrcEncoder: React.FC<{
 						frame.close();
 					},
 					onError(error) {
+						// TODO: Do better error handling
 						setState((s) => ({...s, audioError: error}));
 					},
 				});

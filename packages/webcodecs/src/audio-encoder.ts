@@ -10,10 +10,12 @@ export const createAudioEncoder = async ({
 	onChunk,
 	sampleRate,
 	numberOfChannels,
+	onError,
 }: {
 	onChunk: (chunk: EncodedAudioChunk) => Promise<void>;
 	sampleRate: number;
 	numberOfChannels: number;
+	onError: (error: DOMException) => void;
 }): Promise<WebCodecsAudioEncoder | null> => {
 	if (typeof AudioEncoder === 'undefined') {
 		return null;
@@ -35,7 +37,7 @@ export const createAudioEncoder = async ({
 				});
 		},
 		error(error) {
-			console.error(error);
+			onError(error);
 		},
 	});
 

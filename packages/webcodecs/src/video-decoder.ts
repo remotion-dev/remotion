@@ -12,9 +12,11 @@ export type WebCodecsVideoDecoder = {
 export const createVideoDecoder = async ({
 	track,
 	onFrame,
+	onError,
 }: {
 	track: VideoTrack;
 	onFrame: (frame: VideoFrame) => Promise<void>;
+	onError: (error: DOMException) => void;
 }): Promise<WebCodecsVideoDecoder | null> => {
 	if (typeof VideoDecoder === 'undefined') {
 		return null;
@@ -42,8 +44,7 @@ export const createVideoDecoder = async ({
 				});
 		},
 		error(error) {
-			// TODO: Do error handling
-			console.log(error);
+			onError(error);
 		},
 	});
 
