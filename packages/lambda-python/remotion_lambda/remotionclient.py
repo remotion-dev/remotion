@@ -2,10 +2,10 @@
 from dataclasses import asdict
 import json
 from math import ceil
-from typing import Union, Literal
+from typing import Optional, Union, Literal
 from enum import Enum
 import boto3
-from .models import (CostsInfo, RenderMediaParams, RenderMediaProgress,
+from .models import (CostsInfo, CustomCredentials, RenderMediaParams, RenderMediaProgress,
                      RenderMediaResponse, RenderProgressParams, RenderStillResponse,
                      RenderStillParams)
 
@@ -52,8 +52,10 @@ class RemotionClient:
             if len(payload) > max_inline_payload_size:
                 raise ValueError(
                     (
-                        f"InputProps are over {round(max_inline_payload_size / 1000)}KB "
-                        f"({ceil(len(payload) / 1024)}KB) in size. This is not currently supported."
+                        f"InputProps are over {
+                            round(max_inline_payload_size / 1000)}KB "
+                        f"({ceil(len(payload) / 1024)
+                            }KB) in size. This is not currently supported."
                     )
                 )
 
@@ -153,7 +155,7 @@ class RemotionClient:
     def construct_render_progress_request(self,
                                           render_id: str,
                                           bucket_name: str,
-                                          log_level="info") -> str:
+                                          log_level="info", s3_output_provider: Optional[CustomCredentials] = None) -> str:
         """
         Construct a render progress request in JSON format.
 
@@ -169,7 +171,8 @@ class RemotionClient:
             bucket_name=bucket_name,
             function_name=self.function_name,
             region=self.region,
-            log_level=log_level
+            log_level=log_level,
+            s3_output_provider=s3_output_provider
         )
         return json.dumps(progress_params.serialize_params())
 
@@ -228,7 +231,7 @@ class RemotionClient:
     def get_render_progress(self,
                             render_id: str,
                             bucket_name: str,
-                            log_level="info") -> RenderMediaProgress:
+                            log_level="info", s3_output_provider: Optional[CustomCredentials] = None) -> RenderMediaProgress:
         """
         Get the progress of a render.
 
@@ -241,7 +244,7 @@ class RemotionClient:
             RenderProgress: Progress of the render.
         """
         params = self.construct_render_progress_request(
-            render_id, bucket_name, log_level=log_level)
+            render_id, bucket_name, log_level=log_level, s3_output_provider=s3_output_provider)
         progress_response = self._invoke_lambda(
             function_name=self.function_name, payload=params)
         if progress_response:
