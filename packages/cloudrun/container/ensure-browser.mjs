@@ -1,7 +1,7 @@
 import {createRequire} from "node:module";
 var __create = Object.create;
-var __defProp = Object.defineProperty;
 var __getProtoOf = Object.getPrototypeOf;
+var __defProp = Object.defineProperty;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __toESM = (mod, isNodeMode, target) => {
@@ -16,11 +16,11 @@ var __toESM = (mod, isNodeMode, target) => {
   return to;
 };
 var __commonJS = (cb, mod) => () => (mod || cb((mod = { exports: {} }).exports, mod), mod.exports);
-var __require = createRequire(import.meta.url);
+var __require = /* @__PURE__ */ createRequire(import.meta.url);
 
 // /Users/jonathanburger/remotion/node_modules/.pnpm/debug@4.3.4/node_modules/ms/index.js
 var require_ms = __commonJS((exports, module) => {
-  var parse = function(str) {
+  function parse(str) {
     str = String(str);
     if (str.length > 100) {
       return;
@@ -73,8 +73,8 @@ var require_ms = __commonJS((exports, module) => {
       default:
         return;
     }
-  };
-  var fmtShort = function(ms) {
+  }
+  function fmtShort(ms) {
     var msAbs = Math.abs(ms);
     if (msAbs >= d) {
       return Math.round(ms / d) + "d";
@@ -89,8 +89,8 @@ var require_ms = __commonJS((exports, module) => {
       return Math.round(ms / s) + "s";
     }
     return ms + "ms";
-  };
-  var fmtLong = function(ms) {
+  }
+  function fmtLong(ms) {
     var msAbs = Math.abs(ms);
     if (msAbs >= d) {
       return plural(ms, msAbs, d, "day");
@@ -105,11 +105,11 @@ var require_ms = __commonJS((exports, module) => {
       return plural(ms, msAbs, s, "second");
     }
     return ms + " ms";
-  };
-  var plural = function(ms, msAbs, n, name) {
+  }
+  function plural(ms, msAbs, n, name) {
     var isPlural = msAbs >= n * 1.5;
     return Math.round(ms / n) + " " + name + (isPlural ? "s" : "");
-  };
+  }
   var s = 1000;
   var m = s * 60;
   var h = m * 60;
@@ -130,7 +130,7 @@ var require_ms = __commonJS((exports, module) => {
 
 // ../../node_modules/.pnpm/debug@4.3.4/node_modules/debug/src/common.js
 var require_common = __commonJS((exports, module) => {
-  var setup = function(env) {
+  function setup(env) {
     createDebug.debug = createDebug;
     createDebug.default = createDebug;
     createDebug.coerce = coerce;
@@ -285,13 +285,13 @@ var require_common = __commonJS((exports, module) => {
     }
     createDebug.enable(createDebug.load());
     return createDebug;
-  };
+  }
   module.exports = setup;
 });
 
 // ../../node_modules/.pnpm/debug@4.3.4/node_modules/debug/src/browser.js
 var require_browser = __commonJS((exports, module) => {
-  var useColors = function() {
+  function useColors() {
     if (typeof window !== "undefined" && window.process && (window.process.type === "renderer" || window.process.__nwjs)) {
       return true;
     }
@@ -299,9 +299,9 @@ var require_browser = __commonJS((exports, module) => {
       return false;
     }
     return typeof document !== "undefined" && document.documentElement && document.documentElement.style && document.documentElement.style.WebkitAppearance || typeof window !== "undefined" && window.console && (window.console.firebug || window.console.exception && window.console.table) || typeof navigator !== "undefined" && navigator.userAgent && navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31 || typeof navigator !== "undefined" && navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/);
-  };
-  var formatArgs = function(args) {
-    args[0] = (this.useColors ? "%c" : "") + this.namespace + (this.useColors ? " %c" : " ") + args[0] + (this.useColors ? "%c " : " ") + "+" + exports.humanize(this.diff);
+  }
+  function formatArgs(args) {
+    args[0] = (this.useColors ? "%c" : "") + this.namespace + (this.useColors ? " %c" : " ") + args[0] + (this.useColors ? "%c " : " ") + "+" + module.exports.humanize(this.diff);
     if (!this.useColors) {
       return;
     }
@@ -319,8 +319,8 @@ var require_browser = __commonJS((exports, module) => {
       }
     });
     args.splice(lastC, 0, c);
-  };
-  var save = function(namespaces) {
+  }
+  function save(namespaces) {
     try {
       if (namespaces) {
         exports.storage.setItem("debug", namespaces);
@@ -329,8 +329,8 @@ var require_browser = __commonJS((exports, module) => {
       }
     } catch (error) {
     }
-  };
-  var load = function() {
+  }
+  function load() {
     let r;
     try {
       r = exports.storage.getItem("debug");
@@ -340,13 +340,13 @@ var require_browser = __commonJS((exports, module) => {
       r = process.env.DEBUG;
     }
     return r;
-  };
-  var localstorage = function() {
+  }
+  function localstorage() {
     try {
       return localStorage;
     } catch (error) {
     }
-  };
+  }
   exports.formatArgs = formatArgs;
   exports.save = save;
   exports.load = load;
@@ -464,7 +464,7 @@ var require_has_flag = __commonJS((exports, module) => {
 
 // /Users/jonathanburger/remotion/node_modules/.pnpm/node_modules/supports-color/index.js
 var require_supports_color = __commonJS((exports, module) => {
-  var translateLevel = function(level) {
+  function translateLevel(level) {
     if (level === 0) {
       return false;
     }
@@ -474,8 +474,8 @@ var require_supports_color = __commonJS((exports, module) => {
       has256: level >= 2,
       has16m: level >= 3
     };
-  };
-  var supportsColor = function(haveStream, streamIsTTY) {
+  }
+  function supportsColor(haveStream, streamIsTTY) {
     if (forceColor === 0) {
       return 0;
     }
@@ -530,11 +530,11 @@ var require_supports_color = __commonJS((exports, module) => {
       return 1;
     }
     return min;
-  };
-  var getSupportLevel = function(stream) {
+  }
+  function getSupportLevel(stream) {
     const level = supportsColor(stream, stream && stream.isTTY);
     return translateLevel(level);
-  };
+  }
   var os = __require("os");
   var tty = __require("tty");
   var hasFlag = require_has_flag();
@@ -563,47 +563,47 @@ var require_supports_color = __commonJS((exports, module) => {
 
 // ../../node_modules/.pnpm/debug@4.3.4/node_modules/debug/src/node.js
 var require_node = __commonJS((exports, module) => {
-  var useColors = function() {
+  function useColors() {
     return "colors" in exports.inspectOpts ? Boolean(exports.inspectOpts.colors) : tty.isatty(process.stderr.fd);
-  };
-  var formatArgs = function(args) {
+  }
+  function formatArgs(args) {
     const { namespace: name, useColors: useColors2 } = this;
     if (useColors2) {
       const c = this.color;
       const colorCode = "\x1B[3" + (c < 8 ? c : "8;5;" + c);
       const prefix = `  ${colorCode};1m${name} \x1B[0m`;
       args[0] = prefix + args[0].split("\n").join("\n" + prefix);
-      args.push(colorCode + "m+" + exports.humanize(this.diff) + "\x1B[0m");
+      args.push(colorCode + "m+" + module.exports.humanize(this.diff) + "\x1B[0m");
     } else {
       args[0] = getDate() + name + " " + args[0];
     }
-  };
-  var getDate = function() {
+  }
+  function getDate() {
     if (exports.inspectOpts.hideDate) {
       return "";
     }
     return new Date().toISOString() + " ";
-  };
-  var log = function(...args) {
+  }
+  function log(...args) {
     return process.stderr.write(util.format(...args) + "\n");
-  };
-  var save = function(namespaces) {
+  }
+  function save(namespaces) {
     if (namespaces) {
       process.env.DEBUG = namespaces;
     } else {
       delete process.env.DEBUG;
     }
-  };
-  var load = function() {
+  }
+  function load() {
     return process.env.DEBUG;
-  };
-  var init = function(debug) {
+  }
+  function init(debug) {
     debug.inspectOpts = {};
     const keys = Object.keys(exports.inspectOpts);
     for (let i = 0;i < keys.length; i++) {
       debug.inspectOpts[keys[i]] = exports.inspectOpts[keys[i]];
     }
-  };
+  }
   var tty = __require("tty");
   var util = __require("util");
   exports.init = init;
@@ -741,7 +741,7 @@ var require_src = __commonJS((exports, module) => {
 
 // /Users/jonathanburger/remotion/node_modules/.pnpm/once@1.4.0/node_modules/wrappy/wrappy.js
 var require_wrappy = __commonJS((exports, module) => {
-  var wrappy = function(fn, cb) {
+  function wrappy(fn, cb) {
     if (fn && cb)
       return wrappy(fn)(cb);
     if (typeof fn !== "function")
@@ -764,13 +764,13 @@ var require_wrappy = __commonJS((exports, module) => {
       }
       return ret;
     }
-  };
+  }
   module.exports = wrappy;
 });
 
 // /Users/jonathanburger/remotion/node_modules/.pnpm/pump@3.0.0/node_modules/once/once.js
 var require_once = __commonJS((exports, module) => {
-  var once = function(fn) {
+  function once(fn) {
     var f = function() {
       if (f.called)
         return f.value;
@@ -779,8 +779,8 @@ var require_once = __commonJS((exports, module) => {
     };
     f.called = false;
     return f;
-  };
-  var onceStrict = function(fn) {
+  }
+  function onceStrict(fn) {
     var f = function() {
       if (f.called)
         throw new Error(f.onceError);
@@ -791,7 +791,7 @@ var require_once = __commonJS((exports, module) => {
     f.onceError = name + " shouldn't be called more than once";
     f.called = false;
     return f;
-  };
+  }
   var wrappy = require_wrappy();
   module.exports = wrappy(once);
   module.exports.strict = wrappy(onceStrict);
@@ -1081,14 +1081,14 @@ var require_get_stream = __commonJS((exports, module) => {
 
 // /Users/jonathanburger/remotion/node_modules/.pnpm/fd-slicer@1.1.0/node_modules/pend/index.js
 var require_pend = __commonJS((exports, module) => {
-  var Pend = function() {
+  function Pend() {
     this.pending = 0;
     this.max = Infinity;
     this.listeners = [];
     this.waiting = [];
     this.error = null;
-  };
-  var pendHold = function(self) {
+  }
+  function pendHold(self) {
     self.pending += 1;
     var called = false;
     return onCb;
@@ -1109,10 +1109,10 @@ var require_pend = __commonJS((exports, module) => {
     function cbListener(listener) {
       listener(self.error);
     }
-  };
-  var pendGo = function(self, fn) {
+  }
+  function pendGo(self, fn) {
     fn(pendHold(self));
-  };
+  }
   module.exports = Pend;
   Pend.prototype.go = function(fn) {
     if (this.pending < this.max) {
@@ -1135,7 +1135,7 @@ var require_pend = __commonJS((exports, module) => {
 
 // /Users/jonathanburger/remotion/node_modules/.pnpm/yauzl@2.10.0/node_modules/fd-slicer/index.js
 var require_fd_slicer = __commonJS((exports) => {
-  var FdSlicer = function(fd, options) {
+  function FdSlicer(fd, options) {
     options = options || {};
     EventEmitter.call(this);
     this.fd = fd;
@@ -1143,8 +1143,8 @@ var require_fd_slicer = __commonJS((exports) => {
     this.pend.max = 1;
     this.refCount = 0;
     this.autoClose = !!options.autoClose;
-  };
-  var ReadStream = function(context, options) {
+  }
+  function ReadStream(context, options) {
     options = options || {};
     Readable.call(this, options);
     this.context = context;
@@ -1153,8 +1153,8 @@ var require_fd_slicer = __commonJS((exports) => {
     this.endOffset = options.end;
     this.pos = this.start;
     this.destroyed = false;
-  };
-  var WriteStream = function(context, options) {
+  }
+  function WriteStream(context, options) {
     options = options || {};
     Writable.call(this, options);
     this.context = context;
@@ -1165,20 +1165,20 @@ var require_fd_slicer = __commonJS((exports) => {
     this.pos = this.start;
     this.destroyed = false;
     this.on("finish", this.destroy.bind(this));
-  };
-  var BufferSlicer = function(buffer, options) {
+  }
+  function BufferSlicer(buffer, options) {
     EventEmitter.call(this);
     options = options || {};
     this.refCount = 0;
     this.buffer = buffer;
     this.maxChunkSize = options.maxChunkSize || Number.MAX_SAFE_INTEGER;
-  };
-  var createFromBuffer = function(buffer, options) {
+  }
+  function createFromBuffer(buffer, options) {
     return new BufferSlicer(buffer, options);
-  };
-  var createFromFd = function(fd, options) {
+  }
+  function createFromFd(fd, options) {
     return new FdSlicer(fd, options);
-  };
+  }
   var fs = __require("fs");
   var util = __require("util");
   var stream = __require("stream");
@@ -1401,7 +1401,7 @@ var require_fd_slicer = __commonJS((exports) => {
 
 // /Users/jonathanburger/remotion/node_modules/.pnpm/yauzl@2.10.0/node_modules/buffer-crc32/index.js
 var require_buffer_crc32 = __commonJS((exports, module) => {
-  var ensureBuffer = function(input) {
+  function ensureBuffer(input) {
     if (Buffer2.isBuffer(input)) {
       return input;
     }
@@ -1413,13 +1413,13 @@ var require_buffer_crc32 = __commonJS((exports, module) => {
     } else {
       throw new Error("input must be buffer, number, or string, received " + typeof input);
     }
-  };
-  var bufferizeInt = function(num) {
+  }
+  function bufferizeInt(num) {
     var tmp = ensureBuffer(4);
     tmp.writeInt32BE(num, 0);
     return tmp;
-  };
-  var _crc32 = function(buf, previous) {
+  }
+  function _crc32(buf, previous) {
     buf = ensureBuffer(buf);
     if (Buffer2.isBuffer(previous)) {
       previous = previous.readUInt32BE(0);
@@ -1429,10 +1429,10 @@ var require_buffer_crc32 = __commonJS((exports, module) => {
       crc = CRC_TABLE[(crc ^ buf[n]) & 255] ^ crc >>> 8;
     }
     return crc ^ -1;
-  };
-  var crc32 = function() {
+  }
+  function crc32() {
     return bufferizeInt(_crc32.apply(null, arguments));
-  };
+  }
   var Buffer2 = __require("buffer").Buffer;
   var CRC_TABLE = [
     0,
@@ -1706,7 +1706,7 @@ var require_buffer_crc32 = __commonJS((exports, module) => {
 
 // /Users/jonathanburger/remotion/node_modules/.pnpm/extract-zip@2.0.1/node_modules/yauzl/index.js
 var require_yauzl = __commonJS((exports) => {
-  var open = function(path, options, callback) {
+  function open(path, options, callback) {
     if (typeof options === "function") {
       callback = options;
       options = null;
@@ -1734,8 +1734,8 @@ var require_yauzl = __commonJS((exports) => {
         callback(err2, zipfile);
       });
     });
-  };
-  var fromFd = function(fd, options, callback) {
+  }
+  function fromFd(fd, options, callback) {
     if (typeof options === "function") {
       callback = options;
       options = null;
@@ -1760,8 +1760,8 @@ var require_yauzl = __commonJS((exports) => {
       var reader = fd_slicer.createFromFd(fd, { autoClose: true });
       fromRandomAccessReader(reader, stats.size, options, callback);
     });
-  };
-  var fromBuffer = function(buffer, options, callback) {
+  }
+  function fromBuffer(buffer, options, callback) {
     if (typeof options === "function") {
       callback = options;
       options = null;
@@ -1779,8 +1779,8 @@ var require_yauzl = __commonJS((exports) => {
       options.strictFileNames = false;
     var reader = fd_slicer.createFromBuffer(buffer, { maxChunkSize: 65536 });
     fromRandomAccessReader(reader, buffer.length, options, callback);
-  };
-  var fromRandomAccessReader = function(reader, totalSize, options, callback) {
+  }
+  function fromRandomAccessReader(reader, totalSize, options, callback) {
     if (typeof options === "function") {
       callback = options;
       options = null;
@@ -1858,8 +1858,8 @@ var require_yauzl = __commonJS((exports) => {
       }
       callback(new Error("end of central directory record signature not found"));
     });
-  };
-  var ZipFile = function(reader, centralDirectoryOffset, fileSize, entryCount, comment, autoClose, lazyEntries, decodeStrings, validateEntrySizes, strictFileNames) {
+  }
+  function ZipFile(reader, centralDirectoryOffset, fileSize, entryCount, comment, autoClose, lazyEntries, decodeStrings, validateEntrySizes, strictFileNames) {
     var self = this;
     EventEmitter.call(self);
     self.reader = reader;
@@ -1883,21 +1883,21 @@ var require_yauzl = __commonJS((exports) => {
     self.emittedError = false;
     if (!self.lazyEntries)
       self._readEntry();
-  };
-  var emitErrorAndAutoClose = function(self, err) {
+  }
+  function emitErrorAndAutoClose(self, err) {
     if (self.autoClose)
       self.close();
     emitError(self, err);
-  };
-  var emitError = function(self, err) {
+  }
+  function emitError(self, err) {
     if (self.emittedError)
       return;
     self.emittedError = true;
     self.emit("error", err);
-  };
-  var Entry = function() {
-  };
-  var dosDateTimeToDate = function(date, time) {
+  }
+  function Entry() {
+  }
+  function dosDateTimeToDate(date, time) {
     var day = date & 31;
     var month = (date >> 5 & 15) - 1;
     var year = (date >> 9 & 127) + 1980;
@@ -1906,8 +1906,8 @@ var require_yauzl = __commonJS((exports) => {
     var minute = time >> 5 & 63;
     var hour = time >> 11 & 31;
     return new Date(year, month, day, hour, minute, second, millisecond);
-  };
-  var validateFileName = function(fileName) {
+  }
+  function validateFileName(fileName) {
     if (fileName.indexOf("\\") !== -1) {
       return "invalid characters in fileName: " + fileName;
     }
@@ -1918,8 +1918,8 @@ var require_yauzl = __commonJS((exports) => {
       return "invalid relative path: " + fileName;
     }
     return null;
-  };
-  var readAndAssertNoEof = function(reader, buffer, offset, length, position, callback) {
+  }
+  function readAndAssertNoEof(reader, buffer, offset, length, position, callback) {
     if (length === 0) {
       return setImmediate(function() {
         callback(null, newBuffer(0));
@@ -1933,23 +1933,23 @@ var require_yauzl = __commonJS((exports) => {
       }
       callback();
     });
-  };
-  var AssertByteCountStream = function(byteCount) {
+  }
+  function AssertByteCountStream(byteCount) {
     Transform.call(this);
     this.actualByteCount = 0;
     this.expectedByteCount = byteCount;
-  };
-  var RandomAccessReader = function() {
+  }
+  function RandomAccessReader() {
     EventEmitter.call(this);
     this.refCount = 0;
-  };
-  var RefUnrefFilter = function(context) {
+  }
+  function RefUnrefFilter(context) {
     PassThrough.call(this);
     this.context = context;
     this.context.ref();
     this.unreffedYet = false;
-  };
-  var decodeBuffer = function(buffer, start, end, isUtf8) {
+  }
+  function decodeBuffer(buffer, start, end, isUtf8) {
     if (isUtf8) {
       return buffer.toString("utf8", start, end);
     } else {
@@ -1959,16 +1959,16 @@ var require_yauzl = __commonJS((exports) => {
       }
       return result;
     }
-  };
-  var readUInt64LE = function(buffer, offset) {
+  }
+  function readUInt64LE(buffer, offset) {
     var lower32 = buffer.readUInt32LE(offset);
     var upper32 = buffer.readUInt32LE(offset + 4);
     return upper32 * 4294967296 + lower32;
-  };
-  var defaultCallback = function(err) {
+  }
+  function defaultCallback(err) {
     if (err)
       throw err;
-  };
+  }
   var fs = __require("fs");
   var zlib = __require("zlib");
   var fd_slicer = require_fd_slicer();
@@ -3022,7 +3022,7 @@ var getDownloadsCacheDir = () => {
 };
 
 // src/browser/BrowserFetcher.ts
-var getChromeDownloadUrl = function({
+function getChromeDownloadUrl({
   platform: platform2,
   version: version2
 }) {
@@ -3030,14 +3030,14 @@ var getChromeDownloadUrl = function({
     return `https://playwright.azureedge.net/builds/chromium/${version2 ?? PLAYWRIGHT_VERSION}/chromium-linux-arm64.zip`;
   }
   return `https://storage.googleapis.com/chrome-for-testing-public/${version2 ?? TESTED_VERSION}/${platform2}/chrome-headless-shell-${platform2}.zip`;
-};
-var existsAsync = function(filePath) {
+}
+function existsAsync(filePath) {
   return new Promise((resolve2) => {
     fs3.access(filePath, (err) => {
       return resolve2(!err);
     });
   });
-};
+}
 var TESTED_VERSION = "123.0.6312.86";
 var PLAYWRIGHT_VERSION = "1105";
 var mkdirAsync = fs3.promises.mkdir;
