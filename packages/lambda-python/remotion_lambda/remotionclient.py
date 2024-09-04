@@ -155,7 +155,9 @@ class RemotionClient:
     def construct_render_progress_request(self,
                                           render_id: str,
                                           bucket_name: str,
-                                          log_level="info", s3_output_provider: Optional[CustomCredentials] = None) -> str:
+                                          log_level="info",
+                                          s3_output_provider: Optional[CustomCredentials] = None
+                                          ) -> str:
         """
         Construct a render progress request in JSON format.
 
@@ -231,7 +233,9 @@ class RemotionClient:
     def get_render_progress(self,
                             render_id: str,
                             bucket_name: str,
-                            log_level="info", s3_output_provider: Optional[CustomCredentials] = None) -> RenderMediaProgress:
+                            log_level="info",
+                            s3_output_provider: Optional[CustomCredentials] = None
+                            ) -> RenderMediaProgress:
         """
         Get the progress of a render.
 
