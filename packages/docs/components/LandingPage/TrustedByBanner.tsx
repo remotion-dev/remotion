@@ -5,7 +5,7 @@ const TrustedByBanner = () => {
 	const logos = [
 		{
 			id: 'logo1',
-			url: 'https://www.google.com',
+			url: 'https://www.github.com/',
 			light: (
 				<svg
 					width="64"
@@ -23,7 +23,7 @@ const TrustedByBanner = () => {
 		},
 		{
 			id: 'logo2',
-			url: 'https://www.google.com',
+			url: 'https://www.musixmatch.com/',
 			light: (
 				<svg
 					width="227"
@@ -90,7 +90,7 @@ const TrustedByBanner = () => {
 		},
 		{
 			id: 'logo3',
-			url: 'https://www.google.com',
+			url: 'https://www.wistia.com/',
 			light: (
 				<svg
 					width="165"
@@ -112,7 +112,7 @@ const TrustedByBanner = () => {
 		},
 		{
 			id: 'logo4',
-			url: 'https://www.google.com',
+			url: 'https://www.vicemediagroup.com/',
 			light: (
 				<svg
 					width="190"
@@ -162,7 +162,7 @@ const TrustedByBanner = () => {
 		},
 		{
 			id: 'logo5',
-			url: 'https://www.google.com',
+			url: 'https://www.soundcloud.com/',
 			light: (
 				<svg
 					width="129"
