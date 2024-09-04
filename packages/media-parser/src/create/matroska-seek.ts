@@ -10,7 +10,7 @@ export const createMatroskaSeekHead = (seeks: Seek[]) => {
 	return padMatroskaBytes(
 		makeMatroskaBytes({
 			type: 'SeekHead',
-			minVintWidth: 8,
+			minVintWidth: null,
 			value: seeks.map((seek) => {
 				return {
 					type: 'Seek',

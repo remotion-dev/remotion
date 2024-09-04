@@ -738,7 +738,35 @@ export const ebmlMap = {
 	[matroskaElements.Void]: voidEbml,
 	[matroskaElements.Cues]: {
 		name: 'Cues',
-		type: 'uint8array',
+		type: 'children',
+	},
+	[matroskaElements.CuePoint]: {
+		name: 'CuePoint',
+		type: 'children',
+	},
+	[matroskaElements.CueTime]: {
+		name: 'CueTime',
+		type: 'uint',
+	},
+	[matroskaElements.CueTrackPositions]: {
+		name: 'CueTrackPositions',
+		type: 'children',
+	},
+	[matroskaElements.CueClusterPosition]: {
+		name: 'CueClusterPosition',
+		type: 'uint',
+	},
+	[matroskaElements.CueRelativePosition]: {
+		name: 'CueRelativePosition',
+		type: 'uint',
+	},
+	[matroskaElements.CueBlockNumber]: {
+		name: 'CueBlockNumber',
+		type: 'uint',
+	},
+	[matroskaElements.CueTrack]: {
+		name: 'CueTrack',
+		type: 'uint',
 	},
 	[matroskaElements.DateUTC]: {
 		name: 'DateUTC',
