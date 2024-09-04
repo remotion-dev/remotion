@@ -5,7 +5,6 @@ export type WebCodecsAudioDecoder = {
 	waitForFinish: () => Promise<void>;
 	close: () => void;
 	getQueueSize: () => number;
-	waitForDequeue: () => Promise<void>;
 	flush: () => Promise<void>;
 };
 
@@ -101,7 +100,6 @@ export const createAudioDecoder = async ({
 			audioDecoder.close();
 		},
 		getQueueSize,
-		waitForDequeue,
 		flush: async () => {
 			await audioDecoder.flush();
 		},

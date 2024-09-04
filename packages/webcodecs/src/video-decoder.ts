@@ -6,7 +6,6 @@ export type WebCodecsVideoDecoder = {
 	waitForFinish: () => Promise<void>;
 	close: () => void;
 	getQueueSize: () => number;
-	waitForDequeue: () => Promise<void>;
 	flush: () => Promise<void>;
 };
 
@@ -102,7 +101,6 @@ export const createVideoDecoder = async ({
 			videoDecoder.close();
 		},
 		getQueueSize,
-		waitForDequeue,
 		flush: async () => {
 			await videoDecoder.flush();
 		},

@@ -5,7 +5,6 @@ export type WebCodecsVideoEncoder = {
 	waitForFinish: () => Promise<void>;
 	close: () => void;
 	getQueueSize: () => number;
-	waitForDequeue: () => Promise<void>;
 	flush: () => Promise<void>;
 };
 
@@ -109,6 +108,5 @@ export const createVideoEncoder = async ({
 		flush: async () => {
 			await encoder.flush();
 		},
-		waitForDequeue,
 	};
 };

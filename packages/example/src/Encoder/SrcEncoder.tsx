@@ -16,7 +16,6 @@ import {
 import React, {useCallback, useRef, useState} from 'react';
 import {flushSync} from 'react-dom';
 import {AbsoluteFill} from 'remotion';
-import {getMicroSecondsAheadOfTrack} from './ahead-of-track';
 import {fitElementSizeInContainer} from './fit-element-size-in-container';
 
 const CANVAS_WIDTH = 1024 / 4;
@@ -100,8 +99,6 @@ export const SrcEncoder: React.FC<{
 	const ref = useRef<HTMLCanvasElement>(null);
 
 	const i = useRef(0);
-
-	const trackProgresses = useRef<Record<number, number>>({});
 
 	const onVideoFrame = useCallback(
 		async (inputFrame: VideoFrame, track: VideoTrack) => {
@@ -238,21 +235,10 @@ export const SrcEncoder: React.FC<{
 				});
 
 				return async (chunk) => {
-					while (
-						getMicroSecondsAheadOfTrack(trackProgresses.current, trackNumber) >
-						// 2 seconds
-						1_000_000
-					) {
-						await new Promise<void>((r) => {
-							setTimeout(r, 100);
-						});
-					}
-					trackProgresses.current[trackNumber] = chunk.timestamp;
-
 					await videoDecoder.processSample(chunk);
 				};
 			},
-		[onVideoFrame, setState, trackProgresses],
+		[onVideoFrame, setState],
 	);
 
 	const onAudioTrack = useCallback(
@@ -319,21 +305,10 @@ export const SrcEncoder: React.FC<{
 				});
 
 				return async (audioSample) => {
-					while (
-						getMicroSecondsAheadOfTrack(trackProgresses.current, trackNumber) >
-						// 2 seconds
-						1_000_000
-					) {
-						await new Promise<void>((r) => {
-							setTimeout(r, 100);
-						});
-					}
-					trackProgresses.current[trackNumber] = audioSample.timestamp;
-
 					await audioDecoder.processSample(audioSample);
 				};
 			},
-		[setState, trackProgresses],
+		[setState],
 	);
 
 	const onClick = useCallback(() => {

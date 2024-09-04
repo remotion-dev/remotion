@@ -4,7 +4,6 @@ export type WebCodecsAudioEncoder = {
 	close: () => void;
 	getQueueSize: () => number;
 	flush: () => Promise<void>;
-	waitForDequeue: () => Promise<void>;
 };
 
 export const createAudioEncoder = async ({
@@ -107,6 +106,5 @@ export const createAudioEncoder = async ({
 		flush: async () => {
 			await encoder.flush();
 		},
-		waitForDequeue,
 	};
 };
