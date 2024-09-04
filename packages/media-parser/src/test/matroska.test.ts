@@ -449,10 +449,52 @@ test('Should get duration of AV1 video', async () => {
 				},
 				{
 					type: 'Cues',
-					value: new Uint8Array([
-						187, 143, 179, 129, 0, 183, 138, 247, 129, 1, 241, 130, 1, 159, 240,
-						129, 3,
-					]),
+					value: [
+						{
+							minVintWidth: 1,
+							type: 'CuePoint',
+							value: [
+								{
+									minVintWidth: 1,
+									type: 'CueTime',
+									value: {
+										byteLength: 1,
+										value: 0,
+									},
+								},
+								{
+									minVintWidth: 1,
+									type: 'CueTrackPositions',
+									value: [
+										{
+											minVintWidth: 1,
+											type: 'CueTrack',
+											value: {
+												byteLength: 1,
+												value: 1,
+											},
+										},
+										{
+											minVintWidth: 1,
+											type: 'CueClusterPosition',
+											value: {
+												byteLength: 2,
+												value: 415,
+											},
+										},
+										{
+											minVintWidth: 1,
+											type: 'CueRelativePosition',
+											value: {
+												byteLength: 1,
+												value: 3,
+											},
+										},
+									],
+								},
+							],
+						},
+					],
 					minVintWidth: 1,
 				},
 			],

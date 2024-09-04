@@ -40,8 +40,5 @@
 		"turbo": "1.13.3",
 		"typescript": "5.3.3"
 	},
-	"workspaces": [
-		"packages/*"
-	],
 	"packageManager": "pnpm@8.10.2"
 }
