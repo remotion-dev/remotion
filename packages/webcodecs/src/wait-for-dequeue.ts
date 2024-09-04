@@ -22,6 +22,8 @@ export const decoderWaitForFinish = async (
 			});
 		});
 	}
+
+	await videoDecoder.flush();
 };
 
 // Queue goes way higher but this will eat more memory right?
@@ -50,4 +52,6 @@ export const encoderWaitForFinish = async (
 			});
 		});
 	}
+
+	await videoEncoder.flush();
 };

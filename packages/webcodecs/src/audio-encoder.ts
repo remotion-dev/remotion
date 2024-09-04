@@ -5,7 +5,7 @@ export const createAudioEncoder = async ({
 	sampleRate,
 	numberOfChannels,
 }: {
-	onChunk: (chunk: EncodedAudioChunk) => void;
+	onChunk: (chunk: EncodedAudioChunk) => Promise<void>;
 	sampleRate: number;
 	numberOfChannels: number;
 }) => {
@@ -13,9 +13,11 @@ export const createAudioEncoder = async ({
 		return null;
 	}
 
+	let prom = Promise.resolve();
+
 	const encoder = new AudioEncoder({
 		output: (chunk) => {
-			onChunk(chunk);
+			prom = prom.then(() => onChunk(chunk));
 		},
 		error(error) {
 			console.error(error);
@@ -55,6 +57,10 @@ export const createAudioEncoder = async ({
 		},
 		waitForFinish: async () => {
 			await encoderWaitForFinish(encoder);
+			await prom;
+		},
+		close: () => {
+			encoder.close();
 		},
 	};
 };

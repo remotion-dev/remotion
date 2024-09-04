@@ -1,4 +1,5 @@
-import {combineUint8Arrays} from '../boxes/webm/make-header';
+import {getVariableInt} from '../boxes/webm/ebml';
+import {combineUint8Arrays, matroskaToHex} from '../boxes/webm/make-header';
 import {
 	matroskaElements,
 	type BytesAndOffset,
@@ -6,11 +7,15 @@ import {
 import type {WriterInterface} from '../writers/writer';
 import {makeCluster} from './cluster';
 import {makeDurationWithPadding} from './make-duration-with-padding';
+import {createMatroskaCues, type Cue} from './matroska-cues';
 import {makeMatroskaHeader} from './matroska-header';
 import {makeMatroskaInfo} from './matroska-info';
 import type {Seek} from './matroska-seek';
 import {createMatroskaSeekHead} from './matroska-seek';
-import {createMatroskaSegment} from './matroska-segment';
+import {
+	MATROSKA_SEGMENT_MIN_VINT_WIDTH,
+	createMatroskaSegment,
+} from './matroska-segment';
 import type {MakeTrackAudio, MakeTrackVideo} from './matroska-trackentry';
 import {
 	makeMatroskaAudioTrackEntryBytes,
@@ -46,6 +51,9 @@ export const createMedia = async (
 	const currentTracks: BytesAndOffset[] = [];
 
 	const seeks: Seek[] = [];
+	const cues: Cue[] = [];
+	const trackNumbers: number[] = [];
+
 	const matroskaSegment = createMatroskaSegment([
 		matroskaInfo,
 		...createMatroskaSeekHead(seeks),
@@ -88,6 +96,15 @@ export const createMedia = async (
 		);
 	};
 
+	const segmentOffset =
+		w.getWrittenByteCount() +
+		matroskaToHex(matroskaElements.Segment).byteLength;
+
+	const updateSegmentSize = async (size: number) => {
+		const data = getVariableInt(size, MATROSKA_SEGMENT_MIN_VINT_WIDTH);
+		await w.updateDataAt(segmentOffset, data);
+	};
+
 	await w.write(matroskaSegment.bytes);
 
 	const clusterOffset = w.getWrittenByteCount();
@@ -96,28 +113,47 @@ export const createMedia = async (
 		hexString: matroskaElements.Cluster,
 		byte: clusterOffset - seekHeadOffset,
 	});
+	cues.push({
+		time: 0,
+		clusterPosition: clusterOffset - seekHeadOffset,
+		trackNumbers,
+	});
+
 	await updateSeekWrite();
 
+	const trackNumberProgresses: Record<number, number> = {};
+
 	const getClusterOrMakeNew = async (chunk: EncodedVideoChunk) => {
-		if (!currentCluster.shouldMakeNewCluster(chunk)) {
+		const smallestProgress = Math.min(...Object.values(trackNumberProgresses));
+		if (
+			!currentCluster.shouldMakeNewCluster(
+				smallestProgress,
+				chunk.type === 'key',
+			)
+		) {
 			return currentCluster;
 		}
 
-		currentCluster = await makeCluster(w, chunk.timestamp);
+		const newCluster = w.getWrittenByteCount();
+		cues.push({
+			time: smallestProgress,
+			clusterPosition: newCluster - seekHeadOffset,
+			trackNumbers,
+		});
+
+		currentCluster = await makeCluster(w, smallestProgress);
 		return currentCluster;
 	};
 
 	const addSample = async (chunk: EncodedVideoChunk, trackNumber: number) => {
+		trackNumberProgresses[trackNumber] = chunk.timestamp;
 		const cluster = await getClusterOrMakeNew(chunk);
 		return cluster.addSample(chunk, trackNumber);
 	};
 
 	const updateDuration = async (newDuration: number) => {
 		const blocks = makeDurationWithPadding(newDuration);
-		await w.updateDataAt(
-			durationOffset,
-			combineUint8Arrays(blocks.map((b) => b.bytes)),
-		);
+		await w.updateDataAt(durationOffset, blocks.bytes);
 	};
 
 	const addTrack = async (track: BytesAndOffset) => {
@@ -130,7 +166,7 @@ export const createMedia = async (
 		);
 	};
 
-	let operationProm = Promise.resolve();
+	const operationProm = {current: Promise.resolve()};
 
 	const waitForFinishPromises: (() => Promise<void>)[] = [];
 
@@ -139,12 +175,16 @@ export const createMedia = async (
 			await w.save();
 		},
 		addSample: (chunk, trackNumber) => {
-			operationProm = operationProm.then(() => addSample(chunk, trackNumber));
-			return operationProm;
+			operationProm.current = operationProm.current.then(() =>
+				addSample(chunk, trackNumber),
+			);
+			return operationProm.current;
 		},
 		updateDuration: (duration) => {
-			operationProm = operationProm.then(() => updateDuration(duration));
-			return operationProm;
+			operationProm.current = operationProm.current.then(() =>
+				updateDuration(duration),
+			);
+			return operationProm.current;
 		},
 		addTrack: (track) => {
 			const trackNumber = currentTracks.length + 1;
@@ -154,15 +194,21 @@ export const createMedia = async (
 					? makeMatroskaVideoTrackEntryBytes({...track, trackNumber})
 					: makeMatroskaAudioTrackEntryBytes({...track, trackNumber});
 
-			operationProm = operationProm.then(() => addTrack(bytes));
+			operationProm.current = operationProm.current.then(() => addTrack(bytes));
+			trackNumbers.push(trackNumber);
 
-			return operationProm.then(() => ({trackNumber}));
+			return operationProm.current.then(() => ({trackNumber}));
 		},
 		addWaitForFinishPromise: (promise) => {
 			waitForFinishPromises.push(promise);
 		},
 		async waitForFinish() {
 			await Promise.all(waitForFinishPromises.map((p) => p()));
+			await operationProm.current;
+			await w.write(createMatroskaCues(cues).bytes);
+			const segmentSize = w.getWrittenByteCount() - segmentOffset;
+			await w.waitForFinish();
+			await updateSegmentSize(segmentSize);
 		},
 	};
 };
