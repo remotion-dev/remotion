@@ -4,7 +4,14 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	margin-bottom: 1rem;
+}
+
+.logoContainer {
+	transition: transform 0.3s ease;
+}
+
+.logoContainer:hover {
+	transform: scale(0.9);
 }
 
 .homepageTitle {
@@ -15,10 +22,11 @@
 
 .logos {
 	text-align: center;
+	align-items: center;
 	display: flex;
 	flex-wrap: nowrap; /* Prevent wrapping to ensure single line */
 	justify-content: center;
-	gap: 30px; /* Reduced gap to help fit logos in a single line */
+	gap: 40px; /* Reduced gap to help fit logos in a single line */
 	overflow-x: auto; /* Allows scrolling on very small screens */
 }
 
@@ -27,8 +35,8 @@
 	height: auto; /* Maintain aspect ratio */
 }
 
-/* Allow logos to wrap for screens smaller than 700px */
-@media (max-width: 700px) {
+/* Allow logos to wrap for screens smaller than 966px */
+@media (max-width: 966px) {
 	.logos {
 		flex-wrap: wrap; /* Allow wrapping */
 	}
