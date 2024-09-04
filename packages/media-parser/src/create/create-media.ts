@@ -1,17 +1,8 @@
-import {getVariableInt} from '../boxes/webm/ebml';
-import {
-	combineUint8Arrays,
-	matroskaToHex,
-	padMatroskaBytes,
-} from '../boxes/webm/make-header';
+import {combineUint8Arrays} from '../boxes/webm/make-header';
 import type {BytesAndOffset} from '../boxes/webm/segments/all-segments';
-import {matroskaElements} from '../boxes/webm/segments/all-segments';
 import type {WriterInterface} from '../writers/writer';
-import {
-	CLUSTER_MIN_VINT_WIDTH,
-	createClusterSegment,
-	makeSimpleBlock,
-} from './cluster-segment';
+import {makeCluster} from './cluster';
+import {makeDurationWithPadding} from './make-duration-with-padding';
 import {makeMatroskaHeader} from './matroska-header';
 import {makeMatroskaInfo} from './matroska-info';
 import {createMatroskaSegment} from './matroska-segment';
@@ -21,6 +12,7 @@ import {
 	makeMatroskaTracks,
 	makeMatroskaVideoTrackEntryBytes,
 } from './matroska-trackentry';
+import {CREATE_TIME_SCALE} from './timescale';
 
 export type MediaFn = {
 	save: () => Promise<void>;
@@ -43,9 +35,7 @@ export const createMedia = async (
 	const w = await writer.createContent();
 	await w.write(header.bytes);
 	const matroskaInfo = makeMatroskaInfo({
-		timescale: 1_000_000,
-		// TODO: Hardcoded
-		duration: 2658,
+		timescale: CREATE_TIME_SCALE,
 	});
 
 	const currentTracks: BytesAndOffset[] = [];
@@ -74,50 +64,24 @@ export const createMedia = async (
 
 	await w.write(matroskaSegment.bytes);
 
-	const cluster = createClusterSegment();
-	const clusterVIntPosition =
-		w.getWrittenByteCount() +
-		cluster.offsets.offset +
-		matroskaToHex(matroskaElements.Cluster).byteLength;
+	let currentCluster = await makeCluster(w, 0);
 
-	let clusterSize = cluster.bytes.byteLength;
-	await w.write(cluster.bytes);
+	const getClusterOrMakeNew = async (chunk: EncodedVideoChunk) => {
+		if (!currentCluster.shouldMakeNewCluster(chunk)) {
+			return currentCluster;
+		}
+
+		currentCluster = await makeCluster(w, chunk.timestamp);
+		return currentCluster;
+	};
 
 	const addSample = async (chunk: EncodedVideoChunk, trackNumber: number) => {
-		const arr = new Uint8Array(chunk.byteLength);
-		chunk.copyTo(arr);
-		const simpleBlock = makeSimpleBlock({
-			bytes: arr,
-			invisible: false,
-			keyframe: chunk.type === 'key',
-			lacing: 0,
-			trackNumber,
-			// TODO: Maybe this is bad, because it's in microseconds, but should be in timescale
-			// Maybe it only works by coincidence
-			timecodeRelativeToCluster: Math.round(chunk.timestamp / 1000),
-		});
-
-		clusterSize += simpleBlock.byteLength;
-		await w.updateDataAt(
-			clusterVIntPosition,
-			getVariableInt(clusterSize, CLUSTER_MIN_VINT_WIDTH),
-		);
-		await w.write(simpleBlock);
+		const cluster = await getClusterOrMakeNew(chunk);
+		return cluster.addSample(chunk, trackNumber);
 	};
 
 	const updateDuration = async (newDuration: number) => {
-		const blocks = padMatroskaBytes(
-			{
-				type: 'Duration',
-				value: {
-					value: newDuration,
-					size: '64',
-				},
-				minVintWidth: null,
-			},
-			// TODO: That's too much padding
-			1000,
-		);
+		const blocks = makeDurationWithPadding(newDuration);
 		await w.updateDataAt(
 			durationOffset,
 			combineUint8Arrays(blocks.map((b) => b.bytes)),
