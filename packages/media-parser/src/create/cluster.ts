@@ -41,7 +41,9 @@ export const makeCluster = async (w: Writer, timestamp: number) => {
 		}
 
 		if (timecodeRelativeToCluster > maxClusterTimestamp) {
-			throw new Error('timecodeRelativeToCluster is too big');
+			throw new Error(
+				`timecodeRelativeToCluster is too big: ${timecodeRelativeToCluster} > ${maxClusterTimestamp}`,
+			);
 		}
 
 		const keyframe = chunk.type === 'key';

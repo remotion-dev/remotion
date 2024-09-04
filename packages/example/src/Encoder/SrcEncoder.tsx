@@ -16,6 +16,7 @@ import {
 import React, {useCallback, useRef, useState} from 'react';
 import {flushSync} from 'react-dom';
 import {AbsoluteFill} from 'remotion';
+import {getMicroSecondsAheadOfTrack} from './ahead-of-track';
 import {fitElementSizeInContainer} from './fit-element-size-in-container';
 
 const CANVAS_WIDTH = 1024 / 4;
@@ -100,6 +101,8 @@ export const SrcEncoder: React.FC<{
 
 	const i = useRef(0);
 
+	const trackProgresses = useRef<Record<number, number>>({});
+
 	const onVideoFrame = useCallback(
 		async (inputFrame: VideoFrame, track: VideoTrack) => {
 			i.current++;
@@ -166,6 +169,10 @@ export const SrcEncoder: React.FC<{
 
 	const getFramesInEncodingQueue = useCallback(() => {
 		return stateRef.current.videoFrames - stateRef.current.encodedVideoFrames;
+	}, []);
+
+	const getFramesInAudioQueue = useCallback(() => {
+		return stateRef.current.audioFrames - stateRef.current.encodedAudioFrames;
 	}, []);
 
 	const onVideoTrack = useCallback(
@@ -239,7 +246,18 @@ export const SrcEncoder: React.FC<{
 				});
 
 				return async (chunk) => {
-					while (getFramesInEncodingQueue() > 50) {
+					while (
+						getMicroSecondsAheadOfTrack(trackProgresses.current, trackNumber) >
+						// 2 seconds
+						1_000_000
+					) {
+						await new Promise<void>((r) => {
+							setTimeout(r, 100);
+						});
+					}
+					trackProgresses.current[trackNumber] = chunk.timestamp;
+
+					while (getFramesInEncodingQueue() > 15) {
 						await new Promise<void>((r) => {
 							setTimeout(r, 100);
 						});
@@ -248,7 +266,7 @@ export const SrcEncoder: React.FC<{
 					await videoDecoder.processSample(chunk);
 				};
 			},
-		[getFramesInEncodingQueue, onVideoFrame, setState],
+		[getFramesInEncodingQueue, onVideoFrame, setState, trackProgresses],
 	);
 
 	const onAudioTrack = useCallback(
@@ -315,10 +333,26 @@ export const SrcEncoder: React.FC<{
 				});
 
 				return async (audioSample) => {
+					while (
+						getMicroSecondsAheadOfTrack(trackProgresses.current, trackNumber) >
+						// 2 seconds
+						1_000_000
+					) {
+						await new Promise<void>((r) => {
+							setTimeout(r, 100);
+						});
+					}
+					trackProgresses.current[trackNumber] = audioSample.timestamp;
+
+					while (getFramesInAudioQueue() > 15) {
+						await new Promise<void>((r) => {
+							setTimeout(r, 100);
+						});
+					}
 					await audioDecoder.processSample(audioSample);
 				};
 			},
-		[setState],
+		[getFramesInAudioQueue, setState, trackProgresses],
 	);
 
 	const onClick = useCallback(() => {
@@ -417,6 +451,8 @@ export const SrcEncoder: React.FC<{
 						count={state.encodedAudioFrames}
 						label="AE"
 					/>
+					<br />
+
 					{downloadFn ? (
 						<button type="button" onClick={downloadFn}>
 							DL

@@ -24,6 +24,7 @@ export const createAudioDecoder = async ({
 
 	const audioDecoder = new AudioDecoder({
 		output(inputFrame) {
+			// TODO: Should make this a "decoder queue size as well"
 			prom = prom.then(() => onFrame(inputFrame));
 		},
 		error(error) {
