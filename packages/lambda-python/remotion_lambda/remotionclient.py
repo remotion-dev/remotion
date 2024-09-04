@@ -52,10 +52,8 @@ class RemotionClient:
             if len(payload) > max_inline_payload_size:
                 raise ValueError(
                     (
-                        f"InputProps are over {
-                            round(max_inline_payload_size / 1000)}KB "
-                        f"({ceil(len(payload) / 1024)
-                            }KB) in size. This is not currently supported."
+                        f"InputProps are over {round(max_inline_payload_size / 1000)}KB "
+                        f"({ceil(len(payload) / 1024)}KB) in size. This is not currently supported."
                     )
                 )
 
