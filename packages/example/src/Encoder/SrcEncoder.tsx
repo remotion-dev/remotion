@@ -181,8 +181,6 @@ export const SrcEncoder: React.FC<{
 					},
 					width: track.codedWidth,
 					height: track.codedHeight,
-					// TODO: Unhardcode
-					defaultDuration: 2658,
 					codecId: 'V_VP8',
 				});
 
