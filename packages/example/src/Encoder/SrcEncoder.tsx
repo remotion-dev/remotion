@@ -167,14 +167,6 @@ export const SrcEncoder: React.FC<{
 		[setState],
 	);
 
-	const getFramesInEncodingQueue = useCallback(() => {
-		return stateRef.current.videoFrames - stateRef.current.encodedVideoFrames;
-	}, []);
-
-	const getFramesInAudioQueue = useCallback(() => {
-		return stateRef.current.audioFrames - stateRef.current.encodedAudioFrames;
-	}, []);
-
 	const onVideoTrack = useCallback(
 		(mediaState: MediaFn): OnVideoTrack =>
 			async (track) => {
@@ -257,16 +249,10 @@ export const SrcEncoder: React.FC<{
 					}
 					trackProgresses.current[trackNumber] = chunk.timestamp;
 
-					while (getFramesInEncodingQueue() > 15) {
-						await new Promise<void>((r) => {
-							setTimeout(r, 100);
-						});
-					}
-
 					await videoDecoder.processSample(chunk);
 				};
 			},
-		[getFramesInEncodingQueue, onVideoFrame, setState, trackProgresses],
+		[onVideoFrame, setState, trackProgresses],
 	);
 
 	const onAudioTrack = useCallback(
@@ -344,15 +330,10 @@ export const SrcEncoder: React.FC<{
 					}
 					trackProgresses.current[trackNumber] = audioSample.timestamp;
 
-					while (getFramesInAudioQueue() > 15) {
-						await new Promise<void>((r) => {
-							setTimeout(r, 100);
-						});
-					}
 					await audioDecoder.processSample(audioSample);
 				};
 			},
-		[getFramesInAudioQueue, setState, trackProgresses],
+		[setState, trackProgresses],
 	);
 
 	const onClick = useCallback(() => {
