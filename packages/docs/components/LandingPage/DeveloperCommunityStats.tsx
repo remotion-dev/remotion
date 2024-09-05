@@ -12,7 +12,7 @@ import styles from './DeveloperCommunityStats.module.css';
 const DeveloperCommunityStats: React.FC = () => (
 	<div className={styles.container}>
 		<h2 className={styles.title}>Never build alone</h2>
-		<p className={styles.subtitle}>A thriving community of developers.</p>
+		<p className={styles.subtitle}>Join a thriving community of developers.</p>
 		<div className={styles.statsGrid}>
 			<a
 				target="_blank"
