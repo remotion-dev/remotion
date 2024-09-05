@@ -12,10 +12,12 @@ export const createAudioDecoder = async ({
 	track,
 	onFrame,
 	onError,
+	signal,
 }: {
 	track: AudioTrack;
 	onFrame: (frame: AudioData) => Promise<void>;
 	onError: (error: DOMException) => void;
+	signal: AbortSignal;
 }): Promise<WebCodecsAudioDecoder | null> => {
 	if (typeof AudioDecoder === 'undefined') {
 		return null;
@@ -46,6 +48,12 @@ export const createAudioDecoder = async ({
 			onError(error);
 		},
 	});
+
+	const onAbort = () => {
+		audioDecoder.close();
+	};
+
+	signal.addEventListener('abort', onAbort);
 
 	const getQueueSize = () => {
 		return audioDecoder.decodeQueueSize + outputQueueSize;
@@ -98,6 +106,7 @@ export const createAudioDecoder = async ({
 		},
 		close: () => {
 			audioDecoder.close();
+			signal.removeEventListener('abort', onAbort);
 		},
 		getQueueSize,
 		flush: async () => {

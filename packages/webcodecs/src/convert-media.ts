@@ -7,21 +7,29 @@ import {
 import {webFsWriter} from '@remotion/media-parser/web-fs';
 import {createAudioDecoder} from './audio-decoder';
 import {createAudioEncoder} from './audio-encoder';
+import type {ConvertMediaAudioCodec} from './codec-id';
+import {
+	codecNameToMatroskaAudioCodecId,
+	codecNameToMatroskaCodecId,
+	type ConvertMediaVideoCodec,
+} from './codec-id';
+import Error from './error-cause';
 import {createVideoDecoder} from './video-decoder';
 import {createVideoEncoder} from './video-encoder';
+import {withResolvers} from './with-resolvers';
 
 export type ConvertMediaState = {
 	decodedVideoFrames: number;
 	decodedAudioFrames: number;
 	encodedVideoFrames: number;
 	encodedAudioFrames: number;
-	videoError: DOMException | null;
-	audioError: DOMException | null;
 };
 
-export type ConvertMediaVideoCodec = 'vp8';
-export type ConvertMediaAudioCodec = 'opus';
 export type ConvertMediaTo = 'webm';
+
+export type ConvertMediaResult = {
+	save: () => Promise<void>;
+};
 
 export const convertMedia = async ({
 	src,
@@ -37,26 +45,47 @@ export const convertMedia = async ({
 	videoCodec: ConvertMediaVideoCodec;
 	audioCodec: ConvertMediaAudioCodec;
 	to: ConvertMediaTo;
-}) => {
+}): Promise<ConvertMediaResult> => {
 	if (to !== 'webm') {
-		throw new TypeError('Only `to: "webm"` is supported currently');
+		return Promise.reject(
+			new TypeError('Only `to: "webm"` is supported currently'),
+		);
 	}
 
 	if (audioCodec !== 'opus') {
-		throw new TypeError('Only `audioCodec: "opus"` is supported currently');
+		return Promise.reject(
+			new TypeError('Only `audioCodec: "opus"` is supported currently'),
+		);
 	}
 
 	if (videoCodec !== 'vp8') {
-		throw new TypeError('Only `videoCodec: "vp8"` is supported currently');
+		return Promise.reject(
+			new TypeError('Only `videoCodec: "vp8"` is supported currently'),
+		);
 	}
+
+	const {promise, resolve, reject} = withResolvers<ConvertMediaResult>();
+	const {signal, abort} = new AbortController();
+
+	const abortConversion = (errCause: Error | null) => {
+		if (errCause === null) {
+			reject(new Error('Conversion aborted'));
+		} else {
+			reject(
+				new Error('Conversion aborted (see .cause of this error)', {
+					cause: errCause,
+				}),
+			);
+		}
+
+		abort();
+	};
 
 	const convertMediaState: ConvertMediaState = {
 		decodedAudioFrames: 0,
 		decodedVideoFrames: 0,
 		encodedVideoFrames: 0,
 		encodedAudioFrames: 0,
-		audioError: null,
-		videoError: null,
 	};
 	const state = await MediaParserInternals.createMedia(webFsWriter);
 
@@ -71,7 +100,7 @@ export const convertMedia = async ({
 			},
 			width: track.codedWidth,
 			height: track.codedHeight,
-			codecId: 'V_VP8',
+			codecId: codecNameToMatroskaCodecId(videoCodec),
 		});
 
 		const videoEncoder = await createVideoEncoder({
@@ -87,14 +116,18 @@ export const convertMedia = async ({
 				onMediaStateUpdate?.({...convertMediaState});
 			},
 			onError: (err) => {
-				// TODO: Do error handling
-				console.log(err);
+				abortConversion(
+					new Error(
+						`Video encoder of track ${track.trackId} failed (see .cause of this error)`,
+						{
+							cause: err,
+						},
+					),
+				);
 			},
+			signal,
 		});
 		if (videoEncoder === null) {
-			convertMediaState.videoError = new DOMException(
-				'Video encoder not supported',
-			);
 			onMediaStateUpdate?.({...convertMediaState});
 			return null;
 		}
@@ -109,14 +142,18 @@ export const convertMedia = async ({
 				frame.close();
 			},
 			onError: (err) => {
-				// TODO: Do error handling
-				console.log(err);
+				abortConversion(
+					new Error(
+						`Video decoder of track ${track.trackId} failed (see .cause of this error)`,
+						{
+							cause: err,
+						},
+					),
+				);
 			},
+			signal,
 		});
 		if (videoDecoder === null) {
-			convertMediaState.videoError = new DOMException(
-				'Video decoder not supported',
-			);
 			onMediaStateUpdate?.({...convertMediaState});
 			return null;
 		}
@@ -136,7 +173,7 @@ export const convertMedia = async ({
 	const onAudioTrack: OnAudioTrack = async (track) => {
 		const {trackNumber} = await state.addTrack({
 			type: 'audio',
-			codecId: 'A_OPUS',
+			codecId: codecNameToMatroskaAudioCodecId(audioCodec),
 			numberOfChannels: track.numberOfChannels,
 			sampleRate: track.sampleRate,
 		});
@@ -150,15 +187,20 @@ export const convertMedia = async ({
 			sampleRate: track.sampleRate,
 			numberOfChannels: track.numberOfChannels,
 			onError: (err) => {
-				// TODO: Do error handling
-				console.log(err);
+				abortConversion(
+					new Error(
+						`Audio encoder of ${track.trackId} failed (see .cause of this error)`,
+						{
+							cause: err,
+						},
+					),
+				);
 			},
+			codec: audioCodec,
+			signal,
 		});
 
 		if (!audioEncoder) {
-			convertMediaState.audioError = new DOMException(
-				'Audio encoder not supported',
-			);
 			onMediaStateUpdate?.({...convertMediaState});
 			return null;
 		}
@@ -173,16 +215,19 @@ export const convertMedia = async ({
 				frame.close();
 			},
 			onError(error) {
-				// TODO: Do better error handling
-				convertMediaState.audioError = error;
-				onMediaStateUpdate?.({...convertMediaState});
+				abortConversion(
+					new Error(
+						`Audio decoder of track ${track.trackId} failed (see .cause of this error)`,
+						{
+							cause: error,
+						},
+					),
+				);
 			},
+			signal,
 		});
 
 		if (!audioDecoder) {
-			convertMediaState.audioError = new DOMException(
-				'Audio decoder not supported',
-			);
 			onMediaStateUpdate?.(convertMediaState);
 			return null;
 		}
@@ -199,12 +244,20 @@ export const convertMedia = async ({
 		};
 	};
 
-	await parseMedia({
+	parseMedia({
 		src,
 		onVideoTrack,
 		onAudioTrack,
-	});
+	})
+		.then(() => {
+			return state.waitForFinish();
+		})
+		.then(() => {
+			resolve({save: state.save});
+		})
+		.catch((err) => {
+			reject(err);
+		});
 
-	await state.waitForFinish();
-	return state.save;
+	return promise;
 };

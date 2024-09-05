@@ -139,7 +139,7 @@ export const SrcEncoder: React.FC<{
 				audioCodec: 'opus',
 				to: 'webm',
 			});
-			setDownloadFn(() => fn);
+			setDownloadFn(() => fn.save);
 		} catch (err) {}
 	}, [onVideoFrame, src]);
 

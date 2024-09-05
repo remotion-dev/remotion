@@ -13,11 +13,13 @@ export const createVideoEncoder = async ({
 	height,
 	onChunk,
 	onError,
+	signal,
 }: {
 	width: number;
 	height: number;
 	onChunk: (chunk: EncodedVideoChunk) => Promise<void>;
 	onError: (error: DOMException) => void;
+	signal: AbortSignal;
 }): Promise<WebCodecsVideoEncoder | null> => {
 	if (typeof VideoEncoder === 'undefined') {
 		return Promise.resolve(null);
@@ -42,6 +44,12 @@ export const createVideoEncoder = async ({
 				});
 		},
 	});
+
+	const onAbort = () => {
+		encoder.close();
+	};
+
+	signal.addEventListener('abort', onAbort);
 
 	const config = await getVideoEncoderConfigWithHardwareAcceleration({
 		codec: 'vp8',
@@ -85,6 +93,11 @@ export const createVideoEncoder = async ({
 			await waitForDequeue();
 		}
 
+		// @ts-expect-error - can have changed in the meanwhile
+		if (encoder.state === 'closed') {
+			return;
+		}
+
 		encoder.encode(frame, {
 			keyFrame: framesProcessed % 40 === 0,
 		});
@@ -104,6 +117,7 @@ export const createVideoEncoder = async ({
 			await waitForFinish();
 		},
 		close: () => {
+			signal.removeEventListener('abort', onAbort);
 			encoder.close();
 		},
 		getQueueSize,
