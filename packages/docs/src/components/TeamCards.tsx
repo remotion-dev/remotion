@@ -108,7 +108,11 @@ export const TeamCardsLayout: React.FC<{}> = () => {
 					{
 						<>
 							<div style={flex}>
-								<a style={docsButton} href="https://twitter.com/JNYBGR">
+								<a
+									style={docsButton}
+									target="_blank"
+									href="https://twitter.com/JNYBGR"
+								>
 									<BlueButton loading={false} fullWidth size="sm">
 										<TwitterLogo /> Twitter
 									</BlueButton>
@@ -121,6 +125,7 @@ export const TeamCardsLayout: React.FC<{}> = () => {
 					<div style={flex}>
 						<a
 							style={docsButton}
+							target="_blank"
 							href="https://ch.linkedin.com/in/jonny-burger-4115109b"
 						>
 							<BlueButton loading={false} fullWidth size="sm">
@@ -138,7 +143,11 @@ export const TeamCardsLayout: React.FC<{}> = () => {
 					}}
 				>
 					<div style={flex}>
-						<a style={docsButton} href="https://github.com/JonnyBurger">
+						<a
+							style={docsButton}
+							target="_blank"
+							href="https://github.com/JonnyBurger"
+						>
 							<BlueButton loading={false} fullWidth size="sm">
 								<GitHubLogo /> GitHub
 							</BlueButton>
@@ -147,7 +156,11 @@ export const TeamCardsLayout: React.FC<{}> = () => {
 					<Spacer />
 					<Spacer />
 					<div style={flex}>
-						<a style={docsButton} href="mailto:jonny@remotion.dev">
+						<a
+							style={docsButton}
+							target="_blank"
+							href="mailto:jonny@remotion.dev"
+						>
 							<BlueButton loading={false} fullWidth size="sm">
 								<EmailLogo /> E-Mail
 							</BlueButton>
@@ -196,7 +209,11 @@ export const TeamCardsLayout: React.FC<{}> = () => {
 					{
 						<>
 							<div style={flex}>
-								<a style={docsButton} href="https://twitter.com/MehmetAdemi">
+								<a
+									style={docsButton}
+									target="_blank"
+									href="https://twitter.com/mehmetademi"
+								>
 									<BlueButton loading={false} fullWidth size="sm">
 										<TwitterLogo /> Twitter
 									</BlueButton>
@@ -209,7 +226,8 @@ export const TeamCardsLayout: React.FC<{}> = () => {
 					<div style={flex}>
 						<a
 							style={docsButton}
-							href="https://www.linkedin.com/in/mehmet-ademi/?locale=en_US"
+							target="_blank"
+							href="https://www.linkedin.com/in/mehmetademi"
 						>
 							<BlueButton loading={false} fullWidth size="sm">
 								<LinkedInLogo /> LinkedIn
@@ -222,7 +240,11 @@ export const TeamCardsLayout: React.FC<{}> = () => {
 					{
 						<>
 							<div style={flex}>
-								<a style={docsButton} href="https://github.com/MehmetAdemi">
+								<a
+									style={docsButton}
+									target="_blank"
+									href="https://github.com/MehmetAdemi"
+								>
 									<BlueButton loading={false} fullWidth size="sm">
 										<GitHubLogo /> GitHub
 									</BlueButton>
@@ -231,7 +253,11 @@ export const TeamCardsLayout: React.FC<{}> = () => {
 							<Spacer />
 							<Spacer />
 							<div style={flex}>
-								<a style={docsButton} href="mailto:mehmet@remotion.dev">
+								<a
+									style={docsButton}
+									target="_blank"
+									href="mailto:mehmet@remotion.dev"
+								>
 									<BlueButton loading={false} fullWidth size="sm">
 										<EmailLogo /> E-Mail
 									</BlueButton>
