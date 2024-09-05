@@ -4,6 +4,7 @@ import {
 	parseMedia,
 	type OnVideoTrack,
 } from '@remotion/media-parser';
+import {bufferWriter} from '@remotion/media-parser/buffer';
 import {webFsWriter} from '@remotion/media-parser/web-fs';
 import {createAudioDecoder} from './audio-decoder';
 import {createAudioEncoder} from './audio-encoder';
@@ -89,7 +90,9 @@ export const convertMedia = async ({
 		encodedVideoFrames: 0,
 		encodedAudioFrames: 0,
 	};
-	const state = await MediaParserInternals.createMedia(webFsWriter);
+	const state = await MediaParserInternals.createMedia(
+		navigator.userAgent.includes('Safari') ? bufferWriter : webFsWriter,
+	);
 
 	const onVideoTrack: OnVideoTrack = async (track) => {
 		const {trackNumber} = await state.addTrack({
