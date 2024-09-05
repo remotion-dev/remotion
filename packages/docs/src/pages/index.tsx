@@ -8,7 +8,6 @@ import {
 } from '../../components/LambdaSplash/VideoAppsTitle';
 import {BackgroundAnimation} from '../../components/LandingPage/BackgroundAnimation';
 import DeveloperCommunityStats from '../../components/LandingPage/DeveloperCommunityStats';
-import DeveloperCommunityStats2 from '../../components/LandingPage/DeveloperCommunityStats2';
 import EvaluateRemotionSection from '../../components/LandingPage/EvaluateRemotionSection';
 import {NewsletterButton} from '../../components/LandingPage/NewsletterButton';
 import {Pricing} from '../../components/LandingPage/Pricing';
@@ -20,7 +19,7 @@ import {Parametrize} from '../../components/LandingPage/parametrize';
 import {RealMP4Videos} from '../../components/LandingPage/real-mp4-videos';
 import styles from './landing.module.css';
 
-const SHOW_DEVELOPER_COMMUNITY_STATS = false;
+const SHOW_DEVELOPER_COMMUNITY_STATS = true;
 const SHOW_TRUSTED_BY_BANNER = true;
 
 const NewLanding: React.FC = () => {
@@ -42,14 +41,6 @@ const NewLanding: React.FC = () => {
 				<br />
 				<div className={styles.content}>
 					<WriteInReact />
-					<br />
-					{SHOW_DEVELOPER_COMMUNITY_STATS && (
-						<>
-							<DeveloperCommunityStats />
-							<br />
-							<DeveloperCommunityStats2 />
-						</>
-					)}
 					<br />
 					<IfYouKnowReact />
 					<br />
@@ -80,6 +71,8 @@ const NewLanding: React.FC = () => {
 
 					{SHOW_TRUSTED_BY_BANNER && <TrustedByBanner />}
 					<br />
+					<br />
+					{SHOW_DEVELOPER_COMMUNITY_STATS && <DeveloperCommunityStats />}
 					<EvaluateRemotionSection />
 					<NewsletterButton />
 					<br />
