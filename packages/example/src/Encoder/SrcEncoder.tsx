@@ -135,10 +135,21 @@ export const SrcEncoder: React.FC<{
 						setState(() => s);
 					});
 				},
+				videoCodec: 'vp8',
+				audioCodec: 'opus',
+				to: 'webm',
 			});
 			setDownloadFn(() => fn);
 		} catch (err) {}
 	}, [onVideoFrame, src]);
+
+	if (state.audioError) {
+		console.log(state.audioError);
+	}
+
+	if (state.videoError) {
+		console.log(state.videoError);
+	}
 
 	return (
 		<div
@@ -204,12 +215,12 @@ export const SrcEncoder: React.FC<{
 						label="VE"
 					/>
 					<SampleCount
-						errored={state.videoError !== null}
+						errored={state.audioError !== null}
 						count={state.decodedAudioFrames}
 						label="AD"
 					/>
 					<SampleCount
-						errored={state.videoError !== null}
+						errored={state.audioError !== null}
 						count={state.encodedAudioFrames}
 						label="AE"
 					/>
