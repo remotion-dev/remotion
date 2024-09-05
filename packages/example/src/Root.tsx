@@ -108,7 +108,6 @@ if (alias !== 'alias') {
 
 const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
 
-// @ts-expect-error no types
 import GoogleFontsPicker, {googleFontsPickerSchema} from './GoogleFontsPicker';
 import styles from './styles.module.scss';
 
