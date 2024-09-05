@@ -165,12 +165,14 @@ export const processSample = async ({
 		const version = iterator.getUint16();
 		const revisionLevel = iterator.getUint16();
 		const vendor = iterator.getSlice(4);
-		const numberOfChannels = iterator.getUint16();
-		const sampleSize = iterator.getUint16();
-		const compressionId = iterator.getUint16();
-		const packetSize = iterator.getUint16();
-		const sampleRate = iterator.getFixedPointUnsigned1616Number();
+
 		if (version === 0) {
+			const numberOfChannels = iterator.getUint16();
+			const sampleSize = iterator.getUint16();
+			const compressionId = iterator.getUint16();
+			const packetSize = iterator.getUint16();
+			const sampleRate = iterator.getFixedPointUnsigned1616Number();
+
 			const bytesRemainingInBox =
 				boxSize - (iterator.counter.getOffset() - fileOffset);
 			const children = await parseBoxes({
@@ -213,6 +215,12 @@ export const processSample = async ({
 		}
 
 		if (version === 1) {
+			const numberOfChannels = iterator.getUint16();
+			const sampleSize = iterator.getUint16();
+			const compressionId = iterator.getInt16();
+			const packetSize = iterator.getUint16();
+			const sampleRate = iterator.getFixedPointUnsigned1616Number();
+
 			const samplesPerPacket = iterator.getUint32();
 
 			const bytesPerPacket = iterator.getUint32();
@@ -262,6 +270,12 @@ export const processSample = async ({
 		}
 
 		if (version === 2) {
+			const numberOfChannels = iterator.getUint16();
+			const sampleSize = iterator.getUint16();
+			const compressionId = iterator.getUint16();
+			const packetSize = iterator.getUint16();
+			iterator.getFixedPointUnsigned1616Number(); // LQ sample rate;
+
 			iterator.getUint32(); // ignore
 			const higherSampleRate = iterator.getFloat64();
 			iterator.getUint32(); // ignore;
