@@ -38,6 +38,7 @@ export const convertMedia = async ({
 	audioCodec,
 	to,
 	videoCodec,
+	signal: userPassedAbortSignal,
 }: {
 	src: string | File;
 	onVideoFrame?: (inputFrame: VideoFrame, track: VideoTrack) => Promise<void>;
@@ -45,6 +46,7 @@ export const convertMedia = async ({
 	videoCodec: ConvertMediaVideoCodec;
 	audioCodec: ConvertMediaAudioCodec;
 	to: ConvertMediaTo;
+	signal?: AbortSignal;
 }): Promise<ConvertMediaResult> => {
 	if (to !== 'webm') {
 		return Promise.reject(
@@ -65,7 +67,7 @@ export const convertMedia = async ({
 	}
 
 	const {promise, resolve, reject} = withResolvers<ConvertMediaResult>();
-	const {signal, abort} = new AbortController();
+	const controller = new AbortController();
 
 	const abortConversion = (errCause: Error | null) => {
 		if (errCause === null) {
@@ -78,8 +80,16 @@ export const convertMedia = async ({
 			);
 		}
 
-		abort();
+		if (!controller.signal.aborted) {
+			controller.abort();
+		}
 	};
+
+	const onUserAbort = () => {
+		abortConversion(new Error('Conversion aborted by user'));
+	};
+
+	userPassedAbortSignal?.addEventListener('abort', onUserAbort);
 
 	const convertMediaState: ConvertMediaState = {
 		decodedAudioFrames: 0,
@@ -125,10 +135,14 @@ export const convertMedia = async ({
 					),
 				);
 			},
-			signal,
+			signal: controller.signal,
 		});
 		if (videoEncoder === null) {
-			onMediaStateUpdate?.({...convertMediaState});
+			abortConversion(
+				new Error(
+					`Could not configure video encoder of track ${track.trackId}`,
+				),
+			);
 			return null;
 		}
 
@@ -151,10 +165,14 @@ export const convertMedia = async ({
 					),
 				);
 			},
-			signal,
+			signal: controller.signal,
 		});
 		if (videoDecoder === null) {
-			onMediaStateUpdate?.({...convertMediaState});
+			abortConversion(
+				new Error(
+					`Could not configure video decoder of track ${track.trackId}`,
+				),
+			);
 			return null;
 		}
 
@@ -197,11 +215,15 @@ export const convertMedia = async ({
 				);
 			},
 			codec: audioCodec,
-			signal,
+			signal: controller.signal,
 		});
 
 		if (!audioEncoder) {
-			onMediaStateUpdate?.({...convertMediaState});
+			abortConversion(
+				new Error(
+					`Could not configure audio encoder of track ${track.trackId}`,
+				),
+			);
 			return null;
 		}
 
@@ -224,11 +246,15 @@ export const convertMedia = async ({
 					),
 				);
 			},
-			signal,
+			signal: controller.signal,
 		});
 
 		if (!audioDecoder) {
-			onMediaStateUpdate?.(convertMediaState);
+			abortConversion(
+				new Error(
+					`Could not configure audio decoder of track ${track.trackId}`,
+				),
+			);
 			return null;
 		}
 
@@ -257,6 +283,9 @@ export const convertMedia = async ({
 		})
 		.catch((err) => {
 			reject(err);
+		})
+		.finally(() => {
+			userPassedAbortSignal?.removeEventListener('abort', onUserAbort);
 		});
 
 	return promise;

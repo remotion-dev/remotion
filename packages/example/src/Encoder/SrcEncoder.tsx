@@ -35,10 +35,9 @@ const SampleLabel: React.FC<{
 const SampleCount: React.FC<{
 	count: number;
 	label: string;
-	errored: boolean;
-}> = ({count, label, errored}) => {
+}> = ({count, label}) => {
 	return (
-		<div style={{display: 'inline-block', color: errored ? 'red' : 'white'}}>
+		<div style={{display: 'inline-block', color: 'white'}}>
 			<SampleLabel>{label}</SampleLabel>
 			{count}
 		</div>
@@ -54,11 +53,10 @@ export const SrcEncoder: React.FC<{
 		decodedVideoFrames: 0,
 		encodedVideoFrames: 0,
 		encodedAudioFrames: 0,
-		audioError: null,
-		videoError: null,
 	});
 
 	const [downloadFn, setDownloadFn] = useState<null | (() => void)>(null);
+	const [abortfn, setAbortFn] = useState<null | (() => void)>(null);
 
 	const ref = useRef<HTMLCanvasElement>(null);
 
@@ -127,6 +125,8 @@ export const SrcEncoder: React.FC<{
 
 	const onClick = useCallback(async () => {
 		try {
+			const abortController = new AbortController();
+			setAbortFn(() => () => abortController.abort());
 			const fn = await convertMedia({
 				src,
 				onVideoFrame,
@@ -138,18 +138,13 @@ export const SrcEncoder: React.FC<{
 				videoCodec: 'vp8',
 				audioCodec: 'opus',
 				to: 'webm',
+				signal: abortController.signal,
 			});
 			setDownloadFn(() => fn.save);
-		} catch (err) {}
+		} catch (err) {
+			console.log(err);
+		}
 	}, [onVideoFrame, src]);
-
-	if (state.audioError) {
-		console.log(state.audioError);
-	}
-
-	if (state.videoError) {
-		console.log(state.videoError);
-	}
 
 	return (
 		<div
@@ -191,9 +186,25 @@ export const SrcEncoder: React.FC<{
 				>
 					{label}{' '}
 				</div>
-				<button type="button" onClick={onClick}>
-					Decode
-				</button>
+
+				{downloadFn ? (
+					<button type="button" onClick={downloadFn}>
+						Download
+					</button>
+				) : abortfn ? (
+					<button
+						type="button"
+						onClick={() => {
+							abortfn();
+						}}
+					>
+						Abort
+					</button>
+				) : (
+					<button type="button" onClick={onClick}>
+						Decode
+					</button>
+				)}
 				<div
 					style={{
 						display: 'flex',
@@ -204,33 +215,11 @@ export const SrcEncoder: React.FC<{
 						height: 38,
 					}}
 				>
-					<SampleCount
-						errored={state.videoError !== null}
-						count={state.decodedVideoFrames}
-						label="VD"
-					/>
-					<SampleCount
-						errored={state.videoError !== null}
-						count={state.encodedVideoFrames}
-						label="VE"
-					/>
-					<SampleCount
-						errored={state.audioError !== null}
-						count={state.decodedAudioFrames}
-						label="AD"
-					/>
-					<SampleCount
-						errored={state.audioError !== null}
-						count={state.encodedAudioFrames}
-						label="AE"
-					/>
+					<SampleCount count={state.decodedVideoFrames} label="VD" />
+					<SampleCount count={state.encodedVideoFrames} label="VE" />
+					<SampleCount count={state.decodedAudioFrames} label="AD" />
+					<SampleCount count={state.encodedAudioFrames} label="AE" />
 					<br />
-
-					{downloadFn ? (
-						<button type="button" onClick={downloadFn}>
-							DL
-						</button>
-					) : null}
 				</div>
 			</AbsoluteFill>
 		</div>
