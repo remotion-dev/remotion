@@ -21,7 +21,7 @@ import {RealMP4Videos} from '../../components/LandingPage/real-mp4-videos';
 import styles from './landing.module.css';
 
 const SHOW_DEVELOPER_COMMUNITY_STATS = false;
-const SHOW_TRUSTED_BY_BANNER = false;
+const SHOW_TRUSTED_BY_BANNER = true;
 
 const NewLanding: React.FC = () => {
 	return (
@@ -42,8 +42,6 @@ const NewLanding: React.FC = () => {
 				<br />
 				<div className={styles.content}>
 					<WriteInReact />
-					<br />
-					{SHOW_TRUSTED_BY_BANNER && <TrustedByBanner />}
 					<br />
 					{SHOW_DEVELOPER_COMMUNITY_STATS && (
 						<>
@@ -76,8 +74,12 @@ const NewLanding: React.FC = () => {
 					<VideoApps active="remotion" />
 					<br />
 					<br />
+					<br />
 					<PricingTitle />
 					<Pricing />
+
+					{SHOW_TRUSTED_BY_BANNER && <TrustedByBanner />}
+					<br />
 					<EvaluateRemotionSection />
 					<NewsletterButton />
 					<br />
