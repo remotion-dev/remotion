@@ -29,7 +29,8 @@ export type ConvertMediaState = {
 export type ConvertMediaTo = 'webm';
 
 export type ConvertMediaResult = {
-	save: () => Promise<void>;
+	save: () => Promise<File>;
+	remove: () => Promise<void>;
 };
 
 export const convertMedia = async ({
@@ -279,7 +280,7 @@ export const convertMedia = async ({
 			return state.waitForFinish();
 		})
 		.then(() => {
-			resolve({save: state.save});
+			resolve({save: state.save, remove: state.remove});
 		})
 		.catch((err) => {
 			reject(err);

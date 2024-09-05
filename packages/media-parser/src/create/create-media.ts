@@ -25,7 +25,8 @@ import {
 import {CREATE_TIME_SCALE} from './timescale';
 
 export type MediaFn = {
-	save: () => Promise<void>;
+	save: () => Promise<File>;
+	remove: () => Promise<void>;
 	addSample: (chunk: EncodedVideoChunk, trackNumber: number) => Promise<void>;
 	updateDuration: (duration: number) => Promise<void>;
 	addTrack: (
@@ -173,7 +174,11 @@ export const createMedia = async (
 
 	return {
 		save: async () => {
-			await w.save();
+			const file = await w.save();
+			return file;
+		},
+		remove: async () => {
+			await w.remove();
 		},
 		addSample: (chunk, trackNumber) => {
 			operationProm.current = operationProm.current.then(() =>

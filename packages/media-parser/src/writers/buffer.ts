@@ -28,13 +28,26 @@ const createContent = () => {
 
 	let writPromise = Promise.resolve();
 
+	let removed = false;
+
 	const writer: Writer = {
 		write: (arr: Uint8Array) => {
 			writPromise = writPromise.then(() => write(arr));
 			return writPromise;
 		},
 		save: () => {
-			console.log(data);
+			if (removed) {
+				return Promise.reject(
+					new Error('Already called .remove() on the result'),
+				);
+			}
+
+			// TODO: Unhardcode name
+			return Promise.resolve(new File([data], 'hithere', {}));
+		},
+		remove() {
+			removed = true;
+			data = new Uint8Array(0);
 			return Promise.resolve();
 		},
 		getWrittenByteCount: () => buf.byteLength,

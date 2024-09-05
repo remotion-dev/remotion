@@ -24,6 +24,12 @@ const createContent = async () => {
 		await writable.seek(written);
 	};
 
+	const remove = async () => {
+		await directoryHandle.removeEntry(filename, {
+			recursive: true,
+		});
+	};
+
 	const writer: Writer = {
 		write: (arr: Uint8Array) => {
 			writPromise = writPromise.then(() => write(arr));
@@ -40,13 +46,7 @@ const createContent = async () => {
 				create: true,
 			});
 			const newFile = await newHandle.getFile();
-
-			const downloadFile = new File([newFile], 'hithere', {});
-
-			const a = document.createElement('a');
-			a.href = URL.createObjectURL(downloadFile);
-			a.download = filename;
-			a.click();
+			return newFile;
 		},
 		getWrittenByteCount: () => written,
 		updateDataAt: (position: number, data: Uint8Array) => {
@@ -56,6 +56,7 @@ const createContent = async () => {
 		waitForFinish: async () => {
 			await writPromise;
 		},
+		remove,
 	};
 
 	return writer;

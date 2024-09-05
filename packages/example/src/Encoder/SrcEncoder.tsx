@@ -141,7 +141,19 @@ export const SrcEncoder: React.FC<{
 				to: 'webm',
 				signal: abortController.signal,
 			});
-			setDownloadFn(() => fn.save);
+			setDownloadFn(() => {
+				return async () => {
+					const file = await fn.save();
+					const a = document.createElement('a');
+					a.href = URL.createObjectURL(file);
+					a.download = 'hithere';
+					a.click();
+
+					setTimeout(() => {
+						fn.remove();
+					}, 1000);
+				};
+			});
 		} catch (err) {
 			console.log(err);
 			setError(err as Error);
