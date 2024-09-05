@@ -53,6 +53,7 @@ test('Should be able to parse a STSD audio box correctly', async () => {
 			}),
 			nullifySamples: false,
 		},
+		signal: null,
 	});
 
 	expect(parsed).toEqual({
@@ -219,6 +220,7 @@ test('Should be able to parse a STSD video box correctly', async () => {
 			}),
 			nullifySamples: false,
 		},
+		signal: null,
 	});
 	expect(parsed.sample).toEqual({
 		size: 158,

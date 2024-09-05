@@ -120,9 +120,11 @@ const audioTags = [
 export const processSample = async ({
 	iterator,
 	options,
+	signal,
 }: {
 	iterator: BufferIterator;
 	options: ParserContext;
+	signal: AbortSignal | null;
 }): Promise<SampleAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
@@ -163,6 +165,7 @@ export const processSample = async ({
 		const version = iterator.getUint16();
 		const revisionLevel = iterator.getUint16();
 		const vendor = iterator.getSlice(4);
+
 		if (version === 0) {
 			const numberOfChannels = iterator.getUint16();
 			const sampleSize = iterator.getUint16();
@@ -180,6 +183,7 @@ export const processSample = async ({
 				options,
 				continueMdat: false,
 				littleEndian: false,
+				signal,
 			});
 
 			if (children.status === 'incomplete') {
@@ -234,6 +238,7 @@ export const processSample = async ({
 				options,
 				continueMdat: false,
 				littleEndian: false,
+				signal,
 			});
 
 			if (children.status === 'incomplete') {
@@ -264,6 +269,64 @@ export const processSample = async ({
 			};
 		}
 
+		if (version === 2) {
+			const numberOfChannels = iterator.getUint16();
+			const sampleSize = iterator.getUint16();
+			const compressionId = iterator.getUint16();
+			const packetSize = iterator.getUint16();
+			iterator.getFixedPointUnsigned1616Number(); // LQ sample rate;
+
+			iterator.getUint32(); // ignore
+			const higherSampleRate = iterator.getFloat64();
+			iterator.getUint32(); // ignore;
+			iterator.getUint32(); // ignore, always 0x7F000000?
+			const bitsPerCodedSample = iterator.getUint32();
+			iterator.getUint32(); // ignore;
+			const bytesPerFrame = iterator.getUint32();
+			const samplesPerPacket = iterator.getUint32();
+
+			const bytesRemainingInBox =
+				boxSize - (iterator.counter.getOffset() - fileOffset);
+
+			const children = await parseBoxes({
+				iterator,
+				allowIncompleteBoxes: false,
+				maxBytes: bytesRemainingInBox,
+				initialBoxes: [],
+				options,
+				continueMdat: false,
+				littleEndian: false,
+				signal,
+			});
+
+			if (children.status === 'incomplete') {
+				throw new Error('Incomplete boxes are not allowed');
+			}
+
+			return {
+				sample: {
+					format: boxFormat,
+					offset: fileOffset,
+					dataReferenceIndex,
+					version,
+					revisionLevel,
+					vendor: [...Array.from(new Uint8Array(vendor))],
+					size: boxSize,
+					type: 'audio',
+					numberOfChannels,
+					sampleSize,
+					compressionId,
+					packetSize,
+					sampleRate: higherSampleRate,
+					samplesPerPacket,
+					bytesPerPacket: null,
+					bytesPerFrame,
+					bitsPerSample: bitsPerCodedSample,
+					children: children.segments,
+				},
+			};
+		}
+
 		throw new Error(`Unsupported version ${version}`);
 	}
 
@@ -286,15 +349,20 @@ export const processSample = async ({
 		const bytesRemainingInBox =
 			boxSize - (iterator.counter.getOffset() - fileOffset);
 
-		const children = await parseBoxes({
-			iterator,
-			allowIncompleteBoxes: false,
-			maxBytes: bytesRemainingInBox,
-			initialBoxes: [],
-			options,
-			continueMdat: false,
-			littleEndian: false,
-		});
+		const children =
+			bytesRemainingInBox > 8
+				? await parseBoxes({
+						iterator,
+						allowIncompleteBoxes: false,
+						maxBytes: bytesRemainingInBox,
+						initialBoxes: [],
+						options,
+						continueMdat: false,
+						littleEndian: false,
+						signal,
+					})
+				: (iterator.discard(bytesRemainingInBox),
+					{status: 'done', segments: []});
 
 		if (children.status === 'incomplete') {
 			throw new Error('Incomplete boxes are not allowed');
@@ -333,10 +401,12 @@ export const parseSamples = async ({
 	iterator,
 	maxBytes,
 	options,
+	signal,
 }: {
 	iterator: BufferIterator;
 	maxBytes: number;
 	options: ParserContext;
+	signal: AbortSignal | null;
 }): Promise<Sample[]> => {
 	const samples: Sample[] = [];
 	const initialOffset = iterator.counter.getOffset();
@@ -348,6 +418,7 @@ export const parseSamples = async ({
 		const {sample} = await processSample({
 			iterator,
 			options,
+			signal,
 		});
 
 		if (sample) {

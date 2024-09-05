@@ -13,10 +13,12 @@ export const createVideoDecoder = async ({
 	track,
 	onFrame,
 	onError,
+	signal,
 }: {
 	track: VideoTrack;
 	onFrame: (frame: VideoFrame) => Promise<void>;
 	onError: (error: DOMException) => void;
+	signal: AbortSignal;
 }): Promise<WebCodecsVideoDecoder | null> => {
 	if (typeof VideoDecoder === 'undefined') {
 		return null;
@@ -48,6 +50,18 @@ export const createVideoDecoder = async ({
 		},
 	});
 
+	const close = () => {
+		// eslint-disable-next-line @typescript-eslint/no-use-before-define
+		signal.removeEventListener('abort', onAbort);
+		videoDecoder.close();
+	};
+
+	const onAbort = () => {
+		close();
+	};
+
+	signal.addEventListener('abort', onAbort);
+
 	const getQueueSize = () => {
 		return videoDecoder.decodeQueueSize + outputQueueSize;
 	};
@@ -78,6 +92,11 @@ export const createVideoDecoder = async ({
 			await waitForDequeue();
 		}
 
+		// @ts-expect-error - can have changed in the meanwhile
+		if (videoDecoder.state === 'closed') {
+			return;
+		}
+
 		if (sample.type === 'key') {
 			await videoDecoder.flush();
 		}
@@ -98,9 +117,7 @@ export const createVideoDecoder = async ({
 			await outputQueue;
 			await inputQueue;
 		},
-		close: () => {
-			videoDecoder.close();
-		},
+		close,
 		getQueueSize,
 		flush: async () => {
 			await videoDecoder.flush();

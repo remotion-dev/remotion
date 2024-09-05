@@ -24,6 +24,12 @@ const createContent = async () => {
 		await writable.seek(written);
 	};
 
+	const remove = async () => {
+		await directoryHandle.removeEntry(filename, {
+			recursive: true,
+		});
+	};
+
 	const writer: Writer = {
 		write: (arr: Uint8Array) => {
 			writPromise = writPromise.then(() => write(arr));
@@ -36,21 +42,11 @@ const createContent = async () => {
 				// Ignore, could already be closed
 			}
 
-			const picker = await window.showSaveFilePicker({
-				suggestedName: `${Math.random().toString().replace('.', '')}.webm`,
-			});
-
 			const newHandle = await directoryHandle.getFileHandle(filename, {
 				create: true,
 			});
 			const newFile = await newHandle.getFile();
-			const pickerWriteable = await picker.createWritable();
-			const stream = newFile.stream();
-			await stream.pipeTo(pickerWriteable);
-
-			await directoryHandle.removeEntry(filename, {
-				recursive: true,
-			});
+			return newFile;
 		},
 		getWrittenByteCount: () => written,
 		updateDataAt: (position: number, data: Uint8Array) => {
@@ -60,6 +56,7 @@ const createContent = async () => {
 		waitForFinish: async () => {
 			await writPromise;
 		},
+		remove,
 	};
 
 	return writer;
@@ -67,4 +64,17 @@ const createContent = async () => {
 
 export const webFsWriter: WriterInterface = {
 	createContent,
+};
+
+export const canUseWebFsWriter = async () => {
+	const directoryHandle = await navigator.storage.getDirectory();
+	const fileHandle = await directoryHandle.getFileHandle(
+		'remotion-probe-web-fs-support',
+		{
+			create: true,
+		},
+	);
+
+	const canUse = fileHandle.createWritable !== undefined;
+	return canUse;
 };

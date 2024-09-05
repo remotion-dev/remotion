@@ -25,7 +25,8 @@ import {
 import {CREATE_TIME_SCALE} from './timescale';
 
 export type MediaFn = {
-	save: () => Promise<void>;
+	save: () => Promise<File>;
+	remove: () => Promise<void>;
 	addSample: (chunk: EncodedVideoChunk, trackNumber: number) => Promise<void>;
 	updateDuration: (duration: number) => Promise<void>;
 	addTrack: (
@@ -109,7 +110,6 @@ export const createMedia = async (
 
 	const clusterOffset = w.getWrittenByteCount();
 	let currentCluster = await makeCluster(w, 0);
-	// TODO: Also create a `Cues` seek element
 	seeks.push({
 		hexString: matroskaElements.Cluster,
 		byte: clusterOffset - seekHeadOffset,
@@ -119,8 +119,6 @@ export const createMedia = async (
 		clusterPosition: clusterOffset - seekHeadOffset,
 		trackNumbers,
 	});
-
-	await updateSeekWrite();
 
 	const trackNumberProgresses: Record<number, number> = {};
 
@@ -173,7 +171,11 @@ export const createMedia = async (
 
 	return {
 		save: async () => {
-			await w.save();
+			const file = await w.save();
+			return file;
+		},
+		remove: async () => {
+			await w.remove();
 		},
 		addSample: (chunk, trackNumber) => {
 			operationProm.current = operationProm.current.then(() =>
@@ -206,6 +208,12 @@ export const createMedia = async (
 		async waitForFinish() {
 			await Promise.all(waitForFinishPromises.map((p) => p()));
 			await operationProm.current;
+			seeks.push({
+				hexString: matroskaElements.Cues,
+				byte: w.getWrittenByteCount() - seekHeadOffset,
+			});
+			await updateSeekWrite();
+
 			await w.write(createMatroskaCues(cues).bytes);
 			const segmentSize = w.getWrittenByteCount() - segmentOffset;
 			await w.waitForFinish();

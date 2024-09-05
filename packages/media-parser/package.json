@@ -28,6 +28,7 @@
 		"./fetch": "./dist/readers/from-fetch.js",
 		"./web-file": "./dist/readers/from-web-file.js",
 		"./web-fs": "./dist/writers/web-fs.js",
+		"./buffer": "./dist/writers/buffer.js",
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
@@ -43,6 +44,9 @@
 			],
 			"web-fs": [
 				"dist/writers/web-fs.d.ts"
+			],
+			"buffer": [
+				"dist/writers/buffer.d.ts"
 			]
 		}
 	},

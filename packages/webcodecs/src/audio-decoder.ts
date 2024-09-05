@@ -12,13 +12,19 @@ export const createAudioDecoder = async ({
 	track,
 	onFrame,
 	onError,
+	signal,
 }: {
 	track: AudioTrack;
 	onFrame: (frame: AudioData) => Promise<void>;
 	onError: (error: DOMException) => void;
+	signal: AbortSignal;
 }): Promise<WebCodecsAudioDecoder | null> => {
 	if (typeof AudioDecoder === 'undefined') {
 		return null;
+	}
+
+	if (signal.aborted) {
+		return Promise.resolve(null);
 	}
 
 	const {supported, config} = await AudioDecoder.isConfigSupported(track);
@@ -46,6 +52,18 @@ export const createAudioDecoder = async ({
 			onError(error);
 		},
 	});
+
+	const close = () => {
+		audioDecoder.close();
+		// eslint-disable-next-line @typescript-eslint/no-use-before-define
+		signal.removeEventListener('abort', onAbort);
+	};
+
+	const onAbort = () => {
+		close();
+	};
+
+	signal.addEventListener('abort', onAbort);
 
 	const getQueueSize = () => {
 		return audioDecoder.decodeQueueSize + outputQueueSize;
@@ -96,9 +114,7 @@ export const createAudioDecoder = async ({
 			await waitForFinish();
 			await outputQueue;
 		},
-		close: () => {
-			audioDecoder.close();
-		},
+		close,
 		getQueueSize,
 		flush: async () => {
 			await audioDecoder.flush();

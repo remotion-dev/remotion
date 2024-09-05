@@ -1,3 +1,5 @@
+import type {ConvertMediaAudioCodec} from './codec-id';
+
 export type WebCodecsAudioEncoder = {
 	encodeFrame: (audioData: AudioData) => Promise<void>;
 	waitForFinish: () => Promise<void>;
@@ -11,14 +13,24 @@ export const createAudioEncoder = async ({
 	sampleRate,
 	numberOfChannels,
 	onError,
+	codec,
+	signal,
+	bitrate,
 }: {
 	onChunk: (chunk: EncodedAudioChunk) => Promise<void>;
 	sampleRate: number;
 	numberOfChannels: number;
 	onError: (error: DOMException) => void;
+	codec: ConvertMediaAudioCodec;
+	signal: AbortSignal;
+	bitrate: number;
 }): Promise<WebCodecsAudioEncoder | null> => {
 	if (typeof AudioEncoder === 'undefined') {
 		return null;
+	}
+
+	if (signal.aborted) {
+		return Promise.resolve(null);
 	}
 
 	let prom = Promise.resolve();
@@ -41,11 +53,30 @@ export const createAudioEncoder = async ({
 		},
 	});
 
+	const close = () => {
+		encoder.close();
+
+		// eslint-disable-next-line @typescript-eslint/no-use-before-define
+		signal.removeEventListener('abort', onAbort);
+	};
+
+	const onAbort = () => {
+		close();
+	};
+
+	signal.addEventListener('abort', onAbort);
+
+	if (codec !== 'opus') {
+		return Promise.reject(
+			new Error('Only `codec: "opus"` is supported currently'),
+		);
+	}
+
 	const audioEncoderConfig: AudioEncoderConfig = {
 		codec: 'opus',
 		numberOfChannels,
 		sampleRate,
-		bitrate: 128000,
+		bitrate,
 	};
 
 	const config = await AudioEncoder.isConfigSupported(audioEncoderConfig);
@@ -86,6 +117,11 @@ export const createAudioEncoder = async ({
 			await waitForDequeue();
 		}
 
+		// @ts-expect-error - can have changed in the meanwhile
+		if (encoder.state === 'closed') {
+			return;
+		}
+
 		encoder.encode(audioData);
 	};
 
@@ -101,9 +137,7 @@ export const createAudioEncoder = async ({
 			await waitForFinish();
 			await prom;
 		},
-		close: () => {
-			encoder.close();
-		},
+		close,
 		getQueueSize,
 		flush: async () => {
 			await encoder.flush();

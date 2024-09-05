@@ -13,13 +13,19 @@ export const createVideoEncoder = async ({
 	height,
 	onChunk,
 	onError,
+	signal,
 }: {
 	width: number;
 	height: number;
 	onChunk: (chunk: EncodedVideoChunk) => Promise<void>;
 	onError: (error: DOMException) => void;
+	signal: AbortSignal;
 }): Promise<WebCodecsVideoEncoder | null> => {
 	if (typeof VideoEncoder === 'undefined') {
+		return Promise.resolve(null);
+	}
+
+	if (signal.aborted) {
 		return Promise.resolve(null);
 	}
 
@@ -42,6 +48,18 @@ export const createVideoEncoder = async ({
 				});
 		},
 	});
+
+	const close = () => {
+		// eslint-disable-next-line @typescript-eslint/no-use-before-define
+		signal.removeEventListener('abort', onAbort);
+		encoder.close();
+	};
+
+	const onAbort = () => {
+		close();
+	};
+
+	signal.addEventListener('abort', onAbort);
 
 	const config = await getVideoEncoderConfigWithHardwareAcceleration({
 		codec: 'vp8',
@@ -85,6 +103,11 @@ export const createVideoEncoder = async ({
 			await waitForDequeue();
 		}
 
+		// @ts-expect-error - can have changed in the meanwhile
+		if (encoder.state === 'closed') {
+			return;
+		}
+
 		encoder.encode(frame, {
 			keyFrame: framesProcessed % 40 === 0,
 		});
@@ -103,9 +126,7 @@ export const createVideoEncoder = async ({
 			await outputQueue;
 			await waitForFinish();
 		},
-		close: () => {
-			encoder.close();
-		},
+		close,
 		getQueueSize,
 		flush: async () => {
 			await encoder.flush();
