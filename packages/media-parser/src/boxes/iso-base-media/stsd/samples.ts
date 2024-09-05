@@ -263,7 +263,7 @@ export const processSample = async ({
 
 		if (version === 2) {
 			iterator.getUint32(); // ignore
-			const higherSampleRate = iterator.getFixedPointUnsigned1616Number();
+			const higherSampleRate = iterator.getFloat64();
 			iterator.getUint32(); // ignore;
 			iterator.getUint32(); // ignore, always 0x7F000000?
 			const bitsPerCodedSample = iterator.getUint32();
