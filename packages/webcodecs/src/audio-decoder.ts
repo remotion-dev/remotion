@@ -1,5 +1,12 @@
 import type {AudioSample, AudioTrack} from '@remotion/media-parser';
-import {decoderWaitForDequeue, decoderWaitForFinish} from './wait-for-dequeue';
+
+export type WebCodecsAudioDecoder = {
+	processSample: (audioSample: AudioSample) => Promise<void>;
+	waitForFinish: () => Promise<void>;
+	close: () => void;
+	getQueueSize: () => number;
+	flush: () => Promise<void>;
+};
 
 export const createAudioDecoder = async ({
 	track,
@@ -9,7 +16,7 @@ export const createAudioDecoder = async ({
 	track: AudioTrack;
 	onFrame: (frame: AudioData) => Promise<void>;
 	onError: (error: DOMException) => void;
-}) => {
+}): Promise<WebCodecsAudioDecoder | null> => {
 	if (typeof AudioDecoder === 'undefined') {
 		return null;
 	}
@@ -20,26 +27,56 @@ export const createAudioDecoder = async ({
 		return null;
 	}
 
-	let prom = Promise.resolve();
+	let outputQueue = Promise.resolve();
+	let outputQueueSize = 0;
+	let dequeueResolver = () => {};
 
 	const audioDecoder = new AudioDecoder({
 		output(inputFrame) {
-			// TODO: Should make this a "decoder queue size as well"
-			prom = prom.then(() => onFrame(inputFrame));
+			outputQueueSize++;
+			outputQueue = outputQueue
+				.then(() => onFrame(inputFrame))
+				.then(() => {
+					dequeueResolver();
+					outputQueueSize--;
+					return Promise.resolve();
+				});
 		},
 		error(error) {
 			onError(error);
 		},
 	});
 
+	const getQueueSize = () => {
+		return audioDecoder.decodeQueueSize + outputQueueSize;
+	};
+
 	audioDecoder.configure(config);
+
+	const waitForDequeue = async () => {
+		await new Promise<void>((r) => {
+			dequeueResolver = r;
+			// @ts-expect-error exists
+			audioDecoder.addEventListener('dequeue', () => r(), {
+				once: true,
+			});
+		});
+	};
+
+	const waitForFinish = async () => {
+		while (getQueueSize() > 0) {
+			await waitForDequeue();
+		}
+	};
 
 	const processSample = async (audioSample: AudioSample) => {
 		if (audioDecoder.state === 'closed') {
 			return;
 		}
 
-		await decoderWaitForDequeue(audioDecoder);
+		while (getQueueSize() > 10) {
+			await waitForDequeue();
+		}
 
 		// Don't flush, it messes up the audio
 
@@ -55,11 +92,16 @@ export const createAudioDecoder = async ({
 			return queue;
 		},
 		waitForFinish: async () => {
-			await decoderWaitForFinish(audioDecoder);
-			await prom;
+			await audioDecoder.flush();
+			await waitForFinish();
+			await outputQueue;
 		},
 		close: () => {
 			audioDecoder.close();
+		},
+		getQueueSize,
+		flush: async () => {
+			await audioDecoder.flush();
 		},
 	};
 };

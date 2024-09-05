@@ -16,7 +16,6 @@ import {
 import React, {useCallback, useRef, useState} from 'react';
 import {flushSync} from 'react-dom';
 import {AbsoluteFill} from 'remotion';
-import {getMicroSecondsAheadOfTrack} from './ahead-of-track';
 import {fitElementSizeInContainer} from './fit-element-size-in-container';
 
 const CANVAS_WIDTH = 1024 / 4;
@@ -101,8 +100,6 @@ export const SrcEncoder: React.FC<{
 
 	const i = useRef(0);
 
-	const trackProgresses = useRef<Record<number, number>>({});
-
 	const onVideoFrame = useCallback(
 		async (inputFrame: VideoFrame, track: VideoTrack) => {
 			i.current++;
@@ -167,14 +164,6 @@ export const SrcEncoder: React.FC<{
 		[setState],
 	);
 
-	const getFramesInEncodingQueue = useCallback(() => {
-		return stateRef.current.videoFrames - stateRef.current.encodedVideoFrames;
-	}, []);
-
-	const getFramesInAudioQueue = useCallback(() => {
-		return stateRef.current.audioFrames - stateRef.current.encodedAudioFrames;
-	}, []);
-
 	const onVideoTrack = useCallback(
 		(mediaState: MediaFn): OnVideoTrack =>
 			async (track) => {
@@ -192,8 +181,6 @@ export const SrcEncoder: React.FC<{
 					},
 					width: track.codedWidth,
 					height: track.codedHeight,
-					// TODO: Unhardcode
-					defaultDuration: 2658,
 					codecId: 'V_VP8',
 				});
 
@@ -213,6 +200,10 @@ export const SrcEncoder: React.FC<{
 							}));
 						});
 					},
+					onError: (err) => {
+						// TODO: Do error handling
+						console.log(err);
+					},
 				});
 				if (videoEncoder === null) {
 					setState((s) => ({
@@ -228,6 +219,10 @@ export const SrcEncoder: React.FC<{
 						await onVideoFrame(frame, track);
 						await videoEncoder.encodeFrame(frame);
 						frame.close();
+					},
+					onError: (err) => {
+						// TODO: Do error handling
+						console.log(err);
 					},
 				});
 				if (videoDecoder === null) {
@@ -246,27 +241,10 @@ export const SrcEncoder: React.FC<{
 				});
 
 				return async (chunk) => {
-					while (
-						getMicroSecondsAheadOfTrack(trackProgresses.current, trackNumber) >
-						// 2 seconds
-						1_000_000
-					) {
-						await new Promise<void>((r) => {
-							setTimeout(r, 100);
-						});
-					}
-					trackProgresses.current[trackNumber] = chunk.timestamp;
-
-					while (getFramesInEncodingQueue() > 15) {
-						await new Promise<void>((r) => {
-							setTimeout(r, 100);
-						});
-					}
-
 					await videoDecoder.processSample(chunk);
 				};
 			},
-		[getFramesInEncodingQueue, onVideoFrame, setState, trackProgresses],
+		[onVideoFrame, setState],
 	);
 
 	const onAudioTrack = useCallback(
@@ -292,6 +270,10 @@ export const SrcEncoder: React.FC<{
 					},
 					sampleRate: track.sampleRate,
 					numberOfChannels: track.numberOfChannels,
+					onError: (err) => {
+						// TODO: Do error handling
+						console.log(err);
+					},
 				});
 
 				if (!audioEncoder) {
@@ -313,6 +295,7 @@ export const SrcEncoder: React.FC<{
 						frame.close();
 					},
 					onError(error) {
+						// TODO: Do better error handling
 						setState((s) => ({...s, audioError: error}));
 					},
 				});
@@ -333,26 +316,10 @@ export const SrcEncoder: React.FC<{
 				});
 
 				return async (audioSample) => {
-					while (
-						getMicroSecondsAheadOfTrack(trackProgresses.current, trackNumber) >
-						// 2 seconds
-						1_000_000
-					) {
-						await new Promise<void>((r) => {
-							setTimeout(r, 100);
-						});
-					}
-					trackProgresses.current[trackNumber] = audioSample.timestamp;
-
-					while (getFramesInAudioQueue() > 15) {
-						await new Promise<void>((r) => {
-							setTimeout(r, 100);
-						});
-					}
 					await audioDecoder.processSample(audioSample);
 				};
 			},
-		[getFramesInAudioQueue, setState, trackProgresses],
+		[setState],
 	);
 
 	const onClick = useCallback(() => {

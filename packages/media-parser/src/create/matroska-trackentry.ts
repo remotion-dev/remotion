@@ -152,7 +152,6 @@ export type MakeTrackVideo = {
 	color: MatroskaColorParams;
 	width: number;
 	height: number;
-	defaultDuration: number;
 	trackNumber: number;
 	codecId: string;
 	type: 'video';
@@ -240,7 +239,6 @@ export const makeMatroskaVideoTrackEntryBytes = ({
 	color,
 	width,
 	height,
-	defaultDuration,
 	trackNumber,
 	codecId,
 }: MakeTrackVideo) => {
@@ -291,14 +289,6 @@ export const makeMatroskaVideoTrackEntryBytes = ({
 				type: 'TrackType',
 				value: {
 					value: 1, // 'video'
-					byteLength: null,
-				},
-				minVintWidth: null,
-			},
-			{
-				type: 'DefaultDuration',
-				value: {
-					value: defaultDuration,
 					byteLength: null,
 				},
 				minVintWidth: null,

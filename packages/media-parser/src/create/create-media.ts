@@ -109,6 +109,7 @@ export const createMedia = async (
 
 	const clusterOffset = w.getWrittenByteCount();
 	let currentCluster = await makeCluster(w, 0);
+	// TODO: Also create a `Cues` seek element
 	seeks.push({
 		hexString: matroskaElements.Cluster,
 		byte: clusterOffset - seekHeadOffset,
