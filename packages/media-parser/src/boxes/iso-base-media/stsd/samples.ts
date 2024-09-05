@@ -165,13 +165,12 @@ export const processSample = async ({
 		const version = iterator.getUint16();
 		const revisionLevel = iterator.getUint16();
 		const vendor = iterator.getSlice(4);
+		const numberOfChannels = iterator.getUint16();
+		const sampleSize = iterator.getUint16();
+		const compressionId = iterator.getUint16();
+		const packetSize = iterator.getUint16();
+		const sampleRate = iterator.getFixedPointUnsigned1616Number();
 		if (version === 0) {
-			const numberOfChannels = iterator.getUint16();
-			const sampleSize = iterator.getUint16();
-			const compressionId = iterator.getUint16();
-			const packetSize = iterator.getUint16();
-			const sampleRate = iterator.getFixedPointUnsigned1616Number();
-
 			const bytesRemainingInBox =
 				boxSize - (iterator.counter.getOffset() - fileOffset);
 			const children = await parseBoxes({
@@ -214,12 +213,6 @@ export const processSample = async ({
 		}
 
 		if (version === 1) {
-			const numberOfChannels = iterator.getUint16();
-			const sampleSize = iterator.getUint16();
-			const compressionId = iterator.getInt16();
-			const packetSize = iterator.getUint16();
-			const sampleRate = iterator.getFixedPointUnsigned1616Number();
-
 			const samplesPerPacket = iterator.getUint32();
 
 			const bytesPerPacket = iterator.getUint32();
@@ -268,6 +261,58 @@ export const processSample = async ({
 			};
 		}
 
+		if (version === 2) {
+			iterator.getUint32(); // ignore
+			const higherSampleRate = iterator.getFixedPointUnsigned1616Number();
+			iterator.getUint32(); // ignore;
+			iterator.getUint32(); // ignore, always 0x7F000000?
+			const bitsPerCodedSample = iterator.getUint32();
+			iterator.getUint32(); // ignore;
+			const bytesPerFrame = iterator.getUint32();
+			const samplesPerPacket = iterator.getUint32();
+
+			const bytesRemainingInBox =
+				boxSize - (iterator.counter.getOffset() - fileOffset);
+
+			const children = await parseBoxes({
+				iterator,
+				allowIncompleteBoxes: false,
+				maxBytes: bytesRemainingInBox,
+				initialBoxes: [],
+				options,
+				continueMdat: false,
+				littleEndian: false,
+				signal,
+			});
+
+			if (children.status === 'incomplete') {
+				throw new Error('Incomplete boxes are not allowed');
+			}
+
+			return {
+				sample: {
+					format: boxFormat,
+					offset: fileOffset,
+					dataReferenceIndex,
+					version,
+					revisionLevel,
+					vendor: [...Array.from(new Uint8Array(vendor))],
+					size: boxSize,
+					type: 'audio',
+					numberOfChannels,
+					sampleSize,
+					compressionId,
+					packetSize,
+					sampleRate: higherSampleRate,
+					samplesPerPacket,
+					bytesPerPacket: null,
+					bytesPerFrame,
+					bitsPerSample: bitsPerCodedSample,
+					children: children.segments,
+				},
+			};
+		}
+
 		throw new Error(`Unsupported version ${version}`);
 	}
 
@@ -290,16 +335,20 @@ export const processSample = async ({
 		const bytesRemainingInBox =
 			boxSize - (iterator.counter.getOffset() - fileOffset);
 
-		const children = await parseBoxes({
-			iterator,
-			allowIncompleteBoxes: false,
-			maxBytes: bytesRemainingInBox,
-			initialBoxes: [],
-			options,
-			continueMdat: false,
-			littleEndian: false,
-			signal,
-		});
+		const children =
+			bytesRemainingInBox > 8
+				? await parseBoxes({
+						iterator,
+						allowIncompleteBoxes: false,
+						maxBytes: bytesRemainingInBox,
+						initialBoxes: [],
+						options,
+						continueMdat: false,
+						littleEndian: false,
+						signal,
+					})
+				: (iterator.discard(bytesRemainingInBox),
+					{status: 'done', segments: []});
 
 		if (children.status === 'incomplete') {
 			throw new Error('Incomplete boxes are not allowed');
