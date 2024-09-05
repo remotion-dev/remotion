@@ -7,9 +7,9 @@ export const googleFontsPickerSchema = z.object({
 	font: zGoogleFont().optional(),
 });
 
-const GoogleFontsPicker: React.FC<z.infer<typeof googleFontsPickerSchema>> = ({
-	font,
-}) => {
+const GoogleFontsPicker: React.FC<
+	z.infer<typeof googleFontsPickerSchema>
+> = () => {
 	return (
 		<AbsoluteFill>
 			<h1>Text</h1>
