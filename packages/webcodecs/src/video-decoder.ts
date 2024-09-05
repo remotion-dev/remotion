@@ -50,8 +50,14 @@ export const createVideoDecoder = async ({
 		},
 	});
 
-	const onAbort = () => {
+	const close = () => {
+		// eslint-disable-next-line @typescript-eslint/no-use-before-define
+		signal.removeEventListener('abort', onAbort);
 		videoDecoder.close();
+	};
+
+	const onAbort = () => {
+		close();
 	};
 
 	signal.addEventListener('abort', onAbort);
@@ -111,10 +117,7 @@ export const createVideoDecoder = async ({
 			await outputQueue;
 			await inputQueue;
 		},
-		close: () => {
-			signal.removeEventListener('abort', onAbort);
-			videoDecoder.close();
-		},
+		close,
 		getQueueSize,
 		flush: async () => {
 			await videoDecoder.flush();

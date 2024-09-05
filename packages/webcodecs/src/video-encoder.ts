@@ -45,8 +45,14 @@ export const createVideoEncoder = async ({
 		},
 	});
 
-	const onAbort = () => {
+	const close = () => {
+		// eslint-disable-next-line @typescript-eslint/no-use-before-define
+		signal.removeEventListener('abort', onAbort);
 		encoder.close();
+	};
+
+	const onAbort = () => {
+		close();
 	};
 
 	signal.addEventListener('abort', onAbort);
@@ -116,10 +122,7 @@ export const createVideoEncoder = async ({
 			await outputQueue;
 			await waitForFinish();
 		},
-		close: () => {
-			signal.removeEventListener('abort', onAbort);
-			encoder.close();
-		},
+		close,
 		getQueueSize,
 		flush: async () => {
 			await encoder.flush();

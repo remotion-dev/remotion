@@ -46,8 +46,16 @@ export const createAudioEncoder = async ({
 			onError(error);
 		},
 	});
-	const onAbort = () => {
+
+	const close = () => {
 		encoder.close();
+
+		// eslint-disable-next-line @typescript-eslint/no-use-before-define
+		signal.removeEventListener('abort', onAbort);
+	};
+
+	const onAbort = () => {
+		close();
 	};
 
 	signal.addEventListener('abort', onAbort);
@@ -123,10 +131,7 @@ export const createAudioEncoder = async ({
 			await waitForFinish();
 			await prom;
 		},
-		close: () => {
-			encoder.close();
-			signal.removeEventListener('abort', onAbort);
-		},
+		close,
 		getQueueSize,
 		flush: async () => {
 			await encoder.flush();

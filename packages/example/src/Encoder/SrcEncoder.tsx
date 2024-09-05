@@ -57,6 +57,7 @@ export const SrcEncoder: React.FC<{
 
 	const [downloadFn, setDownloadFn] = useState<null | (() => void)>(null);
 	const [abortfn, setAbortFn] = useState<null | (() => void)>(null);
+	const [error, setError] = useState<Error | null>(null);
 
 	const ref = useRef<HTMLCanvasElement>(null);
 
@@ -142,7 +143,7 @@ export const SrcEncoder: React.FC<{
 			});
 			setDownloadFn(() => fn.save);
 		} catch (err) {
-			console.log(err);
+			setError(err as Error);
 		}
 	}, [onVideoFrame, src]);
 
@@ -187,7 +188,9 @@ export const SrcEncoder: React.FC<{
 					{label}{' '}
 				</div>
 
-				{downloadFn ? (
+				{error ? (
+					<div style={{color: 'red'}}>{error.stack}</div>
+				) : downloadFn ? (
 					<button type="button" onClick={downloadFn}>
 						Download
 					</button>
