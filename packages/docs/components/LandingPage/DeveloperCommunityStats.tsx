@@ -11,15 +11,46 @@ import styles from './DeveloperCommunityStats.module.css';
 
 const DeveloperCommunityStats: React.FC = () => (
 	<div className={styles.container}>
-		<h2 className={styles.title}>Developer community stats</h2>
+		<h2 className={styles.title}>Never build alone</h2>
 		<p className={styles.subtitle}>A thriving community of developers.</p>
 		<div className={styles.statsGrid}>
-			<InstallsPerMonth />
-			<PagesOfDocs />
-			<TemplatesAndExamples />
-			<GitHubStars />
-			<DiscordMembers />
-			<Contributors />
+			<a
+				target="_blank"
+				href="https://www.npmjs.com/package/remotion"
+				className={styles.statItemLink}
+			>
+				<InstallsPerMonth />
+			</a>
+			<a href="https://www.remotion.dev/docs/" className={styles.statItemLink}>
+				<PagesOfDocs />
+			</a>
+			<a
+				href="https://www.remotion.dev/templates"
+				className={styles.statItemLink}
+			>
+				<TemplatesAndExamples />
+			</a>
+			<a
+				target="_blank"
+				href="https://github.com/remotion-dev/remotion"
+				className={styles.statItemLink}
+			>
+				<GitHubStars />
+			</a>
+			<a
+				target="_blank"
+				href="https://remotion.dev/discord"
+				className={styles.statItemLink}
+			>
+				<DiscordMembers />
+			</a>
+			<a
+				target="_blank"
+				href="https://github.com/remotion-dev/remotion/graphs/contributors"
+				className={styles.statItemLink}
+			>
+				<Contributors />
+			</a>
 		</div>
 	</div>
 );
