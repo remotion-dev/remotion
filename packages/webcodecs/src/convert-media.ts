@@ -214,6 +214,7 @@ export const convertMedia = async ({
 			},
 			codec: audioCodec,
 			signal: controller.signal,
+			bitrate: 128000,
 		});
 
 		if (!audioEncoder) {

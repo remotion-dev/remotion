@@ -36,21 +36,17 @@ const createContent = async () => {
 				// Ignore, could already be closed
 			}
 
-			const picker = await window.showSaveFilePicker({
-				suggestedName: `${Math.random().toString().replace('.', '')}.webm`,
-			});
-
 			const newHandle = await directoryHandle.getFileHandle(filename, {
 				create: true,
 			});
 			const newFile = await newHandle.getFile();
-			const pickerWriteable = await picker.createWritable();
-			const stream = newFile.stream();
-			await stream.pipeTo(pickerWriteable);
 
-			await directoryHandle.removeEntry(filename, {
-				recursive: true,
-			});
+			const downloadFile = new File([newFile], 'hithere', {});
+
+			const a = document.createElement('a');
+			a.href = URL.createObjectURL(downloadFile);
+			a.download = filename;
+			a.click();
 		},
 		getWrittenByteCount: () => written,
 		updateDataAt: (position: number, data: Uint8Array) => {
@@ -70,10 +66,6 @@ export const webFsWriter: WriterInterface = {
 };
 
 export const canUseWebFsWriter = async () => {
-	if (window.showSaveFilePicker === undefined) {
-		return false;
-	}
-
 	const directoryHandle = await navigator.storage.getDirectory();
 	const fileHandle = await directoryHandle.getFileHandle(
 		'remotion-probe-web-fs-support',

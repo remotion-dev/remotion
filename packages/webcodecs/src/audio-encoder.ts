@@ -15,6 +15,7 @@ export const createAudioEncoder = async ({
 	onError,
 	codec,
 	signal,
+	bitrate,
 }: {
 	onChunk: (chunk: EncodedAudioChunk) => Promise<void>;
 	sampleRate: number;
@@ -22,6 +23,7 @@ export const createAudioEncoder = async ({
 	onError: (error: DOMException) => void;
 	codec: ConvertMediaAudioCodec;
 	signal: AbortSignal;
+	bitrate: number;
 }): Promise<WebCodecsAudioEncoder | null> => {
 	if (typeof AudioEncoder === 'undefined') {
 		return null;
@@ -74,7 +76,7 @@ export const createAudioEncoder = async ({
 		codec: 'opus',
 		numberOfChannels,
 		sampleRate,
-		bitrate: 128000,
+		bitrate,
 	};
 
 	const config = await AudioEncoder.isConfigSupported(audioEncoderConfig);
