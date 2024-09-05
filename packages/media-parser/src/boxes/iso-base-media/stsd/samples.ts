@@ -120,9 +120,11 @@ const audioTags = [
 export const processSample = async ({
 	iterator,
 	options,
+	signal,
 }: {
 	iterator: BufferIterator;
 	options: ParserContext;
+	signal: AbortSignal | null;
 }): Promise<SampleAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
@@ -180,6 +182,7 @@ export const processSample = async ({
 				options,
 				continueMdat: false,
 				littleEndian: false,
+				signal,
 			});
 
 			if (children.status === 'incomplete') {
@@ -234,6 +237,7 @@ export const processSample = async ({
 				options,
 				continueMdat: false,
 				littleEndian: false,
+				signal,
 			});
 
 			if (children.status === 'incomplete') {
@@ -294,6 +298,7 @@ export const processSample = async ({
 			options,
 			continueMdat: false,
 			littleEndian: false,
+			signal,
 		});
 
 		if (children.status === 'incomplete') {
@@ -333,10 +338,12 @@ export const parseSamples = async ({
 	iterator,
 	maxBytes,
 	options,
+	signal,
 }: {
 	iterator: BufferIterator;
 	maxBytes: number;
 	options: ParserContext;
+	signal: AbortSignal | null;
 }): Promise<Sample[]> => {
 	const samples: Sample[] = [];
 	const initialOffset = iterator.counter.getOffset();
@@ -348,6 +355,7 @@ export const parseSamples = async ({
 		const {sample} = await processSample({
 			iterator,
 			options,
+			signal,
 		});
 
 		if (sample) {

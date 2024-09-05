@@ -87,6 +87,7 @@ export const parseMedia: ParseMedia = async ({
 			parseResult = await parseVideo({
 				iterator,
 				options,
+				signal: signal ?? null,
 			});
 		}
 

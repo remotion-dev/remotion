@@ -2,7 +2,7 @@ import type {Writer, WriterInterface} from './writer';
 
 const createContent = () => {
 	const buf = new ArrayBuffer(0, {
-		maxByteLength: 2 ** 20,
+		maxByteLength: 2 ** 16,
 	});
 	if (!buf.resize) {
 		throw new Error('Could not create buffer writer');

@@ -91,6 +91,8 @@ export const convertMedia = async ({
 		encodedAudioFrames: 0,
 	};
 	const state = await MediaParserInternals.createMedia(
+		// TODO: This hits Chrome!!
+
 		navigator.userAgent.includes('Safari') ? bufferWriter : webFsWriter,
 	);
 

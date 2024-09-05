@@ -20,12 +20,14 @@ export const parseMdat = async ({
 	fileOffset,
 	existingBoxes,
 	options,
+	signal,
 }: {
 	data: BufferIterator;
 	size: number;
 	fileOffset: number;
 	existingBoxes: AnySegment[];
 	options: ParserContext;
+	signal: AbortSignal | null;
 }): Promise<MdatBox> => {
 	const alreadyHas = hasTracks(existingBoxes);
 	if (!alreadyHas) {
@@ -66,6 +68,10 @@ export const parseMdat = async ({
 
 	// eslint-disable-next-line no-constant-condition
 	while (true) {
+		if (signal && signal.aborted) {
+			break;
+		}
+
 		const samplesWithIndex = flatSamples.find((sample) => {
 			return sample.samplePosition.offset === data.counter.getOffset();
 		});
