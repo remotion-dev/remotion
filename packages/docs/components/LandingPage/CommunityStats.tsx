@@ -6,10 +6,10 @@ import {
 	InstallsPerMonth,
 	PagesOfDocs,
 	TemplatesAndExamples,
-} from './DeveloperCommunityStats-StatComponents';
-import styles from './DeveloperCommunityStats.module.css';
+} from './CommunityStatItems';
+import styles from './CommunityStats.module.css';
 
-const DeveloperCommunityStats: React.FC = () => (
+const CommunityStats: React.FC = () => (
 	<div className={styles.container}>
 		<h2 className={styles.title}>Never build alone</h2>
 		<p className={styles.subtitle}>Join a thriving community of developers.</p>
@@ -55,4 +55,4 @@ const DeveloperCommunityStats: React.FC = () => (
 	</div>
 );
 
-export default DeveloperCommunityStats;
+export default CommunityStats;

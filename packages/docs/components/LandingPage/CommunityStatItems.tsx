@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './DeveloperCommunityStats.module.css';
+import styles from './CommunityStats.module.css';
 
 // StatItemContent component
 const StatItemContent: React.FC<{

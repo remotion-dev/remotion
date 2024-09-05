@@ -7,7 +7,7 @@ import {
 	VideoAppsTitle,
 } from '../../components/LambdaSplash/VideoAppsTitle';
 import {BackgroundAnimation} from '../../components/LandingPage/BackgroundAnimation';
-import DeveloperCommunityStats from '../../components/LandingPage/DeveloperCommunityStats';
+import CommunityStats from '../../components/LandingPage/CommunityStats';
 import EvaluateRemotionSection from '../../components/LandingPage/EvaluateRemotionSection';
 import {NewsletterButton} from '../../components/LandingPage/NewsletterButton';
 import {Pricing} from '../../components/LandingPage/Pricing';
@@ -18,9 +18,6 @@ import {IfYouKnowReact} from '../../components/LandingPage/if-you-know-react';
 import {Parametrize} from '../../components/LandingPage/parametrize';
 import {RealMP4Videos} from '../../components/LandingPage/real-mp4-videos';
 import styles from './landing.module.css';
-
-const SHOW_DEVELOPER_COMMUNITY_STATS = true;
-const SHOW_TRUSTED_BY_BANNER = true;
 
 const NewLanding: React.FC = () => {
 	return (
@@ -69,10 +66,10 @@ const NewLanding: React.FC = () => {
 					<PricingTitle />
 					<Pricing />
 
-					{SHOW_TRUSTED_BY_BANNER && <TrustedByBanner />}
+					<TrustedByBanner />
 					<br />
 					<br />
-					{SHOW_DEVELOPER_COMMUNITY_STATS && <DeveloperCommunityStats />}
+					<CommunityStats />
 					<EvaluateRemotionSection />
 					<NewsletterButton />
 					<br />
