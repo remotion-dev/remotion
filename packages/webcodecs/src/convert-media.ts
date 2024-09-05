@@ -12,8 +12,8 @@ import {createVideoDecoder} from './video-decoder';
 import {createVideoEncoder} from './video-encoder';
 
 export type ConvertMediaState = {
-	videoFrames: number;
-	audioFrames: number;
+	decodedVideoFrames: number;
+	decodedAudioFrames: number;
 	encodedVideoFrames: number;
 	encodedAudioFrames: number;
 	videoError: DOMException | null;
@@ -26,12 +26,12 @@ export const convertMedia = async ({
 	onMediaStateUpdate,
 }: {
 	src: string | File;
-	onVideoFrame: (inputFrame: VideoFrame, track: VideoTrack) => Promise<void>;
-	onMediaStateUpdate: (state: ConvertMediaState) => void;
+	onVideoFrame?: (inputFrame: VideoFrame, track: VideoTrack) => Promise<void>;
+	onMediaStateUpdate?: (state: ConvertMediaState) => void;
 }) => {
 	const convertMediaState: ConvertMediaState = {
-		audioFrames: 0,
-		videoFrames: 0,
+		decodedAudioFrames: 0,
+		decodedVideoFrames: 0,
 		encodedVideoFrames: 0,
 		encodedAudioFrames: 0,
 		audioError: null,
@@ -69,7 +69,7 @@ export const convertMedia = async ({
 					);
 					await mediaState.updateDuration(newDuration);
 					convertMediaState.encodedVideoFrames++;
-					onMediaStateUpdate({...convertMediaState});
+					onMediaStateUpdate?.({...convertMediaState});
 				},
 				onError: (err) => {
 					// TODO: Do error handling
@@ -80,17 +80,17 @@ export const convertMedia = async ({
 				convertMediaState.videoError = new DOMException(
 					'Video encoder not supported',
 				);
-				onMediaStateUpdate({...convertMediaState});
+				onMediaStateUpdate?.({...convertMediaState});
 				return null;
 			}
 
 			const videoDecoder = await createVideoDecoder({
 				track,
 				onFrame: async (frame) => {
-					await onVideoFrame(frame, track);
+					await onVideoFrame?.(frame, track);
 					await videoEncoder.encodeFrame(frame);
-					convertMediaState.videoFrames++;
-					onMediaStateUpdate({...convertMediaState});
+					convertMediaState.decodedVideoFrames++;
+					onMediaStateUpdate?.({...convertMediaState});
 					frame.close();
 				},
 				onError: (err) => {
@@ -102,7 +102,7 @@ export const convertMedia = async ({
 				convertMediaState.videoError = new DOMException(
 					'Video decoder not supported',
 				);
-				onMediaStateUpdate({...convertMediaState});
+				onMediaStateUpdate?.({...convertMediaState});
 				return null;
 			}
 
@@ -132,7 +132,7 @@ export const convertMedia = async ({
 				onChunk: async (chunk) => {
 					await mediaState.addSample(chunk, trackNumber);
 					convertMediaState.encodedAudioFrames++;
-					onMediaStateUpdate({...convertMediaState});
+					onMediaStateUpdate?.({...convertMediaState});
 				},
 				sampleRate: track.sampleRate,
 				numberOfChannels: track.numberOfChannels,
@@ -146,7 +146,7 @@ export const convertMedia = async ({
 				convertMediaState.audioError = new DOMException(
 					'Audio encoder not supported',
 				);
-				onMediaStateUpdate({...convertMediaState});
+				onMediaStateUpdate?.({...convertMediaState});
 				return null;
 			}
 
@@ -155,14 +155,14 @@ export const convertMedia = async ({
 				onFrame: async (frame) => {
 					await audioEncoder.encodeFrame(frame);
 
-					convertMediaState.audioFrames++;
-					onMediaStateUpdate(convertMediaState);
+					convertMediaState.decodedAudioFrames++;
+					onMediaStateUpdate?.(convertMediaState);
 					frame.close();
 				},
 				onError(error) {
 					// TODO: Do better error handling
 					convertMediaState.audioError = error;
-					onMediaStateUpdate({...convertMediaState});
+					onMediaStateUpdate?.({...convertMediaState});
 				},
 			});
 
@@ -170,7 +170,7 @@ export const convertMedia = async ({
 				convertMediaState.audioError = new DOMException(
 					'Audio decoder not supported',
 				);
-				onMediaStateUpdate(convertMediaState);
+				onMediaStateUpdate?.(convertMediaState);
 				return null;
 			}
 

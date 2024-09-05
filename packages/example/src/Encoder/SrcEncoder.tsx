@@ -50,8 +50,8 @@ export const SrcEncoder: React.FC<{
 	label: string;
 }> = ({src, label}) => {
 	const [state, setState] = useState<ConvertMediaState>({
-		audioFrames: 0,
-		videoFrames: 0,
+		decodedAudioFrames: 0,
+		decodedVideoFrames: 0,
 		encodedVideoFrames: 0,
 		encodedAudioFrames: 0,
 		audioError: null,
@@ -195,7 +195,7 @@ export const SrcEncoder: React.FC<{
 				>
 					<SampleCount
 						errored={state.videoError !== null}
-						count={state.videoFrames}
+						count={state.decodedVideoFrames}
 						label="VD"
 					/>
 					<SampleCount
@@ -205,7 +205,7 @@ export const SrcEncoder: React.FC<{
 					/>
 					<SampleCount
 						errored={state.videoError !== null}
-						count={state.audioFrames}
+						count={state.decodedAudioFrames}
 						label="AD"
 					/>
 					<SampleCount
