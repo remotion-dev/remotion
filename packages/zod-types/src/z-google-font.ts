@@ -4,4 +4,4 @@ import {z} from 'zod';
 const fonts = getAvailableFonts();
 const fontImportNames = fonts.map(({importName}) => importName);
 
-export const zGoogleFont = () => z.enum(['None', ...fontImportNames]);
+export const zGoogleFont = () => z.enum(['Roboto', ...fontImportNames]);
