@@ -273,6 +273,7 @@ export const convertMedia = async ({
 		src,
 		onVideoTrack,
 		onAudioTrack,
+		signal: controller.signal,
 	})
 		.then(() => {
 			return state.waitForFinish();
