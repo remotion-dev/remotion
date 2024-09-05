@@ -143,6 +143,7 @@ export const SrcEncoder: React.FC<{
 			});
 			setDownloadFn(() => fn.save);
 		} catch (err) {
+			console.log(err);
 			setError(err as Error);
 		}
 	}, [onVideoFrame, src]);
@@ -189,7 +190,7 @@ export const SrcEncoder: React.FC<{
 				</div>
 
 				{error ? (
-					<div style={{color: 'red'}}>{error.stack}</div>
+					<div style={{color: 'red'}}>{error.message}</div>
 				) : downloadFn ? (
 					<button type="button" onClick={downloadFn}>
 						Download

@@ -69,16 +69,8 @@ export const convertMedia = async ({
 	const {promise, resolve, reject} = withResolvers<ConvertMediaResult>();
 	const controller = new AbortController();
 
-	const abortConversion = (errCause: Error | null) => {
-		if (errCause === null) {
-			reject(new Error('Conversion aborted'));
-		} else {
-			reject(
-				new Error('Conversion aborted (see .cause of this error)', {
-					cause: errCause,
-				}),
-			);
-		}
+	const abortConversion = (errCause: Error) => {
+		reject(errCause);
 
 		if (!controller.signal.aborted) {
 			controller.abort();

@@ -68,3 +68,20 @@ const createContent = async () => {
 export const webFsWriter: WriterInterface = {
 	createContent,
 };
+
+export const canUseWebFsWriter = async () => {
+	if (window.showSaveFilePicker === undefined) {
+		return false;
+	}
+
+	const directoryHandle = await navigator.storage.getDirectory();
+	const fileHandle = await directoryHandle.getFileHandle(
+		'remotion-probe-web-fs-support',
+		{
+			create: true,
+		},
+	);
+
+	const canUse = fileHandle.createWritable !== undefined;
+	return canUse;
+};
