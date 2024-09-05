@@ -5,7 +5,7 @@ import {
 	type OnVideoTrack,
 } from '@remotion/media-parser';
 import {bufferWriter} from '@remotion/media-parser/buffer';
-import {webFsWriter} from '@remotion/media-parser/web-fs';
+import {canUseWebFsWriter, webFsWriter} from '@remotion/media-parser/web-fs';
 import {createAudioDecoder} from './audio-decoder';
 import {createAudioEncoder} from './audio-encoder';
 import type {ConvertMediaAudioCodec} from './codec-id';
@@ -90,10 +90,11 @@ export const convertMedia = async ({
 		encodedVideoFrames: 0,
 		encodedAudioFrames: 0,
 	};
-	const state = await MediaParserInternals.createMedia(
-		// TODO: This hits Chrome!!
 
-		navigator.userAgent.includes('Safari') ? bufferWriter : webFsWriter,
+	const canUseWebFs = await canUseWebFsWriter();
+
+	const state = await MediaParserInternals.createMedia(
+		canUseWebFs ? webFsWriter : bufferWriter,
 	);
 
 	const onVideoTrack: OnVideoTrack = async (track) => {

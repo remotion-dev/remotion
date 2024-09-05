@@ -25,6 +25,10 @@ export const createVideoEncoder = async ({
 		return Promise.resolve(null);
 	}
 
+	if (signal.aborted) {
+		return Promise.resolve(null);
+	}
+
 	let outputQueue = Promise.resolve();
 	let outputQueueSize = 0;
 	let dequeueResolver = () => {};

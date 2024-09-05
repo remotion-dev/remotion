@@ -23,6 +23,10 @@ export const createAudioDecoder = async ({
 		return null;
 	}
 
+	if (signal.aborted) {
+		return Promise.resolve(null);
+	}
+
 	const {supported, config} = await AudioDecoder.isConfigSupported(track);
 
 	if (!supported) {

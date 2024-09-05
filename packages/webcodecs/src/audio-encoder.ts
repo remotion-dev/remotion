@@ -27,6 +27,10 @@ export const createAudioEncoder = async ({
 		return null;
 	}
 
+	if (signal.aborted) {
+		return Promise.resolve(null);
+	}
+
 	let prom = Promise.resolve();
 	let outputQueue = 0;
 	let dequeueResolver = () => {};
