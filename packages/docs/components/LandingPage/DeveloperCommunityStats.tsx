@@ -15,11 +15,8 @@ const DeveloperCommunityStats: React.FC = () => (
 		<p className={styles.subtitle}>A thriving community of developers.</p>
 		<div className={styles.statsGrid}>
 			<InstallsPerMonth />
-
 			<PagesOfDocs />
-
 			<TemplatesAndExamples />
-
 			<GitHubStars />
 			<DiscordMembers />
 			<Contributors />
