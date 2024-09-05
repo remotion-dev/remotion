@@ -62,14 +62,13 @@ const NewLanding: React.FC = () => {
 					<VideoApps active="remotion" />
 					<br />
 					<br />
+					<CommunityStats />
+					<br />
 					<br />
 					<PricingTitle />
 					<Pricing />
-
 					<TrustedByBanner />
 					<br />
-					<br />
-					<CommunityStats />
 					<EvaluateRemotionSection />
 					<NewsletterButton />
 					<br />
