@@ -152,7 +152,7 @@ test('Should stream AV1', async () => {
 			129, 8, 12, 0, 10, 14, 0, 0, 0, 66, 171, 191, 195, 118, 0, 8, 8, 8, 8, 32,
 		]),
 		color: {
-			fullRange: true,
+			fullRange: null,
 			transferCharacteristics: 'bt709',
 			matrixCoefficients: 'bt709',
 			primaries: 'bt709',
@@ -314,10 +314,10 @@ test('Should stream variable fps video', async () => {
 		trakBox: null,
 		codecPrivate: null,
 		color: {
-			fullRange: true,
-			transferCharacteristics: 'bt709',
-			matrixCoefficients: 'bt709',
-			primaries: 'bt709',
+			fullRange: null,
+			transferCharacteristics: null,
+			matrixCoefficients: null,
+			primaries: null,
 		},
 	});
 	expect(parsed.audioTracks.length).toBe(1);
@@ -613,10 +613,10 @@ test('Stretched VP8', async () => {
 		rotation: 0,
 		codecPrivate: null,
 		color: {
-			fullRange: true,
-			transferCharacteristics: 'bt709',
-			matrixCoefficients: 'bt709',
-			primaries: 'bt709',
+			fullRange: null,
+			transferCharacteristics: null,
+			matrixCoefficients: null,
+			primaries: null,
 		},
 	});
 });

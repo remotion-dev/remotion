@@ -40,12 +40,16 @@ test('Stream samples', async () => {
 		displayAspectHeight: 1080,
 		displayAspectWidth: 1080,
 		rotation: 0,
-		codecPrivate: null,
+		codecPrivate: new Uint8Array([
+			1, 100, 0, 32, 255, 225, 0, 32, 103, 100, 0, 32, 172, 217, 64, 68, 2, 39,
+			150, 92, 5, 168, 16, 16, 45, 40, 0, 0, 3, 0, 8, 0, 0, 3, 1, 224, 120, 193,
+			140, 176, 1, 0, 6, 104, 235, 224, 140, 178, 44, 253, 248, 248, 0,
+		]),
 		color: {
-			fullRange: true,
-			transferCharacteristics: 'bt709',
-			matrixCoefficients: 'bt709',
-			primaries: 'bt709',
+			fullRange: null,
+			transferCharacteristics: null,
+			matrixCoefficients: null,
+			primaries: null,
 		},
 	});
 

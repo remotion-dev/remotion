@@ -13,10 +13,14 @@ import {
 	applyTkhdBox,
 	getDisplayAspectRatio,
 	getSampleAspectRatio,
-	getVideoSample,
+	getStsdVideoConfig,
 } from '../../get-sample-aspect-ratio';
 import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
-import {getVideoCodecString} from '../../get-video-codec';
+import {
+	getIsoBmColrConfig,
+	getVideoCodecString,
+	getVideoPrivateData,
+} from '../../get-video-codec';
 import type {TrakBox} from './trak/trak';
 import {getTkhdBox, getVideoDescriptors} from './traversal';
 
@@ -71,7 +75,7 @@ export const makeBaseMediaTrack = (
 		};
 	}
 
-	const videoSample = getVideoSample(trakBox);
+	const videoSample = getStsdVideoConfig(trakBox);
 	if (!videoSample) {
 		throw new Error('No video sample');
 	}
@@ -96,6 +100,8 @@ export const makeBaseMediaTrack = (
 		throw new Error('Could not find video codec');
 	}
 
+	const privateData = getVideoPrivateData(trakBox);
+
 	const track: VideoTrack = {
 		type: 'video',
 		trackId: tkhdBox.trackId,
@@ -112,17 +118,12 @@ export const makeBaseMediaTrack = (
 		displayAspectHeight,
 		rotation,
 		trakBox,
-		// TODO: Copy over private data
-		codecPrivate: null,
-		color: {
-			// TODO: Set transferCharacteristics
-			transferCharacteristics: null,
-			// TODO matrixCoefficients
-			matrixCoefficients: null,
-			// TODO primaries
-			primaries: null,
-			// TODO fullRange
+		codecPrivate: privateData,
+		color: getIsoBmColrConfig(trakBox) ?? {
 			fullRange: null,
+			matrixCoefficients: null,
+			primaries: null,
+			transferCharacteristics: null,
 		},
 	};
 	return track;

@@ -12,8 +12,9 @@ import {
 	getAvccBox,
 	getColrBox,
 	getHvccBox,
-	getVideoSample,
+	getStsdVideoConfig,
 } from './get-sample-aspect-ratio';
+import type {VideoTrackColorParams} from './get-tracks';
 import type {KnownVideoCodecs} from './options';
 import type {AnySegment} from './parse-result';
 
@@ -25,8 +26,76 @@ export const hasVideoCodec = (boxes: AnySegment[]): boolean => {
 	}
 };
 
+export const getVideoPrivateData = (trakBox: TrakBox): Uint8Array | null => {
+	const videoSample = getStsdVideoConfig(trakBox);
+	const avccBox = getAvccBox(trakBox);
+	const hvccBox = getHvccBox(trakBox);
+	const av1cBox = getAv1CBox(trakBox);
+
+	if (!videoSample) {
+		return null;
+	}
+
+	if (avccBox) {
+		return avccBox.privateData;
+	}
+
+	if (hvccBox) {
+		return hvccBox.privateData;
+	}
+
+	if (av1cBox) {
+		return av1cBox.privateData;
+	}
+
+	return null;
+};
+
+export const getIsoBmColrConfig = (
+	trakBox: TrakBox,
+): VideoTrackColorParams | null => {
+	const videoSample = getStsdVideoConfig(trakBox);
+	if (!videoSample) {
+		return null;
+	}
+
+	const colrAtom = getColrBox(videoSample);
+	if (!colrAtom) {
+		return null;
+	}
+
+	// https://github.com/bbc/qtff-parameter-editor
+	return {
+		fullRange: colrAtom.fullRangeFlag,
+		matrixCoefficients:
+			colrAtom.matrixIndex === 1
+				? 'bt709'
+				: colrAtom.matrixIndex === 5
+					? 'bt470bg'
+					: colrAtom.matrixIndex === 6
+						? 'smpte170m'
+						: null,
+		primaries:
+			colrAtom.primaries === 1
+				? 'bt709'
+				: colrAtom.primaries === 5
+					? 'bt470bg'
+					: colrAtom.primaries === 6
+						? 'smpte170m'
+						: null,
+		transferCharacteristics:
+			colrAtom.transfer === 1
+				? 'bt709'
+				: colrAtom.transfer === 6
+					? 'smpte170m'
+					: colrAtom.transfer === 13
+						? 'iec61966-2-1'
+						: null,
+	};
+};
+
 export const getVideoCodecString = (trakBox: TrakBox): string | null => {
-	const videoSample = getVideoSample(trakBox);
+	const videoSample = getStsdVideoConfig(trakBox);
 	const avccBox = getAvccBox(trakBox);
 	const hvccBox = getHvccBox(trakBox);
 	const av1cBox = getAv1CBox(trakBox);

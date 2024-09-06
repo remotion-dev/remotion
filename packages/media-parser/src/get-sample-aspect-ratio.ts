@@ -14,28 +14,28 @@ type AspectRatio = {
 	denominator: number;
 };
 
-export const getVideoSample = (trakBox: TrakBox): VideoSample | null => {
+export const getStsdVideoConfig = (trakBox: TrakBox): VideoSample | null => {
 	const stsdBox = getStsdBox(trakBox);
 
 	if (!stsdBox) {
 		return null;
 	}
 
-	const videoSample = stsdBox.samples.find((s) => s.type === 'video');
-	if (!videoSample || videoSample.type !== 'video') {
+	const videoConfig = stsdBox.samples.find((s) => s.type === 'video');
+	if (!videoConfig || videoConfig.type !== 'video') {
 		return null;
 	}
 
-	return videoSample;
+	return videoConfig;
 };
 
 export const getAvccBox = (trakBox: TrakBox): AvccBox | null => {
-	const videoSample = getVideoSample(trakBox);
-	if (!videoSample) {
+	const videoConfig = getStsdVideoConfig(trakBox);
+	if (!videoConfig) {
 		return null;
 	}
 
-	const avccBox = videoSample.descriptors.find((c) => c.type === 'avcc-box');
+	const avccBox = videoConfig.descriptors.find((c) => c.type === 'avcc-box');
 
 	if (!avccBox || avccBox.type !== 'avcc-box') {
 		return null;
@@ -45,12 +45,12 @@ export const getAvccBox = (trakBox: TrakBox): AvccBox | null => {
 };
 
 export const getAv1CBox = (trakBox: TrakBox): Av1CBox | null => {
-	const videoSample = getVideoSample(trakBox);
-	if (!videoSample) {
+	const videoConfig = getStsdVideoConfig(trakBox);
+	if (!videoConfig) {
 		return null;
 	}
 
-	const av1cBox = videoSample.descriptors.find((c) => c.type === 'av1C-box');
+	const av1cBox = videoConfig.descriptors.find((c) => c.type === 'av1C-box');
 
 	if (!av1cBox || av1cBox.type !== 'av1C-box') {
 		return null;
@@ -60,12 +60,12 @@ export const getAv1CBox = (trakBox: TrakBox): Av1CBox | null => {
 };
 
 export const getPaspBox = (trakBox: TrakBox): PaspBox | null => {
-	const videoSample = getVideoSample(trakBox);
-	if (!videoSample) {
+	const videoConfig = getStsdVideoConfig(trakBox);
+	if (!videoConfig) {
 		return null;
 	}
 
-	const paspBox = videoSample.descriptors.find((c) => c.type === 'pasp-box');
+	const paspBox = videoConfig.descriptors.find((c) => c.type === 'pasp-box');
 
 	if (!paspBox || paspBox.type !== 'pasp-box') {
 		return null;
@@ -75,12 +75,12 @@ export const getPaspBox = (trakBox: TrakBox): PaspBox | null => {
 };
 
 export const getHvccBox = (trakBox: TrakBox): HvccBox | null => {
-	const videoSample = getVideoSample(trakBox);
-	if (!videoSample) {
+	const videoConfig = getStsdVideoConfig(trakBox);
+	if (!videoConfig) {
 		return null;
 	}
 
-	const hvccBox = videoSample.descriptors.find((c) => c.type === 'hvcc-box');
+	const hvccBox = videoConfig.descriptors.find((c) => c.type === 'hvcc-box');
 
 	if (!hvccBox || hvccBox.type !== 'hvcc-box') {
 		return null;

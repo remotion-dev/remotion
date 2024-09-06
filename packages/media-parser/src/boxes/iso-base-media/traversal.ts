@@ -145,9 +145,9 @@ export const getVideoDescriptors = (trakBox: TrakBox): Uint8Array | null => {
 		return s.type === 'video'
 			? s.descriptors.map((d) => {
 					return d.type === 'avcc-box'
-						? d.description
+						? d.privateData
 						: d.type === 'hvcc-box'
-							? d.data
+							? d.privateData
 							: null;
 				})
 			: [];
