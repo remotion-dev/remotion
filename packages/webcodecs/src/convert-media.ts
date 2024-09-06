@@ -8,6 +8,7 @@ import {bufferWriter} from '@remotion/media-parser/buffer';
 import {canUseWebFsWriter, webFsWriter} from '@remotion/media-parser/web-fs';
 import {createAudioDecoder} from './audio-decoder';
 import {createAudioEncoder} from './audio-encoder';
+import {getAudioEncoderConfig} from './audio-encoder-config';
 import type {ConvertMediaAudioCodec} from './codec-id';
 import {
 	codecNameToMatroskaAudioCodecId,
@@ -208,6 +209,22 @@ export const convertMedia = async ({
 			codecPrivate: AUDIO_MODE === 'copy' ? track.codecPrivate : null,
 		});
 
+		const audioEncoderConfig = await getAudioEncoderConfig({
+			codec: 'opus',
+			numberOfChannels: track.numberOfChannels,
+			sampleRate: track.sampleRate,
+			bitrate: 128000,
+		});
+
+		if (!audioEncoderConfig) {
+			abortConversion(
+				new Error(
+					`Could not configure audio encoder of track ${track.trackId}`,
+				),
+			);
+			return null;
+		}
+
 		if (AUDIO_MODE === 'copy') {
 			return async (audioSample) => {
 				await state.addSample(new EncodedAudioChunk(audioSample), trackNumber);
@@ -222,8 +239,6 @@ export const convertMedia = async ({
 				convertMediaState.encodedAudioFrames++;
 				onMediaStateUpdate?.({...convertMediaState});
 			},
-			sampleRate: track.sampleRate,
-			numberOfChannels: track.numberOfChannels,
 			onError: (err) => {
 				abortConversion(
 					new Error(
@@ -236,17 +251,8 @@ export const convertMedia = async ({
 			},
 			codec: audioCodec,
 			signal: controller.signal,
-			bitrate: 128000,
+			config: audioEncoderConfig,
 		});
-
-		if (!audioEncoder) {
-			abortConversion(
-				new Error(
-					`Could not configure audio encoder of track ${track.trackId}`,
-				),
-			);
-			return null;
-		}
 
 		const audioDecoder = await createAudioDecoder({
 			track,

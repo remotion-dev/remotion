@@ -8,29 +8,21 @@ export type WebCodecsAudioEncoder = {
 	flush: () => Promise<void>;
 };
 
-export const createAudioEncoder = async ({
+export const createAudioEncoder = ({
 	onChunk,
-	sampleRate,
-	numberOfChannels,
 	onError,
 	codec,
 	signal,
-	bitrate,
+	config: audioEncoderConfig,
 }: {
 	onChunk: (chunk: EncodedAudioChunk) => Promise<void>;
-	sampleRate: number;
-	numberOfChannels: number;
 	onError: (error: DOMException) => void;
 	codec: ConvertMediaAudioCodec;
 	signal: AbortSignal;
-	bitrate: number;
-}): Promise<WebCodecsAudioEncoder | null> => {
-	if (typeof AudioEncoder === 'undefined') {
-		return null;
-	}
-
+	config: AudioEncoderConfig;
+}): WebCodecsAudioEncoder => {
 	if (signal.aborted) {
-		return Promise.resolve(null);
+		throw new Error('Not creating audio encoder, already aborted');
 	}
 
 	let prom = Promise.resolve();
@@ -67,22 +59,7 @@ export const createAudioEncoder = async ({
 	signal.addEventListener('abort', onAbort);
 
 	if (codec !== 'opus') {
-		return Promise.reject(
-			new Error('Only `codec: "opus"` is supported currently'),
-		);
-	}
-
-	const audioEncoderConfig: AudioEncoderConfig = {
-		codec: 'opus',
-		numberOfChannels,
-		sampleRate,
-		bitrate,
-	};
-
-	const config = await AudioEncoder.isConfigSupported(audioEncoderConfig);
-
-	if (!config.supported) {
-		return null;
+		throw new Error('Only `codec: "opus"` is supported currently');
 	}
 
 	const getQueueSize = () => {
