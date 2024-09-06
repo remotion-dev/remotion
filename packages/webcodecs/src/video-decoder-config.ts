@@ -1,6 +1,10 @@
 export const getVideoDecoderConfigWithHardwareAcceleration = async (
 	config: VideoDecoderConfig,
 ): Promise<VideoDecoderConfig | null> => {
+	if (typeof VideoDecoder === 'undefined') {
+		return null;
+	}
+
 	const hardware: VideoDecoderConfig = {
 		...config,
 		hardwareAcceleration: 'prefer-hardware',

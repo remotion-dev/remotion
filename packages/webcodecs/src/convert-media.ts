@@ -7,6 +7,7 @@ import {
 import {bufferWriter} from '@remotion/media-parser/buffer';
 import {canUseWebFsWriter, webFsWriter} from '@remotion/media-parser/web-fs';
 import {createAudioDecoder} from './audio-decoder';
+import {getAudioDecoderConfig} from './audio-decoder-config';
 import {createAudioEncoder} from './audio-encoder';
 import {getAudioEncoderConfig} from './audio-encoder-config';
 import type {ConvertMediaAudioCodec} from './codec-id';
@@ -17,6 +18,7 @@ import {
 } from './codec-id';
 import Error from './error-cause';
 import {createVideoDecoder} from './video-decoder';
+import {getVideoDecoderConfigWithHardwareAcceleration} from './video-decoder-config';
 import {createVideoEncoder} from './video-encoder';
 import {getVideoEncoderConfig} from './video-encoder-config';
 import {withResolvers} from './with-resolvers';
@@ -105,6 +107,32 @@ export const convertMedia = async ({
 	);
 
 	const onVideoTrack: OnVideoTrack = async (track) => {
+		const videoEncoderConfig = await getVideoEncoderConfig({
+			codec: 'vp8',
+			height: track.displayAspectHeight,
+			width: track.displayAspectWidth,
+		});
+		const videoDecoderConfig =
+			await getVideoDecoderConfigWithHardwareAcceleration(track);
+
+		if (videoEncoderConfig === null) {
+			abortConversion(
+				new Error(
+					`Could not configure video encoder of track ${track.trackId}`,
+				),
+			);
+			return null;
+		}
+
+		if (videoDecoderConfig === null) {
+			abortConversion(
+				new Error(
+					`Could not configure video decoder of track ${track.trackId}`,
+				),
+			);
+			return null;
+		}
+
 		const {trackNumber} = await state.addTrack({
 			type: 'video',
 			color: {
@@ -117,21 +145,6 @@ export const convertMedia = async ({
 			height: track.codedHeight,
 			codecId: codecNameToMatroskaCodecId(videoCodec),
 		});
-
-		const videoEncoderConfig = await getVideoEncoderConfig({
-			codec: 'vp8',
-			height: track.displayAspectHeight,
-			width: track.displayAspectWidth,
-		});
-
-		if (videoEncoderConfig === null) {
-			abortConversion(
-				new Error(
-					`Could not configure video encoder of track ${track.trackId}`,
-				),
-			);
-			return null;
-		}
 
 		const videoEncoder = createVideoEncoder({
 			onChunk: async (chunk) => {
@@ -158,7 +171,7 @@ export const convertMedia = async ({
 		});
 
 		const videoDecoder = await createVideoDecoder({
-			track,
+			config: videoDecoderConfig,
 			onFrame: async (frame) => {
 				await onVideoFrame?.(frame, track);
 				await videoEncoder.encodeFrame(frame);
@@ -179,15 +192,6 @@ export const convertMedia = async ({
 			signal: controller.signal,
 		});
 
-		if (videoDecoder === null) {
-			abortConversion(
-				new Error(
-					`Could not configure video decoder of track ${track.trackId}`,
-				),
-			);
-			return null;
-		}
-
 		state.addWaitForFinishPromise(async () => {
 			await videoDecoder.waitForFinish();
 			await videoEncoder.waitForFinish();
@@ -201,20 +205,37 @@ export const convertMedia = async ({
 	};
 
 	const onAudioTrack: OnAudioTrack = async (track) => {
-		const {trackNumber} = await state.addTrack({
-			type: 'audio',
-			codecId: codecNameToMatroskaAudioCodecId(audioCodec),
-			numberOfChannels: track.numberOfChannels,
-			sampleRate: track.sampleRate,
-			codecPrivate: AUDIO_MODE === 'copy' ? track.codecPrivate : null,
-		});
-
 		const audioEncoderConfig = await getAudioEncoderConfig({
 			codec: 'opus',
 			numberOfChannels: track.numberOfChannels,
 			sampleRate: track.sampleRate,
 			bitrate: 128000,
 		});
+		const audioDecoderConfig = await getAudioDecoderConfig({
+			codec: track.codec,
+			numberOfChannels: track.numberOfChannels,
+			sampleRate: track.sampleRate,
+			description: track.description,
+		});
+
+		if (AUDIO_MODE === 'copy') {
+			const addedTrack = await state.addTrack({
+				type: 'audio',
+				codecId: codecNameToMatroskaAudioCodecId(audioCodec),
+				numberOfChannels: track.numberOfChannels,
+				sampleRate: track.sampleRate,
+				codecPrivate: track.codecPrivate,
+			});
+
+			return async (audioSample) => {
+				await state.addSample(
+					new EncodedAudioChunk(audioSample),
+					addedTrack.trackNumber,
+				);
+				convertMediaState.encodedAudioFrames++;
+				onMediaStateUpdate?.({...convertMediaState});
+			};
+		}
 
 		if (!audioEncoderConfig) {
 			abortConversion(
@@ -225,15 +246,24 @@ export const convertMedia = async ({
 			return null;
 		}
 
-		if (AUDIO_MODE === 'copy') {
-			return async (audioSample) => {
-				await state.addSample(new EncodedAudioChunk(audioSample), trackNumber);
-				convertMediaState.encodedAudioFrames++;
-				onMediaStateUpdate?.({...convertMediaState});
-			};
+		if (!audioDecoderConfig) {
+			abortConversion(
+				new Error(
+					`Could not configure audio decoder of track ${track.trackId}`,
+				),
+			);
+			return null;
 		}
 
-		const audioEncoder = await createAudioEncoder({
+		const {trackNumber} = await state.addTrack({
+			type: 'audio',
+			codecId: codecNameToMatroskaAudioCodecId(audioCodec),
+			numberOfChannels: track.numberOfChannels,
+			sampleRate: track.sampleRate,
+			codecPrivate: null,
+		});
+
+		const audioEncoder = createAudioEncoder({
 			onChunk: async (chunk) => {
 				await state.addSample(chunk, trackNumber);
 				convertMediaState.encodedAudioFrames++;
@@ -255,7 +285,6 @@ export const convertMedia = async ({
 		});
 
 		const audioDecoder = await createAudioDecoder({
-			track,
 			onFrame: async (frame) => {
 				await audioEncoder.encodeFrame(frame);
 
@@ -274,16 +303,8 @@ export const convertMedia = async ({
 				);
 			},
 			signal: controller.signal,
+			config: audioDecoderConfig,
 		});
-
-		if (!audioDecoder) {
-			abortConversion(
-				new Error(
-					`Could not configure audio decoder of track ${track.trackId}`,
-				),
-			);
-			return null;
-		}
 
 		state.addWaitForFinishPromise(async () => {
 			await audioDecoder.waitForFinish();

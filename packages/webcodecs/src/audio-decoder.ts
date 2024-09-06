@@ -1,4 +1,4 @@
-import type {AudioSample, AudioTrack} from '@remotion/media-parser';
+import type {AudioSample} from '@remotion/media-parser';
 
 export type WebCodecsAudioDecoder = {
 	processSample: (audioSample: AudioSample) => Promise<void>;
@@ -8,29 +8,19 @@ export type WebCodecsAudioDecoder = {
 	flush: () => Promise<void>;
 };
 
-export const createAudioDecoder = async ({
-	track,
+export const createAudioDecoder = ({
 	onFrame,
 	onError,
 	signal,
+	config,
 }: {
-	track: AudioTrack;
 	onFrame: (frame: AudioData) => Promise<void>;
 	onError: (error: DOMException) => void;
 	signal: AbortSignal;
-}): Promise<WebCodecsAudioDecoder | null> => {
-	if (typeof AudioDecoder === 'undefined') {
-		return null;
-	}
-
+	config: AudioDecoderConfig;
+}): WebCodecsAudioDecoder => {
 	if (signal.aborted) {
-		return Promise.resolve(null);
-	}
-
-	const {supported, config} = await AudioDecoder.isConfigSupported(track);
-
-	if (!supported) {
-		return null;
+		throw new Error('Not creating audio decoder, already aborted');
 	}
 
 	let outputQueue = Promise.resolve();

@@ -1,5 +1,4 @@
-import type {VideoSample, VideoTrack} from '@remotion/media-parser';
-import {getVideoDecoderConfigWithHardwareAcceleration} from './get-config';
+import type {VideoSample} from '@remotion/media-parser';
 
 export type WebCodecsVideoDecoder = {
 	processSample: (videoSample: VideoSample) => Promise<void>;
@@ -9,27 +8,17 @@ export type WebCodecsVideoDecoder = {
 	flush: () => Promise<void>;
 };
 
-export const createVideoDecoder = async ({
-	track,
+export const createVideoDecoder = ({
 	onFrame,
 	onError,
 	signal,
+	config,
 }: {
-	track: VideoTrack;
 	onFrame: (frame: VideoFrame) => Promise<void>;
 	onError: (error: DOMException) => void;
 	signal: AbortSignal;
-}): Promise<WebCodecsVideoDecoder | null> => {
-	if (typeof VideoDecoder === 'undefined') {
-		return null;
-	}
-
-	const config = await getVideoDecoderConfigWithHardwareAcceleration(track);
-
-	if (!config) {
-		return null;
-	}
-
+	config: VideoDecoderConfig;
+}): WebCodecsVideoDecoder => {
 	let outputQueue = Promise.resolve();
 	let outputQueueSize = 0;
 	let dequeueResolver = () => {};
