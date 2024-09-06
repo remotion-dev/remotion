@@ -4,7 +4,6 @@ import {getAudioDecoderConfig} from './audio-decoder-config';
 import {createAudioEncoder} from './audio-encoder';
 import {getAudioEncoderConfig} from './audio-encoder-config';
 import type {ConvertMediaAudioCodec} from './codec-id';
-import {codecNameToMatroskaAudioCodecId} from './codec-id';
 import type {ConvertMediaState} from './convert-media';
 import Error from './error-cause';
 import type {ResolveAudioActionFn} from './resolve-audio-action';
@@ -59,7 +58,7 @@ export const makeAudioTrackHandler =
 		if (audioOperation === 'copy') {
 			const addedTrack = await state.addTrack({
 				type: 'audio',
-				codecId: codecNameToMatroskaAudioCodecId(audioCodec),
+				codec: audioCodec,
 				numberOfChannels: track.numberOfChannels,
 				sampleRate: track.sampleRate,
 				codecPrivate: track.codecPrivate,
@@ -95,7 +94,7 @@ export const makeAudioTrackHandler =
 
 		const {trackNumber} = await state.addTrack({
 			type: 'audio',
-			codecId: codecNameToMatroskaAudioCodecId(audioCodec),
+			codec: audioCodec,
 			numberOfChannels: track.numberOfChannels,
 			sampleRate: track.sampleRate,
 			codecPrivate: null,

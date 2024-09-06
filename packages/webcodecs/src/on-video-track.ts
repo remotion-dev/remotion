@@ -1,6 +1,5 @@
 import type {MediaFn, OnVideoTrack, VideoTrack} from '@remotion/media-parser';
 import type {ConvertMediaVideoCodec} from './codec-id';
-import {codecNameToMatroskaCodecId} from './codec-id';
 import type {ConvertMediaState} from './convert-media';
 import Error from './error-cause';
 import type {ResolveVideoActionFn} from './resolve-video-action';
@@ -58,7 +57,7 @@ export const makeVideoTrackHandler =
 				color: track.color,
 				width: track.codedWidth,
 				height: track.codedHeight,
-				codecId: track.codec,
+				codec: track.codecWithoutConfig,
 				codecPrivate: track.codecPrivate,
 			});
 			return (sample) => {
@@ -96,7 +95,7 @@ export const makeVideoTrackHandler =
 			},
 			width: track.codedWidth,
 			height: track.codedHeight,
-			codecId: codecNameToMatroskaCodecId(videoCodec),
+			codec: videoCodec,
 			codecPrivate: null,
 		});
 

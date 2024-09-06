@@ -124,7 +124,7 @@ const getMatroskaVideoCodecString = ({
 	throw new Error(`Unknown codec: ${codec.value}`);
 };
 
-const getMatroskaAudioCodecWithoutConfigString = ({
+export const getMatroskaAudioCodecWithoutConfigString = ({
 	track,
 }: {
 	track: TrackEntry;

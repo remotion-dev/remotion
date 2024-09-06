@@ -8,6 +8,7 @@ import {
 	getStsdBox,
 	getTraks,
 } from './boxes/iso-base-media/traversal';
+import {getMatroskaAudioCodecWithoutConfigString} from './boxes/webm/make-track';
 import type {MainSegment} from './boxes/webm/segments/all-segments';
 import {trakBoxContainsAudio} from './get-fps';
 import type {MediaParserAudioCodec} from './get-tracks';
@@ -174,28 +175,7 @@ export const getAudioCodecFromMatroska = (mainSegment: MainSegment) => {
 
 	for (const track of tracksSegment.value) {
 		if (track.type === 'TrackEntry') {
-			const trackType = track.value.find((b) => b.type === 'CodecID');
-			if (trackType && trackType.type === 'CodecID') {
-				if (trackType.value === 'A_OPUS') {
-					return 'opus';
-				}
-
-				if (trackType.value === 'A_VORBIS') {
-					return 'vorbis';
-				}
-
-				if (trackType.value === 'A_PCM/INT/LIT') {
-					return 'pcm';
-				}
-
-				if (trackType.value === 'A_AAC') {
-					return 'aac';
-				}
-
-				if (trackType.value === 'A_MPEG/L3') {
-					return 'mp3';
-				}
-			}
+			return getMatroskaAudioCodecWithoutConfigString({track});
 		}
 	}
 

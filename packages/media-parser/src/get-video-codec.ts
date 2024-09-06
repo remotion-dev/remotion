@@ -136,7 +136,43 @@ export const getVideoCodecFromIsoTrak = (trakBox: TrakBox) => {
 				return 'av1';
 			}
 
+			// ap4h: ProRes 4444
 			if (videoSample.format === 'ap4h') {
+				return 'prores';
+			}
+
+			// ap4x: ap4x: ProRes 4444 XQ
+			if (videoSample.format === 'ap4x') {
+				return 'prores';
+			}
+
+			// apch: ProRes 422 High Quality
+			if (videoSample.format === 'apch') {
+				return 'prores';
+			}
+
+			// apcn: ProRes 422 Standard Definition
+			if (videoSample.format === 'apcn') {
+				return 'prores';
+			}
+
+			// apcs: ProRes 422 LT
+			if (videoSample.format === 'apcs') {
+				return 'prores';
+			}
+
+			// apco: ProRes 422 Proxy
+			if (videoSample.format === 'apco') {
+				return 'prores';
+			}
+
+			// aprh: ProRes RAW High Quality
+			if (videoSample.format === 'aprh') {
+				return 'prores';
+			}
+
+			// aprn: ProRes RAW Standard Definition
+			if (videoSample.format === 'aprn') {
 				return 'prores';
 			}
 		}

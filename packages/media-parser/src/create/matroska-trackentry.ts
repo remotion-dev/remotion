@@ -4,7 +4,11 @@ import type {
 	BytesAndOffset,
 	PossibleEbmlOrUint8Array,
 } from '../boxes/webm/segments/all-segments';
-import type {VideoTrackColorParams} from '../get-tracks';
+import type {
+	MediaParserAudioCodec,
+	MediaParserVideoCodec,
+	VideoTrackColorParams,
+} from '../get-tracks';
 
 export const makeMatroskaVideoBytes = ({
 	color,
@@ -52,7 +56,7 @@ export const makeMatroskaVideoBytes = ({
 
 export type MakeTrackAudio = {
 	trackNumber: number;
-	codecId: string;
+	codec: MediaParserAudioCodec;
 	numberOfChannels: number;
 	sampleRate: number;
 	type: 'audio';
@@ -64,14 +68,86 @@ export type MakeTrackVideo = {
 	width: number;
 	height: number;
 	trackNumber: number;
-	codecId: string;
+	codec: MediaParserVideoCodec;
 	type: 'video';
 	codecPrivate: Uint8Array | null;
 };
 
+const makeVideoCodecId = (codecId: MediaParserVideoCodec) => {
+	if (codecId === 'vp8') {
+		return 'V_VP8';
+	}
+
+	if (codecId === 'vp9') {
+		return 'V_VP9';
+	}
+
+	if (codecId === 'h264') {
+		return 'V_MPEG4/ISO/AVC';
+	}
+
+	if (codecId === 'av1') {
+		return 'V_AV1';
+	}
+
+	if (codecId === 'h265') {
+		return 'V_MPEGH/ISO/HEVC';
+	}
+
+	if (codecId === 'prores') {
+		return 'V_PRORES';
+	}
+
+	throw new Error(`Unknown codec: ${codecId satisfies never}`);
+};
+
+const makeAudioCodecId = (codecId: MediaParserAudioCodec) => {
+	if (codecId === 'opus') {
+		return 'A_OPUS';
+	}
+
+	if (codecId === 'aac') {
+		return 'A_AAC';
+	}
+
+	if (codecId === 'mp3') {
+		return 'A_MPEG/L3';
+	}
+
+	if (codecId === 'vorbis') {
+		return 'A_VORBIS';
+	}
+
+	if (codecId === 'pcm-u8') {
+		return 'A_PCM/INT/LIT';
+	}
+
+	if (codecId === 'pcm-s16') {
+		return 'A_PCM/INT/LIT';
+	}
+
+	if (codecId === 'pcm-s24') {
+		return 'A_PCM/INT/LIT';
+	}
+
+	if (codecId === 'pcm-s32') {
+		return 'A_PCM/INT/LIT';
+	}
+
+	if (codecId === 'pcm-f32') {
+		return 'A_PCM/INT/LIT';
+	}
+
+	if (codecId === 'aiff') {
+		throw new Error('aiff is not supported in Matroska');
+	}
+
+	throw new Error(`Unknown codec: ${codecId satisfies never}`);
+};
+
 export const makeMatroskaAudioTrackEntryBytes = ({
 	trackNumber,
-	codecId,
+	codec,
 	numberOfChannels,
 	sampleRate,
 	codecPrivate,
@@ -111,7 +187,7 @@ export const makeMatroskaAudioTrackEntryBytes = ({
 			},
 			{
 				type: 'CodecID',
-				value: codecId,
+				value: makeAudioCodecId(codec),
 				minVintWidth: null,
 			},
 			{
@@ -160,7 +236,7 @@ export const makeMatroskaVideoTrackEntryBytes = ({
 	width,
 	height,
 	trackNumber,
-	codecId,
+	codec,
 	codecPrivate,
 }: MakeTrackVideo) => {
 	return makeMatroskaBytes({
@@ -203,7 +279,7 @@ export const makeMatroskaVideoTrackEntryBytes = ({
 			},
 			{
 				type: 'CodecID',
-				value: codecId,
+				value: makeVideoCodecId(codec),
 				minVintWidth: null,
 			},
 			{

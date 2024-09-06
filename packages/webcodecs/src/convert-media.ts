@@ -6,8 +6,7 @@ import {
 } from '@remotion/media-parser';
 import {bufferWriter} from '@remotion/media-parser/buffer';
 import {canUseWebFsWriter, webFsWriter} from '@remotion/media-parser/web-fs';
-import type {ConvertMediaAudioCodec} from './codec-id';
-import {type ConvertMediaVideoCodec} from './codec-id';
+import type {ConvertMediaAudioCodec, ConvertMediaVideoCodec} from './codec-id';
 import Error from './error-cause';
 import {makeAudioTrackHandler} from './on-audio-track';
 import {makeVideoTrackHandler} from './on-video-track';

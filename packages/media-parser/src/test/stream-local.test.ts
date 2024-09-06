@@ -376,7 +376,7 @@ test('Should stream MKV video', async () => {
 	expect(parsed.dimensions.height).toBe(1080);
 	expect(parsed.durationInSeconds).toBe(0.333);
 	expect(parsed.videoCodec).toBe('h264');
-	expect(parsed.audioCodec).toBe('pcm');
+	expect(parsed.audioCodec).toBe('pcm-s16');
 	expect(parsed.rotation).toBe(0);
 	expect(parsed.fps).toBe(null);
 

@@ -36,7 +36,6 @@ export type MediaParserAudioCodec =
 	| 'aac'
 	| 'mp3'
 	| 'vorbis'
-	| 'pcm'
 	| 'pcm-u8'
 	| 'pcm-s16'
 	| 'pcm-s24'
