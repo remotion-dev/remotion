@@ -39,12 +39,9 @@ export const parseCtts = ({
 		// V1 = signed, V0 = unsigned
 		// however some files are buggy
 
-		// Let's do the same thing as mp4box but uint32, based on our test set of videos
+		// Let's do the same thing as mp4box
 		// https://github.com/gpac/mp4box.js/blob/c6cc468145bc5b031b866446111f29c8b620dbe6/src/parsing/ctts.js#L2
-		const sampleOffset = iterator.getUint32();
-		if (sampleOffset < 0) {
-			throw new Error('ctts box uses negative values without using version 1');
-		}
+		const sampleOffset = iterator.getInt32();
 
 		entries.push({
 			sampleCount,
