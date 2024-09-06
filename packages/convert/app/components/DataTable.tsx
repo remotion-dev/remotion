@@ -4,12 +4,20 @@ import React from 'react';
 import {formatBytes} from '~/lib/format-bytes';
 import {Skeleton} from './ui/skeleton';
 
+const formatSeconds = (seconds: number) => {
+	const minutes = Math.floor(seconds / 60);
+	const secondsLeft = seconds % 60;
+
+	return `${minutes}:${secondsLeft < 10 ? '0' : ''}${Math.round(secondsLeft)} min`;
+};
+
 export const TableDemo: React.FC<{
 	dimensions: Dimensions | null;
 	container: string;
+	durationInSeconds: number | null;
 	videoCodec: MediaParserVideoCodec | null;
 	size: number | null;
-}> = ({container, dimensions, videoCodec, size}) => {
+}> = ({container, dimensions, videoCodec, durationInSeconds, size}) => {
 	return (
 		<Table>
 			<TableBody>
@@ -24,6 +32,16 @@ export const TableDemo: React.FC<{
 							<Skeleton className="h-3 w-[100px] inline-block" />
 						) : (
 							<>{formatBytes(size)}</>
+						)}
+					</TableCell>
+				</TableRow>
+				<TableRow>
+					<TableCell colSpan={3}>Duration</TableCell>
+					<TableCell className="text-right">
+						{durationInSeconds === null ? (
+							<Skeleton className="h-3 w-[100px] inline-block" />
+						) : (
+							<>{formatSeconds(durationInSeconds)}</>
 						)}
 					</TableCell>
 				</TableRow>

@@ -22,6 +22,9 @@ const Index = () => {
 		null,
 	);
 	const [size, setSize] = useState<number | null>(null);
+	const [durationInSeconds, setDurationInSeconds] = useState<number | null>(
+		null,
+	);
 
 	const getStart = useCallback(() => {
 		parseMedia({
@@ -30,11 +33,13 @@ const Index = () => {
 				dimensions: true,
 				videoCodec: true,
 				size: true,
+				durationInSeconds: true,
 			},
 		}).then((data) => {
 			setDimensions(data.dimensions);
 			setVideoCodec(data.videoCodec);
 			setSize(data.size);
+			setDurationInSeconds(data.durationInSeconds);
 		});
 	}, []);
 
@@ -50,6 +55,7 @@ const Index = () => {
 					dimensions={dimensions}
 					videoCodec={videoCodec}
 					size={size}
+					durationInSeconds={durationInSeconds}
 				/>
 			</VideoPreview>
 			<ConvertUI src={src} />
