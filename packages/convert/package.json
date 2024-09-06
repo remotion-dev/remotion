@@ -10,15 +10,23 @@
 		"typecheck": "tsc"
 	},
 	"dependencies": {
+		"@radix-ui/react-label": "^2.1.0",
+		"@radix-ui/react-select": "^2.1.1",
+		"@radix-ui/react-slot": "^1.1.0",
 		"@remix-run/node": "^2.11.2",
 		"@remix-run/react": "^2.11.2",
 		"@remix-run/serve": "^2.11.2",
 		"@remotion/media-parser": "workspace:*",
 		"@remotion/webcodecs": "workspace:*",
 		"@vercel/remix": "^2.11.2",
+		"class-variance-authority": "^0.7.0",
+		"clsx": "^2.1.1",
 		"isbot": "^4.1.0",
+		"lucide-react": "^0.439.0",
 		"react": "18.3.1",
-		"react-dom": "18.3.1"
+		"react-dom": "18.3.1",
+		"tailwind-merge": "^2.5.2",
+		"tailwindcss-animate": "^1.0.7"
 	},
 	"devDependencies": {
 		"@remix-run/dev": "^2.11.2",

@@ -1,6 +1,7 @@
 import type {MetaFunction} from '@remix-run/node';
 import {convertMedia} from '@remotion/webcodecs';
 import {useCallback, useState} from 'react';
+import {VideoPreview} from '~/components/VideoPreview';
 
 export const meta: MetaFunction = () => {
 	return [
@@ -43,6 +44,7 @@ const Index = () => {
 			<button type="button" onClick={onAbort}>
 				Abort
 			</button>
+			<VideoPreview />
 		</div>
 	);
 };
