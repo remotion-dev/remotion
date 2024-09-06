@@ -157,6 +157,7 @@ test('Should stream AV1', async () => {
 			matrixCoefficients: 'bt709',
 			primaries: 'bt709',
 		},
+		codecWithoutConfig: 'av1',
 	});
 	expect(parsed.audioTracks.length).toBe(0);
 	expect(videoTracks).toBe(1);
@@ -319,6 +320,7 @@ test('Should stream variable fps video', async () => {
 			matrixCoefficients: null,
 			primaries: null,
 		},
+		codecWithoutConfig: 'vp8',
 	});
 	expect(parsed.audioTracks.length).toBe(1);
 	expect(parsed.audioTracks[0]).toEqual({
@@ -333,6 +335,7 @@ test('Should stream variable fps video', async () => {
 		codecPrivate: new Uint8Array([
 			79, 112, 117, 115, 72, 101, 97, 100, 1, 1, 0, 0, 128, 187, 0, 0, 0, 0, 0,
 		]),
+		codecWithoutConfig: 'opus',
 	});
 	expect(audioTracks).toBe(1);
 	expect(samples).toBe(381);
@@ -618,6 +621,7 @@ test('Stretched VP8', async () => {
 			matrixCoefficients: null,
 			primaries: null,
 		},
+		codecWithoutConfig: 'vp8',
 	});
 });
 

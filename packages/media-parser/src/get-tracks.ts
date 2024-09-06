@@ -23,12 +23,34 @@ export type VideoTrackColorParams = {
 	fullRange: boolean | null;
 };
 
+export type MediaParserVideoCodec =
+	| 'vp8'
+	| 'vp9'
+	| 'h264'
+	| 'av1'
+	| 'h265'
+	| 'prores';
+
+export type MediaParserAudioCodec =
+	| 'opus'
+	| 'aac'
+	| 'mp3'
+	| 'vorbis'
+	| 'pcm'
+	| 'pcm-u8'
+	| 'pcm-s16'
+	| 'pcm-s24'
+	| 'pcm-s32'
+	| 'pcm-f32'
+	| 'aiff';
+
 export type VideoTrack = {
 	type: 'video';
 	trackId: number;
 	description: Uint8Array | undefined;
 	timescale: number;
 	codec: string;
+	codecWithoutConfig: MediaParserVideoCodec;
 	sampleAspectRatio: SampleAspectRatio;
 	width: number;
 	height: number;
@@ -47,6 +69,7 @@ export type AudioTrack = {
 	trackId: number;
 	timescale: number;
 	codec: string;
+	codecWithoutConfig: MediaParserAudioCodec;
 	numberOfChannels: number;
 	sampleRate: number;
 	description: Uint8Array | undefined;

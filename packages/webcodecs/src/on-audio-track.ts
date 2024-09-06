@@ -7,6 +7,7 @@ import type {ConvertMediaAudioCodec} from './codec-id';
 import {codecNameToMatroskaAudioCodecId} from './codec-id';
 import type {ConvertMediaState} from './convert-media';
 import Error from './error-cause';
+import type {ResolveAudioActionFn} from './resolve-audio-action';
 import {resolveAudioAction} from './resolve-audio-action';
 
 export const makeAudioTrackHandler =
@@ -17,6 +18,8 @@ export const makeAudioTrackHandler =
 		controller,
 		abortConversion,
 		onMediaStateUpdate,
+		onAudioTrack,
+		bitrate,
 	}: {
 		state: MediaFn;
 		audioCodec: ConvertMediaAudioCodec;
@@ -24,13 +27,15 @@ export const makeAudioTrackHandler =
 		controller: AbortController;
 		abortConversion: (errCause: Error) => void;
 		onMediaStateUpdate: null | ((state: ConvertMediaState) => void);
+		onAudioTrack: ResolveAudioActionFn;
+		bitrate: number;
 	}): OnAudioTrack =>
 	async (track) => {
 		const audioEncoderConfig = await getAudioEncoderConfig({
 			codec: audioCodec,
 			numberOfChannels: track.numberOfChannels,
 			sampleRate: track.sampleRate,
-			bitrate: 128000,
+			bitrate,
 		});
 		const audioDecoderConfig = await getAudioDecoderConfig({
 			codec: track.codec,
@@ -42,6 +47,9 @@ export const makeAudioTrackHandler =
 		const audioOperation = await resolveAudioAction({
 			audioDecoderConfig,
 			audioEncoderConfig,
+			audioCodec,
+			track,
+			resolverFunction: onAudioTrack,
 		});
 
 		if (audioOperation === 'drop') {

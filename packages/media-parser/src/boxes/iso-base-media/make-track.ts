@@ -1,4 +1,5 @@
 import {
+	getAudioCodecFromTrack,
 	getAudioCodecStringFromTrak,
 	getNumberOfChannelsFromTrak,
 	getSampleRate,
@@ -18,6 +19,7 @@ import {
 import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
 import {
 	getIsoBmColrConfig,
+	getVideoCodecFromIsoTrak,
 	getVideoCodecString,
 	getVideoPrivateData,
 } from '../../get-video-codec';
@@ -63,6 +65,7 @@ export const makeBaseMediaTrack = (
 			description,
 			trakBox,
 			codecPrivate: null,
+			codecWithoutConfig: getAudioCodecFromTrack(trakBox),
 		};
 	}
 
@@ -125,6 +128,7 @@ export const makeBaseMediaTrack = (
 			primaries: null,
 			transferCharacteristics: null,
 		},
+		codecWithoutConfig: getVideoCodecFromIsoTrak(trakBox),
 	};
 	return track;
 };

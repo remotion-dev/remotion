@@ -14,8 +14,7 @@ import {
 	getHvccBox,
 	getStsdVideoConfig,
 } from './get-sample-aspect-ratio';
-import type {VideoTrackColorParams} from './get-tracks';
-import type {KnownVideoCodecs} from './options';
+import type {MediaParserVideoCodec, VideoTrackColorParams} from './get-tracks';
 import type {AnySegment} from './parse-result';
 
 export const hasVideoCodec = (boxes: AnySegment[]): boolean => {
@@ -120,32 +119,40 @@ export const getVideoCodecString = (trakBox: TrakBox): string | null => {
 	return videoSample.format;
 };
 
-export const getVideoCodec = (boxes: AnySegment[]): KnownVideoCodecs | null => {
+export const getVideoCodecFromIsoTrak = (trakBox: TrakBox) => {
+	const stsdBox = getStsdBox(trakBox);
+	if (stsdBox && stsdBox.type === 'stsd-box') {
+		const videoSample = stsdBox.samples.find((s) => s.type === 'video');
+		if (videoSample && videoSample.type === 'video') {
+			if (videoSample.format === 'hvc1') {
+				return 'h265';
+			}
+
+			if (videoSample.format === 'avc1') {
+				return 'h264';
+			}
+
+			if (videoSample.format === 'av01') {
+				return 'av1';
+			}
+
+			if (videoSample.format === 'ap4h') {
+				return 'prores';
+			}
+		}
+	}
+
+	throw new Error('Could not find video codec');
+};
+
+export const getVideoCodec = (
+	boxes: AnySegment[],
+): MediaParserVideoCodec | null => {
 	const moovBox = getMoovBox(boxes);
 	if (moovBox) {
 		const trakBox = getTraks(moovBox).filter((t) => trakBoxContainsVideo(t))[0];
 		if (trakBox) {
-			const stsdBox = getStsdBox(trakBox);
-			if (stsdBox && stsdBox.type === 'stsd-box') {
-				const videoSample = stsdBox.samples.find((s) => s.type === 'video');
-				if (videoSample && videoSample.type === 'video') {
-					if (videoSample.format === 'hvc1') {
-						return 'h265';
-					}
-
-					if (videoSample.format === 'avc1') {
-						return 'h264';
-					}
-
-					if (videoSample.format === 'av01') {
-						return 'av1';
-					}
-
-					if (videoSample.format === 'ap4h') {
-						return 'prores';
-					}
-				}
-			}
+			return getVideoCodecFromIsoTrak(trakBox);
 		}
 	}
 

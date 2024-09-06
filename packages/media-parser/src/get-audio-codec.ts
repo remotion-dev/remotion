@@ -10,7 +10,7 @@ import {
 } from './boxes/iso-base-media/traversal';
 import type {MainSegment} from './boxes/webm/segments/all-segments';
 import {trakBoxContainsAudio} from './get-fps';
-import type {KnownAudioCodecs} from './options';
+import type {MediaParserAudioCodec} from './get-tracks';
 import type {AnySegment} from './parse-result';
 
 export const hasAudioCodec = (boxes: AnySegment[]): boolean => {
@@ -232,37 +232,58 @@ export const getAudioCodecStringFromTrak = (
 	};
 };
 
-export const getAudioCodec = (boxes: AnySegment[]): KnownAudioCodecs | null => {
+const getAudioCodecFromAudioCodecInfo = (codec: AudioCodecInfo) => {
+	if (codec.format === 'sowt') {
+		return 'aiff';
+	}
+
+	if (codec.format === 'mp4a') {
+		if (codec.primarySpecificator === 0x40) {
+			return 'aac';
+		}
+
+		if (codec.primarySpecificator === 0x6b) {
+			return 'mp3';
+		}
+
+		if (codec.primarySpecificator === null) {
+			return 'aac';
+		}
+
+		throw new Error('Unknown mp4a codec: ' + codec.primarySpecificator);
+	}
+
+	throw new Error('Unknown audio format: ' + codec.format);
+};
+
+export const getAudioCodecFromTrack = (track: TrakBox) => {
+	const audioSample = getAudioCodecFromTrak(track);
+	if (!audioSample) {
+		throw new Error('Could not find audio sample');
+	}
+
+	return getAudioCodecFromAudioCodecInfo(audioSample);
+};
+
+const getAudioCodecFromIsoBm = (
+	moovBox: MoovBox,
+): MediaParserAudioCodec | null => {
+	const codec = getAudioCodecFromIso(moovBox);
+
+	if (!codec) {
+		return null;
+	}
+
+	return getAudioCodecFromAudioCodecInfo(codec);
+};
+
+export const getAudioCodec = (
+	boxes: AnySegment[],
+): MediaParserAudioCodec | null => {
 	const moovBox = getMoovBox(boxes);
 
 	if (moovBox) {
-		const codec = getAudioCodecFromIso(moovBox);
-
-		if (!codec) {
-			return null;
-		}
-
-		if (codec.format === 'sowt') {
-			return 'aiff';
-		}
-
-		if (codec.format === 'mp4a') {
-			if (codec.primarySpecificator === 0x40) {
-				return 'aac';
-			}
-
-			if (codec.primarySpecificator === 0x6b) {
-				return 'mp3';
-			}
-
-			if (codec.primarySpecificator === null) {
-				return 'aac';
-			}
-
-			throw new Error('Unknown mp4a codec: ' + codec.primarySpecificator);
-		}
-
-		throw new Error('Unknown audio format: ' + codec.format);
+		return getAudioCodecFromIsoBm(moovBox);
 	}
 
 	const mainSegment = boxes.find((b) => b.type === 'Segment');

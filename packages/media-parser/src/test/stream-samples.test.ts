@@ -51,6 +51,7 @@ test('Stream samples', async () => {
 			matrixCoefficients: null,
 			primaries: null,
 		},
+		codecWithoutConfig: 'h264',
 	});
 
 	expect(getSamplePositionsFromTrack(trakBox as TrakBox, null));
@@ -67,6 +68,7 @@ test('Stream samples', async () => {
 		sampleRate: 48000,
 		description: undefined,
 		codecPrivate: null,
+		codecWithoutConfig: 'mp3',
 	});
 	expect(getSamplePositionsFromTrack(trakBox2 as TrakBox, null)).toEqual([
 		{
