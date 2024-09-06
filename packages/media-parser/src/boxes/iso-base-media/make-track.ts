@@ -58,6 +58,7 @@ export const makeBaseMediaTrack = (
 			sampleRate,
 			description,
 			trakBox,
+			codecPrivate: null,
 		};
 	}
 

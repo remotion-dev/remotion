@@ -1,5 +1,8 @@
 import {makeMatroskaBytes, padMatroskaBytes} from '../boxes/webm/make-header';
-import type {BytesAndOffset} from '../boxes/webm/segments/all-segments';
+import type {
+	BytesAndOffset,
+	PossibleEbmlOrUint8Array,
+} from '../boxes/webm/segments/all-segments';
 
 export type MatroskaColorParams = {
 	transferChracteristics: 'bt709' | 'smpte170m' | 'iec61966-2-1' | null;
@@ -146,6 +149,7 @@ export type MakeTrackAudio = {
 	numberOfChannels: number;
 	sampleRate: number;
 	type: 'audio';
+	codecPrivate: Uint8Array | null;
 };
 
 export type MakeTrackVideo = {
@@ -160,8 +164,9 @@ export type MakeTrackVideo = {
 export const makeMatroskaAudioTrackEntryBytes = ({
 	trackNumber,
 	codecId,
-	numberOfChannels: audioChannels,
+	numberOfChannels,
 	sampleRate,
+	codecPrivate,
 }: MakeTrackAudio) => {
 	return makeMatroskaBytes({
 		type: 'TrackEntry',
@@ -208,7 +213,7 @@ export const makeMatroskaAudioTrackEntryBytes = ({
 						type: 'Channels',
 						minVintWidth: null,
 						value: {
-							value: audioChannels,
+							value: numberOfChannels,
 							byteLength: null,
 						},
 					},
@@ -231,7 +236,14 @@ export const makeMatroskaAudioTrackEntryBytes = ({
 				],
 				minVintWidth: null,
 			},
-		],
+			codecPrivate
+				? {
+						type: 'CodecPrivate',
+						minVintWidth: null,
+						value: codecPrivate,
+					}
+				: null,
+		].filter(Boolean) as PossibleEbmlOrUint8Array[],
 	});
 };
 

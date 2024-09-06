@@ -314,6 +314,7 @@ test('Should stream variable fps video', async () => {
 		sampleRate: 48000,
 		description: undefined,
 		trakBox: null,
+		codecPrivate: null,
 	});
 	expect(audioTracks).toBe(1);
 	expect(samples).toBe(381);

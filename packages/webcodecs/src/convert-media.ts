@@ -33,6 +33,10 @@ export type ConvertMediaResult = {
 	remove: () => Promise<void>;
 };
 
+type AudioMode = 'reencode' | 'copy';
+// TODO: Unhardcode
+const AUDIO_MODE: AudioMode = 'reencode' as AudioMode;
+
 export const convertMedia = async ({
 	src,
 	onVideoFrame,
@@ -193,7 +197,16 @@ export const convertMedia = async ({
 			codecId: codecNameToMatroskaAudioCodecId(audioCodec),
 			numberOfChannels: track.numberOfChannels,
 			sampleRate: track.sampleRate,
+			codecPrivate: AUDIO_MODE === 'copy' ? track.codecPrivate : null,
 		});
+
+		if (AUDIO_MODE === 'copy') {
+			return async (audioSample) => {
+				await state.addSample(new EncodedAudioChunk(audioSample), trackNumber);
+				convertMediaState.encodedAudioFrames++;
+				onMediaStateUpdate?.({...convertMediaState});
+			};
+		}
 
 		const audioEncoder = await createAudioEncoder({
 			onChunk: async (chunk) => {

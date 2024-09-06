@@ -55,6 +55,7 @@ test('Stream samples', async () => {
 		codec: 'mp3',
 		sampleRate: 48000,
 		description: undefined,
+		codecPrivate: null,
 	});
 	expect(getSamplePositionsFromTrack(trakBox2 as TrakBox, null)).toEqual([
 		{

@@ -237,6 +237,7 @@ export const getTrack = ({
 	if (trackTypeToString(trackType.value.value) === 'audio') {
 		const sampleRate = getSampleRate(track);
 		const numberOfChannels = getNumberOfChannels(track);
+		const codecPrivate = getPrivateData(track);
 		if (sampleRate === null) {
 			throw new Error('Could not find sample rate or number of channels');
 		}
@@ -250,6 +251,7 @@ export const getTrack = ({
 			sampleRate,
 			description: getAudioDescription(track),
 			trakBox: null,
+			codecPrivate,
 		};
 	}
 

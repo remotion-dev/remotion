@@ -38,6 +38,7 @@ export type AudioTrack = {
 	sampleRate: number;
 	description: Uint8Array | undefined;
 	trakBox: TrakBox | null;
+	codecPrivate: Uint8Array | null;
 };
 
 export type OtherTrack = {

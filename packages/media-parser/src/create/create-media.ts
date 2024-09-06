@@ -5,6 +5,7 @@ import {
 	type BytesAndOffset,
 } from '../boxes/webm/segments/all-segments';
 import type {WriterInterface} from '../writers/writer';
+import type {AudioOrVideoSample} from './cluster';
 import {makeCluster} from './cluster';
 import {makeDurationWithPadding} from './make-duration-with-padding';
 import {createMatroskaCues, type Cue} from './matroska-cues';
@@ -27,7 +28,7 @@ import {CREATE_TIME_SCALE} from './timescale';
 export type MediaFn = {
 	save: () => Promise<File>;
 	remove: () => Promise<void>;
-	addSample: (chunk: EncodedVideoChunk, trackNumber: number) => Promise<void>;
+	addSample: (chunk: AudioOrVideoSample, trackNumber: number) => Promise<void>;
 	updateDuration: (duration: number) => Promise<void>;
 	addTrack: (
 		track:
@@ -122,7 +123,7 @@ export const createMedia = async (
 
 	const trackNumberProgresses: Record<number, number> = {};
 
-	const getClusterOrMakeNew = async (chunk: EncodedVideoChunk) => {
+	const getClusterOrMakeNew = async (chunk: AudioOrVideoSample) => {
 		const smallestProgress = Math.min(...Object.values(trackNumberProgresses));
 		if (
 			!currentCluster.shouldMakeNewCluster(
@@ -144,7 +145,7 @@ export const createMedia = async (
 		return currentCluster;
 	};
 
-	const addSample = async (chunk: EncodedVideoChunk, trackNumber: number) => {
+	const addSample = async (chunk: AudioOrVideoSample, trackNumber: number) => {
 		trackNumberProgresses[trackNumber] = chunk.timestamp;
 		const cluster = await getClusterOrMakeNew(chunk);
 		return cluster.addSample(chunk, trackNumber);
