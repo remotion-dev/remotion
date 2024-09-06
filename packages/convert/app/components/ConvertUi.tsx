@@ -1,5 +1,5 @@
 import {Button} from '@/components/ui/button';
-import {CardContent, CardFooter} from '@/components/ui/card';
+import {CardContent, CardFooter, CardTitle} from '@/components/ui/card';
 import {Label} from '@/components/ui/label';
 import {
 	Select,
@@ -44,6 +44,7 @@ export const ConvertUI: React.FC<{
 		<div className="w-[350px]">
 			<CardContent className="gap-4">
 				<div className="grid w-full items-center gap-4">
+					<CardTitle>Convert video</CardTitle>
 					<div>
 						<Label htmlFor="container">Container</Label>
 						<Select>
