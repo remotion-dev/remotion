@@ -8,7 +8,6 @@ import type {
 } from '../../parse-result';
 import type {BoxAndNext, PartialMdatBox} from '../../parse-video';
 import type {ParserContext} from '../../parser-context';
-import {hasSkippedMdatProcessing} from '../../traversal';
 import {parseEsds} from './esds/esds';
 import {parseFtyp} from './ftyp';
 import {makeBaseMediaTrack} from './make-track';
@@ -33,6 +32,7 @@ import {parseTfdt} from './tfdt';
 import {getTfhd} from './tfhd';
 import {parseTkhd} from './tkhd';
 import {parseTrak} from './trak/trak';
+import {hasSkippedMdatProcessing} from './traversal';
 import {parseTrun} from './trun';
 
 const getChildren = async ({

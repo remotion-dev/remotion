@@ -3,9 +3,9 @@ import type {BufferIterator} from '../../../buffer-iterator';
 import {getTracks, hasTracks} from '../../../get-tracks';
 import type {AnySegment} from '../../../parse-result';
 import type {ParserContext} from '../../../parser-context';
-import {getMoofBox} from '../../../traversal';
 import {getSamplePositionsFromTrack} from '../get-sample-positions-from-track';
 import type {TrakBox} from '../trak/trak';
+import {getMoofBox} from '../traversal';
 
 export interface MdatBox {
 	type: 'mdat-box';

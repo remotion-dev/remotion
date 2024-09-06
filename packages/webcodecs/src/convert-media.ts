@@ -6,17 +6,18 @@ import {
 } from '@remotion/media-parser';
 import {bufferWriter} from '@remotion/media-parser/buffer';
 import {canUseWebFsWriter, webFsWriter} from '@remotion/media-parser/web-fs';
-import {createAudioDecoder} from './audio-decoder';
-import {createAudioEncoder} from './audio-encoder';
-import type {ConvertMediaAudioCodec} from './codec-id';
-import {
-	codecNameToMatroskaAudioCodecId,
-	codecNameToMatroskaCodecId,
-	type ConvertMediaVideoCodec,
-} from './codec-id';
+import type {ConvertMediaAudioCodec, ConvertMediaVideoCodec} from './codec-id';
 import Error from './error-cause';
-import {createVideoDecoder} from './video-decoder';
-import {createVideoEncoder} from './video-encoder';
+import {makeAudioTrackHandler} from './on-audio-track';
+import {makeVideoTrackHandler} from './on-video-track';
+import {
+	defaultResolveAudioAction,
+	type ResolveAudioActionFn,
+} from './resolve-audio-action';
+import {
+	defaultResolveVideoAction,
+	type ResolveVideoActionFn,
+} from './resolve-video-action';
 import {withResolvers} from './with-resolvers';
 
 export type ConvertMediaState = {
@@ -41,14 +42,18 @@ export const convertMedia = async ({
 	to,
 	videoCodec,
 	signal: userPassedAbortSignal,
+	onAudioTrack: userAudioResolver,
+	onVideoTrack: userVideoResolver,
 }: {
 	src: string | File;
+	to: ConvertMediaTo;
 	onVideoFrame?: (inputFrame: VideoFrame, track: VideoTrack) => Promise<void>;
 	onMediaStateUpdate?: (state: ConvertMediaState) => void;
 	videoCodec: ConvertMediaVideoCodec;
 	audioCodec: ConvertMediaAudioCodec;
-	to: ConvertMediaTo;
 	signal?: AbortSignal;
+	onAudioTrack?: ResolveAudioActionFn;
+	onVideoTrack?: ResolveVideoActionFn;
 }): Promise<ConvertMediaResult> => {
 	if (to !== 'webm') {
 		return Promise.reject(
@@ -98,177 +103,27 @@ export const convertMedia = async ({
 		canUseWebFs ? webFsWriter : bufferWriter,
 	);
 
-	const onVideoTrack: OnVideoTrack = async (track) => {
-		const {trackNumber} = await state.addTrack({
-			type: 'video',
-			color: {
-				transferChracteristics: 'bt709',
-				matrixCoefficients: 'bt709',
-				primaries: 'bt709',
-				fullRange: true,
-			},
-			width: track.codedWidth,
-			height: track.codedHeight,
-			codecId: codecNameToMatroskaCodecId(videoCodec),
-		});
+	const onVideoTrack: OnVideoTrack = makeVideoTrackHandler({
+		state,
+		onVideoFrame: onVideoFrame ?? null,
+		onMediaStateUpdate: onMediaStateUpdate ?? null,
+		abortConversion,
+		convertMediaState,
+		controller,
+		videoCodec,
+		onVideoTrack: userVideoResolver ?? defaultResolveVideoAction,
+	});
 
-		const videoEncoder = await createVideoEncoder({
-			width: track.displayAspectWidth,
-			height: track.displayAspectHeight,
-			onChunk: async (chunk) => {
-				await state.addSample(chunk, trackNumber);
-				const newDuration = Math.round(
-					(chunk.timestamp + (chunk.duration ?? 0)) / 1000,
-				);
-				await state.updateDuration(newDuration);
-				convertMediaState.encodedVideoFrames++;
-				onMediaStateUpdate?.({...convertMediaState});
-			},
-			onError: (err) => {
-				abortConversion(
-					new Error(
-						`Video encoder of track ${track.trackId} failed (see .cause of this error)`,
-						{
-							cause: err,
-						},
-					),
-				);
-			},
-			signal: controller.signal,
-		});
-		if (videoEncoder === null) {
-			abortConversion(
-				new Error(
-					`Could not configure video encoder of track ${track.trackId}`,
-				),
-			);
-			return null;
-		}
-
-		const videoDecoder = await createVideoDecoder({
-			track,
-			onFrame: async (frame) => {
-				await onVideoFrame?.(frame, track);
-				await videoEncoder.encodeFrame(frame);
-				convertMediaState.decodedVideoFrames++;
-				onMediaStateUpdate?.({...convertMediaState});
-				frame.close();
-			},
-			onError: (err) => {
-				abortConversion(
-					new Error(
-						`Video decoder of track ${track.trackId} failed (see .cause of this error)`,
-						{
-							cause: err,
-						},
-					),
-				);
-			},
-			signal: controller.signal,
-		});
-		if (videoDecoder === null) {
-			abortConversion(
-				new Error(
-					`Could not configure video decoder of track ${track.trackId}`,
-				),
-			);
-			return null;
-		}
-
-		state.addWaitForFinishPromise(async () => {
-			await videoDecoder.waitForFinish();
-			await videoEncoder.waitForFinish();
-			videoDecoder.close();
-			videoEncoder.close();
-		});
-
-		return async (chunk) => {
-			await videoDecoder.processSample(chunk);
-		};
-	};
-
-	const onAudioTrack: OnAudioTrack = async (track) => {
-		const {trackNumber} = await state.addTrack({
-			type: 'audio',
-			codecId: codecNameToMatroskaAudioCodecId(audioCodec),
-			numberOfChannels: track.numberOfChannels,
-			sampleRate: track.sampleRate,
-		});
-
-		const audioEncoder = await createAudioEncoder({
-			onChunk: async (chunk) => {
-				await state.addSample(chunk, trackNumber);
-				convertMediaState.encodedAudioFrames++;
-				onMediaStateUpdate?.({...convertMediaState});
-			},
-			sampleRate: track.sampleRate,
-			numberOfChannels: track.numberOfChannels,
-			onError: (err) => {
-				abortConversion(
-					new Error(
-						`Audio encoder of ${track.trackId} failed (see .cause of this error)`,
-						{
-							cause: err,
-						},
-					),
-				);
-			},
-			codec: audioCodec,
-			signal: controller.signal,
-			bitrate: 128000,
-		});
-
-		if (!audioEncoder) {
-			abortConversion(
-				new Error(
-					`Could not configure audio encoder of track ${track.trackId}`,
-				),
-			);
-			return null;
-		}
-
-		const audioDecoder = await createAudioDecoder({
-			track,
-			onFrame: async (frame) => {
-				await audioEncoder.encodeFrame(frame);
-
-				convertMediaState.decodedAudioFrames++;
-				onMediaStateUpdate?.(convertMediaState);
-				frame.close();
-			},
-			onError(error) {
-				abortConversion(
-					new Error(
-						`Audio decoder of track ${track.trackId} failed (see .cause of this error)`,
-						{
-							cause: error,
-						},
-					),
-				);
-			},
-			signal: controller.signal,
-		});
-
-		if (!audioDecoder) {
-			abortConversion(
-				new Error(
-					`Could not configure audio decoder of track ${track.trackId}`,
-				),
-			);
-			return null;
-		}
-
-		state.addWaitForFinishPromise(async () => {
-			await audioDecoder.waitForFinish();
-			await audioEncoder.waitForFinish();
-			audioDecoder.close();
-			audioEncoder.close();
-		});
-
-		return async (audioSample) => {
-			await audioDecoder.processSample(audioSample);
-		};
-	};
+	const onAudioTrack: OnAudioTrack = makeAudioTrackHandler({
+		abortConversion,
+		audioCodec,
+		controller,
+		convertMediaState,
+		onMediaStateUpdate: onMediaStateUpdate ?? null,
+		state,
+		onAudioTrack: userAudioResolver ?? defaultResolveAudioAction,
+		bitrate: 128000,
+	});
 
 	parseMedia({
 		src,

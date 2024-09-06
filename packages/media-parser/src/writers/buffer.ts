@@ -2,8 +2,8 @@ import type {Writer, WriterInterface} from './writer';
 
 const createContent = () => {
 	const buf = new ArrayBuffer(0, {
-		// TODO: Educate that the buffer is limited to 10MB
-		maxByteLength: 10_000_000,
+		// TODO: Educate that the buffer is limited to 100MB
+		maxByteLength: 100_000_000,
 	});
 	if (!buf.resize) {
 		throw new Error('Could not create buffer writer');

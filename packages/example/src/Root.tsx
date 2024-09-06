@@ -1444,7 +1444,7 @@ export const Index: React.FC = () => {
 			<Still
 				id="DecoderDemo"
 				component={DecoderDemo}
-				height={800}
+				height={1000}
 				width={1024}
 			/>
 			<Still id="Emojis" component={EmojiTestbed} height={800} width={1024} />

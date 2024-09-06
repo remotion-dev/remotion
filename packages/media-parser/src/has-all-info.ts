@@ -65,7 +65,7 @@ export const hasAllInfo = (
 		}
 
 		if (key === 'audioCodec') {
-			return hasAudioCodec(parseResult.segments);
+			return hasAudioCodec(parseResult.segments, state);
 		}
 
 		if (key === 'tracks') {

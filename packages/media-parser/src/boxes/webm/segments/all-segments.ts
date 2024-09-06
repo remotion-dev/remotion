@@ -542,12 +542,12 @@ export const color = {
 	type: 'children',
 } as const satisfies Ebml;
 
-export const transfer = {
+export const transferCharacteristics = {
 	name: 'TransferCharacteristics',
 	type: 'uint',
 } as const satisfies Ebml;
 
-export const matrix = {
+export const matrixCoefficients = {
 	name: 'MatrixCoefficients',
 	type: 'uint',
 } as const satisfies Ebml;
@@ -673,6 +673,13 @@ export const cluster = {
 } as const satisfies Ebml;
 
 export type CodecIdSegment = EbmlParsed<typeof codecID>;
+export type ColourSegment = EbmlParsed<typeof color>;
+export type TransferCharacteristicsSegment = EbmlParsed<
+	typeof transferCharacteristics
+>;
+export type PrimariesSegment = EbmlParsed<typeof primaries>;
+export type RangeSegment = EbmlParsed<typeof range>;
+export type MatrixCoefficientsSegment = EbmlParsed<typeof matrixCoefficients>;
 export type TrackTypeSegment = EbmlParsed<typeof trackType>;
 export type WidthSegment = EbmlParsed<typeof widthType>;
 export type HeightSegment = EbmlParsed<typeof heightType>;
@@ -865,8 +872,8 @@ export const ebmlMap = {
 		name: 'Cluster',
 		type: 'children',
 	},
-	[matroskaElements.TransferCharacteristics]: transfer,
-	[matroskaElements.MatrixCoefficients]: matrix,
+	[matroskaElements.TransferCharacteristics]: transferCharacteristics,
+	[matroskaElements.MatrixCoefficients]: matrixCoefficients,
 	[matroskaElements.Primaries]: primaries,
 	[matroskaElements.Range]: range,
 	[matroskaElements.ChromaSitingHorz]: ChromaSitingHorz,

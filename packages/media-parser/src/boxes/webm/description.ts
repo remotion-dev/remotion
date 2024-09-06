@@ -1,6 +1,6 @@
 import {getArrayBufferIterator} from '../../buffer-iterator';
-import {getCodecSegment, getPrivateData} from '../../traversal';
 import type {TrackEntry} from './segments/all-segments';
+import {getCodecSegment, getPrivateData} from './traversal';
 
 export const getAudioDescription = (
 	track: TrackEntry,
