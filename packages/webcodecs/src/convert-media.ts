@@ -17,6 +17,7 @@ import {
 import Error from './error-cause';
 import {createVideoDecoder} from './video-decoder';
 import {createVideoEncoder} from './video-encoder';
+import {getVideoEncoderConfig} from './video-encoder-config';
 import {withResolvers} from './with-resolvers';
 
 export type ConvertMediaState = {
@@ -116,9 +117,22 @@ export const convertMedia = async ({
 			codecId: codecNameToMatroskaCodecId(videoCodec),
 		});
 
-		const videoEncoder = await createVideoEncoder({
-			width: track.displayAspectWidth,
+		const videoEncoderConfig = await getVideoEncoderConfig({
+			codec: 'vp8',
 			height: track.displayAspectHeight,
+			width: track.displayAspectWidth,
+		});
+
+		if (videoEncoderConfig === null) {
+			abortConversion(
+				new Error(
+					`Could not configure video encoder of track ${track.trackId}`,
+				),
+			);
+			return null;
+		}
+
+		const videoEncoder = createVideoEncoder({
 			onChunk: async (chunk) => {
 				await state.addSample(chunk, trackNumber);
 				const newDuration = Math.round(
@@ -139,15 +153,8 @@ export const convertMedia = async ({
 				);
 			},
 			signal: controller.signal,
+			config: videoEncoderConfig,
 		});
-		if (videoEncoder === null) {
-			abortConversion(
-				new Error(
-					`Could not configure video encoder of track ${track.trackId}`,
-				),
-			);
-			return null;
-		}
 
 		const videoDecoder = await createVideoDecoder({
 			track,
@@ -170,6 +177,7 @@ export const convertMedia = async ({
 			},
 			signal: controller.signal,
 		});
+
 		if (videoDecoder === null) {
 			abortConversion(
 				new Error(

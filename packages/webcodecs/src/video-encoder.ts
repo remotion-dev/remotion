@@ -1,5 +1,3 @@
-import {getVideoEncoderConfigWithHardwareAcceleration} from './get-config';
-
 export type WebCodecsVideoEncoder = {
 	encodeFrame: (videoFrame: VideoFrame) => Promise<void>;
 	waitForFinish: () => Promise<void>;
@@ -8,25 +6,19 @@ export type WebCodecsVideoEncoder = {
 	flush: () => Promise<void>;
 };
 
-export const createVideoEncoder = async ({
-	width,
-	height,
+export const createVideoEncoder = ({
 	onChunk,
 	onError,
 	signal,
+	config,
 }: {
-	width: number;
-	height: number;
 	onChunk: (chunk: EncodedVideoChunk) => Promise<void>;
 	onError: (error: DOMException) => void;
 	signal: AbortSignal;
-}): Promise<WebCodecsVideoEncoder | null> => {
-	if (typeof VideoEncoder === 'undefined') {
-		return Promise.resolve(null);
-	}
-
+	config: VideoEncoderConfig;
+}): WebCodecsVideoEncoder => {
 	if (signal.aborted) {
-		return Promise.resolve(null);
+		throw new Error('Not creating video encoder, already aborted');
 	}
 
 	let outputQueue = Promise.resolve();
@@ -60,16 +52,6 @@ export const createVideoEncoder = async ({
 	};
 
 	signal.addEventListener('abort', onAbort);
-
-	const config = await getVideoEncoderConfigWithHardwareAcceleration({
-		codec: 'vp8',
-		height,
-		width,
-	});
-
-	if (!config) {
-		return null;
-	}
 
 	const getQueueSize = () => {
 		return encoder.encodeQueueSize + outputQueueSize;
