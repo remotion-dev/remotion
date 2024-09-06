@@ -6,18 +6,11 @@ import {
 } from '@remotion/media-parser';
 import {bufferWriter} from '@remotion/media-parser/buffer';
 import {canUseWebFsWriter, webFsWriter} from '@remotion/media-parser/web-fs';
-import {createAudioDecoder} from './audio-decoder';
-import {getAudioDecoderConfig} from './audio-decoder-config';
-import {createAudioEncoder} from './audio-encoder';
-import {getAudioEncoderConfig} from './audio-encoder-config';
 import type {ConvertMediaAudioCodec} from './codec-id';
-import {
-	codecNameToMatroskaAudioCodecId,
-	type ConvertMediaVideoCodec,
-} from './codec-id';
+import {type ConvertMediaVideoCodec} from './codec-id';
 import Error from './error-cause';
+import {makeAudioTrackHandler} from './on-audio-track';
 import {makeVideoTrackHandler} from './on-video-track';
-import {resolveAudioAction} from './resolve-audio-action';
 import {withResolvers} from './with-resolvers';
 
 export type ConvertMediaState = {
@@ -109,128 +102,14 @@ export const convertMedia = async ({
 		videoCodec,
 	});
 
-	const onAudioTrack: OnAudioTrack = async (track) => {
-		const audioEncoderConfig = await getAudioEncoderConfig({
-			codec: audioCodec,
-			numberOfChannels: track.numberOfChannels,
-			sampleRate: track.sampleRate,
-			bitrate: 128000,
-		});
-		const audioDecoderConfig = await getAudioDecoderConfig({
-			codec: track.codec,
-			numberOfChannels: track.numberOfChannels,
-			sampleRate: track.sampleRate,
-			description: track.description,
-		});
-
-		const audioOperation = await resolveAudioAction({
-			audioDecoderConfig,
-			audioEncoderConfig,
-		});
-
-		if (audioOperation === 'drop') {
-			return null;
-		}
-
-		if (audioOperation === 'copy') {
-			const addedTrack = await state.addTrack({
-				type: 'audio',
-				codecId: codecNameToMatroskaAudioCodecId(audioCodec),
-				numberOfChannels: track.numberOfChannels,
-				sampleRate: track.sampleRate,
-				codecPrivate: track.codecPrivate,
-			});
-
-			return async (audioSample) => {
-				await state.addSample(
-					new EncodedAudioChunk(audioSample),
-					addedTrack.trackNumber,
-				);
-				convertMediaState.encodedAudioFrames++;
-				onMediaStateUpdate?.({...convertMediaState});
-			};
-		}
-
-		if (!audioEncoderConfig) {
-			abortConversion(
-				new Error(
-					`Could not configure audio encoder of track ${track.trackId}`,
-				),
-			);
-			return null;
-		}
-
-		if (!audioDecoderConfig) {
-			abortConversion(
-				new Error(
-					`Could not configure audio decoder of track ${track.trackId}`,
-				),
-			);
-			return null;
-		}
-
-		const {trackNumber} = await state.addTrack({
-			type: 'audio',
-			codecId: codecNameToMatroskaAudioCodecId(audioCodec),
-			numberOfChannels: track.numberOfChannels,
-			sampleRate: track.sampleRate,
-			codecPrivate: null,
-		});
-
-		const audioEncoder = createAudioEncoder({
-			onChunk: async (chunk) => {
-				await state.addSample(chunk, trackNumber);
-				convertMediaState.encodedAudioFrames++;
-				onMediaStateUpdate?.({...convertMediaState});
-			},
-			onError: (err) => {
-				abortConversion(
-					new Error(
-						`Audio encoder of ${track.trackId} failed (see .cause of this error)`,
-						{
-							cause: err,
-						},
-					),
-				);
-			},
-			codec: audioCodec,
-			signal: controller.signal,
-			config: audioEncoderConfig,
-		});
-
-		const audioDecoder = await createAudioDecoder({
-			onFrame: async (frame) => {
-				await audioEncoder.encodeFrame(frame);
-
-				convertMediaState.decodedAudioFrames++;
-				onMediaStateUpdate?.(convertMediaState);
-				frame.close();
-			},
-			onError(error) {
-				abortConversion(
-					new Error(
-						`Audio decoder of track ${track.trackId} failed (see .cause of this error)`,
-						{
-							cause: error,
-						},
-					),
-				);
-			},
-			signal: controller.signal,
-			config: audioDecoderConfig,
-		});
-
-		state.addWaitForFinishPromise(async () => {
-			await audioDecoder.waitForFinish();
-			await audioEncoder.waitForFinish();
-			audioDecoder.close();
-			audioEncoder.close();
-		});
-
-		return async (audioSample) => {
-			await audioDecoder.processSample(audioSample);
-		};
-	};
+	const onAudioTrack: OnAudioTrack = makeAudioTrackHandler({
+		abortConversion,
+		audioCodec,
+		controller,
+		convertMediaState,
+		onMediaStateUpdate: onMediaStateUpdate ?? null,
+		state,
+	});
 
 	parseMedia({
 		src,
