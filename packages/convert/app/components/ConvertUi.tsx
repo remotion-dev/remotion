@@ -15,12 +15,12 @@ import React, {useCallback, useState} from 'react';
 export const ConvertUI: React.FC<{
 	src: string;
 }> = ({src}) => {
-	const [abortController, setAbortController] = useState<AbortController>(
+	const [abortController] = useState<AbortController>(
 		() => new AbortController(),
 	);
 
 	const onClick = useCallback(async () => {
-		const fn = await convertMedia({
+		await convertMedia({
 			src,
 			onVideoFrame: (frame) => {
 				console.log('frame', frame);
