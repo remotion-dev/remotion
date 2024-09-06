@@ -1,34 +1,20 @@
-import type {FtypBox} from './boxes/iso-base-media/ftyp';
-import type {MdhdBox} from './boxes/iso-base-media/mdhd';
-import type {MoovBox} from './boxes/iso-base-media/moov/moov';
-import type {MvhdBox} from './boxes/iso-base-media/mvhd';
-import type {CttsBox} from './boxes/iso-base-media/stsd/ctts';
-import type {StcoBox} from './boxes/iso-base-media/stsd/stco';
-import type {StscBox} from './boxes/iso-base-media/stsd/stsc';
-import type {StsdBox} from './boxes/iso-base-media/stsd/stsd';
-import type {StssBox} from './boxes/iso-base-media/stsd/stss';
-import type {StszBox} from './boxes/iso-base-media/stsd/stsz';
-import type {SttsBox} from './boxes/iso-base-media/stsd/stts';
-import type {TfdtBox} from './boxes/iso-base-media/tfdt';
-import type {TfhdBox} from './boxes/iso-base-media/tfhd';
-import type {TkhdBox} from './boxes/iso-base-media/tkhd';
-import type {TrakBox} from './boxes/iso-base-media/trak/trak';
-import type {TrunBox} from './boxes/iso-base-media/trun';
-import type {
-	AudioSegment,
-	ClusterSegment,
-	CodecIdSegment,
-	DisplayHeightSegment,
-	DisplayWidthSegment,
-	HeightSegment,
-	MainSegment,
-	TimestampScaleSegment,
-	TrackEntry,
-	TrackTypeSegment,
-	VideoSegment,
-	WidthSegment,
-} from './boxes/webm/segments/all-segments';
-import type {AnySegment, IsoBaseMediaBox, RegularBox} from './parse-result';
+import type {AnySegment, IsoBaseMediaBox, RegularBox} from '../../parse-result';
+import type {FtypBox} from './ftyp';
+import type {MdhdBox} from './mdhd';
+import type {MoovBox} from './moov/moov';
+import type {MvhdBox} from './mvhd';
+import type {CttsBox} from './stsd/ctts';
+import type {StcoBox} from './stsd/stco';
+import type {StscBox} from './stsd/stsc';
+import type {StsdBox} from './stsd/stsd';
+import type {StssBox} from './stsd/stss';
+import type {StszBox} from './stsd/stsz';
+import type {SttsBox} from './stsd/stts';
+import type {TfdtBox} from './tfdt';
+import type {TfhdBox} from './tfhd';
+import type {TkhdBox} from './tkhd';
+import type {TrakBox} from './trak/trak';
+import type {TrunBox} from './trun';
 
 export const getFtypBox = (segments: AnySegment[]): FtypBox | null => {
 	const ftypBox = segments.find((s) => s.type === 'ftyp-box');
@@ -292,215 +278,6 @@ export const getTrunBoxes = (segment: IsoBaseMediaBox): TrunBox[] => {
 	const trunBoxes = segment.children.filter((c) => c.type === 'trun-box');
 
 	return trunBoxes as TrunBox[];
-};
-
-export const getClusterSegment = (
-	segment: MainSegment,
-): ClusterSegment | null => {
-	const clusterSegment = segment.value.find((b) => b.type === 'Cluster') as
-		| ClusterSegment
-		| undefined;
-
-	return clusterSegment ?? null;
-};
-
-export const getTracksSegment = (segment: MainSegment) => {
-	const tracksSegment = segment.value.find((b) => b.type === 'Tracks');
-	if (!tracksSegment || tracksSegment.type !== 'Tracks') {
-		return null;
-	}
-
-	return tracksSegment;
-};
-
-export const getTimescaleSegment = (
-	segment: MainSegment,
-): TimestampScaleSegment | null => {
-	const infoSegment = segment.value.find((b) => b.type === 'Info');
-
-	if (!infoSegment || infoSegment.type !== 'Info') {
-		return null;
-	}
-
-	const timescale = infoSegment.value.find((b) => b.type === 'TimestampScale');
-
-	if (!timescale || timescale.type !== 'TimestampScale') {
-		return null;
-	}
-
-	return timescale as TimestampScaleSegment;
-};
-
-export const getVideoSegment = (track: TrackEntry): VideoSegment | null => {
-	const videoSegment = track.value.find((b) => b.type === 'Video');
-	if (!videoSegment || videoSegment.type !== 'Video') {
-		return null;
-	}
-
-	return videoSegment ?? null;
-};
-
-export const getAudioSegment = (track: TrackEntry): AudioSegment | null => {
-	const audioSegment = track.value.find((b) => b.type === 'Audio');
-	if (!audioSegment || audioSegment.type !== 'Audio') {
-		return null;
-	}
-
-	return audioSegment ?? null;
-};
-
-export const getSampleRate = (track: TrackEntry): number | null => {
-	const audioSegment = getAudioSegment(track);
-	if (!audioSegment) {
-		return null;
-	}
-
-	const samplingFrequency = audioSegment.value.find(
-		(b) => b.type === 'SamplingFrequency',
-	);
-
-	if (!samplingFrequency || samplingFrequency.type !== 'SamplingFrequency') {
-		return null;
-	}
-
-	return samplingFrequency.value.value;
-};
-
-export const getNumberOfChannels = (track: TrackEntry): number => {
-	const audioSegment = getAudioSegment(track);
-	if (!audioSegment) {
-		throw new Error('Could not find audio segment');
-	}
-
-	const channels = audioSegment.value.find((b) => b.type === 'Channels');
-
-	if (!channels || channels.type !== 'Channels') {
-		return 1;
-	}
-
-	return channels.value.value;
-};
-
-export const getBitDepth = (track: TrackEntry): number | null => {
-	const audioSegment = getAudioSegment(track);
-	if (!audioSegment) {
-		return null;
-	}
-
-	const bitDepth = audioSegment.value.find((b) => b.type === 'BitDepth');
-
-	if (!bitDepth || bitDepth.type !== 'BitDepth') {
-		return null;
-	}
-
-	return bitDepth.value.value;
-};
-
-export const getPrivateData = (track: TrackEntry): Uint8Array | null => {
-	const privateData = track.value.find((b) => b.type === 'CodecPrivate');
-
-	if (!privateData || privateData.type !== 'CodecPrivate') {
-		return null;
-	}
-
-	return privateData.value;
-};
-
-export const getWidthSegment = (track: TrackEntry): WidthSegment | null => {
-	const videoSegment = getVideoSegment(track);
-	if (!videoSegment) {
-		return null;
-	}
-
-	const width = videoSegment.value.find((b) => b.type === 'PixelWidth');
-
-	if (!width || width.type !== 'PixelWidth') {
-		return null;
-	}
-
-	return width;
-};
-
-export const getHeightSegment = (track: TrackEntry): HeightSegment | null => {
-	const videoSegment = getVideoSegment(track);
-	if (!videoSegment) {
-		return null;
-	}
-
-	const height = videoSegment.value.find((b) => b.type === 'PixelHeight');
-
-	if (!height || height.type !== 'PixelHeight') {
-		return null;
-	}
-
-	return height;
-};
-
-export const getDisplayWidthSegment = (
-	track: TrackEntry,
-): DisplayWidthSegment | null => {
-	const videoSegment = getVideoSegment(track);
-	if (!videoSegment) {
-		return null;
-	}
-
-	const displayWidth = videoSegment.value.find(
-		(b) => b.type === 'DisplayWidth',
-	);
-
-	if (!displayWidth || displayWidth.type !== 'DisplayWidth') {
-		return null;
-	}
-
-	return displayWidth;
-};
-
-export const getDisplayHeightSegment = (
-	track: TrackEntry,
-): DisplayHeightSegment | null => {
-	const videoSegment = getVideoSegment(track);
-	if (!videoSegment) {
-		return null;
-	}
-
-	const displayHeight = videoSegment.value.find(
-		(b) => b.type === 'DisplayHeight',
-	);
-
-	if (!displayHeight || displayHeight.type !== 'DisplayHeight') {
-		return null;
-	}
-
-	return displayHeight;
-};
-
-export const getTrackTypeSegment = (
-	track: TrackEntry,
-): TrackTypeSegment | null => {
-	const trackType = track.value.find((b) => b.type === 'TrackType');
-	if (!trackType || trackType.type !== 'TrackType') {
-		return null;
-	}
-
-	return trackType;
-};
-
-export const getTrackId = (track: TrackEntry): number => {
-	const trackId = track.value.find((b) => b.type === 'TrackNumber');
-	if (!trackId || trackId.type !== 'TrackNumber') {
-		throw new Error('Expected track number segment');
-	}
-
-	return trackId.value.value;
-};
-
-export const getCodecSegment = (track: TrackEntry): CodecIdSegment | null => {
-	const codec = track.value.find((b) => b.type === 'CodecID');
-	if (!codec || codec.type !== 'CodecID') {
-		return null;
-	}
-
-	return codec;
 };
 
 export const hasSkippedMdatProcessing = (anySegment: AnySegment[]) => {

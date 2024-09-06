@@ -1,5 +1,10 @@
 /* eslint-disable max-depth */
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
+import {
+	getMoovBox,
+	getStsdBox,
+	getTraks,
+} from './boxes/iso-base-media/traversal';
 import {parseAv1PrivateData} from './boxes/webm/av1-codec-private';
 import {trakBoxContainsVideo} from './get-fps';
 import {
@@ -11,7 +16,6 @@ import {
 } from './get-sample-aspect-ratio';
 import type {KnownVideoCodecs} from './options';
 import type {AnySegment} from './parse-result';
-import {getMoovBox, getStsdBox, getTraks} from './traversal';
 
 export const hasVideoCodec = (boxes: AnySegment[]): boolean => {
 	try {

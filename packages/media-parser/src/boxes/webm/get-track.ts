@@ -1,6 +1,10 @@
 import {getArrayBufferIterator} from '../../buffer-iterator';
 import type {AudioTrack, VideoTrack} from '../../get-tracks';
 import {getHvc1CodecString} from '../../make-hvc1-codec-strings';
+import {parseAv1PrivateData} from './av1-codec-private';
+import {getAudioDescription} from './description';
+import type {CodecIdSegment, TrackEntry} from './segments/all-segments';
+import {trackTypeToString} from './segments/track-entry';
 import {
 	getBitDepth,
 	getCodecSegment,
@@ -13,11 +17,7 @@ import {
 	getTrackId,
 	getTrackTypeSegment,
 	getWidthSegment,
-} from '../../traversal';
-import {parseAv1PrivateData} from './av1-codec-private';
-import {getAudioDescription} from './description';
-import type {CodecIdSegment, TrackEntry} from './segments/all-segments';
-import {trackTypeToString} from './segments/track-entry';
+} from './traversal';
 
 const getDescription = (track: TrackEntry): undefined | Uint8Array => {
 	const codec = getCodecSegment(track);

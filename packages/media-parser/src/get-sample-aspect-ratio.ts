@@ -6,8 +6,8 @@ import type {PaspBox} from './boxes/iso-base-media/stsd/pasp';
 import type {VideoSample} from './boxes/iso-base-media/stsd/samples';
 import type {TkhdBox} from './boxes/iso-base-media/tkhd';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
+import {getStsdBox} from './boxes/iso-base-media/traversal';
 import type {Dimensions} from './get-dimensions';
-import {getStsdBox} from './traversal';
 
 type AspectRatio = {
 	numerator: number;

@@ -3,11 +3,15 @@ import type {EsdsBox} from './boxes/iso-base-media/esds/esds';
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';
 import type {AudioSample} from './boxes/iso-base-media/stsd/samples';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
+import {
+	getMoovBox,
+	getStsdBox,
+	getTraks,
+} from './boxes/iso-base-media/traversal';
 import type {MainSegment} from './boxes/webm/segments/all-segments';
 import {trakBoxContainsAudio} from './get-fps';
 import type {KnownAudioCodecs} from './options';
 import type {AnySegment} from './parse-result';
-import {getMoovBox, getStsdBox, getTraks} from './traversal';
 
 export const hasAudioCodec = (boxes: AnySegment[]): boolean => {
 	try {

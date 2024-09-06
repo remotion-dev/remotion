@@ -1,10 +1,14 @@
 import {getSamplePositionsFromTrack} from './boxes/iso-base-media/get-sample-positions-from-track';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
+import {
+	getMoofBox,
+	getMoovBox,
+	getMvhdBox,
+} from './boxes/iso-base-media/traversal';
 import type {DurationSegment} from './boxes/webm/segments/all-segments';
 import {getTracks} from './get-tracks';
 import type {AnySegment} from './parse-result';
 import type {ParserState} from './parser-state';
-import {getMoofBox, getMoovBox, getMvhdBox} from './traversal';
 
 const getDurationFromMatroska = (segments: AnySegment[]): number | null => {
 	const mainSegment = segments.find((s) => s.type === 'Segment');

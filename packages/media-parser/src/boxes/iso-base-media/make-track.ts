@@ -17,8 +17,8 @@ import {
 } from '../../get-sample-aspect-ratio';
 import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
 import {getVideoCodecString} from '../../get-video-codec';
-import {getTkhdBox, getVideoDescriptors} from '../../traversal';
 import type {TrakBox} from './trak/trak';
+import {getTkhdBox, getVideoDescriptors} from './traversal';
 
 export const makeBaseMediaTrack = (
 	trakBox: TrakBox,

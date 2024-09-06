@@ -1,11 +1,15 @@
 import {makeBaseMediaTrack} from './boxes/iso-base-media/make-track';
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
+import {
+	getMoovBox,
+	getMvhdBox,
+	getTraks,
+} from './boxes/iso-base-media/traversal';
 import {getTracksFromMatroska} from './boxes/webm/get-ready-tracks';
-import {getMainSegment} from './boxes/webm/traversal';
+import {getMainSegment, getTracksSegment} from './boxes/webm/traversal';
 import type {AnySegment} from './parse-result';
 import type {ParserState} from './parser-state';
-import {getMoovBox, getMvhdBox, getTracksSegment, getTraks} from './traversal';
 
 type SampleAspectRatio = {
 	numerator: number;
