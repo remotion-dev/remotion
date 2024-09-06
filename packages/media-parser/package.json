@@ -10,7 +10,8 @@
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "bun test src/test",
-		"watch": "tsc -w"
+		"watch": "tsc -w",
+		"build": "NODE_ENV=production bun bundle.ts"
 	},
 	"devDependencies": {
 		"@remotion/renderer": "workspace:*",
@@ -23,12 +24,42 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"exports": {
-		".": "./dist/index.js",
-		"./node": "./dist/readers/from-node.js",
-		"./fetch": "./dist/readers/from-fetch.js",
-		"./web-file": "./dist/readers/from-web-file.js",
-		"./web-fs": "./dist/writers/web-fs.js",
-		"./buffer": "./dist/writers/buffer.js",
+		".": {
+			"require": "./dist/index.js",
+			"module": "./dist/esm/index.mjs",
+			"types": "./dist/index.d.ts",
+			"import": "./dist/esm/index.mjs"
+		},
+		"./node": {
+			"require": "./dist/readers/from-node.js",
+			"module": "./dist/esm/from-node.mjs",
+			"types": "./dist/readers/from-node.d.ts",
+			"import": "./dist/esm/from-node.mjs"
+		},
+		"./fetch": {
+			"require": "./dist/readers/from-fetch.js",
+			"module": "./dist/esm/from-fetch.mjs",
+			"types": "./dist/readers/from-fetch.d.ts",
+			"import": "./dist/esm/from-fetch.mjs"
+		},
+		"./web-file": {
+			"require": "./dist/readers/from-web-file.js",
+			"module": "./dist/esm/from-web-file.mjs",
+			"types": "./dist/readers/from-web-file.d.ts",
+			"import": "./dist/esm/from-web-file.mjs"
+		},
+		"./web-fs": {
+			"require": "./dist/writers/web-fs.js",
+			"module": "./dist/esm/web-fs.mjs",
+			"types": "./dist/writers/web-fs.d.ts",
+			"import": "./dist/esm/web-fs.mjs"
+		},
+		"./buffer": {
+			"require": "./dist/writers/buffer.js",
+			"module": "./dist/esm/buffer.mjs",
+			"types": "./dist/writers/buffer.d.ts",
+			"import": "./dist/esm/buffer.mjs"
+		},
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
