@@ -44,9 +44,14 @@ export const createAudioDecoder = ({
 	});
 
 	const close = () => {
-		audioDecoder.close();
 		// eslint-disable-next-line @typescript-eslint/no-use-before-define
 		signal.removeEventListener('abort', onAbort);
+
+		if (audioDecoder.state === 'closed') {
+			return;
+		}
+
+		audioDecoder.close();
 	};
 
 	const onAbort = () => {

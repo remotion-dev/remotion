@@ -148,6 +148,13 @@ export const createMedia = async (
 	const addSample = async (chunk: AudioOrVideoSample, trackNumber: number) => {
 		trackNumberProgresses[trackNumber] = chunk.timestamp;
 		const cluster = await getClusterOrMakeNew(chunk);
+
+		const newDuration = Math.round(
+			(chunk.timestamp + (chunk.duration ?? 0)) / 1000,
+		);
+
+		await updateDuration(newDuration);
+
 		return cluster.addSample(chunk, trackNumber);
 	};
 

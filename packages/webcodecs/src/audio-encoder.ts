@@ -46,10 +46,13 @@ export const createAudioEncoder = ({
 	});
 
 	const close = () => {
-		encoder.close();
-
 		// eslint-disable-next-line @typescript-eslint/no-use-before-define
 		signal.removeEventListener('abort', onAbort);
+		if (encoder.state === 'closed') {
+			return;
+		}
+
+		encoder.close();
 	};
 
 	const onAbort = () => {

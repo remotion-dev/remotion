@@ -121,10 +121,9 @@ export const makeAudioTrackHandler =
 			config: audioEncoderConfig,
 		});
 
-		const audioDecoder = await createAudioDecoder({
+		const audioDecoder = createAudioDecoder({
 			onFrame: async (frame) => {
 				await audioEncoder.encodeFrame(frame);
-
 				convertMediaState.decodedAudioFrames++;
 				onMediaStateUpdate?.(convertMediaState);
 				frame.close();

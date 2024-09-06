@@ -97,10 +97,6 @@ export const makeVideoTrackHandler =
 		const videoEncoder = createVideoEncoder({
 			onChunk: async (chunk) => {
 				await state.addSample(chunk, trackNumber);
-				const newDuration = Math.round(
-					(chunk.timestamp + (chunk.duration ?? 0)) / 1000,
-				);
-				await state.updateDuration(newDuration);
 				convertMediaState.encodedVideoFrames++;
 				onMediaStateUpdate?.({...convertMediaState});
 			},

@@ -16,6 +16,7 @@ export type AudioOrVideoSample = {
 	type: 'key' | 'delta';
 	copyTo(destination: AllowSharedBufferSource): void;
 	byteLength: number;
+	duration: number | null;
 };
 
 export const timestampToClusterTimestamp = (timestamp: number) => {

@@ -44,6 +44,10 @@ export const createVideoEncoder = ({
 	const close = () => {
 		// eslint-disable-next-line @typescript-eslint/no-use-before-define
 		signal.removeEventListener('abort', onAbort);
+		if (encoder.state === 'closed') {
+			return;
+		}
+
 		encoder.close();
 	};
 
