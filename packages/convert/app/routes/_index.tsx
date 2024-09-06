@@ -2,6 +2,7 @@ import type {MetaFunction} from '@remix-run/node';
 import {convertMedia} from '@remotion/webcodecs';
 import {useCallback, useState} from 'react';
 import {VideoPreview} from '~/components/VideoPreview';
+import {Button} from '~/components/ui/button';
 
 export const meta: MetaFunction = () => {
 	return [
@@ -37,13 +38,13 @@ const Index = () => {
 	}, [abortController]);
 
 	return (
-		<div className="font-sans p-4">
-			<button type="button" onClick={onClick}>
+		<div className="font-sans p-4 flex justify-center items-center h-screen">
+			<Button type="button" onClick={onClick}>
 				Convert
-			</button>
-			<button type="button" onClick={onAbort}>
+			</Button>
+			<Button type="button" onClick={onAbort}>
 				Abort
-			</button>
+			</Button>
 			<VideoPreview />
 		</div>
 	);
