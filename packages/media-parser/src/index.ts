@@ -21,6 +21,7 @@ export {
 } from './webcodec-sample-types';
 
 export type {MediaFn} from './create/create-media';
+export {Dimensions} from './get-dimensions';
 
 export const MediaParserInternals = {
 	createMedia,

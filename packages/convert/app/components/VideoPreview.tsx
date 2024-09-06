@@ -7,18 +7,18 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
-import {TableDemo} from './DataTable';
+import React from 'react';
 
-export const VideoPreview = () => {
+export const VideoPreview: React.FC<{
+	children: React.ReactNode;
+}> = ({children}) => {
 	return (
 		<Card className="w-[350px]">
 			<CardHeader>
 				<CardTitle>bigbuckbunny.mp4</CardTitle>
 				<CardDescription>Deploy your new project in one-click.</CardDescription>
 			</CardHeader>
-			<CardContent>
-				<TableDemo />
-			</CardContent>
+			<CardContent>{children}</CardContent>
 			<CardFooter className="flex justify-between">
 				<Button variant="outline">Cancel</Button>
 				<Button>Deploy</Button>
