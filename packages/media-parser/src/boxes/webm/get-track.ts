@@ -196,6 +196,7 @@ export const getTrack = ({
 		const displayWidth = getDisplayWidthSegment(track);
 
 		const codec = getCodecSegment(track);
+		const codecPrivate = getPrivateData(track);
 		if (!codec) {
 			return null;
 		}
@@ -231,6 +232,7 @@ export const getTrack = ({
 				: width.value.value,
 			rotation: 0,
 			trakBox: null,
+			codecPrivate,
 		};
 	}
 

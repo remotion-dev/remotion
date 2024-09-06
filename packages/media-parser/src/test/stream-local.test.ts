@@ -148,6 +148,7 @@ test('Should stream AV1', async () => {
 		displayAspectWidth: 1920,
 		rotation: 0,
 		trakBox: null,
+		codecPrivate: null,
 	});
 	expect(parsed.audioTracks.length).toBe(0);
 	expect(videoTracks).toBe(1);
@@ -303,6 +304,7 @@ test('Should stream variable fps video', async () => {
 		displayAspectWidth: 1280,
 		rotation: 0,
 		trakBox: null,
+		codecPrivate: null,
 	});
 	expect(parsed.audioTracks.length).toBe(1);
 	expect(parsed.audioTracks[0]).toEqual({
@@ -593,6 +595,7 @@ test('Stretched VP8', async () => {
 		displayAspectHeight: 1080,
 		displayAspectWidth: 1920,
 		rotation: 0,
+		codecPrivate: null,
 	});
 });
 

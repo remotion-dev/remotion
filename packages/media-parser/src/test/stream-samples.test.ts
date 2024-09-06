@@ -40,6 +40,7 @@ test('Stream samples', async () => {
 		displayAspectHeight: 1080,
 		displayAspectWidth: 1080,
 		rotation: 0,
+		codecPrivate: null,
 	});
 
 	expect(getSamplePositionsFromTrack(trakBox as TrakBox, null));

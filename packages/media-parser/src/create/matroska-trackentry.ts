@@ -3,20 +3,14 @@ import type {
 	BytesAndOffset,
 	PossibleEbmlOrUint8Array,
 } from '../boxes/webm/segments/all-segments';
-
-export type MatroskaColorParams = {
-	transferChracteristics: 'bt709' | 'smpte170m' | 'iec61966-2-1' | null;
-	matrixCoefficients: 'bt709' | 'bt470bg' | 'rgb' | 'smpte170m' | null;
-	primaries: 'bt709' | 'smpte170m' | 'bt470bg' | null;
-	fullRange: boolean | null;
-};
+import type {VideoTrackColorParams} from '../get-tracks';
 
 export const makeMatroskaColorBytes = ({
 	transferChracteristics,
 	matrixCoefficients,
 	primaries,
 	fullRange,
-}: MatroskaColorParams) => {
+}: VideoTrackColorParams) => {
 	const rangeValue =
 		transferChracteristics && matrixCoefficients
 			? 3
@@ -104,7 +98,7 @@ export const makeMatroskaVideoBytes = ({
 	width,
 	height,
 }: {
-	color: MatroskaColorParams;
+	color: VideoTrackColorParams;
 	width: number;
 	height: number;
 }) => {
@@ -153,7 +147,7 @@ export type MakeTrackAudio = {
 };
 
 export type MakeTrackVideo = {
-	color: MatroskaColorParams;
+	color: VideoTrackColorParams;
 	width: number;
 	height: number;
 	trackNumber: number;

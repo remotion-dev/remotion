@@ -12,6 +12,13 @@ type SampleAspectRatio = {
 	denominator: number;
 };
 
+export type VideoTrackColorParams = {
+	transferChracteristics: 'bt709' | 'smpte170m' | 'iec61966-2-1' | null;
+	matrixCoefficients: 'bt709' | 'bt470bg' | 'rgb' | 'smpte170m' | null;
+	primaries: 'bt709' | 'smpte170m' | 'bt470bg' | null;
+	fullRange: boolean | null;
+};
+
 export type VideoTrack = {
 	type: 'video';
 	trackId: number;
@@ -28,6 +35,8 @@ export type VideoTrack = {
 	rotation: number;
 	trakBox: TrakBox | null;
 	codecPrivate: Uint8Array | null;
+	// TODO: Enable this
+	// color: VideoTrackColorParams;
 };
 
 export type AudioTrack = {

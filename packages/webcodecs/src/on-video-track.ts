@@ -47,7 +47,6 @@ export const makeVideoTrackHandler =
 		}
 
 		if (videoOperation === 'copy') {
-			// TODO: Copy over video track
 			const videoTrack = await state.addTrack({
 				type: 'video',
 				// TODO: Copy over colors, CodecPrivate...

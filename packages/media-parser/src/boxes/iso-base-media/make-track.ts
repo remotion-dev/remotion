@@ -112,6 +112,8 @@ export const makeBaseMediaTrack = (
 		displayAspectHeight,
 		rotation,
 		trakBox,
+		// TODO: Copy over private data
+		codecPrivate: null,
 	};
 	return track;
 };
