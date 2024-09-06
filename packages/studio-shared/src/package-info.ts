@@ -130,7 +130,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'docusaurus-plugin': null,
 	'animated-emoji': 'Google Fonts Animated Emojis as Remotion components',
 	serverless: 'A runtime for distributed rendering',
-	webcodecs: 'Private experimental package',
+	webcodecs: 'Media conversion in the browser',
 };
 
 export const apiDocs: {[key in Pkgs]: string | null} = {

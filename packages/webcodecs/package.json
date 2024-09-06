@@ -27,6 +27,5 @@
 		"@types/dom-webcodecs": "0.1.11"
 	},
 	"keywords": [],
-	"private": true,
 	"description": "Private experimental package"
 }
