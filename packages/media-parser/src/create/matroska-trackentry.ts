@@ -6,13 +6,13 @@ import type {
 import type {VideoTrackColorParams} from '../get-tracks';
 
 export const makeMatroskaColorBytes = ({
-	transferChracteristics,
+	transferCharacteristics,
 	matrixCoefficients,
 	primaries,
 	fullRange,
 }: VideoTrackColorParams) => {
 	const rangeValue =
-		transferChracteristics && matrixCoefficients
+		transferCharacteristics && matrixCoefficients
 			? 3
 			: fullRange === true
 				? 2
@@ -32,11 +32,11 @@ export const makeMatroskaColorBytes = ({
 					: 2;
 
 	const transferChracteristicsValue =
-		transferChracteristics === 'bt709'
+		transferCharacteristics === 'bt709'
 			? 1
-			: transferChracteristics === 'smpte170m'
+			: transferCharacteristics === 'smpte170m'
 				? 6
-				: transferChracteristics === 'iec61966-2-1'
+				: transferCharacteristics === 'iec61966-2-1'
 					? 13
 					: 2;
 

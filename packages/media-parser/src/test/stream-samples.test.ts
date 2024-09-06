@@ -41,6 +41,12 @@ test('Stream samples', async () => {
 		displayAspectWidth: 1080,
 		rotation: 0,
 		codecPrivate: null,
+		color: {
+			fullRange: true,
+			transferCharacteristics: 'bt709',
+			matrixCoefficients: 'bt709',
+			primaries: 'bt709',
+		},
 	});
 
 	expect(getSamplePositionsFromTrack(trakBox as TrakBox, null));

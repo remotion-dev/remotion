@@ -51,7 +51,7 @@ export const makeVideoTrackHandler =
 				type: 'video',
 				// TODO: Copy over colors, CodecPrivate...
 				color: {
-					transferChracteristics: 'bt709',
+					transferCharacteristics: 'bt709',
 					matrixCoefficients: 'bt709',
 					primaries: 'bt709',
 					fullRange: true,
@@ -89,7 +89,7 @@ export const makeVideoTrackHandler =
 		const {trackNumber} = await state.addTrack({
 			type: 'video',
 			color: {
-				transferChracteristics: 'bt709',
+				transferCharacteristics: 'bt709',
 				matrixCoefficients: 'bt709',
 				primaries: 'bt709',
 				fullRange: true,

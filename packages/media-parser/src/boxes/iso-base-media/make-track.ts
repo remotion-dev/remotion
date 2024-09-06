@@ -114,6 +114,16 @@ export const makeBaseMediaTrack = (
 		trakBox,
 		// TODO: Copy over private data
 		codecPrivate: null,
+		color: {
+			// TODO: Set transferCharacteristics
+			transferCharacteristics: null,
+			// TODO matrixCoefficients
+			matrixCoefficients: null,
+			// TODO primaries
+			primaries: null,
+			// TODO fullRange
+			fullRange: null,
+		},
 	};
 	return track;
 };

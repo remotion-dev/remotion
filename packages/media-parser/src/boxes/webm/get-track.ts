@@ -233,6 +233,17 @@ export const getTrack = ({
 			rotation: 0,
 			trakBox: null,
 			codecPrivate,
+			// TODO: Parse colors
+			color: {
+				// TODO: Set transferCharacteristics
+				transferCharacteristics: null,
+				// TODO matrixCoefficients
+				matrixCoefficients: null,
+				// TODO primaries
+				primaries: null,
+				// TODO fullRange
+				fullRange: null,
+			},
 		};
 	}
 
