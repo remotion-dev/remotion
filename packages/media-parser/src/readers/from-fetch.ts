@@ -61,7 +61,9 @@ export const fetchReader: ReaderInterface = {
 			signal.addEventListener(
 				'abort',
 				() => {
-					reader.cancel();
+					reader.cancel().catch(() => {
+						// Prevent unhandled rejection in Firefox
+					});
 				},
 				{once: true},
 			);
