@@ -16,6 +16,7 @@
 		"@remix-run/serve": "^2.11.2",
 		"@remotion/media-parser": "workspace:*",
 		"@remotion/webcodecs": "workspace:*",
+		"@vercel/remix": "^2.11.2",
 		"isbot": "^4.1.0",
 		"react": "18.3.1",
 		"react-dom": "18.3.1"
