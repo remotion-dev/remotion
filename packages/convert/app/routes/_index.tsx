@@ -21,6 +21,7 @@ const Index = () => {
 	const [videoCodec, setVideoCodec] = useState<MediaParserVideoCodec | null>(
 		null,
 	);
+	const [size, setSize] = useState<number | null>(null);
 
 	const getStart = useCallback(() => {
 		parseMedia({
@@ -28,10 +29,12 @@ const Index = () => {
 			fields: {
 				dimensions: true,
 				videoCodec: true,
+				size: true,
 			},
 		}).then((data) => {
 			setDimensions(data.dimensions);
 			setVideoCodec(data.videoCodec);
+			setSize(data.size);
 		});
 	}, []);
 
@@ -46,6 +49,7 @@ const Index = () => {
 					container="MP4"
 					dimensions={dimensions}
 					videoCodec={videoCodec}
+					size={size}
 				/>
 			</VideoPreview>
 			<ConvertUI src={src} />

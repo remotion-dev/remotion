@@ -31,6 +31,7 @@ export type Options<
 	EnableRotation extends boolean,
 	EnableUnrotatedDimensions extends boolean,
 	EnableInternalStats extends boolean,
+	EnableSize extends boolean,
 > = {
 	dimensions?: EnableDimensions;
 	durationInSeconds?: EnableDuration;
@@ -42,6 +43,7 @@ export type Options<
 	rotation?: EnableRotation;
 	unrotatedDimensions?: EnableUnrotatedDimensions;
 	internalStats?: EnableInternalStats;
+	size?: EnableSize;
 };
 
 export type Metadata<
@@ -55,6 +57,7 @@ export type Metadata<
 	EnableRotation extends boolean,
 	EnableUnrotatedDimensions extends boolean,
 	EnableInternalStats extends boolean,
+	EnableSize extends boolean,
 > = (EnableDimensions extends true ? {dimensions: Dimensions} : {}) &
 	(EnableDuration extends true ? {durationInSeconds: number | null} : {}) &
 	(EnableBoxes extends true ? {boxes: AnySegment[]} : {}) &
@@ -72,7 +75,8 @@ export type Metadata<
 	(EnableUnrotatedDimensions extends true
 		? {unrotatedDimensions: Dimensions}
 		: {}) &
-	(EnableInternalStats extends true ? {internalStats: InternalStats} : {});
+	(EnableInternalStats extends true ? {internalStats: InternalStats} : {}) &
+	(EnableSize extends true ? {size: number | null} : {});
 
 export type ParseMedia = <
 	EnableDimensions extends boolean,
@@ -85,6 +89,7 @@ export type ParseMedia = <
 	EnableRotation extends boolean,
 	EnableUnrotatedDimensions extends boolean,
 	EnableInternalStats extends boolean,
+	EnableSize extends boolean,
 >(options: {
 	src: string | File;
 	fields?: Options<
@@ -97,7 +102,8 @@ export type ParseMedia = <
 		EnableTracks,
 		EnableRotation,
 		EnableUnrotatedDimensions,
-		EnableInternalStats
+		EnableInternalStats,
+		EnableSize
 	>;
 	reader?: ReaderInterface;
 	onAudioTrack?: OnAudioTrack;
@@ -114,6 +120,7 @@ export type ParseMedia = <
 		EnableTracks,
 		EnableRotation,
 		EnableUnrotatedDimensions,
-		EnableInternalStats
+		EnableInternalStats,
+		EnableSize
 	>
 >;

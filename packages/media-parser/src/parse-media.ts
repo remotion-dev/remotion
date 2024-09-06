@@ -41,6 +41,7 @@ export const parseMedia: ParseMedia = async ({
 		true,
 		true,
 		true,
+		true,
 		true
 	>;
 
@@ -177,6 +178,10 @@ export const parseMedia: ParseMedia = async ({
 
 	if (fields?.internalStats) {
 		returnValue.internalStats = state.getInternalStats();
+	}
+
+	if (fields?.size) {
+		returnValue.size = contentLength;
 	}
 
 	iterator?.destroy();

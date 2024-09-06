@@ -19,6 +19,7 @@ export const hasAllInfo = (
 		boolean,
 		boolean,
 		boolean,
+		boolean,
 		boolean
 	>,
 	parseResult: ParseResult,
@@ -27,6 +28,7 @@ export const hasAllInfo = (
 	const keys = Object.entries(options)
 		.filter(([, value]) => value)
 		.map(([key]) => key) as (keyof Options<
+		true,
 		true,
 		true,
 		true,
@@ -74,6 +76,10 @@ export const hasAllInfo = (
 
 		if (key === 'internalStats') {
 			return false;
+		}
+
+		if (key === 'size') {
+			return true;
 		}
 
 		throw new Error(`Unknown key: ${key satisfies never}`);
