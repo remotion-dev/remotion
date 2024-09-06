@@ -1,5 +1,5 @@
 {
-	"name": "convert",
+	"name": "@remotion/convert",
 	"private": true,
 	"sideEffects": false,
 	"type": "module",

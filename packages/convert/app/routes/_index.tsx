@@ -1,6 +1,6 @@
 import type {MetaFunction} from '@remix-run/node';
 import {convertMedia} from '@remotion/webcodecs';
-import {useCallback} from 'react';
+import {useCallback, useState} from 'react';
 
 export const meta: MetaFunction = () => {
 	return [
@@ -10,12 +10,16 @@ export const meta: MetaFunction = () => {
 };
 
 const Index = () => {
+	const [abortController, setAbortController] = useState<AbortController>(
+		() => new AbortController(),
+	);
+
 	const onClick = useCallback(async () => {
-		const abortController = new AbortController();
 		const fn = await convertMedia({
 			src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
 			onVideoFrame: () => {
 				console.log('frame');
+				return Promise.resolve();
 			},
 			onMediaStateUpdate: (s) => {
 				console.log('update', s);
@@ -25,13 +29,19 @@ const Index = () => {
 			to: 'webm',
 			signal: abortController.signal,
 		});
-	}, []);
+	}, [abortController.signal]);
+
+	const onAbort = useCallback(() => {
+		abortController.abort();
+	}, [abortController]);
 
 	return (
 		<div className="font-sans p-4">
-			<h1 className="text-3xl">Welcome to Remix</h1>
 			<button type="button" onClick={onClick}>
 				Convert
+			</button>
+			<button type="button" onClick={onAbort}>
+				Abort
 			</button>
 		</div>
 	);
