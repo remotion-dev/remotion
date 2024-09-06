@@ -1,5 +1,5 @@
 import type {Track} from '../../get-tracks';
-import {getTrack} from './get-track';
+import {getTrack} from './make-track';
 import type {MainSegment} from './segments/all-segments';
 import {getTracksSegment} from './traversal';
 

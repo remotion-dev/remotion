@@ -3,14 +3,19 @@ import type {
 	AudioSegment,
 	ClusterSegment,
 	CodecIdSegment,
+	ColourSegment,
 	DisplayHeightSegment,
 	DisplayWidthSegment,
 	HeightSegment,
 	MainSegment,
+	MatrixCoefficientsSegment,
+	PrimariesSegment,
+	RangeSegment,
 	TimestampScaleSegment,
 	TrackEntry,
 	TrackNumberSegment,
 	TrackTypeSegment,
+	TransferCharacteristicsSegment,
 	VideoSegment,
 	WidthSegment,
 } from './segments/all-segments';
@@ -69,6 +74,78 @@ export const getCodecSegment = (track: TrackEntry): CodecIdSegment | null => {
 	}
 
 	return codec;
+};
+
+export const getColourSegment = (track: TrackEntry): ColourSegment | null => {
+	const videoSegment = getVideoSegment(track);
+	if (!videoSegment) {
+		return null;
+	}
+
+	const colour = videoSegment.value.find((b) => b.type === 'Colour');
+	if (!colour || colour.type !== 'Colour') {
+		return null;
+	}
+
+	return colour;
+};
+
+export const getTransferCharacteristicsSegment = (
+	color: ColourSegment,
+): TransferCharacteristicsSegment | null => {
+	if (!color || color.type !== 'Colour') {
+		return null;
+	}
+
+	const box = color.value.find((b) => b.type === 'TransferCharacteristics');
+	if (!box || box.type !== 'TransferCharacteristics') {
+		return null;
+	}
+
+	return box;
+};
+
+export const getMatrixCoefficientsSegment = (
+	color: ColourSegment,
+): MatrixCoefficientsSegment | null => {
+	if (!color || color.type !== 'Colour') {
+		return null;
+	}
+
+	const box = color.value.find((b) => b.type === 'MatrixCoefficients');
+	if (!box || box.type !== 'MatrixCoefficients') {
+		return null;
+	}
+
+	return box;
+};
+
+export const getPrimariesSegment = (
+	color: ColourSegment,
+): PrimariesSegment | null => {
+	if (!color || color.type !== 'Colour') {
+		return null;
+	}
+
+	const box = color.value.find((b) => b.type === 'Primaries');
+	if (!box || box.type !== 'Primaries') {
+		return null;
+	}
+
+	return box;
+};
+
+export const getRangeSegment = (color: ColourSegment): RangeSegment | null => {
+	if (!color || color.type !== 'Colour') {
+		return null;
+	}
+
+	const box = color.value.find((b) => b.type === 'Range');
+	if (!box || box.type !== 'Range') {
+		return null;
+	}
+
+	return box;
 };
 
 export const getDisplayHeightSegment = (

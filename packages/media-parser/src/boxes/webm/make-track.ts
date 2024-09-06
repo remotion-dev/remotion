@@ -2,12 +2,14 @@ import {getArrayBufferIterator} from '../../buffer-iterator';
 import type {AudioTrack, VideoTrack} from '../../get-tracks';
 import {getHvc1CodecString} from '../../make-hvc1-codec-strings';
 import {parseAv1PrivateData} from './av1-codec-private';
+import {parseColorSegment} from './color';
 import {getAudioDescription} from './description';
 import type {CodecIdSegment, TrackEntry} from './segments/all-segments';
 import {trackTypeToString} from './segments/track-entry';
 import {
 	getBitDepth,
 	getCodecSegment,
+	getColourSegment,
 	getDisplayHeightSegment,
 	getDisplayWidthSegment,
 	getHeightSegment,
@@ -196,15 +198,16 @@ export const getTrack = ({
 		const displayWidth = getDisplayWidthSegment(track);
 
 		const codec = getCodecSegment(track);
-		const codecPrivate = getPrivateData(track);
 		if (!codec) {
 			return null;
 		}
 
+		const codecPrivate = getPrivateData(track);
 		const codecString = getMatroskaVideoCodecString({
 			track,
 			codecSegment: codec,
 		});
+		const colour = getColourSegment(track);
 
 		if (!codecString) {
 			return null;
@@ -233,17 +236,14 @@ export const getTrack = ({
 			rotation: 0,
 			trakBox: null,
 			codecPrivate,
-			// TODO: Parse colors
-			color: {
-				// TODO: Set transferCharacteristics
-				transferCharacteristics: null,
-				// TODO matrixCoefficients
-				matrixCoefficients: null,
-				// TODO primaries
-				primaries: null,
-				// TODO fullRange
-				fullRange: null,
-			},
+			color: colour
+				? parseColorSegment(colour)
+				: {
+						fullRange: null,
+						matrixCoefficients: null,
+						primaries: null,
+						transferCharacteristics: null,
+					},
 		};
 	}
 
