@@ -16,12 +16,12 @@ export const VideoPreview: React.FC<{
 		<Card className="w-[350px]">
 			<CardHeader>
 				<CardTitle>bigbuckbunny.mp4</CardTitle>
-				<CardDescription>Deploy your new project in one-click.</CardDescription>
+				<CardDescription>From URL</CardDescription>
 			</CardHeader>
 			<CardContent>{children}</CardContent>
 			<CardFooter className="flex justify-between">
-				<Button variant="outline">Cancel</Button>
-				<Button>Deploy</Button>
+				<div className="flex-1" />
+				<Button variant={'link'}>View info</Button>
 			</CardFooter>
 		</Card>
 	);

@@ -12,7 +12,7 @@ export const TableDemo: React.FC<{
 		<Table>
 			<TableBody>
 				<TableRow>
-					<TableCell colSpan={3}>Format</TableCell>
+					<TableCell colSpan={3}>Container</TableCell>
 					<TableCell className="text-right">{container}</TableCell>
 				</TableRow>
 				<TableRow>
