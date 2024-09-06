@@ -3,20 +3,18 @@ import type {EsdsBox} from './boxes/iso-base-media/esds/esds';
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';
 import type {AudioSample} from './boxes/iso-base-media/stsd/samples';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
-import {
-	getMoovBox,
-	getStsdBox,
-	getTraks,
-} from './boxes/iso-base-media/traversal';
-import {getMatroskaAudioCodecWithoutConfigString} from './boxes/webm/make-track';
-import type {MainSegment} from './boxes/webm/segments/all-segments';
+import {getStsdBox, getTraks} from './boxes/iso-base-media/traversal';
 import {trakBoxContainsAudio} from './get-fps';
-import type {MediaParserAudioCodec} from './get-tracks';
+import {getTracks, type MediaParserAudioCodec} from './get-tracks';
 import type {AnySegment} from './parse-result';
+import type {ParserState} from './parser-state';
 
-export const hasAudioCodec = (boxes: AnySegment[]): boolean => {
+export const hasAudioCodec = (
+	boxes: AnySegment[],
+	state: ParserState,
+): boolean => {
 	try {
-		return getAudioCodec(boxes) !== null;
+		return getAudioCodec(boxes, state) !== null;
 	} catch (e) {
 		return false;
 	}
@@ -167,21 +165,6 @@ export const getAudioCodecFromIso = (moov: MoovBox) => {
 	return getAudioCodecFromTrak(trakBox);
 };
 
-export const getAudioCodecFromMatroska = (mainSegment: MainSegment) => {
-	const tracksSegment = mainSegment.value.find((b) => b.type === 'Tracks');
-	if (!tracksSegment || tracksSegment.type !== 'Tracks') {
-		return null;
-	}
-
-	for (const track of tracksSegment.value) {
-		if (track.type === 'TrackEntry') {
-			return getMatroskaAudioCodecWithoutConfigString({track});
-		}
-	}
-
-	return null;
-};
-
 export const getAudioCodecStringFromTrak = (
 	trak: TrakBox,
 ): {codecString: string; description: Uint8Array | undefined} => {
@@ -245,31 +228,28 @@ export const getAudioCodecFromTrack = (track: TrakBox) => {
 	return getAudioCodecFromAudioCodecInfo(audioSample);
 };
 
-const getAudioCodecFromIsoBm = (
-	moovBox: MoovBox,
-): MediaParserAudioCodec | null => {
-	const codec = getAudioCodecFromIso(moovBox);
-
-	if (!codec) {
-		return null;
-	}
-
-	return getAudioCodecFromAudioCodecInfo(codec);
-};
-
 export const getAudioCodec = (
 	boxes: AnySegment[],
+	parserState: ParserState,
 ): MediaParserAudioCodec | null => {
-	const moovBox = getMoovBox(boxes);
+	const tracks = getTracks(boxes, parserState);
+	const allTracks =
+		tracks.audioTracks.length +
+		tracks.otherTracks.length +
+		tracks.videoTracks.length;
 
-	if (moovBox) {
-		return getAudioCodecFromIsoBm(moovBox);
+	if (allTracks === 0) {
+		throw new Error('No tracks yet');
 	}
 
-	const mainSegment = boxes.find((b) => b.type === 'Segment');
-	if (!mainSegment || mainSegment.type !== 'Segment') {
+	const audioTrack = tracks.audioTracks[0];
+	if (!audioTrack) {
 		return null;
 	}
 
-	return getAudioCodecFromMatroska(mainSegment);
+	if (audioTrack.type === 'audio') {
+		return audioTrack.codecWithoutConfig;
+	}
+
+	return null;
 };
