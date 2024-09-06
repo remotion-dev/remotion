@@ -37,9 +37,11 @@ export type ConvertMediaResult = {
 	remove: () => Promise<void>;
 };
 
-type AudioMode = 'reencode' | 'copy';
+type AudioMode = 'reencode' | 'copy' | 'drop';
+type VideoMode = 'reencode' | 'copy' | 'drop';
 // TODO: Unhardcode
 const AUDIO_MODE: AudioMode = 'reencode' as AudioMode;
+const VIDEO_MODE: VideoMode = 'reencode' as VideoMode;
 
 export const convertMedia = async ({
 	src,
@@ -115,6 +117,33 @@ export const convertMedia = async ({
 		const videoDecoderConfig =
 			await getVideoDecoderConfigWithHardwareAcceleration(track);
 
+		if (VIDEO_MODE === 'drop') {
+			return null;
+		}
+
+		if (VIDEO_MODE === 'copy') {
+			// TODO: Copy over video track
+
+			const videoTrack = await state.addTrack({
+				type: 'video',
+				// TODO: Copy over colors, CodecPrivate...
+				color: {
+					transferChracteristics: 'bt709',
+					matrixCoefficients: 'bt709',
+					primaries: 'bt709',
+					fullRange: true,
+				},
+				width: track.codedWidth,
+				height: track.codedHeight,
+				codecId: track.codec,
+			});
+			return (sample) => {
+				state.addSample(new EncodedVideoChunk(sample), videoTrack.trackNumber);
+				convertMediaState.decodedVideoFrames++;
+				onMediaStateUpdate?.({...convertMediaState});
+			};
+		}
+
 		if (videoEncoderConfig === null) {
 			abortConversion(
 				new Error(
@@ -170,7 +199,7 @@ export const convertMedia = async ({
 			config: videoEncoderConfig,
 		});
 
-		const videoDecoder = await createVideoDecoder({
+		const videoDecoder = createVideoDecoder({
 			config: videoDecoderConfig,
 			onFrame: async (frame) => {
 				await onVideoFrame?.(frame, track);
@@ -217,6 +246,10 @@ export const convertMedia = async ({
 			sampleRate: track.sampleRate,
 			description: track.description,
 		});
+
+		if (AUDIO_MODE === 'drop') {
+			return null;
+		}
 
 		if (AUDIO_MODE === 'copy') {
 			const addedTrack = await state.addTrack({
