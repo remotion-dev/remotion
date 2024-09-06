@@ -1,7 +1,8 @@
 import type {RecastCodemod} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {inlineCodeSnippet} from '../Menu/styles';
-import {NewCompHeader} from '../ModalHeader';
+import {ModalFooterContainer} from '../ModalFooter';
+import {ModalHeader} from '../ModalHeader';
 import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
@@ -39,7 +40,7 @@ const DeleteCompositionLoaded: React.FC<{
 
 	return (
 		<>
-			<NewCompHeader title={'Delete composition'} />
+			<ModalHeader title={'Delete composition'} />
 			<form onSubmit={onSubmit}>
 				<div style={content}>
 					Do you want to delete the{' '}
@@ -53,7 +54,7 @@ const DeleteCompositionLoaded: React.FC<{
 					The associated <code style={inlineCodeSnippet}>component</code> will
 					remain in your code.
 				</div>
-				<div style={{...content, borderTop: '1px solid black'}}>
+				<ModalFooterContainer>
 					<CodemodFooter
 						errorNotification={`Could not delete composition`}
 						loadingNotification={'Deleting'}
@@ -65,7 +66,7 @@ const DeleteCompositionLoaded: React.FC<{
 						codemod={codemod}
 						valid
 					/>
-				</div>
+				</ModalFooterContainer>
 			</form>
 		</>
 	);

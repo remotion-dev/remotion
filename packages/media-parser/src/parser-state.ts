@@ -1,7 +1,10 @@
 import type {OnTrackEntrySegment} from './boxes/webm/segments';
 import type {TrackInfo} from './boxes/webm/segments/track-entry';
-import {getTrackCodec, getTrackTimestampScale} from './boxes/webm/traversal';
-import {getTrackId} from './traversal';
+import {
+	getTrackCodec,
+	getTrackId,
+	getTrackTimestampScale,
+} from './boxes/webm/traversal';
 import type {
 	AudioSample,
 	OnAudioSample,

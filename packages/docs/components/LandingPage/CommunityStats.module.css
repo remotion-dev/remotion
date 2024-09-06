@@ -1,0 +1,68 @@
+.container {
+	max-width: 700px;
+	margin: 0 auto;
+	text-align: center;
+	justify-content: center;
+}
+
+.title {
+	font-size: 2.5rem;
+	font-weight: bold;
+	margin-bottom: 0.5rem;
+}
+
+.subtitle {
+	font-size: 1.25rem;
+	margin-bottom: 1.5rem;
+}
+
+.statsGrid {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 1rem;
+	width: 100%;
+	align-items: center;
+}
+
+.statItemLink {
+	text-decoration: none;
+	color: inherit;
+	display: contents; /* "display: contents" causes an element's children to appear as if they were direct children of the element's parent, ignoring the element itself. This can be useful when a wrapper element should be ignored when using CSS grid or similar layout techniques. */
+}
+
+.statItemLink:hover,
+.statItemLink:focus,
+.statItemLink:active {
+	text-decoration: none;
+	color: inherit;
+}
+
+.statItem {
+	background-color: var(--ifm-background-surface-color);
+	border-radius: 0.5rem;
+	border: 5px solid var(--text-color);
+	padding: 0.3rem;
+	box-shadow:
+		0 1px 3px rgba(0, 0, 0, 0.12),
+		0 1px 2px rgba(0, 0, 0, 0.24);
+	line-height: 1;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	align-content: center;
+	flex: 1 1 30%;
+	min-width: 200px;
+	min-height: 80px;
+	max-height: 110px;
+	flex: 1 1 30%; /* Makes the items grow/shrink consistently */
+	transition:
+		transform 0.2s,
+		box-shadow 0.2s;
+}
+
+.statItem:hover {
+	transform: scale(0.95);
+	box-shadow: var(--box-shadow);
+}

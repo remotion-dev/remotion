@@ -48,4 +48,5 @@ export const exampleVideos = {
 	matroskaH265Aac: path.join(examplePackage, 'public', 'matroska-h265-aac.mkv'),
 	opusWebm: path.join(examplePackage, 'public', 'opus.webm'),
 	avi: path.join(examplePackage, 'public', 'example.avi'),
+	opus51Webm: path.join(examplePackage, 'public', 'vp8-opus-5-1-channels.webm'),
 };

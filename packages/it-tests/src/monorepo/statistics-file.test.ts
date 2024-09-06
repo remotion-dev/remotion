@@ -1,7 +1,8 @@
+import {Pkgs, descriptions} from '@remotion/studio-shared';
 import {expect, test} from 'bun:test';
 import {writeFileSync} from 'fs';
 import {join} from 'path';
-import {Pkgs, descriptions, getAllPackages} from './get-all-packages';
+import {getAllPackages} from './get-all-packages';
 
 test('Should make a STATS.md file', () => {
 	const dirs = getAllPackages();

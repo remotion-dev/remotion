@@ -1,42 +1,95 @@
-import type {AudioSample, AudioTrack} from '@remotion/media-parser';
-import {decoderWaitForDequeue, decoderWaitForFinish} from './wait-for-dequeue';
+import type {AudioSample} from '@remotion/media-parser';
 
-export const createAudioDecoder = async ({
-	track,
+export type WebCodecsAudioDecoder = {
+	processSample: (audioSample: AudioSample) => Promise<void>;
+	waitForFinish: () => Promise<void>;
+	close: () => void;
+	getQueueSize: () => number;
+	flush: () => Promise<void>;
+};
+
+export const createAudioDecoder = ({
 	onFrame,
 	onError,
+	signal,
+	config,
 }: {
-	track: AudioTrack;
 	onFrame: (frame: AudioData) => Promise<void>;
 	onError: (error: DOMException) => void;
-}) => {
-	if (typeof AudioDecoder === 'undefined') {
-		return null;
+	signal: AbortSignal;
+	config: AudioDecoderConfig;
+}): WebCodecsAudioDecoder => {
+	if (signal.aborted) {
+		throw new Error('Not creating audio decoder, already aborted');
 	}
 
-	const {supported, config} = await AudioDecoder.isConfigSupported(track);
-
-	if (!supported) {
-		return null;
-	}
+	let outputQueue = Promise.resolve();
+	let outputQueueSize = 0;
+	let dequeueResolver = () => {};
 
 	const audioDecoder = new AudioDecoder({
 		output(inputFrame) {
-			onFrame(inputFrame);
+			outputQueueSize++;
+			outputQueue = outputQueue
+				.then(() => onFrame(inputFrame))
+				.then(() => {
+					dequeueResolver();
+					outputQueueSize--;
+					return Promise.resolve();
+				});
 		},
 		error(error) {
 			onError(error);
 		},
 	});
 
+	const close = () => {
+		// eslint-disable-next-line @typescript-eslint/no-use-before-define
+		signal.removeEventListener('abort', onAbort);
+
+		if (audioDecoder.state === 'closed') {
+			return;
+		}
+
+		audioDecoder.close();
+	};
+
+	const onAbort = () => {
+		close();
+	};
+
+	signal.addEventListener('abort', onAbort);
+
+	const getQueueSize = () => {
+		return audioDecoder.decodeQueueSize + outputQueueSize;
+	};
+
 	audioDecoder.configure(config);
+
+	const waitForDequeue = async () => {
+		await new Promise<void>((r) => {
+			dequeueResolver = r;
+			// @ts-expect-error exists
+			audioDecoder.addEventListener('dequeue', () => r(), {
+				once: true,
+			});
+		});
+	};
+
+	const waitForFinish = async () => {
+		while (getQueueSize() > 0) {
+			await waitForDequeue();
+		}
+	};
 
 	const processSample = async (audioSample: AudioSample) => {
 		if (audioDecoder.state === 'closed') {
 			return;
 		}
 
-		await decoderWaitForDequeue(audioDecoder);
+		while (getQueueSize() > 10) {
+			await waitForDequeue();
+		}
 
 		// Don't flush, it messes up the audio
 
@@ -52,7 +105,14 @@ export const createAudioDecoder = async ({
 			return queue;
 		},
 		waitForFinish: async () => {
-			await decoderWaitForFinish(audioDecoder);
+			await audioDecoder.flush();
+			await waitForFinish();
+			await outputQueue;
+		},
+		close,
+		getQueueSize,
+		flush: async () => {
+			await audioDecoder.flush();
 		},
 	};
 };

@@ -3,7 +3,7 @@ import {type BufferIterator} from '../../buffer-iterator';
 import type {ParserContext} from '../../parser-context';
 import type {VideoSample} from '../../webcodec-sample-types';
 import {getSampleFromBlock} from './get-sample-from-block';
-import {getTrack} from './get-track';
+import {getTrack} from './make-track';
 import type {PossibleEbml} from './segments/all-segments';
 import {ebmlMap} from './segments/all-segments';
 
@@ -110,6 +110,10 @@ export const parseEbml = async (
 
 		// eslint-disable-next-line no-constant-condition
 		while (true) {
+			if (size === 0) {
+				break;
+			}
+
 			const offset = iterator.counter.getOffset();
 			const value = await parseEbml(iterator, parserContext);
 			const remapped = await postprocessEbml({

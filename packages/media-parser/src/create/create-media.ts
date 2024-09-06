@@ -1,30 +1,34 @@
 import {getVariableInt} from '../boxes/webm/ebml';
+import {combineUint8Arrays, matroskaToHex} from '../boxes/webm/make-header';
 import {
-	combineUint8Arrays,
-	matroskaToHex,
-	padMatroskaBytes,
-} from '../boxes/webm/make-header';
-import type {BytesAndOffset} from '../boxes/webm/segments/all-segments';
-import {matroskaElements} from '../boxes/webm/segments/all-segments';
+	matroskaElements,
+	type BytesAndOffset,
+} from '../boxes/webm/segments/all-segments';
 import type {WriterInterface} from '../writers/writer';
-import {
-	CLUSTER_MIN_VINT_WIDTH,
-	createClusterSegment,
-	makeSimpleBlock,
-} from './cluster-segment';
+import type {AudioOrVideoSample} from './cluster';
+import {makeCluster} from './cluster';
+import {makeDurationWithPadding} from './make-duration-with-padding';
+import {createMatroskaCues, type Cue} from './matroska-cues';
 import {makeMatroskaHeader} from './matroska-header';
 import {makeMatroskaInfo} from './matroska-info';
-import {createMatroskaSegment} from './matroska-segment';
+import type {Seek} from './matroska-seek';
+import {createMatroskaSeekHead} from './matroska-seek';
+import {
+	MATROSKA_SEGMENT_MIN_VINT_WIDTH,
+	createMatroskaSegment,
+} from './matroska-segment';
 import type {MakeTrackAudio, MakeTrackVideo} from './matroska-trackentry';
 import {
 	makeMatroskaAudioTrackEntryBytes,
 	makeMatroskaTracks,
 	makeMatroskaVideoTrackEntryBytes,
 } from './matroska-trackentry';
+import {CREATE_TIME_SCALE} from './timescale';
 
 export type MediaFn = {
-	save: () => Promise<void>;
-	addSample: (chunk: EncodedVideoChunk, trackNumber: number) => Promise<void>;
+	save: () => Promise<File>;
+	remove: () => Promise<void>;
+	addSample: (chunk: AudioOrVideoSample, trackNumber: number) => Promise<void>;
 	updateDuration: (duration: number) => Promise<void>;
 	addTrack: (
 		track:
@@ -43,17 +47,19 @@ export const createMedia = async (
 	const w = await writer.createContent();
 	await w.write(header.bytes);
 	const matroskaInfo = makeMatroskaInfo({
-		timescale: 1_000_000,
-		// TODO: Hardcoded
-		duration: 2658,
+		timescale: CREATE_TIME_SCALE,
 	});
 
 	const currentTracks: BytesAndOffset[] = [];
 
-	const matroskaTracks = makeMatroskaTracks(currentTracks);
+	const seeks: Seek[] = [];
+	const cues: Cue[] = [];
+	const trackNumbers: number[] = [];
+
 	const matroskaSegment = createMatroskaSegment([
 		matroskaInfo,
-		...matroskaTracks,
+		...createMatroskaSeekHead(seeks),
+		...makeMatroskaTracks(currentTracks),
 	]);
 
 	const durationOffset =
@@ -63,6 +69,13 @@ export const createMedia = async (
 	const tracksOffset =
 		(matroskaSegment.offsets.children.find((o) => o.field === 'Tracks')
 			?.offset ?? 0) + w.getWrittenByteCount();
+	const seekHeadOffset =
+		(matroskaSegment.offsets.children.find((o) => o.field === 'SeekHead')
+			?.offset ?? 0) + w.getWrittenByteCount();
+
+	if (!seekHeadOffset) {
+		throw new Error('could not get seek offset');
+	}
 
 	if (!durationOffset) {
 		throw new Error('could not get duration offset');
@@ -72,56 +85,82 @@ export const createMedia = async (
 		throw new Error('could not get tracks offset');
 	}
 
+	seeks.push({
+		hexString: matroskaElements.Tracks,
+		byte: tracksOffset - seekHeadOffset,
+	});
+
+	const updateSeekWrite = async () => {
+		const updatedSeek = createMatroskaSeekHead(seeks);
+		await w.updateDataAt(
+			seekHeadOffset,
+			combineUint8Arrays(updatedSeek.map((b) => b.bytes)),
+		);
+	};
+
+	const segmentOffset =
+		w.getWrittenByteCount() +
+		matroskaToHex(matroskaElements.Segment).byteLength;
+
+	const updateSegmentSize = async (size: number) => {
+		const data = getVariableInt(size, MATROSKA_SEGMENT_MIN_VINT_WIDTH);
+		await w.updateDataAt(segmentOffset, data);
+	};
+
 	await w.write(matroskaSegment.bytes);
 
-	const cluster = createClusterSegment();
-	const clusterVIntPosition =
-		w.getWrittenByteCount() +
-		cluster.offsets.offset +
-		matroskaToHex(matroskaElements.Cluster).byteLength;
+	const clusterOffset = w.getWrittenByteCount();
+	let currentCluster = await makeCluster(w, 0);
+	seeks.push({
+		hexString: matroskaElements.Cluster,
+		byte: clusterOffset - seekHeadOffset,
+	});
+	cues.push({
+		time: 0,
+		clusterPosition: clusterOffset - seekHeadOffset,
+		trackNumbers,
+	});
 
-	let clusterSize = cluster.bytes.byteLength;
-	await w.write(cluster.bytes);
+	const trackNumberProgresses: Record<number, number> = {};
 
-	const addSample = async (chunk: EncodedVideoChunk, trackNumber: number) => {
-		const arr = new Uint8Array(chunk.byteLength);
-		chunk.copyTo(arr);
-		const simpleBlock = makeSimpleBlock({
-			bytes: arr,
-			invisible: false,
-			keyframe: chunk.type === 'key',
-			lacing: 0,
-			trackNumber,
-			// TODO: Maybe this is bad, because it's in microseconds, but should be in timescale
-			// Maybe it only works by coincidence
-			timecodeRelativeToCluster: Math.round(chunk.timestamp / 1000),
+	const getClusterOrMakeNew = async (chunk: AudioOrVideoSample) => {
+		const smallestProgress = Math.min(...Object.values(trackNumberProgresses));
+		if (
+			!currentCluster.shouldMakeNewCluster(
+				smallestProgress,
+				chunk.type === 'key',
+			)
+		) {
+			return currentCluster;
+		}
+
+		const newCluster = w.getWrittenByteCount();
+		cues.push({
+			time: smallestProgress,
+			clusterPosition: newCluster - seekHeadOffset,
+			trackNumbers,
 		});
 
-		clusterSize += simpleBlock.byteLength;
-		await w.updateDataAt(
-			clusterVIntPosition,
-			getVariableInt(clusterSize, CLUSTER_MIN_VINT_WIDTH),
+		currentCluster = await makeCluster(w, smallestProgress);
+		return currentCluster;
+	};
+
+	const addSample = async (chunk: AudioOrVideoSample, trackNumber: number) => {
+		trackNumberProgresses[trackNumber] = chunk.timestamp;
+		const cluster = await getClusterOrMakeNew(chunk);
+
+		const newDuration = Math.round(
+			(chunk.timestamp + (chunk.duration ?? 0)) / 1000,
 		);
-		await w.write(simpleBlock);
+
+		await updateDuration(newDuration);
+
+		return cluster.addSample(chunk, trackNumber);
 	};
 
 	const updateDuration = async (newDuration: number) => {
-		const blocks = padMatroskaBytes(
-			{
-				type: 'Duration',
-				value: {
-					value: newDuration,
-					size: '64',
-				},
-				minVintWidth: null,
-			},
-			// TODO: That's too much padding
-			1000,
-		);
-		await w.updateDataAt(
-			durationOffset,
-			combineUint8Arrays(blocks.map((b) => b.bytes)),
-		);
+		const blocks = makeDurationWithPadding(newDuration);
+		await w.updateDataAt(durationOffset, blocks.bytes);
 	};
 
 	const addTrack = async (track: BytesAndOffset) => {
@@ -134,21 +173,29 @@ export const createMedia = async (
 		);
 	};
 
-	let operationProm = Promise.resolve();
+	const operationProm = {current: Promise.resolve()};
 
 	const waitForFinishPromises: (() => Promise<void>)[] = [];
 
 	return {
 		save: async () => {
-			await w.save();
+			const file = await w.save();
+			return file;
+		},
+		remove: async () => {
+			await w.remove();
 		},
 		addSample: (chunk, trackNumber) => {
-			operationProm = operationProm.then(() => addSample(chunk, trackNumber));
-			return operationProm;
+			operationProm.current = operationProm.current.then(() =>
+				addSample(chunk, trackNumber),
+			);
+			return operationProm.current;
 		},
 		updateDuration: (duration) => {
-			operationProm = operationProm.then(() => updateDuration(duration));
-			return operationProm;
+			operationProm.current = operationProm.current.then(() =>
+				updateDuration(duration),
+			);
+			return operationProm.current;
 		},
 		addTrack: (track) => {
 			const trackNumber = currentTracks.length + 1;
@@ -158,15 +205,27 @@ export const createMedia = async (
 					? makeMatroskaVideoTrackEntryBytes({...track, trackNumber})
 					: makeMatroskaAudioTrackEntryBytes({...track, trackNumber});
 
-			operationProm = operationProm.then(() => addTrack(bytes));
+			operationProm.current = operationProm.current.then(() => addTrack(bytes));
+			trackNumbers.push(trackNumber);
 
-			return operationProm.then(() => ({trackNumber}));
+			return operationProm.current.then(() => ({trackNumber}));
 		},
 		addWaitForFinishPromise: (promise) => {
 			waitForFinishPromises.push(promise);
 		},
 		async waitForFinish() {
 			await Promise.all(waitForFinishPromises.map((p) => p()));
+			await operationProm.current;
+			seeks.push({
+				hexString: matroskaElements.Cues,
+				byte: w.getWrittenByteCount() - seekHeadOffset,
+			});
+			await updateSeekWrite();
+
+			await w.write(createMatroskaCues(cues).bytes);
+			const segmentSize = w.getWrittenByteCount() - segmentOffset;
+			await w.waitForFinish();
+			await updateSegmentSize(segmentSize);
 		},
 	};
 };

@@ -108,14 +108,27 @@ class CustomCredentialsWithoutSensitiveData:
 @dataclass
 class CustomCredentials(CustomCredentialsWithoutSensitiveData):
     """
-    Represents custom credentials, extending credentials without sensitive data.
+        Represents custom credentials, extending credentials without sensitive data.
 
-    Attributes:
-        access_key_id (Optional[str]): The access key ID.
-        secret_access_key (Optional[str]): The secret access key.
-    """
+        Attributes:
+            access_key_id (Optional[str]): The access key ID.
+            secret_access_key (Optional[str]): The secret access key.
+        """
     access_key_id: Optional[str] = None
     secret_access_key: Optional[str] = None
+    region: Optional[str] = None
+
+    def serialize_params(self) -> Dict:
+        """
+        Serializes the credentials to a dictionary.
+        """
+        parameters = {
+            'accessKeyId': self.access_key_id,
+            'secretAccessKey': self.secret_access_key,
+            'region': self.region,
+            'endpoint': self.endpoint,
+        }
+        return parameters
 
 
 @dataclass
@@ -184,6 +197,7 @@ class RenderProgressParams:
     region: str
     log_level: str
     force_path_style: Optional[bool] = None
+    s3_output_provider: Optional[CustomCredentials] = None
 
     def serialize_params(self) -> Dict:
         """
@@ -195,12 +209,17 @@ class RenderProgressParams:
             'type': 'status',
             "version": VERSION,
             "logLevel": self.log_level,
-            "s3OutputProvider": None,
+            "s3OutputProvider": self.s3_output_provider,
         }
         if self.force_path_style is not None:
             parameters['forcePathStyle'] = self.force_path_style
         else:
             parameters['forcePathStyle'] = False
+
+        if self.s3_output_provider is not None:
+            parameters['s3OutputProvider'] = self.s3_output_provider.serialize_params()
+        else:
+            parameters['s3OutputProvider'] = None
         return parameters
 
 

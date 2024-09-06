@@ -87,6 +87,7 @@ export const parseMedia: ParseMedia = async ({
 			parseResult = await parseVideo({
 				iterator,
 				options,
+				signal: signal ?? null,
 			});
 		}
 
@@ -161,7 +162,7 @@ export const parseMedia: ParseMedia = async ({
 	}
 
 	if (fields?.audioCodec) {
-		returnValue.audioCodec = getAudioCodec(parseResult.segments);
+		returnValue.audioCodec = getAudioCodec(parseResult.segments, state);
 	}
 
 	if (fields?.tracks) {

@@ -3,9 +3,9 @@ import type {BufferIterator} from '../../../buffer-iterator';
 import {getTracks, hasTracks} from '../../../get-tracks';
 import type {AnySegment} from '../../../parse-result';
 import type {ParserContext} from '../../../parser-context';
-import {getMoofBox} from '../../../traversal';
 import {getSamplePositionsFromTrack} from '../get-sample-positions-from-track';
 import type {TrakBox} from '../trak/trak';
+import {getMoofBox} from '../traversal';
 
 export interface MdatBox {
 	type: 'mdat-box';
@@ -20,12 +20,14 @@ export const parseMdat = async ({
 	fileOffset,
 	existingBoxes,
 	options,
+	signal,
 }: {
 	data: BufferIterator;
 	size: number;
 	fileOffset: number;
 	existingBoxes: AnySegment[];
 	options: ParserContext;
+	signal: AbortSignal | null;
 }): Promise<MdatBox> => {
 	const alreadyHas = hasTracks(existingBoxes);
 	if (!alreadyHas) {
@@ -66,6 +68,10 @@ export const parseMdat = async ({
 
 	// eslint-disable-next-line no-constant-condition
 	while (true) {
+		if (signal && signal.aborted) {
+			break;
+		}
+
 		const samplesWithIndex = flatSamples.find((sample) => {
 			return sample.samplePosition.offset === data.counter.getOffset();
 		});
@@ -95,9 +101,13 @@ export const parseMdat = async ({
 		const bytes = data.getSlice(samplesWithIndex.samplePosition.size);
 
 		if (samplesWithIndex.track.type === 'audio') {
+			const timestamp = Math.floor(
+				(samplesWithIndex.samplePosition.cts * 1_000_000) /
+					samplesWithIndex.track.timescale,
+			);
 			await options.parserState.onAudioSample(samplesWithIndex.track.trackId, {
 				data: bytes,
-				timestamp: samplesWithIndex.samplePosition.offset,
+				timestamp,
 				trackId: samplesWithIndex.track.trackId,
 				type: samplesWithIndex.samplePosition.isKeyframe ? 'key' : 'delta',
 			});

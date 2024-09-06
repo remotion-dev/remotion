@@ -80,10 +80,6 @@ export const callLambdaWithStreaming = async <
 		// Do not remove this await
 		await callLambdaWithStreamingWithoutRetry<T, Provider>(options);
 	} catch (err) {
-		if (options.retriesRemaining === 0) {
-			throw err;
-		}
-
 		if (
 			!(err as Error).message.includes(INVALID_JSON_MESSAGE) &&
 			!(err as Error).message.includes(LAMBDA_STREAM_STALL) &&
@@ -92,9 +88,13 @@ export const callLambdaWithStreaming = async <
 			throw err;
 		}
 
-		console.error(err);
-		console.error('Retries remaining', options.retriesRemaining);
+		console.error('Retries remaining:', options.retriesRemaining);
+		if (options.retriesRemaining === 0) {
+			console.error('Throwing error:');
+			throw err;
+		}
 
+		console.error(err);
 		return callLambdaWithStreaming({
 			...options,
 			retriesRemaining: options.retriesRemaining - 1,

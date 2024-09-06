@@ -39,6 +39,7 @@ export const lockFilePaths: LockfilePath[] = [
 export const getPackageManager = (
 	remotionRoot: string,
 	packageManager: string | undefined,
+	dirUp: number,
 ): LockfilePath | 'unknown' => {
 	if (packageManager) {
 		const manager = lockFilePaths.find((p) => p.manager === packageManager);
@@ -55,11 +56,17 @@ export const getPackageManager = (
 	}
 
 	const existingPkgManagers = lockFilePaths.filter((p) =>
-		fs.existsSync(path.join(remotionRoot, p.path)),
+		fs.existsSync(
+			path.join(remotionRoot, ...new Array(dirUp).fill('..'), p.path),
+		),
 	);
 
-	if (existingPkgManagers.length === 0) {
+	if (existingPkgManagers.length === 0 && dirUp >= 2) {
 		return 'unknown';
+	}
+
+	if (existingPkgManagers.length === 0) {
+		return getPackageManager(remotionRoot, packageManager, dirUp + 1);
 	}
 
 	if (existingPkgManagers.length > 1) {

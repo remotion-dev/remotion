@@ -11,35 +11,52 @@ const createContent = async () => {
 
 	let written = 0;
 
+	let writPromise = Promise.resolve();
+
+	const write = async (arr: Uint8Array) => {
+		await writable.write(arr);
+		written += arr.byteLength;
+	};
+
+	const updateDataAt = async (position: number, data: Uint8Array) => {
+		await writable.seek(position);
+		await writable.write(data);
+		await writable.seek(written);
+	};
+
+	const remove = async () => {
+		await directoryHandle.removeEntry(filename, {
+			recursive: true,
+		});
+	};
+
 	const writer: Writer = {
-		write: async (arr: Uint8Array) => {
-			await writable.write(arr);
-			written += arr.byteLength;
+		write: (arr: Uint8Array) => {
+			writPromise = writPromise.then(() => write(arr));
+			return writPromise;
 		},
 		save: async () => {
-			await writable.close();
-			const picker = await window.showSaveFilePicker({
-				suggestedName: `${Math.random().toString().replace('.', '')}.webm`,
-			});
+			try {
+				await writable.close();
+			} catch (err) {
+				// Ignore, could already be closed
+			}
 
 			const newHandle = await directoryHandle.getFileHandle(filename, {
 				create: true,
 			});
 			const newFile = await newHandle.getFile();
-			const pickerWriteable = await picker.createWritable();
-			const stream = newFile.stream();
-			await stream.pipeTo(pickerWriteable);
-
-			await directoryHandle.removeEntry(filename, {
-				recursive: true,
-			});
+			return newFile;
 		},
 		getWrittenByteCount: () => written,
-		updateDataAt: async (position: number, vint: Uint8Array) => {
-			await writable.seek(position);
-			await writable.write(vint);
-			await writable.seek(written);
+		updateDataAt: (position: number, data: Uint8Array) => {
+			writPromise = writPromise.then(() => updateDataAt(position, data));
+			return writPromise;
 		},
+		waitForFinish: async () => {
+			await writPromise;
+		},
+		remove,
 	};
 
 	return writer;
@@ -47,4 +64,17 @@ const createContent = async () => {
 
 export const webFsWriter: WriterInterface = {
 	createContent,
+};
+
+export const canUseWebFsWriter = async () => {
+	const directoryHandle = await navigator.storage.getDirectory();
+	const fileHandle = await directoryHandle.getFileHandle(
+		'remotion-probe-web-fs-support',
+		{
+			create: true,
+		},
+	);
+
+	const canUse = fileHandle.createWritable !== undefined;
+	return canUse;
 };

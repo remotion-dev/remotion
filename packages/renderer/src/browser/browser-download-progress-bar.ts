@@ -23,9 +23,9 @@ export const defaultBrowserDownloadProgress =
 			`Customize this behavior by adding a onBrowserDownload function to ${api}.`,
 		);
 
+		let lastProgress = 0;
 		return {
 			onProgress: (progress) => {
-				let lastProgress = 0;
 				if (progress.downloadedBytes > lastProgress + 10_000_000) {
 					lastProgress = progress.downloadedBytes;
 

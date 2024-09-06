@@ -459,6 +459,13 @@ export const getArrayBufferIterator = (
 				value = (value << 8) | d[i];
 			}
 
+			// Livestreamed segments sometimes have a Cluster length of 0xFFFFFFFFFFFFFF
+			// which we parse as -1
+			// this should be treated as Infinity
+			if (value === -1) {
+				return Infinity;
+			}
+
 			return value;
 		},
 		getUint8,

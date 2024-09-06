@@ -1,6 +1,15 @@
 import {createMedia} from './create/create-media';
 
-export {AudioTrack, OtherTrack, Track, VideoTrack} from './get-tracks';
+export {
+	AudioTrack,
+	MediaParserAudioCodec,
+	MediaParserVideoCodec,
+	OtherTrack,
+	Track,
+	VideoTrack,
+	VideoTrackColorParams,
+} from './get-tracks';
+
 export {parseMedia} from './parse-media';
 export {
 	AudioSample,

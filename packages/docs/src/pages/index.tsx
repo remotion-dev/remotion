@@ -7,8 +7,7 @@ import {
 	VideoAppsTitle,
 } from '../../components/LambdaSplash/VideoAppsTitle';
 import {BackgroundAnimation} from '../../components/LandingPage/BackgroundAnimation';
-import DeveloperCommunityStats from '../../components/LandingPage/DeveloperCommunityStats';
-import DeveloperCommunityStats2 from '../../components/LandingPage/DeveloperCommunityStats2';
+import CommunityStats from '../../components/LandingPage/CommunityStats';
 import EvaluateRemotionSection from '../../components/LandingPage/EvaluateRemotionSection';
 import {NewsletterButton} from '../../components/LandingPage/NewsletterButton';
 import {Pricing} from '../../components/LandingPage/Pricing';
@@ -19,9 +18,6 @@ import {IfYouKnowReact} from '../../components/LandingPage/if-you-know-react';
 import {Parametrize} from '../../components/LandingPage/parametrize';
 import {RealMP4Videos} from '../../components/LandingPage/real-mp4-videos';
 import styles from './landing.module.css';
-
-const SHOW_DEVELOPER_COMMUNITY_STATS = false;
-const SHOW_TRUSTED_BY_BANNER = false;
 
 const NewLanding: React.FC = () => {
 	return (
@@ -42,16 +38,6 @@ const NewLanding: React.FC = () => {
 				<br />
 				<div className={styles.content}>
 					<WriteInReact />
-					<br />
-					{SHOW_TRUSTED_BY_BANNER && <TrustedByBanner />}
-					<br />
-					{SHOW_DEVELOPER_COMMUNITY_STATS && (
-						<>
-							<DeveloperCommunityStats />
-							<br />
-							<DeveloperCommunityStats2 />
-						</>
-					)}
 					<br />
 					<IfYouKnowReact />
 					<br />
@@ -76,8 +62,13 @@ const NewLanding: React.FC = () => {
 					<VideoApps active="remotion" />
 					<br />
 					<br />
+					<CommunityStats />
+					<br />
+					<br />
 					<PricingTitle />
 					<Pricing />
+					<TrustedByBanner />
+					<br />
 					<EvaluateRemotionSection />
 					<NewsletterButton />
 					<br />

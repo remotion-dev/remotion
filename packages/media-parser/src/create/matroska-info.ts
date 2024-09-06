@@ -1,12 +1,7 @@
-import {makeMatroskaBytes, padMatroskaBytes} from '../boxes/webm/make-header';
+import {makeMatroskaBytes} from '../boxes/webm/make-header';
+import {makeDurationWithPadding} from './make-duration-with-padding';
 
-export const makeMatroskaInfo = ({
-	timescale,
-	duration,
-}: {
-	timescale: number;
-	duration: number;
-}) => {
+export const makeMatroskaInfo = ({timescale}: {timescale: number}) => {
 	return makeMatroskaBytes({
 		type: 'Info',
 		value: [
@@ -28,18 +23,7 @@ export const makeMatroskaInfo = ({
 				value: '@remotion/media-parser',
 				minVintWidth: null,
 			},
-			...padMatroskaBytes(
-				{
-					type: 'Duration',
-					value: {
-						value: duration,
-						size: '64',
-					},
-					minVintWidth: null,
-				},
-				// TODO: That's too much padding
-				1000,
-			),
+			makeDurationWithPadding(0),
 		],
 		minVintWidth: null,
 	});

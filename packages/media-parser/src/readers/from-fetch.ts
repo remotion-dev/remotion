@@ -13,12 +13,13 @@ export const fetchReader: ReaderInterface = {
 
 		if (
 			!resolvedUrl.startsWith('https://') &&
+			!resolvedUrl.startsWith('blob:') &&
 			!resolvedUrl.startsWith('http://')
 		) {
 			return Promise.reject(
 				new Error(
 					resolvedUrl +
-						' is not a URL - needs to start with http:// or https://. If you want to read a local file, pass `nodeReader` to parseMedia().',
+						' is not a URL - needs to start with http:// or https:// or blob:. If you want to read a local file, pass `reader: nodeReader` to parseMedia().',
 				),
 			);
 		}
@@ -60,7 +61,9 @@ export const fetchReader: ReaderInterface = {
 			signal.addEventListener(
 				'abort',
 				() => {
-					reader.cancel();
+					reader.cancel().catch(() => {
+						// Prevent unhandled rejection in Firefox
+					});
 				},
 				{once: true},
 			);

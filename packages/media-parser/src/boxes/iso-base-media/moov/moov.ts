@@ -14,11 +14,13 @@ export const parseMoov = async ({
 	offset,
 	size,
 	options,
+	signal,
 }: {
 	iterator: BufferIterator;
 	offset: number;
 	size: number;
 	options: ParserContext;
+	signal: AbortSignal | null;
 }): Promise<MoovBox> => {
 	const children = await parseBoxes({
 		iterator,
@@ -28,6 +30,7 @@ export const parseMoov = async ({
 		options,
 		continueMdat: false,
 		littleEndian: false,
+		signal,
 	});
 
 	if (children.status === 'incomplete') {
