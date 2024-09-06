@@ -87,12 +87,7 @@ export const makeVideoTrackHandler =
 
 		const {trackNumber} = await state.addTrack({
 			type: 'video',
-			color: {
-				transferCharacteristics: 'bt709',
-				matrixCoefficients: 'bt709',
-				primaries: 'bt709',
-				fullRange: true,
-			},
+			color: track.color,
 			width: track.codedWidth,
 			height: track.codedHeight,
 			codec: videoCodec,
