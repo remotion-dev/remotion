@@ -17,6 +17,8 @@ import {
 	type ConvertMediaVideoCodec,
 } from './codec-id';
 import Error from './error-cause';
+import {resolveAudioAction} from './resolve-audio-action';
+import {resolveVideoAction} from './resolve-video-action';
 import {createVideoDecoder} from './video-decoder';
 import {getVideoDecoderConfigWithHardwareAcceleration} from './video-decoder-config';
 import {createVideoEncoder} from './video-encoder';
@@ -36,12 +38,6 @@ export type ConvertMediaResult = {
 	save: () => Promise<File>;
 	remove: () => Promise<void>;
 };
-
-type AudioMode = 'reencode' | 'copy' | 'drop';
-type VideoMode = 'reencode' | 'copy' | 'drop';
-// TODO: Unhardcode
-const AUDIO_MODE: AudioMode = 'reencode' as AudioMode;
-const VIDEO_MODE: VideoMode = 'reencode' as VideoMode;
 
 export const convertMedia = async ({
 	src,
@@ -116,12 +112,16 @@ export const convertMedia = async ({
 		});
 		const videoDecoderConfig =
 			await getVideoDecoderConfigWithHardwareAcceleration(track);
+		const videoOperation = await resolveVideoAction({
+			videoDecoderConfig,
+			videoEncoderConfig,
+		});
 
-		if (VIDEO_MODE === 'drop') {
+		if (videoOperation === 'drop') {
 			return null;
 		}
 
-		if (VIDEO_MODE === 'copy') {
+		if (videoOperation === 'copy') {
 			// TODO: Copy over video track
 
 			const videoTrack = await state.addTrack({
@@ -235,7 +235,7 @@ export const convertMedia = async ({
 
 	const onAudioTrack: OnAudioTrack = async (track) => {
 		const audioEncoderConfig = await getAudioEncoderConfig({
-			codec: 'opus',
+			codec: audioCodec,
 			numberOfChannels: track.numberOfChannels,
 			sampleRate: track.sampleRate,
 			bitrate: 128000,
@@ -247,11 +247,16 @@ export const convertMedia = async ({
 			description: track.description,
 		});
 
-		if (AUDIO_MODE === 'drop') {
+		const audioOperation = await resolveAudioAction({
+			audioDecoderConfig,
+			audioEncoderConfig,
+		});
+
+		if (audioOperation === 'drop') {
 			return null;
 		}
 
-		if (AUDIO_MODE === 'copy') {
+		if (audioOperation === 'copy') {
 			const addedTrack = await state.addTrack({
 				type: 'audio',
 				codecId: codecNameToMatroskaAudioCodecId(audioCodec),
