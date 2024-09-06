@@ -60,6 +60,7 @@ export const makeVideoTrackHandler =
 				width: track.codedWidth,
 				height: track.codedHeight,
 				codecId: track.codec,
+				codecPrivate: track.codecPrivate,
 			});
 			return (sample) => {
 				state.addSample(new EncodedVideoChunk(sample), videoTrack.trackNumber);
@@ -97,6 +98,7 @@ export const makeVideoTrackHandler =
 			width: track.codedWidth,
 			height: track.codedHeight,
 			codecId: codecNameToMatroskaCodecId(videoCodec),
+			codecPrivate: null,
 		});
 
 		const videoEncoder = createVideoEncoder({

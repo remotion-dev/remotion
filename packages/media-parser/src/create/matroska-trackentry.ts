@@ -159,6 +159,7 @@ export type MakeTrackVideo = {
 	trackNumber: number;
 	codecId: string;
 	type: 'video';
+	codecPrivate: Uint8Array | null;
 };
 
 export const makeMatroskaAudioTrackEntryBytes = ({
@@ -253,6 +254,7 @@ export const makeMatroskaVideoTrackEntryBytes = ({
 	height,
 	trackNumber,
 	codecId,
+	codecPrivate,
 }: MakeTrackVideo) => {
 	return makeMatroskaBytes({
 		type: 'TrackEntry',
@@ -310,7 +312,14 @@ export const makeMatroskaVideoTrackEntryBytes = ({
 				width,
 				height,
 			}),
-		],
+			codecPrivate
+				? {
+						type: 'CodecPrivate',
+						minVintWidth: null,
+						value: codecPrivate,
+					}
+				: null,
+		].filter(Boolean) as PossibleEbmlOrUint8Array[],
 	});
 };
 

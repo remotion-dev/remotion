@@ -27,6 +27,7 @@ export type VideoTrack = {
 	codedHeight: number;
 	rotation: number;
 	trakBox: TrakBox | null;
+	codecPrivate: Uint8Array | null;
 };
 
 export type AudioTrack = {
