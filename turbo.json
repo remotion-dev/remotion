@@ -85,11 +85,11 @@
 			"dependsOn": ["^@remotion/media-parser#build"],
 			"outputs": ["dist/esm/**"]
 		},
-		"@remotion/convert#build": {
+		"@remotion/convert#build-page": {
 			"dependsOn": ["^@remotion/webcodecs#build"]
 		},
 		"convert": {
-			"dependsOn": ["^@remotion/convert#build"]
+			"dependsOn": ["^@remotion/convert#build-page"]
 		}
 	}
 }
