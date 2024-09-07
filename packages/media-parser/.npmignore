@@ -1,2 +1,9 @@
 dist/test
 vp8-segments
+input.webm
+src
+tsconfig.json
+tsconfig.tsbuildinfo
+bundle.ts
+.turbo
+.eslintrc

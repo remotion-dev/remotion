@@ -2,7 +2,7 @@ import type {MetaFunction} from '@remix-run/node';
 import type {Dimensions, MediaParserVideoCodec} from '@remotion/media-parser';
 import {parseMedia} from '@remotion/media-parser';
 import {useCallback, useEffect, useState} from 'react';
-import {ConvertUI} from '~/components/ConvertUi';
+import ConvertUI from '~/components/ConvertUi';
 import {TableDemo} from '~/components/DataTable';
 import {VideoPreview} from '~/components/VideoPreview';
 
