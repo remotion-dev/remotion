@@ -1,5 +1,10 @@
-type ReadResult = {
+type Reader = {
 	reader: ReadableStreamDefaultReader<Uint8Array>;
+	abort: () => void;
+};
+
+type ReadResult = {
+	reader: Reader;
 	contentLength: number | null;
 	name: string;
 };

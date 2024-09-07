@@ -59,7 +59,7 @@ export const parseMedia: ParseMedia = async ({
 			throw new Error('Aborted');
 		}
 
-		const result = await currentReader.read();
+		const result = await currentReader.reader.read();
 
 		if (iterator) {
 			if (!result.done) {
@@ -102,10 +102,6 @@ export const parseMedia: ParseMedia = async ({
 		// TODO Better: Check if no active listeners are registered
 		// Also maybe check for canSkipVideoData
 		if (hasAllInfo && !onVideoTrack && !onAudioTrack) {
-			if (!currentReader.closed) {
-				currentReader.cancel(new Error('has all information'));
-			}
-
 			break;
 		}
 
@@ -114,10 +110,6 @@ export const parseMedia: ParseMedia = async ({
 			parseResult.status === 'incomplete' &&
 			parseResult.skipTo !== null
 		) {
-			if (!currentReader.closed) {
-				currentReader.cancel(new Error('skipped ahead'));
-			}
-
 			const {reader: newReader} = await readerInterface.read(
 				src,
 				parseResult.skipTo,
@@ -153,7 +145,7 @@ export const parseMedia: ParseMedia = async ({
 		name,
 	});
 
-	currentReader.cancel(new Error('Do not need more information'));
+	currentReader.abort();
 
 	iterator?.destroy();
 	return returnValue;

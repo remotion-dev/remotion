@@ -24,6 +24,8 @@ export const fetchReader: ReaderInterface = {
 			);
 		}
 
+		const controller = new AbortController();
+
 		const res = await fetch(resolvedUrl, {
 			headers:
 				range === null
@@ -35,10 +37,18 @@ export const fetchReader: ReaderInterface = {
 						: {
 								Range: `bytes=${`${range[0]}-${range[1]}`}`,
 							},
-			signal,
+			signal: controller.signal,
 			// Disable Next.js caching
 			cache: 'no-store',
 		});
+
+		signal?.addEventListener(
+			'abort',
+			() => {
+				controller.abort();
+			},
+			{once: true},
+		);
 
 		if (
 			res.status.toString().startsWith('4') ||
@@ -73,7 +83,16 @@ export const fetchReader: ReaderInterface = {
 			);
 		}
 
-		return {reader, contentLength, name: name ?? (fallbackName as string)};
+		return {
+			reader: {
+				reader,
+				abort: () => {
+					controller.abort();
+				},
+			},
+			contentLength,
+			name: name ?? (fallbackName as string),
+		};
 	},
 	getLength: async (src) => {
 		if (typeof src !== 'string') {
