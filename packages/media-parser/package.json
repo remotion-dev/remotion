@@ -11,7 +11,7 @@
 		"lint": "eslint src --ext ts,tsx",
 		"test": "bun test src/test",
 		"watch": "tsc -w",
-		"build": "NODE_ENV=production bun bundle.ts"
+		"build": "bun --env-file=../.env.bundle bundle.ts"
 	},
 	"devDependencies": {
 		"@remotion/renderer": "workspace:*",
