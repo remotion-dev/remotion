@@ -28,10 +28,15 @@ export const parseMedia: ParseMedia = async ({
 		hasVideoCallbacks: onVideoTrack !== null,
 		signal,
 	});
-	const {reader, contentLength} = await readerInterface.read(src, null, signal);
+	const {reader, contentLength, name} = await readerInterface.read(
+		src,
+		null,
+		signal,
+	);
 	let currentReader = reader;
 
 	const returnValue = {} as Metadata<
+		true,
 		true,
 		true,
 		true,
@@ -182,6 +187,10 @@ export const parseMedia: ParseMedia = async ({
 
 	if (fields?.size) {
 		returnValue.size = contentLength;
+	}
+
+	if (fields?.name) {
+		returnValue.name = name;
 	}
 
 	iterator?.destroy();

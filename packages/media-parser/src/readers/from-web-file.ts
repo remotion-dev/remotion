@@ -31,6 +31,7 @@ export const webFileReader: ReaderInterface = {
 				resolve({
 					reader: part.stream().getReader(),
 					contentLength: file.size,
+					name: file.name,
 				});
 			};
 

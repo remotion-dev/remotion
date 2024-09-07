@@ -38,6 +38,7 @@ export const nodeReader: ReaderInterface = {
 		return {
 			reader,
 			contentLength: stats.size,
+			name: src.split('/').pop() as string,
 		};
 	},
 	getLength: async (src) => {
