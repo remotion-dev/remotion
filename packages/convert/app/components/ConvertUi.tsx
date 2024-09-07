@@ -1,7 +1,7 @@
 'use client';
 
 import {Button} from '@/components/ui/button';
-import {CardContent, CardFooter, CardTitle} from '@/components/ui/card';
+import {CardContent, CardTitle} from '@/components/ui/card';
 import {Label} from '@/components/ui/label';
 import {
 	Select,
@@ -40,12 +40,8 @@ export default function ConvertUI({src}: {readonly src: string}) {
 		});
 	}, [abortController.signal, src, container, videoCodec, audioCodec]);
 
-	const onAbort = useCallback(() => {
-		abortController.abort();
-	}, [abortController]);
-
 	return (
-		<div className="w-[350px]">
+		<div className="w-[380px]">
 			<CardContent className="gap-4">
 				<div className="grid w-full items-center gap-4">
 					<CardTitle>Convert video</CardTitle>
@@ -89,15 +85,11 @@ export default function ConvertUI({src}: {readonly src: string}) {
 						</Select>
 					</div>
 				</div>
-			</CardContent>
-			<CardFooter className="flex justify-between">
-				<Button variant="outline" type="button" onClick={onAbort}>
-					Abort
-				</Button>
-				<Button type="button" onClick={onClick}>
+				<div className="h-4" />
+				<Button className="block w-full" type="button" onClick={onClick}>
 					Convert
 				</Button>
-			</CardFooter>
+			</CardContent>
 		</div>
 	);
 }
