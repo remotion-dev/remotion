@@ -1,4 +1,8 @@
-import type {ParseMediaResult} from '@remotion/media-parser';
+import type {
+	Dimensions,
+	MediaParserAudioCodec,
+	MediaParserVideoCodec,
+} from '@remotion/media-parser';
 import {parseMedia} from '@remotion/media-parser';
 import React, {useCallback, useEffect, useState} from 'react';
 import {TableDemo} from './DataTable';
@@ -19,15 +23,19 @@ export const Probe: React.FC<{
 	readonly setProbeDetails: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly probeDetails: boolean;
 }> = ({src, probeDetails, setProbeDetails}) => {
-	const [metadata, setMetadata] = useState<ParseMediaResult<{
-		audioCodec: true;
-		fps: true;
-		durationInSeconds: true;
-		videoCodec: true;
-		dimensions: true;
-		name: true;
-		size: true;
-	}> | null>(null);
+	const [audioCodec, setAudioCodec] = useState<MediaParserAudioCodec | null>(
+		null,
+	);
+	const [fps, setFps] = useState<number | null | undefined>(undefined);
+	const [durationInSeconds, setDurationInSeconds] = useState<number | null>(
+		null,
+	);
+	const [dimensions, setDimensions] = useState<Dimensions | null>(null);
+	const [name, setName] = useState<string | null>(null);
+	const [videoCodec, setVideoCodec] = useState<MediaParserVideoCodec | null>(
+		null,
+	);
+	const [size, setSize] = useState<number | null>(null);
 
 	const getStart = useCallback(() => {
 		parseMedia({
@@ -41,8 +49,29 @@ export const Probe: React.FC<{
 				fps: true,
 				name: true,
 			},
-		}).then((data) => {
-			setMetadata(data);
+			onAudioCodec: (codec) => {
+				setAudioCodec(codec);
+			},
+			onFps: (f) => {
+				setFps(f);
+			},
+			onDurationInSeconds: (d) => {
+				setDurationInSeconds(d);
+			},
+			onName: (n) => {
+				setName(n);
+			},
+			onDimensions(dim) {
+				setDimensions(dim);
+			},
+			onVideoCodec: (codec) => {
+				setVideoCodec(codec);
+			},
+			onSize(s) {
+				setSize(s);
+			},
+		}).then(() => {
+			console.log('done');
 		});
 	}, [src]);
 
@@ -54,17 +83,11 @@ export const Probe: React.FC<{
 		setProbeDetails((p) => !p);
 	}, [setProbeDetails]);
 
-	const title = 'bigbuckbfdsdsfkjsdflkunny.mp4';
-
 	return (
 		<Card className={probeDetails ? 'w-[800px]' : 'w-[350px]'}>
 			<CardHeader>
-				<CardTitle title={title}>
-					{metadata?.name ? (
-						metadata.name
-					) : (
-						<Skeleton className="h-5 w-[220px] inline-block" />
-					)}
+				<CardTitle title={name ?? undefined}>
+					{name ? name : <Skeleton className="h-5 w-[220px] inline-block" />}
 				</CardTitle>
 				<CardDescription>From URL</CardDescription>
 			</CardHeader>
@@ -81,12 +104,12 @@ export const Probe: React.FC<{
 				) : null}
 				<TableDemo
 					container="MP4"
-					dimensions={metadata?.dimensions ?? null}
-					videoCodec={metadata?.videoCodec ?? null}
-					size={metadata?.size ?? null}
-					durationInSeconds={metadata?.durationInSeconds ?? null}
-					audioCodec={metadata?.audioCodec ?? null}
-					fps={metadata?.fps ?? null}
+					dimensions={dimensions ?? null}
+					videoCodec={videoCodec ?? null}
+					size={size ?? null}
+					durationInSeconds={durationInSeconds}
+					audioCodec={audioCodec ?? null}
+					fps={fps}
 				/>
 			</CardContent>
 			<CardFooter className="flex justify-between">

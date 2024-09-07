@@ -22,7 +22,7 @@ export const TableDemo: React.FC<{
 	readonly videoCodec: MediaParserVideoCodec | null;
 	readonly audioCodec: MediaParserAudioCodec | null;
 	readonly size: number | null;
-	readonly fps: number | null;
+	readonly fps: number | null | undefined;
 }> = ({
 	container,
 	dimensions,
@@ -74,10 +74,12 @@ export const TableDemo: React.FC<{
 				<TableRow>
 					<TableCell colSpan={3}>Frame Rate</TableCell>
 					<TableCell className="text-right">
-						{fps === null ? (
+						{fps === undefined ? (
 							<Skeleton className="h-3 w-[100px] inline-block" />
-						) : (
+						) : fps ? (
 							<>{fps} FPS</>
+						) : (
+							'N/A'
 						)}
 					</TableCell>
 				</TableRow>

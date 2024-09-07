@@ -11,7 +11,7 @@ export const meta: MetaFunction = () => {
 };
 
 const src =
-	'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+	'https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.720p.vp9.webm';
 
 const Index = () => {
 	const [probeDetails, setProbeDetails] = useState(false);
