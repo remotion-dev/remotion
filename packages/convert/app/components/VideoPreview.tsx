@@ -10,12 +10,13 @@ import {
 import React from 'react';
 
 export const VideoPreview: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
+	const title = 'bigbuckbfdsdsfkjsdflkunny.mp4';
 	return (
 		<Card className="w-[350px]">
 			<CardHeader>
-				<CardTitle>bigbuckbunny.mp4</CardTitle>
+				<CardTitle title={title}>{title}</CardTitle>
 				<CardDescription>From URL</CardDescription>
 			</CardHeader>
 			<CardContent>{children}</CardContent>
