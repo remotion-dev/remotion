@@ -1,5 +1,9 @@
 import type {MetaFunction} from '@remix-run/node';
-import type {Dimensions, MediaParserVideoCodec} from '@remotion/media-parser';
+import type {
+	Dimensions,
+	MediaParserAudioCodec,
+	MediaParserVideoCodec,
+} from '@remotion/media-parser';
 import {parseMedia} from '@remotion/media-parser';
 import {useCallback, useEffect, useState} from 'react';
 import ConvertUI from '~/components/ConvertUi';
@@ -21,10 +25,14 @@ const Index = () => {
 	const [videoCodec, setVideoCodec] = useState<MediaParserVideoCodec | null>(
 		null,
 	);
+	const [audioCodec, setAudioCodec] = useState<MediaParserAudioCodec | null>(
+		null,
+	);
 	const [size, setSize] = useState<number | null>(null);
 	const [durationInSeconds, setDurationInSeconds] = useState<number | null>(
 		null,
 	);
+	const [fps, setFps] = useState<number | null>(null);
 
 	const getStart = useCallback(() => {
 		parseMedia({
@@ -34,12 +42,16 @@ const Index = () => {
 				videoCodec: true,
 				size: true,
 				durationInSeconds: true,
+				audioCodec: true,
+				fps: true,
 			},
 		}).then((data) => {
 			setDimensions(data.dimensions);
 			setVideoCodec(data.videoCodec);
+			setAudioCodec(data.audioCodec);
 			setSize(data.size);
 			setDurationInSeconds(data.durationInSeconds);
+			setFps(data.fps);
 		});
 	}, []);
 
@@ -56,6 +68,8 @@ const Index = () => {
 					videoCodec={videoCodec}
 					size={size}
 					durationInSeconds={durationInSeconds}
+					audioCodec={audioCodec}
+					fps={fps}
 				/>
 			</VideoPreview>
 			<ConvertUI src={src} />

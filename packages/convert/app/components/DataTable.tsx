@@ -1,5 +1,9 @@
 import {Table, TableBody, TableCell, TableRow} from '@/components/ui/table';
-import type {Dimensions, MediaParserVideoCodec} from '@remotion/media-parser';
+import type {
+	Dimensions,
+	MediaParserAudioCodec,
+	MediaParserVideoCodec,
+} from '@remotion/media-parser';
 import React from 'react';
 import {formatBytes} from '~/lib/format-bytes';
 import {Skeleton} from './ui/skeleton';
@@ -12,12 +16,22 @@ const formatSeconds = (seconds: number) => {
 };
 
 export const TableDemo: React.FC<{
-	dimensions: Dimensions | null;
-	container: string;
-	durationInSeconds: number | null;
-	videoCodec: MediaParserVideoCodec | null;
-	size: number | null;
-}> = ({container, dimensions, videoCodec, durationInSeconds, size}) => {
+	readonly dimensions: Dimensions | null;
+	readonly container: string;
+	readonly durationInSeconds: number | null;
+	readonly videoCodec: MediaParserVideoCodec | null;
+	readonly audioCodec: MediaParserAudioCodec | null;
+	readonly size: number | null;
+	readonly fps: number | null;
+}> = ({
+	container,
+	dimensions,
+	videoCodec,
+	durationInSeconds,
+	audioCodec,
+	size,
+	fps,
+}) => {
 	return (
 		<Table>
 			<TableBody>
@@ -58,12 +72,32 @@ export const TableDemo: React.FC<{
 					</TableCell>
 				</TableRow>
 				<TableRow>
+					<TableCell colSpan={3}>Frame Rate</TableCell>
+					<TableCell className="text-right">
+						{dimensions === null ? (
+							<Skeleton className="h-3 w-[100px] inline-block" />
+						) : (
+							<>{fps} FPS</>
+						)}
+					</TableCell>
+				</TableRow>
+				<TableRow>
 					<TableCell colSpan={3}>Video Codec</TableCell>
 					<TableCell className="text-right">
 						{videoCodec === null ? (
 							<Skeleton className="h-3 w-[100px] inline-block" />
 						) : (
 							videoCodec
+						)}
+					</TableCell>
+				</TableRow>
+				<TableRow>
+					<TableCell colSpan={3}>Audio Codec</TableCell>
+					<TableCell className="text-right">
+						{audioCodec === null ? (
+							<Skeleton className="h-3 w-[100px] inline-block" />
+						) : (
+							audioCodec
 						)}
 					</TableCell>
 				</TableRow>
