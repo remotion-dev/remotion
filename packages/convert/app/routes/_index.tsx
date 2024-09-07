@@ -8,8 +8,8 @@ import {VideoPreview} from '~/components/VideoPreview';
 
 export const meta: MetaFunction = () => {
 	return [
-		{title: 'New Remix App'},
-		{name: 'description', content: 'Welcome to Remix!'},
+		{title: 'Remotion Convert'},
+		{name: 'description', content: 'Fast video conersion in the browser.'},
 	];
 };
 
