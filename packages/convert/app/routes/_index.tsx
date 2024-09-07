@@ -1,48 +1,29 @@
 import type {MetaFunction} from '@remix-run/node';
-import {convertMedia} from '@remotion/webcodecs';
-import {useCallback, useState} from 'react';
+import {useState} from 'react';
+import ConvertUI from '~/components/ConvertUi';
+import {Probe} from '~/components/Probe';
 
 export const meta: MetaFunction = () => {
 	return [
-		{title: 'New Remix App'},
-		{name: 'description', content: 'Welcome to Remix!'},
+		{title: 'Remotion Convert'},
+		{name: 'description', content: 'Fast video conersion in the browser.'},
 	];
 };
 
+const src =
+	'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+
 const Index = () => {
-	const [abortController, setAbortController] = useState<AbortController>(
-		() => new AbortController(),
-	);
-
-	const onClick = useCallback(async () => {
-		const fn = await convertMedia({
-			src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-			onVideoFrame: () => {
-				console.log('frame');
-				return Promise.resolve();
-			},
-			onMediaStateUpdate: (s) => {
-				console.log('update', s);
-			},
-			videoCodec: 'vp8',
-			audioCodec: 'opus',
-			to: 'webm',
-			signal: abortController.signal,
-		});
-	}, [abortController.signal]);
-
-	const onAbort = useCallback(() => {
-		abortController.abort();
-	}, [abortController]);
+	const [probeDetails, setProbeDetails] = useState(false);
 
 	return (
-		<div className="font-sans p-4">
-			<button type="button" onClick={onClick}>
-				Convert
-			</button>
-			<button type="button" onClick={onAbort}>
-				Abort
-			</button>
+		<div className="font-sans p-4 flex justify-center items-center h-screen bg-slate-50 gap-16">
+			<Probe
+				src={src}
+				probeDetails={probeDetails}
+				setProbeDetails={setProbeDetails}
+			/>
+			{probeDetails ? null : <ConvertUI src={src} />}
 		</div>
 	);
 };

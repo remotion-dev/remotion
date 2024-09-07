@@ -3,7 +3,7 @@ image: /generated/articles-docs-media-parser-parse-media.png
 id: parse-media
 title: parseMedia()
 slug: /media-parser/parse-media
-crumb: "@remotion/media-parser"
+crumb: '@remotion/media-parser'
 ---
 
 _Part of the [`@remotion/media-parser`](/docs/media-parser) package._
@@ -39,7 +39,7 @@ import {parseMedia} from '@remotion/media-parser';
 import {nodeReader} from '@remotion/media-parser/node';
 
 const result = await parseMedia({
-  src:  '/Users/jonnyburger/Downloads/my-video.mp4',
+  src: '/Users/jonnyburger/Downloads/my-video.mp4',
   fields: {
     durationInSeconds: true,
     dimensions: true,
@@ -79,6 +79,18 @@ _number | null_
 
 The duration of the video in seconds.
 
+#### `name`
+
+_string_
+
+The name of the file.
+
+#### `size`
+
+_number | null_
+
+The size of the input in bytes.
+
 #### `boxes`
 
 The internal structure of the video. Unstable, internal data structure, refer to the TypeScript types to see what's inside.
@@ -110,7 +122,7 @@ The data structure of them is not yet stable.
 
 _`{width: number, height: number}`_
 
-The dimensions of the video before rotation.  
+The dimensions of the video before rotation.
 
 #### `rotation`
 
@@ -124,7 +136,6 @@ A reader interface.
 Default value: `fetchReader`, which uses `fetch()` to read the video.  
 If you pass [`nodeReader`](/docs/media-parser/node-reader), you must also pass a local file path as the `src` argument.
 If you pass [`webFileReader`](/docs/media-parser/web-file-reader), you must also pass a `File` as the `src` argument.
-
 
 ### `onVideoTrack?`
 
@@ -143,7 +154,7 @@ const onVideoTrack: OnVideoTrack = (track) => {
   console.log(track);
 
   return (sample) => {
-    console.log(new EncodedVideoChunk(sample))
+    console.log(new EncodedVideoChunk(sample));
   };
 };
 ```
@@ -166,11 +177,10 @@ const onAudioTrack: OnAudioTrack = (track) => {
   console.log(track);
 
   return (sample) => {
-    console.log(new EncodedAudioChunk(sample))
+    console.log(new EncodedAudioChunk(sample));
   };
 };
 ```
-
 
 ### `signal?`
 

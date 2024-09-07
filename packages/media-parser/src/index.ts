@@ -10,6 +10,7 @@ export {
 	VideoTrackColorParams,
 } from './get-tracks';
 
+export type {Options, ParseMediaFields, ParseMediaResult} from './options';
 export {parseMedia} from './parse-media';
 export {
 	AudioSample,
@@ -21,6 +22,7 @@ export {
 } from './webcodec-sample-types';
 
 export type {MediaFn} from './create/create-media';
+export {Dimensions} from './get-dimensions';
 
 export const MediaParserInternals = {
 	createMedia,

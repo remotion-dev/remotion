@@ -2,5 +2,7 @@
 	"extends": ["@jonny/eslint-config/react"],
 	"rules": {
 		"no-console": "error",
+		"react/function-component-definition": "off",
+		"react/require-default-props": "off",
 	},
 }

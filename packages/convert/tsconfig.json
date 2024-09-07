@@ -1,4 +1,5 @@
 {
+	"extends": "../tsconfig.settings.json",
 	"include": [
 		"**/*.ts",
 		"**/*.tsx",
@@ -12,6 +13,7 @@
 		"types": ["@remix-run/node", "vite/client"],
 		"isolatedModules": true,
 		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
 		"jsx": "react-jsx",
 		"module": "ESNext",
 		"moduleResolution": "Bundler",
@@ -23,7 +25,8 @@
 		"forceConsistentCasingInFileNames": true,
 		"baseUrl": ".",
 		"paths": {
-			"~/*": ["./app/*"]
+			"~/*": ["./app/*"],
+			"@/*": ["./app/*"]
 		},
 
 		// Vite takes care of building everything, not tsc.

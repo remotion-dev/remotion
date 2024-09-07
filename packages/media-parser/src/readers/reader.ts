@@ -1,6 +1,7 @@
 type ReadResult = {
 	reader: ReadableStreamDefaultReader<Uint8Array>;
 	contentLength: number | null;
+	name: string;
 };
 type ReadContent = (
 	src: string | File,

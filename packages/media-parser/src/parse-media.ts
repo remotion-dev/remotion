@@ -8,7 +8,7 @@ import {getFps} from './get-fps';
 import {getTracks} from './get-tracks';
 import {getVideoCodec} from './get-video-codec';
 import {hasAllInfo} from './has-all-info';
-import type {Metadata, ParseMedia} from './options';
+import type {ParseMedia, ParseMediaResult} from './options';
 import type {ParseResult} from './parse-result';
 import {parseVideo} from './parse-video';
 import type {ParserContext} from './parser-context';
@@ -28,21 +28,27 @@ export const parseMedia: ParseMedia = async ({
 		hasVideoCallbacks: onVideoTrack !== null,
 		signal,
 	});
-	const {reader, contentLength} = await readerInterface.read(src, null, signal);
+	const {reader, contentLength, name} = await readerInterface.read(
+		src,
+		null,
+		signal,
+	);
 	let currentReader = reader;
 
-	const returnValue = {} as Metadata<
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true
-	>;
+	const returnValue = {} as ParseMediaResult<{
+		dimensions: true;
+		durationInSeconds: true;
+		boxes: true;
+		fps: true;
+		videoCodec: true;
+		audioCodec: true;
+		tracks: true;
+		rotation: true;
+		unrotatedDimensions: true;
+		internalStats: true;
+		size: true;
+		name: true;
+	}>;
 
 	let iterator: BufferIterator | null = null;
 	let parseResult: ParseResult | null = null;
@@ -177,6 +183,14 @@ export const parseMedia: ParseMedia = async ({
 
 	if (fields?.internalStats) {
 		returnValue.internalStats = state.getInternalStats();
+	}
+
+	if (fields?.size) {
+		returnValue.size = contentLength;
+	}
+
+	if (fields?.name) {
+		returnValue.name = name;
 	}
 
 	iterator?.destroy();

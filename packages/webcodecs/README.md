@@ -1,6 +1,6 @@
 # @remotion/webcodecs
  
-Private experimental package
+Media conversion in the browser
  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/webcodecs.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/webcodecs?minimal=true)
  
