@@ -3,6 +3,7 @@ import type {
 	Dimensions,
 	MediaParserAudioCodec,
 	MediaParserVideoCodec,
+	ParseMediaContainer,
 } from '@remotion/media-parser';
 import React from 'react';
 import {formatBytes} from '~/lib/format-bytes';
@@ -17,12 +18,12 @@ const formatSeconds = (seconds: number) => {
 
 export const ContainerOverview: React.FC<{
 	readonly dimensions: Dimensions | null;
-	readonly container: string;
 	readonly durationInSeconds: number | null;
 	readonly videoCodec: MediaParserVideoCodec | null;
 	readonly audioCodec: MediaParserAudioCodec | null;
 	readonly size: number | null;
 	readonly fps: number | null | undefined;
+	readonly container: ParseMediaContainer | null;
 }> = ({
 	container,
 	dimensions,
@@ -36,16 +37,22 @@ export const ContainerOverview: React.FC<{
 		<Table>
 			<TableBody>
 				<TableRow>
-					<TableCell colSpan={3}>Container</TableCell>
-					<TableCell className="text-right">{container}</TableCell>
-				</TableRow>
-				<TableRow>
 					<TableCell colSpan={3}>Size</TableCell>
 					<TableCell className="text-right">
 						{size === null ? (
 							<Skeleton className="h-3 w-[100px] inline-block" />
 						) : (
 							<>{formatBytes(size)}</>
+						)}
+					</TableCell>
+				</TableRow>
+				<TableRow>
+					<TableCell colSpan={3}>Container</TableCell>
+					<TableCell className="text-right">
+						{container ? (
+							<>{String(container)}</>
+						) : (
+							<Skeleton className="h-3 w-[100px] inline-block" />
 						)}
 					</TableCell>
 				</TableRow>

@@ -143,6 +143,7 @@ export const parseMedia: ParseMedia = async ({
 			internalStats: true,
 			size: true,
 			name: true,
+			container: true,
 		},
 		moreFields,
 		parseResult,
@@ -151,6 +152,8 @@ export const parseMedia: ParseMedia = async ({
 		contentLength,
 		name,
 	});
+
+	currentReader.cancel(new Error('Do not need more information'));
 
 	iterator?.destroy();
 	return returnValue;

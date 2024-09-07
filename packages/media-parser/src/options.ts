@@ -33,6 +33,7 @@ export type ParseMediaFields = {
 	internalStats: boolean;
 	size: boolean;
 	name: boolean;
+	container: boolean;
 };
 
 export type AllParseMediaFields = {
@@ -48,6 +49,7 @@ export type AllParseMediaFields = {
 	internalStats: true;
 	size: true;
 	name: true;
+	container: true;
 };
 
 export type Options<Fields extends ParseMediaFields> = {
@@ -63,12 +65,15 @@ export type Options<Fields extends ParseMediaFields> = {
 	internalStats?: Fields['internalStats'];
 	size?: Fields['size'];
 	name?: Fields['name'];
+	container?: Fields['container'];
 };
 
 export type TracksField = {
 	videoTracks: VideoTrack[];
 	audioTracks: AudioTrack[];
 };
+
+export type ParseMediaContainer = 'mp4' | 'webm';
 
 export type ParseMediaCallbacks<Fields extends Options<ParseMediaFields>> =
 	(Fields['dimensions'] extends true
@@ -102,7 +107,10 @@ export type ParseMediaCallbacks<Fields extends Options<ParseMediaFields>> =
 		(Fields['size'] extends true
 			? {onSize?: (size: number | null) => void}
 			: {}) &
-		(Fields['name'] extends true ? {onName?: (name: string) => void} : {});
+		(Fields['name'] extends true ? {onName?: (name: string) => void} : {}) &
+		(Fields['container'] extends true
+			? {onContainer?: (container: ParseMediaContainer | null) => void}
+			: {});
 
 export type ParseMediaResult<Fields extends Options<ParseMediaFields>> =
 	(Fields['dimensions'] extends true ? {dimensions: Dimensions} : {}) &
@@ -126,7 +134,10 @@ export type ParseMediaResult<Fields extends Options<ParseMediaFields>> =
 			? {internalStats: InternalStats}
 			: {}) &
 		(Fields['size'] extends true ? {size: number | null} : {}) &
-		(Fields['name'] extends true ? {name: string} : {});
+		(Fields['name'] extends true ? {name: string} : {}) &
+		(Fields['container'] extends true
+			? {container: ParseMediaContainer | null}
+			: {});
 
 export type ParseMedia = <F extends Options<ParseMediaFields>>(
 	options: {

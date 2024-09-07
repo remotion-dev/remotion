@@ -44,7 +44,7 @@ export const VideoTrackOverview: React.FC<{
 					<TableCell className="text-right">{track.rotation}°</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell colSpan={3}>Native dimensions</TableCell>
+					<TableCell colSpan={3}>Unrotated dimensions</TableCell>
 					<TableCell className="text-right">
 						{track.codedWidth}x{track.codedHeight}
 					</TableCell>

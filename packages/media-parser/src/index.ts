@@ -12,6 +12,7 @@ export {
 
 export type {
 	Options,
+	ParseMediaContainer,
 	ParseMediaFields,
 	ParseMediaResult,
 	TracksField,

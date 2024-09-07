@@ -2,6 +2,7 @@ import type {
 	Dimensions,
 	MediaParserAudioCodec,
 	MediaParserVideoCodec,
+	ParseMediaContainer,
 	TracksField,
 } from '@remotion/media-parser';
 import {parseMedia} from '@remotion/media-parser';
@@ -42,8 +43,10 @@ export const Probe: React.FC<{
 	);
 	const [size, setSize] = useState<number | null>(null);
 	const [tracks, setTracks] = useState<TracksField | null>(null);
+	const [container, setContainer] = useState<ParseMediaContainer | null>(null);
 
 	const getStart = useCallback(() => {
+		const controller = new AbortController();
 		parseMedia({
 			src,
 			fields: {
@@ -55,6 +58,11 @@ export const Probe: React.FC<{
 				fps: true,
 				name: true,
 				tracks: true,
+				container: true,
+			},
+			signal: controller.signal,
+			onContainer(c) {
+				setContainer(c);
 			},
 			onAudioCodec: (codec) => {
 				setAudioCodec(codec);
@@ -80,11 +88,25 @@ export const Probe: React.FC<{
 			onSize(s) {
 				setSize(s);
 			},
-		}).then(() => {});
+		})
+			.then(() => {})
+			.catch((err) => {
+				if ((err as Error).stack?.includes('Cancelled')) {
+					return;
+				}
+
+				// eslint-disable-next-line no-console
+				console.log(err);
+			});
+
+		return controller;
 	}, [src]);
 
 	useEffect(() => {
-		getStart();
+		const start = getStart();
+		return () => {
+			start.abort(new Error('Cancelled (strict mode)'));
+		};
 	}, [getStart]);
 
 	const onClick = useCallback(() => {
@@ -141,7 +163,7 @@ export const Probe: React.FC<{
 				<CardContent className="flex flex-1 flex-col">
 					{selectedTrack === null ? (
 						<ContainerOverview
-							container="MP4"
+							container={container ?? null}
 							dimensions={dimensions ?? null}
 							videoCodec={videoCodec ?? null}
 							size={size ?? null}

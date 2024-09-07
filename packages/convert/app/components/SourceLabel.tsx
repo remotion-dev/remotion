@@ -14,7 +14,7 @@ export const SourceLabel: React.FC<{
 		.replace(/^http:\/\//, '');
 
 	return (
-		<div>
+		<span>
 			From{' '}
 			<a
 				href={src}
@@ -24,6 +24,6 @@ export const SourceLabel: React.FC<{
 			>
 				{origin}
 			</a>
-		</div>
+		</span>
 	);
 };

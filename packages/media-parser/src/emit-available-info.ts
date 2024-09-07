@@ -1,4 +1,5 @@
 import {getAudioCodec} from './get-audio-codec';
+import {getContainer} from './get-container';
 import type {Dimensions} from './get-dimensions';
 import {getDimensions} from './get-dimensions';
 import {getDuration} from './get-duration';
@@ -172,6 +173,16 @@ export const emitAvailableInfo = ({
 			if (returnValue.name === undefined && hasInfo.name) {
 				moreFields.onName?.(name);
 				returnValue.name = name;
+			}
+
+			continue;
+		}
+
+		if (key === 'container') {
+			if (returnValue.container === undefined && hasInfo.container) {
+				const container = getContainer(parseResult.segments);
+				moreFields.onContainer?.(container);
+				returnValue.container = container;
 			}
 
 			continue;

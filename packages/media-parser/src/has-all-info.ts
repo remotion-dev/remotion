@@ -1,4 +1,5 @@
 import {hasAudioCodec} from './get-audio-codec';
+import {hasContainer} from './get-container';
 import {hasDimensions} from './get-dimensions';
 import {hasDuration} from './get-duration';
 import {hasFps} from './get-fps';
@@ -61,6 +62,10 @@ export const getAvailableInfo = (
 
 		if (key === 'name') {
 			return true;
+		}
+
+		if (key === 'container') {
+			return hasContainer(parseResult.segments);
 		}
 
 		throw new Error(`Unknown key: ${key satisfies never}`);

@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/select';
 import {convertMedia} from '@remotion/webcodecs';
 import {useCallback, useState} from 'react';
+import {Badge} from './ui/badge';
 
 export default function ConvertUI({src}: {readonly src: string}) {
 	const [abortController] = useState<AbortController>(
@@ -42,7 +43,11 @@ export default function ConvertUI({src}: {readonly src: string}) {
 		<div className="w-[380px]">
 			<CardContent className="gap-4">
 				<div className="grid w-full items-center gap-4">
-					<CardTitle>Convert video</CardTitle>
+					<div className="flex flex-row">
+						<CardTitle>Convert video</CardTitle>
+						<div className="w-2" />
+						<Badge variant={'default'}>Alpha</Badge>
+					</div>
 					<div>
 						<Label htmlFor="container">Container</Label>
 						<Select value={container} onValueChange={setContainer}>
