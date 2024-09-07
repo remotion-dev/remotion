@@ -7,12 +7,18 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
-import React from 'react';
+import React, {useCallback} from 'react';
 
 export const VideoPreview: React.FC<{
 	readonly children: React.ReactNode;
-}> = ({children}) => {
+	readonly setProbeDetails: (value: boolean) => void;
+}> = ({children, setProbeDetails}) => {
 	const title = 'bigbuckbfdsdsfkjsdflkunny.mp4';
+
+	const onClick = useCallback(() => {
+		setProbeDetails(true);
+	}, [setProbeDetails]);
+
 	return (
 		<Card className="w-[350px]">
 			<CardHeader>
@@ -22,7 +28,9 @@ export const VideoPreview: React.FC<{
 			<CardContent>{children}</CardContent>
 			<CardFooter className="flex justify-between">
 				<div className="flex-1" />
-				<Button variant={'link'}>View info</Button>
+				<Button onClick={onClick} variant={'link'}>
+					Show details
+				</Button>
 			</CardFooter>
 		</Card>
 	);

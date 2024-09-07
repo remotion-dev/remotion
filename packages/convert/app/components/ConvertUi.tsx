@@ -26,12 +26,12 @@ export default function ConvertUI({src}: {readonly src: string}) {
 	const onClick = useCallback(async () => {
 		await convertMedia({
 			src,
-			onVideoFrame: (frame) => {
-				console.log('frame', frame);
+			onVideoFrame: () => {
+				//	console.log('frame', frame);
 				return Promise.resolve();
 			},
-			onMediaStateUpdate: (s) => {
-				console.log('update', s);
+			onMediaStateUpdate: () => {
+				// 	console.log('update', s);
 			},
 			videoCodec: videoCodec as 'vp8',
 			audioCodec: audioCodec as 'opus',
