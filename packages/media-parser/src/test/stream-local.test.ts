@@ -1,5 +1,6 @@
 import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
+import type {MediaParserAudioCodec} from '../get-tracks';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
@@ -697,11 +698,15 @@ test('MP3 in matroska', async () => {
 
 test('Should stream OPUS', async () => {
 	let audioSamples = 0;
+	let audioCodec: MediaParserAudioCodec | null = null;
 	const parsed = await parseMedia({
 		src: RenderInternals.exampleVideos.opusWebm,
 		fields: {
 			tracks: true,
 			audioCodec: true,
+		},
+		onAudioCodec: (codec) => {
+			audioCodec = codec;
 		},
 		reader: nodeReader,
 		onAudioTrack: (track) => {
@@ -714,7 +719,8 @@ test('Should stream OPUS', async () => {
 		},
 	});
 
-	expect(parsed.audioCodec).toEqual('opus');
+	// @ts-expect-error
+	expect(audioCodec).toEqual('opus');
 	expect(parsed.audioTracks.length).toBe(1);
 	expect(audioSamples).toBe(167);
 });

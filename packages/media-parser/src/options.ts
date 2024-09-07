@@ -35,6 +35,21 @@ export type ParseMediaFields = {
 	name: boolean;
 };
 
+export type AllParseMediaFields = {
+	dimensions: true;
+	durationInSeconds: true;
+	boxes: true;
+	fps: true;
+	videoCodec: true;
+	audioCodec: true;
+	tracks: true;
+	rotation: true;
+	unrotatedDimensions: true;
+	internalStats: true;
+	size: true;
+	name: true;
+};
+
 export type Options<Fields extends ParseMediaFields> = {
 	dimensions?: Fields['dimensions'];
 	durationInSeconds?: Fields['durationInSeconds'];
@@ -50,6 +65,42 @@ export type Options<Fields extends ParseMediaFields> = {
 	name?: Fields['name'];
 };
 
+type TracksField = {videoTracks: VideoTrack[]; audioTracks: AudioTrack[]};
+
+export type ParseMediaCallbacks<Fields extends Options<ParseMediaFields>> =
+	(Fields['dimensions'] extends true
+		? {onDimensions?: (dimensions: Dimensions) => void}
+		: {}) &
+		(Fields['durationInSeconds'] extends true
+			? {onDurationInSeconds?: (durationInSeconds: number | null) => void}
+			: {}) &
+		(Fields['boxes'] extends true
+			? {onBoxes?: (boxes: AnySegment[]) => void}
+			: {}) &
+		(Fields['fps'] extends true ? {onFps?: (fps: number | null) => void} : {}) &
+		(Fields['videoCodec'] extends true
+			? {onVideoCodec?: (codec: MediaParserVideoCodec | null) => void}
+			: {}) &
+		(Fields['audioCodec'] extends true
+			? {onAudioCodec?: (codec: MediaParserAudioCodec | null) => void}
+			: {}) &
+		(Fields['tracks'] extends true
+			? {onTracks?: (tracks: TracksField) => void}
+			: {}) &
+		(Fields['rotation'] extends true
+			? {onRotation?: (rotation: number | null) => void}
+			: {}) &
+		(Fields['unrotatedDimensions'] extends true
+			? {onUnrotatedDimensions?: (dimensions: Dimensions) => void}
+			: {}) &
+		(Fields['internalStats'] extends true
+			? {onInternalStats?: (stats: InternalStats) => void}
+			: {}) &
+		(Fields['size'] extends true
+			? {onSize?: (size: number | null) => void}
+			: {}) &
+		(Fields['name'] extends true ? {onName?: (name: string) => void} : {});
+
 export type ParseMediaResult<Fields extends Options<ParseMediaFields>> =
 	(Fields['dimensions'] extends true ? {dimensions: Dimensions} : {}) &
 		(Fields['durationInSeconds'] extends true
@@ -63,9 +114,7 @@ export type ParseMediaResult<Fields extends Options<ParseMediaFields>> =
 		(Fields['audioCodec'] extends true
 			? {audioCodec: MediaParserAudioCodec | null}
 			: {}) &
-		(Fields['tracks'] extends true
-			? {videoTracks: VideoTrack[]; audioTracks: AudioTrack[]}
-			: {}) &
+		(Fields['tracks'] extends true ? TracksField : {}) &
 		(Fields['rotation'] extends true ? {rotation: number | null} : {}) &
 		(Fields['unrotatedDimensions'] extends true
 			? {unrotatedDimensions: Dimensions}
@@ -76,11 +125,13 @@ export type ParseMediaResult<Fields extends Options<ParseMediaFields>> =
 		(Fields['size'] extends true ? {size: number | null} : {}) &
 		(Fields['name'] extends true ? {name: string} : {});
 
-export type ParseMedia = <F extends Options<ParseMediaFields>>(options: {
-	src: string | File;
-	fields?: F;
-	reader?: ReaderInterface;
-	onAudioTrack?: OnAudioTrack;
-	onVideoTrack?: OnVideoTrack;
-	signal?: AbortSignal;
-}) => Promise<ParseMediaResult<F>>;
+export type ParseMedia = <F extends Options<ParseMediaFields>>(
+	options: {
+		src: string | File;
+		fields?: F;
+		reader?: ReaderInterface;
+		onAudioTrack?: OnAudioTrack;
+		onVideoTrack?: OnVideoTrack;
+		signal?: AbortSignal;
+	} & ParseMediaCallbacks<F>,
+) => Promise<ParseMediaResult<F>>;
