@@ -33,5 +33,5 @@
 	"publishConfig": {
 		"access": "public"
 	},
-	"description": "Private experimental package"
+	"description": "Media conversion in the browser"
 }

@@ -38,5 +38,10 @@
 	},
 	"engines": {
 		"node": ">=20.0.0"
-	}
+	},
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/convert"
+	},
+	"homepage": "https://convert.remotion.dev",
+	"description": "Video conversion tool - convert.remotion.dev"
 }
