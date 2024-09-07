@@ -6,6 +6,7 @@ import type {
 } from '@remotion/media-parser';
 import {parseMedia} from '@remotion/media-parser';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import {AudioTrackOverview} from './AudioTrackOverview';
 import {ContainerOverview} from './ContainerOverview';
 import {TrackSwitcher} from './TrackSwitcher';
 import {VideoTrackOverview} from './VideoTrackOverview';
@@ -147,6 +148,8 @@ export const Probe: React.FC<{
 						/>
 					) : selectedTrack.type === 'video' ? (
 						<VideoTrackOverview track={selectedTrack} />
+					) : selectedTrack.type === 'audio' ? (
+						<AudioTrackOverview track={selectedTrack} />
 					) : null}
 				</CardContent>
 			</ScrollArea>
