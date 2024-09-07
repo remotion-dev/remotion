@@ -10,7 +10,12 @@ export {
 	VideoTrackColorParams,
 } from './get-tracks';
 
-export type {Options, ParseMediaFields, ParseMediaResult} from './options';
+export type {
+	Options,
+	ParseMediaFields,
+	ParseMediaResult,
+	TracksField,
+} from './options';
 export {parseMedia} from './parse-media';
 export {
 	AudioSample,

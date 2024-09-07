@@ -15,7 +15,7 @@ const formatSeconds = (seconds: number) => {
 	return `${minutes}:${secondsLeft < 10 ? '0' : ''}${Math.round(secondsLeft)} min`;
 };
 
-export const TableDemo: React.FC<{
+export const ContainerOverview: React.FC<{
 	readonly dimensions: Dimensions | null;
 	readonly container: string;
 	readonly durationInSeconds: number | null;

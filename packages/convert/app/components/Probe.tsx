@@ -2,10 +2,12 @@ import type {
 	Dimensions,
 	MediaParserAudioCodec,
 	MediaParserVideoCodec,
+	TracksField,
 } from '@remotion/media-parser';
 import {parseMedia} from '@remotion/media-parser';
-import React, {useCallback, useEffect, useState} from 'react';
-import {TableDemo} from './DataTable';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import {ContainerOverview} from './ContainerOverview';
+import {TrackSwitcher} from './TrackSwitcher';
 import {Button} from './ui/button';
 import {
 	Card,
@@ -15,7 +17,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from './ui/card';
-import {Separator} from './ui/separator';
 import {Skeleton} from './ui/skeleton';
 
 export const Probe: React.FC<{
@@ -36,6 +37,7 @@ export const Probe: React.FC<{
 		null,
 	);
 	const [size, setSize] = useState<number | null>(null);
+	const [tracks, setTracks] = useState<TracksField | null>(null);
 
 	const getStart = useCallback(() => {
 		parseMedia({
@@ -48,6 +50,7 @@ export const Probe: React.FC<{
 				audioCodec: true,
 				fps: true,
 				name: true,
+				tracks: true,
 			},
 			onAudioCodec: (codec) => {
 				setAudioCodec(codec);
@@ -67,12 +70,13 @@ export const Probe: React.FC<{
 			onVideoCodec: (codec) => {
 				setVideoCodec(codec);
 			},
+			onTracks: (trx) => {
+				setTracks(trx);
+			},
 			onSize(s) {
 				setSize(s);
 			},
-		}).then(() => {
-			console.log('done');
-		});
+		}).then(() => {});
 	}, [src]);
 
 	useEffect(() => {
@@ -83,6 +87,26 @@ export const Probe: React.FC<{
 		setProbeDetails((p) => !p);
 	}, [setProbeDetails]);
 
+	const sortedTracks = useMemo(
+		() =>
+			tracks
+				? [...tracks.audioTracks, ...tracks.videoTracks].sort(
+						(a, b) => a.trackId - b.trackId,
+					)
+				: [],
+		[tracks],
+	);
+
+	const [trackDetails, setTrackDetails] = useState<number | null>(null);
+
+	const selectedTrack = useMemo(() => {
+		if (!probeDetails || trackDetails === null) {
+			return null;
+		}
+
+		return sortedTracks[trackDetails];
+	}, [probeDetails, sortedTracks, trackDetails]);
+
 	return (
 		<Card className={probeDetails ? 'w-[800px]' : 'w-[350px]'}>
 			<CardHeader>
@@ -92,29 +116,33 @@ export const Probe: React.FC<{
 				<CardDescription>From URL</CardDescription>
 			</CardHeader>
 			<CardContent>
-				{probeDetails ? (
-					<div>
-						<div className="flex flex-row">
-							<Button variant={'secondary'}>Overview</Button>
-							<Separator orientation="vertical" />
-							<Button variant={'link'}>Track 1</Button>
-						</div>
+				{sortedTracks.length && probeDetails ? (
+					<>
+						<TrackSwitcher
+							selectedTrack={trackDetails}
+							onTrack={(track) => {
+								setTrackDetails(track);
+							}}
+							sortedTracks={sortedTracks}
+						/>
 						<div className="h-4" />
-					</div>
+					</>
 				) : null}
-				<TableDemo
-					container="MP4"
-					dimensions={dimensions ?? null}
-					videoCodec={videoCodec ?? null}
-					size={size ?? null}
-					durationInSeconds={durationInSeconds}
-					audioCodec={audioCodec ?? null}
-					fps={fps}
-				/>
+				{selectedTrack === null ? (
+					<ContainerOverview
+						container="MP4"
+						dimensions={dimensions ?? null}
+						videoCodec={videoCodec ?? null}
+						size={size ?? null}
+						durationInSeconds={durationInSeconds}
+						audioCodec={audioCodec ?? null}
+						fps={fps}
+					/>
+				) : null}
 			</CardContent>
 			<CardFooter className="flex justify-between">
 				<div className="flex-1" />
-				<Button onClick={onClick} variant={'link'}>
+				<Button disabled={!tracks} onClick={onClick} variant={'link'}>
 					{probeDetails ? 'Hide details' : 'Show details'}
 				</Button>
 			</CardFooter>

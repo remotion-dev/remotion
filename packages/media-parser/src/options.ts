@@ -65,7 +65,10 @@ export type Options<Fields extends ParseMediaFields> = {
 	name?: Fields['name'];
 };
 
-type TracksField = {videoTracks: VideoTrack[]; audioTracks: AudioTrack[]};
+export type TracksField = {
+	videoTracks: VideoTrack[];
+	audioTracks: AudioTrack[];
+};
 
 export type ParseMediaCallbacks<Fields extends Options<ParseMediaFields>> =
 	(Fields['dimensions'] extends true
