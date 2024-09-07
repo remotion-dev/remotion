@@ -63,6 +63,7 @@ If you pass a `File` object, you must also pass `webFileReader` as the `reader` 
 ### `fields?`
 
 An object specifying which fields you'd like to receive.  
+If you like to receive the field, pass `true` as the value.  
 Possible fields are:
 
 #### `dimensions`
@@ -84,6 +85,12 @@ The duration of the video in seconds.
 _string_
 
 The name of the file.
+
+#### `container`
+
+_"mp4" | "webm" | null_
+
+The container of the file.
 
 #### `size`
 
@@ -186,6 +193,32 @@ const onAudioTrack: OnAudioTrack = (track) => {
 
 An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) instance.  
 If the signal is aborted, the parser will stop reading the media and stop the decoding process and throw an error.
+
+### Callbacks
+
+Each field also has a callback that allows you to retrieve the value as soon as it is obtained without waiting for the function to resolve.  
+You must pass `true` as the value for the field in order for the callback to be called.
+
+```tsx twoslash title="Using a callback"
+// @module: es2022
+// @target: es2017
+
+import {parseMedia} from '@remotion/media-parser';
+
+const result = await parseMedia({
+  src: 'https://example.com/my-video.mp4',
+  fields: {
+    durationInSeconds: true,
+    dimensions: true,
+  },
+  onDurationInSeconds: (durationInSeconds) => {
+    console.log(durationInSeconds);
+  },
+  onDimensions: (dimensions) => {
+    console.log(dimensions);
+  },
+});
+```
 
 ## See also
 

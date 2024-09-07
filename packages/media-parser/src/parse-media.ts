@@ -1,14 +1,14 @@
 /* eslint-disable max-depth */
 import type {BufferIterator} from './buffer-iterator';
 import {getArrayBufferIterator} from './buffer-iterator';
-import {getAudioCodec} from './get-audio-codec';
-import {getDimensions} from './get-dimensions';
-import {getDuration} from './get-duration';
-import {getFps} from './get-fps';
-import {getTracks} from './get-tracks';
-import {getVideoCodec} from './get-video-codec';
-import {hasAllInfo} from './has-all-info';
-import type {ParseMedia, ParseMediaResult} from './options';
+import {emitAvailableInfo} from './emit-available-info';
+import {getAvailableInfo} from './has-all-info';
+import type {
+	AllParseMediaFields,
+	ParseMedia,
+	ParseMediaCallbacks,
+	ParseMediaResult,
+} from './options';
 import type {ParseResult} from './parse-result';
 import {parseVideo} from './parse-video';
 import type {ParserContext} from './parser-context';
@@ -22,6 +22,7 @@ export const parseMedia: ParseMedia = async ({
 	onAudioTrack,
 	onVideoTrack,
 	signal,
+	...more
 }) => {
 	const state = makeParserState({
 		hasAudioCallbacks: onAudioTrack !== null,
@@ -35,20 +36,8 @@ export const parseMedia: ParseMedia = async ({
 	);
 	let currentReader = reader;
 
-	const returnValue = {} as ParseMediaResult<{
-		dimensions: true;
-		durationInSeconds: true;
-		boxes: true;
-		fps: true;
-		videoCodec: true;
-		audioCodec: true;
-		tracks: true;
-		rotation: true;
-		unrotatedDimensions: true;
-		internalStats: true;
-		size: true;
-		name: true;
-	}>;
+	const returnValue = {} as ParseMediaResult<AllParseMediaFields>;
+	const moreFields = more as ParseMediaCallbacks<AllParseMediaFields>;
 
 	let iterator: BufferIterator | null = null;
 	let parseResult: ParseResult | null = null;
@@ -70,7 +59,7 @@ export const parseMedia: ParseMedia = async ({
 			throw new Error('Aborted');
 		}
 
-		const result = await currentReader.read();
+		const result = await currentReader.reader.read();
 
 		if (iterator) {
 			if (!result.done) {
@@ -97,17 +86,22 @@ export const parseMedia: ParseMedia = async ({
 			});
 		}
 
+		const availableInfo = getAvailableInfo(fields ?? {}, parseResult, state);
+		const hasAllInfo = Object.values(availableInfo).every(Boolean);
+
+		emitAvailableInfo({
+			hasInfo: availableInfo,
+			moreFields,
+			parseResult,
+			state,
+			returnValue,
+			contentLength,
+			name,
+		});
+
 		// TODO Better: Check if no active listeners are registered
 		// Also maybe check for canSkipVideoData
-		if (
-			hasAllInfo(fields ?? {}, parseResult, state) &&
-			!onVideoTrack &&
-			!onAudioTrack
-		) {
-			if (!currentReader.closed) {
-				currentReader.cancel(new Error('has all information'));
-			}
-
+		if (hasAllInfo && !onVideoTrack && !onAudioTrack) {
 			break;
 		}
 
@@ -116,10 +110,6 @@ export const parseMedia: ParseMedia = async ({
 			parseResult.status === 'incomplete' &&
 			parseResult.skipTo !== null
 		) {
-			if (!currentReader.closed) {
-				currentReader.cancel(new Error('skipped ahead'));
-			}
-
 			const {reader: newReader} = await readerInterface.read(
 				src,
 				parseResult.skipTo,
@@ -130,68 +120,32 @@ export const parseMedia: ParseMedia = async ({
 		}
 	}
 
-	if (!parseResult) {
-		throw new Error('Could not parse video');
-	}
+	// Force assign
+	emitAvailableInfo({
+		hasInfo: {
+			boxes: true,
+			durationInSeconds: true,
+			dimensions: true,
+			fps: true,
+			videoCodec: true,
+			audioCodec: true,
+			tracks: true,
+			rotation: true,
+			unrotatedDimensions: true,
+			internalStats: true,
+			size: true,
+			name: true,
+			container: true,
+		},
+		moreFields,
+		parseResult,
+		state,
+		returnValue,
+		contentLength,
+		name,
+	});
 
-	if (fields?.dimensions) {
-		const dimensions = getDimensions(parseResult.segments, state);
-		returnValue.dimensions = {
-			width: dimensions.width,
-			height: dimensions.height,
-		};
-	}
-
-	if (fields?.unrotatedDimensions) {
-		const dimensions = getDimensions(parseResult.segments, state);
-		returnValue.unrotatedDimensions = {
-			width: dimensions.unrotatedWidth,
-			height: dimensions.unrotatedHeight,
-		};
-	}
-
-	if (fields?.rotation) {
-		const dimensions = getDimensions(parseResult.segments, state);
-		returnValue.rotation = dimensions.rotation;
-	}
-
-	if (fields?.durationInSeconds) {
-		returnValue.durationInSeconds = getDuration(parseResult.segments, state);
-	}
-
-	if (fields?.fps) {
-		returnValue.fps = getFps(parseResult.segments);
-	}
-
-	if (fields?.videoCodec) {
-		returnValue.videoCodec = getVideoCodec(parseResult.segments);
-	}
-
-	if (fields?.audioCodec) {
-		returnValue.audioCodec = getAudioCodec(parseResult.segments, state);
-	}
-
-	if (fields?.tracks) {
-		const {audioTracks, videoTracks} = getTracks(parseResult.segments, state);
-		returnValue.audioTracks = audioTracks;
-		returnValue.videoTracks = videoTracks;
-	}
-
-	if (fields?.boxes) {
-		returnValue.boxes = parseResult.segments;
-	}
-
-	if (fields?.internalStats) {
-		returnValue.internalStats = state.getInternalStats();
-	}
-
-	if (fields?.size) {
-		returnValue.size = contentLength;
-	}
-
-	if (fields?.name) {
-		returnValue.name = name;
-	}
+	currentReader.abort();
 
 	iterator?.destroy();
 	return returnValue;

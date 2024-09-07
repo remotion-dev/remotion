@@ -1,4 +1,5 @@
 import {hasAudioCodec} from './get-audio-codec';
+import {hasContainer} from './get-container';
 import {hasDimensions} from './get-dimensions';
 import {hasDuration} from './get-duration';
 import {hasFps} from './get-fps';
@@ -8,29 +9,17 @@ import type {Options, ParseMediaFields} from './options';
 import type {ParseResult} from './parse-result';
 import type {ParserState} from './parser-state';
 
-export const hasAllInfo = (
+export const getAvailableInfo = (
 	options: Options<ParseMediaFields>,
 	parseResult: ParseResult,
 	state: ParserState,
-) => {
-	const keys = Object.entries(options)
-		.filter(([, value]) => value)
-		.map(([key]) => key) as (keyof Options<{
-		dimensions: true;
-		durationInSeconds: true;
-		boxes: true;
-		fps: true;
-		videoCodec: true;
-		audioCodec: true;
-		tracks: true;
-		rotation: true;
-		unrotatedDimensions: true;
-		internalStats: true;
-		size: true;
-		name: true;
-	}>)[];
+): Record<keyof Options<ParseMediaFields>, boolean> => {
+	const keys = Object.entries(options).filter(([, value]) => value) as [
+		keyof Options<ParseMediaFields>,
+		boolean,
+	][];
 
-	return keys.every((key) => {
+	const infos = keys.map(([key]) => {
 		if (key === 'boxes') {
 			return parseResult.status === 'done';
 		}
@@ -48,7 +37,7 @@ export const hasAllInfo = (
 		}
 
 		if (key === 'fps') {
-			return hasFps(parseResult.segments) !== null;
+			return hasFps(parseResult.segments);
 		}
 
 		if (key === 'videoCodec') {
@@ -75,6 +64,22 @@ export const hasAllInfo = (
 			return true;
 		}
 
+		if (key === 'container') {
+			return hasContainer(parseResult.segments);
+		}
+
 		throw new Error(`Unknown key: ${key satisfies never}`);
 	});
+
+	const entries: [keyof Options<ParseMediaFields>, boolean][] = [];
+	let i = 0;
+
+	for (const [key] of keys) {
+		entries.push([key, infos[i++]]);
+	}
+
+	return Object.fromEntries(entries) as Record<
+		keyof Options<ParseMediaFields>,
+		boolean
+	>;
 };
