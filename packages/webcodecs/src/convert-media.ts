@@ -67,9 +67,11 @@ export const convertMedia = async ({
 		);
 	}
 
-	if (videoCodec !== 'vp8') {
+	if (videoCodec !== 'vp8' && videoCodec !== 'vp9') {
 		return Promise.reject(
-			new TypeError('Only `videoCodec: "vp8"` is supported currently'),
+			new TypeError(
+				'Only `videoCodec: "vp8"` and `videoCodec: "vp9"` are supported currently',
+			),
 		);
 	}
 

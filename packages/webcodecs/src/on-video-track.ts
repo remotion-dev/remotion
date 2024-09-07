@@ -33,7 +33,7 @@ export const makeVideoTrackHandler =
 	}): OnVideoTrack =>
 	async (track) => {
 		const videoEncoderConfig = await getVideoEncoderConfig({
-			codec: videoCodec,
+			codec: videoCodec === 'vp9' ? 'vp09.00.10.08' : videoCodec,
 			height: track.displayAspectHeight,
 			width: track.displayAspectWidth,
 		});
