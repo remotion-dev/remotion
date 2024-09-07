@@ -74,7 +74,7 @@ export const TableDemo: React.FC<{
 				<TableRow>
 					<TableCell colSpan={3}>Frame Rate</TableCell>
 					<TableCell className="text-right">
-						{dimensions === null ? (
+						{fps === null ? (
 							<Skeleton className="h-3 w-[100px] inline-block" />
 						) : (
 							<>{fps} FPS</>

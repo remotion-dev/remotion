@@ -15,6 +15,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from './ui/card';
+import {Separator} from './ui/separator';
 
 export const Probe: React.FC<{
 	readonly src: string;
@@ -33,6 +34,7 @@ export const Probe: React.FC<{
 		null,
 	);
 	const [fps, setFps] = useState<number | null>(null);
+	const [name, setName] = useState<string | null>(null);
 
 	const getStart = useCallback(() => {
 		parseMedia({
@@ -44,6 +46,7 @@ export const Probe: React.FC<{
 				durationInSeconds: true,
 				audioCodec: true,
 				fps: true,
+				name: true,
 			},
 		}).then((data) => {
 			setDimensions(data.dimensions);
@@ -52,6 +55,7 @@ export const Probe: React.FC<{
 			setSize(data.size);
 			setDurationInSeconds(data.durationInSeconds);
 			setFps(data.fps);
+			setName(data.name);
 		});
 	}, [src]);
 
@@ -68,10 +72,15 @@ export const Probe: React.FC<{
 	return (
 		<Card className={probeDetails ? 'w-[800px]' : 'w-[350px]'}>
 			<CardHeader>
-				<CardTitle title={title}>{title}</CardTitle>
+				<CardTitle title={title}>{name}</CardTitle>
 				<CardDescription>From URL</CardDescription>
 			</CardHeader>
 			<CardContent>
+				<div className="flex flex-row">
+					<Button variant={'secondary'}>Overview</Button>
+					<Separator orientation="vertical" />
+					<Button variant={'link'}>Track 1</Button>
+				</div>
 				<TableDemo
 					container="MP4"
 					dimensions={dimensions}
@@ -85,7 +94,7 @@ export const Probe: React.FC<{
 			<CardFooter className="flex justify-between">
 				<div className="flex-1" />
 				<Button onClick={onClick} variant={'link'}>
-					Show details
+					{probeDetails ? 'Hide details' : 'Show details'}
 				</Button>
 			</CardFooter>
 		</Card>
