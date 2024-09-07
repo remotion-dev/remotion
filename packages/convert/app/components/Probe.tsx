@@ -8,6 +8,7 @@ import {parseMedia} from '@remotion/media-parser';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {AudioTrackOverview} from './AudioTrackOverview';
 import {ContainerOverview} from './ContainerOverview';
+import {SourceLabel} from './SourceLabel';
 import {TrackSwitcher} from './TrackSwitcher';
 import {VideoTrackOverview} from './VideoTrackOverview';
 import {Button} from './ui/button';
@@ -121,7 +122,9 @@ export const Probe: React.FC<{
 				<CardTitle title={name ?? undefined}>
 					{name ? name : <Skeleton className="h-5 w-[220px] inline-block" />}
 				</CardTitle>
-				<CardDescription>From URL</CardDescription>
+				<CardDescription>
+					<SourceLabel src={src} />
+				</CardDescription>
 			</CardHeader>
 			{sortedTracks.length && probeDetails ? (
 				<div className="pl-6 pr-6">
