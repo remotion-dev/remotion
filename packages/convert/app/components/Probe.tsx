@@ -69,11 +69,16 @@ export const Probe: React.FC<{
 				<CardDescription>From URL</CardDescription>
 			</CardHeader>
 			<CardContent>
-				<div className="flex flex-row">
-					<Button variant={'secondary'}>Overview</Button>
-					<Separator orientation="vertical" />
-					<Button variant={'link'}>Track 1</Button>
-				</div>
+				{probeDetails ? (
+					<div>
+						<div className="flex flex-row">
+							<Button variant={'secondary'}>Overview</Button>
+							<Separator orientation="vertical" />
+							<Button variant={'link'}>Track 1</Button>
+						</div>
+						<div className="h-4" />
+					</div>
+				) : null}
 				<TableDemo
 					container="MP4"
 					dimensions={metadata?.dimensions ?? null}
