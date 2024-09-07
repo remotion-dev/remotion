@@ -1,8 +1,4 @@
-import type {
-	Dimensions,
-	MediaParserAudioCodec,
-	MediaParserVideoCodec,
-} from '@remotion/media-parser';
+import type {ParseMediaResult} from '@remotion/media-parser';
 import {parseMedia} from '@remotion/media-parser';
 import React, {useCallback, useEffect, useState} from 'react';
 import {TableDemo} from './DataTable';
@@ -16,25 +12,22 @@ import {
 	CardTitle,
 } from './ui/card';
 import {Separator} from './ui/separator';
+import {Skeleton} from './ui/skeleton';
 
 export const Probe: React.FC<{
 	readonly src: string;
 	readonly setProbeDetails: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly probeDetails: boolean;
 }> = ({src, probeDetails, setProbeDetails}) => {
-	const [dimensions, setDimensions] = useState<Dimensions | null>(null);
-	const [videoCodec, setVideoCodec] = useState<MediaParserVideoCodec | null>(
-		null,
-	);
-	const [audioCodec, setAudioCodec] = useState<MediaParserAudioCodec | null>(
-		null,
-	);
-	const [size, setSize] = useState<number | null>(null);
-	const [durationInSeconds, setDurationInSeconds] = useState<number | null>(
-		null,
-	);
-	const [fps, setFps] = useState<number | null>(null);
-	const [name, setName] = useState<string | null>(null);
+	const [metadata, setMetadata] = useState<ParseMediaResult<{
+		audioCodec: true;
+		fps: true;
+		durationInSeconds: true;
+		videoCodec: true;
+		dimensions: true;
+		name: true;
+		size: true;
+	}> | null>(null);
 
 	const getStart = useCallback(() => {
 		parseMedia({
@@ -49,13 +42,7 @@ export const Probe: React.FC<{
 				name: true,
 			},
 		}).then((data) => {
-			setDimensions(data.dimensions);
-			setVideoCodec(data.videoCodec);
-			setAudioCodec(data.audioCodec);
-			setSize(data.size);
-			setDurationInSeconds(data.durationInSeconds);
-			setFps(data.fps);
-			setName(data.name);
+			setMetadata(data);
 		});
 	}, [src]);
 
@@ -72,7 +59,13 @@ export const Probe: React.FC<{
 	return (
 		<Card className={probeDetails ? 'w-[800px]' : 'w-[350px]'}>
 			<CardHeader>
-				<CardTitle title={title}>{name}</CardTitle>
+				<CardTitle title={title}>
+					{metadata?.name ? (
+						metadata.name
+					) : (
+						<Skeleton className="h-5 w-[220px] inline-block" />
+					)}
+				</CardTitle>
 				<CardDescription>From URL</CardDescription>
 			</CardHeader>
 			<CardContent>
@@ -83,12 +76,12 @@ export const Probe: React.FC<{
 				</div>
 				<TableDemo
 					container="MP4"
-					dimensions={dimensions}
-					videoCodec={videoCodec}
-					size={size}
-					durationInSeconds={durationInSeconds}
-					audioCodec={audioCodec}
-					fps={fps}
+					dimensions={metadata?.dimensions ?? null}
+					videoCodec={metadata?.videoCodec ?? null}
+					size={metadata?.size ?? null}
+					durationInSeconds={metadata?.durationInSeconds ?? null}
+					audioCodec={metadata?.audioCodec ?? null}
+					fps={metadata?.fps ?? null}
 				/>
 			</CardContent>
 			<CardFooter className="flex justify-between">

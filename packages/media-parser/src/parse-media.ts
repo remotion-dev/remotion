@@ -8,7 +8,7 @@ import {getFps} from './get-fps';
 import {getTracks} from './get-tracks';
 import {getVideoCodec} from './get-video-codec';
 import {hasAllInfo} from './has-all-info';
-import type {Metadata, ParseMedia} from './options';
+import type {ParseMedia, ParseMediaResult} from './options';
 import type {ParseResult} from './parse-result';
 import {parseVideo} from './parse-video';
 import type {ParserContext} from './parser-context';
@@ -35,20 +35,20 @@ export const parseMedia: ParseMedia = async ({
 	);
 	let currentReader = reader;
 
-	const returnValue = {} as Metadata<
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true
-	>;
+	const returnValue = {} as ParseMediaResult<{
+		dimensions: true;
+		durationInSeconds: true;
+		boxes: true;
+		fps: true;
+		videoCodec: true;
+		audioCodec: true;
+		tracks: true;
+		rotation: true;
+		unrotatedDimensions: true;
+		internalStats: true;
+		size: true;
+		name: true;
+	}>;
 
 	let iterator: BufferIterator | null = null;
 	let parseResult: ParseResult | null = null;
