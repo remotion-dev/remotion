@@ -21,7 +21,7 @@
 	},
 	"dependencies": {
 		"@algora/sdk": "^0.1.2",
-		"@aws-sdk/s3-request-presigner": "3.215.0",
+		"@aws-sdk/s3-request-presigner": "3.645.0",
 		"@babel/plugin-transform-modules-commonjs": "^7.15.4",
 		"@docusaurus/core": "3.4.0",
 		"@docusaurus/plugin-content-blog": "3.4.0",
