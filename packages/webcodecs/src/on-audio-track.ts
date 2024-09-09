@@ -68,6 +68,7 @@ export const makeAudioTrackHandler =
 				await state.addSample(
 					new EncodedAudioChunk(audioSample),
 					addedTrack.trackNumber,
+					false,
 				);
 				convertMediaState.encodedAudioFrames++;
 				onMediaStateUpdate?.({...convertMediaState});
@@ -102,7 +103,7 @@ export const makeAudioTrackHandler =
 
 		const audioEncoder = createAudioEncoder({
 			onChunk: async (chunk) => {
-				await state.addSample(chunk, trackNumber);
+				await state.addSample(chunk, trackNumber, false);
 				convertMediaState.encodedAudioFrames++;
 				onMediaStateUpdate?.({...convertMediaState});
 			},

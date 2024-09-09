@@ -61,7 +61,11 @@ export const makeVideoTrackHandler =
 				codecPrivate: track.codecPrivate,
 			});
 			return (sample) => {
-				state.addSample(new EncodedVideoChunk(sample), videoTrack.trackNumber);
+				state.addSample(
+					new EncodedVideoChunk(sample),
+					videoTrack.trackNumber,
+					true,
+				);
 				convertMediaState.decodedVideoFrames++;
 				onMediaStateUpdate?.({...convertMediaState});
 			};
@@ -96,7 +100,7 @@ export const makeVideoTrackHandler =
 
 		const videoEncoder = createVideoEncoder({
 			onChunk: async (chunk) => {
-				await state.addSample(chunk, trackNumber);
+				await state.addSample(chunk, trackNumber, true);
 				convertMediaState.encodedVideoFrames++;
 				onMediaStateUpdate?.({...convertMediaState});
 			},
