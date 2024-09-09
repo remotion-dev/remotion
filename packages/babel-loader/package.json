@@ -19,12 +19,11 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"@babel/core": "7.15.5",
+		"@babel/core": "7.23.2",
 		"@babel/plugin-proposal-class-properties": "7.14.5",
-		"@babel/preset-env": "7.15.6",
+		"@babel/preset-env": "7.23.2",
 		"@babel/preset-react": "7.14.5",
-		"@babel/preset-typescript": "7.15.0",
-		"@webhotelier/webpack-fast-refresh": "5.1.0",
+		"@babel/preset-typescript": "7.23.2",
 		"babel-loader": "8.2.2",
 		"react-refresh": "0.9.0",
 		"webpack": "5.94.0"

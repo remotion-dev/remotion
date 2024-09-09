@@ -14,7 +14,7 @@
 		"astro": "astro"
 	},
 	"dependencies": {
-		"@astrojs/react": "^2.0.2",
+		"@astrojs/react": "3.6.2",
 		"@remotion/gif": "workspace:*",
 		"@remotion/lottie": "workspace:*",
 		"@remotion/motion-blur": "workspace:*",
