@@ -21,7 +21,7 @@
 	},
 	"dependencies": {
 		"@algora/sdk": "^0.1.2",
-		"@aws-sdk/s3-request-presigner": "3.215.0",
+		"@aws-sdk/s3-request-presigner": "3.645.0",
 		"@babel/plugin-transform-modules-commonjs": "^7.15.4",
 		"@docusaurus/core": "3.4.0",
 		"@docusaurus/plugin-content-blog": "3.4.0",
@@ -71,7 +71,6 @@
 		"color-namer": "1.4.0",
 		"copy-text-to-clipboard": "^2",
 		"create-video": "workspace:*",
-		"got": "^11",
 		"hls.js": "^0.14.17",
 		"lottie-web": "^5.12.2",
 		"mux-embed": "^4.16.0",
