@@ -1,0 +1,50 @@
+{
+	"name": "@remotion/convert",
+	"version": "4.0.209",
+	"private": true,
+	"sideEffects": false,
+	"type": "module",
+	"scripts": {
+		"build-page": "remix vite:build",
+		"dev": "remix vite:dev",
+		"lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
+		"typecheck": "tsc"
+	},
+	"dependencies": {
+		"@radix-ui/react-label": "^2.1.0",
+		"@radix-ui/react-scroll-area": "^1.1.0",
+		"@radix-ui/react-select": "^2.1.1",
+		"@radix-ui/react-separator": "^1.1.0",
+		"@radix-ui/react-slot": "^1.1.0",
+		"@remix-run/node": "^2.11.2",
+		"@remix-run/react": "^2.11.2",
+		"@remix-run/serve": "^2.11.2",
+		"@remotion/media-parser": "workspace:*",
+		"@remotion/webcodecs": "workspace:*",
+		"@vercel/remix": "^2.11.2",
+		"class-variance-authority": "^0.7.0",
+		"clsx": "^2.1.1",
+		"isbot": "^4.1.0",
+		"lucide-react": "^0.439.0",
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
+		"tailwind-merge": "^2.5.2",
+		"tailwindcss-animate": "^1.0.7"
+	},
+	"devDependencies": {
+		"@remix-run/dev": "^2.11.2",
+		"autoprefixer": "^10.4.19",
+		"postcss": "^8.4.38",
+		"tailwindcss": "^3.4.4",
+		"vite": "^5.1.0",
+		"vite-tsconfig-paths": "^4.2.1"
+	},
+	"engines": {
+		"node": ">=20.0.0"
+	},
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/convert"
+	},
+	"homepage": "https://convert.remotion.dev",
+	"description": "Video conversion tool - convert.remotion.dev"
+}

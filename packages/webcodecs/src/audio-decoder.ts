@@ -1,4 +1,4 @@
-import type {AudioSample, AudioTrack} from '@remotion/media-parser';
+import type {AudioSample} from '@remotion/media-parser';
 
 export type WebCodecsAudioDecoder = {
 	processSample: (audioSample: AudioSample) => Promise<void>;
@@ -8,23 +8,19 @@ export type WebCodecsAudioDecoder = {
 	flush: () => Promise<void>;
 };
 
-export const createAudioDecoder = async ({
-	track,
+export const createAudioDecoder = ({
 	onFrame,
 	onError,
+	signal,
+	config,
 }: {
-	track: AudioTrack;
 	onFrame: (frame: AudioData) => Promise<void>;
 	onError: (error: DOMException) => void;
-}): Promise<WebCodecsAudioDecoder | null> => {
-	if (typeof AudioDecoder === 'undefined') {
-		return null;
-	}
-
-	const {supported, config} = await AudioDecoder.isConfigSupported(track);
-
-	if (!supported) {
-		return null;
+	signal: AbortSignal;
+	config: AudioDecoderConfig;
+}): WebCodecsAudioDecoder => {
+	if (signal.aborted) {
+		throw new Error('Not creating audio decoder, already aborted');
 	}
 
 	let outputQueue = Promise.resolve();
@@ -46,6 +42,23 @@ export const createAudioDecoder = async ({
 			onError(error);
 		},
 	});
+
+	const close = () => {
+		// eslint-disable-next-line @typescript-eslint/no-use-before-define
+		signal.removeEventListener('abort', onAbort);
+
+		if (audioDecoder.state === 'closed') {
+			return;
+		}
+
+		audioDecoder.close();
+	};
+
+	const onAbort = () => {
+		close();
+	};
+
+	signal.addEventListener('abort', onAbort);
 
 	const getQueueSize = () => {
 		return audioDecoder.decodeQueueSize + outputQueueSize;
@@ -96,9 +109,7 @@ export const createAudioDecoder = async ({
 			await waitForFinish();
 			await outputQueue;
 		},
-		close: () => {
-			audioDecoder.close();
-		},
+		close,
 		getQueueSize,
 		flush: async () => {
 			await audioDecoder.flush();

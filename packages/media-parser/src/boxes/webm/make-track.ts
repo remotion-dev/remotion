@@ -1,9 +1,20 @@
 import {getArrayBufferIterator} from '../../buffer-iterator';
-import type {AudioTrack, VideoTrack} from '../../get-tracks';
+import type {
+	AudioTrack,
+	MediaParserAudioCodec,
+	MediaParserVideoCodec,
+	VideoTrack,
+} from '../../get-tracks';
 import {getHvc1CodecString} from '../../make-hvc1-codec-strings';
+import {parseAv1PrivateData} from './av1-codec-private';
+import {parseColorSegment} from './color';
+import {getAudioDescription} from './description';
+import type {CodecIdSegment, TrackEntry} from './segments/all-segments';
+import {trackTypeToString} from './segments/track-entry';
 import {
 	getBitDepth,
 	getCodecSegment,
+	getColourSegment,
 	getDisplayHeightSegment,
 	getDisplayWidthSegment,
 	getHeightSegment,
@@ -13,11 +24,7 @@ import {
 	getTrackId,
 	getTrackTypeSegment,
 	getWidthSegment,
-} from '../../traversal';
-import {parseAv1PrivateData} from './av1-codec-private';
-import {getAudioDescription} from './description';
-import type {CodecIdSegment, TrackEntry} from './segments/all-segments';
-import {trackTypeToString} from './segments/track-entry';
+} from './traversal';
 
 const getDescription = (track: TrackEntry): undefined | Uint8Array => {
 	const codec = getCodecSegment(track);
@@ -33,6 +40,34 @@ const getDescription = (track: TrackEntry): undefined | Uint8Array => {
 	}
 
 	return undefined;
+};
+
+const getMatroskaVideoCodecWithoutConfigString = ({
+	codecSegment: codec,
+}: {
+	codecSegment: CodecIdSegment;
+}): MediaParserVideoCodec => {
+	if (codec.value === 'V_VP8') {
+		return 'vp8';
+	}
+
+	if (codec.value === 'V_VP9') {
+		return 'vp9';
+	}
+
+	if (codec.value === 'V_MPEG4/ISO/AVC') {
+		return 'h264';
+	}
+
+	if (codec.value === 'V_AV1') {
+		return 'av1';
+	}
+
+	if (codec.value === 'V_MPEGH/ISO/HEVC') {
+		return 'h265';
+	}
+
+	throw new Error(`Unknown codec: ${codec.value}`);
 };
 
 const getMatroskaVideoCodecString = ({
@@ -84,6 +119,59 @@ const getMatroskaVideoCodecString = ({
 		);
 
 		return 'hvc1.' + getHvc1CodecString(iterator);
+	}
+
+	throw new Error(`Unknown codec: ${codec.value}`);
+};
+
+export const getMatroskaAudioCodecWithoutConfigString = ({
+	track,
+}: {
+	track: TrackEntry;
+}): MediaParserAudioCodec => {
+	const codec = getCodecSegment(track);
+	if (!codec) {
+		throw new Error('Expected codec segment');
+	}
+
+	if (codec.value === 'A_OPUS') {
+		return 'opus';
+	}
+
+	if (codec.value === 'A_VORBIS') {
+		return 'vorbis';
+	}
+
+	if (codec.value === 'A_PCM/INT/LIT') {
+		// https://github.com/ietf-wg-cellar/matroska-specification/issues/142#issuecomment-330004950
+		// Audio samples MUST be considered as signed values, except if the audio bit depth is 8 which MUST be interpreted as unsigned values.
+
+		const bitDepth = getBitDepth(track);
+		if (bitDepth === null) {
+			throw new Error('Expected bit depth');
+		}
+
+		if (bitDepth === 8) {
+			return 'pcm-u8';
+		}
+
+		if (bitDepth === 16) {
+			return 'pcm-s16';
+		}
+
+		if (bitDepth === 24) {
+			return 'pcm-s24';
+		}
+
+		throw new Error('Unknown audio format');
+	}
+
+	if (codec.value === 'A_AAC') {
+		return `aac`;
+	}
+
+	if (codec.value === 'A_MPEG/L3') {
+		return 'mp3';
 	}
 
 	throw new Error(`Unknown codec: ${codec.value}`);
@@ -200,10 +288,12 @@ export const getTrack = ({
 			return null;
 		}
 
+		const codecPrivate = getPrivateData(track);
 		const codecString = getMatroskaVideoCodecString({
 			track,
 			codecSegment: codec,
 		});
+		const colour = getColourSegment(track);
 
 		if (!codecString) {
 			return null;
@@ -231,12 +321,25 @@ export const getTrack = ({
 				: width.value.value,
 			rotation: 0,
 			trakBox: null,
+			codecPrivate,
+			color: colour
+				? parseColorSegment(colour)
+				: {
+						fullRange: null,
+						matrixCoefficients: null,
+						primaries: null,
+						transferCharacteristics: null,
+					},
+			codecWithoutConfig: getMatroskaVideoCodecWithoutConfigString({
+				codecSegment: codec,
+			}),
 		};
 	}
 
 	if (trackTypeToString(trackType.value.value) === 'audio') {
 		const sampleRate = getSampleRate(track);
 		const numberOfChannels = getNumberOfChannels(track);
+		const codecPrivate = getPrivateData(track);
 		if (sampleRate === null) {
 			throw new Error('Could not find sample rate or number of channels');
 		}
@@ -250,6 +353,10 @@ export const getTrack = ({
 			sampleRate,
 			description: getAudioDescription(track),
 			trakBox: null,
+			codecPrivate,
+			codecWithoutConfig: getMatroskaAudioCodecWithoutConfigString({
+				track,
+			}),
 		};
 	}
 

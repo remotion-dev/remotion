@@ -33,7 +33,7 @@ export const getSampleFromBlock = (
 		throw new Error('Not enough data to get track number, should not happen');
 	}
 
-	const timecodeRelativeToCluster = iterator.getUint16();
+	const timecodeRelativeToCluster = iterator.getInt16();
 
 	const {keyframe} = parseBlockFlags(
 		iterator,

@@ -1,107 +1,21 @@
+import {makeMatroskaColorBytes} from '../boxes/webm/color';
 import {makeMatroskaBytes, padMatroskaBytes} from '../boxes/webm/make-header';
-import type {BytesAndOffset} from '../boxes/webm/segments/all-segments';
-
-export type MatroskaColorParams = {
-	transferChracteristics: 'bt709' | 'smpte170m' | 'iec61966-2-1' | null;
-	matrixCoefficients: 'bt709' | 'bt470bg' | 'rgb' | 'smpte170m' | null;
-	primaries: 'bt709' | 'smpte170m' | 'bt470bg' | null;
-	fullRange: boolean | null;
-};
-
-export const makeMatroskaColorBytes = ({
-	transferChracteristics,
-	matrixCoefficients,
-	primaries,
-	fullRange,
-}: MatroskaColorParams) => {
-	const rangeValue =
-		transferChracteristics && matrixCoefficients
-			? 3
-			: fullRange === true
-				? 2
-				: fullRange === false
-					? 1
-					: 0;
-
-	// https://datatracker.ietf.org/doc/draft-ietf-cellar-matroska/
-	// 5.1.4.1.28.27
-	const primariesValue =
-		primaries === 'bt709'
-			? 1
-			: primaries === 'smpte170m'
-				? 6
-				: primaries === 'bt470bg'
-					? 5
-					: 2;
-
-	const transferChracteristicsValue =
-		transferChracteristics === 'bt709'
-			? 1
-			: transferChracteristics === 'smpte170m'
-				? 6
-				: transferChracteristics === 'iec61966-2-1'
-					? 13
-					: 2;
-
-	if (matrixCoefficients === 'rgb') {
-		throw new Error('Cannot encode Matroska in RGB');
-	}
-
-	const matrixCoefficientsValue =
-		matrixCoefficients === 'bt709'
-			? 1
-			: matrixCoefficients === 'bt470bg'
-				? 5
-				: matrixCoefficients === 'smpte170m'
-					? 6
-					: 2;
-
-	return makeMatroskaBytes({
-		type: 'Colour',
-		minVintWidth: null,
-		value: [
-			{
-				type: 'TransferCharacteristics',
-				value: {
-					value: transferChracteristicsValue,
-					byteLength: null,
-				},
-				minVintWidth: null,
-			},
-			{
-				type: 'MatrixCoefficients',
-				value: {
-					value: matrixCoefficientsValue,
-					byteLength: null,
-				},
-				minVintWidth: null,
-			},
-			{
-				type: 'Primaries',
-				value: {
-					value: primariesValue,
-					byteLength: null,
-				},
-				minVintWidth: null,
-			},
-			{
-				type: 'Range',
-				value: {
-					value: rangeValue,
-					byteLength: null,
-				},
-				minVintWidth: null,
-			},
-		],
-	});
-};
+import type {
+	BytesAndOffset,
+	PossibleEbmlOrUint8Array,
+} from '../boxes/webm/segments/all-segments';
+import type {
+	MediaParserAudioCodec,
+	MediaParserVideoCodec,
+	VideoTrackColorParams,
+} from '../get-tracks';
 
 export const makeMatroskaVideoBytes = ({
 	color,
 	width,
 	height,
 }: {
-	color: MatroskaColorParams;
+	color: VideoTrackColorParams;
 	width: number;
 	height: number;
 }) => {
@@ -142,26 +56,101 @@ export const makeMatroskaVideoBytes = ({
 
 export type MakeTrackAudio = {
 	trackNumber: number;
-	codecId: string;
+	codec: MediaParserAudioCodec;
 	numberOfChannels: number;
 	sampleRate: number;
 	type: 'audio';
+	codecPrivate: Uint8Array | null;
 };
 
 export type MakeTrackVideo = {
-	color: MatroskaColorParams;
+	color: VideoTrackColorParams;
 	width: number;
 	height: number;
 	trackNumber: number;
-	codecId: string;
+	codec: MediaParserVideoCodec;
 	type: 'video';
+	codecPrivate: Uint8Array | null;
+};
+
+const makeVideoCodecId = (codecId: MediaParserVideoCodec) => {
+	if (codecId === 'vp8') {
+		return 'V_VP8';
+	}
+
+	if (codecId === 'vp9') {
+		return 'V_VP9';
+	}
+
+	if (codecId === 'h264') {
+		return 'V_MPEG4/ISO/AVC';
+	}
+
+	if (codecId === 'av1') {
+		return 'V_AV1';
+	}
+
+	if (codecId === 'h265') {
+		return 'V_MPEGH/ISO/HEVC';
+	}
+
+	if (codecId === 'prores') {
+		return 'V_PRORES';
+	}
+
+	throw new Error(`Unknown codec: ${codecId satisfies never}`);
+};
+
+const makeAudioCodecId = (codecId: MediaParserAudioCodec) => {
+	if (codecId === 'opus') {
+		return 'A_OPUS';
+	}
+
+	if (codecId === 'aac') {
+		return 'A_AAC';
+	}
+
+	if (codecId === 'mp3') {
+		return 'A_MPEG/L3';
+	}
+
+	if (codecId === 'vorbis') {
+		return 'A_VORBIS';
+	}
+
+	if (codecId === 'pcm-u8') {
+		return 'A_PCM/INT/LIT';
+	}
+
+	if (codecId === 'pcm-s16') {
+		return 'A_PCM/INT/LIT';
+	}
+
+	if (codecId === 'pcm-s24') {
+		return 'A_PCM/INT/LIT';
+	}
+
+	if (codecId === 'pcm-s32') {
+		return 'A_PCM/INT/LIT';
+	}
+
+	if (codecId === 'pcm-f32') {
+		return 'A_PCM/INT/LIT';
+	}
+
+	if (codecId === 'aiff') {
+		throw new Error('aiff is not supported in Matroska');
+	}
+
+	throw new Error(`Unknown codec: ${codecId satisfies never}`);
 };
 
 export const makeMatroskaAudioTrackEntryBytes = ({
 	trackNumber,
-	codecId,
-	numberOfChannels: audioChannels,
+	codec,
+	numberOfChannels,
 	sampleRate,
+	codecPrivate,
 }: MakeTrackAudio) => {
 	return makeMatroskaBytes({
 		type: 'TrackEntry',
@@ -198,7 +187,7 @@ export const makeMatroskaAudioTrackEntryBytes = ({
 			},
 			{
 				type: 'CodecID',
-				value: codecId,
+				value: makeAudioCodecId(codec),
 				minVintWidth: null,
 			},
 			{
@@ -208,7 +197,7 @@ export const makeMatroskaAudioTrackEntryBytes = ({
 						type: 'Channels',
 						minVintWidth: null,
 						value: {
-							value: audioChannels,
+							value: numberOfChannels,
 							byteLength: null,
 						},
 					},
@@ -231,7 +220,14 @@ export const makeMatroskaAudioTrackEntryBytes = ({
 				],
 				minVintWidth: null,
 			},
-		],
+			codecPrivate
+				? {
+						type: 'CodecPrivate',
+						minVintWidth: null,
+						value: codecPrivate,
+					}
+				: null,
+		].filter(Boolean) as PossibleEbmlOrUint8Array[],
 	});
 };
 
@@ -240,7 +236,8 @@ export const makeMatroskaVideoTrackEntryBytes = ({
 	width,
 	height,
 	trackNumber,
-	codecId,
+	codec,
+	codecPrivate,
 }: MakeTrackVideo) => {
 	return makeMatroskaBytes({
 		type: 'TrackEntry',
@@ -282,7 +279,7 @@ export const makeMatroskaVideoTrackEntryBytes = ({
 			},
 			{
 				type: 'CodecID',
-				value: codecId,
+				value: makeVideoCodecId(codec),
 				minVintWidth: null,
 			},
 			{
@@ -298,7 +295,14 @@ export const makeMatroskaVideoTrackEntryBytes = ({
 				width,
 				height,
 			}),
-		],
+			codecPrivate
+				? {
+						type: 'CodecPrivate',
+						minVintWidth: null,
+						value: codecPrivate,
+					}
+				: null,
+		].filter(Boolean) as PossibleEbmlOrUint8Array[],
 	});
 };
 

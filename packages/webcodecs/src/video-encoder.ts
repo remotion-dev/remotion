@@ -1,5 +1,3 @@
-import {getVideoEncoderConfigWithHardwareAcceleration} from './get-config';
-
 export type WebCodecsVideoEncoder = {
 	encodeFrame: (videoFrame: VideoFrame) => Promise<void>;
 	waitForFinish: () => Promise<void>;
@@ -8,19 +6,19 @@ export type WebCodecsVideoEncoder = {
 	flush: () => Promise<void>;
 };
 
-export const createVideoEncoder = async ({
-	width,
-	height,
+export const createVideoEncoder = ({
 	onChunk,
 	onError,
+	signal,
+	config,
 }: {
-	width: number;
-	height: number;
 	onChunk: (chunk: EncodedVideoChunk) => Promise<void>;
 	onError: (error: DOMException) => void;
-}): Promise<WebCodecsVideoEncoder | null> => {
-	if (typeof VideoEncoder === 'undefined') {
-		return Promise.resolve(null);
+	signal: AbortSignal;
+	config: VideoEncoderConfig;
+}): WebCodecsVideoEncoder => {
+	if (signal.aborted) {
+		throw new Error('Not creating video encoder, already aborted');
 	}
 
 	let outputQueue = Promise.resolve();
@@ -43,15 +41,21 @@ export const createVideoEncoder = async ({
 		},
 	});
 
-	const config = await getVideoEncoderConfigWithHardwareAcceleration({
-		codec: 'vp8',
-		height,
-		width,
-	});
+	const close = () => {
+		// eslint-disable-next-line @typescript-eslint/no-use-before-define
+		signal.removeEventListener('abort', onAbort);
+		if (encoder.state === 'closed') {
+			return;
+		}
 
-	if (!config) {
-		return null;
-	}
+		encoder.close();
+	};
+
+	const onAbort = () => {
+		close();
+	};
+
+	signal.addEventListener('abort', onAbort);
 
 	const getQueueSize = () => {
 		return encoder.encodeQueueSize + outputQueueSize;
@@ -85,6 +89,11 @@ export const createVideoEncoder = async ({
 			await waitForDequeue();
 		}
 
+		// @ts-expect-error - can have changed in the meanwhile
+		if (encoder.state === 'closed') {
+			return;
+		}
+
 		encoder.encode(frame, {
 			keyFrame: framesProcessed % 40 === 0,
 		});
@@ -103,9 +112,7 @@ export const createVideoEncoder = async ({
 			await outputQueue;
 			await waitForFinish();
 		},
-		close: () => {
-			encoder.close();
-		},
+		close,
 		getQueueSize,
 		flush: async () => {
 			await encoder.flush();

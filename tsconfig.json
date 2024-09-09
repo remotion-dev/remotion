@@ -154,6 +154,9 @@
 			"path": "./packages/webcodecs"
 		},
 		{
+			"path": "./packages/convert"
+		},
+		{
 			"path": "./packages/zod-types"
 		}
 	]

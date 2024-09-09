@@ -16,8 +16,10 @@ export const webFileReader: ReaderInterface = {
 		const reader = new FileReader();
 		reader.readAsArrayBuffer(file);
 
-		if (signal) {
-			signal.addEventListener(
+		const controller = new AbortController();
+
+		if (controller) {
+			controller.signal.addEventListener(
 				'abort',
 				() => {
 					reader.abort();
@@ -26,11 +28,27 @@ export const webFileReader: ReaderInterface = {
 			);
 		}
 
+		if (signal) {
+			signal.addEventListener(
+				'abort',
+				() => {
+					controller.abort();
+				},
+				{once: true},
+			);
+		}
+
 		return new Promise((resolve, reject) => {
 			reader.onload = () => {
 				resolve({
-					reader: part.stream().getReader(),
+					reader: {
+						reader: part.stream().getReader(),
+						abort() {
+							controller.abort();
+						},
+					},
 					contentLength: file.size,
+					name: file.name,
 				});
 			};
 

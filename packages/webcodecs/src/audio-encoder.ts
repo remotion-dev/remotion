@@ -1,3 +1,5 @@
+import type {ConvertMediaAudioCodec} from './codec-id';
+
 export type WebCodecsAudioEncoder = {
 	encodeFrame: (audioData: AudioData) => Promise<void>;
 	waitForFinish: () => Promise<void>;
@@ -6,19 +8,21 @@ export type WebCodecsAudioEncoder = {
 	flush: () => Promise<void>;
 };
 
-export const createAudioEncoder = async ({
+export const createAudioEncoder = ({
 	onChunk,
-	sampleRate,
-	numberOfChannels,
 	onError,
+	codec,
+	signal,
+	config: audioEncoderConfig,
 }: {
 	onChunk: (chunk: EncodedAudioChunk) => Promise<void>;
-	sampleRate: number;
-	numberOfChannels: number;
 	onError: (error: DOMException) => void;
-}): Promise<WebCodecsAudioEncoder | null> => {
-	if (typeof AudioEncoder === 'undefined') {
-		return null;
+	codec: ConvertMediaAudioCodec;
+	signal: AbortSignal;
+	config: AudioEncoderConfig;
+}): WebCodecsAudioEncoder => {
+	if (signal.aborted) {
+		throw new Error('Not creating audio encoder, already aborted');
 	}
 
 	let prom = Promise.resolve();
@@ -41,17 +45,24 @@ export const createAudioEncoder = async ({
 		},
 	});
 
-	const audioEncoderConfig: AudioEncoderConfig = {
-		codec: 'opus',
-		numberOfChannels,
-		sampleRate,
-		bitrate: 128000,
+	const close = () => {
+		// eslint-disable-next-line @typescript-eslint/no-use-before-define
+		signal.removeEventListener('abort', onAbort);
+		if (encoder.state === 'closed') {
+			return;
+		}
+
+		encoder.close();
 	};
 
-	const config = await AudioEncoder.isConfigSupported(audioEncoderConfig);
+	const onAbort = () => {
+		close();
+	};
 
-	if (!config.supported) {
-		return null;
+	signal.addEventListener('abort', onAbort);
+
+	if (codec !== 'opus') {
+		throw new Error('Only `codec: "opus"` is supported currently');
 	}
 
 	const getQueueSize = () => {
@@ -86,6 +97,11 @@ export const createAudioEncoder = async ({
 			await waitForDequeue();
 		}
 
+		// @ts-expect-error - can have changed in the meanwhile
+		if (encoder.state === 'closed') {
+			return;
+		}
+
 		encoder.encode(audioData);
 	};
 
@@ -101,9 +117,7 @@ export const createAudioEncoder = async ({
 			await waitForFinish();
 			await prom;
 		},
-		close: () => {
-			encoder.close();
-		},
+		close,
 		getQueueSize,
 		flush: async () => {
 			await encoder.flush();

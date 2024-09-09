@@ -9,6 +9,8 @@ export const nodeReader: ReaderInterface = {
 			throw new Error('src must be a string when using `nodeReader`');
 		}
 
+		const controller = new AbortController();
+
 		const stream = createReadStream(src, {
 			start: range === null ? 0 : typeof range === 'number' ? range : range[0],
 			end:
@@ -17,8 +19,17 @@ export const nodeReader: ReaderInterface = {
 					: typeof range === 'number'
 						? Infinity
 						: range[1],
-			signal,
+			signal: controller.signal,
 		});
+
+		signal?.addEventListener(
+			'abort',
+			() => {
+				controller.abort();
+			},
+			{once: true},
+		);
+
 		const stats = await stat(src);
 
 		const reader = Readable.toWeb(
@@ -29,15 +40,21 @@ export const nodeReader: ReaderInterface = {
 			signal.addEventListener(
 				'abort',
 				() => {
-					reader.cancel();
+					reader.cancel().catch(() => {});
 				},
 				{once: true},
 			);
 		}
 
 		return {
-			reader,
+			reader: {
+				reader,
+				abort: () => {
+					controller.abort();
+				},
+			},
 			contentLength: stats.size,
+			name: src.split('/').pop() as string,
 		};
 	},
 	getLength: async (src) => {

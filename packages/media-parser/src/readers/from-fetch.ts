@@ -24,6 +24,8 @@ export const fetchReader: ReaderInterface = {
 			);
 		}
 
+		const controller = new AbortController();
+
 		const res = await fetch(resolvedUrl, {
 			headers:
 				range === null
@@ -35,10 +37,18 @@ export const fetchReader: ReaderInterface = {
 						: {
 								Range: `bytes=${`${range[0]}-${range[1]}`}`,
 							},
-			signal,
+			signal: controller.signal,
 			// Disable Next.js caching
 			cache: 'no-store',
 		});
+
+		signal?.addEventListener(
+			'abort',
+			() => {
+				controller.abort();
+			},
+			{once: true},
+		);
 
 		if (
 			res.status.toString().startsWith('4') ||
@@ -54,6 +64,10 @@ export const fetchReader: ReaderInterface = {
 		const length = res.headers.get('content-length');
 
 		const contentLength = length === null ? null : parseInt(length, 10);
+		const contentDisposition = res.headers.get('content-disposition');
+		const name = contentDisposition?.match(/filename="([^"]+)"/)?.[1];
+
+		const fallbackName = src.split('/').pop();
 
 		const reader = res.body.getReader();
 
@@ -61,13 +75,24 @@ export const fetchReader: ReaderInterface = {
 			signal.addEventListener(
 				'abort',
 				() => {
-					reader.cancel();
+					reader.cancel().catch(() => {
+						// Prevent unhandled rejection in Firefox
+					});
 				},
 				{once: true},
 			);
 		}
 
-		return {reader, contentLength};
+		return {
+			reader: {
+				reader,
+				abort: () => {
+					controller.abort();
+				},
+			},
+			contentLength,
+			name: name ?? (fallbackName as string),
+		};
 	},
 	getLength: async (src) => {
 		if (typeof src !== 'string') {

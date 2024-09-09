@@ -11,6 +11,14 @@ import {CREATE_TIME_SCALE} from './timescale';
 
 const maxClusterTimestamp = 2 ** 15;
 
+export type AudioOrVideoSample = {
+	timestamp: number;
+	type: 'key' | 'delta';
+	copyTo(destination: AllowSharedBufferSource): void;
+	byteLength: number;
+	duration: number | null;
+};
+
 export const timestampToClusterTimestamp = (timestamp: number) => {
 	return Math.round((timestamp / CREATE_TIME_SCALE) * 1000);
 };
@@ -28,7 +36,7 @@ export const makeCluster = async (w: Writer, timestamp: number) => {
 		CLUSTER_MIN_VINT_WIDTH;
 	await w.write(cluster.bytes);
 
-	const addSample = async (chunk: EncodedVideoChunk, trackNumber: number) => {
+	const addSample = async (chunk: AudioOrVideoSample, trackNumber: number) => {
 		const arr = new Uint8Array(chunk.byteLength);
 		chunk.copyTo(arr);
 		const timecodeRelativeToCluster =

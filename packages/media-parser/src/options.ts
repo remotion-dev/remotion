@@ -1,18 +1,15 @@
 import type {} from './boxes/iso-base-media/mdat/mdat';
 import type {Dimensions} from './get-dimensions';
-import type {AudioTrack, VideoTrack} from './get-tracks';
+import type {
+	AudioTrack,
+	MediaParserAudioCodec,
+	MediaParserVideoCodec,
+	VideoTrack,
+} from './get-tracks';
 import type {AnySegment} from './parse-result';
 import type {InternalStats} from './parser-state';
 import type {ReaderInterface} from './readers/reader';
 import type {OnAudioTrack, OnVideoTrack} from './webcodec-sample-types';
-
-export type KnownVideoCodecs =
-	| 'h264'
-	| 'h265'
-	| 'vp8'
-	| 'vp9'
-	| 'av1'
-	| 'prores';
 
 export type KnownAudioCodecs =
 	| 'aac'
@@ -23,96 +20,132 @@ export type KnownAudioCodecs =
 	| 'vorbis'
 	| 'unknown';
 
-export type Options<
-	EnableDimensions extends boolean,
-	EnableDuration extends boolean,
-	EnableBoxes extends boolean,
-	EnableFps extends boolean,
-	EnableVideoCodec extends boolean,
-	EnableAudioCodec extends boolean,
-	EnableTracks extends boolean,
-	EnableRotation extends boolean,
-	EnableUnrotatedDimensions extends boolean,
-	EnableInternalStats extends boolean,
-> = {
-	dimensions?: EnableDimensions;
-	durationInSeconds?: EnableDuration;
-	boxes?: EnableBoxes;
-	fps?: EnableFps;
-	videoCodec?: EnableVideoCodec;
-	audioCodec?: EnableAudioCodec;
-	tracks?: EnableTracks;
-	rotation?: EnableRotation;
-	unrotatedDimensions?: EnableUnrotatedDimensions;
-	internalStats?: EnableInternalStats;
+export type ParseMediaFields = {
+	dimensions: boolean;
+	durationInSeconds: boolean;
+	boxes: boolean;
+	fps: boolean;
+	videoCodec: boolean;
+	audioCodec: boolean;
+	tracks: boolean;
+	rotation: boolean;
+	unrotatedDimensions: boolean;
+	internalStats: boolean;
+	size: boolean;
+	name: boolean;
+	container: boolean;
 };
 
-export type Metadata<
-	EnableDimensions extends boolean,
-	EnableDuration extends boolean,
-	EnableBoxes extends boolean,
-	EnableFps extends boolean,
-	EnableVideoCodec extends boolean,
-	EnableAudioCodec extends boolean,
-	EnableTracks extends boolean,
-	EnableRotation extends boolean,
-	EnableUnrotatedDimensions extends boolean,
-	EnableInternalStats extends boolean,
-> = (EnableDimensions extends true ? {dimensions: Dimensions} : {}) &
-	(EnableDuration extends true ? {durationInSeconds: number | null} : {}) &
-	(EnableBoxes extends true ? {boxes: AnySegment[]} : {}) &
-	(EnableFps extends true ? {fps: number | null} : {}) &
-	(EnableVideoCodec extends true ? {videoCodec: KnownVideoCodecs | null} : {}) &
-	(EnableAudioCodec extends true ? {audioCodec: KnownAudioCodecs | null} : {}) &
-	(EnableTracks extends true
-		? {videoTracks: VideoTrack[]; audioTracks: AudioTrack[]}
-		: {}) &
-	(EnableRotation extends true ? {rotation: number | null} : {}) &
-	(EnableUnrotatedDimensions extends true
-		? {unrotatedDimensions: Dimensions}
-		: {}) &
-	(EnableInternalStats extends true ? {internalStats: InternalStats} : {});
+export type AllParseMediaFields = {
+	dimensions: true;
+	durationInSeconds: true;
+	boxes: true;
+	fps: true;
+	videoCodec: true;
+	audioCodec: true;
+	tracks: true;
+	rotation: true;
+	unrotatedDimensions: true;
+	internalStats: true;
+	size: true;
+	name: true;
+	container: true;
+};
 
-export type ParseMedia = <
-	EnableDimensions extends boolean,
-	EnableDuration extends boolean,
-	EnableBoxes extends boolean,
-	EnableFps extends boolean,
-	EnableVideoCodec extends boolean,
-	EnableAudioCodec extends boolean,
-	EnableTracks extends boolean,
-	EnableRotation extends boolean,
-	EnableUnrotatedDimensions extends boolean,
-	EnableInternalStats extends boolean,
->(options: {
-	src: string | File;
-	fields?: Options<
-		EnableDimensions,
-		EnableDuration,
-		EnableBoxes,
-		EnableFps,
-		EnableVideoCodec,
-		EnableAudioCodec,
-		EnableTracks,
-		EnableRotation,
-		EnableUnrotatedDimensions,
-		EnableInternalStats
-	>;
-	reader?: ReaderInterface;
-	onAudioTrack?: OnAudioTrack;
-	onVideoTrack?: OnVideoTrack;
-	signal?: AbortSignal;
-}) => Promise<
-	Metadata<
-		EnableDimensions,
-		EnableDuration,
-		EnableBoxes,
-		EnableFps,
-		EnableVideoCodec,
-		EnableAudioCodec,
-		EnableTracks,
-		EnableRotation,
-		EnableUnrotatedDimensions,
-		EnableInternalStats
-	>
->;
+export type Options<Fields extends ParseMediaFields> = {
+	dimensions?: Fields['dimensions'];
+	durationInSeconds?: Fields['durationInSeconds'];
+	boxes?: Fields['boxes'];
+	fps?: Fields['fps'];
+	videoCodec?: Fields['videoCodec'];
+	audioCodec?: Fields['audioCodec'];
+	tracks?: Fields['tracks'];
+	rotation?: Fields['rotation'];
+	unrotatedDimensions?: Fields['unrotatedDimensions'];
+	internalStats?: Fields['internalStats'];
+	size?: Fields['size'];
+	name?: Fields['name'];
+	container?: Fields['container'];
+};
+
+export type TracksField = {
+	videoTracks: VideoTrack[];
+	audioTracks: AudioTrack[];
+};
+
+export type ParseMediaContainer = 'mp4' | 'webm';
+
+export type ParseMediaCallbacks<Fields extends Options<ParseMediaFields>> =
+	(Fields['dimensions'] extends true
+		? {onDimensions?: (dimensions: Dimensions) => void}
+		: {}) &
+		(Fields['durationInSeconds'] extends true
+			? {onDurationInSeconds?: (durationInSeconds: number | null) => void}
+			: {}) &
+		(Fields['boxes'] extends true
+			? {onBoxes?: (boxes: AnySegment[]) => void}
+			: {}) &
+		(Fields['fps'] extends true ? {onFps?: (fps: number | null) => void} : {}) &
+		(Fields['videoCodec'] extends true
+			? {onVideoCodec?: (codec: MediaParserVideoCodec | null) => void}
+			: {}) &
+		(Fields['audioCodec'] extends true
+			? {onAudioCodec?: (codec: MediaParserAudioCodec | null) => void}
+			: {}) &
+		(Fields['tracks'] extends true
+			? {onTracks?: (tracks: TracksField) => void}
+			: {}) &
+		(Fields['rotation'] extends true
+			? {onRotation?: (rotation: number | null) => void}
+			: {}) &
+		(Fields['unrotatedDimensions'] extends true
+			? {onUnrotatedDimensions?: (dimensions: Dimensions) => void}
+			: {}) &
+		(Fields['internalStats'] extends true
+			? {onInternalStats?: (stats: InternalStats) => void}
+			: {}) &
+		(Fields['size'] extends true
+			? {onSize?: (size: number | null) => void}
+			: {}) &
+		(Fields['name'] extends true ? {onName?: (name: string) => void} : {}) &
+		(Fields['container'] extends true
+			? {onContainer?: (container: ParseMediaContainer | null) => void}
+			: {});
+
+export type ParseMediaResult<Fields extends Options<ParseMediaFields>> =
+	(Fields['dimensions'] extends true ? {dimensions: Dimensions} : {}) &
+		(Fields['durationInSeconds'] extends true
+			? {durationInSeconds: number | null}
+			: {}) &
+		(Fields['boxes'] extends true ? {boxes: AnySegment[]} : {}) &
+		(Fields['fps'] extends true ? {fps: number | null} : {}) &
+		(Fields['videoCodec'] extends true
+			? {videoCodec: MediaParserVideoCodec | null}
+			: {}) &
+		(Fields['audioCodec'] extends true
+			? {audioCodec: MediaParserAudioCodec | null}
+			: {}) &
+		(Fields['tracks'] extends true ? TracksField : {}) &
+		(Fields['rotation'] extends true ? {rotation: number | null} : {}) &
+		(Fields['unrotatedDimensions'] extends true
+			? {unrotatedDimensions: Dimensions}
+			: {}) &
+		(Fields['internalStats'] extends true
+			? {internalStats: InternalStats}
+			: {}) &
+		(Fields['size'] extends true ? {size: number | null} : {}) &
+		(Fields['name'] extends true ? {name: string} : {}) &
+		(Fields['container'] extends true
+			? {container: ParseMediaContainer | null}
+			: {});
+
+export type ParseMedia = <F extends Options<ParseMediaFields>>(
+	options: {
+		src: string | File;
+		fields?: F;
+		reader?: ReaderInterface;
+		onAudioTrack?: OnAudioTrack;
+		onVideoTrack?: OnVideoTrack;
+		signal?: AbortSignal;
+	} & ParseMediaCallbacks<F>,
+) => Promise<ParseMediaResult<F>>;

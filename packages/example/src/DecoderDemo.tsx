@@ -55,6 +55,10 @@ export const DecoderDemo: React.FC = () => {
 					label="transparent-with-dar.webm"
 					src={staticFile('transparent-with-dar.webm')}
 				/>
+				<SrcEncoder
+					label="vp8-opus-5-1-channels.webm"
+					src={staticFile('vp8-opus-5-1-channels.webm')}
+				/>
 			</div>
 		</>
 	);

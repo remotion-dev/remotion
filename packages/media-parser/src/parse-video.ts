@@ -25,9 +25,11 @@ export type BoxAndNext =
 export const parseVideo = ({
 	iterator,
 	options,
+	signal,
 }: {
 	iterator: BufferIterator;
 	options: ParserContext;
+	signal: AbortSignal | null;
 }): Promise<ParseResult> => {
 	if (iterator.bytesRemaining() === 0) {
 		return Promise.resolve({
@@ -37,6 +39,7 @@ export const parseVideo = ({
 				return parseVideo({
 					iterator,
 					options,
+					signal,
 				});
 			},
 			skipTo: null,
@@ -68,6 +71,7 @@ export const parseVideo = ({
 			options,
 			continueMdat: false,
 			littleEndian: false,
+			signal,
 		});
 	}
 

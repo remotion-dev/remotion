@@ -1,18 +1,5 @@
-import {
-	MediaFn,
-	MediaParserInternals,
-	OnAudioTrack,
-	OnVideoTrack,
-	VideoTrack,
-	parseMedia,
-} from '@remotion/media-parser';
-import {webFsWriter} from '@remotion/media-parser/web-fs';
-import {
-	createAudioDecoder,
-	createAudioEncoder,
-	createVideoDecoder,
-	createVideoEncoder,
-} from '@remotion/webcodecs';
+import {VideoTrack} from '@remotion/media-parser';
+import {ConvertMediaState, convertMedia} from '@remotion/webcodecs';
 import React, {useCallback, useRef, useState} from 'react';
 import {flushSync} from 'react-dom';
 import {AbsoluteFill} from 'remotion';
@@ -48,53 +35,29 @@ const SampleLabel: React.FC<{
 const SampleCount: React.FC<{
 	count: number;
 	label: string;
-	errored: boolean;
-}> = ({count, label, errored}) => {
+}> = ({count, label}) => {
 	return (
-		<div style={{display: 'inline-block', color: errored ? 'red' : 'white'}}>
+		<div style={{display: 'inline-block', color: 'white'}}>
 			<SampleLabel>{label}</SampleLabel>
 			{count}
 		</div>
 	);
 };
 
-type State = {
-	videoFrames: number;
-	audioFrames: number;
-	encodedVideoFrames: number;
-	encodedAudioFrames: number;
-	videoError: DOMException | null;
-	audioError: DOMException | null;
-};
-
 export const SrcEncoder: React.FC<{
 	src: string;
 	label: string;
 }> = ({src, label}) => {
-	const [state, setRawState] = useState<State>({
-		audioFrames: 0,
-		videoFrames: 0,
+	const [state, setState] = useState<ConvertMediaState>({
+		decodedAudioFrames: 0,
+		decodedVideoFrames: 0,
 		encodedVideoFrames: 0,
 		encodedAudioFrames: 0,
-		audioError: null,
-		videoError: null,
 	});
-	const stateRef = useRef(state);
 
 	const [downloadFn, setDownloadFn] = useState<null | (() => void)>(null);
-
-	const setState: React.Dispatch<React.SetStateAction<State>> = useCallback(
-		(newState) => {
-			if (typeof newState === 'function') {
-				stateRef.current = newState(stateRef.current);
-				setRawState(stateRef.current);
-				return;
-			}
-			stateRef.current = newState;
-			setRawState(newState);
-		},
-		[],
-	);
+	const [abortfn, setAbortFn] = useState<null | (() => void)>(null);
+	const [error, setError] = useState<Error | null>(null);
 
 	const ref = useRef<HTMLCanvasElement>(null);
 
@@ -157,193 +120,45 @@ export const SrcEncoder: React.FC<{
 					context.drawImage(image, fitted.left, 0, fitted.width, fitted.height);
 				}
 			}
-			flushSync(() => {
-				setState((s) => ({...s, videoFrames: s.videoFrames + 1}));
-			});
 		},
-		[setState],
+		[],
 	);
 
-	const onVideoTrack = useCallback(
-		(mediaState: MediaFn): OnVideoTrack =>
-			async (track) => {
-				if (!mediaState) {
-					throw new Error('mediaState is null');
-				}
-
-				const {trackNumber} = await mediaState.addTrack({
-					type: 'video',
-					color: {
-						transferChracteristics: 'bt709',
-						matrixCoefficients: 'bt709',
-						primaries: 'bt709',
-						fullRange: true,
-					},
-					width: track.codedWidth,
-					height: track.codedHeight,
-					codecId: 'V_VP8',
-				});
-
-				const videoEncoder = await createVideoEncoder({
-					width: track.displayAspectWidth,
-					height: track.displayAspectHeight,
-					onChunk: async (chunk) => {
-						await mediaState.addSample(chunk, trackNumber);
-						const newDuration = Math.round(
-							(chunk.timestamp + (chunk.duration ?? 0)) / 1000,
-						);
-						await mediaState.updateDuration(newDuration);
-						flushSync(() => {
-							setState((s) => ({
-								...s,
-								encodedVideoFrames: s.encodedVideoFrames + 1,
-							}));
-						});
-					},
-					onError: (err) => {
-						// TODO: Do error handling
-						console.log(err);
-					},
-				});
-				if (videoEncoder === null) {
-					setState((s) => ({
-						...s,
-						videoError: new DOMException('Video encoder not supported'),
-					}));
-					return null;
-				}
-
-				const videoDecoder = await createVideoDecoder({
-					track,
-					onFrame: async (frame) => {
-						await onVideoFrame(frame, track);
-						await videoEncoder.encodeFrame(frame);
-						frame.close();
-					},
-					onError: (err) => {
-						// TODO: Do error handling
-						console.log(err);
-					},
-				});
-				if (videoDecoder === null) {
-					setState((s) => ({
-						...s,
-						videoError: new DOMException('Video decoder not supported'),
-					}));
-					return null;
-				}
-
-				mediaState.addWaitForFinishPromise(async () => {
-					await videoDecoder.waitForFinish();
-					await videoEncoder.waitForFinish();
-					videoDecoder.close();
-					videoEncoder.close();
-				});
-
-				return async (chunk) => {
-					await videoDecoder.processSample(chunk);
-				};
-			},
-		[onVideoFrame, setState],
-	);
-
-	const onAudioTrack = useCallback(
-		(mediaState: MediaFn): OnAudioTrack =>
-			async (track) => {
-				const {trackNumber} = await mediaState.addTrack({
-					type: 'audio',
-					codecId: 'A_OPUS',
-					numberOfChannels: track.numberOfChannels,
-					sampleRate: track.sampleRate,
-				});
-
-				const audioEncoder = await createAudioEncoder({
-					onChunk: async (chunk) => {
-						await mediaState.addSample(chunk, trackNumber);
-
-						flushSync(() => {
-							setState((s) => ({
-								...s,
-								encodedAudioFrames: s.encodedAudioFrames + 1,
-							}));
-						});
-					},
-					sampleRate: track.sampleRate,
-					numberOfChannels: track.numberOfChannels,
-					onError: (err) => {
-						// TODO: Do error handling
-						console.log(err);
-					},
-				});
-
-				if (!audioEncoder) {
-					setState((s) => ({
-						...s,
-						audioError: new DOMException('Audio encoder not supported'),
-					}));
-					return null;
-				}
-
-				const audioDecoder = await createAudioDecoder({
-					track,
-					onFrame: async (frame) => {
-						await audioEncoder.encodeFrame(frame);
-
-						flushSync(() => {
-							setState((s) => ({...s, audioFrames: s.audioFrames + 1}));
-						});
-						frame.close();
-					},
-					onError(error) {
-						// TODO: Do better error handling
-						setState((s) => ({...s, audioError: error}));
-					},
-				});
-
-				if (!audioDecoder) {
-					setState((s) => ({
-						...s,
-						audioError: new DOMException('Audio decoder not supported'),
-					}));
-					return null;
-				}
-
-				mediaState.addWaitForFinishPromise(async () => {
-					await audioDecoder.waitForFinish();
-					await audioEncoder.waitForFinish();
-					audioDecoder.close();
-					audioEncoder.close();
-				});
-
-				return async (audioSample) => {
-					await audioDecoder.processSample(audioSample);
-				};
-			},
-		[setState],
-	);
-
-	const onClick = useCallback(() => {
-		MediaParserInternals.createMedia(webFsWriter)
-			.then((state) => {
-				parseMedia({
-					src,
-					onVideoTrack: onVideoTrack(state),
-					onAudioTrack: onAudioTrack(state),
-				})
-					.then(() => {
-						return state.waitForFinish();
-					})
-					.then(() => {
-						setDownloadFn(() => state.save);
-					})
-					.catch((err) => {
-						console.error(err);
+	const onClick = useCallback(async () => {
+		try {
+			const abortController = new AbortController();
+			setAbortFn(() => () => abortController.abort());
+			const fn = await convertMedia({
+				src,
+				onVideoFrame,
+				onMediaStateUpdate: (s) => {
+					flushSync(() => {
+						setState(() => s);
 					});
-			})
-			.catch((err) => {
-				console.error(err);
+				},
+				videoCodec: 'vp8',
+				audioCodec: 'opus',
+				to: 'webm',
+				signal: abortController.signal,
 			});
-	}, [onAudioTrack, onVideoTrack, src]);
+			setDownloadFn(() => {
+				return async () => {
+					const file = await fn.save();
+					const a = document.createElement('a');
+					a.href = URL.createObjectURL(file);
+					a.download = 'hithere';
+					a.click();
+
+					setTimeout(() => {
+						fn.remove();
+					}, 1000);
+				};
+			});
+		} catch (err) {
+			console.log(err);
+			setError(err as Error);
+		}
+	}, [onVideoFrame, src]);
 
 	return (
 		<div
@@ -385,9 +200,27 @@ export const SrcEncoder: React.FC<{
 				>
 					{label}{' '}
 				</div>
-				<button type="button" onClick={onClick}>
-					Decode
-				</button>
+
+				{error ? (
+					<div style={{color: 'red'}}>{error.message}</div>
+				) : downloadFn ? (
+					<button type="button" onClick={downloadFn}>
+						Download
+					</button>
+				) : abortfn ? (
+					<button
+						type="button"
+						onClick={() => {
+							abortfn();
+						}}
+					>
+						Abort
+					</button>
+				) : (
+					<button type="button" onClick={onClick}>
+						Decode
+					</button>
+				)}
 				<div
 					style={{
 						display: 'flex',
@@ -398,33 +231,11 @@ export const SrcEncoder: React.FC<{
 						height: 38,
 					}}
 				>
-					<SampleCount
-						errored={state.videoError !== null}
-						count={state.videoFrames}
-						label="VD"
-					/>
-					<SampleCount
-						errored={state.videoError !== null}
-						count={state.encodedVideoFrames}
-						label="VE"
-					/>
-					<SampleCount
-						errored={state.videoError !== null}
-						count={state.audioFrames}
-						label="AD"
-					/>
-					<SampleCount
-						errored={state.videoError !== null}
-						count={state.encodedAudioFrames}
-						label="AE"
-					/>
+					<SampleCount count={state.decodedVideoFrames} label="VD" />
+					<SampleCount count={state.encodedVideoFrames} label="VE" />
+					<SampleCount count={state.decodedAudioFrames} label="AD" />
+					<SampleCount count={state.encodedAudioFrames} label="AE" />
 					<br />
-
-					{downloadFn ? (
-						<button type="button" onClick={downloadFn}>
-							DL
-						</button>
-					) : null}
 				</div>
 			</AbsoluteFill>
 		</div>

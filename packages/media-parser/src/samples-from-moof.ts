@@ -1,6 +1,10 @@
+import {
+	getTfdtBox,
+	getTfhdBox,
+	getTrunBoxes,
+} from './boxes/iso-base-media/traversal';
 import type {SamplePosition} from './get-sample-positions';
 import type {AnySegment, IsoBaseMediaBox} from './parse-result';
-import {getTfdtBox, getTfhdBox, getTrunBoxes} from './traversal';
 
 const getSamplesFromTraf = (
 	trafSegment: IsoBaseMediaBox,

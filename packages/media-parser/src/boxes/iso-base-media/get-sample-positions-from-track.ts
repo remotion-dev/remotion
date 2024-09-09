@@ -3,6 +3,7 @@ import type {SamplePosition} from '../../get-sample-positions';
 import {getSamplePositions} from '../../get-sample-positions';
 import type {IsoBaseMediaBox} from '../../parse-result';
 import {getSamplesFromMoof} from '../../samples-from-moof';
+import type {TrakBox} from './trak/trak';
 import {
 	getCttsBox,
 	getStcoBox,
@@ -11,8 +12,7 @@ import {
 	getStszBox,
 	getSttsBox,
 	getTkhdBox,
-} from '../../traversal';
-import type {TrakBox} from './trak/trak';
+} from './traversal';
 
 export const getSamplePositionsFromTrack = (
 	trakBox: TrakBox,

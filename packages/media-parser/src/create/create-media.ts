@@ -5,6 +5,7 @@ import {
 	type BytesAndOffset,
 } from '../boxes/webm/segments/all-segments';
 import type {WriterInterface} from '../writers/writer';
+import type {AudioOrVideoSample} from './cluster';
 import {makeCluster} from './cluster';
 import {makeDurationWithPadding} from './make-duration-with-padding';
 import {createMatroskaCues, type Cue} from './matroska-cues';
@@ -25,8 +26,9 @@ import {
 import {CREATE_TIME_SCALE} from './timescale';
 
 export type MediaFn = {
-	save: () => Promise<void>;
-	addSample: (chunk: EncodedVideoChunk, trackNumber: number) => Promise<void>;
+	save: () => Promise<File>;
+	remove: () => Promise<void>;
+	addSample: (chunk: AudioOrVideoSample, trackNumber: number) => Promise<void>;
 	updateDuration: (duration: number) => Promise<void>;
 	addTrack: (
 		track:
@@ -109,7 +111,6 @@ export const createMedia = async (
 
 	const clusterOffset = w.getWrittenByteCount();
 	let currentCluster = await makeCluster(w, 0);
-	// TODO: Also create a `Cues` seek element
 	seeks.push({
 		hexString: matroskaElements.Cluster,
 		byte: clusterOffset - seekHeadOffset,
@@ -120,11 +121,9 @@ export const createMedia = async (
 		trackNumbers,
 	});
 
-	await updateSeekWrite();
-
 	const trackNumberProgresses: Record<number, number> = {};
 
-	const getClusterOrMakeNew = async (chunk: EncodedVideoChunk) => {
+	const getClusterOrMakeNew = async (chunk: AudioOrVideoSample) => {
 		const smallestProgress = Math.min(...Object.values(trackNumberProgresses));
 		if (
 			!currentCluster.shouldMakeNewCluster(
@@ -146,9 +145,16 @@ export const createMedia = async (
 		return currentCluster;
 	};
 
-	const addSample = async (chunk: EncodedVideoChunk, trackNumber: number) => {
+	const addSample = async (chunk: AudioOrVideoSample, trackNumber: number) => {
 		trackNumberProgresses[trackNumber] = chunk.timestamp;
 		const cluster = await getClusterOrMakeNew(chunk);
+
+		const newDuration = Math.round(
+			(chunk.timestamp + (chunk.duration ?? 0)) / 1000,
+		);
+
+		await updateDuration(newDuration);
+
 		return cluster.addSample(chunk, trackNumber);
 	};
 
@@ -173,7 +179,11 @@ export const createMedia = async (
 
 	return {
 		save: async () => {
-			await w.save();
+			const file = await w.save();
+			return file;
+		},
+		remove: async () => {
+			await w.remove();
 		},
 		addSample: (chunk, trackNumber) => {
 			operationProm.current = operationProm.current.then(() =>
@@ -206,6 +216,12 @@ export const createMedia = async (
 		async waitForFinish() {
 			await Promise.all(waitForFinishPromises.map((p) => p()));
 			await operationProm.current;
+			seeks.push({
+				hexString: matroskaElements.Cues,
+				byte: w.getWrittenByteCount() - seekHeadOffset,
+			});
+			await updateSeekWrite();
+
 			await w.write(createMatroskaCues(cues).bytes);
 			const segmentSize = w.getWrittenByteCount() - segmentOffset;
 			await w.waitForFinish();
