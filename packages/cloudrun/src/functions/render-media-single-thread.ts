@@ -48,6 +48,9 @@ export const renderMediaSingleThread = async (
 		)}`;
 		const tempFilePath = `/tmp/${defaultOutName}`;
 		let previousProgress = 0.02;
+
+		let writingProgress = Promise.resolve();
+
 		const onProgress: RenderMediaOnProgress = ({
 			progress,
 			renderedFrames,
@@ -64,7 +67,13 @@ export const renderMediaSingleThread = async (
 					Math.round(progress * 100),
 					'%',
 				);
-				res.write(JSON.stringify({onProgress: progress}) + '\n');
+				writingProgress = writingProgress.then(() => {
+					return new Promise((resolve) => {
+						res.write(JSON.stringify({onProgress: progress}) + '\n', () => {
+							resolve();
+						});
+					});
+				});
 				previousProgress = progress;
 			}
 		};

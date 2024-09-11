@@ -223,6 +223,8 @@ const internalRenderMediaOnCloudrunRaw = async ({
 				parsedData = JSON.parse(accumulatedChunks.trim());
 				accumulatedChunks = ''; // Clear the buffer after successful parsing.
 			} catch (e) {
+				// eslint-disable-next-line no-console
+				console.error('Could not parse progress: ', accumulatedChunks.trim());
 				// If parsing fails, it means we don't have a complete JSON string yet.
 				// We'll wait for more chunks.
 				return;
