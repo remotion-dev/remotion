@@ -26,6 +26,13 @@ export const fetchReader: ReaderInterface = {
 
 		const controller = new AbortController();
 
+		const cache =
+			typeof navigator !== 'undefined' &&
+			navigator.userAgent.includes('Cloudflare-Workers')
+				? undefined
+				: // Disable Next.js caching
+					'no-store';
+
 		const res = await fetch(resolvedUrl, {
 			headers:
 				range === null
@@ -38,8 +45,7 @@ export const fetchReader: ReaderInterface = {
 								Range: `bytes=${`${range[0]}-${range[1]}`}`,
 							},
 			signal: controller.signal,
-			// Disable Next.js caching
-			cache: 'no-store',
+			cache,
 		});
 
 		signal?.addEventListener(
