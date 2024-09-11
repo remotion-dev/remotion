@@ -12,6 +12,7 @@ Monthly downloads of Remotion packages
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/compositor-linux-arm64-musl.svg?style=flat&color=black&label=@remotion/compositor-linux-arm64-musl)](https://npmcharts.com/compare/@remotion/compositor-linux-arm64-musl?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/compositor-linux-x64-gnu.svg?style=flat&color=black&label=@remotion/compositor-linux-x64-gnu)](https://npmcharts.com/compare/@remotion/compositor-linux-x64-gnu?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/compositor-linux-x64-musl.svg?style=flat&color=black&label=@remotion/compositor-linux-x64-musl)](https://npmcharts.com/compare/@remotion/compositor-linux-x64-musl?minimal=true)  
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/convert.svg?style=flat&color=black&label=@remotion/convert)](https://npmcharts.com/compare/@remotion/convert?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/remotion.svg?style=flat&color=black&label=remotion)](https://npmcharts.com/compare/remotion?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/create-video.svg?style=flat&color=black&label=create-video)](https://npmcharts.com/compare/create-video?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/enable-scss.svg?style=flat&color=black&label=@remotion/enable-scss)](https://npmcharts.com/compare/@remotion/enable-scss?minimal=true)  

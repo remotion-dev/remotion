@@ -5,8 +5,10 @@ import {emitAvailableInfo} from './emit-available-info';
 import {getAvailableInfo} from './has-all-info';
 import type {
 	AllParseMediaFields,
+	Options,
 	ParseMedia,
 	ParseMediaCallbacks,
+	ParseMediaFields,
 	ParseMediaResult,
 } from './options';
 import type {ParseResult} from './parse-result';
@@ -122,21 +124,15 @@ export const parseMedia: ParseMedia = async ({
 
 	// Force assign
 	emitAvailableInfo({
-		hasInfo: {
-			boxes: true,
-			durationInSeconds: true,
-			dimensions: true,
-			fps: true,
-			videoCodec: true,
-			audioCodec: true,
-			tracks: true,
-			rotation: true,
-			unrotatedDimensions: true,
-			internalStats: true,
-			size: true,
-			name: true,
-			container: true,
-		},
+		hasInfo: (
+			Object.keys(fields ?? {}) as (keyof Options<ParseMediaFields>)[]
+		).reduce(
+			(acc, key) => {
+				acc[key] = true;
+				return acc;
+			},
+			{} as Record<keyof Options<ParseMediaFields>, boolean>,
+		),
 		moreFields,
 		parseResult,
 		state,

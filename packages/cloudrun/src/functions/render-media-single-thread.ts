@@ -156,7 +156,7 @@ export const renderMediaSingleThread = async (
 			type: 'success',
 			publicUrl: publicUpload ? uploadedFile.publicUrl() : null,
 			cloudStorageUri: uploadedFile.cloudStorageURI.href,
-			size: renderMetadata[0].size,
+			size: renderMetadata[0].size as number,
 			bucketName: body.outputBucket,
 			renderId,
 			privacy: publicUpload ? 'public-read' : 'project-private',

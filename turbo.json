@@ -89,7 +89,8 @@
 			"dependsOn": ["^@remotion/webcodecs#build"]
 		},
 		"convert": {
-			"dependsOn": ["^@remotion/convert#build-page"]
+			"dependsOn": ["^@remotion/convert#build-page"],
+			"outputs": ["build/**"]
 		}
 	}
 }

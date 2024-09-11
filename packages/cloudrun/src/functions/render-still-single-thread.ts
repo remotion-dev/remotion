@@ -123,7 +123,7 @@ export const renderStillSingleThread = async (
 		const responseData: RenderStillOnCloudrunOutput = {
 			publicUrl: uploadedFile.publicUrl(),
 			cloudStorageUri: uploadedFile.cloudStorageURI.href,
-			size: renderMetadata[0].size,
+			size: renderMetadata[0].size as number,
 			bucketName: body.outputBucket,
 			renderId,
 			type: 'success',
