@@ -7,4 +7,5 @@ export type ParserContext = {
 	canSkipVideoData: boolean;
 	parserState: ParserState;
 	nullifySamples: boolean;
+	supportsContentRange: boolean;
 };

@@ -7,12 +7,22 @@ import {getSamplePositionsFromTrack} from '../get-sample-positions-from-track';
 import type {TrakBox} from '../trak/trak';
 import {getMoofBox} from '../traversal';
 
-export interface MdatBox {
+type MdatStatus =
+	| {
+			status: 'samples-buffered';
+	  }
+	| {
+			status: 'samples-skipped';
+	  }
+	| {
+			status: 'samples-processed';
+	  };
+
+export type MdatBox = {
 	type: 'mdat-box';
-	samplesProcessed: boolean;
 	boxSize: number;
 	fileOffset: number;
-}
+} & MdatStatus;
 
 export const parseMdat = async ({
 	data,
@@ -21,6 +31,7 @@ export const parseMdat = async ({
 	existingBoxes,
 	options,
 	signal,
+	maySkipSampleProcessing,
 }: {
 	data: BufferIterator;
 	size: number;
@@ -28,14 +39,27 @@ export const parseMdat = async ({
 	existingBoxes: AnySegment[];
 	options: ParserContext;
 	signal: AbortSignal | null;
+	maySkipSampleProcessing: boolean;
 }): Promise<MdatBox> => {
 	const alreadyHas = hasTracks(existingBoxes);
 	if (!alreadyHas) {
+		if (maySkipSampleProcessing) {
+			data.discard(size - (data.counter.getOffset() - fileOffset));
+			return Promise.resolve({
+				type: 'mdat-box',
+				boxSize: size,
+				status: 'samples-skipped',
+				fileOffset,
+			});
+		}
+
 		data.discard(size - (data.counter.getOffset() - fileOffset));
+		data.disallowDiscard();
+
 		return Promise.resolve({
 			type: 'mdat-box',
 			boxSize: size,
-			samplesProcessed: false,
+			status: 'samples-buffered',
 			fileOffset,
 		});
 	}
@@ -144,7 +168,7 @@ export const parseMdat = async ({
 	return Promise.resolve({
 		type: 'mdat-box',
 		boxSize: size,
-		samplesProcessed: true,
+		status: 'samples-processed',
 		fileOffset,
 	});
 };

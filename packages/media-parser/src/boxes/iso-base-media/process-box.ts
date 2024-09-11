@@ -32,7 +32,7 @@ import {parseTfdt} from './tfdt';
 import {getTfhd} from './tfhd';
 import {parseTkhd} from './tkhd';
 import {parseTrak} from './trak/trak';
-import {hasSkippedMdatProcessing} from './traversal';
+import {getMdatBox} from './traversal';
 import {parseTrun} from './trun';
 
 const getChildren = async ({
@@ -109,10 +109,11 @@ export const parseMdatPartially = async ({
 		existingBoxes: parsedBoxes,
 		options,
 		signal,
+		maySkipSampleProcessing: options.supportsContentRange,
 	});
 
 	if (
-		box.samplesProcessed &&
+		(box.status === 'samples-processed' || box.status === 'samples-buffered') &&
 		box.fileOffset + boxSize === iterator.counter.getOffset()
 	) {
 		return {
@@ -186,7 +187,9 @@ export const processBox = async ({
 
 	if (bytesRemaining < boxSize) {
 		if (boxType === 'mdat') {
-			const shouldSkip = options.canSkipVideoData || !hasTracks(parsedBoxes);
+			const shouldSkip =
+				(options.canSkipVideoData || !hasTracks(parsedBoxes)) &&
+				options.supportsContentRange;
 
 			if (shouldSkip) {
 				const skipTo = fileOffset + boxSize;
@@ -200,7 +203,7 @@ export const processBox = async ({
 							type: 'mdat-box',
 							boxSize,
 							fileOffset,
-							samplesProcessed: false,
+							status: 'samples-skipped',
 						},
 						size: boxSize,
 						skipTo: fileOffset + boxSize,
@@ -585,7 +588,12 @@ export const processBox = async ({
 			existingBoxes: parsedBoxes,
 			options,
 			signal,
+			maySkipSampleProcessing: options.supportsContentRange,
 		});
+
+		if (box === null) {
+			throw new Error('Unexpected null');
+		}
 
 		return {
 			type: 'complete',
@@ -715,12 +723,23 @@ export const parseBoxes = async ({
 		if (result.box.type === 'mdat-box' && alreadyHasMdat) {
 			boxes = boxes.filter((b) => b.type !== 'mdat-box');
 			boxes.push(result.box);
+			iterator.allowDiscard();
+			if (result.box.status !== 'samples-processed') {
+				throw new Error('unexpected');
+			}
+
 			break;
 		} else {
 			boxes.push(result.box);
 		}
 
 		if (result.skipTo !== null) {
+			if (!options.supportsContentRange) {
+				throw new Error(
+					'Content-Range header is not supported by the reader, but was asked to seek',
+				);
+			}
+
 			return {
 				status: 'incomplete',
 				segments: boxes,
@@ -740,19 +759,50 @@ export const parseBoxes = async ({
 			};
 		}
 
+		if (iterator.bytesRemaining() < 0) {
+			return {
+				status: 'incomplete',
+				segments: boxes,
+				continueParsing: () => {
+					return parseBoxes({
+						iterator,
+						maxBytes,
+						allowIncompleteBoxes,
+						initialBoxes: boxes,
+						options,
+						continueMdat: false,
+						littleEndian,
+						signal,
+					});
+				},
+				skipTo: null,
+			};
+		}
+
 		iterator.removeBytesRead();
 	}
 
-	const mdatState = hasSkippedMdatProcessing(boxes);
-	if (mdatState.skipped && !options.canSkipVideoData) {
+	const mdatState = getMdatBox(boxes);
+	const skipped =
+		mdatState?.status === 'samples-skipped' &&
+		!options.canSkipVideoData &&
+		options.supportsContentRange;
+	const buffered =
+		mdatState?.status === 'samples-buffered' && !options.canSkipVideoData;
+
+	if (skipped || buffered) {
 		return {
 			status: 'incomplete',
 			segments: boxes,
 			continueParsing: () => {
+				if (buffered) {
+					iterator.skipTo(mdatState.fileOffset, false);
+				}
+
 				return parseBoxes({
 					iterator,
 					maxBytes,
-					allowIncompleteBoxes,
+					allowIncompleteBoxes: false,
 					initialBoxes: boxes,
 					options,
 					continueMdat: false,
@@ -760,7 +810,7 @@ export const parseBoxes = async ({
 					signal,
 				});
 			},
-			skipTo: mdatState.fileOffset,
+			skipTo: skipped ? mdatState.fileOffset : null,
 		};
 	}
 

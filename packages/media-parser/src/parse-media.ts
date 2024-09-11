@@ -31,12 +31,21 @@ export const parseMedia: ParseMedia = async ({
 		hasVideoCallbacks: onVideoTrack !== null,
 		signal,
 	});
-	const {reader, contentLength, name} = await readerInterface.read(
-		src,
-		null,
-		signal,
-	);
+	const {
+		reader,
+		contentLength,
+		name,
+		supportsContentRange: readerSupportsContentRange,
+	} = await readerInterface.read(src, null, signal);
 	let currentReader = reader;
+
+	const supportsContentRange =
+		readerSupportsContentRange &&
+		!(
+			typeof process !== 'undefined' &&
+			typeof process.env !== 'undefined' &&
+			process.env.DISABLE_CONTENT_RANGE === 'true'
+		);
 
 	const returnValue = {} as ParseMediaResult<AllParseMediaFields>;
 	const moreFields = more as ParseMediaCallbacks<AllParseMediaFields>;
@@ -54,6 +63,7 @@ export const parseMedia: ParseMedia = async ({
 			typeof process.env !== 'undefined' &&
 			process.env.KEEP_SAMPLES === 'true'
 		),
+		supportsContentRange,
 	};
 
 	while (parseResult === null || parseResult.status === 'incomplete') {
@@ -61,21 +71,36 @@ export const parseMedia: ParseMedia = async ({
 			throw new Error('Aborted');
 		}
 
-		const result = await currentReader.reader.read();
+		// eslint-disable-next-line no-constant-condition
+		while (true) {
+			const result = await currentReader.reader.read();
 
-		if (iterator) {
-			if (!result.done) {
-				iterator.addData(result.value);
+			if (iterator) {
+				if (!result.done) {
+					iterator.addData(result.value);
+				}
+			} else {
+				if (result.done) {
+					throw new Error('Unexpectedly reached EOF');
+				}
+
+				iterator = getArrayBufferIterator(
+					result.value,
+					contentLength ?? 1_000_000_000,
+				);
 			}
-		} else {
+
+			if (iterator.bytesRemaining() >= 0) {
+				break;
+			}
+
 			if (result.done) {
-				throw new Error('Unexpectedly reached EOF');
+				break;
 			}
+		}
 
-			iterator = getArrayBufferIterator(
-				result.value,
-				contentLength ?? 1_000_000_000,
-			);
+		if (!iterator) {
+			throw new Error('Unexpected null');
 		}
 
 		if (parseResult && parseResult.status === 'incomplete') {
@@ -112,13 +137,19 @@ export const parseMedia: ParseMedia = async ({
 			parseResult.status === 'incomplete' &&
 			parseResult.skipTo !== null
 		) {
+			if (!supportsContentRange) {
+				throw new Error(
+					'Content-Range header is not supported by the reader, but was asked to seek',
+				);
+			}
+
 			const {reader: newReader} = await readerInterface.read(
 				src,
 				parseResult.skipTo,
 				signal,
 			);
 			currentReader = newReader;
-			iterator.skipTo(parseResult.skipTo);
+			iterator.skipTo(parseResult.skipTo, true);
 		}
 	}
 
