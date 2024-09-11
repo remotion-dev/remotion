@@ -71,7 +71,8 @@ export const parseMedia: ParseMedia = async ({
 			throw new Error('Aborted');
 		}
 
-		while ((iterator?.bytesRemaining() ?? 0) <= 0) {
+		// eslint-disable-next-line no-constant-condition
+		while (true) {
 			const result = await currentReader.reader.read();
 
 			if (iterator) {
@@ -90,6 +91,10 @@ export const parseMedia: ParseMedia = async ({
 			}
 
 			if (iterator.bytesRemaining() >= 0) {
+				break;
+			}
+
+			if (result.done) {
 				break;
 			}
 		}
@@ -144,7 +149,7 @@ export const parseMedia: ParseMedia = async ({
 				signal,
 			);
 			currentReader = newReader;
-			iterator.skipTo(parseResult.skipTo);
+			iterator.skipTo(parseResult.skipTo, true);
 		}
 	}
 

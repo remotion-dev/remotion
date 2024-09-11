@@ -265,14 +265,21 @@ export const getArrayBufferIterator = (
 		view = new DataView(data.buffer);
 	};
 
-	const skipTo = (offset: number) => {
+	const skipTo = (offset: number, reset: boolean) => {
 		const becomesSmaller = offset < counter.getOffset();
 		if (becomesSmaller) {
-			const toDecrement = counter.getOffset() - offset;
-			counter.decrement(toDecrement);
-			const c = counter.getDiscardedBytes();
-			if (c > toDecrement) {
-				throw new Error('already discarded too many bytes');
+			if (reset) {
+				buf.resize(0);
+				counter.decrement(counter.getOffset() - offset);
+				counter.setDiscardedOffset(offset);
+			} else {
+				const toDecrement = counter.getOffset() - offset;
+				const newOffset = counter.getOffset() - toDecrement;
+				counter.decrement(toDecrement);
+				const c = counter.getDiscardedBytes();
+				if (c > newOffset) {
+					throw new Error('already discarded too many bytes');
+				}
 			}
 		} else {
 			const currentOffset = counter.getOffset();

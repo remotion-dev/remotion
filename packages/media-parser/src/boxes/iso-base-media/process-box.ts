@@ -795,7 +795,9 @@ export const parseBoxes = async ({
 			status: 'incomplete',
 			segments: boxes,
 			continueParsing: () => {
-				iterator.skipTo(mdatState.fileOffset);
+				if (buffered) {
+					iterator.skipTo(mdatState.fileOffset, false);
+				}
 
 				return parseBoxes({
 					iterator,
@@ -808,7 +810,7 @@ export const parseBoxes = async ({
 					signal,
 				});
 			},
-			skipTo: null,
+			skipTo: skipped ? mdatState.fileOffset : null,
 		};
 	}
 

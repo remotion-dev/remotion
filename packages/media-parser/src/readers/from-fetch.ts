@@ -101,7 +101,7 @@ export const fetchReader: ReaderInterface = {
 			headers:
 				typeof actualRange === 'number'
 					? {
-							Range: `bytes=${actualRange}`,
+							Range: `bytes=${actualRange}-`,
 						}
 					: {
 							Range: `bytes=${`${actualRange[0]}-${actualRange[1]}`}`,
@@ -132,7 +132,9 @@ export const fetchReader: ReaderInterface = {
 			res.status.toString().startsWith('4') ||
 			res.status.toString().startsWith('5')
 		) {
-			throw new Error(`Server returned status code ${res.status} for ${src}`);
+			throw new Error(
+				`Server returned status code ${res.status} for ${src} and range ${actualRange}`,
+			);
 		}
 
 		if (!res.body) {

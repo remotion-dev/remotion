@@ -54,8 +54,8 @@ export const parseMdat = async ({
 		}
 
 		data.discard(size - (data.counter.getOffset() - fileOffset));
-
 		data.disallowDiscard();
+
 		return Promise.resolve({
 			type: 'mdat-box',
 			boxSize: size,
