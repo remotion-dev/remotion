@@ -11,6 +11,10 @@ const canCopyVideoTrack = (
 		return inputCodec === 'vp8';
 	}
 
+	if (outputCodec === 'vp9') {
+		return inputCodec === 'vp9';
+	}
+
 	throw new Error(`Unhandled codec: ${outputCodec satisfies never}`);
 };
 

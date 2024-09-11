@@ -33,7 +33,7 @@ export const makeVideoTrackHandler =
 	}): OnVideoTrack =>
 	async (track) => {
 		const videoEncoderConfig = await getVideoEncoderConfig({
-			codec: videoCodec,
+			codec: videoCodec === 'vp9' ? 'vp09.00.10.08' : videoCodec,
 			height: track.displayAspectHeight,
 			width: track.displayAspectWidth,
 		});
@@ -61,7 +61,11 @@ export const makeVideoTrackHandler =
 				codecPrivate: track.codecPrivate,
 			});
 			return (sample) => {
-				state.addSample(new EncodedVideoChunk(sample), videoTrack.trackNumber);
+				state.addSample(
+					new EncodedVideoChunk(sample),
+					videoTrack.trackNumber,
+					true,
+				);
 				convertMediaState.decodedVideoFrames++;
 				onMediaStateUpdate?.({...convertMediaState});
 			};
@@ -96,7 +100,7 @@ export const makeVideoTrackHandler =
 
 		const videoEncoder = createVideoEncoder({
 			onChunk: async (chunk) => {
-				await state.addSample(chunk, trackNumber);
+				await state.addSample(chunk, trackNumber, true);
 				convertMediaState.encodedVideoFrames++;
 				onMediaStateUpdate?.({...convertMediaState});
 			},

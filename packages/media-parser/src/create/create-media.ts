@@ -6,7 +6,7 @@ import {
 } from '../boxes/webm/segments/all-segments';
 import type {WriterInterface} from '../writers/writer';
 import type {AudioOrVideoSample} from './cluster';
-import {makeCluster} from './cluster';
+import {makeCluster, timestampToClusterTimestamp} from './cluster';
 import {makeDurationWithPadding} from './make-duration-with-padding';
 import {createMatroskaCues, type Cue} from './matroska-cues';
 import {makeMatroskaHeader} from './matroska-header';
@@ -28,7 +28,11 @@ import {CREATE_TIME_SCALE} from './timescale';
 export type MediaFn = {
 	save: () => Promise<File>;
 	remove: () => Promise<void>;
-	addSample: (chunk: AudioOrVideoSample, trackNumber: number) => Promise<void>;
+	addSample: (
+		chunk: AudioOrVideoSample,
+		trackNumber: number,
+		isVideo: boolean,
+	) => Promise<void>;
 	updateDuration: (duration: number) => Promise<void>;
 	addTrack: (
 		track:
@@ -57,21 +61,25 @@ export const createMedia = async (
 	const trackNumbers: number[] = [];
 
 	const matroskaSegment = createMatroskaSegment([
-		matroskaInfo,
 		...createMatroskaSeekHead(seeks),
+		matroskaInfo,
 		...makeMatroskaTracks(currentTracks),
 	]);
 
+	const infoSegment = matroskaSegment.offsets.children.find(
+		(o) => o.field === 'Info',
+	);
+
 	const durationOffset =
-		(matroskaSegment.offsets.children[0].children.find(
-			(c) => c.field === 'Duration',
-		)?.offset ?? 0) + w.getWrittenByteCount();
+		(infoSegment?.children.find((c) => c.field === 'Duration')?.offset ?? 0) +
+		w.getWrittenByteCount();
 	const tracksOffset =
 		(matroskaSegment.offsets.children.find((o) => o.field === 'Tracks')
 			?.offset ?? 0) + w.getWrittenByteCount();
 	const seekHeadOffset =
 		(matroskaSegment.offsets.children.find((o) => o.field === 'SeekHead')
 			?.offset ?? 0) + w.getWrittenByteCount();
+	const infoOffset = (infoSegment?.offset ?? 0) + w.getWrittenByteCount();
 
 	if (!seekHeadOffset) {
 		throw new Error('could not get seek offset');
@@ -84,6 +92,15 @@ export const createMedia = async (
 	if (!tracksOffset) {
 		throw new Error('could not get tracks offset');
 	}
+
+	if (!infoOffset) {
+		throw new Error('could not get tracks offset');
+	}
+
+	seeks.push({
+		hexString: matroskaElements.Info,
+		byte: infoOffset - seekHeadOffset,
+	});
 
 	seeks.push({
 		hexString: matroskaElements.Tracks,
@@ -98,13 +115,14 @@ export const createMedia = async (
 		);
 	};
 
-	const segmentOffset =
-		w.getWrittenByteCount() +
-		matroskaToHex(matroskaElements.Segment).byteLength;
+	const segmentOffset = w.getWrittenByteCount();
 
 	const updateSegmentSize = async (size: number) => {
 		const data = getVariableInt(size, MATROSKA_SEGMENT_MIN_VINT_WIDTH);
-		await w.updateDataAt(segmentOffset, data);
+		await w.updateDataAt(
+			segmentOffset + matroskaToHex(matroskaElements.Segment).byteLength,
+			data,
+		);
 	};
 
 	await w.write(matroskaSegment.bytes);
@@ -115,39 +133,41 @@ export const createMedia = async (
 		hexString: matroskaElements.Cluster,
 		byte: clusterOffset - seekHeadOffset,
 	});
-	cues.push({
-		time: 0,
-		clusterPosition: clusterOffset - seekHeadOffset,
-		trackNumbers,
-	});
 
 	const trackNumberProgresses: Record<number, number> = {};
 
-	const getClusterOrMakeNew = async (chunk: AudioOrVideoSample) => {
+	const getClusterOrMakeNew = async ({
+		chunk,
+		isVideo,
+	}: {
+		chunk: AudioOrVideoSample;
+		isVideo: boolean;
+	}) => {
 		const smallestProgress = Math.min(...Object.values(trackNumberProgresses));
 		if (
-			!currentCluster.shouldMakeNewCluster(
-				smallestProgress,
-				chunk.type === 'key',
-			)
+			!currentCluster.shouldMakeNewCluster({
+				newT: smallestProgress,
+				keyframe: chunk.type === 'key',
+				isVideo,
+			})
 		) {
-			return currentCluster;
+			return {cluster: currentCluster, isNew: false, smallestProgress};
 		}
 
-		const newCluster = w.getWrittenByteCount();
-		cues.push({
-			time: smallestProgress,
-			clusterPosition: newCluster - seekHeadOffset,
-			trackNumbers,
-		});
-
 		currentCluster = await makeCluster(w, smallestProgress);
-		return currentCluster;
+		return {cluster: currentCluster, isNew: true, smallestProgress};
 	};
 
-	const addSample = async (chunk: AudioOrVideoSample, trackNumber: number) => {
+	const addSample = async (
+		chunk: AudioOrVideoSample,
+		trackNumber: number,
+		isVideo: boolean,
+	) => {
 		trackNumberProgresses[trackNumber] = chunk.timestamp;
-		const cluster = await getClusterOrMakeNew(chunk);
+		const {cluster, isNew, smallestProgress} = await getClusterOrMakeNew({
+			chunk,
+			isVideo,
+		});
 
 		const newDuration = Math.round(
 			(chunk.timestamp + (chunk.duration ?? 0)) / 1000,
@@ -155,7 +175,20 @@ export const createMedia = async (
 
 		await updateDuration(newDuration);
 
-		return cluster.addSample(chunk, trackNumber);
+		const {timecodeRelativeToCluster} = await cluster.addSample(
+			chunk,
+			trackNumber,
+		);
+		if (isNew) {
+			const newCluster = w.getWrittenByteCount();
+			cues.push({
+				time:
+					timestampToClusterTimestamp(smallestProgress) +
+					timecodeRelativeToCluster,
+				clusterPosition: newCluster - seekHeadOffset,
+				trackNumber,
+			});
+		}
 	};
 
 	const updateDuration = async (newDuration: number) => {
@@ -185,9 +218,9 @@ export const createMedia = async (
 		remove: async () => {
 			await w.remove();
 		},
-		addSample: (chunk, trackNumber) => {
+		addSample: (chunk, trackNumber, isVideo: boolean) => {
 			operationProm.current = operationProm.current.then(() =>
-				addSample(chunk, trackNumber),
+				addSample(chunk, trackNumber, isVideo),
 			);
 			return operationProm.current;
 		},
@@ -223,8 +256,12 @@ export const createMedia = async (
 			await updateSeekWrite();
 
 			await w.write(createMatroskaCues(cues).bytes);
-			const segmentSize = w.getWrittenByteCount() - segmentOffset;
 			await w.waitForFinish();
+			const segmentSize =
+				w.getWrittenByteCount() -
+				segmentOffset -
+				matroskaToHex(matroskaElements.Segment).byteLength -
+				MATROSKA_SEGMENT_MIN_VINT_WIDTH;
 			await updateSegmentSize(segmentSize);
 		},
 	};
