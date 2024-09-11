@@ -3161,9 +3161,9 @@ var defaultBrowserDownloadProgress = ({
 }) => () => {
   Log.info({ indent, logLevel }, "Downloading Chrome Headless Shell https://www.remotion.dev/docs/miscellaneous/chrome-headless-shell");
   Log.info({ indent, logLevel }, `Customize this behavior by adding a onBrowserDownload function to ${api}.`);
+  let lastProgress = 0;
   return {
     onProgress: (progress) => {
-      let lastProgress = 0;
       if (progress.downloadedBytes > lastProgress + 1e7) {
         lastProgress = progress.downloadedBytes;
         Log.info({ indent, logLevel }, `Downloading Chrome Headless Shell - ${toMegabytes(progress.downloadedBytes)}/${toMegabytes(progress.totalSizeInBytes)}`);
