@@ -55,6 +55,7 @@ export const nodeReader: ReaderInterface = {
 			},
 			contentLength: stats.size,
 			name: src.split('/').pop() as string,
+			supportsContentRange: true,
 		};
 	},
 	getLength: async (src) => {

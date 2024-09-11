@@ -31,11 +31,8 @@ export const parseMedia: ParseMedia = async ({
 		hasVideoCallbacks: onVideoTrack !== null,
 		signal,
 	});
-	const {reader, contentLength, name} = await readerInterface.read(
-		src,
-		null,
-		signal,
-	);
+	const {reader, contentLength, name, supportsContentRange} =
+		await readerInterface.read(src, null, signal);
 	let currentReader = reader;
 
 	const returnValue = {} as ParseMediaResult<AllParseMediaFields>;
@@ -54,6 +51,7 @@ export const parseMedia: ParseMedia = async ({
 			typeof process.env !== 'undefined' &&
 			process.env.KEEP_SAMPLES === 'true'
 		),
+		supportsContentRange,
 	};
 
 	while (parseResult === null || parseResult.status === 'incomplete') {
@@ -112,6 +110,12 @@ export const parseMedia: ParseMedia = async ({
 			parseResult.status === 'incomplete' &&
 			parseResult.skipTo !== null
 		) {
+			if (!supportsContentRange) {
+				throw new Error(
+					'Content-Range header is not supported by the reader, but was asked to seek',
+				);
+			}
+
 			const {reader: newReader} = await readerInterface.read(
 				src,
 				parseResult.skipTo,

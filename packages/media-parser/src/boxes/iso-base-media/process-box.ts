@@ -186,7 +186,9 @@ export const processBox = async ({
 
 	if (bytesRemaining < boxSize) {
 		if (boxType === 'mdat') {
-			const shouldSkip = options.canSkipVideoData || !hasTracks(parsedBoxes);
+			const shouldSkip =
+				(options.canSkipVideoData || !hasTracks(parsedBoxes)) &&
+				options.supportsContentRange;
 
 			if (shouldSkip) {
 				const skipTo = fileOffset + boxSize;
@@ -721,6 +723,12 @@ export const parseBoxes = async ({
 		}
 
 		if (result.skipTo !== null) {
+			if (!options.supportsContentRange) {
+				throw new Error(
+					'Content-Range header is not supported by the reader, but was asked to seek',
+				);
+			}
+
 			return {
 				status: 'incomplete',
 				segments: boxes,
@@ -744,7 +752,11 @@ export const parseBoxes = async ({
 	}
 
 	const mdatState = hasSkippedMdatProcessing(boxes);
-	if (mdatState.skipped && !options.canSkipVideoData) {
+	if (
+		mdatState.skipped &&
+		!options.canSkipVideoData &&
+		options.supportsContentRange
+	) {
 		return {
 			status: 'incomplete',
 			segments: boxes,

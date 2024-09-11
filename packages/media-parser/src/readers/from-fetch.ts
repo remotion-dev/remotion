@@ -1,4 +1,66 @@
+/* eslint-disable eqeqeq */
+/* eslint-disable no-negated-condition */
+/* eslint-disable no-eq-null */
 import type {ReaderInterface} from './reader';
+
+interface ParsedContentRange {
+	unit: string;
+	start?: number | null;
+	end?: number | null;
+	size?: number | null;
+}
+
+/**
+ * Parse Content-Range header.
+ * From: https://github.com/gregberge/content-range/blob/main/src/index.ts
+ */
+export function parseContentRange(input: string): ParsedContentRange | null {
+	const matches = input.match(/^(\w+) ((\d+)-(\d+)|\*)\/(\d+|\*)$/);
+	if (!matches) return null;
+	const [, unit, , start, end, size] = matches;
+	const range = {
+		unit,
+		start: start != null ? Number(start) : null,
+		end: end != null ? Number(end) : null,
+		size: size === '*' ? null : Number(size),
+	};
+	if (range.start === null && range.end === null && range.size === null) {
+		return null;
+	}
+
+	return range;
+}
+
+const validateContentRangeAndDetectIfSupported = (
+	actualRange: number | [number, number],
+	parsedContentRange: ParsedContentRange | null,
+): {supportsContentRange: boolean} => {
+	if (
+		typeof actualRange === 'number' &&
+		parsedContentRange?.start !== actualRange
+	) {
+		if (actualRange === 0) {
+			return {supportsContentRange: false};
+		}
+
+		throw new Error(
+			`Range header (${actualRange}) does not match content-range header (${parsedContentRange?.start})`,
+		);
+	}
+
+	if (
+		actualRange !== null &&
+		typeof actualRange !== 'number' &&
+		(parsedContentRange?.start !== actualRange[0] ||
+			parsedContentRange?.end !== actualRange[1])
+	) {
+		throw new Error(
+			`Range header (${actualRange}) does not match content-range header (${parsedContentRange?.start})`,
+		);
+	}
+
+	return {supportsContentRange: true};
+};
 
 export const fetchReader: ReaderInterface = {
 	read: async (src, range, signal) => {
@@ -33,20 +95,30 @@ export const fetchReader: ReaderInterface = {
 				: // Disable Next.js caching
 					'no-store';
 
+		const actualRange = range === null ? 0 : range;
+
 		const res = await fetch(resolvedUrl, {
 			headers:
-				range === null
-					? {}
-					: typeof range === 'number'
-						? {
-								Range: `bytes=${range}`,
-							}
-						: {
-								Range: `bytes=${`${range[0]}-${range[1]}`}`,
-							},
+				typeof actualRange === 'number'
+					? {
+							Range: `bytes=${actualRange}`,
+						}
+					: {
+							Range: `bytes=${`${actualRange[0]}-${actualRange[1]}`}`,
+						},
 			signal: controller.signal,
 			cache,
 		});
+
+		const contentRange = res.headers.get('content-range');
+		const parsedContentRange = contentRange
+			? parseContentRange(contentRange)
+			: null;
+
+		const {supportsContentRange} = validateContentRangeAndDetectIfSupported(
+			actualRange,
+			parsedContentRange,
+		);
 
 		signal?.addEventListener(
 			'abort',
@@ -98,6 +170,7 @@ export const fetchReader: ReaderInterface = {
 			},
 			contentLength,
 			name: name ?? (fallbackName as string),
+			supportsContentRange,
 		};
 	},
 	getLength: async (src) => {

@@ -49,6 +49,7 @@ export const webFileReader: ReaderInterface = {
 					},
 					contentLength: file.size,
 					name: file.name,
+					supportsContentRange: true,
 				});
 			};
 
