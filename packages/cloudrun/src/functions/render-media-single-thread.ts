@@ -47,9 +47,23 @@ export const renderMediaSingleThread = async (
 			body.audioCodec,
 		)}`;
 		const tempFilePath = `/tmp/${defaultOutName}`;
-		let previousProgress = 2;
-		const onProgress: RenderMediaOnProgress = ({progress}) => {
+		let previousProgress = 0.02;
+		const onProgress: RenderMediaOnProgress = ({
+			progress,
+			renderedFrames,
+			encodedFrames,
+		}) => {
 			if (previousProgress !== progress) {
+				RenderInternals.Log.info(
+					{indent: false, logLevel: body.logLevel},
+					'Render progress:',
+					renderedFrames,
+					'frames rendered',
+					encodedFrames,
+					'frames encoded',
+					Math.round(progress * 100),
+					'%',
+				);
 				res.write(JSON.stringify({onProgress: progress}) + '\n');
 				previousProgress = progress;
 			}
