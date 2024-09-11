@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/it-tests"
 	},
 	"name": "@remotion/it-tests",
-	"version": "4.0.210",
+	"version": "4.0.211",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"scripts": {
 		"test": "bun test src/rendering --run",
@@ -37,6 +37,6 @@
 		"create-video": "workspace:*",
 		"execa": "5.1.1",
 		"remotion": "workspace:*",
-		"sharp": "0.32.6"
+		"sharp": "0.33.5"
 	}
 }

@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/create-video"
 	},
 	"name": "create-video",
-	"version": "4.0.210",
+	"version": "4.0.211",
 	"description": "Create a new Remotion project",
 	"main": "dist/index.js",
 	"bin": {

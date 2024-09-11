@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/example",
 	"private": true,
-	"version": "4.0.210",
+	"version": "4.0.211",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"author": "Jonny Burger",
 	"main": "dist/index.js",
@@ -92,7 +92,7 @@
 	},
 	"devDependencies": {
 		"prettier-plugin-organize-imports": "3.2.4",
-		"sharp": "0.32.6",
+		"sharp": "0.33.5",
 		"@types/dom-webcodecs": "0.1.11"
 	},
 	"publishConfig": {
