@@ -85,7 +85,7 @@ test('Parse a full video', async () => {
 	expect(third).toEqual({
 		type: 'mdat-box',
 		boxSize: 57014,
-		samplesProcessed: false,
+		status: 'samples-processed',
 		fileOffset: 40,
 	});
 });

@@ -32,7 +32,7 @@ import {parseTfdt} from './tfdt';
 import {getTfhd} from './tfhd';
 import {parseTkhd} from './tkhd';
 import {parseTrak} from './trak/trak';
-import {hasSkippedMdatProcessing} from './traversal';
+import {getMdatBox} from './traversal';
 import {parseTrun} from './trun';
 
 const getChildren = async ({
@@ -109,10 +109,11 @@ export const parseMdatPartially = async ({
 		existingBoxes: parsedBoxes,
 		options,
 		signal,
+		maySkipSampleProcessing: options.supportsContentRange,
 	});
 
 	if (
-		box.samplesProcessed &&
+		(box.status === 'samples-processed' || box.status === 'samples-buffered') &&
 		box.fileOffset + boxSize === iterator.counter.getOffset()
 	) {
 		return {
@@ -202,7 +203,7 @@ export const processBox = async ({
 							type: 'mdat-box',
 							boxSize,
 							fileOffset,
-							samplesProcessed: false,
+							status: 'samples-skipped',
 						},
 						size: boxSize,
 						skipTo: fileOffset + boxSize,
@@ -587,7 +588,12 @@ export const processBox = async ({
 			existingBoxes: parsedBoxes,
 			options,
 			signal,
+			maySkipSampleProcessing: options.supportsContentRange,
 		});
+
+		if (box === null) {
+			throw new Error('Unexpected null');
+		}
 
 		return {
 			type: 'complete',
@@ -717,6 +723,11 @@ export const parseBoxes = async ({
 		if (result.box.type === 'mdat-box' && alreadyHasMdat) {
 			boxes = boxes.filter((b) => b.type !== 'mdat-box');
 			boxes.push(result.box);
+			iterator.allowDiscard();
+			if (result.box.status !== 'samples-processed') {
+				throw new Error('unexpected');
+			}
+
 			break;
 		} else {
 			boxes.push(result.box);
@@ -748,23 +759,48 @@ export const parseBoxes = async ({
 			};
 		}
 
+		if (iterator.bytesRemaining() < 0) {
+			return {
+				status: 'incomplete',
+				segments: boxes,
+				continueParsing: () => {
+					return parseBoxes({
+						iterator,
+						maxBytes,
+						allowIncompleteBoxes,
+						initialBoxes: boxes,
+						options,
+						continueMdat: false,
+						littleEndian,
+						signal,
+					});
+				},
+				skipTo: null,
+			};
+		}
+
 		iterator.removeBytesRead();
 	}
 
-	const mdatState = hasSkippedMdatProcessing(boxes);
-	if (
-		mdatState.skipped &&
+	const mdatState = getMdatBox(boxes);
+	const skipped =
+		mdatState?.status === 'samples-skipped' &&
 		!options.canSkipVideoData &&
-		options.supportsContentRange
-	) {
+		options.supportsContentRange;
+	const buffered =
+		mdatState?.status === 'samples-buffered' && !options.canSkipVideoData;
+
+	if (skipped || buffered) {
 		return {
 			status: 'incomplete',
 			segments: boxes,
 			continueParsing: () => {
+				iterator.skipTo(mdatState.fileOffset);
+
 				return parseBoxes({
 					iterator,
 					maxBytes,
-					allowIncompleteBoxes,
+					allowIncompleteBoxes: false,
 					initialBoxes: boxes,
 					options,
 					continueMdat: false,
@@ -772,7 +808,7 @@ export const parseBoxes = async ({
 					signal,
 				});
 			},
-			skipTo: mdatState.fileOffset,
+			skipTo: null,
 		};
 	}
 

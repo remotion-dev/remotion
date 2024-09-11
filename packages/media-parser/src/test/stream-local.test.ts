@@ -427,6 +427,7 @@ test('Should stream MP3 in MP4 video', async () => {
 
 test('Should get duration of HEVC video', async () => {
 	let videoSamples = 0;
+	process.env.DISABLE_CONTENT_RANGE = 'true';
 	const parsed = await parseMedia({
 		src: RenderInternals.exampleVideos.iphonehevc,
 		fields: {
@@ -466,6 +467,7 @@ test('Should get duration of HEVC video', async () => {
 	});
 	expect(parsed.videoCodec).toBe('h265');
 	expect(videoSamples).toBe(102);
+	process.env.DISABLE_CONTENT_RANGE = 'fals';
 });
 
 test('Custom DAR', async () => {

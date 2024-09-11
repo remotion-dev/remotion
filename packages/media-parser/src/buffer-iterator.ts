@@ -33,6 +33,10 @@ export class OffsetCounter {
 		this.#discardedBytes = offset;
 	}
 
+	getDiscardedBytes() {
+		return this.#discardedBytes;
+	}
+
 	discardBytes(amount: number) {
 		this.#discardedBytes += amount;
 	}
@@ -77,10 +81,12 @@ export const getArrayBufferIterator = (
 	}
 
 	let data = new Uint8Array(buf);
+
 	data.set(initialData);
 
 	let view = new DataView(data.buffer);
 	const counter = makeOffsetCounter();
+	let discardAllowed = true;
 
 	const getSlice = (amount: number) => {
 		const value = data.slice(
@@ -90,6 +96,14 @@ export const getArrayBufferIterator = (
 		counter.increment(amount);
 
 		return value;
+	};
+
+	const disallowDiscard = () => {
+		discardAllowed = false;
+	};
+
+	const allowDiscard = () => {
+		discardAllowed = true;
 	};
 
 	const getUint8 = () => {
@@ -233,9 +247,13 @@ export const getArrayBufferIterator = (
 	};
 
 	const removeBytesRead = () => {
+		if (!discardAllowed) {
+			return;
+		}
+
 		const bytesToRemove = counter.getDiscardedOffset();
 
-		// Only to this operation if it is really worth it 😇
+		// Only do this operation if it is really worth it 😇
 		if (bytesToRemove < 100_000) {
 			return;
 		}
@@ -250,9 +268,12 @@ export const getArrayBufferIterator = (
 	const skipTo = (offset: number) => {
 		const becomesSmaller = offset < counter.getOffset();
 		if (becomesSmaller) {
-			buf.resize(0);
-			counter.decrement(counter.getOffset() - offset);
-			counter.setDiscardedOffset(offset);
+			const toDecrement = counter.getOffset() - offset;
+			counter.decrement(toDecrement);
+			const c = counter.getDiscardedBytes();
+			if (c > toDecrement) {
+				throw new Error('already discarded too many bytes');
+			}
 		} else {
 			const currentOffset = counter.getOffset();
 			counter.increment(offset - currentOffset);
@@ -549,6 +570,8 @@ export const getArrayBufferIterator = (
 		getInt32,
 		destroy,
 		isMp3,
+		disallowDiscard,
+		allowDiscard,
 	};
 };
 

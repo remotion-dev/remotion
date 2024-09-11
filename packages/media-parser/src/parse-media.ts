@@ -31,9 +31,21 @@ export const parseMedia: ParseMedia = async ({
 		hasVideoCallbacks: onVideoTrack !== null,
 		signal,
 	});
-	const {reader, contentLength, name, supportsContentRange} =
-		await readerInterface.read(src, null, signal);
+	const {
+		reader,
+		contentLength,
+		name,
+		supportsContentRange: readerSupportsContentRange,
+	} = await readerInterface.read(src, null, signal);
 	let currentReader = reader;
+
+	const supportsContentRange =
+		readerSupportsContentRange &&
+		!(
+			typeof process !== 'undefined' &&
+			typeof process.env !== 'undefined' &&
+			process.env.DISABLE_CONTENT_RANGE === 'true'
+		);
 
 	const returnValue = {} as ParseMediaResult<AllParseMediaFields>;
 	const moreFields = more as ParseMediaCallbacks<AllParseMediaFields>;
@@ -59,21 +71,31 @@ export const parseMedia: ParseMedia = async ({
 			throw new Error('Aborted');
 		}
 
-		const result = await currentReader.reader.read();
+		while ((iterator?.bytesRemaining() ?? 0) <= 0) {
+			const result = await currentReader.reader.read();
 
-		if (iterator) {
-			if (!result.done) {
-				iterator.addData(result.value);
-			}
-		} else {
-			if (result.done) {
-				throw new Error('Unexpectedly reached EOF');
+			if (iterator) {
+				if (!result.done) {
+					iterator.addData(result.value);
+				}
+			} else {
+				if (result.done) {
+					throw new Error('Unexpectedly reached EOF');
+				}
+
+				iterator = getArrayBufferIterator(
+					result.value,
+					contentLength ?? 1_000_000_000,
+				);
 			}
 
-			iterator = getArrayBufferIterator(
-				result.value,
-				contentLength ?? 1_000_000_000,
-			);
+			if (iterator.bytesRemaining() >= 0) {
+				break;
+			}
+		}
+
+		if (!iterator) {
+			throw new Error('Unexpected null');
 		}
 
 		if (parseResult && parseResult.status === 'incomplete') {
