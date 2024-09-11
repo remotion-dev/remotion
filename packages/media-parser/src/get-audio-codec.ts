@@ -195,7 +195,13 @@ export const getAudioCodecStringFromTrak = (
 	};
 };
 
-const getAudioCodecFromAudioCodecInfo = (codec: AudioCodecInfo) => {
+const getAudioCodecFromAudioCodecInfo = (
+	codec: AudioCodecInfo,
+): MediaParserAudioCodec => {
+	if (codec.format === 'twos') {
+		return 'pcm-s16';
+	}
+
 	if (codec.format === 'sowt') {
 		return 'aiff';
 	}
@@ -216,7 +222,7 @@ const getAudioCodecFromAudioCodecInfo = (codec: AudioCodecInfo) => {
 		throw new Error('Unknown mp4a codec: ' + codec.primarySpecificator);
 	}
 
-	throw new Error('Unknown audio format: ' + codec.format);
+	throw new Error(`Unknown audio format: ${codec.format}`);
 };
 
 export const getAudioCodecFromTrack = (track: TrakBox) => {
