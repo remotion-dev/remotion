@@ -165,7 +165,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 		setImageSrc(null);
 		const controller = new AbortController();
 
-		const newHandle = delayRender('Fetching ' + actualSrc + 'from server', {
+		const newHandle = delayRender(`Fetching ${actualSrc} from server`, {
 			retries: delayRenderRetries ?? undefined,
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 		});
@@ -202,6 +202,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 					handle: newHandle,
 				});
 			} catch (err) {
+				console.log({err});
 				// If component is unmounted, we should not throw
 				if ((err as Error).message.includes('aborted')) {
 					continueRender(newHandle);
