@@ -21,6 +21,10 @@ type RedirectInfo = {
 	event: RequestWillBeSentEvent;
 	fetchRequestId?: FetchRequestId;
 };
+type FailedLoadInfo = {
+	event: LoadingFailedEvent;
+};
+
 type RedirectInfoList = RedirectInfo[];
 
 export class NetworkEventManager {
@@ -37,6 +41,7 @@ export class NetworkEventManager {
 
 	#queuedRedirectInfoMap = new Map<NetworkRequestId, RedirectInfoList>();
 	#queuedEventGroupMap = new Map<NetworkRequestId, QueuedEventGroup>();
+	#failedLoadInfoMap = new Map<NetworkRequestId, FailedLoadInfo>();
 
 	forget(networkRequestId: NetworkRequestId): void {
 		this.#requestWillBeSentMap.delete(networkRequestId);
@@ -44,9 +49,23 @@ export class NetworkEventManager {
 		this.#queuedEventGroupMap.delete(networkRequestId);
 		this.#queuedRedirectInfoMap.delete(networkRequestId);
 		this.#responseReceivedExtraInfoMap.delete(networkRequestId);
+		this.#failedLoadInfoMap.delete(networkRequestId);
 	}
 
-	responseExtraInfo(
+	queueFailedLoadInfo(
+		networkRequestId: NetworkRequestId,
+		event: LoadingFailedEvent,
+	): void {
+		this.#failedLoadInfoMap.set(networkRequestId, {event});
+	}
+
+	getFailedLoadInfo(
+		networkRequestId: NetworkRequestId,
+	): LoadingFailedEvent | undefined {
+		return this.#failedLoadInfoMap.get(networkRequestId)?.event;
+	}
+
+	getResponseExtraInfo(
 		networkRequestId: NetworkRequestId,
 	): ResponseReceivedExtraInfoEvent[] {
 		if (!this.#responseReceivedExtraInfoMap.has(networkRequestId)) {
@@ -77,12 +96,6 @@ export class NetworkEventManager {
 		fetchRequestId: FetchRequestId,
 	): RedirectInfo | undefined {
 		return this.queuedRedirectInfo(fetchRequestId).shift();
-	}
-
-	numRequestsInProgress(): number {
-		return [...this.#httpRequestsMap].filter(([, request]) => {
-			return !request.response();
-		}).length;
 	}
 
 	storeRequestWillBeSent(
