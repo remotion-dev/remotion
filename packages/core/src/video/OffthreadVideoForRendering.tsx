@@ -202,7 +202,6 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 					handle: newHandle,
 				});
 			} catch (err) {
-				console.log({err});
 				// If component is unmounted, we should not throw
 				if ((err as Error).message.includes('aborted')) {
 					continueRender(newHandle);
