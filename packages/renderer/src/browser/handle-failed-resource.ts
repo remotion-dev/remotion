@@ -28,9 +28,7 @@ export const handleFailedResource = ({
 	if (firstExtraInfo) {
 		Log.warn(
 			{indent, logLevel},
-			'Status code:',
-			firstExtraInfo.statusCode,
-			', headers:',
+			`HTTP status code: ${firstExtraInfo.statusCode}, headers:`,
 		);
 		Log.warn(
 			{indent, logLevel},
