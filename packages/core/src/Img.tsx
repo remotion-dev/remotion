@@ -147,7 +147,14 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 					: () => undefined;
 			const {current} = imageRef;
 
+			let unmounted = false;
+
 			const onComplete = () => {
+				// the decode() promise isn't cancelable -- it may still resolve after unmounting
+				if (unmounted) {
+					return;
+				}
+
 				if ((errors.current[imageRef.current?.src as string] ?? 0) > 0) {
 					delete errors.current[imageRef.current?.src as string];
 					// eslint-disable-next-line no-console
@@ -159,6 +166,8 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				}
 
 				if (current) {
+					current.src = actualSrc;
+
 					onImageFrame?.(current);
 				}
 
@@ -166,21 +175,29 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				continueRender(newHandle);
 			};
 
-			const didLoad = () => {
-				onComplete();
-			};
+			const newImg = new Image();
+			newImg.src = actualSrc;
 
-			if (current?.complete) {
-				onComplete();
-			} else {
-				current?.addEventListener('load', didLoad, {once: true});
-			}
+			newImg
+				.decode()
+				.then(onComplete)
+				.catch((err) => {
+					// fall back to onload event if decode() fails
+					// eslint-disable-next-line no-console
+					console.warn(err);
+
+					if (newImg.complete) {
+						onComplete();
+					} else {
+						newImg.addEventListener('load', onComplete);
+					}
+				});
 
 			// If tag gets unmounted, clear pending handles because image is not going to load
 			return () => {
-				current?.removeEventListener('load', didLoad);
+				unmounted = true;
+				newImg.removeEventListener('load', onComplete);
 				unblock();
-
 				continueRender(newHandle);
 			};
 		}, [
@@ -194,9 +211,8 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		]);
 	}
 
-	return (
-		<img {...props} ref={imageRef} src={actualSrc} onError={didGetError} />
-	);
+	// src gets set once we've loaded and decoded the image.
+	return <img {...props} ref={imageRef} onError={didGetError} />;
 };
 
 /**
