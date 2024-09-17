@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/player-example"
 	},
 	"name": "@remotion/player-example",
-	"version": "4.0.211",
+	"version": "4.0.212",
 	"private": true,
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"maintainers": [
