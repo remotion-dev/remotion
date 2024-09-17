@@ -15,7 +15,6 @@
  */
 
 import type {LogLevel} from '../log-level';
-import {Log} from '../logger';
 import type {Commands} from './devtools-commands';
 import type {
 	LoadingFailedEvent,
@@ -29,6 +28,7 @@ import type {
 } from './devtools-types';
 import {EventEmitter} from './EventEmitter';
 import type {Frame} from './FrameManager';
+import {handleFailedResource} from './handle-failed-resource';
 import {HTTPRequest} from './HTTPRequest';
 import {HTTPResponse} from './HTTPResponse';
 import type {FetchRequestId} from './NetworkEventManager';
@@ -93,10 +93,6 @@ export class NetworkManager extends EventEmitter {
 
 	async initialize(): Promise<void> {
 		await this.#client.send('Network.enable');
-	}
-
-	numRequestsInProgress(): number {
-		return this.#networkEventManager.numRequestsInProgress();
 	}
 
 	#onRequestWillBeSent(event: RequestWillBeSentEvent): void {
@@ -168,7 +164,7 @@ export class NetworkManager extends EventEmitter {
 			let redirectResponseExtraInfo = null;
 			if (event.redirectHasExtraInfo) {
 				redirectResponseExtraInfo = this.#networkEventManager
-					.responseExtraInfo(event.requestId)
+					.getResponseExtraInfo(event.requestId)
 					.shift();
 				if (!redirectResponseExtraInfo) {
 					this.#networkEventManager.queueRedirectInfo(event.requestId, {
@@ -224,12 +220,11 @@ export class NetworkManager extends EventEmitter {
 		const request = this.#networkEventManager.getRequest(
 			responseReceived.requestId,
 		);
+
 		// FileUpload sends a response without a matching request.
 		if (!request) {
 			return;
 		}
-
-		this.#networkEventManager.responseExtraInfo(responseReceived.requestId);
 
 		const response = new HTTPResponse(responseReceived.response, extraInfo);
 		request._response = response;
@@ -238,9 +233,10 @@ export class NetworkManager extends EventEmitter {
 	#onResponseReceived(event: ResponseReceivedEvent): void {
 		const request = this.#networkEventManager.getRequest(event.requestId);
 		let extraInfo = null;
+
 		if (request && !request._fromMemoryCache && event.hasExtraInfo) {
 			extraInfo = this.#networkEventManager
-				.responseExtraInfo(event.requestId)
+				.getResponseExtraInfo(event.requestId)
 				.shift();
 			if (!extraInfo) {
 				// Wait until we get the corresponding ExtraInfo event.
@@ -262,7 +258,9 @@ export class NetworkManager extends EventEmitter {
 			event.requestId,
 		);
 		if (redirectInfo) {
-			this.#networkEventManager.responseExtraInfo(event.requestId).push(event);
+			this.#networkEventManager
+				.getResponseExtraInfo(event.requestId)
+				.push(event);
 			this.#onRequest(redirectInfo.event, redirectInfo.fetchRequestId);
 			return;
 		}
@@ -272,6 +270,7 @@ export class NetworkManager extends EventEmitter {
 		const queuedEvents = this.#networkEventManager.getQueuedEventGroup(
 			event.requestId,
 		);
+
 		if (queuedEvents) {
 			this.#networkEventManager.forgetQueuedEventGroup(event.requestId);
 			this.#emitResponseEvent(queuedEvents.responseReceivedEvent, event);
@@ -287,7 +286,7 @@ export class NetworkManager extends EventEmitter {
 		}
 
 		// Wait until we get another event that can use this ExtraInfo event.
-		this.#networkEventManager.responseExtraInfo(event.requestId).push(event);
+		this.#networkEventManager.getResponseExtraInfo(event.requestId).push(event);
 	}
 
 	#forgetRequest(request: HTTPRequest, events: boolean): void {
@@ -345,31 +344,22 @@ export class NetworkManager extends EventEmitter {
 			return;
 		}
 
-		if (!event.canceled) {
-			Log.warn(
-				{indent: this.#indent, logLevel: this.#logLevel},
-				`Browser failed to load ${request._url} (${event.type}): ${event.errorText}`,
-			);
-			if (
-				event.errorText === 'net::ERR_FAILED' &&
-				event.type === 'Fetch' &&
-				request._url?.includes('/proxy')
-			) {
-				Log.warn(
-					{indent: this.#indent, logLevel: this.#logLevel},
-					'This could be caused by Chrome rejecting the request because the disk space is low.',
-				);
-				Log.warn(
-					{indent: this.#indent, logLevel: this.#logLevel},
-					'This could be caused by Chrome rejecting the request because the disk space is low.',
-				);
-				Log.warn(
-					{indent: this.#indent, logLevel: this.#logLevel},
-					'Consider increasing the disk size of your Lambda function.',
-				);
-			}
+		if (event.canceled) {
+			this.#forgetRequest(request, true);
+			return;
 		}
 
+		const extraInfo = this.#networkEventManager.getResponseExtraInfo(
+			event.requestId,
+		);
+
+		handleFailedResource({
+			extraInfo,
+			event,
+			indent: this.#indent,
+			logLevel: this.#logLevel,
+			request,
+		});
 		this.#forgetRequest(request, true);
 	}
 }

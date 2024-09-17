@@ -14,7 +14,8 @@ export const mutedOption = {
 	docLink: 'https://www.remotion.dev/docs/using-audio/#muted-property',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
-		if (commandLine[cliFlag] !== undefined) {
+		// we set in minimist `muted` default as null
+		if (commandLine[cliFlag] !== null) {
 			return {
 				source: 'cli',
 				value: commandLine[cliFlag] as boolean,
