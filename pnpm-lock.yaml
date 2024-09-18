@@ -77,7 +77,7 @@ importers:
     dependencies:
       '@astrojs/react':
         specifier: 3.6.2
-        version: 3.6.2(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.2.0)(react@18.2.0)(vite@5.4.3)
+        version: 3.6.2(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.2.0)(react@18.2.0)(vite@5.4.6)
       '@remotion/gif':
         specifier: workspace:*
         version: link:../gif
@@ -387,7 +387,7 @@ importers:
     devDependencies:
       '@remix-run/dev':
         specifier: ^2.11.2
-        version: 2.11.2(@remix-run/react@2.11.2)(@remix-run/serve@2.11.2)(typescript@5.3.3)(vite@5.4.3)
+        version: 2.11.2(@remix-run/react@2.11.2)(@remix-run/serve@2.11.2)(typescript@5.3.3)(vite@5.4.6)
       autoprefixer:
         specifier: ^10.4.19
         version: 10.4.19(postcss@8.4.39)
@@ -398,11 +398,11 @@ importers:
         specifier: ^3.4.4
         version: 3.4.10
       vite:
-        specifier: ^5.1.0
-        version: 5.4.3
+        specifier: ^5.4.6
+        version: 5.4.6
       vite-tsconfig-paths:
         specifier: ^4.2.1
-        version: 4.3.2(typescript@5.3.3)(vite@5.4.3)
+        version: 4.3.2(typescript@5.3.3)(vite@5.4.6)
 
   packages/core:
     devDependencies:
@@ -1917,7 +1917,7 @@ packages:
       prismjs: 1.29.0
     dev: false
 
-  /@astrojs/react@3.6.2(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.2.0)(react@18.2.0)(vite@5.4.3):
+  /@astrojs/react@3.6.2(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.2.0)(react@18.2.0)(vite@5.4.6):
     resolution: {integrity: sha512-fK29lYI7zK/KG4ZBy956x4dmauZcZ18osFkuyGa8r3gmmCQa2NZ9XNu9WaVYEUm0j89f4Gii4tbxLoyM8nk2MA==}
     engines: {node: ^18.17.1 || ^20.3.0 || >=21.0.0}
     peerDependencies:
@@ -1928,7 +1928,7 @@ packages:
     dependencies:
       '@types/react': 18.3.1
       '@types/react-dom': 18.3.0
-      '@vitejs/plugin-react': 4.3.1(vite@5.4.3)
+      '@vitejs/plugin-react': 4.3.1(vite@5.4.6)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       ultrahtml: 1.5.3
@@ -9406,7 +9406,7 @@ packages:
       three: 0.158.0
       zustand: 3.7.2(react@18.3.1)
 
-  /@remix-run/dev@2.11.2(@remix-run/react@2.11.2)(@remix-run/serve@2.11.2)(typescript@5.3.3)(vite@5.4.3):
+  /@remix-run/dev@2.11.2(@remix-run/react@2.11.2)(@remix-run/serve@2.11.2)(typescript@5.3.3)(vite@5.4.6):
     resolution: {integrity: sha512-9DGb2UOIO4jOdws04Z+KmCeEBqbP36XvJZdcd4w16wDGI0I1ZY1c5ro58tB/7zPwN40s9MD9UzCYm6P+EkdeAg==}
     engines: {node: '>=18.0.0'}
     hasBin: true
@@ -9481,7 +9481,7 @@ packages:
       tar-fs: 2.1.1
       tsconfig-paths: 4.2.0
       typescript: 5.3.3
-      vite: 5.4.3
+      vite: 5.4.6
       ws: 7.5.5
     transitivePeerDependencies:
       - '@types/node'
@@ -11795,7 +11795,7 @@ packages:
       lodash: 4.17.21
       mlly: 1.5.0
       outdent: 0.8.0
-      vite: 5.4.3
+      vite: 5.4.6
       vite-node: 1.6.0
     transitivePeerDependencies:
       - '@types/node'
@@ -11822,7 +11822,7 @@ packages:
       react: '*'
       react-dom: '*'
     dependencies:
-      '@remix-run/dev': 2.11.2(@remix-run/react@2.11.2)(@remix-run/serve@2.11.2)(typescript@5.3.3)(vite@5.4.3)
+      '@remix-run/dev': 2.11.2(@remix-run/react@2.11.2)(@remix-run/serve@2.11.2)(typescript@5.3.3)(vite@5.4.6)
       '@remix-run/node': 2.11.2(typescript@5.3.3)
       '@remix-run/server-runtime': 2.11.2(typescript@5.3.3)
       '@vercel/static-config': 3.0.0
@@ -11858,7 +11858,7 @@ packages:
       - supports-color
     dev: true
 
-  /@vitejs/plugin-react@4.3.1(vite@5.4.3):
+  /@vitejs/plugin-react@4.3.1(vite@5.4.6):
     resolution: {integrity: sha512-m/V2syj5CuVnaxcUJOQRel/Wr31FFXRFlnOoq1TVtkCxsY5veGMTEmpWHndrhB2U8ScHtCQB1e+4hWYExQc6Lg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -11869,7 +11869,7 @@ packages:
       '@babel/plugin-transform-react-jsx-source': 7.24.1(@babel/core@7.25.2)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.2
-      vite: 5.4.3
+      vite: 5.4.6
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -24490,7 +24490,7 @@ packages:
       debug: 4.3.6(supports-color@5.5.0)
       pathe: 1.1.2
       picocolors: 1.0.1
-      vite: 5.4.3
+      vite: 5.4.6
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -24502,7 +24502,7 @@ packages:
       - supports-color
       - terser
 
-  /vite-tsconfig-paths@4.3.2(typescript@5.3.3)(vite@5.4.3):
+  /vite-tsconfig-paths@4.3.2(typescript@5.3.3)(vite@5.4.6):
     resolution: {integrity: sha512-0Vd/a6po6Q+86rPlntHye7F31zA2URZMbH8M3saAZ/xR9QoGN/L21bxEGfXdWmFdNkqPpRdxFT7nmNe12e9/uA==}
     peerDependencies:
       vite: '*'
@@ -24513,7 +24513,7 @@ packages:
       debug: 4.3.6(supports-color@5.5.0)
       globrex: 0.1.2
       tsconfck: 3.1.3(typescript@5.3.3)
-      vite: 5.4.3
+      vite: 5.4.6
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -24590,6 +24590,44 @@ packages:
 
   /vite@5.4.3:
     resolution: {integrity: sha512-IH+nl64eq9lJjFqU+/yrRnrHPVTlgy42/+IzbOdaFDVlyLgI/wDlf+FCobXLX1cT0X5+7LMyH1mIy2xJdLfo8Q==}
+    engines: {node: ^18.0.0 || >=20.0.0}
+    hasBin: true
+    peerDependencies:
+      '@types/node': ^18.0.0 || >=20.0.0
+      less: '*'
+      lightningcss: ^1.21.0
+      sass: '*'
+      sass-embedded: '*'
+      stylus: '*'
+      sugarss: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+      less:
+        optional: true
+      lightningcss:
+        optional: true
+      sass:
+        optional: true
+      sass-embedded:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      terser:
+        optional: true
+    dependencies:
+      esbuild: 0.21.5
+      postcss: 8.4.45
+      rollup: 4.21.2
+    optionalDependencies:
+      fsevents: 2.3.3
+    dev: false
+
+  /vite@5.4.6:
+    resolution: {integrity: sha512-IeL5f8OO5nylsgzd9tq4qD2QqI0k2CQLGrWD0rCN0EQJZpBK5vJAx0I+GDkMOXxQX/OfFHMuLIx6ddAxGX/k+Q==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
