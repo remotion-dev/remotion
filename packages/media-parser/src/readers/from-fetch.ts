@@ -34,7 +34,12 @@ export function parseContentRange(input: string): ParsedContentRange | null {
 const validateContentRangeAndDetectIfSupported = (
 	actualRange: number | [number, number],
 	parsedContentRange: ParsedContentRange | null,
+	statusCode: number,
 ): {supportsContentRange: boolean} => {
+	if (statusCode === 206) {
+		return {supportsContentRange: true};
+	}
+
 	if (
 		typeof actualRange === 'number' &&
 		parsedContentRange?.start !== actualRange
@@ -118,6 +123,7 @@ export const fetchReader: ReaderInterface = {
 		const {supportsContentRange} = validateContentRangeAndDetectIfSupported(
 			actualRange,
 			parsedContentRange,
+			res.status,
 		);
 
 		signal?.addEventListener(
