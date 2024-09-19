@@ -137,6 +137,10 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				return;
 			}
 
+			if (imageRef.current) {
+				imageRef.current.src = actualSrc;
+			}
+
 			const newHandle = delayRender('Loading <Img> with src=' + actualSrc, {
 				retries: delayRenderRetries ?? undefined,
 				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
