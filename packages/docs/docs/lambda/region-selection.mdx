@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-region-selection.png
 id: region-selection
 title: Region selection
 slug: /lambda/region-selection
-crumb: "Lambda"
+crumb: 'Lambda'
 ---
 
 import {LambdaRegionList} from '../../components/lambda/regions.tsx';
@@ -34,15 +34,15 @@ There are 3 ways to select a region:
 
 - When using the Node.JS APIs, you have to pass the region explicitly to each function. Make sure your projects satisfy the Typescript types or follow the documentation.
 
-- When using the CLI, you can set the region using the `REMOTION_AWS_REGION` environment variable. It's best to put it in a `.env` file so you don't forget it sometimes.
+- When using the CLI, you can set the region using the `REMOTION_AWS_REGION` environment variable. It's best to put it in a `.env` file so you don't forget it.
 
-:::info
+:::note
 The variable is called `REMOTION_AWS_REGION` because in Cloud providers like Vercel, `AWS_REGION` is a reserved environment variable name. However, Remotion does also accept the latter if you use it locally.
 :::
 
 - You can also pass the `--region` flag to all CLI commands to override the region. The flag takes precedence over the environment variable.
 
-:::info
+:::note
 The REMOTION_AWS_REGION environment variable and `--region` flag do not have an effect when using the Node.JS APIs. You need to pass a region explicitly.
 :::
 
@@ -88,7 +88,7 @@ Some regions that are supported by Remotion are not enabled by default in an AWS
 The security token included in the request is invalid
 ```
 
-see [here]
+see [here](/docs/lambda/troubleshooting/security-token)
 
 ## Other considerations
 
