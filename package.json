@@ -37,6 +37,7 @@
 		"prettier-plugin-organize-imports": "3.2.4"
 	},
 	"dependencies": {
+		"remotion": "^4.0.212",
 		"turbo": "1.13.3",
 		"typescript": "5.3.3"
 	},
