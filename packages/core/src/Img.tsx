@@ -134,11 +134,11 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useLayoutEffect(() => {
 			if (window.process?.env?.NODE_ENV === 'test') {
-				return;
-			}
+				if (imageRef.current) {
+					imageRef.current.src = actualSrc;
+				}
 
-			if (imageRef.current) {
-				imageRef.current.src = actualSrc;
+				return;
 			}
 
 			const newHandle = delayRender('Loading <Img> with src=' + actualSrc, {
