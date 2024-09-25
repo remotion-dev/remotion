@@ -79,6 +79,9 @@
 			"path": "./packages/animation-utils"
 		},
 		{
+			"path": "./packages/animate"
+		},
+		{
 			"path": "./packages/install-whisper-cpp"
 		},
 		{

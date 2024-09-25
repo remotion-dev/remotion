@@ -1,0 +1,36 @@
+{
+	"name": "@remotion/animate",
+	"version": "4.0.212",
+	"description": "Helpers for animating CSS properties",
+	"main": "./dist/index.js",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.ts",
+	"scripts": {
+		"formatting": "prettier src --check",
+		"lint": "eslint src --ext ts,tsx",
+		"build": "bun --env-file=../.env.bundle bundle.ts",
+		"test": "bun test src"
+	},
+	"dependencies": {
+		"remotion": "workspace:*"
+	},
+	"files": [
+		"dist",
+		"!dist/test"
+	],
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
+			"require": "./dist/index.js"
+		}
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"keywords": [
+		"remotion"
+	]
+}
