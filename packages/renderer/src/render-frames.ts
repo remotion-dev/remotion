@@ -15,7 +15,7 @@ import type {Page} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
-import {isTargetClosedErr} from './browser/is-target-closed-err';
+import {isFlakyNetworkError, isTargetClosedErr} from './browser/flaky-errors';
 import type {SourceMapGetter} from './browser/source-map-getter';
 import type {Codec} from './codec';
 import type {Compositor} from './compositor/compositor';
@@ -636,12 +636,13 @@ const innerRenderFrames = async ({
 			const shouldRetryError = (err as Error).stack?.includes(
 				NoReactInternals.DELAY_RENDER_RETRY_TOKEN,
 			);
+			const flakyNetworkError = isFlakyNetworkError(err as Error);
 
 			if (isUserCancelledRender(err) && !shouldRetryError) {
 				throw err;
 			}
 
-			if (!isTargetClosedError && !shouldRetryError) {
+			if (!isTargetClosedError && !shouldRetryError && !flakyNetworkError) {
 				throw err;
 			}
 
