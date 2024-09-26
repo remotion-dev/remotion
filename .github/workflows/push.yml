@@ -8,6 +8,7 @@ name: Install and Test
 env:
   FORCE_COLOR: 1
   TURBO_TELEMETRY_DISABLED: 1
+  TURBO_NO_UPDATE_NOTIFIER: 1
 jobs:
   lambda-tests:
     runs-on: ubuntu-latest
