@@ -1,7 +1,9 @@
 {
 	"name": "@remotion/webcodecs",
-	"version": "4.0.206",
+	"version": "4.0.213",
 	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"module": "dist/esm/index.mjs",
 	"sideEffects": false,
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/webcodecs"
@@ -12,7 +14,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"build": "tsc -d",
+		"build": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
 		"watch": "tsc -w"
 	},
 	"files": [
@@ -21,14 +23,15 @@
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
-		"mp4box": "0.5.2"
+		"@remotion/media-parser": "workspace:*"
 	},
 	"peerDependencies": {},
 	"devDependencies": {
-		"@remotion/media-parser": "workspace:*",
 		"@types/dom-webcodecs": "0.1.11"
 	},
 	"keywords": [],
-	"private": true,
-	"description": "Private experimental package"
+	"publishConfig": {
+		"access": "public"
+	},
+	"description": "Media conversion in the browser"
 }

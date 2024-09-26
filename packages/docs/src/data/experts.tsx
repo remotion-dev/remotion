@@ -201,49 +201,54 @@ export const experts: Expert[] = [
 		description: (
 			<div>
 				<p>
-					I&apos;m a full stack web dev, strongest in cloud architecture and
-					front-end web development, which has been perfect for building editors
-					with the Remotion player as well as rendering videos on the cloud. I
-					have helped out some forward-thinking businesses in the Remotion
-					community, like{' '}
-					<a target={'_blank'} href="https://studio.momento.fm/">
-						Momento.fm
-					</a>
-					{', '}
-					<a target={'_blank'} href="https://viddyoze.com/">
-						Viddyoze
-					</a>
-					{' and '}
-					<a target={'_blank'} href="https://djema.ai/">
-						Djema
-					</a>
-					{'. '}
+					Are you kicking off a project or feature that will have Remotion at
+					the core, and you want to get it right from the start? Or perhaps you
+					want to migrate from an expensive After Effects or MoviePy solution,
+					to offer your users a free live preview, with cheap rendering costs
+					while also keeping animation quality high.
 					<br />
-					<br />I am also the creator of the official{' '}
+					<br />
+					I&apos;ve worked extensively on the Remotion core repository itself,
+					helping Jonny and the team by building the
 					<a
 						target={'_blank'}
 						href="https://www.npmjs.com/package/@remotion/cloudrun"
 					>
 						@remotion/cloudrun package
 					</a>
-					, which I built in collaboration with Jonny and the team. This package
-					allows users to easily render videos on Google Cloud Platform, as an
-					alternative to using Lambda with AWS. I have also built my own
-					products, like{' '}
-					<a target={'_blank'} href="https://thatwas.pro/">
-						ThatWas.Pro
-					</a>
-					{', '}
-					<a target={'_blank'} href="https://splitscreen.video/">
-						SplitScreen.Video
-					</a>{' '}
-					and a neat audio player for{' '}
-					<a target={'_blank'} href="https://sub50k.com/">
-						Sub50k
-					</a>
-					{'. '}
-					Feel free to send me an email, book some time, or shoot me a DM on
-					Discord!
+					and making many many tiny improvements to the documentation to help
+					other developers move as fast as possible. I&apos;ve helped many
+					companies ensure they get started with a strong foundation, as well as
+					launch with a buttoned-up solution that can be depended upon;
+					<ul>
+						<li>
+							<a target={'_blank'} href="https://www.memento.com/">
+								Memento
+							</a>
+						</li>
+						<li>
+							<a target={'_blank'} href="https://beaconstreetstudios.com/">
+								Beacon Street Studios
+							</a>
+						</li>
+						<li>
+							<a target={'_blank'} href="https://minvo.pro/">
+								Minvo
+							</a>
+						</li>
+						<li>+ many more.</li>
+					</ul>
+					<br />
+					<br />
+					95% of my time is spent in the Remotion ecosystem, and I am able to
+					work independently or integrate into existing teams across your full
+					stack. On the front-end, I craft thoughtful, responsive UIs tailored
+					to user goals. For back-end work, I deploy cloud resources in
+					repeatable patterns and shape easy-to-use, transparent APIs.
+					<br />
+					<br />
+					I’m available for one-off consulting sessions with your whole team, or
+					for longer engagements working inside your codebase.
 				</p>
 			</div>
 		),

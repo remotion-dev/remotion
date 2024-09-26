@@ -80,8 +80,10 @@ export const callLambdaWithStreaming = async <
 		// Do not remove this await
 		await callLambdaWithStreamingWithoutRetry<T, Provider>(options);
 	} catch (err) {
-		if (options.retriesRemaining === 0) {
-			throw err;
+		if ((err as Error).message.includes('TooManyRequestsException')) {
+			throw new Error(
+				`AWS Concurrency limit reached (Original Error: ${(err as Error).message}). See https://www.remotion.dev/docs/lambda/troubleshooting/rate-limit for tips to fix this.`,
+			);
 		}
 
 		if (
@@ -92,9 +94,13 @@ export const callLambdaWithStreaming = async <
 			throw err;
 		}
 
-		console.error(err);
-		console.error('Retries remaining', options.retriesRemaining);
+		console.error('Retries remaining:', options.retriesRemaining);
+		if (options.retriesRemaining === 0) {
+			console.error('Throwing error:');
+			throw err;
+		}
 
+		console.error(err);
 		return callLambdaWithStreaming({
 			...options,
 			retriesRemaining: options.retriesRemaining - 1,

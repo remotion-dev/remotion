@@ -3,7 +3,7 @@ import {getHvc1CodecString} from '../../../make-hvc1-codec-strings';
 
 export interface HvccBox {
 	type: 'hvcc-box';
-	data: Uint8Array;
+	privateData: Uint8Array;
 	configurationString: string;
 }
 
@@ -16,7 +16,7 @@ export const parseHvcc = ({
 	size: number;
 	offset: number;
 }): HvccBox => {
-	const raw = data.getSlice(size - 8);
+	const privateData = data.getSlice(size - 8);
 	data.counter.decrement(size - 8);
 
 	const constraintString = getHvc1CodecString(data);
@@ -26,7 +26,7 @@ export const parseHvcc = ({
 
 	return {
 		type: 'hvcc-box',
-		data: raw,
+		privateData,
 		configurationString: constraintString,
 	};
 };

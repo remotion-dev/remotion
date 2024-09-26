@@ -507,7 +507,8 @@ export const benchmarkCommand = async (
 			benchmarkProgress.update('', false);
 			benchmarkProgress.update(getResults(timeTaken, runs), false);
 
-			benchmark[composition.id][`${con}`] = timeTaken;
+			(benchmark[composition.id] as Record<string, number[]>)[`${con}`] =
+				timeTaken;
 		}
 	}
 

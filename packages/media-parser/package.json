@@ -3,17 +3,19 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/media-parser"
 	},
 	"name": "@remotion/media-parser",
-	"version": "4.0.206",
+	"version": "4.0.213",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "bun test src/test",
-		"watch": "tsc -w"
+		"watch": "tsc -w",
+		"build": "bun --env-file=../.env.bundle bundle.ts"
 	},
 	"devDependencies": {
-		"@remotion/renderer": "workspace:*"
+		"@remotion/renderer": "workspace:*",
+		"@types/wicg-file-system-access": "2023.10.5"
 	},
 	"publishConfig": {
 		"access": "public"
@@ -22,22 +24,60 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"exports": {
-		".": "./dist/index.js",
-		"./node": "./dist/from-node.js",
-		"./fetch": "./dist/from-fetch.js",
-		"./web-file": "./dist/from-web-file.js",
+		".": {
+			"require": "./dist/index.js",
+			"module": "./dist/esm/index.mjs",
+			"types": "./dist/index.d.ts",
+			"import": "./dist/esm/index.mjs"
+		},
+		"./node": {
+			"require": "./dist/readers/from-node.js",
+			"module": "./dist/esm/from-node.mjs",
+			"types": "./dist/readers/from-node.d.ts",
+			"import": "./dist/esm/from-node.mjs"
+		},
+		"./fetch": {
+			"require": "./dist/readers/from-fetch.js",
+			"module": "./dist/esm/from-fetch.mjs",
+			"types": "./dist/readers/from-fetch.d.ts",
+			"import": "./dist/esm/from-fetch.mjs"
+		},
+		"./web-file": {
+			"require": "./dist/readers/from-web-file.js",
+			"module": "./dist/esm/from-web-file.mjs",
+			"types": "./dist/readers/from-web-file.d.ts",
+			"import": "./dist/esm/from-web-file.mjs"
+		},
+		"./web-fs": {
+			"require": "./dist/writers/web-fs.js",
+			"module": "./dist/esm/web-fs.mjs",
+			"types": "./dist/writers/web-fs.d.ts",
+			"import": "./dist/esm/web-fs.mjs"
+		},
+		"./buffer": {
+			"require": "./dist/writers/buffer.js",
+			"module": "./dist/esm/buffer.mjs",
+			"types": "./dist/writers/buffer.d.ts",
+			"import": "./dist/esm/buffer.mjs"
+		},
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
 		">=1.0": {
 			"node": [
-				"dist/from-node.d.ts"
+				"dist/readers/from-node.d.ts"
 			],
 			"fetch": [
-				"dist/from-fetch.d.ts"
+				"dist/readers/from-fetch.d.ts"
 			],
 			"web-file": [
-				"dist/from-web-file.d.ts"
+				"dist/readers/from-web-file.d.ts"
+			],
+			"web-fs": [
+				"dist/writers/web-fs.d.ts"
+			],
+			"buffer": [
+				"dist/writers/buffer.d.ts"
 			]
 		}
 	},

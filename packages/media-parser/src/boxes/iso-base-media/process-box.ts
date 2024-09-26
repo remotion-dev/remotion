@@ -8,7 +8,6 @@ import type {
 } from '../../parse-result';
 import type {BoxAndNext, PartialMdatBox} from '../../parse-video';
 import type {ParserContext} from '../../parser-context';
-import {hasSkippedMdatProcessing} from '../../traversal';
 import {parseEsds} from './esds/esds';
 import {parseFtyp} from './ftyp';
 import {makeBaseMediaTrack} from './make-track';
@@ -33,6 +32,7 @@ import {parseTfdt} from './tfdt';
 import {getTfhd} from './tfhd';
 import {parseTkhd} from './tkhd';
 import {parseTrak} from './trak/trak';
+import {getMdatBox} from './traversal';
 import {parseTrun} from './trun';
 
 const getChildren = async ({
@@ -41,12 +41,14 @@ const getChildren = async ({
 	bytesRemainingInBox,
 	options,
 	littleEndian,
+	signal,
 }: {
 	boxType: string;
 	iterator: BufferIterator;
 	bytesRemainingInBox: number;
 	options: ParserContext;
 	littleEndian: boolean;
+	signal: AbortSignal | null;
 }) => {
 	const parseChildren =
 		boxType === 'mdia' ||
@@ -67,6 +69,7 @@ const getChildren = async ({
 			options,
 			continueMdat: false,
 			littleEndian,
+			signal,
 		});
 
 		if (parsed.status === 'incomplete') {
@@ -90,12 +93,14 @@ export const parseMdatPartially = async ({
 	fileOffset,
 	parsedBoxes,
 	options,
+	signal,
 }: {
 	iterator: BufferIterator;
 	boxSize: number;
 	fileOffset: number;
 	parsedBoxes: AnySegment[];
 	options: ParserContext;
+	signal: AbortSignal | null;
 }): Promise<BoxAndNext> => {
 	const box = await parseMdat({
 		data: iterator,
@@ -103,10 +108,12 @@ export const parseMdatPartially = async ({
 		fileOffset,
 		existingBoxes: parsedBoxes,
 		options,
+		signal,
+		maySkipSampleProcessing: options.supportsContentRange,
 	});
 
 	if (
-		box.samplesProcessed &&
+		(box.status === 'samples-processed' || box.status === 'samples-buffered') &&
 		box.fileOffset + boxSize === iterator.counter.getOffset()
 	) {
 		return {
@@ -130,12 +137,14 @@ export const processBox = async ({
 	parsedBoxes,
 	options,
 	littleEndian,
+	signal,
 }: {
 	iterator: BufferIterator;
 	allowIncompleteBoxes: boolean;
 	parsedBoxes: AnySegment[];
 	options: ParserContext;
 	littleEndian: boolean;
+	signal: AbortSignal | null;
 }): Promise<BoxAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
@@ -178,7 +187,9 @@ export const processBox = async ({
 
 	if (bytesRemaining < boxSize) {
 		if (boxType === 'mdat') {
-			const shouldSkip = options.canSkipVideoData || !hasTracks(parsedBoxes);
+			const shouldSkip =
+				(options.canSkipVideoData || !hasTracks(parsedBoxes)) &&
+				options.supportsContentRange;
 
 			if (shouldSkip) {
 				const skipTo = fileOffset + boxSize;
@@ -192,7 +203,7 @@ export const processBox = async ({
 							type: 'mdat-box',
 							boxSize,
 							fileOffset,
-							samplesProcessed: false,
+							status: 'samples-skipped',
 						},
 						size: boxSize,
 						skipTo: fileOffset + boxSize,
@@ -205,6 +216,7 @@ export const processBox = async ({
 					fileOffset,
 					parsedBoxes,
 					options,
+					signal,
 				});
 			}
 		}
@@ -293,6 +305,7 @@ export const processBox = async ({
 			offset: fileOffset,
 			size: boxSize,
 			options,
+			signal,
 		});
 
 		return {
@@ -401,6 +414,7 @@ export const processBox = async ({
 			size: boxSize,
 			options,
 			littleEndian,
+			signal,
 		});
 
 		return {
@@ -417,6 +431,7 @@ export const processBox = async ({
 			offset: fileOffset,
 			size: boxSize,
 			options,
+			signal,
 		});
 
 		return {
@@ -433,6 +448,7 @@ export const processBox = async ({
 			size: boxSize,
 			offsetAtStart: fileOffset,
 			options,
+			signal,
 		});
 		const transformedTrack = makeBaseMediaTrack(box);
 		if (transformedTrack) {
@@ -571,7 +587,13 @@ export const processBox = async ({
 			fileOffset,
 			existingBoxes: parsedBoxes,
 			options,
+			signal,
+			maySkipSampleProcessing: options.supportsContentRange,
 		});
+
+		if (box === null) {
+			throw new Error('Unexpected null');
+		}
 
 		return {
 			type: 'complete',
@@ -590,6 +612,7 @@ export const processBox = async ({
 		bytesRemainingInBox,
 		options,
 		littleEndian,
+		signal,
 	});
 
 	return {
@@ -614,6 +637,7 @@ export const parseBoxes = async ({
 	options,
 	continueMdat,
 	littleEndian,
+	signal,
 }: {
 	iterator: BufferIterator;
 	maxBytes: number;
@@ -622,6 +646,7 @@ export const parseBoxes = async ({
 	options: ParserContext;
 	continueMdat: false | PartialMdatBox;
 	littleEndian: boolean;
+	signal: AbortSignal | null;
 }): Promise<ParseResult> => {
 	let boxes: IsoBaseMediaBox[] = initialBoxes;
 	const initialOffset = iterator.counter.getOffset();
@@ -638,6 +663,7 @@ export const parseBoxes = async ({
 					fileOffset: continueMdat.fileOffset,
 					parsedBoxes: initialBoxes,
 					options,
+					signal,
 				})
 			: await processBox({
 					iterator,
@@ -645,6 +671,7 @@ export const parseBoxes = async ({
 					parsedBoxes: initialBoxes,
 					options,
 					littleEndian,
+					signal,
 				});
 
 		if (result.type === 'incomplete') {
@@ -664,6 +691,7 @@ export const parseBoxes = async ({
 						options,
 						continueMdat: false,
 						littleEndian,
+						signal,
 					});
 				},
 				skipTo: null,
@@ -684,6 +712,7 @@ export const parseBoxes = async ({
 							options,
 							continueMdat: result,
 							littleEndian,
+							signal,
 						}),
 					);
 				},
@@ -694,12 +723,23 @@ export const parseBoxes = async ({
 		if (result.box.type === 'mdat-box' && alreadyHasMdat) {
 			boxes = boxes.filter((b) => b.type !== 'mdat-box');
 			boxes.push(result.box);
+			iterator.allowDiscard();
+			if (result.box.status !== 'samples-processed') {
+				throw new Error('unexpected');
+			}
+
 			break;
 		} else {
 			boxes.push(result.box);
 		}
 
 		if (result.skipTo !== null) {
+			if (!options.supportsContentRange) {
+				throw new Error(
+					'Content-Range header is not supported by the reader, but was asked to seek',
+				);
+			}
+
 			return {
 				status: 'incomplete',
 				segments: boxes,
@@ -712,32 +752,65 @@ export const parseBoxes = async ({
 						options,
 						continueMdat: false,
 						littleEndian,
+						signal,
 					});
 				},
 				skipTo: result.skipTo,
 			};
 		}
 
+		if (iterator.bytesRemaining() < 0) {
+			return {
+				status: 'incomplete',
+				segments: boxes,
+				continueParsing: () => {
+					return parseBoxes({
+						iterator,
+						maxBytes,
+						allowIncompleteBoxes,
+						initialBoxes: boxes,
+						options,
+						continueMdat: false,
+						littleEndian,
+						signal,
+					});
+				},
+				skipTo: null,
+			};
+		}
+
 		iterator.removeBytesRead();
 	}
 
-	const mdatState = hasSkippedMdatProcessing(boxes);
-	if (mdatState.skipped && !options.canSkipVideoData) {
+	const mdatState = getMdatBox(boxes);
+	const skipped =
+		mdatState?.status === 'samples-skipped' &&
+		!options.canSkipVideoData &&
+		options.supportsContentRange;
+	const buffered =
+		mdatState?.status === 'samples-buffered' && !options.canSkipVideoData;
+
+	if (skipped || buffered) {
 		return {
 			status: 'incomplete',
 			segments: boxes,
 			continueParsing: () => {
+				if (buffered) {
+					iterator.skipTo(mdatState.fileOffset, false);
+				}
+
 				return parseBoxes({
 					iterator,
 					maxBytes,
-					allowIncompleteBoxes,
+					allowIncompleteBoxes: false,
 					initialBoxes: boxes,
 					options,
 					continueMdat: false,
 					littleEndian,
+					signal,
 				});
 			},
-			skipTo: mdatState.fileOffset,
+			skipTo: skipped ? mdatState.fileOffset : null,
 		};
 	}
 

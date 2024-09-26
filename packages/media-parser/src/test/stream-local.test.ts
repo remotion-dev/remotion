@@ -1,7 +1,8 @@
 import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
-import {nodeReader} from '../from-node';
+import type {MediaParserAudioCodec} from '../get-tracks';
 import {parseMedia} from '../parse-media';
+import {nodeReader} from '../readers/from-node';
 
 test('Should stream ISO base media', async () => {
 	let videoTracks = 0;
@@ -148,6 +149,16 @@ test('Should stream AV1', async () => {
 		displayAspectWidth: 1920,
 		rotation: 0,
 		trakBox: null,
+		codecPrivate: new Uint8Array([
+			129, 8, 12, 0, 10, 14, 0, 0, 0, 66, 171, 191, 195, 118, 0, 8, 8, 8, 8, 32,
+		]),
+		color: {
+			fullRange: null,
+			transferCharacteristics: 'bt709',
+			matrixCoefficients: 'bt709',
+			primaries: 'bt709',
+		},
+		codecWithoutConfig: 'av1',
 	});
 	expect(parsed.audioTracks.length).toBe(0);
 	expect(videoTracks).toBe(1);
@@ -303,6 +314,14 @@ test('Should stream variable fps video', async () => {
 		displayAspectWidth: 1280,
 		rotation: 0,
 		trakBox: null,
+		codecPrivate: null,
+		color: {
+			fullRange: null,
+			transferCharacteristics: null,
+			matrixCoefficients: null,
+			primaries: null,
+		},
+		codecWithoutConfig: 'vp8',
 	});
 	expect(parsed.audioTracks.length).toBe(1);
 	expect(parsed.audioTracks[0]).toEqual({
@@ -314,6 +333,10 @@ test('Should stream variable fps video', async () => {
 		sampleRate: 48000,
 		description: undefined,
 		trakBox: null,
+		codecPrivate: new Uint8Array([
+			79, 112, 117, 115, 72, 101, 97, 100, 1, 1, 0, 0, 128, 187, 0, 0, 0, 0, 0,
+		]),
+		codecWithoutConfig: 'opus',
 	});
 	expect(audioTracks).toBe(1);
 	expect(samples).toBe(381);
@@ -354,7 +377,7 @@ test('Should stream MKV video', async () => {
 	expect(parsed.dimensions.height).toBe(1080);
 	expect(parsed.durationInSeconds).toBe(0.333);
 	expect(parsed.videoCodec).toBe('h264');
-	expect(parsed.audioCodec).toBe('pcm');
+	expect(parsed.audioCodec).toBe('pcm-s16');
 	expect(parsed.rotation).toBe(0);
 	expect(parsed.fps).toBe(null);
 
@@ -404,6 +427,7 @@ test('Should stream MP3 in MP4 video', async () => {
 
 test('Should get duration of HEVC video', async () => {
 	let videoSamples = 0;
+	process.env.DISABLE_CONTENT_RANGE = 'true';
 	const parsed = await parseMedia({
 		src: RenderInternals.exampleVideos.iphonehevc,
 		fields: {
@@ -443,6 +467,7 @@ test('Should get duration of HEVC video', async () => {
 	});
 	expect(parsed.videoCodec).toBe('h265');
 	expect(videoSamples).toBe(102);
+	process.env.DISABLE_CONTENT_RANGE = 'fals';
 });
 
 test('Custom DAR', async () => {
@@ -592,6 +617,14 @@ test('Stretched VP8', async () => {
 		displayAspectHeight: 1080,
 		displayAspectWidth: 1920,
 		rotation: 0,
+		codecPrivate: null,
+		color: {
+			fullRange: null,
+			transferCharacteristics: null,
+			matrixCoefficients: null,
+			primaries: null,
+		},
+		codecWithoutConfig: 'vp8',
 	});
 });
 
@@ -667,11 +700,15 @@ test('MP3 in matroska', async () => {
 
 test('Should stream OPUS', async () => {
 	let audioSamples = 0;
+	let audioCodec: MediaParserAudioCodec | null = null;
 	const parsed = await parseMedia({
 		src: RenderInternals.exampleVideos.opusWebm,
 		fields: {
 			tracks: true,
 			audioCodec: true,
+		},
+		onAudioCodec: (codec) => {
+			audioCodec = codec;
 		},
 		reader: nodeReader,
 		onAudioTrack: (track) => {
@@ -684,7 +721,8 @@ test('Should stream OPUS', async () => {
 		},
 	});
 
-	expect(parsed.audioCodec).toEqual('opus');
+	// @ts-expect-error
+	expect(audioCodec).toEqual('opus');
 	expect(parsed.audioTracks.length).toBe(1);
 	expect(audioSamples).toBe(167);
 });

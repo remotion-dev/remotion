@@ -130,7 +130,7 @@ export const articles = [
 		title: 'Emitting Artifacts',
 		relativePath: 'docs/artifacts.mdx',
 		compId: 'articles-docs-artifacts',
-		crumb: "'Techniques'",
+		crumb: 'Techniques',
 	},
 	{
 		id: 'get-help',
@@ -165,7 +165,7 @@ export const articles = [
 		title: 'Installing Remotion in an existing project',
 		relativePath: 'docs/brownfield-installation.mdx',
 		compId: 'articles-docs-brownfield-installation',
-		crumb: "'Brownfield integration'",
+		crumb: 'Brownfield integration',
 	},
 	{
 		id: 'buffer-state',
@@ -214,7 +214,7 @@ export const articles = [
 		title: 'Chromium flags',
 		relativePath: 'docs/chromium-flags.mdx',
 		compId: 'articles-docs-chromium-flags',
-		crumb: "'Tweaks'",
+		crumb: 'Tweaks',
 	},
 	{
 		id: 'cli/benchmark',
@@ -379,10 +379,10 @@ export const articles = [
 	},
 	{
 		id: 'sites',
-		title: "'npx remotion cloudrun sites'",
+		title: 'npx remotion cloudrun sites',
 		relativePath: 'docs/cloudrun/cli/sites.mdx',
 		compId: 'articles-docs-cloudrun-cli-sites',
-		crumb: "'Cloud Run CLI Reference'",
+		crumb: 'Cloud Run CLI Reference',
 	},
 	{
 		id: 'still',
@@ -501,7 +501,7 @@ export const articles = [
 		title: 'Permissions',
 		relativePath: 'docs/cloudrun/permissions.mdx',
 		compId: 'articles-docs-cloudrun-permissions',
-		crumb: "'Cloud Run'",
+		crumb: 'Cloud Run',
 	},
 	{
 		id: 'region-selection',
@@ -568,7 +568,7 @@ export const articles = [
 	},
 	{
 		id: 'cloudrun',
-		title: "'@remotion/cloudrun'",
+		title: '@remotion/cloudrun',
 		relativePath: 'docs/cloudrun.mdx',
 		compId: 'articles-docs-cloudrun',
 		crumb: null,
@@ -599,7 +599,7 @@ export const articles = [
 		title: 'Configuration file',
 		relativePath: 'docs/config.mdx',
 		compId: 'articles-docs-config',
-		crumb: "'remotion.config.ts'",
+		crumb: 'remotion.config.ts',
 	},
 	{
 		id: 'continue-render',
@@ -1082,7 +1082,7 @@ export const articles = [
 		title: 'npx remotion lambda compositions',
 		relativePath: 'docs/lambda/cli/compositions.mdx',
 		compId: 'articles-docs-lambda-cli-compositions',
-		crumb: "'Lambda CLI Reference'",
+		crumb: 'Lambda CLI Reference',
 	},
 	{
 		id: 'functions',
@@ -1093,38 +1093,38 @@ export const articles = [
 	},
 	{
 		id: 'policies',
-		title: "'npx remotion lambda policies'",
+		title: 'npx remotion lambda policies',
 		relativePath: 'docs/lambda/cli/policies.mdx',
 		compId: 'articles-docs-lambda-cli-policies',
-		crumb: "'Lambda CLI Reference'",
+		crumb: 'Lambda CLI Reference',
 	},
 	{
 		id: 'quotas',
-		title: "'npx remotion lambda quotas'",
+		title: 'npx remotion lambda quotas',
 		relativePath: 'docs/lambda/cli/quotas.mdx',
 		compId: 'articles-docs-lambda-cli-quotas',
-		crumb: "'Lambda CLI Reference'",
+		crumb: 'Lambda CLI Reference',
 	},
 	{
 		id: 'regions',
-		title: "'npx remotion lambda regions'",
+		title: 'npx remotion lambda regions',
 		relativePath: 'docs/lambda/cli/regions.mdx',
 		compId: 'articles-docs-lambda-cli-regions',
-		crumb: "'Lambda CLI Reference'",
+		crumb: 'Lambda CLI Reference',
 	},
 	{
 		id: 'render',
-		title: "'npx remotion lambda render'",
+		title: 'npx remotion lambda render',
 		relativePath: 'docs/lambda/cli/render.mdx',
 		compId: 'articles-docs-lambda-cli-render',
-		crumb: "'Lambda CLI Reference'",
+		crumb: 'Lambda CLI Reference',
 	},
 	{
 		id: 'sites',
-		title: "'npx remotion lambda sites'",
+		title: 'npx remotion lambda sites',
 		relativePath: 'docs/lambda/cli/sites.mdx',
 		compId: 'articles-docs-lambda-cli-sites',
-		crumb: "'Lambda CLI Reference'",
+		crumb: 'Lambda CLI Reference',
 	},
 	{
 		id: 'still',
@@ -1299,7 +1299,7 @@ export const articles = [
 		title: 'getRenderProgress()',
 		relativePath: 'docs/lambda/getrenderprogress.mdx',
 		compId: 'articles-docs-lambda-getrenderprogress',
-		crumb: "'Lambda API'",
+		crumb: 'Lambda API',
 	},
 	{
 		id: 'getrolepolicy',
@@ -1334,7 +1334,7 @@ export const articles = [
 		title: 'How Remotion Lambda works',
 		relativePath: 'docs/lambda/how-lambda-works.mdx',
 		compId: 'articles-docs-lambda-how-lambda-works',
-		crumb: "'Lambda'",
+		crumb: 'Lambda',
 	},
 	{
 		id: 'lambda/insights',
@@ -1369,14 +1369,14 @@ export const articles = [
 		title: 'Function naming convention',
 		relativePath: 'docs/lambda/naming-convention.mdx',
 		compId: 'articles-docs-lambda-naming-convention',
-		crumb: "'Lambda'",
+		crumb: 'Lambda',
 	},
 	{
 		id: 'lambda/permissions',
 		title: 'Permissions',
 		relativePath: 'docs/lambda/permissions.mdx',
 		compId: 'articles-docs-lambda-permissions',
-		crumb: "'Lambda'",
+		crumb: 'Lambda',
 	},
 	{
 		id: 'lambda/php',
@@ -1446,7 +1446,7 @@ export const articles = [
 		title: 'Using the Serverless Framework with Remotion Lambda',
 		relativePath: 'docs/lambda/serverless-framework-integration.mdx',
 		compId: 'articles-docs-lambda-serverless-framework-integration',
-		crumb: "'@remotion/lambda'",
+		crumb: '@remotion/lambda',
 	},
 	{
 		id: 'setup',
@@ -1481,7 +1481,7 @@ export const articles = [
 		title: 'Using Lambda with SQS',
 		relativePath: 'docs/lambda/sqs.mdx',
 		compId: 'articles-docs-lambda-sqs',
-		crumb: "'@remotion/lambda'",
+		crumb: '@remotion/lambda',
 	},
 	{
 		id: 'bucket-disallows-acl',
@@ -1513,7 +1513,7 @@ export const articles = [
 	},
 	{
 		id: 'lambda/troubleshooting/security-token',
-		title: '\'"The security token included in the request is invalid"\'',
+		title: '"The security token included in the request is invalid"',
 		relativePath: 'docs/lambda/troubleshooting/security-token.mdx',
 		compId: 'articles-docs-lambda-troubleshooting-security-token',
 		crumb: 'Lambda',
@@ -1551,7 +1551,7 @@ export const articles = [
 		title: 'Webhooks',
 		relativePath: 'docs/lambda/webhooks.mdx',
 		compId: 'articles-docs-lambda-webhooks',
-		crumb: "'Lambda'",
+		crumb: 'Lambda',
 	},
 	{
 		id: 'lambda/without-iam/ec2',
@@ -1572,7 +1572,7 @@ export const articles = [
 		title: 'Using Lambda with IAM roles',
 		relativePath: 'docs/lambda/without-iam/index.mdx',
 		compId: 'articles-docs-lambda-without-iam-index',
-		crumb: "'Lambda without IAM'",
+		crumb: 'Lambda without IAM',
 	},
 	{
 		id: 'lambda',
@@ -1775,7 +1775,7 @@ export const articles = [
 		title: 'Calculating the duration of a composition automatically',
 		relativePath: 'docs/miscellaneous/automatic-duration.mdx',
 		compId: 'articles-docs-miscellaneous-automatic-duration',
-		crumb: "'FAQ'",
+		crumb: 'FAQ',
 	},
 	{
 		id: 'miscellaneous/changing-temp-dir',
@@ -1831,7 +1831,7 @@ export const articles = [
 		title: 'Multiple cores on Linux',
 		relativePath: 'docs/miscellaneous/linux-single-process.mdx',
 		compId: 'articles-docs-miscellaneous-linux-single-process',
-		crumb: "'Server-side rendering'",
+		crumb: 'Server-side rendering',
 	},
 	{
 		id: 'miscellaneous/live-streaming',
@@ -1874,13 +1874,6 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/snippets/combine-compositions.mdx',
 		compId: 'articles-docs-miscellaneous-snippets-combine-compositions',
 		crumb: 'FAQ',
-	},
-	{
-		id: 'miscellaneous/snippets/fps-converter',
-		title: 'FPS converter',
-		relativePath: 'docs/miscellaneous/snippets/fps-converter.mdx',
-		compId: 'articles-docs-miscellaneous-snippets-fps-converter',
-		crumb: 'Snippets',
 	},
 	{
 		id: 'hls',
@@ -1935,10 +1928,10 @@ export const articles = [
 	},
 	{
 		id: 'motion-blur/camera-motion-blur',
-		title: "'<CameraMotionBlur>'",
+		title: '<CameraMotionBlur>',
 		relativePath: 'docs/motion-blur/camera-motion-blur.mdx',
 		compId: 'articles-docs-motion-blur-camera-motion-blur',
-		crumb: "'Realistic camera effect'",
+		crumb: 'Realistic camera effect',
 	},
 	{
 		id: 'motion-blur/common-mistake',
@@ -1963,10 +1956,17 @@ export const articles = [
 	},
 	{
 		id: 'motion-blur/trail',
-		title: "'<Trail>'",
+		title: '<Trail>',
 		relativePath: 'docs/motion-blur/trail.mdx',
 		compId: 'articles-docs-motion-blur-trail',
-		crumb: "'Motion blur'",
+		crumb: 'Motion blur',
+	},
+	{
+		id: 'multiple-fps',
+		title: 'Supporting multiple frame rates',
+		relativePath: 'docs/multiple-fps.mdx',
+		compId: 'articles-docs-multiple-fps',
+		crumb: 'Building apps',
 	},
 	{
 		id: 'noise/index',
@@ -2208,10 +2208,10 @@ export const articles = [
 	},
 	{
 		id: 'player/api',
-		title: "'<Player>'",
+		title: '<Player>',
 		relativePath: 'docs/player/api.mdx',
 		compId: 'articles-docs-player-api',
-		crumb: "'@remotion/player'",
+		crumb: '@remotion/player',
 	},
 	{
 		id: 'autoplay',
@@ -2229,7 +2229,7 @@ export const articles = [
 	},
 	{
 		id: 'buffer-state',
-		title: "'The Player buffer state'",
+		title: 'The Player buffer state',
 		relativePath: 'docs/player/buffer-state.mdx',
 		compId: 'articles-docs-player-buffer-state',
 		crumb: 'Best practices',
@@ -2264,17 +2264,17 @@ export const articles = [
 	},
 	{
 		id: 'integration',
-		title: "'Code sharing'",
+		title: 'Code sharing',
 		relativePath: 'docs/player/player-integration.mdx',
 		compId: 'articles-docs-player-player-integration',
-		crumb: "'@remotion/player'",
+		crumb: '@remotion/player',
 	},
 	{
 		id: 'player/preloading',
-		title: "'Preloading assets'",
+		title: 'Preloading assets',
 		relativePath: 'docs/player/preloading.mdx',
 		compId: 'articles-docs-player-preloading',
-		crumb: "'@remotion/player'",
+		crumb: '@remotion/player',
 	},
 	{
 		id: 'player/premounting',
@@ -2302,7 +2302,7 @@ export const articles = [
 		title: 'Turn a <Player> into a Remotion project',
 		relativePath: 'docs/player-into-remotion-project.mdx',
 		compId: 'articles-docs-player-into-remotion-project',
-		crumb: "'Converting Remotion Projects'",
+		crumb: 'Converting Remotion Projects',
 	},
 	{
 		id: 'prefetch',
@@ -2677,7 +2677,7 @@ export const articles = [
 		title: 'Render your video',
 		relativePath: 'docs/render.mdx',
 		compId: 'articles-docs-render',
-		crumb: "'How To'",
+		crumb: 'How To',
 	},
 	{
 		id: 'ensure-browser',
@@ -2719,7 +2719,7 @@ export const articles = [
 		title: 'getCompositions()',
 		relativePath: 'docs/renderer/get-compositions.mdx',
 		compId: 'articles-docs-renderer-get-compositions',
-		crumb: "'@remotion/renderer'",
+		crumb: '@remotion/renderer',
 	},
 	{
 		id: 'get-silent-parts',
@@ -2747,28 +2747,28 @@ export const articles = [
 		title: 'openBrowser()',
 		relativePath: 'docs/renderer/open-browser.mdx',
 		compId: 'articles-docs-renderer-open-browser',
-		crumb: "'@remotion/renderer'",
+		crumb: '@remotion/renderer',
 	},
 	{
 		id: 'render-frames',
 		title: 'renderFrames()',
 		relativePath: 'docs/renderer/render-frames.mdx',
 		compId: 'articles-docs-renderer-render-frames',
-		crumb: "'@remotion/renderer'",
+		crumb: '@remotion/renderer',
 	},
 	{
 		id: 'render-media',
 		title: 'renderMedia()',
 		relativePath: 'docs/renderer/render-media.mdx',
 		compId: 'articles-docs-renderer-render-media',
-		crumb: "'@remotion/renderer'",
+		crumb: '@remotion/renderer',
 	},
 	{
 		id: 'render-still',
 		title: 'renderStill()',
 		relativePath: 'docs/renderer/render-still.mdx',
 		compId: 'articles-docs-renderer-render-still',
-		crumb: "'@remotion/renderer'",
+		crumb: '@remotion/renderer',
 	},
 	{
 		id: 'select-composition',
@@ -2782,7 +2782,7 @@ export const articles = [
 		title: 'stitchFramesToVideo()',
 		relativePath: 'docs/renderer/stitch-frames-to-video.mdx',
 		compId: 'articles-docs-renderer-stitch-frames-to-video',
-		crumb: "'@remotion/renderer'",
+		crumb: '@remotion/renderer',
 	},
 	{
 		id: 'renderer',
@@ -2807,10 +2807,10 @@ export const articles = [
 	},
 	{
 		id: 'rive/remotionrivecanvas',
-		title: "'<RemotionRiveCanvas>'",
+		title: '<RemotionRiveCanvas>',
 		relativePath: 'docs/rive/remotionrivecanvas.mdx',
 		compId: 'articles-docs-rive-remotionrivecanvas',
-		crumb: "'@remotion/rive'",
+		crumb: '@remotion/rive',
 	},
 	{
 		id: 'scaling',
@@ -2845,7 +2845,7 @@ export const articles = [
 		title: 'Making components reusable',
 		relativePath: 'docs/sequences.mdx',
 		compId: 'articles-docs-sequences',
-		crumb: "'The power of React'",
+		crumb: 'The power of React',
 	},
 	{
 		id: 'series',
@@ -3013,7 +3013,7 @@ export const articles = [
 		title: 'Rendering using SSR APIs',
 		relativePath: 'docs/ssr-node.mdx',
 		compId: 'articles-docs-ssr-node',
-		crumb: "'Server-side rendering'",
+		crumb: 'Server-side rendering',
 	},
 	{
 		id: 'ssr',
@@ -3181,7 +3181,7 @@ export const articles = [
 		title: 'Converting a Remotion project to an app',
 		relativePath: 'docs/studio-app.mdx',
 		compId: 'articles-docs-studio-app',
-		crumb: "'Converting Remotion Projects'",
+		crumb: 'Converting Remotion Projects',
 	},
 	{
 		id: 'support',
@@ -3195,7 +3195,7 @@ export const articles = [
 		title: 'enableTailwind()',
 		relativePath: 'docs/tailwind/enable-tailwind.mdx',
 		compId: 'articles-docs-tailwind-enable-tailwind',
-		crumb: "'@remotion/tailwind'",
+		crumb: '@remotion/tailwind',
 	},
 	{
 		id: 'tailwind',
@@ -3402,10 +3402,10 @@ export const articles = [
 	},
 	{
 		id: 'transitions/presentations/custom',
-		title: "'Custom presentations'",
+		title: 'Custom presentations',
 		relativePath: 'docs/transitions/presentations/custom.mdx',
 		compId: 'articles-docs-transitions-presentations-custom',
-		crumb: "'@remotion/transitions'",
+		crumb: '@remotion/transitions',
 	},
 	{
 		id: 'transitions/presentations/fade',
@@ -3539,7 +3539,7 @@ export const articles = [
 		relativePath:
 			'docs/troubleshooting/could-not-be-parsed-as-a-value-list.mdx',
 		compId: 'articles-docs-troubleshooting-could-not-be-parsed-as-a-value-list',
-		crumb: "'Browser quirks'",
+		crumb: 'Browser quirks',
 	},
 	{
 		id: 'troubleshooting/could-not-find-executable-to-run',
@@ -3582,6 +3582,13 @@ export const articles = [
 		relativePath: 'docs/troubleshooting/nextjs-image.mdx',
 		compId: 'articles-docs-troubleshooting-nextjs-image',
 		crumb: 'Common mistakes',
+	},
+	{
+		id: 'stuck-render',
+		title: 'Debugging stuck renders',
+		relativePath: 'docs/troubleshooting/render-stuck.mdx',
+		compId: 'articles-docs-troubleshooting-render-stuck',
+		crumb: 'Troubleshooting',
 	},
 	{
 		id: 'rosetta',

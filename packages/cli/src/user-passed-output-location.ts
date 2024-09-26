@@ -12,7 +12,7 @@ export const getUserPassedOutputLocation = (
 		parsedCli.output ??
 		ConfigInternals.getOutputLocation();
 
-	return String(filename);
+	return filename ? String(filename) : null;
 };
 
 export const getOutputLocation = ({

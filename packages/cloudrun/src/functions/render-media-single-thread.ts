@@ -47,10 +47,33 @@ export const renderMediaSingleThread = async (
 			body.audioCodec,
 		)}`;
 		const tempFilePath = `/tmp/${defaultOutName}`;
-		let previousProgress = 2;
-		const onProgress: RenderMediaOnProgress = ({progress}) => {
+		let previousProgress = 0.02;
+
+		let writingProgress = Promise.resolve();
+
+		const onProgress: RenderMediaOnProgress = ({
+			progress,
+			renderedFrames,
+			encodedFrames,
+		}) => {
 			if (previousProgress !== progress) {
-				res.write(JSON.stringify({onProgress: progress}) + '\n');
+				RenderInternals.Log.info(
+					{indent: false, logLevel: body.logLevel},
+					'Render progress:',
+					renderedFrames,
+					'frames rendered',
+					encodedFrames,
+					'frames encoded',
+					Math.round(progress * 100),
+					'%',
+				);
+				writingProgress = writingProgress.then(() => {
+					return new Promise((resolve) => {
+						res.write(JSON.stringify({onProgress: progress}) + '\n', () => {
+							resolve();
+						});
+					});
+				});
 				previousProgress = progress;
 			}
 		};
@@ -156,7 +179,7 @@ export const renderMediaSingleThread = async (
 			type: 'success',
 			publicUrl: publicUpload ? uploadedFile.publicUrl() : null,
 			cloudStorageUri: uploadedFile.cloudStorageURI.href,
-			size: renderMetadata[0].size,
+			size: renderMetadata[0].size as number,
 			bucketName: body.outputBucket,
 			renderId,
 			privacy: publicUpload ? 'public-read' : 'project-private',

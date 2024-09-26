@@ -41,6 +41,7 @@ export const AnimatedEmoji = ({
 			<OffthreadVideo
 				{...props}
 				muted
+				transparent
 				playbackRate={playbackRate}
 				src={calculateSrc({emoji, scale, format: isWebkit() ? 'hevc' : 'webm'})}
 			/>

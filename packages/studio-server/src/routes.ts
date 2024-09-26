@@ -14,6 +14,7 @@ import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
 import {URLSearchParams} from 'node:url';
 import {getFileSource} from './helpers/get-file-source';
+import {getInstalledInstallablePackages} from './helpers/get-installed-installable-packages';
 import {
 	getDisplayNameForEditor,
 	guessEditor,
@@ -72,8 +73,11 @@ const handleFallback = async ({
 
 	response.setHeader('content-type', 'text/html');
 	response.writeHead(200);
-	const packageManager = getPackageManager(remotionRoot, undefined);
+	const packageManager = getPackageManager(remotionRoot, undefined, 0);
 	fetchFolder({publicDir, staticHash: hash});
+
+	const installedDependencies = getInstalledInstallablePackages(remotionRoot);
+
 	response.end(
 		BundlerInternals.indexHtml({
 			staticHash: hash,
@@ -97,6 +101,9 @@ const handleFallback = async ({
 				gitSource,
 				resolvedRemotionRoot: remotionRoot,
 			}),
+			installedDependencies,
+			packageManager:
+				packageManager === 'unknown' ? 'unknown' : packageManager.manager,
 		}),
 	);
 };

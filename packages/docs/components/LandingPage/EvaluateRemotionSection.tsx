@@ -52,6 +52,7 @@ const EvaluateRemotionSection: React.FC = () => {
 					className={styles.aknow}
 					target="_blank"
 					href="https://cal.com/remotion/evaluate"
+					style={{textDecoration: 'none'}}
 				>
 					<BlueButton size="sm" fullWidth={false} loading={false}>
 						Schedule a call
@@ -66,7 +67,11 @@ const EvaluateRemotionSection: React.FC = () => {
 					</p>
 				</div>
 				<div className={styles.expertsSection}>
-					<a className={styles.aknow} href="/experts">
+					<a
+						className={styles.aknow}
+						href="/experts"
+						style={{textDecoration: 'none'}}
+					>
 						<BlueButton size="sm" fullWidth={false} loading={false}>
 							Remotion Experts
 						</BlueButton>

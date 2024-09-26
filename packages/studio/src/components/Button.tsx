@@ -14,18 +14,20 @@ const button: React.CSSProperties = {
 	flexDirection: 'row',
 };
 
+export type ButtonProps = {
+	readonly onClick: () => void;
+	readonly disabled?: boolean;
+	readonly children: React.ReactNode;
+	readonly style?: React.CSSProperties;
+	readonly buttonContainerStyle?: React.CSSProperties;
+	readonly autoFocus?: boolean;
+	readonly title?: string;
+	readonly id?: string;
+};
+
 const ButtonRefForwardFunction: React.ForwardRefRenderFunction<
 	HTMLButtonElement,
-	{
-		onClick: () => void;
-		disabled?: boolean;
-		children: React.ReactNode;
-		style?: React.CSSProperties;
-		buttonContainerStyle?: React.CSSProperties;
-		autoFocus?: boolean;
-		title?: string;
-		id?: string;
-	}
+	ButtonProps
 > = (
 	{
 		children,

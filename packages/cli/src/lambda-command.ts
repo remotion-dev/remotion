@@ -19,6 +19,7 @@ export const lambdaCommand = async (
 		const manager = StudioServerInternals.getPackageManager(
 			remotionRoot,
 			undefined,
+			0,
 		);
 		const installCommand =
 			manager === 'unknown' ? 'npm i' : manager.installCommand;

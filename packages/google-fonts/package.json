@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.206",
+	"version": "4.0.213",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
@@ -20,7 +20,6 @@
 	"devDependencies": {
 		"@types/css-font-loading-module": "^0.0.7",
 		"@types/prettier": "^2.7.1",
-		"got": "^11",
 		"postcss": "^8.4.31",
 		"prettier": "3.2.5"
 	},

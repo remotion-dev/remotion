@@ -31,6 +31,7 @@ import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
 import {Green} from './Green';
 import {HlsDemo} from './Hls/HlsDemo';
+import {HugeImage} from './HugeImage';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {Layers} from './Layers';
 import {ManyAudio} from './ManyAudio';
@@ -1444,10 +1445,11 @@ export const Index: React.FC = () => {
 			<Still
 				id="DecoderDemo"
 				component={DecoderDemo}
-				height={800}
+				height={1000}
 				width={1024}
 			/>
 			<Still id="Emojis" component={EmojiTestbed} height={800} width={1024} />
+			<Still id="HugeImage" component={HugeImage} height={9000} width={9000} />
 		</>
 	);
 };

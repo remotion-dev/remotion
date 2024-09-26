@@ -1,7 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
-import {nodeReader} from '../from-node';
 import {parseMedia} from '../parse-media';
+import {nodeReader} from '../readers/from-node';
 
 test('Should get duration of AV1 video', async () => {
 	const parsed = await parseMedia({
@@ -233,10 +233,40 @@ test('Should get duration of AV1 video', async () => {
 										},
 										{
 											type: 'Colour',
-											value: new Uint8Array([
-												85, 186, 129, 1, 85, 177, 129, 1, 85, 187, 129, 1, 85,
-												185, 129, 1,
-											]),
+											value: [
+												{
+													minVintWidth: 1,
+													type: 'TransferCharacteristics',
+													value: {
+														byteLength: 1,
+														value: 1,
+													},
+												},
+												{
+													minVintWidth: 1,
+													type: 'MatrixCoefficients',
+													value: {
+														byteLength: 1,
+														value: 1,
+													},
+												},
+												{
+													minVintWidth: 1,
+													type: 'Primaries',
+													value: {
+														byteLength: 1,
+														value: 1,
+													},
+												},
+												{
+													minVintWidth: 1,
+													type: 'Range',
+													value: {
+														byteLength: 1,
+														value: 1,
+													},
+												},
+											],
 											minVintWidth: 1,
 										},
 									],
@@ -419,10 +449,52 @@ test('Should get duration of AV1 video', async () => {
 				},
 				{
 					type: 'Cues',
-					value: new Uint8Array([
-						187, 143, 179, 129, 0, 183, 138, 247, 129, 1, 241, 130, 1, 159, 240,
-						129, 3,
-					]),
+					value: [
+						{
+							minVintWidth: 1,
+							type: 'CuePoint',
+							value: [
+								{
+									minVintWidth: 1,
+									type: 'CueTime',
+									value: {
+										byteLength: 1,
+										value: 0,
+									},
+								},
+								{
+									minVintWidth: 1,
+									type: 'CueTrackPositions',
+									value: [
+										{
+											minVintWidth: 1,
+											type: 'CueTrack',
+											value: {
+												byteLength: 1,
+												value: 1,
+											},
+										},
+										{
+											minVintWidth: 1,
+											type: 'CueClusterPosition',
+											value: {
+												byteLength: 2,
+												value: 415,
+											},
+										},
+										{
+											minVintWidth: 1,
+											type: 'CueRelativePosition',
+											value: {
+												byteLength: 1,
+												value: 3,
+											},
+										},
+									],
+								},
+							],
+						},
+					],
 					minVintWidth: 1,
 				},
 			],

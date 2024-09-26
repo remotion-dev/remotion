@@ -23,7 +23,13 @@ const container: React.CSSProperties = {
 	border: 'none',
 };
 
-export type MenuId = 'remotion' | 'file' | 'view' | 'tools' | 'help';
+export type MenuId =
+	| 'remotion'
+	| 'file'
+	| 'view'
+	| 'install'
+	| 'tools'
+	| 'help';
 
 export type Menu = {
 	id: MenuId;

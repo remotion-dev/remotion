@@ -3,7 +3,7 @@ image: /generated/articles-docs-media-parser-parse-media.png
 id: parse-media
 title: parseMedia()
 slug: /media-parser/parse-media
-crumb: "@remotion/media-parser"
+crumb: '@remotion/media-parser'
 ---
 
 _Part of the [`@remotion/media-parser`](/docs/media-parser) package._
@@ -39,7 +39,7 @@ import {parseMedia} from '@remotion/media-parser';
 import {nodeReader} from '@remotion/media-parser/node';
 
 const result = await parseMedia({
-  src:  '/Users/jonnyburger/Downloads/my-video.mp4',
+  src: '/Users/jonnyburger/Downloads/my-video.mp4',
   fields: {
     durationInSeconds: true,
     dimensions: true,
@@ -63,6 +63,7 @@ If you pass a `File` object, you must also pass `webFileReader` as the `reader` 
 ### `fields?`
 
 An object specifying which fields you'd like to receive.  
+If you like to receive the field, pass `true` as the value.  
 Possible fields are:
 
 #### `dimensions`
@@ -78,6 +79,24 @@ Use `unrotatedDimensions` to get the dimensions before rotation.
 _number | null_
 
 The duration of the video in seconds.
+
+#### `name`
+
+_string_
+
+The name of the file.
+
+#### `container`
+
+_"mp4" | "webm" | null_
+
+The container of the file.
+
+#### `size`
+
+_number | null_
+
+The size of the input in bytes.
 
 #### `boxes`
 
@@ -110,7 +129,7 @@ The data structure of them is not yet stable.
 
 _`{width: number, height: number}`_
 
-The dimensions of the video before rotation.  
+The dimensions of the video before rotation.
 
 #### `rotation`
 
@@ -124,7 +143,6 @@ A reader interface.
 Default value: `fetchReader`, which uses `fetch()` to read the video.  
 If you pass [`nodeReader`](/docs/media-parser/node-reader), you must also pass a local file path as the `src` argument.
 If you pass [`webFileReader`](/docs/media-parser/web-file-reader), you must also pass a `File` as the `src` argument.
-
 
 ### `onVideoTrack?`
 
@@ -143,7 +161,7 @@ const onVideoTrack: OnVideoTrack = (track) => {
   console.log(track);
 
   return (sample) => {
-    console.log(new EncodedVideoChunk(sample))
+    console.log(new EncodedVideoChunk(sample));
   };
 };
 ```
@@ -166,16 +184,41 @@ const onAudioTrack: OnAudioTrack = (track) => {
   console.log(track);
 
   return (sample) => {
-    console.log(new EncodedAudioChunk(sample))
+    console.log(new EncodedAudioChunk(sample));
   };
 };
 ```
-
 
 ### `signal?`
 
 An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) instance.  
 If the signal is aborted, the parser will stop reading the media and stop the decoding process and throw an error.
+
+### Callbacks
+
+Each field also has a callback that allows you to retrieve the value as soon as it is obtained without waiting for the function to resolve.  
+You must pass `true` as the value for the field in order for the callback to be called.
+
+```tsx twoslash title="Using a callback"
+// @module: es2022
+// @target: es2017
+
+import {parseMedia} from '@remotion/media-parser';
+
+const result = await parseMedia({
+  src: 'https://example.com/my-video.mp4',
+  fields: {
+    durationInSeconds: true,
+    dimensions: true,
+  },
+  onDurationInSeconds: (durationInSeconds) => {
+    console.log(durationInSeconds);
+  },
+  onDimensions: (dimensions) => {
+    console.log(dimensions);
+  },
+});
+```
 
 ## See also
 

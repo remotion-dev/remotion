@@ -265,6 +265,8 @@ export const serveHandler = async (
 		headers['Content-Length'] = String(streamOpts.end - streamOpts.start + 1);
 	}
 
+	headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+
 	response.writeHead(response.statusCode || 200, headers);
 	stream.pipe(response);
 };

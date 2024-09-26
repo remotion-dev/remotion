@@ -814,6 +814,7 @@ module.exports = {
 				'video-uploads',
 				'presigned-urls',
 				'font-picker',
+				'multiple-fps',
 			],
 		},
 		{
@@ -863,6 +864,7 @@ module.exports = {
 				'troubleshooting/browser-launch',
 				'troubleshooting/sigkill',
 				'troubleshooting/could-not-find-executable-to-run',
+				'troubleshooting/stuck-render',
 			],
 		},
 		{
@@ -871,7 +873,6 @@ module.exports = {
 			items: [
 				'miscellaneous/snippets/accelerated-video',
 				'miscellaneous/snippets/player-in-iframe',
-				'miscellaneous/snippets/fps-converter',
 				'miscellaneous/snippets/use-delay-render',
 				'miscellaneous/snippets/offthread-video-while-rendering',
 				'miscellaneous/snippets/hls',

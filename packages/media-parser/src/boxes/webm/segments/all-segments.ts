@@ -360,7 +360,7 @@ export const ebmlReadVersion = {
 export const ebmlMaxIdLength = {
 	name: 'EBMLMaxIDLength',
 	type: 'uint',
-} satisfies Ebml;
+} as const satisfies Ebml;
 
 export const ebmlMaxSizeLength = {
 	name: 'EBMLMaxSizeLength',
@@ -539,7 +539,37 @@ export const trackUID = {
 
 export const color = {
 	name: 'Colour',
-	type: 'uint8array',
+	type: 'children',
+} as const satisfies Ebml;
+
+export const transferCharacteristics = {
+	name: 'TransferCharacteristics',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const matrixCoefficients = {
+	name: 'MatrixCoefficients',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const primaries = {
+	name: 'Primaries',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const range = {
+	name: 'Range',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const ChromaSitingHorz = {
+	name: 'ChromaSitingHorz',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const ChromaSitingVert = {
+	name: 'ChromaSitingVert',
+	type: 'uint',
 } as const satisfies Ebml;
 
 export const language = {
@@ -579,7 +609,7 @@ export const videoSegment = {
 
 export const flagDefault = {
 	name: 'FlagDefault',
-	type: 'uint8array',
+	type: 'uint',
 } as const satisfies Ebml;
 
 export const referenceBlock = {
@@ -643,6 +673,13 @@ export const cluster = {
 } as const satisfies Ebml;
 
 export type CodecIdSegment = EbmlParsed<typeof codecID>;
+export type ColourSegment = EbmlParsed<typeof color>;
+export type TransferCharacteristicsSegment = EbmlParsed<
+	typeof transferCharacteristics
+>;
+export type PrimariesSegment = EbmlParsed<typeof primaries>;
+export type RangeSegment = EbmlParsed<typeof range>;
+export type MatrixCoefficientsSegment = EbmlParsed<typeof matrixCoefficients>;
 export type TrackTypeSegment = EbmlParsed<typeof trackType>;
 export type WidthSegment = EbmlParsed<typeof widthType>;
 export type HeightSegment = EbmlParsed<typeof heightType>;
@@ -661,7 +698,7 @@ export type ClusterSegment = EbmlParsed<typeof cluster>;
 export type Tracks = EbmlParsed<typeof tracks>;
 
 export type FloatWithSize = {value: number; size: '32' | '64'};
-export type UintWithSize = {value: number; byteLength: number};
+export type UintWithSize = {value: number; byteLength: number | null};
 
 export type EbmlValue<
 	T extends Ebml,
@@ -687,13 +724,13 @@ export type EbmlValueOrUint8Array<T extends Ebml> =
 export type EbmlParsed<T extends Ebml> = {
 	type: T['name'];
 	value: EbmlValue<T>;
-	minVintWidth: number;
+	minVintWidth: number | null;
 };
 
 export type EbmlParsedOrUint8Array<T extends Ebml> = {
 	type: T['name'];
 	value: EbmlValueOrUint8Array<T>;
-	minVintWidth: number;
+	minVintWidth: number | null;
 };
 
 export const ebmlMap = {
@@ -708,7 +745,35 @@ export const ebmlMap = {
 	[matroskaElements.Void]: voidEbml,
 	[matroskaElements.Cues]: {
 		name: 'Cues',
-		type: 'uint8array',
+		type: 'children',
+	},
+	[matroskaElements.CuePoint]: {
+		name: 'CuePoint',
+		type: 'children',
+	},
+	[matroskaElements.CueTime]: {
+		name: 'CueTime',
+		type: 'uint',
+	},
+	[matroskaElements.CueTrackPositions]: {
+		name: 'CueTrackPositions',
+		type: 'children',
+	},
+	[matroskaElements.CueClusterPosition]: {
+		name: 'CueClusterPosition',
+		type: 'uint',
+	},
+	[matroskaElements.CueRelativePosition]: {
+		name: 'CueRelativePosition',
+		type: 'uint',
+	},
+	[matroskaElements.CueBlockNumber]: {
+		name: 'CueBlockNumber',
+		type: 'uint',
+	},
+	[matroskaElements.CueTrack]: {
+		name: 'CueTrack',
+		type: 'uint',
 	},
 	[matroskaElements.DateUTC]: {
 		name: 'DateUTC',
@@ -807,6 +872,12 @@ export const ebmlMap = {
 		name: 'Cluster',
 		type: 'children',
 	},
+	[matroskaElements.TransferCharacteristics]: transferCharacteristics,
+	[matroskaElements.MatrixCoefficients]: matrixCoefficients,
+	[matroskaElements.Primaries]: primaries,
+	[matroskaElements.Range]: range,
+	[matroskaElements.ChromaSitingHorz]: ChromaSitingHorz,
+	[matroskaElements.ChromaSitingVert]: ChromaSitingVert,
 } as const satisfies Partial<Record<MatroskaElement, Ebml>>;
 
 export type PossibleEbml = Prettify<
@@ -814,6 +885,30 @@ export type PossibleEbml = Prettify<
 		[key in keyof typeof ebmlMap]: EbmlParsed<(typeof ebmlMap)[key]>;
 	}[keyof typeof ebmlMap]
 >;
+
+export type OffsetAndChildren = {
+	offset: number;
+	children: OffsetAndChildren[];
+	field: keyof typeof matroskaElements;
+};
+
+export const incrementOffsetAndChildren = (
+	offset: OffsetAndChildren,
+	increment: number,
+): OffsetAndChildren => {
+	return {
+		offset: offset.offset + increment,
+		children: offset.children.map((c) =>
+			incrementOffsetAndChildren(c, increment),
+		),
+		field: offset.field,
+	};
+};
+
+export type BytesAndOffset = {
+	bytes: Uint8Array;
+	offsets: OffsetAndChildren;
+};
 
 export type PossibleEbmlOrUint8Array =
 	| Prettify<
@@ -823,6 +918,6 @@ export type PossibleEbmlOrUint8Array =
 				>;
 			}[keyof typeof ebmlMap]
 	  >
-	| Uint8Array;
+	| BytesAndOffset;
 
 export type EbmlMapKey = keyof typeof ebmlMap;

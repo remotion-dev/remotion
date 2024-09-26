@@ -14,7 +14,6 @@ export const defaultBrowserDownloadProgress =
 		api: string;
 	}): OnBrowserDownload =>
 	() => {
-		Log.info({indent, logLevel}, 'No local browser could be found.');
 		Log.info(
 			{indent, logLevel},
 			'Downloading Chrome Headless Shell https://www.remotion.dev/docs/miscellaneous/chrome-headless-shell',
@@ -24,9 +23,9 @@ export const defaultBrowserDownloadProgress =
 			`Customize this behavior by adding a onBrowserDownload function to ${api}.`,
 		);
 
+		let lastProgress = 0;
 		return {
 			onProgress: (progress) => {
-				let lastProgress = 0;
 				if (progress.downloadedBytes > lastProgress + 10_000_000) {
 					lastProgress = progress.downloadedBytes;
 

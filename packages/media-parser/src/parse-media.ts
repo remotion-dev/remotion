@@ -1,19 +1,21 @@
 /* eslint-disable max-depth */
 import type {BufferIterator} from './buffer-iterator';
 import {getArrayBufferIterator} from './buffer-iterator';
-import {fetchReader} from './from-fetch';
-import {getAudioCodec} from './get-audio-codec';
-import {getDimensions} from './get-dimensions';
-import {getDuration} from './get-duration';
-import {getFps} from './get-fps';
-import {getTracks} from './get-tracks';
-import {getVideoCodec} from './get-video-codec';
-import {hasAllInfo} from './has-all-info';
-import type {Metadata, ParseMedia} from './options';
+import {emitAvailableInfo} from './emit-available-info';
+import {getAvailableInfo} from './has-all-info';
+import type {
+	AllParseMediaFields,
+	Options,
+	ParseMedia,
+	ParseMediaCallbacks,
+	ParseMediaFields,
+	ParseMediaResult,
+} from './options';
 import type {ParseResult} from './parse-result';
 import {parseVideo} from './parse-video';
 import type {ParserContext} from './parser-context';
 import {makeParserState} from './parser-state';
+import {fetchReader} from './readers/from-fetch';
 
 export const parseMedia: ParseMedia = async ({
 	src,
@@ -22,27 +24,31 @@ export const parseMedia: ParseMedia = async ({
 	onAudioTrack,
 	onVideoTrack,
 	signal,
+	...more
 }) => {
 	const state = makeParserState({
 		hasAudioCallbacks: onAudioTrack !== null,
 		hasVideoCallbacks: onVideoTrack !== null,
 		signal,
 	});
-	const {reader, contentLength} = await readerInterface.read(src, null, signal);
+	const {
+		reader,
+		contentLength,
+		name,
+		supportsContentRange: readerSupportsContentRange,
+	} = await readerInterface.read(src, null, signal);
 	let currentReader = reader;
 
-	const returnValue = {} as Metadata<
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true
-	>;
+	const supportsContentRange =
+		readerSupportsContentRange &&
+		!(
+			typeof process !== 'undefined' &&
+			typeof process.env !== 'undefined' &&
+			process.env.DISABLE_CONTENT_RANGE === 'true'
+		);
+
+	const returnValue = {} as ParseMediaResult<AllParseMediaFields>;
+	const moreFields = more as ParseMediaCallbacks<AllParseMediaFields>;
 
 	let iterator: BufferIterator | null = null;
 	let parseResult: ParseResult | null = null;
@@ -57,6 +63,7 @@ export const parseMedia: ParseMedia = async ({
 			typeof process.env !== 'undefined' &&
 			process.env.KEEP_SAMPLES === 'true'
 		),
+		supportsContentRange,
 	};
 
 	while (parseResult === null || parseResult.status === 'incomplete') {
@@ -64,21 +71,36 @@ export const parseMedia: ParseMedia = async ({
 			throw new Error('Aborted');
 		}
 
-		const result = await currentReader.read();
+		// eslint-disable-next-line no-constant-condition
+		while (true) {
+			const result = await currentReader.reader.read();
 
-		if (iterator) {
-			if (!result.done) {
-				iterator.addData(result.value);
+			if (iterator) {
+				if (!result.done) {
+					iterator.addData(result.value);
+				}
+			} else {
+				if (result.done) {
+					throw new Error('Unexpectedly reached EOF');
+				}
+
+				iterator = getArrayBufferIterator(
+					result.value,
+					contentLength ?? 1_000_000_000,
+				);
 			}
-		} else {
+
+			if (iterator.bytesRemaining() >= 0) {
+				break;
+			}
+
 			if (result.done) {
-				throw new Error('Unexpectedly reached EOF');
+				break;
 			}
+		}
 
-			iterator = getArrayBufferIterator(
-				result.value,
-				contentLength ?? 1_000_000_000,
-			);
+		if (!iterator) {
+			throw new Error('Unexpected null');
 		}
 
 		if (parseResult && parseResult.status === 'incomplete') {
@@ -87,20 +109,26 @@ export const parseMedia: ParseMedia = async ({
 			parseResult = await parseVideo({
 				iterator,
 				options,
+				signal: signal ?? null,
 			});
 		}
 
+		const availableInfo = getAvailableInfo(fields ?? {}, parseResult, state);
+		const hasAllInfo = Object.values(availableInfo).every(Boolean);
+
+		emitAvailableInfo({
+			hasInfo: availableInfo,
+			moreFields,
+			parseResult,
+			state,
+			returnValue,
+			contentLength,
+			name,
+		});
+
 		// TODO Better: Check if no active listeners are registered
 		// Also maybe check for canSkipVideoData
-		if (
-			hasAllInfo(fields ?? {}, parseResult, state) &&
-			!onVideoTrack &&
-			!onAudioTrack
-		) {
-			if (!currentReader.closed) {
-				currentReader.cancel(new Error('has all information'));
-			}
-
+		if (hasAllInfo && !onVideoTrack && !onAudioTrack) {
 			break;
 		}
 
@@ -109,8 +137,10 @@ export const parseMedia: ParseMedia = async ({
 			parseResult.status === 'incomplete' &&
 			parseResult.skipTo !== null
 		) {
-			if (!currentReader.closed) {
-				currentReader.cancel(new Error('skipped ahead'));
+			if (!supportsContentRange) {
+				throw new Error(
+					'Content-Range header is not supported by the reader, but was asked to seek',
+				);
 			}
 
 			const {reader: newReader} = await readerInterface.read(
@@ -119,64 +149,30 @@ export const parseMedia: ParseMedia = async ({
 				signal,
 			);
 			currentReader = newReader;
-			iterator.skipTo(parseResult.skipTo);
+			iterator.skipTo(parseResult.skipTo, true);
 		}
 	}
 
-	if (!parseResult) {
-		throw new Error('Could not parse video');
-	}
+	// Force assign
+	emitAvailableInfo({
+		hasInfo: (
+			Object.keys(fields ?? {}) as (keyof Options<ParseMediaFields>)[]
+		).reduce(
+			(acc, key) => {
+				acc[key] = true;
+				return acc;
+			},
+			{} as Record<keyof Options<ParseMediaFields>, boolean>,
+		),
+		moreFields,
+		parseResult,
+		state,
+		returnValue,
+		contentLength,
+		name,
+	});
 
-	if (fields?.dimensions) {
-		const dimensions = getDimensions(parseResult.segments, state);
-		returnValue.dimensions = {
-			width: dimensions.width,
-			height: dimensions.height,
-		};
-	}
-
-	if (fields?.unrotatedDimensions) {
-		const dimensions = getDimensions(parseResult.segments, state);
-		returnValue.unrotatedDimensions = {
-			width: dimensions.unrotatedWidth,
-			height: dimensions.unrotatedHeight,
-		};
-	}
-
-	if (fields?.rotation) {
-		const dimensions = getDimensions(parseResult.segments, state);
-		returnValue.rotation = dimensions.rotation;
-	}
-
-	if (fields?.durationInSeconds) {
-		returnValue.durationInSeconds = getDuration(parseResult.segments, state);
-	}
-
-	if (fields?.fps) {
-		returnValue.fps = getFps(parseResult.segments);
-	}
-
-	if (fields?.videoCodec) {
-		returnValue.videoCodec = getVideoCodec(parseResult.segments);
-	}
-
-	if (fields?.audioCodec) {
-		returnValue.audioCodec = getAudioCodec(parseResult.segments);
-	}
-
-	if (fields?.tracks) {
-		const {audioTracks, videoTracks} = getTracks(parseResult.segments, state);
-		returnValue.audioTracks = audioTracks;
-		returnValue.videoTracks = videoTracks;
-	}
-
-	if (fields?.boxes) {
-		returnValue.boxes = parseResult.segments;
-	}
-
-	if (fields?.internalStats) {
-		returnValue.internalStats = state.getInternalStats();
-	}
+	currentReader.abort();
 
 	iterator?.destroy();
 	return returnValue;

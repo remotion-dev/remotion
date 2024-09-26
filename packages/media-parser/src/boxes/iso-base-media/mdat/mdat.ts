@@ -3,16 +3,26 @@ import type {BufferIterator} from '../../../buffer-iterator';
 import {getTracks, hasTracks} from '../../../get-tracks';
 import type {AnySegment} from '../../../parse-result';
 import type {ParserContext} from '../../../parser-context';
-import {getMoofBox} from '../../../traversal';
 import {getSamplePositionsFromTrack} from '../get-sample-positions-from-track';
 import type {TrakBox} from '../trak/trak';
+import {getMoofBox} from '../traversal';
 
-export interface MdatBox {
+type MdatStatus =
+	| {
+			status: 'samples-buffered';
+	  }
+	| {
+			status: 'samples-skipped';
+	  }
+	| {
+			status: 'samples-processed';
+	  };
+
+export type MdatBox = {
 	type: 'mdat-box';
-	samplesProcessed: boolean;
 	boxSize: number;
 	fileOffset: number;
-}
+} & MdatStatus;
 
 export const parseMdat = async ({
 	data,
@@ -20,20 +30,36 @@ export const parseMdat = async ({
 	fileOffset,
 	existingBoxes,
 	options,
+	signal,
+	maySkipSampleProcessing,
 }: {
 	data: BufferIterator;
 	size: number;
 	fileOffset: number;
 	existingBoxes: AnySegment[];
 	options: ParserContext;
+	signal: AbortSignal | null;
+	maySkipSampleProcessing: boolean;
 }): Promise<MdatBox> => {
 	const alreadyHas = hasTracks(existingBoxes);
 	if (!alreadyHas) {
+		if (maySkipSampleProcessing) {
+			data.discard(size - (data.counter.getOffset() - fileOffset));
+			return Promise.resolve({
+				type: 'mdat-box',
+				boxSize: size,
+				status: 'samples-skipped',
+				fileOffset,
+			});
+		}
+
 		data.discard(size - (data.counter.getOffset() - fileOffset));
+		data.disallowDiscard();
+
 		return Promise.resolve({
 			type: 'mdat-box',
 			boxSize: size,
-			samplesProcessed: false,
+			status: 'samples-buffered',
 			fileOffset,
 		});
 	}
@@ -66,6 +92,10 @@ export const parseMdat = async ({
 
 	// eslint-disable-next-line no-constant-condition
 	while (true) {
+		if (signal && signal.aborted) {
+			break;
+		}
+
 		const samplesWithIndex = flatSamples.find((sample) => {
 			return sample.samplePosition.offset === data.counter.getOffset();
 		});
@@ -95,9 +125,13 @@ export const parseMdat = async ({
 		const bytes = data.getSlice(samplesWithIndex.samplePosition.size);
 
 		if (samplesWithIndex.track.type === 'audio') {
+			const timestamp = Math.floor(
+				(samplesWithIndex.samplePosition.cts * 1_000_000) /
+					samplesWithIndex.track.timescale,
+			);
 			await options.parserState.onAudioSample(samplesWithIndex.track.trackId, {
 				data: bytes,
-				timestamp: samplesWithIndex.samplePosition.offset,
+				timestamp,
 				trackId: samplesWithIndex.track.trackId,
 				type: samplesWithIndex.samplePosition.isKeyframe ? 'key' : 'delta',
 			});
@@ -134,7 +168,7 @@ export const parseMdat = async ({
 	return Promise.resolve({
 		type: 'mdat-box',
 		boxSize: size,
-		samplesProcessed: true,
+		status: 'samples-processed',
 		fileOffset,
 	});
 };

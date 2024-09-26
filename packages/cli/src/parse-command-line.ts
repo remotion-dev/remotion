@@ -67,7 +67,7 @@ export type CommandLineOptions = {
 	[publicPathOption.cliFlag]: string;
 	crf: number;
 	force: boolean;
-	output: string;
+	output: string | undefined;
 	overwrite: boolean;
 	png: boolean;
 	props: string;

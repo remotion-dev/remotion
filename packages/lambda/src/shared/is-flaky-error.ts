@@ -73,6 +73,7 @@ export const isFlakyError = (err: Error): boolean => {
 		message.includes('getaddrinfo') ||
 		message.includes('ECONNRESET') ||
 		message.includes('ERR_CONNECTION_TIMED_OUT') ||
+		message.includes('ERR_NETWORK_CHANGED') ||
 		message.includes('socket hang up')
 	) {
 		return true;
@@ -83,6 +84,15 @@ export const isFlakyError = (err: Error): boolean => {
 	}
 
 	if (message.includes('SIGKILL')) {
+		return true;
+	}
+
+	// ServiceException: We currently do not have sufficient capacity in the region you requested. Our system will be working on provisioning additional capacity. You can avoid getting this error by temporarily reducing your request rate.
+	if (
+		message.includes(
+			'ServiceException: We currently do not have sufficient capacity in the region you requested',
+		)
+	) {
 		return true;
 	}
 

@@ -1,29 +1,23 @@
 import type {ProjectInfo, RecastCodemod} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
-import {BLUE, BLUE_DISABLED} from '../../helpers/colors';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {ModalsContext} from '../../state/modals';
-import {Button} from '../Button';
+import {ModalButton} from '../ModalButton';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {applyCodemod, getProjectInfo} from '../RenderQueue/actions';
 import {Flex, Row, Spacing} from '../layout';
 import type {CodemodStatus} from './DiffPreview';
 import {CodemodDiffPreview} from './DiffPreview';
 
-const buttonStyle: React.CSSProperties = {
-	backgroundColor: BLUE,
-	color: 'white',
-};
-
 export const CodemodFooter: React.FC<{
-	valid: boolean;
-	codemod: RecastCodemod;
-	loadingNotification: React.ReactNode;
-	succeessNotifcation: React.ReactNode;
-	errorNotification: string;
-	genericSubmitLabel: string;
-	submitLabel: (options: {relativeRootPath: string}) => string;
+	readonly valid: boolean;
+	readonly codemod: RecastCodemod;
+	readonly loadingNotification: React.ReactNode;
+	readonly succeessNotifcation: React.ReactNode;
+	readonly errorNotification: string;
+	readonly genericSubmitLabel: string;
+	readonly submitLabel: (options: {relativeRootPath: string}) => string;
 }> = ({
 	codemod,
 	valid,
@@ -160,19 +154,12 @@ export const CodemodFooter: React.FC<{
 			<CodemodDiffPreview status={codemodStatus} />
 			<Flex />
 			<Spacing block x={2} />
-			<Button
-				onClick={trigger}
-				disabled={disabled}
-				style={{
-					...buttonStyle,
-					backgroundColor: disabled ? BLUE_DISABLED : BLUE,
-				}}
-			>
+			<ModalButton onClick={trigger} disabled={disabled}>
 				{projectInfo && projectInfo.relativeRootFile
 					? submitLabel({relativeRootPath: projectInfo.relativeRootFile})
 					: genericSubmitLabel}
 				<ShortcutHint keyToPress="↵" cmdOrCtrl />
-			</Button>
+			</ModalButton>
 		</Row>
 	);
 };

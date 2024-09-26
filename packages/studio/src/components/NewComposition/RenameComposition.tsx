@@ -3,7 +3,8 @@ import type {ChangeEventHandler} from 'react';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {validateCompositionName} from '../../helpers/validate-new-comp-data';
-import {NewCompHeader} from '../ModalHeader';
+import {ModalFooterContainer} from '../ModalFooter';
+import {ModalHeader} from '../ModalHeader';
 import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
@@ -64,7 +65,7 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 
 	return (
 		<>
-			<NewCompHeader title={`Rename ${resolved.result.id}`} />
+			<ModalHeader title={`Rename ${resolved.result.id}`} />
 			<form onSubmit={onSubmit}>
 				<div style={content}>
 					<div style={optionRow}>
@@ -94,7 +95,7 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 						</div>
 					</div>
 				</div>
-				<div style={{...content, borderTop: '1px solid black'}}>
+				<ModalFooterContainer>
 					<CodemodFooter
 						loadingNotification={'Renaming...'}
 						errorNotification={'Could not rename composition'}
@@ -104,7 +105,7 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 						codemod={codemod}
 						valid={valid}
 					/>
-				</div>
+				</ModalFooterContainer>
 			</form>
 		</>
 	);

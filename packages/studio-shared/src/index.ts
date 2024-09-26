@@ -11,6 +11,8 @@ export {
 	CopyStillToClipboardRequest,
 	DeleteStaticFileRequest,
 	DeleteStaticFileResponse,
+	InstallPackageRequest,
+	InstallPackageResponse,
 	OpenInFileExplorerRequest,
 	ProjectInfoRequest,
 	ProjectInfoResponse,
@@ -43,7 +45,12 @@ export {
 	ModuleMap,
 	hotMiddlewareOptions,
 } from './hot-middleware';
+export {
+	InstallablePackage,
+	listOfInstallableRemotionPackages,
+} from './installable-packages';
 export {DEFAULT_TIMELINE_TRACKS} from './max-timeline-tracks';
+export {Pkgs, apiDocs, descriptions, packages} from './package-info';
 export {PackageManager} from './package-manager';
 export {ProjectInfo} from './project-info';
 export type {RenderDefaults} from './render-defaults';

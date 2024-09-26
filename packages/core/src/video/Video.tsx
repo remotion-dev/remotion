@@ -34,7 +34,6 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalNativeLoopPassed,
 		showInTimeline,
 		onAutoPlayError,
-		onVideoFrame,
 		crossOrigin,
 		...otherProps
 	} = props;
@@ -65,6 +64,8 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		[setDurations],
 	);
 
+	const onVideoFrame = useCallback(() => {}, []);
+
 	const durationFetched =
 		durations[getAbsoluteSrc(preloadedSrc)] ??
 		durations[getAbsoluteSrc(props.src)];
@@ -86,7 +87,6 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 				<Video
 					{...propsOtherThanLoop}
 					ref={ref}
-					onVideoFrame={onVideoFrame}
 					_remotionInternalNativeLoopPassed
 				/>
 			</Loop>
@@ -108,7 +108,6 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 			>
 				<Video
 					pauseWhenBuffering={pauseWhenBuffering ?? false}
-					onVideoFrame={onVideoFrame}
 					{...otherProps}
 					ref={ref}
 				/>
@@ -134,7 +133,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 			onlyWarnForMediaSeekingError={false}
 			{...otherProps}
 			ref={ref}
-			onVideoFrame={onVideoFrame ?? null}
+			onVideoFrame={null}
 			// Proposal: Make this default to true in v5
 			pauseWhenBuffering={pauseWhenBuffering ?? false}
 			onDuration={onDuration}
