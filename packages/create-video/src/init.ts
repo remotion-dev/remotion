@@ -74,10 +74,9 @@ const getGitStatus = async (root: string): Promise<void> => {
 };
 
 export const init = async () => {
-	Log.info(`Welcome to ${chalk.blueBright('Remotion')}!`);
-	Log.info();
-
+	Log.info(`Welcome to ${chalk.blue('Remotion')}!`);
 	const {projectRoot, folderName} = await resolveProjectRoot();
+	Log.info();
 
 	const result = await checkGitAvailability(projectRoot, 'git', ['--version']);
 
@@ -129,12 +128,6 @@ export const init = async () => {
 		process.exit(1);
 	}
 
-	Log.info(
-		`Copied ${chalk.blueBright(
-			selectedTemplate.shortName,
-		)} to ${chalk.blueBright(folderName)}.`,
-	);
-
 	createYarnYmlFile({
 		pkgManager,
 		pkgManagerVersion,
@@ -148,18 +141,21 @@ export const init = async () => {
 		? projectRoot
 		: relativeToCurrent;
 
+	Log.info();
 	Log.info(
-		`✨ Your video has been created at ${chalk.blueBright(cdToFolder)}.`,
+		`Copied ${chalk.blue(
+			selectedTemplate.shortName,
+		)} to ${chalk.blue(cdToFolder)}.`,
 	);
 	Log.info();
 
-	Log.info('Get started by running');
-	Log.info(chalk.blueBright(`cd ${cdToFolder}`));
-	Log.info(chalk.blueBright(getInstallCommand(pkgManager)));
-	Log.info(chalk.blueBright(getDevCommand(pkgManager, selectedTemplate)));
+	Log.info('Get started by running:');
+	Log.info(' ' + chalk.blue(`cd ${cdToFolder}`));
+	Log.info(' ' + chalk.blue(getInstallCommand(pkgManager)));
+	Log.info(' ' + chalk.blue(getDevCommand(pkgManager, selectedTemplate)));
 	Log.info('');
-	Log.info('To render a video, run');
-	Log.info(chalk.blueBright(getRenderCommand(pkgManager)));
+	Log.info('To render a video, run:');
+	Log.info(' ' + chalk.blue(getRenderCommand(pkgManager)));
 	Log.info('');
 	Log.info(
 		'Docs to get you started:',

@@ -21,7 +21,7 @@ export const openInEditorFlow = async (projectRoot: string) => {
 
 	const should = await yesOrNo({
 		defaultValue: true,
-		question: `💻 Do you want to open the project in ${displayName}? (Y/n):`,
+		question: `💻 Open the ${displayName}? (Y/n):`,
 	});
 
 	if (should) {
