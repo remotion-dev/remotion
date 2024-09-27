@@ -127,6 +127,9 @@
 			"path": "./packages/template-next-app"
 		},
 		{
+			"path": "./packages/template-next-app-tailwind"
+		},
+		{
 			"path": "./packages/template-three"
 		},
 		{
