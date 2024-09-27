@@ -136,6 +136,9 @@
 			"path": "./packages/template-tts-azure"
 		},
 		{
+			"path": "./packages/template-tts-google"
+		},
+		{
 			"path": "./packages/template-three"
 		},
 		{

@@ -50,7 +50,7 @@ describe('Templates should be valid', () => {
 				expect(body.dependencies['zod']).toBe('3.22.3');
 			}
 			if (body.dependencies['@types/web']) {
-				expect(body.dependencies['@types/web']).toInclude('0.0.143');
+				expect(body.dependencies['@types/web']).toInclude('0.0.78');
 			}
 
 			expect(body.devDependencies.prettier).toMatch(/^\^?((3).\d.\d)/);
