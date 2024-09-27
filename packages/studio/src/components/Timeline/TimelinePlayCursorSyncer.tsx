@@ -40,7 +40,7 @@ export const TimelinePlayCursorSyncer: React.FC = () => {
 			? canvasContent.compositionId
 			: null;
 	const zoom = compositionId
-		? zoomMap[compositionId] ?? TIMELINE_MIN_ZOOM
+		? (zoomMap[compositionId] ?? TIMELINE_MIN_ZOOM)
 		: null;
 
 	if (zoom && video) {

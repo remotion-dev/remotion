@@ -294,7 +294,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 		translate: translateToEnglish,
 		tokenLevelTimestamps,
 		printOutput,
-		tokensPerItem: tokenLevelTimestamps ? 1 : tokensPerItem ?? 1,
+		tokensPerItem: tokenLevelTimestamps ? 1 : (tokensPerItem ?? 1),
 		language: language ?? null,
 		signal: signal ?? null,
 		splitOnWord: splitOnWord ?? null,

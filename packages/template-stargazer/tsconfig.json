@@ -12,5 +12,6 @@
     "forceConsistentCasingInFileNames": true,
     "strictNullChecks": true,
     "noUnusedLocals": true
-  }
+  },
+  "exclude": ["remotion.config.ts"]
 }

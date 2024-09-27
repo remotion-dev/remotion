@@ -146,7 +146,7 @@ const BetaText = ({
 										: key === 5
 											? 'REMOTION'
 											: key === 3
-												? word1 ?? 'COOL'
+												? (word1 ?? 'COOL')
 												: key === 1
 													? 'LIT'
 													: 'BETA'

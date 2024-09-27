@@ -156,5 +156,19 @@ describe('Templates should be valid', () => {
 				expect(references).toContain(template.templateInMonorepo);
 			}
 		});
+		if (!template.shortName.includes('JavaScript')) {
+			it(`${template.shortName} should exclude remotion.config.ts`, async () => {
+				const tsconfig = path.join(
+					process.cwd(),
+					'..',
+					template.templateInMonorepo,
+					'tsconfig.json',
+				);
+				const contents = readFileSync(tsconfig, 'utf8');
+				const parsed = JSON.parse(contents);
+
+				expect(parsed.exclude).toContain('remotion.config.ts');
+			});
+		}
 	}
 });
