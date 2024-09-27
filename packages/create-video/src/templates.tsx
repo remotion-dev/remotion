@@ -77,7 +77,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: 'Hello World',
 		previewURL: 'https://remotion-helloworld.vercel.app/?/HelloWorld',
 		templateInMonorepo: 'template-helloworld',
-		allowEnableTailwind: false,
+		allowEnableTailwind: true,
 	},
 	{
 		homePageLabel: 'Next.js (App dir)',

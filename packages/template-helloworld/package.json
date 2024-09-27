@@ -12,7 +12,6 @@
   "license": "UNLICENSED",
   "dependencies": {
     "@remotion/cli": "workspace:*",
-    "@remotion/lambda": "workspace:*",
     "@remotion/zod-types": "workspace:*",
     "react": "18.3.1",
     "react-dom": "18.3.1",
