@@ -33,7 +33,7 @@ export const yesOrNo = ({
 	const noValues = options.no.map((v) => v.toLowerCase());
 
 	const rl = readline.createInterface({
-		input: process.stdin,
+		input: process.stdin as unknown as NodeJS.ReadableStream,
 		output: process.stdout,
 	});
 
@@ -42,6 +42,7 @@ export const yesOrNo = ({
 			rl.close();
 
 			const cleaned = answer.trim().toLowerCase();
+
 			if (cleaned === '' && defaultValue !== null) return resolve(defaultValue);
 
 			if (yesValues.indexOf(cleaned) >= 0) return resolve(true);
