@@ -1681,6 +1681,76 @@ importers:
         specifier: 5.3.3
         version: 5.3.3
 
+  packages/template-next-app:
+    dependencies:
+      '@remotion/bundler':
+        specifier: workspace:*
+        version: link:../bundler
+      '@remotion/cli':
+        specifier: workspace:*
+        version: link:../cli
+      '@remotion/google-fonts':
+        specifier: workspace:*
+        version: link:../google-fonts
+      '@remotion/lambda':
+        specifier: workspace:*
+        version: link:../lambda
+      '@remotion/paths':
+        specifier: workspace:*
+        version: link:../paths
+      '@remotion/player':
+        specifier: workspace:*
+        version: link:../player
+      '@remotion/shapes':
+        specifier: workspace:*
+        version: link:../shapes
+      next:
+        specifier: 14.2.13
+        version: 14.2.13(react-dom@18.3.1)(react@18.3.1)
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      remotion:
+        specifier: workspace:*
+        version: link:../core
+      zod:
+        specifier: 3.22.3
+        version: 3.22.3
+    devDependencies:
+      '@remotion/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@types/node':
+        specifier: 20.14.11
+        version: 20.14.11
+      '@types/react':
+        specifier: 18.3.1
+        version: 18.3.1
+      '@types/react-dom':
+        specifier: 18.3.0
+        version: 18.3.0
+      '@types/web':
+        specifier: 0.0.78
+        version: 0.0.78
+      dotenv:
+        specifier: 16.0.3
+        version: 16.0.3
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
+      eslint-config-next:
+        specifier: 14.2.13
+        version: 14.2.13(eslint@8.56.0)(typescript@5.3.3)
+      prettier:
+        specifier: 3.2.5
+        version: 3.2.5
+      typescript:
+        specifier: 5.3.3
+        version: 5.3.3
+
   packages/template-next-pages:
     dependencies:
       '@remotion/bundler':

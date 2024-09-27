@@ -1,0 +1,40 @@
+{
+  "name": "template-next-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "remotion": "remotion studio",
+    "render": "remotion render",
+    "deploy": "node deploy.mjs"
+  },
+  "dependencies": {
+    "@remotion/bundler": "workspace:*",
+    "@remotion/cli": "workspace:*",
+    "@remotion/google-fonts": "workspace:*",
+    "@remotion/lambda": "workspace:*",
+    "@remotion/paths": "workspace:*",
+    "@remotion/player": "workspace:*",
+    "@remotion/shapes": "workspace:*",
+    "next": "14.2.13",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "workspace:*",
+    "zod": "3.22.3"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config": "workspace:*",
+    "@types/node": "20.14.11",
+    "@types/react": "18.3.1",
+    "@types/react-dom": "18.3.0",
+    "@types/web": "0.0.78",
+    "dotenv": "16.0.3",
+    "eslint": "8.56.0",
+    "eslint-config-next": "14.2.13",
+    "typescript": "5.3.3",
+    "prettier": "3.2.5"
+  }
+}

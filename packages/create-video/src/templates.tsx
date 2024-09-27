@@ -97,7 +97,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		defaultBranch: 'main',
 		featuredOnHomePage: 'Next.js',
 		previewURL: null,
-		templateInMonorepo: null,
+		templateInMonorepo: 'template-next-app',
 		allowEnableTailwind: false,
 	},
 	{
