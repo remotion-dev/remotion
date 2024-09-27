@@ -7,7 +7,7 @@
 		"test": "turbo run lint test --no-update-notifier",
 		"ts-build": "tsc -b --verbose",
 		"stylecheck": "turbo run lint formatting --no-update-notifier",
-		"build": "turbo run build --no-update-notifier",
+		"build": "turbo run make --no-update-notifier",
 		"build-docs": "turbo run build-docs --no-update-notifier",
 		"ci": "turbo run build test --concurrency=50% --no-update-notifier",
 		"watch": "tsc -b --verbose -w",

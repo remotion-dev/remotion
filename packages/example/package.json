@@ -19,7 +19,7 @@
 		"comps": "remotion compositions",
 		"lint": "eslint src --ext ts,tsx,js,jsx",
 		"test": "vitest --run",
-		"build": "remotion bundle",
+		"make": "remotion bundle",
 		"render": "remotion render react-svg",
 		"render-js": "remotion render src/entry.jsx framer",
 		"render-gif": "remotion render framer out/video.gif --codec=gif --every-nth-frame=2",
