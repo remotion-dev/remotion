@@ -28,7 +28,7 @@ const publish = async (template: Template) => {
 
 	const branchName = `${Math.random().toString().replace('0.', '')}`;
 
-	await $`git clone git@github.com:remotion-dev/${template.repoName}.git ${workingDir}`;
+	await $`git clone git@github.com:remotion-dev/${template.repoName}.git ${workingDir} --depth 1`;
 	await $`git checkout -b ${branchName}`.cwd(workingDir);
 	const existingFilesInRepo = await $`git ls-files`.cwd(workingDir).quiet();
 	for (const file of existingFilesInRepo.stdout

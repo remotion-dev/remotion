@@ -139,7 +139,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
 		previewURL: null,
-		templateInMonorepo: null,
+		templateInMonorepo: 'template-next-pages',
 		allowEnableTailwind: false,
 	},
 

@@ -118,6 +118,9 @@
 			"path": "./packages/template-blank"
 		},
 		{
+			"path": "./packages/template-next-pages"
+		},
+		{
 			"path": "./packages/template-helloworld"
 		},
 		{
