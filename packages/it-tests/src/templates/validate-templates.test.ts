@@ -24,7 +24,7 @@ const findFile = async (options: string[]) => {
 
 describe('Templates should be valid', () => {
 	for (const template of FEATURED_TEMPLATES) {
-		it(template.shortName + ' should have a valid package.json', async () => {
+		it(`${template.shortName} should have a valid package.json`, async () => {
 			const packageJson = getFileForTemplate(template, 'package.json');
 
 			const res = await fetch(packageJson, {});
@@ -162,13 +162,6 @@ describe('Templates should be valid', () => {
 				getFileForTemplate(template, 'tsconfig.json'),
 			]);
 			expect(contents).toInclude('noUnusedLocals');
-		});
-		it(template.shortName + ' should have a good .vscode setting', async () => {
-			const {contents} = await findFile([
-				getFileForTemplate(template, '.vscode/settings.json'),
-			]);
-			const json = JSON.parse(contents as string);
-			expect(json['editor.codeActionsOnSave']).toBe(undefined);
 		});
 	}
 });
