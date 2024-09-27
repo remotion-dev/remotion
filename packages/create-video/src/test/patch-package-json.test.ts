@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {patchPackageJson} from '../patch-package-json';
 import type {PackageManager} from '../pkg-managers';
 
@@ -42,7 +42,7 @@ for (const packageManager of packageManagers) {
 		);
 		const expectedStartScript =
 			packageManager === 'bun' ? 'remotionb studio' : 'remotion studio';
-		expect(newPackageJson).to.deep.equal({
+		expect(newPackageJson as unknown).toEqual({
 			...packageJson,
 			scripts: {
 				start: expectedStartScript,

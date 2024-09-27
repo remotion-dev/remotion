@@ -56,7 +56,6 @@ function truthy<T>(value: T): value is Truthy<T> {
 	return Boolean(value);
 }
 
-// Note that this page is statically analyzed by extract-articles.mjs
 export const FEATURED_TEMPLATES: Template[] = [
 	{
 		homePageLabel: 'Hello World',
