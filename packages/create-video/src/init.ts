@@ -10,6 +10,7 @@ import {patchPackageJson} from './patch-package-json';
 import {patchReadmeMd} from './patch-readme';
 import {
 	getDevCommand,
+	getInstallCommand,
 	getPackageManagerVersionOrNull,
 	getRenderCommandForTemplate,
 	selectPackageManager,
@@ -73,6 +74,8 @@ const getGitStatus = async (root: string): Promise<void> => {
 };
 
 export const init = async () => {
+	Log.info(`Welcome to ${chalk.blueBright('Remotion')}!`);
+	Log.info();
 	const result = await checkGitAvailability(process.cwd(), 'git', [
 		'--version',
 	]);
@@ -130,7 +133,7 @@ export const init = async () => {
 	Log.info(
 		`Copied ${chalk.blueBright(
 			selectedTemplate.shortName,
-		)} to ${chalk.blueBright(folderName)}. Installing dependencies...`,
+		)} to ${chalk.blueBright(folderName)}.`,
 	);
 
 	createYarnYmlFile({
@@ -139,59 +142,16 @@ export const init = async () => {
 		projectRoot,
 	});
 
-	if (pkgManager === 'yarn') {
-		Log.info('> yarn');
-		const promise = execa('yarn', [], {
-			cwd: projectRoot,
-			stdio: 'inherit',
-			env: {...process.env, ADBLOCK: '1', DISABLE_OPENCOLLECTIVE: '1'},
-		});
-		promise.stderr?.pipe(process.stderr);
-		promise.stdout?.pipe(process.stdout);
-		await promise;
-	} else if (pkgManager === 'pnpm') {
-		Log.info('> pnpm i');
-		const promise = execa('pnpm', ['i'], {
-			cwd: projectRoot,
-			stdio: 'inherit',
-			env: {...process.env, ADBLOCK: '1', DISABLE_OPENCOLLECTIVE: '1'},
-		});
-		promise.stderr?.pipe(process.stderr);
-		promise.stdout?.pipe(process.stdout);
-		await promise;
-	} else if (pkgManager === 'bun') {
-		Log.info('> bun install');
-		const promise = execa('bun', ['install'], {
-			cwd: projectRoot,
-			stdio: 'inherit',
-			env: {...process.env, ADBLOCK: '1', DISABLE_OPENCOLLECTIVE: '1'},
-		});
-		promise.stderr?.pipe(process.stderr);
-		promise.stdout?.pipe(process.stdout);
-		await promise;
-	} else {
-		Log.info('> npm install');
-		const promise = execa('npm', ['install', '--no-fund', '--no-audit'], {
-			stdio: 'inherit',
-			cwd: projectRoot,
-			env: {...process.env, ADBLOCK: '1', DISABLE_OPENCOLLECTIVE: '1'},
-		});
-		promise.stderr?.pipe(process.stderr);
-		promise.stdout?.pipe(process.stdout);
-		await promise;
-	}
-
 	await getGitStatus(projectRoot);
 
-	Log.info();
-	Log.info(`Welcome to ${chalk.blueBright('Remotion')}!`);
 	Log.info(
 		`✨ Your video has been created at ${chalk.blueBright(folderName)}.`,
 	);
-	await openInEditorFlow(projectRoot);
+	Log.info();
 
 	Log.info('Get started by running');
 	Log.info(chalk.blueBright(`cd ${folderName}`));
+	Log.info(chalk.blueBright(getInstallCommand(pkgManager)));
 	Log.info(chalk.blueBright(getDevCommand(pkgManager, selectedTemplate)));
 	Log.info('');
 	Log.info('To render a video, run');
@@ -204,4 +164,6 @@ export const init = async () => {
 		chalk.underline('https://www.remotion.dev/docs/the-fundamentals'),
 	);
 	Log.info('Enjoy Remotion!');
+	Log.info();
+	await openInEditorFlow(projectRoot);
 };

@@ -44,8 +44,6 @@ export const openInEditorFlow = async (projectRoot: string) => {
 				lineNumber: 1,
 			});
 		}
-
-		Log.info(`Opened in ${displayName}.`);
 	}
 
 	Log.info();
