@@ -27,6 +27,7 @@
   },
   "devDependencies": {
     "@remotion/eslint-config": "workspace:*",
+    "@remotion/eslint-plugin": "workspace:*",
     "@types/node": "20.14.11",
     "@types/react": "18.3.1",
     "@types/react-dom": "18.3.0",
