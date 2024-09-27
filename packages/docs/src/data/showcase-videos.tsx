@@ -369,6 +369,27 @@ export const showcaseVideos: ShowcaseVideo[] = [
 			},
 		],
 	},
+	{
+		title: 'MyKaraoke Video',
+		type: 'mux_video',
+		time: '5',
+		muxId: 'Fr8PlMVQRTEaoVRC0025r00WY0100JiDgbf1BoNsLYtu88o',
+		description:
+			'MyKaraoke Video is a browser-based tool that effortlessly creates karaoke and lyric videos with AI-powered vocal removal and automatic lyric syncing, all without downloads or installations.',
+		height: 1080,
+		width: 1920,
+		submittedOn: new Date('09-27-2024'),
+		links: [
+			{
+				type: 'website',
+				url: 'https://www.mykaraoke.video/',
+			},
+		],
+		author: {
+			url: 'https://www.linkedin.com/in/emiliano-parizzi-18744ba4/',
+			name: 'Emiliano Parizzi',
+		},
+	},
 
 	/*
   {
