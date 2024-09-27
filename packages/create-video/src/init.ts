@@ -161,7 +161,7 @@ export const init = async () => {
 		'Docs to get you started:',
 		chalk.underline('https://www.remotion.dev/docs/the-fundamentals'),
 	);
-	Log.info('Enjoy Remotion!');
 	Log.info();
 	await openInEditorFlow(projectRoot);
+	Log.info('Enjoy Remotion!');
 };
