@@ -50,8 +50,10 @@ for (const packageManager of packageManagers) {
 			dependencies: {
 				...packageJson.dependencies,
 				'@remotion/cli': latestRemotionVersion,
+				'@remotion/tailwind': latestRemotionVersion,
 				remotion: latestRemotionVersion,
 			},
+			sideEffects: ['*.css'],
 			devDependencies: {
 				...packageJson.devDependencies,
 				'@remotion/eslint-config': latestRemotionVersion,

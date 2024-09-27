@@ -225,7 +225,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
 		previewURL: 'https://template-three-remotion.vercel.app/',
-		templateInMonorepo: null,
+		templateInMonorepo: 'template-three',
 		allowEnableTailwind: false,
 	},
 	{

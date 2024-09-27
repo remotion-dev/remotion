@@ -1821,6 +1821,61 @@ importers:
         specifier: 5.3.3
         version: 5.3.3
 
+  packages/template-three:
+    dependencies:
+      '@react-three/fiber':
+        specifier: 8.13.5
+        version: 8.13.5(react-dom@18.3.1)(react@18.3.1)(three@0.158.0)
+      '@remotion/cli':
+        specifier: workspace:*
+        version: link:../cli
+      '@remotion/media-utils':
+        specifier: workspace:*
+        version: link:../media-utils
+      '@remotion/three':
+        specifier: workspace:*
+        version: link:../three
+      '@remotion/zod-types':
+        specifier: workspace:*
+        version: link:../zod-types
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      remotion:
+        specifier: workspace:*
+        version: link:../core
+      three:
+        specifier: 0.158.0
+        version: 0.158.0
+      zod:
+        specifier: 3.22.3
+        version: 3.22.3
+    devDependencies:
+      '@remotion/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@types/react':
+        specifier: 18.3.1
+        version: 18.3.1
+      '@types/three':
+        specifier: 0.157.2
+        version: 0.157.2
+      '@types/web':
+        specifier: 0.0.78
+        version: 0.0.78
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
+      prettier:
+        specifier: 3.2.5
+        version: 3.2.5
+      typescript:
+        specifier: 5.3.3
+        version: 5.3.3
+
   packages/test-utils:
     devDependencies:
       react:
@@ -9616,7 +9671,7 @@ packages:
       react-native:
         optional: true
     dependencies:
-      '@babel/runtime': 7.19.0
+      '@babel/runtime': 7.24.8
       '@types/react-reconciler': 0.26.7
       its-fine: 1.0.6(react@18.3.1)
       react: 18.3.1

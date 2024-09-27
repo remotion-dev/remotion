@@ -124,6 +124,9 @@
 			"path": "./packages/template-next-app"
 		},
 		{
+			"path": "./packages/template-three"
+		},
+		{
 			"path": "./packages/template-helloworld"
 		},
 		{
