@@ -370,7 +370,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		],
 	},
 	{
-		title: 'MyKaraoke Video',
+		title: 'MyKaraoke Video - Karaoke Video Maker',
 		type: 'mux_video',
 		time: '5',
 		muxId: 'Fr8PlMVQRTEaoVRC0025r00WY0100JiDgbf1BoNsLYtu88o',
