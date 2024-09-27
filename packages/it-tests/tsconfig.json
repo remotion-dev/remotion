@@ -3,7 +3,9 @@
 	"compilerOptions": {
 		"jsx": "react-jsx",
 		"noEmit": true,
-		"incremental": true
+		"incremental": true,
+		"target": "ES2022",
+		"module": "ESNext"
 	},
 	"references": [
 		{
