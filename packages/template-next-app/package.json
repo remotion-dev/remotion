@@ -36,6 +36,6 @@
     "eslint": "8.56.0",
     "eslint-config-next": "14.2.13",
     "typescript": "5.6.2",
-    "prettier": "3.2.5"
+    "prettier": "3.3.3"
   }
 }

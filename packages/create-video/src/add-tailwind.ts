@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 export const addTailwindStyleCss = (projectRoot: string) => {
-	const styleFile = path.join(projectRoot, 'src', 'style.css');
+	const styleFile = path.join(projectRoot, 'src', 'tailwind.css');
 	fs.writeFileSync(
 		styleFile,
 		`@tailwind base;
@@ -41,7 +41,7 @@ export const addTailwindRootCss = (projectRoot: string) => {
 
 	const root = fs.readFileSync(rootFile, 'utf-8');
 
-	const newFile = `import './style.css';\n${root}`;
+	const newFile = `import './tailwind.css';\n${root}`;
 	fs.writeFileSync(rootFile, newFile);
 };
 
