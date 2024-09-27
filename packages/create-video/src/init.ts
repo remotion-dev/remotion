@@ -1,7 +1,14 @@
 import chalk from 'chalk';
 import execa from 'execa';
 import path from 'node:path';
+import {
+	addTailwindConfigJs,
+	addTailwindRootCss,
+	addTailwindStyleCss,
+	addTailwindToConfig,
+} from './add-tailwind';
 import {createYarnYmlFile} from './add-yarn2-support';
+import {askTailwind} from './ask-tailwind';
 import {degit} from './degit';
 import {getLatestRemotionVersion} from './latest-remotion-version';
 import {Log} from './log';
@@ -103,6 +110,8 @@ export const init = async () => {
 
 	const selectedTemplate = await selectTemplate();
 
+	const shouldOverrideTailwind = selectedTemplate ? await askTailwind() : false;
+
 	const pkgManager = selectPackageManager();
 	const pkgManagerVersion = await getPackageManagerVersionOrNull(pkgManager);
 
@@ -113,12 +122,20 @@ export const init = async () => {
 			dest: projectRoot,
 		});
 		patchReadmeMd(projectRoot, pkgManager, selectedTemplate);
+		if (shouldOverrideTailwind) {
+			addTailwindStyleCss(projectRoot);
+			addTailwindToConfig(projectRoot);
+			addTailwindConfigJs(projectRoot);
+			addTailwindRootCss(projectRoot);
+		}
+
 		const latestVersion = await latestRemotionVersionPromise;
 		patchPackageJson({
 			projectRoot,
 			projectName: folderName,
 			latestRemotionVersion: latestVersion,
 			packageManager: pkgManager,
+			addTailwind: shouldOverrideTailwind,
 		});
 	} catch (e) {
 		Log.error(e);

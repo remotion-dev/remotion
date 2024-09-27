@@ -31,6 +31,7 @@ for (const packageManager of packageManagers) {
 				latestRemotionVersion,
 				packageManager,
 				projectName: 'my-video',
+				addTailwind: true,
 			},
 			{
 				getPackageJson: () => JSON.stringify(packageJson),

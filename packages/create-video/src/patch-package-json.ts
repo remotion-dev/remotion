@@ -9,11 +9,13 @@ export const patchPackageJson = (
 		projectName,
 		latestRemotionVersion,
 		packageManager,
+		addTailwind,
 	}: {
 		projectRoot: string;
 		projectName: string;
 		latestRemotionVersion: string;
 		packageManager: PackageManager;
+		addTailwind: boolean;
 	},
 	{
 		getPackageJson = (filename: string) => fs.readFileSync(filename, 'utf-8'),
@@ -59,13 +61,21 @@ export const patchPackageJson = (
 		? updateScripts(scripts)
 		: scripts;
 
+	const newDependenciesWithTailwind = addTailwind
+		? {
+				...newDependencies,
+				'@remotion/tailwind': latestRemotionVersion,
+			}
+		: newDependencies;
+
 	const newPackageJson = JSON.stringify(
 		{
 			name: projectName,
 			...others,
-			dependencies: newDependencies,
+			dependencies: newDependenciesWithTailwind,
 			devDependencies: newDevDependencies,
 			scripts: newScripts,
+			...(addTailwind ? {sideEffects: ['*.css']} : {}),
 		},
 		undefined,
 		2,
