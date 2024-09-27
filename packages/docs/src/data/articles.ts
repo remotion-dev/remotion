@@ -1148,6 +1148,13 @@ export const articles = [
 		crumb: 'Lambda',
 	},
 	{
+		id: 'cost-example',
+		title: 'How much does Remotion Lambda cost?',
+		relativePath: 'docs/lambda/cost-example.mdx',
+		compId: 'articles-docs-lambda-cost-example',
+		crumb: 'Lambda',
+	},
+	{
 		id: 'optimizing-cost',
 		title: 'Optimizing for cost',
 		relativePath: 'docs/lambda/cost.mdx',
