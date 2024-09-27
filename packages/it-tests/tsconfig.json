@@ -4,8 +4,8 @@
 		"jsx": "react-jsx",
 		"noEmit": true,
 		"incremental": true,
-		"target": "ES2022",
-		"module": "ESNext"
+		"module": "ESNext",
+		"moduleResolution": "node"
 	},
 	"references": [
 		{

@@ -46,7 +46,8 @@ export type Template = {
 		| 'code-hike';
 	defaultBranch: string;
 	featuredOnHomePage: string | null;
-	previewURL?: string | null;
+	previewURL: string | null;
+	templateInMonorepo: string | null;
 } & DynamicTemplate;
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
@@ -75,6 +76,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		defaultBranch: 'main',
 		featuredOnHomePage: 'Hello World',
 		previewURL: 'https://remotion-helloworld.vercel.app/?/HelloWorld',
+		templateInMonorepo: null,
 	},
 	{
 		homePageLabel: 'Next.js (App dir)',
@@ -93,6 +95,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: 'Next.js',
+		previewURL: null,
+		templateInMonorepo: null,
 	},
 	{
 		homePageLabel: 'Next.js (App dir + TailwindCSS)',
@@ -111,6 +115,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: null,
 	},
 	{
 		homePageLabel: 'Next.js (Pages dir)',
@@ -129,6 +135,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: null,
 	},
 
 	{
@@ -149,6 +157,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		defaultBranch: 'main',
 		featuredOnHomePage: 'Blank',
 		previewURL: 'https://template-empty.vercel.app/?/MyComp',
+		templateInMonorepo: 'template-blank',
 	},
 	{
 		homePageLabel: 'JavaScript',
@@ -169,6 +178,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: 'JavaScript',
 		previewURL:
 			'https://template-helloworld-javascript.vercel.app/?/HelloWorld',
+		templateInMonorepo: null,
 	},
 	{
 		homePageLabel: 'Remix',
@@ -187,6 +197,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'image' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: null,
 	},
 	{
 		homePageLabel: '3D',
@@ -206,6 +218,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
 		previewURL: 'https://template-three-remotion.vercel.app/',
+		templateInMonorepo: null,
 	},
 	{
 		homePageLabel: 'Stills',
@@ -225,6 +238,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
 		previewURL: 'https://template-still.vercel.app/?/PreviewCard',
+		templateInMonorepo: null,
 	},
 	{
 		homePageLabel: 'Text-To-Speech (Azure)',
@@ -243,6 +257,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'master',
 		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: null,
 	},
 	{
 		homePageLabel: 'Text-To-Speech (Google)',
@@ -261,6 +277,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'master',
 		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: null,
 	},
 	{
 		homePageLabel: 'Audiogram',
@@ -279,6 +297,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: null,
 	},
 	{
 		homePageLabel: 'Skia',
@@ -296,6 +316,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: null,
 	},
 	{
 		homePageLabel: 'Tailwind',
@@ -315,6 +337,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
 		previewURL: 'https://template-tailwind-remotion.vercel.app/?/MyComp',
+		templateInMonorepo: null,
 	},
 	{
 		homePageLabel: 'Overlay',
@@ -338,6 +361,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: null,
 	},
 	{
 		homePageLabel: 'Code Hike',
@@ -362,6 +387,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
 		previewURL: 'https://template-code-hike.vercel.app/',
+		templateInMonorepo: null,
 	},
 	{
 		homePageLabel: 'Stargazer',
@@ -380,6 +406,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: null,
 	},
 	{
 		homePageLabel: 'TikTok',
@@ -398,5 +426,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: null,
 	},
 ].filter(truthy);

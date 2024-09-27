@@ -1,3 +1,3 @@
 export const MyComposition = () => {
-	return null;
+  return null;
 };

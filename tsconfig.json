@@ -115,6 +115,9 @@
 			"path": "./packages/tailwind"
 		},
 		{
+			"path": "./packages/template-blank"
+		},
+		{
 			"path": "./packages/studio"
 		},
 		{
