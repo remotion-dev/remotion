@@ -1,6 +1,6 @@
-import {loadFont} from '@remotion/google-fonts/RobotoMono';
+import { loadFont } from "@remotion/google-fonts/RobotoMono";
 
-export const {fontFamily, waitUntilDone} = loadFont();
+export const { fontFamily, waitUntilDone } = loadFont();
 export const fontSize = 40;
 export const tabSize = 3;
 export const horizontalPadding = 60;

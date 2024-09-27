@@ -1,5 +1,5 @@
 {
-	"singleQuote": true,
-	"bracketSpacing": false,
-	"useTabs": true
+	"useTabs": false,
+	"bracketSpacing": true,
+	"tabWidth": 2
 }

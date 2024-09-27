@@ -401,8 +401,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
 		previewURL: null,
-		templateInMonorepo: null,
-		allowEnableTailwind: false,
+		templateInMonorepo: 'template-stargazer',
+		allowEnableTailwind: true,
 	},
 	{
 		homePageLabel: 'TikTok',

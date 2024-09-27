@@ -160,6 +160,9 @@
 			"path": "./packages/template-audiogram"
 		},
 		{
+			"path": "./packages/template-stargazer"
+		},
+		{
 			"path": "./packages/studio"
 		},
 		{

@@ -2212,6 +2212,46 @@ importers:
         specifier: 5.6.2
         version: 5.6.2
 
+  packages/template-stargazer:
+    dependencies:
+      '@remotion/bundler':
+        specifier: workspace:*
+        version: link:../bundler
+      '@remotion/cli':
+        specifier: workspace:*
+        version: link:../cli
+      '@remotion/renderer':
+        specifier: workspace:*
+        version: link:../renderer
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      remotion:
+        specifier: workspace:*
+        version: link:../core
+      zod:
+        specifier: 3.22.3
+        version: 3.22.3
+    devDependencies:
+      '@remotion/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@types/react':
+        specifier: 18.3.1
+        version: 18.3.1
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
+      prettier:
+        specifier: 3.3.3
+        version: 3.3.3
+      typescript:
+        specifier: 5.6.2
+        version: 5.6.2
+
   packages/template-still:
     dependencies:
       '@aws-sdk/client-s3':
