@@ -182,7 +182,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: 'JavaScript',
 		previewURL:
 			'https://template-helloworld-javascript.vercel.app/?/HelloWorld',
-		templateInMonorepo: null,
+		templateInMonorepo: 'template-javascript',
 		allowEnableTailwind: false,
 	},
 	{
