@@ -18,7 +18,9 @@
     "zod": "3.22.3"
   },
   "devDependencies": {
-    "prettier": "3.2.5"
+    "@remotion/eslint-config": "workspace:*",
+    "prettier": "3.2.5",
+    "eslint": "8.56.0"
   },
   "private": true
 }

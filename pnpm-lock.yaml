@@ -1699,6 +1699,12 @@ importers:
         specifier: 3.22.3
         version: 3.22.3
     devDependencies:
+      '@remotion/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
       prettier:
         specifier: 3.2.5
         version: 3.2.5
