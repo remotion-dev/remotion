@@ -6,8 +6,12 @@ import {stripAnsi} from './strip-ansi';
 import type {Template} from './templates';
 import {FEATURED_TEMPLATES} from './templates';
 
-const parsed = minimist(process.argv.slice(2), {
-	boolean: FEATURED_TEMPLATES.map((f) => f.cliId),
+type Options = {
+	tmp: boolean;
+};
+
+const parsed = minimist<Options>(process.argv.slice(2), {
+	boolean: [...FEATURED_TEMPLATES.map((f) => f.cliId), 'tmp'],
 });
 
 function padEnd(str: string, width: number): string {
@@ -15,6 +19,8 @@ function padEnd(str: string, width: number): string {
 	const len = Math.max(0, width - stripAnsi(str).length);
 	return str + Array(len + 1).join(' ');
 }
+
+export const isTmpFlagSelected = () => parsed.tmp;
 
 const descriptionColumn =
 	Math.max(
@@ -32,7 +38,7 @@ export const selectTemplate = async () => {
 		return isFlagSelected;
 	}
 
-	const selectedTemplate = (await selectAsync(
+	return (await selectAsync(
 		{
 			message: 'Choose a template:',
 			optionsPerPage: 20,
@@ -59,5 +65,4 @@ export const selectTemplate = async () => {
 		},
 		{},
 	)) as Template;
-	return selectedTemplate;
 };

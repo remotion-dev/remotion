@@ -12,7 +12,7 @@ import {
 	getDevCommand,
 	getInstallCommand,
 	getPackageManagerVersionOrNull,
-	getRenderCommandForTemplate,
+	getRenderCommand,
 	selectPackageManager,
 } from './pkg-managers';
 import {resolveProjectRoot} from './resolve-project-root';
@@ -76,9 +76,11 @@ const getGitStatus = async (root: string): Promise<void> => {
 export const init = async () => {
 	Log.info(`Welcome to ${chalk.blueBright('Remotion')}!`);
 	Log.info();
-	const result = await checkGitAvailability(process.cwd(), 'git', [
-		'--version',
-	]);
+
+	const {projectRoot, folderName} = await resolveProjectRoot();
+
+	const result = await checkGitAvailability(projectRoot, 'git', ['--version']);
+
 	if (result.type === 'git-not-installed') {
 		Log.error(
 			'Git is not installed or not in the path. Install Git to continue.',
@@ -94,12 +96,9 @@ export const init = async () => {
 			)}).\nThis might lead to a Git Submodule being created. Do you want to continue? (y/N):`,
 		});
 		if (!should) {
-			Log.error('Aborting.');
 			process.exit(1);
 		}
 	}
-
-	const [projectRoot, folderName] = await resolveProjectRoot();
 
 	const latestRemotionVersionPromise = getLatestRemotionVersion();
 
@@ -144,20 +143,23 @@ export const init = async () => {
 
 	await getGitStatus(projectRoot);
 
+	const relativeToCurrent = path.relative(process.cwd(), projectRoot);
+	const cdToFolder = relativeToCurrent.startsWith('.')
+		? projectRoot
+		: relativeToCurrent;
+
 	Log.info(
-		`✨ Your video has been created at ${chalk.blueBright(folderName)}.`,
+		`✨ Your video has been created at ${chalk.blueBright(cdToFolder)}.`,
 	);
 	Log.info();
 
 	Log.info('Get started by running');
-	Log.info(chalk.blueBright(`cd ${folderName}`));
+	Log.info(chalk.blueBright(`cd ${cdToFolder}`));
 	Log.info(chalk.blueBright(getInstallCommand(pkgManager)));
 	Log.info(chalk.blueBright(getDevCommand(pkgManager, selectedTemplate)));
 	Log.info('');
 	Log.info('To render a video, run');
-	Log.info(
-		chalk.blueBright(getRenderCommandForTemplate(pkgManager, selectedTemplate)),
-	);
+	Log.info(chalk.blueBright(getRenderCommand(pkgManager)));
 	Log.info('');
 	Log.info(
 		'Docs to get you started:',
