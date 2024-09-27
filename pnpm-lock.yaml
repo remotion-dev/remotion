@@ -1827,6 +1827,9 @@ importers:
       '@remotion/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
+      '@remotion/eslint-plugin':
+        specifier: workspace:*
+        version: link:../eslint-plugin
       '@types/node':
         specifier: 20.14.11
         version: 20.14.11
