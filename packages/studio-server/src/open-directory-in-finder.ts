@@ -40,7 +40,7 @@ export const openDirectoryInFinder = (
 		),
 	);
 
-	const stderrChunks: Buffer[] = [];
+	const stderrChunks: Uint8Array[] = [];
 	p.stderr.on('data', (d) => stderrChunks.push(d));
 
 	return new Promise<void>((resolve, reject) => {

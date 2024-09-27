@@ -157,6 +157,9 @@
 			"path": "./packages/template-code-hike"
 		},
 		{
+			"path": "./packages/template-audiogram"
+		},
+		{
 			"path": "./packages/studio"
 		},
 		{

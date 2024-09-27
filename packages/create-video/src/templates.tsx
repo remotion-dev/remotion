@@ -380,7 +380,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
 		previewURL: 'https://template-code-hike.vercel.app/',
-		templateInMonorepo: null,
+		templateInMonorepo: 'template-code-hike',
 		allowEnableTailwind: false,
 	},
 	{
