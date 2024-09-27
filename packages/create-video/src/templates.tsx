@@ -39,7 +39,6 @@ export type Template = {
 		| 'google-tts'
 		| 'audiogram'
 		| 'skia'
-		| 'tailwind'
 		| 'overlay'
 		| 'stargazer'
 		| 'tiktok'
@@ -330,27 +329,6 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: null,
 		previewURL: null,
 		templateInMonorepo: 'template-skia',
-		allowEnableTailwind: false,
-	},
-	{
-		homePageLabel: 'Tailwind',
-		shortName: 'Tailwind',
-		org: 'remotion-dev',
-		repoName: 'template-tailwind',
-		description: 'TypeScript and Tailwind starter',
-		longerDescription:
-			'A starter template with TypeScript and Tailwind already set up.',
-		promoVideo: {
-			muxId: 'OAe00WUpvsAyqAVSd4gehDCeWI81cI024RhTs9l2eB48w',
-			height: 720,
-			width: 1280,
-		},
-		cliId: 'tailwind' as const,
-		type: 'video' as const,
-		defaultBranch: 'main',
-		featuredOnHomePage: null,
-		previewURL: 'https://template-tailwind-remotion.vercel.app/?/MyComp',
-		templateInMonorepo: null,
 		allowEnableTailwind: false,
 	},
 	{
