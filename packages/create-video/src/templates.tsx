@@ -245,7 +245,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
 		previewURL: 'https://template-still.vercel.app/?/PreviewCard',
-		templateInMonorepo: null,
+		templateInMonorepo: 'template-still',
 		allowEnableTailwind: false,
 	},
 	{
