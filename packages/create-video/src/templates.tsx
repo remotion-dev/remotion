@@ -48,6 +48,7 @@ export type Template = {
 	featuredOnHomePage: string | null;
 	previewURL: string | null;
 	templateInMonorepo: string | null;
+	allowEnableTailwind: boolean;
 } & DynamicTemplate;
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
@@ -76,6 +77,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: 'Hello World',
 		previewURL: 'https://remotion-helloworld.vercel.app/?/HelloWorld',
 		templateInMonorepo: null,
+		allowEnableTailwind: false,
 	},
 	{
 		homePageLabel: 'Next.js (App dir)',
@@ -96,6 +98,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: 'Next.js',
 		previewURL: null,
 		templateInMonorepo: null,
+		allowEnableTailwind: false,
 	},
 	{
 		homePageLabel: 'Next.js (App dir + TailwindCSS)',
@@ -116,6 +119,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: null,
 		previewURL: null,
 		templateInMonorepo: null,
+		allowEnableTailwind: false,
 	},
 	{
 		homePageLabel: 'Next.js (Pages dir)',
@@ -136,6 +140,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: null,
 		previewURL: null,
 		templateInMonorepo: null,
+		allowEnableTailwind: false,
 	},
 
 	{
@@ -157,6 +162,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: 'Blank',
 		previewURL: 'https://template-empty.vercel.app/?/MyComp',
 		templateInMonorepo: 'template-blank',
+		allowEnableTailwind: true,
 	},
 	{
 		homePageLabel: 'JavaScript',
@@ -178,6 +184,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewURL:
 			'https://template-helloworld-javascript.vercel.app/?/HelloWorld',
 		templateInMonorepo: null,
+		allowEnableTailwind: false,
 	},
 	{
 		homePageLabel: 'Remix',
@@ -198,6 +205,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: null,
 		previewURL: null,
 		templateInMonorepo: null,
+		allowEnableTailwind: false,
 	},
 	{
 		homePageLabel: '3D',
@@ -218,6 +226,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: null,
 		previewURL: 'https://template-three-remotion.vercel.app/',
 		templateInMonorepo: null,
+		allowEnableTailwind: false,
 	},
 	{
 		homePageLabel: 'Stills',
@@ -238,6 +247,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: null,
 		previewURL: 'https://template-still.vercel.app/?/PreviewCard',
 		templateInMonorepo: null,
+		allowEnableTailwind: false,
 	},
 	{
 		homePageLabel: 'Text-To-Speech (Azure)',
@@ -258,6 +268,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: null,
 		previewURL: null,
 		templateInMonorepo: null,
+		allowEnableTailwind: false,
 	},
 	{
 		homePageLabel: 'Text-To-Speech (Google)',
@@ -278,6 +289,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: null,
 		previewURL: null,
 		templateInMonorepo: null,
+		allowEnableTailwind: false,
 	},
 	{
 		homePageLabel: 'Audiogram',
@@ -298,6 +310,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: null,
 		previewURL: null,
 		templateInMonorepo: null,
+		allowEnableTailwind: false,
 	},
 	{
 		homePageLabel: 'Skia',
@@ -317,6 +330,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: null,
 		previewURL: null,
 		templateInMonorepo: null,
+		allowEnableTailwind: false,
 	},
 	{
 		homePageLabel: 'Tailwind',
@@ -337,6 +351,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: null,
 		previewURL: 'https://template-tailwind-remotion.vercel.app/?/MyComp',
 		templateInMonorepo: null,
+		allowEnableTailwind: false,
 	},
 	{
 		homePageLabel: 'Overlay',
@@ -362,6 +377,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: null,
 		previewURL: null,
 		templateInMonorepo: null,
+		allowEnableTailwind: false,
 	},
 	{
 		homePageLabel: 'Code Hike',
@@ -387,6 +403,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: null,
 		previewURL: 'https://template-code-hike.vercel.app/',
 		templateInMonorepo: null,
+		allowEnableTailwind: false,
 	},
 	{
 		homePageLabel: 'Stargazer',
@@ -407,6 +424,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: null,
 		previewURL: null,
 		templateInMonorepo: null,
+		allowEnableTailwind: false,
 	},
 	{
 		homePageLabel: 'TikTok',
@@ -427,5 +445,6 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: null,
 		previewURL: null,
 		templateInMonorepo: null,
+		allowEnableTailwind: false,
 	},
 ].filter(truthy);
