@@ -8,7 +8,7 @@ type Chunk = {
 export class ResponseStream extends Writable {
 	private queue: Chunk[] = [];
 	private waitingResolve: ((value?: Chunk) => void)[] = [];
-	private response: Buffer[];
+	private response: Uint8Array[];
 
 	constructor() {
 		super();
@@ -28,7 +28,7 @@ export class ResponseStream extends Writable {
 			this.queue.push({PayloadChunk: {Payload: data}, InvokeComplete: false});
 		}
 
-		this.response.push(Buffer.from(chunk, encoding));
+		this.response.push(new Uint8Array(Buffer.from(chunk, encoding)));
 
 		callback();
 	}
@@ -43,7 +43,7 @@ export class ResponseStream extends Writable {
 	}
 
 	getBufferedData(): Buffer {
-		return Buffer.concat(this.response);
+		return Buffer.concat(this.response as Uint8Array[]);
 	}
 
 	async *[Symbol.asyncIterator](): AsyncGenerator<Chunk, void, void> {
