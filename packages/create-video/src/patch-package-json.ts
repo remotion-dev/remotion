@@ -13,7 +13,7 @@ export const patchPackageJson = (
 		projectRoot: string;
 		projectName: string;
 		latestRemotionVersion: string;
-		packageManager: `${PackageManager}@${string}` | null;
+		packageManager: PackageManager;
 	},
 	{
 		getPackageJson = (filename: string) => fs.readFileSync(filename, 'utf-8'),
@@ -55,7 +55,7 @@ export const patchPackageJson = (
 
 	// update scripts to use "remotionb" instead of "remotion" if Bun is used
 	// matching '@' as well to prevent conflicts with similarly named packages.
-	const newScripts = packageManager?.startsWith('bun@')
+	const newScripts = packageManager.startsWith('bun')
 		? updateScripts(scripts)
 		: scripts;
 
@@ -66,7 +66,6 @@ export const patchPackageJson = (
 			dependencies: newDependencies,
 			devDependencies: newDevDependencies,
 			scripts: newScripts,
-			...(packageManager ? {packageManager} : {}),
 		},
 		undefined,
 		2,

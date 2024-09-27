@@ -7,7 +7,6 @@ const packageManagers: PackageManager[] = ['npm', 'pnpm', 'yarn', 'bun'];
 for (const packageManager of packageManagers) {
 	test(`Using ${packageManager} package manager provides the correct "packageManager" entry in package.json`, () => {
 		const latestRemotionVersion = '1.0.0';
-		const packageManagerVersion = '1.22.19';
 		const packageJson = {
 			name: 'my-video',
 			version: '1.0.0',
@@ -30,7 +29,7 @@ for (const packageManager of packageManagers) {
 			{
 				projectRoot: '/path/to/project',
 				latestRemotionVersion,
-				packageManager: `${packageManager}@${packageManagerVersion}`,
+				packageManager,
 				projectName: 'my-video',
 			},
 			{
@@ -56,7 +55,6 @@ for (const packageManager of packageManagers) {
 				...packageJson.devDependencies,
 				'@remotion/eslint-config': latestRemotionVersion,
 			},
-			packageManager: `${packageManager}@${packageManagerVersion}`,
 		});
 	});
 }

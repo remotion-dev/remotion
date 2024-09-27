@@ -118,9 +118,7 @@ export const init = async () => {
 			projectRoot,
 			projectName: folderName,
 			latestRemotionVersion: latestVersion,
-			packageManager: pkgManagerVersion
-				? `${pkgManager}@${pkgManagerVersion}`
-				: null,
+			packageManager: pkgManager,
 		});
 	} catch (e) {
 		Log.error(e);
