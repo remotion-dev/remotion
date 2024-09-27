@@ -34,7 +34,7 @@ export const yesOrNo = ({
 
 	const rl = readline.createInterface({
 		input: process.stdin as unknown as NodeJS.ReadableStream,
-		output: process.stdout,
+		output: process.stdout as unknown as NodeJS.WritableStream,
 	});
 
 	return new Promise<boolean>((resolve) => {
