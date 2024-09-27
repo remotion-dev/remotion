@@ -5,6 +5,7 @@ import {BackButton} from './BackButton';
 import {CommandCopyButton} from './CommandCopyButton';
 import {MuxVideo} from './MuxVideo';
 import {Spinner} from './Spinner';
+import {Tailwind} from './icons/tailwind';
 
 const RESERVED_FOR_SIDEBAR = 550;
 
@@ -356,6 +357,14 @@ export const TemplateModalContent: React.FC<{
 							</span>
 						</div>
 					</a>
+					{template.allowEnableTailwind ? (
+						<div style={githubrow}>
+							<div style={iconContainer}>
+								<Tailwind />
+							</div>
+							Supports Tailwind
+						</div>
+					) : null}
 				</div>
 			</div>{' '}
 			<br />
