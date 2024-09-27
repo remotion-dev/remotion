@@ -738,6 +738,7 @@ module.exports = {
 				'lambda/custom-destination',
 				'lambda/checklist',
 				'lambda/webhooks',
+				'lambda/cost-example',
 				'lambda/autodelete',
 				{
 					type: 'category',
