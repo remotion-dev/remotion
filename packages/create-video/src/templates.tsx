@@ -266,7 +266,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		defaultBranch: 'master',
 		featuredOnHomePage: null,
 		previewURL: null,
-		templateInMonorepo: null,
+		templateInMonorepo: 'template-tts-azure',
 		allowEnableTailwind: false,
 	},
 	{

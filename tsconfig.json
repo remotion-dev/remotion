@@ -118,6 +118,9 @@
 			"path": "./packages/template-skia"
 		},
 		{
+			"path": "./packages/template-still"
+		},
+		{
 			"path": "./packages/template-blank"
 		},
 		{
@@ -128,6 +131,9 @@
 		},
 		{
 			"path": "./packages/template-next-app-tailwind"
+		},
+		{
+			"path": "./packages/template-tts-azure"
 		},
 		{
 			"path": "./packages/template-three"

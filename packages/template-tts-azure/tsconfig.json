@@ -6,7 +6,7 @@
     "outDir": "./dist",
     "strict": true,
     "noEmit": true,
-    "lib": ["es2015"],
+    "lib": ["es2015", "DOM"],
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
