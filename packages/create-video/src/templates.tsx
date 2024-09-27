@@ -183,7 +183,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewURL:
 			'https://template-helloworld-javascript.vercel.app/?/HelloWorld',
 		templateInMonorepo: 'template-javascript',
-		allowEnableTailwind: false,
+		allowEnableTailwind: true,
 	},
 	{
 		homePageLabel: 'Remix',

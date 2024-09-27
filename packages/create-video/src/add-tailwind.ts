@@ -19,7 +19,7 @@ export const addTailwindConfigJs = (projectRoot: string) => {
 		tailwindConfigFile,
 		`/* eslint-env node */
 module.exports = {
-  content: ["./src/**/*.{ts,tsx}"],
+  content: ["./src/**/*.{ts,tsx,js,jsx}"],
   theme: {
     extend: {},
   },
@@ -30,10 +30,13 @@ module.exports = {
 };
 
 export const addTailwindRootCss = (projectRoot: string) => {
-	const rootFile = path.join(projectRoot, 'src', 'Root.tsx');
+	const rootFileTsx = path.join(projectRoot, 'src', 'Root.tsx');
+	const rootFileJsx = path.join(projectRoot, 'src', 'Root.jsx');
+
+	const rootFile = fs.existsSync(rootFileTsx) ? rootFileTsx : rootFileJsx;
 
 	if (!fs.existsSync(rootFile)) {
-		throw new Error('No Root.tsx file found');
+		throw new Error('No Root file found');
 	}
 
 	const root = fs.readFileSync(rootFile, 'utf-8');
@@ -43,7 +46,10 @@ export const addTailwindRootCss = (projectRoot: string) => {
 };
 
 export const addTailwindToConfig = (projectRoot: string) => {
-	const configFile = path.join(projectRoot, 'remotion.config.ts');
+	const configFileTs = path.join(projectRoot, 'remotion.config.ts');
+	const configFileJs = path.join(projectRoot, 'remotion.config.js');
+
+	const configFile = fs.existsSync(configFileTs) ? configFileTs : configFileJs;
 
 	if (!fs.existsSync(configFile)) {
 		throw new Error('No remotion.config.ts file found');
