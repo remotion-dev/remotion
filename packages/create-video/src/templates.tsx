@@ -76,7 +76,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		defaultBranch: 'main',
 		featuredOnHomePage: 'Hello World',
 		previewURL: 'https://remotion-helloworld.vercel.app/?/HelloWorld',
-		templateInMonorepo: null,
+		templateInMonorepo: 'template-helloworld',
 		allowEnableTailwind: false,
 	},
 	{
