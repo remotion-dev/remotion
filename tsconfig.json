@@ -139,6 +139,9 @@
 			"path": "./packages/template-overlay"
 		},
 		{
+			"path": "./packages/template-remix"
+		},
+		{
 			"path": "./packages/studio"
 		},
 		{
