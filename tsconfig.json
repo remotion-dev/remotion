@@ -151,6 +151,12 @@
 			"path": "./packages/template-remix"
 		},
 		{
+			"path": "./packages/template-tiktok"
+		},
+		{
+			"path": "./packages/template-code-hike"
+		},
+		{
 			"path": "./packages/studio"
 		},
 		{
