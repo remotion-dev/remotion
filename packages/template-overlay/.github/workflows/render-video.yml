@@ -1,0 +1,21 @@
+on: workflow_dispatch
+
+name: Render video
+jobs:
+  render:
+    name: Render video
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+      - uses: actions/setup-node@main
+      - run: sudo apt update
+      - run: sudo apt install ffmpeg
+      - run: npm i
+      - run: echo $WORKFLOW_INPUT > input-props.json
+        env:
+          WORKFLOW_INPUT: ${{ toJson(github.event.inputs) }}
+      - run: npm run build -- --props="./input-props.json"
+      - uses: actions/upload-artifact@v2
+        with:
+          name: video.mp4
+          path: out/video.mp4

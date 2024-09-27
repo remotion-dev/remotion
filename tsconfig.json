@@ -133,6 +133,9 @@
 			"path": "./packages/template-helloworld"
 		},
 		{
+			"path": "./packages/template-overlay"
+		},
+		{
 			"path": "./packages/studio"
 		},
 		{

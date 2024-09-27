@@ -28,5 +28,6 @@
 		"eslint": "8.56.0",
 		"prettier": "3.2.5",
 		"typescript": "5.3.3"
-	}
+	},
+	"private": true
 }

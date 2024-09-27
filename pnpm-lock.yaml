@@ -1821,6 +1821,43 @@ importers:
         specifier: 5.3.3
         version: 5.3.3
 
+  packages/template-overlay:
+    dependencies:
+      '@remotion/cli':
+        specifier: workspace:*
+        version: link:../cli
+      '@remotion/google-fonts':
+        specifier: workspace:*
+        version: link:../google-fonts
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      remotion:
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@remotion/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@types/react':
+        specifier: 18.3.1
+        version: 18.3.1
+      '@types/web':
+        specifier: 0.0.78
+        version: 0.0.78
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
+      prettier:
+        specifier: 3.2.5
+        version: 3.2.5
+      typescript:
+        specifier: 5.3.3
+        version: 5.3.3
+
   packages/template-skia:
     dependencies:
       '@remotion/cli':
@@ -1851,6 +1888,9 @@ importers:
       '@remotion/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
+      '@types/dom-webcodecs':
+        specifier: 0.1.11
+        version: 0.1.11
       '@types/react':
         specifier: 18.3.1
         version: 18.3.1

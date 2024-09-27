@@ -376,8 +376,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
 		previewURL: null,
-		templateInMonorepo: null,
-		allowEnableTailwind: false,
+		templateInMonorepo: 'template-overlay',
+		allowEnableTailwind: true,
 	},
 	{
 		homePageLabel: 'Code Hike',
