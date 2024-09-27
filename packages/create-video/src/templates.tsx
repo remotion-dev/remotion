@@ -46,7 +46,7 @@ export type Template = {
 	defaultBranch: string;
 	featuredOnHomePage: string | null;
 	previewURL: string | null;
-	templateInMonorepo: string | null;
+	templateInMonorepo: string;
 	allowEnableTailwind: boolean;
 } & DynamicTemplate;
 
@@ -309,7 +309,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: null,
 		previewURL: null,
 		templateInMonorepo: 'template-audiogram',
-		allowEnableTailwind: false,
+		allowEnableTailwind: true,
 	},
 	{
 		homePageLabel: 'Skia',
