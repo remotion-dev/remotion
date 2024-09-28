@@ -83,8 +83,14 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 	const VideoComponent = video ? video.component : null;
 
 	const outerStyle: React.CSSProperties = useMemo(() => {
-		return calculateOuterStyle({config, style, canvasSize, overflowVisible});
-	}, [canvasSize, config, overflowVisible, style]);
+		return calculateOuterStyle({
+			config,
+			style,
+			canvasSize,
+			overflowVisible,
+			layout,
+		});
+	}, [canvasSize, config, layout, overflowVisible, style]);
 
 	const outer: React.CSSProperties = useMemo(() => {
 		return calculateOuter({config, layout, scale, overflowVisible});
