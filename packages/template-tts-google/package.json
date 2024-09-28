@@ -31,7 +31,7 @@
     "@types/express": "4.17.13",
     "cors": "2.8.5",
     "dotenv": "16.0.3",
-    "express": "4.17.1",
+    "express": "4.20.0",
     "firebase": "9.19.1",
     "md5": "2.3.0",
     "react": "18.3.1",
