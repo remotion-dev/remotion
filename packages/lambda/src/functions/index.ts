@@ -162,9 +162,7 @@ const innerHandler = async <Provider extends CloudProvider>({
 			providerSpecifics,
 		);
 
-		await responseWriter.write(
-			new Uint8Array(Buffer.from(JSON.stringify(response))),
-		);
+		await responseWriter.write(Buffer.from(JSON.stringify(response)));
 		await responseWriter.end();
 		return;
 	}
@@ -191,9 +189,7 @@ const innerHandler = async <Provider extends CloudProvider>({
 			providerSpecifics,
 		);
 
-		await responseWriter.write(
-			new Uint8Array(Buffer.from(JSON.stringify(response))),
-		);
+		await responseWriter.write(Buffer.from(JSON.stringify(response)));
 		await responseWriter.end();
 		return;
 	}
@@ -217,9 +213,7 @@ const innerHandler = async <Provider extends CloudProvider>({
 			providerSpecifics,
 		});
 
-		await responseWriter.write(
-			new Uint8Array(Buffer.from(JSON.stringify(response))),
-		);
+		await responseWriter.write(Buffer.from(JSON.stringify(response)));
 		await responseWriter.end();
 		return;
 	}
@@ -294,9 +288,7 @@ const innerHandler = async <Provider extends CloudProvider>({
 		}
 
 		const response = await infoHandler(params);
-		await responseWriter.write(
-			new Uint8Array(Buffer.from(JSON.stringify(response))),
-		);
+		await responseWriter.write(Buffer.from(JSON.stringify(response)));
 		await responseWriter.end();
 		return;
 	}
@@ -320,9 +312,7 @@ const innerHandler = async <Provider extends CloudProvider>({
 			providerSpecifics,
 		);
 
-		await responseWriter.write(
-			new Uint8Array(Buffer.from(JSON.stringify(response))),
-		);
+		await responseWriter.write(Buffer.from(JSON.stringify(response)));
 		await responseWriter.end();
 
 		return;
@@ -361,9 +351,7 @@ export const innerRoutine = async <Provider extends CloudProvider>(
 			stack: (err as Error).stack as string,
 		};
 
-		await responseWriter.write(
-			new Uint8Array(Buffer.from(JSON.stringify(res))),
-		);
+		await responseWriter.write(Buffer.from(JSON.stringify(res)));
 		await responseWriter.end();
 	}
 };

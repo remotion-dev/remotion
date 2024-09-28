@@ -11,7 +11,7 @@ export class AnsiDiff {
 	width: number;
 	height: number;
 	_buffer: string | null;
-	_out: Uint8Array[];
+	_out: Buffer[];
 	_lines: Line[];
 	finished: boolean;
 
@@ -135,7 +135,7 @@ export class AnsiDiff {
 	}
 
 	_write(line: Line) {
-		this._out.push(new Uint8Array(line.toBuffer()));
+		this._out.push(line.toBuffer());
 		this.x = line.remainder;
 		this.y += line.height;
 	}
@@ -154,7 +154,7 @@ export class AnsiDiff {
 	}
 
 	_push = (buf: Buffer) => {
-		this._out.push(new Uint8Array(buf));
+		this._out.push(buf);
 	};
 }
 

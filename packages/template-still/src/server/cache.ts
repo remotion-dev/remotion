@@ -50,8 +50,5 @@ export const saveToCache = async (imageHash: string, file: Buffer) => {
     return writeToS3(imageHash, file);
   }
 
-  return fs.promises.writeFile(
-    await getFileFromHash(imageHash),
-    new Uint8Array(file),
-  );
+  return fs.promises.writeFile(await getFileFromHash(imageHash), file);
 };

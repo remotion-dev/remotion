@@ -102,7 +102,7 @@ export const screenshotTask = async ({
 		const saveMarker = startPerfMeasure('save');
 
 		const buffer = Buffer.from(result.data, 'base64');
-		if (path) await fs.promises.writeFile(path, new Uint8Array(buffer));
+		if (path) await fs.promises.writeFile(path, buffer);
 		stopPerfMeasure(saveMarker);
 		return buffer;
 	} catch (err) {

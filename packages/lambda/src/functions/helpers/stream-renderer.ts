@@ -66,7 +66,7 @@ const streamRenderer = <Provider extends CloudProvider>({
 					outdir,
 					`chunk:${String(payload.chunk).padStart(8, '0')}:video`,
 				);
-				writeFileSync(filename, new Uint8Array(message.payload));
+				writeFileSync(filename, message.payload);
 				files.push(filename);
 				RenderInternals.Log.verbose(
 					{indent: false, logLevel},
@@ -82,7 +82,7 @@ const streamRenderer = <Provider extends CloudProvider>({
 					`chunk:${String(payload.chunk).padStart(8, '0')}:audio`,
 				);
 
-				writeFileSync(filename, new Uint8Array(message.payload));
+				writeFileSync(filename, message.payload);
 				RenderInternals.Log.verbose(
 					{indent: false, logLevel},
 					`Received audio chunk for chunk ${payload.chunk}`,

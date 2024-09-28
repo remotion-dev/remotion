@@ -138,7 +138,7 @@ export const makeStreamPayload = <Provider extends CloudProvider>({
 	const body =
 		formatMap[message.type] === 'json'
 			? new TextEncoder().encode(JSON.stringify(message.payload))
-			: new Uint8Array(message.payload as Buffer);
+			: (message.payload as Buffer);
 
 	return makeStreamPayloadMessage({
 		body,
