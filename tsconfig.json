@@ -115,6 +115,54 @@
 			"path": "./packages/tailwind"
 		},
 		{
+			"path": "./packages/template-skia"
+		},
+		{
+			"path": "./packages/template-still"
+		},
+		{
+			"path": "./packages/template-blank"
+		},
+		{
+			"path": "./packages/template-next-pages"
+		},
+		{
+			"path": "./packages/template-next-app"
+		},
+		{
+			"path": "./packages/template-next-app-tailwind"
+		},
+		{
+			"path": "./packages/template-tts-azure"
+		},
+		{
+			"path": "./packages/template-tts-google"
+		},
+		{
+			"path": "./packages/template-three"
+		},
+		{
+			"path": "./packages/template-helloworld"
+		},
+		{
+			"path": "./packages/template-overlay"
+		},
+		{
+			"path": "./packages/template-remix"
+		},
+		{
+			"path": "./packages/template-tiktok"
+		},
+		{
+			"path": "./packages/template-code-hike"
+		},
+		{
+			"path": "./packages/template-audiogram"
+		},
+		{
+			"path": "./packages/template-stargazer"
+		},
+		{
 			"path": "./packages/studio"
 		},
 		{

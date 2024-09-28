@@ -12,6 +12,6 @@
 	},
 	"scripts": {
 		"formatting": "prettier src --check",
-		"build": "bun src/generate.ts"
+		"make": "bun src/generate.ts"
 	}
 }

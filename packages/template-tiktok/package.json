@@ -1,0 +1,35 @@
+{
+  "name": "template-tiktok",
+  "version": "1.0.0",
+  "description": "A Remotion template for TikTok-style captions",
+  "scripts": {
+    "start": "remotion studio",
+    "build": "remotion render CaptionedVideo",
+    "upgrade": "remotion upgrade",
+    "test": "eslint src --ext ts,tsx,js,jsx && tsc",
+    "create-subtitles": "node sub.mjs"
+  },
+  "repository": {},
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@remotion/cli": "workspace:*",
+    "@remotion/zod-types": "workspace:*",
+    "@remotion/animation-utils": "workspace:*",
+    "@remotion/layout-utils": "workspace:*",
+    "@remotion/media-utils": "workspace:*",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "workspace:*",
+    "zod": "3.22.3"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config": "workspace:*",
+    "@remotion/install-whisper-cpp": "workspace:*",
+    "@types/react": "18.3.1",
+    "@types/web": "0.0.166",
+    "eslint": "8.56.0",
+    "prettier": "3.3.3",
+    "typescript": "5.5.4"
+  },
+  "private": true
+}

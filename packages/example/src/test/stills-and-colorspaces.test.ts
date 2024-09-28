@@ -155,10 +155,10 @@ test('Bt709 encoding should work', async () => {
 		muted: true,
 	});
 
-	writeFileSync('out.mp4', buffer as Buffer);
+	writeFileSync('out.mp4', new Uint8Array(buffer as Buffer));
 
 	execSync('pnpm exec remotion ffmpeg -i - -frames:v 1 -c:v png out%02d.png', {
-		input: buffer as Buffer,
+		input: new Uint8Array(buffer as Buffer),
 	});
 
 	const pngBuffer = readFileSync('out01.png');

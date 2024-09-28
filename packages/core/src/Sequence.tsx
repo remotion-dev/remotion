@@ -291,7 +291,7 @@ const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			opacity: premountingActive ? 0 : 1,
 			pointerEvents: premountingActive
 				? 'none'
-				: passedStyle?.pointerEvents ?? undefined,
+				: (passedStyle?.pointerEvents ?? undefined),
 		};
 	}, [premountingActive, passedStyle]);
 

@@ -1,0 +1,10 @@
+{
+  "extends": ["@remix-run/eslint-config", "@remix-run/eslint-config/node"],
+  "plugins": ["@remotion"],
+  "overrides": [
+    {
+      "files": ["app/remotion/**/*.{ts,tsx}"],
+      "extends": ["plugin:@remotion/recommended"]
+    }
+  ]
+}

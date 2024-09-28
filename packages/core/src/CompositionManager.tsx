@@ -233,15 +233,11 @@ export const CompositionManagerProvider: React.FC<{
 		[],
 	);
 
-	useImperativeHandle(
-		compositionsRef,
-		() => {
-			return {
-				getCompositions: () => currentcompositionsRef.current,
-			};
-		},
-		[],
-	);
+	useImperativeHandle(compositionsRef, () => {
+		return {
+			getCompositions: () => currentcompositionsRef.current,
+		};
+	}, []);
 
 	const composition = compositions.find((c) =>
 		canvasContent?.type === 'composition'

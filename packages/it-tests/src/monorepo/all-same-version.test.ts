@@ -1,26 +1,13 @@
 import {expect, test} from 'bun:test';
-import {existsSync, lstatSync, readFileSync, readdirSync} from 'fs';
-import path from 'path';
+import {existsSync, readFileSync} from 'fs';
+import {getAllPackages} from './get-all-packages';
 
-test('All packages require the same remotion version', () => {
-	const packages = readdirSync(path.join(process.cwd(), '..'));
-	const folders = packages.filter((p) =>
-		lstatSync(path.join(process.cwd(), '..', p)).isDirectory(),
-	);
+test('All monorepo packages need to have workspace:* as remotion version', () => {
+	const folders = getAllPackages();
 
 	let deps = 0;
 	for (const folder of folders) {
-		const packageJsonPath = path.join(
-			process.cwd(),
-			'..',
-			folder,
-			'package.json',
-		);
-		if (!existsSync(packageJsonPath)) {
-			continue;
-		}
-
-		const json = readFileSync(packageJsonPath, 'utf-8');
+		const json = readFileSync(folder.path, 'utf-8');
 
 		const packageJson = JSON.parse(json);
 		const {
@@ -51,26 +38,17 @@ test('All packages require the same remotion version', () => {
 	expect(deps).toBeGreaterThan(75);
 });
 
-test('All packages require the same remotion version', () => {
-	const packages = readdirSync(path.join(process.cwd(), '..'));
-	const folders = packages.filter((p) =>
-		lstatSync(path.join(process.cwd(), '..', p)).isDirectory(),
-	);
+test('All monorepo packages should have the same "version" field', () => {
+	const packages = getAllPackages();
 
 	const versions = new Set<string>();
 
-	for (const folder of folders) {
-		const packageJsonPath = path.join(
-			process.cwd(),
-			'..',
-			folder,
-			'package.json',
-		);
-		if (!existsSync(packageJsonPath)) {
+	for (const folder of packages) {
+		if (!existsSync(folder.path)) {
 			continue;
 		}
 
-		const json = readFileSync(packageJsonPath, 'utf-8');
+		const json = readFileSync(folder.path, 'utf-8');
 
 		const packageJson = JSON.parse(json);
 		versions.add(packageJson.version);

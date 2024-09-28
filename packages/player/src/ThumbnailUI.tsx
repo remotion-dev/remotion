@@ -72,17 +72,13 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 
 	useBufferStateEmitter(thumbnail.emitter);
 
-	useImperativeHandle(
-		ref,
-		() => {
-			const methods: ThumbnailMethods = {
-				getContainerNode: () => container.current,
-				getScale: () => scale,
-			};
-			return Object.assign(thumbnail.emitter, methods);
-		},
-		[scale, thumbnail.emitter],
-	);
+	useImperativeHandle(ref, () => {
+		const methods: ThumbnailMethods = {
+			getContainerNode: () => container.current,
+			getScale: () => scale,
+		};
+		return Object.assign(thumbnail.emitter, methods);
+	}, [scale, thumbnail.emitter]);
 
 	const VideoComponent = video ? video.component : null;
 
