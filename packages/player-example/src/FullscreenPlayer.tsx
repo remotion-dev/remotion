@@ -1,5 +1,10 @@
 import {Player} from '@remotion/player';
-import CarSlideshow from './CarSlideshow';
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+const MyComp: React.FC = () => {
+	return <AbsoluteFill style={{backgroundColor: 'black'}} />;
+};
 
 export const FullscreenPlayer = () => {
 	const compositionWidth = 300;
@@ -8,10 +13,11 @@ export const FullscreenPlayer = () => {
 	return (
 		<div
 			style={{
-				width: '100%',
-				height: '100%',
+				width: '100vw',
+				height: '100vh',
 				backgroundColor: 'gray',
-				position: 'absolute',
+				// Any container with "position: relative" will work
+				position: 'relative',
 			}}
 		>
 			<div
@@ -25,21 +31,18 @@ export const FullscreenPlayer = () => {
 					aspectRatio: `${compositionWidth} / ${compositionHeight}`,
 					maxHeight: '100%',
 					maxWidth: '100%',
-					background: 'black',
 				}}
 			>
 				<Player
 					controls
-					component={CarSlideshow}
+					component={MyComp}
 					compositionWidth={compositionWidth}
 					compositionHeight={compositionHeight}
 					durationInFrames={200}
 					fps={30}
 					style={{
 						width: '100%',
-						backgroundColor: 'black',
 					}}
-					inputProps={{title: 'Hi there', bgColor: 'black', color: 'white'}}
 				/>
 			</div>
 		</div>
