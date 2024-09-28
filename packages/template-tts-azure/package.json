@@ -23,14 +23,14 @@
     "remotion": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "20.14.11",
+    "@types/node": "20.12.14",
     "@remotion/eslint-config": "workspace:*",
     "@types/md5": "2.3.0",
     "@types/react": "18.3.1",
     "eslint": "8.56.0",
     "prettier": "3.3.3",
     "ts-node": "10.9.1",
-    "typescript": "5.6.2",
+    "typescript": "5.5.4",
     "zod": "3.22.3"
   }
 }

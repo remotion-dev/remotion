@@ -27,7 +27,7 @@
     "@types/web": "0.0.166",
     "eslint": "8.56.0",
     "prettier": "3.3.3",
-    "typescript": "5.6.2"
+    "typescript": "5.5.4"
   },
   "private": true
 }

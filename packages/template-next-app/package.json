@@ -28,14 +28,14 @@
   "devDependencies": {
     "@remotion/eslint-config": "workspace:*",
     "@remotion/eslint-plugin": "workspace:*",
-    "@types/node": "20.14.11",
+    "@types/node": "20.12.14",
     "@types/react": "18.3.1",
     "@types/react-dom": "18.3.0",
     "@types/web": "0.0.166",
     "dotenv": "16.0.3",
     "eslint": "8.56.0",
     "eslint-config-next": "14.2.13",
-    "typescript": "5.6.2",
+    "typescript": "5.5.4",
     "prettier": "3.3.3"
   }
 }
