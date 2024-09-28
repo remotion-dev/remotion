@@ -1,14 +1,5 @@
-import {createRef, useCallback, useImperativeHandle, useState} from 'react';
-import {
-	Experimental,
-	Img,
-	Sequence,
-	Video,
-	interpolate,
-	staticFile,
-	useCurrentFrame,
-	useVideoConfig,
-} from 'remotion';
+import {createRef} from 'react';
+import {Sequence, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 
 type Props = {
 	title: string;
@@ -25,23 +16,6 @@ const CarSlideshow = ({title, bgColor, color}: Props) => {
 	const {width, height, durationInFrames} = useVideoConfig();
 	const left = interpolate(frame, [0, durationInFrames], [width, width * -1]);
 
-	const [shouldThrowError, setThrowError] = useState(false);
-
-	const dummyText = useCallback(() => {
-		if (shouldThrowError) {
-			throw new Error('some error');
-		}
-		return '';
-	}, [shouldThrowError]);
-
-	useImperativeHandle(playerExampleComp, () => {
-		return {
-			triggerError: () => {
-				setThrowError(true);
-			},
-		};
-	}, []);
-
 	return (
 		<div
 			style={{
@@ -53,7 +27,6 @@ const CarSlideshow = ({title, bgColor, color}: Props) => {
 				top: 0,
 			}}
 		>
-			<Experimental.Clipper height={100} width={100} x={0} y={0} />
 			<Sequence>
 				<h1
 					style={{
@@ -66,23 +39,8 @@ const CarSlideshow = ({title, bgColor, color}: Props) => {
 						whiteSpace: 'nowrap',
 					}}
 				>
-					{title} {dummyText()}
+					{title}
 				</h1>
-			</Sequence>
-			<Img
-				src={staticFile('/logo.png')}
-				style={{
-					height: 40,
-					width: 40,
-				}}
-			/>
-			<Sequence from={10}>
-				<Video
-					style={{
-						height: 200,
-					}}
-					src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-				/>
 			</Sequence>
 		</div>
 	);
