@@ -462,8 +462,14 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const VideoComponent = video ? video.component : null;
 
 	const outerStyle: React.CSSProperties = useMemo(() => {
-		return calculateOuterStyle({canvasSize, config, style, overflowVisible});
-	}, [canvasSize, config, overflowVisible, style]);
+		return calculateOuterStyle({
+			canvasSize,
+			config,
+			style,
+			overflowVisible,
+			layout,
+		});
+	}, [canvasSize, config, layout, overflowVisible, style]);
 
 	const outer = useMemo(() => {
 		return calculateOuter({config, layout, scale, overflowVisible});

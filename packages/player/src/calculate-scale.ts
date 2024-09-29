@@ -51,11 +51,13 @@ export const calculateOuterStyle = ({
 	style,
 	canvasSize,
 	overflowVisible,
+	layout,
 }: {
 	config: VideoConfig | null;
 	style: React.CSSProperties | undefined;
 	canvasSize: Size | null;
 	overflowVisible: boolean;
+	layout: Layout | null;
 }): React.CSSProperties => {
 	if (!config) {
 		return {};
@@ -71,6 +73,7 @@ export const calculateOuterStyle = ({
 			height: style?.height as StandardLonghandProperties['width'],
 			width: style?.width as StandardLonghandProperties['height'],
 		}),
+		opacity: layout ? 1 : 0,
 		...style,
 	};
 };
