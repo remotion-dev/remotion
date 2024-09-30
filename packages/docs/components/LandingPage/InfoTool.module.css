@@ -1,0 +1,32 @@
+.infoIcon {
+	display: inline-block;
+	margin-left: 5px;
+	color: #999; /* Subtle grey color */
+	cursor: help;
+	position: relative;
+}
+
+.tooltip {
+	position: absolute;
+	bottom: 100%;
+	left: 50%;
+	transform: translateX(-50%);
+	background-color: #333;
+	color: #fff;
+	padding: 5px 10px;
+	border-radius: 4px;
+	font-size: 0.8rem;
+	white-space: nowrap;
+	z-index: 1;
+}
+
+.tooltip::after {
+	content: '';
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	margin-left: -5px;
+	border-width: 5px;
+	border-style: solid;
+	border-color: #333 transparent transparent transparent;
+}
