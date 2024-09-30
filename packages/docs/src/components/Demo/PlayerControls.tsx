@@ -1,7 +1,10 @@
 import type {PlayerRef} from '@remotion/player';
 import React, {useCallback, useEffect} from 'react';
+import {PausedIcon, PlayingIcon} from '../../icons/arrows';
+import {PlayerButton} from './PlayerButton';
 import {PlayerFullscreen} from './PlayerFullscreen';
 import {PlayerSeekBar} from './PlayerSeekBar';
+import {PlayerVolume} from './PlayerVolume';
 
 const formatTime = (timeInSeconds: number) => {
 	const minutes = Math.floor(timeInSeconds / 60);
@@ -41,10 +44,18 @@ const PlayButton: React.FC<{
 		playerRef.current?.toggle();
 	}, [playerRef]);
 
+	const playPauseIconStyle: React.CSSProperties = {
+		width: 15,
+	};
+
 	return (
-		<button type="button" onClick={onToggle}>
-			{playing ? '❚❚' : '▶'}
-		</button>
+		<PlayerButton onClick={onToggle}>
+			{playing ? (
+				<PlayingIcon style={playPauseIconStyle} />
+			) : (
+				<PausedIcon style={playPauseIconStyle} />
+			)}
+		</PlayerButton>
 	);
 };
 
@@ -73,8 +84,17 @@ const TimeDisplay: React.FC<{
 	}, [playerRef]);
 
 	return (
-		<div>
-			{formatTime(time / fps)} / {formatTime(durationInFrames / fps)}
+		<div
+			style={{
+				fontFamily: 'monospace',
+				fontSize: '14px',
+				display: 'flex',
+				gap: '8px',
+			}}
+		>
+			<span>{formatTime(time / fps)}</span>
+			<span style={{opacity: 0.6}}>/</span>
+			<span style={{opacity: 0.6}}>{formatTime(durationInFrames / fps)}</span>
 		</div>
 	);
 };
@@ -82,6 +102,26 @@ const TimeDisplay: React.FC<{
 const row: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
+	alignItems: 'center',
+	marginTop: '1rem',
+	padding: '5px 0px',
+	borderRadius: '0.5rem',
+	gap: '20px',
+};
+
+const startControls: React.CSSProperties = {
+	display: 'flex',
+	flexDirection: 'row',
+	alignItems: 'center',
+	gap: '10px',
+	width: '100%',
+};
+
+const endControls: React.CSSProperties = {
+	display: 'flex',
+	flexDirection: 'row',
+	alignItems: 'center',
+	gap: '20px',
 };
 
 export const PlayerControls: React.FC<{
@@ -91,23 +131,28 @@ export const PlayerControls: React.FC<{
 }> = ({playerRef, durationInFrames, fps}) => {
 	return (
 		<div style={row}>
-			<PlayButton playerRef={playerRef} />
-			<TimeDisplay
-				playerRef={playerRef}
-				durationInFrames={durationInFrames}
-				fps={fps}
-			/>
-			<div style={{flex: 1}}>
-				<PlayerSeekBar
-					durationInFrames={durationInFrames}
+			<div style={startControls}>
+				<PlayButton playerRef={playerRef} />
+				<div style={{flex: 1}}>
+					<PlayerSeekBar
+						durationInFrames={durationInFrames}
+						playerRef={playerRef}
+						inFrame={null}
+						outFrame={null}
+						onSeekEnd={() => undefined}
+						onSeekStart={() => undefined}
+					/>
+				</div>
+				<TimeDisplay
 					playerRef={playerRef}
-					inFrame={null}
-					outFrame={null}
-					onSeekEnd={() => undefined}
-					onSeekStart={() => undefined}
+					durationInFrames={durationInFrames}
+					fps={fps}
 				/>
 			</div>
-			<PlayerFullscreen playerRef={playerRef} />
+			<div style={endControls}>
+				<PlayerVolume playerRef={playerRef} />
+				<PlayerFullscreen playerRef={playerRef} />
+			</div>
 		</div>
 	);
 };

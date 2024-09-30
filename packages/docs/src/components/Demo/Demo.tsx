@@ -41,7 +41,6 @@ export const Demo: React.FC = () => {
 			playerRef.removeEventListener('fullscreenchange', onFullscreenChange);
 		};
 	}, [data]);
-	console.log({isFullscreen});
 
 	return (
 		<div>
