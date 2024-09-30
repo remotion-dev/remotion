@@ -1049,7 +1049,7 @@ export const renderFrames = (
 	}
 
 	const logLevel: LogLevel =
-		verbose || dumpBrowserLogs ? 'verbose' : passedLogLevel ?? 'info';
+		verbose || dumpBrowserLogs ? 'verbose' : (passedLogLevel ?? 'info');
 	const indent = false;
 
 	if (quality) {

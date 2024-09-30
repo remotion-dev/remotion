@@ -78,13 +78,9 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 	});
 
-	useImperativeHandle(
-		ref,
-		() => {
-			return audioRef.current as HTMLVideoElement;
-		},
-		[],
-	);
+	useImperativeHandle(ref, () => {
+		return audioRef.current as HTMLVideoElement;
+	}, []);
 
 	useEffect(() => {
 		if (!props.src) {

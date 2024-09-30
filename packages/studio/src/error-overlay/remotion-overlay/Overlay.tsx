@@ -52,13 +52,9 @@ export const Overlay: React.FC = () => {
 		});
 	}, []);
 
-	useImperativeHandle(
-		setErrorsRef,
-		() => {
-			return {setErrors, addError};
-		},
-		[addError],
-	);
+	useImperativeHandle(setErrorsRef, () => {
+		return {setErrors, addError};
+	}, [addError]);
 
 	if (errors.type === 'clear') {
 		return null;

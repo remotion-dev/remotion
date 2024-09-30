@@ -1,8 +1,8 @@
 {
 	"$schema": "https://turbo.build/schema.json",
 	"pipeline": {
-		"build": {
-			"dependsOn": ["^build", "//#ts-build"],
+		"make": {
+			"dependsOn": ["^make", "//#ts-build"],
 			"outputs": ["dist/esm/**"],
 			"outputMode": "new-only"
 		},
@@ -10,13 +10,13 @@
 			"outputs": ["packages/**/dist/**.js", "packages/**/dist/**.d.ts"],
 			"outputMode": "new-only"
 		},
-		"@remotion/example#build": {
-			"dependsOn": ["^build"],
+		"@remotion/example#make": {
+			"dependsOn": ["^make"],
 			"outputs": ["build/**", "dist/esm/**", "./node_modules/.cache/**"],
 			"outputMode": "new-only"
 		},
 		"build-docs": {
-			"dependsOn": ["^build", "build"],
+			"dependsOn": ["^make", "make"],
 			"outputs": [
 				".docusaurus/**",
 				"../../node_modules/.cache/twoslash/**",
@@ -25,17 +25,17 @@
 			]
 		},
 		"test": {
-			"dependsOn": ["^build", "build"],
+			"dependsOn": ["^make", "make"],
 			"outputs": []
 		},
 
 		"@remotion/renderer#test": {
 			"dependsOn": [
-				"^build",
-				"build",
-				"@remotion/lambda#build",
+				"^make",
+				"make",
+				"@remotion/lambda#make",
 				"@remotion/it-tests#test",
-				"@remotion/cloudrun#build"
+				"@remotion/cloudrun#make"
 			],
 			"outputs": []
 		},
@@ -48,15 +48,15 @@
 			"outputs": []
 		},
 		"@remotion/example#lint": {
-			"dependsOn": ["@remotion/eslint-config#build"]
+			"dependsOn": ["@remotion/eslint-config#make"]
 		},
-		"@remotion/google-fonts#build": {
+		"@remotion/google-fonts#make": {
 			"outputs": ["src/**", ".cache-css/**", "dist/esm/**"],
-			"dependsOn": ["^build"],
+			"dependsOn": ["^make"],
 			"outputMode": "new-only"
 		},
-		"@remotion/cloudrun#build": {
-			"dependsOn": ["^build", "//#ts-build"],
+		"@remotion/cloudrun#make": {
+			"dependsOn": ["^make", "//#ts-build"],
 			"outputs": [
 				"dist/shared/sa-permissions.json",
 				"container/dist/**",
@@ -64,29 +64,25 @@
 			],
 			"outputMode": "new-only"
 		},
-		"@remotion/renderer#build": {
+		"@remotion/renderer#make": {
 			"outputs": ["target/debug/build/**", "target/release/build/**"],
-			"dependsOn": ["^build"],
+			"dependsOn": ["^make"],
 			"outputMode": "new-only"
 		},
 
 		"@remotion/it-tests#test": {
-			"dependsOn": [
-				"^build",
-				"@remotion/example#test",
-				"@remotion/example#build"
-			]
+			"dependsOn": ["^make", "@remotion/example#test", "@remotion/example#make"]
 		},
 		"@remotion/media-parser#build": {
 			"dependsOn": ["//#ts-build"],
 			"outputs": ["dist/esm/**"]
 		},
-		"@remotion/webcodecs#build": {
-			"dependsOn": ["^@remotion/media-parser#build"],
+		"@remotion/webcodecs#make": {
+			"dependsOn": ["^@remotion/media-parser#make"],
 			"outputs": ["dist/esm/**"]
 		},
 		"@remotion/convert#build-page": {
-			"dependsOn": ["^@remotion/webcodecs#build"]
+			"dependsOn": ["^@remotion/webcodecs#make"]
 		},
 		"convert": {
 			"dependsOn": ["^@remotion/convert#build-page"],

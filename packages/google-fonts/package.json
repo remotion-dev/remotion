@@ -8,7 +8,7 @@
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
 	"scripts": {
-		"build": "bun --env-file=../.env.bundle bundle.ts",
+		"make": "bun --env-file=../.env.bundle bundle.ts",
 		"generate": "bun scripts/generate.ts && bun scripts/generate-index.ts",
 		"prepublishOnly": "bun ensure-generation.ts",
 		"formatting": "prettier src --check"
@@ -20,8 +20,8 @@
 	"devDependencies": {
 		"@types/css-font-loading-module": "^0.0.7",
 		"@types/prettier": "^2.7.1",
-		"postcss": "^8.4.31",
-		"prettier": "3.2.5"
+		"postcss": "8.4.47",
+		"prettier": "3.3.3"
 	},
 	"files": [
 		"dist"

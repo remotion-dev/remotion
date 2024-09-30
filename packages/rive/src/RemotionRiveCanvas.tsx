@@ -83,26 +83,22 @@ const RemotionRiveCanvasForwardRefFunction: React.ForwardRefRenderFunction<
 		file: File;
 	} | null>(null);
 
-	useImperativeHandle(
-		ref,
-		() => {
-			return {
-				getAnimationInstance() {
-					return rive?.animation ?? null;
-				},
-				getArtboard() {
-					return rive?.artboard ?? null;
-				},
-				getRenderer() {
-					return rive?.renderer ?? null;
-				},
-				getCanvas() {
-					return riveCanvasInstance ?? null;
-				},
-			};
-		},
-		[rive, riveCanvasInstance],
-	);
+	useImperativeHandle(ref, () => {
+		return {
+			getAnimationInstance() {
+				return rive?.animation ?? null;
+			},
+			getArtboard() {
+				return rive?.artboard ?? null;
+			},
+			getRenderer() {
+				return rive?.renderer ?? null;
+			},
+			getCanvas() {
+				return riveCanvasInstance ?? null;
+			},
+		};
+	}, [rive, riveCanvasInstance]);
 
 	useEffect(() => {
 		riveCanvas({

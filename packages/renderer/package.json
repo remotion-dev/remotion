@@ -12,7 +12,7 @@
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "bun test src",
-		"build": "node build.mjs --debug",
+		"make": "node build.mjs --debug",
 		"build-all": "node build.mjs --all",
 		"prepublishOnly": "node build.mjs --all"
 	},
