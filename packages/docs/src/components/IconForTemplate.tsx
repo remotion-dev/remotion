@@ -10,7 +10,6 @@ import {RemixIcon} from './icons/remix';
 import {SkiaIcon} from './icons/skia';
 import {Stargazer} from './icons/stargazer';
 import {StillIcon} from './icons/still';
-import {Tailwind} from './icons/tailwind';
 import {TikTok} from './icons/tiktok';
 import {TypeScriptIcon} from './icons/ts';
 import {TTSIcon} from './icons/tts';
@@ -94,16 +93,6 @@ export const IconForTemplate: React.FC<{
 	if (template.cliId === 'google-tts') {
 		return (
 			<TTSIcon
-				style={{
-					height: scale * 36,
-				}}
-			/>
-		);
-	}
-
-	if (template.cliId === 'tailwind') {
-		return (
-			<Tailwind
 				style={{
 					height: scale * 36,
 				}}

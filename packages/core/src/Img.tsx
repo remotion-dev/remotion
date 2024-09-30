@@ -56,13 +56,9 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		throw new Error('No "src" prop was passed to <Img>.');
 	}
 
-	useImperativeHandle(
-		ref,
-		() => {
-			return imageRef.current as HTMLImageElement;
-		},
-		[],
-	);
+	useImperativeHandle(ref, () => {
+		return imageRef.current as HTMLImageElement;
+	}, []);
 
 	const actualSrc = usePreload(src as string);
 

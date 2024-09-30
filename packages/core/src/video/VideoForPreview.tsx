@@ -141,13 +141,9 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		fps,
 	});
 
-	useImperativeHandle(
-		ref,
-		() => {
-			return videoRef.current as HTMLVideoElement;
-		},
-		[],
-	);
+	useImperativeHandle(ref, () => {
+		return videoRef.current as HTMLVideoElement;
+	}, []);
 
 	useEffect(() => {
 		const {current} = videoRef;
@@ -243,7 +239,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	const actualStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...style,
-			opacity: isSequenceHidden ? 0 : style?.opacity ?? 1,
+			opacity: isSequenceHidden ? 0 : (style?.opacity ?? 1),
 		};
 	}, [isSequenceHidden, style]);
 

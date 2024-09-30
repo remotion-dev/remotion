@@ -403,7 +403,7 @@ export class Wavedraw {
 		const data = ctx.getImageData(0, 0, options.width, options.height);
 		const arr = wavToBitmap(data.data, options.width, options.height);
 
-		writeFileSync(filename, Buffer.from(arr));
+		writeFileSync(filename, arr);
 
 		if (currentFile.length !== arr.length) {
 			throw new Error('Waveform file sizes are different');

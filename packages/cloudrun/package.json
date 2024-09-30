@@ -8,7 +8,7 @@
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
-		"build": "bun build.ts",
+		"make": "bun build.ts",
 		"buildContainer": "bun src/admin/bundle-renderLogic.ts",
 		"tarInstaller": "bun src/admin/bundle-installer.ts",
 		"lint": "eslint src --ext ts,tsx",

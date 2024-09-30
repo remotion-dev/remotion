@@ -12,7 +12,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"build": "bun ensure-correct-version.ts && bun --env-file=../.env.bundle bundle.ts",
+		"make": "bun ensure-correct-version.ts && bun --env-file=../.env.bundle bundle.ts",
 		"test": "bun test src",
 		"prerelease": "cp ../../README.md ."
 	},

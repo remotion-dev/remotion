@@ -1,18 +1,18 @@
-import { ESLintUtils } from "@typescript-eslint/utils";
-import rule from "../rules/volume-callback";
+import {ESLintUtils} from '@typescript-eslint/utils';
+import rule from '../rules/volume-callback';
 
 const ruleTester = new ESLintUtils.RuleTester({
-  parser: "@typescript-eslint/parser",
-  parserOptions: {
-    ecmaFeatures: {
-      jsx: true,
-    },
-  },
+	parser: '@typescript-eslint/parser',
+	parserOptions: {
+		ecmaFeatures: {
+			jsx: true,
+		},
+	},
 });
 
-ruleTester.run("volume-callback", rule, {
-  valid: [
-    `
+ruleTester.run('volume-callback', rule, {
+	valid: [
+		`
 import {Video} from 'remotion';
 
 export const Re = () => {
@@ -21,7 +21,7 @@ export const Re = () => {
   );
 }
           `,
-    `
+		`
 import {Video} from 'remotion';
 
 export const Re = () => {
@@ -30,7 +30,7 @@ export const Re = () => {
   );
 }
           `,
-    `
+		`
 import {Audio} from 'remotion';
 
 export const Re = () => {
@@ -39,7 +39,7 @@ export const Re = () => {
   );
 }
           `,
-    `
+		`
 const RandomComp = () => null;
 
 export const Re = () => {
@@ -48,10 +48,10 @@ export const Re = () => {
   );
 }
           `,
-  ],
-  invalid: [
-    {
-      code: `
+	],
+	invalid: [
+		{
+			code: `
 import {Video, useCurrentFrame} from 'remotion';
 
 export const Re = () => {
@@ -62,14 +62,14 @@ export const Re = () => {
   );
 }
       `,
-      errors: [
-        {
-          messageId: "VolumeCallback",
-        },
-      ],
-    },
-    {
-      code: `
+			errors: [
+				{
+					messageId: 'VolumeCallback',
+				},
+			],
+		},
+		{
+			code: `
 import {Video, useCurrentFrame} from 'remotion';
 
 export const Re = () => {
@@ -80,11 +80,11 @@ export const Re = () => {
   );
 }
       `,
-      errors: [
-        {
-          messageId: "VolumeCallback",
-        },
-      ],
-    },
-  ],
+			errors: [
+				{
+					messageId: 'VolumeCallback',
+				},
+			],
+		},
+	],
 });

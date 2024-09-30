@@ -7,7 +7,7 @@
 		"test": "turbo run lint test --no-update-notifier",
 		"ts-build": "tsc -b --verbose",
 		"stylecheck": "turbo run lint formatting --no-update-notifier",
-		"build": "turbo run build --no-update-notifier",
+		"build": "turbo run make --no-update-notifier",
 		"build-docs": "turbo run build-docs --no-update-notifier",
 		"ci": "turbo run build test --concurrency=50% --no-update-notifier",
 		"watch": "tsc -b --verbose -w",
@@ -26,19 +26,19 @@
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.281",
-		"@types/bun": "1.0.12",
+		"@types/bun": "1.1.10",
 		"@types/react": "18.3.1",
 		"@types/react-dom": "18.3.0",
 		"eslint": "8.56.0",
 		"eslint-plugin-10x": "1.5.2",
 		"eslint-plugin-react": "7.32.2",
 		"eslint-plugin-react-hooks": "4.4.0",
-		"prettier": "3.2.5",
+		"prettier": "3.3.3",
 		"prettier-plugin-organize-imports": "3.2.4"
 	},
 	"dependencies": {
 		"turbo": "1.13.3",
-		"typescript": "5.3.3"
+		"typescript": "5.5.4"
 	},
 	"packageManager": "pnpm@8.10.2"
 }
