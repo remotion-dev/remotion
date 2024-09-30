@@ -1,0 +1,27 @@
+{
+  "name": "template-stargazer",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "remotion studio",
+    "build": "remotion render main out/Main.mp4 --log verbose",
+    "test": "eslint src --ext ts,tsx,js,jsx && tsc"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@remotion/bundler": "workspace:*",
+    "@remotion/cli": "workspace:*",
+    "@remotion/renderer": "workspace:*",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "workspace:*",
+    "zod": "3.22.3"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config": "workspace:*",
+    "@types/react": "18.3.1",
+    "eslint": "8.56.0",
+    "prettier": "3.3.3",
+    "typescript": "5.5.4"
+  },
+  "private": true
+}

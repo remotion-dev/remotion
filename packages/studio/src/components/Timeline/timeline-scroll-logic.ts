@@ -271,7 +271,7 @@ export const getFrameFromX = ({
 		interpolate(
 			pos,
 			[0, width - TIMELINE_PADDING * 2],
-			[0, durationInFrames - 1 ?? 0],
+			[0, durationInFrames - 1],
 			{
 				extrapolateLeft: extrapolate,
 				extrapolateRight: extrapolate,

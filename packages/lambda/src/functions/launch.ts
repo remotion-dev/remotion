@@ -332,7 +332,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		params.bucketName,
 		typeof params.outName === 'string' || typeof params.outName === 'undefined'
 			? null
-			: params.outName?.s3OutputProvider ?? null,
+			: (params.outName?.s3OutputProvider ?? null),
 	);
 
 	if (!params.overwrite) {

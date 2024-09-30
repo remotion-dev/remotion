@@ -82,7 +82,7 @@ export const getCompositionsOnLambda = async ({
 				serveUrl,
 				envVariables,
 				inputProps: serializedInputProps,
-				logLevel: dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
+				logLevel: dumpBrowserLogs ? 'verbose' : (logLevel ?? 'info'),
 				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
 				version: VERSION,
 				bucketName: bucketName ?? null,

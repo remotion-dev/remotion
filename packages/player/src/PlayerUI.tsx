@@ -360,114 +360,116 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		};
 	}, [bufferStateDelayInMilliseconds, player.emitter]);
 
-	useImperativeHandle(
-		ref,
-		() => {
-			const methods: PlayerMethods = {
-				play: player.play,
-				pause: () => {
-					// If, after .seek()-ing, the player was explicitly paused, we don't resume
-					setHasPausedToResume(false);
-					player.pause();
-				},
-				toggle,
-				getContainerNode: () => container.current,
-				getCurrentFrame: player.getCurrentFrame,
-				isPlaying: player.isPlaying,
-				seekTo: (f) => {
-					const lastFrame = durationInFrames - 1;
-					const frameToSeekTo = Math.max(0, Math.min(lastFrame, f));
-
-					// continue playing after seeking if the player was playing before
-					if (player.isPlaying()) {
-						const pauseToResume = frameToSeekTo !== lastFrame || loop;
-						setHasPausedToResume(pauseToResume);
-						player.pause();
-					}
-
-					if (frameToSeekTo === lastFrame && !loop) {
-						player.emitter.dispatchEnded();
-					}
-
-					player.seek(frameToSeekTo);
-				},
-				isFullscreen: () => {
-					const {current} = container;
-					if (!current) {
-						return false;
-					}
-
-					return (
-						document.fullscreenElement === current ||
-						// @ts-expect-error Types not defined
-						document.webkitFullscreenElement === current
-					);
-				},
-				requestFullscreen,
-				exitFullscreen,
-				getVolume: () => {
-					if (mediaMuted) {
-						return 0;
-					}
-
-					return mediaVolume;
-				},
-				setVolume: (vol: number) => {
-					if (typeof vol !== 'number') {
-						throw new TypeError(
-							`setVolume() takes a number, got value of type ${typeof vol}`,
-						);
-					}
-
-					if (isNaN(vol)) {
-						throw new TypeError(
-							`setVolume() got a number that is NaN. Volume must be between 0 and 1.`,
-						);
-					}
-
-					if (vol < 0 || vol > 1) {
-						throw new TypeError(
-							`setVolume() got a number that is out of range. Must be between 0 and 1, got ${typeof vol}`,
-						);
-					}
-
-					setMediaVolume(vol);
-				},
-				isMuted: () => isMuted,
-				mute: () => {
-					setMediaMuted(true);
-				},
-				unmute: () => {
-					setMediaMuted(false);
-				},
-				getScale: () => scale,
-				pauseAndReturnToPlayStart: () => {
-					player.pauseAndReturnToPlayStart();
-				},
-			};
-			return Object.assign(player.emitter, methods);
-		},
-		[
-			durationInFrames,
-			exitFullscreen,
-			loop,
-			mediaMuted,
-			isMuted,
-			mediaVolume,
-			player,
-			requestFullscreen,
-			setMediaMuted,
-			setMediaVolume,
+	useImperativeHandle(ref, () => {
+		const methods: PlayerMethods = {
+			play: player.play,
+			pause: () => {
+				// If, after .seek()-ing, the player was explicitly paused, we don't resume
+				setHasPausedToResume(false);
+				player.pause();
+			},
 			toggle,
-			scale,
-		],
-	);
+			getContainerNode: () => container.current,
+			getCurrentFrame: player.getCurrentFrame,
+			isPlaying: player.isPlaying,
+			seekTo: (f) => {
+				const lastFrame = durationInFrames - 1;
+				const frameToSeekTo = Math.max(0, Math.min(lastFrame, f));
+
+				// continue playing after seeking if the player was playing before
+				if (player.isPlaying()) {
+					const pauseToResume = frameToSeekTo !== lastFrame || loop;
+					setHasPausedToResume(pauseToResume);
+					player.pause();
+				}
+
+				if (frameToSeekTo === lastFrame && !loop) {
+					player.emitter.dispatchEnded();
+				}
+
+				player.seek(frameToSeekTo);
+			},
+			isFullscreen: () => {
+				const {current} = container;
+				if (!current) {
+					return false;
+				}
+
+				return (
+					document.fullscreenElement === current ||
+					// @ts-expect-error Types not defined
+					document.webkitFullscreenElement === current
+				);
+			},
+			requestFullscreen,
+			exitFullscreen,
+			getVolume: () => {
+				if (mediaMuted) {
+					return 0;
+				}
+
+				return mediaVolume;
+			},
+			setVolume: (vol: number) => {
+				if (typeof vol !== 'number') {
+					throw new TypeError(
+						`setVolume() takes a number, got value of type ${typeof vol}`,
+					);
+				}
+
+				if (isNaN(vol)) {
+					throw new TypeError(
+						`setVolume() got a number that is NaN. Volume must be between 0 and 1.`,
+					);
+				}
+
+				if (vol < 0 || vol > 1) {
+					throw new TypeError(
+						`setVolume() got a number that is out of range. Must be between 0 and 1, got ${typeof vol}`,
+					);
+				}
+
+				setMediaVolume(vol);
+			},
+			isMuted: () => isMuted,
+			mute: () => {
+				setMediaMuted(true);
+			},
+			unmute: () => {
+				setMediaMuted(false);
+			},
+			getScale: () => scale,
+			pauseAndReturnToPlayStart: () => {
+				player.pauseAndReturnToPlayStart();
+			},
+		};
+		return Object.assign(player.emitter, methods);
+	}, [
+		durationInFrames,
+		exitFullscreen,
+		loop,
+		mediaMuted,
+		isMuted,
+		mediaVolume,
+		player,
+		requestFullscreen,
+		setMediaMuted,
+		setMediaVolume,
+		toggle,
+		scale,
+	]);
 
 	const VideoComponent = video ? video.component : null;
 
 	const outerStyle: React.CSSProperties = useMemo(() => {
-		return calculateOuterStyle({canvasSize, config, style, overflowVisible});
-	}, [canvasSize, config, overflowVisible, style]);
+		return calculateOuterStyle({
+			canvasSize,
+			config,
+			style,
+			overflowVisible,
+			layout,
+		});
+	}, [canvasSize, config, layout, overflowVisible, style]);
 
 	const outer = useMemo(() => {
 		return calculateOuter({config, layout, scale, overflowVisible});

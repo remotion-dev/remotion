@@ -1,36 +1,34 @@
 .row {
-  display: flex;
-  flex-direction: row;
+	display: flex;
+	flex-direction: row;
 }
 
 @media screen and (max-width: 900px) {
-  .row {
-    flex-direction: column
-  }
+	.row {
+		flex-direction: column;
+	}
 }
 
-
 .stat {
-  flex: 1;
-  text-align: center;
+	flex: 1;
+	text-align: center;
 
-  margin-bottom: 50px;
+	margin-bottom: 50px;
 }
 
 .stat h1 {
-  margin-top: 0;
-  margin-bottom: 0;
-  font-weight: 800;
-  line-height: 1;
-  font-size: 3em;
-  color: rgb(66, 144, 245);
-
+	margin-top: 0;
+	margin-bottom: 0;
+	font-weight: 800;
+	line-height: 1;
+	font-size: 2.5em;
+	color: rgb(66, 144, 245);
 }
 .stat p {
-  margin-bottom: 0;
-  margin-top: 0;
+	margin-bottom: 0;
+	margin-top: 0;
 }
 
 .stat sup {
-  font-size: 0.4em;
+	font-size: 0.4em;
 }

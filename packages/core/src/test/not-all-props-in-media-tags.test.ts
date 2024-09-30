@@ -52,5 +52,5 @@ test('Should not have disableRemotePlayback props in the <AudioForRendering> com
 	);
 	const read = fs.readFileSync(file, 'utf-8');
 	expect(read).not.toContain('aria-disabled');
-	expect(read).toContain('volume-prop');
+	expect(read).toContain('./props');
 });

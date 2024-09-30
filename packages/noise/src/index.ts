@@ -18,7 +18,7 @@ const generate2DNoise = (seed: string | number) => {
 
 	// If the cache is getting to big, remove entries based on FIFO principle
 	if (seedCache2d.size > 10) {
-		seedCache2d.delete(seedCache2d.keys().next().value);
+		seedCache2d.delete(seedCache2d.keys().next().value as string | number);
 	}
 
 	const noise = createNoise2D(() => random(seed));
@@ -34,7 +34,7 @@ const generate3DNoise = (seed: string | number) => {
 
 	// If the cache is getting to big, remove entries based on FIFO principle
 	if (seedCache3d.size > 10) {
-		seedCache3d.delete(seedCache3d.keys().next().value);
+		seedCache3d.delete(seedCache3d.keys().next().value as string | number);
 	}
 
 	const noise = createNoise3D(() => random(seed));
@@ -50,7 +50,7 @@ const generate4DNoise = (seed: string | number) => {
 
 	// If the cache is getting to big, remove entries based on FIFO principle
 	if (seedCache4d.size > 10) {
-		seedCache4d.delete(seedCache4d.keys().next().value);
+		seedCache4d.delete(seedCache4d.keys().next().value as string | number);
 	}
 
 	const noise = createNoise4D(() => random(seed));

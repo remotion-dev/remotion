@@ -49,7 +49,7 @@ export const delayRender = (
 			(options?.timeoutInMilliseconds ??
 				(typeof window === 'undefined'
 					? defaultTimeout
-					: window.remotion_puppeteerTimeout ?? defaultTimeout)) - 2000;
+					: (window.remotion_puppeteerTimeout ?? defaultTimeout))) - 2000;
 		if (typeof window !== 'undefined') {
 			const retriesLeft =
 				(options?.retries ?? 0) - (window.remotion_attempt - 1);

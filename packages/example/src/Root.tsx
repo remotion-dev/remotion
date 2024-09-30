@@ -623,7 +623,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					calculateMetadata={calculateMetadataFn}
 					defaultProps={{
-						src: 'https://videos.pexels.com/video-files/5530402/5530402-uhd_3840_2160_25fps.mp4',
+						src: staticFile('bigbuckbunny.mp4'),
 					}}
 				/>
 				<Composition

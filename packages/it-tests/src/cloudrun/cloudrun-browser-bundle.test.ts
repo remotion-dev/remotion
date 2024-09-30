@@ -13,7 +13,7 @@ test('Should not be able to bundle @remotion/cloudrun directly', async () => {
 			entryPoints: [require.resolve('@remotion/cloudrun')],
 			logLevel: 'silent',
 		}),
-	).toThrow(/Could not resolve "uglify-js"/);
+	).toThrow(/Could not resolve "@swc\/wasm"/);
 });
 
 describe('Should be able to bundle @remotion/cloudrun/client with ESBuild', () => {

@@ -55,22 +55,18 @@ export const ExplorerPanel: React.FC<{
 		persistSelectedOptionsSidebarPanel('assets');
 	}, []);
 
-	useImperativeHandle(
-		explorerSidebarTabs,
-		() => {
-			return {
-				selectAssetsPanel: () => {
-					setPanel('assets');
-					persistSelectedOptionsSidebarPanel('assets');
-				},
-				selectCompositionPanel: () => {
-					setPanel('compositions');
-					persistSelectedOptionsSidebarPanel('compositions');
-				},
-			};
-		},
-		[],
-	);
+	useImperativeHandle(explorerSidebarTabs, () => {
+		return {
+			selectAssetsPanel: () => {
+				setPanel('assets');
+				persistSelectedOptionsSidebarPanel('assets');
+			},
+			selectCompositionPanel: () => {
+				setPanel('compositions');
+				persistSelectedOptionsSidebarPanel('compositions');
+			},
+		};
+	}, []);
 
 	return (
 		<div style={container} className="css-reset">
