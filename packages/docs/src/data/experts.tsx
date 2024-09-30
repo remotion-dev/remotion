@@ -209,14 +209,14 @@ export const experts: Expert[] = [
 					<br />
 					<br />
 					I&apos;ve worked extensively on the Remotion core repository itself,
-					helping Jonny and the team by building the
+					helping Jonny and the team by building the{' '}
 					<a
 						target={'_blank'}
 						href="https://www.npmjs.com/package/@remotion/cloudrun"
 					>
 						@remotion/cloudrun package
-					</a>
-					and making many many tiny improvements to the documentation to help
+					</a> 
+					{' '}and making many many tiny improvements to the documentation to help
 					other developers move as fast as possible. I&apos;ve helped many
 					companies ensure they get started with a strong foundation, as well as
 					launch with a buttoned-up solution that can be depended upon;
@@ -238,8 +238,6 @@ export const experts: Expert[] = [
 						</li>
 						<li>+ many more.</li>
 					</ul>
-					<br />
-					<br />
 					95% of my time is spent in the Remotion ecosystem, and I am able to
 					work independently or integrate into existing teams across your full
 					stack. On the front-end, I craft thoughtful, responsive UIs tailored
