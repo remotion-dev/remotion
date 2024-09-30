@@ -1,0 +1,43 @@
+.controls-wrapper {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	padding: 5px 0px;
+	border-radius: 0.5rem;
+
+	.start-controls {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		gap: 10px;
+		width: 100%;
+	}
+
+	.end-controls {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+}
+
+@media screen and (max-width: 900px) {
+	.controls-wrapper {
+		margin-top: 0.5rem;
+		gap: 15px;
+	}
+
+	.end-controls {
+		gap: 15px;
+	}
+}
+
+@media screen and (min-width: 901px) {
+	.controls-wrapper {
+		margin-top: 1rem;
+		gap: 20px;
+	}
+
+	.end-controls {
+		gap: 20px;
+	}
+}

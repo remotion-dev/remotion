@@ -1,62 +1,15 @@
 import type {PlayerRef} from '@remotion/player';
-import React, {useCallback, useEffect} from 'react';
-import {PausedIcon, PlayingIcon} from '../../icons/arrows';
-import {PlayerButton} from './PlayerButton';
+import React, {useEffect} from 'react';
+import styles from './player.module.css';
 import {PlayerFullscreen} from './PlayerFullscreen';
 import {PlayerSeekBar} from './PlayerSeekBar';
 import {PlayerVolume} from './PlayerVolume';
+import {PlayPauseButton} from './PlayPauseButton';
 
 const formatTime = (timeInSeconds: number) => {
 	const minutes = Math.floor(timeInSeconds / 60);
 	const seconds = Math.floor(timeInSeconds - minutes * 60);
 	return `${String(minutes)}:${String(seconds).padStart(2, '0')}`;
-};
-
-const PlayButton: React.FC<{
-	playerRef: React.RefObject<PlayerRef>;
-}> = ({playerRef}) => {
-	const [playing, setPlaying] = React.useState(true);
-
-	useEffect(() => {
-		const {current} = playerRef;
-		if (!current) {
-			return;
-		}
-
-		const onPlay = () => {
-			setPlaying(true);
-		};
-
-		const onPause = () => {
-			setPlaying(false);
-		};
-
-		current.addEventListener('play', onPlay);
-		current.addEventListener('pause', onPause);
-
-		return () => {
-			current.removeEventListener('play', onPlay);
-			current.removeEventListener('pause', onPause);
-		};
-	}, [playerRef]);
-
-	const onToggle = useCallback(() => {
-		playerRef.current?.toggle();
-	}, [playerRef]);
-
-	const playPauseIconStyle: React.CSSProperties = {
-		width: 15,
-	};
-
-	return (
-		<PlayerButton onClick={onToggle}>
-			{playing ? (
-				<PlayingIcon style={playPauseIconStyle} />
-			) : (
-				<PausedIcon style={playPauseIconStyle} />
-			)}
-		</PlayerButton>
-	);
 };
 
 const TimeDisplay: React.FC<{
@@ -99,40 +52,15 @@ const TimeDisplay: React.FC<{
 	);
 };
 
-const row: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'row',
-	alignItems: 'center',
-	marginTop: '1rem',
-	padding: '5px 0px',
-	borderRadius: '0.5rem',
-	gap: '20px',
-};
-
-const startControls: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'row',
-	alignItems: 'center',
-	gap: '10px',
-	width: '100%',
-};
-
-const endControls: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'row',
-	alignItems: 'center',
-	gap: '20px',
-};
-
 export const PlayerControls: React.FC<{
 	playerRef: React.RefObject<PlayerRef>;
 	durationInFrames: number;
 	fps: number;
 }> = ({playerRef, durationInFrames, fps}) => {
 	return (
-		<div style={row}>
-			<div style={startControls}>
-				<PlayButton playerRef={playerRef} />
+		<div className={styles['controls-wrapper']}>
+			<div className={styles['start-controls']}>
+				<PlayPauseButton playerRef={playerRef} />
 				<div style={{flex: 1}}>
 					<PlayerSeekBar
 						durationInFrames={durationInFrames}
@@ -149,7 +77,7 @@ export const PlayerControls: React.FC<{
 					fps={fps}
 				/>
 			</div>
-			<div style={endControls}>
+			<div className={styles['end-controls']}>
 				<PlayerVolume playerRef={playerRef} />
 				<PlayerFullscreen playerRef={playerRef} />
 			</div>
