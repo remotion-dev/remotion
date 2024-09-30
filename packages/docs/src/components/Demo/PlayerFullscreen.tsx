@@ -1,5 +1,6 @@
 import type {PlayerRef} from '@remotion/player';
 import React, {useCallback, useEffect, useState} from 'react';
+import {FullscreenIcon} from '../../icons/arrows';
 
 export const PlayerFullscreen: React.FC<{
 	playerRef: React.RefObject<PlayerRef>;
@@ -49,8 +50,17 @@ export const PlayerFullscreen: React.FC<{
 	}
 
 	return (
-		<button type="button" onClick={onClick}>
-			{isFullscreen ? '✔️' : '❌'}
+		<button
+			type="button"
+			onClick={onClick}
+			style={{
+				background: 'transparent',
+				border: 0,
+				cursor: 'pointer',
+				padding: 0,
+			}}
+		>
+			<FullscreenIcon style={{width: 20}} />
 		</button>
 	);
 };

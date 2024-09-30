@@ -31,6 +31,7 @@ const containerStyle: React.CSSProperties = {
 	cursor: 'pointer',
 	position: 'relative',
 	touchAction: 'none',
+	flex: 1,
 };
 
 const barBackground: React.CSSProperties = {
@@ -274,20 +275,21 @@ export const PlayerSeekBar: React.FC<{
 			borderRadius: KNOB_SIZE / 2,
 			position: 'absolute',
 			top: VERTICAL_PADDING - KNOB_SIZE / 2 + 5 / 2,
-			backgroundColor: 'black',
+			backgroundColor: 'var(--ifm-font-color-base)',
 			left: Math.max(
 				0,
 				(frame / Math.max(1, durationInFrames - 1)) * width - KNOB_SIZE / 2,
 			),
 			boxShadow: '0 0 2px black',
 			opacity: Number(barHovered),
+			transition: 'opacity 0.1s ease',
 		};
 	}, [barHovered, durationInFrames, frame, width]);
 
 	const fillStyle: React.CSSProperties = useMemo(() => {
 		return {
 			height: BAR_HEIGHT,
-			backgroundColor: 'rgba(0, 0, 0, 1)',
+			backgroundColor: 'var(--ifm-font-color-base)',
 			width: ((frame - (inFrame ?? 0)) / (durationInFrames - 1)) * 100 + '%',
 			marginLeft: ((inFrame ?? 0) / (durationInFrames - 1)) * 100 + '%',
 			borderRadius: BAR_HEIGHT / 2,
@@ -297,7 +299,8 @@ export const PlayerSeekBar: React.FC<{
 	const active: React.CSSProperties = useMemo(() => {
 		return {
 			height: BAR_HEIGHT,
-			backgroundColor: 'rgba(255, 255, 255, 0.25)',
+			backgroundColor: 'var(--ifm-font-color-base)',
+			opacity: 0.6,
 			width:
 				(((outFrame ?? durationInFrames - 1) - (inFrame ?? 0)) /
 					(durationInFrames - 1)) *
