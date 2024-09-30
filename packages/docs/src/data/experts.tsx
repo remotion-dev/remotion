@@ -215,8 +215,8 @@ export const experts: Expert[] = [
 						href="https://www.npmjs.com/package/@remotion/cloudrun"
 					>
 						@remotion/cloudrun package
-					</a> 
-					{' '}and making many many tiny improvements to the documentation to help
+					</a>{' '}
+					and making many many tiny improvements to the documentation to help
 					other developers move as fast as possible. I&apos;ve helped many
 					companies ensure they get started with a strong foundation, as well as
 					launch with a buttoned-up solution that can be depended upon;
