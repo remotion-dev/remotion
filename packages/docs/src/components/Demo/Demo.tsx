@@ -65,6 +65,7 @@ export const Demo: React.FC = () => {
 							borderBottom: '4px solid ' + strokeColor,
 							borderRadius: 8,
 							width: '100%',
+							touchAction: 'none', // prevent page from scrolling when dragging children
 						}}
 						inputProps={{
 							theme: colorMode,
