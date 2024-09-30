@@ -197,7 +197,7 @@ export const renderStillOnLambda = (input: RenderStillOnLambdaInput) => {
 		region: input.region,
 		serveUrl: input.serveUrl,
 		jpegQuality: input.jpegQuality ?? 80,
-		logLevel: input.dumpBrowserLogs ? 'verbose' : input.logLevel ?? 'info',
+		logLevel: input.dumpBrowserLogs ? 'verbose' : (input.logLevel ?? 'info'),
 		offthreadVideoCacheSizeInBytes:
 			input.offthreadVideoCacheSizeInBytes ?? null,
 		scale: input.scale ?? 1,

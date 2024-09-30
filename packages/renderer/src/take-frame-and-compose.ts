@@ -84,7 +84,7 @@ export const takeFrameAndCompose = async ({
 			jpegQuality,
 			options: {
 				frame,
-				output: shouldMakeBuffer ? null : needsComposing?.tmpFile ?? output,
+				output: shouldMakeBuffer ? null : (needsComposing?.tmpFile ?? output),
 			},
 			height,
 			width,

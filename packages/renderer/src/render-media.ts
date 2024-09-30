@@ -894,7 +894,7 @@ export const renderMedia = ({
 
 	const indent = false;
 	const logLevel =
-		verbose || dumpBrowserLogs ? 'verbose' : passedLogLevel ?? 'info';
+		verbose || dumpBrowserLogs ? 'verbose' : (passedLogLevel ?? 'info');
 
 	return internalRenderMedia({
 		proResProfile: proResProfile ?? undefined,

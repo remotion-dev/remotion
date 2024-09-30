@@ -786,7 +786,9 @@ const RenderModal: React.FC<
 	}, [codec]);
 
 	const pixelFormat = useMemo(() => {
-		if (availablePixelFormats.includes(userPreferredPixelFormat)) {
+		if (
+			(availablePixelFormats as string[]).includes(userPreferredPixelFormat)
+		) {
 			return userPreferredPixelFormat;
 		}
 

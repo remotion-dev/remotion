@@ -1,0 +1,32 @@
+{
+  "name": "template-audiogram",
+  "version": "1.0.0",
+  "description": "My Remotion video",
+  "scripts": {
+    "start": "remotion studio",
+    "build": "remotion render Audiogram out/video.mp4",
+    "upgrade": "remotion upgrade",
+    "test": "eslint src --ext ts,tsx,js,jsx && tsc"
+  },
+  "repository": {},
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@remotion/cli": "workspace:*",
+    "@remotion/media-utils": "workspace:*",
+    "@remotion/zod-types": "workspace:*",
+    "parse-srt": "1.0.0-alpha",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "workspace:*",
+    "zod": "3.22.3"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config": "workspace:*",
+    "@types/react": "18.3.1",
+    "@types/web": "0.0.166",
+    "eslint": "8.56.0",
+    "prettier": "3.3.3",
+    "typescript": "5.5.4"
+  },
+  "private": true
+}

@@ -1,7 +1,14 @@
 import chalk from 'chalk';
 import execa from 'execa';
 import path from 'node:path';
+import {
+	addTailwindConfigJs,
+	addTailwindRootCss,
+	addTailwindStyleCss,
+	addTailwindToConfig,
+} from './add-tailwind';
 import {createYarnYmlFile} from './add-yarn2-support';
+import {askTailwind} from './ask-tailwind';
 import {degit} from './degit';
 import {getLatestRemotionVersion} from './latest-remotion-version';
 import {Log} from './log';
@@ -10,8 +17,9 @@ import {patchPackageJson} from './patch-package-json';
 import {patchReadmeMd} from './patch-readme';
 import {
 	getDevCommand,
+	getInstallCommand,
 	getPackageManagerVersionOrNull,
-	getRenderCommandForTemplate,
+	getRenderCommand,
 	selectPackageManager,
 } from './pkg-managers';
 import {resolveProjectRoot} from './resolve-project-root';
@@ -73,9 +81,12 @@ const getGitStatus = async (root: string): Promise<void> => {
 };
 
 export const init = async () => {
-	const result = await checkGitAvailability(process.cwd(), 'git', [
-		'--version',
-	]);
+	Log.info(`Welcome to ${chalk.blue('Remotion')}!`);
+	const {projectRoot, folderName} = await resolveProjectRoot();
+	Log.info();
+
+	const result = await checkGitAvailability(projectRoot, 'git', ['--version']);
+
 	if (result.type === 'git-not-installed') {
 		Log.error(
 			'Git is not installed or not in the path. Install Git to continue.',
@@ -91,16 +102,15 @@ export const init = async () => {
 			)}).\nThis might lead to a Git Submodule being created. Do you want to continue? (y/N):`,
 		});
 		if (!should) {
-			Log.error('Aborting.');
 			process.exit(1);
 		}
 	}
 
-	const [projectRoot, folderName] = await resolveProjectRoot();
-
 	const latestRemotionVersionPromise = getLatestRemotionVersion();
 
 	const selectedTemplate = await selectTemplate();
+
+	const shouldOverrideTailwind = selectedTemplate ? await askTailwind() : false;
 
 	const pkgManager = selectPackageManager();
 	const pkgManagerVersion = await getPackageManagerVersionOrNull(pkgManager);
@@ -112,14 +122,20 @@ export const init = async () => {
 			dest: projectRoot,
 		});
 		patchReadmeMd(projectRoot, pkgManager, selectedTemplate);
+		if (shouldOverrideTailwind) {
+			addTailwindStyleCss(projectRoot);
+			addTailwindToConfig(projectRoot);
+			addTailwindConfigJs(projectRoot);
+			addTailwindRootCss(projectRoot);
+		}
+
 		const latestVersion = await latestRemotionVersionPromise;
 		patchPackageJson({
 			projectRoot,
 			projectName: folderName,
 			latestRemotionVersion: latestVersion,
-			packageManager: pkgManagerVersion
-				? `${pkgManager}@${pkgManagerVersion}`
-				: null,
+			packageManager: pkgManager,
+			addTailwind: shouldOverrideTailwind,
 		});
 	} catch (e) {
 		Log.error(e);
@@ -127,81 +143,40 @@ export const init = async () => {
 		process.exit(1);
 	}
 
-	Log.info(
-		`Copied ${chalk.blueBright(
-			selectedTemplate.shortName,
-		)} to ${chalk.blueBright(folderName)}. Installing dependencies...`,
-	);
-
 	createYarnYmlFile({
 		pkgManager,
 		pkgManagerVersion,
 		projectRoot,
 	});
 
-	if (pkgManager === 'yarn') {
-		Log.info('> yarn');
-		const promise = execa('yarn', [], {
-			cwd: projectRoot,
-			stdio: 'inherit',
-			env: {...process.env, ADBLOCK: '1', DISABLE_OPENCOLLECTIVE: '1'},
-		});
-		promise.stderr?.pipe(process.stderr);
-		promise.stdout?.pipe(process.stdout);
-		await promise;
-	} else if (pkgManager === 'pnpm') {
-		Log.info('> pnpm i');
-		const promise = execa('pnpm', ['i'], {
-			cwd: projectRoot,
-			stdio: 'inherit',
-			env: {...process.env, ADBLOCK: '1', DISABLE_OPENCOLLECTIVE: '1'},
-		});
-		promise.stderr?.pipe(process.stderr);
-		promise.stdout?.pipe(process.stdout);
-		await promise;
-	} else if (pkgManager === 'bun') {
-		Log.info('> bun install');
-		const promise = execa('bun', ['install'], {
-			cwd: projectRoot,
-			stdio: 'inherit',
-			env: {...process.env, ADBLOCK: '1', DISABLE_OPENCOLLECTIVE: '1'},
-		});
-		promise.stderr?.pipe(process.stderr);
-		promise.stdout?.pipe(process.stdout);
-		await promise;
-	} else {
-		Log.info('> npm install');
-		const promise = execa('npm', ['install', '--no-fund', '--no-audit'], {
-			stdio: 'inherit',
-			cwd: projectRoot,
-			env: {...process.env, ADBLOCK: '1', DISABLE_OPENCOLLECTIVE: '1'},
-		});
-		promise.stderr?.pipe(process.stderr);
-		promise.stdout?.pipe(process.stdout);
-		await promise;
-	}
-
 	await getGitStatus(projectRoot);
 
-	Log.info();
-	Log.info(`Welcome to ${chalk.blueBright('Remotion')}!`);
-	Log.info(
-		`✨ Your video has been created at ${chalk.blueBright(folderName)}.`,
-	);
-	await openInEditorFlow(projectRoot);
+	const relativeToCurrent = path.relative(process.cwd(), projectRoot);
+	const cdToFolder = relativeToCurrent.startsWith('.')
+		? projectRoot
+		: relativeToCurrent;
 
-	Log.info('Get started by running');
-	Log.info(chalk.blueBright(`cd ${folderName}`));
-	Log.info(chalk.blueBright(getDevCommand(pkgManager, selectedTemplate)));
-	Log.info('');
-	Log.info('To render a video, run');
+	Log.info();
 	Log.info(
-		chalk.blueBright(getRenderCommandForTemplate(pkgManager, selectedTemplate)),
+		`Copied ${chalk.blue(
+			selectedTemplate.shortName,
+		)} to ${chalk.blue(cdToFolder)}.`,
 	);
+	Log.info();
+
+	Log.info('Get started by running:');
+	Log.info(' ' + chalk.blue(`cd ${cdToFolder}`));
+	Log.info(' ' + chalk.blue(getInstallCommand(pkgManager)));
+	Log.info(' ' + chalk.blue(getDevCommand(pkgManager, selectedTemplate)));
+	Log.info('');
+	Log.info('To render a video, run:');
+	Log.info(' ' + chalk.blue(getRenderCommand(pkgManager)));
 	Log.info('');
 	Log.info(
 		'Docs to get you started:',
 		chalk.underline('https://www.remotion.dev/docs/the-fundamentals'),
 	);
+	Log.info();
+	await openInEditorFlow(projectRoot);
 	Log.info('Enjoy Remotion!');
 };

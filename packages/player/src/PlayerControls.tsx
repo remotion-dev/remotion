@@ -324,7 +324,7 @@ export const Controls: React.FC<{
 								playing={player.playing}
 							/>
 						) : (
-							renderPlayPauseButton({
+							(renderPlayPauseButton({
 								playing: player.playing,
 								isBuffering: buffering,
 							}) ?? (
@@ -332,7 +332,7 @@ export const Controls: React.FC<{
 									buffering={buffering}
 									playing={player.playing}
 								/>
-							)
+							))
 						)}
 					</button>
 					{showVolumeControls ? (

@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {patchPackageJson} from '../patch-package-json';
 import type {PackageManager} from '../pkg-managers';
 
@@ -7,7 +7,6 @@ const packageManagers: PackageManager[] = ['npm', 'pnpm', 'yarn', 'bun'];
 for (const packageManager of packageManagers) {
 	test(`Using ${packageManager} package manager provides the correct "packageManager" entry in package.json`, () => {
 		const latestRemotionVersion = '1.0.0';
-		const packageManagerVersion = '1.22.19';
 		const packageJson = {
 			name: 'my-video',
 			version: '1.0.0',
@@ -30,8 +29,9 @@ for (const packageManager of packageManagers) {
 			{
 				projectRoot: '/path/to/project',
 				latestRemotionVersion,
-				packageManager: `${packageManager}@${packageManagerVersion}`,
+				packageManager,
 				projectName: 'my-video',
+				addTailwind: true,
 			},
 			{
 				getPackageJson: () => JSON.stringify(packageJson),
@@ -42,7 +42,7 @@ for (const packageManager of packageManagers) {
 		);
 		const expectedStartScript =
 			packageManager === 'bun' ? 'remotionb studio' : 'remotion studio';
-		expect(newPackageJson).to.deep.equal({
+		expect(newPackageJson as unknown).toEqual({
 			...packageJson,
 			scripts: {
 				start: expectedStartScript,
@@ -50,13 +50,14 @@ for (const packageManager of packageManagers) {
 			dependencies: {
 				...packageJson.dependencies,
 				'@remotion/cli': latestRemotionVersion,
+				'@remotion/tailwind': latestRemotionVersion,
 				remotion: latestRemotionVersion,
 			},
+			sideEffects: ['*.css'],
 			devDependencies: {
 				...packageJson.devDependencies,
 				'@remotion/eslint-config': latestRemotionVersion,
 			},
-			packageManager: `${packageManager}@${packageManagerVersion}`,
 		});
 	});
 }

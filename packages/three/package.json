@@ -12,7 +12,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"build": "bun --env-file=../.env.bundle bundle.ts"
+		"make": "bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Björn Zeutzheim",
 	"contributors": [],
@@ -34,7 +34,7 @@
 		"@react-three/fiber": "8.13.5",
 		"@types/react-reconciler": "^0.26.4",
 		"@types/three": "0.157.2",
-		"@types/web": "0.0.78",
+		"@types/web": "0.0.166",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"remotion": "workspace:*",

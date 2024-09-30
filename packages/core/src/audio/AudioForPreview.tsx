@@ -177,13 +177,9 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		onAutoPlayError: null,
 	});
 
-	useImperativeHandle(
-		ref,
-		() => {
-			return audioRef.current as HTMLAudioElement;
-		},
-		[audioRef],
-	);
+	useImperativeHandle(ref, () => {
+		return audioRef.current as HTMLAudioElement;
+	}, [audioRef]);
 
 	const currentOnDurationCallback =
 		useRef<AudioForPreviewProps['onDuration']>();
