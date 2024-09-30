@@ -10,7 +10,7 @@ import type {Trending} from '../Comp';
 import {CurrentCountry} from '../CurrentCountry';
 import {Temperature} from '../Temperature';
 import {TrendingRepos} from '../TrendingRepos';
-import {EmojiCard} from '../emoji/EmojiCard';
+import {EmojiCard, type EmojiPosition} from '../emoji/EmojiCard';
 import type {Location} from '../types';
 import {Card} from './Card';
 import {getInitialPositions} from './math';
@@ -34,7 +34,16 @@ export const Cards: React.FC<{
 }) => {
 	const container = useRef<HTMLDivElement>(null);
 
-	const [emojiPosition, setEmojiPosition] = useState(10000000 * 3);
+	const activeTranslationStyle =
+		'transform 0.2s ease-in, opacity 0.2s ease-in-out';
+
+	const [emojiPositions, setEmojiPositions] = useState<EmojiPosition>({
+		prev: 'melting',
+		current: 'partying-face',
+		next: 'fire',
+		translation: 0,
+		translationStyle: activeTranslationStyle,
+	});
 
 	const [refs] = useState(() => {
 		return new Array(4).fill(true).map(() => {
@@ -67,11 +76,46 @@ export const Cards: React.FC<{
 	}, [onToggle]);
 
 	const onLeft = useCallback(() => {
-		setEmojiPosition((i) => i + 1);
+		setEmojiPositions((c) => {
+			return {
+				...c,
+				translation: -33.3,
+				translationStyle: activeTranslationStyle,
+			};
+		});
+		// after the animation is done, we need to update the emoji contents
+		setTimeout(() => {
+			setEmojiPositions((c) => {
+				return {
+					prev: c.next,
+					current: c.prev,
+					next: c.current,
+					translation: 0,
+					translationStyle: undefined,
+				};
+			});
+		}, 200);
 	}, []);
 
 	const onRight = useCallback(() => {
-		setEmojiPosition((i) => i - 1);
+		setEmojiPositions((c) => {
+			return {
+				...c,
+				translation: 33.3,
+				translationStyle: 'transform 0.2s ease-in, opacity 0.2s ease-in-out',
+			};
+		});
+		setTimeout(() => {
+			setEmojiPositions((c) => {
+				return {
+					prev: c.current,
+					current: c.next,
+					next: c.prev,
+					translation: 0,
+					translationStyle: '',
+				};
+			});
+		}, 200);
 	}, []);
 
 	return (
@@ -90,7 +134,7 @@ export const Cards: React.FC<{
 					) : index === 2 ? (
 						<CurrentCountry location={location} theme={theme} />
 					) : (
-						<EmojiCard emojiPosition={emojiPosition} />
+						<EmojiCard emojiPositions={emojiPositions} />
 					);
 
 				return (

@@ -10,10 +10,6 @@
 	text-wrap: balance;
 }
 
-.action-title {
-	font-family: 'GT Planar';
-}
-
 @media screen and (max-width: 900px) {
 	.row {
 		flex-direction: column;
