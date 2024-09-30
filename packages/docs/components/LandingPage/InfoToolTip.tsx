@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import styles from './InfoTooltip.module.css';
+import styles from './InfoTool.module.css';
 
 interface InfoTooltipProps {
 	text: string;
