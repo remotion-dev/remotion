@@ -2,14 +2,14 @@
 image: /generated/articles-docs-lambda-cli-functions.png
 id: functions
 sidebar_label: functions
-title: "npx remotion lambda functions"
+title: 'npx remotion lambda functions'
 slug: /lambda/cli/functions
-crumb: "Lambda CLI Reference"
+crumb: 'Lambda CLI Reference'
 ---
 
-import { DefaultMemorySize } from "../../../components/lambda/default-memory-size";
-import { DefaultTimeout } from "../../../components/lambda/default-timeout";
-import { DefaultLogRetention } from "../../../components/lambda/default-log-retention";
+import {DefaultMemorySize} from '../../../components/lambda/default-memory-size';
+import {DefaultTimeout} from '../../../components/lambda/default-timeout';
+import {DefaultLogRetention} from '../../../components/lambda/default-log-retention';
 
 The `npx remotion lambda functions` command allows you to deploy, view and delete AWS lambda functions that can render videos.
 
@@ -63,14 +63,14 @@ Memory size in megabytes. Default: <DefaultMemorySize /> MB.
 
 Disk size in megabytes. See also: [Disk size](/docs/lambda/disk-size).
 
-| Remotion Version | Default       |
-|------------------|---------------|
-| &lt;5.0.0        | 2048MB        |
-| &gt;=5.0.0       | 10240MB       |
+| Remotion Version | Default |
+| ---------------- | ------- |
+| &lt;5.0.0        | 2048MB  |
+| &gt;=5.0.0       | 10240MB |
 
 ### `--timeout`
 
-Timeout of the Lambda function. Default: <DefaultTimeout /> seconds.
+Timeout of the Lambda function in seconds. Default: <DefaultTimeout /> seconds.
 
 :::note
 Not to be confused with the [`--timeout` flag for `npx remotion lambda render` which defines the timeout for `delayRender()`](/docs/cli/render#--timeout).

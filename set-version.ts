@@ -70,7 +70,7 @@ execSync('node build.mjs --all', {
 	stdio: 'inherit',
 });
 
-execSync('pnpm build', {
+execSync('pnpm run make', {
 	cwd: 'packages/cloudrun',
 	stdio: 'inherit',
 });

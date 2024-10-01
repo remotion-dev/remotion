@@ -1,7 +1,7 @@
 import prompts from './prompts';
 
 export const askTailwind = async () => {
-	const answer = await prompts({
+	const {answer} = await prompts({
 		type: 'toggle',
 		name: 'answer',
 		message: 'Add TailwindCSS?',
@@ -10,5 +10,5 @@ export const askTailwind = async () => {
 		inactive: 'No',
 	});
 
-	return answer as unknown as boolean;
+	return answer as boolean;
 };
