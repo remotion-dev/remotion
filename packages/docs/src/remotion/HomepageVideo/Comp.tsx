@@ -22,10 +22,7 @@ export const getDataAndProps = async () => {
 	).then((res) => res.json())) as Location;
 
 	const trending = await fetch(
-		'https://bugs.remotion.dev/trending?lat=' +
-			location.latitude +
-			'&lng=' +
-			location.longitude,
+		`https://bugs.remotion.dev/trending?lat=${location.latitude}&lng=${location.longitude}`,
 	)
 		.then((res) => res.json())
 		.then((data) => {
