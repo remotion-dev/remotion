@@ -307,7 +307,14 @@ impl OpenedStream {
                 }
             }
 
-            self.video.send_packet(&packet)?;
+            // Don't throw an error here, sometimes it will still work!
+            // For example, loop melting-0.5x.webm from <AnimatedEmoji /> component
+            // and we will get the error "Invalid data found when processing input"
+            // but it'll still work!
+            let res = self.video.send_packet(&packet);
+            if res.is_err() {
+                _print_verbose(&format!("Error sending packet: {}", res.err().unwrap()))?;
+            }
 
             let result = self.receive_frame();
 
