@@ -5,13 +5,17 @@ import {deploySite, getOrCreateBucket} from '@remotion/lambda';
 
 const region: AwsRegion = 'us-west-2';
 
+// @ts-expect-error
 const {bucketName} = await getOrCreateBucket({
 	region,
 });
 
-await deploySite({
+// @ts-expect-error
+const {serveUrl} = await deploySite({
 	siteName: 'remotion-homepage',
 	bucketName,
 	entryPoint: './src/remotion/entry.ts',
 	region,
 });
+
+console.log(serveUrl);
