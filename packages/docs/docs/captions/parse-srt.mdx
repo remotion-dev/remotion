@@ -3,6 +3,8 @@ title: parseSrt()
 crumb: '@remotion/captions'
 ---
 
+# parseSrt()<AvailableFrom v="4.0.216 "/>
+
 Parses the contents of a SubRip file (`.srt`) and returns an array of [`Caption`](/docs/captions) items.
 
 ```tsx twoslash title="Example usage"
@@ -23,27 +25,30 @@ You can use SRT files to add subtitles to your videos.
 
 `.trim();
 
-const {lines} = parseSrt({input});
+const {captions} = parseSrt({input});
 
-/* lines = [
+/* captions = [
   {
-    endInSeconds: 2.5,
-    index: 1,
-    startInSeconds: 0,
+    confidence: 1,
+    endMs: 2500,
+    startMs: 0,
     text: 'Welcome to the Example Subtitle File!',
+    timestampMs: 1250,
   },
   {
-    endInSeconds: 6,
-    index: 2,
-    startInSeconds: 3,
+    confidence: 1,
+    endMs: 6000,
+    startMs: 3000,
     text: 'This is a demonstration of SRT subtitles.',
+    timestampMs: 4500,
   },
   {
-    endInSeconds: 10.5,
-    index: 3,
-    startInSeconds: 7,
+    confidence: 1,
+    endMs: 10500,
+    startMs: 7000,
     text: 'You can use SRT files to add subtitles to your videos.',
-  }
+    timestampMs: 8750,
+  },
 ]
 */
 ```
@@ -58,6 +63,11 @@ The contents of a `.srt` file as a `string`.
 
 An object with the following properties:
 
-### `lines`
+### `captions`
 
-An array of [`Caption`](/docs/captions) items.
+An array of [`Caption`](/docs/captions/captions) items.
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/captions/src/parse-srt.ts)
+- [`@remotion/captions`](/docs/captions)

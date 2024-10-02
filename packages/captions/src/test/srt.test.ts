@@ -17,7 +17,7 @@ You can use SRT files to add subtitles to your videos.
 `.trim();
 
 test('Should create captions', () => {
-	const {lines} = parseSrt({input});
+	const {captions: lines} = parseSrt({input});
 	expect(lines).toEqual([
 		{
 			confidence: 1,

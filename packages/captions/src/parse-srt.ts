@@ -33,12 +33,12 @@ export type ParseSrtInput = {
 };
 
 export type ParseSrtOutput = {
-	lines: Caption[];
+	captions: Caption[];
 };
 
 export const parseSrt = ({input}: ParseSrtInput): ParseSrtOutput => {
 	const inputLines = input.split('\n');
-	const lines: Caption[] = [];
+	const captions: Caption[] = [];
 
 	for (let i = 0; i < inputLines.length; i++) {
 		const line = inputLines[i];
@@ -47,7 +47,7 @@ export const parseSrt = ({input}: ParseSrtInput): ParseSrtOutput => {
 			const nextLineSplit = nextLine.split(' --> ');
 			const start = toSeconds(nextLineSplit[0] as string);
 			const end = toSeconds(nextLineSplit[1] as string);
-			lines.push({
+			captions.push({
 				text: '',
 				startMs: start * 1000,
 				endMs: end * 1000,
@@ -57,16 +57,16 @@ export const parseSrt = ({input}: ParseSrtInput): ParseSrtOutput => {
 		} else if (line?.includes(' --> ')) {
 			continue;
 		} else if (line?.trim() === '') {
-			(lines[lines.length - 1] as Caption).text = (
-				lines[lines.length - 1] as Caption
+			(captions[captions.length - 1] as Caption).text = (
+				captions[captions.length - 1] as Caption
 			).text.trim();
 		} else {
-			(lines[lines.length - 1] as Caption).text += line + '\n';
+			(captions[captions.length - 1] as Caption).text += line + '\n';
 		}
 	}
 
 	return {
-		lines: lines.map((l) => {
+		captions: captions.map((l) => {
 			return {
 				...l,
 				text: l.text.trimEnd(),
