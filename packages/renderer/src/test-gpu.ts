@@ -25,7 +25,7 @@ export const getChromiumGpuInformation = async ({
 	timeoutInMilliseconds: number;
 	onBrowserDownload: OnBrowserDownload;
 }) => {
-	const {page, cleanup} = await getPageAndCleanupFn({
+	const {page, cleanupPage: cleanup} = await getPageAndCleanupFn({
 		passedInInstance: undefined,
 		browserExecutable,
 		chromiumOptions,
