@@ -1,6 +1,6 @@
 import {Caption} from './captions';
 
-export type MergedCaption = {
+export type TikTokPage = {
 	text: string;
 	startInSeconds: number;
 };
@@ -11,8 +11,8 @@ export function createTikTokStyleCaptions({
 }: {
 	transcription: Caption[];
 	combineTokensWithinMilliseconds: number;
-}): {captions: MergedCaption[]} {
-	const merged: MergedCaption[] = [];
+}): {captions: TikTokPage[]} {
+	const merged: TikTokPage[] = [];
 	let currentText = '';
 	let currentFrom = 0;
 	let currentTo = 0;
