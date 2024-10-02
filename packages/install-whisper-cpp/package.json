@@ -20,7 +20,9 @@
 	],
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
-	"dependencies": {},
+	"dependencies": {
+		"@remotion/captions": "workspace:*"
+	},
 	"peerDependencies": {},
 	"devDependencies": {},
 	"keywords": [

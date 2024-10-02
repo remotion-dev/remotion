@@ -1033,7 +1033,11 @@ importers:
         specifier: 3.3.3
         version: 3.3.3
 
-  packages/install-whisper-cpp: {}
+  packages/install-whisper-cpp:
+    dependencies:
+      '@remotion/captions':
+        specifier: workspace:*
+        version: link:../captions
 
   packages/it-tests:
     devDependencies:

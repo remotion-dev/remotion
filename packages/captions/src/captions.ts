@@ -1,6 +1,6 @@
 export type Caption = {
 	text: string;
 	timestamp: number;
-	from: number;
-	to: number;
+	startMs: number;
+	endMs: number;
 };
