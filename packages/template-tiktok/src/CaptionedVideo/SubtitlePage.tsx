@@ -8,7 +8,7 @@ import {
 import { Page } from "./Page";
 import { TikTokPage } from "@remotion/captions";
 
-const Subtitle: React.FC<{ page: TikTokPage }> = ({ page }) => {
+const SubtitlePage: React.FC<{ page: TikTokPage }> = ({ page }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -28,4 +28,4 @@ const Subtitle: React.FC<{ page: TikTokPage }> = ({ page }) => {
   );
 };
 
-export default Subtitle;
+export default SubtitlePage;

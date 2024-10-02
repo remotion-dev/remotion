@@ -1,11 +1,4 @@
-export type ParsedSrtLine = {
-	index: number;
-	text: string;
-	startInSeconds: number;
-	endInSeconds: number;
-};
-
-export type ParsedSrt = ParsedSrtLine[];
+import {Caption} from './captions';
 
 function toSeconds(time: string) {
 	const [first, second, third] = time.split(':');
@@ -40,12 +33,12 @@ export type ParseSrtInput = {
 };
 
 export type ParseSrtOutput = {
-	lines: ParsedSrt;
+	lines: Caption[];
 };
 
 export const parseSrt = ({input}: ParseSrtInput): ParseSrtOutput => {
 	const inputLines = input.split('\n');
-	const lines: ParsedSrtLine[] = [];
+	const lines: Caption[] = [];
 
 	for (let i = 0; i < inputLines.length; i++) {
 		const line = inputLines[i];
@@ -55,21 +48,29 @@ export const parseSrt = ({input}: ParseSrtInput): ParseSrtOutput => {
 			const start = toSeconds(nextLineSplit[0] as string);
 			const end = toSeconds(nextLineSplit[1] as string);
 			lines.push({
-				index: Number(line),
 				text: '',
-				startInSeconds: start,
-				endInSeconds: end,
+				startMs: start * 1000,
+				endMs: end * 1000,
+				confidence: 1,
+				timestampMs: ((start + end) / 2) * 1000,
 			});
 		} else if (line?.includes(' --> ')) {
 			continue;
 		} else if (line?.trim() === '') {
-			(lines[lines.length - 1] as ParsedSrtLine).text = (
-				lines[lines.length - 1] as ParsedSrtLine
+			(lines[lines.length - 1] as Caption).text = (
+				lines[lines.length - 1] as Caption
 			).text.trim();
 		} else {
-			(lines[lines.length - 1] as ParsedSrtLine).text += line + '\n';
+			(lines[lines.length - 1] as Caption).text += line + '\n';
 		}
 	}
 
-	return {lines};
+	return {
+		lines: lines.map((l) => {
+			return {
+				...l,
+				text: l.text.trimEnd(),
+			};
+		}),
+	};
 };

@@ -4,4 +4,4 @@ export {
 	TikTokToken,
 	createTikTokStyleCaptions,
 } from './create-tiktok-style-captions';
-export {ParsedSrt, ParsedSrtLine, parseSrt} from './parse-srt';
+export {parseSrt} from './parse-srt';

@@ -12,7 +12,7 @@ import {
   watchStaticFile,
 } from "remotion";
 import { z } from "zod";
-import Subtitle from "./Subtitle";
+import SubtitlePage from "./SubtitlePage";
 import { getVideoMetadata } from "@remotion/media-utils";
 import { loadFont } from "../load-font";
 import { NoCaptionFile } from "./NoCaptionFile";
@@ -90,10 +90,10 @@ export const CaptionedVideo: React.FC<{
     };
   }, [fetchSubtitles, src, subtitlesFile]);
 
-  const { captions } = useMemo(() => {
+  const { pages } = useMemo(() => {
     return createTikTokStyleCaptions({
       combineTokensWithinMilliseconds: SWITCH_CAPTIONS_EVERY_MS,
-      transcription: subtitles ?? [],
+      captions: subtitles ?? [],
     });
   }, [subtitles]);
 
@@ -107,11 +107,11 @@ export const CaptionedVideo: React.FC<{
           src={src}
         />
       </AbsoluteFill>
-      {captions.map((subtitle, index) => {
-        const nextSubtitle = captions[index + 1] ?? null;
-        const subtitleStartFrame = (subtitle.startMs / 1000) * fps;
+      {pages.map((page, index) => {
+        const nextPage = pages[index + 1] ?? null;
+        const subtitleStartFrame = (page.startMs / 1000) * fps;
         const subtitleEndFrame = Math.min(
-          nextSubtitle ? (nextSubtitle.startMs / 1000) * fps : Infinity,
+          nextPage ? (nextPage.startMs / 1000) * fps : Infinity,
           subtitleStartFrame + SWITCH_CAPTIONS_EVERY_MS,
         );
         const durationInFrames = subtitleEndFrame - subtitleStartFrame;
@@ -125,7 +125,7 @@ export const CaptionedVideo: React.FC<{
             from={subtitleStartFrame}
             durationInFrames={durationInFrames}
           >
-            <Subtitle key={index} page={subtitle} />;
+            <SubtitlePage key={index} page={page} />;
           </Sequence>
         );
       })}

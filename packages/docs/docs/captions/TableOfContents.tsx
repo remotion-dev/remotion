@@ -6,6 +6,12 @@ export const TableOfContents: React.FC = () => {
 	return (
 		<div>
 			<Grid>
+				<TOCItem link="/docs/captions/parse-srt">
+					<strong>{'parseSrt()'}</strong>
+					<div>
+						Parse a .srt file into a <code>Caption</code> array
+					</div>
+				</TOCItem>
 				<TOCItem link="/docs/captions/create-tiktok-style-captions">
 					<strong>{'createTikTokStyleCaptions()'}</strong>
 					<div>Structure the captions for TikTok-style display</div>

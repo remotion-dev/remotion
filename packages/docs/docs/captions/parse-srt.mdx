@@ -1,0 +1,63 @@
+---
+title: parseSrt()
+crumb: '@remotion/captions'
+---
+
+Parses the contents of a SubRip file (`.srt`) and returns an array of [`Caption`](/docs/captions) items.
+
+```tsx twoslash title="Example usage"
+import {parseSrt} from '@remotion/captions';
+
+const input = `
+1
+00:00:00,000 --> 00:00:02,500
+Welcome to the Example Subtitle File!
+
+2
+00:00:03,000 --> 00:00:06,000
+This is a demonstration of SRT subtitles.
+
+3
+00:00:07,000 --> 00:00:10,500
+You can use SRT files to add subtitles to your videos.
+
+`.trim();
+
+const {lines} = parseSrt({input});
+
+/* lines = [
+  {
+    endInSeconds: 2.5,
+    index: 1,
+    startInSeconds: 0,
+    text: 'Welcome to the Example Subtitle File!',
+  },
+  {
+    endInSeconds: 6,
+    index: 2,
+    startInSeconds: 3,
+    text: 'This is a demonstration of SRT subtitles.',
+  },
+  {
+    endInSeconds: 10.5,
+    index: 3,
+    startInSeconds: 7,
+    text: 'You can use SRT files to add subtitles to your videos.',
+  }
+]
+*/
+```
+
+## API
+
+### `input`
+
+The contents of a `.srt` file as a `string`.
+
+## Return value
+
+An object with the following properties:
+
+### `lines`
+
+An array of [`Caption`](/docs/captions) items.

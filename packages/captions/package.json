@@ -19,7 +19,7 @@
 		"dist"
 	],
 	"author": "Jonny Burger <jonny@remotion.dev>",
-	"license": "SEE LICENSE IN LICENSE.md",
+	"license": "MIT",
 	"dependencies": {},
 	"peerDependencies": {},
 	"devDependencies": {},
