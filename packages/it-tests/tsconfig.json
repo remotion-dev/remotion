@@ -27,6 +27,9 @@
 			"path": "../install-whisper-cpp"
 		},
 		{
+			"path": "../captions"
+		},
+		{
 			"path": "../studio-shared"
 		},
 		{

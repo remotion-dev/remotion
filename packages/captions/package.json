@@ -1,10 +1,10 @@
 {
 	"repository": {
-		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/install-whisper-cpp"
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/captions"
 	},
-	"name": "@remotion/install-whisper-cpp",
+	"name": "@remotion/captions",
 	"version": "4.0.215",
-	"description": "Helpers for installing and using Whisper.cpp",
+	"description": "",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"bugs": {
@@ -31,5 +31,5 @@
 	"publishConfig": {
 		"access": "public"
 	},
-	"homepage": "https://www.remotion.dev/docs/install-whisper-cpp"
+	"homepage": "https://www.remotion.dev/docs/captions"
 }

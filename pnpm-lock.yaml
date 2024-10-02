@@ -186,6 +186,8 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
 
+  packages/captions: {}
+
   packages/cli:
     dependencies:
       '@remotion/bundler':
@@ -514,6 +516,9 @@ importers:
       '@remotion/bundler':
         specifier: workspace:*
         version: link:../bundler
+      '@remotion/captions':
+        specifier: workspace:*
+        version: link:../captions
       '@remotion/cli':
         specifier: workspace:*
         version: link:../cli
@@ -1028,20 +1033,16 @@ importers:
         specifier: 3.3.3
         version: 3.3.3
 
-  packages/install-whisper-cpp:
-    dependencies:
-      react:
-        specifier: '>=16.8.0'
-        version: 18.2.0
-      react-dom:
-        specifier: '>=16.8.0'
-        version: 18.2.0(react@18.2.0)
+  packages/install-whisper-cpp: {}
 
   packages/it-tests:
     devDependencies:
       '@remotion/bundler':
         specifier: workspace:*
         version: link:../bundler
+      '@remotion/captions':
+        specifier: workspace:*
+        version: link:../captions
       '@remotion/cli':
         specifier: workspace:*
         version: link:../cli

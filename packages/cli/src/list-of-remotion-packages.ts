@@ -31,6 +31,7 @@ export const listOfRemotionPackages = [
 	'@remotion/tailwind',
 	'@remotion/transitions',
 	'@remotion/install-whisper-cpp',
+	'@remotion/captions',
 	'@remotion/animation-utils',
 	'@remotion/animated-emoji',
 	'@remotion/media-parser',

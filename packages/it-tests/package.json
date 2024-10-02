@@ -28,6 +28,7 @@
 		"@remotion/lottie": "workspace:*",
 		"@remotion/layout-utils": "workspace:*",
 		"@remotion/install-whisper-cpp": "workspace:*",
+		"@remotion/captions": "workspace:*",
 		"@remotion/google-fonts": "workspace:*",
 		"@remotion/serverless": "workspace:*",
 		"@remotion/studio-server": "workspace:*",

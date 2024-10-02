@@ -62,6 +62,7 @@ export const packages = [
 	'zod-types',
 	'webcodecs',
 	'convert',
+	'captions',
 ] as const;
 
 export type Pkgs = (typeof packages)[number];
@@ -133,6 +134,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	serverless: 'A runtime for distributed rendering',
 	webcodecs: 'Media conversion in the browser',
 	convert: 'Video conversion tool - convert.remotion.dev',
+	captions: 'Primitives for dealing with captions',
 };
 
 export const apiDocs: {[key in Pkgs]: string | null} = {
@@ -201,4 +203,5 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	'animated-emoji': 'https://www.remotion.dev/docs/animated-emoji',
 	webcodecs: null,
 	convert: 'https://convert.remotion.dev',
+	captions: 'https://remotion.dev/docs/captions',
 };

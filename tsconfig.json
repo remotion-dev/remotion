@@ -82,6 +82,9 @@
 			"path": "./packages/install-whisper-cpp"
 		},
 		{
+			"path": "./packages/captions"
+		},
+		{
 			"path": "./packages/motion-blur"
 		},
 		{
