@@ -12,13 +12,19 @@ export type TikTokPage = {
 	tokens: TikTokToken[];
 };
 
+export type CreateTikTokStyleCaptionsInput = {
+	captions: Caption[];
+	combineTokensWithinMilliseconds: number;
+};
+
+export type CreateTikTokStyleCaptionsOutput = {
+	pages: TikTokPage[];
+};
+
 export function createTikTokStyleCaptions({
 	captions,
 	combineTokensWithinMilliseconds,
-}: {
-	captions: Caption[];
-	combineTokensWithinMilliseconds: number;
-}): {pages: TikTokPage[]} {
+}: CreateTikTokStyleCaptionsInput): CreateTikTokStyleCaptionsOutput {
 	const tikTokStyleCaptions: TikTokPage[] = [];
 	let currentText = '';
 	let currentTokens: TikTokToken[] = [];

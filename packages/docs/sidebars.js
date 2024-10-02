@@ -577,6 +577,7 @@ module.exports = {
 			items: [
 				'captions/caption',
 				'captions/parse-srt',
+				'captions/serialize-srt',
 				'captions/create-tiktok-style-captions',
 			],
 		},

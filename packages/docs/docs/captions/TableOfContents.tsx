@@ -12,6 +12,12 @@ export const TableOfContents: React.FC = () => {
 						Parse a .srt file into a <code>Caption</code> array
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/captions/serialize-srt">
+					<strong>{'serializeSrt()'}</strong>
+					<div>
+						Serialize a .srt file into a <code>Caption</code> array
+					</div>
+				</TOCItem>
 				<TOCItem link="/docs/captions/create-tiktok-style-captions">
 					<strong>{'createTikTokStyleCaptions()'}</strong>
 					<div>Structure the captions for TikTok-style display</div>

@@ -1,5 +1,6 @@
 import {expect, test} from 'bun:test';
 import {parseSrt} from '../parse-srt';
+import {serializeSrt} from '../serialize-srt';
 
 const input = `
 1
@@ -17,8 +18,8 @@ You can use SRT files to add subtitles to your videos.
 `.trim();
 
 test('Should create captions', () => {
-	const {captions: lines} = parseSrt({input});
-	expect(lines).toEqual([
+	const {captions} = parseSrt({input});
+	expect(captions).toEqual([
 		{
 			confidence: 1,
 			endMs: 2500,
@@ -41,4 +42,7 @@ test('Should create captions', () => {
 			timestampMs: 8750,
 		},
 	]);
+
+	const serialized = serializeSrt({lines: captions.map((c) => [c])});
+	expect(serialized).toEqual(input);
 });
