@@ -18,3 +18,32 @@ By establishing a standard data structure, we allow many operations that involve
 - Formatting (for example, creating pages using [`createTikTokStyleCaptions()`](/docs/captions/create-tiktok-style-captions))
 - Parsing (using the [`parseSrt()`](/docs/captions/parse-srt) function)
 - Serializing (for example to a .srt file)
+
+## Fields
+
+### `text`
+
+The text of the caption.
+
+### `startMs`
+
+The start time of the caption in milliseconds.
+
+### `endMs`
+
+The end time of the caption in milliseconds.
+
+### `timestampMs`
+
+The timestamp of the caption as a singular timestamp in milliseconds.  
+When using `@remotion/install-whisper-cpp`, this the `t_dtw` value.  
+Otherwise, it is not defined, but may be the average of the start and end timestamps.
+
+### `confidence`
+
+A number between 0 and 1 that indicates how confident the transcription is.
+
+## See also
+
+- [Source code for this type](https://github.com/remotion-dev/remotion/blob/main/packages/captions/src/caption.ts)
+- [`@remotion/captions`](/docs/captions)

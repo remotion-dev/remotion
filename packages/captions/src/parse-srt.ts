@@ -1,4 +1,4 @@
-import {Caption} from './captions';
+import {Caption} from './caption';
 
 function toSeconds(time: string) {
 	const [first, second, third] = time.split(':');

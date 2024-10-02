@@ -1,7 +1,7 @@
 export type Caption = {
 	text: string;
-	timestampMs: number | null;
 	startMs: number;
 	endMs: number;
+	timestampMs: number | null;
 	confidence: number | null;
 };

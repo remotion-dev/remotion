@@ -1,4 +1,4 @@
-export {Caption} from './captions';
+export {Caption} from './caption';
 export {
 	TikTokPage,
 	TikTokToken,

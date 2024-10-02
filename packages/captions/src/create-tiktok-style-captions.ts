@@ -1,4 +1,4 @@
-import {Caption} from './captions';
+import {Caption} from './caption';
 
 export type TikTokToken = {
 	text: string;
