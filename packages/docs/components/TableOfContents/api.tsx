@@ -44,6 +44,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>@remotion/cloudrun</strong>
 					<div>Render videos and stills on GCP Cloud Run</div>
 				</TOCItem>
+				<TOCItem link="/docs/captions">
+					<strong>@remotion/captions</strong>
+					<div>Common operations for subtitles</div>
+				</TOCItem>
 				<TOCItem link="/docs/gif">
 					<strong>@remotion/gif</strong>
 					<div>Include a GIF in your video</div>

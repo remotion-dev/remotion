@@ -569,6 +569,15 @@ module.exports = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/captions',
+			link: {
+				type: 'doc',
+				id: 'captions/index',
+			},
+			items: [],
+		},
+		{
+			type: 'category',
 			label: '@remotion/install-whisper-cpp',
 			link: {
 				type: 'doc',
