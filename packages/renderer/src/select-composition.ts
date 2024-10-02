@@ -203,28 +203,16 @@ export const internalSelectCompositionRaw = async (
 		onServeUrlVisited,
 	} = options;
 
-	const {page, cleanup: cleanupPage} = await getPageAndCleanupFn({
-		passedInInstance: puppeteerInstance,
-		browserExecutable,
-		chromiumOptions,
-		forceDeviceScaleFactor: undefined,
-		indent,
-		logLevel,
-		onBrowserDownload,
-	});
-	cleanup.push(() => cleanupPage());
-
-	return new Promise<InternalReturnType>((resolve, reject) => {
-		const onError = (err: Error) => reject(err);
-
-		cleanup.push(
-			handleJavascriptException({
-				page,
-				frame: null,
-				onError,
-			}),
-		);
-
+	const [{page, cleanupPage}, serverUsed] = await Promise.all([
+		getPageAndCleanupFn({
+			passedInInstance: puppeteerInstance,
+			browserExecutable,
+			chromiumOptions,
+			forceDeviceScaleFactor: undefined,
+			indent,
+			logLevel,
+			onBrowserDownload,
+		}),
 		makeOrReuseServer(
 			options.server,
 			{
@@ -241,33 +229,45 @@ export const internalSelectCompositionRaw = async (
 			{
 				onDownload: () => undefined,
 			},
-		)
-			.then(({server: {serveUrl, offthreadPort, sourceMap}, cleanupServer}) => {
-				page.setBrowserSourceMapGetter(sourceMap);
-				cleanup.push(() => cleanupServer(true));
+		).then((result) => {
+			cleanup.push(() => result.cleanupServer(true));
+			return result;
+		}),
+	]);
+	cleanup.push(() => cleanupPage());
 
-				return innerSelectComposition({
-					serveUrl,
-					page,
-					port: offthreadPort,
-					browserExecutable,
-					chromiumOptions,
-					envVariables,
-					id,
-					serializedInputPropsWithCustomSchema,
-					onBrowserLog,
-					timeoutInMilliseconds,
-					logLevel,
-					indent,
-					puppeteerInstance,
-					server,
-					offthreadVideoCacheSizeInBytes,
-					binariesDirectory,
-					onBrowserDownload,
-					onServeUrlVisited,
-				});
-			})
+	return new Promise<InternalReturnType>((resolve, reject) => {
+		const onError = (err: Error) => reject(err);
 
+		cleanup.push(
+			handleJavascriptException({
+				page,
+				frame: null,
+				onError,
+			}),
+		);
+		page.setBrowserSourceMapGetter(serverUsed.server.sourceMap);
+
+		innerSelectComposition({
+			serveUrl: serverUsed.server.serveUrl,
+			page,
+			port: serverUsed.server.offthreadPort,
+			browserExecutable,
+			chromiumOptions,
+			envVariables,
+			id,
+			serializedInputPropsWithCustomSchema,
+			onBrowserLog,
+			timeoutInMilliseconds,
+			logLevel,
+			indent,
+			puppeteerInstance,
+			server,
+			offthreadVideoCacheSizeInBytes,
+			binariesDirectory,
+			onBrowserDownload,
+			onServeUrlVisited,
+		})
 			.then((data) => {
 				return resolve(data);
 			})
