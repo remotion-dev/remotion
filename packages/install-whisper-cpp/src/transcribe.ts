@@ -94,7 +94,7 @@ export type TranscribeOnProgress = (progress: number) => void;
 // https://github.com/ggerganov/whisper.cpp/blob/fe36c909715e6751277ddb020e7892c7670b61d4/examples/main/main.cpp#L989-L999
 // https://github.com/remotion-dev/remotion/issues/4168
 export const modelToDtw = (model: WhisperModel): string => {
-	if (model === 'large-v3') {
+	if (model === 'large-v3' || model === 'large-v3-turbo') {
 		return 'large.v3';
 	}
 

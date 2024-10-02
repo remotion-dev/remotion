@@ -14,6 +14,7 @@ const models = [
 	'large-v1',
 	'large-v2',
 	'large-v3',
+	'large-v3-turbo',
 ] as const;
 
 const modelSizes: {[key in WhisperModel]: number} = {
@@ -22,6 +23,7 @@ const modelSizes: {[key in WhisperModel]: number} = {
 	'large-v1': 3094623691,
 	'large-v2': 3094623691,
 	'large-v3': 3095033483,
+	'large-v3-turbo': 1624555275,
 	small: 487601967,
 	tiny: 77691713,
 	'small.en': 487614201,
