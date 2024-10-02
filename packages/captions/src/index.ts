@@ -1,2 +1,6 @@
 export {Caption} from './captions';
-export {createTikTokStyleCaptions} from './create-tiktok-style-captions';
+export {
+	TikTokPage,
+	TikTokToken,
+	createTikTokStyleCaptions,
+} from './create-tiktok-style-captions';

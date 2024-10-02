@@ -1,8 +1,15 @@
 import {Caption} from './captions';
 
+export type TikTokToken = {
+	text: string;
+	fromMs: number;
+	toMs: number;
+};
+
 export type TikTokPage = {
 	text: string;
-	startInSeconds: number;
+	startMs: number;
+	tokens: TikTokToken[];
 };
 
 export function createTikTokStyleCaptions({
@@ -14,9 +21,9 @@ export function createTikTokStyleCaptions({
 }): {captions: TikTokPage[]} {
 	const merged: TikTokPage[] = [];
 	let currentText = '';
+	let currentTokens: TikTokToken[] = [];
 	let currentFrom = 0;
 	let currentTo = 0;
-	let currentTokenLevelTimestamp = 0;
 
 	transcription.forEach((item, index) => {
 		const {text} = item;
@@ -27,26 +34,36 @@ export function createTikTokStyleCaptions({
 		) {
 			if (currentText !== '') {
 				merged.push({
-					text: currentText,
-					startInSeconds: currentTokenLevelTimestamp / 1000,
+					text: currentText.trimStart(),
+					startMs: currentFrom,
+					tokens: currentTokens,
 				});
 			}
 
 			// Start a new sentence
 			currentText = text.trimStart();
+			currentTokens = [
+				{text: currentText, fromMs: item.startMs, toMs: item.endMs},
+			].filter((t) => t.text !== '');
 			currentFrom = item.startMs;
 			currentTo = item.endMs;
-			currentTokenLevelTimestamp = item.timestamp;
 		} else {
 			// Continuation or start of a new sentence without leading space
 			if (currentText === '') {
 				// It's the start of the document or after a sentence that started with a space
 				currentFrom = item.startMs;
-				currentTokenLevelTimestamp = item.timestamp;
 			}
 
 			currentText += text;
 			currentText = currentText.trimStart();
+			if (text.trim() !== '') {
+				currentTokens.push({
+					text: currentTokens.length === 0 ? currentText.trimStart() : text,
+					fromMs: item.startMs,
+					toMs: item.endMs,
+				});
+			}
+
 			currentTo = item.endMs;
 		}
 
@@ -54,7 +71,8 @@ export function createTikTokStyleCaptions({
 		if (index === transcription.length - 1 && currentText !== '') {
 			merged.push({
 				text: currentText,
-				startInSeconds: currentTokenLevelTimestamp / 1000,
+				startMs: currentFrom,
+				tokens: currentTokens,
 			});
 		}
 	});

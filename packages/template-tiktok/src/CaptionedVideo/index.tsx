@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   AbsoluteFill,
   CalculateMetadataFunction,
@@ -90,10 +90,12 @@ export const CaptionedVideo: React.FC<{
     };
   }, [fetchSubtitles, src, subtitlesFile]);
 
-  const { captions } = createTikTokStyleCaptions({
-    combineTokensWithinMilliseconds: SWITCH_CAPTIONS_EVERY_MS,
-    transcription: subtitles ?? [],
-  });
+  const { captions } = useMemo(() => {
+    return createTikTokStyleCaptions({
+      combineTokensWithinMilliseconds: SWITCH_CAPTIONS_EVERY_MS,
+      transcription: subtitles ?? [],
+    });
+  }, [subtitles]);
 
   return (
     <AbsoluteFill style={{ backgroundColor: "white" }}>
@@ -107,9 +109,9 @@ export const CaptionedVideo: React.FC<{
       </AbsoluteFill>
       {captions.map((subtitle, index) => {
         const nextSubtitle = captions[index + 1] ?? null;
-        const subtitleStartFrame = subtitle.startInSeconds * fps;
+        const subtitleStartFrame = (subtitle.startMs / 1000) * fps;
         const subtitleEndFrame = Math.min(
-          nextSubtitle ? nextSubtitle.startInSeconds * fps : Infinity,
+          nextSubtitle ? (nextSubtitle.startMs / 1000) * fps : Infinity,
           subtitleStartFrame + SWITCH_CAPTIONS_EVERY_MS,
         );
         const durationInFrames = subtitleEndFrame - subtitleStartFrame;
@@ -119,10 +121,11 @@ export const CaptionedVideo: React.FC<{
 
         return (
           <Sequence
+            key={index}
             from={subtitleStartFrame}
             durationInFrames={durationInFrames}
           >
-            <Subtitle key={index} text={subtitle.text} />;
+            <Subtitle key={index} page={subtitle} />;
           </Sequence>
         );
       })}

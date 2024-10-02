@@ -5,9 +5,10 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { Word } from "./Word";
+import { Page } from "./Page";
+import { TikTokPage } from "@remotion/captions";
 
-const Subtitle: React.FC<{ text: string }> = ({ text }) => {
+const Subtitle: React.FC<{ page: TikTokPage }> = ({ page }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -20,15 +21,9 @@ const Subtitle: React.FC<{ text: string }> = ({ text }) => {
     durationInFrames: 5,
   });
 
-  // Overlay stroked text with normal text to create an effect where the stroke is outside
   return (
     <AbsoluteFill>
-      <AbsoluteFill>
-        <Word stroke enterProgress={enter} text={text} />
-      </AbsoluteFill>
-      <AbsoluteFill>
-        <Word enterProgress={enter} text={text} stroke={false} />
-      </AbsoluteFill>
+      <Page enterProgress={enter} page={page} />
     </AbsoluteFill>
   );
 };
