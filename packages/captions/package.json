@@ -24,9 +24,7 @@
 	"peerDependencies": {},
 	"devDependencies": {},
 	"keywords": [
-		"remotion",
-		"openai",
-		"whisper"
+		"remotion"
 	],
 	"publishConfig": {
 		"access": "public"

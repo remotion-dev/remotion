@@ -1,0 +1,19 @@
+---
+title: Caption
+crumb: '@remotion/captions'
+---
+
+# Caption<AvailableFrom v="4.0.216 "/>
+
+This is a simple data structure for a caption.
+
+```tsx twoslash
+import {Caption} from '@remotion/captions';
+//      ^?
+```
+
+By establishing a standard data structure, we allow many operations that involve captions to be interoperable:
+
+- Transcribing (using the [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp) package)
+- Formatting (for example, creating pages using [`createTikTokStyleCaptions()`](/docs/captions/create-tiktok-style-captions))
+- Serializing (for example to a .srt file)

@@ -1,15 +1,15 @@
 import type {Caption} from '@remotion/captions';
 import type {TranscriptionJson} from './transcribe';
 
-type ConvertInput = {
+type ToCaptionsInput = {
 	whisperCppOutput: TranscriptionJson<true>;
 };
 
-type ConvertOutput = {
+type ToCaptionsOutput = {
 	captions: Caption[];
 };
 
-export const convert = (input: ConvertInput): ConvertOutput => {
+export const toCaptions = (input: ToCaptionsInput): ToCaptionsOutput => {
 	const {transcription} = input.whisperCppOutput;
 
 	const captions: Caption[] = [];

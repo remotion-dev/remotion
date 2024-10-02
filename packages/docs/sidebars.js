@@ -574,7 +574,7 @@ module.exports = {
 				type: 'doc',
 				id: 'captions/index',
 			},
-			items: [],
+			items: ['captions/caption', 'captions/create-tiktok-style-captions'],
 		},
 		{
 			type: 'category',

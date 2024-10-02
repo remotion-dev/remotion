@@ -13,19 +13,19 @@ export type TikTokPage = {
 };
 
 export function createTikTokStyleCaptions({
-	transcription,
+	captions,
 	combineTokensWithinMilliseconds,
 }: {
-	transcription: Caption[];
+	captions: Caption[];
 	combineTokensWithinMilliseconds: number;
-}): {captions: TikTokPage[]} {
-	const merged: TikTokPage[] = [];
+}): {pages: TikTokPage[]} {
+	const tikTokStyleCaptions: TikTokPage[] = [];
 	let currentText = '';
 	let currentTokens: TikTokToken[] = [];
 	let currentFrom = 0;
 	let currentTo = 0;
 
-	transcription.forEach((item, index) => {
+	captions.forEach((item, index) => {
 		const {text} = item;
 		// If text starts with a space, push the currentText (if it exists) and start a new one
 		if (
@@ -33,7 +33,7 @@ export function createTikTokStyleCaptions({
 			currentTo - currentFrom > combineTokensWithinMilliseconds
 		) {
 			if (currentText !== '') {
-				merged.push({
+				tikTokStyleCaptions.push({
 					text: currentText.trimStart(),
 					startMs: currentFrom,
 					tokens: currentTokens,
@@ -68,8 +68,8 @@ export function createTikTokStyleCaptions({
 		}
 
 		// Ensure the last sentence is added
-		if (index === transcription.length - 1 && currentText !== '') {
-			merged.push({
+		if (index === captions.length - 1 && currentText !== '') {
+			tikTokStyleCaptions.push({
 				text: currentText,
 				startMs: currentFrom,
 				tokens: currentTokens,
@@ -77,5 +77,5 @@ export function createTikTokStyleCaptions({
 		}
 	});
 
-	return {captions: merged};
+	return {pages: tikTokStyleCaptions};
 }

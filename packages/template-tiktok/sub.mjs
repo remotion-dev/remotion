@@ -18,7 +18,7 @@ import {
   downloadWhisperModel,
   installWhisperCpp,
   transcribe,
-  convert,
+  toCaptions,
 } from "@remotion/install-whisper-cpp";
 
 const extractToTempAudioFile = (fileToTranscribe, tempOutFile) => {
@@ -48,7 +48,7 @@ const subFile = async (filePath, fileName, folder) => {
     splitOnWord: true,
   });
 
-  const { captions } = convert({
+  const { captions } = toCaptions({
     whisperCppOutput,
   });
   writeFileSync(
