@@ -173,10 +173,13 @@ const streamRenderer = <Provider extends CloudProvider>({
 				});
 			})
 			.catch((err) => {
+				const shouldRetry =
+					(err as Error).message?.includes('Error: aborted') ?? false;
+
 				resolve({
 					type: 'error',
 					error: (err as Error).stack as string,
-					shouldRetry: false,
+					shouldRetry,
 				});
 			});
 	});
