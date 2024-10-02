@@ -1,6 +1,6 @@
 import {execSync} from 'child_process';
 
-execSync('bun run build', {
+execSync('bun run make', {
 	cwd: '../lambda',
 	stdio: 'inherit',
 });
