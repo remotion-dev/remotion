@@ -34,8 +34,8 @@ pub fn open_video(
     };
 
     _print_verbose(&format!(
-        "Opening video {} with time base {} and fps {}",
-        src, time_base, fps
+        "Opening video {} ({}) with time base {} and fps {}",
+        src, original_src, time_base, fps
     ))?;
 
     Ok(opened_video)
