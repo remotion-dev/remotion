@@ -172,7 +172,6 @@ const errorHandled = wrapWithErrorHandling(internalRenderStillOnLambda);
  * @param params.maxRetries How often rendering a chunk may fail before the video render gets aborted.
  * @param params.frame Which frame should be used for the still image. Default 0.
  * @param params.privacy Whether the item in the S3 bucket should be public. Possible values: `"private"` and `"public"`
- * @param params.metadata Metadata to be attached to the S3 object.
  * @returns {Promise<RenderStillOnLambdaOutput>} See documentation for exact response structure.
  */
 export const renderStillOnLambda = (input: RenderStillOnLambdaInput) => {

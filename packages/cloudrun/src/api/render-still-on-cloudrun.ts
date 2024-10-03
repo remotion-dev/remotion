@@ -42,7 +42,6 @@ type OptionalParameters = {
 	forceHeight: number | null;
 	indent: boolean;
 	downloadBehavior: DownloadBehavior;
-	metadata: Record<string, string> | null;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderStillOnCloudRun>;
 
 export type RenderStillOnCloudrunInput = Partial<OptionalParameters> &
@@ -96,7 +95,6 @@ const internalRenderStillOnCloudRun = async ({
 	delayRenderTimeoutInMilliseconds,
 	offthreadVideoCacheSizeInBytes,
 	downloadBehavior,
-	metadata,
 }: OptionalParameters & MandatoryParameters): Promise<
 	RenderStillOnCloudrunOutput | ErrorResponsePayload | CloudRunCrashResponse
 > => {
@@ -138,7 +136,6 @@ const internalRenderStillOnCloudRun = async ({
 		offthreadVideoCacheSizeInBytes,
 		clientVersion: VERSION,
 		downloadBehavior,
-		metadata,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);
@@ -244,6 +241,5 @@ export const renderStillOnCloudrun = (options: RenderStillOnCloudrunInput) => {
 		serveUrl: options.serveUrl,
 		serviceName: options.serviceName ?? null,
 		downloadBehavior: options.downloadBehavior ?? {type: 'play-in-browser'},
-		metadata: options.metadata ?? null,
 	});
 };

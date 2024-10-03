@@ -211,7 +211,6 @@ const wrapped = wrapWithErrorHandling(internalRenderMediaOnLambdaRaw);
  * @param params.maxRetries How often rendering a chunk may fail before the media render gets aborted. Default "1"
  * @param params.logLevel Level of logging that Lambda function should perform. Default "info".
  * @param params.webhook Configuration for webhook called upon completion or timeout of the render.
- * @param params.metadata Metadata to be attached to the S3 object.
  * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
  */
 export const renderMediaOnLambda = (
