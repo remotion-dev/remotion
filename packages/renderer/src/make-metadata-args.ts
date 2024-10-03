@@ -12,10 +12,9 @@ export const makeMetadataArgs = (metadata: Metadata): string[] => {
 		const lowercaseKey = key.toLowerCase();
 		if (lowercaseKey === 'comment') {
 			newMetadata[lowercaseKey] = `${defaultComment}; ${metadata[key]}`;
-			return;
+		} else {
+			newMetadata[lowercaseKey] = metadata[key];
 		}
-
-		newMetadata[lowercaseKey] = metadata[key];
 	});
 
 	const metadataArgs = Object.entries(newMetadata).map(
@@ -25,7 +24,6 @@ export const makeMetadataArgs = (metadata: Metadata): string[] => {
 	return [
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
-		['-metadata', `comment=Made with Remotion ${VERSION}`],
 		...metadataArgs,
 	].flat(1);
 };

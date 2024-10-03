@@ -46,7 +46,6 @@ export const muxVideoAndAudio = async ({
 		audioOutput ? 'copy' : null,
 		addFaststart ? '-movflags' : null,
 		addFaststart ? 'faststart' : null,
-		`-metadata`,
 		...makeMetadataArgs(metadata ?? {}),
 		'-y',
 		output,
