@@ -113,7 +113,9 @@ class Semantic
 			preferLossless: false,
 			indent: false,
 			forcePathStyle: false,
-			metadata: null,
+			metadata: {
+				Author: 'Remotion',
+			},
 		});
 		const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 		const parsedJson = JSON.parse(jsonOutput);
