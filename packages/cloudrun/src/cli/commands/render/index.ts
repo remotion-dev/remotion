@@ -34,6 +34,7 @@ const {
 	encodingBufferSizeOption,
 	delayRenderTimeoutInMillisecondsOption,
 	binariesDirectoryOption,
+	metadataOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -276,6 +277,9 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 	const encodingBufferSize = encodingBufferSizeOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const metadata = metadataOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
 	const res = await internalRenderMediaOnCloudrun({
 		cloudRunUrl,
@@ -320,6 +324,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		colorSpace,
 		indent: false,
 		downloadBehavior: {type: 'play-in-browser'},
+		metadata,
 	});
 
 	if (res.type === 'crash') {

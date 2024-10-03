@@ -34,6 +34,7 @@ type Options = {
 	seamlessAudio: boolean;
 	seamlessVideo: boolean;
 	muted: boolean;
+	metadata: Record<string, string> | null;
 };
 
 const codecSupportsFastStart: {[key in Codec]: boolean} = {
@@ -69,6 +70,7 @@ export const combineChunks = async ({
 	seamlessAudio,
 	seamlessVideo,
 	muted,
+	metadata,
 }: Options) => {
 	const shouldCreateAudio = resolvedAudioCodec !== null && !muted;
 	const shouldCreateVideo = !isAudioCodec(codec);
@@ -183,6 +185,7 @@ export const combineChunks = async ({
 			fps,
 			cancelSignal,
 			addFaststart: codecSupportsFastStart[codec],
+			metadata,
 		});
 		onProgress(numberOfFrames);
 		rmSync(filelistDir, {recursive: true});

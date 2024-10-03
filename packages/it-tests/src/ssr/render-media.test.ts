@@ -32,6 +32,7 @@ test('Render video with browser instance open', async () => {
 		composition: reactSvg,
 		frameRange: [0, 2],
 		puppeteerInstance,
+		metadata: {Author: 'Lunar'},
 	});
 	await puppeteerInstance.close(false, 'info', false);
 	expect(existsSync(outPath)).toBe(true);
@@ -59,6 +60,7 @@ test('Render video with browser instance not open', async () => {
 			'https://661808694cad562ef2f35be7--incomparable-dasik-a4482b.netlify.app/',
 		composition: reactSvg,
 		frameRange: [0, 2],
+		metadata: {Author: 'Lunar'},
 	});
 	expect(existsSync(outPath)).toBe(true);
 });

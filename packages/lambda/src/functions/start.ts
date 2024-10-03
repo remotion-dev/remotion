@@ -119,6 +119,7 @@ export const startHandler = async <Provider extends CloudProvider>(
 		colorSpace: params.colorSpace,
 		preferLossless: params.preferLossless,
 		forcePathStyle: params.forcePathStyle,
+		metadata: params.metadata,
 	};
 
 	const stringifiedPayload = JSON.stringify(payload);
