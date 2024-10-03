@@ -1,7 +1,7 @@
 set -e
 cd ..
 cd renderer
-node build.mjs --cloudrun
+bun build.ts --cloudrun
 cd ..
 cd cloudrun
 bun run make
