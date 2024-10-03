@@ -278,7 +278,7 @@ dependencies = [
 [[package]]
 name = "ffmpeg-next"
 version = "7.1.0"
-source = "git+https://github.com/remotion-dev/rust-ffmpeg?rev=69227555fdc2440f203401c257fa9289bfc97062#69227555fdc2440f203401c257fa9289bfc97062"
+source = "git+https://github.com/remotion-dev/rust-ffmpeg?rev=628927b76a5e30fb2144b80efd4966964666a1ba#628927b76a5e30fb2144b80efd4966964666a1ba"
 dependencies = [
  "bitflags 2.6.0",
  "ffmpeg-sys-next",
@@ -288,7 +288,7 @@ dependencies = [
 [[package]]
 name = "ffmpeg-sys-next"
 version = "7.1.0"
-source = "git+https://github.com/remotion-dev/rust-ffmpeg-sys?rev=5ee3496a7ef41d3f7c4bb153cf87516d4d84fda8#5ee3496a7ef41d3f7c4bb153cf87516d4d84fda8"
+source = "git+https://github.com/remotion-dev/rust-ffmpeg-sys?rev=6721c2055a15717f74d03685e7179cfdc6d677a8#6721c2055a15717f74d03685e7179cfdc6d677a8"
 dependencies = [
  "bindgen",
  "cc",
