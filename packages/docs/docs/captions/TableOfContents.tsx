@@ -6,6 +6,10 @@ export const TableOfContents: React.FC = () => {
 	return (
 		<div>
 			<Grid>
+				<TOCItem link="/docs/captions/caption">
+					<strong>{'Caption'}</strong>
+					<div>An object shape for captions</div>
+				</TOCItem>
 				<TOCItem link="/docs/captions/parse-srt">
 					<strong>{'parseSrt()'}</strong>
 					<div>

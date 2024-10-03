@@ -5,6 +5,11 @@ export type Caption = {
 	startInSeconds: number;
 };
 
+/**
+ *
+ * @deprecated Use the `toCaptions()` function from `@remotion/install-whisper-cpp` instead
+ * and then process the captions using `createTikTokStyleCaptions()` from `@remotion/captions`.
+ */
 export function convertToCaptions({
 	transcription,
 	combineTokensWithinMilliseconds,

@@ -3,6 +3,7 @@ import {TableOfContents as AnimatedEmojiTableOfContents} from '../../docs/animat
 import {TableOfContents as CaptionsTableOfContents} from '../../docs/captions/TableOfContents';
 import {TableOfContents as EnableScssTableOfContents} from '../../docs/enable-scss/TableOfContents';
 import {TableOfContents as FontsTableOfContents} from '../../docs/fonts-api/TableOfContents';
+import {TableOfContents as InstallWhisperCppTableOfContents} from '../../docs/install-whisper-cpp/install-whisper-cpp';
 import {TableOfContents as MediaParserTableOfContents} from '../../docs/media-parser/TableOfContents';
 import {TableOfContents as SkiaTableOfContents} from '../../docs/skia/TableOfContents';
 import {TableOfContents as StudioTableOfContents} from '../../docs/studio/TableOfContents';
@@ -13,7 +14,6 @@ import {TableOfContents as BundlerTableOfContents} from '../TableOfContents/bund
 import {TableOfContents as CloudrunTableOfContents} from '../TableOfContents/cloudrun';
 import {TableOfContents as GifTableOfContents} from '../TableOfContents/gif';
 import {TableOfContents as GoogleFontsTableOfContents} from '../TableOfContents/google-fonts';
-import {TableOfContents as InstallWhisperCppTableOfContents} from '../TableOfContents/install-whisper-cpp';
 import {TableOfContents as LambdaTableOfContents} from '../TableOfContents/lambda';
 import {TableOfContents as LayoutUtilsTableOfContents} from '../TableOfContents/LayoutUtils';
 import {TableOfContents as LottieTableOfContents} from '../TableOfContents/lottie';
