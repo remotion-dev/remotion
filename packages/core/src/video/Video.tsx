@@ -25,18 +25,6 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 			readonly stack?: string;
 		}
 > = (props, ref) => {
-	const {
-		startFrom,
-		endAt,
-		name,
-		pauseWhenBuffering,
-		stack,
-		_remotionInternalNativeLoopPassed,
-		showInTimeline,
-		onAutoPlayError,
-		...otherProps
-	} = props;
-	const {loop, _remotionDebugSeeking, ...propsOtherThanLoop} = props;
 	const {fps} = useVideoConfig();
 	const environment = getRemotionEnvironment();
 
@@ -69,7 +57,15 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		durations[getAbsoluteSrc(preloadedSrc)] ??
 		durations[getAbsoluteSrc(props.src)];
 
-	if (loop && durationFetched !== undefined) {
+	if (props.loop && durationFetched !== undefined) {
+		const {
+			startFrom,
+			endAt,
+			name,
+			loop: __omitLoop,
+			_remotionDebugSeeking: __omitRemotionDebugSeeking,
+			...loopedVideoProps
+		} = props;
 		const mediaDuration = durationFetched * fps;
 
 		return (
@@ -84,7 +80,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 				name={name}
 			>
 				<Video
-					{...propsOtherThanLoop}
+					{...loopedVideoProps}
 					ref={ref}
 					_remotionInternalNativeLoopPassed
 				/>
@@ -92,7 +88,11 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	if (typeof startFrom !== 'undefined' || typeof endAt !== 'undefined') {
+	if (
+		typeof props.startFrom !== 'undefined' ||
+		typeof props.endAt !== 'undefined'
+	) {
+		const {startFrom, endAt, name, ...sequencedVideoProps} = props;
 		validateStartFromProps(startFrom, endAt);
 
 		const startFromFrameNo = startFrom ?? 0;
@@ -105,11 +105,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 				durationInFrames={endAtFrameNo}
 				name={name}
 			>
-				<Video
-					pauseWhenBuffering={pauseWhenBuffering ?? false}
-					{...otherProps}
-					ref={ref}
-				/>
+				<Video {...sequencedVideoProps} ref={ref} />
 			</Sequence>
 		);
 	}
@@ -117,20 +113,36 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	validateMediaProps(props, 'Video');
 
 	if (environment.isRendering) {
+		const {
+			startFrom: __omitStartFrom,
+			endAt: __omitEndAt,
+			pauseWhenBuffering: __omitPauseWhenBuffering,
+			...renderedVideoProps
+		} = props;
 		return (
 			<VideoForRendering
 				onDuration={onDuration}
 				onVideoFrame={onVideoFrame ?? null}
-				{...otherProps}
+				{...renderedVideoProps}
 				ref={ref}
 			/>
 		);
 	}
 
+	const {
+		crossOrigin,
+		pauseWhenBuffering,
+		showInTimeline,
+		stack,
+		_remotionInternalNativeLoopPassed,
+		_remotionDebugSeeking,
+		...videoForPreviewProps
+	} = props;
+
 	return (
 		<VideoForPreview
 			onlyWarnForMediaSeekingError={false}
-			{...otherProps}
+			{...videoForPreviewProps}
 			ref={ref}
 			onVideoFrame={null}
 			// Proposal: Make this default to true in v5
@@ -142,7 +154,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 			}
 			_remotionDebugSeeking={_remotionDebugSeeking ?? false}
 			showInTimeline={showInTimeline ?? true}
-			onAutoPlayError={onAutoPlayError ?? undefined}
+			crossOrigin={crossOrigin ?? undefined}
 		/>
 	);
 };
