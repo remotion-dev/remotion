@@ -13,6 +13,9 @@ func TestPrintVersion(t *testing.T) {
 		FunctionName: "remotion-render",
 		ServeUrl:     "testbed",
 		Codec:        "h264",
+		Metadata: map[string]string{
+			"Author": "Remotion",
+		},
 	})
 	if err != nil {
 		log.Fatalf("Error marshaling struct to JSON: %v", err)

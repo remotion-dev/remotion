@@ -142,6 +142,11 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	} else {
 		internalParams.EnvVariables = options.EnvVariables
 	}
+	if options.Metadata == nil {
+		internalParams.Metadata = map[string]interface{}{}
+	} else {
+		internalParams.Metadata = options.Metadata
+	}
 
 	return &internalParams, nil
 }
