@@ -19,6 +19,7 @@ class RenderParams
     protected $imageFormat = 'jpeg';
     protected $crf = null;
     protected $envVariables = [];
+    protected $metadata = [];
     protected $maxRetries = 1;
     protected $jpegQuality = 80;
     protected $privacy = 'privacy';
@@ -93,7 +94,8 @@ class RenderParams
         ?string $encodingBufferSize = null,
         ?string $maxRate = null,
         ?bool   $preferLossless = false,
-        ?bool   $forcePathStyle = false
+        ?bool   $forcePathStyle = false,
+        ?array  $metadata = null
     )
     {
         if ($chromiumOptions === null) {
@@ -108,6 +110,7 @@ class RenderParams
         $this->imageFormat = $imageFormat;
         $this->crf = $crf;
         $this->envVariables = $envVariables;
+        $this->metadata = $metadata;
         $this->maxRetries = $maxRetries;
         $this->jpegQuality = $jpegQuality;
         $this->privacy = $privacy;
@@ -196,6 +199,12 @@ class RenderParams
             $parameters['envVariables'] = $this->getEnvVariables();
         } else {
             $parameters['envVariables'] = new stdClass();
+        }
+
+        if ($this->getMetadata() !== null) {
+            $parameters['metadata'] = $this->getMetadata();
+        } else {
+            $parameters['metadata'] = new stdClass();
         }
 
         if ($this->getPixelFormat() !== null) {
@@ -419,6 +428,14 @@ class RenderParams
     }
 
     /**
+     * Get the value of metadata
+     */
+    public function getMetadata()
+    {
+        return $this->metadata;
+    }
+
+    /**
      * Set the value of envVariables
      *
      * @return  self
@@ -427,6 +444,12 @@ class RenderParams
     {
         $this->envVariables = $envVariables;
 
+        return $this;
+    }
+
+    public function setMetadata($metadata)
+    {
+        $this->metadata = $metadata;
         return $this;
     }
 

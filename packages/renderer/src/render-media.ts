@@ -127,6 +127,7 @@ export type InternalRenderMediaOptions = {
 	binariesDirectory: string | null;
 	compositionStart: number;
 	onArtifact: OnArtifact | null;
+	metadata: Record<string, string> | null;
 } & MoreRenderMediaOptions;
 
 type Prettify<T> = {
@@ -182,6 +183,7 @@ export type RenderMediaOptions = Prettify<{
 	repro?: boolean;
 	binariesDirectory?: string | null;
 	onArtifact?: OnArtifact;
+	metadata?: Record<string, string> | null;
 }> &
 	Partial<MoreRenderMediaOptions>;
 
@@ -245,6 +247,7 @@ const internalRenderMediaRaw = ({
 	compositionStart,
 	onBrowserDownload,
 	onArtifact,
+	metadata,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	if (repro) {
 		enableRepro({
@@ -732,6 +735,7 @@ const internalRenderMediaRaw = ({
 					colorSpace,
 					binariesDirectory,
 					separateAudioTo,
+					metadata,
 				});
 			})
 			.then((buffer) => {
@@ -885,6 +889,7 @@ export const renderMedia = ({
 	forSeamlessAacConcatenation,
 	onBrowserDownload,
 	onArtifact,
+	metadata,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	if (quality !== undefined) {
 		console.warn(
@@ -960,6 +965,7 @@ export const renderMedia = ({
 			onBrowserDownload ??
 			defaultBrowserDownloadProgress({indent, logLevel, api: 'renderMedia()'}),
 		onArtifact: onArtifact ?? null,
+		metadata: metadata ?? null,
 		// TODO: In the future, introduce this as a public API when launching the distributed rendering API
 		compositionStart: 0,
 	});

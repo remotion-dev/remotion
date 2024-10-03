@@ -17,6 +17,7 @@ import {glOption} from './gl';
 import {headlessOption} from './headless';
 import {jpegQualityOption} from './jpeg-quality';
 import {logLevelOption} from './log-level';
+import {metadataOption} from './metadata';
 import {mutedOption} from './mute';
 import {numberOfGifLoopsOption} from './number-of-gif-loops';
 import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size';
@@ -73,6 +74,7 @@ export const allOptions = {
 	onBrowserDownloadOption,
 	throwIfSiteExistsOption,
 	disableGitSourceOption,
+	metadataOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

@@ -159,6 +159,7 @@ export const renderMediaSingleThread = async (
 				throw new Error('Should not download a browser in Cloud Run');
 			},
 			onArtifact,
+			metadata: body.metadata ?? null,
 		});
 
 		const storage = new Storage();
