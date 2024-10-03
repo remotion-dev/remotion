@@ -289,7 +289,6 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		deleteAfter: DeleteAfter | null;
 		streamed: boolean;
 		forcePathStyle: boolean;
-		metadata: Record<string, string> | null;
 	};
 	compositions: {
 		type: ServerlessRoutines.compositions;

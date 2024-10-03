@@ -250,7 +250,6 @@ export const makeLambdaRenderStillPayload = async ({
 	offthreadVideoCacheSizeInBytes,
 	deleteAfter,
 	forcePathStyle,
-	metadata,
 }: RenderStillOnLambdaNonNullInput): Promise<
 	ServerlessPayloads<AwsProvider>[ServerlessRoutines.still]
 > => {
@@ -301,6 +300,5 @@ export const makeLambdaRenderStillPayload = async ({
 		type: ServerlessRoutines.still,
 		streamed: true,
 		forcePathStyle,
-		metadata,
 	};
 };

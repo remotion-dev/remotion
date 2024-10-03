@@ -59,7 +59,6 @@ type OptionalParameters = {
 	}) => void;
 	indent: boolean;
 	forcePathStyle: boolean;
-	metadata: Record<string, string> | null;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderStillOnLambda>;
 
 export type RenderStillOnLambdaNonNullInput = MandatoryParameters &
@@ -206,6 +205,5 @@ export const renderStillOnLambda = (input: RenderStillOnLambdaInput) => {
 		timeoutInMilliseconds: input.timeoutInMilliseconds ?? 30000,
 		dumpBrowserLogs: false,
 		forcePathStyle: input.forcePathStyle ?? false,
-		metadata: input.metadata ?? null,
 	});
 };

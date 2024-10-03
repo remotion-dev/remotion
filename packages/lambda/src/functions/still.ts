@@ -194,7 +194,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		numberOfGifLoops: null,
 		downloadBehavior: lambdaParams.downloadBehavior,
 		audioBitrate: null,
-		metadata: lambdaParams.metadata,
+		metadata: null,
 		functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
 	};
 
