@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-setup.png
 id: setup
 title: Setup
 slug: /lambda/setup
-crumb: "Lambda"
+crumb: 'Lambda'
 ---
 
 import Tabs from '@theme/Tabs';
@@ -18,7 +18,7 @@ import TabItem from '@theme/TabItem';
 
 ## 1. Install `@remotion/lambda`
 
-<Installation pkg="@remotion/lambda"/>
+<Installation pkg="@remotion/lambda" />
 
 ## 2. Create role policy
 
@@ -84,7 +84,7 @@ Check all user permissions and validate them against the AWS Policy simulator by
 npx remotion lambda policies validate
 ```
 
-<hr/>
+<hr />
 
 For the following steps, you may execute them on the CLI, or programmatically using the Node.JS APIs.
 
@@ -113,11 +113,11 @@ You can deploy a function that can render videos into your AWS account using [`d
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import { deployFunction } from "@remotion/lambda";
+import {deployFunction} from '@remotion/lambda';
 
 // ---cut---
-const { functionName } = await deployFunction({
-  region: "us-east-1",
+const {functionName} = await deployFunction({
+  region: 'us-east-1',
   timeoutInSeconds: 120,
   memorySizeInMb: 2048,
   createCloudWatchLogGroup: true,
@@ -125,6 +125,7 @@ const { functionName } = await deployFunction({
 ```
 
 The function name is returned which you'll need for rendering.
+
 </TabItem>
 </Tabs>
 
@@ -159,11 +160,11 @@ First, you need to create an S3 bucket in your preferred region. If one already 
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import path from "path";
-import { deploySite, getOrCreateBucket } from "@remotion/lambda";
+import path from 'path';
+import {deploySite, getOrCreateBucket} from '@remotion/lambda';
 
-const { bucketName } = await getOrCreateBucket({
-  region: "us-east-1",
+const {bucketName} = await getOrCreateBucket({
+  region: 'us-east-1',
 });
 ```
 
@@ -172,18 +173,18 @@ Next, upload your Remotion project to an S3 bucket. Specify the entry point of y
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import path from "path";
-import { deploySite, getOrCreateBucket } from "@remotion/lambda";
+import path from 'path';
+import {deploySite, getOrCreateBucket} from '@remotion/lambda';
 
-const { bucketName } = await getOrCreateBucket({
-  region: "us-east-1",
+const {bucketName} = await getOrCreateBucket({
+  region: 'us-east-1',
 });
 // ---cut---
-const { serveUrl } = await deploySite({
+const {serveUrl} = await deploySite({
   bucketName,
-  entryPoint: path.resolve(process.cwd(), "src/index.ts"),
-  region: "us-east-1",
-  siteName: "my-video",
+  entryPoint: path.resolve(process.cwd(), 'src/index.ts'),
+  region: 'us-east-1',
+  siteName: 'my-video',
 });
 ```
 
@@ -200,7 +201,7 @@ Check the concurrency limit that AWS has given to your account:
 npx remotion lambda quotas
 ```
 
-By default, it is `1000` concurrent invocations per region. However, new accounts might have a limit [as low as `10`](/docs/lambda/troubleshooting/rate-limit#exception-new-accounts-using-aws-lambda). Each Remotion render may use as much as 200 functions per render concurrently, so if your assigned limit is very low, [you might want to request an increase right away](/docs/lambda/troubleshooting/rate-limit#request-an-increase).
+By default, it is `1000` concurrent invocations per region. However, new accounts might have a limit [as low as `10`](/docs/lambda/troubleshooting/rate-limit#new-accounts-using-aws-lambda). Each Remotion render may use as much as 200 functions per render concurrently, so if your assigned limit is very low, [you might want to request an increase right away](/docs/lambda/troubleshooting/rate-limit#request-an-increase).
 
 ## 11. Render a video
 
@@ -233,10 +234,10 @@ import {
   getFunctions,
   renderMediaOnLambda,
   getRenderProgress,
-} from "@remotion/lambda";
+} from '@remotion/lambda';
 
 const functions = await getFunctions({
-  region: "us-east-1",
+  region: 'us-east-1',
   compatibleOnly: true,
 });
 
@@ -252,28 +253,28 @@ import {
   getFunctions,
   renderMediaOnLambda,
   getRenderProgress,
-} from "@remotion/lambda";
+} from '@remotion/lambda';
 
-const url = "string";
+const url = 'string';
 const functions = await getFunctions({
-  region: "us-east-1",
+  region: 'us-east-1',
   compatibleOnly: true,
 });
 
 const functionName = functions[0].functionName;
 // ---cut---
 
-const { renderId, bucketName } = await renderMediaOnLambda({
-  region: "us-east-1",
+const {renderId, bucketName} = await renderMediaOnLambda({
+  region: 'us-east-1',
   functionName,
   serveUrl: url,
-  composition: "HelloWorld",
+  composition: 'HelloWorld',
   inputProps: {},
-  codec: "h264",
-  imageFormat: "jpeg",
+  codec: 'h264',
+  imageFormat: 'jpeg',
   maxRetries: 1,
   framesPerLambda: 20,
-  privacy: "public",
+  privacy: 'public',
 });
 ```
 
@@ -286,27 +287,27 @@ import {
   getFunctions,
   renderMediaOnLambda,
   getRenderProgress,
-} from "@remotion/lambda";
+} from '@remotion/lambda';
 
-const url = "string";
+const url = 'string';
 const functions = await getFunctions({
-  region: "us-east-1",
+  region: 'us-east-1',
   compatibleOnly: true,
 });
 
 const functionName = functions[0].functionName;
 
-const { renderId, bucketName } = await renderMediaOnLambda({
-  region: "us-east-1",
+const {renderId, bucketName} = await renderMediaOnLambda({
+  region: 'us-east-1',
   functionName,
   serveUrl: url,
-  composition: "HelloWorld",
+  composition: 'HelloWorld',
   inputProps: {},
-  codec: "h264",
-  imageFormat: "jpeg",
+  codec: 'h264',
+  imageFormat: 'jpeg',
   maxRetries: 1,
   framesPerLambda: 20,
-  privacy: "public",
+  privacy: 'public',
 });
 // ---cut---
 while (true) {
@@ -315,14 +316,14 @@ while (true) {
     renderId,
     bucketName,
     functionName,
-    region: "us-east-1",
+    region: 'us-east-1',
   });
   if (progress.done) {
-    console.log("Render finished!", progress.outputFile);
+    console.log('Render finished!', progress.outputFile);
     process.exit(0);
   }
   if (progress.fatalErrorEncountered) {
-    console.error("Error enountered", progress.errors);
+    console.error('Error enountered', progress.errors);
     process.exit(1);
   }
 }
