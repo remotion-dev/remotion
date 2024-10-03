@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {Caption} from '../caption';
+import type {Caption} from '../caption';
 import {ensureMaxCharactersPerLine} from '../ensure-max-characters-per-line';
 
 test('Ensure max characters per line', () => {

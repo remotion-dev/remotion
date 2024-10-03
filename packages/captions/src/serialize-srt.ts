@@ -1,4 +1,4 @@
-import {Caption} from './caption';
+import type {Caption} from './caption';
 
 const formatSingleSrtTimestamp = (timestamp: number) => {
 	const hours = Math.floor(timestamp / 3600000);

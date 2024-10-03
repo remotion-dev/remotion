@@ -1,13 +1,15 @@
-import {Caption} from './caption';
+import type {Caption} from './caption';
 
 function toSeconds(time: string) {
 	const [first, second, third] = time.split(':');
 	if (!first) {
 		throw new Error(`Invalid timestamp:${time}`);
 	}
+
 	if (!second) {
 		throw new Error(`Invalid timestamp:${time}`);
 	}
+
 	if (!third) {
 		throw new Error(`Invalid timestamp:${time}`);
 	}
@@ -16,6 +18,7 @@ function toSeconds(time: string) {
 	if (!seconds) {
 		throw new Error(`Invalid timestamp:${time}`);
 	}
+
 	if (!millis) {
 		throw new Error(`Invalid timestamp:${time}`);
 	}

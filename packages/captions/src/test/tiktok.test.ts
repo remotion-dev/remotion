@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {Caption} from '../caption';
+import type {Caption} from '../caption';
 import {createTikTokStyleCaptions} from '../create-tiktok-style-captions';
 
 const captions: Caption[] = [

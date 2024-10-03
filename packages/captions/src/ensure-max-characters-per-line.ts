@@ -1,10 +1,10 @@
-import {Caption} from './caption';
+import type {Caption} from './caption';
 
-const splitWords = (word: Caption[]): Caption[] => {
+const splitWords = (inputCaptions: Caption[]): Caption[] => {
 	const captions: Caption[] = [];
 
-	for (let i = 0; i < word.length; i++) {
-		const w = word[i];
+	for (let i = 0; i < inputCaptions.length; i++) {
+		const w = inputCaptions[i];
 		const words = w.text.split(' ');
 
 		for (let j = 0; j < words.length; j++) {
@@ -57,6 +57,7 @@ export const ensureMaxCharactersPerLine = ({
 			segments.push(currentSegment);
 			currentSegment = [];
 		}
+
 		currentSegment.push(w);
 	}
 
