@@ -1633,13 +1633,13 @@ export const articles = [
 		compId: 'articles-docs-miscellaneous-chrome-headless-shell',
 		crumb: 'FAQ',
 	},
-  {
-    id: 'miscellaneous/render-in-browser',
+	{
+		id: 'miscellaneous/render-in-browser',
 		title: 'Can I render videos in the browser?',
 		relativePath: 'docs/miscellaneous/render-in-browser.mdx',
 		compId: 'articles-docs-miscellaneous-render-in-browser',
-    crumb: 'Techniques',
-  },
+		crumb: 'Techniques',
+	},
 	{
 		id: 'miscellaneous/render-in-browser',
 		title: 'Can I render videos in the browser?',
