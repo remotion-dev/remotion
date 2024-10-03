@@ -68,6 +68,7 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		colorSpace: z.enum(BrowserSafeApis.validColorSpaces).nullable(),
 		clientVersion: z.string(),
 		downloadBehavior,
+		metadata: z.record(z.string()).optional().nullable(),
 	}),
 	z.object({
 		type: z.literal('still'),
@@ -90,6 +91,7 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		offthreadVideoCacheSizeInBytes: z.number().nullable(),
 		clientVersion: z.string(),
 		downloadBehavior,
+		metadata: z.record(z.string()).optional().nullable(),
 	}),
 ]);
 

@@ -202,6 +202,7 @@ export const benchmarkCommand = async (
 		disableWebSecurity,
 		userAgent,
 		ignoreCertificateErrors,
+		metadata,
 	} = getCliOptions({
 		isStill: false,
 		logLevel,
@@ -490,6 +491,7 @@ export const benchmarkCommand = async (
 					compositionStart: 0,
 					onBrowserDownload,
 					onArtifact: () => undefined,
+					metadata,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

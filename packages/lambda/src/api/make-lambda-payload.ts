@@ -84,6 +84,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	deleteAfter: DeleteAfter | null;
 	indent: boolean;
 	forcePathStyle: boolean;
+	metadata: Record<string, string> | null;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>;
 
 export const makeLambdaRenderMediaPayload = async ({
@@ -129,6 +130,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	colorSpace,
 	preferLossless,
 	forcePathStyle,
+	metadata,
 }: InnerRenderMediaOnLambdaInput): Promise<
 	ServerlessStartPayload<AwsProvider>
 > => {
@@ -202,6 +204,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		colorSpace: colorSpace ?? null,
 		preferLossless: preferLossless ?? false,
 		forcePathStyle: forcePathStyle ?? false,
+		metadata: metadata ?? null,
 	};
 };
 
@@ -247,6 +250,7 @@ export const makeLambdaRenderStillPayload = async ({
 	offthreadVideoCacheSizeInBytes,
 	deleteAfter,
 	forcePathStyle,
+	metadata,
 }: RenderStillOnLambdaNonNullInput): Promise<
 	ServerlessPayloads<AwsProvider>[ServerlessRoutines.still]
 > => {
@@ -297,5 +301,6 @@ export const makeLambdaRenderStillPayload = async ({
 		type: ServerlessRoutines.still,
 		streamed: true,
 		forcePathStyle,
+		metadata,
 	};
 };

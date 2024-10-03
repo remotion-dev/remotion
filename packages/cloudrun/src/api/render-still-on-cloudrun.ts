@@ -42,6 +42,7 @@ type OptionalParameters = {
 	forceHeight: number | null;
 	indent: boolean;
 	downloadBehavior: DownloadBehavior;
+	metadata: Record<string, string> | null;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderStillOnCloudRun>;
 
 export type RenderStillOnCloudrunInput = Partial<OptionalParameters> &
@@ -69,6 +70,7 @@ export type RenderStillOnCloudrunInput = Partial<OptionalParameters> &
  * @param params.forceHeight Overrides default composition height.
  * @param params.logLevel Level of logging that Cloud Run service should perform. Default "info".
  * @param params.delayRenderTimeoutInMilliseconds A number describing how long the render may take to resolve all delayRender() calls before it times out.
+ * @param params.metadata Metadata to be attached to the output file.
  * @returns {Promise<RenderStillOnCloudrunOutput>} See documentation for detailed structure
  */
 
@@ -94,6 +96,7 @@ const internalRenderStillOnCloudRun = async ({
 	delayRenderTimeoutInMilliseconds,
 	offthreadVideoCacheSizeInBytes,
 	downloadBehavior,
+	metadata,
 }: OptionalParameters & MandatoryParameters): Promise<
 	RenderStillOnCloudrunOutput | ErrorResponsePayload | CloudRunCrashResponse
 > => {
@@ -135,6 +138,7 @@ const internalRenderStillOnCloudRun = async ({
 		offthreadVideoCacheSizeInBytes,
 		clientVersion: VERSION,
 		downloadBehavior,
+		metadata,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);
@@ -240,5 +244,6 @@ export const renderStillOnCloudrun = (options: RenderStillOnCloudrunInput) => {
 		serveUrl: options.serveUrl,
 		serviceName: options.serviceName ?? null,
 		downloadBehavior: options.downloadBehavior ?? {type: 'play-in-browser'},
+		metadata: options.metadata ?? null,
 	});
 };

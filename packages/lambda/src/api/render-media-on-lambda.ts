@@ -69,6 +69,7 @@ export type RenderMediaOnLambdaInput = {
 	 */
 	dumpBrowserLogs?: boolean;
 	forcePathStyle?: boolean;
+	metadata?: Record<string, string> | null;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 export type RenderMediaOnLambdaOutput = {
@@ -187,6 +188,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		preferLossless: options.preferLossless ?? false,
 		forcePathStyle: options.forcePathStyle ?? false,
 		indent: false,
+		metadata: options.metadata ?? null,
 	};
 };
 
@@ -209,6 +211,7 @@ const wrapped = wrapWithErrorHandling(internalRenderMediaOnLambdaRaw);
  * @param params.maxRetries How often rendering a chunk may fail before the media render gets aborted. Default "1"
  * @param params.logLevel Level of logging that Lambda function should perform. Default "info".
  * @param params.webhook Configuration for webhook called upon completion or timeout of the render.
+ * @param params.metadata Metadata to be attached to the S3 object.
  * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
  */
 export const renderMediaOnLambda = (

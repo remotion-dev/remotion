@@ -61,6 +61,7 @@ test('Should fail when using an incompatible version', async () => {
 				colorSpace: null,
 				preferLossless: false,
 				forcePathStyle: false,
+				metadata: {Author: 'Lunar'},
 			},
 			functionName: 'remotion-dev-render',
 			region: 'us-east-1',

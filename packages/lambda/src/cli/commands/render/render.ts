@@ -91,6 +91,7 @@ export const renderCommand = async (
 		ignoreCertificateErrors,
 		userAgent,
 		disableWebSecurity,
+		metadata,
 	} = CliInternals.getCliOptions({
 		isStill: false,
 		logLevel,
@@ -321,6 +322,7 @@ export const renderCommand = async (
 		preferLossless,
 		indent: false,
 		forcePathStyle: parsedLambdaCli['force-path-style'] ?? false,
+		metadata: metadata ?? null,
 	});
 
 	const progressBar = CliInternals.createOverwriteableCliOutput({

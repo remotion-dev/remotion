@@ -59,6 +59,12 @@ _optional. Required if cloudRunUrl not supplied_
 
 The name of the Cloud Run service which should be used to perform the render. This is used in conjunction with the region to determine the service endpoint, as the same service name can exist across multiple regions.
 
+### `metadata`
+
+_object - optional_
+
+An object containing additional information about the video output. This can include properties such as Author, comment, and other relevant data to provide context and enhance the video’s usability.
+
 ### `region`
 
 In which [GCP region](/docs/cloudrun/region-selection) your Cloud Run service is deployed. It's highly recommended that your Remotion site is also in the same region.

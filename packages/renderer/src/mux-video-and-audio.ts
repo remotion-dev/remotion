@@ -17,6 +17,7 @@ export const muxVideoAndAudio = async ({
 	fps,
 	cancelSignal,
 	addFaststart,
+	metadata,
 }: {
 	videoOutput: string | null;
 	audioOutput: string | null;
@@ -28,9 +29,13 @@ export const muxVideoAndAudio = async ({
 	onProgress: (p: number) => void;
 	cancelSignal: CancelSignal | undefined;
 	addFaststart: boolean;
+	metadata?: Record<string, string> | null;
 }) => {
 	const startTime = Date.now();
 	Log.verbose({indent, logLevel}, 'Muxing video and audio together');
+	const metadataArgs = Object.entries(metadata ?? {}).flatMap(
+		([key, value]) => ['-metadata', `${key}=${value}`],
+	);
 	const command = [
 		'-hide_banner',
 		videoOutput ? '-i' : null,
@@ -45,6 +50,7 @@ export const muxVideoAndAudio = async ({
 		addFaststart ? 'faststart' : null,
 		`-metadata`,
 		`comment=Made with Remotion ${VERSION}`,
+		...metadataArgs,
 		'-y',
 		output,
 	].filter(truthy);

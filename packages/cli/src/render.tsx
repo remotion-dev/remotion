@@ -92,6 +92,7 @@ export const render = async (
 		ffmpegOverride,
 		proResProfile,
 		pixelFormat,
+		metadata,
 	} = getCliOptions({
 		isStill: false,
 		logLevel,
@@ -236,5 +237,6 @@ export const render = async (
 		forSeamlessAacConcatenation,
 		separateAudioTo,
 		publicPath,
+		metadata,
 	});
 };

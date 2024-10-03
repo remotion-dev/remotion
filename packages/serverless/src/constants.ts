@@ -158,6 +158,7 @@ export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	colorSpace: ColorSpace | null;
 	preferLossless: boolean;
 	forcePathStyle: boolean;
+	metadata: Record<string, string> | null;
 };
 
 export type ServerlessPayloads<Provider extends CloudProvider> = {
@@ -210,6 +211,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		colorSpace: ColorSpace | null;
 		preferLossless: boolean;
 		forcePathStyle: boolean;
+		metadata: Record<string, string> | null;
 	};
 	status: ServerlessStatusPayload<Provider>;
 	renderer: {
@@ -259,6 +261,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		framesPerLambda: number;
 		progressEveryNthFrame: number;
 		forcePathStyle: boolean;
+		metadata: Record<string, string> | null;
 	};
 	still: {
 		type: ServerlessRoutines.still;
@@ -286,6 +289,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		deleteAfter: DeleteAfter | null;
 		streamed: boolean;
 		forcePathStyle: boolean;
+		metadata: Record<string, string> | null;
 	};
 	compositions: {
 		type: ServerlessRoutines.compositions;

@@ -164,6 +164,7 @@ export type RenderJob = {
 	beepOnFinish: boolean;
 	repro: boolean;
 	binariesDirectory: string | null;
+	metadata: Record<string, string> | null;
 } & RenderJobDynamicFields;
 
 export type RenderJobWithCleanup = RenderJob & {

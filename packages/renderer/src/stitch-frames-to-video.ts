@@ -70,6 +70,7 @@ type InternalStitchFramesToVideoOptions = {
 	ffmpegOverride: null | FfmpegOverrideFn;
 	colorSpace: ColorSpace | null;
 	binariesDirectory: string | null;
+	metadata?: Record<string, string> | null;
 } & ToOptions<typeof optionsMap.stitchFramesToVideo>;
 
 export type StitchFramesToVideoOptions = {
@@ -99,6 +100,7 @@ export type StitchFramesToVideoOptions = {
 	x264Preset?: X264Preset | null;
 	colorSpace?: ColorSpace;
 	binariesDirectory?: string | null;
+	metadata?: Record<string, string> | null;
 } & Partial<ToOptions<typeof optionsMap.stitchFramesToVideo>>;
 
 type ReturnType = Promise<Buffer | null>;
@@ -135,6 +137,7 @@ const innerStitchFramesToVideo = async (
 		colorSpace,
 		binariesDirectory,
 		separateAudioTo,
+		metadata,
 	}: InternalStitchFramesToVideoOptions,
 	remotionRoot: string,
 ): Promise<ReturnType> => {
@@ -330,6 +333,10 @@ const innerStitchFramesToVideo = async (
 		return Promise.resolve(file);
 	}
 
+	const metadataArgs = Object.entries(metadata ?? {}).flatMap(
+		([key, value]) => ['-metadata', `${key}=${value}`],
+	);
+
 	const ffmpegArgs = [
 		...(preEncodedFileLocation
 			? [['-i', preEncodedFileLocation]]
@@ -363,6 +370,7 @@ const innerStitchFramesToVideo = async (
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
 		['-metadata', `comment=Made with Remotion ${VERSION}`],
+		...metadataArgs,
 		force ? '-y' : null,
 		outputLocation ?? tempFile,
 	];
@@ -520,6 +528,7 @@ export const stitchFramesToVideo = ({
 	colorSpace,
 	binariesDirectory,
 	separateAudioTo,
+	metadata,
 }: StitchFramesToVideoOptions): Promise<Buffer | null> => {
 	return internalStitchFramesToVideo({
 		assetsInfo,
@@ -551,6 +560,7 @@ export const stitchFramesToVideo = ({
 		x264Preset: x264Preset ?? null,
 		colorSpace: colorSpace ?? DEFAULT_COLOR_SPACE,
 		binariesDirectory: binariesDirectory ?? null,
+		metadata: metadata ?? null,
 		separateAudioTo: separateAudioTo ?? null,
 	});
 };

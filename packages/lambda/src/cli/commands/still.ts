@@ -85,6 +85,7 @@ export const stillCommand = async ({
 		userAgent,
 		disableWebSecurity,
 		ignoreCertificateErrors,
+		metadata,
 	} = getCliOptions({
 		isStill: true,
 		logLevel,
@@ -265,6 +266,7 @@ export const stillCommand = async ({
 			);
 		},
 		deleteAfter,
+		metadata,
 	});
 	Log.info(
 		{indent: false, logLevel},

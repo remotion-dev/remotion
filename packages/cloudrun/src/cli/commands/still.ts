@@ -49,6 +49,7 @@ export const stillCommand = async (
 		userAgent,
 		disableWebSecurity,
 		ignoreCertificateErrors,
+		metadata,
 	} = CliInternals.getCliOptions({
 		isStill: false,
 		logLevel,
@@ -225,6 +226,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		outName,
 		logLevel,
 		delayRenderTimeoutInMilliseconds: puppeteerTimeout,
+		metadata,
 	});
 	if (res.type === 'crash') {
 		displayCrashLogs(res, logLevel);

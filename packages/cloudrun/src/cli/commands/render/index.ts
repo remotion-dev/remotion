@@ -82,6 +82,7 @@ export const renderCommand = async (
 		disableWebSecurity,
 		ignoreCertificateErrors,
 		userAgent,
+		metadata,
 	} = CliInternals.getCliOptions({
 		isStill: false,
 		logLevel,
@@ -320,6 +321,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		colorSpace,
 		indent: false,
 		downloadBehavior: {type: 'play-in-browser'},
+		metadata,
 	});
 
 	if (res.type === 'crash') {

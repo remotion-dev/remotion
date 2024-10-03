@@ -52,6 +52,8 @@ const composition = await selectComposition({
   inputProps,
 });
 
+const metadata = { Author: 'Lunar', comment: 'default comment' };
+
 // Render the video. Pass the same `inputProps` again
 // if your video is parametrized with data.
 await renderMedia({
@@ -60,6 +62,7 @@ await renderMedia({
   codec: 'h264',
   outputLocation: `out/${compositionId}.mp4`,
   inputProps,
+  metadata,
 });
 
 console.log('Render done!');
