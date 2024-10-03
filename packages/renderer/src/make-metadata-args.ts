@@ -21,9 +21,5 @@ export const makeMetadataArgs = (metadata: Metadata): string[] => {
 		([key, value]) => ['-metadata', `${key}=${value}`] as [string, string],
 	);
 
-	return [
-		// Ignore metadata that may come from remote media
-		['-map_metadata', '-1'],
-		...metadataArgs,
-	].flat(1);
+	return metadataArgs.flat(1);
 };
