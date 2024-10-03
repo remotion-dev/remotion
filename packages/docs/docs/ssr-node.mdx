@@ -12,8 +12,11 @@ These functions can be used in Node.js and Bun.
 Rendering a video takes three steps:
 
 <div>
-  <Step>1</Step> Creating a{' '}<a href="/docs/terminology/bundle">Remotion Bundle</a><br />
-  <Step>2</Step> Select the composition to render and calculate its metadata<br />
+  <Step>1</Step> Creating a{' '}
+  <a href="/docs/terminology/bundle">Remotion Bundle</a>
+  <br />
+  <Step>2</Step> Select the composition to render and calculate its metadata
+  <br />
   <Step>3</Step> Render the video, audio, still or image sequence.{' '}
 </div>
 
@@ -52,8 +55,6 @@ const composition = await selectComposition({
   inputProps,
 });
 
-const metadata = { Author: 'Lunar', comment: 'default comment' };
-
 // Render the video. Pass the same `inputProps` again
 // if your video is parametrized with data.
 await renderMedia({
@@ -62,7 +63,6 @@ await renderMedia({
   codec: 'h264',
   outputLocation: `out/${compositionId}.mp4`,
   inputProps,
-  metadata,
 });
 
 console.log('Render done!');
