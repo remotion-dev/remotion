@@ -53,6 +53,7 @@ const {
 	overwriteOption,
 	binariesDirectoryOption,
 	preferLosslessOption,
+	metadataOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -91,7 +92,6 @@ export const renderCommand = async (
 		ignoreCertificateErrors,
 		userAgent,
 		disableWebSecurity,
-		metadata,
 	} = CliInternals.getCliOptions({
 		isStill: false,
 		logLevel,
@@ -162,6 +162,9 @@ export const renderCommand = async (
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const preferLossless = preferLosslessOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const metadata = metadataOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 

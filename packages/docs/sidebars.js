@@ -666,6 +666,7 @@ module.exports = {
 				'miscellaneous/video-formats',
 				'video-vs-offthreadvideo',
 				'artifacts',
+				'metadata',
 			],
 		},
 		{

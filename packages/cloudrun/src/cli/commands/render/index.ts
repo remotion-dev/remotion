@@ -34,6 +34,7 @@ const {
 	encodingBufferSizeOption,
 	delayRenderTimeoutInMillisecondsOption,
 	binariesDirectoryOption,
+	metadataOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -82,7 +83,6 @@ export const renderCommand = async (
 		disableWebSecurity,
 		ignoreCertificateErrors,
 		userAgent,
-		metadata,
 	} = CliInternals.getCliOptions({
 		isStill: false,
 		logLevel,
@@ -275,6 +275,9 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const encodingBufferSize = encodingBufferSizeOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const metadata = metadataOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 

@@ -79,8 +79,6 @@ export const getCliOptions = (options: {
 	const height = ConfigInternals.getHeight();
 	const width = ConfigInternals.getWidth();
 
-	const metadata = ConfigInternals.getMetadata();
-
 	RenderInternals.validateConcurrency({
 		value: concurrency,
 		setting: 'concurrency',
@@ -108,7 +106,6 @@ export const getCliOptions = (options: {
 		ffmpegOverride: ConfigInternals.getFfmpegOverrideFunction(),
 		height,
 		width,
-		metadata,
 		configFileImageFormat: ConfigInternals.getUserPreferredVideoImageFormat(),
 	};
 };

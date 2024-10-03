@@ -1,6 +1,5 @@
 import {cpSync, promises, rmSync} from 'node:fs';
 import path from 'node:path';
-import {VERSION} from 'remotion/version';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {RenderAssetInfo} from './assets/download-map';
 import {cleanDownloadMap} from './assets/download-map';
@@ -21,6 +20,7 @@ import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
+import {makeMetadataArgs} from './make-metadata-args';
 import type {AudioCodec} from './options/audio-codec';
 import {resolveAudioCodec} from './options/audio-codec';
 import {DEFAULT_COLOR_SPACE, type ColorSpace} from './options/color-space';
@@ -333,10 +333,6 @@ const innerStitchFramesToVideo = async (
 		return Promise.resolve(file);
 	}
 
-	const metadataArgs = Object.entries(metadata ?? {}).flatMap(
-		([key, value]) => ['-metadata', `${key}=${value}`],
-	);
-
 	const ffmpegArgs = [
 		...(preEncodedFileLocation
 			? [['-i', preEncodedFileLocation]]
@@ -367,10 +363,7 @@ const innerStitchFramesToVideo = async (
 			colorSpace,
 		}),
 		codec === 'h264' ? ['-movflags', 'faststart'] : null,
-		// Ignore metadata that may come from remote media
-		['-map_metadata', '-1'],
-		['-metadata', `comment=Made with Remotion ${VERSION}`],
-		...metadataArgs,
+		...makeMetadataArgs(metadata ?? {}),
 		force ? '-y' : null,
 		outputLocation ?? tempFile,
 	];

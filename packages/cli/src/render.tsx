@@ -37,6 +37,7 @@ const {
 	audioCodecOption,
 	publicPathOption,
 	publicDirOption,
+	metadataOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -92,7 +93,6 @@ export const render = async (
 		ffmpegOverride,
 		proResProfile,
 		pixelFormat,
-		metadata,
 	} = getCliOptions({
 		isStill: false,
 		logLevel,
@@ -163,6 +163,7 @@ export const render = async (
 	const separateAudioTo = separateAudioOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const metadata = metadataOption.getValue({commandLine: parsedCli}).value;
 	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: ChromiumOptions = {

@@ -1771,6 +1771,13 @@ export const articles = [
 		crumb: null,
 	},
 	{
+		id: 'metadata',
+		title: 'Setting video metadata',
+		relativePath: 'docs/metadata.mdx',
+		compId: 'articles-docs-metadata',
+		crumb: 'Techniques',
+	},
+	{
 		id: 'miscellaneous/absolute-paths',
 		title: 'Files with absolute paths',
 		relativePath: 'docs/miscellaneous/absolute-paths.mdx',
