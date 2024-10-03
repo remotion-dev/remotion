@@ -106,6 +106,7 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const disableWebSecurity = ConfigInternals.getChromiumDisableWebSecurity();
 	const ignoreCertificateErrors = ConfigInternals.getIgnoreCertificateErrors();
 	const userAgent = ConfigInternals.getChromiumUserAgent();
+	const metadata = ConfigInternals.getMetadata();
 
 	const maxConcurrency = RenderInternals.getMaxConcurrency();
 	const minConcurrency = RenderInternals.getMinConcurrency();
@@ -146,5 +147,6 @@ export const getRenderDefaults = (): RenderDefaults => {
 		numberOfGifLoops,
 		beepOnFinish,
 		forSeamlessAacConcatenation,
+		metadata,
 	};
 };

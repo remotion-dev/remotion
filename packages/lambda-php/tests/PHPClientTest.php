@@ -21,8 +21,12 @@ class PHPClientTest extends TestCase
             data: [
                 'hi' => 'there'
             ],
+
         );
         $params->setComposition("react-svg");
+        $params->setMetadata([
+            'Author' => 'Remotion'
+        ]);
 
         $internalParams = $client->constructInternals($params);
 

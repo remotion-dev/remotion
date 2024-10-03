@@ -58,6 +58,7 @@ type InternalRenderMediaOnCloudrun = {
 	indent: boolean;
 	logLevel: LogLevel;
 	downloadBehavior: DownloadBehavior;
+	metadata?: Record<string, string> | null;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>>;
 
 export type RenderMediaOnCloudrunInput = {
@@ -87,6 +88,7 @@ export type RenderMediaOnCloudrunInput = {
 	concurrency?: number | string | null;
 	preferLossless?: boolean;
 	downloadBehavior?: DownloadBehavior;
+	metadata?: Record<string, string> | null;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>>;
 
 const internalRenderMediaOnCloudrunRaw = async ({
@@ -129,6 +131,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
 	downloadBehavior,
+	metadata,
 }: InternalRenderMediaOnCloudrun): Promise<
 	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 > => {
@@ -188,6 +191,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		colorSpace: colorSpace ?? null,
 		clientVersion: VERSION,
 		downloadBehavior,
+		metadata: metadata ?? null,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);
@@ -315,6 +319,7 @@ export const internalRenderMediaOnCloudrun = wrapWithErrorHandling(
  * @param params.concurrency A number or a string describing how many browser tabs should be opened. Default "50%".
  * @param params.enforceAudioTrack Render a silent audio track if there wouldn't be any otherwise.
  * @param params.preferLossless Uses a lossless audio codec, if one is available for the codec. If you set audioCodec, it takes priority over preferLossless.
+ * @param params.metadata Metadata to be attached to the output file.
  * @returns {Promise<RenderMediaOnCloudrunOutput>} See documentation for detailed structure
  */
 export const renderMediaOnCloudrun = ({
@@ -357,6 +362,7 @@ export const renderMediaOnCloudrun = ({
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
 	downloadBehavior,
+	metadata,
 }: RenderMediaOnCloudrunInput): Promise<
 	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 > => {
@@ -404,5 +410,6 @@ export const renderMediaOnCloudrun = ({
 		downloadBehavior: downloadBehavior ?? {
 			type: 'play-in-browser',
 		},
+		metadata: metadata ?? null,
 	});
 };

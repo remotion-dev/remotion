@@ -50,6 +50,7 @@ const {
 	forSeamlessAacConcatenationOption,
 	publicPathOption,
 	publicDirOption,
+	metadataOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -382,6 +383,7 @@ export const benchmarkCommand = async (
 		},
 		true,
 	).value;
+	const metadata = metadataOption.getValue({commandLine: parsedCli}).value;
 
 	for (const composition of compositions) {
 		const {value: videoCodec, source: codecReason} = videoCodecOption.getValue(
@@ -490,6 +492,7 @@ export const benchmarkCommand = async (
 					compositionStart: 0,
 					onBrowserDownload,
 					onArtifact: () => undefined,
+					metadata,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

@@ -24,6 +24,7 @@ if (os.platform() === 'win32') {
 }
 
 function isMusl() {
+	// @ts-expect-error
 	const {glibcVersionRuntime} = process.report.getReport().header;
 	return !glibcVersionRuntime;
 }
@@ -161,7 +162,7 @@ for (const toolchain of toolchains) {
 }
 
 const stdout = execSync('cargo metadata --format-version=1');
-const {packages} = JSON.parse(stdout);
+const {packages} = JSON.parse(stdout as unknown as string);
 
 const rustFfmpegSys = packages.find((p) => p.name === 'ffmpeg-sys-next');
 

@@ -60,6 +60,7 @@ export type RenderModalState = {
 	defaultConfigurationVideoCodec: Codec;
 	defaultConfigurationAudioCodec: AudioCodec | null;
 	renderTypeOfLastRender: RenderType | null;
+	defaulMetadata: Record<string, string> | null;
 };
 
 export type ModalState =

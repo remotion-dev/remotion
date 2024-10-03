@@ -53,6 +53,7 @@ const {
 	overwriteOption,
 	binariesDirectoryOption,
 	preferLosslessOption,
+	metadataOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -161,6 +162,9 @@ export const renderCommand = async (
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const preferLossless = preferLosslessOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const metadata = metadataOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 
@@ -321,6 +325,7 @@ export const renderCommand = async (
 		preferLossless,
 		indent: false,
 		forcePathStyle: parsedLambdaCli['force-path-style'] ?? false,
+		metadata: metadata ?? null,
 	});
 
 	const progressBar = CliInternals.createOverwriteableCliOutput({

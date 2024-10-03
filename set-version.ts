@@ -65,7 +65,7 @@ execSync('bun test src/monorepo', {
 	stdio: 'inherit',
 });
 
-execSync('node build.mjs --all', {
+execSync('bun build.ts --all', {
 	cwd: 'packages/renderer',
 	stdio: 'inherit',
 });

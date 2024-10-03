@@ -64,6 +64,7 @@ export const action: ActionFunction = async ({ request }) => {
     composition: COMPOSITION_ID,
     inputProps,
     outName: `logo-animation.mp4`,
+    metadata: null,
   });
 
   return json(renderData);

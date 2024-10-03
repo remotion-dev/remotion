@@ -617,7 +617,6 @@ module.exports = {
 				'animating-properties',
 				'reusability',
 				'preview',
-				'render',
 			],
 		},
 		{
@@ -654,20 +653,14 @@ module.exports = {
 				'props-resolution',
 			],
 		},
-		{
-			type: 'category',
-			label: 'Studio',
-			items: [
-				'studio/studio',
-				'studio/shortcuts',
-				'studio/quick-switcher',
-				'studio/deploy-static',
-				'studio/deploy-server',
-			],
-		},
+
 		{
 			type: 'category',
 			label: 'Rendering',
+			link: {
+				type: 'doc',
+				id: 'render',
+			},
 			items: [
 				'encoding',
 				'stills',
@@ -681,6 +674,18 @@ module.exports = {
 				'miscellaneous/video-formats',
 				'video-vs-offthreadvideo',
 				'artifacts',
+				'metadata',
+			],
+		},
+		{
+			type: 'category',
+			label: 'Studio',
+			items: [
+				'studio/studio',
+				'studio/shortcuts',
+				'studio/quick-switcher',
+				'studio/deploy-static',
+				'studio/deploy-server',
 			],
 		},
 		{

@@ -283,6 +283,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			framesPerLambda,
 			progressEveryNthFrame,
 			forcePathStyle: params.forcePathStyle,
+			metadata: params.metadata,
 		};
 		return payload;
 	});
@@ -324,6 +325,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		downloadBehavior: params.downloadBehavior,
 		audioBitrate: params.audioBitrate,
 		muted: params.muted,
+		metadata: params.metadata,
 		functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
 	};
 

@@ -323,6 +323,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 				throw new Error('Should not download a browser in Lambda');
 			},
 			onArtifact,
+			metadata: params.metadata,
 		})
 			.then(({slowestFrames}) => {
 				RenderInternals.Log.verbose(
