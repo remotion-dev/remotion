@@ -77,6 +77,7 @@ export const InstallPackageModal: React.FC<{
 		'@remotion/three': false,
 		'@remotion/transitions': false,
 		'@remotion/zod-types': false,
+		"@remotion/captions": false
 	});
 	const {previewServerState: ctx} = useContext(StudioServerConnectionCtx);
 
