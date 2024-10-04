@@ -5,4 +5,5 @@ packages:
   - '!packages/it-tests/whisper.cpp'
   - '!packages/cloudrun/container'
   - '!packages/template-tiktok/whisper.cpp'
+  - '!packages/template-tiktok/whisper.cpp/**'
   - '!packages/bugs'

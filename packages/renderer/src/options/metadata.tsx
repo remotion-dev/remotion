@@ -36,7 +36,7 @@ export const metadataOption = {
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			const val = commandLine[cliFlag] as string | string[];
-			const array = typeof val === 'string' ? [] : val;
+			const array = typeof val === 'string' ? [val] : val;
 			const keyValues = array.map((a) => {
 				if (!a.includes('=')) {
 					throw new Error(

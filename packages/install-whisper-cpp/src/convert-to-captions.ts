@@ -1,6 +1,6 @@
 import type {TranscriptionJson} from './transcribe';
 
-export type Caption = {
+export type ConvertToCaptionCaption = {
 	text: string;
 	startInSeconds: number;
 };
@@ -16,8 +16,8 @@ export function convertToCaptions({
 }: {
 	transcription: TranscriptionJson<true>['transcription'];
 	combineTokensWithinMilliseconds: number;
-}): {captions: Caption[]} {
-	const merged: Caption[] = [];
+}): {captions: ConvertToCaptionCaption[]} {
+	const merged: ConvertToCaptionCaption[] = [];
 	let currentText = '';
 	let currentFrom = 0;
 	let currentTo = 0;

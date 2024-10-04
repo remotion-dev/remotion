@@ -4,6 +4,7 @@ Monthly downloads of Remotion packages
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/animation-utils.svg?style=flat&color=black&label=@remotion/animation-utils)](https://npmcharts.com/compare/@remotion/animation-utils?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/babel-loader.svg?style=flat&color=black&label=@remotion/babel-loader)](https://npmcharts.com/compare/@remotion/babel-loader?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/bundler.svg?style=flat&color=black&label=@remotion/bundler)](https://npmcharts.com/compare/@remotion/bundler?minimal=true)  
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/captions.svg?style=flat&color=black&label=@remotion/captions)](https://npmcharts.com/compare/@remotion/captions?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/cli.svg?style=flat&color=black&label=@remotion/cli)](https://npmcharts.com/compare/@remotion/cli?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/cloudrun.svg?style=flat&color=black&label=@remotion/cloudrun)](https://npmcharts.com/compare/@remotion/cloudrun?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/compositor-darwin-arm64.svg?style=flat&color=black&label=@remotion/compositor-darwin-arm64)](https://npmcharts.com/compare/@remotion/compositor-darwin-arm64?minimal=true)  

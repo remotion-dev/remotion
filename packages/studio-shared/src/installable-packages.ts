@@ -1,8 +1,8 @@
-// Keep in sync with cli
 export const listOfInstallableRemotionPackages = [
 	'@remotion/animated-emoji',
 	'@remotion/animation-utils',
 	'@remotion/cloudrun',
+	'@remotion/captions',
 	'@remotion/enable-scss',
 	'@remotion/gif',
 	'@remotion/google-fonts',
