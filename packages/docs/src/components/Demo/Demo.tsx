@@ -1,7 +1,7 @@
 import {useColorMode} from '@docusaurus/theme-common';
 import type {PlayerRef} from '@remotion/player';
 import {Player} from '@remotion/player';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {type CSSProperties, useEffect, useRef, useState} from 'react';
 import type {LocationAndTrending} from '../../remotion/HomepageVideo/Comp';
 import {
 	HomepageVideoComp,
@@ -9,6 +9,7 @@ import {
 } from '../../remotion/HomepageVideo/Comp';
 import {ActionRow} from './ActionRow';
 import {PlayerControls} from './PlayerControls';
+import styles from './player.module.css';
 
 export const Demo: React.FC = () => {
 	const {colorMode} = useColorMode();
@@ -24,6 +25,13 @@ export const Demo: React.FC = () => {
 	const strokeColor = colorMode === 'dark' ? 'gray' : 'black';
 
 	const [isFullscreen, setIsFullscreen] = useState(false);
+
+	const playerWrapper: CSSProperties = {
+		border: '2px solid ' + strokeColor,
+		borderBottom: '4px solid ' + strokeColor,
+		borderRadius: 8,
+		width: '100%',
+	};
 
 	useEffect(() => {
 		const {current: playerRef} = ref;
@@ -61,11 +69,8 @@ export const Demo: React.FC = () => {
 						controls={isFullscreen}
 						clickToPlay={false}
 						style={{
-							border: '2px solid ' + strokeColor,
-							borderBottom: '4px solid ' + strokeColor,
-							borderRadius: 8,
-							width: '100%',
-							touchAction: 'none', // prevent page from scrolling when dragging children
+							...playerWrapper,
+							touchAction: 'none', // prevent page from scrolling when dragging children on mobile
 						}}
 						inputProps={{
 							theme: colorMode,
@@ -78,7 +83,22 @@ export const Demo: React.FC = () => {
 					/>
 					<PlayerControls playerRef={ref} durationInFrames={120} fps={30} />
 				</>
-			) : null}
+			) : (
+				<>
+					<div
+						style={{
+							aspectRatio: '640 / 360',
+							...playerWrapper,
+						}}
+					/>
+					<div
+						className={styles['controls-wrapper']}
+						style={{justifyContent: 'center'}}
+					>
+						<p>Loading Player</p>
+					</div>
+				</>
+			)}
 			<ActionRow />
 		</div>
 	);
