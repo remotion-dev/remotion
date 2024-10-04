@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/openai-whisper",
 	"version": "4.0.216",
-	"description": "",
+	"description": "Work with the output of the OpenAI Whisper API",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"bugs": {
@@ -33,5 +33,5 @@
 	"publishConfig": {
 		"access": "public"
 	},
-	"homepage": "https://www.remotion.dev/docs/openai-captions"
+	"homepage": "https://www.remotion.dev/docs/openai-whisper"
 }
