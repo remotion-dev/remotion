@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill} from 'remotion';
+import {AbsoluteFill, getRemotionEnvironment} from 'remotion';
 import {DisplayedEmoji} from './DisplayedEmoji';
 
 export type EmojiPosition = {
@@ -10,9 +10,15 @@ export type EmojiPosition = {
 	translationStyle: string;
 };
 
+const EmptyDiv: React.FC = () => {
+	return <div style={{width: '100%'}} />;
+};
+
 export const EmojiCard: React.FC<{
 	emojiPositions: EmojiPosition;
 }> = ({emojiPositions}) => {
+	const {isRendering} = getRemotionEnvironment();
+
 	return (
 		<AbsoluteFill
 			style={{
@@ -44,9 +50,17 @@ export const EmojiCard: React.FC<{
 					transform: `translateX(${-emojiPositions.translation}%)`,
 				}}
 			>
-				<DisplayedEmoji emoji={emojiPositions.prev} />
+				{isRendering ? (
+					<EmptyDiv />
+				) : (
+					<DisplayedEmoji emoji={emojiPositions.prev} />
+				)}
 				<DisplayedEmoji emoji={emojiPositions.current} />
-				<DisplayedEmoji emoji={emojiPositions.next} />
+				{isRendering ? (
+					<EmptyDiv />
+				) : (
+					<DisplayedEmoji emoji={emojiPositions.next} />
+				)}
 			</div>
 		</AbsoluteFill>
 	);

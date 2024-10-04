@@ -5,7 +5,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {AbsoluteFill} from 'remotion';
+import {AbsoluteFill, getRemotionEnvironment} from 'remotion';
 import type {Trending} from '../Comp';
 import {CurrentCountry} from '../CurrentCountry';
 import {Temperature} from '../Temperature';
@@ -53,6 +53,7 @@ export const Cards: React.FC<{
 
 	const positions = useRef(getInitialPositions());
 	const shouldBePositions = useRef(getInitialPositions());
+	const {isRendering} = getRemotionEnvironment();
 
 	useEffect(() => {
 		const {current} = container;
@@ -149,7 +150,7 @@ export const Cards: React.FC<{
 						shouldBePositions={shouldBePositions}
 						indices={indices}
 						theme={theme}
-						withSwitcher={index === 3}
+						withSwitcher={index === 3 && !isRendering}
 						onLeft={onLeft}
 						onRight={onRight}
 					/>
