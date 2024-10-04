@@ -235,6 +235,7 @@ type RenderModalProps = {
 	readonly defaultConfigurationAudioCodec: AudioCodec | null;
 	readonly initialForSeamlessAacConcatenation: boolean;
 	readonly renderTypeOfLastRender: RenderType | null;
+	readonly defaultMetadata: Record<string, string> | null;
 };
 
 const RenderModal: React.FC<
@@ -281,6 +282,7 @@ const RenderModal: React.FC<
 	initialRepro,
 	initialForSeamlessAacConcatenation,
 	renderTypeOfLastRender,
+	defaultMetadata,
 }) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
@@ -581,6 +583,8 @@ const RenderModal: React.FC<
 
 	const [inputProps, setInputProps] = useState(() => defaultProps);
 
+	const [metadata] = useState(() => defaultMetadata);
+
 	const endFrame = useMemo((): number => {
 		if (endFrameOrNull === null) {
 			return resolvedComposition.durationInFrames - 1;
@@ -739,6 +743,7 @@ const RenderModal: React.FC<
 			offthreadVideoCacheSizeInBytes,
 			multiProcessOnLinux,
 			beepOnFinish,
+			metadata,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -765,6 +770,7 @@ const RenderModal: React.FC<
 		multiProcessOnLinux,
 		beepOnFinish,
 		setSelectedModal,
+		metadata,
 	]);
 
 	const [everyNthFrameSetting, setEveryNthFrameSetting] = useState(
@@ -836,6 +842,7 @@ const RenderModal: React.FC<
 			repro,
 			forSeamlessAacConcatenation,
 			separateAudioTo,
+			metadata,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -885,6 +892,7 @@ const RenderModal: React.FC<
 		forSeamlessAacConcatenation,
 		separateAudioTo,
 		setSelectedModal,
+		metadata,
 	]);
 
 	const onClickSequence = useCallback(() => {
@@ -911,6 +919,7 @@ const RenderModal: React.FC<
 			multiProcessOnLinux,
 			beepOnFinish,
 			repro,
+			metadata,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -941,6 +950,7 @@ const RenderModal: React.FC<
 		beepOnFinish,
 		repro,
 		setSelectedModal,
+		metadata,
 	]);
 
 	useEffect(() => {

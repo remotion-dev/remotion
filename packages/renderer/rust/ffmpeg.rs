@@ -281,6 +281,9 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
         remotionffmpeg::ffi::AVColorSpace::AVCOL_SPC_RESERVED => KnownColorSpaces::Unknown,
         remotionffmpeg::ffi::AVColorSpace::AVCOL_SPC_SMPTE2085 => KnownColorSpaces::SMPTE2085,
         remotionffmpeg::ffi::AVColorSpace::AVCOL_SPC_UNSPECIFIED => KnownColorSpaces::BT601,
+        remotionffmpeg::ffi::AVColorSpace::AVCOL_SPC_IPT_C2 => KnownColorSpaces::Unknown,
+        remotionffmpeg::ffi::AVColorSpace::AVCOL_SPC_YCGCO_RE => KnownColorSpaces::Unknown,
+        remotionffmpeg::ffi::AVColorSpace::AVCOL_SPC_YCGCO_RO => KnownColorSpaces::Unknown,
     };
 
     #[allow(non_snake_case)]

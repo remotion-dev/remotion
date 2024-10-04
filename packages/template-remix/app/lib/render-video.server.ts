@@ -9,11 +9,13 @@ export const renderVideo = async ({
   composition,
   inputProps,
   outName,
+  metadata,
 }: {
   serveUrl: string;
   composition: string;
   inputProps: LogoAnimationProps;
   outName: string;
+  metadata: Record<string, string> | null;
 }): Promise<RenderResponse> => {
   const region = process.env.REMOTION_AWS_REGION as AwsRegion | undefined;
   if (!region) {
@@ -31,6 +33,7 @@ export const renderVideo = async ({
       type: "download",
       fileName: outName,
     },
+    metadata,
   });
 
   return {

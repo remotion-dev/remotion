@@ -60,6 +60,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				binariesDirectory,
 				forSeamlessAacConcatenation: input.forSeamlessAacConcatenation,
 				separateAudioTo: input.separateAudioTo,
+				metadata: input.metadata,
 			},
 			logLevel,
 		});
@@ -96,6 +97,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				beepOnFinish: input.beepOnFinish,
 				repro: input.repro,
 				binariesDirectory,
+				metadata: input.metadata,
 			},
 			logLevel,
 		});
@@ -128,6 +130,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				beepOnFinish: input.beepOnFinish,
 				repro: false,
 				binariesDirectory,
+				metadata: input.metadata,
 			},
 			entryPoint,
 			remotionRoot,

@@ -109,6 +109,7 @@ export const renderVideoFlow = async ({
 	forSeamlessAacConcatenation,
 	separateAudioTo,
 	publicPath,
+	metadata,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -162,6 +163,7 @@ export const renderVideoFlow = async ({
 	forSeamlessAacConcatenation: boolean;
 	separateAudioTo: string | null;
 	publicPath: string | null;
+	metadata: Record<string, string> | null;
 }) => {
 	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 
@@ -597,6 +599,7 @@ export const renderVideoFlow = async ({
 		compositionStart: 0,
 		onBrowserDownload,
 		onArtifact,
+		metadata: metadata ?? null,
 	});
 	if (!updatesDontOverwrite) {
 		updateRenderProgress({newline: true, printToConsole: true});

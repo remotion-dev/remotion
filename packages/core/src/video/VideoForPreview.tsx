@@ -36,7 +36,7 @@ type VideoForPreviewProps = RemotionVideoProps & {
 	readonly _remotionDebugSeeking: boolean;
 	readonly showInTimeline: boolean;
 	readonly onVideoFrame: null | OnVideoFrame;
-	readonly crossOrigin: '' | 'anonymous' | 'use-credentials' | undefined;
+	readonly crossOrigin?: '' | 'anonymous' | 'use-credentials';
 };
 
 const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<

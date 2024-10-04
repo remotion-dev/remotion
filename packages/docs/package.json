@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/docs"
 	},
 	"name": "docs",
-	"version": "4.0.215",
+	"version": "4.0.216",
 	"private": true,
 	"scripts": {
 		"formatting": "prettier src --check",
@@ -41,6 +41,7 @@
 		"@remotion/fonts": "workspace:*",
 		"@remotion/gif": "workspace:*",
 		"@remotion/google-fonts": "workspace:*",
+		"@remotion/captions": "workspace:*",
 		"@remotion/install-whisper-cpp": "workspace:*",
 		"@remotion/lambda": "workspace:*",
 		"@remotion/layout-utils": "workspace:*",
@@ -50,6 +51,7 @@
 		"@remotion/noise": "workspace:*",
 		"@remotion/paths": "workspace:*",
 		"@remotion/player": "workspace:*",
+		"@remotion/openai-whisper": "workspace:*",
 		"@remotion/preload": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"@remotion/rive": "workspace:*",
@@ -93,6 +95,7 @@
 		"@types/unist": "^2.0.0",
 		"@types/node": "20.12.14",
 		"lodash.sortby": "^4.7.0",
-		"url-loader": "^4.1.1"
+		"url-loader": "^4.1.1",
+		"openai": "4.67.1"
 	}
 }

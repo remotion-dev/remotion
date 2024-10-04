@@ -42,6 +42,7 @@ const testRenderMetadata: RenderMetadata<MockProvider> = {
 	downloadBehavior: {type: 'play-in-browser'},
 	audioBitrate: null,
 	muted: false,
+	metadata: null,
 	codec: 'h264',
 };
 

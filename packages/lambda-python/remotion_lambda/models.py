@@ -287,6 +287,7 @@ class RenderMediaParams:
     image_format: ValidStillImageFormats = ValidStillImageFormats.JPEG
     crf: Optional[int] = None
     env_variables: Optional[Dict] = None
+    metadata: Optional[Dict] = None
     max_retries: int = 1
     jpeg_quality: int = 80
     privacy: Privacy = Privacy.PUBLIC
@@ -334,6 +335,7 @@ class RenderMediaParams:
             'maxRetries': self.max_retries,
             'jpegQuality': self.jpeg_quality,
             'envVariables': self.env_variables,
+            'metadata': self.metadata,
             'privacy': self.privacy,
             'colorSpace': self.color_space,
             'logLevel': self.log_level,
@@ -370,6 +372,9 @@ class RenderMediaParams:
 
         if self.env_variables is None:
             parameters['envVariables'] = {}
+
+        if self.metadata is None:
+            parameters['metadata'] = {}
 
         if self.pixel_format is not None:
             parameters['pixelFormat'] = self.pixel_format

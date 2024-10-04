@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/renderer"
 	},
 	"name": "@remotion/renderer",
-	"version": "4.0.215",
+	"version": "4.0.216",
 	"description": "Render Remotion videos using Node.js or Bun",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -12,9 +12,9 @@
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "bun test src",
-		"make": "node build.mjs --debug",
-		"build-all": "node build.mjs --all",
-		"prepublishOnly": "node build.mjs --all"
+		"make": "bun build.ts --debug",
+		"build-all": "bun build.ts --all",
+		"prepublishOnly": "bun build.ts --all"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",

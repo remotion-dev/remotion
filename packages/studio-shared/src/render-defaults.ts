@@ -48,6 +48,7 @@ export type RenderDefaults = {
 	beepOnFinish: boolean;
 	repro: boolean;
 	forSeamlessAacConcatenation: boolean;
+	metadata: Record<string, string> | null;
 };
 
 declare global {

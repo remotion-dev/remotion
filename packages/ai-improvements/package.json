@@ -4,8 +4,8 @@
 	},
 	"name": "ai-improvements",
 	"dependencies": {
-		"openai": "^4.18.0"
+		"openai": "4.67.1"
 	},
 	"private": true,
-	"version": "4.0.215"
+	"version": "4.0.216"
 }

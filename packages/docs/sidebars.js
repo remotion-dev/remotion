@@ -569,6 +569,20 @@ module.exports = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/captions',
+			link: {
+				type: 'doc',
+				id: 'captions/index',
+			},
+			items: [
+				'captions/caption',
+				'captions/parse-srt',
+				'captions/serialize-srt',
+				'captions/create-tiktok-style-captions',
+			],
+		},
+		{
+			type: 'category',
 			label: '@remotion/install-whisper-cpp',
 			link: {
 				type: 'doc',
@@ -578,8 +592,18 @@ module.exports = {
 				'install-whisper-cpp/install-whisper-cpp',
 				'install-whisper-cpp/download-whisper-model',
 				'install-whisper-cpp/transcribe',
+				'install-whisper-cpp/to-captions',
 				'install-whisper-cpp/convert-to-captions',
 			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/openai-whisper',
+			link: {
+				type: 'doc',
+				id: 'openai-whisper/index',
+			},
+			items: ['openai-whisper/openai-whisper-api-to-captions'],
 		},
 		{
 			type: 'category',
@@ -602,7 +626,6 @@ module.exports = {
 				'animating-properties',
 				'reusability',
 				'preview',
-				'render',
 			],
 		},
 		{
@@ -639,20 +662,14 @@ module.exports = {
 				'props-resolution',
 			],
 		},
-		{
-			type: 'category',
-			label: 'Studio',
-			items: [
-				'studio/studio',
-				'studio/shortcuts',
-				'studio/quick-switcher',
-				'studio/deploy-static',
-				'studio/deploy-server',
-			],
-		},
+
 		{
 			type: 'category',
 			label: 'Rendering',
+			link: {
+				type: 'doc',
+				id: 'render',
+			},
 			items: [
 				'encoding',
 				'stills',
@@ -666,6 +683,18 @@ module.exports = {
 				'miscellaneous/video-formats',
 				'video-vs-offthreadvideo',
 				'artifacts',
+				'metadata',
+			],
+		},
+		{
+			type: 'category',
+			label: 'Studio',
+			items: [
+				'studio/studio',
+				'studio/shortcuts',
+				'studio/quick-switcher',
+				'studio/deploy-static',
+				'studio/deploy-server',
 			],
 		},
 		{

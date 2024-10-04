@@ -14,6 +14,9 @@ class TestRemotionClient(TestCase):
             input_props={
                 'hi': 'there'
             },
+            metadata={
+                "Author": "Lunar"
+            },
             download_behavior=Download(type="download", fileName="hi"),
             webhook=Webhook(
                 url="https://example.com", secret="abc", customData=dict(hi="there"))

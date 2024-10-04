@@ -1,8 +1,8 @@
-// Keep in sync with cli
 export const listOfInstallableRemotionPackages = [
 	'@remotion/animated-emoji',
 	'@remotion/animation-utils',
 	'@remotion/cloudrun',
+	'@remotion/captions',
 	'@remotion/enable-scss',
 	'@remotion/gif',
 	'@remotion/google-fonts',
@@ -22,6 +22,7 @@ export const listOfInstallableRemotionPackages = [
 	'@remotion/three',
 	'@remotion/transitions',
 	'@remotion/zod-types',
+	'@remotion/openai-whisper',
 ] as const;
 
 export type InstallablePackage =

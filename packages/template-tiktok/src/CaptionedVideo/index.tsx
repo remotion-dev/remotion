@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   AbsoluteFill,
   CalculateMetadataFunction,
@@ -12,10 +12,11 @@ import {
   watchStaticFile,
 } from "remotion";
 import { z } from "zod";
-import Subtitle from "./Subtitle";
+import SubtitlePage from "./SubtitlePage";
 import { getVideoMetadata } from "@remotion/media-utils";
 import { loadFont } from "../load-font";
 import { NoCaptionFile } from "./NoCaptionFile";
+import { Caption, createTikTokStyleCaptions } from "@remotion/captions";
 
 export type SubtitleProp = {
   startInSeconds: number;
@@ -46,10 +47,16 @@ const getFileExists = (file: string) => {
   return Boolean(fileExists);
 };
 
+// How many captions should be displayed at a time?
+// Try out:
+// - 1500 to display a lot of words at a time
+// - 200 to only display 1 word at a time
+const SWITCH_CAPTIONS_EVERY_MS = 1200;
+
 export const CaptionedVideo: React.FC<{
   src: string;
 }> = ({ src }) => {
-  const [subtitles, setSubtitles] = useState<SubtitleProp[]>([]);
+  const [subtitles, setSubtitles] = useState<Caption[]>([]);
   const [handle] = useState(() => delayRender());
   const { fps } = useVideoConfig();
 
@@ -63,8 +70,8 @@ export const CaptionedVideo: React.FC<{
     try {
       await loadFont();
       const res = await fetch(subtitlesFile);
-      const data = await res.json();
-      setSubtitles(data.transcription);
+      const data = (await res.json()) as Caption[];
+      setSubtitles(data);
       continueRender(handle);
     } catch (e) {
       cancelRender(e);
@@ -83,6 +90,13 @@ export const CaptionedVideo: React.FC<{
     };
   }, [fetchSubtitles, src, subtitlesFile]);
 
+  const { pages } = useMemo(() => {
+    return createTikTokStyleCaptions({
+      combineTokensWithinMilliseconds: SWITCH_CAPTIONS_EVERY_MS,
+      captions: subtitles ?? [],
+    });
+  }, [subtitles]);
+
   return (
     <AbsoluteFill style={{ backgroundColor: "white" }}>
       <AbsoluteFill>
@@ -93,12 +107,12 @@ export const CaptionedVideo: React.FC<{
           src={src}
         />
       </AbsoluteFill>
-      {subtitles.map((subtitle, index) => {
-        const nextSubtitle = subtitles[index + 1] ?? null;
-        const subtitleStartFrame = subtitle.startInSeconds * fps;
+      {pages.map((page, index) => {
+        const nextPage = pages[index + 1] ?? null;
+        const subtitleStartFrame = (page.startMs / 1000) * fps;
         const subtitleEndFrame = Math.min(
-          nextSubtitle ? nextSubtitle.startInSeconds * fps : Infinity,
-          subtitleStartFrame + fps,
+          nextPage ? (nextPage.startMs / 1000) * fps : Infinity,
+          subtitleStartFrame + SWITCH_CAPTIONS_EVERY_MS,
         );
         const durationInFrames = subtitleEndFrame - subtitleStartFrame;
         if (durationInFrames <= 0) {
@@ -107,10 +121,11 @@ export const CaptionedVideo: React.FC<{
 
         return (
           <Sequence
+            key={index}
             from={subtitleStartFrame}
             durationInFrames={durationInFrames}
           >
-            <Subtitle key={index} text={subtitle.text} />;
+            <SubtitlePage key={index} page={page} />;
           </Sequence>
         );
       })}

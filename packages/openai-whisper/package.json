@@ -1,0 +1,37 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/openai-whisper"
+	},
+	"name": "@remotion/openai-whisper",
+	"version": "4.0.216",
+	"description": "Work with the output of the OpenAI Whisper API",
+	"main": "dist/index.js",
+	"sideEffects": false,
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"scripts": {
+		"formatting": "prettier src --check",
+		"lint": "eslint src --ext ts,tsx",
+		"test": "bun test src"
+	},
+	"files": [
+		"dist"
+	],
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"license": "MIT",
+	"dependencies": {
+		"@remotion/captions": "workspace:*"
+	},
+	"peerDependencies": {},
+	"devDependencies": {
+		"openai": "4.67.1"
+	},
+	"keywords": [
+		"remotion"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"homepage": "https://www.remotion.dev/docs/openai-whisper"
+}

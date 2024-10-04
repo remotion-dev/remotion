@@ -1,116 +1,16 @@
 ---
 image: /generated/articles-docs-install-whisper-cpp-convert-to-captions.png
 title: convertToCaptions()
-crumb: "@remotion/install-whisper-cpp"
+crumb: '@remotion/install-whisper-cpp'
 ---
 
-# convertToCaptions()<AvailableFrom v="4.0.131 "/>
+# ~convertToCaptions()~<AvailableFrom v="4.0.131 "/>
 
-:::warning
-This API assumes a newer version of Whisper.cpp than the stable release to support `tokenLevelTimestamps`. As a downside, this version may crash unexpectedly.
-Use an older version of Whisper.cpp (1.0.54 or earlier) if you prefer to use a stable version of Whisper.cpp and forgo `tokenLevelTimeStamps` support.  
-:::
+This API was deprecated as of Remotion 4.0.216.
 
-Opinionated function that converts the output from [`transcribe()`](/docs/install-whisper-cpp/transcribe) into easily digestable captions.  
-Can also combine words with close timestamps.  
-Useful for TikTok/Reel-type of videos that animate captions word-by-word.
+It is recommended to use the [`toCaptions()`](/docs/install-whisper-cpp/to-captions) function from `@remotion/install-whisper-cpp` instead, and then process the captions using [`createTikTokStyleCaptions()`](/docs/captions/create-tiktok-style-captions) from [`@remotion/captions`](/docs/captions).
 
-```tsx twoslash title="transcribe.mjs"
-// @module: esnext
-// @target: es2022
-import path from "path";
-import { transcribe, convertToCaptions } from "@remotion/install-whisper-cpp";
-
-const { transcription } = await transcribe({
-  inputPath: "/path/to/audio.wav",
-  whisperPath: path.join(process.cwd(), "whisper.cpp"),
-  model: "medium.en",
-  tokenLevelTimestamps: true,
-});
-
-const { captions } = convertToCaptions({
-  transcription,
-  combineTokensWithinMilliseconds: 200,
-});
-
-for (const line of captions) {
-  console.log(line.text, line.startInSeconds);
-}
-```
-
-## Options
-
-### `transcription`
-
-The `transcription` object that you retrieved from [`transcribe()`](/docs/install-whisper-cpp).  
-The `tokenLevelTimestamps` option must have been set to `true`.
-
-### `combineTokensWithinMilliseconds`
-
-Combine words that are close to each other.  
-If words are not combined, they might display for a very short time if word-by-word captions are being used.  
-Disable combination by setting `0`.  
-Recommendation: `200`.
-
-## Return value
-
-An object objects of the following shape:
-
-```ts twoslash
-type Caption = {
-  text: string;
-  startInSeconds: number;
-};
-
-type ReturnValue = {
-  captions: Caption[];
-};
-```
-
-## Suggested usage
-
-This shows how, given a data structure produced by `convertToCaptions()`, word-by-word captions can be rendered in a Remotion project.  
-See our [TikTok template](/templates/tiktok) for a full reference implementation.
-
-:::note
-`@remotion/install-whisper-cpp` cannot be imported on the frontend, it is a Node.js API.  
-Only the TypeScript type is imported in this example
-:::
-
-```tsx twoslash
-const Subtitle: React.FC<{ text: string }> = () => null;
-// ---cut---
-import type { Caption } from "@remotion/install-whisper-cpp";
-import { Sequence, useVideoConfig } from "remotion";
-
-const Captions: React.FC<{
-  subtitles: Caption[];
-}> = ({ subtitles }) => {
-  const { fps } = useVideoConfig();
-
-  return (
-    <>
-      {subtitles.map((subtitle, index) => {
-        const nextSubtitle = subtitles[index + 1] ?? null;
-        const subtitleStartFrame = subtitle.startInSeconds * fps;
-        const subtitleEndFrame = Math.min(
-          nextSubtitle ? nextSubtitle.startInSeconds * fps : Infinity,
-          subtitleStartFrame + fps,
-        );
-
-        return (
-          <Sequence
-            from={subtitleStartFrame}
-            durationInFrames={subtitleEndFrame - subtitleStartFrame}
-          >
-            <Subtitle key={index} text={subtitle.text} />;
-          </Sequence>
-        );
-      })}
-    </>
-  );
-};
-```
+[Click here](https://github.com/remotion-dev/remotion/blob/v4.0.215/packages/docs/docs/install-whisper-cpp/convert-to-captions.mdx) to see documentation for this function that was previously on this page.
 
 ## See also
 

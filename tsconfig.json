@@ -64,6 +64,9 @@
 			"path": "./packages/google-fonts"
 		},
 		{
+			"path": "./packages/openai-whisper"
+		},
+		{
 			"path": "./packages/it-tests"
 		},
 		{
@@ -80,6 +83,9 @@
 		},
 		{
 			"path": "./packages/install-whisper-cpp"
+		},
+		{
+			"path": "./packages/captions"
 		},
 		{
 			"path": "./packages/motion-blur"

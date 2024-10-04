@@ -328,6 +328,16 @@
 			"permanent": false
 		},
 		{
+			"source": "/install-whisper-cpp",
+			"destination": "/docs/install-whisper-cpp",
+			"permanent": false
+		},
+		{
+			"source": "/captions",
+			"destination": "/docs/captions",
+			"permanent": false
+		},
+		{
 			"source": "/docs/miscellaneous/snippets/adding-animations",
 			"destination": "/docs/animation-math",
 			"permanent": false

@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-install-whisper-cpp-transcribe.png
 title: transcribe()
-crumb: "@remotion/install-whisper-cpp"
+crumb: '@remotion/install-whisper-cpp'
 ---
 
 # transcribe()<AvailableFrom v="4.0.131 "/>
@@ -16,13 +16,13 @@ This function only works with Whisper.cpp 1.5.5 or later, unless `tokenLevelTime
 ```tsx twoslash title="transcribe.mjs"
 // @module: esnext
 // @target: es2022
-import path from "path";
-import { transcribe } from "@remotion/install-whisper-cpp";
+import path from 'path';
+import {transcribe} from '@remotion/install-whisper-cpp';
 
-const { transcription } = await transcribe({
-  inputPath: "/path/to/audio.wav",
-  whisperPath: path.join(process.cwd(), "whisper.cpp"),
-  model: "medium.en",
+const {transcription} = await transcribe({
+  inputPath: '/path/to/audio.wav',
+  whisperPath: path.join(process.cwd(), 'whisper.cpp'),
+  model: 'medium.en',
   tokenLevelTimestamps: true,
 });
 
@@ -67,7 +67,7 @@ _default: `base.en`_
 
 Specify a specific Whisper model for the transcription.
 
-Possible values: `tiny`, `tiny.en`, `base`, `base.en`, `small`, `small.en`, `medium`, `medium.en`, `large-v1`, `large-v2`, `large-v3`.
+Possible values: `tiny`, `tiny.en`, `base`, `base.en`, `small`, `small.en`, `medium`, `medium.en`, `large-v1`, `large-v2`, `large-v3`, `large-v3-turbo`.
 
 Make sure the model you want to use exists in your `whisper.cpp/models` folder. You can ensure a specific model is available locally by utilizing the [downloadWhisperModel()](/docs/install-whisper-cpp/download-whisper-model) API.
 
@@ -129,7 +129,7 @@ Listen for progress updates from the transcription process.
 The progress is a number between `0` and `1`.
 
 ```tsx twoslash
-import type { TranscribeOnProgress } from "@remotion/install-whisper-cpp";
+import type {TranscribeOnProgress} from '@remotion/install-whisper-cpp';
 
 const onProgress: TranscribeOnProgress = (progress) => {
   console.log(`Transcription progress: ${progress * 100}%`);
