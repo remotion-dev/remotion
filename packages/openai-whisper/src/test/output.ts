@@ -1,4 +1,6 @@
-import {OpenAiVerboseTranscription} from '../openai-format';
+/* eslint-disable no-loss-of-precision */
+/* eslint-disable @typescript-eslint/no-loss-of-precision */
+import type {OpenAiVerboseTranscription} from '../openai-format';
 
 export const testOutput = {
 	task: 'transcribe',
