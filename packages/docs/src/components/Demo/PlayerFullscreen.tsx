@@ -38,10 +38,15 @@ export const PlayerFullscreen: React.FC<{
 	}, []);
 
 	const onClick = useCallback(() => {
+		const {current} = playerRef;
+		if (!current) {
+			return;
+		}
+
 		if (isFullscreen) {
-			playerRef.current.exitFullscreen();
+			current.exitFullscreen();
 		} else {
-			playerRef.current.requestFullscreen();
+			current.requestFullscreen();
 		}
 	}, [isFullscreen, playerRef]);
 
