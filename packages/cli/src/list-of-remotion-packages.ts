@@ -32,6 +32,7 @@ export const listOfRemotionPackages = [
 	'@remotion/transitions',
 	'@remotion/install-whisper-cpp',
 	'@remotion/captions',
+	'@remotion/openai-whisper',
 	'@remotion/animation-utils',
 	'@remotion/animated-emoji',
 	'@remotion/media-parser',

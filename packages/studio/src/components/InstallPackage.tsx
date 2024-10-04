@@ -78,6 +78,7 @@ export const InstallPackageModal: React.FC<{
 		'@remotion/transitions': false,
 		'@remotion/zod-types': false,
 		'@remotion/captions': false,
+		'@remotion/openai-whisper': false,
 	});
 	const {previewServerState: ctx} = useContext(StudioServerConnectionCtx);
 
