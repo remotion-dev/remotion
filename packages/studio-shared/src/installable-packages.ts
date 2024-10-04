@@ -22,6 +22,7 @@ export const listOfInstallableRemotionPackages = [
 	'@remotion/three',
 	'@remotion/transitions',
 	'@remotion/zod-types',
+	'@remotion/openai-whisper',
 ] as const;
 
 export type InstallablePackage =

@@ -399,6 +399,13 @@ export const articles = [
 		crumb: '@remotion/renderer',
 	},
 	{
+		id: 'metadata',
+		title: 'Setting video metadata',
+		relativePath: 'docs/metadata.mdx',
+		compId: 'articles-docs-metadata',
+		crumb: 'Techniques',
+	},
+	{
 		id: 'bundle',
 		title: 'bundle()',
 		relativePath: 'docs/bundle.mdx',
@@ -789,6 +796,20 @@ export const articles = [
 		relativePath: 'docs/get-image-dimensions.mdx',
 		compId: 'articles-docs-get-image-dimensions',
 		crumb: '@remotion/media-utils',
+	},
+	{
+		id: 'openai-whisper/index',
+		title: '@remotion/openai-whisper',
+		relativePath: 'docs/openai-whisper/index.mdx',
+		compId: 'articles-docs-openai-whisper-index',
+		crumb: 'Subtitle videos',
+	},
+	{
+		id: 'openai-whisper/openai-whisper-api-to-captions',
+		title: 'openAiWhisperApiToCaptions()',
+		relativePath: 'docs/openai-whisper/openai-whisper-api-to-captions.mdx',
+		compId: 'articles-docs-openai-whisper-openai-whisper-api-to-captions',
+		crumb: '@remotion/openai-whisper',
 	},
 	{
 		id: 'cancel-render',
@@ -1632,13 +1653,6 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/chrome-headless-shell.mdx',
 		compId: 'articles-docs-miscellaneous-chrome-headless-shell',
 		crumb: 'FAQ',
-	},
-	{
-		id: 'miscellaneous/render-in-browser',
-		title: 'Can I render videos in the browser?',
-		relativePath: 'docs/miscellaneous/render-in-browser.mdx',
-		compId: 'articles-docs-miscellaneous-render-in-browser',
-		crumb: 'Techniques',
 	},
 	{
 		id: 'miscellaneous/render-in-browser',

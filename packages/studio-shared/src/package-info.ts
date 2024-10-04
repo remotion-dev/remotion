@@ -63,6 +63,7 @@ export const packages = [
 	'webcodecs',
 	'convert',
 	'captions',
+	'openai-whisper',
 ] as const;
 
 export type Pkgs = (typeof packages)[number];
@@ -135,6 +136,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	webcodecs: 'Media conversion in the browser',
 	convert: 'Video conversion tool - convert.remotion.dev',
 	captions: 'Primitives for dealing with captions',
+	'openai-whisper': 'Work with the output of the OpenAI Whisper API',
 };
 
 export const apiDocs: {[key in Pkgs]: string | null} = {
@@ -204,4 +206,5 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	webcodecs: null,
 	convert: 'https://convert.remotion.dev',
 	captions: 'https://remotion.dev/docs/captions',
+	'openai-whisper': 'https://www.remotion.dev/docs/openai-whisper',
 };

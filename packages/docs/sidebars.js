@@ -598,6 +598,15 @@ module.exports = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/openai-whisper',
+			link: {
+				type: 'doc',
+				id: 'openai-whisper/index',
+			},
+			items: ['openai-whisper/openai-whisper-api-to-captions'],
+		},
+		{
+			type: 'category',
 			label: '@remotion/fonts',
 			link: {
 				type: 'doc',

@@ -9,16 +9,16 @@ crumb: '@remotion/captions'
 This is a simple data structure for a caption.
 
 ```tsx twoslash
-import {Caption} from '@remotion/captions';
-//      ^?
+import type {Caption} from '@remotion/captions';
+//            ^?
 ```
 
 By establishing a standard data structure, we allow many operations that involve captions to be interoperable:
 
-- Transcribing (using the [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp) package)
-- Formatting (for example, creating pages using [`createTikTokStyleCaptions()`](/docs/captions/create-tiktok-style-captions))
-- Parsing (using the [`parseSrt()`](/docs/captions/parse-srt) function)
-- Serializing (for example to a .srt file)
+- **Transcribing**: Using the [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp) or [`@remotion/openai-whisper`](/docs/openai-whisper) packages
+- **Formatting**: For example, creating pages using [`createTikTokStyleCaptions()`](/docs/captions/create-tiktok-style-captions)
+- **Parsing**: Using the [`parseSrt()`](/docs/captions/parse-srt) function
+- **Serializing**: For example to a `.srt` file using [`serializeSrt()`](/docs/captions/serialize-srt)
 
 ## Fields
 
