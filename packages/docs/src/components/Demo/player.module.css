@@ -4,6 +4,7 @@
 	align-items: center;
 	padding: 5px 0px;
 	border-radius: 0.5rem;
+	height: 3rem;
 
 	.start-controls {
 		display: flex;
