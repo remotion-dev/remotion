@@ -3724,6 +3724,13 @@ export const articles = [
 		crumb: 'Troubleshooting',
 	},
 	{
+		id: 'custom-controls',
+		title: 'Custom controls for the Player',
+		relativePath: 'docs/player/custom-controls.mdx',
+		compId: 'articles-docs-player-custom-controls',
+		crumb: '@remotion/player',
+	},
+	{
 		id: 'player/index',
 		title: '@remotion/player',
 		relativePath: 'docs/player/index.mdx',

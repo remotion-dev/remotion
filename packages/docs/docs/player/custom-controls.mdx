@@ -1,0 +1,91 @@
+---
+image: /generated/articles-docs-player-custom-controls.png
+id: custom-controls
+sidebar_label: 'Custom controls'
+title: 'Custom controls for the Player'
+crumb: '@remotion/player'
+---
+
+You may want to implement custom controls for the [`<Player>`](/docs/player/player) component.
+
+There are two approaches:
+
+- Enable the [`controls`](/docs/player/player#controls) prop and granunarly override some or all of the controls inside the Player.
+- Disable the [`controls`](/docs/player/player#controls) prop and implement your own controls anywhere on the page.
+
+## Custom inline controls
+
+Use this approach if you:
+
+- Like the default controls but want to customize some of them
+- Want the controls to overlay the Player.
+
+Ensure the [`controls`](/docs/player/player#controls) prop is set in the [`<Player/>`](/docs/player/player).  
+Use the following APIs to customize the individual controls:
+
+- [`renderPlayPauseButton()`](/docs/player/player#renderplaypausebutton)
+- [`renderFullscreenButton()`](/docs/player/player#renderfullscreenbutton)
+- [`renderMuteButton()`](/docs/player/player#rendermutebutton)
+- [`renderVolumeSlider()`](/docs/player/player#rendervolumeslider)
+
+## Controls outside the Player
+
+Use this approach if you:
+
+- Want to implement custom controls anywhere on the page
+- Want full controls over the look and behavior of the controls
+
+Ensure the [`controls`](/docs/player/player#controls) prop is not set in the [`<Player/>`](/docs/player/player).  
+Obtain a [`ref`](https://react.dev/learn/referencing-values-with-refs) of type `PlayerRef` of the [`<Player/>`](/docs/player/player) and use the following starting points to implement your own controls:
+
+### Play / Pause button
+
+```tsx twoslash
+import type {PlayerRef} from '@remotion/player';
+import React, {SVGProps, useCallback, useEffect} from 'react';
+
+export const PlayPauseButton: React.FC<{
+  playerRef: React.RefObject<PlayerRef>;
+}> = ({playerRef}) => {
+  const [playing, setPlaying] = React.useState(
+    () => playerRef.current?.isPlaying() ?? false,
+  );
+
+  useEffect(() => {
+    const {current} = playerRef;
+    if (!current) {
+      return;
+    }
+
+    const onPlay = () => {
+      setPlaying(true);
+    };
+
+    const onPause = () => {
+      setPlaying(false);
+    };
+
+    current.addEventListener('play', onPlay);
+    current.addEventListener('pause', onPause);
+
+    return () => {
+      current.removeEventListener('play', onPlay);
+      current.removeEventListener('pause', onPause);
+    };
+  }, [playerRef]);
+
+  const onToggle = useCallback(() => {
+    playerRef.current?.toggle();
+  }, [playerRef]);
+
+  return (
+    <button onClick={onToggle} type="button">
+      {playing ? 'Pause' : 'Play'}
+    </button>
+  );
+};
+```
+
+:::note
+The [buffering indicator](/docs/player/buffer-state) is not implemented in this snippet.
+:::
