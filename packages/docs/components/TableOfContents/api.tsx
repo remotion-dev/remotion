@@ -5,6 +5,7 @@ import {TableOfContents as EnableScssTableOfContents} from '../../docs/enable-sc
 import {TableOfContents as FontsTableOfContents} from '../../docs/fonts-api/TableOfContents';
 import {TableOfContents as InstallWhisperCppTableOfContents} from '../../docs/install-whisper-cpp/install-whisper-cpp';
 import {TableOfContents as MediaParserTableOfContents} from '../../docs/media-parser/TableOfContents';
+import {TableOfContents as OpenAiWhisperTableOfContents} from '../../docs/openai-whisper/TableOfContents';
 import {TableOfContents as SkiaTableOfContents} from '../../docs/skia/TableOfContents';
 import {TableOfContents as StudioTableOfContents} from '../../docs/studio/TableOfContents';
 import {TableOfContents as TailwindTableOfContents} from '../../docs/tailwind/TableOfContents';
@@ -121,6 +122,9 @@ export const TableOfContents: React.FC = () => {
 			<h2>@remotion/install-whisper-cpp</h2>
 			<p>Whisper.cpp installation and transcription</p>
 			<InstallWhisperCppTableOfContents />
+			<h2>@remotion/openai-whisper</h2>
+			<p>Work with transcriptions from OpenAI Whisper</p>
+			<OpenAiWhisperTableOfContents />
 			<h2>@remotion/animated-emoji</h2>
 			<p>Google Fonts Animated Emojis as Remotion Components</p>
 			<AnimatedEmojiTableOfContents />

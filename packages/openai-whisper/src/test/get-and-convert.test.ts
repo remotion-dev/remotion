@@ -101,7 +101,7 @@ if (!process.env.CI) {
 				model: 'whisper-1',
 				response_format: 'verbose_json',
 				prompt: 'Hello, welcome to my lecture.',
-				timestamp_granularities: ['word', 'segment'],
+				timestamp_granularities: ['word'],
 			});
 			const {captions} = openAiWhisperApiToCaptions({transcription});
 			expect(captions.length).toBeGreaterThan(400);

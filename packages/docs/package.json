@@ -51,6 +51,7 @@
 		"@remotion/noise": "workspace:*",
 		"@remotion/paths": "workspace:*",
 		"@remotion/player": "workspace:*",
+		"@remotion/openai-whisper": "workspace:*",
 		"@remotion/preload": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"@remotion/rive": "workspace:*",
@@ -94,6 +95,7 @@
 		"@types/unist": "^2.0.0",
 		"@types/node": "20.12.14",
 		"lodash.sortby": "^4.7.0",
-		"url-loader": "^4.1.1"
+		"url-loader": "^4.1.1",
+		"openai": "4.67.1"
 	}
 }

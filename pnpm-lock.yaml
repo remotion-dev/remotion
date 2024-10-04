@@ -52,8 +52,8 @@ importers:
   packages/ai-improvements:
     dependencies:
       openai:
-        specifier: ^4.18.0
-        version: 4.38.2
+        specifier: 4.67.1
+        version: 4.67.1(zod@3.22.3)
 
   packages/animated-emoji:
     dependencies:
@@ -564,6 +564,9 @@ importers:
       '@remotion/noise':
         specifier: workspace:*
         version: link:../noise
+      '@remotion/openai-whisper':
+        specifier: workspace:*
+        version: link:../openai-whisper
       '@remotion/paths':
         specifier: workspace:*
         version: link:../paths
@@ -688,6 +691,9 @@ importers:
       lodash.sortby:
         specifier: ^4.7.0
         version: 4.7.0
+      openai:
+        specifier: 4.67.1
+        version: 4.67.1(zod@3.22.3)
       url-loader:
         specifier: ^4.1.1
         version: 4.1.1(file-loader@6.2.0)(webpack@5.94.0)
@@ -1295,7 +1301,7 @@ importers:
     devDependencies:
       openai:
         specifier: 4.67.1
-        version: 4.67.1
+        version: 4.67.1(zod@3.22.3)
 
   packages/paths: {}
 
@@ -22666,23 +22672,7 @@ packages:
       is-wsl: 2.2.0
     dev: false
 
-  /openai@4.38.2:
-    resolution: {integrity: sha512-M16ehj0D84Gjq5cjvBzXRb5X+UvtWlxPDRAWAWMC0EN+6nHqnULIn5fWWeiexDPup25FeSZYv/ldp8KefcZVJQ==}
-    hasBin: true
-    dependencies:
-      '@types/node': 18.14.6
-      '@types/node-fetch': 2.6.11
-      abort-controller: 3.0.0
-      agentkeepalive: 4.5.0
-      form-data-encoder: 1.7.2
-      formdata-node: 4.4.1
-      node-fetch: 2.6.9
-      web-streams-polyfill: 3.3.3
-    transitivePeerDependencies:
-      - encoding
-    dev: false
-
-  /openai@4.67.1:
+  /openai@4.67.1(zod@3.22.3):
     resolution: {integrity: sha512-2YbRFy6qaYRJabK2zLMn4txrB2xBy0KP5g/eoqeSPTT31mIJMnkT75toagvfE555IKa2RdrzJrZwdDsUipsAMw==}
     hasBin: true
     peerDependencies:
@@ -22698,9 +22688,9 @@ packages:
       form-data-encoder: 1.7.2
       formdata-node: 4.4.1
       node-fetch: 2.6.9
+      zod: 3.22.3
     transitivePeerDependencies:
       - encoding
-    dev: true
 
   /opener@1.5.2:
     resolution: {integrity: sha512-ur5UIdyw5Y7yEj9wLzhqXiy6GZ3Mwx0yGI+5sMn2r0N0v3cKJvUmFH5yPP+WXh9e0xfyzyJX95D8l088DNFj7A==}

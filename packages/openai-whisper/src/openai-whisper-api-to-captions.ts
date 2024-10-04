@@ -13,9 +13,9 @@ export const openAiWhisperApiToCaptions = ({
 	transcription,
 }: OpenAiToCaptionsInput): OpenAiToCaptionsOutput => {
 	let captions: Caption[] = [];
-	if (!transcription.words || !transcription.segments) {
+	if (!transcription.words) {
 		throw new Error(
-			'The transcription does need to be been generated with `timestamp_granularities: ["word", "segment"]`',
+			'The transcription does need to be been generated with `timestamp_granularities: ["word"]`',
 		);
 	}
 

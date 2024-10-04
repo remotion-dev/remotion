@@ -1,7 +1,7 @@
 export {
 	OpenAiToCaptionsInput,
 	OpenAiToCaptionsOutput,
-	openAiWhisperApiToCaptions as openAiToCaptions,
+	openAiWhisperApiToCaptions,
 } from './openai-whisper-api-to-captions';
 
 export {OpenAiVerboseTranscription} from './openai-format';
