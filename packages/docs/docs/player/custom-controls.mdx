@@ -160,3 +160,78 @@ const TimeDisplay: React.FC<{
 :::note
 The [conventional time formatting for video editors](https://github.com/remotion-dev/remotion/issues/694#issuecomment-968318664) is `hh:mm:ss.ff` where `hh` is hours, `mm` is minutes, `ss` is seconds and `ff` is frames past the second.  
 :::
+
+### Fullscreen button
+
+Pay attention to two nuances when implementing the Fullscreen button:
+
+- Not all browsers support Fullscreen, feature detection should be performed.
+- If using server-side rendering, feature detection should be performed after the component has been mounted on the client to avoid a React hydration mismatch.
+
+```tsx twoslash title="FullscreenButton.tsx"
+import type {PlayerRef} from '@remotion/player';
+import React, {useCallback, useEffect, useState} from 'react';
+
+export const PlayerFullscreen: React.FC<{
+  playerRef: React.RefObject<PlayerRef>;
+}> = ({playerRef}) => {
+  const [supportsFullscreen, setSupportsFullscreen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const {current} = playerRef;
+
+    if (!current) {
+      return;
+    }
+
+    const onFullscreenChange = () => {
+      setIsFullscreen(document.fullscreenElement !== null);
+    };
+
+    current.addEventListener('fullscreenchange', onFullscreenChange);
+
+    return () => {
+      current.removeEventListener('fullscreenchange', onFullscreenChange);
+    };
+  }, [playerRef]);
+
+  useEffect(() => {
+    // Must be handled client-side to avoid SSR hydration mismatch
+    setSupportsFullscreen(
+      (typeof document !== 'undefined' &&
+        (document.fullscreenEnabled ||
+          // @ts-expect-error Types not defined
+          document.webkitFullscreenEnabled)) ??
+        false,
+    );
+  }, []);
+
+  const onClick = useCallback(() => {
+    const {current} = playerRef;
+    if (!current) {
+      return;
+    }
+
+    if (isFullscreen) {
+      current.exitFullscreen();
+    } else {
+      current.requestFullscreen();
+    }
+  }, [isFullscreen, playerRef]);
+
+  if (!supportsFullscreen) {
+    return null;
+  }
+
+  return (
+    <button type="button" onClick={onClick}>
+      {isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+    </button>
+  );
+};
+```
+
+:::note
+The `Exit Fullscreen` label is hypothetical since if it is rendered outside of the Player, it would not be visible while in Fullscreen.
+:::
