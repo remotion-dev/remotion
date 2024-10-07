@@ -52,14 +52,14 @@
 
 	.volume-bar {
 		position: absolute;
-		display: flex;
 		justify-content: center;
 		height: 0px;
+		bottom: 35px;
 		width: 100%;
-		opacity: 0;
 		transition:
 			height 0.2s,
 			opacity 0.3s;
+		opacity: 0;
 
 		.volume-active {
 			position: absolute;
@@ -67,7 +67,6 @@
 			background: var(--ifm-color-primary);
 			border-radius: 10px;
 			width: 100%;
-			transition: height 0.1s;
 			z-index: 1;
 		}
 
@@ -79,24 +78,21 @@
 			width: 100%;
 			z-index: 0;
 		}
+
+		.volume-active.animate-height {
+			transition: height 0.1s;
+		}
 	}
 }
 
 @media screen and (max-width: 900px) {
 	.volume-bar {
-		bottom: 25px;
+		display: none;
 	}
 }
 
 @media screen and (min-width: 901px) {
 	.volume-bar {
-		bottom: 35px;
-	}
-}
-
-.volume-button:hover {
-	.volume-bar {
-		height: 80px;
-		opacity: 1;
+		display: flex;
 	}
 }

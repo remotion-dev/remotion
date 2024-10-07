@@ -13,6 +13,8 @@ export const PlayerVolume: React.FC<{
 	};
 }> = ({playerRef, updateAudioMute, updateAudioVolume, audioState}) => {
 	const containerRef = useRef<HTMLDivElement>(null);
+	const [isHovered, setIsHovered] = useState(false);
+
 	useEffect(() => {
 		const {current} = playerRef;
 
@@ -30,6 +32,14 @@ export const PlayerVolume: React.FC<{
 			current.removeEventListener('mutechange', onMutedChange);
 		};
 	}, [playerRef, updateAudioMute]);
+
+	useEffect(() => {
+		if (isHovered) {
+			document.body.style.userSelect = 'none';
+		} else {
+			document.body.style.userSelect = 'auto';
+		}
+	}, [isHovered]);
 
 	const onClick = useCallback(() => {
 		if (audioState.isMuted) {
@@ -87,6 +97,9 @@ export const PlayerVolume: React.FC<{
 
 	const handlePointerUp = useCallback(() => {
 		setIsDragging(false);
+		setTimeout(() => {
+			setIsHovered(false);
+		}, 1000);
 	}, []);
 
 	useEffect(() => {
@@ -101,8 +114,18 @@ export const PlayerVolume: React.FC<{
 		};
 	}, [isDragging, handlePointerMove, handlePointerUp]);
 
+	const handleMouseLeave = useCallback(() => {
+		if (!isDragging) {
+			setIsHovered(false);
+		}
+	}, [isDragging]);
+
 	return (
-		<div className={styles['volume-button']}>
+		<div
+			className={styles['volume-button']}
+			onMouseEnter={() => setIsHovered(true)}
+			onMouseLeave={handleMouseLeave}
+		>
 			<button
 				type="button"
 				onClick={onClick}
@@ -123,6 +146,10 @@ export const PlayerVolume: React.FC<{
 				ref={containerRef}
 				onPointerDown={handlePointerDown}
 				className={styles['volume-bar']}
+				style={{
+					height: isHovered ? '80px' : '0px',
+					opacity: isHovered ? 1 : 0,
+				}}
 			>
 				<div
 					style={{
@@ -136,7 +163,7 @@ export const PlayerVolume: React.FC<{
 					}}
 				>
 					<div
-						className={styles['volume-active']}
+						className={`${styles['volume-active']} ${isDragging ? undefined : styles['animate-height']}`}
 						style={{
 							height: `${audioState.isMuted ? 0 : audioState.volume * 100}%`,
 						}}
