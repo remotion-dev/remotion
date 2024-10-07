@@ -22,7 +22,7 @@ export const TemperatureNumber: React.FC<{
 		<div
 			style={{
 				lineHeight: 1.1,
-				fontFamily: 'GT Planar',
+				fontFamily: 'GTPlanar',
 				textAlign: 'center',
 				fontWeight: 'bold',
 				fontSize: 60,

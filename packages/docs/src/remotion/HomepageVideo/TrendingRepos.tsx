@@ -22,7 +22,7 @@ const TrendingRepoItem: React.FC<{
 	const item: React.CSSProperties = useMemo(() => {
 		return {
 			lineHeight: 1.1,
-			fontFamily: 'GT Planar',
+			fontFamily: 'GTPlanar',
 			fontWeight: '500',
 			color: theme === 'dark' ? 'white' : 'black',
 			fontFeatureSettings: "'ss03' 1",
@@ -67,7 +67,7 @@ export const TrendingRepos: React.FC<{
 					<div
 						style={{
 							color: fill,
-							fontFamily: 'GT Planar',
+							fontFamily: 'GTPlanar',
 							fontWeight: '500',
 							fontSize: 12,
 							opacity: progress1,
@@ -82,7 +82,7 @@ export const TrendingRepos: React.FC<{
 					<div
 						style={{
 							color: '#0b84f3',
-							fontFamily: 'GT Planar',
+							fontFamily: 'GTPlanar',
 							fontWeight: '500',
 							fontSize: 16,
 							marginBottom: 15,

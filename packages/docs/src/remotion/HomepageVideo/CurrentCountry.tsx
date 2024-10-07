@@ -56,7 +56,7 @@ export const CurrentCountry: React.FC<{
 				<div
 					style={{
 						color: '#0b84f3',
-						fontFamily: 'GT Planar',
+						fontFamily: 'GTPlanar',
 						fontWeight: '500',
 						fontSize: 13,
 						textAlign: 'center',
@@ -68,7 +68,7 @@ export const CurrentCountry: React.FC<{
 				<div
 					style={{
 						lineHeight: 1.1,
-						fontFamily: 'GT Planar',
+						fontFamily: 'GTPlanar',
 						textAlign: 'center',
 						fontWeight: '500',
 						fontSize: 30,
