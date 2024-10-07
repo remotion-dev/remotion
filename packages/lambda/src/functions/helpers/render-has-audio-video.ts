@@ -1,4 +1,4 @@
-import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {CloudProvider} from '@remotion/serverless';
 import type {RenderMetadata} from '@remotion/serverless/client';
 
@@ -12,10 +12,10 @@ export const lambdaRenderHasAudioVideo = <Provider extends CloudProvider>(
 		throw new Error('Cannot merge stills');
 	}
 
-	const support = RenderInternals.codecSupportsMedia(renderMetadata.codec);
+	const support = BrowserSafeApis.codecSupportsMedia(renderMetadata.codec);
 
 	const hasVideo = renderMetadata
-		? !RenderInternals.isAudioCodec(renderMetadata.codec)
+		? !BrowserSafeApis.isAudioCodec(renderMetadata.codec)
 		: false;
 	const hasAudio = renderMetadata
 		? !renderMetadata.muted && support.audio

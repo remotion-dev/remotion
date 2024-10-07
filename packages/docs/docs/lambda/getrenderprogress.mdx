@@ -63,6 +63,11 @@ If the render is going to be saved to a [different cloud](/docs/lambda/custom-de
 
 Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.
 
+### `skipLambdaInvocation?`<AvailableFrom v="4.0.218" />
+
+Instead of calling a Lambda function which will get the progress from S3, make the S3 call directly.  
+This is cheaper and faster, but the function name must follow [the function name convention](/docs/lambda/naming-convention#see-also).
+
 ## Response
 
 Returns a promise resolving to an object with the following properties:

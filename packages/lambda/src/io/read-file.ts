@@ -13,7 +13,7 @@ export const lambdaReadFileImplementation = async ({
 	bucketName: string;
 	key: string;
 	region: AwsRegion;
-	expectedBucketOwner: string;
+	expectedBucketOwner: string | null;
 	forcePathStyle: boolean;
 }): Promise<Readable> => {
 	const {Body} = await getS3Client({
@@ -24,7 +24,7 @@ export const lambdaReadFileImplementation = async ({
 		new GetObjectCommand({
 			Bucket: bucketName,
 			Key: key,
-			ExpectedBucketOwner: expectedBucketOwner,
+			ExpectedBucketOwner: expectedBucketOwner ?? undefined,
 		}),
 	);
 	return Body as Readable;
