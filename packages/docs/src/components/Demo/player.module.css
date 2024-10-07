@@ -39,6 +39,53 @@
 	}
 
 	.end-controls {
+		height: 100%;
 		gap: 20px;
+	}
+}
+
+.volume-button {
+	position: relative;
+	cursor: pointer;
+	display: flex;
+	height: 100%;
+
+	.volume-bar {
+		position: absolute;
+		display: flex;
+		justify-content: center;
+		bottom: 30px;
+		height: 0px;
+		width: 100%;
+		opacity: 0;
+		transition:
+			height 0.2s,
+			opacity 0.3s;
+
+		.volume-active {
+			position: absolute;
+			bottom: 0;
+			background: var(--ifm-font-color-base);
+			width: 100%;
+			border-top-left-radius: 10px;
+			border-top-right-radius: 10px;
+			transition: height 0.1s;
+		}
+
+		.volume-background {
+			position: absolute;
+			bottom: 0;
+			background: var(--ifm-font-color-base);
+			opacity: 0.6;
+			height: 100%;
+			width: 100%;
+		}
+	}
+}
+
+.volume-button:hover {
+	.volume-bar {
+		height: 80px;
+		opacity: 1;
 	}
 }

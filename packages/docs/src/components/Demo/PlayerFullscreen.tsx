@@ -59,6 +59,7 @@ export const PlayerFullscreen: React.FC<{
 			type="button"
 			onClick={onClick}
 			style={{
+				display: 'flex',
 				background: 'transparent',
 				border: 0,
 				cursor: 'pointer',
