@@ -1,12 +1,19 @@
 import {useColorMode} from '@docusaurus/theme-common';
 import type {PlayerRef} from '@remotion/player';
 import {Player} from '@remotion/player';
-import React, {type CSSProperties, useEffect, useRef, useState} from 'react';
+import React, {
+	type CSSProperties,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
 import type {LocationAndTrending} from '../../remotion/HomepageVideo/Comp';
 import {
 	HomepageVideoComp,
 	getDataAndProps,
 } from '../../remotion/HomepageVideo/Comp';
+import type {EmojiPosition} from '../../remotion/HomepageVideo/emoji/EmojiCard';
 import {ActionRow} from './ActionRow';
 import {PlayerControls} from './PlayerControls';
 import styles from './player.module.css';
@@ -26,6 +33,22 @@ export const Demo: React.FC = () => {
 
 	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [cardOrder, setCardOrder] = useState([0, 1, 2, 3]);
+
+	const activeTranslationStyle =
+		'transform 0.2s ease-in, opacity 0.2s ease-in-out';
+
+	const [emojiPositions, setEmojiPositions] = useState<EmojiPosition>({
+		prev: 'melting',
+		current: 'partying-face',
+		next: 'fire',
+		translation: 0,
+		translationStyle: activeTranslationStyle,
+	});
+
+	const [audioState, setAudioState] = useState({
+		volume: 0.75,
+		isMuted: true,
+	});
 
 	const playerWrapper: CSSProperties = {
 		border: '2px solid ' + strokeColor,
@@ -55,6 +78,63 @@ export const Demo: React.FC = () => {
 		setCardOrder(newCardOrder);
 	};
 
+	const onClickLeft = useCallback(() => {
+		setEmojiPositions((c) => {
+			return {
+				...c,
+				translation: -33.3,
+				translationStyle: activeTranslationStyle,
+			};
+		});
+		// after the animation is done, we need to update the emoji contents
+		setTimeout(() => {
+			setEmojiPositions((c) => {
+				return {
+					prev: c.next,
+					current: c.prev,
+					next: c.current,
+					translation: 0,
+					translationStyle: undefined,
+				};
+			});
+		}, 200);
+	}, []);
+
+	const onClickRight = useCallback(() => {
+		setEmojiPositions((c) => {
+			return {
+				...c,
+				translation: 33.3,
+				translationStyle: activeTranslationStyle,
+			};
+		});
+		setTimeout(() => {
+			setEmojiPositions((c) => {
+				return {
+					prev: c.current,
+					current: c.next,
+					next: c.prev,
+					translation: 0,
+					translationStyle: '',
+				};
+			});
+		}, 200);
+	}, []);
+
+	const updateAudioVolume = (volume: number) => {
+		setAudioState({
+			volume,
+			isMuted: false,
+		});
+	};
+
+	const updateAudioMute = (isMuted: boolean) => {
+		setAudioState((v) => ({
+			volume: v.volume === 0 ? 0.5 : v.volume, // if volume was previously 0, set it to 0.75
+			isMuted,
+		}));
+	};
+
 	return (
 		<div>
 			<br />
@@ -77,6 +157,7 @@ export const Demo: React.FC = () => {
 							...playerWrapper,
 							touchAction: 'none', // prevent page from scrolling when dragging children on mobile
 						}}
+						initiallyMuted
 						inputProps={{
 							theme: colorMode,
 							onToggle: () => {
@@ -84,11 +165,22 @@ export const Demo: React.FC = () => {
 							},
 							cardOrder,
 							updateCardOrder,
+							emojiPositions,
+							onClickLeft,
+							onClickRight,
+							audioVolume: audioState,
 							...data,
 						}}
 						loop
 					/>
-					<PlayerControls playerRef={ref} durationInFrames={120} fps={30} />
+					<PlayerControls
+						playerRef={ref}
+						durationInFrames={120}
+						fps={30}
+						updateAudioVolume={updateAudioVolume}
+						updateAudioMute={updateAudioMute}
+						audioState={audioState}
+					/>
 				</>
 			) : (
 				<>

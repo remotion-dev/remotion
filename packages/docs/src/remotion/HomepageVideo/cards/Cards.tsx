@@ -1,10 +1,4 @@
-import React, {
-	createRef,
-	useCallback,
-	useEffect,
-	useRef,
-	useState,
-} from 'react';
+import React, {createRef, useEffect, useRef, useState} from 'react';
 import {AbsoluteFill, getRemotionEnvironment} from 'remotion';
 import type {Trending} from '../Comp';
 import {CurrentCountry} from '../CurrentCountry';
@@ -23,6 +17,9 @@ export const Cards: React.FC<{
 	readonly trending: Trending;
 	readonly temperatureInCelsius: number;
 	onToggle: () => void;
+	onClickLeft: () => void;
+	onClickRight: () => void;
+	emojiPositions: EmojiPosition;
 }> = ({
 	onUpdate,
 	indices,
@@ -31,19 +28,11 @@ export const Cards: React.FC<{
 	trending,
 	onToggle,
 	temperatureInCelsius,
+	onClickLeft,
+	onClickRight,
+	emojiPositions,
 }) => {
 	const container = useRef<HTMLDivElement>(null);
-
-	const activeTranslationStyle =
-		'transform 0.2s ease-in, opacity 0.2s ease-in-out';
-
-	const [emojiPositions, setEmojiPositions] = useState<EmojiPosition>({
-		prev: 'melting',
-		current: 'partying-face',
-		next: 'fire',
-		translation: 0,
-		translationStyle: activeTranslationStyle,
-	});
 
 	const [refs] = useState(() => {
 		return new Array(4).fill(true).map(() => {
@@ -75,49 +64,6 @@ export const Cards: React.FC<{
 			current.removeEventListener('click', onClick);
 		};
 	}, [onToggle]);
-
-	const onLeft = useCallback(() => {
-		setEmojiPositions((c) => {
-			return {
-				...c,
-				translation: -33.3,
-				translationStyle: activeTranslationStyle,
-			};
-		});
-		// after the animation is done, we need to update the emoji contents
-		setTimeout(() => {
-			setEmojiPositions((c) => {
-				return {
-					prev: c.next,
-					current: c.prev,
-					next: c.current,
-					translation: 0,
-					translationStyle: undefined,
-				};
-			});
-		}, 200);
-	}, []);
-
-	const onRight = useCallback(() => {
-		setEmojiPositions((c) => {
-			return {
-				...c,
-				translation: 33.3,
-				translationStyle: 'transform 0.2s ease-in, opacity 0.2s ease-in-out',
-			};
-		});
-		setTimeout(() => {
-			setEmojiPositions((c) => {
-				return {
-					prev: c.current,
-					current: c.next,
-					next: c.prev,
-					translation: 0,
-					translationStyle: '',
-				};
-			});
-		}, 200);
-	}, []);
 
 	return (
 		<AbsoluteFill ref={container}>
@@ -151,8 +97,8 @@ export const Cards: React.FC<{
 						indices={indices}
 						theme={theme}
 						withSwitcher={index === 3 && !isRendering}
-						onLeft={onLeft}
-						onRight={onRight}
+						onClickLeft={onClickLeft}
+						onClickRight={onClickRight}
 					/>
 				);
 			})}

@@ -1,8 +1,15 @@
 import React, {useCallback, useState} from 'react';
-import type {CalculateMetadataFunction} from 'remotion';
-import {AbsoluteFill} from 'remotion';
+import {
+	AbsoluteFill,
+	Audio,
+	interpolate,
+	staticFile,
+	useVideoConfig,
+	type CalculateMetadataFunction,
+} from 'remotion';
 import {z} from 'zod';
 import {Cards} from './cards/Cards';
+import type {EmojiPosition} from './emoji/EmojiCard';
 import type {Location} from './types';
 
 export type Trending = {
@@ -63,6 +70,10 @@ type Props = {
 	readonly onToggle: () => void;
 	readonly cardOrder: number[];
 	readonly updateCardOrder: (newCardOrder: number[]) => void;
+	readonly emojiPositions: EmojiPosition;
+	readonly onClickLeft: () => void;
+	readonly onClickRight: () => void;
+	readonly audioVolume: {volume: number; isMuted: boolean};
 };
 
 export const schema = z.object({
@@ -76,8 +87,13 @@ export const HomepageVideoComp: React.FC<z.infer<typeof schema> & Props> = ({
 	onToggle,
 	cardOrder,
 	updateCardOrder,
+	emojiPositions,
+	onClickLeft,
+	onClickRight,
+	audioVolume,
 }) => {
 	const [rerenders, setRerenders] = useState(0);
+	const {durationInFrames} = useVideoConfig();
 
 	const onUpdate = useCallback(
 		(newIndices: number[]) => {
@@ -95,6 +111,9 @@ export const HomepageVideoComp: React.FC<z.infer<typeof schema> & Props> = ({
 		return null;
 	}
 
+	const loweredVolume = audioVolume.volume * 0.5; // this track is too loud by default
+	const audioFadeFrame = durationInFrames - 30;
+
 	return (
 		<AbsoluteFill
 			style={{
@@ -110,6 +129,23 @@ export const HomepageVideoComp: React.FC<z.infer<typeof schema> & Props> = ({
 				trending={trending}
 				onToggle={onToggle}
 				temperatureInCelsius={trending.temperatureInCelsius}
+				onClickLeft={onClickLeft}
+				onClickRight={onClickRight}
+				emojiPositions={emojiPositions}
+			/>
+			<Audio
+				src={staticFile('Utope-nature.mp3')}
+				muted={audioVolume.isMuted || audioVolume.volume === 0}
+				volume={(f) =>
+					interpolate(
+						f,
+						[0, 10, audioFadeFrame, durationInFrames - 5],
+						[0, loweredVolume, loweredVolume, 0],
+						{
+							extrapolateLeft: 'clamp',
+						},
+					)
+				}
 			/>
 		</AbsoluteFill>
 	);

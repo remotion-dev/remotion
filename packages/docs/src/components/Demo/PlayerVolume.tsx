@@ -1,12 +1,16 @@
 import type {PlayerRef} from '@remotion/player';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {IsMutedIcon, NotMutedIcon} from '../../icons/arrows';
 
 export const PlayerVolume: React.FC<{
 	playerRef: React.RefObject<PlayerRef>;
-}> = ({playerRef}) => {
-	const [isMuted, setIsMuted] = useState(false);
-
+	updateAudioVolume: (volume: number) => void;
+	updateAudioMute: (isMuted: boolean) => void;
+	audioState: {
+		volume: number;
+		isMuted: boolean;
+	};
+}> = ({playerRef, updateAudioMute, audioState}) => {
 	useEffect(() => {
 		const {current} = playerRef;
 
@@ -15,7 +19,7 @@ export const PlayerVolume: React.FC<{
 		}
 
 		const onMutedChange = (e) => {
-			setIsMuted(e.detail.isMuted);
+			updateAudioMute(e.detail.isMuted);
 		};
 
 		current.addEventListener('mutechange', onMutedChange);
@@ -23,15 +27,15 @@ export const PlayerVolume: React.FC<{
 		return () => {
 			current.removeEventListener('mutechange', onMutedChange);
 		};
-	}, [playerRef]);
+	}, [playerRef, updateAudioMute]);
 
 	const onClick = useCallback(() => {
-		if (isMuted) {
+		if (audioState.isMuted) {
 			playerRef.current.unmute();
 		} else {
 			playerRef.current.mute();
 		}
-	}, [isMuted, playerRef]);
+	}, [audioState, playerRef]);
 	return (
 		<button
 			type="button"
@@ -43,7 +47,7 @@ export const PlayerVolume: React.FC<{
 				padding: 0,
 			}}
 		>
-			{isMuted ? (
+			{audioState.isMuted ? (
 				<IsMutedIcon style={{width: 20, opacity: 0.3}} />
 			) : (
 				<NotMutedIcon style={{width: 20}} />
