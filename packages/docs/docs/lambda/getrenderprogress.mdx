@@ -6,7 +6,10 @@ slug: /lambda/getrenderprogress
 crumb: 'Lambda API'
 ---
 
-Gets the current status of a non-[still](https://www.remotion.dev/docs/lambda/renderstillonlambda) render originally triggered via [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
+Gets the current status of a render initiated via [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).  
+Calling this function results in a Lambda invocation.
+
+For renders initiated via [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda), do not use this function. Instead, the result is returned immediately.
 
 ## Example
 
@@ -59,7 +62,6 @@ If the render is going to be saved to a [different cloud](/docs/lambda/custom-de
 ### `forcePathStyle?`<AvailableFrom v="4.0.202" />
 
 Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.
-
 
 ## Response
 
