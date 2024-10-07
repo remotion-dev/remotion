@@ -1,4 +1,4 @@
-import {createRequire} from "node:module";
+import { createRequire } from "node:module";
 var __create = Object.create;
 var __getProtoOf = Object.getPrototypeOf;
 var __defProp = Object.defineProperty;
@@ -2548,10 +2548,10 @@ var import_extract_zip = __toESM(require_extract_zip(), 1);
 import * as fs3 from "node:fs";
 import * as os from "node:os";
 import * as path3 from "node:path";
-import {promisify} from "node:util";
+import { promisify } from "node:util";
 
 // src/assets/download-file.ts
-import {createWriteStream} from "node:fs";
+import { createWriteStream } from "node:fs";
 
 // src/ensure-output-directory.ts
 import fs from "node:fs";
@@ -2954,7 +2954,7 @@ var downloadFile = async (options, retries = 2, attempt = 1) => {
 };
 
 // src/compositor/make-file-executable.ts
-import {accessSync, chmodSync, constants, statSync} from "node:fs";
+import { accessSync, chmodSync, constants, statSync } from "node:fs";
 var hasPermissions = (p) => {
   if (process.platform !== "linux" && process.platform !== "darwin") {
     try {
@@ -3024,12 +3024,12 @@ var getDownloadsCacheDir = () => {
 // src/browser/BrowserFetcher.ts
 function getChromeDownloadUrl({
   platform: platform2,
-  version: version2
+  version
 }) {
   if (platform2 === "linux-arm64") {
-    return `https://playwright.azureedge.net/builds/chromium/${version2 ?? PLAYWRIGHT_VERSION}/chromium-linux-arm64.zip`;
+    return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-linux-arm64.zip`;
   }
-  return `https://storage.googleapis.com/chrome-for-testing-public/${version2 ?? TESTED_VERSION}/${platform2}/chrome-headless-shell-${platform2}.zip`;
+  return `https://storage.googleapis.com/chrome-for-testing-public/${version ?? TESTED_VERSION}/${platform2}/chrome-headless-shell-${platform2}.zip`;
 }
 function existsAsync(filePath) {
   return new Promise((resolve2) => {
@@ -3063,10 +3063,10 @@ var downloadBrowser = async ({
   logLevel,
   indent,
   onProgress,
-  version: version2
+  version
 }) => {
   const platform2 = getPlatform();
-  const downloadURL = getChromeDownloadUrl({ platform: platform2, version: version2 });
+  const downloadURL = getChromeDownloadUrl({ platform: platform2, version });
   const fileName = downloadURL.split("/").pop();
   if (!fileName) {
     throw new Error(`A malformed download URL was found: ${downloadURL}.`);
@@ -3196,8 +3196,8 @@ var internalEnsureBrowser = async ({
 }) => {
   const status = getBrowserStatus(browserExecutable);
   if (status.type === "no-browser") {
-    const { onProgress, version: version2 } = onBrowserDownload();
-    await downloadBrowser({ indent, logLevel, onProgress, version: version2 });
+    const { onProgress, version } = onBrowserDownload();
+    await downloadBrowser({ indent, logLevel, onProgress, version });
   }
   const newStatus = getBrowserStatus(browserExecutable);
   return newStatus;
