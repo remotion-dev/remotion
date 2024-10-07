@@ -14,6 +14,8 @@ export const PlayerVolume: React.FC<{
 }> = ({playerRef, updateAudioMute, updateAudioVolume, audioState}) => {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [isHovered, setIsHovered] = useState(false);
+	const [isDragging, setIsDragging] = useState(false);
+	const timerRef = useRef<Timer | null>(null);
 
 	useEffect(() => {
 		const {current} = playerRef;
@@ -42,14 +44,17 @@ export const PlayerVolume: React.FC<{
 	}, [isHovered]);
 
 	const onClick = useCallback(() => {
+		if (timerRef.current !== null) {
+			clearTimeout(timerRef.current);
+			timerRef.current = null;
+		}
+
 		if (audioState.isMuted) {
 			playerRef.current.unmute();
 		} else {
 			playerRef.current.mute();
 		}
 	}, [audioState, playerRef]);
-
-	const [isDragging, setIsDragging] = useState(false);
 
 	const calculatePosition = useCallback((clientY: number) => {
 		const container = containerRef.current?.getBoundingClientRect();
@@ -65,6 +70,11 @@ export const PlayerVolume: React.FC<{
 	const handlePointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
 			if (e.button !== 0) return; // Only respond to left mouse button
+			if (timerRef.current !== null) {
+				clearTimeout(timerRef.current);
+				timerRef.current = null;
+			}
+
 			setIsDragging(true);
 			const position = calculatePosition(e.clientY);
 			if (position === null) return;
@@ -97,7 +107,7 @@ export const PlayerVolume: React.FC<{
 
 	const handlePointerUp = useCallback(() => {
 		setIsDragging(false);
-		setTimeout(() => {
+		timerRef.current = setTimeout(() => {
 			setIsHovered(false);
 		}, 1000);
 	}, []);
