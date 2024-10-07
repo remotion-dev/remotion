@@ -124,11 +124,12 @@ export const Demo: React.FC = () => {
 	const updateAudioVolume = (volume: number) => {
 		setAudioState({
 			volume,
-			isMuted: false,
+			isMuted: volume === 0,
 		});
 	};
 
 	const updateAudioMute = (isMuted: boolean) => {
+		console.log(audioState);
 		setAudioState((v) => ({
 			volume: v.volume === 0 ? 0.5 : v.volume, // if volume was previously 0, set it to 0.75
 			isMuted,

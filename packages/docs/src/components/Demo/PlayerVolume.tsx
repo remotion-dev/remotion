@@ -1,5 +1,5 @@
 import type {PlayerRef} from '@remotion/player';
-import React, {useCallback, useEffect} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {IsMutedIcon, NotMutedIcon} from '../../icons/arrows';
 import styles from './player.module.css';
 
@@ -11,7 +11,8 @@ export const PlayerVolume: React.FC<{
 		volume: number;
 		isMuted: boolean;
 	};
-}> = ({playerRef, updateAudioMute, audioState}) => {
+}> = ({playerRef, updateAudioMute, updateAudioVolume, audioState}) => {
+	const containerRef = useRef<HTMLDivElement>(null);
 	useEffect(() => {
 		const {current} = playerRef;
 
@@ -38,6 +39,68 @@ export const PlayerVolume: React.FC<{
 		}
 	}, [audioState, playerRef]);
 
+	const [isDragging, setIsDragging] = useState(false);
+
+	const calculatePosition = useCallback((clientY: number) => {
+		const container = containerRef.current?.getBoundingClientRect();
+		if (container) {
+			const clickY = clientY - container.top;
+			const relativePosition = 1 - clickY / container.height;
+			return Math.max(0, Math.min(1, relativePosition)); // Ensure the value is between 0 and 1
+		}
+
+		return null;
+	}, []);
+
+	const handlePointerDown = useCallback(
+		(e: React.PointerEvent<HTMLDivElement>) => {
+			if (e.button !== 0) return; // Only respond to left mouse button
+			setIsDragging(true);
+			const position = calculatePosition(e.clientY);
+			if (position === null) return;
+			if (position < 0.05) {
+				playerRef.current.mute();
+				updateAudioVolume(0);
+			} else {
+				playerRef.current.unmute();
+				updateAudioVolume(position);
+			}
+		},
+		[calculatePosition, playerRef, updateAudioVolume],
+	);
+
+	const handlePointerMove = useCallback(
+		(e: PointerEvent) => {
+			if (!isDragging) return;
+			const position = calculatePosition(e.clientY);
+			if (position === null) return;
+			if (position < 0.05) {
+				playerRef.current.mute();
+				updateAudioVolume(0);
+			} else {
+				playerRef.current.unmute();
+				updateAudioVolume(position);
+			}
+		},
+		[isDragging, calculatePosition, playerRef, updateAudioVolume],
+	);
+
+	const handlePointerUp = useCallback(() => {
+		setIsDragging(false);
+	}, []);
+
+	useEffect(() => {
+		if (isDragging) {
+			window.addEventListener('pointermove', handlePointerMove);
+			window.addEventListener('pointerup', handlePointerUp);
+		}
+
+		return () => {
+			window.removeEventListener('pointermove', handlePointerMove);
+			window.removeEventListener('pointerup', handlePointerUp);
+		};
+	}, [isDragging, handlePointerMove, handlePointerUp]);
+
 	return (
 		<div className={styles['volume-button']}>
 			<button
@@ -56,7 +119,11 @@ export const PlayerVolume: React.FC<{
 					<NotMutedIcon style={{width: 20}} />
 				)}{' '}
 			</button>
-			<div className={styles['volume-bar']}>
+			<div
+				ref={containerRef}
+				onPointerDown={handlePointerDown}
+				className={styles['volume-bar']}
+			>
 				<div
 					style={{
 						height: '100%',
