@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/layout-utils"
 	},
 	"name": "@remotion/layout-utils",
-	"version": "4.0.216",
+	"version": "4.0.217",
 	"description": "Utilities for working with layouts",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
