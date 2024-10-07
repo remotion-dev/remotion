@@ -127,11 +127,12 @@ export const PlayerVolume: React.FC<{
 				<div
 					style={{
 						height: '100%',
-						width: '5px',
+						width: '8px',
 						position: 'relative',
-						borderTopLeftRadius: '10px',
+						borderRadius: '10px',
 						borderTopRightRadius: '10px',
 						overflow: 'hidden',
+						border: '1px solid var(--ifm-font-color-base)',
 					}}
 				>
 					<div

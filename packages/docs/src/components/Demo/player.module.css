@@ -54,7 +54,6 @@
 		position: absolute;
 		display: flex;
 		justify-content: center;
-		bottom: 30px;
 		height: 0px;
 		width: 100%;
 		opacity: 0;
@@ -65,21 +64,33 @@
 		.volume-active {
 			position: absolute;
 			bottom: 0;
-			background: var(--ifm-font-color-base);
+			background: var(--ifm-color-primary);
+			border-radius: 10px;
 			width: 100%;
-			border-top-left-radius: 10px;
-			border-top-right-radius: 10px;
 			transition: height 0.1s;
+			z-index: 1;
 		}
 
 		.volume-background {
 			position: absolute;
 			bottom: 0;
-			background: var(--ifm-font-color-base);
-			opacity: 0.6;
+			background: var(--background);
 			height: 100%;
 			width: 100%;
+			z-index: 0;
 		}
+	}
+}
+
+@media screen and (max-width: 900px) {
+	.volume-bar {
+		bottom: 25px;
+	}
+}
+
+@media screen and (min-width: 901px) {
+	.volume-bar {
+		bottom: 35px;
 	}
 }
 
