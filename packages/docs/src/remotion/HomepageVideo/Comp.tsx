@@ -61,6 +61,8 @@ type Props = {
 	readonly location: Location;
 	readonly trending: null | Trending;
 	readonly onToggle: () => void;
+	readonly cardOrder: number[];
+	readonly updateCardOrder: (newCardOrder: number[]) => void;
 };
 
 export const schema = z.object({
@@ -72,18 +74,18 @@ export const HomepageVideoComp: React.FC<z.infer<typeof schema> & Props> = ({
 	location,
 	trending,
 	onToggle,
+	cardOrder,
+	updateCardOrder,
 }) => {
-	const [state, setRerenders] = useState({
-		rerenders: 0,
-		indices: [0, 1, 2, 3],
-	});
+	const [rerenders, setRerenders] = useState(0);
 
-	const onUpdate = useCallback((newIndices: number[]) => {
-		setRerenders((i) => ({
-			indices: newIndices,
-			rerenders: i.rerenders + 1,
-		}));
-	}, []);
+	const onUpdate = useCallback(
+		(newIndices: number[]) => {
+			setRerenders(rerenders + 1);
+			updateCardOrder(newIndices);
+		},
+		[rerenders, updateCardOrder],
+	);
 
 	if (!location) {
 		return null;
@@ -100,9 +102,9 @@ export const HomepageVideoComp: React.FC<z.infer<typeof schema> & Props> = ({
 			}}
 		>
 			<Cards
-				key={state.rerenders}
+				key={rerenders}
 				onUpdate={onUpdate}
-				indices={state.indices}
+				indices={cardOrder}
 				theme={theme}
 				location={location}
 				trending={trending}

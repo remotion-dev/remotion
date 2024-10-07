@@ -25,6 +25,7 @@ export const Demo: React.FC = () => {
 	const strokeColor = colorMode === 'dark' ? 'gray' : 'black';
 
 	const [isFullscreen, setIsFullscreen] = useState(false);
+	const [cardOrder, setCardOrder] = useState([0, 1, 2, 3]);
 
 	const playerWrapper: CSSProperties = {
 		border: '2px solid ' + strokeColor,
@@ -49,6 +50,10 @@ export const Demo: React.FC = () => {
 			playerRef.removeEventListener('fullscreenchange', onFullscreenChange);
 		};
 	}, [data]);
+
+	const updateCardOrder = (newCardOrder: number[]) => {
+		setCardOrder(newCardOrder);
+	};
 
 	return (
 		<div>
@@ -77,6 +82,8 @@ export const Demo: React.FC = () => {
 							onToggle: () => {
 								ref.current?.toggle();
 							},
+							cardOrder,
+							updateCardOrder,
 							...data,
 						}}
 						loop
