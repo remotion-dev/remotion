@@ -791,7 +791,7 @@ export const useMenuStructure = (
 						label: 'YouTube',
 						onClick: () => {
 							closeMenu();
-							openExternal('https://www.youtube/@remotion_dev');
+							openExternal('https://www.youtube.com/@remotion_dev');
 						},
 						type: 'item' as const,
 						keyHint: null,
