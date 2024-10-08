@@ -743,12 +743,81 @@ export const MyComponent: React.FC = () => {
 
 ### Volume slider
 
-TODO
+Note that if the video is "muted", the volume state may be greater than 0.  
+The following component handles the special case of the video being "muted":
+
+- If the video is muted, set the slider value to 0.
+- If the slider is being slided, unmute the video if necessary.
+
+This allows us to keep an internal state of the volume that was set before muting the video and reset the slider to that value after unmuting.
+
+```tsx twoslash
+import type {PlayerRef} from '@remotion/player';
+import React, {useEffect, useState} from 'react';
+
+export const VolumeSlider: React.FC<{
+  playerRef: React.RefObject<PlayerRef>;
+}> = ({playerRef}) => {
+  const [volume, setVolume] = useState(playerRef.current?.getVolume() ?? 1);
+  const [muted, setMuted] = useState(playerRef.current?.isMuted() ?? false);
+
+  useEffect(() => {
+    const {current} = playerRef;
+    if (!current) {
+      return;
+    }
+
+    const onVolumeChange = () => {
+      setVolume(current.getVolume());
+    };
+
+    const onMuteChange = () => {
+      setMuted(current.isMuted());
+    };
+
+    current.addEventListener('volumechange', onVolumeChange);
+    current.addEventListener('mutechange', onMuteChange);
+
+    return () => {
+      current.removeEventListener('volumechange', onVolumeChange);
+      current.removeEventListener('mutechange', onMuteChange);
+    };
+  }, [playerRef]);
+
+  const onChange: React.ChangeEventHandler<HTMLInputElement> =
+    React.useCallback(
+      (evt) => {
+        if (!playerRef.current) {
+          return;
+        }
+
+        const newVolume = Number(evt.target.value);
+        if (newVolume > 0 && playerRef.current.isMuted()) {
+          playerRef.current.unmute();
+        }
+
+        playerRef.current.setVolume(newVolume);
+      },
+      [playerRef],
+    );
+
+  return (
+    <input
+      value={muted ? 0 : volume}
+      type="range"
+      min={0}
+      max={1}
+      step={0.01}
+      onChange={onChange}
+    />
+  );
+};
+```
 
 ### Mute button
 
-Note that Remotion does not consider a volume of 0 "muted".  
-Adapt the logic to also listen to the [`volumechange`](/docs/player/player#volumechange) event if necessary.
+Remotion also considers a video "muted" if the volume is 0.  
+You don't need to handle a special case here.
 
 ```tsx twoslash title="MuteButton.tsx"
 import type {PlayerRef} from '@remotion/player';
