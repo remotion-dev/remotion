@@ -845,6 +845,7 @@ module.exports = {
 				'video-uploads',
 				'presigned-urls',
 				'font-picker',
+				'building-a-timeline',
 				'multiple-fps',
 			],
 		},

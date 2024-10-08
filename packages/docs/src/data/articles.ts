@@ -868,6 +868,13 @@ export const articles = [
 		crumb: 'API',
 	},
 	{
+		id: 'building-a-timeline',
+		title: 'Build a timeline-based video editor',
+		relativePath: 'docs/building-a-timeline.mdx',
+		compId: 'articles-docs-building-a-timeline',
+		crumb: 'Building video apps',
+	},
+	{
 		id: 'offthreadvideo',
 		title: '<OffthreadVideo>',
 		relativePath: 'docs/offthreadvideo.mdx',
