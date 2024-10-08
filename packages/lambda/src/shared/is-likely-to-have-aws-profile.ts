@@ -1,4 +1,4 @@
-import {existsSync, readFileSync} from 'fs';
+import {readFileSync} from 'fs';
 import {homedir} from 'os';
 import {join, sep} from 'path';
 
@@ -38,10 +38,11 @@ const pathOfCredentialsFile = () => {
 
 export const isLikelyToHaveAwsProfile = (): boolean => {
 	const credentialsFile = pathOfCredentialsFile();
-	if (!existsSync(credentialsFile)) {
+
+	try {
+		const content = readFileSync(credentialsFile, 'utf-8');
+		return content.includes('[default]');
+	} catch (err) {
 		return false;
 	}
-
-	const content = readFileSync(credentialsFile, 'utf-8');
-	return content.includes('[default]');
 };
