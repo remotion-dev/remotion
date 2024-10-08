@@ -66,6 +66,10 @@ To make it smaller, pass a `style` prop to give the player a different width: `{
 
 The height you would like the video to have when rendered as an MP4. Use `style={{height: <height>}}` to define a height to be assumed in the browser.
 
+### `inputProps`
+
+Pass props to the component that you have specified using the `component` prop. The Typescript definition takes the shape of the props that you have given to your `component`. Default `undefined`.
+
 ### `loop`
 
 _optional_
@@ -123,12 +127,6 @@ A boolean property defining whether you can play or pause a video using space ke
 _optional_
 
 A boolean property defining whether the video position should go back to zero once the video has ended. Only works if `loop` is disabled. Default `true`.
-
-### `inputProps`
-
-_optional_
-
-Pass props to the component that you have specified using the `component` prop. The Typescript definition takes the shape of the props that you have given to your `component`. Default `undefined`.
 
 ### `style`
 
