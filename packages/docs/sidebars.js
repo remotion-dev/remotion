@@ -738,6 +738,7 @@ module.exports = {
 				'player/preloading',
 				'player/premounting',
 				'player/best-practices',
+				'player/custom-controls',
 			],
 		},
 

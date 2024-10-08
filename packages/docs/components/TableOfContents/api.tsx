@@ -6,6 +6,7 @@ import {TableOfContents as FontsTableOfContents} from '../../docs/fonts-api/Tabl
 import {TableOfContents as InstallWhisperCppTableOfContents} from '../../docs/install-whisper-cpp/install-whisper-cpp';
 import {TableOfContents as MediaParserTableOfContents} from '../../docs/media-parser/TableOfContents';
 import {TableOfContents as OpenAiWhisperTableOfContents} from '../../docs/openai-whisper/TableOfContents';
+import {PlayerTableOfContents} from '../../docs/player/TableOfContents';
 import {TableOfContents as SkiaTableOfContents} from '../../docs/skia/TableOfContents';
 import {TableOfContents as StudioTableOfContents} from '../../docs/studio/TableOfContents';
 import {TableOfContents as TailwindTableOfContents} from '../../docs/tailwind/TableOfContents';
@@ -22,7 +23,6 @@ import {TableOfContents as MediaUtilsTableOfContents} from '../TableOfContents/m
 import {TableOfContents as MotionBlurTableOfContents} from '../TableOfContents/motion-blur';
 import {TableOfContents as NoiseTableOfContents} from '../TableOfContents/noise';
 import {TableOfContents as PathsTableOfContents} from '../TableOfContents/paths';
-import {TableOfContents as PlayerTableOfContents} from '../TableOfContents/player';
 import {TableOfContents as PreloadTableOfContents} from '../TableOfContents/preload';
 import {TableOfContents as RemotionTableOfContents} from '../TableOfContents/remotion';
 import {TableOfContents as RendererTableOfContents} from '../TableOfContents/renderer';
