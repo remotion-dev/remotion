@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/serverless"
 	},
 	"name": "@remotion/serverless",
-	"version": "4.0.216",
+	"version": "4.0.217",
 	"description": "A runtime for distributed rendering",
 	"main": "dist",
 	"sideEffects": false,
