@@ -670,6 +670,77 @@ export const PlayerSeekBar: React.FC<{
 };
 ```
 
+### Loop button
+
+[`loop`](/docs/player/player#loop) is a prop of the [`<Player/>`](/docs/player/player) component, so you can just control is using a [`useState`](https://react.dev/reference/react/useState) hook.
+
+```tsx twoslash title="LoopButton.tsx"
+import React from 'react';
+
+export const LoopButton: React.FC<{
+  loop: boolean;
+  setLoop: React.Dispatch<React.SetStateAction<boolean>>;
+}> = ({loop, setLoop}) => {
+  const onClick = React.useCallback(() => {
+    setLoop((prev) => !prev);
+  }, [setLoop]);
+
+  return (
+    <button type="button" onClick={onClick}>
+      {loop ? 'Loop enabled' : 'Loop disabled'}
+    </button>
+  );
+};
+```
+
+```tsx twoslash title="Usage"
+// @filename: LoopButton.tsx
+import React from 'react';
+
+export const LoopButton: React.FC<{
+  loop: boolean;
+  setLoop: React.Dispatch<React.SetStateAction<boolean>>;
+}> = ({loop, setLoop}) => {
+  const onClick = React.useCallback(() => {
+    setLoop((prev) => !prev);
+  }, [setLoop]);
+
+  return (
+    <button type="button" onClick={onClick}>
+      {loop ? 'Loop enabled' : 'Loop disabled'}
+    </button>
+  );
+};
+// @filename: index.tsx
+
+const MyComp: React.FC = () => {
+  return null;
+};
+// ---cut---
+import React, {useState} from 'react';
+import {LoopButton} from './LoopButton';
+import {Player} from '@remotion/player';
+
+export const MyComponent: React.FC = () => {
+  const [loop, setLoop] = useState(false);
+
+  return (
+    <>
+      <Player
+        component={MyComp}
+        loop={loop}
+        durationInFrames={100}
+        fps={30}
+        compositionWidth={1920}
+        compositionHeight={1080}
+        inputProps={{}}
+      />
+      <LoopButton loop={loop} setLoop={setLoop} />
+    </>
+  );
+};
+```
+
 ### Volume slider
 
 TODO
