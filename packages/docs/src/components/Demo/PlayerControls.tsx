@@ -11,7 +11,20 @@ export const PlayerControls: React.FC<{
 	playerRef: React.RefObject<PlayerRef>;
 	durationInFrames: number;
 	fps: number;
-}> = ({playerRef, durationInFrames, fps}) => {
+	updateAudioVolume: (volume: number) => void;
+	updateAudioMute: (isMuted: boolean) => void;
+	audioState: {
+		volume: number;
+		isMuted: boolean;
+	};
+}> = ({
+	playerRef,
+	durationInFrames,
+	fps,
+	updateAudioVolume,
+	updateAudioMute,
+	audioState,
+}) => {
 	return (
 		<div className={styles['controls-wrapper']}>
 			<div className={styles['start-controls']}>
@@ -31,7 +44,12 @@ export const PlayerControls: React.FC<{
 				/>
 			</div>
 			<div className={styles['end-controls']}>
-				<PlayerVolume playerRef={playerRef} />
+				<PlayerVolume
+					playerRef={playerRef}
+					updateAudioVolume={updateAudioVolume}
+					updateAudioMute={updateAudioMute}
+					audioState={audioState}
+				/>
 				<PlayerFullscreen playerRef={playerRef} />
 			</div>
 		</div>
