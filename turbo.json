@@ -71,7 +71,7 @@
 		},
 
 		"@remotion/it-tests#test": {
-			"dependsOn": ["^make", "@remotion/example#test", "@remotion/example#make"]
+			"dependsOn": ["//#ts-build", "^make", "@remotion/example#test", "@remotion/example#make"]
 		},
 		"@remotion/media-parser#build": {
 			"dependsOn": ["//#ts-build"],
