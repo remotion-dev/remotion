@@ -63,6 +63,7 @@ export const PlayPause: React.FC<{
 		inFrame,
 		outFrame,
 		frameRef: remotionInternal_currentFrameRef,
+		browserMediaControlsEnabled: true
 	});
 
 	const isStill = useIsStill();

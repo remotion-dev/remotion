@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import {useContext, useEffect, useRef} from 'react';
-import {Internals} from 'remotion';
-import {calculateNextFrame} from './calculate-next-frame.js';
-import {useIsBackgrounded} from './is-backgrounded.js';
-import {usePlayer} from './use-player.js';
+import { useCallback, useContext, useEffect, useRef } from 'react';
+import { Internals } from 'remotion';
+import { calculateNextFrame } from './calculate-next-frame.js';
+import { useIsBackgrounded } from './is-backgrounded.js';
+import { usePlayer } from './use-player.js';
 
 export const usePlayback = ({
 	loop,
@@ -12,6 +12,7 @@ export const usePlayback = ({
 	inFrame,
 	outFrame,
 	frameRef,
+	browserMediaControlsEnabled
 }: {
 	loop: boolean;
 	playbackRate: number;
@@ -19,10 +20,11 @@ export const usePlayback = ({
 	inFrame: number | null;
 	outFrame: number | null;
 	frameRef: React.MutableRefObject<number>;
+	browserMediaControlsEnabled?: boolean
 }) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const frame = Internals.Timeline.useTimelinePosition();
-	const {playing, pause, emitter} = usePlayer();
+	const { playing, pause, play, emitter } = usePlayer();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 	const buffering = useRef<null | number>(null);
 
@@ -39,6 +41,44 @@ export const usePlayback = ({
 			'Missing the buffering context. Most likely you have a Remotion version mismatch.',
 		);
 	}
+
+	//	the functions to interact with the media session API
+	const setupMediaSession = useCallback((browserMediaControls: boolean | undefined) => {
+		if ('mediaSession' in navigator) {
+			//	I could've checked for the input option here and return rightaway, but it would not override the default buggy behavior
+
+			navigator.mediaSession.setActionHandler("play", () => {
+				if (browserMediaControls) {
+					play()
+				}
+			});
+			navigator.mediaSession.setActionHandler("pause", () => {
+				if (browserMediaControls) {
+					pause()
+				}
+			});
+
+		}
+	},
+		[pause, play]);
+
+	const cleanupMediaSession = () => {
+		if ('mediaSession' in navigator) {
+			navigator.mediaSession.metadata = null;
+			navigator.mediaSession.setActionHandler('play', null);
+			navigator.mediaSession.setActionHandler('pause', null);
+		}
+	};
+
+	useEffect(() => {
+		//	add the media session controls in accordance with the config
+		setupMediaSession(browserMediaControlsEnabled);
+		return () => {
+			cleanupMediaSession()
+		}
+	}, [setupMediaSession, browserMediaControlsEnabled])
+
+	//	complete code for media session API
 
 	useEffect(() => {
 		const onBufferClear = context.listenForBuffering(() => {
@@ -67,13 +107,13 @@ export const usePlayback = ({
 		let hasBeenStopped = false;
 		let reqAnimFrameCall:
 			| {
-					type: 'raf';
-					id: number;
-			  }
+				type: 'raf';
+				id: number;
+			}
 			| {
-					type: 'timeout';
-					id: Timer;
-			  }
+				type: 'timeout';
+				id: Timer;
+			}
 			| null = null;
 		let startedTime = performance.now();
 		let framesAdvanced = 0;
@@ -99,7 +139,7 @@ export const usePlayback = ({
 			const actualFirstFrame = inFrame ?? 0;
 
 			const currentFrame = frameRef.current;
-			const {nextFrame, framesToAdvance, hasEnded} = calculateNextFrame({
+			const { nextFrame, framesToAdvance, hasEnded } = calculateNextFrame({
 				time,
 				currentFrame,
 				playbackSpeed: playbackRate,
@@ -116,7 +156,7 @@ export const usePlayback = ({
 				nextFrame !== frameRef.current &&
 				(!hasEnded || moveToBeginningWhenEnded)
 			) {
-				setFrame((c) => ({...c, [config.id]: nextFrame}));
+				setFrame((c) => ({ ...c, [config.id]: nextFrame }));
 			}
 
 			if (hasEnded) {
@@ -153,7 +193,7 @@ export const usePlayback = ({
 					id: setTimeout(callback, 1000 / config.fps),
 				};
 			} else {
-				reqAnimFrameCall = {type: 'raf', id: requestAnimationFrame(callback)};
+				reqAnimFrameCall = { type: 'raf', id: requestAnimationFrame(callback) };
 			}
 		};
 
@@ -199,7 +239,7 @@ export const usePlayback = ({
 				return;
 			}
 
-			emitter.dispatchTimeUpdate({frame: frameRef.current as number});
+			emitter.dispatchTimeUpdate({ frame: frameRef.current as number });
 			lastTimeUpdateEvent.current = frameRef.current;
 		}, 250);
 
@@ -207,6 +247,6 @@ export const usePlayback = ({
 	}, [emitter, frameRef]);
 
 	useEffect(() => {
-		emitter.dispatchFrameUpdate({frame});
+		emitter.dispatchFrameUpdate({ frame });
 	}, [emitter, frame]);
 };
