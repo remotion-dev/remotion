@@ -1,10 +1,9 @@
+import type {EnhancedErrorInfo, LambdaErrorInfo} from '@remotion/serverless';
 import {
 	errorIsOutOfSpaceError,
 	isBrowserCrashedError,
 	isErrInsufficientResourcesErr,
-	type EnhancedErrorInfo,
-	type LambdaErrorInfo,
-} from '@remotion/serverless';
+} from '@remotion/serverless/client';
 
 import {DOCS_URL} from '../../shared/docs-url';
 

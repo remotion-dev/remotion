@@ -2,12 +2,10 @@ import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {validCodecs} from './codec';
 import {
 	codecSupportsCrf,
-	codecSupportsMedia,
 	codecSupportsVideoBitrate,
 } from './codec-supports-media';
 import {getDefaultCrfForCodec, getValidCrfRanges} from './crf';
 import {defaultFileExtensionMap} from './file-extensions';
-import {getFramesToRender} from './get-duration-from-frame-range';
 import {
 	defaultCodecsForFileExtension,
 	getFileExtensionFromCodec,
@@ -66,6 +64,4 @@ export const BrowserSafeApis = {
 	logLevels,
 	getOutputCodecOrUndefined,
 	getExtensionFromAudioCodec,
-	codecSupportsMedia,
-	getFramesToRender,
 };
