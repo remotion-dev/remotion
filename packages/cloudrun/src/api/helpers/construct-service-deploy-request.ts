@@ -1,3 +1,4 @@
+import type {google} from '@google-cloud/run/build/protos/protos';
 import {VERSION} from 'remotion/version';
 
 // taken from within the @google-cloud/run package, can't import it directly
@@ -19,7 +20,7 @@ export const constructServiceTemplate = ({
 	timeoutSeconds: number;
 	minInstances: number;
 	maxInstances: number;
-}) => {
+}): google.cloud.run.v2.IRevisionTemplate => {
 	return {
 		scaling: {
 			minInstanceCount: minInstances,
