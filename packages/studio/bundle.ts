@@ -30,6 +30,8 @@ const internalsModule = await build({
 		'@remotion/renderer',
 		'@remotion/player',
 		'@remotion/renderer/client',
+		'@remotion/renderer/pure',
+		'@remotion/renderer/error-handling',
 		'source-map',
 		'zod',
 		'remotion/no-react',
