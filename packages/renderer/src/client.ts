@@ -19,7 +19,6 @@ import {allOptions} from './options';
 import {
 	defaultAudioCodecs,
 	getExtensionFromAudioCodec,
-	isAudioCodec,
 	supportedAudioCodecs,
 	validAudioCodecs,
 } from './options/audio-codec';
@@ -43,7 +42,6 @@ export const BrowserSafeApis = {
 	validAudioCodecs,
 	getDefaultCrfForCodec,
 	getValidCrfRanges,
-	isAudioCodec,
 	proResProfileOptions,
 	x264PresetOptions,
 	validPixelFormats,

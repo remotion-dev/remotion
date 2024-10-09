@@ -1,5 +1,5 @@
 import type {Codec} from './codec';
-import {isAudioCodec} from './options/audio-codec';
+import {isAudioCodec} from './is-audio-codec';
 
 export const canUseParallelEncoding = (codec: Codec) => {
 	if (isAudioCodec(codec)) {

@@ -1,4 +1,4 @@
-import {BrowserSafeApis} from '@remotion/renderer/client';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {
 	CloudProvider,
 	EnhancedErrorInfo,
@@ -70,7 +70,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 			customCredentials,
 		);
 
-		const totalFrameCount = BrowserSafeApis.getFramesToRender(
+		const totalFrameCount = NoReactAPIs.getFramesToRender(
 			overallProgress.renderMetadata.frameRange,
 			overallProgress.renderMetadata.everyNthFrame,
 		).length;
@@ -222,7 +222,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 		(overallProgress.chunks ?? []).length / chunkMultiplier ===
 		(renderMetadata.totalChunks ?? Infinity);
 
-	const frameCount = BrowserSafeApis.getFramesToRender(
+	const frameCount = NoReactAPIs.getFramesToRender(
 		renderMetadata.frameRange,
 		renderMetadata.everyNthFrame,
 	).length;
