@@ -6,10 +6,6 @@ export const validAudioCodecs = ['pcm-16', 'aac', 'mp3', 'opus'] as const;
 
 export type AudioCodec = (typeof validAudioCodecs)[number];
 
-export const isAudioCodec = (codec: Codec | undefined | null) => {
-	return codec === 'mp3' || codec === 'aac' || codec === 'wav';
-};
-
 export const supportedAudioCodecs = {
 	h264: ['aac', 'pcm-16', 'mp3'] as const,
 	'h264-mkv': ['pcm-16', 'mp3'] as const,
