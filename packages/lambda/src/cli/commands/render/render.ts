@@ -12,6 +12,7 @@ import {internalRenderMediaOnLambdaRaw} from '../../../api/render-media-on-lambd
 import type {EnhancedErrorInfo, ProviderSpecifics} from '@remotion/serverless';
 import type {ServerlessCodec} from '@remotion/serverless/client';
 import type {AwsProvider} from '../../../functions/aws-implementation';
+import {parseFunctionName} from '../../../functions/helpers/parse-function-name';
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
@@ -415,12 +416,15 @@ export const renderCommand = async (
 		);
 	}
 
+	const adheresToFunctionNameConvention = parseFunctionName(functionName);
+
 	const status = await getRenderProgress({
 		functionName,
 		bucketName: res.bucketName,
 		renderId: res.renderId,
 		region: getAwsRegion(),
 		logLevel,
+		skipLambdaInvocation: Boolean(adheresToFunctionNameConvention),
 	});
 	progressBar.update(
 		makeProgressString({

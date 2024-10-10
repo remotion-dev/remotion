@@ -30,6 +30,8 @@ const internalsModule = await build({
 		'@remotion/renderer',
 		'@remotion/player',
 		'@remotion/renderer/client',
+		'@remotion/renderer/pure',
+		'@remotion/renderer/error-handling',
 		'source-map',
 		'zod',
 		'remotion/no-react',
@@ -40,6 +42,7 @@ const [enableFile] = internalsModule.outputs;
 const internalsText = (await enableFile.text())
 	.replace(/jsxDEV/g, 'jsx')
 	.replace(/@remotion\/renderer\/client/g, '@remotion/renderer/client.js')
+	.replace(/@remotion\/renderer\/pure/g, '@remotion/renderer/pure.js')
 	.replace(/react\/jsx-dev-runtime/g, 'react/jsx-runtime');
 
 await Bun.write('dist/esm/internals.mjs', internalsText);

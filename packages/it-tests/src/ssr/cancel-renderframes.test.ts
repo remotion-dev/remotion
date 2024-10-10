@@ -1,5 +1,13 @@
-import {makeCancelSignal, renderFrames} from '@remotion/renderer';
-import {expect, test} from 'bun:test';
+import {
+	ensureBrowser,
+	makeCancelSignal,
+	renderFrames,
+} from '@remotion/renderer';
+import {beforeAll, expect, test} from 'bun:test';
+
+beforeAll(async () => {
+	await ensureBrowser();
+});
 
 test('Should be able to cancel render', async () => {
 	try {

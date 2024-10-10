@@ -1,5 +1,6 @@
 import type {CancelSignal, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {
 	AggregateRenderProgress,
 	BundlingState,
@@ -233,7 +234,7 @@ const makeStitchingProgress = ({
 	const mediaType =
 		codec === 'gif'
 			? 'GIF'
-			: RenderInternals.isAudioCodec(codec)
+			: NoReactAPIs.isAudioCodec(codec)
 				? 'audio'
 				: 'video';
 

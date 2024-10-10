@@ -1,4 +1,4 @@
-import {RenderInternals} from '@remotion/renderer';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {
 	CloudProvider,
 	EnhancedErrorInfo,
@@ -34,7 +34,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 }: {
 	bucketName: string;
 	renderId: string;
-	expectedBucketOwner: string;
+	expectedBucketOwner: string | null;
 	region: Provider['region'];
 	memorySizeInMb: number;
 	timeoutInMilliseconds: number;
@@ -58,19 +58,22 @@ export const getProgress = async <Provider extends CloudProvider>({
 			);
 		}
 
+		if (overallProgress.renderMetadata.type === 'still') {
+			throw new Error(
+				"You don't need to call getRenderProgress() on a still render. Once you have obtained the `renderId`, the render is already done! 😉",
+			);
+		}
+
 		const outData = getExpectedOutName(
 			overallProgress.renderMetadata,
 			bucketName,
 			customCredentials,
 		);
 
-		const totalFrameCount =
-			overallProgress.renderMetadata.type === 'still'
-				? 1
-				: RenderInternals.getFramesToRender(
-						overallProgress.renderMetadata.frameRange,
-						overallProgress.renderMetadata.everyNthFrame,
-					).length;
+		const totalFrameCount = NoReactAPIs.getFramesToRender(
+			overallProgress.renderMetadata.frameRange,
+			overallProgress.renderMetadata.everyNthFrame,
+		).length;
 
 		return {
 			framesRendered: totalFrameCount,
@@ -131,26 +134,11 @@ export const getProgress = async <Provider extends CloudProvider>({
 		errors: overallProgress.errors,
 	});
 
-	if (renderMetadata && renderMetadata.type === 'still') {
-		throw new Error(
-			"You don't need to call getRenderProgress() on a still render. Once you have obtained the `renderId`, the render is already done! 😉",
-		);
-	}
-
-	const priceFromBucket = estimatePriceFromBucket({
-		renderMetadata,
-		memorySizeInMb,
-		lambdasInvoked: renderMetadata?.estimatedRenderLambdaInvokations ?? 0,
-		// We cannot determine the ephemeral storage size, so we
-		// overestimate the price, but will only have a miniscule effect (~0.2%)
-		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
-		timings: overallProgress.timings ?? [],
-		providerSpecifics,
-	});
-
 	const {hasAudio, hasVideo} = renderMetadata
 		? lambdaRenderHasAudioVideo(renderMetadata)
 		: {hasAudio: false, hasVideo: false};
+
+	const chunkCount = overallProgress.chunks.length ?? 0;
 
 	const cleanup: CleanupInfo = {
 		doneIn: null,
@@ -158,45 +146,106 @@ export const getProgress = async <Provider extends CloudProvider>({
 		filesDeleted: 0,
 	};
 
+	if (renderMetadata === null) {
+		return {
+			framesRendered: overallProgress.framesRendered ?? 0,
+			chunks: chunkCount,
+			done: false,
+			encodingStatus: {
+				framesEncoded: overallProgress.framesEncoded,
+				combinedFrames: overallProgress.combinedFrames,
+				timeToCombine: overallProgress.timeToCombine,
+			},
+			timeToRenderFrames: overallProgress.timeToRenderFrames,
+			costs: formatCostsInfo(0),
+			renderId,
+			renderMetadata,
+			bucket: bucketName,
+			outputFile: null,
+			timeToFinish: null,
+			errors: errorExplanations,
+			fatalErrorEncountered: errorExplanations.some(
+				(f) => f.isFatal && !f.willRetry,
+			),
+			currentTime: Date.now(),
+			renderSize: 0,
+			lambdasInvoked: overallProgress.lambdasInvoked ?? 0,
+			cleanup,
+			timeToFinishChunks: null,
+			overallProgress: getOverallProgress({
+				encoding: 0,
+				invoking: 0,
+				frames: 0,
+				gotComposition: overallProgress.compositionValidated,
+				visitedServeUrl: overallProgress.serveUrlOpened,
+				invokedLambda: overallProgress.lambdasInvoked,
+				combining: 0,
+			}),
+			retriesInfo: overallProgress.retries ?? [],
+			outKey: null,
+			outBucket: null,
+			mostExpensiveFrameRanges: null,
+			timeToEncode: overallProgress.timeToEncode,
+			outputSizeInBytes: null,
+			estimatedBillingDurationInMilliseconds: null,
+			combinedFrames: overallProgress.combinedFrames ?? 0,
+			timeToCombine: overallProgress.timeToCombine ?? null,
+			timeoutTimestamp: overallProgress.timeoutTimestamp,
+			type: 'success',
+			compositionValidated: overallProgress.compositionValidated,
+			functionLaunched: overallProgress.functionLaunched,
+			serveUrlOpened: overallProgress.serveUrlOpened,
+			artifacts: overallProgress.receivedArtifact,
+		};
+	}
+
+	const priceFromBucket = estimatePriceFromBucket({
+		renderMetadata,
+		memorySizeInMb,
+		lambdasInvoked: renderMetadata.estimatedRenderLambdaInvokations ?? 0,
+		// We cannot determine the ephemeral storage size, so we
+		// overestimate the price, but will only have a miniscule effect (~0.2%)
+		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
+		timings: overallProgress.timings ?? [],
+		providerSpecifics,
+	});
+
 	const chunkMultiplier = [hasAudio, hasVideo].filter(truthy).length;
+
+	if (renderMetadata.type === 'still') {
+		throw new Error(
+			"You don't need to call getRenderProgress() on a still render. Once you have obtained the `renderId`, the render is already done! 😉",
+		);
+	}
 
 	const allChunks =
 		(overallProgress.chunks ?? []).length / chunkMultiplier ===
-		(renderMetadata?.totalChunks ?? Infinity);
+		(renderMetadata.totalChunks ?? Infinity);
 
-	const frameCount = renderMetadata
-		? RenderInternals.getFramesToRender(
-				renderMetadata.frameRange,
-				renderMetadata.everyNthFrame,
-			).length
-		: null;
+	const frameCount = NoReactAPIs.getFramesToRender(
+		renderMetadata.frameRange,
+		renderMetadata.everyNthFrame,
+	).length;
 
-	const chunkCount = overallProgress.chunks.length ?? 0;
-
-	const missingChunks = renderMetadata
-		? new Array(renderMetadata.totalChunks)
-				.fill(true)
-				.map((_, i) => i)
-				.filter((index) => {
-					return (
-						typeof (overallProgress.chunks ?? []).find((c) => c === index) ===
-						'undefined'
-					);
-				})
-		: null;
-
+	const missingChunks = new Array(renderMetadata.totalChunks)
+		.fill(true)
+		.map((_, i) => i)
+		.filter((index) => {
+			return (
+				typeof (overallProgress.chunks ?? []).find((c) => c === index) ===
+				'undefined'
+			);
+		});
 	// We add a 20 second buffer for it, since AWS timeshifts can be quite a lot. Once it's 20sec over the limit, we consider it timed out
 
 	// 1. If we have missing chunks, we consider it timed out
 	const isBeyondTimeoutAndMissingChunks =
-		renderMetadata &&
 		Date.now() > renderMetadata.startedDate + timeoutInMilliseconds + 20000 &&
 		missingChunks &&
 		missingChunks.length > 0;
 
 	// 2. If we have no missing chunks, but the encoding is not done, even after the additional `merge` function has been spawned, we consider it timed out
 	const isBeyondTimeoutAndHasStitchTimeout =
-		renderMetadata &&
 		Date.now() > renderMetadata.startedDate + timeoutInMilliseconds * 2 + 20000;
 
 	const allErrors: EnhancedErrorInfo[] = [
@@ -244,14 +293,12 @@ export const getProgress = async <Provider extends CloudProvider>({
 					})
 				: null,
 		overallProgress: getOverallProgress({
-			encoding:
-				renderMetadata && frameCount
-					? (overallProgress.framesEncoded ?? 0) / frameCount
-					: 0,
-			invoking: renderMetadata
-				? (overallProgress.lambdasInvoked ?? 0) /
-					renderMetadata.estimatedRenderLambdaInvokations
+			encoding: frameCount
+				? (overallProgress.framesEncoded ?? 0) / frameCount
 				: 0,
+			invoking:
+				(overallProgress.lambdasInvoked ?? 0) /
+				renderMetadata.estimatedRenderLambdaInvokations,
 			frames: (overallProgress.framesRendered ?? 0) / (frameCount ?? 1),
 			gotComposition: overallProgress.compositionValidated,
 			visitedServeUrl: overallProgress.serveUrlOpened,

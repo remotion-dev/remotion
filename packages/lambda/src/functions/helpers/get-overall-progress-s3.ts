@@ -11,7 +11,7 @@ export const getOverallProgressS3 = async <Provider extends CloudProvider>({
 	forcePathStyle,
 }: {
 	renderId: string;
-	expectedBucketOwner: string;
+	expectedBucketOwner: string | null;
 	bucketName: string;
 	region: Provider['region'];
 	providerSpecifics: ProviderSpecifics<Provider>;
