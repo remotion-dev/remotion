@@ -3,11 +3,18 @@ image: /generated/articles-docs-cloudrun-deployservice.png
 id: deployservice
 title: deployService()
 slug: /cloudrun/deployservice
-crumb: "Cloud Run API"
+crumb: 'Cloud Run API'
 ---
 
 <ExperimentalBadge>
-<p>Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the <a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.</p>
+  <p>
+    Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs
+    may change in any version and documentation is not yet finished. See the{' '}
+    <a href="https://remotion.dev/changelog">
+      changelog to stay up to date with breaking changes
+    </a>
+    .
+  </p>
 </ExperimentalBadge>
 
 Creates a [GCP Cloud Run](https://cloud.google.com/run) service in your GCP project that will be able to render a video in the cloud.
@@ -20,14 +27,14 @@ If a service with the same Remotion version, memory limit, cpu limit and timeout
 // @module: esnext
 // @target: es2017
 
-import { deployService } from "@remotion/cloudrun";
+import {deployService} from '@remotion/cloudrun';
 
-const { shortName } = await deployService({
-  memoryLimit: "2Gi",
-  cpuLimit: "2.0",
+const {shortName} = await deployService({
+  memoryLimit: '2Gi',
+  cpuLimit: '2.0',
   timeoutSeconds: 500,
-  projectID: "my-remotion-project",
-  region: "us-east1",
+  projectID: 'my-remotion-project',
+  region: 'us-east1',
 });
 console.log(shortName);
 ```
@@ -71,6 +78,11 @@ The [GCP region](/docs/cloudrun/region-selection) which you want to deploy the C
 ### `performImageVersionValidation`
 
 Default as true. This will validate that an image exists in the public Artifact Registry that matches the Remotion Version you are trying to deploy. Can be set false for a potential time saving.
+
+### `onlyAllocateCpuDuringRequestProcessing`<AvailableFrom v="4.0.221" />
+
+If this is set to true, `cpu_idle` will be set to `true` in the service manifest.  
+CPU alloction will be disabled while no request is being processed, which can lead to significant cost savings.
 
 ## Return value
 

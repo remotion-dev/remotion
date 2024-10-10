@@ -25,6 +25,7 @@ type InternalDeployServiceInput = {
 	region: string;
 	logLevel: LogLevel;
 	indent: boolean;
+	onlyAllocateCpuDuringRequestProcessing: boolean;
 };
 export type DeployServiceInput = {
 	performImageVersionValidation?: boolean;
@@ -36,6 +37,7 @@ export type DeployServiceInput = {
 	logLevel?: LogLevel;
 	projectID: string;
 	region: string;
+	onlyAllocateCpuDuringRequestProcessing?: boolean;
 };
 
 export type DeployServiceOutput = {
@@ -55,6 +57,7 @@ const deployServiceRaw = async ({
 	projectID,
 	region,
 	logLevel,
+	onlyAllocateCpuDuringRequestProcessing,
 }: InternalDeployServiceInput): Promise<DeployServiceOutput> => {
 	validateGcpRegion(region);
 	validateProjectID(projectID);
@@ -99,6 +102,7 @@ const deployServiceRaw = async ({
 				timeoutSeconds,
 				minInstances,
 				maxInstances,
+				onlyAllocateCpuDuringRequestProcessing,
 			}),
 		},
 		serviceId: serviceName,
@@ -141,6 +145,7 @@ export const deployService = ({
 	projectID,
 	region,
 	logLevel,
+	onlyAllocateCpuDuringRequestProcessing,
 }: DeployServiceInput): Promise<DeployServiceOutput> => {
 	return internalDeployService({
 		performImageVersionValidation,
@@ -153,5 +158,7 @@ export const deployService = ({
 		region,
 		logLevel: logLevel ?? 'info',
 		indent: false,
+		onlyAllocateCpuDuringRequestProcessing:
+			onlyAllocateCpuDuringRequestProcessing ?? false,
 	});
 };

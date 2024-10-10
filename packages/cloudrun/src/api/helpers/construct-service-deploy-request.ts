@@ -14,12 +14,14 @@ export const constructServiceTemplate = ({
 	timeoutSeconds,
 	minInstances,
 	maxInstances,
+	onlyAllocateCpuDuringRequestProcessing,
 }: {
 	memoryLimit: string;
 	cpuLimit: string;
 	timeoutSeconds: number;
 	minInstances: number;
 	maxInstances: number;
+	onlyAllocateCpuDuringRequestProcessing: boolean;
 }): google.cloud.run.v2.IRevisionTemplate => {
 	return {
 		scaling: {
@@ -39,10 +41,12 @@ export const constructServiceTemplate = ({
 						memory: memoryLimit,
 						cpu: cpuLimit,
 					},
+					cpuIdle: onlyAllocateCpuDuringRequestProcessing,
 				},
 			},
 		],
 		maxInstanceRequestConcurrency: 1,
 		executionEnvironment: ExecutionEnvironment.EXECUTION_ENVIRONMENT_GEN1,
+		serviceAccount: process.env.REMOTION_GCP_CLIENT_EMAIL,
 	};
 };
