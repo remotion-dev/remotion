@@ -1,0 +1,78 @@
+---
+image: /generated/articles-docs-media-fragments.png
+crumb: 'Video behavior'
+title: '#t= Media Fragments'
+slug: media-fragments
+---
+
+Remotion by default adds [Media fragment](https://www.w3.org/TR/media-frags/) hashes to video URLs.
+
+## Behavior
+
+For example, the following Remotion code:
+
+```tsx twoslash title="MyComp.tsx"
+import {Sequence, OffthreadVideo, useVideoConfig} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const {fps} = useVideoConfig();
+
+  return (
+    <Sequence from={2 * fps} durationInFrames={4 * fps}>
+      <OffthreadVideo src="https://example.com/bbb.mp4" />
+    </Sequence>
+  );
+};
+```
+
+results in the following `<video>` tag being mounted:
+
+```tsx
+<video src="https://example.com/bbb.mp4#t=2.0,4.0" />
+```
+
+This instructs browsers to only load the section of 00:02 to 00:04 of the video.
+
+## Upsides
+
+It improves playback performance and reduces bandwidth usage.
+
+On Safari, these hints have higher importance. We find that without these hints, Safari videos behave badly on mobile.
+
+## How to disable media fragment hints
+
+You can disable Remotion appending media fragments by appending your own hash:
+
+```tsx twoslash title="MyComp.tsx" {8}
+import {Sequence, OffthreadVideo, useVideoConfig} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const {fps} = useVideoConfig();
+
+  return (
+    <Sequence from={2 * fps} durationInFrames={4 * fps}>
+      <OffthreadVideo src="https://example.com/bbb.mp4#disable" />
+    </Sequence>
+  );
+};
+```
+
+## When to disable media fragment hints
+
+If your `<Sequence>`'s change value over time, the media fragments will change too.  
+Anytime they change, the browser considers this a new source and re-loads the video.
+
+There are valid scenarios where we recommend disabling the media fragment hints:
+
+- Changing the `from` and `durationInFrames` values of a `<Sequence>` dynamically
+- Changing the `startFrom` and `endAt` values of a `<Video>` or `<OffthreadVideo>` dynamically
+- Changing the `playbackRate` of a `<Video>` over time.
+
+Normally you would not do this, but there are exceptions, like: [Changing the speed of a video over time](/docs/miscellaneous/snippets/accelerated-video)
+
+## Recommendation
+
+Use the automatic media fragment hints as a default because they are helpful with playback performance.  
+If you find a valid scenario where you need to disable the media fragment hints, you can do so.
+
+If the playback performance suffers, you can also provide your own media fragment hint to the URL.

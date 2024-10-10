@@ -483,6 +483,13 @@ export const articles = [
 		crumb: 'Troubleshooting',
 	},
 	{
+		id: 'media-fragments',
+		title: '#t= Media Fragments',
+		relativePath: 'docs/media-fragments.mdx',
+		compId: 'articles-docs-media-fragments',
+		crumb: 'Video behavior',
+	},
+	{
 		id: 'staticfile-relative-paths',
 		title: 'staticFile() does not support relative paths',
 		relativePath: 'docs/static-file-relative-paths.mdx',
