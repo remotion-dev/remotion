@@ -3738,6 +3738,13 @@ export const articles = [
 		crumb: '@remotion/player',
 	},
 	{
+		id: 'media-keys',
+		title: 'Media Key Behavior (Web MediaSession API)',
+		relativePath: 'docs/player/media-keys.mdx',
+		compId: 'articles-docs-player-media-keys',
+		crumb: '@remotion/player',
+	},
+	{
 		id: 'player/index',
 		title: '@remotion/player',
 		relativePath: 'docs/player/index.mdx',

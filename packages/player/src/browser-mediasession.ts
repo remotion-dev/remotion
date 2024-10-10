@@ -25,14 +25,30 @@ export const useBrowserMediaSession = ({
 	const {playing, pause, play, emitter, getCurrentFrame, seek} = usePlayer();
 
 	useEffect(() => {
+		if (!navigator.mediaSession) {
+			return;
+		}
+
+		if (browserMediaControlsBehavior.mode === 'do-nothing') {
+			return;
+		}
+
 		if (playing) {
 			navigator.mediaSession.playbackState = 'playing';
 		} else {
 			navigator.mediaSession.playbackState = 'paused';
 		}
-	}, [playing]);
+	}, [browserMediaControlsBehavior.mode, playing]);
 
 	useEffect(() => {
+		if (!navigator.mediaSession) {
+			return;
+		}
+
+		if (browserMediaControlsBehavior.mode === 'do-nothing') {
+			return;
+		}
+
 		const onTimeUpdate = () => {
 			if (!videoConfig) {
 				return;
@@ -52,7 +68,13 @@ export const useBrowserMediaSession = ({
 		return () => {
 			emitter.removeEventListener('timeupdate', onTimeUpdate);
 		};
-	}, [emitter, getCurrentFrame, playbackRate, videoConfig]);
+	}, [
+		browserMediaControlsBehavior.mode,
+		emitter,
+		getCurrentFrame,
+		playbackRate,
+		videoConfig,
+	]);
 
 	useEffect(() => {
 		if (!navigator.mediaSession) {
