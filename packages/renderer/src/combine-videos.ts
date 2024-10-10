@@ -7,12 +7,13 @@ import {createCombinedAudio} from './combine-audio';
 import {combineVideoStreams} from './combine-video-streams';
 import {combineVideoStreamsSeamlessly} from './combine-video-streams-seamlessly';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
+import {isAudioCodec} from './is-audio-codec';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {muxVideoAndAudio} from './mux-video-and-audio';
 import type {AudioCodec} from './options/audio-codec';
-import {getExtensionFromAudioCodec, isAudioCodec} from './options/audio-codec';
+import {getExtensionFromAudioCodec} from './options/audio-codec';
 import {truthy} from './truthy';
 
 type Options = {

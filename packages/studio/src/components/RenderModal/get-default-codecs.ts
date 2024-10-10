@@ -1,5 +1,6 @@
 import type {AudioCodec, Codec} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {RenderType} from './RenderModalAdvanced';
 
 export const getDefaultCodecs = ({
@@ -34,7 +35,7 @@ export const getDefaultCodecs = ({
 							? 'mp3'
 							: 'aac';
 
-	const isVideoCodecAnAudioCodec = BrowserSafeApis.isAudioCodec(
+	const isVideoCodecAnAudioCodec = NoReactAPIs.isAudioCodec(
 		userPreferredVideoCodec,
 	);
 
@@ -44,7 +45,7 @@ export const getDefaultCodecs = ({
 			initialRenderType: 'audio',
 			initialVideoCodec: userPreferredVideoCodec as Codec,
 			initialVideoCodecForAudioTab: userPreferredVideoCodecForAudioTab,
-			initialVideoCodecForVideoTab: BrowserSafeApis.isAudioCodec(
+			initialVideoCodecForVideoTab: NoReactAPIs.isAudioCodec(
 				defaultConfigurationVideoCodec,
 			)
 				? 'h264'

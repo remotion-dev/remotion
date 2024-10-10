@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-speculateFunctionName.png
 id: speculatefunctionname
 title: speculateFunctionName()
 slug: /lambda/speculatefunctionname
-crumb: "Lambda API"
+crumb: 'Lambda API'
 ---
 
 _available from v3.3.75_
@@ -35,7 +35,7 @@ remotion-render-3-3-63-mem2048mb-disk2048mb-240sec
 // @module: esnext
 // @target: es2017
 
-import { speculateFunctionName } from "@remotion/lambda/client";
+import {speculateFunctionName} from '@remotion/lambda/client';
 
 const speculatedFunctionName = speculateFunctionName({
   memorySizeInMb: 2048,
@@ -69,5 +69,6 @@ A string with the name of the function that will be created.
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/speculate-function-name.ts)
-- [deployFunction()](/docs/lambda/deployfunction)
+- [Function name convention](/docs/lambda/naming-convention)
+- [`deployFunction()`](/docs/lambda/deployfunction)
 - CLI version of `deployFunction()`: [`npx remotion lambda functions deploy`](/docs/lambda/cli/functions#deploy)

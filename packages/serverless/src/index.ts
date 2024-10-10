@@ -1,9 +1,5 @@
 export {compositionsHandler} from './compositions';
-export {
-	errorIsOutOfSpaceError,
-	isBrowserCrashedError,
-	isErrInsufficientResourcesErr,
-} from './error-category';
+
 export {getCredentialsFromOutName} from './expected-out-name';
 export {
 	forgetBrowserEventLoop,

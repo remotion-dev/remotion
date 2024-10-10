@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/preload"
 	},
 	"name": "@remotion/preload",
-	"version": "4.0.217",
+	"version": "4.0.220",
 	"description": "Preloads assets for use in Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",

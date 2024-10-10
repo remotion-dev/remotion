@@ -1,3 +1,4 @@
+import type {google} from '@google-cloud/run/build/protos/protos';
 import type {LogLevel} from '@remotion/renderer';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import {
@@ -89,10 +90,9 @@ const deployServiceRaw = async ({
 		};
 	}
 
-	const request = {
+	const request: google.cloud.run.v2.ICreateServiceRequest = {
 		parent,
 		service: {
-			// service structure: https://googleapis.dev/nodejs/run/latest/google.cloud.run.v2.IService.html
 			template: constructServiceTemplate({
 				memoryLimit,
 				cpuLimit,
@@ -106,6 +106,7 @@ const deployServiceRaw = async ({
 
 	// Run request
 	const [operation] = await cloudRunClient.createService(request);
+
 	const [response] = await operation.promise();
 
 	return {
