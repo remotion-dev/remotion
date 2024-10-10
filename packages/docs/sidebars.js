@@ -997,6 +997,7 @@ module.exports = {
 				'bun',
 				'standalone',
 				'miscellaneous/emojis',
+				'media-fragments',
 			],
 		},
 		{
