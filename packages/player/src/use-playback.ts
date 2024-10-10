@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import {useCallback, useContext, useEffect, useRef} from 'react';
+import {useContext, useEffect, useRef} from 'react';
 import {Internals} from 'remotion';
+import type {BrowserMediaControlsBehavior} from './browser-mediasession.js';
+import {useBrowserMediaSession} from './browser-mediasession.js';
 import {calculateNextFrame} from './calculate-next-frame.js';
 import {useIsBackgrounded} from './is-backgrounded.js';
 import {usePlayer} from './use-player.js';
@@ -12,7 +14,7 @@ export const usePlayback = ({
 	inFrame,
 	outFrame,
 	frameRef,
-	browserMediaControlsEnabled,
+	browserMediaControlsBehavior,
 }: {
 	loop: boolean;
 	playbackRate: number;
@@ -20,11 +22,11 @@ export const usePlayback = ({
 	inFrame: number | null;
 	outFrame: number | null;
 	frameRef: React.MutableRefObject<number>;
-	browserMediaControlsEnabled?: boolean;
+	browserMediaControlsBehavior: BrowserMediaControlsBehavior;
 }) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const frame = Internals.Timeline.useTimelinePosition();
-	const {playing, pause, play, emitter} = usePlayer();
+	const {playing, pause, emitter} = usePlayer();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 	const buffering = useRef<null | number>(null);
 
@@ -42,42 +44,11 @@ export const usePlayback = ({
 		);
 	}
 
-	//	the functions to interact with the media session API
-	const setupMediaSession = useCallback(
-		(browserMediaControls: boolean | undefined) => {
-			if ('mediaSession' in navigator) {
-				//	I could've checked for the input option here and return rightaway, but it would not override the default buggy behavior
-
-				navigator.mediaSession.setActionHandler('play', () => {
-					if (browserMediaControls) {
-						play();
-					}
-				});
-				navigator.mediaSession.setActionHandler('pause', () => {
-					if (browserMediaControls) {
-						pause();
-					}
-				});
-			}
-		},
-		[pause, play],
-	);
-
-	const cleanupMediaSession = () => {
-		if ('mediaSession' in navigator) {
-			navigator.mediaSession.metadata = null;
-			navigator.mediaSession.setActionHandler('play', null);
-			navigator.mediaSession.setActionHandler('pause', null);
-		}
-	};
-
-	useEffect(() => {
-		//	add the media session controls in accordance with the config
-		setupMediaSession(browserMediaControlsEnabled);
-		return () => {
-			cleanupMediaSession();
-		};
-	}, [setupMediaSession, browserMediaControlsEnabled]);
+	useBrowserMediaSession({
+		browserMediaControlsBehavior,
+		playbackRate,
+		videoConfig: config,
+	});
 
 	//	complete code for media session API
 
