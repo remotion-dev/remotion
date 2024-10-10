@@ -14,12 +14,14 @@ export const constructServiceTemplate = ({
 	timeoutSeconds,
 	minInstances,
 	maxInstances,
+	onlyAllocateCpuDuringRequestProcessing,
 }: {
 	memoryLimit: string;
 	cpuLimit: string;
 	timeoutSeconds: number;
 	minInstances: number;
 	maxInstances: number;
+	onlyAllocateCpuDuringRequestProcessing: boolean;
 }): google.cloud.run.v2.IRevisionTemplate => {
 	return {
 		scaling: {
@@ -39,6 +41,7 @@ export const constructServiceTemplate = ({
 						memory: memoryLimit,
 						cpu: cpuLimit,
 					},
+					cpuIdle: onlyAllocateCpuDuringRequestProcessing,
 				},
 			},
 		],
