@@ -67,6 +67,10 @@ export const PlayerGuide: React.FC = () => {
 					<strong>Custom controls</strong>
 					<div>Recipes for custom Play buttons, volume sliders, etc.</div>
 				</TOCItem>
+				<TOCItem link="/docs/player/media-keys">
+					<strong>Media Keys</strong>
+					<div>Control what happens when users presses ⏯️</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

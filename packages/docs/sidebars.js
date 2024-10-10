@@ -739,6 +739,7 @@ module.exports = {
 				'player/premounting',
 				'player/best-practices',
 				'player/custom-controls',
+				'player/media-keys',
 			],
 		},
 

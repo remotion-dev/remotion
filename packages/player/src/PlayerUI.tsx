@@ -18,6 +18,7 @@ import type {
 	RenderPlayPauseButton,
 } from './PlayerControls.js';
 import {Controls} from './PlayerControls.js';
+import type {BrowserMediaControlsBehavior} from './browser-mediasession.js';
 import {
 	calculateCanvasTransformation,
 	calculateContainerStyle,
@@ -87,6 +88,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		readonly bufferStateDelayInMilliseconds: number;
 		readonly hideControlsWhenPointerDoesntMove: boolean | number;
 		readonly overflowVisible: boolean;
+		readonly browserMediaControlsBehavior: BrowserMediaControlsBehavior;
 	}
 > = (
 	{
@@ -123,6 +125,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		bufferStateDelayInMilliseconds,
 		hideControlsWhenPointerDoesntMove,
 		overflowVisible,
+		browserMediaControlsBehavior,
 	},
 	ref,
 ) => {
@@ -159,6 +162,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		inFrame,
 		outFrame,
 		frameRef: player.remotionInternal_currentFrameRef,
+		browserMediaControlsBehavior,
 	});
 
 	useEffect(() => {

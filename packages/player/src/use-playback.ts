@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import {useContext, useEffect, useRef} from 'react';
 import {Internals} from 'remotion';
+import type {BrowserMediaControlsBehavior} from './browser-mediasession.js';
+import {useBrowserMediaSession} from './browser-mediasession.js';
 import {calculateNextFrame} from './calculate-next-frame.js';
 import {useIsBackgrounded} from './is-backgrounded.js';
 import {usePlayer} from './use-player.js';
@@ -12,6 +14,7 @@ export const usePlayback = ({
 	inFrame,
 	outFrame,
 	frameRef,
+	browserMediaControlsBehavior,
 }: {
 	loop: boolean;
 	playbackRate: number;
@@ -19,6 +22,7 @@ export const usePlayback = ({
 	inFrame: number | null;
 	outFrame: number | null;
 	frameRef: React.MutableRefObject<number>;
+	browserMediaControlsBehavior: BrowserMediaControlsBehavior;
 }) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const frame = Internals.Timeline.useTimelinePosition();
@@ -39,6 +43,14 @@ export const usePlayback = ({
 			'Missing the buffering context. Most likely you have a Remotion version mismatch.',
 		);
 	}
+
+	useBrowserMediaSession({
+		browserMediaControlsBehavior,
+		playbackRate,
+		videoConfig: config,
+	});
+
+	//	complete code for media session API
 
 	useEffect(() => {
 		const onBufferClear = context.listenForBuffering(() => {
