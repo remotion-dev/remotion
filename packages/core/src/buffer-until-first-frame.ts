@@ -52,7 +52,7 @@ export const useBufferUntilFirstFrame = ({
 				bufferingRef.current = false;
 			};
 
-			const onEndedOrPause = () => {
+			const onEndedOrPauseOrCanPlay = () => {
 				unblock();
 			};
 
@@ -64,15 +64,14 @@ export const useBufferUntilFirstFrame = ({
 					onVariableFpsVideoDetected();
 				}
 
-				// Safari often seeks and then stalls.
-				// This makes sure that the video actually starts playing.
-				current.requestVideoFrameCallback(() => {
-					unblock();
-				});
+				unblock();
 			});
 
-			current.addEventListener('ended', onEndedOrPause, {once: true});
-			current.addEventListener('pause', onEndedOrPause, {once: true});
+			current.addEventListener('ended', onEndedOrPauseOrCanPlay, {once: true});
+			current.addEventListener('pause', onEndedOrPauseOrCanPlay, {once: true});
+			current.addEventListener('canplay', onEndedOrPauseOrCanPlay, {
+				once: true,
+			});
 		},
 		[
 			delayPlayback,
