@@ -47,5 +47,6 @@ export const constructServiceTemplate = ({
 		],
 		maxInstanceRequestConcurrency: 1,
 		executionEnvironment: ExecutionEnvironment.EXECUTION_ENVIRONMENT_GEN1,
+		serviceAccount: process.env.REMOTION_GCP_CLIENT_EMAIL,
 	};
 };
