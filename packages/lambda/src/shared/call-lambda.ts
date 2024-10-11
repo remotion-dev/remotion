@@ -22,7 +22,7 @@ import {
 	messageTypeIdToMessageType,
 } from '@remotion/serverless/client';
 import {makeStreamer} from '@remotion/streaming';
-import type {EventEmitter} from 'stream';
+import type {EventEmitter} from 'node:events';
 import type {OrError} from '../functions';
 import type {AwsRegion} from '../regions';
 import {getLambdaClient} from './aws-clients';

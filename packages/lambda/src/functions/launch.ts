@@ -23,9 +23,9 @@ import {
 	serializeOrThrow,
 } from '@remotion/serverless/client';
 import {existsSync, mkdirSync, rmSync} from 'fs';
+import {type EventEmitter} from 'node:events';
 import {join} from 'path';
 import {VERSION} from 'remotion/version';
-import {type EventEmitter} from 'stream';
 import type {PostRenderData} from '../shared/constants';
 import {
 	CONCAT_FOLDER_TOKEN,
