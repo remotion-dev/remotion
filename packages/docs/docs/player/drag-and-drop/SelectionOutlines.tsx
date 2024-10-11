@@ -10,7 +10,7 @@ const displaySelectedItemOnTop = (
 	const selectedItems = items.filter((item) => item.id === selectedItem);
 	const unselectedItems = items.filter((item) => item.id !== selectedItem);
 
-	return [...selectedItems, ...unselectedItems];
+	return [...unselectedItems, ...selectedItems];
 };
 
 export const SelectionOutlines: React.FC<{

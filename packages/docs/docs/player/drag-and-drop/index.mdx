@@ -23,3 +23,346 @@ considerations:
 ## Example
 
 Let's build the demo above.
+
+The following features have been considered:
+
+- Freely position and resizing the squares with the mouse.
+- One item can be selected at a time. Clicking on an empty space will deselect the item.
+- Items can not overflow the container, however the blue outlines can overflow the container.
+
+<Step>1</Step> Create a TypeScript type that describes the shape of your item.
+
+In this example we store an identifier `id`, start and end frame `from` and
+`durationInFrames`, the position `left`, `top`, `width` and `height` and a color
+`color`.
+
+```twoslash include Item
+export type Item = {
+  id: number;
+  durationInFrames: number;
+  from: number;
+  height: number;
+  left: number;
+  top: number;
+  width: number;
+  color: string;
+};
+```
+
+```twoslash include ResizeHandle
+import React, {useCallback, useMemo} from 'react';
+import {useCurrentScale} from 'remotion';
+import type {Item} from './item';
+
+const HANDLE_SIZE = 8;
+
+export const ResizeHandle: React.FC<{
+  type: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+  setItem: (itemId: number, updater: (item: Item) => Item) => void;
+  item: Item;
+}> = ({type, setItem, item}) => {
+  const scale = useCurrentScale();
+  const size = Math.round(HANDLE_SIZE / scale);
+
+  const sizeStyle: React.CSSProperties = useMemo(() => {
+    return {
+      position: 'absolute',
+      height: size,
+      width: size,
+      backgroundColor: 'white',
+      border: '1px solid #0B84F3',
+    };
+  }, [size]);
+
+  const margin = -size / 2 - 1 / scale;
+
+  const style: React.CSSProperties = useMemo(() => {
+    if (type === 'top-left') {
+      return {
+        ...sizeStyle,
+        marginLeft: margin,
+        marginTop: margin,
+        cursor: 'nwse-resize',
+      };
+    }
+
+    if (type === 'top-right') {
+      return {
+        ...sizeStyle,
+        marginTop: margin,
+        marginRight: margin,
+        right: 0,
+        cursor: 'nesw-resize',
+      };
+    }
+
+    if (type === 'bottom-left') {
+      return {
+        ...sizeStyle,
+        marginBottom: margin,
+        marginLeft: margin,
+        bottom: 0,
+        cursor: 'nesw-resize',
+      };
+    }
+
+    if (type === 'bottom-right') {
+      return {
+        ...sizeStyle,
+        marginBottom: margin,
+        marginRight: margin,
+        right: 0,
+        bottom: 0,
+        cursor: 'nwse-resize',
+      };
+    }
+
+    throw new Error('Unknown type: ' + JSON.stringify(type));
+  }, [margin, sizeStyle, type]);
+
+  const onPointerDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+
+      const initialX = e.clientX;
+      const initialY = e.clientY;
+
+      const onPointerMove = (pointerMoveEvent: PointerEvent) => {
+        const offsetX = (pointerMoveEvent.clientX - initialX) / scale;
+        const offsetY = (pointerMoveEvent.clientY - initialY) / scale;
+
+        setItem(item.id, (i) => {
+          const newWidth = Math.max(
+            1,
+            Math.round(
+              item.width +
+                (type === 'bottom-left' || type === 'top-left'
+                  ? -offsetX
+                  : offsetX),
+            ),
+          );
+          const newHeight = Math.max(
+            1,
+            Math.round(
+              item.height +
+                (type === 'top-left' || type === 'top-right'
+                  ? -offsetY
+                  : offsetY),
+            ),
+          );
+          const newLeft = Math.min(
+            item.left + item.width - 1,
+            Math.round(
+              item.left +
+                (type === 'bottom-left' || type === 'top-left' ? offsetX : 0),
+            ),
+          );
+
+          const newTop = Math.min(
+            item.top + item.height - 1,
+            Math.round(
+              item.top +
+                (type === 'top-left' || type === 'top-right' ? offsetY : 0),
+            ),
+          );
+
+          const updatedItem: Item = {
+            ...i,
+            width: newWidth,
+            height: newHeight,
+            left: newLeft,
+            top: newTop,
+          };
+          return updatedItem;
+        });
+      };
+
+      const onPointerUp = () => {
+        window.removeEventListener('pointermove', onPointerMove);
+      };
+
+      window.addEventListener('pointermove', onPointerMove, {passive: true});
+
+      window.addEventListener('pointerup', onPointerUp, {
+        once: true,
+      });
+    },
+    [item, scale, setItem, type],
+  );
+
+  return <div onPointerDown={onPointerDown} style={style} />;
+};
+```
+
+```tsx twoslash title="item.ts"
+// @filename: item.ts
+// ---cut---
+// @include: Item
+```
+
+If you like to support different types of items (solid, video, image),
+see [here](/docs/building-a-timeline).
+
+<Step>2</Step> Declare a React component that renders the item.
+
+```tsx twoslash title="Layer.tsx"
+// @filename: item.ts
+// @include: Item
+// @filename: Layer.tsx
+// ---cut---
+import React, {useMemo} from 'react';
+import {Sequence} from 'remotion';
+import type {Item} from './item';
+
+export const Layer: React.FC<{
+  item: Item;
+}> = ({item}) => {
+  const style: React.CSSProperties = useMemo(() => {
+    return {
+      backgroundColor: item.color,
+      position: 'absolute',
+      left: item.left,
+      top: item.top,
+      width: item.width,
+      height: item.height,
+    };
+  }, [item.color, item.height, item.left, item.top, item.width]);
+
+  return (
+    <Sequence
+      key={item.id}
+      from={item.from}
+      durationInFrames={item.durationInFrames}
+      layout="none"
+    >
+      <div style={style} />
+    </Sequence>
+  );
+};
+// - ResizeHandle
+```
+
+By using a [`<Sequence>`](/docs/sequence) component, the item is only displayed from `from` until `from + durationInFrames`.
+
+By adding [`layout="none"`](/docs/sequence#layout), the `<div>` is mounted as a direct child to the DOM.
+
+<Step>3</Step> Create a React component that renders the items.
+
+```tsx twoslash title="SelectionOutline.tsx"
+// @filename: ResizeHandle.tsx
+// @include: ResizeHandle
+// @filename: item.ts
+// @include: Item
+// @filename: SelectionOutline.tsx
+// ---cut---
+import React, {useCallback, useMemo} from 'react';
+import {useCurrentScale} from 'remotion';
+
+import {ResizeHandle} from './ResizeHandle';
+import type {Item} from './item';
+
+export const SelectionOutline: React.FC<{
+  item: Item;
+  changeItem: (itemId: number, updater: (item: Item) => Item) => void;
+  setSelectedItem: React.Dispatch<React.SetStateAction<number | null>>;
+  selectedItem: number | null;
+}> = ({item, changeItem, setSelectedItem, selectedItem}) => {
+  const scale = useCurrentScale();
+  const scaledBorder = Math.ceil(2 / scale);
+
+  const [hovered, setHovered] = React.useState(false);
+
+  const onMouseEnter = useCallback(() => {
+    setHovered(true);
+  }, []);
+
+  const onMouseLeave = useCallback(() => {
+    setHovered(false);
+  }, []);
+
+  const selected = item.id === selectedItem;
+
+  const style: React.CSSProperties = useMemo(() => {
+    return {
+      width: item.width,
+      height: item.height,
+      left: item.left,
+      top: item.top,
+      position: 'absolute',
+      outline:
+        hovered || selected ? `${scaledBorder}px solid #0B84F3` : undefined,
+      userSelect: 'none',
+    };
+  }, [hovered, item, scaledBorder, selected]);
+
+  const startDragging = useCallback(
+    (e: PointerEvent | React.MouseEvent) => {
+      const initialX = e.clientX;
+      const initialY = e.clientY;
+
+      const onPointerMove = (pointerMoveEvent: PointerEvent) => {
+        const offsetX = (pointerMoveEvent.clientX - initialX) / scale;
+        const offsetY = (pointerMoveEvent.clientY - initialY) / scale;
+        changeItem(item.id, (i) => {
+          const updatedItem: Item = {
+            ...(i as Item),
+            left: Math.round(item.left + offsetX),
+            top: Math.round(item.top + offsetY),
+          };
+          return updatedItem as Item;
+        });
+      };
+
+      const onPointerUp = () => {
+        window.removeEventListener('pointermove', onPointerMove);
+      };
+
+      window.addEventListener('pointermove', onPointerMove, {passive: true});
+
+      window.addEventListener('pointerup', onPointerUp, {
+        once: true,
+      });
+    },
+    [item, scale, changeItem],
+  );
+
+  const onPointerDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (e.button !== 0) {
+        return;
+      }
+
+      setSelectedItem(item.id);
+      startDragging(e);
+    },
+    [item.id, setSelectedItem, startDragging],
+  );
+
+  return (
+    <div
+      onPointerDown={onPointerDown}
+      onPointerEnter={onMouseEnter}
+      onPointerLeave={onMouseLeave}
+      style={style}
+    >
+      {selected ? (
+        <>
+          <ResizeHandle item={item} setItem={changeItem} type="top-left" />
+          <ResizeHandle item={item} setItem={changeItem} type="top-right" />
+          <ResizeHandle item={item} setItem={changeItem} type="bottom-left" />
+          <ResizeHandle item={item} setItem={changeItem} type="bottom-right" />
+        </>
+      ) : null}
+    </div>
+  );
+};
+```
+
+```tsx twoslash title="ResizeHandle.tsx"
+// @filename: item.ts
+// @include: Item
+// @filename: ResizeHandle.tsx
+// ---cut---
+// @include: ResizeHandle
+```

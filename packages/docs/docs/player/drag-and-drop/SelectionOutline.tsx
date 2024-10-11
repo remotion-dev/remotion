@@ -1,7 +1,7 @@
 import React, {useCallback, useMemo} from 'react';
 import {useCurrentScale} from 'remotion';
 
-import {DraggerHandle} from './DraggerHandle';
+import {ResizeHandle} from './ResizeHandle';
 import type {Item} from './item';
 
 export const SelectionOutline: React.FC<{
@@ -91,10 +91,10 @@ export const SelectionOutline: React.FC<{
 		>
 			{selected ? (
 				<>
-					<DraggerHandle item={item} setItem={changeItem} type="top-left" />
-					<DraggerHandle item={item} setItem={changeItem} type="top-right" />
-					<DraggerHandle item={item} setItem={changeItem} type="bottom-left" />
-					<DraggerHandle item={item} setItem={changeItem} type="bottom-right" />
+					<ResizeHandle item={item} setItem={changeItem} type="top-left" />
+					<ResizeHandle item={item} setItem={changeItem} type="top-right" />
+					<ResizeHandle item={item} setItem={changeItem} type="bottom-left" />
+					<ResizeHandle item={item} setItem={changeItem} type="bottom-right" />
 				</>
 			) : null}
 		</div>

@@ -2,15 +2,15 @@ import React, {useCallback, useMemo} from 'react';
 import {useCurrentScale} from 'remotion';
 import type {Item} from './item';
 
-const REAL_SIZE = 8;
+const HANDLE_SIZE = 8;
 
-export const DraggerHandle: React.FC<{
+export const ResizeHandle: React.FC<{
 	type: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 	setItem: (itemId: number, updater: (item: Item) => Item) => void;
 	item: Item;
 }> = ({type, setItem, item}) => {
 	const scale = useCurrentScale();
-	const size = Math.round(REAL_SIZE / scale);
+	const size = Math.round(HANDLE_SIZE / scale);
 
 	const sizeStyle: React.CSSProperties = useMemo(() => {
 		return {
