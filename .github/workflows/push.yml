@@ -29,7 +29,7 @@ jobs:
         with:
           workspaces: "packages/renderer -> target"
       - name: Install
-        run: pnpm i
+        run: pnpm i --frozen-lockfile
       - name: build
         run: |
           pnpm build
@@ -55,7 +55,7 @@ jobs:
         with:
           bun-version: 1.1.20
       - name: Install
-        run: pnpm i
+        run: pnpm i --frozen-lockfile
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -95,7 +95,9 @@ jobs:
         with:
           bun-version: 1.1.20
       - name: Install
-        run: pnpm i
+        run: pnpm i --frozen-lockfile
+        env:
+          CI: true
       - name: Perform stylecheck
         timeout-minutes: 5
         run: |
@@ -137,7 +139,7 @@ jobs:
         with:
           workspaces: "packages/renderer -> target"
       - name: Install
-        run: pnpm i
+        run: pnpm i --frozen-lockfile
       - name: Build & Test
         run: |
           pnpm run ci
