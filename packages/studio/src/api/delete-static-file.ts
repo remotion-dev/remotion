@@ -9,6 +9,10 @@ export const deleteStaticFile = async (
 		throw new Error('deleteStaticFile() is only available in the Studio');
 	}
 
+	if (window.remotion_isReadOnlyStudio) {
+		throw new Error('deleteStaticFile() is not available in Read-Only Studio');
+	}
+
 	if (relativePath.startsWith(window.remotion_staticBase)) {
 		relativePath = relativePath.substring(
 			window.remotion_staticBase.length + 1,
