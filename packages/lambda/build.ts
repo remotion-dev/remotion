@@ -2,12 +2,12 @@ import {BundlerInternals} from '@remotion/bundler';
 import {dir} from '@remotion/compositor-linux-arm64-gnu';
 import fs, {cpSync, readdirSync} from 'node:fs';
 import path from 'node:path';
-import {quit} from '../cli/helpers/quit';
-import {FUNCTION_ZIP_ARM64} from '../shared/function-zip-path';
-import zl = require('zip-lib');
+import {FUNCTION_ZIP_ARM64} from './src/shared/function-zip-path';
+
+import zl from 'zip-lib';
 
 const bundleLambda = async () => {
-	const outdir = path.join(__dirname, '..', `build-render`);
+	const outdir = path.join(__dirname, `build-render`);
 	fs.mkdirSync(outdir, {
 		recursive: true,
 	});
@@ -16,7 +16,7 @@ const bundleLambda = async () => {
 	fs.rmSync(outdir, {recursive: true});
 	fs.mkdirSync(outdir, {recursive: true});
 	const template = require.resolve(
-		path.join(__dirname, '..', 'functions', 'index'),
+		path.join(__dirname, 'src', 'functions', 'index'),
 	);
 
 	await BundlerInternals.esbuild.build({
@@ -47,8 +47,6 @@ const bundleLambda = async () => {
 		path.join(
 			__dirname,
 			'..',
-			'..',
-			'..',
 			'renderer',
 			'node_modules',
 			'source-map',
@@ -57,17 +55,10 @@ const bundleLambda = async () => {
 		),
 		`${outdir}/mappings.wasm`,
 	);
-
 	await zl.archiveFolder(outdir, FUNCTION_ZIP_ARM64);
 
 	fs.rmSync(outdir, {recursive: true});
 };
 
-bundleLambda()
-	.then(() => {
-		console.log('Bundled Lambda');
-	})
-	.catch((err) => {
-		console.log(err);
-		quit(1);
-	});
+await bundleLambda();
+console.log('Bundled Lambda');
