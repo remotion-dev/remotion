@@ -26,7 +26,7 @@ export const defaultBrowserDownloadProgress =
 		let lastProgress = 0;
 		return {
 			onProgress: (progress) => {
-				if (progress.downloadedBytes > lastProgress + 10_000_000) {
+				if (progress.downloadedBytes > lastProgress + 10_000_000 || progress.percent === 1) {
 					lastProgress = progress.downloadedBytes;
 
 					Log.info(

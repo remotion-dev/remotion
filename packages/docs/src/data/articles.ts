@@ -3745,6 +3745,13 @@ export const articles = [
 		crumb: '@remotion/player',
 	},
 	{
+		id: 'player/drag-and-drop',
+		title: 'Drag & Drop in the Remotion Player',
+		relativePath: 'docs/player/drag-and-drop.mdx',
+		compId: 'articles-docs-player-drag-and-drop',
+		crumb: '@remotion/player',
+	},
+	{
 		id: 'media-keys',
 		title: 'Media Key Behavior (Web MediaSession API)',
 		relativePath: 'docs/player/media-keys.mdx',

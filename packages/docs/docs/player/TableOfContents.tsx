@@ -63,6 +63,10 @@ export const PlayerGuide: React.FC = () => {
 					<strong>Premounting</strong>
 					<div>Mount components earlier to allow them to load</div>
 				</TOCItem>
+				<TOCItem link="/docs/player/drag-and-drop">
+					<strong>Drag & Drop</strong>
+					<div>Allow interactivity on the canvas</div>
+				</TOCItem>
 				<TOCItem link="/docs/player/custom-controls">
 					<strong>Custom controls</strong>
 					<div>Recipes for custom Play buttons, volume sliders, etc.</div>
