@@ -1,10 +1,10 @@
 {
 	"$schema": "https://turbo.build/schema.json",
-	"pipeline": {
+	"tasks": {
 		"make": {
 			"dependsOn": ["^make", "//#ts-build"],
 			"outputs": ["dist/esm/**"],
-			"outputMode": "new-only"
+			"outputLogs": "new-only"
 		},
 		"//#ts-build": {
 			"outputs": [
@@ -12,12 +12,12 @@
 				"packages/**/dist/**.d.ts",
 				"packages/**/tsconfig.tsbuildinfo"
 			],
-			"outputMode": "new-only"
+			"outputLogs": "new-only"
 		},
 		"@remotion/example#make": {
 			"dependsOn": ["^make"],
-			"outputs": ["build/**", "dist/esm/**", "./node_modules/.cache/**"],
-			"outputMode": "new-only"
+			"outputs": ["build", "./node_modules/.cache/**"],
+			"outputLogs": "new-only"
 		},
 		"build-docs": {
 			"dependsOn": ["^make", "make"],
@@ -52,7 +52,7 @@
 		"@remotion/google-fonts#make": {
 			"outputs": ["src/**", ".cache-css/**", "dist/esm/**"],
 			"dependsOn": ["^make"],
-			"outputMode": "new-only"
+			"outputLogs": "new-only"
 		},
 		"@remotion/cloudrun#make": {
 			"dependsOn": ["^make", "//#ts-build"],
@@ -61,12 +61,12 @@
 				"container/dist/**",
 				"gcpInstaller/gcpInstaller.tar"
 			],
-			"outputMode": "new-only"
+			"outputLogs": "new-only"
 		},
 		"@remotion/renderer#make": {
 			"outputs": ["target/debug/build/**", "target/release/build/**"],
 			"dependsOn": ["^make"],
-			"outputMode": "new-only"
+			"outputLogs": "new-only"
 		},
 
 		"@remotion/it-tests#test": {
@@ -85,7 +85,7 @@
 		"@remotion/webcodecs#make": {
 			"dependsOn": ["^@remotion/media-parser#make"],
 			"outputs": ["dist/esm/**"],
-			"outputMode": "new-only"
+			"outputLogs": "new-only"
 		},
 		"@remotion/convert#build-page": {
 			"dependsOn": ["^@remotion/webcodecs#make"]
