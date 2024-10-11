@@ -21,7 +21,17 @@ export const watchStaticFile = (
 ): {cancel: () => void} => {
 	if (!getRemotionEnvironment().isStudio) {
 		// eslint-disable-next-line no-console
-		console.warn('The API is only available while using the Remotion Studio.');
+		console.warn(
+			'watchStaticFile() is only available while using the Remotion Studio.',
+		);
+		return {cancel: () => undefined};
+	}
+
+	if (window.remotion_isReadOnlyStudio) {
+		// eslint-disable-next-line no-console
+		console.warn(
+			'watchStaticFile() is only available in an interactive Studio.',
+		);
 		return {cancel: () => undefined};
 	}
 
