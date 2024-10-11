@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/docs"
 	},
 	"name": "docs",
-	"version": "4.0.220",
+	"version": "4.0.221",
 	"private": true,
 	"scripts": {
 		"formatting": "prettier src --check",
