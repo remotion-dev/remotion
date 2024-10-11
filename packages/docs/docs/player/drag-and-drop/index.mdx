@@ -7,6 +7,19 @@ crumb: '@remotion/player'
 
 import {DragAndDropDemo} from './Demo';
 
-The Remotion Player supports reacting to mouse events allowing for building interactions on the canvas.
+The Remotion Player supports reacting to mouse events allowing for building interactions on the canvas.  
+Try to drag and resize the elements below.
 
 <DragAndDropDemo />
+<br />
+Pointer events work just like in regular React. Make these Remotion-specific
+considerations:
+
+- Disable the [`controls`](/docs/player/player#controls) prop to disable any obstructing elements. You can render Playback controls [outside of the Player](/docs/player/custom-controls).
+- The Player might have CSS `scale()` applied to it.  
+  [If you measure elements](/docs/measuring), you need to divide by the scale obtained by [`useCurrentScale()`](/docs/use-current-scale).
+- You can pass state update functions via [`inputProps`](/docs/player/player#inputprops) to the Player. Alternatively, using React Context also works.
+
+## Example
+
+Let's build the demo above.

@@ -1,8 +1,8 @@
 import React, {useCallback, useMemo} from 'react';
 import {useCurrentScale} from 'remotion';
 
-import type {Item} from './DraggerHandle';
 import {DraggerHandle} from './DraggerHandle';
+import type {Item} from './item';
 
 export const SelectionOutline: React.FC<{
 	item: Item;
@@ -71,6 +71,7 @@ export const SelectionOutline: React.FC<{
 
 	const onPointerDown = useCallback(
 		(e: React.MouseEvent) => {
+			e.stopPropagation();
 			if (e.button !== 0) {
 				return;
 			}

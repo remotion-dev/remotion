@@ -1,17 +1,8 @@
 import React, {useCallback, useMemo} from 'react';
 import {useCurrentScale} from 'remotion';
+import type {Item} from './item';
 
 const REAL_SIZE = 8;
-
-export type Item = {
-	id: number;
-	durationInFrames: number;
-	from: number;
-	height: number;
-	left: number;
-	top: number;
-	width: number;
-};
 
 export const DraggerHandle: React.FC<{
 	type: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';

@@ -1,22 +1,33 @@
 import {Player} from '@remotion/player';
 import React, {useCallback, useMemo, useState} from 'react';
-import type {Item} from './DraggerHandle';
 import type {MainProps} from './Main';
 import {Main} from './Main';
+import type {Item} from './item';
 
 export const DragAndDropDemo: React.FC = () => {
 	const [items, setItems] = useState<Item[]>([
 		{
-			left: 480,
+			left: 395,
 			top: 270,
-			width: 960,
+			width: 540,
 			durationInFrames: 100,
 			from: 0,
 			height: 540,
 			id: 0,
+			color: '#ccc',
+		},
+		{
+			left: 985,
+			top: 270,
+			width: 540,
+			durationInFrames: 100,
+			from: 0,
+			height: 540,
+			id: 1,
+			color: '#ccc',
 		},
 	]);
-	const [selectedItem, setSelectedItem] = useState<number | null>(0);
+	const [selectedItem, setSelectedItem] = useState<number | null>(null);
 
 	const changeItem = useCallback(
 		(itemId: number, updater: (item: Item) => Item) => {
