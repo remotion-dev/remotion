@@ -4,14 +4,14 @@
     "module": "Preserve",
     "moduleResolution": "Bundler",
     "jsx": "react-jsx",
-    "outDir": "./dist",
     "strict": true,
     "noEmit": true,
     "lib": ["ES2021"],
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "noUnusedLocals": true
+    "noUnusedLocals": true,
+    "incremental": true
   },
   "exclude": ["public", "remotion.config.ts"]
 }
