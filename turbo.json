@@ -17,12 +17,7 @@
 		},
 		"build-docs": {
 			"dependsOn": ["^make", "make"],
-			"outputs": [
-				".docusaurus/**",
-				"../../node_modules/.cache/twoslash/**",
-				"build/**",
-				"./node_modules/.cache/**"
-			]
+			"outputs": [".docusaurus/**", "build/**", "./node_modules/.cache/**"]
 		},
 		"test": {
 			"dependsOn": ["^make", "make"],
