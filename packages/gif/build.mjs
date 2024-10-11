@@ -1,5 +1,4 @@
 import esbuild from 'esbuild';
-import {execSync} from 'node:child_process';
 import fs from 'node:fs';
 
 const tmp = 'bundled-worker.js';
@@ -24,7 +23,5 @@ export const src =
   ${JSON.stringify(content)};
 `.trim(),
 );
-
-execSync('bun x prettier --write src/worker/source.ts');
 
 fs.unlinkSync(tmp);

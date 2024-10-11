@@ -7,7 +7,11 @@
 			"outputMode": "new-only"
 		},
 		"//#ts-build": {
-			"outputs": ["packages/**/dist/**.js", "packages/**/dist/**.d.ts"],
+			"outputs": [
+				"packages/**/dist/**.js",
+				"packages/**/dist/**.d.ts",
+				"packages/**/tsconfig.tsbuildinfo"
+			],
 			"outputMode": "new-only"
 		},
 		"@remotion/example#make": {
