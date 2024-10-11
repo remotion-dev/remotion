@@ -1,0 +1,44 @@
+import React from 'react';
+import {Sequence} from 'remotion';
+import type {Item} from './DraggerHandle';
+import {SelectionOutline} from './SelectionOutline';
+
+const displaySelectedItemOnTop = (
+	items: Item[],
+	selectedItem: number | null,
+): Item[] => {
+	const selectedItems = items.filter((item) => item.id === selectedItem);
+	const unselectedItems = items.filter((item) => item.id !== selectedItem);
+
+	return [...selectedItems, ...unselectedItems];
+};
+
+export const SelectionOutlines: React.FC<{
+	items: Item[];
+	selectedItem: number | null;
+	changeItem: (itemId: number, updater: (item: Item) => Item) => void;
+	setSelectedItem: React.Dispatch<React.SetStateAction<number | null>>;
+}> = ({items, selectedItem, changeItem, setSelectedItem}) => {
+	const itemsToDisplay = React.useMemo(
+		() => displaySelectedItemOnTop(items, selectedItem),
+		[items, selectedItem],
+	);
+
+	return itemsToDisplay.map((item) => {
+		return (
+			<Sequence
+				key={item.id}
+				from={item.from}
+				durationInFrames={item.durationInFrames}
+				layout="none"
+			>
+				<SelectionOutline
+					changeItem={changeItem}
+					item={item}
+					setSelectedItem={setSelectedItem}
+					selectedItem={selectedItem}
+				/>
+			</Sequence>
+		);
+	});
+};
