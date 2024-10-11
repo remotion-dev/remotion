@@ -40,33 +40,12 @@ export const cachedTwoslashCall = (
 		.digest('hex');
 
 	const getNmCache = () => {
-		if (__dirname.includes('node_modules')) {
-			return join(
-				__dirname.split('node_modules')[0],
-				'node_modules',
-				'.cache',
-				'twoslash',
-			);
-		}
-
-		return join(__dirname, '..', '..', '.cache', 'twoslash');
+		const p = join(process.cwd(), 'node_modules', '.cache', 'twoslash');
+		console.log(p);
+		return p;
 	};
 
-	const getPnpCache = () => {
-		try {
-			const pnp = require('pnpapi');
-			return join(
-				pnp.getPackageInformation(pnp.topLevel).packageLocation,
-				'node_modules',
-				'.cache',
-				'twoslash',
-			);
-		} catch (error) {
-			return getNmCache();
-		}
-	};
-
-	const cacheRoot = process.versions.pnp ? getPnpCache() : getNmCache();
+	const cacheRoot = getNmCache();
 
 	const cachePath = join(cacheRoot, `${codeSha}.json`);
 
