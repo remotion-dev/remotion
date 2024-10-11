@@ -65,7 +65,7 @@ const downloadFileWithoutRetries = ({onProgress, url, to: toFn}: Options) => {
 
 		refreshTimeout();
 
-		let finishEventSent = false
+		let finishEventSent = false;
 
 		readFile(url)
 			.then((res) => {
@@ -114,7 +114,7 @@ const downloadFileWithoutRetries = ({onProgress, url, to: toFn}: Options) => {
 						totalSize,
 					});
 					if (percent === 1) {
-						finishEventSent = true
+						finishEventSent = true;
 					}
 				});
 				res.on('close', () => {
