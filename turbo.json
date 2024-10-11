@@ -11,7 +11,8 @@
 			"outputs": [
 				"packages/**/dist/**.js",
 				"packages/**/dist/**.d.ts",
-				"packages/**/tsconfig.tsbuildinfo"
+				"packages/**/tsconfig.tsbuildinfo",
+				"packages/**/dist/tsconfig.tsbuildinfo"
 			],
 			"outputLogs": "new-only"
 		},
