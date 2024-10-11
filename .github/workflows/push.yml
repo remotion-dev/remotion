@@ -19,11 +19,10 @@ jobs:
         with:
           version: "8.10.2"
       - name: Cache turbo build setup
-        uses: actions/cache@v4
-        with: 
-          path: .turbo
-          key: ${{ runner.os }}-turbo-${{ github.sha }}
-          restore-keys: |
+        uses: actions/cache/restore@v4
+        with:
+          path: .turbo 
+          key: |
             ${{ runner.os }}-turbo-
       - uses: actions/setup-node@v4
         with:
@@ -55,11 +54,10 @@ jobs:
         with:
           version: "8.10.2"
       - name: Cache turbo build setup
-        uses: actions/cache@v4
-        with: 
-          path: .turbo
-          key: ${{ runner.os }}-turbo-${{ github.sha }}
-          restore-keys: |
+        uses: actions/cache/restore@v4
+        with:
+          path: .turbo 
+          key: |
             ${{ runner.os }}-turbo-
       - uses: actions/setup-node@v4
         with:
@@ -102,11 +100,10 @@ jobs:
         with:
           version: "8.10.2"
       - name: Cache turbo build setup
-        uses: actions/cache@v4
-        with: 
-          path: .turbo
-          key: ${{ runner.os }}-turbo-${{ github.sha }}
-          restore-keys: |
+        uses: actions/cache/restore@v4
+        with:
+          path: .turbo 
+          key: |
             ${{ runner.os }}-turbo-
       - uses: actions/setup-node@v4
         with:
