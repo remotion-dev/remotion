@@ -17,6 +17,7 @@
 		"start-bun": "PATCH_BUN_DEVELOPMENT=true bun --bun remotion studio",
 		"start-js": "remotion preview src/entry.jsx",
 		"comps": "remotion compositions",
+		"clean": "rm -rf build && rm -rf out",
 		"lint": "eslint src --ext ts,tsx,js,jsx",
 		"test": "vitest --run",
 		"make": "remotion bundle",

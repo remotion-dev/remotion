@@ -14,10 +14,17 @@ jobs:
     runs-on: ubuntu-latest
     name: Lambda integration
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v3
         with:
           version: "8.10.2"
+      - name: Cache turbo build setup
+        uses: actions/cache@v4
+        with: 
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
       - uses: actions/setup-node@v4
         with:
           node-version: 16
@@ -43,10 +50,17 @@ jobs:
     runs-on: ubuntu-latest
     name: SSR integration
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v3
         with:
           version: "8.10.2"
+      - name: Cache turbo build setup
+        uses: actions/cache@v4
+        with: 
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
       - uses: actions/setup-node@v4
         with:
           node-version: 16
@@ -83,10 +97,17 @@ jobs:
     runs-on: ubuntu-latest
     name: Linting + Formatting
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v3
         with:
           version: "8.10.2"
+      - name: Cache turbo build setup
+        uses: actions/cache@v4
+        with: 
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
       - uses: actions/setup-node@v4
         with:
           node-version: 16
@@ -120,7 +141,7 @@ jobs:
           - os: ubuntu-latest
             node_version: 20.5
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         if: matrix.os == 'macos-14'
         with:
@@ -132,6 +153,13 @@ jobs:
         with:
           node-version: ${{ matrix.node_version }}
           cache: "pnpm"
+      - name: Cache turbo build setup
+        uses: actions/cache@v4
+        with: 
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
       - uses: oven-sh/setup-bun@v1
         with:
           bun-version: 1.1.20

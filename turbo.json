@@ -1,10 +1,11 @@
 {
 	"$schema": "https://turbo.build/schema.json",
-	"pipeline": {
+	"tasks": {
+		"clean": {},
 		"make": {
 			"dependsOn": ["^make", "//#ts-build"],
 			"outputs": ["dist/esm/**"],
-			"outputMode": "new-only"
+			"outputLogs": "new-only"
 		},
 		"//#ts-build": {
 			"outputs": [
@@ -12,16 +13,16 @@
 				"packages/**/dist/**.d.ts",
 				"packages/**/tsconfig.tsbuildinfo"
 			],
-			"outputMode": "new-only"
+			"outputLogs": "new-only"
 		},
 		"@remotion/example#make": {
 			"dependsOn": ["^make"],
-			"outputs": ["build/**", "dist/esm/**", "./node_modules/.cache/**"],
-			"outputMode": "new-only"
+			"outputs": ["build", "./node_modules/.cache"],
+			"outputLogs": "new-only"
 		},
 		"build-docs": {
 			"dependsOn": ["^make", "make"],
-			"outputs": [".docusaurus/**", "build/**", "./node_modules/.cache/**"]
+			"outputs": [".docusaurus", "build", "node_modules/.cache"]
 		},
 		"test": {
 			"dependsOn": ["^make", "make"],
@@ -50,23 +51,23 @@
 			"dependsOn": ["@remotion/eslint-config#make"]
 		},
 		"@remotion/google-fonts#make": {
-			"outputs": ["src/**", ".cache-css/**", "dist/esm/**"],
+			"outputs": ["src", ".cache-css", "dist/esm"],
 			"dependsOn": ["^make"],
-			"outputMode": "new-only"
+			"outputLogs": "new-only"
 		},
 		"@remotion/cloudrun#make": {
 			"dependsOn": ["^make", "//#ts-build"],
 			"outputs": [
 				"dist/shared/sa-permissions.json",
-				"container/dist/**",
+				"container/dist",
 				"gcpInstaller/gcpInstaller.tar"
 			],
-			"outputMode": "new-only"
+			"outputLogs": "new-only"
 		},
 		"@remotion/renderer#make": {
-			"outputs": ["target/debug/build/**", "target/release/build/**"],
+			"outputs": ["target/debug/build", "target/release/build"],
 			"dependsOn": ["^make"],
-			"outputMode": "new-only"
+			"outputLogs": "new-only"
 		},
 
 		"@remotion/it-tests#test": {
@@ -80,19 +81,19 @@
 		},
 		"@remotion/media-parser#build": {
 			"dependsOn": ["//#ts-build"],
-			"outputs": ["dist/esm/**"]
+			"outputs": ["dist/esm"]
 		},
 		"@remotion/webcodecs#make": {
 			"dependsOn": ["^@remotion/media-parser#make"],
-			"outputs": ["dist/esm/**"],
-			"outputMode": "new-only"
+			"outputs": ["dist/esm"],
+			"outputLogs": "new-only"
 		},
 		"@remotion/convert#build-page": {
 			"dependsOn": ["^@remotion/webcodecs#make"]
 		},
 		"convert": {
 			"dependsOn": ["^@remotion/convert#build-page"],
-			"outputs": ["build/**"]
+			"outputs": ["build"]
 		}
 	}
 }
