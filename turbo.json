@@ -84,7 +84,8 @@
 		},
 		"@remotion/webcodecs#make": {
 			"dependsOn": ["^@remotion/media-parser#make"],
-			"outputs": ["dist/esm/**"]
+			"outputs": ["dist/esm/**"],
+			"outputMode": "new-only"
 		},
 		"@remotion/convert#build-page": {
 			"dependsOn": ["^@remotion/webcodecs#make"]
