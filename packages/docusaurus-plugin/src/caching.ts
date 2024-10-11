@@ -41,7 +41,6 @@ export const cachedTwoslashCall = (
 
 	const getNmCache = () => {
 		const p = join(process.cwd(), 'node_modules', '.cache', 'twoslash');
-		console.log(p);
 		return p;
 	};
 
