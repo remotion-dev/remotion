@@ -5,10 +5,10 @@ import {ResizeHandle} from './ResizeHandle';
 import type {Item} from './item';
 
 export const SelectionOutline: React.FC<{
-	item: Item;
-	changeItem: (itemId: number, updater: (item: Item) => Item) => void;
-	setSelectedItem: React.Dispatch<React.SetStateAction<number | null>>;
-	selectedItem: number | null;
+	readonly item: Item;
+	readonly changeItem: (itemId: number, updater: (item: Item) => Item) => void;
+	readonly setSelectedItem: React.Dispatch<React.SetStateAction<number | null>>;
+	readonly selectedItem: number | null;
 }> = ({item, changeItem, setSelectedItem, selectedItem}) => {
 	const scale = useCurrentScale();
 	const scaledBorder = Math.ceil(2 / scale);
@@ -23,7 +23,7 @@ export const SelectionOutline: React.FC<{
 		setHovered(false);
 	}, []);
 
-	const selected = item.id === selectedItem;
+	const isSelected = item.id === selectedItem;
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
@@ -33,10 +33,10 @@ export const SelectionOutline: React.FC<{
 			top: item.top,
 			position: 'absolute',
 			outline:
-				hovered || selected ? `${scaledBorder}px solid #0B84F3` : undefined,
+				hovered || isSelected ? `${scaledBorder}px solid #0B84F3` : undefined,
 			userSelect: 'none',
 		};
-	}, [hovered, item, scaledBorder, selected]);
+	}, [hovered, item, scaledBorder, isSelected]);
 
 	const startDragging = useCallback(
 		(e: PointerEvent | React.MouseEvent) => {
@@ -47,12 +47,11 @@ export const SelectionOutline: React.FC<{
 				const offsetX = (pointerMoveEvent.clientX - initialX) / scale;
 				const offsetY = (pointerMoveEvent.clientY - initialY) / scale;
 				changeItem(item.id, (i) => {
-					const updatedItem: Item = {
-						...(i as Item),
+					return {
+						...i,
 						left: Math.round(item.left + offsetX),
 						top: Math.round(item.top + offsetY),
 					};
-					return updatedItem as Item;
 				});
 			};
 
@@ -89,7 +88,7 @@ export const SelectionOutline: React.FC<{
 			onPointerLeave={onMouseLeave}
 			style={style}
 		>
-			{selected ? (
+			{isSelected ? (
 				<>
 					<ResizeHandle item={item} setItem={changeItem} type="top-left" />
 					<ResizeHandle item={item} setItem={changeItem} type="top-right" />

@@ -2,13 +2,13 @@ import React, {useCallback} from 'react';
 import {AbsoluteFill} from 'remotion';
 import type {Item} from './item';
 import {Layer} from './Layer';
-import {SelectionOutlines} from './SelectionOutlines';
+import {SortedOutlines} from './SortedOutlines';
 
 export type MainProps = {
-	items: Item[];
-	setSelectedItem: React.Dispatch<React.SetStateAction<number | null>>;
-	selectedItem: number | null;
-	changeItem: (itemId: number, updater: (item: Item) => Item) => void;
+	readonly items: Item[];
+	readonly setSelectedItem: React.Dispatch<React.SetStateAction<number | null>>;
+	readonly selectedItem: number | null;
+	readonly changeItem: (itemId: number, updater: (item: Item) => Item) => void;
 };
 
 const outer: React.CSSProperties = {
@@ -43,7 +43,7 @@ export const Main: React.FC<MainProps> = ({
 					return <Layer key={item.id} item={item} />;
 				})}
 			</AbsoluteFill>
-			<SelectionOutlines
+			<SortedOutlines
 				selectedItem={selectedItem}
 				items={items}
 				setSelectedItem={setSelectedItem}

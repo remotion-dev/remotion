@@ -1,7 +1,7 @@
 // Import the original mapper
 import MDXComponents from '@theme-original/MDXComponents';
 import {ExperimentalBadge} from '../../components/Experimental';
-import {InlineStep, Step} from '../../components/InlineStep';
+import {InlineStep, Step, TitleStep} from '../../components/InlineStep';
 import {Installation} from '../../components/Installation';
 import {YouTube} from '../../components/YouTube';
 import {Demo} from '../../components/demos';
@@ -26,4 +26,5 @@ export default {
 	Credits,
 	YouTube,
 	Installation,
+	TitleStep,
 };

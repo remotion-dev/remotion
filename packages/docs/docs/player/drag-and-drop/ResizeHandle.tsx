@@ -5,12 +5,13 @@ import type {Item} from './item';
 const HANDLE_SIZE = 8;
 
 export const ResizeHandle: React.FC<{
-	type: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
-	setItem: (itemId: number, updater: (item: Item) => Item) => void;
-	item: Item;
+	readonly type: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+	readonly setItem: (itemId: number, updater: (item: Item) => Item) => void;
+	readonly item: Item;
 }> = ({type, setItem, item}) => {
 	const scale = useCurrentScale();
 	const size = Math.round(HANDLE_SIZE / scale);
+	const borderSize = 1 / scale;
 
 	const sizeStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -18,11 +19,11 @@ export const ResizeHandle: React.FC<{
 			height: size,
 			width: size,
 			backgroundColor: 'white',
-			border: '1px solid #0B84F3',
+			border: `${borderSize}px solid #0B84F3`,
 		};
-	}, [size]);
+	}, [borderSize, size]);
 
-	const margin = -size / 2 - 1 / scale;
+	const margin = -size / 2 - borderSize;
 
 	const style: React.CSSProperties = useMemo(() => {
 		if (type === 'top-left') {
@@ -71,6 +72,9 @@ export const ResizeHandle: React.FC<{
 	const onPointerDown = useCallback(
 		(e: React.MouseEvent) => {
 			e.stopPropagation();
+			if (e.button !== 0) {
+				return;
+			}
 
 			const initialX = e.clientX;
 			const initialY = e.clientY;
@@ -79,49 +83,22 @@ export const ResizeHandle: React.FC<{
 				const offsetX = (pointerMoveEvent.clientX - initialX) / scale;
 				const offsetY = (pointerMoveEvent.clientY - initialY) / scale;
 
+				const isLeft = type === 'top-left' || type === 'bottom-left';
+				const isTop = type === 'top-left' || type === 'top-right';
+
 				setItem(item.id, (i) => {
-					const newWidth = Math.max(
-						1,
-						Math.round(
-							item.width +
-								(type === 'bottom-left' || type === 'top-left'
-									? -offsetX
-									: offsetX),
-						),
-					);
-					const newHeight = Math.max(
-						1,
-						Math.round(
-							item.height +
-								(type === 'top-left' || type === 'top-right'
-									? -offsetY
-									: offsetY),
-						),
-					);
-					const newLeft = Math.min(
-						item.left + item.width - 1,
-						Math.round(
-							item.left +
-								(type === 'bottom-left' || type === 'top-left' ? offsetX : 0),
-						),
-					);
+					const newWidth = item.width + (isLeft ? -offsetX : offsetX);
+					const newHeight = item.height + (isTop ? -offsetY : offsetY);
+					const newLeft = item.left + (isLeft ? offsetX : 0);
+					const newTop = item.top + (isTop ? offsetY : 0);
 
-					const newTop = Math.min(
-						item.top + item.height - 1,
-						Math.round(
-							item.top +
-								(type === 'top-left' || type === 'top-right' ? offsetY : 0),
-						),
-					);
-
-					const updatedItem: Item = {
+					return {
 						...i,
-						width: newWidth,
-						height: newHeight,
-						left: newLeft,
-						top: newTop,
+						width: Math.max(1, Math.round(newWidth)),
+						height: Math.max(1, Math.round(newHeight)),
+						left: Math.min(item.left + item.width - 1, Math.round(newLeft)),
+						top: Math.min(item.top + item.height - 1, Math.round(newTop)),
 					};
-					return updatedItem;
 				});
 			};
 
