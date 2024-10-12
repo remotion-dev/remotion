@@ -738,7 +738,7 @@ module.exports = {
 				'player/preloading',
 				'player/premounting',
 				'player/best-practices',
-				'player/drag-and-drop',
+				'player/drag-and-drop/index',
 				'player/custom-controls',
 				'player/media-keys',
 			],
