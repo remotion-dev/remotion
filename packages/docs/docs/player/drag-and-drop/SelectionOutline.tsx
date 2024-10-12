@@ -5,11 +5,12 @@ import {ResizeHandle} from './ResizeHandle';
 import type {Item} from './item';
 
 export const SelectionOutline: React.FC<{
-	readonly item: Item;
-	readonly changeItem: (itemId: number, updater: (item: Item) => Item) => void;
-	readonly setSelectedItem: React.Dispatch<React.SetStateAction<number | null>>;
-	readonly selectedItem: number | null;
-}> = ({item, changeItem, setSelectedItem, selectedItem}) => {
+	item: Item;
+	changeItem: (itemId: number, updater: (item: Item) => Item) => void;
+	setSelectedItem: React.Dispatch<React.SetStateAction<number | null>>;
+	selectedItem: number | null;
+	isDragging: boolean;
+}> = ({item, changeItem, setSelectedItem, selectedItem, isDragging}) => {
 	const scale = useCurrentScale();
 	const scaledBorder = Math.ceil(2 / scale);
 
@@ -33,11 +34,13 @@ export const SelectionOutline: React.FC<{
 			top: item.top,
 			position: 'absolute',
 			outline:
-				hovered || isSelected ? `${scaledBorder}px solid #0B84F3` : undefined,
+				(hovered && !isDragging) || isSelected
+					? `${scaledBorder}px solid #0B84F3`
+					: undefined,
 			userSelect: 'none',
 			touchAction: 'none',
 		};
-	}, [hovered, item, scaledBorder, isSelected]);
+	}, [item, hovered, isDragging, isSelected, scaledBorder]);
 
 	const startDragging = useCallback(
 		(e: PointerEvent | React.MouseEvent) => {
@@ -52,11 +55,18 @@ export const SelectionOutline: React.FC<{
 						...i,
 						left: Math.round(item.left + offsetX),
 						top: Math.round(item.top + offsetY),
+						isDragging: true,
 					};
 				});
 			};
 
 			const onPointerUp = () => {
+				changeItem(item.id, (i) => {
+					return {
+						...i,
+						isDragging: false,
+					};
+				});
 				window.removeEventListener('pointermove', onPointerMove);
 			};
 

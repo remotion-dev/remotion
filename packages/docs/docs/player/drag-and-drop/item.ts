@@ -7,4 +7,5 @@ export type Item = {
 	top: number;
 	width: number;
 	color: string;
+	isDragging: boolean;
 };

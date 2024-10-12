@@ -15,6 +15,7 @@ export const DragAndDropDemo: React.FC = () => {
 			height: 540,
 			id: 0,
 			color: '#ccc',
+			isDragging: false,
 		},
 		{
 			left: 985,
@@ -25,6 +26,7 @@ export const DragAndDropDemo: React.FC = () => {
 			height: 540,
 			id: 1,
 			color: '#ccc',
+			isDragging: false,
 		},
 	]);
 	const [selectedItem, setSelectedItem] = useState<number | null>(null);

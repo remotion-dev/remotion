@@ -98,16 +98,22 @@ export const ResizeHandle: React.FC<{
 						height: Math.max(1, Math.round(newHeight)),
 						left: Math.min(item.left + item.width - 1, Math.round(newLeft)),
 						top: Math.min(item.top + item.height - 1, Math.round(newTop)),
+						isDragging: true,
 					};
 				});
 			};
 
 			const onPointerUp = () => {
+				setItem(item.id, (i) => {
+					return {
+						...i,
+						isDragging: false,
+					};
+				});
 				window.removeEventListener('pointermove', onPointerMove);
 			};
 
 			window.addEventListener('pointermove', onPointerMove, {passive: true});
-
 			window.addEventListener('pointerup', onPointerUp, {
 				once: true,
 			});
