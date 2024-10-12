@@ -230,6 +230,7 @@ export const SelectionOutline: React.FC<{
       outline:
         hovered || isSelected ? `${scaledBorder}px solid #0B84F3` : undefined,
       userSelect: 'none',
+      touchAction: 'none',
     };
   }, [hovered, item, scaledBorder, isSelected]);
 
@@ -548,6 +549,10 @@ The thickness of the borders will also be affected by the scale, so we need to d
 Later, we will treat any event that bubbles up as an click on an empty space and deselect the item.
 
 We also don't do any action if `e.button !== 0`. This prevents a bug where the item moves after a right click.
+
+We add `userSelect: 'none'` to disable the native selection and drag behavior of the browser.
+
+We also add `touchAction: 'none` to disable scrolling the page on mobile while dragging.
 
 ### <TitleStep>4</TitleStep> Sorting outlines
 

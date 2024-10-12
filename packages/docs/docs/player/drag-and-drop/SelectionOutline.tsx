@@ -35,6 +35,7 @@ export const SelectionOutline: React.FC<{
 			outline:
 				hovered || isSelected ? `${scaledBorder}px solid #0B84F3` : undefined,
 			userSelect: 'none',
+			touchAction: 'none',
 		};
 	}, [hovered, item, scaledBorder, isSelected]);
 
