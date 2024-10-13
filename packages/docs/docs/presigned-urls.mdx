@@ -2,7 +2,7 @@
 image: /generated/articles-docs-presigned-urls.png
 id: presigned-urls
 title: Upload with a presigned URL
-crumb: "Building video apps"
+crumb: 'Building video apps'
 ---
 
 This article provides guidance for webapps wanting to allow users to upload videos and other assets. We recommend to generate a presigned URL server-side that allows a user to directly upload a file into your cloud storage without having to pass the file through your server.
@@ -19,17 +19,17 @@ The traditional way of implementing a file upload would be to let the client upl
 
 ## AWS Example
 
-This example assumes user uploads are stored in S3. For other frontends
+This example assumes user uploads are stored in S3.
 
 First, accept a file in your frontend, for example using `<input type="file">`. You should get a `File`, from which you can determine the content type and content length:
 
 ```ts twoslash title="App.tsx"
 // @module: ESNext
 // @target: ESNext
-import { interpolate } from "remotion";
+import {interpolate} from 'remotion';
 const file: File = {} as unknown as File;
 // ---cut---
-const contentType = file.type || "application/octet-stream";
+const contentType = file.type || 'application/octet-stream';
 const arrayBuffer = await file.arrayBuffer();
 const contentLength = arrayBuffer.byteLength;
 ```
@@ -39,10 +39,9 @@ This example uses [`@aws-sdk/s3-request-presigner`](https://github.com/aws/aws-s
 - `presignedUrl` is a URL to which the file can be uploaded to
 - `readUrl` is the URL from which the file can be read from.
 
-```tsx twoslash title="api/generate-presigned-url.ts"
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { AwsRegion, getAwsClient } from "@remotion/lambda/client";
-import { v4 } from "uuid";
+```tsx twoslash title="generate-presigned-url.ts"
+import {getSignedUrl} from '@aws-sdk/s3-request-presigner';
+import {AwsRegion, getAwsClient} from '@remotion/lambda/client';
 
 export const generatePresignedUrl = async (
   contentType: string,
@@ -50,24 +49,24 @@ export const generatePresignedUrl = async (
   expiresIn: number,
   bucketName: string,
   region: AwsRegion,
-): Promise<{ presignedUrl: string; readUrl: string }> => {
+): Promise<{presignedUrl: string; readUrl: string}> => {
   if (contentLength > 1024 * 1024 * 200) {
     throw new Error(
       `File may not be over 200MB. Yours is ${contentLength} bytes.`,
     );
   }
 
-  const { client, sdk } = getAwsClient({
+  const {client, sdk} = getAwsClient({
     region: process.env.REMOTION_AWS_REGION as AwsRegion,
-    service: "s3",
+    service: 's3',
   });
 
-  const key = v4();
+  const key = crypto.randomUUID();
 
   const command = new sdk.PutObjectCommand({
     Bucket: bucketName,
     Key: key,
-    ACL: "public-read",
+    ACL: 'public-read',
     ContentLength: contentLength,
     ContentType: contentType,
   });
@@ -76,10 +75,10 @@ export const generatePresignedUrl = async (
     expiresIn,
   });
 
-  // The location of the assset after the upload
+  // The location of the asset after the upload
   const readUrl = `https://${bucketName}.s3.${region}.amazonaws.com/${key}`;
 
-  return { presignedUrl, readUrl };
+  return {presignedUrl, readUrl};
 };
 ```
 
@@ -90,6 +89,90 @@ Explanation:
 - A [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier) gets used as the filename to avoid name clashes.
 - Finally, the presigned URL and output URL get calculated and returned.
 
+### Next.js App Router example
+
+```tsx twoslash title="app/api/upload/route.ts"
+import {NextResponse} from 'next/server';
+import {getSignedUrl} from '@aws-sdk/s3-request-presigner';
+import {AwsRegion, getAwsClient} from '@remotion/lambda/client';
+
+const generatePresignedUrl = async ({
+  contentType,
+  contentLength,
+  expiresIn,
+  bucketName,
+  region,
+}: {
+  contentType: string;
+  contentLength: number;
+  expiresIn: number;
+  bucketName: string;
+  region: AwsRegion;
+}): Promise<{presignedUrl: string; readUrl: string}> => {
+  if (contentLength > 1024 * 1024 * 200) {
+    throw new Error(
+      `File may not be over 200MB. Yours is ${contentLength} bytes.`,
+    );
+  }
+
+  const {client, sdk} = getAwsClient({
+    region: process.env.REMOTION_AWS_REGION as AwsRegion,
+    service: 's3',
+  });
+
+  const key = crypto.randomUUID();
+
+  const command = new sdk.PutObjectCommand({
+    Bucket: bucketName,
+    Key: key,
+    ACL: 'public-read',
+    ContentLength: contentLength,
+    ContentType: contentType,
+  });
+
+  const presignedUrl = await getSignedUrl(client, command, {
+    expiresIn,
+  });
+
+  // The location of the asset after the upload
+  const readUrl = `https://${bucketName}.s3.${region}.amazonaws.com/${key}`;
+
+  return {presignedUrl, readUrl};
+};
+
+export const POST = async (request: Request) => {
+  if (!process.env.REMOTION_AWS_BUCKET_NAME) {
+    throw new Error('REMOTION_AWS_BUCKET_NAME is not set');
+  }
+
+  if (!process.env.REMOTION_AWS_REGION) {
+    throw new Error('REMOTION_AWS_REGION is not set');
+  }
+
+  const json = await request.json();
+  if (!Number.isFinite(json.size)) {
+    throw new Error('size is not a number');
+  }
+  if (typeof json.contentType !== 'string') {
+    throw new Error('contentType is not a string');
+  }
+
+  const {presignedUrl, readUrl} = await generatePresignedUrl({
+    contentType: json.contentType,
+    contentLength: json.size,
+    expiresIn: 60 * 60 * 24 * 7,
+    bucketName: process.env.REMOTION_AWS_BUCKET_NAME as string,
+    region: process.env.REMOTION_AWS_REGION as AwsRegion,
+  });
+
+  return NextResponse.json({presignedUrl, readUrl});
+};
+```
+
+:::note
+This example does not implement any rate limiting or authentication.
+:::
+
 ## Using the presigned URL
 
 Send the presigned URL back to the client. Afterwards, you can now perform an upload using the built-in [`fetch()`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) function:
@@ -97,19 +180,19 @@ Send the presigned URL back to the client. Afterwards, you can now perform an up
 ```ts twoslash title="App.tsx"
 // @module: ESNext
 // @target: ESNext
-import { interpolate } from "remotion";
-const presignedUrl = "hi";
+import {interpolate} from 'remotion';
+const presignedUrl = 'hi';
 const file: File = {} as unknown as File;
 
-const contentType = file.type || "application/octet-stream";
+const contentType = file.type || 'application/octet-stream';
 const arrayBuffer = await file.arrayBuffer();
 // ---cut---
 
 await fetch(presignedUrl, {
-  method: "PUT",
+  method: 'PUT',
   body: arrayBuffer,
   headers: {
-    "content-type": contentType,
+    'content-type': contentType,
   },
 });
 ```

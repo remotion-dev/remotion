@@ -9,14 +9,14 @@ In an app where users can upload videos and edit them, we can create a better us
 
 ## Allowing user uploads
 
-We have a component which returns a [`<Video>`](/docs/video) tag that includes an URL as source.
+We have a component which returns a [`<OffthreadVideo>`](/docs/offthreadvideo) tag that includes an URL as source.
 
 ```tsx twoslash title="MyComposition.tsx"
 const upload = async (file: File) => {
   return 'https://example.com';
 };
 // ---cut---
-import {AbsoluteFill, Video} from 'remotion';
+import {AbsoluteFill, OffthreadVideo} from 'remotion';
 
 type VideoProps = {
   videoURL: string;
@@ -25,7 +25,7 @@ type VideoProps = {
 export const MyComponent: React.FC<VideoProps> = ({videoURL}) => {
   return (
     <AbsoluteFill>
-      <Video src={videoURL} />
+      <OffthreadVideo src={videoURL} />
     </AbsoluteFill>
   );
 };
