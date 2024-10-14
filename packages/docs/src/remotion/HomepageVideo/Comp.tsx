@@ -33,6 +33,7 @@ export const getDataAndProps = async () => {
 	)
 		.then((res) => res.json())
 		.then((data) => {
+			console.log('trending data', data);
 			return {
 				repos: data.trending.repos.slice(0, 3),
 				date: data.trending.dateFetched,
