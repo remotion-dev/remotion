@@ -16,6 +16,11 @@ export type Trending = {
 	repos: string[];
 	date: string;
 	temperatureInCelsius: number;
+	countryLabel: string;
+	countryPaths: {
+		d: string;
+		class: string;
+	}[];
 };
 
 export type LocationAndTrending = {
@@ -33,11 +38,12 @@ export const getDataAndProps = async () => {
 	)
 		.then((res) => res.json())
 		.then((data) => {
-			console.log('trending data', data);
 			return {
 				repos: data.trending.repos.slice(0, 3),
 				date: data.trending.dateFetched,
 				temperatureInCelsius: Math.round(data.temperature),
+				countryLabel: data.countryLabel,
+				countryPaths: data.countryPaths,
 			};
 		});
 
