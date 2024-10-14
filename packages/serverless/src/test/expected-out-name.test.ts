@@ -44,6 +44,10 @@ const testRenderMetadata: RenderMetadata<MockProvider> = {
 	muted: false,
 	metadata: null,
 	codec: 'h264',
+	dimensions: {
+		width: 1920,
+		height: 1080,
+	},
 };
 
 test('Should get a custom outname', () => {
