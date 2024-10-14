@@ -79,7 +79,11 @@ export const Cards: React.FC<{
 							temperatureInCelsius={temperatureInCelsius}
 						/>
 					) : index === 2 ? (
-						<CurrentCountry location={location} theme={theme} />
+						<CurrentCountry
+							countryPaths={trending.countryPaths}
+							countryLabel={trending.countryLabel}
+							theme={theme}
+						/>
 					) : (
 						<EmojiCard emojiPositions={emojiPositions} />
 					);

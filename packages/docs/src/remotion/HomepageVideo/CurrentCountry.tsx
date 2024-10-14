@@ -1,15 +1,16 @@
 import {getBoundingBox, resetPath} from '@remotion/paths';
 import React from 'react';
 import {AbsoluteFill, spring, useCurrentFrame, useVideoConfig} from 'remotion';
-import {ISO_3166_ALPHA_2_MAPPINGS, countriesPaths} from './paths';
-import type {Location} from './types';
 
 export const CurrentCountry: React.FC<{
 	readonly theme: 'dark' | 'light';
-	readonly location: Location;
-}> = ({theme, location}) => {
-	const paths = countriesPaths.filter((c) => c.class === location.country);
-	const joined = paths.map((p) => p.d).join(' ');
+	readonly countryPaths: {
+		d: string;
+		class: string;
+	}[];
+	readonly countryLabel: string;
+}> = ({theme, countryPaths, countryLabel}) => {
+	const joined = countryPaths.map((p) => p.d).join(' ');
 	const reset = resetPath(joined);
 	const boundingBox = getBoundingBox(reset);
 
@@ -75,7 +76,7 @@ export const CurrentCountry: React.FC<{
 						color: theme === 'dark' ? 'white' : 'black',
 					}}
 				>
-					{ISO_3166_ALPHA_2_MAPPINGS[location.country]}
+					{countryLabel}
 				</div>
 			</AbsoluteFill>
 		</AbsoluteFill>
