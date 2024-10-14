@@ -63,7 +63,6 @@ const NewLanding: React.FC = () => {
 					<VideoApps active="remotion" />
 					<br />
 					<VideoAppsShowcase />
-
 					<CommunityStats />
 					<br />
 					<br />
