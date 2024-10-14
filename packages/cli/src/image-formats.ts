@@ -1,5 +1,6 @@
 import type {VideoImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import {ConfigInternals} from './config';
 import {parsedCli} from './parsed-cli';
 
@@ -32,7 +33,7 @@ export const getVideoImageFormat = ({
 		return configFileOption;
 	}
 
-	if (RenderInternals.isAudioCodec(codec)) {
+	if (NoReactAPIs.isAudioCodec(codec)) {
 		return 'none';
 	}
 

@@ -160,6 +160,10 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	const [imageSrc, setImageSrc] = useState<SrcAndHandle | null>(null);
 
 	useLayoutEffect(() => {
+		if (!window.remotion_videoEnabled) {
+			return;
+		}
+
 		const cleanup: Function[] = [];
 
 		setImageSrc(null);
@@ -273,7 +277,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 		[onVideoFrame],
 	);
 
-	if (!imageSrc) {
+	if (!imageSrc || !window.remotion_videoEnabled) {
 		return null;
 	}
 

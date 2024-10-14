@@ -118,7 +118,7 @@ describe('Templates should be valid', () => {
 			expect(contents).not.toContain('Config.Preview');
 		});
 
-		it(`${template.shortName} should use noUnusedLocals`, async () => {
+		it(`${template.shortName} should use good tsconfig values`, async () => {
 			if (template.shortName.includes('JavaScript')) {
 				return;
 			}
@@ -131,6 +131,11 @@ describe('Templates should be valid', () => {
 			} else {
 				expect(contents).toInclude('noUnusedLocals": true');
 			}
+			if (!template.shortName.includes('Still')) {
+				expect(contents).not.toInclude('outDir');
+			}
+			expect(contents).toInclude('"forceConsistentCasingInFileNames": true');
+			expect(contents).toInclude('"incremental": true');
 		});
 
 		it(`${template.shortName} should use correct prettier`, async () => {

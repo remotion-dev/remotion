@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-faq.png
 sidebar_label: FAQ
 title: FAQ
 slug: /lambda/faq
-crumb: "Lambda"
+crumb: 'Lambda'
 ---
 
 Some commonly asked questions about Remotion Lambda.
@@ -69,17 +69,17 @@ The source code of what is run inside a Remotion Lambda function [can be found h
 ### Can I make a site private?
 
 When you render a video on Lambda, you specify a [Serve URL](/docs/terminology/serve-url) pointing to a Webpack bundle of Remotion code.  
-This is a URL that, if known, can be publicly accessed by anyone.  
+This is a URL that, if known, can be publicly accessed by anyone.
 
 The Lambda function needs to spawn a headless browser and visit this URL in order to render the video.  
 The items in the bucket cannot be made private because they need to be accessible via URL in the headless browser.
 
 Make sure to not hardcode sensitive data in your code, such as API keys, or user data.  
 Instead, use the [`inputProps`](/docs/lambda/rendermediaonlambda#inputprops) and [`envVariables`](/docs/lambda/rendermediaonlambda#envvariables) options of [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) to pass data during the render.  
-Those values will never be publicly accessible.  
+Those values will never be publicly accessible.
 
 By making your site available under a Serve URL, you may expose your minified React code.  
-This is normally not a problem, because any website will expose their minified frontend code.  
+This is normally not a problem, because any website will expose their minified frontend code.
 
 If you would like to make your site more private, you can:
 
@@ -90,3 +90,13 @@ If you would like to make your site more private, you can:
 
 Making the site accessible via a Serve URL will not allow anyone to trigger a Lambda render on your account.  
 The URL only serves HTML, JavaScript and assets, but does expose access to invoking any computation on your AWS account.
+
+### Do I have to deploy a new site for every render?
+
+No, you shouldn’t have to deploy a new bundle for every render. Instead, deploy your site once and parametrize everything about the video:
+
+- Use [`inputProps`](/docs/terminology/input-props) to parametrize the contents of the video. For example, you may pass an array of elements that should appear in the video.
+- Use [`calculateMetadata()`](/docs/calculate-metadata) to parametrize the duration, dimensions and FPS of the video.
+- If you have multiple different templates that don’t share a data structure, deploy a bundle with multiple [`<Composition>`](/docs/terminology/composition)’s.
+
+See also: [`Passing props`](/docs/passing-props)

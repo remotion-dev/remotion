@@ -16,10 +16,12 @@ export const Studio: React.FC<{
 }> = ({rootComponent, readOnly}) => {
 	useLayoutEffect(() => {
 		window.remotion_isStudio = true;
+		window.remotion_isReadOnlyStudio = true;
 		Internals.enableSequenceStackTraces();
 
 		return () => {
 			window.remotion_isStudio = false;
+			window.remotion_isReadOnlyStudio = false;
 		};
 	}, []);
 

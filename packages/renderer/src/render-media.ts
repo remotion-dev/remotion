@@ -30,12 +30,12 @@ import {
 	DEFAULT_VIDEO_IMAGE_FORMAT,
 	validateSelectedPixelFormatAndImageFormatCombination,
 } from './image-format';
+import {isAudioCodec} from './is-audio-codec';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
-import {isAudioCodec} from './options/audio-codec';
 import {DEFAULT_COLOR_SPACE, type ColorSpace} from './options/color-space';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';

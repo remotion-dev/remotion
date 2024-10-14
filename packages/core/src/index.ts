@@ -63,6 +63,7 @@ declare global {
 		remotion_getClipRegion: () => ClipRegion | null;
 		remotion_isPlayer: boolean;
 		remotion_isStudio: boolean;
+		remotion_isReadOnlyStudio: boolean;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
 		siteVersion: '11';

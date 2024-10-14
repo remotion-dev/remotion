@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/docs"
 	},
 	"name": "docs",
-	"version": "4.0.217",
+	"version": "4.0.221",
 	"private": true,
 	"scripts": {
 		"formatting": "prettier src --check",
@@ -78,6 +78,7 @@
 		"mux-embed": "^4.16.0",
 		"plyr": "^3.7.3",
 		"polished": "4.1.2",
+		"next": "14.2.13",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"remark-shiki-twoslash": "^3.1.3",

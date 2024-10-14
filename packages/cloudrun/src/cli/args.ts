@@ -10,6 +10,7 @@ type servicesCommandLineOptions = {
 	y: boolean;
 	yes: boolean;
 	force: boolean;
+	['onlyAllocateCpuDuringRequestProcessing']: boolean;
 	f: boolean;
 
 	['max-retries']: number;

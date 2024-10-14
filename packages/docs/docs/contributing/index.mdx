@@ -20,8 +20,8 @@ This project is released with a [Contributor Code of Conduct](https://remotion.d
 
 <Step>1</Step> Remotion uses <a href="https://pnpm.io/">
   <code>pnpm</code> v8.10.2
-</a> as the package manager for development in this repository. We recommend using
-Corepack so you get the same version of pnpm as we have. <br />
+</a> as the package manager for development in this repository. We recommend
+using Corepack so you get the same version of pnpm as we have. <br />
 
 ```sh
 corepack enable
@@ -124,6 +124,34 @@ pnpm exec remotion compositions
 # Example - Render command
 pnpm exec remotion render ten-frame-tester --output ../../out/video.mp4
 ```
+
+## Testing Remotion Lambda
+
+In `packages/example`, there is a `runlambda.sh` script that will rebuild the code for the Lambda function, remove any deployed Lambda functions, deploy a new one and render a video.  
+You need to put you [AWS credentials](/docs/lambda/authentication) in a `.env` file of the `packages/example` directory.
+
+```sh
+cd packages/example
+sh ./runlambda.sh
+```
+
+:::note
+This will delete any Lambda functions in your account!
+:::
+
+## Testing Remotion Cloud Run
+
+In `packages/example`, there is a `runcloudrun.sh` script that will rebuild the code for the Cloud Run function, remove any deployed Cloud Run services, deploy a new one and render a video.  
+You need to put you [GCP credentials](/docs/cloudrun/generate-env) in a `.env` file of the `packages/example` directory.
+
+```sh
+cd packages/example
+sh ./runcloudrun.sh
+```
+
+:::note
+This will delete any Cloud Run services in your account!
+:::
 
 ## Troubleshooting
 

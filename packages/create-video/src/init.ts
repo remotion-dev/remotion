@@ -9,6 +9,7 @@ import {
 } from './add-tailwind';
 import {createYarnYmlFile} from './add-yarn2-support';
 import {askTailwind} from './ask-tailwind';
+import {createPublicFolder} from './create-public-folder';
 import {degit} from './degit';
 import {getLatestRemotionVersion} from './latest-remotion-version';
 import {Log} from './log';
@@ -128,6 +129,8 @@ export const init = async () => {
 			addTailwindConfigJs(projectRoot);
 			addTailwindRootCss(projectRoot);
 		}
+
+		createPublicFolder(projectRoot);
 
 		const latestVersion = await latestRemotionVersionPromise;
 		patchPackageJson({

@@ -87,6 +87,21 @@ export const RemotionRoot: React.FC = () => {
 					},
 					trending: null,
 					onToggle: () => undefined,
+					cardOrder: [0, 1, 2, 3],
+					updateCardOrder: () => undefined,
+					emojiPositions: {
+						prev: 'melting',
+						current: 'partying-face',
+						next: 'fire',
+						translation: 0,
+						translationStyle: '',
+					},
+					onClickLeft: () => undefined,
+					onClickRight: () => undefined,
+					audioVolume: {
+						volume: 0.5,
+						isMuted: false,
+					},
 				}}
 				schema={schema}
 				calculateMetadata={calculateMetadata}

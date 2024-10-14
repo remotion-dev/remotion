@@ -31,6 +31,7 @@ export const BooleanFlags = [
 	'repro',
 	'compatible-only',
 	'force-path-style',
+	'onlyAllocateCpuDuringRequestProcessing',
 ];
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {

@@ -282,7 +282,7 @@ export const PlayerSeekBar: React.FC<{
 			),
 			boxShadow: '0 0 2px black',
 			opacity: Number(barHovered),
-			transition: 'opacity 0.1s ease',
+			transition: 'opacity 0.s ease',
 		};
 	}, [barHovered, durationInFrames, frame, width]);
 
