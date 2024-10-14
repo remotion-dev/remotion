@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lambda"
 	},
 	"name": "@remotion/lambda",
-	"version": "4.0.217",
+	"version": "4.0.221",
 	"description": "Render Remotion videos on AWS Lambda",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -12,7 +12,7 @@
 		"testintegration": "vitest src/test/integration --run",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest src/test/unit --run",
-		"make": "bun src/admin/bundle-lambda.ts",
+		"make": "bun build.ts",
 		"prepublishOnly": "bun src/admin/bundle-lambda.ts && bun ensure-version-match.js"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",

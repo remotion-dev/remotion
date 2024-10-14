@@ -1,3 +1,4 @@
+import {getRemotionEnvironment} from 'remotion';
 import {extractEnumJsonPaths} from '../components/RenderModal/SchemaEditor/extract-enum-json-paths';
 import {callUpdateDefaultPropsApi} from '../components/RenderQueue/actions';
 import type {UpdateDefaultPropsFunction} from './helpers/calc-new-props';
@@ -15,6 +16,14 @@ export const saveDefaultProps = async ({
 	compositionId: string;
 	defaultProps: UpdateDefaultPropsFunction;
 }) => {
+	if (!getRemotionEnvironment().isStudio) {
+		throw new Error('saveDefaultProps() is only available in the Studio');
+	}
+
+	if (window.remotion_isReadOnlyStudio) {
+		throw new Error('saveDefaultProps() is not available in read-only Studio');
+	}
+
 	try {
 		await import('zod');
 	} catch {

@@ -66,6 +66,10 @@ To make it smaller, pass a `style` prop to give the player a different width: `{
 
 The height you would like the video to have when rendered as an MP4. Use `style={{height: <height>}}` to define a height to be assumed in the browser.
 
+### `inputProps`
+
+Pass props to the component that you have specified using the `component` prop. The Typescript definition takes the shape of the props that you have given to your `component`.
+
 ### `loop`
 
 _optional_
@@ -123,12 +127,6 @@ A boolean property defining whether you can play or pause a video using space ke
 _optional_
 
 A boolean property defining whether the video position should go back to zero once the video has ended. Only works if `loop` is disabled. Default `true`.
-
-### `inputProps`
-
-_optional_
-
-Pass props to the component that you have specified using the `component` prop. The Typescript definition takes the shape of the props that you have given to your `component`. Default `undefined`.
 
 ### `style`
 
@@ -535,6 +533,11 @@ This allows you to flexibly implement custom UI for the buffer state.
 ### `overflowVisible`<AvailableFrom v="4.0.173"/>
 
 Makes the Player render things outside of the canvas. Useful if you have interactive elements in the video such as draggable elements.
+
+### `browserMediaControlsBehavior`<AvailableFrom v="4.0.221" />
+
+Controls what happens when the user presses the Play/Pause button on their keyboard or uses other controls such as Chromes built-in controls.  
+See [Media Keys Behavior](/docs/player/media-keys) for more information.
 
 ## `PlayerRef`
 

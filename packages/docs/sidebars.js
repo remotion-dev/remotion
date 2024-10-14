@@ -738,6 +738,9 @@ module.exports = {
 				'player/preloading',
 				'player/premounting',
 				'player/best-practices',
+				'player/drag-and-drop/index',
+				'player/custom-controls',
+				'player/media-keys',
 			],
 		},
 
@@ -844,6 +847,7 @@ module.exports = {
 				'video-uploads',
 				'presigned-urls',
 				'font-picker',
+				'building-a-timeline',
 				'multiple-fps',
 			],
 		},
@@ -995,6 +999,7 @@ module.exports = {
 				'bun',
 				'standalone',
 				'miscellaneous/emojis',
+				'media-fragments',
 			],
 		},
 		{

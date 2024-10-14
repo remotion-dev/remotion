@@ -1,3 +1,4 @@
+import type {google} from '@google-cloud/run/build/protos/protos';
 import type {LogLevel} from '@remotion/renderer';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import {
@@ -24,6 +25,7 @@ type InternalDeployServiceInput = {
 	region: string;
 	logLevel: LogLevel;
 	indent: boolean;
+	onlyAllocateCpuDuringRequestProcessing: boolean;
 };
 export type DeployServiceInput = {
 	performImageVersionValidation?: boolean;
@@ -35,6 +37,7 @@ export type DeployServiceInput = {
 	logLevel?: LogLevel;
 	projectID: string;
 	region: string;
+	onlyAllocateCpuDuringRequestProcessing?: boolean;
 };
 
 export type DeployServiceOutput = {
@@ -54,6 +57,7 @@ const deployServiceRaw = async ({
 	projectID,
 	region,
 	logLevel,
+	onlyAllocateCpuDuringRequestProcessing,
 }: InternalDeployServiceInput): Promise<DeployServiceOutput> => {
 	validateGcpRegion(region);
 	validateProjectID(projectID);
@@ -89,16 +93,16 @@ const deployServiceRaw = async ({
 		};
 	}
 
-	const request = {
+	const request: google.cloud.run.v2.ICreateServiceRequest = {
 		parent,
 		service: {
-			// service structure: https://googleapis.dev/nodejs/run/latest/google.cloud.run.v2.IService.html
 			template: constructServiceTemplate({
 				memoryLimit,
 				cpuLimit,
 				timeoutSeconds,
 				minInstances,
 				maxInstances,
+				onlyAllocateCpuDuringRequestProcessing,
 			}),
 		},
 		serviceId: serviceName,
@@ -106,6 +110,7 @@ const deployServiceRaw = async ({
 
 	// Run request
 	const [operation] = await cloudRunClient.createService(request);
+
 	const [response] = await operation.promise();
 
 	return {
@@ -140,6 +145,7 @@ export const deployService = ({
 	projectID,
 	region,
 	logLevel,
+	onlyAllocateCpuDuringRequestProcessing,
 }: DeployServiceInput): Promise<DeployServiceOutput> => {
 	return internalDeployService({
 		performImageVersionValidation,
@@ -152,5 +158,7 @@ export const deployService = ({
 		region,
 		logLevel: logLevel ?? 'info',
 		indent: false,
+		onlyAllocateCpuDuringRequestProcessing:
+			onlyAllocateCpuDuringRequestProcessing ?? false,
 	});
 };

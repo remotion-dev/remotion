@@ -1,5 +1,5 @@
 import {type ProviderSpecifics} from '@remotion/serverless';
-import {EventEmitter} from 'node:stream';
+import {EventEmitter} from 'node:events';
 import {bucketExistsInRegionImplementation} from '../api/bucket-exists';
 import {createBucket} from '../api/create-bucket';
 import {getRemotionBuckets} from '../api/get-buckets';

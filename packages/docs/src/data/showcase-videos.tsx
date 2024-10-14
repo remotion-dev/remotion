@@ -390,6 +390,27 @@ export const showcaseVideos: ShowcaseVideo[] = [
 			name: 'Emiliano Parizzi',
 		},
 	},
+	{
+		title: 'Relay.app - Automation tool',
+		type: 'mux_video',
+		time: '0',
+		muxId: '02eNw8AHyNFvm300xvExVndO01oEvUI1kYXK00W02ITkeldM',
+		description:
+			'Remotion was utilized to create dynamic, programmatically generated instructional videos, ensuring explainer content remained consistent with the brand standards.',
+		height: 1080,
+		width: 1920,
+		submittedOn: new Date('10-11-2024'),
+		links: [
+			{
+				type: 'video',
+				url: 'https://youtube.com/playlist?list=PLLIj5N3yKeySGj9Cm3dqNtcVCPAd22yLo&si=cuKFXXpEPMFBF6Gm',
+			},
+			{
+				type: 'website',
+				url: 'https://www.relay.app/',
+			},
+		],
+	},
 
 	/*
   {

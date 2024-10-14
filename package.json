@@ -13,7 +13,7 @@
 		"watch": "tsc -b --verbose -w",
 		"release-alpha": "pnpm recursive publish --tag=alpha --no-git-checks && pnpm recursive run --sequential publishprivate",
 		"release": "pnpm recursive publish && pnpm recursive run --sequential publishprivate && git push --tags && git push",
-		"clean": "rm -rf packages/**/dist && rm -rf packages/**/node_modules && rm -rf node_modules && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo && rm -f packages/tsconfig.tsbuildinfo && rm -rf packages/**/.turbo && rm -rf .turbo"
+		"clean": "turbo run clean && rm -rf packages/**/dist && rm -rf packages/**/node_modules && rm -rf node_modules && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo && rm -f packages/tsconfig.tsbuildinfo && rm -rf packages/**/.turbo && rm -rf .turbo"
 	},
 	"engines": {
 		"node": ">=16",
@@ -37,7 +37,7 @@
 		"prettier-plugin-organize-imports": "3.2.4"
 	},
 	"dependencies": {
-		"turbo": "1.13.3",
+		"turbo": "2.1.3",
 		"typescript": "5.5.4"
 	},
 	"packageManager": "pnpm@8.10.2"

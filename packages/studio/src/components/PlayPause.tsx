@@ -63,6 +63,9 @@ export const PlayPause: React.FC<{
 		inFrame,
 		outFrame,
 		frameRef: remotionInternal_currentFrameRef,
+		browserMediaControlsBehavior: {
+			mode: 'register-media-session',
+		},
 	});
 
 	const isStill = useIsStill();

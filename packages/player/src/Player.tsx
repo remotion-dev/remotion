@@ -25,6 +25,7 @@ import type {
 import type {PosterFillMode, RenderLoading, RenderPoster} from './PlayerUI.js';
 import PlayerUI from './PlayerUI.js';
 import {PLAYER_COMP_ID, SharedPlayerContexts} from './SharedPlayerContext.js';
+import type {BrowserMediaControlsBehavior} from './browser-mediasession.js';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
 import type {PlayerRef} from './player-methods.js';
 import type {RenderVolumeSlider} from './render-volume-slider.js';
@@ -85,6 +86,7 @@ export type PlayerProps<
 	readonly bufferStateDelayInMilliseconds?: number;
 	readonly hideControlsWhenPointerDoesntMove?: boolean | number;
 	readonly overflowVisible?: boolean;
+	readonly browserMediaControlsBehavior?: BrowserMediaControlsBehavior;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
@@ -146,6 +148,7 @@ const PlayerFn = <
 		hideControlsWhenPointerDoesntMove = true,
 		overflowVisible = false,
 		renderMuteButton,
+		browserMediaControlsBehavior: passedBrowserMediaControlsBehavior,
 		...componentProps
 	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>,
@@ -348,6 +351,15 @@ const PlayerFn = <
 
 	const actualInputProps = useMemo(() => inputProps ?? {}, [inputProps]);
 
+	const browserMediaControlsBehavior: BrowserMediaControlsBehavior =
+		useMemo(() => {
+			return (
+				passedBrowserMediaControlsBehavior ?? {
+					mode: 'prevent-media-session',
+				}
+			);
+		}, [passedBrowserMediaControlsBehavior]);
+
 	return (
 		<Internals.IsPlayerContextProvider>
 			<SharedPlayerContexts
@@ -407,6 +419,7 @@ const PlayerFn = <
 								hideControlsWhenPointerDoesntMove
 							}
 							overflowVisible={overflowVisible}
+							browserMediaControlsBehavior={browserMediaControlsBehavior}
 						/>
 					</PlayerEmitterProvider>
 				</Internals.Timeline.SetTimelineContext.Provider>
