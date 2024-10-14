@@ -14,9 +14,11 @@ const EmptyDiv: React.FC = () => {
 	return <div style={{width: '100%'}} />;
 };
 
-export const EmojiCard: React.FC<{
-	emojiPositions: EmojiPosition;
-}> = ({emojiPositions}) => {
+type EmojiCardProps = {
+	readonly emojiPositions: EmojiPosition;
+};
+
+export const EmojiCard: React.FC<EmojiCardProps> = ({emojiPositions}) => {
 	const {isRendering} = getRemotionEnvironment();
 
 	return (
