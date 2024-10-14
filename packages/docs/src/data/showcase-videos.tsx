@@ -369,6 +369,27 @@ export const showcaseVideos: ShowcaseVideo[] = [
 			},
 		],
 	},
+	{
+		title: 'AnySticker In App Assets',
+		type: 'mux_video',
+		time: '29.5',
+		muxId: 'HL4G1x01aX8lizSXFGuQG8do6LLKcI1mup6WjIz6OEFE',
+		description:
+			'This video will welcome users in the newest version of AnySticker.',
+		height: 1920,
+		width: 1080,
+		submittedOn: new Date('25-03-2021'),
+		links: [
+			{
+				type: 'source_code',
+				url: 'https://github.com/JonnyBurger/anysticker-tutorials',
+			},
+		],
+		author: {
+			name: 'Jonny Burger',
+			url: 'https://twitter.com/JNYBGR',
+		},
+	},
 
 	/*
   {
