@@ -327,6 +327,10 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		muted: params.muted,
 		metadata: params.metadata,
 		functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
+		dimensions: {
+			width: comp.width * (params.scale ?? 1),
+			height: comp.height * (params.scale ?? 1),
+		},
 	};
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(

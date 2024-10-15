@@ -196,6 +196,10 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		audioBitrate: null,
 		metadata: null,
 		functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
+		dimensions: {
+			height: composition.height * (lambdaParams.scale ?? 1),
+			width: composition.width * (lambdaParams.scale ?? 1),
+		},
 	};
 
 	const still = makeInitialOverallRenderProgress(timeoutInMilliseconds);
