@@ -1704,6 +1704,13 @@ export const articles = [
 		crumb: 'FAQ',
 	},
 	{
+		id: 'miscellaneous/system-prompt',
+		title: 'Remotion System Prompt for LLMs',
+		relativePath: 'docs/miscellaneous/system-prompt.mdx',
+		compId: 'articles-docs-miscellaneous-system-prompt',
+		crumb: 'FAQ',
+	},
+	{
 		id: 'miscellaneous/render-on-edge',
 		title: 'Can I render videos on the edge?',
 		relativePath: 'docs/miscellaneous/render-on-edge.mdx',
@@ -3745,13 +3752,6 @@ export const articles = [
 		crumb: '@remotion/player',
 	},
 	{
-		id: 'player/drag-and-drop',
-		title: 'Drag & Drop in the Remotion Player',
-		relativePath: 'docs/player/drag-and-drop.mdx',
-		compId: 'articles-docs-player-drag-and-drop',
-		crumb: '@remotion/player',
-	},
-	{
 		id: 'media-keys',
 		title: 'Media Key Behavior (Web MediaSession API)',
 		relativePath: 'docs/player/media-keys.mdx',
@@ -3791,6 +3791,13 @@ export const articles = [
 		title: 'Combatting autoplay issues',
 		relativePath: 'docs/player/autoplay.mdx',
 		compId: 'articles-docs-player-autoplay',
+		crumb: '@remotion/player',
+	},
+	{
+		id: 'player/drag-and-drop/index',
+		title: 'Drag & Drop in the Remotion Player',
+		relativePath: 'docs/player/drag-and-drop/index.mdx',
+		compId: 'articles-docs-player-drag-and-drop-index',
 		crumb: '@remotion/player',
 	},
 	{

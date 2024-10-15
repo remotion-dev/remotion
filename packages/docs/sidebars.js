@@ -1000,6 +1000,7 @@ module.exports = {
 				'standalone',
 				'miscellaneous/emojis',
 				'media-fragments',
+				'miscellaneous/system-prompt',
 			],
 		},
 		{
