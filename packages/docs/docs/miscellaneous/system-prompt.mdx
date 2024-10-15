@@ -246,6 +246,9 @@ export const MyComp: React.FC = () => {
   );
 };
 
+"TransitionSeries.Sequence" works like "Series.Sequence" but has no "offset" prop.
+The order of tags is important, "TransitionSeries.Transition" must be inbetween "TransitionSeries.Sequence" tags.
+
 Remotion needs all of the React code to be deterministic. Therefore, it is forbidden to use the Math.random() API.
 If randomness is requested, the "random()" function from "remotion" should be used and a static seed should be passed to it.
 The random function returns a number between 0 and 1.
@@ -322,3 +325,7 @@ For example:
 
 $ npx remotion still MyComp
 ```
+
+## Try it out
+
+We deployed a custom ChatGPT under [remotion.ai](https://remotion.ai) for you to try out.
