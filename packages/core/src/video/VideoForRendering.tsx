@@ -139,13 +139,9 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		sequenceContext?.relativeFrom,
 	]);
 
-	useImperativeHandle(
-		ref,
-		() => {
-			return videoRef.current as HTMLVideoElement;
-		},
-		[],
-	);
+	useImperativeHandle(ref, () => {
+		return videoRef.current as HTMLVideoElement;
+	}, []);
 
 	useEffect(() => {
 		if (!window.remotion_videoEnabled) {

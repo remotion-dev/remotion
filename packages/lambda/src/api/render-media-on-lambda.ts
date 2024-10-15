@@ -69,6 +69,7 @@ export type RenderMediaOnLambdaInput = {
 	 */
 	dumpBrowserLogs?: boolean;
 	forcePathStyle?: boolean;
+	metadata?: Record<string, string> | null;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 export type RenderMediaOnLambdaOutput = {
@@ -187,6 +188,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		preferLossless: options.preferLossless ?? false,
 		forcePathStyle: options.forcePathStyle ?? false,
 		indent: false,
+		metadata: options.metadata ?? null,
 	};
 };
 

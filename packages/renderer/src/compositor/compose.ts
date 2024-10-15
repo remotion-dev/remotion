@@ -114,7 +114,7 @@ export const callCompositor = (
 			cwd: path.dirname(execPath),
 		});
 
-		const stderrChunks: Buffer[] = [];
+		const stderrChunks: Uint8Array[] = [];
 		child.stderr.on('data', (d) => stderrChunks.push(d));
 
 		child.on('close', (code) => {

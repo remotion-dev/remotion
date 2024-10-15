@@ -23,9 +23,9 @@ import {
 	serializeOrThrow,
 } from '@remotion/serverless/client';
 import {existsSync, mkdirSync, rmSync} from 'fs';
+import {type EventEmitter} from 'node:events';
 import {join} from 'path';
 import {VERSION} from 'remotion/version';
-import {type EventEmitter} from 'stream';
 import type {PostRenderData} from '../shared/constants';
 import {
 	CONCAT_FOLDER_TOKEN,
@@ -283,6 +283,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			framesPerLambda,
 			progressEveryNthFrame,
 			forcePathStyle: params.forcePathStyle,
+			metadata: params.metadata,
 		};
 		return payload;
 	});
@@ -324,6 +325,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		downloadBehavior: params.downloadBehavior,
 		audioBitrate: params.audioBitrate,
 		muted: params.muted,
+		metadata: params.metadata,
 		functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
 	};
 
@@ -332,7 +334,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		params.bucketName,
 		typeof params.outName === 'string' || typeof params.outName === 'undefined'
 			? null
-			: params.outName?.s3OutputProvider ?? null,
+			: (params.outName?.s3OutputProvider ?? null),
 	);
 
 	if (!params.overwrite) {

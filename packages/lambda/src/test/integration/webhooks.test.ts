@@ -113,6 +113,7 @@ describe('Webhooks', () => {
 				colorSpace: null,
 				preferLossless: false,
 				forcePathStyle: false,
+				metadata: {Author: 'Lunar'},
 			},
 			functionName: 'remotion-dev-lambda',
 			region: 'us-east-1',
@@ -228,6 +229,7 @@ describe('Webhooks', () => {
 				colorSpace: null,
 				preferLossless: false,
 				forcePathStyle: false,
+				metadata: null,
 			},
 			timeoutInTest: 1000,
 		});

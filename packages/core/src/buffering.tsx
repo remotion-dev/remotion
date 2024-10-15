@@ -121,3 +121,29 @@ export const BufferingProvider: React.FC<{
 		</BufferingContextReact.Provider>
 	);
 };
+
+export const useIsPlayerBuffering = (bufferManager: BufferManager) => {
+	const [isBuffering, setIsBuffering] = useState(
+		bufferManager.buffering.current,
+	);
+
+	useEffect(() => {
+		const onBuffer = () => {
+			setIsBuffering(true);
+		};
+
+		const onResume = () => {
+			setIsBuffering(false);
+		};
+
+		bufferManager.listenForBuffering(onBuffer);
+		bufferManager.listenForResume(onResume);
+
+		return () => {
+			bufferManager.listenForBuffering(() => undefined);
+			bufferManager.listenForResume(() => undefined);
+		};
+	}, [bufferManager]);
+
+	return isBuffering;
+};

@@ -2,15 +2,16 @@
 image: /generated/articles-docs-tailwind.png
 id: tailwind
 title: TailwindCSS
-crumb: "text-lg font-bold"
+crumb: 'text-lg font-bold'
 ---
 
-import Tabs from "@theme/Tabs";
+import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import {TailwindSupport} from '../components/TailwindSupport';
 
-## Using the template
+## Using the CLI
 
-The easiest way to get started with Tailwind and Remotion is to [use the template by cloning it on GitHub](https://github.com/remotion-dev/template-tailwind) or running the following:
+The easiest way to get started with Tailwind is by scaffolding a new video using the CLI and selecting a template that supports adding Tailwind automatically.
 
 <Tabs
 defaultValue="npm"
@@ -24,33 +25,35 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npx create-video --tailwind
+npx create-video@latest
 ```
 
   </TabItem>
   <TabItem value="pnpm">
 
 ```bash
-pnpm create video --tailwind
+pnpm create video
 ```
 
   </TabItem>
   <TabItem value="bun">
 
 ```bash
-bun create video --tailwind
+bun create video
 ```
 
   </TabItem>
   <TabItem value="yarn">
 
 ```bash
-yarn create video -- --tailwind
+yarn create video
 ```
 
   </TabItem>
 
 </Tabs>
+
+The following templates support scaffolding with TailwindCSS: <TailwindSupport />
 
 ## Install in existing project
 
@@ -93,8 +96,8 @@ pnpm i -D @remotion/tailwind
 2. Add the Webpack override from `@remotion/tailwind` to your config file:
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
-import { enableTailwind } from "@remotion/tailwind";
+import {Config} from '@remotion/cli/config';
+import {enableTailwind} from '@remotion/tailwind';
 
 Config.overrideWebpackConfig((currentConfiguration) => {
   return enableTailwind(currentConfiguration);
@@ -118,7 +121,7 @@ Prior to `v3.3.39`, the option was called `Config.Bundling.overrideWebpackConfig
 5. Import the stylesheet in your `src/Root.tsx` file. Add to the top of the file:
 
 ```js title="src/Root.tsx"
-import "./style.css";
+import './style.css';
 ```
 
 6. Add a `tailwind.config.js` file to the root of your project:
@@ -126,7 +129,7 @@ import "./style.css";
 ```js title="tailwind.config.js"
 /* eslint-env node */
 module.exports = {
-  content: ["./src/**/*.{ts,tsx}"],
+  content: ['./src/**/*.{ts,tsx}'],
   theme: {
     extend: {},
   },

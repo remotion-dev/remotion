@@ -1,8 +1,8 @@
-import {VERSION} from 'remotion/version';
 import {callFf} from './call-ffmpeg';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
+import {makeMetadataArgs} from './make-metadata-args';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {truthy} from './truthy';
 
@@ -17,6 +17,7 @@ export const muxVideoAndAudio = async ({
 	fps,
 	cancelSignal,
 	addFaststart,
+	metadata,
 }: {
 	videoOutput: string | null;
 	audioOutput: string | null;
@@ -28,9 +29,11 @@ export const muxVideoAndAudio = async ({
 	onProgress: (p: number) => void;
 	cancelSignal: CancelSignal | undefined;
 	addFaststart: boolean;
+	metadata?: Record<string, string> | null;
 }) => {
 	const startTime = Date.now();
 	Log.verbose({indent, logLevel}, 'Muxing video and audio together');
+
 	const command = [
 		'-hide_banner',
 		videoOutput ? '-i' : null,
@@ -43,8 +46,7 @@ export const muxVideoAndAudio = async ({
 		audioOutput ? 'copy' : null,
 		addFaststart ? '-movflags' : null,
 		addFaststart ? 'faststart' : null,
-		`-metadata`,
-		`comment=Made with Remotion ${VERSION}`,
+		...makeMetadataArgs(metadata ?? {}),
 		'-y',
 		output,
 	].filter(truthy);

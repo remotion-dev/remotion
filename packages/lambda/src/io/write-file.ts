@@ -34,7 +34,7 @@ const tryLambdaWriteFile = async ({
 						: 'public-read',
 			ExpectedBucketOwner: customCredentials
 				? undefined
-				: expectedBucketOwner ?? undefined,
+				: (expectedBucketOwner ?? undefined),
 			ContentType: mimeTypes.lookup(key) || 'application/octet-stream',
 			ContentDisposition: getContentDispositionHeader(downloadBehavior),
 		}),

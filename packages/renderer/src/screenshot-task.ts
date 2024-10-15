@@ -62,7 +62,11 @@ export const screenshotTask = async ({
 			// To be determined: Is this a problem with Lambda, or the Chrome version
 			// we are using on Lambda?
 			// We already found out that the problem is not a general Linux problem.
-			const fromSurface = !process.env.DISABLE_FROM_SURFACE;
+
+			// However, if `fromSurface` is false, the screenshot is limited to 8192x8192 pixels.
+			// If the image is larger, always use `fromSurface: true`.
+			const fromSurface =
+				!process.env.DISABLE_FROM_SURFACE || height > 8192 || width > 8192;
 			const scaleFactor = fromSurface ? 1 : scale;
 
 			const {value} = await client.send('Page.captureScreenshot', {

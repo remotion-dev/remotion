@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-install-whisper-cpp-download-whisper-model.png
 title: downloadWhisperModel()
-crumb: "@remotion/install-whisper-cpp"
+crumb: '@remotion/install-whisper-cpp'
 ---
 
 # downloadWhisperModel()<AvailableFrom v="4.0.115"/>
@@ -12,12 +12,12 @@ You should first install Whisper.cpp, for example through [`installWhisperCpp()`
 ```tsx twoslash title="install-whisper.mjs"
 // @module: esnext
 // @target: es2022
-import path from "path";
-import { downloadWhisperModel } from "@remotion/install-whisper-cpp";
+import path from 'path';
+import {downloadWhisperModel} from '@remotion/install-whisper-cpp';
 
-const { alreadyExisted } = await downloadWhisperModel({
-  model: "medium.en",
-  folder: path.join(process.cwd(), "whisper.cpp"),
+const {alreadyExisted} = await downloadWhisperModel({
+  model: 'medium.en',
+  folder: path.join(process.cwd(), 'whisper.cpp'),
 });
 ```
 
@@ -29,14 +29,14 @@ The folder to download the model to. The model will be downloaded into this fold
 
 ### `model`
 
-The model to download. Possible values: `tiny`, `tiny.en`, `base`, `base.en`, `small`, `small.en`, `medium`, `medium.en`, `large-v1`, `large-v2`, `large-v3`.
+The model to download. Possible values: `tiny`, `tiny.en`, `base`, `base.en`, `small`, `small.en`, `medium`, `medium.en`, `large-v1`, `large-v2`, `large-v3`, `large-v3-turbo`.
 
 ### `onProgress?`
 
 Act upon download progress. This is the function signature:
 
 ```tsx twoslash
-import type { OnProgress } from "@remotion/install-whisper-cpp";
+import type {OnProgress} from '@remotion/install-whisper-cpp';
 
 const onProgress: OnProgress = (
   downloadedBytes: number,

@@ -76,6 +76,7 @@ export const mergeChunksAndFinishRender = async <
 		cancelSignal: undefined,
 		preferLossless: options.preferLossless,
 		muted: options.renderMetadata.muted,
+		metadata: options.renderMetadata.metadata,
 	});
 	const encodingStop = Date.now();
 	options.overallProgress.setTimeToCombine(encodingStop - encodingStart);

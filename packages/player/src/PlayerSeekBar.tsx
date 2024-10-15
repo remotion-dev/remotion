@@ -11,7 +11,7 @@ const getFrameFromX = (
 ) => {
 	const pos = clientX;
 	const frame = Math.round(
-		interpolate(pos, [0, width], [0, durationInFrames - 1 ?? 0], {
+		interpolate(pos, [0, width], [0, durationInFrames - 1], {
 			extrapolateLeft: 'clamp',
 			extrapolateRight: 'clamp',
 		}),

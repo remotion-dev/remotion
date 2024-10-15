@@ -1,18 +1,18 @@
-import { ESLintUtils } from "@typescript-eslint/utils";
-import rule from "../rules/no-from-0";
+import {ESLintUtils} from '@typescript-eslint/utils';
+import rule from '../rules/no-from-0';
 
 const ruleTester = new ESLintUtils.RuleTester({
-  parser: "@typescript-eslint/parser",
-  parserOptions: {
-    ecmaFeatures: {
-      jsx: true,
-    },
-  },
+	parser: '@typescript-eslint/parser',
+	parserOptions: {
+		ecmaFeatures: {
+			jsx: true,
+		},
+	},
 });
 
-ruleTester.run("no-duration-frames-infinity", rule, {
-  valid: [
-    `
+ruleTester.run('no-duration-frames-infinity', rule, {
+	valid: [
+		`
       import {Sequence} from 'remotion';
 
       export const Re = () => {
@@ -23,10 +23,10 @@ ruleTester.run("no-duration-frames-infinity", rule, {
         );
       }
     `,
-  ],
-  invalid: [
-    {
-      code: `
+	],
+	invalid: [
+		{
+			code: `
         import {Composition, Sequence} from 'remotion';
 
         export const Re = () => {
@@ -37,7 +37,7 @@ ruleTester.run("no-duration-frames-infinity", rule, {
           );
         }
       `,
-      output: `
+			output: `
         import {Composition, Sequence} from 'remotion';
 
         export const Re = () => {
@@ -48,11 +48,11 @@ ruleTester.run("no-duration-frames-infinity", rule, {
           );
         }
       `,
-      errors: [
-        {
-          messageId: "From0",
-        },
-      ],
-    },
-  ],
+			errors: [
+				{
+					messageId: 'From0',
+				},
+			],
+		},
+	],
 });

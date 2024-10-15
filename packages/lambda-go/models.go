@@ -11,6 +11,7 @@ type RemotionOptions struct {
 	ImageFormat                    string                 `json:"imageFormat"`
 	Crf                            int                    `json:"crf"`
 	EnvVariables                   interface{}            `json:"envVariables"`
+	Metadata                       interface{}            `json:"metadata"`
 	JpegQuality                    int                    `json:"jpegQuality"`
 	MaxRetries                     int                    `json:"maxRetries"`
 	Privacy                        string                 `json:"privacy"`
@@ -56,6 +57,7 @@ type renderInternalOptions struct {
 	ImageFormat                    string                 `json:"imageFormat"`
 	Crf                            int                    `json:"crf,omitempty"`
 	EnvVariables                   interface{}            `json:"envVariables,omitempty"`
+	Metadata                       interface{}            `json:"metadata,omitempty"`
 	JpegQuality                    int                    `json:"jpegQuality"`
 	MaxRetries                     int                    `json:"maxRetries"`
 	Privacy                        string                 `json:"privacy"`

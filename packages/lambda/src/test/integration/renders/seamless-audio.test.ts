@@ -21,6 +21,7 @@ test('Should make seamless audio', async () => {
 		logLevel: 'error',
 		region: 'eu-central-1',
 		inputProps: {playbackRate: 2},
+		metadata: {Author: 'Lunar'},
 	});
 
 	const wav = path.join(process.cwd(), 'seamless.wav');

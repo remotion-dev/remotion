@@ -19,8 +19,8 @@ export const getRemotionStorageBuckets = async (
 		return {remotionBuckets: []};
 	}
 
-	let remotionBuckets = buckets.filter(
-		(b) => b.name?.startsWith(REMOTION_BUCKET_PREFIX),
+	let remotionBuckets = buckets.filter((b) =>
+		b.name?.startsWith(REMOTION_BUCKET_PREFIX),
 	);
 
 	if (region !== 'all regions') {

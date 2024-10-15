@@ -7,6 +7,7 @@ type ReadResult = {
 	reader: Reader;
 	contentLength: number | null;
 	name: string;
+	supportsContentRange: boolean;
 };
 type ReadContent = (
 	src: string | File,

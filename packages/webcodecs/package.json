@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/webcodecs",
-	"version": "4.0.209",
+	"version": "4.0.221",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -14,7 +14,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"build": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
 		"watch": "tsc -w"
 	},
 	"files": [

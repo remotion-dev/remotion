@@ -164,7 +164,7 @@ const internalGetCompositionsRaw = async ({
 	binariesDirectory,
 	onBrowserDownload,
 }: InternalGetCompositionsOptions) => {
-	const {page, cleanup: cleanupPage} = await getPageAndCleanupFn({
+	const {page, cleanupPage} = await getPageAndCleanupFn({
 		passedInInstance: puppeteerInstance,
 		browserExecutable,
 		chromiumOptions,

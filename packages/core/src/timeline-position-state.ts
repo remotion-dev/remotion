@@ -84,7 +84,7 @@ export const useTimelinePosition = (): number => {
 	if (!videoConfig) {
 		return typeof window === 'undefined'
 			? 0
-			: window.remotion_initialFrame ?? 0;
+			: (window.remotion_initialFrame ?? 0);
 	}
 
 	const unclamped =

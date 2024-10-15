@@ -160,7 +160,7 @@ export const updateDefaultProps = async ({
 	const prettierConfig = await resolveConfig(configFilePath);
 	if (!prettierConfig) {
 		throw new Error(
-			`The Prettier config at ${configFilePath} could not be read`,
+			'The Prettier config file was not found. For this feature, the "prettier" package must be installed and a .prettierrc file must exist.',
 		);
 	}
 

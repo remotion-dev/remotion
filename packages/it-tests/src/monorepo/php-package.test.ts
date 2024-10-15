@@ -58,9 +58,6 @@ class Semantic
 	});
 
 	test('PHP package should create the same renderMedia payload as normal Lambda package', async () => {
-		execSync('php composer.phar --quiet update', {
-			cwd: path.join(process.cwd(), '..', 'lambda-php'),
-		});
 		execSync('php composer.phar --quiet install', {
 			cwd: path.join(process.cwd(), '..', 'lambda-php'),
 		});
@@ -116,6 +113,9 @@ class Semantic
 			preferLossless: false,
 			indent: false,
 			forcePathStyle: false,
+			metadata: {
+				Author: 'Remotion',
+			},
 		});
 		const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 		const parsedJson = JSON.parse(jsonOutput);
@@ -129,9 +129,6 @@ class Semantic
 	});
 
 	test('PHP package should create the same progress payload as normal Lambda package', async () => {
-		execSync('php composer.phar --quiet update', {
-			cwd: path.join(process.cwd(), '..', 'lambda-php'),
-		});
 		execSync('php composer.phar --quiet install', {
 			cwd: path.join(process.cwd(), '..', 'lambda-php'),
 		});

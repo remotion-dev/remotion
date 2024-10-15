@@ -2,8 +2,8 @@ import {formatBytes} from '@remotion/studio-shared';
 export {
 	ApiRoutes,
 	CopyStillToClipboardRequest,
-	OpenInFileExplorerRequest,
 	getDefaultOutLocation,
+	OpenInFileExplorerRequest,
 } from '@remotion/studio-shared';
 export type {
 	AggregateRenderProgress,
@@ -15,9 +15,9 @@ export type {
 	ModuleMap,
 	PackageManager,
 	ProjectInfo,
+	RenderingProgressInput,
 	RenderJob,
 	RenderJobWithCleanup,
-	RenderingProgressInput,
 	RequiredChromiumOptions,
 	StitchingProgressInput,
 	UiOpenGlOptions,

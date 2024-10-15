@@ -29,6 +29,7 @@ export {
 
 export type {MediaFn} from './create/create-media';
 export {Dimensions} from './get-dimensions';
+export type {ReaderInterface} from './readers/reader';
 
 export const MediaParserInternals = {
 	createMedia,

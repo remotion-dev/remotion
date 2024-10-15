@@ -142,7 +142,6 @@ import type {AudioCodec} from './options/audio-codec';
 import {
 	getDefaultAudioCodec,
 	getExtensionFromAudioCodec,
-	isAudioCodec,
 	resolveAudioCodec,
 	supportedAudioCodecs,
 } from './options/audio-codec';
@@ -193,7 +192,6 @@ export const RenderInternals = {
 	validateJpegQuality,
 	DEFAULT_TIMEOUT,
 	DEFAULT_CODEC,
-	isAudioCodec,
 	logLevels,
 	isEqualOrBelowLogLevel,
 	isValidLogLevel,

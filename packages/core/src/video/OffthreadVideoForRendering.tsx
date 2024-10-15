@@ -160,12 +160,16 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	const [imageSrc, setImageSrc] = useState<SrcAndHandle | null>(null);
 
 	useLayoutEffect(() => {
+		if (!window.remotion_videoEnabled) {
+			return;
+		}
+
 		const cleanup: Function[] = [];
 
 		setImageSrc(null);
 		const controller = new AbortController();
 
-		const newHandle = delayRender('Fetching ' + actualSrc + 'from server', {
+		const newHandle = delayRender(`Fetching ${actualSrc} from server`, {
 			retries: delayRenderRetries ?? undefined,
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 		});
@@ -204,10 +208,12 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			} catch (err) {
 				// If component is unmounted, we should not throw
 				if ((err as Error).message.includes('aborted')) {
+					continueRender(newHandle);
 					return;
 				}
 
 				if (controller.signal.aborted) {
+					continueRender(newHandle);
 					return;
 				}
 
@@ -271,7 +277,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 		[onVideoFrame],
 	);
 
-	if (!imageSrc) {
+	if (!imageSrc || !window.remotion_videoEnabled) {
 		return null;
 	}
 

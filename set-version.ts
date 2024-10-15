@@ -8,6 +8,7 @@ import {
 	writeFileSync,
 } from 'fs';
 import path from 'path';
+import {FEATURED_TEMPLATES} from './packages/create-video/src/templates.tsx';
 
 let version = process.argv[2];
 let noCommit = process.argv.includes('--no-commit');
@@ -29,6 +30,13 @@ const dirs = readdirSync('packages')
 	);
 
 for (const dir of [path.join('cloudrun', 'container'), ...dirs]) {
+	const localTemplates = FEATURED_TEMPLATES.map(
+		(t) => t.templateInMonorepo,
+	).filter(Boolean) as string[];
+	if (localTemplates.includes(dir)) {
+		continue;
+	}
+
 	const packageJsonPath = path.join(
 		process.cwd(),
 		'packages',
@@ -57,12 +65,12 @@ execSync('bun test src/monorepo', {
 	stdio: 'inherit',
 });
 
-execSync('node build.mjs --all', {
+execSync('bun build.ts --all', {
 	cwd: 'packages/renderer',
 	stdio: 'inherit',
 });
 
-execSync('pnpm build', {
+execSync('pnpm run make', {
 	cwd: 'packages/cloudrun',
 	stdio: 'inherit',
 });

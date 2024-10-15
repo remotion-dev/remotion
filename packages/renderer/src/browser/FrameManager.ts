@@ -15,20 +15,9 @@
  */
 
 import type {LogLevel} from '../log-level';
-import {assert} from './assert';
 import type {Page} from './BrowserPage';
 import type {CDPSession} from './Connection';
 import {Connection} from './Connection';
-import type {
-	AttachedToTargetEvent,
-	DetachedFromTargetEvent,
-	ExecutionContextDescription,
-	FrameDetachedEvent,
-	FrameDetachedEventReason,
-	FrameTree,
-	LifecycleEventEvent,
-	Frame as TFrame,
-} from './devtools-types';
 import {DOMWorld} from './DOMWorld';
 import type {
 	EvaluateFn,
@@ -40,11 +29,22 @@ import type {
 import {EventEmitter} from './EventEmitter';
 import {EVALUATION_SCRIPT_URL, ExecutionContext} from './ExecutionContext';
 import type {HTTPResponse} from './HTTPResponse';
-import {isTargetClosedErr} from './is-target-closed-err';
 import type {JSHandle} from './JSHandle';
 import type {PuppeteerLifeCycleEvent} from './LifecycleWatcher';
 import {LifecycleWatcher} from './LifecycleWatcher';
 import {NetworkManager} from './NetworkManager';
+import {assert} from './assert';
+import type {
+	AttachedToTargetEvent,
+	DetachedFromTargetEvent,
+	ExecutionContextDescription,
+	FrameDetachedEvent,
+	FrameDetachedEventReason,
+	FrameTree,
+	LifecycleEventEvent,
+	Frame as TFrame,
+} from './devtools-types';
+import {isTargetClosedErr} from './flaky-errors';
 import {isErrorLike} from './util';
 
 const UTILITY_WORLD_NAME = '__puppeteer_utility_world__';

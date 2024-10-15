@@ -65,7 +65,7 @@ type ReadFile<Provider extends CloudProvider> = (params: {
 	bucketName: string;
 	key: string;
 	region: Provider['region'];
-	expectedBucketOwner: string;
+	expectedBucketOwner: string | null;
 	forcePathStyle: boolean;
 }) => Promise<Readable>;
 

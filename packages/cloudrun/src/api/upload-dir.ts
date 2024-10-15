@@ -73,7 +73,7 @@ export const uploadDir = async ({
 									name: res,
 									size,
 								},
-						  ];
+							];
 				}),
 		);
 		return _files.flat(1);

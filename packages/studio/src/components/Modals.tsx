@@ -87,6 +87,7 @@ export const Modals: React.FC<{
 						modalContextType.defaultConfigurationVideoCodec
 					}
 					renderTypeOfLastRender={modalContextType.renderTypeOfLastRender}
+					defaultMetadata={modalContextType.defaulMetadata}
 				/>
 			)}
 

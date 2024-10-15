@@ -84,18 +84,14 @@ export const OptionsPanel: React.FC<{
 		persistSelectedOptionsSidebarPanel('renders');
 	}, []);
 
-	useImperativeHandle(
-		optionsSidebarTabs,
-		() => {
-			return {
-				selectRendersPanel: () => {
-					setPanel('renders');
-					persistSelectedOptionsSidebarPanel('renders');
-				},
-			};
-		},
-		[],
-	);
+	useImperativeHandle(optionsSidebarTabs, () => {
+		return {
+			selectRendersPanel: () => {
+				setPanel('renders');
+				persistSelectedOptionsSidebarPanel('renders');
+			},
+		};
+	}, []);
 
 	const {compositions, canvasContent} = useContext(
 		Internals.CompositionManager,

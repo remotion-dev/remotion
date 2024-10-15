@@ -30,6 +30,8 @@ export const cloudRunDeploySubcommand = async (logLevel: LogLevel) => {
 	const maxInstances = String(
 		parsedCloudrunCli.maxInstances ?? DEFAULT_MAX_INSTANCES,
 	);
+	const onlyAllocateCpuDuringRequestProcessing =
+		parsedCloudrunCli.onlyAllocateCpuDuringRequestProcessing ?? false;
 	const timeoutSeconds = parsedCloudrunCli.timeoutSeconds ?? DEFAULT_TIMEOUT;
 
 	if (!CliInternals.quietFlagProvided()) {
@@ -88,6 +90,7 @@ ${[
 			region,
 			logLevel,
 			indent: false,
+			onlyAllocateCpuDuringRequestProcessing,
 		});
 
 		if (!deployResult.fullName) {

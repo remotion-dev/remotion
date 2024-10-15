@@ -13,7 +13,7 @@ test('Should not be able to bundle @remotion/lambda directly', async () => {
 			entryPoints: [require.resolve('@remotion/lambda')],
 			logLevel: 'silent',
 		}),
-	).toThrow(/Could not resolve "uglify-js"/);
+	).toThrow(/Could not resolve "@swc\/wasm"/);
 });
 
 describe('Should be able to bundle @remotion/lambda/client with ESBuild', () => {

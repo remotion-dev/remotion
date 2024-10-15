@@ -177,14 +177,7 @@ export const makeMatroskaAudioTrackEntryBytes = ({
 				},
 				minVintWidth: null,
 			},
-			{
-				type: 'TrackTimestampScale',
-				value: {
-					value: 1,
-					size: '64',
-				},
-				minVintWidth: null,
-			},
+
 			{
 				type: 'CodecID',
 				value: makeAudioCodecId(codec),

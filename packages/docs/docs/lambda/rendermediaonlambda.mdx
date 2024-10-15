@@ -2,10 +2,10 @@
 image: /generated/articles-docs-lambda-rendermediaonlambda.png
 id: rendermediaonlambda
 title: renderMediaOnLambda()
-crumb: "Lambda API"
+crumb: 'Lambda API'
 ---
 
-import { MinimumFramesPerLambda } from "../../components/lambda/default-frames-per-lambda";
+import {MinimumFramesPerLambda} from '../../components/lambda/default-frames-per-lambda';
 
 Kicks off a render process on Remotion Lambda. The progress can be tracked using [getRenderProgress()](/docs/lambda/getrenderprogress).
 
@@ -18,15 +18,15 @@ A [site](/docs/lambda/deploysite) or a [Serve URL](/docs/terminology/serve-url) 
 // @module: esnext
 // @target: es2017
 // ---cut---
-import { renderMediaOnLambda } from "@remotion/lambda/client";
+import {renderMediaOnLambda} from '@remotion/lambda/client';
 
-const { bucketName, renderId } = await renderMediaOnLambda({
-  region: "us-east-1",
-  functionName: "remotion-render-bds9aab",
-  composition: "MyVideo",
+const {bucketName, renderId} = await renderMediaOnLambda({
+  region: 'us-east-1',
+  functionName: 'remotion-render-bds9aab',
+  composition: 'MyVideo',
   serveUrl:
-    "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
-  codec: "h264",
+    'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
+  codec: 'h264',
 });
 ```
 
@@ -83,6 +83,12 @@ A URL pointing to a Remotion project. Use [`deploySite()`](/docs/lambda/deploysi
 ### `composition`
 
 The `id` of the [composition](/docs/composition) you want to render.
+
+### `metadata`<AvailableFrom v="4.0.216" />
+
+_object - optional_
+
+<Options id="metadata" />
 
 ### `inputProps`
 
@@ -307,10 +313,10 @@ _optional, available from v3.2.30_
 If specified, Remotion will send a POST request to the provided endpoint to notify your application when the Lambda rendering process finishes, errors out or times out.
 
 ```tsx twoslash
-import { RenderMediaOnLambdaInput } from "@remotion/lambda";
+import {RenderMediaOnLambdaInput} from '@remotion/lambda';
 
-const webhook: RenderMediaOnLambdaInput["webhook"] = {
-  url: "https://mapsnap.app/api/webhook",
+const webhook: RenderMediaOnLambdaInput['webhook'] = {
+  url: 'https://mapsnap.app/api/webhook',
   secret: process.env.WEBHOOK_SECRET as string,
   // Optionally pass up to 1024 bytes of custom data
   customData: {
@@ -322,10 +328,10 @@ const webhook: RenderMediaOnLambdaInput["webhook"] = {
 If you don't want to set up validation, you can set `secret` to null:
 
 ```tsx twoslash
-import { RenderMediaOnLambdaInput } from "@remotion/lambda";
+import {RenderMediaOnLambdaInput} from '@remotion/lambda';
 
-const webhook: RenderMediaOnLambdaInput["webhook"] = {
-  url: "https://mapsnap.app/api/webhook",
+const webhook: RenderMediaOnLambdaInput['webhook'] = {
+  url: 'https://mapsnap.app/api/webhook',
   secret: null,
 };
 ```

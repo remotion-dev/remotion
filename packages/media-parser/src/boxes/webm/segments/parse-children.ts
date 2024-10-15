@@ -67,6 +67,12 @@ const continueParsingfunction =
 
 		const continued = await result.continueParsing();
 		if (continued.status === 'incomplete') {
+			if (!parserContext.supportsContentRange) {
+				throw new Error(
+					'Content-Range header is not supported by the reader, but was asked to seek',
+				);
+			}
+
 			return {
 				status: 'incomplete',
 				continueParsing: continueParsingfunction({
@@ -121,6 +127,12 @@ export const expectChildren = async ({
 		});
 
 		if (child.status === 'incomplete') {
+			if (!parserContext.supportsContentRange) {
+				throw new Error(
+					'Content-Range header is not supported by the reader, but was asked to seek',
+				);
+			}
+
 			return {
 				status: 'incomplete',
 				continueParsing: continueParsingfunction({

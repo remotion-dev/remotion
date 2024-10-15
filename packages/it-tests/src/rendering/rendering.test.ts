@@ -517,7 +517,7 @@ test('Dynamic duration should work and audio separation', async () => {
 		);
 	} else {
 		expect(data).toContain(
-			`Stream #0:0[0x1](und): Video: h264 (avc1 / 0x31637661), yuv420p(tv, bt470bg/unknown/unknown, progressive)`,
+			`Stream #0:0[0x1](und): Video: h264 (avc1 / 0x31637661), yuvj420p(pc, bt470bg/unknown/unknown, progressive)`,
 		);
 	}
 

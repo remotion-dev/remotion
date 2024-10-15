@@ -39,14 +39,15 @@ export type Template = {
 		| 'google-tts'
 		| 'audiogram'
 		| 'skia'
-		| 'tailwind'
 		| 'overlay'
 		| 'stargazer'
 		| 'tiktok'
 		| 'code-hike';
 	defaultBranch: string;
 	featuredOnHomePage: string | null;
-	previewURL?: string | null;
+	previewURL: string | null;
+	templateInMonorepo: string;
+	allowEnableTailwind: boolean;
 } & DynamicTemplate;
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
@@ -55,7 +56,6 @@ function truthy<T>(value: T): value is Truthy<T> {
 	return Boolean(value);
 }
 
-// Note that this page is statically analyzed by extract-articles.mjs
 export const FEATURED_TEMPLATES: Template[] = [
 	{
 		homePageLabel: 'Hello World',
@@ -75,6 +75,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 		defaultBranch: 'main',
 		featuredOnHomePage: 'Hello World',
 		previewURL: 'https://remotion-helloworld.vercel.app/?/HelloWorld',
+		templateInMonorepo: 'template-helloworld',
+		allowEnableTailwind: true,
 	},
 	{
 		homePageLabel: 'Next.js (App dir)',
@@ -93,6 +95,9 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: 'Next.js',
+		previewURL: null,
+		templateInMonorepo: 'template-next-app',
+		allowEnableTailwind: false,
 	},
 	{
 		homePageLabel: 'Next.js (App dir + TailwindCSS)',
@@ -111,6 +116,9 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: 'template-next-app-tailwind',
+		allowEnableTailwind: false,
 	},
 	{
 		homePageLabel: 'Next.js (Pages dir)',
@@ -129,6 +137,9 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: 'template-next-pages',
+		allowEnableTailwind: false,
 	},
 
 	{
@@ -149,6 +160,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 		defaultBranch: 'main',
 		featuredOnHomePage: 'Blank',
 		previewURL: 'https://template-empty.vercel.app/?/MyComp',
+		templateInMonorepo: 'template-blank',
+		allowEnableTailwind: true,
 	},
 	{
 		homePageLabel: 'JavaScript',
@@ -169,6 +182,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: 'JavaScript',
 		previewURL:
 			'https://template-helloworld-javascript.vercel.app/?/HelloWorld',
+		templateInMonorepo: 'template-javascript',
+		allowEnableTailwind: true,
 	},
 	{
 		homePageLabel: 'Remix',
@@ -187,6 +202,9 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'image' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: 'template-remix',
+		allowEnableTailwind: false,
 	},
 	{
 		homePageLabel: '3D',
@@ -206,6 +224,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
 		previewURL: 'https://template-three-remotion.vercel.app/',
+		templateInMonorepo: 'template-three',
+		allowEnableTailwind: false,
 	},
 	{
 		homePageLabel: 'Stills',
@@ -225,6 +245,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
 		previewURL: 'https://template-still.vercel.app/?/PreviewCard',
+		templateInMonorepo: 'template-still',
+		allowEnableTailwind: false,
 	},
 	{
 		homePageLabel: 'Text-To-Speech (Azure)',
@@ -243,6 +265,9 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'master',
 		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: 'template-tts-azure',
+		allowEnableTailwind: false,
 	},
 	{
 		homePageLabel: 'Text-To-Speech (Google)',
@@ -261,6 +286,9 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'master',
 		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: 'template-tts-google',
+		allowEnableTailwind: false,
 	},
 	{
 		homePageLabel: 'Audiogram',
@@ -279,6 +307,9 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: 'template-audiogram',
+		allowEnableTailwind: true,
 	},
 	{
 		homePageLabel: 'Skia',
@@ -296,25 +327,9 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
-	},
-	{
-		homePageLabel: 'Tailwind',
-		shortName: 'Tailwind',
-		org: 'remotion-dev',
-		repoName: 'template-tailwind',
-		description: 'TypeScript and Tailwind starter',
-		longerDescription:
-			'A starter template with TypeScript and Tailwind already set up.',
-		promoVideo: {
-			muxId: 'OAe00WUpvsAyqAVSd4gehDCeWI81cI024RhTs9l2eB48w',
-			height: 720,
-			width: 1280,
-		},
-		cliId: 'tailwind' as const,
-		type: 'video' as const,
-		defaultBranch: 'main',
-		featuredOnHomePage: null,
-		previewURL: 'https://template-tailwind-remotion.vercel.app/?/MyComp',
+		previewURL: null,
+		templateInMonorepo: 'template-skia',
+		allowEnableTailwind: false,
 	},
 	{
 		homePageLabel: 'Overlay',
@@ -338,6 +353,9 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: 'template-overlay',
+		allowEnableTailwind: true,
 	},
 	{
 		homePageLabel: 'Code Hike',
@@ -362,6 +380,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
 		previewURL: 'https://template-code-hike.vercel.app/',
+		templateInMonorepo: 'template-code-hike',
+		allowEnableTailwind: false,
 	},
 	{
 		homePageLabel: 'Stargazer',
@@ -380,6 +400,9 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: 'template-stargazer',
+		allowEnableTailwind: true,
 	},
 	{
 		homePageLabel: 'TikTok',
@@ -398,5 +421,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: 'template-tiktok',
+		allowEnableTailwind: true,
 	},
 ].filter(truthy);

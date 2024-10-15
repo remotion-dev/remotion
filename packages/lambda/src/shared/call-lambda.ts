@@ -22,7 +22,7 @@ import {
 	messageTypeIdToMessageType,
 } from '@remotion/serverless/client';
 import {makeStreamer} from '@remotion/streaming';
-import type {EventEmitter} from 'stream';
+import type {EventEmitter} from 'node:events';
 import type {OrError} from '../functions';
 import type {AwsRegion} from '../regions';
 import {getLambdaClient} from './aws-clients';
@@ -80,6 +80,12 @@ export const callLambdaWithStreaming = async <
 		// Do not remove this await
 		await callLambdaWithStreamingWithoutRetry<T, Provider>(options);
 	} catch (err) {
+		if ((err as Error).message.includes('TooManyRequestsException')) {
+			throw new Error(
+				`AWS Concurrency limit reached (Original Error: ${(err as Error).message}). See https://www.remotion.dev/docs/lambda/troubleshooting/rate-limit for tips to fix this.`,
+			);
+		}
+
 		if (
 			!(err as Error).message.includes(INVALID_JSON_MESSAGE) &&
 			!(err as Error).message.includes(LAMBDA_STREAM_STALL) &&

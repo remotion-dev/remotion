@@ -136,7 +136,7 @@ export const SrcEncoder: React.FC<{
 						setState(() => s);
 					});
 				},
-				videoCodec: 'vp8',
+				videoCodec: 'vp9',
 				audioCodec: 'opus',
 				to: 'webm',
 				signal: abortController.signal,

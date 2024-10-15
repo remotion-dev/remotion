@@ -50,7 +50,7 @@ test(
 		});
 		const data = info.stderr;
 		expect(data).toContain('Video: h264');
-		expect(data).toContain('yuv420p');
+		expect(data).toContain('yuvj420p');
 		expect(data).toContain('2160x2160');
 		expect(data).toContain('30 fps');
 	},
@@ -97,7 +97,7 @@ test(
 		});
 		const data = info.stderr;
 		expect(data).toContain('Video: h264');
-		expect(data).toContain('yuv420p');
+		expect(data).toContain('yuvj420p');
 		expect(data).toContain('108x108');
 		expect(data).toContain('30 fps');
 	},

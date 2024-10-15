@@ -1,6 +1,7 @@
 import type {VideoTrackColorParams} from '../../get-tracks';
+import {truthy} from '../../truthy';
 import {makeMatroskaBytes} from './make-header';
-import type {ColourSegment} from './segments/all-segments';
+import type {ColourSegment, PossibleEbml} from './segments/all-segments';
 import {
 	getMatrixCoefficientsSegment,
 	getPrimariesSegment,
@@ -105,39 +106,47 @@ export const makeMatroskaColorBytes = ({
 	return makeMatroskaBytes({
 		type: 'Colour',
 		minVintWidth: null,
-		value: [
-			{
-				type: 'TransferCharacteristics',
-				value: {
-					value: transferChracteristicsValue,
-					byteLength: null,
+		value: (
+			[
+				transferChracteristicsValue === 2
+					? null
+					: {
+							type: 'TransferCharacteristics',
+							value: {
+								value: transferChracteristicsValue,
+								byteLength: null,
+							},
+							minVintWidth: null,
+						},
+				matrixCoefficientsValue === 2
+					? null
+					: {
+							type: 'MatrixCoefficients' as const,
+							value: {
+								value: matrixCoefficientsValue,
+								byteLength: null,
+							},
+							minVintWidth: null,
+						},
+				primariesValue === 2
+					? null
+					: {
+							type: 'Primaries',
+							value: {
+								value: primariesValue,
+								byteLength: null,
+							},
+							minVintWidth: null,
+						},
+				{
+					type: 'Range',
+					value: {
+						value: rangeValue,
+						byteLength: null,
+					},
+					minVintWidth: null,
 				},
-				minVintWidth: null,
-			},
-			{
-				type: 'MatrixCoefficients',
-				value: {
-					value: matrixCoefficientsValue,
-					byteLength: null,
-				},
-				minVintWidth: null,
-			},
-			{
-				type: 'Primaries',
-				value: {
-					value: primariesValue,
-					byteLength: null,
-				},
-				minVintWidth: null,
-			},
-			{
-				type: 'Range',
-				value: {
-					value: rangeValue,
-					byteLength: null,
-				},
-				minVintWidth: null,
-			},
-		],
+			] as PossibleEbml[]
+		).filter(truthy),
 	});
 };

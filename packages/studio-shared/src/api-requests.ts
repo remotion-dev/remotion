@@ -96,6 +96,7 @@ export type AddRenderRequest = {
 	offthreadVideoCacheSizeInBytes: number | null;
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;
+	metadata: Record<string, string> | null;
 } & AddRenderRequestDynamicFields;
 
 export type RemoveRenderRequest = {

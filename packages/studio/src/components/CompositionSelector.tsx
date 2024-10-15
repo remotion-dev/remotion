@@ -84,56 +84,50 @@ export const CompositionSelector: React.FC = () => {
 		[],
 	);
 
-	useImperativeHandle(
-		compositionSelectorRef,
-		() => {
-			return {
-				expandComposition: (compName) => {
-					const compositionToExpand = compositions.find(
-						(c) => c.id === compName,
-					);
-					if (!compositionToExpand) {
-						return;
-					}
+	useImperativeHandle(compositionSelectorRef, () => {
+		return {
+			expandComposition: (compName) => {
+				const compositionToExpand = compositions.find((c) => c.id === compName);
+				if (!compositionToExpand) {
+					return;
+				}
 
-					const {folderName, parentFolderName} = compositionToExpand;
-					if (folderName === null) {
-						return;
-					}
+				const {folderName, parentFolderName} = compositionToExpand;
+				if (folderName === null) {
+					return;
+				}
 
-					setFoldersExpanded((previousState) => {
-						const foldersExpandedState: ExpandedFoldersState = {
-							...previousState,
-						};
+				setFoldersExpanded((previousState) => {
+					const foldersExpandedState: ExpandedFoldersState = {
+						...previousState,
+					};
 
-						const currentFolder: string | null = folderName;
-						const currentParentName: string | null = parentFolderName;
-						const key = openFolderKey({
-							folderName: currentFolder,
-							parentName: currentParentName,
-						});
-
-						const splitted = key.split('/');
-						for (let i = 0; i < splitted.length - 1; i++) {
-							const allExceptLast =
-								i === 0
-									? openFolderKey({
-											folderName: splitted.filter((s) => s !== 'no-parent')[0],
-											parentName: null,
-										})
-									: splitted.slice(0, i + 1).join('/');
-							foldersExpandedState[allExceptLast] = true;
-						}
-
-						persistExpandedFolders('compositions', foldersExpandedState);
-
-						return foldersExpandedState;
+					const currentFolder: string | null = folderName;
+					const currentParentName: string | null = parentFolderName;
+					const key = openFolderKey({
+						folderName: currentFolder,
+						parentName: currentParentName,
 					});
-				},
-			};
-		},
-		[compositions],
-	);
+
+					const splitted = key.split('/');
+					for (let i = 0; i < splitted.length - 1; i++) {
+						const allExceptLast =
+							i === 0
+								? openFolderKey({
+										folderName: splitted.filter((s) => s !== 'no-parent')[0],
+										parentName: null,
+									})
+								: splitted.slice(0, i + 1).join('/');
+						foldersExpandedState[allExceptLast] = true;
+					}
+
+					persistExpandedFolders('compositions', foldersExpandedState);
+
+					return foldersExpandedState;
+				});
+			},
+		};
+	}, [compositions]);
 
 	const items = useMemo(() => {
 		return createFolderTree(compositions, folders, foldersExpanded);

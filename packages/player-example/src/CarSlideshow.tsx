@@ -34,17 +34,13 @@ const CarSlideshow = ({title, bgColor, color}: Props) => {
 		return '';
 	}, [shouldThrowError]);
 
-	useImperativeHandle(
-		playerExampleComp,
-		() => {
-			return {
-				triggerError: () => {
-					setThrowError(true);
-				},
-			};
-		},
-		[],
-	);
+	useImperativeHandle(playerExampleComp, () => {
+		return {
+			triggerError: () => {
+				setThrowError(true);
+			},
+		};
+	}, []);
 
 	return (
 		<div

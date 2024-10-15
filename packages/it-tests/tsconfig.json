@@ -3,7 +3,9 @@
 	"compilerOptions": {
 		"jsx": "react-jsx",
 		"noEmit": true,
-		"incremental": true
+		"incremental": true,
+		"module": "ESNext",
+		"moduleResolution": "node"
 	},
 	"references": [
 		{
@@ -23,6 +25,9 @@
 		},
 		{
 			"path": "../install-whisper-cpp"
+		},
+		{
+			"path": "../captions"
 		},
 		{
 			"path": "../studio-shared"

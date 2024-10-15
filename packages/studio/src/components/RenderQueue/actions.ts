@@ -37,6 +37,7 @@ export const addStillRenderJob = ({
 	offthreadVideoCacheSizeInBytes,
 	multiProcessOnLinux,
 	beepOnFinish,
+	metadata,
 }: {
 	compositionId: string;
 	outName: string;
@@ -52,6 +53,7 @@ export const addStillRenderJob = ({
 	offthreadVideoCacheSizeInBytes: number | null;
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;
+	metadata: Record<string, string> | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -74,6 +76,7 @@ export const addStillRenderJob = ({
 		offthreadVideoCacheSizeInBytes,
 		multiProcessOnLinux,
 		beepOnFinish,
+		metadata,
 	});
 };
 
@@ -96,6 +99,7 @@ export const addSequenceRenderJob = ({
 	multiProcessOnLinux,
 	beepOnFinish,
 	repro,
+	metadata,
 }: {
 	compositionId: string;
 	outName: string;
@@ -115,6 +119,7 @@ export const addSequenceRenderJob = ({
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;
 	repro: boolean;
+	metadata: Record<string, string> | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -141,6 +146,7 @@ export const addSequenceRenderJob = ({
 		multiProcessOnLinux,
 		beepOnFinish,
 		repro,
+		metadata,
 	});
 };
 
@@ -180,6 +186,7 @@ export const addVideoRenderJob = ({
 	repro,
 	forSeamlessAacConcatenation,
 	separateAudioTo,
+	metadata,
 }: {
 	compositionId: string;
 	outName: string;
@@ -216,6 +223,7 @@ export const addVideoRenderJob = ({
 	repro: boolean;
 	forSeamlessAacConcatenation: boolean;
 	separateAudioTo: string | null;
+	metadata: Record<string, string> | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -259,6 +267,7 @@ export const addVideoRenderJob = ({
 		repro,
 		forSeamlessAacConcatenation,
 		separateAudioTo,
+		metadata,
 	});
 };
 

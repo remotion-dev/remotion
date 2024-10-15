@@ -183,7 +183,7 @@ export const internalOpenBrowser = async ({
 			'--enable-blink-features=IdleDetection',
 			'--export-tagged-pdf',
 			'--intensive-wake-up-throttling-policy=0',
-			chromiumOptions.headless ?? true ? '--headless=old' : null,
+			(chromiumOptions.headless ?? true) ? '--headless=old' : null,
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
 			...customGlRenderer,

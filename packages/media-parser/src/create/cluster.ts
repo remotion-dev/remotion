@@ -70,13 +70,22 @@ export const makeCluster = async (w: Writer, timestamp: number) => {
 			getVariableInt(clusterSize, CLUSTER_MIN_VINT_WIDTH),
 		);
 		await w.write(simpleBlock);
+		return {timecodeRelativeToCluster};
 	};
 
-	const shouldMakeNewCluster = (newT: number, keyframe: boolean) => {
+	const shouldMakeNewCluster = ({
+		isVideo,
+		keyframe,
+		newT,
+	}: {
+		newT: number;
+		keyframe: boolean;
+		isVideo: boolean;
+	}) => {
 		const newTimestamp = timestampToClusterTimestamp(newT);
 		const oldTimestamp = timestampToClusterTimestamp(timestamp);
 
-		return newTimestamp - oldTimestamp >= 2000 && keyframe;
+		return newTimestamp - oldTimestamp >= 2000 && keyframe && isVideo;
 	};
 
 	return {addSample, shouldMakeNewCluster};

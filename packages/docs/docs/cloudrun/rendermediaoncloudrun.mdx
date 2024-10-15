@@ -2,12 +2,17 @@
 image: /generated/articles-docs-cloudrun-rendermediaoncloudrun.png
 id: rendermediaoncloudrun
 title: renderMediaOnCloudrun()
-crumb: "Cloud Run API"
+crumb: 'Cloud Run API'
 ---
 
 <ExperimentalBadge>
   <p>
-    Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the{' '}<a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.
+    Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs
+    may change in any version and documentation is not yet finished. See the{' '}
+    <a href="https://remotion.dev/changelog">
+      changelog to stay up to date with breaking changes
+    </a>
+    .
   </p>
 </ExperimentalBadge>
 
@@ -22,18 +27,18 @@ A [site](/docs/cloudrun/deploysite) or a [Serve URL](/docs/terminology/serve-url
 // @module: esnext
 // @target: es2017
 // ---cut---
-import { renderMediaOnCloudrun } from "@remotion/cloudrun/client";
+import {renderMediaOnCloudrun} from '@remotion/cloudrun/client';
 
 const result = await renderMediaOnCloudrun({
-  region: "us-east1",
-  serviceName: "remotion-render-bds9aab",
-  composition: "MyVideo",
+  region: 'us-east1',
+  serviceName: 'remotion-render-bds9aab',
+  composition: 'MyVideo',
   serveUrl:
-    "https://storage.googleapis.com/remotioncloudrun-123asd321/sites/abcdefgh",
-  codec: "h264",
+    'https://storage.googleapis.com/remotioncloudrun-123asd321/sites/abcdefgh',
+  codec: 'h264',
 });
 
-if (result.type === "success") {
+if (result.type === 'success') {
   console.log(result.bucketName);
   console.log(result.renderId);
 }
@@ -80,6 +85,12 @@ Video codecs `h264`, `vp8` and `prores` are supported.
 Audio codecs `mp3`, `aac` and `wav` are also supported.
 
 See also [`renderMedia() -> codec`](/docs/renderer/render-media#codec).
+
+### `metadata`<AvailableFrom v="4.0.216" />
+
+_object - optional_
+
+<Options id="metadata" />
 
 ### `inputProps?`
 

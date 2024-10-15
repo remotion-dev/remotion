@@ -1,11 +1,17 @@
 import {Pkgs, packages} from '@remotion/studio-shared';
+import {CreateVideoInternals} from 'create-video';
 import {existsSync, lstatSync, readdirSync, writeFileSync} from 'fs';
 import {readFileSync} from 'node:fs';
 import path from 'path';
 
 export const getAllPackages = () => {
 	const pkgDir = path.join(__dirname, '..', '..', '..');
-	const filePackages = readdirSync(pkgDir)
+
+	const localTemplates = CreateVideoInternals.FEATURED_TEMPLATES.map(
+		(t) => t.templateInMonorepo,
+	).filter(Boolean) as string[];
+
+	const folders = readdirSync(pkgDir)
 		.filter((pkg) => lstatSync(path.join(pkgDir, pkg)).isDirectory())
 		.sort()
 		.map((pkg) => ({
@@ -14,21 +20,27 @@ export const getAllPackages = () => {
 		}))
 		.filter(({path}) => existsSync(path));
 
-	const notInFile = packages
-		.slice()
-		.sort()
-		.map((pkg) => pkg);
+	const packageAndTemplateNames = (
+		packages
+			.slice()
+			.sort()
+			.map((pkg) => pkg) as string[]
+	)
+		.concat(localTemplates)
+		.sort();
+
+	const packagesAndTemplates = folders.map((pkg) => pkg.pkg).sort() as string[];
 
 	if (
-		JSON.stringify(filePackages.map((pkg) => pkg.pkg).sort()) !==
-		JSON.stringify(notInFile)
+		JSON.stringify(packagesAndTemplates) !==
+		JSON.stringify(packageAndTemplateNames)
 	) {
-		const diff = notInFile.filter(
-			(pkg) => !filePackages.map((pkg) => pkg.pkg).includes(pkg),
+		const diff = packageAndTemplateNames.filter(
+			(pkg) => !packagesAndTemplates.includes(pkg),
 		);
-		const diff2 = filePackages
-			.map((pkg) => pkg.pkg)
-			.filter((pkg) => !notInFile.includes(pkg));
+		const diff2 = packagesAndTemplates.filter(
+			(pkg) => !packageAndTemplateNames.includes(pkg),
+		);
 
 		throw new Error(
 			`Add the new package to 'get-all-packages.ts'. Diff: ${JSON.stringify(diff, null, 2)} ${JSON.stringify(
@@ -39,7 +51,7 @@ export const getAllPackages = () => {
 		);
 	}
 
-	return filePackages;
+	return folders.filter((pkg) => packages.includes(pkg.pkg));
 };
 
 export const updatePackageJson = (

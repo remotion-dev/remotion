@@ -49,4 +49,5 @@ export type RenderMetadata<Provider extends CloudProvider> = Discriminated & {
 	numberOfGifLoops: number | null;
 	audioBitrate: string | null;
 	downloadBehavior: DownloadBehavior;
+	metadata: Record<string, string> | null;
 };
