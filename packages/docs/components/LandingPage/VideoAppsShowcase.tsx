@@ -62,8 +62,6 @@ const videoApps = [
 	},
 ];
 
-// const AUDIO_VOLUME = 0.05; // Adjust this value between 0 and 1 as needed
-
 const VideoAppsShowcase: React.FC = () => {
 	const [activeTab, setActiveTab] = useState(0);
 	const [isPlaying, setIsPlaying] = useState(false);
