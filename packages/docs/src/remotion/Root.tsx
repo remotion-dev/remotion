@@ -1,11 +1,16 @@
 import {CreateVideoInternals} from 'create-video';
 import React from 'react';
-import {Folder, Still} from 'remotion';
+import {Composition, Folder, Still} from 'remotion';
 import {articles} from '../data/articles';
 import {experts} from '../data/experts';
 import {AllTemplates} from './AllTemplates';
 import {Article} from './Article';
 import {Expert} from './Expert';
+import {
+	HomepageVideoComp,
+	calculateMetadata,
+	schema,
+} from './HomepageVideo/Comp';
 import {TemplateComp} from './Template';
 
 export const RemotionRoot: React.FC = () => {
@@ -64,6 +69,42 @@ export const RemotionRoot: React.FC = () => {
 				width={1200}
 				height={630}
 				id="template-all"
+			/>
+			<Composition
+				component={HomepageVideoComp}
+				id="HomepageVideo"
+				width={640}
+				height={360}
+				durationInFrames={120}
+				fps={30}
+				defaultProps={{
+					theme: 'light',
+					location: {
+						country: 'US',
+						city: 'New York',
+						latitude: 40.7128,
+						longitude: -74.006,
+					},
+					trending: null,
+					onToggle: () => undefined,
+					cardOrder: [0, 1, 2, 3],
+					updateCardOrder: () => undefined,
+					emojiPositions: {
+						prev: 'melting',
+						current: 'partying-face',
+						next: 'fire',
+						translation: 0,
+						translationStyle: '',
+					},
+					onClickLeft: () => undefined,
+					onClickRight: () => undefined,
+					audioVolume: {
+						volume: 0.5,
+						isMuted: false,
+					},
+				}}
+				schema={schema}
+				calculateMetadata={calculateMetadata}
 			/>
 		</>
 	);
