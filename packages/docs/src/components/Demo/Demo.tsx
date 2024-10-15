@@ -1,6 +1,7 @@
 import {useColorMode} from '@docusaurus/theme-common';
 import type {PlayerRef} from '@remotion/player';
 import {Player} from '@remotion/player';
+import {preloadAudio} from '@remotion/preload';
 import React, {
 	type CSSProperties,
 	useCallback,
@@ -8,6 +9,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import {staticFile} from 'remotion';
 import type {LocationAndTrending} from '../../remotion/HomepageVideo/Comp';
 import {
 	HomepageVideoComp,
@@ -134,6 +136,8 @@ export const Demo: React.FC = () => {
 			isMuted,
 		}));
 	};
+
+	preloadAudio(staticFile('Utope-nature-5s.mp3'));
 
 	return (
 		<div>
