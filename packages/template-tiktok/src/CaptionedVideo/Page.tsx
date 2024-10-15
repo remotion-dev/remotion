@@ -35,6 +35,7 @@ export const Page: React.FC<{
     fontFamily,
     text: page.text,
     withinWidth: width * 0.9,
+    textTransform: "uppercase",
   });
 
   const fontSize = Math.min(DESIRED_FONT_SIZE, fittedText.fontSize);
