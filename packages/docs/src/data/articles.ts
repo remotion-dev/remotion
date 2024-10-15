@@ -1330,6 +1330,13 @@ export const articles = [
 		crumb: 'API',
 	},
 	{
+		id: 'system-prompt',
+		title: 'Remotion System Prompt for LLMs',
+		relativePath: 'docs/system-prompt.mdx',
+		compId: 'articles-docs-system-prompt',
+		crumb: 'AI',
+	},
+	{
 		id: 'bun',
 		title: 'Bun support',
 		relativePath: 'docs/bun.mdx',
@@ -1701,13 +1708,6 @@ export const articles = [
 		title: 'Can I embed the Remotion Studio?',
 		relativePath: 'docs/miscellaneous/embed-remotion-studio.mdx',
 		compId: 'articles-docs-miscellaneous-embed-remotion-studio',
-		crumb: 'FAQ',
-	},
-	{
-		id: 'miscellaneous/system-prompt',
-		title: 'Remotion System Prompt for LLMs',
-		relativePath: 'docs/miscellaneous/system-prompt.mdx',
-		compId: 'articles-docs-miscellaneous-system-prompt',
 		crumb: 'FAQ',
 	},
 	{
