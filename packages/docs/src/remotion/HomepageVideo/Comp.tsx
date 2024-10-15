@@ -2,6 +2,7 @@ import React, {useCallback, useState} from 'react';
 import {
 	AbsoluteFill,
 	Audio,
+	getRemotionEnvironment,
 	interpolate,
 	staticFile,
 	useVideoConfig,
@@ -102,6 +103,14 @@ export const HomepageVideoComp: React.FC<z.infer<typeof schema> & Props> = ({
 	const [rerenders, setRerenders] = useState(0);
 	const {durationInFrames} = useVideoConfig();
 
+	// Prevent "NotAllowedError: play() failed" by waiting for user interaction.
+	// If rendering, this is not required
+	const {isRendering} = getRemotionEnvironment();
+	let audioRequested = isRendering;
+	if (!audioVolume.isMuted) {
+		audioRequested = true;
+	}
+
 	const onUpdate = useCallback(
 		(newIndices: number[]) => {
 			setRerenders(rerenders + 1);
@@ -140,20 +149,22 @@ export const HomepageVideoComp: React.FC<z.infer<typeof schema> & Props> = ({
 				onClickRight={onClickRight}
 				emojiPositions={emojiPositions}
 			/>
-			<Audio
-				src={staticFile('Utope-nature.mp3')}
-				muted={audioVolume.isMuted || audioVolume.volume === 0}
-				volume={(f) =>
-					interpolate(
-						f,
-						[0, 10, audioFadeFrame, durationInFrames - 5],
-						[0, loweredVolume, loweredVolume, 0],
-						{
-							extrapolateLeft: 'clamp',
-						},
-					)
-				}
-			/>
+			{audioRequested ? (
+				<Audio
+					src={staticFile('Utope-nature-5s.mp3')}
+					muted={audioVolume.isMuted || audioVolume.volume === 0}
+					volume={(f) =>
+						interpolate(
+							f,
+							[0, 10, audioFadeFrame, durationInFrames - 5],
+							[0, loweredVolume, loweredVolume, 0],
+							{
+								extrapolateLeft: 'clamp',
+							},
+						)
+					}
+				/>
+			) : undefined}
 		</AbsoluteFill>
 	);
 };
