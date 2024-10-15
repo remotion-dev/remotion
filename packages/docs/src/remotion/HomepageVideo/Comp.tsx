@@ -151,7 +151,7 @@ export const HomepageVideoComp: React.FC<z.infer<typeof schema> & Props> = ({
 			/>
 			{audioRequested ? (
 				<Audio
-					src={staticFile('Utope-nature.mp3')}
+					src={staticFile('Utope-nature-5s.mp3')}
 					muted={audioVolume.isMuted || audioVolume.volume === 0}
 					volume={(f) =>
 						interpolate(
