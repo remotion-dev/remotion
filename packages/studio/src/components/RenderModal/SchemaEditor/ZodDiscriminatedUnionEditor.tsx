@@ -41,6 +41,7 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 	jsonPath,
 	onRemove,
 }) => {
+	console.log({value});
 	const z = useZodIfPossible();
 	if (!z) {
 		throw new Error('expected zod');
@@ -105,6 +106,7 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 
 	const discriminatedUnionReplacement: ObjectDiscrimatedUnionReplacement =
 		useMemo(() => {
+			console.log({comboBoxValues});
 			return {
 				discriminator: typedSchema.discriminator,
 				markup: (
