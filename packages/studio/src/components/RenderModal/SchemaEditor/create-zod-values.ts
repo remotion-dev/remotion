@@ -17,7 +17,10 @@ export const createZodValues = (
 		case zodRuntime.ZodFirstPartyTypeKind.ZodString:
 			return '';
 		case zodRuntime.ZodFirstPartyTypeKind.ZodNumber:
-			return 0;
+			const min = (def as z.ZodNumberDef).checks.find(
+				(c) => c.kind === 'min',
+			)?.value;
+			return min ?? 0;
 		case zodRuntime.ZodFirstPartyTypeKind.ZodBigInt:
 			return BigInt(0);
 		case zodRuntime.ZodFirstPartyTypeKind.ZodBoolean:
@@ -68,6 +71,7 @@ export const createZodValues = (
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodDiscriminatedUnion: {
 			const options = (def as z.ZodDiscriminatedUnionDef<string>).options[0];
+			console.log({options});
 			return createZodValues(options, zodRuntime, zodTypes);
 		}
 
