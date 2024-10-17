@@ -17,10 +17,9 @@ export const createZodValues = (
 		case zodRuntime.ZodFirstPartyTypeKind.ZodString:
 			return '';
 		case zodRuntime.ZodFirstPartyTypeKind.ZodNumber:
-			const min = (def as z.ZodNumberDef).checks.find(
-				(c) => c.kind === 'min',
-			)?.value;
-			return min ?? 0;
+			return (
+				(def as z.ZodNumberDef).checks.find((c) => c.kind === 'min')?.value ?? 0
+			);
 		case zodRuntime.ZodFirstPartyTypeKind.ZodBigInt:
 			return BigInt(0);
 		case zodRuntime.ZodFirstPartyTypeKind.ZodBoolean:
