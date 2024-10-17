@@ -71,7 +71,6 @@ export const createZodValues = (
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodDiscriminatedUnion: {
 			const options = (def as z.ZodDiscriminatedUnionDef<string>).options[0];
-			console.log({options});
 			return createZodValues(options, zodRuntime, zodTypes);
 		}
 
