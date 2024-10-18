@@ -293,6 +293,11 @@
 			"permanent": false
 		},
 		{
+			"source": "/drag-drop",
+			"destination": "/docs/player/drag-and-drop/",
+			"permanent": false
+		},
+		{
 			"source": "/standalone",
 			"destination": "/docs/standalone",
 			"permanent": false
