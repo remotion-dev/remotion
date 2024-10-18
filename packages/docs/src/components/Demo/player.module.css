@@ -5,20 +5,20 @@
 	padding: 5px 0px;
 	border-radius: 0.5rem;
 	height: 3rem;
+}
 
-	.start-controls {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		gap: 10px;
-		width: 100%;
-	}
+.controls-wrapper .start-controls {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+}
 
-	.end-controls {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-	}
+.controls-wrapper .end-controls {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
 }
 
 @media screen and (max-width: 900px) {
@@ -49,40 +49,40 @@
 	cursor: pointer;
 	display: flex;
 	height: 100%;
+}
 
-	.volume-bar {
-		position: absolute;
-		justify-content: center;
-		height: 0px;
-		bottom: 35px;
-		width: 100%;
-		transition:
-			height 0.2s,
-			opacity 0.3s;
-		opacity: 0;
+.volume-button .volume-bar {
+	position: absolute;
+	justify-content: center;
+	height: 0px;
+	bottom: 35px;
+	width: 100%;
+	transition:
+		height 0.2s,
+		opacity 0.3s;
+	opacity: 0;
+}
 
-		.volume-active {
-			position: absolute;
-			bottom: 0;
-			background: var(--ifm-color-primary);
-			border-radius: 10px;
-			width: 100%;
-			z-index: 1;
-		}
+.volume-button .volume-bar .volume-active {
+	position: absolute;
+	bottom: 0;
+	background: var(--ifm-color-primary);
+	border-radius: 10px;
+	width: 100%;
+	z-index: 1;
+}
 
-		.volume-background {
-			position: absolute;
-			bottom: 0;
-			background: var(--background);
-			height: 100%;
-			width: 100%;
-			z-index: 0;
-		}
+.volume-button .volume-bar .volume-background {
+	position: absolute;
+	bottom: 0;
+	background: var(--background);
+	height: 100%;
+	width: 100%;
+	z-index: 0;
+}
 
-		.volume-active.animate-height {
-			transition: height 0.1s;
-		}
-	}
+.volume-button .volume-bar .volume-active.animate-height {
+	transition: height 0.1s;
 }
 
 @media screen and (max-width: 900px) {
