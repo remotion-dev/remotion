@@ -288,6 +288,11 @@
 			"permanent": false
 		},
 		{
+			"source": "/custom-controls",
+			"destination": "/docs/player/custom-controls",
+			"permanent": false
+		},
+		{
 			"source": "/standalone",
 			"destination": "/docs/standalone",
 			"permanent": false
