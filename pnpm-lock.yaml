@@ -77,7 +77,7 @@ importers:
     dependencies:
       '@astrojs/react':
         specifier: 3.6.2
-        version: 3.6.2(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.2.0)(react@18.2.0)(vite@5.4.6)
+        version: 3.6.2(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.2.0)(react@18.2.0)(vite@5.4.9)
       '@remotion/gif':
         specifier: workspace:*
         version: link:../gif
@@ -450,9 +450,6 @@ importers:
       prompts:
         specifier: 2.4.2
         version: 2.4.2
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
       tar:
         specifier: 6.2.1
         version: 6.2.1
@@ -466,6 +463,9 @@ importers:
       '@types/tar':
         specifier: 6.1.1
         version: 6.1.1
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
 
   packages/discord-poster: {}
 
@@ -2927,7 +2927,7 @@ packages:
       prismjs: 1.29.0
     dev: false
 
-  /@astrojs/react@3.6.2(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.2.0)(react@18.2.0)(vite@5.4.6):
+  /@astrojs/react@3.6.2(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.2.0)(react@18.2.0)(vite@5.4.9):
     resolution: {integrity: sha512-fK29lYI7zK/KG4ZBy956x4dmauZcZ18osFkuyGa8r3gmmCQa2NZ9XNu9WaVYEUm0j89f4Gii4tbxLoyM8nk2MA==}
     engines: {node: ^18.17.1 || ^20.3.0 || >=21.0.0}
     peerDependencies:
@@ -2938,7 +2938,7 @@ packages:
     dependencies:
       '@types/react': 18.3.1
       '@types/react-dom': 18.3.0
-      '@vitejs/plugin-react': 4.3.1(vite@5.4.6)
+      '@vitejs/plugin-react': 4.3.1(vite@5.4.9)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       ultrahtml: 1.5.3
@@ -14210,7 +14210,7 @@ packages:
       - supports-color
     dev: true
 
-  /@vitejs/plugin-react@4.3.1(vite@5.4.6):
+  /@vitejs/plugin-react@4.3.1(vite@5.4.9):
     resolution: {integrity: sha512-m/V2syj5CuVnaxcUJOQRel/Wr31FFXRFlnOoq1TVtkCxsY5veGMTEmpWHndrhB2U8ScHtCQB1e+4hWYExQc6Lg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -14221,7 +14221,7 @@ packages:
       '@babel/plugin-transform-react-jsx-source': 7.24.1(@babel/core@7.25.2)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.2
-      vite: 5.4.6(@types/node@20.12.14)
+      vite: 5.4.9
     transitivePeerDependencies:
       - supports-color
     dev: false

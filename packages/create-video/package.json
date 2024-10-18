@@ -24,13 +24,13 @@
 		"execa": "5.1.1",
 		"minimist": "1.2.6",
 		"prompts": "2.4.2",
-		"react": "18.3.1",
 		"tar": "6.2.1"
 	},
 	"devDependencies": {
 		"@types/minimist": "1.2.2",
 		"@types/prompts": "^2.0.12",
-		"@types/tar": "6.1.1"
+		"@types/tar": "6.1.1",
+		"react": "18.3.1"
 	},
 	"homepage": "https://remotion.dev/templates"
 }
