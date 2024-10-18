@@ -293,7 +293,7 @@
 			"permanent": false
 		},
 		{
-			"source": "/drag-drop",
+			"source": "/drag-and-drop",
 			"destination": "/docs/player/drag-and-drop/",
 			"permanent": false
 		},
