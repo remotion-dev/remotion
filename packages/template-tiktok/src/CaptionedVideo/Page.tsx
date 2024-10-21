@@ -35,6 +35,7 @@ export const Page: React.FC<{
     fontFamily,
     text: page.text,
     withinWidth: width * 0.9,
+    textTransform: "uppercase",
   });
 
   const fontSize = Math.min(DESIRED_FONT_SIZE, fittedText.fontSize);
@@ -75,7 +76,7 @@ export const Page: React.FC<{
               <span
                 key={t.fromMs}
                 style={{
-                  display: "inline-block",
+                  display: "inline",
                   whiteSpace: "pre",
                   color: active ? HIGHLIGHT_COLOR : "white",
                 }}

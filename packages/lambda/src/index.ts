@@ -38,7 +38,7 @@ import {getFunctions} from './api/get-functions';
 import {getOrCreateBucket} from './api/get-or-create-bucket';
 import {getRegions} from './api/get-regions';
 import type {GetRenderProgressInput} from './api/get-render-progress';
-import {getRenderProgress} from './api/get-render-progress';
+import {getRenderProgress as deprecatedGetRenderProgress} from './api/get-render-progress';
 import type {GetSitesInput, GetSitesOutput} from './api/get-sites';
 import {getSites as deprecatedGetSites} from './api/get-sites';
 import type {
@@ -78,6 +78,11 @@ import type {WebhookPayload} from './shared/invoke-webhook';
  * @deprecated Import this from `@remotion/lambda/client` instead
  */
 const renderMediaOnLambda = deprecatedRenderMediaOnLambda;
+
+/**
+ * @deprecated Import this from `@remotion/lambda/client` instead
+ */
+const getRenderProgress = deprecatedGetRenderProgress;
 
 /**
  * @deprecated Import this from `@remotion/lambda/client` instead

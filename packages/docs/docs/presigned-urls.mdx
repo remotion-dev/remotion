@@ -19,7 +19,40 @@ The traditional way of implementing a file upload would be to let the client upl
 
 ## AWS Example
 
-This example assumes user uploads are stored in S3. For other frontends
+Here is an example for storing user uploads are stored in AWS S3.
+
+### Permissions
+
+In your bucket on the AWS console, go to Permissions and allow PUT requests via CORS:
+
+```json title="Cross-origin resource sharing (CORS) policy"
+[
+  {
+    "AllowedHeaders": ["*"],
+    "AllowedMethods": ["PUT"],
+    "AllowedOrigins": ["*"],
+    "ExposeHeaders": [],
+    "MaxAgeSeconds": 3000
+  }
+]
+```
+
+:::note
+It may prove useful to also allow the `GET` method via CORS so you can fetch the assets after uploading.
+:::
+
+Your AWS user policy must at least have the ability to put an object and make it public:
+
+```json title="User role policy"
+{
+  "Sid": "Presign",
+  "Effect": "Allow",
+  "Action": ["s3:PutObject", "s3:PutObjectAcl"],
+  "Resource": ["arn:aws:s3:::{YOUR_BUCKET_NAME}/*"]
+}
+```
+
+### Presigning URLs
 
 First, accept a file in your frontend, for example using `<input type="file">`. You should get a `File`, from which you can determine the content type and content length:
 
