@@ -110,6 +110,7 @@ if (alias !== 'alias') {
 const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
 
 // @ts-expect-error no types
+import {SpeedSegments} from './SpeedSegments';
 import styles from './styles.module.scss';
 
 class Vector2 {
@@ -1450,6 +1451,14 @@ export const Index: React.FC = () => {
 			/>
 			<Still id="Emojis" component={EmojiTestbed} height={800} width={1024} />
 			<Still id="HugeImage" component={HugeImage} height={9000} width={9000} />
+			<Composition
+				id="SpeedSegments"
+				component={SpeedSegments}
+				fps={30}
+				height={1080}
+				width={1080}
+				durationInFrames={300}
+			/>
 		</>
 	);
 };
