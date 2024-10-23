@@ -1,22 +1,91 @@
-import {OffthreadVideo, Sequence} from 'remotion';
-export default () => {
+import {createRef, useCallback, useImperativeHandle, useState} from 'react';
+import {
+	Experimental,
+	Img,
+	Sequence,
+	Video,
+	interpolate,
+	staticFile,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
+
+type Props = {
+	title: string;
+	bgColor: string;
+	color: string;
+};
+
+export const playerExampleComp = createRef<{
+	triggerError: () => void;
+}>();
+
+const CarSlideshow = ({title, bgColor, color}: Props) => {
+	const frame = useCurrentFrame();
+	const {width, height, durationInFrames} = useVideoConfig();
+	const left = interpolate(frame, [0, durationInFrames], [width, width * -1]);
+
+	const [shouldThrowError, setThrowError] = useState(false);
+
+	const dummyText = useCallback(() => {
+		if (shouldThrowError) {
+			throw new Error('some error');
+		}
+		return '';
+	}, [shouldThrowError]);
+
+	useImperativeHandle(playerExampleComp, () => {
+		return {
+			triggerError: () => {
+				setThrowError(true);
+			},
+		};
+	}, []);
+
 	return (
-		<>
-			<Sequence durationInFrames={60}>
-				<OffthreadVideo src="https://mdn.alipayobjects.com/wealth_community_transfer/afts/file/LRxrRISozEgAAAAAAAAAAAAAK5gwAQBr" />
+		<div
+			style={{
+				backgroundColor: bgColor,
+				width,
+				height,
+				position: 'absolute',
+				left: 0,
+				top: 0,
+			}}
+		>
+			<Experimental.Clipper height={100} width={100} x={0} y={0} />
+			<Sequence>
+				<h1
+					style={{
+						fontSize: '5em',
+						fontWeight: 'bold',
+						position: 'absolute',
+						top: height / 2 - 100,
+						left,
+						color,
+						whiteSpace: 'nowrap',
+					}}
+				>
+					{title} {dummyText()}
+				</h1>
 			</Sequence>
-			<Sequence from={60} durationInFrames={60}>
-				<OffthreadVideo src="https://mdn.alipayobjects.com/wealth_community_transfer/afts/file/8NU2RoAFknYAAAAAAAAAAAAAK5gwAQBr" />
+			<Img
+				src={staticFile('/logo.png')}
+				style={{
+					height: 40,
+					width: 40,
+				}}
+			/>
+			<Sequence from={10}>
+				<Video
+					style={{
+						height: 200,
+					}}
+					src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+				/>
 			</Sequence>
-			<Sequence from={120} durationInFrames={60}>
-				<OffthreadVideo src="https://mdn.alipayobjects.com/wealth_community_transfer/afts/file/KjsmSYP8egYAAAAAAAAAAAAAK5gwAQBr" />
-			</Sequence>
-			<Sequence from={180} durationInFrames={60}>
-				<OffthreadVideo src="https://mdn.alipayobjects.com/wealth_community_transfer/afts/file/Z6VTRL_2HIAAAAAAAAAAAAAAK5gwAQBr" />
-			</Sequence>
-			<Sequence from={240} durationInFrames={60}>
-				<OffthreadVideo src="https://mdn.alipayobjects.com/wealth_community_transfer/afts/file/gqnqQ5rlWesAAAAAAAAAAAAAK5gwAQBr" />
-			</Sequence>
-		</>
+		</div>
 	);
 };
+
+export default CarSlideshow;
