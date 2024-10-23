@@ -5,7 +5,7 @@ import {
 } from "@remotion/lambda";
 import dotenv from "dotenv";
 import path from "path";
-import { RAM, REGION, SITE_NAME, TIMEOUT } from "./config.mjs";
+import { DISK, RAM, REGION, SITE_NAME, TIMEOUT } from "./config.mjs";
 import { webpackOverride } from "./remotion/webpack-override.mjs";
 
 console.log("Selected region:", REGION);
@@ -13,11 +13,11 @@ dotenv.config();
 
 if (!process.env.AWS_ACCESS_KEY_ID && !process.env.REMOTION_AWS_ACCESS_KEY_ID) {
   console.log(
-    'The environment variable "REMOTION_AWS_ACCESS_KEY_ID" is not set.'
+    'The environment variable "REMOTION_AWS_ACCESS_KEY_ID" is not set.',
   );
   console.log("Lambda renders were not set up.");
   console.log(
-    "Complete the Lambda setup: at https://www.remotion.dev/docs/lambda/setup"
+    "Complete the Lambda setup: at https://www.remotion.dev/docs/lambda/setup",
   );
   process.exit(0);
 }
@@ -26,11 +26,11 @@ if (
   !process.env.REMOTION_AWS_SECRET_ACCESS_KEY
 ) {
   console.log(
-    'The environment variable "REMOTION_REMOTION_AWS_SECRET_ACCESS_KEY" is not set.'
+    'The environment variable "REMOTION_REMOTION_AWS_SECRET_ACCESS_KEY" is not set.',
   );
   console.log("Lambda renders were not set up.");
   console.log(
-    "Complete the Lambda setup: at https://www.remotion.dev/docs/lambda/setup"
+    "Complete the Lambda setup: at https://www.remotion.dev/docs/lambda/setup",
   );
   process.exit(0);
 }
@@ -43,10 +43,11 @@ const { functionName, alreadyExisted: functionAlreadyExisted } =
     memorySizeInMb: RAM,
     region: REGION,
     timeoutInSeconds: TIMEOUT,
+    diskSizeInMb: DISK,
   });
 console.log(
   functionName,
-  functionAlreadyExisted ? "(already existed)" : "(created)"
+  functionAlreadyExisted ? "(already existed)" : "(created)",
 );
 
 process.stdout.write("Ensuring bucket... ");
@@ -56,7 +57,7 @@ const { bucketName, alreadyExisted: bucketAlreadyExisted } =
   });
 console.log(
   bucketName,
-  bucketAlreadyExisted ? "(already existed)" : "(created)"
+  bucketAlreadyExisted ? "(already existed)" : "(created)",
 );
 
 process.stdout.write("Deploying site... ");
