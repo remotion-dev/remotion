@@ -1,4 +1,4 @@
-import React from 'react';
+import type {ReactNode} from 'react';
 
 type DynamicTemplate =
 	| {
@@ -24,7 +24,7 @@ export type Template = {
 	org: string;
 	repoName: string;
 	homePageLabel: string;
-	longerDescription: React.ReactNode;
+	longerDescription: ReactNode;
 	cliId:
 		| 'hello-world'
 		| 'javascript'
