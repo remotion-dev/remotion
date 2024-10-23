@@ -1,5 +1,5 @@
 import {getVideoMetadata} from '@remotion/media-utils';
-import {CalculateMetadataFunction, OffthreadVideo} from 'remotion';
+import {CalculateMetadataFunction, Loop, OffthreadVideo} from 'remotion';
 
 type Props = {
 	src: string;
@@ -16,13 +16,29 @@ export const calculateMetadataFn: CalculateMetadataFunction<Props> = async ({
 	return {
 		durationInFrames: Math.round(durationInSeconds * fps),
 		fps,
-		width,
+		width: width * 2,
 		height,
 	};
+};
+
+export const LoopedOffthreadVideo: React.FC<{
+	durationInFrames: number;
+	src: string;
+	muted?: boolean;
+}> = ({durationInFrames, src}) => {
+	if (durationInFrames <= 0) {
+		throw new Error('durationInFrames must be greater than 0');
+	}
+
+	return (
+		<Loop durationInFrames={durationInFrames}>
+			<OffthreadVideo muted src={src} />
+		</Loop>
+	);
 };
 
 export const OffthreadRemoteVideo: React.FC<{
 	src: string;
 }> = ({src}) => {
-	return <OffthreadVideo src={src} />;
+	return <LoopedOffthreadVideo durationInFrames={100} src={src} />;
 };
