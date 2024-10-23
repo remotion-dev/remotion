@@ -21,6 +21,10 @@ export const createZodValues = (
 				if (check.kind === 'min') {
 					return check.value;
 				}
+
+				if (check.kind === 'max' && check.value < 0) {
+					return check.value;
+				}
 			}
 
 			return 0;
