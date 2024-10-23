@@ -16,10 +16,16 @@ export const createZodValues = (
 	switch (typeName) {
 		case zodRuntime.ZodFirstPartyTypeKind.ZodString:
 			return '';
-		case zodRuntime.ZodFirstPartyTypeKind.ZodNumber:
-			return (
-				(def as z.ZodNumberDef).checks.find((c) => c.kind === 'min')?.value ?? 0
-			);
+		case zodRuntime.ZodFirstPartyTypeKind.ZodNumber: {
+			for (const check of (def as z.ZodNumberDef).checks) {
+				if (check.kind === 'min') {
+					return check.value;
+				}
+			}
+
+			return 0;
+		}
+
 		case zodRuntime.ZodFirstPartyTypeKind.ZodBigInt:
 			return BigInt(0);
 		case zodRuntime.ZodFirstPartyTypeKind.ZodBoolean:
