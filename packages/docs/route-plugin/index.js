@@ -10,10 +10,7 @@ module.exports = function () {
 				'utf-8',
 			);
 			const templates = fs.readFileSync(
-				path.join(
-					__dirname,
-					'../../../packages/create-video/src/templates.tsx',
-				),
+				path.join(__dirname, '../../../packages/create-video/src/templates.ts'),
 				'utf-8',
 			);
 			const expertSlugs = experts

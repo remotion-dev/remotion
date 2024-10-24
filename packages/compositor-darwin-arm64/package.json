@@ -2,7 +2,7 @@
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/compositor-darwin-arm64"
 	},
-	"version": "4.0.223",
+	"version": "4.0.224",
 	"name": "@remotion/compositor-darwin-arm64",
 	"os": [
 		"darwin"
