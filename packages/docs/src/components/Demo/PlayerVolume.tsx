@@ -1,18 +1,19 @@
-import type {PlayerRef} from '@remotion/player';
+import type {CallbackListener, PlayerRef} from '@remotion/player';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {IsMutedIcon, NotMutedIcon} from '../../icons/arrows';
 import styles from './player.module.css';
 
 export const PlayerVolume: React.FC<{
 	playerRef: React.RefObject<PlayerRef>;
-	updateAudioVolume: (volume: number) => void;
-	updateAudioMute: (isMuted: boolean) => void;
-	audioState: {
-		volume: number;
-		isMuted: boolean;
-	};
-}> = ({playerRef, updateAudioMute, updateAudioVolume, audioState}) => {
+	setmountPlayerAudio: React.Dispatch<React.SetStateAction<boolean>>;
+}> = ({playerRef, setmountPlayerAudio}) => {
 	const containerRef = useRef<HTMLDivElement>(null);
+
+	const [audioState, setAudioState] = useState({
+		volume: 0.75,
+		isMuted: true,
+	});
+
 	const [isHovered, setIsHovered] = useState(false);
 	const [isDragging, setIsDragging] = useState(false);
 	const timerRef = useRef<Timer | null>(null);
@@ -24,16 +25,30 @@ export const PlayerVolume: React.FC<{
 			return;
 		}
 
-		const onMutedChange = (e) => {
-			updateAudioMute(e.detail.isMuted);
+		const onMutedChange: CallbackListener<'mutechange'> = (e) => {
+			setAudioState((v) => ({
+				volume: v.volume === 0 ? 0.5 : v.volume, // if volume was previously 0, set it to 0.75
+				isMuted: e.detail.isMuted,
+			}));
+			setmountPlayerAudio(true);
+		};
+
+		const volumeChangeListener: CallbackListener<'volumechange'> = (e) => {
+			setAudioState((v) => ({
+				volume: e.detail.volume,
+				isMuted: v.isMuted,
+			}));
+			setmountPlayerAudio(true);
 		};
 
 		current.addEventListener('mutechange', onMutedChange);
+		current.addEventListener('volumechange', volumeChangeListener);
 
 		return () => {
 			current.removeEventListener('mutechange', onMutedChange);
+			current.removeEventListener('volumechange', volumeChangeListener);
 		};
-	}, [playerRef, updateAudioMute]);
+	}, [playerRef, setmountPlayerAudio]);
 
 	useEffect(() => {
 		if (isHovered) {
@@ -80,13 +95,13 @@ export const PlayerVolume: React.FC<{
 			if (position === null) return;
 			if (position < 0.05) {
 				playerRef.current.mute();
-				updateAudioVolume(0);
+				playerRef.current.setVolume(0);
 			} else {
 				playerRef.current.unmute();
-				updateAudioVolume(position);
+				playerRef.current.setVolume(position);
 			}
 		},
-		[calculatePosition, playerRef, updateAudioVolume],
+		[calculatePosition, playerRef],
 	);
 
 	const handlePointerMove = useCallback(
@@ -96,13 +111,13 @@ export const PlayerVolume: React.FC<{
 			if (position === null) return;
 			if (position < 0.05) {
 				playerRef.current.mute();
-				updateAudioVolume(0);
+				playerRef.current.setVolume(0);
 			} else {
 				playerRef.current.unmute();
-				updateAudioVolume(position);
+				playerRef.current.setVolume(position);
 			}
 		},
-		[isDragging, calculatePosition, playerRef, updateAudioVolume],
+		[isDragging, calculatePosition, playerRef],
 	);
 
 	const handlePointerUp = useCallback(() => {

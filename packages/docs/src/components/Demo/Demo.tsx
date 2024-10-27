@@ -23,6 +23,7 @@ import styles from './player.module.css';
 export const Demo: React.FC = () => {
 	const {colorMode} = useColorMode();
 	const [data, setData] = useState<LocationAndTrending | null>(null);
+	const [mountPlayerAudio, setmountPlayerAudio] = useState(false);
 	const ref = useRef<PlayerRef>(null);
 
 	useEffect(() => {
@@ -45,11 +46,6 @@ export const Demo: React.FC = () => {
 		next: 'fire',
 		translation: 0,
 		translationStyle: activeTranslationStyle,
-	});
-
-	const [audioState, setAudioState] = useState({
-		volume: 0.75,
-		isMuted: true,
 	});
 
 	const playerWrapper: CSSProperties = {
@@ -123,20 +119,6 @@ export const Demo: React.FC = () => {
 		}, 200);
 	}, []);
 
-	const updateAudioVolume = (volume: number) => {
-		setAudioState({
-			volume,
-			isMuted: volume === 0,
-		});
-	};
-
-	const updateAudioMute = (isMuted: boolean) => {
-		setAudioState((v) => ({
-			volume: v.volume === 0 ? 0.5 : v.volume, // if volume was previously 0, set it to 0.75
-			isMuted,
-		}));
-	};
-
 	preloadAudio(staticFile('Utope-nature-5s.mp3'));
 
 	return (
@@ -172,7 +154,7 @@ export const Demo: React.FC = () => {
 							emojiPositions,
 							onClickLeft,
 							onClickRight,
-							audioVolume: audioState,
+							mountPlayerAudio,
 							...data,
 						}}
 						loop
@@ -181,9 +163,7 @@ export const Demo: React.FC = () => {
 						playerRef={ref}
 						durationInFrames={120}
 						fps={30}
-						updateAudioVolume={updateAudioVolume}
-						updateAudioMute={updateAudioMute}
-						audioState={audioState}
+						setmountPlayerAudio={setmountPlayerAudio}
 					/>
 				</>
 			) : (

@@ -81,7 +81,7 @@ type Props = {
 	readonly emojiPositions: EmojiPosition;
 	readonly onClickLeft: () => void;
 	readonly onClickRight: () => void;
-	readonly audioVolume: {volume: number; isMuted: boolean};
+	readonly mountPlayerAudio: boolean;
 };
 
 export const schema = z.object({
@@ -98,7 +98,7 @@ export const HomepageVideoComp: React.FC<z.infer<typeof schema> & Props> = ({
 	emojiPositions,
 	onClickLeft,
 	onClickRight,
-	audioVolume,
+	mountPlayerAudio,
 }) => {
 	const [rerenders, setRerenders] = useState(0);
 	const {durationInFrames} = useVideoConfig();
@@ -106,8 +106,8 @@ export const HomepageVideoComp: React.FC<z.infer<typeof schema> & Props> = ({
 	// Prevent "NotAllowedError: play() failed" by waiting for user interaction.
 	// If rendering, this is not required
 	const {isRendering} = getRemotionEnvironment();
-	let audioRequested = isRendering;
-	if (!audioVolume.isMuted) {
+	let audioRequested = isRendering || false; // redundant ternary condition, but makes it clear that this is ignored during rendering
+	if (mountPlayerAudio) {
 		audioRequested = true;
 	}
 
@@ -127,7 +127,7 @@ export const HomepageVideoComp: React.FC<z.infer<typeof schema> & Props> = ({
 		return null;
 	}
 
-	const loweredVolume = audioVolume.volume * 0.5; // this track is too loud by default
+	const loweredVolume = 0.5; // this track is too loud by default
 	const audioFadeFrame = durationInFrames - 30;
 
 	return (
@@ -152,7 +152,6 @@ export const HomepageVideoComp: React.FC<z.infer<typeof schema> & Props> = ({
 			{audioRequested ? (
 				<Audio
 					src={staticFile('Utope-nature-5s.mp3')}
-					muted={audioVolume.isMuted || audioVolume.volume === 0}
 					volume={(f) =>
 						interpolate(
 							f,

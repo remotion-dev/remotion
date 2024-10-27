@@ -11,20 +11,8 @@ export const PlayerControls: React.FC<{
 	playerRef: React.RefObject<PlayerRef>;
 	durationInFrames: number;
 	fps: number;
-	updateAudioVolume: (volume: number) => void;
-	updateAudioMute: (isMuted: boolean) => void;
-	audioState: {
-		volume: number;
-		isMuted: boolean;
-	};
-}> = ({
-	playerRef,
-	durationInFrames,
-	fps,
-	updateAudioVolume,
-	updateAudioMute,
-	audioState,
-}) => {
+	setmountPlayerAudio: React.Dispatch<React.SetStateAction<boolean>>;
+}> = ({playerRef, durationInFrames, fps, setmountPlayerAudio}) => {
 	return (
 		<div className={styles['controls-wrapper']}>
 			<div className={styles['start-controls']}>
@@ -46,9 +34,7 @@ export const PlayerControls: React.FC<{
 			<div className={styles['end-controls']}>
 				<PlayerVolume
 					playerRef={playerRef}
-					updateAudioVolume={updateAudioVolume}
-					updateAudioMute={updateAudioMute}
-					audioState={audioState}
+					setmountPlayerAudio={setmountPlayerAudio}
 				/>
 				<PlayerFullscreen playerRef={playerRef} />
 			</div>
