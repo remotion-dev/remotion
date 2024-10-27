@@ -10,7 +10,9 @@ const folders = CreateVideoInternals.FEATURED_TEMPLATES.filter(
 
 const publish = async (template: Template) => {
 	const folder = path.join(
-		process.cwd(),
+		__dirname,
+		'..',
+		'..',
 		'..',
 		template.templateInMonorepo as string,
 	);

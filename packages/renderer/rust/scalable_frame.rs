@@ -191,7 +191,21 @@ pub fn scale_and_make_bitmap(
     linesize: [i32; 8],
     transparent: bool,
 ) -> Result<Vec<u8>, ErrorWithBacktrace> {
-    let dst_format: Pixel = match transparent {
+    let is_transparent_pixel_format = src_format == Pixel::YUVA420P
+        || src_format == Pixel::YUVA444P10LE
+        || src_format == Pixel::YUVA444P12LE;
+
+    let should_return_transparent = transparent && is_transparent_pixel_format;
+
+    if transparent && !is_transparent_pixel_format {
+        _print_verbose(&format!(
+            "Requested transparent image, but the video {} is not transparent (pixel format {:?}). Returning BMP.",
+            native_frame.original_src,
+            src_format
+        ))?;
+    }
+
+    let dst_format: Pixel = match should_return_transparent {
         true => Pixel::RGBA,
         false => Pixel::BGR24,
     };
@@ -238,11 +252,7 @@ pub fn scale_and_make_bitmap(
         &mut scaled,
     )?;
 
-    let is_transparent_pixel_format = src_format == Pixel::YUVA420P
-        || src_format == Pixel::YUVA444P10LE
-        || src_format == Pixel::YUVA444P12LE;
-
-    let channels = match is_transparent_pixel_format {
+    let channels = match should_return_transparent {
         true => 4,
         false => 3,
     } as usize;
@@ -278,21 +288,8 @@ pub fn scale_and_make_bitmap(
         ),
     };
 
-    if transparent {
-        if is_transparent_pixel_format {
-            return get_png_data(&rotated, rotated_width, rotated_height);
-        } else {
-            _print_verbose(&format!(
-                "Requested transparent image, but the video {} is not transparent (pixel format {:?}). Returning BMP.",
-                native_frame.original_src,
-                src_format
-            ))?;
-            return Ok(create_bmp_image_from_frame(
-                &rotated,
-                rotated_width,
-                rotated_height,
-            ));
-        }
+    if should_return_transparent {
+        return get_png_data(&rotated, rotated_width, rotated_height);
     }
 
     Ok(create_bmp_image_from_frame(

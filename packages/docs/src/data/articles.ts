@@ -1611,11 +1611,27 @@ export const articles = [
 		crumb: 'Snippets',
 	},
 	{
+		id: 'miscellaneous/snippets/jumpcuts',
+		title: 'Jump Cutting',
+		relativePath: 'docs/miscellaneous/snippets/jumpcuts.mdx',
+		compId: 'articles-docs-miscellaneous-snippets-jumpcuts',
+		crumb: 'Snippets',
+	},
+	{
 		id: 'hls',
 		title: 'HLS support (HTTP Live Streaming)',
 		relativePath: 'docs/miscellaneous/snippets/hls.mdx',
 		compId: 'articles-docs-miscellaneous-snippets-hls',
 		crumb: 'Video',
+	},
+	{
+		id: 'miscellaneous/snippets/different-segments-at-different-speeds',
+		title: 'Different segments at different speeds',
+		relativePath:
+			'docs/miscellaneous/snippets/different-segments-at-different-speeds.mdx',
+		compId:
+			'articles-docs-miscellaneous-snippets-different-segments-at-different-speeds',
+		crumb: 'Snippets',
 	},
 	{
 		id: 'miscellaneous/snippets/offthread-video-while-rendering',

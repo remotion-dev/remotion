@@ -1268,6 +1268,7 @@ export const Index: React.FC = () => {
 							{type: 'a' as const, a: {a: 'hi'}},
 							{type: 'b' as const, b: {b: 'hi'}},
 						],
+						discriminatedUnion: {type: 'auto'},
 					}}
 				/>
 				{/**

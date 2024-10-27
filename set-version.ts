@@ -8,7 +8,7 @@ import {
 	writeFileSync,
 } from 'fs';
 import path from 'path';
-import {FEATURED_TEMPLATES} from './packages/create-video/src/templates.tsx';
+import {FEATURED_TEMPLATES} from './packages/create-video/src/templates.ts';
 
 let version = process.argv[2];
 let noCommit = process.argv.includes('--no-commit');
