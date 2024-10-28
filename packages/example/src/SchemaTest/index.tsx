@@ -22,6 +22,15 @@ export const schemaTestSchema = z.object({
 			}),
 		]),
 	),
+	discriminatedUnion: z.discriminatedUnion('type', [
+		z.object({
+			type: z.literal('auto'),
+		}),
+		z.object({
+			type: z.literal('fixed'),
+			value: z.number().min(1080),
+		}),
+	]),
 });
 
 export const schemaArrayTestSchema = z.array(z.number());

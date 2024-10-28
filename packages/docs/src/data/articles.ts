@@ -1330,6 +1330,13 @@ export const articles = [
 		crumb: 'API',
 	},
 	{
+		id: 'system-prompt',
+		title: 'Remotion System Prompt for LLMs',
+		relativePath: 'docs/system-prompt.mdx',
+		compId: 'articles-docs-system-prompt',
+		crumb: 'AI',
+	},
+	{
 		id: 'bun',
 		title: 'Bun support',
 		relativePath: 'docs/bun.mdx',
@@ -1604,11 +1611,27 @@ export const articles = [
 		crumb: 'Snippets',
 	},
 	{
+		id: 'miscellaneous/snippets/jumpcuts',
+		title: 'Jump Cutting',
+		relativePath: 'docs/miscellaneous/snippets/jumpcuts.mdx',
+		compId: 'articles-docs-miscellaneous-snippets-jumpcuts',
+		crumb: 'Snippets',
+	},
+	{
 		id: 'hls',
 		title: 'HLS support (HTTP Live Streaming)',
 		relativePath: 'docs/miscellaneous/snippets/hls.mdx',
 		compId: 'articles-docs-miscellaneous-snippets-hls',
 		crumb: 'Video',
+	},
+	{
+		id: 'miscellaneous/snippets/different-segments-at-different-speeds',
+		title: 'Different segments at different speeds',
+		relativePath:
+			'docs/miscellaneous/snippets/different-segments-at-different-speeds.mdx',
+		compId:
+			'articles-docs-miscellaneous-snippets-different-segments-at-different-speeds',
+		crumb: 'Snippets',
 	},
 	{
 		id: 'miscellaneous/snippets/offthread-video-while-rendering',
@@ -3745,13 +3768,6 @@ export const articles = [
 		crumb: '@remotion/player',
 	},
 	{
-		id: 'player/drag-and-drop',
-		title: 'Drag & Drop in the Remotion Player',
-		relativePath: 'docs/player/drag-and-drop.mdx',
-		compId: 'articles-docs-player-drag-and-drop',
-		crumb: '@remotion/player',
-	},
-	{
 		id: 'media-keys',
 		title: 'Media Key Behavior (Web MediaSession API)',
 		relativePath: 'docs/player/media-keys.mdx',
@@ -3791,6 +3807,13 @@ export const articles = [
 		title: 'Combatting autoplay issues',
 		relativePath: 'docs/player/autoplay.mdx',
 		compId: 'articles-docs-player-autoplay',
+		crumb: '@remotion/player',
+	},
+	{
+		id: 'player/drag-and-drop/index',
+		title: 'Drag & Drop in the Remotion Player',
+		relativePath: 'docs/player/drag-and-drop/index.mdx',
+		compId: 'articles-docs-player-drag-and-drop-index',
 		crumb: '@remotion/player',
 	},
 	{

@@ -1,5 +1,3 @@
-import React from 'react';
-
 type DynamicTemplate =
 	| {
 			type: 'video';
@@ -24,7 +22,7 @@ export type Template = {
 	org: string;
 	repoName: string;
 	homePageLabel: string;
-	longerDescription: React.ReactNode;
+	longerDescription: string;
 	cliId:
 		| 'hello-world'
 		| 'javascript'
@@ -337,13 +335,13 @@ export const FEATURED_TEMPLATES: Template[] = [
 		org: 'remotion-dev',
 		repoName: 'template-overlay',
 		description: 'Overlays for video editing software',
-		longerDescription: (
+		longerDescription: `
 			<span>
 				A starter template to create overlays to use in conventional video
 				editing software.{' '}
 				<a href="/docs/overlay">Read more about creating overlays.</a>
 			</span>
-		),
+			`,
 		promoVideo: {
 			muxId: 'zgy7XK01009y33Vfzhns02cZS00rOyeZ6WaanaxcrDysqmU',
 			height: 720,
@@ -363,13 +361,11 @@ export const FEATURED_TEMPLATES: Template[] = [
 		org: 'remotion-dev',
 		repoName: 'template-code-hike',
 		description: 'Beautiful code animations',
-		longerDescription: (
-			<>
+		longerDescription: `			
 				Add code snippets and animate between them using{' '}
 				<a href="https://codehike.org/">Code Hike</a>. Supports many languages,
 				TypeScript error annotations, and many themes.
-			</>
-		),
+			`,
 		promoVideo: {
 			muxId: 'fKwnpTAOqvnZpu00fwEezi00cpF3927NumGcS1gGdUj8A',
 			width: 1080,

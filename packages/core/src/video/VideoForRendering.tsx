@@ -281,7 +281,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		}, [src, onDuration, delayRenderRetries, delayRenderTimeoutInMilliseconds]);
 	}
 
-	return <video ref={videoRef} {...props} />;
+	return <video ref={videoRef} disableRemotePlayback {...props} />;
 };
 
 export const VideoForRendering = forwardRef(

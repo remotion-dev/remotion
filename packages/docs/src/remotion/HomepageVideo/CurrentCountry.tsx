@@ -23,14 +23,8 @@ export const CurrentCountry: React.FC<{
 		delay: 10,
 	});
 
-	const progress2 = spring({
-		fps,
-		frame,
-		delay: 20,
-	});
-
 	return (
-		<AbsoluteFill>
+		<AbsoluteFill style={{overflow: 'hidden'}}>
 			<AbsoluteFill
 				style={{
 					transform: `scale(${progress})`,
@@ -51,7 +45,6 @@ export const CurrentCountry: React.FC<{
 					justifyContent: 'center',
 					paddingLeft: 20,
 					paddingRight: 20,
-					transform: `scale(${progress2})`,
 				}}
 			>
 				<div
@@ -62,6 +55,7 @@ export const CurrentCountry: React.FC<{
 						fontSize: 13,
 						textAlign: 'center',
 						marginTop: -10,
+						marginLeft: `${-420 + progress * 420}px`,
 					}}
 				>
 					Your country
@@ -74,6 +68,7 @@ export const CurrentCountry: React.FC<{
 						fontWeight: '500',
 						fontSize: 30,
 						color: theme === 'dark' ? 'white' : 'black',
+						marginLeft: `${420 - progress * 420}px`,
 					}}
 				>
 					{countryLabel}

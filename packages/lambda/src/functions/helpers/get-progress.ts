@@ -31,6 +31,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 	customCredentials,
 	providerSpecifics,
 	forcePathStyle,
+	functionName,
 }: {
 	bucketName: string;
 	renderId: string;
@@ -41,6 +42,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 	customCredentials: CustomCredentials<Provider> | null;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	forcePathStyle: boolean;
+	functionName: string;
 }): Promise<GenericRenderProgress<Provider>> => {
 	const overallProgress = await getOverallProgressS3({
 		renderId,
@@ -255,7 +257,8 @@ export const getProgress = async <Provider extends CloudProvider>({
 					renderMetadata,
 					renderId,
 					missingChunks: missingChunks ?? [],
-					providerSpecifics,
+					region,
+					functionName,
 				})
 			: null,
 		...errorExplanations,

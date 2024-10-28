@@ -1,11 +1,9 @@
 import {Thumbnail} from '@remotion/player';
 import React from 'react';
 import App from '../src/App';
-import {NativeBufferState} from '../src/BufferState';
 import CarSlideshow from '../src/CarSlideshow';
 import {FontPicker} from '../src/FontPicker';
 import {ThumbnailDemo} from '../src/ThumbnailDemo';
-import {VideoautoplayDemo} from '../src/VideoAutoplay';
 
 function Index() {
 	return (
@@ -20,8 +18,6 @@ function Index() {
 				}}
 			>
 				<App component={CarSlideshow} durationInFrames={500} />
-				<App component={VideoautoplayDemo} durationInFrames={2700} />
-				<App component={NativeBufferState} durationInFrames={2700} />
 			</div>
 			<h2>Thumbnail</h2>
 			<Thumbnail

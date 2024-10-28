@@ -64,7 +64,7 @@ export const CompanyPricing: React.FC = () => {
 					</div>
 				</div>
 				<div style={{flex: 3}} />
-				<Counter count={devSeatCount} setCount={setDevSeatCount} />
+				<Counter count={devSeatCount} setCount={setDevSeatCount} minCount={1} />
 				<div style={{flex: 1}} />
 				<div className={styles.pricetag}>
 					$
@@ -82,7 +82,11 @@ export const CompanyPricing: React.FC = () => {
 					</div>
 				</div>
 				<div style={{flex: 3}} />
-				<Counter count={cloudUnitCount} setCount={setCloudUnitCount} />
+				<Counter
+					count={cloudUnitCount}
+					setCount={setCloudUnitCount}
+					minCount={0}
+				/>
 				<div style={{flex: 1}} />
 				<div className={styles.pricetag}>
 					$
