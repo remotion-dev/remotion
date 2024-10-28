@@ -33,6 +33,8 @@ export interface ProductLauncher {
 	executablePath: (path?: any) => string;
 }
 
+const dir = path.join(tmpDir(), 'puppeteer_dev_chrome_profile-');
+
 export class ChromeLauncher implements ProductLauncher {
 	async launch(options: PuppeteerNodeLaunchOptions): Promise<HeadlessBrowser> {
 		const {
@@ -58,10 +60,10 @@ export class ChromeLauncher implements ProductLauncher {
 
 		// Check for the user data dir argument, which will always be set even
 		// with a custom directory specified via the userDataDir option.
-		const userDataDir = await fs.promises.mkdtemp(
-			path.join(tmpDir(), 'puppeteer_dev_chrome_profile-'),
-		);
-		chromeArguments.push(`--user-data-dir=${userDataDir}`);
+		fs.mkdirSync(path.join(tmpDir(), 'puppeteer_dev_chrome_profile-'), {
+			recursive: true,
+		});
+		chromeArguments.push(`--user-data-dir=${dir}`);
 
 		let chromeExecutable = executablePath;
 		if (!chromeExecutable) {
@@ -76,7 +78,7 @@ export class ChromeLauncher implements ProductLauncher {
 		const runner = new BrowserRunner({
 			executablePath: chromeExecutable,
 			processArguments: chromeArguments,
-			userDataDir,
+			userDataDir: dir,
 		});
 		runner.start({
 			dumpio,

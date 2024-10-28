@@ -28,6 +28,7 @@ import {
 	overallProgressKey,
 } from '@remotion/serverless/client';
 import fs from 'node:fs';
+import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
@@ -50,6 +51,32 @@ type Options<Provider extends CloudProvider> = {
 	onStream: OnStream<Provider>;
 	timeoutInMilliseconds: number;
 	providerSpecifics: ProviderSpecifics<Provider>;
+};
+
+const tmpDir = () => {
+	return process.env.PUPPETEER_TMP_DIR || tmpdir();
+};
+
+const dir = path.join(tmpDir(), 'puppeteer_dev_chrome_profile-');
+
+export const printDir = () => {
+	if (!dir) {
+		return;
+	}
+
+	const printFilesRecursively = (directory: string) => {
+		const entries = fs.readdirSync(directory, {withFileTypes: true});
+		entries.forEach((entry) => {
+			const fullPath = path.join(directory, entry.name);
+			if (entry.isDirectory()) {
+				printFilesRecursively(fullPath);
+			} else {
+				console.log(fullPath);
+			}
+		});
+	};
+
+	printFilesRecursively(dir);
 };
 
 const innerStillHandler = async <Provider extends CloudProvider>(
@@ -369,6 +396,8 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		outKey,
 		receivedArtifacts: receivedArtifact,
 	};
+
+	printDir();
 
 	onStream({
 		type: 'still-rendered',
