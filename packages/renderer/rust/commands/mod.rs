@@ -1,5 +1,4 @@
 use crate::compositor::draw_layer;
-use crate::copy_clipboard::copy_to_clipboard;
 use crate::errors::ErrorWithBacktrace;
 use crate::image::{save_as_jpeg, save_as_png};
 use crate::memory::is_about_to_run_out_of_memory;
@@ -102,7 +101,6 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWit
 
             Ok("".as_bytes().to_vec())
         }
-        CliInputCommandPayload::CopyImageToClipboard(command) => copy_to_clipboard(command.src),
         CliInputCommandPayload::ExtractAudio(_command) => {
             ffmpeg::extract_audio(&_command.input_path, &_command.output_path)?;
             Ok(vec![])

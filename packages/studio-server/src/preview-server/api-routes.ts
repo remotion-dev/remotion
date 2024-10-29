@@ -4,7 +4,6 @@ import {handleAddRender} from './routes/add-render';
 import {applyCodemodHandler} from './routes/apply-codemod';
 import {canUpdateDefaultPropsHandler} from './routes/can-update-default-props';
 import {handleCancelRender} from './routes/cancel-render';
-import {handleCopyStillToClipboard} from './routes/copy-still-to-clipboard-handler';
 import {deleteStaticFileHandler} from './routes/delete-static-file';
 import {handleInstallPackage} from './routes/install-dependency';
 import {handleOpenInFileExplorer} from './routes/open-in-file-explorer';
@@ -28,7 +27,6 @@ export const allApiRoutes: {
 	'/api/subscribe-to-file-existence': subscribeToFileExistence,
 	'/api/remove-render': handleRemoveRender,
 	'/api/open-in-file-explorer': handleOpenInFileExplorer,
-	'/api/copy-still-to-clipboard': handleCopyStillToClipboard,
 	'/api/update-default-props': updateDefaultPropsHandler,
 	'/api/apply-codemod': applyCodemodHandler,
 	'/api/can-update-default-props': canUpdateDefaultPropsHandler,
