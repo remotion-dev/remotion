@@ -33,6 +33,9 @@ const aliases = {
 	'@remotion/webcodecs': resolveCwd('@remotion/webcodecs'),
 	'@remotion/media-parser/buffer': resolveCwd('@remotion/media-parser/buffer'),
 	'@remotion/media-parser/web-fs': resolveCwd('@remotion/media-parser/web-fs'),
+	'@remotion/media-parser/web-file': resolveCwd(
+		'@remotion/media-parser/web-file',
+	),
 	'@remotion/media-parser': resolveCwd('@remotion/media-parser'),
 	'@remotion/transitions/fade': resolveCwd('@remotion/transitions/fade'),
 	'@remotion/transitions/slide': resolveCwd('@remotion/transitions/slide'),
