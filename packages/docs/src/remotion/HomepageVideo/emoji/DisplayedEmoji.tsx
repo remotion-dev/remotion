@@ -8,7 +8,7 @@ export const DisplayedEmoji: React.FC<{
 }> = ({emoji}) => {
 	const partyDuration = getAvailableEmojis().find(
 		(e) => e.name === emoji,
-	).durationInSeconds;
+	)!.durationInSeconds;
 	const {durationInFrames, fps} = useVideoConfig();
 
 	const ratio = durationInFrames / fps / partyDuration;

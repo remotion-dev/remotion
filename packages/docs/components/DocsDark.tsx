@@ -35,10 +35,10 @@ export const SingleVideoDemo: React.FC<{
 	}, [colorMode]);
 
 	useEffect(() => {
-		ref1.current.addEventListener(
+		ref1.current?.addEventListener(
 			'canplay',
 			() => {
-				ref1.current.play();
+				ref1.current?.play();
 			},
 			{
 				once: true,
@@ -80,7 +80,7 @@ export const DualVideoDemo: React.FC<{
 		shouldApplyCssTransforms: true,
 	});
 
-	const mobile = size?.width < 700;
+	const mobile = (size?.width ?? 0) < 700;
 
 	const style: React.CSSProperties = useMemo(
 		() => ({
@@ -107,20 +107,20 @@ export const DualVideoDemo: React.FC<{
 	}, [colorMode, mobile]);
 
 	const playAll = useCallback(() => {
-		ref1.current.play();
-		ref2.current.play();
+		ref1.current?.play();
+		ref2.current?.play();
 		setPlayed(true);
 	}, []);
 
 	useEffect(() => {
 		Promise.all([
 			new Promise<void>((resolve) => {
-				ref1.current.addEventListener('canplay', () => resolve(), {
+				ref1.current?.addEventListener('canplay', () => resolve(), {
 					once: true,
 				});
 			}),
 			new Promise<void>((resolve) => {
-				ref2.current.addEventListener('canplay', () => resolve(), {
+				ref2.current?.addEventListener('canplay', () => resolve(), {
 					once: true,
 				});
 			}),

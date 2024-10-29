@@ -23,7 +23,6 @@ import {
 import type {EmojiPosition} from '../../remotion/HomepageVideo/emoji/EmojiCard';
 import {ActionRow} from './ActionRow';
 import {PlayerControls} from './PlayerControls';
-import styles from './player.module.css';
 
 preloadAudio(staticFile('Utope-nature-5s.mp3'));
 
@@ -97,7 +96,7 @@ export const Demo: React.FC = () => {
 					current: c.prev,
 					next: c.current,
 					translation: 0,
-					translationStyle: undefined,
+					translationStyle: '',
 				};
 			});
 		}, 200);
@@ -135,7 +134,10 @@ export const Demo: React.FC = () => {
 			emojiPositions,
 			onClickLeft,
 			onClickRight,
-			...data,
+			playerData: {
+				location: data?.location ?? null,
+				trending: data?.trending ?? null,
+			},
 		};
 	}, [cardOrder, colorMode, data, emojiPositions, onClickLeft, onClickRight]);
 
@@ -144,47 +146,29 @@ export const Demo: React.FC = () => {
 			<br />
 			<h1>Try out this interactive demo!</h1>
 			<ActionRow />
-
-			{data ? (
-				<div style={playerWrapper}>
-					<Player
-						ref={ref}
-						component={HomepageVideoComp}
-						compositionWidth={640}
-						compositionHeight={360}
-						durationInFrames={120}
-						fps={30}
-						autoPlay
-						controls={isFullscreen}
-						clickToPlay={false}
-						style={{
-							width: '100%',
-							aspectRatio: '640 / 360',
-							borderBottom: `2px solid ${BOX_STROKE}`,
-							touchAction: 'none', // prevent page from scrolling when dragging children on mobile
-						}}
-						initiallyMuted
-						inputProps={props}
-						loop
-					/>
-					<PlayerControls playerRef={ref} durationInFrames={120} fps={30} />
-				</div>
-			) : (
-				<>
-					<div
-						style={{
-							aspectRatio: '640 / 360',
-							...playerWrapper,
-						}}
-					/>
-					<div
-						className={styles['controls-wrapper']}
-						style={{justifyContent: 'center'}}
-					>
-						<p>Loading Player</p>
-					</div>
-				</>
-			)}
+			<div style={playerWrapper}>
+				<Player
+					ref={ref}
+					component={HomepageVideoComp}
+					compositionWidth={640}
+					compositionHeight={360}
+					durationInFrames={120}
+					fps={30}
+					autoPlay
+					controls={isFullscreen}
+					clickToPlay={false}
+					style={{
+						width: '100%',
+						aspectRatio: '640 / 360',
+						borderBottom: `2px solid ${BOX_STROKE}`,
+						touchAction: 'none', // prevent page from scrolling when dragging children on mobile
+					}}
+					initiallyMuted
+					inputProps={props}
+					loop
+				/>
+				<PlayerControls playerRef={ref} durationInFrames={120} fps={30} />
+			</div>
 		</div>
 	);
 };

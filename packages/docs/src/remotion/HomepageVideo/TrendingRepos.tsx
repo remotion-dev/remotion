@@ -1,6 +1,6 @@
 import React, {useMemo} from 'react';
 import {AbsoluteFill, spring, useCurrentFrame, useVideoConfig} from 'remotion';
-import type {Trending} from './Comp';
+import type {RemoteData} from './Comp';
 
 const TrendingRepoItem: React.FC<{
 	repo: string;
@@ -39,7 +39,7 @@ const TrendingRepoItem: React.FC<{
 
 export const TrendingRepos: React.FC<{
 	readonly theme: 'dark' | 'light';
-	readonly trending: Trending;
+	readonly trending: RemoteData | null;
 }> = ({theme, trending}) => {
 	const fill = theme === 'light' ? '#666' : '#999';
 	const frame = useCurrentFrame();
@@ -53,6 +53,10 @@ export const TrendingRepos: React.FC<{
 		},
 		delay: 0,
 	});
+
+	if (trending === null) {
+		return null;
+	}
 
 	return (
 		<AbsoluteFill>

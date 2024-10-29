@@ -139,7 +139,7 @@ export const PlayerSeekBar: React.FC<{
 		}
 
 		const onFrameUpdate = () => {
-			setFrame(playerRef.current.getCurrentFrame());
+			setFrame(playerRef.current!.getCurrentFrame());
 		};
 
 		current.addEventListener('frameupdate', onFrameUpdate);
@@ -200,8 +200,8 @@ export const PlayerSeekBar: React.FC<{
 				durationInFrames,
 				width,
 			);
-			playerRef.current.pause();
-			playerRef.current.seekTo(_frame);
+			playerRef.current!.pause();
+			playerRef.current!.seekTo(_frame);
 			setDragging({
 				dragging: true,
 				wasPlaying: playing,
@@ -229,7 +229,7 @@ export const PlayerSeekBar: React.FC<{
 				durationInFrames,
 				size.width,
 			);
-			playerRef.current.seekTo(_frame);
+			playerRef.current!.seekTo(_frame);
 		},
 		[dragging.dragging, durationInFrames, playerRef, size],
 	);
@@ -243,9 +243,9 @@ export const PlayerSeekBar: React.FC<{
 		}
 
 		if (dragging.wasPlaying) {
-			playerRef.current.play();
+			playerRef.current!.play();
 		} else {
-			playerRef.current.pause();
+			playerRef.current!.pause();
 		}
 
 		onSeekEnd();

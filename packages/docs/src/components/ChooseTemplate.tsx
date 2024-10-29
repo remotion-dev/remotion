@@ -44,7 +44,7 @@ export const ChooseTemplate: React.FC = () => {
 								style={{textDecoration: 'none'}}
 								to={`/templates/${template.cliId}`}
 							>
-								<TemplateIcon label={template.featuredOnHomePage}>
+								<TemplateIcon label={template.featuredOnHomePage!}>
 									<IconForTemplate scale={0.7} template={template} />
 								</TemplateIcon>
 							</Link>

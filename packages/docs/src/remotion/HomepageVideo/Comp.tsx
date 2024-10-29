@@ -11,7 +11,7 @@ import {Cards} from './cards/Cards';
 import type {EmojiPosition} from './emoji/EmojiCard';
 import type {Location} from './types';
 
-export type Trending = {
+export type RemoteData = {
 	repos: string[];
 	date: string;
 	temperatureInCelsius: number;
@@ -23,8 +23,8 @@ export type Trending = {
 };
 
 export type LocationAndTrending = {
-	location: Location;
-	trending: Trending;
+	location: Location | null;
+	trending: RemoteData | null;
 };
 
 export const getDataAndProps = async () => {
@@ -61,7 +61,7 @@ export const calculateMetadata: CalculateMetadataFunction<
 		width: 640,
 		props: {
 			...props,
-			trending,
+			data: trending,
 			location,
 			temperatureInCelsius: trending?.temperatureInCelsius ?? 10,
 			onToggle() {},
@@ -71,8 +71,7 @@ export const calculateMetadata: CalculateMetadataFunction<
 };
 
 export type DemoPlayerProps = {
-	readonly location: Location;
-	readonly trending: null | Trending;
+	readonly playerData: LocationAndTrending;
 	readonly onToggle: () => void;
 	readonly cardOrder: number[];
 	readonly updateCardOrder: (newCardOrder: number[]) => void;
@@ -84,14 +83,13 @@ export type DemoPlayerProps = {
 
 export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
 	theme,
-	location,
-	trending,
 	onToggle,
 	cardOrder,
 	updateCardOrder,
 	emojiPositions,
 	onClickLeft,
 	onClickRight,
+	playerData,
 }) => {
 	const [rerenders, setRerenders] = useState(0);
 	const {durationInFrames} = useVideoConfig();
@@ -103,14 +101,6 @@ export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
 		},
 		[rerenders, updateCardOrder],
 	);
-
-	if (!location) {
-		return null;
-	}
-
-	if (!trending) {
-		return null;
-	}
 
 	const loweredVolume = 0.5; // this track is too loud by default
 	const audioFadeFrame = durationInFrames - 30;
@@ -126,10 +116,8 @@ export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
 				onUpdate={onUpdate}
 				indices={cardOrder}
 				theme={theme}
-				location={location}
-				trending={trending}
+				data={playerData}
 				onToggle={onToggle}
-				temperatureInCelsius={trending.temperatureInCelsius}
 				onClickLeft={onClickLeft}
 				onClickRight={onClickRight}
 				emojiPositions={emojiPositions}

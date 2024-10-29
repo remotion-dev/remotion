@@ -1,11 +1,10 @@
 import React, {createRef, useEffect, useRef, useState} from 'react';
 import {AbsoluteFill, getRemotionEnvironment} from 'remotion';
-import type {Trending} from '../Comp';
+import type {LocationAndTrending} from '../Comp';
 import {CurrentCountry} from '../CurrentCountry';
 import {Temperature} from '../Temperature';
 import {TrendingRepos} from '../TrendingRepos';
 import {EmojiCard, type EmojiPosition} from '../emoji/EmojiCard';
-import type {Location} from '../types';
 import {Card} from './Card';
 import {getInitialPositions} from './math';
 
@@ -13,9 +12,7 @@ export const Cards: React.FC<{
 	readonly onUpdate: (newIndices: number[]) => void;
 	readonly indices: number[];
 	readonly theme: 'dark' | 'light';
-	readonly location: Location;
-	readonly trending: Trending;
-	readonly temperatureInCelsius: number;
+	readonly data: LocationAndTrending;
 	onToggle: () => void;
 	onClickLeft: () => void;
 	onClickRight: () => void;
@@ -24,13 +21,11 @@ export const Cards: React.FC<{
 	onUpdate,
 	indices,
 	theme,
-	location,
-	trending,
 	onToggle,
-	temperatureInCelsius,
 	onClickLeft,
 	onClickRight,
 	emojiPositions,
+	data,
 }) => {
 	const container = useRef<HTMLDivElement>(null);
 
@@ -71,17 +66,17 @@ export const Cards: React.FC<{
 				const index = indices[i];
 				const content =
 					index === 0 ? (
-						<TrendingRepos trending={trending} theme={theme} />
+						<TrendingRepos trending={data.trending} theme={theme} />
 					) : index === 1 ? (
 						<Temperature
-							city={location.city}
+							city={data.location?.city ?? null}
 							theme={theme}
-							temperatureInCelsius={temperatureInCelsius}
+							temperatureInCelsius={data.trending?.temperatureInCelsius ?? null}
 						/>
 					) : index === 2 ? (
 						<CurrentCountry
-							countryPaths={trending.countryPaths}
-							countryLabel={trending.countryLabel}
+							countryPaths={data.trending?.countryPaths ?? null}
+							countryLabel={data.trending?.countryLabel ?? null}
 							theme={theme}
 						/>
 					) : (
@@ -93,6 +88,7 @@ export const Cards: React.FC<{
 						// eslint-disable-next-line react/no-array-index-key
 						key={i}
 						onUpdate={onUpdate}
+						// @ts-expect-error
 						refsToUse={refs}
 						index={i}
 						content={content}

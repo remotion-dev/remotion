@@ -29,7 +29,7 @@ const EvaluateRemotionSection: React.FC = () => {
 			// Add more avatar paths here
 		];
 
-		const selectedAvatars = [];
+		const selectedAvatars: string[] = [];
 		for (let i = 0; i < 3; i++) {
 			const index = Math.floor(Math.random() * avatars.length);
 			selectedAvatars.push(avatars[index]);

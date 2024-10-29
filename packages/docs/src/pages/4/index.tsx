@@ -80,7 +80,7 @@ export const EventComp: React.FC<{
 const V4: React.FC = () => {
 	const context = useDocusaurusContext();
 
-	const [email, setEmail] = useState<string>(null);
+	const [email, setEmail] = useState<string | null>(null);
 	const [loading, setLoading] = useState<boolean>(false);
 	const [subscribed, setSubscribed] = useState<boolean>(false);
 	const [error, setError] = useState<string | null>(null);
@@ -108,7 +108,7 @@ const V4: React.FC = () => {
 				setSubscribed(false);
 				setError(null);
 
-				if (isValidEmail(email)) {
+				if (email && isValidEmail(email)) {
 					setLoading(true);
 					const res = await fetch('https://www.remotion.pro/api/newsletter', {
 						method: 'POST',

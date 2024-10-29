@@ -10,18 +10,24 @@ import {
 
 export const CurrentCountry: React.FC<{
 	readonly theme: 'dark' | 'light';
-	readonly countryPaths: {
-		d: string;
-		class: string;
-	}[];
-	readonly countryLabel: string;
+	readonly countryPaths:
+		| {
+				d: string;
+				class: string;
+		  }[]
+		| null;
+	readonly countryLabel: string | null;
 }> = ({theme, countryPaths, countryLabel}) => {
+	const {fps} = useVideoConfig();
+	const frame = useCurrentFrame();
+
+	if (!countryPaths) {
+		return null;
+	}
+
 	const joined = countryPaths.map((p) => p.d).join(' ');
 	const reset = resetPath(joined);
 	const boundingBox = getBoundingBox(reset);
-
-	const {fps} = useVideoConfig();
-	const frame = useCurrentFrame();
 
 	const progress = spring({
 		fps,

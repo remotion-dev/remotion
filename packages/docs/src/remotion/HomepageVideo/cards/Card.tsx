@@ -176,6 +176,9 @@ export const Card: React.FC<{
 					cardLeft + translateX,
 					cardTop + translateY,
 				);
+				if (position === undefined) {
+					throw new Error('pos');
+				}
 
 				if (position === index) {
 					if (

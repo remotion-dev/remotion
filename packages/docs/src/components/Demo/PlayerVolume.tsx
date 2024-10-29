@@ -45,10 +45,10 @@ export const PlayerVolume: React.FC<{
 			timerRef.current = null;
 		}
 
-		if (playerRef.current.isMuted()) {
-			playerRef.current.unmute();
+		if (playerRef.current!.isMuted()) {
+			playerRef.current!.unmute();
 		} else {
-			playerRef.current.mute();
+			playerRef.current!.mute();
 		}
 	}, [playerRef]);
 

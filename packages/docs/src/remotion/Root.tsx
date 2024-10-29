@@ -75,13 +75,6 @@ export const RemotionRoot: React.FC = () => {
 				fps={30}
 				defaultProps={{
 					theme: 'light',
-					location: {
-						country: 'US',
-						city: 'New York',
-						latitude: 40.7128,
-						longitude: -74.006,
-					},
-					trending: null,
 					onToggle: () => undefined,
 					cardOrder: [0, 1, 2, 3],
 					updateCardOrder: () => undefined,
@@ -94,6 +87,21 @@ export const RemotionRoot: React.FC = () => {
 					},
 					onClickLeft: () => undefined,
 					onClickRight: () => undefined,
+					playerData: {
+						trending: {
+							temperatureInCelsius: 14,
+							countryLabel: 'Switzerland',
+							countryPaths: [],
+							date: '2024-12-31',
+							repos: [],
+						},
+						location: {
+							city: 'New York',
+							country: 'US',
+							latitude: 40.7128,
+							longitude: -74.006,
+						},
+					},
 				}}
 				calculateMetadata={calculateMetadata}
 			/>

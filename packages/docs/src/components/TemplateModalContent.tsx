@@ -144,7 +144,7 @@ export const TemplateModalContent: React.FC<{
 	}, []);
 
 	const copyCommand = useCallback(async (command: string) => {
-		clearTimeout(copyTimeout);
+		clearTimeout(copyTimeout!);
 		const permissionName = 'clipboard-write' as PermissionName;
 		try {
 			const result = await navigator.permissions.query({

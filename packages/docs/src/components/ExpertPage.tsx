@@ -107,11 +107,11 @@ export default () => {
 	}
 
 	const expert = experts.find((e) => e.slug === expertSlug[1]);
-	const imgSrc = `/generated/experts-${expert.slug}.png`;
-
 	if (!expert) {
 		throw new Error('no expert found');
 	}
+
+	const imgSrc = `/generated/experts-${expert.slug}.png`;
 
 	return (
 		<Layout>

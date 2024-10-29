@@ -4,9 +4,13 @@ import {TemperatureNumber} from './TemperatureNumber';
 
 export const Temperature: React.FC<{
 	readonly theme: 'dark' | 'light';
-	readonly city: string;
-	temperatureInCelsius: number;
+	readonly city: string | null;
+	temperatureInCelsius: number | null;
 }> = ({theme, city, temperatureInCelsius}) => {
+	if (temperatureInCelsius === null) {
+		return null;
+	}
+
 	return (
 		<AbsoluteFill>
 			<AbsoluteFill
