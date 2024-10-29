@@ -35,9 +35,9 @@ export const PlayerControls: React.FC<{
 					setmountPlayerAudio={setmountPlayerAudio}
 				/>
 				<Separator />
-				<div style={{width: 20}} />
+				<div style={{width: 15}} />
 				<TimeDisplay playerRef={playerRef} fps={fps} />
-				<div style={{width: 10}} />
+				<div style={{width: 15}} />
 				<PlayerSeekBar
 					durationInFrames={durationInFrames}
 					playerRef={playerRef}

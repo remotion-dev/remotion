@@ -13,6 +13,7 @@ const playerButtonStyle: React.CSSProperties = {
 	paddingRight: 20,
 	paddingLeft: 20,
 	cursor: 'pointer',
+	height: 50,
 };
 
 export const PlayPauseButton: React.FC<{
