@@ -7,7 +7,6 @@ import {
 	useVideoConfig,
 	type CalculateMetadataFunction,
 } from 'remotion';
-import {z} from 'zod';
 import {Cards} from './cards/Cards';
 import type {EmojiPosition} from './emoji/EmojiCard';
 import type {Location} from './types';
@@ -50,9 +49,9 @@ export const getDataAndProps = async () => {
 	return {trending, location};
 };
 
-export const calculateMetadata: CalculateMetadataFunction<
-	z.infer<typeof schema> & Props
-> = async ({props}) => {
+export const calculateMetadata: CalculateMetadataFunction<Props> = async ({
+	props,
+}) => {
 	const {trending, location} = await getDataAndProps();
 
 	return {
@@ -80,14 +79,10 @@ type Props = {
 	readonly emojiPositions: EmojiPosition;
 	readonly onClickLeft: () => void;
 	readonly onClickRight: () => void;
-	readonly mountPlayerAudio: boolean;
+	readonly theme: 'dark' | 'light';
 };
 
-export const schema = z.object({
-	theme: z.enum(['light', 'dark']),
-});
-
-export const HomepageVideoComp: React.FC<z.infer<typeof schema> & Props> = ({
+export const HomepageVideoComp: React.FC<Props> = ({
 	theme,
 	location,
 	trending,

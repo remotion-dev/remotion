@@ -5,8 +5,7 @@ import styles from './player.module.css';
 
 export const PlayerVolume: React.FC<{
 	readonly playerRef: React.RefObject<PlayerRef>;
-	readonly setmountPlayerAudio: React.Dispatch<React.SetStateAction<boolean>>;
-}> = ({playerRef, setmountPlayerAudio}) => {
+}> = ({playerRef}) => {
 	const [muted, setIsMuted] = useState(
 		() => playerRef.current?.isMuted() ?? true,
 	);
@@ -30,7 +29,7 @@ export const PlayerVolume: React.FC<{
 		return () => {
 			current.removeEventListener('mutechange', onMutedChange);
 		};
-	}, [playerRef, setmountPlayerAudio]);
+	}, [playerRef]);
 
 	useEffect(() => {
 		if (isHovered) {

@@ -23,17 +23,13 @@ export const PlayerControls: React.FC<{
 	readonly playerRef: React.RefObject<PlayerRef>;
 	readonly durationInFrames: number;
 	readonly fps: number;
-	readonly setmountPlayerAudio: React.Dispatch<React.SetStateAction<boolean>>;
-}> = ({playerRef, durationInFrames, fps, setmountPlayerAudio}) => {
+}> = ({playerRef, durationInFrames, fps}) => {
 	return (
 		<div className={styles['controls-wrapper']}>
 			<div className={styles['start-controls']}>
 				<PlayPauseButton playerRef={playerRef} />
 				<Separator />
-				<PlayerVolume
-					playerRef={playerRef}
-					setmountPlayerAudio={setmountPlayerAudio}
-				/>
+				<PlayerVolume playerRef={playerRef} />
 				<Separator />
 				<div style={{width: 15}} />
 				<TimeDisplay playerRef={playerRef} fps={fps} />

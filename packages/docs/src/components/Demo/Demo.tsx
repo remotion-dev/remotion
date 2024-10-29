@@ -26,7 +26,6 @@ preloadAudio(staticFile('Utope-nature-5s.mp3'));
 export const Demo: React.FC = () => {
 	const {colorMode} = useColorMode();
 	const [data, setData] = useState<LocationAndTrending | null>(null);
-	const [mountPlayerAudio, setmountPlayerAudio] = useState(false);
 	const ref = useRef<PlayerRef>(null);
 
 	useEffect(() => {
@@ -154,17 +153,11 @@ export const Demo: React.FC = () => {
 							emojiPositions,
 							onClickLeft,
 							onClickRight,
-							mountPlayerAudio,
 							...data,
 						}}
 						loop
 					/>
-					<PlayerControls
-						playerRef={ref}
-						durationInFrames={120}
-						fps={30}
-						setmountPlayerAudio={setmountPlayerAudio}
-					/>
+					<PlayerControls playerRef={ref} durationInFrames={120} fps={30} />
 				</div>
 			) : (
 				<>

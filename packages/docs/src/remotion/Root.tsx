@@ -6,11 +6,7 @@ import {experts} from '../data/experts';
 import {AllTemplates} from './AllTemplates';
 import {Article} from './Article';
 import {Expert} from './Expert';
-import {
-	HomepageVideoComp,
-	calculateMetadata,
-	schema,
-} from './HomepageVideo/Comp';
+import {HomepageVideoComp, calculateMetadata} from './HomepageVideo/Comp';
 import {TemplateComp} from './Template';
 
 export const RemotionRoot: React.FC = () => {
@@ -98,9 +94,7 @@ export const RemotionRoot: React.FC = () => {
 					},
 					onClickLeft: () => undefined,
 					onClickRight: () => undefined,
-					mountPlayerAudio: true,
 				}}
-				schema={schema}
 				calculateMetadata={calculateMetadata}
 			/>
 		</>
