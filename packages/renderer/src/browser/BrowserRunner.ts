@@ -41,171 +41,48 @@ const PROCESS_ERROR_EXPLANATION = `Puppeteer was unable to kill the process whic
  Please check your open processes and ensure that the browser processes that Puppeteer launched have been killed.
  If you think this is a bug, please report it on the Puppeteer issue tracker.`;
 
-export class BrowserRunner {
-	#executablePath: string;
-	#processArguments: string[];
-	#userDataDir: string;
-	#closed = true;
-	#listeners: (() => void)[] = [];
-	#processClosing!: Promise<void>;
+export const makeBrowserRunner = async ({
+	executablePath,
+	processArguments,
+	userDataDir,
+	logLevel,
+	indent,
+	timeout,
+}: {
+	executablePath: string;
+	processArguments: string[];
+	userDataDir: string;
+	logLevel: LogLevel;
+	indent: boolean;
+	timeout: number;
+}) => {
+	const dumpio = isEqualOrBelowLogLevel(logLevel, 'verbose');
+	const stdio: ('ignore' | 'pipe')[] = dumpio
+		? ['ignore', 'pipe', 'pipe']
+		: ['pipe', 'ignore', 'pipe'];
 
-	proc: childProcess.ChildProcess;
-	connection?: Connection;
+	const proc = childProcess.spawn(executablePath, processArguments, {
+		// On non-windows platforms, `detached: true` makes child process a
+		// leader of a new process group, making it possible to kill child
+		// process tree with `.kill(-pid)` command. @see
+		// https://nodejs.org/api/child_process.html#child_process_options_detached
+		detached: process.platform !== 'win32',
+		env: process.env,
+		stdio,
+	});
 
-	constructor({
-		executablePath,
-		processArguments,
-		userDataDir,
-		logLevel,
-		indent,
-	}: {
-		executablePath: string;
-		processArguments: string[];
-		userDataDir: string;
-		logLevel: LogLevel;
-		indent: boolean;
-	}) {
-		this.#executablePath = executablePath;
-		this.#processArguments = processArguments;
-		this.#userDataDir = userDataDir;
-		const dumpio = isEqualOrBelowLogLevel(logLevel, 'verbose');
-		const stdio: ('ignore' | 'pipe')[] = dumpio
-			? ['ignore', 'pipe', 'pipe']
-			: ['pipe', 'ignore', 'pipe'];
+	const browserWSEndpoint = await waitForWSEndpoint(proc, timeout);
+	const transport = await NodeWebSocketTransport.create(browserWSEndpoint);
+	const connection = new Connection(transport);
 
-		this.proc = childProcess.spawn(
-			this.#executablePath,
-			this.#processArguments,
-			{
-				// On non-windows platforms, `detached: true` makes child process a
-				// leader of a new process group, making it possible to kill child
-				// process tree with `.kill(-pid)` command. @see
-				// https://nodejs.org/api/child_process.html#child_process_options_detached
-				detached: process.platform !== 'win32',
-				env: process.env,
-				stdio,
-			},
-		);
-		if (dumpio) {
-			this.proc.stdout?.on('data', (d) => {
-				const message = d.toString('utf8').trim();
-				if (shouldLogBrowserMessage(message)) {
-					const formatted = formatChromeMessage(message);
-					if (!formatted) {
-						return;
-					}
-
-					const {output, tag} = formatted;
-					Log.verbose({indent, logLevel, tag}, output);
-				}
-			});
-			this.proc.stderr?.on('data', (d) => {
-				const message = d.toString('utf8').trim();
-				if (shouldLogBrowserMessage(message)) {
-					const formatted = formatChromeMessage(message);
-					if (!formatted) {
-						return;
-					}
-
-					const {output, tag} = formatted;
-					Log.error({indent, logLevel, tag}, output);
-				}
-			});
-		}
-
-		this.#closed = false;
-		this.#processClosing = new Promise((fulfill, reject) => {
-			(this.proc as childProcess.ChildProcess).once('exit', () => {
-				this.#closed = true;
-				// Cleanup as processes exit.
-				try {
-					fulfill();
-				} catch (error) {
-					reject(error);
-				}
-			});
-		});
-		this.#listeners = [addEventListener(process, 'exit', this.kill.bind(this))];
-		this.#listeners.push(
-			addEventListener(process, 'SIGINT', () => {
-				this.kill();
-				process.exit(130);
-			}),
-		);
-
-		this.#listeners.push(
-			addEventListener(process, 'SIGTERM', this.close.bind(this)),
-		);
-
-		this.#listeners.push(
-			addEventListener(process, 'SIGHUP', this.close.bind(this)),
-		);
-	}
-
-	close(): Promise<void> {
-		if (this.#closed) {
-			return Promise.resolve();
-		}
-
-		this.kill();
-
-		deleteDirectory(this.#userDataDir);
-
-		// Cleanup this listener last, as that makes sure the full callback runs. If we
-		// perform this earlier, then the previous function calls would not happen.
-		removeEventListeners(this.#listeners);
-		return this.#processClosing;
-	}
-
-	forgetEventLoop(): void {
-		this.proc.unref();
-		// @ts-expect-error
-		this.proc.stdout?.unref();
-		// @ts-expect-error
-		this.proc.stderr?.unref();
-		assert(this.connection, 'BrowserRunner not connected.');
-		this.connection.transport.forgetEventLoop();
-	}
-
-	deleteBrowserCaches() {
-		// We leave some data:
-		// Default/Cookies
-		// Default/Local Storage
-		// Default/Session Storage
-		// DevToolsActivePort
-
-		// Because not sure if it is bad to delete them while Chrome is running.
-		const cachePaths = [
-			join(this.#userDataDir, 'Default', 'Cache', 'Cache_Data'),
-			join(this.#userDataDir, 'Default', 'Code Cache'),
-			join(this.#userDataDir, 'Default', 'DawnCache'),
-			join(this.#userDataDir, 'Default', 'GPUCache'),
-		];
-
-		for (const p of cachePaths) {
-			deleteDirectory(p);
-		}
-	}
-
-	rememberEventLoop(): void {
-		this.proc.ref();
-		// @ts-expect-error
-		this.proc.stdout?.ref();
-		// @ts-expect-error
-		this.proc.stderr?.ref();
-		assert(this.connection, 'BrowserRunner not connected.');
-		this.connection.transport.rememberEventLoop();
-	}
-
-	kill(): void {
+	const killProcess = (): void => {
 		// If the process failed to launch (for example if the browser executable path
 		// is invalid), then the process does not get a pid assigned. A call to
 		// `proc.kill` would error, as the `pid` to-be-killed can not be found.
-		if (this.proc.pid && pidExists(this.proc.pid)) {
-			const {proc} = this;
+		if (proc.pid && pidExists(proc.pid)) {
 			try {
 				if (process.platform === 'win32') {
-					childProcess.exec(`taskkill /pid ${this.proc.pid} /T /F`, (error) => {
+					childProcess.exec(`taskkill /pid ${proc.pid} /T /F`, (error) => {
 						if (error) {
 							// taskkill can fail to kill the process e.g. due to missing permissions.
 							// Let's kill the process via Node API. This delays killing of all child
@@ -216,7 +93,7 @@ export class BrowserRunner {
 				} else {
 					// on linux the process group can be killed with the group id prefixed with
 					// a minus sign. The process group id is the group leader's pid.
-					const processGroupId = -this.proc.pid;
+					const processGroupId = -proc.pid;
 
 					try {
 						process.kill(processGroupId, 'SIGKILL');
@@ -236,22 +113,127 @@ export class BrowserRunner {
 			}
 		}
 
-		deleteDirectory(this.#userDataDir);
+		deleteDirectory(userDataDir);
 
 		// Cleanup this listener last, as that makes sure the full callback runs. If we
 		// perform this earlier, then the previous function calls would not happen.
-		removeEventListeners(this.#listeners);
+		removeEventListeners(listeners);
+	};
+
+	const closeProcess = (): Promise<void> => {
+		if (closed) {
+			return Promise.resolve();
+		}
+
+		killProcess();
+
+		deleteDirectory(userDataDir);
+
+		// Cleanup this listener last, as that makes sure the full callback runs. If we
+		// perform this earlier, then the previous function calls would not happen.
+		removeEventListeners(listeners);
+		return processClosing;
+	};
+
+	if (dumpio) {
+		proc.stdout?.on('data', (d) => {
+			const message = d.toString('utf8').trim();
+			if (shouldLogBrowserMessage(message)) {
+				const formatted = formatChromeMessage(message);
+				if (!formatted) {
+					return;
+				}
+
+				const {output, tag} = formatted;
+				Log.verbose({indent, logLevel, tag}, output);
+			}
+		});
+		proc.stderr?.on('data', (d) => {
+			const message = d.toString('utf8').trim();
+			if (shouldLogBrowserMessage(message)) {
+				const formatted = formatChromeMessage(message);
+				if (!formatted) {
+					return;
+				}
+
+				const {output, tag} = formatted;
+				Log.error({indent, logLevel, tag}, output);
+			}
+		});
 	}
 
-	async setupConnection(options: {timeout: number}): Promise<Connection> {
-		const {timeout} = options;
-		const browserWSEndpoint = await waitForWSEndpoint(this.proc, timeout);
-		const transport = await NodeWebSocketTransport.create(browserWSEndpoint);
-		this.connection = new Connection(transport);
+	let closed = false;
+	const processClosing = new Promise<void>((fulfill, reject) => {
+		(proc as childProcess.ChildProcess).once('exit', () => {
+			closed = true;
+			// Cleanup as processes exit.
+			try {
+				fulfill();
+			} catch (error) {
+				reject(error);
+			}
+		});
+	});
+	const listeners = [addEventListener(process, 'exit', killProcess)];
+	listeners.push(
+		addEventListener(process, 'SIGINT', () => {
+			killProcess();
+			process.exit(130);
+		}),
+	);
 
-		return this.connection;
-	}
-}
+	listeners.push(addEventListener(process, 'SIGTERM', closeProcess));
+	listeners.push(addEventListener(process, 'SIGHUP', closeProcess));
+
+	const deleteBrowserCaches = () => {
+		// We leave some data:
+		// Default/Cookies
+		// Default/Local Storage
+		// Default/Session Storage
+		// DevToolsActivePort
+
+		// Because not sure if it is bad to delete them while Chrome is running.
+		const cachePaths = [
+			join(userDataDir, 'Default', 'Cache', 'Cache_Data'),
+			join(userDataDir, 'Default', 'Code Cache'),
+			join(userDataDir, 'Default', 'DawnCache'),
+			join(userDataDir, 'Default', 'GPUCache'),
+		];
+
+		for (const p of cachePaths) {
+			deleteDirectory(p);
+		}
+	};
+
+	const rememberEventLoop = (): void => {
+		proc.ref();
+		// @ts-expect-error
+		proc.stdout?.ref();
+		// @ts-expect-error
+		proc.stderr?.ref();
+		assert(connection, 'BrowserRunner not connected.');
+		connection.transport.rememberEventLoop();
+	};
+
+	const forgetEventLoop = (): void => {
+		proc.unref();
+		// @ts-expect-error
+		proc.stdout?.unref();
+		// @ts-expect-error
+		proc.stderr?.unref();
+		assert(connection, 'BrowserRunner not connected.');
+		connection.transport.forgetEventLoop();
+	};
+
+	return {
+		listeners,
+		deleteBrowserCaches,
+		forgetEventLoop,
+		rememberEventLoop,
+		connection,
+		closeProcess,
+	};
+};
 
 function waitForWSEndpoint(
 	browserProcess: childProcess.ChildProcess,
@@ -336,3 +318,5 @@ function pidExists(pid: number): boolean {
 		throw error;
 	}
 }
+
+export type BrowserRunner = Awaited<ReturnType<typeof makeBrowserRunner>>;

@@ -19,7 +19,8 @@ import type {LogLevel} from '../log-level';
 import {assert} from './assert';
 import type {Page} from './BrowserPage';
 import {PageEmittedEvents} from './BrowserPage';
-import {BrowserRunner} from './BrowserRunner';
+import type {BrowserRunner} from './BrowserRunner';
+import {makeBrowserRunner} from './BrowserRunner';
 import type {Connection} from './Connection';
 import type {DevtoolsTargetCreatedEvent} from './devtools-types';
 import {EventEmitter} from './EventEmitter';
@@ -57,24 +58,21 @@ export class HeadlessBrowser extends EventEmitter {
 		logLevel: LogLevel;
 		indent: boolean;
 	}): Promise<HeadlessBrowser> {
-		const runner = new BrowserRunner({
+		const runner = await makeBrowserRunner({
 			executablePath,
 			processArguments: args,
 			userDataDir,
 			indent,
 			logLevel,
-		});
-
-		const connection = await runner.setupConnection({
 			timeout,
 		});
 
 		const browser = new HeadlessBrowser({
-			connection,
+			connection: runner.connection,
 			defaultViewport,
 			runner,
 		});
-		await connection.send('Target.setDiscoverTargets', {discover: true});
+		await runner.connection.send('Target.setDiscoverTargets', {discover: true});
 		return browser;
 	}
 
@@ -275,7 +273,7 @@ export class HeadlessBrowser extends EventEmitter {
 		logLevel: LogLevel,
 		indent: boolean,
 	): Promise<void> {
-		await this.runner.close();
+		await this.runner.closeProcess();
 		(await this.pages(logLevel, indent)).forEach((page) => {
 			page.emit(PageEmittedEvents.Disposed);
 			page.closed = true;
