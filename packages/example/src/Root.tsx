@@ -1,3 +1,6 @@
+// @ts-expect-error no types
+import styles from './styles.module.scss';
+
 import {alias} from 'lib/alias';
 import React, {useCallback, useMemo} from 'react';
 import {
@@ -108,9 +111,6 @@ if (alias !== 'alias') {
 }
 
 const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
-
-// @ts-expect-error no types
-import styles from './styles.module.scss';
 
 class Vector2 {
 	readonly x: number;
