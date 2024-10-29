@@ -2,16 +2,13 @@
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	padding: 5px 0px;
 	border-radius: 0.5rem;
-	height: 3rem;
 }
 
 .controls-wrapper .start-controls {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	gap: 10px;
 	width: 100%;
 }
 
@@ -21,78 +18,17 @@
 	align-items: center;
 }
 
-@media screen and (max-width: 900px) {
-	.controls-wrapper {
-		margin-top: 0.5rem;
-		gap: 15px;
-	}
-
-	.end-controls {
-		gap: 15px;
-	}
-}
-
 @media screen and (min-width: 901px) {
-	.controls-wrapper {
-		margin-top: 1rem;
-		gap: 20px;
-	}
-
 	.end-controls {
 		height: 100%;
-		gap: 20px;
 	}
 }
 
 .volume-button {
 	position: relative;
 	cursor: pointer;
-	display: flex;
+	display: block;
+	padding-left: 15px;
+	padding-right: 15px;
 	height: 100%;
-}
-
-.volume-button .volume-bar {
-	position: absolute;
-	justify-content: center;
-	height: 0px;
-	bottom: 35px;
-	width: 100%;
-	transition:
-		height 0.2s,
-		opacity 0.3s;
-	opacity: 0;
-}
-
-.volume-button .volume-bar .volume-active {
-	position: absolute;
-	bottom: 0;
-	background: var(--ifm-color-primary);
-	border-radius: 10px;
-	width: 100%;
-	z-index: 1;
-}
-
-.volume-button .volume-bar .volume-background {
-	position: absolute;
-	bottom: 0;
-	background: var(--background);
-	height: 100%;
-	width: 100%;
-	z-index: 0;
-}
-
-.volume-button .volume-bar .volume-active.animate-height {
-	transition: height 0.1s;
-}
-
-@media screen and (max-width: 900px) {
-	.volume-bar {
-		display: none;
-	}
-}
-
-@media screen and (min-width: 901px) {
-	.volume-bar {
-		display: flex;
-	}
 }

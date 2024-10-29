@@ -108,12 +108,12 @@ export const useHoverState = (
 };
 
 export const PlayerSeekBar: React.FC<{
-	durationInFrames: number;
-	onSeekStart: () => void;
-	onSeekEnd: () => void;
-	inFrame: number | null;
-	outFrame: number | null;
-	playerRef: React.RefObject<PlayerRef>;
+	readonly durationInFrames: number;
+	readonly onSeekStart: () => void;
+	readonly onSeekEnd: () => void;
+	readonly inFrame: number | null;
+	readonly outFrame: number | null;
+	readonly playerRef: React.RefObject<PlayerRef>;
 }> = ({
 	durationInFrames,
 	onSeekEnd,

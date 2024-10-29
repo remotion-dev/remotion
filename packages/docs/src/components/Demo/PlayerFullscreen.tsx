@@ -3,7 +3,7 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {FullscreenIcon} from '../../icons/arrows';
 
 export const PlayerFullscreen: React.FC<{
-	playerRef: React.RefObject<PlayerRef>;
+	readonly playerRef: React.RefObject<PlayerRef>;
 }> = ({playerRef}) => {
 	const [supportsFullscreen, setSupportsFullscreen] = useState(false);
 	const [isFullscreen, setIsFullscreen] = useState(false);
@@ -66,7 +66,7 @@ export const PlayerFullscreen: React.FC<{
 				padding: 0,
 			}}
 		>
-			<FullscreenIcon style={{width: 20}} />
+			<FullscreenIcon style={{height: 20, paddingLeft: 15, paddingRight: 15}} />
 		</button>
 	);
 };

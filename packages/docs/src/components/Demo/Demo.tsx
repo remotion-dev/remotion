@@ -10,6 +10,7 @@ import React, {
 	useState,
 } from 'react';
 import {staticFile} from 'remotion';
+import {BOX_STROKE} from '../../../components/layout/colors';
 import type {LocationAndTrending} from '../../remotion/HomepageVideo/Comp';
 import {
 	HomepageVideoComp,
@@ -19,6 +20,8 @@ import type {EmojiPosition} from '../../remotion/HomepageVideo/emoji/EmojiCard';
 import {ActionRow} from './ActionRow';
 import {PlayerControls} from './PlayerControls';
 import styles from './player.module.css';
+
+preloadAudio(staticFile('Utope-nature-5s.mp3'));
 
 export const Demo: React.FC = () => {
 	const {colorMode} = useColorMode();
@@ -31,8 +34,6 @@ export const Demo: React.FC = () => {
 			setData(d);
 		});
 	}, []);
-
-	const strokeColor = colorMode === 'dark' ? 'gray' : 'black';
 
 	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [cardOrder, setCardOrder] = useState([0, 1, 2, 3]);
@@ -49,10 +50,11 @@ export const Demo: React.FC = () => {
 	});
 
 	const playerWrapper: CSSProperties = {
-		border: '2px solid ' + strokeColor,
-		borderBottom: '4px solid ' + strokeColor,
+		border: `2px solid ${BOX_STROKE}`,
+		borderBottom: `4px solid ${BOX_STROKE}`,
 		borderRadius: 8,
 		width: '100%',
+		overflow: 'hidden',
 	};
 
 	useEffect(() => {
@@ -119,16 +121,12 @@ export const Demo: React.FC = () => {
 		}, 200);
 	}, []);
 
-	preloadAudio(staticFile('Utope-nature-5s.mp3'));
-
 	return (
 		<div>
 			<br />
-			<br />
-			<br />
-			<h1>Try it out</h1>
+			<h1>Try out this interactive demo!</h1>
 			{data ? (
-				<>
+				<div style={playerWrapper}>
 					<Player
 						ref={ref}
 						component={HomepageVideoComp}
@@ -140,7 +138,9 @@ export const Demo: React.FC = () => {
 						controls={isFullscreen}
 						clickToPlay={false}
 						style={{
-							...playerWrapper,
+							width: '100%',
+							aspectRatio: '640 / 360',
+							borderBottom: `2px solid ${BOX_STROKE}`,
 							touchAction: 'none', // prevent page from scrolling when dragging children on mobile
 						}}
 						initiallyMuted
@@ -165,7 +165,7 @@ export const Demo: React.FC = () => {
 						fps={30}
 						setmountPlayerAudio={setmountPlayerAudio}
 					/>
-				</>
+				</div>
 			) : (
 				<>
 					<div

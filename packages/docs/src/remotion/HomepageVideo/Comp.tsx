@@ -133,7 +133,7 @@ export const HomepageVideoComp: React.FC<z.infer<typeof schema> & Props> = ({
 	return (
 		<AbsoluteFill
 			style={{
-				backgroundColor: theme === 'dark' ? '#222' : 'white',
+				backgroundColor: theme === 'dark' ? '#222' : '#fafafa',
 			}}
 		>
 			<Cards

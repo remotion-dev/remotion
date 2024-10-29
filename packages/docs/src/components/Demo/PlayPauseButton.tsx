@@ -1,16 +1,22 @@
 import type {PlayerRef} from '@remotion/player';
 import React, {useCallback, useEffect} from 'react';
-import {BlueButton} from '../../../components/layout/Button';
 import {PausedIcon, PlayingIcon} from '../../icons/arrows';
 
 const playerButtonStyle: React.CSSProperties = {
-	width: '40px',
-	height: '40px',
-	padding: 0,
+	appearance: 'none',
+	border: 'none',
+	borderRadius: 0,
+	background: 'none',
+	display: 'flex',
+	justifyContent: 'center',
+	alignItems: 'center',
+	paddingRight: 20,
+	paddingLeft: 20,
+	cursor: 'pointer',
 };
 
 export const PlayPauseButton: React.FC<{
-	playerRef: React.RefObject<PlayerRef>;
+	readonly playerRef: React.RefObject<PlayerRef>;
 }> = ({playerRef}) => {
 	const [playing, setPlaying] = React.useState(true);
 
@@ -46,18 +52,12 @@ export const PlayPauseButton: React.FC<{
 	};
 
 	return (
-		<BlueButton
-			size="bg"
-			fullWidth={false}
-			loading={false}
-			style={playerButtonStyle}
-			onClick={onToggle}
-		>
+		<button type="button" style={playerButtonStyle} onClick={onToggle}>
 			{playing ? (
 				<PlayingIcon style={playPauseIconStyle} />
 			) : (
 				<PausedIcon style={playPauseIconStyle} />
 			)}
-		</BlueButton>
+		</button>
 	);
 };

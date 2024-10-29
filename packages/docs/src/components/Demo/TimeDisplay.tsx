@@ -8,10 +8,9 @@ const formatTime = (timeInSeconds: number) => {
 };
 
 export const TimeDisplay: React.FC<{
-	durationInFrames: number;
-	fps: number;
-	playerRef: React.RefObject<PlayerRef>;
-}> = ({durationInFrames, fps, playerRef}) => {
+	readonly fps: number;
+	readonly playerRef: React.RefObject<PlayerRef>;
+}> = ({fps, playerRef}) => {
 	const [time, setTime] = React.useState(0);
 
 	useEffect(() => {
@@ -37,12 +36,9 @@ export const TimeDisplay: React.FC<{
 				fontFamily: 'monospace',
 				fontSize: '14px',
 				display: 'flex',
-				gap: '8px',
 			}}
 		>
 			<span>{formatTime(time / fps)}</span>
-			<span style={{opacity: 0.6}}>/</span>
-			<span style={{opacity: 0.6}}>{formatTime(durationInFrames / fps)}</span>
 		</div>
 	);
 };
