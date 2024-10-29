@@ -3,7 +3,7 @@ import type {Browser} from './browser';
 import {addHeadlessBrowser} from './browser-instances';
 import type {HeadlessBrowser} from './browser/Browser';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
-import {puppeteer} from './browser/node';
+import {ChromeLauncher} from './browser/Launcher';
 import type {Viewport} from './browser/PuppeteerViewport';
 import {internalEnsureBrowser} from './ensure-browser';
 import {getLocalBrowserExecutable} from './get-local-browser-executable';
@@ -145,7 +145,9 @@ export const internalOpenBrowser = async ({
 		);
 	}
 
-	const browserInstance = await puppeteer.launch({
+	const launcher = new ChromeLauncher();
+
+	const browserInstance = await launcher.launch({
 		executablePath,
 		dumpio: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		logLevel,

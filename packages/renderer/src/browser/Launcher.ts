@@ -30,7 +30,7 @@ const tmpDir = () => {
 
 export interface ProductLauncher {
 	launch(object: PuppeteerNodeLaunchOptions): Promise<HeadlessBrowser>;
-	executablePath: (path?: any) => string;
+	executablePath: () => string;
 }
 
 export class ChromeLauncher implements ProductLauncher {
