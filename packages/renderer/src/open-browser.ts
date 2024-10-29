@@ -1,14 +1,17 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import type {NoReactInternals} from 'remotion/no-react';
 import type {Browser} from './browser';
 import {addHeadlessBrowser} from './browser-instances';
 import type {HeadlessBrowser} from './browser/Browser';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
-import {ChromeLauncher} from './browser/Launcher';
+import {launchChrome} from './browser/Launcher';
 import type {Viewport} from './browser/PuppeteerViewport';
 import {internalEnsureBrowser} from './ensure-browser';
 import {getLocalBrowserExecutable} from './get-local-browser-executable';
 import {getIdealVideoThreadsFlag} from './get-video-threads-flag';
-import {isEqualOrBelowLogLevel, type LogLevel} from './log-level';
+import {type LogLevel} from './log-level';
 import {Log} from './logger';
 import type {validOpenGlRenderers} from './options/gl';
 import {DEFAULT_OPENGL_RENDERER, validateOpenGlRenderer} from './options/gl';
@@ -145,13 +148,15 @@ export const internalOpenBrowser = async ({
 		);
 	}
 
-	const launcher = new ChromeLauncher();
+	const userDataDir = await fs.promises.mkdtemp(
+		path.join(os.tmpdir(), 'puppeteer_dev_chrome_profile-'),
+	);
 
-	const browserInstance = await launcher.launch({
+	const browserInstance = await launchChrome({
 		executablePath,
-		dumpio: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		logLevel,
 		indent,
+		userDataDir,
 		args: [
 			'about:blank',
 			'--allow-pre-commit-input',
@@ -221,6 +226,8 @@ export const internalOpenBrowser = async ({
 			chromiumOptions?.userAgent
 				? `--user-agent="${chromiumOptions.userAgent}"`
 				: null,
+			'--remote-debugging-port=0',
+			`--user-data-dir=${userDataDir}`,
 		].filter(Boolean) as string[],
 		defaultViewport: viewport ?? {
 			height: 720,

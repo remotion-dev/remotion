@@ -13,93 +13,56 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import fs from 'node:fs';
-import * as os from 'node:os';
-import * as path from 'node:path';
 
 import {HeadlessBrowser} from './Browser';
 import {BrowserRunner} from './BrowserRunner';
 
-import type {PuppeteerNodeLaunchOptions} from './LaunchOptions';
+import type {LaunchOptions} from './LaunchOptions';
 
-const tmpDir = () => {
-	return process.env.PUPPETEER_TMP_DIR || os.tmpdir();
-};
+export const launchChrome = async ({
+	args,
+	executablePath,
+	defaultViewport,
+	indent,
+	logLevel,
+	userDataDir,
+}: LaunchOptions): Promise<HeadlessBrowser> => {
+	const timeout = 60000;
+	const runner = new BrowserRunner({
+		executablePath,
+		processArguments: args,
+		userDataDir,
+	});
+	runner.start(logLevel, indent);
 
-export interface ProductLauncher {
-	launch(object: PuppeteerNodeLaunchOptions): Promise<HeadlessBrowser>;
-}
-
-export class ChromeLauncher implements ProductLauncher {
-	async launch(options: PuppeteerNodeLaunchOptions): Promise<HeadlessBrowser> {
-		const {
-			args = [],
-			dumpio = false,
-			executablePath,
-			env = process.env,
+	let browser;
+	try {
+		const connection = await runner.setupConnection({
+			timeout,
+		});
+		browser = await HeadlessBrowser._create({
+			connection,
 			defaultViewport,
-			timeout = 60000,
-			debuggingPort,
-			indent,
-		} = options;
-
-		const chromeArguments = args;
-
-		if (
-			!chromeArguments.some((argument) => {
-				return argument.startsWith('--remote-debugging-');
-			})
-		) {
-			chromeArguments.push(`--remote-debugging-port=${debuggingPort || 0}`);
-		}
-
-		const userDataDir = await fs.promises.mkdtemp(
-			path.join(tmpDir(), 'puppeteer_dev_chrome_profile-'),
-		);
-		chromeArguments.push(`--user-data-dir=${userDataDir}`);
-
-		const runner = new BrowserRunner({
-			executablePath,
-			processArguments: chromeArguments,
-			userDataDir,
+			closeCallback: runner.close.bind(runner),
+			forgetEventLoop: runner.forgetEventLoop.bind(runner),
+			rememberEventLoop: runner.rememberEventLoop.bind(runner),
 		});
-		runner.start({
-			dumpio,
-			env,
-			indent,
-			logLevel: options.logLevel,
-			executablePath,
-		});
-
-		let browser;
-		try {
-			const connection = await runner.setupConnection({
-				timeout,
-			});
-			browser = await HeadlessBrowser._create({
-				connection,
-				defaultViewport,
-				closeCallback: runner.close.bind(runner),
-				forgetEventLoop: runner.forgetEventLoop.bind(runner),
-				rememberEventLoop: runner.rememberEventLoop.bind(runner),
-			});
-		} catch (error) {
-			runner.kill();
-			throw error;
-		}
-
-		try {
-			await browser.waitForTarget(
-				(t) => {
-					return t.type() === 'page';
-				},
-				{timeout},
-			);
-		} catch (error) {
-			await browser.close(false, options.logLevel, options.indent);
-			throw error;
-		}
-
-		return browser;
+	} catch (error) {
+		runner.kill();
+		throw error;
 	}
-}
+
+	try {
+		await browser.waitForTarget(
+			(t) => {
+				return t.type() === 'page';
+			},
+			{timeout},
+		);
+	} catch (error) {
+		await browser.close(false, logLevel, indent);
+		throw error;
+	}
+
+	return browser;
+};

@@ -17,11 +17,12 @@
 import * as childProcess from 'node:child_process';
 import * as fs from 'node:fs';
 import {deleteDirectory} from '../delete-directory';
+import type {LogLevel} from '../log-level';
+import {isEqualOrBelowLogLevel} from '../log-level';
 import {Log} from '../logger';
 import {truthy} from '../truthy';
 import {Connection} from './Connection';
 import {TimeoutError} from './Errors';
-import type {LaunchOptions} from './LaunchOptions';
 import {NodeWebSocketTransport} from './NodeWebSocketTransport';
 import {assert} from './assert';
 import {
@@ -65,8 +66,8 @@ export class BrowserRunner {
 		this.#userDataDir = userDataDir;
 	}
 
-	start(options: LaunchOptions): void {
-		const {dumpio, env} = options;
+	start(logLevel: LogLevel, indent: boolean): void {
+		const dumpio = isEqualOrBelowLogLevel(logLevel, 'verbose');
 		const stdio: ('ignore' | 'pipe')[] = dumpio
 			? ['ignore', 'pipe', 'pipe']
 			: ['pipe', 'ignore', 'pipe'];
@@ -81,7 +82,7 @@ export class BrowserRunner {
 				// process tree with `.kill(-pid)` command. @see
 				// https://nodejs.org/api/child_process.html#child_process_options_detached
 				detached: process.platform !== 'win32',
-				env,
+				env: process.env,
 				stdio,
 			},
 		);
@@ -95,10 +96,7 @@ export class BrowserRunner {
 					}
 
 					const {output, tag} = formatted;
-					Log.verbose(
-						{indent: options.indent, logLevel: options.logLevel, tag},
-						output,
-					);
+					Log.verbose({indent, logLevel, tag}, output);
 				}
 			});
 			this.proc.stderr?.on('data', (d) => {
@@ -110,10 +108,7 @@ export class BrowserRunner {
 					}
 
 					const {output, tag} = formatted;
-					Log.error(
-						{indent: options.indent, logLevel: options.logLevel, tag},
-						output,
-					);
+					Log.error({indent, logLevel, tag}, output);
 				}
 			});
 		}
