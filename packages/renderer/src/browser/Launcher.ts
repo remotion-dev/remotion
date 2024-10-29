@@ -40,7 +40,7 @@ export const launchChrome = async ({
 		const connection = await runner.setupConnection({
 			timeout,
 		});
-		browser = await HeadlessBrowser._create({
+		browser = await HeadlessBrowser.create({
 			connection,
 			defaultViewport,
 			closeCallback: runner.close.bind(runner),

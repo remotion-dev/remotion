@@ -41,7 +41,7 @@ export const enum BrowserEmittedEvents {
 }
 
 export class HeadlessBrowser extends EventEmitter {
-	static async _create({
+	static async create({
 		connection,
 		defaultViewport,
 		closeCallback,
