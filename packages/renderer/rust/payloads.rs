@@ -278,7 +278,6 @@ pub mod payloads {
         FreeUpMemory(FreeUpMemory),
         Echo(EchoPayload),
         GetVideoMetadata(GetVideoMetadata),
-        CopyImageToClipboard(CopyImageToClipboard),
         GetSilences(GetSilences),
         ExtractAudio(ExtractAudio),
     }
