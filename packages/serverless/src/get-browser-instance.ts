@@ -51,6 +51,7 @@ export const forgetBrowserEventLoop = (logLevel: LogLevel) => {
 		'Keeping browser open for next invocation',
 	);
 	_browserInstance?.instance.forgetEventLoop();
+	_browserInstance?.instance.deleteBrowserCaches();
 };
 
 export const getBrowserInstance = async <Provider extends CloudProvider>({

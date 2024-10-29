@@ -119,10 +119,6 @@ export class BrowserRunner {
 				this.#closed = true;
 				// Cleanup as processes exit.
 				try {
-					if (fs.existsSync(this.#userDataDir)) {
-						deleteDirectory(this.#userDataDir);
-					}
-
 					fulfill();
 				} catch (error) {
 					reject(error);
@@ -153,6 +149,8 @@ export class BrowserRunner {
 
 		this.kill();
 
+		deleteDirectory(this.#userDataDir);
+
 		// Cleanup this listener last, as that makes sure the full callback runs. If we
 		// perform this earlier, then the previous function calls would not happen.
 		removeEventListeners(this.#listeners);
@@ -168,6 +166,10 @@ export class BrowserRunner {
 		this.proc.stderr?.unref();
 		assert(this.connection, 'BrowserRunner not connected.');
 		this.connection.transport.forgetEventLoop();
+	}
+
+	deleteBrowserCaches(): void {
+		deleteDirectory(this.#userDataDir);
 	}
 
 	rememberEventLoop(): void {
@@ -299,8 +301,7 @@ function waitForWSEndpoint(
 			}
 
 			cleanup();
-			// The RegExp matches, so this will obviously exist.
-			resolve(match[1] as string);
+			resolve(match[1]);
 		}
 
 		function cleanup(): void {

@@ -46,6 +46,7 @@ export const launchChrome = async ({
 			closeCallback: runner.close.bind(runner),
 			forgetEventLoop: runner.forgetEventLoop.bind(runner),
 			rememberEventLoop: runner.rememberEventLoop.bind(runner),
+			deleteBrowserCaches: runner.deleteBrowserCaches.bind(runner),
 		});
 	} catch (error) {
 		runner.kill();

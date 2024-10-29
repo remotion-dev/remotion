@@ -47,12 +47,14 @@ export class HeadlessBrowser extends EventEmitter {
 		closeCallback,
 		forgetEventLoop,
 		rememberEventLoop,
+		deleteBrowserCaches,
 	}: {
 		connection: Connection;
 		defaultViewport: Viewport;
 		closeCallback: BrowserCloseCallback;
 		forgetEventLoop: () => void;
 		rememberEventLoop: () => void;
+		deleteBrowserCaches: () => void;
 	}): Promise<HeadlessBrowser> {
 		const browser = new HeadlessBrowser({
 			connection,
@@ -60,6 +62,7 @@ export class HeadlessBrowser extends EventEmitter {
 			closeCallback,
 			forgetEventLoop,
 			rememberEventLoop,
+			deleteBrowserCaches,
 		});
 		await connection.send('Target.setDiscoverTargets', {discover: true});
 		return browser;
@@ -74,6 +77,7 @@ export class HeadlessBrowser extends EventEmitter {
 
 	forgetEventLoop: () => void;
 	rememberEventLoop: () => void;
+	deleteBrowserCaches: () => void;
 
 	get _targets(): Map<string, Target> {
 		return this.#targets;
@@ -85,12 +89,14 @@ export class HeadlessBrowser extends EventEmitter {
 		defaultViewport,
 		forgetEventLoop,
 		rememberEventLoop,
+		deleteBrowserCaches,
 	}: {
 		connection: Connection;
 		defaultViewport: Viewport;
 		closeCallback: BrowserCloseCallback;
 		forgetEventLoop: () => void;
 		rememberEventLoop: () => void;
+		deleteBrowserCaches: () => void;
 	}) {
 		super();
 		this.#defaultViewport = defaultViewport;
@@ -112,6 +118,7 @@ export class HeadlessBrowser extends EventEmitter {
 		);
 		this.forgetEventLoop = forgetEventLoop;
 		this.rememberEventLoop = rememberEventLoop;
+		this.deleteBrowserCaches = deleteBrowserCaches;
 	}
 
 	browserContexts(): BrowserContext[] {
