@@ -1,6 +1,12 @@
 import {getBoundingBox, resetPath} from '@remotion/paths';
 import React from 'react';
-import {AbsoluteFill, spring, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+	AbsoluteFill,
+	interpolate,
+	spring,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 
 export const CurrentCountry: React.FC<{
 	readonly theme: 'dark' | 'light';
@@ -43,8 +49,6 @@ export const CurrentCountry: React.FC<{
 				style={{
 					alignItems: 'center',
 					justifyContent: 'center',
-					paddingLeft: 20,
-					paddingRight: 20,
 				}}
 			>
 				<div
@@ -55,7 +59,11 @@ export const CurrentCountry: React.FC<{
 						fontSize: 13,
 						textAlign: 'center',
 						marginTop: -10,
-						marginLeft: `${-420 + progress * 420}px`,
+						width: '100%',
+						paddingLeft: 20,
+						paddingRight: 20,
+						transform:
+							'translateX(' + interpolate(progress, [0, 1], [-100, 0]) + '%)',
 					}}
 				>
 					Your country
@@ -68,7 +76,11 @@ export const CurrentCountry: React.FC<{
 						fontWeight: '500',
 						fontSize: 30,
 						color: theme === 'dark' ? 'white' : 'black',
-						marginLeft: `${420 - progress * 420}px`,
+						width: '100%',
+						paddingLeft: 20,
+						paddingRight: 20,
+						transform:
+							'translateX(' + interpolate(progress, [0, 1], [100, 0]) + '%)',
 					}}
 				>
 					{countryLabel}
