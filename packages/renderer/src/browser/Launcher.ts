@@ -43,10 +43,7 @@ export const launchChrome = async ({
 		browser = await HeadlessBrowser.create({
 			connection,
 			defaultViewport,
-			closeCallback: runner.close.bind(runner),
-			forgetEventLoop: runner.forgetEventLoop.bind(runner),
-			rememberEventLoop: runner.rememberEventLoop.bind(runner),
-			deleteBrowserCaches: runner.deleteBrowserCaches.bind(runner),
+			runner,
 		});
 	} catch (error) {
 		runner.kill();

@@ -50,8 +50,8 @@ export const forgetBrowserEventLoop = (logLevel: LogLevel) => {
 		{indent: false, logLevel},
 		'Keeping browser open for next invocation',
 	);
-	_browserInstance?.instance.forgetEventLoop();
-	_browserInstance?.instance.deleteBrowserCaches();
+	_browserInstance?.instance.runner.forgetEventLoop();
+	_browserInstance?.instance.runner.deleteBrowserCaches();
 };
 
 export const getBrowserInstance = async <Provider extends CloudProvider>({
@@ -141,7 +141,7 @@ export const getBrowserInstance = async <Provider extends CloudProvider>({
 			{indent: false, logLevel},
 			'Warm function, but Browser configuration changed. Killing old browser instance.',
 		);
-		_browserInstance.instance.rememberEventLoop();
+		_browserInstance.instance.runner.rememberEventLoop();
 		await _browserInstance.instance.close(true, logLevel, indent);
 		_browserInstance = null;
 		return getBrowserInstance({
@@ -156,6 +156,6 @@ export const getBrowserInstance = async <Provider extends CloudProvider>({
 		{indent: false, logLevel},
 		'Warm function, reusing browser instance',
 	);
-	_browserInstance.instance.rememberEventLoop();
+	_browserInstance.instance.runner.rememberEventLoop();
 	return _browserInstance;
 };
