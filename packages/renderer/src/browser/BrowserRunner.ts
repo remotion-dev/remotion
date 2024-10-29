@@ -16,6 +16,7 @@
 
 import * as childProcess from 'node:child_process';
 import * as fs from 'node:fs';
+import {join} from 'node:path';
 import {deleteDirectory} from '../delete-directory';
 import type {LogLevel} from '../log-level';
 import {isEqualOrBelowLogLevel} from '../log-level';
@@ -168,8 +169,24 @@ export class BrowserRunner {
 		this.connection.transport.forgetEventLoop();
 	}
 
-	deleteBrowserCaches(): void {
-		deleteDirectory(this.#userDataDir);
+	deleteBrowserCaches() {
+		// We leave some data:
+		// Default/Cookies
+		// Default/Local Storage
+		// Default/Session Storage
+		// DevToolsActivePort
+
+		// Because not sure if it is bad to delete them while Chrome is running.
+		const cachePaths = [
+			join(this.#userDataDir, 'Default', 'Cache', 'Cache_Data'),
+			join(this.#userDataDir, 'Default', 'Code Cache'),
+			join(this.#userDataDir, 'Default', 'DawnCache'),
+			join(this.#userDataDir, 'Default', 'GPUCache'),
+		];
+
+		for (const p of cachePaths) {
+			deleteDirectory(p);
+		}
 	}
 
 	rememberEventLoop(): void {
