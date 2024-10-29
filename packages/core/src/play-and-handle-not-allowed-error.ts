@@ -52,6 +52,14 @@ export const playAndHandleNotAllowedError = (
 				return;
 			}
 
+			// Audio tag got unmounted
+			if (
+				err.message.includes("user didn't interact with the document") &&
+				current.muted
+			) {
+				return;
+			}
+
 			// eslint-disable-next-line no-console
 			console.log(`Could not play ${mediaType} due to following error: `, err);
 			if (!current.muted) {
