@@ -85,6 +85,7 @@ import {
 import {TriggerCalculateMetadata} from './StudioApis/TriggerCalculateMetadata';
 import {WriteStaticFile} from './StudioApis/WriteStaticFile';
 import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
+import {SvgFilter} from './SvgFilter';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
 import {TextStroke} from './TextStroke';
@@ -506,6 +507,12 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						calculated: new Vector2(15, 10),
 					}}
+				/>
+				<Still
+					id="svg-filter"
+					component={SvgFilter}
+					width={1080}
+					height={1080}
 				/>
 			</Folder>
 			<Folder name="creatives">
