@@ -12,7 +12,6 @@ import type {
 import type {
 	ApplyCodemodRequest,
 	CanUpdateDefaultPropsResponse,
-	CopyStillToClipboardRequest,
 	EnumPath,
 	OpenInFileExplorerRequest,
 	RecastCodemod,
@@ -300,20 +299,6 @@ export const openInFileExplorer = ({directory}: {directory: string}) => {
 		directory,
 	};
 	return callApi('/api/open-in-file-explorer', body);
-};
-
-export const copyToClipboard = ({
-	outName,
-	binariesDirectory,
-}: {
-	outName: string;
-	binariesDirectory: string | null;
-}) => {
-	const body: CopyStillToClipboardRequest = {
-		outName,
-		binariesDirectory,
-	};
-	return callApi('/api/copy-still-to-clipboard', body);
 };
 
 export const applyCodemod = ({
