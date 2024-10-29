@@ -22,15 +22,12 @@ import {BrowserRunner} from './BrowserRunner';
 
 import type {PuppeteerNodeLaunchOptions} from './LaunchOptions';
 
-import {getRevisionInfo} from './BrowserFetcher';
-
 const tmpDir = () => {
 	return process.env.PUPPETEER_TMP_DIR || os.tmpdir();
 };
 
 export interface ProductLauncher {
 	launch(object: PuppeteerNodeLaunchOptions): Promise<HeadlessBrowser>;
-	executablePath: () => string;
 }
 
 export class ChromeLauncher implements ProductLauncher {
@@ -56,25 +53,13 @@ export class ChromeLauncher implements ProductLauncher {
 			chromeArguments.push(`--remote-debugging-port=${debuggingPort || 0}`);
 		}
 
-		// Check for the user data dir argument, which will always be set even
-		// with a custom directory specified via the userDataDir option.
 		const userDataDir = await fs.promises.mkdtemp(
 			path.join(tmpDir(), 'puppeteer_dev_chrome_profile-'),
 		);
 		chromeArguments.push(`--user-data-dir=${userDataDir}`);
 
-		let chromeExecutable = executablePath;
-		if (!chromeExecutable) {
-			const {missingText, executablePath: exPath} = resolveExecutablePath();
-			if (missingText) {
-				throw new Error(missingText);
-			}
-
-			chromeExecutable = exPath;
-		}
-
 		const runner = new BrowserRunner({
-			executablePath: chromeExecutable,
+			executablePath,
 			processArguments: chromeArguments,
 			userDataDir,
 		});
@@ -83,6 +68,7 @@ export class ChromeLauncher implements ProductLauncher {
 			env,
 			indent,
 			logLevel: options.logLevel,
+			executablePath,
 		});
 
 		let browser;
@@ -116,21 +102,4 @@ export class ChromeLauncher implements ProductLauncher {
 
 		return browser;
 	}
-
-	executablePath(): string {
-		const results = resolveExecutablePath();
-		return results.executablePath;
-	}
-}
-
-function resolveExecutablePath(): {
-	executablePath: string;
-	missingText?: string;
-} {
-	const revisionInfo = getRevisionInfo();
-
-	const missingText = revisionInfo.local
-		? undefined
-		: `Could not find expected browser locally.`;
-	return {executablePath: revisionInfo.executablePath, missingText};
 }

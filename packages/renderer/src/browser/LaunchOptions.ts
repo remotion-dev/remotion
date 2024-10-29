@@ -26,7 +26,7 @@ export interface BrowserLaunchArgumentOptions {
 }
 
 export interface LaunchOptions {
-	executablePath?: string;
+	executablePath: string;
 	timeout?: number;
 	dumpio?: boolean;
 	logLevel: LogLevel;
