@@ -23,7 +23,6 @@ export const ActionRow: React.FC = () => {
 			<div className={styles.action}>
 				<h2 className={styles['action-title']}>Data-driven</h2>
 				<p>
-					The preview is driven by dynamic data.{' '}
 					<a style={link} onClick={toggleTheme}>
 						Switch to {colorMode === 'dark' ? 'light' : 'dark'} mode
 					</a>{' '}

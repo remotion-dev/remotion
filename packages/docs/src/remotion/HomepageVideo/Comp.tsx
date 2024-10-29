@@ -49,9 +49,9 @@ export const getDataAndProps = async () => {
 	return {trending, location};
 };
 
-export const calculateMetadata: CalculateMetadataFunction<Props> = async ({
-	props,
-}) => {
+export const calculateMetadata: CalculateMetadataFunction<
+	DemoPlayerProps
+> = async ({props}) => {
 	const {trending, location} = await getDataAndProps();
 
 	return {
@@ -70,7 +70,7 @@ export const calculateMetadata: CalculateMetadataFunction<Props> = async ({
 	};
 };
 
-type Props = {
+export type DemoPlayerProps = {
 	readonly location: Location;
 	readonly trending: null | Trending;
 	readonly onToggle: () => void;
@@ -82,7 +82,7 @@ type Props = {
 	readonly theme: 'dark' | 'light';
 };
 
-export const HomepageVideoComp: React.FC<Props> = ({
+export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
 	theme,
 	location,
 	trending,

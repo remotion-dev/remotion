@@ -6,12 +6,16 @@ import React, {
 	type CSSProperties,
 	useCallback,
 	useEffect,
+	useMemo,
 	useRef,
 	useState,
 } from 'react';
 import {staticFile} from 'remotion';
 import {BOX_STROKE} from '../../../components/layout/colors';
-import type {LocationAndTrending} from '../../remotion/HomepageVideo/Comp';
+import type {
+	DemoPlayerProps,
+	LocationAndTrending,
+} from '../../remotion/HomepageVideo/Comp';
 import {
 	HomepageVideoComp,
 	getDataAndProps,
@@ -120,10 +124,27 @@ export const Demo: React.FC = () => {
 		}, 200);
 	}, []);
 
+	const props: DemoPlayerProps = useMemo(() => {
+		return {
+			theme: colorMode,
+			onToggle: () => {
+				ref.current?.toggle();
+			},
+			cardOrder,
+			updateCardOrder,
+			emojiPositions,
+			onClickLeft,
+			onClickRight,
+			...data,
+		};
+	}, [cardOrder, colorMode, data, emojiPositions, onClickLeft, onClickRight]);
+
 	return (
 		<div>
 			<br />
 			<h1>Try out this interactive demo!</h1>
+			<ActionRow />
+
 			{data ? (
 				<div style={playerWrapper}>
 					<Player
@@ -143,18 +164,7 @@ export const Demo: React.FC = () => {
 							touchAction: 'none', // prevent page from scrolling when dragging children on mobile
 						}}
 						initiallyMuted
-						inputProps={{
-							theme: colorMode,
-							onToggle: () => {
-								ref.current?.toggle();
-							},
-							cardOrder,
-							updateCardOrder,
-							emojiPositions,
-							onClickLeft,
-							onClickRight,
-							...data,
-						}}
+						inputProps={props}
 						loop
 					/>
 					<PlayerControls playerRef={ref} durationInFrames={120} fps={30} />
@@ -175,7 +185,6 @@ export const Demo: React.FC = () => {
 					</div>
 				</>
 			)}
-			<ActionRow />
 		</div>
 	);
 };

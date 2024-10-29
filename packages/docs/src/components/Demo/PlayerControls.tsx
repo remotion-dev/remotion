@@ -12,7 +12,7 @@ const Separator: React.FC = () => {
 	return (
 		<div
 			style={{
-				borderRight: `3px solid ${BOX_STROKE}`,
+				borderRight: `2px solid ${BOX_STROKE}`,
 				height: 50,
 			}}
 		/>

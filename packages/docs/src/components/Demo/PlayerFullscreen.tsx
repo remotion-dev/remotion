@@ -63,10 +63,11 @@ export const PlayerFullscreen: React.FC<{
 				background: 'transparent',
 				border: 0,
 				cursor: 'pointer',
-				padding: 0,
+				paddingLeft: 15,
+				paddingRight: 15,
 			}}
 		>
-			<FullscreenIcon style={{height: 20, paddingLeft: 15, paddingRight: 15}} />
+			<FullscreenIcon style={{width: 20}} />
 		</button>
 	);
 };
