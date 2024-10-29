@@ -280,7 +280,7 @@ export const PlayerSeekBar: React.FC<{
 				0,
 				(frame / Math.max(1, durationInFrames - 1)) * width - KNOB_SIZE / 2,
 			),
-			boxShadow: '0 0 2px black',
+			outline: '2px solid var(--ifm-background-color)',
 			opacity: Number(barHovered),
 			transition: 'opacity 0.s ease',
 		};
@@ -300,7 +300,7 @@ export const PlayerSeekBar: React.FC<{
 		return {
 			height: BAR_HEIGHT,
 			backgroundColor: 'var(--ifm-font-color-base)',
-			opacity: 0.6,
+			opacity: 0.2,
 			width:
 				(((outFrame ?? durationInFrames - 1) - (inFrame ?? 0)) /
 					(durationInFrames - 1)) *

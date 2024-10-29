@@ -98,10 +98,7 @@ export const RemotionRoot: React.FC = () => {
 					},
 					onClickLeft: () => undefined,
 					onClickRight: () => undefined,
-					audioVolume: {
-						volume: 0.5,
-						isMuted: false,
-					},
+					mountPlayerAudio: true,
 				}}
 				schema={schema}
 				calculateMetadata={calculateMetadata}

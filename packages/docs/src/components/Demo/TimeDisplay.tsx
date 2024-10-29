@@ -33,7 +33,6 @@ export const TimeDisplay: React.FC<{
 	return (
 		<div
 			style={{
-				fontFamily: 'monospace',
 				fontSize: '14px',
 				display: 'flex',
 			}}
