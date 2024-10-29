@@ -19,7 +19,7 @@ import type {LogLevel} from '../log-level';
 import {assert} from './assert';
 import type {Page} from './BrowserPage';
 import {PageEmittedEvents} from './BrowserPage';
-import type {BrowserRunner} from './BrowserRunner';
+import {BrowserRunner} from './BrowserRunner';
 import type {Connection} from './Connection';
 import type {DevtoolsTargetCreatedEvent} from './devtools-types';
 import {EventEmitter} from './EventEmitter';
@@ -41,14 +41,33 @@ export const enum BrowserEmittedEvents {
 
 export class HeadlessBrowser extends EventEmitter {
 	static async create({
-		connection,
 		defaultViewport,
-		runner,
+		timeout,
+		userDataDir,
+		args,
+		executablePath,
+		logLevel,
+		indent,
 	}: {
-		connection: Connection;
 		defaultViewport: Viewport;
-		runner: BrowserRunner;
+		timeout: number;
+		userDataDir: string;
+		args: string[];
+		executablePath: string;
+		logLevel: LogLevel;
+		indent: boolean;
 	}): Promise<HeadlessBrowser> {
+		const runner = new BrowserRunner({
+			executablePath,
+			processArguments: args,
+			userDataDir,
+		});
+		const connection = await runner.setupConnection({
+			timeout,
+		});
+
+		runner.start(logLevel, indent);
+
 		const browser = new HeadlessBrowser({
 			connection,
 			defaultViewport,

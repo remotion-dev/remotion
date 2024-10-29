@@ -15,7 +15,6 @@
  */
 
 import {HeadlessBrowser} from './Browser';
-import {BrowserRunner} from './BrowserRunner';
 
 import type {LaunchOptions} from './LaunchOptions';
 
@@ -28,27 +27,16 @@ export const launchChrome = async ({
 	userDataDir,
 }: LaunchOptions): Promise<HeadlessBrowser> => {
 	const timeout = 60000;
-	const runner = new BrowserRunner({
-		executablePath,
-		processArguments: args,
-		userDataDir,
-	});
-	runner.start(logLevel, indent);
 
-	let browser;
-	try {
-		const connection = await runner.setupConnection({
-			timeout,
-		});
-		browser = await HeadlessBrowser.create({
-			connection,
-			defaultViewport,
-			runner,
-		});
-	} catch (error) {
-		runner.kill();
-		throw error;
-	}
+	const browser = await HeadlessBrowser.create({
+		defaultViewport,
+		args,
+		executablePath,
+		timeout,
+		userDataDir,
+		logLevel,
+		indent,
+	});
 
 	try {
 		await browser.waitForTarget(
