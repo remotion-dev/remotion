@@ -61,12 +61,13 @@ export class HeadlessBrowser extends EventEmitter {
 			executablePath,
 			processArguments: args,
 			userDataDir,
+			indent,
+			logLevel,
 		});
+
 		const connection = await runner.setupConnection({
 			timeout,
 		});
-
-		runner.start(logLevel, indent);
 
 		const browser = new HeadlessBrowser({
 			connection,

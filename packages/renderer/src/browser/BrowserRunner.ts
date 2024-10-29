@@ -15,7 +15,6 @@
  */
 
 import * as childProcess from 'node:child_process';
-import * as fs from 'node:fs';
 import {join} from 'node:path';
 import {deleteDirectory} from '../delete-directory';
 import type {LogLevel} from '../log-level';
@@ -50,30 +49,30 @@ export class BrowserRunner {
 	#listeners: (() => void)[] = [];
 	#processClosing!: Promise<void>;
 
-	proc?: childProcess.ChildProcess;
+	proc: childProcess.ChildProcess;
 	connection?: Connection;
 
 	constructor({
 		executablePath,
 		processArguments,
 		userDataDir,
+		logLevel,
+		indent,
 	}: {
 		executablePath: string;
 		processArguments: string[];
 		userDataDir: string;
+		logLevel: LogLevel;
+		indent: boolean;
 	}) {
 		this.#executablePath = executablePath;
 		this.#processArguments = processArguments;
 		this.#userDataDir = userDataDir;
-	}
-
-	start(logLevel: LogLevel, indent: boolean): void {
 		const dumpio = isEqualOrBelowLogLevel(logLevel, 'verbose');
 		const stdio: ('ignore' | 'pipe')[] = dumpio
 			? ['ignore', 'pipe', 'pipe']
 			: ['pipe', 'ignore', 'pipe'];
 
-		assert(!this.proc, 'This process has previously been started.');
 		this.proc = childProcess.spawn(
 			this.#executablePath,
 			this.#processArguments,
@@ -159,7 +158,6 @@ export class BrowserRunner {
 	}
 
 	forgetEventLoop(): void {
-		assert(this.proc, 'BrowserRunner not started.');
 		this.proc.unref();
 		// @ts-expect-error
 		this.proc.stdout?.unref();
@@ -190,7 +188,6 @@ export class BrowserRunner {
 	}
 
 	rememberEventLoop(): void {
-		assert(this.proc, 'BrowserRunner not started.');
 		this.proc.ref();
 		// @ts-expect-error
 		this.proc.stdout?.ref();
@@ -204,7 +201,7 @@ export class BrowserRunner {
 		// If the process failed to launch (for example if the browser executable path
 		// is invalid), then the process does not get a pid assigned. A call to
 		// `proc.kill` would error, as the `pid` to-be-killed can not be found.
-		if (this.proc?.pid && pidExists(this.proc.pid)) {
+		if (this.proc.pid && pidExists(this.proc.pid)) {
 			const {proc} = this;
 			try {
 				if (process.platform === 'win32') {
@@ -239,10 +236,7 @@ export class BrowserRunner {
 			}
 		}
 
-		// Attempt to remove temporary profile directory to avoid littering.
-		try {
-			fs.rmSync(this.#userDataDir, {recursive: true, force: true});
-		} catch (error) {}
+		deleteDirectory(this.#userDataDir);
 
 		// Cleanup this listener last, as that makes sure the full callback runs. If we
 		// perform this earlier, then the previous function calls would not happen.
@@ -250,8 +244,6 @@ export class BrowserRunner {
 	}
 
 	async setupConnection(options: {timeout: number}): Promise<Connection> {
-		assert(this.proc, 'BrowserRunner not started.');
-
 		const {timeout} = options;
 		const browserWSEndpoint = await waitForWSEndpoint(this.proc, timeout);
 		const transport = await NodeWebSocketTransport.create(browserWSEndpoint);
