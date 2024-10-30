@@ -7,12 +7,13 @@ import React, {
 	useState,
 } from 'react';
 import {AbsoluteFill, getRemotionEnvironment} from 'remotion';
-import type {LocationAndTrending} from '../Comp';
+import type {RemoteData} from '../Comp';
 import {CurrentCountry} from '../CurrentCountry';
 import {Temperature} from '../Temperature';
 import {TrendingRepos} from '../TrendingRepos';
 import type {EmojiCardRef} from '../emoji/EmojiCard';
 import {EmojiCard} from '../emoji/EmojiCard';
+import type {Location} from '../types';
 import {Card} from './Card';
 import {getInitialPositions} from './math';
 
@@ -20,7 +21,8 @@ export const Cards: React.FC<{
 	readonly onUpdate: (newIndices: number[]) => void;
 	readonly indices: number[];
 	readonly theme: 'dark' | 'light';
-	readonly data: LocationAndTrending;
+	readonly location: Location | null;
+	readonly trending: RemoteData | null;
 	readonly onToggle: () => void;
 	readonly onLeft: () => void;
 	readonly onRight: () => void;
@@ -30,10 +32,11 @@ export const Cards: React.FC<{
 	indices,
 	theme,
 	onToggle,
-	data,
 	onLeft: onLeftPress,
 	onRight: onRightPress,
 	emojiName,
+	location,
+	trending,
 }) => {
 	const container = useRef<HTMLDivElement>(null);
 
@@ -86,17 +89,17 @@ export const Cards: React.FC<{
 				const index = indices[i];
 				const content =
 					index === 0 ? (
-						<TrendingRepos trending={data.trending} theme={theme} />
+						<TrendingRepos trending={trending} theme={theme} />
 					) : index === 1 ? (
 						<Temperature
-							city={data.location?.city ?? null}
+							city={location?.city ?? null}
 							theme={theme}
-							temperatureInCelsius={data.trending?.temperatureInCelsius ?? null}
+							temperatureInCelsius={trending?.temperatureInCelsius ?? null}
 						/>
 					) : index === 2 ? (
 						<CurrentCountry
-							countryPaths={data.trending?.countryPaths ?? null}
-							countryLabel={data.trending?.countryLabel ?? null}
+							countryPaths={trending?.countryPaths ?? null}
+							countryLabel={trending?.countryLabel ?? null}
 							theme={theme}
 						/>
 					) : (

@@ -24,8 +24,8 @@ export type RemoteData = {
 };
 
 export type LocationAndTrending = {
-	location: Location | null;
-	trending: RemoteData | null;
+	readonly location: Location | null;
+	readonly trending: RemoteData | null;
 };
 
 export const getDataAndProps = async () => {
@@ -72,7 +72,6 @@ export const calculateMetadata: CalculateMetadataFunction<
 };
 
 export type DemoPlayerProps = {
-	readonly playerData: LocationAndTrending;
 	readonly onToggle: () => void;
 	readonly cardOrder: number[];
 	readonly updateCardOrder: (newCardOrder: number[]) => void;
@@ -80,7 +79,7 @@ export type DemoPlayerProps = {
 	readonly onClickLeft: () => void;
 	readonly onClickRight: () => void;
 	readonly emojiIndex: number;
-};
+} & LocationAndTrending;
 
 const fireAudio = staticFile('fire.mp3');
 const partyHornAudio = staticFile('partyhorn.mp3');
@@ -91,7 +90,8 @@ export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
 	onToggle,
 	cardOrder,
 	updateCardOrder,
-	playerData,
+	location,
+	trending,
 	emojiIndex,
 	onClickLeft,
 	onClickRight,
@@ -156,7 +156,8 @@ export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
 				onUpdate={onUpdate}
 				indices={cardOrder}
 				theme={theme}
-				data={playerData}
+				location={location}
+				trending={trending}
 				onToggle={onToggle}
 				onLeft={onClickLeft}
 				onRight={onClickRight}

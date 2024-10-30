@@ -80,20 +80,18 @@ export const RemotionRoot: React.FC = () => {
 					updateCardOrder: () => undefined,
 					onClickLeft: () => undefined,
 					onClickRight: () => undefined,
-					playerData: {
-						trending: {
-							temperatureInCelsius: 14,
-							countryLabel: 'Switzerland',
-							countryPaths: [],
-							date: '2024-12-31',
-							repos: [],
-						},
-						location: {
-							city: 'New York',
-							country: 'US',
-							latitude: 40.7128,
-							longitude: -74.006,
-						},
+					trending: {
+						temperatureInCelsius: 14,
+						countryLabel: 'Switzerland',
+						countryPaths: [],
+						date: '2024-12-31',
+						repos: [],
+					},
+					location: {
+						city: 'New York',
+						country: 'US',
+						latitude: 40.7128,
+						longitude: -74.006,
 					},
 					emojiIndex: 0,
 				}}

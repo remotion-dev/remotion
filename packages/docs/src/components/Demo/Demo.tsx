@@ -21,6 +21,7 @@ import {
 	getDataAndProps,
 } from '../../remotion/HomepageVideo/Comp';
 import {ActionRow} from './ActionRow';
+import {RenderButton} from './DemoRender';
 import {PlayerControls} from './PlayerControls';
 
 preloadAudio(staticFile('Utope-nature-5s.mp3'));
@@ -84,10 +85,8 @@ export const Demo: React.FC = () => {
 			},
 			cardOrder,
 			updateCardOrder,
-			playerData: {
-				location: data?.location ?? null,
-				trending: data?.trending ?? null,
-			},
+			location: data?.location ?? null,
+			trending: data?.trending ?? null,
 			onClickLeft: () => {
 				setEmojiIndex((e) => e - 1);
 			},
@@ -121,6 +120,15 @@ export const Demo: React.FC = () => {
 				/>
 				<PlayerControls playerRef={ref} durationInFrames={120} fps={30} />
 			</div>
+			{data ? (
+				<RenderButton
+					cardOrder={cardOrder}
+					emojiIndex={emojiIndex}
+					location={data.location!}
+					theme={colorMode}
+					trending={data.trending!}
+				/>
+			) : null}
 		</div>
 	);
 };
