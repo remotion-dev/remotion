@@ -46,20 +46,17 @@ Use the following starting points to implement your own controls. You will need 
 
 ```tsx twoslash title="PlayPauseButton.tsx"
 import type {PlayerRef} from '@remotion/player';
-import React, {useCallback, useEffect} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 
 export const PlayPauseButton: React.FC<{
   playerRef: React.RefObject<PlayerRef>;
 }> = ({playerRef}) => {
-  const [playing, setPlaying] = React.useState(
-    () => playerRef.current?.isPlaying() ?? false,
-  );
+  const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
     const {current} = playerRef;
-    if (!current) {
-      return;
-    }
+    setPlaying(current?.isPlaying() ?? false);
+    if (!current) return;
 
     const onPlay = () => {
       setPlaying(true);
