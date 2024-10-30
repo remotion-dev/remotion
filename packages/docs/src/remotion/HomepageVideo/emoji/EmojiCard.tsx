@@ -161,7 +161,7 @@ const EmojiCardRefFn: React.ForwardRefRenderFunction<EmojiCardRef> = (
 			<div
 				style={{
 					position: 'absolute',
-					width: '300%',
+					width: '100%',
 					display: 'flex',
 					whiteSpace: 'nowrap',
 					height: '100%',

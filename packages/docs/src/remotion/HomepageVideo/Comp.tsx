@@ -1,9 +1,10 @@
 import type {EmojiName} from '@remotion/animated-emoji';
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
 	AbsoluteFill,
 	Audio,
 	interpolate,
+	prefetch,
 	staticFile,
 	useVideoConfig,
 	type CalculateMetadataFunction,
@@ -81,6 +82,10 @@ export type DemoPlayerProps = {
 	readonly emojiIndex: number;
 };
 
+const fireAudio = staticFile('fire.mp3');
+const partyHornAudio = staticFile('partyhorn.mp3');
+const sadAudio = staticFile('sad.mp3');
+
 export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
 	theme,
 	onToggle,
@@ -102,7 +107,6 @@ export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
 		[rerenders, updateCardOrder],
 	);
 
-	const loweredVolume = 0.5; // this track is too loud by default
 	const audioFadeFrame = durationInFrames - 30;
 
 	const emoji = useMemo((): EmojiName => {
@@ -116,6 +120,30 @@ export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
 
 		return 'partying-face';
 	}, [emojiIndex]);
+
+	const audioSrc = useMemo(() => {
+		if (emoji === 'fire') {
+			return fireAudio;
+		}
+
+		if (emoji === 'partying-face') {
+			return partyHornAudio;
+		}
+
+		return sadAudio;
+	}, [emoji]);
+
+	useEffect(() => {
+		const a = prefetch(fireAudio);
+		const b = prefetch(partyHornAudio);
+		const c = prefetch(sadAudio);
+
+		return () => {
+			a.free();
+			b.free();
+			c.free();
+		};
+	}, [audioSrc]);
 
 	return (
 		<AbsoluteFill
@@ -133,19 +161,21 @@ export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
 				onLeft={onClickLeft}
 				onRight={onClickRight}
 			/>
-			<Audio
-				src={staticFile('Utope-nature-5s.mp3')}
-				volume={(f) =>
-					interpolate(
-						f,
-						[0, 10, audioFadeFrame, durationInFrames - 5],
-						[0, loweredVolume, loweredVolume, 0],
-						{
-							extrapolateLeft: 'clamp',
-						},
-					)
-				}
-			/>
+			{audioSrc ? (
+				<Audio
+					src={audioSrc}
+					volume={(f) =>
+						interpolate(
+							f,
+							[0, 10, audioFadeFrame, durationInFrames - 5],
+							[0, 1, 1, 0],
+							{
+								extrapolateLeft: 'clamp',
+							},
+						)
+					}
+				/>
+			) : null}
 		</AbsoluteFill>
 	);
 };
