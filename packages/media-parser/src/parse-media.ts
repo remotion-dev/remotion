@@ -143,6 +143,8 @@ export const parseMedia: ParseMedia = async ({
 				);
 			}
 
+			currentReader.abort();
+
 			const {reader: newReader} = await readerInterface.read(
 				src,
 				parseResult.skipTo,
