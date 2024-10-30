@@ -16,11 +16,11 @@ const items = 10;
 export const NUM_WIDTH = 36;
 
 export const Wheel: React.FC<{
-	delay: number;
-	digits: number[];
-	renderDigit: (i: number) => React.ReactNode;
-	isLeadingDigit: boolean;
-	isNegative: boolean[];
+	readonly delay: number;
+	readonly digits: number[];
+	readonly renderDigit: (i: number) => React.ReactNode;
+	readonly isLeadingDigit: boolean;
+	readonly isNegative: boolean[];
 }> = ({delay, digits, renderDigit, isLeadingDigit, isNegative}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
@@ -124,7 +124,7 @@ export const Wheel: React.FC<{
 			<AbsoluteFill
 				style={{
 					perspective: 5000,
-					maskImage: `linear-gradient(to bottom, transparent 0%, #000 28%, #000 72%, transparent 100%)`,
+					maskImage: `linear-gradient(to bottom, transparent 0%, #000 28%, #000 80%, transparent 100%)`,
 				}}
 			>
 				{new Array(items).fill(true).map((_, i) => {

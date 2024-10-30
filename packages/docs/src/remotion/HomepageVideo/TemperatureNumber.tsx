@@ -58,7 +58,9 @@ export const TemperatureNumber: React.FC<{
 				// eslint-disable-next-line react/no-array-index-key
 				delay={paddedCelsiusDegree.length * 4 - 2}
 				digits={[0, 1, 0]}
-				renderDigit={(_i) => (_i % 2 === 0 ? 'C' : 'F')}
+				renderDigit={(_i) =>
+					_i % 2 === 0 ? 'C' : <span style={{marginLeft: -5}}>F</span>
+				}
 				isLeadingDigit={false}
 				isNegative={[false, false, false]}
 			/>
