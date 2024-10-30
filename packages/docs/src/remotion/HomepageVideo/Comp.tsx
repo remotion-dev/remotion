@@ -74,8 +74,6 @@ export type DemoPlayerProps = {
 	readonly onToggle: () => void;
 	readonly cardOrder: number[];
 	readonly updateCardOrder: (newCardOrder: number[]) => void;
-	readonly onClickLeft: () => void;
-	readonly onClickRight: () => void;
 	readonly theme: 'dark' | 'light';
 };
 
@@ -84,8 +82,6 @@ export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
 	onToggle,
 	cardOrder,
 	updateCardOrder,
-	onClickLeft,
-	onClickRight,
 	playerData,
 }) => {
 	const [rerenders, setRerenders] = useState(0);
@@ -115,8 +111,6 @@ export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
 				theme={theme}
 				data={playerData}
 				onToggle={onToggle}
-				onClickLeft={onClickLeft}
-				onClickRight={onClickRight}
 			/>
 			<Audio
 				src={staticFile('Utope-nature-5s.mp3')}

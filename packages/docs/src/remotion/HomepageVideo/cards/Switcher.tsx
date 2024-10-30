@@ -26,14 +26,14 @@ export const Switcher: React.FC<{
 				left: type === 'left' ? 0 : '100%',
 				marginTop: -15,
 				backgroundColor: theme === 'dark' ? '#222' : '#fafafa',
-				color: theme === 'dark' ? 'white' : '#555',
+				color: theme === 'dark' ? 'white' : '#222',
 				cursor: 'pointer',
 				justifyContent: 'center',
 				alignItems: 'center',
 				display: 'flex',
 			}}
 		>
-			<svg style={{height: 12}} viewBox="0 0 320 512">
+			<svg style={{height: 14}} viewBox="0 0 320 512">
 				{type === 'left' ? (
 					<path
 						fill="currentcolor"

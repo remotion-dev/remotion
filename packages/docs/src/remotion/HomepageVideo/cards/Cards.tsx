@@ -1,9 +1,16 @@
-import React, {createRef, useEffect, useRef, useState} from 'react';
+import React, {
+	createRef,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
 import {AbsoluteFill, getRemotionEnvironment} from 'remotion';
 import type {LocationAndTrending} from '../Comp';
 import {CurrentCountry} from '../CurrentCountry';
 import {Temperature} from '../Temperature';
 import {TrendingRepos} from '../TrendingRepos';
+import type {EmojiCardRef} from '../emoji/EmojiCard';
 import {EmojiCard} from '../emoji/EmojiCard';
 import {Card} from './Card';
 import {getInitialPositions} from './math';
@@ -14,17 +21,7 @@ export const Cards: React.FC<{
 	readonly theme: 'dark' | 'light';
 	readonly data: LocationAndTrending;
 	readonly onToggle: () => void;
-	readonly onClickLeft: () => void;
-	readonly onClickRight: () => void;
-}> = ({
-	onUpdate,
-	indices,
-	theme,
-	onToggle,
-	onClickLeft,
-	onClickRight,
-	data,
-}) => {
+}> = ({onUpdate, indices, theme, onToggle, data}) => {
 	const container = useRef<HTMLDivElement>(null);
 
 	const [refs] = useState(() => {
@@ -58,6 +55,16 @@ export const Cards: React.FC<{
 		};
 	}, [onToggle]);
 
+	const ref = useRef<EmojiCardRef>(null);
+
+	const onLeft = useCallback(() => {
+		ref.current?.onLeft();
+	}, []);
+
+	const onRight = useCallback(() => {
+		ref.current?.onRight();
+	}, []);
+
 	return (
 		<AbsoluteFill ref={container}>
 			{new Array(4).fill(true).map((_, i) => {
@@ -78,7 +85,7 @@ export const Cards: React.FC<{
 							theme={theme}
 						/>
 					) : (
-						<EmojiCard />
+						<EmojiCard ref={ref} />
 					);
 
 				return (
@@ -95,8 +102,8 @@ export const Cards: React.FC<{
 						indices={indices}
 						theme={theme}
 						withSwitcher={index === 3 && !isRendering}
-						onClickLeft={onClickLeft}
-						onClickRight={onClickRight}
+						onClickLeft={onLeft}
+						onClickRight={onRight}
 					/>
 				);
 			})}

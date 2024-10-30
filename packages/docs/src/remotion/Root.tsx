@@ -78,15 +78,6 @@ export const RemotionRoot: React.FC = () => {
 					onToggle: () => undefined,
 					cardOrder: [0, 1, 2, 3],
 					updateCardOrder: () => undefined,
-					emojiPositions: {
-						prev: 'melting',
-						current: 'partying-face',
-						next: 'fire',
-						translation: 0,
-						translationStyle: '',
-					},
-					onClickLeft: () => undefined,
-					onClickRight: () => undefined,
 					playerData: {
 						trending: {
 							temperatureInCelsius: 14,
