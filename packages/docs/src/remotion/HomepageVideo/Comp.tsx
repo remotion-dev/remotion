@@ -160,6 +160,7 @@ export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
 				onToggle={onToggle}
 				onLeft={onClickLeft}
 				onRight={onClickRight}
+				emojiName={emoji}
 			/>
 			{audioSrc ? (
 				<Audio

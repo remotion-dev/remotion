@@ -1,3 +1,4 @@
+import type {EmojiName} from '@remotion/animated-emoji';
 import React, {
 	forwardRef,
 	useCallback,
@@ -5,7 +6,7 @@ import React, {
 	useImperativeHandle,
 	useRef,
 } from 'react';
-import {AbsoluteFill} from 'remotion';
+import {AbsoluteFill, getRemotionEnvironment} from 'remotion';
 import {DisplayedEmoji} from './DisplayedEmoji';
 
 export type EmojiCardRef = {
@@ -69,10 +70,14 @@ const emojiStyle: React.CSSProperties = {
 	top: 'calc(50% - 50px)',
 };
 
-const EmojiCardRefFn: React.ForwardRefRenderFunction<EmojiCardRef> = (
-	_,
-	ref,
-) => {
+export type EmojiCardProps = {
+	readonly emojiIndex: EmojiName;
+};
+
+const EmojiCardRefFn: React.ForwardRefRenderFunction<
+	EmojiCardRef,
+	EmojiCardProps
+> = ({emojiIndex}, ref) => {
 	const ref1 = useRef<HTMLDivElement>(null);
 	const ref2 = useRef<HTMLDivElement>(null);
 	const ref3 = useRef<HTMLDivElement>(null);
@@ -167,18 +172,28 @@ const EmojiCardRefFn: React.ForwardRefRenderFunction<EmojiCardRef> = (
 					height: '100%',
 				}}
 			>
-				<div ref={ref1} style={emojiStyle}>
-					<DisplayedEmoji emoji={'melting'} />
-				</div>
-				<div ref={ref2} style={emojiStyle}>
-					<DisplayedEmoji emoji={'partying-face'} />
-				</div>
-				<div ref={ref3} style={emojiStyle}>
-					<DisplayedEmoji emoji={'fire'} />
-				</div>
+				{getRemotionEnvironment().isRendering ? (
+					<div style={emojiStyle}>
+						<DisplayedEmoji emoji={emojiIndex} />
+					</div>
+				) : (
+					<>
+						<div ref={ref1} style={emojiStyle}>
+							<DisplayedEmoji emoji={'melting'} />
+						</div>
+						<div ref={ref2} style={emojiStyle}>
+							<DisplayedEmoji emoji={'partying-face'} />
+						</div>
+						<div ref={ref3} style={emojiStyle}>
+							<DisplayedEmoji emoji={'fire'} />
+						</div>
+					</>
+				)}
 			</div>
 		</AbsoluteFill>
 	);
 };
 
-export const EmojiCard = forwardRef<EmojiCardRef, {}>(EmojiCardRefFn);
+export const EmojiCard = forwardRef<EmojiCardRef, EmojiCardProps>(
+	EmojiCardRefFn,
+);

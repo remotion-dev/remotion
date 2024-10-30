@@ -1,3 +1,4 @@
+import type {EmojiName} from '@remotion/animated-emoji';
 import React, {
 	createRef,
 	useCallback,
@@ -23,6 +24,7 @@ export const Cards: React.FC<{
 	readonly onToggle: () => void;
 	readonly onLeft: () => void;
 	readonly onRight: () => void;
+	readonly emojiName: EmojiName;
 }> = ({
 	onUpdate,
 	indices,
@@ -31,6 +33,7 @@ export const Cards: React.FC<{
 	data,
 	onLeft: onLeftPress,
 	onRight: onRightPress,
+	emojiName,
 }) => {
 	const container = useRef<HTMLDivElement>(null);
 
@@ -97,7 +100,7 @@ export const Cards: React.FC<{
 							theme={theme}
 						/>
 					) : (
-						<EmojiCard ref={ref} />
+						<EmojiCard ref={ref} emojiIndex={emojiName} />
 					);
 
 				return (
