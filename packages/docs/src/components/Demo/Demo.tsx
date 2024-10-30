@@ -15,11 +15,13 @@ import {BOX_STROKE} from '../../../components/layout/colors';
 import type {
 	DemoPlayerProps,
 	LocationAndTrending,
+	RemoteData,
 } from '../../remotion/HomepageVideo/Comp';
 import {
 	HomepageVideoComp,
 	getDataAndProps,
 } from '../../remotion/HomepageVideo/Comp';
+import type {Location} from '../../remotion/HomepageVideo/types';
 import {ActionRow} from './ActionRow';
 import {RenderButton} from './DemoRender';
 import {PlayerControls} from './PlayerControls';
@@ -119,15 +121,19 @@ export const Demo: React.FC = () => {
 					loop
 				/>
 				<PlayerControls playerRef={ref} durationInFrames={120} fps={30}>
-					{data ? (
-						<RenderButton
-							cardOrder={cardOrder}
-							emojiIndex={emojiIndex}
-							location={data.location!}
-							theme={colorMode}
-							trending={data.trending!}
-						/>
-					) : null}
+					<RenderButton
+						renderData={
+							data
+								? {
+										cardOrder,
+										emojiIndex,
+										location: data.location as Location,
+										theme: colorMode,
+										trending: data.trending as RemoteData,
+									}
+								: null
+						}
+					/>
 				</PlayerControls>
 			</div>
 		</div>
