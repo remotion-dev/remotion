@@ -9,6 +9,7 @@ import {YouAreHere} from './YouAreHere';
 const panel: React.CSSProperties = {
 	backgroundColor: 'var(--ifm-background-color)',
 	border: '2px solid ' + BOX_STROKE,
+	borderBottom: '4px solid ' + BOX_STROKE,
 	padding: 10,
 	borderRadius: 15,
 	flex: 1,
