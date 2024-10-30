@@ -39,7 +39,7 @@ npm run build
 **Upgrade Remotion**
 
 ```console
-bun run upgrade
+npm run upgrade
 ```
 
 ## More examples
