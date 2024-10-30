@@ -5,25 +5,6 @@
 	border-radius: 0.5rem;
 }
 
-.controls-wrapper .start-controls {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	width: 100%;
-}
-
-.controls-wrapper .end-controls {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-}
-
-@media screen and (min-width: 901px) {
-	.end-controls {
-		height: 100%;
-	}
-}
-
 .volume-button {
 	position: relative;
 	cursor: pointer;

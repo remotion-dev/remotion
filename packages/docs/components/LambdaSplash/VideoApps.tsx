@@ -1,15 +1,15 @@
 import {useColorMode} from '@docusaurus/theme-common';
 import React, {useEffect, useState} from 'react';
 import {BlueButton} from '../layout/Button';
-import {BOX_STROKE} from '../layout/colors';
+import {PALETTE} from '../layout/colors';
 import {Spacer} from '../layout/Spacer';
 import videoapps from './videoapps.module.css';
 import {YouAreHere} from './YouAreHere';
 
 const panel: React.CSSProperties = {
 	backgroundColor: 'var(--ifm-background-color)',
-	border: '2px solid ' + BOX_STROKE,
-	borderBottom: '4px solid ' + BOX_STROKE,
+	border: '2px solid ' + PALETTE.BOX_STROKE,
+	borderBottom: '4px solid ' + PALETTE.BOX_STROKE,
 	padding: 10,
 	borderRadius: 15,
 	flex: 1,

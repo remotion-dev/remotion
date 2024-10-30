@@ -11,7 +11,7 @@ import React, {
 	useState,
 } from 'react';
 import {staticFile} from 'remotion';
-import {BOX_STROKE} from '../../../components/layout/colors';
+import {PALETTE} from '../../../components/layout/colors';
 import type {
 	DemoPlayerProps,
 	LocationAndTrending,
@@ -31,13 +31,13 @@ preloadAudio(staticFile('Utope-nature-5s.mp3'));
 const style: React.CSSProperties = {
 	width: '100%',
 	aspectRatio: '640 / 360',
-	borderBottom: `2px solid ${BOX_STROKE}`,
+	borderBottom: `2px solid ${PALETTE.BOX_STROKE}`,
 	touchAction: 'none', // prevent page from scrolling when dragging children on mobile
 };
 
 const playerWrapper: CSSProperties = {
-	border: `2px solid ${BOX_STROKE}`,
-	borderBottom: `4px solid ${BOX_STROKE}`,
+	border: `2px solid ${PALETTE.BOX_STROKE}`,
+	borderBottom: `4px solid ${PALETTE.BOX_STROKE}`,
 	borderRadius: 8,
 	width: '100%',
 	overflow: 'hidden',
