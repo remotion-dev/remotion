@@ -36,9 +36,13 @@ const waitForRaq = async () => {
 
 const moveLeft = async ({ref1, ref2, ref3, transforms}: Anim) => {
 	for (let i = 0; i < 20; i++) {
-		transforms[0] -= 5;
-		transforms[1] -= 5;
-		transforms[2] -= 5;
+		for (const idx in transforms) {
+			transforms[idx] -= 5;
+			if (transforms[idx] <= -200) {
+				transforms[idx] += 300;
+			}
+		}
+
 		applyTransforms({ref1, ref2, ref3, transforms});
 		await waitForRaq();
 	}
@@ -46,12 +50,23 @@ const moveLeft = async ({ref1, ref2, ref3, transforms}: Anim) => {
 
 const moveRight = async ({ref1, ref2, ref3, transforms}: Anim) => {
 	for (let i = 0; i < 20; i++) {
-		transforms[0] += 5;
-		transforms[1] += 5;
-		transforms[2] += 5;
+		for (const idx in transforms) {
+			transforms[idx] += 5;
+			if (transforms[idx] >= 100) {
+				transforms[idx] -= 300;
+			}
+		}
+
 		applyTransforms({ref1, ref2, ref3, transforms});
 		await waitForRaq();
 	}
+};
+
+const emojiStyle: React.CSSProperties = {
+	width: '100%',
+	position: 'absolute',
+	left: '100%',
+	top: 'calc(50% - 50px)',
 };
 
 const EmojiCardRefFn: React.ForwardRefRenderFunction<EmojiCardRef> = (
@@ -152,37 +167,13 @@ const EmojiCardRefFn: React.ForwardRefRenderFunction<EmojiCardRef> = (
 					height: '100%',
 				}}
 			>
-				<div
-					ref={ref1}
-					style={{
-						width: '100%',
-						position: 'absolute',
-						left: '100%',
-						top: 'calc(50% - 50px)',
-					}}
-				>
+				<div ref={ref1} style={emojiStyle}>
 					<DisplayedEmoji emoji={'melting'} />
 				</div>
-				<div
-					ref={ref2}
-					style={{
-						width: '100%',
-						position: 'absolute',
-						left: '100%',
-						top: 'calc(50% - 50px)',
-					}}
-				>
+				<div ref={ref2} style={emojiStyle}>
 					<DisplayedEmoji emoji={'partying-face'} />
 				</div>
-				<div
-					ref={ref3}
-					style={{
-						width: '100%',
-						position: 'absolute',
-						left: '100%',
-						top: 'calc(50% - 50px)',
-					}}
-				>
+				<div ref={ref3} style={emojiStyle}>
 					<DisplayedEmoji emoji={'fire'} />
 				</div>
 			</div>
