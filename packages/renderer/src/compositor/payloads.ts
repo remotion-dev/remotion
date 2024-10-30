@@ -241,9 +241,6 @@ export type CompositorCommand = {
 		maximum_frame_cache_size_in_bytes: number | null;
 		verbose: boolean;
 	};
-	CopyImageToClipboard: {
-		src: string;
-	};
 	GetOpenVideoStats: {};
 	DeliberatePanic: {};
 	CloseAllVideos: {};

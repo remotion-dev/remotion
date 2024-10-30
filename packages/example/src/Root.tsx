@@ -1,3 +1,6 @@
+// @ts-expect-error no types
+import styles from './styles.module.scss';
+
 import {alias} from 'lib/alias';
 import React, {useCallback, useMemo} from 'react';
 import {
@@ -82,6 +85,7 @@ import {
 import {TriggerCalculateMetadata} from './StudioApis/TriggerCalculateMetadata';
 import {WriteStaticFile} from './StudioApis/WriteStaticFile';
 import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
+import {SvgFilter} from './SvgFilter';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
 import {TextStroke} from './TextStroke';
@@ -108,9 +112,6 @@ if (alias !== 'alias') {
 }
 
 const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
-
-// @ts-expect-error no types
-import styles from './styles.module.scss';
 
 class Vector2 {
 	readonly x: number;
@@ -506,6 +507,12 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						calculated: new Vector2(15, 10),
 					}}
+				/>
+				<Still
+					id="svg-filter"
+					component={SvgFilter}
+					width={1080}
+					height={1080}
 				/>
 			</Folder>
 			<Folder name="creatives">
