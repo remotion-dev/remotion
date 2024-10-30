@@ -2,7 +2,6 @@ import type {PlayerRef} from '@remotion/player';
 import React from 'react';
 import {BOX_STROKE} from '../../../components/layout/colors';
 import styles from './player.module.css';
-import {PlayerFullscreen} from './PlayerFullscreen';
 import {PlayerSeekBar} from './PlayerSeekBar';
 import {PlayerVolume} from './PlayerVolume';
 import {PlayPauseButton} from './PlayPauseButton';
@@ -23,7 +22,8 @@ export const PlayerControls: React.FC<{
 	readonly playerRef: React.RefObject<PlayerRef>;
 	readonly durationInFrames: number;
 	readonly fps: number;
-}> = ({playerRef, durationInFrames, fps}) => {
+	readonly children: React.ReactNode;
+}> = ({playerRef, durationInFrames, fps, children}) => {
 	return (
 		<div className={styles['controls-wrapper']}>
 			<div className={styles['start-controls']}>
@@ -46,7 +46,7 @@ export const PlayerControls: React.FC<{
 			</div>
 			<div className={styles['end-controls']}>
 				<Separator />
-				<PlayerFullscreen playerRef={playerRef} />
+				{children}
 			</div>
 		</div>
 	);

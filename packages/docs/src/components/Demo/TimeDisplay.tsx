@@ -33,7 +33,7 @@ export const TimeDisplay: React.FC<{
 	return (
 		<div
 			style={{
-				fontSize: '14px',
+				fontSize: 16,
 				fontVariantNumeric: 'tabular-nums',
 			}}
 		>

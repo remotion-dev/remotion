@@ -41,11 +41,9 @@
 .statItem {
 	background-color: var(--ifm-background-surface-color);
 	border-radius: 0.5rem;
-	border: 5px solid var(--text-color);
+	border: 2px solid var(--box-stroke);
+	border-bottom: 4px solid var(--box-stroke);
 	padding: 0.3rem;
-	box-shadow:
-		0 1px 3px rgba(0, 0, 0, 0.12),
-		0 1px 2px rgba(0, 0, 0, 0.24);
 	line-height: 1;
 	display: flex;
 	flex-wrap: wrap;

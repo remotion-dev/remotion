@@ -118,17 +118,18 @@ export const Demo: React.FC = () => {
 					inputProps={props}
 					loop
 				/>
-				<PlayerControls playerRef={ref} durationInFrames={120} fps={30} />
+				<PlayerControls playerRef={ref} durationInFrames={120} fps={30}>
+					{data ? (
+						<RenderButton
+							cardOrder={cardOrder}
+							emojiIndex={emojiIndex}
+							location={data.location!}
+							theme={colorMode}
+							trending={data.trending!}
+						/>
+					) : null}
+				</PlayerControls>
 			</div>
-			{data ? (
-				<RenderButton
-					cardOrder={cardOrder}
-					emojiIndex={emojiIndex}
-					location={data.location!}
-					theme={colorMode}
-					trending={data.trending!}
-				/>
-			) : null}
 		</div>
 	);
 };
