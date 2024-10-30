@@ -25,6 +25,21 @@ import {PlayerControls} from './PlayerControls';
 
 preloadAudio(staticFile('Utope-nature-5s.mp3'));
 
+const style: React.CSSProperties = {
+	width: '100%',
+	aspectRatio: '640 / 360',
+	borderBottom: `2px solid ${BOX_STROKE}`,
+	touchAction: 'none', // prevent page from scrolling when dragging children on mobile
+};
+
+const playerWrapper: CSSProperties = {
+	border: `2px solid ${BOX_STROKE}`,
+	borderBottom: `4px solid ${BOX_STROKE}`,
+	borderRadius: 8,
+	width: '100%',
+	overflow: 'hidden',
+};
+
 export const Demo: React.FC = () => {
 	const {colorMode} = useColorMode();
 	const [data, setData] = useState<LocationAndTrending | null>(null);
@@ -38,14 +53,7 @@ export const Demo: React.FC = () => {
 
 	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [cardOrder, setCardOrder] = useState([0, 1, 2, 3]);
-
-	const playerWrapper: CSSProperties = {
-		border: `2px solid ${BOX_STROKE}`,
-		borderBottom: `4px solid ${BOX_STROKE}`,
-		borderRadius: 8,
-		width: '100%',
-		overflow: 'hidden',
-	};
+	const [emojiIndex, setEmojiIndex] = useState<number>(0);
 
 	useEffect(() => {
 		const {current: playerRef} = ref;
@@ -64,13 +72,9 @@ export const Demo: React.FC = () => {
 		};
 	}, [data]);
 
-	const updateCardOrder = (newCardOrder: number[]) => {
+	const updateCardOrder = useCallback((newCardOrder: number[]) => {
 		setCardOrder(newCardOrder);
-	};
-
-	const onClickLeft = useCallback(() => {}, []);
-
-	const onClickRight = useCallback(() => {}, []);
+	}, []);
 
 	const props: DemoPlayerProps = useMemo(() => {
 		return {
@@ -80,14 +84,19 @@ export const Demo: React.FC = () => {
 			},
 			cardOrder,
 			updateCardOrder,
-			onClickLeft,
-			onClickRight,
 			playerData: {
 				location: data?.location ?? null,
 				trending: data?.trending ?? null,
 			},
+			onClickLeft: () => {
+				setEmojiIndex((e) => e - 1);
+			},
+			onClickRight: () => {
+				setEmojiIndex((e) => e + 1);
+			},
+			emojiIndex,
 		};
-	}, [cardOrder, colorMode, data, onClickLeft, onClickRight]);
+	}, [cardOrder, emojiIndex, colorMode, data, updateCardOrder]);
 
 	return (
 		<div>
@@ -105,12 +114,7 @@ export const Demo: React.FC = () => {
 					autoPlay
 					controls={isFullscreen}
 					clickToPlay={false}
-					style={{
-						width: '100%',
-						aspectRatio: '640 / 360',
-						borderBottom: `2px solid ${BOX_STROKE}`,
-						touchAction: 'none', // prevent page from scrolling when dragging children on mobile
-					}}
+					style={style}
 					initiallyMuted
 					inputProps={props}
 					loop

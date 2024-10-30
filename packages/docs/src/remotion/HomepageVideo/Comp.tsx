@@ -1,4 +1,5 @@
-import React, {useCallback, useState} from 'react';
+import type {EmojiName} from '@remotion/animated-emoji';
+import React, {useCallback, useMemo, useState} from 'react';
 import {
 	AbsoluteFill,
 	Audio,
@@ -75,6 +76,9 @@ export type DemoPlayerProps = {
 	readonly cardOrder: number[];
 	readonly updateCardOrder: (newCardOrder: number[]) => void;
 	readonly theme: 'dark' | 'light';
+	readonly onClickLeft: () => void;
+	readonly onClickRight: () => void;
+	readonly emojiIndex: number;
 };
 
 export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
@@ -83,6 +87,9 @@ export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
 	cardOrder,
 	updateCardOrder,
 	playerData,
+	emojiIndex,
+	onClickLeft,
+	onClickRight,
 }) => {
 	const [rerenders, setRerenders] = useState(0);
 	const {durationInFrames} = useVideoConfig();
@@ -98,6 +105,18 @@ export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
 	const loweredVolume = 0.5; // this track is too loud by default
 	const audioFadeFrame = durationInFrames - 30;
 
+	const emoji = useMemo((): EmojiName => {
+		if (emojiIndex % 3 === 0) {
+			return 'melting';
+		}
+
+		if (emojiIndex % 3 === 1) {
+			return 'fire';
+		}
+
+		return 'partying-face';
+	}, [emojiIndex]);
+
 	return (
 		<AbsoluteFill
 			style={{
@@ -111,6 +130,8 @@ export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
 				theme={theme}
 				data={playerData}
 				onToggle={onToggle}
+				onLeft={onClickLeft}
+				onRight={onClickRight}
 			/>
 			<Audio
 				src={staticFile('Utope-nature-5s.mp3')}

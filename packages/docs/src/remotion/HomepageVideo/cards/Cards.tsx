@@ -21,7 +21,17 @@ export const Cards: React.FC<{
 	readonly theme: 'dark' | 'light';
 	readonly data: LocationAndTrending;
 	readonly onToggle: () => void;
-}> = ({onUpdate, indices, theme, onToggle, data}) => {
+	readonly onLeft: () => void;
+	readonly onRight: () => void;
+}> = ({
+	onUpdate,
+	indices,
+	theme,
+	onToggle,
+	data,
+	onLeft: onLeftPress,
+	onRight: onRightPress,
+}) => {
 	const container = useRef<HTMLDivElement>(null);
 
 	const [refs] = useState(() => {
@@ -59,11 +69,13 @@ export const Cards: React.FC<{
 
 	const onLeft = useCallback(() => {
 		ref.current?.onLeft();
-	}, []);
+		onLeftPress();
+	}, [onLeftPress]);
 
 	const onRight = useCallback(() => {
 		ref.current?.onRight();
-	}, []);
+		onRightPress();
+	}, [onRightPress]);
 
 	return (
 		<AbsoluteFill ref={container}>

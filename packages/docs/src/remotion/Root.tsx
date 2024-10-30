@@ -78,6 +78,8 @@ export const RemotionRoot: React.FC = () => {
 					onToggle: () => undefined,
 					cardOrder: [0, 1, 2, 3],
 					updateCardOrder: () => undefined,
+					onClickLeft: () => undefined,
+					onClickRight: () => undefined,
 					playerData: {
 						trending: {
 							temperatureInCelsius: 14,
@@ -93,6 +95,7 @@ export const RemotionRoot: React.FC = () => {
 							longitude: -74.006,
 						},
 					},
+					emojiIndex: 0,
 				}}
 				calculateMetadata={calculateMetadata}
 			/>
