@@ -33,16 +33,20 @@ Use the following APIs to customize the individual controls:
 Use this approach if you:
 
 - Want to implement custom controls anywhere on the page
-- Want full controls over the look and behavior of the controls
+- Want full control over the look and behavior of the controls
 
-Ensure the [`controls`](/docs/player/player#controls) prop is not set in the [`<Player/>`](/docs/player/player).  
-Obtain a [`ref`](https://react.dev/learn/referencing-values-with-refs) of type `PlayerRef` of the [`<Player/>`](/docs/player/player) and use the following starting points to implement your own controls:
+Use the following starting points to implement your own controls. You will need the following prerequisites:
+
+- Ensure the [`controls`](/docs/player/player#controls) prop is not set in the [`<Player/>`](/docs/player/player).
+- Obtain a [`ref`](https://react.dev/learn/referencing-values-with-refs) of type `PlayerRef` of the [`<Player/>`](/docs/player/player#playerref).
+- Some of the components will require `durationInFrames` and `fps` props. Place the values in shared variables to be used in both `<Player/>` and these components.
+- The `<SeekBar/>` component can optionally accept `inFrame` and `outFrame` props. They're the same values passed to `<Player/>` (also optional).
 
 ### Play / Pause button
 
 ```tsx twoslash title="PlayPauseButton.tsx"
 import type {PlayerRef} from '@remotion/player';
-import React, {SVGProps, useCallback, useEffect} from 'react';
+import React, {useCallback, useEffect} from 'react';
 
 export const PlayPauseButton: React.FC<{
   playerRef: React.RefObject<PlayerRef>;
@@ -119,7 +123,7 @@ export const formatTime = (frame: number, fps: number): string => {
   return `${minutesStr}:${secondsStr}.${frameStr}`;
 };
 
-const TimeDisplay: React.FC<{
+export const TimeDisplay: React.FC<{
   durationInFrames: number;
   fps: number;
   playerRef: React.RefObject<PlayerRef>;
@@ -172,7 +176,7 @@ Pay attention to two nuances when implementing the Fullscreen button:
 import type {PlayerRef} from '@remotion/player';
 import React, {useCallback, useEffect, useState} from 'react';
 
-export const PlayerFullscreen: React.FC<{
+export const FullscreenButton: React.FC<{
   playerRef: React.RefObject<PlayerRef>;
 }> = ({playerRef}) => {
   const [supportsFullscreen, setSupportsFullscreen] = useState(false);
@@ -378,7 +382,7 @@ const getFrameFromX = (
 ) => {
   const pos = clientX;
   const frame = Math.round(
-    interpolate(pos, [0, width], [0, durationInFrames - 1 ?? 0], {
+    interpolate(pos, [0, width], [0, Math.max(durationInFrames - 1, 0)], {
       extrapolateLeft: 'clamp',
       extrapolateRight: 'clamp',
     }),
@@ -453,10 +457,10 @@ export const useHoverState = (ref: React.RefObject<HTMLDivElement>) => {
   return hovered;
 };
 
-export const PlayerSeekBar: React.FC<{
+export const SeekBar: React.FC<{
   durationInFrames: number;
-  inFrame: number | null;
-  outFrame: number | null;
+  inFrame?: number | null;
+  outFrame?: number | null;
   playerRef: React.RefObject<PlayerRef>;
 }> = ({durationInFrames, inFrame, outFrame, playerRef}) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -751,7 +755,7 @@ The following component handles the special case of the video being "muted":
 
 This allows us to keep an internal state of the volume that was set before muting the video and reset the slider to that value after unmuting.
 
-```tsx twoslash
+```tsx twoslash title="VolumeSlider.tsx"
 import type {PlayerRef} from '@remotion/player';
 import React, {useEffect, useState} from 'react';
 
