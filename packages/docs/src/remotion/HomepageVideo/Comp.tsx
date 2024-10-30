@@ -8,7 +8,6 @@ import {
 	type CalculateMetadataFunction,
 } from 'remotion';
 import {Cards} from './cards/Cards';
-import type {EmojiPosition} from './emoji/EmojiCard';
 import type {Location} from './types';
 
 export type RemoteData = {
@@ -75,7 +74,6 @@ export type DemoPlayerProps = {
 	readonly onToggle: () => void;
 	readonly cardOrder: number[];
 	readonly updateCardOrder: (newCardOrder: number[]) => void;
-	readonly emojiPositions: EmojiPosition;
 	readonly onClickLeft: () => void;
 	readonly onClickRight: () => void;
 	readonly theme: 'dark' | 'light';
@@ -86,7 +84,6 @@ export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
 	onToggle,
 	cardOrder,
 	updateCardOrder,
-	emojiPositions,
 	onClickLeft,
 	onClickRight,
 	playerData,
@@ -120,7 +117,6 @@ export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
 				onToggle={onToggle}
 				onClickLeft={onClickLeft}
 				onClickRight={onClickRight}
-				emojiPositions={emojiPositions}
 			/>
 			<Audio
 				src={staticFile('Utope-nature-5s.mp3')}

@@ -1,9 +1,9 @@
 import React, {useCallback} from 'react';
 
 export const Switcher: React.FC<{
-	type: 'left' | 'right';
-	theme: 'dark' | 'light';
-	onTap: () => void;
+	readonly type: 'left' | 'right';
+	readonly theme: 'dark' | 'light';
+	readonly onTap: () => void;
 }> = ({type, theme, onTap}) => {
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
@@ -25,15 +25,15 @@ export const Switcher: React.FC<{
 				top: '50%',
 				left: type === 'left' ? 0 : '100%',
 				marginTop: -15,
-				backgroundColor: theme === 'dark' ? '#222' : 'white',
-				color: theme === 'dark' ? 'white' : 'black',
+				backgroundColor: theme === 'dark' ? '#222' : '#fafafa',
+				color: theme === 'dark' ? 'white' : '#555',
 				cursor: 'pointer',
 				justifyContent: 'center',
 				alignItems: 'center',
 				display: 'flex',
 			}}
 		>
-			<svg style={{height: 16}} viewBox="0 0 320 512">
+			<svg style={{height: 12}} viewBox="0 0 320 512">
 				{type === 'left' ? (
 					<path
 						fill="currentcolor"

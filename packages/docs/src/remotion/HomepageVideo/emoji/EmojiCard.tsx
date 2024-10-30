@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, getRemotionEnvironment} from 'remotion';
+import {AbsoluteFill} from 'remotion';
 import {DisplayedEmoji} from './DisplayedEmoji';
 
 export type EmojiPosition = {
@@ -14,13 +14,9 @@ const EmptyDiv: React.FC = () => {
 	return <div style={{width: '100%'}} />;
 };
 
-type EmojiCardProps = {
-	readonly emojiPositions: EmojiPosition;
-};
+type EmojiCardProps = {};
 
-export const EmojiCard: React.FC<EmojiCardProps> = ({emojiPositions}) => {
-	const {isRendering} = getRemotionEnvironment();
-
+export const EmojiCard: React.FC<EmojiCardProps> = () => {
 	return (
 		<AbsoluteFill
 			style={{
@@ -48,22 +44,28 @@ export const EmojiCard: React.FC<EmojiCardProps> = ({emojiPositions}) => {
 					width: '300%',
 					display: 'flex',
 					whiteSpace: 'nowrap',
-					transition: emojiPositions.translationStyle,
-					transform: `translateX(${-emojiPositions.translation}%)`,
 				}}
 			>
-				{isRendering ? (
-					<EmptyDiv />
-				) : (
-					<DisplayedEmoji emoji={emojiPositions.prev} />
-				)}
-				<DisplayedEmoji emoji={emojiPositions.current} />
-				{isRendering ? (
-					<EmptyDiv />
-				) : (
-					<DisplayedEmoji emoji={emojiPositions.next} />
-				)}
+				<div style={{width: '100%', position: 'absolute', left: 0}}>
+					<DisplayedEmoji emoji={'melting'} />
+				</div>
+				<div style={{width: '100%', position: 'absolute', left: '100%'}}>
+					<DisplayedEmoji emoji={'partying-face'} />
+				</div>
+				<div style={{width: '100%', position: 'absolute', left: '200%'}}>
+					<DisplayedEmoji emoji={'fire'} />
+				</div>
 			</div>
 		</AbsoluteFill>
+	);
+};
+
+export const EmojisDuringRendering: React.FC = () => {
+	return (
+		<>
+			<EmptyDiv />
+			<DisplayedEmoji emoji={'melting'} />
+			<EmptyDiv />
+		</>
 	);
 };

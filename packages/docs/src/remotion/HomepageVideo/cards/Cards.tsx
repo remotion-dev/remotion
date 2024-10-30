@@ -4,7 +4,7 @@ import type {LocationAndTrending} from '../Comp';
 import {CurrentCountry} from '../CurrentCountry';
 import {Temperature} from '../Temperature';
 import {TrendingRepos} from '../TrendingRepos';
-import {EmojiCard, type EmojiPosition} from '../emoji/EmojiCard';
+import {EmojiCard} from '../emoji/EmojiCard';
 import {Card} from './Card';
 import {getInitialPositions} from './math';
 
@@ -13,10 +13,9 @@ export const Cards: React.FC<{
 	readonly indices: number[];
 	readonly theme: 'dark' | 'light';
 	readonly data: LocationAndTrending;
-	onToggle: () => void;
-	onClickLeft: () => void;
-	onClickRight: () => void;
-	emojiPositions: EmojiPosition;
+	readonly onToggle: () => void;
+	readonly onClickLeft: () => void;
+	readonly onClickRight: () => void;
 }> = ({
 	onUpdate,
 	indices,
@@ -24,7 +23,6 @@ export const Cards: React.FC<{
 	onToggle,
 	onClickLeft,
 	onClickRight,
-	emojiPositions,
 	data,
 }) => {
 	const container = useRef<HTMLDivElement>(null);
@@ -80,7 +78,7 @@ export const Cards: React.FC<{
 							theme={theme}
 						/>
 					) : (
-						<EmojiCard emojiPositions={emojiPositions} />
+						<EmojiCard />
 					);
 
 				return (

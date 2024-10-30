@@ -34,7 +34,7 @@ export const TimeDisplay: React.FC<{
 		<div
 			style={{
 				fontSize: '14px',
-				display: 'flex',
+				fontVariantNumeric: 'tabular-nums',
 			}}
 		>
 			<span>{formatTime(time / fps)}</span>

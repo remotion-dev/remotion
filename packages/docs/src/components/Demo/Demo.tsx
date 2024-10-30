@@ -20,7 +20,6 @@ import {
 	HomepageVideoComp,
 	getDataAndProps,
 } from '../../remotion/HomepageVideo/Comp';
-import type {EmojiPosition} from '../../remotion/HomepageVideo/emoji/EmojiCard';
 import {ActionRow} from './ActionRow';
 import {PlayerControls} from './PlayerControls';
 
@@ -39,17 +38,6 @@ export const Demo: React.FC = () => {
 
 	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [cardOrder, setCardOrder] = useState([0, 1, 2, 3]);
-
-	const activeTranslationStyle =
-		'transform 0.2s ease-in, opacity 0.2s ease-in-out';
-
-	const [emojiPositions, setEmojiPositions] = useState<EmojiPosition>({
-		prev: 'melting',
-		current: 'partying-face',
-		next: 'fire',
-		translation: 0,
-		translationStyle: activeTranslationStyle,
-	});
 
 	const playerWrapper: CSSProperties = {
 		border: `2px solid ${BOX_STROKE}`,
@@ -80,48 +68,9 @@ export const Demo: React.FC = () => {
 		setCardOrder(newCardOrder);
 	};
 
-	const onClickLeft = useCallback(() => {
-		setEmojiPositions((c) => {
-			return {
-				...c,
-				translation: -33.3,
-				translationStyle: activeTranslationStyle,
-			};
-		});
-		// after the animation is done, we need to update the emoji contents
-		setTimeout(() => {
-			setEmojiPositions((c) => {
-				return {
-					prev: c.next,
-					current: c.prev,
-					next: c.current,
-					translation: 0,
-					translationStyle: '',
-				};
-			});
-		}, 200);
-	}, []);
+	const onClickLeft = useCallback(() => {}, []);
 
-	const onClickRight = useCallback(() => {
-		setEmojiPositions((c) => {
-			return {
-				...c,
-				translation: 33.3,
-				translationStyle: activeTranslationStyle,
-			};
-		});
-		setTimeout(() => {
-			setEmojiPositions((c) => {
-				return {
-					prev: c.current,
-					current: c.next,
-					next: c.prev,
-					translation: 0,
-					translationStyle: '',
-				};
-			});
-		}, 200);
-	}, []);
+	const onClickRight = useCallback(() => {}, []);
 
 	const props: DemoPlayerProps = useMemo(() => {
 		return {
@@ -131,7 +80,6 @@ export const Demo: React.FC = () => {
 			},
 			cardOrder,
 			updateCardOrder,
-			emojiPositions,
 			onClickLeft,
 			onClickRight,
 			playerData: {
@@ -139,7 +87,7 @@ export const Demo: React.FC = () => {
 				trending: data?.trending ?? null,
 			},
 		};
-	}, [cardOrder, colorMode, data, emojiPositions, onClickLeft, onClickRight]);
+	}, [cardOrder, colorMode, data, onClickLeft, onClickRight]);
 
 	return (
 		<div>
