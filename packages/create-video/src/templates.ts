@@ -362,7 +362,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		repoName: 'template-code-hike',
 		description: 'Beautiful code animations',
 		longerDescription: `			
-				Add code snippets and animate between them using{' '}
+				Add code snippets and animate between them using
 				<a href="https://codehike.org/">Code Hike</a>. Supports many languages,
 				TypeScript error annotations, and many themes.
 			`,

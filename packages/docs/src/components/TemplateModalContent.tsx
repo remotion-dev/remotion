@@ -188,11 +188,19 @@ export const TemplateModalContent: React.FC<{
 					style={{
 						display: 'flex',
 						width: '100%',
+						aspectRatio:
+							template.type === 'video'
+								? `${template.promoVideo.width} / ${template.promoVideo.height}`
+								: undefined,
 					}}
 				>
 					{loaded || template.type === 'image' ? null : (
 						<div style={loadingStyle}>
-							<Spinner style={spinner} />
+							<Spinner
+								style={{
+									...spinner,
+								}}
+							/>
 						</div>
 					)}
 					{template.type === 'video' ? (
@@ -206,7 +214,6 @@ export const TemplateModalContent: React.FC<{
 								aspectRatio: `${template.promoVideo.width} / ${template.promoVideo.height}`,
 								width: '100%',
 								height: 'auto',
-								maxHeight: 450,
 								opacity: Number(loaded),
 								display: loaded ? 'inline-flex' : 'none',
 								borderRadius: 5,
@@ -376,7 +383,13 @@ export const TemplateModalContent: React.FC<{
 			>
 				{template.shortName}
 			</h1>
-			<div style={description}>{template.longerDescription}</div>
+			<div
+				// eslint-disable-next-line react/no-danger
+				dangerouslySetInnerHTML={{
+					__html: template.longerDescription,
+				}}
+				style={description}
+			/>
 			<br />
 			<br />
 		</div>
