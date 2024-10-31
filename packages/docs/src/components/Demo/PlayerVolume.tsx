@@ -1,5 +1,6 @@
 import type {CallbackListener, PlayerRef} from '@remotion/player';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {PALETTE} from '../../../components/layout/colors';
 import {IsMutedIcon, NotMutedIcon} from '../../icons/arrows';
 import styles from './player.module.css';
 
@@ -69,6 +70,7 @@ export const PlayerVolume: React.FC<{
 					height: 50,
 					justifyContent: 'center',
 					alignItems: 'center',
+					color: PALETTE.TEXT_COLOR,
 				}}
 			>
 				{muted ? (

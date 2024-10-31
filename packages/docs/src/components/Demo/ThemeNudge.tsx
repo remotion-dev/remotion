@@ -39,13 +39,13 @@ export const ThemeNudge: React.FC = () => {
 	return (
 		<div
 			style={{
-				position: 'relative',
 				flexDirection: 'row',
 				display: 'flex',
 				justifyContent: 'flex-start',
-				marginLeft: -30,
 				paddingBottom: 5,
 				textAlign: 'right',
+				position: 'absolute',
+				right: 0,
 			}}
 		>
 			<div>

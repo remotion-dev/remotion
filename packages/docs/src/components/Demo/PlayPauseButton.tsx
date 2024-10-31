@@ -1,5 +1,6 @@
 import type {PlayerRef} from '@remotion/player';
 import React, {useCallback, useEffect} from 'react';
+import {PALETTE} from '../../../components/layout/colors';
 import {PausedIcon, PlayingIcon} from '../../icons/arrows';
 
 const playerButtonStyle: React.CSSProperties = {
@@ -14,6 +15,7 @@ const playerButtonStyle: React.CSSProperties = {
 	paddingLeft: 20,
 	cursor: 'pointer',
 	height: 50,
+	color: PALETTE.TEXT_COLOR,
 };
 
 export const PlayPauseButton: React.FC<{

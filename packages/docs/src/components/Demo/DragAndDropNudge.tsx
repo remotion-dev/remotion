@@ -1,7 +1,8 @@
 import React from 'react';
 import {FONTS} from '../../../components/layout/colors';
+import styles from './nudge.module.css';
 
-const origWidth = 53;
+const origWidth = 37;
 const scale = 0.4;
 
 export const Icon: React.FC = () => {
@@ -9,14 +10,15 @@ export const Icon: React.FC = () => {
 		<svg
 			style={{
 				width: origWidth * scale,
+				overflow: 'visible',
 			}}
-			viewBox="0 0 53 147"
+			viewBox="0 0 37 59"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
 		>
 			<path
-				d="M12.8163 5C-0.76736 47.7848 -0.990035 115.043 48 142"
-				stroke="currentColor"
+				d="M5.00003 5C5.00002 36.5 16 44 32.0002 54"
+				stroke="black"
 				strokeWidth="8"
 				strokeLinecap="round"
 			/>
@@ -28,13 +30,14 @@ export const DragAndDropNudge: React.FC = () => {
 	return (
 		<div
 			style={{
-				position: 'relative',
+				position: 'absolute',
 				flexDirection: 'row',
 				display: 'flex',
 				justifyContent: 'flex-start',
-				marginLeft: -30,
 				paddingBottom: 5,
+				marginTop: 50,
 			}}
+			className={styles.nudge}
 		>
 			<div>
 				<div
@@ -43,10 +46,10 @@ export const DragAndDropNudge: React.FC = () => {
 						fontSize: 15,
 						width: 280,
 						paddingBottom: 8,
-						marginLeft: -15,
 						// @ts-expect-error
 						textWrap: 'balance',
 					}}
+					className={styles.nudgetext}
 				>
 					Drag and drop the cards to reorder them.
 				</div>

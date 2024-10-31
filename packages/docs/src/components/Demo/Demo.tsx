@@ -110,9 +110,8 @@ export const Demo: React.FC = () => {
 			<br />
 			<br />
 			<DemoTitle />
-			<div style={{display: 'flex', flexDirection: 'row'}}>
+			<div style={{height: 140, position: 'relative'}}>
 				<DragAndDropNudge />
-				<div style={{flex: 1}} />
 				<ThemeNudge />
 			</div>
 			<div style={playerWrapper}>
