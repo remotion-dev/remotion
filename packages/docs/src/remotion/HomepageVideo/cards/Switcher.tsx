@@ -13,18 +13,20 @@ export const Switcher: React.FC<{
 		[onTap],
 	);
 
+	const switcherSize = 40;
+
 	return (
 		<div
 			onPointerDown={onPointerDown}
 			style={{
-				height: 30,
-				width: 30,
-				borderRadius: 15,
+				height: switcherSize,
+				width: switcherSize,
+				borderRadius: switcherSize / 2,
 				position: 'absolute',
-				marginLeft: -15,
+				marginLeft: -switcherSize / 2,
 				top: '50%',
 				left: type === 'left' ? 0 : '100%',
-				marginTop: -15,
+				marginTop: -switcherSize / 2,
 				backgroundColor: theme === 'dark' ? '#222' : '#fafafa',
 				color: theme === 'dark' ? 'white' : '#222',
 				cursor: 'pointer',
@@ -33,7 +35,7 @@ export const Switcher: React.FC<{
 				display: 'flex',
 			}}
 		>
-			<svg style={{height: 14}} viewBox="0 0 320 512">
+			<svg style={{height: switcherSize / 2}} viewBox="0 0 320 512">
 				{type === 'left' ? (
 					<path
 						fill="currentcolor"

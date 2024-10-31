@@ -74,14 +74,14 @@ export const Cards: React.FC<{
 	const ref = useRef<EmojiCardRef>(null);
 
 	const onLeft = useCallback(() => {
-		ref.current?.onLeft();
-		onLeftPress();
-	}, [onLeftPress]);
-
-	const onRight = useCallback(() => {
 		ref.current?.onRight();
 		onRightPress();
 	}, [onRightPress]);
+
+	const onRight = useCallback(() => {
+		ref.current?.onLeft();
+		onLeftPress();
+	}, [onLeftPress]);
 
 	return (
 		<AbsoluteFill ref={container}>

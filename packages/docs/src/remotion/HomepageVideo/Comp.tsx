@@ -3,10 +3,8 @@ import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
 	AbsoluteFill,
 	Audio,
-	interpolate,
 	prefetch,
 	staticFile,
-	useVideoConfig,
 	type CalculateMetadataFunction,
 } from 'remotion';
 import {Cards} from './cards/Cards';
@@ -90,7 +88,6 @@ export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
 	onClickRight,
 }) => {
 	const [rerenders, setRerenders] = useState(0);
-	const {durationInFrames} = useVideoConfig();
 
 	const onUpdate = useCallback(
 		(newIndices: number[]) => {
@@ -99,8 +96,6 @@ export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
 		},
 		[rerenders, updateCardOrder],
 	);
-
-	const audioFadeFrame = durationInFrames - 30;
 
 	const emoji = useMemo((): EmojiName => {
 		if (emojiIndex % 3 === 1) {
@@ -156,21 +151,7 @@ export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
 				onRight={onClickRight}
 				emojiName={emoji}
 			/>
-			{audioSrc ? (
-				<Audio
-					src={audioSrc}
-					volume={(f) =>
-						interpolate(
-							f,
-							[0, 10, audioFadeFrame, durationInFrames - 5],
-							[0, 1, 1, 0],
-							{
-								extrapolateLeft: 'clamp',
-							},
-						)
-					}
-				/>
-			) : null}
+			{audioSrc ? <Audio src={audioSrc} /> : null}
 		</AbsoluteFill>
 	);
 };
