@@ -105,9 +105,12 @@ export const RenderButton: React.FC<{
 				progress: progress.overallProgress,
 			});
 
-			console.log({progress});
 			if (progress.outputFile) {
 				done = true;
+				const a = document.createElement('a');
+				a.href = progress.outputFile;
+				a.download = 'remotion.dev.mp4';
+				a.click();
 				setState({type: 'done'});
 			}
 
