@@ -98,11 +98,11 @@ export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
 	);
 
 	const emoji = useMemo((): EmojiName => {
-		if (emojiIndex % 3 === 1) {
+		if ((emojiIndex + 10000 * 3) % 3 === 1) {
 			return 'melting';
 		}
 
-		if (emojiIndex % 3 === 2) {
+		if ((emojiIndex + 10000 * 3) % 3 === 2) {
 			return 'fire';
 		}
 
