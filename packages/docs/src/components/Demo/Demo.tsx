@@ -21,6 +21,7 @@ import {
 	getDataAndProps,
 } from '../../remotion/HomepageVideo/Comp';
 import type {Location} from '../../remotion/HomepageVideo/types';
+import {DemoError} from './DemoError';
 import {RenderButton} from './DemoRender';
 import {DownloadNudge} from './DownloadNudge';
 import {DragAndDropNudge} from './DragAndDropNudge';
@@ -47,15 +48,21 @@ export const Demo: React.FC = () => {
 	const [data, setData] = useState<LocationAndTrending | null>(null);
 	const ref = useRef<PlayerRef>(null);
 
-	useEffect(() => {
-		getDataAndProps().then((d) => {
-			setData(d);
-		});
-	}, []);
-
 	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [cardOrder, setCardOrder] = useState([0, 1, 2, 3]);
 	const [emojiIndex, setEmojiIndex] = useState<number>(0);
+	const [error, setError] = useState(false);
+
+	useEffect(() => {
+		getDataAndProps()
+			.then((d) => {
+				setData(d);
+			})
+			.catch((err) => {
+				console.log(err);
+				setError(true);
+			});
+	}, []);
 
 	useEffect(() => {
 		const {current: playerRef} = ref;
@@ -140,6 +147,7 @@ export const Demo: React.FC = () => {
 					/>
 				</PlayerControls>
 			</div>
+			{error ? <DemoError /> : null}
 			<DownloadNudge />
 		</div>
 	);

@@ -2,6 +2,7 @@ import type {EnhancedErrorInfo} from '@remotion/lambda';
 import React, {useCallback} from 'react';
 import {z} from 'zod';
 import {PALETTE} from '../../../components/layout/colors';
+import {DemoErrorIcon} from './DemoErrorIcon';
 import {DoneCheckmark} from './DoneCheckmark';
 import {Progress} from './Progress';
 import {Spinner} from './Spinner';
@@ -47,6 +48,9 @@ type State =
 	  }
 	| {
 			type: 'done';
+	  }
+	| {
+			type: 'error';
 	  };
 
 const style: React.CSSProperties = {
@@ -74,49 +78,53 @@ export const RenderButton: React.FC<{
 			return;
 		}
 
-		setState({type: 'invoking'});
+		try {
+			setState({type: 'invoking'});
 
-		const {renderId, bucketName} = await (
-			await fetch('https://bugs.remotion.dev/render', {
-				method: 'post',
-				headers: {'content-type': 'application/json'},
-				body: JSON.stringify(renderData),
-			})
-		).json();
-		setState({type: 'progress', progress: 0});
-
-		let done = false;
-
-		while (!done) {
-			const progress = (await (
-				await fetch('https://bugs.remotion.dev/progress', {
+			const {renderId, bucketName} = await (
+				await fetch('https://bugs.remotion.dev/render', {
 					method: 'post',
 					headers: {'content-type': 'application/json'},
-					body: JSON.stringify({renderId, bucketName}),
+					body: JSON.stringify(renderData),
 				})
-			).json()) as {
-				overallProgress: number;
-				outputFile: string | null;
-				errors: EnhancedErrorInfo[];
-				fatalErrorEncountered: boolean;
-			};
-			setState({
-				type: 'progress',
-				progress: progress.overallProgress,
-			});
+			).json();
+			setState({type: 'progress', progress: 0});
 
-			if (progress.outputFile) {
-				done = true;
-				const a = document.createElement('a');
-				a.href = progress.outputFile;
-				a.download = 'remotion.dev.mp4';
-				a.click();
-				setState({type: 'done'});
-			}
+			let done = false;
 
-			if (progress.fatalErrorEncountered) {
-				done = true;
+			while (!done) {
+				const progress = (await (
+					await fetch('https://bugs.remotion.dev/progress', {
+						method: 'post',
+						headers: {'content-type': 'application/json'},
+						body: JSON.stringify({renderId, bucketName}),
+					})
+				).json()) as {
+					overallProgress: number;
+					outputFile: string | null;
+					errors: EnhancedErrorInfo[];
+					fatalErrorEncountered: boolean;
+				};
+				setState({
+					type: 'progress',
+					progress: progress.overallProgress,
+				});
+
+				if (progress.outputFile) {
+					done = true;
+					const a = document.createElement('a');
+					a.href = progress.outputFile;
+					a.download = 'remotion.dev.mp4';
+					a.click();
+					setState({type: 'done'});
+				}
+
+				if (progress.fatalErrorEncountered) {
+					done = true;
+				}
 			}
+		} catch (err) {
+			setState({type: 'error'});
 		}
 	}, [renderData]);
 
@@ -125,9 +133,11 @@ export const RenderButton: React.FC<{
 			type="button"
 			onClick={triggerRender}
 			style={style}
-			disabled={!renderData}
+			disabled={!renderData || state.type !== 'idle'}
 		>
-			{state.type === 'done' ? (
+			{state.type === 'error' ? (
+				<DemoErrorIcon />
+			) : state.type === 'done' ? (
 				<DoneCheckmark />
 			) : state.type === 'progress' ? (
 				<Progress progress={state.progress} />
