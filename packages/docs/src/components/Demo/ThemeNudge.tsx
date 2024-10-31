@@ -58,6 +58,7 @@ export const ThemeNudge: React.FC = () => {
 						marginLeft: -15,
 						// @ts-expect-error
 						textWrap: 'balance',
+						marginTop: 5,
 					}}
 				>
 					<a href="#" onClick={toggleTheme}>
