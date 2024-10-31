@@ -143,7 +143,7 @@ export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
 			b.free();
 			c.free();
 		};
-	}, [audioSrc]);
+	}, []);
 
 	return (
 		<AbsoluteFill
