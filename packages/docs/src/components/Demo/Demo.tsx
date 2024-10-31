@@ -105,6 +105,10 @@ export const Demo: React.FC = () => {
 		};
 	}, [cardOrder, emojiIndex, colorMode, data, updateCardOrder]);
 
+	const onError = useCallback(() => {
+		setError(true);
+	}, []);
+
 	return (
 		<div>
 			<br />
@@ -132,6 +136,7 @@ export const Demo: React.FC = () => {
 				/>
 				<PlayerControls playerRef={ref} durationInFrames={120} fps={30}>
 					<RenderButton
+						onError={onError}
 						renderData={
 							data
 								? {

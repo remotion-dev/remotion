@@ -68,7 +68,8 @@ const style: React.CSSProperties = {
 
 export const RenderButton: React.FC<{
 	renderData: z.infer<typeof data> | null;
-}> = ({renderData}) => {
+	onError: () => void;
+}> = ({renderData, onError}) => {
 	const [state, setState] = React.useState<State>({
 		type: 'idle',
 	});
@@ -125,8 +126,9 @@ export const RenderButton: React.FC<{
 			}
 		} catch (err) {
 			setState({type: 'error'});
+			onError();
 		}
-	}, [renderData]);
+	}, [onError, renderData]);
 
 	return (
 		<button
