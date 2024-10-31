@@ -1,5 +1,5 @@
 import React from 'react';
-import {FONTS} from '../../../components/layout/colors';
+import {FONTS, PALETTE} from '../../../components/layout/colors';
 import styles from './nudge.module.css';
 
 const origWidth = 37;
@@ -14,11 +14,10 @@ export const Icon: React.FC = () => {
 			}}
 			viewBox="0 0 37 59"
 			fill="none"
-			xmlns="http://www.w3.org/2000/svg"
 		>
 			<path
 				d="M5.00003 5C5.00002 36.5 16 44 32.0002 54"
-				stroke="black"
+				stroke={PALETTE.TEXT_COLOR}
 				strokeWidth="8"
 				strokeLinecap="round"
 			/>
