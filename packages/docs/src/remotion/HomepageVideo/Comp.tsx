@@ -50,11 +50,9 @@ export const getDataAndProps = async () => {
 	return {trending, location};
 };
 
-export const calculateMetadata: CalculateMetadataFunction<
-	DemoPlayerProps
-> = async ({props}) => {
-	const {trending, location} = await getDataAndProps();
-
+export const calculateMetadata: CalculateMetadataFunction<DemoPlayerProps> = ({
+	props,
+}) => {
 	return {
 		durationInFrames: 120,
 		fps: 30,
@@ -62,11 +60,6 @@ export const calculateMetadata: CalculateMetadataFunction<
 		width: 640,
 		props: {
 			...props,
-			data: trending,
-			location,
-			temperatureInCelsius: trending?.temperatureInCelsius ?? 10,
-			onToggle() {},
-			theme: 'light',
 		},
 	};
 };
