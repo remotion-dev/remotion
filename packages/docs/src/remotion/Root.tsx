@@ -74,26 +74,35 @@ export const RemotionRoot: React.FC = () => {
 				durationInFrames={120}
 				fps={30}
 				defaultProps={{
-					theme: 'light',
-					onToggle: () => undefined,
+					theme: 'dark',
 					cardOrder: [0, 1, 2, 3],
-					updateCardOrder: () => undefined,
-					onClickLeft: () => undefined,
-					onClickRight: () => undefined,
-					trending: {
-						temperatureInCelsius: 14,
-						countryLabel: 'Switzerland',
-						countryPaths: [],
-						date: '2024-12-31',
-						repos: [],
-					},
 					location: {
-						city: 'New York',
-						country: 'US',
-						latitude: 40.7128,
-						longitude: -74.006,
+						country: 'CH',
+						city: 'Zurich',
+						longitude: '8.5348',
+						latitude: '47.3857',
+					},
+					trending: {
+						repos: [
+							'open-mmlab/Amphion',
+							'usememos/memos',
+							'meta-llama/llama-recipes',
+						],
+						date: 1730369257379,
+						temperatureInCelsius: 11,
+						countryLabel: 'Switzerland',
+						countryPaths: [
+							{
+								class: 'CH',
+								d: 'M1034.4 197.5l0.2 1.1-0.7 1.5 2.3 1.2 2.6 0.2-0.3 2.5-2.1 1.1-3.8-0.8-1 2.5-2.4 0.2-0.9-1-2.7 2.2-2.5 0.3-2.2-1.4-1.8-2.7-2.4 1 0-2.9 3.6-3.5-0.2-1.6 2.3 0.6 1.3-1.1 4.2 0 1-1.3 5.5 1.9z',
+							},
+						],
 					},
 					emojiIndex: 0,
+					onClickLeft: () => {},
+					onClickRight: () => {},
+					onToggle: () => {},
+					updateCardOrder: () => {},
 				}}
 				calculateMetadata={calculateMetadata}
 			/>

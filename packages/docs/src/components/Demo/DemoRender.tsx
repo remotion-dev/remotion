@@ -13,7 +13,7 @@ const countryPath = z.object({
 
 const remoteData = z.object({
 	repos: z.array(z.string()),
-	date: z.string(),
+	date: z.string().or(z.number()),
 	temperatureInCelsius: z.number(),
 	countryLabel: z.string(),
 	countryPaths: z.array(countryPath),
@@ -22,8 +22,8 @@ const remoteData = z.object({
 const location = z.object({
 	country: z.string(),
 	city: z.string(),
-	latitude: z.number(),
-	longitude: z.number(),
+	latitude: z.number().or(z.string()),
+	longitude: z.number().or(z.string()),
 });
 
 const data = z.object({

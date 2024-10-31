@@ -14,7 +14,7 @@ import type {Location} from './types';
 
 export type RemoteData = {
 	repos: string[];
-	date: string;
+	date: string | number;
 	temperatureInCelsius: number;
 	countryLabel: string;
 	countryPaths: {
@@ -110,11 +110,11 @@ export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
 	const audioFadeFrame = durationInFrames - 30;
 
 	const emoji = useMemo((): EmojiName => {
-		if (emojiIndex % 3 === 0) {
+		if (emojiIndex % 3 === 1) {
 			return 'melting';
 		}
 
-		if (emojiIndex % 3 === 1) {
+		if (emojiIndex % 3 === 2) {
 			return 'fire';
 		}
 

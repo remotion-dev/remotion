@@ -66,7 +66,6 @@ const moveRight = async ({ref1, ref2, ref3, transforms}: Anim) => {
 const emojiStyle: React.CSSProperties = {
 	width: '100%',
 	position: 'absolute',
-	left: '100%',
 	top: 'calc(50% - 50px)',
 };
 
