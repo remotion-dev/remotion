@@ -4764,19 +4764,19 @@
 		"./*": {
 			"module": "./dist/esm/*.mjs",
 			"import": "./dist/esm/*.mjs",
-			"require": "./dist/cjs/*.cjs",
+			"require": "./dist/cjs/*.js",
 			"types": "./dist/cjs/*.d.ts"
 		},
 		"./index": {
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs",
-			"require": "./dist/cjs/index.cjs",
+			"require": "./dist/cjs/index.js",
 			"types": "./dist/cjs/index.d.ts"
 		},
 		".": {
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs",
-			"require": "./dist/cjs/index.cjs",
+			"require": "./dist/cjs/index.js",
 			"types": "./dist/cjs/index.d.ts"
 		}
 	},
