@@ -85,6 +85,8 @@ export const Presentations: React.FC<{
 				<div style={row}>
 					<PresentationPreview
 						durationRestThreshold={0.001}
+						// @ts-expect-error
+
 						effect={clockWipe({
 							width: presentationCompositionWidth,
 							height: presentationCompositionHeight,
@@ -102,7 +104,7 @@ export const Presentations: React.FC<{
 			<TOCItem link="/docs/transitions/presentations/cube">
 				<div style={row}>
 					<PresentationPreview
-						durationRestThreshold={0.001}
+						durationRestThreshold={0.001} // @ts-expect-error
 						effect={cube({
 							direction: 'from-left',
 						})}

@@ -7,6 +7,10 @@ export const Article: React.FC<{
 	articleRelativePath: string;
 }> = ({articleRelativePath}) => {
 	const article = articles.find((e) => e.relativePath === articleRelativePath);
+	if (!article) {
+		return null;
+	}
+
 	const longestTitle = Math.max(
 		...article.title.split(' ').map((p) => p.length),
 	);

@@ -114,11 +114,11 @@ export const VideoPlayerContent: React.FC<{
 		}
 
 		const onClick = () => {
-			if (videoRef.current.paused) {
-				videoRef.current.play();
+			if (videoRef.current?.paused) {
+				videoRef.current?.play();
 				setPaused(false);
 			} else {
-				videoRef.current.pause();
+				videoRef.current?.pause();
 				setPaused(true);
 			}
 		};
