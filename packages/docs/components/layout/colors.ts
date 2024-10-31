@@ -7,6 +7,10 @@ export const PALETTE = {
 	BRAND: 'var(--ifm-color-primary)',
 };
 
+export const FONTS = {
+	GTPLANAR: 'GTPlanar',
+};
+
 export const UNDERLAY_BLUE = transparentize(0.85, '#42e9f5');
 export const RED = '#e74c3c';
 export const UNDERLAY_RED = transparentize(0.9, RED);

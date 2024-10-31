@@ -1,7 +1,6 @@
 import {useColorMode} from '@docusaurus/theme-common';
 import type {PlayerRef} from '@remotion/player';
 import {Player} from '@remotion/player';
-import {preloadAudio} from '@remotion/preload';
 import React, {
 	type CSSProperties,
 	useCallback,
@@ -10,7 +9,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {staticFile} from 'remotion';
+import {DemoTitle} from '../../../components/LambdaSplash/VideoAppsTitle';
 import {PALETTE} from '../../../components/layout/colors';
 import type {
 	DemoPlayerProps,
@@ -22,11 +21,11 @@ import {
 	getDataAndProps,
 } from '../../remotion/HomepageVideo/Comp';
 import type {Location} from '../../remotion/HomepageVideo/types';
-import {ActionRow} from './ActionRow';
 import {RenderButton} from './DemoRender';
+import {DownloadNudge} from './DownloadNudge';
+import {DragAndDropNudge} from './DragAndDropNudge';
 import {PlayerControls} from './PlayerControls';
-
-preloadAudio(staticFile('Utope-nature-5s.mp3'));
+import {ThemeNudge} from './ThemeNudge';
 
 const style: React.CSSProperties = {
 	width: '100%',
@@ -102,8 +101,13 @@ export const Demo: React.FC = () => {
 	return (
 		<div>
 			<br />
-			<h1>Try out this interactive demo!</h1>
-			<ActionRow />
+			<br />
+			<DemoTitle />
+			<div style={{display: 'flex', flexDirection: 'row'}}>
+				<DragAndDropNudge />
+				<div style={{flex: 1}} />
+				<ThemeNudge />
+			</div>
 			<div style={playerWrapper}>
 				<Player
 					ref={ref}
@@ -136,6 +140,7 @@ export const Demo: React.FC = () => {
 					/>
 				</PlayerControls>
 			</div>
+			<DownloadNudge />
 		</div>
 	);
 };
