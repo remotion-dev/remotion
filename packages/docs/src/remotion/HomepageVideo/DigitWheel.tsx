@@ -125,6 +125,7 @@ export const Wheel: React.FC<{
 				style={{
 					perspective: 5000,
 					maskImage: `linear-gradient(to bottom, transparent 0%, #000 28%, #000 80%, transparent 100%)`,
+					WebkitMaskImage: `linear-gradient(to bottom, transparent 0%, #000 28%, #000 80%, transparent 100%)`,
 				}}
 			>
 				{new Array(items).fill(true).map((_, i) => {
