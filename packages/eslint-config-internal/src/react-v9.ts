@@ -1,7 +1,7 @@
+import {FlatCompat} from '@eslint/eslintrc';
 import {Linter} from 'eslint';
-import {plugins, rules} from './base';
+import {base} from './base';
 
-export const reactV9Config: Linter.Config = {
-	rules: rules(true),
-	plugins: plugins(true),
-};
+const compat = new FlatCompat({});
+
+export const reactV9Config: Linter.Config = compat.config(base(true));

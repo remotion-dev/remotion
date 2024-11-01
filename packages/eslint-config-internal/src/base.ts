@@ -606,7 +606,7 @@ export const plugins = (react: boolean) => {
 	].filter(Boolean) as string[];
 };
 
-export const base = (react: boolean) => {
+export const base = (react: boolean): Linter.LegacyConfig => {
 	return {
 		env: {
 			node: true,
