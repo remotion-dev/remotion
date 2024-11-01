@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A Remotion template for TikTok-style captions",
   "scripts": {
-    "start": "remotion studio",
+    "dev": "remotion studio",
     "build": "remotion render CaptionedVideo",
     "upgrade": "remotion upgrade",
     "test": "eslint src --ext ts,tsx,js,jsx && tsc",

@@ -2,7 +2,7 @@
   "name": "template-stargazer",
   "version": "1.0.0",
   "scripts": {
-    "start": "remotion studio",
+    "dev": "remotion studio",
     "build": "remotion render main out/Main.mp4 --log verbose",
     "test": "eslint src --ext ts,tsx,js,jsx && tsc"
   },

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A React Three Fiber Project",
   "scripts": {
-    "start": "remotion studio",
+    "dev": "remotion studio",
     "build": "remotion render Scene",
     "upgrade": "remotion upgrade",
     "test": "eslint src --ext ts,tsx,js,jsx && tsc"

@@ -22,7 +22,7 @@ npm i
 **Start Preview**
 
 ```console
-npm start
+npm run dev
 ```
 
 **Change code snippets**

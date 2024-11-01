@@ -9,7 +9,7 @@
 	"author": "Jonny Burger",
 	"main": "dist/index.js",
 	"scripts": {
-		"start": "remotion preview",
+		"dev": "remotion studio",
 		"render": "remotion render react-svg"
 	},
 	"dependencies": {
