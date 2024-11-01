@@ -4,8 +4,10 @@ import ReactRefreshPlugin from '@rspack/plugin-react-refresh';
 import ReactDOM from 'react-dom';
 import {NoReactInternals} from 'remotion/no-react';
 import {CaseSensitivePathsPlugin} from './case-sensitive-paths';
-import {AllowDependencyExpressionPlugin} from './hide-expression-dependency';
-import {AllowOptionalDependenciesPlugin} from './optional-dependencies';
+import {
+	OPTIONAL_DEPENDENCIES,
+	SOURCE_MAP_IGNORE,
+} from './optional-dependencies';
 export type WebpackConfiguration = Configuration;
 
 export type WebpackOverrideFn = (
@@ -111,12 +113,6 @@ export const webpackConfig = async ({
 		devtool:
 			environment === 'development' ? 'source-map' : 'cheap-module-source-map',
 		entry: [
-			// Fast Refresh must come first,
-			// because setup-environment imports ReactDOM.
-			// If React DOM is imported before Fast Refresh, Fast Refresh does not work
-			environment === 'development'
-				? require.resolve('./fast-refresh/runtime.js')
-				: null,
 			require.resolve('./setup-environment'),
 			userDefinedComponent,
 			require.resolve('../react-shim.js'),
@@ -130,8 +126,6 @@ export const webpackConfig = async ({
 						new CaseSensitivePathsPlugin(),
 						new webpack.HotModuleReplacementPlugin(),
 						define,
-						new AllowOptionalDependenciesPlugin(),
-						new AllowDependencyExpressionPlugin(),
 					]
 				: [
 						new ProgressPlugin((p) => {
@@ -143,8 +137,6 @@ export const webpackConfig = async ({
 							}
 						}),
 						define,
-						new AllowOptionalDependenciesPlugin(),
-						new AllowDependencyExpressionPlugin(),
 					],
 		output: {
 			hashFunction: 'xxhash64',
@@ -186,12 +178,6 @@ export const webpackConfig = async ({
 							loader: 'builtin:swc-loader',
 							options: options(environment),
 						},
-						// Keep the order to match babel-loader
-						environment === 'development'
-							? {
-									loader: require.resolve('./fast-refresh/loader.js'),
-								}
-							: null,
 					].filter(truthy),
 				},
 				{
@@ -206,19 +192,27 @@ export const webpackConfig = async ({
 							loader: 'builtin:swc-loader',
 							options: options(environment),
 						},
-						environment === 'development'
-							? {
-									loader: require.resolve('./fast-refresh/loader.js'),
-								}
-							: null,
 					].filter(truthy),
 				},
 			],
 		},
+		ignoreWarnings: [
+			...OPTIONAL_DEPENDENCIES.map(
+				(dep) => new RegExp(`Can't resolve '${dep}'`),
+			),
+			...SOURCE_MAP_IGNORE.map((dep) => {
+				return (warning: Error) =>
+					warning.message.includes(`Can't resolve '${dep}'`) &&
+					warning.message.includes('source-map');
+			}),
+			// If importing TypeScript, it will give this warning:
+			// WARNING in ./node_modules/typescript/lib/typescript.js 6304:33-52
+			// Critical dependency: the request of a dependency is an expression
+			/the request of a dependency is an expression/,
+		],
 	});
 	return {
 		...conf,
-
 		output: {
 			...conf.output,
 			...(outDir ? {path: outDir} : {}),
