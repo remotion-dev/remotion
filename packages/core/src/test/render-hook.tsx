@@ -15,7 +15,7 @@ interface RenderHookOptions<Props> {
 	 *
 	 *  @see https://testing-library.com/docs/react-testing-library/api/#wrapper
 	 */
-	wrapper?: React.JSXElementConstructor<{children: React.ReactElement}>;
+	wrapper?: React.JSXElementConstructor<{children: React.ReactNode}>;
 }
 
 export function renderHook<Result, Props>(
