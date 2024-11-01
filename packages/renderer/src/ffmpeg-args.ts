@@ -78,7 +78,8 @@ export const generateFfmpegArgs = ({
 		throw new TypeError('encoderName is null: ' + JSON.stringify(codec));
 	}
 
-	const resolvedColorSpace = colorSpace ?? DEFAULT_COLOR_SPACE;
+	const resolvedColorSpace: ColorSpace =
+		codec === 'gif' ? 'bt601' : colorSpace ?? DEFAULT_COLOR_SPACE;
 
 	const colorSpaceOptions: string[][] =
 		resolvedColorSpace === 'bt709'

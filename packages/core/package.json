@@ -25,14 +25,14 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@testing-library/react": "14.0.0",
+		"@testing-library/react": "15.0.7",
 		"@happy-dom/global-registrator": "14.5.1",
 		"happy-dom": "14.5.1",
 		"jsdom": "21.1.0",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"vitest": "0.31.1",
-		"zod": "3.22.3"
+		"zod": "3.23.8"
 	},
 	"keywords": [
 		"remotion",

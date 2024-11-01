@@ -27,7 +27,7 @@ export const fitText = ({
 	fontVariantNumeric,
 	fontWeight,
 	letterSpacing,
-	validateFontIsLoaded,
+	validateFontIsLoaded = true,
 	additionalStyles,
 	textTransform,
 }: {

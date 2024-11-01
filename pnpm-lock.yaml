@@ -56,7 +56,7 @@ importers:
     dependencies:
       openai:
         specifier: 4.67.1
-        version: 4.67.1(zod@3.22.3)
+        version: 4.67.1(zod@3.23.8)
 
   packages/animated-emoji:
     dependencies:
@@ -258,8 +258,8 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
 
   packages/cli-autocomplete:
     devDependencies:
@@ -309,8 +309,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/compositor-linux-x64-gnu':
         specifier: workspace:*
@@ -421,8 +421,8 @@ importers:
         specifier: 14.5.1
         version: 14.5.1
       '@testing-library/react':
-        specifier: 14.0.0
-        version: 14.0.0(react-dom@18.3.1)(react@18.3.1)
+        specifier: 15.0.7
+        version: 15.0.7(@types/react@18.3.1)(react-dom@18.3.1)(react@18.3.1)
       happy-dom:
         specifier: 14.5.1
         version: 14.5.1
@@ -439,8 +439,8 @@ importers:
         specifier: 0.31.1
         version: 0.31.1(happy-dom@14.5.1)(jsdom@21.1.0)
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
 
   packages/create-video:
     dependencies:
@@ -679,8 +679,8 @@ importers:
         specifier: 0.31.1
         version: 0.31.1(sass@1.77.2)
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@tsconfig/docusaurus':
         specifier: ^1.0.5
@@ -702,7 +702,7 @@ importers:
         version: 4.7.0
       openai:
         specifier: 4.67.1
-        version: 4.67.1(zod@3.22.3)
+        version: 4.67.1(zod@3.23.8)
       url-loader:
         specifier: ^4.1.1
         version: 4.1.1(file-loader@6.2.0)(webpack@5.94.0)
@@ -976,8 +976,8 @@ importers:
         specifier: 0.31.1
         version: 0.31.1(sass@1.77.2)
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@types/dom-webcodecs':
         specifier: 0.1.11
@@ -1195,8 +1195,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/compositor-linux-arm64-gnu':
         specifier: workspace:*
@@ -1313,7 +1313,7 @@ importers:
     devDependencies:
       openai:
         specifier: 4.67.1
-        version: 4.67.1(zod@3.22.3)
+        version: 4.67.1(zod@3.23.8)
 
   packages/paths: {}
 
@@ -1327,8 +1327,8 @@ importers:
         specifier: 14.5.1
         version: 14.5.1
       '@testing-library/react':
-        specifier: 13.1.1
-        version: 13.1.1(react-dom@18.3.1)(react@18.3.1)
+        specifier: 15.0.7
+        version: 15.0.7(@types/react@18.3.1)(react-dom@18.3.1)(react@18.3.1)
       csstype:
         specifier: ^3.1.1
         version: 3.1.1
@@ -1339,8 +1339,8 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
 
   packages/player-example:
     dependencies:
@@ -1427,8 +1427,8 @@ importers:
         specifier: ^8.16.0
         version: 8.16.0
       '@testing-library/react':
-        specifier: 13.3.0
-        version: 13.3.0(react-dom@18.3.1)(react@18.3.1)
+        specifier: 15.0.7
+        version: 15.0.7(@types/react@18.3.1)(react-dom@18.3.1)(react@18.3.1)
       '@types/ws':
         specifier: 8.5.10
         version: 8.5.10
@@ -1477,8 +1477,8 @@ importers:
         specifier: 14.5.1
         version: 14.5.1
       '@testing-library/react':
-        specifier: ^13.4.0
-        version: 13.4.0(react-dom@18.3.1)(react@18.3.1)
+        specifier: 15.0.7
+        version: 15.0.7(@types/react@18.3.1)(react-dom@18.3.1)(react@18.3.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1556,8 +1556,8 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
 
   packages/studio-server:
     dependencies:
@@ -2690,8 +2690,8 @@ importers:
         version: link:../core
     devDependencies:
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
 
 packages:
 
@@ -3940,7 +3940,6 @@ packages:
     dependencies:
       '@babel/highlight': 7.25.7
       picocolors: 1.1.0
-    dev: false
 
   /@babel/compat-data@7.25.4:
     resolution: {integrity: sha512-+LGRog6RAsCJrrrg/IO6LGmpphNe5DiK30dGjCoxxeGv49B10/3XYGxPsAwrDlMFcFEvdAUavDT8r9k/hSyQqQ==}
@@ -4702,7 +4701,6 @@ packages:
   /@babel/helper-validator-identifier@7.25.7:
     resolution: {integrity: sha512-AM6TzwYqGChO45oiuPqwL2t20/HdMC1rTPAesnBCgPCSF1x3oN9MVUwQV2iyz4xqWrctwK5RNC8LV22kaQCNYg==}
     engines: {node: '>=6.9.0'}
-    dev: false
 
   /@babel/helper-validator-option@7.14.5:
     resolution: {integrity: sha512-OX8D5eeX4XwcroVW45NMvoYaIuFI+GQpA2a8Gi+X/U/cDUIRsV37qQfF905F0htTRCREQIB4KqPeaveRJUl3Ow==}
@@ -4771,7 +4769,6 @@ packages:
       chalk: 2.4.2
       js-tokens: 4.0.0
       picocolors: 1.1.0
-    dev: false
 
   /@babel/parser@7.24.1:
     resolution: {integrity: sha512-Zo9c7N3xdOIQrNip7Lc9wvRPzlRtovHVE4lkz8WEDr7uYh/GMQhSiIgFxGIArRHYdJE5kxtZjAf8rT0xhdLCzg==}
@@ -7068,13 +7065,6 @@ packages:
     dependencies:
       regenerator-runtime: 0.13.9
     dev: false
-
-  /@babel/runtime@7.17.9:
-    resolution: {integrity: sha512-lSiBBvodq29uShpWGNbgFdKYNiFDo5/HIYsaCEY9ff4sb10x9jizo2+pRrSyF4jKZCXqgzuqBOQKbUm90gQwJg==}
-    engines: {node: '>=6.9.0'}
-    dependencies:
-      regenerator-runtime: 0.13.9
-    dev: true
 
   /@babel/runtime@7.19.0:
     resolution: {integrity: sha512-eR8Lo9hnDS7tqkO7NsV+mKvCmv5boaXFSZ70DnfhcgiEne8hv9oCEd36Klw74EtizEqLsy4YnW8UWwpBVolHZA==}
@@ -12944,6 +12934,20 @@ packages:
       defer-to-connect: 2.0.1
     dev: false
 
+  /@testing-library/dom@10.4.0:
+    resolution: {integrity: sha512-pemlzrSESWbdAloYml3bAJMEfNh1Z7EduzqPKprCH5S341frlpYnUEW0H72dLxa6IsYr+mPno20GiSm+h9dEdQ==}
+    engines: {node: '>=18'}
+    dependencies:
+      '@babel/code-frame': 7.25.7
+      '@babel/runtime': 7.24.8
+      '@types/aria-query': 5.0.1
+      aria-query: 5.3.0
+      chalk: 4.1.2
+      dom-accessibility-api: 0.5.14
+      lz-string: 1.5.0
+      pretty-format: 27.5.1
+    dev: true
+
   /@testing-library/dom@8.16.0:
     resolution: {integrity: sha512-uxF4zmnLHHDlmW4l+0WDjcgLVwCvH+OVLpD8Dfp+Bjfz85prwxWGbwXgJdLtkgjD0qfOzkJF9SmA6YZPsMYX4w==}
     engines: {node: '>=12'}
@@ -12958,71 +12962,20 @@ packages:
       pretty-format: 27.2.4
     dev: true
 
-  /@testing-library/dom@9.0.0:
-    resolution: {integrity: sha512-+/TLgKNFsYUshOY/zXsQOk+PlFQK+eyJ9T13IDVNJEi+M+Un7xlJK+FZKkbGSnf0+7E1G6PlDhkSYQ/GFiruBQ==}
-    engines: {node: '>=14'}
-    dependencies:
-      '@babel/code-frame': 7.18.6
-      '@babel/runtime': 7.19.0
-      '@types/aria-query': 5.0.1
-      aria-query: 5.0.0
-      chalk: 4.1.2
-      dom-accessibility-api: 0.5.14
-      lz-string: 1.4.4
-      pretty-format: 27.5.1
-    dev: true
-
-  /@testing-library/react@13.1.1(react-dom@18.3.1)(react@18.3.1):
-    resolution: {integrity: sha512-8mirlAa0OKaUvnqnZF6MdAh2tReYA2KtWVw1PKvaF5EcCZqgK5pl8iF+3uW90JdG5Ua2c2c2E2wtLdaug3dsVg==}
-    engines: {node: '>=12'}
+  /@testing-library/react@15.0.7(@types/react@18.3.1)(react-dom@18.3.1)(react@18.3.1):
+    resolution: {integrity: sha512-cg0RvEdD1TIhhkm1IeYMQxrzy0MtUNfa3minv4MjbgcYzJAZ7yD0i0lwoPOTPr+INtiXFezt2o8xMSnyHhEn2Q==}
+    engines: {node: '>=18'}
     peerDependencies:
+      '@types/react': ^18.0.0
       react: ^18.0.0
       react-dom: ^18.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
     dependencies:
-      '@babel/runtime': 7.17.9
-      '@testing-library/dom': 8.16.0
-      '@types/react-dom': 18.3.0
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-    dev: true
-
-  /@testing-library/react@13.3.0(react-dom@18.3.1)(react@18.3.1):
-    resolution: {integrity: sha512-DB79aA426+deFgGSjnf5grczDPiL4taK3hFaa+M5q7q20Kcve9eQottOG5kZ74KEr55v0tU2CQormSSDK87zYQ==}
-    engines: {node: '>=12'}
-    peerDependencies:
-      react: ^18.0.0
-      react-dom: ^18.0.0
-    dependencies:
-      '@babel/runtime': 7.17.9
-      '@testing-library/dom': 8.16.0
-      '@types/react-dom': 18.3.0
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-    dev: true
-
-  /@testing-library/react@13.4.0(react-dom@18.3.1)(react@18.3.1):
-    resolution: {integrity: sha512-sXOGON+WNTh3MLE9rve97ftaZukN3oNf2KjDy7YTx6hcTO2uuLHuCGynMDhFwGw/jYf4OJ2Qk0i4i79qMNNkyw==}
-    engines: {node: '>=12'}
-    peerDependencies:
-      react: ^18.0.0
-      react-dom: ^18.0.0
-    dependencies:
-      '@babel/runtime': 7.19.0
-      '@testing-library/dom': 8.16.0
-      '@types/react-dom': 18.3.0
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-    dev: true
-
-  /@testing-library/react@14.0.0(react-dom@18.3.1)(react@18.3.1):
-    resolution: {integrity: sha512-S04gSNJbYE30TlIMLTzv6QCTzt9AqIF5y6s6SzVFILNcNvbV/jU96GeiTPillGQo+Ny64M/5PV7klNYYgv5Dfg==}
-    engines: {node: '>=14'}
-    peerDependencies:
-      react: ^18.0.0
-      react-dom: ^18.0.0
-    dependencies:
-      '@babel/runtime': 7.19.0
-      '@testing-library/dom': 9.0.0
+      '@babel/runtime': 7.24.8
+      '@testing-library/dom': 10.4.0
+      '@types/react': 18.3.1
       '@types/react-dom': 18.3.0
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
@@ -14732,11 +14685,11 @@ packages:
   /ansi-styles@6.1.0:
     resolution: {integrity: sha512-VbqNsoz55SYGczauuup0MFUyXNQviSpFTj1RQtFzmQLk18qbVSpTFFGMT293rmDaQuKCT6InmbuEyUne4mTuxQ==}
     engines: {node: '>=12'}
+    dev: false
 
   /ansi-styles@6.2.1:
     resolution: {integrity: sha512-bN798gFfQX+viw3R7yrGWRqnrN2oRkEkUjjl4JNn4E8GxxbjtG3FbrEIIY3l8/hrwUwIeCZvi4QuOTP4MErVug==}
     engines: {node: '>=12'}
-    dev: false
 
   /any-promise@1.3.0:
     resolution: {integrity: sha512-7UvmKalWRt1wgjL1RrGxoSJW/0QZFIegpeGvZG9kjp8vrRu55XTHbwnqq2GpXm9uLbcuhxm3IqX9OB4MZR1b2A==}
@@ -14779,6 +14732,12 @@ packages:
     resolution: {integrity: sha512-R5iJ5lkuHybztUfuOAznmboyjWq8O6sqNqtK7CLOqdydi54VNbORp49mb14KbWgG1QD3JFO9hJdZ+y4KutfdOQ==}
     dependencies:
       deep-equal: 2.2.3
+    dev: true
+
+  /aria-query@5.3.0:
+    resolution: {integrity: sha512-b0P0sZPKtyu8HkeRAfCq0IfURZK+SuwMjY1UXGBU27wpAiTwQAIlq56IbIO+ytk/JjS1fMR14ee5WBBfKi5J6A==}
+    dependencies:
+      dequal: 2.0.3
     dev: true
 
   /aria-query@5.3.2:
@@ -15669,7 +15628,7 @@ packages:
   /caniuse-api@3.0.0:
     resolution: {integrity: sha512-bsTwuIg/BZZK/vreVTYYbSWoe2F+71P7K5QGEX+pT250DZbfU1MQ5prOKpPR+LL6uWKK3KMwMCAS74QB3Um1uw==}
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.0
       caniuse-lite: 1.0.30001636
       lodash.memoize: 4.1.2
       lodash.uniq: 4.5.0
@@ -16480,7 +16439,7 @@ packages:
       postcss: ^8.4.31
     dependencies:
       autoprefixer: 10.4.20(postcss@8.4.47)
-      browserslist: 4.23.2
+      browserslist: 4.24.0
       cssnano-preset-default: 6.1.2(postcss@8.4.47)
       postcss: 8.4.47
       postcss-discard-unused: 6.0.5(postcss@8.4.47)
@@ -16495,7 +16454,7 @@ packages:
     peerDependencies:
       postcss: ^8.4.31
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.0
       css-declaration-sorter: 7.2.0(postcss@8.4.47)
       cssnano-utils: 4.0.2(postcss@8.4.47)
       postcss: 8.4.47
@@ -17285,9 +17244,6 @@ packages:
       iterator.prototype: 1.1.2
       safe-array-concat: 1.1.2
     dev: true
-
-  /es-module-lexer@1.2.1:
-    resolution: {integrity: sha512-9978wrXM50Y4rTMmW5kXIC09ZdXQZqkE4mxhwkd8VbzsGkXGPgV4zWuqQJgCEzYngdo2dYDa0l8xhX4fkSwJSg==}
 
   /es-module-lexer@1.5.4:
     resolution: {integrity: sha512-MVNK56NiMrOwitFB7cqDwq0CQutbw+0BvLshJSse0MUNU+y1FC3bUS/AQg7oUng+/wKrrki7JfmwtVHkVfPLlw==}
@@ -19135,7 +19091,7 @@ packages:
       vue-template-compiler:
         optional: true
     dependencies:
-      '@babel/code-frame': 7.24.7
+      '@babel/code-frame': 7.25.7
       '@types/json-schema': 7.0.13
       chalk: 4.1.2
       chokidar: 3.5.3
@@ -21392,6 +21348,11 @@ packages:
     resolution: {integrity: sha512-0ckx7ZHRPqb0oUm8zNr+90mtf9DQB60H1wMCjBtfi62Kl3a7JbHob6gA2bC+xRvZoOL+1hzUK8jeuEIQE8svEQ==}
     hasBin: true
 
+  /lz-string@1.5.0:
+    resolution: {integrity: sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ==}
+    hasBin: true
+    dev: true
+
   /maath@0.9.0(@types/three@0.157.2)(three@0.158.0):
     resolution: {integrity: sha512-aAR8hoUqPxlsU8VOxkS9y37jhUzdUxM017NpCuxFU1Gk+nMaZASZxymZrV8LRSHzRk/watlbfyNKu6XPUhCFrQ==}
     peerDependencies:
@@ -23120,7 +23081,7 @@ packages:
       is-wsl: 2.2.0
     dev: false
 
-  /openai@4.67.1(zod@3.22.3):
+  /openai@4.67.1(zod@3.23.8):
     resolution: {integrity: sha512-2YbRFy6qaYRJabK2zLMn4txrB2xBy0KP5g/eoqeSPTT31mIJMnkT75toagvfE555IKa2RdrzJrZwdDsUipsAMw==}
     hasBin: true
     peerDependencies:
@@ -23136,7 +23097,7 @@ packages:
       form-data-encoder: 1.7.2
       formdata-node: 4.4.1
       node-fetch: 2.6.9
-      zod: 3.22.3
+      zod: 3.23.8
     transitivePeerDependencies:
       - encoding
 
@@ -23349,7 +23310,7 @@ packages:
     resolution: {integrity: sha512-ayCKvm/phCGxOkYRSCM82iDwct8/EonSEgCSxWxD7ve6jHggsFl4fZVQBPRNgQoKiuV/odhFrGzQXZwbifC8Rg==}
     engines: {node: '>=8'}
     dependencies:
-      '@babel/code-frame': 7.24.7
+      '@babel/code-frame': 7.25.7
       error-ex: 1.3.2
       json-parse-even-better-errors: 2.3.1
       lines-and-columns: 1.1.6
@@ -23656,7 +23617,7 @@ packages:
     peerDependencies:
       postcss: ^8.4.31
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.0
       caniuse-api: 3.0.0
       colord: 2.9.3
       postcss: 8.4.47
@@ -23669,7 +23630,7 @@ packages:
     peerDependencies:
       postcss: ^8.4.31
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.0
       postcss: 8.4.47
       postcss-value-parser: 4.2.0
     dev: false
@@ -23962,7 +23923,7 @@ packages:
     peerDependencies:
       postcss: ^8.4.31
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.0
       caniuse-api: 3.0.0
       cssnano-utils: 4.0.2(postcss@8.4.47)
       postcss: 8.4.47
@@ -23997,7 +23958,7 @@ packages:
     peerDependencies:
       postcss: ^8.4.31
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.0
       cssnano-utils: 4.0.2(postcss@8.4.47)
       postcss: 8.4.47
       postcss-value-parser: 4.2.0
@@ -24191,7 +24152,7 @@ packages:
     peerDependencies:
       postcss: ^8.4.31
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.0
       postcss: 8.4.47
       postcss-value-parser: 4.2.0
     dev: false
@@ -24354,7 +24315,7 @@ packages:
     peerDependencies:
       postcss: ^8.4.31
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.0
       caniuse-api: 3.0.0
       postcss: 8.4.47
     dev: false
@@ -24909,7 +24870,7 @@ packages:
     dependencies:
       '@babel/code-frame': 7.24.7
       address: 1.1.2
-      browserslist: 4.23.2
+      browserslist: 4.24.0
       chalk: 4.1.2
       cross-spawn: 7.0.3
       detect-port-alt: 1.1.6
@@ -26827,7 +26788,7 @@ packages:
     peerDependencies:
       postcss: ^8.4.31
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.0
       postcss: 8.4.47
       postcss-selector-parser: 6.1.1
     dev: false
@@ -28749,10 +28710,10 @@ packages:
       '@webassemblyjs/wasm-parser': 1.12.1
       acorn: 8.12.1
       acorn-import-attributes: 1.9.5(acorn@8.12.1)
-      browserslist: 4.23.2
+      browserslist: 4.24.0
       chrome-trace-event: 1.0.3
       enhanced-resolve: 5.17.1
-      es-module-lexer: 1.2.1
+      es-module-lexer: 1.5.4
       eslint-scope: 5.1.1
       events: 3.3.0
       glob-to-regexp: 0.4.1
@@ -28788,10 +28749,10 @@ packages:
       '@webassemblyjs/wasm-parser': 1.12.1
       acorn: 8.12.1
       acorn-import-attributes: 1.9.5(acorn@8.12.1)
-      browserslist: 4.23.2
+      browserslist: 4.24.0
       chrome-trace-event: 1.0.3
       enhanced-resolve: 5.17.1
-      es-module-lexer: 1.2.1
+      es-module-lexer: 1.5.4
       eslint-scope: 5.1.1
       events: 3.3.0
       glob-to-regexp: 0.4.1
@@ -29007,7 +28968,7 @@ packages:
     resolution: {integrity: sha512-si7QWI6zUMq56bESFvagtmzMdGOtoxfR+Sez11Mobfc7tm+VkUckk9bW2UeffTGVUbOksxmSw0AA2gs8g71NCQ==}
     engines: {node: '>=12'}
     dependencies:
-      ansi-styles: 6.1.0
+      ansi-styles: 6.2.1
       string-width: 5.1.2
       strip-ansi: 7.1.0
 
@@ -29211,7 +29172,6 @@ packages:
 
   /zod@3.23.8:
     resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
-    dev: false
 
   /zone.js@0.14.10:
     resolution: {integrity: sha512-YGAhaO7J5ywOXW6InXNlLmfU194F8lVgu7bRntUF3TiG8Y3nBK0x1UJJuHUP/e8IyihkjCYqhCScpSwnlaSRkQ==}
