@@ -49,7 +49,7 @@ const options = (environment: 'development' | 'production') => ({
 		externalHelpers: true,
 	},
 	env: {
-		targets: 'Chrome >= 48', // browser compatibility
+		targets: 'Chrome >= 85', // browser compatibility
 	},
 });
 

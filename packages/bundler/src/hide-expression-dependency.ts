@@ -17,18 +17,11 @@ export class AllowDependencyExpressionPlugin {
 	}
 
 	apply(compiler: Compiler) {
-		compiler.hooks.afterCompile.tap('Com', (compilation) => {
-			// @ts-expect-error
-			compilation.errors = compilation.errors.filter(this.filter);
+		compiler.hooks.afterCompile.tap('Com', () => {
+			// TODO: Filter
 		});
-		compiler.hooks.afterEmit.tap(
-			'AllowOptionalDependenciesPlugin',
-			(compilation) => {
-				// @ts-expect-error
-				compilation.errors = compilation.errors.filter(this.filter);
-				// @ts-expect-error
-				compilation.warnings = compilation.warnings.filter(this.filter);
-			},
-		);
+		compiler.hooks.afterEmit.tap('AllowOptionalDependenciesPlugin', () => {
+			// TODO: Filter
+		});
 	}
 }
