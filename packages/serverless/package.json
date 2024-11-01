@@ -26,6 +26,10 @@
 		"@remotion/renderer": "workspace:*",
 		"@remotion/streaming": "workspace:*"
 	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "8.56.0"
+	},
 	"exports": {
 		".": "./dist/index.js",
 		"./client": "./dist/client.js",

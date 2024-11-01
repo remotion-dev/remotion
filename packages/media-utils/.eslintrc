@@ -1,6 +1,6 @@
 {
-	"extends": "@jonny",
+	"extends": "@remotion/internal",
 	"rules": {
-		"no-bitwise": "off"
-	}
+		"no-bitwise": "off",
+	},
 }

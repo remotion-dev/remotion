@@ -147,6 +147,12 @@ importers:
       '@remotion/bundler':
         specifier: workspace:*
         version: link:../bundler
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
       remotion:
         specifier: workspace:*
         version: link:../core
@@ -181,6 +187,12 @@ importers:
         specifier: 5.94.0
         version: 5.94.0(esbuild@0.18.6)
     devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -188,7 +200,14 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
 
-  packages/captions: {}
+  packages/captions:
+    devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
 
   packages/cli:
     dependencies:
@@ -229,6 +248,9 @@ importers:
       '@remotion/enable-scss':
         specifier: workspace:*
         version: link:../enable-scss
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
       '@remotion/skia':
         specifier: workspace:*
         version: link:../skia
@@ -247,6 +269,9 @@ importers:
       '@types/prompts':
         specifier: ^2.4.1
         version: 2.4.1
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -311,9 +336,15 @@ importers:
       '@remotion/compositor-linux-x64-gnu':
         specifier: workspace:*
         version: link:../compositor-linux-x64-gnu
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
       '@types/minimist':
         specifier: 1.2.2
         version: 1.2.2
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
 
   packages/compositor-darwin-arm64: {}
 
@@ -468,6 +499,9 @@ importers:
         specifier: 6.2.1
         version: 6.2.1
     devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
       '@types/minimist':
         specifier: 1.2.2
         version: 1.2.2
@@ -477,6 +511,9 @@ importers:
       '@types/tar':
         specifier: 6.1.1
         version: 6.1.1
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -747,6 +784,13 @@ importers:
       unist-util-visit:
         specifier: ^5.0.0
         version: 5.0.0
+    devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
 
   packages/enable-scss:
     dependencies:
@@ -763,6 +807,12 @@ importers:
       '@remotion/bundler':
         specifier: workspace:*
         version: link:../bundler
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
 
   packages/eslint-config:
     dependencies:
@@ -775,9 +825,6 @@ importers:
       '@typescript-eslint/parser':
         specifier: 6.21.0
         version: 6.21.0(eslint@8.56.0)(typescript@5.5.4)
-      eslint:
-        specifier: '>=7.15.0'
-        version: 8.56.0
       eslint-plugin-10x:
         specifier: 1.5.2
         version: 1.5.2(eslint@8.56.0)
@@ -787,6 +834,13 @@ importers:
       eslint-plugin-react-hooks:
         specifier: 4.6.0
         version: 4.6.0(eslint@8.56.0)
+    devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
 
   packages/eslint-config-internal:
     devDependencies:
@@ -1041,6 +1095,13 @@ importers:
       remotion:
         specifier: workspace:*
         version: link:../core
+    devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
 
   packages/gif:
     dependencies:
@@ -1091,6 +1152,13 @@ importers:
       '@remotion/captions':
         specifier: workspace:*
         version: link:../captions
+    devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
 
   packages/it-tests:
     devDependencies:
@@ -1236,6 +1304,9 @@ importers:
       '@remotion/compositor-linux-arm64-gnu':
         specifier: workspace:*
         version: link:../compositor-linux-arm64-gnu
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
       '@types/mime-types':
         specifier: 2.1.1
         version: 2.1.1
@@ -1245,6 +1316,9 @@ importers:
       '@types/prompt':
         specifier: ^1.1.0
         version: 1.1.2
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
       pureimage:
         specifier: 0.4.13
         version: 0.4.13
@@ -1279,7 +1353,14 @@ importers:
         specifier: workspace:*
         version: link:../core
 
-  packages/layout-utils: {}
+  packages/layout-utils:
+    devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
 
   packages/lottie:
     dependencies:
@@ -1329,6 +1410,13 @@ importers:
       remotion:
         specifier: workspace:*
         version: link:../core
+    devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
 
   packages/motion-blur:
     dependencies:
@@ -1357,6 +1445,13 @@ importers:
       simplex-noise:
         specifier: 4.0.1
         version: 4.0.1
+    devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
 
   packages/openai-whisper:
     dependencies:
@@ -1364,11 +1459,24 @@ importers:
         specifier: workspace:*
         version: link:../captions
     devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
       openai:
         specifier: 4.67.1
         version: 4.67.1(zod@3.22.3)
 
-  packages/paths: {}
+  packages/paths:
+    devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
 
   packages/player:
     dependencies:
@@ -1437,7 +1545,14 @@ importers:
         specifier: workspace:*
         version: link:../core
 
-  packages/preload: {}
+  packages/preload:
+    devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
 
   packages/renderer:
     dependencies:
@@ -1485,6 +1600,9 @@ importers:
       '@happy-dom/global-registrator':
         specifier: 14.5.1
         version: 14.5.1
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
       '@testing-library/dom':
         specifier: ^8.16.0
         version: 8.16.0
@@ -1494,6 +1612,9 @@ importers:
       '@types/ws':
         specifier: 8.5.10
         version: 8.5.10
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1510,6 +1631,12 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1528,6 +1655,13 @@ importers:
       remotion:
         specifier: workspace:*
         version: link:../core
+    devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
 
   packages/shapes:
     dependencies:
@@ -1585,7 +1719,14 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
 
-  packages/streaming: {}
+  packages/streaming:
+    devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
 
   packages/studio:
     dependencies:
@@ -1617,12 +1758,18 @@ importers:
         specifier: 0.7.3
         version: 0.7.3
     devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
       '@remotion/zod-types':
         specifier: workspace:*
         version: link:../zod-types
       '@types/semver':
         specifier: ^7.3.4
         version: 7.5.3
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1669,9 +1816,15 @@ importers:
       '@babel/types':
         specifier: 7.24.0
         version: 7.24.0
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
       '@types/semver':
         specifier: ^7.3.4
         version: 7.5.3
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1682,9 +1835,15 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
 
   packages/tailwind:
     dependencies:
@@ -1713,6 +1872,12 @@ importers:
       '@remotion/bundler':
         specifier: workspace:*
         version: link:../bundler
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
 
   packages/template-audiogram:
     dependencies:
@@ -2681,6 +2846,12 @@ importers:
 
   packages/test-utils:
     devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -2765,9 +2936,15 @@ importers:
         specifier: workspace:*
         version: link:../media-parser
     devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
       '@types/dom-webcodecs':
         specifier: 0.1.11
         version: 0.1.11
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
 
   packages/zod-types:
     dependencies:
@@ -2775,6 +2952,12 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
       zod:
         specifier: 3.22.3
         version: 3.22.3

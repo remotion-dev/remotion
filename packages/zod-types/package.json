@@ -27,7 +27,9 @@
 		"zod": "3.22.3"
 	},
 	"devDependencies": {
-		"zod": "3.22.3"
+		"zod": "3.22.3",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "8.56.0"
 	},
 	"keywords": [
 		"zod",

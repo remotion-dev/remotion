@@ -1,11 +1,11 @@
 {
-	"extends": "@jonny",
+	"extends": "@remotion/internal",
 	"rules": {
 		"no-restricted-imports": [
 			"error",
 			{
-				"patterns": ["@remotion/*/src/*", "remotion/src/*"]
-			}
-		]
-	}
+				"patterns": ["@remotion/*/src/*", "remotion/src/*"],
+			},
+		],
+	},
 }

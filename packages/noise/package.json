@@ -38,6 +38,10 @@
 		"remotion": "workspace:*",
 		"simplex-noise": "4.0.1"
 	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "8.56.0"
+	},
 	"keywords": [
 		"remotion",
 		"noise"

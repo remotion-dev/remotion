@@ -27,5 +27,9 @@
 	"publishConfig": {
 		"access": "public"
 	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "8.56.0"
+	},
 	"homepage": "https://www.remotion.dev/docs/preload"
 }

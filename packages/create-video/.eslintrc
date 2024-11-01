@@ -1,6 +1,6 @@
 {
-	"extends": "@jonny",
+	"extends": "@remotion/internal",
 	"rules": {
-		"ts-exports/unused-exports": "off"
-	}
+		"ts-exports/unused-exports": "off",
+	},
 }

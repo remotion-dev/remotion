@@ -2,9 +2,9 @@ import React from 'react';
 import {AbsoluteFill, Freeze, useCurrentFrame} from 'remotion';
 
 export type CameraMotionBlurProps = {
-	children: React.ReactNode;
-	shutterAngle?: number;
-	samples?: number;
+	readonly children: React.ReactNode;
+	readonly shutterAngle?: number;
+	readonly samples?: number;
 };
 
 /**

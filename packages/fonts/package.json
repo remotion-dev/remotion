@@ -26,6 +26,10 @@
 	"dependencies": {
 		"remotion": "workspace:*"
 	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "8.56.0"
+	},
 	"publishConfig": {
 		"access": "public"
 	},

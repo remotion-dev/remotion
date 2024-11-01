@@ -27,7 +27,9 @@
 	},
 	"peerDependencies": {},
 	"devDependencies": {
-		"@types/dom-webcodecs": "0.1.11"
+		"@types/dom-webcodecs": "0.1.11",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "8.56.0"
 	},
 	"keywords": [],
 	"publishConfig": {

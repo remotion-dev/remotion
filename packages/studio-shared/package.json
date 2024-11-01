@@ -21,7 +21,9 @@
 		"remotion": "workspace:*"
 	},
 	"devDependencies": {
-		"@remotion/renderer": "workspace:*"
+		"@remotion/renderer": "workspace:*",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "8.56.0"
 	},
 	"publishConfig": {
 		"access": "public"

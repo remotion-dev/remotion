@@ -1,5 +1,5 @@
 {
-	"extends": "@jonny",
+	"extends": "@remotion/internal",
 	"rules": {
 		"no-console": "error",
 		"no-restricted-imports": [
@@ -9,24 +9,24 @@
 					"@remotion/*/src/*",
 					"@remotion/renderer/*/src/*",
 					"@remotion/cli/*/src/*",
-					"remotion/src/*"
-				]
-			}
+					"remotion/src/*",
+				],
+			},
 		],
-		"no-restricted-globals": ["error", "parent"]
+		"no-restricted-globals": ["error", "parent"],
 	},
 	"overrides": [
 		{
 			"files": "./src/gcpInstaller/**",
 			"rules": {
-				"no-console": "off"
-			}
+				"no-console": "off",
+			},
 		},
 		{
 			"files": "./src/admin/**",
 			"rules": {
-				"no-console": "off"
-			}
-		}
-	]
+				"no-console": "off",
+			},
+		},
+	],
 }
