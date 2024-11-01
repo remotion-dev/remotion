@@ -21,7 +21,7 @@ jobs:
       - name: Cache turbo build setup
         uses: actions/cache/restore@v4
         with:
-          path: .turbo 
+          path: .turbo
           key: |
             ${{ runner.os }}-turbo-
       - uses: actions/setup-node@v4
@@ -56,7 +56,7 @@ jobs:
       - name: Cache turbo build setup
         uses: actions/cache/restore@v4
         with:
-          path: .turbo 
+          path: .turbo
           key: |
             ${{ runner.os }}-turbo-
       - uses: actions/setup-node@v4
@@ -102,12 +102,12 @@ jobs:
       - name: Cache turbo build setup
         uses: actions/cache/restore@v4
         with:
-          path: .turbo 
+          path: .turbo
           key: |
             ${{ runner.os }}-turbo-
       - uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20
           cache: "pnpm"
       - uses: oven-sh/setup-bun@v1
         with:
@@ -152,7 +152,7 @@ jobs:
           cache: "pnpm"
       - name: Cache turbo build setup
         uses: actions/cache@v4
-        with: 
+        with:
           path: .turbo
           key: ${{ runner.os }}-turbo-${{ github.sha }}
           restore-keys: |
