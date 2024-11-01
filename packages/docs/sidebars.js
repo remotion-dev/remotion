@@ -999,6 +999,7 @@ module.exports = {
 				'miscellaneous/linux-dependencies',
 				'gl-options',
 				'bun',
+				'deno',
 				'standalone',
 				'miscellaneous/emojis',
 				'media-fragments',
