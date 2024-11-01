@@ -22,7 +22,7 @@ npm install
 **Start Preview**
 
 ```console
-npm start
+npm run dev
 ```
 
 **Render video**
@@ -43,11 +43,11 @@ This template uses a [custom Webpack override](https://www.remotion.dev/docs/web
 
 ```ts
 bundle(entry, () => undefined, {
-	webpackOverride: (config) => enableSkia(config),
+  webpackOverride: (config) => enableSkia(config),
 });
 // or
 deploySite({
-	webpackOverride: (config) => enableSkia(config),
+  webpackOverride: (config) => enableSkia(config),
 });
 ```
 

@@ -2,11 +2,11 @@
 image: /generated/articles-docs-preview.png
 title: Preview your video
 id: preview
-crumb: "Timeline basics"
+crumb: 'Timeline basics'
 ---
 
-import Tabs from "@theme/Tabs";
-import TabItem from "@theme/TabItem";
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 You can preview your video by starting the [Remotion Studio](/docs/studio):
 
@@ -20,7 +20,7 @@ values={[
 <TabItem value="Regular templates">
 
 ```bash
-npm start
+npm run dev
 ```
 
   </TabItem>
@@ -45,3 +45,7 @@ A server will be started on port `3000` (or a higher port if it isn't available)
 <img src="/img/timeline.png"></img>
 
 Learn more about the [Remotion Studio](/docs/studio).
+
+:::note
+In older projects, `npm start` was used over `npm run dev`.
+:::

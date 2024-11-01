@@ -27,6 +27,7 @@
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.281",
 		"@types/bun": "1.1.10",
+		"@types/deno": "2.0.0",
 		"@types/react": "18.3.1",
 		"@types/react-dom": "18.3.0",
 		"eslint": "8.56.0",

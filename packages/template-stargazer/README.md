@@ -28,7 +28,7 @@ npm i
 4. Start the preview:
 
 ```
-npm start
+npm run dev
 ```
 
 5. Open the right sidebar, enter your repo name and click "Render".

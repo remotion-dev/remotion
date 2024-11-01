@@ -9,7 +9,8 @@
 	"sideEffects": false,
 	"bin": {
 		"remotion": "remotion-cli.js",
-		"remotionb": "remotionb-cli.js"
+		"remotionb": "remotionb-cli.js",
+		"remotiond": "remotiond-cli.js"
 	},
 	"scripts": {
 		"formatting": "prettier src --check",

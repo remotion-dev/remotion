@@ -27,7 +27,7 @@ npm install
 **Start Preview**
 
 ```console
-npm start
+npm run dev
 ```
 
 **Render MP4 video**

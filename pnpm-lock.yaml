@@ -24,6 +24,9 @@ importers:
       '@types/bun':
         specifier: 1.1.10
         version: 1.1.10
+      '@types/deno':
+        specifier: 2.0.0
+        version: 2.0.0
       '@types/react':
         specifier: 18.3.1
         version: 18.3.1
@@ -607,8 +610,8 @@ importers:
         specifier: 2.3.0
         version: 2.3.0
       '@shopify/react-native-skia':
-        specifier: ^1.2.2
-        version: 1.2.2(react@18.3.1)
+        specifier: 1.3.13
+        version: 1.3.13(react@18.3.1)
       '@swc/core':
         specifier: ^1.3.80
         version: 1.3.80
@@ -892,8 +895,8 @@ importers:
         specifier: workspace:*
         version: link:../zod-types
       '@shopify/react-native-skia':
-        specifier: 1.2.2
-        version: 1.2.2(react@18.3.1)
+        specifier: 1.3.13
+        version: 1.3.13(react@18.3.1)
       '@types/express':
         specifier: ^4.17.11
         version: 4.17.13
@@ -1498,6 +1501,9 @@ importers:
       '@types/react-native':
         specifier: ^0.69.2
         version: 0.69.2
+      canvaskit-wasm:
+        specifier: 0.39.1
+        version: 0.39.1
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -12127,24 +12133,6 @@ packages:
     resolution: {integrity: sha512-jn7/7ky30idSkd/O5yDBfAnVt+JJpepofP/POZ1iMOxK59cOfqIgg/Dj0eFsjOTMw+4ycJN0uhZH/Eb0bs/EUA==}
     dev: false
 
-  /@shopify/react-native-skia@1.2.2(react@18.3.1):
-    resolution: {integrity: sha512-YlDNJXTCstlOmyJxeQjaTaef8ACLuEPMDrSgEichQM3ELlWuU1HTSVbpXW2x4LbbEDPXwu/aF/16MUN8pzzcmA==}
-    hasBin: true
-    peerDependencies:
-      react: '>=18.0'
-      react-native: '>=0.64'
-      react-native-reanimated: '>=2.0.0'
-    peerDependenciesMeta:
-      react-native:
-        optional: true
-      react-native-reanimated:
-        optional: true
-    dependencies:
-      canvaskit-wasm: 0.39.1
-      react: 18.3.1
-      react-reconciler: 0.27.0(react@18.3.1)
-    dev: false
-
   /@shopify/react-native-skia@1.3.13(react@18.3.1):
     resolution: {integrity: sha512-7LvSy+4nvJRGSDJi1fHVtbMxSDRnV2csTGB8RCcdFJsqQHxuIF05jM1GkrEbp/qCZHVPKKrjxbtHByERvx7OPQ==}
     hasBin: true
@@ -13197,6 +13185,10 @@ packages:
     resolution: {integrity: sha512-9AonUzyTjXXhEOa0DnqpzZi6VHlqKMswga9EXjpXnnqxwLtdvPPtlO8evrI5D9S6asFRCQ6v+wpiUKbw+vKqyg==}
     dependencies:
       '@types/ms': 0.7.31
+
+  /@types/deno@2.0.0:
+    resolution: {integrity: sha512-O9/jRVlq93kqfkl4sYR5N7+Pz4ukzXVIbMnE/VgvpauNHsvjQ9iBVnJ3X0gAvMa2khcoFD8DSO7mQVCuiuDMPg==}
+    dev: true
 
   /@types/dom-webcodecs@0.1.11:
     resolution: {integrity: sha512-yPEZ3z7EohrmOxbk/QTAa0yonMFkNkjnVXqbGb7D4rMr+F1dGQ8ZUFxXkyLLJuiICPejZ0AZE9Rrk9wUCczx4A==}

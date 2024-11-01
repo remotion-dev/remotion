@@ -28,14 +28,11 @@ const publish = async (template: Template) => {
 		.split('\n')
 		.filter(Boolean);
 
-	const branchName = `${Math.random().toString().replace('0.', '')}`;
-
 	await $`git clone git@github.com:${template.org}/${template.repoName}.git ${workingDir} --depth 1`;
 
 	const defaultBranch = await $`git branch --show-current`
 		.cwd(workingDir)
 		.text();
-	await $`git checkout -b ${branchName}`.cwd(workingDir);
 	const existingFilesInRepo = await $`git ls-files`.cwd(workingDir).quiet();
 	for (const file of existingFilesInRepo.stdout
 		.toString('utf-8')
@@ -64,11 +61,7 @@ const publish = async (template: Template) => {
 	}
 
 	await $`git commit -m "Update template"`.cwd(workingDir);
-	await $`git diff ${defaultBranch.trim()} ${branchName}`
-		.cwd(workingDir)
-		.quiet()
-		.text();
-	await $`git push origin ${branchName}`.cwd(workingDir);
+	await $`git push origin ${defaultBranch.trim()}`.cwd(workingDir);
 };
 
 for (const template of folders) {
