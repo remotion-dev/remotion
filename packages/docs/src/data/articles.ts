@@ -3607,6 +3607,13 @@ export const articles = [
 		crumb: null,
 	},
 	{
+		id: 'deno',
+		title: 'Deno support',
+		relativePath: 'docs/deno.mdx',
+		compId: 'articles-docs-deno',
+		crumb: 'Runtime support',
+	},
+	{
 		id: 'fonts',
 		title: 'Using fonts',
 		relativePath: 'docs/fonts.mdx',
