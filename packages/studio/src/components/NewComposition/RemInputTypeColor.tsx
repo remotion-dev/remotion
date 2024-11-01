@@ -43,13 +43,9 @@ const RemInputTypeColorForwardRef: React.ForwardRefRenderFunction<
 		};
 	}, [isFocused, isHovered, props.style, status]);
 
-	useImperativeHandle(
-		ref,
-		() => {
-			return inputRef.current as HTMLInputElement;
-		},
-		[],
-	);
+	useImperativeHandle(ref, () => {
+		return inputRef.current as HTMLInputElement;
+	}, []);
 
 	useEffect(() => {
 		if (!inputRef.current) {

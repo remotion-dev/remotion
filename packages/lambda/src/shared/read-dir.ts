@@ -4,14 +4,16 @@ import {getEtagOfFile} from './get-etag';
 
 // Function to recursively read a directory and return a list of files
 // with their etags and file names
-export async function readDirectory({
+export function readDirectory({
 	dir,
 	etags,
 	originalDir,
+	onProgress,
 }: {
 	dir: string;
-	etags: {[key: string]: string};
+	etags: {[key: string]: () => Promise<string>};
 	originalDir: string;
+	onProgress: (bytes: number) => void;
 }) {
 	const files = fs.readdirSync(dir);
 
@@ -23,7 +25,12 @@ export async function readDirectory({
 		if (fs.lstatSync(filePath).isDirectory()) {
 			etags = {
 				...etags,
-				...(await readDirectory({dir: filePath, etags, originalDir})),
+				...readDirectory({
+					dir: filePath,
+					etags,
+					originalDir,
+					onProgress,
+				}),
 			};
 			continue;
 		}
@@ -32,11 +39,15 @@ export async function readDirectory({
 		if (fs.lstatSync(filePath).isSymbolicLink()) {
 			const realPath = fs.realpathSync(filePath);
 
-			etags[path.relative(originalDir, filePath)] =
-				await getEtagOfFile(realPath);
+			etags[path.relative(originalDir, filePath)] = getEtagOfFile(
+				realPath,
+				onProgress,
+			);
 		} else {
-			etags[path.relative(originalDir, filePath)] =
-				await getEtagOfFile(filePath);
+			etags[path.relative(originalDir, filePath)] = getEtagOfFile(
+				filePath,
+				onProgress,
+			);
 		}
 	}
 

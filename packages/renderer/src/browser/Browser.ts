@@ -19,6 +19,8 @@ import type {LogLevel} from '../log-level';
 import {assert} from './assert';
 import type {Page} from './BrowserPage';
 import {PageEmittedEvents} from './BrowserPage';
+import type {BrowserRunner} from './BrowserRunner';
+import {makeBrowserRunner} from './BrowserRunner';
 import type {Connection} from './Connection';
 import type {DevtoolsTargetCreatedEvent} from './devtools-types';
 import {EventEmitter} from './EventEmitter';
@@ -26,8 +28,6 @@ import type {Viewport} from './PuppeteerViewport';
 import type {SourceMapGetter} from './source-map-getter';
 import {Target} from './Target';
 import {waitWithTimeout} from './util';
-
-type BrowserCloseCallback = () => Promise<void> | void;
 
 interface WaitForTargetOptions {
 	timeout?: number;
@@ -41,61 +41,65 @@ export const enum BrowserEmittedEvents {
 }
 
 export class HeadlessBrowser extends EventEmitter {
-	static async _create({
-		connection,
+	static async create({
 		defaultViewport,
-		closeCallback,
-		forgetEventLoop,
-		rememberEventLoop,
+		timeout,
+		userDataDir,
+		args,
+		executablePath,
+		logLevel,
+		indent,
 	}: {
-		connection: Connection;
 		defaultViewport: Viewport;
-		closeCallback: BrowserCloseCallback;
-		forgetEventLoop: () => void;
-		rememberEventLoop: () => void;
+		timeout: number;
+		userDataDir: string;
+		args: string[];
+		executablePath: string;
+		logLevel: LogLevel;
+		indent: boolean;
 	}): Promise<HeadlessBrowser> {
-		const browser = new HeadlessBrowser({
-			connection,
-			defaultViewport,
-			closeCallback,
-			forgetEventLoop,
-			rememberEventLoop,
+		const runner = await makeBrowserRunner({
+			executablePath,
+			processArguments: args,
+			userDataDir,
+			indent,
+			logLevel,
+			timeout,
 		});
-		await connection.send('Target.setDiscoverTargets', {discover: true});
+
+		const browser = new HeadlessBrowser({
+			connection: runner.connection,
+			defaultViewport,
+			runner,
+		});
+		await runner.connection.send('Target.setDiscoverTargets', {discover: true});
 		return browser;
 	}
 
 	#defaultViewport: Viewport;
 	connection: Connection;
-	#closeCallback: BrowserCloseCallback;
 	#defaultContext: BrowserContext;
 	#contexts: Map<string, BrowserContext>;
 	#targets: Map<string, Target>;
 
-	forgetEventLoop: () => void;
-	rememberEventLoop: () => void;
+	runner: BrowserRunner;
 
 	get _targets(): Map<string, Target> {
 		return this.#targets;
 	}
 
 	constructor({
-		closeCallback,
 		connection,
 		defaultViewport,
-		forgetEventLoop,
-		rememberEventLoop,
+		runner,
 	}: {
 		connection: Connection;
 		defaultViewport: Viewport;
-		closeCallback: BrowserCloseCallback;
-		forgetEventLoop: () => void;
-		rememberEventLoop: () => void;
+		runner: BrowserRunner;
 	}) {
 		super();
 		this.#defaultViewport = defaultViewport;
 		this.connection = connection;
-		this.#closeCallback = closeCallback;
 
 		this.#defaultContext = new BrowserContext(this);
 		this.#contexts = new Map();
@@ -110,8 +114,7 @@ export class HeadlessBrowser extends EventEmitter {
 			'Target.targetInfoChanged',
 			this.#targetInfoChanged.bind(this),
 		);
-		this.forgetEventLoop = forgetEventLoop;
-		this.rememberEventLoop = rememberEventLoop;
+		this.runner = runner;
 	}
 
 	browserContexts(): BrowserContext[] {
@@ -270,7 +273,7 @@ export class HeadlessBrowser extends EventEmitter {
 		logLevel: LogLevel,
 		indent: boolean,
 	): Promise<void> {
-		await this.#closeCallback.call(null);
+		await this.runner.closeProcess();
 		(await this.pages(logLevel, indent)).forEach((page) => {
 			page.emit(PageEmittedEvents.Disposed);
 			page.closed = true;

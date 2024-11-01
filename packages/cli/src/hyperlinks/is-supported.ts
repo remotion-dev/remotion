@@ -14,8 +14,8 @@ function parseVersion(versionString: string) {
 		const m = /(\d{1,2})(\d{2})/.exec(versionString) || [];
 		return {
 			major: 0,
-			minor: parseInt(m[1], 10),
-			patch: parseInt(m[2], 10),
+			minor: parseInt(m[1] as string, 10),
+			patch: parseInt(m[2] as string, 10),
 		};
 	}
 
@@ -65,15 +65,16 @@ export function supportsHyperlink(): false | string {
 		switch (TERM_PROGRAM) {
 			case 'iTerm.app':
 				if (version.major === 3) {
-					return version.minor >= 1 ? 'Cmd+Click' : false;
+					return (version.minor as number) >= 1 ? 'Cmd+Click' : false;
 				}
 
-				return version.major > 3 ? 'Cmd+Click' : false;
+				return (version.major as number) > 3 ? 'Cmd+Click' : false;
 			case 'WezTerm':
-				return version.major >= 20200620 ? 'Click' : false;
+				return (version.major as number) >= 20200620 ? 'Click' : false;
 			case 'vscode':
 				// eslint-disable-next-line no-mixed-operators
-				return version.major > 1 || (version.major === 1 && version.minor >= 72)
+				return (version.major as number) > 1 ||
+					(version.major === 1 && (version.minor as number) >= 72)
 					? process.platform === 'darwin'
 						? 'Option+Click'
 						: 'Ctrl+Click'
@@ -89,7 +90,9 @@ export function supportsHyperlink(): false | string {
 		}
 
 		const version = parseVersion(VTE_VERSION);
-		return version.major > 0 || version.minor >= 50 ? 'Click' : false;
+		return (version.major as number) > 0 || (version.minor as number) >= 50
+			? 'Click'
+			: false;
 	}
 
 	return false;

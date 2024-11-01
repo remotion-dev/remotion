@@ -23,9 +23,9 @@ import {
 	serializeOrThrow,
 } from '@remotion/serverless/client';
 import {existsSync, mkdirSync, rmSync} from 'fs';
+import {type EventEmitter} from 'node:events';
 import {join} from 'path';
 import {VERSION} from 'remotion/version';
-import {type EventEmitter} from 'stream';
 import type {PostRenderData} from '../shared/constants';
 import {
 	CONCAT_FOLDER_TOKEN,
@@ -90,6 +90,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		serialized: params.inputProps,
 		propsType: 'input-props',
 		providerSpecifics,
+		forcePathStyle: params.forcePathStyle,
 	});
 
 	const logOptions: LogOptions = {
@@ -206,6 +207,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		params.inputProps.type === 'bucket-url'
 			? params.inputProps.hash.length
 			: params.inputProps.payload.length,
+		JSON.stringify(params.envVariables).length,
 	]);
 
 	const serializedResolvedProps = await compressInputProps({
@@ -215,6 +217,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		userSpecifiedBucketName: params.bucketName,
 		needsToUpload,
 		providerSpecifics,
+		forcePathStyle: params.forcePathStyle,
 	});
 
 	registerCleanupTask(() => {
@@ -222,6 +225,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			serializedResolvedProps,
 			inputProps: params.inputProps,
 			providerSpecifics,
+			forcePathStyle: params.forcePathStyle,
 		});
 	});
 
@@ -278,6 +282,8 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			compositionStart: realFrameRange[0],
 			framesPerLambda,
 			progressEveryNthFrame,
+			forcePathStyle: params.forcePathStyle,
+			metadata: params.metadata,
 		};
 		return payload;
 	});
@@ -319,6 +325,12 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		downloadBehavior: params.downloadBehavior,
 		audioBitrate: params.audioBitrate,
 		muted: params.muted,
+		metadata: params.metadata,
+		functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
+		dimensions: {
+			width: comp.width * (params.scale ?? 1),
+			height: comp.height * (params.scale ?? 1),
+		},
 	};
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
@@ -326,7 +338,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		params.bucketName,
 		typeof params.outName === 'string' || typeof params.outName === 'undefined'
 			? null
-			: params.outName?.s3OutputProvider ?? null,
+			: (params.outName?.s3OutputProvider ?? null),
 	);
 
 	if (!params.overwrite) {
@@ -341,6 +353,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			region: providerSpecifics.getCurrentRegionInFunction(),
 			currentRegion: providerSpecifics.getCurrentRegionInFunction(),
 			providerSpecifics,
+			forcePathStyle: params.forcePathStyle,
 		});
 		if (output) {
 			throw new TypeError(
@@ -391,6 +404,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 				expectedBucketOwner: options.expectedBucketOwner,
 				downloadBehavior: params.downloadBehavior,
 				customCredentials,
+				forcePathStyle: params.forcePathStyle,
 			})
 			.then(() => {
 				RenderInternals.Log.info(
@@ -475,6 +489,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		overallProgress,
 		startTime,
 		providerSpecifics,
+		forcePathStyle: params.forcePathStyle,
 	});
 
 	return postRenderData;
@@ -644,6 +659,7 @@ export const launchHandler = async <Provider extends CloudProvider>(
 		timeoutTimestamp: options.getRemainingTimeInMillis() + Date.now(),
 		logLevel: params.logLevel,
 		providerSpecifics,
+		forcePathStyle: params.forcePathStyle,
 	});
 
 	try {

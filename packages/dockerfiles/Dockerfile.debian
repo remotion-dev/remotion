@@ -1,6 +1,6 @@
 FROM node:20-bookworm
 
-RUN apt-get update
+RUN apt update
 WORKDIR /usr/app
 RUN git clone https://github.com/remotion-dev/template-helloworld /usr/app
 RUN cd /usr/app
@@ -16,5 +16,6 @@ RUN apt install -y \
   libxfixes3 \
   libxcomposite1 \
   libxdamage1 \
-  libatk-bridge2.0-0
+  libatk-bridge2.0-0 \
+  libcups2
 RUN npx remotion compositions

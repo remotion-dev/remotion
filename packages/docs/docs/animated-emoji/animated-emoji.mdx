@@ -1,12 +1,13 @@
 ---
+image: /generated/articles-docs-animated-emoji-animated-emoji.png
 id: animated-emoji
-sidebar_label: '<AnimatedEmoji>'
-title: '<AnimatedEmoji>'
+sidebar_label: "<AnimatedEmoji>"
+title: "<AnimatedEmoji>"
 slug: /animated-emoji/animated-emoji
-crumb: '@remotion/animated-emoji'
+crumb: "@remotion/animated-emoji"
 ---
 
-import {AvailableEmoji} from './AvailableEmoji';
+import {AvailableEmoji} from "./AvailableEmoji";
 
 _Part of the [`@remotion/animated-emoji`](/docs/animated-emoji) package._
 _available from v4.0.187_
@@ -20,7 +21,7 @@ Displays an animated emoji from [Google Fonts Animated Emoji](https://googlefont
 ## Example
 
 ```tsx title="Animation.tsx"
-import {AnimatedEmoji} from '@remotion/animated-emoji';
+import {AnimatedEmoji} from "@remotion/animated-emoji";
 
 export const MyAnimation: React.FC = () => {
   return <AnimatedEmoji emoji="blush" />;
@@ -68,15 +69,15 @@ Customize the location where the videos are loaded.
 This is the default function:
 
 ```tsx twoslash title="calculate-src.ts"
-import {staticFile} from 'remotion';
-import type {CalculateEmojiSrc} from '@remotion/animated-emoji';
+import {staticFile} from "remotion";
+import type {CalculateEmojiSrc} from "@remotion/animated-emoji";
 
 export const defaultCalculateEmojiSrc: CalculateEmojiSrc = ({
   emoji,
   scale,
   format,
 }) => {
-  const extension = format === 'hevc' ? 'mp4' : 'webm';
+  const extension = format === "hevc" ? "mp4" : "webm";
 
   return staticFile(`${emoji}-${scale}x.${extension}`);
 };

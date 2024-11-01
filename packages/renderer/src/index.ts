@@ -12,7 +12,6 @@ import {DEFAULT_CODEC, validCodecs} from './codec';
 import {combineChunks} from './combine-videos';
 import {getExecutablePath} from './compositor/get-executable-path';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
-import {copyImageToClipboard} from './copy-to-clipboard';
 import {deleteDirectory} from './delete-directory';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {symbolicateError} from './error-handling/symbolicate-error';
@@ -142,10 +141,10 @@ import type {AudioCodec} from './options/audio-codec';
 import {
 	getDefaultAudioCodec,
 	getExtensionFromAudioCodec,
-	isAudioCodec,
 	resolveAudioCodec,
 	supportedAudioCodecs,
 } from './options/audio-codec';
+import {printUsefulErrorMessage} from './print-useful-error-message';
 import {getShouldRenderAudio} from './render-has-audio';
 import {toMegabytes} from './to-megabytes';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
@@ -192,7 +191,6 @@ export const RenderInternals = {
 	validateJpegQuality,
 	DEFAULT_TIMEOUT,
 	DEFAULT_CODEC,
-	isAudioCodec,
 	logLevels,
 	isEqualOrBelowLogLevel,
 	isValidLogLevel,
@@ -229,7 +227,6 @@ export const RenderInternals = {
 	internalRenderFrames,
 	internalRenderMedia,
 	validOpenGlRenderers,
-	copyImageToClipboard,
 	isIpV6Supported,
 	getChromiumGpuInformation,
 	getPortConfig,
@@ -242,6 +239,7 @@ export const RenderInternals = {
 	toMegabytes,
 	internalEnsureBrowser,
 	exampleVideos,
+	printUsefulErrorMessage,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

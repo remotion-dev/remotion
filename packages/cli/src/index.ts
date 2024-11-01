@@ -105,11 +105,11 @@ export const cli = async () => {
 		} else if (command === 'still') {
 			await still(remotionRoot, args, logLevel);
 		} else if (command === 'ffmpeg') {
-			ffmpegCommand(remotionRoot, process.argv.slice(3), logLevel);
+			ffmpegCommand(process.argv.slice(3), logLevel);
 		} else if (command === 'gpu') {
 			await gpuCommand(logLevel);
 		} else if (command === 'ffprobe') {
-			ffprobeCommand(remotionRoot, process.argv.slice(3), logLevel);
+			ffprobeCommand(process.argv.slice(3), logLevel);
 		} else if (command === 'upgrade') {
 			await upgrade(
 				remotionRoot,

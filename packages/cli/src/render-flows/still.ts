@@ -79,7 +79,7 @@ export const renderStillFlow = async ({
 	remotionRoot: string;
 	fullEntryPoint: string;
 	entryPointReason: string;
-	remainingArgs: string[];
+	remainingArgs: (string | number)[];
 	serializedInputPropsWithCustomSchema: string;
 	envVariables: Record<string, string>;
 	jpegQuality: number;

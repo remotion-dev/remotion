@@ -26,6 +26,7 @@ const testRenderMetadata: RenderMetadata<MockProvider> = {
 	},
 	lambdaVersion: '2022-02-14',
 	memorySizeInMb: 2048,
+	functionName: 'remotion-render-4-0-187-mem3000mb-disk10000mb-120sec',
 	outName: undefined,
 	region: 'eu-central',
 	renderId: '9n8dsfafs',
@@ -41,7 +42,12 @@ const testRenderMetadata: RenderMetadata<MockProvider> = {
 	downloadBehavior: {type: 'play-in-browser'},
 	audioBitrate: null,
 	muted: false,
+	metadata: null,
 	codec: 'h264',
+	dimensions: {
+		width: 1920,
+		height: 1080,
+	},
 };
 
 test('Should get a custom outname', () => {

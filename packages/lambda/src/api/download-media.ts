@@ -22,6 +22,7 @@ export type DownloadMediaInput = {
 	onProgress?: LambdaReadFileProgress;
 	customCredentials?: CustomCredentials<AwsProvider>;
 	logLevel?: LogLevel;
+	forcePathStyle?: boolean;
 };
 
 export type DownloadMediaOutput = {
@@ -32,6 +33,7 @@ export type DownloadMediaOutput = {
 export const internalDownloadMedia = async (
 	input: DownloadMediaInput & {
 		providerSpecifics: ProviderSpecifics<AwsProvider>;
+		forcePathStyle: boolean;
 	},
 ): Promise<DownloadMediaOutput> => {
 	const expectedBucketOwner = await getAccountId({
@@ -43,6 +45,7 @@ export const internalDownloadMedia = async (
 		region: input.region,
 		renderId: input.renderId,
 		providerSpecifics: input.providerSpecifics,
+		forcePathStyle: input.forcePathStyle,
 	});
 
 	if (!overallProgress.renderMetadata) {
@@ -67,6 +70,7 @@ export const internalDownloadMedia = async (
 		outputPath,
 		customCredentials,
 		logLevel: input.logLevel ?? 'info',
+		forcePathStyle: input.forcePathStyle ?? false,
 	});
 
 	return {
@@ -93,5 +97,6 @@ export const downloadMedia = (
 	return internalDownloadMedia({
 		...input,
 		providerSpecifics: awsImplementation,
+		forcePathStyle: false,
 	});
 };

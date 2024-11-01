@@ -110,7 +110,8 @@ export type ServerlessStatusPayload<Provider extends CloudProvider> = {
 	renderId: string;
 	version: string;
 	logLevel: LogLevel;
-	s3OutputProvider?: CustomCredentials<Provider>;
+	forcePathStyle: boolean;
+	s3OutputProvider: CustomCredentials<Provider> | null;
 };
 
 export type ServerlessStartPayload<Provider extends CloudProvider> = {
@@ -156,6 +157,8 @@ export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	deleteAfter: DeleteAfter | null;
 	colorSpace: ColorSpace | null;
 	preferLossless: boolean;
+	forcePathStyle: boolean;
+	metadata: Record<string, string> | null;
 };
 
 export type ServerlessPayloads<Provider extends CloudProvider> = {
@@ -207,6 +210,8 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		deleteAfter: DeleteAfter | null;
 		colorSpace: ColorSpace | null;
 		preferLossless: boolean;
+		forcePathStyle: boolean;
+		metadata: Record<string, string> | null;
 	};
 	status: ServerlessStatusPayload<Provider>;
 	renderer: {
@@ -255,6 +260,8 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		compositionStart: number;
 		framesPerLambda: number;
 		progressEveryNthFrame: number;
+		forcePathStyle: boolean;
+		metadata: Record<string, string> | null;
 	};
 	still: {
 		type: ServerlessRoutines.still;
@@ -281,6 +288,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		offthreadVideoCacheSizeInBytes: number | null;
 		deleteAfter: DeleteAfter | null;
 		streamed: boolean;
+		forcePathStyle: boolean;
 	};
 	compositions: {
 		type: ServerlessRoutines.compositions;
@@ -293,6 +301,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		serveUrl: string;
 		bucketName: string | null;
 		offthreadVideoCacheSizeInBytes: number | null;
+		forcePathStyle: boolean;
 	};
 };
 

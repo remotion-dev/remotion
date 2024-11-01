@@ -109,13 +109,9 @@ export const Canvas = forwardRef(
 
 		const size = useElementSize(canvasRef);
 
-		useImperativeHandle(
-			ref,
-			() => {
-				return canvasRef.current as HTMLCanvasElement;
-			},
-			[],
-		);
+		useImperativeHandle(ref, () => {
+			return canvasRef.current as HTMLCanvasElement;
+		}, []);
 
 		useEffect(() => {
 			if (!size) {

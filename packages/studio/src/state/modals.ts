@@ -10,6 +10,7 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
+import type {PackageManager} from '@remotion/studio-shared';
 import type React from 'react';
 import {createContext} from 'react';
 import type {CompType} from '../components/NewComposition/DuplicateComposition';
@@ -59,6 +60,7 @@ export type RenderModalState = {
 	defaultConfigurationVideoCodec: Codec;
 	defaultConfigurationAudioCodec: AudioCodec | null;
 	renderTypeOfLastRender: RenderType | null;
+	defaulMetadata: Record<string, string> | null;
 };
 
 export type ModalState =
@@ -84,6 +86,10 @@ export type ModalState =
 			type: 'update';
 			info: UpdateInfo;
 			knownBugs: Bug[];
+	  }
+	| {
+			type: 'install-packages';
+			packageManager: PackageManager;
 	  }
 	| {
 			type: 'quick-switcher';

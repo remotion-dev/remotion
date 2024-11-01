@@ -24,7 +24,7 @@ export const patchReadmeMd = (
 				return getInstallCommand(packageManager);
 			}
 
-			if (c.startsWith('npm start')) {
+			if (c.startsWith('npm run dev')) {
 				return getDevCommand(packageManager, template);
 			}
 

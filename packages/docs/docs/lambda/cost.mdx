@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-cost.png
 id: optimizing-cost
 title: Optimizing for cost
 slug: /lambda/optimizing-cost
-crumb: "Lambda"
+crumb: 'Lambda'
 ---
 
 On this page, a few strategies for optimizing the cost of using Remotion Lambda are presented.
@@ -18,7 +18,7 @@ Not all AWS regions have the same cost. See the [AWS Lambda](https://aws.amazon.
 
 ## Pre-compute data
 
-Consider whether your computation will run on every invoked Lambda function. If possible, pre-compute data once and pass it as [input props](/docs/parameterized-rendering#input-props) to the render.
+Consider whether your computation will run on every invoked Lambda function. If possible, pre-compute data once and pass it as [input props](/docs/passing-props#passing-input-props-in-the-cli) to the render.
 
 ## Less memory
 
@@ -30,9 +30,10 @@ Making your render more efficient will also reduce the cost of using Lambda. See
 
 ## Real life optimization example
 
-See [this video](https://www.remotion.dev/docs/lambda/optimizing-cost) of how we optimized the cost of a Lambda function by finding the bottlenecks and eliminating them.
+See [this video](https://www.youtube.com/watch?v=GUsjj1jsLhw) of how we optimized the cost of a Lambda function by finding the bottlenecks and eliminating them.
 
 ## See also
 
+- [How much does Remotion Lambda cost?](/docs/lambda/cost-example)
 - [Optimizing for speed](/docs/lambda/optimizing-speed)
 - [Performance](/docs/performance)

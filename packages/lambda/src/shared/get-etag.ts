@@ -6,18 +6,49 @@ const chunk = 1024 * 1024 * 5; // 5MB
 const md5 = (data: Buffer) =>
 	crypto.createHash('md5').update(data).digest('hex');
 
-export const getEtagOfFile = async (filePath: string) => {
-	const stream = await fs.promises.readFile(filePath);
-	if (stream.length <= chunk) {
-		return `"${md5(stream)}"`;
-	}
+export const getEtagOfFile = (
+	filePath: string,
+	onProgress: (bytes: number) => void,
+) => {
+	const calc = async () => {
+		const size = await fs.promises.stat(filePath).then((s) => s.size);
 
-	const md5Chunks = [];
-	const chunksNumber = Math.ceil(stream.length / chunk);
-	for (let i = 0; i < chunksNumber; i++) {
-		const chunkStream = stream.slice(i * chunk, (i + 1) * chunk);
-		md5Chunks.push(md5(chunkStream));
-	}
+		if (size <= chunk) {
+			const buffer = await fs.promises.readFile(filePath);
+			return `"${md5(buffer)}"`;
+		}
 
-	return `"${md5(Buffer.from(md5Chunks.join(''), 'hex'))}-${chunksNumber}"`;
+		const stream = fs.createReadStream(filePath, {
+			highWaterMark: chunk,
+		});
+
+		const md5Chunks: string[] = [];
+		const chunksNumber = Math.ceil(size / chunk);
+
+		return new Promise<string>((resolve, reject) => {
+			stream.on('data', (c) => {
+				md5Chunks.push(md5(c as Buffer));
+				onProgress(c.length);
+			});
+			stream.on('end', () => {
+				resolve(
+					`"${md5(Buffer.from(md5Chunks.join(''), 'hex'))}-${chunksNumber}"`,
+				);
+			});
+			stream.on('error', (err) => {
+				reject(err);
+			});
+		});
+	};
+
+	let tag: string | null = null;
+
+	return async () => {
+		if (tag !== null) {
+			return tag;
+		}
+
+		tag = await calc();
+		return tag;
+	};
 };

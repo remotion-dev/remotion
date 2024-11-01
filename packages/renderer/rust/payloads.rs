@@ -55,11 +55,6 @@ pub mod payloads {
     }
 
     #[derive(Serialize, Deserialize, Debug)]
-    pub struct CopyImageToClipboard {
-        pub src: String,
-    }
-
-    #[derive(Serialize, Deserialize, Debug)]
     pub struct ExtractFrameCommand {
         pub src: String,
         pub original_src: String,
@@ -278,7 +273,6 @@ pub mod payloads {
         FreeUpMemory(FreeUpMemory),
         Echo(EchoPayload),
         GetVideoMetadata(GetVideoMetadata),
-        CopyImageToClipboard(CopyImageToClipboard),
         GetSilences(GetSilences),
         ExtractAudio(ExtractAudio),
     }

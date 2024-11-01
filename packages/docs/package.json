@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/docs"
 	},
 	"name": "docs",
-	"version": "4.0.188",
+	"version": "4.0.226",
 	"private": true,
 	"scripts": {
 		"formatting": "prettier src --check",
@@ -21,7 +21,7 @@
 	},
 	"dependencies": {
 		"@algora/sdk": "^0.1.2",
-		"@aws-sdk/s3-request-presigner": "3.215.0",
+		"@aws-sdk/s3-request-presigner": "3.645.0",
 		"@babel/plugin-transform-modules-commonjs": "^7.15.4",
 		"@docusaurus/core": "3.4.0",
 		"@docusaurus/plugin-content-blog": "3.4.0",
@@ -41,6 +41,7 @@
 		"@remotion/fonts": "workspace:*",
 		"@remotion/gif": "workspace:*",
 		"@remotion/google-fonts": "workspace:*",
+		"@remotion/captions": "workspace:*",
 		"@remotion/install-whisper-cpp": "workspace:*",
 		"@remotion/lambda": "workspace:*",
 		"@remotion/layout-utils": "workspace:*",
@@ -50,6 +51,7 @@
 		"@remotion/noise": "workspace:*",
 		"@remotion/paths": "workspace:*",
 		"@remotion/player": "workspace:*",
+		"@remotion/openai-whisper": "workspace:*",
 		"@remotion/preload": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"@remotion/rive": "workspace:*",
@@ -60,8 +62,9 @@
 		"@remotion/enable-scss": "workspace:*",
 		"@remotion/three": "workspace:*",
 		"@remotion/transitions": "workspace:*",
+		"@remotion/media-parser": "workspace:*",
 		"@rive-app/canvas-advanced": "2.3.0",
-		"@shopify/react-native-skia": "^1.2.2",
+		"@shopify/react-native-skia": "1.3.13",
 		"@swc/core": "^1.3.80",
 		"@types/uuid": "^8.3.4",
 		"chalk": "4.1.2",
@@ -70,12 +73,12 @@
 		"color-namer": "1.4.0",
 		"copy-text-to-clipboard": "^2",
 		"create-video": "workspace:*",
-		"got": "^11",
 		"hls.js": "^0.14.17",
 		"lottie-web": "^5.12.2",
 		"mux-embed": "^4.16.0",
 		"plyr": "^3.7.3",
 		"polished": "4.1.2",
+		"next": "14.2.13",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"remark-shiki-twoslash": "^3.1.3",
@@ -91,8 +94,9 @@
 		"@types/color-namer": "^1.3.0",
 		"@types/hls.js": "^0.13.3",
 		"@types/unist": "^2.0.0",
-		"@types/node": "20.14.11",
+		"@types/node": "20.12.14",
 		"lodash.sortby": "^4.7.0",
-		"url-loader": "^4.1.1"
+		"url-loader": "^4.1.1",
+		"openai": "4.67.1"
 	}
 }

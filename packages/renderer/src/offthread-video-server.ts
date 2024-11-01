@@ -194,8 +194,10 @@ export const startOffthreadVideoServer = ({
 						const isBmp = firstByte === 0x42 && secondByte === 0x4d;
 						if (isPng) {
 							response.setHeader('content-type', `image/png`);
+							response.setHeader('content-length', readable.byteLength);
 						} else if (isBmp) {
 							response.setHeader('content-type', `image/bmp`);
+							response.setHeader('content-length', readable.byteLength);
 						} else {
 							reject(
 								new Error(

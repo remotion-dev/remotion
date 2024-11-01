@@ -46,6 +46,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	loopVolumeCurveBehavior,
 	delayRenderRetries,
 	delayRenderTimeoutInMilliseconds,
+	onVideoFrame,
 	...props
 }) => {
 	const absoluteFrame = useTimelinePosition();
@@ -159,12 +160,16 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	const [imageSrc, setImageSrc] = useState<SrcAndHandle | null>(null);
 
 	useLayoutEffect(() => {
+		if (!window.remotion_videoEnabled) {
+			return;
+		}
+
 		const cleanup: Function[] = [];
 
 		setImageSrc(null);
 		const controller = new AbortController();
 
-		const newHandle = delayRender('Fetching ' + actualSrc + 'from server', {
+		const newHandle = delayRender(`Fetching ${actualSrc} from server`, {
 			retries: delayRenderRetries ?? undefined,
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 		});
@@ -203,11 +208,21 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			} catch (err) {
 				// If component is unmounted, we should not throw
 				if ((err as Error).message.includes('aborted')) {
+					continueRender(newHandle);
 					return;
 				}
 
 				if (controller.signal.aborted) {
+					continueRender(newHandle);
 					return;
+				}
+
+				if ((err as Error).message.includes('Failed to fetch')) {
+					// eslint-disable-next-line no-ex-assign
+					err = new Error(
+						`Failed to fetch ${actualSrc}. This could be caused by Chrome rejecting the request because the disk space is low. Consider increasing the disk size of your environment.`,
+						{cause: err},
+					);
 				}
 
 				if (onError) {
@@ -253,7 +268,16 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			.join(' ');
 	}, [props.className]);
 
-	if (!imageSrc) {
+	const onImageFrame = useCallback(
+		(img: HTMLImageElement) => {
+			if (onVideoFrame) {
+				onVideoFrame(img);
+			}
+		},
+		[onVideoFrame],
+	);
+
+	if (!imageSrc || !window.remotion_videoEnabled) {
 		return null;
 	}
 
@@ -265,6 +289,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			className={className}
 			delayRenderRetries={delayRenderRetries}
 			delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
+			onImageFrame={onImageFrame}
 			{...props}
 			onError={onErr}
 		/>

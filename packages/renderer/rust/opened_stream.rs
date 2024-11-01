@@ -307,7 +307,14 @@ impl OpenedStream {
                 }
             }
 
-            self.video.send_packet(&packet)?;
+            // Don't throw an error here, sometimes it will still work!
+            // For example, loop melting-0.5x.webm from <AnimatedEmoji /> component
+            // and we will get the error "Invalid data found when processing input"
+            // but it'll still work!
+            let res = self.video.send_packet(&packet);
+            if res.is_err() {
+                _print_verbose(&format!("Error sending packet: {}", res.err().unwrap()))?;
+            }
 
             let result = self.receive_frame();
 
@@ -543,6 +550,10 @@ pub fn open_stream(
 
     let display_aspect_ratio = get_display_aspect_ratio(&mut_stream);
 
+    _print_verbose(&format!("Display aspect ratio: {:?}", display_aspect_ratio))?;
+    _print_verbose(&format!("Sample aspect ratio: {} {}", sar_x, sar_y))?;
+    _print_verbose(&format!("Original width: {}, original height: {}", original_width, original_height))?;
+
     let (scaled_width, scaled_height) = calculate_display_video_size(
         display_aspect_ratio.0,
         display_aspect_ratio.1,
@@ -551,6 +562,8 @@ pub fn open_stream(
         original_width,
         original_height,
     );
+    _print_verbose(&format!("new width: {}, new height: {}", scaled_width, scaled_height))?;
+
 
     let filter_graph = FilterGraph {
         original_width,

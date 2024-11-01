@@ -108,14 +108,27 @@ class CustomCredentialsWithoutSensitiveData:
 @dataclass
 class CustomCredentials(CustomCredentialsWithoutSensitiveData):
     """
-    Represents custom credentials, extending credentials without sensitive data.
+        Represents custom credentials, extending credentials without sensitive data.
 
-    Attributes:
-        access_key_id (Optional[str]): The access key ID.
-        secret_access_key (Optional[str]): The secret access key.
-    """
+        Attributes:
+            access_key_id (Optional[str]): The access key ID.
+            secret_access_key (Optional[str]): The secret access key.
+        """
     access_key_id: Optional[str] = None
     secret_access_key: Optional[str] = None
+    region: Optional[str] = None
+
+    def serialize_params(self) -> Dict:
+        """
+        Serializes the credentials to a dictionary.
+        """
+        parameters = {
+            'accessKeyId': self.access_key_id,
+            'secretAccessKey': self.secret_access_key,
+            'region': self.region,
+            'endpoint': self.endpoint,
+        }
+        return parameters
 
 
 @dataclass
@@ -183,6 +196,8 @@ class RenderProgressParams:
     function_name: str
     region: str
     log_level: str
+    force_path_style: Optional[bool] = None
+    s3_output_provider: Optional[CustomCredentials] = None
 
     def serialize_params(self) -> Dict:
         """
@@ -194,8 +209,17 @@ class RenderProgressParams:
             'type': 'status',
             "version": VERSION,
             "logLevel": self.log_level,
-            "s3OutputProvider": None,
+            "s3OutputProvider": self.s3_output_provider,
         }
+        if self.force_path_style is not None:
+            parameters['forcePathStyle'] = self.force_path_style
+        else:
+            parameters['forcePathStyle'] = False
+
+        if self.s3_output_provider is not None:
+            parameters['s3OutputProvider'] = self.s3_output_provider.serialize_params()
+        else:
+            parameters['s3OutputProvider'] = None
         return parameters
 
 
@@ -263,6 +287,7 @@ class RenderMediaParams:
     image_format: ValidStillImageFormats = ValidStillImageFormats.JPEG
     crf: Optional[int] = None
     env_variables: Optional[Dict] = None
+    metadata: Optional[Dict] = None
     max_retries: int = 1
     jpeg_quality: int = 80
     privacy: Privacy = Privacy.PUBLIC
@@ -279,6 +304,7 @@ class RenderMediaParams:
         default_factory=lambda: {'type': 'play-in-browser'})
     muted: bool = False
     overwrite: bool = False
+    force_path_style: Optional[bool] = None
     audio_bitrate: Optional[int] = None
     video_bitrate: Optional[int] = None
     webhook: Optional[Webhook] = None
@@ -309,6 +335,7 @@ class RenderMediaParams:
             'maxRetries': self.max_retries,
             'jpegQuality': self.jpeg_quality,
             'envVariables': self.env_variables,
+            'metadata': self.metadata,
             'privacy': self.privacy,
             'colorSpace': self.color_space,
             'logLevel': self.log_level,
@@ -346,6 +373,9 @@ class RenderMediaParams:
         if self.env_variables is None:
             parameters['envVariables'] = {}
 
+        if self.metadata is None:
+            parameters['metadata'] = {}
+
         if self.pixel_format is not None:
             parameters['pixelFormat'] = self.pixel_format
 
@@ -355,6 +385,10 @@ class RenderMediaParams:
         if self.x264_preset is not None:
             parameters['x264Preset'] = self.x264_preset
 
+        if self.force_path_style is not None:
+            parameters['forcePathStyle'] = self.force_path_style
+        else:
+            parameters['forcePathStyle'] = False
         return parameters
 
 
@@ -386,6 +420,7 @@ class RenderStillParams:
     force_bucket_name: Optional[str] = None
     dump_browser_logs: Optional[bool] = None
     delete_after: Optional[DeleteAfter] = None
+    force_path_style: Optional[bool] = None
     offthreadvideo_cache_size_in_bytes: Optional[int] = None
     streamed: bool = False
 
@@ -431,8 +466,13 @@ class RenderStillParams:
             'deleteAfter': self.delete_after,
             'attempt': self.attempt,
             'offthreadVideoCacheSizeInBytes': self.offthreadvideo_cache_size_in_bytes,
-            'streamed': self.streamed
+            'streamed': self.streamed,
         }
+
+        if self.force_path_style is not None:
+            parameters['forcePathStyle'] = self.force_path_style
+        else:
+            parameters['forcePathStyle'] = False
 
         return parameters
 

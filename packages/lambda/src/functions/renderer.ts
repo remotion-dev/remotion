@@ -5,6 +5,7 @@ import type {
 	OnArtifact,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {
 	CloudProvider,
 	OnStream,
@@ -73,6 +74,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 		serialized: params.inputProps,
 		propsType: 'input-props',
 		providerSpecifics,
+		forcePathStyle: params.forcePathStyle,
 	});
 
 	const resolvedPropsPromise = decompressInputProps({
@@ -82,6 +84,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 		serialized: params.resolvedProps,
 		propsType: 'resolved-props',
 		providerSpecifics,
+		forcePathStyle: params.forcePathStyle,
 	});
 
 	const browserInstance = await getBrowserInstance({
@@ -137,7 +140,11 @@ const renderHandler = async <Provider extends CloudProvider>({
 	);
 
 	const chunkCodec: Codec =
-		seamlessVideo && params.codec === 'h264' ? 'h264-ts' : params.codec;
+		seamlessVideo && params.codec === 'h264'
+			? 'h264-ts'
+			: params.codec === 'gif'
+				? 'h264-ts'
+				: params.codec;
 	const audioCodec: AudioCodec | null =
 		defaultAudioCodec === null
 			? null
@@ -169,7 +176,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 	const audioOutputLocation =
 		willRenderAudioEval === 'no'
 			? null
-			: RenderInternals.isAudioCodec(params.codec)
+			: NoReactAPIs.isAudioCodec(params.codec)
 				? null
 				: audioExtension
 					? path.join(outdir, `${chunk}.${audioExtension}`)
@@ -317,6 +324,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 				throw new Error('Should not download a browser in Lambda');
 			},
 			onArtifact,
+			metadata: params.metadata,
 		})
 			.then(({slowestFrames}) => {
 				RenderInternals.Log.verbose(
@@ -351,7 +359,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 	if (videoOutputLocation) {
 		const videoChunkTimer = timer('Sending main chunk', params.logLevel);
 		await onStream({
-			type: RenderInternals.isAudioCodec(params.codec)
+			type: NoReactAPIs.isAudioCodec(params.codec)
 				? 'audio-chunk-rendered'
 				: 'video-chunk-rendered',
 			payload: fs.readFileSync(videoOutputLocation),
@@ -417,6 +425,7 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 	const logs: BrowserLog[] = [];
 
 	const leakDetection = enableNodeIntrospection(ENABLE_SLOW_LEAK_DETECTION);
+	let shouldKeepBrowserOpen = true;
 
 	try {
 		await renderHandler({
@@ -438,6 +447,9 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
 		const isRetryableError = isFlakyError(err as Error);
+		if (isRetryableError) {
+			shouldKeepBrowserOpen = false;
+		}
 
 		const shouldNotRetry = (err as Error).name === 'CancelledError';
 
@@ -448,7 +460,10 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 			{indent: false, logLevel: params.logLevel},
 			`Error occurred (will retry = ${String(shouldRetry)})`,
 		);
-		RenderInternals.Log.error({indent: false, logLevel: params.logLevel}, err);
+		RenderInternals.Log.error(
+			{indent: false, logLevel: params.logLevel},
+			(err as Error).stack,
+		);
 
 		onStream({
 			type: 'error-occurred',
@@ -476,7 +491,19 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 
 		throw err;
 	} finally {
-		forgetBrowserEventLoop(params.logLevel);
+		if (shouldKeepBrowserOpen) {
+			forgetBrowserEventLoop(params.logLevel);
+		} else {
+			RenderInternals.Log.info(
+				{indent: false, logLevel: params.logLevel},
+				'Lambda did not succeed with flaky error, not keeping browser open.',
+			);
+			RenderInternals.Log.info(
+				{indent: false, logLevel: params.logLevel},
+				'Quitting Lambda forcefully now to force not keeping the Lambda warm.',
+			);
+			process.exit(0);
+		}
 
 		if (ENABLE_SLOW_LEAK_DETECTION) {
 			startLeakDetection(leakDetection, requestContext.awsRequestId);

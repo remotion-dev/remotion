@@ -11,6 +11,7 @@ import {getBundleMapUrlFromServeUrl} from './get-bundle-url-from-serve-url';
 import {isServeUrl} from './is-serve-url';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
+import {normalizeServeUrl} from './normalize-serve-url';
 import {serveStatic} from './serve-static';
 import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
 import {
@@ -75,11 +76,11 @@ export const prepareServer = async ({
 			forceIPv4,
 		});
 
+		const normalized = normalizeServeUrl(webpackConfigOrServeUrl);
+
 		let remoteSourceMap: AnySourceMapConsumer | null = null;
 
-		getSourceMapFromRemoteUrl(
-			getBundleMapUrlFromServeUrl(webpackConfigOrServeUrl),
-		)
+		getSourceMapFromRemoteUrl(getBundleMapUrlFromServeUrl(normalized))
 			.then((s) => {
 				remoteSourceMap = s;
 			})
@@ -87,13 +88,13 @@ export const prepareServer = async ({
 				Log.verbose(
 					{indent, logLevel},
 					'Could not fetch sourcemap for ',
-					webpackConfigOrServeUrl,
+					normalized,
 					err,
 				);
 			});
 
 		return Promise.resolve({
-			serveUrl: webpackConfigOrServeUrl,
+			serveUrl: normalized,
 			closeServer: () => {
 				cleanDownloadMap(downloadMap);
 				remoteSourceMap?.destroy();

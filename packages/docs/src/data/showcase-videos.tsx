@@ -369,6 +369,48 @@ export const showcaseVideos: ShowcaseVideo[] = [
 			},
 		],
 	},
+	{
+		title: 'MyKaraoke Video - Karaoke Video Maker',
+		type: 'mux_video',
+		time: '5',
+		muxId: 'Fr8PlMVQRTEaoVRC0025r00WY0100JiDgbf1BoNsLYtu88o',
+		description:
+			'MyKaraoke Video is a browser-based tool that effortlessly creates karaoke and lyric videos with AI-powered vocal removal and automatic lyric syncing, all without downloads or installations.',
+		height: 1080,
+		width: 1920,
+		submittedOn: new Date('09-27-2024'),
+		links: [
+			{
+				type: 'website',
+				url: 'https://www.mykaraoke.video/',
+			},
+		],
+		author: {
+			url: 'https://www.linkedin.com/in/emiliano-parizzi-18744ba4/',
+			name: 'Emiliano Parizzi',
+		},
+	},
+	{
+		title: 'Relay.app - Automation tool',
+		type: 'mux_video',
+		time: '0',
+		muxId: '02eNw8AHyNFvm300xvExVndO01oEvUI1kYXK00W02ITkeldM',
+		description:
+			'Remotion was utilized to create dynamic, programmatically generated instructional videos, ensuring explainer content remained consistent with the brand standards.',
+		height: 1080,
+		width: 1920,
+		submittedOn: new Date('10-11-2024'),
+		links: [
+			{
+				type: 'video',
+				url: 'https://youtube.com/playlist?list=PLLIj5N3yKeySGj9Cm3dqNtcVCPAd22yLo&si=cuKFXXpEPMFBF6Gm',
+			},
+			{
+				type: 'website',
+				url: 'https://www.relay.app/',
+			},
+		],
+	},
 
 	/*
   {

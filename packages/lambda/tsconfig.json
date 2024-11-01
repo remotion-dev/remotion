@@ -2,8 +2,7 @@
 	"extends": "../tsconfig.settings.json",
 	"compilerOptions": {
 		"rootDir": "src",
-		"outDir": "dist",
-		"lib": ["es2019", "dom"]
+		"outDir": "dist"
 	},
 	"include": ["src"],
 	"references": [

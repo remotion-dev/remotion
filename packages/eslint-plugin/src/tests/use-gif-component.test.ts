@@ -1,19 +1,19 @@
-import { ESLintUtils } from "@typescript-eslint/utils";
-import rule from "../rules/use-gif-component";
+import {ESLintUtils} from '@typescript-eslint/utils';
+import rule from '../rules/use-gif-component';
 
 const ruleTester = new ESLintUtils.RuleTester({
-  parser: "@typescript-eslint/parser",
-  parserOptions: {
-    ecmaFeatures: {
-      jsx: true,
-    },
-  },
+	parser: '@typescript-eslint/parser',
+	parserOptions: {
+		ecmaFeatures: {
+			jsx: true,
+		},
+	},
 });
 
-ruleTester.run("use-gif-component", rule, {
-  valid: [
-    // Network image should be allowed
-    `
+ruleTester.run('use-gif-component', rule, {
+	valid: [
+		// Network image should be allowed
+		`
 import {Img} from 'remotion';
 
 export const Re = () => {
@@ -22,7 +22,7 @@ export const Re = () => {
   );
 }
           `,
-    `
+		`
 import {Img, staticFile} from 'remotion';
 
 export const Re = () => {
@@ -31,7 +31,7 @@ export const Re = () => {
   );
 }
           `,
-    `
+		`
 import {Img} from 'remotion';
 
 export const Re = () => {
@@ -46,7 +46,7 @@ export const Re = () => {
   );
 }
           `,
-    `
+		`
 import {Img} from 'remotion';
 import img from './img.png';
 
@@ -56,7 +56,7 @@ export const Re = () => {
   );
 }
                 `,
-    `
+		`
 import {Gif} from '@remotion/gif';
 import {staticFile} from 'remotion';
 
@@ -66,10 +66,10 @@ export const Re = () => {
   );
 }
                 `,
-  ],
-  invalid: [
-    {
-      code: `
+	],
+	invalid: [
+		{
+			code: `
 import {Img} from 'remotion';
 
 export const Re = () => {
@@ -78,11 +78,11 @@ export const Re = () => {
   );
 }
       `,
-      errors: [
-        {
-          messageId: "UseGifComponent",
-        },
-      ],
-    },
-  ],
+			errors: [
+				{
+					messageId: 'UseGifComponent',
+				},
+			],
+		},
+	],
 });

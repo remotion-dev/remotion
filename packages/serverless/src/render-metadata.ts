@@ -28,6 +28,11 @@ type Discriminated =
 			codec: ServerlessCodec;
 	  };
 
+type Dimensions = {
+	width: number;
+	height: number;
+};
+
 export type RenderMetadata<Provider extends CloudProvider> = Discriminated & {
 	siteId: string;
 	startedDate: number;
@@ -39,6 +44,7 @@ export type RenderMetadata<Provider extends CloudProvider> = Discriminated & {
 	inputProps: SerializedInputProps;
 	framesPerLambda: number;
 	memorySizeInMb: number;
+	functionName: string;
 	lambdaVersion: string;
 	region: Provider['region'];
 	renderId: string;
@@ -48,4 +54,6 @@ export type RenderMetadata<Provider extends CloudProvider> = Discriminated & {
 	numberOfGifLoops: number | null;
 	audioBitrate: string | null;
 	downloadBehavior: DownloadBehavior;
+	metadata: Record<string, string> | null;
+	dimensions: Dimensions;
 };

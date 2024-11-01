@@ -1,9 +1,9 @@
 ---
 image: /generated/articles-docs-lambda-troubleshooting-rate-limit.png
 id: rate-limit
-sidebar_label: Rate Limit
+sidebar_label: TooManyRequestsException
 title: AWS Rate Limit Troubleshooting
-crumb: "Lambda Troubleshooting"
+crumb: 'Lambda Troubleshooting'
 ---
 
 If you get an error message:
@@ -21,9 +21,17 @@ while calling a Lambda function, it means your concurrency limit has been reache
 
 By default, the concurrency limit is 1000 functions per region, however in some regions the burst limit is only 500, somewhat limiting the scale you can use.
 
-## Exception: New accounts using AWS Lambda
+## New accounts using AWS Lambda
 
 According to AWS, "some accounts" which are new to AWS Lambda might get a very low concurrency limit such as 10 when they first start with AWS Lambda. In that case, increase the limit via the AWS console or the Remotion CLI (see below).
+
+### Workaround
+
+If you want to test Remotion Lambda while you are waiting for AWS to approve a higher concurrency limit, you can pass a higher number to [`framesPerLambda`](/docs/lambda/rendermediaonlambda#framesperlambda).
+
+For example: If your account currently has a concurrency limit of 10 and you want to render a composition with 900 frames, you can set `framesPerLambda` to `100`.  
+9 Lambda renderer functions will be spawned: `900 / 100 = 9`.  
+An additional Lambda function will be spawned for orchestration, meaning a total of 10 Lambda functions will be used, keeping yourself within your limit.
 
 ## See your limits
 

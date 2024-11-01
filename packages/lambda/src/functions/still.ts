@@ -52,14 +52,17 @@ type Options<Provider extends CloudProvider> = {
 	providerSpecifics: ProviderSpecifics<Provider>;
 };
 
-const innerStillHandler = async <Provider extends CloudProvider>({
-	params: lambdaParams,
-	expectedBucketOwner,
-	renderId,
-	onStream,
-	timeoutInMilliseconds,
-	providerSpecifics,
-}: Options<Provider>) => {
+const innerStillHandler = async <Provider extends CloudProvider>(
+	{
+		params: lambdaParams,
+		expectedBucketOwner,
+		renderId,
+		onStream,
+		timeoutInMilliseconds,
+		providerSpecifics,
+	}: Options<Provider>,
+	cleanup: CleanupFn[],
+) => {
 	if (lambdaParams.type !== ServerlessRoutines.still) {
 		throw new TypeError('Expected still type');
 	}
@@ -100,6 +103,7 @@ const innerStillHandler = async <Provider extends CloudProvider>({
 			enableFolderExpiry: null,
 			customCredentials: null,
 			providerSpecifics,
+			forcePathStyle: lambdaParams.forcePathStyle,
 		}).then((b) => b.bucketName);
 
 	const outputDir = RenderInternals.tmpDir('remotion-render-');
@@ -115,6 +119,7 @@ const innerStillHandler = async <Provider extends CloudProvider>({
 		serialized: lambdaParams.inputProps,
 		propsType: 'input-props',
 		providerSpecifics,
+		forcePathStyle: lambdaParams.forcePathStyle,
 	});
 
 	const serveUrl = providerSpecifics.convertToServeUrl({
@@ -123,17 +128,26 @@ const innerStillHandler = async <Provider extends CloudProvider>({
 		bucketName,
 	});
 
-	const server = await RenderInternals.prepareServer({
-		concurrency: 1,
-		indent: false,
-		port: null,
-		remotionRoot: process.cwd(),
-		logLevel: lambdaParams.logLevel,
-		webpackConfigOrServeUrl: serveUrl,
-		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
-		binariesDirectory: null,
-		forceIPv4: false,
-	});
+	const {server, cleanupServer} = await RenderInternals.makeOrReuseServer(
+		undefined,
+		{
+			concurrency: 1,
+			indent: false,
+			port: null,
+			remotionRoot: process.cwd(),
+			logLevel: lambdaParams.logLevel,
+			webpackConfigOrServeUrl: serveUrl,
+			offthreadVideoCacheSizeInBytes:
+				lambdaParams.offthreadVideoCacheSizeInBytes,
+			binariesDirectory: null,
+			forceIPv4: false,
+		},
+		{
+			onDownload: () => undefined,
+		},
+	);
+
+	cleanup.push(() => cleanupServer(true));
 
 	const browserInstance = await browserInstancePromise;
 	const composition = await validateComposition({
@@ -180,6 +194,12 @@ const innerStillHandler = async <Provider extends CloudProvider>({
 		numberOfGifLoops: null,
 		downloadBehavior: lambdaParams.downloadBehavior,
 		audioBitrate: null,
+		metadata: null,
+		functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
+		dimensions: {
+			height: composition.height * (lambdaParams.scale ?? 1),
+			width: composition.width * (lambdaParams.scale ?? 1),
+		},
 	};
 
 	const still = makeInitialOverallRenderProgress(timeoutInMilliseconds);
@@ -194,6 +214,7 @@ const innerStillHandler = async <Provider extends CloudProvider>({
 		expectedBucketOwner,
 		downloadBehavior: null,
 		customCredentials: null,
+		forcePathStyle: lambdaParams.forcePathStyle,
 	});
 
 	const onBrowserDownload = () => {
@@ -239,6 +260,7 @@ const innerStillHandler = async <Provider extends CloudProvider>({
 				expectedBucketOwner,
 				downloadBehavior: lambdaParams.downloadBehavior,
 				customCredentials,
+				forcePathStyle: lambdaParams.forcePathStyle,
 			})
 			.then(() => {
 				RenderInternals.Log.info(
@@ -305,6 +327,7 @@ const innerStillHandler = async <Provider extends CloudProvider>({
 		region: providerSpecifics.getCurrentRegionInFunction(),
 		downloadBehavior: lambdaParams.downloadBehavior,
 		customCredentials,
+		forcePathStyle: lambdaParams.forcePathStyle,
 	});
 
 	await Promise.all([
@@ -313,6 +336,7 @@ const innerStillHandler = async <Provider extends CloudProvider>({
 			region: providerSpecifics.getCurrentRegionInFunction(),
 			serialized: lambdaParams.inputProps,
 			providerSpecifics,
+			forcePathStyle: lambdaParams.forcePathStyle,
 		}),
 		server.closeServer(true),
 	]);
@@ -350,7 +374,11 @@ const innerStillHandler = async <Provider extends CloudProvider>({
 		type: 'still-rendered',
 		payload,
 	});
+
+	await server.closeServer(true);
 };
+
+type CleanupFn = () => Promise<unknown>;
 
 export const stillHandler = async <Provider extends CloudProvider>(
 	options: Options<Provider>,
@@ -366,12 +394,14 @@ export const stillHandler = async <Provider extends CloudProvider>(
 > => {
 	const {params} = options;
 
+	const cleanUpFn: CleanupFn[] = [];
+
 	if (params.type !== ServerlessRoutines.still) {
 		throw new Error('Params must be renderer');
 	}
 
 	try {
-		await innerStillHandler(options);
+		await innerStillHandler(options, cleanUpFn);
 		return {type: 'success'};
 	} catch (err) {
 		// If this error is encountered, we can just retry as it
@@ -386,7 +416,7 @@ export const stillHandler = async <Provider extends CloudProvider>(
 			},
 			'Got error:',
 			(err as Error).stack,
-			'Will retry.',
+			`Will retry = ${willRetry}`,
 		);
 
 		if (params.streamed) {
@@ -409,7 +439,7 @@ export const stillHandler = async <Provider extends CloudProvider>(
 						),
 						attempt: params.attempt,
 						totalAttempts: 1 + params.maxRetries,
-						willRetry: true,
+						willRetry,
 					},
 				},
 			});
@@ -426,5 +456,7 @@ export const stillHandler = async <Provider extends CloudProvider>(
 				? options.params.logLevel
 				: 'error',
 		);
+
+		cleanUpFn.forEach((c) => c());
 	}
 };

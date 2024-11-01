@@ -30,6 +30,7 @@ type OptionalParameters = {
 	options: {
 		onBundleProgress?: (progress: number) => void;
 		onUploadProgress?: (upload: UploadDirProgress) => void;
+		onDiffingProgress?: (bytes: number, done: boolean) => void;
 		webpackOverride?: WebpackOverrideFn;
 		ignoreRegisterRootWarning?: boolean;
 		enableCaching?: boolean;
@@ -40,6 +41,7 @@ type OptionalParameters = {
 	privacy: 'public' | 'no-acl';
 	gitSource: GitSource | null;
 	indent: boolean;
+	forcePathStyle: boolean;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.deploySiteLambda>;
 
 export type DeploySiteInput = MandatoryParameters & Partial<OptionalParameters>;
@@ -64,6 +66,7 @@ const mandatoryDeploySite = async ({
 	gitSource,
 	throwIfSiteExists,
 	providerSpecifics,
+	forcePathStyle,
 }: MandatoryParameters &
 	OptionalParameters & {
 		providerSpecifics: ProviderSpecifics<AwsProvider>;
@@ -82,6 +85,7 @@ const mandatoryDeploySite = async ({
 		bucketName,
 		region,
 		expectedBucketOwner: accountId,
+		forcePathStyle,
 	});
 	if (!bucketExists) {
 		throw new Error(`No bucket with the name ${bucketName} exists`);
@@ -96,6 +100,7 @@ const mandatoryDeploySite = async ({
 			region,
 			// The `/` is important to not accidentially delete sites with the same name but containing a suffix.
 			prefix: `${subFolder}/`,
+			forcePathStyle,
 		}),
 		bundleSite({
 			publicPath: `/${subFolder}/`,
@@ -126,11 +131,21 @@ const mandatoryDeploySite = async ({
 		);
 	}
 
+	options.onDiffingProgress?.(0, false);
+
+	let totalBytes = 0;
+
 	const {toDelete, toUpload, existingCount} = await getS3DiffOperations({
 		objects: files,
 		bundle: bundled,
 		prefix: subFolder,
+		onProgress: (bytes) => {
+			totalBytes = bytes;
+			options.onDiffingProgress?.(bytes, false);
+		},
 	});
+
+	options.onDiffingProgress?.(totalBytes, true);
 
 	await Promise.all([
 		uploadDir({
@@ -141,6 +156,7 @@ const mandatoryDeploySite = async ({
 			keyPrefix: subFolder,
 			privacy: privacy ?? 'public',
 			toUpload,
+			forcePathStyle,
 		}),
 		Promise.all(
 			toDelete.map((d) => {
@@ -149,6 +165,7 @@ const mandatoryDeploySite = async ({
 					customCredentials: null,
 					key: d.Key as string,
 					region,
+					forcePathStyle,
 				});
 			}),
 		),
@@ -195,5 +212,6 @@ export const deploySite = (args: DeploySiteInput) => {
 		logLevel: 'info',
 		throwIfSiteExists: args.throwIfSiteExists ?? false,
 		providerSpecifics: awsImplementation,
+		forcePathStyle: args.forcePathStyle ?? false,
 	});
 };

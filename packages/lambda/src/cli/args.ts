@@ -3,6 +3,7 @@ import type {BrowserSafeApis} from '@remotion/renderer/client';
 import type {AwsRegion, DeleteAfter} from '../client';
 
 import type {Privacy} from '@remotion/serverless/client';
+import type {RuntimePreference} from '../shared/get-layers';
 
 type LambdaCommandLineOptions = {
 	help: boolean;
@@ -39,12 +40,15 @@ type LambdaCommandLineOptions = {
 	['vpc-subnet-ids']: string | undefined;
 	['vpc-security-group-ids']: string | undefined;
 	['compatible-only']: boolean;
+	['force-path-style']: boolean;
+	['runtime-preference']: RuntimePreference;
 };
 
 export const parsedLambdaCli = CliInternals.minimist<LambdaCommandLineOptions>(
 	process.argv.slice(2),
 	{
 		boolean: CliInternals.BooleanFlags,
+		string: ['_'],
 	},
 );
 

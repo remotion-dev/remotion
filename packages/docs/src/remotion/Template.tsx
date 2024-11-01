@@ -67,11 +67,11 @@ export const TemplateComp: React.FC<{
 							alignItems: 'center',
 						}}
 					>
-						{template.cliId === 'next' ||
-						template.cliId === 'next-tailwind' ||
-						template.cliId === 'next-pages-dir' ? null : (
+						{template!.cliId === 'next' ||
+						template!.cliId === 'next-tailwind' ||
+						template!.cliId === 'next-pages-dir' ? null : (
 							<>
-								<IconForTemplate scale={1.6} template={template} />{' '}
+								<IconForTemplate scale={1.6} template={template!} />{' '}
 								<div
 									style={{
 										width: 25,
@@ -81,7 +81,7 @@ export const TemplateComp: React.FC<{
 							</>
 						)}
 
-						{template.shortName}
+						{template!.shortName}
 					</div>
 				</div>
 
@@ -111,7 +111,7 @@ export const TemplateComp: React.FC<{
 					>
 						<div>
 							<div style={{opacity: 0.7}}>Install this template</div>
-							<div>npx create-video@latest --template {template.cliId}</div>
+							<div>npx create-video@latest --template {template!.cliId}</div>
 						</div>
 					</div>
 					<div

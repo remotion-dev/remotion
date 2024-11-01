@@ -202,7 +202,7 @@ export const prefetch = (
 				canceled = true;
 				if (canBeAborted) {
 					try {
-						controller.abort();
+						controller.abort(new Error('free() called'));
 					} catch (e) {}
 				}
 			}

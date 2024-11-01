@@ -63,6 +63,8 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		[setDurations],
 	);
 
+	const onVideoFrame = useCallback(() => {}, []);
+
 	const durationFetched =
 		durations[getAbsoluteSrc(preloadedSrc)] ??
 		durations[getAbsoluteSrc(props.src)];
@@ -116,7 +118,12 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 
 	if (environment.isRendering) {
 		return (
-			<VideoForRendering onDuration={onDuration} {...otherProps} ref={ref} />
+			<VideoForRendering
+				onDuration={onDuration}
+				onVideoFrame={onVideoFrame ?? null}
+				{...otherProps}
+				ref={ref}
+			/>
 		);
 	}
 
@@ -125,6 +132,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 			onlyWarnForMediaSeekingError={false}
 			{...otherProps}
 			ref={ref}
+			onVideoFrame={null}
 			// Proposal: Make this default to true in v5
 			pauseWhenBuffering={pauseWhenBuffering ?? false}
 			onDuration={onDuration}

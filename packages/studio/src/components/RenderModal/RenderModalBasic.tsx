@@ -1,5 +1,6 @@
 import type {Codec, ProResProfile} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import React, {useCallback, useMemo} from 'react';
 import type {VideoConfig} from 'remotion';
 import {labelProResProfile} from '../../helpers/prores-labels';
@@ -62,7 +63,7 @@ export const RenderModalBasic: React.FC<{
 	const videoCodecOptions = useMemo((): ComboboxValue[] => {
 		return BrowserSafeApis.validCodecs
 			.filter((c) => {
-				return BrowserSafeApis.isAudioCodec(c) === (renderMode === 'audio');
+				return NoReactAPIs.isAudioCodec(c) === (renderMode === 'audio');
 			})
 			.map((codecOption) => {
 				return {

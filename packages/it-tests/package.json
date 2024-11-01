@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/it-tests"
 	},
 	"name": "@remotion/it-tests",
-	"version": "4.0.188",
+	"version": "4.0.226",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"scripts": {
 		"test": "bun test src/rendering --run",
@@ -28,9 +28,11 @@
 		"@remotion/lottie": "workspace:*",
 		"@remotion/layout-utils": "workspace:*",
 		"@remotion/install-whisper-cpp": "workspace:*",
+		"@remotion/captions": "workspace:*",
 		"@remotion/google-fonts": "workspace:*",
 		"@remotion/serverless": "workspace:*",
 		"@remotion/studio-server": "workspace:*",
+		"@remotion/studio-shared": "workspace:*",
 		"@remotion/transitions": "workspace:*",
 		"@types/sharp": "^0.28.5",
 		"create-video": "workspace:*",

@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useRef, useState} from 'react';
+import {useCallback, useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {cancelRender, continueRender, delayRender} from 'remotion';
 import {getAudioData} from './get-audio-data';
 import type {AudioData} from './types';
@@ -44,7 +44,7 @@ export const useAudioData = (src: string): AudioData | null => {
 		continueRender(handle);
 	}, [src]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		fetchMetadata();
 	}, [fetchMetadata]);
 

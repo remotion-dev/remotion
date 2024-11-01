@@ -32,17 +32,13 @@ export const RenderQueueContextProvider: React.FC<{
 		};
 	}, [jobs]);
 
-	useImperativeHandle(
-		renderJobsRef,
-		() => {
-			return {
-				updateRenderJobs: (newJobs) => {
-					setJobs(newJobs);
-				},
-			};
-		},
-		[],
-	);
+	useImperativeHandle(renderJobsRef, () => {
+		return {
+			updateRenderJobs: (newJobs) => {
+				setJobs(newJobs);
+			},
+		};
+	}, []);
 
 	return (
 		<RenderQueueContext.Provider value={value}>

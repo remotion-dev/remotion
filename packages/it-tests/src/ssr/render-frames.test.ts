@@ -55,6 +55,7 @@ test('Legacy SSR way of rendering videos should still work', async () => {
 		outputLocation: outPath,
 		width: reactSvg.width,
 		codec: 'h264',
+		metadata: {Author: 'Lunar'},
 	});
 	expect(fs.existsSync(outPath)).toBe(true);
 	const probe = await RenderInternals.callFf({

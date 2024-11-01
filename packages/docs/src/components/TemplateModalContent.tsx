@@ -5,6 +5,7 @@ import {BackButton} from './BackButton';
 import {CommandCopyButton} from './CommandCopyButton';
 import {MuxVideo} from './MuxVideo';
 import {Spinner} from './Spinner';
+import {Tailwind} from './icons/tailwind';
 
 const RESERVED_FOR_SIDEBAR = 550;
 
@@ -143,7 +144,7 @@ export const TemplateModalContent: React.FC<{
 	}, []);
 
 	const copyCommand = useCallback(async (command: string) => {
-		clearTimeout(copyTimeout);
+		clearTimeout(copyTimeout!);
 		const permissionName = 'clipboard-write' as PermissionName;
 		try {
 			const result = await navigator.permissions.query({
@@ -187,11 +188,19 @@ export const TemplateModalContent: React.FC<{
 					style={{
 						display: 'flex',
 						width: '100%',
+						aspectRatio:
+							template.type === 'video'
+								? `${template.promoVideo.width} / ${template.promoVideo.height}`
+								: undefined,
 					}}
 				>
 					{loaded || template.type === 'image' ? null : (
 						<div style={loadingStyle}>
-							<Spinner style={spinner} />
+							<Spinner
+								style={{
+									...spinner,
+								}}
+							/>
 						</div>
 					)}
 					{template.type === 'video' ? (
@@ -205,7 +214,6 @@ export const TemplateModalContent: React.FC<{
 								aspectRatio: `${template.promoVideo.width} / ${template.promoVideo.height}`,
 								width: '100%',
 								height: 'auto',
-								maxHeight: 450,
 								opacity: Number(loaded),
 								display: loaded ? 'inline-flex' : 'none',
 								borderRadius: 5,
@@ -356,6 +364,14 @@ export const TemplateModalContent: React.FC<{
 							</span>
 						</div>
 					</a>
+					{template.allowEnableTailwind ? (
+						<div style={githubrow}>
+							<div style={iconContainer}>
+								<Tailwind />
+							</div>
+							Supports Tailwind
+						</div>
+					) : null}
 				</div>
 			</div>{' '}
 			<br />
@@ -367,7 +383,13 @@ export const TemplateModalContent: React.FC<{
 			>
 				{template.shortName}
 			</h1>
-			<div style={description}>{template.longerDescription}</div>
+			<div
+				// eslint-disable-next-line react/no-danger
+				dangerouslySetInnerHTML={{
+					__html: template.longerDescription,
+				}}
+				style={description}
+			/>
 			<br />
 			<br />
 		</div>

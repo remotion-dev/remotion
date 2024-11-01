@@ -21,6 +21,8 @@ const waitUntilDone = async (bucketName: string, renderId: string) => {
 				renderId,
 				version: VERSION,
 				logLevel: 'error',
+				forcePathStyle: false,
+				s3OutputProvider: null,
 			},
 			functionName: 'remotion-dev-lambda',
 			region: 'eu-central-1',
@@ -82,6 +84,7 @@ export const simulateLambdaRender = async (
 		key: progress.outKey as string,
 		expectedBucketOwner: 'abc',
 		region: 'eu-central-1',
+		forcePathStyle: false,
 	});
 
 	return {file, close, progress, renderId: res.renderId};

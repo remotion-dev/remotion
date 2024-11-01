@@ -29,6 +29,7 @@ export const sitesRmallSubcommand = async (
 				enableFolderExpiry: false,
 				customCredentials: null,
 				providerSpecifics: implementation,
+				forcePathStyle: false,
 			})
 		).bucketName;
 

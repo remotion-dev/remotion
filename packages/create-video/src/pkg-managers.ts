@@ -75,37 +75,19 @@ export const getInstallCommand = (manager: PackageManager) => {
 
 const getStartCommand = (manager: PackageManager) => {
 	if (manager === 'npm') {
-		return `npm start`;
+		return `npm run dev`;
 	}
 
 	if (manager === 'yarn') {
-		return `yarn start`;
+		return `yarn dev`;
 	}
 
 	if (manager === 'pnpm') {
-		return `pnpm start`;
+		return `pnpm run dev`;
 	}
 
 	if (manager === 'bun') {
-		return `bun start`;
-	}
-};
-
-export const getRenderCommand = (manager: PackageManager) => {
-	if (manager === 'npm') {
-		return `npm run build`;
-	}
-
-	if (manager === 'yarn') {
-		return `yarn build`;
-	}
-
-	if (manager === 'pnpm') {
-		return `pnpm build`;
-	}
-
-	if (manager === 'bun') {
-		return `bun run build`;
+		return `bun run dev`;
 	}
 };
 
@@ -129,6 +111,26 @@ export const getRunCommand = (manager: PackageManager) => {
 	throw new TypeError('unknown package manager');
 };
 
+export const getRenderCommand = (manager: PackageManager) => {
+	if (manager === 'npm') {
+		return `npx remotion render`;
+	}
+
+	if (manager === 'yarn') {
+		return `yarn remotion render`;
+	}
+
+	if (manager === 'pnpm') {
+		return `pnpm exec remotion render`;
+	}
+
+	if (manager === 'bun') {
+		return `bunx remotion render`;
+	}
+
+	throw new TypeError('unknown package manager');
+};
+
 export const getDevCommand = (manager: PackageManager, template: Template) => {
 	if (
 		template.cliId === 'remix' ||
@@ -140,21 +142,6 @@ export const getDevCommand = (manager: PackageManager, template: Template) => {
 	}
 
 	return getStartCommand(manager);
-};
-
-export const getRenderCommandForTemplate = (
-	manager: PackageManager,
-	template: Template,
-) => {
-	if (template.cliId === 'remix') {
-		return `${getRunCommand(manager)} remotion:render`;
-	}
-
-	if (template.cliId === 'still') {
-		return `${getRunCommand(manager)} render`;
-	}
-
-	return getRenderCommand(manager);
 };
 
 export const getPackageManagerVersion = (

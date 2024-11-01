@@ -158,4 +158,15 @@ export const printUsefulErrorMessage = (
 			'   https://github.com/remotion-dev/remotion/issues/3864',
 		);
 	}
+
+	if (err.message.includes('Failed to fetch')) {
+		Log.info(
+			{indent, logLevel},
+			'💡 On Lambda, one reason this could happen is that Chrome is rejecting an asset to be loaded when it is running low on disk space.',
+		);
+		Log.info(
+			{indent, logLevel},
+			'Try increasing the disk size of your Lambda function.',
+		);
+	}
 };

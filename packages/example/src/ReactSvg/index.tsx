@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-	Audio,
 	Easing,
 	Experimental,
 	interpolate,
@@ -132,7 +131,6 @@ const ReactSvg: React.FC<{
 					/>
 					<Atom scale={rotationDevelopment} />
 					{transparent ? null : <Black scale={scaleOutBlackDot} />}
-					<Audio src="https://cms-public-artifacts.artlist.io/Y29udGVudC9zZngvYWFjLzUzMDA4XzQzOTEwNF9SZWFjdGlvbnNfTWFsZV8tX2h1bWFuX21hbGVfYXR0YWNrX2FhYV93YXJfMl9zdGVyZW9fbm9ybWFsLmFhYw==" />
 				</div>
 			</div>
 		</>

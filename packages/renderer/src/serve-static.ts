@@ -115,6 +115,11 @@ export const serveStatic = async (
 						// this is okay as we are in cleanup phase
 						closeCompositor()
 							.catch((err) => {
+								if ((err as Error).message.includes('Compositor quit')) {
+									resolve();
+									return;
+								}
+
 								reject(err);
 							})
 							.finally(() => {

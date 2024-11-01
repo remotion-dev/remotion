@@ -1,38 +1,7 @@
 import fs from 'fs';
-import {homedir} from 'node:os';
 
 const getSearchPathsForProduct = () => {
-	return [
-		process.env.PUPPETEER_EXECUTABLE_PATH ?? null,
-		process.platform === 'darwin'
-			? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-			: null,
-		process.platform === 'linux' ? '/usr/bin/google-chrome' : null,
-		process.platform === 'linux' ? '/usr/bin/chromium-browser' : null,
-		process.platform === 'linux' ? '/usr/bin/chromium' : null, // Debian
-		process.platform === 'linux'
-			? '/app/.apt/usr/bin/google-chrome-stable'
-			: null,
-		process.platform === 'win32'
-			? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
-			: null,
-		process.platform === 'win32'
-			? 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
-			: null,
-		process.platform === 'win32'
-			? homedir() + '\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe'
-			: null,
-		process.platform === 'win32'
-			? 'C:\\Program Files\\Google\\Chrome SxS\\Application\\chrome.exe'
-			: null,
-		process.platform === 'win32'
-			? 'C:\\Program Files (x86)\\Google\\Chrome SxS\\Application\\chrome.exe'
-			: null,
-		process.platform === 'win32'
-			? homedir() +
-				'\\AppData\\Local\\Google\\Chrome SxS\\Application\\chrome.exe'
-			: null,
-	].filter(Boolean) as string[];
+	return [];
 };
 
 export const getLocalBrowser = () => {

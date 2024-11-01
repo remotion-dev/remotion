@@ -23,7 +23,7 @@ export const setFrameRangeFromCli = (newFrameRange: string | number) => {
 			);
 		}
 
-		if (parsed.length === 2 && parsed[1] < parsed[0]) {
+		if (parsed.length === 2 && (parsed[1] as number) < (parsed[0] as number)) {
 			throw new Error(
 				'The second number of the --frames flag number should be greater or equal than first number',
 			);

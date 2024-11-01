@@ -2,7 +2,7 @@ import type {RefObject} from 'react';
 import {useCallback, useContext, useEffect, useRef} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
 import {useBufferUntilFirstFrame} from './buffer-until-first-frame.js';
-import {BufferingContextReact} from './buffering.js';
+import {BufferingContextReact, useIsPlayerBuffering} from './buffering.js';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
 import {
 	TimelineContext,
@@ -129,25 +129,20 @@ export const useMediaPlayback = ({
 		return acceptableTimeshift;
 	})();
 
+	const isPlayerBuffering = useIsPlayerBuffering(buffering);
+
 	useEffect(() => {
 		if (!playing) {
 			mediaRef.current?.pause();
 			return;
 		}
 
-		const isPlayerBuffering = buffering.buffering.current;
 		const isMediaTagBufferingOrStalled = isMediaTagBuffering || isBuffering();
 
 		if (isPlayerBuffering && !isMediaTagBufferingOrStalled) {
 			mediaRef.current?.pause();
 		}
-	}, [
-		buffering.buffering,
-		isBuffering,
-		isMediaTagBuffering,
-		mediaRef,
-		playing,
-	]);
+	}, [isBuffering, isMediaTagBuffering, isPlayerBuffering, mediaRef, playing]);
 
 	useEffect(() => {
 		const tagName = mediaType === 'audio' ? '<Audio>' : '<Video>';
@@ -218,7 +213,10 @@ export const useMediaPlayback = ({
 			lastSeek.current = shouldBeTime;
 			lastSeekDueToShift.current = shouldBeTime;
 			if (playing && !isVariableFpsVideo) {
-				bufferUntilFirstFrame(shouldBeTime);
+				if (playbackRate > 0) {
+					bufferUntilFirstFrame(shouldBeTime);
+				}
+
 				if (mediaRef.current.paused) {
 					playAndHandleNotAllowedError(mediaRef, mediaType, onAutoPlayError);
 				}
@@ -269,7 +267,9 @@ export const useMediaPlayback = ({
 
 			playAndHandleNotAllowedError(mediaRef, mediaType, onAutoPlayError);
 			if (!isVariableFpsVideo) {
-				bufferUntilFirstFrame(shouldBeTime);
+				if (playbackRate > 0) {
+					bufferUntilFirstFrame(shouldBeTime);
+				}
 			}
 		}
 	}, [

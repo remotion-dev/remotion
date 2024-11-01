@@ -19,7 +19,7 @@ const MuxVideoForward: React.ForwardRefRenderFunction<
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const vidUrl = getVideoToPlayUrl(muxId);
 
-	useImperativeHandle(ref, () => videoRef.current, []);
+	useImperativeHandle(ref, () => videoRef.current!, []);
 
 	useEffect(() => {
 		let hls: Hls;

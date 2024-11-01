@@ -71,15 +71,20 @@ impl ScalableFrame {
                 let mut planes: Vec<Vec<u8>>;
                 let format: Pixel;
                 let linesize: [i32; 8];
-                let (mut filter, should_filter) = make_tone_map_filtergraph(frame.filter_graph)?;
-                if frame.tone_mapped && should_filter {
+                let filter = make_tone_map_filtergraph(frame.filter_graph)?;
+                if frame.tone_mapped && filter.is_some() {
                     video = frame::Video::empty();
-                    filter
+                    let mut unwrapped_filter = filter.unwrap();
+                    unwrapped_filter
                         .get("in")
                         .unwrap()
                         .source()
                         .add(&frame.unscaled_frame)?;
-                    filter.get("out").unwrap().sink().frame(&mut video)?;
+                    unwrapped_filter
+                        .get("out")
+                        .unwrap()
+                        .sink()
+                        .frame(&mut video)?;
 
                     let amount_of_planes = video.planes();
 
@@ -186,7 +191,21 @@ pub fn scale_and_make_bitmap(
     linesize: [i32; 8],
     transparent: bool,
 ) -> Result<Vec<u8>, ErrorWithBacktrace> {
-    let dst_format: Pixel = match transparent {
+    let is_transparent_pixel_format = src_format == Pixel::YUVA420P
+        || src_format == Pixel::YUVA444P10LE
+        || src_format == Pixel::YUVA444P12LE;
+
+    let should_return_transparent = transparent && is_transparent_pixel_format;
+
+    if transparent && !is_transparent_pixel_format {
+        _print_verbose(&format!(
+            "Requested transparent image, but the video {} is not transparent (pixel format {:?}). Returning BMP.",
+            native_frame.original_src,
+            src_format
+        ))?;
+    }
+
+    let dst_format: Pixel = match should_return_transparent {
         true => Pixel::RGBA,
         false => Pixel::BGR24,
     };
@@ -233,11 +252,7 @@ pub fn scale_and_make_bitmap(
         &mut scaled,
     )?;
 
-    let is_transparent_pixel_format = src_format == Pixel::YUVA420P
-        || src_format == Pixel::YUVA444P10LE
-        || src_format == Pixel::YUVA444P12LE;
-
-    let channels = match is_transparent_pixel_format {
+    let channels = match should_return_transparent {
         true => 4,
         false => 3,
     } as usize;
@@ -273,21 +288,8 @@ pub fn scale_and_make_bitmap(
         ),
     };
 
-    if transparent {
-        if is_transparent_pixel_format {
-            return get_png_data(&rotated, rotated_width, rotated_height);
-        } else {
-            _print_verbose(&format!(
-                "Requested transparent image, but the video {} is not transparent (pixel format {:?}). Returning BMP.",
-                native_frame.original_src,
-                src_format
-            ))?;
-            return Ok(create_bmp_image_from_frame(
-                &rotated,
-                rotated_width,
-                rotated_height,
-            ));
-        }
+    if should_return_transparent {
+        return get_png_data(&rotated, rotated_width, rotated_height);
     }
 
     Ok(create_bmp_image_from_frame(

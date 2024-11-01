@@ -1,8 +1,4 @@
-import type {
-	CloudProvider,
-	EnhancedErrorInfo,
-	ProviderSpecifics,
-} from '@remotion/serverless';
+import type {CloudProvider, EnhancedErrorInfo} from '@remotion/serverless';
 import type {RenderMetadata} from '@remotion/serverless/client';
 import {makeTimeoutMessage} from './make-timeout-message';
 
@@ -11,20 +7,23 @@ export const makeTimeoutError = <Provider extends CloudProvider>({
 	missingChunks,
 	renderMetadata,
 	renderId,
-	providerSpecifics,
+	functionName,
+	region,
 }: {
 	timeoutInMilliseconds: number;
 	renderMetadata: RenderMetadata<Provider>;
 	renderId: string;
 	missingChunks: number[];
-	providerSpecifics: ProviderSpecifics<Provider>;
+	functionName: string;
+	region: Provider['region'];
 }): EnhancedErrorInfo => {
 	const message = makeTimeoutMessage({
 		missingChunks,
 		renderMetadata,
 		timeoutInMilliseconds,
 		renderId,
-		providerSpecifics,
+		functionName,
+		region,
 	});
 
 	const error = new Error(message);

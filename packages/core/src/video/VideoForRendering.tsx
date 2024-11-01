@@ -24,11 +24,12 @@ import {useCurrentFrame} from '../use-current-frame.js';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
 import {evaluateVolume} from '../volume-prop.js';
 import {getMediaTime} from './get-current-time.js';
-import type {RemotionVideoProps} from './props';
+import type {OnVideoFrame, RemotionVideoProps} from './props';
 import {seekToTimeMultipleUntilRight} from './seek-until-right.js';
 
 type VideoForRenderingProps = RemotionVideoProps & {
 	readonly onDuration: (src: string, durationInSeconds: number) => void;
+	readonly onVideoFrame: null | OnVideoFrame;
 };
 
 const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
@@ -138,13 +139,9 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		sequenceContext?.relativeFrom,
 	]);
 
-	useImperativeHandle(
-		ref,
-		() => {
-			return videoRef.current as HTMLVideoElement;
-		},
-		[],
-	);
+	useImperativeHandle(ref, () => {
+		return videoRef.current as HTMLVideoElement;
+	}, []);
 
 	useEffect(() => {
 		if (!window.remotion_videoEnabled) {
@@ -284,7 +281,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		}, [src, onDuration, delayRenderRetries, delayRenderTimeoutInMilliseconds]);
 	}
 
-	return <video ref={videoRef} {...props} />;
+	return <video ref={videoRef} disableRemotePlayback {...props} />;
 };
 
 export const VideoForRendering = forwardRef(

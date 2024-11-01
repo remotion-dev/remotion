@@ -9,11 +9,13 @@ export const patchPackageJson = (
 		projectName,
 		latestRemotionVersion,
 		packageManager,
+		addTailwind,
 	}: {
 		projectRoot: string;
 		projectName: string;
 		latestRemotionVersion: string;
-		packageManager: `${PackageManager}@${string}` | null;
+		packageManager: PackageManager;
+		addTailwind: boolean;
 	},
 	{
 		getPackageJson = (filename: string) => fs.readFileSync(filename, 'utf-8'),
@@ -55,18 +57,25 @@ export const patchPackageJson = (
 
 	// update scripts to use "remotionb" instead of "remotion" if Bun is used
 	// matching '@' as well to prevent conflicts with similarly named packages.
-	const newScripts = packageManager?.startsWith('bun@')
+	const newScripts = packageManager.startsWith('bun')
 		? updateScripts(scripts)
 		: scripts;
+
+	const newDependenciesWithTailwind = addTailwind
+		? {
+				...newDependencies,
+				'@remotion/tailwind': latestRemotionVersion,
+			}
+		: newDependencies;
 
 	const newPackageJson = JSON.stringify(
 		{
 			name: projectName,
 			...others,
-			dependencies: newDependencies,
+			dependencies: newDependenciesWithTailwind,
 			devDependencies: newDevDependencies,
 			scripts: newScripts,
-			...(packageManager ? {packageManager} : {}),
+			...(addTailwind ? {sideEffects: ['*.css']} : {}),
 		},
 		undefined,
 		2,

@@ -96,6 +96,10 @@ test('Python package should create the same renderMedia payload as normal Lambda
 		x264Preset: null,
 		preferLossless: false,
 		indent: false,
+		forcePathStyle: false,
+		metadata: {
+			Author: 'Lunar',
+		},
 	});
 	const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 	const parsedJson = JSON.parse(jsonOutput);
@@ -125,10 +129,16 @@ test('Python package should create the same progress payload as normal Lambda pa
 		bucketName: 'remotion-render',
 		renderId: 'abcdef',
 		logLevel: 'info',
+		s3OutputProvider: {
+			endpoint: 'https://s3.us-east-1.amazonaws.com',
+			accessKeyId: 'accessKeyId',
+			secretAccessKey: 'secretAccessKey',
+			region: 'us-east-1',
+		},
 	});
 	const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 	const parsedJson = JSON.parse(jsonOutput);
-	expect(parsedJson).toEqual({...nativeVersion, s3OutputProvider: null});
+	expect(parsedJson).toEqual(nativeVersion);
 });
 
 test('Python package should create the same renderStill payload as normal Lambda package', async () => {
@@ -171,6 +181,7 @@ test('Python package should create the same renderStill payload as normal Lambda
 		onInit: () => undefined,
 		dumpBrowserLogs: false,
 		quality: undefined,
+		forcePathStyle: false,
 	});
 	const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 	const {streamed: _, ...parsedJson} = JSON.parse(jsonOutput);

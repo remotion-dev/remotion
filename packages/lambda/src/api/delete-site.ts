@@ -6,12 +6,22 @@ import type {AwsRegion} from '../regions';
 import {getAccountId} from '../shared/get-account-id';
 import {cleanItems} from './clean-items';
 
-export type DeleteSiteInput = {
+type MandatoryParameters = {
 	bucketName: string;
 	siteName: string;
 	region: AwsRegion;
-	onAfterItemDeleted?: (data: {bucketName: string; itemName: string}) => void;
 };
+
+type OptionalParameters = {
+	onAfterItemDeleted:
+		| ((data: {bucketName: string; itemName: string}) => void)
+		| null;
+	forcePathStyle: boolean;
+};
+
+export type DeleteSiteInput = MandatoryParameters & OptionalParameters;
+export type DeleteSiteOptionalInput = MandatoryParameters &
+	Partial<OptionalParameters>;
 
 export type DeleteSiteOutput = {
 	totalSizeInBytes: number;
@@ -23,6 +33,7 @@ export const internalDeleteSite = async ({
 	region,
 	onAfterItemDeleted,
 	providerSpecifics,
+	forcePathStyle,
 }: DeleteSiteInput & {
 	providerSpecifics: ProviderSpecifics<AwsProvider>;
 }): Promise<DeleteSiteOutput> => {
@@ -34,6 +45,7 @@ export const internalDeleteSite = async ({
 		prefix: `${getSitesKey(siteName)}/`,
 		region,
 		expectedBucketOwner: accountId,
+		forcePathStyle,
 	});
 
 	let totalSize = 0;
@@ -49,6 +61,7 @@ export const internalDeleteSite = async ({
 			onBeforeItemDeleted: () => undefined,
 			region,
 			providerSpecifics,
+			forcePathStyle,
 		});
 		files = await providerSpecifics.listObjects({
 			bucketName,
@@ -56,6 +69,7 @@ export const internalDeleteSite = async ({
 			prefix: `${getSitesKey(siteName)}/`,
 			region,
 			expectedBucketOwner: accountId,
+			forcePathStyle,
 		});
 	}
 
@@ -75,10 +89,12 @@ export const internalDeleteSite = async ({
  * @returns {Promise<DeleteSiteOutput>} Object containing info about how much space was freed.
  */
 export const deleteSite = (
-	props: DeleteSiteInput,
+	props: DeleteSiteOptionalInput,
 ): Promise<DeleteSiteOutput> => {
 	return internalDeleteSite({
 		...props,
+		onAfterItemDeleted: props.onAfterItemDeleted ?? null,
+		forcePathStyle: props.forcePathStyle ?? false,
 		providerSpecifics: awsImplementation,
 	});
 };

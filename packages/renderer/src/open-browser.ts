@@ -1,13 +1,17 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import type {NoReactInternals} from 'remotion/no-react';
 import type {Browser} from './browser';
 import {addHeadlessBrowser} from './browser-instances';
 import type {HeadlessBrowser} from './browser/Browser';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
-import {puppeteer} from './browser/node';
+import {launchChrome} from './browser/Launcher';
 import type {Viewport} from './browser/PuppeteerViewport';
 import {internalEnsureBrowser} from './ensure-browser';
 import {getLocalBrowserExecutable} from './get-local-browser-executable';
 import {getIdealVideoThreadsFlag} from './get-video-threads-flag';
-import {isEqualOrBelowLogLevel, type LogLevel} from './log-level';
+import {type LogLevel} from './log-level';
 import {Log} from './logger';
 import type {validOpenGlRenderers} from './options/gl';
 import {DEFAULT_OPENGL_RENDERER, validateOpenGlRenderer} from './options/gl';
@@ -15,15 +19,25 @@ import type {OnBrowserDownload} from './options/on-browser-download';
 
 type OpenGlRenderer = (typeof validOpenGlRenderers)[number];
 
+type OnlyV4Options =
+	typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES extends true
+		? {}
+		: {
+				/**
+				 * @deprecated - Will be removed in v5.
+				 * Chrome Headless shell does not allow disabling headless mode anymore.
+				 */
+				headless?: boolean;
+			};
+
 // ⚠️ When adding new options, also add them to the hash in lambda/get-browser-instance.ts!
 export type ChromiumOptions = {
 	ignoreCertificateErrors?: boolean;
 	disableWebSecurity?: boolean;
 	gl?: OpenGlRenderer | null;
-	headless?: boolean;
 	userAgent?: string | null;
 	enableMultiProcessOnLinux?: boolean;
-};
+} & OnlyV4Options;
 
 const featuresToEnable = (option?: OpenGlRenderer | null) => {
 	const renderer = option ?? DEFAULT_OPENGL_RENDERER;
@@ -79,12 +93,18 @@ type InternalOpenBrowserOptions = {
 	onBrowserDownload: OnBrowserDownload;
 };
 
+type LogOptions =
+	typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES extends true
+		? {
+				logLevel?: LogLevel;
+			}
+		: {shouldDumpIo?: boolean; logLevel?: LogLevel};
+
 export type OpenBrowserOptions = {
-	shouldDumpIo?: boolean;
 	browserExecutable?: string | null;
 	chromiumOptions?: ChromiumOptions;
 	forceDeviceScaleFactor?: number;
-};
+} & LogOptions;
 
 export const internalOpenBrowser = async ({
 	browser,
@@ -128,11 +148,15 @@ export const internalOpenBrowser = async ({
 		);
 	}
 
-	const browserInstance = await puppeteer.launch({
+	const userDataDir = await fs.promises.mkdtemp(
+		path.join(os.tmpdir(), 'puppeteer_dev_chrome_profile-'),
+	);
+
+	const browserInstance = await launchChrome({
 		executablePath,
-		dumpio: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		logLevel,
 		indent,
+		userDataDir,
 		args: [
 			'about:blank',
 			'--allow-pre-commit-input',
@@ -166,7 +190,7 @@ export const internalOpenBrowser = async ({
 			'--enable-blink-features=IdleDetection',
 			'--export-tagged-pdf',
 			'--intensive-wake-up-throttling-policy=0',
-			chromiumOptions.headless ?? true ? '--headless=old' : null,
+			(chromiumOptions.headless ?? true) ? '--headless=old' : null,
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
 			...customGlRenderer,
@@ -202,6 +226,8 @@ export const internalOpenBrowser = async ({
 			chromiumOptions?.userAgent
 				? `--user-agent="${chromiumOptions.userAgent}"`
 				: null,
+			'--remote-debugging-port=0',
+			`--user-data-dir=${userDataDir}`,
 		].filter(Boolean) as string[],
 		defaultViewport: viewport ?? {
 			height: 720,
@@ -225,15 +251,12 @@ export const openBrowser = (
 	browser: Browser,
 	options?: OpenBrowserOptions,
 ): Promise<HeadlessBrowser> => {
-	const {
-		browserExecutable,
-		chromiumOptions,
-		forceDeviceScaleFactor,
-		shouldDumpIo,
-	} = options ?? {};
+	const {browserExecutable, chromiumOptions, forceDeviceScaleFactor} =
+		options ?? {};
 
 	const indent = false;
-	const logLevel = shouldDumpIo ? 'verbose' : 'info';
+	const logLevel =
+		options?.logLevel ?? (options?.shouldDumpIo ? 'verbose' : 'info');
 
 	return internalOpenBrowser({
 		browser,

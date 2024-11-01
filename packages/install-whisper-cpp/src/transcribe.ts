@@ -91,6 +91,24 @@ const readJson = async (jsonPath: string) => {
 
 export type TranscribeOnProgress = (progress: number) => void;
 
+// https://github.com/ggerganov/whisper.cpp/blob/fe36c909715e6751277ddb020e7892c7670b61d4/examples/main/main.cpp#L989-L999
+// https://github.com/remotion-dev/remotion/issues/4168
+export const modelToDtw = (model: WhisperModel): string => {
+	if (model === 'large-v3' || model === 'large-v3-turbo') {
+		return 'large.v3';
+	}
+
+	if (model === 'large-v2') {
+		return 'large.v2';
+	}
+
+	if (model === 'large-v1') {
+		return 'large.v1';
+	}
+
+	return model;
+};
+
 const transcribeToTemporaryFile = async ({
 	fileToTranscribe,
 	whisperPath,
@@ -102,6 +120,7 @@ const transcribeToTemporaryFile = async ({
 	printOutput,
 	tokensPerItem,
 	language,
+	splitOnWord,
 	signal,
 	onProgress,
 }: {
@@ -115,6 +134,7 @@ const transcribeToTemporaryFile = async ({
 	printOutput: boolean;
 	tokensPerItem: number | null;
 	language: Language | null;
+	splitOnWord: boolean | null;
 	signal: AbortSignal | null;
 	onProgress: TranscribeOnProgress | null;
 }): Promise<{
@@ -140,11 +160,12 @@ const transcribeToTemporaryFile = async ({
 		'--output-json',
 		tokensPerItem ? ['--max-len', tokensPerItem] : null,
 		'-ojf', // Output full JSON
-		tokenLevelTimestamps ? ['--dtw', model] : null,
+		tokenLevelTimestamps ? ['--dtw', modelToDtw(model)] : null,
 		model ? [`-m`, `${modelPath}`] : null,
 		['-pp'], // print progress
 		translate ? '-tr' : null,
 		language ? ['-l', language.toLowerCase()] : null,
+		splitOnWord ? ['--split-on-word', splitOnWord] : null,
 	]
 		.flat(1)
 		.filter(Boolean) as string[];
@@ -229,6 +250,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	printOutput = true,
 	tokensPerItem,
 	language,
+	splitOnWord,
 	signal,
 	onProgress,
 }: {
@@ -241,6 +263,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	printOutput?: boolean;
 	tokensPerItem?: true extends HasTokenLevelTimestamps ? never : number | null;
 	language?: Language | null;
+	splitOnWord?: boolean;
 	signal?: AbortSignal;
 	onProgress?: TranscribeOnProgress;
 }): Promise<TranscriptionJson<HasTokenLevelTimestamps>> => {
@@ -271,9 +294,10 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 		translate: translateToEnglish,
 		tokenLevelTimestamps,
 		printOutput,
-		tokensPerItem: tokenLevelTimestamps ? 1 : tokensPerItem ?? 1,
+		tokensPerItem: tokenLevelTimestamps ? 1 : (tokensPerItem ?? 1),
 		language: language ?? null,
 		signal: signal ?? null,
+		splitOnWord: splitOnWord ?? null,
 		onProgress: onProgress ?? null,
 	});
 

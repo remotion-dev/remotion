@@ -30,12 +30,12 @@ import {
 	DEFAULT_VIDEO_IMAGE_FORMAT,
 	validateSelectedPixelFormatAndImageFormatCombination,
 } from './image-format';
+import {isAudioCodec} from './is-audio-codec';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
-import {isAudioCodec} from './options/audio-codec';
 import {DEFAULT_COLOR_SPACE, type ColorSpace} from './options/color-space';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
@@ -127,6 +127,7 @@ export type InternalRenderMediaOptions = {
 	binariesDirectory: string | null;
 	compositionStart: number;
 	onArtifact: OnArtifact | null;
+	metadata: Record<string, string> | null;
 } & MoreRenderMediaOptions;
 
 type Prettify<T> = {
@@ -182,6 +183,7 @@ export type RenderMediaOptions = Prettify<{
 	repro?: boolean;
 	binariesDirectory?: string | null;
 	onArtifact?: OnArtifact;
+	metadata?: Record<string, string> | null;
 }> &
 	Partial<MoreRenderMediaOptions>;
 
@@ -245,6 +247,7 @@ const internalRenderMediaRaw = ({
 	compositionStart,
 	onBrowserDownload,
 	onArtifact,
+	metadata,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	if (repro) {
 		enableRepro({
@@ -345,6 +348,15 @@ const internalRenderMediaRaw = ({
 		},
 		'Using concurrency:',
 		resolvedConcurrency,
+	);
+	Log.verbose(
+		{
+			indent,
+			logLevel,
+			tag: 'renderMedia()',
+		},
+		'delayRender() timeout:',
+		timeoutInMilliseconds,
 	);
 	Log.verbose(
 		{
@@ -716,13 +728,14 @@ const internalRenderMediaRaw = ({
 					ffmpegOverride: ffmpegOverride ?? null,
 					audioBitrate,
 					videoBitrate,
-					encodingBufferSize,
-					encodingMaxRate,
+					bufferSize: encodingBufferSize,
+					maxRate: encodingMaxRate,
 					audioCodec,
 					x264Preset: x264Preset ?? null,
 					colorSpace,
 					binariesDirectory,
 					separateAudioTo,
+					metadata,
 				});
 			})
 			.then((buffer) => {
@@ -770,7 +783,15 @@ const internalRenderMediaRaw = ({
 						}, 2000);
 						(stitcherFfmpeg as ExecaChildProcess<string>).on('close', res);
 					});
-					stitcherFfmpeg.kill();
+
+					// An exception can happen here:
+					// https://discord.com/channels/809501355504959528/817306238811111454/1273184655348072468
+					try {
+						stitcherFfmpeg.kill();
+					} catch (e) {
+						// Ignore
+					}
+
 					return promise.then(() => {
 						reject(err);
 					});
@@ -868,6 +889,7 @@ export const renderMedia = ({
 	forSeamlessAacConcatenation,
 	onBrowserDownload,
 	onArtifact,
+	metadata,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	if (quality !== undefined) {
 		console.warn(
@@ -877,7 +899,7 @@ export const renderMedia = ({
 
 	const indent = false;
 	const logLevel =
-		verbose || dumpBrowserLogs ? 'verbose' : passedLogLevel ?? 'info';
+		verbose || dumpBrowserLogs ? 'verbose' : (passedLogLevel ?? 'info');
 
 	return internalRenderMedia({
 		proResProfile: proResProfile ?? undefined,
@@ -943,6 +965,7 @@ export const renderMedia = ({
 			onBrowserDownload ??
 			defaultBrowserDownloadProgress({indent, logLevel, api: 'renderMedia()'}),
 		onArtifact: onArtifact ?? null,
+		metadata: metadata ?? null,
 		// TODO: In the future, introduce this as a public API when launching the distributed rendering API
 		compositionStart: 0,
 	});

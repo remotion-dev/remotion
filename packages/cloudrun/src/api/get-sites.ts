@@ -43,8 +43,10 @@ export const getSites = async (
 		) {
 			const bucketObject = {
 				name: bucket.name,
-				creationDate: new Date(bucket.metadata?.timeCreated).getTime(),
-				region: bucket.metadata.location.toLowerCase(),
+				creationDate: new Date(
+					bucket.metadata?.timeCreated as string,
+				).getTime(),
+				region: (bucket.metadata.location as string).toLowerCase() as GcpRegion,
 			};
 			buckets.push(bucketObject);
 		}
@@ -55,11 +57,11 @@ export const getSites = async (
 			.bucket(bucket.name)
 			.getFiles({autoPaginate: false, delimiter: '/', prefix: 'sites/'});
 
-		if (!apiResponse.prefixes) {
+		if (!(apiResponse as any).prefixes) {
 			continue; // no sites folder within bucket
 		}
 
-		for (const prefix of apiResponse.prefixes) {
+		for (const prefix of (apiResponse as any).prefixes) {
 			const sitePath = prefix.split('/');
 
 			sites.push({

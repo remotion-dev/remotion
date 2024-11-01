@@ -33,6 +33,7 @@ import type {AwsProvider} from '../functions/aws-implementation';
 import {awsImplementation} from '../functions/aws-implementation';
 
 import {validateWebhook} from '@remotion/serverless/client';
+import {NoReactInternals} from 'remotion/no-react';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import {validateLambdaCodec} from '../shared/validate-lambda-codec';
@@ -82,6 +83,8 @@ export type InnerRenderMediaOnLambdaInput = {
 	colorSpace: ColorSpace | null;
 	deleteAfter: DeleteAfter | null;
 	indent: boolean;
+	forcePathStyle: boolean;
+	metadata: Record<string, string> | null;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>;
 
 export const makeLambdaRenderMediaPayload = async ({
@@ -126,6 +129,8 @@ export const makeLambdaRenderMediaPayload = async ({
 	deleteAfter,
 	colorSpace,
 	preferLossless,
+	forcePathStyle,
+	metadata,
 }: InnerRenderMediaOnLambdaInput): Promise<
 	ServerlessStartPayload<AwsProvider>
 > => {
@@ -148,10 +153,12 @@ export const makeLambdaRenderMediaPayload = async ({
 		region,
 		needsToUpload: getNeedsToUpload('video-or-audio', [
 			stringifiedInputProps.length,
+			JSON.stringify(envVariables).length,
 		]),
 		userSpecifiedBucketName: bucketName ?? null,
 		propsType: 'input-props',
 		providerSpecifics: awsImplementation,
+		forcePathStyle: forcePathStyle ?? false,
 	});
 	return {
 		rendererFunctionName,
@@ -181,7 +188,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		downloadBehavior,
 		muted,
 		version: VERSION,
-		overwrite: overwrite ?? false,
+		overwrite: overwrite ?? NoReactInternals.ENABLE_V5_BREAKING_CHANGES,
 		audioBitrate: audioBitrate ?? null,
 		videoBitrate: videoBitrate ?? null,
 		encodingBufferSize: encodingBufferSize ?? null,
@@ -196,6 +203,8 @@ export const makeLambdaRenderMediaPayload = async ({
 		deleteAfter: deleteAfter ?? null,
 		colorSpace: colorSpace ?? null,
 		preferLossless: preferLossless ?? false,
+		forcePathStyle: forcePathStyle ?? false,
+		metadata: metadata ?? null,
 	};
 };
 
@@ -204,14 +213,16 @@ export const getRenderProgressPayload = ({
 	renderId,
 	s3OutputProvider,
 	logLevel,
+	forcePathStyle,
 }: GetRenderProgressInput): ServerlessStatusPayload<AwsProvider> => {
 	return {
 		type: ServerlessRoutines.status,
 		bucketName,
 		renderId,
 		version: VERSION,
-		s3OutputProvider,
+		s3OutputProvider: s3OutputProvider ?? null,
 		logLevel: logLevel ?? 'info',
+		forcePathStyle: forcePathStyle ?? false,
 	};
 };
 
@@ -238,6 +249,7 @@ export const makeLambdaRenderStillPayload = async ({
 	forceBucketName,
 	offthreadVideoCacheSizeInBytes,
 	deleteAfter,
+	forcePathStyle,
 }: RenderStillOnLambdaNonNullInput): Promise<
 	ServerlessPayloads<AwsProvider>[ServerlessRoutines.still]
 > => {
@@ -252,10 +264,14 @@ export const makeLambdaRenderStillPayload = async ({
 	const serializedInputProps = await compressInputProps({
 		stringifiedInputProps,
 		region,
-		needsToUpload: getNeedsToUpload('still', [stringifiedInputProps.length]),
+		needsToUpload: getNeedsToUpload('still', [
+			stringifiedInputProps.length,
+			JSON.stringify(envVariables).length,
+		]),
 		userSpecifiedBucketName: forceBucketName ?? null,
 		propsType: 'input-props',
 		providerSpecifics: awsImplementation,
+		forcePathStyle,
 	});
 
 	return {
@@ -283,5 +299,6 @@ export const makeLambdaRenderStillPayload = async ({
 		deleteAfter,
 		type: ServerlessRoutines.still,
 		streamed: true,
+		forcePathStyle,
 	};
 };

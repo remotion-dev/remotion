@@ -58,6 +58,7 @@ type OptionalParameters = {
 		lambdaInsightsUrl: string;
 	}) => void;
 	indent: boolean;
+	forcePathStyle: boolean;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderStillOnLambda>;
 
 export type RenderStillOnLambdaNonNullInput = MandatoryParameters &
@@ -196,11 +197,12 @@ export const renderStillOnLambda = (input: RenderStillOnLambdaInput) => {
 		region: input.region,
 		serveUrl: input.serveUrl,
 		jpegQuality: input.jpegQuality ?? 80,
-		logLevel: input.dumpBrowserLogs ? 'verbose' : input.logLevel ?? 'info',
+		logLevel: input.dumpBrowserLogs ? 'verbose' : (input.logLevel ?? 'info'),
 		offthreadVideoCacheSizeInBytes:
 			input.offthreadVideoCacheSizeInBytes ?? null,
 		scale: input.scale ?? 1,
 		timeoutInMilliseconds: input.timeoutInMilliseconds ?? 30000,
 		dumpBrowserLogs: false,
+		forcePathStyle: input.forcePathStyle ?? false,
 	});
 };

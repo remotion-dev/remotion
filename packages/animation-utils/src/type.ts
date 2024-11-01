@@ -114,9 +114,9 @@ type UnitNumberAndFunction = UnitNumberAndFunctions[0];
 
 export type {
 	AngleUnit,
+	ColorMatchers,
 	CSSPropertiesKey,
 	CSSPropertiesValue,
-	ColorMatchers,
 	LengthPercentageUnit,
 	LengthUnit,
 	Style,

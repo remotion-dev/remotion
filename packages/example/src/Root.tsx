@@ -1,3 +1,6 @@
+// @ts-expect-error no types
+import styles from './styles.module.scss';
+
 import {alias} from 'lib/alias';
 import React, {useCallback, useMemo} from 'react';
 import {
@@ -21,7 +24,9 @@ import {ColorInterpolation} from './ColorInterpolation';
 import {ComplexSounds} from './ComplexSounds';
 import {MyCtx, WrappedInContext} from './Context';
 import CorruptVideo from './CorruptVideo';
+import {DecoderDemo} from './DecoderDemo';
 import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
+import {EmojiTestbed} from './Emoji';
 import {ErrorOnFrame10} from './ErrorOnFrame10';
 import {Expert} from './Expert';
 import {FontDemo} from './Fonts';
@@ -29,6 +34,7 @@ import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
 import {Green} from './Green';
 import {HlsDemo} from './Hls/HlsDemo';
+import {HugeImage} from './HugeImage';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {Layers} from './Layers';
 import {ManyAudio} from './ManyAudio';
@@ -38,6 +44,7 @@ import {
 	OffthreadRemoteVideo,
 	calculateMetadataFn,
 } from './OffthreadRemoteVideo/OffthreadRemoteVideo';
+import {OffthreadVideoToCanvas} from './OffthreadVideoToCanvas';
 import {OrbScene} from './Orb';
 import {ShapesMorph} from './Paths/ShapesMorph';
 import {SlicePath} from './Paths/SlicePath';
@@ -78,6 +85,7 @@ import {
 import {TriggerCalculateMetadata} from './StudioApis/TriggerCalculateMetadata';
 import {WriteStaticFile} from './StudioApis/WriteStaticFile';
 import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
+import {SvgFilter} from './SvgFilter';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
 import {TextStroke} from './TextStroke';
@@ -91,6 +99,7 @@ import {BasicTransition} from './Transitions/BasicTransition';
 import {CustomTransition} from './Transitions/CustomTransition';
 import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
+import {VideoParser} from './VideoParser';
 import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
 import {WarpDemoOuter} from './WarpText';
@@ -103,9 +112,6 @@ if (alias !== 'alias') {
 }
 
 const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
-
-// @ts-expect-error no types
-import styles from './styles.module.scss';
 
 class Vector2 {
 	readonly x: number;
@@ -502,6 +508,12 @@ export const Index: React.FC = () => {
 						calculated: new Vector2(15, 10),
 					}}
 				/>
+				<Still
+					id="svg-filter"
+					component={SvgFilter}
+					width={1080}
+					height={1080}
+				/>
 			</Folder>
 			<Folder name="creatives">
 				<Composition
@@ -618,8 +630,16 @@ export const Index: React.FC = () => {
 					fps={30}
 					calculateMetadata={calculateMetadataFn}
 					defaultProps={{
-						src: staticFile('vid1.mp4'),
+						src: staticFile('bigbuckbunny.mp4'),
 					}}
+				/>
+				<Composition
+					id="OffthreadVideoToCanvas"
+					component={OffthreadVideoToCanvas}
+					fps={30}
+					height={1080}
+					width={1080}
+					durationInFrames={100}
 				/>
 				<Composition
 					id="video-testing-webm"
@@ -1255,6 +1275,7 @@ export const Index: React.FC = () => {
 							{type: 'a' as const, a: {a: 'hi'}},
 							{type: 'b' as const, b: {b: 'hi'}},
 						],
+						discriminatedUnion: {type: 'auto'},
 					}}
 				/>
 				{/**
@@ -1419,6 +1440,24 @@ export const Index: React.FC = () => {
 					durationInFrames={10_000}
 				/>
 			</Folder>
+			<Folder name="VideoParser">
+				<Composition
+					id="VideoParser"
+					component={VideoParser}
+					fps={30}
+					height={1080}
+					width={1080}
+					durationInFrames={10_000}
+				/>
+			</Folder>
+			<Still
+				id="DecoderDemo"
+				component={DecoderDemo}
+				height={1000}
+				width={1024}
+			/>
+			<Still id="Emojis" component={EmojiTestbed} height={800} width={1024} />
+			<Still id="HugeImage" component={HugeImage} height={9000} width={9000} />
 		</>
 	);
 };

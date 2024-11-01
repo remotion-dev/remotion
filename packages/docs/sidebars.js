@@ -552,6 +552,37 @@ module.exports = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/media-parser',
+			link: {
+				type: 'doc',
+				id: 'media-parser/index',
+			},
+			items: [
+				'media-parser/index',
+				'media-parser/parse-media',
+				'media-parser/node-reader',
+				'media-parser/fetch-reader',
+				'media-parser/web-file-reader',
+				'media-parser/webcodecs',
+				'media-parser/support',
+			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/captions',
+			link: {
+				type: 'doc',
+				id: 'captions/index',
+			},
+			items: [
+				'captions/caption',
+				'captions/parse-srt',
+				'captions/serialize-srt',
+				'captions/create-tiktok-style-captions',
+			],
+		},
+		{
+			type: 'category',
 			label: '@remotion/install-whisper-cpp',
 			link: {
 				type: 'doc',
@@ -561,8 +592,18 @@ module.exports = {
 				'install-whisper-cpp/install-whisper-cpp',
 				'install-whisper-cpp/download-whisper-model',
 				'install-whisper-cpp/transcribe',
+				'install-whisper-cpp/to-captions',
 				'install-whisper-cpp/convert-to-captions',
 			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/openai-whisper',
+			link: {
+				type: 'doc',
+				id: 'openai-whisper/index',
+			},
+			items: ['openai-whisper/openai-whisper-api-to-captions'],
 		},
 		{
 			type: 'category',
@@ -585,7 +626,6 @@ module.exports = {
 				'animating-properties',
 				'reusability',
 				'preview',
-				'render',
 			],
 		},
 		{
@@ -622,20 +662,14 @@ module.exports = {
 				'props-resolution',
 			],
 		},
-		{
-			type: 'category',
-			label: 'Studio',
-			items: [
-				'studio/studio',
-				'studio/shortcuts',
-				'studio/quick-switcher',
-				'studio/deploy-static',
-				'studio/deploy-server',
-			],
-		},
+
 		{
 			type: 'category',
 			label: 'Rendering',
+			link: {
+				type: 'doc',
+				id: 'render',
+			},
 			items: [
 				'encoding',
 				'stills',
@@ -649,6 +683,18 @@ module.exports = {
 				'miscellaneous/video-formats',
 				'video-vs-offthreadvideo',
 				'artifacts',
+				'metadata',
+			],
+		},
+		{
+			type: 'category',
+			label: 'Studio',
+			items: [
+				'studio/studio',
+				'studio/shortcuts',
+				'studio/quick-switcher',
+				'studio/deploy-static',
+				'studio/deploy-server',
 			],
 		},
 		{
@@ -666,6 +712,7 @@ module.exports = {
 				'gpu',
 				'miscellaneous/cloud-gpu',
 				'miscellaneous/cloud-gpu-docker',
+				'compare-ssr',
 			],
 		},
 		{
@@ -691,6 +738,9 @@ module.exports = {
 				'player/preloading',
 				'player/premounting',
 				'player/best-practices',
+				'player/drag-and-drop/index',
+				'player/custom-controls',
+				'player/media-keys',
 			],
 		},
 
@@ -720,6 +770,7 @@ module.exports = {
 				'lambda/custom-destination',
 				'lambda/checklist',
 				'lambda/webhooks',
+				'lambda/cost-example',
 				'lambda/autodelete',
 				{
 					type: 'category',
@@ -796,6 +847,8 @@ module.exports = {
 				'video-uploads',
 				'presigned-urls',
 				'font-picker',
+				'building-a-timeline',
+				'multiple-fps',
 			],
 		},
 		{
@@ -845,6 +898,7 @@ module.exports = {
 				'troubleshooting/browser-launch',
 				'troubleshooting/sigkill',
 				'troubleshooting/could-not-find-executable-to-run',
+				'troubleshooting/stuck-render',
 			],
 		},
 		{
@@ -852,8 +906,9 @@ module.exports = {
 			label: 'Snippets',
 			items: [
 				'miscellaneous/snippets/accelerated-video',
+				'miscellaneous/snippets/different-segments-at-different-speeds',
+				'miscellaneous/snippets/jumpcuts',
 				'miscellaneous/snippets/player-in-iframe',
-				'miscellaneous/snippets/fps-converter',
 				'miscellaneous/snippets/use-delay-render',
 				'miscellaneous/snippets/offthread-video-while-rendering',
 				'miscellaneous/snippets/hls',
@@ -944,8 +999,11 @@ module.exports = {
 				'miscellaneous/linux-dependencies',
 				'gl-options',
 				'bun',
+				'deno',
 				'standalone',
 				'miscellaneous/emojis',
+				'media-fragments',
+				'system-prompt',
 			],
 		},
 		{

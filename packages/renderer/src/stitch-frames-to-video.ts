@@ -1,6 +1,5 @@
 import {cpSync, promises, rmSync} from 'node:fs';
 import path from 'node:path';
-import {VERSION} from 'remotion/version';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {RenderAssetInfo} from './assets/download-map';
 import {cleanDownloadMap} from './assets/download-map';
@@ -21,6 +20,7 @@ import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
+import {makeMetadataArgs} from './make-metadata-args';
 import type {AudioCodec} from './options/audio-codec';
 import {resolveAudioCodec} from './options/audio-codec';
 import {DEFAULT_COLOR_SPACE, type ColorSpace} from './options/color-space';
@@ -43,8 +43,8 @@ import {validateBitrate} from './validate-videobitrate';
 type InternalStitchFramesToVideoOptions = {
 	audioBitrate: string | null;
 	videoBitrate: string | null;
-	encodingMaxRate: string | null;
-	encodingBufferSize: string | null;
+	maxRate: string | null;
+	bufferSize: string | null;
 	fps: number;
 	width: number;
 	height: number;
@@ -70,19 +70,20 @@ type InternalStitchFramesToVideoOptions = {
 	ffmpegOverride: null | FfmpegOverrideFn;
 	colorSpace: ColorSpace | null;
 	binariesDirectory: string | null;
+	metadata?: Record<string, string> | null;
 } & ToOptions<typeof optionsMap.stitchFramesToVideo>;
 
 export type StitchFramesToVideoOptions = {
-	audioBitrate?: string | null;
-	videoBitrate?: string | null;
-	encodingMaxRate?: string | null;
-	encodingBufferSize?: string | null;
 	fps: number;
 	width: number;
 	height: number;
-	outputLocation?: string | null;
-	force: boolean;
 	assetsInfo: RenderAssetInfo;
+	force?: boolean;
+	audioBitrate?: string | null;
+	videoBitrate?: string | null;
+	maxRate?: string | null;
+	bufferSize?: string | null;
+	outputLocation?: string | null;
 	pixelFormat?: PixelFormat;
 	numberOfGifLoops?: number | null;
 	codec?: Codec;
@@ -99,6 +100,7 @@ export type StitchFramesToVideoOptions = {
 	x264Preset?: X264Preset | null;
 	colorSpace?: ColorSpace;
 	binariesDirectory?: string | null;
+	metadata?: Record<string, string> | null;
 } & Partial<ToOptions<typeof optionsMap.stitchFramesToVideo>>;
 
 type ReturnType = Promise<Buffer | null>;
@@ -126,8 +128,8 @@ const innerStitchFramesToVideo = async (
 		proResProfile,
 		logLevel,
 		videoBitrate,
-		encodingMaxRate,
-		encodingBufferSize,
+		maxRate,
+		bufferSize,
 		width,
 		numberOfGifLoops,
 		onProgress,
@@ -135,6 +137,7 @@ const innerStitchFramesToVideo = async (
 		colorSpace,
 		binariesDirectory,
 		separateAudioTo,
+		metadata,
 	}: InternalStitchFramesToVideoOptions,
 	remotionRoot: string,
 ): Promise<ReturnType> => {
@@ -154,9 +157,9 @@ const innerStitchFramesToVideo = async (
 
 	validateBitrate(audioBitrate, 'audioBitrate');
 	validateBitrate(videoBitrate, 'videoBitrate');
-	validateBitrate(encodingMaxRate, 'encodingMaxRate');
-	// encodingBufferSize is not a bitrate but need to be validated using the same format
-	validateBitrate(encodingBufferSize, 'encodingBufferSize');
+	validateBitrate(maxRate, 'maxRate');
+	// bufferSize is not a bitrate but need to be validated using the same format
+	validateBitrate(bufferSize, 'bufferSize');
 	validateFps(fps, 'in `stitchFramesToVideo()`', false);
 	assetsInfo.downloadMap.preventCleanup();
 
@@ -249,8 +252,8 @@ const innerStitchFramesToVideo = async (
 		crf,
 		codec,
 		videoBitrate,
-		encodingMaxRate,
-		encodingBufferSize,
+		encodingMaxRate: maxRate,
+		encodingBufferSize: bufferSize,
 	});
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
@@ -351,8 +354,8 @@ const innerStitchFramesToVideo = async (
 			codec,
 			crf,
 			videoBitrate,
-			encodingMaxRate,
-			encodingBufferSize,
+			encodingMaxRate: maxRate,
+			encodingBufferSize: bufferSize,
 			hasPreencoded: Boolean(preEncodedFileLocation),
 			proResProfileName,
 			pixelFormat,
@@ -362,7 +365,7 @@ const innerStitchFramesToVideo = async (
 		codec === 'h264' ? ['-movflags', 'faststart'] : null,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
-		['-metadata', `comment=Made with Remotion ${VERSION}`],
+		...makeMetadataArgs(metadata ?? {}),
 		force ? '-y' : null,
 		outputLocation ?? tempFile,
 	];
@@ -514,25 +517,26 @@ export const stitchFramesToVideo = ({
 	proResProfile,
 	verbose,
 	videoBitrate,
-	encodingMaxRate,
-	encodingBufferSize,
+	maxRate,
+	bufferSize,
 	x264Preset,
 	colorSpace,
 	binariesDirectory,
 	separateAudioTo,
+	metadata,
 }: StitchFramesToVideoOptions): Promise<Buffer | null> => {
 	return internalStitchFramesToVideo({
 		assetsInfo,
 		audioBitrate: audioBitrate ?? null,
-		encodingMaxRate: encodingMaxRate ?? null,
-		encodingBufferSize: encodingBufferSize ?? null,
+		maxRate: maxRate ?? null,
+		bufferSize: bufferSize ?? null,
 		audioCodec: audioCodec ?? null,
 		cancelSignal: cancelSignal ?? null,
 		codec: codec ?? DEFAULT_CODEC,
 		crf: crf ?? null,
 		enforceAudioTrack: enforceAudioTrack ?? false,
 		ffmpegOverride: ffmpegOverride ?? null,
-		force,
+		force: force ?? true,
 		fps,
 		height,
 		indent: false,
@@ -551,6 +555,7 @@ export const stitchFramesToVideo = ({
 		x264Preset: x264Preset ?? null,
 		colorSpace: colorSpace ?? DEFAULT_COLOR_SPACE,
 		binariesDirectory: binariesDirectory ?? null,
+		metadata: metadata ?? null,
 		separateAudioTo: separateAudioTo ?? null,
 	});
 };

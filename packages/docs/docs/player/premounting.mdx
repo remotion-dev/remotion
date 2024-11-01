@@ -153,7 +153,7 @@ You can achieve this for example by using a React context.
 
 ## Usage together with the buffer state
 
-If you also use the [buffer state](/docs/player/buffer-state), the [`<Audio>`](/docs/audio#pausewhenbuffering), [`<Video>`](/docs/video#pausewhenbuffering), [`<OffthreadVideo>`](/docs/offthreadvideo#pausewhenloading) and [`<Img>`](/docs/img#pausewhenloading) tags are aware of premounting and don't trigger the buffer state while in a premounted [`<Sequence>`](/docs/sequence).
+If you also use the [buffer state](/docs/player/buffer-state), the [`<Audio>`](/docs/audio#pausewhenbuffering), [`<Video>`](/docs/video#pausewhenbuffering), [`<OffthreadVideo>`](/docs/offthreadvideo#pausewhenbuffering) and [`<Img>`](/docs/img#pausewhenloading) tags are aware of premounting and don't trigger the buffer state while in a premounted [`<Sequence>`](/docs/sequence).
 
 Otherwise it would lead to pausing playback while a scene is not even visible yet.
 

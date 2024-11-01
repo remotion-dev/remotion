@@ -1,18 +1,23 @@
 import type {TranscriptionJson} from './transcribe';
 
-export type Caption = {
+export type ConvertToCaptionCaption = {
 	text: string;
 	startInSeconds: number;
 };
 
+/**
+ *
+ * @deprecated Use the `toCaptions()` function from `@remotion/install-whisper-cpp` instead
+ * and then process the captions using `createTikTokStyleCaptions()` from `@remotion/captions`.
+ */
 export function convertToCaptions({
 	transcription,
 	combineTokensWithinMilliseconds,
 }: {
 	transcription: TranscriptionJson<true>['transcription'];
 	combineTokensWithinMilliseconds: number;
-}): {captions: Caption[]} {
-	const merged: Caption[] = [];
+}): {captions: ConvertToCaptionCaption[]} {
+	const merged: ConvertToCaptionCaption[] = [];
 	let currentText = '';
 	let currentFrom = 0;
 	let currentTo = 0;

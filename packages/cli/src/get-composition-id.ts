@@ -16,11 +16,11 @@ const getCompName = ({
 	cliArgs,
 	compositionIdFromUi,
 }: {
-	cliArgs: string[];
+	cliArgs: (string | number)[];
 	compositionIdFromUi: string | null;
-}): {
+}): null | {
 	compName: string;
-	remainingArgs: string[];
+	remainingArgs: (string | number)[];
 	reason: string;
 } => {
 	if (compositionIdFromUi) {
@@ -31,9 +31,17 @@ const getCompName = ({
 		};
 	}
 
+	if (cliArgs.length === 0) {
+		return null;
+	}
+
 	const [compName, ...remainingArgs] = cliArgs;
 
-	return {compName, remainingArgs, reason: 'Passed as argument'};
+	return {
+		compName: String(compName),
+		remainingArgs,
+		reason: 'Passed as argument',
+	};
 };
 
 export const getCompositionId = async ({
@@ -54,7 +62,7 @@ export const getCompositionId = async ({
 	binariesDirectory,
 	onBrowserDownload,
 }: {
-	args: string[];
+	args: (string | number)[];
 	compositionIdFromUi: string | null;
 	serializedInputPropsWithCustomSchema: string;
 	puppeteerInstance: HeadlessBrowser | undefined;
@@ -74,20 +82,17 @@ export const getCompositionId = async ({
 	compositionId: string;
 	reason: string;
 	config: VideoConfig;
-	argsAfterComposition: string[];
+	argsAfterComposition: (string | number)[];
 }> => {
-	const {
-		compName,
-		remainingArgs,
-		reason: compReason,
-	} = getCompName({
+	const compNameResult = getCompName({
 		cliArgs: args,
 		compositionIdFromUi,
 	});
-	if (compName) {
+
+	if (compNameResult) {
 		const {metadata: config, propsSize} =
 			await RenderInternals.internalSelectComposition({
-				id: compName,
+				id: compNameResult.compName,
 				serializedInputPropsWithCustomSchema,
 				puppeteerInstance,
 				envVariables,
@@ -119,14 +124,16 @@ export const getCompositionId = async ({
 		}
 
 		if (!config) {
-			throw new Error(`Cannot find composition with ID "${compName}"`);
+			throw new Error(
+				`Cannot find composition with ID "${compNameResult.compName}"`,
+			);
 		}
 
 		return {
-			compositionId: compName,
-			reason: compReason,
+			compositionId: compNameResult.compName,
+			reason: compNameResult.reason,
 			config,
-			argsAfterComposition: remainingArgs,
+			argsAfterComposition: compNameResult.remainingArgs,
 		};
 	}
 

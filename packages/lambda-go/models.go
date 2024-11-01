@@ -11,6 +11,7 @@ type RemotionOptions struct {
 	ImageFormat                    string                 `json:"imageFormat"`
 	Crf                            int                    `json:"crf"`
 	EnvVariables                   interface{}            `json:"envVariables"`
+	Metadata                       interface{}            `json:"metadata"`
 	JpegQuality                    int                    `json:"jpegQuality"`
 	MaxRetries                     int                    `json:"maxRetries"`
 	Privacy                        string                 `json:"privacy"`
@@ -28,6 +29,7 @@ type RemotionOptions struct {
 	Muted                          bool                   `json:"muted"`
 	PreferLossless                 bool                   `json:"preferLossless"`
 	Overwrite                      bool                   `json:"overwrite"`
+	ForcePathStyle                 bool                   `json:"forcePathStyle"`
 	AudioBitrate                   interface{}            `json:"audioBitrate"`
 	VideoBitrate                   interface{}            `json:"videoBitrate"`
 	EncodingBufferSize             interface{}            `json:"encodingBufferSize"`
@@ -55,6 +57,7 @@ type renderInternalOptions struct {
 	ImageFormat                    string                 `json:"imageFormat"`
 	Crf                            int                    `json:"crf,omitempty"`
 	EnvVariables                   interface{}            `json:"envVariables,omitempty"`
+	Metadata                       interface{}            `json:"metadata,omitempty"`
 	JpegQuality                    int                    `json:"jpegQuality"`
 	MaxRetries                     int                    `json:"maxRetries"`
 	Privacy                        string                 `json:"privacy"`
@@ -71,6 +74,7 @@ type renderInternalOptions struct {
 	DownloadBehavior               map[string]interface{} `json:"downloadBehavior"`
 	Muted                          bool                   `json:"muted"`
 	PreferLossless                 bool                   `json:"preferLossless"`
+	ForcePathStyle                 bool                   `json:"forcePathStyle"`
 	Version                        string                 `json:"version"`
 	Overwrite                      bool                   `json:"overwrite"`
 	AudioBitrate                   interface{}            `json:"audioBitrate"`

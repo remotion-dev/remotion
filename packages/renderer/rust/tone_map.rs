@@ -20,12 +20,17 @@ pub struct FilterGraph {
     pub aspect_ratio: Rational,
 }
 
-pub fn make_tone_map_filtergraph(graph: FilterGraph) -> Result<(Graph, bool), ffmpeg_next::Error> {
+pub fn make_tone_map_filtergraph(graph: FilterGraph) -> Result<Option<Graph>, ffmpeg_next::Error> {
     let mut filter = filter::Graph::new();
 
     let original_width = graph.original_width;
     let original_height = graph.original_height;
     let pixel_format = graph.format;
+
+    if pixel_format == format::Pixel::None {
+        return Ok(None);
+    }
+
     let time_base = graph.time_base;
     let aspect_ratio = graph.aspect_ratio;
     let video_primaries = graph.video_primaries;
@@ -42,6 +47,7 @@ pub fn make_tone_map_filtergraph(graph: FilterGraph) -> Result<(Graph, bool), ff
         aspect_ratio.0,
         aspect_ratio.1
     );
+
     filter.add(&filter::find("buffer").unwrap(), "in", &args)?;
     filter.add(&filter::find("buffersink").unwrap(), "out", "")?;
 
@@ -134,5 +140,9 @@ pub fn make_tone_map_filtergraph(graph: FilterGraph) -> Result<(Graph, bool), ff
 
     filter.validate()?;
 
-    Ok((filter, should_convert))
+    if should_convert {
+        return Ok(Some(filter));
+    } else {
+        return Ok(None);
+    }
 }

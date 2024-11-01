@@ -136,6 +136,8 @@ Each platform has its own conventions for how videos should look.
 
 The goal of the Recorder: Edit once <strong>and feel native on each platform</strong>.
 
+This has a measurable impact on the performance of your post: For example, a 1:1 video on X [results in 30-35% higher video views and a 80-100% higher engagement rate](https://buffer.com/resources/square-video-vs-landscape-video/).
+
 ## Captions are essential
 
 Generate captions locally using [Whisper.cpp](https://github.com/ggerganov/whisper.cpp). The Recorder will automatically install it for you.  
@@ -221,20 +223,20 @@ The endcard is written with React and CSS, so can be easily customized.
 
 Having access to the entire source code, you can use CSS to customize the look of the Recorder.
 
-<div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
-  <table style={{ tableLayout: "fixed", width: 950 }}>
-    <tr style={{ borderTop: 0 }}>
-      <td valign="top" style={{ width: 950 / 3 }}>
-        <img style={{ borderRadius: 5 }} src="/recorder/theme-light.png"></img>
+<div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch'}}>
+  <table style={{tableLayout: 'fixed', width: 950}}>
+    <tr style={{borderTop: 0}}>
+      <td valign="top" style={{width: 950 / 3}}>
+        <img style={{borderRadius: 5}} src="/recorder/theme-light.png"></img>
         Look of the built-in light theme
       </td>
-      <td valign="top" style={{ width: 950 / 3 }}>
-        <img style={{ borderRadius: 5 }} src="/recorder/theme-dark.png"></img>
+      <td valign="top" style={{width: 950 / 3}}>
+        <img style={{borderRadius: 5}} src="/recorder/theme-dark.png"></img>
         <br />
         Look of the built-in dark theme
       </td>
-      <td valign="top" style={{ width: 950 / 3 }}>
-        <img style={{ borderRadius: 5 }} src="/recorder/theme-fancy.png"></img>
+      <td valign="top" style={{width: 950 / 3}}>
+        <img style={{borderRadius: 5}} src="/recorder/theme-fancy.png"></img>
         <br />
         Use CSS to make it your own!
       </td>

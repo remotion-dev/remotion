@@ -12,6 +12,7 @@ export const EnterpriseLicense: React.FC = () => {
 		<div className={styles.pricingcontainer}>
 			<div className={styles.audience}>For advanced needs</div>
 			<h2 className={styles.pricingtitle}>Enterprise License</h2>
+			<PricingBulletPoint text="Everything in Company License" checked />
 			<PricingBulletPoint text="Custom terms, billing and pricing" checked />
 			<PricingBulletPoint text="Compliance forms" checked />
 			<PricingBulletPoint text="Prioritized feature requests" checked />

@@ -10,8 +10,14 @@ export const headlessOption = {
 	cliFlag,
 	description: () => (
 		<>
-			If disabled, the render will open an actual Chrome window where you can
-			see the render happen. The default is headless mode.
+			Deprecated - will be removed in 5.0.0. With the migration to{' '}
+			<a href="/docs/miscellaneous/chrome-headless-shell">
+				Chrome Headless Shell
+			</a>
+			, this option is not functional anymore.
+			<br />
+			<br /> If disabled, the render will open an actual Chrome window where you
+			can see the render happen. The default is headless mode.
 		</>
 	),
 	ssrName: 'headless',

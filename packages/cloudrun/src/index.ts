@@ -37,24 +37,24 @@ const getSites = deprecatedGetSites;
 
 export {
 	CloudrunInternals,
+	deleteService,
+	deleteSite,
 	deployService,
 	deploySite,
-	deleteSite,
-	deleteService,
-	getServices,
 	getOrCreateBucket,
+	getRegions,
+	getServiceInfo,
+	getServices,
+	getSites,
 	renderMediaOnCloudrun,
 	renderStillOnCloudrun,
-	getServiceInfo,
-	getRegions,
-	getSites,
 	speculateServiceName,
 	testPermissions,
 };
 export type {
-	GcpRegion,
 	DeployServiceInput,
 	DeployServiceOutput,
-	RenderMediaOnCloudrunOutput,
+	GcpRegion,
 	RenderMediaOnCloudrunInput,
+	RenderMediaOnCloudrunOutput,
 };

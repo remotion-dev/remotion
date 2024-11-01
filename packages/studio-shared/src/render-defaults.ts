@@ -11,6 +11,8 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {GitSource} from './git-source';
+import type {InstallablePackage} from './installable-packages';
+import type {PackageManager} from './package-manager';
 
 export type RenderDefaults = {
 	jpegQuality: number;
@@ -46,11 +48,14 @@ export type RenderDefaults = {
 	beepOnFinish: boolean;
 	repro: boolean;
 	forSeamlessAacConcatenation: boolean;
+	metadata: Record<string, string> | null;
 };
 
 declare global {
 	interface Window {
 		remotion_renderDefaults: RenderDefaults | undefined;
 		remotion_gitSource: GitSource | null;
+		remotion_installedPackages: InstallablePackage[] | null;
+		remotion_packageManager: PackageManager | 'unknown';
 	}
 }

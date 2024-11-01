@@ -3,13 +3,13 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/studio"
 	},
 	"name": "@remotion/studio",
-	"version": "4.0.188",
+	"version": "4.0.226",
 	"description": "APIs for interacting with the Remotion Studio",
 	"main": "dist",
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
-		"build": "bun --env-file=../.env.bundle bundle.ts",
+		"make": "bun --env-file=../.env.bundle bundle.ts",
 		"test": "bun test src",
 		"formatting": "prettier src --check"
 	},
@@ -55,5 +55,6 @@
 			"import": "./dist/esm/internals.mjs",
 			"require": "./dist/internals.js"
 		}
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/studio/api"
 }

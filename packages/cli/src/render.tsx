@@ -37,11 +37,12 @@ const {
 	audioCodecOption,
 	publicPathOption,
 	publicDirOption,
+	metadataOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
 	remotionRoot: string,
-	args: string[],
+	args: (string | number)[],
 	logLevel: LogLevel,
 ) => {
 	const {
@@ -162,6 +163,7 @@ export const render = async (
 	const separateAudioTo = separateAudioOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const metadata = metadataOption.getValue({commandLine: parsedCli}).value;
 	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: ChromiumOptions = {
@@ -236,5 +238,6 @@ export const render = async (
 		forSeamlessAacConcatenation,
 		separateAudioTo,
 		publicPath,
+		metadata,
 	});
 };

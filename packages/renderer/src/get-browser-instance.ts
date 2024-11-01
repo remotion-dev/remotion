@@ -24,14 +24,14 @@ export const getPageAndCleanupFn = async ({
 	logLevel: LogLevel;
 	onBrowserDownload: OnBrowserDownload;
 }): Promise<{
-	cleanup: () => Promise<void>;
+	cleanupPage: () => Promise<void>;
 	page: Page;
 }> => {
 	if (passedInInstance) {
 		const page = await passedInInstance.newPage(() => null, logLevel, indent);
 		return {
 			page,
-			cleanup: () => {
+			cleanupPage: () => {
 				// Close puppeteer page and don't wait for it to finish.
 				// Keep browser open.
 				page.close().catch((err) => {
@@ -62,7 +62,7 @@ export const getPageAndCleanupFn = async ({
 
 	return {
 		page: browserPage,
-		cleanup: () => {
+		cleanupPage: () => {
 			// Close whole browser that was just created and don't wait for it to finish.
 			browserInstance.close(true, logLevel, indent).catch((err) => {
 				if (!(err as Error).message.includes('Target closed')) {

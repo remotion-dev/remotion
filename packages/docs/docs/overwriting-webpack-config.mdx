@@ -196,6 +196,9 @@ export const enableSvgr: WebpackOverrideFn = (currentConfiguration) => {
           use: ["@svgr/webpack"],
         },
         ...(currentConfiguration.module?.rules ?? []).map((r) => {
+          if (!r) {
+            return r;
+          }
           if (r === "...") {
             return r;
           }

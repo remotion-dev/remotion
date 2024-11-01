@@ -108,7 +108,7 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 				: undefined,
 	});
 
-	let stderrChunks: Buffer[] = [];
+	let stderrChunks: Uint8Array[] = [];
 
 	const waiters = new Map<string, Waiter>();
 

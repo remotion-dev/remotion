@@ -135,10 +135,16 @@ const innerHandler = async <Provider extends CloudProvider>({
 	}
 
 	if (params.type === ServerlessRoutines.start) {
+		const renderId = generateRandomHashWithLifeCycleRule(
+			params.deleteAfter,
+			providerSpecifics,
+		);
+
 		if (providerSpecifics.printLoggingHelper) {
 			printLoggingGrepHelper(
 				ServerlessRoutines.start,
 				{
+					renderId,
 					inputProps: JSON.stringify(params.inputProps),
 					isWarm,
 				},
@@ -151,6 +157,7 @@ const innerHandler = async <Provider extends CloudProvider>({
 			{
 				expectedBucketOwner: currentUserId,
 				timeoutInMilliseconds,
+				renderId,
 			},
 			providerSpecifics,
 		);

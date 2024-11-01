@@ -38,7 +38,7 @@ import {getFunctions} from './api/get-functions';
 import {getOrCreateBucket} from './api/get-or-create-bucket';
 import {getRegions} from './api/get-regions';
 import type {GetRenderProgressInput} from './api/get-render-progress';
-import {getRenderProgress} from './api/get-render-progress';
+import {getRenderProgress as deprecatedGetRenderProgress} from './api/get-render-progress';
 import type {GetSitesInput, GetSitesOutput} from './api/get-sites';
 import {getSites as deprecatedGetSites} from './api/get-sites';
 import type {
@@ -65,7 +65,11 @@ import type {
 } from './api/render-still-on-lambda';
 import {renderStillOnLambda as deprecatedRenderStillOnLambda} from './api/render-still-on-lambda';
 import {validateWebhookSignature} from './api/validate-webhook-signature';
-import {LambdaInternals} from './internals';
+import {
+	LambdaInternals,
+	_InternalAwsProvider,
+	_InternalOverallRenderProgress,
+} from './internals';
 import type {AwsRegion} from './regions';
 import type {RenderProgress} from './shared/constants';
 import type {WebhookPayload} from './shared/invoke-webhook';
@@ -74,6 +78,11 @@ import type {WebhookPayload} from './shared/invoke-webhook';
  * @deprecated Import this from `@remotion/lambda/client` instead
  */
 const renderMediaOnLambda = deprecatedRenderMediaOnLambda;
+
+/**
+ * @deprecated Import this from `@remotion/lambda/client` instead
+ */
+const getRenderProgress = deprecatedGetRenderProgress;
 
 /**
  * @deprecated Import this from `@remotion/lambda/client` instead
@@ -153,3 +162,5 @@ export type {
 	SimulatePermissionsOutput,
 	WebhookPayload,
 };
+
+export {_InternalAwsProvider, _InternalOverallRenderProgress};

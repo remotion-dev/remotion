@@ -4,7 +4,7 @@ import {isInsideLambda} from '../../shared/is-in-lambda';
 export const getCurrentRegionInFunctionImplementation = () => {
 	if (!isInsideLambda()) {
 		throw new Error(
-			'Should not call getCurrentRegion() if not inside a lambda function',
+			'Should not call getCurrentRegionInFunctionImplementation() if not inside a lambda function',
 		);
 	}
 

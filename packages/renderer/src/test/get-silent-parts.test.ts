@@ -10,10 +10,10 @@ test('Should be able to get the silences from a video', async () => {
 	});
 	expect(silentParts.length).toEqual(1);
 	expect(silentParts[0].startInSeconds).toBe(0);
-	expect(silentParts[0].endInSeconds).toBe(1.0149);
+	expect(silentParts[0].endInSeconds).toBe(1.014896);
 
 	expect(audibleParts.length).toEqual(1);
-	expect(audibleParts[0].startInSeconds).toEqual(1.0149);
+	expect(audibleParts[0].startInSeconds).toEqual(1.014896);
 	expect(audibleParts[0].endInSeconds).toEqual(2.789);
 });
 

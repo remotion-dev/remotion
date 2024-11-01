@@ -163,13 +163,20 @@ export const startServer = async (options: {
 			return {
 				port: selectedPort as number,
 				liveEventsServer,
-				close: () => {
-					return new Promise<void>((resolve) => {
-						server.closeAllConnections();
-						server.close(() => {
-							resolve();
-						});
-					});
+				close: async () => {
+					server.closeAllConnections();
+					await Promise.all([
+						new Promise<void>((resolve) => {
+							server.close(() => {
+								resolve();
+							});
+						}),
+						new Promise<void>((resolve) => {
+							compiler.close(() => {
+								resolve();
+							});
+						}),
+					]);
 				},
 			};
 		} catch (err) {
