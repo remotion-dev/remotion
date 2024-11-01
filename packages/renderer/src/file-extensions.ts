@@ -23,6 +23,7 @@ export const defaultFileExtensionMap: {
 	[key in Codec]: {
 		default: FileExtension;
 		forAudioCodec: {
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			[k in (typeof supportedAudioCodecs)[key][number]]: {
 				possible: FileExtension[];
 				default: FileExtension;

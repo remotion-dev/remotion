@@ -3,6 +3,7 @@
 import type {AwsRegion} from '../regions';
 
 export const pricing: {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	[key in AwsRegion]: {
 		'Lambda Duration': {
 			rateCode: string;

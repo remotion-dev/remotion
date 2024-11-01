@@ -1,5 +1,6 @@
 import type {Codec} from './codec';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const map: {[key in Codec]: string | null} = {
 	h264: 'libx264',
 	h265: 'libx265',

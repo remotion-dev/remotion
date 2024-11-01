@@ -28,6 +28,7 @@ const messageTypes = {
 export type MessageTypeId = keyof typeof messageTypes;
 type MessageType = (typeof messageTypes)[MessageTypeId]['type'];
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const formatMap: {[key in MessageType]: 'json' | 'binary'} = {
 	[framesRendered]: 'json',
 	[errorOccurred]: 'json',

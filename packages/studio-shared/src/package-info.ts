@@ -68,6 +68,7 @@ export const packages = [
 
 export type Pkgs = (typeof packages)[number];
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const descriptions: {[key in Pkgs]: string | null} = {
 	player: 'React component for embedding a Remotion preview into your app',
 	cloudrun: 'Render Remotion videos on Google Cloud Run',
@@ -139,6 +140,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'openai-whisper': 'Work with the output of the OpenAI Whisper API',
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const apiDocs: {[key in Pkgs]: string | null} = {
 	player: 'https://www.remotion.dev/docs/player',
 	cloudrun: 'https://www.remotion.dev/docs/cloudrun',

@@ -24,8 +24,8 @@
 	},
 	"private": true,
 	"devDependencies": {
-		"@typescript-eslint/eslint-plugin": "7.5.0",
-		"@typescript-eslint/parser": "7.5.0",
+		"@typescript-eslint/eslint-plugin": "8.12.2",
+		"@typescript-eslint/parser": "8.12.2",
 		"eslint-plugin-10x": "1.5.2",
 		"eslint-plugin-react": "7.34.1",
 		"eslint-plugin-react-hooks": "4.6.0"

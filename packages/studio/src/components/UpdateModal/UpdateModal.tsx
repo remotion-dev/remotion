@@ -39,6 +39,7 @@ const link: React.CSSProperties = {
 	...text,
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const commands: {[key in UpdateInfo['packageManager']]: string} = {
 	npm: 'npx remotion upgrade',
 	yarn: 'yarn remotion upgrade',

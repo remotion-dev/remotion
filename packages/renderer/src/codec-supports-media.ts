@@ -6,6 +6,7 @@ type MediaSupport = {
 	audio: boolean;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const support: {[key in Codec]: MediaSupport} = {
 	'h264-mkv': {
 		audio: true,
@@ -57,6 +58,7 @@ export const codecSupportsMedia = (codec: Codec): MediaSupport => {
 	return support[codec];
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const codecSupportsVideoBitrateMap: {[key in Codec]: boolean} = {
 	'h264-mkv': true,
 	'h264-ts': true,

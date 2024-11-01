@@ -21,6 +21,7 @@ export const supportedAudioCodecs = {
 	wav: ['pcm-16'] as const,
 } as const;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _satisfies: {[key in Codec]: readonly AudioCodec[]} =
 	supportedAudioCodecs;
 if (_satisfies) {
@@ -63,7 +64,8 @@ const ssrName = 'audioCodec' as const;
 
 export const defaultAudioCodecs: {
 	[key in Codec]: {
-		[k in 'compressed' | 'lossless']:
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		[_ in 'compressed' | 'lossless']:
 			| (typeof supportedAudioCodecs)[key][number]
 			| null;
 	};
