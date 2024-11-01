@@ -137,7 +137,7 @@ npm i
 #### Start Remotion Studio
 
 ```console
-npm start
+npm run dev
 ```
 
 #### Running on Cloud development environments:

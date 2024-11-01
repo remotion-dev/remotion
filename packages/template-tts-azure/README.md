@@ -21,30 +21,30 @@ Welcome to your TTS Remotion project!
   - Configure bucket policy
     ```json
     {
-    	"Version": "2008-10-17",
-    	"Statement": [
-    		{
-    			"Sid": "AllowPublicRead",
-    			"Effect": "Allow",
-    			"Principal": {
-    				"AWS": "*"
-    			},
-    			"Action": "s3:GetObject",
-    			"Resource": "arn:aws:s3:::<YOUR-BUCKET-NAME>/*"
-    		}
-    	]
+      "Version": "2008-10-17",
+      "Statement": [
+        {
+          "Sid": "AllowPublicRead",
+          "Effect": "Allow",
+          "Principal": {
+            "AWS": "*"
+          },
+          "Action": "s3:GetObject",
+          "Resource": "arn:aws:s3:::<YOUR-BUCKET-NAME>/*"
+        }
+      ]
     }
     ```
   - Configure bucket CORS
     - Use it only as a template, we recommend you to edit "AllowedOrigins" entering your origin
     ```json
     [
-    	{
-    		"AllowedHeaders": ["*"],
-    		"AllowedMethods": ["HEAD", "GET", "PUT", "POST", "DELETE"],
-    		"AllowedOrigins": ["*"],
-    		"ExposeHeaders": ["ETag", "x-amz-meta-custom-header"]
-    	}
+      {
+        "AllowedHeaders": ["*"],
+        "AllowedMethods": ["HEAD", "GET", "PUT", "POST", "DELETE"],
+        "AllowedOrigins": ["*"],
+        "ExposeHeaders": ["ETag", "x-amz-meta-custom-header"]
+      }
     ]
     ```
 - Copy `.env.example` to `.env` entering your secrets
@@ -53,7 +53,7 @@ Welcome to your TTS Remotion project!
 
 ## Example
 
-[![Remotion TTS example](http://img.youtube.com/vi/gbIno38xdhQ/0.jpg)](http://www.youtube.com/watch?v=gbIno38xdhQ 'Remotion TTS example')
+[![Remotion TTS example](http://img.youtube.com/vi/gbIno38xdhQ/0.jpg)](http://www.youtube.com/watch?v=gbIno38xdhQ "Remotion TTS example")
 
 ## Commands
 
@@ -66,7 +66,7 @@ npm install
 **Start Preview**
 
 ```console
-npm start
+npm run dev
 ```
 
 **Render video**

@@ -75,19 +75,19 @@ export const getInstallCommand = (manager: PackageManager) => {
 
 const getStartCommand = (manager: PackageManager) => {
 	if (manager === 'npm') {
-		return `npm start`;
+		return `npm run dev`;
 	}
 
 	if (manager === 'yarn') {
-		return `yarn start`;
+		return `yarn dev`;
 	}
 
 	if (manager === 'pnpm') {
-		return `pnpm start`;
+		return `pnpm run dev`;
 	}
 
 	if (manager === 'bun') {
-		return `bun start`;
+		return `bun run dev`;
 	}
 };
 
