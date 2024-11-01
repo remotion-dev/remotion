@@ -1,0 +1,31 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/eslint-config-internal"
+	},
+	"name": "@remotion/eslint-config-internal",
+	"version": "4.0.226",
+	"license": "SEE LICENSE IN LICENSE.md",
+	"main": "dist/index.js",
+	"scripts": {},
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"require": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		},
+		"./react": {
+			"import": "./dist/react.js",
+			"require": "./dist/react.js",
+			"types": "./dist/react.d.ts"
+		},
+		"./package.json": "./package.json"
+	},
+	"private": true,
+	"devDependencies": {
+		"@typescript-eslint/eslint-plugin": "7.5.0",
+		"@typescript-eslint/parser": "7.5.0",
+		"eslint-plugin-10x": "1.5.2",
+		"eslint-plugin-react": "7.34.1",
+		"eslint-plugin-react-hooks": "4.6.0"
+	}
+}
