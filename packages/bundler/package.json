@@ -32,7 +32,7 @@
 		"@remotion/studio-shared": "workspace:*",
 		"style-loader": "2.0.0",
 		"source-map": "0.7.3",
-		"webpack": "5.94.0"
+		"@rspack/core": "1.0.14"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
@@ -47,7 +47,6 @@
 		"ffmpeg",
 		"video",
 		"react",
-		"webpack",
 		"player"
 	],
 	"publishConfig": {
