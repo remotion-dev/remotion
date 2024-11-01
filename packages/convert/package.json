@@ -37,7 +37,9 @@
 		"postcss": "8.4.47",
 		"tailwindcss": "3.4.13",
 		"vite": "^5.4.6",
-		"vite-tsconfig-paths": "^4.2.1"
+		"vite-tsconfig-paths": "^4.2.1",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "8.56.0"
 	},
 	"engines": {
 		"node": ">=20.0.0"

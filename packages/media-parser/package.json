@@ -15,7 +15,9 @@
 	},
 	"devDependencies": {
 		"@remotion/renderer": "workspace:*",
-		"@types/wicg-file-system-access": "2023.10.5"
+		"@types/wicg-file-system-access": "2023.10.5",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "8.56.0"
 	},
 	"publishConfig": {
 		"access": "public"

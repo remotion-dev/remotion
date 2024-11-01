@@ -11,7 +11,8 @@
 	],
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
-		"formatting": "prettier src --check"
+		"formatting": "prettier src --check",
+		"make": "tsc -d"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"

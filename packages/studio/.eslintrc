@@ -1,5 +1,5 @@
 {
-	"extends": "@jonny/eslint-config/react",
+	"extends": "@remotion/internals/react",
 	"rules": {
 		"no-console": "error",
 		"no-restricted-imports": [
@@ -9,9 +9,9 @@
 					"@remotion/*/src",
 					"@remotion/*/src/*",
 					"@remotion/*/dist/*",
-					"remotion/src/*"
-				]
-			}
+					"remotion/src/*",
+				],
+			},
 		],
 		"@typescript-eslint/no-use-before-define": "off",
 		"@typescript-eslint/no-restricted-imports": [
@@ -21,15 +21,15 @@
 					{
 						"name": "zod",
 						"message": "Can only import zod as a type",
-						"allowTypeImports": true
+						"allowTypeImports": true,
 					},
 					{
 						"name": "@remotion/zod-types",
 						"message": "Can only import @remotion/zod-types as a type",
-						"allowTypeImports": true
-					}
-				]
-			}
-		]
-	}
+						"allowTypeImports": true,
+					},
+				],
+			},
+		],
+	},
 }

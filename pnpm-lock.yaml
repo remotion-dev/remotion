@@ -18,9 +18,6 @@ importers:
         specifier: 5.5.4
         version: 5.5.4
     devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.281
-        version: 3.0.281(eslint@8.56.0)(typescript@5.5.4)
       '@types/bun':
         specifier: 1.1.10
         version: 1.1.10
@@ -33,18 +30,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-plugin-10x:
-        specifier: 1.5.2
-        version: 1.5.2(eslint@8.56.0)
-      eslint-plugin-react:
-        specifier: 7.32.2
-        version: 7.32.2(eslint@8.56.0)
-      eslint-plugin-react-hooks:
-        specifier: 4.4.0
-        version: 4.4.0(eslint@8.56.0)
       prettier:
         specifier: 3.3.3
         version: 3.3.3
@@ -67,6 +52,9 @@ importers:
       '@remotion/eslint-config-internal':
         specifier: workspace:*
         version: link:../eslint-config-internal
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
 
   packages/animation-utils:
     dependencies:
@@ -79,6 +67,13 @@ importers:
       remotion:
         specifier: workspace:*
         version: link:../core
+    devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
 
   packages/astro-example:
     dependencies:
@@ -397,9 +392,15 @@ importers:
       '@remix-run/dev':
         specifier: ^2.11.2
         version: 2.11.2(@remix-run/react@2.11.2)(@remix-run/serve@2.11.2)(typescript@5.5.4)(vite@5.4.6)
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.4.47)
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
       postcss:
         specifier: 8.4.47
         version: 8.4.47
@@ -418,9 +419,15 @@ importers:
       '@happy-dom/global-registrator':
         specifier: 14.5.1
         version: 14.5.1
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
       '@testing-library/react':
         specifier: 14.0.0
         version: 14.0.0(react-dom@18.3.1)(react@18.3.1)
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
       happy-dom:
         specifier: 14.5.1
         version: 14.5.1
@@ -538,6 +545,9 @@ importers:
       '@remotion/enable-scss':
         specifier: workspace:*
         version: link:../enable-scss
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
       '@remotion/fonts':
         specifier: workspace:*
         version: link:../fonts
@@ -637,6 +647,9 @@ importers:
       create-video:
         specifier: workspace:*
         version: link:../create-video
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
       hls.js:
         specifier: ^0.14.17
         version: 0.14.17
@@ -1035,9 +1048,15 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
       esbuild:
         specifier: 0.18.6
         version: 0.18.6
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1271,6 +1290,12 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1280,12 +1305,18 @@ importers:
 
   packages/media-parser:
     devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
       '@types/wicg-file-system-access':
         specifier: 2023.10.5
         version: 2023.10.5
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
 
   packages/media-utils:
     dependencies:
@@ -1305,6 +1336,12 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1342,12 +1379,18 @@ importers:
       '@happy-dom/global-registrator':
         specifier: 14.5.1
         version: 14.5.1
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
       '@testing-library/react':
         specifier: 13.1.1
         version: 13.1.1(react-dom@18.3.1)(react@18.3.1)
       csstype:
         specifier: ^3.1.1
         version: 3.1.1
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1495,9 +1538,15 @@ importers:
       '@happy-dom/global-registrator':
         specifier: 14.5.1
         version: 14.5.1
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
       '@testing-library/react':
         specifier: ^13.4.0
         version: 13.4.0(react-dom@18.3.1)(react@18.3.1)
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1514,6 +1563,9 @@ importers:
       '@remotion/bundler':
         specifier: workspace:*
         version: link:../bundler
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
       '@shopify/react-native-skia':
         specifier: 1.3.13
         version: 1.3.13(react@18.3.1)
@@ -1523,6 +1575,9 @@ importers:
       canvaskit-wasm:
         specifier: 0.39.1
         version: 0.39.1
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -2645,6 +2700,9 @@ importers:
       '@react-three/fiber':
         specifier: 8.13.5
         version: 8.13.5(react-dom@18.3.1)(react@18.3.1)(three@0.158.0)
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
       '@types/react-reconciler':
         specifier: ^0.26.4
         version: 0.26.4
@@ -2654,6 +2712,9 @@ importers:
       '@types/web':
         specifier: 0.0.166
         version: 0.0.166
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -2679,12 +2740,18 @@ importers:
       '@happy-dom/global-registrator':
         specifier: 14.5.1
         version: 14.5.1
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
       '@remotion/test-utils':
         specifier: workspace:*
         version: link:../test-utils
       '@vitejs/plugin-react':
         specifier: ^2.0.0
         version: 2.2.0(vite@3.2.10)
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -10204,20 +10271,6 @@ packages:
       chalk: 4.1.2
     dev: false
 
-  /@jonny/eslint-config@3.0.281(eslint@8.56.0)(typescript@5.5.4):
-    resolution: {integrity: sha512-+fA/Xi7xy6IC8j2K1MqhUWbchCQVGimIHsem5wknoFcgqmxY8E4Cu4fsdOQBgbOgV/aWNOOVOJ2nGkCQE5cdzQ==}
-    dependencies:
-      '@typescript-eslint/eslint-plugin': 7.5.0(@typescript-eslint/parser@7.5.0)(eslint@8.56.0)(typescript@5.5.4)
-      '@typescript-eslint/parser': 7.5.0(eslint@8.56.0)(typescript@5.5.4)
-      eslint-plugin-10x: 1.5.2(eslint@8.56.0)
-      eslint-plugin-react: 7.34.1(eslint@8.56.0)
-      eslint-plugin-react-hooks: 4.6.0(eslint@8.56.0)
-    transitivePeerDependencies:
-      - eslint
-      - supports-color
-      - typescript
-    dev: true
-
   /@jridgewell/gen-mapping@0.3.5:
     resolution: {integrity: sha512-IzL8ZoEDIBRWEzlCcRhOaCupYyN5gdIK+Q6fbFdPDg6HqX6jpkItn7DFIpW9LQzXG6Df9sA7+OKnq0qlz/GaQg==}
     engines: {node: '>=6.0.0'}
@@ -14613,14 +14666,9 @@ packages:
     resolution: {integrity: sha512-Cxwpt2SfTzTtXcfOlzGEee8O+c+MmUgGrNiBcXnuWxuFJHe6a5Hz7qwhwe5OgaSYI0IJvkLqWX1ASG+cJOkEiA==}
     engines: {node: '>=10'}
 
-  /ansi-styles@6.1.0:
-    resolution: {integrity: sha512-VbqNsoz55SYGczauuup0MFUyXNQviSpFTj1RQtFzmQLk18qbVSpTFFGMT293rmDaQuKCT6InmbuEyUne4mTuxQ==}
-    engines: {node: '>=12'}
-
   /ansi-styles@6.2.1:
     resolution: {integrity: sha512-bN798gFfQX+viw3R7yrGWRqnrN2oRkEkUjjl4JNn4E8GxxbjtG3FbrEIIY3l8/hrwUwIeCZvi4QuOTP4MErVug==}
     engines: {node: '>=12'}
-    dev: false
 
   /any-promise@1.3.0:
     resolution: {integrity: sha512-7UvmKalWRt1wgjL1RrGxoSJW/0QZFIegpeGvZG9kjp8vrRu55XTHbwnqq2GpXm9uLbcuhxm3IqX9OB4MZR1b2A==}
@@ -15956,7 +16004,7 @@ packages:
       - supports-color
 
   /concat-map@0.0.1:
-    resolution: {integrity: sha1-2Klr13/Wjfd5OnMDajug1UBdR3s=}
+    resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
 
   /concordance@5.0.4:
     resolution: {integrity: sha512-OAcsnTEYu1ARJqWVGwf4zh4JDfHZEaSNlNccFmt8YjB2l/n19/PF2viLINHc57vO4FKIAFl2FWASIGZZWZ2Kxw==}
@@ -18207,15 +18255,6 @@ packages:
       semver: 6.3.1
     dev: true
 
-  /eslint-plugin-react-hooks@4.4.0(eslint@8.56.0):
-    resolution: {integrity: sha512-U3RVIfdzJaeKDQKEJbz5p3NW8/L80PCATJAfuojwbaEL+gBjfGdhUcGde+WGUW46Q5sr/NgxevsIiDtNXrvZaQ==}
-    engines: {node: '>=10'}
-    peerDependencies:
-      eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0
-    dependencies:
-      eslint: 8.56.0
-    dev: true
-
   /eslint-plugin-react-hooks@4.6.0(eslint@8.56.0):
     resolution: {integrity: sha512-oFc7Itz9Qxh2x4gNHStv3BqJq54ExXmfC+a1NjAta66IAN87Wu0R/QArgIS9qKzX3dXKPI9H5crl9QchNMY9+g==}
     engines: {node: '>=10'}
@@ -18246,6 +18285,7 @@ packages:
       resolve: 2.0.0-next.5
       semver: 6.3.1
       string.prototype.matchall: 4.0.11
+    dev: false
 
   /eslint-plugin-react@7.34.1(eslint@8.56.0):
     resolution: {integrity: sha512-N97CxlouPT1AHt8Jn0mhhN2RrADlUAsk1/atcT2KyA/l9Q/E6ll7OIGwNumFmWfZ9skV3XXccYS19h80rHtgkw==}
@@ -18333,6 +18373,7 @@ packages:
   /eslint@8.56.0:
     resolution: {integrity: sha512-Go19xM6T9puCOWntie1/P997aXxFsOi37JIHRWI514Hc6ZnaHGKY9xFhrU65RT6CcBEzZoGG1e6Nq+DT04ZtZQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
     dependencies:
       '@eslint-community/eslint-utils': 4.4.0(eslint@8.56.0)
@@ -18346,7 +18387,7 @@ packages:
       ajv: 6.12.6
       chalk: 4.1.2
       cross-spawn: 7.0.3
-      debug: 4.3.6
+      debug: 4.3.7(supports-color@5.5.0)
       doctrine: 3.0.0
       escape-string-regexp: 4.0.0
       eslint-scope: 7.2.2
@@ -20956,6 +20997,7 @@ packages:
     dependencies:
       array-includes: 3.1.8
       object.assign: 4.1.5
+    dev: false
 
   /jsx-ast-utils@3.3.5:
     resolution: {integrity: sha512-ZZow9HBI5O6EPgSJLUb8n2NKgmVWTwCvHGwFuJlMjvLFqlGG6pjirPhtdsseaLZjSibD8eegzmYpUZwoIlj2cQ==}
@@ -28933,7 +28975,7 @@ packages:
     resolution: {integrity: sha512-QFF+ufAqhoYHvoHdajT/Po7KoXVBPXS2bgjIam5isfWJPfIOnQZ50JtUiVvCv/sjgacf3yRrt2ZKUZ/V4itN4g==}
     engines: {node: '>=12'}
     dependencies:
-      ansi-styles: 6.1.0
+      ansi-styles: 6.2.1
       string-width: 5.1.2
       strip-ansi: 7.1.0
     dev: false
@@ -28942,7 +28984,7 @@ packages:
     resolution: {integrity: sha512-si7QWI6zUMq56bESFvagtmzMdGOtoxfR+Sez11Mobfc7tm+VkUckk9bW2UeffTGVUbOksxmSw0AA2gs8g71NCQ==}
     engines: {node: '>=12'}
     dependencies:
-      ansi-styles: 6.1.0
+      ansi-styles: 6.2.1
       string-width: 5.1.2
       strip-ansi: 7.1.0
 
