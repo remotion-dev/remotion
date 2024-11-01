@@ -1661,8 +1661,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/eslint-config':
         specifier: workspace:*
@@ -1753,8 +1753,8 @@ importers:
         specifier: 0.2.9
         version: 0.2.9(typescript@5.5.4)
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/eslint-config':
         specifier: workspace:*
@@ -1793,8 +1793,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/eslint-config':
         specifier: workspace:*
@@ -1830,8 +1830,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/eslint-config':
         specifier: workspace:*
@@ -1879,8 +1879,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/eslint-config':
         specifier: workspace:*
@@ -1961,8 +1961,8 @@ importers:
         specifier: 2.5.2
         version: 2.5.2
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/eslint-config':
         specifier: workspace:*
@@ -2043,8 +2043,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/eslint-config':
         specifier: workspace:*
@@ -2217,8 +2217,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/eslint-config':
         specifier: workspace:*
@@ -2263,8 +2263,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/eslint-config':
         specifier: workspace:*
@@ -2336,8 +2336,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/eslint-config':
         specifier: workspace:*
@@ -2385,8 +2385,8 @@ importers:
         specifier: 0.158.0
         version: 0.158.0
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/eslint-config':
         specifier: workspace:*
@@ -2437,8 +2437,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/captions':
         specifier: workspace:*
@@ -2520,8 +2520,8 @@ importers:
         specifier: 5.5.4
         version: 5.5.4
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
 
   packages/template-tts-google:
     dependencies:
@@ -2574,8 +2574,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/eslint-config':
         specifier: workspace:*
@@ -29070,9 +29070,6 @@ packages:
       typescript: 5.5.4
       zod: 3.23.8
     dev: false
-
-  /zod@3.22.3:
-    resolution: {integrity: sha512-EjIevzuJRiRPbVH4mGc8nApb/lVLKVpmUhAaR5R5doKGfAnGJ6Gr3CViAVjP+4FWSxCsybeWQdcgCtbX+7oZug==}
 
   /zod@3.23.8:
     resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
