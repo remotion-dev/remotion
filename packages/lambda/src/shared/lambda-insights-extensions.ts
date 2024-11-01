@@ -1,5 +1,6 @@
 import type {AwsRegion} from '../regions';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const lambdaInsightsExtensions: {[region in AwsRegion]: string} = {
 	'us-east-1':
 		'arn:aws:lambda:us-east-1:580247275435:layer:LambdaInsightsExtension-Arm64:5',

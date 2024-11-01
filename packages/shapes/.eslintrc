@@ -1,6 +1,6 @@
 {
-	"extends": "@jonny/eslint-config/react",
+	"extends": "@remotion/internal/react",
 	"rules": {
-		"no-bitwise": "off"
-	}
+		"no-bitwise": "off",
+	},
 }

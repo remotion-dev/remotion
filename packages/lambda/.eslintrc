@@ -1,5 +1,5 @@
 {
-	"extends": "@jonny",
+	"extends": "@remotion/internal",
 	"rules": {
 		"no-console": "off",
 		"arrow-body-style": "off",
@@ -7,9 +7,9 @@
 			"error",
 			{
 				"patterns": ["@remotion/cli", "@remotion/*/src/*", "remotion/src/*"],
-				"paths": ["remotion", "react", "react-dom"]
-			}
-		]
+				"paths": ["remotion", "react", "react-dom"],
+			},
+		],
 	},
 	"overrides": [
 		{
@@ -20,10 +20,10 @@
 					"error",
 					{
 						"patterns": ["@remotion/*/src/*", "remotion/src/*"],
-						"paths": ["remotion", "react", "react-dom"]
-					}
-				]
-			}
-		}
-	]
+						"paths": ["remotion", "react", "react-dom"],
+					},
+				],
+			},
+		},
+	],
 }

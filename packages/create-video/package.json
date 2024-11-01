@@ -30,7 +30,9 @@
 		"@types/minimist": "1.2.2",
 		"@types/prompts": "^2.0.12",
 		"@types/tar": "6.1.1",
-		"react": "18.3.1"
+		"react": "18.3.1",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "8.56.0"
 	},
 	"homepage": "https://remotion.dev/templates"
 }

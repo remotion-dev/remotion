@@ -11,7 +11,8 @@
 	],
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
-		"formatting": "prettier src --check"
+		"formatting": "prettier src --check",
+		"make": "tsc -d"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
@@ -28,6 +29,10 @@
 	},
 	"peerDependencies": {
 		"eslint": ">=7.15.0"
+	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "8.56.0"
 	},
 	"keywords": [
 		"remotion",

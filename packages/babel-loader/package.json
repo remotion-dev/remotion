@@ -30,7 +30,9 @@
 	},
 	"devDependencies": {
 		"@remotion/bundler": "workspace:*",
-		"remotion": "workspace:*"
+		"remotion": "workspace:*",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "8.56.0"
 	},
 	"peerDependencies": {
 		"@remotion/bundler": "workspace:*"

@@ -31,7 +31,9 @@
 	},
 	"devDependencies": {
 		"@remotion/compositor-linux-x64-gnu": "workspace:*",
-		"@types/minimist": "1.2.2"
+		"@types/minimist": "1.2.2",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "8.56.0"
 	},
 	"exports": {
 		"./package.json": "./package.json",

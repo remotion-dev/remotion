@@ -41,7 +41,7 @@
 			"outputs": []
 		},
 		"lint": {
-			"dependsOn": ["//#ts-build"],
+			"dependsOn": ["//#ts-build", "@remotion/eslint-config-internal#make"],
 			"outputs": []
 		},
 		"formatting": {

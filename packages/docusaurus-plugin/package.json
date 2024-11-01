@@ -22,6 +22,10 @@
 		"@docusaurus/types": "3.4.0",
 		"@types/dom-webcodecs": "0.1.11"
 	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "8.56.0"
+	},
 	"private": true,
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/docusaurus-plugin"

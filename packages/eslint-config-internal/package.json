@@ -1,0 +1,34 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/eslint-config-internal"
+	},
+	"name": "@remotion/eslint-config-internal",
+	"version": "4.0.226",
+	"license": "SEE LICENSE IN LICENSE.md",
+	"main": "dist/index.js",
+	"scripts": {
+		"make": "tsc -d"
+	},
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"require": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		},
+		"./react": {
+			"import": "./dist/react.js",
+			"require": "./dist/react.js",
+			"types": "./dist/react.d.ts"
+		},
+		"./package.json": "./package.json"
+	},
+	"private": true,
+	"devDependencies": {
+		"@typescript-eslint/eslint-plugin": "8.12.2",
+		"@typescript-eslint/parser": "8.12.2",
+		"eslint-plugin-10x": "1.5.2",
+		"eslint-plugin-react": "7.34.1",
+		"eslint-plugin-react-hooks": "4.6.0"
+	},
+	"description": "ESLint condig for Remotion's internal packages"
+}

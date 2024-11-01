@@ -1,13 +1,13 @@
 {
-	"extends": "@jonny",
+	"extends": "@remotion/internal",
 	"rules": {
 		"no-console": "error",
 		"no-restricted-imports": [
 			"error",
 			{
-				"patterns": ["@remotion/*/src/*", "remotion/src/*"]
-			}
+				"patterns": ["@remotion/*/src/*", "remotion/src/*"],
+			},
 		],
-		"@typescript-eslint/no-use-before-define": "off"
-	}
+		"@typescript-eslint/no-use-before-define": "off",
+	},
 }

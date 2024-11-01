@@ -35,7 +35,9 @@
 		"react-dom": "18.3.1",
 		"@types/semver": "^7.3.4",
 		"zod": "3.22.3",
-		"@remotion/zod-types": "workspace:*"
+		"@remotion/zod-types": "workspace:*",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "8.56.0"
 	},
 	"publishConfig": {
 		"access": "public"

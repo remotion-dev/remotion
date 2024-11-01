@@ -37,6 +37,7 @@ export const makeTriangle = ({
 	const longerDimension = length;
 	const shorterSize = Math.sqrt(length ** 2 * 0.75); // Calculated on paper;
 
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const points: {[key in Direction]: [number, number][]} = {
 		up: [
 			[longerDimension / 2, 0],

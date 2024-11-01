@@ -36,7 +36,9 @@
 	"devDependencies": {
 		"react": "18.3.1",
 		"@babel/types": "7.24.0",
-		"@types/semver": "^7.3.4"
+		"@types/semver": "^7.3.4",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "8.56.0"
 	},
 	"exports": {
 		".": "./dist/index.js",

@@ -61,7 +61,9 @@
 		"@remotion/skia": "workspace:*",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"zod": "3.22.3"
+		"zod": "3.22.3",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "8.56.0"
 	},
 	"keywords": [
 		"remotion",

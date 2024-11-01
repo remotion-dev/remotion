@@ -29,7 +29,9 @@
 		"@remotion/bundler": "workspace:*"
 	},
 	"devDependencies": {
-		"@remotion/bundler": "workspace:*"
+		"@remotion/bundler": "workspace:*",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "8.56.0"
 	},
 	"keywords": [
 		"remotion",

@@ -1,5 +1,5 @@
 {
-	"extends": "@jonny",
+	"extends": "@remotion/internal",
 	"rules": {
 		"no-console": "error",
 		"no-negated-condition": "off",

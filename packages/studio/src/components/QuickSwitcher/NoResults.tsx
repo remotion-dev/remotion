@@ -10,6 +10,7 @@ const container: React.CSSProperties = {
 
 export type QuickSwitcherMode = 'commands' | 'compositions' | 'docs';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const MODE_TO_STRING: {[key in QuickSwitcherMode]: string} = {
 	commands: 'commands',
 	compositions: 'compositions',

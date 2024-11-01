@@ -6,9 +6,9 @@ import type {ViewProps} from 'react-native';
 import {Internals} from 'remotion';
 
 type RemotionCanvasProps = CanvasProps & {
-	children: ReactNode;
-	width: number;
-	height: number;
+	readonly children: ReactNode;
+	readonly width: number;
+	readonly height: number;
 };
 
 /**

@@ -2,6 +2,7 @@
 
 import type {Instruction} from './helpers/types';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const length: {[key in Instruction['type'] | 'z']: number} = {
 	a: 7,
 	A: 7,

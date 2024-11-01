@@ -32,7 +32,9 @@
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"@remotion/test-utils": "workspace:*",
-		"@vitejs/plugin-react": "^2.0.0"
+		"@vitejs/plugin-react": "^2.0.0",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "8.56.0"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",

@@ -23,6 +23,10 @@
 			"require": "./dist/cjs/index.js"
 		}
 	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "8.56.0"
+	},
 	"author": "Yehor Misiats (https://github.com/satelllte)",
 	"maintainers": [
 		"Jonny Burger <jonny@remotion.dev>",

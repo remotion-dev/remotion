@@ -23,6 +23,7 @@ export const packages = [
 	'docs',
 	'enable-scss',
 	'eslint-config',
+	'eslint-config-internal',
 	'eslint-plugin',
 	'example-without-zod',
 	'example',
@@ -68,6 +69,7 @@ export const packages = [
 
 export type Pkgs = (typeof packages)[number];
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const descriptions: {[key in Pkgs]: string | null} = {
 	player: 'React component for embedding a Remotion preview into your app',
 	cloudrun: 'Render Remotion videos on Google Cloud Run',
@@ -137,8 +139,10 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	convert: 'Video conversion tool - convert.remotion.dev',
 	captions: 'Primitives for dealing with captions',
 	'openai-whisper': 'Work with the output of the OpenAI Whisper API',
+	'eslint-config-internal': "ESLint condig for Remotion's internal packages",
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const apiDocs: {[key in Pkgs]: string | null} = {
 	player: 'https://www.remotion.dev/docs/player',
 	cloudrun: 'https://www.remotion.dev/docs/cloudrun',
@@ -207,4 +211,5 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	convert: 'https://convert.remotion.dev',
 	captions: 'https://remotion.dev/docs/captions',
 	'openai-whisper': 'https://www.remotion.dev/docs/openai-whisper',
+	'eslint-config-internal': null,
 };
