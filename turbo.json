@@ -55,7 +55,7 @@
 			"outputLogs": "new-only"
 		},
 		"@remotion/google-fonts#make": {
-			"outputs": ["src", ".cache-css", "dist/esm"],
+			"outputs": ["src", ".cache-css", "dist"],
 			"dependsOn": ["^make"],
 			"outputLogs": "new-only"
 		},
