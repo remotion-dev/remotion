@@ -20,8 +20,8 @@ const accessibilityLabel = 'Change the playback rate';
 const comboStyle: React.CSSProperties = {width: 80};
 
 export const PlaybackRateSelector: React.FC<{
-	playbackRate: number;
-	setPlaybackRate: React.Dispatch<React.SetStateAction<number>>;
+	readonly playbackRate: number;
+	readonly setPlaybackRate: React.Dispatch<React.SetStateAction<number>>;
 }> = ({playbackRate, setPlaybackRate}) => {
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const isStill = useIsStill();

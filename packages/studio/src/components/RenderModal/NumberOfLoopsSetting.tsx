@@ -6,8 +6,8 @@ import {label, optionRow, rightRow} from './layout';
 const min = 0;
 
 export const NumberOfLoopsSetting: React.FC<{
-	numberOfGifLoops: number;
-	setNumberOfGifLoops: React.Dispatch<React.SetStateAction<number>>;
+	readonly numberOfGifLoops: number;
+	readonly setNumberOfGifLoops: React.Dispatch<React.SetStateAction<number>>;
 }> = ({numberOfGifLoops, setNumberOfGifLoops}) => {
 	const onNumberOfGifLoopsChangedDirectly = useCallback(
 		(newConcurrency: number) => {

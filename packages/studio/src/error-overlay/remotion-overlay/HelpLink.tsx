@@ -11,8 +11,8 @@ const buttonStyle: React.CSSProperties = {
 };
 
 export const HelpLink: React.FC<{
-	canHaveKeyboardShortcuts: boolean;
-	link: THelpLink;
+	readonly canHaveKeyboardShortcuts: boolean;
+	readonly link: THelpLink;
 }> = ({canHaveKeyboardShortcuts, link}) => {
 	const openLink = useCallback(() => {
 		window.open(link.url, '_blank');

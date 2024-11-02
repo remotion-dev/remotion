@@ -18,7 +18,7 @@ export const CaretRight = () => {
 };
 
 export const CaretDown: React.FC<{
-	invert: boolean;
+	readonly invert: boolean;
 }> = ({invert}) => {
 	return (
 		<svg

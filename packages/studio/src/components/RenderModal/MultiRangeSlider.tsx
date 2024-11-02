@@ -24,13 +24,13 @@ const sliderRange: React.CSSProperties = {
 };
 
 interface MultiRangeSliderProps {
-	min: number;
-	max: number;
-	start: number;
-	end: number;
-	step: number;
-	onLeftThumbDrag: (newVal: number) => void;
-	onRightThumbDrag: (newVal: number) => void;
+	readonly min: number;
+	readonly max: number;
+	readonly start: number;
+	readonly end: number;
+	readonly step: number;
+	readonly onLeftThumbDrag: (newVal: number) => void;
+	readonly onRightThumbDrag: (newVal: number) => void;
 }
 
 export const MultiRangeSlider: FC<MultiRangeSliderProps> = ({

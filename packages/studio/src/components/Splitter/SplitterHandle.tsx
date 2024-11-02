@@ -15,8 +15,8 @@ const containerColumn: React.CSSProperties = {
 };
 
 export const SplitterHandle: React.FC<{
-	allowToCollapse: 'right' | 'left' | 'none';
-	onCollapse: () => void;
+	readonly allowToCollapse: 'right' | 'left' | 'none';
+	readonly onCollapse: () => void;
 }> = ({allowToCollapse, onCollapse}) => {
 	const context = useContext(SplitterContext);
 	if (!context) {

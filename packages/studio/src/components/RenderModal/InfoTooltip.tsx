@@ -21,9 +21,9 @@ const arrowDown: React.CSSProperties = {
 };
 
 export const InfoTooltip: React.FC<{
-	children: React.ReactNode;
-	arrowDirection: 'up' | 'down';
-	backgroundColor: string;
+	readonly children: React.ReactNode;
+	readonly arrowDirection: 'up' | 'down';
+	readonly backgroundColor: string;
 }> = ({children, arrowDirection, backgroundColor}) => {
 	const container: React.CSSProperties = useMemo(() => {
 		return {

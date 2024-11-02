@@ -19,10 +19,10 @@ const selectorButton: React.CSSProperties = {
 };
 
 export const VerticalTab: React.FC<{
-	children: React.ReactNode;
-	onClick: React.MouseEventHandler<HTMLButtonElement>;
-	style?: React.CSSProperties;
-	selected: boolean;
+	readonly children: React.ReactNode;
+	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
+	readonly style?: React.CSSProperties;
+	readonly selected: boolean;
 }> = ({children, onClick, style, selected}) => {
 	const [hovered, setHovered] = useState(false);
 	const {tabIndex} = useZIndex();
