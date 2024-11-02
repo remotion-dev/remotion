@@ -1,4 +1,4 @@
 // @ts-check
-import {reactV9Config} from '@remotion/eslint-config-internal/react-v9';
+import {remotionFlatConfig} from '@remotion/eslint-config-internal';
 
-export default reactV9Config;
+export default remotionFlatConfig({react: true});

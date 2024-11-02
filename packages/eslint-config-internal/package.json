@@ -15,16 +15,6 @@
 			"require": "./dist/index.js",
 			"types": "./dist/index.d.ts"
 		},
-		"./react": {
-			"import": "./dist/react.js",
-			"require": "./dist/react.js",
-			"types": "./dist/react.d.ts"
-		},
-		"./react-v9": {
-			"import": "./dist/react-v9.js",
-			"require": "./dist/react-v9.js",
-			"types": "./dist/react-v9.d.ts"
-		},
 		"./package.json": "./package.json"
 	},
 	"private": true,
