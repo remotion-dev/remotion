@@ -10,6 +10,9 @@
 		"testssr": {
 			"dependsOn": ["@remotion/example#bundle"]
 		},
+		"testlambda": {
+			"dependsOn": ["^make", "@remotion/example#bundle"]
+		},
 		"make": {
 			"dependsOn": ["^make"],
 			"outputs": ["dist"],
@@ -70,7 +73,6 @@
 			"dependsOn": ["^make"],
 			"outputLogs": "new-only"
 		},
-
 		"@remotion/it-tests#test": {
 			"dependsOn": [
 				"^make",

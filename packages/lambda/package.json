@@ -9,7 +9,7 @@
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier src --check",
-		"testintegration": "vitest src/test/integration --run",
+		"testlambda": "vitest src/test/integration --run",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest src/test/unit --run",
 		"make": "tsc -d && bun build.ts",
