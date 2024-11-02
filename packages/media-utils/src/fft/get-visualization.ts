@@ -26,7 +26,6 @@ export const getVisualization = ({
 	maxInt: number;
 	optimizeFor: OptimizeFor;
 }): number[] => {
-	 
 	const isPowerOfTwo = sampleSize > 0 && (sampleSize & (sampleSize - 1)) === 0;
 	if (!isPowerOfTwo) {
 		throw new TypeError(

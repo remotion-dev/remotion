@@ -1,11 +1,9 @@
- 
 // eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
 // @ts-ignore
 import type {URL} from 'node:url';
 import NodeWebSocket from 'ws';
 
 export declare class WS {
-	 
 	constructor(
 		_url: URL,
 		_anything: unknown[],

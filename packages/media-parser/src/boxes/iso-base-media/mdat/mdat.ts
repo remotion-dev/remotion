@@ -1,4 +1,3 @@
- 
 import type {BufferIterator} from '../../../buffer-iterator';
 import {getTracks, hasTracks} from '../../../get-tracks';
 import type {AnySegment} from '../../../parse-result';
@@ -90,7 +89,6 @@ export const parseMdat = async ({
 		})
 		.flat(1);
 
-	 
 	while (true) {
 		if (signal && signal.aborted) {
 			break;

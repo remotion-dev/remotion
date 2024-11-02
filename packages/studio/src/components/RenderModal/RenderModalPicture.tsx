@@ -40,7 +40,9 @@ export const RenderModalPicture: React.FC<{
 	readonly colorSpace: ColorSpace;
 	readonly setColorSpace: React.Dispatch<React.SetStateAction<ColorSpace>>;
 	readonly imageFormatOptions: SegmentedControlItem[];
-	readonly setQualityControl: React.Dispatch<React.SetStateAction<QualityControl>>;
+	readonly setQualityControl: React.Dispatch<
+		React.SetStateAction<QualityControl>
+	>;
 	readonly qualityControlType: QualityControl | null;
 	readonly videoImageFormat: VideoImageFormat;
 	readonly stillImageFormat: StillImageFormat;
@@ -57,9 +59,13 @@ export const RenderModalPicture: React.FC<{
 	readonly shouldDisplayQualityControlPicker: boolean;
 	readonly pixelFormatOptions: ComboboxValue[];
 	readonly encodingBufferSize: string | null;
-	readonly setEncodingBufferSize: React.Dispatch<React.SetStateAction<string | null>>;
+	readonly setEncodingBufferSize: React.Dispatch<
+		React.SetStateAction<string | null>
+	>;
 	readonly encodingMaxRate: string | null;
-	readonly setEncodingMaxRate: React.Dispatch<React.SetStateAction<string | null>>;
+	readonly setEncodingMaxRate: React.Dispatch<
+		React.SetStateAction<string | null>
+	>;
 }> = ({
 	renderMode,
 	scale,

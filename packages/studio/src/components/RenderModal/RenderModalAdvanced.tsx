@@ -35,17 +35,25 @@ export const RenderModalAdvanced: React.FC<{
 	readonly delayRenderTimeout: number;
 	readonly setDelayRenderTimeout: React.Dispatch<React.SetStateAction<number>>;
 	readonly disallowParallelEncoding: boolean;
-	readonly setDisallowParallelEncoding: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly setDisallowParallelEncoding: React.Dispatch<
+		React.SetStateAction<boolean>
+	>;
 	readonly setDisableWebSecurity: React.Dispatch<React.SetStateAction<boolean>>;
-	readonly setIgnoreCertificateErrors: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly setIgnoreCertificateErrors: React.Dispatch<
+		React.SetStateAction<boolean>
+	>;
 	readonly setHeadless: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly headless: boolean;
 	readonly ignoreCertificateErrors: boolean;
 	readonly disableWebSecurity: boolean;
 	readonly openGlOption: UiOpenGlOptions;
-	readonly setOpenGlOption: React.Dispatch<React.SetStateAction<UiOpenGlOptions>>;
+	readonly setOpenGlOption: React.Dispatch<
+		React.SetStateAction<UiOpenGlOptions>
+	>;
 	readonly envVariables: [string, string][];
-	readonly setEnvVariables: React.Dispatch<React.SetStateAction<[string, string][]>>;
+	readonly setEnvVariables: React.Dispatch<
+		React.SetStateAction<[string, string][]>
+	>;
 	readonly x264Preset: X264Preset | null;
 	readonly setx264Preset: React.Dispatch<React.SetStateAction<X264Preset>>;
 	readonly offthreadVideoCacheSizeInBytes: number | null;
@@ -54,7 +62,9 @@ export const RenderModalAdvanced: React.FC<{
 	>;
 	readonly codec: Codec;
 	readonly enableMultiProcessOnLinux: boolean;
-	readonly setChromiumMultiProcessOnLinux: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly setChromiumMultiProcessOnLinux: React.Dispatch<
+		React.SetStateAction<boolean>
+	>;
 	readonly userAgent: string | null;
 	readonly setUserAgent: React.Dispatch<React.SetStateAction<string | null>>;
 	readonly beep: boolean;

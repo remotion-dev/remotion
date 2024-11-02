@@ -48,8 +48,6 @@ describe('validateSelectedCrfAndCodecCombination valid input', () => {
 					videoBitrate: null,
 					encodingMaxRate: null,
 					encodingBufferSize: null,
-					indent: false,
-					logLevel: 'info',
 				}),
 			).not.toThrow()),
 	);
@@ -80,8 +78,6 @@ describe('validateSelectedCrfAndCodecCombination invalid input', () => {
 					videoBitrate: null,
 					encodingMaxRate: null,
 					encodingBufferSize: null,
-					indent: false,
-					logLevel: 'info',
 				}),
 			).toThrow(
 				new RegExp(
@@ -99,8 +95,6 @@ test('ProRes', () => {
 			videoBitrate: null,
 			encodingMaxRate: null,
 			encodingBufferSize: null,
-			indent: false,
-			logLevel: 'info',
 		}),
 	).toThrow(/The "prores" codec does not support the --crf option\./);
 });
@@ -113,8 +107,6 @@ test('WAV', () => {
 			videoBitrate: null,
 			encodingMaxRate: null,
 			encodingBufferSize: null,
-			indent: false,
-			logLevel: 'info',
 		}),
 	).toThrow(/The "wav" codec does not support the --crf option\./);
 });
@@ -127,8 +119,6 @@ test('WAV', () => {
 			videoBitrate: '1M',
 			encodingMaxRate: null,
 			encodingBufferSize: null,
-			indent: false,
-			logLevel: 'info',
 		}),
 	).toThrow(
 		/"crf" and "videoBitrate" can not both be set. Choose one of either./,
@@ -143,8 +133,6 @@ test('encodingMaxRate', () => {
 			videoBitrate: null,
 			encodingMaxRate: '1M',
 			encodingBufferSize: null,
-			indent: false,
-			logLevel: 'info',
 		}),
 	).toThrow(
 		/"encodingMaxRate" can not be set without also setting "encodingBufferSize"./,

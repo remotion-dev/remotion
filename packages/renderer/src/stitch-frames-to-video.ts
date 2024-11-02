@@ -254,8 +254,6 @@ const innerStitchFramesToVideo = async (
 		videoBitrate,
 		encodingMaxRate: maxRate,
 		encodingBufferSize: bufferSize,
-		indent,
-		logLevel,
 	});
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
@@ -363,8 +361,6 @@ const innerStitchFramesToVideo = async (
 			pixelFormat,
 			x264Preset,
 			colorSpace,
-			indent,
-			logLevel,
 		}),
 		codec === 'h264' ? ['-movflags', 'faststart'] : null,
 		// Ignore metadata that may come from remote media

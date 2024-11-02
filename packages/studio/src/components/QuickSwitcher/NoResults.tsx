@@ -10,7 +10,6 @@ const container: React.CSSProperties = {
 
 export type QuickSwitcherMode = 'commands' | 'compositions' | 'docs';
 
- 
 const MODE_TO_STRING: {[key in QuickSwitcherMode]: string} = {
 	commands: 'commands',
 	compositions: 'compositions',

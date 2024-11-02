@@ -104,7 +104,7 @@ export const VideoPlayerWithControls = forwardRef<
 					onLoaded();
 				} else {
 					onLoaded();
-					console.error('Error getting img dimensions', event);  
+					console.error('Error getting img dimensions', event);
 				}
 			},
 			[onLoaded, onSize],
@@ -155,7 +155,6 @@ export const VideoPlayerWithControls = forwardRef<
 					});
 				} else {
 					console.error(
-						 
 						'This is an old browser that does not support MSE https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API',
 					);
 				}

@@ -53,7 +53,10 @@ export type SubMenuActivated = false | 'with-mouse' | 'without-mouse';
 export const MenuSubItem: React.FC<{
 	readonly label: React.ReactNode;
 	readonly id: string;
-	readonly onActionChosen: (id: string, e: PointerEvent<HTMLDivElement>) => void;
+	readonly onActionChosen: (
+		id: string,
+		e: PointerEvent<HTMLDivElement>,
+	) => void;
 	readonly selected: boolean;
 	readonly onItemSelected: (id: string) => void;
 	readonly keyHint: string | null;
@@ -63,7 +66,9 @@ export const MenuSubItem: React.FC<{
 	readonly onQuitMenu: () => void;
 	readonly onNextMenu: () => void;
 	readonly subMenuActivated: SubMenuActivated;
-	readonly setSubMenuActivated: React.Dispatch<React.SetStateAction<SubMenuActivated>>;
+	readonly setSubMenuActivated: React.Dispatch<
+		React.SetStateAction<SubMenuActivated>
+	>;
 }> = ({
 	label,
 	leaveLeftSpace,

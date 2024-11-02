@@ -178,13 +178,11 @@ export const downloadAsset = async ({
 			return claimedDownloadLocation;
 		}
 
-		 
 		downloadMap.hasBeenDownloadedMap[src]![downloadDir] = null;
 		if (!downloadMap.isDownloadingMap[src]) {
 			downloadMap.isDownloadingMap[src] = {};
 		}
 
-		 
 		downloadMap.isDownloadingMap[src]![downloadDir] = false;
 	}
 

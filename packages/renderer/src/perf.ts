@@ -5,7 +5,6 @@ type PerfId =
 	| 'extract-frame'
 	| 'piping';
 
- 
 const perf: {[key in PerfId]: number[]} = {
 	'activate-target': [],
 	capture: [],

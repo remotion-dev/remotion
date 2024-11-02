@@ -46,8 +46,8 @@ export const ThemeProvider = ({
   children,
   themeColors,
 }: {
-  children: React.ReactNode;
-  themeColors: ThemeColors;
+  readonly children: React.ReactNode;
+  readonly themeColors: ThemeColors;
 }) => {
   return (
     <ThemeColorsContext.Provider value={themeColors}>

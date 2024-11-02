@@ -37,7 +37,6 @@ export const makeTriangle = ({
 	const longerDimension = length;
 	const shorterSize = Math.sqrt(length ** 2 * 0.75); // Calculated on paper;
 
-	 
 	const points: {[key in Direction]: [number, number][]} = {
 		up: [
 			[longerDimension / 2, 0],

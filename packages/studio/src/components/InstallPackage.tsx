@@ -54,7 +54,7 @@ export const InstallPackageModal: React.FC<{
 	readonly packageManager: PackageManager;
 }> = ({packageManager}) => {
 	const [state, setState] = React.useState<State>({type: 'idle'});
-	 
+
 	const [map, setMap] = React.useState<{[key in InstallablePackage]: boolean}>({
 		'@remotion/animated-emoji': false,
 		'@remotion/gif': false,

@@ -104,8 +104,6 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 			encodingMaxRate: options.encodingMaxRate,
 			encodingBufferSize: options.encodingBufferSize,
 			colorSpace: options.colorSpace,
-			indent: options.indent,
-			logLevel: options.logLevel,
 		}),
 
 		'-y',

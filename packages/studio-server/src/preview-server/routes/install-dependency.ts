@@ -20,7 +20,7 @@ export const getInstallCommand = ({
 	version: string;
 }): string[] => {
 	const pkgList = packages.map((p) => `${p}@${version}`);
-	 
+
 	const commands: {[key in PackageManager]: string[]} = {
 		npm: ['i', '--save-exact', '--no-fund', '--no-audit', ...pkgList],
 		pnpm: ['i', ...pkgList],

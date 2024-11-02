@@ -69,7 +69,6 @@ export const packages = [
 
 export type Pkgs = (typeof packages)[number];
 
- 
 export const descriptions: {[key in Pkgs]: string | null} = {
 	player: 'React component for embedding a Remotion preview into your app',
 	cloudrun: 'Render Remotion videos on Google Cloud Run',
@@ -142,7 +141,6 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'eslint-config-internal': "ESLint condig for Remotion's internal packages",
 };
 
- 
 export const apiDocs: {[key in Pkgs]: string | null} = {
 	player: 'https://www.remotion.dev/docs/player',
 	cloudrun: 'https://www.remotion.dev/docs/cloudrun',

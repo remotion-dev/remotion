@@ -21,7 +21,9 @@ const button: React.CSSProperties = {
 
 export const RenderModalEnvironmentVariables: React.FC<{
 	readonly envVariables: [string, string][];
-	readonly setEnvVariables: React.Dispatch<React.SetStateAction<[string, string][]>>;
+	readonly setEnvVariables: React.Dispatch<
+		React.SetStateAction<[string, string][]>
+	>;
 }> = ({envVariables, setEnvVariables}) => {
 	const onEnvValChange = useCallback(
 		(index: number, value: string) => {

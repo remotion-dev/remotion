@@ -28,9 +28,13 @@ export const RenderModalAudio: React.FC<{
 	readonly setMuted: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly renderMode: RenderType;
 	readonly enforceAudioTrack: boolean;
-	readonly setEnforceAudioTrackState: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly setEnforceAudioTrackState: React.Dispatch<
+		React.SetStateAction<boolean>
+	>;
 	readonly forSeamlessAacConcatenation: boolean;
-	readonly setForSeamlessAacConcatenation: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly setForSeamlessAacConcatenation: React.Dispatch<
+		React.SetStateAction<boolean>
+	>;
 	readonly shouldHaveCustomTargetAudioBitrate: boolean;
 	readonly setShouldHaveCustomTargetAudioBitrate: React.Dispatch<
 		React.SetStateAction<boolean>
@@ -42,7 +46,9 @@ export const RenderModalAudio: React.FC<{
 	readonly audioCodec: AudioCodec;
 	readonly setAudioCodec: (newAudioCodec: AudioCodec) => void;
 	readonly codec: Codec;
-	readonly setSeparateAudioTo: React.Dispatch<React.SetStateAction<string | null>>;
+	readonly setSeparateAudioTo: React.Dispatch<
+		React.SetStateAction<string | null>
+	>;
 	readonly separateAudioTo: string | null;
 	readonly outName: string;
 }> = ({

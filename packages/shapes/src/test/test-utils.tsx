@@ -6,7 +6,7 @@ const AllTheProviders: FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	// overwriting console.error console does not gets poluted with all the errors
-	 
+
 	window.console.error = () => {};
 	return <div>{children}</div>;
 };

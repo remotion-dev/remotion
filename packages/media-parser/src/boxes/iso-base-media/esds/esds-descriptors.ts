@@ -1,4 +1,3 @@
- 
 import type {BufferIterator} from '../../../buffer-iterator';
 import type {DecoderSpecificConfig} from './decoder-specific-config';
 import {parseDecoderSpecificConfig} from './decoder-specific-config';

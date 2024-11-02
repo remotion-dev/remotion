@@ -31,7 +31,9 @@ export const RenderModalBasic: React.FC<{
 	readonly setVideoCodec: (newCodec: Codec) => void;
 	readonly outName: string;
 	readonly proResProfile: ProResProfile | null;
-	readonly setProResProfile: React.Dispatch<React.SetStateAction<ProResProfile>>;
+	readonly setProResProfile: React.Dispatch<
+		React.SetStateAction<ProResProfile>
+	>;
 	readonly frame: number;
 	readonly setFrame: React.Dispatch<React.SetStateAction<number>>;
 	readonly resolvedComposition: VideoConfig;

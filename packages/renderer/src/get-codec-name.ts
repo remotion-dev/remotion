@@ -1,6 +1,5 @@
 import type {Codec} from './codec';
 
- 
 const map: {[key in Codec]: string | null} = {
 	h264: 'libx264',
 	h265: 'libx265',

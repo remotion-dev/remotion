@@ -1,7 +1,6 @@
 import type {Codec} from './codec';
 import {validateQualitySettings} from './crf';
 import {getCodecName} from './get-codec-name';
-import type {LogLevel} from './log-level';
 import {DEFAULT_COLOR_SPACE, type ColorSpace} from './options/color-space';
 import type {X264Preset} from './options/x264-preset';
 import type {PixelFormat} from './pixel-format';
@@ -17,8 +16,6 @@ const firstEncodingStepOnly = ({
 	videoBitrate,
 	encodingMaxRate,
 	encodingBufferSize,
-	indent,
-	logLevel,
 }: {
 	hasPreencoded: boolean;
 	proResProfileName: string | null;
@@ -29,8 +26,6 @@ const firstEncodingStepOnly = ({
 	videoBitrate: string | null;
 	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
-	indent: boolean;
-	logLevel: LogLevel;
 }): string[][] => {
 	if (hasPreencoded || codec === 'gif') {
 		return [];
@@ -50,8 +45,6 @@ const firstEncodingStepOnly = ({
 			codec,
 			encodingMaxRate,
 			encodingBufferSize,
-			indent,
-			logLevel,
 		}),
 	].filter(truthy);
 };
@@ -67,8 +60,6 @@ export const generateFfmpegArgs = ({
 	encodingMaxRate,
 	encodingBufferSize,
 	colorSpace,
-	indent,
-	logLevel,
 }: {
 	hasPreencoded: boolean;
 	proResProfileName: string | null;
@@ -80,8 +71,6 @@ export const generateFfmpegArgs = ({
 	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
 	colorSpace: ColorSpace | null;
-	logLevel: LogLevel;
-	indent: boolean;
 }): string[][] => {
 	const encoderName = getCodecName(codec);
 
@@ -136,8 +125,6 @@ export const generateFfmpegArgs = ({
 			encodingMaxRate,
 			encodingBufferSize,
 			x264Preset,
-			indent,
-			logLevel,
 		}),
 	].filter(truthy);
 };

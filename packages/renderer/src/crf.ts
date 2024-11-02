@@ -1,6 +1,6 @@
+/* eslint-disable no-console */
 import type {Codec} from './codec';
 import {isAudioCodec} from './is-audio-codec';
-import type {LogLevel} from './log-level';
 
 export type Crf = number | undefined;
 
@@ -56,16 +56,12 @@ export const validateQualitySettings = ({
 	videoBitrate,
 	encodingMaxRate,
 	encodingBufferSize,
-	indent,
-	logLevel,
 }: {
 	crf: unknown;
 	codec: Codec;
 	videoBitrate: string | null;
 	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
-	logLevel: LogLevel;
-	indent: boolean;
 }): string[] => {
 	if (crf && videoBitrate) {
 		throw new Error(

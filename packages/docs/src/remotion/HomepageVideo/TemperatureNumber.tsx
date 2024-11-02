@@ -55,7 +55,6 @@ export const TemperatureNumber: React.FC<{
 			<div style={{width: 8}} />
 			°
 			<Wheel
-				 
 				delay={paddedCelsiusDegree.length * 4 - 2}
 				digits={[0, 1, 0]}
 				renderDigit={(_i) =>

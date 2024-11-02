@@ -11,7 +11,9 @@ import {getStringBeforeSuffix} from './get-string-before-suffix';
 import {input, label, optionRow, rightRow} from './layout';
 
 export const SeparateAudioOptionInput: React.FC<{
-	readonly setSeparateAudioTo: React.Dispatch<React.SetStateAction<string | null>>;
+	readonly setSeparateAudioTo: React.Dispatch<
+		React.SetStateAction<string | null>
+	>;
 	readonly separateAudioTo: string;
 	readonly audioCodec: AudioCodec;
 }> = ({separateAudioTo, setSeparateAudioTo, audioCodec}) => {
@@ -48,7 +50,9 @@ export const SeparateAudioOptionInput: React.FC<{
 };
 
 export const SeparateAudioOption: React.FC<{
-	readonly setSeparateAudioTo: React.Dispatch<React.SetStateAction<string | null>>;
+	readonly setSeparateAudioTo: React.Dispatch<
+		React.SetStateAction<string | null>
+	>;
 	readonly separateAudioTo: string | null;
 	readonly audioCodec: AudioCodec;
 	readonly outName: string;

@@ -65,7 +65,6 @@ export function supportsHyperlink(): false | string {
 			case 'WezTerm':
 				return (version.major as number) >= 20200620 ? 'Click' : false;
 			case 'vscode':
-				 
 				return (version.major as number) > 1 ||
 					(version.major === 1 && (version.minor as number) >= 72)
 					? process.platform === 'darwin'
