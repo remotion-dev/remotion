@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {performance} from 'perf_hooks';
-// eslint-disable-next-line no-restricted-imports
+ 
 import type {AudioOrVideoAsset, VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';

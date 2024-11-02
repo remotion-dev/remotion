@@ -513,7 +513,7 @@ const internalRenderMediaRaw = ({
 			stitcherFfmpeg?.stdin?.end();
 			try {
 				await stitcherFfmpeg;
-			} catch (err) {
+			} catch {
 				throw new Error(preStitcher?.getLogs());
 			}
 		}
@@ -788,7 +788,7 @@ const internalRenderMediaRaw = ({
 					// https://discord.com/channels/809501355504959528/817306238811111454/1273184655348072468
 					try {
 						stitcherFfmpeg.kill();
-					} catch (e) {
+					} catch {
 						// Ignore
 					}
 

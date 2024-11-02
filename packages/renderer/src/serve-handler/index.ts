@@ -115,7 +115,7 @@ export const serveHandler = async (
 		relativePath = decodeURIComponent(
 			url.parse(request.url as string).pathname as string,
 		);
-	} catch (err) {
+	} catch {
 		return sendError('/', response, {
 			statusCode: 400,
 			code: 'bad_request',
@@ -253,7 +253,7 @@ export const serveHandler = async (
 
 	try {
 		stream = createReadStream(absolutePath, streamOpts ?? {});
-	} catch (err) {
+	} catch {
 		return internalError(absolutePath, response);
 	}
 

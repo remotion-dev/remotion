@@ -1,4 +1,4 @@
-/* eslint-disable no-restricted-imports */
+ 
 import {expect, test} from 'bun:test';
 import React from 'react';
 import {Artifact, useCurrentFrame} from 'remotion';

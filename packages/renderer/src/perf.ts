@@ -5,7 +5,7 @@ type PerfId =
 	| 'extract-frame'
 	| 'piping';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 const perf: {[key in PerfId]: number[]} = {
 	'activate-target': [],
 	capture: [],
