@@ -60,15 +60,15 @@ const useCombinedRefs = function (
  */
 
 type Props = {
-	playbackId: string;
-	poster: string;
+	readonly playbackId: string;
+	readonly poster: string;
 	// eslint-disable-next-line react/require-default-props
-	currentTime?: number;
-	onLoaded: () => void;
-	onError: (error: ErrorEvent) => void;
-	onSize: (dim: {width: number; height: number}) => void;
+	readonly currentTime?: number;
+	readonly onLoaded: () => void;
+	readonly onError: (error: ErrorEvent) => void;
+	readonly onSize: (dim: {width: number; height: number}) => void;
 	// eslint-disable-next-line react/require-default-props
-	autoPlay?: boolean;
+	readonly autoPlay?: boolean;
 };
 
 type SizedEvent = {
@@ -104,7 +104,7 @@ export const VideoPlayerWithControls = forwardRef<
 					onLoaded();
 				} else {
 					onLoaded();
-					console.error('Error getting img dimensions', event); // eslint-disable-line no-console
+					console.error('Error getting img dimensions', event);  
 				}
 			},
 			[onLoaded, onSize],
@@ -155,7 +155,7 @@ export const VideoPlayerWithControls = forwardRef<
 					});
 				} else {
 					console.error(
-						// eslint-disable-line no-console
+						 
 						'This is an old browser that does not support MSE https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API',
 					);
 				}

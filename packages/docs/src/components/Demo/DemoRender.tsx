@@ -27,6 +27,7 @@ const location = z.object({
 	longitude: z.number().or(z.string()),
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const data = z.object({
 	trending: remoteData,
 	location,
@@ -67,8 +68,8 @@ const style: React.CSSProperties = {
 };
 
 export const RenderButton: React.FC<{
-	renderData: z.infer<typeof data> | null;
-	onError: () => void;
+	readonly renderData: z.infer<typeof data> | null;
+	readonly onError: () => void;
 }> = ({renderData, onError}) => {
 	const [state, setState] = React.useState<State>({
 		type: 'idle',
@@ -124,7 +125,7 @@ export const RenderButton: React.FC<{
 					done = true;
 				}
 			}
-		} catch (err) {
+		} catch {
 			setState({type: 'error'});
 			onError();
 		}

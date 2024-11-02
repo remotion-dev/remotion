@@ -21,7 +21,7 @@ export const presentationCompositionWidth = 540;
 export const presentationCompositionHeight = 280;
 
 export const Presentations: React.FC<{
-	apisOnly: boolean;
+	readonly apisOnly: boolean;
 }> = ({apisOnly}) => {
 	return (
 		<Grid>

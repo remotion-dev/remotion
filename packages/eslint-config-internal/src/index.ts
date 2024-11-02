@@ -24,6 +24,13 @@ export const remotionFlatConfig = ({
 }): Linter.FlatConfig => ({
 	languageOptions: {
 		parser: parser,
+		parserOptions: {
+			ecmaVersion: 2020,
+			sourceType: 'module',
+			ecmaFeatures: {
+				jsx: true,
+			},
+		},
 	},
 	settings: react
 		? {
@@ -46,5 +53,5 @@ export const remotionFlatConfig = ({
 		...(react ? compat.plugins('react-hooks') : [])[0].plugins,
 	},
 	rules: rules({react, enable10x: false}),
-	files: ['src/**/*.ts', 'src/**/*.tsx'],
+	files: ['src/**/*.ts', 'src/**/*.tsx', 'src/**/*.js'],
 });

@@ -3,7 +3,7 @@ import React from 'react';
 import styles from './pricing.module.css';
 
 const Triangle: React.FC<{
-	rotated: boolean;
+	readonly rotated: boolean;
 }> = ({rotated}) => (
 	<svg
 		width="12px"
@@ -46,9 +46,9 @@ const buttonContainer: React.CSSProperties = {
 };
 
 interface CounterProps {
-	count: number;
-	setCount: (count: number) => void;
-	minCount?: number;
+	readonly count: number;
+	readonly setCount: (count: number) => void;
+	readonly minCount?: number;
 }
 
 export const Counter: React.FC<CounterProps> = ({

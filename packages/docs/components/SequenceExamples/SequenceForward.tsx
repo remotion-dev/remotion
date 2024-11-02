@@ -82,7 +82,7 @@ const BaseExample: React.FC = () => {
 };
 
 export const SequenceForwardExample: React.FC<{
-  type: "base" | "delay" | "clip" | "trim-start" | "trim-and-delay";
+  readonly type: "base" | "delay" | "clip" | "trim-start" | "trim-and-delay";
 }> = ({ type }) => {
   const component = (() => {
     if (type === "base") {

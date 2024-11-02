@@ -1,8 +1,8 @@
 import React from 'react';
 
 export const Minus: React.FC<{
-	leftOffset: number;
-	minusSignOpacity: number;
+	readonly leftOffset: number;
+	readonly minusSignOpacity: number;
 }> = ({leftOffset, minusSignOpacity}) => {
 	return (
 		<div

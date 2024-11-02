@@ -3,13 +3,13 @@ import styles from './CommunityStats.module.css';
 
 // StatItemContent component
 const StatItemContent: React.FC<{
-	content: React.ReactNode;
-	width: string;
-	minWidth?: string;
-	maxWidth?: string;
-	height?: string;
-	fontSize?: string;
-	fontWeight?: React.CSSProperties['fontWeight'];
+	readonly content: React.ReactNode;
+	readonly width: string;
+	readonly minWidth?: string;
+	readonly maxWidth?: string;
+	readonly height?: string;
+	readonly fontSize?: string;
+	readonly fontWeight?: React.CSSProperties['fontWeight'];
 }> = ({
 	content,
 	width,

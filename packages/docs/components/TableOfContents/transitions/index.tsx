@@ -5,7 +5,7 @@ import {Presentations} from './presentations';
 import {Timings} from './timings';
 
 export const TableOfContents: React.FC<{
-	apisOnly?: boolean;
+	readonly apisOnly?: boolean;
 }> = ({apisOnly}) => {
 	return (
 		<div>

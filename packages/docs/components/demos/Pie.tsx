@@ -3,13 +3,13 @@ import React from "react";
 import { AbsoluteFill } from "remotion";
 
 export const PieDemo: React.FC<{
-  radius: number;
-  darkMode: boolean;
-  progress: number;
-  closePath: boolean;
-  showStrokeInsteadPreviewOnly: boolean;
-  counterClockwise: boolean;
-  rotation: number;
+  readonly radius: number;
+  readonly darkMode: boolean;
+  readonly progress: number;
+  readonly closePath: boolean;
+  readonly showStrokeInsteadPreviewOnly: boolean;
+  readonly counterClockwise: boolean;
+  readonly rotation: number;
 }> = ({
   radius,
   darkMode,

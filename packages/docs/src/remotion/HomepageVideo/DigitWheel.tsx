@@ -137,7 +137,7 @@ export const Wheel: React.FC<{
 
 					return (
 						<AbsoluteFill
-							// eslint-disable-next-line react/jsx-key, react/no-array-index-key
+							// eslint-disable-next-line react/no-array-index-key
 							key={i}
 							style={{
 								justifyContent: 'center',

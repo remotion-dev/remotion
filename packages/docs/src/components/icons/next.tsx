@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const NextIcon: React.FC<{
-	style: React.CSSProperties;
+	readonly style: React.CSSProperties;
 }> = ({style}) => {
 	return (
 		<svg

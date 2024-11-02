@@ -5,7 +5,7 @@ import {IconForTemplate} from '../components/IconForTemplate';
 import './font.css';
 
 export const TemplateComp: React.FC<{
-	templateId: string;
+	readonly templateId: string;
 }> = ({templateId}) => {
 	const template = CreateVideoInternals.FEATURED_TEMPLATES.find(
 		(t) => t.cliId === templateId,

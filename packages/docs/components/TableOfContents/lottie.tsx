@@ -3,7 +3,7 @@ import {Grid} from './Grid';
 import {TOCItem} from './TOCItem';
 
 export const TableOfContents: React.FC<{
-	apisOnly?: boolean;
+	readonly apisOnly?: boolean;
 }> = ({apisOnly}) => {
 	return (
 		<div>
