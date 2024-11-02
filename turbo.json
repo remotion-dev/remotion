@@ -1,5 +1,6 @@
 {
 	"$schema": "https://turbo.build/schema.json",
+	"ui": "stream",
 	"tasks": {
 		"clean": {},
 		"make": {
@@ -42,6 +43,11 @@
 		},
 		"@remotion/google-fonts#make": {
 			"outputs": ["src", ".cache-css", "dist/esm"],
+			"dependsOn": ["^make"],
+			"outputLogs": "new-only"
+		},
+		"@remotion/cli-autocomplete#make": {
+			"outputs": ["src"],
 			"dependsOn": ["^make"],
 			"outputLogs": "new-only"
 		},
