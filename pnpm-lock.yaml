@@ -1491,8 +1491,8 @@ importers:
         specifier: workspace:*
         version: link:../eslint-config-internal
       eslint:
-        specifier: 8.56.0
-        version: 8.56.0
+        specifier: 9.14.0
+        version: 9.14.0
 
   packages/player:
     dependencies:
