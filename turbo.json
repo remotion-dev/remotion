@@ -18,7 +18,8 @@
 		},
 		"test": {
 			"dependsOn": ["^make", "make"],
-			"outputs": []
+			"outputs": [],
+			"outputLogs": "new-only"
 		},
 		"@remotion/renderer#test": {
 			"dependsOn": [
@@ -28,7 +29,8 @@
 				"@remotion/it-tests#test",
 				"@remotion/cloudrun#make"
 			],
-			"outputs": []
+			"outputs": [],
+			"outputLogs": "new-only"
 		},
 		"lint": {
 			"dependsOn": ["@remotion/eslint-config-internal#make"],
