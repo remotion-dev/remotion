@@ -73,7 +73,6 @@ export const loadConfigFile = async (
 	}
 
 	// Exectute the contents of the config file
-	// eslint-disable-next-line no-eval
 	eval(str);
 
 	if (isMainThread) {

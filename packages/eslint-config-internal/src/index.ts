@@ -21,32 +21,30 @@ export const remotionFlatConfig = ({
 	react,
 }: {
 	react: boolean;
-}): Linter.FlatConfig[] => [
-	{
-		languageOptions: {
-			parser: parser,
-		},
-		settings: react
+}): Linter.FlatConfig => ({
+	languageOptions: {
+		parser: parser,
+	},
+	settings: react
+		? {
+				react: {
+					version: 'detect',
+				},
+			}
+		: undefined,
+	plugins: {
+		...(react
 			? {
 					react: {
-						version: 'detect',
+						configs,
+						rules: reactRules,
 					},
 				}
-			: undefined,
-		plugins: {
-			...(react
-				? {
-						react: {
-							configs,
-							rules: reactRules,
-						},
-					}
-				: undefined),
-			// @ts-expect-error
-			'@typescript-eslint': typescriptPlugin,
-		},
-		rules: rules({react, enable10x: false}),
-		files: ['src/**/*.ts', 'src/**/*.tsx'],
+			: undefined),
+		// @ts-expect-error
+		'@typescript-eslint': typescriptPlugin,
+		...(react ? compat.plugins('react-hooks') : [])[0].plugins,
 	},
-	...(react ? compat.plugins('react-hooks') : []),
-];
+	rules: rules({react, enable10x: false}),
+	files: ['src/**/*.ts', 'src/**/*.tsx'],
+});
