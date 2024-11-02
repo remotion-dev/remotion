@@ -6,8 +6,7 @@
     "dev": "remotion studio",
     "build": "remotion render Audiogram out/video.mp4",
     "upgrade": "remotion upgrade",
-    "test": "eslint src --ext ts,tsx,js,jsx && tsc",
-    "lint": "tsc"
+    "lint": "eslint src --ext ts,tsx,js,jsx && tsc"
   },
   "repository": {},
   "license": "UNLICENSED",

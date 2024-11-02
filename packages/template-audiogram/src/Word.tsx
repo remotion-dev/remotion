@@ -4,9 +4,9 @@ import React from "react";
 import { SubtitleItem } from "parse-srt";
 
 export const Word: React.FC<{
-  item: SubtitleItem;
-  frame: number;
-  transcriptionColor: string;
+  readonly item: SubtitleItem;
+  readonly frame: number;
+  readonly transcriptionColor: string;
 }> = ({ item, frame, transcriptionColor }) => {
   const opacity = interpolate(frame, [item.start, item.start + 15], [0, 1], {
     extrapolateLeft: "clamp",
