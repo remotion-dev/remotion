@@ -1,3 +1,4 @@
+import js from '@eslint/js';
 import {Linter} from 'eslint';
 import {autoImportRules} from './auto-import-rules.js';
 
@@ -9,6 +10,7 @@ export const rules = ({
 	enable10x: boolean;
 }) => {
 	return {
+		...js.configs.recommended.rules,
 		'for-direction': 'error',
 		'getter-return': 'error',
 		'no-async-promise-executor': 'error',
