@@ -1116,8 +1116,8 @@ importers:
         specifier: workspace:*
         version: link:../eslint-config-internal
       eslint:
-        specifier: 8.56.0
-        version: 8.56.0
+        specifier: 9.14.0
+        version: 9.14.0
 
   packages/gif:
     dependencies:
@@ -1726,8 +1726,8 @@ importers:
         specifier: 0.39.1
         version: 0.39.1
       eslint:
-        specifier: 8.56.0
-        version: 8.56.0
+        specifier: 9.14.0
+        version: 9.14.0
       react:
         specifier: 18.3.1
         version: 18.3.1

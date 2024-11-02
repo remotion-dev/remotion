@@ -11,7 +11,7 @@
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
+		"lint": "eslint src",
 		"make": "bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>, William Candillon <wcandillon@gmail.com>",
@@ -37,7 +37,7 @@
 		"react-dom": "18.3.1",
 		"remotion": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "8.56.0"
+		"eslint": "9.14.0"
 	},
 	"keywords": [
 		"remotion",
