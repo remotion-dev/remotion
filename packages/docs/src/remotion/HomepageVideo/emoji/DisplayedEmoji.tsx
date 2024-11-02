@@ -1,6 +1,5 @@
 import type {EmojiName} from '@remotion/animated-emoji';
-import type {LottieAnimationData} from '@remotion/lottie';
-import {getLottieMetadata, Lottie} from '@remotion/lottie';
+import type {Lottie, LottieAnimationData} from '@remotion/lottie';
 import React, {useEffect, useMemo, useState} from 'react';
 import {
 	cancelRender,
@@ -9,10 +8,16 @@ import {
 	useVideoConfig,
 } from 'remotion';
 
+type Data = {
+	Lottie: typeof Lottie;
+	duration: number;
+	data: LottieAnimationData;
+};
+
 export const DisplayedEmoji: React.FC<{
 	readonly emoji: EmojiName;
 }> = ({emoji}) => {
-	const [data, setData] = useState<LottieAnimationData | null>(null);
+	const [data, setData] = useState<Data | null>(null);
 	const {durationInFrames, fps} = useVideoConfig();
 
 	const src = useMemo(() => {
@@ -34,10 +39,16 @@ export const DisplayedEmoji: React.FC<{
 	const [handle] = useState(() => delayRender());
 
 	useEffect(() => {
-		fetch(src)
-			.then((res) => res.json())
-			.then((json) => {
-				setData(json);
+		Promise.all([
+			import('@remotion/lottie'),
+			fetch(src).then((res) => res.json()),
+		])
+			.then(([{Lottie, getLottieMetadata}, json]) => {
+				setData({
+					Lottie: Lottie,
+					duration: getLottieMetadata(json)?.durationInSeconds as number,
+					data: json,
+				});
 				continueRender(handle);
 			})
 			.catch((err) => {
@@ -49,13 +60,13 @@ export const DisplayedEmoji: React.FC<{
 		return null;
 	}
 
-	const animDurtion = getLottieMetadata(data)?.durationInSeconds as number;
+	const animDurtion = data.duration;
 	const ratio = durationInFrames / fps / animDurtion;
 	const closestInteger = ratio;
 	const closestRatio = closestInteger / ratio;
 
 	return (
-		<Lottie
+		<data.Lottie
 			style={{
 				height: 100,
 				width: '100%',
@@ -63,7 +74,7 @@ export const DisplayedEmoji: React.FC<{
 				justifyContent: 'center',
 			}}
 			loop
-			animationData={data}
+			animationData={data.data}
 			playbackRate={closestRatio}
 		/>
 	);
