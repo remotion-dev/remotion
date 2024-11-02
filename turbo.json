@@ -53,7 +53,7 @@
 			"dependsOn": ["^make"],
 			"outputLogs": "new-only"
 		},
-		"@remotion/cli-autocomplete#make": {
+		"@remotion/fig-autocomplete#make": {
 			"outputs": ["src"],
 			"dependsOn": ["^make"],
 			"outputLogs": "new-only"
