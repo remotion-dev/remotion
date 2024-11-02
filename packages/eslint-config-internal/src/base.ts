@@ -1,6 +1,13 @@
 import {Linter} from 'eslint';
+import {autoImportRules} from './auto-import-rules.js';
 
-export const rules = (react: boolean) => {
+export const rules = ({
+	react,
+	enable10x,
+}: {
+	react: boolean;
+	enable10x: boolean;
+}) => {
 	return {
 		'for-direction': 'error',
 		'getter-return': 'error',
@@ -348,14 +355,20 @@ export const rules = (react: boolean) => {
 		'@typescript-eslint/prefer-interface': 'off',
 		'@typescript-eslint/ban-types': 'off',
 		'require-atomic-updates': 'off',
-		'10x/no-full-import': 'error',
-		'10x/react-in-scope': 'off',
-		'10x/auto-import': [
-			'error',
-			{
-				imports: require('./auto-import-rules'),
-			},
-		],
+		...{
+			...(enable10x
+				? {
+						'10x/no-full-import': 'error',
+						'10x/react-in-scope': 'off',
+						'10x/auto-import': [
+							'error',
+							{
+								imports: autoImportRules,
+							},
+						],
+					}
+				: {}),
+		},
 		complexity: 'off',
 		'no-shadow': 'off',
 		'no-undef': 'off',
@@ -597,7 +610,7 @@ export const rules = (react: boolean) => {
 	} satisfies Partial<Linter.RulesRecord>;
 };
 
-export const plugins = (react: boolean) => {
+export const plugins = ({react}: {react: boolean}) => {
 	return [
 		react ? 'react' : undefined,
 		react ? 'react-hooks' : undefined,
@@ -606,7 +619,13 @@ export const plugins = (react: boolean) => {
 	].filter(Boolean) as string[];
 };
 
-export const base = (react: boolean): Linter.LegacyConfig => {
+export const base = ({
+	react,
+	flatConfig,
+}: {
+	react: boolean;
+	flatConfig: boolean;
+}): Linter.LegacyConfig => {
 	return {
 		env: {
 			node: true,
@@ -614,12 +633,12 @@ export const base = (react: boolean): Linter.LegacyConfig => {
 			es6: true,
 			jest: false,
 		},
-		plugins: plugins(react),
+		plugins: flatConfig ? undefined : plugins({react}),
 		extends: [
-			'plugin:@typescript-eslint/recommended',
+			flatConfig ? undefined : 'plugin:@typescript-eslint/recommended',
 			'eslint:recommended',
-		].filter(Boolean),
-		parser: '@typescript-eslint/parser',
+		].filter(Boolean) as string[],
+		parser: flatConfig ? undefined : '@typescript-eslint/parser',
 		parserOptions: {
 			ecmaVersion: 2020,
 			sourceType: 'module',
@@ -627,7 +646,7 @@ export const base = (react: boolean): Linter.LegacyConfig => {
 				jsx: true,
 			},
 		},
-		rules: rules(react),
+		rules: rules({react, enable10x: true}),
 		settings: {
 			...(react
 				? {

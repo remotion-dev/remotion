@@ -1,3 +1,3 @@
 import {base} from './base';
 
-module.exports = base(true);
+module.exports = base({react: true, flatConfig: false});
