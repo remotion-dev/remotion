@@ -41,7 +41,7 @@
 		"react-dom": "18.3.1",
 		"@types/ws": "8.5.10",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "8.56.0"
+		"eslint": "9.14.0"
 	},
 	"optionalDependencies": {
 		"@remotion/compositor-darwin-arm64": "workspace:*",

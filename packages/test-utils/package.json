@@ -20,7 +20,7 @@
 		"react-dom": "18.3.1",
 		"remotion": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "8.56.0"
+		"eslint": "9.14.0"
 	},
 	"private": true
 }

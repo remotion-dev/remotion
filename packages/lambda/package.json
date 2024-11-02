@@ -48,7 +48,7 @@
 		"vitest": "0.31.1",
 		"zip-lib": "^0.7.2",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "8.56.0"
+		"eslint": "9.14.0"
 	},
 	"peerDependencies": {
 		"@remotion/bundler": "workspace:*"

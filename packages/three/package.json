@@ -40,7 +40,7 @@
 		"remotion": "workspace:*",
 		"three": "0.158.0",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "8.56.0"
+		"eslint": "9.14.0"
 	},
 	"keywords": [
 		"remotion",
