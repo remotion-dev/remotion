@@ -111,7 +111,9 @@ export const init = async () => {
 
 	const selectedTemplate = await selectTemplate();
 
-	const shouldOverrideTailwind = selectedTemplate ? await askTailwind() : false;
+	const shouldOverrideTailwind = selectedTemplate.allowEnableTailwind
+		? await askTailwind()
+		: false;
 
 	const pkgManager = selectPackageManager();
 	const pkgManagerVersion = await getPackageManagerVersionOrNull(pkgManager);
