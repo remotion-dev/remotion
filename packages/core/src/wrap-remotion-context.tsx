@@ -65,8 +65,8 @@ export function useRemotionContexts() {
 }
 
 export interface RemotionContextProviderProps {
-	contexts: ReturnType<typeof useRemotionContexts>;
-	children: React.ReactNode;
+	readonly contexts: ReturnType<typeof useRemotionContexts>;
+	readonly children: React.ReactNode;
 }
 
 export const RemotionContextProvider = (

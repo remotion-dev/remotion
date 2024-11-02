@@ -3,10 +3,10 @@ import {useContext, useEffect} from 'react';
 import {NativeLayersContext} from './NativeLayers.js';
 
 export const Clipper: React.FC<{
-	width: number;
-	height: number;
-	x: number;
-	y: number;
+	readonly width: number;
+	readonly height: number;
+	readonly x: number;
+	readonly y: number;
 }> = ({height, width, x, y}) => {
 	const {setClipRegion} = useContext(NativeLayersContext);
 
