@@ -38,7 +38,7 @@ export const remotionFlatConfig = ({
 					version: 'detect',
 				},
 			}
-		: undefined,
+		: {},
 	plugins: {
 		...(react
 			? {
@@ -50,7 +50,7 @@ export const remotionFlatConfig = ({
 			: undefined),
 		// @ts-expect-error
 		'@typescript-eslint': typescriptPlugin,
-		...(react ? compat.plugins('react-hooks') : [])[0].plugins,
+		...(react ? compat.plugins('react-hooks')[0].plugins : {}),
 	},
 	rules: rules({react, enable10x: false}),
 	files: ['src/**/*.ts', 'src/**/*.tsx', 'src/**/*.js'],
