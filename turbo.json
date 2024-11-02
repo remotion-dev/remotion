@@ -3,17 +3,8 @@
 	"tasks": {
 		"clean": {},
 		"make": {
-			"dependsOn": ["^make", "//#ts-build"],
-			"outputs": ["dist/esm/**"],
-			"outputLogs": "new-only"
-		},
-		"//#ts-build": {
-			"outputs": [
-				"packages/**/dist/**.js",
-				"packages/**/dist/**.d.ts",
-				"packages/**/tsconfig.tsbuildinfo",
-				"packages/**/dist/tsconfig.tsbuildinfo"
-			],
+			"dependsOn": ["^make"],
+			"outputs": ["dist"],
 			"outputLogs": "new-only"
 		},
 		"@remotion/example#make": {
@@ -29,7 +20,6 @@
 			"dependsOn": ["^make", "make"],
 			"outputs": []
 		},
-
 		"@remotion/renderer#test": {
 			"dependsOn": [
 				"^make",
@@ -41,11 +31,7 @@
 			"outputs": []
 		},
 		"lint": {
-			"dependsOn": ["//#ts-build", "@remotion/eslint-config-internal#make"],
-			"outputs": []
-		},
-		"formatting": {
-			"dependsOn": ["//#ts-build"],
+			"dependsOn": ["@remotion/eslint-config-internal#make"],
 			"outputs": []
 		},
 		"@remotion/example#lint": {
@@ -57,32 +43,23 @@
 			"outputLogs": "new-only"
 		},
 		"@remotion/cloudrun#make": {
-			"dependsOn": ["^make", "//#ts-build"],
-			"outputs": [
-				"dist/shared/sa-permissions.json",
-				"container/dist",
-				"gcpInstaller/gcpInstaller.tar"
-			],
+			"dependsOn": ["^make"],
+			"outputs": ["dist", "container/dist", "gcpInstaller/gcpInstaller.tar"],
 			"outputLogs": "new-only"
 		},
 		"@remotion/renderer#make": {
-			"outputs": ["target/debug/build", "target/release/build"],
+			"outputs": ["dist", "target/debug/build", "target/release/build"],
 			"dependsOn": ["^make"],
 			"outputLogs": "new-only"
 		},
 
 		"@remotion/it-tests#test": {
 			"dependsOn": [
-				"//#ts-build",
 				"^make",
 				"@remotion/example#test",
 				"@remotion/example#make",
 				"@remotion/studio#make"
 			]
-		},
-		"@remotion/media-parser#build": {
-			"dependsOn": ["//#ts-build"],
-			"outputs": ["dist/esm"]
 		},
 		"@remotion/webcodecs#make": {
 			"dependsOn": ["^@remotion/media-parser#make"],

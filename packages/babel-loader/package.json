@@ -8,7 +8,8 @@
 	"main": "dist/index.js",
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx"
+		"lint": "eslint src --ext ts,tsx",
+		"make": "tsc -d"
 	},
 	"files": [
 		"dist"

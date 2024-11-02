@@ -6,7 +6,7 @@
     "dev": "remotion studio",
     "build": "remotion render CaptionedVideo",
     "upgrade": "remotion upgrade",
-    "test": "eslint src --ext ts,tsx,js,jsx && tsc",
+    "lint": "eslint src --ext ts,tsx,js,jsx && tsc",
     "create-subtitles": "node sub.mjs"
   },
   "repository": {},

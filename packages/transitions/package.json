@@ -13,7 +13,7 @@
 		"test": "bun test src",
 		"lint": "eslint src --ext ts,tsx",
 		"formatting": "prettier src --check",
-		"make": "bun --env-file=../.env.bundle bundle.ts"
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger",
 	"contributors": [],

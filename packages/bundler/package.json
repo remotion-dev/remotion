@@ -13,7 +13,9 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"test": "bun test src"
+		"test": "bun test src",
+		"make": "tsc -d"
+
 	},
 	"files": [
 		"dist",
