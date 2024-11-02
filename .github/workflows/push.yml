@@ -114,7 +114,7 @@ jobs:
         env:
           CI: true
       - name: Perform stylecheck
-        timeout-minutes: 5
+        timeout-minutes: 10
         run: |
           pnpm run stylecheck
   build:
