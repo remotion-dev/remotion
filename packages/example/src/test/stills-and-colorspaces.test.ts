@@ -6,12 +6,12 @@ import {
 	selectComposition,
 	StillImageFormat,
 } from '@remotion/renderer';
+import {afterAll, beforeAll, expect, test} from 'bun:test';
 import {execSync} from 'node:child_process';
 import {existsSync, readFileSync, unlinkSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import sharp from 'sharp';
-import {afterAll, beforeAll, expect, test} from 'vitest';
 // @ts-expect-error it does work
 import {webpackOverride} from '../webpack-override.mjs';
 
@@ -22,7 +22,7 @@ beforeAll(async () => {
 		entryPoint: path.join(process.cwd(), 'src/index.ts'),
 		webpackOverride,
 	});
-}, 30000);
+});
 
 afterAll(() => {
 	RenderInternals.deleteDirectory(bundled);
