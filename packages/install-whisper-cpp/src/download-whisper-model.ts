@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import fs, {existsSync} from 'fs';
 import path from 'path';
 import {downloadFile, type OnProgress} from './download';
@@ -17,7 +18,6 @@ const models = [
 	'large-v3-turbo',
 ] as const;
 
- 
 const modelSizes: {[key in WhisperModel]: number} = {
 	'medium.en': 1533774781,
 	'base.en': 147964211,

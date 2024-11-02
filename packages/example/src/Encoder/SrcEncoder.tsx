@@ -9,7 +9,7 @@ const CANVAS_WIDTH = 1024 / 4;
 const CANVAS_HEIGHT = (CANVAS_WIDTH / 16) * 9;
 
 const SampleLabel: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	return (
 		<div
@@ -33,8 +33,8 @@ const SampleLabel: React.FC<{
 };
 
 const SampleCount: React.FC<{
-	count: number;
-	label: string;
+	readonly count: number;
+	readonly label: string;
 }> = ({count, label}) => {
 	return (
 		<div style={{display: 'inline-block', color: 'white'}}>
@@ -45,8 +45,8 @@ const SampleCount: React.FC<{
 };
 
 export const SrcEncoder: React.FC<{
-	src: string;
-	label: string;
+	readonly src: string;
+	readonly label: string;
 }> = ({src, label}) => {
 	const [state, setState] = useState<ConvertMediaState>({
 		decodedAudioFrames: 0,

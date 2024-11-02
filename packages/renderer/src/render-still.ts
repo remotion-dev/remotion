@@ -25,6 +25,7 @@ import {
 	validateStillImageFormat,
 } from './image-format';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
+import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -247,7 +248,7 @@ const innerRenderStill = async ({
 			await page.close();
 		} else {
 			browserInstance.close(true, logLevel, indent).catch((err) => {
-				console.log('Unable to close browser', err);
+				Log.error({indent, logLevel}, 'Unable to close browser', err);
 			});
 		}
 	};
@@ -409,7 +410,7 @@ const internalRenderStillRaw = (
 			.finally(() => {
 				cleanup.forEach((c) => {
 					c().catch((err) => {
-						console.log('Cleanup error:', err);
+						Log.error(options, 'Cleanup error:', err);
 					});
 				});
 			});
@@ -473,15 +474,17 @@ export const renderStill = (
 		);
 	}
 
-	if (quality) {
-		console.warn(
-			'Passing `quality()` to `renderStill` is deprecated. Use `jpegQuality` instead.',
-		);
-	}
+	const indent = false;
 
 	const logLevel =
 		passedLogLevel ?? (verbose || dumpBrowserLogs ? 'verbose' : 'info');
-	const indent = false;
+
+	if (quality) {
+		Log.warn(
+			{indent, logLevel},
+			'Passing `quality()` to `renderStill` is deprecated. Use `jpegQuality` instead.',
+		);
+	}
 
 	return internalRenderStill({
 		composition,

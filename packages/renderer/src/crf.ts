@@ -1,9 +1,10 @@
 import type {Codec} from './codec';
 import {isAudioCodec} from './is-audio-codec';
+import type {LogLevel} from './log-level';
+import {Log} from './logger';
 
 export type Crf = number | undefined;
 
- 
 const defaultCrfMap: {[key in Codec]: number} = {
 	h264: 18,
 	h265: 23,
@@ -27,7 +28,6 @@ export const getDefaultCrfForCodec = (codec: Codec): number => {
 	return val;
 };
 
- 
 const crfRanges: {[key in Codec]: [number, number]} = {
 	h264: [1, 51],
 	h265: [0, 51],
@@ -57,12 +57,16 @@ export const validateQualitySettings = ({
 	videoBitrate,
 	encodingMaxRate,
 	encodingBufferSize,
+	indent,
+	logLevel,
 }: {
 	crf: unknown;
 	codec: Codec;
 	videoBitrate: string | null;
 	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
+	logLevel: LogLevel;
+	indent: boolean;
 }): string[] => {
 	if (crf && videoBitrate) {
 		throw new Error(
@@ -83,12 +87,18 @@ export const validateQualitySettings = ({
 
 	if (videoBitrate) {
 		if (codec === 'prores') {
-			console.warn('ProRes does not support videoBitrate. Ignoring.');
+			Log.warn(
+				{indent, logLevel},
+				'ProRes does not support videoBitrate. Ignoring.',
+			);
 			return [];
 		}
 
 		if (isAudioCodec(codec)) {
-			console.warn(`${codec} does not support videoBitrate. Ignoring.`);
+			Log.warn(
+				{indent, logLevel},
+				`${codec} does not support videoBitrate. Ignoring.`,
+			);
 			return [];
 		}
 
@@ -129,12 +139,18 @@ export const validateQualitySettings = ({
 	}
 
 	if (codec === 'prores') {
-		console.warn('ProRes does not support the "crf" option. Ignoring.');
+		Log.warn(
+			{indent, logLevel},
+			'ProRes does not support the "crf" option. Ignoring.',
+		);
 		return [];
 	}
 
 	if (isAudioCodec(codec)) {
-		console.warn(`${codec} does not support the "crf" option. Ignoring.`);
+		Log.warn(
+			{indent, logLevel},
+			`${codec} does not support the "crf" option. Ignoring.`,
+		);
 		return [];
 	}
 

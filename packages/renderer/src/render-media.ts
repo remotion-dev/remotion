@@ -267,6 +267,8 @@ const internalRenderMediaRaw = ({
 		videoBitrate,
 		encodingMaxRate,
 		encodingBufferSize,
+		indent,
+		logLevel,
 	});
 	validateBitrate(audioBitrate, 'audioBitrate');
 	validateBitrate(videoBitrate, 'videoBitrate');
@@ -815,7 +817,7 @@ const internalRenderMediaRaw = ({
 				cleanupServerFn?.(false).catch((err) => {
 					// Must prevent unhandled exception in cleanup function.
 					// Might crash whole runtime.
-					console.log('Could not cleanup: ', err);
+					Log.error({indent, logLevel}, 'Could not cleanup: ', err);
 				});
 			});
 	});
@@ -891,15 +893,16 @@ export const renderMedia = ({
 	onArtifact,
 	metadata,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
-	if (quality !== undefined) {
-		console.warn(
-			`The "quality" option has been renamed. Please use "jpegQuality" instead.`,
-		);
-	}
-
 	const indent = false;
 	const logLevel =
 		verbose || dumpBrowserLogs ? 'verbose' : (passedLogLevel ?? 'info');
+
+	if (quality !== undefined) {
+		Log.warn(
+			{indent, logLevel},
+			`The "quality" option has been renamed. Please use "jpegQuality" instead.`,
+		);
+	}
 
 	return internalRenderMedia({
 		proResProfile: proResProfile ?? undefined,

@@ -2,7 +2,7 @@ import React from 'react';
 import {useVideoConfig} from 'remotion';
 
 export const Black: React.FC<{
-	scale: number;
+	readonly scale: number;
 }> = ({scale}) => {
 	const config = useVideoConfig();
 	return (

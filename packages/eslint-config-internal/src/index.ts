@@ -35,7 +35,7 @@ export const remotionFlatConfig = ({
 	settings: react
 		? {
 				react: {
-					version: 'detect',
+					version: '18.3.1',
 				},
 			}
 		: {},

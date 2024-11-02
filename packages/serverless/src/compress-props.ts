@@ -46,6 +46,7 @@ export const getNeedsToUpload = (
 	const sizesAlreadyUsed = sizes.reduce((a, b) => a + b);
 
 	if (sizesAlreadyUsed > MAX_INLINE_PAYLOAD_SIZE) {
+		// eslint-disable-next-line no-console
 		console.warn(
 			`Warning: The props are over ${Math.round(
 				MAX_INLINE_PAYLOAD_SIZE / 1000,

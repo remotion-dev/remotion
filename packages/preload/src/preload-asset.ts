@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {resolveRedirect} from './resolve-redirect';
 
 const typesAllowed = ['video', 'audio', 'image', 'font'] as const;

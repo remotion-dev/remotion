@@ -130,7 +130,11 @@ export const internalOpenBrowser = async ({
 		onBrowserDownload,
 	});
 
-	const executablePath = getLocalBrowserExecutable(browserExecutable);
+	const executablePath = getLocalBrowserExecutable({
+		preferredBrowserExecutable: browserExecutable,
+		logLevel,
+		indent,
+	});
 
 	const customGlRenderer = getOpenGlRenderer(chromiumOptions.gl ?? null);
 	const enableMultiProcessOnLinux =
