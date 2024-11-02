@@ -113,7 +113,7 @@ export const startStudio = async ({
 		} else {
 			process.title = `bun (bunx remotionb studio)`;
 		}
-	} catch (err) {}
+	} catch {}
 
 	watchRootFile(remotionRoot);
 	const publicDir = getAbsolutePublicDir({

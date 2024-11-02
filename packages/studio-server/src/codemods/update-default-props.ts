@@ -136,12 +136,11 @@ export const updateDefaultProps = async ({
 		compositionId,
 	);
 
-	// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 	let prettier: PrettierType | null = null;
 
 	try {
 		prettier = await import('prettier');
-	} catch (err) {
+	} catch {
 		throw new Error('Prettier cannot be found in the current project.');
 	}
 

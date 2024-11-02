@@ -179,7 +179,7 @@ const handleOpenInEditor = async (
 				success: didOpen,
 			}),
 		);
-	} catch (err) {
+	} catch {
 		res.setHeader('content-type', 'application/json');
 		res.writeHead(200);
 

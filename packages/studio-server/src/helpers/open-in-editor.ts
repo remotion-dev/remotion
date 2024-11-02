@@ -45,6 +45,7 @@ function isTerminalEditor(editor: Editor) {
 	}
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const editorNames = [
 	'atom',
 	'/Applications/Atom Beta.app/Contents/MacOS/Atom Beta',
@@ -104,7 +105,6 @@ const editorNames = [
 	'nano',
 ] as const;
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const displayNameForEditor: {[key in Editor]: string} = {
 	'/Applications/AppCode.app/Contents/MacOS/appcode': 'AppCode',
 	'/Applications/Atom Beta.app/Contents/MacOS/Atom Beta': 'Atom Beta',
@@ -418,7 +418,7 @@ export async function guessEditor(): Promise<ProcessAndCommand[]> {
 
 			return availableEditors;
 		}
-	} catch (error) {
+	} catch {
 		// Ignore...
 	}
 
