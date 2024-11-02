@@ -8,7 +8,7 @@
 			"outputs": ["dist"],
 			"outputLogs": "new-only"
 		},
-		"@remotion/example#make": {
+		"@remotion/example#bundle": {
 			"dependsOn": ["^make"],
 			"outputs": ["build", "./node_modules/.cache"],
 			"outputLogs": "new-only"
@@ -29,6 +29,7 @@
 				"make",
 				"@remotion/lambda#make",
 				"@remotion/it-tests#test",
+				"@remotion/example#bundle",
 				"@remotion/cloudrun#make"
 			],
 			"outputs": [],
@@ -65,10 +66,10 @@
 		"@remotion/it-tests#test": {
 			"dependsOn": [
 				"^make",
-				"@remotion/example#test",
-				"@remotion/example#make",
-				"@remotion/studio#make"
-			]
+				"@remotion/studio#make",
+				"@remotion/example#bundle"
+			],
+			"outputLogs": "new-only"
 		},
 		"@remotion/webcodecs#make": {
 			"dependsOn": ["^@remotion/media-parser#make"],
