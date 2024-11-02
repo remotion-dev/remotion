@@ -6,7 +6,7 @@
     "dev": "ts-node src/studio.ts",
     "build": "ts-node src/render.ts",
     "upgrade": "remotion upgrade",
-    "test": "eslint src --ext ts,tsx,js,jsx && tsc"
+    "lint": "eslint src --ext ts,tsx,js,jsx && tsc"
   },
   "repository": {},
   "license": "UNLICENSED",

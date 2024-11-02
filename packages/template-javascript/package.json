@@ -6,7 +6,7 @@
     "dev": "remotion studio",
     "build": "remotion render HelloWorld out/video.mp4",
     "upgrade": "remotion upgrade",
-    "test": "eslint src --ext ts,tsx,js,jsx"
+    "lint": "eslint src --ext ts,tsx,js,jsx"
   },
   "repository": {},
   "license": "UNLICENSED",

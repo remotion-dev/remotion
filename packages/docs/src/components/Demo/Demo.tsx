@@ -9,6 +9,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+
 import {DemoTitle} from '../../../components/LambdaSplash/VideoAppsTitle';
 import {PALETTE} from '../../../components/layout/colors';
 import type {

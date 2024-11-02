@@ -12,7 +12,7 @@
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "bun test src",
-		"make": "bun build.ts --debug",
+		"make": "tsc -d && bun build.ts --debug",
 		"build-all": "bun build.ts --all",
 		"prepublishOnly": "bun build.ts --all"
 	},
