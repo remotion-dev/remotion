@@ -18,7 +18,6 @@
 		"start-js": "remotion preview src/entry.jsx",
 		"comps": "remotion compositions",
 		"clean": "rm -rf build && rm -rf out",
-		"make": "remotion browser ensure",
 		"lint": "eslint src --ext ts,tsx,js,jsx",
 		"test": "bun test src",
 		"render": "remotion render react-svg",
