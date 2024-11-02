@@ -13,7 +13,6 @@
 		"lint": "eslint src --ext ts,tsx",
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
 		"formatting": "prettier src --check"
-
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],

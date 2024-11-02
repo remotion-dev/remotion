@@ -7,6 +7,9 @@
 			"outputLogs": "new-only"
 		},
 		"clean": {},
+		"testssr": {
+			"dependsOn": ["@remotion/example#bundle"]
+		},
 		"make": {
 			"dependsOn": ["^make"],
 			"outputs": ["dist"],

@@ -7,7 +7,6 @@
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
 		"make": "tsc -d"
-
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "UNLICENSED",

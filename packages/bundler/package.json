@@ -15,7 +15,6 @@
 		"lint": "eslint src --ext ts,tsx",
 		"test": "bun test src",
 		"make": "tsc -d"
-
 	},
 	"files": [
 		"dist",

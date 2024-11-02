@@ -12,7 +12,6 @@
 		"lint": "eslint src --ext ts,tsx",
 		"test": "bun test src",
 		"make": "tsc -d"
-
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",

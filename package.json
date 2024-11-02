@@ -9,6 +9,7 @@
 		"stylecheck": "turbo run lint formatting --no-update-notifier",
 		"build": "turbo run make --no-update-notifier",
 		"build-docs": "turbo run build-docs --no-update-notifier",
+		"testssr": "turbo run testssr --no-update-notifier",
 		"ci": "turbo run make test --concurrency=50% --no-update-notifier",
 		"watch": "turbo watch make",
 		"release-alpha": "pnpm recursive publish --tag=alpha --no-git-checks && pnpm recursive run --sequential publishprivate",

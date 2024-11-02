@@ -8,7 +8,6 @@
 	"scripts": {
 		"test": "vitest --run",
 		"make": "tsc -d"
-
 	},
 	"main": "dist/index.js",
 	"bugs": {
