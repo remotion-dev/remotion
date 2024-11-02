@@ -2,6 +2,10 @@
 	"$schema": "https://turbo.build/schema.json",
 	"ui": "stream",
 	"tasks": {
+		"formatting": {
+			"dependsOn": [],
+			"outputLogs": "new-only"
+		},
 		"clean": {},
 		"make": {
 			"dependsOn": ["^make"],
@@ -37,10 +41,12 @@
 		},
 		"lint": {
 			"dependsOn": ["@remotion/eslint-config-internal#make"],
-			"outputs": []
+			"outputs": [],
+			"outputLogs": "new-only"
 		},
 		"@remotion/example#lint": {
-			"dependsOn": ["@remotion/eslint-config#make"]
+			"dependsOn": ["@remotion/eslint-config#make"],
+			"outputLogs": "new-only"
 		},
 		"@remotion/google-fonts#make": {
 			"outputs": ["src", ".cache-css", "dist/esm"],

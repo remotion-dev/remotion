@@ -15,9 +15,9 @@ test('Port selection should only be freed once the previous result has been used
 		from: 3100,
 		to: 3200,
 		hostsToTry: ['::', '::1'],
-	}).then(({unlockPort}) => {
+	}).then(({unlockPort: unlock}) => {
 		ports++;
-		unlockPort();
+		unlock();
 	});
 
 	await new Promise<void>((resolve) => {

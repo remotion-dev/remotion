@@ -45,7 +45,7 @@ export const DisplayedEmoji: React.FC<{
 		])
 			.then(([{Lottie, getLottieMetadata}, json]) => {
 				setData({
-					Lottie: Lottie,
+					Lottie,
 					duration: getLottieMetadata(json)?.durationInSeconds as number,
 					data: json,
 				});
