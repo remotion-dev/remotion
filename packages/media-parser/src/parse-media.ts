@@ -1,4 +1,4 @@
-/* eslint-disable max-depth */
+ 
 import type {BufferIterator} from './buffer-iterator';
 import {getArrayBufferIterator} from './buffer-iterator';
 import {emitAvailableInfo} from './emit-available-info';
@@ -71,7 +71,7 @@ export const parseMedia: ParseMedia = async ({
 			throw new Error('Aborted');
 		}
 
-		// eslint-disable-next-line no-constant-condition
+		 
 		while (true) {
 			const result = await currentReader.reader.read();
 

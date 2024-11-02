@@ -22,7 +22,7 @@ export const getContainer = (
 export const hasContainer = (boxes: AnySegment[]): boolean => {
 	try {
 		return getContainer(boxes) !== null;
-	} catch (e) {
+	} catch {
 		return false;
 	}
 };

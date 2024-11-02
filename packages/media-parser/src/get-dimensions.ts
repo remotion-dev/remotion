@@ -41,7 +41,7 @@ export const hasDimensions = (
 ): boolean => {
 	try {
 		return getDimensions(boxes, state) !== null;
-	} catch (err) {
+	} catch {
 		return false;
 	}
 };

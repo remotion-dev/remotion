@@ -17,7 +17,7 @@ const models = [
 	'large-v3-turbo',
 ] as const;
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 const modelSizes: {[key in WhisperModel]: number} = {
 	'medium.en': 1533774781,
 	'base.en': 147964211,

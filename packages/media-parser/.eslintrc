@@ -1,8 +1,0 @@
-{
-	"extends": "@remotion/internal/react",
-	"rules": {
-		"no-bitwise": "off",
-		"@typescript-eslint/no-use-before-define": "off",
-		"no-console": "error",
-	},
-}

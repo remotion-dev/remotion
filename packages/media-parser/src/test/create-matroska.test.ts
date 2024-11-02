@@ -1,4 +1,4 @@
-/* eslint-disable padding-line-between-statements */
+ 
 /* eslint-disable max-depth */
 import {expect, test} from 'bun:test';
 import {combineUint8Arrays, makeMatroskaBytes} from '../boxes/webm/make-header';

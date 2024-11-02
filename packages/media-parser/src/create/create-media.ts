@@ -158,6 +158,11 @@ export const createMedia = async (
 		return {cluster: currentCluster, isNew: true, smallestProgress};
 	};
 
+	const updateDuration = async (newDuration: number) => {
+		const blocks = makeDurationWithPadding(newDuration);
+		await w.updateDataAt(durationOffset, blocks.bytes);
+	};
+
 	const addSample = async (
 		chunk: AudioOrVideoSample,
 		trackNumber: number,
@@ -189,11 +194,6 @@ export const createMedia = async (
 				trackNumber,
 			});
 		}
-	};
-
-	const updateDuration = async (newDuration: number) => {
-		const blocks = makeDurationWithPadding(newDuration);
-		await w.updateDataAt(durationOffset, blocks.bytes);
 	};
 
 	const addTrack = async (track: BytesAndOffset) => {

@@ -1,4 +1,3 @@
-/* eslint-disable max-depth */
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import {
 	getMoovBox,
@@ -16,108 +15,6 @@ import {
 } from './get-sample-aspect-ratio';
 import type {MediaParserVideoCodec, VideoTrackColorParams} from './get-tracks';
 import type {AnySegment} from './parse-result';
-
-export const hasVideoCodec = (boxes: AnySegment[]): boolean => {
-	try {
-		return getVideoCodec(boxes) !== null;
-	} catch (e) {
-		return false;
-	}
-};
-
-export const getVideoPrivateData = (trakBox: TrakBox): Uint8Array | null => {
-	const videoSample = getStsdVideoConfig(trakBox);
-	const avccBox = getAvccBox(trakBox);
-	const hvccBox = getHvccBox(trakBox);
-	const av1cBox = getAv1CBox(trakBox);
-
-	if (!videoSample) {
-		return null;
-	}
-
-	if (avccBox) {
-		return avccBox.privateData;
-	}
-
-	if (hvccBox) {
-		return hvccBox.privateData;
-	}
-
-	if (av1cBox) {
-		return av1cBox.privateData;
-	}
-
-	return null;
-};
-
-export const getIsoBmColrConfig = (
-	trakBox: TrakBox,
-): VideoTrackColorParams | null => {
-	const videoSample = getStsdVideoConfig(trakBox);
-	if (!videoSample) {
-		return null;
-	}
-
-	const colrAtom = getColrBox(videoSample);
-	if (!colrAtom) {
-		return null;
-	}
-
-	// https://github.com/bbc/qtff-parameter-editor
-	return {
-		fullRange: colrAtom.fullRangeFlag,
-		matrixCoefficients:
-			colrAtom.matrixIndex === 1
-				? 'bt709'
-				: colrAtom.matrixIndex === 5
-					? 'bt470bg'
-					: colrAtom.matrixIndex === 6
-						? 'smpte170m'
-						: null,
-		primaries:
-			colrAtom.primaries === 1
-				? 'bt709'
-				: colrAtom.primaries === 5
-					? 'bt470bg'
-					: colrAtom.primaries === 6
-						? 'smpte170m'
-						: null,
-		transferCharacteristics:
-			colrAtom.transfer === 1
-				? 'bt709'
-				: colrAtom.transfer === 6
-					? 'smpte170m'
-					: colrAtom.transfer === 13
-						? 'iec61966-2-1'
-						: null,
-	};
-};
-
-export const getVideoCodecString = (trakBox: TrakBox): string | null => {
-	const videoSample = getStsdVideoConfig(trakBox);
-	const avccBox = getAvccBox(trakBox);
-	const hvccBox = getHvccBox(trakBox);
-	const av1cBox = getAv1CBox(trakBox);
-
-	if (!videoSample) {
-		return null;
-	}
-
-	if (avccBox) {
-		return `${videoSample.format}.${avccBox.configurationString}`;
-	}
-
-	if (hvccBox) {
-		return `${videoSample.format}.${hvccBox.configurationString}`;
-	}
-
-	if (av1cBox) {
-		const colrAtom = getColrBox(videoSample);
-		return parseAv1PrivateData(av1cBox.privateData, colrAtom);
-	}
-
-	return videoSample.format;
-};
 
 export const getVideoCodecFromIsoTrak = (trakBox: TrakBox) => {
 	const stsdBox = getStsdBox(trakBox);
@@ -230,4 +127,106 @@ export const getVideoCodec = (
 	}
 
 	return null;
+};
+
+export const hasVideoCodec = (boxes: AnySegment[]): boolean => {
+	try {
+		return getVideoCodec(boxes) !== null;
+	} catch {
+		return false;
+	}
+};
+
+export const getVideoPrivateData = (trakBox: TrakBox): Uint8Array | null => {
+	const videoSample = getStsdVideoConfig(trakBox);
+	const avccBox = getAvccBox(trakBox);
+	const hvccBox = getHvccBox(trakBox);
+	const av1cBox = getAv1CBox(trakBox);
+
+	if (!videoSample) {
+		return null;
+	}
+
+	if (avccBox) {
+		return avccBox.privateData;
+	}
+
+	if (hvccBox) {
+		return hvccBox.privateData;
+	}
+
+	if (av1cBox) {
+		return av1cBox.privateData;
+	}
+
+	return null;
+};
+
+export const getIsoBmColrConfig = (
+	trakBox: TrakBox,
+): VideoTrackColorParams | null => {
+	const videoSample = getStsdVideoConfig(trakBox);
+	if (!videoSample) {
+		return null;
+	}
+
+	const colrAtom = getColrBox(videoSample);
+	if (!colrAtom) {
+		return null;
+	}
+
+	// https://github.com/bbc/qtff-parameter-editor
+	return {
+		fullRange: colrAtom.fullRangeFlag,
+		matrixCoefficients:
+			colrAtom.matrixIndex === 1
+				? 'bt709'
+				: colrAtom.matrixIndex === 5
+					? 'bt470bg'
+					: colrAtom.matrixIndex === 6
+						? 'smpte170m'
+						: null,
+		primaries:
+			colrAtom.primaries === 1
+				? 'bt709'
+				: colrAtom.primaries === 5
+					? 'bt470bg'
+					: colrAtom.primaries === 6
+						? 'smpte170m'
+						: null,
+		transferCharacteristics:
+			colrAtom.transfer === 1
+				? 'bt709'
+				: colrAtom.transfer === 6
+					? 'smpte170m'
+					: colrAtom.transfer === 13
+						? 'iec61966-2-1'
+						: null,
+	};
+};
+
+export const getVideoCodecString = (trakBox: TrakBox): string | null => {
+	const videoSample = getStsdVideoConfig(trakBox);
+	const avccBox = getAvccBox(trakBox);
+	const hvccBox = getHvccBox(trakBox);
+	const av1cBox = getAv1CBox(trakBox);
+
+	if (!videoSample) {
+		return null;
+	}
+
+	if (avccBox) {
+		return `${videoSample.format}.${avccBox.configurationString}`;
+	}
+
+	if (hvccBox) {
+		return `${videoSample.format}.${hvccBox.configurationString}`;
+	}
+
+	if (av1cBox) {
+		const colrAtom = getColrBox(videoSample);
+		return parseAv1PrivateData(av1cBox.privateData, colrAtom);
+	}
+
+	return videoSample.format;
 };
