@@ -28,7 +28,6 @@ const messageTypes = {
 export type MessageTypeId = keyof typeof messageTypes;
 type MessageType = (typeof messageTypes)[MessageTypeId]['type'];
 
- 
 export const formatMap: {[key in MessageType]: 'json' | 'binary'} = {
 	[framesRendered]: 'json',
 	[errorOccurred]: 'json',
