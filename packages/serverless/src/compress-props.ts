@@ -28,7 +28,7 @@ export const serializeOrThrow = (
 			data: inputProps,
 		});
 		return payload.serializedString;
-	} catch (err) {
+	} catch {
 		throw new Error(
 			`Error serializing ${propsType}. Check it has no circular references or reduce the size if the object is big.`,
 		);
