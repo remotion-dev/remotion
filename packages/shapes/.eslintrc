@@ -1,6 +1,0 @@
-{
-	"extends": "@remotion/internal/react",
-	"rules": {
-		"no-bitwise": "off",
-	},
-}

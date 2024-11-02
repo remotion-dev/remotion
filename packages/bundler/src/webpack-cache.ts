@@ -7,7 +7,6 @@ type Environment = 'development' | 'production';
 type CacheState = 'exists' | 'other-exists' | 'does-not-exist';
 
 declare global {
-	// eslint-disable-next-line @typescript-eslint/no-namespace
 	namespace NodeJS {
 		interface ProcessVersions {
 			pnp?: string;
@@ -24,8 +23,7 @@ const getWebpackCacheDir = (remotionRoot: string) => {
 			if (fs.statSync(path.join(dir, 'package.json')).isFile()) {
 				break;
 			}
-			// eslint-disable-next-line no-empty
-		} catch (e) {}
+		} catch {}
 
 		const parent = path.dirname(dir);
 		if (dir === parent) {
