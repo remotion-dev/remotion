@@ -42,7 +42,7 @@ test(
 
 		const fileOSRoot = path.parse(__dirname).root;
 
-		await expect(() =>
+		await expect(
 			renderStill({
 				composition,
 				output: testOut,
@@ -53,7 +53,7 @@ test(
 			/Cannot use frame 500: Duration of composition is 300, therefore the highest frame that can be rendered is 299/,
 		);
 
-		await expect(() =>
+		await expect(
 			renderStill({
 				composition,
 				output: process.platform === 'win32' ? fileOSRoot : '/var',
@@ -61,7 +61,7 @@ test(
 			}),
 		).rejects.toThrow(/already exists, but is not a file/);
 
-		await expect(() =>
+		await expect(
 			renderStill({
 				composition,
 				output: 'src/index.ts',
