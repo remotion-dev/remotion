@@ -5,7 +5,8 @@
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
 	"scripts": {
-		"lint": "eslint src"
+		"lint": "eslint src",
+		"make": "tsc -d"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "UNLICENSED",

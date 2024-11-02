@@ -10,7 +10,8 @@
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src"
+		"lint": "eslint src",
+		"make": "tsc -d"
 	},
 	"author": "Jonny Burger",
 	"contributors": [],

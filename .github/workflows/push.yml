@@ -41,10 +41,7 @@ jobs:
           pnpm build
       - name: Test Lambda IT
         run: |
-          cd packages/it-tests && pnpm run testlambda
-      - name: Test Lambda E2E
-        run: |
-          cd packages/lambda && pnpm run testintegration
+          pnpm run testlambda
   ssr-tests:
     runs-on: ubuntu-latest
     name: SSR integration
@@ -90,7 +87,7 @@ jobs:
       - name: Test SSR
         timeout-minutes: 8
         run: |
-          cd packages/it-tests && bun run testssr
+          pnpm run testssr
   lint:
     runs-on: ubuntu-latest
     name: Linting + Formatting

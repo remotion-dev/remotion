@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import {beforeEach, expect, test} from 'bun:test';
+import {afterEach, beforeEach, expect, test} from 'bun:test';
 import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
@@ -7,6 +7,11 @@ import path from 'path';
 const outputPath = path.join(process.cwd(), 'packages/example/out.mp3');
 
 beforeEach(() => {
+	if (fs.existsSync(outputPath)) {
+		fs.unlinkSync(outputPath);
+	}
+});
+afterEach(() => {
 	if (fs.existsSync(outputPath)) {
 		fs.unlinkSync(outputPath);
 	}

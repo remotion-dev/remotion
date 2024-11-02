@@ -14,8 +14,8 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src",
-		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
-		"watch": "tsc -w"
+		"watch": "tsc -w",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"files": [
 		"dist"

@@ -15,7 +15,8 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src",
-		"test": "bun test src"
+		"test": "bun test src",
+		"make": "tsc -d"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"

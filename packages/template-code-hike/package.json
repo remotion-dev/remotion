@@ -31,7 +31,7 @@
     "dev": "remotion studio",
     "build": "remotion render Main out/video.mp4",
     "upgrade": "remotion upgrade",
-    "test": "eslint src --ext ts,tsx,js,jsx && tsc"
+    "lint": "tsc && eslint src --ext ts,tsx,js,jsx"
   },
   "private": true
 }

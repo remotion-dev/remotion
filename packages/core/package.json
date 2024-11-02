@@ -13,7 +13,7 @@
 		"prepublishOnly": "bun ensure-correct-version.ts && cp ../../README.md .",
 		"lint": "eslint src",
 		"test": "vitest --run",
-		"make": "bun --env-file=../.env.bundle bundle.ts"
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"

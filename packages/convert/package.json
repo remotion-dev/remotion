@@ -7,8 +7,8 @@
 	"scripts": {
 		"build-page": "remix vite:build",
 		"dev": "remix vite:dev",
-		"lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
-		"typecheck": "tsc"
+		"typecheck": "tsc",
+		"lint": "tsc && eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint ."
 	},
 	"dependencies": {
 		"@radix-ui/react-label": "^2.1.0",

@@ -10,7 +10,8 @@
 	"scripts": {
 		"lint": "eslint src",
 		"formatting": "prettier src --check",
-		"test": "bun test src"
+		"test": "bun test src",
+		"make": "tsc -d"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
