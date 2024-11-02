@@ -35,12 +35,12 @@ const doesReactVersionSupportSuspense = parseInt(reactVersion, 10) >= 18;
 const ThumbnailUI: React.ForwardRefRenderFunction<
 	ThumbnailMethods,
 	{
-		inputProps: Record<string, unknown>;
-		style?: React.CSSProperties;
-		errorFallback: ErrorFallback;
-		renderLoading: RenderLoading | undefined;
-		className: string | undefined;
-		overflowVisible: boolean;
+		readonly inputProps: Record<string, unknown>;
+		readonly style?: React.CSSProperties;
+		readonly errorFallback: ErrorFallback;
+		readonly renderLoading: RenderLoading | undefined;
+		readonly className: string | undefined;
+		readonly overflowVisible: boolean;
 	}
 > = (
 	{style, inputProps, errorFallback, renderLoading, className, overflowVisible},

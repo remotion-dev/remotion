@@ -45,10 +45,10 @@ export const Checkmark = () => (
 );
 
 const PlaybackrateOption: React.FC<{
-	rate: number;
-	selectedRate: number;
-	onSelect: (rate: number) => void;
-	keyboardSelectedRate: number;
+	readonly rate: number;
+	readonly selectedRate: number;
+	readonly onSelect: (rate: number) => void;
+	readonly keyboardSelectedRate: number;
 }> = ({rate, onSelect, selectedRate, keyboardSelectedRate}) => {
 	const onClick: React.MouseEventHandler<HTMLDivElement> = useCallback(
 		(e) => {
@@ -97,9 +97,9 @@ const PlaybackrateOption: React.FC<{
 };
 
 const PlaybackPopup: React.FC<{
-	setIsComponentVisible: React.Dispatch<React.SetStateAction<boolean>>;
-	playbackRates: number[];
-	canvasSize: Size;
+	readonly setIsComponentVisible: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly playbackRates: number[];
+	readonly canvasSize: Size;
 }> = ({setIsComponentVisible, playbackRates, canvasSize}) => {
 	const {setPlaybackRate, playbackRate} = useContext(
 		Internals.Timeline.TimelineContext,
@@ -229,8 +229,8 @@ const button: React.CSSProperties = {
 };
 
 export const PlaybackrateControl: React.FC<{
-	playbackRates: number[];
-	canvasSize: Size;
+	readonly playbackRates: number[];
+	readonly canvasSize: Size;
 }> = ({playbackRates, canvasSize}) => {
 	const {ref, isComponentVisible, setIsComponentVisible} =
 		useComponentVisible(false);
