@@ -8,7 +8,7 @@
 	"main": "dist/index.js",
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx"
+		"lint": "eslint src"
 	},
 	"files": [
 		"dist"

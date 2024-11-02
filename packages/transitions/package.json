@@ -11,7 +11,7 @@
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"test": "bun test src",
-		"lint": "eslint src --ext ts,tsx",
+		"lint": "eslint src",
 		"formatting": "prettier src --check",
 		"make": "bun --env-file=../.env.bundle bundle.ts"
 	},

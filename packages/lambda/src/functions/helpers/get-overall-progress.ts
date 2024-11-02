@@ -1,6 +1,5 @@
 type Factors = 'invoking' | 'frames' | 'encoding' | 'evaluating' | 'combining';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const weights: {[key in Factors]: number} = {
 	evaluating: 0.1,
 	encoding: 0.1,

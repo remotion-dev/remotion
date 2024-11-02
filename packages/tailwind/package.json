@@ -10,7 +10,7 @@
 	"module": "dist/esm/index.mjs",
 	"sideEffects": false,
 	"scripts": {
-		"lint": "eslint src --ext ts,tsx",
+		"lint": "eslint src",
 		"make": "bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",

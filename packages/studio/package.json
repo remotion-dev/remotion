@@ -8,7 +8,7 @@
 	"main": "dist",
 	"sideEffects": false,
 	"scripts": {
-		"lint": "eslint src --ext ts,tsx",
+		"lint": "eslint src",
 		"make": "bun --env-file=../.env.bundle bundle.ts",
 		"test": "bun test src",
 		"formatting": "prettier src --check"

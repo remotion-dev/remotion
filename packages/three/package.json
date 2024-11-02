@@ -11,7 +11,7 @@
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
+		"lint": "eslint src",
 		"make": "bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Björn Zeutzheim",

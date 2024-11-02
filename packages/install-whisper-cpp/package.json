@@ -12,7 +12,7 @@
 	},
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
+		"lint": "eslint src",
 		"test": "bun test src"
 	},
 	"files": [

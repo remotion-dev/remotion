@@ -9,7 +9,7 @@
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx"
+		"lint": "eslint src"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",

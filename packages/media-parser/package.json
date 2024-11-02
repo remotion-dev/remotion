@@ -8,7 +8,7 @@
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
+		"lint": "eslint src",
 		"test": "bun test src/test",
 		"watch": "tsc -w",
 		"make": "bun --env-file=../.env.bundle bundle.ts"

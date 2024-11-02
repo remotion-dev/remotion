@@ -10,7 +10,7 @@
 		"dist"
 	],
 	"scripts": {
-		"lint": "eslint src --ext ts,tsx",
+		"lint": "eslint src",
 		"formatting": "prettier src --check",
 		"make": "tsc -d"
 	},
