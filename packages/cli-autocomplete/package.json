@@ -8,7 +8,8 @@
 	"devDependencies": {
 		"@fig/eslint-config-autocomplete": "1.2.1",
 		"@withfig/autocomplete-types": "^1.20.0",
-		"@remotion/renderer": "workspace:*"
+		"@remotion/renderer": "workspace:*",
+		"eslint": "8.56.0"
 	},
 	"scripts": {
 		"formatting": "prettier src --check",
