@@ -1,7 +1,6 @@
 import type {Codec} from './codec';
 import {isAudioCodec} from './is-audio-codec';
 import type {LogLevel} from './log-level';
-import {Log} from './logger';
 
 export type Crf = number | undefined;
 
@@ -87,18 +86,12 @@ export const validateQualitySettings = ({
 
 	if (videoBitrate) {
 		if (codec === 'prores') {
-			Log.warn(
-				{indent, logLevel},
-				'ProRes does not support videoBitrate. Ignoring.',
-			);
+			console.warn('ProRes does not support videoBitrate. Ignoring.');
 			return [];
 		}
 
 		if (isAudioCodec(codec)) {
-			Log.warn(
-				{indent, logLevel},
-				`${codec} does not support videoBitrate. Ignoring.`,
-			);
+			console.warn(`${codec} does not support videoBitrate. Ignoring.`);
 			return [];
 		}
 
@@ -139,18 +132,12 @@ export const validateQualitySettings = ({
 	}
 
 	if (codec === 'prores') {
-		Log.warn(
-			{indent, logLevel},
-			'ProRes does not support the "crf" option. Ignoring.',
-		);
+		console.warn('ProRes does not support the "crf" option. Ignoring.');
 		return [];
 	}
 
 	if (isAudioCodec(codec)) {
-		Log.warn(
-			{indent, logLevel},
-			`${codec} does not support the "crf" option. Ignoring.`,
-		);
+		console.warn(`${codec} does not support the "crf" option. Ignoring.`);
 		return [];
 	}
 
