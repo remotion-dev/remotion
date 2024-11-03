@@ -1,6 +1,6 @@
 import {execSync} from 'node:child_process';
 import {existsSync, mkdirSync, unlinkSync} from 'node:fs';
-import {toolchains} from './toolchains.mjs';
+import {toolchains} from './toolchains';
 
 const unpatched = [
 	'x86_64-apple-darwin',
@@ -12,7 +12,7 @@ for (const toolchain of toolchains) {
 	process.stdout.write(toolchain + '...');
 
 	execSync(
-		`curl https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/${toolchain}.zip -o ${toolchain}.zip`
+		`curl https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/${toolchain}.zip -o ${toolchain}.zip`,
 	);
 
 	if (!existsSync('toolchains')) {

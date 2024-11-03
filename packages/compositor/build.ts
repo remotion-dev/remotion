@@ -149,7 +149,7 @@ const cloudrun = process.argv.includes('--cloudrun');
 const lambda = process.argv.includes('--lambda');
 if (!existsSync('toolchains') && all) {
 	throw new Error(
-		'Run "node install-toolchain.mjs" if you want to build all platforms',
+		'Run "bun install-toolchain.ts" if you want to build all platforms',
 	);
 }
 
