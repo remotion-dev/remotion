@@ -66,7 +66,7 @@ execSync('bun test src/monorepo', {
 });
 
 execSync('bun build.ts --all', {
-	cwd: 'packages/renderer',
+	cwd: 'packages/compositor',
 	stdio: 'inherit',
 });
 

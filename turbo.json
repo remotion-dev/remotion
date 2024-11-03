@@ -69,9 +69,8 @@
 			"outputs": ["dist", "container/dist", "gcpInstaller/gcpInstaller.tar"],
 			"outputLogs": "new-only"
 		},
-		"@remotion/renderer#make": {
-			"outputs": ["dist", "target/debug/build", "target/release/build"],
-			"dependsOn": ["^make"],
+		"@remotion/compositor#make": {
+			"outputs": ["target/debug/build", "target/release/build"],
 			"outputLogs": "new-only"
 		},
 		"@remotion/it-tests#test": {

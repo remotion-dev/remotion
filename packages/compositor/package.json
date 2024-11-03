@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/compositor",
 	"version": "4.0.226",
-	"description": "Render Remotion videos using Node.js or Bun",
+	"description": "Rust binary for Remotion",
 	"sideEffects": false,
 	"scripts": {
 		"make": "bun build.ts --debug"
@@ -16,6 +16,5 @@
 	},
 	"dependencies": {},
 	"peerDependencies": {},
-	"devDependencies": {},
-	"homepage": "https://www.remotion.dev/docs/renderer"
+	"devDependencies": {}
 }
