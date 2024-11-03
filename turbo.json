@@ -39,8 +39,7 @@
 				"make",
 				"@remotion/lambda#make",
 				"@remotion/it-tests#test",
-				"@remotion/example#bundle",
-				"@remotion/cloudrun#make"
+				"@remotion/example#bundle"
 			],
 			"outputs": [],
 			"outputLogs": "new-only"
