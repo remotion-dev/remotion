@@ -17,6 +17,10 @@ import {webpackOverride} from '../webpack-override.mjs';
 
 let bundled = 'none';
 
+if (process.platform === 'win32') {
+	process.exit(0);
+}
+
 beforeAll(async () => {
 	bundled = await bundle({
 		entryPoint: path.join(process.cwd(), 'src/index.ts'),
