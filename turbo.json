@@ -83,11 +83,11 @@
 			"outputLogs": "new-only"
 		},
 		"@remotion/convert#build-page": {
-			"dependsOn": ["^@remotion/webcodecs#make"]
+			"dependsOn": ["^@remotion/webcodecs#make"],
+			"outputs": ["build"]
 		},
 		"convert": {
-			"dependsOn": ["^@remotion/convert#build-page"],
-			"outputs": ["build"]
+			"dependsOn": ["^@remotion/convert#build-page"]
 		}
 	}
 }
