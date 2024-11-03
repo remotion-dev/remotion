@@ -12,9 +12,7 @@
 		"formatting": "prettier src --check",
 		"lint": "eslint src",
 		"test": "bun test src",
-		"make": "tsc -d && bun build.ts --debug",
-		"build-all": "bun build.ts --all",
-		"prepublishOnly": "bun build.ts --all"
+		"make": "tsc -d"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",

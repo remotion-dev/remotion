@@ -39,8 +39,7 @@
 				"make",
 				"@remotion/lambda#make",
 				"@remotion/it-tests#test",
-				"@remotion/example#bundle",
-				"@remotion/cloudrun#make"
+				"@remotion/example#bundle"
 			],
 			"outputs": [],
 			"outputLogs": "new-only"
@@ -69,9 +68,8 @@
 			"outputs": ["dist", "container/dist", "gcpInstaller/gcpInstaller.tar"],
 			"outputLogs": "new-only"
 		},
-		"@remotion/renderer#make": {
-			"outputs": ["dist", "target/debug/build", "target/release/build"],
-			"dependsOn": ["^make"],
+		"@remotion/compositor#make": {
+			"outputs": ["target/debug/build", "target/release/build"],
 			"outputLogs": "new-only"
 		},
 		"@remotion/it-tests#test": {

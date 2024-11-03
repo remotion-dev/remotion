@@ -65,11 +65,13 @@ export const packages = [
 	'convert',
 	'captions',
 	'openai-whisper',
+	'compositor',
 ] as const;
 
 export type Pkgs = (typeof packages)[number];
 
 export const descriptions: {[key in Pkgs]: string | null} = {
+	compositor: 'Rust binary for Remotion',
 	player: 'React component for embedding a Remotion preview into your app',
 	cloudrun: 'Render Remotion videos on Google Cloud Run',
 	renderer: 'Render Remotion videos using Node.js or Bun',
@@ -210,4 +212,5 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	captions: 'https://remotion.dev/docs/captions',
 	'openai-whisper': 'https://www.remotion.dev/docs/openai-whisper',
 	'eslint-config-internal': null,
+	compositor: null,
 };

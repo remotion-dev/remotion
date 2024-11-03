@@ -349,6 +349,8 @@ importers:
         specifier: 9.14.0
         version: 9.14.0
 
+  packages/compositor: {}
+
   packages/compositor-darwin-arm64: {}
 
   packages/compositor-darwin-x64: {}

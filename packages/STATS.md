@@ -7,6 +7,7 @@ Monthly downloads of Remotion packages
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/captions.svg?style=flat&color=black&label=@remotion/captions)](https://npmcharts.com/compare/@remotion/captions?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/cli.svg?style=flat&color=black&label=@remotion/cli)](https://npmcharts.com/compare/@remotion/cli?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/cloudrun.svg?style=flat&color=black&label=@remotion/cloudrun)](https://npmcharts.com/compare/@remotion/cloudrun?minimal=true)  
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/compositor.svg?style=flat&color=black&label=@remotion/compositor)](https://npmcharts.com/compare/@remotion/compositor?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/compositor-darwin-arm64.svg?style=flat&color=black&label=@remotion/compositor-darwin-arm64)](https://npmcharts.com/compare/@remotion/compositor-darwin-arm64?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/compositor-darwin-x64.svg?style=flat&color=black&label=@remotion/compositor-darwin-x64)](https://npmcharts.com/compare/@remotion/compositor-darwin-x64?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/compositor-linux-arm64-gnu.svg?style=flat&color=black&label=@remotion/compositor-linux-arm64-gnu)](https://npmcharts.com/compare/@remotion/compositor-linux-arm64-gnu?minimal=true)  

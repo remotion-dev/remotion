@@ -28,7 +28,7 @@ execSync(
 );
 
 execSync(
-	'pnpm exec remotion lambda still testbed-v6 huge-payload   --log=verbose',
+	'pnpm exec remotion lambda still testbed-v6 huge-payload --log=verbose',
 	{
 		stdio: 'inherit',
 	},
