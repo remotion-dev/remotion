@@ -38,7 +38,7 @@ const createContent = async () => {
 		save: async () => {
 			try {
 				await writable.close();
-			} catch (err) {
+			} catch {
 				// Ignore, could already be closed
 			}
 

@@ -42,7 +42,7 @@ export const isLikelyToHaveAwsProfile = (): boolean => {
 	try {
 		const content = readFileSync(credentialsFile, 'utf-8');
 		return content.includes('[default]');
-	} catch (err) {
+	} catch {
 		return false;
 	}
 };

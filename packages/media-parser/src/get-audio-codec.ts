@@ -1,4 +1,3 @@
-/* eslint-disable max-depth */
 import type {EsdsBox} from './boxes/iso-base-media/esds/esds';
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';
 import type {AudioSample} from './boxes/iso-base-media/stsd/samples';
@@ -9,13 +8,39 @@ import {getTracks, type MediaParserAudioCodec} from './get-tracks';
 import type {AnySegment} from './parse-result';
 import type {ParserState} from './parser-state';
 
+export const getAudioCodec = (
+	boxes: AnySegment[],
+	parserState: ParserState,
+): MediaParserAudioCodec | null => {
+	const tracks = getTracks(boxes, parserState);
+	const allTracks =
+		tracks.audioTracks.length +
+		tracks.otherTracks.length +
+		tracks.videoTracks.length;
+
+	if (allTracks === 0) {
+		throw new Error('No tracks yet');
+	}
+
+	const audioTrack = tracks.audioTracks[0];
+	if (!audioTrack) {
+		return null;
+	}
+
+	if (audioTrack.type === 'audio') {
+		return audioTrack.codecWithoutConfig;
+	}
+
+	return null;
+};
+
 export const hasAudioCodec = (
 	boxes: AnySegment[],
 	state: ParserState,
 ): boolean => {
 	try {
 		return getAudioCodec(boxes, state) !== null;
-	} catch (e) {
+	} catch {
 		return false;
 	}
 };
@@ -232,30 +257,4 @@ export const getAudioCodecFromTrack = (track: TrakBox) => {
 	}
 
 	return getAudioCodecFromAudioCodecInfo(audioSample);
-};
-
-export const getAudioCodec = (
-	boxes: AnySegment[],
-	parserState: ParserState,
-): MediaParserAudioCodec | null => {
-	const tracks = getTracks(boxes, parserState);
-	const allTracks =
-		tracks.audioTracks.length +
-		tracks.otherTracks.length +
-		tracks.videoTracks.length;
-
-	if (allTracks === 0) {
-		throw new Error('No tracks yet');
-	}
-
-	const audioTrack = tracks.audioTracks[0];
-	if (!audioTrack) {
-		return null;
-	}
-
-	if (audioTrack.type === 'audio') {
-		return audioTrack.codecWithoutConfig;
-	}
-
-	return null;
 };

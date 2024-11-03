@@ -3,8 +3,8 @@ import React from 'react';
 import {SpringConfig, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 
 export const Title: React.FC<{
-	line1: string;
-	line2: string;
+	readonly line1: string;
+	readonly line2: string;
 }> = ({line1, line2}) => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();

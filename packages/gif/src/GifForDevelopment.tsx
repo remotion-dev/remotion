@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {forwardRef, useEffect, useRef, useState} from 'react';
 import {continueRender, delayRender} from 'remotion';
 import {Canvas} from './canvas';

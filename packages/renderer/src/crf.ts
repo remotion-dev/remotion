@@ -1,9 +1,9 @@
+/* eslint-disable no-console */
 import type {Codec} from './codec';
 import {isAudioCodec} from './is-audio-codec';
 
 export type Crf = number | undefined;
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const defaultCrfMap: {[key in Codec]: number} = {
 	h264: 18,
 	h265: 23,
@@ -27,7 +27,6 @@ export const getDefaultCrfForCodec = (codec: Codec): number => {
 	return val;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const crfRanges: {[key in Codec]: [number, number]} = {
 	h264: [1, 51],
 	h265: [0, 51],

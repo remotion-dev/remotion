@@ -101,7 +101,7 @@ export const hasDuration = (
 	try {
 		const duration = getDuration(boxes, parserState);
 		return getDuration(boxes, parserState) !== null && duration !== 0;
-	} catch (err) {
+	} catch {
 		return false;
 	}
 };

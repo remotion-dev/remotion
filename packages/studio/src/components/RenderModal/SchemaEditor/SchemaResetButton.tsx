@@ -8,7 +8,7 @@ const icon: React.CSSProperties = {
 };
 
 export const SchemaResetButton: React.FC<{
-	onClick: () => void;
+	readonly onClick: () => void;
 }> = ({onClick}) => {
 	const renderAction: RenderInlineAction = useCallback((color) => {
 		return (

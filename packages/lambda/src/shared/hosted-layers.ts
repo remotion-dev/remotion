@@ -8,7 +8,6 @@ export type AwsLayer = {
 };
 
 export type HostedLayers = {
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	[region in AwsRegion]: AwsLayer[];
 };
 export const hostedLayers: HostedLayers = {

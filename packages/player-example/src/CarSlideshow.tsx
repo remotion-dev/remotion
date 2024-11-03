@@ -11,9 +11,9 @@ import {
 } from 'remotion';
 
 type Props = {
-	title: string;
-	bgColor: string;
-	color: string;
+	readonly title: string;
+	readonly bgColor: string;
+	readonly color: string;
 };
 
 export const playerExampleComp = createRef<{

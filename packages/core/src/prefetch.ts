@@ -48,7 +48,6 @@ const getBlobFromReader = async ({
 }): Promise<Blob> => {
 	let receivedLength = 0;
 	const chunks = [];
-	// eslint-disable-next-line no-constant-condition
 	while (true) {
 		const {done, value} = await reader.read();
 
@@ -203,7 +202,7 @@ export const prefetch = (
 				if (canBeAborted) {
 					try {
 						controller.abort(new Error('free() called'));
-					} catch (e) {}
+					} catch {}
 				}
 			}
 		},

@@ -14,7 +14,7 @@
 	"types": "./dist/index.d.ts",
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
+		"lint": "eslint src",
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
 		"test": "bun test src"
 	},
@@ -31,7 +31,7 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "8.56.0"
+		"eslint": "9.14.0"
 	},
 	"exports": {
 		"./package.json": "./package.json",

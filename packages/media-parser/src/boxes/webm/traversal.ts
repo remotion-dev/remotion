@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import type {AnySegment} from '../../parse-result';
 import type {
 	AudioSegment,

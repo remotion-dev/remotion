@@ -25,22 +25,24 @@ const container: React.CSSProperties = {
 };
 
 export const RenderModalBasic: React.FC<{
-	renderMode: RenderType;
-	imageFormatOptions: SegmentedControlItem[];
-	codec: Codec;
-	setVideoCodec: (newCodec: Codec) => void;
-	outName: string;
-	proResProfile: ProResProfile | null;
-	setProResProfile: React.Dispatch<React.SetStateAction<ProResProfile>>;
-	frame: number;
-	setFrame: React.Dispatch<React.SetStateAction<number>>;
-	resolvedComposition: VideoConfig;
-	setOutName: (value: React.SetStateAction<string>) => void;
-	setEndFrame: React.Dispatch<React.SetStateAction<number | null>>;
-	startFrame: number;
-	endFrame: number;
-	setStartFrame: React.Dispatch<React.SetStateAction<number | null>>;
-	validationMessage: string | null;
+	readonly renderMode: RenderType;
+	readonly imageFormatOptions: SegmentedControlItem[];
+	readonly codec: Codec;
+	readonly setVideoCodec: (newCodec: Codec) => void;
+	readonly outName: string;
+	readonly proResProfile: ProResProfile | null;
+	readonly setProResProfile: React.Dispatch<
+		React.SetStateAction<ProResProfile>
+	>;
+	readonly frame: number;
+	readonly setFrame: React.Dispatch<React.SetStateAction<number>>;
+	readonly resolvedComposition: VideoConfig;
+	readonly setOutName: (value: React.SetStateAction<string>) => void;
+	readonly setEndFrame: React.Dispatch<React.SetStateAction<number | null>>;
+	readonly startFrame: number;
+	readonly endFrame: number;
+	readonly setStartFrame: React.Dispatch<React.SetStateAction<number | null>>;
+	readonly validationMessage: string | null;
 }> = ({
 	renderMode,
 	imageFormatOptions,

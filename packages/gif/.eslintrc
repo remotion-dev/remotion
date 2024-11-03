@@ -1,7 +1,0 @@
-{
-	"extends": "@remotion/internal/react",
-	"rules": {
-		"ts-exports/unused-exports": "off",
-		"react/require-default-props": "off",
-	},
-}

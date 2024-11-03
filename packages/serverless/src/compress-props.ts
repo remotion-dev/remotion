@@ -28,7 +28,7 @@ export const serializeOrThrow = (
 			data: inputProps,
 		});
 		return payload.serializedString;
-	} catch (err) {
+	} catch {
 		throw new Error(
 			`Error serializing ${propsType}. Check it has no circular references or reduce the size if the object is big.`,
 		);
@@ -46,6 +46,7 @@ export const getNeedsToUpload = (
 	const sizesAlreadyUsed = sizes.reduce((a, b) => a + b);
 
 	if (sizesAlreadyUsed > MAX_INLINE_PAYLOAD_SIZE) {
+		// eslint-disable-next-line no-console
 		console.warn(
 			`Warning: The props are over ${Math.round(
 				MAX_INLINE_PAYLOAD_SIZE / 1000,

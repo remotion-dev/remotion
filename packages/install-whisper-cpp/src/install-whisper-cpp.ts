@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {spawn, type StdioOptions} from 'child_process';
 import fs, {existsSync, rmSync} from 'fs';
 import os from 'os';

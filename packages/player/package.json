@@ -11,7 +11,7 @@
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
+		"lint": "eslint src",
 		"make": "tsc -d && bun ensure-correct-version.ts && bun --env-file=../.env.bundle bundle.ts",
 		"test": "bun test src",
 		"prerelease": "cp ../../README.md ."
@@ -50,7 +50,7 @@
 		"webpack": "5.94.0",
 		"zod": "3.22.3",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "8.56.0"
+		"eslint": "9.14.0"
 	},
 	"keywords": [
 		"remotion",

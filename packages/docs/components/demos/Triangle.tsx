@@ -4,12 +4,12 @@ import React from "react";
 import { AbsoluteFill } from "remotion";
 
 export const TriangleDemo: React.FC<{
-  length: number;
-  edgeRoundness: number;
-  darkMode: boolean;
-  direction: TriangleProps["direction"];
-  debug: boolean;
-  cornerRadius: number;
+  readonly length: number;
+  readonly edgeRoundness: number;
+  readonly darkMode: boolean;
+  readonly direction: TriangleProps["direction"];
+  readonly debug: boolean;
+  readonly cornerRadius: number;
 }> = ({ length, edgeRoundness, debug, direction, cornerRadius, darkMode }) => {
   return (
     <AbsoluteFill

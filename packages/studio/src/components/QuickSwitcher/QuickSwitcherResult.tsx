@@ -58,8 +58,8 @@ const labelContainer: React.CSSProperties = {
 };
 
 export const QuickSwitcherResult: React.FC<{
-	result: TQuickSwitcherResult;
-	selected: boolean;
+	readonly result: TQuickSwitcherResult;
+	readonly selected: boolean;
 }> = ({result, selected}) => {
 	const [hovered, setIsHovered] = useState(false);
 	const ref = useRef<HTMLDivElement>(null);

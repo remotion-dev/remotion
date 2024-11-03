@@ -1,4 +1,5 @@
 import React from 'react';
+// eslint-disable-next-line react/no-deprecated
 import type {render} from 'react-dom';
 import ReactDOM from 'react-dom/client';
 import {Internals} from 'remotion';

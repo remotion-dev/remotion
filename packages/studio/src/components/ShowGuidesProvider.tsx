@@ -8,7 +8,7 @@ import {
 } from '../state/editor-guides';
 
 export const ShowGuidesProvider: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const [guidesList, setGuidesList] = useState<Guide[]>(() => loadGuidesList());
 	const [selectedGuideId, setSelectedGuideId] = useState<string | null>(null);

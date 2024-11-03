@@ -20,9 +20,9 @@ export function CodeTransition({
   newCode,
   durationInFrames = 30,
 }: {
-  oldCode: HighlightedCode | null;
-  newCode: HighlightedCode;
-  durationInFrames?: number;
+  readonly oldCode: HighlightedCode | null;
+  readonly newCode: HighlightedCode;
+  readonly durationInFrames?: number;
 }) {
   const frame = useCurrentFrame();
 

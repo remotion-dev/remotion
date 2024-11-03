@@ -3,7 +3,7 @@ import React from 'react';
 import {PALETTE} from '../../../components/layout/colors';
 
 export const Progress: React.FC<{
-	progress: number;
+	readonly progress: number;
 }> = ({progress}) => {
 	const inner = makeCircle({
 		radius: 10,

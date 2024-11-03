@@ -38,7 +38,6 @@ type Options = {
 	metadata: Record<string, string> | null;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const codecSupportsFastStart: {[key in Codec]: boolean} = {
 	'h264-mkv': false,
 	'h264-ts': false,

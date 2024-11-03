@@ -28,14 +28,14 @@ const arraySeparationLine: React.CSSProperties = {
 };
 
 export const SchemaArrayItemSeparationLine: React.FC<{
-	onChange: (
+	readonly onChange: (
 		updater: (oldV: unknown[]) => unknown[],
 		forceApply: boolean,
 		increment: boolean,
 	) => void;
-	index: number;
-	schema: z.ZodTypeAny;
-	isLast: boolean;
+	readonly index: number;
+	readonly schema: z.ZodTypeAny;
+	readonly isLast: boolean;
 }> = ({onChange, index, schema, isLast}) => {
 	const [outerHovered, setOuterHovered] = useState(false);
 	const [innerHovered, setInnerHovered] = useState(false);

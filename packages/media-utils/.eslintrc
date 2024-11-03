@@ -1,6 +1,0 @@
-{
-	"extends": "@remotion/internal",
-	"rules": {
-		"no-bitwise": "off",
-	},
-}

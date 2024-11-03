@@ -29,8 +29,8 @@ const duration = 15;
 export const durationInFrames = 500;
 
 export const SkiaNeon: React.FC<{
-  color1: string;
-  color2: string;
+  readonly color1: string;
+  readonly color2: string;
 }> = ({ color1, color2 }) => {
   const config = useVideoConfig();
   const frame = useCurrentFrame();

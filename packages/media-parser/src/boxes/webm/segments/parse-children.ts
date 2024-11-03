@@ -88,6 +88,7 @@ const continueParsingfunction =
 			};
 		}
 
+		// eslint-disable-next-line @typescript-eslint/no-use-before-define
 		return expectChildren({
 			iterator,
 			length: length - (iterator.counter.getOffset() - offset),

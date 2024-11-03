@@ -9,8 +9,8 @@
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier src --check",
+		"lint": "eslint src",
 		"testlambda": "vitest src/test/integration --run",
-		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest src/test/unit --run",
 		"make": "tsc -d && bun build.ts",
 		"prepublishOnly": "bun build.ts && bun ensure-version-match.js"
@@ -48,7 +48,7 @@
 		"vitest": "0.31.1",
 		"zip-lib": "^0.7.2",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "8.56.0"
+		"eslint": "9.14.0"
 	},
 	"peerDependencies": {
 		"@remotion/bundler": "workspace:*"

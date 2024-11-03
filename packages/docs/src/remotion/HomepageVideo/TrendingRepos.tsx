@@ -3,9 +3,9 @@ import {AbsoluteFill, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import type {RemoteData} from './Comp';
 
 const TrendingRepoItem: React.FC<{
-	repo: string;
-	theme: 'dark' | 'light';
-	number: number;
+	readonly repo: string;
+	readonly theme: 'dark' | 'light';
+	readonly number: number;
 }> = ({repo, theme, number}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();

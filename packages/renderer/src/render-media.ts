@@ -513,7 +513,7 @@ const internalRenderMediaRaw = ({
 			stitcherFfmpeg?.stdin?.end();
 			try {
 				await stitcherFfmpeg;
-			} catch (err) {
+			} catch {
 				throw new Error(preStitcher?.getLogs());
 			}
 		}
@@ -788,7 +788,7 @@ const internalRenderMediaRaw = ({
 					// https://discord.com/channels/809501355504959528/817306238811111454/1273184655348072468
 					try {
 						stitcherFfmpeg.kill();
-					} catch (e) {
+					} catch {
 						// Ignore
 					}
 
@@ -815,7 +815,7 @@ const internalRenderMediaRaw = ({
 				cleanupServerFn?.(false).catch((err) => {
 					// Must prevent unhandled exception in cleanup function.
 					// Might crash whole runtime.
-					console.log('Could not cleanup: ', err);
+					Log.error({indent, logLevel}, 'Could not cleanup: ', err);
 				});
 			});
 	});
@@ -891,15 +891,16 @@ export const renderMedia = ({
 	onArtifact,
 	metadata,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
-	if (quality !== undefined) {
-		console.warn(
-			`The "quality" option has been renamed. Please use "jpegQuality" instead.`,
-		);
-	}
-
 	const indent = false;
 	const logLevel =
 		verbose || dumpBrowserLogs ? 'verbose' : (passedLogLevel ?? 'info');
+
+	if (quality !== undefined) {
+		Log.warn(
+			{indent, logLevel},
+			`The "quality" option has been renamed. Please use "jpegQuality" instead.`,
+		);
+	}
 
 	return internalRenderMedia({
 		proResProfile: proResProfile ?? undefined,

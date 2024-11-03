@@ -10,9 +10,9 @@ const rectangleStyle: React.CSSProperties = {
 };
 
 export const Layout: React.FC<{
-  type: "landscape" | "portrait" | "square";
-  aspectWidth: number;
-  aspectHeight: number;
+  readonly type: "landscape" | "portrait" | "square";
+  readonly aspectWidth: number;
+  readonly aspectHeight: number;
 }> = ({ type, aspectWidth, aspectHeight }) => {
   const aspectRatioStyle: React.CSSProperties = useMemo(() => {
     if (type === "landscape") {

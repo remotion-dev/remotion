@@ -35,7 +35,6 @@ export function readDirectory({
 			continue;
 		}
 
-		// eslint-disable-next-line no-lonely-if
 		if (fs.lstatSync(filePath).isSymbolicLink()) {
 			const realPath = fs.realpathSync(filePath);
 

@@ -12,7 +12,7 @@ import {Black} from './Black';
 import {DotGrid} from './DotGrid';
 
 const ReactSvg: React.FC<{
-	transparent: boolean;
+	readonly transparent: boolean;
 }> = ({transparent}) => {
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();

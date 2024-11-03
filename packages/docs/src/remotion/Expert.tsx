@@ -4,7 +4,7 @@ import {experts} from '../data/experts';
 import './font.css';
 
 export const Expert: React.FC<{
-	expertId: string;
+	readonly expertId: string;
 }> = ({expertId}) => {
 	const expert = experts.find((e) => e.slug === expertId);
 

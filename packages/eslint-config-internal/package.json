@@ -15,20 +15,23 @@
 			"require": "./dist/index.js",
 			"types": "./dist/index.d.ts"
 		},
-		"./react": {
-			"import": "./dist/react.js",
-			"require": "./dist/react.js",
-			"types": "./dist/react.d.ts"
-		},
 		"./package.json": "./package.json"
 	},
 	"private": true,
 	"devDependencies": {
+		"eslint": "9.14.0",
+		"@types/eslint__eslintrc": "2.1.2"
+	},
+	"dependencies": {
 		"@typescript-eslint/eslint-plugin": "8.12.2",
 		"@typescript-eslint/parser": "8.12.2",
 		"eslint-plugin-10x": "1.5.2",
-		"eslint-plugin-react": "7.34.1",
-		"eslint-plugin-react-hooks": "4.6.0"
+		"eslint-plugin-react": "7.37.2",
+		"eslint-plugin-react-hooks": "5.0.0",
+		"@eslint/compat": "1.2.2",
+		"@eslint/eslintrc": "3.1.0",
+		"@eslint/js": "9.14.0"
 	},
+	"type": "module",
 	"description": "ESLint condig for Remotion's internal packages"
 }

@@ -159,7 +159,6 @@ export const CompositionManagerProvider: React.FC<{
 	readonly numberOfAudioTags: number;
 }> = ({children, numberOfAudioTags}) => {
 	// Wontfix, expected to have
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const [compositions, setCompositions] = useState<AnyComposition[]>([]);
 	const currentcompositionsRef = useRef<AnyComposition[]>(compositions);
 	const [folders, setFolders] = useState<TFolder[]>([]);
@@ -170,10 +169,7 @@ export const CompositionManagerProvider: React.FC<{
 		useState<BaseMetadata | null>(null);
 
 	const updateCompositions = useCallback(
-		(
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			updateComps: (comp: AnyComposition[]) => AnyComposition[],
-		) => {
+		(updateComps: (comp: AnyComposition[]) => AnyComposition[]) => {
 			setCompositions((comps) => {
 				const updated = updateComps(comps);
 				currentcompositionsRef.current = updated;
@@ -196,7 +192,7 @@ export const CompositionManagerProvider: React.FC<{
 
 				const value = [...comps, comp]
 					.slice()
-					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 					.sort((a, b) => a.nonce - b.nonce) as AnyComposition[];
 				return value;
 			});

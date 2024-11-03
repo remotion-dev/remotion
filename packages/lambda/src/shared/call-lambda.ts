@@ -42,7 +42,7 @@ const parseJsonOrThrowSource = (data: Uint8Array, type: string) => {
 	const asString = new TextDecoder('utf-8').decode(data);
 	try {
 		return JSON.parse(asString);
-	} catch (err) {
+	} catch {
 		throw new Error(`Invalid JSON (${type}): ${asString}`);
 	}
 };
@@ -131,7 +131,7 @@ const callLambdaWithoutRetry = async <
 
 	try {
 		return JSON.parse(decoded) as OrError<LambdaReturnValues<Provider>[T]>;
-	} catch (err) {
+	} catch {
 		throw new Error(`Invalid JSON (${type}): ${JSON.stringify(decoded)}`);
 	}
 };

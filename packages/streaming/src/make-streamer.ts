@@ -21,7 +21,6 @@ export const makeStreamer = (
 	const findSeparatorIndex = () => {
 		let searchIndex = 0;
 
-		// eslint-disable-next-line no-constant-condition
 		while (true) {
 			const separatorIndex = outputBuffer.indexOf(separator[0], searchIndex); // Start checking for the first byte of the separator
 			if (separatorIndex === -1) {
@@ -53,7 +52,6 @@ export const makeStreamer = (
 		let lengthString = '';
 		let statusString = '';
 
-		// eslint-disable-next-line no-constant-condition
 		while (true) {
 			if (separatorIndex > outputBuffer.length - 1) {
 				return;
@@ -69,7 +67,6 @@ export const makeStreamer = (
 			nonceString += String.fromCharCode(nextDigit);
 		}
 
-		// eslint-disable-next-line no-constant-condition
 		while (true) {
 			if (separatorIndex > outputBuffer.length - 1) {
 				return;
@@ -85,7 +82,6 @@ export const makeStreamer = (
 			lengthString += String.fromCharCode(nextDigit);
 		}
 
-		// eslint-disable-next-line no-constant-condition
 		while (true) {
 			if (separatorIndex > outputBuffer.length - 1) {
 				return;

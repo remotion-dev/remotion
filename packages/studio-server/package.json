@@ -8,7 +8,7 @@
 	"main": "dist",
 	"sideEffects": false,
 	"scripts": {
-		"lint": "eslint src --ext ts,tsx",
+		"lint": "eslint src",
 		"test": "bun test src",
 		"formatting": "prettier src --check",
 		"make": "tsc -d"
@@ -39,7 +39,7 @@
 		"@babel/types": "7.24.0",
 		"@types/semver": "^7.3.4",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "8.56.0"
+		"eslint": "9.14.0"
 	},
 	"exports": {
 		".": "./dist/index.js",

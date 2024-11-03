@@ -1,6 +1,0 @@
-{
-	"extends": "@remotion/internal",
-	"rules": {
-		"ts-exports/unused-exports": "off",
-	},
-}

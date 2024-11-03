@@ -108,7 +108,6 @@ export const parseEbml = async (
 		const children: PossibleEbml[] = [];
 		const startOffset = iterator.counter.getOffset();
 
-		// eslint-disable-next-line no-constant-condition
 		while (true) {
 			if (size === 0) {
 				break;
@@ -116,6 +115,7 @@ export const parseEbml = async (
 
 			const offset = iterator.counter.getOffset();
 			const value = await parseEbml(iterator, parserContext);
+			// eslint-disable-next-line @typescript-eslint/no-use-before-define
 			const remapped = await postprocessEbml({
 				offset,
 				ebml: value,

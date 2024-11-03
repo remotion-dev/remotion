@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-restricted-imports
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';

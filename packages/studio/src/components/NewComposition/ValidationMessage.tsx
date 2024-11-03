@@ -28,9 +28,9 @@ const label: React.CSSProperties = {
 };
 
 export const ValidationMessage: React.FC<{
-	message: string;
-	align: 'flex-start' | 'flex-end';
-	type: 'warning' | 'error';
+	readonly message: string;
+	readonly align: 'flex-start' | 'flex-end';
+	readonly type: 'warning' | 'error';
 }> = ({message, align, type}) => {
 	const finalStyle = useMemo(() => {
 		return {

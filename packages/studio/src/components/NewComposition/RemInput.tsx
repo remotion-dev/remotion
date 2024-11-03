@@ -23,8 +23,8 @@ type Props = React.DetailedHTMLProps<
 	React.InputHTMLAttributes<HTMLInputElement>,
 	HTMLInputElement
 > & {
-	status: RemInputStatus;
-	rightAlign: boolean;
+	readonly status: RemInputStatus;
+	readonly rightAlign: boolean;
 };
 
 export const INPUT_HORIZONTAL_PADDING = 8;

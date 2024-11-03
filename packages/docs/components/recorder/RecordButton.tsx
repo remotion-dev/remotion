@@ -20,7 +20,7 @@ const buttonStyle: React.CSSProperties = {
   color: "white",
 };
 
-export const RecordingButton: React.FC<{ type: "start" | "stop" }> = ({
+export const RecordingButton: React.FC<{ readonly type: "start" | "stop" }> = ({
   type,
 }) => {
   return (

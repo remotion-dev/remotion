@@ -35,10 +35,10 @@ const fnName: React.CSSProperties = {
 };
 
 export const StackElement: React.FC<{
-	s: SymbolicatedStackFrame;
-	lineNumberWidth: number;
-	isFirst: boolean;
-	defaultFunctionName: string;
+	readonly s: SymbolicatedStackFrame;
+	readonly lineNumberWidth: number;
+	readonly isFirst: boolean;
+	readonly defaultFunctionName: string;
 }> = ({s, lineNumberWidth, isFirst, defaultFunctionName}) => {
 	const [showCodeFrame, setShowCodeFrame] = useState(
 		() =>

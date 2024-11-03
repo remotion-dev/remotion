@@ -130,7 +130,7 @@ export const callCompositor = (
 					const err = new Error(`${msg}\n${parsed.backtrace}`);
 
 					reject(err);
-				} catch (err) {
+				} catch {
 					reject(
 						new Error(`Compositor panicked with code ${code}: ${message}`),
 					);

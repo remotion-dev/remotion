@@ -20,7 +20,7 @@ export const getInstallCommand = ({
 	version: string;
 }): string[] => {
 	const pkgList = packages.map((p) => `${p}@${version}`);
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 	const commands: {[key in PackageManager]: string[]} = {
 		npm: ['i', '--save-exact', '--no-fund', '--no-audit', ...pkgList],
 		pnpm: ['i', ...pkgList],

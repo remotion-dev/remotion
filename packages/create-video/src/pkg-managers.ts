@@ -1,5 +1,6 @@
 import {exec} from 'node:child_process';
 import path from 'node:path';
+import {Log} from './log';
 import type {Template} from './templates';
 
 export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun';
@@ -34,7 +35,7 @@ const shouldUsePnpm = (): boolean => {
 	try {
 		const conf = JSON.parse(process.env.npm_config_argv);
 		return conf.remain[0] === 'dlx';
-	} catch (err) {
+	} catch {
 		return false;
 	}
 };
@@ -172,8 +173,8 @@ export const getPackageManagerVersionOrNull = async (
 	try {
 		const version = await getPackageManagerVersion(manager);
 		return version;
-	} catch (err) {
-		console.warn(`Could not determine the version of ${manager}.`);
+	} catch {
+		Log.warn(`Could not determine the version of ${manager}.`);
 		return null;
 	}
 };

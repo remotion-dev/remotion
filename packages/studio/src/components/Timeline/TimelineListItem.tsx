@@ -30,9 +30,9 @@ const space: React.CSSProperties = {
 };
 
 export const TimelineListItem: React.FC<{
-	sequence: TSequence;
-	nestedDepth: number;
-	isCompact: boolean;
+	readonly sequence: TSequence;
+	readonly nestedDepth: number;
+	readonly isCompact: boolean;
 }> = ({nestedDepth, sequence, isCompact}) => {
 	const {hidden, setHidden} = useContext(
 		Internals.SequenceVisibilityToggleContext,

@@ -151,6 +151,7 @@ function scheduleUpdate() {
 		try {
 			RefreshRuntime.performReactRefresh();
 		} catch (err) {
+			// eslint-disable-next-line no-console
 			console.warn(
 				'Warning: Failed to re-render. We will retry on the next Fast Refresh event.\n' +
 					err,

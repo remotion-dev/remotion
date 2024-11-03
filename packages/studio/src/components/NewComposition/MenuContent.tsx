@@ -29,14 +29,14 @@ const container: React.CSSProperties = {
 };
 
 export const MenuContent: React.FC<{
-	values: ComboboxValue[];
-	onHide: () => void;
-	onNextMenu: () => void;
-	onPreviousMenu: () => void;
-	leaveLeftSpace: boolean;
-	preselectIndex: false | number;
-	topItemCanBeUnselected: boolean;
-	fixedHeight: number | null;
+	readonly values: ComboboxValue[];
+	readonly onHide: () => void;
+	readonly onNextMenu: () => void;
+	readonly onPreviousMenu: () => void;
+	readonly leaveLeftSpace: boolean;
+	readonly preselectIndex: false | number;
+	readonly topItemCanBeUnselected: boolean;
+	readonly fixedHeight: number | null;
 }> = ({
 	onHide,
 	values,

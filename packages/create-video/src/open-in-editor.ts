@@ -16,6 +16,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import util from 'node:util';
+import {Log} from './log';
 
 const execProm = util.promisify(exec);
 
@@ -41,6 +42,7 @@ export function isTerminalEditor(editor: Editor) {
 	}
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const editorNames = [
 	'atom',
 	'/Applications/Atom Beta.app/Contents/MacOS/Atom Beta',
@@ -99,7 +101,6 @@ const editorNames = [
 	'nano',
 ] as const;
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const displayNameForEditor: {[key in Editor]: string} = {
 	'/Applications/AppCode.app/Contents/MacOS/appcode': 'AppCode',
 	'/Applications/Atom Beta.app/Contents/MacOS/Atom Beta': 'Atom Beta',
@@ -402,7 +403,7 @@ export async function guessEditor(): Promise<ProcessAndCommand[]> {
 
 			return availableEditors;
 		}
-	} catch (error) {
+	} catch {
 		// Ignore...
 	}
 
@@ -486,18 +487,16 @@ export async function launchEditor({
 		process.platform === 'win32' &&
 		!WINDOWS_FILE_NAME_WHITELIST.test(fileName.trim())
 	) {
-		console.log();
-		console.log(
-			'Could not open ' + path.basename(fileName) + ' in the editor.',
-		);
-		console.log();
-		console.log(
+		Log.info();
+		Log.info('Could not open ' + path.basename(fileName) + ' in the editor.');
+		Log.info();
+		Log.info(
 			'When running on Windows, file names are checked against a whitelist ' +
 				'to protect against remote code execution attacks. File names may ' +
 				'consist only of alphanumeric characters (all languages), periods, ' +
 				'dashes, slashes, and underscores.',
 		);
-		console.log();
+		Log.info();
 		return false;
 	}
 
@@ -556,12 +555,12 @@ export async function launchEditor({
 		_childProcess = null;
 
 		if (errorCode) {
-			console.log(`Process exited with code ${errorCode}`);
+			Log.info(`Process exited with code ${errorCode}`);
 		}
 	});
 
 	_childProcess.on('error', (error) => {
-		console.log('Error opening file in editor', fileName, error.message);
+		Log.info('Error opening file in editor', fileName, error.message);
 	});
 	return true;
 }

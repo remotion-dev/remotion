@@ -25,7 +25,7 @@ export const deleteDirectory = (directory: string): void => {
 				force: true,
 				retryDelay: 100,
 			});
-		} catch (err) {
+		} catch {
 			retries--;
 			continue;
 		}

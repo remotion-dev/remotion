@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {chalk} from './chalk';
 import {isColorSupported} from './chalk/is-color-supported';
 import type {LogLevel} from './log-level';
