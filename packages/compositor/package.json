@@ -1,0 +1,21 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/compositor"
+	},
+	"name": "@remotion/compositor",
+	"version": "4.0.226",
+	"description": "Render Remotion videos using Node.js or Bun",
+	"sideEffects": false,
+	"scripts": {
+		"make": "bun build.ts --debug"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"license": "SEE LICENSE IN LICENSE.md",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"dependencies": {},
+	"peerDependencies": {},
+	"devDependencies": {},
+	"homepage": "https://www.remotion.dev/docs/renderer"
+}

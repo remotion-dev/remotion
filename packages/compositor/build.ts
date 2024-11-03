@@ -13,7 +13,7 @@ import {
 } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {toolchains} from './toolchains.mjs';
+import {toolchains} from './toolchains';
 
 const isWin = os.platform() === 'win32';
 const where = isWin ? 'where' : 'which';

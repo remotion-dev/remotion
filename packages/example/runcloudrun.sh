@@ -1,6 +1,6 @@
 set -e
 cd ..
-cd renderer
+cd compositor
 bun build.ts --cloudrun
 cd ..
 cd cloudrun
