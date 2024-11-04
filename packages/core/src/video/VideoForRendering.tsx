@@ -159,10 +159,13 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			startFrom: -mediaStartsAt,
 			fps: videoConfig.fps,
 		});
-		const handle = delayRender(`Rendering <Video /> with src="${props.src}"`, {
-			retries: delayRenderRetries ?? undefined,
-			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
-		});
+		const handle = delayRender(
+			`Rendering <Video /> with src="${props.src}" at time ${currentTime}`,
+			{
+				retries: delayRenderRetries ?? undefined,
+				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+			},
+		);
 		if (window.process?.env?.NODE_ENV === 'test') {
 			continueRender(handle);
 			return;
