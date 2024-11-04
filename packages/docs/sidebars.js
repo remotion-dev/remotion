@@ -853,6 +853,14 @@ module.exports = {
 		},
 		{
 			type: 'category',
+			label: 'Integration into other frameworks',
+			items: [
+				'integration-frameworks/angular',
+				'integration-frameworks/vue-js',
+			],
+		},
+		{
+			type: 'category',
 			label: 'Tooling',
 			items: [
 				'tailwind',
