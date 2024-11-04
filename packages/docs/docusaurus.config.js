@@ -13,6 +13,9 @@ const config = (mode) => ({
 	favicon: 'img/favicon.png',
 	organizationName: 'remotion-dev', // Usually your GitHub org/user name.
 	projectName: 'remotion', // Usually your repo name.
+	future: {
+		experimental_faster: true,
+	},
 	webpack: {
 		jsLoader: (isServer) => ({
 			loader: require.resolve('swc-loader'),
@@ -254,6 +257,8 @@ const config = (mode) => ({
 					showLastUpdateTime: true,
 				},
 				blog: {
+					onInlineAuthors: 'ignore',
+					onUntruncatedBlogPosts: 'ignore',
 					path:
 						mode === 'complete' ? undefined : 'intentionally-not-existing-path',
 					showReadingTime: true,
@@ -297,6 +302,8 @@ const config = (mode) => ({
 							 */
 							path: './success-stories',
 							blogSidebarTitle: 'Success stories',
+							onUntruncatedBlogPosts: 'ignore',
+							onInlineAuthors: 'ignore',
 						},
 					],
 					[
@@ -316,6 +323,8 @@ const config = (mode) => ({
 							 */
 							path: './learn',
 							blogSidebarTitle: 'Learn',
+							onUntruncatedBlogPosts: 'ignore',
+							onInlineAuthors: 'ignore',
 						},
 					],
 					'./route-plugin',
