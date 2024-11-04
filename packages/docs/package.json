@@ -101,7 +101,8 @@
 		"tailwind-merge": "2.5.2",
 		"tailwindcss-animate": "^1.0.7",
 		"class-variance-authority": "^0.7.0",
-		"lucide-react": "^0.439.0"
+		"lucide-react": "^0.439.0",
+		"postcss-import": "15.1.0"
 	},
 	"devDependencies": {
 		"@tsconfig/docusaurus": "^1.0.5",

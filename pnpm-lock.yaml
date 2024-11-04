@@ -400,6 +400,9 @@ importers:
       '@vercel/remix':
         specifier: ^2.11.2
         version: 2.11.2(@remix-run/dev@2.11.2)(@remix-run/node@2.11.2)(@remix-run/server-runtime@2.11.2)(react-dom@18.3.1)(react@18.3.1)
+      autoprefixer:
+        specifier: 10.4.20
+        version: 10.4.20(postcss@8.4.47)
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.0
@@ -412,6 +415,9 @@ importers:
       lucide-react:
         specifier: ^0.439.0
         version: 0.439.0(react@18.3.1)
+      postcss:
+        specifier: 8.4.47
+        version: 8.4.47
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -421,6 +427,9 @@ importers:
       tailwind-merge:
         specifier: 2.5.2
         version: 2.5.2
+      tailwindcss:
+        specifier: 3.4.13
+        version: 3.4.13
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.13)
@@ -431,18 +440,9 @@ importers:
       '@remotion/eslint-config-internal':
         specifier: workspace:*
         version: link:../eslint-config-internal
-      autoprefixer:
-        specifier: 10.4.20
-        version: 10.4.20(postcss@8.4.47)
       eslint:
         specifier: 9.14.0
         version: 9.14.0
-      postcss:
-        specifier: 8.4.47
-        version: 8.4.47
-      tailwindcss:
-        specifier: 3.4.13
-        version: 3.4.13
       vite:
         specifier: ^5.4.6
         version: 5.4.6(@types/node@20.12.14)
@@ -740,6 +740,9 @@ importers:
       polished:
         specifier: 4.1.2
         version: 4.1.2
+      postcss-import:
+        specifier: 15.1.0
+        version: 15.1.0(postcss@8.4.47)
       react:
         specifier: 18.3.1
         version: 18.3.1

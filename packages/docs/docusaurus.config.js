@@ -1,3 +1,19 @@
+function tailwindPlugin(context, options) {
+	return {
+		name: 'tailwind-plugin',
+		configurePostCss(postcssOptions) {
+			console.log('hi', postcssOptions);
+
+			postcssOptions.plugins = [
+				require('postcss-import'),
+				require('tailwindcss'),
+				require('autoprefixer'),
+			];
+			return postcssOptions;
+		},
+	};
+}
+
 /**
  *
  * @param {"complete" | "new-doc"} mode
@@ -14,7 +30,14 @@ const config = (mode) => ({
 	organizationName: 'remotion-dev', // Usually your GitHub org/user name.
 	projectName: 'remotion', // Usually your repo name.
 	future: {
-		experimental_faster: true,
+		experimental_faster: {
+			swcJsLoader: true,
+			swcJsMinimizer: true,
+			swcHtmlMinimizer: true,
+			lightningCssMinimizer: false,
+			rspackBundler: true,
+			mdxCrossCompilerCache: true,
+		},
 	},
 	themeConfig: {
 		algolia: {
@@ -268,6 +291,7 @@ const config = (mode) => ({
 	plugins:
 		mode === 'complete'
 			? [
+					tailwindPlugin,
 					[
 						'@docusaurus/plugin-content-blog',
 						{
@@ -312,7 +336,7 @@ const config = (mode) => ({
 					],
 					'./route-plugin',
 				]
-			: [],
+			: [tailwindPlugin],
 });
 
 module.exports = config('complete');
