@@ -19,7 +19,7 @@
 	},
 	"types": [
 		"node",
-		"@docusaurus/module-type-aliases",
+		"@docusaurus/module-type-aliases/src/index.d.ts",
 		"@docusaurus/theme-classic"
 	],
 
