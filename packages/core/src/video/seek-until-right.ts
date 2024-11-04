@@ -1,8 +1,17 @@
+import {isApproximatelyTheSame} from '../is-approximately-the-same';
+
 const roundTo6Commas = (num: number) => {
 	return Math.round(num * 100_000) / 100_000;
 };
 
 export const seekToTime = (element: HTMLVideoElement, desiredTime: number) => {
+	if (isApproximatelyTheSame(element.currentTime, desiredTime)) {
+		return {
+			wait: Promise.resolve(desiredTime),
+			cancel: () => {},
+		};
+	}
+
 	element.currentTime = desiredTime;
 
 	let cancel: number;

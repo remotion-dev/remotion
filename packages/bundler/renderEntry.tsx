@@ -16,7 +16,6 @@ import type {
 import {
 	AbsoluteFill,
 	Internals,
-	VERSION,
 	continueRender,
 	delayRender,
 	getInputProps,
@@ -196,7 +195,7 @@ const waitForRootHandle = delayRender(
 		timeoutInMilliseconds:
 			typeof window === 'undefined'
 				? DEFAULT_ROOT_COMPONENT_TIMEOUT
-				: window.remotion_puppeteerTimeout ?? DEFAULT_ROOT_COMPONENT_TIMEOUT,
+				: (window.remotion_puppeteerTimeout ?? DEFAULT_ROOT_COMPONENT_TIMEOUT),
 	},
 );
 
@@ -343,7 +342,7 @@ if (typeof window !== 'undefined') {
 		const inputProps =
 			typeof window === 'undefined' || getRemotionEnvironment().isPlayer
 				? {}
-				: getInputProps() ?? {};
+				: (getInputProps() ?? {});
 
 		return Promise.all(
 			compositions.map(async (c): Promise<VideoConfigWithSerializedProps> => {
@@ -414,7 +413,7 @@ if (typeof window !== 'undefined') {
 		const inputProps =
 			typeof window === 'undefined' || getRemotionEnvironment().isPlayer
 				? {}
-				: getInputProps() ?? {};
+				: (getInputProps() ?? {});
 
 		const originalProps = {
 			...(selectedComp.defaultProps ?? {}),
@@ -454,7 +453,5 @@ if (typeof window !== 'undefined') {
 		};
 	};
 
-	window.siteVersion = '11';
-	window.remotion_version = VERSION;
 	window.remotion_setBundleMode = setBundleModeAndUpdate;
 }
