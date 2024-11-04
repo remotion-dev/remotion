@@ -26,7 +26,8 @@
 		"build-docs": {
 			"dependsOn": ["^make", "make"],
 			"outputs": [".docusaurus", "build", "node_modules/.cache"],
-			"outputLogs": "new-only"
+			"outputLogs": "new-only",
+			"env": ["ENABLE_EXPERIMENTAL_COREPACK"]
 		},
 		"test": {
 			"dependsOn": ["^make", "make"],
