@@ -114,7 +114,7 @@ export const indexHtml = ({
 		};</script>
 		<script>
 				window.siteVersion = '11';
-				window.remotion_version = ${VERSION};
+				window.remotion_version = '${VERSION}';
 		</script>
 		
 		<div id="video-container"></div>
