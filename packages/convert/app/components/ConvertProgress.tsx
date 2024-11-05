@@ -8,8 +8,18 @@ export const ConvertProgress: React.FC<{
 }> = ({state}) => {
 	return (
 		<>
-			<div>Bytes: {formatBytes(state.bytesWritten)}</div>
-			<div>Duration: {formatSeconds(state.millisecondsWritten / 1000)}</div>
+			<div>
+				Bytes:{' '}
+				<span className="tabular-nums font-brand">
+					{formatBytes(state.bytesWritten)}
+				</span>
+			</div>
+			<div>
+				Duration:{' '}
+				<span className="tabular-nums font-brand">
+					{formatSeconds(state.millisecondsWritten / 1000)}
+				</span>
+			</div>
 		</>
 	);
 };

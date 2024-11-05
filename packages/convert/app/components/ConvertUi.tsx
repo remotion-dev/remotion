@@ -106,7 +106,11 @@ export default function ConvertUI({src}: {readonly src: string}) {
 						</Button>
 					</>
 				) : state.type === 'done' ? (
-					<Button className="block w-full" type="button">
+					<Button
+						className="block w-full"
+						type="button"
+						onClick={() => state.download()}
+					>
 						Done!
 					</Button>
 				) : (
@@ -161,6 +165,7 @@ export default function ConvertUI({src}: {readonly src: string}) {
 						<Button
 							className="block w-full  font-brand"
 							type="button"
+							variant="brand"
 							onClick={onClick}
 						>
 							Convert
