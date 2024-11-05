@@ -31,6 +31,7 @@ export default function ConvertUI({src}: {readonly src: string}) {
 					decodedVideoFrames: 0,
 					encodedAudioFrames: 0,
 					encodedVideoFrames: 0,
+					bytesWritten: 0,
 				},
 				abortConversion: () => abortController.abort(),
 			};

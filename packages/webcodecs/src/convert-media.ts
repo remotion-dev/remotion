@@ -25,6 +25,7 @@ export type ConvertMediaState = {
 	decodedAudioFrames: number;
 	encodedVideoFrames: number;
 	encodedAudioFrames: number;
+	bytesWritten: number;
 };
 
 export type ConvertMediaTo = 'webm';
@@ -102,13 +103,18 @@ export const convertMedia = async ({
 		decodedVideoFrames: 0,
 		encodedVideoFrames: 0,
 		encodedAudioFrames: 0,
+		bytesWritten: 0,
 	};
 
 	const canUseWebFs = await canUseWebFsWriter();
 
-	const state = await MediaParserInternals.createMedia(
-		canUseWebFs ? webFsWriter : bufferWriter,
-	);
+	const state = await MediaParserInternals.createMedia({
+		writer: canUseWebFs ? webFsWriter : bufferWriter,
+		onBytesProgress: (bytesWritten) => {
+			convertMediaState.bytesWritten = bytesWritten;
+			onMediaStateUpdate?.(convertMediaState);
+		},
+	});
 
 	const onVideoTrack: OnVideoTrack = makeVideoTrackHandler({
 		state,
