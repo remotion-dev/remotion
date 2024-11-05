@@ -20,24 +20,10 @@ export default function ConvertUI({src}: {readonly src: string}) {
 	const [videoCodec, setVideoCodec] = useState('vp8');
 	const [audioCodec, setAudioCodec] = useState('opus');
 	const [state, setState] = useState<ConvertState>({type: 'idle'});
+	const [name, setName] = useState<string | null>(null);
 
 	const onClick = useCallback(() => {
 		const abortController = new AbortController();
-
-		setState(() => {
-			return {
-				type: 'in-progress',
-				state: {
-					decodedAudioFrames: 0,
-					decodedVideoFrames: 0,
-					encodedAudioFrames: 0,
-					encodedVideoFrames: 0,
-					bytesWritten: 0,
-					millisecondsWritten: 0,
-				},
-				abortConversion: () => abortController.abort(),
-			};
-		});
 
 		convertMedia({
 			src,
@@ -58,24 +44,30 @@ export default function ConvertUI({src}: {readonly src: string}) {
 			to: container as 'webm',
 			signal: abortController.signal,
 			fields: {
-				durationInSeconds: true,
+				name: true,
 			},
-			onDurationInSeconds: (duration) => {
-				console.log('Duration', duration);
+			onName: (n) => {
+				setName(n);
 			},
 		})
 			.then(({save}) => {
 				// TODO: When to remove?
-				setState({
-					type: 'done',
-					download: async () => {
-						const file = await save();
-						const a = document.createElement('a');
-						a.href = URL.createObjectURL(file);
-						a.download = 'hithere';
-						a.click();
-						// TODO: Remove
-					},
+				setState((prevState) => {
+					if (prevState.type !== 'in-progress') {
+						throw new Error('Invalid state transition');
+					}
+					return {
+						type: 'done',
+						download: async () => {
+							const file = await save();
+							const a = document.createElement('a');
+							a.href = URL.createObjectURL(file);
+							a.download = 'hithere';
+							a.click();
+							// TODO: Remove
+						},
+						state: prevState.state,
+					};
 				});
 			})
 			.catch((e) => {
@@ -91,17 +83,6 @@ export default function ConvertUI({src}: {readonly src: string}) {
 		};
 	}, [src, videoCodec, audioCodec, container]);
 
-	// useEffect(() => {
-	// 	if (!TEST_FAST) {
-	// 		return;
-	// 	}
-
-	// 	const cancel = onClick();
-	// 	return () => {
-	// 		cancel();
-	// 	};
-	// }, [onClick]);
-
 	const cancel = useCallback(() => {
 		if (state.type !== 'in-progress') {
 			throw new Error('Cannot cancel when not in progress');
@@ -116,23 +97,28 @@ export default function ConvertUI({src}: {readonly src: string}) {
 			<CardContent className="gap-4">
 				{state.type === 'in-progress' ? (
 					<>
-						<ConvertProgress state={state.state} />
+						<ConvertProgress state={state.state} name={name} />
 						<div className="h-2" />
 						<Button className="block w-full" type="button" onClick={cancel}>
 							Cancel
 						</Button>
 					</>
 				) : state.type === 'done' ? (
-					<Button
-						className="block w-full"
-						type="button"
-						onClick={() => {
-							console.log('downloading');
-							return state.download();
-						}}
-					>
-						Done!
-					</Button>
+					<>
+						<ConvertProgress state={state.state} name={name} />
+						<div className="h-2" />
+
+						<Button
+							className="block w-full"
+							type="button"
+							onClick={() => {
+								console.log('downloading');
+								return state.download();
+							}}
+						>
+							Download
+						</Button>
+					</>
 				) : (
 					<>
 						<div className="grid w-full items-center gap-4">
@@ -183,7 +169,7 @@ export default function ConvertUI({src}: {readonly src: string}) {
 						</div>
 						<div className="h-4" />
 						<Button
-							className="block w-full  font-brand"
+							className="block w-full font-brand"
 							type="button"
 							variant="brand"
 							onClick={onClick}

@@ -13,6 +13,7 @@ import {
 } from '@remotion/media-parser';
 import {bufferWriter} from '@remotion/media-parser/buffer';
 import {canUseWebFsWriter, webFsWriter} from '@remotion/media-parser/web-fs';
+import {calculateProgress} from './calculate-progress';
 import type {ConvertMediaAudioCodec, ConvertMediaVideoCodec} from './codec-id';
 import Error from './error-cause';
 import {makeAudioTrackHandler} from './on-audio-track';
@@ -34,6 +35,8 @@ export type ConvertMediaState = {
 	encodedAudioFrames: number;
 	bytesWritten: number;
 	millisecondsWritten: number;
+	expectedOutputMilliseconds: number | null;
+	overallProgress: number | null;
 };
 
 export type ConvertMediaTo = 'webm';
@@ -119,6 +122,8 @@ export const convertMedia = async function <
 		encodedAudioFrames: 0,
 		bytesWritten: 0,
 		millisecondsWritten: 0,
+		expectedOutputMilliseconds: null,
+		overallProgress: 0,
 	};
 
 	const onMediaStateUpdate = (newState: ConvertMediaState) => {
@@ -140,6 +145,12 @@ export const convertMedia = async function <
 		onMillisecondsProgress: (millisecondsWritten) => {
 			if (millisecondsWritten > convertMediaState.millisecondsWritten) {
 				convertMediaState.millisecondsWritten = millisecondsWritten;
+				convertMediaState.overallProgress = calculateProgress({
+					millisecondsWritten: convertMediaState.millisecondsWritten,
+					expectedOutputMilliseconds:
+						convertMediaState.expectedOutputMilliseconds,
+				});
+
 				onMediaStateUpdate?.(convertMediaState);
 			}
 		},
@@ -179,12 +190,24 @@ export const convertMedia = async function <
 		reader,
 		...more,
 		onDurationInSeconds: (durationInSeconds) => {
+			if (durationInSeconds === null) {
+				return null;
+			}
+
 			const casted = more as ParseMediaDynamicOptions<{
 				durationInSeconds: true;
 			}>;
 			if (casted.onDurationInSeconds) {
 				casted.onDurationInSeconds(durationInSeconds);
 			}
+
+			const expectedOutputMilliseconds = durationInSeconds * 1000;
+			convertMediaState.expectedOutputMilliseconds = expectedOutputMilliseconds;
+			convertMediaState.overallProgress = calculateProgress({
+				millisecondsWritten: convertMediaState.millisecondsWritten,
+				expectedOutputMilliseconds,
+			});
+			onMediaStateUpdate(convertMediaState);
 		},
 	})
 		.then(() => {

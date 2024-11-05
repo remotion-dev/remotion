@@ -5,7 +5,12 @@ export default {
 	content: ['./app/**/{**,.client,.server}/**/*.{js,jsx,ts,tsx}'],
 	theme: {
 		fontFamily: {
-			brand: ['GTPlanar'],
+			brand: [
+				'GTPlanar',
+				{
+					fontFeatureSettings: '"ss03" 1',
+				},
+			],
 		},
 		extend: {
 			borderRadius: {

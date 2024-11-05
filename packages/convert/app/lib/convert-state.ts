@@ -8,4 +8,5 @@ export type ConvertState =
 	| {
 			type: 'done';
 			download: () => void;
+			state: ConvertMediaState;
 	  };
