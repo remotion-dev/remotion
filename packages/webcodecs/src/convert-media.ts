@@ -18,7 +18,7 @@ import {
 	defaultResolveVideoAction,
 	type ResolveVideoActionFn,
 } from './resolve-video-action';
-import {withResolvers} from './with-resolvers';
+import {withResolversAndWaitForReturn} from './with-resolvers';
 
 export type ConvertMediaState = {
 	decodedVideoFrames: number;
@@ -55,6 +55,10 @@ export const convertMedia = async ({
 	onAudioTrack?: ResolveAudioActionFn;
 	onVideoTrack?: ResolveVideoActionFn;
 }): Promise<ConvertMediaResult> => {
+	if (userPassedAbortSignal?.aborted) {
+		return Promise.reject(new Error('Aborted'));
+	}
+
 	if (to !== 'webm') {
 		return Promise.reject(
 			new TypeError('Only `to: "webm"` is supported currently'),
@@ -75,7 +79,8 @@ export const convertMedia = async ({
 		);
 	}
 
-	const {promise, resolve, reject} = withResolvers<ConvertMediaResult>();
+	const {resolve, reject, getPromiseToImmediatelyReturn} =
+		withResolversAndWaitForReturn<ConvertMediaResult>();
 	const controller = new AbortController();
 
 	const abortConversion = (errCause: Error) => {
@@ -141,10 +146,9 @@ export const convertMedia = async ({
 		})
 		.catch((err) => {
 			reject(err);
-		})
-		.finally(() => {
-			userPassedAbortSignal?.removeEventListener('abort', onUserAbort);
 		});
 
-	return promise;
+	return getPromiseToImmediatelyReturn().finally(() => {
+		userPassedAbortSignal?.removeEventListener('abort', onUserAbort);
+	});
 };

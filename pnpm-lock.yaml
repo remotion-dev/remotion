@@ -428,15 +428,15 @@ importers:
       '@remix-run/dev':
         specifier: ^2.11.2
         version: 2.11.2(@remix-run/react@2.11.2)(@remix-run/serve@2.11.2)(typescript@5.5.4)(vite@5.4.6)
-      '@remotion/eslint-config-internal':
+      '@remotion/eslint-config':
         specifier: workspace:*
-        version: link:../eslint-config-internal
+        version: link:../eslint-config
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.4.47)
       eslint:
-        specifier: 9.14.0
-        version: 9.14.0
+        specifier: 8.56.0
+        version: 8.56.0
       postcss:
         specifier: 8.4.47
         version: 8.4.47

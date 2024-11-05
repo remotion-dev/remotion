@@ -71,7 +71,9 @@ export const makeAudioTrackHandler =
 					false,
 				);
 				convertMediaState.encodedAudioFrames++;
-				onMediaStateUpdate?.({...convertMediaState});
+				if (!controller.signal.aborted) {
+					onMediaStateUpdate?.({...convertMediaState});
+				}
 			};
 		}
 
@@ -105,7 +107,9 @@ export const makeAudioTrackHandler =
 			onChunk: async (chunk) => {
 				await state.addSample(chunk, trackNumber, false);
 				convertMediaState.encodedAudioFrames++;
-				onMediaStateUpdate?.({...convertMediaState});
+				if (!controller.signal.aborted) {
+					onMediaStateUpdate?.({...convertMediaState});
+				}
 			},
 			onError: (err) => {
 				abortConversion(
@@ -126,7 +130,10 @@ export const makeAudioTrackHandler =
 			onFrame: async (frame) => {
 				await audioEncoder.encodeFrame(frame);
 				convertMediaState.decodedAudioFrames++;
-				onMediaStateUpdate?.(convertMediaState);
+				if (!controller.signal.aborted) {
+					onMediaStateUpdate?.(convertMediaState);
+				}
+
 				frame.close();
 			},
 			onError(error) {

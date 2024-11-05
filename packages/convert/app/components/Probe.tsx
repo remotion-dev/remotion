@@ -188,6 +188,9 @@ export const Probe: React.FC<{
 				if ((err as Error).stack?.includes('Cancelled')) {
 					return;
 				}
+				if ((err as Error).stack?.toLowerCase()?.includes('aborted')) {
+					return;
+				}
 
 				// eslint-disable-next-line no-console
 				console.log(err);
@@ -247,10 +250,10 @@ export const Probe: React.FC<{
 				<div className="pl-6 pr-6">
 					<TrackSwitcher
 						selectedTrack={trackDetails}
+						sortedTracks={sortedTracks}
 						onTrack={(track) => {
 							setTrackDetails(track);
 						}}
-						sortedTracks={sortedTracks}
 					/>
 				</div>
 			) : null}
@@ -274,7 +277,7 @@ export const Probe: React.FC<{
 			<Separator orientation="horizontal" />
 			<CardFooter className="flex flex-row items-center justify-center pb-3 pt-3">
 				<div className="flex-1" />
-				<Button disabled={!tracks} onClick={onClick} variant={'link'}>
+				<Button disabled={!tracks} variant="link" onClick={onClick}>
 					{probeDetails ? 'Hide details' : 'Show details'}
 				</Button>
 			</CardFooter>

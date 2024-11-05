@@ -1,13 +1,12 @@
 import React, {useCallback} from 'react';
+import {SAMPLE_FILE} from '~/lib/config';
 import {DropFileBox} from './DropFileBox';
 
 export const PickFile: React.FC<{
 	setSrc: (str: string) => void;
 }> = ({setSrc}) => {
 	const onSampleFile = useCallback(() => {
-		setSrc(
-			'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-		);
+		setSrc(SAMPLE_FILE);
 	}, []);
 
 	return (

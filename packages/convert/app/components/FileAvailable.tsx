@@ -3,14 +3,14 @@ import ConvertUI from './ConvertUi';
 import {Probe} from './Probe';
 
 export const FileAvailable: React.FC<{
-	src: string;
-	setSrc: React.Dispatch<React.SetStateAction<string | null>>;
+	readonly src: string;
+	readonly setSrc: React.Dispatch<React.SetStateAction<string | null>>;
 }> = ({src, setSrc}) => {
 	const [probeDetails, setProbeDetails] = useState(false);
 
 	const clear = useCallback(() => {
 		setSrc(null);
-	}, []);
+	}, [setSrc]);
 
 	return (
 		<>

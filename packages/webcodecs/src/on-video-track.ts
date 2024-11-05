@@ -32,6 +32,10 @@ export const makeVideoTrackHandler =
 		onVideoTrack: ResolveVideoActionFn;
 	}): OnVideoTrack =>
 	async (track) => {
+		if (controller.signal.aborted) {
+			throw new Error('Aborted');
+		}
+
 		const videoEncoderConfig = await getVideoEncoderConfig({
 			codec: videoCodec === 'vp9' ? 'vp09.00.10.08' : videoCodec,
 			height: track.displayAspectHeight,
@@ -67,7 +71,9 @@ export const makeVideoTrackHandler =
 					true,
 				);
 				convertMediaState.decodedVideoFrames++;
-				onMediaStateUpdate?.({...convertMediaState});
+				if (!controller.signal.aborted) {
+					onMediaStateUpdate?.({...convertMediaState});
+				}
 			};
 		}
 
@@ -102,7 +108,9 @@ export const makeVideoTrackHandler =
 			onChunk: async (chunk) => {
 				await state.addSample(chunk, trackNumber, true);
 				convertMediaState.encodedVideoFrames++;
-				onMediaStateUpdate?.({...convertMediaState});
+				if (!controller.signal.aborted) {
+					onMediaStateUpdate?.({...convertMediaState});
+				}
 			},
 			onError: (err) => {
 				abortConversion(
@@ -124,7 +132,10 @@ export const makeVideoTrackHandler =
 				await onVideoFrame?.(frame, track);
 				await videoEncoder.encodeFrame(frame);
 				convertMediaState.decodedVideoFrames++;
-				onMediaStateUpdate?.({...convertMediaState});
+				if (!controller.signal.aborted) {
+					onMediaStateUpdate?.({...convertMediaState});
+				}
+
 				frame.close();
 			},
 			onError: (err) => {
