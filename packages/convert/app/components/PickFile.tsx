@@ -10,8 +10,27 @@ export const PickFile: React.FC<{
 		setSrc({type: 'url', url: SAMPLE_FILE});
 	}, [setSrc]);
 
+	const onDrop = useCallback(
+		(event: React.DragEvent<HTMLDivElement>) => {
+			event.preventDefault();
+			const file = event.dataTransfer.files[0];
+			if (file) {
+				setSrc({type: 'file', file});
+			}
+		},
+		[setSrc],
+	);
+
+	const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+		event.preventDefault();
+	}, []);
+
 	return (
-		<div className="text-center items-center justify-center flex flex-col">
+		<div
+			className="text-center items-center justify-center flex flex-col h-full w-full"
+			onDragOver={onDragOver}
+			onDrop={onDrop}
+		>
 			<h1 className="text-center text-4xl font-brand font-bold">
 				Fast video conversion in the browser
 			</h1>

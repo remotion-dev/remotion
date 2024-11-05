@@ -18,7 +18,7 @@ const Index = () => {
 	);
 
 	return (
-		<div className="font-sans p-4 flex justify-center items-center h-screen bg-slate-50 ">
+		<div className="font-sans  flex justify-center items-center h-screen bg-slate-50 ">
 			{src ? (
 				<FileAvailable src={src} setSrc={setSrc} />
 			) : (
