@@ -46,9 +46,11 @@ export type MediaFn = {
 export const createMedia = async ({
 	writer,
 	onBytesProgress,
+	onMillisecondsProgress,
 }: {
 	writer: WriterInterface;
 	onBytesProgress: (totalBytes: number) => void;
+	onMillisecondsProgress: (totalMilliseconds: number) => void;
 }): Promise<MediaFn> => {
 	const header = makeMatroskaHeader();
 
@@ -203,6 +205,7 @@ export const createMedia = async ({
 		}
 
 		onBytesProgress(w.getWrittenByteCount());
+		onMillisecondsProgress(newDuration);
 	};
 
 	const addTrack = async (track: BytesAndOffset) => {

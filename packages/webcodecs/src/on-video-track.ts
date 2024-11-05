@@ -71,9 +71,7 @@ export const makeVideoTrackHandler =
 					true,
 				);
 				convertMediaState.decodedVideoFrames++;
-				if (!controller.signal.aborted) {
-					onMediaStateUpdate?.({...convertMediaState});
-				}
+				onMediaStateUpdate?.({...convertMediaState});
 			};
 		}
 
@@ -108,9 +106,7 @@ export const makeVideoTrackHandler =
 			onChunk: async (chunk) => {
 				await state.addSample(chunk, trackNumber, true);
 				convertMediaState.encodedVideoFrames++;
-				if (!controller.signal.aborted) {
-					onMediaStateUpdate?.({...convertMediaState});
-				}
+				onMediaStateUpdate?.({...convertMediaState});
 			},
 			onError: (err) => {
 				abortConversion(
@@ -132,9 +128,7 @@ export const makeVideoTrackHandler =
 				await onVideoFrame?.(frame, track);
 				await videoEncoder.encodeFrame(frame);
 				convertMediaState.decodedVideoFrames++;
-				if (!controller.signal.aborted) {
-					onMediaStateUpdate?.({...convertMediaState});
-				}
+				onMediaStateUpdate?.({...convertMediaState});
 
 				frame.close();
 			},
