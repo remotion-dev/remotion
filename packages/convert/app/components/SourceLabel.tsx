@@ -20,7 +20,7 @@ export const SourceLabel: React.FC<{
 				href={src}
 				title={src}
 				target="_blank"
-				className="font-semibold hover:underline"
+				className="font-semibold hover:underline font-brand"
 			>
 				{origin}
 			</a>

@@ -37,7 +37,9 @@ export const ContainerOverview: React.FC<{
 		<Table>
 			<TableBody>
 				<TableRow>
-					<TableCell colSpan={3}>Size</TableCell>
+					<TableCell className="font-brand" colSpan={3}>
+						Size
+					</TableCell>
 					<TableCell className="text-right">
 						{size === null ? (
 							<Skeleton className="h-3 w-[100px] inline-block" />
@@ -47,7 +49,9 @@ export const ContainerOverview: React.FC<{
 					</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell colSpan={3}>Container</TableCell>
+					<TableCell className="font-brand" colSpan={3}>
+						Container
+					</TableCell>
 					<TableCell className="text-right">
 						{container ? (
 							<>{String(container)}</>
@@ -57,7 +61,9 @@ export const ContainerOverview: React.FC<{
 					</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell colSpan={3}>Duration</TableCell>
+					<TableCell className="font-brand" colSpan={3}>
+						Duration
+					</TableCell>
 					<TableCell className="text-right">
 						{durationInSeconds === null ? (
 							<Skeleton className="h-3 w-[100px] inline-block" />
@@ -67,7 +73,9 @@ export const ContainerOverview: React.FC<{
 					</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell colSpan={3}>Dimensions</TableCell>
+					<TableCell className="font-brand" colSpan={3}>
+						Dimensions
+					</TableCell>
 					<TableCell className="text-right">
 						{dimensions === null ? (
 							<Skeleton className="h-3 w-[100px] inline-block" />
@@ -79,7 +87,9 @@ export const ContainerOverview: React.FC<{
 					</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell colSpan={3}>Frame Rate</TableCell>
+					<TableCell className="font-brand" colSpan={3}>
+						Frame Rate
+					</TableCell>
 					<TableCell className="text-right">
 						{fps === undefined ? (
 							<Skeleton className="h-3 w-[100px] inline-block" />
@@ -91,7 +101,9 @@ export const ContainerOverview: React.FC<{
 					</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell colSpan={3}>Video Codec</TableCell>
+					<TableCell className="font-brand" colSpan={3}>
+						Video Codec
+					</TableCell>
 					<TableCell className="text-right">
 						{videoCodec === null ? (
 							<Skeleton className="h-3 w-[100px] inline-block" />
@@ -101,7 +113,9 @@ export const ContainerOverview: React.FC<{
 					</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell colSpan={3}>Audio Codec</TableCell>
+					<TableCell className="font-brand" colSpan={3}>
+						Audio Codec
+					</TableCell>
 					<TableCell className="text-right">
 						{audioCodec === null ? (
 							<Skeleton className="h-3 w-[100px] inline-block" />

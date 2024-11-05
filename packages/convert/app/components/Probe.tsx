@@ -16,7 +16,6 @@ import {VideoTrackOverview} from './VideoTrackOverview';
 import {Button} from './ui/button';
 import {
 	Card,
-	CardContent,
 	CardDescription,
 	CardFooter,
 	CardHeader,
@@ -236,7 +235,7 @@ export const Probe: React.FC<{
 			}
 		>
 			<VideoThumbnail thumbnail={thumbnail} />
-			<CardHeader>
+			<CardHeader className="border-b-2 border-black">
 				<CardTitle title={name ?? undefined}>
 					{name ? name : <Skeleton className="h-5 w-[220px] inline-block" />}
 				</CardTitle>
@@ -255,24 +254,22 @@ export const Probe: React.FC<{
 					/>
 				</div>
 			) : null}
-			<ScrollArea className="flex-1">
-				<CardContent className="flex flex-1 flex-col">
-					{selectedTrack === null ? (
-						<ContainerOverview
-							container={container ?? null}
-							dimensions={dimensions ?? null}
-							videoCodec={videoCodec ?? null}
-							size={size ?? null}
-							durationInSeconds={durationInSeconds}
-							audioCodec={audioCodec ?? null}
-							fps={fps}
-						/>
-					) : selectedTrack.type === 'video' ? (
-						<VideoTrackOverview track={selectedTrack} />
-					) : selectedTrack.type === 'audio' ? (
-						<AudioTrackOverview track={selectedTrack} />
-					) : null}
-				</CardContent>
+			<ScrollArea className="flex-1 h-[300px]">
+				{selectedTrack === null ? (
+					<ContainerOverview
+						container={container ?? null}
+						dimensions={dimensions ?? null}
+						videoCodec={videoCodec ?? null}
+						size={size ?? null}
+						durationInSeconds={durationInSeconds}
+						audioCodec={audioCodec ?? null}
+						fps={fps}
+					/>
+				) : selectedTrack.type === 'video' ? (
+					<VideoTrackOverview track={selectedTrack} />
+				) : selectedTrack.type === 'audio' ? (
+					<AudioTrackOverview track={selectedTrack} />
+				) : null}
 			</ScrollArea>
 			<Separator orientation="horizontal" />
 			<CardFooter className="flex flex-row items-center justify-center pb-3 pt-3">
