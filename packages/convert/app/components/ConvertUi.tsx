@@ -14,11 +14,12 @@ import {webFileReader} from '@remotion/media-parser/web-file';
 import {convertMedia} from '@remotion/webcodecs';
 import {useCallback, useState} from 'react';
 import {ConvertState, Source} from '~/lib/convert-state';
+import {Container, getNewName} from '~/lib/generate-new-name';
 import {ConvertProgress} from './ConvertProgress';
 import {Badge} from './ui/badge';
 
 export default function ConvertUI({src}: {readonly src: Source}) {
-	const [container, setContainer] = useState('webm');
+	const [container, setContainer] = useState<Container>('webm');
 	const [videoCodec, setVideoCodec] = useState('vp8');
 	const [audioCodec, setAudioCodec] = useState('opus');
 	const [state, setState] = useState<ConvertState>({type: 'idle'});
@@ -26,6 +27,8 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 
 	const onClick = useCallback(() => {
 		const abortController = new AbortController();
+
+		let _n: string | null = null;
 
 		convertMedia({
 			src: src.type === 'url' ? src.url : src.file,
@@ -50,6 +53,7 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 				name: true,
 			},
 			onName: (n) => {
+				_n = n;
 				setName(n);
 			},
 		})
@@ -62,10 +66,14 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 					return {
 						type: 'done',
 						download: async () => {
+							if (!_n) {
+								throw new Error('No name');
+							}
+
 							const file = await save();
 							const a = document.createElement('a');
 							a.href = URL.createObjectURL(file);
-							a.download = 'hithere';
+							a.download = getNewName(_n!, container);
 							a.click();
 							// TODO: Remove
 						},
@@ -74,10 +82,12 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 				});
 			})
 			.catch((e) => {
-				setState({type: 'idle'});
 				if ((e as Error).stack?.toLowerCase()?.includes('aborted')) {
+					setState({type: 'idle'});
 					return;
 				}
+				// eslint-disable-next-line no-alert
+				alert((e as Error).stack);
 				console.error(e);
 			});
 
@@ -100,7 +110,11 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 			<CardContent className="gap-4">
 				{state.type === 'in-progress' ? (
 					<>
-						<ConvertProgress state={state.state} name={name} />
+						<ConvertProgress
+							state={state.state}
+							name={name}
+							container={container}
+						/>
 						<div className="h-2" />
 						<Button className="block w-full" type="button" onClick={cancel}>
 							Cancel
@@ -108,7 +122,11 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 					</>
 				) : state.type === 'done' ? (
 					<>
-						<ConvertProgress state={state.state} name={name} />
+						<ConvertProgress
+							state={state.state}
+							name={name}
+							container={container}
+						/>
 						<div className="h-2" />
 
 						<Button
@@ -132,7 +150,10 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 							</div>
 							<div>
 								<Label htmlFor="container">Container</Label>
-								<Select value={container} onValueChange={setContainer}>
+								<Select
+									value={container}
+									onValueChange={(v) => setContainer(v as Container)}
+								>
 									<SelectTrigger id="container">
 										<SelectValue placeholder="Select a container" />
 									</SelectTrigger>

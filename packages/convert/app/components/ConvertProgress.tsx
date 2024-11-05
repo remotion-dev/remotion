@@ -2,13 +2,15 @@ import {ConvertMediaState} from '@remotion/webcodecs';
 import React from 'react';
 import {formatBytes} from '~/lib/format-bytes';
 import {formatSeconds} from '~/lib/format-seconds';
+import {Container, getNewName} from '~/lib/generate-new-name';
 import {Card} from './ui/card';
 import {Skeleton} from './ui/skeleton';
 
 export const ConvertProgress: React.FC<{
 	readonly state: ConvertMediaState;
 	readonly name: string | null;
-}> = ({state, name}) => {
+	readonly container: Container;
+}> = ({state, name, container}) => {
 	return (
 		<>
 			<Card className="overflow-hidden">
@@ -24,7 +26,9 @@ export const ConvertProgress: React.FC<{
 				<div className="p-2">
 					<div>
 						{name ? (
-							<strong className="font-brand ">{name}</strong>
+							<strong className="font-brand ">
+								{getNewName(name, container)}
+							</strong>
 						) : (
 							<Skeleton className="h-4 w-[200px]" />
 						)}
