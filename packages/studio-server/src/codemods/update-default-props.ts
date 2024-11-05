@@ -1,155 +1,113 @@
-import type {EnumPath} from '@remotion/studio-shared';
-import {stringifyDefaultProps} from '@remotion/studio-shared';
+import type { EnumPath } from '@remotion/studio-shared';
+import * as recast from 'recast';
+import { parse } from 'recast/parsers/babel-ts'
 
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
-type PrettierType = typeof import('prettier');
-
-const findStarter = ({
-	input,
-	compositionId,
-}: {
-	input: string;
-	compositionId: string;
-}) => {
-	const format1 = input.indexOf(`id="${compositionId}"`);
-	if (format1 > -1) {
-		return format1;
-	}
-
-	const format2 = input.indexOf(`id='${compositionId}'`);
-	if (format2 > -1) {
-		return format2;
-	}
-
-	const format3 = input.indexOf(`id={'${compositionId}'}`);
-	if (format3 > -1) {
-		return format3;
-	}
-
-	const format4 = input.indexOf(`id={"${compositionId}"}`);
-	if (format4 > -1) {
-		return format4;
-	}
-
-	const format5 = input.indexOf(`id={\`${compositionId}\``);
-	if (format5 > -1) {
-		return format5;
-	}
-
-	throw new Error(`Could not find composition ID ${compositionId} in file`);
-};
-
-const findEndPosition = (input: string, currentPosition: number) => {
-	const asConstVersion = input
-		.slice(currentPosition + 1)
-		.search(/as\sconst[ \t\n\r]+\}/);
-	if (asConstVersion !== -1) {
-		const nextEnd = input.indexOf('}', asConstVersion + currentPosition + 1);
-		return nextEnd - 1;
-	}
-
-	// When updating e.g. `defaultProps={{union: {type: 'car' as const, color: ''}}}`
-	const nextTriple = input.indexOf('}}}', currentPosition + 1);
-	if (nextTriple !== -1) {
-		return nextTriple + 1;
-	}
-
-	const nextLinux = input.indexOf('}}\n', currentPosition + 1);
-	const nextWindows = input.indexOf('}}\r', currentPosition + 1);
-	if (nextLinux !== -1) {
-		return nextLinux;
-	}
-
-	if (nextWindows !== -1) {
-		return nextWindows;
-	}
-
-	throw new Error('Could not find end of defaultProps');
-};
-
-const findEnder = (
-	input: string,
-	position: number,
-	maxPosition: number,
-	compositionId: string,
-) => {
-	let currentPosition = position;
-	while (currentPosition < maxPosition) {
-		const next = findEndPosition(input, currentPosition);
-
-		currentPosition = next;
-
-		const nextChar = input[next + 1];
-		if (nextChar === ',') {
-			continue;
-		}
-
-		return [position, currentPosition + 1];
-	}
-
-	throw new Error(
-		`No \`defaultProps\` prop found in the <Composition/> tag with the ID "${compositionId}".`,
-	);
-};
-
-const findTerminators = (input: string, position: number) => {
-	const nextComposition = input.indexOf('<Composition', position);
-	if (nextComposition > -1) {
-		return nextComposition;
-	}
-
-	const nextStill = input.indexOf('<Still', position);
-	if (nextStill > -1) {
-		return nextStill;
-	}
-
-	return Infinity;
-};
 
 export const updateDefaultProps = async ({
 	input,
 	compositionId,
 	newDefaultProps,
-	enumPaths,
+	//	enum paths not required as no need to stringify now
 }: {
 	input: string;
 	compositionId: string;
 	newDefaultProps: Record<string, unknown>;
 	enumPaths: EnumPath[];
 }): Promise<string> => {
-	const starter = findStarter({input, compositionId});
+	const ast = recast.parse(input, {
+		parser: { parse }
+	})
 
-	const START_TOKEN = 'defaultProps={';
 
-	const start = input.indexOf(START_TOKEN, starter);
-	if (start === -1) {
-		throw new Error(
-			`No \`defaultProps\` prop found in the <Composition/> tag with the ID "${compositionId}".`,
-		);
-	}
+	recast.types.visit(ast, {
+		visitJSXElement(path) {
+			const openingElement = path.node.openingElement as any;
+			//	1: ensure its the element we're looking for
+			if (
+				openingElement.name.name === 'Composition' &&
+				openingElement.attributes.some((attr: any) =>
+					attr.name.name === 'id' && attr.value.value === compositionId
+				)
+			) {
+				//	2: Find the defaultProps attribute and handle related errors
+				const defaultPropsAttr = openingElement.attributes.find((attr: any) => attr.name.name === 'defaultProps');
+				if (!defaultPropsAttr) {
+					throw new Error(
+						`No \`defaultProps\` prop found in the <Composition/> tag with the ID "${compositionId}".`,
+					);
+				}
 
-	const maxEnd = findTerminators(input, starter);
-	const [startPos, endPos] = findEnder(
-		input,
-		start + START_TOKEN.length,
-		maxEnd,
-		compositionId,
-	);
+				//	3: ensure only hardcoded values are provided
 
+				const defaultPropsValue = defaultPropsAttr.value.expression; // Get the value of defaultProps
+				if (defaultPropsValue.type !== 'ObjectExpression') {
+					throw new Error(
+						`\`defaultProps\` prop does not have a hardcoded value in the <Composition/> tag with the ID "${compositionId}".`,
+					);
+				}
+
+
+				//	4: modify the code
+				const propsParser: any = (obj: any) => {
+					if (typeof obj === 'object' && !Array.isArray(obj) && obj !== null) {
+						// Wrap properties in an ObjectExpression for objects
+						return recast.types.builders.objectExpression(
+							Object.keys(obj).map((key) =>
+								recast.types.builders.property(
+									'init',
+									recast.types.builders.identifier(key),
+									propsParser(obj[key]) // Recursively parse each value
+								)
+							)
+						);
+					}
+
+					if (Array.isArray(obj)) {
+						// Return an ArrayExpression for arrays
+						return recast.types.builders.arrayExpression(obj.map(propsParser));
+					}
+
+					if (typeof obj === 'string') {
+						return recast.types.builders.stringLiteral(obj);
+					}
+
+					if (typeof obj === 'number') {
+						return recast.types.builders.numericLiteral(obj);
+					}
+
+					if (typeof obj === 'boolean') {
+						return recast.types.builders.booleanLiteral(obj);
+					}
+
+					if (obj === null) {
+						return recast.types.builders.nullLiteral();
+					}
+
+					throw new Error(`Unsupported data type: ${typeof obj}`);
+				};
+
+				defaultPropsAttr.value.expression = propsParser(newDefaultProps);
+
+
+			}
+
+			this.traverse(path); // Continue traversing the AST
+		},
+	});
+
+
+	//	5: finally, format the file
+	// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+	type PrettierType = typeof import('prettier');
 	let prettier: PrettierType | null = null;
 
 	try {
 		prettier = await import('prettier');
-	} catch {
+	} catch (err) {
 		throw new Error('Prettier cannot be found in the current project.');
 	}
 
-	const {format, resolveConfig, resolveConfigFile} = prettier as PrettierType;
-
-	const newFile =
-		input.substring(0, startPos) +
-		stringifyDefaultProps({props: newDefaultProps, enumPaths}) +
-		input.substring(endPos);
+	const { format, resolveConfig, resolveConfigFile } = prettier as PrettierType;
 
 	const configFilePath = await resolveConfigFile();
 	if (!configFilePath) {
@@ -163,13 +121,13 @@ export const updateDefaultProps = async ({
 		);
 	}
 
-	const prettified = await format(newFile, {
+	const prettified = await format(recast.print(ast).code, {
 		...prettierConfig,
-		rangeStart: startPos,
-		rangeEnd: endPos,
 		filepath: 'test.tsx',
 		plugins: [],
 		endOfLine: 'auto',
 	});
 	return prettified;
-};
+
+
+}
