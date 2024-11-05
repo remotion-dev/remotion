@@ -60,7 +60,17 @@ export default function ConvertUI({src}: {readonly src: string}) {
 		})
 			.then(({save}) => {
 				// TODO: When to remove?
-				setState({type: 'done', download: save});
+				setState({
+					type: 'done',
+					download: async () => {
+						const file = await save();
+						const a = document.createElement('a');
+						a.href = URL.createObjectURL(file);
+						a.download = 'hithere';
+						a.click();
+						// TODO: Remove
+					},
+				});
 			})
 			.catch((e) => {
 				setState({type: 'idle'});
@@ -101,6 +111,7 @@ export default function ConvertUI({src}: {readonly src: string}) {
 				{state.type === 'in-progress' ? (
 					<>
 						<ConvertProgress state={state.state} />
+						<div className="h-2" />
 						<Button className="block w-full" type="button" onClick={cancel}>
 							Cancel
 						</Button>
@@ -109,7 +120,10 @@ export default function ConvertUI({src}: {readonly src: string}) {
 					<Button
 						className="block w-full"
 						type="button"
-						onClick={() => state.download()}
+						onClick={() => {
+							console.log('downloading');
+							return state.download();
+						}}
 					>
 						Done!
 					</Button>
