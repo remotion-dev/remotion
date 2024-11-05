@@ -57,6 +57,12 @@ export default function ConvertUI({src}: {readonly src: string}) {
 			audioCodec: audioCodec as 'opus',
 			to: container as 'webm',
 			signal: abortController.signal,
+			fields: {
+				durationInSeconds: true,
+			},
+			onDurationInSeconds: (duration) => {
+				console.log('Duration', duration);
+			},
 		})
 			.then(({save}) => {
 				// TODO: When to remove?

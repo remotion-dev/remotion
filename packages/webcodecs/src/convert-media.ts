@@ -1,4 +1,11 @@
-import type {OnAudioTrack, VideoTrack} from '@remotion/media-parser';
+import type {
+	OnAudioTrack,
+	Options,
+	ParseMediaDynamicOptions,
+	ParseMediaFields,
+	ParseMediaOptions,
+	VideoTrack,
+} from '@remotion/media-parser';
 import {
 	MediaParserInternals,
 	parseMedia,
@@ -36,7 +43,9 @@ export type ConvertMediaResult = {
 	remove: () => Promise<void>;
 };
 
-export const convertMedia = async ({
+export const convertMedia = async function <
+	F extends Options<ParseMediaFields>,
+>({
 	src,
 	onVideoFrame,
 	onMediaStateUpdate: onMediaStateDoNoCallDirectly,
@@ -46,8 +55,11 @@ export const convertMedia = async ({
 	signal: userPassedAbortSignal,
 	onAudioTrack: userAudioResolver,
 	onVideoTrack: userVideoResolver,
+	reader,
+	fields,
+	...more
 }: {
-	src: string | File;
+	src: ParseMediaOptions<F>['src'];
 	to: ConvertMediaTo;
 	onVideoFrame?: (inputFrame: VideoFrame, track: VideoTrack) => Promise<void>;
 	onMediaStateUpdate?: (state: ConvertMediaState) => void;
@@ -56,7 +68,8 @@ export const convertMedia = async ({
 	signal?: AbortSignal;
 	onAudioTrack?: ResolveAudioActionFn;
 	onVideoTrack?: ResolveVideoActionFn;
-}): Promise<ConvertMediaResult> => {
+	reader?: ParseMediaOptions<F>['reader'];
+} & ParseMediaDynamicOptions<F>): Promise<ConvertMediaResult> {
 	if (userPassedAbortSignal?.aborted) {
 		return Promise.reject(new Error('Aborted'));
 	}
@@ -159,6 +172,20 @@ export const convertMedia = async ({
 		onVideoTrack,
 		onAudioTrack,
 		signal: controller.signal,
+		fields: {
+			...fields,
+			durationInSeconds: true,
+		},
+		reader,
+		...more,
+		onDurationInSeconds: (durationInSeconds) => {
+			const casted = more as ParseMediaDynamicOptions<{
+				durationInSeconds: true;
+			}>;
+			if (casted.onDurationInSeconds) {
+				casted.onDurationInSeconds(durationInSeconds);
+			}
+		},
 	})
 		.then(() => {
 			return state.waitForFinish();
