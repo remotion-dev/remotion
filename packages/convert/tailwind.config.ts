@@ -5,7 +5,12 @@ export default {
 	content: ['./app/**/{**,.client,.server}/**/*.{js,jsx,ts,tsx}'],
 	theme: {
 		fontFamily: {
-			brand: ['GTPlanar'],
+			brand: [
+				'GTPlanar',
+				{
+					fontFeatureSettings: '"ss03" 1',
+				},
+			],
 		},
 		extend: {
 			borderRadius: {
@@ -43,6 +48,9 @@ export default {
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
 					foreground: 'hsl(var(--destructive-foreground))',
+				},
+				brand: {
+					DEFAULT: '#0b84f3',
 				},
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',

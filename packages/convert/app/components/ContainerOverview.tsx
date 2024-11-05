@@ -7,14 +7,8 @@ import type {
 } from '@remotion/media-parser';
 import React from 'react';
 import {formatBytes} from '~/lib/format-bytes';
+import {formatSeconds} from '~/lib/format-seconds';
 import {Skeleton} from './ui/skeleton';
-
-const formatSeconds = (seconds: number) => {
-	const minutes = Math.floor(seconds / 60);
-	const secondsLeft = seconds % 60;
-
-	return `${minutes}:${secondsLeft < 10 ? '0' : ''}${Math.round(secondsLeft)} min`;
-};
 
 export const ContainerOverview: React.FC<{
 	readonly dimensions: Dimensions | null;

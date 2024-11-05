@@ -32,6 +32,10 @@ export const makeVideoTrackHandler =
 		onVideoTrack: ResolveVideoActionFn;
 	}): OnVideoTrack =>
 	async (track) => {
+		if (controller.signal.aborted) {
+			throw new Error('Aborted');
+		}
+
 		const videoEncoderConfig = await getVideoEncoderConfig({
 			codec: videoCodec === 'vp9' ? 'vp09.00.10.08' : videoCodec,
 			height: track.displayAspectHeight,
@@ -125,6 +129,7 @@ export const makeVideoTrackHandler =
 				await videoEncoder.encodeFrame(frame);
 				convertMediaState.decodedVideoFrames++;
 				onMediaStateUpdate?.({...convertMediaState});
+
 				frame.close();
 			},
 			onError: (err) => {

@@ -139,13 +139,18 @@ export type ParseMediaResult<Fields extends Options<ParseMediaFields>> =
 			? {container: ParseMediaContainer | null}
 			: {});
 
+export type ParseMediaDynamicOptions<F extends Options<ParseMediaFields>> = {
+	fields?: F;
+} & ParseMediaCallbacks<F>;
+
+export type ParseMediaOptions<F extends Options<ParseMediaFields>> = {
+	src: string | File;
+	reader?: ReaderInterface;
+	onAudioTrack?: OnAudioTrack;
+	onVideoTrack?: OnVideoTrack;
+	signal?: AbortSignal;
+} & ParseMediaDynamicOptions<F>;
+
 export type ParseMedia = <F extends Options<ParseMediaFields>>(
-	options: {
-		src: string | File;
-		fields?: F;
-		reader?: ReaderInterface;
-		onAudioTrack?: OnAudioTrack;
-		onVideoTrack?: OnVideoTrack;
-		signal?: AbortSignal;
-	} & ParseMediaCallbacks<F>,
+	options: ParseMediaOptions<F>,
 ) => Promise<ParseMediaResult<F>>;

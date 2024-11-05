@@ -127,6 +127,7 @@ export const makeAudioTrackHandler =
 				await audioEncoder.encodeFrame(frame);
 				convertMediaState.decodedAudioFrames++;
 				onMediaStateUpdate?.(convertMediaState);
+
 				frame.close();
 			},
 			onError(error) {

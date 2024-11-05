@@ -53,6 +53,8 @@ export const SrcEncoder: React.FC<{
 		decodedVideoFrames: 0,
 		encodedVideoFrames: 0,
 		encodedAudioFrames: 0,
+		bytesWritten: 0,
+		millisecondsWritten: 0,
 	});
 
 	const [downloadFn, setDownloadFn] = useState<null | (() => void)>(null);

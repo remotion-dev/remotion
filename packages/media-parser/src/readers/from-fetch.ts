@@ -129,7 +129,7 @@ export const fetchReader: ReaderInterface = {
 		signal?.addEventListener(
 			'abort',
 			() => {
-				controller.abort();
+				controller.abort(new Error('Aborted by user'));
 			},
 			{once: true},
 		);

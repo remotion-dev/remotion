@@ -43,9 +43,15 @@ export type MediaFn = {
 	waitForFinish: () => Promise<void>;
 };
 
-export const createMedia = async (
-	writer: WriterInterface,
-): Promise<MediaFn> => {
+export const createMedia = async ({
+	writer,
+	onBytesProgress,
+	onMillisecondsProgress,
+}: {
+	writer: WriterInterface;
+	onBytesProgress: (totalBytes: number) => void;
+	onMillisecondsProgress: (totalMilliseconds: number) => void;
+}): Promise<MediaFn> => {
 	const header = makeMatroskaHeader();
 
 	const w = await writer.createContent();
@@ -113,6 +119,7 @@ export const createMedia = async (
 			seekHeadOffset,
 			combineUint8Arrays(updatedSeek.map((b) => b.bytes)),
 		);
+		onBytesProgress(w.getWrittenByteCount());
 	};
 
 	const segmentOffset = w.getWrittenByteCount();
@@ -123,6 +130,7 @@ export const createMedia = async (
 			segmentOffset + matroskaToHex(matroskaElements.Segment).byteLength,
 			data,
 		);
+		onBytesProgress(w.getWrittenByteCount());
 	};
 
 	await w.write(matroskaSegment.bytes);
@@ -161,6 +169,7 @@ export const createMedia = async (
 	const updateDuration = async (newDuration: number) => {
 		const blocks = makeDurationWithPadding(newDuration);
 		await w.updateDataAt(durationOffset, blocks.bytes);
+		onBytesProgress(w.getWrittenByteCount());
 	};
 
 	const addSample = async (
@@ -194,6 +203,9 @@ export const createMedia = async (
 				trackNumber,
 			});
 		}
+
+		onBytesProgress(w.getWrittenByteCount());
+		onMillisecondsProgress(newDuration);
 	};
 
 	const addTrack = async (track: BytesAndOffset) => {
