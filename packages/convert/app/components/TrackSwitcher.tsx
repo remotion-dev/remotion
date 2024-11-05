@@ -18,8 +18,8 @@ export const TrackSwitcher: React.FC<{
 				<div>
 					<div className="flex flex-row">
 						<Button
-							onClick={goToOverview}
 							variant={selectedTrack === null ? 'secondary' : 'link'}
+							onClick={goToOverview}
 						>
 							Overview
 						</Button>
@@ -28,8 +28,8 @@ export const TrackSwitcher: React.FC<{
 								<React.Fragment key={trk.trackId}>
 									<Separator orientation="vertical" />
 									<Button
-										onClick={() => onTrack(i)}
 										variant={selectedTrack === i ? 'secondary' : 'link'}
+										onClick={() => onTrack(i)}
 									>
 										Track {trk.trackId}
 									</Button>
