@@ -6,7 +6,8 @@
 		"**/.server/**/*.ts",
 		"**/.server/**/*.tsx",
 		"**/.client/**/*.ts",
-		"**/.client/**/*.tsx"
+		"**/.client/**/*.tsx",
+		"test"
 	],
 	"compilerOptions": {
 		"lib": ["DOM", "DOM.Iterable", "ES2022"],

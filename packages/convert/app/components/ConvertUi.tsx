@@ -58,8 +58,9 @@ export default function ConvertUI({src}: {readonly src: string}) {
 			to: container as 'webm',
 			signal: abortController.signal,
 		})
-			.then(() => {
-				setState({type: 'done'});
+			.then(({save}) => {
+				// TODO: When to remove?
+				setState({type: 'done', download: save});
 			})
 			.catch((e) => {
 				setState({type: 'idle'});
@@ -157,7 +158,11 @@ export default function ConvertUI({src}: {readonly src: string}) {
 							</div>
 						</div>
 						<div className="h-4" />
-						<Button className="block w-full" type="button" onClick={onClick}>
+						<Button
+							className="block w-full  font-brand"
+							type="button"
+							onClick={onClick}
+						>
 							Convert
 						</Button>
 					</>

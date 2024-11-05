@@ -7,4 +7,5 @@ export type ConvertState =
 	| {type: 'in-progress'; abortConversion: () => void; state: ConvertMediaState}
 	| {
 			type: 'done';
+			download: () => void;
 	  };

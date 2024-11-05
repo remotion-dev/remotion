@@ -8,6 +8,7 @@
 		"build-page": "remix vite:build",
 		"dev": "remix vite:dev",
 		"typecheck": "tsc",
+		"test": "bun test test",
 		"lint": "tsc && eslint --cache --cache-location ./node_modules/.cache/eslint ."
 	},
 	"dependencies": {
