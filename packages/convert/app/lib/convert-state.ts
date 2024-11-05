@@ -1,5 +1,15 @@
 import {ConvertMediaState} from '@remotion/webcodecs';
 
+export type Source =
+	| {
+			type: 'url';
+			url: string;
+	  }
+	| {
+			type: 'file';
+			file: File;
+	  };
+
 export type ConvertState =
 	| {
 			type: 'idle';

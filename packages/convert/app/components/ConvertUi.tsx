@@ -9,13 +9,15 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
+import {fetchReader} from '@remotion/media-parser/fetch';
+import {webFileReader} from '@remotion/media-parser/web-file';
 import {convertMedia} from '@remotion/webcodecs';
 import {useCallback, useState} from 'react';
-import {ConvertState} from '~/lib/convert-state';
+import {ConvertState, Source} from '~/lib/convert-state';
 import {ConvertProgress} from './ConvertProgress';
 import {Badge} from './ui/badge';
 
-export default function ConvertUI({src}: {readonly src: string}) {
+export default function ConvertUI({src}: {readonly src: Source}) {
 	const [container, setContainer] = useState('webm');
 	const [videoCodec, setVideoCodec] = useState('vp8');
 	const [audioCodec, setAudioCodec] = useState('opus');
@@ -26,7 +28,8 @@ export default function ConvertUI({src}: {readonly src: string}) {
 		const abortController = new AbortController();
 
 		convertMedia({
-			src,
+			src: src.type === 'url' ? src.url : src.file,
+			reader: src.type === 'file' ? webFileReader : fetchReader,
 			onVideoFrame: () => {
 				return Promise.resolve();
 			},

@@ -6,7 +6,10 @@ import type {
 	TracksField,
 } from '@remotion/media-parser';
 import {parseMedia} from '@remotion/media-parser';
+import {fetchReader} from '@remotion/media-parser/fetch';
+import {webFileReader} from '@remotion/media-parser/web-file';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import {Source} from '~/lib/convert-state';
 import {AudioTrackOverview} from './AudioTrackOverview';
 import {ContainerOverview} from './ContainerOverview';
 import {SourceLabel} from './SourceLabel';
@@ -26,7 +29,7 @@ import {Separator} from './ui/separator';
 import {Skeleton} from './ui/skeleton';
 
 export const Probe: React.FC<{
-	readonly src: string;
+	readonly src: Source;
 	readonly setProbeDetails: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly probeDetails: boolean;
 }> = ({src, probeDetails, setProbeDetails}) => {
@@ -78,7 +81,7 @@ export const Probe: React.FC<{
 		};
 
 		parseMedia({
-			src,
+			src: src.type === 'file' ? src.file : src.url,
 			fields: {
 				dimensions: true,
 				videoCodec: true,
@@ -90,6 +93,7 @@ export const Probe: React.FC<{
 				tracks: true,
 				container: true,
 			},
+			reader: src.type === 'file' ? webFileReader : fetchReader,
 			signal: controller.signal,
 			onVideoTrack: async (track) => {
 				if (typeof VideoDecoder === 'undefined') {

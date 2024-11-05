@@ -1,13 +1,14 @@
 import React from 'react';
+import {Source} from '~/lib/convert-state';
 
 export const SourceLabel: React.FC<{
-	readonly src: string | File;
+	readonly src: Source;
 }> = ({src}) => {
-	if (src instanceof File) {
-		return <div>From file</div>;
+	if (src.type === 'file') {
+		return <span>From file input</span>;
 	}
 
-	const url = new URL(src as string);
+	const url = new URL(src.url);
 
 	const origin = url.origin
 		.replace(/^https?:\/\//, '')
@@ -17,8 +18,8 @@ export const SourceLabel: React.FC<{
 		<span>
 			From{' '}
 			<a
-				href={src}
-				title={src}
+				href={src.url}
+				title={src.url}
 				target="_blank"
 				className="font-semibold hover:underline font-brand"
 			>

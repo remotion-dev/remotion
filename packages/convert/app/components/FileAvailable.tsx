@@ -1,11 +1,12 @@
 import React, {useCallback, useState} from 'react';
+import {Source} from '~/lib/convert-state';
 import ConvertUI from './ConvertUi';
 import {Probe} from './Probe';
 import {Button} from './ui/button';
 
 export const FileAvailable: React.FC<{
-	readonly src: string;
-	readonly setSrc: React.Dispatch<React.SetStateAction<string | null>>;
+	readonly src: Source;
+	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 }> = ({src, setSrc}) => {
 	const [probeDetails, setProbeDetails] = useState(false);
 
