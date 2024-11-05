@@ -125,8 +125,10 @@ export const convertMedia = async ({
 			onMediaStateUpdate?.(convertMediaState);
 		},
 		onMillisecondsProgress: (millisecondsWritten) => {
-			convertMediaState.millisecondsWritten = millisecondsWritten;
-			onMediaStateUpdate?.(convertMediaState);
+			if (millisecondsWritten > convertMediaState.millisecondsWritten) {
+				convertMediaState.millisecondsWritten = millisecondsWritten;
+				onMediaStateUpdate?.(convertMediaState);
+			}
 		},
 	});
 

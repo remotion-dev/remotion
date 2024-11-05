@@ -12,6 +12,7 @@ import {
 import {convertMedia} from '@remotion/webcodecs';
 import {useCallback, useState} from 'react';
 import {ConvertState} from '~/lib/convert-state';
+import {ConvertProgress} from './ConvertProgress';
 import {Badge} from './ui/badge';
 
 export default function ConvertUI({src}: {readonly src: string}) {
@@ -98,7 +99,7 @@ export default function ConvertUI({src}: {readonly src: string}) {
 			<CardContent className="gap-4">
 				{state.type === 'in-progress' ? (
 					<>
-						{JSON.stringify(state.state)}
+						<ConvertProgress state={state.state} />
 						<Button className="block w-full" type="button" onClick={cancel}>
 							Cancel
 						</Button>
