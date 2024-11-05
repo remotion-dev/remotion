@@ -10,8 +10,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import {convertMedia} from '@remotion/webcodecs';
-import {useCallback, useEffect, useState} from 'react';
-import {TEST_FAST} from '~/lib/config';
+import {useCallback, useState} from 'react';
 import {ConvertState} from '~/lib/convert-state';
 import {Badge} from './ui/badge';
 
@@ -58,14 +57,13 @@ export default function ConvertUI({src}: {readonly src: string}) {
 		})
 			.then(() => {
 				setState({type: 'done'});
-				console.log('convert media done');
 			})
 			.catch((e) => {
 				setState({type: 'idle'});
 				if ((e as Error).stack?.toLowerCase()?.includes('aborted')) {
 					return;
 				}
-				console.log(e);
+				console.error(e);
 			});
 
 		return () => {
@@ -73,16 +71,16 @@ export default function ConvertUI({src}: {readonly src: string}) {
 		};
 	}, [src, videoCodec, audioCodec, container]);
 
-	useEffect(() => {
-		if (!TEST_FAST) {
-			return;
-		}
+	// useEffect(() => {
+	// 	if (!TEST_FAST) {
+	// 		return;
+	// 	}
 
-		const cancel = onClick();
-		return () => {
-			cancel();
-		};
-	}, [onClick]);
+	// 	const cancel = onClick();
+	// 	return () => {
+	// 		cancel();
+	// 	};
+	// }, [onClick]);
 
 	const cancel = useCallback(() => {
 		if (state.type !== 'in-progress') {

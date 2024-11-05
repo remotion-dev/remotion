@@ -257,7 +257,7 @@ export const Probe: React.FC<{
 					/>
 				</div>
 			) : null}
-			<ScrollArea className="flex-1 h-[300px]">
+			<ScrollArea height={300} className="flex-1">
 				{selectedTrack === null ? (
 					<ContainerOverview
 						container={container ?? null}
