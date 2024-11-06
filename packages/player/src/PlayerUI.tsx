@@ -621,14 +621,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
-							<Internals.ClipComposition>
-								<Internals.CurrentScaleContext.Provider value={currentScale}>
-									<VideoComponent
-										{...(video?.props ?? {})}
-										{...(inputProps ?? {})}
-									/>
-								</Internals.CurrentScaleContext.Provider>
-							</Internals.ClipComposition>
+							<Internals.CurrentScaleContext.Provider value={currentScale}>
+								<VideoComponent
+									{...(video?.props ?? {})}
+									{...(inputProps ?? {})}
+								/>
+							</Internals.CurrentScaleContext.Provider>
 						</ErrorBoundary>
 					) : null}
 					{shouldShowPoster && posterFillMode === 'composition-size' ? (

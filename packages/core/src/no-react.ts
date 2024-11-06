@@ -9,7 +9,6 @@ export {
 	interpolate,
 	InterpolateOptions,
 } from './interpolate';
-export type {ClipRegion} from './NativeLayers';
 export {random, RandomSeed} from './random.js';
 export type {VideoConfig} from './video-config';
 import {

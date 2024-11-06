@@ -122,7 +122,6 @@ export {Img, ImgProps} from './Img.js';
 export * from './internals.js';
 export {interpolateColors} from './interpolate-colors.js';
 export {Loop} from './loop/index.js';
-export {ClipRegion} from './NativeLayers.js';
 export {
 	EasingFunction,
 	ExtrapolateType,
