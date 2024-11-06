@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-	Easing,
-	Experimental,
-	interpolate,
-	useCurrentFrame,
-	useVideoConfig,
-} from 'remotion';
+import {Easing, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Arc} from './Arc';
 import {Atom} from './Atom';
 import {Black} from './Black';
@@ -90,12 +84,6 @@ const ReactSvg: React.FC<{
 
 	return (
 		<>
-			<Experimental.Clipper
-				x={0}
-				y={0}
-				width={videoConfig.width / 2}
-				height={videoConfig.height}
-			/>
 			<div
 				style={{flex: 1, backgroundColor: transparent ? undefined : 'white'}}
 			>
