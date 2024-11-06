@@ -1,4 +1,3 @@
-import path from 'path';
 import type {TRenderAsset} from 'remotion/no-react';
 import type {DownloadMap} from './assets/download-map';
 import type {Page} from './browser/BrowserPage';
@@ -43,18 +42,13 @@ export const takeFrame = async ({
 
 	const shouldMakeBuffer = wantsBuffer;
 
-	const tmpFile = path.join(
-		downloadMap.compositingDir,
-		`${frame}.${imageFormat}`,
-	);
-
 	const buf = await provideScreenshot({
 		page: freePage,
 		imageFormat,
 		jpegQuality,
 		options: {
 			frame,
-			output: wantsBuffer ? null : (tmpFile ?? output),
+			output: wantsBuffer ? null : output,
 		},
 		height,
 		width,
