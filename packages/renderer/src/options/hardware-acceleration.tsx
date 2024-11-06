@@ -20,13 +20,16 @@ export const getHardwareAcceleration = () => {
 export const hardwareAccelerationOption = {
 	name: 'Hardware Acceleration',
 	cliFlag,
-	description: () => (
-		<>
-			Encode using a hardware-accelerated encoder if available. If set to
-			"force" and no hardware-accelerated encoder is available, then the render
-			will fail.
-		</>
-	),
+	description: () =>
+		`
+			One of
+			${new Intl.ListFormat('en', {type: 'disjunction'}).format(
+				hardwareAccelerationOptions.map((a) => JSON.stringify(a)),
+			)}
+			. Default "disable". Encode using a hardware-accelerated encoder if
+			available. If set to "force" and no hardware-accelerated encoder is
+			available, then the render will fail.
+		`,
 	ssrName: 'hardwareAcceleration',
 	docLink: 'https://www.remotion.dev/docs/encoding',
 	type: 'disable' as HardwareAccelerationOption,

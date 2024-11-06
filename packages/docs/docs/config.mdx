@@ -650,6 +650,8 @@ The [command line flag](/docs/cli/render#--crf) `--crf` will take precedence ove
 ## `setVideoBitrate()`<AvailableFrom v="3.2.32" />
 
 <Options id="video-bitrate" />
+<br />
+<br />
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -662,6 +664,8 @@ The [command line flag](/docs/cli/render#--video-bitrate) `--video-bitrate` will
 ## `setEncodingBufferSize()`<AvailableFrom v="4.0.78" />
 
 <Options id="buffer-size" />
+<br />
+<br />
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -674,6 +678,8 @@ The [command line flag](/docs/cli/render#--buffer-size) `--buffer-size` will tak
 ## `setEncodingMaxRate()`<AvailableFrom v="4.0.78" />
 
 <Options id="max-rate" />
+<br />
+<br />
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -686,6 +692,8 @@ The [command line flag](/docs/cli/render#--max-rate) `--max-rate` will take prec
 ## `setAudioBitrate()`<AvailableFrom v="3.2.32" />
 
 <Options id="audio-bitrate" />
+<br />
+<br />
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -755,9 +763,11 @@ import {Config} from '@remotion/cli/config';
 Config.setBufferStateDelayInMilliseconds(0);
 ```
 
-## `setBinariesDirectory?`<AvailableFrom v="4.0.120" />
+## `setBinariesDirectory()`<AvailableFrom v="4.0.120" />
 
 <Options id="binaries-directory" />
+<br />
+<br />
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -765,9 +775,11 @@ import {Config} from '@remotion/cli/config';
 Config.setBinariesDirectory('/path/to/custom/directory');
 ```
 
-## `setPreferLosslessAudio?`<AvailableFrom v="4.0.123" />
+## `setPreferLosslessAudio()`<AvailableFrom v="4.0.123" />
 
 <Options id="prefer-lossless" />
+<br />
+<br />
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -775,7 +787,19 @@ import {Config} from '@remotion/cli/config';
 Config.setPreferLosslessAudio(true);
 ```
 
-## overrideFfmpegCommand()<AvailableFrom v="3.2.22" />
+## `setHardwareAcceleration()`<AvailableFrom v="4.0.228" />
+
+<Options id="hardware-acceleration" />
+<br />
+<br />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setHardwareAcceleration('if-possible');
+```
+
+## `overrideFfmpegCommand()`<AvailableFrom v="3.2.22" />
 
 Modifies the FFmpeg command that Remotion uses under the hood. It works reducer-style, meaning that you pass a function that takes a command as an argument and returns a new command.
 
