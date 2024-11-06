@@ -2743,6 +2743,9 @@ var Log = {
   verbose: (options, ...args) => {
     writeInRepro("verbose", ...args);
     if (isEqualOrBelowLogLevel(options.logLevel, "verbose")) {
+      if (args.length === 0) {
+        return process.stdout.write("\n");
+      }
       return console.log(...[
         options.indent ? INDENT_TOKEN : null,
         options.tag ? verboseTag(options.tag) : null
@@ -2752,18 +2755,27 @@ var Log = {
   info: (options, ...args) => {
     writeInRepro("info", ...args);
     if (isEqualOrBelowLogLevel(options.logLevel, "info")) {
-      return console.log(...[options.indent ? INDENT_TOKEN : null].filter(truthy).concat(args));
+      if (args.length === 0) {
+        return process.stdout.write("\n");
+      }
+      return console.log(...[options.indent ? INDENT_TOKEN : null].filter(truthy).concat(args ?? []));
     }
   },
   warn: (options, ...args) => {
     writeInRepro("warn", ...args);
     if (isEqualOrBelowLogLevel(options.logLevel, "warn")) {
+      if (args.length === 0) {
+        return process.stdout.write("\n");
+      }
       return console.warn(...[options.indent ? chalk.yellow(INDENT_TOKEN) : null].filter(truthy).concat(args.map((a) => chalk.yellow(a))));
     }
   },
   error: (options, ...args) => {
     writeInRepro("error", ...args);
     if (isEqualOrBelowLogLevel(options.logLevel, "error")) {
+      if (args.length === 0) {
+        return process.stdout.write("\n");
+      }
       return console.error(...[
         options.indent ? INDENT_TOKEN : null,
         options.tag ? verboseTag(options.tag) : null
