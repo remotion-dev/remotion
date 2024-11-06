@@ -4,7 +4,7 @@ import {BrowserSafeApis} from '@remotion/renderer/client';
 import {useState} from 'react';
 import {NumberSetting} from './NumberSetting';
 
-type CrfState = Record<Codec, number>;
+type CrfState = Record<Codec, number | null>;
 
 const getDefaultCrfState = () => {
 	return BrowserSafeApis.validCodecs
@@ -14,7 +14,7 @@ const getDefaultCrfState = () => {
 		.reduce((acc, [codec, crf]) => {
 			return {
 				...acc,
-				[codec]: crf,
+				[codec as Codec]: crf,
 			};
 		}, {} as CrfState);
 };
@@ -25,9 +25,14 @@ export const useCrfState = (codec: Codec) => {
 
 	const setCrf: React.Dispatch<React.SetStateAction<number>> = (updater) => {
 		setState((q) => {
+			const val = q[codec];
+			if (val === null) {
+				throw new TypeError(`Got unexpected codec "${codec}"`);
+			}
+
 			return {
 				...q,
-				[codec]: typeof updater === 'number' ? updater : updater(q[codec]),
+				[codec]: typeof updater === 'number' ? updater : updater(val),
 			};
 		});
 	};

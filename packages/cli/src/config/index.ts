@@ -41,6 +41,7 @@ import type {
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
+import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
 import {setBrowserExecutable} from './browser-executable';
@@ -119,6 +120,7 @@ const {
 	forSeamlessAacConcatenationOption,
 	audioCodecOption,
 	publicPathOption,
+	hardwareAccelerationOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -504,7 +506,16 @@ type FlatConfig = RemotionConfigObject &
 		 */
 		setBufferStateDelayInMilliseconds: (delay: number | null) => void;
 
+		/**
+		 * Metadata to be embedded into the output video file.
+		 */
 		setMetadata: (metadata: Record<string, string>) => void;
+		/**
+		 *
+		 */
+		setHardwareAcceleration: (
+			hardwareAccelerationOption: HardwareAccelerationOption,
+		) => void;
 		/**
 		 * @deprecated 'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.'
 		 */
@@ -637,6 +648,7 @@ export const Config: FlatConfig = {
 	setBinariesDirectory: binariesDirectoryOption.setConfig,
 	setPreferLosslessAudio: preferLosslessOption.setConfig,
 	setPublicPath: publicPathOption.setConfig,
+	setHardwareAcceleration: hardwareAccelerationOption.setConfig,
 };
 
 export const ConfigInternals = {

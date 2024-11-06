@@ -1,4 +1,5 @@
-import type {Codec, LogLevel, X264Preset} from '@remotion/renderer';
+import type {Codec, X264Preset} from '@remotion/renderer';
+import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {UiOpenGlOptions} from '@remotion/studio-shared';
 import type {ChangeEvent} from 'react';
@@ -7,7 +8,7 @@ import {labelx264Preset} from '../../helpers/presets-labels';
 import {Checkmark} from '../../icons/Checkmark';
 import {Checkbox} from '../Checkbox';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
-import type {ComboboxValue} from '../NewComposition/ComboBox';
+import type {ComboboxValue, SelectionItem} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 import {RemotionInput} from '../NewComposition/RemInput';
 import {Spacing} from '../layout';
@@ -30,8 +31,6 @@ export const RenderModalAdvanced: React.FC<{
 	readonly maxConcurrency: number;
 	readonly setConcurrency: React.Dispatch<React.SetStateAction<number>>;
 	readonly concurrency: number;
-	readonly setVerboseLogging: React.Dispatch<React.SetStateAction<LogLevel>>;
-	readonly logLevel: LogLevel;
 	readonly delayRenderTimeout: number;
 	readonly setDelayRenderTimeout: React.Dispatch<React.SetStateAction<number>>;
 	readonly disallowParallelEncoding: boolean;
@@ -56,6 +55,10 @@ export const RenderModalAdvanced: React.FC<{
 	>;
 	readonly x264Preset: X264Preset | null;
 	readonly setx264Preset: React.Dispatch<React.SetStateAction<X264Preset>>;
+	readonly hardwareAcceleration: HardwareAccelerationOption;
+	readonly setHardwareAcceleration: React.Dispatch<
+		React.SetStateAction<HardwareAccelerationOption>
+	>;
 	readonly offthreadVideoCacheSizeInBytes: number | null;
 	readonly setOffthreadVideoCacheSizeInBytes: React.Dispatch<
 		React.SetStateAction<number | null>
@@ -77,8 +80,6 @@ export const RenderModalAdvanced: React.FC<{
 	minConcurrency,
 	setConcurrency,
 	concurrency,
-	setVerboseLogging,
-	logLevel,
 	delayRenderTimeout,
 	setDelayRenderTimeout,
 	disallowParallelEncoding,
@@ -106,6 +107,8 @@ export const RenderModalAdvanced: React.FC<{
 	setBeep,
 	repro,
 	setRepro,
+	hardwareAcceleration,
+	setHardwareAcceleration,
 }) => {
 	const extendedOpenGlOptions: UiOpenGlOptions[] = useMemo(() => {
 		return [
@@ -118,12 +121,6 @@ export const RenderModalAdvanced: React.FC<{
 			'default',
 		];
 	}, []);
-	const onVerboseLoggingChanged = useCallback(
-		(e: ChangeEvent<HTMLInputElement>) => {
-			setVerboseLogging(e.target.checked ? 'verbose' : 'info');
-		},
-		[setVerboseLogging],
-	);
 
 	const toggleCustomOffthreadVideoCacheSizeInBytes = useCallback(() => {
 		setOffthreadVideoCacheSizeInBytes((previous) => {
@@ -225,17 +222,34 @@ export const RenderModalAdvanced: React.FC<{
 				label: labelx264Preset(option),
 				onClick: () => setx264Preset(option),
 				key: option,
-				selected: x264Preset === option,
 				type: 'item',
 				id: option,
 				keyHint: null,
-				leftItem: null,
+				leftItem: x264Preset === option ? <Checkmark /> : null,
 				quickSwitcherLabel: null,
 				subMenu: null,
 				value: option,
 			};
 		});
 	}, [setx264Preset, x264Preset]);
+
+	const hardwareAccelerationValues = useMemo((): ComboboxValue[] => {
+		return BrowserSafeApis.hardwareAccelerationOptions.map(
+			(option): SelectionItem => {
+				return {
+					label: option,
+					onClick: () => setHardwareAcceleration(option),
+					leftItem: hardwareAcceleration === option ? <Checkmark /> : null,
+					subMenu: null,
+					quickSwitcherLabel: null,
+					type: 'item',
+					id: option,
+					keyHint: null,
+					value: option,
+				};
+			},
+		);
+	}, [hardwareAcceleration, setHardwareAcceleration]);
 
 	const changeOffthreadVideoCacheSizeInBytes: React.Dispatch<
 		React.SetStateAction<number>
@@ -258,19 +272,6 @@ export const RenderModalAdvanced: React.FC<{
 
 	return (
 		<div style={container} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-			<div style={optionRow}>
-				<div style={label}>
-					Verbose logging <Spacing x={0.5} />
-					<OptionExplainerBubble id="logLevelOption" />
-				</div>
-				<div style={rightRow}>
-					<Checkbox
-						checked={logLevel === 'verbose'}
-						onChange={onVerboseLoggingChanged}
-						name="verbose-logging"
-					/>
-				</div>
-			</div>
 			{renderMode === 'still' ? null : (
 				<NumberSetting
 					min={minConcurrency}
@@ -294,6 +295,22 @@ export const RenderModalAdvanced: React.FC<{
 							title={x264Preset as string}
 							selectedId={x264Preset as string}
 							values={x264PresetOptions}
+						/>
+					</div>
+				</div>
+			) : null}
+			{renderMode === 'video' ? (
+				<div style={optionRow}>
+					<div style={label}>
+						Hardware acceleration
+						<Spacing x={0.5} />
+						<OptionExplainerBubble id="hardwareAccelerationOption" />
+					</div>
+					<div style={rightRow}>
+						<Combobox
+							title={hardwareAcceleration as string}
+							selectedId={hardwareAcceleration as string}
+							values={hardwareAccelerationValues}
 						/>
 					</div>
 				</div>

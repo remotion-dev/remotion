@@ -54,7 +54,7 @@ export const RenderModalPicture: React.FC<{
 	readonly setCustomTargetVideoBitrateValue: React.Dispatch<
 		React.SetStateAction<string>
 	>;
-	readonly crf: number;
+	readonly crf: number | null;
 	readonly customTargetVideoBitrate: string;
 	readonly shouldDisplayQualityControlPicker: boolean;
 	readonly pixelFormatOptions: ComboboxValue[];
@@ -198,12 +198,13 @@ export const RenderModalPicture: React.FC<{
 			) : null}
 			{qualityControlType === 'crf' &&
 			renderMode !== 'still' &&
-			renderMode !== 'sequence' ? (
+			renderMode !== 'sequence' &&
+			crf !== null ? (
 				<CrfSetting
 					crf={crf}
 					min={minCrf}
 					max={maxCrf}
-					setCrf={setCrf}
+					setCrf={setCrf as React.Dispatch<React.SetStateAction<number>>}
 					option="crfOption"
 				/>
 			) : null}

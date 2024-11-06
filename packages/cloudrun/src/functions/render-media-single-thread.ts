@@ -160,6 +160,7 @@ export const renderMediaSingleThread = async (
 			},
 			onArtifact,
 			metadata: body.metadata ?? null,
+			hardwareAcceleration: 'disable',
 		});
 
 		const storage = new Storage();
