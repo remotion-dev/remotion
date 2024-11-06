@@ -3,7 +3,6 @@ import path from 'node:path';
 import type {VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-import type {DownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
@@ -13,7 +12,6 @@ import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import type {SourceMapGetter} from './browser/source-map-getter';
 import type {Codec} from './codec';
-import type {Compositor} from './compositor/compositor';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
@@ -39,7 +37,7 @@ import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import type {OnArtifact} from './render-frames';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
-import {takeFrameAndCompose} from './take-frame-and-compose';
+import {takeFrame} from './take-frame';
 import {
 	validateDimension,
 	validateDurationInFrames,
@@ -128,20 +126,16 @@ const innerRenderStill = async ({
 	cancelSignal,
 	jpegQuality,
 	onBrowserLog,
-	compositor,
 	sourceMapGetter,
-	downloadMap,
 	logLevel,
 	indent,
 	serializedResolvedPropsWithCustomSchema,
 	onBrowserDownload,
 	onArtifact,
 }: InternalRenderStillOptions & {
-	downloadMap: DownloadMap;
 	serveUrl: string;
 	onError: (err: Error) => void;
 	proxyPort: number;
-	compositor: Compositor;
 	sourceMapGetter: SourceMapGetter;
 }): Promise<RenderStillReturnValue> => {
 	validateDimension(
@@ -322,7 +316,7 @@ const innerRenderStill = async ({
 		attempt: 0,
 	});
 
-	const {buffer, collectedAssets} = await takeFrameAndCompose({
+	const {buffer, collectedAssets} = await takeFrame({
 		frame: stillFrame,
 		freePage: page,
 		height: composition.height,
@@ -332,8 +326,6 @@ const innerRenderStill = async ({
 		output,
 		jpegQuality,
 		wantsBuffer: !output,
-		compositor,
-		downloadMap,
 		timeoutInMilliseconds,
 	});
 
@@ -386,22 +378,14 @@ const internalRenderStillRaw = (
 		)
 			.then(({server, cleanupServer}) => {
 				cleanup.push(() => cleanupServer(false));
-				const {
-					serveUrl,
-					offthreadPort,
-					compositor,
-					sourceMap: sourceMapGetter,
-					downloadMap,
-				} = server;
+				const {serveUrl, offthreadPort, sourceMap: sourceMapGetter} = server;
 
 				return innerRenderStill({
 					...options,
 					serveUrl,
 					onError,
 					proxyPort: offthreadPort,
-					compositor,
 					sourceMapGetter,
-					downloadMap,
 				});
 			})
 

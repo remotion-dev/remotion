@@ -11,11 +11,8 @@ edition = "2021"
 png = "0.17.13"
 serde = {version =  "1.0.151", features = ["derive"]}
 serde_json = "1.0.89"
-jpeg-decoder = "0.3"
-jpeg-encoder = "0.5.1"
 lazy_static = "1.4"
-rayon = "1.7.0"
-image = "0.24.7"
+rayon-core = "1.12.1"
 sysinfo = "0.30.7"
 mp4 = {git = "https://github.com/jonnyburger/mp4-rust", rev = "92ba375738cc2f05a4d754e1f968cf2e97d06641"}
 ffmpeg-next = {git = "https://github.com/remotion-dev/rust-ffmpeg", rev ="e32c235b8a19c5292b5f32d422eeb9a057f6511a"}

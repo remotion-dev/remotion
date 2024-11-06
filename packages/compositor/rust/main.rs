@@ -1,5 +1,4 @@
 mod commands;
-mod compositor;
 mod errors;
 mod ffmpeg;
 mod frame_cache;
@@ -76,7 +75,7 @@ fn start_long_running_process(
     threads: usize,
     maximum_frame_cache_size_in_bytes: u128,
 ) -> Result<(), ErrorWithBacktrace> {
-    let pool = rayon::ThreadPoolBuilder::new()
+    let pool = rayon_core::ThreadPoolBuilder::new()
         .num_threads(threads)
         .build()?;
 

@@ -8,7 +8,7 @@ import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
 } from './CanUseRemotionHooks.js';
-import {ClipComposition, type CompProps} from './Composition.js';
+import {type CompProps} from './Composition.js';
 import type {
 	TCompMetadata,
 	TComposition,
@@ -36,7 +36,6 @@ import type {RemotionEnvironment} from './get-remotion-environment.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import type {SerializedJSONWithCustomFields} from './input-props-serialization.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
-import {NativeLayersProvider} from './NativeLayers.js';
 import {NonceContext} from './nonce.js';
 import {portalNode} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
@@ -148,8 +147,6 @@ export const Internals = {
 	RenderAssetManager,
 	persistCurrentFrame,
 	useTimelineSetFrame,
-	NativeLayersProvider,
-	ClipComposition,
 	isIosSafari,
 	WATCH_REMOTION_STATIC_FILES,
 	addSequenceStackTraces,

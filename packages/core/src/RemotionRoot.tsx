@@ -7,7 +7,6 @@ import React, {
 } from 'react';
 import {CompositionManagerProvider} from './CompositionManager.js';
 import {EditorPropsProvider} from './EditorProps.js';
-import {NativeLayersProvider} from './NativeLayers.js';
 import {BufferingProvider} from './buffering.js';
 import {continueRender, delayRender} from './delay-render.js';
 import type {TNonceContext} from './nonce.js';
@@ -126,15 +125,11 @@ export const RemotionRoot: React.FC<{
 				<SetTimelineContext.Provider value={setTimelineContextValue}>
 					<EditorPropsProvider>
 						<PrefetchProvider>
-							<NativeLayersProvider>
-								<CompositionManagerProvider
-									numberOfAudioTags={numberOfAudioTags}
-								>
-									<DurationsContextProvider>
-										<BufferingProvider>{children}</BufferingProvider>
-									</DurationsContextProvider>
-								</CompositionManagerProvider>
-							</NativeLayersProvider>
+							<CompositionManagerProvider numberOfAudioTags={numberOfAudioTags}>
+								<DurationsContextProvider>
+									<BufferingProvider>{children}</BufferingProvider>
+								</DurationsContextProvider>
+							</CompositionManagerProvider>
 						</PrefetchProvider>
 					</EditorPropsProvider>
 				</SetTimelineContext.Provider>
