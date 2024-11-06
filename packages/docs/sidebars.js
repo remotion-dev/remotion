@@ -684,6 +684,7 @@ module.exports = {
 				'video-vs-offthreadvideo',
 				'artifacts',
 				'metadata',
+				'hardware-acceleration',
 			],
 		},
 		{

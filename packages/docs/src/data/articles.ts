@@ -1211,6 +1211,13 @@ export const articles = [
 		crumb: 'Parameterized videos',
 	},
 	{
+		id: 'hardware-acceleration',
+		title: 'Hardware accelerated encoding',
+		relativePath: 'docs/hardware-acceleration.mdx',
+		compId: 'articles-docs-hardware-acceleration',
+		crumb: 'Rendering',
+	},
+	{
 		id: 'preview',
 		title: 'Preview your video',
 		relativePath: 'docs/preview.mdx',

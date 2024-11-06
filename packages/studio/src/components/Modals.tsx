@@ -88,6 +88,9 @@ export const Modals: React.FC<{
 					}
 					renderTypeOfLastRender={modalContextType.renderTypeOfLastRender}
 					defaultMetadata={modalContextType.defaulMetadata}
+					initialHardwareAcceleration={
+						modalContextType.initialHardwareAcceleration
+					}
 				/>
 			)}
 

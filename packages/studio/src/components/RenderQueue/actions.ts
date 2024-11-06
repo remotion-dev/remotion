@@ -9,6 +9,7 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
+import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import type {
 	ApplyCodemodRequest,
 	CanUpdateDefaultPropsResponse,
@@ -186,6 +187,7 @@ export const addVideoRenderJob = ({
 	forSeamlessAacConcatenation,
 	separateAudioTo,
 	metadata,
+	hardwareAcceleration,
 }: {
 	compositionId: string;
 	outName: string;
@@ -223,6 +225,7 @@ export const addVideoRenderJob = ({
 	forSeamlessAacConcatenation: boolean;
 	separateAudioTo: string | null;
 	metadata: Record<string, string> | null;
+	hardwareAcceleration: HardwareAccelerationOption;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -267,6 +270,7 @@ export const addVideoRenderJob = ({
 		forSeamlessAacConcatenation,
 		separateAudioTo,
 		metadata,
+		hardwareAcceleration,
 	});
 };
 
