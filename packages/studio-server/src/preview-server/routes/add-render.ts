@@ -61,6 +61,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				forSeamlessAacConcatenation: input.forSeamlessAacConcatenation,
 				separateAudioTo: input.separateAudioTo,
 				metadata: input.metadata,
+				hardwareAcceleration: input.hardwareAcceleration,
 			},
 			logLevel,
 		});

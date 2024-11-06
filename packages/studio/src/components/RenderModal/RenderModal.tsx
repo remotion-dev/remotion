@@ -10,6 +10,7 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
+import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {
 	RequiredChromiumOptions,
@@ -234,6 +235,7 @@ type RenderModalProps = {
 	readonly defaultConfigurationVideoCodec: Codec | null;
 	readonly defaultConfigurationAudioCodec: AudioCodec | null;
 	readonly initialForSeamlessAacConcatenation: boolean;
+	readonly initialHardwareAcceleration: HardwareAccelerationOption;
 	readonly renderTypeOfLastRender: RenderType | null;
 	readonly defaultMetadata: Record<string, string> | null;
 };
@@ -282,6 +284,7 @@ const RenderModal: React.FC<
 	initialRepro,
 	initialForSeamlessAacConcatenation,
 	renderTypeOfLastRender,
+	initialHardwareAcceleration,
 	defaultMetadata,
 }) => {
 	const {setSelectedModal} = useContext(ModalsContext);
@@ -440,6 +443,8 @@ const RenderModal: React.FC<
 	const [x264PresetSetting, setx264Preset] = useState<X264Preset>(
 		() => initialx264Preset,
 	);
+	const [hardwareAcceleration, setHardwareAcceleration] =
+		useState<HardwareAccelerationOption>(() => initialHardwareAcceleration);
 
 	const [userPreferredPixelFormat, setPixelFormat] = useState<PixelFormat>(
 		() => initialPixelFormat,
@@ -843,6 +848,7 @@ const RenderModal: React.FC<
 			forSeamlessAacConcatenation,
 			separateAudioTo,
 			metadata,
+			hardwareAcceleration,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -893,6 +899,7 @@ const RenderModal: React.FC<
 		separateAudioTo,
 		setSelectedModal,
 		metadata,
+		hardwareAcceleration,
 	]);
 
 	const onClickSequence = useCallback(() => {
@@ -1295,6 +1302,8 @@ const RenderModal: React.FC<
 							endFrame={endFrame}
 							setEndFrame={setEndFrame}
 							setStartFrame={setStartFrame}
+							setVerboseLogging={setLogLevel}
+							logLevel={logLevel}
 							startFrame={startFrame}
 							validationMessage={
 								outnameValidation.valid ? null : outnameValidation.error.message
@@ -1385,8 +1394,6 @@ const RenderModal: React.FC<
 							minConcurrency={minConcurrency}
 							renderMode={renderMode}
 							setConcurrency={setConcurrency}
-							setVerboseLogging={setLogLevel}
-							logLevel={logLevel}
 							delayRenderTimeout={delayRenderTimeout}
 							setDelayRenderTimeout={setDelayRenderTimeout}
 							disallowParallelEncoding={disallowParallelEncoding}
@@ -1414,6 +1421,8 @@ const RenderModal: React.FC<
 							beep={beepOnFinish}
 							repro={repro}
 							setRepro={setRepro}
+							hardwareAcceleration={hardwareAcceleration}
+							setHardwareAcceleration={setHardwareAcceleration}
 						/>
 					)}
 				</div>

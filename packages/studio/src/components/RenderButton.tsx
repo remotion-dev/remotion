@@ -111,6 +111,7 @@ export const RenderButton: React.FC = () => {
 			initialForSeamlessAacConcatenation: defaults.forSeamlessAacConcatenation,
 			renderTypeOfLastRender: null,
 			defaulMetadata: defaults.metadata,
+			initialHardwareAcceleration: defaults.hardwareAcceleration,
 		});
 	}, [video, setSelectedModal, frame, props, inFrame, outFrame]);
 

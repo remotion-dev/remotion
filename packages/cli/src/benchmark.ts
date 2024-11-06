@@ -51,6 +51,7 @@ const {
 	publicPathOption,
 	publicDirOption,
 	metadataOption,
+	hardwareAccelerationOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -493,6 +494,9 @@ export const benchmarkCommand = async (
 					onBrowserDownload,
 					onArtifact: () => undefined,
 					metadata,
+					hardwareAcceleration: hardwareAccelerationOption.getValue({
+						commandLine: parsedCli,
+					}).value,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(
