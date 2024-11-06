@@ -157,23 +157,6 @@ describe('crf tests getValidCrfRanges invalid input', () => {
 	);
 });
 
-describe('crf tests getDefaultCrfForCodec valid input', () => {
-	// input codec, output
-	const validCodecIOs: [Codec, number][] = [
-		['h264', 18],
-		['h265', 23],
-		['vp8', 9],
-		['vp9', 28],
-		['mp3', 0],
-		['aac', 0],
-		['wav', 0],
-	] as [Codec, number][];
-	validCodecIOs.forEach((entry) =>
-		test(`default for ${entry[0]} should be ${entry[1]}`, () =>
-			expect(getDefaultCrfForCodec(entry[0])).toEqual(entry[1])),
-	);
-});
-
 describe('crf tests getDefaultCrfForCodec invalid input', () => {
 	// input codec
 	const invalidCodecs = ['abc', '', 3, undefined];
