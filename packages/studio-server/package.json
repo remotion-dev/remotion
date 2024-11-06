@@ -26,7 +26,7 @@
 		"@babel/parser": "7.24.1",
 		"semver": "7.5.3",
 		"remotion": "workspace:*",
-		"recast": "0.23.6",
+		"recast": "0.23.9",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",

@@ -1201,7 +1201,11 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						union: [
 							{type: 'boat' as const, depth: 10},
-							{type: 'car' as const, color: 'red', obj: [{link: 'hi there'}]},
+							{type: 'car' as const, color: 'blue', obj: [{link: 'hi there'}]},
+							{type: 'car' as const, color: '', obj: [{link: ''}]},
+							{type: 'car' as const, color: '', obj: [{link: ''}]},
+							{type: 'car' as const, color: '', obj: [{link: ''}]},
+							{type: 'car' as const, color: '', obj: [{link: ''}]},
 							{type: 'car' as const, color: '', obj: [{link: ''}]},
 							{type: 'car' as const, color: '', obj: [{link: ''}]},
 							{type: 'car' as const, color: '', obj: [{link: ''}]},
