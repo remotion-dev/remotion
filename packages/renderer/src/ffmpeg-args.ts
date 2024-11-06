@@ -19,6 +19,7 @@ const firstEncodingStepOnly = ({
 	videoBitrate,
 	encodingMaxRate,
 	encodingBufferSize,
+	hardwareAcceleration,
 }: {
 	hasPreencoded: boolean;
 	proResProfileName: string | null;
@@ -29,6 +30,7 @@ const firstEncodingStepOnly = ({
 	videoBitrate: string | null;
 	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
+	hardwareAcceleration: HardwareAccelerationOption;
 }): string[][] => {
 	if (hasPreencoded || codec === 'gif') {
 		return [];
@@ -48,6 +50,7 @@ const firstEncodingStepOnly = ({
 			codec,
 			encodingMaxRate,
 			encodingBufferSize,
+			hardwareAcceleration,
 		}),
 	].filter(truthy);
 };
@@ -152,6 +155,7 @@ export const generateFfmpegArgs = ({
 			encodingMaxRate,
 			encodingBufferSize,
 			x264Preset,
+			hardwareAcceleration,
 		}),
 	].filter(truthy);
 };

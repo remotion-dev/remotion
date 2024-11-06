@@ -268,6 +268,7 @@ const internalRenderMediaRaw = ({
 		videoBitrate,
 		encodingMaxRate,
 		encodingBufferSize,
+		hardwareAcceleration,
 	});
 	validateBitrate(audioBitrate, 'audioBitrate');
 	validateBitrate(videoBitrate, 'videoBitrate');
