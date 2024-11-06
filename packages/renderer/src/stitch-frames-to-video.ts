@@ -363,6 +363,8 @@ const innerStitchFramesToVideo = async (
 			x264Preset,
 			colorSpace,
 			hardwareAcceleration,
+			indent,
+			logLevel,
 		}),
 		codec === 'h264' ? ['-movflags', 'faststart'] : null,
 		// Ignore metadata that may come from remote media

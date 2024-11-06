@@ -3,7 +3,7 @@ import type {AnyRemotionOption} from './option';
 export const hardwareAccelerationOptions = [
 	'disable',
 	'if-possible',
-	'force',
+	'required',
 ] as const;
 
 export type HardwareAccelerationOption =
@@ -27,7 +27,7 @@ export const hardwareAccelerationOption = {
 				hardwareAccelerationOptions.map((a) => JSON.stringify(a)),
 			)}
 			. Default "disable". Encode using a hardware-accelerated encoder if
-			available. If set to "force" and no hardware-accelerated encoder is
+			available. If set to "required" and no hardware-accelerated encoder is
 			available, then the render will fail.
 		`,
 	ssrName: 'hardwareAcceleration',

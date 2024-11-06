@@ -2,6 +2,8 @@ import type {HardwareAccelerationOption} from './client';
 import type {Codec} from './codec';
 import {validateQualitySettings} from './crf';
 import {getCodecName} from './get-codec-name';
+import type {LogLevel} from './log-level';
+import {Log} from './logger';
 import {DEFAULT_COLOR_SPACE, type ColorSpace} from './options/color-space';
 import type {X264Preset} from './options/x264-preset';
 import type {PixelFormat} from './pixel-format';
@@ -61,7 +63,9 @@ export const generateFfmpegArgs = ({
 	encodingMaxRate,
 	encodingBufferSize,
 	colorSpace,
-	hardwareAcceleration: hwAcceleration,
+	hardwareAcceleration,
+	indent,
+	logLevel,
 }: {
 	hasPreencoded: boolean;
 	proResProfileName: string | null;
@@ -74,12 +78,32 @@ export const generateFfmpegArgs = ({
 	encodingBufferSize: string | null;
 	colorSpace: ColorSpace | null;
 	hardwareAcceleration: HardwareAccelerationOption;
+	indent: boolean;
+	logLevel: LogLevel;
 }): string[][] => {
-	const encoderName = getCodecName(codec, hwAcceleration);
+	const encoderSettings = getCodecName(
+		codec,
+		hardwareAcceleration === 'required' ||
+			hardwareAcceleration === 'if-possible',
+	);
 
-	if (encoderName === null) {
-		throw new TypeError('encoderName is null: ' + JSON.stringify(codec));
+	if (encoderSettings === null) {
+		throw new TypeError(
+			`encoderSettings is null: ${JSON.stringify(codec)} (hwaccel = ${hardwareAcceleration})`,
+		);
 	}
+
+	const {encoderName, hardwareAccelerated} = encoderSettings;
+	if (!hardwareAccelerated && hardwareAcceleration === 'required') {
+		throw new Error(
+			`Codec ${codec} does not support hardware acceleration on ${process.platform}, but "hardwareAcceleration" is set to "required"`,
+		);
+	}
+
+	Log.verbose(
+		{indent, logLevel, tag: 'stitchFramesToVideo()'},
+		`Encoder: ${encoderName}, hardware accelerated: ${hardwareAccelerated}`,
+	);
 
 	const resolvedColorSpace = colorSpace ?? DEFAULT_COLOR_SPACE;
 
