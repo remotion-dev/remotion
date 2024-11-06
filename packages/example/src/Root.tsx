@@ -1207,6 +1207,10 @@ export const Index: React.FC = () => {
 							{type: 'car' as const, color: '', obj: [{link: ''}]},
 							{type: 'car' as const, color: '', obj: [{link: ''}]},
 							{type: 'car' as const, color: '', obj: [{link: ''}]},
+							{type: 'car' as const, color: '', obj: [{link: ''}]},
+							{type: 'car' as const, color: '', obj: [{link: ''}]},
+							{type: 'car' as const, color: '', obj: [{link: ''}]},
+							{type: 'car' as const, color: '', obj: [{link: ''}]},
 						],
 					}}
 					durationInFrames={150}
