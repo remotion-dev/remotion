@@ -1302,6 +1302,8 @@ const RenderModal: React.FC<
 							endFrame={endFrame}
 							setEndFrame={setEndFrame}
 							setStartFrame={setStartFrame}
+							setVerboseLogging={setLogLevel}
+							logLevel={logLevel}
 							startFrame={startFrame}
 							validationMessage={
 								outnameValidation.valid ? null : outnameValidation.error.message
@@ -1392,8 +1394,6 @@ const RenderModal: React.FC<
 							minConcurrency={minConcurrency}
 							renderMode={renderMode}
 							setConcurrency={setConcurrency}
-							setVerboseLogging={setLogLevel}
-							logLevel={logLevel}
 							delayRenderTimeout={delayRenderTimeout}
 							setDelayRenderTimeout={setDelayRenderTimeout}
 							disallowParallelEncoding={disallowParallelEncoding}

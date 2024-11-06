@@ -1,4 +1,4 @@
-import type {Codec, LogLevel, X264Preset} from '@remotion/renderer';
+import type {Codec, X264Preset} from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {UiOpenGlOptions} from '@remotion/studio-shared';
@@ -31,8 +31,6 @@ export const RenderModalAdvanced: React.FC<{
 	readonly maxConcurrency: number;
 	readonly setConcurrency: React.Dispatch<React.SetStateAction<number>>;
 	readonly concurrency: number;
-	readonly setVerboseLogging: React.Dispatch<React.SetStateAction<LogLevel>>;
-	readonly logLevel: LogLevel;
 	readonly delayRenderTimeout: number;
 	readonly setDelayRenderTimeout: React.Dispatch<React.SetStateAction<number>>;
 	readonly disallowParallelEncoding: boolean;
@@ -82,8 +80,6 @@ export const RenderModalAdvanced: React.FC<{
 	minConcurrency,
 	setConcurrency,
 	concurrency,
-	setVerboseLogging,
-	logLevel,
 	delayRenderTimeout,
 	setDelayRenderTimeout,
 	disallowParallelEncoding,
@@ -125,12 +121,6 @@ export const RenderModalAdvanced: React.FC<{
 			'default',
 		];
 	}, []);
-	const onVerboseLoggingChanged = useCallback(
-		(e: ChangeEvent<HTMLInputElement>) => {
-			setVerboseLogging(e.target.checked ? 'verbose' : 'info');
-		},
-		[setVerboseLogging],
-	);
 
 	const toggleCustomOffthreadVideoCacheSizeInBytes = useCallback(() => {
 		setOffthreadVideoCacheSizeInBytes((previous) => {
@@ -282,19 +272,6 @@ export const RenderModalAdvanced: React.FC<{
 
 	return (
 		<div style={container} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-			<div style={optionRow}>
-				<div style={label}>
-					Verbose logging <Spacing x={0.5} />
-					<OptionExplainerBubble id="logLevelOption" />
-				</div>
-				<div style={rightRow}>
-					<Checkbox
-						checked={logLevel === 'verbose'}
-						onChange={onVerboseLoggingChanged}
-						name="verbose-logging"
-					/>
-				</div>
-			</div>
 			{renderMode === 'still' ? null : (
 				<NumberSetting
 					min={minConcurrency}
