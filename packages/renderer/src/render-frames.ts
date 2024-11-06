@@ -389,6 +389,8 @@ const innerRenderFrames = async ({
 		stopped = true;
 	});
 
+	const frameDir = outputDir ?? downloadMap.compositingDir;
+
 	const renderFrameWithOptionToReject = async ({
 		frame,
 		index,
@@ -468,10 +470,10 @@ const innerRenderFrames = async ({
 			height,
 			imageFormat: assetsOnly ? 'none' : imageFormat,
 			output:
-				index === null || outputDir === null
+				index === null
 					? null
 					: path.join(
-							outputDir,
+							frameDir,
 							getFrameOutputFileName({
 								frame,
 								imageFormat,
@@ -486,6 +488,7 @@ const innerRenderFrames = async ({
 			scale,
 			wantsBuffer: Boolean(onFrameBuffer),
 			timeoutInMilliseconds,
+			downloadMap,
 		});
 		if (onFrameBuffer && !assetsOnly) {
 			if (!buffer) {
@@ -749,7 +752,7 @@ const innerRenderFrames = async ({
 				return a.frame - b.frame;
 			}),
 			imageSequenceName: path.join(
-				outputDir as string,
+				frameDir,
 				`element-%0${filePadLength}d.${imageFormat}`,
 			),
 			firstFrameIndex,
