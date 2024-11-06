@@ -1,19 +1,76 @@
+import type {HardwareAccelerationOption} from './client';
 import type {Codec} from './codec';
 
-const map: {[key in Codec]: string | null} = {
-	h264: 'libx264',
-	h265: 'libx265',
-	vp8: 'libvpx',
-	vp9: 'libvpx-vp9',
-	prores: 'prores_ks',
-	gif: 'gif',
-	mp3: null,
-	aac: null,
-	wav: null,
-	'h264-mkv': 'libx264',
-	'h264-ts': 'libx264',
-};
+export const getCodecName = (
+	codec: Codec,
+	hwAcceleration: HardwareAccelerationOption,
+): string | null => {
+	if (codec === 'prores') {
+		if (hwAcceleration === 'disable') {
+			return 'prores_ks';
+		}
 
-export const getCodecName = (codec: Codec): string | null => {
-	return map[codec];
+		const availableHwAcceleration =
+			process.platform === 'darwin' ? 'prores_videotoolbox' : null;
+
+		if (hwAcceleration === 'force') {
+			if (!availableHwAcceleration) {
+				throw new Error(
+					`Cannot use hardware acceleration for ProRes on platform ${process.platform}`,
+				);
+			}
+
+			return availableHwAcceleration;
+		}
+
+		return availableHwAcceleration ?? 'prores_ks';
+	}
+
+	if (hwAcceleration === 'force') {
+		throw new Error(
+			`Cannot use hardware acceleration for ${codec} on platform ${process.platform}`,
+		);
+	}
+
+	if (codec === 'h264') {
+		return 'libx264';
+	}
+
+	if (codec === 'h265') {
+		return 'libx265';
+	}
+
+	if (codec === 'vp8') {
+		return 'libvpx';
+	}
+
+	if (codec === 'vp9') {
+		return 'libvpx-vp9';
+	}
+
+	if (codec === 'gif') {
+		return 'gif';
+	}
+
+	if (codec === 'mp3') {
+		return null;
+	}
+
+	if (codec === 'aac') {
+		return null;
+	}
+
+	if (codec === 'wav') {
+		return null;
+	}
+
+	if (codec === 'h264-mkv') {
+		return 'libx264';
+	}
+
+	if (codec === 'h264-ts') {
+		return 'libx264';
+	}
+
+	throw new Error(`Could not get codec for ${codec satisfies never}`);
 };

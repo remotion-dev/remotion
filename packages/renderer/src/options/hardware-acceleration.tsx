@@ -1,12 +1,21 @@
 import type {AnyRemotionOption} from './option';
 
-const possibleValues = ['disable', 'if-possible', 'force'] as const;
+export const hardwareAccelerationOptions = [
+	'disable',
+	'if-possible',
+	'force',
+] as const;
 
-export type HardwareAccelerationOption = (typeof possibleValues)[number];
+export type HardwareAccelerationOption =
+	(typeof hardwareAccelerationOptions)[number];
 
 const cliFlag = 'hardware-acceleration' as const;
 
 let currentValue: HardwareAccelerationOption | null = null;
+
+export const getHardwareAcceleration = () => {
+	return currentValue;
+};
 
 export const hardwareAccelerationOption = {
 	name: 'Hardware Acceleration',
@@ -24,7 +33,7 @@ export const hardwareAccelerationOption = {
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			const value = commandLine[cliFlag] as HardwareAccelerationOption;
-			if (!possibleValues.includes(value)) {
+			if (!hardwareAccelerationOptions.includes(value)) {
 				throw new Error(`Invalid value for --${cliFlag}: ${value}`);
 			}
 
@@ -47,7 +56,7 @@ export const hardwareAccelerationOption = {
 		};
 	},
 	setConfig: (value: HardwareAccelerationOption) => {
-		if (!possibleValues.includes(value)) {
+		if (!hardwareAccelerationOptions.includes(value)) {
 			throw new Error(`Invalid value for --${cliFlag}: ${value}`);
 		}
 

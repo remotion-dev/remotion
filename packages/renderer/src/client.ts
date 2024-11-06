@@ -22,6 +22,7 @@ import {
 } from './options/audio-codec';
 import {DEFAULT_COLOR_SPACE, validColorSpaces} from './options/color-space';
 import {validOpenGlRenderers} from './options/gl';
+import {hardwareAccelerationOptions} from './options/hardware-acceleration';
 import {optionsMap} from './options/options-map';
 import {getOutputCodecOrUndefined} from './options/video-codec';
 import {x264PresetOptions} from './options/x264-preset';
@@ -43,6 +44,7 @@ export const BrowserSafeApis = {
 	getValidCrfRanges,
 	proResProfileOptions,
 	x264PresetOptions,
+	hardwareAccelerationOptions,
 	validPixelFormats,
 	validOpenGlRenderers,
 	validPixelFormatsForCodec,

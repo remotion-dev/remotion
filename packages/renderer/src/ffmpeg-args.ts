@@ -1,3 +1,4 @@
+import type {HardwareAccelerationOption} from './client';
 import type {Codec} from './codec';
 import {validateQualitySettings} from './crf';
 import {getCodecName} from './get-codec-name';
@@ -60,6 +61,7 @@ export const generateFfmpegArgs = ({
 	encodingMaxRate,
 	encodingBufferSize,
 	colorSpace,
+	hardwareAcceleration: hwAcceleration,
 }: {
 	hasPreencoded: boolean;
 	proResProfileName: string | null;
@@ -71,8 +73,9 @@ export const generateFfmpegArgs = ({
 	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
 	colorSpace: ColorSpace | null;
+	hardwareAcceleration: HardwareAccelerationOption;
 }): string[][] => {
-	const encoderName = getCodecName(codec);
+	const encoderName = getCodecName(codec, hwAcceleration);
 
 	if (encoderName === null) {
 		throw new TypeError('encoderName is null: ' + JSON.stringify(codec));

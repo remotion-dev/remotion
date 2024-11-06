@@ -325,6 +325,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 			},
 			onArtifact,
 			metadata: params.metadata,
+			hardwareAcceleration: 'disable',
 		})
 			.then(({slowestFrames}) => {
 				RenderInternals.Log.verbose(

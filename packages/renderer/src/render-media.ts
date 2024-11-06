@@ -248,6 +248,7 @@ const internalRenderMediaRaw = ({
 	onBrowserDownload,
 	onArtifact,
 	metadata,
+	hardwareAcceleration,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	if (repro) {
 		enableRepro({
@@ -500,6 +501,7 @@ const internalRenderMediaRaw = ({
 				x264Preset: x264Preset ?? null,
 				colorSpace,
 				binariesDirectory,
+				hardwareAcceleration,
 			});
 			stitcherFfmpeg = preStitcher.task;
 		}
@@ -736,6 +738,7 @@ const internalRenderMediaRaw = ({
 					binariesDirectory,
 					separateAudioTo,
 					metadata,
+					hardwareAcceleration,
 				});
 			})
 			.then((buffer) => {
@@ -890,6 +893,7 @@ export const renderMedia = ({
 	onBrowserDownload,
 	onArtifact,
 	metadata,
+	hardwareAcceleration,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	const indent = false;
 	const logLevel =
@@ -969,5 +973,6 @@ export const renderMedia = ({
 		metadata: metadata ?? null,
 		// TODO: In the future, introduce this as a public API when launching the distributed rendering API
 		compositionStart: 0,
+		hardwareAcceleration: hardwareAcceleration ?? 'disable',
 	});
 };

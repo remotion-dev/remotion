@@ -10,6 +10,7 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
+import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import type {PackageManager} from '@remotion/studio-shared';
 import type React from 'react';
 import {createContext} from 'react';
@@ -50,6 +51,7 @@ export type RenderModalState = {
 	initialEncodingMaxRate: string | null;
 	initialEncodingBufferSize: string | null;
 	initialForSeamlessAacConcatenation: boolean;
+	initialHardwareAcceleration: HardwareAccelerationOption;
 	initialBeep: boolean;
 	initialRepro: boolean;
 	minConcurrency: number;
