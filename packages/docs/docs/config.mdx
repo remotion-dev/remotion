@@ -314,26 +314,6 @@ import {Config} from '@remotion/cli/config';
 Config.setStillImageFormat('pdf');
 ```
 
-## ~~`setImageFormat()`~~<AvailableFrom v="1.4.0" />
-
-_Removed in v4.0_
-
-Replaced in v4.0 with `setVideoImageFormat()` and `setStillImageFormat()`
-
-Determines which in which image format to render the frames. Either:
-
-- `jpeg` - the fastest option (default from v1.1)
-- `png` - slower, but supports transparency
-- `none` - don't render images, just calculate audio information (available from v2.0)
-
-```ts title="remotion.config.ts"
-import {Config} from '@remotion/cli/config';
-// ---cut---
-Config.setImageFormat('png');
-```
-
-The [command line flag](/docs/cli/render#--image-format) `--image-format` will take precedence over this option.
-
 ## `setScale()`<AvailableFrom v="2.6.7" />
 
 [Scales the output frames by the factor you pass in.](/docs/scaling) For example, a 1280x720px frame will become a 1920x1080px frame with a scale factor of `1.5`. Vector elements like fonts and HTML markups will be rendered with extra details. Default: `1`.
@@ -370,7 +350,7 @@ Config.setEnforceAudioTrack(true);
 
 The [command line flag](/docs/cli/render#--enforce-audio-track) `--enforce-audio-track` will take precedence over this option.
 
-### `setForSeamlessAacConcatenation()`<AvailableFrom v="4.0.123" />
+## `setForSeamlessAacConcatenation()`<AvailableFrom v="4.0.123" />
 
 <Options id="for-seamless-aac-concatenation" />
 
@@ -413,10 +393,6 @@ Config.setJpegQuality(90);
 ```
 
 The [command line flag](/docs/cli/render#--jpeg-quality) `--jpeg-quality` will take precedence over this option.
-
-## ~~`setQuality()`~~
-
-Renamed to `setJpegQuality` in `v4.0.0`.
 
 ## `setDotEnvLocation()`
 
@@ -604,23 +580,6 @@ Config.overrideWidth(900);
 ```
 
 The [command line flag](/docs/cli/render#--width) `--width` will take precedence over this option
-
-## ~~`setOutputFormat()`~~
-
-_Removed in v4.0.0_
-_Deprecated_. Use `setCodec()` and `setImageSequence()` instead.
-
-Either `'mp4'` or `'png-sequence'`.
-
-```ts title="remotion.config.ts"
-import {Config} from '@remotion/cli/config';
-// ---cut---
-Config.setOutputFormat('mp4');
-```
-
-The [command line flags](/docs/cli) `--sequence` and `--codec` will take precedence over this option.
-
-The [command line flag](/docs/cli) `--quality` will take precedence over this option.
 
 ## `setCrf()`<AvailableFrom v="1.4.0" />
 
@@ -845,6 +804,10 @@ Using this feature is discouraged. Before using it, we want to make you aware of
 Before you use this hack, reach out to the Remotion team on [Discord](https://remotion.dev/discord) and ask us if we are open to implement the feature you need in a clean way - we often do implement new features quickly based on users feedback.
 :::
 
+## ~~`setQuality()`~~
+
+Renamed to `setJpegQuality` in `v4.0.0`.
+
 ## ~~`setFfmpegExecutable()`~~
 
 _removed in v4.0_
@@ -898,6 +861,43 @@ Config.setPort(3003);
 ```
 
 The [command line flag](/docs/cli/render#--port) `--port` will take precedence over this option. If set on `npx remotion studio`, it will set the Studio port, otherwise the renderer port.
+
+## ~~`setOutputFormat()`~~
+
+_Removed in v4.0.0_
+_Deprecated_. Use `setCodec()` and `setImageSequence()` instead.
+
+Either `'mp4'` or `'png-sequence'`.
+
+```ts title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setOutputFormat('mp4');
+```
+
+The [command line flags](/docs/cli) `--sequence` and `--codec` will take precedence over this option.
+
+The [command line flag](/docs/cli) `--quality` will take precedence over this option.
+
+## ~~`setImageFormat()`~~<AvailableFrom v="1.4.0" />
+
+_Removed in v4.0_
+
+Replaced in v4.0 with `setVideoImageFormat()` and `setStillImageFormat()`
+
+Determines which in which image format to render the frames. Either:
+
+- `jpeg` - the fastest option (default from v1.1)
+- `png` - slower, but supports transparency
+- `none` - don't render images, just calculate audio information (available from v2.0)
+
+```ts title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setImageFormat('png');
+```
+
+The [command line flag](/docs/cli/render#--image-format) `--image-format` will take precedence over this option.
 
 ## Importing ES Modules
 
