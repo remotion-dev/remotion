@@ -39,6 +39,7 @@ import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {Layers} from './Layers';
 import {ManyAudio} from './ManyAudio';
 import {HandleAudioRenderError} from './MediaErrorHandling/HandleAudioRenderError';
+import {InfiniteAudio} from './MediaErrorHandling/InfiniteAudio';
 import {MissingImg} from './MissingImg';
 import {
 	OffthreadRemoteVideo,
@@ -1428,6 +1429,14 @@ export const Index: React.FC = () => {
 					height={1080}
 					width={1080}
 					durationInFrames={10_000}
+				/>
+				<Composition
+					id="InfiniteAudio"
+					component={InfiniteAudio}
+					fps={30}
+					height={1080}
+					width={1080}
+					durationInFrames={1800}
 				/>
 			</Folder>
 			<Folder name="AnimatedEmojis">
