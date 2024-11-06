@@ -33,6 +33,7 @@ import {
 import {proResProfileOptions} from './prores-profile';
 import {validateOutputFilename} from './validate-output-filename';
 export {AvailableOptions, TypeOfOption} from './options';
+export {HardwareAccelerationOption} from './options/hardware-acceleration';
 
 export const BrowserSafeApis = {
 	getFileExtensionFromCodec,

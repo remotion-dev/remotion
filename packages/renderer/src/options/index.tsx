@@ -14,6 +14,7 @@ import {enforceAudioOption} from './enforce-audio';
 import {folderExpiryOption} from './folder-expiry';
 import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenation';
 import {glOption} from './gl';
+import {hardwareAccelerationOption} from './hardware-acceleration';
 import {headlessOption} from './headless';
 import {jpegQualityOption} from './jpeg-quality';
 import {logLevelOption} from './log-level';
@@ -75,6 +76,7 @@ export const allOptions = {
 	throwIfSiteExistsOption,
 	disableGitSourceOption,
 	metadataOption,
+	hardwareAccelerationOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;
