@@ -468,10 +468,10 @@ const innerRenderFrames = async ({
 			height,
 			imageFormat: assetsOnly ? 'none' : imageFormat,
 			output:
-				index === null
+				index === null || outputDir === null
 					? null
 					: path.join(
-							outputDir as string,
+							outputDir,
 							getFrameOutputFileName({
 								frame,
 								imageFormat,
