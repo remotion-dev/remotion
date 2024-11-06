@@ -118,8 +118,6 @@ module.exports = {
 				'version',
 				'video',
 				'watchstaticfile',
-				'null',
-				'clipper',
 			],
 		},
 		{

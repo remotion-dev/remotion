@@ -1,15 +1,10 @@
-import fs from 'node:fs';
 import path from 'node:path';
-import type {ClipRegion, TRenderAsset} from 'remotion/no-react';
+import type {TRenderAsset} from 'remotion/no-react';
 import type {DownloadMap} from './assets/download-map';
 import type {Page} from './browser/BrowserPage';
 import {collectAssets} from './collect-assets';
-import {compose} from './compositor/compose';
-import type {Compositor} from './compositor/compositor';
 import type {StillImageFormat, VideoImageFormat} from './image-format';
 import {provideScreenshot} from './provide-screenshot';
-import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
-import {truthy} from './truthy';
 
 export const takeFrameAndCompose = async ({
 	freePage,
@@ -22,7 +17,6 @@ export const takeFrameAndCompose = async ({
 	scale,
 	downloadMap,
 	wantsBuffer,
-	compositor,
 	timeoutInMilliseconds,
 }: {
 	freePage: Page;
@@ -35,112 +29,41 @@ export const takeFrameAndCompose = async ({
 	scale: number;
 	downloadMap: DownloadMap;
 	wantsBuffer: boolean;
-	compositor: Compositor;
 	timeoutInMilliseconds: number;
 }): Promise<{buffer: Buffer | null; collectedAssets: TRenderAsset[]}> => {
-	const [{value: clipRegion}, collectedAssets] = await Promise.all([
-		puppeteerEvaluateWithCatch<ClipRegion | null>({
-			pageFunction: () => {
-				if (typeof window.remotion_getClipRegion === 'undefined') {
-					return null;
-				}
-
-				return window.remotion_getClipRegion();
-			},
-			args: [],
-			frame,
-			page: freePage,
-			timeoutInMilliseconds,
-		}),
-		collectAssets({frame, freePage, timeoutInMilliseconds}),
-	]);
+	const collectedAssets = await collectAssets({
+		frame,
+		freePage,
+		timeoutInMilliseconds,
+	});
 
 	if (imageFormat === 'none') {
 		return {buffer: null, collectedAssets};
 	}
 
-	const needsComposing =
-		clipRegion === null
-			? null
-			: {
-					tmpFile: path.join(
-						downloadMap.compositingDir,
-						`${frame}.${imageFormat}`,
-					),
-					finalOutFile:
-						output ??
-						path.join(
-							downloadMap.compositingDir,
-							`${frame}-final.${imageFormat}`,
-						),
-					clipRegion: clipRegion as ClipRegion,
-				};
-	if (clipRegion !== 'hide') {
-		const shouldMakeBuffer = wantsBuffer && !needsComposing;
+	const tmpFile = path.join(
+		downloadMap.compositingDir,
+		`${frame}.${imageFormat}`,
+	);
 
-		const buf = await provideScreenshot({
-			page: freePage,
-			imageFormat,
-			jpegQuality,
-			options: {
-				frame,
-				output: shouldMakeBuffer ? null : (needsComposing?.tmpFile ?? output),
-			},
-			height,
-			width,
-			clipRegion,
-			timeoutInMilliseconds,
-			scale,
-		});
+	const shouldMakeBuffer = wantsBuffer;
 
-		if (shouldMakeBuffer) {
-			return {buffer: buf, collectedAssets};
-		}
-	}
+	const buf = await provideScreenshot({
+		page: freePage,
+		imageFormat,
+		jpegQuality,
+		options: {
+			frame,
+			output: shouldMakeBuffer ? null : (tmpFile ?? output),
+		},
+		height,
+		width,
+		timeoutInMilliseconds,
+		scale,
+	});
 
-	if (needsComposing) {
-		if (imageFormat === 'pdf') {
-			throw new Error(
-				"You cannot use Rust APIs (like <Clipper>) if `imageFormat` is 'pdf'.",
-			);
-		}
-
-		if (imageFormat === 'webp') {
-			throw new Error(
-				"You cannot use Rust APIs (like <Clipper>) if `imageFormat` is 'webp'.",
-			);
-		}
-
-		await compose({
-			height: height * scale,
-			width: width * scale,
-			layers: [
-				needsComposing.clipRegion === 'hide'
-					? null
-					: {
-							type:
-								imageFormat === 'jpeg'
-									? ('JpgImage' as const)
-									: ('PngImage' as const),
-							params: {
-								height: needsComposing.clipRegion.height * scale,
-								width: needsComposing.clipRegion.width * scale,
-								src: needsComposing.tmpFile,
-								x: needsComposing.clipRegion.x * scale,
-								y: needsComposing.clipRegion.y * scale,
-							},
-						},
-			].filter(truthy),
-			output: needsComposing.finalOutFile,
-			downloadMap,
-			imageFormat: imageFormat === 'jpeg' ? 'Jpeg' : 'Png',
-			compositor,
-		});
-		if (wantsBuffer) {
-			const buffer = await fs.promises.readFile(needsComposing.finalOutFile);
-			await fs.promises.unlink(needsComposing.finalOutFile);
-			return {buffer, collectedAssets};
-		}
+	if (shouldMakeBuffer) {
+		return {buffer: buf, collectedAssets};
 	}
 
 	return {buffer: null, collectedAssets};

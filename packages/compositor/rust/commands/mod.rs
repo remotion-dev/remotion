@@ -1,6 +1,4 @@
-use crate::compositor::draw_layer;
 use crate::errors::ErrorWithBacktrace;
-use crate::image::{save_as_jpeg, save_as_png};
 use crate::memory::is_about_to_run_out_of_memory;
 use crate::opened_video_manager::OpenedVideoManager;
 use crate::payloads::payloads::CliInputCommandPayload;
@@ -72,35 +70,7 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWit
             let str = serde_json::to_string(&res)?;
             Ok(str.as_bytes().to_vec())
         }
-        CliInputCommandPayload::Compose(compose_command) => {
-            let len: usize = (compose_command.width * compose_command.height).try_into()?;
-            let mut data: Vec<u8> = vec![0; len * 4];
 
-            for layer in compose_command.layers {
-                draw_layer(&mut data, compose_command.width, layer)?;
-            }
-
-            if matches!(
-                compose_command.output_format,
-                crate::payloads::payloads::ImageFormat::Jpeg
-            ) {
-                save_as_jpeg(
-                    compose_command.width,
-                    compose_command.height,
-                    data,
-                    compose_command.output,
-                )?;
-            } else {
-                save_as_png(
-                    compose_command.width,
-                    compose_command.height,
-                    data,
-                    compose_command.output,
-                )?;
-            }
-
-            Ok("".as_bytes().to_vec())
-        }
         CliInputCommandPayload::ExtractAudio(_command) => {
             ffmpeg::extract_audio(&_command.input_path, &_command.output_path)?;
             Ok(vec![])

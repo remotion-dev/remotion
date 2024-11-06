@@ -13,7 +13,6 @@ import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import type {SourceMapGetter} from './browser/source-map-getter';
 import type {Codec} from './codec';
-import type {Compositor} from './compositor/compositor';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
@@ -128,7 +127,6 @@ const innerRenderStill = async ({
 	cancelSignal,
 	jpegQuality,
 	onBrowserLog,
-	compositor,
 	sourceMapGetter,
 	downloadMap,
 	logLevel,
@@ -141,7 +139,6 @@ const innerRenderStill = async ({
 	serveUrl: string;
 	onError: (err: Error) => void;
 	proxyPort: number;
-	compositor: Compositor;
 	sourceMapGetter: SourceMapGetter;
 }): Promise<RenderStillReturnValue> => {
 	validateDimension(
@@ -332,7 +329,6 @@ const innerRenderStill = async ({
 		output,
 		jpegQuality,
 		wantsBuffer: !output,
-		compositor,
 		downloadMap,
 		timeoutInMilliseconds,
 	});
@@ -389,7 +385,6 @@ const internalRenderStillRaw = (
 				const {
 					serveUrl,
 					offthreadPort,
-					compositor,
 					sourceMap: sourceMapGetter,
 					downloadMap,
 				} = server;
@@ -399,7 +394,6 @@ const internalRenderStillRaw = (
 					serveUrl,
 					onError,
 					proxyPort: offthreadPort,
-					compositor,
 					sourceMapGetter,
 					downloadMap,
 				});

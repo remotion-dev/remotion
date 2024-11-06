@@ -18,7 +18,6 @@ pub fn error_to_string(err: &ErrorWithBacktrace) -> String {
         PossibleErrors::FfmpegError(err) => err.to_string(),
         PossibleErrors::TryFromIntError(err) => err.to_string(),
         PossibleErrors::DecodingError(err) => err.to_string(),
-        PossibleErrors::JpegDecoderError(err) => err.to_string(),
         PossibleErrors::SerdeError(err) => err.to_string(),
         PossibleErrors::WorkerError(err) => format!("{:?}", err),
         PossibleErrors::EncodingError(err) => err.to_string(),
@@ -45,11 +44,10 @@ enum PossibleErrors {
     FfmpegError(remotionffmpeg::Error),
     TryFromIntError(std::num::TryFromIntError),
     DecodingError(png::DecodingError),
-    JpegDecoderError(jpeg_decoder::Error),
     SerdeError(serde_json::Error),
     WorkerError(Box<dyn Any + Send>),
     EncodingError(EncodingError),
-    ThreadPoolBuilderError(rayon::ThreadPoolBuildError),
+    ThreadPoolBuilderError(rayon_core::ThreadPoolBuildError),
 }
 
 pub struct ErrorWithBacktrace {
@@ -111,15 +109,6 @@ impl From<png::DecodingError> for ErrorWithBacktrace {
     }
 }
 
-impl From<jpeg_decoder::Error> for ErrorWithBacktrace {
-    fn from(err: jpeg_decoder::Error) -> ErrorWithBacktrace {
-        ErrorWithBacktrace {
-            error: PossibleErrors::JpegDecoderError(err),
-            backtrace: Backtrace::force_capture().to_string(),
-        }
-    }
-}
-
 impl From<EncodingError> for ErrorWithBacktrace {
     fn from(err: EncodingError) -> ErrorWithBacktrace {
         ErrorWithBacktrace {
@@ -129,8 +118,8 @@ impl From<EncodingError> for ErrorWithBacktrace {
     }
 }
 
-impl From<rayon::ThreadPoolBuildError> for ErrorWithBacktrace {
-    fn from(err: rayon::ThreadPoolBuildError) -> ErrorWithBacktrace {
+impl From<rayon_core::ThreadPoolBuildError> for ErrorWithBacktrace {
+    fn from(err: rayon_core::ThreadPoolBuildError) -> ErrorWithBacktrace {
         ErrorWithBacktrace {
             error: PossibleErrors::ThreadPoolBuilderError(err),
             backtrace: Backtrace::force_capture().to_string(),
@@ -245,7 +234,6 @@ impl std::fmt::Debug for ErrorWithBacktrace {
             PossibleErrors::FfmpegError(err) => write!(f, "FfmpegError: {:?}", err),
             PossibleErrors::TryFromIntError(err) => write!(f, "TryFromIntError: {:?}", err),
             PossibleErrors::DecodingError(err) => write!(f, "DecodingError: {:?}", err),
-            PossibleErrors::JpegDecoderError(err) => write!(f, "JpegDecoderError: {:?}", err),
             PossibleErrors::SerdeError(err) => write!(f, "SerdeError: {:?}", err),
             PossibleErrors::WorkerError(err) => write!(f, "WorkerError: {:?}", err),
             PossibleErrors::EncodingError(err) => write!(f, "EncodingError: {:?}", err),

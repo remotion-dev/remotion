@@ -18,7 +18,6 @@ import {defaultBrowserDownloadProgress} from './browser/browser-download-progres
 import {isFlakyNetworkError, isTargetClosedErr} from './browser/flaky-errors';
 import type {SourceMapGetter} from './browser/source-map-getter';
 import type {Codec} from './codec';
-import type {Compositor} from './compositor/compositor';
 import {compressAsset} from './compress-assets';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
@@ -137,7 +136,6 @@ type InnerRenderFramesOptions = {
 	downloadMap: DownloadMap;
 	makeBrowser: () => Promise<HeadlessBrowser>;
 	browserReplacer: BrowserReplacer;
-	compositor: Compositor;
 	sourceMapGetter: SourceMapGetter;
 	serveUrl: string;
 	indent: boolean;
@@ -228,7 +226,6 @@ const innerRenderFrames = async ({
 	muted,
 	makeBrowser,
 	browserReplacer,
-	compositor,
 	sourceMapGetter,
 	logLevel,
 	indent,
@@ -491,7 +488,6 @@ const innerRenderFrames = async ({
 			scale,
 			downloadMap,
 			wantsBuffer: Boolean(onFrameBuffer),
-			compositor,
 			timeoutInMilliseconds,
 		});
 		if (onFrameBuffer && !assetsOnly) {
@@ -882,8 +878,7 @@ const internalRenderFramesRaw = ({
 				),
 				browserInstance,
 			]).then(([{server: openedServer, cleanupServer}, pInstance]) => {
-				const {serveUrl, offthreadPort, compositor, sourceMap, downloadMap} =
-					openedServer;
+				const {serveUrl, offthreadPort, sourceMap, downloadMap} = openedServer;
 
 				const browserReplacer = handleBrowserCrash(pInstance, logLevel, indent);
 
@@ -909,7 +904,6 @@ const internalRenderFramesRaw = ({
 					proxyPort: offthreadPort,
 					makeBrowser,
 					browserReplacer,
-					compositor,
 					sourceMapGetter: sourceMap,
 					downloadMap,
 					cancelSignal,
