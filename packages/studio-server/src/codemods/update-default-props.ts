@@ -1,6 +1,6 @@
 import {stringifyDefaultProps, type EnumPath} from '@remotion/studio-shared';
 import * as recast from 'recast';
-import {parse} from 'recast/parsers/babel-ts';
+import * as tsParser from 'recast/parsers/babel-ts';
 
 export const updateDefaultProps = async ({
 	input,
@@ -12,52 +12,112 @@ export const updateDefaultProps = async ({
 	compositionId: string;
 	newDefaultProps: Record<string, unknown>;
 	enumPaths: EnumPath[];
-}): Promise<string> => {
+}): Promise<Promise<Promise<Promise<string>>>> => {
 	const ast = recast.parse(input, {
-		parser: {parse},
+		parser: tsParser,
 	});
 
 	recast.types.visit(ast, {
 		visitJSXElement(path) {
-			const openingElement = path.node.openingElement as any;
+			const {openingElement} = path.node;
 			//	1: ensure its the element we're looking for
+			const openingName = openingElement.name;
 			if (
-				openingElement.name.name === 'Composition' &&
-				openingElement.attributes.some(
-					(attr: any) =>
-						attr.name.name === 'id' && attr.value.value === compositionId,
-				)
+				openingName.type !== 'JSXIdentifier' &&
+				openingName.type !== 'JSXNamespacedName'
 			) {
-				//	2: Find the defaultProps attribute and handle related errors
-				const defaultPropsAttr = openingElement.attributes.find(
-					(attr: any) => attr.name.name === 'defaultProps',
-				);
-				if (!defaultPropsAttr) {
-					throw new Error(
-						`No \`defaultProps\` prop found in the <Composition/> tag with the ID "${compositionId}".`,
-					);
+				this.traverse(path); // Continue traversing the AST
+				return;
+			}
+
+			if (openingName.name !== 'Composition' && openingName.name !== 'Still') {
+				this.traverse(path); // Continue traversing the AST
+				return;
+			}
+
+			if (
+				!openingElement.attributes?.some((attr) => {
+					if (attr.type === 'JSXSpreadAttribute') {
+						return;
+					}
+
+					if (!attr.value) {
+						return;
+					}
+
+					if (attr.value.type === 'JSXElement') {
+						return;
+					}
+
+					if (attr.value.type === 'JSXExpressionContainer') {
+						return;
+					}
+
+					if (attr.value.type === 'JSXFragment') {
+						return;
+					}
+
+					return attr.name.name === 'id' && attr.value.value === compositionId;
+				})
+			) {
+				this.traverse(path); // Continue traversing the AST
+				return;
+			}
+
+			//	2: Find the defaultProps attribute and handle related errors
+			const defaultPropsAttr = openingElement.attributes.find((attr) => {
+				if (attr.type === 'JSXSpreadAttribute') {
+					this.traverse(path); // Continue traversing the AST
+					return;
 				}
 
-				//	3: ensure only hardcoded values are provided
+				return attr.name.name === 'defaultProps';
+			});
 
-				const defaultPropsValue = defaultPropsAttr.value.expression; // Get the value of defaultProps
-				if (
-					defaultPropsValue.type !== 'ObjectExpression' &&
-					defaultPropsValue.type !== 'ObjectLiteralExpression' &&
-					defaultPropsValue.type !== 'AsExpression' &&
-					defaultPropsValue.type !== 'TSAsExpression'
-				) {
-					throw new Error(
-						`\`defaultProps\` prop does not have a hardcoded value in the <Composition/> tag with the ID "${defaultPropsValue.type}".`,
-					);
-				}
-
-				//	4: modify the code
-
-				defaultPropsAttr.value.expression = recast.types.builders.identifier(
-					stringifyDefaultProps({props: newDefaultProps, enumPaths}),
+			if (!defaultPropsAttr) {
+				throw new Error(
+					`No \`defaultProps\` prop found in the <Composition/> tag with the ID "${compositionId}".`,
 				);
 			}
+
+			if (defaultPropsAttr.type === 'JSXSpreadAttribute') {
+				this.traverse(path); // Continue traversing the AST
+				return;
+			}
+
+			//	3: ensure only hardcoded values are provided
+			if (
+				!defaultPropsAttr.value ||
+				defaultPropsAttr.value.type === 'JSXElement' ||
+				defaultPropsAttr.value.type === 'JSXText' ||
+				defaultPropsAttr.value.type === 'StringLiteral' ||
+				defaultPropsAttr.value.type === 'NumericLiteral' ||
+				defaultPropsAttr.value.type === 'BigIntLiteral' ||
+				defaultPropsAttr.value.type === 'DecimalLiteral' ||
+				defaultPropsAttr.value.type === 'NullLiteral' ||
+				defaultPropsAttr.value.type === 'BooleanLiteral' ||
+				defaultPropsAttr.value.type === 'RegExpLiteral' ||
+				defaultPropsAttr.value.type === 'JSXFragment' ||
+				defaultPropsAttr.value.type === 'Literal'
+			) {
+				throw new Error(
+					`\`defaultProps\` prop must be a hardcoded value in the <Composition/> tag, but it is a ${defaultPropsAttr.value?.type}".`,
+				);
+			}
+
+			const defaultPropsValue = defaultPropsAttr.value.expression;
+			if (
+				defaultPropsValue.type !== 'ObjectExpression' &&
+				defaultPropsValue.type !== 'TSAsExpression'
+			) {
+				throw new Error(
+					`\`defaultProps\` prop must be a hardcoded value in the <Composition/> tag with the ID "${defaultPropsValue.type}".`,
+				);
+			}
+
+			defaultPropsAttr.value.expression = recast.types.builders.identifier(
+				stringifyDefaultProps({props: newDefaultProps, enumPaths}),
+			);
 
 			this.traverse(path); // Continue traversing the AST
 		},
