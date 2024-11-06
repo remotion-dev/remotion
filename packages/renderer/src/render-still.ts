@@ -3,7 +3,6 @@ import path from 'node:path';
 import type {VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-import type {DownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
@@ -38,7 +37,7 @@ import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import type {OnArtifact} from './render-frames';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
-import {takeFrameAndCompose} from './take-frame-and-compose';
+import {takeFrame} from './take-frame';
 import {
 	validateDimension,
 	validateDurationInFrames,
@@ -128,14 +127,12 @@ const innerRenderStill = async ({
 	jpegQuality,
 	onBrowserLog,
 	sourceMapGetter,
-	downloadMap,
 	logLevel,
 	indent,
 	serializedResolvedPropsWithCustomSchema,
 	onBrowserDownload,
 	onArtifact,
 }: InternalRenderStillOptions & {
-	downloadMap: DownloadMap;
 	serveUrl: string;
 	onError: (err: Error) => void;
 	proxyPort: number;
@@ -319,7 +316,7 @@ const innerRenderStill = async ({
 		attempt: 0,
 	});
 
-	const {buffer, collectedAssets} = await takeFrameAndCompose({
+	const {buffer, collectedAssets} = await takeFrame({
 		frame: stillFrame,
 		freePage: page,
 		height: composition.height,
@@ -329,7 +326,6 @@ const innerRenderStill = async ({
 		output,
 		jpegQuality,
 		wantsBuffer: !output,
-		downloadMap,
 		timeoutInMilliseconds,
 	});
 
@@ -382,12 +378,7 @@ const internalRenderStillRaw = (
 		)
 			.then(({server, cleanupServer}) => {
 				cleanup.push(() => cleanupServer(false));
-				const {
-					serveUrl,
-					offthreadPort,
-					sourceMap: sourceMapGetter,
-					downloadMap,
-				} = server;
+				const {serveUrl, offthreadPort, sourceMap: sourceMapGetter} = server;
 
 				return innerRenderStill({
 					...options,
@@ -395,7 +386,6 @@ const internalRenderStillRaw = (
 					onError,
 					proxyPort: offthreadPort,
 					sourceMapGetter,
-					downloadMap,
 				});
 			})
 

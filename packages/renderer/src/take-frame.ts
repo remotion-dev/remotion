@@ -1,12 +1,10 @@
-import path from 'node:path';
 import type {TRenderAsset} from 'remotion/no-react';
-import type {DownloadMap} from './assets/download-map';
 import type {Page} from './browser/BrowserPage';
 import {collectAssets} from './collect-assets';
 import type {StillImageFormat, VideoImageFormat} from './image-format';
 import {provideScreenshot} from './provide-screenshot';
 
-export const takeFrameAndCompose = async ({
+export const takeFrame = async ({
 	freePage,
 	imageFormat,
 	jpegQuality,
@@ -15,7 +13,6 @@ export const takeFrameAndCompose = async ({
 	height,
 	output,
 	scale,
-	downloadMap,
 	wantsBuffer,
 	timeoutInMilliseconds,
 }: {
@@ -27,7 +24,6 @@ export const takeFrameAndCompose = async ({
 	width: number;
 	output: string | null;
 	scale: number;
-	downloadMap: DownloadMap;
 	wantsBuffer: boolean;
 	timeoutInMilliseconds: number;
 }): Promise<{buffer: Buffer | null; collectedAssets: TRenderAsset[]}> => {
@@ -41,11 +37,6 @@ export const takeFrameAndCompose = async ({
 		return {buffer: null, collectedAssets};
 	}
 
-	const tmpFile = path.join(
-		downloadMap.compositingDir,
-		`${frame}.${imageFormat}`,
-	);
-
 	const shouldMakeBuffer = wantsBuffer;
 
 	const buf = await provideScreenshot({
@@ -54,7 +45,7 @@ export const takeFrameAndCompose = async ({
 		jpegQuality,
 		options: {
 			frame,
-			output: shouldMakeBuffer ? null : (tmpFile ?? output),
+			output: wantsBuffer ? null : output,
 		},
 		height,
 		width,

@@ -54,7 +54,7 @@ import {handleBrowserCrash} from './replace-browser';
 import {seekToFrame} from './seek-to-frame';
 import type {EmittedArtifact} from './serialize-artifact';
 import {setPropsAndEnv} from './set-props-and-env';
-import {takeFrameAndCompose} from './take-frame-and-compose';
+import {takeFrame} from './take-frame';
 import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
 import {
@@ -389,8 +389,6 @@ const innerRenderFrames = async ({
 		stopped = true;
 	});
 
-	const frameDir = outputDir ?? downloadMap.compositingDir;
-
 	const renderFrameWithOptionToReject = async ({
 		frame,
 		index,
@@ -464,7 +462,7 @@ const innerRenderFrames = async ({
 
 		const id = startPerfMeasure('save');
 
-		const {buffer, collectedAssets} = await takeFrameAndCompose({
+		const {buffer, collectedAssets} = await takeFrame({
 			frame,
 			freePage,
 			height,
@@ -473,7 +471,7 @@ const innerRenderFrames = async ({
 				index === null
 					? null
 					: path.join(
-							frameDir,
+							outputDir as string,
 							getFrameOutputFileName({
 								frame,
 								imageFormat,
@@ -486,7 +484,6 @@ const innerRenderFrames = async ({
 			jpegQuality,
 			width,
 			scale,
-			downloadMap,
 			wantsBuffer: Boolean(onFrameBuffer),
 			timeoutInMilliseconds,
 		});
@@ -752,7 +749,7 @@ const innerRenderFrames = async ({
 				return a.frame - b.frame;
 			}),
 			imageSequenceName: path.join(
-				frameDir,
+				outputDir as string,
 				`element-%0${filePadLength}d.${imageFormat}`,
 			),
 			firstFrameIndex,
