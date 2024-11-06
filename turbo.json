@@ -84,7 +84,8 @@
 		},
 		"@remotion/convert#build-page": {
 			"dependsOn": ["^@remotion/webcodecs#make"],
-			"outputs": ["build"]
+			"outputs": ["build", ".vercel"],
+			"outputLogs": "new-only"
 		},
 		"convert": {
 			"dependsOn": ["^@remotion/convert#build-page"]
