@@ -488,7 +488,6 @@ const innerRenderFrames = async ({
 			scale,
 			wantsBuffer: Boolean(onFrameBuffer),
 			timeoutInMilliseconds,
-			downloadMap,
 		});
 		if (onFrameBuffer && !assetsOnly) {
 			if (!buffer) {

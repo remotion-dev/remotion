@@ -3,7 +3,6 @@ import path from 'node:path';
 import type {VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-import type {DownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
@@ -133,13 +132,11 @@ const innerRenderStill = async ({
 	serializedResolvedPropsWithCustomSchema,
 	onBrowserDownload,
 	onArtifact,
-	downloadMap,
 }: InternalRenderStillOptions & {
 	serveUrl: string;
 	onError: (err: Error) => void;
 	proxyPort: number;
 	sourceMapGetter: SourceMapGetter;
-	downloadMap: DownloadMap;
 }): Promise<RenderStillReturnValue> => {
 	validateDimension(
 		composition.height,
@@ -330,7 +327,6 @@ const innerRenderStill = async ({
 		jpegQuality,
 		wantsBuffer: !output,
 		timeoutInMilliseconds,
-		downloadMap,
 	});
 
 	const artifactAssets = onlyArtifact(collectedAssets);
@@ -382,12 +378,7 @@ const internalRenderStillRaw = (
 		)
 			.then(({server, cleanupServer}) => {
 				cleanup.push(() => cleanupServer(false));
-				const {
-					serveUrl,
-					offthreadPort,
-					downloadMap,
-					sourceMap: sourceMapGetter,
-				} = server;
+				const {serveUrl, offthreadPort, sourceMap: sourceMapGetter} = server;
 
 				return innerRenderStill({
 					...options,
@@ -395,7 +386,6 @@ const internalRenderStillRaw = (
 					onError,
 					proxyPort: offthreadPort,
 					sourceMapGetter,
-					downloadMap,
 				});
 			})
 
