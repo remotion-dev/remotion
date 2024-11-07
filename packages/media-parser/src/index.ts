@@ -1,6 +1,7 @@
 import {createMedia} from './create/create-media';
 import type {LogLevel} from './log';
 import {Log} from './log';
+export {WriterInterface} from './writers/writer';
 
 export {
 	AudioTrack,

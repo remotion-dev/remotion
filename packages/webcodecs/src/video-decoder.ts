@@ -75,10 +75,6 @@ export const createVideoDecoder = ({
 
 	videoDecoder.configure(config);
 
-	const waitForFinish = async () => {
-		await ioSynchronizer.waitFor({unemitted: 2, _unprocessed: 10});
-	};
-
 	const processSample = async (sample: VideoSample) => {
 		if (videoDecoder.state === 'closed') {
 			return;
@@ -88,6 +84,8 @@ export const createVideoDecoder = ({
 		if (videoDecoder.state === 'closed') {
 			return;
 		}
+
+		await ioSynchronizer.waitFor({unemitted: 20, _unprocessed: 2});
 
 		if (sample.type === 'key') {
 			await videoDecoder.flush();
@@ -107,7 +105,7 @@ export const createVideoDecoder = ({
 		},
 		waitForFinish: async () => {
 			await videoDecoder.flush();
-			await waitForFinish();
+			await ioSynchronizer.waitForFinish();
 			await outputQueue;
 			await inputQueue;
 		},

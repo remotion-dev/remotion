@@ -87,7 +87,7 @@ export const createVideoEncoder = ({
 
 		await ioSynchronizer.waitFor({
 			unemitted: 2,
-			_unprocessed: 10,
+			_unprocessed: 2,
 		});
 
 		// @ts-expect-error - can have changed in the meanwhile
