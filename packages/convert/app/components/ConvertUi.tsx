@@ -9,6 +9,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
+import {bufferWriter} from '@remotion/media-parser/buffer';
 import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
 import {convertMedia} from '@remotion/webcodecs';
@@ -16,6 +17,7 @@ import {useCallback, useState} from 'react';
 import {ConvertState, Source} from '~/lib/convert-state';
 import {Container, getNewName} from '~/lib/generate-new-name';
 import {ConvertProgress} from './ConvertProgress';
+import {ErrorState} from './ErrorState';
 import {Badge} from './ui/badge';
 
 export default function ConvertUI({src}: {readonly src: Source}) {
@@ -86,10 +88,9 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 					setState({type: 'idle'});
 					return;
 				}
-				// eslint-disable-next-line no-alert
-				alert((e as Error).stack);
+
 				console.error(e);
-				setState({type: 'idle'});
+				setState({type: 'error', error: e as Error});
 			});
 
 		return () => {
@@ -109,7 +110,15 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 	return (
 		<div className="w-[380px]">
 			<CardContent className="gap-4">
-				{state.type === 'in-progress' ? (
+				{state.type === 'error' ? (
+					<>
+						<ErrorState error={state.error} />
+						<div className="h-4" />
+						<Button className="block w-full" type="button" onClick={cancel}>
+							Dismiss
+						</Button>
+					</>
+				) : state.type === 'in-progress' ? (
 					<>
 						<ConvertProgress
 							state={state.state}

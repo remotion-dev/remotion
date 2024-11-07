@@ -19,4 +19,8 @@ export type ConvertState =
 			type: 'done';
 			download: () => void;
 			state: ConvertMediaState;
+	  }
+	| {
+			type: 'error';
+			error: Error;
 	  };
