@@ -1,16 +1,17 @@
 ---
-image: /generated/articles-docs-vue-js.png
-id: vue-js
+image: /generated/articles-docs-vue.png
+id: vue
 sidebar_label: 'Integration into Vue'
-title: 'VueJS'
+title: 'Using Remotion in Vue'
+crumb: 'Integrations'
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Using Remotion in VueJS
+# Using Remotion in Vue
 
-This guide explains how to integrate Remotion into a **VueJS** project.
+This guide explains how to integrate Remotion into a **Vue.js** project.
 
 ## Install required packages
 
@@ -258,7 +259,7 @@ To display the Remotion player within an VueJS template, add your new wrapper co
 <PlayerWrapper @paused="onPaused" :data="data" />
 ```
 
-This VueJS component tag will render the Remotion player, allowing you to pass data or configuration as needed through VueJS's data binding.
+This VueJS component tag will render the Remotion Player, allowing you to pass data or configuration as needed through VueJS's data binding.
 
 You're now able to use the [`API`](/docs/player/player) of the player via `this.playerRef()`
 

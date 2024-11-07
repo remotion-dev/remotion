@@ -849,7 +849,7 @@ module.exports = {
 				'building-a-timeline',
 				'multiple-fps',
 				'angular',
-				'vue-js',
+				'vue',
 			],
 		},
 		{

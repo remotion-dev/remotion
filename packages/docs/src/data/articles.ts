@@ -35,13 +35,6 @@ export const articles = [
 		crumb: '@remotion/skia',
 	},
 	{
-		id: 'vue-js',
-		title: 'VueJS',
-		relativePath: 'docs/vue-js.mdx',
-		compId: 'articles-docs-vue-js',
-		crumb: null,
-	},
-	{
 		id: 'spring',
 		title: 'spring()',
 		relativePath: 'docs/spring.mdx',
@@ -413,6 +406,13 @@ export const articles = [
 		crumb: 'Techniques',
 	},
 	{
+		id: 'vue',
+		title: 'Using Remotion in Vue',
+		relativePath: 'docs/vue.mdx',
+		compId: 'articles-docs-vue',
+		crumb: 'Integrations',
+	},
+	{
 		id: 'bundle',
 		title: 'bundle()',
 		relativePath: 'docs/bundle.mdx',
@@ -701,10 +701,10 @@ export const articles = [
 	},
 	{
 		id: 'angular',
-		title: 'Angular',
+		title: 'Using Remotion in Angular',
 		relativePath: 'docs/angular.mdx',
 		compId: 'articles-docs-angular',
-		crumb: null,
+		crumb: 'Integrations',
 	},
 	{
 		id: 'flickering',
