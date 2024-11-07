@@ -89,6 +89,7 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 				// eslint-disable-next-line no-alert
 				alert((e as Error).stack);
 				console.error(e);
+				setState({type: 'idle'});
 			});
 
 		return () => {

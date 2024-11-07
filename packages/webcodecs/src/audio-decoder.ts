@@ -32,11 +32,27 @@ export const createAudioDecoder = ({
 	const audioDecoder = new AudioDecoder({
 		output(inputFrame) {
 			ioSynchronizer.onOutput(inputFrame.timestamp);
+			const abortHandler = () => {
+				inputFrame.close();
+			};
+
+			signal.addEventListener('abort', abortHandler, {once: true});
 			outputQueue = outputQueue
-				.then(() => onFrame(inputFrame))
+				.then(() => {
+					if (signal.aborted) {
+						return;
+					}
+
+					return onFrame(inputFrame);
+				})
 				.then(() => {
 					ioSynchronizer.onProcessed();
+					signal.removeEventListener('abort', abortHandler);
 					return Promise.resolve();
+				})
+				.catch((err) => {
+					inputFrame.close();
+					onError(err);
 				});
 		},
 		error(error) {
@@ -68,7 +84,7 @@ export const createAudioDecoder = ({
 			return;
 		}
 
-		while (ioSynchronizer.getUnemittedKeyframes() > 1) {
+		while (ioSynchronizer.getUnemittedKeyframes() > 100) {
 			await ioSynchronizer.waitForOutput();
 		}
 

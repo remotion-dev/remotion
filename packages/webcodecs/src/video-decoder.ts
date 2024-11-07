@@ -28,13 +28,28 @@ export const createVideoDecoder = ({
 		output(inputFrame) {
 			ioSynchronizer.onOutput(inputFrame.timestamp);
 
+			const abortHandler = () => {
+				inputFrame.close();
+			};
+
+			signal.addEventListener('abort', abortHandler, {once: true});
+
 			outputQueue = outputQueue
 				.then(() => {
+					if (signal.aborted) {
+						return;
+					}
+
 					return onFrame(inputFrame);
 				})
 				.then(() => {
 					ioSynchronizer.onProcessed();
+					signal.removeEventListener('abort', abortHandler);
 					return Promise.resolve();
+				})
+				.catch((err) => {
+					inputFrame.close();
+					onError(err);
 				});
 		},
 		error(error) {

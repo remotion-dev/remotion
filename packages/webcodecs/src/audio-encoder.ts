@@ -36,10 +36,19 @@ export const createAudioEncoder = ({
 		output: (chunk) => {
 			ioSynchronizer.onOutput(chunk.timestamp);
 			prom = prom
-				.then(() => onChunk(chunk))
+				.then(() => {
+					if (signal.aborted) {
+						return;
+					}
+
+					return onChunk(chunk);
+				})
 				.then(() => {
 					ioSynchronizer.onProcessed();
 					return Promise.resolve();
+				})
+				.catch((err) => {
+					onError(err);
 				});
 		},
 		error(error) {

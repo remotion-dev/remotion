@@ -71,8 +71,8 @@ export const makeVideoTrackHandler =
 				codec: track.codecWithoutConfig,
 				codecPrivate: track.codecPrivate,
 			});
-			return (sample) => {
-				state.addSample(
+			return async (sample) => {
+				await state.addSample(
 					new EncodedVideoChunk(sample),
 					videoTrack.trackNumber,
 					true,

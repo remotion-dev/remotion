@@ -44,11 +44,18 @@ export const createVideoEncoder = ({
 
 			outputQueue = outputQueue
 				.then(() => {
+					if (signal.aborted) {
+						return;
+					}
+
 					return onChunk(chunk);
 				})
 				.then(() => {
 					ioSynchronizer.onProcessed();
 					return Promise.resolve();
+				})
+				.catch((err) => {
+					onError(err);
 				});
 		},
 	});
