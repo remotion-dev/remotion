@@ -180,6 +180,7 @@ export const convertMedia = async function <
 		state,
 		onAudioTrack: userAudioResolver ?? defaultResolveAudioAction,
 		bitrate: 128000,
+		logLevel,
 	});
 
 	parseMedia({

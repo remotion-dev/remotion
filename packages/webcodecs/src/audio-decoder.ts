@@ -1,10 +1,10 @@
-import type {AudioSample} from '@remotion/media-parser';
+import type {AudioSample, LogLevel} from '@remotion/media-parser';
+import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 
 export type WebCodecsAudioDecoder = {
 	processSample: (audioSample: AudioSample) => Promise<void>;
 	waitForFinish: () => Promise<void>;
 	close: () => void;
-	getQueueSize: () => number;
 	flush: () => Promise<void>;
 };
 
@@ -13,28 +13,29 @@ export const createAudioDecoder = ({
 	onError,
 	signal,
 	config,
+	logLevel,
 }: {
 	onFrame: (frame: AudioData) => Promise<void>;
 	onError: (error: DOMException) => void;
 	signal: AbortSignal;
 	config: AudioDecoderConfig;
+	logLevel: LogLevel;
 }): WebCodecsAudioDecoder => {
 	if (signal.aborted) {
 		throw new Error('Not creating audio decoder, already aborted');
 	}
 
+	const ioSynchronizer = makeIoSynchronizer(logLevel, 'Audio decoder');
+
 	let outputQueue = Promise.resolve();
-	let outputQueueSize = 0;
-	let dequeueResolver = () => {};
 
 	const audioDecoder = new AudioDecoder({
 		output(inputFrame) {
-			outputQueueSize++;
+			ioSynchronizer.onOutput(inputFrame.timestamp);
 			outputQueue = outputQueue
 				.then(() => onFrame(inputFrame))
 				.then(() => {
-					dequeueResolver();
-					outputQueueSize--;
+					ioSynchronizer.onProcessed();
 					return Promise.resolve();
 				});
 		},
@@ -60,41 +61,22 @@ export const createAudioDecoder = ({
 
 	signal.addEventListener('abort', onAbort);
 
-	const getQueueSize = () => {
-		return audioDecoder.decodeQueueSize + outputQueueSize;
-	};
-
 	audioDecoder.configure(config);
-
-	const waitForDequeue = async () => {
-		await new Promise<void>((r) => {
-			dequeueResolver = r;
-			// @ts-expect-error exists
-			audioDecoder.addEventListener('dequeue', () => r(), {
-				once: true,
-			});
-		});
-	};
-
-	const waitForFinish = async () => {
-		while (getQueueSize() > 0) {
-			await waitForDequeue();
-		}
-	};
 
 	const processSample = async (audioSample: AudioSample) => {
 		if (audioDecoder.state === 'closed') {
 			return;
 		}
 
-		while (getQueueSize() > 10) {
-			await waitForDequeue();
+		while (ioSynchronizer.getUnemittedKeyframes() > 1) {
+			await ioSynchronizer.waitForOutput();
 		}
 
 		// Don't flush, it messes up the audio
 
 		const chunk = new EncodedAudioChunk(audioSample);
 		audioDecoder.decode(chunk);
+		ioSynchronizer.inputItem(chunk.timestamp, audioSample.type === 'key');
 	};
 
 	let queue = Promise.resolve();
@@ -106,11 +88,10 @@ export const createAudioDecoder = ({
 		},
 		waitForFinish: async () => {
 			await audioDecoder.flush();
-			await waitForFinish();
+			await ioSynchronizer.waitForFinish();
 			await outputQueue;
 		},
 		close,
-		getQueueSize,
 		flush: async () => {
 			await audioDecoder.flush();
 		},
