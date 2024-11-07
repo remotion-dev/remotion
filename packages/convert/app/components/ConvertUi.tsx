@@ -77,7 +77,7 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 							a.href = URL.createObjectURL(file);
 							a.download = getNewName(_n!, container);
 							a.click();
-							// TODO: Remove
+							URL.revokeObjectURL(a.href);
 						},
 						state: prevState.state,
 					};
@@ -107,6 +107,23 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 		setState({type: 'idle'});
 	}, [state]);
 
+	const dimissError = useCallback(() => {
+		setState({type: 'idle'});
+	}, []);
+
+	const onDownload = useCallback(async () => {
+		if (state.type !== 'done') {
+			throw new Error('Cannot download when not done');
+		}
+
+		try {
+			await state.download();
+		} catch (e) {
+			console.error(e);
+			setState({type: 'error', error: e as Error});
+		}
+	}, [state]);
+
 	return (
 		<div className="w-[380px]">
 			<CardContent className="gap-4">
@@ -114,7 +131,11 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 					<>
 						<ErrorState error={state.error} />
 						<div className="h-4" />
-						<Button className="block w-full" type="button" onClick={cancel}>
+						<Button
+							className="block w-full"
+							type="button"
+							onClick={dimissError}
+						>
 							Dismiss
 						</Button>
 					</>
@@ -138,15 +159,7 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 							container={container}
 						/>
 						<div className="h-2" />
-
-						<Button
-							className="block w-full"
-							type="button"
-							onClick={() => {
-								console.log('downloading');
-								return state.download();
-							}}
-						>
+						<Button className="block w-full" type="button" onClick={onDownload}>
 							Download
 						</Button>
 					</>

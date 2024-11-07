@@ -4,7 +4,14 @@ const ErrorBox: React.FC<{
 	readonly error: Error;
 	readonly cause?: boolean;
 }> = ({error, cause}) => {
-	const splitted = error.stack?.split('\n');
+	const {message} = error;
+	const splitted = error.stack?.split('\n') ?? [];
+	const deduplicated = splitted[0].includes(message)
+		? splitted.slice(1)
+		: splitted;
+
+	const combined = [`${error.name}: ${message}`, ...deduplicated];
+
 	return (
 		<div className="bg-red-200/25 rounded px-3 py-2 border border-red-600 whitespace-pre overflow-x-auto">
 			<div>
@@ -15,7 +22,7 @@ const ErrorBox: React.FC<{
 				) : null}
 			</div>
 			<div>
-				{splitted?.map((line, index) => (
+				{combined?.map((line, index) => (
 					<div
 						key={index}
 						className="text-red-600 first:font-medium first:font-brand"

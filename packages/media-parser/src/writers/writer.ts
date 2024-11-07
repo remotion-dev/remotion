@@ -1,6 +1,6 @@
 export type Writer = {
 	write: (arr: Uint8Array) => Promise<void>;
-	save: () => Promise<File>;
+	save: () => Promise<File | Blob>;
 	getWrittenByteCount: () => number;
 	updateDataAt: (position: number, data: Uint8Array) => Promise<void>;
 	waitForFinish: () => Promise<void>;
