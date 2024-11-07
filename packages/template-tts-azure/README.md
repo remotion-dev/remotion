@@ -72,7 +72,7 @@ npm run dev
 **Render video**
 
 ```console
-npm run build
+npx remotion render
 ```
 
 See [docs for server-side rendering](https://www.remotion.dev/docs/ssr) here.
@@ -80,7 +80,7 @@ See [docs for server-side rendering](https://www.remotion.dev/docs/ssr) here.
 **Upgrade Remotion**
 
 ```console
-npm run upgrade
+npx remotion upgrade
 ```
 
 ## Docs

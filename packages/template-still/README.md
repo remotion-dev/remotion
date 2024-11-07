@@ -17,13 +17,13 @@ npm run dev
 **Render it**
 
 ```console
-npm run render
+npx remotion render
 ```
 
 **Keep Remotion up to date**
 
 ```console
-npm run upgrade
+npx remotion upgrade
 ```
 
 ## Server

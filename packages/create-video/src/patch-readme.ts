@@ -6,6 +6,7 @@ import {
 	getInstallCommand,
 	getRenderCommand,
 	getRunCommand,
+	getUpgradeCommand,
 } from './pkg-managers';
 import type {Template} from './templates';
 
@@ -28,8 +29,12 @@ export const patchReadmeMd = (
 				return getDevCommand(packageManager, template);
 			}
 
-			if (c.startsWith('npm run build')) {
+			if (c.startsWith('npx remotion render')) {
 				return getRenderCommand(packageManager);
+			}
+
+			if (c.startsWith('npx remotion upgrade')) {
+				return getUpgradeCommand(packageManager);
 			}
 
 			if (c.startsWith('npm run ')) {

@@ -19,7 +19,7 @@ Start changing things like this:
 Run this:
 
 ```console
-npm run build
+npx remotion render
 ```
 
 Or check out the [Remotion docs](/docs/render/). There are lots of ways to render.
@@ -52,13 +52,13 @@ npm run dev
 **Render video**
 
 ```console
-npm run build
+npx remotion render
 ```
 
 **Upgrade Remotion**
 
 ```console
-npm run upgrade
+npx remotion upgrade
 ```
 
 ## Docs
