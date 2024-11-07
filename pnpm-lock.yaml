@@ -465,8 +465,8 @@ importers:
         specifier: 9.14.0
         version: 9.14.0
       happy-dom:
-        specifier: 14.5.1
-        version: 14.5.1
+        specifier: 15.10.2
+        version: 15.10.2
       jsdom:
         specifier: 21.1.0
         version: 21.1.0
@@ -478,7 +478,7 @@ importers:
         version: 18.3.1(react@18.3.1)
       vitest:
         specifier: 0.31.1
-        version: 0.31.1(happy-dom@14.5.1)(jsdom@21.1.0)
+        version: 0.31.1(happy-dom@15.10.2)(jsdom@21.1.0)
       webpack:
         specifier: 5.96.1
         version: 5.96.1
@@ -733,7 +733,7 @@ importers:
         version: 8.3.2
       vitest:
         specifier: 0.31.1
-        version: 0.31.1(happy-dom@14.5.1)(jsdom@21.1.0)
+        version: 0.31.1(happy-dom@15.10.2)(jsdom@21.1.0)
       zod:
         specifier: 3.22.3
         version: 3.22.3
@@ -892,7 +892,7 @@ importers:
     devDependencies:
       vitest:
         specifier: 0.31.1
-        version: 0.31.1(happy-dom@14.5.1)(jsdom@21.1.0)
+        version: 0.31.1(happy-dom@15.10.2)(jsdom@21.1.0)
 
   packages/example:
     dependencies:
@@ -1345,7 +1345,7 @@ importers:
         version: 0.4.13
       vitest:
         specifier: 0.31.1
-        version: 0.31.1(happy-dom@14.5.1)(jsdom@21.1.0)
+        version: 0.31.1(happy-dom@15.10.2)(jsdom@21.1.0)
       zip-lib:
         specifier: ^0.7.2
         version: 0.7.2
@@ -20662,6 +20662,15 @@ packages:
       entities: 4.5.0
       webidl-conversions: 7.0.0
       whatwg-mimetype: 3.0.0
+    dev: true
+
+  /happy-dom@15.10.2:
+    resolution: {integrity: sha512-NbA5XrSovenJIIcfixCREX3ZnV7yHP4phhbfuxxf4CPn+LZpz/jIM9EqJ2DrPwgVDSMoAKH3pZwQvkbsSiCrUw==}
+    engines: {node: '>=18.0.0'}
+    dependencies:
+      entities: 4.5.0
+      webidl-conversions: 7.0.0
+      whatwg-mimetype: 3.0.0
 
   /has-bigints@1.0.2:
     resolution: {integrity: sha512-tSvCKtBr9lkF0Ex0aQiP9N+OpV4zi2r/Nee5VkRDbaqv35RLYMzbwQfFSZZH0kR+Rd6302UJZ2p/bJCEoR3VoQ==}
@@ -29435,7 +29444,7 @@ packages:
       vite: 5.4.9
     dev: false
 
-  /vitest@0.31.1(happy-dom@14.5.1)(jsdom@21.1.0):
+  /vitest@0.31.1(happy-dom@15.10.2)(jsdom@21.1.0):
     resolution: {integrity: sha512-/dOoOgzoFk/5pTvg1E65WVaobknWREN15+HF+0ucudo3dDG/vCZoXTQrjIfEaWvQXmqScwkRodrTbM/ScMpRcQ==}
     engines: {node: '>=v14.18.0'}
     hasBin: true
@@ -29480,7 +29489,7 @@ packages:
       chai: 4.4.1
       concordance: 5.0.4
       debug: 4.3.6
-      happy-dom: 14.5.1
+      happy-dom: 15.10.2
       jsdom: 21.1.0
       local-pkg: 0.4.3
       magic-string: 0.30.5
