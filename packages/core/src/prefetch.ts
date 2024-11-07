@@ -85,6 +85,7 @@ export const prefetch = (
 		method?: 'blob-url' | 'base64';
 		contentType?: string;
 		onProgress?: PrefetchOnProgress;
+		credentials?: RequestCredentials;
 	},
 ): FetchAndPreload => {
 	const method = options?.method ?? 'blob-url';
@@ -111,6 +112,7 @@ export const prefetch = (
 
 	fetch(src, {
 		signal: controller.signal,
+		credentials: options?.credentials ?? undefined,
 	})
 		.then((res) => {
 			canBeAborted = false;
