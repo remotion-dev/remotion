@@ -16,6 +16,7 @@ import {useCallback, useState} from 'react';
 import {ConvertState, Source} from '~/lib/convert-state';
 import {Container, getNewName} from '~/lib/generate-new-name';
 import {ConvertProgress} from './ConvertProgress';
+import {ErrorState} from './ErrorState';
 import {Badge} from './ui/badge';
 
 export default function ConvertUI({src}: {readonly src: Source}) {
@@ -75,7 +76,7 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 							a.href = URL.createObjectURL(file);
 							a.download = getNewName(_n!, container);
 							a.click();
-							// TODO: Remove
+							URL.revokeObjectURL(a.href);
 						},
 						state: prevState.state,
 					};
@@ -86,10 +87,9 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 					setState({type: 'idle'});
 					return;
 				}
-				// eslint-disable-next-line no-alert
-				alert((e as Error).stack);
+
 				console.error(e);
-				setState({type: 'idle'});
+				setState({type: 'error', error: e as Error});
 			});
 
 		return () => {
@@ -106,10 +106,39 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 		setState({type: 'idle'});
 	}, [state]);
 
+	const dimissError = useCallback(() => {
+		setState({type: 'idle'});
+	}, []);
+
+	const onDownload = useCallback(async () => {
+		if (state.type !== 'done') {
+			throw new Error('Cannot download when not done');
+		}
+
+		try {
+			await state.download();
+		} catch (e) {
+			console.error(e);
+			setState({type: 'error', error: e as Error});
+		}
+	}, [state]);
+
 	return (
 		<div className="w-[380px]">
 			<CardContent className="gap-4">
-				{state.type === 'in-progress' ? (
+				{state.type === 'error' ? (
+					<>
+						<ErrorState error={state.error} />
+						<div className="h-4" />
+						<Button
+							className="block w-full"
+							type="button"
+							onClick={dimissError}
+						>
+							Dismiss
+						</Button>
+					</>
+				) : state.type === 'in-progress' ? (
 					<>
 						<ConvertProgress
 							state={state.state}
@@ -129,15 +158,7 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 							container={container}
 						/>
 						<div className="h-2" />
-
-						<Button
-							className="block w-full"
-							type="button"
-							onClick={() => {
-								console.log('downloading');
-								return state.download();
-							}}
-						>
+						<Button className="block w-full" type="button" onClick={onDownload}>
 							Download
 						</Button>
 					</>

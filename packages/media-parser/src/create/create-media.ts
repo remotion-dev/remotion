@@ -26,7 +26,7 @@ import {
 import {CREATE_TIME_SCALE} from './timescale';
 
 export type MediaFn = {
-	save: () => Promise<File>;
+	save: () => Promise<Blob>;
 	remove: () => Promise<void>;
 	addSample: (
 		chunk: AudioOrVideoSample,

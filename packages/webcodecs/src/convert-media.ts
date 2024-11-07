@@ -43,7 +43,7 @@ export type ConvertMediaState = {
 export type ConvertMediaTo = 'webm';
 
 export type ConvertMediaResult = {
-	save: () => Promise<File>;
+	save: () => Promise<Blob>;
 	remove: () => Promise<void>;
 };
 
