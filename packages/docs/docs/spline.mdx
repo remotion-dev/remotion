@@ -1,10 +1,10 @@
 ---
 image: /generated/articles-docs-spline.png
-title: "Import from Spline"
-crumb: "Integrations"
+title: 'Import from Spline'
+crumb: 'Integrations'
 ---
 
-import {SplineVideo} from '../components/SplineVideo'
+import {SplineVideo} from '../components/SplineVideo';
 
 _Authors: [Dhroov Makwana](https://github.com/pabloescoder) and [Jonny Burger](https://twitter.com/JNYBGR)_
 
@@ -87,18 +87,18 @@ Your 3D model should look like this:
 
 ```tsx twoslash title="src/Root.tsx"
 // @filename: src/Torus.tsx
-import React from "react";
+import React from 'react';
 const Torus: React.FC = () => null;
 export default Torus;
 // @filename: src/Root.tsx
 // ---cut---
 // @jsx: react-jsx
-import { ThreeCanvas } from "@remotion/three";
-import { useVideoConfig } from "remotion";
-import Torus from "./Torus";
+import {ThreeCanvas} from '@remotion/three';
+import {useVideoConfig} from 'remotion';
+import Torus from './Torus';
 
 export const Scene: React.FC = () => {
-  const { width, height } = useVideoConfig();
+  const {width, height} = useVideoConfig();
 
   return (
     <ThreeCanvas width={width} height={height}>
@@ -111,19 +111,19 @@ export const Scene: React.FC = () => {
 7. Add the following imports to `src/Torus.tsx`:
 
 ```ts title="src/Torus.tsx"
-import React, { useEffect } from "react";
-import { useThree } from "@react-three/fiber";
-import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import React, {useEffect} from 'react';
+import {useThree} from '@react-three/fiber';
+import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 ```
 
 8. Add the following code inside the Torus function below the `useSpline()` call:
 
 ```tsx twoslash title="src/Torus.tsx"
-import { useCurrentFrame, useVideoConfig } from "remotion";
+import {useCurrentFrame, useVideoConfig} from 'remotion';
 
 // ---cut---
 const frame = useCurrentFrame();
-const { fps, durationInFrames } = useVideoConfig();
+const {fps, durationInFrames} = useVideoConfig();
 ```
 
 Position the camera to look at the center point from `200` z offset.
@@ -142,7 +142,7 @@ useEffect(() => {
 9. Let's add some animation. Below the above code, insert the following:
 
 ```tsx twoslash title="src/Torus.tsx"
-import { interpolate, spring } from "remotion";
+import {interpolate, spring} from 'remotion';
 const durationInFrames = 300;
 const frame = 0;
 const fps = 30;
@@ -182,7 +182,7 @@ The X rotation is half of the Y rotation, so for every 2 turns in the Y axis, ou
 12. If you want to export your video to a MP4 video file, run:
 
 ```shell
-npm run build
+npx remotion render
 ```
 
 ## Final Result / Generated Video
@@ -191,12 +191,14 @@ npm run build
 
 ## Credits
 
-<Credits contributors={[
-{
-username: "pabloescoder",
-contribution: "Author"
-},
-]} />
+<Credits
+  contributors={[
+    {
+      username: 'pabloescoder',
+      contribution: 'Author',
+    },
+  ]}
+/>
 
 ## See also
 
