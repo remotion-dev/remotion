@@ -1,18 +1,19 @@
 import type {
+	LogLevel,
 	OnAudioTrack,
 	Options,
 	ParseMediaDynamicOptions,
 	ParseMediaFields,
 	ParseMediaOptions,
 	VideoTrack,
+	WriterInterface,
 } from '@remotion/media-parser';
 import {
 	MediaParserInternals,
 	parseMedia,
 	type OnVideoTrack,
 } from '@remotion/media-parser';
-import {bufferWriter} from '@remotion/media-parser/buffer';
-import {canUseWebFsWriter, webFsWriter} from '@remotion/media-parser/web-fs';
+import {autoSelectWriter} from './auto-select-writer';
 import {calculateProgress} from './calculate-progress';
 import type {ConvertMediaAudioCodec, ConvertMediaVideoCodec} from './codec-id';
 import Error from './error-cause';
@@ -60,6 +61,8 @@ export const convertMedia = async function <
 	onVideoTrack: userVideoResolver,
 	reader,
 	fields,
+	logLevel = 'info',
+	writer,
 	...more
 }: {
 	src: ParseMediaOptions<F>['src'];
@@ -72,6 +75,8 @@ export const convertMedia = async function <
 	onAudioTrack?: ResolveAudioActionFn;
 	onVideoTrack?: ResolveVideoActionFn;
 	reader?: ParseMediaOptions<F>['reader'];
+	logLevel?: LogLevel;
+	writer?: WriterInterface;
 } & ParseMediaDynamicOptions<F>): Promise<ConvertMediaResult> {
 	if (userPassedAbortSignal?.aborted) {
 		return Promise.reject(new Error('Aborted'));
@@ -134,10 +139,8 @@ export const convertMedia = async function <
 		onMediaStateDoNoCallDirectly?.(newState);
 	};
 
-	const canUseWebFs = await canUseWebFsWriter();
-
 	const state = await MediaParserInternals.createMedia({
-		writer: canUseWebFs ? webFsWriter : bufferWriter,
+		writer: await autoSelectWriter(writer, logLevel),
 		onBytesProgress: (bytesWritten) => {
 			convertMediaState.bytesWritten = bytesWritten;
 			onMediaStateUpdate?.(convertMediaState);
@@ -165,6 +168,7 @@ export const convertMedia = async function <
 		controller,
 		videoCodec,
 		onVideoTrack: userVideoResolver ?? defaultResolveVideoAction,
+		logLevel,
 	});
 
 	const onAudioTrack: OnAudioTrack = makeAudioTrackHandler({
@@ -176,6 +180,7 @@ export const convertMedia = async function <
 		state,
 		onAudioTrack: userAudioResolver ?? defaultResolveAudioAction,
 		bitrate: 128000,
+		logLevel,
 	});
 
 	parseMedia({
