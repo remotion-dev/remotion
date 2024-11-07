@@ -1,10 +1,10 @@
-import type {VideoSample} from '@remotion/media-parser';
+import type {LogLevel, VideoSample} from '@remotion/media-parser';
+import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 
 export type WebCodecsVideoDecoder = {
 	processSample: (videoSample: VideoSample) => Promise<void>;
 	waitForFinish: () => Promise<void>;
 	close: () => void;
-	getQueueSize: () => number;
 	flush: () => Promise<void>;
 };
 
@@ -13,24 +13,27 @@ export const createVideoDecoder = ({
 	onError,
 	signal,
 	config,
+	logLevel,
 }: {
 	onFrame: (frame: VideoFrame) => Promise<void>;
 	onError: (error: DOMException) => void;
 	signal: AbortSignal;
 	config: VideoDecoderConfig;
+	logLevel: LogLevel;
 }): WebCodecsVideoDecoder => {
+	const ioSynchronizer = makeIoSynchronizer(logLevel, 'Video decoder');
 	let outputQueue = Promise.resolve();
-	let outputQueueSize = 0;
-	let dequeueResolver = () => {};
 
 	const videoDecoder = new VideoDecoder({
 		output(inputFrame) {
-			outputQueueSize++;
+			ioSynchronizer.onOutput(inputFrame.timestamp);
+
 			outputQueue = outputQueue
-				.then(() => onFrame(inputFrame))
 				.then(() => {
-					outputQueueSize--;
-					dequeueResolver();
+					return onFrame(inputFrame);
+				})
+				.then(() => {
+					ioSynchronizer.onProcessed();
 					return Promise.resolve();
 				});
 		},
@@ -55,34 +58,17 @@ export const createVideoDecoder = ({
 
 	signal.addEventListener('abort', onAbort);
 
-	const getQueueSize = () => {
-		return videoDecoder.decodeQueueSize + outputQueueSize;
-	};
-
 	videoDecoder.configure(config);
 
-	const waitForDequeue = async () => {
-		await new Promise<void>((r) => {
-			dequeueResolver = r;
-			videoDecoder.addEventListener('dequeue', () => r(), {
-				once: true,
-			});
-		});
-	};
-
 	const waitForFinish = async () => {
-		while (getQueueSize() > 0) {
-			await waitForDequeue();
+		while (ioSynchronizer.getUnemittedKeyframes() > 1) {
+			await ioSynchronizer.waitForOutput();
 		}
 	};
 
 	const processSample = async (sample: VideoSample) => {
 		if (videoDecoder.state === 'closed') {
 			return;
-		}
-
-		while (getQueueSize() > 10) {
-			await waitForDequeue();
 		}
 
 		// @ts-expect-error - can have changed in the meanwhile
@@ -95,6 +81,8 @@ export const createVideoDecoder = ({
 		}
 
 		videoDecoder.decode(new EncodedVideoChunk(sample));
+
+		ioSynchronizer.inputItem(sample.timestamp, sample.type === 'key');
 	};
 
 	let inputQueue = Promise.resolve();
@@ -111,7 +99,6 @@ export const createVideoDecoder = ({
 			await inputQueue;
 		},
 		close,
-		getQueueSize,
 		flush: async () => {
 			await videoDecoder.flush();
 		},

@@ -5,7 +5,7 @@ interface WebCodecsPromiseWithResolvers<T> {
 	reject: (reason?: any) => void;
 }
 
-const withResolvers = function <T>() {
+export const withResolvers = function <T>() {
 	let resolve: WebCodecsPromiseWithResolvers<T>['resolve'];
 	let reject: WebCodecsPromiseWithResolvers<T>['reject'];
 	const promise = new Promise<T>((res, rej) => {

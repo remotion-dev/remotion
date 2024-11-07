@@ -1,4 +1,5 @@
 import type {
+	LogLevel,
 	OnAudioTrack,
 	Options,
 	ParseMediaDynamicOptions,
@@ -60,6 +61,7 @@ export const convertMedia = async function <
 	onVideoTrack: userVideoResolver,
 	reader,
 	fields,
+	logLevel = 'info',
 	...more
 }: {
 	src: ParseMediaOptions<F>['src'];
@@ -72,6 +74,7 @@ export const convertMedia = async function <
 	onAudioTrack?: ResolveAudioActionFn;
 	onVideoTrack?: ResolveVideoActionFn;
 	reader?: ParseMediaOptions<F>['reader'];
+	logLevel?: LogLevel;
 } & ParseMediaDynamicOptions<F>): Promise<ConvertMediaResult> {
 	if (userPassedAbortSignal?.aborted) {
 		return Promise.reject(new Error('Aborted'));
@@ -165,6 +168,7 @@ export const convertMedia = async function <
 		controller,
 		videoCodec,
 		onVideoTrack: userVideoResolver ?? defaultResolveVideoAction,
+		logLevel,
 	});
 
 	const onAudioTrack: OnAudioTrack = makeAudioTrackHandler({
