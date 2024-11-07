@@ -9,8 +9,6 @@
     "start": "remix-serve ./build/index.js",
     "typecheck": "tsc",
     "remotion:studio": "remotion studio",
-    "remotion:render": "remotion render LogoAnimation out/logo-animation.mp4",
-    "remotion:upgrade": "remotion upgrade",
     "remotion:renderlambda": "remotion lambda render remotion-remix-example LogoAnimation out/logo-animation-lambda-rendered.mp4",
     "remotion:deploy": "ts-node app/deploy.ts"
   },

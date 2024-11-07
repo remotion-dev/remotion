@@ -29,7 +29,7 @@
   },
   "scripts": {
     "dev": "remotion studio",
-    "build": "remotion render Main out/video.mp4",
+    "build": "remotion bundle",
     "upgrade": "remotion upgrade",
     "lint": "tsc && eslint src --ext ts,tsx,js,jsx"
   },

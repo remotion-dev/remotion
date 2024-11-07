@@ -4,7 +4,7 @@
   "description": "My Remotion video",
   "scripts": {
     "dev": "remotion studio",
-    "build": "remotion render Audiogram out/video.mp4",
+    "build": "remotion bundle",
     "upgrade": "remotion upgrade",
     "lint": "eslint src --ext ts,tsx,js,jsx && tsc"
   },

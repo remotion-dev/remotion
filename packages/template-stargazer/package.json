@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "remotion studio",
-    "build": "remotion render main out/Main.mp4 --log verbose",
+    "build": "remotion bundle",
     "lint": "eslint src --ext ts,tsx,js,jsx && tsc"
   },
   "license": "UNLICENSED",

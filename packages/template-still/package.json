@@ -6,6 +6,7 @@
     "start": "node dist/server/index.js",
     "make": "tsc -d",
     "dev": "remotion studio",
+    "build": "remotion bundle",
     "render": "remotion still PreviewCard out/still.png",
     "upgrade": "remotion upgrade",
     "server": "bun src/server/index.ts",

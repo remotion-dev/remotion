@@ -4,7 +4,7 @@
   "description": "A Remotion template for TikTok-style captions",
   "scripts": {
     "dev": "remotion studio",
-    "build": "remotion render CaptionedVideo",
+    "build": "remotion bundle",
     "upgrade": "remotion upgrade",
     "lint": "eslint src --ext ts,tsx,js,jsx && tsc",
     "create-subtitles": "node sub.mjs"
