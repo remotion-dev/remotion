@@ -85,14 +85,24 @@ export const makeIoSynchronizer = (logLevel: LogLevel, label: string) => {
 		return promise;
 	};
 
-	const waitForFinish = async () => {
-		while (getUnemittedItems() > 0) {
+	const waitFor = async ({
+		_unprocessed,
+		unemitted,
+	}: {
+		unemitted: number;
+		_unprocessed: number;
+	}) => {
+		while (getUnemittedItems() > unemitted) {
 			await waitForOutput();
 		}
 
-		while (getUnprocessed() > 0) {
+		while (getUnprocessed() > _unprocessed) {
 			await waitForProcessed();
 		}
+	};
+
+	const waitForFinish = async () => {
+		await waitFor({_unprocessed: 0, unemitted: 0});
 	};
 
 	const onProcessed = () => {
@@ -103,9 +113,9 @@ export const makeIoSynchronizer = (logLevel: LogLevel, label: string) => {
 	return {
 		inputItem,
 		onOutput,
-		waitForOutput,
-		getUnemittedKeyframes,
+		waitFor,
 		waitForFinish,
 		onProcessed,
+		getUnprocessed,
 	};
 };

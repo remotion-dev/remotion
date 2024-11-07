@@ -76,9 +76,7 @@ export const createVideoDecoder = ({
 	videoDecoder.configure(config);
 
 	const waitForFinish = async () => {
-		while (ioSynchronizer.getUnemittedKeyframes() > 1) {
-			await ioSynchronizer.waitForOutput();
-		}
+		await ioSynchronizer.waitFor({unemitted: 2, _unprocessed: 10});
 	};
 
 	const processSample = async (sample: VideoSample) => {

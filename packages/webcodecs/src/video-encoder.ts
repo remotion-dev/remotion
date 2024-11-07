@@ -85,9 +85,10 @@ export const createVideoEncoder = ({
 			return;
 		}
 
-		while (ioSynchronizer.getUnemittedKeyframes() > 1) {
-			await ioSynchronizer.waitForOutput();
-		}
+		await ioSynchronizer.waitFor({
+			unemitted: 2,
+			_unprocessed: 10,
+		});
 
 		// @ts-expect-error - can have changed in the meanwhile
 		if (encoder.state === 'closed') {

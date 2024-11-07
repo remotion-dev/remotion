@@ -84,9 +84,7 @@ export const createAudioDecoder = ({
 			return;
 		}
 
-		while (ioSynchronizer.getUnemittedKeyframes() > 100) {
-			await ioSynchronizer.waitForOutput();
-		}
+		await ioSynchronizer.waitFor({unemitted: 100, _unprocessed: 2});
 
 		// Don't flush, it messes up the audio
 
