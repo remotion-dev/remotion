@@ -848,6 +848,8 @@ module.exports = {
 				'font-picker',
 				'building-a-timeline',
 				'multiple-fps',
+				'angular',
+				'vue',
 			],
 		},
 		{

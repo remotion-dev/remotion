@@ -406,6 +406,13 @@ export const articles = [
 		crumb: 'Techniques',
 	},
 	{
+		id: 'vue',
+		title: 'Using Remotion in Vue',
+		relativePath: 'docs/vue.mdx',
+		compId: 'articles-docs-vue',
+		crumb: 'Integrations',
+	},
+	{
 		id: 'bundle',
 		title: 'bundle()',
 		relativePath: 'docs/bundle.mdx',
@@ -691,6 +698,13 @@ export const articles = [
 		relativePath: 'docs/wrong-composition-mount.mdx',
 		compId: 'articles-docs-wrong-composition-mount',
 		crumb: 'Troubleshooting',
+	},
+	{
+		id: 'angular',
+		title: 'Using Remotion in Angular',
+		relativePath: 'docs/angular.mdx',
+		compId: 'articles-docs-angular',
+		crumb: 'Integrations',
 	},
 	{
 		id: 'flickering',
@@ -3649,7 +3663,7 @@ export const articles = [
 		crumb: 'How To',
 	},
 	{
-		id: '"null"',
+		id: "'null'",
 		title: '<Experimental.Null>',
 		relativePath: 'docs/null.mdx',
 		compId: 'articles-docs-null',
