@@ -848,14 +848,8 @@ module.exports = {
 				'font-picker',
 				'building-a-timeline',
 				'multiple-fps',
-			],
-		},
-		{
-			type: 'category',
-			label: 'Integration into other frameworks',
-			items: [
-				'integration-frameworks/angular',
-				'integration-frameworks/vue-js',
+				'angular',
+				'vue-js',
 			],
 		},
 		{

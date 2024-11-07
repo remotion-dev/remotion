@@ -1,16 +1,16 @@
 ---
-image: /generated/articles-docs-integration-frameworks-vue-js.png
+image: /generated/articles-docs-vue-js.png
 id: vue-js
-sidebar_label: 'VueJS'
+sidebar_label: 'Integration into Vue'
 title: 'VueJS'
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Using Remotion with VueJS
+# Using Remotion in VueJS
 
-This guide explains how to integrate **Remotion** into a **VueJS** project.
+This guide explains how to integrate Remotion into a **VueJS** project.
 
 ## Install required packages
 
@@ -96,12 +96,12 @@ To enable JSX support in VueJS, update the `tsconfig.app.json` file by setting `
 ```
 
 :::note
-The "jsxImportSource": "" setting is also recommended to prevent build issues.
+The "jsxImportSource": "" setting is recommended to prevent build issues.
 :::
 
 ## Configure Vite for React
 
-To enable React support in Vite, update the `vite.config.ts` file by setting adding react to the plugins.
+To enable React support in Vite, update the `vite.config.ts` file by adding `react` to the plugins.
 
 ```ts title="vite.config.ts"
 import {fileURLToPath, URL} from 'node:url';
@@ -130,50 +130,60 @@ To embed Remotion components in VueJS, create a **wrapper component**:
 
 1. In your `remotion` folder, create a file named `PlayerViewWrapper.vue`.
 
-```ts title="PlayerViewWrapper.vue"
+```html title="PlayerViewWrapper.vue"
 <script lang="ts" setup>
-    import {onBeforeUnmount, onMounted, ref, watch} from 'vue';
-    import {type PlayerSchema, PlayerView} from "@/remotion/PlayerView";
-    import {createRoot, type Root} from "react-dom/client";
-    import * as React from "react";
+  import {onBeforeUnmount, onMounted, ref, watch} from 'vue';
+  import {type PlayerSchema, PlayerView} from '@/remotion/PlayerView';
+  import {createRoot, type Root} from 'react-dom/client';
+  import * as React from 'react';
 
-    interface PlayerData {
-      data: PlayerSchema;
-    }
+  interface PlayerData {
+    data: PlayerSchema;
+  }
 
-    const playerRef = ref()
-    const reactRoot = ref();
-    let root: Root;
-    const emit = defineEmits(['paused'])
+  const playerRef = ref();
+  const reactRoot = ref();
+  let root: Root;
+  const emit = defineEmits(['paused']);
 
-    const props = defineProps<PlayerData>()
+  const props = defineProps<PlayerData>();
 
-    onMounted(() => {
-      root = createRoot(reactRoot.value);
-      render()
-    });
+  onMounted(() => {
+    root = createRoot(reactRoot.value);
+    render();
+  });
 
-    function render() {
-      root.render(React.createElement(PlayerView, {
+  function render() {
+    root.render(
+      React.createElement(PlayerView, {
         data: props.data,
         playerRefInstance: playerRef,
         onPaused: () => emit('paused'),
-      }));
-    }
+      }),
+    );
+  }
 
-    watch(() => playerRef, (newData, oldData) => {
+  watch(
+    () => playerRef,
+    (newData, oldData) => {
       playerRef.value.play();
-    }, {deep: true})
+    },
+    {deep: true},
+  );
 
-    watch(() => props.data, (newData, oldData) => {
-      render()
-    }, {deep: true})
+  watch(
+    () => props.data,
+    (newData, oldData) => {
+      render();
+    },
+    {deep: true},
+  );
 
-    onBeforeUnmount(() => {
-      if (root) {
-        root.unmount();
-      }
-    });
+  onBeforeUnmount(() => {
+    if (root) {
+      root.unmount();
+    }
+  });
 </script>
 
 <template>
@@ -183,7 +193,7 @@ To embed Remotion components in VueJS, create a **wrapper component**:
 
 This wrapper component will serve as the bridge between VueJs and Remotion’s React components.
 
-## Create a wrapper for the Remotion player
+## Create a wrapper for the Remotion Player
 
 1. In your `remotion` folder, create a file named `PlayerView.tsx`.
 2. Ensure each `.tsx` file imports React explicitly at the top of the file:
@@ -242,7 +252,7 @@ export const PlayerView = ({
 
 ## Use the component in VueJS
 
-To display the Remotion player within an VueJS template, add your new wrapper component wherever you'd like the player to appear:
+To display the Remotion player within an VueJS template, add your new wrapper component wherever you'd like the Player to appear:
 
 ```html
 <PlayerWrapper @paused="onPaused" :data="data" />
@@ -250,7 +260,7 @@ To display the Remotion player within an VueJS template, add your new wrapper co
 
 This VueJS component tag will render the Remotion player, allowing you to pass data or configuration as needed through VueJS's data binding.
 
-You're no able to use the [`API`](/docs/player/player) of the player via `this.playerRef()`
+You're now able to use the [`API`](/docs/player/player) of the player via `this.playerRef()`
 
 ## Configure TailwindCSS (optional)
 

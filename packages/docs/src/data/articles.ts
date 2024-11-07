@@ -35,6 +35,13 @@ export const articles = [
 		crumb: '@remotion/skia',
 	},
 	{
+		id: 'vue-js',
+		title: 'VueJS',
+		relativePath: 'docs/vue-js.mdx',
+		compId: 'articles-docs-vue-js',
+		crumb: null,
+	},
+	{
 		id: 'spring',
 		title: 'spring()',
 		relativePath: 'docs/spring.mdx',
@@ -691,6 +698,13 @@ export const articles = [
 		relativePath: 'docs/wrong-composition-mount.mdx',
 		compId: 'articles-docs-wrong-composition-mount',
 		crumb: 'Troubleshooting',
+	},
+	{
+		id: 'angular',
+		title: 'Angular',
+		relativePath: 'docs/angular.mdx',
+		compId: 'articles-docs-angular',
+		crumb: null,
 	},
 	{
 		id: 'flickering',
@@ -3649,7 +3663,7 @@ export const articles = [
 		crumb: 'How To',
 	},
 	{
-		id: '"null"',
+		id: "'null'",
 		title: '<Experimental.Null>',
 		relativePath: 'docs/null.mdx',
 		compId: 'articles-docs-null',

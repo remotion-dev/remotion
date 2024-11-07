@@ -1,16 +1,16 @@
 ---
-image: /generated/articles-docs-integration-frameworks-angular.png
+image: /generated/articles-docs-angular.png
 id: angular
-sidebar_label: 'Angular'
+sidebar_label: 'Integration into Angular'
 title: 'Angular'
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Using Remotion with Angular
+# Using Remotion in Angular
 
-This guide explains how to integrate **Remotion** into an **Angular** project.
+This guide explains how to integrate Remotion into an **Angular** project.
 
 ## Install required packages
 
@@ -174,7 +174,10 @@ export class PlayerViewWrapper implements AfterViewInit, OnDestroy {
   }
 
   protected render() {
-    if (!this.containerRef || !this.containerRef.nativeElement) return;
+    if (!this.containerRef || !this.containerRef.nativeElement) {
+      return;
+    }
+
     this.root?.render(
       <PlayerView
         playerRefInstance={this.playerRef}
@@ -222,6 +225,7 @@ export const PlayerView: React.FC<{
       });
     }
   }, []);
+
   return (
     <Player
       ref={playerRef}
@@ -247,7 +251,7 @@ To display the Remotion player within an Angular template, add your new wrapper 
 
 This Angular component tag will render the Remotion player, allowing you to pass data or configuration as needed through Angular's data binding.
 
-You're no able to use the [`API`](/docs/player/player) of the player via `this.playerRef()`
+You're now able to use the [`API`](/docs/player/player) of the player via `this.playerRef()`.
 
 ## Configure TailwindCSS (optional)
 
