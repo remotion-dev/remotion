@@ -13,6 +13,7 @@ const warnAboutRequestVideoFrameCallback = () => {
 	}
 
 	warned = true;
+	// eslint-disable-next-line no-console
 	console.warn(
 		'Browser does not support requestVideoFrameCallback. Cannot display video.',
 	);

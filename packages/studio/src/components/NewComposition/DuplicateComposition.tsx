@@ -62,7 +62,6 @@ const DuplicateCompositionLoaded: React.FC<{
 		const initialName = resolved.result.id.replace(/([0-9]+)$/, '');
 		let currentName = initialName;
 
-		// eslint-disable-next-line no-constant-condition
 		while (true) {
 			currentName = initialName + prefix;
 

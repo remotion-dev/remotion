@@ -1,4 +1,9 @@
-import type {MediaFn, OnVideoTrack, VideoTrack} from '@remotion/media-parser';
+import type {
+	LogLevel,
+	MediaFn,
+	OnVideoTrack,
+	VideoTrack,
+} from '@remotion/media-parser';
 import type {ConvertMediaVideoCodec} from './codec-id';
 import type {ConvertMediaState} from './convert-media';
 import Error from './error-cause';
@@ -19,6 +24,7 @@ export const makeVideoTrackHandler =
 		controller,
 		videoCodec,
 		onVideoTrack,
+		logLevel,
 	}: {
 		state: MediaFn;
 		onVideoFrame:
@@ -30,8 +36,13 @@ export const makeVideoTrackHandler =
 		controller: AbortController;
 		videoCodec: ConvertMediaVideoCodec;
 		onVideoTrack: ResolveVideoActionFn;
+		logLevel: LogLevel;
 	}): OnVideoTrack =>
 	async (track) => {
+		if (controller.signal.aborted) {
+			throw new Error('Aborted');
+		}
+
 		const videoEncoderConfig = await getVideoEncoderConfig({
 			codec: videoCodec === 'vp9' ? 'vp09.00.10.08' : videoCodec,
 			height: track.displayAspectHeight,
@@ -60,8 +71,8 @@ export const makeVideoTrackHandler =
 				codec: track.codecWithoutConfig,
 				codecPrivate: track.codecPrivate,
 			});
-			return (sample) => {
-				state.addSample(
+			return async (sample) => {
+				await state.addSample(
 					new EncodedVideoChunk(sample),
 					videoTrack.trackNumber,
 					true,
@@ -116,6 +127,7 @@ export const makeVideoTrackHandler =
 			},
 			signal: controller.signal,
 			config: videoEncoderConfig,
+			logLevel,
 		});
 
 		const videoDecoder = createVideoDecoder({
@@ -125,6 +137,7 @@ export const makeVideoTrackHandler =
 				await videoEncoder.encodeFrame(frame);
 				convertMediaState.decodedVideoFrames++;
 				onMediaStateUpdate?.({...convertMediaState});
+
 				frame.close();
 			},
 			onError: (err) => {
@@ -138,6 +151,7 @@ export const makeVideoTrackHandler =
 				);
 			},
 			signal: controller.signal,
+			logLevel,
 		});
 
 		state.addWaitForFinishPromise(async () => {

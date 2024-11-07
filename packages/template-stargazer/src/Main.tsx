@@ -14,7 +14,7 @@ export const mainSchema = z.object({
 type SchemaProps = z.infer<typeof mainSchema>;
 
 export type MainProps = SchemaProps & {
-  stargazers: Stargazer[] | null;
+  readonly stargazers: Stargazer[] | null;
 };
 
 export function Main({ repoOrg, repoName, stargazers }: MainProps) {

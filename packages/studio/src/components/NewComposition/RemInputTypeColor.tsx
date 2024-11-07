@@ -15,8 +15,8 @@ type Props = React.DetailedHTMLProps<
 	React.InputHTMLAttributes<HTMLInputElement>,
 	HTMLInputElement
 > & {
-	status: RemInputStatus;
-	name: string;
+	readonly status: RemInputStatus;
+	readonly name: string;
 };
 
 const inputBaseStyle: React.CSSProperties = {

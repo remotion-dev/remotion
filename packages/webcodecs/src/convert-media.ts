@@ -1,11 +1,20 @@
-import type {OnAudioTrack, VideoTrack} from '@remotion/media-parser';
+import type {
+	LogLevel,
+	OnAudioTrack,
+	Options,
+	ParseMediaDynamicOptions,
+	ParseMediaFields,
+	ParseMediaOptions,
+	VideoTrack,
+	WriterInterface,
+} from '@remotion/media-parser';
 import {
 	MediaParserInternals,
 	parseMedia,
 	type OnVideoTrack,
 } from '@remotion/media-parser';
-import {bufferWriter} from '@remotion/media-parser/buffer';
-import {canUseWebFsWriter, webFsWriter} from '@remotion/media-parser/web-fs';
+import {autoSelectWriter} from './auto-select-writer';
+import {calculateProgress} from './calculate-progress';
 import type {ConvertMediaAudioCodec, ConvertMediaVideoCodec} from './codec-id';
 import Error from './error-cause';
 import {makeAudioTrackHandler} from './on-audio-track';
@@ -18,13 +27,17 @@ import {
 	defaultResolveVideoAction,
 	type ResolveVideoActionFn,
 } from './resolve-video-action';
-import {withResolvers} from './with-resolvers';
+import {withResolversAndWaitForReturn} from './with-resolvers';
 
 export type ConvertMediaState = {
 	decodedVideoFrames: number;
 	decodedAudioFrames: number;
 	encodedVideoFrames: number;
 	encodedAudioFrames: number;
+	bytesWritten: number;
+	millisecondsWritten: number;
+	expectedOutputMilliseconds: number | null;
+	overallProgress: number | null;
 };
 
 export type ConvertMediaTo = 'webm';
@@ -34,18 +47,25 @@ export type ConvertMediaResult = {
 	remove: () => Promise<void>;
 };
 
-export const convertMedia = async ({
+export const convertMedia = async function <
+	F extends Options<ParseMediaFields>,
+>({
 	src,
 	onVideoFrame,
-	onMediaStateUpdate,
+	onMediaStateUpdate: onMediaStateDoNoCallDirectly,
 	audioCodec,
 	to,
 	videoCodec,
 	signal: userPassedAbortSignal,
 	onAudioTrack: userAudioResolver,
 	onVideoTrack: userVideoResolver,
+	reader,
+	fields,
+	logLevel = 'info',
+	writer,
+	...more
 }: {
-	src: string | File;
+	src: ParseMediaOptions<F>['src'];
 	to: ConvertMediaTo;
 	onVideoFrame?: (inputFrame: VideoFrame, track: VideoTrack) => Promise<void>;
 	onMediaStateUpdate?: (state: ConvertMediaState) => void;
@@ -54,7 +74,14 @@ export const convertMedia = async ({
 	signal?: AbortSignal;
 	onAudioTrack?: ResolveAudioActionFn;
 	onVideoTrack?: ResolveVideoActionFn;
-}): Promise<ConvertMediaResult> => {
+	reader?: ParseMediaOptions<F>['reader'];
+	logLevel?: LogLevel;
+	writer?: WriterInterface;
+} & ParseMediaDynamicOptions<F>): Promise<ConvertMediaResult> {
+	if (userPassedAbortSignal?.aborted) {
+		return Promise.reject(new Error('Aborted'));
+	}
+
 	if (to !== 'webm') {
 		return Promise.reject(
 			new TypeError('Only `to: "webm"` is supported currently'),
@@ -75,7 +102,8 @@ export const convertMedia = async ({
 		);
 	}
 
-	const {promise, resolve, reject} = withResolvers<ConvertMediaResult>();
+	const {resolve, reject, getPromiseToImmediatelyReturn} =
+		withResolversAndWaitForReturn<ConvertMediaResult>();
 	const controller = new AbortController();
 
 	const abortConversion = (errCause: Error) => {
@@ -97,13 +125,39 @@ export const convertMedia = async ({
 		decodedVideoFrames: 0,
 		encodedVideoFrames: 0,
 		encodedAudioFrames: 0,
+		bytesWritten: 0,
+		millisecondsWritten: 0,
+		expectedOutputMilliseconds: null,
+		overallProgress: 0,
 	};
 
-	const canUseWebFs = await canUseWebFsWriter();
+	const onMediaStateUpdate = (newState: ConvertMediaState) => {
+		if (controller.signal.aborted) {
+			return;
+		}
 
-	const state = await MediaParserInternals.createMedia(
-		canUseWebFs ? webFsWriter : bufferWriter,
-	);
+		onMediaStateDoNoCallDirectly?.(newState);
+	};
+
+	const state = await MediaParserInternals.createMedia({
+		writer: await autoSelectWriter(writer, logLevel),
+		onBytesProgress: (bytesWritten) => {
+			convertMediaState.bytesWritten = bytesWritten;
+			onMediaStateUpdate?.(convertMediaState);
+		},
+		onMillisecondsProgress: (millisecondsWritten) => {
+			if (millisecondsWritten > convertMediaState.millisecondsWritten) {
+				convertMediaState.millisecondsWritten = millisecondsWritten;
+				convertMediaState.overallProgress = calculateProgress({
+					millisecondsWritten: convertMediaState.millisecondsWritten,
+					expectedOutputMilliseconds:
+						convertMediaState.expectedOutputMilliseconds,
+				});
+
+				onMediaStateUpdate?.(convertMediaState);
+			}
+		},
+	});
 
 	const onVideoTrack: OnVideoTrack = makeVideoTrackHandler({
 		state,
@@ -114,6 +168,7 @@ export const convertMedia = async ({
 		controller,
 		videoCodec,
 		onVideoTrack: userVideoResolver ?? defaultResolveVideoAction,
+		logLevel,
 	});
 
 	const onAudioTrack: OnAudioTrack = makeAudioTrackHandler({
@@ -125,6 +180,7 @@ export const convertMedia = async ({
 		state,
 		onAudioTrack: userAudioResolver ?? defaultResolveAudioAction,
 		bitrate: 128000,
+		logLevel,
 	});
 
 	parseMedia({
@@ -132,6 +188,32 @@ export const convertMedia = async ({
 		onVideoTrack,
 		onAudioTrack,
 		signal: controller.signal,
+		fields: {
+			...fields,
+			durationInSeconds: true,
+		},
+		reader,
+		...more,
+		onDurationInSeconds: (durationInSeconds) => {
+			if (durationInSeconds === null) {
+				return null;
+			}
+
+			const casted = more as ParseMediaDynamicOptions<{
+				durationInSeconds: true;
+			}>;
+			if (casted.onDurationInSeconds) {
+				casted.onDurationInSeconds(durationInSeconds);
+			}
+
+			const expectedOutputMilliseconds = durationInSeconds * 1000;
+			convertMediaState.expectedOutputMilliseconds = expectedOutputMilliseconds;
+			convertMediaState.overallProgress = calculateProgress({
+				millisecondsWritten: convertMediaState.millisecondsWritten,
+				expectedOutputMilliseconds,
+			});
+			onMediaStateUpdate(convertMediaState);
+		},
 	})
 		.then(() => {
 			return state.waitForFinish();
@@ -141,10 +223,9 @@ export const convertMedia = async ({
 		})
 		.catch((err) => {
 			reject(err);
-		})
-		.finally(() => {
-			userPassedAbortSignal?.removeEventListener('abort', onUserAbort);
 		});
 
-	return promise;
+	return getPromiseToImmediatelyReturn().finally(() => {
+		userPassedAbortSignal?.removeEventListener('abort', onUserAbort);
+	});
 };

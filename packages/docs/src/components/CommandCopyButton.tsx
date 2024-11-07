@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const CommandCopyButton: React.FC<{
-	copied: boolean;
+	readonly copied: boolean;
 }> = ({copied}) => {
 	return copied ? (
 		<svg

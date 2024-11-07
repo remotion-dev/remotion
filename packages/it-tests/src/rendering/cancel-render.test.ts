@@ -1,4 +1,4 @@
-import {beforeAll, beforeEach, expect, test} from 'bun:test';
+import {afterEach, beforeAll, beforeEach, expect, test} from 'bun:test';
 import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
@@ -18,6 +18,11 @@ beforeAll(async () => {
 });
 
 beforeEach(() => {
+	if (fs.existsSync(outputPath)) {
+		fs.unlinkSync(outputPath);
+	}
+});
+afterEach(() => {
 	if (fs.existsSync(outputPath)) {
 		fs.unlinkSync(outputPath);
 	}

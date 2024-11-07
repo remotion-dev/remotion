@@ -12,10 +12,10 @@ import { roundedRect } from "./helpers/rounded-rectangle";
 import { RoundedBox } from "./RoundedBox";
 
 export const Phone: React.FC<{
-  videoTexture: VideoTexture | null;
-  aspectRatio: number;
-  baseScale: number;
-  phoneColor: string;
+  readonly videoTexture: VideoTexture | null;
+  readonly aspectRatio: number;
+  readonly baseScale: number;
+  readonly phoneColor: string;
 }> = ({ aspectRatio, videoTexture, baseScale, phoneColor }) => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();

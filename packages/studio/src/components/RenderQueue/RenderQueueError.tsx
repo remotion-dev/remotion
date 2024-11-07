@@ -9,7 +9,7 @@ const outputLocation: React.CSSProperties = {
 };
 
 export const RenderQueueError: React.FC<{
-	job: RenderJob;
+	readonly job: RenderJob;
 }> = ({job}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {tabIndex} = useZIndex();

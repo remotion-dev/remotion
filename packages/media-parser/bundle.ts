@@ -1,10 +1,11 @@
+console.time('Generated.');
+
 import {build} from 'bun';
 import path from 'path';
 
 if (process.env.NODE_ENV !== 'production') {
 	throw new Error('This script must be run using NODE_ENV=production');
 }
-
 const output = await build({
 	entrypoints: [
 		'src/index.ts',
@@ -28,3 +29,4 @@ for (const file of output.outputs) {
 
 	await Bun.write(out, str);
 }
+console.timeEnd('Generated.');

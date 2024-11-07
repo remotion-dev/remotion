@@ -1,4 +1,3 @@
-/* eslint-disable max-depth */
 import type {BufferIterator} from '../../buffer-iterator';
 import {hasTracks} from '../../get-tracks';
 import type {
@@ -61,6 +60,7 @@ const getChildren = async ({
 		boxType === 'stsb';
 
 	if (parseChildren) {
+		// eslint-disable-next-line @typescript-eslint/no-use-before-define
 		const parsed = await parseBoxes({
 			iterator,
 			maxBytes: bytesRemainingInBox,

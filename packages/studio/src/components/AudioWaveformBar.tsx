@@ -12,7 +12,7 @@ const container: React.CSSProperties = {
 };
 
 export const AudioWaveformBar: React.FC<{
-	amplitude: number;
+	readonly amplitude: number;
 }> = ({amplitude}) => {
 	const style = useMemo(() => {
 		return {

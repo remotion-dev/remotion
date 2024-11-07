@@ -3,11 +3,12 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/test-utils"
 	},
 	"name": "@remotion/test-utils",
-	"version": "4.0.221",
+	"version": "4.0.228",
 	"main": "dist",
 	"sideEffects": false,
 	"scripts": {
-		"lint": "eslint src --ext ts,tsx"
+		"lint": "eslint src",
+		"make": "tsc -d"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -18,7 +19,9 @@
 	"devDependencies": {
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"remotion": "workspace:*"
+		"remotion": "workspace:*",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.14.0"
 	},
 	"private": true
 }

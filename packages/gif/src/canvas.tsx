@@ -1,3 +1,4 @@
+/* eslint-disable react/require-default-props */
 import {
 	forwardRef,
 	useEffect,
@@ -91,13 +92,13 @@ const makeCanvas = () => {
 };
 
 type Props = {
-	index: number;
-	frames: ImageData[];
-	width?: number;
-	height?: number;
-	fit: GifFillMode;
-	className?: string;
-	style?: React.CSSProperties;
+	readonly index: number;
+	readonly frames: ImageData[];
+	readonly width?: number;
+	readonly height?: number;
+	readonly fit: GifFillMode;
+	readonly className?: string;
+	readonly style?: React.CSSProperties;
 };
 
 export const Canvas = forwardRef(

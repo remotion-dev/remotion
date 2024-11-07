@@ -70,7 +70,7 @@ type InternalStitchFramesToVideoOptions = {
 	ffmpegOverride: null | FfmpegOverrideFn;
 	colorSpace: ColorSpace | null;
 	binariesDirectory: string | null;
-	metadata?: Record<string, string> | null;
+	metadata: Record<string, string> | null;
 } & ToOptions<typeof optionsMap.stitchFramesToVideo>;
 
 export type StitchFramesToVideoOptions = {
@@ -138,6 +138,7 @@ const innerStitchFramesToVideo = async (
 		binariesDirectory,
 		separateAudioTo,
 		metadata,
+		hardwareAcceleration,
 	}: InternalStitchFramesToVideoOptions,
 	remotionRoot: string,
 ): Promise<ReturnType> => {
@@ -254,6 +255,7 @@ const innerStitchFramesToVideo = async (
 		videoBitrate,
 		encodingMaxRate: maxRate,
 		encodingBufferSize: bufferSize,
+		hardwareAcceleration,
 	});
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
@@ -361,6 +363,9 @@ const innerStitchFramesToVideo = async (
 			pixelFormat,
 			x264Preset,
 			colorSpace,
+			hardwareAcceleration,
+			indent,
+			logLevel,
 		}),
 		codec === 'h264' ? ['-movflags', 'faststart'] : null,
 		// Ignore metadata that may come from remote media
@@ -524,6 +529,7 @@ export const stitchFramesToVideo = ({
 	binariesDirectory,
 	separateAudioTo,
 	metadata,
+	hardwareAcceleration,
 }: StitchFramesToVideoOptions): Promise<Buffer | null> => {
 	return internalStitchFramesToVideo({
 		assetsInfo,
@@ -557,5 +563,6 @@ export const stitchFramesToVideo = ({
 		binariesDirectory: binariesDirectory ?? null,
 		metadata: metadata ?? null,
 		separateAudioTo: separateAudioTo ?? null,
+		hardwareAcceleration: hardwareAcceleration ?? 'disable',
 	});
 };

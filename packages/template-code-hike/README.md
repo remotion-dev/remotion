@@ -22,7 +22,7 @@ npm i
 **Start Preview**
 
 ```console
-npm start
+npm run dev
 ```
 
 **Change code snippets**
@@ -39,7 +39,7 @@ npm run build
 **Upgrade Remotion**
 
 ```console
-bun run upgrade
+npm run upgrade
 ```
 
 ## More examples

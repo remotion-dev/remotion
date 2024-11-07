@@ -6,8 +6,8 @@ import {InputDragger} from './InputDragger';
 import {ValidationMessage} from './ValidationMessage';
 
 export const NewCompDuration: React.FC<{
-	durationInFrames: number;
-	setDurationInFrames: React.Dispatch<React.SetStateAction<number>>;
+	readonly durationInFrames: number;
+	readonly setDurationInFrames: React.Dispatch<React.SetStateAction<number>>;
 }> = ({durationInFrames, setDurationInFrames}) => {
 	const onDurationInFramesChanged = useCallback(
 		(newValue: string) => {

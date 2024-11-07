@@ -40,10 +40,13 @@ export const webFileReader: ReaderInterface = {
 
 		return new Promise((resolve, reject) => {
 			reader.onload = () => {
+				const stream = part.stream();
+				const streamReader = stream.getReader();
 				resolve({
 					reader: {
-						reader: part.stream().getReader(),
+						reader: streamReader,
 						abort() {
+							streamReader.cancel();
 							controller.abort();
 						},
 					},

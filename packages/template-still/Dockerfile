@@ -1,7 +1,7 @@
 # This is a dockerized version of a server that you can easily deploy somewhere.
 # If you don't want server rendering, you can safely delete this file.
 
-FROM node:20-bookworm
+FROM node:22-bookworm-slim
 
 RUN apt install -y \
   libnss3 \

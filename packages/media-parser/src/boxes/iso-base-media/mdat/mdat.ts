@@ -1,4 +1,3 @@
-/* eslint-disable max-depth */
 import type {BufferIterator} from '../../../buffer-iterator';
 import {getTracks, hasTracks} from '../../../get-tracks';
 import type {AnySegment} from '../../../parse-result';
@@ -90,7 +89,6 @@ export const parseMdat = async ({
 		})
 		.flat(1);
 
-	// eslint-disable-next-line no-constant-condition
 	while (true) {
 		if (signal && signal.aborted) {
 			break;

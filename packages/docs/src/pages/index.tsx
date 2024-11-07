@@ -15,8 +15,8 @@ import TrustedByBanner from '../../components/LandingPage/TrustedByBanner';
 import {WriteInReact} from '../../components/LandingPage/WriteInReact';
 import {LightningFastEditor} from '../../components/LandingPage/editor';
 import {IfYouKnowReact} from '../../components/LandingPage/if-you-know-react';
-import {Parametrize} from '../../components/LandingPage/parametrize';
 import {RealMP4Videos} from '../../components/LandingPage/real-mp4-videos';
+import {Demo} from '../components/Demo/Demo';
 import styles from './landing.module.css';
 
 const NewLanding: React.FC = () => {
@@ -45,6 +45,7 @@ const NewLanding: React.FC = () => {
 					<br />
 					<br />
 					<br />
+					<br />
 					<RealMP4Videos />
 					<br />
 					<br />
@@ -54,15 +55,13 @@ const NewLanding: React.FC = () => {
 					<br />
 					<br />
 					<br />
-					<br />
-					<Parametrize />
-					<br />
-					<br />
 					<VideoAppsTitle />
 					<VideoApps active="remotion" />
 					<br />
+
+					<Demo />
+
 					<br />
-					<CommunityStats />
 					<br />
 					<br />
 					<PricingTitle />
@@ -70,6 +69,15 @@ const NewLanding: React.FC = () => {
 					<TrustedByBanner />
 					<br />
 					<EvaluateRemotionSection />
+					<br />
+					<br />
+
+					<CommunityStats />
+					<br />
+					<br />
+					<br />
+					<br />
+
 					<NewsletterButton />
 					<br />
 					<br />

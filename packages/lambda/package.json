@@ -3,17 +3,17 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lambda"
 	},
 	"name": "@remotion/lambda",
-	"version": "4.0.221",
+	"version": "4.0.228",
 	"description": "Render Remotion videos on AWS Lambda",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier src --check",
-		"testintegration": "vitest src/test/integration --run",
-		"lint": "eslint src --ext ts,tsx",
+		"lint": "eslint src",
+		"testlambda": "vitest src/test/integration --run",
 		"test": "vitest src/test/unit --run",
-		"make": "bun build.ts",
-		"prepublishOnly": "bun src/admin/bundle-lambda.ts && bun ensure-version-match.js"
+		"make": "tsc -d && bun build.ts",
+		"prepublishOnly": "bun build.ts && bun ensure-version-match.js"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",
@@ -46,7 +46,9 @@
 		"@types/prompt": "^1.1.0",
 		"pureimage": "0.4.13",
 		"vitest": "0.31.1",
-		"zip-lib": "^0.7.2"
+		"zip-lib": "^0.7.2",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.14.0"
 	},
 	"peerDependencies": {
 		"@remotion/bundler": "workspace:*"

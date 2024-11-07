@@ -1,9 +1,9 @@
 import React from 'react';
 
 export const BackButton: React.FC<{
-	color: string;
-	text: string;
-	link: string;
+	readonly color: string;
+	readonly text: string;
+	readonly link: string;
 }> = ({color, text, link}) => {
 	const backLink: React.CSSProperties = {
 		color,

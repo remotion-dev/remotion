@@ -80,7 +80,7 @@ export const getFunctions = async (
 					logLevel: params.logLevel ?? 'info',
 				});
 				return version;
-			} catch (err) {
+			} catch {
 				return null;
 			}
 		}),

@@ -3,14 +3,15 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/paths"
 	},
 	"name": "@remotion/paths",
-	"version": "4.0.221",
+	"version": "4.0.228",
 	"description": "Utilities for working with SVG paths",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
-		"test": "bun test src"
+		"lint": "eslint src",
+		"test": "bun test src",
+		"make": "tsc -d"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",
@@ -22,6 +23,10 @@
 		"path",
 		"utilities"
 	],
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.14.0"
+	},
 	"publishConfig": {
 		"access": "public"
 	},

@@ -15,25 +15,13 @@
  */
 
 import type {LogLevel} from '../log-level';
-import type {BrowserConnectOptions} from './BrowserConnector';
-
-export interface BrowserLaunchArgumentOptions {
-	headless?: boolean | 'chrome';
-	userDataDir?: string;
-	devtools?: boolean;
-	debuggingPort?: number;
-	args: string[];
-}
+import type {Viewport} from './PuppeteerViewport';
 
 export interface LaunchOptions {
-	executablePath?: string;
-	timeout?: number;
-	dumpio?: boolean;
+	args: string[];
+	executablePath: string;
 	logLevel: LogLevel;
-	env?: Record<string, string | undefined>;
 	indent: boolean;
+	defaultViewport: Viewport;
+	userDataDir: string;
 }
-
-export type PuppeteerNodeLaunchOptions = BrowserLaunchArgumentOptions &
-	LaunchOptions &
-	BrowserConnectOptions;

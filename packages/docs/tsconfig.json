@@ -9,7 +9,7 @@
 		"target": "ES2019",
 		"moduleResolution": "node",
 		"noImplicitAny": false,
-		"strictNullChecks": false,
+		"strictNullChecks": true,
 		"strict": false,
 		"noEmit": true,
 		"incremental": true

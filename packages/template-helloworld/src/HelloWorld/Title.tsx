@@ -19,8 +19,8 @@ const word: React.CSSProperties = {
 };
 
 export const Title: React.FC<{
-  titleText: string;
-  titleColor: string;
+  readonly titleText: string;
+  readonly titleColor: string;
 }> = ({ titleText, titleColor }) => {
   const videoConfig = useVideoConfig();
   const frame = useCurrentFrame();

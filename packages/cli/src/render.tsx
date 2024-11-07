@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-restricted-imports
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
@@ -38,6 +37,7 @@ const {
 	publicPathOption,
 	publicDirOption,
 	metadataOption,
+	hardwareAccelerationOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -177,6 +177,9 @@ export const render = async (
 
 	const audioCodec = audioCodecOption.getValue({commandLine: parsedCli}).value;
 	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
+	const hardwareAcceleration = hardwareAccelerationOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	await renderVideoFlow({
 		fullEntryPoint,
@@ -239,5 +242,6 @@ export const render = async (
 		separateAudioTo,
 		publicPath,
 		metadata,
+		hardwareAcceleration,
 	});
 };

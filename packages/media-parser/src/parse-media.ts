@@ -1,4 +1,3 @@
-/* eslint-disable max-depth */
 import type {BufferIterator} from './buffer-iterator';
 import {getArrayBufferIterator} from './buffer-iterator';
 import {emitAvailableInfo} from './emit-available-info';
@@ -71,7 +70,6 @@ export const parseMedia: ParseMedia = async ({
 			throw new Error('Aborted');
 		}
 
-		// eslint-disable-next-line no-constant-condition
 		while (true) {
 			const result = await currentReader.reader.read();
 
@@ -142,6 +140,8 @@ export const parseMedia: ParseMedia = async ({
 					'Content-Range header is not supported by the reader, but was asked to seek',
 				);
 			}
+
+			currentReader.abort();
 
 			const {reader: newReader} = await readerInterface.read(
 				src,

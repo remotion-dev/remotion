@@ -17,7 +17,7 @@ const AUDIO_GRADIENT = 'linear-gradient(rgb(16 171 58), rgb(43 165 63) 60%)';
 const VIDEO_GRADIENT = 'linear-gradient(to top, #8e44ad, #9b59b6)';
 
 export const TimelineSequence: React.FC<{
-	s: TSequence;
+	readonly s: TSequence;
 }> = ({s}) => {
 	const windowWidth = useContext(TimelineWidthContext);
 
@@ -29,8 +29,8 @@ export const TimelineSequence: React.FC<{
 };
 
 const Inner: React.FC<{
-	s: TSequence;
-	windowWidth: number;
+	readonly s: TSequence;
+	readonly windowWidth: number;
 }> = ({s, windowWidth}) => {
 	// If a duration is 1, it is essentially a still and it should have width 0
 	// Some compositions may not be longer than their media duration,

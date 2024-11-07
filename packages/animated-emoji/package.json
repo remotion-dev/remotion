@@ -1,14 +1,14 @@
 {
 	"name": "@remotion/animated-emoji",
-	"version": "4.0.221",
+	"version": "4.0.228",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
-		"make": "bun --env-file=../.env.bundle bundle.ts",
+		"lint": "eslint src",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
 		"test": "bun test src"
 	},
 	"exports": {
@@ -40,5 +40,9 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/animated-emoji"
 	},
 	"homepage": "https://www.remotion.dev/docs/animated-emoji",
-	"description": "Google Fonts Animated Emojis as Remotion components"
+	"description": "Google Fonts Animated Emojis as Remotion components",
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.14.0"
+	}
 }

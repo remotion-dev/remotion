@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import {truthy} from './truthy';

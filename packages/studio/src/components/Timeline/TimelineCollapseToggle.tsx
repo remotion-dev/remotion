@@ -11,7 +11,7 @@ const container: React.CSSProperties = {
 
 const Icon: React.FC<
 	SVGProps<SVGSVGElement> & {
-		color: string;
+		readonly color: string;
 	}
 > = ({color, ...props}) => {
 	return (
@@ -22,8 +22,8 @@ const Icon: React.FC<
 };
 
 export const TimelineCollapseToggle: React.FC<{
-	collapsed: boolean;
-	color: string;
+	readonly collapsed: boolean;
+	readonly color: string;
 }> = ({collapsed, color}) => {
 	return (
 		<div

@@ -7,7 +7,7 @@ import type {StaticFile} from 'remotion';
 const statOrNull = (p: string) => {
 	try {
 		return statSync(p);
-	} catch (err) {
+	} catch {
 		return null;
 	}
 };

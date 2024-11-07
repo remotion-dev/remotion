@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/transitions"
 	},
 	"name": "@remotion/transitions",
-	"version": "4.0.221",
+	"version": "4.0.228",
 	"description": "Library for creating transitions in Remotion",
 	"sideEffects": false,
 	"main": "dist/esm/index.mjs",
@@ -11,9 +11,9 @@
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"test": "bun test src",
-		"lint": "eslint src --ext ts,tsx",
+		"lint": "eslint src",
 		"formatting": "prettier src --check",
-		"make": "bun --env-file=../.env.bundle bundle.ts"
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger",
 	"contributors": [],
@@ -32,7 +32,9 @@
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"@remotion/test-utils": "workspace:*",
-		"@vitejs/plugin-react": "^2.0.0"
+		"@vitejs/plugin-react": "^2.0.0",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.14.0"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",

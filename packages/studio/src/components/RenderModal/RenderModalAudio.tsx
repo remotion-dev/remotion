@@ -24,27 +24,33 @@ const container: React.CSSProperties = {
 };
 
 export const RenderModalAudio: React.FC<{
-	muted: boolean;
-	setMuted: React.Dispatch<React.SetStateAction<boolean>>;
-	renderMode: RenderType;
-	enforceAudioTrack: boolean;
-	setEnforceAudioTrackState: React.Dispatch<React.SetStateAction<boolean>>;
-	forSeamlessAacConcatenation: boolean;
-	setForSeamlessAacConcatenation: React.Dispatch<React.SetStateAction<boolean>>;
-	shouldHaveCustomTargetAudioBitrate: boolean;
-	setShouldHaveCustomTargetAudioBitrate: React.Dispatch<
+	readonly muted: boolean;
+	readonly setMuted: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly renderMode: RenderType;
+	readonly enforceAudioTrack: boolean;
+	readonly setEnforceAudioTrackState: React.Dispatch<
 		React.SetStateAction<boolean>
 	>;
-	setCustomTargetAudioBitrateValue: React.Dispatch<
+	readonly forSeamlessAacConcatenation: boolean;
+	readonly setForSeamlessAacConcatenation: React.Dispatch<
+		React.SetStateAction<boolean>
+	>;
+	readonly shouldHaveCustomTargetAudioBitrate: boolean;
+	readonly setShouldHaveCustomTargetAudioBitrate: React.Dispatch<
+		React.SetStateAction<boolean>
+	>;
+	readonly setCustomTargetAudioBitrateValue: React.Dispatch<
 		React.SetStateAction<string>
 	>;
-	customTargetAudioBitrate: string;
-	audioCodec: AudioCodec;
-	setAudioCodec: (newAudioCodec: AudioCodec) => void;
-	codec: Codec;
-	setSeparateAudioTo: React.Dispatch<React.SetStateAction<string | null>>;
-	separateAudioTo: string | null;
-	outName: string;
+	readonly customTargetAudioBitrate: string;
+	readonly audioCodec: AudioCodec;
+	readonly setAudioCodec: (newAudioCodec: AudioCodec) => void;
+	readonly codec: Codec;
+	readonly setSeparateAudioTo: React.Dispatch<
+		React.SetStateAction<string | null>
+	>;
+	readonly separateAudioTo: string | null;
+	readonly outName: string;
 }> = ({
 	muted,
 	setMuted,

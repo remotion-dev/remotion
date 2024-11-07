@@ -68,7 +68,7 @@ export const getSampleFromBlock = (
 		throw new Error(`Could not find codec for track ${trackNumber}`);
 	}
 
-	const remainingNow = ebml.value.length - (iterator.counter.getOffset() - 0);
+	const remainingNow = ebml.value.length - iterator.counter.getOffset();
 
 	if (codec.startsWith('V_')) {
 		const partialVideoSample: Omit<VideoSample, 'type'> = {

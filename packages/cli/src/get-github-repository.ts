@@ -99,7 +99,7 @@ export const normalizeGitRemoteUrl = (url: string): ParsedGitRemote | null => {
 export const getGifRef = (): string | null => {
 	try {
 		return execSync('git rev-parse --abbrev-ref HEAD').toString('utf-8').trim();
-	} catch (err) {
+	} catch {
 		return null;
 	}
 };

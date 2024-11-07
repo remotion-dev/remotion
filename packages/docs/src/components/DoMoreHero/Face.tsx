@@ -4,17 +4,17 @@ import type {ThreeDReducedInstruction} from './3d-svg';
 import {threeDIntoSvgPath} from './3d-svg';
 
 export type FaceSVGProps = {
-	strokeLinecap?: React.SVGAttributes<SVGPathElement>['strokeLinecap'];
-	strokeMiterlimit?: React.SVGAttributes<SVGPathElement>['strokeMiterlimit'];
+	readonly strokeLinecap?: React.SVGAttributes<SVGPathElement>['strokeLinecap'];
+	readonly strokeMiterlimit?: React.SVGAttributes<SVGPathElement>['strokeMiterlimit'];
 };
 
 export const Face: React.FC<
 	{
-		points: ThreeDReducedInstruction[];
-		color: string;
-		strokeColor: string;
-		strokeWidth: number;
-		crispEdges: boolean;
+		readonly points: ThreeDReducedInstruction[];
+		readonly color: string;
+		readonly strokeColor: string;
+		readonly strokeWidth: number;
+		readonly crispEdges: boolean;
 	} & FaceSVGProps
 > = ({
 	color,

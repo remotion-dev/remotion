@@ -7,7 +7,7 @@ import {
 } from 'remotion';
 import './common.css';
 
-const HeaderAndCredits = ({author}: {author: string}) => {
+const HeaderAndCredits = ({author}: {readonly author: string}) => {
 	const frame = useCurrentFrame();
 	const {durationInFrames, fps} = useVideoConfig();
 

@@ -96,5 +96,7 @@ export const processVideoJob = async ({
 		separateAudioTo: job.type === 'video' ? job.separateAudioTo : null,
 		publicPath: null,
 		metadata: job.metadata,
+		hardwareAcceleration:
+			job.type === 'video' ? job.hardwareAcceleration : 'disable',
 	});
 };

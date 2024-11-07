@@ -13,7 +13,7 @@ const Content = () => {
 };
 
 const Box: React.FC<{
-	portalTarget: React.MutableRefObject<HTMLDivElement>;
+	readonly portalTarget: React.MutableRefObject<HTMLDivElement>;
 }> = ({portalTarget}) => {
 	const frame = useCurrentFrame();
 	const rotation = interpolate(frame, [0, 1_000], [0, -5], {

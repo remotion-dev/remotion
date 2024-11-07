@@ -3,13 +3,22 @@ import type {BrowserExecutable} from './browser-executable';
 import {getRevisionInfo} from './browser/BrowserFetcher';
 import type {BrowserStatus} from './ensure-browser';
 import {getLocalBrowser} from './get-local-browser';
+import type {LogLevel} from './log-level';
+import {Log} from './logger';
 
-const getBrowserStatus = (
-	browserExecutablePath: BrowserExecutable,
-): BrowserStatus => {
+const getBrowserStatus = ({
+	browserExecutablePath,
+	indent,
+	logLevel,
+}: {
+	browserExecutablePath: BrowserExecutable;
+	indent: boolean;
+	logLevel: LogLevel;
+}): BrowserStatus => {
 	if (browserExecutablePath) {
 		if (!fs.existsSync(browserExecutablePath)) {
-			console.warn(
+			Log.warn(
+				{indent, logLevel},
 				`Browser executable was specified as '${browserExecutablePath}' but the path doesn't exist.`,
 			);
 		}
@@ -30,10 +39,20 @@ const getBrowserStatus = (
 	return {type: 'no-browser'};
 };
 
-export const getLocalBrowserExecutable = (
-	preferredBrowserExecutable: BrowserExecutable,
-): string => {
-	const status = getBrowserStatus(preferredBrowserExecutable);
+export const getLocalBrowserExecutable = ({
+	preferredBrowserExecutable,
+	logLevel,
+	indent,
+}: {
+	preferredBrowserExecutable: BrowserExecutable;
+	logLevel: LogLevel;
+	indent: boolean;
+}): string => {
+	const status = getBrowserStatus({
+		browserExecutablePath: preferredBrowserExecutable,
+		indent,
+		logLevel,
+	});
 	if (status.type === 'no-browser') {
 		throw new TypeError(
 			'No browser found for rendering frames! Please open a GitHub issue and describe ' +

@@ -1,23 +1,25 @@
+/* eslint-disable no-console */
+import type {HardwareAccelerationOption} from './client';
 import type {Codec} from './codec';
 import {isAudioCodec} from './is-audio-codec';
 
 export type Crf = number | undefined;
 
-const defaultCrfMap: {[key in Codec]: number} = {
+const defaultCrfMap: {[key in Codec]: number | null} = {
 	h264: 18,
 	h265: 23,
 	vp8: 9,
 	vp9: 28,
-	prores: 0,
-	gif: 0,
+	prores: null,
+	gif: null,
 	'h264-mkv': 18,
 	'h264-ts': 18,
-	aac: 0,
-	mp3: 0,
-	wav: 0,
+	aac: null,
+	mp3: null,
+	wav: null,
 };
 
-export const getDefaultCrfForCodec = (codec: Codec): number => {
+export const getDefaultCrfForCodec = (codec: Codec): number | null => {
 	const val = defaultCrfMap[codec];
 	if (val === undefined) {
 		throw new TypeError(`Got unexpected codec "${codec}"`);
@@ -55,17 +57,23 @@ export const validateQualitySettings = ({
 	videoBitrate,
 	encodingMaxRate,
 	encodingBufferSize,
+	hardwareAcceleration,
 }: {
 	crf: unknown;
 	codec: Codec;
 	videoBitrate: string | null;
 	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
+	hardwareAcceleration: HardwareAccelerationOption;
 }): string[] => {
 	if (crf && videoBitrate) {
 		throw new Error(
 			'"crf" and "videoBitrate" can not both be set. Choose one of either.',
 		);
+	}
+
+	if (crf && hardwareAcceleration === 'required') {
+		throw new Error('"crf" option is not supported with hardware acceleration');
 	}
 
 	if (encodingMaxRate && !encodingBufferSize) {
@@ -95,6 +103,10 @@ export const validateQualitySettings = ({
 
 	if (crf === null || typeof crf === 'undefined') {
 		const actualCrf = getDefaultCrfForCodec(codec);
+		if (actualCrf === null) {
+			return [...bufSizeArray, ...maxRateArray];
+		}
+
 		return ['-crf', String(actualCrf), ...bufSizeArray, ...maxRateArray];
 	}
 

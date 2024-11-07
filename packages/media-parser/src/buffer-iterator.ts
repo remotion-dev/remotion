@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import {webmPattern} from './boxes/webm/make-header';
 import {
 	knownIdsWithOneLength,

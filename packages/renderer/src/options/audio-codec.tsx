@@ -27,6 +27,7 @@ if (_satisfies) {
 	// Just for type checking
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const audioCodecNames = [
 	'pcm_s16le',
 	'libfdk_aac',
@@ -63,7 +64,7 @@ const ssrName = 'audioCodec' as const;
 
 export const defaultAudioCodecs: {
 	[key in Codec]: {
-		[k in 'compressed' | 'lossless']:
+		[_ in 'compressed' | 'lossless']:
 			| (typeof supportedAudioCodecs)[key][number]
 			| null;
 	};

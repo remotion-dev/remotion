@@ -14,3 +14,20 @@ export const withResolvers = function <T>() {
 	});
 	return {promise, resolve: resolve!, reject: reject!};
 };
+
+export const withResolversAndWaitForReturn = <T>() => {
+	const {promise, reject, resolve} = withResolvers<T>();
+	const {promise: returnPromise, resolve: resolveReturn} =
+		withResolvers<void>();
+
+	return {
+		getPromiseToImmediatelyReturn: () => {
+			resolveReturn(undefined);
+			return promise;
+		},
+		reject: (reason: unknown) => {
+			returnPromise.then(() => reject(reason));
+		},
+		resolve,
+	};
+};

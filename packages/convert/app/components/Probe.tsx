@@ -6,7 +6,10 @@ import type {
 	TracksField,
 } from '@remotion/media-parser';
 import {parseMedia} from '@remotion/media-parser';
+import {fetchReader} from '@remotion/media-parser/fetch';
+import {webFileReader} from '@remotion/media-parser/web-file';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import {Source} from '~/lib/convert-state';
 import {AudioTrackOverview} from './AudioTrackOverview';
 import {ContainerOverview} from './ContainerOverview';
 import {SourceLabel} from './SourceLabel';
@@ -16,7 +19,6 @@ import {VideoTrackOverview} from './VideoTrackOverview';
 import {Button} from './ui/button';
 import {
 	Card,
-	CardContent,
 	CardDescription,
 	CardFooter,
 	CardHeader,
@@ -27,7 +29,7 @@ import {Separator} from './ui/separator';
 import {Skeleton} from './ui/skeleton';
 
 export const Probe: React.FC<{
-	readonly src: string;
+	readonly src: Source;
 	readonly setProbeDetails: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly probeDetails: boolean;
 }> = ({src, probeDetails, setProbeDetails}) => {
@@ -79,7 +81,7 @@ export const Probe: React.FC<{
 		};
 
 		parseMedia({
-			src,
+			src: src.type === 'file' ? src.file : src.url,
 			fields: {
 				dimensions: true,
 				videoCodec: true,
@@ -91,6 +93,7 @@ export const Probe: React.FC<{
 				tracks: true,
 				container: true,
 			},
+			reader: src.type === 'file' ? webFileReader : fetchReader,
 			signal: controller.signal,
 			onVideoTrack: async (track) => {
 				if (typeof VideoDecoder === 'undefined') {
@@ -189,6 +192,9 @@ export const Probe: React.FC<{
 				if ((err as Error).stack?.includes('Cancelled')) {
 					return;
 				}
+				if ((err as Error).stack?.toLowerCase()?.includes('aborted')) {
+					return;
+				}
 
 				// eslint-disable-next-line no-console
 				console.log(err);
@@ -236,7 +242,7 @@ export const Probe: React.FC<{
 			}
 		>
 			<VideoThumbnail thumbnail={thumbnail} />
-			<CardHeader>
+			<CardHeader className="border-b-2 border-black">
 				<CardTitle title={name ?? undefined}>
 					{name ? name : <Skeleton className="h-5 w-[220px] inline-block" />}
 				</CardTitle>
@@ -248,36 +254,34 @@ export const Probe: React.FC<{
 				<div className="pl-6 pr-6">
 					<TrackSwitcher
 						selectedTrack={trackDetails}
+						sortedTracks={sortedTracks}
 						onTrack={(track) => {
 							setTrackDetails(track);
 						}}
-						sortedTracks={sortedTracks}
 					/>
 				</div>
 			) : null}
-			<ScrollArea className="flex-1">
-				<CardContent className="flex flex-1 flex-col">
-					{selectedTrack === null ? (
-						<ContainerOverview
-							container={container ?? null}
-							dimensions={dimensions ?? null}
-							videoCodec={videoCodec ?? null}
-							size={size ?? null}
-							durationInSeconds={durationInSeconds}
-							audioCodec={audioCodec ?? null}
-							fps={fps}
-						/>
-					) : selectedTrack.type === 'video' ? (
-						<VideoTrackOverview track={selectedTrack} />
-					) : selectedTrack.type === 'audio' ? (
-						<AudioTrackOverview track={selectedTrack} />
-					) : null}
-				</CardContent>
+			<ScrollArea height={300} className="flex-1">
+				{selectedTrack === null ? (
+					<ContainerOverview
+						container={container ?? null}
+						dimensions={dimensions ?? null}
+						videoCodec={videoCodec ?? null}
+						size={size ?? null}
+						durationInSeconds={durationInSeconds}
+						audioCodec={audioCodec ?? null}
+						fps={fps}
+					/>
+				) : selectedTrack.type === 'video' ? (
+					<VideoTrackOverview track={selectedTrack} />
+				) : selectedTrack.type === 'audio' ? (
+					<AudioTrackOverview track={selectedTrack} />
+				) : null}
 			</ScrollArea>
 			<Separator orientation="horizontal" />
 			<CardFooter className="flex flex-row items-center justify-center pb-3 pt-3">
 				<div className="flex-1" />
-				<Button disabled={!tracks} onClick={onClick} variant={'link'}>
+				<Button disabled={!tracks} variant="link" onClick={onClick}>
 					{probeDetails ? 'Hide details' : 'Show details'}
 				</Button>
 			</CardFooter>

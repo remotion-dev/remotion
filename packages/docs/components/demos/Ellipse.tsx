@@ -3,9 +3,9 @@ import React from "react";
 import { AbsoluteFill } from "remotion";
 
 export const EllipseDemo: React.FC<{
-  darkMode: boolean;
-  rx: number;
-  ry: number;
+  readonly darkMode: boolean;
+  readonly rx: number;
+  readonly ry: number;
 }> = ({ rx, ry, darkMode }) => {
   return (
     <AbsoluteFill

@@ -37,6 +37,7 @@ export const VideoThumbnail: React.FC<{
 				width: THUMBNAIL_WIDTH,
 				aspectRatio: '16 / 9',
 			}}
+			className="border-b-2 border-black"
 		/>
 	);
 };

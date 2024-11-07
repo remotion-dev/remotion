@@ -3,15 +3,15 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/rive"
 	},
 	"name": "@remotion/rive",
-	"version": "4.0.221",
+	"version": "4.0.228",
 	"description": "Embed Rive animations in a Remotion video",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
-		"make": "bun --env-file=../.env.bundle bundle.ts"
+		"lint": "eslint src",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
@@ -29,7 +29,9 @@
 	},
 	"devDependencies": {
 		"react": "18.3.1",
-		"react-dom": "18.3.1"
+		"react-dom": "18.3.1",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.14.0"
 	},
 	"publishConfig": {
 		"access": "public"

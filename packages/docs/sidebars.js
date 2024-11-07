@@ -118,8 +118,6 @@ module.exports = {
 				'version',
 				'video',
 				'watchstaticfile',
-				'null',
-				'clipper',
 			],
 		},
 		{
@@ -684,6 +682,7 @@ module.exports = {
 				'video-vs-offthreadvideo',
 				'artifacts',
 				'metadata',
+				'hardware-acceleration',
 			],
 		},
 		{
@@ -914,6 +913,8 @@ module.exports = {
 			label: 'Snippets',
 			items: [
 				'miscellaneous/snippets/accelerated-video',
+				'miscellaneous/snippets/different-segments-at-different-speeds',
+				'miscellaneous/snippets/jumpcuts',
 				'miscellaneous/snippets/player-in-iframe',
 				'miscellaneous/snippets/use-delay-render',
 				'miscellaneous/snippets/offthread-video-while-rendering',
@@ -1005,6 +1006,7 @@ module.exports = {
 				'miscellaneous/linux-dependencies',
 				'gl-options',
 				'bun',
+				'deno',
 				'standalone',
 				'miscellaneous/emojis',
 				'media-fragments',

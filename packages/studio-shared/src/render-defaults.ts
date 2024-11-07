@@ -10,6 +10,7 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
+import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import type {GitSource} from './git-source';
 import type {InstallablePackage} from './installable-packages';
 import type {PackageManager} from './package-manager';
@@ -49,6 +50,7 @@ export type RenderDefaults = {
 	repro: boolean;
 	forSeamlessAacConcatenation: boolean;
 	metadata: Record<string, string> | null;
+	hardwareAcceleration: HardwareAccelerationOption;
 };
 
 declare global {

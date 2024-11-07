@@ -38,7 +38,7 @@ const createContent = async () => {
 		save: async () => {
 			try {
 				await writable.close();
-			} catch (err) {
+			} catch {
 				// Ignore, could already be closed
 			}
 
@@ -67,6 +67,14 @@ export const webFsWriter: WriterInterface = {
 };
 
 export const canUseWebFsWriter = async () => {
+	if (!('storage' in navigator)) {
+		return false;
+	}
+
+	if (!('getDirectory' in navigator.storage)) {
+		return false;
+	}
+
 	const directoryHandle = await navigator.storage.getDirectory();
 	const fileHandle = await directoryHandle.getFileHandle(
 		'remotion-probe-web-fs-support',

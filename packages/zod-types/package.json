@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/zod-types"
 	},
 	"name": "@remotion/zod-types",
-	"version": "4.0.221",
+	"version": "4.0.228",
 	"description": "Zod types for Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -11,8 +11,8 @@
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
-		"make": "bun --env-file=../.env.bundle bundle.ts"
+		"lint": "eslint src",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger",
 	"contributors": [],
@@ -27,7 +27,9 @@
 		"zod": "3.22.3"
 	},
 	"devDependencies": {
-		"zod": "3.22.3"
+		"zod": "3.22.3",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.14.0"
 	},
 	"keywords": [
 		"zod",

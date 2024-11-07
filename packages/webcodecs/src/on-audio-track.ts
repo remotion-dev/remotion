@@ -1,4 +1,4 @@
-import type {MediaFn, OnAudioTrack} from '@remotion/media-parser';
+import type {LogLevel, MediaFn, OnAudioTrack} from '@remotion/media-parser';
 import {createAudioDecoder} from './audio-decoder';
 import {getAudioDecoderConfig} from './audio-decoder-config';
 import {createAudioEncoder} from './audio-encoder';
@@ -19,6 +19,7 @@ export const makeAudioTrackHandler =
 		onMediaStateUpdate,
 		onAudioTrack,
 		bitrate,
+		logLevel,
 	}: {
 		state: MediaFn;
 		audioCodec: ConvertMediaAudioCodec;
@@ -28,6 +29,7 @@ export const makeAudioTrackHandler =
 		onMediaStateUpdate: null | ((state: ConvertMediaState) => void);
 		onAudioTrack: ResolveAudioActionFn;
 		bitrate: number;
+		logLevel: LogLevel;
 	}): OnAudioTrack =>
 	async (track) => {
 		const audioEncoderConfig = await getAudioEncoderConfig({
@@ -120,6 +122,7 @@ export const makeAudioTrackHandler =
 			codec: audioCodec,
 			signal: controller.signal,
 			config: audioEncoderConfig,
+			logLevel,
 		});
 
 		const audioDecoder = createAudioDecoder({
@@ -127,6 +130,7 @@ export const makeAudioTrackHandler =
 				await audioEncoder.encodeFrame(frame);
 				convertMediaState.decodedAudioFrames++;
 				onMediaStateUpdate?.(convertMediaState);
+
 				frame.close();
 			},
 			onError(error) {
@@ -141,6 +145,7 @@ export const makeAudioTrackHandler =
 			},
 			signal: controller.signal,
 			config: audioDecoderConfig,
+			logLevel,
 		});
 
 		state.addWaitForFinishPromise(async () => {

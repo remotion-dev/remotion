@@ -1,7 +1,9 @@
 import type {MetaFunction} from '@remix-run/node';
 import {useState} from 'react';
-import ConvertUI from '~/components/ConvertUi';
-import {Probe} from '~/components/Probe';
+import {FileAvailable} from '~/components/FileAvailable';
+import {PickFile} from '~/components/PickFile';
+import {SAMPLE_FILE, TEST_FAST} from '~/lib/config';
+import {Source} from '~/lib/convert-state';
 
 export const meta: MetaFunction = () => {
 	return [
@@ -10,20 +12,18 @@ export const meta: MetaFunction = () => {
 	];
 };
 
-const src =
-	'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
-
 const Index = () => {
-	const [probeDetails, setProbeDetails] = useState(false);
+	const [src, setSrc] = useState<Source | null>(
+		TEST_FAST ? {type: 'url', url: SAMPLE_FILE} : null,
+	);
 
 	return (
-		<div className="font-sans p-4 flex justify-center items-center h-screen bg-slate-50 gap-16">
-			<Probe
-				src={src}
-				probeDetails={probeDetails}
-				setProbeDetails={setProbeDetails}
-			/>
-			{probeDetails ? null : <ConvertUI src={src} />}
+		<div className="font-sans  flex justify-center items-center h-screen bg-slate-50 ">
+			{src ? (
+				<FileAvailable src={src} setSrc={setSrc} />
+			) : (
+				<PickFile setSrc={setSrc} />
+			)}
 		</div>
 	);
 };

@@ -22,7 +22,7 @@ const margin: React.CSSProperties = {
 };
 
 const EscapeHook: React.FC<{
-	onEscape: () => void;
+	readonly onEscape: () => void;
 }> = ({onEscape}) => {
 	const keybindings = useKeybinding();
 
@@ -47,9 +47,9 @@ const EscapeHook: React.FC<{
 };
 
 export const HigherZIndex: React.FC<{
-	onEscape: () => void;
-	onOutsideClick: (target: Node) => void;
-	children: React.ReactNode;
+	readonly onEscape: () => void;
+	readonly onOutsideClick: (target: Node) => void;
+	readonly children: React.ReactNode;
 }> = ({children, onEscape, onOutsideClick}) => {
 	const context = useContext(ZIndexContext);
 	const highestContext = useContext(HighestZIndexContext);

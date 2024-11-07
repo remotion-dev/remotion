@@ -3,19 +3,20 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/media-parser"
 	},
 	"name": "@remotion/media-parser",
-	"version": "4.0.221",
+	"version": "4.0.228",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
+		"lint": "eslint src",
 		"test": "bun test src/test",
-		"watch": "tsc -w",
-		"make": "bun --env-file=../.env.bundle bundle.ts"
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"devDependencies": {
 		"@remotion/renderer": "workspace:*",
-		"@types/wicg-file-system-access": "2023.10.5"
+		"@types/wicg-file-system-access": "2023.10.5",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.14.0"
 	},
 	"publishConfig": {
 		"access": "public"

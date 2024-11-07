@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/player-example"
 	},
 	"name": "@remotion/player-example",
-	"version": "4.0.221",
+	"version": "4.0.228",
 	"private": true,
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"maintainers": [
@@ -21,6 +21,9 @@
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"remotion": "workspace:*"
+	},
+	"devDependencies": {
+		"eslint": "8.56.0"
 	},
 	"scripts": {
 		"formatting": "prettier src --check",

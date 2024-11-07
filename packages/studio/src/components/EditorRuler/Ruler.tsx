@@ -19,13 +19,13 @@ interface Point {
 }
 
 interface RulerProps {
-	scale: number;
-	points: Point[];
-	originOffset: number;
-	startMarking: number;
-	markingGaps: number;
-	orientation: 'horizontal' | 'vertical';
-	size: Size;
+	readonly scale: number;
+	readonly points: Point[];
+	readonly originOffset: number;
+	readonly startMarking: number;
+	readonly markingGaps: number;
+	readonly orientation: 'horizontal' | 'vertical';
+	readonly size: Size;
 }
 
 const makeGuideId = (): string => {

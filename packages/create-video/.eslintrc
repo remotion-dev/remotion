@@ -1,6 +1,0 @@
-{
-	"extends": "@jonny",
-	"rules": {
-		"ts-exports/unused-exports": "off"
-	}
-}

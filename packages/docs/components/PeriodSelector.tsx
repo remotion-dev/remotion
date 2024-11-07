@@ -8,8 +8,8 @@ enum Period {
 }
 
 export const PeriodSelector: React.FC<{
-  period: Period;
-  setPeriod: (per: Period) => void;
+  readonly period: Period;
+  readonly setPeriod: (per: Period) => void;
 }> = ({ period, setPeriod }) => {
   const MonthlyComponent = period === Period.Monthly ? BlueButton : ClearButton;
   const YearlyComponent = period === Period.Monthly ? ClearButton : BlueButton;

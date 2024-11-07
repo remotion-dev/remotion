@@ -36,8 +36,8 @@ import {wipe} from '@remotion/transitions/wipe';
 import {AbsoluteFill} from 'remotion';
 
 export const Letter: React.FC<{
-	children: React.ReactNode;
-	color: string;
+	readonly children: React.ReactNode;
+	readonly color: string;
 }> = ({children, color}) => {
 	return (
 		<AbsoluteFill

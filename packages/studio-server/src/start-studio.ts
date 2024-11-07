@@ -108,10 +108,12 @@ export const startStudio = async ({
 	try {
 		if (typeof Bun === 'undefined') {
 			process.title = 'node (npx remotion studio)';
+		} else if (typeof Deno === 'undefined') {
+			process.title = 'deno (npx remotiond studio)';
 		} else {
-			process.title = `bun (bunx remotion studio)`;
+			process.title = `bun (bunx remotionb studio)`;
 		}
-	} catch (err) {}
+	} catch {}
 
 	watchRootFile(remotionRoot);
 	const publicDir = getAbsolutePublicDir({

@@ -78,7 +78,7 @@ npm run build
 Start the app in production mode (after build is done):
 
 ```
-npm start
+npm run dev
 ```
 
 Start the Remotion preview:
