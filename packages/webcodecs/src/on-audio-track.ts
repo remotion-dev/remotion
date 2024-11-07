@@ -68,6 +68,7 @@ export const makeAudioTrackHandler =
 
 			return async (audioSample) => {
 				await state.addSample(
+					// TODO: EncodedAudioChunk is not supported in Safari
 					new EncodedAudioChunk(audioSample),
 					addedTrack.trackNumber,
 					false,

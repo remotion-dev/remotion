@@ -39,7 +39,10 @@ export const createContent = () => {
 			}
 
 			const arr = new Uint8Array(buf);
-			return Promise.resolve(new Blob([arr], {type: 'video/webm'}));
+			return Promise.resolve(
+				// TODO: Unhardcode MIME type and file name
+				new File([arr.slice()], 'hi', {type: 'video/webm'}),
+			);
 		},
 		remove() {
 			removed = true;

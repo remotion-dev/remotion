@@ -5,6 +5,10 @@ export const getAudioDecoderConfig = async (
 		return null;
 	}
 
+	if (typeof EncodedAudioChunk === 'undefined') {
+		return null;
+	}
+
 	if ((await AudioDecoder.isConfigSupported(config)).supported) {
 		return config;
 	}

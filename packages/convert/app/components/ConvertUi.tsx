@@ -9,7 +9,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import {bufferWriter} from '@remotion/media-parser/buffer';
 import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
 import {convertMedia} from '@remotion/webcodecs';
