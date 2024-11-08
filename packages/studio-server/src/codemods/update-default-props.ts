@@ -111,7 +111,7 @@ export const updateDefaultProps = async ({
 				defaultPropsValue.type !== 'TSAsExpression'
 			) {
 				throw new Error(
-					`\`defaultProps\` prop must be a hardcoded value in the <Composition/> tag with the ID "${defaultPropsValue.type}".`,
+					`\`defaultProps\` prop must be a hardcoded value in the <Composition/> tag with the ID "${compositionId}".`,
 				);
 			}
 
