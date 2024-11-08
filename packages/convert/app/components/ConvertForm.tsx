@@ -43,6 +43,8 @@ export const ConvertForm: React.FC<{
 	setFlipHorizontal,
 	setFlipVertical,
 }) => {
+	const [showAdvanced, setShowAdvanced] = React.useState(false);
+
 	return (
 		<div className="gap-4 grid">
 			<div>
@@ -93,38 +95,52 @@ export const ConvertForm: React.FC<{
 					</SelectContent>
 				</Select>
 			</div>
-			<div className="flex flex-row">
-				<Checkbox
-					checked={flipHorizontal}
-					id="flipHorizontal"
-					onCheckedChange={() => setFlipHorizontal((e) => !e)}
-				/>
-				<div className="w-2" />
-				<div className="grid gap-1.5 leading-none">
-					<label
-						htmlFor="flipHorizontal"
-						className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+			{showAdvanced ? (
+				<>
+					<div className="flex flex-row">
+						<Checkbox
+							checked={flipHorizontal}
+							id="flipHorizontal"
+							onCheckedChange={() => setFlipHorizontal((e) => !e)}
+						/>
+						<div className="w-2" />
+						<div className="grid gap-1.5 leading-none">
+							<label
+								htmlFor="flipHorizontal"
+								className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+							>
+								Flip video horizontally
+							</label>
+						</div>
+					</div>
+					<div className="flex flex-row">
+						<Checkbox
+							checked={flipVertical}
+							id="flipVertical"
+							onCheckedChange={() => setFlipVertical((e) => !e)}
+						/>
+						<div className="w-2" />
+						<div className="grid gap-1.5 leading-none">
+							<label
+								htmlFor="flipVertical"
+								className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+							>
+								Flip video vertically
+							</label>
+						</div>
+					</div>
+				</>
+			) : (
+				<div className="flex flex-row justify-center text-muted-foreground">
+					<button
+						type="button"
+						className="font-brand"
+						onClick={() => setShowAdvanced(true)}
 					>
-						Flip video horizontally
-					</label>
+						Advanced settings
+					</button>
 				</div>
-			</div>
-			<div className="flex flex-row">
-				<Checkbox
-					checked={flipVertical}
-					id="flipVertical"
-					onCheckedChange={() => setFlipVertical((e) => !e)}
-				/>
-				<div className="w-2" />
-				<div className="grid gap-1.5 leading-none">
-					<label
-						htmlFor="flipVertical"
-						className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-					>
-						Flip video vertically
-					</label>
-				</div>
-			</div>
+			)}
 		</div>
 	);
 };
