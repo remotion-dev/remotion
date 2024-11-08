@@ -63,7 +63,7 @@ export const Probe: React.FC<{
 
 	return (
 		<Card
-			className={`w-full lg:${probeDetails ? 'w-[800px]' : 'w-[350px]'} max-h-[700px] overflow-hidden`}
+			className={`w-full lg:${probeDetails ? 'w-[800px]' : 'w-[350px]'} overflow-hidden`}
 		>
 			<VideoThumbnail thumbnail={thumbnail} />
 			<CardHeader className="border-b-2 border-black">
