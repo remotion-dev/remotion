@@ -37,7 +37,6 @@ export const TrackSwitcher: React.FC<{
 							);
 						})}
 					</div>
-					<div className="h-4" />
 				</div>
 			) : null}
 		</div>

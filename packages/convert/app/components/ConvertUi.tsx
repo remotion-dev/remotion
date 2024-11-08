@@ -1,5 +1,5 @@
 import {Button} from '@/components/ui/button';
-import {CardContent, CardTitle} from '@/components/ui/card';
+import {CardTitle} from '@/components/ui/card';
 import {Label} from '@/components/ui/label';
 import {
 	Select,
@@ -125,8 +125,8 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 	}, [state]);
 
 	return (
-		<div className="w-[380px]">
-			<CardContent className="gap-4">
+		<div className="w-full lg:w-[350px]">
+			<div className="gap-4">
 				{state.type === 'error' ? (
 					<>
 						<ErrorState error={state.error} />
@@ -225,7 +225,7 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 						</Button>
 					</>
 				)}
-			</CardContent>
+			</div>
 		</div>
 	);
 }

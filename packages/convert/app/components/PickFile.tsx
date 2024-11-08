@@ -27,7 +27,7 @@ export const PickFile: React.FC<{
 
 	return (
 		<div
-			className="text-center items-center justify-center flex flex-col h-full w-full"
+			className="text-center items-center justify-center flex flex-col h-full w-full p-4 pt-20"
 			onDragOver={onDragOver}
 			onDrop={onDrop}
 		>

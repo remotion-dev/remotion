@@ -236,10 +236,7 @@ export const Probe: React.FC<{
 
 	return (
 		<Card
-			className={
-				(probeDetails ? 'w-[800px]' : 'w-[350px]') +
-				' h-5/6 max-h-[700px] flex flex-col max-w-[90vw] overflow-hidden'
-			}
+			className={`w-full lg:${probeDetails ? 'w-[800px]' : 'w-[350px]'} max-h-[700px] overflow-hidden`}
 		>
 			<VideoThumbnail thumbnail={thumbnail} />
 			<CardHeader className="border-b-2 border-black">
@@ -251,7 +248,7 @@ export const Probe: React.FC<{
 				</CardDescription>
 			</CardHeader>
 			{sortedTracks.length && probeDetails ? (
-				<div className="pl-6 pr-6">
+				<div className=" pr-6 border-b-2 border-black">
 					<TrackSwitcher
 						selectedTrack={trackDetails}
 						sortedTracks={sortedTracks}
