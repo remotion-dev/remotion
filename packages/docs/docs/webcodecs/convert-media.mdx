@@ -141,3 +141,76 @@ This will destroy the frame and free up memory.
 If you need a reference to the frame that lasts longer than the lifetime of this function, you must call [`.clone()`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame/clone) on it.
 
 If you return a different frame than the one you received, it must have the same values for `codedWidth`, `codedHeight`, `displayWidth` and `displayHeight`, `timestamp` and `duration` as the input frame.
+
+### `signal?`
+
+An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) to cancel the conversion process whenever the signal is aborted.
+
+### `writer?`
+
+A writer interface. The following interfaces are available:
+
+```tsx twoslash title="Buffer writer"
+import {bufferWriter} from '@remotion/media-parser/buffer';
+//               ^?
+```
+
+Write to a resizable Array Buffer.
+
+```tsx twoslash title="Web File System writer"
+// @module: es2022
+// @target: es2017
+import {canUseWebFsWriter, webFsWriter} from '@remotion/media-parser/web-fs';
+//                          ^?
+
+await canUseWebFsWriter(); // boolean
+```
+
+Use the Web File System API to write to a file.
+
+By default the writer is `webFsWriter`.
+
+### `onAudioTrack?`
+
+Take control of what to do for each audio track in the file: Re-encoding, copying, or dropping.  
+Documentation for this feature is TODO.
+
+### `onVideoTrack?`
+
+Take control of what to do for each video track in the file: Re-encoding, copying, or dropping.  
+Documentation for this feature is TODO.
+
+### `fields?` and Callbacks
+
+You can obtain information about the video file while you are converting it.  
+This feature is inherited from [`parseMedia()`](/docs/media-parser/parse-media), but only the callback-style API is available.
+
+```tsx twoslash title="Converting a video"
+// @module: es2022
+// @target: es2017
+import {convertMedia} from '@remotion/webcodecs';
+
+await convertMedia({
+  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  to: 'webm',
+  videoCodec: 'vp8',
+  audioCodec: 'opus',
+  fields: {
+    size: true,
+  },
+  onSize: (size) => {
+    console.log(size);
+    //           ^?
+  },
+});
+```
+
+## License
+
+[See notes about `@remotion/webcodecs`](/docs/webcodecs#license).
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/webcodecs/src/convert-media.ts)
+- [`@remotion/webcodecs`](/docs/webcodecs)
+- [`parseMedia()`](/docs/media-parser/parse-media)
