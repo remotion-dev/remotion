@@ -1,6 +1,6 @@
 import {
 	ConvertMediaAudioCodec,
-	ConvertMediaTo,
+	ConvertMediaContainer,
 	ConvertMediaVideoCodec,
 } from '@remotion/webcodecs';
 import React from 'react';
@@ -17,8 +17,10 @@ import {
 } from './ui/select';
 
 export const ConvertForm: React.FC<{
-	readonly container: ConvertMediaTo;
-	readonly setContainer: React.Dispatch<React.SetStateAction<ConvertMediaTo>>;
+	readonly container: ConvertMediaContainer;
+	readonly setContainer: React.Dispatch<
+		React.SetStateAction<ConvertMediaContainer>
+	>;
 	readonly videoCodec: ConvertMediaVideoCodec;
 	readonly setVideoCodec: React.Dispatch<
 		React.SetStateAction<ConvertMediaVideoCodec>

@@ -2,11 +2,11 @@ export {WebCodecsAudioDecoder, createAudioDecoder} from './audio-decoder';
 export {WebCodecsAudioEncoder, createAudioEncoder} from './audio-encoder';
 export {ConvertMediaAudioCodec, ConvertMediaVideoCodec} from './codec-id';
 export {
+	ConvertMediaContainer,
 	ConvertMediaOnMediaStateUpdate,
 	ConvertMediaOnVideoFrame,
 	ConvertMediaResult,
 	ConvertMediaState,
-	ConvertMediaTo,
 	convertMedia,
 } from './convert-media';
 export {ResolveAudioActionFn} from './resolve-audio-action';

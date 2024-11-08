@@ -39,7 +39,7 @@ export type ConvertMediaState = {
 	overallProgress: number | null;
 };
 
-export type ConvertMediaTo = 'webm';
+export type ConvertMediaContainer = 'webm';
 
 export type ConvertMediaResult = {
 	save: () => Promise<Blob>;
@@ -59,7 +59,7 @@ export const convertMedia = async function <
 	onVideoFrame,
 	onMediaStateUpdate: onMediaStateDoNoCallDirectly,
 	audioCodec,
-	to,
+	container,
 	videoCodec,
 	signal: userPassedAbortSignal,
 	onAudioTrack: userAudioResolver,
@@ -71,7 +71,7 @@ export const convertMedia = async function <
 	...more
 }: {
 	src: ParseMediaOptions<F>['src'];
-	to: ConvertMediaTo;
+	container: ConvertMediaContainer;
 	onVideoFrame?: ConvertMediaOnVideoFrame;
 	onMediaStateUpdate?: ConvertMediaOnMediaStateUpdate;
 	videoCodec: ConvertMediaVideoCodec;
@@ -87,7 +87,7 @@ export const convertMedia = async function <
 		return Promise.reject(new Error('Aborted'));
 	}
 
-	if (to !== 'webm') {
+	if (container !== 'webm') {
 		return Promise.reject(
 			new TypeError('Only `to: "webm"` is supported currently'),
 		);
@@ -184,8 +184,8 @@ export const convertMedia = async function <
 		onMediaStateUpdate: onMediaStateUpdate ?? null,
 		state,
 		onAudioTrack: userAudioResolver ?? null,
-		bitrate: 128000,
 		logLevel,
+		container,
 	});
 
 	parseMedia({
