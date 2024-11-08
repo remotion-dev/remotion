@@ -567,6 +567,15 @@ module.exports = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/webcodecs',
+			link: {
+				type: 'doc',
+				id: 'webcodecs/index',
+			},
+			items: ['webcodecs/index', 'webcodecs/convert-media'],
+		},
+		{
+			type: 'category',
 			label: '@remotion/captions',
 			link: {
 				type: 'doc',

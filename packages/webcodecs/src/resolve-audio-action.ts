@@ -6,7 +6,10 @@ import type {
 import type {ConvertMediaAudioCodec} from './codec-id';
 import {Log} from './log';
 
-export type AudioOperation = 'reencode' | 'copy' | 'drop';
+export type AudioOperation =
+	| {type: 'reencode'}
+	| {type: 'copy'}
+	| {type: 'drop'};
 
 const canCopyAudioTrack = (
 	inputCodec: MediaParserAudioCodec,
@@ -29,15 +32,15 @@ export const defaultResolveAudioAction: ResolveAudioActionFn = ({
 	canCopy,
 }) => {
 	if (canCopy) {
-		return 'copy';
+		return {type: 'copy'};
 	}
 
 	if (canReencode) {
-		return 'reencode';
+		return {type: 'reencode'};
 	}
 
 	// TODO: Make a fail option?
-	return 'drop';
+	return {type: 'drop'};
 };
 
 export const resolveAudioAction = async ({

@@ -55,6 +55,8 @@ export const SrcEncoder: React.FC<{
 		encodedAudioFrames: 0,
 		bytesWritten: 0,
 		millisecondsWritten: 0,
+		expectedOutputDurationInMs: null,
+		overallProgress: null,
 	});
 
 	const [downloadFn, setDownloadFn] = useState<null | (() => void)>(null);
@@ -66,7 +68,7 @@ export const SrcEncoder: React.FC<{
 	const i = useRef(0);
 
 	const onVideoFrame = useCallback(
-		async (inputFrame: VideoFrame, track: VideoTrack) => {
+		async ({frame, track}: {frame: VideoFrame; track: VideoTrack}) => {
 			i.current++;
 
 			if (i.current % 10 === 1) {
@@ -90,18 +92,18 @@ export const SrcEncoder: React.FC<{
 					},
 				});
 
-				const image = await createImageBitmap(inputFrame, {
+				const image = await createImageBitmap(frame, {
 					resizeHeight: fitted.height * 2,
 					resizeWidth: fitted.width * 2,
 				});
 
 				if (!ref.current) {
-					return;
+					return frame;
 				}
 
 				const context = ref.current.getContext('2d');
 				if (!context) {
-					return;
+					return frame;
 				}
 				ref.current.width = CANVAS_WIDTH;
 				ref.current.height = CANVAS_HEIGHT;
@@ -122,6 +124,8 @@ export const SrcEncoder: React.FC<{
 					context.drawImage(image, fitted.left, 0, fitted.width, fitted.height);
 				}
 			}
+
+			return frame;
 		},
 		[],
 	);

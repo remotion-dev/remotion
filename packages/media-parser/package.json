@@ -83,7 +83,7 @@
 		}
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
-	"license": "SEE LICENSE IN LICENSE.md",
+	"license": "Remotion License https://remotion.dev/license",
 	"keywords": [
 		"remotion",
 		"ffmpeg",

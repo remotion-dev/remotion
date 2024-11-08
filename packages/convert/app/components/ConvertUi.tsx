@@ -1,30 +1,30 @@
 import {Button} from '@/components/ui/button';
 import {CardTitle} from '@/components/ui/card';
-import {Label} from '@/components/ui/label';
-import {
-	Select,
-	SelectContent,
-	SelectGroup,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
 import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
-import {convertMedia} from '@remotion/webcodecs';
+import {
+	convertMedia,
+	ConvertMediaAudioCodec,
+	ConvertMediaTo,
+	ConvertMediaVideoCodec,
+} from '@remotion/webcodecs';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {ConvertState, Source} from '~/lib/convert-state';
-import {Container, getNewName} from '~/lib/generate-new-name';
+import {getNewName} from '~/lib/generate-new-name';
+import {ConvertForm} from './ConvertForm';
 import {ConvertProgress, convertProgressRef} from './ConvertProgress';
 import {ErrorState} from './ErrorState';
+import {flipVideoFrame} from './flip-video';
 import {Badge} from './ui/badge';
 
 export default function ConvertUI({src}: {readonly src: Source}) {
-	const [container, setContainer] = useState<Container>('webm');
-	const [videoCodec, setVideoCodec] = useState('vp8');
-	const [audioCodec, setAudioCodec] = useState('opus');
+	const [container, setContainer] = useState<ConvertMediaTo>('webm');
+	const [videoCodec, setVideoCodec] = useState<ConvertMediaVideoCodec>('vp8');
+	const [audioCodec, setAudioCodec] = useState<ConvertMediaAudioCodec>('opus');
 	const [state, setState] = useState<ConvertState>({type: 'idle'});
 	const [name, setName] = useState<string | null>(null);
+	const [flipHorizontal, setFlipHorizontal] = useState(false);
+	const [flipVertical, setFlipVertical] = useState(false);
 
 	const abortSignal = useRef<AbortController | null>(null);
 
@@ -39,13 +39,18 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 		convertMedia({
 			src: src.type === 'url' ? src.url : src.file,
 			reader: src.type === 'file' ? webFileReader : fetchReader,
-			onVideoFrame: (frame) => {
+			onVideoFrame: ({frame}) => {
+				const flipped = flipVideoFrame({
+					frame,
+					horizontal: flipHorizontal,
+					vertical: flipVertical,
+				});
 				if (videoFrames % 15 === 0) {
-					convertProgressRef.current?.draw(frame);
+					convertProgressRef.current?.draw(flipped);
 				}
 
 				videoFrames++;
-				return Promise.resolve();
+				return flipped;
 			},
 			logLevel: 'verbose',
 			onMediaStateUpdate: (s) => {
@@ -106,7 +111,7 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 		return () => {
 			abortController.abort();
 		};
-	}, [src, videoCodec, audioCodec, container]);
+	}, [src, videoCodec, audioCodec, container, flipHorizontal, flipVertical]);
 
 	const cancel = useCallback(() => {
 		if (state.type !== 'in-progress') {
@@ -183,54 +188,27 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 					</>
 				) : (
 					<>
-						<div className="grid w-full items-center gap-4">
+						<div className=" w-full items-center">
 							<div className="flex flex-row">
 								<CardTitle>Convert video</CardTitle>
 								<div className="w-2" />
 								<Badge variant="default">Alpha</Badge>
 							</div>
-							<div>
-								<Label htmlFor="container">Container</Label>
-								<Select
-									value={container}
-									onValueChange={(v) => setContainer(v as Container)}
-								>
-									<SelectTrigger id="container">
-										<SelectValue placeholder="Select a container" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectGroup>
-											<SelectItem value="webm">WebM</SelectItem>
-										</SelectGroup>
-									</SelectContent>
-								</Select>
-							</div>
-							<div>
-								<Label htmlFor="videoCodec">Video codec</Label>
-								<Select value={videoCodec} onValueChange={setVideoCodec}>
-									<SelectTrigger id="videoCodec">
-										<SelectValue placeholder="Select a video codec" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectGroup>
-											<SelectItem value="vp8">VP8</SelectItem>
-										</SelectGroup>
-									</SelectContent>
-								</Select>
-							</div>
-							<div>
-								<Label htmlFor="audioCodec">Audio codec</Label>
-								<Select value={audioCodec} onValueChange={setAudioCodec}>
-									<SelectTrigger id="audioCodec">
-										<SelectValue placeholder="Select a audio codec" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectGroup>
-											<SelectItem value="opus">Opus</SelectItem>
-										</SelectGroup>
-									</SelectContent>
-								</Select>
-							</div>
+							<div className="h-6" />
+							<ConvertForm
+								{...{
+									container,
+									setContainer,
+									setVideoCodec,
+									videoCodec,
+									audioCodec,
+									setAudioCodec,
+									flipHorizontal,
+									flipVertical,
+									setFlipHorizontal,
+									setFlipVertical,
+								}}
+							/>
 						</div>
 						<div className="h-4" />
 						<Button

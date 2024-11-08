@@ -55,11 +55,11 @@ export const makeAudioTrackHandler =
 			logLevel,
 		});
 
-		if (audioOperation === 'drop') {
+		if (audioOperation.type === 'drop') {
 			return null;
 		}
 
-		if (audioOperation === 'copy') {
+		if (audioOperation.type === 'copy') {
 			const addedTrack = await state.addTrack({
 				type: 'audio',
 				codec: audioCodec,

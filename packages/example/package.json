@@ -19,7 +19,7 @@
 		"comps": "remotion compositions",
 		"clean": "rm -rf build && rm -rf out",
 		"lint": "eslint src --ext ts,tsx,js,jsx",
-		"test": "bun test src --timeout 60000",
+		"test": "tsc && bun test src --timeout 60000",
 		"render": "remotion render react-svg",
 		"bundle": "remotion bundle",
 		"render-js": "remotion render src/entry.jsx framer",
