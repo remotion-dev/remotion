@@ -37,6 +37,7 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 			onVideoFrame: () => {
 				return Promise.resolve();
 			},
+			logLevel: 'verbose',
 			onMediaStateUpdate: (s) => {
 				setState({
 					type: 'in-progress',

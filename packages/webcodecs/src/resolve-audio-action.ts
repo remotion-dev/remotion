@@ -1,5 +1,10 @@
-import type {AudioTrack, MediaParserAudioCodec} from '@remotion/media-parser';
+import type {
+	AudioTrack,
+	LogLevel,
+	MediaParserAudioCodec,
+} from '@remotion/media-parser';
 import type {ConvertMediaAudioCodec} from './codec-id';
+import {Log} from './log';
 
 export type AudioOperation = 'reencode' | 'copy' | 'drop';
 
@@ -41,12 +46,14 @@ export const resolveAudioAction = async ({
 	track,
 	audioCodec,
 	resolverFunction,
+	logLevel,
 }: {
 	audioDecoderConfig: AudioDecoderConfig | null;
 	audioEncoderConfig: AudioEncoderConfig | null;
 	track: AudioTrack;
 	audioCodec: ConvertMediaAudioCodec;
 	resolverFunction: ResolveAudioActionFn;
+	logLevel: LogLevel;
 }): Promise<AudioOperation> => {
 	const canReencode = Boolean(audioDecoderConfig && audioEncoderConfig);
 	const canCopy = canCopyAudioTrack(track.codecWithoutConfig, audioCodec);
@@ -55,6 +62,11 @@ export const resolveAudioAction = async ({
 		canReencode,
 		canCopy,
 	});
+
+	Log.verbose(
+		logLevel,
+		`Track ${track.trackId} (audio): Can re-encode = ${canReencode}, can copy = ${canCopy}, action = ${resolved}`,
+	);
 
 	return resolved;
 };

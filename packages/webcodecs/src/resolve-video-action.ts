@@ -1,5 +1,10 @@
-import type {MediaParserVideoCodec, VideoTrack} from '@remotion/media-parser';
+import type {
+	LogLevel,
+	MediaParserVideoCodec,
+	VideoTrack,
+} from '@remotion/media-parser';
 import type {ConvertMediaVideoCodec} from './codec-id';
+import {Log} from './log';
 
 export type VideoOperation = 'reencode' | 'copy' | 'drop';
 
@@ -45,12 +50,14 @@ export const resolveVideoAction = async ({
 	track,
 	videoCodec,
 	resolverFunction,
+	logLevel,
 }: {
 	videoDecoderConfig: VideoDecoderConfig | null;
 	videoEncoderConfig: VideoEncoderConfig | null;
 	videoCodec: ConvertMediaVideoCodec;
 	track: VideoTrack;
 	resolverFunction: ResolveVideoActionFn;
+	logLevel: LogLevel;
 }): Promise<VideoOperation> => {
 	const canReencode = Boolean(videoDecoderConfig && videoEncoderConfig);
 	const canCopy = canCopyVideoTrack(track.codecWithoutConfig, videoCodec);
@@ -59,6 +66,10 @@ export const resolveVideoAction = async ({
 		canReencode,
 		canCopy,
 	});
+	Log.verbose(
+		logLevel,
+		`Track ${track.trackId} (video): Can re-encode = ${canReencode}, can copy = ${canCopy}, action = ${resolved}`,
+	);
 
 	return resolved;
 };

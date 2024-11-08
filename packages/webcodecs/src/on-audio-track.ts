@@ -52,6 +52,7 @@ export const makeAudioTrackHandler =
 			audioCodec,
 			track,
 			resolverFunction: onAudioTrack,
+			logLevel,
 		});
 
 		if (audioOperation === 'drop') {

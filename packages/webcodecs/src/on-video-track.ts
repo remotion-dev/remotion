@@ -57,6 +57,7 @@ export const makeVideoTrackHandler =
 			track,
 			videoCodec,
 			resolverFunction: onVideoTrack,
+			logLevel,
 		});
 
 		if (videoOperation === 'drop') {
