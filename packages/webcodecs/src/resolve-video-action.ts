@@ -6,7 +6,10 @@ import type {
 import type {ConvertMediaVideoCodec} from './codec-id';
 import {Log} from './log';
 
-export type VideoOperation = 'reencode' | 'copy' | 'drop';
+export type VideoOperation =
+	| {type: 'reencode'}
+	| {type: 'copy'}
+	| {type: 'drop'};
 
 const canCopyVideoTrack = (
 	inputCodec: MediaParserVideoCodec,
@@ -24,52 +27,46 @@ const canCopyVideoTrack = (
 };
 
 export type ResolveVideoActionFn = (options: {
-	canReencode: boolean;
-	canCopy: boolean;
-}) => VideoOperation | Promise<VideoOperation>;
-
-export const defaultResolveVideoAction: ResolveVideoActionFn = ({
-	canReencode,
-	canCopy,
-}) => {
-	if (canCopy) {
-		return 'copy';
-	}
-
-	if (canReencode) {
-		return 'reencode';
-	}
-
-	// TODO: Make a fail option?
-	return 'drop';
-};
-
-export const resolveVideoAction = async ({
-	videoDecoderConfig,
-	videoEncoderConfig,
-	track,
-	videoCodec,
-	resolverFunction,
-	logLevel,
-}: {
 	videoDecoderConfig: VideoDecoderConfig | null;
 	videoEncoderConfig: VideoEncoderConfig | null;
 	videoCodec: ConvertMediaVideoCodec;
 	track: VideoTrack;
-	resolverFunction: ResolveVideoActionFn;
 	logLevel: LogLevel;
+}) => VideoOperation | Promise<VideoOperation>;
+
+export const defaultResolveVideoAction: ResolveVideoActionFn = ({
+	videoDecoderConfig,
+	videoEncoderConfig,
+	track,
+	videoCodec,
+	logLevel,
 }): Promise<VideoOperation> => {
 	const canReencode = Boolean(videoDecoderConfig && videoEncoderConfig);
 	const canCopy = canCopyVideoTrack(track.codecWithoutConfig, videoCodec);
 
-	const resolved = await resolverFunction({
-		canReencode,
-		canCopy,
-	});
+	if (canCopy) {
+		Log.verbose(
+			logLevel,
+			`Track ${track.trackId} (video): Can re-encode = ${canReencode}, can copy = ${canCopy}, action = copy`,
+		);
+
+		return Promise.resolve({type: 'copy'});
+	}
+
+	if (canReencode) {
+		Log.verbose(
+			logLevel,
+			`Track ${track.trackId} (video): Can re-encode = ${canReencode}, can copy = ${canCopy}, action = reencode`,
+		);
+
+		return Promise.resolve({type: 'reencode'});
+	}
+
 	Log.verbose(
 		logLevel,
-		`Track ${track.trackId} (video): Can re-encode = ${canReencode}, can copy = ${canCopy}, action = ${resolved}`,
+		`Track ${track.trackId} (video): Can re-encode = ${canReencode}, can copy = ${canCopy}, action = drop`,
 	);
 
-	return resolved;
+	// TODO: Make a fail option?
+	return Promise.resolve({type: 'drop'});
 };

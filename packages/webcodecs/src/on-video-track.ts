@@ -9,7 +9,7 @@ import type {
 import Error from './error-cause';
 import {onFrame} from './on-frame';
 import type {ResolveVideoActionFn} from './resolve-video-action';
-import {resolveVideoAction} from './resolve-video-action';
+import {defaultResolveVideoAction} from './resolve-video-action';
 import {createVideoDecoder} from './video-decoder';
 import {getVideoDecoderConfigWithHardwareAcceleration} from './video-decoder-config';
 import {createVideoEncoder} from './video-encoder';
@@ -34,7 +34,7 @@ export const makeVideoTrackHandler =
 		convertMediaState: ConvertMediaState;
 		controller: AbortController;
 		videoCodec: ConvertMediaVideoCodec;
-		onVideoTrack: ResolveVideoActionFn;
+		onVideoTrack: ResolveVideoActionFn | null;
 		logLevel: LogLevel;
 	}): OnVideoTrack =>
 	async (track) => {
@@ -49,20 +49,19 @@ export const makeVideoTrackHandler =
 		});
 		const videoDecoderConfig =
 			await getVideoDecoderConfigWithHardwareAcceleration(track);
-		const videoOperation = await resolveVideoAction({
+		const videoOperation = await (onVideoTrack ?? defaultResolveVideoAction)({
 			videoDecoderConfig,
 			videoEncoderConfig,
 			track,
 			videoCodec,
-			resolverFunction: onVideoTrack,
 			logLevel,
 		});
 
-		if (videoOperation === 'drop') {
+		if (videoOperation.type === 'drop') {
 			return null;
 		}
 
-		if (videoOperation === 'copy') {
+		if (videoOperation.type === 'copy') {
 			const videoTrack = await state.addTrack({
 				type: 'video',
 				color: track.color,

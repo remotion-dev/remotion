@@ -24,14 +24,8 @@ import type {ConvertMediaAudioCodec, ConvertMediaVideoCodec} from './codec-id';
 import Error from './error-cause';
 import {makeAudioTrackHandler} from './on-audio-track';
 import {makeVideoTrackHandler} from './on-video-track';
-import {
-	defaultResolveAudioAction,
-	type ResolveAudioActionFn,
-} from './resolve-audio-action';
-import {
-	defaultResolveVideoAction,
-	type ResolveVideoActionFn,
-} from './resolve-video-action';
+import {type ResolveAudioActionFn} from './resolve-audio-action';
+import {type ResolveVideoActionFn} from './resolve-video-action';
 import {withResolversAndWaitForReturn} from './with-resolvers';
 
 export type ConvertMediaState = {
@@ -178,7 +172,7 @@ export const convertMedia = async function <
 		convertMediaState,
 		controller,
 		videoCodec,
-		onVideoTrack: userVideoResolver ?? defaultResolveVideoAction,
+		onVideoTrack: userVideoResolver ?? null,
 		logLevel,
 	});
 
@@ -189,7 +183,7 @@ export const convertMedia = async function <
 		convertMediaState,
 		onMediaStateUpdate: onMediaStateUpdate ?? null,
 		state,
-		onAudioTrack: userAudioResolver ?? defaultResolveAudioAction,
+		onAudioTrack: userAudioResolver ?? null,
 		bitrate: 128000,
 		logLevel,
 	});
