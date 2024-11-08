@@ -1,13 +1,13 @@
 export const calculateProgress = ({
 	millisecondsWritten,
-	expectedOutputMilliseconds,
+	expectedOutputDurationInMs,
 }: {
 	millisecondsWritten: number;
-	expectedOutputMilliseconds: number | null;
+	expectedOutputDurationInMs: number | null;
 }) => {
-	if (expectedOutputMilliseconds === null) {
+	if (expectedOutputDurationInMs === null) {
 		return null;
 	}
 
-	return millisecondsWritten / expectedOutputMilliseconds;
+	return millisecondsWritten / expectedOutputDurationInMs;
 };

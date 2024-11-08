@@ -1,13 +1,13 @@
-import type {
-	LogLevel,
-	MediaFn,
-	OnVideoTrack,
-	VideoTrack,
-} from '@remotion/media-parser';
+import type {LogLevel, MediaFn, OnVideoTrack} from '@remotion/media-parser';
 import type {ConvertMediaVideoCodec} from './codec-id';
 import {convertEncodedChunk} from './convert-encoded-chunk';
-import type {ConvertMediaState} from './convert-media';
+import type {
+	ConvertMediaOnMediaStateUpdate,
+	ConvertMediaOnVideoFrame,
+	ConvertMediaState,
+} from './convert-media';
 import Error from './error-cause';
+import {onFrame} from './on-frame';
 import type {ResolveVideoActionFn} from './resolve-video-action';
 import {resolveVideoAction} from './resolve-video-action';
 import {createVideoDecoder} from './video-decoder';
@@ -28,10 +28,8 @@ export const makeVideoTrackHandler =
 		logLevel,
 	}: {
 		state: MediaFn;
-		onVideoFrame:
-			| null
-			| ((frame: VideoFrame, track: VideoTrack) => Promise<void>);
-		onMediaStateUpdate: null | ((state: ConvertMediaState) => void);
+		onVideoFrame: null | ConvertMediaOnVideoFrame;
+		onMediaStateUpdate: null | ConvertMediaOnMediaStateUpdate;
 		abortConversion: (errCause: Error) => void;
 		convertMediaState: ConvertMediaState;
 		controller: AbortController;
@@ -131,12 +129,14 @@ export const makeVideoTrackHandler =
 		const videoDecoder = createVideoDecoder({
 			config: videoDecoderConfig,
 			onFrame: async (frame) => {
-				await onVideoFrame?.(frame, track);
-				await videoEncoder.encodeFrame(frame);
-				convertMediaState.decodedVideoFrames++;
-				onMediaStateUpdate?.({...convertMediaState});
-
-				frame.close();
+				await onFrame({
+					convertMediaState,
+					frame,
+					onMediaStateUpdate,
+					track,
+					videoEncoder,
+					onVideoFrame,
+				});
 			},
 			onError: (err) => {
 				abortConversion(

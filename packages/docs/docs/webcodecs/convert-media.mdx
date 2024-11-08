@@ -1,0 +1,137 @@
+---
+id: convert-media
+title: convertMedia()
+slug: /webcodecs/convert-media
+crumb: '@remotion/webcodecs'
+---
+
+# convertMedia()<AvailableFrom v="4.0.229"/>
+
+_Part of the [`@remotion/webcodecs`](/docs/webcodecs) package._
+
+:::warning
+**Unstable API**: This package is experimental. We might change the API at any time, until we remove this notice.
+:::
+
+Re-encodes a video using [WebCodecs](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API) and [`@remotion/media-parser`](/docs/media-parser).
+
+```tsx twoslash title="Converting a video"
+// @module: es2022
+// @target: es2017
+import {convertMedia} from '@remotion/webcodecs';
+
+await convertMedia({
+  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  to: 'webm',
+  videoCodec: 'vp8',
+  audioCodec: 'opus',
+});
+```
+
+## API
+
+### `src`
+
+A `string` or `File`.  
+If it is a `string`, it must be a URL.  
+If it is a `File`, the `reader` field must be set to [`webFileReader`](/docs/media-parser/web-file-reader).
+
+### `reader`
+
+A reader interface.  
+Default value: [`fetchReader`](/docs/media-parser/fetch-reader), which uses `fetch()` to read the video.  
+If you pass [`webFileReader`](/docs/media-parser/web-file-reader), you must also pass a `File` as the `src` argument.
+
+### `to`
+
+_string_ <TsType type="ConvertMediaTo" source="@remotion/webcodecs"/>
+
+The container format to convert to. Currently, only `"webm"` is supported.
+
+### `videoCodec`
+
+_string_ <TsType type="ConvertMediaVideoCodec" source="@remotion/webcodecs"/>
+
+The video codec to convert to. Currently, only `"vp8"` and `"vp9"` are supported.
+
+### `logLevel?`
+
+_string_ <TsType type="LogLevel" source="@remotion/media-parser"/>
+
+One of `"error"`, `"warn"`, `"info"`, `"debug"`, `"trace"`.  
+Default value: `"info"`, which logs only important information.
+
+### `onMediaStateUpdate?`
+
+_Function_ <TsType type="ConvertMediaOnMediaStateUpdate" source="@remotion/media-parser"/>
+
+Allows receiving progress updates. The following fields are available:
+
+```tsx twoslash
+import type {
+  ConvertMediaOnMediaStateUpdate,
+  ConvertMediaState,
+} from '@remotion/webcodecs';
+
+export const onMediaStateUpdate: ConvertMediaOnMediaStateUpdate = ({
+  decodedVideoFrames,
+  decodedAudioFrames,
+  encodedVideoFrames,
+  encodedAudioFrames,
+  bytesWritten,
+  millisecondsWritten,
+  expectedOutputDurationInMs,
+  overallProgress,
+}: ConvertMediaState) => {
+  console.log(decodedVideoFrames);
+  //                   ^?
+  console.log(decodedAudioFrames);
+  //                   ^?
+  console.log(encodedVideoFrames);
+  //                   ^?
+  console.log(encodedAudioFrames);
+  //                   ^?
+  console.log(bytesWritten);
+  //                   ^?
+  console.log(millisecondsWritten);
+  //                   ^?
+  console.log(expectedOutputDurationInMs);
+  //                   ^?
+  console.log(overallProgress);
+  //                   ^?
+};
+```
+
+### `onVideoFrame?`
+
+_Function_ <TsType type="ConvertMediaOnVideoFrame" source="@remotion/media-parser"/>
+
+Allows you to hook into the video frames. The frames are [`VideoFrame`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame) objects.
+
+```tsx twoslash
+import type {ConvertMediaOnVideoFrame} from '@remotion/webcodecs';
+
+export const onVideoFrame: ConvertMediaOnVideoFrame = ({frame}) => {
+  console.log(frame);
+  //           ^?
+
+  // Do something with the frame, for example:
+  // - Draw to a canvas
+  // - Modify the frame
+
+  // Then return the frame to be used for encoding.
+  return frame;
+};
+```
+
+The callback function may be async.
+
+When the function returns, the returned frame is used for video encoding.  
+You may return the same frame or replace it with a new `VideoFrame` object.
+
+After the function returns, `convertMedia()` will call [`.close()`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame/close) on the input and output frames.  
+This will destroy the frame and free up memory.
+
+If you need a reference to the frame that lasts longer than the lifetime of this function, you must call [`.clone()`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame/clone) on it.
+
+If you return a different frame than the one you received, it must have the same values for `codedWidth`, `codedHeight`, `displayWidth` and `displayHeight` as the input frame.

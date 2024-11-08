@@ -57,8 +57,8 @@ const result = await parseMedia({
 ### `src`
 
 Either a local file path, or a URL, or a `File` object.  
-If you pass a local file path, you must also pass `nodeReader` as the `reader` argument.
-If you pass a `File` object, you must also pass `webFileReader` as the `reader` argument.
+If you pass a local file path, you must also pass [`nodeReader`](/docs/media-parser/node-reader) as the `reader` argument.  
+If you pass a `File` object, you must also pass [`webFileReader`](/docs/media-parser/web-file-reader) as the `reader` argument.
 
 ### `fields?`
 
@@ -188,6 +188,11 @@ const onAudioTrack: OnAudioTrack = (track) => {
   };
 };
 ```
+
+### `logLevel?`
+
+One of `"error"`, `"warn"`, `"info"`, `"debug"`, `"trace"`.  
+Default value: `"info"`, which logs only important information.
 
 ### `signal?`
 

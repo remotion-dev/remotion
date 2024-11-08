@@ -665,6 +665,9 @@ importers:
       '@remotion/transitions':
         specifier: workspace:*
         version: link:../transitions
+      '@remotion/webcodecs':
+        specifier: workspace:*
+        version: link:../webcodecs
       '@rive-app/canvas-advanced':
         specifier: 2.3.0
         version: 2.3.0

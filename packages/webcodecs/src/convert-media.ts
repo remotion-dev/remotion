@@ -36,7 +36,7 @@ export type ConvertMediaState = {
 	encodedAudioFrames: number;
 	bytesWritten: number;
 	millisecondsWritten: number;
-	expectedOutputMilliseconds: number | null;
+	expectedOutputDurationInMs: number | null;
 	overallProgress: number | null;
 };
 
@@ -46,6 +46,12 @@ export type ConvertMediaResult = {
 	save: () => Promise<Blob>;
 	remove: () => Promise<void>;
 };
+
+export type ConvertMediaOnMediaStateUpdate = (state: ConvertMediaState) => void;
+export type ConvertMediaOnVideoFrame = (options: {
+	frame: VideoFrame;
+	track: VideoTrack;
+}) => Promise<VideoFrame> | VideoFrame;
 
 export const convertMedia = async function <
 	F extends Options<ParseMediaFields>,
@@ -67,8 +73,8 @@ export const convertMedia = async function <
 }: {
 	src: ParseMediaOptions<F>['src'];
 	to: ConvertMediaTo;
-	onVideoFrame?: (inputFrame: VideoFrame, track: VideoTrack) => Promise<void>;
-	onMediaStateUpdate?: (state: ConvertMediaState) => void;
+	onVideoFrame?: ConvertMediaOnVideoFrame;
+	onMediaStateUpdate?: ConvertMediaOnMediaStateUpdate;
 	videoCodec: ConvertMediaVideoCodec;
 	audioCodec: ConvertMediaAudioCodec;
 	signal?: AbortSignal;
@@ -127,7 +133,7 @@ export const convertMedia = async function <
 		encodedAudioFrames: 0,
 		bytesWritten: 0,
 		millisecondsWritten: 0,
-		expectedOutputMilliseconds: null,
+		expectedOutputDurationInMs: null,
 		overallProgress: 0,
 	};
 
@@ -150,8 +156,8 @@ export const convertMedia = async function <
 				convertMediaState.millisecondsWritten = millisecondsWritten;
 				convertMediaState.overallProgress = calculateProgress({
 					millisecondsWritten: convertMediaState.millisecondsWritten,
-					expectedOutputMilliseconds:
-						convertMediaState.expectedOutputMilliseconds,
+					expectedOutputDurationInMs:
+						convertMediaState.expectedOutputDurationInMs,
 				});
 
 				onMediaStateUpdate?.(convertMediaState);
@@ -206,11 +212,11 @@ export const convertMedia = async function <
 				casted.onDurationInSeconds(durationInSeconds);
 			}
 
-			const expectedOutputMilliseconds = durationInSeconds * 1000;
-			convertMediaState.expectedOutputMilliseconds = expectedOutputMilliseconds;
+			const expectedOutputDurationInMs = durationInSeconds * 1000;
+			convertMediaState.expectedOutputDurationInMs = expectedOutputDurationInMs;
 			convertMediaState.overallProgress = calculateProgress({
 				millisecondsWritten: convertMediaState.millisecondsWritten,
-				expectedOutputMilliseconds,
+				expectedOutputDurationInMs,
 			});
 			onMediaStateUpdate(convertMediaState);
 		},
