@@ -1,8 +1,5 @@
-import type {
-	AudioTrack,
-	LogLevel,
-	MediaParserAudioCodec,
-} from '@remotion/media-parser';
+import type {AudioTrack, LogLevel} from '@remotion/media-parser';
+import {canCopyAudioTrack} from './can-copy-audio-track';
 import {canReencodeAudioTrack} from './can-reencode-audio-track';
 import type {ConvertMediaAudioCodec} from './codec-id';
 import type {ConvertMediaContainer} from './convert-media';
@@ -12,22 +9,6 @@ export type AudioOperation =
 	| {type: 'reencode'; bitrate: number; audioCodec: ConvertMediaAudioCodec}
 	| {type: 'copy'}
 	| {type: 'drop'};
-
-const canCopyAudioTrack = ({
-	inputCodec,
-	outputCodec,
-	container,
-}: {
-	inputCodec: MediaParserAudioCodec;
-	outputCodec: ConvertMediaAudioCodec;
-	container: ConvertMediaContainer;
-}) => {
-	if (outputCodec === 'opus') {
-		return inputCodec === 'opus' && container === 'webm';
-	}
-
-	throw new Error(`Unhandled codec: ${outputCodec satisfies never}`);
-};
 
 export type ResolveAudioActionFn = (options: {
 	track: AudioTrack;

@@ -1,8 +1,5 @@
-import type {
-	LogLevel,
-	MediaParserVideoCodec,
-	VideoTrack,
-} from '@remotion/media-parser';
+import type {LogLevel, VideoTrack} from '@remotion/media-parser';
+import {canCopyVideoTrack} from './can-copy-video-track';
 import {canReencodeVideoTrack} from './can-reencode-video-track';
 import type {ConvertMediaVideoCodec} from './codec-id';
 import type {ConvertMediaContainer} from './convert-media';
@@ -12,26 +9,6 @@ export type VideoOperation =
 	| {type: 'reencode'; videoCodec: ConvertMediaVideoCodec}
 	| {type: 'copy'}
 	| {type: 'drop'};
-
-const canCopyVideoTrack = ({
-	inputCodec,
-	outputCodec,
-	container,
-}: {
-	inputCodec: MediaParserVideoCodec;
-	outputCodec: ConvertMediaVideoCodec;
-	container: ConvertMediaContainer;
-}) => {
-	if (outputCodec === 'vp8') {
-		return inputCodec === 'vp8' && container === 'webm';
-	}
-
-	if (outputCodec === 'vp9') {
-		return inputCodec === 'vp9' && container === 'webm';
-	}
-
-	throw new Error(`Unhandled codec: ${outputCodec satisfies never}`);
-};
 
 export type ResolveVideoActionFn = (options: {
 	videoCodec: ConvertMediaVideoCodec;
