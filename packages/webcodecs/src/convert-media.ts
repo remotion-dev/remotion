@@ -174,6 +174,7 @@ export const convertMedia = async function <
 		videoCodec,
 		onVideoTrack: userVideoResolver ?? null,
 		logLevel,
+		container,
 	});
 
 	const onAudioTrack: OnAudioTrack = makeAudioTrackHandler({

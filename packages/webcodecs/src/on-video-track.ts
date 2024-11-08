@@ -2,6 +2,7 @@ import type {LogLevel, MediaFn, OnVideoTrack} from '@remotion/media-parser';
 import type {ConvertMediaVideoCodec} from './codec-id';
 import {convertEncodedChunk} from './convert-encoded-chunk';
 import type {
+	ConvertMediaContainer,
 	ConvertMediaOnMediaStateUpdate,
 	ConvertMediaOnVideoFrame,
 	ConvertMediaState,
@@ -26,6 +27,7 @@ export const makeVideoTrackHandler =
 		videoCodec,
 		onVideoTrack,
 		logLevel,
+		container,
 	}: {
 		state: MediaFn;
 		onVideoFrame: null | ConvertMediaOnVideoFrame;
@@ -36,25 +38,18 @@ export const makeVideoTrackHandler =
 		videoCodec: ConvertMediaVideoCodec;
 		onVideoTrack: ResolveVideoActionFn | null;
 		logLevel: LogLevel;
+		container: ConvertMediaContainer;
 	}): OnVideoTrack =>
 	async (track) => {
 		if (controller.signal.aborted) {
 			throw new Error('Aborted');
 		}
 
-		const videoEncoderConfig = await getVideoEncoderConfig({
-			codec: videoCodec === 'vp9' ? 'vp09.00.10.08' : videoCodec,
-			height: track.displayAspectHeight,
-			width: track.displayAspectWidth,
-		});
-		const videoDecoderConfig =
-			await getVideoDecoderConfigWithHardwareAcceleration(track);
 		const videoOperation = await (onVideoTrack ?? defaultResolveVideoAction)({
-			videoDecoderConfig,
-			videoEncoderConfig,
 			track,
 			videoCodec,
 			logLevel,
+			container,
 		});
 
 		if (videoOperation.type === 'drop') {
@@ -76,6 +71,14 @@ export const makeVideoTrackHandler =
 				onMediaStateUpdate?.({...convertMediaState});
 			};
 		}
+
+		const videoEncoderConfig = await getVideoEncoderConfig({
+			codec: videoOperation.videoCodec,
+			height: track.displayAspectHeight,
+			width: track.displayAspectWidth,
+		});
+		const videoDecoderConfig =
+			await getVideoDecoderConfigWithHardwareAcceleration(track);
 
 		if (videoEncoderConfig === null) {
 			abortConversion(

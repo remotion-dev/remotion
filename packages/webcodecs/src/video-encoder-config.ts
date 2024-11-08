@@ -1,9 +1,23 @@
-export const getVideoEncoderConfig = async (
-	config: VideoEncoderConfig,
-): Promise<VideoEncoderConfig | null> => {
+import type {ConvertMediaVideoCodec} from './codec-id';
+
+export const getVideoEncoderConfig = async ({
+	width,
+	height,
+	codec,
+}: {
+	width: number;
+	height: number;
+	codec: ConvertMediaVideoCodec;
+}): Promise<VideoEncoderConfig | null> => {
 	if (typeof VideoEncoder === 'undefined') {
 		return null;
 	}
+
+	const config: VideoEncoderConfig = {
+		codec: codec ? 'vp09.00.10.08' : codec,
+		height,
+		width,
+	};
 
 	const hardware: VideoEncoderConfig = {
 		...config,
