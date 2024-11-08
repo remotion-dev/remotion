@@ -12,7 +12,7 @@ import {
 import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
 import {convertMedia} from '@remotion/webcodecs';
-import {useCallback, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {ConvertState, Source} from '~/lib/convert-state';
 import {Container, getNewName} from '~/lib/generate-new-name';
 import {ConvertProgress} from './ConvertProgress';
@@ -27,8 +27,11 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 	const [name, setName] = useState<string | null>(null);
 	const [currentFrame, setCurrentFrame] = useState<VideoFrame | null>(null);
 
+	const abortSignal = useRef<AbortController | null>(null);
+
 	const onClick = useCallback(() => {
 		const abortController = new AbortController();
+		abortSignal.current = abortController;
 
 		let _n: string | null = null;
 
@@ -38,7 +41,7 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 			src: src.type === 'url' ? src.url : src.file,
 			reader: src.type === 'file' ? webFileReader : fetchReader,
 			onVideoFrame: (frame) => {
-				if (videoFrames % 30 === 0) {
+				if (videoFrames % 15 === 0) {
 					setCurrentFrame(frame.clone());
 				}
 
@@ -131,6 +134,14 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 			setState({type: 'error', error: e as Error});
 		}
 	}, [state]);
+
+	useEffect(() => {
+		return () => {
+			if (abortSignal.current) {
+				abortSignal.current.abort();
+			}
+		};
+	}, []);
 
 	return (
 		<div className="w-full lg:w-[350px]">
