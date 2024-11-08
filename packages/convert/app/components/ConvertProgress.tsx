@@ -5,15 +5,19 @@ import {formatSeconds} from '~/lib/format-seconds';
 import {Container, getNewName} from '~/lib/generate-new-name';
 import {Card} from './ui/card';
 import {Skeleton} from './ui/skeleton';
+import {VideoThumbnail} from './VideoThumbnail';
 
 export const ConvertProgress: React.FC<{
 	readonly state: ConvertMediaState;
 	readonly name: string | null;
 	readonly container: Container;
-}> = ({state, name, container}) => {
+	readonly currentFrame: VideoFrame | null;
+}> = ({state, name, container, currentFrame}) => {
 	return (
 		<>
 			<Card className="overflow-hidden">
+				<VideoThumbnail thumbnail={currentFrame} />
+				<div className="border-b-2 border-black" />
 				<div className="h-5 overflow-hidden">
 					{state.overallProgress ? (
 						<div

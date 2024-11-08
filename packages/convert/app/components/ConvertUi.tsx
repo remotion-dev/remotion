@@ -25,16 +25,24 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 	const [audioCodec, setAudioCodec] = useState('opus');
 	const [state, setState] = useState<ConvertState>({type: 'idle'});
 	const [name, setName] = useState<string | null>(null);
+	const [currentFrame, setCurrentFrame] = useState<VideoFrame | null>(null);
 
 	const onClick = useCallback(() => {
 		const abortController = new AbortController();
 
 		let _n: string | null = null;
 
+		let videoFrames = 0;
+
 		convertMedia({
 			src: src.type === 'url' ? src.url : src.file,
 			reader: src.type === 'file' ? webFileReader : fetchReader,
-			onVideoFrame: () => {
+			onVideoFrame: (frame) => {
+				if (videoFrames % 30 === 0) {
+					setCurrentFrame(frame.clone());
+				}
+
+				videoFrames++;
 				return Promise.resolve();
 			},
 			logLevel: 'verbose',
@@ -145,6 +153,7 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 							state={state.state}
 							name={name}
 							container={container}
+							currentFrame={currentFrame}
 						/>
 						<div className="h-2" />
 						<Button className="block w-full" type="button" onClick={cancel}>
@@ -157,6 +166,7 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 							state={state.state}
 							name={name}
 							container={container}
+							currentFrame={currentFrame}
 						/>
 						<div className="h-2" />
 						<Button className="block w-full" type="button" onClick={onDownload}>
