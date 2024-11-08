@@ -9,5 +9,7 @@ export {
 	ConvertMediaTo,
 	convertMedia,
 } from './convert-media';
+export {ResolveAudioActionFn} from './resolve-audio-action';
+export {ResolveVideoActionFn} from './resolve-video-action';
 export {WebCodecsVideoDecoder, createVideoDecoder} from './video-decoder';
 export {WebCodecsVideoEncoder, createVideoEncoder} from './video-encoder';

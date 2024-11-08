@@ -148,6 +148,8 @@ An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal)
 
 ### `writer?`
 
+_object_ <TsType type="WriterInterface" source="@remotion/media-parser" />
+
 A writer interface. The following interfaces are available:
 
 ```tsx twoslash title="Buffer writer"
@@ -172,10 +174,14 @@ By default the writer is `webFsWriter`.
 
 ### `onAudioTrack?`
 
+_Function_ <TsType type="ResolveAudioActionFn" source="@remotion/webcodecs"/>
+
 Take control of what to do for each audio track in the file: Re-encoding, copying, or dropping.  
 Documentation for this feature is TODO.
 
 ### `onVideoTrack?`
+
+_Function_ <TsType type="ResolveVideoActionFn" source="@remotion/webcodecs"/>
 
 Take control of what to do for each video track in the file: Re-encoding, copying, or dropping.  
 Documentation for this feature is TODO.
