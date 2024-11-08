@@ -39,12 +39,8 @@ export const FileAvailable: React.FC<{
 						probeDetails={probeDetails}
 						setProbeDetails={setProbeDetails}
 					/>
-					{probeDetails ? null : (
-						<>
-							<div className="h-8 lg:h-0 lg:w-8" />
-							<ConvertUI src={src} />
-						</>
-					)}
+					<div className="h-8 lg:h-0 lg:w-8" />
+					<ConvertUI src={src} />
 				</div>
 			</div>
 		</div>

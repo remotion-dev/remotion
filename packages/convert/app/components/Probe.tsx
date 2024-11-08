@@ -65,9 +65,7 @@ export const Probe: React.FC<{
 	const isCompact = isNarrow && !probeDetails;
 
 	return (
-		<Card
-			className={`w-full lg:${probeDetails ? 'w-[800px]' : 'w-[350px]'} overflow-hidden`}
-		>
+		<Card className="w-full lg:w-[350px] overflow-hidden">
 			<div className="flex flex-row lg:flex-col w-full border-b-2 border-black">
 				<VideoThumbnail ref={videoThumbnailRef} smallThumbOnMobile />
 				<CardHeader className=" p-3 lg:p-4 w-full">
@@ -80,7 +78,7 @@ export const Probe: React.FC<{
 				</CardHeader>
 			</div>
 			{sortedTracks.length && probeDetails ? (
-				<div className="pr-6 border-b-2 border-black">
+				<div className="pr-6 border-b-2 border-black overflow-y-auto">
 					<TrackSwitcher
 						selectedTrack={trackDetails}
 						sortedTracks={sortedTracks}
