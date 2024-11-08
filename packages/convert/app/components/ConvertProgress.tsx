@@ -17,7 +17,7 @@ export const ConvertProgress: React.FC<{
 	return (
 		<>
 			<Card className="overflow-hidden">
-				<VideoThumbnail ref={convertProgressRef} />
+				<VideoThumbnail ref={convertProgressRef} smallThumbOnMobile={false} />
 				<div className="border-b-2 border-black" />
 				<div className="h-5 overflow-hidden">
 					{state.overallProgress ? (

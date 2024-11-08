@@ -69,7 +69,7 @@ export const Probe: React.FC<{
 			className={`w-full lg:${probeDetails ? 'w-[800px]' : 'w-[350px]'} overflow-hidden`}
 		>
 			<div className="flex flex-row lg:flex-col w-full border-b-2 border-black">
-				<VideoThumbnail ref={videoThumbnailRef} />
+				<VideoThumbnail ref={videoThumbnailRef} smallThumbOnMobile />
 				<CardHeader className=" p-3 lg:p-4 w-full">
 					<CardTitle title={name ?? undefined}>
 						{name ? name : <Skeleton className="h-5 w-[220px] inline-block" />}

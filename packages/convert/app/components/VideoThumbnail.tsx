@@ -4,13 +4,18 @@ import {useIsNarrow} from '~/lib/is-narrow';
 
 const THUMBNAIL_HEIGHT = Math.round((350 / 16) * 9);
 
+type Props = {
+	readonly smallThumbOnMobile: boolean;
+};
+
 export type VideoThumbnailRef = {
 	draw: (videoFrame: VideoFrame) => void;
 };
 
 const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
-	VideoThumbnailRef
-> = (_props, forwardedRef) => {
+	VideoThumbnailRef,
+	Props
+> = ({smallThumbOnMobile}, forwardedRef) => {
 	const ref = useRef<HTMLCanvasElement>(null);
 
 	const [color, setColor] = useState<string>('transparent');
@@ -51,7 +56,7 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 
 	const isNarrow = useIsNarrow();
 
-	const scale = isNarrow ? 0.5 : 1;
+	const scale = isNarrow && smallThumbOnMobile ? 0.5 : 1;
 
 	return (
 		<div
