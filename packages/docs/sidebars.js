@@ -572,7 +572,12 @@ module.exports = {
 				type: 'doc',
 				id: 'webcodecs/index',
 			},
-			items: ['webcodecs/index', 'webcodecs/convert-media'],
+			items: [
+				'webcodecs/index',
+				'webcodecs/convert-media',
+				'webcodecs/can-reencode-video-track',
+				'webcodecs/can-reencode-audio-track',
+			],
 		},
 		{
 			type: 'category',

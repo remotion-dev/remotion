@@ -8,7 +8,15 @@ export const TableOfContents: React.FC = () => {
 			<Grid>
 				<TOCItem link="/docs/webcodecs/convert-media">
 					<strong>{'convertMedia()'}</strong>
-					<div>Re-encodes a video using WebCodecs and Media Parser</div>
+					<div>Converts a video using WebCodecs and Media Parser</div>
+				</TOCItem>
+				<TOCItem link="/docs/webcodecs/can-reencode-video-track">
+					<strong>{'canReencodeVideoTrack()'}</strong>
+					<div>Determine if a video track can be re-encoded</div>
+				</TOCItem>
+				<TOCItem link="/docs/webcodecs/can-reencode-audio-track">
+					<strong>{'canReencodeAudioTrack()'}</strong>
+					<div>Determine if a audio track can be re-encoded</div>
 				</TOCItem>
 			</Grid>
 		</div>

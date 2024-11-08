@@ -3,7 +3,7 @@ import type {
 	MediaParserVideoCodec,
 	VideoTrack,
 } from '@remotion/media-parser';
-import {canReencodeVideo} from './can-reencode-video';
+import {canReencodeVideoTrack} from './can-reencode-video-track';
 import type {ConvertMediaVideoCodec} from './codec-id';
 import type {ConvertMediaContainer} from './convert-media';
 import {Log} from './log';
@@ -61,7 +61,7 @@ export const defaultResolveVideoAction: ResolveVideoActionFn = async ({
 		return Promise.resolve({type: 'copy'});
 	}
 
-	const canReencode = await canReencodeVideo({videoCodec, track});
+	const canReencode = await canReencodeVideoTrack({videoCodec, track});
 
 	if (canReencode) {
 		Log.verbose(

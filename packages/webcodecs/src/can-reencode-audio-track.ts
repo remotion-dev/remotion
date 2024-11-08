@@ -3,7 +3,7 @@ import {getAudioDecoderConfig} from './audio-decoder-config';
 import {getAudioEncoderConfig} from './audio-encoder-config';
 import type {ConvertMediaAudioCodec} from './codec-id';
 
-export const canReencodeAudio = async ({
+export const canReencodeAudioTrack = async ({
 	track,
 	audioCodec,
 	bitrate,

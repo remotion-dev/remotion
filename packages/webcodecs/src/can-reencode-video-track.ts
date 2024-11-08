@@ -3,7 +3,7 @@ import type {ConvertMediaVideoCodec} from './codec-id';
 import {getVideoDecoderConfigWithHardwareAcceleration} from './video-decoder-config';
 import {getVideoEncoderConfig} from './video-encoder-config';
 
-export const canReencodeVideo = async ({
+export const canReencodeVideoTrack = async ({
 	videoCodec,
 	track,
 }: {

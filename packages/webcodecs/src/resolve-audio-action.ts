@@ -3,7 +3,7 @@ import type {
 	LogLevel,
 	MediaParserAudioCodec,
 } from '@remotion/media-parser';
-import {canReencodeAudio} from './can-reencode-audio';
+import {canReencodeAudioTrack} from './can-reencode-audio-track';
 import type {ConvertMediaAudioCodec} from './codec-id';
 import type {ConvertMediaContainer} from './convert-media';
 import {Log} from './log';
@@ -45,7 +45,7 @@ export const defaultResolveAudioAction: ResolveAudioActionFn = async ({
 	container,
 }): Promise<AudioOperation> => {
 	const bitrate = DEFAULT_BITRATE;
-	const canReencode = await canReencodeAudio({
+	const canReencode = await canReencodeAudioTrack({
 		audioCodec,
 		track,
 		bitrate,

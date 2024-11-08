@@ -1,5 +1,7 @@
 export {WebCodecsAudioDecoder, createAudioDecoder} from './audio-decoder';
 export {WebCodecsAudioEncoder, createAudioEncoder} from './audio-encoder';
+export {canReencodeAudioTrack} from './can-reencode-audio-track';
+export {canReencodeVideoTrack} from './can-reencode-video-track';
 export {ConvertMediaAudioCodec, ConvertMediaVideoCodec} from './codec-id';
 export {
 	ConvertMediaContainer,
