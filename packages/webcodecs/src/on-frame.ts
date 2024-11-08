@@ -47,7 +47,19 @@ export const onFrame = async ({
 		);
 	}
 
-	await videoEncoder.encodeFrame(newFrame);
+	if (newFrame.timestamp !== frame.timestamp) {
+		throw new Error(
+			`Returned VideoFrame of track ${track.trackId} has different timestamp (${newFrame.timestamp}) than the input frame (${newFrame.timestamp}). When calling new VideoFrame(), pass {timestamp: frame.timestamp} as second argument`,
+		);
+	}
+
+	if (newFrame.duration !== frame.duration) {
+		throw new Error(
+			`Returned VideoFrame of track ${track.trackId} has different duration (${newFrame.duration}) than the input frame (${newFrame.duration}). When calling new VideoFrame(), pass {duration: frame.duration} as second argument`,
+		);
+	}
+
+	await videoEncoder.encodeFrame(newFrame, newFrame.timestamp);
 	convertMediaState.decodedVideoFrames++;
 	onMediaStateUpdate?.({...convertMediaState});
 

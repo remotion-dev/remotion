@@ -2,7 +2,7 @@ import type {LogLevel} from '@remotion/media-parser';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 
 export type WebCodecsVideoEncoder = {
-	encodeFrame: (videoFrame: VideoFrame) => Promise<void>;
+	encodeFrame: (videoFrame: VideoFrame, timestamp: number) => Promise<void>;
 	waitForFinish: () => Promise<void>;
 	close: () => void;
 	flush: () => Promise<void>;

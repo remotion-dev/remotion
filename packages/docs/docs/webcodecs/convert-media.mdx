@@ -54,6 +54,12 @@ _string_ <TsType type="ConvertMediaVideoCodec" source="@remotion/webcodecs"/>
 
 The video codec to convert to. Currently, only `"vp8"` and `"vp9"` are supported.
 
+### `audioCodec`
+
+_string_ <TsType type="ConvertMediaAudioCodec" source="@remotion/webcodecs"/>
+
+The audio codec to convert to. Currently, only `"opus"` is supported.
+
 ### `logLevel?`
 
 _string_ <TsType type="LogLevel" source="@remotion/media-parser"/>
@@ -134,4 +140,4 @@ This will destroy the frame and free up memory.
 
 If you need a reference to the frame that lasts longer than the lifetime of this function, you must call [`.clone()`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame/clone) on it.
 
-If you return a different frame than the one you received, it must have the same values for `codedWidth`, `codedHeight`, `displayWidth` and `displayHeight` as the input frame.
+If you return a different frame than the one you received, it must have the same values for `codedWidth`, `codedHeight`, `displayWidth` and `displayHeight`, `timestamp` and `duration` as the input frame.
