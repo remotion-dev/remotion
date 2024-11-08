@@ -5,7 +5,7 @@ import {webFileReader} from '@remotion/media-parser/web-file';
 import {
 	convertMedia,
 	ConvertMediaAudioCodec,
-	ConvertMediaTo,
+	ConvertMediaContainer,
 	ConvertMediaVideoCodec,
 } from '@remotion/webcodecs';
 import {useCallback, useEffect, useRef, useState} from 'react';
@@ -18,7 +18,7 @@ import {flipVideoFrame} from './flip-video';
 import {Badge} from './ui/badge';
 
 export default function ConvertUI({src}: {readonly src: Source}) {
-	const [container, setContainer] = useState<ConvertMediaTo>('webm');
+	const [container, setContainer] = useState<ConvertMediaContainer>('webm');
 	const [videoCodec, setVideoCodec] = useState<ConvertMediaVideoCodec>('vp8');
 	const [audioCodec, setAudioCodec] = useState<ConvertMediaAudioCodec>('opus');
 	const [state, setState] = useState<ConvertState>({type: 'idle'});
@@ -64,7 +64,7 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 			},
 			videoCodec: videoCodec as 'vp8',
 			audioCodec: audioCodec as 'opus',
-			to: container as 'webm',
+			container: container as 'webm',
 			signal: abortController.signal,
 			fields: {
 				name: true,

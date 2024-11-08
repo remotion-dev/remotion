@@ -24,14 +24,8 @@ import type {ConvertMediaAudioCodec, ConvertMediaVideoCodec} from './codec-id';
 import Error from './error-cause';
 import {makeAudioTrackHandler} from './on-audio-track';
 import {makeVideoTrackHandler} from './on-video-track';
-import {
-	defaultResolveAudioAction,
-	type ResolveAudioActionFn,
-} from './resolve-audio-action';
-import {
-	defaultResolveVideoAction,
-	type ResolveVideoActionFn,
-} from './resolve-video-action';
+import {type ResolveAudioActionFn} from './resolve-audio-action';
+import {type ResolveVideoActionFn} from './resolve-video-action';
 import {withResolversAndWaitForReturn} from './with-resolvers';
 
 export type ConvertMediaState = {
@@ -45,7 +39,7 @@ export type ConvertMediaState = {
 	overallProgress: number | null;
 };
 
-export type ConvertMediaTo = 'webm';
+export type ConvertMediaContainer = 'webm';
 
 export type ConvertMediaResult = {
 	save: () => Promise<Blob>;
@@ -65,7 +59,7 @@ export const convertMedia = async function <
 	onVideoFrame,
 	onMediaStateUpdate: onMediaStateDoNoCallDirectly,
 	audioCodec,
-	to,
+	container,
 	videoCodec,
 	signal: userPassedAbortSignal,
 	onAudioTrack: userAudioResolver,
@@ -77,7 +71,7 @@ export const convertMedia = async function <
 	...more
 }: {
 	src: ParseMediaOptions<F>['src'];
-	to: ConvertMediaTo;
+	container: ConvertMediaContainer;
 	onVideoFrame?: ConvertMediaOnVideoFrame;
 	onMediaStateUpdate?: ConvertMediaOnMediaStateUpdate;
 	videoCodec: ConvertMediaVideoCodec;
@@ -93,7 +87,7 @@ export const convertMedia = async function <
 		return Promise.reject(new Error('Aborted'));
 	}
 
-	if (to !== 'webm') {
+	if (container !== 'webm') {
 		return Promise.reject(
 			new TypeError('Only `to: "webm"` is supported currently'),
 		);
@@ -178,8 +172,9 @@ export const convertMedia = async function <
 		convertMediaState,
 		controller,
 		videoCodec,
-		onVideoTrack: userVideoResolver ?? defaultResolveVideoAction,
+		onVideoTrack: userVideoResolver ?? null,
 		logLevel,
+		container,
 	});
 
 	const onAudioTrack: OnAudioTrack = makeAudioTrackHandler({
@@ -189,9 +184,9 @@ export const convertMedia = async function <
 		convertMediaState,
 		onMediaStateUpdate: onMediaStateUpdate ?? null,
 		state,
-		onAudioTrack: userAudioResolver ?? defaultResolveAudioAction,
-		bitrate: 128000,
+		onAudioTrack: userAudioResolver ?? null,
 		logLevel,
+		container,
 	});
 
 	parseMedia({

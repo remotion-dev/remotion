@@ -144,7 +144,7 @@ export const SrcEncoder: React.FC<{
 				},
 				videoCodec: 'vp9',
 				audioCodec: 'opus',
-				to: 'webm',
+				container: 'webm',
 				signal: abortController.signal,
 			});
 			setDownloadFn(() => {

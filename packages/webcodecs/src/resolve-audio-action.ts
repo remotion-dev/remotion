@@ -3,73 +3,83 @@ import type {
 	LogLevel,
 	MediaParserAudioCodec,
 } from '@remotion/media-parser';
+import {canReencodeAudioTrack} from './can-reencode-audio-track';
 import type {ConvertMediaAudioCodec} from './codec-id';
+import type {ConvertMediaContainer} from './convert-media';
 import {Log} from './log';
 
 export type AudioOperation =
-	| {type: 'reencode'}
+	| {type: 'reencode'; bitrate: number; audioCodec: ConvertMediaAudioCodec}
 	| {type: 'copy'}
 	| {type: 'drop'};
 
-const canCopyAudioTrack = (
-	inputCodec: MediaParserAudioCodec,
-	outputCodec: ConvertMediaAudioCodec,
-) => {
+const canCopyAudioTrack = ({
+	inputCodec,
+	outputCodec,
+	container,
+}: {
+	inputCodec: MediaParserAudioCodec;
+	outputCodec: ConvertMediaAudioCodec;
+	container: ConvertMediaContainer;
+}) => {
 	if (outputCodec === 'opus') {
-		return inputCodec === 'opus';
+		return inputCodec === 'opus' && container === 'webm';
 	}
 
 	throw new Error(`Unhandled codec: ${outputCodec satisfies never}`);
 };
 
 export type ResolveAudioActionFn = (options: {
-	canReencode: boolean;
-	canCopy: boolean;
+	track: AudioTrack;
+	audioCodec: ConvertMediaAudioCodec;
+	logLevel: LogLevel;
+	container: ConvertMediaContainer;
 }) => AudioOperation | Promise<AudioOperation>;
 
-export const defaultResolveAudioAction: ResolveAudioActionFn = ({
-	canReencode,
-	canCopy,
-}) => {
+const DEFAULT_BITRATE = 128_000;
+
+export const defaultResolveAudioAction: ResolveAudioActionFn = async ({
+	track,
+	audioCodec,
+	logLevel,
+	container,
+}): Promise<AudioOperation> => {
+	const bitrate = DEFAULT_BITRATE;
+	const canReencode = await canReencodeAudioTrack({
+		audioCodec,
+		track,
+		bitrate,
+	});
+
+	const canCopy = canCopyAudioTrack({
+		inputCodec: track.codecWithoutConfig,
+		outputCodec: audioCodec,
+		container,
+	});
+
 	if (canCopy) {
-		return {type: 'copy'};
+		Log.verbose(
+			logLevel,
+			`Track ${track.trackId} (audio): Can re-encode = ${canReencode}, can copy = ${canCopy}, action = copy`,
+		);
+
+		return Promise.resolve({type: 'copy'});
 	}
 
 	if (canReencode) {
-		return {type: 'reencode'};
+		Log.verbose(
+			logLevel,
+			`Track ${track.trackId} (audio): Can re-encode = ${canReencode}, can copy = ${canCopy}, action = reencode`,
+		);
+
+		return Promise.resolve({type: 'reencode', bitrate, audioCodec});
 	}
-
-	// TODO: Make a fail option?
-	return {type: 'drop'};
-};
-
-export const resolveAudioAction = async ({
-	audioDecoderConfig,
-	audioEncoderConfig,
-	track,
-	audioCodec,
-	resolverFunction,
-	logLevel,
-}: {
-	audioDecoderConfig: AudioDecoderConfig | null;
-	audioEncoderConfig: AudioEncoderConfig | null;
-	track: AudioTrack;
-	audioCodec: ConvertMediaAudioCodec;
-	resolverFunction: ResolveAudioActionFn;
-	logLevel: LogLevel;
-}): Promise<AudioOperation> => {
-	const canReencode = Boolean(audioDecoderConfig && audioEncoderConfig);
-	const canCopy = canCopyAudioTrack(track.codecWithoutConfig, audioCodec);
-
-	const resolved = await resolverFunction({
-		canReencode,
-		canCopy,
-	});
 
 	Log.verbose(
 		logLevel,
-		`Track ${track.trackId} (audio): Can re-encode = ${canReencode}, can copy = ${canCopy}, action = ${resolved}`,
+		`Track ${track.trackId} (audio): Can re-encode = ${canReencode}, can copy = ${canCopy}, action = drop`,
 	);
 
-	return resolved;
+	// TODO: Make a fail option?
+	return Promise.resolve({type: 'drop'});
 };

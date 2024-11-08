@@ -5,10 +5,10 @@ import {createAudioEncoder} from './audio-encoder';
 import {getAudioEncoderConfig} from './audio-encoder-config';
 import type {ConvertMediaAudioCodec} from './codec-id';
 import {convertEncodedChunk} from './convert-encoded-chunk';
-import type {ConvertMediaState} from './convert-media';
+import type {ConvertMediaContainer, ConvertMediaState} from './convert-media';
 import Error from './error-cause';
 import type {ResolveAudioActionFn} from './resolve-audio-action';
-import {resolveAudioAction} from './resolve-audio-action';
+import {defaultResolveAudioAction} from './resolve-audio-action';
 
 export const makeAudioTrackHandler =
 	({
@@ -19,8 +19,8 @@ export const makeAudioTrackHandler =
 		abortConversion,
 		onMediaStateUpdate,
 		onAudioTrack,
-		bitrate,
 		logLevel,
+		container,
 	}: {
 		state: MediaFn;
 		audioCodec: ConvertMediaAudioCodec;
@@ -28,31 +28,16 @@ export const makeAudioTrackHandler =
 		controller: AbortController;
 		abortConversion: (errCause: Error) => void;
 		onMediaStateUpdate: null | ((state: ConvertMediaState) => void);
-		onAudioTrack: ResolveAudioActionFn;
-		bitrate: number;
+		onAudioTrack: ResolveAudioActionFn | null;
 		logLevel: LogLevel;
+		container: ConvertMediaContainer;
 	}): OnAudioTrack =>
 	async (track) => {
-		const audioEncoderConfig = await getAudioEncoderConfig({
-			codec: audioCodec,
-			numberOfChannels: track.numberOfChannels,
-			sampleRate: track.sampleRate,
-			bitrate,
-		});
-		const audioDecoderConfig = await getAudioDecoderConfig({
-			codec: track.codec,
-			numberOfChannels: track.numberOfChannels,
-			sampleRate: track.sampleRate,
-			description: track.description,
-		});
-
-		const audioOperation = await resolveAudioAction({
-			audioDecoderConfig,
-			audioEncoderConfig,
+		const audioOperation = await (onAudioTrack ?? defaultResolveAudioAction)({
 			audioCodec,
 			track,
-			resolverFunction: onAudioTrack,
 			logLevel,
+			container,
 		});
 
 		if (audioOperation.type === 'drop') {
@@ -74,6 +59,19 @@ export const makeAudioTrackHandler =
 				onMediaStateUpdate?.({...convertMediaState});
 			};
 		}
+
+		const audioEncoderConfig = await getAudioEncoderConfig({
+			numberOfChannels: track.numberOfChannels,
+			sampleRate: track.sampleRate,
+			codec: audioOperation.audioCodec,
+			bitrate: audioOperation.bitrate,
+		});
+		const audioDecoderConfig = await getAudioDecoderConfig({
+			codec: track.codec,
+			numberOfChannels: track.numberOfChannels,
+			sampleRate: track.sampleRate,
+			description: track.description,
+		});
 
 		if (!audioEncoderConfig) {
 			abortConversion(

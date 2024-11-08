@@ -3,73 +3,80 @@ import type {
 	MediaParserVideoCodec,
 	VideoTrack,
 } from '@remotion/media-parser';
+import {canReencodeVideoTrack} from './can-reencode-video-track';
 import type {ConvertMediaVideoCodec} from './codec-id';
+import type {ConvertMediaContainer} from './convert-media';
 import {Log} from './log';
 
-export type VideoOperation = 'reencode' | 'copy' | 'drop';
+export type VideoOperation =
+	| {type: 'reencode'; videoCodec: ConvertMediaVideoCodec}
+	| {type: 'copy'}
+	| {type: 'drop'};
 
-const canCopyVideoTrack = (
-	inputCodec: MediaParserVideoCodec,
-	outputCodec: ConvertMediaVideoCodec,
-) => {
+const canCopyVideoTrack = ({
+	inputCodec,
+	outputCodec,
+	container,
+}: {
+	inputCodec: MediaParserVideoCodec;
+	outputCodec: ConvertMediaVideoCodec;
+	container: ConvertMediaContainer;
+}) => {
 	if (outputCodec === 'vp8') {
-		return inputCodec === 'vp8';
+		return inputCodec === 'vp8' && container === 'webm';
 	}
 
 	if (outputCodec === 'vp9') {
-		return inputCodec === 'vp9';
+		return inputCodec === 'vp9' && container === 'webm';
 	}
 
 	throw new Error(`Unhandled codec: ${outputCodec satisfies never}`);
 };
 
 export type ResolveVideoActionFn = (options: {
-	canReencode: boolean;
-	canCopy: boolean;
-}) => VideoOperation | Promise<VideoOperation>;
-
-export const defaultResolveVideoAction: ResolveVideoActionFn = ({
-	canReencode,
-	canCopy,
-}) => {
-	if (canCopy) {
-		return 'copy';
-	}
-
-	if (canReencode) {
-		return 'reencode';
-	}
-
-	// TODO: Make a fail option?
-	return 'drop';
-};
-
-export const resolveVideoAction = async ({
-	videoDecoderConfig,
-	videoEncoderConfig,
-	track,
-	videoCodec,
-	resolverFunction,
-	logLevel,
-}: {
-	videoDecoderConfig: VideoDecoderConfig | null;
-	videoEncoderConfig: VideoEncoderConfig | null;
 	videoCodec: ConvertMediaVideoCodec;
 	track: VideoTrack;
-	resolverFunction: ResolveVideoActionFn;
 	logLevel: LogLevel;
-}): Promise<VideoOperation> => {
-	const canReencode = Boolean(videoDecoderConfig && videoEncoderConfig);
-	const canCopy = canCopyVideoTrack(track.codecWithoutConfig, videoCodec);
+	container: ConvertMediaContainer;
+}) => VideoOperation | Promise<VideoOperation>;
 
-	const resolved = await resolverFunction({
-		canReencode,
-		canCopy,
+export const defaultResolveVideoAction: ResolveVideoActionFn = async ({
+	track,
+	videoCodec,
+	logLevel,
+	container,
+}): Promise<VideoOperation> => {
+	const canCopy = canCopyVideoTrack({
+		inputCodec: track.codecWithoutConfig,
+		outputCodec: videoCodec,
+		container,
 	});
+
+	if (canCopy) {
+		Log.verbose(
+			logLevel,
+			`Track ${track.trackId} (video): Can copy, therefore copying`,
+		);
+
+		return Promise.resolve({type: 'copy'});
+	}
+
+	const canReencode = await canReencodeVideoTrack({videoCodec, track});
+
+	if (canReencode) {
+		Log.verbose(
+			logLevel,
+			`Track ${track.trackId} (video): Cannot copy, but re-enconde, therefore re-encoding`,
+		);
+
+		return Promise.resolve({type: 'reencode', videoCodec});
+	}
+
 	Log.verbose(
 		logLevel,
-		`Track ${track.trackId} (video): Can re-encode = ${canReencode}, can copy = ${canCopy}, action = ${resolved}`,
+		`Track ${track.trackId} (video): Can neither copy nor re-encode, therefore dropping`,
 	);
 
-	return resolved;
+	// TODO: Make a fail option?
+	return Promise.resolve({type: 'drop'});
 };

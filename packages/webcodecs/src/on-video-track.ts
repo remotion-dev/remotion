@@ -2,6 +2,7 @@ import type {LogLevel, MediaFn, OnVideoTrack} from '@remotion/media-parser';
 import type {ConvertMediaVideoCodec} from './codec-id';
 import {convertEncodedChunk} from './convert-encoded-chunk';
 import type {
+	ConvertMediaContainer,
 	ConvertMediaOnMediaStateUpdate,
 	ConvertMediaOnVideoFrame,
 	ConvertMediaState,
@@ -9,7 +10,7 @@ import type {
 import Error from './error-cause';
 import {onFrame} from './on-frame';
 import type {ResolveVideoActionFn} from './resolve-video-action';
-import {resolveVideoAction} from './resolve-video-action';
+import {defaultResolveVideoAction} from './resolve-video-action';
 import {createVideoDecoder} from './video-decoder';
 import {getVideoDecoderConfigWithHardwareAcceleration} from './video-decoder-config';
 import {createVideoEncoder} from './video-encoder';
@@ -26,6 +27,7 @@ export const makeVideoTrackHandler =
 		videoCodec,
 		onVideoTrack,
 		logLevel,
+		container,
 	}: {
 		state: MediaFn;
 		onVideoFrame: null | ConvertMediaOnVideoFrame;
@@ -34,35 +36,27 @@ export const makeVideoTrackHandler =
 		convertMediaState: ConvertMediaState;
 		controller: AbortController;
 		videoCodec: ConvertMediaVideoCodec;
-		onVideoTrack: ResolveVideoActionFn;
+		onVideoTrack: ResolveVideoActionFn | null;
 		logLevel: LogLevel;
+		container: ConvertMediaContainer;
 	}): OnVideoTrack =>
 	async (track) => {
 		if (controller.signal.aborted) {
 			throw new Error('Aborted');
 		}
 
-		const videoEncoderConfig = await getVideoEncoderConfig({
-			codec: videoCodec === 'vp9' ? 'vp09.00.10.08' : videoCodec,
-			height: track.displayAspectHeight,
-			width: track.displayAspectWidth,
-		});
-		const videoDecoderConfig =
-			await getVideoDecoderConfigWithHardwareAcceleration(track);
-		const videoOperation = await resolveVideoAction({
-			videoDecoderConfig,
-			videoEncoderConfig,
+		const videoOperation = await (onVideoTrack ?? defaultResolveVideoAction)({
 			track,
 			videoCodec,
-			resolverFunction: onVideoTrack,
 			logLevel,
+			container,
 		});
 
-		if (videoOperation === 'drop') {
+		if (videoOperation.type === 'drop') {
 			return null;
 		}
 
-		if (videoOperation === 'copy') {
+		if (videoOperation.type === 'copy') {
 			const videoTrack = await state.addTrack({
 				type: 'video',
 				color: track.color,
@@ -77,6 +71,14 @@ export const makeVideoTrackHandler =
 				onMediaStateUpdate?.({...convertMediaState});
 			};
 		}
+
+		const videoEncoderConfig = await getVideoEncoderConfig({
+			codec: videoOperation.videoCodec,
+			height: track.displayAspectHeight,
+			width: track.displayAspectWidth,
+		});
+		const videoDecoderConfig =
+			await getVideoDecoderConfigWithHardwareAcceleration(track);
 
 		if (videoEncoderConfig === null) {
 			abortConversion(
