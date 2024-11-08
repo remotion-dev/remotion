@@ -36,9 +36,14 @@ export const PickFile: React.FC<{
 			</h1>
 			<div className="h-12" />
 			<DropFileBox setSrc={setSrc} />
-			or{' '}
-			<a className="font-brand text-brand" onClick={onSampleFile}>
-				or select sample file
+			<div className="h-4" />
+			<div className="font-brand">or </div>
+			<div className="h-4" />
+			<a
+				className="font-brand text-brand cursor cursor-pointer hover:underline"
+				onClick={onSampleFile}
+			>
+				Use a sample file
 			</a>
 		</div>
 	);
