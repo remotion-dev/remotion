@@ -25,8 +25,9 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@testing-library/react": "14.0.0",
 		"@happy-dom/global-registrator": "14.5.1",
+		"@testing-library/react": "14.0.0",
+		"@types/dom-webcodecs": "0.1.11",
 		"happy-dom": "14.5.1",
 		"jsdom": "21.1.0",
 		"react": "18.3.1",

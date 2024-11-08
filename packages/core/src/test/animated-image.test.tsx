@@ -3,7 +3,7 @@
  */
 import {render} from '@testing-library/react';
 import {describe, expect, test} from 'vitest';
-import {AnimatedImage} from '../animate-image';
+import {AnimatedImage} from '../animated-image';
 
 describe('Render correctly with props', () => {
 	test('should render with default props', () => {

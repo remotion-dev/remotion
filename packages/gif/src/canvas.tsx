@@ -38,8 +38,10 @@ const calcArgs = (
 				canvasSize.width / frameSize.width,
 				canvasSize.height / frameSize.height,
 			);
+
 			const centerX = (canvasSize.width - frameSize.width * ratio) / 2;
 			const centerY = (canvasSize.height - frameSize.height * ratio) / 2;
+
 			return [
 				0,
 				0,
@@ -59,6 +61,7 @@ const calcArgs = (
 			);
 			const centerX = (canvasSize.width - frameSize.width * ratio) / 2;
 			const centerY = (canvasSize.height - frameSize.height * ratio) / 2;
+
 			return [
 				0,
 				0,
