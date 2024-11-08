@@ -14,7 +14,7 @@ export const getVideoEncoderConfig = async ({
 	}
 
 	const config: VideoEncoderConfig = {
-		codec: codec ? 'vp09.00.10.08' : codec,
+		codec: codec === 'vp9' ? 'vp09.00.10.08' : codec,
 		height,
 		width,
 	};
