@@ -11,7 +11,13 @@ import {webFileReader} from '@remotion/media-parser/web-file';
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import {Source} from '~/lib/convert-state';
 
-export const useProbe = (src: Source) => {
+export const useProbe = ({
+	src,
+	onVideoThumbnail,
+}: {
+	src: Source;
+	onVideoThumbnail: (videoFrame: VideoFrame) => void;
+}) => {
 	const [audioCodec, setAudioCodec] = useState<MediaParserAudioCodec | null>(
 		null,
 	);
@@ -27,7 +33,6 @@ export const useProbe = (src: Source) => {
 	const [size, setSize] = useState<number | null>(null);
 	const [tracks, setTracks] = useState<TracksField | null>(null);
 	const [container, setContainer] = useState<ParseMediaContainer | null>(null);
-	const [thumbnail, setThumbnail] = useState<VideoFrame | null>(null);
 
 	const getStart = useCallback(() => {
 		const controller = new AbortController();
@@ -98,7 +103,7 @@ export const useProbe = (src: Source) => {
 							return;
 						}
 
-						setThumbnail(frame.clone());
+						onVideoThumbnail(frame);
 						frame.close();
 						hasFrame = true;
 						cancelIfDone();
@@ -179,7 +184,7 @@ export const useProbe = (src: Source) => {
 			});
 
 		return controller;
-	}, [src]);
+	}, [onVideoThumbnail, src]);
 
 	useEffect(() => {
 		const start = getStart();
@@ -193,7 +198,6 @@ export const useProbe = (src: Source) => {
 			tracks,
 			audioCodec,
 			fps,
-			thumbnail,
 			name,
 			container,
 			dimensions,
@@ -208,7 +212,6 @@ export const useProbe = (src: Source) => {
 		fps,
 		name,
 		size,
-		thumbnail,
 		tracks,
 		videoCodec,
 		durationInSeconds,

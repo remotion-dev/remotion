@@ -15,13 +15,13 @@ export const SourceLabel: React.FC<{
 		.replace(/^http:\/\//, '');
 
 	return (
-		<span>
+		<span className="font-brand">
 			From{' '}
 			<a
 				href={src.url}
 				title={src.url}
 				target="_blank"
-				className="font-semibold hover:underline font-brand"
+				className="font-semibold hover:underline "
 			>
 				{origin}
 			</a>

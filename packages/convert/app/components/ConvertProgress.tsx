@@ -1,22 +1,23 @@
 import {ConvertMediaState} from '@remotion/webcodecs';
-import React from 'react';
+import React, {createRef} from 'react';
 import {formatBytes} from '~/lib/format-bytes';
 import {formatSeconds} from '~/lib/format-seconds';
 import {Container, getNewName} from '~/lib/generate-new-name';
 import {Card} from './ui/card';
 import {Skeleton} from './ui/skeleton';
-import {VideoThumbnail} from './VideoThumbnail';
+import {VideoThumbnail, VideoThumbnailRef} from './VideoThumbnail';
+
+export const convertProgressRef = createRef<VideoThumbnailRef>();
 
 export const ConvertProgress: React.FC<{
 	readonly state: ConvertMediaState;
 	readonly name: string | null;
 	readonly container: Container;
-	readonly currentFrame: VideoFrame | null;
-}> = ({state, name, container, currentFrame}) => {
+}> = ({state, name, container}) => {
 	return (
 		<>
 			<Card className="overflow-hidden">
-				<VideoThumbnail thumbnail={currentFrame} />
+				<VideoThumbnail ref={convertProgressRef} smallThumbOnMobile={false} />
 				<div className="border-b-2 border-black" />
 				<div className="h-5 overflow-hidden">
 					{state.overallProgress ? (
