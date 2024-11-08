@@ -15,7 +15,7 @@ import {convertMedia} from '@remotion/webcodecs';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {ConvertState, Source} from '~/lib/convert-state';
 import {Container, getNewName} from '~/lib/generate-new-name';
-import {ConvertProgress} from './ConvertProgress';
+import {ConvertProgress, convertProgressRef} from './ConvertProgress';
 import {ErrorState} from './ErrorState';
 import {Badge} from './ui/badge';
 
@@ -25,7 +25,6 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 	const [audioCodec, setAudioCodec] = useState('opus');
 	const [state, setState] = useState<ConvertState>({type: 'idle'});
 	const [name, setName] = useState<string | null>(null);
-	const [currentFrame, setCurrentFrame] = useState<VideoFrame | null>(null);
 
 	const abortSignal = useRef<AbortController | null>(null);
 
@@ -42,7 +41,7 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 			reader: src.type === 'file' ? webFileReader : fetchReader,
 			onVideoFrame: (frame) => {
 				if (videoFrames % 15 === 0) {
-					setCurrentFrame(frame.clone());
+					convertProgressRef.current?.draw(frame);
 				}
 
 				videoFrames++;
@@ -164,7 +163,6 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 							state={state.state}
 							name={name}
 							container={container}
-							currentFrame={currentFrame}
 						/>
 						<div className="h-2" />
 						<Button className="block w-full" type="button" onClick={cancel}>
@@ -177,7 +175,6 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 							state={state.state}
 							name={name}
 							container={container}
-							currentFrame={currentFrame}
 						/>
 						<div className="h-2" />
 						<Button className="block w-full" type="button" onClick={onDownload}>

@@ -1,11 +1,11 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {Source} from '~/lib/convert-state';
 import {useIsNarrow} from '~/lib/is-narrow';
 import {AudioTrackOverview} from './AudioTrackOverview';
 import {ContainerOverview} from './ContainerOverview';
 import {SourceLabel} from './SourceLabel';
 import {TrackSwitcher} from './TrackSwitcher';
-import {VideoThumbnail} from './VideoThumbnail';
+import {VideoThumbnail, VideoThumbnailRef} from './VideoThumbnail';
 import {VideoTrackOverview} from './VideoTrackOverview';
 import {Button} from './ui/button';
 import {Card, CardDescription, CardHeader, CardTitle} from './ui/card';
@@ -19,18 +19,23 @@ export const Probe: React.FC<{
 	readonly setProbeDetails: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly probeDetails: boolean;
 }> = ({src, probeDetails, setProbeDetails}) => {
+	const videoThumbnailRef = useRef<VideoThumbnailRef>(null);
+
+	const onVideoThumbnail = useCallback((frame: VideoFrame) => {
+		videoThumbnailRef.current?.draw(frame);
+	}, []);
+
 	const {
 		audioCodec,
 		fps,
 		tracks,
 		name,
-		thumbnail,
 		container,
 		dimensions,
 		size,
 		videoCodec,
 		durationInSeconds,
-	} = useProbe(src);
+	} = useProbe({src, onVideoThumbnail});
 
 	const onClick = useCallback(() => {
 		setProbeDetails((p) => !p);
@@ -63,7 +68,7 @@ export const Probe: React.FC<{
 		<Card
 			className={`w-full lg:${probeDetails ? 'w-[800px]' : 'w-[350px]'} overflow-hidden`}
 		>
-			<VideoThumbnail thumbnail={thumbnail} />
+			<VideoThumbnail ref={videoThumbnailRef} />
 			<CardHeader className="border-b-2 border-black p-3 lg:p-4">
 				<CardTitle title={name ?? undefined}>
 					{name ? name : <Skeleton className="h-5 w-[220px] inline-block" />}
