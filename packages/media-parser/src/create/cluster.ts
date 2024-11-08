@@ -1,6 +1,7 @@
 import {getVariableInt} from '../boxes/webm/ebml';
 import {matroskaToHex} from '../boxes/webm/make-header';
 import {matroskaElements} from '../boxes/webm/segments/all-segments';
+import type {AudioOrVideoSample} from '../webcodec-sample-types';
 import type {Writer} from '../writers/writer';
 import {
 	CLUSTER_MIN_VINT_WIDTH,
@@ -10,14 +11,6 @@ import {
 import {CREATE_TIME_SCALE} from './timescale';
 
 const maxClusterTimestamp = 2 ** 15;
-
-export type AudioOrVideoSample = {
-	timestamp: number;
-	type: 'key' | 'delta';
-	copyTo(destination: AllowSharedBufferSource): void;
-	byteLength: number;
-	duration: number | null;
-};
 
 export const timestampToClusterTimestamp = (timestamp: number) => {
 	return Math.round((timestamp / CREATE_TIME_SCALE) * 1000);
@@ -37,8 +30,6 @@ export const makeCluster = async (w: Writer, timestamp: number) => {
 	await w.write(cluster.bytes);
 
 	const addSample = async (chunk: AudioOrVideoSample, trackNumber: number) => {
-		const arr = new Uint8Array(chunk.byteLength);
-		chunk.copyTo(arr);
 		const timecodeRelativeToCluster =
 			timestampToClusterTimestamp(chunk.timestamp) -
 			timestampToClusterTimestamp(timestamp);
@@ -56,7 +47,7 @@ export const makeCluster = async (w: Writer, timestamp: number) => {
 
 		const keyframe = chunk.type === 'key';
 		const simpleBlock = makeSimpleBlock({
-			bytes: arr,
+			bytes: chunk.data,
 			invisible: false,
 			keyframe,
 			lacing: 0,

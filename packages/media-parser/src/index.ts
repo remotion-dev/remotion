@@ -24,6 +24,7 @@ export type {
 } from './options';
 export {parseMedia} from './parse-media';
 export {
+	AudioOrVideoSample,
 	AudioSample,
 	OnAudioSample,
 	OnAudioTrack,

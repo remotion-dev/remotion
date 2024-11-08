@@ -5,6 +5,7 @@ import type {
 	VideoTrack,
 } from '@remotion/media-parser';
 import type {ConvertMediaVideoCodec} from './codec-id';
+import {convertEncodedChunk} from './convert-encoded-chunk';
 import type {ConvertMediaState} from './convert-media';
 import Error from './error-cause';
 import type {ResolveVideoActionFn} from './resolve-video-action';
@@ -72,11 +73,7 @@ export const makeVideoTrackHandler =
 				codecPrivate: track.codecPrivate,
 			});
 			return async (sample) => {
-				await state.addSample(
-					new EncodedVideoChunk(sample),
-					videoTrack.trackNumber,
-					true,
-				);
+				await state.addSample(sample, videoTrack.trackNumber, true);
 				convertMediaState.decodedVideoFrames++;
 				onMediaStateUpdate?.({...convertMediaState});
 			};
@@ -111,7 +108,7 @@ export const makeVideoTrackHandler =
 
 		const videoEncoder = createVideoEncoder({
 			onChunk: async (chunk) => {
-				await state.addSample(chunk, trackNumber, true);
+				await state.addSample(convertEncodedChunk(chunk), trackNumber, true);
 				convertMediaState.encodedVideoFrames++;
 				onMediaStateUpdate?.({...convertMediaState});
 			},

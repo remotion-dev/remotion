@@ -4,8 +4,8 @@ import {
 	matroskaElements,
 	type BytesAndOffset,
 } from '../boxes/webm/segments/all-segments';
+import type {AudioOrVideoSample} from '../webcodec-sample-types';
 import type {WriterInterface} from '../writers/writer';
-import type {AudioOrVideoSample} from './cluster';
 import {makeCluster, timestampToClusterTimestamp} from './cluster';
 import {makeDurationWithPadding} from './make-duration-with-padding';
 import {createMatroskaCues, type Cue} from './matroska-cues';
