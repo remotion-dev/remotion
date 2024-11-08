@@ -1,5 +1,6 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import {Source} from '~/lib/convert-state';
+import {useIsNarrow} from '~/lib/is-narrow';
 import {AudioTrackOverview} from './AudioTrackOverview';
 import {ContainerOverview} from './ContainerOverview';
 import {SourceLabel} from './SourceLabel';
@@ -7,13 +8,7 @@ import {TrackSwitcher} from './TrackSwitcher';
 import {VideoThumbnail} from './VideoThumbnail';
 import {VideoTrackOverview} from './VideoTrackOverview';
 import {Button} from './ui/button';
-import {
-	Card,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from './ui/card';
+import {Card, CardDescription, CardHeader, CardTitle} from './ui/card';
 import {ScrollArea} from './ui/scroll-area';
 import {Separator} from './ui/separator';
 import {Skeleton} from './ui/skeleton';
@@ -52,6 +47,7 @@ export const Probe: React.FC<{
 	);
 
 	const [trackDetails, setTrackDetails] = useState<number | null>(null);
+	const isNarrow = useIsNarrow();
 
 	const selectedTrack = useMemo(() => {
 		if (!probeDetails || trackDetails === null) {
@@ -61,21 +57,23 @@ export const Probe: React.FC<{
 		return sortedTracks[trackDetails];
 	}, [probeDetails, sortedTracks, trackDetails]);
 
+	const isCompact = isNarrow && !probeDetails;
+
 	return (
 		<Card
 			className={`w-full lg:${probeDetails ? 'w-[800px]' : 'w-[350px]'} overflow-hidden`}
 		>
 			<VideoThumbnail thumbnail={thumbnail} />
-			<CardHeader className="border-b-2 border-black">
+			<CardHeader className="border-b-2 border-black p-3 lg:p-4">
 				<CardTitle title={name ?? undefined}>
 					{name ? name : <Skeleton className="h-5 w-[220px] inline-block" />}
 				</CardTitle>
-				<CardDescription>
+				<CardDescription className="!mt-0">
 					<SourceLabel src={src} />
 				</CardDescription>
 			</CardHeader>
 			{sortedTracks.length && probeDetails ? (
-				<div className=" pr-6 border-b-2 border-black">
+				<div className="pr-6 border-b-2 border-black">
 					<TrackSwitcher
 						selectedTrack={trackDetails}
 						sortedTracks={sortedTracks}
@@ -85,30 +83,33 @@ export const Probe: React.FC<{
 					/>
 				</div>
 			) : null}
-			<ScrollArea height={300} className="flex-1">
-				{selectedTrack === null ? (
-					<ContainerOverview
-						container={container ?? null}
-						dimensions={dimensions ?? null}
-						videoCodec={videoCodec ?? null}
-						size={size ?? null}
-						durationInSeconds={durationInSeconds}
-						audioCodec={audioCodec ?? null}
-						fps={fps}
-					/>
-				) : selectedTrack.type === 'video' ? (
-					<VideoTrackOverview track={selectedTrack} />
-				) : selectedTrack.type === 'audio' ? (
-					<AudioTrackOverview track={selectedTrack} />
-				) : null}
-			</ScrollArea>
-			<Separator orientation="horizontal" />
-			<CardFooter className="flex flex-row items-center justify-center pb-3 pt-3">
-				<div className="flex-1" />
+			{isCompact ? null : (
+				<>
+					<ScrollArea height={300} className="flex-1">
+						{selectedTrack === null ? (
+							<ContainerOverview
+								container={container ?? null}
+								dimensions={dimensions ?? null}
+								videoCodec={videoCodec ?? null}
+								size={size ?? null}
+								durationInSeconds={durationInSeconds}
+								audioCodec={audioCodec ?? null}
+								fps={fps}
+							/>
+						) : selectedTrack.type === 'video' ? (
+							<VideoTrackOverview track={selectedTrack} />
+						) : selectedTrack.type === 'audio' ? (
+							<AudioTrackOverview track={selectedTrack} />
+						) : null}
+					</ScrollArea>
+					<Separator orientation="horizontal" />
+				</>
+			)}
+			<div className="flex flex-row items-center justify-center">
 				<Button disabled={!tracks} variant="link" onClick={onClick}>
 					{probeDetails ? 'Hide details' : 'Show details'}
 				</Button>
-			</CardFooter>
+			</div>
 		</Card>
 	);
 };

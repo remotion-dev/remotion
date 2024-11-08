@@ -99,7 +99,7 @@ export const useProbe = (src: Source) => {
 						}
 
 						setThumbnail(frame.clone());
-						frame.clone();
+						frame.close();
 						hasFrame = true;
 						cancelIfDone();
 					},
