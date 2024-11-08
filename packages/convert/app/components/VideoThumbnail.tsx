@@ -1,5 +1,6 @@
 import {FastAverageColor} from 'fast-average-color';
 import React, {useCallback, useImperativeHandle, useRef, useState} from 'react';
+import {useIsNarrow} from '~/lib/is-narrow';
 
 const THUMBNAIL_HEIGHT = Math.round((350 / 16) * 9);
 
@@ -48,15 +49,22 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 		[drawThumbnail],
 	);
 
+	const isNarrow = useIsNarrow();
+
+	const scale = isNarrow ? 0.5 : 1;
+
 	return (
-		<div className="border-b-2 border-black" style={{height: THUMBNAIL_HEIGHT}}>
+		<div
+			className="border-b-2 border-black"
+			style={{height: THUMBNAIL_HEIGHT * scale}}
+		>
 			<div className="flex justify-center" style={{backgroundColor: color}}>
 				<canvas
 					ref={ref}
 					height={THUMBNAIL_HEIGHT}
 					style={{
-						maxHeight: THUMBNAIL_HEIGHT,
-						width,
+						maxHeight: THUMBNAIL_HEIGHT * scale,
+						width: width * scale,
 					}}
 				/>
 			</div>

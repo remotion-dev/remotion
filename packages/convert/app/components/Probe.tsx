@@ -68,15 +68,17 @@ export const Probe: React.FC<{
 		<Card
 			className={`w-full lg:${probeDetails ? 'w-[800px]' : 'w-[350px]'} overflow-hidden`}
 		>
-			<VideoThumbnail ref={videoThumbnailRef} />
-			<CardHeader className="border-b-2 border-black p-3 lg:p-4">
-				<CardTitle title={name ?? undefined}>
-					{name ? name : <Skeleton className="h-5 w-[220px] inline-block" />}
-				</CardTitle>
-				<CardDescription className="!mt-0">
-					<SourceLabel src={src} />
-				</CardDescription>
-			</CardHeader>
+			<div className="flex flex-row lg:flex-col w-full border-b-2 border-black">
+				<VideoThumbnail ref={videoThumbnailRef} />
+				<CardHeader className=" p-3 lg:p-4 w-full">
+					<CardTitle title={name ?? undefined}>
+						{name ? name : <Skeleton className="h-5 w-[220px] inline-block" />}
+					</CardTitle>
+					<CardDescription className="!mt-0">
+						<SourceLabel src={src} />
+					</CardDescription>
+				</CardHeader>
+			</div>
 			{sortedTracks.length && probeDetails ? (
 				<div className="pr-6 border-b-2 border-black">
 					<TrackSwitcher
