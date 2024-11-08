@@ -1,5 +1,5 @@
 import {Button} from '@/components/ui/button';
-import {CardContent, CardTitle} from '@/components/ui/card';
+import {CardTitle} from '@/components/ui/card';
 import {Label} from '@/components/ui/label';
 import {
 	Select,
@@ -12,7 +12,7 @@ import {
 import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
 import {convertMedia} from '@remotion/webcodecs';
-import {useCallback, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {ConvertState, Source} from '~/lib/convert-state';
 import {Container, getNewName} from '~/lib/generate-new-name';
 import {ConvertProgress} from './ConvertProgress';
@@ -25,18 +25,30 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 	const [audioCodec, setAudioCodec] = useState('opus');
 	const [state, setState] = useState<ConvertState>({type: 'idle'});
 	const [name, setName] = useState<string | null>(null);
+	const [currentFrame, setCurrentFrame] = useState<VideoFrame | null>(null);
+
+	const abortSignal = useRef<AbortController | null>(null);
 
 	const onClick = useCallback(() => {
 		const abortController = new AbortController();
+		abortSignal.current = abortController;
 
 		let _n: string | null = null;
+
+		let videoFrames = 0;
 
 		convertMedia({
 			src: src.type === 'url' ? src.url : src.file,
 			reader: src.type === 'file' ? webFileReader : fetchReader,
-			onVideoFrame: () => {
+			onVideoFrame: (frame) => {
+				if (videoFrames % 15 === 0) {
+					setCurrentFrame(frame.clone());
+				}
+
+				videoFrames++;
 				return Promise.resolve();
 			},
+			logLevel: 'verbose',
 			onMediaStateUpdate: (s) => {
 				setState({
 					type: 'in-progress',
@@ -123,9 +135,17 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 		}
 	}, [state]);
 
+	useEffect(() => {
+		return () => {
+			if (abortSignal.current) {
+				abortSignal.current.abort();
+			}
+		};
+	}, []);
+
 	return (
-		<div className="w-[380px]">
-			<CardContent className="gap-4">
+		<div className="w-full lg:w-[350px]">
+			<div className="gap-4">
 				{state.type === 'error' ? (
 					<>
 						<ErrorState error={state.error} />
@@ -144,6 +164,7 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 							state={state.state}
 							name={name}
 							container={container}
+							currentFrame={currentFrame}
 						/>
 						<div className="h-2" />
 						<Button className="block w-full" type="button" onClick={cancel}>
@@ -156,6 +177,7 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 							state={state.state}
 							name={name}
 							container={container}
+							currentFrame={currentFrame}
 						/>
 						<div className="h-2" />
 						<Button className="block w-full" type="button" onClick={onDownload}>
@@ -224,7 +246,7 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 						</Button>
 					</>
 				)}
-			</CardContent>
+			</div>
 		</div>
 	);
 }

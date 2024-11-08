@@ -21,7 +21,7 @@ export const DropFileBox: React.FC<{
 	);
 
 	return (
-		<Card className="w-[400px] h-[300px] flex justify-center items-center">
+		<Card className="w-full max-w-[600px] lg:w-[400px] h-[300px] flex justify-center items-center">
 			<input
 				ref={ref}
 				type="file"

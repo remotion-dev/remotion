@@ -406,6 +406,9 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
+      fast-average-color:
+        specifier: 9.4.0
+        version: 9.4.0
       isbot:
         specifier: 4.1.0
         version: 4.1.0
@@ -19399,6 +19402,11 @@ packages:
       '@types/yauzl': 2.10.0
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /fast-average-color@9.4.0:
+    resolution: {integrity: sha512-bvM8vV6YwK07dPbzFz77zJaBcfF6ABVfgNwaxVgXc2G+o0e/tzLCF9WU8Ryp1r0Nkk6JuJNsWCzbb4cLOMlB+Q==}
+    engines: {node: '>= 12'}
     dev: false
 
   /fast-deep-equal@3.1.3:

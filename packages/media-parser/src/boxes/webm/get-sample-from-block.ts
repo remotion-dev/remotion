@@ -108,6 +108,7 @@ export const getSampleFromBlock = (
 			trackId: trackNumber,
 			timestamp: timecodeInMicroseconds,
 			type: 'key',
+			duration: undefined,
 		};
 
 		iterator.destroy();

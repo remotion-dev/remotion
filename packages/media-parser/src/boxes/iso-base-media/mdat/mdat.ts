@@ -122,29 +122,26 @@ export const parseMdat = async ({
 
 		const bytes = data.getSlice(samplesWithIndex.samplePosition.size);
 
+		const timestamp = Math.floor(
+			(samplesWithIndex.samplePosition.cts * 1_000_000) /
+				samplesWithIndex.track.timescale,
+		);
+		const duration = Math.floor(
+			(samplesWithIndex.samplePosition.duration * 1_000_000) /
+				samplesWithIndex.track.timescale,
+		);
+
 		if (samplesWithIndex.track.type === 'audio') {
-			const timestamp = Math.floor(
-				(samplesWithIndex.samplePosition.cts * 1_000_000) /
-					samplesWithIndex.track.timescale,
-			);
 			await options.parserState.onAudioSample(samplesWithIndex.track.trackId, {
 				data: bytes,
 				timestamp,
 				trackId: samplesWithIndex.track.trackId,
 				type: samplesWithIndex.samplePosition.isKeyframe ? 'key' : 'delta',
+				duration,
 			});
 		}
 
 		if (samplesWithIndex.track.type === 'video') {
-			const timestamp = Math.floor(
-				(samplesWithIndex.samplePosition.cts * 1_000_000) /
-					samplesWithIndex.track.timescale,
-			);
-			const duration = Math.floor(
-				(samplesWithIndex.samplePosition.duration * 1_000_000) /
-					samplesWithIndex.track.timescale,
-			);
-
 			await options.parserState.onVideoSample(samplesWithIndex.track.trackId, {
 				data: bytes,
 				timestamp,

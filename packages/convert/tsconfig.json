@@ -36,6 +36,9 @@
 	"references": [
 		{
 			"path": "../media-parser"
+		},
+		{
+			"path": "../webcodecs"
 		}
 	]
 }

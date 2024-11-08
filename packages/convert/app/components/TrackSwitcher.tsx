@@ -18,7 +18,8 @@ export const TrackSwitcher: React.FC<{
 				<div>
 					<div className="flex flex-row">
 						<Button
-							variant={selectedTrack === null ? 'secondary' : 'link'}
+							variant={selectedTrack === null ? 'secondary' : 'ghost'}
+							className="rounded-none"
 							onClick={goToOverview}
 						>
 							Overview
@@ -28,16 +29,17 @@ export const TrackSwitcher: React.FC<{
 								<React.Fragment key={trk.trackId}>
 									<Separator orientation="vertical" />
 									<Button
-										variant={selectedTrack === i ? 'secondary' : 'link'}
+										className="rounded-none"
+										variant={selectedTrack === i ? 'secondary' : 'ghost'}
 										onClick={() => onTrack(i)}
 									>
-										Track {trk.trackId}
+										Track {trk.trackId} (
+										{trk.type === 'audio' ? 'Audio' : 'Video'})
 									</Button>
 								</React.Fragment>
 							);
 						})}
 					</div>
-					<div className="h-4" />
 				</div>
 			) : null}
 		</div>

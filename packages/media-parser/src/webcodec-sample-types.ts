@@ -5,6 +5,7 @@ export type AudioSample = {
 	timestamp: number;
 	trackId: number;
 	type: 'key' | 'delta';
+	duration: number | undefined;
 };
 
 export type VideoSample = {
@@ -27,3 +28,10 @@ export type OnAudioTrack = (
 export type OnVideoTrack = (
 	track: VideoTrack,
 ) => OnVideoSample | Promise<OnVideoSample | null> | null;
+
+export type AudioOrVideoSample = {
+	timestamp: number;
+	type: 'key' | 'delta';
+	data: Uint8Array;
+	duration: number | undefined;
+};

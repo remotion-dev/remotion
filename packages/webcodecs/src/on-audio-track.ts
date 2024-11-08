@@ -4,6 +4,7 @@ import {getAudioDecoderConfig} from './audio-decoder-config';
 import {createAudioEncoder} from './audio-encoder';
 import {getAudioEncoderConfig} from './audio-encoder-config';
 import type {ConvertMediaAudioCodec} from './codec-id';
+import {convertEncodedChunk} from './convert-encoded-chunk';
 import type {ConvertMediaState} from './convert-media';
 import Error from './error-cause';
 import type {ResolveAudioActionFn} from './resolve-audio-action';
@@ -51,6 +52,7 @@ export const makeAudioTrackHandler =
 			audioCodec,
 			track,
 			resolverFunction: onAudioTrack,
+			logLevel,
 		});
 
 		if (audioOperation === 'drop') {
@@ -67,12 +69,7 @@ export const makeAudioTrackHandler =
 			});
 
 			return async (audioSample) => {
-				await state.addSample(
-					// TODO: EncodedAudioChunk is not supported in Safari
-					new EncodedAudioChunk(audioSample),
-					addedTrack.trackNumber,
-					false,
-				);
+				await state.addSample(audioSample, addedTrack.trackNumber, false);
 				convertMediaState.encodedAudioFrames++;
 				onMediaStateUpdate?.({...convertMediaState});
 			};
@@ -106,7 +103,7 @@ export const makeAudioTrackHandler =
 
 		const audioEncoder = createAudioEncoder({
 			onChunk: async (chunk) => {
-				await state.addSample(chunk, trackNumber, false);
+				await state.addSample(convertEncodedChunk(chunk), trackNumber, false);
 				convertMediaState.encodedAudioFrames++;
 				onMediaStateUpdate?.({...convertMediaState});
 			},
