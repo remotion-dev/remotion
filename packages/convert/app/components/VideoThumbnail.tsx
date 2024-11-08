@@ -1,12 +1,17 @@
-import {useEffect, useRef} from 'react';
+import {FastAverageColor} from 'fast-average-color';
+import {useEffect, useRef, useState} from 'react';
 
-const THUMBNAIL_WIDTH = 350;
-const THUMBNAIL_HEIGHT = Math.round((THUMBNAIL_WIDTH / 16) * 9);
+const THUMBNAIL_HEIGHT = Math.round((350 / 16) * 9);
 
 export const VideoThumbnail: React.FC<{
 	readonly thumbnail: VideoFrame | null;
 }> = ({thumbnail}) => {
 	const ref = useRef<HTMLCanvasElement>(null);
+
+	const scaleRatio = thumbnail ? THUMBNAIL_HEIGHT / thumbnail.displayHeight : 0;
+	const width = thumbnail ? Math.round(thumbnail.displayWidth * scaleRatio) : 0;
+
+	const [color, setColor] = useState<string>('transparent');
 
 	useEffect(() => {
 		if (!thumbnail) {
@@ -14,7 +19,7 @@ export const VideoThumbnail: React.FC<{
 		}
 
 		createImageBitmap(thumbnail, {
-			resizeWidth: THUMBNAIL_WIDTH,
+			resizeWidth: width,
 			resizeHeight: THUMBNAIL_HEIGHT,
 		}).then((bitmap) => {
 			const twoDContext = ref.current?.getContext('2d');
@@ -23,21 +28,25 @@ export const VideoThumbnail: React.FC<{
 			}
 
 			twoDContext.drawImage(bitmap, 0, 0, bitmap.width, bitmap.height);
-			thumbnail.close();
+			const color = new FastAverageColor().getColor(ref.current);
+			setColor(color.hex);
 		});
-	}, [thumbnail]);
+	}, [scaleRatio, thumbnail, width]);
 
 	return (
-		<canvas
-			ref={ref}
-			width={THUMBNAIL_WIDTH}
-			height={THUMBNAIL_HEIGHT}
-			style={{
-				maxHeight: THUMBNAIL_HEIGHT,
-				width: THUMBNAIL_WIDTH,
-				aspectRatio: '16 / 9',
-			}}
-			className="border-b-2 border-black"
-		/>
+		<div
+			className="border-b-2 border-black flex justify-center"
+			style={{height: THUMBNAIL_HEIGHT, background: color}}
+		>
+			<canvas
+				ref={ref}
+				width={width}
+				height={THUMBNAIL_HEIGHT}
+				style={{
+					maxHeight: THUMBNAIL_HEIGHT,
+					width,
+				}}
+			/>
+		</div>
 	);
 };

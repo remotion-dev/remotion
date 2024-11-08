@@ -41,7 +41,7 @@ export const FileAvailable: React.FC<{
 					/>
 					{probeDetails ? null : (
 						<>
-							<div className="h-8 lg:h-0 lg:w-6" />
+							<div className="h-8 lg:h-0 lg:w-8" />
 							<ConvertUI src={src} />
 						</>
 					)}
