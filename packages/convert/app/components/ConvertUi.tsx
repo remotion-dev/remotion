@@ -62,8 +62,8 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 					},
 				});
 			},
-			videoCodec: videoCodec as 'vp8',
-			audioCodec: audioCodec as 'opus',
+			videoCodec,
+			audioCodec,
 			container: container as 'webm',
 			signal: abortController.signal,
 			fields: {

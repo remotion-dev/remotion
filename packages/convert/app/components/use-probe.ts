@@ -10,6 +10,7 @@ import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import {Source} from '~/lib/convert-state';
+import {getSupportedConfigs} from './get-supported-configs';
 
 export const useProbe = ({
 	src,
@@ -161,6 +162,7 @@ export const useProbe = ({
 			},
 			onTracks: (trx) => {
 				hasTracks = true;
+				getSupportedConfigs(trx, 'webm');
 				setTracks(trx);
 				cancelIfDone();
 			},

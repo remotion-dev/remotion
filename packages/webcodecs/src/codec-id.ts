@@ -1,3 +1,7 @@
-export type ConvertMediaVideoCodec = 'vp8' | 'vp9';
+const availableVideoCodecs = ['vp8', 'vp9'] as const;
+export const getAvailableVideoCodecs = () => availableVideoCodecs;
+export type ConvertMediaVideoCodec = (typeof availableVideoCodecs)[number];
 
-export type ConvertMediaAudioCodec = 'opus';
+const availableAudioCodecs = ['opus'] as const;
+export const getAvailableAudioCodecs = () => availableAudioCodecs;
+export type ConvertMediaAudioCodec = (typeof availableAudioCodecs)[number];
