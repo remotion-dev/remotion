@@ -1,11 +1,11 @@
-import {RenderInternals} from '@remotion/renderer';
+import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
 test('Should get duration of AV1 video', async () => {
 	const parsed = await parseMedia({
-		src: RenderInternals.exampleVideos.av1,
+		src: exampleVideos.av1,
 		fields: {
 			durationInSeconds: true,
 			boxes: true,

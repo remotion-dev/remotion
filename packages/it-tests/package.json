@@ -23,6 +23,7 @@
 		"@remotion/shapes": "workspace:*",
 		"@remotion/zod-types": "workspace:*",
 		"@remotion/noise": "workspace:*",
+		"@remotion/example-videos": "workspace:*",
 		"@remotion/motion-blur": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/media-parser": "workspace:*",

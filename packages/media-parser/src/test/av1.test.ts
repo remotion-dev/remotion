@@ -1,4 +1,4 @@
-import {RenderInternals} from '@remotion/renderer';
+import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import {getMoovBox, getTraks} from '../boxes/iso-base-media/traversal';
 import {trakBoxContainsVideo} from '../get-fps';
@@ -8,7 +8,7 @@ import {nodeReader} from '../readers/from-node';
 
 test('AV1 in MP4', async () => {
 	const parsed = await parseMedia({
-		src: RenderInternals.exampleVideos.av1mp4,
+		src: exampleVideos.av1mp4,
 		fields: {
 			durationInSeconds: true,
 			fps: true,
@@ -56,7 +56,7 @@ test('AV1 in MP4 with colr atom', async () => {
 	let samples = 0;
 
 	const parsed = await parseMedia({
-		src: RenderInternals.exampleVideos.av1mp4WithColr,
+		src: exampleVideos.av1mp4WithColr,
 		fields: {
 			durationInSeconds: true,
 			fps: true,

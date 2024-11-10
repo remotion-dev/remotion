@@ -214,6 +214,9 @@
 			"path": "./packages/convert"
 		},
 		{
+			"path": "./packages/example-videos"
+		},
+		{
 			"path": "./packages/zod-types"
 		}
 	]
