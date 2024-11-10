@@ -152,11 +152,12 @@ export const createMedia = async ({
 		isVideo: boolean;
 	}) => {
 		const smallestProgress = Math.min(...Object.values(trackNumberProgresses));
+
 		if (
 			!currentCluster.shouldMakeNewCluster({
 				newT: smallestProgress,
-				keyframe: chunk.type === 'key',
 				isVideo,
+				chunk,
 			})
 		) {
 			return {cluster: currentCluster, isNew: false, smallestProgress};

@@ -1,5 +1,6 @@
 import {Button} from '@/components/ui/button';
 import {CardTitle} from '@/components/ui/card';
+import {MediaParserInternals} from '@remotion/media-parser';
 import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
 import {convertMedia, ConvertMediaContainer} from '@remotion/webcodecs';
@@ -94,6 +95,50 @@ export default function ConvertUI({
 				_n = n;
 				setName(n);
 			},
+			onAudioTrack: ({track}) => {
+				const options = supportedConfigs?.audioTrackOptions.find((trk) => {
+					return trk.trackId === track.trackId;
+				});
+				if (!options) {
+					throw new Error('Found no options for audio track');
+				}
+
+				const configIndex = audioConfigIndex[track.trackId] ?? 0;
+
+				const operation = options.operations[configIndex ?? 0];
+				if (!operation) {
+					throw new Error('Found no operation');
+				}
+
+				MediaParserInternals.Log.info(
+					'info',
+					`Selected operation for audio track ${track.trackId}`,
+					operation,
+				);
+
+				return operation;
+			},
+			onVideoTrack: ({track}) => {
+				const options = supportedConfigs?.videoTrackOptions.find((trk) => {
+					return trk.trackId === track.trackId;
+				});
+				if (!options) {
+					throw new Error('Found no options for video track');
+				}
+
+				const configIndex = videoConfigIndex[track.trackId] ?? 0;
+
+				const operation = options.operations[configIndex ?? 0];
+				if (!operation) {
+					throw new Error('Found no operation');
+				}
+				MediaParserInternals.Log.info(
+					'info',
+					`Selected operation for video track ${track.trackId}`,
+					operation,
+				);
+				return operation;
+			},
 		})
 			.then(({save}) => {
 				// TODO: When to remove?
@@ -132,7 +177,15 @@ export default function ConvertUI({
 		return () => {
 			abortController.abort();
 		};
-	}, [src, container, flipHorizontal, flipVertical]);
+	}, [
+		src,
+		container,
+		flipHorizontal,
+		flipVertical,
+		supportedConfigs,
+		audioConfigIndex,
+		videoConfigIndex,
+	]);
 
 	const cancel = useCallback(() => {
 		if (state.type !== 'in-progress') {

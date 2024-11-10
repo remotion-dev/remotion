@@ -46,8 +46,6 @@ export const ConvertForm: React.FC<{
 }) => {
 	const [showAdvanced, setShowAdvanced] = React.useState(false);
 
-	console.log(supportedConfigs);
-
 	return (
 		<div className="gap-4 grid">
 			<div>
