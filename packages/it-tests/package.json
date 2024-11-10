@@ -9,7 +9,8 @@
 		"test": "bun test src/rendering --run",
 		"testssr": "bun test src/ssr src/bundle src/templates src/monorepo --timeout 40000",
 		"testlambda": "bun test src/lambda src/cloudrun --run",
-		"formatting": "prettier src --check"
+		"formatting": "prettier src --check",
+		"make": "tsc"
 	},
 	"private": true,
 	"devDependencies": {
