@@ -1,11 +1,11 @@
 import {BundlerInternals} from '@remotion/bundler';
+import {exampleVideos} from '@remotion/example-videos';
 import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
 import {execSync} from 'node:child_process';
 import {copyFileSync, cpSync, readdirSync, rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
-import {exampleVideos} from './example-videos';
 
 test('Should be able to bundle the renderer', () => {
 	const outputdir = path.join(tmpdir(), `test-${Math.random()}`);

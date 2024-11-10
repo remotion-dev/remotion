@@ -1,4 +1,4 @@
-import {RenderInternals} from '@remotion/renderer';
+import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import {getSamplePositionsFromTrack} from '../boxes/iso-base-media/get-sample-positions-from-track';
 import type {TrakBox} from '../boxes/iso-base-media/trak/trak';
@@ -7,7 +7,7 @@ import {nodeReader} from '../readers/from-node';
 
 test('Stream samples', async () => {
 	const {videoTracks, audioTracks} = await parseMedia({
-		src: RenderInternals.exampleVideos.mp4withmp3,
+		src: exampleVideos.mp4withmp3,
 		fields: {
 			tracks: true,
 			videoCodec: true,

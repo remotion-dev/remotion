@@ -1,6 +1,6 @@
+import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import {unlinkSync} from 'node:fs';
-import {exampleVideos} from '../example-videos';
 import {extractAudio} from '../extract-audio';
 
 test('Should be able to extract the audio from a mp4 format video', async () => {

@@ -1,11 +1,11 @@
-import {RenderInternals} from '@remotion/renderer';
+import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
 test('Parse Big Buck bunny', async () => {
 	const data = await parseMedia({
-		src: RenderInternals.exampleVideos.bigBuckBunny,
+		src: exampleVideos.bigBuckBunny,
 		fields: {
 			boxes: true,
 		},
@@ -32,7 +32,7 @@ test('Parse Big Buck bunny', async () => {
 
 test('Parse framer', async () => {
 	const parsed = await parseMedia({
-		src: RenderInternals.exampleVideos.framerWithoutFileExtension,
+		src: exampleVideos.framerWithoutFileExtension,
 		fields: {
 			boxes: true,
 		},
@@ -59,7 +59,7 @@ test('Parse framer', async () => {
 
 test('Parse a full video', async () => {
 	const data = await parseMedia({
-		src: RenderInternals.exampleVideos.framer24fps,
+		src: exampleVideos.framer24fps,
 		fields: {boxes: true},
 		reader: nodeReader,
 	});
@@ -92,7 +92,7 @@ test('Parse a full video', async () => {
 
 test('Should warn if missing node reader', () => {
 	const data = parseMedia({
-		src: RenderInternals.exampleVideos.framer24fps,
+		src: exampleVideos.framer24fps,
 		fields: {
 			boxes: true,
 		},
