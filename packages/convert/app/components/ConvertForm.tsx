@@ -4,7 +4,7 @@ import {Container} from '~/lib/generate-new-name';
 import {AudioCodecSelection} from './AudioCodecSelection';
 import {SupportedConfigs} from './get-supported-configs';
 import {SelectionSkeleton} from './SelectionSkeleton';
-import {VideoTrackLabel} from './TrackSelectionLabels';
+import {AudioTrackLabel, VideoTrackLabel} from './TrackSelectionLabels';
 import {Checkbox} from './ui/checkbox';
 import {Label} from './ui/label';
 import {
@@ -91,9 +91,9 @@ export const ConvertForm: React.FC<{
 				supportedConfigs.audioTrackOptions.map((track) => {
 					return (
 						<div key={track.trackId}>
-							<VideoTrackLabel
+							<AudioTrackLabel
 								trackId={track.trackId}
-								totalVideoTracks={supportedConfigs.audioTrackOptions.length}
+								totalAudioTracks={supportedConfigs.audioTrackOptions.length}
 							/>
 							<AudioCodecSelection
 								index={audioConfigIndex[track.trackId] ?? 0}
