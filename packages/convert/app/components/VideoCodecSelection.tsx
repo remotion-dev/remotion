@@ -18,7 +18,11 @@ export const VideoCodecSelection: React.FC<{
 	readonly currentVideoCodec: MediaParserVideoCodec | null;
 }> = ({videoOperations, index, setIndex, currentVideoCodec}) => {
 	return (
-		<Select value={String(index)} onValueChange={(v) => setIndex(Number(v))}>
+		<Select
+			disabled={videoOperations.length < 2}
+			value={String(index)}
+			onValueChange={(v) => setIndex(Number(v))}
+		>
 			<SelectTrigger id="videoCodec">
 				<SelectValue placeholder="Select a video codec" />
 			</SelectTrigger>
