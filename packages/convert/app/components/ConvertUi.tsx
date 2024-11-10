@@ -1,6 +1,10 @@
 import {Button} from '@/components/ui/button';
 import {CardTitle} from '@/components/ui/card';
-import {MediaParserInternals} from '@remotion/media-parser';
+import {
+	MediaParserAudioCodec,
+	MediaParserInternals,
+	MediaParserVideoCodec,
+} from '@remotion/media-parser';
 import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
 import {convertMedia, ConvertMediaContainer} from '@remotion/webcodecs';
@@ -17,9 +21,13 @@ import {Badge} from './ui/badge';
 export default function ConvertUI({
 	src,
 	supportedConfigs,
+	currentAudioCodec,
+	currentVideoCodec,
 }: {
 	readonly src: Source;
 	readonly supportedConfigs: SupportedConfigs | null;
+	readonly currentAudioCodec: MediaParserAudioCodec | null;
+	readonly currentVideoCodec: MediaParserVideoCodec | null;
 }) {
 	const [container, setContainer] = useState<ConvertMediaContainer>('webm');
 	const [videoConfigIndex, _setVideoConfigIndex] = useState<
@@ -282,6 +290,8 @@ export default function ConvertUI({
 									videoConfigIndex,
 									setAudioConfigIndex,
 									setVideoConfigIndex,
+									currentAudioCodec,
+									currentVideoCodec,
 								}}
 							/>
 						</div>

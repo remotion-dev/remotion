@@ -1,15 +1,17 @@
+import {MediaParserAudioCodec} from '@remotion/media-parser';
 import {AudioOperation} from '@remotion/webcodecs';
-import {renderAudioCodecLabel} from '@remotion/webcodecs/src/codec-id';
+import {renderHumanReadableAudioCodec} from '~/lib/render-codec-label';
 
 export const AudioOperationOption: React.FC<{
 	readonly operation: AudioOperation;
-}> = ({operation}) => {
+	readonly currentAudioCodec: MediaParserAudioCodec;
+}> = ({operation, currentAudioCodec}) => {
 	if (operation.type === 'reencode') {
-		return renderAudioCodecLabel(operation.audioCodec);
+		return renderHumanReadableAudioCodec(operation.audioCodec);
 	}
 
 	if (operation.type === 'copy') {
-		return 'Copy without re-encoding';
+		return `Copy ${renderHumanReadableAudioCodec(currentAudioCodec)} without re-encoding`;
 	}
 
 	if (operation.type === 'drop') {

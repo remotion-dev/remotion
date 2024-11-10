@@ -16,10 +16,14 @@ export const useProbe = ({
 	src,
 	onVideoThumbnail,
 	onSupportedConfigs,
+	onAudioCodec,
+	onVideoCodec,
 }: {
 	src: Source;
 	onVideoThumbnail: (videoFrame: VideoFrame) => void;
 	onSupportedConfigs: (supportedConfigs: SupportedConfigs) => void;
+	onAudioCodec: (codec: MediaParserAudioCodec | null) => void;
+	onVideoCodec: (codec: MediaParserVideoCodec | null) => void;
 }) => {
 	const [audioCodec, setAudioCodec] = useState<
 		MediaParserAudioCodec | null | undefined
@@ -134,6 +138,7 @@ export const useProbe = ({
 			},
 			onAudioCodec: (codec) => {
 				hasAudioCodec = true;
+				onAudioCodec(codec);
 				setAudioCodec(codec);
 				cancelIfDone();
 			},
@@ -159,6 +164,7 @@ export const useProbe = ({
 			},
 			onVideoCodec: (codec) => {
 				hasVideoCodec = true;
+				onVideoCodec(codec);
 				setVideoCodec(codec);
 				cancelIfDone();
 			},

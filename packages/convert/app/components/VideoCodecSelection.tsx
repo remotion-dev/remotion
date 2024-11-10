@@ -1,3 +1,4 @@
+import {MediaParserVideoCodec} from '@remotion/media-parser';
 import {VideoOperation} from '@remotion/webcodecs';
 import React from 'react';
 import {
@@ -14,7 +15,8 @@ export const VideoCodecSelection: React.FC<{
 	readonly videoOperations: VideoOperation[];
 	readonly index: number;
 	readonly setIndex: (v: number) => void;
-}> = ({videoOperations, index, setIndex}) => {
+	readonly currentVideoCodec: MediaParserVideoCodec | null;
+}> = ({videoOperations, index, setIndex, currentVideoCodec}) => {
 	return (
 		<Select value={String(index)} onValueChange={(v) => setIndex(Number(v))}>
 			<SelectTrigger id="videoCodec">
@@ -28,7 +30,10 @@ export const VideoCodecSelection: React.FC<{
 								// eslint-disable-next-line react/jsx-key
 								value={String(i)}
 							>
-								<VideoOperationOption operation={operation} />
+								<VideoOperationOption
+									currentVideoCodec={currentVideoCodec}
+									operation={operation}
+								/>
 							</SelectItem>
 						</SelectGroup>
 					);

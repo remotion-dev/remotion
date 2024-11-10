@@ -1,15 +1,20 @@
+import {MediaParserVideoCodec} from '@remotion/media-parser';
 import {VideoOperation} from '@remotion/webcodecs';
-import {renderVideoCodecLabel} from '@remotion/webcodecs/src/codec-id';
+import {renderHumanReadableVideoCodec} from '~/lib/render-codec-label';
 
 export const VideoOperationOption: React.FC<{
 	readonly operation: VideoOperation;
-}> = ({operation}) => {
+	currentVideoCodec: MediaParserVideoCodec | null;
+}> = ({operation, currentVideoCodec}) => {
 	if (operation.type === 'reencode') {
-		return renderVideoCodecLabel(operation.videoCodec);
+		return renderHumanReadableVideoCodec(operation.videoCodec);
 	}
 
 	if (operation.type === 'copy') {
-		return 'Copy without re-encoding';
+		if (!currentVideoCodec) {
+			throw new Error('No current video codec');
+		}
+		return `Copy ${renderHumanReadableVideoCodec(currentVideoCodec)} without re-encoding`;
 	}
 
 	if (operation.type === 'drop') {

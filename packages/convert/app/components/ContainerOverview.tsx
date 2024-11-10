@@ -8,6 +8,10 @@ import type {
 import React from 'react';
 import {formatBytes} from '~/lib/format-bytes';
 import {formatSeconds} from '~/lib/format-seconds';
+import {
+	renderHumanReadableAudioCodec,
+	renderHumanReadableVideoCodec,
+} from '~/lib/render-codec-label';
 import {Skeleton} from './ui/skeleton';
 
 export const ContainerOverview: React.FC<{
@@ -102,7 +106,7 @@ export const ContainerOverview: React.FC<{
 						{videoCodec === null ? (
 							<Skeleton className="h-3 w-[100px] inline-block" />
 						) : (
-							videoCodec
+							renderHumanReadableVideoCodec(videoCodec)
 						)}
 					</TableCell>
 				</TableRow>
@@ -116,7 +120,7 @@ export const ContainerOverview: React.FC<{
 						) : audioCodec === null ? (
 							'No audio'
 						) : (
-							audioCodec
+							renderHumanReadableAudioCodec(audioCodec)
 						)}
 					</TableCell>
 				</TableRow>

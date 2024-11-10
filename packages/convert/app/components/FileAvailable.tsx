@@ -1,3 +1,7 @@
+import {
+	MediaParserAudioCodec,
+	MediaParserVideoCodec,
+} from '@remotion/media-parser';
 import React, {useCallback, useState} from 'react';
 import {Source} from '~/lib/convert-state';
 import ConvertUI from './ConvertUi';
@@ -12,6 +16,10 @@ export const FileAvailable: React.FC<{
 	const [probeDetails, setProbeDetails] = useState(false);
 	const [supportedConfigs, setSupportedConfigs] =
 		useState<SupportedConfigs | null>(null);
+	const [currentAudioCodec, setCurrentAudioCodec] =
+		useState<MediaParserAudioCodec | null>(null);
+	const [currentVideoCodec, setCurrentVideoCodec] =
+		useState<MediaParserVideoCodec | null>(null);
 
 	const clear = useCallback(() => {
 		setSrc(null);
@@ -48,10 +56,17 @@ export const FileAvailable: React.FC<{
 						src={src}
 						probeDetails={probeDetails}
 						setProbeDetails={setProbeDetails}
+						setAudioCodec={setCurrentAudioCodec}
+						setVideoCodec={setCurrentVideoCodec}
 						onSupportedConfigs={onSupportedConfigs}
 					/>
 					<div className="h-8 lg:h-0 lg:w-8" />
-					<ConvertUI supportedConfigs={supportedConfigs} src={src} />
+					<ConvertUI
+						currentAudioCodec={currentAudioCodec}
+						currentVideoCodec={currentVideoCodec}
+						supportedConfigs={supportedConfigs}
+						src={src}
+					/>
 				</div>
 			</div>
 		</div>

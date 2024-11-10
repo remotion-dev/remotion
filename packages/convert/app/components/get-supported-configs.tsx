@@ -75,6 +75,16 @@ export const getSupportedConfigs = async (
 		const audioTrackOperations: AudioOperation[] = [];
 
 		for (const audioCodec of availableAudioCodecs) {
+			const canCopy = canCopyAudioTrack({
+				inputCodec: track.codecWithoutConfig,
+				outputCodec: audioCodec,
+				container,
+			});
+
+			if (canCopy) {
+				audioTrackOperations.push({type: 'copy'});
+			}
+
 			const canReencode = await canReencodeAudioTrack({
 				audioCodec,
 				track,
@@ -87,16 +97,6 @@ export const getSupportedConfigs = async (
 					audioCodec,
 					bitrate,
 				});
-			}
-
-			const canCopy = canCopyAudioTrack({
-				inputCodec: track.codecWithoutConfig,
-				outputCodec: audioCodec,
-				container,
-			});
-
-			if (canCopy) {
-				audioTrackOperations.push({type: 'copy'});
 			}
 		}
 		audioTrackOperations.push({

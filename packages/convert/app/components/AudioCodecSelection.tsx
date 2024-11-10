@@ -1,3 +1,4 @@
+import {MediaParserAudioCodec} from '@remotion/media-parser';
 import {AudioOperation} from '@remotion/webcodecs';
 import React from 'react';
 import {AudioOperationOption} from './AudioOperationOption';
@@ -14,7 +15,12 @@ export const AudioCodecSelection: React.FC<{
 	readonly audioTrackOptions: AudioOperation[];
 	readonly index: number;
 	readonly setIndex: (v: number) => void;
-}> = ({audioTrackOptions, index, setIndex}) => {
+	readonly currentAudioCodec: MediaParserAudioCodec | null;
+}> = ({audioTrackOptions, index, setIndex, currentAudioCodec}) => {
+	if (!currentAudioCodec) {
+		throw new Error('No current audio codec, should not render this component');
+	}
+
 	return (
 		<Select value={String(index)} onValueChange={(v) => setIndex(Number(v))}>
 			<SelectTrigger id="audioCodec">
@@ -28,7 +34,10 @@ export const AudioCodecSelection: React.FC<{
 								// eslint-disable-next-line react/jsx-key
 								value={String(i)}
 							>
-								<AudioOperationOption operation={operation} />
+								<AudioOperationOption
+									currentAudioCodec={currentAudioCodec}
+									operation={operation}
+								/>
 							</SelectItem>
 						</SelectGroup>
 					);

@@ -1,3 +1,7 @@
+import {
+	MediaParserAudioCodec,
+	MediaParserVideoCodec,
+} from '@remotion/media-parser';
 import {ConvertMediaContainer} from '@remotion/webcodecs';
 import React from 'react';
 import {Container} from '~/lib/generate-new-name';
@@ -31,6 +35,8 @@ export const ConvertForm: React.FC<{
 	readonly audioConfigIndex: Record<number, number>;
 	readonly setAudioConfigIndex: (trackId: number, i: number) => void;
 	readonly setVideoConfigIndex: (trackId: number, i: number) => void;
+	readonly currentAudioCodec: MediaParserAudioCodec | null;
+	readonly currentVideoCodec: MediaParserVideoCodec | null;
 }> = ({
 	container,
 	setContainer,
@@ -43,6 +49,8 @@ export const ConvertForm: React.FC<{
 	setAudioConfigIndex,
 	videoConfigIndex,
 	setVideoConfigIndex,
+	currentAudioCodec,
+	currentVideoCodec,
 }) => {
 	const [showAdvanced, setShowAdvanced] = React.useState(false);
 
@@ -78,6 +86,7 @@ export const ConvertForm: React.FC<{
 									setVideoConfigIndex(track.trackId, i);
 								}}
 								videoOperations={track.operations}
+								currentVideoCodec={currentVideoCodec}
 							/>
 						</div>
 					);
@@ -99,6 +108,7 @@ export const ConvertForm: React.FC<{
 									setAudioConfigIndex(track.trackId, i);
 								}}
 								audioTrackOptions={track.operations}
+								currentAudioCodec={currentAudioCodec}
 							/>
 						</div>
 					);
