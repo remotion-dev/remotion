@@ -21,9 +21,9 @@ export const useProbe = ({
 	onVideoThumbnail: (videoFrame: VideoFrame) => void;
 	onSupportedConfigs: (supportedConfigs: SupportedConfigs) => void;
 }) => {
-	const [audioCodec, setAudioCodec] = useState<MediaParserAudioCodec | null>(
-		null,
-	);
+	const [audioCodec, setAudioCodec] = useState<
+		MediaParserAudioCodec | null | undefined
+	>(undefined);
 	const [fps, setFps] = useState<number | null | undefined>(undefined);
 	const [durationInSeconds, setDurationInSeconds] = useState<number | null>(
 		null,

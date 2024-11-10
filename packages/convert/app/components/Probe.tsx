@@ -102,7 +102,7 @@ export const Probe: React.FC<{
 								// TODO: webcam1687984133964.webm always shows the skeleton
 								durationInSeconds={durationInSeconds}
 								// TODO: Test with webcam1687984133964.webm, it always shows the skeleton
-								audioCodec={audioCodec ?? null}
+								audioCodec={audioCodec}
 								fps={fps}
 							/>
 						) : selectedTrack.type === 'video' ? (
