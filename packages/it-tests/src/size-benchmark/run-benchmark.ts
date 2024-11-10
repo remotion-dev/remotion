@@ -11,9 +11,12 @@ const stringifyQualityControl = (qualityControl: QualityControl) => {
 	if (qualityControl.type === 'crf') {
 		return [`-crf`, `${qualityControl.crf}`];
 	}
+	if (qualityControl.type === 'bitrate') {
+		return [`-b:v`, `${qualityControl.value}`];
+	}
 
 	throw new Error(
-		'Unknown quality control ' + (qualityControl.type satisfies never),
+		'Unknown quality control ' + (qualityControl satisfies never),
 	);
 };
 

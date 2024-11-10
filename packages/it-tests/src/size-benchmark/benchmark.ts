@@ -1,24 +1,37 @@
 import {exampleVideos} from '@remotion/example-videos';
-import {getBenchmarks, saveBenchmark} from './persistance';
+import path from 'path';
+import {getQualityControlModesForEncoder} from './get-quality-control-modes';
+import {getBenchmarks, hasBenchmark, saveBenchmark} from './persistance';
 import {runBenchmark} from './run-benchmark';
+import {encoders, getBenchmarkKey, printBenchmark} from './types';
 
-const encoder = 'libx264';
+const videos = [exampleVideos.bigBuckBunny, exampleVideos.iphonevideo];
 
-const exampleVideo = exampleVideos.bigBuckBunny;
+for (const video of videos) {
+	for (const encoder of encoders) {
+		for (let qualityControl of getQualityControlModesForEncoder(encoder)) {
+			const benchmarks = await getBenchmarks();
+			const filename = path.basename(video);
+			const key = getBenchmarkKey({
+				filename,
+				encoder,
+				qualityControl,
+			});
 
-const crfsToTest = new Array(52).fill(true).map((_, i) => i);
+			const found = hasBenchmark(benchmarks, key);
+			if (found) {
+				printBenchmark(found);
+				continue;
+			}
 
-for (let crf of crfsToTest) {
-	const benchmarks = await getBenchmarks();
-	const item = await runBenchmark({
-		exampleVideo,
-		qualityControl: {
-			crf,
-			type: 'crf',
-		},
-		encoder,
-		benchmarks,
-	});
-	console.log(JSON.stringify(item));
-	await saveBenchmark([...benchmarks, item]);
+			const item = await runBenchmark({
+				exampleVideo: video,
+				qualityControl,
+				encoder,
+				benchmarks,
+			});
+			printBenchmark(item);
+			await saveBenchmark([...benchmarks, item]);
+		}
+	}
 }

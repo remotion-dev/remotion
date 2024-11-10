@@ -1,7 +1,15 @@
-export type QualityControl = {
-	type: 'crf';
-	crf: number;
-};
+export type QualityControl =
+	| {
+			type: 'crf';
+			crf: number;
+	  }
+	| {
+			type: 'bitrate';
+			value: string;
+	  };
+
+export const encoders = ['libx264', 'h264_videotoolbox'] as const;
+export type Encoder = (typeof encoders)[number];
 
 export type BenchmarkItem = {
 	filename: string;
@@ -20,8 +28,12 @@ const stringifyQualityControl = (qualityControl: QualityControl) => {
 		return `crf-${qualityControl.crf}`;
 	}
 
+	if (qualityControl.type === 'bitrate') {
+		return `bitrate-${qualityControl.value}`;
+	}
+
 	throw new Error(
-		'Unknown quality control type ' + (qualityControl.type satisfies never),
+		'Unknown quality control type ' + (qualityControl satisfies never),
 	);
 };
 
@@ -43,4 +55,16 @@ export const getBenchmarkKeyFromItem = (item: BenchmarkItem) => {
 		encoder: item.encoder,
 		qualityControl: item.quality,
 	});
+};
+
+export const printBenchmark = (item: BenchmarkItem) => {
+	console.log(
+		item.filename,
+		item.encoder,
+		JSON.stringify(item.quality),
+		item.width + 'x' + item.height,
+		item.fps + 'fps',
+		item.durationInSeconds + 's',
+		item.size + ' bytes',
+	);
 };
