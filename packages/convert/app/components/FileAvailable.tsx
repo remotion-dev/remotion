@@ -1,6 +1,7 @@
 import React, {useCallback, useState} from 'react';
 import {Source} from '~/lib/convert-state';
 import ConvertUI from './ConvertUi';
+import {SupportedConfigs} from './get-supported-configs';
 import {Probe} from './Probe';
 import {Button} from './ui/button';
 
@@ -9,10 +10,19 @@ export const FileAvailable: React.FC<{
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 }> = ({src, setSrc}) => {
 	const [probeDetails, setProbeDetails] = useState(false);
+	const [supportedConfigs, setSupportedConfigs] =
+		useState<SupportedConfigs | null>(null);
 
 	const clear = useCallback(() => {
 		setSrc(null);
 	}, [setSrc]);
+
+	const onSupportedConfigs = useCallback(
+		(configs: SupportedConfigs) => {
+			setSupportedConfigs(configs);
+		},
+		[setSupportedConfigs],
+	);
 
 	return (
 		<div className="overflow-y-auto w-full lg:flex lg:justify-center pt-6 pb-10 px-4">
@@ -38,9 +48,10 @@ export const FileAvailable: React.FC<{
 						src={src}
 						probeDetails={probeDetails}
 						setProbeDetails={setProbeDetails}
+						onSupportedConfigs={onSupportedConfigs}
 					/>
 					<div className="h-8 lg:h-0 lg:w-8" />
-					<ConvertUI src={src} />
+					<ConvertUI supportedConfigs={supportedConfigs} src={src} />
 				</div>
 			</div>
 		</div>

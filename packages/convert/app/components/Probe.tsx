@@ -7,6 +7,7 @@ import {SourceLabel} from './SourceLabel';
 import {TrackSwitcher} from './TrackSwitcher';
 import {VideoThumbnail, VideoThumbnailRef} from './VideoThumbnail';
 import {VideoTrackOverview} from './VideoTrackOverview';
+import {SupportedConfigs} from './get-supported-configs';
 import {Button} from './ui/button';
 import {Card, CardDescription, CardHeader, CardTitle} from './ui/card';
 import {ScrollArea} from './ui/scroll-area';
@@ -18,7 +19,8 @@ export const Probe: React.FC<{
 	readonly src: Source;
 	readonly setProbeDetails: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly probeDetails: boolean;
-}> = ({src, probeDetails, setProbeDetails}) => {
+	readonly onSupportedConfigs: (supportedConfigs: SupportedConfigs) => void;
+}> = ({src, probeDetails, setProbeDetails, onSupportedConfigs}) => {
 	const videoThumbnailRef = useRef<VideoThumbnailRef>(null);
 
 	const onVideoThumbnail = useCallback((frame: VideoFrame) => {
@@ -35,7 +37,7 @@ export const Probe: React.FC<{
 		size,
 		videoCodec,
 		durationInSeconds,
-	} = useProbe({src, onVideoThumbnail});
+	} = useProbe({src, onVideoThumbnail, onSupportedConfigs});
 
 	const onClick = useCallback(() => {
 		setProbeDetails((p) => !p);

@@ -10,14 +10,16 @@ import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import {Source} from '~/lib/convert-state';
-import {getSupportedConfigs} from './get-supported-configs';
+import {getSupportedConfigs, SupportedConfigs} from './get-supported-configs';
 
 export const useProbe = ({
 	src,
 	onVideoThumbnail,
+	onSupportedConfigs,
 }: {
 	src: Source;
 	onVideoThumbnail: (videoFrame: VideoFrame) => void;
+	onSupportedConfigs: (supportedConfigs: SupportedConfigs) => void;
 }) => {
 	const [audioCodec, setAudioCodec] = useState<MediaParserAudioCodec | null>(
 		null,
@@ -162,7 +164,10 @@ export const useProbe = ({
 			},
 			onTracks: (trx) => {
 				hasTracks = true;
-				getSupportedConfigs(trx, 'webm');
+
+				getSupportedConfigs(trx, 'webm', 128000).then((config) => {
+					onSupportedConfigs(config);
+				});
 				setTracks(trx);
 				cancelIfDone();
 			},
@@ -186,7 +191,7 @@ export const useProbe = ({
 			});
 
 		return controller;
-	}, [onVideoThumbnail, src]);
+	}, [onSupportedConfigs, onVideoThumbnail, src]);
 
 	useEffect(() => {
 		const start = getStart();

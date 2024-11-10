@@ -58,14 +58,14 @@ export const getSupportedConfigs = async (
 					videoCodec: outputCodec,
 				});
 			}
-			options.push({
-				type: 'drop',
-			});
-			videoTrackOptions.push({
-				trackId: track.trackId,
-				operations: options,
-			});
 		}
+		options.push({
+			type: 'drop',
+		});
+		videoTrackOptions.push({
+			trackId: track.trackId,
+			operations: options,
+		});
 	}
 
 	const availableAudioCodecs = getAvailableAudioCodecs();
@@ -99,6 +99,13 @@ export const getSupportedConfigs = async (
 				audioTrackOperations.push({type: 'copy'});
 			}
 		}
+		audioTrackOperations.push({
+			type: 'drop',
+		});
+		audioTrackOptions.push({
+			trackId: track.trackId,
+			operations: audioTrackOperations,
+		});
 	}
 
 	return {videoTrackOptions, audioTrackOptions};

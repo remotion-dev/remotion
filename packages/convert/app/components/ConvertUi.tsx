@@ -15,9 +15,16 @@ import {ConvertForm} from './ConvertForm';
 import {ConvertProgress, convertProgressRef} from './ConvertProgress';
 import {ErrorState} from './ErrorState';
 import {flipVideoFrame} from './flip-video';
+import {SupportedConfigs} from './get-supported-configs';
 import {Badge} from './ui/badge';
 
-export default function ConvertUI({src}: {readonly src: Source}) {
+export default function ConvertUI({
+	src,
+	supportedConfigs,
+}: {
+	readonly src: Source;
+	readonly supportedConfigs: SupportedConfigs | null;
+}) {
 	const [container, setContainer] = useState<ConvertMediaContainer>('webm');
 	const [videoCodec, setVideoCodec] = useState<ConvertMediaVideoCodec>('vp8');
 	const [audioCodec, setAudioCodec] = useState<ConvertMediaAudioCodec>('opus');
@@ -207,6 +214,7 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 									flipVertical,
 									setFlipHorizontal,
 									setFlipVertical,
+									supportedConfigs,
 								}}
 							/>
 						</div>

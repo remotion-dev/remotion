@@ -5,6 +5,7 @@ import {
 } from '@remotion/webcodecs';
 import React from 'react';
 import {Container} from '~/lib/generate-new-name';
+import {SupportedConfigs} from './get-supported-configs';
 import {Checkbox} from './ui/checkbox';
 import {Label} from './ui/label';
 import {
@@ -33,6 +34,7 @@ export const ConvertForm: React.FC<{
 	readonly setFlipHorizontal: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly flipVertical: boolean;
 	readonly setFlipVertical: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly supportedConfigs: SupportedConfigs | null;
 }> = ({
 	container,
 	setContainer,
@@ -44,8 +46,10 @@ export const ConvertForm: React.FC<{
 	flipVertical,
 	setFlipHorizontal,
 	setFlipVertical,
+	supportedConfigs,
 }) => {
 	const [showAdvanced, setShowAdvanced] = React.useState(false);
+	console.log(supportedConfigs);
 
 	return (
 		<div className="gap-4 grid">
