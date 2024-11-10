@@ -1213,6 +1213,9 @@ importers:
       '@remotion/cloudrun':
         specifier: workspace:*
         version: link:../cloudrun
+      '@remotion/example-videos':
+        specifier: workspace:*
+        version: link:../example-videos
       '@remotion/google-fonts':
         specifier: workspace:*
         version: link:../google-fonts
