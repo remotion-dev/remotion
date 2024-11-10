@@ -9,7 +9,7 @@ export const VideoOperationOption: React.FC<{
 	}
 
 	if (operation.type === 'copy') {
-		return 'Copy';
+		return 'Copy without re-encoding';
 	}
 
 	if (operation.type === 'drop') {
