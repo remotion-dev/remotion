@@ -1219,6 +1219,9 @@ importers:
       '@remotion/lottie':
         specifier: workspace:*
         version: link:../lottie
+      '@remotion/media-parser':
+        specifier: workspace:*
+        version: link:../media-parser
       '@remotion/media-utils':
         specifier: workspace:*
         version: link:../media-utils
