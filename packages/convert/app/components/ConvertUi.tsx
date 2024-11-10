@@ -2,12 +2,7 @@ import {Button} from '@/components/ui/button';
 import {CardTitle} from '@/components/ui/card';
 import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
-import {
-	convertMedia,
-	ConvertMediaAudioCodec,
-	ConvertMediaContainer,
-	ConvertMediaVideoCodec,
-} from '@remotion/webcodecs';
+import {convertMedia, ConvertMediaContainer} from '@remotion/webcodecs';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {ConvertState, Source} from '~/lib/convert-state';
 import {getNewName} from '~/lib/generate-new-name';
@@ -26,12 +21,30 @@ export default function ConvertUI({
 	readonly supportedConfigs: SupportedConfigs | null;
 }) {
 	const [container, setContainer] = useState<ConvertMediaContainer>('webm');
-	const [videoCodec, setVideoCodec] = useState<ConvertMediaVideoCodec>('vp8');
-	const [audioCodec, setAudioCodec] = useState<ConvertMediaAudioCodec>('opus');
+	const [videoConfigIndex, _setVideoConfigIndex] = useState<
+		Record<number, number>
+	>({});
+	const [audioConfigIndex, _setAudioConfigIndex] = useState<
+		Record<number, number>
+	>({});
 	const [state, setState] = useState<ConvertState>({type: 'idle'});
 	const [name, setName] = useState<string | null>(null);
 	const [flipHorizontal, setFlipHorizontal] = useState(false);
 	const [flipVertical, setFlipVertical] = useState(false);
+
+	const setVideoConfigIndex = useCallback((trackId: number, i: number) => {
+		_setVideoConfigIndex((prev) => ({
+			...prev,
+			[trackId]: i,
+		}));
+	}, []);
+
+	const setAudioConfigIndex = useCallback((trackId: number, i: number) => {
+		_setAudioConfigIndex((prev) => ({
+			...prev,
+			[trackId]: i,
+		}));
+	}, []);
 
 	const abortSignal = useRef<AbortController | null>(null);
 
@@ -69,8 +82,9 @@ export default function ConvertUI({
 					},
 				});
 			},
-			videoCodec,
-			audioCodec,
+			// TODO: This should be optional
+			videoCodec: 'vp8',
+			audioCodec: 'opus',
 			container: container as 'webm',
 			signal: abortController.signal,
 			fields: {
@@ -118,7 +132,7 @@ export default function ConvertUI({
 		return () => {
 			abortController.abort();
 		};
-	}, [src, videoCodec, audioCodec, container, flipHorizontal, flipVertical]);
+	}, [src, container, flipHorizontal, flipVertical]);
 
 	const cancel = useCallback(() => {
 		if (state.type !== 'in-progress') {
@@ -206,15 +220,15 @@ export default function ConvertUI({
 								{...{
 									container,
 									setContainer,
-									setVideoCodec,
-									videoCodec,
-									audioCodec,
-									setAudioCodec,
 									flipHorizontal,
 									flipVertical,
 									setFlipHorizontal,
 									setFlipVertical,
 									supportedConfigs,
+									audioConfigIndex,
+									videoConfigIndex,
+									setAudioConfigIndex,
+									setVideoConfigIndex,
 								}}
 							/>
 						</div>
