@@ -1,7 +1,7 @@
+import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import {execSync} from 'node:child_process';
 import {startLongRunningCompositor} from '../compositor/compositor';
-import {exampleVideos} from '../example-videos';
 
 function getMemoryUsageByPid(pid: string) {
 	const data = execSync(`top -l 1 -pid ${pid} -stats mem`);

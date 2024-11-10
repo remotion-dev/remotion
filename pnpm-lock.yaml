@@ -1105,6 +1105,15 @@ importers:
         specifier: 0.32.6
         version: 0.32.6
 
+  packages/example-videos:
+    devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 9.14.0
+        version: 9.14.0
+
   packages/example-without-zod:
     dependencies:
       '@remotion/cli':
@@ -1419,9 +1428,9 @@ importers:
       '@remotion/eslint-config-internal':
         specifier: workspace:*
         version: link:../eslint-config-internal
-      '@remotion/renderer':
+      '@remotion/example-videos':
         specifier: workspace:*
-        version: link:../renderer
+        version: link:../example-videos
       '@types/wicg-file-system-access':
         specifier: 2023.10.5
         version: 2023.10.5
@@ -1637,6 +1646,9 @@ importers:
       '@remotion/eslint-config-internal':
         specifier: workspace:*
         version: link:../eslint-config-internal
+      '@remotion/example-videos':
+        specifier: workspace:*
+        version: link:../example-videos
       '@testing-library/dom':
         specifier: ^8.16.0
         version: 8.16.0

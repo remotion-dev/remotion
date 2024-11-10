@@ -66,6 +66,7 @@ export const packages = [
 	'captions',
 	'openai-whisper',
 	'compositor',
+	'example-videos',
 ] as const;
 
 export type Pkgs = (typeof packages)[number];
@@ -141,6 +142,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	captions: 'Primitives for dealing with captions',
 	'openai-whisper': 'Work with the output of the OpenAI Whisper API',
 	'eslint-config-internal': "ESLint condig for Remotion's internal packages",
+	'example-videos': null,
 };
 
 export const apiDocs: {[key in Pkgs]: string | null} = {
@@ -213,4 +215,5 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	'openai-whisper': 'https://www.remotion.dev/docs/openai-whisper',
 	'eslint-config-internal': null,
 	compositor: null,
+	'example-videos': null,
 };

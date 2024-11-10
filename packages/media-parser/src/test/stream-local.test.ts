@@ -1,4 +1,4 @@
-import {RenderInternals} from '@remotion/renderer';
+import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import type {MediaParserAudioCodec} from '../get-tracks';
 import {parseMedia} from '../parse-media';
@@ -10,7 +10,7 @@ test('Should stream ISO base media', async () => {
 	let videoSamples = 0;
 	let audioSamples = 0;
 	const result = await parseMedia({
-		src: RenderInternals.exampleVideos.iphonevideo,
+		src: exampleVideos.iphonevideo,
 		fields: {
 			durationInSeconds: true,
 			fps: true,
@@ -60,7 +60,7 @@ test('Should stream ISO base media', async () => {
 test('Should stream WebM with no duration', async () => {
 	let videoSamples = 0;
 	const result = await parseMedia({
-		src: RenderInternals.exampleVideos.nofps,
+		src: exampleVideos.nofps,
 		fields: {
 			fps: true,
 			durationInSeconds: true,
@@ -99,7 +99,7 @@ test('Should stream AV1', async () => {
 	let videoTracks = 0;
 	let videoSamples = 0;
 	const parsed = await parseMedia({
-		src: RenderInternals.exampleVideos.av1,
+		src: exampleVideos.av1,
 		fields: {
 			durationInSeconds: true,
 			dimensions: true,
@@ -168,7 +168,7 @@ test('Should stream AV1', async () => {
 test('Should stream corrupted video', async () => {
 	let videoSamples = 0;
 	const parsed = await parseMedia({
-		src: RenderInternals.exampleVideos.corrupted,
+		src: exampleVideos.corrupted,
 		fields: {
 			durationInSeconds: true,
 			dimensions: true,
@@ -203,7 +203,7 @@ test('Should stream corrupted video', async () => {
 
 test('Should stream screen recording video', async () => {
 	const parsed = await parseMedia({
-		src: RenderInternals.exampleVideos.screenrecording,
+		src: exampleVideos.screenrecording,
 		fields: {
 			durationInSeconds: true,
 			dimensions: true,
@@ -233,7 +233,7 @@ test('Should stream screen recording video', async () => {
 
 test('Should stream ProRes video', async () => {
 	const parsed = await parseMedia({
-		src: RenderInternals.exampleVideos.prores,
+		src: exampleVideos.prores,
 		fields: {
 			fps: true,
 			dimensions: true,
@@ -261,7 +261,7 @@ test('Should stream variable fps video', async () => {
 	let audioTracks = 0;
 	let samples = 0;
 	const parsed = await parseMedia({
-		src: RenderInternals.exampleVideos.variablefps,
+		src: exampleVideos.variablefps,
 		fields: {
 			fps: true,
 			dimensions: true,
@@ -346,7 +346,7 @@ test('Should stream MKV video', async () => {
 	let videoSamples = 0;
 	let audioSamples = 0;
 	const parsed = await parseMedia({
-		src: RenderInternals.exampleVideos.matroskaPcm16,
+		src: exampleVideos.matroskaPcm16,
 		fields: {
 			fps: true,
 			dimensions: true,
@@ -389,7 +389,7 @@ test('Should stream MKV video', async () => {
 test('Should stream MP3 in MP4 video', async () => {
 	let audioFrames = 0;
 	const parsed = await parseMedia({
-		src: RenderInternals.exampleVideos.mp4withmp3,
+		src: exampleVideos.mp4withmp3,
 		fields: {
 			fps: true,
 			dimensions: true,
@@ -429,7 +429,7 @@ test('Should get duration of HEVC video', async () => {
 	let videoSamples = 0;
 	process.env.DISABLE_CONTENT_RANGE = 'true';
 	const parsed = await parseMedia({
-		src: RenderInternals.exampleVideos.iphonehevc,
+		src: exampleVideos.iphonehevc,
 		fields: {
 			durationInSeconds: true,
 			dimensions: true,
@@ -472,7 +472,7 @@ test('Should get duration of HEVC video', async () => {
 
 test('Custom DAR', async () => {
 	const parsed = await parseMedia({
-		src: RenderInternals.exampleVideos.customDar,
+		src: exampleVideos.customDar,
 		fields: {
 			durationInSeconds: true,
 			fps: true,
@@ -513,7 +513,7 @@ test('Custom DAR', async () => {
 
 test('Get tracks from an AV1 if no info is requested', async () => {
 	const parsed = await parseMedia({
-		src: RenderInternals.exampleVideos.av1mp4,
+		src: exampleVideos.av1mp4,
 		fields: {
 			tracks: true,
 		},
@@ -525,7 +525,7 @@ test('Get tracks from an AV1 if no info is requested', async () => {
 
 test('Should get correct avc1 string from matroska', async () => {
 	const parsed = await parseMedia({
-		src: RenderInternals.exampleVideos.matroskaPcm16,
+		src: exampleVideos.matroskaPcm16,
 		fields: {
 			tracks: true,
 			boxes: true,
@@ -541,7 +541,7 @@ test('VP8 Vorbis', async () => {
 	let audioSamples = 0;
 
 	const {audioCodec} = await parseMedia({
-		src: RenderInternals.exampleVideos.vp8Vorbis,
+		src: exampleVideos.vp8Vorbis,
 		onVideoTrack: (track) => {
 			expect(track.codec).toBe('vp8');
 			expect(track.timescale).toBe(1000000);
@@ -576,7 +576,7 @@ test('VP8 Vorbis', async () => {
 test('VP9', async () => {
 	let videoSamples = 0;
 	await parseMedia({
-		src: RenderInternals.exampleVideos.vp9,
+		src: exampleVideos.vp9,
 		onVideoTrack: (track) => {
 			expect(track.codec).toBe('vp09.00.10.08');
 			return () => {
@@ -592,7 +592,7 @@ test('VP9', async () => {
 test('Stretched VP8', async () => {
 	// stretched-vp8.webm was recorded in 1440x1080 and stretched to 1920x1080
 	const {videoTracks} = await parseMedia({
-		src: RenderInternals.exampleVideos.stretchedVp8,
+		src: exampleVideos.stretchedVp8,
 		fields: {
 			tracks: true,
 		},
@@ -633,7 +633,7 @@ test('HEVC and AAC in Matroska', async () => {
 	let videoSamples = 0;
 
 	const parsed = await parseMedia({
-		src: RenderInternals.exampleVideos.matroskaH265Aac,
+		src: exampleVideos.matroskaH265Aac,
 		fields: {
 			tracks: true,
 			videoCodec: true,
@@ -668,7 +668,7 @@ test('MP3 in matroska', async () => {
 	let audioSamples = 0;
 
 	const parsed = await parseMedia({
-		src: RenderInternals.exampleVideos.matroskaMp3,
+		src: exampleVideos.matroskaMp3,
 		fields: {
 			tracks: true,
 			videoCodec: true,
@@ -702,7 +702,7 @@ test('Should stream OPUS', async () => {
 	let audioSamples = 0;
 	let audioCodec: MediaParserAudioCodec | null = null;
 	const parsed = await parseMedia({
-		src: RenderInternals.exampleVideos.opusWebm,
+		src: exampleVideos.opusWebm,
 		fields: {
 			tracks: true,
 			audioCodec: true,
@@ -734,7 +734,7 @@ test('Should stream transparent video', async () => {
 	let keyFrames = 0;
 
 	await parseMedia({
-		src: RenderInternals.exampleVideos.transparentwithdar,
+		src: exampleVideos.transparentwithdar,
 		reader: nodeReader,
 		onVideoTrack: (track) => {
 			expect(track.codedHeight).toBe(512);
@@ -768,7 +768,7 @@ test('Should stream transparent video', async () => {
 
 test('Acknowledge there are .avi file', () => {
 	const parsed = parseMedia({
-		src: RenderInternals.exampleVideos.avi,
+		src: exampleVideos.avi,
 		fields: {
 			tracks: true,
 			boxes: true,
