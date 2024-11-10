@@ -8,13 +8,17 @@ import type {
 import React from 'react';
 import {formatBytes} from '~/lib/format-bytes';
 import {formatSeconds} from '~/lib/format-seconds';
+import {
+	renderHumanReadableAudioCodec,
+	renderHumanReadableVideoCodec,
+} from '~/lib/render-codec-label';
 import {Skeleton} from './ui/skeleton';
 
 export const ContainerOverview: React.FC<{
 	readonly dimensions: Dimensions | null;
 	readonly durationInSeconds: number | null;
 	readonly videoCodec: MediaParserVideoCodec | null;
-	readonly audioCodec: MediaParserAudioCodec | null;
+	readonly audioCodec: MediaParserAudioCodec | null | undefined;
 	readonly size: number | null;
 	readonly fps: number | null | undefined;
 	readonly container: ParseMediaContainer | null;
@@ -102,7 +106,7 @@ export const ContainerOverview: React.FC<{
 						{videoCodec === null ? (
 							<Skeleton className="h-3 w-[100px] inline-block" />
 						) : (
-							videoCodec
+							renderHumanReadableVideoCodec(videoCodec)
 						)}
 					</TableCell>
 				</TableRow>
@@ -111,10 +115,12 @@ export const ContainerOverview: React.FC<{
 						Audio Codec
 					</TableCell>
 					<TableCell className="text-right">
-						{audioCodec === null ? (
+						{audioCodec === undefined ? (
 							<Skeleton className="h-3 w-[100px] inline-block" />
+						) : audioCodec === null ? (
+							'No audio'
 						) : (
-							audioCodec
+							renderHumanReadableAudioCodec(audioCodec)
 						)}
 					</TableCell>
 				</TableRow>

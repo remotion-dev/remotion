@@ -1,3 +1,7 @@
+import {
+	MediaParserAudioCodec,
+	MediaParserVideoCodec,
+} from '@remotion/media-parser';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {Source} from '~/lib/convert-state';
 import {useIsNarrow} from '~/lib/is-narrow';
@@ -7,6 +11,7 @@ import {SourceLabel} from './SourceLabel';
 import {TrackSwitcher} from './TrackSwitcher';
 import {VideoThumbnail, VideoThumbnailRef} from './VideoThumbnail';
 import {VideoTrackOverview} from './VideoTrackOverview';
+import {SupportedConfigs} from './get-supported-configs';
 import {Button} from './ui/button';
 import {Card, CardDescription, CardHeader, CardTitle} from './ui/card';
 import {ScrollArea} from './ui/scroll-area';
@@ -17,8 +22,22 @@ import {useProbe} from './use-probe';
 export const Probe: React.FC<{
 	readonly src: Source;
 	readonly setProbeDetails: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly setAudioCodec: React.Dispatch<
+		React.SetStateAction<MediaParserAudioCodec | null>
+	>;
+	readonly setVideoCodec: React.Dispatch<
+		React.SetStateAction<MediaParserVideoCodec | null>
+	>;
 	readonly probeDetails: boolean;
-}> = ({src, probeDetails, setProbeDetails}) => {
+	readonly onSupportedConfigs: (supportedConfigs: SupportedConfigs) => void;
+}> = ({
+	src,
+	probeDetails,
+	setProbeDetails,
+	onSupportedConfigs,
+	setAudioCodec,
+	setVideoCodec,
+}) => {
 	const videoThumbnailRef = useRef<VideoThumbnailRef>(null);
 
 	const onVideoThumbnail = useCallback((frame: VideoFrame) => {
@@ -35,7 +54,13 @@ export const Probe: React.FC<{
 		size,
 		videoCodec,
 		durationInSeconds,
-	} = useProbe({src, onVideoThumbnail});
+	} = useProbe({
+		src,
+		onVideoThumbnail,
+		onSupportedConfigs,
+		onAudioCodec: setAudioCodec,
+		onVideoCodec: setVideoCodec,
+	});
 
 	const onClick = useCallback(() => {
 		setProbeDetails((p) => !p);
@@ -98,7 +123,7 @@ export const Probe: React.FC<{
 								videoCodec={videoCodec ?? null}
 								size={size ?? null}
 								durationInSeconds={durationInSeconds}
-								audioCodec={audioCodec ?? null}
+								audioCodec={audioCodec}
 								fps={fps}
 							/>
 						) : selectedTrack.type === 'video' ? (

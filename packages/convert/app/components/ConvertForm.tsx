@@ -1,10 +1,14 @@
 import {
-	ConvertMediaAudioCodec,
-	ConvertMediaContainer,
-	ConvertMediaVideoCodec,
-} from '@remotion/webcodecs';
+	MediaParserAudioCodec,
+	MediaParserVideoCodec,
+} from '@remotion/media-parser';
+import {ConvertMediaContainer} from '@remotion/webcodecs';
 import React from 'react';
 import {Container} from '~/lib/generate-new-name';
+import {AudioCodecSelection} from './AudioCodecSelection';
+import {SupportedConfigs} from './get-supported-configs';
+import {SelectionSkeleton} from './SelectionSkeleton';
+import {AudioTrackLabel, VideoTrackLabel} from './TrackSelectionLabels';
 import {Checkbox} from './ui/checkbox';
 import {Label} from './ui/label';
 import {
@@ -15,35 +19,38 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from './ui/select';
+import {VideoCodecSelection} from './VideoCodecSelection';
 
 export const ConvertForm: React.FC<{
 	readonly container: ConvertMediaContainer;
 	readonly setContainer: React.Dispatch<
 		React.SetStateAction<ConvertMediaContainer>
 	>;
-	readonly videoCodec: ConvertMediaVideoCodec;
-	readonly setVideoCodec: React.Dispatch<
-		React.SetStateAction<ConvertMediaVideoCodec>
-	>;
-	readonly audioCodec: ConvertMediaAudioCodec;
-	readonly setAudioCodec: React.Dispatch<
-		React.SetStateAction<ConvertMediaAudioCodec>
-	>;
 	readonly flipHorizontal: boolean;
 	readonly setFlipHorizontal: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly flipVertical: boolean;
 	readonly setFlipVertical: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly supportedConfigs: SupportedConfigs | null;
+	readonly videoConfigIndex: Record<number, number>;
+	readonly audioConfigIndex: Record<number, number>;
+	readonly setAudioConfigIndex: (trackId: number, i: number) => void;
+	readonly setVideoConfigIndex: (trackId: number, i: number) => void;
+	readonly currentAudioCodec: MediaParserAudioCodec | null;
+	readonly currentVideoCodec: MediaParserVideoCodec | null;
 }> = ({
 	container,
 	setContainer,
-	setVideoCodec,
-	videoCodec,
-	audioCodec,
-	setAudioCodec,
 	flipHorizontal,
 	flipVertical,
 	setFlipHorizontal,
 	setFlipVertical,
+	supportedConfigs,
+	audioConfigIndex,
+	setAudioConfigIndex,
+	videoConfigIndex,
+	setVideoConfigIndex,
+	currentAudioCodec,
+	currentVideoCodec,
 }) => {
 	const [showAdvanced, setShowAdvanced] = React.useState(false);
 
@@ -65,38 +72,50 @@ export const ConvertForm: React.FC<{
 					</SelectContent>
 				</Select>
 			</div>
-			<div>
-				<Label htmlFor="videoCodec">Video codec</Label>
-				<Select
-					value={videoCodec}
-					onValueChange={(v) => setVideoCodec(v as ConvertMediaVideoCodec)}
-				>
-					<SelectTrigger id="videoCodec">
-						<SelectValue placeholder="Select a video codec" />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectGroup>
-							<SelectItem value="vp8">VP8</SelectItem>
-						</SelectGroup>
-					</SelectContent>
-				</Select>
-			</div>
-			<div>
-				<Label htmlFor="audioCodec">Audio codec</Label>
-				<Select
-					value={audioCodec}
-					onValueChange={(a) => setAudioCodec(a as ConvertMediaAudioCodec)}
-				>
-					<SelectTrigger id="audioCodec">
-						<SelectValue placeholder="Select a audio codec" />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectGroup>
-							<SelectItem value="opus">Opus</SelectItem>
-						</SelectGroup>
-					</SelectContent>
-				</Select>
-			</div>
+			{supportedConfigs ? (
+				supportedConfigs.videoTrackOptions.map((track) => {
+					return (
+						<div key={track.trackId}>
+							<VideoTrackLabel
+								trackId={track.trackId}
+								totalVideoTracks={supportedConfigs.videoTrackOptions.length}
+							/>
+							<VideoCodecSelection
+								index={videoConfigIndex[track.trackId] ?? 0}
+								setIndex={(i) => {
+									setVideoConfigIndex(track.trackId, i);
+								}}
+								videoOperations={track.operations}
+								currentVideoCodec={currentVideoCodec}
+							/>
+						</div>
+					);
+				})
+			) : (
+				<SelectionSkeleton />
+			)}
+			{supportedConfigs ? (
+				supportedConfigs.audioTrackOptions.map((track) => {
+					return (
+						<div key={track.trackId}>
+							<AudioTrackLabel
+								trackId={track.trackId}
+								totalAudioTracks={supportedConfigs.audioTrackOptions.length}
+							/>
+							<AudioCodecSelection
+								index={audioConfigIndex[track.trackId] ?? 0}
+								setIndex={(i) => {
+									setAudioConfigIndex(track.trackId, i);
+								}}
+								audioTrackOptions={track.operations}
+								currentAudioCodec={currentAudioCodec}
+							/>
+						</div>
+					);
+				})
+			) : (
+				<SelectionSkeleton />
+			)}
 			{showAdvanced ? (
 				<>
 					<div className="flex flex-row">

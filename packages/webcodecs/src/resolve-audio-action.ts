@@ -26,11 +26,6 @@ export const defaultResolveAudioAction: ResolveAudioActionFn = async ({
 	container,
 }): Promise<AudioOperation> => {
 	const bitrate = DEFAULT_BITRATE;
-	const canReencode = await canReencodeAudioTrack({
-		audioCodec,
-		track,
-		bitrate,
-	});
 
 	const canCopy = canCopyAudioTrack({
 		inputCodec: track.codecWithoutConfig,
@@ -41,11 +36,17 @@ export const defaultResolveAudioAction: ResolveAudioActionFn = async ({
 	if (canCopy) {
 		Log.verbose(
 			logLevel,
-			`Track ${track.trackId} (audio): Can re-encode = ${canReencode}, can copy = ${canCopy}, action = copy`,
+			`Track ${track.trackId} (audio): Can copy = ${canCopy}, action = copy`,
 		);
 
 		return Promise.resolve({type: 'copy'});
 	}
+
+	const canReencode = await canReencodeAudioTrack({
+		audioCodec,
+		track,
+		bitrate,
+	});
 
 	if (canReencode) {
 		Log.verbose(

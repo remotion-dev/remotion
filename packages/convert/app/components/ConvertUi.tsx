@@ -1,13 +1,13 @@
 import {Button} from '@/components/ui/button';
 import {CardTitle} from '@/components/ui/card';
+import {
+	MediaParserAudioCodec,
+	MediaParserInternals,
+	MediaParserVideoCodec,
+} from '@remotion/media-parser';
 import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
-import {
-	convertMedia,
-	ConvertMediaAudioCodec,
-	ConvertMediaContainer,
-	ConvertMediaVideoCodec,
-} from '@remotion/webcodecs';
+import {convertMedia, ConvertMediaContainer} from '@remotion/webcodecs';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {ConvertState, Source} from '~/lib/convert-state';
 import {getNewName} from '~/lib/generate-new-name';
@@ -15,16 +15,45 @@ import {ConvertForm} from './ConvertForm';
 import {ConvertProgress, convertProgressRef} from './ConvertProgress';
 import {ErrorState} from './ErrorState';
 import {flipVideoFrame} from './flip-video';
+import {SupportedConfigs} from './get-supported-configs';
 import {Badge} from './ui/badge';
 
-export default function ConvertUI({src}: {readonly src: Source}) {
+export default function ConvertUI({
+	src,
+	supportedConfigs,
+	currentAudioCodec,
+	currentVideoCodec,
+}: {
+	readonly src: Source;
+	readonly supportedConfigs: SupportedConfigs | null;
+	readonly currentAudioCodec: MediaParserAudioCodec | null;
+	readonly currentVideoCodec: MediaParserVideoCodec | null;
+}) {
 	const [container, setContainer] = useState<ConvertMediaContainer>('webm');
-	const [videoCodec, setVideoCodec] = useState<ConvertMediaVideoCodec>('vp8');
-	const [audioCodec, setAudioCodec] = useState<ConvertMediaAudioCodec>('opus');
+	const [videoConfigIndex, _setVideoConfigIndex] = useState<
+		Record<number, number>
+	>({});
+	const [audioConfigIndex, _setAudioConfigIndex] = useState<
+		Record<number, number>
+	>({});
 	const [state, setState] = useState<ConvertState>({type: 'idle'});
 	const [name, setName] = useState<string | null>(null);
 	const [flipHorizontal, setFlipHorizontal] = useState(false);
 	const [flipVertical, setFlipVertical] = useState(false);
+
+	const setVideoConfigIndex = useCallback((trackId: number, i: number) => {
+		_setVideoConfigIndex((prev) => ({
+			...prev,
+			[trackId]: i,
+		}));
+	}, []);
+
+	const setAudioConfigIndex = useCallback((trackId: number, i: number) => {
+		_setAudioConfigIndex((prev) => ({
+			...prev,
+			[trackId]: i,
+		}));
+	}, []);
 
 	const abortSignal = useRef<AbortController | null>(null);
 
@@ -62,8 +91,9 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 					},
 				});
 			},
-			videoCodec: videoCodec as 'vp8',
-			audioCodec: audioCodec as 'opus',
+			// TODO: This should be optional
+			videoCodec: 'vp8',
+			audioCodec: 'opus',
 			container: container as 'webm',
 			signal: abortController.signal,
 			fields: {
@@ -72,6 +102,50 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 			onName: (n) => {
 				_n = n;
 				setName(n);
+			},
+			onAudioTrack: ({track}) => {
+				const options = supportedConfigs?.audioTrackOptions.find((trk) => {
+					return trk.trackId === track.trackId;
+				});
+				if (!options) {
+					throw new Error('Found no options for audio track');
+				}
+
+				const configIndex = audioConfigIndex[track.trackId] ?? 0;
+
+				const operation = options.operations[configIndex ?? 0];
+				if (!operation) {
+					throw new Error('Found no operation');
+				}
+
+				MediaParserInternals.Log.info(
+					'info',
+					`Selected operation for audio track ${track.trackId}`,
+					operation,
+				);
+
+				return operation;
+			},
+			onVideoTrack: ({track}) => {
+				const options = supportedConfigs?.videoTrackOptions.find((trk) => {
+					return trk.trackId === track.trackId;
+				});
+				if (!options) {
+					throw new Error('Found no options for video track');
+				}
+
+				const configIndex = videoConfigIndex[track.trackId] ?? 0;
+
+				const operation = options.operations[configIndex ?? 0];
+				if (!operation) {
+					throw new Error('Found no operation');
+				}
+				MediaParserInternals.Log.info(
+					'info',
+					`Selected operation for video track ${track.trackId}`,
+					operation,
+				);
+				return operation;
 			},
 		})
 			.then(({save}) => {
@@ -111,7 +185,15 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 		return () => {
 			abortController.abort();
 		};
-	}, [src, videoCodec, audioCodec, container, flipHorizontal, flipVertical]);
+	}, [
+		src,
+		container,
+		flipHorizontal,
+		flipVertical,
+		supportedConfigs,
+		audioConfigIndex,
+		videoConfigIndex,
+	]);
 
 	const cancel = useCallback(() => {
 		if (state.type !== 'in-progress') {
@@ -199,14 +281,17 @@ export default function ConvertUI({src}: {readonly src: Source}) {
 								{...{
 									container,
 									setContainer,
-									setVideoCodec,
-									videoCodec,
-									audioCodec,
-									setAudioCodec,
 									flipHorizontal,
 									flipVertical,
 									setFlipHorizontal,
 									setFlipVertical,
+									supportedConfigs,
+									audioConfigIndex,
+									videoConfigIndex,
+									setAudioConfigIndex,
+									setVideoConfigIndex,
+									currentAudioCodec,
+									currentVideoCodec,
 								}}
 							/>
 						</div>

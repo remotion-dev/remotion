@@ -10,17 +10,24 @@ import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import {Source} from '~/lib/convert-state';
+import {getSupportedConfigs, SupportedConfigs} from './get-supported-configs';
 
 export const useProbe = ({
 	src,
 	onVideoThumbnail,
+	onSupportedConfigs,
+	onAudioCodec,
+	onVideoCodec,
 }: {
 	src: Source;
 	onVideoThumbnail: (videoFrame: VideoFrame) => void;
+	onSupportedConfigs: (supportedConfigs: SupportedConfigs) => void;
+	onAudioCodec: (codec: MediaParserAudioCodec | null) => void;
+	onVideoCodec: (codec: MediaParserVideoCodec | null) => void;
 }) => {
-	const [audioCodec, setAudioCodec] = useState<MediaParserAudioCodec | null>(
-		null,
-	);
+	const [audioCodec, setAudioCodec] = useState<
+		MediaParserAudioCodec | null | undefined
+	>(undefined);
 	const [fps, setFps] = useState<number | null | undefined>(undefined);
 	const [durationInSeconds, setDurationInSeconds] = useState<number | null>(
 		null,
@@ -131,6 +138,7 @@ export const useProbe = ({
 			},
 			onAudioCodec: (codec) => {
 				hasAudioCodec = true;
+				onAudioCodec(codec);
 				setAudioCodec(codec);
 				cancelIfDone();
 			},
@@ -156,11 +164,16 @@ export const useProbe = ({
 			},
 			onVideoCodec: (codec) => {
 				hasVideoCodec = true;
+				onVideoCodec(codec);
 				setVideoCodec(codec);
 				cancelIfDone();
 			},
 			onTracks: (trx) => {
 				hasTracks = true;
+
+				getSupportedConfigs(trx, 'webm', 128000).then((config) => {
+					onSupportedConfigs(config);
+				});
 				setTracks(trx);
 				cancelIfDone();
 			},
@@ -184,7 +197,7 @@ export const useProbe = ({
 			});
 
 		return controller;
-	}, [onVideoThumbnail, src]);
+	}, [onSupportedConfigs, onVideoThumbnail, src]);
 
 	useEffect(() => {
 		const start = getStart();

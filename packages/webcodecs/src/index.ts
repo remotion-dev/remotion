@@ -4,7 +4,12 @@ export {canCopyAudioTrack} from './can-copy-audio-track';
 export {canCopyVideoTrack} from './can-copy-video-track';
 export {canReencodeAudioTrack} from './can-reencode-audio-track';
 export {canReencodeVideoTrack} from './can-reencode-video-track';
-export {ConvertMediaAudioCodec, ConvertMediaVideoCodec} from './codec-id';
+export {
+	ConvertMediaAudioCodec,
+	ConvertMediaVideoCodec,
+	getAvailableAudioCodecs,
+	getAvailableVideoCodecs,
+} from './codec-id';
 export {
 	ConvertMediaContainer,
 	ConvertMediaOnMediaStateUpdate,
@@ -13,7 +18,7 @@ export {
 	ConvertMediaState,
 	convertMedia,
 } from './convert-media';
-export {ResolveAudioActionFn} from './resolve-audio-action';
-export {ResolveVideoActionFn} from './resolve-video-action';
+export {AudioOperation, ResolveAudioActionFn} from './resolve-audio-action';
+export {ResolveVideoActionFn, VideoOperation} from './resolve-video-action';
 export {WebCodecsVideoDecoder, createVideoDecoder} from './video-decoder';
 export {WebCodecsVideoEncoder, createVideoEncoder} from './video-encoder';
