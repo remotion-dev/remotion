@@ -1,7 +1,17 @@
-// @ts-nocheck
-import {forwardRef, useEffect, useState} from 'react';
+import {
+	forwardRef,
+	useEffect,
+	useImperativeHandle,
+	useRef,
+	useState,
+} from 'react';
+import {cancelRender} from '../cancel-render.js';
 import {delayRender} from '../delay-render.js';
+import {useCurrentFrame} from '../use-current-frame.js';
+import type {AnimatedImageCanvasRef} from './canvas';
 import {Canvas} from './canvas';
+import type {RemotionImageDecoder} from './decode-image.js';
+import {decodeImage} from './decode-image.js';
 import type {RemotionAnimatedImageProps} from './props';
 import {resolveAnimatedImageSource} from './resolve-image-source';
 
@@ -21,129 +31,63 @@ export const AnimatedImage = forwardRef<
 			fit = 'fill',
 			...props
 		},
-		ref,
+		canvasRef,
 	) => {
 		const resolvedSrc = resolveAnimatedImageSource(src);
-		const [imageDecoder, setImageDecoder] = useState<ImageDecoder | null>(null);
-		const [imageIndex, setImageIndex] = useState(0);
-		const [frames, setFrames] = useState<ImageData[]>([]);
+		const [imageDecoder, setImageDecoder] =
+			useState<RemotionImageDecoder | null>(null);
 
 		const [id] = useState(() =>
 			delayRender(`Rendering <AnimatedImage/> with src="${resolvedSrc}"`),
 		);
 
-		useEffect(() => {
-			if (typeof ImageDecoder === 'undefined') {
-				throw new Error(
-					'Your browser does not support the WebCodecs ImageDecoder API.',
-				);
+		const ref = useRef<AnimatedImageCanvasRef>(null);
+
+		useImperativeHandle(canvasRef, () => {
+			const c = ref.current?.getCanvas();
+			if (!c) {
+				throw new Error('Canvas ref is not set');
 			}
 
-			let aborted = false;
+			return c;
+		}, []);
 
-			fetch(resolvedSrc, {mode: 'no-cors'})
-				.then((res) => res.body)
-				.then((body) => {
-					if (aborted) return;
-
-					return new ImageDecoder({
-						data: body,
-						type: 'image/gif',
-					});
-				})
-				.then((decoder) => {
-					console.log({decoder});
-					if (aborted) return;
-					setImageDecoder(decoder);
-					// onLoad?.();
-					// continueRender(id);
+		useEffect(() => {
+			const controller = new AbortController();
+			decodeImage(resolvedSrc, controller.signal)
+				.then((d) => {
+					setImageDecoder(d);
 				})
 				.catch((err) => {
-					if (aborted) return;
-					onError?.(err);
+					if ((err as Error).name === 'AbortError') {
+						return;
+					}
+
+					// TODO: Allow to catch error
+					cancelRender(err);
 				});
 
 			return () => {
-				aborted = true;
+				controller.abort();
 			};
 		}, [resolvedSrc, id, onLoad, onError]);
 
+		const frame = useCurrentFrame();
+
 		useEffect(() => {
-			if (!imageDecoder) return;
+			if (!imageDecoder) {
+				return;
+			}
 
-			let animationFrameId: number;
-			const tempCanvas = document.createElement('canvas');
-			const tempCtx = tempCanvas.getContext('2d');
-
-			const decodeNextFrame = (index: number) => {
-				imageDecoder
-					.decode({frameIndex: index})
-					.then((result) => {
-						if (tempCtx) {
-							tempCanvas.width = result.image.width;
-							tempCanvas.height = result.image.height;
-
-							console.log({result});
-
-							tempCtx.drawImage(result.image, 0, 0);
-							const imageData = tempCtx.getImageData(
-								0,
-								0,
-								// result.image.displayWidth,
-								result.image.displayHeight,
-							);
-							setFrames((prev) => [...prev, imageData]);
-						}
-
-						const track = imageDecoder.tracks.selectedTrack;
-
-						if (imageDecoder.complete) {
-							if (track.frameCount === 1) return;
-
-							if (index + 1 >= track.frameCount) {
-								if (loopBehavior === 'loop') {
-									setImageIndex(0);
-								} else {
-									return;
-								}
-							} else {
-								setImageIndex((prev) => prev + 1);
-							}
-						}
-
-						animationFrameId = requestAnimationFrame(() => {
-							decodeNextFrame((index + 1) % track.frameCount);
-						});
-					})
-					.catch((e) => {
-						if (e instanceof RangeError) {
-							setImageIndex(0);
-							decodeNextFrame(0);
-						} else {
-							throw e;
-						}
-					});
-			};
-
-			decodeNextFrame(imageIndex);
-
-			return () => {
-				if (animationFrameId) {
-					cancelAnimationFrame(animationFrameId);
-				}
-			};
-		}, [imageDecoder, imageIndex, loopBehavior, playbackRate]);
+			imageDecoder
+				.getFrame(frame % imageDecoder.frameCount)
+				.then((videoFrame) => {
+					ref.current?.draw(videoFrame.image);
+				});
+		}, [frame, imageDecoder]);
 
 		return (
-			<Canvas
-				ref={ref}
-				index={imageIndex}
-				frames={frames}
-				width={width}
-				height={height}
-				fit={fit}
-				{...props}
-			/>
+			<Canvas ref={ref} width={width} height={height} fit={fit} {...props} />
 		);
 	},
 );

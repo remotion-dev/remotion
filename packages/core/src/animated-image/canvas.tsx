@@ -1,13 +1,5 @@
-// @ts-nocheck
-import {
-	forwardRef,
-	useEffect,
-	useImperativeHandle,
-	useRef,
-	useState,
-} from 'react';
+import React, {useCallback, useImperativeHandle, useRef} from 'react';
 import type {AnimatedImageFillMode} from './props';
-import {useElementSize} from './use-element-size';
 
 const calcArgs = (
 	fit: AnimatedImageFillMode,
@@ -80,84 +72,78 @@ const calcArgs = (
 	}
 };
 
-const makeCanvas = () => {
-	if (typeof document === 'undefined') {
-		return null;
-	}
-
-	const canvas = document.createElement('canvas');
-	const ctx = canvas.getContext('2d');
-
-	canvas.width = 0;
-	canvas.height = 0;
-
-	return ctx;
-};
-
 type Props = {
-	index: number;
-	frames: ImageData[];
-	width?: number;
-	height?: number;
-	fit: AnimatedImageFillMode;
-	className?: string;
-	style?: React.CSSProperties;
+	readonly width?: number;
+
+	readonly height?: number;
+	readonly fit: AnimatedImageFillMode;
+
+	readonly className?: string;
+
+	readonly style?: React.CSSProperties;
 };
 
-export const Canvas = forwardRef(
-	({index, frames, width, height, fit, className, style}: Props, ref) => {
-		const canvasRef = useRef<HTMLCanvasElement>(null);
-		const [tempCtx] = useState(() => {
-			return makeCanvas();
-		});
+export type AnimatedImageCanvasRef = {
+	readonly draw: (imageData: VideoFrame) => void;
+	readonly getCanvas: () => HTMLCanvasElement | null;
+};
 
-		const size = useElementSize(canvasRef);
+const CanvasRefForwardingFunction: React.ForwardRefRenderFunction<
+	AnimatedImageCanvasRef,
+	Props
+> = ({width, height, fit, className, style}, ref) => {
+	const canvasRef = useRef<HTMLCanvasElement>(null);
 
-		useImperativeHandle(
-			ref,
-			() => {
-				return canvasRef.current as HTMLCanvasElement;
-			},
-			[],
-		);
+	const draw = useCallback(
+		(imageData: VideoFrame) => {
+			const canvas = canvasRef.current;
+			const canvasWidth = width ?? imageData.displayWidth;
+			const canvasHeight = height ?? imageData.displayHeight;
 
-		useEffect(() => {
-			if (!size) {
-				return;
+			if (!canvas) {
+				throw new Error('Canvas ref is not set');
 			}
 
-			const imageData = frames[index];
 			const ctx = canvasRef.current?.getContext('2d');
-			if (imageData && tempCtx && ctx) {
-				if (
-					tempCtx.canvas.width < imageData.width ||
-					tempCtx.canvas.height < imageData.height
-				) {
-					tempCtx.canvas.width = imageData.width;
-					tempCtx.canvas.height = imageData.height;
-				}
-
-				if (size.width > 0 && size.height > 0) {
-					ctx.clearRect(0, 0, size.width, size.height);
-					tempCtx.clearRect(0, 0, tempCtx.canvas.width, tempCtx.canvas.height);
-				}
-
-				tempCtx.putImageData(imageData, 0, 0);
-				ctx.drawImage(
-					tempCtx.canvas,
-					...calcArgs(fit, imageData, {width: size.width, height: size.height}),
-				);
+			if (!ctx) {
+				throw new Error('Could not get 2d context');
 			}
-		}, [index, frames, fit, tempCtx, size]);
 
-		return (
-			<canvas
-				ref={canvasRef}
-				className={className}
-				style={style}
-				width={width ?? size?.width}
-				height={height ?? size?.height}
-			/>
-		);
-	},
-);
+			canvas.width = canvasWidth;
+			canvas.height = canvasHeight;
+
+			ctx.drawImage(
+				imageData,
+				...calcArgs(
+					fit,
+					{
+						height: imageData.displayHeight,
+						width: imageData.displayWidth,
+					},
+					{
+						width: canvasWidth,
+						height: canvasHeight,
+					},
+				),
+			);
+		},
+		[fit, height, width],
+	);
+
+	useImperativeHandle(ref, () => {
+		return {
+			draw,
+			getCanvas: () => {
+				if (!canvasRef.current) {
+					throw new Error('Canvas ref is not set');
+				}
+
+				return canvasRef.current;
+			},
+		};
+	}, [draw]);
+
+	return <canvas ref={canvasRef} className={className} style={style} />;
+};
+
+export const Canvas = React.forwardRef(CanvasRefForwardingFunction);
