@@ -2,19 +2,20 @@
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import {truthy} from './truthy';
+import TTLCache from '@isaacs/ttlcache'
 
-const alreadyPrinted: Error[] = [];
+const alreadyPrintedCache = new TTLCache<Error, Boolean>({ ttl: 3 * 60 * 60 * 1000 });
 
 export const printUsefulErrorMessage = (
 	err: Error,
 	logLevel: LogLevel,
 	indent: boolean,
 ) => {
-	if (alreadyPrinted.includes(err)) {
+	if (alreadyPrintedCache.has(err)) {
 		return;
 	}
 
-	alreadyPrinted.push(err);
+	alreadyPrintedCache.set(err, true);
 
 	if (err.message.includes('Could not play video with')) {
 		Log.info({indent, logLevel});
