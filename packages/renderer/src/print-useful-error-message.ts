@@ -1,23 +1,23 @@
-/* eslint-disable no-console */
-import TTLCache from '@isaacs/ttlcache';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import {truthy} from './truthy';
 
-const alreadyPrintedCache = new TTLCache<Error, Boolean>({
-	ttl: 3 * 60 * 60 * 1000,
-});
+let alreadyPrintedCache: string[] = [];
 
 export const printUsefulErrorMessage = (
 	err: Error,
 	logLevel: LogLevel,
 	indent: boolean,
 ) => {
-	if (alreadyPrintedCache.has(err)) {
+	const errorStack = (err as Error).stack;
+	if (errorStack && alreadyPrintedCache.includes(errorStack)) {
 		return;
 	}
 
-	alreadyPrintedCache.set(err, true);
+	if (errorStack) {
+		alreadyPrintedCache.push(errorStack);
+		alreadyPrintedCache = alreadyPrintedCache.slice(-10);
+	}
 
 	if (err.message.includes('Could not play video with')) {
 		Log.info({indent, logLevel});

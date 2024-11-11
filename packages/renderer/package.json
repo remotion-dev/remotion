@@ -24,7 +24,6 @@
 		"extract-zip": "2.0.1",
 		"remotion": "workspace:*",
 		"@remotion/streaming": "workspace:*",
-		"@isaacs/ttlcache": "^1.4.1",
 		"source-map": "^0.8.0-beta.0",
 		"ws": "8.17.1"
 	},
