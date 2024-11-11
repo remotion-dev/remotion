@@ -1,10 +1,12 @@
 /* eslint-disable no-console */
+import TTLCache from '@isaacs/ttlcache';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import {truthy} from './truthy';
-import TTLCache from '@isaacs/ttlcache'
 
-const alreadyPrintedCache = new TTLCache<Error, Boolean>({ ttl: 3 * 60 * 60 * 1000 });
+const alreadyPrintedCache = new TTLCache<Error, Boolean>({
+	ttl: 3 * 60 * 60 * 1000,
+});
 
 export const printUsefulErrorMessage = (
 	err: Error,
