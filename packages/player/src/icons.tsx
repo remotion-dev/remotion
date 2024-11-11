@@ -26,7 +26,7 @@ export const PauseIcon: React.FC = () => {
 	);
 };
 
-export const FullscreenIcon: React.FC<{isFullscreen: boolean}> = ({
+export const FullscreenIcon: React.FC<{readonly isFullscreen: boolean}> = ({
 	isFullscreen,
 }) => {
 	const strokeWidth = 6;

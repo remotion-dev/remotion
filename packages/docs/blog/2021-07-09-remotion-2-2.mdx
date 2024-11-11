@@ -8,7 +8,7 @@ author_image_url: https://avatars2.githubusercontent.com/u/1629785?s=460&u=12eb9
 image: /img/2-2-card.png
 ---
 
-import { ThreeDPlayer } from "../components/3DPhonePlayer.tsx";
+import {ThreeDPlayer} from '../components/3DPhonePlayer.tsx';
 
 Welcome to the release notes of Remotion 2.2! It's been a while since v2.1, but in the meanwhile we had a dozen smaller releases inbetween. This post summarizes the highlights of the past 2 months 🎉.
 
@@ -25,8 +25,8 @@ This new core component will freeze all of it's children and make them think tha
 You can use it for example to display a still frame from a video:
 
 ```tsx twoslash title="MyVideo.tsx"
-import { Freeze, Video } from "remotion";
-import myVid from "./vid.mp4";
+import {Freeze, Video} from 'remotion';
+import myVid from './vid.mp4';
 
 export const MyVideo = () => {
   return (
@@ -46,8 +46,8 @@ However, it works for any content. As you can see the API is dead simple! You ca
 This prop allows you to slow down or speed up video and audio elements! Now you can import a video in normal speed and play it in slow motion or timelapse without re-rendering the video.
 
 ```tsx twoslash title="LightningSpeed.tsx"
-import { Video } from "remotion";
-import myVid from "./vid.mp4";
+import {Video} from 'remotion';
+import myVid from './vid.mp4';
 
 export const MyVideo = () => {
   return <Video src={myVid} playbackRate={4} />;
@@ -56,14 +56,14 @@ export const MyVideo = () => {
 
 While previewing, we are using the HTML5 `playbackRate` API, and when rendering, we will calculate the correct FFMPEG command for any tempo.
 
-Learn more about the `playbackRate` props for [`<Audio />`](/docs/audio/#playbackrate) and [`<Video />`](/docs/video/#controlling-playback-speed).
+Learn more about the `playbackRate` props for [`<Audio />`](/docs/audio/#playbackrate) and [`<Video />`](/docs/video/#playbackrate).
 
 ## `@remotion/three` package
 
 In case you missed it, we released a new helper package for [React Three Fiber](https://github.com/pmndrs/react-three-fiber)!
 
 <ThreeDPlayer />
-<br/>
+<br />
 
 Three.JS is admittedly not easy, but with the work that [Poimandres](https://github.com/pmndrs) is doing to make it more approachable and more integrated with React, this is changing rapidly. Creating 3D videos in React and rendering them to real MP4 videos, we are making it possible!
 
@@ -87,19 +87,19 @@ The [`@remotion/player`](/docs/player), currently still experimental, allows Rem
 
 ### Audio controls
 
-A player now has a volume slider, and a mute button to allow the user to control the video. You can decide whether you want to display these controls using the [`showVolumeControls`](/docs/player/#showvolumecontrols) prop.
+A player now has a volume slider, and a mute button to allow the user to control the video. You can decide whether you want to display these controls using the [`showVolumeControls`](/docs/player/player#showvolumecontrols) prop.
 
-Audio can also be controlled programmatically. We added the methods [`getVolume()`](/docs/player/#getvolume), [`setVolume()`](/docs/player/#setvolume), [`mute()`](/docs/player/#mute), [`unmute()`](/docs/player/#unmute) and [`isMuted()`](/docs/player/#ismuted) to allow you to implement your own solutions.
+Audio can also be controlled programmatically. We added the methods [`getVolume()`](/docs/player/player#getvolume), [`setVolume()`](/docs/player/player#setvolume), [`mute()`](/docs/player/player/#mute), [`unmute()`](/docs/player/player/#unmute) and [`isMuted()`](/docs/player/player/#ismuted) to allow you to implement your own solutions.
 
 ### `timeupdate` event
 
-Inspired by the HTML5 event with the same name, we added a [`timeupdate`](/docs/player/#timeupdate) event to the Player. Unlike the [`seeked`](/docs/player/#seeked) event, it does not fire on every frame, so if you want only periodic updates about the time being updated, you can use this event without having to throttle it.
+Inspired by the HTML5 event with the same name, we added a [`timeupdate`](/docs/player/player/#timeupdate) event to the Player. Unlike the [`seeked`](/docs/player/player/#seeked) event, it does not fire on every frame, so if you want only periodic updates about the time being updated, you can use this event without having to throttle it.
 
-### [`clickToPlay`](/docs/player/#clicktoplay) prop
+### [`clickToPlay`](/docs/player/player/#clicktoplay) prop
 
 This prop allows you to control whether the user is allowed to click on the video to make it pause or play. It is true by default if the controls of the player are enabled.
 
-### [`doubleClickToFullscreen`](/docs/player/#doubleclicktofullscreen) prop
+### [`doubleClickToFullscreen`](/docs/player/player/#doubleclicktofullscreen) prop
 
 This prop allows you to control whether the user is allowed to double click on the video to make it go fullscreen. If enabled, single-clicking to pause the video will have a short delay in order to wait for a potential second click.
 

@@ -9,7 +9,9 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
+import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import type {RecastCodemod} from './codemods';
+import type {InstallablePackage} from './installable-packages';
 import type {PackageManager} from './package-manager';
 import type {ProjectInfo} from './project-info';
 import type {RequiredChromiumOptions} from './render-job';
@@ -78,6 +80,7 @@ type AddRenderRequestDynamicFields =
 			repro: boolean;
 			forSeamlessAacConcatenation: boolean;
 			separateAudioTo: string | null;
+			hardwareAcceleration: HardwareAccelerationOption;
 	  };
 
 export type CancelRenderRequest = {
@@ -95,6 +98,7 @@ export type AddRenderRequest = {
 	offthreadVideoCacheSizeInBytes: number | null;
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;
+	metadata: Record<string, string> | null;
 } & AddRenderRequestDynamicFields;
 
 export type RemoveRenderRequest = {
@@ -190,6 +194,11 @@ export type ProjectInfoResponse = {
 export type RestartStudioRequest = {};
 export type RestartStudioResponse = {};
 
+export type InstallPackageRequest = {
+	packageNames: InstallablePackage[];
+};
+export type InstallPackageResponse = {};
+
 export type ApiRoutes = {
 	'/api/cancel': ReqAndRes<CancelRenderRequest, CancelRenderResponse>;
 	'/api/render': ReqAndRes<AddRenderRequest, undefined>;
@@ -203,7 +212,6 @@ export type ApiRoutes = {
 	>;
 	'/api/remove-render': ReqAndRes<RemoveRenderRequest, undefined>;
 	'/api/open-in-file-explorer': ReqAndRes<OpenInFileExplorerRequest, void>;
-	'/api/copy-still-to-clipboard': ReqAndRes<CopyStillToClipboardRequest, void>;
 	'/api/update-default-props': ReqAndRes<
 		UpdateDefaultPropsRequest,
 		UpdateDefaultPropsResponse
@@ -223,4 +231,8 @@ export type ApiRoutes = {
 		DeleteStaticFileResponse
 	>;
 	'/api/restart-studio': ReqAndRes<RestartStudioRequest, RestartStudioResponse>;
+	'/api/install-package': ReqAndRes<
+		InstallPackageRequest,
+		InstallPackageResponse
+	>;
 };

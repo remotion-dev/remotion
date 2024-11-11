@@ -1,3 +1,4 @@
+import type {google} from '@google-cloud/run/build/protos/protos';
 import {VERSION} from 'remotion/version';
 
 // taken from within the @google-cloud/run package, can't import it directly
@@ -13,13 +14,15 @@ export const constructServiceTemplate = ({
 	timeoutSeconds,
 	minInstances,
 	maxInstances,
+	onlyAllocateCpuDuringRequestProcessing,
 }: {
 	memoryLimit: string;
 	cpuLimit: string;
 	timeoutSeconds: number;
 	minInstances: number;
 	maxInstances: number;
-}) => {
+	onlyAllocateCpuDuringRequestProcessing: boolean;
+}): google.cloud.run.v2.IRevisionTemplate => {
 	return {
 		scaling: {
 			minInstanceCount: minInstances,
@@ -38,10 +41,12 @@ export const constructServiceTemplate = ({
 						memory: memoryLimit,
 						cpu: cpuLimit,
 					},
+					cpuIdle: onlyAllocateCpuDuringRequestProcessing,
 				},
 			},
 		],
 		maxInstanceRequestConcurrency: 1,
 		executionEnvironment: ExecutionEnvironment.EXECUTION_ENVIRONMENT_GEN1,
+		serviceAccount: process.env.REMOTION_GCP_CLIENT_EMAIL,
 	};
 };

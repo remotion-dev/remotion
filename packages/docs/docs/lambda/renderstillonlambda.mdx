@@ -61,7 +61,7 @@ The `id` of the [composition](/docs/composition) you want to render..
 
 ### `inputProps`
 
-[Input Props to pass to the selected composition of your video.](/docs/parameterized-rendering#passing-input-props-in-the-cli).  
+[Input Props to pass to the selected composition of your video.](/docs/passing-props#passing-input-props-in-the-cli).  
 Must be a JSON object.  
 From the root component the props can be read using [`getInputProps()`](/docs/get-input-props).  
 You may transform input props using [`calculateMetadata()`](/docs/calculate-metadata).
@@ -252,11 +252,16 @@ _optional_
 
 Logs can be read through the CloudWatch URL that this function returns.
 
+### `forcePathStyle?`<AvailableFrom v="4.0.202" />
+
+Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.
+
 ### ~~`dumpBrowserLogs?`~~
 
 _optional - default `false`, deprecated in v4.0_
 
 Deprecated in favor of [`logLevel`](#loglevel).
+
 
 ## Return value
 

@@ -25,7 +25,7 @@ const findTitle = (split) => {
 	const title = split
 		.find((s) => s.startsWith('title: '))
 		.replace(/^title:\s/, '');
-	if (title.startsWith('"')) {
+	if (title.startsWith('"') || title.startsWith("'")) {
 		return title.substr(1, title.length - 2);
 	}
 
@@ -36,7 +36,7 @@ const findCrumb = (split) => {
 	const crumb = split
 		.find((s) => s.startsWith('crumb: '))
 		?.replace(/^crumb:\s/, '');
-	if (crumb?.startsWith('"')) {
+	if (crumb?.startsWith('"') || crumb?.startsWith("'")) {
 		return crumb.substr(1, crumb.length - 2);
 	}
 

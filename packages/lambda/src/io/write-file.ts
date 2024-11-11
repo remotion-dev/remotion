@@ -15,11 +15,13 @@ const tryLambdaWriteFile = async ({
 	expectedBucketOwner,
 	downloadBehavior,
 	customCredentials,
+	forcePathStyle,
 }: WriteFileInput<AwsProvider>): Promise<void> => {
-	await getS3Client(
+	await getS3Client({
 		region,
-		customCredentials as CustomCredentials<AwsProvider>,
-	).send(
+		customCredentials: customCredentials as CustomCredentials<AwsProvider>,
+		forcePathStyle,
+	}).send(
 		new PutObjectCommand({
 			Bucket: bucketName,
 			Key: key,
@@ -32,7 +34,7 @@ const tryLambdaWriteFile = async ({
 						: 'public-read',
 			ExpectedBucketOwner: customCredentials
 				? undefined
-				: expectedBucketOwner ?? undefined,
+				: (expectedBucketOwner ?? undefined),
 			ContentType: mimeTypes.lookup(key) || 'application/octet-stream',
 			ContentDisposition: getContentDispositionHeader(downloadBehavior),
 		}),

@@ -13,6 +13,7 @@ export const getCloudWatchLogsClient = (
 		region,
 		service: 'cloudwatch',
 		customCredentials: null,
+		forcePathStyle: false,
 	});
 };
 
@@ -25,11 +26,17 @@ export const getLambdaClient = (
 		region,
 		service: 'lambda',
 		customCredentials: null,
+		forcePathStyle: false,
 	});
 };
 
 export const getIamClient = (region: AwsRegion): IAMClient => {
-	return getServiceClient({region, service: 'iam', customCredentials: null});
+	return getServiceClient({
+		region,
+		service: 'iam',
+		customCredentials: null,
+		forcePathStyle: false,
+	});
 };
 
 export const getServiceQuotasClient = (
@@ -39,9 +46,15 @@ export const getServiceQuotasClient = (
 		region,
 		service: 'servicequotas',
 		customCredentials: null,
+		forcePathStyle: false,
 	});
 };
 
 export const getStsClient = (region: AwsRegion): STSClient => {
-	return getServiceClient({region, service: 'sts', customCredentials: null});
+	return getServiceClient({
+		region,
+		service: 'sts',
+		customCredentials: null,
+		forcePathStyle: false,
+	});
 };

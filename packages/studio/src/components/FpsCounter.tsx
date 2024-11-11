@@ -23,7 +23,7 @@ const pushWithMaxSize = (
 };
 
 export const FpsCounter: React.FC<{
-	playbackSpeed: number;
+	readonly playbackSpeed: number;
 }> = ({playbackSpeed}) => {
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const [playing] = Internals.Timeline.usePlayingState();

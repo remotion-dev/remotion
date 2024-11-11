@@ -93,23 +93,34 @@ export const loadFonts = (
 					},
 				);
 
-				//  Load font-face
-				const promise = fontFace
-					.load()
-					.then(() => {
-						(options?.document ?? document).fonts.add(fontFace);
-						continueRender(handle);
-					})
-					.catch((err) => {
-						//  Mark font as not loaded
-						loadedFonts[fontKey] = undefined;
-						throw err;
-					});
+				let attempts = 2;
 
-				//  Mark font as loaded
-				loadedFonts[fontKey] = promise;
+				const tryToLoad = () => {
+					//  Load font-face
+					const promise = fontFace
+						.load()
+						.then(() => {
+							(options?.document ?? document).fonts.add(fontFace);
+							continueRender(handle);
+						})
+						.catch((err) => {
+							//  Mark font as not loaded
+							loadedFonts[fontKey] = undefined;
+							if (attempts === 0) {
+								throw err;
+							} else {
+								attempts--;
+								tryToLoad();
+							}
+						});
 
-				promises.push(promise);
+					//  Mark font as loaded
+					loadedFonts[fontKey] = promise;
+
+					promises.push(promise);
+				};
+
+				tryToLoad();
 			}
 		}
 	}

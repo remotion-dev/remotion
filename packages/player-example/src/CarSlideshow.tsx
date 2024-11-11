@@ -1,6 +1,5 @@
 import {createRef, useCallback, useImperativeHandle, useState} from 'react';
 import {
-	Experimental,
 	Img,
 	Sequence,
 	Video,
@@ -11,9 +10,9 @@ import {
 } from 'remotion';
 
 type Props = {
-	title: string;
-	bgColor: string;
-	color: string;
+	readonly title: string;
+	readonly bgColor: string;
+	readonly color: string;
 };
 
 export const playerExampleComp = createRef<{
@@ -34,17 +33,13 @@ const CarSlideshow = ({title, bgColor, color}: Props) => {
 		return '';
 	}, [shouldThrowError]);
 
-	useImperativeHandle(
-		playerExampleComp,
-		() => {
-			return {
-				triggerError: () => {
-					setThrowError(true);
-				},
-			};
-		},
-		[],
-	);
+	useImperativeHandle(playerExampleComp, () => {
+		return {
+			triggerError: () => {
+				setThrowError(true);
+			},
+		};
+	}, []);
 
 	return (
 		<div
@@ -57,7 +52,6 @@ const CarSlideshow = ({title, bgColor, color}: Props) => {
 				top: 0,
 			}}
 		>
-			<Experimental.Clipper height={100} width={100} x={0} y={0} />
 			<Sequence>
 				<h1
 					style={{

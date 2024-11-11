@@ -15,10 +15,17 @@ type Site = {
 	serveUrl: string;
 };
 
-export type GetSitesInput = {
+type MandatoryParameters = {
 	region: AwsRegion;
-	forceBucketName?: string;
 };
+
+type OptionalParameters = {
+	forceBucketName: string | null;
+	forcePathStyle: boolean;
+};
+
+type GetSitesInternalInput = MandatoryParameters & OptionalParameters;
+export type GetSitesInput = MandatoryParameters & Partial<OptionalParameters>;
 
 export type GetSitesOutput = {
 	sites: Site[];
@@ -29,12 +36,21 @@ export const internalGetSites = async ({
 	region,
 	forceBucketName,
 	providerSpecifics,
-}: GetSitesInput & {
+	forcePathStyle,
+}: GetSitesInternalInput & {
 	providerSpecifics: ProviderSpecifics<AwsProvider>;
 }): Promise<GetSitesOutput> => {
 	const remotionBuckets = forceBucketName
-		? await providerSpecifics.getBuckets(region, forceBucketName)
-		: await providerSpecifics.getBuckets(region);
+		? await providerSpecifics.getBuckets({
+				region,
+				forceBucketName,
+				forcePathStyle,
+			})
+		: await providerSpecifics.getBuckets({
+				region,
+				forceBucketName: null,
+				forcePathStyle,
+			});
 	const accountId = await getAccountId({region});
 
 	const sites: {[key: string]: Site} = {};
@@ -45,6 +61,7 @@ export const internalGetSites = async ({
 			prefix: getSitesKey(''),
 			region,
 			expectedBucketOwner: accountId,
+			forcePathStyle,
 		});
 
 		for (const file of ls) {
@@ -103,10 +120,12 @@ export const internalGetSites = async ({
 export const getSites = ({
 	region,
 	forceBucketName,
+	forcePathStyle,
 }: GetSitesInput): Promise<GetSitesOutput> => {
 	return internalGetSites({
 		region,
-		forceBucketName,
+		forceBucketName: forceBucketName ?? null,
+		forcePathStyle: forcePathStyle ?? false,
 		providerSpecifics: awsImplementation,
 	});
 };

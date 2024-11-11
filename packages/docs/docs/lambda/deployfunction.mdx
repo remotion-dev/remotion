@@ -45,21 +45,15 @@ We recommend a timeout of 120 seconds or lower - remember, Remotion Lambda is th
 
 How many megabytes of RAM the Lambda function should have. By default we recommend a value of 2048MB. You may increase or decrease it depending on how memory-consuming your video is. The minimum allowed number is `512`, the maximum allowed number is `10240`. Since the costs of Remotion Lambda is directly proportional to the amount of RAM, we recommend to keep this amount as low as possible.
 
-### `createCloudWatchLogGroup`
-
-_boolean_
+### `createCloudWatchLogGroup?`
 
 Whether logs should be saved into CloudWatch. We recommend enabling this option.
 
-### `cloudWatchLogRetentionPeriodInDays`
-
-_optional_
+### `cloudWatchLogRetentionPeriodInDays?`
 
 Retention period for the CloudWatch Logs. Default: 14 days.
 
-### `diskSizeInMb`
-
-_optional_
+### `diskSizeInMb?`
 
 Sets the amount of disk storage that is available in the Lambda function. Must be between 512MB and 10240MB (10GB). Set this higher if you want to render longer videos. See also: [Disk size](/docs/lambda/disk-size)
 
@@ -68,23 +62,30 @@ Sets the amount of disk storage that is available in the Lambda function. Must b
 | &lt;5.0.0        | 2048MB        |
 | &gt;=5.0.0       | 10240MB       |
 
-### `customRoleArn`
-
-_optional_
+### `customRoleArn?`
 
 Use a custom role for the function instead of the default (`arn:aws:iam::[aws-account-id]:role/remotion-lambda-role`)
 
-### `enableLambdaInsights`<AvailableFrom v="4.0.61" />
-
-_optional_
+### `enableLambdaInsights?`<AvailableFrom v="4.0.61" />
 
 <Options id="enable-lambda-insights" />
 
-### `enableV5Runtime`<AvailableFrom v="4.0.148" />
-
-_optional_
+### `enableV5Runtime?`<AvailableFrom v="4.0.148" />
 
 Enable the [upcoming v5 runtime](/docs/lambda/runtime#runtime-changes-in-remotion-50) with newer Chrome and Node versions early.
+
+### `runtimePreference?`<AvailableFrom v="4.0.205" />
+
+One of:
+
+- `default`: Currently resolving to `prefer-cjk`
+- `prefer-apple-emojis`: Use Apple Emojis instead of Google Emojis. CJK characters will be removed.
+- `prefer-cjk`: Include CJK (Chinese, Japanese, Korean) characters and Google Emojis. Apple Emojis will be removed.
+
+:::note
+Apple Emojis are intellectual property of Apple Inc.  
+You are responsible for the use of Apple Emojis in your project.
+:::
 
 ## Return value
 
@@ -96,6 +97,6 @@ An object with the following values:
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/deploy-function.ts)
-- [CLI equivalent: npx remotion lambda functions deploy](/docs/lambda/cli/functions#deploy)
-- [deleteFunction()](/docs/lambda/deletefunction)
-- [getFunctions()](/docs/lambda/getfunctions)
+- [CLI equivalent: `npx remotion lambda functions deploy`](/docs/lambda/cli/functions#deploy)
+- [`deleteFunction()`](/docs/lambda/deletefunction)
+- [`getFunctions()`](/docs/lambda/getfunctions)

@@ -1,4 +1,4 @@
-import {RenderInternals} from '@remotion/renderer';
+import {RenderInternals, ensureBrowser} from '@remotion/renderer';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import path from 'path';
 import {VERSION} from 'remotion/version';
@@ -29,7 +29,8 @@ beforeEach(() => {
 	};
 });
 
-beforeAll(() => {
+beforeAll(async () => {
+	await ensureBrowser();
 	return async () => {
 		await RenderInternals.killAllBrowsers();
 	};
@@ -111,6 +112,8 @@ describe('Webhooks', () => {
 				deleteAfter: null,
 				colorSpace: null,
 				preferLossless: false,
+				forcePathStyle: false,
+				metadata: {Author: 'Lunar'},
 			},
 			functionName: 'remotion-dev-lambda',
 			region: 'us-east-1',
@@ -125,6 +128,8 @@ describe('Webhooks', () => {
 				renderId: parsed.renderId,
 				version: VERSION,
 				logLevel: 'info',
+				forcePathStyle: false,
+				s3OutputProvider: null,
 			},
 			functionName: 'remotion-dev-lambda',
 			region: 'us-east-1',
@@ -223,6 +228,8 @@ describe('Webhooks', () => {
 				deleteAfter: null,
 				colorSpace: null,
 				preferLossless: false,
+				forcePathStyle: false,
+				metadata: null,
 			},
 			timeoutInTest: 1000,
 		});

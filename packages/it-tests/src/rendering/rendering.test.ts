@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import {beforeAll, beforeEach, expect, test} from 'bun:test';
+import {afterEach, beforeAll, beforeEach, expect, test} from 'bun:test';
 import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
@@ -20,6 +20,12 @@ beforeAll(async () => {
 });
 
 beforeEach(() => {
+	if (fs.existsSync(outputPath)) {
+		fs.unlinkSync(outputPath);
+	}
+});
+
+afterEach(() => {
 	if (fs.existsSync(outputPath)) {
 		fs.unlinkSync(outputPath);
 	}
@@ -517,7 +523,7 @@ test('Dynamic duration should work and audio separation', async () => {
 		);
 	} else {
 		expect(data).toContain(
-			`Stream #0:0[0x1](und): Video: h264 (avc1 / 0x31637661), yuv420p(tv, bt470bg/unknown/unknown, progressive)`,
+			`Stream #0:0[0x1](und): Video: h264 (avc1 / 0x31637661), yuvj420p(pc, bt470bg/unknown/unknown, progressive)`,
 		);
 	}
 

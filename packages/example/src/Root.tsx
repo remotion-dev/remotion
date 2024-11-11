@@ -1,12 +1,15 @@
+// @ts-expect-error no types
+import styles from './styles.module.scss';
+
 import {alias} from 'lib/alias';
 import React, {useCallback, useMemo} from 'react';
 import {
 	CalculateMetadataFunction,
 	Composition,
 	Folder,
+	Still,
 	getInputProps,
 	staticFile,
-	Still,
 } from 'remotion';
 import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
@@ -23,6 +26,7 @@ import {MyCtx, WrappedInContext} from './Context';
 import CorruptVideo from './CorruptVideo';
 import {DecoderDemo} from './DecoderDemo';
 import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
+import {EmojiTestbed} from './Emoji';
 import {ErrorOnFrame10} from './ErrorOnFrame10';
 import {Expert} from './Expert';
 import {FontDemo} from './Fonts';
@@ -30,14 +34,16 @@ import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
 import {Green} from './Green';
 import {HlsDemo} from './Hls/HlsDemo';
+import {HugeImage} from './HugeImage';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {Layers} from './Layers';
 import {ManyAudio} from './ManyAudio';
 import {HandleAudioRenderError} from './MediaErrorHandling/HandleAudioRenderError';
+import {InfiniteAudio} from './MediaErrorHandling/InfiniteAudio';
 import {MissingImg} from './MissingImg';
 import {
-	calculateMetadataFn,
 	OffthreadRemoteVideo,
+	calculateMetadataFn,
 } from './OffthreadRemoteVideo/OffthreadRemoteVideo';
 import {OffthreadVideoToCanvas} from './OffthreadVideoToCanvas';
 import {OrbScene} from './Orb';
@@ -52,8 +58,8 @@ import RiveVehicle from './Rive/RiveExample';
 import {ScalePath} from './ScalePath';
 import {
 	ArrayTest,
-	schemaArrayTestSchema,
 	SchemaTest,
+	schemaArrayTestSchema,
 	schemaTestSchema,
 } from './SchemaTest';
 import {Scripts} from './Scripts';
@@ -79,8 +85,8 @@ import {
 } from './StudioApis/SaveDefaultProps';
 import {TriggerCalculateMetadata} from './StudioApis/TriggerCalculateMetadata';
 import {WriteStaticFile} from './StudioApis/WriteStaticFile';
-import './style.css';
 import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
+import {SvgFilter} from './SvgFilter';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
 import {TextStroke} from './TextStroke';
@@ -94,10 +100,12 @@ import {BasicTransition} from './Transitions/BasicTransition';
 import {CustomTransition} from './Transitions/CustomTransition';
 import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
+import {VideoParser} from './VideoParser';
 import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
+import './style.css';
 import {WatchStaticDemo} from './watch-static';
 
 if (alias !== 'alias') {
@@ -109,9 +117,6 @@ const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
 import {AvifAnimatedImage} from './AnimatedImage/Avif';
 import {GifAnimatedImage} from './AnimatedImage/Gif';
 import {WebpAnimatedImage} from './AnimatedImage/Webp';
-// @ts-expect-error no types
-import styles from './styles.module.scss';
-import {VideoParser} from './VideoParser';
 
 class Vector2 {
 	readonly x: number;
@@ -508,6 +513,12 @@ export const Index: React.FC = () => {
 						calculated: new Vector2(15, 10),
 					}}
 				/>
+				<Still
+					id="svg-filter"
+					component={SvgFilter}
+					width={1080}
+					height={1080}
+				/>
 			</Folder>
 			<Folder name="creatives">
 				<Composition
@@ -624,7 +635,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					calculateMetadata={calculateMetadataFn}
 					defaultProps={{
-						src: 'https://videos.pexels.com/video-files/5530402/5530402-uhd_3840_2160_25fps.mp4',
+						src: staticFile('bigbuckbunny.mp4'),
 					}}
 				/>
 				<Composition
@@ -1220,7 +1231,11 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						union: [
 							{type: 'boat' as const, depth: 10},
-							{type: 'car' as const, color: 'red', obj: [{link: 'hi there'}]},
+							{type: 'car' as const, color: 'blue', obj: [{link: 'hi there'}]},
+							{type: 'car' as const, color: '', obj: [{link: ''}]},
+							{type: 'car' as const, color: '', obj: [{link: ''}]},
+							{type: 'car' as const, color: '', obj: [{link: ''}]},
+							{type: 'car' as const, color: '', obj: [{link: ''}]},
 							{type: 'car' as const, color: '', obj: [{link: ''}]},
 							{type: 'car' as const, color: '', obj: [{link: ''}]},
 							{type: 'car' as const, color: '', obj: [{link: ''}]},
@@ -1295,6 +1310,7 @@ export const Index: React.FC = () => {
 							{type: 'a' as const, a: {a: 'hi'}},
 							{type: 'b' as const, b: {b: 'hi'}},
 						],
+						discriminatedUnion: {type: 'auto'},
 					}}
 				/>
 				{/**
@@ -1448,6 +1464,14 @@ export const Index: React.FC = () => {
 					width={1080}
 					durationInFrames={10_000}
 				/>
+				<Composition
+					id="InfiniteAudio"
+					component={InfiniteAudio}
+					fps={30}
+					height={1080}
+					width={1080}
+					durationInFrames={1800}
+				/>
 			</Folder>
 			<Folder name="AnimatedEmojis">
 				<Composition
@@ -1472,9 +1496,11 @@ export const Index: React.FC = () => {
 			<Still
 				id="DecoderDemo"
 				component={DecoderDemo}
-				height={800}
+				height={1000}
 				width={1024}
 			/>
+			<Still id="Emojis" component={EmojiTestbed} height={800} width={1024} />
+			<Still id="HugeImage" component={HugeImage} height={9000} width={9000} />
 		</>
 	);
 };

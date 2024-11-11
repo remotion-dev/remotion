@@ -12,7 +12,7 @@ const deleteAllFilesInAFolderRecursively = (path: string) => {
 			} else {
 				fs.unlinkSync(filePath);
 			}
-		} catch (err) {
+		} catch {
 			// Can fail if file was already deleted by cleanup. In that case
 			// let's ignore it
 		}

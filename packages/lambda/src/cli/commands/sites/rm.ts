@@ -44,6 +44,7 @@ export const sitesRmSubcommand = async (
 				enableFolderExpiry: false,
 				customCredentials: null,
 				providerSpecifics: implementation,
+				forcePathStyle: false,
 			})
 		).bucketName;
 

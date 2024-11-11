@@ -25,10 +25,12 @@ const getCredentialsHash = ({
 	customCredentials,
 	region,
 	service,
+	forcePathStyle,
 }: {
 	region: AwsRegion;
 	customCredentials: CustomCredentials<AwsProvider> | null;
 	service: keyof ServiceMapping;
+	forcePathStyle: boolean;
 }): string => {
 	const hashComponents: {[key: string]: unknown} = {};
 
@@ -65,6 +67,7 @@ const getCredentialsHash = ({
 	hashComponents.customCredentials = customCredentials;
 	hashComponents.region = region;
 	hashComponents.service = service;
+	hashComponents.forcePathStyle = forcePathStyle;
 
 	return random(JSON.stringify(hashComponents)).toString().replace('0.', '');
 };
@@ -85,10 +88,12 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 	region,
 	service,
 	customCredentials,
+	forcePathStyle,
 }: {
 	region: AwsRegion;
 	service: T;
 	customCredentials: CustomCredentials<AwsProvider> | null;
+	forcePathStyle: boolean;
 }): ServiceMapping[T] => {
 	const Client = (() => {
 		if (service === 'cloudwatch') {
@@ -122,6 +127,7 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 		region,
 		customCredentials,
 		service,
+		forcePathStyle,
 	});
 
 	if (!_clients[key]) {

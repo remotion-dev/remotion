@@ -19,6 +19,7 @@ class RenderParams
     protected $imageFormat = 'jpeg';
     protected $crf = null;
     protected $envVariables = [];
+    protected $metadata = [];
     protected $maxRetries = 1;
     protected $jpegQuality = 80;
     protected $privacy = 'privacy';
@@ -51,6 +52,7 @@ class RenderParams
     protected $pixelFormat = null;
     protected $x264Preset = null;
     protected $deleteAfter = null;
+    protected $forcePathStyle = false;
 
     public function __construct(
         ?array  $data = null,
@@ -91,7 +93,9 @@ class RenderParams
         ?string $deleteAfter = null,
         ?string $encodingBufferSize = null,
         ?string $maxRate = null,
-        ?bool   $preferLossless = false
+        ?bool   $preferLossless = false,
+        ?bool   $forcePathStyle = false,
+        ?array  $metadata = null
     )
     {
         if ($chromiumOptions === null) {
@@ -106,6 +110,7 @@ class RenderParams
         $this->imageFormat = $imageFormat;
         $this->crf = $crf;
         $this->envVariables = $envVariables;
+        $this->metadata = $metadata;
         $this->maxRetries = $maxRetries;
         $this->jpegQuality = $jpegQuality;
         $this->privacy = $privacy;
@@ -137,6 +142,7 @@ class RenderParams
         $this->x264Preset = $x264Preset;
         $this->deleteAfter = $deleteAfter;
         $this->preferLossless = $preferLossless;
+        $this->forcePathStyle = $forcePathStyle;
     }
 
     private array $inputProps = array();
@@ -181,6 +187,7 @@ class RenderParams
             'audioCodec' => $this->getAudioCodec(),
             'x264Preset' => $this->getX264Preset(),
             'deleteAfter' => $this->getDeleteAfter(),
+            'forcePathStyle' => $this->getForcePathStyle(),
             'type' => 'start'
         ];
 
@@ -192,6 +199,12 @@ class RenderParams
             $parameters['envVariables'] = $this->getEnvVariables();
         } else {
             $parameters['envVariables'] = new stdClass();
+        }
+
+        if ($this->getMetadata() !== null) {
+            $parameters['metadata'] = $this->getMetadata();
+        } else {
+            $parameters['metadata'] = new stdClass();
         }
 
         if ($this->getPixelFormat() !== null) {
@@ -208,6 +221,11 @@ class RenderParams
 
         return $parameters;
     }
+
+    public function getForcePathStyle()
+    {
+        return $this->forcePathStyle;
+    }   
 
     /**
      * Get the value of inputProps
@@ -410,6 +428,14 @@ class RenderParams
     }
 
     /**
+     * Get the value of metadata
+     */
+    public function getMetadata()
+    {
+        return $this->metadata;
+    }
+
+    /**
      * Set the value of envVariables
      *
      * @return  self
@@ -418,6 +444,12 @@ class RenderParams
     {
         $this->envVariables = $envVariables;
 
+        return $this;
+    }
+
+    public function setMetadata($metadata)
+    {
+        $this->metadata = $metadata;
         return $this;
     }
 

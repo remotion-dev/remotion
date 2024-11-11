@@ -16,7 +16,6 @@ import type {
 import {
 	AbsoluteFill,
 	Internals,
-	VERSION,
 	continueRender,
 	delayRender,
 	getInputProps,
@@ -188,10 +187,15 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 	);
 };
 
+const DEFAULT_ROOT_COMPONENT_TIMEOUT = 10000;
+
 const waitForRootHandle = delayRender(
 	'Loading root component - See https://remotion.dev/docs/troubleshooting/loading-root-component if you experience a timeout',
 	{
-		timeoutInMilliseconds: 10000,
+		timeoutInMilliseconds:
+			typeof window === 'undefined'
+				? DEFAULT_ROOT_COMPONENT_TIMEOUT
+				: (window.remotion_puppeteerTimeout ?? DEFAULT_ROOT_COMPONENT_TIMEOUT),
 	},
 );
 
@@ -338,7 +342,7 @@ if (typeof window !== 'undefined') {
 		const inputProps =
 			typeof window === 'undefined' || getRemotionEnvironment().isPlayer
 				? {}
-				: getInputProps() ?? {};
+				: (getInputProps() ?? {});
 
 		return Promise.all(
 			compositions.map(async (c): Promise<VideoConfigWithSerializedProps> => {
@@ -409,7 +413,7 @@ if (typeof window !== 'undefined') {
 		const inputProps =
 			typeof window === 'undefined' || getRemotionEnvironment().isPlayer
 				? {}
-				: getInputProps() ?? {};
+				: (getInputProps() ?? {});
 
 		const originalProps = {
 			...(selectedComp.defaultProps ?? {}),
@@ -449,7 +453,5 @@ if (typeof window !== 'undefined') {
 		};
 	};
 
-	window.siteVersion = '11';
-	window.remotion_version = VERSION;
 	window.remotion_setBundleMode = setBundleModeAndUpdate;
 }

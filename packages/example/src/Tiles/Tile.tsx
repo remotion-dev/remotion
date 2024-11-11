@@ -4,7 +4,7 @@ import {spring, SpringConfig, useCurrentFrame, useVideoConfig} from 'remotion';
 const size = 200;
 
 export const Tile: React.FC<{
-	index: number;
+	readonly index: number;
 }> = ({index}) => {
 	const videoConfig = useVideoConfig();
 	const frame = useCurrentFrame();

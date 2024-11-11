@@ -4,8 +4,8 @@ import {useKeybinding} from '../../helpers/use-keybinding';
 import {ShortcutHint} from './ShortcutHint';
 
 export const SearchGithubIssues: React.FC<{
-	message: string;
-	canHaveKeyboardShortcuts: boolean;
+	readonly message: string;
+	readonly canHaveKeyboardShortcuts: boolean;
 }> = ({message, canHaveKeyboardShortcuts}) => {
 	const openInBrowser = useCallback(() => {
 		window.open(

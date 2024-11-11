@@ -9,11 +9,16 @@ export const lambdaHeadFileImplementation: ProviderSpecifics<AwsProvider>['headF
 		key,
 		region,
 		customCredentials,
+		forcePathStyle,
 	}): Promise<{
 		LastModified?: Date | undefined;
 		ContentLength?: number | undefined;
 	}> => {
-		const head = await getS3Client(region, customCredentials).send(
+		const head = await getS3Client({
+			region,
+			customCredentials,
+			forcePathStyle,
+		}).send(
 			new HeadObjectCommand({
 				Bucket: bucketName,
 				Key: key,

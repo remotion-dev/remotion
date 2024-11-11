@@ -7,13 +7,16 @@ import {
 	VideoAppsTitle,
 } from '../../components/LambdaSplash/VideoAppsTitle';
 import {BackgroundAnimation} from '../../components/LandingPage/BackgroundAnimation';
+import CommunityStats from '../../components/LandingPage/CommunityStats';
+import EvaluateRemotionSection from '../../components/LandingPage/EvaluateRemotionSection';
 import {NewsletterButton} from '../../components/LandingPage/NewsletterButton';
 import {Pricing} from '../../components/LandingPage/Pricing';
+import TrustedByBanner from '../../components/LandingPage/TrustedByBanner';
 import {WriteInReact} from '../../components/LandingPage/WriteInReact';
 import {LightningFastEditor} from '../../components/LandingPage/editor';
 import {IfYouKnowReact} from '../../components/LandingPage/if-you-know-react';
-import {Parametrize} from '../../components/LandingPage/parametrize';
 import {RealMP4Videos} from '../../components/LandingPage/real-mp4-videos';
+import {Demo} from '../components/Demo/Demo';
 import styles from './landing.module.css';
 
 const NewLanding: React.FC = () => {
@@ -33,12 +36,11 @@ const NewLanding: React.FC = () => {
 				<br />
 				<br />
 				<br />
-
 				<div className={styles.content}>
 					<WriteInReact />
 					<br />
-					<br />
 					<IfYouKnowReact />
+					<br />
 					<br />
 					<br />
 					<br />
@@ -53,16 +55,28 @@ const NewLanding: React.FC = () => {
 					<br />
 					<br />
 					<br />
-					<br />
-					<Parametrize />
-					<br />
-					<br />
 					<VideoAppsTitle />
 					<VideoApps active="remotion" />
+					<br />
+
+					<Demo />
+
+					<br />
 					<br />
 					<br />
 					<PricingTitle />
 					<Pricing />
+					<TrustedByBanner />
+					<br />
+					<EvaluateRemotionSection />
+					<br />
+					<br />
+
+					<CommunityStats />
+					<br />
+					<br />
+					<br />
+					<br />
 
 					<NewsletterButton />
 					<br />

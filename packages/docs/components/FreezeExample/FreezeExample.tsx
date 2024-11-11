@@ -43,7 +43,7 @@ const BlueSquare: React.FC = () => {
   );
 };
 
-const BlueSquareFreeze: React.FC<{ frozen: number | null }> = ({ frozen }) => {
+const BlueSquareFreeze: React.FC<{ readonly frozen: number | null }> = ({ frozen }) => {
   if (frozen !== null) {
     return (
       <Freeze frame={frozen}>

@@ -69,6 +69,7 @@ export type RenderStillOnCloudrunInput = Partial<OptionalParameters> &
  * @param params.forceHeight Overrides default composition height.
  * @param params.logLevel Level of logging that Cloud Run service should perform. Default "info".
  * @param params.delayRenderTimeoutInMilliseconds A number describing how long the render may take to resolve all delayRender() calls before it times out.
+ * @param params.metadata Metadata to be attached to the output file.
  * @returns {Promise<RenderStillOnCloudrunOutput>} See documentation for detailed structure
  */
 
@@ -168,7 +169,7 @@ const internalRenderStillOnCloudRun = async ({
 			try {
 				parsedData = JSON.parse(accumulatedChunks.trim());
 				accumulatedChunks = ''; // Clear the buffer after successful parsing.
-			} catch (e) {
+			} catch {
 				// If parsing fails, it means we don't have a complete JSON string yet.
 				// We'll wait for more chunks.
 				return;

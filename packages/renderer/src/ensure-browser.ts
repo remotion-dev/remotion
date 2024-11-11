@@ -34,7 +34,9 @@ export type EnsureBrowserOptions = Partial<
 	} & ToOptions<typeof BrowserSafeApis.optionsMap.ensureBrowser>
 >;
 
-export const internalEnsureBrowser = async ({
+let currentEnsureBrowserOperation: Promise<unknown> = Promise.resolve();
+
+const internalEnsureBrowserUncapped = async ({
 	indent,
 	logLevel,
 	browserExecutable,
@@ -49,6 +51,15 @@ export const internalEnsureBrowser = async ({
 
 	const newStatus = getBrowserStatus(browserExecutable);
 	return newStatus;
+};
+
+export const internalEnsureBrowser = (
+	options: InternalEnsureBrowserOptions,
+): Promise<BrowserStatus> => {
+	currentEnsureBrowserOperation = currentEnsureBrowserOperation.then(() =>
+		internalEnsureBrowserUncapped(options),
+	);
+	return currentEnsureBrowserOperation as Promise<BrowserStatus>;
 };
 
 const getBrowserStatus = (

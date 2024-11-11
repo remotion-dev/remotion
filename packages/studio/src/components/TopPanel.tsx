@@ -95,6 +95,22 @@ export const TopPanel: React.FC<{
 		[rulersAreVisible],
 	);
 
+	const sizeWithRulersApplied = useMemo(() => {
+		if (!rulersAreVisible) {
+			return size;
+		}
+
+		if (!size) {
+			return null;
+		}
+
+		return {
+			...size,
+			width: size.width - RULER_WIDTH,
+			height: size.height - RULER_WIDTH,
+		};
+	}, [rulersAreVisible, size]);
+
 	const onCollapseLeft = useCallback(() => {
 		setSidebarCollapsedState({left: 'collapsed', right: null});
 	}, [setSidebarCollapsedState]);
@@ -142,7 +158,9 @@ export const TopPanel: React.FC<{
 						>
 							<SplitterElement sticky={null} type="flexer">
 								<div ref={drawRef} style={canvasContainerStyle}>
-									{size ? <CanvasOrLoading size={size} /> : null}
+									{sizeWithRulersApplied ? (
+										<CanvasOrLoading size={sizeWithRulersApplied} />
+									) : null}
 								</div>
 							</SplitterElement>
 							{actualStateRight === 'expanded' ? (

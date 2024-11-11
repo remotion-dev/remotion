@@ -3,8 +3,8 @@ import React from "react";
 import { AbsoluteFill } from "remotion";
 
 export const CircleDemo: React.FC<{
-  radius: number;
-  darkMode: boolean;
+  readonly radius: number;
+  readonly darkMode: boolean;
 }> = ({ radius, darkMode }) => {
   return (
     <AbsoluteFill

@@ -4,10 +4,10 @@ import type {ServiceInfo} from '../../../api/get-service-info';
 import {BINARY_NAME} from '../../../shared/constants';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
-import {cloudRunDeploySubcommand, CLOUD_RUN_DEPLOY_SUBCOMMAND} from './deploy';
-import {servicesLsCommand, SERVICES_LS_SUBCOMMAND} from './ls';
-import {servicesRmCommand, SERVICES_RM_SUBCOMMAND} from './rm';
-import {servicesRmallCommand, SERVICES_RMALL_SUBCOMMAND} from './rmall';
+import {CLOUD_RUN_DEPLOY_SUBCOMMAND, cloudRunDeploySubcommand} from './deploy';
+import {SERVICES_LS_SUBCOMMAND, servicesLsCommand} from './ls';
+import {SERVICES_RM_SUBCOMMAND, servicesRmCommand} from './rm';
+import {SERVICES_RMALL_SUBCOMMAND, servicesRmallCommand} from './rmall';
 
 export const SERVICES_COMMAND = 'services';
 

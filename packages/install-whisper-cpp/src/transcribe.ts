@@ -94,6 +94,10 @@ export type TranscribeOnProgress = (progress: number) => void;
 // https://github.com/ggerganov/whisper.cpp/blob/fe36c909715e6751277ddb020e7892c7670b61d4/examples/main/main.cpp#L989-L999
 // https://github.com/remotion-dev/remotion/issues/4168
 export const modelToDtw = (model: WhisperModel): string => {
+	if (model === 'large-v3-turbo') {
+		return 'large.v3.turbo';
+	}
+
 	if (model === 'large-v3') {
 		return 'large.v3';
 	}
@@ -120,6 +124,7 @@ const transcribeToTemporaryFile = async ({
 	printOutput,
 	tokensPerItem,
 	language,
+	splitOnWord,
 	signal,
 	onProgress,
 }: {
@@ -133,6 +138,7 @@ const transcribeToTemporaryFile = async ({
 	printOutput: boolean;
 	tokensPerItem: number | null;
 	language: Language | null;
+	splitOnWord: boolean | null;
 	signal: AbortSignal | null;
 	onProgress: TranscribeOnProgress | null;
 }): Promise<{
@@ -163,6 +169,7 @@ const transcribeToTemporaryFile = async ({
 		['-pp'], // print progress
 		translate ? '-tr' : null,
 		language ? ['-l', language.toLowerCase()] : null,
+		splitOnWord ? ['--split-on-word', splitOnWord] : null,
 	]
 		.flat(1)
 		.filter(Boolean) as string[];
@@ -247,6 +254,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	printOutput = true,
 	tokensPerItem,
 	language,
+	splitOnWord,
 	signal,
 	onProgress,
 }: {
@@ -259,6 +267,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	printOutput?: boolean;
 	tokensPerItem?: true extends HasTokenLevelTimestamps ? never : number | null;
 	language?: Language | null;
+	splitOnWord?: boolean;
 	signal?: AbortSignal;
 	onProgress?: TranscribeOnProgress;
 }): Promise<TranscriptionJson<HasTokenLevelTimestamps>> => {
@@ -289,9 +298,10 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 		translate: translateToEnglish,
 		tokenLevelTimestamps,
 		printOutput,
-		tokensPerItem: tokenLevelTimestamps ? 1 : tokensPerItem ?? 1,
+		tokensPerItem: tokenLevelTimestamps ? 1 : (tokensPerItem ?? 1),
 		language: language ?? null,
 		signal: signal ?? null,
+		splitOnWord: splitOnWord ?? null,
 		onProgress: onProgress ?? null,
 	});
 

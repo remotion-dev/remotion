@@ -1,13 +1,13 @@
 import type {SttsBox} from './boxes/iso-base-media/stsd/stts';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
-import type {AnySegment} from './parse-result';
 import {
 	getMdhdBox,
 	getMoovBox,
 	getStsdBox,
 	getSttsBox,
 	getTraks,
-} from './traversal';
+} from './boxes/iso-base-media/traversal';
+import type {AnySegment} from './parse-result';
 
 const calculateFps = ({
 	sttsBox,
@@ -107,7 +107,7 @@ export const getFps = (segments: AnySegment[]) => {
 export const hasFps = (boxes: AnySegment[]): boolean => {
 	try {
 		return getFps(boxes) !== null;
-	} catch (err) {
+	} catch {
 		return false;
 	}
 };

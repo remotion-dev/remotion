@@ -18,6 +18,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {
 	AggregateRenderProgress,
@@ -109,6 +110,8 @@ export const renderVideoFlow = async ({
 	forSeamlessAacConcatenation,
 	separateAudioTo,
 	publicPath,
+	metadata,
+	hardwareAcceleration,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -127,7 +130,7 @@ export const renderVideoFlow = async ({
 	port: number | null;
 	height: number | null;
 	width: number | null;
-	remainingArgs: string[];
+	remainingArgs: (string | number)[];
 	compositionIdFromUi: string | null;
 	outputLocationFromUI: string | null;
 	overwrite: boolean;
@@ -162,6 +165,8 @@ export const renderVideoFlow = async ({
 	forSeamlessAacConcatenation: boolean;
 	separateAudioTo: string | null;
 	publicPath: string | null;
+	metadata: Record<string, string> | null;
+	hardwareAcceleration: HardwareAccelerationOption;
 }) => {
 	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 
@@ -597,6 +602,8 @@ export const renderVideoFlow = async ({
 		compositionStart: 0,
 		onBrowserDownload,
 		onArtifact,
+		metadata: metadata ?? null,
+		hardwareAcceleration,
 	});
 	if (!updatesDontOverwrite) {
 		updateRenderProgress({newline: true, printToConsole: true});

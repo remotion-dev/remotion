@@ -25,7 +25,7 @@ const loadPreviewSizeOption = (): PreviewSize => {
 };
 
 export const PreviewSizeProvider: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const [size, setSizeState] = useState(() => loadPreviewSizeOption());
 	const [translation, setTranslation] = useState(() => {

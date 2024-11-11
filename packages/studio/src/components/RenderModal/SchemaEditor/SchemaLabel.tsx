@@ -19,17 +19,17 @@ const compactStyles: React.CSSProperties = {
 };
 
 export const SchemaLabel: React.FC<{
-	jsonPath: JSONPath;
-	isDefaultValue: boolean;
-	onReset: () => void;
-	onSave: () => void;
-	onRemove: null | (() => void);
-	showSaveButton: boolean;
-	saving: boolean;
-	valid: boolean;
-	saveDisabledByParent: boolean;
-	suffix: string | null;
-	handleClick: null | (() => void);
+	readonly jsonPath: JSONPath;
+	readonly isDefaultValue: boolean;
+	readonly onReset: () => void;
+	readonly onSave: () => void;
+	readonly onRemove: null | (() => void);
+	readonly showSaveButton: boolean;
+	readonly saving: boolean;
+	readonly valid: boolean;
+	readonly saveDisabledByParent: boolean;
+	readonly suffix: string | null;
+	readonly handleClick: null | (() => void);
 }> = ({
 	jsonPath,
 	isDefaultValue,

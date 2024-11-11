@@ -37,9 +37,9 @@ const containerTitleDescription: React.CSSProperties = {
 
 export const VideoPreview: React.FC<
 	ShowcaseVideo & {
-		title: string;
-		description: React.ReactNode;
-		onClick: () => void;
+		readonly title: string;
+		readonly description: React.ReactNode;
+		readonly onClick: () => void;
 	}
 > = ({title, description, onClick, muxId, width, height, time}) => {
 	const [hover, setHover] = useState(false);

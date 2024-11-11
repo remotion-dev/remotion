@@ -1,13 +1,14 @@
 ---
 image: /generated/articles-docs-three.png
 id: three
-title: "@remotion/three"
+title: '@remotion/three'
 sidebar_label: Overview
 ---
 
-import Tabs from "@theme/Tabs";
-import TabItem from "@theme/TabItem";
-import { ThreeDPlayer } from "../components/3DPhonePlayer.tsx";
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import {ThreeDPlayer} from '../components/3DPhonePlayer.tsx';
+import {TableOfContents} from './three/TableOfContents';
 
 is a package for integrating [React Three Fiber](https://github.com/pmndrs/react-three-fiber) with Remotion.
 
@@ -74,9 +75,9 @@ A [`<Sequence>`](/docs/sequence) by default will return a `<div>` component, whi
 Three.JS does not render with the default OpenGL renderer - we recommend to set it to `angle`. The config file of new projects includes by default:
 
 ```ts twoslash
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 
-Config.setChromiumOpenGlRenderer("angle");
+Config.setChromiumOpenGlRenderer('angle');
 ```
 
 Since the config file does not apply to server-side rendering, you need to explicitly add
@@ -92,3 +93,7 @@ to server-side rendering APIs like [`renderMedia()`](/docs/renderer/render-media
 ## Thanks
 
 A big thanks to [Björn Zeutzheim](https://github.com/olee) for researching and discovering the techniques needed for React Three Fiber integration and for doing the initial implementation of the @remotion/three APIs.
+
+## APIs
+
+<TableOfContents />

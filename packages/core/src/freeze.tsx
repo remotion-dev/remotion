@@ -6,9 +6,9 @@ import {useCurrentFrame} from './use-current-frame.js';
 import {useVideoConfig} from './use-video-config.js';
 
 type FreezeProps = {
-	frame: number;
-	children: React.ReactNode;
-	active?: boolean | ((f: number) => boolean);
+	readonly frame: number;
+	readonly children: React.ReactNode;
+	readonly active?: boolean | ((f: number) => boolean);
 };
 
 /**

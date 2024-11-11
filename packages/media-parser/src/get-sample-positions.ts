@@ -77,7 +77,7 @@ export const getSamplePositions = ({
 			const cts = dts + ctsOffset;
 
 			samples.push({
-				offset: chunks[i] + offsetInThisChunk,
+				offset: Number(chunks[i]) + offsetInThisChunk,
 				size,
 				isKeyframe,
 				dts,

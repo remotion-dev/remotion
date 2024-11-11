@@ -42,7 +42,12 @@ const testRenderMetadata: RenderMetadata<MockProvider> = {
 	downloadBehavior: {type: 'play-in-browser'},
 	audioBitrate: null,
 	muted: false,
+	metadata: null,
 	codec: 'h264',
+	dimensions: {
+		width: 1920,
+		height: 1080,
+	},
 };
 
 test('Should get a custom outname', () => {

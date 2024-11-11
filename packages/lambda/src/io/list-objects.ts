@@ -10,9 +10,14 @@ export const lambdaLsImplementation: ProviderSpecifics<AwsProvider>['listObjects
 		region,
 		expectedBucketOwner,
 		continuationToken,
+		forcePathStyle,
 	}) => {
 		try {
-			const list = await getS3Client(region, null).send(
+			const list = await getS3Client({
+				region,
+				customCredentials: null,
+				forcePathStyle,
+			}).send(
 				new ListObjectsV2Command({
 					Bucket: bucketName,
 					Prefix: prefix,
@@ -36,6 +41,7 @@ export const lambdaLsImplementation: ProviderSpecifics<AwsProvider>['listObjects
 						expectedBucketOwner,
 						region,
 						continuationToken: list.NextContinuationToken,
+						forcePathStyle,
 					})),
 				];
 			}
@@ -57,7 +63,11 @@ export const lambdaLsImplementation: ProviderSpecifics<AwsProvider>['listObjects
 
 			// Prevent from accessing a foreign bucket, retry without ExpectedBucketOwner and see if it works. If it works then it's an owner mismatch.
 			if ((err as Error).stack?.includes('AccessDenied')) {
-				await getS3Client(region, null).send(
+				await getS3Client({
+					region,
+					customCredentials: null,
+					forcePathStyle,
+				}).send(
 					new ListObjectsV2Command({
 						Bucket: bucketName,
 						Prefix: prefix,

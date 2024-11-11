@@ -9,6 +9,8 @@ test('Should have no buckets at first', async () => {
 		await internalGetSites({
 			region: 'us-east-1',
 			providerSpecifics: mockImplementation,
+			forcePathStyle: false,
+			forceBucketName: null,
 		}),
 	).toEqual({buckets: [], sites: []});
 });
@@ -19,6 +21,7 @@ test('Should have a site after deploying', async () => {
 		providerSpecifics: mockImplementation,
 		customCredentials: null,
 		enableFolderExpiry: null,
+		forcePathStyle: false,
 	});
 	expect(
 		await internalDeploySite({
@@ -33,6 +36,7 @@ test('Should have a site after deploying', async () => {
 			privacy: 'public',
 			throwIfSiteExists: true,
 			options: {},
+			forcePathStyle: false,
 		}),
 	).toEqual({
 		serveUrl:
@@ -48,6 +52,8 @@ test('Should have a site after deploying', async () => {
 		await internalGetSites({
 			region: 'eu-central-1',
 			providerSpecifics: mockImplementation,
+			forcePathStyle: false,
+			forceBucketName: null,
 		}),
 	).toEqual({
 		buckets: [

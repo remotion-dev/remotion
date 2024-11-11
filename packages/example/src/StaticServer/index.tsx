@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {continueRender, delayRender, Img, staticFile} from 'remotion';
 
 export const StaticDemo: React.FC<{
-	flag: boolean;
+	readonly flag: boolean;
 }> = ({flag}) => {
 	if (!flag) {
 		throw new Error('`flag` must be true (this only works during rendering)');

@@ -28,9 +28,9 @@ import type {WebhookPayload} from './shared/invoke-webhook';
 
 export {CustomCredentials, DeleteAfter} from '@remotion/serverless/client';
 export {
+	getAwsClient,
 	GetAwsClientInput,
 	GetAwsClientOutput,
-	getAwsClient,
 } from './api/get-aws-client';
 export type {AwsRegion} from './regions';
 export {

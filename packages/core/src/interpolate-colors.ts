@@ -3,7 +3,6 @@
  * https://github.com/software-mansion/react-native-reanimated/blob/master/src/reanimated2/Colors.ts
  */
 
-/* eslint no-bitwise: 0 */
 import {interpolate} from './interpolate.js';
 
 type MatcherType = RegExp | undefined;

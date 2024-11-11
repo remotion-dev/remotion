@@ -9,7 +9,7 @@ const isTypescriptInstalled = () => {
 	try {
 		require.resolve('typescript');
 		return true;
-	} catch (err) {
+	} catch {
 		return false;
 	}
 };

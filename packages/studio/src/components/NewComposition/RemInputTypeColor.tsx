@@ -15,8 +15,8 @@ type Props = React.DetailedHTMLProps<
 	React.InputHTMLAttributes<HTMLInputElement>,
 	HTMLInputElement
 > & {
-	status: RemInputStatus;
-	name: string;
+	readonly status: RemInputStatus;
+	readonly name: string;
 };
 
 const inputBaseStyle: React.CSSProperties = {
@@ -43,13 +43,9 @@ const RemInputTypeColorForwardRef: React.ForwardRefRenderFunction<
 		};
 	}, [isFocused, isHovered, props.style, status]);
 
-	useImperativeHandle(
-		ref,
-		() => {
-			return inputRef.current as HTMLInputElement;
-		},
-		[],
-	);
+	useImperativeHandle(ref, () => {
+		return inputRef.current as HTMLInputElement;
+	}, []);
 
 	useEffect(() => {
 		if (!inputRef.current) {

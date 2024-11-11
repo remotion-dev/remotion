@@ -1,5 +1,6 @@
 import React, {useCallback, useMemo} from 'react';
 import {Counter} from './Counter';
+import {InfoTooltip} from './InfoToolTip';
 import {PricingBulletPoint} from './PricingBulletPoint';
 import styles from './pricing.module.css';
 
@@ -51,6 +52,9 @@ export const CompanyPricing: React.FC = () => {
 			<PricingBulletPoint text="Everything in Free License" checked />
 			<PricingBulletPoint text="Prioritized Support" checked />
 			<PricingBulletPoint text="Remotion Recorder included" checked />
+			<PricingBulletPoint text="$250 Mux credits" checked>
+				<InfoTooltip text="Credits for Mux.com. Applies only to new Mux customers." />
+			</PricingBulletPoint>
 			<div style={{height: 30}} />
 			<div className={styles.rowcontainer}>
 				<div style={textUnitWrapper}>
@@ -60,7 +64,7 @@ export const CompanyPricing: React.FC = () => {
 					</div>
 				</div>
 				<div style={{flex: 3}} />
-				<Counter count={devSeatCount} setCount={setDevSeatCount} />
+				<Counter count={devSeatCount} setCount={setDevSeatCount} minCount={1} />
 				<div style={{flex: 1}} />
 				<div className={styles.pricetag}>
 					$
@@ -78,7 +82,11 @@ export const CompanyPricing: React.FC = () => {
 					</div>
 				</div>
 				<div style={{flex: 3}} />
-				<Counter count={cloudUnitCount} setCount={setCloudUnitCount} />
+				<Counter
+					count={cloudUnitCount}
+					setCount={setCloudUnitCount}
+					minCount={0}
+				/>
 				<div style={{flex: 1}} />
 				<div className={styles.pricetag}>
 					$

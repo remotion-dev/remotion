@@ -4,9 +4,13 @@ import {articles} from '../data/articles';
 import './font.css';
 
 export const Article: React.FC<{
-	articleRelativePath: string;
+	readonly articleRelativePath: string;
 }> = ({articleRelativePath}) => {
 	const article = articles.find((e) => e.relativePath === articleRelativePath);
+	if (!article) {
+		return null;
+	}
+
 	const longestTitle = Math.max(
 		...article.title.split(' ').map((p) => p.length),
 	);

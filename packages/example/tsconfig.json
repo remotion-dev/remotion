@@ -17,7 +17,6 @@
 		{"path": "../core"},
 		{"path": "../babel-loader"},
 		{"path": "../bundler"},
-		{"path": "../browser-renderer"},
 		{"path": "../cli"},
 		{"path": "../eslint-config"},
 		{"path": "../eslint-plugin"},
@@ -36,6 +35,7 @@
 		{"path": "../transitions"},
 		{"path": "../zod-types"},
 		{"path": "../media-parser"},
+		{"path": "../webcodecs"},
 		{"path": "../layout-utils"}
 	]
 }

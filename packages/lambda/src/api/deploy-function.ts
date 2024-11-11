@@ -11,6 +11,10 @@ import {
 } from '../shared/constants';
 import {FUNCTION_ZIP_ARM64} from '../shared/function-zip-path';
 import {getAccountId} from '../shared/get-account-id';
+import {
+	validateRuntimePreference,
+	type RuntimePreference,
+} from '../shared/get-layers';
 import {LAMBDA_VERSION_STRING} from '../shared/lambda-version-string';
 import {validateAwsRegion} from '../shared/validate-aws-region';
 import {validateCustomRoleArn} from '../shared/validate-custom-role-arn';
@@ -37,6 +41,7 @@ type OptionalParameters = {
 	enableV5Runtime: boolean;
 	vpcSubnetIds: string | undefined;
 	vpcSecurityGroupIds: string | undefined;
+	runtimePreference: RuntimePreference;
 };
 
 export type DeployFunctionInput = MandatoryParameters &
@@ -56,6 +61,7 @@ export const internalDeployFunction = async (
 	validateCloudWatchRetentionPeriod(params.cloudWatchLogRetentionPeriodInDays);
 	validateDiskSizeInMb(params.diskSizeInMb);
 	validateCustomRoleArn(params.customRoleArn);
+	validateRuntimePreference(params.runtimePreference);
 
 	const fnNameRender = [
 		`${RENDER_FN_PREFIX}${LAMBDA_VERSION_STRING}`,
@@ -97,6 +103,7 @@ export const internalDeployFunction = async (
 		logLevel: params.logLevel,
 		vpcSubnetIds: params.vpcSubnetIds as string,
 		vpcSecurityGroupIds: params.vpcSecurityGroupIds as string,
+		runtimePreference: params.runtimePreference,
 	});
 
 	if (!created.FunctionName) {
@@ -136,16 +143,15 @@ export const deployFunction = ({
 	enableV5Runtime,
 	vpcSubnetIds,
 	vpcSecurityGroupIds,
-	...options
+	runtimePreference,
+	diskSizeInMb,
 }: DeployFunctionInput) => {
-	const diskSizeInMb = options.diskSizeInMb ?? DEFAULT_EPHEMERAL_STORAGE_IN_MB;
-
 	return errorHandled({
 		indent: indent ?? false,
 		logLevel: logLevel ?? 'info',
 		createCloudWatchLogGroup,
 		customRoleArn: customRoleArn ?? undefined,
-		diskSizeInMb,
+		diskSizeInMb: diskSizeInMb ?? DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 		enableLambdaInsights: enableLambdaInsights ?? false,
 		memorySizeInMb,
 		region,
@@ -155,5 +161,6 @@ export const deployFunction = ({
 			enableV5Runtime ?? NoReactInternals.ENABLE_V5_BREAKING_CHANGES,
 		vpcSubnetIds,
 		vpcSecurityGroupIds,
+		runtimePreference: runtimePreference ?? 'default',
 	});
 };

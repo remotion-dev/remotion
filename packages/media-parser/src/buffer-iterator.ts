@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import {webmPattern} from './boxes/webm/make-header';
 import {
 	knownIdsWithOneLength,
@@ -33,6 +34,10 @@ export class OffsetCounter {
 		this.#discardedBytes = offset;
 	}
 
+	getDiscardedBytes() {
+		return this.#discardedBytes;
+	}
+
 	discardBytes(amount: number) {
 		this.#discardedBytes += amount;
 	}
@@ -62,10 +67,13 @@ const makeOffsetCounter = (): OffsetCounter => {
 
 export const getArrayBufferIterator = (
 	initialData: Uint8Array,
-	maxBytes?: number,
+	maxBytes: number | null,
 ) => {
 	const buf = new ArrayBuffer(initialData.byteLength, {
-		maxByteLength: maxBytes ?? 1_000_000_000,
+		maxByteLength:
+			maxBytes === null
+				? initialData.byteLength
+				: Math.min(maxBytes as number, 2 ** 32),
 	});
 	if (!buf.resize) {
 		throw new Error(
@@ -74,10 +82,12 @@ export const getArrayBufferIterator = (
 	}
 
 	let data = new Uint8Array(buf);
+
 	data.set(initialData);
 
 	let view = new DataView(data.buffer);
 	const counter = makeOffsetCounter();
+	let discardAllowed = true;
 
 	const getSlice = (amount: number) => {
 		const value = data.slice(
@@ -89,11 +99,65 @@ export const getArrayBufferIterator = (
 		return value;
 	};
 
+	const disallowDiscard = () => {
+		discardAllowed = false;
+	};
+
+	const allowDiscard = () => {
+		discardAllowed = true;
+	};
+
 	const getUint8 = () => {
 		const val = view.getUint8(counter.getDiscardedOffset());
 		counter.increment(1);
 
 		return val;
+	};
+
+	const getEightByteNumber = (littleEndian = false) => {
+		if (littleEndian) {
+			const one = getUint8();
+			const two = getUint8();
+			const three = getUint8();
+			const four = getUint8();
+			const five = getUint8();
+			const six = getUint8();
+			const seven = getUint8();
+			const eight = getUint8();
+
+			return (
+				(eight << 56) |
+				(seven << 48) |
+				(six << 40) |
+				(five << 32) |
+				(four << 24) |
+				(three << 16) |
+				(two << 8) |
+				one
+			);
+		}
+
+		function byteArrayToBigInt(byteArray: number[]): BigInt {
+			let result = BigInt(0);
+			for (let i = 0; i < byteArray.length; i++) {
+				result = (result << BigInt(8)) + BigInt(byteArray[i]);
+			}
+
+			return result;
+		}
+
+		const bigInt = byteArrayToBigInt([
+			getUint8(),
+			getUint8(),
+			getUint8(),
+			getUint8(),
+			getUint8(),
+			getUint8(),
+			getUint8(),
+			getUint8(),
+		]);
+
+		return Number(bigInt);
 	};
 
 	const getFourByteNumber = (littleEndian = false) => {
@@ -122,6 +186,12 @@ export const getArrayBufferIterator = (
 	const getUint32 = (littleEndian = false) => {
 		const val = view.getUint32(counter.getDiscardedOffset(), littleEndian);
 		counter.increment(4);
+		return val;
+	};
+
+	const getUint64 = (littleEndian = false) => {
+		const val = view.getBigUint64(counter.getDiscardedOffset(), littleEndian);
+		counter.increment(8);
 		return val;
 	};
 
@@ -178,9 +248,13 @@ export const getArrayBufferIterator = (
 	};
 
 	const removeBytesRead = () => {
+		if (!discardAllowed) {
+			return;
+		}
+
 		const bytesToRemove = counter.getDiscardedOffset();
 
-		// Only to this operation if it is really worth it 😇
+		// Only do this operation if it is really worth it 😇
 		if (bytesToRemove < 100_000) {
 			return;
 		}
@@ -192,14 +266,23 @@ export const getArrayBufferIterator = (
 		view = new DataView(data.buffer);
 	};
 
-	const skipTo = (offset: number) => {
+	const skipTo = (offset: number, reset: boolean) => {
 		const becomesSmaller = offset < counter.getOffset();
 		if (becomesSmaller) {
-			buf.resize(0);
-			counter.decrement(counter.getOffset() - offset);
-			counter.setDiscardedOffset(offset);
+			if (reset) {
+				buf.resize(0);
+				counter.decrement(counter.getOffset() - offset);
+				counter.setDiscardedOffset(offset);
+			} else {
+				const toDecrement = counter.getOffset() - offset;
+				const newOffset = counter.getOffset() - toDecrement;
+				counter.decrement(toDecrement);
+				const c = counter.getDiscardedBytes();
+				if (c > newOffset) {
+					throw new Error('already discarded too many bytes');
+				}
+			}
 		} else {
-			buf.resize(offset);
 			const currentOffset = counter.getOffset();
 			counter.increment(offset - currentOffset);
 			removeBytesRead();
@@ -289,11 +372,12 @@ export const getArrayBufferIterator = (
 		bytesRemaining,
 		isIsoBaseMedia,
 		leb128,
-		discardFirstBytes: removeBytesRead,
+		removeBytesRead,
 		isWebm,
 		discard: (length: number) => {
 			counter.increment(length);
 		},
+		getEightByteNumber,
 		getFourByteNumber,
 		getSlice,
 		getAtom: () => {
@@ -302,7 +386,11 @@ export const getArrayBufferIterator = (
 		},
 		isRiff,
 		getPaddedFourByteNumber,
-		getMatroskaSegmentId: () => {
+		getMatroskaSegmentId: (): string | null => {
+			if (bytesRemaining() === 0) {
+				return null;
+			}
+
 			const first = getSlice(1);
 			const firstOneString = `0x${Array.from(new Uint8Array(first))
 				.map((b) => {
@@ -315,6 +403,10 @@ export const getArrayBufferIterator = (
 
 			if (knownIdsWithOneLength.includes(firstOneString)) {
 				return firstOneString;
+			}
+
+			if (bytesRemaining() === 0) {
+				return null;
 			}
 
 			const firstTwo = getSlice(1);
@@ -331,6 +423,10 @@ export const getArrayBufferIterator = (
 				return firstTwoString;
 			}
 
+			if (bytesRemaining() === 0) {
+				return null;
+			}
+
 			const firstThree = getSlice(1);
 
 			const firstThreeString = `${firstTwoString}${Array.from(
@@ -345,6 +441,10 @@ export const getArrayBufferIterator = (
 				return firstThreeString;
 			}
 
+			if (bytesRemaining() === 0) {
+				return null;
+			}
+
 			const segmentId = getSlice(1);
 
 			return `${firstThreeString}${Array.from(new Uint8Array(segmentId))
@@ -353,7 +453,11 @@ export const getArrayBufferIterator = (
 				})
 				.join('')}`;
 		},
-		getVint: () => {
+		getVint: (): number | null => {
+			if (bytesRemaining() === 0) {
+				return null;
+			}
+
 			const firstByte = getUint8();
 			const totalLength = firstByte;
 
@@ -367,6 +471,10 @@ export const getArrayBufferIterator = (
 				actualLength++;
 			}
 
+			if (bytesRemaining() < actualLength) {
+				return null;
+			}
+
 			const slice = getSlice(actualLength);
 			const d = [firstByte, ...Array.from(new Uint8Array(slice))];
 
@@ -378,6 +486,13 @@ export const getArrayBufferIterator = (
 			value = totalLength & (0xff >> actualLength);
 			for (let i = 1; i < actualLength; i++) {
 				value = (value << 8) | d[i];
+			}
+
+			// Livestreamed segments sometimes have a Cluster length of 0xFFFFFFFFFFFFFF
+			// which we parse as -1
+			// this should be treated as Infinity
+			if (value === -1) {
+				return Infinity;
 			}
 
 			return value;
@@ -404,8 +519,8 @@ export const getArrayBufferIterator = (
 		},
 		getUint24: () => {
 			const val1 = view.getUint8(counter.getDiscardedOffset());
-			const val2 = view.getUint8(counter.getDiscardedOffset());
-			const val3 = view.getUint8(counter.getDiscardedOffset());
+			const val2 = view.getUint8(counter.getDiscardedOffset() + 1);
+			const val3 = view.getUint8(counter.getDiscardedOffset() + 2);
 			counter.increment(3);
 			return (val1 << 16) | (val2 << 8) | val3;
 		},
@@ -416,6 +531,7 @@ export const getArrayBufferIterator = (
 			return val;
 		},
 		getUint32,
+		getUint64,
 		// https://developer.apple.com/documentation/quicktime-file-format/sound_sample_description_version_1
 		// A 32-bit unsigned fixed-point number (16.16) that indicates the rate at which the sound samples were obtained.
 		getFixedPointUnsigned1616Number: () => {
@@ -434,7 +550,7 @@ export const getArrayBufferIterator = (
 			const val = getSlice(32);
 			return [...Array.from(new Uint8Array(val))];
 		},
-		getDecimalBytes(length: number): number {
+		getUint(length: number): number {
 			const bytes = getSlice(length);
 			const numbers = [...Array.from(new Uint8Array(bytes))];
 			return numbers.reduce(
@@ -459,8 +575,11 @@ export const getArrayBufferIterator = (
 		},
 		getUint32Le,
 		getInt32Le,
+		getInt32,
 		destroy,
 		isMp3,
+		disallowDiscard,
+		allowDiscard,
 	};
 };
 

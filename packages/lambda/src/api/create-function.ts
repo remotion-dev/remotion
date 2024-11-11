@@ -17,7 +17,8 @@ import {VERSION} from 'remotion/version';
 import {LOG_GROUP_PREFIX} from '../defaults';
 import type {AwsRegion} from '../regions';
 import {getCloudWatchLogsClient, getLambdaClient} from '../shared/aws-clients';
-import {hostedLayers, v5HostedLayers} from '../shared/hosted-layers';
+import type {RuntimePreference} from '../shared/get-layers';
+import {getLayers} from '../shared/get-layers';
 import {lambdaInsightsExtensions} from '../shared/lambda-insights-extensions';
 import {ROLE_NAME} from './iam-validation/suggested-policy';
 
@@ -38,6 +39,7 @@ export const createFunction = async ({
 	logLevel,
 	vpcSubnetIds,
 	vpcSecurityGroupIds,
+	runtimePreference,
 }: {
 	createCloudWatchLogGroup: boolean;
 	region: AwsRegion;
@@ -55,6 +57,7 @@ export const createFunction = async ({
 	logLevel: LogLevel;
 	vpcSubnetIds: string;
 	vpcSecurityGroupIds: string;
+	runtimePreference: RuntimePreference;
 }): Promise<{FunctionName: string}> => {
 	if (createCloudWatchLogGroup) {
 		RenderInternals.Log.verbose(
@@ -109,9 +112,11 @@ export const createFunction = async ({
 
 	const defaultRoleName = `arn:aws:iam::${accountId}:role/${ROLE_NAME}`;
 
-	const layers = enableV5Runtime
-		? v5HostedLayers[region]
-		: hostedLayers[region];
+	const layers = getLayers({
+		option: runtimePreference,
+		region,
+		enableV5Runtime,
+	});
 
 	if (enableV5Runtime) {
 		RenderInternals.Log.verbose(
@@ -241,7 +246,7 @@ export const createFunction = async ({
 				RuntimeVersionArn,
 			}),
 		);
-	} catch (err) {
+	} catch {
 		console.warn(
 			'⚠️ Could not lock the runtime version. We recommend to update your policies to prevent your functions from breaking in the future in case the AWS runtime changes. See https://remotion.dev/docs/lambda/feb-2023-incident for an example on how to update your policy.',
 		);

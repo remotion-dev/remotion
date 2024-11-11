@@ -54,7 +54,7 @@ const moreButton: React.CSSProperties = {
 };
 
 export const ErrorMessage: React.FC<{
-	message: string;
+	readonly message: string;
 }> = ({message}) => {
 	const [expanded, setExpanded] = useState(false);
 	const ref = useRef<HTMLDivElement>(null);

@@ -129,9 +129,9 @@ type AlgoliaState =
 	  };
 
 export const QuickSwitcherContent: React.FC<{
-	initialMode: QuickSwitcherMode;
-	invocationTimestamp: number;
-	readOnlyStudio: boolean;
+	readonly initialMode: QuickSwitcherMode;
+	readonly invocationTimestamp: number;
+	readonly readOnlyStudio: boolean;
 }> = ({initialMode, invocationTimestamp, readOnlyStudio}) => {
 	const {compositions} = useContext(Internals.CompositionManager);
 	const [state, setState] = useState(() => {

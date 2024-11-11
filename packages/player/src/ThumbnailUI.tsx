@@ -35,12 +35,12 @@ const doesReactVersionSupportSuspense = parseInt(reactVersion, 10) >= 18;
 const ThumbnailUI: React.ForwardRefRenderFunction<
 	ThumbnailMethods,
 	{
-		inputProps: Record<string, unknown>;
-		style?: React.CSSProperties;
-		errorFallback: ErrorFallback;
-		renderLoading: RenderLoading | undefined;
-		className: string | undefined;
-		overflowVisible: boolean;
+		readonly inputProps: Record<string, unknown>;
+		readonly style?: React.CSSProperties;
+		readonly errorFallback: ErrorFallback;
+		readonly renderLoading: RenderLoading | undefined;
+		readonly className: string | undefined;
+		readonly overflowVisible: boolean;
 	}
 > = (
 	{style, inputProps, errorFallback, renderLoading, className, overflowVisible},
@@ -72,23 +72,25 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 
 	useBufferStateEmitter(thumbnail.emitter);
 
-	useImperativeHandle(
-		ref,
-		() => {
-			const methods: ThumbnailMethods = {
-				getContainerNode: () => container.current,
-				getScale: () => scale,
-			};
-			return Object.assign(thumbnail.emitter, methods);
-		},
-		[scale, thumbnail.emitter],
-	);
+	useImperativeHandle(ref, () => {
+		const methods: ThumbnailMethods = {
+			getContainerNode: () => container.current,
+			getScale: () => scale,
+		};
+		return Object.assign(thumbnail.emitter, methods);
+	}, [scale, thumbnail.emitter]);
 
 	const VideoComponent = video ? video.component : null;
 
 	const outerStyle: React.CSSProperties = useMemo(() => {
-		return calculateOuterStyle({config, style, canvasSize, overflowVisible});
-	}, [canvasSize, config, overflowVisible, style]);
+		return calculateOuterStyle({
+			config,
+			style,
+			canvasSize,
+			overflowVisible,
+			layout,
+		});
+	}, [canvasSize, config, layout, overflowVisible, style]);
 
 	const outer: React.CSSProperties = useMemo(() => {
 		return calculateOuter({config, layout, scale, overflowVisible});

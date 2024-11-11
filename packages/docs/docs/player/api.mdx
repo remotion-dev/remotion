@@ -66,6 +66,10 @@ To make it smaller, pass a `style` prop to give the player a different width: `{
 
 The height you would like the video to have when rendered as an MP4. Use `style={{height: <height>}}` to define a height to be assumed in the browser.
 
+### `inputProps`
+
+Pass props to the component that you have specified using the `component` prop. The Typescript definition takes the shape of the props that you have given to your `component`.
+
 ### `loop`
 
 _optional_
@@ -123,12 +127,6 @@ A boolean property defining whether you can play or pause a video using space ke
 _optional_
 
 A boolean property defining whether the video position should go back to zero once the video has ended. Only works if `loop` is disabled. Default `true`.
-
-### `inputProps`
-
-_optional_
-
-Pass props to the component that you have specified using the `component` prop. The Typescript definition takes the shape of the props that you have given to your `component`. Default `undefined`.
 
 ### `style`
 
@@ -372,7 +370,7 @@ export const App: React.FC = () => {
 };
 ```
 
-Since v4.0.111, a `isBuffering` parameter is being passed in the callback which is `true` if the Player is in a [buffer state](/docs/player/buffer-state). [Learn more](/docs/player/buffer-state#state-management) about the playback states a Player can be in.
+Since v4.0.111, a `isBuffering` parameter is being passed in the callback which is `true` if the Player is in a [buffer state](/docs/player/buffer-state). [Learn more](/docs/player/buffer-state#possible-states) about the playback states a Player can be in.
 
 Since v4.0.111, You can return `null` in the callback to fall back to the default UI.
 
@@ -421,7 +419,7 @@ _optional_
 
 Allows you to customize the Mute button of the controls, must return a valid React element.  
 Action is disabled, you must attach click handlers yourself using the [`PlayerRef`](#playerref).  
-If unmuting a video, we recommend setting both [`.setVolume(1)`](#setvolume) and [`.setMuted(false)`](#setmuted).
+If unmuting a video, we recommend setting both [`.setVolume(1)`](#setvolume) and [`.setMuted(false)`](/docs/config#setmuted).
 
 ```tsx twoslash
 const VolumeOnIcon: React.FC = () => null;
@@ -535,6 +533,11 @@ This allows you to flexibly implement custom UI for the buffer state.
 ### `overflowVisible`<AvailableFrom v="4.0.173"/>
 
 Makes the Player render things outside of the canvas. Useful if you have interactive elements in the video such as draggable elements.
+
+### `browserMediaControlsBehavior`<AvailableFrom v="4.0.221" />
+
+Controls what happens when the user presses the Play/Pause button on their keyboard or uses other controls such as Chromes built-in controls.  
+See [Media Keys Behavior](/docs/player/media-keys) for more information.
 
 ## `PlayerRef`
 
@@ -792,7 +795,7 @@ useEffect(() => {
 
 ### `seeked`
 
-Fired when the time position is changed by the user using the playback bar or using [`seek()`](#seek). You may get the current frame by reading it from `e.detail.frame`.
+Fired when the time position is changed by the user using the playback bar or using [`seek()`](#seeked). You may get the current frame by reading it from `e.detail.frame`.
 
 ```tsx twoslash
 import {PlayerRef} from '@remotion/player';
@@ -931,13 +934,13 @@ ref.current?.addEventListener('error', (e) => {
 
 Fires when the Player has entered into the [native buffering state](/docs/player/buffer-state).
 
-Read here [how to best implement state management](/docs/player/buffer-state#state-management).
+Read here [how to best implement state management](/docs/player/buffer-state#possible-states).
 
 ### `resume`<AvailableFrom v="4.0.111" />
 
 Fires when the Player has exited the [native buffering state](/docs/player/buffer-state).
 
-Read here [how to best implement state management](/docs/player/buffer-state#state-management).
+Read here [how to best implement state management](/docs/player/buffer-state#possible-states).
 
 ## Handling errors
 

@@ -52,6 +52,7 @@ export const compositionsHandler = async <Provider extends CloudProvider>(
 					enableFolderExpiry: null,
 					customCredentials: null,
 					providerSpecifics,
+					forcePathStyle: lambdaParams.forcePathStyle,
 				}).then((b) => b.bucketName);
 
 		const bucketName = await bucketNamePromise;
@@ -62,6 +63,7 @@ export const compositionsHandler = async <Provider extends CloudProvider>(
 			serialized: lambdaParams.inputProps,
 			propsType: 'input-props',
 			providerSpecifics,
+			forcePathStyle: lambdaParams.forcePathStyle,
 		});
 
 		const realServeUrl = providerSpecifics.convertToServeUrl({

@@ -1,7 +1,7 @@
 import type {Track} from '../../get-tracks';
-import {getTracksSegment} from '../../traversal';
-import {getTrack} from './get-track';
-import type {MainSegment} from './segments/main';
+import {getTrack} from './make-track';
+import type {MainSegment} from './segments/all-segments';
+import {getTracksSegment} from './traversal';
 
 export const getTracksFromMatroska = (
 	segment: MainSegment,
@@ -14,12 +14,12 @@ export const getTracksFromMatroska = (
 
 	const tracks: Track[] = [];
 
-	for (const trackEntrySegment of tracksSegment.children) {
-		if (trackEntrySegment.type === 'crc32-segment') {
+	for (const trackEntrySegment of tracksSegment.value) {
+		if (trackEntrySegment.type === 'Crc32') {
 			continue;
 		}
 
-		if (trackEntrySegment.type !== 'track-entry-segment') {
+		if (trackEntrySegment.type !== 'TrackEntry') {
 			throw new Error('Expected track entry segment');
 		}
 

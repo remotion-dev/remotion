@@ -1,6 +1,5 @@
 // Copied from: https://github.com/rveciana/svg-path-properties
 
-/* eslint-disable @typescript-eslint/no-loss-of-precision */
 /* eslint-disable no-loss-of-precision */
 // Legendre-Gauss abscissae (xi values, defined at i=n as the roots of the nth order Legendre polynomial Pn(x))
 export const tValues = [

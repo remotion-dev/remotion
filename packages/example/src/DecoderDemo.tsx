@@ -1,8 +1,17 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {staticFile} from 'remotion';
 import {SrcEncoder} from './Encoder/SrcEncoder';
 
 export const DecoderDemo: React.FC = () => {
+	const [blob, setBlob] = useState<string | null>(null);
+
+	useEffect(() => {
+		fetch(staticFile('iphone-hevc.mov'))
+			.then((res) => res.blob())
+			.then((buffer) => URL.createObjectURL(buffer))
+			.then((url) => setBlob(url));
+	}, []);
+
 	return (
 		<>
 			<div style={{}}>
@@ -55,6 +64,11 @@ export const DecoderDemo: React.FC = () => {
 					label="transparent-with-dar.webm"
 					src={staticFile('transparent-with-dar.webm')}
 				/>
+				<SrcEncoder
+					label="vp8-opus-5-1-channels.webm"
+					src={staticFile('vp8-opus-5-1-channels.webm')}
+				/>
+				{blob ? <SrcEncoder label="blob" src={blob} /> : null}
 			</div>
 		</>
 	);

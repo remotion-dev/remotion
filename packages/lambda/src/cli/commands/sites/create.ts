@@ -19,11 +19,13 @@ import type {
 	BucketCreationProgress,
 	BundleProgress,
 	DeployToS3Progress,
+	DiffingProgress,
 } from '../../helpers/progress-bar';
 import {
 	makeBucketProgress,
 	makeBundleProgress,
 	makeDeployProgressBar,
+	makeDiffingProgressBar,
 } from '../../helpers/progress-bar';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
@@ -89,6 +91,7 @@ export const sitesCreateSubcommand = async (
 		bundleProgress: BundleProgress;
 		bucketProgress: BucketCreationProgress;
 		deployProgress: DeployToS3Progress;
+		diffingProgress: DiffingProgress;
 	} = {
 		bundleProgress: {
 			doneIn: null,
@@ -103,6 +106,10 @@ export const sitesCreateSubcommand = async (
 			sizeUploaded: 0,
 			stats: null,
 		},
+		diffingProgress: {
+			doneIn: null,
+			bytesProcessed: 0,
+		},
 	};
 
 	const updateProgress = (newLine: boolean) => {
@@ -110,8 +117,11 @@ export const sitesCreateSubcommand = async (
 			[
 				makeBundleProgress(multiProgress.bundleProgress),
 				makeBucketProgress(multiProgress.bucketProgress),
+				makeDiffingProgressBar(multiProgress.diffingProgress),
 				makeDeployProgressBar(multiProgress.deployProgress),
-			].join('\n'),
+			]
+				.filter(NoReactInternals.truthy)
+				.join('\n'),
 			newLine,
 		);
 	};
@@ -130,6 +140,7 @@ export const sitesCreateSubcommand = async (
 				enableFolderExpiry,
 				customCredentials: null,
 				providerSpecifics: implementation,
+				forcePathStyle: false,
 			})
 		).bucketName;
 
@@ -170,6 +181,18 @@ export const sitesCreateSubcommand = async (
 
 				updateProgress(false);
 			},
+			onDiffingProgress(bytes, done) {
+				const previous = multiProgress.diffingProgress.bytesProcessed;
+
+				const newBytes = bytes - previous;
+				if (newBytes > 100_000_000 || done) {
+					multiProgress.diffingProgress = {
+						bytesProcessed: bytes,
+						doneIn: done ? Date.now() - bundleStart : null,
+					};
+					updateProgress(false);
+				}
+			},
 			onUploadProgress: (p) => {
 				multiProgress.deployProgress = {
 					sizeUploaded: p.sizeUploaded,
@@ -191,6 +214,7 @@ export const sitesCreateSubcommand = async (
 		logLevel,
 		throwIfSiteExists,
 		providerSpecifics: implementation,
+		forcePathStyle: parsedLambdaCli['force-path-style'] ?? false,
 	});
 
 	const uploadDuration = Date.now() - uploadStart;

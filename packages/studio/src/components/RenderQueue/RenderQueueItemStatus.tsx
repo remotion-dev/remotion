@@ -21,7 +21,7 @@ const invisibleStyle: React.CSSProperties = {
 };
 
 export const RenderQueueItemStatus: React.FC<{
-	job: RenderJob;
+	readonly job: RenderJob;
 }> = ({job}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const [hovered, setHovered] = React.useState(false);

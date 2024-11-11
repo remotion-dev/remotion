@@ -18,14 +18,14 @@ export const inPointerHandle = createRef<HTMLDivElement>();
 export const outPointerHandle = createRef<HTMLDivElement>();
 
 type Props = {
-	dragging: boolean;
-	type: 'in' | 'out';
-	atFrame: number;
+	readonly dragging: boolean;
+	readonly type: 'in' | 'out';
+	readonly atFrame: number;
 };
 
 const InnerTimelineInOutPointerHandle: React.FC<
 	Props & {
-		timelineWidth: number;
+		readonly timelineWidth: number;
 	}
 > = ({atFrame, dragging, timelineWidth, type}) => {
 	const videoConfig = useVideoConfig();

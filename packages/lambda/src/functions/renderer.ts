@@ -5,6 +5,7 @@ import type {
 	OnArtifact,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {
 	CloudProvider,
 	OnStream,
@@ -73,6 +74,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 		serialized: params.inputProps,
 		propsType: 'input-props',
 		providerSpecifics,
+		forcePathStyle: params.forcePathStyle,
 	});
 
 	const resolvedPropsPromise = decompressInputProps({
@@ -82,6 +84,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 		serialized: params.resolvedProps,
 		propsType: 'resolved-props',
 		providerSpecifics,
+		forcePathStyle: params.forcePathStyle,
 	});
 
 	const browserInstance = await getBrowserInstance({
@@ -173,7 +176,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 	const audioOutputLocation =
 		willRenderAudioEval === 'no'
 			? null
-			: RenderInternals.isAudioCodec(params.codec)
+			: NoReactAPIs.isAudioCodec(params.codec)
 				? null
 				: audioExtension
 					? path.join(outdir, `${chunk}.${audioExtension}`)
@@ -321,6 +324,8 @@ const renderHandler = async <Provider extends CloudProvider>({
 				throw new Error('Should not download a browser in Lambda');
 			},
 			onArtifact,
+			metadata: params.metadata,
+			hardwareAcceleration: 'disable',
 		})
 			.then(({slowestFrames}) => {
 				RenderInternals.Log.verbose(
@@ -355,7 +360,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 	if (videoOutputLocation) {
 		const videoChunkTimer = timer('Sending main chunk', params.logLevel);
 		await onStream({
-			type: RenderInternals.isAudioCodec(params.codec)
+			type: NoReactAPIs.isAudioCodec(params.codec)
 				? 'audio-chunk-rendered'
 				: 'video-chunk-rendered',
 			payload: fs.readFileSync(videoOutputLocation),

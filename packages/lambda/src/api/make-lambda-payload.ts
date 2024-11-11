@@ -83,6 +83,8 @@ export type InnerRenderMediaOnLambdaInput = {
 	colorSpace: ColorSpace | null;
 	deleteAfter: DeleteAfter | null;
 	indent: boolean;
+	forcePathStyle: boolean;
+	metadata: Record<string, string> | null;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>;
 
 export const makeLambdaRenderMediaPayload = async ({
@@ -127,6 +129,8 @@ export const makeLambdaRenderMediaPayload = async ({
 	deleteAfter,
 	colorSpace,
 	preferLossless,
+	forcePathStyle,
+	metadata,
 }: InnerRenderMediaOnLambdaInput): Promise<
 	ServerlessStartPayload<AwsProvider>
 > => {
@@ -154,6 +158,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		userSpecifiedBucketName: bucketName ?? null,
 		propsType: 'input-props',
 		providerSpecifics: awsImplementation,
+		forcePathStyle: forcePathStyle ?? false,
 	});
 	return {
 		rendererFunctionName,
@@ -198,6 +203,8 @@ export const makeLambdaRenderMediaPayload = async ({
 		deleteAfter: deleteAfter ?? null,
 		colorSpace: colorSpace ?? null,
 		preferLossless: preferLossless ?? false,
+		forcePathStyle: forcePathStyle ?? false,
+		metadata: metadata ?? null,
 	};
 };
 
@@ -206,14 +213,16 @@ export const getRenderProgressPayload = ({
 	renderId,
 	s3OutputProvider,
 	logLevel,
+	forcePathStyle,
 }: GetRenderProgressInput): ServerlessStatusPayload<AwsProvider> => {
 	return {
 		type: ServerlessRoutines.status,
 		bucketName,
 		renderId,
 		version: VERSION,
-		s3OutputProvider,
+		s3OutputProvider: s3OutputProvider ?? null,
 		logLevel: logLevel ?? 'info',
+		forcePathStyle: forcePathStyle ?? false,
 	};
 };
 
@@ -240,6 +249,7 @@ export const makeLambdaRenderStillPayload = async ({
 	forceBucketName,
 	offthreadVideoCacheSizeInBytes,
 	deleteAfter,
+	forcePathStyle,
 }: RenderStillOnLambdaNonNullInput): Promise<
 	ServerlessPayloads<AwsProvider>[ServerlessRoutines.still]
 > => {
@@ -261,6 +271,7 @@ export const makeLambdaRenderStillPayload = async ({
 		userSpecifiedBucketName: forceBucketName ?? null,
 		propsType: 'input-props',
 		providerSpecifics: awsImplementation,
+		forcePathStyle,
 	});
 
 	return {
@@ -288,5 +299,6 @@ export const makeLambdaRenderStillPayload = async ({
 		deleteAfter,
 		type: ServerlessRoutines.still,
 		streamed: true,
+		forcePathStyle,
 	};
 };

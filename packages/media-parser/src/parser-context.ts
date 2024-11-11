@@ -6,4 +6,6 @@ export type ParserContext = {
 	onVideoTrack: OnVideoTrack | null;
 	canSkipVideoData: boolean;
 	parserState: ParserState;
+	nullifySamples: boolean;
+	supportsContentRange: boolean;
 };

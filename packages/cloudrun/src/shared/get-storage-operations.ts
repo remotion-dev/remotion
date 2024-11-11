@@ -23,7 +23,7 @@ export const getStorageDiffOperations = async ({
 
 	const hashMap: Record<string, string> = {};
 	for (const object of objects) {
-		hashMap[object.name] = base64ToHex(object.metadata.md5Hash);
+		hashMap[object.name] = base64ToHex(object.metadata.md5Hash as string);
 	}
 
 	const filesOnStorageButNotLocal = objects.filter((o) => {

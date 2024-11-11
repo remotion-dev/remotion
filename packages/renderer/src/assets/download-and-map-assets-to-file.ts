@@ -178,13 +178,11 @@ export const downloadAsset = async ({
 			return claimedDownloadLocation;
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 		downloadMap.hasBeenDownloadedMap[src]![downloadDir] = null;
 		if (!downloadMap.isDownloadingMap[src]) {
 			downloadMap.isDownloadingMap[src] = {};
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 		downloadMap.isDownloadingMap[src]![downloadDir] = false;
 	}
 

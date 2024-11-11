@@ -41,7 +41,7 @@ export const validateSelectedPixelFormatAndCodecCombination = (
 
 	const validFormats = validPixelFormatsForCodec(codec);
 
-	if (!validFormats.includes(pixelFormat)) {
+	if (!(validFormats as string[]).includes(pixelFormat)) {
 		throw new TypeError(
 			`Pixel format was set to 'yuva420p' but codec ${codec} does not support it. Valid pixel formats for codec ${codec} are: ${validFormats.join(
 				', ',

@@ -28,7 +28,7 @@ export const serializeOrThrow = (
 			data: inputProps,
 		});
 		return payload.serializedString;
-	} catch (err) {
+	} catch {
 		throw new Error(
 			`Error serializing ${propsType}. Check it has no circular references or reduce the size if the object is big.`,
 		);
@@ -46,6 +46,7 @@ export const getNeedsToUpload = (
 	const sizesAlreadyUsed = sizes.reduce((a, b) => a + b);
 
 	if (sizesAlreadyUsed > MAX_INLINE_PAYLOAD_SIZE) {
+		// eslint-disable-next-line no-console
 		console.warn(
 			`Warning: The props are over ${Math.round(
 				MAX_INLINE_PAYLOAD_SIZE / 1000,
@@ -66,6 +67,7 @@ export const compressInputProps = async <Provider extends CloudProvider>({
 	propsType,
 	needsToUpload,
 	providerSpecifics,
+	forcePathStyle,
 }: {
 	stringifiedInputProps: string;
 	region: Provider['region'];
@@ -73,6 +75,7 @@ export const compressInputProps = async <Provider extends CloudProvider>({
 	propsType: PropsType;
 	needsToUpload: boolean;
 	providerSpecifics: ProviderSpecifics<Provider>;
+	forcePathStyle: boolean;
 }): Promise<SerializedInputProps> => {
 	const hash = providerSpecifics.randomHash();
 
@@ -85,6 +88,7 @@ export const compressInputProps = async <Provider extends CloudProvider>({
 					enableFolderExpiry: null,
 					customCredentials: null,
 					providerSpecifics,
+					forcePathStyle,
 				})
 			).bucketName;
 
@@ -97,6 +101,7 @@ export const compressInputProps = async <Provider extends CloudProvider>({
 			expectedBucketOwner: null,
 			key: makeKey(propsType, hash),
 			privacy: 'private',
+			forcePathStyle,
 		});
 
 		return {
@@ -119,6 +124,7 @@ export const decompressInputProps = async <Provider extends CloudProvider>({
 	expectedBucketOwner,
 	propsType,
 	providerSpecifics,
+	forcePathStyle,
 }: {
 	serialized: SerializedInputProps;
 	region: Provider['region'];
@@ -126,6 +132,7 @@ export const decompressInputProps = async <Provider extends CloudProvider>({
 	expectedBucketOwner: string;
 	propsType: PropsType;
 	providerSpecifics: ProviderSpecifics<Provider>;
+	forcePathStyle: boolean;
 }): Promise<string> => {
 	if (serialized.type === 'payload') {
 		return serialized.payload;
@@ -137,6 +144,7 @@ export const decompressInputProps = async <Provider extends CloudProvider>({
 			expectedBucketOwner,
 			key: makeKey(propsType, serialized.hash),
 			region,
+			forcePathStyle,
 		});
 
 		const body = await streamToString(response);

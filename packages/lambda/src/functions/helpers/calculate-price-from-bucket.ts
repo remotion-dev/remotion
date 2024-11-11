@@ -1,4 +1,4 @@
-import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
+import type {CloudProvider} from '@remotion/serverless';
 import type {RenderMetadata} from '@remotion/serverless/client';
 import {estimatePrice} from '../../api/estimate-price';
 import type {AwsRegion} from '../../regions';
@@ -11,14 +11,14 @@ export const estimatePriceFromBucket = <Provider extends CloudProvider>({
 	diskSizeInMb,
 	lambdasInvoked,
 	timings,
-	providerSpecifics,
+	region,
 }: {
 	renderMetadata: RenderMetadata<Provider> | null;
 	memorySizeInMb: number;
 	diskSizeInMb: number;
 	lambdasInvoked: number;
 	timings: ParsedTiming[];
-	providerSpecifics: ProviderSpecifics<Provider>;
+	region: AwsRegion;
 }) => {
 	if (!renderMetadata) {
 		return null;
@@ -45,7 +45,7 @@ export const estimatePriceFromBucket = <Provider extends CloudProvider>({
 
 	const accruedSoFar = Number(
 		estimatePrice({
-			region: providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
+			region,
 			durationInMilliseconds: estimatedBillingDurationInMilliseconds,
 			memorySizeInMb,
 			diskSizeInMb,

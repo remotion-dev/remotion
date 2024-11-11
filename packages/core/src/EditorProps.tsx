@@ -67,16 +67,12 @@ export const EditorPropsProvider: React.FC<{
 		setProps({});
 	}, []);
 
-	useImperativeHandle(
-		editorPropsProviderRef,
-		() => {
-			return {
-				getProps: () => props,
-				setProps,
-			};
-		},
-		[props],
-	);
+	useImperativeHandle(editorPropsProviderRef, () => {
+		return {
+			getProps: () => props,
+			setProps,
+		};
+	}, [props]);
 
 	const ctx = useMemo((): EditorPropsContextType => {
 		return {props, updateProps, resetUnsaved};

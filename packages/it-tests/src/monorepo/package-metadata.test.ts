@@ -1,13 +1,8 @@
+import {Pkgs, apiDocs, descriptions} from '@remotion/studio-shared';
 import {expect, test} from 'bun:test';
 import {writeFileSync} from 'fs';
 import {join} from 'path';
-import {
-	Pkgs,
-	apiDocs,
-	descriptions,
-	getAllPackages,
-	updatePackageJson,
-} from './get-all-packages';
+import {getAllPackages, updatePackageJson} from './get-all-packages';
 
 test('All packages should have a repository field', () => {
 	const dirs = getAllPackages();

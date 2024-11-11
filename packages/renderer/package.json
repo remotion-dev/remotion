@@ -3,18 +3,16 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/renderer"
 	},
 	"name": "@remotion/renderer",
-	"version": "4.0.200",
+	"version": "4.0.228",
 	"description": "Render Remotion videos using Node.js or Bun",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
+		"lint": "eslint src",
 		"test": "bun test src",
-		"build": "node build.mjs --debug",
-		"build-all": "node build.mjs --all",
-		"prepublishOnly": "node build.mjs --all"
+		"make": "tsc -d"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
@@ -39,7 +37,10 @@
 		"@happy-dom/global-registrator": "14.5.1",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"@types/ws": "8.5.10"
+		"@types/ws": "8.5.10",
+		"@remotion/example-videos": "workspace:*",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.14.0"
 	},
 	"optionalDependencies": {
 		"@remotion/compositor-darwin-arm64": "workspace:*",

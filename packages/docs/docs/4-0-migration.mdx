@@ -62,7 +62,7 @@ Apply this to all configuration calls.
 
 Previously, the `imageFormat` option would be used for both stills and videos. While for stills, PNG is often preferrable, for videos it is overall faster to use JPEG as a default. In Remotion 4.0, the image formats are being separated so you can set defaults for videos and stills separately.
 
-- `Config.setImageFormat` got replaced by [`Config.setVideoImageFormat()`](/docs/cli#setvideoimageformat) and [`Config.setStillImageFormat()`](/docs/cli#setstillimageformat).
+- `Config.setImageFormat` got replaced by [`Config.setVideoImageFormat()`](/docs/config#setvideoimageformat) and [`Config.setStillImageFormat()`](/docs/config#setstillimageformat).
 
 ```diff
 - Config.setImageFormat('jpeg');
@@ -369,7 +369,7 @@ The recommended way is to get the `composition` object using [`selectComposition
 - **remotion**: [`<Composition>`](/docs/composition) now accepts a schema
 - **remotion**: [`<Composition>`](/docs/composition) now accepts a [`calculateMetadata`](/docs/composition) prop
 - **remotion**: The `OffthreadVideoImageFormat` type has been removed.
-- **remotion**: [`imageFormat`](/docs/offthreadvideo#imageformat-availablefrom-v3022-) has been removed from `<OffthreadVideo>`
+- **remotion**: [`imageFormat`](/docs/offthreadvideo#imageformat-) has been removed from `<OffthreadVideo>`
 - **remotion**: [`transparent`](/docs/offthreadvideo#transparent) has been added to `<OffthreadVideo>`.
 - **remotion**: [`<Img>`](/docs/img) will cancel the render if the image cannot be loaded
 - **remotion**: If an [`<Audio>`](/docs/audio) tag cannot be loaded, it will cancel the render.

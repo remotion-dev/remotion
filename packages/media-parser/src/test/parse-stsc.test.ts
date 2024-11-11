@@ -11,7 +11,7 @@ test('Parse stsc box', () => {
 		0, 0, 1, 0, 0, 0, 1,
 	]);
 
-	const iterator = getArrayBufferIterator(buffer);
+	const iterator = getArrayBufferIterator(buffer, null);
 	iterator.counter.increment(8);
 	const result = parseStsc({
 		iterator,
@@ -51,7 +51,7 @@ test('Parse stsc box 2', () => {
 		0, 0, 0, 1,
 	]);
 
-	const iterator = getArrayBufferIterator(buffer);
+	const iterator = getArrayBufferIterator(buffer, null);
 	iterator.counter.increment(8);
 	const result = parseStsc({
 		iterator,

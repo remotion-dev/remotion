@@ -12,12 +12,18 @@ const container: React.CSSProperties = {
 };
 
 export const RenderModalGif: React.FC<{
-	limitNumberOfGifLoops: boolean;
-	setLimitNumberOfGifLoops: (value: React.SetStateAction<boolean>) => void;
-	numberOfGifLoopsSetting: number;
-	setNumberOfGifLoopsSetting: React.Dispatch<React.SetStateAction<number>>;
-	everyNthFrame: number;
-	setEveryNthFrameSetting: React.Dispatch<React.SetStateAction<number>>;
+	readonly limitNumberOfGifLoops: boolean;
+	readonly setLimitNumberOfGifLoops: (
+		value: React.SetStateAction<boolean>,
+	) => void;
+	readonly numberOfGifLoopsSetting: number;
+	readonly setNumberOfGifLoopsSetting: React.Dispatch<
+		React.SetStateAction<number>
+	>;
+	readonly everyNthFrame: number;
+	readonly setEveryNthFrameSetting: React.Dispatch<
+		React.SetStateAction<number>
+	>;
 }> = ({
 	everyNthFrame,
 	limitNumberOfGifLoops,

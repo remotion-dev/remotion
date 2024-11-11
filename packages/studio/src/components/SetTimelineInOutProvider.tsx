@@ -7,7 +7,7 @@ import {SetTimelineInOutContext, TimelineInOutContext} from '../state/in-out';
 import {loadMarks, persistMarks} from '../state/marks';
 
 export const SetTimelineInOutProvider: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const [inAndOutFrames, setInAndOutFrames] =
 		useState<TimelineInOutContextValue>(() => loadMarks());

@@ -22,6 +22,7 @@ export const lambdaDownloadFileWithProgress = async ({
 	onProgress,
 	customCredentials,
 	logLevel,
+	forcePathStyle,
 }: {
 	bucketName: string;
 	key: string;
@@ -31,8 +32,9 @@ export const lambdaDownloadFileWithProgress = async ({
 	onProgress: LambdaReadFileProgress;
 	customCredentials: CustomCredentials<AwsProvider> | null;
 	logLevel: LogLevel;
+	forcePathStyle: boolean;
 }): Promise<{sizeInBytes: number; to: string}> => {
-	const client = getS3Client(region, customCredentials);
+	const client = getS3Client({region, customCredentials, forcePathStyle});
 	const command = new GetObjectCommand({
 		Bucket: bucketName,
 		ExpectedBucketOwner: customCredentials ? undefined : expectedBucketOwner,

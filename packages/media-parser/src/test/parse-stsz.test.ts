@@ -11,7 +11,7 @@ test('parse stsz box 1', () => {
 		186, 0, 0, 2, 83, 0, 0, 2, 36, 0, 0, 2, 99, 0, 0, 2, 189, 0, 0, 2, 23, 0, 0,
 		3, 8, 0, 0, 2, 74, 0, 0, 0, 52, 115, 116, 99, 111,
 	]);
-	const iterator = getArrayBufferIterator(buf);
+	const iterator = getArrayBufferIterator(buf, null);
 	iterator.counter.increment(8);
 	const result = parseStsz({
 		iterator,
@@ -37,7 +37,7 @@ test('parse stsz box 2', () => {
 		// actual box
 		0, 0, 0, 0, 0, 0, 3, 192, 0, 0, 0, 15, 0, 0, 0, 52, 115, 116, 99, 111,
 	]);
-	const iterator = getArrayBufferIterator(buf);
+	const iterator = getArrayBufferIterator(buf, null);
 	iterator.counter.increment(8);
 	const result = parseStsz({
 		iterator,

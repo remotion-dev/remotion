@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/player-example"
 	},
 	"name": "@remotion/player-example",
-	"version": "4.0.200",
+	"version": "4.0.228",
 	"private": true,
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"maintainers": [
@@ -17,10 +17,13 @@
 		"@remotion/google-fonts": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/preload": "workspace:*",
-		"next": "14.1.4",
+		"next": "14.2.13",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"remotion": "workspace:*"
+	},
+	"devDependencies": {
+		"eslint": "8.56.0"
 	},
 	"scripts": {
 		"formatting": "prettier src --check",

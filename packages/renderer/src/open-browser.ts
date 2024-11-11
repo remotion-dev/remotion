@@ -1,14 +1,17 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import type {NoReactInternals} from 'remotion/no-react';
 import type {Browser} from './browser';
 import {addHeadlessBrowser} from './browser-instances';
 import type {HeadlessBrowser} from './browser/Browser';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
-import {puppeteer} from './browser/node';
+import {launchChrome} from './browser/Launcher';
 import type {Viewport} from './browser/PuppeteerViewport';
 import {internalEnsureBrowser} from './ensure-browser';
 import {getLocalBrowserExecutable} from './get-local-browser-executable';
 import {getIdealVideoThreadsFlag} from './get-video-threads-flag';
-import {isEqualOrBelowLogLevel, type LogLevel} from './log-level';
+import {type LogLevel} from './log-level';
 import {Log} from './logger';
 import type {validOpenGlRenderers} from './options/gl';
 import {DEFAULT_OPENGL_RENDERER, validateOpenGlRenderer} from './options/gl';
@@ -20,6 +23,10 @@ type OnlyV4Options =
 	typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES extends true
 		? {}
 		: {
+				/**
+				 * @deprecated - Will be removed in v5.
+				 * Chrome Headless shell does not allow disabling headless mode anymore.
+				 */
 				headless?: boolean;
 			};
 
@@ -123,7 +130,11 @@ export const internalOpenBrowser = async ({
 		onBrowserDownload,
 	});
 
-	const executablePath = getLocalBrowserExecutable(browserExecutable);
+	const executablePath = getLocalBrowserExecutable({
+		preferredBrowserExecutable: browserExecutable,
+		logLevel,
+		indent,
+	});
 
 	const customGlRenderer = getOpenGlRenderer(chromiumOptions.gl ?? null);
 	const enableMultiProcessOnLinux =
@@ -141,11 +152,15 @@ export const internalOpenBrowser = async ({
 		);
 	}
 
-	const browserInstance = await puppeteer.launch({
+	const userDataDir = await fs.promises.mkdtemp(
+		path.join(os.tmpdir(), 'puppeteer_dev_chrome_profile-'),
+	);
+
+	const browserInstance = await launchChrome({
 		executablePath,
-		dumpio: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		logLevel,
 		indent,
+		userDataDir,
 		args: [
 			'about:blank',
 			'--allow-pre-commit-input',
@@ -179,7 +194,7 @@ export const internalOpenBrowser = async ({
 			'--enable-blink-features=IdleDetection',
 			'--export-tagged-pdf',
 			'--intensive-wake-up-throttling-policy=0',
-			chromiumOptions.headless ?? true ? '--headless=old' : null,
+			(chromiumOptions.headless ?? true) ? '--headless=old' : null,
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
 			...customGlRenderer,
@@ -215,6 +230,8 @@ export const internalOpenBrowser = async ({
 			chromiumOptions?.userAgent
 				? `--user-agent="${chromiumOptions.userAgent}"`
 				: null,
+			'--remote-debugging-port=0',
+			`--user-data-dir=${userDataDir}`,
 		].filter(Boolean) as string[],
 		defaultViewport: viewport ?? {
 			height: 720,

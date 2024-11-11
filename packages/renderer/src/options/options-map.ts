@@ -8,6 +8,7 @@ import {encodingBufferSizeOption} from './encoding-buffer-size';
 import {encodingMaxRateOption} from './encoding-max-rate';
 import {enforceAudioOption} from './enforce-audio';
 import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenation';
+import {hardwareAccelerationOption} from './hardware-acceleration';
 import {jpegQualityOption} from './jpeg-quality';
 import {logLevelOption} from './log-level';
 import {mutedOption} from './mute';
@@ -45,9 +46,11 @@ export const optionsMap = {
 		separateAudioTo: separateAudioOption,
 		audioCodec: audioCodecOption,
 		onBrowserDownload: onBrowserDownloadOption,
+		hardwareAcceleration: hardwareAccelerationOption,
 	},
 	stitchFramesToVideo: {
 		separateAudioTo: separateAudioOption,
+		hardwareAcceleration: hardwareAccelerationOption,
 	},
 	renderStill: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,

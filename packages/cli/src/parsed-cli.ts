@@ -30,12 +30,15 @@ export const BooleanFlags = [
 	BrowserSafeApis.options.disableGitSourceOption.cliFlag,
 	'repro',
 	'compatible-only',
+	'force-path-style',
+	'onlyAllocateCpuDuringRequestProcessing',
 ];
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 	boolean: BooleanFlags,
 	default: {
 		overwrite: true,
+		muted: null,
 	},
 }) as CommandLineOptions & {
 	_: string[];

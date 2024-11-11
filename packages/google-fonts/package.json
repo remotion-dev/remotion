@@ -3,12 +3,12 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.200",
+	"version": "4.0.228",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
 	"scripts": {
-		"build": "bun --env-file=../.env.bundle bundle.ts",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
 		"generate": "bun scripts/generate.ts && bun scripts/generate-index.ts",
 		"prepublishOnly": "bun ensure-generation.ts",
 		"formatting": "prettier src --check"
@@ -20,9 +20,8 @@
 	"devDependencies": {
 		"@types/css-font-loading-module": "^0.0.7",
 		"@types/prettier": "^2.7.1",
-		"got": "^11",
-		"postcss": "^8.4.31",
-		"prettier": "3.2.5"
+		"postcss": "8.4.47",
+		"prettier": "3.3.3"
 	},
 	"files": [
 		"dist"
@@ -4765,19 +4764,19 @@
 		"./*": {
 			"module": "./dist/esm/*.mjs",
 			"import": "./dist/esm/*.mjs",
-			"require": "./dist/cjs/*.cjs",
+			"require": "./dist/cjs/*.js",
 			"types": "./dist/cjs/*.d.ts"
 		},
 		"./index": {
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs",
-			"require": "./dist/cjs/index.cjs",
+			"require": "./dist/cjs/index.js",
 			"types": "./dist/cjs/index.d.ts"
 		},
 		".": {
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs",
-			"require": "./dist/cjs/index.cjs",
+			"require": "./dist/cjs/index.js",
 			"types": "./dist/cjs/index.d.ts"
 		}
 	},

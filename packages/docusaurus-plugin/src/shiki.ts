@@ -169,7 +169,7 @@ const remarkVisitor =
 
 		try {
 			fence = parseFence([node.lang, node.meta].filter(Boolean).join(' '));
-		} catch (error) {
+		} catch {
 			const twoslashError = new TwoslashError(
 				'Codefence error',
 				'Could not parse the codefence for this code sample',

@@ -279,23 +279,19 @@ export const TimelineInOutPointToggle: React.FC = () => {
 		};
 	}, [confId, keybindings, onInMark, onInOutClear, onOutMark]);
 
-	useImperativeHandle(
-		inOutHandles,
-		() => {
-			return {
-				clearMarks: () => {
-					if (!confId) {
-						return;
-					}
+	useImperativeHandle(inOutHandles, () => {
+		return {
+			clearMarks: () => {
+				if (!confId) {
+					return;
+				}
 
-					onInOutClear(confId);
-				},
-				inMarkClick: onInMark,
-				outMarkClick: onOutMark,
-			};
-		},
-		[confId, onInMark, onInOutClear, onOutMark],
-	);
+				onInOutClear(confId);
+			},
+			inMarkClick: onInMark,
+			outMarkClick: onOutMark,
+		};
+	}, [confId, onInMark, onInOutClear, onOutMark]);
 
 	return (
 		<>

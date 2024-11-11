@@ -114,7 +114,7 @@ const Index: React.FC = () => {
 There is no use for compositions in `<Player>`. Only use them during rendering and when using the Remotion Studio.
 :::
 
-To fix it, pass the component directly to the player's [`component`](/docs/player/player#component) prop and provide the [`durationInFrames`](/docs/player/player#durationinframes), [`fps`](/docs/player/player#fps), [`compositionHeight`](/docs/player/player#compositionheight) and [`compositionWidth`](/docs/player/player#compositionwidth) props to the player.
+To fix it, pass the component directly to the player's [`component`](/docs/player/player#component-or-lazycomponent) prop and provide the [`durationInFrames`](/docs/player/player#durationinframes), [`fps`](/docs/player/player#fps), [`compositionHeight`](/docs/player/player#compositionheight) and [`compositionWidth`](/docs/player/player#compositionwidth) props to the player.
 
 ```tsx twoslash title="✅"
 import { Player } from "@remotion/player";

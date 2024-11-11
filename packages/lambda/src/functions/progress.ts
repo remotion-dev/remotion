@@ -42,6 +42,8 @@ export const progressHandler = async <Provider extends CloudProvider>(
 			timeoutInMilliseconds: options.timeoutInMilliseconds,
 			customCredentials: lambdaParams.s3OutputProvider ?? null,
 			providerSpecifics: options.providerSpecifics,
+			forcePathStyle: lambdaParams.forcePathStyle,
+			functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
 		});
 		return progress;
 	} catch (err) {

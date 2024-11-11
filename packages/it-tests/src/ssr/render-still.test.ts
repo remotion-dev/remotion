@@ -1,13 +1,18 @@
 import {
+	ensureBrowser,
 	getCompositions,
 	openBrowser,
 	RenderInternals,
 	renderStill,
 } from '@remotion/renderer';
-import {afterEach, expect, test} from 'bun:test';
+import {afterEach, beforeAll, expect, test} from 'bun:test';
 import {existsSync} from 'fs';
 import os from 'os';
 import path from 'path';
+
+beforeAll(async () => {
+	await ensureBrowser();
+});
 
 afterEach(async () => {
 	await RenderInternals.killAllBrowsers();

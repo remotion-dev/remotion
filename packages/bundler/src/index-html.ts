@@ -1,6 +1,11 @@
-import type {GitSource, RenderDefaults} from '@remotion/studio-shared';
+import type {
+	GitSource,
+	InstallablePackage,
+	PackageManager,
+	RenderDefaults,
+} from '@remotion/studio-shared';
 import type {StaticFile} from 'remotion';
-import {Internals} from 'remotion';
+import {Internals, VERSION} from 'remotion';
 
 export const indexHtml = ({
 	publicPath,
@@ -19,6 +24,8 @@ export const indexHtml = ({
 	publicFolderExists,
 	gitSource,
 	projectName,
+	installedDependencies,
+	packageManager,
 }: {
 	staticHash: string;
 	publicPath: string;
@@ -36,6 +43,8 @@ export const indexHtml = ({
 	renderDefaults: RenderDefaults | undefined;
 	gitSource: GitSource | null;
 	projectName: string;
+	installedDependencies: InstallablePackage[] | null;
+	packageManager: PackageManager | 'unknown';
 }) =>
 	// Must setup remotion_editorName and remotion.remotion_projectName before bundle.js is loaded
 	`
@@ -98,9 +107,15 @@ export const indexHtml = ({
 				: ''
 		}
 		<script>window.remotion_staticFiles = ${JSON.stringify(publicFiles)}</script>
+		<script>window.remotion_installedPackages = ${JSON.stringify(installedDependencies)}</script>
+		<script>window.remotion_packageManager = ${JSON.stringify(packageManager)}</script>
 		<script>window.remotion_publicFolderExists = ${
 			publicFolderExists ? `"${publicFolderExists}"` : 'null'
 		};</script>
+		<script>
+				window.siteVersion = '11';
+				window.remotion_version = '${VERSION}';
+		</script>
 		
 		<div id="video-container"></div>
 		<div id="${Internals.REMOTION_STUDIO_CONTAINER_ELEMENT}"></div>

@@ -2,10 +2,10 @@ import React from 'react';
 import {AbsoluteFill, Freeze, useCurrentFrame} from 'remotion';
 
 export type TrailProps = {
-	children: React.ReactNode;
-	layers: number;
-	lagInFrames: number;
-	trailOpacity: number;
+	readonly children: React.ReactNode;
+	readonly layers: number;
+	readonly lagInFrames: number;
+	readonly trailOpacity: number;
 };
 
 /**

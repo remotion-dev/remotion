@@ -1,7 +1,10 @@
+import type {Prettify} from '../parse-ebml';
+
 export const matroskaElements = {
+	Header: '0x1a45dfa3',
 	EBMLMaxIDLength: '0x42f2',
 	EBMLVersion: '0x4286',
-	EBMLReadVersion: '0x42F7',
+	EBMLReadVersion: '0x42f7',
 	EBMLMaxSizeLength: '0x42f3',
 	DocType: '0x4282',
 	DocTypeVersion: '0x4287',
@@ -289,72 +292,632 @@ export const getSegmentName = (id: string) => {
 	)?.[0];
 };
 
-export type MatroskaElement =
-	(typeof matroskaElements)[keyof typeof matroskaElements];
+export const getIdForName = (name: string): EbmlMapKey => {
+	const value = Object.entries(matroskaElements).find(
+		([key]) => key === name,
+	)?.[1];
+	if (!value) {
+		throw new Error(`Could not find id for name ${name}`);
+	}
 
-type EbmlType = 'uint-8' | 'string';
+	return value as EbmlMapKey;
+};
 
-export type Ebml = {
-	name: string;
-	value: MatroskaElement;
+export type MatroskaKey = keyof typeof matroskaElements;
+
+export type MatroskaElement = (typeof matroskaElements)[MatroskaKey];
+
+type EbmlType = 'string';
+
+export type EbmlWithChildren = {
+	name: MatroskaKey;
+	type: 'children';
+};
+
+export type EbmlWithUint = {
+	name: MatroskaKey;
+	type: 'uint';
+};
+
+export type EbmlWithHexString = {
+	name: MatroskaKey;
+	type: 'hex-string';
+};
+
+export type EbmlWithString = {
+	name: MatroskaKey;
 	type: EbmlType;
 };
 
+export type EbmlWithFloat = {
+	name: MatroskaKey;
+	type: 'float';
+};
+
+export type EbmlWithUint8Array = {
+	name: MatroskaKey;
+	type: 'uint8array';
+};
+
+export type Ebml =
+	| EbmlWithString
+	| EbmlWithUint
+	| EbmlWithChildren
+	| EbmlWithFloat
+	| EbmlWithHexString
+	| EbmlWithUint8Array;
+
 export const ebmlVersion = {
-	name: 'EBMLVersion' as const,
-	value: matroskaElements.EBMLVersion,
-	type: 'uint-8',
+	name: 'EBMLVersion',
+	type: 'uint',
 } satisfies Ebml;
 
 export const ebmlReadVersion = {
-	name: 'EBMLReadVersion' as const,
-	value: matroskaElements.EBMLReadVersion,
-	type: 'uint-8',
+	name: 'EBMLReadVersion',
+	type: 'uint',
 } satisfies Ebml;
 
 export const ebmlMaxIdLength = {
-	name: 'EBMLMaxIDLength' as const,
-	value: matroskaElements.EBMLMaxIDLength,
-	type: 'uint-8',
-} satisfies Ebml;
+	name: 'EBMLMaxIDLength',
+	type: 'uint',
+} as const satisfies Ebml;
 
 export const ebmlMaxSizeLength = {
-	name: 'EBMLMaxSizeLength' as const,
-	value: matroskaElements.EBMLMaxSizeLength,
-	type: 'uint-8',
+	name: 'EBMLMaxSizeLength',
+	type: 'uint',
 } satisfies Ebml;
 
 export const docType = {
-	name: 'DocType' as const,
-	value: matroskaElements.DocType,
+	name: 'DocType',
 	type: 'string',
 } satisfies Ebml;
 
 export const docTypeVersion = {
-	name: 'DocTypeVersion' as const,
-	value: matroskaElements.DocTypeVersion,
-	type: 'uint-8',
+	name: 'DocTypeVersion',
+	type: 'uint',
 } satisfies Ebml;
 
 export const docTypeReadVersion = {
-	name: 'DocTypeReadVersion' as const,
-	value: matroskaElements.DocTypeReadVersion,
-	type: 'uint-8',
+	name: 'DocTypeReadVersion',
+	type: 'uint',
+} satisfies Ebml;
+
+const voidEbml = {
+	name: 'Void',
+	type: 'uint8array',
 } satisfies Ebml;
 
 export type EmblTypes = {
-	'uint-8': number;
+	uint: number;
+	float: number;
 	string: string;
+	children: Ebml[];
+	void: undefined;
+	'hex-string': string;
+	uint8array: Uint8Array;
 };
 
-export type HeaderStructure = Ebml[];
+export const matroskaHeader = {
+	name: 'Header',
+	type: 'children',
+} as const satisfies Ebml;
 
-export const matroskaHeaderStructure = [
-	ebmlVersion,
-	ebmlReadVersion,
-	ebmlMaxIdLength,
-	ebmlMaxSizeLength,
-	docType,
-	docTypeVersion,
-	docTypeReadVersion,
-] as const satisfies HeaderStructure;
+export const seekId = {
+	name: 'SeekID',
+	type: 'hex-string',
+} as const satisfies Ebml;
+
+export const seekPosition = {
+	name: 'SeekPosition',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const seek = {
+	name: 'Seek',
+	type: 'children',
+} as const satisfies Ebml;
+
+export const seekHead = {
+	name: 'SeekHead',
+	type: 'children',
+} as const satisfies Ebml;
+
+export const voidHeader = {
+	name: 'Void',
+	type: 'uint8array',
+} as const satisfies Ebml;
+
+export const codecID = {
+	name: 'CodecID',
+	type: 'string',
+} as const satisfies Ebml;
+
+export const trackType = {
+	name: 'TrackType',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const widthType = {
+	name: 'PixelWidth',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const heightType = {
+	name: 'PixelHeight',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const muxingApp = {
+	name: 'MuxingApp',
+	type: 'string',
+} as const satisfies Ebml;
+
+export const duration = {
+	name: 'Duration',
+	type: 'float',
+} as const satisfies Ebml;
+
+export const timestampScale = {
+	name: 'TimestampScale',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const writingApp = {
+	name: 'WritingApp',
+	type: 'string',
+} as const satisfies Ebml;
+
+export const infoType = {
+	name: 'Info',
+	type: 'children',
+} as const satisfies Ebml;
+
+export const titleType = {
+	name: 'Title',
+	type: 'string',
+} as const satisfies Ebml;
+
+export const samplingFrequency = {
+	name: 'SamplingFrequency',
+	type: 'float',
+} as const satisfies Ebml;
+
+export const channels = {
+	name: 'Channels',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const alphaMode = {
+	name: 'AlphaMode',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const interlaced = {
+	name: 'FlagInterlaced',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const bitDepth = {
+	name: 'BitDepth',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const displayWidth = {
+	name: 'DisplayWidth',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const displayHeight = {
+	name: 'DisplayHeight',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const flagLacing = {
+	name: 'FlagLacing',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const tagSegment = {
+	name: 'Tag',
+	type: 'uint8array',
+} as const satisfies Ebml;
+
+export const tags = {
+	name: 'Tags',
+	type: 'children',
+} as const satisfies Ebml;
+
+export const trackNumber = {
+	name: 'TrackNumber',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const trackUID = {
+	name: 'TrackUID',
+	type: 'hex-string',
+} as const satisfies Ebml;
+
+export const color = {
+	name: 'Colour',
+	type: 'children',
+} as const satisfies Ebml;
+
+export const transferCharacteristics = {
+	name: 'TransferCharacteristics',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const matrixCoefficients = {
+	name: 'MatrixCoefficients',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const primaries = {
+	name: 'Primaries',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const range = {
+	name: 'Range',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const ChromaSitingHorz = {
+	name: 'ChromaSitingHorz',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const ChromaSitingVert = {
+	name: 'ChromaSitingVert',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const language = {
+	name: 'Language',
+	type: 'string',
+} as const satisfies Ebml;
+
+export const defaultDuration = {
+	name: 'DefaultDuration',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const codecPrivate = {
+	name: 'CodecPrivate',
+	type: 'uint8array',
+} as const satisfies Ebml;
+
+export const blockAdditionsSegment = {
+	name: 'BlockAdditions',
+	type: 'uint8array',
+} as const satisfies Ebml;
+
+export const maxBlockAdditionIdSegment = {
+	name: 'MaxBlockAdditionID',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const audioSegment = {
+	name: 'Audio',
+	type: 'children',
+} as const satisfies Ebml;
+
+export const videoSegment = {
+	name: 'Video',
+	type: 'children',
+} as const satisfies Ebml;
+
+export const flagDefault = {
+	name: 'FlagDefault',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const referenceBlock = {
+	name: 'ReferenceBlock',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const blockElement = {
+	name: 'Block',
+	type: 'uint8array',
+} as const satisfies Ebml;
+
+export const codecName = {
+	name: 'CodecName',
+	type: 'string',
+} as const satisfies Ebml;
+
+export const trackTimestampScale = {
+	name: 'TrackTimestampScale',
+	type: 'float',
+} as const satisfies Ebml;
+
+export const trackEntry = {
+	name: 'TrackEntry',
+	type: 'children',
+} as const satisfies Ebml;
+
+export const tracks = {
+	name: 'Tracks',
+	type: 'children',
+} as const satisfies Ebml;
+
+export const timestampEntry = {
+	name: 'Timestamp',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const block = {
+	name: 'Block',
+	type: 'uint8array',
+} as const satisfies Ebml;
+
+export const simpleBlock = {
+	name: 'SimpleBlock',
+	type: 'uint8array',
+} as const satisfies Ebml;
+
+export const blockGroup = {
+	name: 'BlockGroup',
+	type: 'children',
+} as const satisfies Ebml;
+
+export const segment = {
+	name: 'Segment',
+	type: 'children',
+} as const satisfies Ebml;
+
+export const cluster = {
+	name: 'Cluster',
+	type: 'children',
+} as const satisfies Ebml;
+
+export type CodecIdSegment = EbmlParsed<typeof codecID>;
+export type ColourSegment = EbmlParsed<typeof color>;
+export type TransferCharacteristicsSegment = EbmlParsed<
+	typeof transferCharacteristics
+>;
+export type PrimariesSegment = EbmlParsed<typeof primaries>;
+export type RangeSegment = EbmlParsed<typeof range>;
+export type MatrixCoefficientsSegment = EbmlParsed<typeof matrixCoefficients>;
+export type TrackTypeSegment = EbmlParsed<typeof trackType>;
+export type WidthSegment = EbmlParsed<typeof widthType>;
+export type HeightSegment = EbmlParsed<typeof heightType>;
+export type TimestampScaleSegment = EbmlParsed<typeof timestampScale>;
+export type DurationSegment = EbmlParsed<typeof duration>;
+export type DisplayWidthSegment = EbmlParsed<typeof displayWidth>;
+export type DisplayHeightSegment = EbmlParsed<typeof displayHeight>;
+export type TrackNumberSegment = EbmlParsed<typeof trackNumber>;
+export type AudioSegment = EbmlParsed<typeof audioSegment>;
+export type VideoSegment = EbmlParsed<typeof videoSegment>;
+export type TrackEntry = EbmlParsed<typeof trackEntry>;
+export type BlockSegment = EbmlParsed<typeof block>;
+export type SimpleBlockSegment = EbmlParsed<typeof simpleBlock>;
+export type MainSegment = EbmlParsed<typeof segment>;
+export type ClusterSegment = EbmlParsed<typeof cluster>;
+export type Tracks = EbmlParsed<typeof tracks>;
+
+export type FloatWithSize = {value: number; size: '32' | '64'};
+export type UintWithSize = {value: number; byteLength: number | null};
+
+export type EbmlValue<
+	T extends Ebml,
+	Child = PossibleEbml,
+> = T extends EbmlWithUint
+	? UintWithSize
+	: T extends EbmlWithString
+		? string
+		: T extends EbmlWithFloat
+			? FloatWithSize
+			: T extends EbmlWithHexString
+				? string
+				: T extends EbmlWithUint8Array
+					? Uint8Array
+					: T extends EbmlWithChildren
+						? Child[]
+						: never;
+
+export type EbmlValueOrUint8Array<T extends Ebml> =
+	| Uint8Array
+	| EbmlValue<T, PossibleEbmlOrUint8Array>;
+
+export type EbmlParsed<T extends Ebml> = {
+	type: T['name'];
+	value: EbmlValue<T>;
+	minVintWidth: number | null;
+};
+
+export type EbmlParsedOrUint8Array<T extends Ebml> = {
+	type: T['name'];
+	value: EbmlValueOrUint8Array<T>;
+	minVintWidth: number | null;
+};
+
+export const ebmlMap = {
+	[matroskaElements.Header]: matroskaHeader,
+	[matroskaElements.DocType]: docType,
+	[matroskaElements.DocTypeVersion]: docTypeVersion,
+	[matroskaElements.DocTypeReadVersion]: docTypeReadVersion,
+	[matroskaElements.EBMLVersion]: ebmlVersion,
+	[matroskaElements.EBMLReadVersion]: ebmlReadVersion,
+	[matroskaElements.EBMLMaxIDLength]: ebmlMaxIdLength,
+	[matroskaElements.EBMLMaxSizeLength]: ebmlMaxSizeLength,
+	[matroskaElements.Void]: voidEbml,
+	[matroskaElements.Cues]: {
+		name: 'Cues',
+		type: 'children',
+	},
+	[matroskaElements.CuePoint]: {
+		name: 'CuePoint',
+		type: 'children',
+	},
+	[matroskaElements.CueTime]: {
+		name: 'CueTime',
+		type: 'uint',
+	},
+	[matroskaElements.CueTrackPositions]: {
+		name: 'CueTrackPositions',
+		type: 'children',
+	},
+	[matroskaElements.CueClusterPosition]: {
+		name: 'CueClusterPosition',
+		type: 'uint',
+	},
+	[matroskaElements.CueRelativePosition]: {
+		name: 'CueRelativePosition',
+		type: 'uint',
+	},
+	[matroskaElements.CueBlockNumber]: {
+		name: 'CueBlockNumber',
+		type: 'uint',
+	},
+	[matroskaElements.CueTrack]: {
+		name: 'CueTrack',
+		type: 'uint',
+	},
+	[matroskaElements.DateUTC]: {
+		name: 'DateUTC',
+		type: 'uint8array',
+	},
+	[matroskaElements.TrackTimestampScale]: trackTimestampScale,
+	[matroskaElements.CodecDelay]: {
+		name: 'CodecDelay',
+		type: 'uint8array',
+	},
+	[matroskaElements.SeekPreRoll]: {
+		name: 'SeekPreRoll',
+		type: 'uint8array',
+	},
+	[matroskaElements.DiscardPadding]: {
+		name: 'DiscardPadding',
+		type: 'uint8array',
+	},
+	[matroskaElements.OutputSamplingFrequency]: {
+		name: 'OutputSamplingFrequency',
+		type: 'uint8array',
+	},
+	[matroskaElements.CodecName]: codecName,
+	[matroskaElements.Position]: {
+		name: 'Position',
+		type: 'uint8array',
+	},
+	[matroskaElements.SliceDuration]: {
+		name: 'SliceDuration',
+		type: 'uint8array',
+	},
+	[matroskaElements.SeekHead]: seekHead,
+	[matroskaElements.Seek]: seek,
+	[matroskaElements.SeekID]: seekId,
+	[matroskaElements.SeekPosition]: seekPosition,
+	[matroskaElements.Crc32]: {
+		name: 'Crc32',
+		type: 'uint8array',
+	},
+	[matroskaElements.MuxingApp]: muxingApp,
+	[matroskaElements.WritingApp]: {
+		name: 'WritingApp',
+		type: 'string',
+	},
+	[matroskaElements.SegmentUUID]: {
+		name: 'SegmentUUID',
+		type: 'string',
+	},
+	[matroskaElements.Duration]: duration,
+	[matroskaElements.CodecID]: {
+		name: 'CodecID',
+		type: 'string',
+	},
+	[matroskaElements.TrackType]: trackType,
+	[matroskaElements.PixelWidth]: widthType,
+	[matroskaElements.PixelHeight]: heightType,
+	[matroskaElements.TimestampScale]: timestampScale,
+	[matroskaElements.Info]: infoType,
+	[matroskaElements.Title]: titleType,
+	[matroskaElements.SamplingFrequency]: samplingFrequency,
+	[matroskaElements.Channels]: channels,
+	[matroskaElements.AlphaMode]: alphaMode,
+	[matroskaElements.FlagInterlaced]: interlaced,
+	[matroskaElements.BitDepth]: bitDepth,
+	[matroskaElements.DisplayHeight]: displayHeight,
+	[matroskaElements.DisplayWidth]: displayWidth,
+	[matroskaElements.FlagLacing]: flagLacing,
+	[matroskaElements.Tags]: tags,
+	[matroskaElements.Tag]: tagSegment,
+	[matroskaElements.TrackNumber]: trackNumber,
+	[matroskaElements.TrackUID]: trackUID,
+	[matroskaElements.Colour]: color,
+	[matroskaElements.Language]: language,
+	[matroskaElements.DefaultDuration]: defaultDuration,
+	[matroskaElements.CodecPrivate]: codecPrivate,
+	[matroskaElements.BlockAdditions]: blockAdditionsSegment,
+	[matroskaElements.MaxBlockAdditionID]: maxBlockAdditionIdSegment,
+	[matroskaElements.Audio]: audioSegment,
+	[matroskaElements.Video]: videoSegment,
+	[matroskaElements.FlagDefault]: flagDefault,
+	[matroskaElements.ReferenceBlock]: referenceBlock,
+	[matroskaElements.TrackEntry]: trackEntry,
+	[matroskaElements.Timestamp]: {
+		name: 'Timestamp',
+		type: 'uint',
+	},
+	[matroskaElements.Tracks]: tracks,
+	[matroskaElements.Block]: block,
+	[matroskaElements.SimpleBlock]: simpleBlock,
+	[matroskaElements.BlockGroup]: blockGroup,
+	[matroskaElements.Segment]: {
+		name: 'Segment',
+		type: 'children',
+	},
+	[matroskaElements.Cluster]: {
+		name: 'Cluster',
+		type: 'children',
+	},
+	[matroskaElements.TransferCharacteristics]: transferCharacteristics,
+	[matroskaElements.MatrixCoefficients]: matrixCoefficients,
+	[matroskaElements.Primaries]: primaries,
+	[matroskaElements.Range]: range,
+	[matroskaElements.ChromaSitingHorz]: ChromaSitingHorz,
+	[matroskaElements.ChromaSitingVert]: ChromaSitingVert,
+} as const satisfies Partial<Record<MatroskaElement, Ebml>>;
+
+export type PossibleEbml = Prettify<
+	{
+		[key in keyof typeof ebmlMap]: EbmlParsed<(typeof ebmlMap)[key]>;
+	}[keyof typeof ebmlMap]
+>;
+
+export type OffsetAndChildren = {
+	offset: number;
+	children: OffsetAndChildren[];
+	field: keyof typeof matroskaElements;
+};
+
+export const incrementOffsetAndChildren = (
+	offset: OffsetAndChildren,
+	increment: number,
+): OffsetAndChildren => {
+	return {
+		offset: offset.offset + increment,
+		children: offset.children.map((c) =>
+			incrementOffsetAndChildren(c, increment),
+		),
+		field: offset.field,
+	};
+};
+
+export type BytesAndOffset = {
+	bytes: Uint8Array;
+	offsets: OffsetAndChildren;
+};
+
+export type PossibleEbmlOrUint8Array =
+	| Prettify<
+			{
+				[key in keyof typeof ebmlMap]: EbmlParsedOrUint8Array<
+					(typeof ebmlMap)[key]
+				>;
+			}[keyof typeof ebmlMap]
+	  >
+	| BytesAndOffset;
+
+export type EbmlMapKey = keyof typeof ebmlMap;

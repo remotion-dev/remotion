@@ -30,12 +30,12 @@ import {
 	DEFAULT_VIDEO_IMAGE_FORMAT,
 	validateSelectedPixelFormatAndImageFormatCombination,
 } from './image-format';
+import {isAudioCodec} from './is-audio-codec';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
-import {isAudioCodec} from './options/audio-codec';
 import {DEFAULT_COLOR_SPACE, type ColorSpace} from './options/color-space';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
@@ -127,6 +127,7 @@ export type InternalRenderMediaOptions = {
 	binariesDirectory: string | null;
 	compositionStart: number;
 	onArtifact: OnArtifact | null;
+	metadata: Record<string, string> | null;
 } & MoreRenderMediaOptions;
 
 type Prettify<T> = {
@@ -182,6 +183,7 @@ export type RenderMediaOptions = Prettify<{
 	repro?: boolean;
 	binariesDirectory?: string | null;
 	onArtifact?: OnArtifact;
+	metadata?: Record<string, string> | null;
 }> &
 	Partial<MoreRenderMediaOptions>;
 
@@ -245,6 +247,8 @@ const internalRenderMediaRaw = ({
 	compositionStart,
 	onBrowserDownload,
 	onArtifact,
+	metadata,
+	hardwareAcceleration,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	if (repro) {
 		enableRepro({
@@ -264,6 +268,7 @@ const internalRenderMediaRaw = ({
 		videoBitrate,
 		encodingMaxRate,
 		encodingBufferSize,
+		hardwareAcceleration,
 	});
 	validateBitrate(audioBitrate, 'audioBitrate');
 	validateBitrate(videoBitrate, 'videoBitrate');
@@ -345,6 +350,15 @@ const internalRenderMediaRaw = ({
 		},
 		'Using concurrency:',
 		resolvedConcurrency,
+	);
+	Log.verbose(
+		{
+			indent,
+			logLevel,
+			tag: 'renderMedia()',
+		},
+		'delayRender() timeout:',
+		timeoutInMilliseconds,
 	);
 	Log.verbose(
 		{
@@ -488,6 +502,7 @@ const internalRenderMediaRaw = ({
 				x264Preset: x264Preset ?? null,
 				colorSpace,
 				binariesDirectory,
+				hardwareAcceleration,
 			});
 			stitcherFfmpeg = preStitcher.task;
 		}
@@ -501,7 +516,7 @@ const internalRenderMediaRaw = ({
 			stitcherFfmpeg?.stdin?.end();
 			try {
 				await stitcherFfmpeg;
-			} catch (err) {
+			} catch {
 				throw new Error(preStitcher?.getLogs());
 			}
 		}
@@ -723,6 +738,8 @@ const internalRenderMediaRaw = ({
 					colorSpace,
 					binariesDirectory,
 					separateAudioTo,
+					metadata,
+					hardwareAcceleration,
 				});
 			})
 			.then((buffer) => {
@@ -775,7 +792,7 @@ const internalRenderMediaRaw = ({
 					// https://discord.com/channels/809501355504959528/817306238811111454/1273184655348072468
 					try {
 						stitcherFfmpeg.kill();
-					} catch (e) {
+					} catch {
 						// Ignore
 					}
 
@@ -802,7 +819,7 @@ const internalRenderMediaRaw = ({
 				cleanupServerFn?.(false).catch((err) => {
 					// Must prevent unhandled exception in cleanup function.
 					// Might crash whole runtime.
-					console.log('Could not cleanup: ', err);
+					Log.error({indent, logLevel}, 'Could not cleanup: ', err);
 				});
 			});
 	});
@@ -876,16 +893,19 @@ export const renderMedia = ({
 	forSeamlessAacConcatenation,
 	onBrowserDownload,
 	onArtifact,
+	metadata,
+	hardwareAcceleration,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
+	const indent = false;
+	const logLevel =
+		verbose || dumpBrowserLogs ? 'verbose' : (passedLogLevel ?? 'info');
+
 	if (quality !== undefined) {
-		console.warn(
+		Log.warn(
+			{indent, logLevel},
 			`The "quality" option has been renamed. Please use "jpegQuality" instead.`,
 		);
 	}
-
-	const indent = false;
-	const logLevel =
-		verbose || dumpBrowserLogs ? 'verbose' : passedLogLevel ?? 'info';
 
 	return internalRenderMedia({
 		proResProfile: proResProfile ?? undefined,
@@ -951,7 +971,9 @@ export const renderMedia = ({
 			onBrowserDownload ??
 			defaultBrowserDownloadProgress({indent, logLevel, api: 'renderMedia()'}),
 		onArtifact: onArtifact ?? null,
+		metadata: metadata ?? null,
 		// TODO: In the future, introduce this as a public API when launching the distributed rendering API
 		compositionStart: 0,
+		hardwareAcceleration: hardwareAcceleration ?? 'disable',
 	});
 };

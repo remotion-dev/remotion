@@ -29,6 +29,7 @@ export const concatVideos = async ({
 	cancelSignal,
 	preferLossless,
 	muted,
+	metadata,
 }: {
 	onProgress: (frames: number) => void;
 	numberOfFrames: number;
@@ -45,6 +46,7 @@ export const concatVideos = async ({
 	cancelSignal: CancelSignal | undefined;
 	preferLossless: boolean;
 	muted: boolean;
+	metadata: Record<string, string> | null;
 }) => {
 	const outfile = join(
 		RenderInternals.tmpDir(REMOTION_CONCATED_TOKEN),
@@ -87,6 +89,7 @@ export const concatVideos = async ({
 		seamlessAudio,
 		seamlessVideo,
 		muted,
+		metadata,
 	});
 	combine.end();
 

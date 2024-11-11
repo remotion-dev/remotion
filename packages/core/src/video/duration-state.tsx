@@ -43,7 +43,7 @@ export const DurationsContext = createContext<TDurationsContext>({
 });
 
 export const DurationsContextProvider: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const [durations, setDurations] = useReducer(durationReducer, {});
 

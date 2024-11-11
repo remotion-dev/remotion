@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import {beforeEach, expect, test} from 'bun:test';
+import {afterEach, beforeEach, expect, test} from 'bun:test';
 import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
@@ -7,6 +7,11 @@ import path from 'path';
 const outputPath = path.join(process.cwd(), 'packages/example/out.mp4');
 
 beforeEach(() => {
+	if (fs.existsSync(outputPath)) {
+		fs.unlinkSync(outputPath);
+	}
+});
+afterEach(() => {
 	if (fs.existsSync(outputPath)) {
 		fs.unlinkSync(outputPath);
 	}
@@ -50,7 +55,7 @@ test(
 		});
 		const data = info.stderr;
 		expect(data).toContain('Video: h264');
-		expect(data).toContain('yuv420p');
+		expect(data).toContain('yuvj420p');
 		expect(data).toContain('2160x2160');
 		expect(data).toContain('30 fps');
 	},
@@ -97,7 +102,7 @@ test(
 		});
 		const data = info.stderr;
 		expect(data).toContain('Video: h264');
-		expect(data).toContain('yuv420p');
+		expect(data).toContain('yuvj420p');
 		expect(data).toContain('108x108');
 		expect(data).toContain('30 fps');
 	},

@@ -1,24 +1,55 @@
 import {makeBaseMediaTrack} from './boxes/iso-base-media/make-track';
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';
+import type {TrakBox} from './boxes/iso-base-media/trak/trak';
+import {
+	getMoovBox,
+	getMvhdBox,
+	getTraks,
+} from './boxes/iso-base-media/traversal';
 import {getTracksFromMatroska} from './boxes/webm/get-ready-tracks';
-import {getMainSegment} from './boxes/webm/traversal';
-import type {SamplePosition} from './get-sample-positions';
+import {getMainSegment, getTracksSegment} from './boxes/webm/traversal';
 import type {AnySegment} from './parse-result';
 import type {ParserState} from './parser-state';
-import {getMoovBox, getMvhdBox, getTracksSegment, getTraks} from './traversal';
 
 type SampleAspectRatio = {
 	numerator: number;
 	denominator: number;
 };
 
+export type VideoTrackColorParams = {
+	transferCharacteristics: 'bt709' | 'smpte170m' | 'iec61966-2-1' | null;
+	matrixCoefficients: 'bt709' | 'bt470bg' | 'rgb' | 'smpte170m' | null;
+	primaries: 'bt709' | 'smpte170m' | 'bt470bg' | null;
+	fullRange: boolean | null;
+};
+
+export type MediaParserVideoCodec =
+	| 'vp8'
+	| 'vp9'
+	| 'h264'
+	| 'av1'
+	| 'h265'
+	| 'prores';
+
+export type MediaParserAudioCodec =
+	| 'opus'
+	| 'aac'
+	| 'mp3'
+	| 'vorbis'
+	| 'pcm-u8'
+	| 'pcm-s16'
+	| 'pcm-s24'
+	| 'pcm-s32'
+	| 'pcm-f32'
+	| 'aiff';
+
 export type VideoTrack = {
 	type: 'video';
-	samplePositions: SamplePosition[] | null;
 	trackId: number;
 	description: Uint8Array | undefined;
 	timescale: number;
 	codec: string;
+	codecWithoutConfig: MediaParserVideoCodec;
 	sampleAspectRatio: SampleAspectRatio;
 	width: number;
 	height: number;
@@ -27,24 +58,29 @@ export type VideoTrack = {
 	codedWidth: number;
 	codedHeight: number;
 	rotation: number;
+	trakBox: TrakBox | null;
+	codecPrivate: Uint8Array | null;
+	color: VideoTrackColorParams;
 };
 
 export type AudioTrack = {
 	type: 'audio';
-	samplePositions: SamplePosition[] | null;
 	trackId: number;
 	timescale: number;
 	codec: string;
+	codecWithoutConfig: MediaParserAudioCodec;
 	numberOfChannels: number;
 	sampleRate: number;
 	description: Uint8Array | undefined;
+	trakBox: TrakBox | null;
+	codecPrivate: Uint8Array | null;
 };
 
 export type OtherTrack = {
 	type: 'other';
-	samplePositions: SamplePosition[] | null;
 	trackId: number;
 	timescale: number;
+	trakBox: TrakBox | null;
 };
 
 export type Track = VideoTrack | AudioTrack | OtherTrack;
@@ -89,8 +125,8 @@ export const getTracks = (
 	const audioTracks: AudioTrack[] = [];
 	const otherTracks: OtherTrack[] = [];
 
-	const mainSegment = segments.find((s) => s.type === 'main-segment');
-	if (mainSegment && mainSegment.type === 'main-segment') {
+	const mainSegment = segments.find((s) => s.type === 'Segment');
+	if (mainSegment && mainSegment.type === 'Segment') {
 		const matroskaTracks = getTracksFromMatroska(
 			mainSegment,
 			state.getTimescale(),

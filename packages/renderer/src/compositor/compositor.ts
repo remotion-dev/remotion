@@ -108,7 +108,7 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 				: undefined,
 	});
 
-	let stderrChunks: Buffer[] = [];
+	let stderrChunks: Uint8Array[] = [];
 
 	const waiters = new Map<string, Waiter>();
 
@@ -132,7 +132,7 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 					(waiters.get(nonce) as Waiter).reject(
 						new Error(`Compositor error: ${parsed.error}\n${parsed.backtrace}`),
 					);
-				} catch (err) {
+				} catch {
 					(waiters.get(nonce) as Waiter).reject(
 						new Error(new TextDecoder('utf8').decode(data)),
 					);

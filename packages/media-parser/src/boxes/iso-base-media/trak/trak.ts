@@ -14,11 +14,13 @@ export const parseTrak = async ({
 	size,
 	offsetAtStart,
 	options,
+	signal,
 }: {
 	data: BufferIterator;
 	size: number;
 	offsetAtStart: number;
 	options: ParserContext;
+	signal: AbortSignal | null;
 }): Promise<TrakBox> => {
 	const children = await parseBoxes({
 		iterator: data,
@@ -28,6 +30,7 @@ export const parseTrak = async ({
 		options,
 		continueMdat: false,
 		littleEndian: false,
+		signal,
 	});
 
 	if (children.status === 'incomplete') {

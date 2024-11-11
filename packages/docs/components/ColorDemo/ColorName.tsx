@@ -1,15 +1,11 @@
 import namer from 'color-namer';
 import React from 'react';
-import {
-  spring,
-  useCurrentFrame,
-  useVideoConfig,
-} from "remotion";
-import { getReadableColor } from './readable-color';
-import { defaultStyles } from './styles';
+import {spring, useCurrentFrame, useVideoConfig} from 'remotion';
+import {getReadableColor} from './readable-color';
+import {defaultStyles} from './styles';
 
 export const Shade: React.FC<{
-	color: string;
+	readonly color: string;
 }> = ({color}) => {
 	const names = namer(color);
 	const {fps} = useVideoConfig();

@@ -1,19 +1,19 @@
-import { ESLintUtils } from "@typescript-eslint/utils";
-import rule from "../rules/no-string-assets";
+import {ESLintUtils} from '@typescript-eslint/utils';
+import rule from '../rules/no-string-assets';
 
 const ruleTester = new ESLintUtils.RuleTester({
-  parser: "@typescript-eslint/parser",
-  parserOptions: {
-    ecmaFeatures: {
-      jsx: true,
-    },
-  },
+	parser: '@typescript-eslint/parser',
+	parserOptions: {
+		ecmaFeatures: {
+			jsx: true,
+		},
+	},
 });
 
-ruleTester.run("no-string-assets", rule, {
-  valid: [
-    // Network image should be allowed
-    `
+ruleTester.run('no-string-assets', rule, {
+	valid: [
+		// Network image should be allowed
+		`
 import {Img} from 'remotion';
 
 export const Re = () => {
@@ -22,7 +22,7 @@ export const Re = () => {
   );
 }
           `,
-    `
+		`
 import {Img} from 'remotion';
 
 export const Re = () => {
@@ -37,7 +37,7 @@ export const Re = () => {
   );
 }
           `,
-    `
+		`
 import {Img} from 'remotion';
 import img from './img.png';
 
@@ -47,10 +47,10 @@ export const Re = () => {
   );
 }
                 `,
-  ],
-  invalid: [
-    {
-      code: `
+	],
+	invalid: [
+		{
+			code: `
 import {Img} from 'remotion';
 
 export const Re = () => {
@@ -59,14 +59,14 @@ export const Re = () => {
   );
 }
       `,
-      errors: [
-        {
-          messageId: "NoStringAssets",
-        },
-      ],
-    },
-    {
-      code: `
+			errors: [
+				{
+					messageId: 'NoStringAssets',
+				},
+			],
+		},
+		{
+			code: `
 import {Img} from 'remotion';
 
 export const Re = () => {
@@ -75,14 +75,14 @@ export const Re = () => {
   );
 }
       `,
-      errors: [
-        {
-          messageId: "NoStringAssets",
-        },
-      ],
-    },
-    {
-      code: `
+			errors: [
+				{
+					messageId: 'NoStringAssets',
+				},
+			],
+		},
+		{
+			code: `
 import {Audio} from 'remotion';
 
 export const Re = () => {
@@ -91,11 +91,11 @@ export const Re = () => {
   );
 }
       `,
-      errors: [
-        {
-          messageId: "NoStringAssets",
-        },
-      ],
-    },
-  ],
+			errors: [
+				{
+					messageId: 'NoStringAssets',
+				},
+			],
+		},
+	],
 });

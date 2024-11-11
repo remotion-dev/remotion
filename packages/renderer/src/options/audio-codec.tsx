@@ -6,10 +6,6 @@ export const validAudioCodecs = ['pcm-16', 'aac', 'mp3', 'opus'] as const;
 
 export type AudioCodec = (typeof validAudioCodecs)[number];
 
-export const isAudioCodec = (codec: Codec | undefined | null) => {
-	return codec === 'mp3' || codec === 'aac' || codec === 'wav';
-};
-
 export const supportedAudioCodecs = {
 	h264: ['aac', 'pcm-16', 'mp3'] as const,
 	'h264-mkv': ['pcm-16', 'mp3'] as const,
@@ -31,6 +27,7 @@ if (_satisfies) {
 	// Just for type checking
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const audioCodecNames = [
 	'pcm_s16le',
 	'libfdk_aac',
@@ -67,7 +64,7 @@ const ssrName = 'audioCodec' as const;
 
 export const defaultAudioCodecs: {
 	[key in Codec]: {
-		[k in 'compressed' | 'lossless']:
+		[_ in 'compressed' | 'lossless']:
 			| (typeof supportedAudioCodecs)[key][number]
 			| null;
 	};
