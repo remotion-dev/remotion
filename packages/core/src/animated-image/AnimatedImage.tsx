@@ -8,6 +8,7 @@ import {
 import {cancelRender} from '../cancel-render.js';
 import {delayRender} from '../delay-render.js';
 import {useCurrentFrame} from '../use-current-frame.js';
+import {useVideoConfig} from '../use-video-config.js';
 import type {AnimatedImageCanvasRef} from './canvas';
 import {Canvas} from './canvas';
 import type {RemotionImageDecoder} from './decode-image.js';
@@ -41,6 +42,12 @@ export const AnimatedImage = forwardRef<
 			delayRender(`Rendering <AnimatedImage/> with src="${resolvedSrc}"`),
 		);
 
+		const frame = useCurrentFrame();
+		const {fps} = useVideoConfig();
+		const currentTime = frame / fps;
+		const currentTimeRef = useRef<number>(currentTime);
+		currentTimeRef.current = currentTime;
+
 		const ref = useRef<AnimatedImageCanvasRef>(null);
 
 		useImperativeHandle(canvasRef, () => {
@@ -54,7 +61,11 @@ export const AnimatedImage = forwardRef<
 
 		useEffect(() => {
 			const controller = new AbortController();
-			decodeImage(resolvedSrc, controller.signal)
+			decodeImage({
+				resolvedSrc,
+				signal: controller.signal,
+				currentTime: currentTimeRef.current,
+			})
 				.then((d) => {
 					setImageDecoder(d);
 				})
@@ -72,19 +83,15 @@ export const AnimatedImage = forwardRef<
 			};
 		}, [resolvedSrc, id, onLoad, onError]);
 
-		const frame = useCurrentFrame();
-
 		useEffect(() => {
 			if (!imageDecoder) {
 				return;
 			}
 
-			imageDecoder
-				.getFrame(frame % imageDecoder.frameCount)
-				.then((videoFrame) => {
-					ref.current?.draw(videoFrame.image);
-				});
-		}, [frame, imageDecoder]);
+			imageDecoder.getFrame(currentTime).then((videoFrame) => {
+				ref.current?.draw(videoFrame.frame!);
+			});
+		}, [currentTime, imageDecoder]);
 
 		return (
 			<Canvas ref={ref} width={width} height={height} fit={fit} {...props} />
