@@ -89,10 +89,18 @@ export const printUsefulErrorMessage = (
 
 	if (err.message.includes('Error creating WebGL context')) {
 		Log.info({indent, logLevel});
-		console.warn(
+		Log.warn(
+			{
+				indent,
+				logLevel,
+			},
 			'💡 You might need to set the OpenGL renderer to "angle-egl", "angle" (or "swangle" if rendering on lambda). Learn why at https://www.remotion.dev/docs/three',
 		);
-		console.warn(
+		Log.warn(
+			{
+				indent,
+				logLevel,
+			},
 			"💡 Check how it's done at https://www.remotion.dev/docs/chromium-flags#--gl",
 		);
 	}
