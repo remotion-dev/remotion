@@ -6186,5 +6186,649 @@
     "durationInSeconds": 12.568333333333333,
     "size": 93354172,
     "timeToEncodeInMs": 180160
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 15
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 81503450,
+    "timeToEncodeInMs": 178905
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 16
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 70527992,
+    "timeToEncodeInMs": 156085
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 17
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 60482314,
+    "timeToEncodeInMs": 143540
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 18
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 51468476,
+    "timeToEncodeInMs": 140512
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 19
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 43499253,
+    "timeToEncodeInMs": 132588
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 20
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 36499378,
+    "timeToEncodeInMs": 127633
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 21
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 30534133,
+    "timeToEncodeInMs": 118942
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 22
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 25541713,
+    "timeToEncodeInMs": 115276
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 23
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 21475560,
+    "timeToEncodeInMs": 109353
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 24
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 18242168,
+    "timeToEncodeInMs": 104462
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 25
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 15643919,
+    "timeToEncodeInMs": 102861
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 26
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 13542768,
+    "timeToEncodeInMs": 97372
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 27
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 11800382,
+    "timeToEncodeInMs": 96759
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 28
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 10349169,
+    "timeToEncodeInMs": 93897
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 29
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 9146009,
+    "timeToEncodeInMs": 91426
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 30
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 8119224,
+    "timeToEncodeInMs": 89986
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 31
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 7266917,
+    "timeToEncodeInMs": 86744
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 32
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 6540337,
+    "timeToEncodeInMs": 87596
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 33
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 5938219,
+    "timeToEncodeInMs": 84750
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 34
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 5406400,
+    "timeToEncodeInMs": 78658
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 35
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 4957195,
+    "timeToEncodeInMs": 67139
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 36
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 4553306,
+    "timeToEncodeInMs": 68876
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 37
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 4213039,
+    "timeToEncodeInMs": 69359
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 38
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 3892723,
+    "timeToEncodeInMs": 68564
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 39
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 3622088,
+    "timeToEncodeInMs": 68043
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 40
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 3377395,
+    "timeToEncodeInMs": 65807
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 41
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 3143006,
+    "timeToEncodeInMs": 63255
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 42
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 2948517,
+    "timeToEncodeInMs": 63229
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 43
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 2771683,
+    "timeToEncodeInMs": 62379
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 44
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 2607742,
+    "timeToEncodeInMs": 61932
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 45
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 2460915,
+    "timeToEncodeInMs": 60120
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 46
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 2275453,
+    "timeToEncodeInMs": 64899
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 47
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 2133352,
+    "timeToEncodeInMs": 69417
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 48
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 1993645,
+    "timeToEncodeInMs": 65603
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 49
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 1875386,
+    "timeToEncodeInMs": 60261
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 50
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 1765278,
+    "timeToEncodeInMs": 55183
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 51
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 1654051,
+    "timeToEncodeInMs": 53485
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "500000"
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 4586903,
+    "timeToEncodeInMs": 10275
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "1000000"
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 4597140,
+    "timeToEncodeInMs": 10975
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "2000000"
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 4704589,
+    "timeToEncodeInMs": 11032
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "3000000"
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 5005355,
+    "timeToEncodeInMs": 11023
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "4000000"
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 6311372,
+    "timeToEncodeInMs": 11111
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "5000000"
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 7877722,
+    "timeToEncodeInMs": 11152
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "6000000"
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 9447452,
+    "timeToEncodeInMs": 11124
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "7000000"
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 10974363,
+    "timeToEncodeInMs": 11216
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "8000000"
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 12553090,
+    "timeToEncodeInMs": 10837
   }
 ]
