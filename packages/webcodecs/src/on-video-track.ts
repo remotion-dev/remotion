@@ -56,6 +56,12 @@ export const makeVideoTrackHandler =
 			return null;
 		}
 
+		if (videoOperation.type === 'fail') {
+			throw new Error(
+				`Video track with ID ${track.trackId} could resolved with {"type": "fail"}. This could mean that this video track could neither be copied to the output container or re-encoded. You have the option to drop the track instead of failing it: https://remotion.dev/docs/webcodecs/track-transformation`,
+			);
+		}
+
 		if (videoOperation.type === 'copy') {
 			const videoTrack = await state.addTrack({
 				type: 'video',

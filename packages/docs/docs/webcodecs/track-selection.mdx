@@ -98,7 +98,7 @@ await convertMedia({
   src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
   container: 'webm',
   audioCodec: 'opus',
-  onVideoTrack: ({track, container, defaultVideoCodec}) => {
+  onVideoTrack: ({track, container}) => {
     const canCopy = canCopyVideoTrack({
       inputCodec: track.codecWithoutConfig,
       container,
@@ -113,8 +113,45 @@ await convertMedia({
 });
 ```
 
+## Checking if a track can be re-encoded
+
+To check if it is possible to return `{"type": "reencode"}`, you can use the [`canReencodeVideoTrack()`](/docs/webcodecs/convert-media#canreencodevideotrack) and [`canReencodeAudioTrack()`](/docs/webcodecs/convert-media#canreencodeaudiotrack) APIs.
+
+```tsx twoslash title="Using the canReencodeVideoTrack() API"
+// @module: es2022
+// @target: es2017
+import {convertMedia, canReencodeVideoTrack} from '@remotion/webcodecs';
+
+await convertMedia({
+  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  container: 'webm',
+  audioCodec: 'opus',
+  onVideoTrack: async ({track, container}) => {
+    const canReencode = await canReencodeVideoTrack({
+      videoCodec: 'vp8',
+      track,
+    });
+
+    if (canReencode) {
+      return {type: 'reencode', videoCodec: 'vp8'};
+    }
+
+    return {type: 'drop'};
+  },
+});
+```
+
 ## Asynchronously determining config
+
+The [`onAudioTrack`](/docs/webcodecs/convert-media#onaudiotrack) and [`onVideoTrack`](/docs/webcodecs/convert-media#onvideotrack) callbacks can be asynchronous.  
+While the operations are unresolved, reading of the input fill is paused.
 
 ## Falling back to default
 
 ## Debugging
+
+Pass [`logLevel: "verbose"`](/docs/webcodecs/convert-media#loglevel) to [`convertMedia()`](/docs/convert-media) to see debug information in the console, including how the defaults have decided which operations to take.
+
+## Reference implementation
+
+Visit the [source code](https://github.com/remotion-dev/remotion/tree/main/packages/convert) for [convert.remotion.dev](https://convert.remotion.dev) to see a reference implementation for an online video converter that displays a user interface for all possible options.

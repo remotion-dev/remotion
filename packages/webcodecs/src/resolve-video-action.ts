@@ -8,7 +8,8 @@ import {Log} from './log';
 export type VideoOperation =
 	| {type: 'reencode'; videoCodec: ConvertMediaVideoCodec}
 	| {type: 'copy'}
-	| {type: 'drop'};
+	| {type: 'drop'}
+	| {type: 'fail'};
 
 export type ResolveVideoActionFn = (options: {
 	defaultVideoCodec: ConvertMediaVideoCodec | null;
@@ -62,6 +63,5 @@ export const defaultResolveVideoAction: ResolveVideoActionFn = async ({
 		`Track ${track.trackId} (video): Can neither copy nor re-encode, therefore dropping`,
 	);
 
-	// TODO: Make a fail option?
-	return Promise.resolve({type: 'drop'});
+	return Promise.resolve({type: 'fail'});
 };

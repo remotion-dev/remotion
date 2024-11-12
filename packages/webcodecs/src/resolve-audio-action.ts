@@ -8,6 +8,7 @@ import {Log} from './log';
 export type AudioOperation =
 	| {type: 'reencode'; bitrate: number; audioCodec: ConvertMediaAudioCodec}
 	| {type: 'copy'}
+	| {type: 'fail'}
 	| {type: 'drop'};
 
 export type ResolveAudioActionFn = (options: {
@@ -70,6 +71,5 @@ export const defaultResolveAudioAction: ResolveAudioActionFn = async ({
 		`Track ${track.trackId} (audio): Can re-encode = ${canReencode}, can copy = ${canCopy}, action = drop`,
 	);
 
-	// TODO: Make a fail option?
-	return Promise.resolve({type: 'drop'});
+	return Promise.resolve({type: 'fail'});
 };
