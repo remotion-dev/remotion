@@ -63,11 +63,14 @@ export const ContainerOverview: React.FC<{
 						Duration
 					</TableCell>
 					<TableCell className="text-right">
-						{durationInSeconds === null ? (
-							<Skeleton className="h-3 w-[100px] inline-block" />
-						) : (
-							<>{formatSeconds(durationInSeconds)}</>
-						)}
+						{
+							// TODO: For display1687984009979.webm, this does not get displayed
+							durationInSeconds === null ? (
+								<Skeleton className="h-3 w-[100px] inline-block" />
+							) : (
+								<>{formatSeconds(durationInSeconds)}</>
+							)
+						}
 					</TableCell>
 				</TableRow>
 				<TableRow>
