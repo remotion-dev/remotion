@@ -14,8 +14,6 @@ export const defaultOnVideoTrackHandler: ConvertMediaOnVideoTrackHandler =
 		logLevel,
 		container,
 	}): Promise<VideoOperation> => {
-		const videoCodec = defaultVideoCodec ?? getDefaultVideoCodec({container});
-
 		const canCopy = canCopyVideoTrack({
 			inputCodec: track.codecWithoutConfig,
 			container,
@@ -29,6 +27,8 @@ export const defaultOnVideoTrackHandler: ConvertMediaOnVideoTrackHandler =
 
 			return Promise.resolve({type: 'copy'});
 		}
+
+		const videoCodec = defaultVideoCodec ?? getDefaultVideoCodec({container});
 
 		const canReencode = await canReencodeVideoTrack({
 			videoCodec,

@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-webcodecs-track-selection.png
+image: /generated/articles-docs-webcodecs-track-transformation.png
 id: track-transformation
 title: Track Transformation
 slug: /webcodecs/track-transformation
@@ -28,6 +28,8 @@ await convertMedia({
   container: 'webm',
 });
 ```
+
+The default codecs are defined by [`getDefaultAudioCodec()`](/docs/webcodecs/get-default-audio-codec) and [`getDefaultVideoCodec()`](/docs/webcodecs/get-default-video-codec).
 
 ## Choosing codecs
 
@@ -149,6 +151,28 @@ The [`onAudioTrack`](/docs/webcodecs/convert-media#onaudiotrack) and [`onVideoTr
 While the operations are unresolved, reading of the input fill is paused.
 
 ## Falling back to default
+
+The default values for [`onVideoTrack`](/docs/webcodecs/convert-media#onvideotrack) and [`onAudioTrack`](/docs/webcodecs/convert-media#onaudiotrack) are the functions [`defaultOnVideoTrackHandler`](/docs/webcodecs/default-on-video-track-handler) and [`defaultOnAudioTrackHandler`](/docs/webcodecs/default-on-audio-track-handler) respectively.
+
+If you only want to override part of the logic, you can return the default resolver functions at the end of your logic.
+
+```tsx twoslash title="Falling back to the default behavior"
+// @module: es2022
+// @target: es2017
+import {convertMedia, defaultOnAudioTrackHandler} from '@remotion/webcodecs';
+
+await convertMedia({
+  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  container: 'webm',
+  onAudioTrack: (params) => {
+    // Custom logic for handling video tracks
+    // ...
+
+    // Fall back to the default behavior
+    return defaultOnAudioTrackHandler(params);
+  },
+});
+```
 
 ## Debugging
 

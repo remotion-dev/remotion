@@ -44,6 +44,14 @@ export const TableOfContents: React.FC = () => {
 						is specified.
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/webcodecs/default-on-audio-track-handler">
+					<strong>{'defaultOnAudioTrackHandler()'}</strong>
+					<div>The default track transformation function for audio tracks.</div>
+				</TOCItem>
+				<TOCItem link="/docs/webcodecs/default-on-video-track-handler">
+					<strong>{'defaultOnVideoTrackHandler()'}</strong>
+					<div>The default track transformation function for video tracks.</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

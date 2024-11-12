@@ -17,7 +17,6 @@ export const defaultOnAudioTrackHandler: ConvertMediaOnAudioTrackHandler =
 		container,
 	}): Promise<AudioOperation> => {
 		const bitrate = DEFAULT_BITRATE;
-		const audioCodec = defaultAudioCodec ?? getDefaultAudioCodec({container});
 
 		const canCopy = canCopyAudioTrack({
 			inputCodec: track.codecWithoutConfig,
@@ -32,6 +31,8 @@ export const defaultOnAudioTrackHandler: ConvertMediaOnAudioTrackHandler =
 
 			return Promise.resolve({type: 'copy'});
 		}
+
+		const audioCodec = defaultAudioCodec ?? getDefaultAudioCodec({container});
 
 		const canReencode = await canReencodeAudioTrack({
 			audioCodec,

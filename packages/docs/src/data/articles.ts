@@ -3957,17 +3957,17 @@ export const articles = [
 		crumb: '@remotion/webcodecs',
 	},
 	{
-		id: 'default-audio-track-handler',
-		title: 'defaultAudioTrackHandler()',
-		relativePath: 'docs/webcodecs/default-audio-track-handler.mdx',
-		compId: 'articles-docs-webcodecs-default-audio-track-handler',
+		id: 'default-on-audio-track-handler',
+		title: 'defaultOnAudioTrackHandler()',
+		relativePath: 'docs/webcodecs/default-on-audio-track-handler.mdx',
+		compId: 'articles-docs-webcodecs-default-on-audio-track-handler',
 		crumb: '@remotion/webcodecs',
 	},
 	{
-		id: 'default-video-track-handler',
-		title: 'defaultVideoTrackHandler()',
-		relativePath: 'docs/webcodecs/default-video-track-handler.mdx',
-		compId: 'articles-docs-webcodecs-default-video-track-handler',
+		id: 'default-on-video-track-handler',
+		title: 'defaultOnVideoTrackHandler()',
+		relativePath: 'docs/webcodecs/default-on-video-track-handler.mdx',
+		compId: 'articles-docs-webcodecs-default-on-video-track-handler',
 		crumb: '@remotion/webcodecs',
 	},
 	{
@@ -3994,8 +3994,8 @@ export const articles = [
 	{
 		id: 'track-transformation',
 		title: 'Track Transformation',
-		relativePath: 'docs/webcodecs/track-selection.mdx',
-		compId: 'articles-docs-webcodecs-track-selection',
+		relativePath: 'docs/webcodecs/track-transformation.mdx',
+		compId: 'articles-docs-webcodecs-track-transformation',
 		crumb: '@remotion/webcodecs',
 	},
 	{
