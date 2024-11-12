@@ -13,7 +13,7 @@ import {defaultResolveAudioAction} from './resolve-audio-action';
 export const makeAudioTrackHandler =
 	({
 		state,
-		audioCodec,
+		defaultAudioCodec: audioCodec,
 		convertMediaState,
 		controller,
 		abortConversion,
@@ -23,7 +23,7 @@ export const makeAudioTrackHandler =
 		container,
 	}: {
 		state: MediaFn;
-		audioCodec: ConvertMediaAudioCodec;
+		defaultAudioCodec: ConvertMediaAudioCodec | null;
 		convertMediaState: ConvertMediaState;
 		controller: AbortController;
 		abortConversion: (errCause: Error) => void;
@@ -53,7 +53,7 @@ export const makeAudioTrackHandler =
 		if (audioOperation.type === 'copy') {
 			const addedTrack = await state.addTrack({
 				type: 'audio',
-				codec: audioCodec,
+				codec: track.codecWithoutConfig,
 				numberOfChannels: track.numberOfChannels,
 				sampleRate: track.sampleRate,
 				codecPrivate: track.codecPrivate,
@@ -99,7 +99,7 @@ export const makeAudioTrackHandler =
 
 		const {trackNumber} = await state.addTrack({
 			type: 'audio',
-			codec: audioCodec,
+			codec: audioOperation.audioCodec,
 			numberOfChannels: track.numberOfChannels,
 			sampleRate: track.sampleRate,
 			codecPrivate: null,
@@ -121,7 +121,7 @@ export const makeAudioTrackHandler =
 					),
 				);
 			},
-			codec: audioCodec,
+			codec: audioOperation.audioCodec,
 			signal: controller.signal,
 			config: audioEncoderConfig,
 			logLevel,

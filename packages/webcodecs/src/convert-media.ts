@@ -93,12 +93,6 @@ export const convertMedia = async function <
 		);
 	}
 
-	if (audioCodec !== 'opus') {
-		return Promise.reject(
-			new TypeError('Only `audioCodec: "opus"` is supported currently'),
-		);
-	}
-
 	if (videoCodec && videoCodec !== 'vp8' && videoCodec !== 'vp9') {
 		return Promise.reject(
 			new TypeError(
@@ -179,7 +173,7 @@ export const convertMedia = async function <
 
 	const onAudioTrack: OnAudioTrack = makeAudioTrackHandler({
 		abortConversion,
-		audioCodec,
+		defaultAudioCodec: audioCodec ?? null,
 		controller,
 		convertMediaState,
 		onMediaStateUpdate: onMediaStateUpdate ?? null,
