@@ -1,4 +1,4 @@
-import {makeMatroskaBytes} from '../boxes/webm/make-header';
+import {makeMatroskaBytes} from '../../boxes/webm/make-header';
 
 export type Cue = {
 	time: number;

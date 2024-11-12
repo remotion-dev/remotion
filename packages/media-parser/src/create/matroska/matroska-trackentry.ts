@@ -1,14 +1,18 @@
-import {makeMatroskaColorBytes} from '../boxes/webm/color';
-import {makeMatroskaBytes, padMatroskaBytes} from '../boxes/webm/make-header';
+import {makeMatroskaColorBytes} from '../../boxes/webm/color';
+import {
+	makeMatroskaBytes,
+	padMatroskaBytes,
+} from '../../boxes/webm/make-header';
 import type {
 	BytesAndOffset,
 	PossibleEbmlOrUint8Array,
-} from '../boxes/webm/segments/all-segments';
+} from '../../boxes/webm/segments/all-segments';
 import type {
 	MediaParserAudioCodec,
 	MediaParserVideoCodec,
 	VideoTrackColorParams,
-} from '../get-tracks';
+} from '../../get-tracks';
+import type {MakeTrackAudio, MakeTrackVideo} from '../make-track-info';
 
 export const makeMatroskaVideoBytes = ({
 	color,
@@ -52,25 +56,6 @@ export const makeMatroskaVideoBytes = ({
 		],
 		minVintWidth: null,
 	});
-};
-
-export type MakeTrackAudio = {
-	trackNumber: number;
-	codec: MediaParserAudioCodec;
-	numberOfChannels: number;
-	sampleRate: number;
-	type: 'audio';
-	codecPrivate: Uint8Array | null;
-};
-
-export type MakeTrackVideo = {
-	color: VideoTrackColorParams;
-	width: number;
-	height: number;
-	trackNumber: number;
-	codec: MediaParserVideoCodec;
-	type: 'video';
-	codecPrivate: Uint8Array | null;
 };
 
 const makeVideoCodecId = (codecId: MediaParserVideoCodec) => {

@@ -1,14 +1,14 @@
-import {getVariableInt} from '../boxes/webm/ebml';
-import {matroskaToHex} from '../boxes/webm/make-header';
-import {matroskaElements} from '../boxes/webm/segments/all-segments';
-import type {AudioOrVideoSample} from '../webcodec-sample-types';
-import type {Writer} from '../writers/writer';
+import {getVariableInt} from '../../boxes/webm/ebml';
+import {matroskaToHex} from '../../boxes/webm/make-header';
+import {matroskaElements} from '../../boxes/webm/segments/all-segments';
+import type {AudioOrVideoSample} from '../../webcodec-sample-types';
+import type {Writer} from '../../writers/writer';
+import {CREATE_TIME_SCALE} from '../timescale';
 import {
 	CLUSTER_MIN_VINT_WIDTH,
 	createClusterSegment,
 	makeSimpleBlock,
 } from './cluster-segment';
-import {CREATE_TIME_SCALE} from './timescale';
 
 const maxClusterTimestamp = 2 ** 15;
 

@@ -1,10 +1,12 @@
-import {getVariableInt} from '../boxes/webm/ebml';
-import {combineUint8Arrays, matroskaToHex} from '../boxes/webm/make-header';
+import {getVariableInt} from '../../boxes/webm/ebml';
+import {combineUint8Arrays, matroskaToHex} from '../../boxes/webm/make-header';
 import {
 	matroskaElements,
 	type BytesAndOffset,
-} from '../boxes/webm/segments/all-segments';
-import type {AudioOrVideoSample} from '../webcodec-sample-types';
+} from '../../boxes/webm/segments/all-segments';
+import type {AudioOrVideoSample} from '../../webcodec-sample-types';
+import type {MediaFn, MediaFnGeneratorInput} from '../media-fn';
+import {CREATE_TIME_SCALE} from '../timescale';
 import {makeCluster, timestampToClusterTimestamp} from './cluster';
 import {makeDurationWithPadding} from './make-duration-with-padding';
 import {createMatroskaCues, type Cue} from './matroska-cues';
@@ -21,8 +23,6 @@ import {
 	makeMatroskaTracks,
 	makeMatroskaVideoTrackEntryBytes,
 } from './matroska-trackentry';
-import type {MediaFn, MediaFnGeneratorInput} from './media-fn';
-import {CREATE_TIME_SCALE} from './timescale';
 
 export const createMatroskaMedia = async ({
 	writer,

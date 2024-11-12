@@ -1,6 +1,6 @@
 import type {AudioOrVideoSample} from '../webcodec-sample-types';
 import type {WriterInterface} from '../writers/writer';
-import type {MakeTrackAudio, MakeTrackVideo} from './matroska-trackentry';
+import type {MakeTrackAudio, MakeTrackVideo} from './make-track-info';
 
 export type MediaFn = {
 	save: () => Promise<Blob>;

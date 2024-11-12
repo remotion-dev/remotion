@@ -1,4 +1,4 @@
-import {makeMatroskaBytes} from '../boxes/webm/make-header';
+import {makeMatroskaBytes} from '../../boxes/webm/make-header';
 
 export const makeDurationWithPadding = (newDuration: number) => {
 	return makeMatroskaBytes({
