@@ -145,10 +145,37 @@ await convertMedia({
 });
 ```
 
-## Asynchronously determining config
+## Asynchronously determining action
 
 The [`onAudioTrack`](/docs/webcodecs/convert-media#onaudiotrack) and [`onVideoTrack`](/docs/webcodecs/convert-media#onvideotrack) callbacks can be asynchronous.  
 While the operations are unresolved, reading of the input fill is paused.
+
+## Decide behavior upfront
+
+If you want to display a UI letting the user choose codec settings before the conversion starts, you can do so.
+
+Use [`parseMedia()`](/docs/media-parser/parse-media) to get video and audio tracks respectively:
+
+```tsx twoslash title="Using parseMedia() to get tracks upfront."
+// @module: es2022
+// @target: es2017
+
+import {parseMedia} from '@remotion/media-parser';
+
+const {videoTracks, audioTracks} = await parseMedia({
+  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  fields: {
+    tracks: true,
+  },
+});
+```
+
+You now have an array of `VideoTrack` and `AudioTrack` objects.
+
+You can now use [`canReencodeAudioTrack()`](/docs/webcodecs/can-reencode-audio-track), [`canReencodeVideoTrack()`](/docs/webcodecs/can-reencode-video-track), [`canCopyAudioTrack()`](/docs/webcodecs/can-copy-audio-track), and [`canCopyVideoTrack()`](/docs/webcodecs/can-copy-video-track) to determine which options to show.
+
+Use the [`onVideoTrack`](/docs/webcodecs/convert-media#onvideotrack) and [`onAudioTrack`](/docs/webcodecs/convert-media#onaudiotrack) callbacks to return the user selection.  
+You can use the `trackId` field as the unique key for each track.
 
 ## Falling back to default
 
@@ -181,3 +208,8 @@ Pass [`logLevel: "verbose"`](/docs/webcodecs/convert-media#loglevel) to [`conver
 ## Reference implementation
 
 Visit the [source code](https://github.com/remotion-dev/remotion/tree/main/packages/convert) for [convert.remotion.dev](https://convert.remotion.dev) to see a reference implementation for an online video converter that displays a user interface for all possible options.
+
+## See also
+
+- [`@remotion/webcodecs`](/docs/webcodecs)
+- [`convertMedia()`](/docs/webcodecs/convert-media)
