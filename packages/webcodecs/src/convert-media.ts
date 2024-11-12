@@ -138,7 +138,7 @@ export const convertMedia = async function <
 		onMediaStateDoNoCallDirectly?.(newState);
 	};
 
-	const state = await MediaParserInternals.createMedia({
+	const state = await MediaParserInternals.createMatroskaMedia({
 		writer: await autoSelectWriter(writer, logLevel),
 		onBytesProgress: (bytesWritten) => {
 			convertMediaState.bytesWritten = bytesWritten;

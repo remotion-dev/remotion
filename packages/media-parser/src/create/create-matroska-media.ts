@@ -5,7 +5,6 @@ import {
 	type BytesAndOffset,
 } from '../boxes/webm/segments/all-segments';
 import type {AudioOrVideoSample} from '../webcodec-sample-types';
-import type {WriterInterface} from '../writers/writer';
 import {makeCluster, timestampToClusterTimestamp} from './cluster';
 import {makeDurationWithPadding} from './make-duration-with-padding';
 import {createMatroskaCues, type Cue} from './matroska-cues';
@@ -17,41 +16,19 @@ import {
 	MATROSKA_SEGMENT_MIN_VINT_WIDTH,
 	createMatroskaSegment,
 } from './matroska-segment';
-import type {MakeTrackAudio, MakeTrackVideo} from './matroska-trackentry';
 import {
 	makeMatroskaAudioTrackEntryBytes,
 	makeMatroskaTracks,
 	makeMatroskaVideoTrackEntryBytes,
 } from './matroska-trackentry';
+import type {MediaFn, MediaFnGeneratorInput} from './media-fn';
 import {CREATE_TIME_SCALE} from './timescale';
 
-export type MediaFn = {
-	save: () => Promise<Blob>;
-	remove: () => Promise<void>;
-	addSample: (
-		chunk: AudioOrVideoSample,
-		trackNumber: number,
-		isVideo: boolean,
-	) => Promise<void>;
-	updateDuration: (duration: number) => Promise<void>;
-	addTrack: (
-		track:
-			| Omit<MakeTrackAudio, 'trackNumber'>
-			| Omit<MakeTrackVideo, 'trackNumber'>,
-	) => Promise<{trackNumber: number}>;
-	addWaitForFinishPromise: (promise: () => Promise<void>) => void;
-	waitForFinish: () => Promise<void>;
-};
-
-export const createMedia = async ({
+export const createMatroskaMedia = async ({
 	writer,
 	onBytesProgress,
 	onMillisecondsProgress,
-}: {
-	writer: WriterInterface;
-	onBytesProgress: (totalBytes: number) => void;
-	onMillisecondsProgress: (totalMilliseconds: number) => void;
-}): Promise<MediaFn> => {
+}: MediaFnGeneratorInput): Promise<MediaFn> => {
 	const header = makeMatroskaHeader();
 
 	const w = await writer.createContent();
