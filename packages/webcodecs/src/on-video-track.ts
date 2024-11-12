@@ -9,7 +9,7 @@ import type {
 } from './convert-media';
 import Error from './error-cause';
 import {onFrame} from './on-frame';
-import type {ResolveVideoActionFn} from './resolve-video-action';
+import type {ConvertMediaOnVideoTrackHandler} from './resolve-video-action';
 import {defaultResolveVideoAction} from './resolve-video-action';
 import {createVideoDecoder} from './video-decoder';
 import {getVideoDecoderConfigWithHardwareAcceleration} from './video-decoder-config';
@@ -36,7 +36,7 @@ export const makeVideoTrackHandler =
 		convertMediaState: ConvertMediaState;
 		controller: AbortController;
 		defaultVideoCodec: ConvertMediaVideoCodec | null;
-		onVideoTrack: ResolveVideoActionFn | null;
+		onVideoTrack: ConvertMediaOnVideoTrackHandler | null;
 		logLevel: LogLevel;
 		container: ConvertMediaContainer;
 	}): OnVideoTrack =>

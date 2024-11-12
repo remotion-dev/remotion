@@ -11,57 +11,58 @@ export type VideoOperation =
 	| {type: 'drop'}
 	| {type: 'fail'};
 
-export type ResolveVideoActionFn = (options: {
+export type ConvertMediaOnVideoTrackHandler = (options: {
 	defaultVideoCodec: ConvertMediaVideoCodec | null;
 	track: VideoTrack;
 	logLevel: LogLevel;
 	container: ConvertMediaContainer;
 }) => VideoOperation | Promise<VideoOperation>;
 
-export const defaultResolveVideoAction: ResolveVideoActionFn = async ({
-	track,
-	defaultVideoCodec,
-	logLevel,
-	container,
-}): Promise<VideoOperation> => {
-	if (defaultVideoCodec === null) {
-		throw new Error(
-			'No default video codec provided to convertMedia(). Pass a `videoCodec` parameter to set one.',
-		);
-	}
-
-	const canCopy = canCopyVideoTrack({
-		inputCodec: track.codecWithoutConfig,
-		container,
-	});
-
-	if (canCopy) {
-		Log.verbose(
-			logLevel,
-			`Track ${track.trackId} (video): Can copy, therefore copying`,
-		);
-
-		return Promise.resolve({type: 'copy'});
-	}
-
-	const canReencode = await canReencodeVideoTrack({
-		videoCodec: defaultVideoCodec,
+export const defaultResolveVideoAction: ConvertMediaOnVideoTrackHandler =
+	async ({
 		track,
-	});
+		defaultVideoCodec,
+		logLevel,
+		container,
+	}): Promise<VideoOperation> => {
+		if (defaultVideoCodec === null) {
+			throw new Error(
+				'No default video codec provided to convertMedia(). Pass a `videoCodec` parameter to set one.',
+			);
+		}
 
-	if (canReencode) {
+		const canCopy = canCopyVideoTrack({
+			inputCodec: track.codecWithoutConfig,
+			container,
+		});
+
+		if (canCopy) {
+			Log.verbose(
+				logLevel,
+				`Track ${track.trackId} (video): Can copy, therefore copying`,
+			);
+
+			return Promise.resolve({type: 'copy'});
+		}
+
+		const canReencode = await canReencodeVideoTrack({
+			videoCodec: defaultVideoCodec,
+			track,
+		});
+
+		if (canReencode) {
+			Log.verbose(
+				logLevel,
+				`Track ${track.trackId} (video): Cannot copy, but re-enconde, therefore re-encoding`,
+			);
+
+			return Promise.resolve({type: 'reencode', videoCodec: defaultVideoCodec});
+		}
+
 		Log.verbose(
 			logLevel,
-			`Track ${track.trackId} (video): Cannot copy, but re-enconde, therefore re-encoding`,
+			`Track ${track.trackId} (video): Can neither copy nor re-encode, therefore dropping`,
 		);
 
-		return Promise.resolve({type: 'reencode', videoCodec: defaultVideoCodec});
-	}
-
-	Log.verbose(
-		logLevel,
-		`Track ${track.trackId} (video): Can neither copy nor re-encode, therefore dropping`,
-	);
-
-	return Promise.resolve({type: 'fail'});
-};
+		return Promise.resolve({type: 'fail'});
+	};

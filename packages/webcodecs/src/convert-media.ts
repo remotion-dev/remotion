@@ -24,8 +24,8 @@ import type {ConvertMediaAudioCodec, ConvertMediaVideoCodec} from './codec-id';
 import Error from './error-cause';
 import {makeAudioTrackHandler} from './on-audio-track';
 import {makeVideoTrackHandler} from './on-video-track';
-import {type ResolveAudioActionFn} from './resolve-audio-action';
-import {type ResolveVideoActionFn} from './resolve-video-action';
+import {type ConvertMediaOnAudioTrackHandler} from './resolve-audio-action';
+import {type ConvertMediaOnVideoTrackHandler} from './resolve-video-action';
 import {withResolversAndWaitForReturn} from './with-resolvers';
 
 export type ConvertMediaState = {
@@ -77,8 +77,8 @@ export const convertMedia = async function <
 	videoCodec?: ConvertMediaVideoCodec;
 	audioCodec?: ConvertMediaAudioCodec;
 	signal?: AbortSignal;
-	onAudioTrack?: ResolveAudioActionFn;
-	onVideoTrack?: ResolveVideoActionFn;
+	onAudioTrack?: ConvertMediaOnAudioTrackHandler;
+	onVideoTrack?: ConvertMediaOnVideoTrackHandler;
 	reader?: ParseMediaOptions<F>['reader'];
 	logLevel?: LogLevel;
 	writer?: WriterInterface;

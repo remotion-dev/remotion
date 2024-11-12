@@ -7,7 +7,7 @@ import type {ConvertMediaAudioCodec} from './codec-id';
 import {convertEncodedChunk} from './convert-encoded-chunk';
 import type {ConvertMediaContainer, ConvertMediaState} from './convert-media';
 import Error from './error-cause';
-import type {ResolveAudioActionFn} from './resolve-audio-action';
+import type {ConvertMediaOnAudioTrackHandler} from './resolve-audio-action';
 import {defaultResolveAudioAction} from './resolve-audio-action';
 
 export const makeAudioTrackHandler =
@@ -28,7 +28,7 @@ export const makeAudioTrackHandler =
 		controller: AbortController;
 		abortConversion: (errCause: Error) => void;
 		onMediaStateUpdate: null | ((state: ConvertMediaState) => void);
-		onAudioTrack: ResolveAudioActionFn | null;
+		onAudioTrack: ConvertMediaOnAudioTrackHandler | null;
 		logLevel: LogLevel;
 		container: ConvertMediaContainer;
 	}): OnAudioTrack =>

@@ -14,7 +14,7 @@ When transforming media, there are multiple thing that can be done for each audi
 
 [`@remotion/webcodecs`](/docs/webcodecs) allows you to decide for each track what to do with it.
 
-## Leaving the defaults
+## Using the defaults
 
 The minimum amount of configuration is to only specify a [`src`](/docs/webcodecs/convert-media#src) and an output [`container`](/docs/webcodecs/convert-media#container).
 
@@ -76,12 +76,14 @@ The options for video codecs are:
 - `{"type": "copy"}` - Copy the track without re-encoding
 - `{"type": "reencode", "videoCodec": ConvertMediaVideoCodec}` - Re-encode the track into the specified codec
 - `{"type": "drop"}` - Remove the track from the output
+- `{"type": "fail"}` - Fail and stop the conversion process
 
 The options for audio codecs are:
 
 - `{"type": "copy"}` - Copy the track without re-encoding
 - `{"type": "reencode", "audioCodec": ConvertMediaAudioCodec; bitrate: number}` - Re-encode the track into the specified codec. The suggested bitrate to use is `128000`.
 - `{"type": "drop"}` - Remove the track from the output
+- `{"type": "fail"}` - Fail and stop the conversion process
 
 The enums `ConvertMediaVideoCodec` and `ConvertMediaAudioCodec` can be imported from `@remotion/webcodecs`.
 
