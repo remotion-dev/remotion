@@ -1,6 +1,7 @@
 import {MediaParserInternals} from '@remotion/media-parser';
 import {canCopyAudioTrack} from './can-copy-audio-track';
 import {canReencodeAudioTrack} from './can-reencode-audio-track';
+import {getDefaultAudioCodec} from './get-default-audio-codec';
 import type {
 	AudioOperation,
 	ConvertMediaOnAudioTrackHandler,
@@ -16,11 +17,7 @@ export const defaultOnAudioTrackHandler: ConvertMediaOnAudioTrackHandler =
 		container,
 	}): Promise<AudioOperation> => {
 		const bitrate = DEFAULT_BITRATE;
-		if (defaultAudioCodec === null) {
-			throw new Error(
-				'No default video codec provided to convertMedia(). Pass a `audioCodec` parameter to set one.',
-			);
-		}
+		const audioCodec = defaultAudioCodec ?? getDefaultAudioCodec({container});
 
 		const canCopy = canCopyAudioTrack({
 			inputCodec: track.codecWithoutConfig,
@@ -30,14 +27,14 @@ export const defaultOnAudioTrackHandler: ConvertMediaOnAudioTrackHandler =
 		if (canCopy) {
 			MediaParserInternals.Log.verbose(
 				logLevel,
-				`Track ${track.trackId} (audio): Can copy = ${canCopy}, action = copy`,
+				`Track ${track.trackId} (audio): Can copy track, therefore copying`,
 			);
 
 			return Promise.resolve({type: 'copy'});
 		}
 
 		const canReencode = await canReencodeAudioTrack({
-			audioCodec: defaultAudioCodec,
+			audioCodec,
 			track,
 			bitrate,
 		});
@@ -45,19 +42,19 @@ export const defaultOnAudioTrackHandler: ConvertMediaOnAudioTrackHandler =
 		if (canReencode) {
 			MediaParserInternals.Log.verbose(
 				logLevel,
-				`Track ${track.trackId} (audio): Can re-encode = ${canReencode}, can copy = ${canCopy}, action = reencode`,
+				`Track ${track.trackId} (audio): Cannot copy, but re-encode, therefore re-encoding`,
 			);
 
 			return Promise.resolve({
 				type: 'reencode',
 				bitrate,
-				audioCodec: defaultAudioCodec,
+				audioCodec,
 			});
 		}
 
 		MediaParserInternals.Log.verbose(
 			logLevel,
-			`Track ${track.trackId} (audio): Can re-encode = ${canReencode}, can copy = ${canCopy}, action = drop`,
+			`Track ${track.trackId} (audio): Can neither re-encode nor copy, failing render`,
 		);
 
 		return Promise.resolve({type: 'fail'});

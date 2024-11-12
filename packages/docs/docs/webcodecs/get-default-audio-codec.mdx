@@ -17,7 +17,7 @@ Gets the default audio codec for a container that `@remotion/webcodecs` uses if 
 ```tsx twoslash title="Get the default audio codec for a container"
 import {getDefaultAudioCodec} from '@remotion/webcodecs';
 
-getDefaultAudioCodec('webm'); // 'opus'
+getDefaultAudioCodec({container: 'webm'}); // 'opus'
 ```
 
 Currently, the only supported container is `webm`, for which the default audio codec is `opus`.

@@ -1,0 +1,47 @@
+---
+image: /generated/articles-docs-webcodecs-default-video-track-handler.png
+id: default-on-video-track-handler
+title: defaultVideoTrackHandler()
+slug: /webcodecs/default-on-video-track-handler
+crumb: '@remotion/webcodecs'
+---
+
+```tsx twoslash title="Source code for defaultOnVideoTrackHandler"
+import {
+  canReencodeVideoTrack,
+  getDefaultVideoCodec,
+  ConvertMediaOnVideoTrackHandler,
+  VideoOperation,
+  canCopyVideoTrack,
+} from '@remotion/webcodecs';
+
+export const defaultOnVideoTrackHandler: ConvertMediaOnVideoTrackHandler =
+  async ({
+    track,
+    defaultVideoCodec,
+    logLevel,
+    container,
+  }): Promise<VideoOperation> => {
+    const videoCodec = defaultVideoCodec ?? getDefaultVideoCodec({container});
+
+    const canCopy = canCopyVideoTrack({
+      inputCodec: track.codecWithoutConfig,
+      container,
+    });
+
+    if (canCopy) {
+      return Promise.resolve({type: 'copy'});
+    }
+
+    const canReencode = await canReencodeVideoTrack({
+      videoCodec,
+      track,
+    });
+
+    if (canReencode) {
+      return Promise.resolve({type: 'reencode', videoCodec});
+    }
+
+    return Promise.resolve({type: 'fail'});
+  };
+```

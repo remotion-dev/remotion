@@ -6,7 +6,7 @@ import {getAudioEncoderConfig} from './audio-encoder-config';
 import type {ConvertMediaAudioCodec} from './codec-id';
 import {convertEncodedChunk} from './convert-encoded-chunk';
 import type {ConvertMediaContainer, ConvertMediaState} from './convert-media';
-import {defaultOnAudioTrackHandler} from './default-audio-track-handler';
+import {defaultOnAudioTrackHandler} from './default-on-audio-track-handler';
 import Error from './error-cause';
 import type {ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
 

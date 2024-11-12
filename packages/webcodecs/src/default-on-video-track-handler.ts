@@ -1,6 +1,7 @@
 import {MediaParserInternals} from '@remotion/media-parser';
 import {canCopyVideoTrack} from './can-copy-video-track';
 import {canReencodeVideoTrack} from './can-reencode-video-track';
+import {getDefaultVideoCodec} from './get-default-video-codec';
 import type {
 	ConvertMediaOnVideoTrackHandler,
 	VideoOperation,
@@ -13,11 +14,7 @@ export const defaultOnVideoTrackHandler: ConvertMediaOnVideoTrackHandler =
 		logLevel,
 		container,
 	}): Promise<VideoOperation> => {
-		if (defaultVideoCodec === null) {
-			throw new Error(
-				'No default video codec provided to convertMedia(). Pass a `videoCodec` parameter to set one.',
-			);
-		}
+		const videoCodec = defaultVideoCodec ?? getDefaultVideoCodec({container});
 
 		const canCopy = canCopyVideoTrack({
 			inputCodec: track.codecWithoutConfig,
@@ -34,7 +31,7 @@ export const defaultOnVideoTrackHandler: ConvertMediaOnVideoTrackHandler =
 		}
 
 		const canReencode = await canReencodeVideoTrack({
-			videoCodec: defaultVideoCodec,
+			videoCodec,
 			track,
 		});
 
@@ -44,12 +41,12 @@ export const defaultOnVideoTrackHandler: ConvertMediaOnVideoTrackHandler =
 				`Track ${track.trackId} (video): Cannot copy, but re-enconde, therefore re-encoding`,
 			);
 
-			return Promise.resolve({type: 'reencode', videoCodec: defaultVideoCodec});
+			return Promise.resolve({type: 'reencode', videoCodec});
 		}
 
 		MediaParserInternals.Log.verbose(
 			logLevel,
-			`Track ${track.trackId} (video): Can neither copy nor re-encode, therefore dropping`,
+			`Track ${track.trackId} (video): Can neither copy nor re-encode, therefore failing`,
 		);
 
 		return Promise.resolve({type: 'fail'});

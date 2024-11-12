@@ -1,0 +1,57 @@
+---
+image: /generated/articles-docs-webcodecs-default-audio-track-handler.png
+id: default-on-audio-track-handler
+title: defaultOnAudioTrackHandler()
+slug: /webcodecs/default-on-audio-track-handler
+crumb: '@remotion/webcodecs'
+---
+
+This is the default function if no [`onAudioTrack`](/docs/webcodecs/convert-media#onaudiotrack) handler is provided to [`convertMedia()`](/docs/webcodecs/convert-media).
+
+```tsx twoslash
+import {
+  canCopyAudioTrack,
+  canReencodeAudioTrack,
+  AudioOperation,
+  ConvertMediaOnAudioTrackHandler,
+  getDefaultAudioCodec,
+} from '@remotion/webcodecs';
+
+const DEFAULT_BITRATE = 128_000;
+
+export const defaultOnAudioTrackHandler: ConvertMediaOnAudioTrackHandler =
+  async ({
+    track,
+    defaultAudioCodec,
+    logLevel,
+    container,
+  }): Promise<AudioOperation> => {
+    const bitrate = DEFAULT_BITRATE;
+    const audioCodec = defaultAudioCodec ?? getDefaultAudioCodec({container});
+
+    const canCopy = canCopyAudioTrack({
+      inputCodec: track.codecWithoutConfig,
+      container,
+    });
+
+    if (canCopy) {
+      return Promise.resolve({type: 'copy'});
+    }
+
+    const canReencode = await canReencodeAudioTrack({
+      audioCodec,
+      track,
+      bitrate,
+    });
+
+    if (canReencode) {
+      return Promise.resolve({
+        type: 'reencode',
+        bitrate,
+        audioCodec,
+      });
+    }
+
+    return Promise.resolve({type: 'fail'});
+  };
+```

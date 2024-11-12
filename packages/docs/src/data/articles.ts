@@ -3957,6 +3957,20 @@ export const articles = [
 		crumb: '@remotion/webcodecs',
 	},
 	{
+		id: 'default-audio-track-handler',
+		title: 'defaultAudioTrackHandler()',
+		relativePath: 'docs/webcodecs/default-audio-track-handler.mdx',
+		compId: 'articles-docs-webcodecs-default-audio-track-handler',
+		crumb: '@remotion/webcodecs',
+	},
+	{
+		id: 'default-video-track-handler',
+		title: 'defaultVideoTrackHandler()',
+		relativePath: 'docs/webcodecs/default-video-track-handler.mdx',
+		compId: 'articles-docs-webcodecs-default-video-track-handler',
+		crumb: '@remotion/webcodecs',
+	},
+	{
 		id: 'get-default-audio-codec',
 		title: 'getDefaultAudioCodec()',
 		relativePath: 'docs/webcodecs/get-default-audio-codec.mdx',

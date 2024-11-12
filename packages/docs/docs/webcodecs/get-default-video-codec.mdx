@@ -17,7 +17,7 @@ Gets the default video codec for a container that `@remotion/webcodecs` uses if 
 ```tsx twoslash title="Get the default video codec for a container"
 import {getDefaultVideoCodec} from '@remotion/webcodecs';
 
-getDefaultVideoCodec('webm'); // 'vp8'
+getDefaultVideoCodec({container: 'webm'}); // 'vp8'
 ```
 
 Currently, the only supported container is `webm`, for which the default video codec is `vp8`.
