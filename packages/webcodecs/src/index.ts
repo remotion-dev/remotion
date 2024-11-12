@@ -21,10 +21,10 @@ export {
 export {
 	AudioOperation,
 	ConvertMediaOnAudioTrackHandler,
-} from './resolve-audio-action';
+} from './on-audio-track-handler';
 export {
 	ConvertMediaOnVideoTrackHandler,
 	VideoOperation,
-} from './resolve-video-action';
+} from './on-video-track-handler';
 export {WebCodecsVideoDecoder, createVideoDecoder} from './video-decoder';
 export {WebCodecsVideoEncoder, createVideoEncoder} from './video-encoder';

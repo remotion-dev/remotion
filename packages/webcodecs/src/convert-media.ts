@@ -23,9 +23,9 @@ import {calculateProgress} from './calculate-progress';
 import type {ConvertMediaAudioCodec, ConvertMediaVideoCodec} from './codec-id';
 import Error from './error-cause';
 import {makeAudioTrackHandler} from './on-audio-track';
+import {type ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
 import {makeVideoTrackHandler} from './on-video-track';
-import {type ConvertMediaOnAudioTrackHandler} from './resolve-audio-action';
-import {type ConvertMediaOnVideoTrackHandler} from './resolve-video-action';
+import {type ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
 import {withResolversAndWaitForReturn} from './with-resolvers';
 
 export type ConvertMediaState = {

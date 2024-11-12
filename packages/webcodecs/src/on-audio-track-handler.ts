@@ -20,7 +20,7 @@ export type ConvertMediaOnAudioTrackHandler = (options: {
 
 const DEFAULT_BITRATE = 128_000;
 
-export const defaultResolveAudioAction: ConvertMediaOnAudioTrackHandler =
+export const defaultOnAudioTrackHandler: ConvertMediaOnAudioTrackHandler =
 	async ({
 		track,
 		defaultAudioCodec,

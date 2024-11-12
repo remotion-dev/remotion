@@ -7,8 +7,8 @@ import type {ConvertMediaAudioCodec} from './codec-id';
 import {convertEncodedChunk} from './convert-encoded-chunk';
 import type {ConvertMediaContainer, ConvertMediaState} from './convert-media';
 import Error from './error-cause';
-import type {ConvertMediaOnAudioTrackHandler} from './resolve-audio-action';
-import {defaultResolveAudioAction} from './resolve-audio-action';
+import type {ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
+import {defaultOnAudioTrackHandler} from './on-audio-track-handler';
 
 export const makeAudioTrackHandler =
 	({
@@ -33,7 +33,7 @@ export const makeAudioTrackHandler =
 		container: ConvertMediaContainer;
 	}): OnAudioTrack =>
 	async (track) => {
-		const audioOperation = await (onAudioTrack ?? defaultResolveAudioAction)({
+		const audioOperation = await (onAudioTrack ?? defaultOnAudioTrackHandler)({
 			defaultAudioCodec: audioCodec,
 			track,
 			logLevel,

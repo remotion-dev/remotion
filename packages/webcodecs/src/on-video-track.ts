@@ -9,8 +9,8 @@ import type {
 } from './convert-media';
 import Error from './error-cause';
 import {onFrame} from './on-frame';
-import type {ConvertMediaOnVideoTrackHandler} from './resolve-video-action';
-import {defaultResolveVideoAction} from './resolve-video-action';
+import type {ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
+import {defaultOnVideoTrackHandler} from './on-video-track-handler';
 import {createVideoDecoder} from './video-decoder';
 import {getVideoDecoderConfigWithHardwareAcceleration} from './video-decoder-config';
 import {createVideoEncoder} from './video-encoder';
@@ -45,7 +45,7 @@ export const makeVideoTrackHandler =
 			throw new Error('Aborted');
 		}
 
-		const videoOperation = await (onVideoTrack ?? defaultResolveVideoAction)({
+		const videoOperation = await (onVideoTrack ?? defaultOnVideoTrackHandler)({
 			track,
 			defaultVideoCodec,
 			logLevel,

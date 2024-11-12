@@ -18,7 +18,7 @@ export type ConvertMediaOnVideoTrackHandler = (options: {
 	container: ConvertMediaContainer;
 }) => VideoOperation | Promise<VideoOperation>;
 
-export const defaultResolveVideoAction: ConvertMediaOnVideoTrackHandler =
+export const defaultOnVideoTrackHandler: ConvertMediaOnVideoTrackHandler =
 	async ({
 		track,
 		defaultVideoCodec,
