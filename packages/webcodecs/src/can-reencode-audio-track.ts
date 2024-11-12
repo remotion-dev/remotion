@@ -12,12 +12,7 @@ export const canReencodeAudioTrack = async ({
 	audioCodec: ConvertMediaAudioCodec;
 	bitrate: number;
 }): Promise<boolean> => {
-	const audioDecoderConfig = await getAudioDecoderConfig({
-		codec: track.codec,
-		numberOfChannels: track.numberOfChannels,
-		sampleRate: track.sampleRate,
-		description: track.description,
-	});
+	const audioDecoderConfig = await getAudioDecoderConfig(track);
 
 	const audioEncoderConfig = await getAudioEncoderConfig({
 		codec: audioCodec,

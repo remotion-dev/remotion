@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-webcodecs-track-selection.png
 id: track-transformation
 title: Track Transformation
 slug: /webcodecs/track-transformation
@@ -13,11 +14,26 @@ When transforming media, there are multiple thing that can be done for each audi
 
 [`@remotion/webcodecs`](/docs/webcodecs) allows you to decide for each track what to do with it.
 
-## Selecting default codecs
+## Leaving the defaults
 
-The easiest way to configure [`convertMedia()`](/docs/webcodecs/convert-media) is to use the [`videoCodec`](/docs/webcodecs/convert-media#videocodec) and [`audioCodec`](/docs/webcodecs/convert-media#audiocodec) options.
+The minimum amount of configuration is to only specify a [`src`](/docs/webcodecs/convert-media#src) and an output [`container`](/docs/webcodecs/convert-media#container).
 
-```tsx twoslash
+```tsx twoslash title="Using the default codecs"
+// @module: es2022
+// @target: es2017
+import {convertMedia} from '@remotion/webcodecs';
+
+await convertMedia({
+  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  container: 'webm',
+});
+```
+
+## Choosing codecs
+
+You can use the [`videoCodec`](/docs/webcodecs/convert-media#videocodec) and [`audioCodec`](/docs/webcodecs/convert-media#audiocodec) options to transform all tracks to the codecs you specify.
+
+```tsx twoslash title="Choosing video and audio codecs"
 // @module: es2022
 // @target: es2017
 import {convertMedia} from '@remotion/webcodecs';
@@ -30,11 +46,11 @@ await convertMedia({
 });
 ```
 
-These options will be used for all tracks that are not explicitly handled in the [`onVideoTrack`](/docs/webcodecs/convert-media#onvideotrack) and [`onAudioTrack`](/docs/webcodecs/convert-media#onaudiotrack) callbacks.
-
 ## Handle each track individually
 
-```tsx twoslash
+With the [`onVideoTrack`](/docs/webcodecs/convert-media#onvideotrack) and [`onAudioTrack`](/docs/webcodecs/convert-media#onaudiotrack) callbacks, you can decide for each track what to do with it.
+
+```tsx twoslash title="Using the onVideoTrack() API"
 // @module: es2022
 // @target: es2017
 import {convertMedia} from '@remotion/webcodecs';
@@ -42,18 +58,57 @@ import {convertMedia} from '@remotion/webcodecs';
 await convertMedia({
   src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
   container: 'webm',
-  videoCodec: 'vp8',
   audioCodec: 'opus',
   onVideoTrack: ({track}) => {
-    if (track.codecWithoutConfig === 'vp9') {
+    if (track.codecWithoutConfig === 'vp8') {
       return {type: 'copy'};
     }
 
-    if (track.codecWithoutConfig === 'h264') {
-      return {type: 'reencode', videoCodec: 'vp8'};
+    return {type: 'reencode', videoCodec: 'vp8'};
+  },
+});
+```
+
+[`onVideoTrack`](/docs/webcodecs/convert-media#onvideotrack) and [`onAudioTrack`](/docs/webcodecs/convert-media#onaudiotrack) have a higher priority than [`videoCodec`](/docs/webcodecs/convert-media#videocodec) and [`audioCodec`](/docs/webcodecs/convert-media#audiocodec).
+
+The options for video codecs are:
+
+- `{"type": "copy"}` - Copy the track without re-encoding
+- `{"type": "reencode", "videoCodec": ConvertMediaVideoCodec}` - Re-encode the track into the specified codec
+- `{"type": "drop"}` - Remove the track from the output
+
+The options for audio codecs are:
+
+- `{"type": "copy"}` - Copy the track without re-encoding
+- `{"type": "reencode", "audioCodec": ConvertMediaAudioCodec; bitrate: number}` - Re-encode the track into the specified codec. The suggested bitrate to use is `128000`.
+- `{"type": "drop"}` - Remove the track from the output
+
+The enums `ConvertMediaVideoCodec` and `ConvertMediaAudioCodec` can be imported from `@remotion/webcodecs`.
+
+## Checking if a track can be copied
+
+To check if it is possible to return `{"type": "copy"}`, you can use the [`canCopyVideoTrack()`](/docs/webcodecs/convert-media#cancopyvideotrack) and [`canCopyAudioTrack()`](/docs/webcodecs/convert-media#cancopyaudiotrack) APIs.
+
+```tsx twoslash title="Using the canCopyVideoTrack() API"
+// @module: es2022
+// @target: es2017
+import {convertMedia, canCopyVideoTrack} from '@remotion/webcodecs';
+
+await convertMedia({
+  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  container: 'webm',
+  audioCodec: 'opus',
+  onVideoTrack: ({track, container, defaultVideoCodec}) => {
+    const canCopy = canCopyVideoTrack({
+      inputCodec: track.codecWithoutConfig,
+      container,
+    });
+
+    if (canCopy) {
+      return {type: 'copy'};
     }
 
-    return {type: 'drop'};
+    return {type: 'reencode', videoCodec: 'vp8'};
   },
 });
 ```

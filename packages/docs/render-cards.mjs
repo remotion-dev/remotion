@@ -59,6 +59,9 @@ for (const page of pages) {
 		opened.match(/---\n((.|\n)*?)---\n/) ??
 		opened.match(/---\r\n((.|\r\n)*?)---\r\n/);
 	if (!frontmatter) {
+		if (page.endsWith('.ts')) {
+			continue;
+		}
 		console.log('No frontmatter for', page);
 		continue;
 	}

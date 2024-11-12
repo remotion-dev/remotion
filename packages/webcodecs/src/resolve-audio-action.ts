@@ -34,7 +34,6 @@ export const defaultResolveAudioAction: ResolveAudioActionFn = async ({
 
 	const canCopy = canCopyAudioTrack({
 		inputCodec: track.codecWithoutConfig,
-		outputCodec: defaultAudioCodec,
 		container,
 	});
 

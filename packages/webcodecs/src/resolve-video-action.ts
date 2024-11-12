@@ -31,7 +31,6 @@ export const defaultResolveVideoAction: ResolveVideoActionFn = async ({
 
 	const canCopy = canCopyVideoTrack({
 		inputCodec: track.codecWithoutConfig,
-		outputCodec: defaultVideoCodec,
 		container,
 	});
 

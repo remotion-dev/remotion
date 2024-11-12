@@ -3285,6 +3285,13 @@ export const articles = [
 		crumb: 'How to',
 	},
 	{
+		id: 'track-transformation',
+		title: 'Track Transformation',
+		relativePath: 'docs/webcodecs/track-selection.mdx',
+		compId: 'articles-docs-webcodecs-track-selection',
+		crumb: '@remotion/webcodecs',
+	},
+	{
 		id: 'convert-media',
 		title: 'convertMedia()',
 		relativePath: 'docs/webcodecs/convert-media.mdx',
@@ -3306,10 +3313,24 @@ export const articles = [
 		crumb: null,
 	},
 	{
+		id: 'can-copy-video-track',
+		title: 'canCopyVideoTrack()',
+		relativePath: 'docs/webcodecs/can-copy-video-track.mdx',
+		compId: 'articles-docs-webcodecs-can-copy-video-track',
+		crumb: '@remotion/webcodecs',
+	},
+	{
 		id: 'can-reencode-video-track',
 		title: 'canReencodeVideoTrack()',
 		relativePath: 'docs/webcodecs/can-reencode-video-track.mdx',
 		compId: 'articles-docs-webcodecs-can-reencode-video-track',
+		crumb: '@remotion/webcodecs',
+	},
+	{
+		id: 'can-copy-audio-track',
+		title: 'canCopyAudioTrack()',
+		relativePath: 'docs/webcodecs/can-copy-audio-track.mdx',
+		compId: 'articles-docs-webcodecs-can-copy-audio-track',
 		crumb: '@remotion/webcodecs',
 	},
 	{
