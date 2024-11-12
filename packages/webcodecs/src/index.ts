@@ -19,6 +19,8 @@ export {
 	convertMedia,
 } from './convert-media';
 export {defaultOnAudioTrackHandler} from './default-audio-track-handler';
+export {getDefaultAudioCodec} from './get-default-audio-codec';
+export {getDefaultVideoCodec} from './get-default-video-codec';
 export {
 	AudioOperation,
 	ConvertMediaOnAudioTrackHandler,
