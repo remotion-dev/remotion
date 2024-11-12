@@ -24,6 +24,34 @@ export const TableOfContents: React.FC = () => {
 						Determine if a video track can be copied without re-encoding
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/webcodecs/can-copy-audio-track">
+					<strong>{'canCopyAudioTrack()'}</strong>
+					<div>
+						Determine if a audio track can be copied without re-encoding
+					</div>
+				</TOCItem>
+				<TOCItem link="/docs/webcodecs/get-default-audio-codec">
+					<strong>{'getDefaultAudioCodec()'}</strong>
+					<div>
+						Gets the default audio codec for a container if no other audio codec
+						is specified.
+					</div>
+				</TOCItem>
+				<TOCItem link="/docs/webcodecs/get-default-video-codec">
+					<strong>{'getDefaultVideoCodec()'}</strong>
+					<div>
+						Gets the default video codec for a container if no other audio codec
+						is specified.
+					</div>
+				</TOCItem>
+				<TOCItem link="/docs/webcodecs/default-on-audio-track-handler">
+					<strong>{'defaultOnAudioTrackHandler()'}</strong>
+					<div>The default track transformation function for audio tracks.</div>
+				</TOCItem>
+				<TOCItem link="/docs/webcodecs/default-on-video-track-handler">
+					<strong>{'defaultOnVideoTrackHandler()'}</strong>
+					<div>The default track transformation function for video tracks.</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

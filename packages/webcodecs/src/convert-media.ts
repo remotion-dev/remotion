@@ -23,9 +23,9 @@ import {calculateProgress} from './calculate-progress';
 import type {ConvertMediaAudioCodec, ConvertMediaVideoCodec} from './codec-id';
 import Error from './error-cause';
 import {makeAudioTrackHandler} from './on-audio-track';
+import {type ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
 import {makeVideoTrackHandler} from './on-video-track';
-import {type ResolveAudioActionFn} from './resolve-audio-action';
-import {type ResolveVideoActionFn} from './resolve-video-action';
+import {type ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
 import {withResolversAndWaitForReturn} from './with-resolvers';
 
 export type ConvertMediaState = {
@@ -74,11 +74,11 @@ export const convertMedia = async function <
 	container: ConvertMediaContainer;
 	onVideoFrame?: ConvertMediaOnVideoFrame;
 	onMediaStateUpdate?: ConvertMediaOnMediaStateUpdate;
-	videoCodec: ConvertMediaVideoCodec;
-	audioCodec: ConvertMediaAudioCodec;
+	videoCodec?: ConvertMediaVideoCodec;
+	audioCodec?: ConvertMediaAudioCodec;
 	signal?: AbortSignal;
-	onAudioTrack?: ResolveAudioActionFn;
-	onVideoTrack?: ResolveVideoActionFn;
+	onAudioTrack?: ConvertMediaOnAudioTrackHandler;
+	onVideoTrack?: ConvertMediaOnVideoTrackHandler;
 	reader?: ParseMediaOptions<F>['reader'];
 	logLevel?: LogLevel;
 	writer?: WriterInterface;
@@ -93,13 +93,7 @@ export const convertMedia = async function <
 		);
 	}
 
-	if (audioCodec !== 'opus') {
-		return Promise.reject(
-			new TypeError('Only `audioCodec: "opus"` is supported currently'),
-		);
-	}
-
-	if (videoCodec !== 'vp8' && videoCodec !== 'vp9') {
+	if (videoCodec && videoCodec !== 'vp8' && videoCodec !== 'vp9') {
 		return Promise.reject(
 			new TypeError(
 				'Only `videoCodec: "vp8"` and `videoCodec: "vp9"` are supported currently',
@@ -171,7 +165,7 @@ export const convertMedia = async function <
 		abortConversion,
 		convertMediaState,
 		controller,
-		videoCodec,
+		defaultVideoCodec: videoCodec ?? null,
 		onVideoTrack: userVideoResolver ?? null,
 		logLevel,
 		container,
@@ -179,7 +173,7 @@ export const convertMedia = async function <
 
 	const onAudioTrack: OnAudioTrack = makeAudioTrackHandler({
 		abortConversion,
-		audioCodec,
+		defaultAudioCodec: audioCodec ?? null,
 		controller,
 		convertMediaState,
 		onMediaStateUpdate: onMediaStateUpdate ?? null,

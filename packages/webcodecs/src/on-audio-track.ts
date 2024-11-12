@@ -6,14 +6,14 @@ import {getAudioEncoderConfig} from './audio-encoder-config';
 import type {ConvertMediaAudioCodec} from './codec-id';
 import {convertEncodedChunk} from './convert-encoded-chunk';
 import type {ConvertMediaContainer, ConvertMediaState} from './convert-media';
+import {defaultOnAudioTrackHandler} from './default-on-audio-track-handler';
 import Error from './error-cause';
-import type {ResolveAudioActionFn} from './resolve-audio-action';
-import {defaultResolveAudioAction} from './resolve-audio-action';
+import type {ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
 
 export const makeAudioTrackHandler =
 	({
 		state,
-		audioCodec,
+		defaultAudioCodec: audioCodec,
 		convertMediaState,
 		controller,
 		abortConversion,
@@ -23,18 +23,18 @@ export const makeAudioTrackHandler =
 		container,
 	}: {
 		state: MediaFn;
-		audioCodec: ConvertMediaAudioCodec;
+		defaultAudioCodec: ConvertMediaAudioCodec | null;
 		convertMediaState: ConvertMediaState;
 		controller: AbortController;
 		abortConversion: (errCause: Error) => void;
 		onMediaStateUpdate: null | ((state: ConvertMediaState) => void);
-		onAudioTrack: ResolveAudioActionFn | null;
+		onAudioTrack: ConvertMediaOnAudioTrackHandler | null;
 		logLevel: LogLevel;
 		container: ConvertMediaContainer;
 	}): OnAudioTrack =>
 	async (track) => {
-		const audioOperation = await (onAudioTrack ?? defaultResolveAudioAction)({
-			audioCodec,
+		const audioOperation = await (onAudioTrack ?? defaultOnAudioTrackHandler)({
+			defaultAudioCodec: audioCodec,
 			track,
 			logLevel,
 			container,
@@ -44,10 +44,16 @@ export const makeAudioTrackHandler =
 			return null;
 		}
 
+		if (audioOperation.type === 'fail') {
+			throw new Error(
+				`Audio track with ID ${track.trackId} could resolved with {"type": "fail"}. This could mean that this audio track could neither be copied to the output container or re-encoded. You have the option to drop the track instead of failing it: https://remotion.dev/docs/webcodecs/track-transformation`,
+			);
+		}
+
 		if (audioOperation.type === 'copy') {
 			const addedTrack = await state.addTrack({
 				type: 'audio',
-				codec: audioCodec,
+				codec: track.codecWithoutConfig,
 				numberOfChannels: track.numberOfChannels,
 				sampleRate: track.sampleRate,
 				codecPrivate: track.codecPrivate,
@@ -93,7 +99,7 @@ export const makeAudioTrackHandler =
 
 		const {trackNumber} = await state.addTrack({
 			type: 'audio',
-			codec: audioCodec,
+			codec: audioOperation.audioCodec,
 			numberOfChannels: track.numberOfChannels,
 			sampleRate: track.sampleRate,
 			codecPrivate: null,
@@ -115,7 +121,7 @@ export const makeAudioTrackHandler =
 					),
 				);
 			},
-			codec: audioCodec,
+			codec: audioOperation.audioCodec,
 			signal: controller.signal,
 			config: audioEncoderConfig,
 			logLevel,

@@ -37,17 +37,16 @@ export const getSupportedConfigs = async (
 
 	for (const track of tracks.videoTracks) {
 		const options: VideoOperation[] = [];
-		for (const outputCodec of availableVideoCodecs) {
-			const canCopy = canCopyVideoTrack({
-				inputCodec: track.codecWithoutConfig,
-				outputCodec,
-				container,
+		const canCopy = canCopyVideoTrack({
+			inputCodec: track.codecWithoutConfig,
+			container,
+		});
+		if (canCopy) {
+			options.push({
+				type: 'copy',
 			});
-			if (canCopy) {
-				options.push({
-					type: 'copy',
-				});
-			}
+		}
+		for (const outputCodec of availableVideoCodecs) {
 			const canReencode = await canReencodeVideoTrack({
 				videoCodec: outputCodec,
 				track,
@@ -74,17 +73,15 @@ export const getSupportedConfigs = async (
 	for (const track of tracks.audioTracks) {
 		const audioTrackOperations: AudioOperation[] = [];
 
+		const canCopy = canCopyAudioTrack({
+			inputCodec: track.codecWithoutConfig,
+			container,
+		});
+
+		if (canCopy) {
+			audioTrackOperations.push({type: 'copy'});
+		}
 		for (const audioCodec of availableAudioCodecs) {
-			const canCopy = canCopyAudioTrack({
-				inputCodec: track.codecWithoutConfig,
-				outputCodec: audioCodec,
-				container,
-			});
-
-			if (canCopy) {
-				audioTrackOperations.push({type: 'copy'});
-			}
-
 			const canReencode = await canReencodeAudioTrack({
 				audioCodec,
 				track,

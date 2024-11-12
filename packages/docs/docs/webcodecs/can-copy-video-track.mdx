@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-webcodecs-can-copy-video-track.png
 id: can-copy-video-track
 title: canCopyVideoTrack()
 slug: /webcodecs/can-copy-video-track
@@ -33,7 +34,6 @@ const {videoTracks} = await parseMedia({
 for (const track of videoTracks) {
   canCopyVideoTrack({
     inputCodec: track.codecWithoutConfig,
-    outputCodec: 'vp8',
     container: 'webm',
   }); // boolean
 }
@@ -53,7 +53,6 @@ await convertMedia({
   onVideoTrack: async ({track}) => {
     const canCopy = canCopyVideoTrack({
       inputCodec: track.codecWithoutConfig,
-      outputCodec: 'vp8',
       container: 'webm',
     });
 
@@ -71,21 +70,15 @@ await convertMedia({
 
 ### `inputCodec`
 
-_string_ <TsType type="ConvertMediaVideoCodec" source="@remotion/webcodecs" />
+_string_ <TsType type="MediaParserVideoCodec" source="@remotion/media-parser" />
 
 The codec of the input video track.
-
-### `outputCodec`
-
-_string_ <TsType type="ConvertMediaVideoCodec" source="@remotion/webcodecs" />
-
-The codec of the output video track.
 
 ### `container`
 
 _string_ <TsType type="ConvertMediaContainer" source="@remotion/webcodecs" />
 
-The container format of the output file
+The container format of the output media.
 
 ## Return value
 

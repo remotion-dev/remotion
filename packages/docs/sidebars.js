@@ -574,10 +574,16 @@ module.exports = {
 			},
 			items: [
 				'webcodecs/index',
+				'webcodecs/track-transformation',
 				'webcodecs/convert-media',
-				'webcodecs/can-reencode-video-track',
 				'webcodecs/can-reencode-audio-track',
+				'webcodecs/can-reencode-video-track',
+				'webcodecs/can-copy-audio-track',
 				'webcodecs/can-copy-video-track',
+				'webcodecs/default-on-audio-track-handler',
+				'webcodecs/default-on-video-track-handler',
+				'webcodecs/get-default-audio-codec',
+				'webcodecs/get-default-video-codec',
 			],
 		},
 		{

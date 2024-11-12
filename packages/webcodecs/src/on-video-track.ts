@@ -7,10 +7,10 @@ import type {
 	ConvertMediaOnVideoFrame,
 	ConvertMediaState,
 } from './convert-media';
+import {defaultOnVideoTrackHandler} from './default-on-video-track-handler';
 import Error from './error-cause';
 import {onFrame} from './on-frame';
-import type {ResolveVideoActionFn} from './resolve-video-action';
-import {defaultResolveVideoAction} from './resolve-video-action';
+import type {ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
 import {createVideoDecoder} from './video-decoder';
 import {getVideoDecoderConfigWithHardwareAcceleration} from './video-decoder-config';
 import {createVideoEncoder} from './video-encoder';
@@ -24,7 +24,7 @@ export const makeVideoTrackHandler =
 		abortConversion,
 		convertMediaState,
 		controller,
-		videoCodec,
+		defaultVideoCodec,
 		onVideoTrack,
 		logLevel,
 		container,
@@ -35,8 +35,8 @@ export const makeVideoTrackHandler =
 		abortConversion: (errCause: Error) => void;
 		convertMediaState: ConvertMediaState;
 		controller: AbortController;
-		videoCodec: ConvertMediaVideoCodec;
-		onVideoTrack: ResolveVideoActionFn | null;
+		defaultVideoCodec: ConvertMediaVideoCodec | null;
+		onVideoTrack: ConvertMediaOnVideoTrackHandler | null;
 		logLevel: LogLevel;
 		container: ConvertMediaContainer;
 	}): OnVideoTrack =>
@@ -45,15 +45,21 @@ export const makeVideoTrackHandler =
 			throw new Error('Aborted');
 		}
 
-		const videoOperation = await (onVideoTrack ?? defaultResolveVideoAction)({
+		const videoOperation = await (onVideoTrack ?? defaultOnVideoTrackHandler)({
 			track,
-			videoCodec,
+			defaultVideoCodec,
 			logLevel,
 			container,
 		});
 
 		if (videoOperation.type === 'drop') {
 			return null;
+		}
+
+		if (videoOperation.type === 'fail') {
+			throw new Error(
+				`Video track with ID ${track.trackId} could resolved with {"type": "fail"}. This could mean that this video track could neither be copied to the output container or re-encoded. You have the option to drop the track instead of failing it: https://remotion.dev/docs/webcodecs/track-transformation`,
+			);
 		}
 
 		if (videoOperation.type === 'copy') {
@@ -103,7 +109,7 @@ export const makeVideoTrackHandler =
 			color: track.color,
 			width: track.codedWidth,
 			height: track.codedHeight,
-			codec: videoCodec,
+			codec: videoOperation.videoCodec,
 			codecPrivate: null,
 		});
 

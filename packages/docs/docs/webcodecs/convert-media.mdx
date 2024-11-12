@@ -23,9 +23,7 @@ import {convertMedia} from '@remotion/webcodecs';
 
 await convertMedia({
   src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  to: 'webm',
-  videoCodec: 'vp8',
-  audioCodec: 'opus',
+  container: 'webm',
 });
 ```
 
@@ -49,17 +47,21 @@ _string_ <TsType type="ConvertMediaContainer" source="@remotion/webcodecs"/>
 
 The container format to convert to. Currently, only `"webm"` is supported.
 
-### `videoCodec`
+### `videoCodec?`
 
 _string_ <TsType type="ConvertMediaVideoCodec" source="@remotion/webcodecs"/>
 
-The video codec to convert to. Currently, only `"vp8"` and `"vp9"` are supported.
+The video codec to convert to. Currently, only `"vp8"` and `"vp9"` are supported.  
+The default is defined by [`getDefaultVideoCodec()`](/docs/webcodecs/get-default-video-codec).  
+If a [`onVideoTrack`](#onvideotrack) handler is provided, it will override this setting.
 
-### `audioCodec`
+### `audioCodec?`
 
 _string_ <TsType type="ConvertMediaAudioCodec" source="@remotion/webcodecs"/>
 
-The audio codec to convert to. Currently, only `"opus"` is supported.
+The audio codec to convert to. Currently, only `"opus"` is supported.  
+The default is defined by [`getDefaultAudioCodec()`](/docs/webcodecs/get-default-audio-codec).  
+If an [`onAudioTrack`](#onaudiotrack) handler is provided, it will override this setting.
 
 ### `logLevel?`
 
@@ -175,17 +177,17 @@ By default the writer is `webFsWriter`.
 
 ### `onAudioTrack?`
 
-_Function_ <TsType type="ResolveAudioActionFn" source="@remotion/webcodecs"/>
+_Function_ <TsType type="ConvertMediaOnAudioTrackHandler" source="@remotion/webcodecs"/>
 
 Take control of what to do for each audio track in the file: Re-encoding, copying, or dropping.  
-The API for this feature is not yet documented as it is subject to change.
+See [Track Transformation](/docs/webcodecs/track-transformation) for a guide on how to use this callback.
 
 ### `onVideoTrack?`
 
-_Function_ <TsType type="ResolveVideoActionFn" source="@remotion/webcodecs"/>
+_Function_ <TsType type="ConvertMediaOnVideoTrackHandler" source="@remotion/webcodecs"/>
 
 Take control of what to do for each video track in the file: Re-encoding, copying, or dropping.  
-The API for this feature is not yet documented as it is subject to change.
+See [Track Transformation](/docs/webcodecs/track-transformation) for a guide on how to use this callback.
 
 ### `fields?` and Callbacks
 

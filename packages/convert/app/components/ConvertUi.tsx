@@ -91,9 +91,6 @@ export default function ConvertUI({
 					},
 				});
 			},
-			// TODO: This should be optional
-			videoCodec: 'vp8',
-			audioCodec: 'opus',
 			container: container as 'webm',
 			signal: abortController.signal,
 			fields: {

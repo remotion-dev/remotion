@@ -18,7 +18,17 @@ export {
 	ConvertMediaState,
 	convertMedia,
 } from './convert-media';
-export {AudioOperation, ResolveAudioActionFn} from './resolve-audio-action';
-export {ResolveVideoActionFn, VideoOperation} from './resolve-video-action';
+export {defaultOnAudioTrackHandler} from './default-on-audio-track-handler';
+export {defaultOnVideoTrackHandler} from './default-on-video-track-handler';
+export {getDefaultAudioCodec} from './get-default-audio-codec';
+export {getDefaultVideoCodec} from './get-default-video-codec';
+export {
+	AudioOperation,
+	ConvertMediaOnAudioTrackHandler,
+} from './on-audio-track-handler';
+export {
+	ConvertMediaOnVideoTrackHandler,
+	VideoOperation,
+} from './on-video-track-handler';
 export {WebCodecsVideoDecoder, createVideoDecoder} from './video-decoder';
 export {WebCodecsVideoEncoder, createVideoEncoder} from './video-encoder';
