@@ -39,14 +39,12 @@ const getChildren = async ({
 	iterator,
 	bytesRemainingInBox,
 	options,
-	littleEndian,
 	signal,
 }: {
 	boxType: string;
 	iterator: BufferIterator;
 	bytesRemainingInBox: number;
 	options: ParserContext;
-	littleEndian: boolean;
 	signal: AbortSignal | null;
 }) => {
 	const parseChildren =
@@ -68,7 +66,6 @@ const getChildren = async ({
 			initialBoxes: [],
 			options,
 			continueMdat: false,
-			littleEndian,
 			signal,
 		});
 
@@ -136,20 +133,18 @@ export const processBox = async ({
 	allowIncompleteBoxes,
 	parsedBoxes,
 	options,
-	littleEndian,
 	signal,
 }: {
 	iterator: BufferIterator;
 	allowIncompleteBoxes: boolean;
 	parsedBoxes: AnySegment[];
 	options: ParserContext;
-	littleEndian: boolean;
 	signal: AbortSignal | null;
 }): Promise<BoxAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
 
-	const boxSizeRaw = iterator.getFourByteNumber(littleEndian);
+	const boxSizeRaw = iterator.getFourByteNumber();
 
 	// If `boxSize === 1`, the 8 bytes after the box type are the size of the box.
 	if (
@@ -182,8 +177,7 @@ export const processBox = async ({
 
 	const boxType = iterator.getByteString(4);
 
-	const boxSize =
-		boxSizeRaw === 1 ? iterator.getEightByteNumber(littleEndian) : boxSizeRaw;
+	const boxSize = boxSizeRaw === 1 ? iterator.getEightByteNumber() : boxSizeRaw;
 
 	if (bytesRemaining < boxSize) {
 		if (boxType === 'mdat') {
@@ -413,7 +407,6 @@ export const processBox = async ({
 			offset: fileOffset,
 			size: boxSize,
 			options,
-			littleEndian,
 			signal,
 		});
 
@@ -611,7 +604,6 @@ export const processBox = async ({
 		iterator,
 		bytesRemainingInBox,
 		options,
-		littleEndian,
 		signal,
 	});
 
@@ -636,7 +628,6 @@ export const parseBoxes = async ({
 	initialBoxes,
 	options,
 	continueMdat,
-	littleEndian,
 	signal,
 }: {
 	iterator: BufferIterator;
@@ -645,7 +636,6 @@ export const parseBoxes = async ({
 	initialBoxes: IsoBaseMediaBox[];
 	options: ParserContext;
 	continueMdat: false | PartialMdatBox;
-	littleEndian: boolean;
 	signal: AbortSignal | null;
 }): Promise<ParseResult> => {
 	let boxes: IsoBaseMediaBox[] = initialBoxes;
@@ -670,7 +660,6 @@ export const parseBoxes = async ({
 					allowIncompleteBoxes,
 					parsedBoxes: initialBoxes,
 					options,
-					littleEndian,
 					signal,
 				});
 
@@ -690,7 +679,6 @@ export const parseBoxes = async ({
 						initialBoxes: boxes,
 						options,
 						continueMdat: false,
-						littleEndian,
 						signal,
 					});
 				},
@@ -711,7 +699,6 @@ export const parseBoxes = async ({
 							initialBoxes: boxes,
 							options,
 							continueMdat: result,
-							littleEndian,
 							signal,
 						}),
 					);
@@ -751,7 +738,6 @@ export const parseBoxes = async ({
 						initialBoxes: boxes,
 						options,
 						continueMdat: false,
-						littleEndian,
 						signal,
 					});
 				},
@@ -771,7 +757,6 @@ export const parseBoxes = async ({
 						initialBoxes: boxes,
 						options,
 						continueMdat: false,
-						littleEndian,
 						signal,
 					});
 				},
@@ -806,7 +791,6 @@ export const parseBoxes = async ({
 					initialBoxes: boxes,
 					options,
 					continueMdat: false,
-					littleEndian,
 					signal,
 				});
 			},

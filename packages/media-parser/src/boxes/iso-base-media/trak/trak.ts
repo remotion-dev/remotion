@@ -29,7 +29,6 @@ export const parseTrak = async ({
 		initialBoxes: [],
 		options,
 		continueMdat: false,
-		littleEndian: false,
 		signal,
 	});
 

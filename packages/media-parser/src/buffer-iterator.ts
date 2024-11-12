@@ -160,15 +160,7 @@ export const getArrayBufferIterator = (
 		return Number(bigInt);
 	};
 
-	const getFourByteNumber = (littleEndian = false) => {
-		if (littleEndian) {
-			const one = getUint8();
-			const two = getUint8();
-			const three = getUint8();
-			const four = getUint8();
-			return (four << 24) | (three << 16) | (two << 8) | one;
-		}
-
+	const getFourByteNumber = () => {
 		return (
 			(getUint8() << 24) | (getUint8() << 16) | (getUint8() << 8) | getUint8()
 		);

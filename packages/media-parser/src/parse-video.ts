@@ -48,18 +48,6 @@ export const parseVideo = ({
 
 	if (iterator.isRiff()) {
 		throw new Error('AVI files are not yet supported');
-		/*
-		iterator.discard(4);
-		return parseBoxes({
-			iterator,
-			maxBytes: Infinity,
-			allowIncompleteBoxes: true,
-			initialBoxes: [],
-			options,
-			continueMdat: false,
-			littleEndian: true,
-		});
-		*/
 	}
 
 	if (iterator.isIsoBaseMedia()) {
@@ -70,7 +58,6 @@ export const parseVideo = ({
 			initialBoxes: [],
 			options,
 			continueMdat: false,
-			littleEndian: false,
 			signal,
 		});
 	}

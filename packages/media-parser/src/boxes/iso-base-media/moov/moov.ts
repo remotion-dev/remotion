@@ -29,7 +29,6 @@ export const parseMoov = async ({
 		initialBoxes: [],
 		options,
 		continueMdat: false,
-		littleEndian: false,
 		signal,
 	});
 

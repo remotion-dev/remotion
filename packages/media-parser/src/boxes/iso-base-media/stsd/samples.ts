@@ -182,7 +182,6 @@ export const processSample = async ({
 				initialBoxes: [],
 				options,
 				continueMdat: false,
-				littleEndian: false,
 				signal,
 			});
 
@@ -237,7 +236,6 @@ export const processSample = async ({
 				initialBoxes: [],
 				options,
 				continueMdat: false,
-				littleEndian: false,
 				signal,
 			});
 
@@ -295,7 +293,6 @@ export const processSample = async ({
 				initialBoxes: [],
 				options,
 				continueMdat: false,
-				littleEndian: false,
 				signal,
 			});
 
@@ -358,7 +355,6 @@ export const processSample = async ({
 						initialBoxes: [],
 						options,
 						continueMdat: false,
-						littleEndian: false,
 						signal,
 					})
 				: (iterator.discard(bytesRemainingInBox),
