@@ -11,7 +11,7 @@ export type VideoOperation =
 	| {type: 'drop'};
 
 export type ResolveVideoActionFn = (options: {
-	videoCodec: ConvertMediaVideoCodec;
+	defaultVideoCodec: ConvertMediaVideoCodec | null;
 	track: VideoTrack;
 	logLevel: LogLevel;
 	container: ConvertMediaContainer;
@@ -19,13 +19,19 @@ export type ResolveVideoActionFn = (options: {
 
 export const defaultResolveVideoAction: ResolveVideoActionFn = async ({
 	track,
-	videoCodec,
+	defaultVideoCodec,
 	logLevel,
 	container,
 }): Promise<VideoOperation> => {
+	if (defaultVideoCodec === null) {
+		throw new Error(
+			'No default video codec provided to convertMedia(). Pass a `videoCodec` parameter to set one.',
+		);
+	}
+
 	const canCopy = canCopyVideoTrack({
 		inputCodec: track.codecWithoutConfig,
-		outputCodec: videoCodec,
+		outputCodec: defaultVideoCodec,
 		container,
 	});
 
@@ -38,7 +44,10 @@ export const defaultResolveVideoAction: ResolveVideoActionFn = async ({
 		return Promise.resolve({type: 'copy'});
 	}
 
-	const canReencode = await canReencodeVideoTrack({videoCodec, track});
+	const canReencode = await canReencodeVideoTrack({
+		videoCodec: defaultVideoCodec,
+		track,
+	});
 
 	if (canReencode) {
 		Log.verbose(
@@ -46,7 +55,7 @@ export const defaultResolveVideoAction: ResolveVideoActionFn = async ({
 			`Track ${track.trackId} (video): Cannot copy, but re-enconde, therefore re-encoding`,
 		);
 
-		return Promise.resolve({type: 'reencode', videoCodec});
+		return Promise.resolve({type: 'reencode', videoCodec: defaultVideoCodec});
 	}
 
 	Log.verbose(

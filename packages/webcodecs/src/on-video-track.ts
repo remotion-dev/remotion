@@ -24,7 +24,7 @@ export const makeVideoTrackHandler =
 		abortConversion,
 		convertMediaState,
 		controller,
-		videoCodec,
+		defaultVideoCodec,
 		onVideoTrack,
 		logLevel,
 		container,
@@ -35,7 +35,7 @@ export const makeVideoTrackHandler =
 		abortConversion: (errCause: Error) => void;
 		convertMediaState: ConvertMediaState;
 		controller: AbortController;
-		videoCodec: ConvertMediaVideoCodec;
+		defaultVideoCodec: ConvertMediaVideoCodec | null;
 		onVideoTrack: ResolveVideoActionFn | null;
 		logLevel: LogLevel;
 		container: ConvertMediaContainer;
@@ -47,7 +47,7 @@ export const makeVideoTrackHandler =
 
 		const videoOperation = await (onVideoTrack ?? defaultResolveVideoAction)({
 			track,
-			videoCodec,
+			defaultVideoCodec,
 			logLevel,
 			container,
 		});
@@ -103,7 +103,7 @@ export const makeVideoTrackHandler =
 			color: track.color,
 			width: track.codedWidth,
 			height: track.codedHeight,
-			codec: videoCodec,
+			codec: videoOperation.videoCodec,
 			codecPrivate: null,
 		});
 

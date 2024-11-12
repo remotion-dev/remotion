@@ -74,8 +74,8 @@ export const convertMedia = async function <
 	container: ConvertMediaContainer;
 	onVideoFrame?: ConvertMediaOnVideoFrame;
 	onMediaStateUpdate?: ConvertMediaOnMediaStateUpdate;
-	videoCodec: ConvertMediaVideoCodec;
-	audioCodec: ConvertMediaAudioCodec;
+	videoCodec?: ConvertMediaVideoCodec;
+	audioCodec?: ConvertMediaAudioCodec;
 	signal?: AbortSignal;
 	onAudioTrack?: ResolveAudioActionFn;
 	onVideoTrack?: ResolveVideoActionFn;
@@ -99,7 +99,7 @@ export const convertMedia = async function <
 		);
 	}
 
-	if (videoCodec !== 'vp8' && videoCodec !== 'vp9') {
+	if (videoCodec && videoCodec !== 'vp8' && videoCodec !== 'vp9') {
 		return Promise.reject(
 			new TypeError(
 				'Only `videoCodec: "vp8"` and `videoCodec: "vp9"` are supported currently',
@@ -171,7 +171,7 @@ export const convertMedia = async function <
 		abortConversion,
 		convertMediaState,
 		controller,
-		videoCodec,
+		defaultVideoCodec: videoCodec ?? null,
 		onVideoTrack: userVideoResolver ?? null,
 		logLevel,
 		container,

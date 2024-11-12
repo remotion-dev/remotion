@@ -24,6 +24,12 @@ export const TableOfContents: React.FC = () => {
 						Determine if a video track can be copied without re-encoding
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/webcodecs/can-copy-audio-track">
+					<strong>{'canCopyAudioTrack()'}</strong>
+					<div>
+						Determine if a audio track can be copied without re-encoding
+					</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

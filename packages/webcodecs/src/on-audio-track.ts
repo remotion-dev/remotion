@@ -34,7 +34,7 @@ export const makeAudioTrackHandler =
 	}): OnAudioTrack =>
 	async (track) => {
 		const audioOperation = await (onAudioTrack ?? defaultResolveAudioAction)({
-			audioCodec,
+			defaultAudioCodec: audioCodec,
 			track,
 			logLevel,
 			container,

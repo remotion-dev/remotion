@@ -1,0 +1,65 @@
+---
+id: track-transformation
+title: Track Transformation
+slug: /webcodecs/track-transformation
+crumb: '@remotion/webcodecs'
+---
+
+When transforming media, there are multiple thing that can be done for each audio or video track:
+
+- Copying the track without re-encoding
+- Re-encoding the track into a different codec
+- Removing the track
+
+[`@remotion/webcodecs`](/docs/webcodecs) allows you to decide for each track what to do with it.
+
+## Selecting default codecs
+
+The easiest way to configure [`convertMedia()`](/docs/webcodecs/convert-media) is to use the [`videoCodec`](/docs/webcodecs/convert-media#videocodec) and [`audioCodec`](/docs/webcodecs/convert-media#audiocodec) options.
+
+```tsx twoslash
+// @module: es2022
+// @target: es2017
+import {convertMedia} from '@remotion/webcodecs';
+
+await convertMedia({
+  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  container: 'webm',
+  videoCodec: 'vp8',
+  audioCodec: 'opus',
+});
+```
+
+These options will be used for all tracks that are not explicitly handled in the [`onVideoTrack`](/docs/webcodecs/convert-media#onvideotrack) and [`onAudioTrack`](/docs/webcodecs/convert-media#onaudiotrack) callbacks.
+
+## Handle each track individually
+
+```tsx twoslash
+// @module: es2022
+// @target: es2017
+import {convertMedia} from '@remotion/webcodecs';
+
+await convertMedia({
+  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  container: 'webm',
+  videoCodec: 'vp8',
+  audioCodec: 'opus',
+  onVideoTrack: ({track}) => {
+    if (track.codecWithoutConfig === 'vp9') {
+      return {type: 'copy'};
+    }
+
+    if (track.codecWithoutConfig === 'h264') {
+      return {type: 'reencode', videoCodec: 'vp8'};
+    }
+
+    return {type: 'drop'};
+  },
+});
+```
+
+## Asynchronously determining config
+
+## Falling back to default
+
+## Debugging

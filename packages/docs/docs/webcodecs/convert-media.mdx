@@ -23,9 +23,7 @@ import {convertMedia} from '@remotion/webcodecs';
 
 await convertMedia({
   src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  to: 'webm',
-  videoCodec: 'vp8',
-  audioCodec: 'opus',
+  container: 'webm',
 });
 ```
 
@@ -49,13 +47,13 @@ _string_ <TsType type="ConvertMediaContainer" source="@remotion/webcodecs"/>
 
 The container format to convert to. Currently, only `"webm"` is supported.
 
-### `videoCodec`
+### `videoCodec?`
 
 _string_ <TsType type="ConvertMediaVideoCodec" source="@remotion/webcodecs"/>
 
 The video codec to convert to. Currently, only `"vp8"` and `"vp9"` are supported.
 
-### `audioCodec`
+### `audioCodec?`
 
 _string_ <TsType type="ConvertMediaAudioCodec" source="@remotion/webcodecs"/>
 

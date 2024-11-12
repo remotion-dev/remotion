@@ -12,7 +12,7 @@ export type AudioOperation =
 
 export type ResolveAudioActionFn = (options: {
 	track: AudioTrack;
-	audioCodec: ConvertMediaAudioCodec;
+	defaultAudioCodec: ConvertMediaAudioCodec | null;
 	logLevel: LogLevel;
 	container: ConvertMediaContainer;
 }) => AudioOperation | Promise<AudioOperation>;
@@ -21,15 +21,20 @@ const DEFAULT_BITRATE = 128_000;
 
 export const defaultResolveAudioAction: ResolveAudioActionFn = async ({
 	track,
-	audioCodec,
+	defaultAudioCodec,
 	logLevel,
 	container,
 }): Promise<AudioOperation> => {
 	const bitrate = DEFAULT_BITRATE;
+	if (defaultAudioCodec === null) {
+		throw new Error(
+			'No default video codec provided to convertMedia(). Pass a `audioCodec` parameter to set one.',
+		);
+	}
 
 	const canCopy = canCopyAudioTrack({
 		inputCodec: track.codecWithoutConfig,
-		outputCodec: audioCodec,
+		outputCodec: defaultAudioCodec,
 		container,
 	});
 
@@ -43,7 +48,7 @@ export const defaultResolveAudioAction: ResolveAudioActionFn = async ({
 	}
 
 	const canReencode = await canReencodeAudioTrack({
-		audioCodec,
+		audioCodec: defaultAudioCodec,
 		track,
 		bitrate,
 	});
@@ -54,7 +59,11 @@ export const defaultResolveAudioAction: ResolveAudioActionFn = async ({
 			`Track ${track.trackId} (audio): Can re-encode = ${canReencode}, can copy = ${canCopy}, action = reencode`,
 		);
 
-		return Promise.resolve({type: 'reencode', bitrate, audioCodec});
+		return Promise.resolve({
+			type: 'reencode',
+			bitrate,
+			audioCodec: defaultAudioCodec,
+		});
 	}
 
 	Log.verbose(

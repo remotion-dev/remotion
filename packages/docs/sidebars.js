@@ -574,6 +574,7 @@ module.exports = {
 			},
 			items: [
 				'webcodecs/index',
+				'webcodecs/track-transformation',
 				'webcodecs/convert-media',
 				'webcodecs/can-reencode-audio-track',
 				'webcodecs/can-reencode-video-track',
