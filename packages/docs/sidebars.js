@@ -580,6 +580,8 @@ module.exports = {
 				'webcodecs/can-reencode-video-track',
 				'webcodecs/can-copy-audio-track',
 				'webcodecs/can-copy-video-track',
+				'webcodecs/get-default-audio-codec',
+				'webcodecs/get-default-video-codec',
 			],
 		},
 		{

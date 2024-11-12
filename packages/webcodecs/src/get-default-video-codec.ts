@@ -8,5 +8,5 @@ export const getDefaultVideoCodec = (
 		return 'vp8';
 	}
 
-	throw new Error(`Unhandled codec: ${container} satisfies never`);
+	throw new Error(`Unhandled container: ${container} satisfies never`);
 };
