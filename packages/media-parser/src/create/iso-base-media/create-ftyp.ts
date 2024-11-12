@@ -1,21 +1,9 @@
 import {combineUint8Arrays} from '../../boxes/webm/make-header';
-
-const stringsToUint8Array = (str: string) => {
-	return new TextEncoder().encode(str);
-};
-
-const numberToUint8Array = (num: number) => {
-	return new Uint8Array([
-		(num >> 24) & 0xff,
-		(num >> 16) & 0xff,
-		(num >> 8) & 0xff,
-		num & 0xff,
-	]);
-};
-
-export const addSize = (arr: Uint8Array) => {
-	return combineUint8Arrays([numberToUint8Array(arr.length + 4), arr]);
-};
+import {
+	addSize,
+	numberTo32BitUIntOrInt,
+	stringsToUint8Array,
+} from './primitives';
 
 export const createFtyp = ({
 	majorBrand,
@@ -28,7 +16,7 @@ export const createFtyp = ({
 }) => {
 	const type = stringsToUint8Array('ftyp');
 	const majorBrandArr = stringsToUint8Array(majorBrand);
-	const minorBrandArr = numberToUint8Array(minorBrand);
+	const minorBrandArr = numberTo32BitUIntOrInt(minorBrand);
 	const compatibleBrandsArr = combineUint8Arrays(
 		compatibleBrands.map((b) => stringsToUint8Array(b)),
 	);
