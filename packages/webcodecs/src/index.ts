@@ -18,6 +18,7 @@ export {
 	ConvertMediaState,
 	convertMedia,
 } from './convert-media';
+export {defaultOnAudioTrackHandler} from './default-audio-track-handler';
 export {
 	AudioOperation,
 	ConvertMediaOnAudioTrackHandler,

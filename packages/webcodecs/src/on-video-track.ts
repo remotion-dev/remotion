@@ -7,10 +7,10 @@ import type {
 	ConvertMediaOnVideoFrame,
 	ConvertMediaState,
 } from './convert-media';
+import {defaultOnVideoTrackHandler} from './default-video-track-handler';
 import Error from './error-cause';
 import {onFrame} from './on-frame';
 import type {ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
-import {defaultOnVideoTrackHandler} from './on-video-track-handler';
 import {createVideoDecoder} from './video-decoder';
 import {getVideoDecoderConfigWithHardwareAcceleration} from './video-decoder-config';
 import {createVideoEncoder} from './video-encoder';
