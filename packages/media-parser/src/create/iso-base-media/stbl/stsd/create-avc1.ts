@@ -81,6 +81,13 @@ export const createStsdData = (avc1Data: Avc1Data) => {
 		combineUint8Arrays([
 			// type
 			stringsToUint8Array('stsd'),
+			// version
+			new Uint8Array([0]),
+			// flags
+			new Uint8Array([0, 0, 0]),
+			// entry count
+			new Uint8Array([0, 0, 0, 1]),
+			// entry
 			createAvc1(avc1Data),
 		]),
 	);
