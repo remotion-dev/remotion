@@ -53,8 +53,8 @@ const reference = new Uint8Array([
 ]);
 
 import {expect, test} from 'bun:test';
-import {createStsc} from '../create/iso-base-media/create-stsc';
 import {exampleSamplePositions} from '../create/iso-base-media/example-stts';
+import {createStsc} from '../create/iso-base-media/stbl/create-stsc';
 
 test('stsc', () => {
 	expect(reference.byteLength).toBe(1252);

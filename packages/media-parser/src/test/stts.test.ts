@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
-import {createSttsAtom} from '../create/iso-base-media/create-stts';
 import {exampleSamplePositions} from '../create/iso-base-media/example-stts';
+import {createSttsAtom} from '../create/iso-base-media/stbl/create-stts';
 
 const reference = new Uint8Array([
 	0x00, 0x00, 0x00, 0x18, 0x73, 0x74, 0x74, 0x73, 0x00, 0x00, 0x00, 0x00, 0x00,

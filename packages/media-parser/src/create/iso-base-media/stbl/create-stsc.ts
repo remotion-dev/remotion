@@ -1,10 +1,10 @@
-import {combineUint8Arrays} from '../../boxes/webm/make-header';
-import type {SamplePosition} from '../../get-sample-positions';
+import {combineUint8Arrays} from '../../../boxes/webm/make-header';
+import type {SamplePosition} from '../../../get-sample-positions';
 import {
 	addSize,
 	numberTo32BitUIntOrInt,
 	stringsToUint8Array,
-} from './primitives';
+} from '../primitives';
 
 type Entry = {
 	firstChunk: number;
