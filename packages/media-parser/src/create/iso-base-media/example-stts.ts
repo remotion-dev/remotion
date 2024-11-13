@@ -8,6 +8,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 0,
 		cts: 0,
 		duration: 1024,
+		chunk: 0,
 	},
 	{
 		offset: 19217,
@@ -16,6 +17,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 1024,
 		cts: 1024,
 		duration: 1024,
+		chunk: 0,
 	},
 	{
 		offset: 20933,
@@ -24,6 +26,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 2048,
 		cts: 2048,
 		duration: 1024,
+		chunk: 1,
 	},
 	{
 		offset: 21780,
@@ -32,6 +35,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 3072,
 		cts: 3072,
 		duration: 1024,
+		chunk: 1,
 	},
 	{
 		offset: 23364,
@@ -40,6 +44,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 4096,
 		cts: 4096,
 		duration: 1024,
+		chunk: 2,
 	},
 	{
 		offset: 27280,
@@ -48,6 +53,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 5120,
 		cts: 5120,
 		duration: 1024,
+		chunk: 3,
 	},
 	{
 		offset: 28127,
@@ -56,6 +62,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 6144,
 		cts: 6144,
 		duration: 1024,
+		chunk: 3,
 	},
 	{
 		offset: 29767,
@@ -64,6 +71,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 7168,
 		cts: 7168,
 		duration: 1024,
+		chunk: 4,
 	},
 	{
 		offset: 33649,
@@ -72,6 +80,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 8192,
 		cts: 8192,
 		duration: 1024,
+		chunk: 5,
 	},
 	{
 		offset: 34496,
@@ -80,6 +89,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 9216,
 		cts: 9216,
 		duration: 1024,
+		chunk: 5,
 	},
 	{
 		offset: 36295,
@@ -88,6 +98,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 10240,
 		cts: 10240,
 		duration: 1024,
+		chunk: 6,
 	},
 	{
 		offset: 37864,
@@ -96,6 +107,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 11264,
 		cts: 11264,
 		duration: 1024,
+		chunk: 7,
 	},
 	{
 		offset: 38711,
@@ -104,6 +116,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 12288,
 		cts: 12288,
 		duration: 1024,
+		chunk: 7,
 	},
 	{
 		offset: 43054,
@@ -112,6 +125,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 13312,
 		cts: 13312,
 		duration: 1024,
+		chunk: 8,
 	},
 	{
 		offset: 43900,
@@ -120,6 +134,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 14336,
 		cts: 14336,
 		duration: 1024,
+		chunk: 8,
 	},
 	{
 		offset: 45632,
@@ -128,6 +143,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 15360,
 		cts: 15360,
 		duration: 1024,
+		chunk: 9,
 	},
 	{
 		offset: 49264,
@@ -136,6 +152,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 16384,
 		cts: 16384,
 		duration: 1024,
+		chunk: 10,
 	},
 	{
 		offset: 50110,
@@ -144,6 +161,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 17408,
 		cts: 17408,
 		duration: 1024,
+		chunk: 10,
 	},
 	{
 		offset: 56542,
@@ -152,6 +170,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 18432,
 		cts: 18432,
 		duration: 1024,
+		chunk: 11,
 	},
 	{
 		offset: 60340,
@@ -160,6 +179,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 19456,
 		cts: 19456,
 		duration: 1024,
+		chunk: 12,
 	},
 	{
 		offset: 61186,
@@ -168,6 +188,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 20480,
 		cts: 20480,
 		duration: 1024,
+		chunk: 12,
 	},
 	{
 		offset: 63471,
@@ -176,6 +197,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 21504,
 		cts: 21504,
 		duration: 1024,
+		chunk: 13,
 	},
 	{
 		offset: 66884,
@@ -184,6 +206,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 22528,
 		cts: 22528,
 		duration: 1024,
+		chunk: 14,
 	},
 	{
 		offset: 67730,
@@ -192,6 +215,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 23552,
 		cts: 23552,
 		duration: 1024,
+		chunk: 14,
 	},
 	{
 		offset: 72064,
@@ -200,6 +224,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 24576,
 		cts: 24576,
 		duration: 1024,
+		chunk: 15,
 	},
 	{
 		offset: 75599,
@@ -208,6 +233,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 25600,
 		cts: 25600,
 		duration: 1024,
+		chunk: 16,
 	},
 	{
 		offset: 76445,
@@ -216,6 +242,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 26624,
 		cts: 26624,
 		duration: 1024,
+		chunk: 16,
 	},
 	{
 		offset: 79071,
@@ -224,6 +251,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 27648,
 		cts: 27648,
 		duration: 1024,
+		chunk: 17,
 	},
 	{
 		offset: 79917,
@@ -232,6 +260,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 28672,
 		cts: 28672,
 		duration: 1024,
+		chunk: 17,
 	},
 	{
 		offset: 94703,
@@ -240,6 +269,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 29696,
 		cts: 29696,
 		duration: 1024,
+		chunk: 18,
 	},
 	{
 		offset: 99422,
@@ -248,6 +278,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 30720,
 		cts: 30720,
 		duration: 1024,
+		chunk: 19,
 	},
 	{
 		offset: 100268,
@@ -256,6 +287,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 31744,
 		cts: 31744,
 		duration: 1024,
+		chunk: 19,
 	},
 	{
 		offset: 102598,
@@ -264,6 +296,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 32768,
 		cts: 32768,
 		duration: 1024,
+		chunk: 20,
 	},
 	{
 		offset: 107431,
@@ -272,6 +305,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 33792,
 		cts: 33792,
 		duration: 1024,
+		chunk: 21,
 	},
 	{
 		offset: 108277,
@@ -280,6 +314,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 34816,
 		cts: 34816,
 		duration: 1024,
+		chunk: 21,
 	},
 	{
 		offset: 110913,
@@ -288,6 +323,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 35840,
 		cts: 35840,
 		duration: 1024,
+		chunk: 22,
 	},
 	{
 		offset: 115631,
@@ -296,6 +332,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 36864,
 		cts: 36864,
 		duration: 1024,
+		chunk: 23,
 	},
 	{
 		offset: 116477,
@@ -304,6 +341,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 37888,
 		cts: 37888,
 		duration: 1024,
+		chunk: 23,
 	},
 	{
 		offset: 120845,
@@ -312,6 +350,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 38912,
 		cts: 38912,
 		duration: 1024,
+		chunk: 24,
 	},
 	{
 		offset: 121691,
@@ -320,6 +359,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 39936,
 		cts: 39936,
 		duration: 1024,
+		chunk: 24,
 	},
 	{
 		offset: 126236,
@@ -328,6 +368,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 40960,
 		cts: 40960,
 		duration: 1024,
+		chunk: 25,
 	},
 	{
 		offset: 130895,
@@ -336,6 +377,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 41984,
 		cts: 41984,
 		duration: 1024,
+		chunk: 26,
 	},
 	{
 		offset: 131741,
@@ -344,6 +386,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 43008,
 		cts: 43008,
 		duration: 1024,
+		chunk: 26,
 	},
 	{
 		offset: 134047,
@@ -352,6 +395,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 44032,
 		cts: 44032,
 		duration: 1024,
+		chunk: 27,
 	},
 	{
 		offset: 139397,
@@ -360,6 +404,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 45056,
 		cts: 45056,
 		duration: 1024,
+		chunk: 28,
 	},
 	{
 		offset: 140243,
@@ -368,6 +413,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 46080,
 		cts: 46080,
 		duration: 1024,
+		chunk: 28,
 	},
 	{
 		offset: 142927,
@@ -376,6 +422,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 47104,
 		cts: 47104,
 		duration: 1024,
+		chunk: 29,
 	},
 	{
 		offset: 145038,
@@ -384,6 +431,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 48128,
 		cts: 48128,
 		duration: 1024,
+		chunk: 30,
 	},
 	{
 		offset: 145884,
@@ -392,6 +440,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 49152,
 		cts: 49152,
 		duration: 1024,
+		chunk: 30,
 	},
 	{
 		offset: 147930,
@@ -400,6 +449,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 50176,
 		cts: 50176,
 		duration: 1024,
+		chunk: 31,
 	},
 	{
 		offset: 152173,
@@ -408,6 +458,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 51200,
 		cts: 51200,
 		duration: 1024,
+		chunk: 32,
 	},
 	{
 		offset: 153019,
@@ -416,6 +467,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 52224,
 		cts: 52224,
 		duration: 1024,
+		chunk: 32,
 	},
 	{
 		offset: 156195,
@@ -424,6 +476,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 53248,
 		cts: 53248,
 		duration: 1024,
+		chunk: 33,
 	},
 	{
 		offset: 157042,
@@ -432,6 +485,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 54272,
 		cts: 54272,
 		duration: 1024,
+		chunk: 33,
 	},
 	{
 		offset: 158982,
@@ -440,6 +494,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 55296,
 		cts: 55296,
 		duration: 1024,
+		chunk: 34,
 	},
 	{
 		offset: 161027,
@@ -448,6 +503,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 56320,
 		cts: 56320,
 		duration: 1024,
+		chunk: 35,
 	},
 	{
 		offset: 161874,
@@ -456,6 +512,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 57344,
 		cts: 57344,
 		duration: 1024,
+		chunk: 35,
 	},
 	{
 		offset: 164584,
@@ -464,6 +521,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 58368,
 		cts: 58368,
 		duration: 1024,
+		chunk: 36,
 	},
 	{
 		offset: 166334,
@@ -472,6 +530,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 59392,
 		cts: 59392,
 		duration: 1024,
+		chunk: 37,
 	},
 	{
 		offset: 167181,
@@ -480,6 +539,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 60416,
 		cts: 60416,
 		duration: 1024,
+		chunk: 37,
 	},
 	{
 		offset: 183644,
@@ -488,6 +548,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 61440,
 		cts: 61440,
 		duration: 1024,
+		chunk: 38,
 	},
 	{
 		offset: 189240,
@@ -496,6 +557,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 62464,
 		cts: 62464,
 		duration: 1024,
+		chunk: 39,
 	},
 	{
 		offset: 190087,
@@ -504,6 +566,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 63488,
 		cts: 63488,
 		duration: 1024,
+		chunk: 39,
 	},
 	{
 		offset: 192039,
@@ -512,6 +575,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 64512,
 		cts: 64512,
 		duration: 1024,
+		chunk: 40,
 	},
 	{
 		offset: 192885,
@@ -520,6 +584,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 65536,
 		cts: 65536,
 		duration: 1024,
+		chunk: 40,
 	},
 	{
 		offset: 196197,
@@ -528,6 +593,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 66560,
 		cts: 66560,
 		duration: 1024,
+		chunk: 41,
 	},
 	{
 		offset: 200022,
@@ -536,6 +602,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 67584,
 		cts: 67584,
 		duration: 1024,
+		chunk: 42,
 	},
 	{
 		offset: 200869,
@@ -544,6 +611,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 68608,
 		cts: 68608,
 		duration: 1024,
+		chunk: 42,
 	},
 	{
 		offset: 207325,
@@ -552,6 +620,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 69632,
 		cts: 69632,
 		duration: 1024,
+		chunk: 43,
 	},
 	{
 		offset: 210200,
@@ -560,6 +629,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 70656,
 		cts: 70656,
 		duration: 1024,
+		chunk: 44,
 	},
 	{
 		offset: 211047,
@@ -568,6 +638,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 71680,
 		cts: 71680,
 		duration: 1024,
+		chunk: 44,
 	},
 	{
 		offset: 212650,
@@ -576,6 +647,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 72704,
 		cts: 72704,
 		duration: 1024,
+		chunk: 45,
 	},
 	{
 		offset: 214340,
@@ -584,6 +656,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 73728,
 		cts: 73728,
 		duration: 1024,
+		chunk: 46,
 	},
 	{
 		offset: 215187,
@@ -592,6 +665,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 74752,
 		cts: 74752,
 		duration: 1024,
+		chunk: 46,
 	},
 	{
 		offset: 221199,
@@ -600,6 +674,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 75776,
 		cts: 75776,
 		duration: 1024,
+		chunk: 47,
 	},
 	{
 		offset: 223441,
@@ -608,6 +683,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 76800,
 		cts: 76800,
 		duration: 1024,
+		chunk: 48,
 	},
 	{
 		offset: 224288,
@@ -616,6 +692,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 77824,
 		cts: 77824,
 		duration: 1024,
+		chunk: 48,
 	},
 	{
 		offset: 225951,
@@ -624,6 +701,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 78848,
 		cts: 78848,
 		duration: 1024,
+		chunk: 49,
 	},
 	{
 		offset: 226797,
@@ -632,6 +710,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 79872,
 		cts: 79872,
 		duration: 1024,
+		chunk: 49,
 	},
 	{
 		offset: 228784,
@@ -640,6 +719,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 80896,
 		cts: 80896,
 		duration: 1024,
+		chunk: 50,
 	},
 	{
 		offset: 232053,
@@ -648,6 +728,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 81920,
 		cts: 81920,
 		duration: 1024,
+		chunk: 51,
 	},
 	{
 		offset: 232899,
@@ -656,6 +737,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 82944,
 		cts: 82944,
 		duration: 1024,
+		chunk: 51,
 	},
 	{
 		offset: 236103,
@@ -664,6 +746,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 83968,
 		cts: 83968,
 		duration: 1024,
+		chunk: 52,
 	},
 	{
 		offset: 240130,
@@ -672,6 +755,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 84992,
 		cts: 84992,
 		duration: 1024,
+		chunk: 53,
 	},
 	{
 		offset: 240976,
@@ -680,6 +764,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 86016,
 		cts: 86016,
 		duration: 1024,
+		chunk: 53,
 	},
 	{
 		offset: 242911,
@@ -688,6 +773,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 87040,
 		cts: 87040,
 		duration: 1024,
+		chunk: 54,
 	},
 	{
 		offset: 244697,
@@ -696,6 +782,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 88064,
 		cts: 88064,
 		duration: 1024,
+		chunk: 55,
 	},
 	{
 		offset: 245543,
@@ -704,6 +791,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 89088,
 		cts: 89088,
 		duration: 1024,
+		chunk: 55,
 	},
 	{
 		offset: 248287,
@@ -712,6 +800,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 90112,
 		cts: 90112,
 		duration: 1024,
+		chunk: 56,
 	},
 	{
 		offset: 249133,
@@ -720,6 +809,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 91136,
 		cts: 91136,
 		duration: 1024,
+		chunk: 56,
 	},
 	{
 		offset: 250975,
@@ -728,6 +818,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 92160,
 		cts: 92160,
 		duration: 1024,
+		chunk: 57,
 	},
 	{
 		offset: 271194,
@@ -736,6 +827,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 93184,
 		cts: 93184,
 		duration: 1024,
+		chunk: 58,
 	},
 	{
 		offset: 272040,
@@ -744,6 +836,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 94208,
 		cts: 94208,
 		duration: 1024,
+		chunk: 58,
 	},
 	{
 		offset: 275759,
@@ -752,6 +845,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 95232,
 		cts: 95232,
 		duration: 1024,
+		chunk: 59,
 	},
 	{
 		offset: 277600,
@@ -760,6 +854,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 96256,
 		cts: 96256,
 		duration: 1024,
+		chunk: 60,
 	},
 	{
 		offset: 278446,
@@ -768,6 +863,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 97280,
 		cts: 97280,
 		duration: 1024,
+		chunk: 60,
 	},
 	{
 		offset: 281459,
@@ -776,6 +872,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 98304,
 		cts: 98304,
 		duration: 1024,
+		chunk: 61,
 	},
 	{
 		offset: 284684,
@@ -784,6 +881,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 99328,
 		cts: 99328,
 		duration: 1024,
+		chunk: 62,
 	},
 	{
 		offset: 285531,
@@ -792,6 +890,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 100352,
 		cts: 100352,
 		duration: 1024,
+		chunk: 62,
 	},
 	{
 		offset: 287254,
@@ -800,6 +899,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 101376,
 		cts: 101376,
 		duration: 1024,
+		chunk: 63,
 	},
 	{
 		offset: 288768,
@@ -808,6 +908,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 102400,
 		cts: 102400,
 		duration: 1024,
+		chunk: 64,
 	},
 	{
 		offset: 289615,
@@ -816,6 +917,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 103424,
 		cts: 103424,
 		duration: 1024,
+		chunk: 64,
 	},
 	{
 		offset: 291982,
@@ -824,6 +926,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 104448,
 		cts: 104448,
 		duration: 1024,
+		chunk: 65,
 	},
 	{
 		offset: 292828,
@@ -832,6 +935,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 105472,
 		cts: 105472,
 		duration: 1024,
+		chunk: 65,
 	},
 	{
 		offset: 295622,
@@ -840,6 +944,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 106496,
 		cts: 106496,
 		duration: 1024,
+		chunk: 66,
 	},
 	{
 		offset: 297347,
@@ -848,6 +953,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 107520,
 		cts: 107520,
 		duration: 1024,
+		chunk: 67,
 	},
 	{
 		offset: 298193,
@@ -856,6 +962,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 108544,
 		cts: 108544,
 		duration: 1024,
+		chunk: 67,
 	},
 	{
 		offset: 299580,
@@ -864,6 +971,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 109568,
 		cts: 109568,
 		duration: 1024,
+		chunk: 68,
 	},
 	{
 		offset: 301055,
@@ -872,6 +980,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 110592,
 		cts: 110592,
 		duration: 1024,
+		chunk: 69,
 	},
 	{
 		offset: 301901,
@@ -880,6 +989,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 111616,
 		cts: 111616,
 		duration: 1024,
+		chunk: 69,
 	},
 	{
 		offset: 304185,
@@ -888,6 +998,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 112640,
 		cts: 112640,
 		duration: 1024,
+		chunk: 70,
 	},
 	{
 		offset: 305913,
@@ -896,6 +1007,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 113664,
 		cts: 113664,
 		duration: 1024,
+		chunk: 71,
 	},
 	{
 		offset: 306759,
@@ -904,6 +1016,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 114688,
 		cts: 114688,
 		duration: 1024,
+		chunk: 71,
 	},
 	{
 		offset: 308162,
@@ -912,6 +1025,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 115712,
 		cts: 115712,
 		duration: 1024,
+		chunk: 72,
 	},
 	{
 		offset: 309008,
@@ -920,6 +1034,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 116736,
 		cts: 116736,
 		duration: 1024,
+		chunk: 72,
 	},
 	{
 		offset: 310387,
@@ -928,6 +1043,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 117760,
 		cts: 117760,
 		duration: 1024,
+		chunk: 73,
 	},
 	{
 		offset: 312072,
@@ -936,6 +1052,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 118784,
 		cts: 118784,
 		duration: 1024,
+		chunk: 74,
 	},
 	{
 		offset: 312918,
@@ -944,6 +1061,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 119808,
 		cts: 119808,
 		duration: 1024,
+		chunk: 74,
 	},
 	{
 		offset: 314620,
@@ -952,6 +1070,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 120832,
 		cts: 120832,
 		duration: 1024,
+		chunk: 75,
 	},
 	{
 		offset: 315933,
@@ -960,6 +1079,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 121856,
 		cts: 121856,
 		duration: 1024,
+		chunk: 76,
 	},
 	{
 		offset: 316779,
@@ -968,6 +1088,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 122880,
 		cts: 122880,
 		duration: 1024,
+		chunk: 76,
 	},
 	{
 		offset: 318138,
@@ -976,6 +1097,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 123904,
 		cts: 123904,
 		duration: 1024,
+		chunk: 77,
 	},
 	{
 		offset: 338535,
@@ -984,6 +1106,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 124928,
 		cts: 124928,
 		duration: 1024,
+		chunk: 78,
 	},
 	{
 		offset: 339381,
@@ -992,6 +1115,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 125952,
 		cts: 125952,
 		duration: 1024,
+		chunk: 78,
 	},
 	{
 		offset: 342117,
@@ -1000,6 +1124,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 126976,
 		cts: 126976,
 		duration: 1024,
+		chunk: 79,
 	},
 	{
 		offset: 343840,
@@ -1008,6 +1133,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 128000,
 		cts: 128000,
 		duration: 1024,
+		chunk: 80,
 	},
 	{
 		offset: 344686,
@@ -1016,6 +1142,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 129024,
 		cts: 129024,
 		duration: 1024,
+		chunk: 80,
 	},
 	{
 		offset: 346024,
@@ -1024,6 +1151,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 130048,
 		cts: 130048,
 		duration: 1024,
+		chunk: 81,
 	},
 	{
 		offset: 346870,
@@ -1032,6 +1160,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 131072,
 		cts: 131072,
 		duration: 1024,
+		chunk: 81,
 	},
 	{
 		offset: 348310,
@@ -1040,6 +1169,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 132096,
 		cts: 132096,
 		duration: 1024,
+		chunk: 82,
 	},
 	{
 		offset: 350813,
@@ -1048,6 +1178,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 133120,
 		cts: 133120,
 		duration: 1024,
+		chunk: 83,
 	},
 	{
 		offset: 351659,
@@ -1056,6 +1187,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 134144,
 		cts: 134144,
 		duration: 1024,
+		chunk: 83,
 	},
 	{
 		offset: 353431,
@@ -1064,6 +1196,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 135168,
 		cts: 135168,
 		duration: 1024,
+		chunk: 84,
 	},
 	{
 		offset: 354917,
@@ -1072,6 +1205,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 136192,
 		cts: 136192,
 		duration: 1024,
+		chunk: 85,
 	},
 	{
 		offset: 355763,
@@ -1080,6 +1214,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 137216,
 		cts: 137216,
 		duration: 1024,
+		chunk: 85,
 	},
 	{
 		offset: 357394,
@@ -1088,6 +1223,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 138240,
 		cts: 138240,
 		duration: 1024,
+		chunk: 86,
 	},
 	{
 		offset: 359595,
@@ -1096,6 +1232,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 139264,
 		cts: 139264,
 		duration: 1024,
+		chunk: 87,
 	},
 	{
 		offset: 360441,
@@ -1104,6 +1241,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 140288,
 		cts: 140288,
 		duration: 1024,
+		chunk: 87,
 	},
 	{
 		offset: 362912,
@@ -1112,6 +1250,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 141312,
 		cts: 141312,
 		duration: 1024,
+		chunk: 88,
 	},
 	{
 		offset: 363758,
@@ -1120,6 +1259,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 142336,
 		cts: 142336,
 		duration: 1024,
+		chunk: 88,
 	},
 	{
 		offset: 365473,
@@ -1128,6 +1268,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 143360,
 		cts: 143360,
 		duration: 1024,
+		chunk: 89,
 	},
 	{
 		offset: 367717,
@@ -1136,6 +1277,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 144384,
 		cts: 144384,
 		duration: 1024,
+		chunk: 90,
 	},
 	{
 		offset: 368563,
@@ -1144,6 +1286,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 145408,
 		cts: 145408,
 		duration: 1024,
+		chunk: 90,
 	},
 	{
 		offset: 370781,
@@ -1152,6 +1295,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 146432,
 		cts: 146432,
 		duration: 1024,
+		chunk: 91,
 	},
 	{
 		offset: 373058,
@@ -1160,6 +1304,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 147456,
 		cts: 147456,
 		duration: 1024,
+		chunk: 92,
 	},
 	{
 		offset: 373904,
@@ -1168,6 +1313,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 148480,
 		cts: 148480,
 		duration: 1024,
+		chunk: 92,
 	},
 	{
 		offset: 376131,
@@ -1176,6 +1322,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 149504,
 		cts: 149504,
 		duration: 1024,
+		chunk: 93,
 	},
 	{
 		offset: 377699,
@@ -1184,6 +1331,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 150528,
 		cts: 150528,
 		duration: 1024,
+		chunk: 94,
 	},
 	{
 		offset: 378545,
@@ -1192,6 +1340,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 151552,
 		cts: 151552,
 		duration: 1024,
+		chunk: 94,
 	},
 	{
 		offset: 380447,
@@ -1200,6 +1349,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 152576,
 		cts: 152576,
 		duration: 1024,
+		chunk: 95,
 	},
 	{
 		offset: 382454,
@@ -1208,6 +1358,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 153600,
 		cts: 153600,
 		duration: 1024,
+		chunk: 96,
 	},
 	{
 		offset: 383300,
@@ -1216,6 +1367,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 154624,
 		cts: 154624,
 		duration: 1024,
+		chunk: 96,
 	},
 	{
 		offset: 385086,
@@ -1224,6 +1376,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 155648,
 		cts: 155648,
 		duration: 1024,
+		chunk: 97,
 	},
 	{
 		offset: 385933,
@@ -1232,6 +1385,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 156672,
 		cts: 156672,
 		duration: 1024,
+		chunk: 97,
 	},
 	{
 		offset: 406737,
@@ -1240,6 +1394,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 157696,
 		cts: 157696,
 		duration: 1024,
+		chunk: 98,
 	},
 	{
 		offset: 410031,
@@ -1248,6 +1403,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 158720,
 		cts: 158720,
 		duration: 1024,
+		chunk: 99,
 	},
 	{
 		offset: 410878,
@@ -1256,6 +1412,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 159744,
 		cts: 159744,
 		duration: 1024,
+		chunk: 99,
 	},
 	{
 		offset: 412750,
@@ -1264,6 +1421,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 160768,
 		cts: 160768,
 		duration: 1024,
+		chunk: 100,
 	},
 	{
 		offset: 414147,
@@ -1272,6 +1430,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 161792,
 		cts: 161792,
 		duration: 1024,
+		chunk: 101,
 	},
 	{
 		offset: 414993,
@@ -1280,6 +1439,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 162816,
 		cts: 162816,
 		duration: 1024,
+		chunk: 101,
 	},
 	{
 		offset: 416240,
@@ -1288,6 +1448,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 163840,
 		cts: 163840,
 		duration: 1024,
+		chunk: 102,
 	},
 	{
 		offset: 418817,
@@ -1296,6 +1457,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 164864,
 		cts: 164864,
 		duration: 1024,
+		chunk: 103,
 	},
 	{
 		offset: 419663,
@@ -1304,6 +1466,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 165888,
 		cts: 165888,
 		duration: 1024,
+		chunk: 103,
 	},
 	{
 		offset: 420896,
@@ -1312,6 +1475,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 166912,
 		cts: 166912,
 		duration: 1024,
+		chunk: 104,
 	},
 	{
 		offset: 421742,
@@ -1320,6 +1484,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 167936,
 		cts: 167936,
 		duration: 1024,
+		chunk: 104,
 	},
 	{
 		offset: 423753,
@@ -1328,6 +1493,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 168960,
 		cts: 168960,
 		duration: 1024,
+		chunk: 105,
 	},
 	{
 		offset: 425005,
@@ -1336,6 +1502,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 169984,
 		cts: 169984,
 		duration: 1024,
+		chunk: 106,
 	},
 	{
 		offset: 425851,
@@ -1344,6 +1511,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 171008,
 		cts: 171008,
 		duration: 1024,
+		chunk: 106,
 	},
 	{
 		offset: 427683,
@@ -1352,6 +1520,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 172032,
 		cts: 172032,
 		duration: 1024,
+		chunk: 107,
 	},
 	{
 		offset: 429017,
@@ -1360,6 +1529,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 173056,
 		cts: 173056,
 		duration: 1024,
+		chunk: 108,
 	},
 	{
 		offset: 429863,
@@ -1368,6 +1538,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 174080,
 		cts: 174080,
 		duration: 1024,
+		chunk: 108,
 	},
 	{
 		offset: 431129,
@@ -1376,6 +1547,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 175104,
 		cts: 175104,
 		duration: 1024,
+		chunk: 109,
 	},
 	{
 		offset: 432868,
@@ -1384,6 +1556,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 176128,
 		cts: 176128,
 		duration: 1024,
+		chunk: 110,
 	},
 	{
 		offset: 433714,
@@ -1392,6 +1565,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 177152,
 		cts: 177152,
 		duration: 1024,
+		chunk: 110,
 	},
 	{
 		offset: 434938,
@@ -1400,6 +1574,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 178176,
 		cts: 178176,
 		duration: 1024,
+		chunk: 111,
 	},
 	{
 		offset: 436570,
@@ -1408,6 +1583,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 179200,
 		cts: 179200,
 		duration: 1024,
+		chunk: 112,
 	},
 	{
 		offset: 437416,
@@ -1416,6 +1592,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 180224,
 		cts: 180224,
 		duration: 1024,
+		chunk: 112,
 	},
 	{
 		offset: 438580,
@@ -1424,6 +1601,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 181248,
 		cts: 181248,
 		duration: 1024,
+		chunk: 113,
 	},
 	{
 		offset: 439427,
@@ -1432,6 +1610,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 182272,
 		cts: 182272,
 		duration: 1024,
+		chunk: 113,
 	},
 	{
 		offset: 440902,
@@ -1440,6 +1619,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 183296,
 		cts: 183296,
 		duration: 1024,
+		chunk: 114,
 	},
 	{
 		offset: 442049,
@@ -1448,6 +1628,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 184320,
 		cts: 184320,
 		duration: 1024,
+		chunk: 115,
 	},
 	{
 		offset: 442896,
@@ -1456,6 +1637,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 185344,
 		cts: 185344,
 		duration: 1024,
+		chunk: 115,
 	},
 	{
 		offset: 444965,
@@ -1464,6 +1646,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 186368,
 		cts: 186368,
 		duration: 1024,
+		chunk: 116,
 	},
 	{
 		offset: 446371,
@@ -1472,6 +1655,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 187392,
 		cts: 187392,
 		duration: 1024,
+		chunk: 117,
 	},
 	{
 		offset: 447218,
@@ -1480,6 +1664,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 188416,
 		cts: 188416,
 		duration: 1024,
+		chunk: 117,
 	},
 	{
 		offset: 448064,
@@ -1488,6 +1673,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 189440,
 		cts: 189440,
 		duration: 1024,
+		chunk: 117,
 	},
 	{
 		offset: 448910,
@@ -1496,6 +1682,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 190464,
 		cts: 190464,
 		duration: 1024,
+		chunk: 117,
 	},
 	{
 		offset: 449757,
@@ -1504,6 +1691,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 191488,
 		cts: 191488,
 		duration: 1024,
+		chunk: 117,
 	},
 	{
 		offset: 450603,
@@ -1512,6 +1700,7 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 192512,
 		cts: 192512,
 		duration: 1024,
+		chunk: 117,
 	},
 	{
 		offset: 451449,
@@ -1520,5 +1709,6 @@ export const exampleSamplePositions: SamplePosition[] = [
 		dts: 193536,
 		cts: 193536,
 		duration: 1024,
+		chunk: 117,
 	},
 ];

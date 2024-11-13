@@ -2220,6 +2220,7 @@ test('Should be able to parse video sample positions from a moof atom', () => {
 			duration: 62,
 			isKeyframe: true,
 			size: 58926,
+			chunk: 0,
 		},
 		{
 			offset: 62383,
@@ -2228,6 +2229,7 @@ test('Should be able to parse video sample positions from a moof atom', () => {
 			duration: 1,
 			isKeyframe: false,
 			size: 61381,
+			chunk: 0,
 		},
 		{
 			offset: 123764,
@@ -2236,6 +2238,7 @@ test('Should be able to parse video sample positions from a moof atom', () => {
 			duration: 2,
 			isKeyframe: false,
 			size: 72911,
+			chunk: 0,
 		},
 		{
 			offset: 196675,
@@ -2244,6 +2247,7 @@ test('Should be able to parse video sample positions from a moof atom', () => {
 			duration: 11,
 			isKeyframe: false,
 			size: 44270,
+			chunk: 0,
 		},
 		{
 			offset: 240945,
@@ -2252,6 +2256,7 @@ test('Should be able to parse video sample positions from a moof atom', () => {
 			duration: 15,
 			isKeyframe: false,
 			size: 33770,
+			chunk: 0,
 		},
 		{
 			offset: 274715,
@@ -2260,6 +2265,7 @@ test('Should be able to parse video sample positions from a moof atom', () => {
 			duration: 23,
 			isKeyframe: false,
 			size: 24302,
+			chunk: 0,
 		},
 		{
 			offset: 299017,
@@ -2268,6 +2274,7 @@ test('Should be able to parse video sample positions from a moof atom', () => {
 			duration: 22,
 			isKeyframe: false,
 			size: 22624,
+			chunk: 0,
 		},
 		{
 			offset: 321641,
@@ -2276,6 +2283,7 @@ test('Should be able to parse video sample positions from a moof atom', () => {
 			duration: 23,
 			isKeyframe: false,
 			size: 18746,
+			chunk: 0,
 		},
 		{
 			offset: 340387,
@@ -2284,6 +2292,7 @@ test('Should be able to parse video sample positions from a moof atom', () => {
 			duration: 22,
 			isKeyframe: false,
 			size: 23021,
+			chunk: 0,
 		},
 		{
 			offset: 363408,
@@ -2292,6 +2301,7 @@ test('Should be able to parse video sample positions from a moof atom', () => {
 			duration: 19,
 			isKeyframe: false,
 			size: 25599,
+			chunk: 0,
 		},
 		{
 			offset: 389007,
@@ -2300,6 +2310,7 @@ test('Should be able to parse video sample positions from a moof atom', () => {
 			duration: 23,
 			isKeyframe: false,
 			size: 32479,
+			chunk: 0,
 		},
 		{
 			offset: 421486,
@@ -2308,6 +2319,7 @@ test('Should be able to parse video sample positions from a moof atom', () => {
 			duration: 21,
 			isKeyframe: false,
 			size: 34806,
+			chunk: 0,
 		},
 		{
 			offset: 456292,
@@ -2316,6 +2328,7 @@ test('Should be able to parse video sample positions from a moof atom', () => {
 			duration: 15,
 			isKeyframe: false,
 			size: 35461,
+			chunk: 0,
 		},
 		{
 			offset: 491753,
@@ -2324,6 +2337,7 @@ test('Should be able to parse video sample positions from a moof atom', () => {
 			duration: 20,
 			isKeyframe: false,
 			size: 36204,
+			chunk: 0,
 		},
 		{
 			offset: 527957,
@@ -2332,6 +2346,7 @@ test('Should be able to parse video sample positions from a moof atom', () => {
 			duration: 22,
 			isKeyframe: false,
 			size: 35638,
+			chunk: 0,
 		},
 		{
 			cts: 327,
@@ -2340,6 +2355,7 @@ test('Should be able to parse video sample positions from a moof atom', () => {
 			isKeyframe: true,
 			offset: 572709,
 			size: 34739,
+			chunk: 0,
 		},
 	]);
 
@@ -2350,6 +2366,7 @@ test('Should be able to parse video sample positions from a moof atom', () => {
 		isKeyframe: false,
 		offset: 5481634,
 		size: 45308,
+		chunk: 0,
 	});
 });
 
@@ -2370,6 +2387,7 @@ test('Should be able to parse audio sample positions from a moof atom', () => {
 			isKeyframe: true,
 			offset: 563595,
 			size: 4,
+			chunk: 0,
 		},
 		{
 			cts: 1024,
@@ -2378,6 +2396,7 @@ test('Should be able to parse audio sample positions from a moof atom', () => {
 			isKeyframe: true,
 			offset: 563599,
 			size: 391,
+			chunk: 0,
 		},
 		{
 			cts: 2048,
@@ -2386,6 +2405,7 @@ test('Should be able to parse audio sample positions from a moof atom', () => {
 			isKeyframe: true,
 			offset: 563990,
 			size: 490,
+			chunk: 0,
 		},
 		{
 			cts: 3072,
@@ -2394,6 +2414,7 @@ test('Should be able to parse audio sample positions from a moof atom', () => {
 			isKeyframe: true,
 			offset: 564480,
 			size: 463,
+			chunk: 0,
 		},
 		{
 			cts: 4096,
@@ -2402,6 +2423,7 @@ test('Should be able to parse audio sample positions from a moof atom', () => {
 			isKeyframe: true,
 			offset: 564943,
 			size: 4,
+			chunk: 0,
 		},
 		{
 			cts: 5120,
@@ -2410,6 +2432,7 @@ test('Should be able to parse audio sample positions from a moof atom', () => {
 			isKeyframe: true,
 			offset: 564947,
 			size: 441,
+			chunk: 0,
 		},
 		{
 			cts: 6144,
@@ -2418,6 +2441,7 @@ test('Should be able to parse audio sample positions from a moof atom', () => {
 			isKeyframe: true,
 			offset: 565388,
 			size: 493,
+			chunk: 0,
 		},
 		{
 			cts: 7168,
@@ -2426,6 +2450,7 @@ test('Should be able to parse audio sample positions from a moof atom', () => {
 			isKeyframe: true,
 			offset: 565881,
 			size: 437,
+			chunk: 0,
 		},
 		{
 			cts: 8192,
@@ -2434,6 +2459,7 @@ test('Should be able to parse audio sample positions from a moof atom', () => {
 			isKeyframe: true,
 			offset: 566318,
 			size: 431,
+			chunk: 0,
 		},
 		{
 			cts: 9216,
@@ -2442,6 +2468,7 @@ test('Should be able to parse audio sample positions from a moof atom', () => {
 			isKeyframe: true,
 			offset: 566749,
 			size: 463,
+			chunk: 0,
 		},
 		{
 			cts: 10240,
@@ -2450,6 +2477,7 @@ test('Should be able to parse audio sample positions from a moof atom', () => {
 			isKeyframe: true,
 			offset: 567212,
 			size: 456,
+			chunk: 0,
 		},
 		{
 			cts: 11264,
@@ -2458,6 +2486,7 @@ test('Should be able to parse audio sample positions from a moof atom', () => {
 			isKeyframe: true,
 			offset: 567668,
 			size: 408,
+			chunk: 0,
 		},
 		{
 			cts: 12288,
@@ -2466,6 +2495,7 @@ test('Should be able to parse audio sample positions from a moof atom', () => {
 			isKeyframe: true,
 			offset: 568076,
 			size: 394,
+			chunk: 0,
 		},
 		{
 			cts: 13312,
@@ -2474,6 +2504,7 @@ test('Should be able to parse audio sample positions from a moof atom', () => {
 			isKeyframe: true,
 			offset: 568470,
 			size: 455,
+			chunk: 0,
 		},
 		{
 			cts: 14336,
@@ -2482,6 +2513,7 @@ test('Should be able to parse audio sample positions from a moof atom', () => {
 			isKeyframe: true,
 			offset: 568925,
 			size: 376,
+			chunk: 0,
 		},
 	]);
 
@@ -2492,5 +2524,6 @@ test('Should be able to parse audio sample positions from a moof atom', () => {
 		isKeyframe: true,
 		offset: 5532567,
 		size: 698,
+		chunk: 0,
 	});
 });
