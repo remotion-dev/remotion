@@ -1,9 +1,9 @@
-import {combineUint8Arrays} from '../../boxes/webm/make-header';
+import {combineUint8Arrays} from '../../../../boxes/webm/make-header';
 import {
 	addSize,
 	numberTo32BitUIntOrInt,
 	stringsToUint8Array,
-} from './primitives';
+} from '../../primitives';
 
 export const createBtrt = ({
 	maxBitrate,
