@@ -132,6 +132,6 @@ test('Create a full stbl atom', () => {
 				compressorName: '',
 				depth: 24,
 			},
-		}).slice(0, 24),
-	).toEqual(sample.slice(0, 24));
+		}),
+	).toEqual(sample);
 });
