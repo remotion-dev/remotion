@@ -4,23 +4,9 @@ import {
 	floatTo16Point1632Bit,
 	floatTo16Point16_16Bit,
 	numberTo32BitUIntOrInt,
-	setFixedPointSigned1616Number,
-	setFixedPointSigned230Number,
+	serializeMatrix,
 	stringsToUint8Array,
 } from './primitives';
-
-const serializeMatrix = (matrix: number[]) => {
-	const result: Uint8Array[] = [];
-	for (let i = 0; i < matrix.length; i++) {
-		if (i % 3 === 2) {
-			result.push(setFixedPointSigned230Number(matrix[i]));
-		} else {
-			result.push(setFixedPointSigned1616Number(matrix[i]));
-		}
-	}
-
-	return combineUint8Arrays(result);
-};
 
 export const createMvhd = ({
 	timescale,

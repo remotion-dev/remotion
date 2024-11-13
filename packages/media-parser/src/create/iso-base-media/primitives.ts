@@ -13,7 +13,7 @@ export const numberTo32BitUIntOrInt = (num: number) => {
 	]);
 };
 
-export const setFixedPointSigned1616Number = (num: number) => {
+export const setFixedPointSignedOrUnsigned1616Number = (num: number) => {
 	const val = Math.round(num * 2 ** 16);
 	return numberTo32BitUIntOrInt(val);
 };
@@ -65,4 +65,18 @@ export const floatTo16Point16_16Bit = (number: number) => {
 	result[1] = tenths;
 
 	return result;
+};
+
+export const serializeMatrix = (matrix: number[]) => {
+	return combineUint8Arrays([
+		setFixedPointSignedOrUnsigned1616Number(matrix[0]),
+		setFixedPointSignedOrUnsigned1616Number(matrix[1]),
+		setFixedPointSigned230Number(matrix[2]),
+		setFixedPointSignedOrUnsigned1616Number(matrix[3]),
+		setFixedPointSignedOrUnsigned1616Number(matrix[4]),
+		setFixedPointSigned230Number(matrix[5]),
+		setFixedPointSignedOrUnsigned1616Number(matrix[6]),
+		setFixedPointSignedOrUnsigned1616Number(matrix[7]),
+		setFixedPointSigned230Number(matrix[8]),
+	]);
 };
