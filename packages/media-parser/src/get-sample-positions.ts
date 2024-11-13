@@ -89,5 +89,6 @@ export const getSamplePositions = ({
 		}
 	}
 
+	console.log(samples);
 	return samples;
 };
