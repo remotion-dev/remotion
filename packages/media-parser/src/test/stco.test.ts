@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {exampleSamplePositions} from '../create/iso-base-media/example-stts';
+import {exampleAudioSamplePositions} from '../create/iso-base-media/example-stts';
 import {createStcoAtom} from '../create/iso-base-media/stbl/create-stco';
 
 const reference = new Uint8Array([
@@ -30,5 +30,5 @@ const reference = new Uint8Array([
 ]);
 
 test('stco', () => {
-	expect(createStcoAtom(exampleSamplePositions)).toEqual(reference);
+	expect(createStcoAtom(exampleAudioSamplePositions)).toEqual(reference);
 });

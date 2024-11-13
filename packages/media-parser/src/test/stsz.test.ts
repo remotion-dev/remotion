@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {exampleSamplePositions} from '../create/iso-base-media/example-stts';
+import {exampleAudioSamplePositions} from '../create/iso-base-media/example-stts';
 import {createStsz} from '../create/iso-base-media/stbl/create-stsz';
 
 const refernce = new Uint8Array([
@@ -39,5 +39,5 @@ const refernce = new Uint8Array([
 ]);
 
 test('stsz', () => {
-	expect(createStsz(exampleSamplePositions)).toEqual(refernce);
+	expect(createStsz(exampleAudioSamplePositions)).toEqual(refernce);
 });
