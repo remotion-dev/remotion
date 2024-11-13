@@ -13,6 +13,10 @@ export const numberTo32BitUIntOrInt = (num: number) => {
 	]);
 };
 
+export const numberTo16BitUIntOrInt = (num: number) => {
+	return new Uint8Array([(num >> 8) & 0xff, num & 0xff]);
+};
+
 export const setFixedPointSignedOrUnsigned1616Number = (num: number) => {
 	const val = Math.round(num * 2 ** 16);
 	return numberTo32BitUIntOrInt(val);
@@ -79,4 +83,16 @@ export const serializeMatrix = (matrix: number[]) => {
 		setFixedPointSignedOrUnsigned1616Number(matrix[7]),
 		setFixedPointSigned230Number(matrix[8]),
 	]);
+};
+
+export const stringToPascalString = (str: string) => {
+	// Create a fixed 32-byte Uint8Array
+	const buffer = new Uint8Array(32);
+
+	// Convert the string characters to bytes
+	for (let i = 0; i < Math.min(str.length, 32); i++) {
+		buffer[i] = str.charCodeAt(i);
+	}
+
+	return buffer;
 };
