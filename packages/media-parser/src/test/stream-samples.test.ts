@@ -87,7 +87,7 @@ test('Stream samples', async () => {
 			dts: 1152,
 			duration: 1152,
 			cts: 1152,
-			chunk: 0,
+			chunk: 1,
 		},
 		{
 			offset: 9526,
@@ -96,7 +96,7 @@ test('Stream samples', async () => {
 			dts: 2304,
 			duration: 1152,
 			cts: 2304,
-			chunk: 0,
+			chunk: 1,
 		},
 		{
 			offset: 11081,
@@ -105,7 +105,7 @@ test('Stream samples', async () => {
 			dts: 3456,
 			duration: 1152,
 			cts: 3456,
-			chunk: 0,
+			chunk: 2,
 		},
 		{
 			offset: 12589,
@@ -114,7 +114,7 @@ test('Stream samples', async () => {
 			dts: 4608,
 			duration: 1152,
 			cts: 4608,
-			chunk: 0,
+			chunk: 3,
 		},
 		{
 			offset: 13549,
@@ -123,7 +123,7 @@ test('Stream samples', async () => {
 			dts: 5760,
 			duration: 1152,
 			cts: 5760,
-			chunk: 0,
+			chunk: 3,
 		},
 		{
 			offset: 15120,
@@ -132,7 +132,7 @@ test('Stream samples', async () => {
 			dts: 6912,
 			duration: 1152,
 			cts: 6912,
-			chunk: 0,
+			chunk: 4,
 		},
 		{
 			offset: 16781,
@@ -141,7 +141,7 @@ test('Stream samples', async () => {
 			dts: 8064,
 			duration: 1152,
 			cts: 8064,
-			chunk: 0,
+			chunk: 5,
 		},
 		{
 			offset: 18276,
@@ -150,7 +150,7 @@ test('Stream samples', async () => {
 			dts: 9216,
 			duration: 1152,
 			cts: 9216,
-			chunk: 0,
+			chunk: 6,
 		},
 		{
 			offset: 19236,
@@ -159,7 +159,7 @@ test('Stream samples', async () => {
 			dts: 10368,
 			duration: 1152,
 			cts: 10368,
-			chunk: 0,
+			chunk: 6,
 		},
 		{
 			offset: 20972,
@@ -168,7 +168,7 @@ test('Stream samples', async () => {
 			dts: 11520,
 			duration: 1152,
 			cts: 11520,
-			chunk: 0,
+			chunk: 7,
 		},
 		{
 			offset: 22518,
@@ -177,7 +177,7 @@ test('Stream samples', async () => {
 			dts: 12672,
 			duration: 1152,
 			cts: 12672,
-			chunk: 0,
+			chunk: 8,
 		},
 		{
 			offset: 23478,
@@ -186,7 +186,7 @@ test('Stream samples', async () => {
 			dts: 13824,
 			duration: 1152,
 			cts: 13824,
-			chunk: 0,
+			chunk: 8,
 		},
 		{
 			offset: 24438,
@@ -195,7 +195,7 @@ test('Stream samples', async () => {
 			dts: 14976,
 			duration: 1152,
 			cts: 14976,
-			chunk: 0,
+			chunk: 8,
 		},
 		{
 			offset: 25398,
@@ -204,7 +204,7 @@ test('Stream samples', async () => {
 			dts: 16128,
 			duration: 1152,
 			cts: 16128,
-			chunk: 0,
+			chunk: 8,
 		},
 	]);
 });
