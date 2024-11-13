@@ -7,6 +7,18 @@ import {
 	stringToPascalString,
 } from '../../primitives';
 
+export type Avc1Data = {
+	pasp: Uint8Array;
+	avccBox: Uint8Array;
+	btrt: Uint8Array;
+	width: number;
+	height: number;
+	horizontalResolution: number;
+	verticalResolution: number;
+	compressorName: string;
+	depth: number;
+};
+
 export const createAvc1 = ({
 	avccBox,
 	pasp,
@@ -17,17 +29,7 @@ export const createAvc1 = ({
 	verticalResolution,
 	compressorName,
 	depth,
-}: {
-	pasp: Uint8Array;
-	avccBox: Uint8Array;
-	btrt: Uint8Array;
-	width: number;
-	height: number;
-	horizontalResolution: number;
-	verticalResolution: number;
-	compressorName: string;
-	depth: number;
-}) => {
+}: Avc1Data) => {
 	return addSize(
 		combineUint8Arrays([
 			// type
@@ -70,6 +72,16 @@ export const createAvc1 = ({
 			pasp,
 			// btrt
 			btrt,
+		]),
+	);
+};
+
+export const createStsdData = (avc1Data: Avc1Data) => {
+	return addSize(
+		combineUint8Arrays([
+			// type
+			stringsToUint8Array('stsd'),
+			createAvc1(avc1Data),
 		]),
 	);
 };
