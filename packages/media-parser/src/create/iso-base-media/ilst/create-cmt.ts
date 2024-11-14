@@ -1,5 +1,5 @@
-import {combineUint8Arrays} from '../../boxes/webm/make-header';
-import {addSize, stringsToUint8Array} from './primitives';
+import {combineUint8Arrays} from '../../../boxes/webm/make-header';
+import {addSize, stringsToUint8Array} from '../primitives';
 
 export const createCmt = (comment: string) => {
 	return addSize(

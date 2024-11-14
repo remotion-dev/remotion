@@ -1,7 +1,7 @@
 import {expect, test} from 'bun:test';
-import {createCmt} from '../create/iso-base-media/create-cmt';
 import {createIlst} from '../create/iso-base-media/create-ilst';
-import {createToo} from '../create/iso-base-media/create-too';
+import {createCmt} from '../create/iso-base-media/ilst/create-cmt';
+import {createToo} from '../create/iso-base-media/ilst/create-too';
 
 const reference = new Uint8Array([
 	0x00, 0x00, 0x00, 0x5e, 0x69, 0x6c, 0x73, 0x74, 0x00, 0x00, 0x00, 0x24, 0xa9,

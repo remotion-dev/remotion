@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {createToo} from '../create/iso-base-media/create-too';
+import {createToo} from '../create/iso-base-media/ilst/create-too';
 
 const reference = new Uint8Array([
 	0x0, 0x00, 0x00, 0x24, 0xa9, 0x74, 0x6f, 0x6f, 0x00, 0x00, 0x00, 0x1c, 0x64,
