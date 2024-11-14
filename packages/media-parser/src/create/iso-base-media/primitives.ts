@@ -96,3 +96,15 @@ export const stringToPascalString = (str: string) => {
 
 	return buffer;
 };
+
+export const padToLength = (data: Uint8Array, totalLength: number) => {
+	if (data.length > totalLength) {
+		throw new Error('Data is longer than the total length');
+	}
+
+	if (data.length === totalLength) {
+		return data;
+	}
+
+	return combineUint8Arrays([data, new Uint8Array(totalLength - data.length)]);
+};
