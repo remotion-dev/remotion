@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {createElstItem} from '../create/iso-base-media/create-elst-item';
+import {createElstItem} from '../create/iso-base-media/trak/edts/create-elst';
 
 const buffer = new Uint8Array([
 	0x00, 0x00, 0x00, 0x1c, 0x65, 0x6c, 0x73, 0x74, 0x00, 0x00, 0x00, 0x00, 0x00,

@@ -1,5 +1,5 @@
-import {combineUint8Arrays} from '../../../boxes/webm/make-header';
-import {addSize} from '../primitives';
+import {combineUint8Arrays} from '../../../../boxes/webm/make-header';
+import {addSize} from '../../primitives';
 
 export const createMinf = ({
 	vmhdAtom,

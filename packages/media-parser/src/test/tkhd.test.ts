@@ -1,7 +1,10 @@
 import {expect, test} from 'bun:test';
 import {parseTkhd} from '../boxes/iso-base-media/tkhd';
 import {getArrayBufferIterator} from '../buffer-iterator';
-import {createTkhd, TKHD_FLAGS} from '../create/iso-base-media/create-tkhd';
+import {
+	createTkhd,
+	TKHD_FLAGS,
+} from '../create/iso-base-media/trak/create-tkhd';
 
 const buffer = Uint8Array.from([
 	// size, 32 bit

@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
 import {exampleAudioSamplePositions} from '../create/iso-base-media/example-stts';
-import {createStcoAtom} from '../create/iso-base-media/mdia/minf/stbl/create-stco';
+import {createStcoAtom} from '../create/iso-base-media/trak/mdia/minf/stbl/create-stco';
 
 const reference = new Uint8Array([
 	0, 0, 1, 232, 115, 116, 99, 111, 0, 0, 0, 0, 0, 0, 0, 118, 0, 0, 71, 195, 0,

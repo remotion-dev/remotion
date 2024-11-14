@@ -1,11 +1,11 @@
-import {combineUint8Arrays} from '../../../../../../boxes/webm/make-header';
+import {combineUint8Arrays} from '../../../../../../../boxes/webm/make-header';
 import {
 	addSize,
 	numberTo16BitUIntOrInt,
 	setFixedPointSignedOrUnsigned1616Number,
 	stringsToUint8Array,
 	stringToPascalString,
-} from '../../../../primitives';
+} from '../../../../../primitives';
 
 export type Avc1Data = {
 	pasp: Uint8Array;

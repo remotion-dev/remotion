@@ -1,5 +1,5 @@
-import {fromUnixTimestamp} from '../../boxes/iso-base-media/to-date';
-import {combineUint8Arrays} from '../../boxes/webm/make-header';
+import {fromUnixTimestamp} from '../../../boxes/iso-base-media/to-date';
+import {combineUint8Arrays} from '../../../boxes/webm/make-header';
 import {
 	addSize,
 	floatTo16Point16_16Bit,
@@ -7,7 +7,7 @@ import {
 	serializeMatrix,
 	setFixedPointSignedOrUnsigned1616Number,
 	stringsToUint8Array,
-} from './primitives';
+} from '../primitives';
 
 export const TKHD_FLAGS = {
 	TRACK_ENABLED: 0x000001,

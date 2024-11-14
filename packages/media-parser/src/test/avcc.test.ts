@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {createAvccBox} from '../create/iso-base-media/mdia/minf/stbl/stsd/create-avcc';
+import {createAvccBox} from '../create/iso-base-media/trak/mdia/minf/stbl/stsd/create-avcc';
 
 test('avcc box', () => {
 	expect(
