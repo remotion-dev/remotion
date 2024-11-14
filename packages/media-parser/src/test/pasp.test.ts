@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {createPasp} from '../create/iso-base-media/stbl/stsd/create-pasp';
+import {createPasp} from '../create/iso-base-media/mdia/stbl/stsd/create-pasp';
 
 const reference = new Uint8Array([
 	0x00, 0x00, 0x00, 0x10, 0x70, 0x61, 0x73, 0x70, 0x00, 0x00, 0x00, 0x01, 0x00,

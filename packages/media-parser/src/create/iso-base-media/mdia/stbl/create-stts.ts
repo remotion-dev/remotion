@@ -1,10 +1,10 @@
-import {combineUint8Arrays} from '../../../boxes/webm/make-header';
-import type {SamplePosition} from '../../../get-sample-positions';
+import {combineUint8Arrays} from '../../../../boxes/webm/make-header';
+import type {SamplePosition} from '../../../../get-sample-positions';
 import {
 	addSize,
 	numberTo32BitUIntOrInt,
 	stringsToUint8Array,
-} from '../primitives';
+} from '../../primitives';
 
 type Entry = {
 	sampleCount: number;
@@ -18,28 +18,29 @@ const makeEntry = (entry: Entry) => {
 	]);
 };
 
-export const createCttsBox = (samplePositions: SamplePosition[]) => {
-	const offsets = samplePositions.map((s) => s.cts - s.dts);
+export const createSttsAtom = (samplePositions: SamplePosition[]) => {
+	let lastDuration: null | number = null;
+	const durations = samplePositions.map(({duration}) => duration);
+
 	const entries: Entry[] = [];
 
-	let lastOffset: null | number = null;
-	for (const offset of offsets) {
-		if (lastOffset === offset) {
+	for (const duration of durations) {
+		if (duration === lastDuration) {
 			entries[entries.length - 1].sampleCount++;
 		} else {
 			entries.push({
 				sampleCount: 1,
-				sampleOffset: offset,
+				sampleOffset: duration,
 			});
 		}
 
-		lastOffset = offset;
+		lastDuration = duration;
 	}
 
 	return addSize(
 		combineUint8Arrays([
 			// type
-			stringsToUint8Array('ctts'),
+			stringsToUint8Array('stts'),
 			// version
 			new Uint8Array([0]),
 			// flags

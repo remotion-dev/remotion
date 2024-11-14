@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
 import {exampleVideoSamplePositions} from '../create/iso-base-media/example-stts';
-import {createCttsBox} from '../create/iso-base-media/stbl/create-ctts';
+import {createCttsBox} from '../create/iso-base-media/mdia/stbl/create-ctts';
 
 const reference = new Uint8Array([
 	0, 0, 3, 128, 99, 116, 116, 115, 0, 0, 0, 0, 0, 0, 0, 110, 0, 0, 0, 1, 0, 0,

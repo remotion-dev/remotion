@@ -1,9 +1,9 @@
 import {expect, test} from 'bun:test';
 import {createStbl} from '../create/iso-base-media/create-stbl';
 import {exampleVideoSamplePositions} from '../create/iso-base-media/example-stts';
-import {createAvccBox} from '../create/iso-base-media/stbl/stsd/create-avcc';
-import {createBtrt} from '../create/iso-base-media/stbl/stsd/create-btrt';
-import {createPasp} from '../create/iso-base-media/stbl/stsd/create-pasp';
+import {createAvccBox} from '../create/iso-base-media/mdia/stbl/stsd/create-avcc';
+import {createBtrt} from '../create/iso-base-media/mdia/stbl/stsd/create-btrt';
+import {createPasp} from '../create/iso-base-media/mdia/stbl/stsd/create-pasp';
 
 const sample = new Uint8Array([
 	0, 0, 8, 145, 115, 116, 98, 108, 0, 0, 0, 197, 115, 116, 115, 100, 0, 0, 0, 0,
