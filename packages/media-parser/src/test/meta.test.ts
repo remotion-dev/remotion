@@ -7,13 +7,13 @@ import {createHdlr} from '../create/iso-base-media/udta/meta/create-hdlr';
 
 test('meta atom', () => {
 	expect(
-		createMeta(
-			createHdlr('mdir'),
-			createIlst([
+		createMeta({
+			hdlr: createHdlr('mdir'),
+			ilst: createIlst([
 				createToo('Lavf61.7.100'),
 				createCmt('Made with Remotion 4.0.227'),
 			]),
-		),
+		}),
 	).toEqual(
 		new Uint8Array([
 			0, 0, 0, 139, 109, 101, 116, 97, 0, 0, 0, 0, 0, 0, 0, 33, 104, 100, 108,

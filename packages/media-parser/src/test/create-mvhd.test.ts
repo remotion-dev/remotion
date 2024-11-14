@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import {parseMvhd} from '../boxes/iso-base-media/mvhd';
 import {getArrayBufferIterator} from '../buffer-iterator';
 import {createMvhd} from '../create/iso-base-media/create-mvhd';
+import {IDENTITY_MATRIX} from '../create/iso-base-media/primitives';
 
 const input = new Uint8Array([
 	// size
@@ -83,7 +84,7 @@ test('Create mvhd box', () => {
 		durationInSeconds: 0,
 		rate: 1,
 		volume: 1,
-		matrix: [1, 0, 0, 0, 1, 0, 0, 0, 1],
+		matrix: IDENTITY_MATRIX,
 		nextTrackId: 2,
 		type: 'mvhd-box',
 		boxSize: 108,

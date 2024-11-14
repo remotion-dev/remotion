@@ -208,7 +208,7 @@ export const createMatroskaMedia = async ({
 		remove: async () => {
 			await w.remove();
 		},
-		addSample: (chunk, trackNumber, isVideo: boolean) => {
+		addSample: (chunk, trackNumber, isVideo) => {
 			operationProm.current = operationProm.current.then(() =>
 				addSample(chunk, trackNumber, isVideo),
 			);

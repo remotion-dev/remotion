@@ -1,3 +1,4 @@
+import type {ThreeDMatrix} from '../../boxes/iso-base-media/mvhd';
 import {combineUint8Arrays} from '../../boxes/webm/make-header';
 
 export const stringsToUint8Array = (str: string) => {
@@ -97,7 +98,7 @@ export const stringToPascalString = (str: string) => {
 	return buffer;
 };
 
-export const padToLength = (data: Uint8Array, totalLength: number) => {
+export const padIsoBaseMediaBytes = (data: Uint8Array, totalLength: number) => {
 	if (data.length > totalLength) {
 		throw new Error('Data is longer than the total length');
 	}
@@ -108,3 +109,5 @@ export const padToLength = (data: Uint8Array, totalLength: number) => {
 
 	return combineUint8Arrays([data, new Uint8Array(totalLength - data.length)]);
 };
+
+export const IDENTITY_MATRIX: ThreeDMatrix = [1, 0, 0, 0, 1, 0, 0, 0, 1];
