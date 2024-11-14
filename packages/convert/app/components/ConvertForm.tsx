@@ -4,7 +4,6 @@ import {
 } from '@remotion/media-parser';
 import {ConvertMediaContainer} from '@remotion/webcodecs';
 import React from 'react';
-import {Container} from '~/lib/generate-new-name';
 import {AudioCodecSelection} from './AudioCodecSelection';
 import {SupportedConfigs} from './get-supported-configs';
 import {SelectionSkeleton} from './SelectionSkeleton';
@@ -60,7 +59,7 @@ export const ConvertForm: React.FC<{
 				<Label htmlFor="container">Container</Label>
 				<Select
 					value={container}
-					onValueChange={(v) => setContainer(v as Container)}
+					onValueChange={(v) => setContainer(v as ConvertMediaContainer)}
 				>
 					<SelectTrigger id="container">
 						<SelectValue placeholder="Select a container" />
@@ -68,6 +67,9 @@ export const ConvertForm: React.FC<{
 					<SelectContent>
 						<SelectGroup>
 							<SelectItem value="webm">WebM</SelectItem>
+						</SelectGroup>
+						<SelectGroup>
+							<SelectItem value="mp4">MP4</SelectItem>
 						</SelectGroup>
 					</SelectContent>
 				</Select>

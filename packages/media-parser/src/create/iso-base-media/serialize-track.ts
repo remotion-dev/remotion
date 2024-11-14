@@ -27,6 +27,7 @@ export const serializeTrack = ({
 	durationInUnits,
 	samplePositions,
 }: IsoBaseMediaTrackData) => {
+	console.log(track);
 	if (track.codec !== 'h264') {
 		throw new Error('Currently only H.264 is supported');
 	}
@@ -62,7 +63,7 @@ export const serializeTrack = ({
 			minf: createMinf({
 				stblAtom: createStbl({
 					samplePositions,
-					avc1Data: {
+					codecSpecificData: {
 						avccBox: createAvccBox(track.codecPrivate),
 						// TODO: Investigate which values to put in
 						btrt: createBtrt({maxBitrate: 437875, avgBitrate: 437875}),
@@ -73,6 +74,7 @@ export const serializeTrack = ({
 						height: track.height,
 						width: track.width,
 						pasp: createPasp(1, 1),
+						type: 'avc1-data',
 					},
 				}),
 				vmhdAtom: createVmhd(),

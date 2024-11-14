@@ -1,6 +1,7 @@
 import {
 	MediaParserAudioCodec,
 	MediaParserVideoCodec,
+	TracksField,
 } from '@remotion/media-parser';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {Source} from '~/lib/convert-state';
@@ -11,7 +12,6 @@ import {SourceLabel} from './SourceLabel';
 import {TrackSwitcher} from './TrackSwitcher';
 import {VideoThumbnail, VideoThumbnailRef} from './VideoThumbnail';
 import {VideoTrackOverview} from './VideoTrackOverview';
-import {SupportedConfigs} from './get-supported-configs';
 import {Button} from './ui/button';
 import {Card, CardDescription, CardHeader, CardTitle} from './ui/card';
 import {ScrollArea} from './ui/scroll-area';
@@ -29,14 +29,14 @@ export const Probe: React.FC<{
 		React.SetStateAction<MediaParserVideoCodec | null>
 	>;
 	readonly probeDetails: boolean;
-	readonly onSupportedConfigs: (supportedConfigs: SupportedConfigs) => void;
+	readonly onTracks: (tracks: TracksField) => void;
 }> = ({
 	src,
 	probeDetails,
 	setProbeDetails,
-	onSupportedConfigs,
 	setAudioCodec,
 	setVideoCodec,
+	onTracks,
 }) => {
 	const videoThumbnailRef = useRef<VideoThumbnailRef>(null);
 
@@ -57,9 +57,11 @@ export const Probe: React.FC<{
 	} = useProbe({
 		src,
 		onVideoThumbnail,
-		onSupportedConfigs,
 		onAudioCodec: setAudioCodec,
 		onVideoCodec: setVideoCodec,
+		onTracks: (t) => {
+			onTracks(t);
+		},
 	});
 
 	const onClick = useCallback(() => {

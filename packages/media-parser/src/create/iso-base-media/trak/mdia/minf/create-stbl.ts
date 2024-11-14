@@ -7,20 +7,20 @@ import {createStsc} from './stbl/create-stsc';
 import {createStss} from './stbl/create-stss';
 import {createStsz} from './stbl/create-stsz';
 import {createSttsAtom} from './stbl/create-stts';
-import type {Avc1Data} from './stbl/stsd/create-avc1';
+import type {CodecSpecificData} from './stbl/stsd/create-avc1';
 import {createStsdData} from './stbl/stsd/create-avc1';
 
 export const createStbl = ({
 	samplePositions,
-	avc1Data,
+	codecSpecificData,
 }: {
 	samplePositions: SamplePosition[];
-	avc1Data: Avc1Data;
+	codecSpecificData: CodecSpecificData;
 }) => {
 	return addSize(
 		combineUint8Arrays([
 			stringsToUint8Array('stbl'),
-			createStsdData(avc1Data),
+			createStsdData(codecSpecificData),
 			createSttsAtom(samplePositions),
 			createStss(samplePositions),
 			createCttsBox(samplePositions),

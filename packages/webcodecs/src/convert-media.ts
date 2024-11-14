@@ -87,9 +87,9 @@ export const convertMedia = async function <
 		return Promise.reject(new Error('Aborted'));
 	}
 
-	if (container !== 'webm') {
+	if (container !== 'webm' && container !== 'mp4') {
 		return Promise.reject(
-			new TypeError('Only `to: "webm"` is supported currently'),
+			new TypeError('Only `to: "webm"` and `to: "mp4"` is supported currently'),
 		);
 	}
 

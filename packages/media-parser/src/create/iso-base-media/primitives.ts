@@ -14,6 +14,24 @@ export const numberTo32BitUIntOrInt = (num: number) => {
 	]);
 };
 
+export const numberTo32BitUIntOrIntLeading128 = (num: number) => {
+	const arr = [
+		(num >> 24) & 0xff,
+		(num >> 16) & 0xff,
+		(num >> 8) & 0xff,
+		num & 0xff,
+	];
+	for (const i in arr) {
+		if (arr[i] === 0) {
+			arr[i] = 128;
+		} else {
+			break;
+		}
+	}
+
+	return new Uint8Array(arr);
+};
+
 export const numberTo16BitUIntOrInt = (num: number) => {
 	return new Uint8Array([(num >> 8) & 0xff, num & 0xff]);
 };
@@ -30,6 +48,13 @@ export const setFixedPointSigned230Number = (num: number) => {
 
 export const addSize = (arr: Uint8Array) => {
 	return combineUint8Arrays([numberTo32BitUIntOrInt(arr.length + 4), arr]);
+};
+
+export const addLeading128Size = (arr: Uint8Array) => {
+	return combineUint8Arrays([
+		numberTo32BitUIntOrIntLeading128(arr.length),
+		arr,
+	]);
 };
 
 export const floatTo16Point1632Bit = (number: number) => {

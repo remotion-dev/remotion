@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {createAvc1} from '../create/iso-base-media/trak/mdia/minf/stbl/stsd/create-avc1';
+import {createAvc1Data} from '../create/iso-base-media/trak/mdia/minf/stbl/stsd/create-avc1';
 import {createAvccBox} from '../create/iso-base-media/trak/mdia/minf/stbl/stsd/create-avcc';
 import {createBtrt} from '../create/iso-base-media/trak/mdia/minf/stbl/stsd/create-btrt';
 import {createPasp} from '../create/iso-base-media/trak/mdia/minf/stbl/stsd/create-pasp';
@@ -25,7 +25,7 @@ test('create avc1box', () => {
 		0xf8, 0xf8, 0x00,
 	]);
 	expect(
-		createAvc1({
+		createAvc1Data({
 			pasp: createPasp(1, 1),
 			avccBox: createAvccBox(privateData),
 			btrt: createBtrt({
@@ -38,6 +38,7 @@ test('create avc1box', () => {
 			verticalResolution: 72,
 			compressorName: '',
 			depth: 24,
+			type: 'avc1-data',
 		}),
 	).toEqual(reference);
 });

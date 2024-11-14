@@ -118,7 +118,7 @@ test('Create a full stbl atom', () => {
 	expect(
 		createStbl({
 			samplePositions: exampleVideoSamplePositions,
-			avc1Data: {
+			codecSpecificData: {
 				pasp: createPasp(1, 1),
 				avccBox: createAvccBox(privateData),
 				btrt: createBtrt({
@@ -131,6 +131,7 @@ test('Create a full stbl atom', () => {
 				verticalResolution: 72,
 				compressorName: '',
 				depth: 24,
+				type: 'avc1-data',
 			},
 		}),
 	).toEqual(sample);
