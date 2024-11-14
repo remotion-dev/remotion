@@ -12,5 +12,9 @@ export const canCopyAudioTrack = ({
 		return inputCodec === 'opus';
 	}
 
+	if (container === 'mp4') {
+		return inputCodec === 'aac';
+	}
+
 	throw new Error(`Unhandled codec: ${container satisfies never}`);
 };

@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {createMdhd} from '../create/iso-base-media/create-mdhd';
+import {createMdhd} from '../create/iso-base-media/mdia/create-mdhd';
 
 const reference = new Uint8Array([
 	0x00, 0x00, 0x00, 0x20, 0x6d, 0x64, 0x68, 0x64, 0x00, 0x00, 0x00, 0x00, 0x00,

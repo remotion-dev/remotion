@@ -39,7 +39,7 @@ export type ConvertMediaState = {
 	overallProgress: number | null;
 };
 
-export type ConvertMediaContainer = 'webm';
+export type ConvertMediaContainer = 'webm' | 'mp4';
 
 export type ConvertMediaResult = {
 	save: () => Promise<Blob>;
@@ -138,7 +138,12 @@ export const convertMedia = async function <
 		onMediaStateDoNoCallDirectly?.(newState);
 	};
 
-	const state = await MediaParserInternals.createMatroskaMedia({
+	const creator =
+		container === 'webm'
+			? MediaParserInternals.createMatroskaMedia
+			: MediaParserInternals.createIsoBaseMedia;
+
+	const state = await creator({
 		writer: await autoSelectWriter(writer, logLevel),
 		onBytesProgress: (bytesWritten) => {
 			convertMediaState.bytesWritten = bytesWritten;

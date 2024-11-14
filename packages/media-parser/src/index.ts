@@ -1,3 +1,4 @@
+import {createIsoBaseMedia} from './create/iso-base-media/create-iso-base-media';
 import {createMatroskaMedia} from './create/matroska/create-matroska-media';
 import type {LogLevel} from './log';
 import {Log} from './log';
@@ -41,5 +42,6 @@ export type {LogLevel};
 
 export const MediaParserInternals = {
 	createMatroskaMedia,
+	createIsoBaseMedia,
 	Log,
 };

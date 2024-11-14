@@ -1,10 +1,10 @@
-import {fromUnixTimestamp} from '../../boxes/iso-base-media/to-date';
-import {combineUint8Arrays} from '../../boxes/webm/make-header';
+import {fromUnixTimestamp} from '../../../boxes/iso-base-media/to-date';
+import {combineUint8Arrays} from '../../../boxes/webm/make-header';
 import {
 	addSize,
 	numberTo32BitUIntOrInt,
 	stringsToUint8Array,
-} from './primitives';
+} from '../primitives';
 
 export const createMdhd = ({
 	creationTime,

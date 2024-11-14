@@ -10,5 +10,9 @@ export const getDefaultAudioCodec = ({
 		return 'opus';
 	}
 
+	if (container === 'mp4') {
+		return 'aac';
+	}
+
 	throw new Error(`Unhandled container: ${container satisfies never}`);
 };

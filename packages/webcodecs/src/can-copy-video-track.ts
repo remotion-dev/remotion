@@ -12,5 +12,9 @@ export const canCopyVideoTrack = ({
 		return inputCodec === 'vp8' || inputCodec === 'vp9';
 	}
 
+	if (container === 'mp4') {
+		return inputCodec === 'h264' || inputCodec === 'h265';
+	}
+
 	throw new Error(`Unhandled codec: ${container satisfies never}`);
 };
