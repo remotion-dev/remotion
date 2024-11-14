@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
 import {exampleAudioSamplePositions} from '../create/iso-base-media/example-stts';
-import {createStsz} from '../create/iso-base-media/mdia/stbl/create-stsz';
+import {createStsz} from '../create/iso-base-media/mdia/minf/stbl/create-stsz';
 
 const refernce = new Uint8Array([
 	0, 0, 3, 12, 115, 116, 115, 122, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 190, 0, 0,

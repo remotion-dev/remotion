@@ -1,8 +1,8 @@
 import {expect, test} from 'bun:test';
-import {createAvc1} from '../create/iso-base-media/mdia/stbl/stsd/create-avc1';
-import {createAvccBox} from '../create/iso-base-media/mdia/stbl/stsd/create-avcc';
-import {createBtrt} from '../create/iso-base-media/mdia/stbl/stsd/create-btrt';
-import {createPasp} from '../create/iso-base-media/mdia/stbl/stsd/create-pasp';
+import {createAvc1} from '../create/iso-base-media/mdia/minf/stbl/stsd/create-avc1';
+import {createAvccBox} from '../create/iso-base-media/mdia/minf/stbl/stsd/create-avcc';
+import {createBtrt} from '../create/iso-base-media/mdia/minf/stbl/stsd/create-btrt';
+import {createPasp} from '../create/iso-base-media/mdia/minf/stbl/stsd/create-pasp';
 
 const reference = new Uint8Array([
 	0, 0, 0, 181, 97, 118, 99, 49, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
