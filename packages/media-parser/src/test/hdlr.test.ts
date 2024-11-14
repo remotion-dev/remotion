@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {createHdlr} from '../create/iso-base-media/meta/create-hdlr';
+import {createHdlr} from '../create/iso-base-media/udta/meta/create-hdlr';
 
 const reference = new Uint8Array([
 	0x00, 0x00, 0x00, 0x2d, 0x68, 0x64, 0x6c, 0x72, 0x00, 0x00, 0x00, 0x00, 0x00,

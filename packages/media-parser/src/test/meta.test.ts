@@ -1,9 +1,9 @@
 import {expect, test} from 'bun:test';
 import {createIlst} from '../create/iso-base-media/create-ilst';
-import {createMeta} from '../create/iso-base-media/create-meta';
 import {createCmt} from '../create/iso-base-media/ilst/create-cmt';
 import {createToo} from '../create/iso-base-media/ilst/create-too';
-import {createHdlr} from '../create/iso-base-media/meta/create-hdlr';
+import {createMeta} from '../create/iso-base-media/udta/create-meta';
+import {createHdlr} from '../create/iso-base-media/udta/meta/create-hdlr';
 
 test('meta atom', () => {
 	expect(
