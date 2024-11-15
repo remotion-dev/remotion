@@ -1,6 +1,5 @@
 import {combineUint8Arrays} from '../../../../../../boxes/webm/make-header';
 import type {SamplePosition} from '../../../../../../get-sample-positions';
-import {truthy} from '../../../../../../truthy';
 import {
 	addSize,
 	numberTo32BitUIntOrInt,
@@ -21,15 +20,14 @@ const makeEntry = (entry: Entry) => {
 
 export const createSttsAtom = (samplePositions: SamplePosition[]) => {
 	let lastDuration: null | number = null;
-	const durations = samplePositions
-		.map((_, i, a) => {
-			if (a[i].duration === undefined) {
-				return (a[i + 1]?.dts ?? a[i].dts) - a[i].dts;
-			}
+	const durations = samplePositions.map((_, i, a) => {
+		// TODO: Why 0?
+		if (a[i].duration === undefined || a[i].duration === 0) {
+			return (a[i + 1]?.dts ?? a[i].dts) - a[i].dts;
+		}
 
-			return a[i].duration;
-		})
-		.filter(truthy);
+		return a[i].duration;
+	});
 
 	const entries: Entry[] = [];
 
