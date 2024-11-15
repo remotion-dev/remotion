@@ -5,11 +5,12 @@ import type {MakeTrackAudio, MakeTrackVideo} from './make-track-info';
 export type MediaFn = {
 	save: () => Promise<Blob>;
 	remove: () => Promise<void>;
-	addSample: (
-		chunk: AudioOrVideoSample,
-		trackNumber: number,
-		isVideo: boolean,
-	) => Promise<void>;
+	addSample: (options: {
+		chunk: AudioOrVideoSample;
+		trackNumber: number;
+		isVideo: boolean;
+		timescale: number;
+	}) => Promise<void>;
 	updateDuration: (duration: number) => Promise<void>;
 	addTrack: (
 		track:

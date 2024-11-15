@@ -11,6 +11,7 @@ export type MakeTrackAudio = {
 	sampleRate: number;
 	type: 'audio';
 	codecPrivate: Uint8Array | null;
+	timescale: number;
 };
 
 export type MakeTrackVideo = {
@@ -21,4 +22,5 @@ export type MakeTrackVideo = {
 	codec: MediaParserVideoCodec;
 	type: 'video';
 	codecPrivate: Uint8Array | null;
+	timescale: number;
 };

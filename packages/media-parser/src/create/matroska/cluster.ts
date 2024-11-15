@@ -3,7 +3,6 @@ import {matroskaToHex} from '../../boxes/webm/make-header';
 import {matroskaElements} from '../../boxes/webm/segments/all-segments';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 import type {Writer} from '../../writers/writer';
-import {CREATE_TIME_SCALE} from '../timescale';
 import {
 	CLUSTER_MIN_VINT_WIDTH,
 	createClusterSegment,
@@ -12,20 +11,25 @@ import {
 
 const maxClusterTimestamp = 2 ** 15;
 
-export const timestampToClusterTimestamp = (timestamp: number) => {
-	return Math.round((timestamp / CREATE_TIME_SCALE) * 1000);
+export const timestampToClusterTimestamp = (
+	timestamp: number,
+	timescale: number,
+) => {
+	return Math.round((timestamp / timescale) * 1000);
 };
 
 export const canFitInCluster = ({
 	clusterStartTimestamp,
 	chunk,
+	timescale,
 }: {
 	clusterStartTimestamp: number;
 	chunk: AudioOrVideoSample;
+	timescale: number;
 }) => {
 	const timecodeRelativeToCluster =
-		timestampToClusterTimestamp(chunk.timestamp) -
-		timestampToClusterTimestamp(clusterStartTimestamp);
+		timestampToClusterTimestamp(chunk.timestamp, timescale) -
+		timestampToClusterTimestamp(clusterStartTimestamp, timescale);
 
 	if (timecodeRelativeToCluster < 0) {
 		throw new Error(`timecodeRelativeToCluster is negative`);
@@ -34,9 +38,13 @@ export const canFitInCluster = ({
 	return timecodeRelativeToCluster <= maxClusterTimestamp;
 };
 
-export const makeCluster = async (w: Writer, clusterStartTimestamp: number) => {
+export const makeCluster = async (
+	w: Writer,
+	clusterStartTimestamp: number,
+	timescale: number,
+) => {
 	const cluster = createClusterSegment(
-		timestampToClusterTimestamp(clusterStartTimestamp),
+		timestampToClusterTimestamp(clusterStartTimestamp, timescale),
 	);
 	const clusterVIntPosition =
 		w.getWrittenByteCount() +
@@ -51,10 +59,10 @@ export const makeCluster = async (w: Writer, clusterStartTimestamp: number) => {
 
 	const addSample = async (chunk: AudioOrVideoSample, trackNumber: number) => {
 		const timecodeRelativeToCluster =
-			timestampToClusterTimestamp(chunk.timestamp) -
-			timestampToClusterTimestamp(clusterStartTimestamp);
+			timestampToClusterTimestamp(chunk.timestamp, timescale) -
+			timestampToClusterTimestamp(clusterStartTimestamp, timescale);
 
-		if (!canFitInCluster({clusterStartTimestamp, chunk})) {
+		if (!canFitInCluster({clusterStartTimestamp, chunk, timescale})) {
 			throw new Error(
 				`timecodeRelativeToCluster is too big: ${timecodeRelativeToCluster} > ${maxClusterTimestamp}`,
 			);
@@ -88,12 +96,16 @@ export const makeCluster = async (w: Writer, clusterStartTimestamp: number) => {
 		chunk: AudioOrVideoSample;
 		isVideo: boolean;
 	}) => {
-		const newTimestamp = timestampToClusterTimestamp(newT);
-		const oldTimestamp = timestampToClusterTimestamp(clusterStartTimestamp);
+		const newTimestamp = timestampToClusterTimestamp(newT, timescale);
+		const oldTimestamp = timestampToClusterTimestamp(
+			clusterStartTimestamp,
+			timescale,
+		);
 
 		const canFit = canFitInCluster({
 			chunk,
 			clusterStartTimestamp,
+			timescale,
 		});
 
 		if (!canFit) {

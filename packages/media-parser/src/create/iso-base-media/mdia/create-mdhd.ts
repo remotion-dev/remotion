@@ -36,7 +36,7 @@ export const createMdhd = ({
 			// timescale
 			numberTo32BitUIntOrInt(timescale),
 			// duration
-			numberTo32BitUIntOrInt(duration),
+			numberTo32BitUIntOrInt(Math.round((duration / 1000) * timescale)),
 			// language: unspecified
 			new Uint8Array([0x55, 0xc4]),
 			// quality

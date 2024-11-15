@@ -57,10 +57,16 @@ export const makeAudioTrackHandler =
 				numberOfChannels: track.numberOfChannels,
 				sampleRate: track.sampleRate,
 				codecPrivate: track.codecPrivate,
+				timescale: track.timescale,
 			});
 
 			return async (audioSample) => {
-				await state.addSample(audioSample, addedTrack.trackNumber, false);
+				await state.addSample({
+					chunk: audioSample,
+					trackNumber: addedTrack.trackNumber,
+					isVideo: false,
+					timescale: track.timescale,
+				});
 				convertMediaState.encodedAudioFrames++;
 				onMediaStateUpdate?.({...convertMediaState});
 			};
@@ -103,11 +109,17 @@ export const makeAudioTrackHandler =
 			numberOfChannels: track.numberOfChannels,
 			sampleRate: track.sampleRate,
 			codecPrivate: null,
+			timescale: track.timescale,
 		});
 
 		const audioEncoder = createAudioEncoder({
 			onChunk: async (chunk) => {
-				await state.addSample(convertEncodedChunk(chunk), trackNumber, false);
+				await state.addSample({
+					chunk: convertEncodedChunk(chunk),
+					trackNumber,
+					isVideo: false,
+					timescale: track.timescale,
+				});
 				convertMediaState.encodedAudioFrames++;
 				onMediaStateUpdate?.({...convertMediaState});
 			},

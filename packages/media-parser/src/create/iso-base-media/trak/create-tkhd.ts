@@ -24,6 +24,7 @@ export const createTkhdForAudio = ({
 	trackId,
 	duration,
 	volume,
+	timescale,
 }: {
 	creationTime: number | null;
 	modificationTime: number | null;
@@ -31,6 +32,7 @@ export const createTkhdForAudio = ({
 	trackId: number;
 	duration: number;
 	volume: number;
+	timescale: number;
 }) => {
 	return addSize(
 		combineUint8Arrays([
@@ -53,7 +55,7 @@ export const createTkhdForAudio = ({
 			// reserved
 			new Uint8Array([0, 0, 0, 0]),
 			// duration
-			numberTo32BitUIntOrInt(duration),
+			numberTo32BitUIntOrInt(Math.round((duration / 1000) * timescale)),
 			// reserved
 			new Uint8Array([0, 0, 0, 0]),
 			new Uint8Array([0, 0, 0, 0]),
@@ -85,6 +87,7 @@ export const createTkhdForVideo = ({
 	width,
 	height,
 	flags,
+	timescale,
 }: {
 	creationTime: number | null;
 	modificationTime: number | null;
@@ -95,6 +98,7 @@ export const createTkhdForVideo = ({
 	width: number;
 	height: number;
 	flags: number;
+	timescale: number;
 }) => {
 	const content = combineUint8Arrays([
 		// name
@@ -116,7 +120,7 @@ export const createTkhdForVideo = ({
 		// reserved
 		new Uint8Array([0, 0, 0, 0]),
 		// duration
-		numberTo32BitUIntOrInt(duration),
+		numberTo32BitUIntOrInt((duration / 1000) * timescale),
 		// reserved
 		new Uint8Array([0, 0, 0, 0]),
 		new Uint8Array([0, 0, 0, 0]),

@@ -107,6 +107,7 @@ test('Should be able to create a tkhd', () => {
 				TKHD_FLAGS.TRACK_IN_MOVIE |
 				TKHD_FLAGS.TRACK_IN_PREVIEW |
 				TKHD_FLAGS.TRACK_IN_POSTER,
+			timescale: 1000,
 		}),
 	).toEqual(buffer);
 });
@@ -161,6 +162,7 @@ test('Should be able to parse a TKHD box 2', () => {
 			trackId: 1,
 			volume: 0,
 			flags: TKHD_FLAGS.TRACK_ENABLED | TKHD_FLAGS.TRACK_IN_MOVIE,
+			timescale: 1000,
 		}),
 	).toEqual(buffer2);
 });
@@ -185,6 +187,7 @@ test('tkhd', () => {
 			trackId: 2,
 			duration: 4054,
 			volume: 1,
+			timescale: 1000,
 		}),
 	).toEqual(audioTkhd);
 });

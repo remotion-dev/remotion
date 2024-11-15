@@ -17,8 +17,6 @@ import {createAvccBox} from './trak/mdia/minf/stbl/stsd/create-avcc';
 import {createPasp} from './trak/mdia/minf/stbl/stsd/create-pasp';
 import {createHdlr} from './udta/meta/create-hdlr';
 
-export const ISO_BASE_TIMESCALE = 1000;
-
 export type IsoBaseMediaTrackData = {
 	track: MakeTrackVideo | MakeTrackAudio;
 	durationInUnits: number;
@@ -39,23 +37,25 @@ export const serializeTrack = ({
 			track.codec === 'aac'
 				? createTkhdForAudio({
 						creationTime: Date.now(),
-						flags: TKHD_FLAGS.TRACK_ENABLED | TKHD_FLAGS.TRACK_IN_MOVIE,
+						flags: TKHD_FLAGS.TRACK_ENABLED,
 						modificationTime: Date.now(),
 						duration: durationInUnits,
 						trackId: track.trackNumber,
 						volume: 1,
+						timescale: track.timescale,
 					})
 				: track.type === 'video'
 					? createTkhdForVideo({
 							creationTime: Date.now(),
 							modificationTime: Date.now(),
 							duration: durationInUnits,
-							flags: TKHD_FLAGS.TRACK_ENABLED | TKHD_FLAGS.TRACK_IN_MOVIE,
+							flags: TKHD_FLAGS.TRACK_ENABLED,
 							height: track.height,
 							width: track.width,
 							matrix: IDENTITY_MATRIX,
 							trackId: track.trackNumber,
 							volume: 1,
+							timescale: track.timescale,
 						})
 					: new Uint8Array(stringsToUint8Array('wrong')),
 		mdia: createMdia({
@@ -63,7 +63,7 @@ export const serializeTrack = ({
 				creationTime: null,
 				modificationTime: null,
 				duration: durationInUnits,
-				timescale: ISO_BASE_TIMESCALE,
+				timescale: track.timescale,
 			}),
 			hdlr: track.type === 'video' ? createHdlr('video') : createHdlr('audio'),
 			minf: createMinf({

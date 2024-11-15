@@ -122,23 +122,19 @@ export const parseMdat = async ({
 
 		const bytes = data.getSlice(samplesWithIndex.samplePosition.size);
 
-		const timestamp = Math.floor(
+		const timestamp =
 			(samplesWithIndex.samplePosition.cts * 1_000_000) /
-				samplesWithIndex.track.timescale,
-		);
-		const duration = Math.floor(
+			samplesWithIndex.track.timescale;
+		const duration =
 			(samplesWithIndex.samplePosition.duration * 1_000_000) /
-				samplesWithIndex.track.timescale,
-		);
+			samplesWithIndex.track.timescale;
 
-		const cts = Math.floor(
+		const cts =
 			(samplesWithIndex.samplePosition.cts * 1_000_000) /
-				samplesWithIndex.track.timescale,
-		);
-		const dts = Math.floor(
+			samplesWithIndex.track.timescale;
+		const dts =
 			(samplesWithIndex.samplePosition.dts * 1_000_000) /
-				samplesWithIndex.track.timescale,
-		);
+			samplesWithIndex.track.timescale;
 
 		if (samplesWithIndex.track.type === 'audio') {
 			await options.parserState.onAudioSample(samplesWithIndex.track.trackId, {

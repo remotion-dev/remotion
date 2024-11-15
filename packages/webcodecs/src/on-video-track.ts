@@ -70,9 +70,15 @@ export const makeVideoTrackHandler =
 				height: track.codedHeight,
 				codec: track.codecWithoutConfig,
 				codecPrivate: track.codecPrivate,
+				timescale: track.timescale,
 			});
 			return async (sample) => {
-				await state.addSample(sample, videoTrack.trackNumber, true);
+				await state.addSample({
+					chunk: sample,
+					trackNumber: videoTrack.trackNumber,
+					isVideo: true,
+					timescale: track.timescale,
+				});
 				convertMediaState.decodedVideoFrames++;
 				onMediaStateUpdate?.({...convertMediaState});
 			};
@@ -111,11 +117,17 @@ export const makeVideoTrackHandler =
 			height: track.codedHeight,
 			codec: videoOperation.videoCodec,
 			codecPrivate: null,
+			timescale: track.timescale,
 		});
 
 		const videoEncoder = createVideoEncoder({
 			onChunk: async (chunk) => {
-				await state.addSample(convertEncodedChunk(chunk), trackNumber, true);
+				await state.addSample({
+					chunk: convertEncodedChunk(chunk),
+					trackNumber,
+					isVideo: true,
+					timescale: track.timescale,
+				});
 				convertMediaState.encodedVideoFrames++;
 				onMediaStateUpdate?.({...convertMediaState});
 			},

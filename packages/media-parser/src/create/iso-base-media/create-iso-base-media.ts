@@ -36,8 +36,10 @@ export const createIsoBaseMedia = async ({
 					track,
 					durationInUnits,
 					samplePositions: samplePositions[track.trackNumber] ?? [],
+					timescale: track.timescale,
 				};
 			}),
+			timescale: 1000,
 		});
 	};
 
@@ -73,11 +75,17 @@ export const createIsoBaseMedia = async ({
 		onMillisecondsProgress(newDuration);
 	};
 
-	const addSample = async (
-		chunk: AudioOrVideoSample,
-		trackNumber: number,
-		isVideo: boolean,
-	) => {
+	const addSample = async ({
+		chunk,
+		trackNumber,
+		isVideo,
+		timescale,
+	}: {
+		chunk: AudioOrVideoSample;
+		trackNumber: number;
+		isVideo: boolean;
+		timescale: number;
+	}) => {
 		if (!chunk.duration) {
 			throw new Error('Duration is required');
 		}
@@ -111,13 +119,16 @@ export const createIsoBaseMedia = async ({
 			}
 		}
 
+		// media parser and EncodedVideoChunk returns timestamps in microseconds
+		// need to normalize the timestamps to milliseconds
+
 		samplePositions[trackNumber].push({
 			isKeyframe: chunk.type === 'key',
 			offset: position,
 			chunk: sampleChunkIndices[trackNumber],
-			cts: chunk.timestamp,
-			dts: chunk.timestamp,
-			duration: chunk.duration,
+			cts: Math.round(chunk.timestamp / (1_000_000 / timescale)),
+			dts: Math.round(chunk.timestamp / (1_000_000 / timescale)),
+			duration: Math.round(chunk.duration / (1_000_000 / timescale)),
 			size: chunk.data.length,
 		});
 	};
@@ -144,9 +155,9 @@ export const createIsoBaseMedia = async ({
 		remove: async () => {
 			await w.remove();
 		},
-		addSample: (chunk, trackNumber, isVideo) => {
+		addSample: ({chunk, trackNumber, isVideo, timescale}) => {
 			operationProm.current = operationProm.current.then(() => {
-				return addSample(chunk, trackNumber, isVideo);
+				return addSample({chunk, trackNumber, isVideo, timescale});
 			});
 			return operationProm.current;
 		},
