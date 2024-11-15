@@ -45,7 +45,7 @@ export const createStsc = (samplePositions: SamplePosition[]) => {
 		} else {
 			deduplicateLastEntry();
 			entries.push({
-				firstChunk: samplePosition.chunk,
+				firstChunk: samplePosition.chunk + 1,
 				samplesPerChunk: 1,
 				sampleDescriptionIndex: 1,
 			});

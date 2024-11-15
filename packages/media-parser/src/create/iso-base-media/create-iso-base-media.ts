@@ -12,7 +12,11 @@ export const createIsoBaseMedia = async ({
 	onBytesProgress,
 	onMillisecondsProgress,
 }: MediaFnGeneratorInput): Promise<MediaFn> => {
-	const header = createIsoBaseMediaFtyp();
+	const header = createIsoBaseMediaFtyp({
+		compatibleBrands: ['isom', 'avc1', 'mp42'],
+		majorBrand: 'mp42',
+		minorBrand: 0,
+	});
 
 	const w = await writer.createContent();
 	await w.write(header);
@@ -92,7 +96,7 @@ export const createIsoBaseMedia = async ({
 		}
 
 		if (!sampleChunkIndices[trackNumber]) {
-			sampleChunkIndices[trackNumber] = 0;
+			sampleChunkIndices[trackNumber] = -1;
 		}
 
 		// For video, make a new chunk if it's a keyframe

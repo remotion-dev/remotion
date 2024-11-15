@@ -31,10 +31,14 @@ export const createFtyp = ({
 	);
 };
 
-export const createIsoBaseMediaFtyp = () => {
-	return createFtyp({
-		majorBrand: 'mp42',
-		minorBrand: 0,
-		compatibleBrands: ['isom', 'avc1', 'mp42'],
-	});
+export const createIsoBaseMediaFtyp = ({
+	majorBrand,
+	minorBrand,
+	compatibleBrands,
+}: {
+	majorBrand: string;
+	minorBrand: number;
+	compatibleBrands: string[];
+}) => {
+	return createFtyp({compatibleBrands, majorBrand, minorBrand});
 };

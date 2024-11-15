@@ -42,6 +42,10 @@ test('Create ftyp box', () => {
 });
 
 test('Should create ftyp box', () => {
-	const ftype = createIsoBaseMediaFtyp();
+	const ftype = createIsoBaseMediaFtyp({
+		compatibleBrands: ['iso5', 'iso6', 'mp41'],
+		majorBrand: 'iso5',
+		minorBrand: 512,
+	});
 	expect(ftype).toEqual(input);
 });
