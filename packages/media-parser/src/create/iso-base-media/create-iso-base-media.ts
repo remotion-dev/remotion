@@ -95,8 +95,8 @@ export const createIsoBaseMedia = async ({
 			samplePositions[trackNumber] = [];
 		}
 
-		if (!sampleChunkIndices[trackNumber]) {
-			sampleChunkIndices[trackNumber] = -1;
+		if (typeof sampleChunkIndices[trackNumber] === 'undefined') {
+			sampleChunkIndices[trackNumber] = 0;
 		}
 
 		// For video, make a new chunk if it's a keyframe
