@@ -133,6 +133,7 @@ test('Create a full stbl atom', () => {
 				depth: 24,
 				type: 'avc1-data',
 			},
+			isVideo: true,
 		}),
 	).toEqual(sample);
 });

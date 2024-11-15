@@ -10,6 +10,7 @@ import {numberTo32BitUIntOrInt, stringsToUint8Array} from './primitives';
 export const createIsoBaseMedia = async ({
 	writer,
 	onBytesProgress,
+	onMillisecondsProgress,
 }: MediaFnGeneratorInput): Promise<MediaFn> => {
 	const header = createIsoBaseMediaFtyp();
 
@@ -52,29 +53,39 @@ export const createIsoBaseMedia = async ({
 
 	const updateMdatSize = async () => {
 		await w.updateDataAt(mdatSizeOffset, numberTo32BitUIntOrInt(mdatSize));
+		onBytesProgress(w.getWrittenByteCount());
 	};
 
 	const operationProm = {current: Promise.resolve()};
 
 	const updateMoov = async () => {
 		await w.updateDataAt(moovOffset, getPaddedMoovAtom());
-		await updateMdatSize();
 
 		onBytesProgress(w.getWrittenByteCount());
 	};
 
-	const updateDuration = async (newDuration: number) => {
+	const updateDuration = (newDuration: number) => {
 		durationInUnits = newDuration;
-		await updateMoov();
+		onMillisecondsProgress(newDuration);
 	};
 
-	const addSample = async (chunk: AudioOrVideoSample, trackNumber: number) => {
+	const addSample = async (
+		chunk: AudioOrVideoSample,
+		trackNumber: number,
+		isVideo: boolean,
+	) => {
 		if (!chunk.duration) {
 			throw new Error('Duration is required');
 		}
 
 		const position = w.getWrittenByteCount();
 		await w.write(chunk.data);
+		onBytesProgress(w.getWrittenByteCount());
+
+		const newDuration = Math.round((chunk.timestamp + chunk.duration) / 1000);
+
+		updateDuration(newDuration);
+
 		if (!samplePositions[trackNumber]) {
 			samplePositions[trackNumber] = [];
 		}
@@ -83,8 +94,16 @@ export const createIsoBaseMedia = async ({
 			sampleChunkIndices[trackNumber] = 0;
 		}
 
-		if (chunk.type === 'key') {
+		// For video, make a new chunk if it's a keyframe
+		if (isVideo && chunk.type === 'key') {
 			sampleChunkIndices[trackNumber]++;
+		}
+
+		// For audio, make a new chunk every 22 samples, that's how bbb.mp4 is encoded
+		if (!isVideo) {
+			if (samplePositions[trackNumber].length % 22 === 0) {
+				sampleChunkIndices[trackNumber]++;
+			}
 		}
 
 		samplePositions[trackNumber].push({
@@ -98,7 +117,7 @@ export const createIsoBaseMedia = async ({
 		});
 	};
 
-	const addTrack = async (
+	const addTrack = (
 		track:
 			| Omit<MakeTrackAudio, 'trackNumber'>
 			| Omit<MakeTrackVideo, 'trackNumber'>,
@@ -106,7 +125,6 @@ export const createIsoBaseMedia = async ({
 		const trackNumber = currentTracks.length + 1;
 
 		currentTracks.push({...track, trackNumber});
-		await updateMoov();
 
 		return Promise.resolve({trackNumber});
 	};
@@ -121,9 +139,9 @@ export const createIsoBaseMedia = async ({
 		remove: async () => {
 			await w.remove();
 		},
-		addSample: (chunk, trackNumber) => {
+		addSample: (chunk, trackNumber, isVideo) => {
 			operationProm.current = operationProm.current.then(() => {
-				return addSample(chunk, trackNumber);
+				return addSample(chunk, trackNumber, isVideo);
 			});
 			return operationProm.current;
 		},
@@ -142,6 +160,8 @@ export const createIsoBaseMedia = async ({
 		async waitForFinish() {
 			await Promise.all(waitForFinishPromises.map((p) => p()));
 			await operationProm.current;
+			await updateMoov();
+			await updateMdatSize();
 			await w.waitForFinish();
 		},
 		updateDuration: (duration) => {

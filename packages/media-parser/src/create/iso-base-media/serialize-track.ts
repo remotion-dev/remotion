@@ -35,10 +35,6 @@ export const serializeTrack = ({
 		throw new Error('Currently only H.264 and AAC is supported');
 	}
 
-	if (!track.codecPrivate) {
-		throw new Error('Missing codecPrivate');
-	}
-
 	return createTrak({
 		tkhd:
 			track.codec === 'aac'
@@ -78,6 +74,7 @@ export const serializeTrack = ({
 			minf: createMinf({
 				stblAtom: createStbl({
 					samplePositions,
+					isVideo: track.type === 'video',
 					codecSpecificData:
 						track.type === 'audio'
 							? {

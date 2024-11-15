@@ -10,7 +10,8 @@ import {ISO_BASE_TIMESCALE, serializeTrack} from './serialize-track';
 import {createMeta} from './udta/create-meta';
 import {createHdlr} from './udta/meta/create-hdlr';
 
-const HEADER_LENGTH = 8196;
+// TODO: Creates a header that is way too large
+const HEADER_LENGTH = 256_000;
 
 export const createPaddedMoovAtom = ({
 	durationInUnits,

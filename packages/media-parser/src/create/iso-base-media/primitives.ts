@@ -124,18 +124,18 @@ export const stringToPascalString = (str: string) => {
 };
 
 export const padIsoBaseMediaBytes = (data: Uint8Array, totalLength: number) => {
-	if (data.length > totalLength) {
+	if (data.length - 8 > totalLength) {
 		throw new Error('Data is longer than the total length');
 	}
 
-	if (data.length === totalLength) {
+	if (data.length - 8 === totalLength) {
 		return data;
 	}
 
 	return combineUint8Arrays([
 		stringsToUint8Array('free'),
 		data,
-		new Uint8Array(totalLength - data.length - 8),
+		new Uint8Array(totalLength - (data.length - 8)),
 	]);
 };
 
