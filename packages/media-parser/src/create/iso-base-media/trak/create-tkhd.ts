@@ -3,6 +3,7 @@ import {combineUint8Arrays} from '../../../boxes/webm/make-header';
 import {
 	addSize,
 	floatTo16Point16_16Bit,
+	IDENTITY_MATRIX,
 	numberTo32BitUIntOrInt,
 	serializeMatrix,
 	setFixedPointSignedOrUnsigned1616Number,
@@ -16,7 +17,65 @@ export const TKHD_FLAGS = {
 	TRACK_IN_POSTER: 0x000008,
 };
 
-export const createTkhd = ({
+export const createTkhdForAudio = ({
+	creationTime,
+	modificationTime,
+	flags,
+	trackId,
+	duration,
+	volume,
+}: {
+	creationTime: number | null;
+	modificationTime: number | null;
+	flags: number;
+	trackId: number;
+	duration: number;
+	volume: number;
+}) => {
+	return addSize(
+		combineUint8Arrays([
+			// name
+			stringsToUint8Array('tkhd'),
+			// version
+			new Uint8Array([0]),
+			// flags
+			new Uint8Array([0, 0, flags]),
+			// creation time
+			creationTime === null
+				? numberTo32BitUIntOrInt(0)
+				: numberTo32BitUIntOrInt(fromUnixTimestamp(creationTime)),
+			// modification time
+			modificationTime === null
+				? numberTo32BitUIntOrInt(0)
+				: numberTo32BitUIntOrInt(fromUnixTimestamp(modificationTime)),
+			// trackId
+			numberTo32BitUIntOrInt(trackId),
+			// reserved
+			new Uint8Array([0, 0, 0, 0]),
+			// duration
+			numberTo32BitUIntOrInt(duration),
+			// reserved
+			new Uint8Array([0, 0, 0, 0]),
+			new Uint8Array([0, 0, 0, 0]),
+			// layer
+			new Uint8Array([0, 0]),
+			// alternate group, 1 = 'sound'
+			new Uint8Array([0, 1]),
+			// volume
+			floatTo16Point16_16Bit(volume),
+			// reserved
+			new Uint8Array([0, 0]),
+			// matrix
+			serializeMatrix(IDENTITY_MATRIX),
+			// width
+			setFixedPointSignedOrUnsigned1616Number(0),
+			// height
+			setFixedPointSignedOrUnsigned1616Number(0),
+		]),
+	);
+};
+
+export const createTkhdForVideo = ({
 	creationTime,
 	modificationTime,
 	duration,
@@ -63,7 +122,7 @@ export const createTkhd = ({
 		new Uint8Array([0, 0, 0, 0]),
 		// layer
 		new Uint8Array([0, 0]),
-		// alternate group
+		// alternate group, 0 = 'video'
 		new Uint8Array([0, 0]),
 		// volume
 		floatTo16Point16_16Bit(volume),

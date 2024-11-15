@@ -2,7 +2,8 @@ import {expect, test} from 'bun:test';
 import {parseTkhd} from '../boxes/iso-base-media/tkhd';
 import {getArrayBufferIterator} from '../buffer-iterator';
 import {
-	createTkhd,
+	createTkhdForAudio,
+	createTkhdForVideo,
 	TKHD_FLAGS,
 } from '../create/iso-base-media/trak/create-tkhd';
 
@@ -90,10 +91,9 @@ test('Should be able to parse a TKHD box', () => {
 	});
 });
 
-test('Should be able to create', () => {
-	const end = 200;
+test('Should be able to create a tkhd', () => {
 	expect(
-		createTkhd({
+		createTkhdForVideo({
 			creationTime: 1714993714000,
 			modificationTime: 1714993718000,
 			trackId: 5,
@@ -107,8 +107,8 @@ test('Should be able to create', () => {
 				TKHD_FLAGS.TRACK_IN_MOVIE |
 				TKHD_FLAGS.TRACK_IN_PREVIEW |
 				TKHD_FLAGS.TRACK_IN_POSTER,
-		}).slice(4, end),
-	).toEqual(buffer.slice(4, end));
+		}),
+	).toEqual(buffer);
 });
 
 const buffer2 = new Uint8Array([
@@ -151,7 +151,7 @@ test('Should be able to parse a TKHD box 2', () => {
 	});
 
 	expect(
-		createTkhd({
+		createTkhdForVideo({
 			creationTime: null,
 			modificationTime: null,
 			duration: 0,
@@ -163,4 +163,28 @@ test('Should be able to parse a TKHD box 2', () => {
 			flags: TKHD_FLAGS.TRACK_ENABLED | TKHD_FLAGS.TRACK_IN_MOVIE,
 		}),
 	).toEqual(buffer2);
+});
+
+const audioTkhd = new Uint8Array([
+	0x00, 0x00, 0x00, 0x5c, 0x74, 0x6b, 0x68, 0x64, 0x00, 0x00, 0x00, 0x03, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x0f, 0xd6, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x0,
+]);
+
+test('tkhd', () => {
+	expect(
+		createTkhdForAudio({
+			creationTime: null,
+			flags: 3,
+			modificationTime: null,
+			trackId: 2,
+			duration: 4054,
+			volume: 1,
+		}),
+	).toEqual(audioTkhd);
 });

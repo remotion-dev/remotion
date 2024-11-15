@@ -132,7 +132,11 @@ export const padIsoBaseMediaBytes = (data: Uint8Array, totalLength: number) => {
 		return data;
 	}
 
-	return combineUint8Arrays([data, new Uint8Array(totalLength - data.length)]);
+	return combineUint8Arrays([
+		stringsToUint8Array('free'),
+		data,
+		new Uint8Array(totalLength - data.length - 8),
+	]);
 };
 
 export const IDENTITY_MATRIX: ThreeDMatrix = [1, 0, 0, 0, 1, 0, 0, 0, 1];
