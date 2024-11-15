@@ -23,11 +23,11 @@ export const createSttsAtom = (samplePositions: SamplePosition[]) => {
 	let lastDuration: null | number = null;
 	const durations = samplePositions
 		.map((_, i, a) => {
-			if (i === 0) {
-				return 0;
+			if (a[i].duration === undefined) {
+				return (a[i + 1]?.dts ?? a[i].dts) - a[i].dts;
 			}
 
-			return a[i].cts - a[i - 1].cts;
+			return a[i].duration;
 		})
 		.filter(truthy);
 
