@@ -122,7 +122,7 @@ export const createIsoBaseMedia = async ({
 		// media parser and EncodedVideoChunk returns timestamps in microseconds
 		// need to normalize the timestamps to milliseconds
 
-		samplePositions[trackNumber].push({
+		const samplePositionToAdd: SamplePosition = {
 			isKeyframe: chunk.type === 'key',
 			offset: position,
 			chunk: sampleChunkIndices[trackNumber],
@@ -130,7 +130,9 @@ export const createIsoBaseMedia = async ({
 			dts: Math.round(chunk.dts / (1_000_000 / timescale)),
 			duration: Math.round((chunk.duration ?? 0) / (1_000_000 / timescale)),
 			size: chunk.data.length,
-		});
+		};
+
+		samplePositions[trackNumber].push(samplePositionToAdd);
 	};
 
 	const addTrack = (

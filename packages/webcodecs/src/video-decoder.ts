@@ -108,7 +108,7 @@ export const createVideoDecoder = ({
 			await videoDecoder.flush();
 			Log.verbose(logLevel, 'Flushed video decoder');
 			await ioSynchronizer.waitForFinish();
-			Log.verbose(logLevel, 'IO snychro finished');
+			Log.verbose(logLevel, 'IO synchro finished');
 			await outputQueue;
 			Log.verbose(logLevel, 'Output queue finished');
 			await inputQueue;
