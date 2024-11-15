@@ -133,9 +133,13 @@ export const padIsoBaseMediaBytes = (data: Uint8Array, totalLength: number) => {
 	}
 
 	return combineUint8Arrays([
-		stringsToUint8Array('free'),
 		data,
-		new Uint8Array(totalLength - (data.length - 8)),
+		addSize(
+			combineUint8Arrays([
+				stringsToUint8Array('free'),
+				new Uint8Array(totalLength - (data.length - 8)),
+			]),
+		),
 	]);
 };
 

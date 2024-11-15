@@ -1,7 +1,6 @@
 import {expect, test} from 'bun:test';
 import {createAvc1Data} from '../create/iso-base-media/trak/mdia/minf/stbl/stsd/create-avc1';
 import {createAvccBox} from '../create/iso-base-media/trak/mdia/minf/stbl/stsd/create-avcc';
-import {createBtrt} from '../create/iso-base-media/trak/mdia/minf/stbl/stsd/create-btrt';
 import {createPasp} from '../create/iso-base-media/trak/mdia/minf/stbl/stsd/create-pasp';
 
 const reference = new Uint8Array([
@@ -28,10 +27,6 @@ test('create avc1box', () => {
 		createAvc1Data({
 			pasp: createPasp(1, 1),
 			avccBox: createAvccBox(privateData),
-			btrt: createBtrt({
-				maxBitrate: 571392,
-				avgBitrate: 571392,
-			}),
 			width: 640,
 			height: 360,
 			horizontalResolution: 72,

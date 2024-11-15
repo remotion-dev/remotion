@@ -33,8 +33,8 @@ export const createFtyp = ({
 
 export const createIsoBaseMediaFtyp = () => {
 	return createFtyp({
-		majorBrand: 'iso5',
-		minorBrand: 512,
-		compatibleBrands: ['iso5', 'iso6', 'mp41'],
+		majorBrand: 'mp42',
+		minorBrand: 0,
+		compatibleBrands: ['isom', 'avc1', 'mp42'],
 	});
 };

@@ -2,7 +2,6 @@ import {expect, test} from 'bun:test';
 import {exampleVideoSamplePositions} from '../create/iso-base-media/example-stts';
 import {createStbl} from '../create/iso-base-media/trak/mdia/minf/create-stbl';
 import {createAvccBox} from '../create/iso-base-media/trak/mdia/minf/stbl/stsd/create-avcc';
-import {createBtrt} from '../create/iso-base-media/trak/mdia/minf/stbl/stsd/create-btrt';
 import {createPasp} from '../create/iso-base-media/trak/mdia/minf/stbl/stsd/create-pasp';
 
 const sample = new Uint8Array([
@@ -121,10 +120,6 @@ test('Create a full stbl atom', () => {
 			codecSpecificData: {
 				pasp: createPasp(1, 1),
 				avccBox: createAvccBox(privateData),
-				btrt: createBtrt({
-					maxBitrate: 571392,
-					avgBitrate: 571392,
-				}),
 				width: 640,
 				height: 360,
 				horizontalResolution: 72,

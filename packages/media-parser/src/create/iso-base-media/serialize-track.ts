@@ -9,12 +9,11 @@ import {
 	createTkhdForVideo,
 	TKHD_FLAGS,
 } from './trak/create-tkhd';
-import {createElstItem} from './trak/edts/create-elst';
 import {createMinf} from './trak/mdia/create-minf';
+import {createSmhd} from './trak/mdia/minf/create-smhd';
 import {createStbl} from './trak/mdia/minf/create-stbl';
 import {createVmhd} from './trak/mdia/minf/create-vmhd';
 import {createAvccBox} from './trak/mdia/minf/stbl/stsd/create-avcc';
-import {createBtrt} from './trak/mdia/minf/stbl/stsd/create-btrt';
 import {createPasp} from './trak/mdia/minf/stbl/stsd/create-pasp';
 import {createHdlr} from './udta/meta/create-hdlr';
 
@@ -39,17 +38,17 @@ export const serializeTrack = ({
 		tkhd:
 			track.codec === 'aac'
 				? createTkhdForAudio({
-						creationTime: null,
+						creationTime: Date.now(),
 						flags: TKHD_FLAGS.TRACK_ENABLED | TKHD_FLAGS.TRACK_IN_MOVIE,
-						modificationTime: null,
+						modificationTime: Date.now(),
 						duration: durationInUnits,
 						trackId: track.trackNumber,
 						volume: 1,
 					})
 				: track.type === 'video'
 					? createTkhdForVideo({
-							creationTime: null,
-							modificationTime: null,
+							creationTime: Date.now(),
+							modificationTime: Date.now(),
 							duration: durationInUnits,
 							flags: TKHD_FLAGS.TRACK_ENABLED | TKHD_FLAGS.TRACK_IN_MOVIE,
 							height: track.height,
@@ -59,10 +58,6 @@ export const serializeTrack = ({
 							volume: 1,
 						})
 					: new Uint8Array(stringsToUint8Array('wrong')),
-		edts: createElstItem({
-			segmentDuration: durationInUnits,
-			mediaTime: 0,
-		}),
 		mdia: createMdia({
 			mdhd: createMdhd({
 				creationTime: null,
@@ -82,17 +77,12 @@ export const serializeTrack = ({
 									// TODO: Investigate which values to put in
 									avgBitrate: 317370,
 									maxBitrate: 319999,
-									btrt: createBtrt({
-										avgBitrate: 317370,
-										maxBitrate: 319999,
-									}),
 									channelCount: track.numberOfChannels,
 									sampleRate: track.sampleRate,
 								}
 							: {
 									avccBox: createAvccBox(track.codecPrivate),
 									// TODO: Investigate which values to put in
-									btrt: createBtrt({maxBitrate: 437875, avgBitrate: 437875}),
 									compressorName: '',
 									depth: 24,
 									horizontalResolution: 72,
@@ -103,7 +93,7 @@ export const serializeTrack = ({
 									type: 'avc1-data',
 								},
 				}),
-				vmhdAtom: createVmhd(),
+				vmhdAtom: track.type === 'audio' ? createSmhd() : createVmhd(),
 			}),
 		}),
 	});

@@ -32,6 +32,8 @@ export const createPaddedMoovAtom = ({
 						.reduce((a, b) => Math.max(a, b), 0) + 1,
 				rate: 1,
 				volume: 1,
+				creationTime: Date.now(),
+				modificationTime: Date.now(),
 			}),
 			traks: trackInfo.map((track) => serializeTrack(track)),
 			udta: createUdta(

@@ -105,6 +105,8 @@ test('Create mvhd box', () => {
 			//
 			0, 0, 1,
 		],
+		creationTime: null,
+		modificationTime: null,
 	});
 
 	expect(content).toEqual(input);

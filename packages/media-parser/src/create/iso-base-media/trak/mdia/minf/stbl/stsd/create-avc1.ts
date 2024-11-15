@@ -8,12 +8,10 @@ import {
 	stringsToUint8Array,
 	stringToPascalString,
 } from '../../../../../primitives';
-import {createBtrt} from './create-btrt';
 
 export type Avc1Data = {
 	pasp: Uint8Array;
 	avccBox: Uint8Array;
-	btrt: Uint8Array;
 	width: number;
 	height: number;
 	horizontalResolution: number;
@@ -27,7 +25,6 @@ export type Mp4aData = {
 	type: 'mp4a-data';
 	sampleRate: number;
 	channelCount: number;
-	btrt: Uint8Array;
 	maxBitrate: number;
 	avgBitrate: number;
 };
@@ -37,7 +34,6 @@ export type CodecSpecificData = Avc1Data | Mp4aData;
 export const createAvc1Data = ({
 	avccBox,
 	pasp,
-	btrt,
 	width,
 	height,
 	horizontalResolution,
@@ -85,8 +81,6 @@ export const createAvc1Data = ({
 			avccBox,
 			// pasp
 			pasp,
-			// btrt
-			btrt,
 		]),
 	);
 };
@@ -182,11 +176,6 @@ export const createMp4a = ({
 					),
 				]),
 			),
-			// btrt atom
-			createBtrt({
-				avgBitrate,
-				maxBitrate,
-			}),
 		]),
 	);
 };

@@ -39,7 +39,7 @@ export const createIsoBaseMedia = async ({
 
 	await w.write(getPaddedMoovAtom());
 
-	const mdatSize = 8;
+	let mdatSize = 8;
 	const mdatSizeOffset = w.getWrittenByteCount();
 
 	await w.write(
@@ -80,6 +80,7 @@ export const createIsoBaseMedia = async ({
 
 		const position = w.getWrittenByteCount();
 		await w.write(chunk.data);
+		mdatSize += chunk.data.length;
 		onBytesProgress(w.getWrittenByteCount());
 
 		const newDuration = Math.round((chunk.timestamp + chunk.duration) / 1000);

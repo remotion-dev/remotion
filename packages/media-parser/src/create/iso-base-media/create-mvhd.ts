@@ -1,3 +1,4 @@
+import {fromUnixTimestamp} from '../../boxes/iso-base-media/to-date';
 import {combineUint8Arrays} from '../../boxes/webm/make-header';
 import {
 	addSize,
@@ -15,6 +16,8 @@ export const createMvhd = ({
 	volume,
 	nextTrackId,
 	matrix,
+	creationTime,
+	modificationTime,
 }: {
 	timescale: number;
 	durationInUnits: number;
@@ -22,6 +25,8 @@ export const createMvhd = ({
 	volume: number;
 	nextTrackId: number;
 	matrix: number[];
+	creationTime: number | null;
+	modificationTime: number | null;
 }) => {
 	if (matrix.length !== 9) {
 		throw new Error('Matrix must be 9 elements long');
@@ -34,10 +39,14 @@ export const createMvhd = ({
 		new Uint8Array([0]),
 		// flags
 		new Uint8Array([0, 0, 0]),
-		// creation time, 32bit for version 0
-		numberTo32BitUIntOrInt(0),
-		// modification time, 32bit for version 0
-		numberTo32BitUIntOrInt(0),
+		// creation time
+		creationTime === null
+			? numberTo32BitUIntOrInt(0)
+			: numberTo32BitUIntOrInt(fromUnixTimestamp(creationTime)),
+		// modification time
+		modificationTime === null
+			? numberTo32BitUIntOrInt(0)
+			: numberTo32BitUIntOrInt(fromUnixTimestamp(modificationTime)),
 		// timescale
 		numberTo32BitUIntOrInt(timescale),
 		// duration in units, 32bit for version 0
