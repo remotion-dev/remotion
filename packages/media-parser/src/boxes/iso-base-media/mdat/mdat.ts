@@ -143,6 +143,8 @@ export const parseMdat = async ({
 				trackId: samplesWithIndex.track.trackId,
 				type: samplesWithIndex.samplePosition.isKeyframe ? 'key' : 'delta',
 				duration,
+				cts,
+				dts,
 			});
 		}
 

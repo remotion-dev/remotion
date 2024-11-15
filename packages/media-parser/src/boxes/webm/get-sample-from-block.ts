@@ -73,8 +73,8 @@ export const getSampleFromBlock = (
 	if (codec.startsWith('V_')) {
 		const partialVideoSample: Omit<VideoSample, 'type'> = {
 			data: iterator.getSlice(remainingNow),
-			cts: null,
-			dts: null,
+			cts: timecodeInMicroseconds,
+			dts: timecodeInMicroseconds,
 			duration: undefined,
 			trackId: trackNumber,
 			timestamp: timecodeInMicroseconds,
@@ -109,6 +109,8 @@ export const getSampleFromBlock = (
 			timestamp: timecodeInMicroseconds,
 			type: 'key',
 			duration: undefined,
+			cts: timecodeInMicroseconds,
+			dts: timecodeInMicroseconds,
 		};
 
 		iterator.destroy();

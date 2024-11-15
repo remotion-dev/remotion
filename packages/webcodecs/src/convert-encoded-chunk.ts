@@ -11,5 +11,7 @@ export const convertEncodedChunk = (
 		duration: chunk.duration ?? undefined,
 		timestamp: chunk.timestamp,
 		type: chunk.type,
+		cts: chunk.timestamp,
+		dts: chunk.timestamp,
 	};
 };

@@ -37,7 +37,14 @@ export const createPaddedMoovAtom = ({
 				creationTime: Date.now(),
 				modificationTime: Date.now(),
 			}),
-			traks: trackInfo.map((track) => serializeTrack(track)),
+			traks: trackInfo.map((track) =>
+				serializeTrack({
+					timescale,
+					track: track.track,
+					durationInUnits,
+					samplePositions: track.samplePositions,
+				}),
+			),
 			udta: createUdta(
 				createMeta({
 					hdlr: createHdlr('mdir'),

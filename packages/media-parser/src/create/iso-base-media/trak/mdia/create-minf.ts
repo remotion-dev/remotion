@@ -1,5 +1,6 @@
 import {combineUint8Arrays} from '../../../../boxes/webm/make-header';
 import {addSize, stringsToUint8Array} from '../../primitives';
+import {createDinf} from './minf/create-dinf';
 
 export const createMinf = ({
 	vmhdAtom,
@@ -14,6 +15,8 @@ export const createMinf = ({
 			stringsToUint8Array('minf'),
 			// vmhd
 			vmhdAtom,
+			// dinf
+			createDinf(),
 			// stbl
 			stblAtom,
 		]),

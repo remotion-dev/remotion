@@ -6,6 +6,8 @@ export type AudioSample = {
 	trackId: number;
 	type: 'key' | 'delta';
 	duration: number | undefined;
+	cts: number;
+	dts: number;
 };
 
 export type VideoSample = {
@@ -14,8 +16,8 @@ export type VideoSample = {
 	duration: number | undefined;
 	trackId: number;
 	type: 'key' | 'delta';
-	cts: number | null;
-	dts: number | null;
+	cts: number;
+	dts: number;
 };
 
 export type OnAudioSample = (sample: AudioSample) => void | Promise<void>;
@@ -34,4 +36,6 @@ export type AudioOrVideoSample = {
 	type: 'key' | 'delta';
 	data: Uint8Array;
 	duration: number | undefined;
+	cts: number;
+	dts: number;
 };

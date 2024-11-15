@@ -13,9 +13,9 @@ export const createIsoBaseMedia = async ({
 	onMillisecondsProgress,
 }: MediaFnGeneratorInput): Promise<MediaFn> => {
 	const header = createIsoBaseMediaFtyp({
-		compatibleBrands: ['isom', 'avc1', 'mp42'],
-		majorBrand: 'mp42',
-		minorBrand: 0,
+		compatibleBrands: ['isom', 'iso2', 'avc1', 'mp42'],
+		majorBrand: 'isom',
+		minorBrand: 512,
 	});
 
 	const w = await writer.createContent();
@@ -126,8 +126,8 @@ export const createIsoBaseMedia = async ({
 			isKeyframe: chunk.type === 'key',
 			offset: position,
 			chunk: sampleChunkIndices[trackNumber],
-			cts: Math.round(chunk.timestamp / (1_000_000 / timescale)),
-			dts: Math.round(chunk.timestamp / (1_000_000 / timescale)),
+			cts: Math.round(chunk.cts / (1_000_000 / timescale)),
+			dts: Math.round(chunk.dts / (1_000_000 / timescale)),
 			duration: Math.round(chunk.duration / (1_000_000 / timescale)),
 			size: chunk.data.length,
 		});

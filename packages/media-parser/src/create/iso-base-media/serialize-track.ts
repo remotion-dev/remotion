@@ -21,12 +21,14 @@ export type IsoBaseMediaTrackData = {
 	track: MakeTrackVideo | MakeTrackAudio;
 	durationInUnits: number;
 	samplePositions: SamplePosition[];
+	timescale: number;
 };
 
 export const serializeTrack = ({
 	track,
 	durationInUnits,
 	samplePositions,
+	timescale,
 }: IsoBaseMediaTrackData) => {
 	if (track.codec !== 'h264' && track.codec !== 'aac') {
 		throw new Error('Currently only H.264 and AAC is supported');
@@ -42,20 +44,20 @@ export const serializeTrack = ({
 						duration: durationInUnits,
 						trackId: track.trackNumber,
 						volume: 1,
-						timescale: track.timescale,
+						timescale,
 					})
 				: track.type === 'video'
 					? createTkhdForVideo({
 							creationTime: Date.now(),
 							modificationTime: Date.now(),
 							duration: durationInUnits,
-							flags: TKHD_FLAGS.TRACK_ENABLED,
+							flags: TKHD_FLAGS.TRACK_ENABLED | TKHD_FLAGS.TRACK_IN_MOVIE,
 							height: track.height,
 							width: track.width,
 							matrix: IDENTITY_MATRIX,
 							trackId: track.trackNumber,
-							volume: 1,
-							timescale: track.timescale,
+							volume: 0,
+							timescale,
 						})
 					: new Uint8Array(stringsToUint8Array('wrong')),
 		mdia: createMdia({
