@@ -86,16 +86,14 @@ export const createIsoBaseMedia = async ({
 		isVideo: boolean;
 		timescale: number;
 	}) => {
-		if (!chunk.duration) {
-			throw new Error('Duration is required');
-		}
-
 		const position = w.getWrittenByteCount();
 		await w.write(chunk.data);
 		mdatSize += chunk.data.length;
 		onBytesProgress(w.getWrittenByteCount());
 
-		const newDuration = Math.round((chunk.timestamp + chunk.duration) / 1000);
+		const newDuration = Math.round(
+			(chunk.timestamp + (chunk.duration ?? 0)) / 1000,
+		);
 
 		updateDuration(newDuration);
 
@@ -128,7 +126,7 @@ export const createIsoBaseMedia = async ({
 			chunk: sampleChunkIndices[trackNumber],
 			cts: Math.round(chunk.cts / (1_000_000 / timescale)),
 			dts: Math.round(chunk.dts / (1_000_000 / timescale)),
-			duration: Math.round(chunk.duration / (1_000_000 / timescale)),
+			duration: Math.round((chunk.duration ?? 0) / (1_000_000 / timescale)),
 			size: chunk.data.length,
 		});
 	};

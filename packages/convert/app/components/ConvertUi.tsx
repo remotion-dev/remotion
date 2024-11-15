@@ -30,7 +30,7 @@ export default function ConvertUI({
 	readonly currentVideoCodec: MediaParserVideoCodec | null;
 	readonly tracks: TracksField | null;
 }) {
-	const [container, setContainer] = useState<ConvertMediaContainer>('webm');
+	const [container, setContainer] = useState<ConvertMediaContainer>('mp4');
 	const [videoConfigIndex, _setVideoConfigIndex] = useState<
 		Record<number, number>
 	>({});
