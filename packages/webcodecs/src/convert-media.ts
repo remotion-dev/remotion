@@ -161,6 +161,7 @@ export const convertMedia = async function <
 				onMediaStateUpdate?.(convertMediaState);
 			}
 		},
+		logLevel,
 	});
 
 	const onVideoTrack: OnVideoTrack = makeVideoTrackHandler({

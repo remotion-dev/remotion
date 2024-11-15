@@ -1,5 +1,6 @@
 import type {LogLevel, VideoSample} from '@remotion/media-parser';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
+import {Log} from './log';
 
 export type WebCodecsVideoDecoder = {
 	processSample: (videoSample: VideoSample) => Promise<void>;
@@ -105,9 +106,13 @@ export const createVideoDecoder = ({
 		},
 		waitForFinish: async () => {
 			await videoDecoder.flush();
+			Log.verbose(logLevel, 'Flushed video decoder');
 			await ioSynchronizer.waitForFinish();
+			Log.verbose(logLevel, 'IO snychro finished');
 			await outputQueue;
+			Log.verbose(logLevel, 'Output queue finished');
 			await inputQueue;
+			Log.verbose(logLevel, 'Input queue finished');
 		},
 		close,
 		flush: async () => {

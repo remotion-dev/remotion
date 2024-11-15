@@ -16,7 +16,8 @@ export const getVideoEncoderConfig = async ({
 	const config: VideoEncoderConfig = {
 		codec:
 			codec === 'h264'
-				? 'avc1.640020'
+				? // avc1.64001e must correspond with the CodecPrivate data string
+					'avc1.64001e'
 				: codec === 'vp9'
 					? 'vp09.00.10.08'
 					: codec,

@@ -1,3 +1,4 @@
+import type {LogLevel} from '../log';
 import type {AudioOrVideoSample} from '../webcodec-sample-types';
 import type {WriterInterface} from '../writers/writer';
 import type {MakeTrackAudio, MakeTrackVideo} from './make-track-info';
@@ -25,4 +26,5 @@ export type MediaFnGeneratorInput = {
 	writer: WriterInterface;
 	onBytesProgress: (totalBytes: number) => void;
 	onMillisecondsProgress: (totalMilliseconds: number) => void;
+	logLevel: LogLevel;
 };

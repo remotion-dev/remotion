@@ -1,5 +1,6 @@
 import {combineUint8Arrays} from '../../boxes/webm/make-header';
 import type {SamplePosition} from '../../get-sample-positions';
+import {Log} from '../../log';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 import type {MakeTrackAudio, MakeTrackVideo} from '../make-track-info';
 import type {MediaFn, MediaFnGeneratorInput} from '../media-fn';
@@ -11,6 +12,7 @@ export const createIsoBaseMedia = async ({
 	writer,
 	onBytesProgress,
 	onMillisecondsProgress,
+	logLevel,
 }: MediaFnGeneratorInput): Promise<MediaFn> => {
 	const header = createIsoBaseMediaFtyp({
 		compatibleBrands: ['isom', 'iso2', 'avc1', 'mp42'],
@@ -172,10 +174,16 @@ export const createIsoBaseMedia = async ({
 			waitForFinishPromises.push(promise);
 		},
 		async waitForFinish() {
+			Log.verbose(
+				logLevel,
+				'All write operations queued. Waiting for finish...',
+			);
 			await Promise.all(waitForFinishPromises.map((p) => p()));
+			Log.verbose(logLevel, 'Cleanup tasks executed');
 			await operationProm.current;
 			await updateMoov();
 			await updateMdatSize();
+			Log.verbose(logLevel, 'All write operations done. Waiting for finish...');
 			await w.waitForFinish();
 		},
 		updateDuration: (duration) => {

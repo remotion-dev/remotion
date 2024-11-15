@@ -9,6 +9,7 @@ import type {
 } from './convert-media';
 import {defaultOnVideoTrackHandler} from './default-on-video-track-handler';
 import Error from './error-cause';
+import {Log} from './log';
 import {onFrame} from './on-frame';
 import type {ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
 import {createVideoDecoder} from './video-decoder';
@@ -173,10 +174,16 @@ export const makeVideoTrackHandler =
 		});
 
 		state.addWaitForFinishPromise(async () => {
+			Log.verbose(logLevel, 'Waiting for video decoder to finish');
 			await videoDecoder.waitForFinish();
-			await videoEncoder.waitForFinish();
 			videoDecoder.close();
+			Log.verbose(
+				logLevel,
+				'Video decoder finished. Waiting for encoder to finish',
+			);
+			await videoEncoder.waitForFinish();
 			videoEncoder.close();
+			Log.verbose(logLevel, 'Encoder finished');
 		});
 
 		return async (chunk) => {
