@@ -36,6 +36,13 @@ export const createCttsBox = (samplePositions: SamplePosition[]) => {
 		lastOffset = offset;
 	}
 
+	const needsCtts =
+		entries.length > 0 && entries.some((e) => e.sampleOffset !== 0);
+
+	if (!needsCtts) {
+		return null;
+	}
+
 	return addSize(
 		combineUint8Arrays([
 			// type
