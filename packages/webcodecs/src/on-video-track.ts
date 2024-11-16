@@ -64,6 +64,10 @@ export const makeVideoTrackHandler =
 		}
 
 		if (videoOperation.type === 'copy') {
+			Log.verbose(
+				logLevel,
+				`Copying video track with codec ${track.codec} and timescale ${track.timescale}`,
+			);
 			const videoTrack = await state.addTrack({
 				type: 'video',
 				color: track.color,
@@ -120,6 +124,10 @@ export const makeVideoTrackHandler =
 			codecPrivate: null,
 			timescale: track.timescale,
 		});
+		Log.verbose(
+			logLevel,
+			`Created new video track with ID ${trackNumber}, codec ${videoOperation.videoCodec} and timescale ${track.timescale}`,
+		);
 
 		const videoEncoder = createVideoEncoder({
 			onChunk: async (chunk) => {
