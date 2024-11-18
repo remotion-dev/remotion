@@ -115,7 +115,7 @@ test('Should be able to parse a STSD audio box correctly', async () => {
 												audioObjectType: 2,
 												channelConfiguration: 2,
 												samplingFrequencyIndex: 4,
-												type: 'audio-specific-config',
+												type: 'mp4a-specific-config',
 												asBytes: new Uint8Array([18, 16]),
 											},
 											{
@@ -224,6 +224,7 @@ test('Should be able to parse a STSD video box correctly', async () => {
 			supportsContentRange: true,
 		},
 		signal: null,
+		logLevel: 'info',
 	});
 	expect(parsed.sample).toEqual({
 		size: 158,

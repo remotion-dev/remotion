@@ -19,6 +19,7 @@ test('Parse ESDS box', () => {
 			data: iter,
 			fileOffset: 8,
 			size: buf.length - 8,
+			logLevel: 'info',
 		}),
 	).toEqual({
 		type: 'esds-box',
@@ -63,6 +64,7 @@ test('Parse two ESDS', () => {
 			data: iter,
 			fileOffset: 8,
 			size: buf.length - 8,
+			logLevel: 'info',
 		}),
 	).toEqual({
 		type: 'esds-box',
@@ -85,7 +87,7 @@ test('Parse two ESDS', () => {
 						audioObjectType: 2,
 						channelConfiguration: 2,
 						samplingFrequencyIndex: 3,
-						type: 'audio-specific-config',
+						type: 'mp4a-specific-config',
 						asBytes: new Uint8Array([17, 144]),
 					},
 					{

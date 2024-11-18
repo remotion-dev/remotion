@@ -18,6 +18,7 @@ test('mp4a', () => {
 		sampleRate: 48000,
 		avgBitrate: 317370,
 		maxBitrate: 319999,
+		codecPrivate: new Uint8Array([17, 144]),
 	});
 	expect(result).toEqual(reference.slice(0, result.length + 7));
 });

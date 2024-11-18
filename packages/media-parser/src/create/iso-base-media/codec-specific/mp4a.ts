@@ -14,7 +14,72 @@ export const createMp4a = ({
 	channelCount,
 	avgBitrate,
 	maxBitrate,
+	codecPrivate,
 }: Mp4aData) => {
+	if (!codecPrivate) {
+		throw new Error('Need codecPrivate for mp4a');
+	}
+
+	const esdsAtom = addSize(
+		combineUint8Arrays([
+			// type
+			stringsToUint8Array('esds'),
+			// version
+			new Uint8Array([0]),
+			// flags
+			new Uint8Array([0, 0, 0]),
+			// tag = 'ES_DescrTag'
+			new Uint8Array([3]),
+			addLeading128Size(
+				combineUint8Arrays([
+					// ES_ID
+					numberTo16BitUIntOrInt(2),
+					// streamDependenceFlag, URL_Flag, OCRstreamFlag
+					new Uint8Array([0]),
+					// DecoderConfigDescrTag
+					new Uint8Array([4]),
+					addLeading128Size(
+						combineUint8Arrays([
+							// objectTypeIndication
+							new Uint8Array([0x40]),
+							// streamType, upStream
+							new Uint8Array([21]),
+							// reserved
+							new Uint8Array([0, 0, 0]),
+							// maxBitrate
+							numberTo32BitUIntOrInt(maxBitrate),
+							// avgBitrate
+							numberTo32BitUIntOrInt(avgBitrate),
+							// DecoderSpecificInfoTag
+							new Uint8Array([5]),
+							// codec private, for example [17, 144]
+							// audioObjectType = 2 = 'AAC LC'
+							// samplingFrequencyIndex = 3 = '48000 Hz'
+							// channelConfiguration = 2 = '2 channels'
+							/**
+							 * Byte 1 (17):  0001 0001
+															^^^^^ ^^^^
+															|     |
+															|     +-- Start of samplingFrequencyIndex (3)
+															+-- audioConfigType (2)
+
+								Byte 2 (144): 1001 0000
+															^^^^ ^^^^
+															|    |
+															|    +-- Remaining bits/padding
+															+-- channelConfiguration (2)
+								*/
+							addLeading128Size(codecPrivate),
+						]),
+					),
+					// SLConfigDescrTag
+					new Uint8Array([6]),
+					addLeading128Size(new Uint8Array([2])),
+				]),
+			),
+		]),
+	);
+
 	return addSize(
 		combineUint8Arrays([
 			// type
@@ -40,68 +105,7 @@ export const createMp4a = ({
 			// sample rate
 			setFixedPointSignedOrUnsigned1616Number(sampleRate),
 			// esds atom
-			addSize(
-				combineUint8Arrays([
-					// type
-					stringsToUint8Array('esds'),
-					// version
-					new Uint8Array([0]),
-					// flags
-					new Uint8Array([0, 0, 0]),
-					// tag = 'ES_DescrTag'
-					new Uint8Array([3]),
-					addLeading128Size(
-						combineUint8Arrays([
-							// ES_ID
-							numberTo16BitUIntOrInt(2),
-							// streamDependenceFlag, URL_Flag, OCRstreamFlag
-							new Uint8Array([0]),
-							// DecoderConfigDescrTag
-							new Uint8Array([4]),
-							addLeading128Size(
-								combineUint8Arrays([
-									// objectTypeIndication
-									new Uint8Array([0x40]),
-									// streamType, upStream
-									new Uint8Array([21]),
-									// reserved
-									new Uint8Array([0, 0, 0]),
-									// maxBitrate
-									numberTo32BitUIntOrInt(maxBitrate),
-									// avgBitrate
-									numberTo32BitUIntOrInt(avgBitrate),
-									// DecoderSpecificInfoTag
-									new Uint8Array([5]),
-									// TODO: This breaks when converting bigbuckbunny.mp4
-									// When copying, this should copy over private data
-									addLeading128Size(
-										// audioObjectType = 2 = 'AAC LC'
-										// samplingFrequencyIndex = 3 = '48000 Hz'
-										// channelConfiguration = 2 = '2 channels'
-										/**
-										 * Byte 1 (17):  0001 0001
-																		^^^^^ ^^^^
-																		|     |
-																		|     +-- Start of samplingFrequencyIndex (3)
-																		+-- audioConfigType (2)
-
-											Byte 2 (144): 1001 0000
-																		^^^^ ^^^^
-																		|    |
-																		|    +-- Remaining bits/padding
-																		+-- channelConfiguration (2)
-										 */
-										combineUint8Arrays([new Uint8Array([17, 144])]),
-									),
-								]),
-							),
-							// SLConfigDescrTag
-							new Uint8Array([6]),
-							addLeading128Size(new Uint8Array([2])),
-						]),
-					),
-				]),
-			),
+			esdsAtom,
 		]),
 	);
 };

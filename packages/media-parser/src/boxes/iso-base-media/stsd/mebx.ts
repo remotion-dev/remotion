@@ -37,6 +37,7 @@ export const parseMebx = async ({
 		options,
 		continueMdat: false,
 		signal,
+		logLevel: 'info',
 	});
 
 	if (children.status === 'incomplete') {

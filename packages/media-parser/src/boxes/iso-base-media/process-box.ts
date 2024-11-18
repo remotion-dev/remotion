@@ -1,5 +1,6 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import {hasTracks} from '../../get-tracks';
+import type {LogLevel} from '../../log';
 import type {
 	AnySegment,
 	IsoBaseMediaBox,
@@ -40,12 +41,14 @@ const getChildren = async ({
 	bytesRemainingInBox,
 	options,
 	signal,
+	logLevel,
 }: {
 	boxType: string;
 	iterator: BufferIterator;
 	bytesRemainingInBox: number;
 	options: ParserContext;
 	signal: AbortSignal | null;
+	logLevel: LogLevel;
 }) => {
 	const parseChildren =
 		boxType === 'mdia' ||
@@ -67,6 +70,7 @@ const getChildren = async ({
 			options,
 			continueMdat: false,
 			signal,
+			logLevel,
 		});
 
 		if (parsed.status === 'incomplete') {
@@ -134,12 +138,14 @@ export const processBox = async ({
 	parsedBoxes,
 	options,
 	signal,
+	logLevel,
 }: {
 	iterator: BufferIterator;
 	allowIncompleteBoxes: boolean;
 	parsedBoxes: AnySegment[];
 	options: ParserContext;
 	signal: AbortSignal | null;
+	logLevel: LogLevel;
 }): Promise<BoxAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
@@ -425,6 +431,7 @@ export const processBox = async ({
 			size: boxSize,
 			options,
 			signal,
+			logLevel,
 		});
 
 		return {
@@ -442,6 +449,7 @@ export const processBox = async ({
 			offsetAtStart: fileOffset,
 			options,
 			signal,
+			logLevel,
 		});
 		const transformedTrack = makeBaseMediaTrack(box);
 		if (transformedTrack) {
@@ -563,6 +571,7 @@ export const processBox = async ({
 			data: iterator,
 			size: boxSize,
 			fileOffset,
+			logLevel,
 		});
 
 		return {
@@ -605,6 +614,7 @@ export const processBox = async ({
 		bytesRemainingInBox,
 		options,
 		signal,
+		logLevel,
 	});
 
 	return {
@@ -629,6 +639,7 @@ export const parseBoxes = async ({
 	options,
 	continueMdat,
 	signal,
+	logLevel,
 }: {
 	iterator: BufferIterator;
 	maxBytes: number;
@@ -637,6 +648,7 @@ export const parseBoxes = async ({
 	options: ParserContext;
 	continueMdat: false | PartialMdatBox;
 	signal: AbortSignal | null;
+	logLevel: LogLevel;
 }): Promise<ParseResult> => {
 	let boxes: IsoBaseMediaBox[] = initialBoxes;
 	const initialOffset = iterator.counter.getOffset();
@@ -661,6 +673,7 @@ export const parseBoxes = async ({
 					parsedBoxes: initialBoxes,
 					options,
 					signal,
+					logLevel,
 				});
 
 		if (result.type === 'incomplete') {
@@ -680,6 +693,7 @@ export const parseBoxes = async ({
 						options,
 						continueMdat: false,
 						signal,
+						logLevel,
 					});
 				},
 				skipTo: null,
@@ -700,6 +714,7 @@ export const parseBoxes = async ({
 							options,
 							continueMdat: result,
 							signal,
+							logLevel,
 						}),
 					);
 				},
@@ -739,6 +754,7 @@ export const parseBoxes = async ({
 						options,
 						continueMdat: false,
 						signal,
+						logLevel,
 					});
 				},
 				skipTo: result.skipTo,
@@ -758,6 +774,7 @@ export const parseBoxes = async ({
 						options,
 						continueMdat: false,
 						signal,
+						logLevel,
 					});
 				},
 				skipTo: null,
@@ -792,6 +809,7 @@ export const parseBoxes = async ({
 					options,
 					continueMdat: false,
 					signal,
+					logLevel,
 				});
 			},
 			skipTo: skipped ? mdatState.fileOffset : null,

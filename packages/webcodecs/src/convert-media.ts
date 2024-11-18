@@ -190,6 +190,7 @@ export const convertMedia = async function <
 	});
 
 	parseMedia({
+		logLevel,
 		src,
 		onVideoTrack,
 		onAudioTrack,

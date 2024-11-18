@@ -1,6 +1,7 @@
 import {
 	getAudioCodecFromTrack,
 	getAudioCodecStringFromTrak,
+	getCodecPrivateFromTrak,
 	getNumberOfChannelsFromTrak,
 	getSampleRate,
 } from '../../get-audio-codec';
@@ -64,7 +65,7 @@ export const makeBaseMediaTrack = (
 			sampleRate,
 			description,
 			trakBox,
-			codecPrivate: null,
+			codecPrivate: getCodecPrivateFromTrak(trakBox),
 			codecWithoutConfig: getAudioCodecFromTrack(trakBox),
 		};
 	}

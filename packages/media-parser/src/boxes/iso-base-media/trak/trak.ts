@@ -1,4 +1,5 @@
 import type {BufferIterator} from '../../../buffer-iterator';
+import type {LogLevel} from '../../../log';
 import type {AnySegment} from '../../../parse-result';
 import type {ParserContext} from '../../../parser-context';
 import type {BaseBox} from '../base-type';
@@ -15,12 +16,14 @@ export const parseTrak = async ({
 	offsetAtStart,
 	options,
 	signal,
+	logLevel,
 }: {
 	data: BufferIterator;
 	size: number;
 	offsetAtStart: number;
 	options: ParserContext;
 	signal: AbortSignal | null;
+	logLevel: LogLevel;
 }): Promise<TrakBox> => {
 	const children = await parseBoxes({
 		iterator: data,
@@ -30,6 +33,7 @@ export const parseTrak = async ({
 		options,
 		continueMdat: false,
 		signal,
+		logLevel,
 	});
 
 	if (children.status === 'incomplete') {

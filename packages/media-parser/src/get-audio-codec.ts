@@ -74,11 +74,11 @@ const getCodecSpecificatorFromEsdsBox = ({
 	}
 
 	const audioSpecificConfig = descriptor.decoderSpecificConfigs.find((d) => {
-		return d.type === 'audio-specific-config' ? d : null;
+		return d.type === 'mp4a-specific-config' ? d : null;
 	});
 	if (
 		!audioSpecificConfig ||
-		audioSpecificConfig.type !== 'audio-specific-config'
+		audioSpecificConfig.type !== 'mp4a-specific-config'
 	) {
 		throw new Error('No audio-specific-config');
 	}
@@ -95,6 +95,39 @@ type AudioCodecInfo = {
 	primarySpecificator: number | null;
 	secondarySpecificator: number | null;
 	description: Uint8Array | undefined;
+};
+
+export const getCodecPrivateFromTrak = (trakBox: TrakBox) => {
+	const stsdBox = getStsdBox(trakBox);
+	if (!stsdBox) {
+		return null;
+	}
+
+	const audioSample = stsdBox.samples.find((s) => s.type === 'audio');
+	if (!audioSample || audioSample.type !== 'audio') {
+		return null;
+	}
+
+	const esds = audioSample.children.find((b) => b.type === 'esds-box');
+	if (!esds || esds.type !== 'esds-box') {
+		return null;
+	}
+
+	const decoderConfigDescriptor = esds.descriptors.find(
+		(d) => d.type === 'decoder-config-descriptor',
+	);
+	if (!decoderConfigDescriptor) {
+		return null;
+	}
+
+	const mp4a = decoderConfigDescriptor.decoderSpecificConfigs.find(
+		(d) => d.type === 'mp4a-specific-config',
+	);
+	if (!mp4a) {
+		return null;
+	}
+
+	return mp4a.asBytes;
 };
 
 const onSample = (

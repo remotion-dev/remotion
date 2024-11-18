@@ -22,6 +22,7 @@ export type Mp4aData = {
 	channelCount: number;
 	maxBitrate: number;
 	avgBitrate: number;
+	codecPrivate: Uint8Array | null;
 };
 
 export type CodecSpecificData = Avc1Data | Mp4aData;
@@ -47,10 +48,11 @@ export const createCodecSpecificData = (
 		return createMp4a({
 			type: 'mp4a-data',
 			// TODO: Investigate which values to put in
-			avgBitrate: 317370,
-			maxBitrate: 319999,
+			avgBitrate: 128810,
+			maxBitrate: 128810,
 			channelCount: track.numberOfChannels,
 			sampleRate: track.sampleRate,
+			codecPrivate: track.codecPrivate,
 		});
 	}
 

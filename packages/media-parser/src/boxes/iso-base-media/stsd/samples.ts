@@ -1,4 +1,5 @@
 import type {BufferIterator} from '../../../buffer-iterator';
+import type {LogLevel} from '../../../log';
 import type {AnySegment} from '../../../parse-result';
 import type {ParserContext} from '../../../parser-context';
 import {parseBoxes} from '../process-box';
@@ -121,10 +122,12 @@ export const processSample = async ({
 	iterator,
 	options,
 	signal,
+	logLevel,
 }: {
 	iterator: BufferIterator;
 	options: ParserContext;
 	signal: AbortSignal | null;
+	logLevel: LogLevel;
 }): Promise<SampleAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
@@ -183,6 +186,7 @@ export const processSample = async ({
 				options,
 				continueMdat: false,
 				signal,
+				logLevel,
 			});
 
 			if (children.status === 'incomplete') {
@@ -237,6 +241,7 @@ export const processSample = async ({
 				options,
 				continueMdat: false,
 				signal,
+				logLevel,
 			});
 
 			if (children.status === 'incomplete') {
@@ -294,6 +299,7 @@ export const processSample = async ({
 				options,
 				continueMdat: false,
 				signal,
+				logLevel,
 			});
 
 			if (children.status === 'incomplete') {
@@ -356,6 +362,7 @@ export const processSample = async ({
 						options,
 						continueMdat: false,
 						signal,
+						logLevel,
 					})
 				: (iterator.discard(bytesRemainingInBox),
 					{status: 'done', segments: []});
@@ -398,11 +405,13 @@ export const parseSamples = async ({
 	maxBytes,
 	options,
 	signal,
+	logLevel,
 }: {
 	iterator: BufferIterator;
 	maxBytes: number;
 	options: ParserContext;
 	signal: AbortSignal | null;
+	logLevel: LogLevel;
 }): Promise<Sample[]> => {
 	const samples: Sample[] = [];
 	const initialOffset = iterator.counter.getOffset();
@@ -415,6 +424,7 @@ export const parseSamples = async ({
 			iterator,
 			options,
 			signal,
+			logLevel,
 		});
 
 		if (sample) {

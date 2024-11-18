@@ -1,5 +1,6 @@
 import {
 	Dimensions,
+	LogLevel,
 	MediaParserAudioCodec,
 	MediaParserVideoCodec,
 	parseMedia,
@@ -17,8 +18,10 @@ export const useProbe = ({
 	onAudioCodec,
 	onVideoCodec,
 	onTracks,
+	logLevel,
 }: {
 	src: Source;
+	logLevel: LogLevel;
 	onVideoThumbnail: (videoFrame: VideoFrame) => void;
 	onAudioCodec: (codec: MediaParserAudioCodec | null) => void;
 	onVideoCodec: (codec: MediaParserVideoCodec | null) => void;
@@ -71,6 +74,7 @@ export const useProbe = ({
 		};
 
 		parseMedia({
+			logLevel,
 			src: src.type === 'file' ? src.file : src.url,
 			fields: {
 				dimensions: true,
