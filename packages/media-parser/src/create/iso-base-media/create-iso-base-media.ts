@@ -91,6 +91,8 @@ export const createIsoBaseMedia = async ({
 		});
 	};
 
+	let lastChunkWasVideo = false;
+
 	const addSample = async ({
 		chunk,
 		trackNumber,
@@ -105,6 +107,7 @@ export const createIsoBaseMedia = async ({
 		codecPrivate: Uint8Array | null;
 	}) => {
 		const position = w.getWrittenByteCount();
+
 		await w.write(chunk.data);
 		mdatSize += chunk.data.length;
 		onBytesProgress(w.getWrittenByteCount());
@@ -130,13 +133,13 @@ export const createIsoBaseMedia = async ({
 		// For video, make a new chunk if it's a keyframe
 		if (isVideo && chunk.type === 'key') {
 			sampleChunkIndices[trackNumber]++;
+		} // For audio, make a new chunk every 22 samples, that's how bbb.mp4 is encoded
+		else if (!isVideo && samplePositions[trackNumber].length % 22 === 0) {
+			sampleChunkIndices[trackNumber]++;
 		}
-
-		// For audio, make a new chunk every 22 samples, that's how bbb.mp4 is encoded
-		if (!isVideo) {
-			if (samplePositions[trackNumber].length % 22 === 0) {
-				sampleChunkIndices[trackNumber]++;
-			}
+		// Need to create a new chunk if the last chunk was a different type
+		else if (lastChunkWasVideo !== isVideo) {
+			sampleChunkIndices[trackNumber]++;
 		}
 
 		// media parser and EncodedVideoChunk returns timestamps in microseconds
@@ -151,6 +154,7 @@ export const createIsoBaseMedia = async ({
 			duration: Math.round((chunk.duration ?? 0) / (1_000_000 / timescale)),
 			size: chunk.data.length,
 		};
+		lastChunkWasVideo = isVideo;
 
 		samplePositions[trackNumber].push(samplePositionToAdd);
 	};

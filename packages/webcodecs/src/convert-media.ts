@@ -18,6 +18,7 @@ import {
 	parseMedia,
 	type OnVideoTrack,
 } from '@remotion/media-parser';
+
 import {autoSelectWriter} from './auto-select-writer';
 import {calculateProgress} from './calculate-progress';
 import type {ConvertMediaAudioCodec, ConvertMediaVideoCodec} from './codec-id';

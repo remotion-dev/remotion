@@ -71,7 +71,7 @@ export const makeAudioTrackHandler =
 					trackNumber: addedTrack.trackNumber,
 					isVideo: false,
 					timescale: track.timescale,
-					codecPrivate: null,
+					codecPrivate: track.codecPrivate,
 				});
 				convertMediaState.encodedAudioFrames++;
 				onMediaStateUpdate?.({...convertMediaState});

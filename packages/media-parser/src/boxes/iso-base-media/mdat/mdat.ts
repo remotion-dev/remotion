@@ -140,11 +140,11 @@ export const parseMdat = async ({
 			await options.parserState.onAudioSample(samplesWithIndex.track.trackId, {
 				data: bytes,
 				timestamp,
-				trackId: samplesWithIndex.track.trackId,
-				type: samplesWithIndex.samplePosition.isKeyframe ? 'key' : 'delta',
 				duration,
 				cts,
 				dts,
+				trackId: samplesWithIndex.track.trackId,
+				type: samplesWithIndex.samplePosition.isKeyframe ? 'key' : 'delta',
 			});
 		}
 

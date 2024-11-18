@@ -38,7 +38,7 @@ export const serializeTrack = ({
 			track.codec === 'aac'
 				? createTkhdForAudio({
 						creationTime: Date.now(),
-						flags: TKHD_FLAGS.TRACK_ENABLED,
+						flags: TKHD_FLAGS.TRACK_ENABLED | TKHD_FLAGS.TRACK_IN_MOVIE,
 						modificationTime: Date.now(),
 						duration: durationInUnits,
 						trackId: track.trackNumber,
