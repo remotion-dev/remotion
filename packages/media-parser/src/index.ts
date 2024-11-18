@@ -26,12 +26,10 @@ export type {
 export {parseMedia} from './parse-media';
 export {
 	AudioOrVideoSample,
-	AudioSample,
 	OnAudioSample,
 	OnAudioTrack,
 	OnVideoSample,
 	OnVideoTrack,
-	VideoSample,
 } from './webcodec-sample-types';
 
 export type {MediaFn} from './create/media-fn';

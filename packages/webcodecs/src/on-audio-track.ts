@@ -117,7 +117,7 @@ export const makeAudioTrackHandler =
 		const audioEncoder = createAudioEncoder({
 			onChunk: async (chunk) => {
 				await state.addSample({
-					chunk: convertEncodedChunk(chunk),
+					chunk: convertEncodedChunk(chunk, trackNumber),
 					trackNumber,
 					isVideo: false,
 					timescale: track.timescale,

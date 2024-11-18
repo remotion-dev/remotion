@@ -26,6 +26,7 @@ export const combineUint8Arrays = (arrays: Uint8Array[]) => {
 
 export const convertEncodedChunk = (
 	chunk: EncodedAudioChunk | EncodedVideoChunk,
+	trackId: number,
 ): AudioOrVideoSample => {
 	const arr = new Uint8Array(chunk.byteLength);
 	chunk.copyTo(arr);
@@ -37,5 +38,6 @@ export const convertEncodedChunk = (
 		type: chunk.type,
 		cts: chunk.timestamp,
 		dts: chunk.timestamp,
+		trackId,
 	};
 };

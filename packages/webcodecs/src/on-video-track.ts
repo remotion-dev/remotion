@@ -134,7 +134,7 @@ export const makeVideoTrackHandler =
 		const videoEncoder = createVideoEncoder({
 			onChunk: async (chunk, metadata) => {
 				await state.addSample({
-					chunk: convertEncodedChunk(chunk),
+					chunk: convertEncodedChunk(chunk, trackNumber),
 					trackNumber,
 					isVideo: true,
 					timescale: track.timescale,

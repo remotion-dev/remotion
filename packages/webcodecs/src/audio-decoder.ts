@@ -1,8 +1,8 @@
-import type {AudioSample, LogLevel} from '@remotion/media-parser';
+import type {AudioOrVideoSample, LogLevel} from '@remotion/media-parser';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 
 export type WebCodecsAudioDecoder = {
-	processSample: (audioSample: AudioSample) => Promise<void>;
+	processSample: (audioSample: AudioOrVideoSample) => Promise<void>;
 	waitForFinish: () => Promise<void>;
 	close: () => void;
 	flush: () => Promise<void>;
@@ -79,7 +79,7 @@ export const createAudioDecoder = ({
 
 	audioDecoder.configure(config);
 
-	const processSample = async (audioSample: AudioSample) => {
+	const processSample = async (audioSample: AudioOrVideoSample) => {
 		if (audioDecoder.state === 'closed') {
 			return;
 		}
@@ -96,7 +96,7 @@ export const createAudioDecoder = ({
 	let queue = Promise.resolve();
 
 	return {
-		processSample: (sample: AudioSample) => {
+		processSample: (sample: AudioOrVideoSample) => {
 			queue = queue.then(() => processSample(sample));
 			return queue;
 		},

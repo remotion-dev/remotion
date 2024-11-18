@@ -1,6 +1,6 @@
 import {getArrayBufferIterator} from '../../buffer-iterator';
 import type {ParserContext} from '../../parser-context';
-import type {AudioSample, VideoSample} from '../../webcodec-sample-types';
+import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 import type {BlockSegment, SimpleBlockSegment} from './segments/all-segments';
 import {matroskaElements} from './segments/all-segments';
 import {parseBlockFlags} from './segments/block-simple-block-flags';
@@ -8,15 +8,15 @@ import {parseBlockFlags} from './segments/block-simple-block-flags';
 type SampleResult =
 	| {
 			type: 'video-sample';
-			videoSample: VideoSample;
+			videoSample: AudioOrVideoSample;
 	  }
 	| {
 			type: 'audio-sample';
-			audioSample: AudioSample;
+			audioSample: AudioOrVideoSample;
 	  }
 	| {
 			type: 'partial-video-sample';
-			partialVideoSample: Omit<VideoSample, 'type'>;
+			partialVideoSample: Omit<AudioOrVideoSample, 'type'>;
 	  }
 	| {
 			type: 'no-sample';
@@ -71,7 +71,7 @@ export const getSampleFromBlock = (
 	const remainingNow = ebml.value.length - iterator.counter.getOffset();
 
 	if (codec.startsWith('V_')) {
-		const partialVideoSample: Omit<VideoSample, 'type'> = {
+		const partialVideoSample: Omit<AudioOrVideoSample, 'type'> = {
 			data: iterator.getSlice(remainingNow),
 			cts: timecodeInMicroseconds,
 			dts: timecodeInMicroseconds,
@@ -89,7 +89,7 @@ export const getSampleFromBlock = (
 			};
 		}
 
-		const sample: VideoSample = {
+		const sample: AudioOrVideoSample = {
 			...partialVideoSample,
 			type: keyframe ? 'key' : 'delta',
 		};
@@ -103,7 +103,7 @@ export const getSampleFromBlock = (
 	}
 
 	if (codec.startsWith('A_')) {
-		const audioSample: AudioSample = {
+		const audioSample: AudioOrVideoSample = {
 			data: iterator.getSlice(remainingNow),
 			trackId: trackNumber,
 			timestamp: timecodeInMicroseconds,
