@@ -18,5 +18,18 @@ export const getAvailableVideoCodecs = (
 };
 
 const availableAudioCodecs = ['opus', 'aac'] as const;
-export const getAvailableAudioCodecs = () => availableAudioCodecs;
+export const getAvailableAudioCodecs = (
+	container: ConvertMediaContainer,
+): ConvertMediaAudioCodec[] => {
+	if (container === 'mp4') {
+		return ['aac'];
+	}
+
+	if (container === 'webm') {
+		return ['opus'];
+	}
+
+	throw new Error(`Unsupported container: ${container satisfies never}`);
+};
+
 export type ConvertMediaAudioCodec = (typeof availableAudioCodecs)[number];

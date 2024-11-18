@@ -109,12 +109,19 @@ export const makeAudioTrackHandler =
 			return null;
 		}
 
+		// TODO: This is weird 😵‍💫
+		// Chrome completely ignores the sample rate and uses it's own
+		// We cannot determine it here because it depends on the system
+		// sample rate. Unhardcode then declare it later once we know.
+		const codecPrivate =
+			audioOperation.audioCodec === 'aac' ? new Uint8Array([17, 144]) : null;
+
 		const {trackNumber} = await state.addTrack({
 			type: 'audio',
 			codec: audioOperation.audioCodec,
 			numberOfChannels: track.numberOfChannels,
 			sampleRate: track.sampleRate,
-			codecPrivate: track.codecPrivate,
+			codecPrivate,
 			timescale: track.timescale,
 		});
 
@@ -125,8 +132,7 @@ export const makeAudioTrackHandler =
 					trackNumber,
 					isVideo: false,
 					timescale: track.timescale,
-					// TODO: Not sure if needed for audio
-					codecPrivate: null,
+					codecPrivate,
 				});
 				convertMediaState.encodedAudioFrames++;
 				onMediaStateUpdate?.({...convertMediaState});

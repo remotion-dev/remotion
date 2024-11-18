@@ -72,11 +72,11 @@ export const createAudioEncoder = ({
 
 	signal.addEventListener('abort', onAbort);
 
-	if (codec !== 'opus') {
+	if (codec !== 'opus' && codec !== 'aac') {
 		throw new Error('Only `codec: "opus"` is supported currently');
 	}
 
-	encoder.configure(audioEncoderConfig);
+	const wantedSampleRate = audioEncoderConfig.sampleRate;
 
 	const encodeFrame = async (audioData: AudioData) => {
 		if (encoder.state === 'closed') {
@@ -88,6 +88,13 @@ export const createAudioEncoder = ({
 		// @ts-expect-error - can have changed in the meanwhile
 		if (encoder.state === 'closed') {
 			return;
+		}
+
+		if (audioData.sampleRate !== wantedSampleRate) {
+			encoder.configure({
+				...audioEncoderConfig,
+				sampleRate: audioData.sampleRate,
+			});
 		}
 
 		encoder.encode(audioData);

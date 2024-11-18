@@ -71,7 +71,7 @@ export const getSupportedConfigs = async ({
 		});
 	}
 
-	const availableAudioCodecs = getAvailableAudioCodecs();
+	const availableAudioCodecs = getAvailableAudioCodecs(container);
 	const audioTrackOptions: AudioTrackOption[] = [];
 
 	for (const track of tracks.audioTracks) {
