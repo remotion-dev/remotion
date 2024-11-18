@@ -72,6 +72,8 @@ export const createMp4a = ({
 									numberTo32BitUIntOrInt(avgBitrate),
 									// DecoderSpecificInfoTag
 									new Uint8Array([5]),
+									// TODO: This breaks when converting bigbuckbunny.mp4
+									// When copying, this should copy over private data
 									addLeading128Size(
 										// audioObjectType = 2 = 'AAC LC'
 										// samplingFrequencyIndex = 3 = '48000 Hz'

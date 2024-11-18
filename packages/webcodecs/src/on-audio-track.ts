@@ -8,6 +8,7 @@ import {convertEncodedChunk} from './convert-encoded-chunk';
 import type {ConvertMediaContainer, ConvertMediaState} from './convert-media';
 import {defaultOnAudioTrackHandler} from './default-on-audio-track-handler';
 import Error from './error-cause';
+import {Log} from './log';
 import type {ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
 
 export const makeAudioTrackHandler =
@@ -59,6 +60,10 @@ export const makeAudioTrackHandler =
 				codecPrivate: track.codecPrivate,
 				timescale: track.timescale,
 			});
+			Log.verbose(
+				logLevel,
+				`Copying audio track ${track.trackId} as track ${addedTrack.trackNumber}. Timescale = ${track.timescale}, codec = ${track.codecWithoutConfig} (${track.codec}) `,
+			);
 
 			return async (audioSample) => {
 				await state.addSample({
@@ -66,7 +71,6 @@ export const makeAudioTrackHandler =
 					trackNumber: addedTrack.trackNumber,
 					isVideo: false,
 					timescale: track.timescale,
-					// TODO: Not sure if needed for audio, maybe for mp4a
 					codecPrivate: null,
 				});
 				convertMediaState.encodedAudioFrames++;
