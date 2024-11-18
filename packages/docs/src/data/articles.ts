@@ -1680,6 +1680,13 @@ export const articles = [
 		crumb: '@remotion/layout-utils',
 	},
 	{
+		id: 'layout-utils/debug',
+		title: 'Debugging font measurement bugs',
+		relativePath: 'docs/layout-utils/debug.mdx',
+		compId: 'articles-docs-layout-utils-debug',
+		crumb: '@remotion/layout-utils',
+	},
+	{
 		id: 'layout-utils/fill-text-box',
 		title: 'fillTextBox()',
 		relativePath: 'docs/layout-utils/fill-text-box.mdx',

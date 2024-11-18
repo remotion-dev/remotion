@@ -522,6 +522,7 @@ module.exports = {
 				'layout-utils/measure-text',
 				'layout-utils/fill-text-box',
 				'layout-utils/fit-text',
+				'layout-utils/debug',
 			],
 		},
 		{
