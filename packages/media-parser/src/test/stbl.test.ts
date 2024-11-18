@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {createAvc1Data} from '../create/iso-base-media/codec-specific/avc1';
 import {exampleVideoSamplePositions} from '../create/iso-base-media/example-stts';
 import {createStbl} from '../create/iso-base-media/trak/mdia/minf/create-stbl';
 import {createAvccBox} from '../create/iso-base-media/trak/mdia/minf/stbl/stsd/create-avcc';
@@ -116,7 +117,7 @@ test('Create a full stbl atom', () => {
 	expect(
 		createStbl({
 			samplePositions: exampleVideoSamplePositions,
-			codecSpecificData: {
+			codecSpecificData: createAvc1Data({
 				pasp: createPasp(1, 1),
 				avccBox: createAvccBox(privateData),
 				width: 640,
@@ -126,7 +127,7 @@ test('Create a full stbl atom', () => {
 				compressorName: '',
 				depth: 24,
 				type: 'avc1-data',
-			},
+			}),
 			isVideo: true,
 		}),
 	).toEqual(sample);

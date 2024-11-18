@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {createMp4a} from '../create/iso-base-media/trak/mdia/minf/stbl/stsd/create-avc1';
+import {createMp4a} from '../create/iso-base-media/codec-specific/mp4a';
 
 const reference = new Uint8Array([
 	0x00, 0x00, 0x00, 87, 0x6d, 0x70, 0x34, 0x61, 0x00, 0x00, 0x00, 0x00, 0x00,

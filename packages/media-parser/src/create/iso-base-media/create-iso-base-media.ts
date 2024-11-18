@@ -77,21 +77,41 @@ export const createIsoBaseMedia = async ({
 		onMillisecondsProgress(newDuration);
 	};
 
+	const addCodecPrivateToTrack = ({
+		trackNumber,
+		codecPrivate,
+	}: {
+		trackNumber: number;
+		codecPrivate: Uint8Array;
+	}) => {
+		currentTracks.forEach((track) => {
+			if (track.trackNumber === trackNumber) {
+				track.codecPrivate = codecPrivate;
+			}
+		});
+	};
+
 	const addSample = async ({
 		chunk,
 		trackNumber,
 		isVideo,
 		timescale,
+		codecPrivate,
 	}: {
 		chunk: AudioOrVideoSample;
 		trackNumber: number;
 		isVideo: boolean;
 		timescale: number;
+		codecPrivate: Uint8Array | null;
 	}) => {
 		const position = w.getWrittenByteCount();
 		await w.write(chunk.data);
 		mdatSize += chunk.data.length;
 		onBytesProgress(w.getWrittenByteCount());
+
+		if (codecPrivate) {
+			addCodecPrivateToTrack({trackNumber, codecPrivate});
+		}
 
 		const newDuration = Math.round(
 			(chunk.timestamp + (chunk.duration ?? 0)) / 1000,
@@ -157,9 +177,15 @@ export const createIsoBaseMedia = async ({
 		remove: async () => {
 			await w.remove();
 		},
-		addSample: ({chunk, trackNumber, isVideo, timescale}) => {
+		addSample: ({chunk, trackNumber, isVideo, timescale, codecPrivate}) => {
 			operationProm.current = operationProm.current.then(() => {
-				return addSample({chunk, trackNumber, isVideo, timescale});
+				return addSample({
+					chunk,
+					trackNumber,
+					isVideo,
+					timescale,
+					codecPrivate,
+				});
 			});
 			return operationProm.current;
 		},

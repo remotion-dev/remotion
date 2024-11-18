@@ -8,7 +8,6 @@ import {createStsc} from './stbl/create-stsc';
 import {createStss} from './stbl/create-stss';
 import {createStsz} from './stbl/create-stsz';
 import {createSttsAtom} from './stbl/create-stts';
-import type {CodecSpecificData} from './stbl/stsd/create-avc1';
 import {createStsdData} from './stbl/stsd/create-avc1';
 
 export const createStbl = ({
@@ -17,7 +16,7 @@ export const createStbl = ({
 	isVideo,
 }: {
 	samplePositions: SamplePosition[];
-	codecSpecificData: CodecSpecificData;
+	codecSpecificData: Uint8Array;
 	isVideo: boolean;
 }) => {
 	return addSize(

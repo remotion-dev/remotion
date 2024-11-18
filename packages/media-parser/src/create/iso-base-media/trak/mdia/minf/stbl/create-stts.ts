@@ -21,7 +21,7 @@ const makeEntry = (entry: Entry) => {
 export const createSttsAtom = (samplePositions: SamplePosition[]) => {
 	let lastDuration: null | number = null;
 	const durations = samplePositions.map((_, i, a) => {
-		// TODO: Why 0?
+		// TODO: Why does 0 appear here?
 		if (a[i].duration === undefined || a[i].duration === 0) {
 			return (a[i + 1]?.dts ?? a[i].dts) - a[i].dts;
 		}

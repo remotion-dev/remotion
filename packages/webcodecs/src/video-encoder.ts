@@ -15,7 +15,10 @@ export const createVideoEncoder = ({
 	config,
 	logLevel,
 }: {
-	onChunk: (chunk: EncodedVideoChunk) => Promise<void>;
+	onChunk: (
+		chunk: EncodedVideoChunk,
+		metadata: EncodedVideoChunkMetadata | null,
+	) => Promise<void>;
 	onError: (error: DOMException) => void;
 	signal: AbortSignal;
 	config: VideoEncoderConfig;
@@ -33,7 +36,7 @@ export const createVideoEncoder = ({
 		error(error) {
 			onError(error);
 		},
-		output(chunk) {
+		output(chunk, metadata) {
 			if (chunk.duration === null) {
 				throw new Error('Duration is null');
 			}
@@ -48,7 +51,7 @@ export const createVideoEncoder = ({
 						return;
 					}
 
-					return onChunk(chunk);
+					return onChunk(chunk, metadata ?? null);
 				})
 				.then(() => {
 					ioSynchronizer.onProcessed();

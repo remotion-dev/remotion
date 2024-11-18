@@ -66,6 +66,8 @@ export const makeAudioTrackHandler =
 					trackNumber: addedTrack.trackNumber,
 					isVideo: false,
 					timescale: track.timescale,
+					// TODO: Not sure if needed for audio, maybe for mp4a
+					codecPrivate: null,
 				});
 				convertMediaState.encodedAudioFrames++;
 				onMediaStateUpdate?.({...convertMediaState});
@@ -119,6 +121,8 @@ export const makeAudioTrackHandler =
 					trackNumber,
 					isVideo: false,
 					timescale: track.timescale,
+					// TODO: Not sure if needed for audio
+					codecPrivate: null,
 				});
 				convertMediaState.encodedAudioFrames++;
 				onMediaStateUpdate?.({...convertMediaState});

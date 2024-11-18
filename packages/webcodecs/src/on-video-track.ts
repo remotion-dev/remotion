@@ -1,4 +1,5 @@
 import type {LogLevel, MediaFn, OnVideoTrack} from '@remotion/media-parser';
+import {arrayBufferToUint8Array} from './arraybuffer-to-uint8-array';
 import type {ConvertMediaVideoCodec} from './codec-id';
 import {convertEncodedChunk} from './convert-encoded-chunk';
 import type {
@@ -83,6 +84,7 @@ export const makeVideoTrackHandler =
 					trackNumber: videoTrack.trackNumber,
 					isVideo: true,
 					timescale: track.timescale,
+					codecPrivate: track.codecPrivate,
 				});
 				convertMediaState.decodedVideoFrames++;
 				onMediaStateUpdate?.({...convertMediaState});
@@ -130,12 +132,16 @@ export const makeVideoTrackHandler =
 		);
 
 		const videoEncoder = createVideoEncoder({
-			onChunk: async (chunk) => {
+			onChunk: async (chunk, metadata) => {
 				await state.addSample({
 					chunk: convertEncodedChunk(chunk),
 					trackNumber,
 					isVideo: true,
 					timescale: track.timescale,
+					codecPrivate: arrayBufferToUint8Array(
+						(metadata?.decoderConfig?.description ??
+							null) as ArrayBuffer | null,
+					),
 				});
 				convertMediaState.encodedVideoFrames++;
 				onMediaStateUpdate?.({...convertMediaState});

@@ -11,6 +11,7 @@ export type MediaFn = {
 		trackNumber: number;
 		isVideo: boolean;
 		timescale: number;
+		codecPrivate: Uint8Array | null;
 	}) => Promise<void>;
 	updateDuration: (duration: number) => Promise<void>;
 	addTrack: (

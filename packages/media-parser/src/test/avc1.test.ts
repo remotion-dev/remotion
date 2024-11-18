@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {createAvc1Data} from '../create/iso-base-media/trak/mdia/minf/stbl/stsd/create-avc1';
+import {createAvc1Data} from '../create/iso-base-media/codec-specific/avc1';
 import {createAvccBox} from '../create/iso-base-media/trak/mdia/minf/stbl/stsd/create-avcc';
 import {createPasp} from '../create/iso-base-media/trak/mdia/minf/stbl/stsd/create-pasp';
 
