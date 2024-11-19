@@ -1,8 +1,8 @@
 ---
 image: /generated/articles-docs-video-vs-offthreadvideo.png
 id: video-vs-offthreadvideo
-title: "<Video> vs. <OffthreadVideo>"
-crumb: "Comparison"
+title: '<OffthreadVideo> vs. <Video>'
+crumb: 'Comparison'
 ---
 
 We offer two components for including other videos in your video: [`<Video />`](/docs/video) and [`<OffthreadVideo />`](/docs/offthreadvideo).  
@@ -40,7 +40,7 @@ Is based on the native HTML5 `<video>` element and therefore behaves similar to 
 **Pros**
 
 ✅ &nbsp; Can render a video without having it to be downloaded fully (if you don't pass the [`muted`](/docs/video/#muted) prop, the video will still be downloaded fully to extract its audio).  
-✅ &nbsp; You can attach a ref to the `<video>` element.  
+✅ &nbsp; You can attach a ref to the `<video>` element.
 
 **Cons**
 
@@ -48,5 +48,4 @@ Is based on the native HTML5 `<video>` element and therefore behaves similar to 
 ⛔ &nbsp; Chrome may throttle video tags if the page is heavy.  
 ⛔ &nbsp; If too many video tags get rendered simultaneously, a timeout may occur.  
 ⛔ &nbsp; If the input video framerate does not match with the output framerate, some duplicate frames may occur in the output.  
-⛔ &nbsp; A Google Chrome build with proprietary codecs is required.  
-
+⛔ &nbsp; A Google Chrome build with proprietary codecs is required.
