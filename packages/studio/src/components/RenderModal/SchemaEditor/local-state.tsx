@@ -54,7 +54,7 @@ export const useLocalState = <T,>({
 	});
 
 	const localUnsavedValue = useMemo(() => {
-		if (localValueOrNull[parentRevision] === null) {
+		if ((localValueOrNull[parentRevision] ?? null) === null) {
 			return {
 				value: unsavedValue,
 				keyStabilityRevision: 0,
