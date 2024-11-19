@@ -62,6 +62,7 @@ export const Probe: React.FC<{
 		onTracks: (t) => {
 			onTracks(t);
 		},
+		logLevel: 'verbose',
 	});
 
 	const onClick = useCallback(() => {
