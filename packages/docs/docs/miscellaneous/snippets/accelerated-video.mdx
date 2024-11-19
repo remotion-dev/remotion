@@ -1,6 +1,7 @@
 ---
 image: /generated/articles-docs-miscellaneous-snippets-accelerated-video.png
 title: 'Change the speed of a video over time'
+sidebar_label: Changing speed over time
 crumb: 'Snippets'
 ---
 
@@ -11,10 +12,13 @@ To speed up a video over time - for example to start with regular speed and then
 It is not as easy as interpolating the [`playbackRate`](/docs/video#playbackrate):
 
 ```tsx twoslash title="❌ Does not work"
-import {interpolate, Video} from 'remotion';
+import {interpolate, OffthreadVideo} from 'remotion';
 let frame = 0;
 // ---cut---
-<Video playbackRate={interpolate(frame, [0, 100], [1, 5])} />;
+<OffthreadVideo
+  playbackRate={interpolate(frame, [0, 100], [1, 5])}
+  src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#disable"
+/>;
 ```
 
 This is because Remotion will evaluate each frame independently from the other frames. If `frame` is 100, the `playbackRate` evaluates as 5 and Remotion will render the 500th frame of the video, which is undesired because it does not take into account that the speed has been building up to 5 until now.

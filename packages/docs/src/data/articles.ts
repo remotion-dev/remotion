@@ -1680,6 +1680,13 @@ export const articles = [
 		crumb: '@remotion/layout-utils',
 	},
 	{
+		id: 'layout-utils/debug',
+		title: 'Debugging font measurement bugs',
+		relativePath: 'docs/layout-utils/debug.mdx',
+		compId: 'articles-docs-layout-utils-debug',
+		crumb: '@remotion/layout-utils',
+	},
+	{
 		id: 'layout-utils/fill-text-box',
 		title: 'fillTextBox()',
 		relativePath: 'docs/layout-utils/fill-text-box.mdx',
@@ -3881,7 +3888,7 @@ export const articles = [
 	},
 	{
 		id: 'video-vs-offthreadvideo',
-		title: '<Video> vs. <OffthreadVideo>',
+		title: '<OffthreadVideo> vs. <Video>',
 		relativePath: 'docs/video-vs-offthreadvideo.mdx',
 		compId: 'articles-docs-video-vs-offthreadvideo',
 		crumb: 'Comparison',
@@ -3892,6 +3899,20 @@ export const articles = [
 		relativePath: 'docs/video.mdx',
 		compId: 'articles-docs-video',
 		crumb: 'API',
+	},
+	{
+		id: 'videos/index',
+		title: 'Embedding videos into Remotion',
+		relativePath: 'docs/videos/index.mdx',
+		compId: 'articles-docs-videos-index',
+		crumb: 'How To',
+	},
+	{
+		id: 'videos/transparency',
+		title: 'Embedding transparent videos',
+		relativePath: 'docs/videos/transparency.mdx',
+		compId: 'articles-docs-videos-transparency',
+		crumb: 'How To',
 	},
 	{
 		id: 'visual-editing',
