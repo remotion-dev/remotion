@@ -1,6 +1,7 @@
 import {combineUint8Arrays} from '../../boxes/webm/make-header';
 import {addSize, stringsToUint8Array} from './primitives';
 
+// TODO: Not used in creation of MP4 yet
 export const createColr = ({
 	fullRange,
 	matrixIndex,
