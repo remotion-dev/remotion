@@ -77,7 +77,7 @@ export const parseAv1PrivateData = (
 			: '0';
 	str += '.';
 
-	if (colrAtom) {
+	if (colrAtom && colrAtom.colorType === 'transfer-characteristics') {
 		str += colrAtom.primaries.toString().padStart(2, '0');
 		str += '.';
 		str += colrAtom.transfer.toString().padStart(2, '0');

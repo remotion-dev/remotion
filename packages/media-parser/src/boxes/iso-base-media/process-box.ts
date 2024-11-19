@@ -246,6 +246,7 @@ export const processBox = async ({
 	if (boxType === 'colr') {
 		const box = parseColorParameterBox({
 			iterator,
+			size: boxSize,
 		});
 		return {
 			type: 'complete',
