@@ -175,6 +175,11 @@ export const getIsoBmColrConfig = (
 		return null;
 	}
 
+	// TODO: Not doing anything with a in ICC color profile yet
+	if (colrAtom.colorType !== 'transfer-characteristics') {
+		return null;
+	}
+
 	// https://github.com/bbc/qtff-parameter-editor
 	return {
 		fullRange: colrAtom.fullRangeFlag,
