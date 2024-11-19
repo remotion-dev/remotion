@@ -74,6 +74,24 @@ export const getTimescaleAndDuration = (
 	return null;
 };
 
+export const getFpsFromMp4TrakBox = (trakBox: TrakBox) => {
+	const timescaleAndDuration = getTimescaleAndDuration(trakBox);
+	if (!timescaleAndDuration) {
+		return null;
+	}
+
+	const sttsBox = getSttsBox(trakBox);
+	if (!sttsBox) {
+		return null;
+	}
+
+	return calculateFps({
+		sttsBox,
+		timeScale: timescaleAndDuration.timescale,
+		durationInSamples: timescaleAndDuration.duration,
+	});
+};
+
 export const getFps = (segments: AnySegment[]) => {
 	const moovBox = getMoovBox(segments);
 	if (!moovBox) {
@@ -87,21 +105,7 @@ export const getFps = (segments: AnySegment[]) => {
 		return null;
 	}
 
-	const timescaleAndDuration = getTimescaleAndDuration(trackBox);
-	if (!timescaleAndDuration) {
-		return null;
-	}
-
-	const sttsBox = getSttsBox(trackBox);
-	if (!sttsBox) {
-		return null;
-	}
-
-	return calculateFps({
-		sttsBox,
-		timeScale: timescaleAndDuration.timescale,
-		durationInSamples: timescaleAndDuration.duration,
-	});
+	return getFpsFromMp4TrakBox(trackBox);
 };
 
 export const hasFps = (boxes: AnySegment[]): boolean => {

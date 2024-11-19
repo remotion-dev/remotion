@@ -95,6 +95,7 @@ export const makeVideoTrackHandler =
 			codec: videoOperation.videoCodec,
 			height: track.displayAspectHeight,
 			width: track.displayAspectWidth,
+			fps: track.fps,
 		});
 		const videoDecoderConfig =
 			await getVideoDecoderConfigWithHardwareAcceleration(track);

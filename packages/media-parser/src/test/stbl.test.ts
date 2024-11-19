@@ -56,8 +56,8 @@ const sample = new Uint8Array([
 	0, 0, 0, 1, 0, 0, 35, 40, 0, 0, 0, 1, 0, 0, 11, 184, 0, 0, 0, 1, 0, 0, 35, 40,
 	0, 0, 0, 1, 0, 0, 11, 184, 0, 0, 0, 1, 0, 0, 35, 40, 0, 0, 0, 1, 0, 0, 11,
 	184, 0, 0, 0, 1, 0, 0, 35, 40, 0, 0, 0, 1, 0, 0, 11, 184, 0, 0, 0, 40, 115,
-	116, 115, 99, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 3, 0, 0, 0, 1, 0,
-	0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 244, 115, 116, 115, 122, 0, 0, 0, 0,
+	116, 115, 99, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 1, 0,
+	0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 244, 115, 116, 115, 122, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 120, 0, 0, 30, 78, 0, 0, 12, 118, 0, 0, 6, 88, 0, 0, 3,
 	102, 0, 0, 2, 226, 0, 0, 11, 254, 0, 0, 3, 26, 0, 0, 11, 220, 0, 0, 3, 185, 0,
 	0, 2, 211, 0, 0, 13, 169, 0, 0, 3, 117, 0, 0, 10, 226, 0, 0, 21, 209, 0, 0,
@@ -114,21 +114,20 @@ test('Create a full stbl atom', () => {
 		0xb2, 0xc0, 0x01, 0x00, 0x06, 0x68, 0xeb, 0xe0, 0x8c, 0xb2, 0x2c, 0xfd,
 		0xf8, 0xf8, 0x00,
 	]);
-	expect(
-		createStbl({
-			samplePositions: exampleVideoSamplePositions,
-			codecSpecificData: createAvc1Data({
-				pasp: createPasp(1, 1),
-				avccBox: createAvccBox(privateData),
-				width: 640,
-				height: 360,
-				horizontalResolution: 72,
-				verticalResolution: 72,
-				compressorName: '',
-				depth: 24,
-				type: 'avc1-data',
-			}),
-			isVideo: true,
+	const result = createStbl({
+		samplePositions: exampleVideoSamplePositions,
+		codecSpecificData: createAvc1Data({
+			pasp: createPasp(1, 1),
+			avccBox: createAvccBox(privateData),
+			width: 640,
+			height: 360,
+			horizontalResolution: 72,
+			verticalResolution: 72,
+			compressorName: '',
+			depth: 24,
+			type: 'avc1-data',
 		}),
-	).toEqual(sample);
+		isVideo: true,
+	});
+	expect(result).toEqual(sample);
 });

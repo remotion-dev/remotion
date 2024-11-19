@@ -1,13 +1,16 @@
+import {chooseCorrectAvc1Profile} from './choose-correct-avc1-profile';
 import type {ConvertMediaVideoCodec} from './codec-id';
 
 export const getVideoEncoderConfig = async ({
-	width,
-	height,
 	codec,
+	height,
+	width,
+	fps,
 }: {
 	width: number;
 	height: number;
 	codec: ConvertMediaVideoCodec;
+	fps: number | null;
 }): Promise<VideoEncoderConfig | null> => {
 	if (typeof VideoEncoder === 'undefined') {
 		return null;
@@ -16,8 +19,7 @@ export const getVideoEncoderConfig = async ({
 	const config: VideoEncoderConfig = {
 		codec:
 			codec === 'h264'
-				? // avc1.42001f must correspond with the CodecPrivate data string
-					'avc1.42001f'
+				? chooseCorrectAvc1Profile({fps, height, width})
 				: codec === 'vp9'
 					? 'vp09.00.10.08'
 					: codec,

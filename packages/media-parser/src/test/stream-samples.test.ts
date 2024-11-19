@@ -52,6 +52,7 @@ test('Stream samples', async () => {
 			primaries: null,
 		},
 		codecWithoutConfig: 'h264',
+		fps: 30,
 	});
 
 	expect(getSamplePositionsFromTrack(trakBox as TrakBox, null));

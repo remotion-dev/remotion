@@ -118,11 +118,11 @@ test('Should be able to parse a STSD audio box correctly', async () => {
 												type: 'mp4a-specific-config',
 												asBytes: new Uint8Array([18, 16]),
 											},
-											{
-												type: 'unknown-decoder-specific-config',
-											},
 										],
 										upStream: 0,
+									},
+									{
+										type: 'sl-config-descriptor',
 									},
 								],
 								esId: 0,

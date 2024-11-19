@@ -159,6 +159,7 @@ test('Should stream AV1', async () => {
 			primaries: 'bt709',
 		},
 		codecWithoutConfig: 'av1',
+		fps: null,
 	});
 	expect(parsed.audioTracks.length).toBe(0);
 	expect(videoTracks).toBe(1);
@@ -322,6 +323,7 @@ test('Should stream variable fps video', async () => {
 			primaries: null,
 		},
 		codecWithoutConfig: 'vp8',
+		fps: null,
 	});
 	expect(parsed.audioTracks.length).toBe(1);
 	expect(parsed.audioTracks[0]).toEqual({
@@ -625,6 +627,7 @@ test('Stretched VP8', async () => {
 			primaries: null,
 		},
 		codecWithoutConfig: 'vp8',
+		fps: null,
 	});
 });
 
