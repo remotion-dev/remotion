@@ -202,6 +202,19 @@ export const createIsoBaseMedia = async ({
 				trackNumber: number;
 			}>;
 		},
+		updateTrackSampleRate: ({sampleRate, trackNumber}) => {
+			currentTracks.forEach((track) => {
+				if (track.trackNumber === trackNumber) {
+					if (track.type !== 'audio') {
+						throw new Error(
+							`Tried to update sample rate of track ${trackNumber}, but it's not an audio track`,
+						);
+					}
+
+					track.sampleRate = sampleRate;
+				}
+			});
+		},
 		addWaitForFinishPromise: (promise) => {
 			waitForFinishPromises.push(promise);
 		},

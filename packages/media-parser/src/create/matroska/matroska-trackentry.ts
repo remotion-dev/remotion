@@ -3,10 +3,7 @@ import {
 	makeMatroskaBytes,
 	padMatroskaBytes,
 } from '../../boxes/webm/make-header';
-import type {
-	BytesAndOffset,
-	PossibleEbmlOrUint8Array,
-} from '../../boxes/webm/segments/all-segments';
+import type {PossibleEbmlOrUint8Array} from '../../boxes/webm/segments/all-segments';
 import type {
 	MediaParserAudioCodec,
 	MediaParserVideoCodec,
@@ -284,11 +281,22 @@ export const makeMatroskaVideoTrackEntryBytes = ({
 	});
 };
 
-export const makeMatroskaTracks = (tracks: BytesAndOffset[]) => {
+export const makeMatroskaTracks = (
+	tracks: (MakeTrackAudio | MakeTrackVideo)[],
+) => {
+	const bytesArr = tracks.map((t) => {
+		const bytes =
+			t.type === 'video'
+				? makeMatroskaVideoTrackEntryBytes(t)
+				: makeMatroskaAudioTrackEntryBytes(t);
+
+		return bytes;
+	});
+
 	return padMatroskaBytes(
 		makeMatroskaBytes({
 			type: 'Tracks',
-			value: tracks,
+			value: bytesArr,
 			minVintWidth: null,
 		}),
 		500,

@@ -1,10 +1,8 @@
 import {getVariableInt} from '../../boxes/webm/ebml';
 import {combineUint8Arrays, matroskaToHex} from '../../boxes/webm/make-header';
-import {
-	matroskaElements,
-	type BytesAndOffset,
-} from '../../boxes/webm/segments/all-segments';
+import {matroskaElements} from '../../boxes/webm/segments/all-segments';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
+import type {MakeTrackAudio, MakeTrackVideo} from '../make-track-info';
 import type {MediaFn, MediaFnGeneratorInput} from '../media-fn';
 import {makeCluster, timestampToClusterTimestamp} from './cluster';
 import {makeDurationWithPadding} from './make-duration-with-padding';
@@ -17,11 +15,7 @@ import {
 	MATROSKA_SEGMENT_MIN_VINT_WIDTH,
 	createMatroskaSegment,
 } from './matroska-segment';
-import {
-	makeMatroskaAudioTrackEntryBytes,
-	makeMatroskaTracks,
-	makeMatroskaVideoTrackEntryBytes,
-} from './matroska-trackentry';
+import {makeMatroskaTracks} from './matroska-trackentry';
 
 const timescale = 1_000_000;
 
@@ -38,7 +32,7 @@ export const createMatroskaMedia = async ({
 		timescale,
 	});
 
-	const currentTracks: BytesAndOffset[] = [];
+	const currentTracks: (MakeTrackAudio | MakeTrackVideo)[] = [];
 
 	const seeks: Seek[] = [];
 	const cues: Cue[] = [];
@@ -191,7 +185,7 @@ export const createMatroskaMedia = async ({
 		onMillisecondsProgress(newDuration);
 	};
 
-	const addTrack = async (track: BytesAndOffset) => {
+	const addTrack = async (track: MakeTrackVideo | MakeTrackAudio) => {
 		currentTracks.push(track);
 		const newTracks = makeMatroskaTracks(currentTracks);
 
@@ -206,6 +200,17 @@ export const createMatroskaMedia = async ({
 	const waitForFinishPromises: (() => Promise<void>)[] = [];
 
 	return {
+		updateTrackSampleRate: ({sampleRate, trackNumber}) => {
+			currentTracks.forEach((track) => {
+				if (track.trackNumber === trackNumber) {
+					if (track.type !== 'audio') {
+						throw new Error('track is not audio');
+					}
+
+					track.sampleRate = sampleRate;
+				}
+			});
+		},
 		save: async () => {
 			const file = await w.save();
 			return file;
@@ -228,12 +233,9 @@ export const createMatroskaMedia = async ({
 		addTrack: (track) => {
 			const trackNumber = currentTracks.length + 1;
 
-			const bytes =
-				track.type === 'video'
-					? makeMatroskaVideoTrackEntryBytes({...track, trackNumber})
-					: makeMatroskaAudioTrackEntryBytes({...track, trackNumber});
-
-			operationProm.current = operationProm.current.then(() => addTrack(bytes));
+			operationProm.current = operationProm.current.then(() =>
+				addTrack({...track, trackNumber}),
+			);
 			trackNumbers.push(trackNumber);
 
 			return operationProm.current.then(() => ({trackNumber}));

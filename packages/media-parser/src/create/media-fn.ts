@@ -21,6 +21,10 @@ export type MediaFn = {
 	) => Promise<{trackNumber: number}>;
 	addWaitForFinishPromise: (promise: () => Promise<void>) => void;
 	waitForFinish: () => Promise<void>;
+	updateTrackSampleRate: (options: {
+		trackNumber: number;
+		sampleRate: number;
+	}) => void;
 };
 
 export type MediaFnGeneratorInput = {

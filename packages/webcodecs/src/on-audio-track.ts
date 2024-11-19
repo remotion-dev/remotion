@@ -109,10 +109,6 @@ export const makeAudioTrackHandler =
 			return null;
 		}
 
-		// TODO: This is weird 😵‍💫
-		// Chrome completely ignores the sample rate and uses it's own
-		// We cannot determine it here because it depends on the system
-		// sample rate. Unhardcode then declare it later once we know.
 		const codecPrivate =
 			audioOperation.audioCodec === 'aac' ? new Uint8Array([17, 144]) : null;
 
@@ -126,6 +122,13 @@ export const makeAudioTrackHandler =
 		});
 
 		const audioEncoder = createAudioEncoder({
+			// This is weird 😵‍💫
+			// Chrome completely ignores the sample rate and uses it's own
+			// We cannot determine it here because it depends on the system
+			// sample rate. Unhardcode then declare it later once we know.
+			onNewAudioSampleRate: (sampleRate) => {
+				state.updateTrackSampleRate({sampleRate, trackNumber});
+			},
 			onChunk: async (chunk) => {
 				await state.addSample({
 					chunk: convertEncodedChunk(chunk, trackNumber),
