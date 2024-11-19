@@ -47,9 +47,10 @@ export const createCodecSpecificData = (
 	if (track.type === 'audio') {
 		return createMp4a({
 			type: 'mp4a-data',
-			// TODO: Investigate which values to put in
-			avgBitrate: 128810,
-			maxBitrate: 128810,
+			// TODO: Put in values based on real data,
+			// this seems to work though
+			avgBitrate: 128 * 1024,
+			maxBitrate: 128 * 1024,
 			channelCount: track.numberOfChannels,
 			sampleRate: track.sampleRate,
 			codecPrivate: track.codecPrivate,
