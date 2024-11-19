@@ -351,7 +351,13 @@ export const ResolveCompositionConfig: React.FC<
 			return;
 		}
 
-		window.dispatchEvent(new CustomEvent('remotion.propsUpdatedExternally'));
+		window.dispatchEvent(
+			new CustomEvent<{resetUnsaved: boolean}>(PROPS_UPDATED_EXTERNALLY, {
+				detail: {
+					resetUnsaved: true,
+				},
+			}),
+		);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [fastRefreshes]);
 
