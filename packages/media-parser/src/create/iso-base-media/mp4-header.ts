@@ -49,8 +49,7 @@ export const createPaddedMoovAtom = ({
 				createMeta({
 					hdlr: createHdlr('mdir'),
 					ilst: createIlst([
-						// TODO: Make browser name dynamic
-						createToo('Google Chrome'),
+						createToo('WebCodecs'),
 						createCmt('Made with @remotion/webcodecs'),
 					]),
 				}),

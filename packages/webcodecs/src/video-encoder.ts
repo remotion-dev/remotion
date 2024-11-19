@@ -37,11 +37,7 @@ export const createVideoEncoder = ({
 			onError(error);
 		},
 		output(chunk, metadata) {
-			if (chunk.duration === null) {
-				throw new Error('Duration is null');
-			}
-
-			const timestamp = chunk.timestamp + chunk.duration;
+			const timestamp = chunk.timestamp + (chunk.duration ?? 0);
 
 			ioSynchronizer.onOutput(timestamp);
 

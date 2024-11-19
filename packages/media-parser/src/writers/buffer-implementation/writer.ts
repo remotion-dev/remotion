@@ -3,7 +3,7 @@ import type {Writer} from '../writer';
 export const createContent = () => {
 	const buf = new ArrayBuffer(0, {
 		// TODO: Educate that the buffer is limited to 2GB
-		maxByteLength: 200_000_000,
+		maxByteLength: 2_000_000_000,
 	});
 	if (!buf.resize) {
 		throw new Error('Could not create buffer writer');
