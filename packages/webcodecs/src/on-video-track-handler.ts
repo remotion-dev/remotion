@@ -1,6 +1,5 @@
 import type {LogLevel, VideoTrack} from '@remotion/media-parser';
-import type {ConvertMediaVideoCodec} from './codec-id';
-import type {ConvertMediaContainer} from './convert-media';
+import type {ConvertMediaContainer, ConvertMediaVideoCodec} from './codec-id';
 
 export type VideoOperation =
 	| {type: 'reencode'; videoCodec: ConvertMediaVideoCodec}

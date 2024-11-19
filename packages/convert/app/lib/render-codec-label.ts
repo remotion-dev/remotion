@@ -2,6 +2,7 @@ import {
 	MediaParserAudioCodec,
 	MediaParserVideoCodec,
 } from '@remotion/media-parser';
+import {ConvertMediaContainer} from '@remotion/webcodecs';
 
 export const renderHumanReadableAudioCodec = (codec: MediaParserAudioCodec) => {
 	if (codec === 'opus') {
@@ -73,4 +74,18 @@ export const renderHumanReadableVideoCodec = (codec: MediaParserVideoCodec) => {
 	}
 
 	throw new Error(`Unknown video codec ${codec satisfies never}`);
+};
+
+export const renderHumanReadableContainer = (
+	container: ConvertMediaContainer,
+) => {
+	if (container === 'webm') {
+		return 'WebM';
+	}
+
+	if (container === 'mp4') {
+		return 'MP4';
+	}
+
+	throw new Error(`Unknown container ${container satisfies never}`);
 };

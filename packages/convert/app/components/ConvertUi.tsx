@@ -16,6 +16,7 @@ import {ConvertForm} from './ConvertForm';
 import {ConvertProgress, convertProgressRef} from './ConvertProgress';
 import {ErrorState} from './ErrorState';
 import {flipVideoFrame} from './flip-video';
+import {getDefaultContainerForConversion} from './guess-codec-from-source';
 import {Badge} from './ui/badge';
 import {useSupportedConfigs} from './use-supported-configs';
 
@@ -30,7 +31,9 @@ export default function ConvertUI({
 	readonly currentVideoCodec: MediaParserVideoCodec | null;
 	readonly tracks: TracksField | null;
 }) {
-	const [container, setContainer] = useState<ConvertMediaContainer>('mp4');
+	const [container, setContainer] = useState<ConvertMediaContainer>(() =>
+		getDefaultContainerForConversion(src),
+	);
 	const [videoConfigIndex, _setVideoConfigIndex] = useState<
 		Record<number, number>
 	>({});

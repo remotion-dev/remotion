@@ -1,9 +1,8 @@
 import type {LogLevel, MediaFn, OnVideoTrack} from '@remotion/media-parser';
 import {arrayBufferToUint8Array} from './arraybuffer-to-uint8-array';
-import type {ConvertMediaVideoCodec} from './codec-id';
+import type {ConvertMediaContainer, ConvertMediaVideoCodec} from './codec-id';
 import {convertEncodedChunk} from './convert-encoded-chunk';
 import type {
-	ConvertMediaContainer,
 	ConvertMediaOnMediaStateUpdate,
 	ConvertMediaOnVideoFrame,
 	ConvertMediaState,

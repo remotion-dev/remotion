@@ -21,7 +21,11 @@ import {
 
 import {autoSelectWriter} from './auto-select-writer';
 import {calculateProgress} from './calculate-progress';
-import type {ConvertMediaAudioCodec, ConvertMediaVideoCodec} from './codec-id';
+import type {
+	ConvertMediaAudioCodec,
+	ConvertMediaContainer,
+	ConvertMediaVideoCodec,
+} from './codec-id';
 import Error from './error-cause';
 import {makeAudioTrackHandler} from './on-audio-track';
 import {type ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
@@ -39,8 +43,6 @@ export type ConvertMediaState = {
 	expectedOutputDurationInMs: number | null;
 	overallProgress: number | null;
 };
-
-export type ConvertMediaContainer = 'webm' | 'mp4';
 
 export type ConvertMediaResult = {
 	save: () => Promise<Blob>;

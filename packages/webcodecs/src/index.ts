@@ -6,12 +6,13 @@ export {canReencodeAudioTrack} from './can-reencode-audio-track';
 export {canReencodeVideoTrack} from './can-reencode-video-track';
 export {
 	ConvertMediaAudioCodec,
+	ConvertMediaContainer,
 	ConvertMediaVideoCodec,
 	getAvailableAudioCodecs,
+	getAvailableContainers,
 	getAvailableVideoCodecs,
 } from './codec-id';
 export {
-	ConvertMediaContainer,
 	ConvertMediaOnMediaStateUpdate,
 	ConvertMediaOnVideoFrame,
 	ConvertMediaResult,
