@@ -1,10 +1,12 @@
 import {
 	getAudioCodecFromTrack,
 	getAudioCodecStringFromTrak,
+	getCodecPrivateFromTrak,
 	getNumberOfChannelsFromTrak,
 	getSampleRate,
 } from '../../get-audio-codec';
 import {
+	getFpsFromMp4TrakBox,
 	getTimescaleAndDuration,
 	trakBoxContainsAudio,
 	trakBoxContainsVideo,
@@ -64,7 +66,7 @@ export const makeBaseMediaTrack = (
 			sampleRate,
 			description,
 			trakBox,
-			codecPrivate: null,
+			codecPrivate: getCodecPrivateFromTrak(trakBox),
 			codecWithoutConfig: getAudioCodecFromTrack(trakBox),
 		};
 	}
@@ -129,6 +131,7 @@ export const makeBaseMediaTrack = (
 			transferCharacteristics: null,
 		},
 		codecWithoutConfig: getVideoCodecFromIsoTrak(trakBox),
+		fps: getFpsFromMp4TrakBox(trakBox),
 	};
 	return track;
 };

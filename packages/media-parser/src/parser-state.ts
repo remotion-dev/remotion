@@ -6,10 +6,9 @@ import {
 	getTrackTimestampScale,
 } from './boxes/webm/traversal';
 import type {
-	AudioSample,
+	AudioOrVideoSample,
 	OnAudioSample,
 	OnVideoSample,
-	VideoSample,
 } from './webcodec-sample-types';
 
 export type InternalStats = {};
@@ -51,8 +50,8 @@ export const makeParserState = ({
 	const videoSampleCallbacks: Record<number, OnVideoSample> = {};
 	const audioSampleCallbacks: Record<number, OnAudioSample> = {};
 
-	const queuedAudioSamples: Record<number, AudioSample[]> = {};
-	const queuedVideoSamples: Record<number, VideoSample[]> = {};
+	const queuedAudioSamples: Record<number, AudioOrVideoSample[]> = {};
+	const queuedVideoSamples: Record<number, AudioOrVideoSample[]> = {};
 
 	const declinedTrackNumbers: number[] = [];
 
@@ -136,7 +135,7 @@ export const makeParserState = ({
 
 			queuedAudioSamples[id] = [];
 		},
-		onAudioSample: async (trackId: number, audioSample: AudioSample) => {
+		onAudioSample: async (trackId: number, audioSample: AudioOrVideoSample) => {
 			if (signal?.aborted) {
 				throw new Error('Aborted');
 			}
@@ -154,7 +153,7 @@ export const makeParserState = ({
 				}
 			}
 		},
-		onVideoSample: async (trackId: number, videoSample: VideoSample) => {
+		onVideoSample: async (trackId: number, videoSample: AudioOrVideoSample) => {
 			if (signal?.aborted) {
 				throw new Error('Aborted');
 			}

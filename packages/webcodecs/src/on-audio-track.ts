@@ -3,11 +3,12 @@ import {createAudioDecoder} from './audio-decoder';
 import {getAudioDecoderConfig} from './audio-decoder-config';
 import {createAudioEncoder} from './audio-encoder';
 import {getAudioEncoderConfig} from './audio-encoder-config';
-import type {ConvertMediaAudioCodec} from './codec-id';
+import type {ConvertMediaAudioCodec, ConvertMediaContainer} from './codec-id';
 import {convertEncodedChunk} from './convert-encoded-chunk';
-import type {ConvertMediaContainer, ConvertMediaState} from './convert-media';
+import type {ConvertMediaState} from './convert-media';
 import {defaultOnAudioTrackHandler} from './default-on-audio-track-handler';
 import Error from './error-cause';
+import {Log} from './log';
 import type {ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
 
 export const makeAudioTrackHandler =
@@ -57,10 +58,21 @@ export const makeAudioTrackHandler =
 				numberOfChannels: track.numberOfChannels,
 				sampleRate: track.sampleRate,
 				codecPrivate: track.codecPrivate,
+				timescale: track.timescale,
 			});
+			Log.verbose(
+				logLevel,
+				`Copying audio track ${track.trackId} as track ${addedTrack.trackNumber}. Timescale = ${track.timescale}, codec = ${track.codecWithoutConfig} (${track.codec}) `,
+			);
 
 			return async (audioSample) => {
-				await state.addSample(audioSample, addedTrack.trackNumber, false);
+				await state.addSample({
+					chunk: audioSample,
+					trackNumber: addedTrack.trackNumber,
+					isVideo: false,
+					timescale: track.timescale,
+					codecPrivate: track.codecPrivate,
+				});
 				convertMediaState.encodedAudioFrames++;
 				onMediaStateUpdate?.({...convertMediaState});
 			};
@@ -97,17 +109,34 @@ export const makeAudioTrackHandler =
 			return null;
 		}
 
+		const codecPrivate =
+			audioOperation.audioCodec === 'aac' ? new Uint8Array([17, 144]) : null;
+
 		const {trackNumber} = await state.addTrack({
 			type: 'audio',
 			codec: audioOperation.audioCodec,
 			numberOfChannels: track.numberOfChannels,
 			sampleRate: track.sampleRate,
-			codecPrivate: null,
+			codecPrivate,
+			timescale: track.timescale,
 		});
 
 		const audioEncoder = createAudioEncoder({
+			// This is weird 😵‍💫
+			// Chrome completely ignores the sample rate and uses it's own
+			// We cannot determine it here because it depends on the system
+			// sample rate. Unhardcode then declare it later once we know.
+			onNewAudioSampleRate: (sampleRate) => {
+				state.updateTrackSampleRate({sampleRate, trackNumber});
+			},
 			onChunk: async (chunk) => {
-				await state.addSample(convertEncodedChunk(chunk), trackNumber, false);
+				await state.addSample({
+					chunk: convertEncodedChunk(chunk, trackNumber),
+					trackNumber,
+					isVideo: false,
+					timescale: track.timescale,
+					codecPrivate,
+				});
 				convertMediaState.encodedAudioFrames++;
 				onMediaStateUpdate?.({...convertMediaState});
 			},

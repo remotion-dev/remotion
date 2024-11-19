@@ -1,11 +1,9 @@
-import {getVariableInt} from '../boxes/webm/ebml';
-import {combineUint8Arrays, matroskaToHex} from '../boxes/webm/make-header';
-import {
-	matroskaElements,
-	type BytesAndOffset,
-} from '../boxes/webm/segments/all-segments';
-import type {AudioOrVideoSample} from '../webcodec-sample-types';
-import type {WriterInterface} from '../writers/writer';
+import {getVariableInt} from '../../boxes/webm/ebml';
+import {combineUint8Arrays, matroskaToHex} from '../../boxes/webm/make-header';
+import {matroskaElements} from '../../boxes/webm/segments/all-segments';
+import type {AudioOrVideoSample} from '../../webcodec-sample-types';
+import type {MakeTrackAudio, MakeTrackVideo} from '../make-track-info';
+import type {MediaFn, MediaFnGeneratorInput} from '../media-fn';
 import {makeCluster, timestampToClusterTimestamp} from './cluster';
 import {makeDurationWithPadding} from './make-duration-with-padding';
 import {createMatroskaCues, type Cue} from './matroska-cues';
@@ -17,50 +15,24 @@ import {
 	MATROSKA_SEGMENT_MIN_VINT_WIDTH,
 	createMatroskaSegment,
 } from './matroska-segment';
-import type {MakeTrackAudio, MakeTrackVideo} from './matroska-trackentry';
-import {
-	makeMatroskaAudioTrackEntryBytes,
-	makeMatroskaTracks,
-	makeMatroskaVideoTrackEntryBytes,
-} from './matroska-trackentry';
-import {CREATE_TIME_SCALE} from './timescale';
+import {makeMatroskaTracks} from './matroska-trackentry';
 
-export type MediaFn = {
-	save: () => Promise<Blob>;
-	remove: () => Promise<void>;
-	addSample: (
-		chunk: AudioOrVideoSample,
-		trackNumber: number,
-		isVideo: boolean,
-	) => Promise<void>;
-	updateDuration: (duration: number) => Promise<void>;
-	addTrack: (
-		track:
-			| Omit<MakeTrackAudio, 'trackNumber'>
-			| Omit<MakeTrackVideo, 'trackNumber'>,
-	) => Promise<{trackNumber: number}>;
-	addWaitForFinishPromise: (promise: () => Promise<void>) => void;
-	waitForFinish: () => Promise<void>;
-};
+const timescale = 1_000_000;
 
-export const createMedia = async ({
+export const createMatroskaMedia = async ({
 	writer,
 	onBytesProgress,
 	onMillisecondsProgress,
-}: {
-	writer: WriterInterface;
-	onBytesProgress: (totalBytes: number) => void;
-	onMillisecondsProgress: (totalMilliseconds: number) => void;
-}): Promise<MediaFn> => {
+}: MediaFnGeneratorInput): Promise<MediaFn> => {
 	const header = makeMatroskaHeader();
 
 	const w = await writer.createContent();
 	await w.write(header.bytes);
 	const matroskaInfo = makeMatroskaInfo({
-		timescale: CREATE_TIME_SCALE,
+		timescale,
 	});
 
-	const currentTracks: BytesAndOffset[] = [];
+	const currentTracks: (MakeTrackAudio | MakeTrackVideo)[] = [];
 
 	const seeks: Seek[] = [];
 	const cues: Cue[] = [];
@@ -136,7 +108,7 @@ export const createMedia = async ({
 	await w.write(matroskaSegment.bytes);
 
 	const clusterOffset = w.getWrittenByteCount();
-	let currentCluster = await makeCluster(w, 0);
+	let currentCluster = await makeCluster(w, 0, timescale);
 	seeks.push({
 		hexString: matroskaElements.Cluster,
 		byte: clusterOffset - seekHeadOffset,
@@ -163,7 +135,7 @@ export const createMedia = async ({
 			return {cluster: currentCluster, isNew: false, smallestProgress};
 		}
 
-		currentCluster = await makeCluster(w, smallestProgress);
+		currentCluster = await makeCluster(w, smallestProgress, timescale);
 		return {cluster: currentCluster, isNew: true, smallestProgress};
 	};
 
@@ -173,11 +145,15 @@ export const createMedia = async ({
 		onBytesProgress(w.getWrittenByteCount());
 	};
 
-	const addSample = async (
-		chunk: AudioOrVideoSample,
-		trackNumber: number,
-		isVideo: boolean,
-	) => {
+	const addSample = async ({
+		chunk,
+		trackNumber,
+		isVideo,
+	}: {
+		chunk: AudioOrVideoSample;
+		trackNumber: number;
+		isVideo: boolean;
+	}) => {
 		trackNumberProgresses[trackNumber] = chunk.timestamp;
 		const {cluster, isNew, smallestProgress} = await getClusterOrMakeNew({
 			chunk,
@@ -198,7 +174,7 @@ export const createMedia = async ({
 			const newCluster = w.getWrittenByteCount();
 			cues.push({
 				time:
-					timestampToClusterTimestamp(smallestProgress) +
+					timestampToClusterTimestamp(smallestProgress, timescale) +
 					timecodeRelativeToCluster,
 				clusterPosition: newCluster - seekHeadOffset,
 				trackNumber,
@@ -209,7 +185,7 @@ export const createMedia = async ({
 		onMillisecondsProgress(newDuration);
 	};
 
-	const addTrack = async (track: BytesAndOffset) => {
+	const addTrack = async (track: MakeTrackVideo | MakeTrackAudio) => {
 		currentTracks.push(track);
 		const newTracks = makeMatroskaTracks(currentTracks);
 
@@ -224,6 +200,17 @@ export const createMedia = async ({
 	const waitForFinishPromises: (() => Promise<void>)[] = [];
 
 	return {
+		updateTrackSampleRate: ({sampleRate, trackNumber}) => {
+			currentTracks.forEach((track) => {
+				if (track.trackNumber === trackNumber) {
+					if (track.type !== 'audio') {
+						throw new Error('track is not audio');
+					}
+
+					track.sampleRate = sampleRate;
+				}
+			});
+		},
 		save: async () => {
 			const file = await w.save();
 			return file;
@@ -231,9 +218,9 @@ export const createMedia = async ({
 		remove: async () => {
 			await w.remove();
 		},
-		addSample: (chunk, trackNumber, isVideo: boolean) => {
+		addSample: ({chunk, trackNumber, isVideo}) => {
 			operationProm.current = operationProm.current.then(() =>
-				addSample(chunk, trackNumber, isVideo),
+				addSample({chunk, trackNumber, isVideo}),
 			);
 			return operationProm.current;
 		},
@@ -246,12 +233,9 @@ export const createMedia = async ({
 		addTrack: (track) => {
 			const trackNumber = currentTracks.length + 1;
 
-			const bytes =
-				track.type === 'video'
-					? makeMatroskaVideoTrackEntryBytes({...track, trackNumber})
-					: makeMatroskaAudioTrackEntryBytes({...track, trackNumber});
-
-			operationProm.current = operationProm.current.then(() => addTrack(bytes));
+			operationProm.current = operationProm.current.then(() =>
+				addTrack({...track, trackNumber}),
+			);
 			trackNumbers.push(trackNumber);
 
 			return operationProm.current.then(() => ({trackNumber}));

@@ -1,6 +1,7 @@
 import {parseBoxes} from './boxes/iso-base-media/process-box';
 import {parseWebm} from './boxes/webm/parse-webm-header';
 import type {BufferIterator} from './buffer-iterator';
+import type {LogLevel} from './log';
 import type {IsoBaseMediaBox, ParseResult} from './parse-result';
 import type {ParserContext} from './parser-context';
 
@@ -26,10 +27,12 @@ export const parseVideo = ({
 	iterator,
 	options,
 	signal,
+	logLevel,
 }: {
 	iterator: BufferIterator;
 	options: ParserContext;
 	signal: AbortSignal | null;
+	logLevel: LogLevel;
 }): Promise<ParseResult> => {
 	if (iterator.bytesRemaining() === 0) {
 		return Promise.resolve({
@@ -40,6 +43,7 @@ export const parseVideo = ({
 					iterator,
 					options,
 					signal,
+					logLevel,
 				});
 			},
 			skipTo: null,
@@ -48,18 +52,6 @@ export const parseVideo = ({
 
 	if (iterator.isRiff()) {
 		throw new Error('AVI files are not yet supported');
-		/*
-		iterator.discard(4);
-		return parseBoxes({
-			iterator,
-			maxBytes: Infinity,
-			allowIncompleteBoxes: true,
-			initialBoxes: [],
-			options,
-			continueMdat: false,
-			littleEndian: true,
-		});
-		*/
 	}
 
 	if (iterator.isIsoBaseMedia()) {
@@ -70,8 +62,8 @@ export const parseVideo = ({
 			initialBoxes: [],
 			options,
 			continueMdat: false,
-			littleEndian: false,
 			signal,
+			logLevel,
 		});
 	}
 

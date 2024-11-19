@@ -2,9 +2,12 @@ import {
 	MediaParserAudioCodec,
 	MediaParserVideoCodec,
 } from '@remotion/media-parser';
-import {ConvertMediaContainer} from '@remotion/webcodecs';
+import {
+	ConvertMediaContainer,
+	getAvailableContainers,
+} from '@remotion/webcodecs';
 import React from 'react';
-import {Container} from '~/lib/generate-new-name';
+import {renderHumanReadableContainer} from '~/lib/render-codec-label';
 import {AudioCodecSelection} from './AudioCodecSelection';
 import {SupportedConfigs} from './get-supported-configs';
 import {SelectionSkeleton} from './SelectionSkeleton';
@@ -60,15 +63,21 @@ export const ConvertForm: React.FC<{
 				<Label htmlFor="container">Container</Label>
 				<Select
 					value={container}
-					onValueChange={(v) => setContainer(v as Container)}
+					onValueChange={(v) => setContainer(v as ConvertMediaContainer)}
 				>
 					<SelectTrigger id="container">
 						<SelectValue placeholder="Select a container" />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectGroup>
-							<SelectItem value="webm">WebM</SelectItem>
-						</SelectGroup>
+						{getAvailableContainers().map((container) => {
+							return (
+								<SelectGroup key={container}>
+									<SelectItem value={container}>
+										{renderHumanReadableContainer(container)}
+									</SelectItem>
+								</SelectGroup>
+							);
+						})}
 					</SelectContent>
 				</Select>
 			</div>

@@ -1,14 +1,15 @@
 import type {LogLevel, MediaFn, OnVideoTrack} from '@remotion/media-parser';
-import type {ConvertMediaVideoCodec} from './codec-id';
+import {arrayBufferToUint8Array} from './arraybuffer-to-uint8-array';
+import type {ConvertMediaContainer, ConvertMediaVideoCodec} from './codec-id';
 import {convertEncodedChunk} from './convert-encoded-chunk';
 import type {
-	ConvertMediaContainer,
 	ConvertMediaOnMediaStateUpdate,
 	ConvertMediaOnVideoFrame,
 	ConvertMediaState,
 } from './convert-media';
 import {defaultOnVideoTrackHandler} from './default-on-video-track-handler';
 import Error from './error-cause';
+import {Log} from './log';
 import {onFrame} from './on-frame';
 import type {ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
 import {createVideoDecoder} from './video-decoder';
@@ -63,6 +64,10 @@ export const makeVideoTrackHandler =
 		}
 
 		if (videoOperation.type === 'copy') {
+			Log.verbose(
+				logLevel,
+				`Copying video track with codec ${track.codec} and timescale ${track.timescale}`,
+			);
 			const videoTrack = await state.addTrack({
 				type: 'video',
 				color: track.color,
@@ -70,9 +75,16 @@ export const makeVideoTrackHandler =
 				height: track.codedHeight,
 				codec: track.codecWithoutConfig,
 				codecPrivate: track.codecPrivate,
+				timescale: track.timescale,
 			});
 			return async (sample) => {
-				await state.addSample(sample, videoTrack.trackNumber, true);
+				await state.addSample({
+					chunk: sample,
+					trackNumber: videoTrack.trackNumber,
+					isVideo: true,
+					timescale: track.timescale,
+					codecPrivate: track.codecPrivate,
+				});
 				convertMediaState.decodedVideoFrames++;
 				onMediaStateUpdate?.({...convertMediaState});
 			};
@@ -82,6 +94,7 @@ export const makeVideoTrackHandler =
 			codec: videoOperation.videoCodec,
 			height: track.displayAspectHeight,
 			width: track.displayAspectWidth,
+			fps: track.fps,
 		});
 		const videoDecoderConfig =
 			await getVideoDecoderConfigWithHardwareAcceleration(track);
@@ -111,11 +124,25 @@ export const makeVideoTrackHandler =
 			height: track.codedHeight,
 			codec: videoOperation.videoCodec,
 			codecPrivate: null,
+			timescale: track.timescale,
 		});
+		Log.verbose(
+			logLevel,
+			`Created new video track with ID ${trackNumber}, codec ${videoOperation.videoCodec} and timescale ${track.timescale}`,
+		);
 
 		const videoEncoder = createVideoEncoder({
-			onChunk: async (chunk) => {
-				await state.addSample(convertEncodedChunk(chunk), trackNumber, true);
+			onChunk: async (chunk, metadata) => {
+				await state.addSample({
+					chunk: convertEncodedChunk(chunk, trackNumber),
+					trackNumber,
+					isVideo: true,
+					timescale: track.timescale,
+					codecPrivate: arrayBufferToUint8Array(
+						(metadata?.decoderConfig?.description ??
+							null) as ArrayBuffer | null,
+					),
+				});
 				convertMediaState.encodedVideoFrames++;
 				onMediaStateUpdate?.({...convertMediaState});
 			},
@@ -161,10 +188,16 @@ export const makeVideoTrackHandler =
 		});
 
 		state.addWaitForFinishPromise(async () => {
+			Log.verbose(logLevel, 'Waiting for video decoder to finish');
 			await videoDecoder.waitForFinish();
-			await videoEncoder.waitForFinish();
 			videoDecoder.close();
+			Log.verbose(
+				logLevel,
+				'Video decoder finished. Waiting for encoder to finish',
+			);
+			await videoEncoder.waitForFinish();
 			videoEncoder.close();
+			Log.verbose(logLevel, 'Encoder finished');
 		});
 
 		return async (chunk) => {

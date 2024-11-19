@@ -12,6 +12,7 @@ export type SamplePosition = {
 	dts: number;
 	cts: number;
 	duration: number;
+	chunk: number;
 };
 
 export const getSamplePositions = ({
@@ -83,6 +84,7 @@ export const getSamplePositions = ({
 				dts,
 				cts,
 				duration: delta,
+				chunk: i,
 			});
 			dts += delta;
 			offsetInThisChunk += size;

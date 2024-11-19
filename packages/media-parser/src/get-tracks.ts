@@ -61,6 +61,7 @@ export type VideoTrack = {
 	trakBox: TrakBox | null;
 	codecPrivate: Uint8Array | null;
 	color: VideoTrackColorParams;
+	fps: number | null;
 };
 
 export type AudioTrack = {

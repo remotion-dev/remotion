@@ -1,5 +1,6 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import {hasTracks} from '../../get-tracks';
+import type {LogLevel} from '../../log';
 import type {
 	AnySegment,
 	IsoBaseMediaBox,
@@ -39,15 +40,15 @@ const getChildren = async ({
 	iterator,
 	bytesRemainingInBox,
 	options,
-	littleEndian,
 	signal,
+	logLevel,
 }: {
 	boxType: string;
 	iterator: BufferIterator;
 	bytesRemainingInBox: number;
 	options: ParserContext;
-	littleEndian: boolean;
 	signal: AbortSignal | null;
+	logLevel: LogLevel;
 }) => {
 	const parseChildren =
 		boxType === 'mdia' ||
@@ -68,8 +69,8 @@ const getChildren = async ({
 			initialBoxes: [],
 			options,
 			continueMdat: false,
-			littleEndian,
 			signal,
+			logLevel,
 		});
 
 		if (parsed.status === 'incomplete') {
@@ -136,20 +137,20 @@ export const processBox = async ({
 	allowIncompleteBoxes,
 	parsedBoxes,
 	options,
-	littleEndian,
 	signal,
+	logLevel,
 }: {
 	iterator: BufferIterator;
 	allowIncompleteBoxes: boolean;
 	parsedBoxes: AnySegment[];
 	options: ParserContext;
-	littleEndian: boolean;
 	signal: AbortSignal | null;
+	logLevel: LogLevel;
 }): Promise<BoxAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
 
-	const boxSizeRaw = iterator.getFourByteNumber(littleEndian);
+	const boxSizeRaw = iterator.getFourByteNumber();
 
 	// If `boxSize === 1`, the 8 bytes after the box type are the size of the box.
 	if (
@@ -182,8 +183,7 @@ export const processBox = async ({
 
 	const boxType = iterator.getByteString(4);
 
-	const boxSize =
-		boxSizeRaw === 1 ? iterator.getEightByteNumber(littleEndian) : boxSizeRaw;
+	const boxSize = boxSizeRaw === 1 ? iterator.getEightByteNumber() : boxSizeRaw;
 
 	if (bytesRemaining < boxSize) {
 		if (boxType === 'mdat') {
@@ -414,7 +414,6 @@ export const processBox = async ({
 			offset: fileOffset,
 			size: boxSize,
 			options,
-			littleEndian,
 			signal,
 		});
 
@@ -433,6 +432,7 @@ export const processBox = async ({
 			size: boxSize,
 			options,
 			signal,
+			logLevel,
 		});
 
 		return {
@@ -450,6 +450,7 @@ export const processBox = async ({
 			offsetAtStart: fileOffset,
 			options,
 			signal,
+			logLevel,
 		});
 		const transformedTrack = makeBaseMediaTrack(box);
 		if (transformedTrack) {
@@ -571,6 +572,7 @@ export const processBox = async ({
 			data: iterator,
 			size: boxSize,
 			fileOffset,
+			logLevel,
 		});
 
 		return {
@@ -612,8 +614,8 @@ export const processBox = async ({
 		iterator,
 		bytesRemainingInBox,
 		options,
-		littleEndian,
 		signal,
+		logLevel,
 	});
 
 	return {
@@ -637,8 +639,8 @@ export const parseBoxes = async ({
 	initialBoxes,
 	options,
 	continueMdat,
-	littleEndian,
 	signal,
+	logLevel,
 }: {
 	iterator: BufferIterator;
 	maxBytes: number;
@@ -646,8 +648,8 @@ export const parseBoxes = async ({
 	initialBoxes: IsoBaseMediaBox[];
 	options: ParserContext;
 	continueMdat: false | PartialMdatBox;
-	littleEndian: boolean;
 	signal: AbortSignal | null;
+	logLevel: LogLevel;
 }): Promise<ParseResult> => {
 	let boxes: IsoBaseMediaBox[] = initialBoxes;
 	const initialOffset = iterator.counter.getOffset();
@@ -671,8 +673,8 @@ export const parseBoxes = async ({
 					allowIncompleteBoxes,
 					parsedBoxes: initialBoxes,
 					options,
-					littleEndian,
 					signal,
+					logLevel,
 				});
 
 		if (result.type === 'incomplete') {
@@ -691,8 +693,8 @@ export const parseBoxes = async ({
 						initialBoxes: boxes,
 						options,
 						continueMdat: false,
-						littleEndian,
 						signal,
+						logLevel,
 					});
 				},
 				skipTo: null,
@@ -712,8 +714,8 @@ export const parseBoxes = async ({
 							initialBoxes: boxes,
 							options,
 							continueMdat: result,
-							littleEndian,
 							signal,
+							logLevel,
 						}),
 					);
 				},
@@ -752,8 +754,8 @@ export const parseBoxes = async ({
 						initialBoxes: boxes,
 						options,
 						continueMdat: false,
-						littleEndian,
 						signal,
+						logLevel,
 					});
 				},
 				skipTo: result.skipTo,
@@ -772,8 +774,8 @@ export const parseBoxes = async ({
 						initialBoxes: boxes,
 						options,
 						continueMdat: false,
-						littleEndian,
 						signal,
+						logLevel,
 					});
 				},
 				skipTo: null,
@@ -807,8 +809,8 @@ export const parseBoxes = async ({
 					initialBoxes: boxes,
 					options,
 					continueMdat: false,
-					littleEndian,
 					signal,
+					logLevel,
 				});
 			},
 			skipTo: skipped ? mdatState.fileOffset : null,

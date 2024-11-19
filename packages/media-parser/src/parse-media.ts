@@ -23,6 +23,7 @@ export const parseMedia: ParseMedia = async ({
 	onAudioTrack,
 	onVideoTrack,
 	signal,
+	logLevel = 'info',
 	...more
 }) => {
 	const state = makeParserState({
@@ -108,6 +109,7 @@ export const parseMedia: ParseMedia = async ({
 				iterator,
 				options,
 				signal: signal ?? null,
+				logLevel,
 			});
 		}
 

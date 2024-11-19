@@ -1,5 +1,8 @@
-import {makeMatroskaBytes, padMatroskaBytes} from '../boxes/webm/make-header';
-import type {MatroskaElement} from '../boxes/webm/segments/all-segments';
+import {
+	makeMatroskaBytes,
+	padMatroskaBytes,
+} from '../../boxes/webm/make-header';
+import type {MatroskaElement} from '../../boxes/webm/segments/all-segments';
 
 export type Seek = {
 	hexString: MatroskaElement;

@@ -16,6 +16,7 @@ export const createAudioEncoder = ({
 	signal,
 	config: audioEncoderConfig,
 	logLevel,
+	onNewAudioSampleRate,
 }: {
 	onChunk: (chunk: EncodedAudioChunk) => Promise<void>;
 	onError: (error: DOMException) => void;
@@ -23,6 +24,7 @@ export const createAudioEncoder = ({
 	signal: AbortSignal;
 	config: AudioEncoderConfig;
 	logLevel: LogLevel;
+	onNewAudioSampleRate: (sampleRate: number) => void;
 }): WebCodecsAudioEncoder => {
 	if (signal.aborted) {
 		throw new Error('Not creating audio encoder, already aborted');
@@ -72,11 +74,13 @@ export const createAudioEncoder = ({
 
 	signal.addEventListener('abort', onAbort);
 
-	if (codec !== 'opus') {
-		throw new Error('Only `codec: "opus"` is supported currently');
+	if (codec !== 'opus' && codec !== 'aac') {
+		throw new Error(
+			'Only `codec: "opus"` and `codec: "aac"` is supported currently',
+		);
 	}
 
-	encoder.configure(audioEncoderConfig);
+	const wantedSampleRate = audioEncoderConfig.sampleRate;
 
 	const encodeFrame = async (audioData: AudioData) => {
 		if (encoder.state === 'closed') {
@@ -88,6 +92,18 @@ export const createAudioEncoder = ({
 		// @ts-expect-error - can have changed in the meanwhile
 		if (encoder.state === 'closed') {
 			return;
+		}
+
+		if (encoder.state === 'unconfigured') {
+			if (audioData.sampleRate === wantedSampleRate) {
+				encoder.configure(audioEncoderConfig);
+			} else {
+				encoder.configure({
+					...audioEncoderConfig,
+					sampleRate: audioData.sampleRate,
+				});
+				onNewAudioSampleRate(audioData.sampleRate);
+			}
 		}
 
 		encoder.encode(audioData);

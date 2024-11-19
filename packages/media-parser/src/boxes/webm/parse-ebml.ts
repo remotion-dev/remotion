@@ -1,7 +1,7 @@
 import {registerTrack} from '../../add-new-matroska-tracks';
 import {type BufferIterator} from '../../buffer-iterator';
 import type {ParserContext} from '../../parser-context';
-import type {VideoSample} from '../../webcodec-sample-types';
+import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 import {getSampleFromBlock} from './get-sample-from-block';
 import {getTrack} from './make-track';
 import type {PossibleEbml} from './segments/all-segments';
@@ -236,7 +236,7 @@ export const postprocessEbml = async ({
 				: getSampleFromBlock(block, parserContext, offset);
 
 		if (sample && sample.type === 'partial-video-sample') {
-			const completeFrame: VideoSample = {
+			const completeFrame: AudioOrVideoSample = {
 				...sample.partialVideoSample,
 				type: hasReferenceBlock ? 'delta' : 'key',
 			};

@@ -1,11 +1,13 @@
 import type {BufferIterator} from '../../../buffer-iterator';
+import type {LogLevel} from '../../../log';
+import {Log} from '../../../log';
 
 type UnknownDecoderSpecificConfig = {
 	type: 'unknown-decoder-specific-config';
 };
 
 type AudioSpecificConfig = {
-	type: 'audio-specific-config';
+	type: 'mp4a-specific-config';
 	audioObjectType: number;
 	samplingFrequencyIndex: number;
 	channelConfiguration: number;
@@ -18,6 +20,7 @@ export type DecoderSpecificConfig =
 
 export const parseDecoderSpecificConfig = (
 	iterator: BufferIterator,
+	logLevel: LogLevel,
 ): DecoderSpecificConfig => {
 	const layerTag = iterator.getUint8();
 	const layerSize = iterator.getPaddedFourByteNumber();
@@ -51,18 +54,18 @@ export const parseDecoderSpecificConfig = (
 		iterator.discard(layerSize - read);
 	}
 
-	// Working around Chrome bug
-	// https://issues.chromium.org/issues/360083330#comment5
-	const patchedAsBytes =
-		bytes.byteLength === 2 && bytes[0] === 17 && bytes[1] === 136
-			? new Uint8Array([17, 144])
-			: bytes;
+	if (bytes.byteLength === 2 && bytes[0] === 17 && bytes[1] === 136) {
+		Log.warn(
+			logLevel,
+			'Chrome has a bug and might not be able to decode this audio. It will be fixed, see: https://issues.chromium.org/issues/360083330',
+		);
+	}
 
 	return {
-		type: 'audio-specific-config',
+		type: 'mp4a-specific-config',
 		audioObjectType,
 		samplingFrequencyIndex,
 		channelConfiguration,
-		asBytes: patchedAsBytes,
+		asBytes: bytes,
 	};
 };

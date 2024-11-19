@@ -1,4 +1,5 @@
-import {createMedia} from './create/create-media';
+import {createIsoBaseMedia} from './create/iso-base-media/create-iso-base-media';
+import {createMatroskaMedia} from './create/matroska/create-matroska-media';
 import type {LogLevel} from './log';
 import {Log} from './log';
 export {WriterInterface} from './writers/writer';
@@ -25,21 +26,20 @@ export type {
 export {parseMedia} from './parse-media';
 export {
 	AudioOrVideoSample,
-	AudioSample,
 	OnAudioSample,
 	OnAudioTrack,
 	OnVideoSample,
 	OnVideoTrack,
-	VideoSample,
 } from './webcodec-sample-types';
 
-export type {MediaFn} from './create/create-media';
+export type {MediaFn} from './create/media-fn';
 export {Dimensions} from './get-dimensions';
 export type {ReaderInterface} from './readers/reader';
 
 export type {LogLevel};
 
 export const MediaParserInternals = {
-	createMedia,
+	createMatroskaMedia,
+	createIsoBaseMedia,
 	Log,
 };

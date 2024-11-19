@@ -20,12 +20,16 @@ export const makeIoSynchronizer = (logLevel: LogLevel, label: string) => {
 	const getUnprocessed = () => unprocessed;
 
 	const getUnemittedItems = () => {
-		inputs = inputs.filter((input) => input > lastOutput);
+		inputs = inputs.filter(
+			(input) => Math.floor(input) > Math.floor(lastOutput),
+		);
 		return inputs.length;
 	};
 
 	const getUnemittedKeyframes = () => {
-		keyframes = keyframes.filter((keyframe) => keyframe > lastOutput);
+		keyframes = keyframes.filter(
+			(keyframe) => Math.floor(keyframe) > Math.floor(lastOutput),
+		);
 		return keyframes.length;
 	};
 

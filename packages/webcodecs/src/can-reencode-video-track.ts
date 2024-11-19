@@ -14,6 +14,7 @@ export const canReencodeVideoTrack = async ({
 		codec: videoCodec,
 		height: track.displayAspectHeight,
 		width: track.displayAspectWidth,
+		fps: track.fps,
 	});
 	const videoDecoderConfig =
 		await getVideoDecoderConfigWithHardwareAcceleration(track);

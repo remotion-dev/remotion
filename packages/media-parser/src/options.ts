@@ -6,6 +6,7 @@ import type {
 	MediaParserVideoCodec,
 	VideoTrack,
 } from './get-tracks';
+import type {LogLevel} from './log';
 import type {AnySegment} from './parse-result';
 import type {InternalStats} from './parser-state';
 import type {ReaderInterface} from './readers/reader';
@@ -149,6 +150,7 @@ export type ParseMediaOptions<F extends Options<ParseMediaFields>> = {
 	onAudioTrack?: OnAudioTrack;
 	onVideoTrack?: OnVideoTrack;
 	signal?: AbortSignal;
+	logLevel?: LogLevel;
 } & ParseMediaDynamicOptions<F>;
 
 export type ParseMedia = <F extends Options<ParseMediaFields>>(

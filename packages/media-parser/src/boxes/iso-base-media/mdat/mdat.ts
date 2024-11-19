@@ -122,22 +122,29 @@ export const parseMdat = async ({
 
 		const bytes = data.getSlice(samplesWithIndex.samplePosition.size);
 
-		const timestamp = Math.floor(
+		const timestamp =
 			(samplesWithIndex.samplePosition.cts * 1_000_000) /
-				samplesWithIndex.track.timescale,
-		);
-		const duration = Math.floor(
+			samplesWithIndex.track.timescale;
+		const duration =
 			(samplesWithIndex.samplePosition.duration * 1_000_000) /
-				samplesWithIndex.track.timescale,
-		);
+			samplesWithIndex.track.timescale;
+
+		const cts =
+			(samplesWithIndex.samplePosition.cts * 1_000_000) /
+			samplesWithIndex.track.timescale;
+		const dts =
+			(samplesWithIndex.samplePosition.dts * 1_000_000) /
+			samplesWithIndex.track.timescale;
 
 		if (samplesWithIndex.track.type === 'audio') {
 			await options.parserState.onAudioSample(samplesWithIndex.track.trackId, {
 				data: bytes,
 				timestamp,
+				duration,
+				cts,
+				dts,
 				trackId: samplesWithIndex.track.trackId,
 				type: samplesWithIndex.samplePosition.isKeyframe ? 'key' : 'delta',
-				duration,
 			});
 		}
 
@@ -146,8 +153,8 @@ export const parseMdat = async ({
 				data: bytes,
 				timestamp,
 				duration,
-				cts: samplesWithIndex.samplePosition.cts,
-				dts: samplesWithIndex.samplePosition.dts,
+				cts,
+				dts,
 				trackId: samplesWithIndex.track.trackId,
 				type: samplesWithIndex.samplePosition.isKeyframe ? 'key' : 'delta',
 			});

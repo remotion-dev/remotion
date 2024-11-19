@@ -1,5 +1,5 @@
-import {makeMatroskaBytes} from '../boxes/webm/make-header';
-import type {BytesAndOffset} from '../boxes/webm/segments/all-segments';
+import {makeMatroskaBytes} from '../../boxes/webm/make-header';
+import type {BytesAndOffset} from '../../boxes/webm/segments/all-segments';
 
 export const MATROSKA_SEGMENT_MIN_VINT_WIDTH = 8;
 

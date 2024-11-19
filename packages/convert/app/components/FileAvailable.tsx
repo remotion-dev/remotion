@@ -1,11 +1,11 @@
 import {
 	MediaParserAudioCodec,
 	MediaParserVideoCodec,
+	TracksField,
 } from '@remotion/media-parser';
 import React, {useCallback, useState} from 'react';
 import {Source} from '~/lib/convert-state';
 import ConvertUI from './ConvertUi';
-import {SupportedConfigs} from './get-supported-configs';
 import {Probe} from './Probe';
 import {Button} from './ui/button';
 
@@ -14,8 +14,7 @@ export const FileAvailable: React.FC<{
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 }> = ({src, setSrc}) => {
 	const [probeDetails, setProbeDetails] = useState(false);
-	const [supportedConfigs, setSupportedConfigs] =
-		useState<SupportedConfigs | null>(null);
+	const [tracks, setTracks] = useState<TracksField | null>(null);
 	const [currentAudioCodec, setCurrentAudioCodec] =
 		useState<MediaParserAudioCodec | null>(null);
 	const [currentVideoCodec, setCurrentVideoCodec] =
@@ -25,12 +24,9 @@ export const FileAvailable: React.FC<{
 		setSrc(null);
 	}, [setSrc]);
 
-	const onSupportedConfigs = useCallback(
-		(configs: SupportedConfigs) => {
-			setSupportedConfigs(configs);
-		},
-		[setSupportedConfigs],
-	);
+	const onTracks = useCallback((configs: TracksField) => {
+		setTracks(configs);
+	}, []);
 
 	return (
 		<div className="overflow-y-auto w-full lg:flex lg:justify-center pt-6 pb-10 px-4">
@@ -58,14 +54,14 @@ export const FileAvailable: React.FC<{
 						setProbeDetails={setProbeDetails}
 						setAudioCodec={setCurrentAudioCodec}
 						setVideoCodec={setCurrentVideoCodec}
-						onSupportedConfigs={onSupportedConfigs}
+						onTracks={onTracks}
 					/>
 					<div className="h-8 lg:h-0 lg:w-8" />
 					<ConvertUI
 						currentAudioCodec={currentAudioCodec}
 						currentVideoCodec={currentVideoCodec}
-						supportedConfigs={supportedConfigs}
 						src={src}
+						tracks={tracks}
 					/>
 				</div>
 			</div>

@@ -1,10 +1,10 @@
-import {getVariableInt} from '../boxes/webm/ebml';
+import {getVariableInt} from '../../boxes/webm/ebml';
 import {
 	combineUint8Arrays,
 	makeMatroskaBytes,
 	matroskaToHex,
 	serializeUint16,
-} from '../boxes/webm/make-header';
+} from '../../boxes/webm/make-header';
 
 export const CLUSTER_MIN_VINT_WIDTH = 8;
 

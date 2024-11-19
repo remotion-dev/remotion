@@ -4,6 +4,7 @@ import {
 	MediaParserAudioCodec,
 	MediaParserInternals,
 	MediaParserVideoCodec,
+	TracksField,
 } from '@remotion/media-parser';
 import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
@@ -15,21 +16,24 @@ import {ConvertForm} from './ConvertForm';
 import {ConvertProgress, convertProgressRef} from './ConvertProgress';
 import {ErrorState} from './ErrorState';
 import {flipVideoFrame} from './flip-video';
-import {SupportedConfigs} from './get-supported-configs';
+import {getDefaultContainerForConversion} from './guess-codec-from-source';
 import {Badge} from './ui/badge';
+import {useSupportedConfigs} from './use-supported-configs';
 
 export default function ConvertUI({
 	src,
-	supportedConfigs,
 	currentAudioCodec,
 	currentVideoCodec,
+	tracks,
 }: {
 	readonly src: Source;
-	readonly supportedConfigs: SupportedConfigs | null;
 	readonly currentAudioCodec: MediaParserAudioCodec | null;
 	readonly currentVideoCodec: MediaParserVideoCodec | null;
+	readonly tracks: TracksField | null;
 }) {
-	const [container, setContainer] = useState<ConvertMediaContainer>('webm');
+	const [container, setContainer] = useState<ConvertMediaContainer>(() =>
+		getDefaultContainerForConversion(src),
+	);
 	const [videoConfigIndex, _setVideoConfigIndex] = useState<
 		Record<number, number>
 	>({});
@@ -40,6 +44,8 @@ export default function ConvertUI({
 	const [name, setName] = useState<string | null>(null);
 	const [flipHorizontal, setFlipHorizontal] = useState(false);
 	const [flipVertical, setFlipVertical] = useState(false);
+
+	const supportedConfigs = useSupportedConfigs({container, tracks});
 
 	const setVideoConfigIndex = useCallback((trackId: number, i: number) => {
 		_setVideoConfigIndex((prev) => ({

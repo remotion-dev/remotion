@@ -40,6 +40,7 @@ export const parseStsd = async ({
 		maxBytes: bytesRemainingInBox,
 		options,
 		signal,
+		logLevel: 'info',
 	});
 
 	if (boxes.length !== numberOfEntries) {

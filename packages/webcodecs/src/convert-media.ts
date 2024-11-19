@@ -18,9 +18,14 @@ import {
 	parseMedia,
 	type OnVideoTrack,
 } from '@remotion/media-parser';
+
 import {autoSelectWriter} from './auto-select-writer';
 import {calculateProgress} from './calculate-progress';
-import type {ConvertMediaAudioCodec, ConvertMediaVideoCodec} from './codec-id';
+import type {
+	ConvertMediaAudioCodec,
+	ConvertMediaContainer,
+	ConvertMediaVideoCodec,
+} from './codec-id';
 import Error from './error-cause';
 import {makeAudioTrackHandler} from './on-audio-track';
 import {type ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
@@ -38,8 +43,6 @@ export type ConvertMediaState = {
 	expectedOutputDurationInMs: number | null;
 	overallProgress: number | null;
 };
-
-export type ConvertMediaContainer = 'webm';
 
 export type ConvertMediaResult = {
 	save: () => Promise<Blob>;
@@ -87,9 +90,9 @@ export const convertMedia = async function <
 		return Promise.reject(new Error('Aborted'));
 	}
 
-	if (container !== 'webm') {
+	if (container !== 'webm' && container !== 'mp4') {
 		return Promise.reject(
-			new TypeError('Only `to: "webm"` is supported currently'),
+			new TypeError('Only `to: "webm"` and `to: "mp4"` is supported currently'),
 		);
 	}
 
@@ -138,7 +141,12 @@ export const convertMedia = async function <
 		onMediaStateDoNoCallDirectly?.(newState);
 	};
 
-	const state = await MediaParserInternals.createMedia({
+	const creator =
+		container === 'webm'
+			? MediaParserInternals.createMatroskaMedia
+			: MediaParserInternals.createIsoBaseMedia;
+
+	const state = await creator({
 		writer: await autoSelectWriter(writer, logLevel),
 		onBytesProgress: (bytesWritten) => {
 			convertMediaState.bytesWritten = bytesWritten;
@@ -156,6 +164,7 @@ export const convertMedia = async function <
 				onMediaStateUpdate?.(convertMediaState);
 			}
 		},
+		logLevel,
 	});
 
 	const onVideoTrack: OnVideoTrack = makeVideoTrackHandler({
@@ -184,6 +193,7 @@ export const convertMedia = async function <
 	});
 
 	parseMedia({
+		logLevel,
 		src,
 		onVideoTrack,
 		onAudioTrack,
