@@ -2,6 +2,7 @@ import type {BufferIterator} from './buffer-iterator';
 import {getArrayBufferIterator} from './buffer-iterator';
 import {emitAvailableInfo} from './emit-available-info';
 import {getAvailableInfo} from './has-all-info';
+import {Log} from './log';
 import type {
 	AllParseMediaFields,
 	Options,
@@ -53,8 +54,21 @@ export const parseMedia: ParseMedia = async ({
 	let iterator: BufferIterator | null = null;
 	let parseResult: ParseResult | null = null;
 
+	const canSkipVideoData = !onVideoTrack && !onAudioTrack;
+	if (canSkipVideoData) {
+		Log.verbose(
+			logLevel,
+			'Only parsing metadata, because no onVideoTrack and onAudioTrack callbacks were passed.',
+		);
+	} else {
+		Log.verbose(
+			logLevel,
+			'Parsing video data, because onVideoTrack/onAudioTrack callbacks were passed.',
+		);
+	}
+
 	const options: ParserContext = {
-		canSkipVideoData: !(onAudioTrack || onVideoTrack),
+		canSkipVideoData,
 		onAudioTrack: onAudioTrack ?? null,
 		onVideoTrack: onVideoTrack ?? null,
 		parserState: state,
@@ -96,6 +110,9 @@ export const parseMedia: ParseMedia = async ({
 			if (result.done) {
 				break;
 			}
+
+			// Let things in the task queue run, like dispatch events
+			await Promise.resolve();
 		}
 
 		if (!iterator) {
@@ -103,6 +120,11 @@ export const parseMedia: ParseMedia = async ({
 		}
 
 		if (parseResult && parseResult.status === 'incomplete') {
+			Log.verbose(
+				logLevel,
+				'Continuing parsing of file, currently at position',
+				iterator.counter.getOffset(),
+			);
 			parseResult = await parseResult.continueParsing();
 		} else {
 			parseResult = await parseVideo({
@@ -154,6 +176,8 @@ export const parseMedia: ParseMedia = async ({
 			iterator.skipTo(parseResult.skipTo, true);
 		}
 	}
+
+	Log.verbose(logLevel, 'Finished parsing file');
 
 	// Force assign
 	emitAvailableInfo({

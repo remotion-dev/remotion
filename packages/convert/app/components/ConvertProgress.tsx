@@ -1,4 +1,4 @@
-import {ConvertMediaContainer, ConvertMediaState} from '@remotion/webcodecs';
+import {ConvertMediaContainer, ConvertMediaProgress} from '@remotion/webcodecs';
 import React, {createRef} from 'react';
 import {formatBytes} from '~/lib/format-bytes';
 import {formatSeconds} from '~/lib/format-seconds';
@@ -10,7 +10,7 @@ import {VideoThumbnail, VideoThumbnailRef} from './VideoThumbnail';
 export const convertProgressRef = createRef<VideoThumbnailRef>();
 
 export const ConvertProgress: React.FC<{
-	readonly state: ConvertMediaState;
+	readonly state: ConvertMediaProgress;
 	readonly name: string | null;
 	readonly container: ConvertMediaContainer;
 }> = ({state, name, container}) => {

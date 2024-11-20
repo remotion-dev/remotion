@@ -102,17 +102,6 @@ export const useProbe = ({
 						console.log(error);
 					},
 					output(frame) {
-						frames++;
-						if (frames < 30) {
-							frame.close();
-							return;
-						}
-						if (hasFrame) {
-							cancelIfDone();
-							frame.close();
-							return;
-						}
-
 						onVideoThumbnail(frame);
 						frame.close();
 						hasFrame = true;
@@ -129,6 +118,11 @@ export const useProbe = ({
 				return (sample) => {
 					if (hasFrame) {
 						return;
+					}
+					frames++;
+					if (frames >= 30) {
+						hasFrame = true;
+						cancelIfDone();
 					}
 
 					decoder.decode(new EncodedVideoChunk(sample));

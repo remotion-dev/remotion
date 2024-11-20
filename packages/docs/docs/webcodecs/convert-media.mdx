@@ -70,19 +70,19 @@ _string_ <TsType type="LogLevel" source="@remotion/media-parser"/>
 One of `"error"`, `"warn"`, `"info"`, `"debug"`, `"trace"`.  
 Default value: `"info"`, which logs only important information.
 
-### `onMediaStateUpdate?`
+### `onProgress?`
 
-_Function_ <TsType type="ConvertMediaOnMediaStateUpdate" source="@remotion/media-parser"/>
+_Function_ <TsType type="ConvertMediaOnProgress" source="@remotion/media-parser"/>
 
 Allows receiving progress updates. The following fields are available:
 
 ```tsx twoslash
 import type {
-  ConvertMediaOnMediaStateUpdate,
-  ConvertMediaState,
+  ConvertMediaOnProgress,
+  ConvertMediaProgress,
 } from '@remotion/webcodecs';
 
-export const onMediaStateUpdate: ConvertMediaOnMediaStateUpdate = ({
+export const onProgress: ConvertMediaOnProgress = ({
   decodedVideoFrames,
   decodedAudioFrames,
   encodedVideoFrames,
@@ -91,7 +91,7 @@ export const onMediaStateUpdate: ConvertMediaOnMediaStateUpdate = ({
   millisecondsWritten,
   expectedOutputDurationInMs,
   overallProgress,
-}: ConvertMediaState) => {
+}: ConvertMediaProgress) => {
   console.log(decodedVideoFrames);
   //                   ^?
   console.log(decodedAudioFrames);
@@ -188,6 +188,14 @@ _Function_ <TsType type="ConvertMediaOnVideoTrackHandler" source="@remotion/webc
 
 Take control of what to do for each video track in the file: Re-encoding, copying, or dropping.  
 See [Track Transformation](/docs/webcodecs/track-transformation) for a guide on how to use this callback.
+
+### `progressIntervalInMs?`
+
+_number_
+
+The interval in milliseconds at which the `onProgress` callback is called.  
+Default `100`. Set to `0` for unthrottled updates.  
+Note that updates are fired very often and updating the DOM often may slow down the conversion process.
 
 ### `fields?` and Callbacks
 

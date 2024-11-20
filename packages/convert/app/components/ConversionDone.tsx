@@ -4,6 +4,7 @@ import {ConvertState, Source} from '~/lib/convert-state';
 import {getNewName} from '~/lib/generate-new-name';
 import {ConvertProgress} from './ConvertProgress';
 import {CloneIcon} from './icons/clone';
+import {UndoIcon} from './icons/undo';
 import {Button} from './ui/button';
 
 export const ConversionDone: React.FC<{
@@ -44,6 +45,10 @@ export const ConversionDone: React.FC<{
 		});
 	}, [setSrc, state]);
 
+	const startOver = useCallback(() => {
+		setState({type: 'idle'});
+	}, [setState]);
+
 	return (
 		<>
 			<ConvertProgress state={state.state} name={name} container={container} />
@@ -60,7 +65,17 @@ export const ConversionDone: React.FC<{
 			>
 				<CloneIcon className="size-4" />
 				<div className="w-2" />
-				Use as input
+				Use new video as input
+			</Button>
+			<Button
+				variant="ghost"
+				className="w-full flex flex-row justify-start"
+				type="button"
+				onClick={startOver}
+			>
+				<UndoIcon className="size-4" />
+				<div className="w-2" />
+				Start over
 			</Button>
 		</>
 	);

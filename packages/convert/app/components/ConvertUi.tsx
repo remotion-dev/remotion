@@ -88,7 +88,7 @@ export default function ConvertUI({
 				return flipped;
 			},
 			logLevel: 'verbose',
-			onMediaStateUpdate: (s) => {
+			onProgress: (s) => {
 				setState({
 					type: 'in-progress',
 					state: s,
@@ -150,17 +150,11 @@ export default function ConvertUI({
 				return operation;
 			},
 		})
-			.then(({save}) => {
-				// TODO: When to remove?
-				setState((prevState) => {
-					if (prevState.type !== 'in-progress') {
-						throw new Error('Invalid state transition');
-					}
-					return {
-						type: 'done',
-						download: save,
-						state: prevState.state,
-					};
+			.then(({save, finalState}) => {
+				setState({
+					type: 'done',
+					download: save,
+					state: finalState,
 				});
 			})
 			.catch((e) => {
