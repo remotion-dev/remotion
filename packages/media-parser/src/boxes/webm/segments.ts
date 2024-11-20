@@ -1,5 +1,9 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import type {BufferIterator} from '../../buffer-iterator';
-import type {ExpectSegmentParseResult} from '../../parse-result';
+import type {
+	ExpectSegmentParseResult,
+	MatroskaParseResult,
+} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
 import {parseEbml, postprocessEbml} from './parse-ebml';
 import type {ClusterSegment, MainSegment} from './segments/all-segments';
@@ -10,30 +14,41 @@ export type MatroskaSegment = PossibleEbml;
 
 export type OnTrackEntrySegment = (trackEntry: TrackEntry) => void;
 
-const parseSegment = async ({
-	segmentId,
+const continueAfterMatroskaParseResult = async ({
+	result,
 	iterator,
-	length,
 	parserContext,
-	headerReadSoFar,
+	segment,
 }: {
-	segmentId: string;
+	result: MatroskaParseResult;
 	iterator: BufferIterator;
-	length: number;
 	parserContext: ParserContext;
-	headerReadSoFar: number;
-}): Promise<Promise<MatroskaSegment> | MatroskaSegment> => {
-	if (length < 0) {
-		throw new Error(`Expected length of ${segmentId} to be greater or equal 0`);
+	segment: MatroskaSegment;
+}): Promise<ExpectSegmentParseResult> => {
+	if (result.status === 'done') {
+		throw new Error('Should not continue after done');
 	}
 
-	iterator.counter.decrement(headerReadSoFar);
+	const proceeded = await result.continueParsing();
+	if (proceeded.status === 'done') {
+		return {
+			status: 'done',
+			segment,
+		};
+	}
 
-	const offset = iterator.counter.getOffset();
-	const ebml = await parseEbml(iterator, parserContext);
-	const remapped = await postprocessEbml({offset, ebml, parserContext});
-
-	return remapped;
+	return {
+		continueParsing() {
+			return continueAfterMatroskaParseResult({
+				result: proceeded,
+				iterator,
+				parserContext,
+				segment,
+			});
+		},
+		segment: null,
+		status: 'incomplete',
+	};
 };
 
 export const expectSegment = async (
@@ -45,7 +60,7 @@ export const expectSegment = async (
 		return {
 			status: 'incomplete',
 			continueParsing: () => {
-				return Promise.resolve(expectSegment(iterator, parserContext));
+				return expectSegment(iterator, parserContext);
 			},
 			segment: null,
 		};
@@ -58,7 +73,7 @@ export const expectSegment = async (
 		return {
 			status: 'incomplete',
 			continueParsing: () => {
-				return Promise.resolve(expectSegment(iterator, parserContext));
+				return expectSegment(iterator, parserContext);
 			},
 			segment: null,
 		};
@@ -71,7 +86,7 @@ export const expectSegment = async (
 		return {
 			status: 'incomplete',
 			continueParsing: () => {
-				return Promise.resolve(expectSegment(iterator, parserContext));
+				return expectSegment(iterator, parserContext);
 			},
 			segment: null,
 		};
@@ -97,9 +112,13 @@ export const expectSegment = async (
 		if (main.status === 'incomplete') {
 			return {
 				status: 'incomplete',
-				continueParsing: async () => {
-					await main.continueParsing();
-					return expectSegment(iterator, parserContext);
+				continueParsing: () => {
+					return continueAfterMatroskaParseResult({
+						iterator,
+						parserContext,
+						result: main,
+						segment: newSegment,
+					});
 				},
 				segment: newSegment,
 			};
@@ -135,4 +154,30 @@ export const expectSegment = async (
 		status: 'done',
 		segment,
 	};
+};
+
+const parseSegment = async ({
+	segmentId,
+	iterator,
+	length,
+	parserContext,
+	headerReadSoFar,
+}: {
+	segmentId: string;
+	iterator: BufferIterator;
+	length: number;
+	parserContext: ParserContext;
+	headerReadSoFar: number;
+}): Promise<Promise<MatroskaSegment> | MatroskaSegment> => {
+	if (length < 0) {
+		throw new Error(`Expected length of ${segmentId} to be greater or equal 0`);
+	}
+
+	iterator.counter.decrement(headerReadSoFar);
+
+	const offset = iterator.counter.getOffset();
+	const ebml = await parseEbml(iterator, parserContext);
+	const remapped = await postprocessEbml({offset, ebml, parserContext});
+
+	return remapped;
 };

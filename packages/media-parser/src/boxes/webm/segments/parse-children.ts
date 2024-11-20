@@ -39,6 +39,50 @@ const processParseResult = ({
 	};
 };
 
+const continueAfterSegmentResult = async ({
+	result,
+	length,
+	children,
+	parserContext,
+	iterator,
+}: {
+	result: ExpectSegmentParseResult;
+	length: number;
+	children: MatroskaSegment[];
+	parserContext: ParserContext;
+	iterator: BufferIterator;
+}): Promise<MatroskaParseResult> => {
+	if (result.status === 'done') {
+		throw new Error('Should not continue after done');
+	}
+
+	const segmentResult = await result.continueParsing();
+	if (segmentResult.status === 'done') {
+		return {
+			status: 'incomplete',
+			continueParsing: () => {
+				// eslint-disable-next-line @typescript-eslint/no-use-before-define
+				return expectChildren({children, iterator, length, parserContext});
+			},
+			skipTo: null,
+		};
+	}
+
+	return {
+		status: 'incomplete',
+		continueParsing: () => {
+			return continueAfterSegmentResult({
+				result: segmentResult,
+				children,
+				iterator,
+				length,
+				parserContext,
+			});
+		},
+		skipTo: null,
+	};
+};
+
 export const expectChildren = async ({
 	iterator,
 	length,
@@ -74,7 +118,8 @@ export const expectChildren = async ({
 			return {
 				status: 'incomplete',
 				continueParsing: () => {
-					return expectChildren({
+					return continueAfterSegmentResult({
+						result: parseResult,
 						children,
 						iterator,
 						length,
