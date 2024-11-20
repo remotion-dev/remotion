@@ -7,7 +7,7 @@ export type Source =
 	  }
 	| {
 			type: 'file';
-			file: File;
+			file: Blob;
 	  };
 
 export type ConvertState =
@@ -17,7 +17,7 @@ export type ConvertState =
 	| {type: 'in-progress'; abortConversion: () => void; state: ConvertMediaState}
 	| {
 			type: 'done';
-			download: () => Promise<void>;
+			download: () => Promise<Blob>;
 			state: ConvertMediaState;
 	  }
 	| {

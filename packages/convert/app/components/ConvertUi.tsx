@@ -11,7 +11,7 @@ import {webFileReader} from '@remotion/media-parser/web-file';
 import {convertMedia, ConvertMediaContainer} from '@remotion/webcodecs';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {ConvertState, Source} from '~/lib/convert-state';
-import {getNewName} from '~/lib/generate-new-name';
+import {ConversionDone} from './ConversionDone';
 import {ConvertForm} from './ConvertForm';
 import {ConvertProgress, convertProgressRef} from './ConvertProgress';
 import {ErrorState} from './ErrorState';
@@ -25,8 +25,10 @@ export default function ConvertUI({
 	currentAudioCodec,
 	currentVideoCodec,
 	tracks,
+	setSrc,
 }: {
 	readonly src: Source;
+	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 	readonly currentAudioCodec: MediaParserAudioCodec | null;
 	readonly currentVideoCodec: MediaParserVideoCodec | null;
 	readonly tracks: TracksField | null;
@@ -67,8 +69,6 @@ export default function ConvertUI({
 		const abortController = new AbortController();
 		abortSignal.current = abortController;
 
-		let _n: string | null = null;
-
 		let videoFrames = 0;
 
 		convertMedia({
@@ -103,7 +103,6 @@ export default function ConvertUI({
 				name: true,
 			},
 			onName: (n) => {
-				_n = n;
 				setName(n);
 			},
 			onAudioTrack: ({track}) => {
@@ -159,18 +158,7 @@ export default function ConvertUI({
 					}
 					return {
 						type: 'done',
-						download: async () => {
-							if (!_n) {
-								throw new Error('No name');
-							}
-
-							const file = await save();
-							const a = document.createElement('a');
-							a.href = URL.createObjectURL(file);
-							a.download = getNewName(_n!, container);
-							a.click();
-							URL.revokeObjectURL(a.href);
-						},
+						download: save,
 						state: prevState.state,
 					};
 				});
@@ -211,19 +199,6 @@ export default function ConvertUI({
 		setState({type: 'idle'});
 	}, []);
 
-	const onDownload = useCallback(async () => {
-		if (state.type !== 'done') {
-			throw new Error('Cannot download when not done');
-		}
-
-		try {
-			await state.download();
-		} catch (e) {
-			console.error(e);
-			setState({type: 'error', error: e as Error});
-		}
-	}, [state]);
-
 	useEffect(() => {
 		return () => {
 			if (abortSignal.current) {
@@ -232,84 +207,74 @@ export default function ConvertUI({
 		};
 	}, []);
 
+	if (state.type === 'error') {
+		return (
+			<>
+				<ErrorState error={state.error} />
+				<div className="h-4" />
+				<Button className="block w-full" type="button" onClick={dimissError}>
+					Dismiss
+				</Button>
+			</>
+		);
+	}
+
+	if (state.type === 'in-progress') {
+		return (
+			<>
+				<ConvertProgress
+					state={state.state}
+					name={name}
+					container={container}
+				/>
+				<div className="h-2" />
+				<Button className="block w-full" type="button" onClick={cancel}>
+					Cancel
+				</Button>
+			</>
+		);
+	}
+
+	if (state.type === 'done') {
+		return <ConversionDone {...{container, name, setState, state, setSrc}} />;
+	}
+
 	return (
-		<div className="w-full lg:w-[350px]">
-			<div className="gap-4">
-				{state.type === 'error' ? (
-					<>
-						<ErrorState error={state.error} />
-						<div className="h-4" />
-						<Button
-							className="block w-full"
-							type="button"
-							onClick={dimissError}
-						>
-							Dismiss
-						</Button>
-					</>
-				) : state.type === 'in-progress' ? (
-					<>
-						<ConvertProgress
-							state={state.state}
-							name={name}
-							container={container}
-						/>
-						<div className="h-2" />
-						<Button className="block w-full" type="button" onClick={cancel}>
-							Cancel
-						</Button>
-					</>
-				) : state.type === 'done' ? (
-					<>
-						<ConvertProgress
-							state={state.state}
-							name={name}
-							container={container}
-						/>
-						<div className="h-2" />
-						<Button className="block w-full" type="button" onClick={onDownload}>
-							Download
-						</Button>
-					</>
-				) : (
-					<>
-						<div className=" w-full items-center">
-							<div className="flex flex-row">
-								<CardTitle>Convert video</CardTitle>
-								<div className="w-2" />
-								<Badge variant="default">Alpha</Badge>
-							</div>
-							<div className="h-6" />
-							<ConvertForm
-								{...{
-									container,
-									setContainer,
-									flipHorizontal,
-									flipVertical,
-									setFlipHorizontal,
-									setFlipVertical,
-									supportedConfigs,
-									audioConfigIndex,
-									videoConfigIndex,
-									setAudioConfigIndex,
-									setVideoConfigIndex,
-									currentAudioCodec,
-									currentVideoCodec,
-								}}
-							/>
-						</div>
-						<div className="h-4" />
-						<Button
-							className="block w-full font-brand"
-							type="button"
-							variant="brand"
-							onClick={onClick}
-						>
-							Convert
-						</Button>
-					</>
-				)}
+		<>
+			<div className="w-full items-center">
+				<div className="flex flex-row">
+					<CardTitle>Convert video</CardTitle>
+					<div className="w-2" />
+					<Badge variant="default">Alpha</Badge>
+				</div>
+				<div className="h-6" />
+				<ConvertForm
+					{...{
+						container,
+						setContainer,
+						flipHorizontal,
+						flipVertical,
+						setFlipHorizontal,
+						setFlipVertical,
+						supportedConfigs,
+						audioConfigIndex,
+						videoConfigIndex,
+						setAudioConfigIndex,
+						setVideoConfigIndex,
+						currentAudioCodec,
+						currentVideoCodec,
+					}}
+				/>
 			</div>
-		</div>
+			<div className="h-4" />
+			<Button
+				className="block w-full font-brand"
+				type="button"
+				variant="brand"
+				onClick={onClick}
+			>
+				Convert
+			</Button>
+		</>
 	);
 }

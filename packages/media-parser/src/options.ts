@@ -145,7 +145,7 @@ export type ParseMediaDynamicOptions<F extends Options<ParseMediaFields>> = {
 } & ParseMediaCallbacks<F>;
 
 export type ParseMediaOptions<F extends Options<ParseMediaFields>> = {
-	src: string | File;
+	src: string | Blob;
 	reader?: ReaderInterface;
 	onAudioTrack?: OnAudioTrack;
 	onVideoTrack?: OnVideoTrack;

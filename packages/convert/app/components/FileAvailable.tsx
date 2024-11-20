@@ -57,12 +57,17 @@ export const FileAvailable: React.FC<{
 						onTracks={onTracks}
 					/>
 					<div className="h-8 lg:h-0 lg:w-8" />
-					<ConvertUI
-						currentAudioCodec={currentAudioCodec}
-						currentVideoCodec={currentVideoCodec}
-						src={src}
-						tracks={tracks}
-					/>
+					<div className="w-full lg:w-[350px]">
+						<div className="gap-4">
+							<ConvertUI
+								currentAudioCodec={currentAudioCodec}
+								currentVideoCodec={currentVideoCodec}
+								src={src}
+								tracks={tracks}
+								setSrc={setSrc}
+							/>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

@@ -20,7 +20,11 @@ const Index = () => {
 	return (
 		<div className="font-sans min-h-screen bg-slate-50">
 			{src ? (
-				<FileAvailable src={src} setSrc={setSrc} />
+				<FileAvailable
+					key={src.type === 'url' ? src.url : src.file.name}
+					src={src}
+					setSrc={setSrc}
+				/>
 			) : (
 				<PickFile setSrc={setSrc} />
 			)}

@@ -1,10 +1,9 @@
 import type {Writer, WriterInterface} from './writer';
 
-const createContent = async () => {
+const createContent = async (filename: string) => {
 	const directoryHandle = await navigator.storage.getDirectory();
-	// TODO: Unhardcode WebM
-	const filename = `media-parser-${Math.random().toString().replace('0.', '')}.webm`;
 
+	directoryHandle.removeEntry(filename);
 	const fileHandle = await directoryHandle.getFileHandle(filename, {
 		create: true,
 	});
