@@ -32,6 +32,7 @@ import {makeAudioTrackHandler} from './on-audio-track';
 import {type ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
 import {makeVideoTrackHandler} from './on-video-track';
 import {type ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
+import {throttledStateUpdate} from './throttled-state-update';
 import {withResolversAndWaitForReturn} from './with-resolvers';
 
 export type ConvertMediaState = {
@@ -124,48 +125,43 @@ export const convertMedia = async function <
 
 	userPassedAbortSignal?.addEventListener('abort', onUserAbort);
 
-	const convertMediaState: ConvertMediaState = {
-		decodedAudioFrames: 0,
-		decodedVideoFrames: 0,
-		encodedVideoFrames: 0,
-		encodedAudioFrames: 0,
-		bytesWritten: 0,
-		millisecondsWritten: 0,
-		expectedOutputDurationInMs: null,
-		overallProgress: 0,
-	};
-
-	const onMediaStateUpdate = (newState: ConvertMediaState) => {
-		if (controller.signal.aborted) {
-			return;
-		}
-
-		onMediaStateDoNoCallDirectly?.(newState);
-	};
-
 	const creator =
 		container === 'webm'
 			? MediaParserInternals.createMatroskaMedia
 			: MediaParserInternals.createIsoBaseMedia;
 
+	const throttledState = throttledStateUpdate({
+		updateFn: onMediaStateDoNoCallDirectly ?? null,
+		everyMilliseconds: 100,
+		signal: controller.signal,
+	});
+
 	const state = await creator({
 		filename: generateOutputFilename(src, container),
 		writer: await autoSelectWriter(writer, logLevel),
 		onBytesProgress: (bytesWritten) => {
-			convertMediaState.bytesWritten = bytesWritten;
-			onMediaStateUpdate?.(convertMediaState);
+			throttledState.update?.((prevState) => {
+				return {
+					...prevState,
+					bytesWritten,
+				};
+			});
 		},
 		onMillisecondsProgress: (millisecondsWritten) => {
-			if (millisecondsWritten > convertMediaState.millisecondsWritten) {
-				convertMediaState.millisecondsWritten = millisecondsWritten;
-				convertMediaState.overallProgress = calculateProgress({
-					millisecondsWritten: convertMediaState.millisecondsWritten,
-					expectedOutputDurationInMs:
-						convertMediaState.expectedOutputDurationInMs,
-				});
+			throttledState.update?.((prevState) => {
+				if (millisecondsWritten > prevState.millisecondsWritten) {
+					return {
+						...prevState,
+						millisecondsWritten,
+						overallProgress: calculateProgress({
+							millisecondsWritten: prevState.millisecondsWritten,
+							expectedOutputDurationInMs: prevState.expectedOutputDurationInMs,
+						}),
+					};
+				}
 
-				onMediaStateUpdate?.(convertMediaState);
-			}
+				return prevState;
+			});
 		},
 		logLevel,
 	});
@@ -173,9 +169,8 @@ export const convertMedia = async function <
 	const onVideoTrack: OnVideoTrack = makeVideoTrackHandler({
 		state,
 		onVideoFrame: onVideoFrame ?? null,
-		onMediaStateUpdate: onMediaStateUpdate ?? null,
+		onMediaStateUpdate: throttledState.update ?? null,
 		abortConversion,
-		convertMediaState,
 		controller,
 		defaultVideoCodec: videoCodec ?? null,
 		onVideoTrack: userVideoResolver ?? null,
@@ -187,8 +182,7 @@ export const convertMedia = async function <
 		abortConversion,
 		defaultAudioCodec: audioCodec ?? null,
 		controller,
-		convertMediaState,
-		onMediaStateUpdate: onMediaStateUpdate ?? null,
+		onMediaStateUpdate: throttledState.update ?? null,
 		state,
 		onAudioTrack: userAudioResolver ?? null,
 		logLevel,
@@ -220,12 +214,16 @@ export const convertMedia = async function <
 			}
 
 			const expectedOutputDurationInMs = durationInSeconds * 1000;
-			convertMediaState.expectedOutputDurationInMs = expectedOutputDurationInMs;
-			convertMediaState.overallProgress = calculateProgress({
-				millisecondsWritten: convertMediaState.millisecondsWritten,
-				expectedOutputDurationInMs,
+			throttledState.update?.((prevState) => {
+				return {
+					...prevState,
+					expectedOutputDurationInMs,
+					overallProgress: calculateProgress({
+						millisecondsWritten: prevState.millisecondsWritten,
+						expectedOutputDurationInMs,
+					}),
+				};
 			});
-			onMediaStateUpdate(convertMediaState);
 		},
 	})
 		.then(() => {
@@ -235,11 +233,14 @@ export const convertMedia = async function <
 			resolve({
 				save: state.save,
 				remove: state.remove,
-				finalState: convertMediaState,
+				finalState: throttledState.get(),
 			});
 		})
 		.catch((err) => {
 			reject(err);
+		})
+		.finally(() => {
+			throttledState.stop();
 		});
 
 	return getPromiseToImmediatelyReturn().finally(() => {

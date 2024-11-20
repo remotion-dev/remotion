@@ -110,6 +110,9 @@ export const parseMedia: ParseMedia = async ({
 			if (result.done) {
 				break;
 			}
+
+			// Let things in the task queue run, like dispatch events
+			await Promise.resolve();
 		}
 
 		if (!iterator) {

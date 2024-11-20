@@ -5,17 +5,16 @@ import {createAudioEncoder} from './audio-encoder';
 import {getAudioEncoderConfig} from './audio-encoder-config';
 import type {ConvertMediaAudioCodec, ConvertMediaContainer} from './codec-id';
 import {convertEncodedChunk} from './convert-encoded-chunk';
-import type {ConvertMediaState} from './convert-media';
 import {defaultOnAudioTrackHandler} from './default-on-audio-track-handler';
 import Error from './error-cause';
 import {Log} from './log';
 import type {ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
+import type {ConvertMediaStateUpdateFn} from './throttled-state-update';
 
 export const makeAudioTrackHandler =
 	({
 		state,
 		defaultAudioCodec: audioCodec,
-		convertMediaState,
 		controller,
 		abortConversion,
 		onMediaStateUpdate,
@@ -25,10 +24,9 @@ export const makeAudioTrackHandler =
 	}: {
 		state: MediaFn;
 		defaultAudioCodec: ConvertMediaAudioCodec | null;
-		convertMediaState: ConvertMediaState;
 		controller: AbortController;
 		abortConversion: (errCause: Error) => void;
-		onMediaStateUpdate: null | ((state: ConvertMediaState) => void);
+		onMediaStateUpdate: null | ConvertMediaStateUpdateFn;
 		onAudioTrack: ConvertMediaOnAudioTrackHandler | null;
 		logLevel: LogLevel;
 		container: ConvertMediaContainer;
@@ -73,8 +71,12 @@ export const makeAudioTrackHandler =
 					timescale: track.timescale,
 					codecPrivate: track.codecPrivate,
 				});
-				convertMediaState.encodedAudioFrames++;
-				onMediaStateUpdate?.({...convertMediaState});
+				onMediaStateUpdate?.((prevState) => {
+					return {
+						...prevState,
+						encodedAudioFrames: prevState.encodedAudioFrames + 1,
+					};
+				});
 			};
 		}
 
@@ -137,8 +139,12 @@ export const makeAudioTrackHandler =
 					timescale: track.timescale,
 					codecPrivate,
 				});
-				convertMediaState.encodedAudioFrames++;
-				onMediaStateUpdate?.({...convertMediaState});
+				onMediaStateUpdate?.((prevState) => {
+					return {
+						...prevState,
+						encodedAudioFrames: prevState.encodedAudioFrames + 1,
+					};
+				});
 			},
 			onError: (err) => {
 				abortConversion(
@@ -159,8 +165,12 @@ export const makeAudioTrackHandler =
 		const audioDecoder = createAudioDecoder({
 			onFrame: async (frame) => {
 				await audioEncoder.encodeFrame(frame);
-				convertMediaState.decodedAudioFrames++;
-				onMediaStateUpdate?.(convertMediaState);
+				onMediaStateUpdate?.((prevState) => {
+					return {
+						...prevState,
+						decodedAudioFrames: prevState.decodedAudioFrames + 1,
+					};
+				});
 
 				frame.close();
 			},

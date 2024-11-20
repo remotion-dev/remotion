@@ -60,7 +60,7 @@ export const ConversionDone: React.FC<{
 			>
 				<CloneIcon className="size-4" />
 				<div className="w-2" />
-				Use as input
+				Use new video as input
 			</Button>
 		</>
 	);
