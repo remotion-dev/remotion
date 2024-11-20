@@ -1,117 +1,55 @@
 import type {BufferIterator} from '../../../buffer-iterator';
-import type {ParseResult} from '../../../parse-result';
+import type {
+	ExpectSegmentParseResult,
+	MatroskaParseResult,
+} from '../../../parse-result';
 import type {ParserContext} from '../../../parser-context';
 import type {MatroskaSegment} from '../segments';
 import {expectSegment} from '../segments';
 
-type WrapChildren = (segments: MatroskaSegment[]) => MatroskaSegment;
-
 const processParseResult = ({
 	parseResult,
 	children,
-	wrap,
 }: {
 	children: MatroskaSegment[];
-	parseResult: ParseResult;
-	wrap: WrapChildren | null;
-}): ParseResult => {
+	parseResult: ExpectSegmentParseResult;
+}): ExpectSegmentParseResult => {
+	if (parseResult.segment && !children.includes(parseResult.segment)) {
+		children.push(parseResult.segment);
+	}
+
 	if (parseResult.status === 'incomplete') {
 		// No need to decrement because expectSegment already does it
 		return {
 			status: 'incomplete',
-			segments: [],
+			segment: parseResult.segment,
 			continueParsing: async () => {
 				const newParseResult = await parseResult.continueParsing();
 				return processParseResult({
 					children,
 					parseResult: newParseResult,
-					wrap,
 				});
 			},
-			skipTo: null,
 		};
-	}
-
-	for (const segment of parseResult.segments) {
-		children.push(segment as MatroskaSegment);
 	}
 
 	return {
 		status: 'done',
-		segments: wrap ? [wrap(children)] : children,
+		segment: parseResult.segment,
 	};
 };
-
-const continueParsingfunction =
-	({
-		result,
-		iterator,
-		children,
-		wrap,
-		parserContext,
-		length,
-	}: {
-		result: ParseResult;
-		iterator: BufferIterator;
-		children: MatroskaSegment[];
-		wrap: WrapChildren | null;
-		parserContext: ParserContext;
-		length: number;
-	}) =>
-	async (): Promise<ParseResult> => {
-		if (result.status !== 'incomplete') {
-			throw new Error('expected incomplete');
-		}
-
-		const offset = iterator.counter.getOffset();
-
-		const continued = await result.continueParsing();
-		if (continued.status === 'incomplete') {
-			if (!parserContext.supportsContentRange) {
-				throw new Error(
-					'Content-Range header is not supported by the reader, but was asked to seek',
-				);
-			}
-
-			return {
-				status: 'incomplete',
-				continueParsing: continueParsingfunction({
-					result: continued,
-					iterator,
-					children,
-					wrap,
-					parserContext,
-					length: length - (iterator.counter.getOffset() - offset),
-				}),
-				skipTo: continued.skipTo,
-				segments: wrap ? [wrap(children)] : children,
-			};
-		}
-
-		// eslint-disable-next-line @typescript-eslint/no-use-before-define
-		return expectChildren({
-			iterator,
-			length: length - (iterator.counter.getOffset() - offset),
-			initialChildren: children,
-			wrap,
-			parserContext,
-		});
-	};
 
 export const expectChildren = async ({
 	iterator,
 	length,
-	initialChildren,
-	wrap,
+	children,
 	parserContext,
 }: {
 	iterator: BufferIterator;
 	length: number;
-	initialChildren: MatroskaSegment[];
-	wrap: WrapChildren | null;
+	children: MatroskaSegment[];
 	parserContext: ParserContext;
-}): Promise<ParseResult> => {
-	const children: MatroskaSegment[] = [...initialChildren];
+}): Promise<MatroskaParseResult> => {
 	const startOffset = iterator.counter.getOffset();
 
 	while (iterator.counter.getOffset() < startOffset + length) {
@@ -124,7 +62,6 @@ export const expectChildren = async ({
 		const child = processParseResult({
 			children,
 			parseResult,
-			wrap,
 		});
 
 		if (child.status === 'incomplete') {
@@ -136,22 +73,20 @@ export const expectChildren = async ({
 
 			return {
 				status: 'incomplete',
-				continueParsing: continueParsingfunction({
-					result: child,
-					iterator,
-					children,
-					wrap,
-					parserContext,
-					length: length - (iterator.counter.getOffset() - startOffset),
-				}),
-				skipTo: child.skipTo,
-				segments: wrap ? [wrap(children)] : children,
+				continueParsing: () => {
+					return expectChildren({
+						children,
+						iterator,
+						length,
+						parserContext,
+					});
+				},
+				skipTo: null,
 			};
 		}
 	}
 
 	return {
 		status: 'done',
-		segments: wrap ? [wrap(children)] : children,
 	};
 };

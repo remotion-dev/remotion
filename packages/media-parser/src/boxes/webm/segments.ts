@@ -1,8 +1,9 @@
 import type {BufferIterator} from '../../buffer-iterator';
-import type {ParseResult} from '../../parse-result';
+import type {ExpectSegmentParseResult} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
 import {parseEbml, postprocessEbml} from './parse-ebml';
-import type {PossibleEbml, TrackEntry} from './segments/all-segments';
+import type {ClusterSegment, MainSegment} from './segments/all-segments';
+import {type PossibleEbml, type TrackEntry} from './segments/all-segments';
 import {expectChildren} from './segments/parse-children';
 
 export type MatroskaSegment = PossibleEbml;
@@ -38,16 +39,15 @@ const parseSegment = async ({
 export const expectSegment = async (
 	iterator: BufferIterator,
 	parserContext: ParserContext,
-): Promise<ParseResult> => {
+): Promise<ExpectSegmentParseResult> => {
 	const offset = iterator.counter.getOffset();
 	if (iterator.bytesRemaining() === 0) {
 		return {
 			status: 'incomplete',
-			segments: [],
 			continueParsing: () => {
 				return Promise.resolve(expectSegment(iterator, parserContext));
 			},
-			skipTo: null,
+			segment: null,
 		};
 	}
 
@@ -57,27 +57,23 @@ export const expectSegment = async (
 		iterator.counter.decrement(iterator.counter.getOffset() - offset);
 		return {
 			status: 'incomplete',
-			segments: [],
 			continueParsing: () => {
 				return Promise.resolve(expectSegment(iterator, parserContext));
 			},
-			skipTo: null,
+			segment: null,
 		};
 	}
 
-	const offsetBeforeVInt = iterator.counter.getOffset();
 	const length = iterator.getVint();
-	const offsetAfterVInt = iterator.counter.getOffset();
 
 	if (length === null) {
 		iterator.counter.decrement(iterator.counter.getOffset() - offset);
 		return {
 			status: 'incomplete',
-			segments: [],
 			continueParsing: () => {
 				return Promise.resolve(expectSegment(iterator, parserContext));
 			},
-			skipTo: null,
+			segment: null,
 		};
 	}
 
@@ -85,37 +81,33 @@ export const expectSegment = async (
 		iterator.byteLength() - iterator.counter.getOffset();
 
 	if (segmentId === '0x18538067' || segmentId === '0x1f43b675') {
+		const newSegment: ClusterSegment | MainSegment = {
+			type: segmentId === '0x18538067' ? 'Segment' : 'Cluster',
+			minVintWidth: null,
+			value: [],
+		};
+
 		const main = await expectChildren({
 			iterator,
 			length,
-			initialChildren: [],
-			wrap:
-				segmentId === '0x18538067'
-					? (s) => ({
-							type: 'Segment',
-							value: s,
-							minVintWidth: offsetAfterVInt - offsetBeforeVInt,
-						})
-					: (s) => ({
-							type: 'Cluster',
-							value: s,
-							minVintWidth: offsetAfterVInt - offsetBeforeVInt,
-						}),
+			children: newSegment.value,
 			parserContext,
 		});
 
 		if (main.status === 'incomplete') {
 			return {
 				status: 'incomplete',
-				segments: main.segments,
-				skipTo: null,
-				continueParsing: main.continueParsing,
+				continueParsing: async () => {
+					await main.continueParsing();
+					return expectSegment(iterator, parserContext);
+				},
+				segment: newSegment,
 			};
 		}
 
 		return {
 			status: 'done',
-			segments: main.segments,
+			segment: newSegment,
 		};
 	}
 
@@ -124,11 +116,10 @@ export const expectSegment = async (
 		iterator.counter.decrement(bytesRead);
 		return {
 			status: 'incomplete',
-			segments: [],
+			segment: null,
 			continueParsing: () => {
-				return Promise.resolve(expectSegment(iterator, parserContext));
+				return expectSegment(iterator, parserContext);
 			},
-			skipTo: null,
 		};
 	}
 
@@ -142,6 +133,6 @@ export const expectSegment = async (
 
 	return {
 		status: 'done',
-		segments: [segment],
+		segment,
 	};
 };
