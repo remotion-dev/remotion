@@ -13,6 +13,7 @@ export const createIsoBaseMedia = async ({
 	onBytesProgress,
 	onMillisecondsProgress,
 	logLevel,
+	filename,
 }: MediaFnGeneratorInput): Promise<MediaFn> => {
 	const header = createIsoBaseMediaFtyp({
 		compatibleBrands: ['isom', 'iso2', 'avc1', 'mp42'],
@@ -20,7 +21,7 @@ export const createIsoBaseMedia = async ({
 		minorBrand: 512,
 	});
 
-	const w = await writer.createContent();
+	const w = await writer.createContent(filename);
 	await w.write(header);
 
 	let durationInUnits = 0;
@@ -174,9 +175,8 @@ export const createIsoBaseMedia = async ({
 	const waitForFinishPromises: (() => Promise<void>)[] = [];
 
 	return {
-		save: async () => {
-			const file = await w.save();
-			return file;
+		save: () => {
+			return w.save();
 		},
 		remove: async () => {
 			await w.remove();

@@ -32,4 +32,5 @@ export type MediaFnGeneratorInput = {
 	onBytesProgress: (totalBytes: number) => void;
 	onMillisecondsProgress: (totalMilliseconds: number) => void;
 	logLevel: LogLevel;
+	filename: string;
 };

@@ -27,6 +27,7 @@ import type {
 	ConvertMediaVideoCodec,
 } from './codec-id';
 import Error from './error-cause';
+import {generateOutputFilename} from './generate-output-filename';
 import {makeAudioTrackHandler} from './on-audio-track';
 import {type ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
 import {makeVideoTrackHandler} from './on-video-track';
@@ -147,6 +148,7 @@ export const convertMedia = async function <
 			: MediaParserInternals.createIsoBaseMedia;
 
 	const state = await creator({
+		filename: generateOutputFilename(src, container),
 		writer: await autoSelectWriter(writer, logLevel),
 		onBytesProgress: (bytesWritten) => {
 			convertMediaState.bytesWritten = bytesWritten;

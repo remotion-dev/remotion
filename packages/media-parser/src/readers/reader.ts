@@ -10,11 +10,11 @@ type ReadResult = {
 	supportsContentRange: boolean;
 };
 type ReadContent = (
-	src: string | File,
+	src: string | Blob,
 	range: [number, number] | number | null,
 	signal: AbortSignal | undefined,
 ) => Promise<ReadResult>;
-type GetLength = (src: string | File) => Promise<number>;
+type GetLength = (src: string | Blob) => Promise<number>;
 
 export type ReaderInterface = {
 	read: ReadContent;

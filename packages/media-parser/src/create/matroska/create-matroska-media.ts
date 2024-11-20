@@ -23,10 +23,11 @@ export const createMatroskaMedia = async ({
 	writer,
 	onBytesProgress,
 	onMillisecondsProgress,
+	filename,
 }: MediaFnGeneratorInput): Promise<MediaFn> => {
 	const header = makeMatroskaHeader();
 
-	const w = await writer.createContent();
+	const w = await writer.createContent(filename);
 	await w.write(header.bytes);
 	const matroskaInfo = makeMatroskaInfo({
 		timescale,
@@ -211,9 +212,8 @@ export const createMatroskaMedia = async ({
 				}
 			});
 		},
-		save: async () => {
-			const file = await w.save();
-			return file;
+		save: () => {
+			return w.save();
 		},
 		remove: async () => {
 			await w.remove();
