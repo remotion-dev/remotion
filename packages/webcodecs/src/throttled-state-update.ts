@@ -10,7 +10,7 @@ export type ConvertMediaProgressFn = (
 type ReturnType = {
 	get: () => ConvertMediaProgress;
 	update: ConvertMediaProgressFn | null;
-	stop: () => void;
+	stopAndGetLastProgress: () => void;
 };
 
 export const throttledStateUpdate = ({
@@ -32,16 +32,28 @@ export const throttledStateUpdate = ({
 		expectedOutputDurationInMs: null,
 		overallProgress: 0,
 	};
+
 	if (!updateFn) {
 		return {
 			get: () => currentState,
 			update: null,
-			stop: () => {},
+			stopAndGetLastProgress: () => {},
 		};
 	}
 
-	const interval = setInterval(() => {
+	let lastUpdated: ConvertMediaProgress | null = null;
+
+	const callUpdateIfChanged = () => {
+		if (currentState === lastUpdated) {
+			return;
+		}
+
 		updateFn(currentState);
+		lastUpdated = currentState;
+	};
+
+	const interval = setInterval(() => {
+		callUpdateIfChanged();
 	}, everyMilliseconds);
 
 	const onAbort = () => {
@@ -55,9 +67,10 @@ export const throttledStateUpdate = ({
 		update: (fn: (prevState: ConvertMediaProgress) => ConvertMediaProgress) => {
 			currentState = fn(currentState);
 		},
-		stop: () => {
+		stopAndGetLastProgress: () => {
 			clearInterval(interval);
 			signal.removeEventListener('abort', onAbort);
+			return currentState;
 		},
 	};
 };

@@ -242,7 +242,7 @@ export const convertMedia = async function <
 			reject(err);
 		})
 		.finally(() => {
-			throttledState.stop();
+			throttledState.stopAndGetLastProgress();
 		});
 
 	return getPromiseToImmediatelyReturn().finally(() => {
