@@ -1,15 +1,15 @@
 import type {
-	ConvertMediaOnMediaStateUpdate,
-	ConvertMediaState,
+	ConvertMediaOnProgress,
+	ConvertMediaProgress,
 } from './convert-media';
 
-export type ConvertMediaStateUpdateFn = (
-	state: (prevState: ConvertMediaState) => ConvertMediaState,
+export type ConvertMediaProgressFn = (
+	state: (prevState: ConvertMediaProgress) => ConvertMediaProgress,
 ) => void;
 
 type ReturnType = {
-	get: () => ConvertMediaState;
-	update: ConvertMediaStateUpdateFn | null;
+	get: () => ConvertMediaProgress;
+	update: ConvertMediaProgressFn | null;
 	stop: () => void;
 };
 
@@ -18,11 +18,11 @@ export const throttledStateUpdate = ({
 	everyMilliseconds,
 	signal,
 }: {
-	updateFn: ConvertMediaOnMediaStateUpdate | null;
+	updateFn: ConvertMediaOnProgress | null;
 	everyMilliseconds: number;
 	signal: AbortSignal;
 }): ReturnType => {
-	let currentState: ConvertMediaState = {
+	let currentState: ConvertMediaProgress = {
 		decodedAudioFrames: 0,
 		decodedVideoFrames: 0,
 		encodedVideoFrames: 0,
@@ -52,7 +52,7 @@ export const throttledStateUpdate = ({
 
 	return {
 		get: () => currentState,
-		update: (fn: (prevState: ConvertMediaState) => ConvertMediaState) => {
+		update: (fn: (prevState: ConvertMediaProgress) => ConvertMediaProgress) => {
 			currentState = fn(currentState);
 		},
 		stop: () => {

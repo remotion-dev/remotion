@@ -13,10 +13,10 @@ export {
 	getAvailableVideoCodecs,
 } from './codec-id';
 export {
-	ConvertMediaOnMediaStateUpdate,
+	ConvertMediaOnProgress,
 	ConvertMediaOnVideoFrame,
+	ConvertMediaProgress,
 	ConvertMediaResult,
-	ConvertMediaState,
 	convertMedia,
 } from './convert-media';
 export {defaultOnAudioTrackHandler} from './default-on-audio-track-handler';

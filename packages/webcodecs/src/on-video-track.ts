@@ -8,7 +8,7 @@ import Error from './error-cause';
 import {Log} from './log';
 import {onFrame} from './on-frame';
 import type {ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
-import type {ConvertMediaStateUpdateFn} from './throttled-state-update';
+import type {ConvertMediaProgressFn} from './throttled-state-update';
 import {createVideoDecoder} from './video-decoder';
 import {getVideoDecoderConfigWithHardwareAcceleration} from './video-decoder-config';
 import {createVideoEncoder} from './video-encoder';
@@ -28,7 +28,7 @@ export const makeVideoTrackHandler =
 	}: {
 		state: MediaFn;
 		onVideoFrame: null | ConvertMediaOnVideoFrame;
-		onMediaStateUpdate: null | ConvertMediaStateUpdateFn;
+		onMediaStateUpdate: null | ConvertMediaProgressFn;
 		abortConversion: (errCause: Error) => void;
 		controller: AbortController;
 		defaultVideoCodec: ConvertMediaVideoCodec | null;

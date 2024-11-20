@@ -9,7 +9,7 @@ import {defaultOnAudioTrackHandler} from './default-on-audio-track-handler';
 import Error from './error-cause';
 import {Log} from './log';
 import type {ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
-import type {ConvertMediaStateUpdateFn} from './throttled-state-update';
+import type {ConvertMediaProgressFn} from './throttled-state-update';
 
 export const makeAudioTrackHandler =
 	({
@@ -26,7 +26,7 @@ export const makeAudioTrackHandler =
 		defaultAudioCodec: ConvertMediaAudioCodec | null;
 		controller: AbortController;
 		abortConversion: (errCause: Error) => void;
-		onMediaStateUpdate: null | ConvertMediaStateUpdateFn;
+		onMediaStateUpdate: null | ConvertMediaProgressFn;
 		onAudioTrack: ConvertMediaOnAudioTrackHandler | null;
 		logLevel: LogLevel;
 		container: ConvertMediaContainer;

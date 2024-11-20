@@ -1,5 +1,5 @@
 import {VideoTrack} from '@remotion/media-parser';
-import {ConvertMediaState, convertMedia} from '@remotion/webcodecs';
+import {ConvertMediaProgress, convertMedia} from '@remotion/webcodecs';
 import React, {useCallback, useRef, useState} from 'react';
 import {flushSync} from 'react-dom';
 import {AbsoluteFill} from 'remotion';
@@ -48,7 +48,7 @@ export const SrcEncoder: React.FC<{
 	readonly src: string;
 	readonly label: string;
 }> = ({src, label}) => {
-	const [state, setState] = useState<ConvertMediaState>({
+	const [state, setState] = useState<ConvertMediaProgress>({
 		decodedAudioFrames: 0,
 		decodedVideoFrames: 0,
 		encodedVideoFrames: 0,
@@ -137,7 +137,7 @@ export const SrcEncoder: React.FC<{
 			const fn = await convertMedia({
 				src,
 				onVideoFrame,
-				onMediaStateUpdate: (s) => {
+				onProgress: (s) => {
 					flushSync(() => {
 						setState(() => s);
 					});

@@ -88,7 +88,7 @@ export default function ConvertUI({
 				return flipped;
 			},
 			logLevel: 'verbose',
-			onMediaStateUpdate: (s) => {
+			onProgress: (s) => {
 				setState({
 					type: 'in-progress',
 					state: s,

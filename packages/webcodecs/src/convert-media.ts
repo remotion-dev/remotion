@@ -35,7 +35,7 @@ import {type ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
 import {throttledStateUpdate} from './throttled-state-update';
 import {withResolversAndWaitForReturn} from './with-resolvers';
 
-export type ConvertMediaState = {
+export type ConvertMediaProgress = {
 	decodedVideoFrames: number;
 	decodedAudioFrames: number;
 	encodedVideoFrames: number;
@@ -49,10 +49,10 @@ export type ConvertMediaState = {
 export type ConvertMediaResult = {
 	save: () => Promise<Blob>;
 	remove: () => Promise<void>;
-	finalState: ConvertMediaState;
+	finalState: ConvertMediaProgress;
 };
 
-export type ConvertMediaOnMediaStateUpdate = (state: ConvertMediaState) => void;
+export type ConvertMediaOnProgress = (state: ConvertMediaProgress) => void;
 export type ConvertMediaOnVideoFrame = (options: {
 	frame: VideoFrame;
 	track: VideoTrack;
@@ -63,7 +63,7 @@ export const convertMedia = async function <
 >({
 	src,
 	onVideoFrame,
-	onMediaStateUpdate: onMediaStateDoNoCallDirectly,
+	onProgress: onProgressDoNotCallDirectly,
 	audioCodec,
 	container,
 	videoCodec,
@@ -74,12 +74,13 @@ export const convertMedia = async function <
 	fields,
 	logLevel = 'info',
 	writer,
+	progressIntervalInMs,
 	...more
 }: {
 	src: ParseMediaOptions<F>['src'];
 	container: ConvertMediaContainer;
 	onVideoFrame?: ConvertMediaOnVideoFrame;
-	onMediaStateUpdate?: ConvertMediaOnMediaStateUpdate;
+	onProgress?: ConvertMediaOnProgress;
 	videoCodec?: ConvertMediaVideoCodec;
 	audioCodec?: ConvertMediaAudioCodec;
 	signal?: AbortSignal;
@@ -88,6 +89,7 @@ export const convertMedia = async function <
 	reader?: ParseMediaOptions<F>['reader'];
 	logLevel?: LogLevel;
 	writer?: WriterInterface;
+	progressIntervalInMs?: number;
 } & ParseMediaDynamicOptions<F>): Promise<ConvertMediaResult> {
 	if (userPassedAbortSignal?.aborted) {
 		return Promise.reject(new Error('Aborted'));
@@ -131,8 +133,8 @@ export const convertMedia = async function <
 			: MediaParserInternals.createIsoBaseMedia;
 
 	const throttledState = throttledStateUpdate({
-		updateFn: onMediaStateDoNoCallDirectly ?? null,
-		everyMilliseconds: 100,
+		updateFn: onProgressDoNotCallDirectly ?? null,
+		everyMilliseconds: progressIntervalInMs ?? 100,
 		signal: controller.signal,
 	});
 
