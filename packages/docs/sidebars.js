@@ -883,6 +883,7 @@ module.exports = {
 				'building-a-timeline',
 				'multiple-fps',
 				'angular',
+				'svelte',
 				'vue',
 			],
 		},

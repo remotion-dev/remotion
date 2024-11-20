@@ -199,7 +199,7 @@ You can also pass an EventEmitter instead of a Signal.
 1. In your `remotion` folder, create a file named `PlayerView.tsx`.
 2. Ensure each `.tsx` file imports React explicitly at the top of the file:
 
-This will get the reference to the player with `useRef`.
+This will get the reference to the player with `createRef`.
 
 ```tsx title="PlayerView.tsx"
 import React, {useEffect} from 'react';
@@ -257,6 +257,7 @@ You're now able to use the [`API`](/docs/player/player) of the player via `this.
 ## See also
 
 - [Source code for this documentation](https://github.com/remotion-dev/angular-starter)
+- [Integration into Svelte](/docs/svelte)
 - [Integration into Vue.js](/docs/vue)
 
 <Credits
