@@ -48,6 +48,7 @@ export type ConvertMediaState = {
 export type ConvertMediaResult = {
 	save: () => Promise<Blob>;
 	remove: () => Promise<void>;
+	finalState: ConvertMediaState;
 };
 
 export type ConvertMediaOnMediaStateUpdate = (state: ConvertMediaState) => void;
@@ -231,7 +232,11 @@ export const convertMedia = async function <
 			return state.waitForFinish();
 		})
 		.then(() => {
-			resolve({save: state.save, remove: state.remove});
+			resolve({
+				save: state.save,
+				remove: state.remove,
+				finalState: convertMediaState,
+			});
 		})
 		.catch((err) => {
 			reject(err);

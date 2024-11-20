@@ -1,7 +1,7 @@
 import {parseBoxes} from './boxes/iso-base-media/process-box';
 import {parseWebm} from './boxes/webm/parse-webm-header';
 import type {BufferIterator} from './buffer-iterator';
-import type {LogLevel} from './log';
+import {Log, type LogLevel} from './log';
 import type {IsoBaseMediaBox, ParseResult} from './parse-result';
 import type {ParserContext} from './parser-context';
 
@@ -55,6 +55,7 @@ export const parseVideo = ({
 	}
 
 	if (iterator.isIsoBaseMedia()) {
+		Log.verbose(logLevel, 'Detected ISO Base Media container');
 		return parseBoxes({
 			iterator,
 			maxBytes: Infinity,
@@ -68,6 +69,7 @@ export const parseVideo = ({
 	}
 
 	if (iterator.isWebm()) {
+		Log.verbose(logLevel, 'Detected Matroska container');
 		return Promise.resolve(parseWebm(iterator, options));
 	}
 
