@@ -170,7 +170,6 @@ export const makeVideoTrackHandler =
 			onFrame: async (frame) => {
 				await onFrame({
 					frame,
-					onMediaStateUpdate,
 					track,
 					videoEncoder,
 					onVideoFrame,

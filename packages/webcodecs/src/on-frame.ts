@@ -1,19 +1,16 @@
 import type {VideoTrack} from '@remotion/media-parser';
 import type {ConvertMediaOnVideoFrame} from './convert-media';
-import type {ConvertMediaProgressFn} from './throttled-state-update';
 import type {WebCodecsVideoEncoder} from './video-encoder';
 
 export const onFrame = async ({
 	frame,
 	onVideoFrame,
 	videoEncoder,
-	onMediaStateUpdate,
 	track,
 }: {
 	frame: VideoFrame;
 	onVideoFrame: ConvertMediaOnVideoFrame | null;
 	videoEncoder: WebCodecsVideoEncoder;
-	onMediaStateUpdate: ConvertMediaProgressFn | null;
 	track: VideoTrack;
 }) => {
 	const newFrame = onVideoFrame ? await onVideoFrame({frame, track}) : frame;
@@ -55,10 +52,6 @@ export const onFrame = async ({
 	}
 
 	await videoEncoder.encodeFrame(newFrame, newFrame.timestamp);
-	onMediaStateUpdate?.((prevState) => ({
-		...prevState,
-		encodedVideoFrames: prevState.encodedVideoFrames + 1,
-	}));
 
 	newFrame.close();
 	if (frame !== newFrame) {
