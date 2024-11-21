@@ -8,7 +8,10 @@ import type {ParserContext} from '../../parser-context';
 import {parseEbml, postprocessEbml} from './parse-ebml';
 import type {ClusterSegment, MainSegment} from './segments/all-segments';
 import {type PossibleEbml, type TrackEntry} from './segments/all-segments';
-import {expectChildren} from './segments/parse-children';
+import {
+	expectAndProcessSegment,
+	expectChildren,
+} from './segments/parse-children';
 
 export type MatroskaSegment = PossibleEbml;
 
@@ -51,16 +54,29 @@ const continueAfterMatroskaParseResult = async ({
 	};
 };
 
-export const expectSegment = async (
-	iterator: BufferIterator,
-	parserContext: ParserContext,
-): Promise<ExpectSegmentParseResult> => {
-	const offset = iterator.counter.getOffset();
+export const expectSegment = async ({
+	iterator,
+	parserContext,
+	offset,
+	children,
+}: {
+	iterator: BufferIterator;
+	parserContext: ParserContext;
+	offset: number;
+	children: PossibleEbml[];
+}): Promise<ExpectSegmentParseResult> => {
+	iterator.counter.decrement(iterator.counter.getOffset() - offset);
+
 	if (iterator.bytesRemaining() === 0) {
 		return {
 			status: 'incomplete',
 			continueParsing: () => {
-				return expectSegment(iterator, parserContext);
+				return expectAndProcessSegment({
+					iterator,
+					parserContext,
+					offset,
+					children,
+				});
 			},
 			segment: null,
 		};
@@ -73,7 +89,12 @@ export const expectSegment = async (
 		return {
 			status: 'incomplete',
 			continueParsing: () => {
-				return expectSegment(iterator, parserContext);
+				return expectAndProcessSegment({
+					iterator,
+					parserContext,
+					offset,
+					children,
+				});
 			},
 			segment: null,
 		};
@@ -86,7 +107,7 @@ export const expectSegment = async (
 		return {
 			status: 'incomplete',
 			continueParsing: () => {
-				return expectSegment(iterator, parserContext);
+				return expectSegment({iterator, parserContext, offset, children});
 			},
 			segment: null,
 		};
@@ -107,6 +128,7 @@ export const expectSegment = async (
 			length,
 			children: newSegment.value,
 			parserContext,
+			startOffset: iterator.counter.getOffset(),
 		});
 
 		if (main.status === 'incomplete') {
@@ -137,7 +159,7 @@ export const expectSegment = async (
 			status: 'incomplete',
 			segment: null,
 			continueParsing: () => {
-				return expectSegment(iterator, parserContext);
+				return expectSegment({iterator, parserContext, offset, children});
 			},
 		};
 	}

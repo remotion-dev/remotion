@@ -66,7 +66,7 @@ test('Should get duration of AV1 video', async () => {
 		},
 		{
 			type: 'Segment',
-			minVintWidth: 8,
+			minVintWidth: null,
 			value: [
 				{
 					type: 'SeekHead',
@@ -445,7 +445,7 @@ test('Should get duration of AV1 video', async () => {
 						},
 					],
 					type: 'Cluster',
-					minVintWidth: 3,
+					minVintWidth: null,
 				},
 				{
 					type: 'Cues',

@@ -37,6 +37,7 @@ export const parseWebm = async (
 		length: Infinity,
 		children,
 		parserContext,
+		startOffset: counter.counter.getOffset(),
 	});
 	return continueAfterMatroskaResult(results, children);
 };

@@ -6,6 +6,7 @@ import type {
 import type {ParserContext} from '../../../parser-context';
 import type {MatroskaSegment} from '../segments';
 import {expectSegment} from '../segments';
+import type {PossibleEbml} from './all-segments';
 
 const processParseResult = ({
 	parseResult,
@@ -39,18 +40,43 @@ const processParseResult = ({
 	};
 };
 
+export const expectAndProcessSegment = async ({
+	iterator,
+	parserContext,
+	offset,
+	children,
+}: {
+	iterator: BufferIterator;
+	parserContext: ParserContext;
+	offset: number;
+	children: PossibleEbml[];
+}) => {
+	const segment = await expectSegment({
+		iterator,
+		parserContext,
+		offset,
+		children,
+	});
+	return processParseResult({
+		children,
+		parseResult: segment,
+	});
+};
+
 const continueAfterSegmentResult = async ({
 	result,
 	length,
 	children,
 	parserContext,
 	iterator,
+	startOffset,
 }: {
 	result: ExpectSegmentParseResult;
 	length: number;
 	children: MatroskaSegment[];
 	parserContext: ParserContext;
 	iterator: BufferIterator;
+	startOffset: number;
 }): Promise<MatroskaParseResult> => {
 	if (result.status === 'done') {
 		throw new Error('Should not continue after done');
@@ -62,7 +88,13 @@ const continueAfterSegmentResult = async ({
 			status: 'incomplete',
 			continueParsing: () => {
 				// eslint-disable-next-line @typescript-eslint/no-use-before-define
-				return expectChildren({children, iterator, length, parserContext});
+				return expectChildren({
+					children,
+					iterator,
+					length,
+					parserContext,
+					startOffset,
+				});
 			},
 			skipTo: null,
 		};
@@ -77,6 +109,7 @@ const continueAfterSegmentResult = async ({
 				iterator,
 				length,
 				parserContext,
+				startOffset,
 			});
 		},
 		skipTo: null,
@@ -88,42 +121,38 @@ export const expectChildren = async ({
 	length,
 	children,
 	parserContext,
+	startOffset,
 }: {
 	iterator: BufferIterator;
 	length: number;
 	children: MatroskaSegment[];
 	parserContext: ParserContext;
+	startOffset: number;
 }): Promise<MatroskaParseResult> => {
-	const startOffset = iterator.counter.getOffset();
-
 	while (iterator.counter.getOffset() < startOffset + length) {
 		if (iterator.bytesRemaining() === 0) {
 			break;
 		}
 
-		const parseResult = await expectSegment(iterator, parserContext);
-
-		const child = processParseResult({
+		const currentOffset = iterator.counter.getOffset();
+		const child = await expectAndProcessSegment({
+			iterator,
+			parserContext,
+			offset: currentOffset,
 			children,
-			parseResult,
 		});
 
 		if (child.status === 'incomplete') {
-			if (!parserContext.supportsContentRange) {
-				throw new Error(
-					'Content-Range header is not supported by the reader, but was asked to seek',
-				);
-			}
-
 			return {
 				status: 'incomplete',
 				continueParsing: () => {
 					return continueAfterSegmentResult({
-						result: parseResult,
+						result: child,
 						children,
 						iterator,
-						length,
+						length: length - (currentOffset - startOffset),
 						parserContext,
+						startOffset: currentOffset,
 					});
 				},
 				skipTo: null,
