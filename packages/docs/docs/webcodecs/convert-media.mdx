@@ -10,9 +10,17 @@ crumb: '@remotion/webcodecs'
 
 _Part of the [`@remotion/webcodecs`](/docs/webcodecs) package._
 
-:::warning
-**Unstable API**: This package is experimental. We might change the API at any time, until we remove this notice.
-:::
+import {LicenseDisclaimer} from './LicenseDisclaimer';
+import {UnstableDisclaimer} from './UnstableDisclaimer';
+
+<details>
+  <summary>💼 Important License Disclaimer</summary>
+  <LicenseDisclaimer />
+</details>
+<details>
+  <summary>🚧 Unstable API</summary>
+  <UnstableDisclaimer />
+</details>
 
 Re-encodes a video using [WebCodecs](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API) and [`@remotion/media-parser`](/docs/media-parser).
 

@@ -7,3 +7,4 @@ tsconfig.tsbuildinfo
 bundle.ts
 .turbo
 .eslintrc
+ensure-correct-version.ts

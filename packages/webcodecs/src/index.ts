@@ -1,5 +1,7 @@
-export {WebCodecsAudioDecoder, createAudioDecoder} from './audio-decoder';
-export {WebCodecsAudioEncoder, createAudioEncoder} from './audio-encoder';
+import {setRemotionImported} from './set-remotion-imported';
+
+export {createAudioDecoder, WebCodecsAudioDecoder} from './audio-decoder';
+export {createAudioEncoder, WebCodecsAudioEncoder} from './audio-encoder';
 export {canCopyAudioTrack} from './can-copy-audio-track';
 export {canCopyVideoTrack} from './can-copy-video-track';
 export {canReencodeAudioTrack} from './can-reencode-audio-track';
@@ -13,11 +15,11 @@ export {
 	getAvailableVideoCodecs,
 } from './codec-id';
 export {
+	convertMedia,
 	ConvertMediaOnProgress,
 	ConvertMediaOnVideoFrame,
 	ConvertMediaProgress,
 	ConvertMediaResult,
-	convertMedia,
 } from './convert-media';
 export {defaultOnAudioTrackHandler} from './default-on-audio-track-handler';
 export {defaultOnVideoTrackHandler} from './default-on-video-track-handler';
@@ -31,5 +33,7 @@ export {
 	ConvertMediaOnVideoTrackHandler,
 	VideoOperation,
 } from './on-video-track-handler';
-export {WebCodecsVideoDecoder, createVideoDecoder} from './video-decoder';
-export {WebCodecsVideoEncoder, createVideoEncoder} from './video-encoder';
+export {createVideoDecoder, WebCodecsVideoDecoder} from './video-decoder';
+export {createVideoEncoder, WebCodecsVideoEncoder} from './video-encoder';
+
+setRemotionImported();
