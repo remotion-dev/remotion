@@ -209,7 +209,7 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	studio: 'https://www.remotion.dev/docs/studio/api',
 	transitions: 'https://www.remotion.dev/transitions',
 	'animated-emoji': 'https://www.remotion.dev/docs/animated-emoji',
-	webcodecs: null,
+	webcodecs: 'https://remotion.dev/webcodecs',
 	convert: 'https://convert.remotion.dev',
 	captions: 'https://remotion.dev/docs/captions',
 	'openai-whisper': 'https://www.remotion.dev/docs/openai-whisper',
