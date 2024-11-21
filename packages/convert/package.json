@@ -6,6 +6,7 @@
 	"type": "module",
 	"scripts": {
 		"build-page": "remix vite:build",
+		"build-spa": "remix vite:build -c vite-spa.config.ts",
 		"dev": "remix vite:dev",
 		"typecheck": "tsc",
 		"test": "bun test test",
