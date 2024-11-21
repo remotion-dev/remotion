@@ -1,5 +1,4 @@
 import type {LogLevel} from '@remotion/media-parser';
-import {isFirefox} from './browser-quirks';
 import type {ConvertMediaVideoCodec} from './codec-id';
 import {convertToCorrectVideoFrame} from './convert-to-correct-videoframe';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
@@ -93,8 +92,8 @@ export const createVideoEncoder = ({
 
 		await ioSynchronizer.waitFor({
 			// Firefox stalls if too few frames are passed
-			unemitted: isFirefox() ? 10 : 2,
-			_unprocessed: 2,
+			unemitted: 10,
+			_unprocessed: 10,
 		});
 
 		// @ts-expect-error - can have changed in the meanwhile

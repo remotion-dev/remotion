@@ -15,12 +15,20 @@ export const ConvertProgress: React.FC<{
 	readonly container: ConvertMediaContainer;
 	readonly done: boolean;
 	readonly duration: number | null;
-}> = ({state, name, container, done, duration}) => {
+	readonly isReencoding: boolean;
+}> = ({state, name, container, done, isReencoding, duration}) => {
 	return (
 		<>
 			<Card className="overflow-hidden">
-				<VideoThumbnail ref={convertProgressRef} smallThumbOnMobile={false} />
-				<div className="border-b-2 border-black" />
+				{isReencoding ? (
+					<>
+						<VideoThumbnail
+							ref={convertProgressRef}
+							smallThumbOnMobile={false}
+						/>
+						<div className="border-b-2 border-black" />
+					</>
+				) : null}
 				<div className="h-5 overflow-hidden">
 					{state.millisecondsWritten || done ? (
 						<div
