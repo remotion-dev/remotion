@@ -4,7 +4,9 @@ import {Source} from '~/lib/convert-state';
 import {FileAvailable} from './FileAvailable';
 import {PickFile} from './PickFile';
 
-export const Main: React.FC = () => {
+export const Main: React.FC<{
+	readonly title: string;
+}> = ({title}) => {
 	const [src, setSrc] = useState<Source | null>(
 		TEST_FAST ? {type: 'url', url: SAMPLE_FILE} : null,
 	);
@@ -18,7 +20,7 @@ export const Main: React.FC = () => {
 					setSrc={setSrc}
 				/>
 			) : (
-				<PickFile setSrc={setSrc} />
+				<PickFile setSrc={setSrc} title={title} />
 			)}
 		</div>
 	);

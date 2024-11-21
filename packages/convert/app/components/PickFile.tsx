@@ -5,7 +5,8 @@ import {DropFileBox} from './DropFileBox';
 
 export const PickFile: React.FC<{
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
-}> = ({setSrc}) => {
+	readonly title: string;
+}> = ({setSrc, title}) => {
 	const onSampleFile = useCallback(() => {
 		setSrc({type: 'url', url: SAMPLE_FILE});
 	}, [setSrc]);
@@ -31,9 +32,7 @@ export const PickFile: React.FC<{
 			onDragOver={onDragOver}
 			onDrop={onDrop}
 		>
-			<h1 className="text-center text-4xl font-brand font-bold">
-				Fast video conversion in the browser
-			</h1>
+			<h1 className="text-center text-4xl font-brand font-bold">{title}</h1>
 			<div className="h-12" />
 			<DropFileBox setSrc={setSrc} />
 			<div className="h-4" />

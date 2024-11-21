@@ -29,7 +29,7 @@ export const DropFileBox: React.FC<{
 				className="hidden"
 				onChange={handleFileChange}
 			/>
-			<Button onClick={() => ref.current?.click()}>Choose files</Button>
+			<Button onClick={() => ref.current?.click()}>Choose file</Button>
 		</Card>
 	);
 };
