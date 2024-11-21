@@ -69,7 +69,7 @@ const config = (mode) => ({
 						{to: 'experts', label: 'Experts'},
 						{to: 'https://remotion.pro/store', label: 'Store'},
 						{to: '/docs/support', label: 'Support'},
-						{to: '/convert', label: 'Convert a video'},
+						{to: 'https://convert.remotion.dev', label: 'Convert a video'},
 						{to: 'about', label: 'About us'},
 						{to: 'contact', label: 'Contact us'},
 					],
