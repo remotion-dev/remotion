@@ -124,6 +124,7 @@ export const parseMedia: ParseMedia = async ({
 				logLevel,
 				'Continuing parsing of file, currently at position',
 				iterator.counter.getOffset(),
+				getAvailableInfo(fields ?? {}, parseResult, state),
 			);
 			parseResult = await parseResult.continueParsing();
 		} else {
