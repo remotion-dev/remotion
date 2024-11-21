@@ -249,6 +249,14 @@ export default function ConvertUI({
 		);
 	}
 
+	const disableConvert =
+		supportedConfigs?.audioTrackOptions.every(
+			(o) => o.operations[audioConfigIndex[o.trackId] ?? 0].type === 'drop',
+		) &&
+		supportedConfigs?.videoTrackOptions.every(
+			(o) => o.operations[videoConfigIndex[o.trackId] ?? 0].type === 'drop',
+		);
+
 	return (
 		<>
 			<div className="w-full items-center">
@@ -281,6 +289,7 @@ export default function ConvertUI({
 				className="block w-full font-brand"
 				type="button"
 				variant="brand"
+				disabled={disableConvert}
 				onClick={onClick}
 			>
 				Convert

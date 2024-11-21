@@ -22,7 +22,7 @@ export const ConvertProgress: React.FC<{
 				<VideoThumbnail ref={convertProgressRef} smallThumbOnMobile={false} />
 				<div className="border-b-2 border-black" />
 				<div className="h-5 overflow-hidden">
-					{state.millisecondsWritten ? (
+					{state.millisecondsWritten || done ? (
 						<div
 							className="w-[50%] h-5 bg-brand"
 							style={{
