@@ -113,6 +113,10 @@ test('All packages should have a README.md file', () => {
 				.filter(Boolean)
 				.join('\n') + '\n';
 
+		if (pkg === 'convert') {
+			continue;
+		}
+
 		writeFileSync(readmePath, readme);
 	}
 });

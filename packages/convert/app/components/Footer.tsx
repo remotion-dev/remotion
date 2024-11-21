@@ -66,7 +66,7 @@ export const Footer: React.FC = () => {
 			<div className="w-6" />
 			<a
 				target="_blank"
-				href="https://github.com/remotion-dev/remotion/tree/main/packages/webcodecs"
+				href="https://github.com/remotion-dev/remotion/tree/main/packages/convert"
 				className="text-sm text-muted-foreground font-medium hover:text-foreground"
 			>
 				Source code
