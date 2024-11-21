@@ -1,5 +1,6 @@
 import type {LogLevel} from '@remotion/media-parser';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
+import {Log} from './log';
 
 export type WebCodecsVideoEncoder = {
 	encodeFrame: (videoFrame: VideoFrame, timestamp: number) => Promise<void>;
@@ -75,6 +76,7 @@ export const createVideoEncoder = ({
 
 	signal.addEventListener('abort', onAbort);
 
+	Log.verbose(logLevel, 'Configuring video encoder', config);
 	encoder.configure(config);
 
 	let framesProcessed = 0;

@@ -1,6 +1,8 @@
 import {getVariableInt} from '../../boxes/webm/ebml';
 import {matroskaToHex} from '../../boxes/webm/make-header';
 import {matroskaElements} from '../../boxes/webm/segments/all-segments';
+import type {LogLevel} from '../../log';
+import {Log} from '../../log';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 import type {Writer} from '../../writers/writer';
 import {
@@ -38,16 +40,26 @@ export const canFitInCluster = ({
 	return timecodeRelativeToCluster <= maxClusterTimestamp;
 };
 
-export const makeCluster = async (
-	w: Writer,
-	clusterStartTimestamp: number,
-	timescale: number,
-) => {
+export const makeCluster = async ({
+	writer,
+	clusterStartTimestamp,
+	timescale,
+	logLevel,
+}: {
+	writer: Writer;
+	clusterStartTimestamp: number;
+	timescale: number;
+	logLevel: LogLevel;
+}) => {
+	Log.verbose(
+		logLevel,
+		`Making new Matroska cluster with timestamp ${clusterStartTimestamp}`,
+	);
 	const cluster = createClusterSegment(
 		timestampToClusterTimestamp(clusterStartTimestamp, timescale),
 	);
 	const clusterVIntPosition =
-		w.getWrittenByteCount() +
+		writer.getWrittenByteCount() +
 		cluster.offsets.offset +
 		matroskaToHex(matroskaElements.Cluster).byteLength;
 
@@ -55,7 +67,7 @@ export const makeCluster = async (
 		cluster.bytes.byteLength -
 		matroskaToHex(matroskaElements.Cluster).byteLength -
 		CLUSTER_MIN_VINT_WIDTH;
-	await w.write(cluster.bytes);
+	await writer.write(cluster.bytes);
 
 	const addSample = async (chunk: AudioOrVideoSample, trackNumber: number) => {
 		const timecodeRelativeToCluster =
@@ -79,11 +91,11 @@ export const makeCluster = async (
 		});
 
 		clusterSize += simpleBlock.byteLength;
-		await w.updateDataAt(
+		await writer.updateDataAt(
 			clusterVIntPosition,
 			getVariableInt(clusterSize, CLUSTER_MIN_VINT_WIDTH),
 		);
-		await w.write(simpleBlock);
+		await writer.write(simpleBlock);
 		return {timecodeRelativeToCluster};
 	};
 
@@ -111,6 +123,10 @@ export const makeCluster = async (
 		if (!canFit) {
 			// We must create a new cluster
 			// This is for example if we have an audio-only file
+			Log.verbose(
+				logLevel,
+				`Cannot fit ${chunk.timestamp} in cluster ${clusterStartTimestamp}. Creating new cluster`,
+			);
 			return true;
 		}
 

@@ -15,6 +15,7 @@ export const FileAvailable: React.FC<{
 }> = ({src, setSrc}) => {
 	const [probeDetails, setProbeDetails] = useState(false);
 	const [tracks, setTracks] = useState<TracksField | null>(null);
+	const [duration, setDuration] = useState<number | null>(null);
 	const [currentAudioCodec, setCurrentAudioCodec] =
 		useState<MediaParserAudioCodec | null>(null);
 	const [currentVideoCodec, setCurrentVideoCodec] =
@@ -55,6 +56,7 @@ export const FileAvailable: React.FC<{
 						setAudioCodec={setCurrentAudioCodec}
 						setVideoCodec={setCurrentVideoCodec}
 						onTracks={onTracks}
+						onDuration={setDuration}
 					/>
 					<div className="h-8 lg:h-0 lg:w-8" />
 					<div className="w-full lg:w-[350px]">
@@ -65,6 +67,7 @@ export const FileAvailable: React.FC<{
 								src={src}
 								tracks={tracks}
 								setSrc={setSrc}
+								duration={duration}
 							/>
 						</div>
 					</div>

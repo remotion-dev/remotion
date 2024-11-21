@@ -91,12 +91,7 @@ export const parseMedia: ParseMedia = async ({
 	};
 
 	const triggerInfoEmit = () => {
-		if (parseResult === null) {
-			return;
-		}
-
 		const availableInfo = getAvailableInfo(fields ?? {}, parseResult, state);
-
 		emitAvailableInfo({
 			hasInfo: availableInfo,
 			moreFields,
@@ -107,6 +102,8 @@ export const parseMedia: ParseMedia = async ({
 			name,
 		});
 	};
+
+	triggerInfoEmit();
 
 	while (parseResult === null || parseResult.status === 'incomplete') {
 		if (signal?.aborted) {
@@ -138,9 +135,6 @@ export const parseMedia: ParseMedia = async ({
 			if (result.done) {
 				break;
 			}
-
-			// Let things in the task queue run, like dispatch events
-			await Promise.resolve();
 		}
 
 		if (!iterator) {
