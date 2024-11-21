@@ -21,7 +21,7 @@ export const createIsoBaseMedia = async ({
 		minorBrand: 512,
 	});
 
-	const w = await writer.createContent(filename);
+	const w = await writer.createContent({filename, mimeType: 'video/mp4'});
 	await w.write(header);
 
 	let durationInUnits = 0;

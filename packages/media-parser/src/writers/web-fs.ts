@@ -1,6 +1,6 @@
-import type {Writer, WriterInterface} from './writer';
+import type {CreateContent, Writer, WriterInterface} from './writer';
 
-const createContent = async (filename: string) => {
+const createContent: CreateContent = async ({filename}) => {
 	const directoryHandle = await navigator.storage.getDirectory();
 
 	directoryHandle.removeEntry(filename);
