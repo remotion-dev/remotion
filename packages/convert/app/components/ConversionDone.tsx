@@ -2,7 +2,6 @@ import {ConvertMediaContainer} from '@remotion/webcodecs';
 import React, {useCallback} from 'react';
 import {ConvertState, Source} from '~/lib/convert-state';
 import {getNewName} from '~/lib/generate-new-name';
-import {ConvertProgress} from './ConvertProgress';
 import {CloneIcon} from './icons/clone';
 import {UndoIcon} from './icons/undo';
 import {Button} from './ui/button';
@@ -51,8 +50,6 @@ export const ConversionDone: React.FC<{
 
 	return (
 		<>
-			<ConvertProgress state={state.state} name={name} container={container} />
-			<div className="h-2" />
 			<Button className="block w-full" type="button" onClick={onDownload}>
 				Download
 			</Button>

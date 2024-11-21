@@ -13,7 +13,8 @@ export const ConvertProgress: React.FC<{
 	readonly state: ConvertMediaProgress;
 	readonly name: string | null;
 	readonly container: ConvertMediaContainer;
-}> = ({state, name, container}) => {
+	readonly done: boolean;
+}> = ({state, name, container, done}) => {
 	return (
 		<>
 			<Card className="overflow-hidden">
@@ -23,7 +24,7 @@ export const ConvertProgress: React.FC<{
 					{state.overallProgress ? (
 						<div
 							className="w-[50%] h-5 bg-brand"
-							style={{width: state.overallProgress * 100 + '%'}}
+							style={{width: (done ? 1 : state.overallProgress) * 100 + '%'}}
 						/>
 					) : null}
 				</div>

@@ -121,9 +121,13 @@ export const Probe: React.FC<{
 					<CardTitle title={name ?? undefined}>
 						{name ? name : <Skeleton className="h-5 w-[220px] inline-block" />}
 					</CardTitle>
-					<CardDescription className="!mt-0">
-						{done ? <SourceLabel src={src} /> : <div id="not-done" />}
-					</CardDescription>
+					{done ? (
+						<CardDescription className="!mt-0">
+							<SourceLabel src={src} />
+						</CardDescription>
+					) : (
+						<div id="not-done" />
+					)}
 				</CardHeader>
 			</div>
 			{sortedTracks.length && probeDetails ? (

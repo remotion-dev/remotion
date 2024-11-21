@@ -220,6 +220,7 @@ export default function ConvertUI({
 					state={state.state}
 					name={name}
 					container={container}
+					done={false}
 				/>
 				<div className="h-2" />
 				<Button className="block w-full" type="button" onClick={cancel}>
@@ -230,7 +231,18 @@ export default function ConvertUI({
 	}
 
 	if (state.type === 'done') {
-		return <ConversionDone {...{container, name, setState, state, setSrc}} />;
+		return (
+			<>
+				<ConvertProgress
+					done
+					state={state.state}
+					name={name}
+					container={container}
+				/>
+				<div className="h-2" />
+				<ConversionDone {...{container, name, setState, state, setSrc}} />
+			</>
+		);
 	}
 
 	return (
