@@ -15,7 +15,7 @@ Remove the `^` character from the version number to use the exact version.
  
 ## Usage
  
-This is an internal package and has no documentation.
+See the [documentation](https://remotion.dev/webcodecs) for more information.
 
 ## License
 This package is licensed under the [/docs/license](Remotion License).
