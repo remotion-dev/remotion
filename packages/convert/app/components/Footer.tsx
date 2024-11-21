@@ -36,7 +36,7 @@ export const Footer: React.FC = () => {
 	return (
 		<div className="lg:flex flex-row items-center">
 			<a
-				className="hidden group lg:flex flex-row items-center"
+				className="hidden group lg:flex flex-row items-center ml-[-8px]"
 				target="_blank"
 				href="https://remotion.dev/?utm_source=convert"
 			>

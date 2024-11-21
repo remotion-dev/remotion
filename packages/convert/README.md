@@ -6,4 +6,5 @@ The source code for [convert.remotion.dev](https://convert.remotion.dev), a fast
 
 This package requires [`@remotion/webcodecs`](https://remotion.dev/webcodecs) which has a commercial license.
 
-Besides this dependency, the code in this subdirectory is licensed under MIT.
+Besides this dependency, the code in this subdirectory is licensed under MIT.  
+Exceptions are the icons which are licensed from Font Awesome and the font which is licensed from Grilli Type.
