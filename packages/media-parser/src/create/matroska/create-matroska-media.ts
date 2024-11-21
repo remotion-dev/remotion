@@ -27,7 +27,7 @@ export const createMatroskaMedia = async ({
 }: MediaFnGeneratorInput): Promise<MediaFn> => {
 	const header = makeMatroskaHeader();
 
-	const w = await writer.createContent(filename);
+	const w = await writer.createContent({filename, mimeType: 'video/webm'});
 	await w.write(header.bytes);
 	const matroskaInfo = makeMatroskaInfo({
 		timescale,

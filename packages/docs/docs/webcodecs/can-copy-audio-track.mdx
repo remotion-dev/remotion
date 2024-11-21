@@ -35,7 +35,6 @@ const {audioTracks} = await parseMedia({
 for (const track of audioTracks) {
   canCopyAudioTrack({
     inputCodec: track.codecWithoutConfig,
-    outputCodec: 'opus',
     container: 'webm',
   }); // boolean
 }
@@ -55,7 +54,6 @@ await convertMedia({
   onAudioTrack: async ({track}) => {
     const canCopy = canCopyAudioTrack({
       inputCodec: track.codecWithoutConfig,
-      outputCodec: 'opus',
       container: 'webm',
     });
 
@@ -76,12 +74,6 @@ await convertMedia({
 _string_ <TsType type="MediaParserAudioCodec" source="@remotion/media-parser" />
 
 The codec of the input audio track.
-
-### `outputCodec`
-
-_string_ <TsType type="ConvertMediaAudioCodec" source="@remotion/webcodecs" />
-
-The codec of the output audio track.
 
 ### `container`
 

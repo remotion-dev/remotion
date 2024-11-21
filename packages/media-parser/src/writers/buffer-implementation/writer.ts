@@ -1,6 +1,6 @@
-import type {Writer} from '../writer';
+import type {CreateContent, Writer} from '../writer';
 
-export const createContent = () => {
+export const createContent: CreateContent = ({filename, mimeType}) => {
 	const buf = new ArrayBuffer(0, {
 		// TODO: Educate that the buffer is limited to 2GB
 		maxByteLength: 2_000_000_000,
@@ -41,7 +41,7 @@ export const createContent = () => {
 			const arr = new Uint8Array(buf);
 			return Promise.resolve(
 				// TODO: Unhardcode MIME type and file name
-				new File([arr.slice()], 'hi', {type: 'video/webm'}),
+				new File([arr.slice()], filename, {type: mimeType}),
 			);
 		},
 		remove() {

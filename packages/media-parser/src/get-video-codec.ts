@@ -13,7 +13,11 @@ import {
 	getHvccBox,
 	getStsdVideoConfig,
 } from './get-sample-aspect-ratio';
-import type {MediaParserVideoCodec, VideoTrackColorParams} from './get-tracks';
+import {
+	hasTracks,
+	type MediaParserVideoCodec,
+	type VideoTrackColorParams,
+} from './get-tracks';
 import type {AnySegment} from './parse-result';
 
 export const getVideoCodecFromIsoTrak = (trakBox: TrakBox) => {
@@ -130,11 +134,7 @@ export const getVideoCodec = (
 };
 
 export const hasVideoCodec = (boxes: AnySegment[]): boolean => {
-	try {
-		return getVideoCodec(boxes) !== null;
-	} catch {
-		return false;
-	}
+	return hasTracks(boxes);
 };
 
 export const getVideoPrivateData = (trakBox: TrakBox): Uint8Array | null => {

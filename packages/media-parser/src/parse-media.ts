@@ -25,6 +25,7 @@ export const parseMedia: ParseMedia = async ({
 	onVideoTrack,
 	signal,
 	logLevel = 'info',
+	onParseProgress,
 	...more
 }) => {
 	const state = makeParserState({
@@ -80,6 +81,33 @@ export const parseMedia: ParseMedia = async ({
 		supportsContentRange,
 	};
 
+	const hasAllInfo = () => {
+		if (parseResult === null) {
+			return false;
+		}
+
+		const availableInfo = getAvailableInfo(fields ?? {}, parseResult, state);
+		return Object.values(availableInfo).every(Boolean);
+	};
+
+	const triggerInfoEmit = () => {
+		if (parseResult === null) {
+			return;
+		}
+
+		const availableInfo = getAvailableInfo(fields ?? {}, parseResult, state);
+
+		emitAvailableInfo({
+			hasInfo: availableInfo,
+			moreFields,
+			parseResult,
+			state,
+			returnValue,
+			contentLength,
+			name,
+		});
+	};
+
 	while (parseResult === null || parseResult.status === 'incomplete') {
 		if (signal?.aborted) {
 			throw new Error('Aborted');
@@ -119,6 +147,14 @@ export const parseMedia: ParseMedia = async ({
 			throw new Error('Unexpected null');
 		}
 
+		await onParseProgress?.({
+			bytes: iterator.counter.getOffset(),
+			percentage: contentLength
+				? iterator.counter.getOffset() / contentLength
+				: null,
+			totalBytes: contentLength,
+		});
+		triggerInfoEmit();
 		if (parseResult && parseResult.status === 'incomplete') {
 			Log.verbose(
 				logLevel,
@@ -136,22 +172,9 @@ export const parseMedia: ParseMedia = async ({
 			});
 		}
 
-		const availableInfo = getAvailableInfo(fields ?? {}, parseResult, state);
-		const hasAllInfo = Object.values(availableInfo).every(Boolean);
-
-		emitAvailableInfo({
-			hasInfo: availableInfo,
-			moreFields,
-			parseResult,
-			state,
-			returnValue,
-			contentLength,
-			name,
-		});
-
 		// TODO Better: Check if no active listeners are registered
 		// Also maybe check for canSkipVideoData
-		if (hasAllInfo && !onVideoTrack && !onAudioTrack) {
+		if (hasAllInfo() && !onVideoTrack && !onAudioTrack) {
 			break;
 		}
 

@@ -1,10 +1,12 @@
 import {
 	MediaParserAudioCodec,
 	MediaParserVideoCodec,
+	ParseMediaOnProgress,
 	TracksField,
 } from '@remotion/media-parser';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {Source} from '~/lib/convert-state';
+import {formatBytes} from '~/lib/format-bytes';
 import {useIsNarrow} from '~/lib/is-narrow';
 import {AudioTrackOverview} from './AudioTrackOverview';
 import {ContainerOverview} from './ContainerOverview';
@@ -44,6 +46,25 @@ export const Probe: React.FC<{
 		videoThumbnailRef.current?.draw(frame);
 	}, []);
 
+	const onProgress: ParseMediaOnProgress = useCallback(
+		async ({bytes, percentage}) => {
+			await new Promise((resolve) => {
+				window.requestAnimationFrame(resolve);
+			});
+			const notDone = document.getElementById('not-done');
+			if (notDone) {
+				if (percentage === null) {
+					notDone.innerHTML = `${formatBytes(bytes)} read`;
+				} else {
+					notDone.innerHTML = `${Math.round(
+						percentage * 100,
+					)}% read (${formatBytes(bytes)})`;
+				}
+			}
+		},
+		[],
+	);
+
 	const {
 		audioCodec,
 		fps,
@@ -54,15 +75,15 @@ export const Probe: React.FC<{
 		size,
 		videoCodec,
 		durationInSeconds,
+		done,
 	} = useProbe({
 		src,
 		onVideoThumbnail,
 		onAudioCodec: setAudioCodec,
 		onVideoCodec: setVideoCodec,
-		onTracks: (t) => {
-			onTracks(t);
-		},
+		onTracks,
 		logLevel: 'verbose',
+		onProgress,
 	});
 
 	const onClick = useCallback(() => {
@@ -100,9 +121,13 @@ export const Probe: React.FC<{
 					<CardTitle title={name ?? undefined}>
 						{name ? name : <Skeleton className="h-5 w-[220px] inline-block" />}
 					</CardTitle>
-					<CardDescription className="!mt-0">
-						<SourceLabel src={src} />
-					</CardDescription>
+					{done ? (
+						<CardDescription className="!mt-0">
+							<SourceLabel src={src} />
+						</CardDescription>
+					) : (
+						<div id="not-done" />
+					)}
 				</CardHeader>
 			</div>
 			{sortedTracks.length && probeDetails ? (
