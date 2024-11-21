@@ -1,4 +1,7 @@
 import type {LogLevel} from '@remotion/media-parser';
+import {isFirefox} from './browser-quirks';
+import type {ConvertMediaVideoCodec} from './codec-id';
+import {convertToCorrectVideoFrame} from './convert-to-correct-videoframe';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import {Log} from './log';
 
@@ -15,6 +18,7 @@ export const createVideoEncoder = ({
 	signal,
 	config,
 	logLevel,
+	outputCodec,
 }: {
 	onChunk: (
 		chunk: EncodedVideoChunk,
@@ -24,6 +28,7 @@ export const createVideoEncoder = ({
 	signal: AbortSignal;
 	config: VideoEncoderConfig;
 	logLevel: LogLevel;
+	outputCodec: ConvertMediaVideoCodec;
 }): WebCodecsVideoEncoder => {
 	if (signal.aborted) {
 		throw new Error('Not creating video encoder, already aborted');
@@ -87,7 +92,8 @@ export const createVideoEncoder = ({
 		}
 
 		await ioSynchronizer.waitFor({
-			unemitted: 2,
+			// Firefox stalls if too few frames are passed
+			unemitted: isFirefox() ? 10 : 2,
 			_unprocessed: 2,
 		});
 
@@ -97,9 +103,12 @@ export const createVideoEncoder = ({
 		}
 
 		const keyFrame = framesProcessed % 40 === 0;
-		encoder.encode(frame, {
-			keyFrame,
-		});
+		encoder.encode(
+			convertToCorrectVideoFrame({videoFrame: frame, outputCodec}),
+			{
+				keyFrame,
+			},
+		);
 
 		ioSynchronizer.inputItem(frame.timestamp, keyFrame);
 

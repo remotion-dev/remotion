@@ -11,6 +11,7 @@ import {webFileReader} from '@remotion/media-parser/web-file';
 import {convertMedia, ConvertMediaContainer} from '@remotion/webcodecs';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {ConvertState, Source} from '~/lib/convert-state';
+import {isDroppingEverything} from '~/lib/is-reencoding';
 import {ConversionDone} from './ConversionDone';
 import {ConvertForm} from './ConvertForm';
 import {ConvertProgress, convertProgressRef} from './ConvertProgress';
@@ -250,12 +251,12 @@ export default function ConvertUI({
 	}
 
 	const disableConvert =
-		supportedConfigs?.audioTrackOptions.every(
-			(o) => o.operations[audioConfigIndex[o.trackId] ?? 0].type === 'drop',
-		) &&
-		supportedConfigs?.videoTrackOptions.every(
-			(o) => o.operations[videoConfigIndex[o.trackId] ?? 0].type === 'drop',
-		);
+		!supportedConfigs ||
+		isDroppingEverything({
+			audioConfigIndex,
+			supportedConfigs,
+			videoConfigIndex,
+		});
 
 	return (
 		<>
