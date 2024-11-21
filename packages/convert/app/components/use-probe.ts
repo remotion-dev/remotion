@@ -5,6 +5,7 @@ import {
 	MediaParserVideoCodec,
 	parseMedia,
 	ParseMediaContainer,
+	ParseMediaOnProgress,
 	TracksField,
 } from '@remotion/media-parser';
 import {fetchReader} from '@remotion/media-parser/fetch';
@@ -19,6 +20,7 @@ export const useProbe = ({
 	onVideoCodec,
 	onTracks,
 	logLevel,
+	onProgress,
 }: {
 	src: Source;
 	logLevel: LogLevel;
@@ -26,6 +28,7 @@ export const useProbe = ({
 	onAudioCodec: (codec: MediaParserAudioCodec | null) => void;
 	onVideoCodec: (codec: MediaParserVideoCodec | null) => void;
 	onTracks: (tracks: TracksField) => void;
+	onProgress: ParseMediaOnProgress;
 }) => {
 	const [audioCodec, setAudioCodec] = useState<
 		MediaParserAudioCodec | null | undefined
@@ -42,6 +45,7 @@ export const useProbe = ({
 	const [size, setSize] = useState<number | null>(null);
 	const [tracks, setTracks] = useState<TracksField | null>(null);
 	const [container, setContainer] = useState<ParseMediaContainer | null>(null);
+	const [done, setDone] = useState(false);
 
 	const getStart = useCallback(() => {
 		const controller = new AbortController();
@@ -87,6 +91,7 @@ export const useProbe = ({
 				tracks: true,
 				container: true,
 			},
+			onParseProgress: onProgress,
 			reader: src.type === 'file' ? webFileReader : fetchReader,
 			signal: controller.signal,
 			onVideoTrack: async (track) => {
@@ -189,10 +194,21 @@ export const useProbe = ({
 
 				// eslint-disable-next-line no-console
 				console.log(err);
+			})
+			.finally(() => {
+				setDone(true);
 			});
 
 		return controller;
-	}, [onAudioCodec, onVideoCodec, onVideoThumbnail, src]);
+	}, [
+		onAudioCodec,
+		onVideoCodec,
+		onVideoThumbnail,
+		src,
+		onTracks,
+		logLevel,
+		onProgress,
+	]);
 
 	useEffect(() => {
 		const start = getStart();
@@ -212,6 +228,7 @@ export const useProbe = ({
 			videoCodec,
 			size,
 			durationInSeconds,
+			done,
 		};
 	}, [
 		audioCodec,
@@ -223,5 +240,6 @@ export const useProbe = ({
 		tracks,
 		videoCodec,
 		durationInSeconds,
+		done,
 	]);
 };

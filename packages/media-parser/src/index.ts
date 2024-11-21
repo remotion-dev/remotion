@@ -19,7 +19,9 @@ export type {
 	ParseMediaContainer,
 	ParseMediaDynamicOptions,
 	ParseMediaFields,
+	ParseMediaOnProgress,
 	ParseMediaOptions,
+	ParseMediaProgress,
 	ParseMediaResult,
 	TracksField,
 } from './options';

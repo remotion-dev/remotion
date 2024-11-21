@@ -144,6 +144,16 @@ export type ParseMediaDynamicOptions<F extends Options<ParseMediaFields>> = {
 	fields?: F;
 } & ParseMediaCallbacks<F>;
 
+export type ParseMediaProgress = {
+	bytes: number;
+	percentage: number | null;
+	totalBytes: number | null;
+};
+
+export type ParseMediaOnProgress = (
+	progress: ParseMediaProgress,
+) => void | Promise<void>;
+
 export type ParseMediaOptions<F extends Options<ParseMediaFields>> = {
 	src: string | Blob;
 	reader?: ReaderInterface;
@@ -151,6 +161,7 @@ export type ParseMediaOptions<F extends Options<ParseMediaFields>> = {
 	onVideoTrack?: OnVideoTrack;
 	signal?: AbortSignal;
 	logLevel?: LogLevel;
+	onParseProgress?: ParseMediaOnProgress;
 } & ParseMediaDynamicOptions<F>;
 
 export type ParseMedia = <F extends Options<ParseMediaFields>>(
