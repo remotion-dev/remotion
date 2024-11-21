@@ -11,6 +11,7 @@ import {webFileReader} from '@remotion/media-parser/web-file';
 import {convertMedia, ConvertMediaContainer} from '@remotion/webcodecs';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {ConvertState, Source} from '~/lib/convert-state';
+import {isDroppingEverything} from '~/lib/is-reencoding';
 import {ConversionDone} from './ConversionDone';
 import {ConvertForm} from './ConvertForm';
 import {ConvertProgress, convertProgressRef} from './ConvertProgress';
@@ -26,12 +27,14 @@ export default function ConvertUI({
 	currentVideoCodec,
 	tracks,
 	setSrc,
+	duration,
 }: {
 	readonly src: Source;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 	readonly currentAudioCodec: MediaParserAudioCodec | null;
 	readonly currentVideoCodec: MediaParserVideoCodec | null;
 	readonly tracks: TracksField | null;
+	readonly duration: number | null;
 }) {
 	const [container, setContainer] = useState<ConvertMediaContainer>(() =>
 		getDefaultContainerForConversion(src),
@@ -220,6 +223,8 @@ export default function ConvertUI({
 					state={state.state}
 					name={name}
 					container={container}
+					done={false}
+					duration={duration}
 				/>
 				<div className="h-2" />
 				<Button className="block w-full" type="button" onClick={cancel}>
@@ -230,8 +235,28 @@ export default function ConvertUI({
 	}
 
 	if (state.type === 'done') {
-		return <ConversionDone {...{container, name, setState, state, setSrc}} />;
+		return (
+			<>
+				<ConvertProgress
+					done
+					state={state.state}
+					name={name}
+					container={container}
+					duration={duration}
+				/>
+				<div className="h-2" />
+				<ConversionDone {...{container, name, setState, state, setSrc}} />
+			</>
+		);
 	}
+
+	const disableConvert =
+		!supportedConfigs ||
+		isDroppingEverything({
+			audioConfigIndex,
+			supportedConfigs,
+			videoConfigIndex,
+		});
 
 	return (
 		<>
@@ -265,6 +290,7 @@ export default function ConvertUI({
 				className="block w-full font-brand"
 				type="button"
 				variant="brand"
+				disabled={disableConvert}
 				onClick={onClick}
 			>
 				Convert

@@ -25,6 +25,7 @@ export const parseMedia: ParseMedia = async ({
 	onVideoTrack,
 	signal,
 	logLevel = 'info',
+	onParseProgress,
 	...more
 }) => {
 	const state = makeParserState({
@@ -80,6 +81,30 @@ export const parseMedia: ParseMedia = async ({
 		supportsContentRange,
 	};
 
+	const hasAllInfo = () => {
+		if (parseResult === null) {
+			return false;
+		}
+
+		const availableInfo = getAvailableInfo(fields ?? {}, parseResult, state);
+		return Object.values(availableInfo).every(Boolean);
+	};
+
+	const triggerInfoEmit = () => {
+		const availableInfo = getAvailableInfo(fields ?? {}, parseResult, state);
+		emitAvailableInfo({
+			hasInfo: availableInfo,
+			moreFields,
+			parseResult,
+			state,
+			returnValue,
+			contentLength,
+			name,
+		});
+	};
+
+	triggerInfoEmit();
+
 	while (parseResult === null || parseResult.status === 'incomplete') {
 		if (signal?.aborted) {
 			throw new Error('Aborted');
@@ -110,20 +135,26 @@ export const parseMedia: ParseMedia = async ({
 			if (result.done) {
 				break;
 			}
-
-			// Let things in the task queue run, like dispatch events
-			await Promise.resolve();
 		}
 
 		if (!iterator) {
 			throw new Error('Unexpected null');
 		}
 
+		await onParseProgress?.({
+			bytes: iterator.counter.getOffset(),
+			percentage: contentLength
+				? iterator.counter.getOffset() / contentLength
+				: null,
+			totalBytes: contentLength,
+		});
+		triggerInfoEmit();
 		if (parseResult && parseResult.status === 'incomplete') {
 			Log.verbose(
 				logLevel,
 				'Continuing parsing of file, currently at position',
 				iterator.counter.getOffset(),
+				getAvailableInfo(fields ?? {}, parseResult, state),
 			);
 			parseResult = await parseResult.continueParsing();
 		} else {
@@ -135,22 +166,9 @@ export const parseMedia: ParseMedia = async ({
 			});
 		}
 
-		const availableInfo = getAvailableInfo(fields ?? {}, parseResult, state);
-		const hasAllInfo = Object.values(availableInfo).every(Boolean);
-
-		emitAvailableInfo({
-			hasInfo: availableInfo,
-			moreFields,
-			parseResult,
-			state,
-			returnValue,
-			contentLength,
-			name,
-		});
-
 		// TODO Better: Check if no active listeners are registered
 		// Also maybe check for canSkipVideoData
-		if (hasAllInfo && !onVideoTrack && !onAudioTrack) {
+		if (hasAllInfo() && !onVideoTrack && !onAudioTrack) {
 			break;
 		}
 

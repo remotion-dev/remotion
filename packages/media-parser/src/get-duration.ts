@@ -43,12 +43,16 @@ const getDurationFromMatroska = (segments: AnySegment[]): number | null => {
 	return (duration.value.value / timestampScale.value.value) * 1000;
 };
 
+export const isMatroska = (boxes: AnySegment[]) => {
+	const matroskaBox = boxes.find((b) => b.type === 'Segment');
+	return matroskaBox;
+};
+
 export const getDuration = (
 	boxes: AnySegment[],
 	parserState: ParserState,
 ): number | null => {
-	const matroskaBox = boxes.find((b) => b.type === 'Segment');
-	if (matroskaBox) {
+	if (isMatroska(boxes)) {
 		return getDurationFromMatroska(boxes);
 	}
 

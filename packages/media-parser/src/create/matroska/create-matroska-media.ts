@@ -24,10 +24,11 @@ export const createMatroskaMedia = async ({
 	onBytesProgress,
 	onMillisecondsProgress,
 	filename,
+	logLevel,
 }: MediaFnGeneratorInput): Promise<MediaFn> => {
 	const header = makeMatroskaHeader();
 
-	const w = await writer.createContent(filename);
+	const w = await writer.createContent({filename, mimeType: 'video/webm'});
 	await w.write(header.bytes);
 	const matroskaInfo = makeMatroskaInfo({
 		timescale,
@@ -109,7 +110,12 @@ export const createMatroskaMedia = async ({
 	await w.write(matroskaSegment.bytes);
 
 	const clusterOffset = w.getWrittenByteCount();
-	let currentCluster = await makeCluster(w, 0, timescale);
+	let currentCluster = await makeCluster({
+		writer: w,
+		clusterStartTimestamp: 0,
+		timescale,
+		logLevel,
+	});
 	seeks.push({
 		hexString: matroskaElements.Cluster,
 		byte: clusterOffset - seekHeadOffset,
@@ -120,11 +126,24 @@ export const createMatroskaMedia = async ({
 	const getClusterOrMakeNew = async ({
 		chunk,
 		isVideo,
+		trackNumber,
 	}: {
 		chunk: AudioOrVideoSample;
 		isVideo: boolean;
+		trackNumber: number;
 	}) => {
-		const smallestProgress = Math.min(...Object.values(trackNumberProgresses));
+		const trackProgressValues = Object.values(trackNumberProgresses);
+		const smallestProgress =
+			trackProgressValues.length === 0 ? 0 : Math.min(...trackProgressValues);
+
+		// In Safari, samples can arrive out of order, e.g public/bigbuckbunny.mp4
+		// Therefore, only updating track number progress if it is a keyframe
+		// to allow for timestamps to be lower than the previous one
+
+		// Also doing this AFTER smallestProgress is calculated
+		if (chunk.type === 'key') {
+			trackNumberProgresses[trackNumber] = chunk.timestamp;
+		}
 
 		if (
 			!currentCluster.shouldMakeNewCluster({
@@ -136,7 +155,12 @@ export const createMatroskaMedia = async ({
 			return {cluster: currentCluster, isNew: false, smallestProgress};
 		}
 
-		currentCluster = await makeCluster(w, smallestProgress, timescale);
+		currentCluster = await makeCluster({
+			writer: w,
+			clusterStartTimestamp: smallestProgress,
+			timescale,
+			logLevel,
+		});
 		return {cluster: currentCluster, isNew: true, smallestProgress};
 	};
 
@@ -155,10 +179,10 @@ export const createMatroskaMedia = async ({
 		trackNumber: number;
 		isVideo: boolean;
 	}) => {
-		trackNumberProgresses[trackNumber] = chunk.timestamp;
 		const {cluster, isNew, smallestProgress} = await getClusterOrMakeNew({
 			chunk,
 			isVideo,
+			trackNumber,
 		});
 
 		const newDuration = Math.round(

@@ -163,6 +163,7 @@ export const makeVideoTrackHandler =
 			signal: controller.signal,
 			config: videoEncoderConfig,
 			logLevel,
+			outputCodec: videoOperation.videoCodec,
 		});
 
 		const videoDecoder = createVideoDecoder({
@@ -173,6 +174,7 @@ export const makeVideoTrackHandler =
 					track,
 					videoEncoder,
 					onVideoFrame,
+					outputCodec: videoOperation.videoCodec,
 				});
 			},
 			onError: (err) => {

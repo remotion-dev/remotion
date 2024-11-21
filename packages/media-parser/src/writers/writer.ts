@@ -7,7 +7,10 @@ export type Writer = {
 	remove: () => Promise<void>;
 };
 
-type CreateContent = (filename: string) => Promise<Writer>;
+export type CreateContent = (options: {
+	filename: string;
+	mimeType: string;
+}) => Promise<Writer>;
 
 export type WriterInterface = {
 	createContent: CreateContent;

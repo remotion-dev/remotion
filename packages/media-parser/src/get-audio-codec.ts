@@ -4,7 +4,7 @@ import type {AudioSample} from './boxes/iso-base-media/stsd/samples';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import {getStsdBox, getTraks} from './boxes/iso-base-media/traversal';
 import {trakBoxContainsAudio} from './get-fps';
-import {getTracks, type MediaParserAudioCodec} from './get-tracks';
+import {getTracks, hasTracks, type MediaParserAudioCodec} from './get-tracks';
 import type {AnySegment} from './parse-result';
 import type {ParserState} from './parser-state';
 
@@ -34,15 +34,8 @@ export const getAudioCodec = (
 	return null;
 };
 
-export const hasAudioCodec = (
-	boxes: AnySegment[],
-	state: ParserState,
-): boolean => {
-	try {
-		return getAudioCodec(boxes, state) !== null;
-	} catch {
-		return false;
-	}
+export const hasAudioCodec = (boxes: AnySegment[]): boolean => {
+	return hasTracks(boxes);
 };
 
 const getCodecSpecificatorFromEsdsBox = ({

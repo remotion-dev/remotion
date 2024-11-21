@@ -1,5 +1,7 @@
 import type {VideoTrack} from '@remotion/media-parser';
+import type {ConvertMediaVideoCodec} from './codec-id';
 import type {ConvertMediaOnVideoFrame} from './convert-media';
+import {convertToCorrectVideoFrame} from './convert-to-correct-videoframe';
 import type {WebCodecsVideoEncoder} from './video-encoder';
 
 export const onFrame = async ({
@@ -7,23 +9,25 @@ export const onFrame = async ({
 	onVideoFrame,
 	videoEncoder,
 	track,
+	outputCodec,
 }: {
 	frame: VideoFrame;
 	onVideoFrame: ConvertMediaOnVideoFrame | null;
 	videoEncoder: WebCodecsVideoEncoder;
 	track: VideoTrack;
+	outputCodec: ConvertMediaVideoCodec;
 }) => {
 	const newFrame = onVideoFrame ? await onVideoFrame({frame, track}) : frame;
 
-	if (newFrame.codedHeight !== frame.codedHeight) {
+	if (newFrame.codedHeight !== frame.displayHeight) {
 		throw new Error(
-			`Returned VideoFrame of track ${track.trackId} has different codedHeight (${newFrame.codedHeight}) than the input frame (${frame.codedHeight})`,
+			`Returned VideoFrame of track ${track.trackId} has different codedHeight (${newFrame.codedHeight}) than the input frame displayHeight (${frame.displayHeight})`,
 		);
 	}
 
-	if (newFrame.codedWidth !== frame.codedWidth) {
+	if (newFrame.codedWidth !== frame.displayWidth) {
 		throw new Error(
-			`Returned VideoFrame of track ${track.trackId} has different codedWidth (${newFrame.codedWidth}) than the input frame (${frame.codedWidth})`,
+			`Returned VideoFrame of track ${track.trackId} has different codedWidth (${newFrame.codedWidth}) than the input frame displayWidth (${frame.displayWidth})`,
 		);
 	}
 
@@ -51,10 +55,19 @@ export const onFrame = async ({
 		);
 	}
 
-	await videoEncoder.encodeFrame(newFrame, newFrame.timestamp);
+	const fixedFrame = convertToCorrectVideoFrame({
+		videoFrame: newFrame,
+		outputCodec,
+	});
 
-	newFrame.close();
+	await videoEncoder.encodeFrame(fixedFrame, fixedFrame.timestamp);
+
+	fixedFrame.close();
 	if (frame !== newFrame) {
 		frame.close();
+	}
+
+	if (fixedFrame !== newFrame) {
+		fixedFrame.close();
 	}
 };

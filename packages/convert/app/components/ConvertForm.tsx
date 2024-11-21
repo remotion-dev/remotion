@@ -7,6 +7,7 @@ import {
 	getAvailableContainers,
 } from '@remotion/webcodecs';
 import React from 'react';
+import {isReencoding} from '~/lib/is-reencoding';
 import {renderHumanReadableContainer} from '~/lib/render-codec-label';
 import {AudioCodecSelection} from './AudioCodecSelection';
 import {SupportedConfigs} from './get-supported-configs';
@@ -56,6 +57,9 @@ export const ConvertForm: React.FC<{
 	currentVideoCodec,
 }) => {
 	const [showAdvanced, setShowAdvanced] = React.useState(false);
+
+	const canPixelManipulate =
+		supportedConfigs && isReencoding({supportedConfigs, videoConfigIndex});
 
 	return (
 		<div className="gap-4 grid">
@@ -125,7 +129,7 @@ export const ConvertForm: React.FC<{
 			) : (
 				<SelectionSkeleton />
 			)}
-			{showAdvanced ? (
+			{canPixelManipulate && showAdvanced ? (
 				<>
 					<div className="flex flex-row">
 						<Checkbox
@@ -160,7 +164,7 @@ export const ConvertForm: React.FC<{
 						</div>
 					</div>
 				</>
-			) : (
+			) : canPixelManipulate ? (
 				<div className="flex flex-row justify-center text-muted-foreground">
 					<button
 						type="button"
@@ -170,7 +174,7 @@ export const ConvertForm: React.FC<{
 						Advanced settings
 					</button>
 				</div>
-			)}
+			) : null}
 		</div>
 	);
 };
