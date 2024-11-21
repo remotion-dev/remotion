@@ -100,7 +100,9 @@ export const expectSegment = async ({
 		};
 	}
 
+	const offsetBeforeVInt = iterator.counter.getOffset();
 	const length = iterator.getVint();
+	const offsetAfterVInt = iterator.counter.getOffset();
 
 	if (length === null) {
 		iterator.counter.decrement(iterator.counter.getOffset() - offset);
@@ -119,7 +121,7 @@ export const expectSegment = async ({
 	if (segmentId === '0x18538067' || segmentId === '0x1f43b675') {
 		const newSegment: ClusterSegment | MainSegment = {
 			type: segmentId === '0x18538067' ? 'Segment' : 'Cluster',
-			minVintWidth: null,
+			minVintWidth: offsetAfterVInt - offsetBeforeVInt,
 			value: [],
 		};
 
