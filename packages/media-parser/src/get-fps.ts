@@ -7,6 +7,7 @@ import {
 	getSttsBox,
 	getTraks,
 } from './boxes/iso-base-media/traversal';
+import {isMatroska} from './get-duration';
 import type {AnySegment} from './parse-result';
 
 const calculateFps = ({
@@ -110,6 +111,13 @@ export const getFps = (segments: AnySegment[]) => {
 
 export const hasFps = (boxes: AnySegment[]): boolean => {
 	try {
+		// Matroska has no FPS metadata
+		// Not bothering to parse
+		// Idea: `guaranteedFps` field
+		if (isMatroska(boxes)) {
+			return true;
+		}
+
 		return getFps(boxes) !== null;
 	} catch {
 		return false;
