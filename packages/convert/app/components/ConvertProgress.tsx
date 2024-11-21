@@ -14,17 +14,27 @@ export const ConvertProgress: React.FC<{
 	readonly name: string | null;
 	readonly container: ConvertMediaContainer;
 	readonly done: boolean;
-}> = ({state, name, container, done}) => {
+	readonly duration: number | null;
+}> = ({state, name, container, done, duration}) => {
 	return (
 		<>
 			<Card className="overflow-hidden">
 				<VideoThumbnail ref={convertProgressRef} smallThumbOnMobile={false} />
 				<div className="border-b-2 border-black" />
 				<div className="h-5 overflow-hidden">
-					{state.overallProgress ? (
+					{state.millisecondsWritten ? (
 						<div
 							className="w-[50%] h-5 bg-brand"
-							style={{width: (done ? 1 : state.overallProgress) * 100 + '%'}}
+							style={{
+								width:
+									(done
+										? 1
+										: duration === null
+											? 0
+											: state.millisecondsWritten / 1000 / duration) *
+										100 +
+									'%',
+							}}
 						/>
 					) : null}
 				</div>

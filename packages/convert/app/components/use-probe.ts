@@ -21,6 +21,7 @@ export const useProbe = ({
 	onTracks,
 	logLevel,
 	onProgress,
+	onDuration,
 }: {
 	src: Source;
 	logLevel: LogLevel;
@@ -29,6 +30,7 @@ export const useProbe = ({
 	onVideoCodec: (codec: MediaParserVideoCodec | null) => void;
 	onTracks: (tracks: TracksField) => void;
 	onProgress: ParseMediaOnProgress;
+	onDuration: (duration: number | null) => void;
 }) => {
 	const [audioCodec, setAudioCodec] = useState<
 		MediaParserAudioCodec | null | undefined
@@ -94,6 +96,7 @@ export const useProbe = ({
 			onParseProgress: onProgress,
 			reader: src.type === 'file' ? webFileReader : fetchReader,
 			signal: controller.signal,
+
 			onVideoTrack: async (track) => {
 				if (typeof VideoDecoder === 'undefined') {
 					return null;
@@ -153,6 +156,7 @@ export const useProbe = ({
 				hasDuration = true;
 				setDurationInSeconds(d);
 				cancelIfDone();
+				onDuration(d);
 			},
 			onName: (n) => {
 				hasName = true;
@@ -208,6 +212,7 @@ export const useProbe = ({
 		onTracks,
 		logLevel,
 		onProgress,
+		onDuration,
 	]);
 
 	useEffect(() => {

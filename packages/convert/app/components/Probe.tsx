@@ -32,6 +32,7 @@ export const Probe: React.FC<{
 	>;
 	readonly probeDetails: boolean;
 	readonly onTracks: (tracks: TracksField) => void;
+	readonly onDuration: (duration: number | null) => void;
 }> = ({
 	src,
 	probeDetails,
@@ -39,6 +40,7 @@ export const Probe: React.FC<{
 	setAudioCodec,
 	setVideoCodec,
 	onTracks,
+	onDuration,
 }) => {
 	const videoThumbnailRef = useRef<VideoThumbnailRef>(null);
 
@@ -84,6 +86,7 @@ export const Probe: React.FC<{
 		onTracks,
 		logLevel: 'verbose',
 		onProgress,
+		onDuration,
 	});
 
 	const onClick = useCallback(() => {

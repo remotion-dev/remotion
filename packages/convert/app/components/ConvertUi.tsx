@@ -26,12 +26,14 @@ export default function ConvertUI({
 	currentVideoCodec,
 	tracks,
 	setSrc,
+	duration,
 }: {
 	readonly src: Source;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 	readonly currentAudioCodec: MediaParserAudioCodec | null;
 	readonly currentVideoCodec: MediaParserVideoCodec | null;
 	readonly tracks: TracksField | null;
+	readonly duration: number | null;
 }) {
 	const [container, setContainer] = useState<ConvertMediaContainer>(() =>
 		getDefaultContainerForConversion(src),
@@ -221,6 +223,7 @@ export default function ConvertUI({
 					name={name}
 					container={container}
 					done={false}
+					duration={duration}
 				/>
 				<div className="h-2" />
 				<Button className="block w-full" type="button" onClick={cancel}>
@@ -238,6 +241,7 @@ export default function ConvertUI({
 					state={state.state}
 					name={name}
 					container={container}
+					duration={duration}
 				/>
 				<div className="h-2" />
 				<ConversionDone {...{container, name, setState, state, setSrc}} />
