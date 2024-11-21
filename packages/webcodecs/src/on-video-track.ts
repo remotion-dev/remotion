@@ -2,16 +2,13 @@ import type {LogLevel, MediaFn, OnVideoTrack} from '@remotion/media-parser';
 import {arrayBufferToUint8Array} from './arraybuffer-to-uint8-array';
 import type {ConvertMediaContainer, ConvertMediaVideoCodec} from './codec-id';
 import {convertEncodedChunk} from './convert-encoded-chunk';
-import type {
-	ConvertMediaOnMediaStateUpdate,
-	ConvertMediaOnVideoFrame,
-	ConvertMediaState,
-} from './convert-media';
+import type {ConvertMediaOnVideoFrame} from './convert-media';
 import {defaultOnVideoTrackHandler} from './default-on-video-track-handler';
 import Error from './error-cause';
 import {Log} from './log';
 import {onFrame} from './on-frame';
 import type {ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
+import type {ConvertMediaProgressFn} from './throttled-state-update';
 import {createVideoDecoder} from './video-decoder';
 import {getVideoDecoderConfigWithHardwareAcceleration} from './video-decoder-config';
 import {createVideoEncoder} from './video-encoder';
@@ -23,7 +20,6 @@ export const makeVideoTrackHandler =
 		onVideoFrame,
 		onMediaStateUpdate,
 		abortConversion,
-		convertMediaState,
 		controller,
 		defaultVideoCodec,
 		onVideoTrack,
@@ -32,9 +28,8 @@ export const makeVideoTrackHandler =
 	}: {
 		state: MediaFn;
 		onVideoFrame: null | ConvertMediaOnVideoFrame;
-		onMediaStateUpdate: null | ConvertMediaOnMediaStateUpdate;
+		onMediaStateUpdate: null | ConvertMediaProgressFn;
 		abortConversion: (errCause: Error) => void;
-		convertMediaState: ConvertMediaState;
 		controller: AbortController;
 		defaultVideoCodec: ConvertMediaVideoCodec | null;
 		onVideoTrack: ConvertMediaOnVideoTrackHandler | null;
@@ -85,8 +80,13 @@ export const makeVideoTrackHandler =
 					timescale: track.timescale,
 					codecPrivate: track.codecPrivate,
 				});
-				convertMediaState.decodedVideoFrames++;
-				onMediaStateUpdate?.({...convertMediaState});
+
+				onMediaStateUpdate?.((prevState) => {
+					return {
+						...prevState,
+						decodedVideoFrames: prevState.decodedVideoFrames + 1,
+					};
+				});
 			};
 		}
 
@@ -143,8 +143,12 @@ export const makeVideoTrackHandler =
 							null) as ArrayBuffer | null,
 					),
 				});
-				convertMediaState.encodedVideoFrames++;
-				onMediaStateUpdate?.({...convertMediaState});
+				onMediaStateUpdate?.((prevState) => {
+					return {
+						...prevState,
+						encodedVideoFrames: prevState.encodedVideoFrames + 1,
+					};
+				});
 			},
 			onError: (err) => {
 				abortConversion(
@@ -165,9 +169,7 @@ export const makeVideoTrackHandler =
 			config: videoDecoderConfig,
 			onFrame: async (frame) => {
 				await onFrame({
-					convertMediaState,
 					frame,
-					onMediaStateUpdate,
 					track,
 					videoEncoder,
 					onVideoFrame,
