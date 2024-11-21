@@ -69,6 +69,7 @@ const config = (mode) => ({
 						{to: 'experts', label: 'Experts'},
 						{to: 'https://remotion.pro/store', label: 'Store'},
 						{to: '/docs/support', label: 'Support'},
+						{to: '/convert', label: 'Convert a video'},
 						{to: 'about', label: 'About us'},
 						{to: 'contact', label: 'Contact us'},
 					],
@@ -120,12 +121,12 @@ const config = (mode) => ({
 							to: '/learn',
 						},
 						{
-							label: 'Store',
-							href: 'https://remotion.pro/store',
+							label: 'Convert a video',
+							to: 'https://convert.remotion.dev',
 						},
 						{
-							label: 'Changelog',
-							href: 'https://remotion.dev/changelog',
+							label: 'Store',
+							href: 'https://remotion.pro/store',
 						},
 						{
 							label: 'GitHub',
@@ -203,6 +204,10 @@ const config = (mode) => ({
 						{
 							label: 'Support',
 							to: '/docs/support',
+						},
+						{
+							label: 'Changelog',
+							href: 'https://remotion.dev/changelog',
 						},
 						{
 							label: 'Acknowledgements',
