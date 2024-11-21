@@ -2,10 +2,13 @@ import React, {useCallback} from 'react';
 import {SAMPLE_FILE} from '~/lib/config';
 import {Source} from '~/lib/convert-state';
 import {DropFileBox} from './DropFileBox';
+import {TextMarkLogo} from './TextMarkLogo';
+import {WhyRemotionConvert} from './WhyRemotionConvert';
 
 export const PickFile: React.FC<{
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
-}> = ({setSrc}) => {
+	readonly title: string;
+}> = ({setSrc, title}) => {
 	const onSampleFile = useCallback(() => {
 		setSrc({type: 'url', url: SAMPLE_FILE});
 	}, [setSrc]);
@@ -27,15 +30,21 @@ export const PickFile: React.FC<{
 
 	return (
 		<div
-			className="text-center items-center justify-center flex flex-col h-full w-full p-4 pt-20"
+			className="text-center items-center justify-center flex flex-col h-full w-full"
 			onDragOver={onDragOver}
 			onDrop={onDrop}
 		>
-			<h1 className="text-center text-4xl font-brand font-bold">
-				Fast video conversion in the browser
-			</h1>
+			<div className="h-10" />
+			<TextMarkLogo />
+			<div className="w-full pt-4 pb-4">
+				<h1 className="text-center text-3xl font-brand font-black max-w-[600px] m-auto text-balance">
+					{title}
+				</h1>
+			</div>
 			<div className="h-12" />
-			<DropFileBox setSrc={setSrc} />
+			<div className="p-4 w-full text-center">
+				<DropFileBox setSrc={setSrc} />
+			</div>
 			<div className="h-4" />
 			<div className="font-brand">or </div>
 			<div className="h-4" />
@@ -45,6 +54,10 @@ export const PickFile: React.FC<{
 			>
 				Use a sample file
 			</a>
+			<div className="h-10" />
+			<div className="w-full bg-white border-t-2 border-black">
+				<WhyRemotionConvert />
+			</div>
 		</div>
 	);
 };

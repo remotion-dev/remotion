@@ -1,10 +1,4 @@
-import {
-	Links,
-	Meta,
-	Outlet,
-	Scripts,
-	ScrollRestoration,
-} from '@remix-run/react';
+import {Links, Outlet, Scripts, ScrollRestoration} from '@remix-run/react';
 import './tailwind.css';
 
 export function Layout({children}: {readonly children: React.ReactNode}) {
@@ -13,7 +7,11 @@ export function Layout({children}: {readonly children: React.ReactNode}) {
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
-				<Meta />
+				<title>Remotion Convert</title>
+				<meta
+					name="description"
+					content="Fast video conversion in the browser."
+				/>
 				<Links />
 			</head>
 			<body>
