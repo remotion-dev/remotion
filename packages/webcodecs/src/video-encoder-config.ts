@@ -1,3 +1,4 @@
+import {isSafari} from './browser-quirks';
 import {chooseCorrectAvc1Profile} from './choose-correct-avc1-profile';
 import type {ConvertMediaVideoCodec} from './codec-id';
 
@@ -25,6 +26,7 @@ export const getVideoEncoderConfig = async ({
 					: codec,
 		height,
 		width,
+		bitrate: isSafari() ? 3_000_000 : undefined,
 	};
 
 	const hardware: VideoEncoderConfig = {
