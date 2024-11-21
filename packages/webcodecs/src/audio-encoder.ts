@@ -87,7 +87,7 @@ export const createAudioEncoder = ({
 			return;
 		}
 
-		await ioSynchronizer.waitFor({unemitted: 2, _unprocessed: 2});
+		await ioSynchronizer.waitFor({unemitted: 20, _unprocessed: 20});
 
 		// @ts-expect-error - can have changed in the meanwhile
 		if (encoder.state === 'closed') {

@@ -11,7 +11,7 @@ import {webFileReader} from '@remotion/media-parser/web-file';
 import {convertMedia, ConvertMediaContainer} from '@remotion/webcodecs';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {ConvertState, Source} from '~/lib/convert-state';
-import {isDroppingEverything} from '~/lib/is-reencoding';
+import {isDroppingEverything, isReencoding} from '~/lib/is-reencoding';
 import {ConversionDone} from './ConversionDone';
 import {ConvertForm} from './ConvertForm';
 import {ConvertProgress, convertProgressRef} from './ConvertProgress';
@@ -225,6 +225,10 @@ export default function ConvertUI({
 					container={container}
 					done={false}
 					duration={duration}
+					isReencoding={
+						supportedConfigs !== null &&
+						isReencoding({supportedConfigs, videoConfigIndex})
+					}
 				/>
 				<div className="h-2" />
 				<Button className="block w-full" type="button" onClick={cancel}>
@@ -243,6 +247,10 @@ export default function ConvertUI({
 					name={name}
 					container={container}
 					duration={duration}
+					isReencoding={
+						supportedConfigs !== null &&
+						isReencoding({supportedConfigs, videoConfigIndex})
+					}
 				/>
 				<div className="h-2" />
 				<ConversionDone {...{container, name, setState, state, setSrc}} />
