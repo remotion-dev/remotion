@@ -87,8 +87,10 @@
 			"outputs": ["build", ".vercel"],
 			"outputLogs": "new-only"
 		},
-		"convert": {
-			"dependsOn": ["^@remotion/convert#build-page"]
+		"@remotion/convert#build-spa": {
+			"dependsOn": ["^@remotion/webcodecs#make"],
+			"outputs": ["spa-dist"],
+			"outputLogs": "new-only"
 		}
 	}
 }
