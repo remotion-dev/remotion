@@ -59,6 +59,9 @@ for (const dir of [path.join('cloudrun', 'container'), ...dirs]) {
 execSync('bun ensure-correct-version.ts', {
 	cwd: 'packages/core',
 });
+execSync('bun ensure-correct-version.ts', {
+	cwd: 'packages/media-parser',
+});
 
 execSync('bun test src/monorepo', {
 	cwd: 'packages/it-tests',

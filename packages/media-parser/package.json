@@ -10,7 +10,8 @@
 		"formatting": "prettier src --check",
 		"lint": "eslint src",
 		"test": "bun test src/test",
-		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
+		"prepublishOnly": "bun ensure-correct-version.ts"
 	},
 	"devDependencies": {
 		"@remotion/example-videos": "workspace:*",

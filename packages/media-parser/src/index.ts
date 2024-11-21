@@ -45,3 +45,5 @@ export const MediaParserInternals = {
 	createIsoBaseMedia,
 	Log,
 };
+
+export {VERSION} from './version';
