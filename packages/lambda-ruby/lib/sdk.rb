@@ -5,34 +5,48 @@ require_relative 'version'
 
 module RemotionLambda
   class Client
-    attr_reader :bucket_name, :function_name, :serve_url
+    attr_reader :bucket_name, :serve_url
 
     def initialize(
-      region: ENV.fetch('AWS_REGION', ''),
-      aws_profile: ENV.fetch('AWS_PROFILE', 'default')
+      region: ENV.fetch('AWS_REGION', 'us-east-1'),
+      aws_profile: nil
     )
       @region = region
       @aws_profile = aws_profile
       @lambda_client = create_lambda_client
     end
 
+    
+
+    def get_render_progress(function_name, payload)
+      body = invoke(function_name, payload)      
+      raise "Failed to fetch progress: #{body['message']}" if body["type"] == "error"
+      body
+    end
+
+    def render_media_on_lambda(function_name, payload)
+      body = invoke(function_name, payload)      
+      raise "Failed to call renderMediaOnLambda: #{body['message']}" if body["type"] == "error"
+      body
+    end
+
+    def render_still_on_lambda(function_name, payload)
+      body = invoke(function_name, payload)      
+      raise "Failed to call renderStillOnLambda: #{body['message']}" if body["type"] == "error"
+      body
+    end
+
+    private
+
     # Lambda methods
-    def invoke(payload, function_name: @function_name)
+    def invoke(function_name, payload)
       response = @lambda_client.invoke({
         function_name: function_name,
         payload: JSON.generate(payload)
       })
 
-      JSON.parse(response.payload.string)
-    rescue Aws::Lambda::Errors::ServiceError => e
-      raise Remotion::Error, "Lambda invocation failed: #{e.message}"
-    end
-
-    def get_render_progress(payload)
-      body = invoke(payload)      
-      raise "Failed to fetch progress: #{body['message']}" if body["type"] == "error"
-      
-      body
+      # TODO: Bad deseralization
+      JSON.parse(response)
     end
 
     def create_lambda_client
@@ -42,8 +56,8 @@ module RemotionLambda
     def aws_credentials
       if @aws_profile
         Aws::SharedCredentials.new(profile_name: @aws_profile)
-      else
-        Aws::Credentials.new(ENV['AWS_ACCESS_KEY'], ENV['AWS_SECRET_KEY'])
+      else        
+        Aws::Credentials.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
       end
     end
   end
