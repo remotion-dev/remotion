@@ -12,7 +12,7 @@ export const useSupportedConfigs = ({
 }) => {
 	const [state, setState] = useState<
 		Record<ConvertMediaContainer, SupportedConfigs | null>
-	>({mp4: null, webm: null});
+	>({mp4: null, webm: null, wav: null});
 
 	useEffect(() => {
 		if (!tracks) {

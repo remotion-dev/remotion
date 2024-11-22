@@ -16,5 +16,9 @@ export const canCopyVideoTrack = ({
 		return inputCodec === 'h264' || inputCodec === 'h265';
 	}
 
+	if (container === 'wav') {
+		return false;
+	}
+
 	throw new Error(`Unhandled codec: ${container satisfies never}`);
 };

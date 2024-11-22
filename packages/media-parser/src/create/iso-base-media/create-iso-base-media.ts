@@ -231,11 +231,5 @@ export const createIsoBaseMedia = async ({
 			Log.verbose(logLevel, 'All write operations done. Waiting for finish...');
 			await w.waitForFinish();
 		},
-		updateDuration: (duration) => {
-			operationProm.current = operationProm.current.then(() =>
-				updateDuration(duration),
-			);
-			return operationProm.current;
-		},
 	};
 };

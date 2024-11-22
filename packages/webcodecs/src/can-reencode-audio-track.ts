@@ -13,6 +13,9 @@ export const canReencodeAudioTrack = async ({
 	bitrate: number;
 }): Promise<boolean> => {
 	const audioDecoderConfig = await getAudioDecoderConfig(track);
+	if (audioCodec === 'wav' && audioDecoderConfig) {
+		return true;
+	}
 
 	const audioEncoderConfig = await getAudioEncoderConfig({
 		codec: audioCodec,

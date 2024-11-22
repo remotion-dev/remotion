@@ -9,16 +9,27 @@ const getCodecString = (audioCodec: ConvertMediaAudioCodec) => {
 		return 'mp4a.40.02';
 	}
 
+	if (audioCodec === 'wav') {
+		return 'wav-should-not-to-into-audio-encoder';
+	}
+
 	throw new Error(`Unsupported audio codec: ${audioCodec satisfies never}`);
 };
 
 export const getAudioEncoderConfig = async (
-	config: AudioEncoderConfig,
+	config: AudioEncoderConfig & {
+		codec: ConvertMediaAudioCodec;
+	},
 ): Promise<AudioEncoderConfig | null> => {
 	const actualConfig = {
 		...config,
-		codec: getCodecString(config.codec as ConvertMediaAudioCodec),
+		codec: getCodecString(config.codec),
 	};
+
+	if (config.codec === 'wav') {
+		return actualConfig;
+	}
+
 	if (typeof AudioEncoder === 'undefined') {
 		return null;
 	}

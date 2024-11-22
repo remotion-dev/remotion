@@ -16,5 +16,9 @@ export const canCopyAudioTrack = ({
 		return inputCodec === 'aac';
 	}
 
+	if (container === 'wav') {
+		return false;
+	}
+
 	throw new Error(`Unhandled codec: ${container satisfies never}`);
 };

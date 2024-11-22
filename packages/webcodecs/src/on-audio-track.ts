@@ -116,7 +116,10 @@ export const makeAudioTrackHandler =
 
 		const {trackNumber} = await state.addTrack({
 			type: 'audio',
-			codec: audioOperation.audioCodec,
+			codec:
+				audioOperation.audioCodec === 'wav'
+					? 'pcm-s16'
+					: audioOperation.audioCodec,
 			numberOfChannels: track.numberOfChannels,
 			sampleRate: track.sampleRate,
 			codecPrivate,
