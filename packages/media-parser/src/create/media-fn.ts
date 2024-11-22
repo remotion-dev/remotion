@@ -13,7 +13,6 @@ export type MediaFn = {
 		timescale: number;
 		codecPrivate: Uint8Array | null;
 	}) => Promise<void>;
-	updateDuration: (duration: number) => Promise<void>;
 	addTrack: (
 		track:
 			| Omit<MakeTrackAudio, 'trackNumber'>

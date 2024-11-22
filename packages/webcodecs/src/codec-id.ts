@@ -1,4 +1,4 @@
-const availableContainers = ['webm', 'mp4'] as const;
+const availableContainers = ['webm', 'mp4', 'wav'] as const;
 export type ConvertMediaContainer = (typeof availableContainers)[number];
 
 export const getAvailableContainers = (): readonly ConvertMediaContainer[] => {
@@ -20,11 +20,15 @@ export const getAvailableVideoCodecs = (
 		return ['vp8', 'vp9'];
 	}
 
+	if (container === 'wav') {
+		return [];
+	}
+
 	throw new Error(`Unsupported container: ${container satisfies never}`);
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const availableAudioCodecs = ['opus', 'aac'] as const;
+const availableAudioCodecs = ['opus', 'aac', 'wav'] as const;
 export const getAvailableAudioCodecs = (
 	container: ConvertMediaContainer,
 ): ConvertMediaAudioCodec[] => {
@@ -34,6 +38,10 @@ export const getAvailableAudioCodecs = (
 
 	if (container === 'webm') {
 		return ['opus'];
+	}
+
+	if (container === 'wav') {
+		return ['wav'];
 	}
 
 	throw new Error(`Unsupported container: ${container satisfies never}`);

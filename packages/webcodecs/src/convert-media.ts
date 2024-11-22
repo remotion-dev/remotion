@@ -13,11 +13,7 @@ import type {
 	VideoTrack,
 	WriterInterface,
 } from '@remotion/media-parser';
-import {
-	MediaParserInternals,
-	parseMedia,
-	type OnVideoTrack,
-} from '@remotion/media-parser';
+import {parseMedia, type OnVideoTrack} from '@remotion/media-parser';
 
 import {autoSelectWriter} from './auto-select-writer';
 import {calculateProgress} from './calculate-progress';
@@ -32,6 +28,7 @@ import {makeAudioTrackHandler} from './on-audio-track';
 import {type ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
 import {makeVideoTrackHandler} from './on-video-track';
 import {type ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
+import {selectContainerCreator} from './select-container-creator';
 import {throttledStateUpdate} from './throttled-state-update';
 import {withResolversAndWaitForReturn} from './with-resolvers';
 
@@ -95,9 +92,11 @@ export const convertMedia = async function <
 		return Promise.reject(new Error('Aborted'));
 	}
 
-	if (container !== 'webm' && container !== 'mp4') {
+	if (container !== 'webm' && container !== 'mp4' && container !== 'wav') {
 		return Promise.reject(
-			new TypeError('Only `to: "webm"` and `to: "mp4"` is supported currently'),
+			new TypeError(
+				'Only `to: "webm"`, `to: "mp4"` and `to: "wav"` is supported currently',
+			),
 		);
 	}
 
@@ -127,10 +126,7 @@ export const convertMedia = async function <
 
 	userPassedAbortSignal?.addEventListener('abort', onUserAbort);
 
-	const creator =
-		container === 'webm'
-			? MediaParserInternals.createMatroskaMedia
-			: MediaParserInternals.createIsoBaseMedia;
+	const creator = selectContainerCreator(container);
 
 	const throttledState = throttledStateUpdate({
 		updateFn: onProgressDoNotCallDirectly ?? null,

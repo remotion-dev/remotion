@@ -1,5 +1,6 @@
 import {ConvertMediaContainer} from '@remotion/webcodecs';
 import React, {useCallback} from 'react';
+import {canUseOutputAsInput} from '~/lib/can-use-output-as-input';
 import {ConvertState, Source} from '~/lib/convert-state';
 import {getNewName} from '~/lib/generate-new-name';
 import {CloneIcon} from './icons/clone';
@@ -53,17 +54,21 @@ export const ConversionDone: React.FC<{
 			<Button className="block w-full" type="button" onClick={onDownload}>
 				Download
 			</Button>
-			<div className="h-2" />
-			<Button
-				variant="ghost"
-				className="w-full flex flex-row justify-start"
-				type="button"
-				onClick={useAsInput}
-			>
-				<CloneIcon className="size-4" />
-				<div className="w-2" />
-				Use new video as input
-			</Button>
+			{canUseOutputAsInput(container) ? (
+				<>
+					<div className="h-2" />
+					<Button
+						variant="ghost"
+						className="w-full flex flex-row justify-start"
+						type="button"
+						onClick={useAsInput}
+					>
+						<CloneIcon className="size-4" />
+						<div className="w-2" />
+						Use new video as input
+					</Button>
+				</>
+			) : null}
 			<Button
 				variant="ghost"
 				className="w-full flex flex-row justify-start"

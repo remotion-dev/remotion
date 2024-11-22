@@ -53,13 +53,13 @@ If you pass [`webFileReader`](/docs/media-parser/web-file-reader), you must also
 
 _string_ <TsType type="ConvertMediaContainer" source="@remotion/webcodecs"/>
 
-The container format to convert to. Currently, only `"webm"` is supported.
+The container format to convert to. Currently, `"mp4"`, `"webm"` and `"wav"` is supported.
 
 ### `videoCodec?`
 
 _string_ <TsType type="ConvertMediaVideoCodec" source="@remotion/webcodecs"/>
 
-The video codec to convert to. Currently, only `"vp8"` and `"vp9"` are supported.  
+The video codec to convert to. Currently, `"h264"`, `"vp8"` and `"vp9"` are supported.  
 The default is defined by [`getDefaultVideoCodec()`](/docs/webcodecs/get-default-video-codec).  
 If a [`onVideoTrack`](#onvideotrack) handler is provided, it will override this setting.
 

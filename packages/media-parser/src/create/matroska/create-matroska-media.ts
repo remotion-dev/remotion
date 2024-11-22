@@ -248,12 +248,6 @@ export const createMatroskaMedia = async ({
 			);
 			return operationProm.current;
 		},
-		updateDuration: (duration) => {
-			operationProm.current = operationProm.current.then(() =>
-				updateDuration(duration),
-			);
-			return operationProm.current;
-		},
 		addTrack: (track) => {
 			const trackNumber = currentTracks.length + 1;
 

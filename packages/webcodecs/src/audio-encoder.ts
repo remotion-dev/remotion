@@ -1,12 +1,23 @@
 import type {LogLevel} from '@remotion/media-parser';
 import type {ConvertMediaAudioCodec} from './codec-id';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
+import {getWaveAudioEncoder} from './wav-audio-encoder';
 
 export type WebCodecsAudioEncoder = {
 	encodeFrame: (audioData: AudioData) => Promise<void>;
 	waitForFinish: () => Promise<void>;
 	close: () => void;
 	flush: () => Promise<void>;
+};
+
+export type AudioEncoderInit = {
+	onChunk: (chunk: EncodedAudioChunk) => Promise<void>;
+	onError: (error: DOMException) => void;
+	codec: ConvertMediaAudioCodec;
+	signal: AbortSignal;
+	config: AudioEncoderConfig;
+	logLevel: LogLevel;
+	onNewAudioSampleRate: (sampleRate: number) => void;
 };
 
 export const createAudioEncoder = ({
@@ -17,17 +28,13 @@ export const createAudioEncoder = ({
 	config: audioEncoderConfig,
 	logLevel,
 	onNewAudioSampleRate,
-}: {
-	onChunk: (chunk: EncodedAudioChunk) => Promise<void>;
-	onError: (error: DOMException) => void;
-	codec: ConvertMediaAudioCodec;
-	signal: AbortSignal;
-	config: AudioEncoderConfig;
-	logLevel: LogLevel;
-	onNewAudioSampleRate: (sampleRate: number) => void;
-}): WebCodecsAudioEncoder => {
+}: AudioEncoderInit): WebCodecsAudioEncoder => {
 	if (signal.aborted) {
 		throw new Error('Not creating audio encoder, already aborted');
+	}
+
+	if (codec === 'wav') {
+		return getWaveAudioEncoder({onChunk, signal});
 	}
 
 	const ioSynchronizer = makeIoSynchronizer(logLevel, 'Audio encoder');
