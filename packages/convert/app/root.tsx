@@ -8,10 +8,8 @@ export function Layout({children}: {readonly children: React.ReactNode}) {
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
 				<title>Remotion Convert</title>
-				<meta
-					name="description"
-					content="Fast video conversion in the browser."
-				/>
+				<meta name="description" content="Remotion Convert" />
+				<link rel="icon" href="https://www.remotion.dev/img/favicon.png" />
 				<Links />
 			</head>
 			<body>
