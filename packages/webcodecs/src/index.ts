@@ -8,10 +8,8 @@ export {canReencodeAudioTrack} from './can-reencode-audio-track';
 export {canReencodeVideoTrack} from './can-reencode-video-track';
 export {
 	ConvertMediaAudioCodec,
-	ConvertMediaContainer,
 	ConvertMediaVideoCodec,
 	getAvailableAudioCodecs,
-	getAvailableContainers,
 	getAvailableVideoCodecs,
 } from './codec-id';
 export {
@@ -23,6 +21,10 @@ export {
 } from './convert-media';
 export {defaultOnAudioTrackHandler} from './default-on-audio-track-handler';
 export {defaultOnVideoTrackHandler} from './default-on-video-track-handler';
+export {
+	ConvertMediaContainer,
+	getAvailableContainers,
+} from './get-available-containers';
 export {getDefaultAudioCodec} from './get-default-audio-codec';
 export {getDefaultVideoCodec} from './get-default-video-codec';
 export {

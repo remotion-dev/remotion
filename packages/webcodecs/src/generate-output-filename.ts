@@ -1,4 +1,4 @@
-import type {ConvertMediaContainer} from './codec-id';
+import type {ConvertMediaContainer} from './get-available-containers';
 
 export const generateOutputFilename = (
 	source: string | Blob,

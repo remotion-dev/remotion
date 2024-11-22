@@ -1,4 +1,5 @@
-import type {ConvertMediaAudioCodec, ConvertMediaContainer} from './codec-id';
+import type {ConvertMediaAudioCodec} from './codec-id';
+import type {ConvertMediaContainer} from './get-available-containers';
 
 export const getDefaultAudioCodec = ({
 	container,
