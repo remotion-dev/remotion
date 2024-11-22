@@ -1398,6 +1398,12 @@ importers:
         specifier: workspace:*
         version: link:../core
 
+  packages/lambda-ruby:
+    devDependencies:
+      remotion:
+        specifier: workspace:*
+        version: link:../core
+
   packages/layout-utils:
     devDependencies:
       '@remotion/eslint-config-internal':
