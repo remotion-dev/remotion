@@ -58,11 +58,11 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'defaultOnVideoTrackHandler()'}</strong>
 					<div>The default track transformation function for video tracks.</div>
 				</TOCItem>
-				<TOCItem link="/docs/webcodecs/get-avaiable-audio-codecs">
+				<TOCItem link="/docs/webcodecs/get-available-audio-codecs">
 					<strong>{'getAvailableAudioCodecs()'}</strong>
 					<div>Get the audio codecs that can fit in a container.</div>
 				</TOCItem>
-				<TOCItem link="/docs/webcodecs/get-avaiable-video-codecs">
+				<TOCItem link="/docs/webcodecs/get-available-video-codecs">
 					<strong>{'getAvailableVideoCodecs()'}</strong>
 					<div>Get the video codecs that can fit in a container.</div>
 				</TOCItem>
