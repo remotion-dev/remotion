@@ -1,5 +1,5 @@
 import type {LogLevel} from '@remotion/media-parser';
-import type {ConvertMediaAudioCodec} from './codec-id';
+import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import {getWaveAudioEncoder} from './wav-audio-encoder';
 

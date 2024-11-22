@@ -1,4 +1,4 @@
-import type {ConvertMediaAudioCodec} from './codec-id';
+import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 
 const getCodecString = (audioCodec: ConvertMediaAudioCodec) => {
 	if (audioCodec === 'opus') {

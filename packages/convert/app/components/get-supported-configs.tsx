@@ -35,7 +35,7 @@ export const getSupportedConfigs = async ({
 	container: ConvertMediaContainer;
 	bitrate: number;
 }): Promise<SupportedConfigs> => {
-	const availableVideoCodecs = getAvailableVideoCodecs(container);
+	const availableVideoCodecs = getAvailableVideoCodecs({container});
 
 	const videoTrackOptions: VideoTrackOption[] = [];
 
@@ -71,7 +71,7 @@ export const getSupportedConfigs = async ({
 		});
 	}
 
-	const availableAudioCodecs = getAvailableAudioCodecs(container);
+	const availableAudioCodecs = getAvailableAudioCodecs({container});
 	const audioTrackOptions: AudioTrackOption[] = [];
 
 	for (const track of tracks.audioTracks) {

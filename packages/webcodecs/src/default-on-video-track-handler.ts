@@ -30,6 +30,14 @@ export const defaultOnVideoTrackHandler: ConvertMediaOnVideoTrackHandler =
 
 		const videoCodec = defaultVideoCodec ?? getDefaultVideoCodec({container});
 
+		if (videoCodec === null) {
+			MediaParserInternals.Log.verbose(
+				logLevel,
+				`Track ${track.trackId} (video): No default video codec, therefore dropping`,
+			);
+			return Promise.resolve({type: 'drop'});
+		}
+
 		const canReencode = await canReencodeVideoTrack({
 			videoCodec,
 			track,

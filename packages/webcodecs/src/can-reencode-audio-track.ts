@@ -1,7 +1,7 @@
 import type {AudioTrack} from '@remotion/media-parser';
 import {getAudioDecoderConfig} from './audio-decoder-config';
 import {getAudioEncoderConfig} from './audio-encoder-config';
-import type {ConvertMediaAudioCodec} from './codec-id';
+import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 
 export const canReencodeAudioTrack = async ({
 	track,

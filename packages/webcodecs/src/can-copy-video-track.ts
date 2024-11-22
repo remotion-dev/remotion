@@ -1,5 +1,5 @@
 import type {MediaParserVideoCodec} from '@remotion/media-parser';
-import type {ConvertMediaContainer} from './codec-id';
+import type {ConvertMediaContainer} from './get-available-containers';
 
 export const canCopyVideoTrack = ({
 	inputCodec,
