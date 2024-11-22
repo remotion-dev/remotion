@@ -197,7 +197,7 @@ describe('Webhooks', () => {
 				outName: 'out.mp4',
 				pixelFormat: 'yuv420p',
 				privacy: 'public',
-				proResProfile: undefined,
+				proResProfile: null,
 				x264Preset: null,
 				jpegQuality: undefined,
 				scale: 1,

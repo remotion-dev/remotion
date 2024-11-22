@@ -217,6 +217,20 @@ class RenderParams
 
         if ($this->getProResProfile() !== null) {
             $parameters['proResProfile'] = $this->getProResProfile();
+        } else {
+            $parameters['proResProfile'] = null;
+        }
+
+        if ($this->getPixelFormat() !== null) {
+            $parameters['pixelFormat'] = $this->getPixelFormat();
+        } else {
+            $parameters['pixelFormat'] = null;
+        }
+
+        if ($this->getCrf() !== null) {
+            $parameters['crf'] = $this->getCrf();
+        } else {
+            $parameters['crf'] = null;
         }
 
         return $parameters;

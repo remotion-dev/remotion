@@ -120,12 +120,10 @@ class Semantic
 		const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 		const parsedJson = JSON.parse(jsonOutput);
 
-		expect(
-			removeUndefined({
-				...parsedJson,
-				type: 'start',
-			}),
-		).toEqual(removeUndefined(nativeVersion));
+		expect({
+			...parsedJson,
+			type: 'start',
+		}).toEqual(nativeVersion);
 	});
 
 	test('PHP package should create the same progress payload as normal Lambda package', async () => {
@@ -148,8 +146,4 @@ class Semantic
 		const parsedJson = JSON.parse(jsonOutput);
 		expect(parsedJson).toEqual({...nativeVersion, s3OutputProvider: null});
 	});
-
-	const removeUndefined = (data: unknown) => {
-		return JSON.parse(JSON.stringify(data));
-	};
 });

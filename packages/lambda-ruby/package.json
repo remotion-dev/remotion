@@ -11,5 +11,6 @@
 	"devDependencies": {
 		"remotion": "workspace:*"
 	},
-	"dependencies": {}
+	"dependencies": {},
+	"homepage": "https://www.remotion.dev/docs/lambda/ruby"
 }
