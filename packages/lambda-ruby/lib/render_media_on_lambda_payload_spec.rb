@@ -1,16 +1,8 @@
-require_relative 'sdk'
-require_relative 's3_output_provider'
+require_relative 'render_media_on_lambda_payload'
 require 'json'
 
-# Create a test instance of the RemotionLambda::Client
-client = RemotionLambda::Client.new(
-  function_name: 'test-function',
-  serve_url: 'https://example.com',
-  region: 'us-east-1'
-)
-
 # Call get_render_media_on_lambda with sample data
-payload = client.get_render_media_on_lambda_payload(
+payload = get_render_media_on_lambda_payload(
   codec: "h264",
   metadata: {
     Author: "Lunar"

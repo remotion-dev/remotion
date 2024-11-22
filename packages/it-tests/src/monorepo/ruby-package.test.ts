@@ -100,3 +100,42 @@ test('Render Media payload', async () => {
 
 	expect(JSON.parse(output)).toEqual(nativeVersion);
 });
+
+test('Render Still payload', async () => {
+	const output = execSync('ruby lib/render_still_on_lambda_payload_spec.rb', {
+		cwd: rubySdk,
+	}).toString();
+	const nativeVersion = await LambdaInternals.makeLambdaRenderStillPayload({
+		region: 'us-east-1',
+		composition: 'still-helloworld',
+		functionName: 'remotion-render',
+		serveUrl: 'testbed',
+		inputProps: {
+			message: 'Hello from props!',
+		},
+		chromiumOptions: {},
+		deleteAfter: null,
+		downloadBehavior: {type: 'play-in-browser'},
+		envVariables: {},
+		forceBucketName: null,
+		forceHeight: null,
+		forceWidth: null,
+		imageFormat: 'jpeg',
+		jpegQuality: 80,
+		logLevel: 'info',
+		maxRetries: 1,
+		offthreadVideoCacheSizeInBytes: null,
+		outName: null,
+		privacy: 'public',
+		scale: 1,
+		timeoutInMilliseconds: 30000,
+		frame: 0,
+		indent: false,
+		onInit: () => undefined,
+		dumpBrowserLogs: false,
+		quality: undefined,
+		forcePathStyle: false,
+	});
+
+	expect(JSON.parse(output)).toEqual({...nativeVersion, streamed: false});
+});
