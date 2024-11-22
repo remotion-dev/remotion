@@ -12,7 +12,7 @@ export const Main: React.FC<{
 	);
 
 	return (
-		<div className="font-sans min-h-screen bg-slate-50">
+		<div className="font-sans min-h-screen ">
 			{src ? (
 				<FileAvailable
 					key={src.type === 'url' ? src.url : src.file.name}

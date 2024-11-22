@@ -32,7 +32,7 @@ export const FileAvailable: React.FC<{
 
 	return (
 		<div>
-			<div className="overflow-y-auto w-full lg:flex lg:justify-center pt-6 pb-10 px-4">
+			<div className="overflow-y-auto w-full lg:flex lg:justify-center pt-6 pb-10 px-4 bg-slate-50">
 				<div>
 					<div className="block">
 						<Button variant="link" onClick={clear}>

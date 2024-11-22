@@ -34,27 +34,29 @@ export const PickFile: React.FC<{
 			onDragOver={onDragOver}
 			onDrop={onDrop}
 		>
-			<div className="h-10" />
-			<TextMarkLogo />
-			<div className="w-full pt-4 pb-4">
-				<h1 className="text-center text-3xl font-brand font-black max-w-[600px] m-auto text-balance">
-					{title}
-				</h1>
+			<div className="bg-slate-50 w-full">
+				<div className="h-10" />
+				<TextMarkLogo />
+				<div className="w-full pt-4 pb-4">
+					<h1 className="text-center text-3xl font-brand font-black max-w-[600px] m-auto text-balance">
+						{title}
+					</h1>
+				</div>
+				<div className="h-12" />
+				<div className="p-4 w-full text-center">
+					<DropFileBox setSrc={setSrc} />
+				</div>
+				<div className="h-4" />
+				<div className="font-brand">or </div>
+				<div className="h-4" />
+				<a
+					className="font-brand text-brand cursor cursor-pointer hover:underline"
+					onClick={onSampleFile}
+				>
+					Use a sample file
+				</a>
+				<div className="h-10" />
 			</div>
-			<div className="h-12" />
-			<div className="p-4 w-full text-center">
-				<DropFileBox setSrc={setSrc} />
-			</div>
-			<div className="h-4" />
-			<div className="font-brand">or </div>
-			<div className="h-4" />
-			<a
-				className="font-brand text-brand cursor cursor-pointer hover:underline"
-				onClick={onSampleFile}
-			>
-				Use a sample file
-			</a>
-			<div className="h-10" />
 			<div className="w-full bg-white border-t-2 border-black">
 				<WhyRemotionConvert />
 			</div>
