@@ -19,18 +19,6 @@ export const onFrame = async ({
 }) => {
 	const newFrame = onVideoFrame ? await onVideoFrame({frame, track}) : frame;
 
-	if (newFrame.codedHeight !== frame.displayHeight) {
-		throw new Error(
-			`Returned VideoFrame of track ${track.trackId} has different codedHeight (${newFrame.codedHeight}) than the input frame displayHeight (${frame.displayHeight})`,
-		);
-	}
-
-	if (newFrame.codedWidth !== frame.displayWidth) {
-		throw new Error(
-			`Returned VideoFrame of track ${track.trackId} has different codedWidth (${newFrame.codedWidth}) than the input frame displayWidth (${frame.displayWidth})`,
-		);
-	}
-
 	if (newFrame.displayWidth !== frame.displayWidth) {
 		throw new Error(
 			`Returned VideoFrame of track ${track.trackId} has different displayWidth (${newFrame.displayWidth}) than the input frame (${newFrame.displayHeight})`,
