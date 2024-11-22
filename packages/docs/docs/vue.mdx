@@ -199,7 +199,7 @@ This wrapper component will serve as the bridge between VueJs and Remotion’s R
 1. In your `remotion` folder, create a file named `PlayerView.tsx`.
 2. Ensure each `.tsx` file imports React explicitly at the top of the file:
 
-This will get the reference to the player with `useRef`.
+This will get the reference to the player with `createRef`.
 
 ```tsx title="PlayerView.tsx"
 import React, {useEffect} from 'react';
@@ -261,12 +261,13 @@ To display the Remotion player within an VueJS template, add your new wrapper co
 
 This VueJS component tag will render the Remotion Player, allowing you to pass data or configuration as needed through VueJS's data binding.
 
-You're now able to use the [`API`](/docs/player/player) of the player via `this.playerRef()`
+You're now able to use the [`API`](/docs/player/player) of the player via the `player` ref binding
 
 ## See also
 
 - [Source code for this documentation](https://github.com/remotion-dev/vue-starter)
 - [Integration into Angular](/docs/angular)
+- [Integration into Svelte](/docs/svelte)
 
 <Credits
   contributors={[

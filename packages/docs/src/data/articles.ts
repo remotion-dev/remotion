@@ -490,13 +490,6 @@ export const articles = [
 		crumb: 'Cloud Run',
 	},
 	{
-		id: 'getserviceinfo',
-		title: 'getServiceInfo()',
-		relativePath: 'docs/cloudrun/getServiceinfo.mdx',
-		compId: 'articles-docs-cloudrun-getServiceinfo',
-		crumb: 'Cloud Run API',
-	},
-	{
 		id: 'getorcreatebucket',
 		title: 'getOrCreateBucket()',
 		relativePath: 'docs/cloudrun/getorcreatebucket.mdx',
@@ -508,6 +501,13 @@ export const articles = [
 		title: 'getRegions()',
 		relativePath: 'docs/cloudrun/getregions.mdx',
 		compId: 'articles-docs-cloudrun-getregions',
+		crumb: 'Cloud Run API',
+	},
+	{
+		id: 'getserviceinfo',
+		title: 'getServiceInfo()',
+		relativePath: 'docs/cloudrun/getServiceinfo.mdx',
+		compId: 'articles-docs-cloudrun-getServiceinfo',
 		crumb: 'Cloud Run API',
 	},
 	{
@@ -3345,6 +3345,13 @@ export const articles = [
 		relativePath: 'docs/support.mdx',
 		compId: 'articles-docs-support',
 		crumb: 'Let us help you',
+	},
+	{
+		id: 'svelte',
+		title: 'Using Remotion in Svelte',
+		relativePath: 'docs/svelte.mdx',
+		compId: 'articles-docs-svelte',
+		crumb: 'Integrations',
 	},
 	{
 		id: 'system-prompt',
