@@ -586,6 +586,8 @@ module.exports = {
 				'webcodecs/default-on-video-track-handler',
 				'webcodecs/get-default-audio-codec',
 				'webcodecs/get-default-video-codec',
+				'webcodecs/get-available-audio-codecs',
+				'webcodecs/get-available-video-codecs',
 			],
 		},
 		{

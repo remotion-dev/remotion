@@ -2,9 +2,11 @@ import type {ConvertMediaContainer} from './get-available-containers';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const availableAudioCodecs = ['opus', 'aac', 'wav'] as const;
-export const getAvailableAudioCodecs = (
-	container: ConvertMediaContainer,
-): ConvertMediaAudioCodec[] => {
+export const getAvailableAudioCodecs = ({
+	container,
+}: {
+	container: ConvertMediaContainer;
+}): ConvertMediaAudioCodec[] => {
 	if (container === 'mp4') {
 		return ['aac'];
 	}
