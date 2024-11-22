@@ -37,12 +37,13 @@ export const PickFile: React.FC<{
 			<div className="bg-slate-50 w-full">
 				<div className="h-10" />
 				<TextMarkLogo />
-				<div className="w-full pt-4 pb-4">
+				<div className="h-5" />
+				<div className="w-full pb-4">
 					<h1 className="text-center text-3xl font-brand font-black max-w-[600px] m-auto text-balance">
 						{title}
 					</h1>
 				</div>
-				<div className="h-12" />
+				<div className="h-4" />
 				<div className="p-4 w-full text-center">
 					<DropFileBox setSrc={setSrc} />
 				</div>
