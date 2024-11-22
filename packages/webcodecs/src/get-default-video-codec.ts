@@ -1,5 +1,5 @@
-import type {ConvertMediaVideoCodec} from './codec-id';
 import type {ConvertMediaContainer} from './get-available-containers';
+import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 
 export const getDefaultVideoCodec = ({
 	container,

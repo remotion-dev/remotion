@@ -1,6 +1,6 @@
 import type {LogLevel} from '@remotion/media-parser';
-import type {ConvertMediaVideoCodec} from './codec-id';
 import {convertToCorrectVideoFrame} from './convert-to-correct-videoframe';
+import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import {Log} from './log';
 

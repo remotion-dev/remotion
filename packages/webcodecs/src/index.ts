@@ -7,12 +7,6 @@ export {canCopyVideoTrack} from './can-copy-video-track';
 export {canReencodeAudioTrack} from './can-reencode-audio-track';
 export {canReencodeVideoTrack} from './can-reencode-video-track';
 export {
-	ConvertMediaAudioCodec,
-	ConvertMediaVideoCodec,
-	getAvailableAudioCodecs,
-	getAvailableVideoCodecs,
-} from './codec-id';
-export {
 	convertMedia,
 	ConvertMediaOnProgress,
 	ConvertMediaOnVideoFrame,
@@ -22,9 +16,17 @@ export {
 export {defaultOnAudioTrackHandler} from './default-on-audio-track-handler';
 export {defaultOnVideoTrackHandler} from './default-on-video-track-handler';
 export {
+	ConvertMediaAudioCodec,
+	getAvailableAudioCodecs,
+} from './get-available-audio-codecs';
+export {
 	ConvertMediaContainer,
 	getAvailableContainers,
 } from './get-available-containers';
+export {
+	ConvertMediaVideoCodec,
+	getAvailableVideoCodecs,
+} from './get-available-video-codecs';
 export {getDefaultAudioCodec} from './get-default-audio-codec';
 export {getDefaultVideoCodec} from './get-default-video-codec';
 export {

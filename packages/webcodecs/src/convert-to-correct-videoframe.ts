@@ -1,5 +1,5 @@
 import {isFirefox} from './browser-quirks';
-import type {ConvertMediaVideoCodec} from './codec-id';
+import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 
 export const needsToCorrectVideoFrame = ({
 	videoFrame,

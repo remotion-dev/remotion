@@ -1,7 +1,7 @@
 import type {VideoTrack} from '@remotion/media-parser';
-import type {ConvertMediaVideoCodec} from './codec-id';
 import type {ConvertMediaOnVideoFrame} from './convert-media';
 import {convertToCorrectVideoFrame} from './convert-to-correct-videoframe';
+import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 import type {WebCodecsVideoEncoder} from './video-encoder';
 
 export const onFrame = async ({

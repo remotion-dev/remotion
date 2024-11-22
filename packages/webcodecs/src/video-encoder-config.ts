@@ -1,6 +1,6 @@
 import {isSafari} from './browser-quirks';
 import {chooseCorrectAvc1Profile} from './choose-correct-avc1-profile';
-import type {ConvertMediaVideoCodec} from './codec-id';
+import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 
 export const getVideoEncoderConfig = async ({
 	codec,

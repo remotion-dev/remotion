@@ -17,10 +17,11 @@ import {parseMedia, type OnVideoTrack} from '@remotion/media-parser';
 
 import {autoSelectWriter} from './auto-select-writer';
 import {calculateProgress} from './calculate-progress';
-import type {ConvertMediaAudioCodec, ConvertMediaVideoCodec} from './codec-id';
 import Error from './error-cause';
 import {generateOutputFilename} from './generate-output-filename';
+import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 import type {ConvertMediaContainer} from './get-available-containers';
+import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 import {makeAudioTrackHandler} from './on-audio-track';
 import {type ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
 import {makeVideoTrackHandler} from './on-video-track';
