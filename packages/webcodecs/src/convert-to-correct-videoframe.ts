@@ -8,6 +8,11 @@ export const needsToCorrectVideoFrame = ({
 	videoFrame: VideoFrame;
 	outputCodec: ConvertMediaVideoCodec;
 }): boolean => {
+	// On Chrome when dropping a vertical iPhone video
+	if (videoFrame.format === null) {
+		return true;
+	}
+
 	return isFirefox() && videoFrame.format === 'BGRX' && outputCodec === 'h264';
 };
 
