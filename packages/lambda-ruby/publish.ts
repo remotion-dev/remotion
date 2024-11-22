@@ -27,6 +27,10 @@ cpSync(
 	path.join(workingDir, 'remotion_lambda.gemspec'),
 	{recursive: true},
 );
+cpSync('Gemfile', path.join(workingDir, 'Gemfile'), {
+	recursive: true,
+});
+
 writeFileSync(
 	path.join(workingDir, 'README.md'),
 	[

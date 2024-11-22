@@ -9,4 +9,10 @@ Gem::Specification.new do |s|
   s.homepage    =
     "https://rubygems.org/gems/remotion_lambda"
   s.license       = "MIT"
+  s.add_runtime_dependency "aws-sdk-lambda",
+    ["> 1.0.0"]
+  s.add_runtime_dependency "json",
+    ["> 2.0.0"]
+  s.add_runtime_dependency "logger",
+    ["> 1.0.0"]
 end

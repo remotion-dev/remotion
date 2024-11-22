@@ -1,4 +1,3 @@
-require 'aws-sdk-s3'
 require 'aws-sdk-lambda'
 require 'json'
 require 'logger'
@@ -47,7 +46,16 @@ module RemotionLambda
       body
     end
 
-    def get_render_progress
+    def get_render_progress_payload(render_id, bucket_name)
+      payload = {
+        "type" => "status",
+        "renderId" => render_id,
+        "bucketName" => bucket_name,
+        "version" => VERSION,
+      }
+
+      payload
+    end
 
     def create_lambda_client
       Aws::Lambda::Client.new(region: @region, credentials: aws_credentials)
