@@ -1,9 +1,9 @@
 {
 	"redirects": [
 		{
-			"source": "https://convert.remotion.dev",
+			"source": "*",
 			"destination": "https://remotion.dev/convert",
-			"permanent": true
+			"permanent": false
 		}
 	]
 }
