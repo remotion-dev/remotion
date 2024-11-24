@@ -78,6 +78,7 @@ export const Probe: React.FC<{
 		videoCodec,
 		durationInSeconds,
 		done,
+		error,
 	} = useProbe({
 		src,
 		onVideoThumbnail,
@@ -119,11 +120,22 @@ export const Probe: React.FC<{
 	return (
 		<Card className="w-full lg:w-[350px] overflow-hidden">
 			<div className="flex flex-row lg:flex-col w-full border-b-2 border-black">
-				<VideoThumbnail ref={videoThumbnailRef} smallThumbOnMobile />
-				<CardHeader className=" p-3 lg:p-4 w-full">
+				{error ? null : (
+					<VideoThumbnail ref={videoThumbnailRef} smallThumbOnMobile />
+				)}
+				<CardHeader className="p-3 lg:p-4 w-full">
 					<CardTitle title={name ?? undefined}>
 						{name ? name : <Skeleton className="h-5 w-[220px] inline-block" />}
 					</CardTitle>
+					{error ? (
+						<CardDescription className="!mt-0">
+							<p className="text-red-500">
+								Failed to parse media:
+								<br />
+								{error.message}
+							</p>
+						</CardDescription>
+					) : null}
 					{done ? (
 						<CardDescription className="!mt-0">
 							<SourceLabel src={src} />

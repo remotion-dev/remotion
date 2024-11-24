@@ -48,6 +48,7 @@ export const useProbe = ({
 	const [tracks, setTracks] = useState<TracksField | null>(null);
 	const [container, setContainer] = useState<ParseMediaContainer | null>(null);
 	const [done, setDone] = useState(false);
+	const [error, setError] = useState<Error | null>(null);
 
 	const getStart = useCallback(() => {
 		const controller = new AbortController();
@@ -196,6 +197,7 @@ export const useProbe = ({
 					return;
 				}
 
+				setError(err as Error);
 				// eslint-disable-next-line no-console
 				console.log(err);
 			})
@@ -234,6 +236,7 @@ export const useProbe = ({
 			size,
 			durationInSeconds,
 			done,
+			error,
 		};
 	}, [
 		audioCodec,
@@ -246,5 +249,6 @@ export const useProbe = ({
 		videoCodec,
 		durationInSeconds,
 		done,
+		error,
 	]);
 };

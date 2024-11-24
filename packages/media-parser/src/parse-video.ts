@@ -51,7 +51,7 @@ export const parseVideo = ({
 	}
 
 	if (iterator.isRiff()) {
-		throw new Error('AVI files are not yet supported');
+		throw new Error('AVI/WAV files are not yet supported');
 	}
 
 	if (iterator.isIsoBaseMedia()) {
