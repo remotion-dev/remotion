@@ -20,10 +20,29 @@ export type RiffRegularBox = {
 	id: string;
 };
 
+export type AvihBox = {
+	type: 'avih-box';
+	microSecPerFrame: number;
+	maxBytesPerSecond: number;
+	paddingGranularity: number;
+	flags: number;
+	totalFrames: number;
+	initialFrames: number;
+	streams: number;
+	suggestedBufferSize: number;
+	width: number;
+	height: number;
+};
+
 export type RiffHeader = {
 	type: 'riff-header';
 	fileSize: number;
 	fileType: string;
 };
 
-export type RiffBox = RiffRegularBox | WaveFormatBox | RiffHeader | ListBox;
+export type RiffBox =
+	| RiffRegularBox
+	| WaveFormatBox
+	| RiffHeader
+	| ListBox
+	| AvihBox;

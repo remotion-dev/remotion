@@ -20,9 +20,17 @@ test('AVI file', async () => {
 		{
 			children: [
 				{
-					id: 'avih',
-					size: 56,
-					type: 'riff-box',
+					microSecPerFrame: 33333,
+					maxBytesPerSecond: 17454,
+					paddingGranularity: 0,
+					type: 'avih-box',
+					flags: 2320,
+					totalFrames: 901,
+					initialFrames: 0,
+					streams: 2,
+					suggestedBufferSize: 1048576,
+					width: 480,
+					height: 270,
 				},
 				{
 					children: [
