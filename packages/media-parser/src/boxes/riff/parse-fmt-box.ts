@@ -4,11 +4,9 @@ import type {RiffBox} from './riff-box';
 export const parseFmtBox = ({
 	iterator,
 	boxes,
-	size,
 }: {
 	iterator: BufferIterator;
 	boxes: RiffBox[];
-	size: number;
 }): RiffBox => {
 	const header = boxes.find((b) => b.type === 'riff-header');
 	if (!header) {

@@ -32,6 +32,13 @@ test('WAV file', async () => {
 			type: 'riff-box',
 		},
 		{
+			children: [
+				{
+					id: 'ISFT',
+					size: 34,
+					type: 'riff-box',
+				},
+			],
 			listType: 'INFO',
 			type: 'list-box',
 		},

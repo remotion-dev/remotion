@@ -3,49 +3,54 @@ import type {ParseResult} from '../../parse-result';
 import {expectRiffBox} from './expect-riff-box';
 import type {RiffBox} from './riff-box';
 
-const parseRiffBody = ({
+export const parseRiffBody = ({
 	iterator,
 	boxes,
+	maxOffset,
 }: {
 	iterator: BufferIterator;
 	boxes: RiffBox[];
-}): Promise<ParseResult> => {
-	while (iterator.bytesRemaining() > 0) {
+	maxOffset: number;
+}): ParseResult => {
+	while (
+		iterator.bytesRemaining() > 0 &&
+		iterator.counter.getOffset() < maxOffset
+	) {
 		const result = expectRiffBox({iterator, boxes});
 		if (result.type === 'incomplete') {
-			return Promise.resolve({
+			return {
 				status: 'incomplete',
 				continueParsing() {
-					return parseRiffBody({iterator, boxes});
+					return Promise.resolve(parseRiffBody({iterator, boxes, maxOffset}));
 				},
 				segments: boxes,
 				skipTo: null,
-			});
+			};
 		}
 
 		boxes.push(result.box);
 	}
 
-	return Promise.resolve({
+	return {
 		status: 'done',
 		segments: boxes,
-	});
+	};
 };
 
-export const parseRiff = (iterator: BufferIterator): Promise<ParseResult> => {
+export const parseRiff = (iterator: BufferIterator): ParseResult => {
 	const boxes: RiffBox[] = [];
 	const riff = iterator.getByteString(4);
 	if (riff !== 'RIFF') {
-		return Promise.reject(new Error('Not a RIFF file'));
+		throw new Error('Not a RIFF file');
 	}
 
 	const size = iterator.getUint32Le();
 	const fileType = iterator.getByteString(4);
 	if (fileType !== 'WAVE' && fileType !== 'AVI') {
-		return Promise.reject(new Error(`File type ${fileType} not supported`));
+		throw new Error(`File type ${fileType} not supported`);
 	}
 
 	boxes.push({type: 'riff-header', fileSize: size, fileType});
 
-	return parseRiffBody({iterator, boxes});
+	return parseRiffBody({iterator, boxes, maxOffset: Infinity});
 };

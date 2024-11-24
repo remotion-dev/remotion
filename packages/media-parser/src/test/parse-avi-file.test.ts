@@ -18,10 +18,76 @@ test('AVI file', async () => {
 			type: 'riff-header',
 		},
 		{
+			children: [
+				{
+					id: 'avih',
+					size: 56,
+					type: 'riff-box',
+				},
+				{
+					children: [
+						{
+							id: 'strh',
+							size: 56,
+							type: 'riff-box',
+						},
+						{
+							id: 'strf',
+							size: 40,
+							type: 'riff-box',
+						},
+						{
+							id: 'JUNK',
+							size: 4120,
+							type: 'riff-box',
+						},
+						{
+							id: 'vprp',
+							size: 68,
+							type: 'riff-box',
+						},
+					],
+					listType: 'strl',
+					type: 'list-box',
+				},
+				{
+					children: [
+						{
+							id: 'strh',
+							size: 56,
+							type: 'riff-box',
+						},
+						{
+							id: 'strf',
+							size: 18,
+							type: 'riff-box',
+						},
+						{
+							id: 'JUNK',
+							size: 4120,
+							type: 'riff-box',
+						},
+					],
+					listType: 'strl',
+					type: 'list-box',
+				},
+				{
+					id: 'JUNK',
+					size: 260,
+					type: 'riff-box',
+				},
+			],
 			listType: 'hdrl',
 			type: 'list-box',
 		},
 		{
+			children: [
+				{
+					id: 'ISFT',
+					size: 14,
+					type: 'riff-box',
+				},
+			],
 			listType: 'INFO',
 			type: 'list-box',
 		},
@@ -31,6 +97,7 @@ test('AVI file', async () => {
 			type: 'riff-box',
 		},
 		{
+			children: [],
 			listType: 'movi',
 			type: 'list-box',
 		},

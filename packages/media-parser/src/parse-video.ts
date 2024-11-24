@@ -52,7 +52,7 @@ export const parseVideo = ({
 	}
 
 	if (iterator.isRiff()) {
-		return parseRiff(iterator);
+		return Promise.resolve(parseRiff(iterator));
 	}
 
 	if (iterator.isIsoBaseMedia()) {

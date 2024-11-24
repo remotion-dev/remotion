@@ -15,11 +15,11 @@ export const parseRiffBox = ({
 	boxes: RiffBox[];
 }): RiffBox => {
 	if (id === 'fmt') {
-		return parseFmtBox({iterator, boxes, size});
+		return parseFmtBox({iterator, boxes});
 	}
 
 	if (id === 'LIST') {
-		return parseListBox({iterator, boxes, size});
+		return parseListBox({iterator, size});
 	}
 
 	iterator.discard(size);

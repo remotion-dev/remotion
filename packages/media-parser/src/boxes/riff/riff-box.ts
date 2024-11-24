@@ -11,6 +11,7 @@ export type WaveFormatBox = {
 export type ListBox = {
 	type: 'list-box';
 	listType: string;
+	children: RiffBox[];
 };
 
 export type RiffRegularBox = {

@@ -1,21 +1,40 @@
 import type {BufferIterator} from '../../buffer-iterator';
+import {parseRiffBody} from './parse-box';
 import type {RiffBox} from './riff-box';
 
 export const parseListBox = ({
 	iterator,
-	boxes,
 	size,
 }: {
 	iterator: BufferIterator;
-	boxes: RiffBox[];
 	size: number;
 }): RiffBox => {
 	const counter = iterator.counter.getOffset();
 	const listType = iterator.getByteString(4);
-	iterator.discard(size - (iterator.counter.getOffset() - counter));
+
+	if (listType === 'movi') {
+		iterator.discard(size - (iterator.counter.getOffset() - counter));
+		return {
+			type: 'list-box',
+			listType: 'movi',
+			children: [],
+		};
+	}
+
+	const children: RiffBox[] = [];
+	const result = parseRiffBody({
+		boxes: children,
+		iterator,
+		maxOffset: counter + size,
+	});
+
+	if (result.status === 'incomplete') {
+		throw new Error(`Should only parse complete boxes (${listType})`);
+	}
 
 	return {
 		type: 'list-box',
 		listType,
+		children,
 	};
 };
