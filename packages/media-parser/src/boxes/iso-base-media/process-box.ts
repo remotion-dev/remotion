@@ -650,7 +650,7 @@ export const parseBoxes = async ({
 	continueMdat: false | PartialMdatBox;
 	signal: AbortSignal | null;
 	logLevel: LogLevel;
-}): Promise<ParseResult> => {
+}): Promise<ParseResult<IsoBaseMediaBox>> => {
 	let boxes: IsoBaseMediaBox[] = initialBoxes;
 	const initialOffset = iterator.counter.getOffset();
 	const alreadyHasMdat = boxes.find((b) => b.type === 'mdat-box');

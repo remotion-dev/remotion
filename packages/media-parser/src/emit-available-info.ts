@@ -13,7 +13,7 @@ import type {
 	ParseMediaFields,
 	ParseMediaResult,
 } from './options';
-import type {ParseResult} from './parse-result';
+import type {AnySegment, ParseResult} from './parse-result';
 import type {ParserState} from './parser-state';
 
 export const emitAvailableInfo = ({
@@ -26,7 +26,7 @@ export const emitAvailableInfo = ({
 	name,
 }: {
 	hasInfo: Record<keyof Options<ParseMediaFields>, boolean>;
-	parseResult: ParseResult | null;
+	parseResult: ParseResult<AnySegment> | null;
 	moreFields: ParseMediaCallbacks<AllParseMediaFields>;
 	state: ParserState;
 	returnValue: ParseMediaResult<AllParseMediaFields>;

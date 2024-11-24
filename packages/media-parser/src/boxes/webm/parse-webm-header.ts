@@ -7,7 +7,7 @@ import {expectChildren} from './segments/parse-children';
 const continueAfterMatroskaResult = (
 	result: MatroskaParseResult,
 	children: MatroskaSegment[],
-): ParseResult => {
+): ParseResult<MatroskaSegment> => {
 	if (result.status === 'done') {
 		return {
 			status: 'done',
@@ -30,7 +30,7 @@ const continueAfterMatroskaResult = (
 export const parseWebm = async (
 	counter: BufferIterator,
 	parserContext: ParserContext,
-): Promise<ParseResult> => {
+): Promise<ParseResult<MatroskaSegment>> => {
 	const children: MatroskaSegment[] = [];
 	const results = await expectChildren({
 		iterator: counter,

@@ -67,16 +67,16 @@ export type IsoBaseMediaBox =
 
 export type AnySegment = MatroskaSegment | IsoBaseMediaBox | RiffBox;
 
-export type ParseResult =
+export type ParseResult<BoxType extends AnySegment> =
 	| {
 			status: 'done';
-			segments: AnySegment[];
+			segments: BoxType[];
 	  }
 	| {
 			status: 'incomplete';
-			segments: AnySegment[];
+			segments: BoxType[];
 			skipTo: number | null;
-			continueParsing: () => Promise<ParseResult>;
+			continueParsing: () => Promise<ParseResult<BoxType>>;
 	  };
 
 export type MatroskaParseResult =

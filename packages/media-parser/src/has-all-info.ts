@@ -6,12 +6,12 @@ import {hasFps} from './get-fps';
 import {hasTracks} from './get-tracks';
 import {hasVideoCodec} from './get-video-codec';
 import type {Options, ParseMediaFields} from './options';
-import type {ParseResult} from './parse-result';
+import type {AnySegment, ParseResult} from './parse-result';
 import type {ParserState} from './parser-state';
 
 export const getAvailableInfo = (
 	options: Options<ParseMediaFields>,
-	parseResult: ParseResult | null,
+	parseResult: ParseResult<AnySegment> | null,
 	state: ParserState,
 ): Record<keyof Options<ParseMediaFields>, boolean> => {
 	const keys = Object.entries(options).filter(([, value]) => value) as [

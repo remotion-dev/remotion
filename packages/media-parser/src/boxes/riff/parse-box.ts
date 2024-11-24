@@ -11,7 +11,7 @@ export const parseRiffBody = ({
 	iterator: BufferIterator;
 	boxes: RiffBox[];
 	maxOffset: number;
-}): ParseResult => {
+}): ParseResult<RiffBox> => {
 	while (
 		iterator.bytesRemaining() > 0 &&
 		iterator.counter.getOffset() < maxOffset
@@ -37,7 +37,7 @@ export const parseRiffBody = ({
 	};
 };
 
-export const parseRiff = (iterator: BufferIterator): ParseResult => {
+export const parseRiff = (iterator: BufferIterator): ParseResult<RiffBox> => {
 	const boxes: RiffBox[] = [];
 	const riff = iterator.getByteString(4);
 	if (riff !== 'RIFF') {

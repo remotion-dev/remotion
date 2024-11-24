@@ -3,7 +3,7 @@ import {parseRiff} from './boxes/riff/parse-box';
 import {parseWebm} from './boxes/webm/parse-webm-header';
 import type {BufferIterator} from './buffer-iterator';
 import {Log, type LogLevel} from './log';
-import type {IsoBaseMediaBox, ParseResult} from './parse-result';
+import type {AnySegment, IsoBaseMediaBox, ParseResult} from './parse-result';
 import type {ParserContext} from './parser-context';
 
 export type PartialMdatBox = {
@@ -34,7 +34,7 @@ export const parseVideo = ({
 	options: ParserContext;
 	signal: AbortSignal | null;
 	logLevel: LogLevel;
-}): Promise<ParseResult> => {
+}): Promise<ParseResult<AnySegment>> => {
 	if (iterator.bytesRemaining() === 0) {
 		return Promise.resolve({
 			status: 'incomplete',
