@@ -1,5 +1,6 @@
 import type {BufferIterator} from '../../buffer-iterator';
-import type {RiffBox, RiffRegularBox} from './riff-box';
+import {parseRiffBox} from './parse-riff-box';
+import type {RiffBox} from './riff-box';
 
 type RiffResult =
 	| {
@@ -10,9 +11,17 @@ type RiffResult =
 			box: RiffBox;
 	  };
 
-export const expectRiffBox = (iterator: BufferIterator): RiffResult => {
+export const expectRiffBox = ({
+	iterator,
+	boxes,
+}: {
+	iterator: BufferIterator;
+	boxes: RiffBox[];
+}): RiffResult => {
 	const ckId = iterator.getByteString(4);
 	const ckSize = iterator.getUint32Le();
+
+	// TODO: Add capability to read partially
 	if (iterator.bytesRemaining() < ckSize) {
 		iterator.counter.decrement(8);
 		return {
@@ -20,16 +29,8 @@ export const expectRiffBox = (iterator: BufferIterator): RiffResult => {
 		};
 	}
 
-	iterator.discard(ckSize);
-
-	const box: RiffRegularBox = {
-		type: 'riff-box',
-		size: ckSize,
-		id: ckId,
-	};
-
 	return {
 		type: 'complete',
-		box,
+		box: parseRiffBox({id: ckId, iterator, size: ckSize, boxes}),
 	};
 };

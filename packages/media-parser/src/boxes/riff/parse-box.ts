@@ -11,7 +11,7 @@ const parseRiffBody = ({
 	boxes: RiffBox[];
 }): Promise<ParseResult> => {
 	while (iterator.bytesRemaining() > 0) {
-		const result = expectRiffBox(iterator);
+		const result = expectRiffBox({iterator, boxes});
 		if (result.type === 'incomplete') {
 			return Promise.resolve({
 				status: 'incomplete',
@@ -41,7 +41,7 @@ export const parseRiff = (iterator: BufferIterator): Promise<ParseResult> => {
 
 	const size = iterator.getUint32Le();
 	const fileType = iterator.getByteString(4);
-	if (fileType !== 'WAVE') {
+	if (fileType !== 'WAVE' && fileType !== 'AVI') {
 		return Promise.reject(new Error(`File type ${fileType} not supported`));
 	}
 

@@ -3,7 +3,7 @@ import {expect, test} from 'bun:test';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
-test('riff', async () => {
+test('WAV file', async () => {
 	const {boxes} = await parseMedia({
 		src: exampleVideos.chirp,
 		reader: nodeReader,
@@ -18,9 +18,13 @@ test('riff', async () => {
 			type: 'riff-header',
 		},
 		{
-			id: 'fmt',
-			size: 16,
-			type: 'riff-box',
+			bitsPerSample: 16,
+			blockAlign: 2,
+			byteRate: 88200,
+			formatTag: 1,
+			numberOfChannels: 1,
+			sampleRate: 44100,
+			type: 'wave-format-box',
 		},
 		{
 			id: 'data',

@@ -509,6 +509,11 @@ export const getArrayBufferIterator = (
 			counter.increment(2);
 			return val;
 		},
+		getUint16Le: () => {
+			const val = view.getUint16(counter.getDiscardedOffset(), true);
+			counter.increment(2);
+			return val;
+		},
 		getUint24: () => {
 			const val1 = view.getUint8(counter.getDiscardedOffset());
 			const val2 = view.getUint8(counter.getDiscardedOffset() + 1);
