@@ -2,6 +2,7 @@ import type {BufferIterator} from '../../buffer-iterator';
 import {parseAvih} from './parse-avih';
 import {parseFmtBox} from './parse-fmt-box';
 import {parseListBox} from './parse-list-box';
+import {parseStrh} from './parse-strh';
 import type {RiffBox, RiffRegularBox} from './riff-box';
 
 export const parseRiffBox = ({
@@ -25,6 +26,10 @@ export const parseRiffBox = ({
 
 	if (id === 'avih') {
 		return parseAvih({iterator, size});
+	}
+
+	if (id === 'strh') {
+		return parseStrh({iterator, size});
 	}
 
 	iterator.discard(size);

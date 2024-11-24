@@ -34,6 +34,23 @@ export type AvihBox = {
 	height: number;
 };
 
+export type StrhBox = {
+	type: 'strh-box';
+	fccType: 'vids' | 'auds';
+	handler: 'H264' | number;
+	flags: number;
+	priority: number;
+	initialFrames: number;
+	scale: number;
+	rate: number;
+	start: number;
+	length: number;
+	suggestedBufferSize: number;
+	quality: number;
+	sampleSize: number;
+	language: number;
+};
+
 export type RiffHeader = {
 	type: 'riff-header';
 	fileSize: number;
@@ -45,4 +62,5 @@ export type RiffBox =
 	| WaveFormatBox
 	| RiffHeader
 	| ListBox
-	| AvihBox;
+	| AvihBox
+	| StrhBox;

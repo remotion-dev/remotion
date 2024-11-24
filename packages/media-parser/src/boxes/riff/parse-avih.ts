@@ -9,6 +9,7 @@ export const parseAvih = ({
 	size: number;
 }): RiffBox => {
 	const {expectNoMoreBytes} = iterator.startBox(size);
+
 	const dwMicroSecPerFrame = iterator.getUint32Le();
 	const dwMaxBytesPerSec = iterator.getUint32Le();
 	const paddingGranularity = iterator.getUint32Le();

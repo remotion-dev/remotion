@@ -35,9 +35,20 @@ test('AVI file', async () => {
 				{
 					children: [
 						{
-							id: 'strh',
-							size: 56,
-							type: 'riff-box',
+							type: 'strh-box',
+							fccType: 'vids',
+							handler: 'H264',
+							flags: 0,
+							initialFrames: 0,
+							scale: 1,
+							length: 901,
+							priority: 0,
+							quality: 4294967295,
+							rate: 30,
+							sampleSize: 0,
+							start: 0,
+							suggestedBufferSize: 4796,
+							language: 0,
 						},
 						{
 							id: 'strf',
@@ -61,9 +72,20 @@ test('AVI file', async () => {
 				{
 					children: [
 						{
-							id: 'strh',
-							size: 56,
-							type: 'riff-box',
+							type: 'strh-box',
+							fccType: 'auds',
+							handler: 1,
+							flags: 0,
+							priority: 0,
+							initialFrames: 0,
+							scale: 8,
+							rate: 375,
+							length: 1435,
+							quality: 4294967295,
+							sampleSize: 0,
+							start: 0,
+							suggestedBufferSize: 373,
+							language: 0,
 						},
 						{
 							id: 'strf',
