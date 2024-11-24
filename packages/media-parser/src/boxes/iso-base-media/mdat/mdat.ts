@@ -1,6 +1,6 @@
 import type {BufferIterator} from '../../../buffer-iterator';
 import {getTracks, hasTracks} from '../../../get-tracks';
-import type {AnySegment} from '../../../parse-result';
+import type {IsoBaseMediaBox} from '../../../parse-result';
 import type {ParserContext} from '../../../parser-context';
 import {getSamplePositionsFromTrack} from '../get-sample-positions-from-track';
 import type {TrakBox} from '../trak/trak';
@@ -35,12 +35,15 @@ export const parseMdat = async ({
 	data: BufferIterator;
 	size: number;
 	fileOffset: number;
-	existingBoxes: AnySegment[];
+	existingBoxes: IsoBaseMediaBox[];
 	options: ParserContext;
 	signal: AbortSignal | null;
 	maySkipSampleProcessing: boolean;
 }): Promise<MdatBox> => {
-	const alreadyHas = hasTracks(existingBoxes);
+	const alreadyHas = hasTracks({
+		type: 'iso-base-media',
+		boxes: existingBoxes,
+	});
 	if (!alreadyHas) {
 		if (maySkipSampleProcessing) {
 			data.discard(size - (data.counter.getOffset() - fileOffset));
@@ -63,7 +66,10 @@ export const parseMdat = async ({
 		});
 	}
 
-	const tracks = getTracks(existingBoxes, options.parserState);
+	const tracks = getTracks(
+		{type: 'iso-base-media', boxes: existingBoxes},
+		options.parserState,
+	);
 	const allTracks = [
 		...tracks.videoTracks,
 		...tracks.audioTracks,

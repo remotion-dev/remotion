@@ -1,4 +1,5 @@
 import type {BufferIterator} from '../../buffer-iterator';
+import type {RiffStructure} from '../../parse-result';
 import {parseRiffBody} from './parse-box';
 import type {RiffBox} from './riff-box';
 
@@ -21,9 +22,12 @@ export const parseListBox = ({
 		};
 	}
 
-	const children: RiffBox[] = [];
+	const structure: RiffStructure = {
+		type: 'riff',
+		boxes: [],
+	};
 	const result = parseRiffBody({
-		boxes: children,
+		structure,
 		iterator,
 		maxOffset: counter + size,
 	});
@@ -35,6 +39,6 @@ export const parseListBox = ({
 	return {
 		type: 'list-box',
 		listType,
-		children,
+		children: structure.boxes,
 	};
 };

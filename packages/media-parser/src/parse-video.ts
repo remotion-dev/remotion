@@ -1,9 +1,9 @@
-import {parseBoxes} from './boxes/iso-base-media/process-box';
+import {parseIsoBaseMediaBoxes} from './boxes/iso-base-media/process-box';
 import {parseRiff} from './boxes/riff/parse-box';
 import {parseWebm} from './boxes/webm/parse-webm-header';
 import type {BufferIterator} from './buffer-iterator';
 import {Log, type LogLevel} from './log';
-import type {AnySegment, IsoBaseMediaBox, ParseResult} from './parse-result';
+import type {IsoBaseMediaBox, ParseResult, Structure} from './parse-result';
 import type {ParserContext} from './parser-context';
 
 export type PartialMdatBox = {
@@ -34,21 +34,9 @@ export const parseVideo = ({
 	options: ParserContext;
 	signal: AbortSignal | null;
 	logLevel: LogLevel;
-}): Promise<ParseResult<AnySegment>> => {
+}): Promise<ParseResult<Structure>> => {
 	if (iterator.bytesRemaining() === 0) {
-		return Promise.resolve({
-			status: 'incomplete',
-			segments: [],
-			continueParsing: () => {
-				return parseVideo({
-					iterator,
-					options,
-					signal,
-					logLevel,
-				});
-			},
-			skipTo: null,
-		});
+		return Promise.reject(new Error('no bytes'));
 	}
 
 	if (iterator.isRiff()) {
@@ -57,7 +45,7 @@ export const parseVideo = ({
 
 	if (iterator.isIsoBaseMedia()) {
 		Log.verbose(logLevel, 'Detected ISO Base Media container');
-		return parseBoxes({
+		return parseIsoBaseMediaBoxes({
 			iterator,
 			maxBytes: Infinity,
 			allowIncompleteBoxes: true,

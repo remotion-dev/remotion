@@ -7,8 +7,7 @@ import {
 	getSttsBox,
 	getTraks,
 } from './boxes/iso-base-media/traversal';
-import {isMatroska} from './get-duration';
-import type {AnySegment} from './parse-result';
+import type {Structure} from './parse-result';
 
 const calculateFps = ({
 	sttsBox,
@@ -93,28 +92,37 @@ export const getFpsFromMp4TrakBox = (trakBox: TrakBox) => {
 	});
 };
 
-export const getFps = (segments: AnySegment[]) => {
-	const moovBox = getMoovBox(segments);
-	if (!moovBox) {
+export const getFps = (segments: Structure) => {
+	if (segments.type === 'iso-base-media') {
+		const moovBox = getMoovBox(segments.boxes);
+		if (!moovBox) {
+			return null;
+		}
+
+		const trackBoxes = getTraks(moovBox);
+
+		const trackBox = trackBoxes.find(trakBoxContainsVideo);
+		if (!trackBox) {
+			return null;
+		}
+
+		return getFpsFromMp4TrakBox(trackBox);
+	}
+
+	// TODO: Matroska doesn't have Matroska
+	if (segments.type === 'matroska') {
 		return null;
 	}
 
-	const trackBoxes = getTraks(moovBox);
-
-	const trackBox = trackBoxes.find(trakBoxContainsVideo);
-	if (!trackBox) {
-		return null;
-	}
-
-	return getFpsFromMp4TrakBox(trackBox);
+	throw new Error('Cannot get fps, not implemented');
 };
 
-export const hasFps = (boxes: AnySegment[]): boolean => {
+export const hasFps = (boxes: Structure): boolean => {
 	try {
 		// Matroska has no FPS metadata
 		// Not bothering to parse
 		// Idea: `guaranteedFps` field
-		if (isMatroska(boxes)) {
+		if (boxes.type === 'matroska') {
 			return true;
 		}
 

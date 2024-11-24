@@ -5,6 +5,7 @@ import {
 	getTraks,
 } from './boxes/iso-base-media/traversal';
 import {parseAv1PrivateData} from './boxes/webm/av1-codec-private';
+import type {MatroskaSegment} from './boxes/webm/segments';
 import {trakBoxContainsVideo} from './get-fps';
 import {
 	getAv1CBox,
@@ -18,7 +19,7 @@ import {
 	type MediaParserVideoCodec,
 	type VideoTrackColorParams,
 } from './get-tracks';
-import type {AnySegment} from './parse-result';
+import type {Structure} from './parse-result';
 
 export const getVideoCodecFromIsoTrak = (trakBox: TrakBox) => {
 	const stsdBox = getStsdBox(trakBox);
@@ -82,17 +83,7 @@ export const getVideoCodecFromIsoTrak = (trakBox: TrakBox) => {
 	throw new Error('Could not find video codec');
 };
 
-export const getVideoCodec = (
-	boxes: AnySegment[],
-): MediaParserVideoCodec | null => {
-	const moovBox = getMoovBox(boxes);
-	if (moovBox) {
-		const trakBox = getTraks(moovBox).filter((t) => trakBoxContainsVideo(t))[0];
-		if (trakBox) {
-			return getVideoCodecFromIsoTrak(trakBox);
-		}
-	}
-
+const getVideoCodecFromMatroska = (boxes: MatroskaSegment[]) => {
 	const mainSegment = boxes.find((b) => b.type === 'Segment');
 	if (!mainSegment || mainSegment.type !== 'Segment') {
 		return null;
@@ -130,10 +121,32 @@ export const getVideoCodec = (
 		}
 	}
 
+	throw new Error('Could not find video codec');
+};
+
+export const getVideoCodec = (
+	boxes: Structure,
+): MediaParserVideoCodec | null => {
+	if (boxes.type === 'iso-base-media') {
+		const moovBox = getMoovBox(boxes.boxes);
+		if (moovBox) {
+			const trakBox = getTraks(moovBox).filter((t) =>
+				trakBoxContainsVideo(t),
+			)[0];
+			if (trakBox) {
+				return getVideoCodecFromIsoTrak(trakBox);
+			}
+		}
+	}
+
+	if (boxes.type === 'matroska') {
+		return getVideoCodecFromMatroska(boxes.boxes);
+	}
+
 	return null;
 };
 
-export const hasVideoCodec = (boxes: AnySegment[]): boolean => {
+export const hasVideoCodec = (boxes: Structure): boolean => {
 	return hasTracks(boxes);
 };
 

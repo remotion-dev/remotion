@@ -11,7 +11,7 @@ import type {
 	ParseMediaFields,
 	ParseMediaResult,
 } from './options';
-import type {AnySegment, ParseResult} from './parse-result';
+import type {ParseResult, Structure} from './parse-result';
 import {parseVideo} from './parse-video';
 import type {ParserContext} from './parser-context';
 import {makeParserState} from './parser-state';
@@ -53,7 +53,7 @@ export const parseMedia: ParseMedia = async ({
 	const moreFields = more as ParseMediaCallbacks<AllParseMediaFields>;
 
 	let iterator: BufferIterator | null = null;
-	let parseResult: ParseResult<AnySegment> | null = null;
+	let parseResult: ParseResult<Structure> | null = null;
 
 	const canSkipVideoData = !onVideoTrack && !onAudioTrack;
 	if (canSkipVideoData) {

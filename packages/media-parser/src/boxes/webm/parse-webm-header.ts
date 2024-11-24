@@ -1,26 +1,29 @@
 import type {BufferIterator} from '../../buffer-iterator';
-import type {MatroskaParseResult, ParseResult} from '../../parse-result';
+import type {
+	MatroskaParseResult,
+	MatroskaStructure,
+	ParseResult,
+} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
-import type {MatroskaSegment} from './segments';
 import {expectChildren} from './segments/parse-children';
 
 const continueAfterMatroskaResult = (
 	result: MatroskaParseResult,
-	children: MatroskaSegment[],
-): ParseResult<MatroskaSegment> => {
+	structure: MatroskaStructure,
+): ParseResult<MatroskaStructure> => {
 	if (result.status === 'done') {
 		return {
 			status: 'done',
-			segments: children,
+			segments: structure,
 		};
 	}
 
 	return {
 		status: 'incomplete',
-		segments: children,
+		segments: structure,
 		continueParsing: async () => {
 			const newResult = await result.continueParsing();
-			return continueAfterMatroskaResult(newResult, children);
+			return continueAfterMatroskaResult(newResult, structure);
 		},
 		skipTo: null,
 	};
@@ -30,14 +33,14 @@ const continueAfterMatroskaResult = (
 export const parseWebm = async (
 	counter: BufferIterator,
 	parserContext: ParserContext,
-): Promise<ParseResult<MatroskaSegment>> => {
-	const children: MatroskaSegment[] = [];
+): Promise<ParseResult<MatroskaStructure>> => {
+	const structure: MatroskaStructure = {type: 'matroska', boxes: []};
 	const results = await expectChildren({
 		iterator: counter,
 		length: Infinity,
-		children,
+		children: structure.boxes,
 		parserContext,
 		startOffset: counter.counter.getOffset(),
 	});
-	return continueAfterMatroskaResult(results, children);
+	return continueAfterMatroskaResult(results, structure);
 };

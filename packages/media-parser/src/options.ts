@@ -7,7 +7,7 @@ import type {
 	VideoTrack,
 } from './get-tracks';
 import type {LogLevel} from './log';
-import type {AnySegment} from './parse-result';
+import type {Structure} from './parse-result';
 import type {InternalStats} from './parser-state';
 import type {ReaderInterface} from './readers/reader';
 import type {OnAudioTrack, OnVideoTrack} from './webcodec-sample-types';
@@ -24,7 +24,7 @@ export type KnownAudioCodecs =
 export type ParseMediaFields = {
 	dimensions: boolean;
 	durationInSeconds: boolean;
-	boxes: boolean;
+	structure: boolean;
 	fps: boolean;
 	videoCodec: boolean;
 	audioCodec: boolean;
@@ -40,7 +40,7 @@ export type ParseMediaFields = {
 export type AllParseMediaFields = {
 	dimensions: true;
 	durationInSeconds: true;
-	boxes: true;
+	structure: true;
 	fps: true;
 	videoCodec: true;
 	audioCodec: true;
@@ -56,7 +56,7 @@ export type AllParseMediaFields = {
 export type Options<Fields extends ParseMediaFields> = {
 	dimensions?: Fields['dimensions'];
 	durationInSeconds?: Fields['durationInSeconds'];
-	boxes?: Fields['boxes'];
+	structure?: Fields['structure'];
 	fps?: Fields['fps'];
 	videoCodec?: Fields['videoCodec'];
 	audioCodec?: Fields['audioCodec'];
@@ -83,8 +83,8 @@ export type ParseMediaCallbacks<Fields extends Options<ParseMediaFields>> =
 		(Fields['durationInSeconds'] extends true
 			? {onDurationInSeconds?: (durationInSeconds: number | null) => void}
 			: {}) &
-		(Fields['boxes'] extends true
-			? {onBoxes?: (boxes: AnySegment[]) => void}
+		(Fields['structure'] extends true
+			? {onStructure?: (structure: Structure) => void}
 			: {}) &
 		(Fields['fps'] extends true ? {onFps?: (fps: number | null) => void} : {}) &
 		(Fields['videoCodec'] extends true
@@ -118,7 +118,7 @@ export type ParseMediaResult<Fields extends Options<ParseMediaFields>> =
 		(Fields['durationInSeconds'] extends true
 			? {durationInSeconds: number | null}
 			: {}) &
-		(Fields['boxes'] extends true ? {boxes: AnySegment[]} : {}) &
+		(Fields['structure'] extends true ? {structure: Structure} : {}) &
 		(Fields['fps'] extends true ? {fps: number | null} : {}) &
 		(Fields['videoCodec'] extends true
 			? {videoCodec: MediaParserVideoCodec | null}

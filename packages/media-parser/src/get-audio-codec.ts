@@ -5,11 +5,11 @@ import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import {getStsdBox, getTraks} from './boxes/iso-base-media/traversal';
 import {trakBoxContainsAudio} from './get-fps';
 import {getTracks, hasTracks, type MediaParserAudioCodec} from './get-tracks';
-import type {AnySegment} from './parse-result';
+import type {AnySegment, Structure} from './parse-result';
 import type {ParserState} from './parser-state';
 
 export const getAudioCodec = (
-	boxes: AnySegment[],
+	boxes: Structure,
 	parserState: ParserState,
 ): MediaParserAudioCodec | null => {
 	const tracks = getTracks(boxes, parserState);
@@ -34,7 +34,7 @@ export const getAudioCodec = (
 	return null;
 };
 
-export const hasAudioCodec = (boxes: AnySegment[]): boolean => {
+export const hasAudioCodec = (boxes: Structure): boolean => {
 	return hasTracks(boxes);
 };
 

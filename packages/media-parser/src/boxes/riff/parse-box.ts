@@ -1,44 +1,47 @@
 import type {BufferIterator} from '../../buffer-iterator';
-import type {ParseResult} from '../../parse-result';
+import type {ParseResult, RiffStructure} from '../../parse-result';
 import {expectRiffBox} from './expect-riff-box';
-import type {RiffBox} from './riff-box';
 
 export const parseRiffBody = ({
 	iterator,
-	boxes,
+	structure,
 	maxOffset,
 }: {
 	iterator: BufferIterator;
-	boxes: RiffBox[];
+	structure: RiffStructure;
 	maxOffset: number;
-}): ParseResult<RiffBox> => {
+}): ParseResult<RiffStructure> => {
 	while (
 		iterator.bytesRemaining() > 0 &&
 		iterator.counter.getOffset() < maxOffset
 	) {
-		const result = expectRiffBox({iterator, boxes});
+		const result = expectRiffBox({iterator, boxes: structure.boxes});
 		if (result.type === 'incomplete') {
 			return {
 				status: 'incomplete',
 				continueParsing() {
-					return Promise.resolve(parseRiffBody({iterator, boxes, maxOffset}));
+					return Promise.resolve(
+						parseRiffBody({iterator, structure, maxOffset}),
+					);
 				},
-				segments: boxes,
+				segments: structure,
 				skipTo: null,
 			};
 		}
 
-		boxes.push(result.box);
+		structure.boxes.push(result.box);
 	}
 
 	return {
 		status: 'done',
-		segments: boxes,
+		segments: structure,
 	};
 };
 
-export const parseRiff = (iterator: BufferIterator): ParseResult<RiffBox> => {
-	const boxes: RiffBox[] = [];
+export const parseRiff = (
+	iterator: BufferIterator,
+): ParseResult<RiffStructure> => {
+	const structure: RiffStructure = {type: 'riff', boxes: []};
 	const riff = iterator.getByteString(4);
 	if (riff !== 'RIFF') {
 		throw new Error('Not a RIFF file');
@@ -50,7 +53,7 @@ export const parseRiff = (iterator: BufferIterator): ParseResult<RiffBox> => {
 		throw new Error(`File type ${fileType} not supported`);
 	}
 
-	boxes.push({type: 'riff-header', fileSize: size, fileType});
+	structure.boxes.push({type: 'riff-header', fileSize: size, fileType});
 
-	return parseRiffBody({iterator, boxes, maxOffset: Infinity});
+	return parseRiffBody({iterator, structure, maxOffset: Infinity});
 };
