@@ -1,5 +1,6 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import {parseFmtBox} from './parse-fmt-box';
+import {parseListBox} from './parse-list-box';
 import type {RiffBox, RiffRegularBox} from './riff-box';
 
 export const parseRiffBox = ({
@@ -15,6 +16,10 @@ export const parseRiffBox = ({
 }): RiffBox => {
 	if (id === 'fmt') {
 		return parseFmtBox({iterator, boxes, size});
+	}
+
+	if (id === 'LIST') {
+		return parseListBox({iterator, boxes, size});
 	}
 
 	iterator.discard(size);

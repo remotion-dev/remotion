@@ -8,6 +8,11 @@ export type WaveFormatBox = {
 	bitsPerSample: number;
 };
 
+export type ListBox = {
+	type: 'list-box';
+	listType: string;
+};
+
 export type RiffRegularBox = {
 	type: 'riff-box';
 	size: number;
@@ -20,4 +25,4 @@ export type RiffHeader = {
 	fileType: string;
 };
 
-export type RiffBox = RiffRegularBox | WaveFormatBox | RiffHeader;
+export type RiffBox = RiffRegularBox | WaveFormatBox | RiffHeader | ListBox;

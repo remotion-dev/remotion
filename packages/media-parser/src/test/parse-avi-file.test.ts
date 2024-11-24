@@ -18,14 +18,12 @@ test('AVI file', async () => {
 			type: 'riff-header',
 		},
 		{
-			id: 'LIST',
-			size: 8894,
-			type: 'riff-box',
+			listType: 'hdrl',
+			type: 'list-box',
 		},
 		{
-			id: 'LIST',
-			size: 26,
-			type: 'riff-box',
+			listType: 'INFO',
+			type: 'list-box',
 		},
 		{
 			id: 'JUNK',
@@ -33,9 +31,8 @@ test('AVI file', async () => {
 			type: 'riff-box',
 		},
 		{
-			id: 'LIST',
-			size: 695114,
-			type: 'riff-box',
+			listType: 'movi',
+			type: 'list-box',
 		},
 		{
 			id: 'idx1',

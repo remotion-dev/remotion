@@ -10,7 +10,6 @@ export const parseFmtBox = ({
 	boxes: RiffBox[];
 	size: number;
 }): RiffBox => {
-	const offset = iterator.counter.getOffset();
 	const header = boxes.find((b) => b.type === 'riff-header');
 	if (!header) {
 		throw new Error('Expected RIFF header');
@@ -30,8 +29,6 @@ export const parseFmtBox = ({
 	const byteRate = iterator.getUint32Le();
 	const blockAlign = iterator.getUint16Le();
 	const bitsPerSample = iterator.getUint16Le();
-
-	iterator.discard(size - (iterator.counter.getOffset() - offset));
 
 	return {
 		type: 'wave-format-box',
