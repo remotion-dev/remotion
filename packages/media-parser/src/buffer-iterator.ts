@@ -175,8 +175,8 @@ export const getArrayBufferIterator = (
 		return lastInt;
 	};
 
-	const getUint32 = (littleEndian = false) => {
-		const val = view.getUint32(counter.getDiscardedOffset(), littleEndian);
+	const getUint32 = () => {
+		const val = view.getUint32(counter.getDiscardedOffset());
 		counter.increment(4);
 		return val;
 	};

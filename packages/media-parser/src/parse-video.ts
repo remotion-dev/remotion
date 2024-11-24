@@ -1,4 +1,5 @@
 import {parseBoxes} from './boxes/iso-base-media/process-box';
+import {parseRiff} from './boxes/riff/parse-box';
 import {parseWebm} from './boxes/webm/parse-webm-header';
 import type {BufferIterator} from './buffer-iterator';
 import {Log, type LogLevel} from './log';
@@ -51,7 +52,7 @@ export const parseVideo = ({
 	}
 
 	if (iterator.isRiff()) {
-		throw new Error('AVI/WAV files are not yet supported');
+		return parseRiff(iterator);
 	}
 
 	if (iterator.isIsoBaseMedia()) {
@@ -70,7 +71,7 @@ export const parseVideo = ({
 
 	if (iterator.isWebm()) {
 		Log.verbose(logLevel, 'Detected Matroska container');
-		return Promise.resolve(parseWebm(iterator, options));
+		return parseWebm(iterator, options);
 	}
 
 	if (iterator.isMp3()) {

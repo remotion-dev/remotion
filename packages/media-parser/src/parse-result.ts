@@ -25,6 +25,7 @@ import type {TkhdBox} from './boxes/iso-base-media/tkhd';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import type {TrunBox} from './boxes/iso-base-media/trun';
 import type {VoidBox} from './boxes/iso-base-media/void-box';
+import type {RiffBox} from './boxes/riff/riff-box';
 import type {MatroskaSegment} from './boxes/webm/segments';
 
 export interface RegularBox extends BaseBox {
@@ -64,7 +65,7 @@ export type IsoBaseMediaBox =
 	| TfdtBox
 	| TfhdBox;
 
-export type AnySegment = MatroskaSegment | IsoBaseMediaBox;
+export type AnySegment = MatroskaSegment | IsoBaseMediaBox | RiffBox;
 
 export type ParseResult =
 	| {
