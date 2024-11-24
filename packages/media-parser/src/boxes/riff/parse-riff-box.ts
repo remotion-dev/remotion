@@ -4,6 +4,7 @@ import {parseFmtBox} from './parse-fmt-box';
 import {parseListBox} from './parse-list-box';
 import {parseStrh} from './parse-strh';
 import type {RiffBox, RiffRegularBox} from './riff-box';
+import {parseStrf} from './strf';
 
 export const parseRiffBox = ({
 	iterator,
@@ -30,6 +31,10 @@ export const parseRiffBox = ({
 
 	if (id === 'strh') {
 		return parseStrh({iterator, size});
+	}
+
+	if (id === 'strf') {
+		return parseStrf({iterator, size, boxes});
 	}
 
 	iterator.discard(size);

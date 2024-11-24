@@ -51,6 +51,32 @@ export type StrhBox = {
 	language: number;
 };
 
+export type StrfBoxVideo = {
+	type: 'strf-box-video';
+	biSize: number;
+	width: number;
+	height: number;
+	planes: number;
+	bitCount: number;
+	compression: string;
+	sizeImage: number;
+	xPelsPerMeter: number;
+	yPelsPerMeter: number;
+	clrUsed: number;
+	clrImportant: number;
+};
+
+export type StrfBoxAudio = {
+	type: 'strf-box-audio';
+	formatTag: number;
+	numberOfChannels: number;
+	sampleRate: number;
+	avgBytesPerSecond: number;
+	blockAlign: number;
+	bitsPerSample: number;
+	cbSize: number;
+};
+
 export type RiffHeader = {
 	type: 'riff-header';
 	fileSize: number;
@@ -63,4 +89,6 @@ export type RiffBox =
 	| RiffHeader
 	| ListBox
 	| AvihBox
-	| StrhBox;
+	| StrhBox
+	| StrfBoxVideo
+	| StrfBoxAudio;
