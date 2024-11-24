@@ -13,24 +13,18 @@ import {webFileReader} from '@remotion/media-parser/web-file';
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import {Source} from '~/lib/convert-state';
 
+export type ProbeResult = ReturnType<typeof useProbe>;
+
 export const useProbe = ({
 	src,
 	onVideoThumbnail,
-	onAudioCodec,
-	onVideoCodec,
-	onTracks,
 	logLevel,
 	onProgress,
-	onDuration,
 }: {
 	src: Source;
 	logLevel: LogLevel;
 	onVideoThumbnail: (videoFrame: VideoFrame) => void;
-	onAudioCodec: (codec: MediaParserAudioCodec | null) => void;
-	onVideoCodec: (codec: MediaParserVideoCodec | null) => void;
-	onTracks: (tracks: TracksField) => void;
 	onProgress: ParseMediaOnProgress;
-	onDuration: (duration: number | null) => void;
 }) => {
 	const [audioCodec, setAudioCodec] = useState<
 		MediaParserAudioCodec | null | undefined
@@ -144,7 +138,6 @@ export const useProbe = ({
 			},
 			onAudioCodec: (codec) => {
 				hasAudioCodec = true;
-				onAudioCodec(codec);
 				setAudioCodec(codec);
 				cancelIfDone();
 			},
@@ -157,7 +150,6 @@ export const useProbe = ({
 				hasDuration = true;
 				setDurationInSeconds(d);
 				cancelIfDone();
-				onDuration(d);
 			},
 			onName: (n) => {
 				hasName = true;
@@ -171,14 +163,11 @@ export const useProbe = ({
 			},
 			onVideoCodec: (codec) => {
 				hasVideoCodec = true;
-				onVideoCodec(codec);
 				setVideoCodec(codec);
 				cancelIfDone();
 			},
 			onTracks: (trx) => {
 				hasTracks = true;
-
-				onTracks(trx);
 				setTracks(trx);
 				cancelIfDone();
 			},
@@ -206,16 +195,7 @@ export const useProbe = ({
 			});
 
 		return controller;
-	}, [
-		onAudioCodec,
-		onVideoCodec,
-		onVideoThumbnail,
-		src,
-		onTracks,
-		logLevel,
-		onProgress,
-		onDuration,
-	]);
+	}, [onVideoThumbnail, src, logLevel, onProgress]);
 
 	useEffect(() => {
 		const start = getStart();

@@ -1,34 +1,55 @@
-import {
-	MediaParserAudioCodec,
-	MediaParserVideoCodec,
-	TracksField,
-} from '@remotion/media-parser';
-import React, {useCallback, useState} from 'react';
+import {ParseMediaOnProgress} from '@remotion/media-parser';
+import React, {useCallback, useRef, useState} from 'react';
 import {Source} from '~/lib/convert-state';
+import {formatBytes} from '~/lib/format-bytes';
 import ConvertUI from './ConvertUi';
 import {Footer} from './Footer';
 import {Probe} from './Probe';
+import {VideoThumbnailRef} from './VideoThumbnail';
 import {Button} from './ui/button';
+import {useProbe} from './use-probe';
 
 export const FileAvailable: React.FC<{
 	readonly src: Source;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 }> = ({src, setSrc}) => {
 	const [probeDetails, setProbeDetails] = useState(false);
-	const [tracks, setTracks] = useState<TracksField | null>(null);
-	const [duration, setDuration] = useState<number | null>(null);
-	const [currentAudioCodec, setCurrentAudioCodec] =
-		useState<MediaParserAudioCodec | null>(null);
-	const [currentVideoCodec, setCurrentVideoCodec] =
-		useState<MediaParserVideoCodec | null>(null);
 
 	const clear = useCallback(() => {
 		setSrc(null);
 	}, [setSrc]);
 
-	const onTracks = useCallback((configs: TracksField) => {
-		setTracks(configs);
+	const videoThumbnailRef = useRef<VideoThumbnailRef>(null);
+
+	const onVideoThumbnail = useCallback((frame: VideoFrame) => {
+		videoThumbnailRef.current?.draw(frame);
 	}, []);
+
+	const onProgress: ParseMediaOnProgress = useCallback(
+		async ({bytes, percentage}) => {
+			await new Promise((resolve) => {
+				window.requestAnimationFrame(resolve);
+			});
+			const notDone = document.getElementById('not-done');
+			if (notDone) {
+				if (percentage === null) {
+					notDone.innerHTML = `${formatBytes(bytes)} read`;
+				} else {
+					notDone.innerHTML = `${Math.round(
+						percentage * 100,
+					)}% read (${formatBytes(bytes)})`;
+				}
+			}
+		},
+		[],
+	);
+
+	const probeResult = useProbe({
+		src,
+		logLevel: 'verbose',
+		onProgress,
+		onVideoThumbnail,
+	});
 
 	return (
 		<div>
@@ -55,21 +76,22 @@ export const FileAvailable: React.FC<{
 							src={src}
 							probeDetails={probeDetails}
 							setProbeDetails={setProbeDetails}
-							setAudioCodec={setCurrentAudioCodec}
-							setVideoCodec={setCurrentVideoCodec}
-							onTracks={onTracks}
-							onDuration={setDuration}
+							probeResult={probeResult}
+							videoThumbnailRef={videoThumbnailRef}
 						/>
 						<div className="h-8 lg:h-0 lg:w-8" />
-						<div className="w-full lg:w-[350px]">
+						<div
+							data-disabled={!(probeResult.done && !probeResult.error)}
+							className="w-full lg:w-[350px] data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
+						>
 							<div className="gap-4">
 								<ConvertUI
-									currentAudioCodec={currentAudioCodec}
-									currentVideoCodec={currentVideoCodec}
+									currentAudioCodec={probeResult.audioCodec ?? null}
+									currentVideoCodec={probeResult.videoCodec ?? null}
 									src={src}
-									tracks={tracks}
+									tracks={probeResult.tracks}
 									setSrc={setSrc}
-									duration={duration}
+									duration={probeResult.durationInSeconds ?? null}
 								/>
 							</div>
 						</div>
