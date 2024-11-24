@@ -19,6 +19,7 @@ export const parseAvih = ({
 	const suggestedBufferSize = iterator.getUint32Le();
 	const width = iterator.getUint32Le();
 	const height = iterator.getUint32Le();
+
 	iterator.discard(16);
 
 	expectNoMoreBytes();
