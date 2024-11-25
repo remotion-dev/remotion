@@ -20,6 +20,7 @@ import {
 	type VideoTrackColorParams,
 } from './get-tracks';
 import type {Structure} from './parse-result';
+import type {ParserState} from './parser-state';
 
 export const getVideoCodecFromIsoTrak = (trakBox: TrakBox) => {
 	const stsdBox = getStsdBox(trakBox);
@@ -146,8 +147,11 @@ export const getVideoCodec = (
 	return null;
 };
 
-export const hasVideoCodec = (boxes: Structure): boolean => {
-	return hasTracks(boxes);
+export const hasVideoCodec = (
+	boxes: Structure,
+	state: ParserState,
+): boolean => {
+	return hasTracks(boxes, state);
 };
 
 export const getVideoPrivateData = (trakBox: TrakBox): Uint8Array | null => {

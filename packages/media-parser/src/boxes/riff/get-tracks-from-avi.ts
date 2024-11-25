@@ -1,5 +1,7 @@
+import {addAvcProfileToTrack} from '../../add-avc-profile-to-track';
 import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
 import type {RiffStructure} from '../../parse-result';
+import type {ParserState} from '../../parser-state';
 import type {StrfBoxAudio, StrfBoxVideo, StrhBox} from './riff-box';
 import {MEDIA_PARSER_RIFF_TIMESCALE} from './timescale';
 import {
@@ -95,7 +97,10 @@ export const makeAviVideoTrack = ({
 	};
 };
 
-export const getTracksFromAvi = (structure: RiffStructure): AllTracks => {
+export const getTracksFromAvi = (
+	structure: RiffStructure,
+	state: ParserState,
+): AllTracks => {
 	if (!isRiffAvi(structure)) {
 		throw new Error('Not an AVI file');
 	}
@@ -115,7 +120,12 @@ export const getTracksFromAvi = (structure: RiffStructure): AllTracks => {
 		}
 
 		if (strf.type === 'strf-box-video') {
-			videoTracks.push(makeAviVideoTrack({strh, strf, index: i}));
+			videoTracks.push(
+				addAvcProfileToTrack(
+					makeAviVideoTrack({strh, strf, index: i}),
+					state.getAvcProfile(),
+				),
+			);
 		} else if (strh.fccType === 'auds') {
 			audioTracks.push(makeAviAudioTrack({strf, index: i}));
 		} else {
@@ -128,13 +138,16 @@ export const getTracksFromAvi = (structure: RiffStructure): AllTracks => {
 	return {audioTracks, otherTracks, videoTracks};
 };
 
-export const hasAllTracksFromAvi = (structure: RiffStructure): boolean => {
+export const hasAllTracksFromAvi = (
+	structure: RiffStructure,
+	state: ParserState,
+): boolean => {
 	if (!isRiffAvi(structure)) {
 		throw new Error('Not an AVI file');
 	}
 
 	const numberOfTracks = getNumberOfTracks(structure);
-	const tracks = getTracksFromAvi(structure);
+	const tracks = getTracksFromAvi(structure, state);
 	return (
 		tracks.videoTracks.length +
 			tracks.audioTracks.length +

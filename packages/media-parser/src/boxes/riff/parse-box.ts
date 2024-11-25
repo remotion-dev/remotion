@@ -1,8 +1,11 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import {registerTrack} from '../../add-new-matroska-tracks';
 import type {BufferIterator} from '../../buffer-iterator';
 import type {ParseResult, RiffStructure} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
+import {
+	registerTrack,
+	registerVideoTrackWhenProfileIsAvailable,
+} from '../../register-track';
 import type {RiffResult} from './expect-riff-box';
 import {expectRiffBox} from './expect-riff-box';
 import {makeAviAudioTrack, makeAviVideoTrack} from './get-tracks-from-avi';
@@ -121,7 +124,7 @@ export const parseRiffBody = async ({
 					index: options.nextTrackIndex,
 					strf,
 				});
-				await registerTrack({
+				registerVideoTrackWhenProfileIsAvailable({
 					options,
 					state: options.parserState,
 					track: videoTrack,

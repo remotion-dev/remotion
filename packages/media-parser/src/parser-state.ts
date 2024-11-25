@@ -1,3 +1,4 @@
+import type {AvcProfileInfo} from './boxes/avc/parse-avc';
 import type {OnTrackEntrySegment} from './boxes/webm/segments';
 import type {TrackInfo} from './boxes/webm/segments/track-entry';
 import {
@@ -12,6 +13,8 @@ import type {
 } from './webcodec-sample-types';
 
 export type InternalStats = {};
+
+type AvcProfileInfoCallback = (profile: AvcProfileInfo) => Promise<void>;
 
 export const makeParserState = ({
 	hasAudioCallbacks,
@@ -97,8 +100,27 @@ export const makeParserState = ({
 
 	const samplesForTrack: Record<number, number> = {};
 
+	const profileCallbacks: AvcProfileInfoCallback[] = [];
+
+	const registerOnAvcProfileCallback = (callback: AvcProfileInfoCallback) => {
+		profileCallbacks.push(callback);
+	};
+
+	let avcProfile: AvcProfileInfo | null = null;
+
+	const onProfile = async (profile: AvcProfileInfo) => {
+		avcProfile = profile;
+		for (const callback of profileCallbacks) {
+			await callback(profile);
+		}
+
+		profileCallbacks.length = 0;
+	};
+
 	return {
 		onTrackEntrySegment,
+		onProfile,
+		registerOnAvcProfileCallback,
 		getTrackInfoByNumber: (id: number) => trackEntries[id],
 		registerVideoSampleCallback: async (
 			id: number,
@@ -188,6 +210,9 @@ export const makeParserState = ({
 		setTimescale,
 		getSamplesForTrack: (trackId: number) => {
 			return samplesForTrack[trackId] ?? 0;
+		},
+		getAvcProfile: () => {
+			return avcProfile;
 		},
 	};
 };

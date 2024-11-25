@@ -1,4 +1,3 @@
-import {registerTrack} from '../../add-new-matroska-tracks';
 import type {BufferIterator} from '../../buffer-iterator';
 import {hasTracks} from '../../get-tracks';
 import type {LogLevel} from '../../log';
@@ -9,6 +8,7 @@ import type {
 } from '../../parse-result';
 import type {BoxAndNext, PartialMdatBox} from '../../parse-video';
 import type {ParserContext} from '../../parser-context';
+import {registerTrack} from '../../register-track';
 import {parseEsds} from './esds/esds';
 import {parseFtyp} from './ftyp';
 import {makeBaseMediaTrack} from './make-track';
@@ -190,7 +190,10 @@ export const processBox = async ({
 		if (boxType === 'mdat') {
 			const shouldSkip =
 				(options.canSkipVideoData ||
-					!hasTracks({type: 'iso-base-media', boxes: parsedBoxes})) &&
+					!hasTracks(
+						{type: 'iso-base-media', boxes: parsedBoxes},
+						options.parserState,
+					)) &&
 				options.supportsContentRange;
 
 			if (shouldSkip) {

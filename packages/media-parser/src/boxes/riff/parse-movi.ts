@@ -57,6 +57,11 @@ export const handleChunk = async ({
 			throw new Error('expected avc to contain info about key or delta');
 		}
 
+		const avcProfile = infos.find((i) => i.type === 'avc-profile');
+		if (avcProfile) {
+			await options.parserState.onProfile(avcProfile);
+		}
+
 		await options.parserState.onVideoSample(trackId, {
 			cts: timestamp,
 			dts: timestamp,

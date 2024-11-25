@@ -41,15 +41,15 @@ export const getAvailableInfo = (
 		}
 
 		if (key === 'videoCodec') {
-			return Boolean(parseResult && hasVideoCodec(parseResult.segments));
+			return Boolean(parseResult && hasVideoCodec(parseResult.segments, state));
 		}
 
 		if (key === 'audioCodec') {
-			return Boolean(parseResult && hasAudioCodec(parseResult.segments));
+			return Boolean(parseResult && hasAudioCodec(parseResult.segments, state));
 		}
 
 		if (key === 'tracks') {
-			return Boolean(parseResult && hasTracks(parseResult.segments));
+			return Boolean(parseResult && hasTracks(parseResult.segments, state));
 		}
 
 		if (key === 'internalStats') {

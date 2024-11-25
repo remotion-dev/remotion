@@ -101,7 +101,10 @@ export const getNumberOfTracks = (moovBox: MoovBox): number => {
 	return mvHdBox.nextTrackId - 1;
 };
 
-export const hasTracks = (structure: Structure): boolean => {
+export const hasTracks = (
+	structure: Structure,
+	state: ParserState,
+): boolean => {
 	if (structure.type === 'matroska') {
 		const mainSegment = getMainSegment(structure.boxes);
 		if (!mainSegment) {
@@ -125,7 +128,7 @@ export const hasTracks = (structure: Structure): boolean => {
 	}
 
 	if (structure.type === 'riff') {
-		return hasAllTracksFromAvi(structure);
+		return hasAllTracksFromAvi(structure, state);
 	}
 
 	throw new Error('Unknown container');
@@ -217,7 +220,7 @@ export const getTracks = (
 	}
 
 	if (segments.type === 'riff') {
-		return getTracksFromAvi(segments);
+		return getTracksFromAvi(segments, state);
 	}
 
 	throw new Error('Unknown container');

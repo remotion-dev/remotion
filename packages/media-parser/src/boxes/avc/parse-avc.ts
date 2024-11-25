@@ -3,20 +3,24 @@ import {getArrayBufferIterator} from '../../buffer-iterator';
 
 const readSps = (iterator: BufferIterator) => {
 	const profile = iterator.getUint8();
-	iterator.discard(1);
+	const compatibility = iterator.getUint8();
 	const level = iterator.getUint8();
 	return {
 		profile,
+		compatibility,
 		level,
 	};
 };
 
+export type AvcProfileInfo = {
+	profile: number;
+	level: number;
+	compatibility: number;
+	type: 'avc-profile';
+};
+
 type AvcInfo =
-	| {
-			profile: number;
-			level: number;
-			type: 'avc-profile';
-	  }
+	| AvcProfileInfo
 	| {
 			type: 'keyframe';
 	  }
@@ -36,6 +40,7 @@ const inspect = (buffer: Uint8Array): AvcInfo | null => {
 		return {
 			level: sps.level,
 			profile: sps.profile,
+			compatibility: sps.compatibility,
 			type: 'avc-profile',
 		};
 	}

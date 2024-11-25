@@ -40,10 +40,13 @@ export const parseMdat = async ({
 	signal: AbortSignal | null;
 	maySkipSampleProcessing: boolean;
 }): Promise<MdatBox> => {
-	const alreadyHas = hasTracks({
-		type: 'iso-base-media',
-		boxes: existingBoxes,
-	});
+	const alreadyHas = hasTracks(
+		{
+			type: 'iso-base-media',
+			boxes: existingBoxes,
+		},
+		options.parserState,
+	);
 	if (!alreadyHas) {
 		if (maySkipSampleProcessing) {
 			data.discard(size - (data.counter.getOffset() - fileOffset));

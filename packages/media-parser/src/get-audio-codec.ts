@@ -34,8 +34,11 @@ export const getAudioCodec = (
 	return null;
 };
 
-export const hasAudioCodec = (boxes: Structure): boolean => {
-	return hasTracks(boxes);
+export const hasAudioCodec = (
+	boxes: Structure,
+	state: ParserState,
+): boolean => {
+	return hasTracks(boxes, state);
 };
 
 const getCodecSpecificatorFromEsdsBox = ({
