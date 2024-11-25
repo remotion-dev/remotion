@@ -73,9 +73,9 @@ test('AVI file', async () => {
 	expect(audioTracks).toEqual([
 		{
 			codec: 'mp4a.40.2',
-			codecPrivate: null,
+			codecPrivate: new Uint8Array([18, 16]),
 			codecWithoutConfig: 'aac',
-			description: undefined,
+			description: new Uint8Array([18, 16]),
 			numberOfChannels: 2,
 			sampleRate: 48000,
 			timescale: 1_000_000,
@@ -87,7 +87,11 @@ test('AVI file', async () => {
 	expect(videoTracks).toEqual([
 		{
 			codec: 'avc1.640015',
-			codecPrivate: null,
+			codecPrivate: new Uint8Array([
+				1, 21, 0, 100, 255, 225, 0, 25, 100, 0, 21, 172, 217, 65, 224, 143, 235,
+				1, 16, 0, 0, 3, 0, 16, 0, 0, 3, 3, 192, 241, 98, 217, 96, 1, 0, 4, 104,
+				239, 139, 203,
+			]),
 			codecWithoutConfig: 'h264',
 			codedHeight: 270,
 			codedWidth: 480,

@@ -1,4 +1,4 @@
-import type {AvcProfileInfo} from './boxes/avc/parse-avc';
+import type {AvcPPs, AvcProfileInfo} from './boxes/avc/parse-avc';
 import type {OnTrackEntrySegment} from './boxes/webm/segments';
 import type {TrackInfo} from './boxes/webm/segments/track-entry';
 import {
@@ -14,7 +14,12 @@ import type {
 
 export type InternalStats = {};
 
-type AvcProfileInfoCallback = (profile: AvcProfileInfo) => Promise<void>;
+export type SpsAndPps = {
+	sps: AvcProfileInfo;
+	pps: AvcPPs;
+};
+
+type AvcProfileInfoCallback = (profile: SpsAndPps) => Promise<void>;
 
 export const makeParserState = ({
 	hasAudioCallbacks,
@@ -106,9 +111,9 @@ export const makeParserState = ({
 		profileCallbacks.push(callback);
 	};
 
-	let avcProfile: AvcProfileInfo | null = null;
+	let avcProfile: SpsAndPps | null = null;
 
-	const onProfile = async (profile: AvcProfileInfo) => {
+	const onProfile = async (profile: SpsAndPps) => {
 		avcProfile = profile;
 		for (const callback of profileCallbacks) {
 			await callback(profile);
@@ -164,7 +169,7 @@ export const makeParserState = ({
 				throw new Error('Aborted');
 			}
 
-			if (samplesForTrack[trackId] === undefined) {
+			if (typeof samplesForTrack[trackId] === 'undefined') {
 				samplesForTrack[trackId] = 0;
 			}
 
@@ -188,9 +193,11 @@ export const makeParserState = ({
 				throw new Error('Aborted');
 			}
 
-			if (samplesForTrack[trackId] === undefined) {
-				samplesForTrack[trackId]++;
+			if (typeof samplesForTrack[trackId] === 'undefined') {
+				samplesForTrack[trackId] = 0;
 			}
+
+			samplesForTrack[trackId]++;
 
 			const callback = videoSampleCallbacks[trackId];
 			if (callback) {

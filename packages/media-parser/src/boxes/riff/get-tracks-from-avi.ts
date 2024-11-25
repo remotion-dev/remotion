@@ -42,9 +42,9 @@ export const makeAviAudioTrack = ({
 	return {
 		type: 'audio',
 		codec: 'mp4a.40.2', // According to Claude 3.5 Sonnet
-		codecPrivate: null,
+		codecPrivate: new Uint8Array([18, 16]),
 		codecWithoutConfig: 'aac',
-		description: undefined,
+		description: new Uint8Array([18, 16]),
 		numberOfChannels: strf.numberOfChannels,
 		sampleRate: strf.sampleRate,
 		timescale: MEDIA_PARSER_RIFF_TIMESCALE,
@@ -68,8 +68,7 @@ export const makeAviVideoTrack = ({
 
 	return {
 		codecPrivate: null,
-		// TODO: Which avc1?
-		codec: 'avc1',
+		codec: 'to-be-overriden-later',
 		codecWithoutConfig: 'h264',
 		codedHeight: strf.height,
 		codedWidth: strf.width,

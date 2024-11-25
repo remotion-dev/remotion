@@ -58,8 +58,9 @@ export const handleChunk = async ({
 		}
 
 		const avcProfile = infos.find((i) => i.type === 'avc-profile');
-		if (avcProfile) {
-			await options.parserState.onProfile(avcProfile);
+		const ppsProfile = infos.find((i) => i.type === 'avc-pps');
+		if (avcProfile && ppsProfile) {
+			await options.parserState.onProfile({pps: ppsProfile, sps: avcProfile});
 		}
 
 		await options.parserState.onVideoSample(trackId, {
