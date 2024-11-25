@@ -1,6 +1,7 @@
 import {
 	MediaParserAudioCodec,
 	MediaParserVideoCodec,
+	ParseMediaContainer,
 } from '@remotion/media-parser';
 import {
 	ConvertMediaAudioCodec,
@@ -86,7 +87,7 @@ export const renderHumanReadableVideoCodec = (codec: MediaParserVideoCodec) => {
 };
 
 export const renderHumanReadableContainer = (
-	container: ConvertMediaContainer,
+	container: ParseMediaContainer | ConvertMediaContainer,
 ) => {
 	if (container === 'webm') {
 		return 'WebM';
@@ -98,6 +99,10 @@ export const renderHumanReadableContainer = (
 
 	if (container === 'wav') {
 		return 'WAV';
+	}
+
+	if (container === 'avi') {
+		return 'AVI';
 	}
 
 	throw new Error(`Unknown container ${container satisfies never}`);

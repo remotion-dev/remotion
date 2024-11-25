@@ -8,7 +8,7 @@ test('Should get duration of AV1 video', async () => {
 		src: exampleVideos.av1,
 		fields: {
 			durationInSeconds: true,
-			boxes: true,
+			structure: true,
 			dimensions: true,
 			fps: true,
 		},
@@ -22,7 +22,7 @@ test('Should get duration of AV1 video', async () => {
 		height: 1080,
 	});
 
-	expect(parsed.boxes).toEqual([
+	expect(parsed.structure.boxes).toEqual([
 		{
 			type: 'Header',
 			value: [

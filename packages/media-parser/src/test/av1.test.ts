@@ -19,12 +19,16 @@ if (process.platform !== 'win32') {
 				audioCodec: true,
 				dimensions: true,
 				rotation: true,
-				boxes: true,
+				structure: true,
 			},
 			reader: nodeReader,
 		});
 
-		const moovBox = getMoovBox(parsed.boxes);
+		if (parsed.structure.type !== 'iso-base-media') {
+			throw new Error('Not an ISO base media file');
+		}
+
+		const moovBox = getMoovBox(parsed.structure.boxes);
 		if (!moovBox) {
 			throw new Error('No moov box');
 		}
@@ -67,7 +71,7 @@ if (process.platform !== 'win32') {
 				audioCodec: true,
 				dimensions: true,
 				rotation: true,
-				boxes: true,
+				structure: true,
 			},
 			reader: nodeReader,
 			onVideoTrack: () => {
@@ -78,7 +82,11 @@ if (process.platform !== 'win32') {
 			},
 		});
 
-		const moovBox = getMoovBox(parsed.boxes);
+		if (parsed.structure.type !== 'iso-base-media') {
+			throw new Error('Not an ISO base media file');
+		}
+
+		const moovBox = getMoovBox(parsed.structure.boxes);
 		if (!moovBox) {
 			throw new Error('No moov box');
 		}

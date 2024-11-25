@@ -7,8 +7,12 @@ import {
 	getSttsBox,
 	getTraks,
 } from './boxes/iso-base-media/traversal';
-import {isMatroska} from './get-duration';
-import type {AnySegment} from './parse-result';
+import {getStrhBox, getStrlBoxes} from './boxes/riff/traversal';
+import type {
+	IsoBaseMediaStructure,
+	RiffStructure,
+	Structure,
+} from './parse-result';
 
 const calculateFps = ({
 	sttsBox,
@@ -93,8 +97,8 @@ export const getFpsFromMp4TrakBox = (trakBox: TrakBox) => {
 	});
 };
 
-export const getFps = (segments: AnySegment[]) => {
-	const moovBox = getMoovBox(segments);
+const getFpsFromIsoMaseMedia = (structure: IsoBaseMediaStructure) => {
+	const moovBox = getMoovBox(structure.boxes);
 	if (!moovBox) {
 		return null;
 	}
@@ -109,12 +113,48 @@ export const getFps = (segments: AnySegment[]) => {
 	return getFpsFromMp4TrakBox(trackBox);
 };
 
-export const hasFps = (boxes: AnySegment[]): boolean => {
+const getFpsFromAvi = (structure: RiffStructure) => {
+	const strl = getStrlBoxes(structure);
+
+	for (const s of strl) {
+		const strh = getStrhBox(s.children);
+		if (!strh) {
+			throw new Error('No strh box');
+		}
+
+		if (strh.fccType === 'auds') {
+			continue;
+		}
+
+		return strh.rate;
+	}
+
+	return null;
+};
+
+export const getFps = (segments: Structure) => {
+	if (segments.type === 'iso-base-media') {
+		return getFpsFromIsoMaseMedia(segments);
+	}
+
+	if (segments.type === 'riff') {
+		return getFpsFromAvi(segments);
+	}
+
+	// TODO: Matroska doesn't have Matroska
+	if (segments.type === 'matroska') {
+		return null;
+	}
+
+	throw new Error('Cannot get fps, not implemented');
+};
+
+export const hasFps = (boxes: Structure): boolean => {
 	try {
 		// Matroska has no FPS metadata
 		// Not bothering to parse
 		// Idea: `guaranteedFps` field
-		if (isMatroska(boxes)) {
+		if (boxes.type === 'matroska') {
 			return true;
 		}
 

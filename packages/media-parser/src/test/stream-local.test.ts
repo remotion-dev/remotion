@@ -108,7 +108,7 @@ test('Should stream AV1', async () => {
 			audioCodec: true,
 			rotation: true,
 			tracks: true,
-			boxes: true,
+			structure: true,
 		},
 		reader: nodeReader,
 		onVideoTrack: (track) => {
@@ -272,7 +272,7 @@ test('Should stream variable fps video', async () => {
 			rotation: true,
 			unrotatedDimensions: true,
 			tracks: true,
-			boxes: true,
+			structure: true,
 		},
 		reader: nodeReader,
 		onAudioTrack: (track_) => {
@@ -356,7 +356,7 @@ test('Should stream MKV video', async () => {
 			videoCodec: true,
 			audioCodec: true,
 			rotation: true,
-			boxes: true,
+			structure: true,
 			internalStats: true,
 		},
 		onVideoTrack: (track) => {
@@ -400,7 +400,7 @@ test('Should stream MP3 in MP4 video', async () => {
 			audioCodec: true,
 			tracks: true,
 			rotation: true,
-			boxes: true,
+			structure: true,
 		},
 		onAudioTrack: (track) => {
 			expect(track.type).toBe('audio');
@@ -530,7 +530,7 @@ test('Should get correct avc1 string from matroska', async () => {
 		src: exampleVideos.matroskaPcm16,
 		fields: {
 			tracks: true,
-			boxes: true,
+			structure: true,
 		},
 		reader: nodeReader,
 	});
@@ -641,7 +641,7 @@ test('HEVC and AAC in Matroska', async () => {
 			tracks: true,
 			videoCodec: true,
 			audioCodec: true,
-			boxes: true,
+			structure: true,
 		},
 		reader: nodeReader,
 		onAudioTrack: (audioTrack) => {
@@ -676,7 +676,7 @@ test('MP3 in matroska', async () => {
 			tracks: true,
 			videoCodec: true,
 			audioCodec: true,
-			boxes: true,
+			structure: true,
 		},
 		reader: nodeReader,
 		onAudioTrack: (audioTrack) => {
@@ -767,18 +767,4 @@ test('Should stream transparent video', async () => {
 	expect(audioTracks).toBe(0);
 	expect(videoSamples).toBe(39);
 	expect(keyFrames).toBe(1);
-});
-
-test('Acknowledge there are .avi file', () => {
-	const parsed = parseMedia({
-		src: exampleVideos.avi,
-		fields: {
-			tracks: true,
-			boxes: true,
-		},
-		reader: nodeReader,
-	});
-
-	expect(parsed).rejects.toThrow('AVI');
-	expect(parsed).rejects.toThrow('not yet supported');
 });

@@ -26,7 +26,7 @@ export const getFtypBox = (segments: AnySegment[]): FtypBox | null => {
 	return ftypBox;
 };
 
-export const getMoovBox = (segments: AnySegment[]): MoovBox | null => {
+export const getMoovBox = (segments: IsoBaseMediaBox[]): MoovBox | null => {
 	const moovBox = segments.find((s) => s.type === 'moov-box');
 	if (!moovBox || moovBox.type !== 'moov-box') {
 		return null;

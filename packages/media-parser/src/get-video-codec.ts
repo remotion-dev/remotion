@@ -4,7 +4,9 @@ import {
 	getStsdBox,
 	getTraks,
 } from './boxes/iso-base-media/traversal';
+import {getStrhBox, getStrlBoxes} from './boxes/riff/traversal';
 import {parseAv1PrivateData} from './boxes/webm/av1-codec-private';
+import type {MatroskaSegment} from './boxes/webm/segments';
 import {trakBoxContainsVideo} from './get-fps';
 import {
 	getAv1CBox,
@@ -18,7 +20,8 @@ import {
 	type MediaParserVideoCodec,
 	type VideoTrackColorParams,
 } from './get-tracks';
-import type {AnySegment} from './parse-result';
+import type {RiffStructure, Structure} from './parse-result';
+import type {ParserState} from './parser-state';
 
 export const getVideoCodecFromIsoTrak = (trakBox: TrakBox) => {
 	const stsdBox = getStsdBox(trakBox);
@@ -82,17 +85,7 @@ export const getVideoCodecFromIsoTrak = (trakBox: TrakBox) => {
 	throw new Error('Could not find video codec');
 };
 
-export const getVideoCodec = (
-	boxes: AnySegment[],
-): MediaParserVideoCodec | null => {
-	const moovBox = getMoovBox(boxes);
-	if (moovBox) {
-		const trakBox = getTraks(moovBox).filter((t) => trakBoxContainsVideo(t))[0];
-		if (trakBox) {
-			return getVideoCodecFromIsoTrak(trakBox);
-		}
-	}
-
+const getVideoCodecFromMatroska = (boxes: MatroskaSegment[]) => {
 	const mainSegment = boxes.find((b) => b.type === 'Segment');
 	if (!mainSegment || mainSegment.type !== 'Segment') {
 		return null;
@@ -130,11 +123,61 @@ export const getVideoCodec = (
 		}
 	}
 
+	throw new Error('Could not find video codec');
+};
+
+const getVideoCodecFromAvi = (structure: RiffStructure): 'h264' => {
+	const strl = getStrlBoxes(structure);
+
+	for (const s of strl) {
+		const strh = getStrhBox(s.children);
+		if (!strh) {
+			throw new Error('No strh box');
+		}
+
+		if (strh.fccType === 'auds') {
+			continue;
+		}
+
+		if (strh.handler === 'H264') {
+			return 'h264';
+		}
+	}
+
+	throw new Error('Unsupported codec');
+};
+
+export const getVideoCodec = (
+	boxes: Structure,
+): MediaParserVideoCodec | null => {
+	if (boxes.type === 'iso-base-media') {
+		const moovBox = getMoovBox(boxes.boxes);
+		if (moovBox) {
+			const trakBox = getTraks(moovBox).filter((t) =>
+				trakBoxContainsVideo(t),
+			)[0];
+			if (trakBox) {
+				return getVideoCodecFromIsoTrak(trakBox);
+			}
+		}
+	}
+
+	if (boxes.type === 'riff') {
+		return getVideoCodecFromAvi(boxes);
+	}
+
+	if (boxes.type === 'matroska') {
+		return getVideoCodecFromMatroska(boxes.boxes);
+	}
+
 	return null;
 };
 
-export const hasVideoCodec = (boxes: AnySegment[]): boolean => {
-	return hasTracks(boxes);
+export const hasVideoCodec = (
+	boxes: Structure,
+	state: ParserState,
+): boolean => {
+	return hasTracks(boxes, state);
 };
 
 export const getVideoPrivateData = (trakBox: TrakBox): Uint8Array | null => {

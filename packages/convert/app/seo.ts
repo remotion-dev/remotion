@@ -4,7 +4,7 @@ import {
 } from '@remotion/webcodecs';
 import {renderHumanReadableContainer} from './lib/render-codec-label';
 
-export const inputContainers: ConvertMediaContainer[] = ['mp4', 'webm'];
+export const inputContainers: string[] = ['mp4', 'webm', 'avi'];
 export const outputContainers = getAvailableContainers();
 
 export const parseRouteAction = (action: string) => {

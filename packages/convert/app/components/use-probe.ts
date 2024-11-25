@@ -13,32 +13,26 @@ import {webFileReader} from '@remotion/media-parser/web-file';
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import {Source} from '~/lib/convert-state';
 
+export type ProbeResult = ReturnType<typeof useProbe>;
+
 export const useProbe = ({
 	src,
 	onVideoThumbnail,
-	onAudioCodec,
-	onVideoCodec,
-	onTracks,
 	logLevel,
 	onProgress,
-	onDuration,
 }: {
 	src: Source;
 	logLevel: LogLevel;
 	onVideoThumbnail: (videoFrame: VideoFrame) => void;
-	onAudioCodec: (codec: MediaParserAudioCodec | null) => void;
-	onVideoCodec: (codec: MediaParserVideoCodec | null) => void;
-	onTracks: (tracks: TracksField) => void;
 	onProgress: ParseMediaOnProgress;
-	onDuration: (duration: number | null) => void;
 }) => {
 	const [audioCodec, setAudioCodec] = useState<
 		MediaParserAudioCodec | null | undefined
 	>(undefined);
 	const [fps, setFps] = useState<number | null | undefined>(undefined);
-	const [durationInSeconds, setDurationInSeconds] = useState<number | null>(
-		null,
-	);
+	const [durationInSeconds, setDurationInSeconds] = useState<
+		number | null | undefined
+	>(undefined);
 	const [dimensions, setDimensions] = useState<Dimensions | null>(null);
 	const [name, setName] = useState<string | null>(null);
 	const [videoCodec, setVideoCodec] = useState<MediaParserVideoCodec | null>(
@@ -48,6 +42,7 @@ export const useProbe = ({
 	const [tracks, setTracks] = useState<TracksField | null>(null);
 	const [container, setContainer] = useState<ParseMediaContainer | null>(null);
 	const [done, setDone] = useState(false);
+	const [error, setError] = useState<Error | null>(null);
 
 	const getStart = useCallback(() => {
 		const controller = new AbortController();
@@ -143,7 +138,6 @@ export const useProbe = ({
 			},
 			onAudioCodec: (codec) => {
 				hasAudioCodec = true;
-				onAudioCodec(codec);
 				setAudioCodec(codec);
 				cancelIfDone();
 			},
@@ -156,7 +150,6 @@ export const useProbe = ({
 				hasDuration = true;
 				setDurationInSeconds(d);
 				cancelIfDone();
-				onDuration(d);
 			},
 			onName: (n) => {
 				hasName = true;
@@ -170,14 +163,11 @@ export const useProbe = ({
 			},
 			onVideoCodec: (codec) => {
 				hasVideoCodec = true;
-				onVideoCodec(codec);
 				setVideoCodec(codec);
 				cancelIfDone();
 			},
 			onTracks: (trx) => {
 				hasTracks = true;
-
-				onTracks(trx);
 				setTracks(trx);
 				cancelIfDone();
 			},
@@ -196,6 +186,7 @@ export const useProbe = ({
 					return;
 				}
 
+				setError(err as Error);
 				// eslint-disable-next-line no-console
 				console.log(err);
 			})
@@ -204,16 +195,7 @@ export const useProbe = ({
 			});
 
 		return controller;
-	}, [
-		onAudioCodec,
-		onVideoCodec,
-		onVideoThumbnail,
-		src,
-		onTracks,
-		logLevel,
-		onProgress,
-		onDuration,
-	]);
+	}, [onVideoThumbnail, src, logLevel, onProgress]);
 
 	useEffect(() => {
 		const start = getStart();
@@ -234,6 +216,7 @@ export const useProbe = ({
 			size,
 			durationInSeconds,
 			done,
+			error,
 		};
 	}, [
 		audioCodec,
@@ -246,5 +229,6 @@ export const useProbe = ({
 		videoCodec,
 		durationInSeconds,
 		done,
+		error,
 	]);
 };

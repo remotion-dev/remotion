@@ -53,6 +53,7 @@ test('Should be able to parse a STSD audio box correctly', async () => {
 			}),
 			nullifySamples: false,
 			supportsContentRange: true,
+			nextTrackIndex: 0,
 		},
 		signal: null,
 	});
@@ -222,6 +223,7 @@ test('Should be able to parse a STSD video box correctly', async () => {
 			}),
 			nullifySamples: false,
 			supportsContentRange: true,
+			nextTrackIndex: 0,
 		},
 		signal: null,
 		logLevel: 'info',
