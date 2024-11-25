@@ -48,7 +48,7 @@ test('AVI file', async () => {
 	]);
 	expect(videoTracks).toEqual([
 		{
-			codec: 'avc1',
+			codec: 'avc1.640015',
 			codecPrivate: null,
 			codecWithoutConfig: 'h264',
 			codedHeight: 270,

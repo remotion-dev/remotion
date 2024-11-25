@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
+import {registerTrack} from '../../add-new-matroska-tracks';
 import type {BufferIterator} from '../../buffer-iterator';
 import type {ParseResult, RiffStructure} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
@@ -103,28 +104,28 @@ export const parseRiffBody = async ({
 			}
 
 			if (strf.type === 'strf-box-audio' && options.onAudioTrack) {
-				if (options.onAudioTrack) {
-					const audioTrack = makeAviAudioTrack({
-						index: options.nextTrackIndex,
-						strf,
-					});
-					const callback = await options.onAudioTrack(audioTrack);
-					await options.parserState.registerAudioSampleCallback(
-						options.nextTrackIndex,
-						callback ?? null,
-					);
-				}
-			} else if (options.onVideoTrack && strf.type === 'strf-box-video') {
+				const audioTrack = makeAviAudioTrack({
+					index: options.nextTrackIndex,
+					strf,
+				});
+				await registerTrack({
+					options,
+					state: options.parserState,
+					track: audioTrack,
+				});
+			}
+
+			if (options.onVideoTrack && strf.type === 'strf-box-video') {
 				const videoTrack = makeAviVideoTrack({
 					strh,
 					index: options.nextTrackIndex,
 					strf,
 				});
-				const callback = await options.onVideoTrack(videoTrack);
-				await options.parserState.registerVideoSampleCallback(
-					options.nextTrackIndex,
-					callback ?? null,
-				);
+				await registerTrack({
+					options,
+					state: options.parserState,
+					track: videoTrack,
+				});
 			}
 
 			options.nextTrackIndex++;

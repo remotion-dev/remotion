@@ -55,6 +55,7 @@ export const parseMedia: ParseMedia = async ({
 	let iterator: BufferIterator | null = null;
 	let parseResult: ParseResult<Structure> | null = null;
 
+	// TODO: Should be possible to skip if `null` is returned
 	const canSkipVideoData = !onVideoTrack && !onAudioTrack;
 	if (canSkipVideoData) {
 		Log.verbose(

@@ -1,3 +1,4 @@
+import {registerTrack} from '../../add-new-matroska-tracks';
 import type {BufferIterator} from '../../buffer-iterator';
 import {hasTracks} from '../../get-tracks';
 import type {LogLevel} from '../../log';
@@ -455,21 +456,11 @@ export const processBox = async ({
 		});
 		const transformedTrack = makeBaseMediaTrack(box);
 		if (transformedTrack) {
-			if (transformedTrack.type === 'audio') {
-				const callback = await options.onAudioTrack?.(transformedTrack);
-				await options.parserState.registerAudioSampleCallback(
-					transformedTrack.trackId,
-					callback ?? null,
-				);
-			}
-
-			if (transformedTrack.type === 'video') {
-				const callback = await options.onVideoTrack?.(transformedTrack);
-				await options.parserState.registerVideoSampleCallback(
-					transformedTrack.trackId,
-					callback ?? null,
-				);
-			}
+			await registerTrack({
+				options,
+				state: options.parserState,
+				track: transformedTrack,
+			});
 		}
 
 		return {
