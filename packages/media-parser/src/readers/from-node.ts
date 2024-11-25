@@ -1,5 +1,6 @@
 import {createReadStream} from 'fs';
 import {stat} from 'node:fs/promises';
+import {sep} from 'path';
 import {Readable} from 'stream';
 import type {ReaderInterface} from './reader';
 
@@ -54,7 +55,7 @@ export const nodeReader: ReaderInterface = {
 				},
 			},
 			contentLength: stats.size,
-			name: src.split('/').pop() as string,
+			name: src.split(sep).pop() as string,
 			supportsContentRange: true,
 		};
 	},
