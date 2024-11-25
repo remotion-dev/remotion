@@ -91,7 +91,7 @@ The enums `ConvertMediaVideoCodec` and `ConvertMediaAudioCodec` can be imported 
 
 ## Checking if a track can be copied
 
-To check if it is possible to return `{"type": "copy"}`, you can use the [`canCopyVideoTrack()`](/docs/webcodecs/convert-media#cancopyvideotrack) and [`canCopyAudioTrack()`](/docs/webcodecs/convert-media#cancopyaudiotrack) APIs.
+To check if it is possible to return `{"type": "copy"}`, you can use the [`canCopyVideoTrack()`](/docs/webcodecs/can-copy-video-track) and [`canCopyAudioTrack()`](/docs/webcodecs/can-copy-audio-track) APIs.
 
 ```tsx twoslash title="Using the canCopyVideoTrack() API"
 // @module: es2022
@@ -119,7 +119,7 @@ await convertMedia({
 
 ## Checking if a track can be re-encoded
 
-To check if it is possible to return `{"type": "reencode"}`, you can use the [`canReencodeVideoTrack()`](/docs/webcodecs/convert-media#canreencodevideotrack) and [`canReencodeAudioTrack()`](/docs/webcodecs/convert-media#canreencodeaudiotrack) APIs.
+To check if it is possible to return `{"type": "reencode"}`, you can use the [`canReencodeVideoTrack()`](/docs/webcodecs/can-reencode-video-track) and [`canReencodeAudioTrack()`](/docs/webcodecs/can-reencode-audio-track) APIs.
 
 ```tsx twoslash title="Using the canReencodeVideoTrack() API"
 // @module: es2022
