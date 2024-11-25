@@ -108,6 +108,7 @@ export const createAudioDecoder = ({
 		},
 		waitForFinish: async () => {
 			await audioDecoder.flush();
+			await queue;
 			await ioSynchronizer.waitForFinish();
 			await outputQueue;
 		},

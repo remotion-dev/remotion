@@ -45,8 +45,10 @@ export const handleChunk = async ({
 		const samplesPerSecond = strh.rate / strh.scale;
 		const nthSample = options.parserState.getSamplesForTrack(trackId);
 		const timeInSec = nthSample / samplesPerSecond;
-		const timestamp = timeInSec * MEDIA_PARSER_RIFF_TIMESCALE;
-		const duration = (1 / samplesPerSecond) * MEDIA_PARSER_RIFF_TIMESCALE;
+		const timestamp = Math.floor(timeInSec * MEDIA_PARSER_RIFF_TIMESCALE);
+		const duration = Math.floor(
+			(1 / samplesPerSecond) * MEDIA_PARSER_RIFF_TIMESCALE,
+		);
 
 		const data = iterator.getSlice(ckSize);
 		const infos = parseAvc(data);

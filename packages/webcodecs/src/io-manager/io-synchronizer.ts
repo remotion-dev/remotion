@@ -96,13 +96,18 @@ export const makeIoSynchronizer = (logLevel: LogLevel, label: string) => {
 		unemitted: number;
 		_unprocessed: number;
 	}) => {
-		while (getUnemittedItems() > unemitted) {
-			await waitForOutput();
-		}
-
-		while (getUnprocessed() > _unprocessed) {
-			await waitForProcessed();
-		}
+		await Promise.all([
+			async () => {
+				while (getUnemittedItems() > unemitted) {
+					await waitForOutput();
+				}
+			},
+			async () => {
+				while (getUnprocessed() > _unprocessed) {
+					await waitForProcessed();
+				}
+			},
+		]);
 	};
 
 	const waitForFinish = async () => {

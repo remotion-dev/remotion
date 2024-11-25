@@ -219,7 +219,6 @@ export const parseMedia: ParseMedia = async ({
 	});
 
 	currentReader.abort();
-
 	iterator?.destroy();
 	return returnValue;
 };
