@@ -1,6 +1,7 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import type {RiffStructure} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
+import {parseAvc} from '../avc/parse-avc';
 import type {RiffResult} from './expect-riff-box';
 import type {StrhBox} from './riff-box';
 import {MEDIA_PARSER_RIFF_TIMESCALE} from './timescale';
@@ -47,15 +48,23 @@ export const handleChunk = async ({
 		const timestamp = timeInSec * MEDIA_PARSER_RIFF_TIMESCALE;
 		const duration = (1 / samplesPerSecond) * MEDIA_PARSER_RIFF_TIMESCALE;
 
+		const data = iterator.getSlice(ckSize);
+		const infos = parseAvc(data);
+		const keyOrDelta = infos.find(
+			(i) => i.type === 'keyframe' || i.type === 'delta-frame',
+		);
+		if (!keyOrDelta) {
+			throw new Error('expected avc to contain info about key or delta');
+		}
+
 		await options.parserState.onVideoSample(trackId, {
 			cts: timestamp,
 			dts: timestamp,
-			data: iterator.getSlice(ckSize),
+			data,
 			duration,
 			timestamp,
 			trackId,
-			// TODO
-			type: 'delta',
+			type: keyOrDelta.type === 'keyframe' ? 'key' : 'delta',
 		});
 	} else {
 		const audioChunk = ckId.match(/^([0-9]{2})wb$/);
