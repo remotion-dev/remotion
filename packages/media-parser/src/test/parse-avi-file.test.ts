@@ -8,12 +8,34 @@ test('AVI file', async () => {
 	let videoTrackCount = 0;
 	let audioSamples = 0;
 	let videoSamples = 0;
-	const {structure, audioTracks, videoTracks} = await parseMedia({
+	const {
+		structure,
+		audioTracks,
+		videoTracks,
+		size,
+		container,
+		audioCodec,
+		dimensions,
+		durationInSeconds,
+		fps,
+		name,
+		rotation,
+		videoCodec,
+	} = await parseMedia({
 		src: exampleVideos.avi,
 		reader: nodeReader,
 		fields: {
 			structure: true,
 			tracks: true,
+			size: true,
+			container: true,
+			audioCodec: true,
+			dimensions: true,
+			durationInSeconds: true,
+			fps: true,
+			name: true,
+			rotation: true,
+			videoCodec: true,
 		},
 		onAudioTrack: () => {
 			audioTrackCount++;
@@ -32,10 +54,22 @@ test('AVI file', async () => {
 			};
 		},
 	});
+	expect(container).toBe('avi');
+	expect(dimensions).toEqual({
+		height: 270,
+		width: 480,
+	});
+	expect(rotation).toBe(0);
+	expect(name).toBe('example.avi');
+	expect(fps).toBe(30);
+	expect(durationInSeconds).toEqual(30.613333333333333);
+	expect(audioCodec).toBe('aac');
+	expect(size).toBe(742478);
 	expect(audioTrackCount).toBe(1);
 	expect(videoTrackCount).toBe(1);
 	expect(audioSamples).toBe(1435);
 	expect(videoSamples).toBe(901);
+	expect(videoCodec).toBe('h264');
 	expect(audioTracks).toEqual([
 		{
 			codec: 'mp4a.40.2',

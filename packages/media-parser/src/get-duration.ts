@@ -5,9 +5,15 @@ import {
 	getMoovBox,
 	getMvhdBox,
 } from './boxes/iso-base-media/traversal';
+import {getStrhBox, getStrlBoxes} from './boxes/riff/traversal';
 import type {DurationSegment} from './boxes/webm/segments/all-segments';
 import {getTracks} from './get-tracks';
-import type {AnySegment, Structure} from './parse-result';
+import type {
+	AnySegment,
+	IsoBaseMediaStructure,
+	RiffStructure,
+	Structure,
+} from './parse-result';
 import type {ParserState} from './parser-state';
 
 const getDurationFromMatroska = (segments: AnySegment[]): number | null => {
@@ -48,6 +54,71 @@ export const isMatroska = (boxes: AnySegment[]) => {
 	return matroskaBox;
 };
 
+const getDurationFromIsoBaseMedia = (
+	structure: IsoBaseMediaStructure,
+	parserState: ParserState,
+) => {
+	const moovBox = getMoovBox(structure.boxes);
+	if (!moovBox) {
+		return null;
+	}
+
+	const moofBox = getMoofBox(structure.boxes);
+	const mvhdBox = getMvhdBox(moovBox);
+
+	if (!mvhdBox) {
+		return null;
+	}
+
+	if (mvhdBox.type !== 'mvhd-box') {
+		throw new Error('Expected mvhd-box');
+	}
+
+	if (mvhdBox.durationInSeconds > 0) {
+		return mvhdBox.durationInSeconds;
+	}
+
+	const tracks = getTracks(structure, parserState);
+	const allTracks = [
+		...tracks.videoTracks,
+		...tracks.audioTracks,
+		...tracks.otherTracks,
+	];
+	const allSamples = allTracks.map((t) => {
+		const {timescale: ts} = t;
+		const samplePositions = getSamplePositionsFromTrack(
+			t.trakBox as TrakBox,
+			moofBox,
+		);
+
+		const highest = samplePositions
+			?.map((sp) => (sp.cts + sp.duration) / ts)
+			.reduce((a, b) => Math.max(a, b), 0);
+		return highest ?? 0;
+	});
+	const highestTimestamp = Math.max(...allSamples);
+	return highestTimestamp;
+};
+
+const getDurationFromAvi = (structure: RiffStructure) => {
+	const strl = getStrlBoxes(structure);
+
+	const lengths: number[] = [];
+	for (const s of strl) {
+		const strh = getStrhBox(s.children);
+		if (!strh) {
+			throw new Error('No strh box');
+		}
+
+		const samplesPerSecond = strh.rate / strh.scale;
+
+		const streamLength = strh.length / samplesPerSecond;
+		lengths.push(streamLength);
+	}
+
+	return Math.max(...lengths);
+};
+
 export const getDuration = (
 	structure: Structure,
 	parserState: ParserState,
@@ -57,46 +128,11 @@ export const getDuration = (
 	}
 
 	if (structure.type === 'iso-base-media') {
-		const moovBox = getMoovBox(structure.boxes);
-		if (!moovBox) {
-			return null;
-		}
+		return getDurationFromIsoBaseMedia(structure, parserState);
+	}
 
-		const moofBox = getMoofBox(structure.boxes);
-		const mvhdBox = getMvhdBox(moovBox);
-
-		if (!mvhdBox) {
-			return null;
-		}
-
-		if (mvhdBox.type !== 'mvhd-box') {
-			throw new Error('Expected mvhd-box');
-		}
-
-		if (mvhdBox.durationInSeconds > 0) {
-			return mvhdBox.durationInSeconds;
-		}
-
-		const tracks = getTracks(structure, parserState);
-		const allTracks = [
-			...tracks.videoTracks,
-			...tracks.audioTracks,
-			...tracks.otherTracks,
-		];
-		const allSamples = allTracks.map((t) => {
-			const {timescale: ts} = t;
-			const samplePositions = getSamplePositionsFromTrack(
-				t.trakBox as TrakBox,
-				moofBox,
-			);
-
-			const highest = samplePositions
-				?.map((sp) => (sp.cts + sp.duration) / ts)
-				.reduce((a, b) => Math.max(a, b), 0);
-			return highest ?? 0;
-		});
-		const highestTimestamp = Math.max(...allSamples);
-		return highestTimestamp;
+	if (structure.type === 'riff') {
+		return getDurationFromAvi(structure);
 	}
 
 	throw new Error('Has no duration');

@@ -7,7 +7,12 @@ import {
 	getSttsBox,
 	getTraks,
 } from './boxes/iso-base-media/traversal';
-import type {Structure} from './parse-result';
+import {getStrhBox, getStrlBoxes} from './boxes/riff/traversal';
+import type {
+	IsoBaseMediaStructure,
+	RiffStructure,
+	Structure,
+} from './parse-result';
 
 const calculateFps = ({
 	sttsBox,
@@ -92,21 +97,48 @@ export const getFpsFromMp4TrakBox = (trakBox: TrakBox) => {
 	});
 };
 
+const getFpsFromIsoMaseMedia = (structure: IsoBaseMediaStructure) => {
+	const moovBox = getMoovBox(structure.boxes);
+	if (!moovBox) {
+		return null;
+	}
+
+	const trackBoxes = getTraks(moovBox);
+
+	const trackBox = trackBoxes.find(trakBoxContainsVideo);
+	if (!trackBox) {
+		return null;
+	}
+
+	return getFpsFromMp4TrakBox(trackBox);
+};
+
+const getFpsFromAvi = (structure: RiffStructure) => {
+	const strl = getStrlBoxes(structure);
+
+	for (const s of strl) {
+		const strh = getStrhBox(s.children);
+		if (!strh) {
+			throw new Error('No strh box');
+		}
+
+		if (strh.fccType === 'auds') {
+			continue;
+		}
+
+		return strh.rate;
+	}
+
+	return null;
+};
+
 export const getFps = (segments: Structure) => {
 	if (segments.type === 'iso-base-media') {
-		const moovBox = getMoovBox(segments.boxes);
-		if (!moovBox) {
-			return null;
-		}
+		return getFpsFromIsoMaseMedia(segments);
+	}
 
-		const trackBoxes = getTraks(moovBox);
-
-		const trackBox = trackBoxes.find(trakBoxContainsVideo);
-		if (!trackBox) {
-			return null;
-		}
-
-		return getFpsFromMp4TrakBox(trackBox);
+	if (segments.type === 'riff') {
+		return getFpsFromAvi(segments);
 	}
 
 	// TODO: Matroska doesn't have Matroska

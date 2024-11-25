@@ -4,6 +4,7 @@ import {
 	getStsdBox,
 	getTraks,
 } from './boxes/iso-base-media/traversal';
+import {getStrhBox, getStrlBoxes} from './boxes/riff/traversal';
 import {parseAv1PrivateData} from './boxes/webm/av1-codec-private';
 import type {MatroskaSegment} from './boxes/webm/segments';
 import {trakBoxContainsVideo} from './get-fps';
@@ -19,7 +20,7 @@ import {
 	type MediaParserVideoCodec,
 	type VideoTrackColorParams,
 } from './get-tracks';
-import type {Structure} from './parse-result';
+import type {RiffStructure, Structure} from './parse-result';
 import type {ParserState} from './parser-state';
 
 export const getVideoCodecFromIsoTrak = (trakBox: TrakBox) => {
@@ -125,6 +126,27 @@ const getVideoCodecFromMatroska = (boxes: MatroskaSegment[]) => {
 	throw new Error('Could not find video codec');
 };
 
+const getVideoCodecFromAvi = (structure: RiffStructure): 'h264' => {
+	const strl = getStrlBoxes(structure);
+
+	for (const s of strl) {
+		const strh = getStrhBox(s.children);
+		if (!strh) {
+			throw new Error('No strh box');
+		}
+
+		if (strh.fccType === 'auds') {
+			continue;
+		}
+
+		if (strh.handler === 'H264') {
+			return 'h264';
+		}
+	}
+
+	throw new Error('Unsupported codec');
+};
+
 export const getVideoCodec = (
 	boxes: Structure,
 ): MediaParserVideoCodec | null => {
@@ -138,6 +160,10 @@ export const getVideoCodec = (
 				return getVideoCodecFromIsoTrak(trakBox);
 			}
 		}
+	}
+
+	if (boxes.type === 'riff') {
+		return getVideoCodecFromAvi(boxes);
 	}
 
 	if (boxes.type === 'matroska') {

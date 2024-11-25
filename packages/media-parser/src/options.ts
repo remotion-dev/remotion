@@ -74,7 +74,7 @@ export type TracksField = {
 	audioTracks: AudioTrack[];
 };
 
-export type ParseMediaContainer = 'mp4' | 'webm';
+export type ParseMediaContainer = 'mp4' | 'webm' | 'avi';
 
 export type ParseMediaCallbacks<Fields extends Options<ParseMediaFields>> =
 	(Fields['dimensions'] extends true
