@@ -95,6 +95,8 @@ export const makeParserState = ({
 		return timestampMap.get(byteOffset);
 	};
 
+	const samplesForTrack: Record<number, number> = {};
+
 	return {
 		onTrackEntrySegment,
 		getTrackInfoByNumber: (id: number) => trackEntries[id],
@@ -140,6 +142,12 @@ export const makeParserState = ({
 				throw new Error('Aborted');
 			}
 
+			if (samplesForTrack[trackId] === undefined) {
+				samplesForTrack[trackId] = 0;
+			}
+
+			samplesForTrack[trackId]++;
+
 			const callback = audioSampleCallbacks[trackId];
 			if (callback) {
 				await callback(audioSample);
@@ -158,6 +166,10 @@ export const makeParserState = ({
 				throw new Error('Aborted');
 			}
 
+			if (samplesForTrack[trackId] === undefined) {
+				samplesForTrack[trackId]++;
+			}
+
 			const callback = videoSampleCallbacks[trackId];
 			if (callback) {
 				await callback(videoSample);
@@ -174,6 +186,9 @@ export const makeParserState = ({
 		getInternalStats: () => ({}),
 		getTimescale,
 		setTimescale,
+		getSamplesForTrack: (trackId: number) => {
+			return samplesForTrack[trackId] ?? 0;
+		},
 	};
 };
 

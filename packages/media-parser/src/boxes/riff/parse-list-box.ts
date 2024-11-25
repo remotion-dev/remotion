@@ -4,7 +4,7 @@ import type {ParserContext} from '../../parser-context';
 import {parseRiffBody} from './parse-box';
 import type {RiffBox} from './riff-box';
 
-export const parseListBox = ({
+export const parseListBox = async ({
 	iterator,
 	size,
 	options,
@@ -12,7 +12,7 @@ export const parseListBox = ({
 	iterator: BufferIterator;
 	size: number;
 	options: ParserContext;
-}): RiffBox => {
+}): Promise<RiffBox> => {
 	const counter = iterator.counter.getOffset();
 	const listType = iterator.getByteString(4);
 
@@ -24,7 +24,7 @@ export const parseListBox = ({
 		type: 'riff',
 		boxes: [],
 	};
-	const result = parseRiffBody({
+	const result = await parseRiffBody({
 		structure,
 		iterator,
 		maxOffset: counter + size,

@@ -1,6 +1,7 @@
 import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
 import type {RiffStructure} from '../../parse-result';
 import type {StrfBoxAudio, StrfBoxVideo, StrhBox} from './riff-box';
+import {MEDIA_PARSER_RIFF_TIMESCALE} from './timescale';
 import {
 	getAvihBox,
 	getStrfBox,
@@ -25,11 +26,9 @@ export const getNumberOfTracks = (structure: RiffStructure): number => {
 };
 
 export const makeAviAudioTrack = ({
-	strh,
 	strf,
 	index,
 }: {
-	strh: StrhBox;
 	strf: StrfBoxAudio;
 	index: number;
 }): AudioTrack => {
@@ -46,7 +45,7 @@ export const makeAviAudioTrack = ({
 		description: undefined,
 		numberOfChannels: strf.numberOfChannels,
 		sampleRate: strf.sampleRate,
-		timescale: strh.rate,
+		timescale: MEDIA_PARSER_RIFF_TIMESCALE,
 		trackId: index,
 		trakBox: null,
 	};
@@ -76,7 +75,7 @@ export const makeAviVideoTrack = ({
 		height: strf.height,
 		type: 'video',
 		displayAspectHeight: strf.height,
-		timescale: strh.rate,
+		timescale: MEDIA_PARSER_RIFF_TIMESCALE,
 		description: undefined,
 		trackId: index,
 		color: {
@@ -118,7 +117,7 @@ export const getTracksFromAvi = (structure: RiffStructure): AllTracks => {
 		if (strf.type === 'strf-box-video') {
 			videoTracks.push(makeAviVideoTrack({strh, strf, index: i}));
 		} else if (strh.fccType === 'auds') {
-			audioTracks.push(makeAviAudioTrack({strh, strf, index: i}));
+			audioTracks.push(makeAviAudioTrack({strf, index: i}));
 		} else {
 			throw new Error(`Unsupported track type ${strh.fccType}`);
 		}

@@ -19,14 +19,14 @@ const continueAfterRiffBoxResult = ({
 	iterator: BufferIterator;
 	maxOffset: number;
 	options: ParserContext;
-}): ParseResult<RiffStructure> => {
+}): Promise<ParseResult<RiffStructure>> => {
 	if (result.type === 'incomplete') {
-		return {
+		return Promise.resolve({
 			status: 'incomplete',
-			continueParsing() {
+			async continueParsing() {
 				return Promise.resolve(
 					continueAfterRiffBoxResult({
-						result: result.continueParsing(),
+						result: await result.continueParsing(),
 						structure,
 						iterator,
 						maxOffset,
@@ -36,7 +36,7 @@ const continueAfterRiffBoxResult = ({
 			},
 			segments: structure,
 			skipTo: null,
-		};
+		});
 	}
 
 	if (result.type === 'complete') {
@@ -48,7 +48,7 @@ const continueAfterRiffBoxResult = ({
 	return parseRiffBody({iterator, maxOffset, options, structure});
 };
 
-export const parseRiffBody = ({
+export const parseRiffBody = async ({
 	iterator,
 	structure,
 	maxOffset,
@@ -58,22 +58,26 @@ export const parseRiffBody = ({
 	structure: RiffStructure;
 	maxOffset: number;
 	options: ParserContext;
-}): ParseResult<RiffStructure> => {
+}): Promise<ParseResult<RiffStructure>> => {
 	while (
 		iterator.bytesRemaining() > 0 &&
 		iterator.counter.getOffset() < maxOffset
 	) {
-		const result = expectRiffBox({iterator, boxes: structure.boxes, options});
+		const result = await expectRiffBox({
+			iterator,
+			options,
+			structure,
+		});
 		if (result.type === 'incomplete') {
 			return {
 				status: 'incomplete',
-				continueParsing() {
+				async continueParsing() {
 					return Promise.resolve(
 						continueAfterRiffBoxResult({
 							iterator,
 							maxOffset,
 							options,
-							result: result.continueParsing(),
+							result: await result.continueParsing(),
 							structure,
 						}),
 					);
@@ -101,11 +105,14 @@ export const parseRiffBody = ({
 			if (strf.type === 'strf-box-audio' && options.onAudioTrack) {
 				if (options.onAudioTrack) {
 					const audioTrack = makeAviAudioTrack({
-						strh,
 						index: options.nextTrackIndex,
 						strf,
 					});
-					options.onAudioTrack(audioTrack);
+					const callback = await options.onAudioTrack(audioTrack);
+					await options.parserState.registerAudioSampleCallback(
+						options.nextTrackIndex,
+						callback ?? null,
+					);
 				}
 			} else if (options.onVideoTrack && strf.type === 'strf-box-video') {
 				const videoTrack = makeAviVideoTrack({
@@ -113,7 +120,11 @@ export const parseRiffBody = ({
 					index: options.nextTrackIndex,
 					strf,
 				});
-				options.onVideoTrack(videoTrack);
+				const callback = await options.onVideoTrack(videoTrack);
+				await options.parserState.registerVideoSampleCallback(
+					options.nextTrackIndex,
+					callback ?? null,
+				);
 			}
 
 			options.nextTrackIndex++;
@@ -132,7 +143,7 @@ export const parseRiff = ({
 }: {
 	iterator: BufferIterator;
 	options: ParserContext;
-}): ParseResult<RiffStructure> => {
+}): Promise<ParseResult<RiffStructure>> => {
 	const structure: RiffStructure = {type: 'riff', boxes: []};
 	const riff = iterator.getByteString(4);
 	if (riff !== 'RIFF') {

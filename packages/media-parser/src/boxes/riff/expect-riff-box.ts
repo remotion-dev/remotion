@@ -1,4 +1,5 @@
 import type {BufferIterator} from '../../buffer-iterator';
+import type {RiffStructure} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
 import {isMoviAtom} from './is-movi';
 import {parseMovi} from './parse-movi';
@@ -8,28 +9,28 @@ import type {RiffBox} from './riff-box';
 export type RiffResult =
 	| {
 			type: 'incomplete';
-			continueParsing: () => RiffResult;
+			continueParsing: () => Promise<RiffResult>;
 	  }
 	| {
 			type: 'complete';
 			box: RiffBox | null;
 	  };
 
-export const expectRiffBox = ({
+export const expectRiffBox = async ({
 	iterator,
-	boxes,
 	options,
+	structure,
 }: {
 	iterator: BufferIterator;
-	boxes: RiffBox[];
 	options: ParserContext;
-}): RiffResult => {
+	structure: RiffStructure;
+}): Promise<RiffResult> => {
 	// Need at least 16 bytes to read LIST,size,movi,size
 	if (iterator.bytesRemaining() < 16) {
 		return {
 			type: 'incomplete',
 			continueParsing() {
-				return expectRiffBox({boxes, iterator, options});
+				return expectRiffBox({structure, iterator, options});
 			},
 		};
 	}
@@ -43,6 +44,8 @@ export const expectRiffBox = ({
 		return parseMovi({
 			iterator,
 			maxOffset: ckSize + iterator.counter.getOffset() - 4,
+			options,
+			structure,
 		});
 	}
 
@@ -52,13 +55,19 @@ export const expectRiffBox = ({
 		return {
 			type: 'incomplete',
 			continueParsing: () => {
-				return expectRiffBox({boxes, iterator, options});
+				return expectRiffBox({structure, iterator, options});
 			},
 		};
 	}
 
 	return {
 		type: 'complete',
-		box: parseRiffBox({id: ckId, iterator, size: ckSize, boxes, options}),
+		box: await parseRiffBox({
+			id: ckId,
+			iterator,
+			size: ckSize,
+			boxes: structure.boxes,
+			options,
+		}),
 	};
 };

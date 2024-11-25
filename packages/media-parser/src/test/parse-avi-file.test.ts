@@ -6,6 +6,8 @@ import {nodeReader} from '../readers/from-node';
 test('AVI file', async () => {
 	let audioTrackCount = 0;
 	let videoTrackCount = 0;
+	let audioSamples = 0;
+	let videoSamples = 0;
 	const {structure, audioTracks, videoTracks} = await parseMedia({
 		src: exampleVideos.avi,
 		reader: nodeReader,
@@ -15,15 +17,21 @@ test('AVI file', async () => {
 		},
 		onAudioTrack: () => {
 			audioTrackCount++;
-			return null;
+			return () => {
+				audioSamples++;
+			};
 		},
 		onVideoTrack: () => {
 			videoTrackCount++;
-			return null;
+			return () => {
+				videoSamples++;
+			};
 		},
 	});
 	expect(audioTrackCount).toBe(1);
 	expect(videoTrackCount).toBe(1);
+	expect(audioSamples).toBe(1435);
+	expect(videoSamples).toBe(901);
 	expect(audioTracks).toEqual([
 		{
 			codec: 'mp4a.40.2',
@@ -32,7 +40,7 @@ test('AVI file', async () => {
 			description: undefined,
 			numberOfChannels: 2,
 			sampleRate: 48000,
-			timescale: 375,
+			timescale: 1_000_000,
 			trackId: 1,
 			trakBox: null,
 			type: 'audio',
@@ -61,7 +69,7 @@ test('AVI file', async () => {
 				denominator: 1,
 				numerator: 1,
 			},
-			timescale: 30,
+			timescale: 1_000_000,
 			trackId: 0,
 			trakBox: null,
 			type: 'video',

@@ -3,9 +3,9 @@ import type {ParserContext} from '../../parser-context';
 import {parseAvih} from './parse-avih';
 import {parseFmtBox} from './parse-fmt-box';
 import {parseListBox} from './parse-list-box';
+import {parseStrf} from './parse-strf';
 import {parseStrh} from './parse-strh';
 import type {RiffBox, RiffRegularBox} from './riff-box';
-import {parseStrf} from './strf';
 
 export const parseRiffBox = ({
 	iterator,
@@ -19,9 +19,9 @@ export const parseRiffBox = ({
 	id: string;
 	boxes: RiffBox[];
 	options: ParserContext;
-}): RiffBox => {
+}): Promise<RiffBox> => {
 	if (id === 'fmt') {
-		return parseFmtBox({iterator, boxes, size});
+		return Promise.resolve(parseFmtBox({iterator, boxes, size}));
 	}
 
 	if (id === 'LIST') {
@@ -29,15 +29,15 @@ export const parseRiffBox = ({
 	}
 
 	if (id === 'avih') {
-		return parseAvih({iterator, size});
+		return Promise.resolve(parseAvih({iterator, size}));
 	}
 
 	if (id === 'strh') {
-		return parseStrh({iterator, size});
+		return Promise.resolve(parseStrh({iterator, size}));
 	}
 
 	if (id === 'strf') {
-		return parseStrf({iterator, size, boxes});
+		return Promise.resolve(parseStrf({iterator, size, boxes}));
 	}
 
 	iterator.discard(size);
@@ -48,5 +48,5 @@ export const parseRiffBox = ({
 		id,
 	};
 
-	return box;
+	return Promise.resolve(box);
 };
