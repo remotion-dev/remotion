@@ -29,14 +29,15 @@ export const handleChunk = async ({
 	iterator,
 	options,
 	structure,
+	ckId,
+	ckSize,
 }: {
 	iterator: BufferIterator;
 	options: ParserContext;
 	structure: RiffStructure;
+	ckId: string;
+	ckSize: number;
 }) => {
-	const ckId = iterator.getByteString(4);
-	const ckSize = iterator.getUint32Le();
-
 	const videoChunk = ckId.match(/^([0-9]{2})dc$/);
 	if (videoChunk) {
 		const trackId = parseInt(videoChunk[1], 10);
@@ -122,7 +123,21 @@ export const parseMovi = async ({
 			};
 		}
 
-		await handleChunk({iterator, options, structure});
+		const ckId = iterator.getByteString(4);
+		const ckSize = iterator.getUint32Le();
+		if (iterator.bytesRemaining() < ckSize) {
+			iterator.counter.decrement(8);
+			return {
+				type: 'incomplete',
+				continueParsing: () => {
+					return Promise.resolve(
+						parseMovi({iterator, maxOffset, options, structure}),
+					);
+				},
+			};
+		}
+
+		await handleChunk({iterator, options, structure, ckId, ckSize});
 
 		// Discard added zeroes
 		while (
