@@ -30,9 +30,9 @@ export const useProbe = ({
 		MediaParserAudioCodec | null | undefined
 	>(undefined);
 	const [fps, setFps] = useState<number | null | undefined>(undefined);
-	const [durationInSeconds, setDurationInSeconds] = useState<number | null>(
-		null,
-	);
+	const [durationInSeconds, setDurationInSeconds] = useState<
+		number | null | undefined
+	>(undefined);
 	const [dimensions, setDimensions] = useState<Dimensions | null>(null);
 	const [name, setName] = useState<string | null>(null);
 	const [videoCodec, setVideoCodec] = useState<MediaParserVideoCodec | null>(
