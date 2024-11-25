@@ -33,12 +33,6 @@ const shouldUseReactDomClient = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
 	? true
 	: parseInt(reactDomVersion, 10) >= 18;
 
-const esbuildLoaderOptions: LoaderOptions = {
-	target: 'chrome85',
-	loader: 'tsx',
-	implementation: esbuild,
-};
-
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
 
 function truthy<T>(value: T): value is Truthy<T> {
@@ -72,6 +66,13 @@ export const webpackConfig = async ({
 	remotionRoot: string;
 	poll: number | null;
 }): Promise<[string, WebpackConfiguration]> => {
+	const esbuildLoaderOptions: LoaderOptions = {
+		target: 'chrome85',
+		loader: 'tsx',
+		implementation: esbuild,
+		remotionRoot,
+	};
+
 	let lastProgress = 0;
 
 	const isBun = typeof Bun !== 'undefined';
