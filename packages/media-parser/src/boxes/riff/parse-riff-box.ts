@@ -1,4 +1,5 @@
 import type {BufferIterator} from '../../buffer-iterator';
+import type {ParserContext} from '../../parser-context';
 import {parseAvih} from './parse-avih';
 import {parseFmtBox} from './parse-fmt-box';
 import {parseListBox} from './parse-list-box';
@@ -11,18 +12,20 @@ export const parseRiffBox = ({
 	size,
 	id,
 	boxes,
+	options,
 }: {
 	iterator: BufferIterator;
 	size: number;
 	id: string;
 	boxes: RiffBox[];
+	options: ParserContext;
 }): RiffBox => {
 	if (id === 'fmt') {
 		return parseFmtBox({iterator, boxes, size});
 	}
 
 	if (id === 'LIST') {
-		return parseListBox({iterator, size});
+		return parseListBox({iterator, size, options});
 	}
 
 	if (id === 'avih') {

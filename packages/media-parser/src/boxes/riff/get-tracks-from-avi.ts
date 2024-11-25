@@ -24,7 +24,7 @@ export const getNumberOfTracks = (structure: RiffStructure): number => {
 	throw new Error('No avih box found');
 };
 
-const makeAudioTrack = ({
+export const makeAviAudioTrack = ({
 	strh,
 	strf,
 	index,
@@ -52,7 +52,7 @@ const makeAudioTrack = ({
 	};
 };
 
-const makeVideoTrack = ({
+export const makeAviVideoTrack = ({
 	strh,
 	strf,
 	index,
@@ -109,20 +109,21 @@ export const getTracksFromAvi = (structure: RiffStructure): AllTracks => {
 
 	let i = 0;
 	for (const box of boxes) {
-		i++;
-		const strh = getStrhBox(box);
-		const strf = getStrfBox(box);
+		const strh = getStrhBox(box.children);
+		const strf = getStrfBox(box.children);
 		if (!strh || !strf) {
 			continue;
 		}
 
 		if (strf.type === 'strf-box-video') {
-			videoTracks.push(makeVideoTrack({strh, strf, index: i}));
+			videoTracks.push(makeAviVideoTrack({strh, strf, index: i}));
 		} else if (strh.fccType === 'auds') {
-			audioTracks.push(makeAudioTrack({strh, strf, index: i}));
+			audioTracks.push(makeAviAudioTrack({strh, strf, index: i}));
 		} else {
 			throw new Error(`Unsupported track type ${strh.fccType}`);
 		}
+
+		i++;
 	}
 
 	return {audioTracks, otherTracks, videoTracks};

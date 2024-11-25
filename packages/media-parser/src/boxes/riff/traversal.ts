@@ -2,6 +2,7 @@ import type {RiffStructure} from '../../parse-result';
 import type {
 	AvihBox,
 	ListBox,
+	RiffBox,
 	StrfBoxAudio,
 	StrfBoxVideo,
 	StrhBox,
@@ -43,25 +44,17 @@ export const getStrlBoxes = (structure: RiffStructure): ListBox[] => {
 	) as ListBox[];
 };
 
-export const getStrhBox = (strlBox: ListBox): StrhBox | null => {
-	if (strlBox.listType !== 'strl') {
-		return null;
-	}
-
-	return strlBox.children.find(
+export const getStrhBox = (strlBoxChildren: RiffBox[]): StrhBox | null => {
+	return strlBoxChildren.find(
 		(box) => box.type === 'strh-box',
 	) as StrhBox | null;
 };
 
 export const getStrfBox = (
-	strlBox: ListBox,
+	strlBoxChildren: RiffBox[],
 ): StrfBoxAudio | StrfBoxVideo | null => {
-	if (strlBox.listType !== 'strl') {
-		return null;
-	}
-
 	return (
-		(strlBox.children.find(
+		(strlBoxChildren.find(
 			(box) => box.type === 'strf-box-audio' || box.type === 'strf-box-video',
 		) as StrfBoxAudio | StrfBoxVideo) ?? null
 	);

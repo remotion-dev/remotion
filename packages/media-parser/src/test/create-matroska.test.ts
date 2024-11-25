@@ -26,6 +26,7 @@ const options: ParserContext = {
 	parserState: state,
 	nullifySamples: false,
 	supportsContentRange: true,
+	nextTrackIndex: 0,
 };
 
 test('Should make Matroska header that is same as input', async () => {

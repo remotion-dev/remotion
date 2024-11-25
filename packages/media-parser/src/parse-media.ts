@@ -79,6 +79,7 @@ export const parseMedia: ParseMedia = async ({
 			process.env.KEEP_SAMPLES === 'true'
 		),
 		supportsContentRange,
+		nextTrackIndex: 0,
 	};
 
 	const hasAllInfo = () => {

@@ -6,6 +6,7 @@ import {
 	getMvhdBox,
 	getTraks,
 } from './boxes/iso-base-media/traversal';
+import type {AllTracks} from './boxes/riff/get-tracks-from-avi';
 import {
 	getTracksFromAvi,
 	hasAllTracksFromAvi,

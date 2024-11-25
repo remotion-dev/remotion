@@ -40,7 +40,7 @@ export const parseVideo = ({
 	}
 
 	if (iterator.isRiff()) {
-		return Promise.resolve(parseRiff(iterator));
+		return Promise.resolve(parseRiff({iterator, options}));
 	}
 
 	if (iterator.isIsoBaseMedia()) {

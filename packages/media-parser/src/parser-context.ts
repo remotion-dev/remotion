@@ -8,4 +8,5 @@ export type ParserContext = {
 	parserState: ParserState;
 	nullifySamples: boolean;
 	supportsContentRange: boolean;
+	nextTrackIndex: number;
 };
