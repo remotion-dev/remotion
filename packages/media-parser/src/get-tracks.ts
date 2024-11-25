@@ -6,6 +6,10 @@ import {
 	getMvhdBox,
 	getTraks,
 } from './boxes/iso-base-media/traversal';
+import {
+	getTracksFromAvi,
+	hasAllTracksFromAvi,
+} from './boxes/riff/get-tracks-from-avi';
 import {getTracksFromMatroska} from './boxes/webm/get-ready-tracks';
 import type {MatroskaSegment} from './boxes/webm/segments';
 import {getMainSegment, getTracksSegment} from './boxes/webm/traversal';
@@ -119,13 +123,11 @@ export const hasTracks = (structure: Structure): boolean => {
 		return tracks.length === numberOfTracks;
 	}
 
-	throw new Error('Unknown container');
-};
+	if (structure.type === 'riff') {
+		return hasAllTracksFromAvi(structure);
+	}
 
-type AllTracks = {
-	videoTracks: VideoTrack[];
-	audioTracks: AudioTrack[];
-	otherTracks: OtherTrack[];
+	throw new Error('Unknown container');
 };
 
 const getTracksFromMa = (
@@ -211,6 +213,10 @@ export const getTracks = (
 
 	if (segments.type === 'iso-base-media') {
 		return getTracksFromIsoBaseMedia(segments.boxes);
+	}
+
+	if (segments.type === 'riff') {
+		return getTracksFromAvi(segments);
 	}
 
 	throw new Error('Unknown container');

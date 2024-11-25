@@ -4,13 +4,58 @@ import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
 test('AVI file', async () => {
-	const {structure} = await parseMedia({
+	const {structure, audioTracks, videoTracks} = await parseMedia({
 		src: exampleVideos.avi,
 		reader: nodeReader,
 		fields: {
 			structure: true,
+			tracks: true,
 		},
 	});
+	expect(audioTracks).toEqual([
+		{
+			codec: 'mp4a.40.2',
+			codecPrivate: null,
+			codecWithoutConfig: 'aac',
+			description: undefined,
+			numberOfChannels: 2,
+			sampleRate: 48000,
+			timescale: 375,
+			trackId: 2,
+			trakBox: null,
+			type: 'audio',
+		},
+	]);
+	expect(videoTracks).toEqual([
+		{
+			codec: 'avc1',
+			codecPrivate: null,
+			codecWithoutConfig: 'h264',
+			codedHeight: 270,
+			codedWidth: 480,
+			color: {
+				fullRange: null,
+				matrixCoefficients: null,
+				primaries: null,
+				transferCharacteristics: null,
+			},
+			description: undefined,
+			displayAspectHeight: 270,
+			displayAspectWidth: 480,
+			fps: 30,
+			height: 270,
+			rotation: 0,
+			sampleAspectRatio: {
+				denominator: 1,
+				numerator: 1,
+			},
+			timescale: 30,
+			trackId: 1,
+			trakBox: null,
+			type: 'video',
+			width: 480,
+		},
+	]);
 	expect(structure).toEqual({
 		type: 'riff',
 		boxes: [
