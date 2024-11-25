@@ -83,6 +83,10 @@ export type RiffHeader = {
 	fileType: string;
 };
 
+export type MoviBox = {
+	type: 'movi-box';
+};
+
 export type RiffBox =
 	| RiffRegularBox
 	| WaveFormatBox
@@ -91,4 +95,5 @@ export type RiffBox =
 	| AvihBox
 	| StrhBox
 	| StrfBoxVideo
-	| StrfBoxAudio;
+	| StrfBoxAudio
+	| MoviBox;

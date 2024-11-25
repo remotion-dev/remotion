@@ -17,12 +17,7 @@ export const parseListBox = ({
 	const listType = iterator.getByteString(4);
 
 	if (listType === 'movi') {
-		iterator.discard(size - (iterator.counter.getOffset() - counter));
-		return {
-			type: 'list-box',
-			listType: 'movi',
-			children: [],
-		};
+		throw new Error('should not be handled here');
 	}
 
 	const structure: RiffStructure = {

@@ -200,9 +200,7 @@ test('AVI file', async () => {
 				type: 'riff-box',
 			},
 			{
-				children: [],
-				listType: 'movi',
-				type: 'list-box',
+				type: 'movi-box',
 			},
 			{
 				id: 'idx1',

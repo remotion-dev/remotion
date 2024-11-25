@@ -1,9 +1,52 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import type {BufferIterator} from '../../buffer-iterator';
 import type {ParseResult, RiffStructure} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
+import type {RiffResult} from './expect-riff-box';
 import {expectRiffBox} from './expect-riff-box';
 import {makeAviAudioTrack, makeAviVideoTrack} from './get-tracks-from-avi';
 import {getStrfBox, getStrhBox} from './traversal';
+
+const continueAfterRiffBoxResult = ({
+	result,
+	structure,
+	iterator,
+	maxOffset,
+	options,
+}: {
+	result: RiffResult;
+	structure: RiffStructure;
+	iterator: BufferIterator;
+	maxOffset: number;
+	options: ParserContext;
+}): ParseResult<RiffStructure> => {
+	if (result.type === 'incomplete') {
+		return {
+			status: 'incomplete',
+			continueParsing() {
+				return Promise.resolve(
+					continueAfterRiffBoxResult({
+						result: result.continueParsing(),
+						structure,
+						iterator,
+						maxOffset,
+						options,
+					}),
+				);
+			},
+			segments: structure,
+			skipTo: null,
+		};
+	}
+
+	if (result.type === 'complete') {
+		if (result.box) {
+			structure.boxes.push(result.box);
+		}
+	}
+
+	return parseRiffBody({iterator, maxOffset, options, structure});
+};
 
 export const parseRiffBody = ({
 	iterator,
@@ -26,17 +69,22 @@ export const parseRiffBody = ({
 				status: 'incomplete',
 				continueParsing() {
 					return Promise.resolve(
-						parseRiffBody({
+						continueAfterRiffBoxResult({
 							iterator,
-							structure,
 							maxOffset,
 							options,
+							result: result.continueParsing(),
+							structure,
 						}),
 					);
 				},
 				segments: structure,
 				skipTo: null,
 			};
+		}
+
+		if (result.box === null) {
+			continue;
 		}
 
 		structure.boxes.push(result.box);
