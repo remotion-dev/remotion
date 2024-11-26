@@ -1267,9 +1267,6 @@ importers:
       '@remotion/transitions':
         specifier: workspace:*
         version: link:../transitions
-      '@remotion/webcodecs':
-        specifier: workspace:*
-        version: link:../webcodecs
       '@remotion/zod-types':
         specifier: workspace:*
         version: link:../zod-types
