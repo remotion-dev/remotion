@@ -6,10 +6,26 @@ import path from 'path';
 import {VERSION} from 'remotion';
 
 const rubySdk = path.join(__dirname, '..', '..', '..', 'lambda-ruby');
-test('Set the right version for Ruby', () => {
+test('Set the right version for Ruby in version.rb', () => {
 	const versionPath = path.join(rubySdk, 'lib', 'version.rb');
 
 	fs.writeFileSync(versionPath, `VERSION = "${VERSION}"`);
+});
+test('Set the right version for Ruby in remotion_lambda.gemspec', () => {
+	const gemspecPath = path.join(rubySdk, 'remotion_lambda.gemspec');
+
+	const contents = fs
+		.readFileSync(gemspecPath, 'utf-8')
+		.split('\n')
+		.map((l) => {
+			if (l.includes('s.version')) {
+				return `  s.version     = "${VERSION}"`;
+			}
+			return l;
+		})
+		.join('\n');
+
+	fs.writeFileSync(gemspecPath, contents);
 });
 
 test('Render progress payload', () => {
@@ -41,7 +57,7 @@ test('Render Media payload', async () => {
 		region: 'us-east-1',
 		composition: 'react-svg',
 		functionName: 'remotion-render',
-		serveUrl: 'testbed',
+		serveUrl: 'testbed-v6',
 		codec: 'h264',
 		inputProps: {
 			hi: 'there',
@@ -109,7 +125,7 @@ test('Render Still payload', async () => {
 		region: 'us-east-1',
 		composition: 'still-helloworld',
 		functionName: 'remotion-render',
-		serveUrl: 'testbed',
+		serveUrl: 'testbed-v6',
 		inputProps: {
 			message: 'Hello from props!',
 		},

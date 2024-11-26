@@ -1,5 +1,6 @@
 require_relative 'sdk'
 require_relative 'render_media_on_lambda_payload'
+require_relative 'render_progress_payload'
 
 client = RemotionLambda::Client.new(
   region: 'eu-central-1',
@@ -19,6 +20,16 @@ payload = get_render_media_on_lambda_payload(
 )
 
 res = client.render_media_on_lambda(function_name, payload)
-
-
 puts res
+while true
+  render_progress_payload = get_render_progress_payload(
+    render_id: res["renderId"],
+    bucket_name: res["bucketName"],
+  )
+  progress = client.get_render_progress(function_name, render_progress_payload)
+  puts progress["overallProgress"]
+  break if progress["done"]
+  break if progress["fatalErrorEncountered"]
+  sleep 1
+end
+
