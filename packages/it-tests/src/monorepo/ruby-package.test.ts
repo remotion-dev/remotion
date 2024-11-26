@@ -1,5 +1,5 @@
 import {LambdaInternals} from '@remotion/lambda';
-import {expect, test} from 'bun:test';
+import {beforeAll, expect, test} from 'bun:test';
 import {execSync} from 'child_process';
 import fs from 'fs';
 import path from 'path';
@@ -11,6 +11,13 @@ test('Set the right version for Ruby in version.rb', () => {
 
 	fs.writeFileSync(versionPath, `VERSION = "${VERSION}"`);
 });
+
+beforeAll(() => {
+	execSync('bundle install', {
+		cwd: rubySdk,
+	});
+});
+
 test('Set the right version for Ruby in remotion_lambda.gemspec', () => {
 	const gemspecPath = path.join(rubySdk, 'remotion_lambda.gemspec');
 
