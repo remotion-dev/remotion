@@ -2448,6 +2448,13 @@ export const articles = [
 		crumb: null,
 	},
 	{
+		id: 'lambda/ruby',
+		title: 'Triggering renders from Ruby',
+		relativePath: 'docs/lambda/ruby.mdx',
+		compId: 'articles-docs-lambda-ruby',
+		crumb: '@remotion/lambda',
+	},
+	{
 		id: 'getrenderprogress',
 		title: 'getRenderProgress()',
 		relativePath: 'docs/lambda/getrenderprogress.mdx',

@@ -288,7 +288,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 			codec: chunkCodec,
 			crf: params.crf ?? null,
 			pixelFormat: params.pixelFormat ?? RenderInternals.DEFAULT_PIXEL_FORMAT,
-			proResProfile: params.proResProfile,
+			proResProfile: params.proResProfile ?? undefined,
 			x264Preset: params.x264Preset,
 			onDownload: onDownloadsHelper(params.logLevel),
 			overwrite: false,

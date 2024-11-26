@@ -87,7 +87,18 @@ const innerHandler = async <Provider extends CloudProvider>({
 
 		try {
 			await new Promise((resolve, reject) => {
-				const onStream = (payload: StreamingPayload<Provider>) => {
+				const onStream = async (payload: StreamingPayload<Provider>) => {
+					if (!params.streamed) {
+						if (payload.type !== 'still-rendered') {
+							throw new Error('Expected still-rendered');
+						}
+
+						await responseWriter.write(
+							Buffer.from(JSON.stringify(payload.payload)),
+						);
+						return;
+					}
+
 					const message = makeStreamPayload({
 						message: payload,
 					});

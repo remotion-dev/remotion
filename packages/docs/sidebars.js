@@ -836,6 +836,7 @@ module.exports = {
 				'lambda/php',
 				'lambda/go',
 				'lambda/python',
+				'lambda/ruby',
 				'lambda/serverless-framework-integration',
 				'lambda/insights',
 				'lambda/multiple-buckets',

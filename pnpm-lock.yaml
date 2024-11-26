@@ -1267,9 +1267,6 @@ importers:
       '@remotion/transitions':
         specifier: workspace:*
         version: link:../transitions
-      '@remotion/webcodecs':
-        specifier: workspace:*
-        version: link:../webcodecs
       '@remotion/zod-types':
         specifier: workspace:*
         version: link:../zod-types
@@ -1396,6 +1393,12 @@ importers:
       dotenv:
         specifier: 9.0.2
         version: 9.0.2
+    devDependencies:
+      remotion:
+        specifier: workspace:*
+        version: link:../core
+
+  packages/lambda-ruby:
     devDependencies:
       remotion:
         specifier: workspace:*

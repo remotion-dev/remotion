@@ -54,8 +54,10 @@ type renderInternalOptions struct {
 	InputProps                     interface{}            `json:"inputProps"`
 	Type                           string                 `json:"type,omitempty"`
 	Codec                          string                 `json:"codec"`
+	ProResProfile                  interface{}            `json:"proResProfile"`
+	PixelFormat                    interface{}            `json:"pixelFormat"`
 	ImageFormat                    string                 `json:"imageFormat"`
-	Crf                            int                    `json:"crf,omitempty"`
+	Crf                            interface{}            `json:"crf"`
 	EnvVariables                   interface{}            `json:"envVariables,omitempty"`
 	Metadata                       interface{}            `json:"metadata,omitempty"`
 	JpegQuality                    int                    `json:"jpegQuality"`
