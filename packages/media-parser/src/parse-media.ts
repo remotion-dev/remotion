@@ -11,7 +11,7 @@ import type {
 	ParseMediaFields,
 	ParseMediaResult,
 } from './options';
-import type {ParseResult} from './parse-result';
+import type {ParseResult, Structure} from './parse-result';
 import {parseVideo} from './parse-video';
 import type {ParserContext} from './parser-context';
 import {makeParserState} from './parser-state';
@@ -53,8 +53,9 @@ export const parseMedia: ParseMedia = async ({
 	const moreFields = more as ParseMediaCallbacks<AllParseMediaFields>;
 
 	let iterator: BufferIterator | null = null;
-	let parseResult: ParseResult | null = null;
+	let parseResult: ParseResult<Structure> | null = null;
 
+	// TODO: Should be possible to skip if `null` is returned
 	const canSkipVideoData = !onVideoTrack && !onAudioTrack;
 	if (canSkipVideoData) {
 		Log.verbose(
@@ -79,6 +80,7 @@ export const parseMedia: ParseMedia = async ({
 			process.env.KEEP_SAMPLES === 'true'
 		),
 		supportsContentRange,
+		nextTrackIndex: 0,
 	};
 
 	const hasAllInfo = () => {
@@ -217,7 +219,6 @@ export const parseMedia: ParseMedia = async ({
 	});
 
 	currentReader.abort();
-
 	iterator?.destroy();
 	return returnValue;
 };

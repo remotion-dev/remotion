@@ -66,7 +66,7 @@ export const makeBaseMediaTrack = (
 			sampleRate,
 			description,
 			trakBox,
-			codecPrivate: getCodecPrivateFromTrak(trakBox),
+			codecPrivate: getCodecPrivateFromTrak(trakBox) ?? description ?? null,
 			codecWithoutConfig: getAudioCodecFromTrack(trakBox),
 		};
 	}

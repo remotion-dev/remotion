@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/webcodecs",
-	"version": "4.0.231",
+	"version": "4.0.232",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -14,6 +14,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src",
+		"test": "bun test src",
 		"watch": "tsc -w",
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
@@ -23,7 +24,8 @@
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "Remotion License (See https://remotion.dev/docs/webcodecs#license)",
 	"dependencies": {
-		"@remotion/media-parser": "workspace:*"
+		"@remotion/media-parser": "workspace:*",
+		"@remotion/example-videos": "workspace:*"
 	},
 	"peerDependencies": {},
 	"devDependencies": {

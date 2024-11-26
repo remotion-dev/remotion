@@ -1267,6 +1267,9 @@ importers:
       '@remotion/transitions':
         specifier: workspace:*
         version: link:../transitions
+      '@remotion/webcodecs':
+        specifier: workspace:*
+        version: link:../webcodecs
       '@remotion/zod-types':
         specifier: workspace:*
         version: link:../zod-types
@@ -2987,6 +2990,9 @@ importers:
 
   packages/webcodecs:
     dependencies:
+      '@remotion/example-videos':
+        specifier: workspace:*
+        version: link:../example-videos
       '@remotion/media-parser':
         specifier: workspace:*
         version: link:../media-parser

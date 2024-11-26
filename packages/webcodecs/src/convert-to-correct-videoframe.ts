@@ -1,5 +1,5 @@
 import {isFirefox} from './browser-quirks';
-import type {ConvertMediaVideoCodec} from './codec-id';
+import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 
 export const needsToCorrectVideoFrame = ({
 	videoFrame,
@@ -8,6 +8,11 @@ export const needsToCorrectVideoFrame = ({
 	videoFrame: VideoFrame;
 	outputCodec: ConvertMediaVideoCodec;
 }): boolean => {
+	// On Chrome when dropping a vertical iPhone video
+	if (videoFrame.format === null) {
+		return true;
+	}
+
 	return isFirefox() && videoFrame.format === 'BGRX' && outputCodec === 'h264';
 };
 

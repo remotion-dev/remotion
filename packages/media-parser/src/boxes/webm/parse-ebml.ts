@@ -1,6 +1,6 @@
-import {registerTrack} from '../../add-new-matroska-tracks';
 import {type BufferIterator} from '../../buffer-iterator';
 import type {ParserContext} from '../../parser-context';
+import {registerTrack} from '../../register-track';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 import {getSampleFromBlock} from './get-sample-from-block';
 import {getTrack} from './make-track';

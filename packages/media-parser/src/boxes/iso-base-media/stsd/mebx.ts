@@ -2,7 +2,7 @@ import type {BufferIterator} from '../../../buffer-iterator';
 import type {AnySegment} from '../../../parse-result';
 import type {ParserContext} from '../../../parser-context';
 import type {BaseBox} from '../base-type';
-import {parseBoxes} from '../process-box';
+import {parseIsoBaseMediaBoxes} from '../process-box';
 
 export interface MebxBox extends BaseBox {
 	type: 'mebx-box';
@@ -29,7 +29,7 @@ export const parseMebx = async ({
 
 	const dataReferenceIndex = iterator.getUint16();
 
-	const children = await parseBoxes({
+	const children = await parseIsoBaseMediaBoxes({
 		iterator,
 		maxBytes: iterator.counter.getOffset() - offset,
 		allowIncompleteBoxes: false,
@@ -50,6 +50,6 @@ export const parseMebx = async ({
 		offset,
 		dataReferenceIndex,
 		format: 'mebx',
-		children: children.segments,
+		children: children.segments.boxes,
 	};
 };

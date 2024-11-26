@@ -16,7 +16,7 @@ import {Skeleton} from './ui/skeleton';
 
 export const ContainerOverview: React.FC<{
 	readonly dimensions: Dimensions | null;
-	readonly durationInSeconds: number | null;
+	readonly durationInSeconds: number | null | undefined;
 	readonly videoCodec: MediaParserVideoCodec | null;
 	readonly audioCodec: MediaParserAudioCodec | null | undefined;
 	readonly size: number | null;
@@ -63,14 +63,13 @@ export const ContainerOverview: React.FC<{
 						Duration
 					</TableCell>
 					<TableCell className="text-right">
-						{
-							// TODO: For display1687984009979.webm, this does not get displayed
-							durationInSeconds === null ? (
-								<Skeleton className="h-3 w-[100px] inline-block" />
-							) : (
-								<>{formatSeconds(durationInSeconds)}</>
-							)
-						}
+						{durationInSeconds === undefined ? (
+							<Skeleton className="h-3 w-[100px] inline-block" />
+						) : durationInSeconds === null ? (
+							<span>N/A</span>
+						) : (
+							<>{formatSeconds(durationInSeconds)}</>
+						)}
 					</TableCell>
 				</TableRow>
 				<TableRow>

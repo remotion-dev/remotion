@@ -1,3 +1,4 @@
+import type {AvcPPs, AvcProfileInfo} from './boxes/avc/parse-avc';
 import type {OnTrackEntrySegment} from './boxes/webm/segments';
 import type {TrackInfo} from './boxes/webm/segments/track-entry';
 import {
@@ -12,6 +13,13 @@ import type {
 } from './webcodec-sample-types';
 
 export type InternalStats = {};
+
+export type SpsAndPps = {
+	sps: AvcProfileInfo;
+	pps: AvcPPs;
+};
+
+type AvcProfileInfoCallback = (profile: SpsAndPps) => Promise<void>;
 
 export const makeParserState = ({
 	hasAudioCallbacks,
@@ -95,8 +103,29 @@ export const makeParserState = ({
 		return timestampMap.get(byteOffset);
 	};
 
+	const samplesForTrack: Record<number, number> = {};
+
+	const profileCallbacks: AvcProfileInfoCallback[] = [];
+
+	const registerOnAvcProfileCallback = (callback: AvcProfileInfoCallback) => {
+		profileCallbacks.push(callback);
+	};
+
+	let avcProfile: SpsAndPps | null = null;
+
+	const onProfile = async (profile: SpsAndPps) => {
+		avcProfile = profile;
+		for (const callback of profileCallbacks) {
+			await callback(profile);
+		}
+
+		profileCallbacks.length = 0;
+	};
+
 	return {
 		onTrackEntrySegment,
+		onProfile,
+		registerOnAvcProfileCallback,
 		getTrackInfoByNumber: (id: number) => trackEntries[id],
 		registerVideoSampleCallback: async (
 			id: number,
@@ -140,6 +169,12 @@ export const makeParserState = ({
 				throw new Error('Aborted');
 			}
 
+			if (typeof samplesForTrack[trackId] === 'undefined') {
+				samplesForTrack[trackId] = 0;
+			}
+
+			samplesForTrack[trackId]++;
+
 			const callback = audioSampleCallbacks[trackId];
 			if (callback) {
 				await callback(audioSample);
@@ -158,6 +193,12 @@ export const makeParserState = ({
 				throw new Error('Aborted');
 			}
 
+			if (typeof samplesForTrack[trackId] === 'undefined') {
+				samplesForTrack[trackId] = 0;
+			}
+
+			samplesForTrack[trackId]++;
+
 			const callback = videoSampleCallbacks[trackId];
 			if (callback) {
 				await callback(videoSample);
@@ -174,6 +215,12 @@ export const makeParserState = ({
 		getInternalStats: () => ({}),
 		getTimescale,
 		setTimescale,
+		getSamplesForTrack: (trackId: number) => {
+			return samplesForTrack[trackId] ?? 0;
+		},
+		getAvcProfile: () => {
+			return avcProfile;
+		},
 	};
 };
 

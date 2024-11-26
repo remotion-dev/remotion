@@ -1,5 +1,5 @@
 import type {MediaParserAudioCodec} from '@remotion/media-parser';
-import type {ConvertMediaContainer} from './codec-id';
+import type {ConvertMediaContainer} from './get-available-containers';
 
 export const canCopyAudioTrack = ({
 	inputCodec,

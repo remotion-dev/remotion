@@ -1,5 +1,6 @@
 import type {AudioTrack, LogLevel} from '@remotion/media-parser';
-import type {ConvertMediaAudioCodec, ConvertMediaContainer} from './codec-id';
+import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
+import type {ConvertMediaContainer} from './get-available-containers';
 
 export type AudioOperation =
 	| {type: 'reencode'; bitrate: number; audioCodec: ConvertMediaAudioCodec}

@@ -4,8 +4,7 @@
 		"rootDir": "src",
 		"outDir": "dist",
 		"jsx": "react-jsx",
-		"skipLibCheck": true,
-		"typeRoots": ["./node_modules/@types", "./src/types"]
+		"skipLibCheck": true
 	},
 	"include": ["src"],
 	"references": [

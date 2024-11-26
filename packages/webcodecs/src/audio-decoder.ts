@@ -97,11 +97,18 @@ export const createAudioDecoder = ({
 
 	return {
 		processSample: (sample: AudioOrVideoSample) => {
+			// In example.avi, we have samples with 0 data
+			// Chrome fails on these
+			if (sample.data.length === 0) {
+				return queue;
+			}
+
 			queue = queue.then(() => processSample(sample));
 			return queue;
 		},
 		waitForFinish: async () => {
 			await audioDecoder.flush();
+			await queue;
 			await ioSynchronizer.waitForFinish();
 			await outputQueue;
 		},

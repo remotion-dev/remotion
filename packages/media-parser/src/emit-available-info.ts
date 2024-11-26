@@ -13,7 +13,7 @@ import type {
 	ParseMediaFields,
 	ParseMediaResult,
 } from './options';
-import type {ParseResult} from './parse-result';
+import type {ParseResult, Structure} from './parse-result';
 import type {ParserState} from './parser-state';
 
 export const emitAvailableInfo = ({
@@ -26,7 +26,7 @@ export const emitAvailableInfo = ({
 	name,
 }: {
 	hasInfo: Record<keyof Options<ParseMediaFields>, boolean>;
-	parseResult: ParseResult | null;
+	parseResult: ParseResult<Structure> | null;
 	moreFields: ParseMediaCallbacks<AllParseMediaFields>;
 	state: ParserState;
 	returnValue: ParseMediaResult<AllParseMediaFields>;
@@ -36,10 +36,14 @@ export const emitAvailableInfo = ({
 	const keys = Object.keys(hasInfo) as (keyof Options<ParseMediaFields>)[];
 
 	for (const key of keys) {
-		if (key === 'boxes') {
-			if (parseResult && hasInfo.boxes && returnValue.boxes === undefined) {
-				moreFields.onBoxes?.(parseResult.segments);
-				returnValue.boxes = parseResult.segments;
+		if (key === 'structure') {
+			if (
+				parseResult &&
+				hasInfo.structure &&
+				returnValue.structure === undefined
+			) {
+				moreFields.onStructure?.(parseResult.segments);
+				returnValue.structure = parseResult.segments;
 			}
 
 			continue;
