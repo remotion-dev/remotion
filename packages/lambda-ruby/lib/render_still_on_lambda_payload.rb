@@ -20,7 +20,7 @@ def get_render_still_on_lambda_payload(
   overwrite: false,
   privacy: "public",
   scale: 1,
-  serve_url: "testbed",
+  serve_url: "testbed-v6",
   timeout_in_milliseconds: 30000,
   chromium_options: {},
   frame: 0

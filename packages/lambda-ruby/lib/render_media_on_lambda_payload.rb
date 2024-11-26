@@ -37,7 +37,7 @@ def get_render_media_on_lambda_payload(
   pro_res_profile: nil,
   renderer_function_name: nil,
   scale: 1,
-  serve_url: "testbed",
+  serve_url: "testbed-v6",
   timeout_in_milliseconds: 30000,
   video_bitrate: nil,
   webhook: nil,

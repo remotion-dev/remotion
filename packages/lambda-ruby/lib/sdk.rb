@@ -16,8 +16,6 @@ module RemotionLambda
       @lambda_client = create_lambda_client
     end
 
-    
-
     def get_render_progress(function_name, payload)
       body = invoke(function_name, payload)      
       raise "Failed to fetch progress: #{body['message']}" if body["type"] == "error"
@@ -45,8 +43,7 @@ module RemotionLambda
         payload: JSON.generate(payload)
       })
 
-      # TODO: Bad deseralization
-      JSON.parse(response)
+      JSON.parse(response.payload.string)
     end
 
     def create_lambda_client
