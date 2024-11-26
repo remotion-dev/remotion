@@ -2,10 +2,12 @@ import type {VideoTrack} from '@remotion/media-parser';
 import type {ConvertMediaOnVideoFrame} from './convert-media';
 import {convertToCorrectVideoFrame} from './convert-to-correct-videoframe';
 import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
+import {rotateVideo} from './rotate-video';
+import {HARDCODED_ROTATE} from './rotation';
 import type {WebCodecsVideoEncoder} from './video-encoder';
 
 export const onFrame = async ({
-	frame,
+	frame: unrotatedFrame,
 	onVideoFrame,
 	videoEncoder,
 	track,
@@ -17,45 +19,55 @@ export const onFrame = async ({
 	track: VideoTrack;
 	outputCodec: ConvertMediaVideoCodec;
 }) => {
-	const newFrame = onVideoFrame ? await onVideoFrame({frame, track}) : frame;
+	const rotated = rotateVideo({
+		rotation: HARDCODED_ROTATE,
+		frame: unrotatedFrame,
+	});
+	if (unrotatedFrame !== rotated) {
+		unrotatedFrame.close();
+	}
 
-	if (newFrame.displayWidth !== frame.displayWidth) {
+	const userProcessedFrame = onVideoFrame
+		? await onVideoFrame({frame: rotated, track})
+		: rotated;
+
+	if (userProcessedFrame.displayWidth !== rotated.displayWidth) {
 		throw new Error(
-			`Returned VideoFrame of track ${track.trackId} has different displayWidth (${newFrame.displayWidth}) than the input frame (${newFrame.displayHeight})`,
+			`Returned VideoFrame of track ${track.trackId} has different displayWidth (${userProcessedFrame.displayWidth}) than the input frame (${userProcessedFrame.displayHeight})`,
 		);
 	}
 
-	if (newFrame.displayHeight !== frame.displayHeight) {
+	if (userProcessedFrame.displayHeight !== rotated.displayHeight) {
 		throw new Error(
-			`Returned VideoFrame of track ${track.trackId} has different displayHeight (${newFrame.displayHeight}) than the input frame (${newFrame.displayHeight})`,
+			`Returned VideoFrame of track ${track.trackId} has different displayHeight (${userProcessedFrame.displayHeight}) than the input frame (${userProcessedFrame.displayHeight})`,
 		);
 	}
 
-	if (newFrame.timestamp !== frame.timestamp) {
+	if (userProcessedFrame.timestamp !== rotated.timestamp) {
 		throw new Error(
-			`Returned VideoFrame of track ${track.trackId} has different timestamp (${newFrame.timestamp}) than the input frame (${newFrame.timestamp}). When calling new VideoFrame(), pass {timestamp: frame.timestamp} as second argument`,
+			`Returned VideoFrame of track ${track.trackId} has different timestamp (${userProcessedFrame.timestamp}) than the input frame (${userProcessedFrame.timestamp}). When calling new VideoFrame(), pass {timestamp: frame.timestamp} as second argument`,
 		);
 	}
 
-	if (newFrame.duration !== frame.duration) {
+	if (userProcessedFrame.duration !== rotated.duration) {
 		throw new Error(
-			`Returned VideoFrame of track ${track.trackId} has different duration (${newFrame.duration}) than the input frame (${newFrame.duration}). When calling new VideoFrame(), pass {duration: frame.duration} as second argument`,
+			`Returned VideoFrame of track ${track.trackId} has different duration (${userProcessedFrame.duration}) than the input frame (${userProcessedFrame.duration}). When calling new VideoFrame(), pass {duration: frame.duration} as second argument`,
 		);
 	}
 
 	const fixedFrame = convertToCorrectVideoFrame({
-		videoFrame: newFrame,
+		videoFrame: userProcessedFrame,
 		outputCodec,
 	});
 
 	await videoEncoder.encodeFrame(fixedFrame, fixedFrame.timestamp);
 
 	fixedFrame.close();
-	if (frame !== newFrame) {
-		frame.close();
+	if (rotated !== userProcessedFrame) {
+		rotated.close();
 	}
 
-	if (fixedFrame !== newFrame) {
+	if (fixedFrame !== userProcessedFrame) {
 		fixedFrame.close();
 	}
 };
