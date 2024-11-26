@@ -70,6 +70,8 @@ jobs:
         with:
           python-version: "3.11"
       - uses: ruby/setup-ruby@ec02537da5712d66d4d50a0f33b7eb52773b5ed1
+        with:
+          ruby-version: "3.1"
       - name: Setup PHP with PHPUnit
         uses: shivammathur/setup-php@v2
         with:
