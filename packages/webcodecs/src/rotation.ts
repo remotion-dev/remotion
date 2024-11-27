@@ -1,5 +1,3 @@
-export const HARDCODED_ROTATE = -270;
-
 export const calculateNewDimensionsFromDimensions = ({
 	width,
 	height,

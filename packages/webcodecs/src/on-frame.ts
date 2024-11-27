@@ -3,7 +3,6 @@ import type {ConvertMediaOnVideoFrame} from './convert-media';
 import {convertToCorrectVideoFrame} from './convert-to-correct-videoframe';
 import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 import {rotateVideo} from './rotate-video';
-import {HARDCODED_ROTATE} from './rotation';
 import type {WebCodecsVideoEncoder} from './video-encoder';
 
 export const onFrame = async ({
@@ -12,15 +11,17 @@ export const onFrame = async ({
 	videoEncoder,
 	track,
 	outputCodec,
+	rotation,
 }: {
 	frame: VideoFrame;
 	onVideoFrame: ConvertMediaOnVideoFrame | null;
 	videoEncoder: WebCodecsVideoEncoder;
 	track: VideoTrack;
 	outputCodec: ConvertMediaVideoCodec;
+	rotation: number;
 }) => {
 	const rotated = rotateVideo({
-		rotation: HARDCODED_ROTATE,
+		rotation,
 		frame: unrotatedFrame,
 	});
 	if (unrotatedFrame !== rotated) {

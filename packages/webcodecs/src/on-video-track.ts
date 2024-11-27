@@ -9,10 +9,7 @@ import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 import {Log} from './log';
 import {onFrame} from './on-frame';
 import type {ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
-import {
-	calculateNewDimensionsFromDimensions,
-	HARDCODED_ROTATE,
-} from './rotation';
+import {calculateNewDimensionsFromDimensions} from './rotation';
 import type {ConvertMediaProgressFn} from './throttled-state-update';
 import {createVideoDecoder} from './video-decoder';
 import {getVideoDecoderConfigWithHardwareAcceleration} from './video-decoder-config';
@@ -30,6 +27,7 @@ export const makeVideoTrackHandler =
 		onVideoTrack,
 		logLevel,
 		container,
+		rotate,
 	}: {
 		state: MediaFn;
 		onVideoFrame: null | ConvertMediaOnVideoFrame;
@@ -40,6 +38,7 @@ export const makeVideoTrackHandler =
 		onVideoTrack: ConvertMediaOnVideoTrackHandler | null;
 		logLevel: LogLevel;
 		container: ConvertMediaContainer;
+		rotate: number;
 	}): OnVideoTrack =>
 	async (track) => {
 		if (controller.signal.aborted) {
@@ -95,11 +94,13 @@ export const makeVideoTrackHandler =
 			};
 		}
 
+		const rotation = videoOperation.rotation ?? rotate;
+
 		const {height: newHeight, width: newWidth} =
 			calculateNewDimensionsFromDimensions({
 				width: track.codedWidth,
 				height: track.codedHeight,
-				rotation: HARDCODED_ROTATE,
+				rotation,
 			});
 
 		const videoEncoderConfig = await getVideoEncoderConfig({
@@ -187,6 +188,7 @@ export const makeVideoTrackHandler =
 					videoEncoder,
 					onVideoFrame,
 					outputCodec: videoOperation.videoCodec,
+					rotation,
 				});
 			},
 			onError: (err) => {

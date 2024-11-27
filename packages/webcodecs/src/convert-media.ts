@@ -70,6 +70,7 @@ export const convertMedia = async function <
 	logLevel = 'info',
 	writer,
 	progressIntervalInMs,
+	rotate,
 	...more
 }: {
 	src: ParseMediaOptions<F>['src'];
@@ -85,6 +86,7 @@ export const convertMedia = async function <
 	logLevel?: LogLevel;
 	writer?: WriterInterface;
 	progressIntervalInMs?: number;
+	rotate?: number;
 } & ParseMediaDynamicOptions<F>): Promise<ConvertMediaResult> {
 	if (userPassedAbortSignal?.aborted) {
 		return Promise.reject(new Error('Aborted'));
@@ -172,6 +174,7 @@ export const convertMedia = async function <
 		onVideoTrack: userVideoResolver ?? null,
 		logLevel,
 		container,
+		rotate: rotate ?? 0,
 	});
 
 	const onAudioTrack: OnAudioTrack = makeAudioTrackHandler({
