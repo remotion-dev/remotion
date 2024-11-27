@@ -1,11 +1,19 @@
 import {makePie} from '@remotion/shapes';
-import React from 'react';
+import React, {useCallback} from 'react';
+import {MultiSelectItem} from './MultiSelect';
 
 const Rotation: React.FC<{
 	readonly progress: number;
-}> = ({progress}) => {
+	readonly active: boolean;
+	readonly onClick: () => void;
+	readonly disabled: boolean;
+}> = ({active, progress, onClick, disabled}) => {
 	return (
-		<div className="flex-1 border-black border-2 rounded flex flex-col items-center p-2">
+		<MultiSelectItem
+			disabled={disabled}
+			active={active && !disabled}
+			onClick={onClick}
+		>
 			<svg
 				viewBox="0 0 100 100"
 				width={40}
@@ -16,15 +24,16 @@ const Rotation: React.FC<{
 			>
 				<path
 					fill="transparent"
-					className="stroke-slate-200"
+					data-active={active}
+					className="stroke-slate-200 data-[active=true]:stroke-slate-200/20"
 					strokeWidth={6}
 					style={{
 						transformOrigin: '50% 50%',
-						transform: `rotate(${progress * 360}deg)`,
+						transform: `rotate(${(progress + 0.08) * 360}deg)`,
 					}}
 					d={
 						makePie({
-							progress: 1 - progress - 0.1,
+							progress: 1 - progress - 0.12,
 							radius: 50,
 							closePath: false,
 							counterClockwise: false,
@@ -35,7 +44,7 @@ const Rotation: React.FC<{
 					<>
 						<path
 							fill="transparent"
-							stroke="black"
+							stroke="currentcolor"
 							strokeWidth={6}
 							d={
 								makePie({
@@ -54,7 +63,7 @@ const Rotation: React.FC<{
 						>
 							<path
 								d="M 85 50 L 115 50 L 100 70 z"
-								fill="black"
+								fill="currentcolor"
 								strokeWidth={10}
 							/>
 						</g>
@@ -65,17 +74,54 @@ const Rotation: React.FC<{
 			<div className="text-center font-brand font-medium">
 				{Math.round(progress * 360)}°
 			</div>
-		</div>
+		</MultiSelectItem>
 	);
 };
 
-export const RotateComponents: React.FC = () => {
+export const RotateComponents: React.FC<{
+	readonly rotation: number;
+	readonly setRotation: React.Dispatch<React.SetStateAction<number>>;
+	readonly canPixelManipulate: boolean;
+}> = ({canPixelManipulate, rotation, setRotation}) => {
+	const on90 = useCallback(() => {
+		setRotation(90);
+	}, [setRotation]);
+
+	const on180 = useCallback(() => {
+		setRotation(180);
+	}, [setRotation]);
+
+	const on270 = useCallback(() => {
+		setRotation(270);
+	}, [setRotation]);
+
 	return (
-		<div className="flex flex-row gap-2 mt-3 mb-3">
-			<Rotation progress={0} />
-			<Rotation progress={0.25} />
-			<Rotation progress={0.5} />
-			<Rotation progress={0.75} />
+		<div>
+			<div className="flex flex-row gap-2 mt-3 mb-3">
+				<Rotation
+					disabled={!canPixelManipulate}
+					active={rotation === 90}
+					progress={0.25}
+					onClick={on90}
+				/>
+				<Rotation
+					disabled={!canPixelManipulate}
+					active={rotation === 180}
+					progress={0.5}
+					onClick={on180}
+				/>
+				<Rotation
+					disabled={!canPixelManipulate}
+					active={rotation === 270}
+					progress={0.75}
+					onClick={on270}
+				/>
+			</div>
+			{canPixelManipulate ? null : (
+				<div className="text-gray-700 text-sm">
+					Re-encode the video stream in order to apply rotation.
+				</div>
+			)}
 		</div>
 	);
 };

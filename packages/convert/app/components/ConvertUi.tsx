@@ -12,13 +12,13 @@ import {useCallback, useEffect, useRef, useState} from 'react';
 import {ConvertState, Source} from '~/lib/convert-state';
 import {isDroppingEverything, isReencoding} from '~/lib/is-reencoding';
 import {ConversionDone} from './ConversionDone';
-import {ConvertAdvancedSettings} from './ConvertAdvancedSettings';
 import {ConvertForm} from './ConvertForm';
 import {ConvertProgress, convertProgressRef} from './ConvertProgress';
 import {ConvertUiSection} from './ConvertUiSection';
 import {ErrorState} from './ErrorState';
 import {flipVideoFrame} from './flip-video';
 import {getDefaultContainerForConversion} from './guess-codec-from-source';
+import {MirrorComponents} from './MirrorComponents';
 import {RotateComponents} from './RotateComponents';
 import {useSupportedConfigs} from './use-supported-configs';
 
@@ -46,14 +46,16 @@ export default function ConvertUI({
 	const [audioConfigIndex, _setAudioConfigIndex] = useState<
 		Record<number, number>
 	>({});
-	const [showAdvanced, setShowAdvanced] = useState(false);
 	const [state, setState] = useState<ConvertState>({type: 'idle'});
 	const [name, setName] = useState<string | null>(null);
-	const [flipHorizontal, setFlipHorizontal] = useState(false);
+	const [flipHorizontal, setFlipHorizontal] = useState(true);
 	const [flipVertical, setFlipVertical] = useState(false);
 	const [enableConvert, setEnableConvert] = useState(true);
-	const [enableRotate, setEnableRotate] = useState(false);
-	const [enableMirror, setEnableMirror] = useState(false);
+	const [enableRotateOrMirrow, setEnableRotateOrMirror] = useState<
+		'rotate' | 'mirror' | null
+	>(null);
+
+	const [rotation, setRotation] = useState(90);
 
 	const supportedConfigs = useSupportedConfigs({container, tracks});
 
@@ -209,6 +211,24 @@ export default function ConvertUI({
 		};
 	}, []);
 
+	const onMirrorClick = useCallback(() => {
+		setEnableRotateOrMirror((m) => {
+			if (m !== 'mirror') {
+				return 'mirror';
+			}
+			return null;
+		});
+	}, []);
+
+	const onRotateClick = useCallback(() => {
+		setEnableRotateOrMirror((m) => {
+			if (m !== 'rotate') {
+				return 'rotate';
+			}
+			return null;
+		});
+	}, []);
+
 	if (state.type === 'error') {
 		return (
 			<>
@@ -305,20 +325,36 @@ export default function ConvertUI({
 				) : null}
 			</div>
 			<div className="h-4" />
-			<ConvertUiSection active={enableRotate} setActive={setEnableRotate}>
+			<ConvertUiSection
+				active={enableRotateOrMirrow === 'rotate'}
+				setActive={onRotateClick}
+			>
 				Rotate
 			</ConvertUiSection>
-			<RotateComponents />
-			<ConvertUiSection active={enableMirror} setActive={setEnableMirror}>
+			{enableRotateOrMirrow === 'rotate' ? (
+				<RotateComponents
+					canPixelManipulate={canPixelManipulate}
+					rotation={rotation}
+					setRotation={setRotation}
+				/>
+			) : null}
+			<div className="h-4" />
+			<ConvertUiSection
+				active={enableRotateOrMirrow === 'mirror'}
+				setActive={onMirrorClick}
+			>
 				Mirror
 			</ConvertUiSection>
-			<ConvertAdvancedSettings
-				canPixelManipulate={canPixelManipulate}
-				flipHorizontal={flipHorizontal}
-				flipVertical={flipVertical}
-				setFlipHorizontal={setFlipHorizontal}
-				setFlipVertical={setFlipVertical}
-			/>
+			{enableRotateOrMirrow === 'mirror' ? (
+				<MirrorComponents
+					canPixelManipulate={canPixelManipulate}
+					flipHorizontal={flipHorizontal}
+					flipVertical={flipVertical}
+					setFlipHorizontal={setFlipHorizontal}
+					setFlipVertical={setFlipVertical}
+				/>
+			) : null}
+			<div className="h-8" />
 			<Button
 				className="block w-full font-brand"
 				type="button"
