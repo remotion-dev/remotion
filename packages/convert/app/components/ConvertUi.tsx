@@ -1,5 +1,4 @@
 import {Button} from '@/components/ui/button';
-import {CardTitle} from '@/components/ui/card';
 import {
 	MediaParserAudioCodec,
 	MediaParserInternals,
@@ -13,12 +12,14 @@ import {useCallback, useEffect, useRef, useState} from 'react';
 import {ConvertState, Source} from '~/lib/convert-state';
 import {isDroppingEverything, isReencoding} from '~/lib/is-reencoding';
 import {ConversionDone} from './ConversionDone';
+import {ConvertAdvancedSettings} from './ConvertAdvancedSettings';
 import {ConvertForm} from './ConvertForm';
 import {ConvertProgress, convertProgressRef} from './ConvertProgress';
+import {ConvertUiSection} from './ConvertUiSection';
 import {ErrorState} from './ErrorState';
 import {flipVideoFrame} from './flip-video';
 import {getDefaultContainerForConversion} from './guess-codec-from-source';
-import {Badge} from './ui/badge';
+import {RotateComponents} from './RotateComponents';
 import {useSupportedConfigs} from './use-supported-configs';
 
 export default function ConvertUI({
@@ -45,10 +46,14 @@ export default function ConvertUI({
 	const [audioConfigIndex, _setAudioConfigIndex] = useState<
 		Record<number, number>
 	>({});
+	const [showAdvanced, setShowAdvanced] = useState(false);
 	const [state, setState] = useState<ConvertState>({type: 'idle'});
 	const [name, setName] = useState<string | null>(null);
 	const [flipHorizontal, setFlipHorizontal] = useState(false);
 	const [flipVertical, setFlipVertical] = useState(false);
+	const [enableConvert, setEnableConvert] = useState(true);
+	const [enableRotate, setEnableRotate] = useState(false);
+	const [enableMirror, setEnableMirror] = useState(false);
 
 	const supportedConfigs = useSupportedConfigs({container, tracks});
 
@@ -266,34 +271,54 @@ export default function ConvertUI({
 			videoConfigIndex,
 		});
 
+	const canPixelManipulate =
+		(supportedConfigs && isReencoding({supportedConfigs, videoConfigIndex})) ??
+		false;
+
 	return (
 		<>
 			<div className="w-full items-center">
-				<div className="flex flex-row">
-					<CardTitle>Convert video</CardTitle>
-					<div className="w-2" />
-					<Badge variant="default">Alpha</Badge>
-				</div>
-				<div className="h-6" />
-				<ConvertForm
-					{...{
-						container,
-						setContainer,
-						flipHorizontal,
-						flipVertical,
-						setFlipHorizontal,
-						setFlipVertical,
-						supportedConfigs,
-						audioConfigIndex,
-						videoConfigIndex,
-						setAudioConfigIndex,
-						setVideoConfigIndex,
-						currentAudioCodec,
-						currentVideoCodec,
-					}}
-				/>
+				<ConvertUiSection active={enableConvert} setActive={setEnableConvert}>
+					Convert
+				</ConvertUiSection>
+				{enableConvert ? (
+					<>
+						<div className="h-2" />
+						<ConvertForm
+							{...{
+								container,
+								setContainer,
+								flipHorizontal,
+								flipVertical,
+								setFlipHorizontal,
+								setFlipVertical,
+								supportedConfigs,
+								audioConfigIndex,
+								videoConfigIndex,
+								setAudioConfigIndex,
+								setVideoConfigIndex,
+								currentAudioCodec,
+								currentVideoCodec,
+							}}
+						/>
+					</>
+				) : null}
 			</div>
 			<div className="h-4" />
+			<ConvertUiSection active={enableRotate} setActive={setEnableRotate}>
+				Rotate
+			</ConvertUiSection>
+			<RotateComponents />
+			<ConvertUiSection active={enableMirror} setActive={setEnableMirror}>
+				Mirror
+			</ConvertUiSection>
+			<ConvertAdvancedSettings
+				canPixelManipulate={canPixelManipulate}
+				flipHorizontal={flipHorizontal}
+				flipVertical={flipVertical}
+				setFlipHorizontal={setFlipHorizontal}
+				setFlipVertical={setFlipVertical}
+			/>
 			<Button
 				className="block w-full font-brand"
 				type="button"

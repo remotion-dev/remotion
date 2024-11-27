@@ -24,6 +24,7 @@
 		"@remix-run/serve": "^2.11.2",
 		"@remotion/media-parser": "workspace:*",
 		"@remotion/webcodecs": "workspace:*",
+		"@remotion/shapes": "workspace:*",
 		"@vercel/remix": "^2.11.2",
 		"class-variance-authority": "^0.7.0",
 		"clsx": "2.1.1",

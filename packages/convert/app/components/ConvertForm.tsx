@@ -7,13 +7,11 @@ import {
 	getAvailableContainers,
 } from '@remotion/webcodecs';
 import React from 'react';
-import {isReencoding} from '~/lib/is-reencoding';
 import {renderHumanReadableContainer} from '~/lib/render-codec-label';
 import {AudioCodecSelection} from './AudioCodecSelection';
 import {SupportedConfigs} from './get-supported-configs';
 import {SelectionSkeleton} from './SelectionSkeleton';
 import {AudioTrackLabel, VideoTrackLabel} from './TrackSelectionLabels';
-import {Checkbox} from './ui/checkbox';
 import {Label} from './ui/label';
 import {
 	Select,
@@ -30,10 +28,6 @@ export const ConvertForm: React.FC<{
 	readonly setContainer: React.Dispatch<
 		React.SetStateAction<ConvertMediaContainer>
 	>;
-	readonly flipHorizontal: boolean;
-	readonly setFlipHorizontal: React.Dispatch<React.SetStateAction<boolean>>;
-	readonly flipVertical: boolean;
-	readonly setFlipVertical: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly supportedConfigs: SupportedConfigs | null;
 	readonly videoConfigIndex: Record<number, number>;
 	readonly audioConfigIndex: Record<number, number>;
@@ -44,10 +38,6 @@ export const ConvertForm: React.FC<{
 }> = ({
 	container,
 	setContainer,
-	flipHorizontal,
-	flipVertical,
-	setFlipHorizontal,
-	setFlipVertical,
 	supportedConfigs,
 	audioConfigIndex,
 	setAudioConfigIndex,
@@ -56,11 +46,6 @@ export const ConvertForm: React.FC<{
 	currentAudioCodec,
 	currentVideoCodec,
 }) => {
-	const [showAdvanced, setShowAdvanced] = React.useState(false);
-
-	const canPixelManipulate =
-		supportedConfigs && isReencoding({supportedConfigs, videoConfigIndex});
-
 	return (
 		<div className="gap-4 grid">
 			<div>
@@ -129,52 +114,6 @@ export const ConvertForm: React.FC<{
 			) : (
 				<SelectionSkeleton />
 			)}
-			{canPixelManipulate && showAdvanced ? (
-				<>
-					<div className="flex flex-row">
-						<Checkbox
-							checked={flipHorizontal}
-							id="flipHorizontal"
-							onCheckedChange={() => setFlipHorizontal((e) => !e)}
-						/>
-						<div className="w-2" />
-						<div className="grid gap-1.5 leading-none">
-							<label
-								htmlFor="flipHorizontal"
-								className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-							>
-								Flip video horizontally
-							</label>
-						</div>
-					</div>
-					<div className="flex flex-row">
-						<Checkbox
-							checked={flipVertical}
-							id="flipVertical"
-							onCheckedChange={() => setFlipVertical((e) => !e)}
-						/>
-						<div className="w-2" />
-						<div className="grid gap-1.5 leading-none">
-							<label
-								htmlFor="flipVertical"
-								className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-							>
-								Flip video vertically
-							</label>
-						</div>
-					</div>
-				</>
-			) : canPixelManipulate ? (
-				<div className="flex flex-row justify-center text-muted-foreground">
-					<button
-						type="button"
-						className="font-brand"
-						onClick={() => setShowAdvanced(true)}
-					>
-						Advanced settings
-					</button>
-				</div>
-			) : null}
 		</div>
 	);
 };
