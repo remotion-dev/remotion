@@ -96,8 +96,8 @@ export default function ConvertUI({
 			onVideoFrame: ({frame}) => {
 				const flipped = flipVideoFrame({
 					frame,
-					horizontal: flipHorizontal,
-					vertical: flipVertical,
+					horizontal: flipHorizontal && enableRotateOrMirrow === 'mirror',
+					vertical: flipVertical && enableRotateOrMirrow === 'mirror',
 				});
 				if (videoFrames % 15 === 0) {
 					convertProgressRef.current?.draw(flipped);
@@ -192,12 +192,14 @@ export default function ConvertUI({
 		};
 	}, [
 		src,
+		actualRotation,
 		container,
 		flipHorizontal,
 		flipVertical,
 		supportedConfigs,
 		audioConfigIndex,
 		videoConfigIndex,
+		enableRotateOrMirrow,
 	]);
 
 	const cancel = useCallback(() => {

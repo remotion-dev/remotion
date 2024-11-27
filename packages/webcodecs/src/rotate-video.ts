@@ -7,15 +7,14 @@ export const rotateVideo = ({
 	frame: VideoFrame;
 	rotation: number;
 }) => {
-	if (rotation % 360 === 0) {
+	const normalized = ((rotation % 360) + 360) % 360;
+	if (normalized % 360 === 0) {
 		return frame;
 	}
 
-	if (rotation % 90 !== 0) {
+	if (normalized % 90 !== 0) {
 		throw new Error('Only 90 degree rotations are supported');
 	}
-
-	const normalized = ((rotation % 360) + 360) % 360;
 
 	const {height, width} = calculateNewDimensionsFromDimensions({
 		height: frame.displayHeight,
