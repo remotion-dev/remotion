@@ -8,7 +8,7 @@ import {
 import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
 import {convertMedia, ConvertMediaContainer} from '@remotion/webcodecs';
-import {useCallback, useEffect, useRef, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {ConvertState, Source} from '~/lib/convert-state';
 import {isDroppingEverything, isReencoding} from '~/lib/is-reencoding';
 import {ConversionDone} from './ConversionDone';
@@ -57,6 +57,15 @@ export default function ConvertUI({
 
 	const [rotation, setRotation] = useState(90);
 
+	const actualRotation = useMemo(() => {
+		if (enableRotateOrMirrow !== 'mirror') {
+			// TODO: Native rotation
+			return 0;
+		}
+
+		return rotation;
+	}, [enableRotateOrMirrow, rotation]);
+
 	const supportedConfigs = useSupportedConfigs({container, tracks});
 
 	const setVideoConfigIndex = useCallback((trackId: number, i: number) => {
@@ -98,6 +107,7 @@ export default function ConvertUI({
 				return flipped;
 			},
 			logLevel: 'verbose',
+			rotate: actualRotation,
 			onProgress: (s) => {
 				setState({
 					type: 'in-progress',
