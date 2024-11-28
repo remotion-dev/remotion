@@ -47,6 +47,16 @@ pub struct ScalableFrame {
     pub transparent: bool,
 }
 
+fn get_native_colorspace(native_frame: &NotRgbFrame) -> color::Space {
+    match native_frame.colorspace {
+        color::Space::Unspecified => match native_frame.scaled_height {
+            height if height >= 720 => color::Space::BT709,
+            _ => color::Space::Unspecified,
+        },
+        _ => native_frame.colorspace,
+    }
+}
+
 impl ScalableFrame {
     pub fn new(native_frame: NotRgbFrame, transparent: bool) -> Self {
         Self {
@@ -220,12 +230,13 @@ pub fn scale_and_make_bitmap(
         Flags::BILINEAR,
     )?;
 
-    if native_frame.colorspace == color::Space::BT709
-        && native_frame.src_range == color::Range::MPEG
+    if get_native_colorspace(native_frame) == color::Space::BT709
+        && (native_frame.src_range == color::Range::MPEG
+            || native_frame.src_range == color::Range::Unspecified)
     {
         scaler.set_colorspace_details(
-            native_frame.colorspace,
-            native_frame.src_range,
+            get_native_colorspace(native_frame),
+            color::Range::MPEG,
             color::Range::JPEG,
             0,
             1 << 16,

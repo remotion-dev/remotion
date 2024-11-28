@@ -1,31 +1,31 @@
 import {getVideoMetadata} from '@remotion/media-utils';
-import {CalculateMetadataFunction, Loop, OffthreadVideo} from 'remotion';
-
-type Props = {
-	src: string;
-};
+import {
+	CalculateMetadataFunction,
+	Loop,
+	OffthreadVideo,
+	staticFile,
+} from 'remotion';
 
 const fps = 30;
+const src = staticFile('bigbuckbunny.mp4');
 
-export const calculateMetadataFn: CalculateMetadataFunction<Props> = async ({
-	props,
-}) => {
-	const {src} = props;
+export const calculateMetadataFn: CalculateMetadataFunction<
+	Record<string, unknown>
+> = async () => {
 	const {durationInSeconds, width, height} = await getVideoMetadata(src);
 
 	return {
 		durationInFrames: Math.round(durationInSeconds * fps),
 		fps,
-		width: width * 2,
+		width,
 		height,
 	};
 };
 
 export const LoopedOffthreadVideo: React.FC<{
 	durationInFrames: number;
-	src: string;
 	muted?: boolean;
-}> = ({durationInFrames, src}) => {
+}> = ({durationInFrames}) => {
 	if (durationInFrames <= 0) {
 		throw new Error('durationInFrames must be greater than 0');
 	}
@@ -37,8 +37,6 @@ export const LoopedOffthreadVideo: React.FC<{
 	);
 };
 
-export const OffthreadRemoteVideo: React.FC<{
-	src: string;
-}> = ({src}) => {
-	return <LoopedOffthreadVideo durationInFrames={100} src={src} />;
+export const OffthreadRemoteVideo: React.FC = () => {
+	return <LoopedOffthreadVideo durationInFrames={100} />;
 };
