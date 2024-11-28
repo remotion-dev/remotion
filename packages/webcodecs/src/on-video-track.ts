@@ -91,6 +91,14 @@ export const makeVideoTrackHandler =
 			};
 		}
 
+		if (videoOperation.type !== 'reencode') {
+			throw new Error(
+				`Video track with ID ${track.trackId} could not be resolved with a valid operation. Received ${JSON.stringify(
+					videoOperation,
+				)}, but must be either "copy", "reencode", "drop" or "fail"`,
+			);
+		}
+
 		const videoEncoderConfig = await getVideoEncoderConfig({
 			codec: videoOperation.videoCodec,
 			height: track.displayAspectHeight,
