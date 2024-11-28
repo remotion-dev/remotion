@@ -17,7 +17,7 @@ export const calculateMetadataFn: CalculateMetadataFunction<
 	return {
 		durationInFrames: Math.round(durationInSeconds * fps),
 		fps,
-		width: width * 2,
+		width,
 		height,
 	};
 };
