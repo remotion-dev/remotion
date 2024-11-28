@@ -56,9 +56,9 @@ export const parseDecoderSpecificConfig = (
 
 	let patchedBytes = bytes;
 
-	if (bytes[0] === 18 && bytes[1] === 16) {
+	if (bytes[0] === 18 && bytes[1] === 8) {
 		// riverside_use_cursor_.mp4
-		patchedBytes = new Uint8Array([18, 8]);
+		patchedBytes = new Uint8Array([18, 16]);
 		Log.warn(
 			logLevel,
 			'Chrome has a bug and might not be able to decode this audio. It will be fixed, see: https://issues.chromium.org/issues/360083330',
