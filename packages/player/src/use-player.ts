@@ -20,6 +20,7 @@ type UsePlayerMethods = {
 	isPlaying: () => boolean;
 	hasPlayed: boolean;
 	isBuffering: () => boolean;
+	toggle: (e?: SyntheticEvent | PointerEvent) => void;
 };
 
 export const usePlayer = (): UsePlayerMethods => {
@@ -181,6 +182,17 @@ export const usePlayer = (): UsePlayerMethods => {
 
 	const getCurrentFrame = useFrameImperative();
 
+	const toggle = useCallback(
+		(e?: SyntheticEvent | PointerEvent) => {
+			if (imperativePlaying.current) {
+				pause();
+			} else {
+				play(e);
+			}
+		},
+		[imperativePlaying, pause, play],
+	);
+
 	const returnValue: UsePlayerMethods = useMemo(() => {
 		return {
 			frameBack,
@@ -198,6 +210,7 @@ export const usePlayer = (): UsePlayerMethods => {
 			pauseAndReturnToPlayStart,
 			hasPlayed,
 			remotionInternal_currentFrameRef: frameRef,
+			toggle,
 		};
 	}, [
 		buffering,
@@ -214,6 +227,7 @@ export const usePlayer = (): UsePlayerMethods => {
 		play,
 		playing,
 		seek,
+		toggle,
 	]);
 
 	return returnValue;
