@@ -486,13 +486,16 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		});
 	}, [canvasSize, config, layout, overflowVisible, scale]);
 
+	const playerPause = player.pause;
+	const playerDispatchError = player.emitter.dispatchError;
+
 	const onError = useCallback(
 		(error: Error) => {
-			player.pause();
+			playerPause();
 			// Pay attention to `this context`
-			player.emitter.dispatchError(error);
+			playerDispatchError(error);
 		},
-		[player],
+		[playerDispatchError, playerPause],
 	);
 
 	const onFullscreenButtonClick: MouseEventHandler<HTMLButtonElement> =
