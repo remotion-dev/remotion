@@ -1,12 +1,11 @@
 import type {MouseEventHandler, ReactNode, SyntheticEvent} from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {Internals} from 'remotion';
 import {DefaultPlayPauseButton} from './DefaultPlayPauseButton.js';
 import type {RenderMuteButton} from './MediaVolumeSlider.js';
 import {MediaVolumeSlider} from './MediaVolumeSlider.js';
 import {PlaybackrateControl, playerButtonStyle} from './PlaybackrateControl.js';
 import {PlayerSeekBar} from './PlayerSeekBar.js';
-import {formatTime} from './format-time.js';
+import {PlayerTimeLabel} from './PlayerTimeLabel.js';
 import {FullscreenIcon} from './icons.js';
 import type {RenderVolumeSlider} from './render-volume-slider.js';
 import {useHoverState} from './use-hover-state.js';
@@ -150,7 +149,6 @@ export const Controls: React.FC<{
 	renderVolumeSlider,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
-	const frame = Internals.Timeline.useTimelinePosition();
 	const [supportsFullscreen, setSupportsFullscreen] = useState(false);
 	const hovered = useHoverState(
 		containerRef,
@@ -238,17 +236,6 @@ export const Controls: React.FC<{
 			clearInterval(timeout);
 		};
 	}, [shouldShowInitially]);
-
-	const timeLabel: React.CSSProperties = useMemo(() => {
-		return {
-			color: 'white',
-			fontFamily: 'sans-serif',
-			fontSize: 14,
-			maxWidth: maxTimeLabelWidth === null ? undefined : maxTimeLabelWidth,
-			overflow: 'hidden',
-			textOverflow: 'ellipsis',
-		};
-	}, [maxTimeLabelWidth]);
 
 	const playbackRates = useMemo(() => {
 		if (showPlaybackRateControl === true) {
@@ -346,9 +333,11 @@ export const Controls: React.FC<{
 						</>
 					) : null}
 					<div style={xSpacer} />
-					<div style={timeLabel}>
-						{formatTime(frame / fps)} / {formatTime(durationInFrames / fps)}
-					</div>
+					<PlayerTimeLabel
+						durationInFrames={durationInFrames}
+						fps={fps}
+						maxTimeLabelWidth={maxTimeLabelWidth}
+					/>
 					<div style={xSpacer} />
 				</div>
 				<div style={flex1} />
