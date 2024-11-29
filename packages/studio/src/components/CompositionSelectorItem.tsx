@@ -13,9 +13,10 @@ import {FilmIcon} from '../icons/video';
 import {ModalsContext} from '../state/modals';
 import {CompositionContextButton} from './CompositionContextButton';
 import {ContextMenu} from './ContextMenu';
+import {Row, Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
-import {Row, Spacing} from './layout';
+import {SidebarRenderButton} from './SidebarRenderButton';
 
 const COMPOSITION_ITEM_HEIGHT = 32;
 
@@ -303,6 +304,10 @@ export const CompositionSelectorItem: React.FC<{
 					<div style={label}>{item.composition.id}</div>
 					<Spacing x={0.5} />
 					<CompositionContextButton values={contextMenu} visible={hovered} />
+					<SidebarRenderButton
+						visible={hovered}
+						composition={item.composition}
+					/>
 				</a>
 			</Row>
 		</ContextMenu>
