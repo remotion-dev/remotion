@@ -106,6 +106,7 @@ const audioTags = [
 	'MAC6 ',
 	'ima4',
 	'fl32',
+	'lpcm',
 	'fl64',
 	'in24',
 	'in32',
@@ -278,7 +279,7 @@ export const processSample = async ({
 		}
 
 		if (version === 2) {
-			const numberOfChannels = iterator.getUint16();
+			iterator.getUint16(); // always 3
 			const sampleSize = iterator.getUint16();
 			const compressionId = iterator.getUint16();
 			const packetSize = iterator.getUint16();
@@ -286,9 +287,9 @@ export const processSample = async ({
 
 			iterator.getUint32(); // ignore
 			const higherSampleRate = iterator.getFloat64();
-			iterator.getUint32(); // ignore;
+			const numAudioChannel = iterator.getUint32(); // ignore;
 			iterator.getUint32(); // ignore, always 0x7F000000?
-			const bitsPerCodedSample = iterator.getUint32();
+			const bitsPerChannel = iterator.getUint32();
 			iterator.getUint32(); // ignore;
 			const bytesPerFrame = iterator.getUint32();
 			const samplesPerPacket = iterator.getUint32();
@@ -321,7 +322,7 @@ export const processSample = async ({
 					vendor: [...Array.from(new Uint8Array(vendor))],
 					size: boxSize,
 					type: 'audio',
-					numberOfChannels,
+					numberOfChannels: numAudioChannel,
 					sampleSize,
 					compressionId,
 					packetSize,
@@ -329,7 +330,7 @@ export const processSample = async ({
 					samplesPerPacket,
 					bytesPerPacket: null,
 					bytesPerFrame,
-					bitsPerSample: bitsPerCodedSample,
+					bitsPerSample: bitsPerChannel,
 					children: children.segments.boxes,
 				},
 			};
