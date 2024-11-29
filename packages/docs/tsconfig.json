@@ -49,5 +49,6 @@
 		{"path": "../renderer"},
 		{"path": "../transitions"},
 		{"path": "../cli"}
-	]
+	],
+	"exclude": ["copy-convert.ts"]
 }
