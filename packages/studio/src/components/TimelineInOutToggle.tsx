@@ -300,7 +300,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 			<ControlButton
 				title={getTooltipText('In', 'I')}
 				aria-label={getTooltipText('In', 'I')}
-				onClick={(e) => onInMark(e)}
+				onClick={onInMark}
 				onContextMenu={clearInMark}
 				disabled={!videoConfig || isFirstFrame}
 			>
