@@ -9,7 +9,6 @@ import {PlayerTimeLabel} from './PlayerTimeLabel.js';
 import {FullscreenIcon} from './icons.js';
 import type {RenderVolumeSlider} from './render-volume-slider.js';
 import {useHoverState} from './use-hover-state.js';
-import type {usePlayer} from './use-player.js';
 import {
 	X_PADDING,
 	useVideoControlsResize,
@@ -95,7 +94,6 @@ export const Controls: React.FC<{
 	readonly fps: number;
 	readonly durationInFrames: number;
 	readonly showVolumeControls: boolean;
-	readonly player: ReturnType<typeof usePlayer>;
 	readonly onFullscreenButtonClick: MouseEventHandler<HTMLButtonElement>;
 	readonly isFullscreen: boolean;
 	readonly allowFullscreen: boolean;
@@ -120,11 +118,12 @@ export const Controls: React.FC<{
 	readonly onDoubleClick: MouseEventHandler<HTMLDivElement> | undefined;
 	readonly renderMuteButton: RenderMuteButton | null;
 	readonly renderVolumeSlider: RenderVolumeSlider | null;
+	readonly playing: boolean;
+	readonly toggle: (e?: SyntheticEvent | PointerEvent) => void;
 }> = ({
 	durationInFrames,
 	isFullscreen,
 	fps,
-	player,
 	showVolumeControls,
 	onFullscreenButtonClick,
 	allowFullscreen,
@@ -147,6 +146,8 @@ export const Controls: React.FC<{
 	onDoubleClick,
 	renderMuteButton,
 	renderVolumeSlider,
+	playing,
+	toggle,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const [supportsFullscreen, setSupportsFullscreen] = useState(false);
@@ -195,12 +196,12 @@ export const Controls: React.FC<{
 	const containerCss: React.CSSProperties = useMemo(() => {
 		// Hide if playing and mouse outside
 		const shouldShow =
-			hovered || !player.playing || shouldShowInitially || alwaysShowControls;
+			hovered || !playing || shouldShowInitially || alwaysShowControls;
 		return {
 			...containerStyle,
 			opacity: Number(shouldShow),
 		};
-	}, [hovered, shouldShowInitially, player.playing, alwaysShowControls]);
+	}, [hovered, shouldShowInitially, playing, alwaysShowControls]);
 
 	useEffect(() => {
 		if (playButtonRef.current && spaceKeyToPlayOrPause) {
@@ -209,7 +210,7 @@ export const Controls: React.FC<{
 				preventScroll: true,
 			});
 		}
-	}, [player.playing, spaceKeyToPlayOrPause]);
+	}, [playing, spaceKeyToPlayOrPause]);
 
 	useEffect(() => {
 		// Must be handled client-side to avoid SSR hydration mismatch
@@ -301,23 +302,20 @@ export const Controls: React.FC<{
 						ref={playButtonRef}
 						type="button"
 						style={playerButtonStyle}
-						onClick={player.playing ? player.pause : player.play}
-						aria-label={player.playing ? 'Pause video' : 'Play video'}
-						title={player.playing ? 'Pause video' : 'Play video'}
+						onClick={toggle}
+						aria-label={playing ? 'Pause video' : 'Play video'}
+						title={playing ? 'Pause video' : 'Play video'}
 					>
 						{renderPlayPauseButton === null ? (
-							<DefaultPlayPauseButton
-								buffering={buffering}
-								playing={player.playing}
-							/>
+							<DefaultPlayPauseButton buffering={buffering} playing={playing} />
 						) : (
 							(renderPlayPauseButton({
-								playing: player.playing,
+								playing,
 								isBuffering: buffering,
 							}) ?? (
 								<DefaultPlayPauseButton
 									buffering={buffering}
-									playing={player.playing}
+									playing={playing}
 								/>
 							))
 						)}
