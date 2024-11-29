@@ -33,6 +33,8 @@ const getMissedFramesforCodec = async (
 			'--image-format',
 			'png',
 			'--sequence',
+			'--color-space',
+			'bt709',
 		],
 		{
 			cwd: path.join(process.cwd(), '..', 'example'),
