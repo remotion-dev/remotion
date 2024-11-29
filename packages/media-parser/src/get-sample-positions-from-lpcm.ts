@@ -38,21 +38,24 @@ export const getSamplePositionsFromLpcm = (
 
 	let timestamp = 0;
 
-	for (let i = 0; i < stscBox.entries.length; i++) {
-		const entry = stscBox.entries[i];
-		while (entry.firstChunk - 1 !== samples.length - 1) {
-			const chunk = samples.length;
-			samples.push({
-				chunk,
-				cts: timestamp,
-				dts: timestamp,
-				offset: Number(stcoBox.entries[chunk]),
-				size: stszBox.sampleSize * entry.samplesPerChunk,
-				duration: entry.samplesPerChunk,
-				isKeyframe: true,
-			});
-			timestamp += entry.samplesPerChunk;
+	for (let i = 0; i < stcoBox.entries.length; i++) {
+		const entry = stcoBox.entries[i];
+		const chunk = i + 1;
+		const stscEntry = stscBox.entries.findLast((e) => e.firstChunk <= chunk);
+		if (!stscEntry) {
+			throw new Error('should not be');
 		}
+
+		samples.push({
+			chunk,
+			cts: timestamp,
+			dts: timestamp,
+			offset: Number(entry),
+			size: stszBox.sampleSize * stscEntry.samplesPerChunk,
+			duration: stscEntry.samplesPerChunk,
+			isKeyframe: true,
+		});
+		timestamp += stscEntry.samplesPerChunk;
 	}
 
 	return samples;
