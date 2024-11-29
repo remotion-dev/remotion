@@ -155,6 +155,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	}, []);
 
 	const player = usePlayer();
+	const playerToggle = player.toggle;
 	usePlayback({
 		loop,
 		playbackRate,
@@ -201,13 +202,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	const toggle = useCallback(
 		(e?: SyntheticEvent | PointerEvent) => {
-			if (player.isPlaying()) {
-				player.pause();
-			} else {
-				player.play(e);
-			}
+			playerToggle(e);
 		},
-		[player],
+		[playerToggle],
 	);
 
 	const requestFullscreen = useCallback(() => {
