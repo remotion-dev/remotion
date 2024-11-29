@@ -229,6 +229,7 @@ export const Combobox: React.FC<{
 					: INPUT_BORDER_COLOR_UNHOVERED,
 		};
 	}, [customStyle, hovered, opened]);
+
 	return (
 		<>
 			<button
