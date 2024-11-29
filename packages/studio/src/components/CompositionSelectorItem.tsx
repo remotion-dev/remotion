@@ -12,6 +12,7 @@ import {StillIcon} from '../icons/still';
 import {FilmIcon} from '../icons/video';
 import {ModalsContext} from '../state/modals';
 import {CompositionContextButton} from './CompositionContextButton';
+import {ContextMenu} from './ContextMenu';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {Row, Spacing} from './layout';
@@ -273,35 +274,37 @@ export const CompositionSelectorItem: React.FC<{
 	}
 
 	return (
-		<Row align="center">
-			<a
-				style={style}
-				onPointerEnter={onPointerEnter}
-				onPointerLeave={onPointerLeave}
-				tabIndex={tabIndex}
-				onClick={onClick}
-				onKeyPress={onKeyPress}
-				type="button"
-				title={item.composition.id}
-				className="__remotion-composition"
-				data-compname={item.composition.id}
-			>
-				{isCompositionStill(item.composition) ? (
-					<StillIcon
-						color={hovered || selected ? 'white' : LIGHT_TEXT}
-						style={iconStyle}
-					/>
-				) : (
-					<FilmIcon
-						color={hovered || selected ? 'white' : LIGHT_TEXT}
-						style={iconStyle}
-					/>
-				)}
-				<Spacing x={1} />
-				<div style={label}>{item.composition.id}</div>
-				<Spacing x={0.5} />
-				<CompositionContextButton values={contextMenu} visible={hovered} />
-			</a>
-		</Row>
+		<ContextMenu values={contextMenu}>
+			<Row align="center">
+				<a
+					style={style}
+					onPointerEnter={onPointerEnter}
+					onPointerLeave={onPointerLeave}
+					tabIndex={tabIndex}
+					onClick={onClick}
+					onKeyPress={onKeyPress}
+					type="button"
+					title={item.composition.id}
+					className="__remotion-composition"
+					data-compname={item.composition.id}
+				>
+					{isCompositionStill(item.composition) ? (
+						<StillIcon
+							color={hovered || selected ? 'white' : LIGHT_TEXT}
+							style={iconStyle}
+						/>
+					) : (
+						<FilmIcon
+							color={hovered || selected ? 'white' : LIGHT_TEXT}
+							style={iconStyle}
+						/>
+					)}
+					<Spacing x={1} />
+					<div style={label}>{item.composition.id}</div>
+					<Spacing x={0.5} />
+					<CompositionContextButton values={contextMenu} visible={hovered} />
+				</a>
+			</Row>
+		</ContextMenu>
 	);
 };
