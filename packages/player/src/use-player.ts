@@ -199,7 +199,22 @@ export const usePlayer = (): UsePlayerMethods => {
 			hasPlayed,
 			remotionInternal_currentFrameRef: frameRef,
 		};
-	}, [playing]);
+	}, [
+		buffering,
+		emitter,
+		frameBack,
+		frameForward,
+		getCurrentFrame,
+		hasPlayed,
+		imperativePlaying,
+		isFirstFrame,
+		isLastFrame,
+		pause,
+		pauseAndReturnToPlayStart,
+		play,
+		playing,
+		seek,
+	]);
 
 	return returnValue;
 };
