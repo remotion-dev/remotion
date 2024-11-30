@@ -11,7 +11,7 @@
     "@remotion/google-fonts": "workspace:*",
     "@remotion/studio": "workspace:*",
     "@remotion/layout-utils": "workspace:*",
-    "codehike": "1.0.0-beta.2",
+    "codehike": "1.0.4",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "remotion": "workspace:*",

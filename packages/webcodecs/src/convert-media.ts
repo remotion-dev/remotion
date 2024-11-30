@@ -13,7 +13,11 @@ import type {
 	VideoTrack,
 	WriterInterface,
 } from '@remotion/media-parser';
-import {parseMedia, type OnVideoTrack} from '@remotion/media-parser';
+import {
+	MediaParserInternals,
+	parseMedia,
+	type OnVideoTrack,
+} from '@remotion/media-parser';
 
 import {autoSelectWriter} from './auto-select-writer';
 import {calculateProgress} from './calculate-progress';
@@ -28,7 +32,6 @@ import {makeVideoTrackHandler} from './on-video-track';
 import {type ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
 import {selectContainerCreator} from './select-container-creator';
 import {throttledStateUpdate} from './throttled-state-update';
-import {withResolversAndWaitForReturn} from './with-resolvers';
 
 export type ConvertMediaProgress = {
 	decodedVideoFrames: number;
@@ -109,7 +112,7 @@ export const convertMedia = async function <
 	}
 
 	const {resolve, reject, getPromiseToImmediatelyReturn} =
-		withResolversAndWaitForReturn<ConvertMediaResult>();
+		MediaParserInternals.withResolversAndWaitForReturn<ConvertMediaResult>();
 	const controller = new AbortController();
 
 	const abortConversion = (errCause: Error) => {
@@ -133,6 +136,8 @@ export const convertMedia = async function <
 		everyMilliseconds: progressIntervalInMs ?? 100,
 		signal: controller.signal,
 	});
+
+	const progressTracker = MediaParserInternals.makeProgressTracker();
 
 	const state = await creator({
 		filename: generateOutputFilename(src, container),
@@ -162,6 +167,7 @@ export const convertMedia = async function <
 			});
 		},
 		logLevel,
+		progressTracker,
 	});
 
 	const onVideoTrack: OnVideoTrack = makeVideoTrackHandler({
@@ -175,6 +181,7 @@ export const convertMedia = async function <
 		logLevel,
 		container,
 		rotate: rotate ?? 0,
+		progress: progressTracker,
 	});
 
 	const onAudioTrack: OnAudioTrack = makeAudioTrackHandler({
@@ -186,6 +193,7 @@ export const convertMedia = async function <
 		onAudioTrack: userAudioResolver ?? null,
 		logLevel,
 		container,
+		progressTracker,
 	});
 
 	parseMedia({

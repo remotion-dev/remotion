@@ -1,6 +1,4 @@
 import type {BufferIterator} from '../../../buffer-iterator';
-import type {LogLevel} from '../../../log';
-import {Log} from '../../../log';
 
 type UnknownDecoderSpecificConfig = {
 	type: 'unknown-decoder-specific-config';
@@ -20,7 +18,6 @@ export type DecoderSpecificConfig =
 
 export const parseDecoderSpecificConfig = (
 	iterator: BufferIterator,
-	logLevel: LogLevel,
 ): DecoderSpecificConfig => {
 	const layerTag = iterator.getUint8();
 	const layerSize = iterator.getPaddedFourByteNumber();
@@ -52,13 +49,6 @@ export const parseDecoderSpecificConfig = (
 	const read = iterator.counter.getOffset() - start;
 	if (read < layerSize) {
 		iterator.discard(layerSize - read);
-	}
-
-	if (bytes.byteLength === 2 && bytes[0] === 17 && bytes[1] === 136) {
-		Log.warn(
-			logLevel,
-			'Chrome has a bug and might not be able to decode this audio. It will be fixed, see: https://issues.chromium.org/issues/360083330',
-		);
 	}
 
 	return {

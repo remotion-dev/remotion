@@ -47,6 +47,9 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	delayRenderRetries,
 	delayRenderTimeoutInMilliseconds,
 	onVideoFrame,
+	// Remove crossOrigin prop during rendering
+	// https://discord.com/channels/809501355504959528/844143007183667220/1311639632496033813
+	crossOrigin,
 	...props
 }) => {
 	const absoluteFrame = useTimelinePosition();

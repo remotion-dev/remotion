@@ -1,4 +1,9 @@
-import type {LogLevel, MediaFn, OnAudioTrack} from '@remotion/media-parser';
+import type {
+	LogLevel,
+	MediaFn,
+	OnAudioTrack,
+	ProgressTracker,
+} from '@remotion/media-parser';
 import {createAudioDecoder} from './audio-decoder';
 import {getAudioDecoderConfig} from './audio-decoder-config';
 import {createAudioEncoder} from './audio-encoder';
@@ -22,6 +27,7 @@ export const makeAudioTrackHandler =
 		onAudioTrack,
 		logLevel,
 		container,
+		progressTracker,
 	}: {
 		state: MediaFn;
 		defaultAudioCodec: ConvertMediaAudioCodec | null;
@@ -31,6 +37,7 @@ export const makeAudioTrackHandler =
 		onAudioTrack: ConvertMediaOnAudioTrackHandler | null;
 		logLevel: LogLevel;
 		container: ConvertMediaContainer;
+		progressTracker: ProgressTracker;
 	}): OnAudioTrack =>
 	async (track) => {
 		const audioOperation = await (onAudioTrack ?? defaultOnAudioTrackHandler)({
@@ -87,12 +94,15 @@ export const makeAudioTrackHandler =
 			codec: audioOperation.audioCodec,
 			bitrate: audioOperation.bitrate,
 		});
-		const audioDecoderConfig = await getAudioDecoderConfig({
-			codec: track.codec,
-			numberOfChannels: track.numberOfChannels,
-			sampleRate: track.sampleRate,
-			description: track.description,
-		});
+		const audioDecoderConfig = await getAudioDecoderConfig(
+			{
+				codec: track.codec,
+				numberOfChannels: track.numberOfChannels,
+				sampleRate: track.sampleRate,
+				description: track.description,
+			},
+			logLevel,
+		);
 
 		if (!audioEncoderConfig) {
 			abortConversion(
@@ -164,6 +174,7 @@ export const makeAudioTrackHandler =
 			signal: controller.signal,
 			config: audioEncoderConfig,
 			logLevel,
+			progressTracker,
 		});
 
 		const audioDecoder = createAudioDecoder({
@@ -181,7 +192,7 @@ export const makeAudioTrackHandler =
 			onError(error) {
 				abortConversion(
 					new Error(
-						`Audio decoder of track ${track.trackId} failed (see .cause of this error)`,
+						`Audio decoder of track ${track.trackId} failed. Config: ${JSON.stringify(audioDecoderConfig)} (see .cause of this error)`,
 						{
 							cause: error,
 						},
@@ -191,6 +202,8 @@ export const makeAudioTrackHandler =
 			signal: controller.signal,
 			config: audioDecoderConfig,
 			logLevel,
+			track,
+			progressTracker,
 		});
 
 		state.addWaitForFinishPromise(async () => {

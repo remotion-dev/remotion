@@ -2,6 +2,7 @@ import type {LogLevel} from '../log';
 import type {AudioOrVideoSample} from '../webcodec-sample-types';
 import type {WriterInterface} from '../writers/writer';
 import type {MakeTrackAudio, MakeTrackVideo} from './make-track-info';
+import type {ProgressTracker} from './progress-tracker';
 
 export type MediaFn = {
 	save: () => Promise<Blob>;
@@ -32,4 +33,5 @@ export type MediaFnGeneratorInput = {
 	onMillisecondsProgress: (totalMilliseconds: number) => void;
 	logLevel: LogLevel;
 	filename: string;
+	progressTracker: ProgressTracker;
 };

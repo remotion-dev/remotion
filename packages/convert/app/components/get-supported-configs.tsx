@@ -1,4 +1,4 @@
-import {TracksField} from '@remotion/media-parser';
+import {LogLevel, TracksField} from '@remotion/media-parser';
 import {
 	AudioOperation,
 	canCopyAudioTrack,
@@ -30,10 +30,12 @@ export const getSupportedConfigs = async ({
 	tracks,
 	container,
 	bitrate,
+	logLevel,
 }: {
 	tracks: TracksField;
 	container: ConvertMediaContainer;
 	bitrate: number;
+	logLevel: LogLevel;
 }): Promise<SupportedConfigs> => {
 	const availableVideoCodecs = getAvailableVideoCodecs({container});
 
@@ -90,6 +92,7 @@ export const getSupportedConfigs = async ({
 				audioCodec,
 				track,
 				bitrate,
+				logLevel,
 			});
 
 			if (canReencode) {

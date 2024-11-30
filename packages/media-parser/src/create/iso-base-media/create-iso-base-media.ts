@@ -14,6 +14,7 @@ export const createIsoBaseMedia = async ({
 	onMillisecondsProgress,
 	logLevel,
 	filename,
+	progressTracker,
 }: MediaFnGeneratorInput): Promise<MediaFn> => {
 	const header = createIsoBaseMediaFtyp({
 		compatibleBrands: ['isom', 'iso2', 'avc1', 'mp42'],
@@ -112,6 +113,7 @@ export const createIsoBaseMedia = async ({
 		await w.write(chunk.data);
 		mdatSize += chunk.data.length;
 		onBytesProgress(w.getWrittenByteCount());
+		progressTracker.updateTrackProgress(trackNumber, chunk.timestamp);
 
 		if (codecPrivate) {
 			addCodecPrivateToTrack({trackNumber, codecPrivate});
@@ -168,6 +170,7 @@ export const createIsoBaseMedia = async ({
 		const trackNumber = currentTracks.length + 1;
 
 		currentTracks.push({...track, trackNumber});
+		progressTracker.registerTrack(trackNumber);
 
 		return Promise.resolve({trackNumber});
 	};

@@ -34,7 +34,9 @@ export const canFitInCluster = ({
 		timestampToClusterTimestamp(clusterStartTimestamp, timescale);
 
 	if (timecodeRelativeToCluster < 0) {
-		throw new Error(`timecodeRelativeToCluster is negative`);
+		throw new Error(
+			`timecodeRelativeToCluster is negative, tried to add ${chunk.timestamp} to ${clusterStartTimestamp}`,
+		);
 	}
 
 	return timecodeRelativeToCluster <= maxClusterTimestamp;

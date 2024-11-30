@@ -1,4 +1,4 @@
-import type {LogLevel} from '@remotion/media-parser';
+import type {LogLevel, ProgressTracker} from '@remotion/media-parser';
 import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import {getWaveAudioEncoder} from './wav-audio-encoder';
@@ -18,6 +18,7 @@ export type AudioEncoderInit = {
 	config: AudioEncoderConfig;
 	logLevel: LogLevel;
 	onNewAudioSampleRate: (sampleRate: number) => void;
+	progressTracker: ProgressTracker;
 };
 
 export const createAudioEncoder = ({
@@ -28,6 +29,7 @@ export const createAudioEncoder = ({
 	config: audioEncoderConfig,
 	logLevel,
 	onNewAudioSampleRate,
+	progressTracker,
 }: AudioEncoderInit): WebCodecsAudioEncoder => {
 	if (signal.aborted) {
 		throw new Error('Not creating audio encoder, already aborted');
@@ -37,7 +39,11 @@ export const createAudioEncoder = ({
 		return getWaveAudioEncoder({onChunk, signal});
 	}
 
-	const ioSynchronizer = makeIoSynchronizer(logLevel, 'Audio encoder');
+	const ioSynchronizer = makeIoSynchronizer({
+		logLevel,
+		label: 'Audio encoder',
+		progress: progressTracker,
+	});
 
 	let prom = Promise.resolve();
 
@@ -94,7 +100,11 @@ export const createAudioEncoder = ({
 			return;
 		}
 
-		await ioSynchronizer.waitFor({unemitted: 20, _unprocessed: 20});
+		await ioSynchronizer.waitFor({
+			unemitted: 20,
+			_unprocessed: 20,
+			minimumProgress: audioData.timestamp - 5_000_000,
+		});
 
 		// @ts-expect-error - can have changed in the meanwhile
 		if (encoder.state === 'closed') {

@@ -1,4 +1,9 @@
-import type {LogLevel, MediaFn, OnVideoTrack} from '@remotion/media-parser';
+import type {
+	LogLevel,
+	MediaFn,
+	OnVideoTrack,
+	ProgressTracker,
+} from '@remotion/media-parser';
 import {arrayBufferToUint8Array} from './arraybuffer-to-uint8-array';
 import {convertEncodedChunk} from './convert-encoded-chunk';
 import type {ConvertMediaOnVideoFrame} from './convert-media';
@@ -28,6 +33,7 @@ export const makeVideoTrackHandler =
 		logLevel,
 		container,
 		rotate,
+		progress,
 	}: {
 		state: MediaFn;
 		onVideoFrame: null | ConvertMediaOnVideoFrame;
@@ -39,6 +45,7 @@ export const makeVideoTrackHandler =
 		logLevel: LogLevel;
 		container: ConvertMediaContainer;
 		rotate: number;
+		progress: ProgressTracker;
 	}): OnVideoTrack =>
 	async (track) => {
 		if (controller.signal.aborted) {
@@ -92,6 +99,14 @@ export const makeVideoTrackHandler =
 					};
 				});
 			};
+		}
+
+		if (videoOperation.type !== 'reencode') {
+			throw new Error(
+				`Video track with ID ${track.trackId} could not be resolved with a valid operation. Received ${JSON.stringify(
+					videoOperation,
+				)}, but must be either "copy", "reencode", "drop" or "fail"`,
+			);
 		}
 
 		const rotation = videoOperation.rotation ?? rotate;
@@ -177,6 +192,7 @@ export const makeVideoTrackHandler =
 			config: videoEncoderConfig,
 			logLevel,
 			outputCodec: videoOperation.videoCodec,
+			progress,
 		});
 
 		const videoDecoder = createVideoDecoder({
@@ -203,6 +219,7 @@ export const makeVideoTrackHandler =
 			},
 			signal: controller.signal,
 			logLevel,
+			progress,
 		});
 
 		state.addWaitForFinishPromise(async () => {

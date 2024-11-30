@@ -223,7 +223,6 @@ export const rules = ({
 		'no-bitwise': 'off',
 		'no-lonely-if': 'error',
 		'no-multi-assign': 'error',
-		'no-negated-condition': 'error',
 		'no-new-object': 'error',
 		'no-unneeded-ternary': 'error',
 		// Disabled because of https://github.com/xojs/eslint-config-xo/issues/27

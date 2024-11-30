@@ -630,9 +630,6 @@ export const Index: React.FC = () => {
 					component={OffthreadRemoteVideo}
 					fps={30}
 					calculateMetadata={calculateMetadataFn}
-					defaultProps={{
-						src: staticFile('bigbuckbunny.mp4'),
-					}}
 				/>
 				<Composition
 					id="OffthreadVideoToCanvas"

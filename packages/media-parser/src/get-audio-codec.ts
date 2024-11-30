@@ -207,6 +207,10 @@ export const getAudioCodecFromTrak = (trak: TrakBox): AudioCodecInfo | null => {
 	return null;
 };
 
+export const isLpcmAudioCodec = (trak: TrakBox): boolean => {
+	return getAudioCodecFromTrak(trak)?.format === 'lpcm';
+};
+
 export const getAudioCodecFromIso = (moov: MoovBox) => {
 	const traks = getTraks(moov);
 	const trakBox = traks.find(
@@ -225,6 +229,13 @@ export const getAudioCodecStringFromTrak = (
 	const codec = getAudioCodecFromTrak(trak);
 	if (!codec) {
 		throw new Error('Expected codec');
+	}
+
+	if (codec.format === 'lpcm') {
+		return {
+			codecString: 'pcm-s16',
+			description: codec.description,
+		};
 	}
 
 	const codecStringWithoutMp3Exception = (
@@ -253,6 +264,10 @@ const getAudioCodecFromAudioCodecInfo = (
 	codec: AudioCodecInfo,
 ): MediaParserAudioCodec => {
 	if (codec.format === 'twos') {
+		return 'pcm-s16';
+	}
+
+	if (codec.format === 'lpcm') {
 		return 'pcm-s16';
 	}
 

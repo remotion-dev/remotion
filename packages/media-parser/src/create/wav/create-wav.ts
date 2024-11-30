@@ -24,6 +24,7 @@ export const createWav = async ({
 	onBytesProgress,
 	onMillisecondsProgress,
 	writer,
+	progressTracker,
 }: MediaFnGeneratorInput): Promise<MediaFn> => {
 	const w = await writer.createContent({filename, mimeType: 'audio/wav'});
 
@@ -123,6 +124,8 @@ export const createWav = async ({
 				addSample(chunk),
 			);
 
+			progressTracker.updateTrackProgress(trackNumber, chunk.timestamp);
+
 			return operationProm.current;
 		},
 		updateTrackSampleRate: () => {
@@ -155,6 +158,8 @@ export const createWav = async ({
 				numberOfChannels: track.numberOfChannels,
 			});
 			await updateBlockAlign(track.numberOfChannels);
+
+			progressTracker.registerTrack(1);
 
 			return Promise.resolve({trackNumber: 1});
 		},
