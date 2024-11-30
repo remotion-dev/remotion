@@ -32,6 +32,9 @@ export type RouteAction =
 	  }
 	| {
 			type: 'generic-convert';
+	  }
+	| {
+			type: 'generic-rotate';
 	  };
 
 export const getHeaderTitle = (routeAction: RouteAction) => {
@@ -43,19 +46,27 @@ export const getHeaderTitle = (routeAction: RouteAction) => {
 		return 'Fast video conversion in the browser';
 	}
 
-	throw new Error('Invalid route action');
+	if (routeAction.type === 'generic-rotate') {
+		return 'Fast video rotation in the browser';
+	}
+
+	throw new Error(`Invalid route action ${routeAction satisfies never}`);
 };
 
 export const getPageTitle = (routeAction: RouteAction) => {
 	if (routeAction.type === 'generic-convert') {
-		return 'Remotion Convert – Fast video conversion in the browser';
+		return 'Remotion Convert - Fast video conversion in the browser';
 	}
 
 	if (routeAction.type === 'convert') {
 		return `Online ${renderHumanReadableContainer(routeAction.input)} to ${renderHumanReadableContainer(routeAction.output)} converter - Remotion Convert`;
 	}
 
-	throw new Error('Invalid route action');
+	if (routeAction.type === 'generic-rotate') {
+		return 'Online video Rotation - Remotion Convert';
+	}
+
+	throw new Error(`Invalid route action ${routeAction satisfies never}`);
 };
 
 export const getDescription = (routeAction: RouteAction) => {
@@ -67,5 +78,25 @@ export const getDescription = (routeAction: RouteAction) => {
 		return `The fastest online ${renderHumanReadableContainer(routeAction.input)} to ${renderHumanReadableContainer(routeAction.output)} converter, powered by WebCodecs. No upload required, no watermarks, no limits.`;
 	}
 
-	throw new Error('Invalid route action');
+	if (routeAction.type === 'generic-rotate') {
+		return `The fastest online video rotator, powered by WebCodecs. No upload required, no watermarks, no limits.`;
+	}
+
+	throw new Error(`Invalid route action ${routeAction satisfies never}`);
+};
+
+export const makeSlug = (routeAction: RouteAction) => {
+	if (routeAction.type === 'convert') {
+		return `/convert/${routeAction.input}-to-${routeAction.output}`;
+	}
+
+	if (routeAction.type === 'generic-convert') {
+		return '/convert';
+	}
+
+	if (routeAction.type === 'generic-rotate') {
+		return '/rotate';
+	}
+
+	throw new Error(`Invalid route action ${routeAction satisfies never}`);
 };
