@@ -155,13 +155,14 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	}, []);
 
 	const player = usePlayer();
+	const playerToggle = player.toggle;
 	usePlayback({
 		loop,
 		playbackRate,
 		moveToBeginningWhenEnded,
 		inFrame,
 		outFrame,
-		frameRef: player.remotionInternal_currentFrameRef,
+		getCurrentFrame: player.getCurrentFrame,
 		browserMediaControlsBehavior,
 	});
 
@@ -201,13 +202,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	const toggle = useCallback(
 		(e?: SyntheticEvent | PointerEvent) => {
-			if (player.isPlaying()) {
-				player.pause();
-			} else {
-				player.play(e);
-			}
+			playerToggle(e);
 		},
-		[player],
+		[playerToggle],
 	);
 
 	const requestFullscreen = useCallback(() => {
@@ -489,13 +486,16 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		});
 	}, [canvasSize, config, layout, overflowVisible, scale]);
 
+	const playerPause = player.pause;
+	const playerDispatchError = player.emitter.dispatchError;
+
 	const onError = useCallback(
 		(error: Error) => {
-			player.pause();
+			playerPause();
 			// Pay attention to `this context`
-			player.emitter.dispatchError(error);
+			playerDispatchError(error);
 		},
-		[player],
+		[playerDispatchError, playerPause],
 	);
 
 	const onFullscreenButtonClick: MouseEventHandler<HTMLButtonElement> =
@@ -660,8 +660,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			{controls ? (
 				<Controls
 					fps={config.fps}
+					playing={player.playing}
+					toggle={player.toggle}
 					durationInFrames={config.durationInFrames}
-					player={player}
 					containerRef={container}
 					onFullscreenButtonClick={onFullscreenButtonClick}
 					isFullscreen={isFullscreen}

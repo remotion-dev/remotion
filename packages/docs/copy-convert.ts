@@ -4,6 +4,7 @@ import path from 'path';
 // @ts-ignore outside project
 import * as seo from '../convert/app/seo';
 
+// @ts-expect-error
 await $`bunx turbo "@remotion/convert#build-spa"`;
 
 const dir = path.join(__dirname, '../convert/spa-dist/client');

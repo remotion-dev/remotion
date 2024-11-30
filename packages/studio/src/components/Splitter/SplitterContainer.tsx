@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useMemo, useRef, useState} from 'react';
 import {useTimelineFlex} from '../../state/timeline';
 import type {
 	SplitterDragState,
@@ -35,36 +35,13 @@ export const SplitterContainer: React.FC<{
 		initialTimelineFlex ?? defaultFlex,
 	);
 
-	const [domRect, setDomRect] = useState<DOMRect | DOMRectReadOnly | null>(
-		null,
-	);
 	const ref = useRef<HTMLDivElement>(null);
 	const isDragging = useRef<SplitterDragState>(false);
-
-	const [resizeObserver] = useState(() => {
-		return new ResizeObserver((entries) => {
-			setDomRect(entries[0].contentRect);
-		});
-	});
-
-	useEffect(() => {
-		const {current} = ref;
-		if (!current) {
-			return;
-		}
-
-		resizeObserver.observe(current);
-		return () => resizeObserver.unobserve(current);
-	}, [resizeObserver]);
-
-	useEffect(() => {
-		setDomRect(ref.current?.getBoundingClientRect() ?? null);
-	}, []);
 
 	const value: TSplitterContext = useMemo(() => {
 		return {
 			flexValue,
-			domRect,
+			ref,
 			setFlexValue,
 			isDragging,
 			orientation,
@@ -76,13 +53,13 @@ export const SplitterContainer: React.FC<{
 		};
 	}, [
 		defaultFlex,
-		domRect,
 		flexValue,
 		id,
 		maxFlex,
 		minFlex,
 		orientation,
 		persistFlex,
+		ref,
 	]);
 
 	return (
