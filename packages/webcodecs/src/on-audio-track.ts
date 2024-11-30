@@ -191,6 +191,7 @@ export const makeAudioTrackHandler =
 			signal: controller.signal,
 			config: audioDecoderConfig,
 			logLevel,
+			track,
 		});
 
 		state.addWaitForFinishPromise(async () => {

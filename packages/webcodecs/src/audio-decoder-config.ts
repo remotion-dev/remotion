@@ -1,6 +1,10 @@
 export const getAudioDecoderConfig = async (
 	config: AudioDecoderConfig,
 ): Promise<AudioDecoderConfig | null> => {
+	if (config.codec === 'pcm-s16') {
+		return config;
+	}
+
 	if (typeof AudioDecoder === 'undefined') {
 		return null;
 	}
