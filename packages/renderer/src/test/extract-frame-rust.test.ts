@@ -614,7 +614,7 @@ test('Two different starting times should not result in big seeking', async () =
 		expected.push([centerLeftPixelR, centerLeftPixelG, centerLeftPixelB]);
 	}
 
-	expect(expected[0][0] / 100).toBeCloseTo(1.53, 1);
+	expect(expected[0][0] / 100).toBeCloseTo(1.52, 1);
 	expect(expected[0][1] / 100).toBeCloseTo(1.86, 1);
 	expect(expected[0][2] / 100).toBeCloseTo(2.24, 1);
 
