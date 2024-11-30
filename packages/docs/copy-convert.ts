@@ -4,6 +4,7 @@ import path from 'path';
 // @ts-ignore outside project
 import * as seo from '../convert/app/seo';
 
+// @ts-expect-error
 await $`bunx turbo "@remotion/convert#build-spa"`;
 
 const dir = path.join(__dirname, '../convert/spa-dist/client');
@@ -61,7 +62,10 @@ const getContentWithTitle = (title: string, description: string) => {
 
 writeFileSync(
 	path.join(__dirname, './build/convert/index.html'),
-	getContentWithTitle(seo.getPageTitle(null), seo.getDescription(null)),
+	getContentWithTitle(
+		seo.getPageTitle({type: 'generic-convert'}),
+		seo.getDescription({type: 'generic-convert'}),
+	),
 );
 
 for (const page of extraPages) {

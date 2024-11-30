@@ -3,7 +3,10 @@ import {getHeaderTitle, getPageTitle} from '~/seo';
 
 const Index = () => {
 	return (
-		<Main headerTitle={getHeaderTitle(null)} pageTitle={getPageTitle(null)} />
+		<Main
+			headerTitle={getHeaderTitle({type: 'generic-convert'})}
+			pageTitle={getPageTitle({type: 'generic-convert'})}
+		/>
 	);
 };
 
