@@ -11,7 +11,11 @@ import {webFileReader} from '@remotion/media-parser/web-file';
 import {convertMedia, ConvertMediaContainer} from '@remotion/webcodecs';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {ConvertState, Source} from '~/lib/convert-state';
-import {isConvertEnabledByDefault} from '~/lib/default-ui';
+import {
+	defaultRotateOrMirorState,
+	isConvertEnabledByDefault,
+	RotateOrMirrorState,
+} from '~/lib/default-ui';
 import {isDroppingEverything, isReencoding} from '~/lib/is-reencoding';
 import {RouteAction} from '~/seo';
 import {ConversionDone} from './ConversionDone';
@@ -60,9 +64,8 @@ export default function ConvertUI({
 	const [enableConvert, setEnableConvert] = useState(() =>
 		isConvertEnabledByDefault(action),
 	);
-	const [enableRotateOrMirrow, setEnableRotateOrMirror] = useState<
-		'rotate' | 'mirror' | null
-	>(null);
+	const [enableRotateOrMirrow, setEnableRotateOrMirror] =
+		useState<RotateOrMirrorState>(() => defaultRotateOrMirorState(action));
 
 	const [rotation, setRotation] = useState(90);
 
