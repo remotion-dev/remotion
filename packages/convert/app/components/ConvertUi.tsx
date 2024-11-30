@@ -1,5 +1,6 @@
 import {Button} from '@/components/ui/button';
 import {
+	LogLevel,
 	MediaParserAudioCodec,
 	MediaParserInternals,
 	MediaParserVideoCodec,
@@ -29,6 +30,7 @@ export default function ConvertUI({
 	tracks,
 	setSrc,
 	duration,
+	logLevel,
 }: {
 	readonly src: Source;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
@@ -36,6 +38,7 @@ export default function ConvertUI({
 	readonly currentVideoCodec: MediaParserVideoCodec | null;
 	readonly tracks: TracksField | null;
 	readonly duration: number | null;
+	readonly logLevel: LogLevel;
 }) {
 	const [container, setContainer] = useState<ConvertMediaContainer>(() =>
 		getDefaultContainerForConversion(src),
@@ -66,7 +69,7 @@ export default function ConvertUI({
 		return rotation;
 	}, [enableRotateOrMirrow, rotation]);
 
-	const supportedConfigs = useSupportedConfigs({container, tracks});
+	const supportedConfigs = useSupportedConfigs({container, tracks, logLevel});
 
 	const setVideoConfigIndex = useCallback((trackId: number, i: number) => {
 		_setVideoConfigIndex((prev) => ({
@@ -106,8 +109,8 @@ export default function ConvertUI({
 				videoFrames++;
 				return flipped;
 			},
-			logLevel: 'verbose',
 			rotate: actualRotation,
+			logLevel,
 			onProgress: (s) => {
 				setState({
 					type: 'in-progress',
@@ -200,6 +203,7 @@ export default function ConvertUI({
 		audioConfigIndex,
 		videoConfigIndex,
 		enableRotateOrMirrow,
+		logLevel,
 	]);
 
 	const cancel = useCallback(() => {

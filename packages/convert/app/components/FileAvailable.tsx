@@ -92,6 +92,7 @@ export const FileAvailable: React.FC<{
 									tracks={probeResult.tracks}
 									setSrc={setSrc}
 									duration={probeResult.durationInSeconds ?? null}
+									logLevel="verbose"
 								/>
 							</div>
 						</div>
