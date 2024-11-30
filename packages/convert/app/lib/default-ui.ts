@@ -39,3 +39,33 @@ export const isConvertEnabledByDefault = (action: RouteAction) => {
 		'Convert is not enabled by default ' + (action satisfies never),
 	);
 };
+
+export type ConvertSections = 'convert' | 'rotate' | 'mirror';
+
+export const getOrderOfSections = (
+	action: RouteAction,
+): {[key in ConvertSections]: number} => {
+	if (action.type === 'generic-rotate') {
+		return {
+			rotate: 0,
+			mirror: 1,
+			convert: 2,
+		};
+	}
+	if (action.type === 'convert') {
+		return {
+			convert: 0,
+			rotate: 1,
+			mirror: 2,
+		};
+	}
+	if (action.type === 'generic-convert') {
+		return {
+			convert: 0,
+			rotate: 1,
+			mirror: 2,
+		};
+	}
+
+	throw new Error(action satisfies never);
+};

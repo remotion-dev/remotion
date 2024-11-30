@@ -12,7 +12,9 @@ import {convertMedia, ConvertMediaContainer} from '@remotion/webcodecs';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {ConvertState, Source} from '~/lib/convert-state';
 import {
+	ConvertSections,
 	defaultRotateOrMirorState,
+	getOrderOfSections,
 	isConvertEnabledByDefault,
 	RotateOrMirrorState,
 } from '~/lib/default-ui';
@@ -66,6 +68,14 @@ export default function ConvertUI({
 	);
 	const [enableRotateOrMirrow, setEnableRotateOrMirror] =
 		useState<RotateOrMirrorState>(() => defaultRotateOrMirorState(action));
+
+	const order = useMemo(() => {
+		return Object.entries(getOrderOfSections(action))
+			.sort(([, aOrder], [, bOrder]) => {
+				return aOrder - bOrder;
+			})
+			.map(([section]) => section as ConvertSections);
+	}, [action]);
 
 	const [rotation, setRotation] = useState(90);
 
@@ -308,7 +318,7 @@ export default function ConvertUI({
 		);
 	}
 
-	const disableConvert =
+	const disableSubmit =
 		!supportedConfigs ||
 		isDroppingEverything({
 			audioConfigIndex,
@@ -322,69 +332,95 @@ export default function ConvertUI({
 
 	return (
 		<>
-			<div className="w-full items-center">
-				<ConvertUiSection active={enableConvert} setActive={setEnableConvert}>
-					Convert
-				</ConvertUiSection>
-				{enableConvert ? (
-					<>
-						<div className="h-2" />
-						<ConvertForm
-							{...{
-								container,
-								setContainer,
-								flipHorizontal,
-								flipVertical,
-								setFlipHorizontal,
-								setFlipVertical,
-								supportedConfigs,
-								audioConfigIndex,
-								videoConfigIndex,
-								setAudioConfigIndex,
-								setVideoConfigIndex,
-								currentAudioCodec,
-								currentVideoCodec,
-							}}
-						/>
-					</>
-				) : null}
+			<div className="w-full gap-4 flex flex-col">
+				{order.map((section) => {
+					if (section === 'convert') {
+						return (
+							<div>
+								<ConvertUiSection
+									active={enableConvert}
+									setActive={setEnableConvert}
+								>
+									Convert
+								</ConvertUiSection>
+								{enableConvert ? (
+									<>
+										<div className="h-2" />
+										<ConvertForm
+											{...{
+												container,
+												setContainer,
+												flipHorizontal,
+												flipVertical,
+												setFlipHorizontal,
+												setFlipVertical,
+												supportedConfigs,
+												audioConfigIndex,
+												videoConfigIndex,
+												setAudioConfigIndex,
+												setVideoConfigIndex,
+												currentAudioCodec,
+												currentVideoCodec,
+											}}
+										/>
+									</>
+								) : null}
+							</div>
+						);
+					}
+
+					if (section === 'mirror') {
+						return (
+							<>
+								<ConvertUiSection
+									active={enableRotateOrMirrow === 'mirror'}
+									setActive={onMirrorClick}
+								>
+									Mirror
+								</ConvertUiSection>
+								{enableRotateOrMirrow === 'mirror' ? (
+									<MirrorComponents
+										canPixelManipulate={canPixelManipulate}
+										flipHorizontal={flipHorizontal}
+										flipVertical={flipVertical}
+										setFlipHorizontal={setFlipHorizontal}
+										setFlipVertical={setFlipVertical}
+									/>
+								) : null}
+							</>
+						);
+					}
+
+					if (section === 'rotate') {
+						return (
+							<>
+								{' '}
+								<ConvertUiSection
+									active={enableRotateOrMirrow === 'rotate'}
+									setActive={onRotateClick}
+								>
+									Rotate
+								</ConvertUiSection>
+								{enableRotateOrMirrow === 'rotate' ? (
+									<RotateComponents
+										canPixelManipulate={canPixelManipulate}
+										rotation={rotation}
+										setRotation={setRotation}
+									/>
+								) : null}
+							</>
+						);
+					}
+
+					throw new Error('Unknown section');
+				})}
 			</div>
-			<div className="h-4" />
-			<ConvertUiSection
-				active={enableRotateOrMirrow === 'rotate'}
-				setActive={onRotateClick}
-			>
-				Rotate
-			</ConvertUiSection>
-			{enableRotateOrMirrow === 'rotate' ? (
-				<RotateComponents
-					canPixelManipulate={canPixelManipulate}
-					rotation={rotation}
-					setRotation={setRotation}
-				/>
-			) : null}
-			<div className="h-4" />
-			<ConvertUiSection
-				active={enableRotateOrMirrow === 'mirror'}
-				setActive={onMirrorClick}
-			>
-				Mirror
-			</ConvertUiSection>
-			{enableRotateOrMirrow === 'mirror' ? (
-				<MirrorComponents
-					canPixelManipulate={canPixelManipulate}
-					flipHorizontal={flipHorizontal}
-					flipVertical={flipVertical}
-					setFlipHorizontal={setFlipHorizontal}
-					setFlipVertical={setFlipVertical}
-				/>
-			) : null}
 			<div className="h-8" />
 			<Button
 				className="block w-full font-brand"
 				type="button"
 				variant="brand"
-				disabled={disableConvert}
+				disabled={disableSubmit}
 				onClick={onClick}
 			>
 				Convert
