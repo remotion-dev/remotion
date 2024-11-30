@@ -567,7 +567,6 @@ export const processBox = async ({
 			data: iterator,
 			size: boxSize,
 			fileOffset,
-			logLevel,
 		});
 
 		return {

@@ -1,5 +1,6 @@
 import {formatSeconds} from '~/lib/format-seconds';
 import {TestState} from '~/tests/test-structure';
+import {ErrorState} from '../ErrorState';
 
 export const TestStateDisplay: React.FC<{
 	testState: TestState;
@@ -13,8 +14,8 @@ export const TestStateDisplay: React.FC<{
 	}
 	if (testState.type === 'failed') {
 		return (
-			<div className="text-red-500 text-sm font-bold">
-				Failed: {testState.error.message}
+			<div className="text-red-500 text-sm font-bold overflow-x-auto">
+				<ErrorState error={testState.error} />
 			</div>
 		);
 	}

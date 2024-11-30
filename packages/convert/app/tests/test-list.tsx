@@ -7,11 +7,15 @@ import {
 } from './test-structure';
 
 export const runBigBuckBunny = (): TestStructure => {
+	const src =
+		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/riverside.mp4';
+
 	return addTestWatcher({
-		name: 'convert mp4 to webm',
+		name: 'convert mp4 to webm - patched audio bytes in chrome',
+		src,
 		async execute(onUpdate) {
 			await convertMedia({
-				src: 'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/riverside.mp4',
+				src,
 				container: 'webm',
 				audioCodec: 'opus',
 				videoCodec: 'vp8',
@@ -23,11 +27,14 @@ export const runBigBuckBunny = (): TestStructure => {
 };
 
 export const runBigBuckBunny2 = (): TestStructure => {
+	const src =
+		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/livephoto-lpcm-audio.mov';
 	return addTestWatcher({
 		name: 'Live Photo + LPCM audio codec',
+		src,
 		async execute(onUpdate) {
 			await convertMedia({
-				src: 'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/livephoto-lpcm-audio.mov',
+				src,
 				container: 'webm',
 				onAudioTrack: allowSafariAudioDrop,
 				onProgress: makeProgressReporter(onUpdate),

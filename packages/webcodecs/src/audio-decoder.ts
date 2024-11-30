@@ -120,7 +120,11 @@ export const createAudioDecoder = ({
 			return queue;
 		},
 		waitForFinish: async () => {
-			await audioDecoder.flush();
+			// Firefox might throw "Needs to be configured first"
+			try {
+				await audioDecoder.flush();
+			} catch {}
+
 			await queue;
 			await ioSynchronizer.waitForFinish();
 			await outputQueue;

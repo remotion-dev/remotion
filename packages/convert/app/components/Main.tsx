@@ -1,5 +1,5 @@
+import {useLocation} from '@remix-run/react';
 import React, {useEffect, useState} from 'react';
-import {SAMPLE_FILE, TEST_FAST} from '~/lib/config';
 import {Source} from '~/lib/convert-state';
 import {FileAvailable} from './FileAvailable';
 import {PickFile} from './PickFile';
@@ -8,8 +8,11 @@ export const Main: React.FC<{
 	readonly headerTitle: string;
 	readonly pageTitle: string;
 }> = ({headerTitle, pageTitle}) => {
+	const location = useLocation();
+	const [url] = useState(new URLSearchParams(location.search));
+
 	const [src, setSrc] = useState<Source | null>(
-		TEST_FAST ? {type: 'url', url: SAMPLE_FILE} : null,
+		url.has('url') ? {type: 'url', url: url.get('url') as string} : null,
 	);
 
 	useEffect(() => {

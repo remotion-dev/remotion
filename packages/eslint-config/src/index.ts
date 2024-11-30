@@ -319,7 +319,6 @@ const getRules = (typescript: boolean) => {
 		'no-array-constructor': 'error',
 		'no-lonely-if': 'error',
 		'no-multi-assign': 'error',
-		'no-negated-condition': 'error',
 		'no-new-object': 'error',
 		'no-restricted-syntax': ['error', 'WithStatement'],
 		'no-unneeded-ternary': 'error',

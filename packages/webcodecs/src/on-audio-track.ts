@@ -87,12 +87,15 @@ export const makeAudioTrackHandler =
 			codec: audioOperation.audioCodec,
 			bitrate: audioOperation.bitrate,
 		});
-		const audioDecoderConfig = await getAudioDecoderConfig({
-			codec: track.codec,
-			numberOfChannels: track.numberOfChannels,
-			sampleRate: track.sampleRate,
-			description: track.description,
-		});
+		const audioDecoderConfig = await getAudioDecoderConfig(
+			{
+				codec: track.codec,
+				numberOfChannels: track.numberOfChannels,
+				sampleRate: track.sampleRate,
+				description: track.description,
+			},
+			logLevel,
+		);
 
 		if (!audioEncoderConfig) {
 			abortConversion(
@@ -181,7 +184,7 @@ export const makeAudioTrackHandler =
 			onError(error) {
 				abortConversion(
 					new Error(
-						`Audio decoder of track ${track.trackId} failed (see .cause of this error)`,
+						`Audio decoder of track ${track.trackId} failed. Config: ${JSON.stringify(audioDecoderConfig)} (see .cause of this error)`,
 						{
 							cause: error,
 						},

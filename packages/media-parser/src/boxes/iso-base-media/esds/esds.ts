@@ -1,5 +1,4 @@
 import type {BufferIterator} from '../../../buffer-iterator';
-import type {LogLevel} from '../../../log';
 import type {Descriptor} from './esds-descriptors';
 import {parseDescriptors} from './esds-descriptors';
 
@@ -16,12 +15,10 @@ export const parseEsds = ({
 	data,
 	size,
 	fileOffset,
-	logLevel,
 }: {
 	data: BufferIterator;
 	size: number;
 	fileOffset: number;
-	logLevel: LogLevel;
 }): EsdsBox => {
 	const version = data.getUint8();
 	// Flags, we discard them
@@ -35,7 +32,7 @@ export const parseEsds = ({
 	data.discard(1);
 
 	const remaining = size - (data.counter.getOffset() - fileOffset);
-	const descriptors = parseDescriptors(data, remaining, logLevel);
+	const descriptors = parseDescriptors(data, remaining);
 
 	const remainingNow = size - (data.counter.getOffset() - fileOffset);
 

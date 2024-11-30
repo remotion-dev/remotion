@@ -19,7 +19,6 @@ test('Parse ESDS box', () => {
 			data: iter,
 			fileOffset: 8,
 			size: buf.length - 8,
-			logLevel: 'info',
 		}),
 	).toEqual({
 		type: 'esds-box',
@@ -63,7 +62,6 @@ test('Parse two ESDS', () => {
 			data: iter,
 			fileOffset: 8,
 			size: buf.length - 8,
-			logLevel: 'info',
 		}),
 	).toEqual({
 		type: 'esds-box',

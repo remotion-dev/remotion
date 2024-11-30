@@ -1,3 +1,4 @@
+import {Link} from '@remix-run/react';
 import React from 'react';
 import {TestStateDisplay} from '~/components/tests/TestStateDisplay';
 import {Button} from '~/components/ui/button';
@@ -19,6 +20,9 @@ export const TestComponent: React.FC<{
 				{state.type === 'not-run' ? (
 					<Button onClick={run}>Run test</Button>
 				) : null}
+				<Link to={`/convert?url=${encodeURIComponent(test.src)}`}>
+					Go to UI
+				</Link>
 			</div>
 		</div>
 	);

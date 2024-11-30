@@ -44,6 +44,7 @@ export type TestStructure = {
 	execute: (onUpdate: (up: TestState) => void) => Promise<void>;
 	run: () => Promise<void>;
 	watchState: (cb: (state: TestState) => void) => void;
+	src: string;
 };
 
 export const addTestWatcher = (
