@@ -1,13 +1,12 @@
 import {Main} from '~/components/Main';
-import {getHeaderTitle, getPageTitle} from '~/seo';
+import {RouteAction} from '~/seo';
+
+const action: RouteAction = {
+	type: 'generic-convert',
+};
 
 const Index = () => {
-	return (
-		<Main
-			headerTitle={getHeaderTitle({type: 'generic-convert'})}
-			pageTitle={getPageTitle({type: 'generic-convert'})}
-		/>
-	);
+	return <Main routeAction={action} />;
 };
 
 export default Index;

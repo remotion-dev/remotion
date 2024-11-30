@@ -11,7 +11,9 @@ import {webFileReader} from '@remotion/media-parser/web-file';
 import {convertMedia, ConvertMediaContainer} from '@remotion/webcodecs';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {ConvertState, Source} from '~/lib/convert-state';
+import {isConvertEnabledByDefault} from '~/lib/default-ui';
 import {isDroppingEverything, isReencoding} from '~/lib/is-reencoding';
+import {RouteAction} from '~/seo';
 import {ConversionDone} from './ConversionDone';
 import {ConvertForm} from './ConvertForm';
 import {ConvertProgress, convertProgressRef} from './ConvertProgress';
@@ -31,6 +33,7 @@ export default function ConvertUI({
 	setSrc,
 	duration,
 	logLevel,
+	action,
 }: {
 	readonly src: Source;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
@@ -39,6 +42,7 @@ export default function ConvertUI({
 	readonly tracks: TracksField | null;
 	readonly duration: number | null;
 	readonly logLevel: LogLevel;
+	readonly action: RouteAction;
 }) {
 	const [container, setContainer] = useState<ConvertMediaContainer>(() =>
 		getDefaultContainerForConversion(src),
@@ -53,7 +57,9 @@ export default function ConvertUI({
 	const [name, setName] = useState<string | null>(null);
 	const [flipHorizontal, setFlipHorizontal] = useState(true);
 	const [flipVertical, setFlipVertical] = useState(false);
-	const [enableConvert, setEnableConvert] = useState(true);
+	const [enableConvert, setEnableConvert] = useState(() =>
+		isConvertEnabledByDefault(action),
+	);
 	const [enableRotateOrMirrow, setEnableRotateOrMirror] = useState<
 		'rotate' | 'mirror' | null
 	>(null);

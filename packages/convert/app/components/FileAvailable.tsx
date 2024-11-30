@@ -2,6 +2,7 @@ import {ParseMediaOnProgress} from '@remotion/media-parser';
 import React, {useCallback, useRef, useState} from 'react';
 import {Source} from '~/lib/convert-state';
 import {formatBytes} from '~/lib/format-bytes';
+import {RouteAction} from '~/seo';
 import ConvertUI from './ConvertUi';
 import {Footer} from './Footer';
 import {Probe} from './Probe';
@@ -12,7 +13,8 @@ import {useProbe} from './use-probe';
 export const FileAvailable: React.FC<{
 	readonly src: Source;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
-}> = ({src, setSrc}) => {
+	readonly routeAction: RouteAction;
+}> = ({src, setSrc, routeAction}) => {
 	const [probeDetails, setProbeDetails] = useState(false);
 
 	const clear = useCallback(() => {
@@ -93,6 +95,7 @@ export const FileAvailable: React.FC<{
 									setSrc={setSrc}
 									duration={probeResult.durationInSeconds ?? null}
 									logLevel="verbose"
+									action={routeAction}
 								/>
 							</div>
 						</div>
