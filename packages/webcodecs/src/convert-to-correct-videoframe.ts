@@ -13,6 +13,11 @@ export const needsToCorrectVideoFrame = ({
 		return true;
 	}
 
+	// copy8f9178c2-e8ab-4538-9591-f8336602e49b-3mp4 - HDR videos
+	if ((videoFrame.format as string) === 'I420P10') {
+		return true;
+	}
+
 	return isFirefox() && videoFrame.format === 'BGRX' && outputCodec === 'h264';
 };
 
