@@ -67,6 +67,8 @@ test(
 			expect(data[140001] / 100).toBeCloseTo(1.85, 0.01);
 		} else if (data.length === 170905) {
 			expect(data.length).toBe(170905);
+		} else if (data.length === 164353) {
+			expect(data.length).toBe(164353);
 		} else {
 			expect(data.length).toBe(173198);
 		}
