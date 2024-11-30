@@ -14,15 +14,19 @@ export const TestComponent: React.FC<{
 			<div className="flex flex-row">
 				<div>
 					<div className="font-brand font-bold text-xl">{test.name}</div>
+					<Link
+						className="text-brand font-brand"
+						to={`/convert?url=${encodeURIComponent(test.src)}`}
+					>
+						Try in UI
+					</Link>
+
 					<TestStateDisplay testState={state} />
 				</div>
 				<div className="flex-1" />
 				{state.type === 'not-run' ? (
 					<Button onClick={run}>Run test</Button>
 				) : null}
-				<Link to={`/convert?url=${encodeURIComponent(test.src)}`}>
-					Go to UI
-				</Link>
 			</div>
 		</div>
 	);

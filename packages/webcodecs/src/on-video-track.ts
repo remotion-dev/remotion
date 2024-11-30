@@ -1,4 +1,9 @@
-import type {LogLevel, MediaFn, OnVideoTrack} from '@remotion/media-parser';
+import type {
+	LogLevel,
+	MediaFn,
+	OnVideoTrack,
+	ProgressTracker,
+} from '@remotion/media-parser';
 import {arrayBufferToUint8Array} from './arraybuffer-to-uint8-array';
 import {convertEncodedChunk} from './convert-encoded-chunk';
 import type {ConvertMediaOnVideoFrame} from './convert-media';
@@ -26,6 +31,7 @@ export const makeVideoTrackHandler =
 		onVideoTrack,
 		logLevel,
 		container,
+		progress,
 	}: {
 		state: MediaFn;
 		onVideoFrame: null | ConvertMediaOnVideoFrame;
@@ -36,6 +42,7 @@ export const makeVideoTrackHandler =
 		onVideoTrack: ConvertMediaOnVideoTrackHandler | null;
 		logLevel: LogLevel;
 		container: ConvertMediaContainer;
+		progress: ProgressTracker;
 	}): OnVideoTrack =>
 	async (track) => {
 		if (controller.signal.aborted) {
@@ -173,6 +180,7 @@ export const makeVideoTrackHandler =
 			config: videoEncoderConfig,
 			logLevel,
 			outputCodec: videoOperation.videoCodec,
+			progress,
 		});
 
 		const videoDecoder = createVideoDecoder({
@@ -198,6 +206,7 @@ export const makeVideoTrackHandler =
 			},
 			signal: controller.signal,
 			logLevel,
+			progress,
 		});
 
 		state.addWaitForFinishPromise(async () => {

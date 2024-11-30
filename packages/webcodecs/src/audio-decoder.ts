@@ -2,6 +2,7 @@ import type {
 	AudioOrVideoSample,
 	AudioTrack,
 	LogLevel,
+	ProgressTracker,
 } from '@remotion/media-parser';
 import {getWaveAudioDecoder} from './get-wave-audio-decoder';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
@@ -20,6 +21,7 @@ export type CreateAudioDecoderInit = {
 	config: AudioDecoderConfig;
 	logLevel: LogLevel;
 	track: AudioTrack;
+	progressTracker: ProgressTracker;
 };
 
 export const createAudioDecoder = ({
@@ -29,6 +31,7 @@ export const createAudioDecoder = ({
 	config,
 	logLevel,
 	track,
+	progressTracker,
 }: CreateAudioDecoderInit): WebCodecsAudioDecoder => {
 	if (signal.aborted) {
 		throw new Error('Not creating audio decoder, already aborted');
@@ -38,7 +41,11 @@ export const createAudioDecoder = ({
 		return getWaveAudioDecoder({onFrame, track});
 	}
 
-	const ioSynchronizer = makeIoSynchronizer(logLevel, 'Audio decoder');
+	const ioSynchronizer = makeIoSynchronizer({
+		logLevel,
+		label: 'Audio decoder',
+		progress: progressTracker,
+	});
 
 	let outputQueue = Promise.resolve();
 
@@ -97,7 +104,11 @@ export const createAudioDecoder = ({
 			return;
 		}
 
-		await ioSynchronizer.waitFor({unemitted: 100, _unprocessed: 2});
+		await ioSynchronizer.waitFor({
+			unemitted: 10,
+			_unprocessed: 2,
+			minimumProgress: audioSample.timestamp - 5_000_000,
+		});
 
 		// Don't flush, it messes up the audio
 

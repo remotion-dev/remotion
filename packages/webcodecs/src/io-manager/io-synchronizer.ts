@@ -1,10 +1,18 @@
+import type {ProgressTracker} from '@remotion/media-parser';
+import {MediaParserInternals} from '@remotion/media-parser';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
-import {withResolvers} from '../with-resolvers';
-import {IoEventEmitter} from './event-emitter';
 
-export const makeIoSynchronizer = (logLevel: LogLevel, label: string) => {
-	const eventEmitter = new IoEventEmitter();
+export const makeIoSynchronizer = ({
+	logLevel,
+	label,
+	progress,
+}: {
+	logLevel: LogLevel;
+	label: string;
+	progress: ProgressTracker;
+}) => {
+	const eventEmitter = new MediaParserInternals.IoEventEmitter();
 
 	let lastInput = 0;
 	let lastInputKeyframe = 0;
@@ -68,7 +76,7 @@ export const makeIoSynchronizer = (logLevel: LogLevel, label: string) => {
 	};
 
 	const waitForOutput = () => {
-		const {promise, resolve} = withResolvers<void>();
+		const {promise, resolve} = MediaParserInternals.withResolvers<void>();
 		const on = () => {
 			eventEmitter.removeEventListener('output', on);
 			resolve();
@@ -79,7 +87,7 @@ export const makeIoSynchronizer = (logLevel: LogLevel, label: string) => {
 	};
 
 	const waitForProcessed = () => {
-		const {promise, resolve} = withResolvers<void>();
+		const {promise, resolve} = MediaParserInternals.withResolvers<void>();
 		const on = () => {
 			eventEmitter.removeEventListener('processed', on);
 			resolve();
@@ -92,26 +100,35 @@ export const makeIoSynchronizer = (logLevel: LogLevel, label: string) => {
 	const waitFor = async ({
 		_unprocessed,
 		unemitted,
+		minimumProgress,
 	}: {
 		unemitted: number;
 		_unprocessed: number;
+		minimumProgress: number | null;
 	}) => {
 		await Promise.all([
-			async () => {
+			(async () => {
 				while (getUnemittedItems() > unemitted) {
 					await waitForOutput();
 				}
-			},
-			async () => {
+			})(),
+			(async () => {
 				while (getUnprocessed() > _unprocessed) {
 					await waitForProcessed();
 				}
-			},
+			})(),
+			minimumProgress === null
+				? Promise.resolve()
+				: (async () => {
+						while (progress.getSmallestProgress() < minimumProgress) {
+							await progress.waitForProgress();
+						}
+					})(),
 		]);
 	};
 
 	const waitForFinish = async () => {
-		await waitFor({_unprocessed: 0, unemitted: 0});
+		await waitFor({_unprocessed: 0, unemitted: 0, minimumProgress: null});
 	};
 
 	const onProcessed = () => {

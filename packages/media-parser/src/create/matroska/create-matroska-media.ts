@@ -25,6 +25,7 @@ export const createMatroskaMedia = async ({
 	onMillisecondsProgress,
 	filename,
 	logLevel,
+	progressTracker,
 }: MediaFnGeneratorInput): Promise<MediaFn> => {
 	const header = makeMatroskaHeader();
 
@@ -121,29 +122,18 @@ export const createMatroskaMedia = async ({
 		byte: clusterOffset - seekHeadOffset,
 	});
 
-	const trackNumberProgresses: Record<number, number> = {};
-
 	const getClusterOrMakeNew = async ({
 		chunk,
 		isVideo,
-		trackNumber,
 	}: {
 		chunk: AudioOrVideoSample;
 		isVideo: boolean;
-		trackNumber: number;
 	}) => {
-		const trackProgressValues = Object.values(trackNumberProgresses);
-		const smallestProgress =
-			trackProgressValues.length === 0 ? 0 : Math.min(...trackProgressValues);
-
 		// In Safari, samples can arrive out of order, e.g public/bigbuckbunny.mp4
 		// Therefore, only updating track number progress if it is a keyframe
 		// to allow for timestamps to be lower than the previous one
 
-		// Also doing this AFTER smallestProgress is calculated
-		if (chunk.type === 'key') {
-			trackNumberProgresses[trackNumber] = chunk.timestamp;
-		}
+		const smallestProgress = progressTracker.getSmallestProgress();
 
 		if (
 			!currentCluster.shouldMakeNewCluster({
@@ -182,7 +172,6 @@ export const createMatroskaMedia = async ({
 		const {cluster, isNew, smallestProgress} = await getClusterOrMakeNew({
 			chunk,
 			isVideo,
-			trackNumber,
 		});
 
 		const newDuration = Math.round(
@@ -206,6 +195,10 @@ export const createMatroskaMedia = async ({
 			});
 		}
 
+		if (chunk.type === 'key') {
+			progressTracker.updateTrackProgress(trackNumber, chunk.timestamp);
+		}
+
 		onBytesProgress(w.getWrittenByteCount());
 		onMillisecondsProgress(newDuration);
 	};
@@ -213,6 +206,7 @@ export const createMatroskaMedia = async ({
 	const addTrack = async (track: MakeTrackVideo | MakeTrackAudio) => {
 		currentTracks.push(track);
 		const newTracks = makeMatroskaTracks(currentTracks);
+		progressTracker.registerTrack(track.trackNumber);
 
 		await w.updateDataAt(
 			tracksOffset,

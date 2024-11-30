@@ -6,12 +6,30 @@ import {
 	TestStructure,
 } from './test-structure';
 
-export const runBigBuckBunny = (): TestStructure => {
+export const basicMp4ToWebM = (): TestStructure => {
+	const src =
+		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/bigbuckbunny.mp4';
+
+	return addTestWatcher({
+		name: 'Basic MP4 to WebM',
+		src,
+		async execute(onUpdate) {
+			await convertMedia({
+				src,
+				container: 'webm',
+				onAudioTrack: allowSafariAudioDrop,
+				onProgress: makeProgressReporter(onUpdate),
+			});
+		},
+	});
+};
+
+export const weirdMp4aConfig = (): TestStructure => {
 	const src =
 		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/riverside.mp4';
 
 	return addTestWatcher({
-		name: 'convert mp4 to webm - patched audio bytes in chrome',
+		name: 'weird mp4a config',
 		src,
 		async execute(onUpdate) {
 			await convertMedia({
@@ -26,7 +44,7 @@ export const runBigBuckBunny = (): TestStructure => {
 	});
 };
 
-export const runBigBuckBunny2 = (): TestStructure => {
+export const lpcmLivePhoto = (): TestStructure => {
 	const src =
 		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/livephoto-lpcm-audio.mov';
 	return addTestWatcher({
@@ -42,3 +60,9 @@ export const runBigBuckBunny2 = (): TestStructure => {
 		},
 	});
 };
+
+export const testList: TestStructure[] = [
+	basicMp4ToWebM(),
+	weirdMp4aConfig(),
+	lpcmLivePhoto(),
+];

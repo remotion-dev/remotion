@@ -1,4 +1,9 @@
-import type {LogLevel, MediaFn, OnAudioTrack} from '@remotion/media-parser';
+import type {
+	LogLevel,
+	MediaFn,
+	OnAudioTrack,
+	ProgressTracker,
+} from '@remotion/media-parser';
 import {createAudioDecoder} from './audio-decoder';
 import {getAudioDecoderConfig} from './audio-decoder-config';
 import {createAudioEncoder} from './audio-encoder';
@@ -22,6 +27,7 @@ export const makeAudioTrackHandler =
 		onAudioTrack,
 		logLevel,
 		container,
+		progressTracker,
 	}: {
 		state: MediaFn;
 		defaultAudioCodec: ConvertMediaAudioCodec | null;
@@ -31,6 +37,7 @@ export const makeAudioTrackHandler =
 		onAudioTrack: ConvertMediaOnAudioTrackHandler | null;
 		logLevel: LogLevel;
 		container: ConvertMediaContainer;
+		progressTracker: ProgressTracker;
 	}): OnAudioTrack =>
 	async (track) => {
 		const audioOperation = await (onAudioTrack ?? defaultOnAudioTrackHandler)({
@@ -167,6 +174,7 @@ export const makeAudioTrackHandler =
 			signal: controller.signal,
 			config: audioEncoderConfig,
 			logLevel,
+			progressTracker,
 		});
 
 		const audioDecoder = createAudioDecoder({
@@ -195,6 +203,7 @@ export const makeAudioTrackHandler =
 			config: audioDecoderConfig,
 			logLevel,
 			track,
+			progressTracker,
 		});
 
 		state.addWaitForFinishPromise(async () => {
