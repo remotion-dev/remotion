@@ -3,6 +3,7 @@ import {useCallback, useContext, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context.js';
 import type {PlayerEmitter} from './event-emitter.js';
+import {useFrameImperative} from './use-frame-imperative.js';
 
 type UsePlayerMethods = {
 	frameBack: (frames: number) => void;
@@ -19,10 +20,7 @@ type UsePlayerMethods = {
 	isPlaying: () => boolean;
 	hasPlayed: boolean;
 	isBuffering: () => boolean;
-	/**
-	 * @deprecated Remotion internal API
-	 */
-	remotionInternal_currentFrameRef: React.MutableRefObject<number>;
+	toggle: (e?: SyntheticEvent | PointerEvent) => void;
 };
 
 export const usePlayer = (): UsePlayerMethods => {
@@ -182,6 +180,19 @@ export const usePlayer = (): UsePlayerMethods => {
 		[videoId, imperativePlaying, lastFrame, setFrame],
 	);
 
+	const getCurrentFrame = useFrameImperative();
+
+	const toggle = useCallback(
+		(e?: SyntheticEvent | PointerEvent) => {
+			if (imperativePlaying.current) {
+				pause();
+			} else {
+				play(e);
+			}
+		},
+		[imperativePlaying, pause, play],
+	);
+
 	const returnValue: UsePlayerMethods = useMemo(() => {
 		return {
 			frameBack,
@@ -193,27 +204,30 @@ export const usePlayer = (): UsePlayerMethods => {
 			pause,
 			seek,
 			isFirstFrame,
-			getCurrentFrame: () => frameRef.current,
+			getCurrentFrame,
 			isPlaying: () => imperativePlaying.current,
 			isBuffering: () => buffering.current,
 			pauseAndReturnToPlayStart,
 			hasPlayed,
 			remotionInternal_currentFrameRef: frameRef,
+			toggle,
 		};
 	}, [
+		buffering,
+		emitter,
 		frameBack,
 		frameForward,
-		isLastFrame,
-		emitter,
-		playing,
-		play,
-		pause,
-		seek,
-		isFirstFrame,
-		pauseAndReturnToPlayStart,
+		getCurrentFrame,
 		hasPlayed,
 		imperativePlaying,
-		buffering,
+		isFirstFrame,
+		isLastFrame,
+		pause,
+		pauseAndReturnToPlayStart,
+		play,
+		playing,
+		seek,
+		toggle,
 	]);
 
 	return returnValue;
