@@ -1,6 +1,6 @@
 import React from 'react';
 import {RunAll} from '~/components/tests/RunAll';
-import {runBigBuckBunny, runBigBuckBunny2} from '~/tests/big-buck-bunny';
+import {runBigBuckBunny, runBigBuckBunny2} from '~/tests/test-list';
 import {TestStructure} from '~/tests/test-structure';
 import {TestComponent} from '~/tests/TestComponent';
 
