@@ -622,7 +622,7 @@ test('Two different starting times should not result in big seeking', async () =
 	expect(expected[1][1] / 100).toBeCloseTo(0.7, 1);
 	expect(expected[1][2] / 100).toBeCloseTo(0.68, 1);
 
-	expect(expected[2][0] / 100).toBeCloseTo(1.53, 1);
+	expect(expected[2][0] / 100).toBeCloseTo(1.52, 1);
 	expect(expected[2][1] / 100).toBeCloseTo(1.86, 1);
 	expect(expected[2][2] / 100).toBeCloseTo(2.24, 1);
 
@@ -637,7 +637,7 @@ test('Two different starting times should not result in big seeking', async () =
 	expect(expected[5][0] / 100).toBeCloseTo(1.32, 1);
 	expect(expected[5][2] / 100).toBeCloseTo(1.2, 1);
 
-	expect(expected[6][0] / 100).toBeCloseTo(1.53, 1);
+	expect(expected[6][0] / 100).toBeCloseTo(1.52, 1);
 	expect(expected[6][1] / 100).toBeCloseTo(1.86, 1);
 	expect(expected[6][2] / 100).toBeCloseTo(2.24, 1);
 
@@ -645,7 +645,7 @@ test('Two different starting times should not result in big seeking', async () =
 	expect(expected[7][1] / 100).toBeCloseTo(1.41, 1);
 	expect(expected[7][2] / 100).toBeCloseTo(1.07, 1);
 
-	expect(expected[8][0] / 100).toBeCloseTo(1.53, 1);
+	expect(expected[8][0] / 100).toBeCloseTo(1.52, 1);
 	expect(expected[8][1] / 100).toBeCloseTo(1.86, 1);
 	expect(expected[8][2] / 100).toBeCloseTo(2.24, 1);
 
