@@ -1,4 +1,9 @@
-import type {AudioOrVideoSample, LogLevel} from '@remotion/media-parser';
+import type {
+	AudioOrVideoSample,
+	AudioTrack,
+	LogLevel,
+} from '@remotion/media-parser';
+import {getWaveAudioDecoder} from './get-wave-audio-decoder';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 
 export type WebCodecsAudioDecoder = {
@@ -8,21 +13,29 @@ export type WebCodecsAudioDecoder = {
 	flush: () => Promise<void>;
 };
 
+export type CreateAudioDecoderInit = {
+	onFrame: (frame: AudioData) => Promise<void>;
+	onError: (error: DOMException) => void;
+	signal: AbortSignal;
+	config: AudioDecoderConfig;
+	logLevel: LogLevel;
+	track: AudioTrack;
+};
+
 export const createAudioDecoder = ({
 	onFrame,
 	onError,
 	signal,
 	config,
 	logLevel,
-}: {
-	onFrame: (frame: AudioData) => Promise<void>;
-	onError: (error: DOMException) => void;
-	signal: AbortSignal;
-	config: AudioDecoderConfig;
-	logLevel: LogLevel;
-}): WebCodecsAudioDecoder => {
+	track,
+}: CreateAudioDecoderInit): WebCodecsAudioDecoder => {
 	if (signal.aborted) {
 		throw new Error('Not creating audio decoder, already aborted');
+	}
+
+	if (config.codec === 'pcm-s16') {
+		return getWaveAudioDecoder({onFrame, track});
 	}
 
 	const ioSynchronizer = makeIoSynchronizer(logLevel, 'Audio decoder');
