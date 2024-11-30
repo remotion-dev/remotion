@@ -2,6 +2,18 @@ import React, {createContext} from 'react';
 import {getRemotionEnvironment} from './get-remotion-environment';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 
+type Size = {
+	width: number;
+	height: number;
+	left: number;
+	top: number;
+	windowSize: {
+		width: number;
+		height: number;
+	};
+	refresh: () => void;
+};
+
 export type CurrentScaleContextType =
 	| {
 			type: 'scale';
@@ -9,10 +21,7 @@ export type CurrentScaleContextType =
 	  }
 	| {
 			type: 'canvas-size';
-			canvasSize: {
-				width: number;
-				height: number;
-			};
+			canvasSize: Size;
 	  };
 
 export const CurrentScaleContext =
