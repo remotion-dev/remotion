@@ -170,6 +170,7 @@ export const createIsoBaseMedia = async ({
 		const trackNumber = currentTracks.length + 1;
 
 		currentTracks.push({...track, trackNumber});
+		progressTracker.registerTrack(trackNumber);
 
 		return Promise.resolve({trackNumber});
 	};

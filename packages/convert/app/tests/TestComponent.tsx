@@ -13,15 +13,18 @@ export const TestComponent: React.FC<{
 		<div className="border-black rounded border-2 p-4 bg-white">
 			<div className="flex flex-row">
 				<div>
-					<div className="font-brand font-bold text-xl">{test.name}</div>
-					<Link
-						className="text-brand font-brand"
-						to={`/convert?url=${encodeURIComponent(test.src)}`}
-					>
-						Try in UI
-					</Link>
-
-					<TestStateDisplay testState={state} />
+					<div className="font-brand font-bold text-xl">
+						{test.name}{' '}
+						<Link
+							className="text-brand font-brand text-sm font-medium"
+							to={`/convert?url=${encodeURIComponent(test.src)}`}
+						>
+							Try in UI
+						</Link>
+					</div>
+					<div className="w-full overflow-x-auto">
+						<TestStateDisplay testState={state} />
+					</div>
 				</div>
 				<div className="flex-1" />
 				{state.type === 'not-run' ? (

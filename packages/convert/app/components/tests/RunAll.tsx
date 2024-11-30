@@ -12,7 +12,8 @@ export const RunAll: React.FC<{
 	}, [tests]);
 
 	return (
-		<div className="flex flex-row">
+		<div className="flex flex-row items-center justify-center font-bold font-brand">
+			<div className="text-2xl">@remotion/webcodecs Tests</div>
 			<div className="flex-1" />
 			<Button onClick={runTests}>Run all</Button>
 		</div>

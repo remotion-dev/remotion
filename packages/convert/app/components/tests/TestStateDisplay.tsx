@@ -14,7 +14,7 @@ export const TestStateDisplay: React.FC<{
 	}
 	if (testState.type === 'failed') {
 		return (
-			<div className="text-red-500 text-sm font-bold overflow-x-auto">
+			<div className="text-red-500 text-sm w-full font-bold overflow-x-hidden">
 				<ErrorState error={testState.error} />
 			</div>
 		);
