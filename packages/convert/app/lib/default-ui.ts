@@ -17,6 +17,10 @@ export const defaultRotateOrMirorState = (
 		return 'rotate';
 	}
 
+	if (action.type === 'rotate-format') {
+		return 'rotate';
+	}
+
 	throw new Error(
 		'Rotate is not enabled by default ' + (action satisfies never),
 	);
@@ -35,6 +39,10 @@ export const isConvertEnabledByDefault = (action: RouteAction) => {
 		return false;
 	}
 
+	if (action.type === 'rotate-format') {
+		return false;
+	}
+
 	throw new Error(
 		'Convert is not enabled by default ' + (action satisfies never),
 	);
@@ -45,7 +53,7 @@ export type ConvertSections = 'convert' | 'rotate' | 'mirror';
 export const getOrderOfSections = (
 	action: RouteAction,
 ): {[key in ConvertSections]: number} => {
-	if (action.type === 'generic-rotate') {
+	if (action.type === 'generic-rotate' || action.type === 'rotate-format') {
 		return {
 			rotate: 0,
 			mirror: 1,

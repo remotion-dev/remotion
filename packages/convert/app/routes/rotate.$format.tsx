@@ -1,20 +1,18 @@
 import {useParams} from '@remix-run/react';
+import {ConvertMediaContainer} from '@remotion/webcodecs';
 import {useMemo} from 'react';
 import {Main} from '~/components/Main';
-import {parseConvertRouteAction, RouteAction} from '~/seo';
+import {RouteAction} from '~/seo';
 
 const Index = () => {
-	const action = useParams().action as string;
+	const format = useParams().format as ConvertMediaContainer;
 
 	const routeAction: RouteAction = useMemo(() => {
-		const {input, output} = parseConvertRouteAction(action);
-
 		return {
-			type: 'convert',
-			input,
-			output,
+			type: 'rotate-format',
+			format,
 		};
-	}, [action]);
+	}, [format]);
 
 	return <Main routeAction={routeAction} />;
 };

@@ -8,7 +8,7 @@ import {renderHumanReadableContainer} from './lib/render-codec-label';
 export const inputContainers: ParseMediaContainer[] = ['mp4', 'webm', 'avi'];
 export const outputContainers = getAvailableContainers();
 
-export const parseRouteAction = (action: string) => {
+export const parseConvertRouteAction = (action: string) => {
 	const split = action.split('-to-');
 	if (split.length !== 2) {
 		throw new Error('Invalid action');
@@ -35,6 +35,10 @@ export type RouteAction =
 	  }
 	| {
 			type: 'generic-rotate';
+	  }
+	| {
+			type: 'rotate-format';
+			format: ConvertMediaContainer;
 	  };
 
 export const getHeaderTitle = (routeAction: RouteAction) => {
@@ -48,6 +52,10 @@ export const getHeaderTitle = (routeAction: RouteAction) => {
 
 	if (routeAction.type === 'generic-rotate') {
 		return 'Fast video rotation in the browser';
+	}
+
+	if (routeAction.type === 'rotate-format') {
+		return `Fast ${renderHumanReadableContainer(routeAction.format)} rotation in the browser`;
 	}
 
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);
@@ -66,6 +74,10 @@ export const getPageTitle = (routeAction: RouteAction) => {
 		return 'Online video Rotation - Remotion Convert';
 	}
 
+	if (routeAction.type === 'rotate-format') {
+		return `Online ${renderHumanReadableContainer(routeAction.format)} Rotator - Remotion Convert`;
+	}
+
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);
 };
 
@@ -82,6 +94,12 @@ export const getDescription = (routeAction: RouteAction) => {
 		return `The fastest online video rotator, powered by WebCodecs. No upload required, no watermarks, no limits.`;
 	}
 
+	if (routeAction.type === 'rotate-format') {
+		return `The fastest online ${renderHumanReadableContainer(
+			routeAction.format,
+		)} rotator, powered by WebCodecs. No upload required, no watermarks, no limits.`;
+	}
+
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);
 };
 
@@ -96,6 +114,10 @@ export const makeSlug = (routeAction: RouteAction) => {
 
 	if (routeAction.type === 'generic-rotate') {
 		return '/rotate';
+	}
+
+	if (routeAction.type === 'rotate-format') {
+		return `/rotate/${routeAction.format}`;
 	}
 
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);

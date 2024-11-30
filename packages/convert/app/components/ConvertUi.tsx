@@ -80,7 +80,7 @@ export default function ConvertUI({
 	const [rotation, setRotation] = useState(90);
 
 	const actualRotation = useMemo(() => {
-		if (enableRotateOrMirrow !== 'mirror') {
+		if (enableRotateOrMirrow !== 'rotate') {
 			// TODO: Native rotation
 			return 0;
 		}
