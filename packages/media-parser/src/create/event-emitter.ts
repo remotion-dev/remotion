@@ -9,10 +9,15 @@ type Output = {
 
 type Processed = {};
 
+type Progress = {
+	smallestProgress: number;
+};
+
 type IoEventMap = {
 	input: Input;
 	output: Output;
 	processed: Processed;
+	progress: Progress;
 };
 
 export type IoEventTypes = keyof IoEventMap;
@@ -30,6 +35,7 @@ export class IoEventEmitter {
 		input: [],
 		output: [],
 		processed: [],
+		progress: [],
 	};
 
 	addEventListener<Q extends IoEventTypes>(

@@ -1,4 +1,8 @@
-import type {AudioOrVideoSample, LogLevel} from '@remotion/media-parser';
+import type {
+	AudioOrVideoSample,
+	LogLevel,
+	ProgressTracker,
+} from '@remotion/media-parser';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import {Log} from './log';
 
@@ -15,14 +19,20 @@ export const createVideoDecoder = ({
 	signal,
 	config,
 	logLevel,
+	progress,
 }: {
 	onFrame: (frame: VideoFrame) => Promise<void>;
 	onError: (error: DOMException) => void;
 	signal: AbortSignal;
 	config: VideoDecoderConfig;
 	logLevel: LogLevel;
+	progress: ProgressTracker;
 }): WebCodecsVideoDecoder => {
-	const ioSynchronizer = makeIoSynchronizer(logLevel, 'Video decoder');
+	const ioSynchronizer = makeIoSynchronizer({
+		logLevel,
+		label: 'Video decoder',
+		progress,
+	});
 	let outputQueue = Promise.resolve();
 
 	const videoDecoder = new VideoDecoder({
@@ -86,7 +96,11 @@ export const createVideoDecoder = ({
 			return;
 		}
 
-		await ioSynchronizer.waitFor({unemitted: 20, _unprocessed: 2});
+		await ioSynchronizer.waitFor({
+			unemitted: 20,
+			_unprocessed: 2,
+			minimumProgress: sample.timestamp - 5_000_000,
+		});
 
 		if (sample.type === 'key') {
 			await videoDecoder.flush();

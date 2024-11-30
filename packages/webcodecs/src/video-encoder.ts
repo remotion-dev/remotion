@@ -1,4 +1,4 @@
-import type {LogLevel} from '@remotion/media-parser';
+import type {LogLevel, ProgressTracker} from '@remotion/media-parser';
 import {convertToCorrectVideoFrame} from './convert-to-correct-videoframe';
 import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
@@ -18,6 +18,7 @@ export const createVideoEncoder = ({
 	config,
 	logLevel,
 	outputCodec,
+	progress,
 }: {
 	onChunk: (
 		chunk: EncodedVideoChunk,
@@ -28,12 +29,17 @@ export const createVideoEncoder = ({
 	config: VideoEncoderConfig;
 	logLevel: LogLevel;
 	outputCodec: ConvertMediaVideoCodec;
+	progress: ProgressTracker;
 }): WebCodecsVideoEncoder => {
 	if (signal.aborted) {
 		throw new Error('Not creating video encoder, already aborted');
 	}
 
-	const ioSynchronizer = makeIoSynchronizer(logLevel, 'Video encoder');
+	const ioSynchronizer = makeIoSynchronizer({
+		logLevel,
+		label: 'Video encoder',
+		progress,
+	});
 
 	let outputQueue = Promise.resolve();
 
@@ -94,6 +100,7 @@ export const createVideoEncoder = ({
 			// Firefox stalls if too few frames are passed
 			unemitted: 10,
 			_unprocessed: 10,
+			minimumProgress: frame.timestamp - 5_000_000,
 		});
 
 		// @ts-expect-error - can have changed in the meanwhile

@@ -1,5 +1,4 @@
 import type {BufferIterator} from '../../../buffer-iterator';
-import type {LogLevel} from '../../../log';
 import type {DecoderSpecificConfig} from './decoder-specific-config';
 import {parseDecoderSpecificConfig} from './decoder-specific-config';
 
@@ -51,10 +50,8 @@ type DescriptorAndNext = {
 
 export const processDescriptor = ({
 	iterator,
-	logLevel,
 }: {
 	iterator: BufferIterator;
-	logLevel: LogLevel;
 }): DescriptorAndNext => {
 	const tag = iterator.getUint8();
 
@@ -76,10 +73,7 @@ export const processDescriptor = ({
 		const decoderSpecificConfigs: DecoderSpecificConfig[] = [];
 
 		while (size - (iterator.counter.getOffset() - initialOffset) > 0) {
-			const decoderSpecificConfig = parseDecoderSpecificConfig(
-				iterator,
-				logLevel,
-			);
+			const decoderSpecificConfig = parseDecoderSpecificConfig(iterator);
 			decoderSpecificConfigs.push(decoderSpecificConfig);
 		}
 
@@ -117,7 +111,6 @@ export const processDescriptor = ({
 export const parseDescriptors = (
 	iterator: BufferIterator,
 	maxBytes: number,
-	logLevel: LogLevel,
 ): Descriptor[] => {
 	const descriptors: Descriptor[] = [];
 	const initialOffset = iterator.counter.getOffset();
@@ -128,7 +121,6 @@ export const parseDescriptors = (
 	) {
 		const {descriptor} = processDescriptor({
 			iterator,
-			logLevel,
 		});
 
 		if (descriptor) {
