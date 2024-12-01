@@ -24,7 +24,7 @@ import {
 const extractToTempAudioFile = (fileToTranscribe, tempOutFile) => {
   // Extracting audio from mp4 and save it as 16khz wav file
   execSync(
-    `npx remotion ffmpeg -i ${fileToTranscribe} -ar 16000 ${tempOutFile} -y`,
+    `npx remotion ffmpeg -i "${fileToTranscribe}" -ar 16000 "${tempOutFile}" -y`,
     { stdio: ["ignore", "inherit"] },
   );
 };
