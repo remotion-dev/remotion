@@ -19,7 +19,8 @@ const filterData = (audioBuffer: Float32Array, samples: number) => {
 };
 
 const normalizeData = (filteredData: number[]) => {
-	const multiplier = Math.max(...filteredData) ** -1;
+	const max = Math.max(...filteredData);
+	const multiplier = max === 0 ? 0 : max ** -1;
 	return filteredData.map((n) => n * multiplier);
 };
 
