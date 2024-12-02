@@ -39,6 +39,13 @@ export type RouteAction =
 	| {
 			type: 'rotate-format';
 			format: ConvertMediaContainer;
+	  }
+	| {
+			type: 'generic-mirror';
+	  }
+	| {
+			type: 'mirror-format';
+			format: ConvertMediaContainer;
 	  };
 
 export const getHeaderTitle = (routeAction: RouteAction) => {
@@ -58,6 +65,14 @@ export const getHeaderTitle = (routeAction: RouteAction) => {
 		return `Fast ${renderHumanReadableContainer(routeAction.format)} rotation in the browser`;
 	}
 
+	if (routeAction.type === 'generic-mirror') {
+		return 'Fast video mirroring in the browser';
+	}
+
+	if (routeAction.type === 'mirror-format') {
+		return `Fast ${renderHumanReadableContainer(routeAction.format)} mirroring in the browser`;
+	}
+
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);
 };
 
@@ -74,8 +89,16 @@ export const getPageTitle = (routeAction: RouteAction) => {
 		return 'Online video Rotation - Remotion Convert';
 	}
 
+	if (routeAction.type === 'generic-mirror') {
+		return 'Online video Mirrorer - Remotion Convert';
+	}
+
 	if (routeAction.type === 'rotate-format') {
 		return `Online ${renderHumanReadableContainer(routeAction.format)} Rotator - Remotion Convert`;
+	}
+
+	if (routeAction.type === 'mirror-format') {
+		return `Online ${renderHumanReadableContainer(routeAction.format)} Mirrorer - Remotion Convert`;
 	}
 
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);
@@ -94,7 +117,17 @@ export const getDescription = (routeAction: RouteAction) => {
 		return `The fastest online video rotator, powered by WebCodecs. No upload required, no watermarks, no limits.`;
 	}
 
+	if (routeAction.type === 'generic-mirror') {
+		return `The fastest online video mirrorer, powered by WebCodecs. No upload required, no watermarks, no limits.`;
+	}
+
 	if (routeAction.type === 'rotate-format') {
+		return `The fastest online ${renderHumanReadableContainer(
+			routeAction.format,
+		)} rotator, powered by WebCodecs. No upload required, no watermarks, no limits.`;
+	}
+
+	if (routeAction.type === 'mirror-format') {
 		return `The fastest online ${renderHumanReadableContainer(
 			routeAction.format,
 		)} rotator, powered by WebCodecs. No upload required, no watermarks, no limits.`;
@@ -118,6 +151,14 @@ export const makeSlug = (routeAction: RouteAction) => {
 
 	if (routeAction.type === 'rotate-format') {
 		return `/rotate/${routeAction.format}`;
+	}
+
+	if (routeAction.type === 'mirror-format') {
+		return `/mirror/${routeAction.format}`;
+	}
+
+	if (routeAction.type === 'generic-mirror') {
+		return `/mirror`;
 	}
 
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);
