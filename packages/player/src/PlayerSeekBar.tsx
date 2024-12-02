@@ -184,11 +184,11 @@ export const PlayerSeekBar: React.FC<{
 		return {
 			height: BAR_HEIGHT,
 			backgroundColor: 'rgba(255, 255, 255, 1)',
-			width: ((frame - (inFrame ?? 0)) / (durationInFrames - 1)) * 100 + '%',
-			marginLeft: ((inFrame ?? 0) / (durationInFrames - 1)) * 100 + '%',
+			width: ((frame - (inFrame ?? 0)) / (durationInFrames - 1)) * width,
+			marginLeft: ((inFrame ?? 0) / (durationInFrames - 1)) * width,
 			borderRadius: BAR_HEIGHT / 2,
 		};
-	}, [durationInFrames, frame, inFrame]);
+	}, [durationInFrames, frame, inFrame, width]);
 
 	const active: React.CSSProperties = useMemo(() => {
 		return {
