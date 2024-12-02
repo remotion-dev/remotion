@@ -4,6 +4,7 @@ import type {Dimensions} from './get-dimensions';
 import {getDimensions} from './get-dimensions';
 import {getDuration} from './get-duration';
 import {getFps} from './get-fps';
+import {getIsHdr} from './get-is-hdr';
 import {getTracks} from './get-tracks';
 import {getVideoCodec} from './get-video-codec';
 import type {
@@ -196,6 +197,16 @@ export const emitAvailableInfo = ({
 			if (returnValue.name === undefined && hasInfo.name) {
 				moreFields.onName?.(name);
 				returnValue.name = name;
+			}
+
+			continue;
+		}
+
+		if (key === 'isHdr') {
+			if (returnValue.isHdr === undefined && hasInfo.isHdr && parseResult) {
+				const isHdr = getIsHdr(parseResult.segments, state);
+				moreFields.onIsHdr?.(isHdr);
+				returnValue.isHdr = isHdr;
 			}
 
 			continue;

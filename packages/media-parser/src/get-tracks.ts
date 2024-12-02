@@ -27,7 +27,6 @@ export type VideoTrackColorParams = {
 		| 'bt709'
 		| 'smpte170m'
 		| 'iec61966-2-1'
-		| 'bt2020'
 		| 'arib-std-b67'
 		| null;
 	matrixCoefficients:

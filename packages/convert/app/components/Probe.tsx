@@ -31,6 +31,7 @@ export const Probe: React.FC<{
 		size,
 		videoCodec,
 		durationInSeconds,
+		isHdr,
 		done,
 		error,
 	} = probeResult;
@@ -113,6 +114,7 @@ export const Probe: React.FC<{
 								durationInSeconds={durationInSeconds}
 								audioCodec={audioCodec}
 								fps={fps}
+								isHdr={isHdr}
 							/>
 						) : selectedTrack.type === 'video' ? (
 							<VideoTrackOverview track={selectedTrack} />

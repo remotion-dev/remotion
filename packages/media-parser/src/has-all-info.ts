@@ -3,9 +3,10 @@ import {hasContainer} from './get-container';
 import {hasDimensions} from './get-dimensions';
 import {hasDuration} from './get-duration';
 import {hasFps} from './get-fps';
+import {hasHdr} from './get-is-hdr';
 import {hasTracks} from './get-tracks';
 import {hasVideoCodec} from './get-video-codec';
-import type {Options, ParseMediaFields} from './options';
+import type {AllParseMediaFields, Options, ParseMediaFields} from './options';
 import type {ParseResult, Structure} from './parse-result';
 import type {ParserState} from './parser-state';
 
@@ -19,7 +20,8 @@ export const getAvailableInfo = (
 		boolean,
 	][];
 
-	const infos = keys.map(([key]) => {
+	const infos = keys.map(([_key]) => {
+		const key = _key as keyof Options<AllParseMediaFields>;
 		if (key === 'structure') {
 			return Boolean(parseResult && parseResult.status === 'done');
 		}
@@ -38,6 +40,10 @@ export const getAvailableInfo = (
 
 		if (key === 'fps') {
 			return Boolean(parseResult && hasFps(parseResult.segments));
+		}
+
+		if (key === 'isHdr') {
+			return Boolean(parseResult && hasHdr(parseResult.segments, state));
 		}
 
 		if (key === 'videoCodec') {

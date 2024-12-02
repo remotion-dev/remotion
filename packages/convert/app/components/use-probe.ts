@@ -30,6 +30,7 @@ export const useProbe = ({
 		MediaParserAudioCodec | null | undefined
 	>(undefined);
 	const [fps, setFps] = useState<number | null | undefined>(undefined);
+	const [isHdr, setHdr] = useState<boolean | undefined>(undefined);
 	const [durationInSeconds, setDurationInSeconds] = useState<
 		number | null | undefined
 	>(undefined);
@@ -56,6 +57,7 @@ export const useProbe = ({
 		let hasFrame = false;
 		let hasContainer = false;
 		let hasTracks = false;
+		let hasHdr = false;
 
 		const cancelIfDone = () => {
 			if (
@@ -68,7 +70,8 @@ export const useProbe = ({
 				hasName &&
 				hasFrame &&
 				hasContainer &&
-				hasTracks
+				hasTracks &&
+				hasHdr
 			) {
 				controller.abort(new Error('Cancelled (all info)'));
 			}
@@ -87,6 +90,7 @@ export const useProbe = ({
 				name: true,
 				tracks: true,
 				container: true,
+				isHdr: true,
 			},
 			onParseProgress: onProgress,
 			reader: src.type === 'file' ? webFileReader : fetchReader,
@@ -144,6 +148,11 @@ export const useProbe = ({
 			onFps: (f) => {
 				hasFps = true;
 				setFps(f);
+				cancelIfDone();
+			},
+			onIsHdr: (hdr) => {
+				hasHdr = hdr;
+				setHdr(hdr);
 				cancelIfDone();
 			},
 			onDurationInSeconds: (d) => {
@@ -215,6 +224,7 @@ export const useProbe = ({
 			videoCodec,
 			size,
 			durationInSeconds,
+			isHdr,
 			done,
 			error,
 		};
@@ -230,5 +240,6 @@ export const useProbe = ({
 		durationInSeconds,
 		done,
 		error,
+		isHdr,
 	]);
 };

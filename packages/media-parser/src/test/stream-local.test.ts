@@ -429,6 +429,7 @@ test('Should stream MP3 in MP4 video', async () => {
 
 test('Should get duration of HEVC video', async () => {
 	let videoSamples = 0;
+	let hdrCalled = false;
 	process.env.DISABLE_CONTENT_RANGE = 'true';
 	const parsed = await parseMedia({
 		src: exampleVideos.iphonehevc,
@@ -441,15 +442,22 @@ test('Should get duration of HEVC video', async () => {
 			tracks: true,
 			unrotatedDimensions: true,
 			videoCodec: true,
+			isHdr: true,
 		},
 		onVideoTrack: () => {
 			return () => {
 				videoSamples++;
 			};
 		},
+		onIsHdr: (isHdr) => {
+			hdrCalled = true;
+			expect(isHdr).toBe(true);
+		},
 		reader: nodeReader,
 	});
 
+	expect(hdrCalled).toBe(true);
+	expect(parsed.isHdr).toBe(true);
 	expect(parsed.durationInSeconds).toBe(3.4);
 	expect(parsed.dimensions).toEqual({
 		width: 1080,
