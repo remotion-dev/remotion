@@ -30,6 +30,7 @@ export const useProbe = ({
 		MediaParserAudioCodec | null | undefined
 	>(undefined);
 	const [fps, setFps] = useState<number | null | undefined>(undefined);
+	const [isHdr, setHdr] = useState<boolean | undefined>(undefined);
 	const [durationInSeconds, setDurationInSeconds] = useState<
 		number | null | undefined
 	>(undefined);
@@ -38,6 +39,7 @@ export const useProbe = ({
 	const [videoCodec, setVideoCodec] = useState<MediaParserVideoCodec | null>(
 		null,
 	);
+	const [rotation, setRotation] = useState<number | null>(null);
 	const [size, setSize] = useState<number | null>(null);
 	const [tracks, setTracks] = useState<TracksField | null>(null);
 	const [container, setContainer] = useState<ParseMediaContainer | null>(null);
@@ -56,6 +58,8 @@ export const useProbe = ({
 		let hasFrame = false;
 		let hasContainer = false;
 		let hasTracks = false;
+		let hasHdr = false;
+		let hasRotation = false;
 
 		const cancelIfDone = () => {
 			if (
@@ -68,7 +72,9 @@ export const useProbe = ({
 				hasName &&
 				hasFrame &&
 				hasContainer &&
-				hasTracks
+				hasTracks &&
+				hasHdr &&
+				hasRotation
 			) {
 				controller.abort(new Error('Cancelled (all info)'));
 			}
@@ -87,11 +93,12 @@ export const useProbe = ({
 				name: true,
 				tracks: true,
 				container: true,
+				isHdr: true,
+				rotation: true,
 			},
 			onParseProgress: onProgress,
 			reader: src.type === 'file' ? webFileReader : fetchReader,
 			signal: controller.signal,
-
 			onVideoTrack: async (track) => {
 				if (typeof VideoDecoder === 'undefined') {
 					return null;
@@ -146,9 +153,19 @@ export const useProbe = ({
 				setFps(f);
 				cancelIfDone();
 			},
+			onIsHdr: (hdr) => {
+				hasHdr = hdr;
+				setHdr(hdr);
+				cancelIfDone();
+			},
 			onDurationInSeconds: (d) => {
 				hasDuration = true;
 				setDurationInSeconds(d);
+				cancelIfDone();
+			},
+			onRotation(rotation) {
+				hasRotation = true;
+				setRotation(rotation);
 				cancelIfDone();
 			},
 			onName: (n) => {
@@ -215,8 +232,10 @@ export const useProbe = ({
 			videoCodec,
 			size,
 			durationInSeconds,
+			isHdr,
 			done,
 			error,
+			rotation,
 		};
 	}, [
 		audioCodec,
@@ -230,5 +249,7 @@ export const useProbe = ({
 		durationInSeconds,
 		done,
 		error,
+		isHdr,
+		rotation,
 	]);
 };

@@ -39,7 +39,7 @@ export const PickFile: React.FC<{
 				<TextMarkLogo />
 				<div className="h-5" />
 				<div className="w-full pb-4">
-					<h1 className="text-center text-3xl font-brand font-black max-w-[600px] m-auto text-balance">
+					<h1 className="text-center text-3xl font-brand font-black max-w-[600px] m-auto text-balance px-4">
 						{title}
 					</h1>
 				</div>

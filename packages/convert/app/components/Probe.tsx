@@ -20,7 +20,19 @@ export const Probe: React.FC<{
 	readonly probeDetails: boolean;
 	readonly probeResult: ProbeResult;
 	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef>;
-}> = ({src, probeDetails, setProbeDetails, probeResult, videoThumbnailRef}) => {
+	readonly userRotation: number;
+	readonly mirrorHorizontal: boolean;
+	readonly mirrorVertical: boolean;
+}> = ({
+	src,
+	probeDetails,
+	setProbeDetails,
+	probeResult,
+	videoThumbnailRef,
+	userRotation,
+	mirrorHorizontal,
+	mirrorVertical,
+}) => {
 	const {
 		audioCodec,
 		fps,
@@ -31,6 +43,8 @@ export const Probe: React.FC<{
 		size,
 		videoCodec,
 		durationInSeconds,
+		isHdr,
+		rotation,
 		done,
 		error,
 	} = probeResult;
@@ -66,7 +80,13 @@ export const Probe: React.FC<{
 		<Card className="w-full lg:w-[350px] overflow-hidden">
 			<div className="flex flex-row lg:flex-col w-full border-b-2 border-black">
 				{error ? null : (
-					<VideoThumbnail ref={videoThumbnailRef} smallThumbOnMobile />
+					<VideoThumbnail
+						ref={videoThumbnailRef}
+						smallThumbOnMobile
+						rotation={userRotation - (rotation ?? 0)}
+						mirrorHorizontal={mirrorHorizontal}
+						mirrorVertical={mirrorVertical}
+					/>
 				)}
 				<CardHeader className="p-3 lg:p-4 w-full">
 					<CardTitle title={name ?? undefined}>
@@ -113,6 +133,7 @@ export const Probe: React.FC<{
 								durationInSeconds={durationInSeconds}
 								audioCodec={audioCodec}
 								fps={fps}
+								isHdr={isHdr}
 							/>
 						) : selectedTrack.type === 'video' ? (
 							<VideoTrackOverview track={selectedTrack} />

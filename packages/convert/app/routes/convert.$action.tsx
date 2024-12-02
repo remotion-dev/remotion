@@ -1,16 +1,22 @@
 import {useParams} from '@remix-run/react';
+import {useMemo} from 'react';
 import {Main} from '~/components/Main';
-import {getHeaderTitle, getPageTitle, parseRouteAction} from '~/seo';
+import {parseConvertRouteAction, RouteAction} from '~/seo';
 
 const Index = () => {
-	const {input, output} = parseRouteAction(useParams().action as string);
+	const action = useParams().action as string;
 
-	return (
-		<Main
-			pageTitle={getPageTitle({input, output, type: 'convert'})}
-			headerTitle={getHeaderTitle({input, output, type: 'convert'})}
-		/>
-	);
+	const routeAction: RouteAction = useMemo(() => {
+		const {input, output} = parseConvertRouteAction(action);
+
+		return {
+			type: 'convert',
+			input,
+			output,
+		};
+	}, [action]);
+
+	return <Main routeAction={routeAction} />;
 };
 
 export default Index;

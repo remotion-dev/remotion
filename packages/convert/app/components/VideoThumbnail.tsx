@@ -6,6 +6,9 @@ const THUMBNAIL_HEIGHT = Math.round((350 / 16) * 9);
 
 type Props = {
 	readonly smallThumbOnMobile: boolean;
+	readonly rotation: number;
+	readonly mirrorHorizontal: boolean;
+	readonly mirrorVertical: boolean;
 };
 
 export type VideoThumbnailRef = {
@@ -15,16 +18,19 @@ export type VideoThumbnailRef = {
 const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 	VideoThumbnailRef,
 	Props
-> = ({smallThumbOnMobile}, forwardedRef) => {
+> = (
+	{smallThumbOnMobile, rotation, mirrorHorizontal, mirrorVertical},
+	forwardedRef,
+) => {
 	const ref = useRef<HTMLCanvasElement>(null);
 
 	const [color, setColor] = useState<string>('transparent');
-	const [width, setWidth] = useState<number>(0);
+	const [dimensions, setDimensions] = useState<{width: number}>({width: 0});
 
-	const drawThumbnail = useCallback((videoFrame: VideoFrame) => {
-		const scaleRatio = THUMBNAIL_HEIGHT / videoFrame.displayHeight;
-		const w = Math.round(videoFrame.displayWidth * scaleRatio);
-		setWidth(w);
+	const drawThumbnail = useCallback((unrotatedVideoFrame: VideoFrame) => {
+		const scaleRatio = THUMBNAIL_HEIGHT / unrotatedVideoFrame.displayHeight;
+		const w = Math.round(unrotatedVideoFrame.displayWidth * scaleRatio);
+		setDimensions({width: w});
 
 		const canvas = ref.current;
 		if (!canvas) {
@@ -36,7 +42,7 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 			return;
 		}
 
-		twoDContext.drawImage(videoFrame, 0, 0, w, THUMBNAIL_HEIGHT);
+		twoDContext.drawImage(unrotatedVideoFrame, 0, 0, w, THUMBNAIL_HEIGHT);
 		setColor((c) => {
 			if (c !== 'transparent') {
 				return c;
@@ -57,11 +63,16 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 	const isNarrow = useIsNarrow();
 
 	const scale = isNarrow && smallThumbOnMobile ? 0.5 : 1;
+	const scaleTransform =
+		rotation % 90 === 0 && rotation % 180 !== 0
+			? THUMBNAIL_HEIGHT / dimensions.width
+			: 1;
 
 	return (
 		<div
-			className="border-b-2 border-black"
-			style={{height: THUMBNAIL_HEIGHT * scale}}
+			className="border-b-2 border-black overflow-hidden"
+			// +2 to account for border
+			style={{height: THUMBNAIL_HEIGHT * scale + 2}}
 		>
 			<div className="flex justify-center" style={{backgroundColor: color}}>
 				<canvas
@@ -69,7 +80,9 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 					height={THUMBNAIL_HEIGHT}
 					style={{
 						maxHeight: THUMBNAIL_HEIGHT * scale,
-						width: width * scale,
+						width: dimensions.width * scale,
+						transform: `scale(${scaleTransform * (mirrorHorizontal ? -1 : 1)}, ${scaleTransform * (mirrorVertical ? -1 : 1)}) rotate(${rotation}deg)`,
+						transition: 'transform 0.3s',
 					}}
 				/>
 			</div>

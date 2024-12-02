@@ -13,10 +13,13 @@ export const defaultOnVideoTrackHandler: ConvertMediaOnVideoTrackHandler =
 		defaultVideoCodec,
 		logLevel,
 		container,
+		rotate,
 	}): Promise<VideoOperation> => {
 		const canCopy = canCopyVideoTrack({
 			inputCodec: track.codecWithoutConfig,
 			container,
+			inputRotation: track.rotation,
+			rotationToApply: rotate,
 		});
 
 		if (canCopy) {
@@ -49,7 +52,11 @@ export const defaultOnVideoTrackHandler: ConvertMediaOnVideoTrackHandler =
 				`Track ${track.trackId} (video): Cannot copy, but re-enconde, therefore re-encoding`,
 			);
 
-			return Promise.resolve({type: 'reencode', videoCodec});
+			return Promise.resolve({
+				type: 'reencode',
+				videoCodec,
+				rotation: rotate - track.rotation,
+			});
 		}
 
 		MediaParserInternals.Log.verbose(

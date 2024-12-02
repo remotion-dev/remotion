@@ -1,6 +1,5 @@
 import type {Instruction} from '@remotion/paths';
-import {reduceInstructions} from '@remotion/paths';
-import {getBoundingBoxFromInstructions} from '@remotion/paths/dist/get-bounding-box';
+import {PathInternals, reduceInstructions} from '@remotion/paths';
 import type {ThreeDReducedInstruction} from './3d-svg';
 import type {ThreeDElement} from './element';
 import {makeElement} from './element';
@@ -76,7 +75,7 @@ export const extrudeElement = ({
 	description: string;
 	strokeColor: string;
 }): ThreeDElement => {
-	const boundingBox = getBoundingBoxFromInstructions(
+	const boundingBox = PathInternals.getBoundingBoxFromInstructions(
 		reduceInstructions(points),
 	);
 

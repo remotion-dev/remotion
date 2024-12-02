@@ -1,5 +1,4 @@
 import {Button} from '@/components/ui/button';
-import {CardTitle} from '@/components/ui/card';
 import {
 	LogLevel,
 	MediaParserAudioCodec,
@@ -10,16 +9,31 @@ import {
 import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
 import {convertMedia, ConvertMediaContainer} from '@remotion/webcodecs';
-import {useCallback, useEffect, useRef, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {canRotateOrMirror} from '~/lib/can-rotate-or-mirror';
 import {ConvertState, Source} from '~/lib/convert-state';
-import {isDroppingEverything, isReencoding} from '~/lib/is-reencoding';
+import {
+	ConvertSections,
+	getOrderOfSections,
+	isConvertEnabledByDefault,
+	RotateOrMirrorState,
+} from '~/lib/default-ui';
+import {
+	getActualAudioConfigIndex,
+	getActualVideoConfigIndex,
+} from '~/lib/get-audio-video-config-index';
+import {isReencoding} from '~/lib/is-reencoding';
+import {isSubmitDisabled} from '~/lib/is-submit-enabled';
+import {RouteAction} from '~/seo';
 import {ConversionDone} from './ConversionDone';
 import {ConvertForm} from './ConvertForm';
 import {ConvertProgress, convertProgressRef} from './ConvertProgress';
+import {ConvertUiSection} from './ConvertUiSection';
 import {ErrorState} from './ErrorState';
 import {flipVideoFrame} from './flip-video';
 import {getDefaultContainerForConversion} from './guess-codec-from-source';
-import {Badge} from './ui/badge';
+import {MirrorComponents} from './MirrorComponents';
+import {RotateComponents} from './RotateComponents';
 import {useSupportedConfigs} from './use-supported-configs';
 
 export default function ConvertUI({
@@ -30,6 +44,15 @@ export default function ConvertUI({
 	setSrc,
 	duration,
 	logLevel,
+	action,
+	enableRotateOrMirror,
+	setEnableRotateOrMirror,
+	userRotation,
+	setRotation,
+	flipHorizontal,
+	flipVertical,
+	setFlipHorizontal,
+	setFlipVertical,
 }: {
 	readonly src: Source;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
@@ -38,22 +61,48 @@ export default function ConvertUI({
 	readonly tracks: TracksField | null;
 	readonly duration: number | null;
 	readonly logLevel: LogLevel;
+	readonly action: RouteAction;
+	readonly enableRotateOrMirror: RotateOrMirrorState;
+	readonly setEnableRotateOrMirror: React.Dispatch<
+		React.SetStateAction<RotateOrMirrorState | null>
+	>;
+	readonly userRotation: number;
+	readonly setRotation: React.Dispatch<React.SetStateAction<number>>;
+	readonly flipHorizontal: boolean;
+	readonly flipVertical: boolean;
+	readonly setFlipHorizontal: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly setFlipVertical: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
 	const [container, setContainer] = useState<ConvertMediaContainer>(() =>
-		getDefaultContainerForConversion(src),
+		getDefaultContainerForConversion(src, action),
 	);
-	const [videoConfigIndex, _setVideoConfigIndex] = useState<
+	const [videoConfigIndexSelection, _setVideoConfigIndex] = useState<
 		Record<number, number>
 	>({});
-	const [audioConfigIndex, _setAudioConfigIndex] = useState<
+	const [audioConfigIndexSelection, _setAudioConfigIndex] = useState<
 		Record<number, number>
 	>({});
 	const [state, setState] = useState<ConvertState>({type: 'idle'});
 	const [name, setName] = useState<string | null>(null);
-	const [flipHorizontal, setFlipHorizontal] = useState(false);
-	const [flipVertical, setFlipVertical] = useState(false);
+	const [enableConvert, setEnableConvert] = useState(() =>
+		isConvertEnabledByDefault(action),
+	);
 
-	const supportedConfigs = useSupportedConfigs({container, tracks, logLevel});
+	const order = useMemo(() => {
+		return Object.entries(getOrderOfSections(action))
+			.sort(([, aOrder], [, bOrder]) => {
+				return aOrder - bOrder;
+			})
+			.map(([section]) => section as ConvertSections);
+	}, [action]);
+
+	const supportedConfigs = useSupportedConfigs({
+		container,
+		tracks,
+		logLevel,
+		action,
+		userRotation,
+	});
 
 	const setVideoConfigIndex = useCallback((trackId: number, i: number) => {
 		_setVideoConfigIndex((prev) => ({
@@ -83,16 +132,18 @@ export default function ConvertUI({
 			onVideoFrame: ({frame}) => {
 				const flipped = flipVideoFrame({
 					frame,
-					horizontal: flipHorizontal,
-					vertical: flipVertical,
+					horizontal: flipHorizontal && enableRotateOrMirror === 'mirror',
+					vertical: flipVertical && enableRotateOrMirror === 'mirror',
 				});
 				if (videoFrames % 15 === 0) {
+					// TODO: Pass rotation that was applied
 					convertProgressRef.current?.draw(flipped);
 				}
 
 				videoFrames++;
 				return flipped;
 			},
+			rotate: userRotation,
 			logLevel,
 			onProgress: (s) => {
 				setState({
@@ -103,7 +154,7 @@ export default function ConvertUI({
 					},
 				});
 			},
-			container: container as 'webm',
+			container,
 			signal: abortController.signal,
 			fields: {
 				name: true,
@@ -119,7 +170,11 @@ export default function ConvertUI({
 					throw new Error('Found no options for audio track');
 				}
 
-				const configIndex = audioConfigIndex[track.trackId] ?? 0;
+				const configIndex = getActualAudioConfigIndex({
+					enableConvert,
+					audioConfigIndexSelection,
+					trackNumber: track.trackId,
+				});
 
 				const operation = options.operations[configIndex ?? 0];
 				if (!operation) {
@@ -142,7 +197,11 @@ export default function ConvertUI({
 					throw new Error('Found no options for video track');
 				}
 
-				const configIndex = videoConfigIndex[track.trackId] ?? 0;
+				const configIndex = getActualVideoConfigIndex({
+					enableConvert,
+					videoConfigIndexSelection,
+					trackNumber: track.trackId,
+				});
 
 				const operation = options.operations[configIndex ?? 0];
 				if (!operation) {
@@ -178,12 +237,16 @@ export default function ConvertUI({
 		};
 	}, [
 		src,
+		userRotation,
+		logLevel,
 		container,
 		flipHorizontal,
+		enableRotateOrMirror,
 		flipVertical,
 		supportedConfigs,
-		audioConfigIndex,
-		videoConfigIndex,
+		enableConvert,
+		audioConfigIndexSelection,
+		videoConfigIndexSelection,
 	]);
 
 	const cancel = useCallback(() => {
@@ -206,6 +269,24 @@ export default function ConvertUI({
 			}
 		};
 	}, []);
+
+	const onMirrorClick = useCallback(() => {
+		setEnableRotateOrMirror((m) => {
+			if (m !== 'mirror') {
+				return 'mirror';
+			}
+			return null;
+		});
+	}, [setEnableRotateOrMirror]);
+
+	const onRotateClick = useCallback(() => {
+		setEnableRotateOrMirror((m) => {
+			if (m !== 'rotate') {
+				return 'rotate';
+			}
+			return null;
+		});
+	}, [setEnableRotateOrMirror]);
 
 	if (state.type === 'error') {
 		return (
@@ -230,7 +311,11 @@ export default function ConvertUI({
 					duration={duration}
 					isReencoding={
 						supportedConfigs !== null &&
-						isReencoding({supportedConfigs, videoConfigIndex})
+						isReencoding({
+							supportedConfigs,
+							videoConfigIndexSelection,
+							enableConvert,
+						})
 					}
 				/>
 				<div className="h-2" />
@@ -252,7 +337,11 @@ export default function ConvertUI({
 					duration={duration}
 					isReencoding={
 						supportedConfigs !== null &&
-						isReencoding({supportedConfigs, videoConfigIndex})
+						isReencoding({
+							supportedConfigs,
+							videoConfigIndexSelection,
+							enableConvert,
+						})
 					}
 				/>
 				<div className="h-2" />
@@ -261,47 +350,110 @@ export default function ConvertUI({
 		);
 	}
 
-	const disableConvert =
-		!supportedConfigs ||
-		isDroppingEverything({
-			audioConfigIndex,
-			supportedConfigs,
-			videoConfigIndex,
-		});
+	const disableSubmit = isSubmitDisabled({
+		audioConfigIndexSelection,
+		supportedConfigs,
+		videoConfigIndexSelection,
+		enableConvert,
+		enableRotateOrMirror,
+	});
+
+	const canPixelManipulate = canRotateOrMirror({
+		supportedConfigs,
+		videoConfigIndexSelection,
+		enableConvert,
+	});
 
 	return (
 		<>
-			<div className="w-full items-center">
-				<div className="flex flex-row">
-					<CardTitle>Convert video</CardTitle>
-					<div className="w-2" />
-					<Badge variant="default">Alpha</Badge>
-				</div>
-				<div className="h-6" />
-				<ConvertForm
-					{...{
-						container,
-						setContainer,
-						flipHorizontal,
-						flipVertical,
-						setFlipHorizontal,
-						setFlipVertical,
-						supportedConfigs,
-						audioConfigIndex,
-						videoConfigIndex,
-						setAudioConfigIndex,
-						setVideoConfigIndex,
-						currentAudioCodec,
-						currentVideoCodec,
-					}}
-				/>
+			<div className="w-full gap-4 flex flex-col">
+				{order.map((section) => {
+					if (section === 'convert') {
+						return (
+							<div key="convert">
+								<ConvertUiSection
+									active={enableConvert}
+									setActive={setEnableConvert}
+								>
+									Convert
+								</ConvertUiSection>
+								{enableConvert ? (
+									<>
+										<div className="h-2" />
+										<ConvertForm
+											{...{
+												container,
+												setContainer,
+												flipHorizontal,
+												flipVertical,
+												setFlipHorizontal,
+												setFlipVertical,
+												supportedConfigs,
+												audioConfigIndexSelection,
+												videoConfigIndexSelection,
+												setAudioConfigIndex,
+												setVideoConfigIndex,
+												currentAudioCodec,
+												currentVideoCodec,
+											}}
+										/>
+									</>
+								) : null}
+							</div>
+						);
+					}
+
+					if (section === 'mirror') {
+						return (
+							<div key="mirror">
+								<ConvertUiSection
+									active={enableRotateOrMirror === 'mirror'}
+									setActive={onMirrorClick}
+								>
+									Mirror
+								</ConvertUiSection>
+								{enableRotateOrMirror === 'mirror' ? (
+									<MirrorComponents
+										canPixelManipulate={canPixelManipulate}
+										flipHorizontal={flipHorizontal}
+										flipVertical={flipVertical}
+										setFlipHorizontal={setFlipHorizontal}
+										setFlipVertical={setFlipVertical}
+									/>
+								) : null}
+							</div>
+						);
+					}
+
+					if (section === 'rotate') {
+						return (
+							<div key="rotate">
+								<ConvertUiSection
+									active={enableRotateOrMirror === 'rotate'}
+									setActive={onRotateClick}
+								>
+									Rotate
+								</ConvertUiSection>
+								{enableRotateOrMirror === 'rotate' ? (
+									<RotateComponents
+										canPixelManipulate={canPixelManipulate}
+										rotation={userRotation}
+										setRotation={setRotation}
+									/>
+								) : null}
+							</div>
+						);
+					}
+
+					throw new Error('Unknown section');
+				})}
 			</div>
-			<div className="h-4" />
+			<div className="h-8" />
 			<Button
 				className="block w-full font-brand"
 				type="button"
 				variant="brand"
-				disabled={disableConvert}
+				disabled={disableSubmit}
 				onClick={onClick}
 			>
 				Convert

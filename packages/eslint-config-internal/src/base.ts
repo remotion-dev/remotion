@@ -493,7 +493,6 @@ export const rules = ({
 					'react/jsx-curly-brace-presence': react ? 'off' : undefined,
 					'react/react-in-jsx-scope': react ? 'off' : undefined,
 					'react/no-unused-prop-types': react ? 'off' : undefined,
-					'react/boolean-prop-naming': react ? 'off' : undefined,
 					'react/button-has-type': react ? 'error' : undefined,
 					'react/default-props-match-prop-types': react ? 'error' : undefined,
 					'react/function-component-definition': react

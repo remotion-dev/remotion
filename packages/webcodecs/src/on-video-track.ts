@@ -14,6 +14,7 @@ import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 import {Log} from './log';
 import {onFrame} from './on-frame';
 import type {ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
+import {calculateNewDimensionsFromDimensions} from './rotation';
 import type {ConvertMediaProgressFn} from './throttled-state-update';
 import {createVideoDecoder} from './video-decoder';
 import {getVideoDecoderConfigWithHardwareAcceleration} from './video-decoder-config';
@@ -31,6 +32,7 @@ export const makeVideoTrackHandler =
 		onVideoTrack,
 		logLevel,
 		container,
+		rotate,
 		progress,
 	}: {
 		state: MediaFn;
@@ -42,6 +44,7 @@ export const makeVideoTrackHandler =
 		onVideoTrack: ConvertMediaOnVideoTrackHandler | null;
 		logLevel: LogLevel;
 		container: ConvertMediaContainer;
+		rotate: number;
 		progress: ProgressTracker;
 	}): OnVideoTrack =>
 	async (track) => {
@@ -54,6 +57,7 @@ export const makeVideoTrackHandler =
 			defaultVideoCodec,
 			logLevel,
 			container,
+			rotate,
 		});
 
 		if (videoOperation.type === 'drop') {
@@ -106,10 +110,19 @@ export const makeVideoTrackHandler =
 			);
 		}
 
+		const rotation = videoOperation.rotate ?? -track.rotation;
+
+		const {height: newHeight, width: newWidth} =
+			calculateNewDimensionsFromDimensions({
+				width: track.codedWidth,
+				height: track.codedHeight,
+				rotation,
+			});
+
 		const videoEncoderConfig = await getVideoEncoderConfig({
 			codec: videoOperation.videoCodec,
-			height: track.displayAspectHeight,
-			width: track.displayAspectWidth,
+			height: newHeight,
+			width: newWidth,
 			fps: track.fps,
 		});
 		const videoDecoderConfig =
@@ -136,8 +149,8 @@ export const makeVideoTrackHandler =
 		const {trackNumber} = await state.addTrack({
 			type: 'video',
 			color: track.color,
-			width: track.codedWidth,
-			height: track.codedHeight,
+			width: newWidth,
+			height: newHeight,
 			codec: videoOperation.videoCodec,
 			codecPrivate: null,
 			timescale: track.timescale,
@@ -192,6 +205,7 @@ export const makeVideoTrackHandler =
 					videoEncoder,
 					onVideoFrame,
 					outputCodec: videoOperation.videoCodec,
+					rotation,
 				});
 			},
 			onError: (err) => {

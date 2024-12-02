@@ -23,9 +23,20 @@ type SampleAspectRatio = {
 };
 
 export type VideoTrackColorParams = {
-	transferCharacteristics: 'bt709' | 'smpte170m' | 'iec61966-2-1' | null;
-	matrixCoefficients: 'bt709' | 'bt470bg' | 'rgb' | 'smpte170m' | null;
-	primaries: 'bt709' | 'smpte170m' | 'bt470bg' | null;
+	transferCharacteristics:
+		| 'bt709'
+		| 'smpte170m'
+		| 'iec61966-2-1'
+		| 'arib-std-b67'
+		| null;
+	matrixCoefficients:
+		| 'bt709'
+		| 'bt470bg'
+		| 'rgb'
+		| 'smpte170m'
+		| 'bt2020'
+		| null;
+	primaries: 'bt709' | 'smpte170m' | 'bt470bg' | 'bt2020' | null;
 	fullRange: boolean | null;
 };
 

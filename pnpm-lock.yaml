@@ -397,6 +397,9 @@ importers:
       '@remotion/media-parser':
         specifier: workspace:*
         version: link:../media-parser
+      '@remotion/shapes':
+        specifier: workspace:*
+        version: link:../shapes
       '@remotion/webcodecs':
         specifier: workspace:*
         version: link:../webcodecs

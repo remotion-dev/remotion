@@ -1,4 +1,5 @@
 import {convertMedia} from '@remotion/webcodecs';
+import {flipVideoFrame} from '~/components/flip-video';
 import {
 	addTestWatcher,
 	allowSafariAudioDrop,
@@ -112,11 +113,68 @@ export const aviToMp4 = (): TestStructure => {
 	});
 };
 
+export const rotatedVideo = (): TestStructure => {
+	const src =
+		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/iphone-hevc.mov';
+
+	return addTestWatcher({
+		name: 'Rotated video',
+		src,
+		async execute(onUpdate) {
+			await convertMedia({
+				src,
+				container: 'webm',
+				onAudioTrack: allowSafariAudioDrop,
+				onProgress: makeProgressReporter(onUpdate),
+			});
+		},
+	});
+};
+
+export const vpxEncodingError = (): TestStructure => {
+	const src =
+		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/vpx-encoding-error.mp4';
+	return addTestWatcher({
+		name: 'Flipping a video',
+		src,
+		async execute(onUpdate) {
+			await convertMedia({
+				src,
+				container: 'webm',
+				onProgress: makeProgressReporter(onUpdate),
+				onVideoFrame: ({frame}) => {
+					return flipVideoFrame({frame, horizontal: true, vertical: false});
+				},
+			});
+		},
+	});
+};
+
+export const offsetTimestamps = (): TestStructure => {
+	const src =
+		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/very-offset-timestamps.mp4';
+
+	return addTestWatcher({
+		name: 'Convert a video with offset video and audio timestamps',
+		src,
+		async execute(onUpdate) {
+			await convertMedia({
+				src,
+				container: 'webm',
+				onProgress: makeProgressReporter(onUpdate),
+			});
+		},
+	});
+};
+
 export const testList: TestStructure[] = [
 	basicMp4ToWebM(),
 	av1WebmToMp4(),
 	aviToMp4(),
 	convertToWav(),
 	weirdMp4aConfig(),
+	rotatedVideo(),
 	lpcmLivePhoto(),
+	vpxEncodingError(),
+	offsetTimestamps(),
 ];

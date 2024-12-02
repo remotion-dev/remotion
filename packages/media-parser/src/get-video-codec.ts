@@ -233,7 +233,9 @@ export const getIsoBmColrConfig = (
 					? 'bt470bg'
 					: colrAtom.matrixIndex === 6
 						? 'smpte170m'
-						: null,
+						: colrAtom.matrixIndex === 9
+							? 'bt2020'
+							: null,
 		primaries:
 			colrAtom.primaries === 1
 				? 'bt709'
@@ -241,7 +243,9 @@ export const getIsoBmColrConfig = (
 					? 'bt470bg'
 					: colrAtom.primaries === 6
 						? 'smpte170m'
-						: null,
+						: colrAtom.primaries === 9
+							? 'bt2020'
+							: null,
 		transferCharacteristics:
 			colrAtom.transfer === 1
 				? 'bt709'
@@ -249,7 +253,9 @@ export const getIsoBmColrConfig = (
 					? 'smpte170m'
 					: colrAtom.transfer === 13
 						? 'iec61966-2-1'
-						: null,
+						: colrAtom.transfer === 18
+							? 'arib-std-b67'
+							: null,
 	};
 };
 

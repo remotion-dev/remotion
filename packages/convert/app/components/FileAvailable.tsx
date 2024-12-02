@@ -1,7 +1,10 @@
 import {ParseMediaOnProgress} from '@remotion/media-parser';
-import React, {useCallback, useRef, useState} from 'react';
+import {WebCodecsInternals} from '@remotion/webcodecs';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {Source} from '~/lib/convert-state';
+import {defaultRotateOrMirorState, RotateOrMirrorState} from '~/lib/default-ui';
 import {formatBytes} from '~/lib/format-bytes';
+import {RouteAction} from '~/seo';
 import ConvertUI from './ConvertUi';
 import {Footer} from './Footer';
 import {Probe} from './Probe';
@@ -12,7 +15,8 @@ import {useProbe} from './use-probe';
 export const FileAvailable: React.FC<{
 	readonly src: Source;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
-}> = ({src, setSrc}) => {
+	readonly routeAction: RouteAction;
+}> = ({src, setSrc, routeAction}) => {
 	const [probeDetails, setProbeDetails] = useState(false);
 
 	const clear = useCallback(() => {
@@ -44,12 +48,27 @@ export const FileAvailable: React.FC<{
 		[],
 	);
 
+	const [enableRotateOrMirrow, setEnableRotateOrMirror] =
+		useState<RotateOrMirrorState>(() => defaultRotateOrMirorState(routeAction));
+
 	const probeResult = useProbe({
 		src,
 		logLevel: 'verbose',
 		onProgress,
 		onVideoThumbnail,
 	});
+
+	const [userRotation, setRotation] = useState(90);
+	const [flipHorizontal, setFlipHorizontal] = useState(true);
+	const [flipVertical, setFlipVertical] = useState(false);
+
+	const actualUserRotation = useMemo(() => {
+		if (enableRotateOrMirrow !== 'rotate') {
+			return 0;
+		}
+
+		return WebCodecsInternals.normalizeVideoRotation(userRotation);
+	}, [enableRotateOrMirrow, userRotation]);
 
 	return (
 		<div>
@@ -78,6 +97,11 @@ export const FileAvailable: React.FC<{
 							setProbeDetails={setProbeDetails}
 							probeResult={probeResult}
 							videoThumbnailRef={videoThumbnailRef}
+							userRotation={actualUserRotation}
+							mirrorHorizontal={
+								flipHorizontal && enableRotateOrMirrow === 'mirror'
+							}
+							mirrorVertical={flipVertical && enableRotateOrMirrow === 'mirror'}
 						/>
 						<div className="h-8 lg:h-0 lg:w-8" />
 						<div
@@ -93,6 +117,15 @@ export const FileAvailable: React.FC<{
 									setSrc={setSrc}
 									duration={probeResult.durationInSeconds ?? null}
 									logLevel="verbose"
+									action={routeAction}
+									enableRotateOrMirror={enableRotateOrMirrow}
+									setEnableRotateOrMirror={setEnableRotateOrMirror}
+									userRotation={actualUserRotation}
+									setRotation={setRotation}
+									flipHorizontal={flipHorizontal}
+									setFlipHorizontal={setFlipHorizontal}
+									flipVertical={flipVertical}
+									setFlipVertical={setFlipVertical}
 								/>
 							</div>
 						</div>

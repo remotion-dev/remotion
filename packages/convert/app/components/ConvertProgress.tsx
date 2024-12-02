@@ -25,8 +25,10 @@ export const ConvertProgress: React.FC<{
 						<VideoThumbnail
 							ref={convertProgressRef}
 							smallThumbOnMobile={false}
+							rotation={0}
+							mirrorHorizontal={false}
+							mirrorVertical={false}
 						/>
-						<div className="border-b-2 border-black" />
 					</>
 				) : null}
 				<div className="h-5 overflow-hidden">

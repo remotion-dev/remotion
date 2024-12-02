@@ -11,12 +11,23 @@
 		"formatting": "prettier src --check",
 		"lint": "eslint src",
 		"test": "bun test src",
-		"make": "tsc -d"
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
+	"types": "dist/index.d.ts",
+	"module": "dist/esm/index.mjs",
 	"author": "Alex Fernandez, Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
+			"require": "./dist/index.js"
+		}
 	},
 	"devDependencies": {
 		"@testing-library/react": "^13.4.0",

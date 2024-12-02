@@ -22,6 +22,7 @@ export const ContainerOverview: React.FC<{
 	readonly size: number | null;
 	readonly fps: number | null | undefined;
 	readonly container: ParseMediaContainer | null;
+	readonly isHdr: boolean | undefined;
 }> = ({
 	container,
 	dimensions,
@@ -30,6 +31,7 @@ export const ContainerOverview: React.FC<{
 	audioCodec,
 	size,
 	fps,
+	isHdr,
 }) => {
 	return (
 		<Table>
@@ -94,7 +96,7 @@ export const ContainerOverview: React.FC<{
 						{fps === undefined ? (
 							<Skeleton className="h-3 w-[100px] inline-block" />
 						) : fps ? (
-							<>{fps} FPS</>
+							<>{fps.toFixed(2)} FPS</>
 						) : (
 							'N/A'
 						)}
@@ -123,6 +125,20 @@ export const ContainerOverview: React.FC<{
 							'No audio'
 						) : (
 							renderHumanReadableAudioCodec(audioCodec)
+						)}
+					</TableCell>
+				</TableRow>
+				<TableRow>
+					<TableCell className="font-brand" colSpan={3}>
+						HDR
+					</TableCell>
+					<TableCell className="text-right">
+						{isHdr === undefined ? (
+							<Skeleton className="h-3 w-[100px] inline-block" />
+						) : isHdr ? (
+							'Yes'
+						) : (
+							'No'
 						)}
 					</TableCell>
 				</TableRow>

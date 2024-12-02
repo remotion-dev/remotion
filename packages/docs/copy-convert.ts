@@ -1,5 +1,5 @@
 import {$} from 'bun';
-import fs, {readFileSync, writeFileSync} from 'fs';
+import fs, {readFileSync} from 'fs';
 import path from 'path';
 // @ts-ignore outside project
 import * as seo from '../convert/app/seo';
@@ -11,26 +11,20 @@ const dir = path.join(__dirname, '../convert/spa-dist/client');
 
 fs.cpSync(dir, path.join(__dirname, './build/convert'), {recursive: true});
 
-const extraPages: {
-	slug: string;
-	pageTitle: string;
-	description: string;
-}[] = [];
+const extraPages: seo.RouteAction[] = [];
 
 for (const inputs of seo.inputContainers) {
 	for (const outputs of seo.outputContainers) {
+		const action: seo.RouteAction = {
+			input: inputs,
+			output: outputs,
+			type: 'convert',
+		};
+
 		extraPages.push({
-			slug: `/convert/${inputs}-to-${outputs}`,
-			pageTitle: seo.getPageTitle({
-				input: inputs,
-				output: outputs,
-				type: 'convert',
-			}),
-			description: seo.getDescription({
-				input: inputs,
-				output: outputs,
-				type: 'convert',
-			}),
+			input: inputs,
+			output: outputs,
+			type: 'convert',
 		});
 	}
 }
@@ -60,15 +54,21 @@ const getContentWithTitle = (title: string, description: string) => {
 		.replace(matcher, `<title>${title}</title>`);
 };
 
-writeFileSync(
-	path.join(__dirname, './build/convert/index.html'),
-	getContentWithTitle(seo.getPageTitle(null), seo.getDescription(null)),
-);
+extraPages.push({
+	type: 'generic-convert',
+});
+
+extraPages.push({
+	type: 'generic-rotate',
+});
 
 for (const page of extraPages) {
-	const out = path.join(__dirname, `./build/${page.slug}/index.html`);
+	const slug = seo.makeSlug(page);
+	const pageTitle = seo.getPageTitle(page);
+	const description = seo.getDescription(page);
+	const out = path.join(__dirname, `./build${slug}/index.html`);
 	if (!fs.existsSync(path.dirname(out))) {
 		fs.mkdirSync(path.dirname(out), {recursive: true});
 	}
-	fs.writeFileSync(out, getContentWithTitle(page.pageTitle, page.description));
+	fs.writeFileSync(out, getContentWithTitle(pageTitle, description));
 }

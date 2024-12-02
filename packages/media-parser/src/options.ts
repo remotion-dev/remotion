@@ -35,6 +35,7 @@ export type ParseMediaFields = {
 	size: boolean;
 	name: boolean;
 	container: boolean;
+	isHdr: boolean;
 };
 
 export type AllParseMediaFields = {
@@ -51,6 +52,7 @@ export type AllParseMediaFields = {
 	size: true;
 	name: true;
 	container: true;
+	isHdr: true;
 };
 
 export type Options<Fields extends ParseMediaFields> = {
@@ -67,6 +69,7 @@ export type Options<Fields extends ParseMediaFields> = {
 	size?: Fields['size'];
 	name?: Fields['name'];
 	container?: Fields['container'];
+	isHdr?: Fields['isHdr'];
 };
 
 export type TracksField = {
@@ -102,6 +105,7 @@ export type ParseMediaCallbacks<Fields extends Options<ParseMediaFields>> =
 		(Fields['unrotatedDimensions'] extends true
 			? {onUnrotatedDimensions?: (dimensions: Dimensions) => void}
 			: {}) &
+		(Fields['isHdr'] extends true ? {onIsHdr?: (isHdr: boolean) => void} : {}) &
 		(Fields['internalStats'] extends true
 			? {onInternalStats?: (stats: InternalStats) => void}
 			: {}) &
@@ -131,6 +135,7 @@ export type ParseMediaResult<Fields extends Options<ParseMediaFields>> =
 		(Fields['unrotatedDimensions'] extends true
 			? {unrotatedDimensions: Dimensions}
 			: {}) &
+		(Fields['isHdr'] extends true ? {isHdr: boolean} : {}) &
 		(Fields['internalStats'] extends true
 			? {internalStats: InternalStats}
 			: {}) &
