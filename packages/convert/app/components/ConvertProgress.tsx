@@ -26,6 +26,8 @@ export const ConvertProgress: React.FC<{
 							ref={convertProgressRef}
 							smallThumbOnMobile={false}
 							rotation={0}
+							mirrorHorizontal={false}
+							mirrorVertical={false}
 						/>
 					</>
 				) : null}

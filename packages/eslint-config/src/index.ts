@@ -399,13 +399,6 @@ const getRules = (typescript: boolean) => {
 			},
 		],
 		'no-useless-catch': 'error',
-		// xo-react rules
-		'react/boolean-prop-naming': [
-			'error',
-			{
-				validateNested: true,
-			},
-		],
 		'react/button-has-type': 'error',
 		'react/default-props-match-prop-types': 'error',
 		'react/no-access-state-in-setstate': 'error',

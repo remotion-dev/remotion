@@ -7,6 +7,8 @@ const THUMBNAIL_HEIGHT = Math.round((350 / 16) * 9);
 type Props = {
 	readonly smallThumbOnMobile: boolean;
 	readonly rotation: number;
+	readonly mirrorHorizontal: boolean;
+	readonly mirrorVertical: boolean;
 };
 
 export type VideoThumbnailRef = {
@@ -16,7 +18,10 @@ export type VideoThumbnailRef = {
 const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 	VideoThumbnailRef,
 	Props
-> = ({smallThumbOnMobile, rotation}, forwardedRef) => {
+> = (
+	{smallThumbOnMobile, rotation, mirrorHorizontal, mirrorVertical},
+	forwardedRef,
+) => {
 	const ref = useRef<HTMLCanvasElement>(null);
 
 	const [color, setColor] = useState<string>('transparent');
@@ -76,9 +81,8 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 					style={{
 						maxHeight: THUMBNAIL_HEIGHT * scale,
 						width: dimensions.width * scale,
-						rotate: `${String(rotation)}deg`,
-						scale: String(scaleTransform),
-						transition: 'rotate 0.3s, scale 0.3s',
+						transform: `scale(${scaleTransform * (mirrorHorizontal ? -1 : 1)}, ${scaleTransform * (mirrorVertical ? -1 : 1)}) rotate(${rotation}deg)`,
+						transition: 'transform 0.3s',
 					}}
 				/>
 			</div>

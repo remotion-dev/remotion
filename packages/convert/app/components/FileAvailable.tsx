@@ -59,6 +59,8 @@ export const FileAvailable: React.FC<{
 	});
 
 	const [userRotation, setRotation] = useState(90);
+	const [flipHorizontal, setFlipHorizontal] = useState(true);
+	const [flipVertical, setFlipVertical] = useState(false);
 
 	const actualUserRotation = useMemo(() => {
 		if (enableRotateOrMirrow !== 'rotate') {
@@ -96,6 +98,10 @@ export const FileAvailable: React.FC<{
 							probeResult={probeResult}
 							videoThumbnailRef={videoThumbnailRef}
 							userRotation={actualUserRotation}
+							mirrorHorizontal={
+								flipHorizontal && enableRotateOrMirrow === 'mirror'
+							}
+							mirrorVertical={flipVertical && enableRotateOrMirrow === 'mirror'}
 						/>
 						<div className="h-8 lg:h-0 lg:w-8" />
 						<div
@@ -116,6 +122,10 @@ export const FileAvailable: React.FC<{
 									setEnableRotateOrMirror={setEnableRotateOrMirror}
 									userRotation={actualUserRotation}
 									setRotation={setRotation}
+									flipHorizontal={flipHorizontal}
+									setFlipHorizontal={setFlipHorizontal}
+									flipVertical={flipVertical}
+									setFlipVertical={setFlipVertical}
 								/>
 							</div>
 						</div>

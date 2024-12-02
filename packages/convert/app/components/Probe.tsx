@@ -21,6 +21,8 @@ export const Probe: React.FC<{
 	readonly probeResult: ProbeResult;
 	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef>;
 	readonly userRotation: number;
+	readonly mirrorHorizontal: boolean;
+	readonly mirrorVertical: boolean;
 }> = ({
 	src,
 	probeDetails,
@@ -28,6 +30,8 @@ export const Probe: React.FC<{
 	probeResult,
 	videoThumbnailRef,
 	userRotation,
+	mirrorHorizontal,
+	mirrorVertical,
 }) => {
 	const {
 		audioCodec,
@@ -80,6 +84,8 @@ export const Probe: React.FC<{
 						ref={videoThumbnailRef}
 						smallThumbOnMobile
 						rotation={userRotation - (rotation ?? 0)}
+						mirrorHorizontal={mirrorHorizontal}
+						mirrorVertical={mirrorVertical}
 					/>
 				)}
 				<CardHeader className="p-3 lg:p-4 w-full">

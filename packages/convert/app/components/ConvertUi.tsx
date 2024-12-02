@@ -43,6 +43,10 @@ export default function ConvertUI({
 	setEnableRotateOrMirror,
 	userRotation,
 	setRotation,
+	flipHorizontal,
+	flipVertical,
+	setFlipHorizontal,
+	setFlipVertical,
 }: {
 	readonly src: Source;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
@@ -58,6 +62,10 @@ export default function ConvertUI({
 	>;
 	readonly userRotation: number;
 	readonly setRotation: React.Dispatch<React.SetStateAction<number>>;
+	readonly flipHorizontal: boolean;
+	readonly flipVertical: boolean;
+	readonly setFlipHorizontal: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly setFlipVertical: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
 	const [container, setContainer] = useState<ConvertMediaContainer>(() =>
 		getDefaultContainerForConversion(src),
@@ -70,8 +78,6 @@ export default function ConvertUI({
 	>({});
 	const [state, setState] = useState<ConvertState>({type: 'idle'});
 	const [name, setName] = useState<string | null>(null);
-	const [flipHorizontal, setFlipHorizontal] = useState(true);
-	const [flipVertical, setFlipVertical] = useState(false);
 	const [enableConvert, setEnableConvert] = useState(() =>
 		isConvertEnabledByDefault(action),
 	);
