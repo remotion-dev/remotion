@@ -1,6 +1,7 @@
 import {ParseMediaContainer} from '@remotion/media-parser';
 import {ConvertMediaContainer} from '@remotion/webcodecs';
 import {Source} from '~/lib/convert-state';
+import {RouteAction} from '~/seo';
 
 const guessFromExtension = (src: string) => {
 	if (src.endsWith('.webm')) {
@@ -29,21 +30,46 @@ export const guessContainerFromSource = (
 	throw new Error(`Unhandled source type: ${source satisfies never}`);
 };
 
+const shouldKeepSameContainerByDefault = (action: RouteAction) => {
+	if (action.type === 'generic-convert') {
+		return false;
+	}
+	if (action.type === 'generic-mirror') {
+		return true;
+	}
+	if (action.type === 'generic-rotate') {
+		return true;
+	}
+	if (action.type === 'mirror-format') {
+		return true;
+	}
+	if (action.type === 'rotate-format') {
+		return true;
+	}
+	if (action.type === 'convert') {
+		return false;
+	}
+
+	throw new Error(`Unhandled action type: ${action satisfies never}`);
+};
+
 export const getDefaultContainerForConversion = (
 	source: Source,
+	action: RouteAction,
 ): ConvertMediaContainer => {
 	const guessed = guessContainerFromSource(source);
+	const keepSame = shouldKeepSameContainerByDefault(action);
 
 	if (guessed === 'avi') {
 		return 'mp4';
 	}
 
 	if (guessed === 'mp4') {
-		return 'webm';
+		return keepSame ? 'mp4' : 'webm';
 	}
 
 	if (guessed === 'webm') {
-		return 'mp4';
+		return keepSame ? 'webm' : 'mp4';
 	}
 
 	throw new Error('Unhandled container ' + (guessed satisfies never));
