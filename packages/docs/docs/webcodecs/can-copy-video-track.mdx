@@ -8,9 +8,12 @@ crumb: '@remotion/webcodecs'
 
 _Part of the [`@remotion/webcodecs`](/docs/webcodecs) package._
 
-:::warning
-**Unstable API**: This package is experimental. We might change the API at any time, until we remove this notice.
-:::
+import {UnstableDisclaimer} from './UnstableDisclaimer';
+
+<details>
+  <summary>🚧 Unstable API</summary>
+  <UnstableDisclaimer />
+</details>
 
 Given a `VideoTrack`, determine if it can be copied to the output without re-encoding.
 
@@ -33,8 +36,10 @@ const {videoTracks} = await parseMedia({
 
 for (const track of videoTracks) {
   canCopyVideoTrack({
-    inputCodec: track.codecWithoutConfig,
     container: 'webm',
+    inputCodec: track.codecWithoutConfig,
+    inputRotation: track.rotation,
+    rotationToApply: 0,
   }); // boolean
 }
 ```
@@ -54,6 +59,8 @@ await convertMedia({
     const canCopy = canCopyVideoTrack({
       inputCodec: track.codecWithoutConfig,
       container: 'webm',
+      inputRotation: track.rotation,
+      rotationToApply: 0,
     });
 
     if (canCopy) {
@@ -74,11 +81,31 @@ _string_ <TsType type="MediaParserVideoCodec" source="@remotion/media-parser" />
 
 The codec of the input video track.
 
+### `inputRotation`
+
+_number_
+
+The number of degrees the input video track is rotated.
+
+### `rotationToApply`
+
+_number_
+
+The number of degrees to rotate the video track.
+
 ### `container`
 
 _string_ <TsType type="ConvertMediaContainer" source="@remotion/webcodecs" />
 
 The container format of the output media.
+
+## Rotation behavior
+
+Any `rotationToApply` is in addition to an auto-rotation that is applied by default to fix the orientation of the video track.
+
+If `rotationToApply` is not the same amount of rotation as `inputRotation`, this function will always return `false`, because rotation cannot be performed without re-encoding.
+
+See: [Rotating a video](/docs/webcodecs/rotate-video)
 
 ## Return value
 

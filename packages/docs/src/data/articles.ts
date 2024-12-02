@@ -3348,6 +3348,13 @@ export const articles = [
 		crumb: null,
 	},
 	{
+		id: 'rotate-a-video',
+		title: 'Rotate a video',
+		relativePath: 'docs/webcodecs/rotation.mdx',
+		compId: 'articles-docs-webcodecs-rotation',
+		crumb: '@remotion/webcodecs',
+	},
+	{
 		id: 'can-copy-video-track',
 		title: 'canCopyVideoTrack()',
 		relativePath: 'docs/webcodecs/can-copy-video-track.mdx',

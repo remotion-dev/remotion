@@ -3,7 +3,7 @@ import type {ConvertMediaContainer} from './get-available-containers';
 import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 
 export type VideoOperation =
-	| {type: 'reencode'; videoCodec: ConvertMediaVideoCodec; rotation?: number}
+	| {type: 'reencode'; videoCodec: ConvertMediaVideoCodec; rotate?: number}
 	| {type: 'copy'}
 	| {type: 'drop'}
 	| {type: 'fail'};
@@ -13,4 +13,5 @@ export type ConvertMediaOnVideoTrackHandler = (options: {
 	track: VideoTrack;
 	logLevel: LogLevel;
 	container: ConvertMediaContainer;
+	rotate: number;
 }) => VideoOperation | Promise<VideoOperation>;

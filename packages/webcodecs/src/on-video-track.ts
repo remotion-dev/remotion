@@ -57,6 +57,7 @@ export const makeVideoTrackHandler =
 			defaultVideoCodec,
 			logLevel,
 			container,
+			rotate,
 		});
 
 		if (videoOperation.type === 'drop') {
@@ -109,7 +110,7 @@ export const makeVideoTrackHandler =
 			);
 		}
 
-		const rotation = videoOperation.rotation ?? -track.rotation + rotate;
+		const rotation = videoOperation.rotate ?? -track.rotation;
 
 		const {height: newHeight, width: newWidth} =
 			calculateNewDimensionsFromDimensions({
