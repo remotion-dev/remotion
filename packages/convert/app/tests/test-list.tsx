@@ -1,4 +1,5 @@
 import {convertMedia} from '@remotion/webcodecs';
+import {flipVideoFrame} from '~/components/flip-video';
 import {
 	addTestWatcher,
 	allowSafariAudioDrop,
@@ -130,6 +131,25 @@ export const rotatedVideo = (): TestStructure => {
 	});
 };
 
+export const vpxEncodingError = (): TestStructure => {
+	const src =
+		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/vpx-encoding-error.mp4';
+	return addTestWatcher({
+		name: 'Flipping a video',
+		src,
+		async execute(onUpdate) {
+			await convertMedia({
+				src,
+				container: 'webm',
+				onProgress: makeProgressReporter(onUpdate),
+				onVideoFrame: ({frame}) => {
+					return flipVideoFrame({frame, horizontal: true, vertical: false});
+				},
+			});
+		},
+	});
+};
+
 export const testList: TestStructure[] = [
 	basicMp4ToWebM(),
 	av1WebmToMp4(),
@@ -138,4 +158,5 @@ export const testList: TestStructure[] = [
 	weirdMp4aConfig(),
 	rotatedVideo(),
 	lpcmLivePhoto(),
+	vpxEncodingError(),
 ];
