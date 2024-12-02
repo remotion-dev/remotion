@@ -26,7 +26,7 @@ import {
 	calculateOuterStyle,
 } from './calculate-scale.js';
 import {ErrorBoundary} from './error-boundary.js';
-import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
+import {playerCssClassname} from './player-css-classname.js';
 import type {PlayerMethods, PlayerRef} from './player-methods.js';
 import type {RenderVolumeSlider} from './render-volume-slider.js';
 import {usePlayback} from './use-playback.js';
@@ -89,6 +89,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		readonly hideControlsWhenPointerDoesntMove: boolean | number;
 		readonly overflowVisible: boolean;
 		readonly browserMediaControlsBehavior: BrowserMediaControlsBehavior;
+		readonly overrideInternalClassName: string | undefined;
 	}
 > = (
 	{
@@ -126,6 +127,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		hideControlsWhenPointerDoesntMove,
 		overflowVisible,
 		browserMediaControlsBehavior,
+		overrideInternalClassName,
 	},
 	ref,
 ) => {
@@ -618,7 +620,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				onPointerDown={clickToPlay ? handlePointerDown : undefined}
 				onDoubleClick={doubleClickToFullscreen ? handleDoubleClick : undefined}
 			>
-				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
+				<div
+					style={containerStyle}
+					className={playerCssClassname(overrideInternalClassName)}
+				>
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
 							<Internals.CurrentScaleContext.Provider value={currentScale}>
