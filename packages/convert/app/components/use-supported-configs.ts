@@ -9,11 +9,13 @@ export const useSupportedConfigs = ({
 	tracks,
 	logLevel,
 	action,
+	userRotation,
 }: {
 	container: ConvertMediaContainer;
 	tracks: TracksField | null;
 	logLevel: LogLevel;
 	action: RouteAction;
+	userRotation: number;
 }) => {
 	const [state, setState] = useState<
 		Record<ConvertMediaContainer, SupportedConfigs | null>
@@ -30,13 +32,14 @@ export const useSupportedConfigs = ({
 			bitrate: 128000,
 			logLevel,
 			action,
+			userRotation,
 		}).then((supportedConfigs) => {
 			setState((prev) => ({
 				...prev,
 				[container]: supportedConfigs,
 			}));
 		});
-	}, [action, container, logLevel, tracks]);
+	}, [action, container, logLevel, tracks, userRotation]);
 
 	return state[container];
 };

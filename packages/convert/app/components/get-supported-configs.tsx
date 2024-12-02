@@ -56,12 +56,14 @@ export const getSupportedConfigs = async ({
 	bitrate,
 	logLevel,
 	action,
+	userRotation,
 }: {
 	tracks: TracksField;
 	container: ConvertMediaContainer;
 	bitrate: number;
 	logLevel: LogLevel;
 	action: RouteAction;
+	userRotation: number;
 }): Promise<SupportedConfigs> => {
 	const availableVideoCodecs = getAvailableVideoCodecs({container});
 
@@ -75,6 +77,8 @@ export const getSupportedConfigs = async ({
 		const canCopy = canCopyVideoTrack({
 			inputCodec: track.codecWithoutConfig,
 			container,
+			inputRotation: track.rotation,
+			rotationToApply: userRotation,
 		});
 		if (canCopy && prioritizeCopyOverReencode) {
 			options.push({

@@ -101,6 +101,7 @@ export default function ConvertUI({
 		tracks,
 		logLevel,
 		action,
+		userRotation,
 	});
 
 	const setVideoConfigIndex = useCallback((trackId: number, i: number) => {
