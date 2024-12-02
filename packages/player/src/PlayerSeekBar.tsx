@@ -176,9 +176,9 @@ export const PlayerSeekBar: React.FC<{
 				(frame / Math.max(1, durationInFrames - 1)) * width - KNOB_SIZE / 2,
 			),
 			boxShadow: '0 0 2px black',
-			opacity: Number(barHovered),
+			opacity: Number(barHovered || dragging.dragging),
 		};
-	}, [barHovered, durationInFrames, frame, width]);
+	}, [barHovered, dragging.dragging, durationInFrames, frame, width]);
 
 	const fillStyle: React.CSSProperties = useMemo(() => {
 		return {
