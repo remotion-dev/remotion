@@ -10,6 +10,7 @@ import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
 import {convertMedia, ConvertMediaContainer} from '@remotion/webcodecs';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {canRotateOrMirror} from '~/lib/can-rotate-or-mirror';
 import {ConvertState, Source} from '~/lib/convert-state';
 import {
 	ConvertSections,
@@ -17,7 +18,8 @@ import {
 	isConvertEnabledByDefault,
 	RotateOrMirrorState,
 } from '~/lib/default-ui';
-import {isDroppingEverything, isReencoding} from '~/lib/is-reencoding';
+import {isReencoding} from '~/lib/is-reencoding';
+import {isSubmitDisabled} from '~/lib/is-submit-enabled';
 import {RouteAction} from '~/seo';
 import {ConversionDone} from './ConversionDone';
 import {ConvertForm} from './ConvertForm';
@@ -39,7 +41,7 @@ export default function ConvertUI({
 	duration,
 	logLevel,
 	action,
-	enableRotateOrMirrow,
+	enableRotateOrMirror,
 	setEnableRotateOrMirror,
 	userRotation,
 	setRotation,
@@ -56,7 +58,7 @@ export default function ConvertUI({
 	readonly duration: number | null;
 	readonly logLevel: LogLevel;
 	readonly action: RouteAction;
-	readonly enableRotateOrMirrow: RotateOrMirrorState;
+	readonly enableRotateOrMirror: RotateOrMirrorState;
 	readonly setEnableRotateOrMirror: React.Dispatch<
 		React.SetStateAction<RotateOrMirrorState | null>
 	>;
@@ -120,8 +122,8 @@ export default function ConvertUI({
 			onVideoFrame: ({frame}) => {
 				const flipped = flipVideoFrame({
 					frame,
-					horizontal: flipHorizontal && enableRotateOrMirrow === 'mirror',
-					vertical: flipVertical && enableRotateOrMirrow === 'mirror',
+					horizontal: flipHorizontal && enableRotateOrMirror === 'mirror',
+					vertical: flipVertical && enableRotateOrMirror === 'mirror',
 				});
 				if (videoFrames % 15 === 0) {
 					// TODO: Pass rotation that was applied
@@ -142,7 +144,7 @@ export default function ConvertUI({
 					},
 				});
 			},
-			container: container as 'webm',
+			container,
 			signal: abortController.signal,
 			fields: {
 				name: true,
@@ -224,7 +226,7 @@ export default function ConvertUI({
 		supportedConfigs,
 		audioConfigIndex,
 		videoConfigIndex,
-		enableRotateOrMirrow,
+		enableRotateOrMirror,
 		logLevel,
 	]);
 
@@ -321,17 +323,18 @@ export default function ConvertUI({
 		);
 	}
 
-	const disableSubmit =
-		!supportedConfigs ||
-		isDroppingEverything({
-			audioConfigIndex,
-			supportedConfigs,
-			videoConfigIndex,
-		});
+	const disableSubmit = isSubmitDisabled({
+		audioConfigIndex,
+		supportedConfigs,
+		videoConfigIndex,
+		enableConvert,
+		enableRotateOrMirror,
+	});
 
-	const canPixelManipulate =
-		(supportedConfigs && isReencoding({supportedConfigs, videoConfigIndex})) ??
-		false;
+	const canPixelManipulate = canRotateOrMirror({
+		supportedConfigs,
+		videoConfigIndex,
+	});
 
 	return (
 		<>
@@ -376,12 +379,12 @@ export default function ConvertUI({
 						return (
 							<div key="mirror">
 								<ConvertUiSection
-									active={enableRotateOrMirrow === 'mirror'}
+									active={enableRotateOrMirror === 'mirror'}
 									setActive={onMirrorClick}
 								>
 									Mirror
 								</ConvertUiSection>
-								{enableRotateOrMirrow === 'mirror' ? (
+								{enableRotateOrMirror === 'mirror' ? (
 									<MirrorComponents
 										canPixelManipulate={canPixelManipulate}
 										flipHorizontal={flipHorizontal}
@@ -398,12 +401,12 @@ export default function ConvertUI({
 						return (
 							<div key="rotate">
 								<ConvertUiSection
-									active={enableRotateOrMirrow === 'rotate'}
+									active={enableRotateOrMirror === 'rotate'}
 									setActive={onRotateClick}
 								>
 									Rotate
 								</ConvertUiSection>
-								{enableRotateOrMirrow === 'rotate' ? (
+								{enableRotateOrMirror === 'rotate' ? (
 									<RotateComponents
 										canPixelManipulate={canPixelManipulate}
 										rotation={userRotation}

@@ -118,7 +118,7 @@ export const FileAvailable: React.FC<{
 									duration={probeResult.durationInSeconds ?? null}
 									logLevel="verbose"
 									action={routeAction}
-									enableRotateOrMirrow={enableRotateOrMirrow}
+									enableRotateOrMirror={enableRotateOrMirrow}
 									setEnableRotateOrMirror={setEnableRotateOrMirror}
 									userRotation={actualUserRotation}
 									setRotation={setRotation}
