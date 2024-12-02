@@ -3,13 +3,20 @@ import {isReencoding} from './is-reencoding';
 
 export const canRotateOrMirror = ({
 	supportedConfigs,
-	videoConfigIndex,
+	videoConfigIndexSelection,
+	enableConvert,
 }: {
 	supportedConfigs: SupportedConfigs | null;
-	videoConfigIndex: Record<number, number>;
+	videoConfigIndexSelection: Record<number, number>;
+	enableConvert: boolean;
 }) => {
 	return (
-		(supportedConfigs && isReencoding({supportedConfigs, videoConfigIndex})) ??
+		(supportedConfigs &&
+			isReencoding({
+				supportedConfigs,
+				videoConfigIndexSelection,
+				enableConvert,
+			})) ??
 		false
 	);
 };

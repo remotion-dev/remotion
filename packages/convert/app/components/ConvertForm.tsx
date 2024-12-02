@@ -29,8 +29,8 @@ export const ConvertForm: React.FC<{
 		React.SetStateAction<ConvertMediaContainer>
 	>;
 	readonly supportedConfigs: SupportedConfigs | null;
-	readonly videoConfigIndex: Record<number, number>;
-	readonly audioConfigIndex: Record<number, number>;
+	readonly videoConfigIndexSelection: Record<number, number>;
+	readonly audioConfigIndexSelection: Record<number, number>;
 	readonly setAudioConfigIndex: (trackId: number, i: number) => void;
 	readonly setVideoConfigIndex: (trackId: number, i: number) => void;
 	readonly currentAudioCodec: MediaParserAudioCodec | null;
@@ -39,9 +39,9 @@ export const ConvertForm: React.FC<{
 	container,
 	setContainer,
 	supportedConfigs,
-	audioConfigIndex,
+	audioConfigIndexSelection,
 	setAudioConfigIndex,
-	videoConfigIndex,
+	videoConfigIndexSelection,
 	setVideoConfigIndex,
 	currentAudioCodec,
 	currentVideoCodec,
@@ -79,7 +79,7 @@ export const ConvertForm: React.FC<{
 								totalVideoTracks={supportedConfigs.videoTrackOptions.length}
 							/>
 							<VideoCodecSelection
-								index={videoConfigIndex[track.trackId] ?? 0}
+								index={videoConfigIndexSelection[track.trackId] ?? 0}
 								setIndex={(i) => {
 									setVideoConfigIndex(track.trackId, i);
 								}}
@@ -101,7 +101,7 @@ export const ConvertForm: React.FC<{
 								totalAudioTracks={supportedConfigs.audioTrackOptions.length}
 							/>
 							<AudioCodecSelection
-								index={audioConfigIndex[track.trackId] ?? 0}
+								index={audioConfigIndexSelection[track.trackId] ?? 0}
 								setIndex={(i) => {
 									setAudioConfigIndex(track.trackId, i);
 								}}

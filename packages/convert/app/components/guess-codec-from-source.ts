@@ -1,25 +1,29 @@
-import {
-	ConvertMediaContainer,
-	getAvailableContainers,
-} from '@remotion/webcodecs';
+import {ParseMediaContainer} from '@remotion/media-parser';
+import {ConvertMediaContainer} from '@remotion/webcodecs';
 import {Source} from '~/lib/convert-state';
+
+const guessFromExtension = (src: string) => {
+	if (src.endsWith('.webm')) {
+		return 'webm';
+	}
+	if (src.endsWith('.mkv')) {
+		return 'webm';
+	}
+	if (src.endsWith('.avi')) {
+		return 'avi';
+	}
+	return 'mp4';
+};
 
 export const guessContainerFromSource = (
 	source: Source,
-): ConvertMediaContainer => {
+): ParseMediaContainer => {
 	if (source.type === 'file') {
-		if (source.file.name.endsWith('.webm')) {
-			return 'webm';
-		}
-		return 'mp4';
+		return guessFromExtension(source.file.name);
 	}
 
 	if (source.type === 'url') {
-		if (source.url.endsWith('.webm')) {
-			return 'webm';
-		}
-
-		return 'mp4';
+		return guessFromExtension(source.url);
 	}
 
 	throw new Error(`Unhandled source type: ${source satisfies never}`);
@@ -28,7 +32,19 @@ export const guessContainerFromSource = (
 export const getDefaultContainerForConversion = (
 	source: Source,
 ): ConvertMediaContainer => {
-	const availableContainers = getAvailableContainers();
 	const guessed = guessContainerFromSource(source);
-	return availableContainers.find((container) => container !== guessed)!;
+
+	if (guessed === 'avi') {
+		return 'mp4';
+	}
+
+	if (guessed === 'mp4') {
+		return 'webm';
+	}
+
+	if (guessed === 'webm') {
+		return 'mp4';
+	}
+
+	throw new Error('Unhandled container ' + (guessed satisfies never));
 };

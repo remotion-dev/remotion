@@ -5,14 +5,14 @@ import {isDroppingEverything} from './is-reencoding';
 
 export const isSubmitDisabled = ({
 	supportedConfigs,
-	audioConfigIndex,
-	videoConfigIndex,
+	audioConfigIndexSelection,
+	videoConfigIndexSelection,
 	enableConvert,
 	enableRotateOrMirror,
 }: {
 	supportedConfigs: SupportedConfigs | null;
-	audioConfigIndex: Record<number, number>;
-	videoConfigIndex: Record<number, number>;
+	audioConfigIndexSelection: Record<number, number>;
+	videoConfigIndexSelection: Record<number, number>;
 	enableConvert: boolean;
 	enableRotateOrMirror: RotateOrMirrorState;
 }) => {
@@ -30,14 +30,16 @@ export const isSubmitDisabled = ({
 		enableRotateOrMirror !== null &&
 		canRotateOrMirror({
 			supportedConfigs,
-			videoConfigIndex,
+			enableConvert,
+			videoConfigIndexSelection,
 		});
 	const isConverting =
 		enableConvert &&
 		!isDroppingEverything({
-			audioConfigIndex,
+			audioConfigIndexSelection,
 			supportedConfigs,
-			videoConfigIndex,
+			videoConfigIndexSelection,
+			enableConvert,
 		});
 
 	return !(isRotatingOrMirroring || isConverting);

@@ -18,6 +18,10 @@ import {
 	isConvertEnabledByDefault,
 	RotateOrMirrorState,
 } from '~/lib/default-ui';
+import {
+	getActualAudioConfigIndex,
+	getActualVideoConfigIndex,
+} from '~/lib/get-audio-video-config-index';
 import {isReencoding} from '~/lib/is-reencoding';
 import {isSubmitDisabled} from '~/lib/is-submit-enabled';
 import {RouteAction} from '~/seo';
@@ -72,10 +76,10 @@ export default function ConvertUI({
 	const [container, setContainer] = useState<ConvertMediaContainer>(() =>
 		getDefaultContainerForConversion(src),
 	);
-	const [videoConfigIndex, _setVideoConfigIndex] = useState<
+	const [videoConfigIndexSelection, _setVideoConfigIndex] = useState<
 		Record<number, number>
 	>({});
-	const [audioConfigIndex, _setAudioConfigIndex] = useState<
+	const [audioConfigIndexSelection, _setAudioConfigIndex] = useState<
 		Record<number, number>
 	>({});
 	const [state, setState] = useState<ConvertState>({type: 'idle'});
@@ -160,7 +164,11 @@ export default function ConvertUI({
 					throw new Error('Found no options for audio track');
 				}
 
-				const configIndex = audioConfigIndex[track.trackId] ?? 0;
+				const configIndex = getActualAudioConfigIndex({
+					enableConvert,
+					audioConfigIndexSelection,
+					trackNumber: track.trackId,
+				});
 
 				const operation = options.operations[configIndex ?? 0];
 				if (!operation) {
@@ -183,7 +191,11 @@ export default function ConvertUI({
 					throw new Error('Found no options for video track');
 				}
 
-				const configIndex = videoConfigIndex[track.trackId] ?? 0;
+				const configIndex = getActualVideoConfigIndex({
+					enableConvert,
+					videoConfigIndexSelection,
+					trackNumber: track.trackId,
+				});
 
 				const operation = options.operations[configIndex ?? 0];
 				if (!operation) {
@@ -220,14 +232,15 @@ export default function ConvertUI({
 	}, [
 		src,
 		userRotation,
+		logLevel,
 		container,
 		flipHorizontal,
+		enableRotateOrMirror,
 		flipVertical,
 		supportedConfigs,
-		audioConfigIndex,
-		videoConfigIndex,
-		enableRotateOrMirror,
-		logLevel,
+		enableConvert,
+		audioConfigIndexSelection,
+		videoConfigIndexSelection,
 	]);
 
 	const cancel = useCallback(() => {
@@ -292,7 +305,11 @@ export default function ConvertUI({
 					duration={duration}
 					isReencoding={
 						supportedConfigs !== null &&
-						isReencoding({supportedConfigs, videoConfigIndex})
+						isReencoding({
+							supportedConfigs,
+							videoConfigIndexSelection,
+							enableConvert,
+						})
 					}
 				/>
 				<div className="h-2" />
@@ -314,7 +331,11 @@ export default function ConvertUI({
 					duration={duration}
 					isReencoding={
 						supportedConfigs !== null &&
-						isReencoding({supportedConfigs, videoConfigIndex})
+						isReencoding({
+							supportedConfigs,
+							videoConfigIndexSelection,
+							enableConvert,
+						})
 					}
 				/>
 				<div className="h-2" />
@@ -324,16 +345,17 @@ export default function ConvertUI({
 	}
 
 	const disableSubmit = isSubmitDisabled({
-		audioConfigIndex,
+		audioConfigIndexSelection,
 		supportedConfigs,
-		videoConfigIndex,
+		videoConfigIndexSelection,
 		enableConvert,
 		enableRotateOrMirror,
 	});
 
 	const canPixelManipulate = canRotateOrMirror({
 		supportedConfigs,
-		videoConfigIndex,
+		videoConfigIndexSelection,
+		enableConvert,
 	});
 
 	return (
@@ -361,8 +383,8 @@ export default function ConvertUI({
 												setFlipHorizontal,
 												setFlipVertical,
 												supportedConfigs,
-												audioConfigIndex,
-												videoConfigIndex,
+												audioConfigIndexSelection,
+												videoConfigIndexSelection,
 												setAudioConfigIndex,
 												setVideoConfigIndex,
 												currentAudioCodec,
