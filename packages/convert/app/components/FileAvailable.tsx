@@ -1,6 +1,8 @@
 import {ParseMediaOnProgress} from '@remotion/media-parser';
-import React, {useCallback, useRef, useState} from 'react';
+import {WebCodecsInternals} from '@remotion/webcodecs';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {Source} from '~/lib/convert-state';
+import {defaultRotateOrMirorState, RotateOrMirrorState} from '~/lib/default-ui';
 import {formatBytes} from '~/lib/format-bytes';
 import {RouteAction} from '~/seo';
 import ConvertUI from './ConvertUi';
@@ -23,12 +25,9 @@ export const FileAvailable: React.FC<{
 
 	const videoThumbnailRef = useRef<VideoThumbnailRef>(null);
 
-	const onVideoThumbnail = useCallback(
-		(frame: VideoFrame, rotation: number) => {
-			videoThumbnailRef.current?.draw(frame, rotation);
-		},
-		[],
-	);
+	const onVideoThumbnail = useCallback((frame: VideoFrame) => {
+		videoThumbnailRef.current?.draw(frame);
+	}, []);
 
 	const onProgress: ParseMediaOnProgress = useCallback(
 		async ({bytes, percentage}) => {
@@ -49,12 +48,25 @@ export const FileAvailable: React.FC<{
 		[],
 	);
 
+	const [enableRotateOrMirrow, setEnableRotateOrMirror] =
+		useState<RotateOrMirrorState>(() => defaultRotateOrMirorState(routeAction));
+
 	const probeResult = useProbe({
 		src,
 		logLevel: 'verbose',
 		onProgress,
 		onVideoThumbnail,
 	});
+
+	const [userRotation, setRotation] = useState(90);
+
+	const actualUserRotation = useMemo(() => {
+		if (enableRotateOrMirrow !== 'rotate') {
+			return 0;
+		}
+
+		return WebCodecsInternals.normalizeVideoRotation(userRotation);
+	}, [enableRotateOrMirrow, userRotation]);
 
 	return (
 		<div>
@@ -83,6 +95,7 @@ export const FileAvailable: React.FC<{
 							setProbeDetails={setProbeDetails}
 							probeResult={probeResult}
 							videoThumbnailRef={videoThumbnailRef}
+							userRotation={actualUserRotation}
 						/>
 						<div className="h-8 lg:h-0 lg:w-8" />
 						<div
@@ -99,6 +112,10 @@ export const FileAvailable: React.FC<{
 									duration={probeResult.durationInSeconds ?? null}
 									logLevel="verbose"
 									action={routeAction}
+									enableRotateOrMirrow={enableRotateOrMirrow}
+									setEnableRotateOrMirror={setEnableRotateOrMirror}
+									userRotation={actualUserRotation}
+									setRotation={setRotation}
 								/>
 							</div>
 						</div>

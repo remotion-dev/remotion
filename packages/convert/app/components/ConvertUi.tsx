@@ -13,7 +13,6 @@ import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {ConvertState, Source} from '~/lib/convert-state';
 import {
 	ConvertSections,
-	defaultRotateOrMirorState,
 	getOrderOfSections,
 	isConvertEnabledByDefault,
 	RotateOrMirrorState,
@@ -40,6 +39,10 @@ export default function ConvertUI({
 	duration,
 	logLevel,
 	action,
+	enableRotateOrMirrow,
+	setEnableRotateOrMirror,
+	userRotation,
+	setRotation,
 }: {
 	readonly src: Source;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
@@ -49,6 +52,12 @@ export default function ConvertUI({
 	readonly duration: number | null;
 	readonly logLevel: LogLevel;
 	readonly action: RouteAction;
+	readonly enableRotateOrMirrow: RotateOrMirrorState;
+	readonly setEnableRotateOrMirror: React.Dispatch<
+		React.SetStateAction<RotateOrMirrorState | null>
+	>;
+	readonly userRotation: number;
+	readonly setRotation: React.Dispatch<React.SetStateAction<number>>;
 }) {
 	const [container, setContainer] = useState<ConvertMediaContainer>(() =>
 		getDefaultContainerForConversion(src),
@@ -66,8 +75,6 @@ export default function ConvertUI({
 	const [enableConvert, setEnableConvert] = useState(() =>
 		isConvertEnabledByDefault(action),
 	);
-	const [enableRotateOrMirrow, setEnableRotateOrMirror] =
-		useState<RotateOrMirrorState>(() => defaultRotateOrMirorState(action));
 
 	const order = useMemo(() => {
 		return Object.entries(getOrderOfSections(action))
@@ -76,17 +83,6 @@ export default function ConvertUI({
 			})
 			.map(([section]) => section as ConvertSections);
 	}, [action]);
-
-	const [rotation, setRotation] = useState(90);
-
-	const actualRotation = useMemo(() => {
-		if (enableRotateOrMirrow !== 'rotate') {
-			// TODO: Native rotation
-			return 0;
-		}
-
-		return rotation;
-	}, [enableRotateOrMirrow, rotation]);
 
 	const supportedConfigs = useSupportedConfigs({container, tracks, logLevel});
 
@@ -122,13 +118,14 @@ export default function ConvertUI({
 					vertical: flipVertical && enableRotateOrMirrow === 'mirror',
 				});
 				if (videoFrames % 15 === 0) {
+					// TODO: Pass rotation that was applied
 					convertProgressRef.current?.draw(flipped);
 				}
 
 				videoFrames++;
 				return flipped;
 			},
-			rotate: actualRotation,
+			rotate: userRotation,
 			logLevel,
 			onProgress: (s) => {
 				setState({
@@ -214,7 +211,7 @@ export default function ConvertUI({
 		};
 	}, [
 		src,
-		actualRotation,
+		userRotation,
 		container,
 		flipHorizontal,
 		flipVertical,
@@ -253,7 +250,7 @@ export default function ConvertUI({
 			}
 			return null;
 		});
-	}, []);
+	}, [setEnableRotateOrMirror]);
 
 	const onRotateClick = useCallback(() => {
 		setEnableRotateOrMirror((m) => {
@@ -262,7 +259,7 @@ export default function ConvertUI({
 			}
 			return null;
 		});
-	}, []);
+	}, [setEnableRotateOrMirror]);
 
 	if (state.type === 'error') {
 		return (
@@ -289,6 +286,7 @@ export default function ConvertUI({
 						supportedConfigs !== null &&
 						isReencoding({supportedConfigs, videoConfigIndex})
 					}
+					userRotation={userRotation}
 				/>
 				<div className="h-2" />
 				<Button className="block w-full" type="button" onClick={cancel}>
@@ -311,6 +309,7 @@ export default function ConvertUI({
 						supportedConfigs !== null &&
 						isReencoding({supportedConfigs, videoConfigIndex})
 					}
+					userRotation={userRotation}
 				/>
 				<div className="h-2" />
 				<ConversionDone {...{container, name, setState, state, setSrc}} />
@@ -336,7 +335,7 @@ export default function ConvertUI({
 				{order.map((section) => {
 					if (section === 'convert') {
 						return (
-							<div>
+							<div key="convert">
 								<ConvertUiSection
 									active={enableConvert}
 									setActive={setEnableConvert}
@@ -371,7 +370,7 @@ export default function ConvertUI({
 
 					if (section === 'mirror') {
 						return (
-							<>
+							<div key="mirror">
 								<ConvertUiSection
 									active={enableRotateOrMirrow === 'mirror'}
 									setActive={onMirrorClick}
@@ -387,14 +386,13 @@ export default function ConvertUI({
 										setFlipVertical={setFlipVertical}
 									/>
 								) : null}
-							</>
+							</div>
 						);
 					}
 
 					if (section === 'rotate') {
 						return (
-							<>
-								{' '}
+							<div key="rotate">
 								<ConvertUiSection
 									active={enableRotateOrMirrow === 'rotate'}
 									setActive={onRotateClick}
@@ -404,11 +402,11 @@ export default function ConvertUI({
 								{enableRotateOrMirrow === 'rotate' ? (
 									<RotateComponents
 										canPixelManipulate={canPixelManipulate}
-										rotation={rotation}
+										rotation={userRotation}
 										setRotation={setRotation}
 									/>
 								) : null}
-							</>
+							</div>
 						);
 					}
 

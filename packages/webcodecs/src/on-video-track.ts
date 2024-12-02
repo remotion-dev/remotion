@@ -109,7 +109,7 @@ export const makeVideoTrackHandler =
 			);
 		}
 
-		const rotation = videoOperation.rotation ?? rotate;
+		const rotation = videoOperation.rotation ?? -track.rotation + rotate;
 
 		const {height: newHeight, width: newWidth} =
 			calculateNewDimensionsFromDimensions({
