@@ -26,7 +26,7 @@ import type {PosterFillMode, RenderLoading, RenderPoster} from './PlayerUI.js';
 import PlayerUI from './PlayerUI.js';
 import {PLAYER_COMP_ID, SharedPlayerContexts} from './SharedPlayerContext.js';
 import type {BrowserMediaControlsBehavior} from './browser-mediasession.js';
-import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
+import {playerCssClassname} from './player-css-classname.js';
 import type {PlayerRef} from './player-methods.js';
 import type {RenderVolumeSlider} from './render-volume-slider.js';
 import type {PropsIfHasProps} from './utils/props-if-has-props.js';
@@ -344,11 +344,11 @@ const PlayerFn = <
 			// Inject CSS only on client, and also only after the Player has hydrated
 			Internals.CSSUtils.injectCSS(
 				Internals.CSSUtils.makeDefaultPreviewCSS(
-					`.${PLAYER_CSS_CLASSNAME(overrideInternalClassName)}`,
+					`.${playerCssClassname(overrideInternalClassName)}`,
 					'#fff',
 				),
 			);
-		}, []);
+		}, [overrideInternalClassName]);
 	}
 
 	const actualInputProps = useMemo(() => inputProps ?? {}, [inputProps]);

@@ -15,7 +15,7 @@ import {
 	calculateOuterStyle,
 } from './calculate-scale.js';
 import {ErrorBoundary} from './error-boundary.js';
-import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
+import {playerCssClassname} from './player-css-classname.js';
 import type {ThumbnailMethods} from './player-methods.js';
 import type {ErrorFallback, RenderLoading} from './PlayerUI.js';
 import {useBufferStateEmitter} from './use-buffer-state-emitter.js';
@@ -148,7 +148,7 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 		<div style={outer}>
 			<div
 				style={containerStyle}
-				className={PLAYER_CSS_CLASSNAME(overrideInternalClassName)}
+				className={playerCssClassname(overrideInternalClassName)}
 			>
 				{VideoComponent ? (
 					<ErrorBoundary onError={onError} errorFallback={errorFallback}>

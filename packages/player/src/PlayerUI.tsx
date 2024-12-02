@@ -26,7 +26,7 @@ import {
 	calculateOuterStyle,
 } from './calculate-scale.js';
 import {ErrorBoundary} from './error-boundary.js';
-import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
+import {playerCssClassname} from './player-css-classname.js';
 import type {PlayerMethods, PlayerRef} from './player-methods.js';
 import type {RenderVolumeSlider} from './render-volume-slider.js';
 import {usePlayback} from './use-playback.js';
@@ -622,7 +622,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			>
 				<div
 					style={containerStyle}
-					className={PLAYER_CSS_CLASSNAME(overrideInternalClassName)}
+					className={playerCssClassname(overrideInternalClassName)}
 				>
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
