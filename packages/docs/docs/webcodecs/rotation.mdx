@@ -42,12 +42,12 @@ All rotation values that are multiples of 90 are supported. The video will be ro
 Videos that have rotation metadata embedded will by default be rotated when re-encoded in order to produce a video with the correct orientation.  
 This means you should not try to detect rotation metadata and apply the correction yourself, because it will be done automatically.
 
-If you supply a rotation, it will be in addition to the automatic rotation correction that [`convertMedia()`](/docs/convert-media) applies by default.
+If you supply a rotation, it will be in addition to the automatic rotation correction that [`convertMedia()`](/docs/webcodecs/convert-media) applies by default.
 
 ## Disabling automatic rotation
 
 If you want the video to not automatically be rotated, you need to re-apply the rotation that is the same as the rotation metadata in the video.  
-The rotations will negate each other, and [`convertMedia()`](/docs/convert-media) will not execute any code to apply rotation.
+The rotations will negate each other, and [`convertMedia()`](/docs/webcodecs/convert-media) will not execute any code to apply rotation.
 
 ```tsx twoslash title="Prevent automatic video rotation"
 // @module: es2022
