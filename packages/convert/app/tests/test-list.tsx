@@ -112,11 +112,30 @@ export const aviToMp4 = (): TestStructure => {
 	});
 };
 
+export const rotatedVideo = (): TestStructure => {
+	const src =
+		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/iphone-hevc.mov';
+
+	return addTestWatcher({
+		name: 'Rotated video',
+		src,
+		async execute(onUpdate) {
+			await convertMedia({
+				src,
+				container: 'webm',
+				onAudioTrack: allowSafariAudioDrop,
+				onProgress: makeProgressReporter(onUpdate),
+			});
+		},
+	});
+};
+
 export const testList: TestStructure[] = [
 	basicMp4ToWebM(),
 	av1WebmToMp4(),
 	aviToMp4(),
 	convertToWav(),
 	weirdMp4aConfig(),
+	rotatedVideo(),
 	lpcmLivePhoto(),
 ];
