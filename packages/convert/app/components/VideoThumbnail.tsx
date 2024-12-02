@@ -70,7 +70,8 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 	return (
 		<div
 			className="border-b-2 border-black"
-			style={{height: THUMBNAIL_HEIGHT * scale}}
+			// +2 to account for border
+			style={{height: THUMBNAIL_HEIGHT * scale + 2}}
 		>
 			<div className="flex justify-center" style={{backgroundColor: color}}>
 				<canvas
