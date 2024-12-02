@@ -15,18 +15,22 @@ const extraPages: seo.RouteAction[] = [];
 
 for (const inputs of seo.inputContainers) {
 	for (const outputs of seo.outputContainers) {
-		const action: seo.RouteAction = {
-			input: inputs,
-			output: outputs,
-			type: 'convert',
-		};
-
 		extraPages.push({
 			input: inputs,
 			output: outputs,
 			type: 'convert',
 		});
 	}
+
+	extraPages.push({
+		type: 'rotate-format',
+		format: inputs,
+	});
+
+	extraPages.push({
+		type: 'mirror-format',
+		format: inputs,
+	});
 }
 
 const contents = path.join(dir, 'index.html');
@@ -62,11 +66,16 @@ extraPages.push({
 	type: 'generic-rotate',
 });
 
+extraPages.push({
+	type: 'generic-mirror',
+});
+
 for (const page of extraPages) {
 	const slug = seo.makeSlug(page);
 	const pageTitle = seo.getPageTitle(page);
 	const description = seo.getDescription(page);
 	const out = path.join(__dirname, `./build${slug}/index.html`);
+
 	if (!fs.existsSync(path.dirname(out))) {
 		fs.mkdirSync(path.dirname(out), {recursive: true});
 	}

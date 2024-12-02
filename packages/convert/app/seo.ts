@@ -38,14 +38,14 @@ export type RouteAction =
 	  }
 	| {
 			type: 'rotate-format';
-			format: ConvertMediaContainer;
+			format: ParseMediaContainer | ConvertMediaContainer;
 	  }
 	| {
 			type: 'generic-mirror';
 	  }
 	| {
 			type: 'mirror-format';
-			format: ConvertMediaContainer;
+			format: ParseMediaContainer | ConvertMediaContainer;
 	  };
 
 export const getHeaderTitle = (routeAction: RouteAction) => {
