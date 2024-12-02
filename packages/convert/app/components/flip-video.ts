@@ -28,7 +28,7 @@ export const flipVideoFrame = ({
 	return new VideoFrame(canvas, {
 		displayHeight: frame.displayHeight,
 		displayWidth: frame.displayWidth,
-		duration: frame.duration as number,
+		duration: frame.duration ?? 0,
 		timestamp: frame.timestamp,
 	});
 };

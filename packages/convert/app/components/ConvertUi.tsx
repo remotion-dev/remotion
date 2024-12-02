@@ -286,7 +286,6 @@ export default function ConvertUI({
 						supportedConfigs !== null &&
 						isReencoding({supportedConfigs, videoConfigIndex})
 					}
-					userRotation={userRotation}
 				/>
 				<div className="h-2" />
 				<Button className="block w-full" type="button" onClick={cancel}>
@@ -309,7 +308,6 @@ export default function ConvertUI({
 						supportedConfigs !== null &&
 						isReencoding({supportedConfigs, videoConfigIndex})
 					}
-					userRotation={userRotation}
 				/>
 				<div className="h-2" />
 				<ConversionDone {...{container, name, setState, state, setSrc}} />

@@ -46,13 +46,13 @@ export const onFrame = async ({
 
 	if (userProcessedFrame.timestamp !== rotated.timestamp) {
 		throw new Error(
-			`Returned VideoFrame of track ${track.trackId} has different timestamp (${userProcessedFrame.timestamp}) than the input frame (${userProcessedFrame.timestamp}). When calling new VideoFrame(), pass {timestamp: frame.timestamp} as second argument`,
+			`Returned VideoFrame of track ${track.trackId} has different timestamp (${userProcessedFrame.timestamp}) than the input frame (${rotated.timestamp}). When calling new VideoFrame(), pass {timestamp: frame.timestamp} as second argument`,
 		);
 	}
 
-	if (userProcessedFrame.duration !== rotated.duration) {
+	if ((userProcessedFrame.duration ?? 0) !== (rotated.duration ?? 0)) {
 		throw new Error(
-			`Returned VideoFrame of track ${track.trackId} has different duration (${userProcessedFrame.duration}) than the input frame (${userProcessedFrame.duration}). When calling new VideoFrame(), pass {duration: frame.duration} as second argument`,
+			`Returned VideoFrame of track ${track.trackId} has different duration (${userProcessedFrame.duration}) than the input frame (${rotated.duration}). When calling new VideoFrame(), pass {duration: frame.duration} as second argument`,
 		);
 	}
 
