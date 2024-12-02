@@ -1,6 +1,6 @@
 import {calculateNewDimensionsFromDimensions} from './rotation';
 
-export const rotateVideo = ({
+export const rotateVideoFrame = ({
 	frame,
 	rotation,
 }: {

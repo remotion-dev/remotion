@@ -23,9 +23,12 @@ export const FileAvailable: React.FC<{
 
 	const videoThumbnailRef = useRef<VideoThumbnailRef>(null);
 
-	const onVideoThumbnail = useCallback((frame: VideoFrame) => {
-		videoThumbnailRef.current?.draw(frame);
-	}, []);
+	const onVideoThumbnail = useCallback(
+		(frame: VideoFrame, rotation: number) => {
+			videoThumbnailRef.current?.draw(frame, rotation);
+		},
+		[],
+	);
 
 	const onProgress: ParseMediaOnProgress = useCallback(
 		async ({bytes, percentage}) => {

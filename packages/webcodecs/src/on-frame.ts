@@ -2,7 +2,7 @@ import type {VideoTrack} from '@remotion/media-parser';
 import type {ConvertMediaOnVideoFrame} from './convert-media';
 import {convertToCorrectVideoFrame} from './convert-to-correct-videoframe';
 import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
-import {rotateVideo} from './rotate-video';
+import {rotateVideoFrame} from './rotate-video-frame';
 import type {WebCodecsVideoEncoder} from './video-encoder';
 
 export const onFrame = async ({
@@ -20,7 +20,7 @@ export const onFrame = async ({
 	outputCodec: ConvertMediaVideoCodec;
 	rotation: number;
 }) => {
-	const rotated = rotateVideo({
+	const rotated = rotateVideoFrame({
 		rotation,
 		frame: unrotatedFrame,
 	});

@@ -23,7 +23,7 @@ export const useProbe = ({
 }: {
 	src: Source;
 	logLevel: LogLevel;
-	onVideoThumbnail: (videoFrame: VideoFrame) => void;
+	onVideoThumbnail: (videoFrame: VideoFrame, rotation: number) => void;
 	onProgress: ParseMediaOnProgress;
 }) => {
 	const [audioCodec, setAudioCodec] = useState<
@@ -109,7 +109,7 @@ export const useProbe = ({
 						console.log(error);
 					},
 					output(frame) {
-						onVideoThumbnail(frame);
+						onVideoThumbnail(frame, track.rotation);
 						frame.close();
 						hasFrame = true;
 						cancelIfDone();

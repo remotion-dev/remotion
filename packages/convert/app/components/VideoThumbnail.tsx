@@ -1,3 +1,4 @@
+import {WebCodecsInternals} from '@remotion/webcodecs';
 import {FastAverageColor} from 'fast-average-color';
 import React, {useCallback, useImperativeHandle, useRef, useState} from 'react';
 import {useIsNarrow} from '~/lib/is-narrow';
@@ -9,7 +10,7 @@ type Props = {
 };
 
 export type VideoThumbnailRef = {
-	draw: (videoFrame: VideoFrame) => void;
+	draw: (videoFrame: VideoFrame, rotation: number) => void;
 };
 
 const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
@@ -21,30 +22,38 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 	const [color, setColor] = useState<string>('transparent');
 	const [width, setWidth] = useState<number>(0);
 
-	const drawThumbnail = useCallback((videoFrame: VideoFrame) => {
-		const scaleRatio = THUMBNAIL_HEIGHT / videoFrame.displayHeight;
-		const w = Math.round(videoFrame.displayWidth * scaleRatio);
-		setWidth(w);
+	const drawThumbnail = useCallback(
+		(unrotatedVideoFrame: VideoFrame, rotation: number) => {
+			const videoFrame = WebCodecsInternals.rotateVideoFrame({
+				frame: unrotatedVideoFrame,
+				rotation: 0 - rotation,
+			});
 
-		const canvas = ref.current;
-		if (!canvas) {
-			return;
-		}
-		canvas.width = w;
-		const twoDContext = canvas.getContext('2d');
-		if (!twoDContext) {
-			return;
-		}
+			const scaleRatio = THUMBNAIL_HEIGHT / videoFrame.displayHeight;
+			const w = Math.round(videoFrame.displayWidth * scaleRatio);
+			setWidth(w);
 
-		twoDContext.drawImage(videoFrame, 0, 0, w, THUMBNAIL_HEIGHT);
-		setColor((c) => {
-			if (c !== 'transparent') {
-				return c;
+			const canvas = ref.current;
+			if (!canvas) {
+				return;
+			}
+			canvas.width = w;
+			const twoDContext = canvas.getContext('2d');
+			if (!twoDContext) {
+				return;
 			}
 
-			return new FastAverageColor().getColor(canvas).hex;
-		});
-	}, []);
+			twoDContext.drawImage(videoFrame, 0, 0, w, THUMBNAIL_HEIGHT);
+			setColor((c) => {
+				if (c !== 'transparent') {
+					return c;
+				}
+
+				return new FastAverageColor().getColor(canvas).hex;
+			});
+		},
+		[],
+	);
 
 	useImperativeHandle(
 		forwardedRef,
