@@ -96,7 +96,12 @@ export default function ConvertUI({
 			.map(([section]) => section as ConvertSections);
 	}, [action]);
 
-	const supportedConfigs = useSupportedConfigs({container, tracks, logLevel});
+	const supportedConfigs = useSupportedConfigs({
+		container,
+		tracks,
+		logLevel,
+		action,
+	});
 
 	const setVideoConfigIndex = useCallback((trackId: number, i: number) => {
 		_setVideoConfigIndex((prev) => ({
