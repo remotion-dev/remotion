@@ -103,7 +103,7 @@ export const createAudioEncoder = ({
 		await ioSynchronizer.waitFor({
 			unemitted: 20,
 			_unprocessed: 20,
-			minimumProgress: audioData.timestamp - 5_000_000,
+			minimumProgress: audioData.timestamp - 10_000_000,
 		});
 
 		// @ts-expect-error - can have changed in the meanwhile

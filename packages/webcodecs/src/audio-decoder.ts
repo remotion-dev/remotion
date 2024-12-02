@@ -105,9 +105,9 @@ export const createAudioDecoder = ({
 		}
 
 		await ioSynchronizer.waitFor({
-			unemitted: 10,
-			_unprocessed: 2,
-			minimumProgress: audioSample.timestamp - 5_000_000,
+			unemitted: 20,
+			_unprocessed: 20,
+			minimumProgress: audioSample.timestamp - 10_000_000,
 		});
 
 		// Don't flush, it messes up the audio

@@ -150,6 +150,23 @@ export const vpxEncodingError = (): TestStructure => {
 	});
 };
 
+export const offsetTimestamps = (): TestStructure => {
+	const src =
+		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/very-offset-timestamps.mp4';
+
+	return addTestWatcher({
+		name: 'Convert a video with offset video and audio timestamps',
+		src,
+		async execute(onUpdate) {
+			await convertMedia({
+				src,
+				container: 'webm',
+				onProgress: makeProgressReporter(onUpdate),
+			});
+		},
+	});
+};
+
 export const testList: TestStructure[] = [
 	basicMp4ToWebM(),
 	av1WebmToMp4(),
@@ -159,4 +176,5 @@ export const testList: TestStructure[] = [
 	rotatedVideo(),
 	lpcmLivePhoto(),
 	vpxEncodingError(),
+	offsetTimestamps(),
 ];

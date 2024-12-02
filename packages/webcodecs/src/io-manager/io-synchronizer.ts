@@ -2,6 +2,7 @@ import type {ProgressTracker} from '@remotion/media-parser';
 import {MediaParserInternals} from '@remotion/media-parser';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
+import {makeTimeoutPromise} from './make-timeout-promise';
 
 export const makeIoSynchronizer = ({
 	logLevel,
@@ -106,25 +107,33 @@ export const makeIoSynchronizer = ({
 		_unprocessed: number;
 		minimumProgress: number | null;
 	}) => {
-		await Promise.all([
-			(async () => {
-				while (getUnemittedItems() > unemitted) {
-					await waitForOutput();
-				}
-			})(),
-			(async () => {
-				while (getUnprocessed() > _unprocessed) {
-					await waitForProcessed();
-				}
-			})(),
-			minimumProgress === null
-				? Promise.resolve()
-				: (async () => {
-						while (progress.getSmallestProgress() < minimumProgress) {
-							await progress.waitForProgress();
-						}
-					})(),
-		]);
+		const {timeoutPromise, clear} = makeTimeoutPromise(
+			`Waited too long for ${label}`,
+			10_000,
+		);
+
+		await Promise.race([
+			timeoutPromise,
+			Promise.all([
+				(async () => {
+					while (getUnemittedItems() > unemitted) {
+						await waitForOutput();
+					}
+				})(),
+				(async () => {
+					while (getUnprocessed() > _unprocessed) {
+						await waitForProcessed();
+					}
+				})(),
+				minimumProgress === null
+					? Promise.resolve()
+					: (async () => {
+							while (progress.getSmallestProgress() < minimumProgress) {
+								await progress.waitForProgress();
+							}
+						})(),
+			]),
+		]).finally(() => clear());
 	};
 
 	const waitForFinish = async () => {
