@@ -49,7 +49,7 @@ export const rotateVideoFrame = ({
 	return new VideoFrame(canvas, {
 		displayHeight: height,
 		displayWidth: width,
-		duration: frame.duration ?? 0,
+		duration: frame.duration ?? undefined,
 		timestamp: frame.timestamp,
 	});
 };

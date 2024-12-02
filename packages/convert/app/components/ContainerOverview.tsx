@@ -96,7 +96,7 @@ export const ContainerOverview: React.FC<{
 						{fps === undefined ? (
 							<Skeleton className="h-3 w-[100px] inline-block" />
 						) : fps ? (
-							<>{fps} FPS</>
+							<>{fps.toFixed(2)} FPS</>
 						) : (
 							'N/A'
 						)}
