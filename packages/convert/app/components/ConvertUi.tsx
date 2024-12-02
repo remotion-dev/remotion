@@ -74,7 +74,7 @@ export default function ConvertUI({
 	readonly setFlipVertical: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
 	const [container, setContainer] = useState<ConvertMediaContainer>(() =>
-		getDefaultContainerForConversion(src),
+		getDefaultContainerForConversion(src, action),
 	);
 	const [videoConfigIndexSelection, _setVideoConfigIndex] = useState<
 		Record<number, number>
