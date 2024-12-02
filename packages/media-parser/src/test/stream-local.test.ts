@@ -460,6 +460,12 @@ test('Should get duration of HEVC video', async () => {
 	expect(parsed.rotation).toBe(-90);
 	expect(parsed.videoTracks.length).toBe(1);
 	expect(parsed.videoTracks[0].codec).toBe('hvc1.2.4.L120.b0');
+	expect(parsed.videoTracks[0].color).toEqual({
+		matrixCoefficients: 'bt2020',
+		primaries: 'bt2020',
+		transferCharacteristics: 'arib-std-b67',
+		fullRange: false,
+	});
 	expect(parsed.audioTracks.length).toBe(1);
 	expect(parsed.audioTracks[0].codec).toBe('mp4a.40.02');
 	expect(parsed.audioTracks[0].description).toEqual(new Uint8Array([18, 16]));
