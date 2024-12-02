@@ -41,9 +41,18 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 		readonly renderLoading: RenderLoading | undefined;
 		readonly className: string | undefined;
 		readonly overflowVisible: boolean;
+		readonly overrideInternalClassName: string | undefined;
 	}
 > = (
-	{style, inputProps, errorFallback, renderLoading, className, overflowVisible},
+	{
+		style,
+		inputProps,
+		errorFallback,
+		renderLoading,
+		className,
+		overflowVisible,
+		overrideInternalClassName,
+	},
 	ref,
 ) => {
 	const config = Internals.useUnsafeVideoConfig();
@@ -137,7 +146,10 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 
 	const content = (
 		<div style={outer}>
-			<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
+			<div
+				style={containerStyle}
+				className={PLAYER_CSS_CLASSNAME(overrideInternalClassName)}
+			>
 				{VideoComponent ? (
 					<ErrorBoundary onError={onError} errorFallback={errorFallback}>
 						<Internals.CurrentScaleContext.Provider value={currentScaleContext}>

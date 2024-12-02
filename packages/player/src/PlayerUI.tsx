@@ -89,6 +89,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		readonly hideControlsWhenPointerDoesntMove: boolean | number;
 		readonly overflowVisible: boolean;
 		readonly browserMediaControlsBehavior: BrowserMediaControlsBehavior;
+		readonly overrideInternalClassName: string | undefined;
 	}
 > = (
 	{
@@ -126,6 +127,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		hideControlsWhenPointerDoesntMove,
 		overflowVisible,
 		browserMediaControlsBehavior,
+		overrideInternalClassName,
 	},
 	ref,
 ) => {
@@ -618,7 +620,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				onPointerDown={clickToPlay ? handlePointerDown : undefined}
 				onDoubleClick={doubleClickToFullscreen ? handleDoubleClick : undefined}
 			>
-				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
+				<div
+					style={containerStyle}
+					className={PLAYER_CSS_CLASSNAME(overrideInternalClassName)}
+				>
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
 							<Internals.CurrentScaleContext.Provider value={currentScale}>
