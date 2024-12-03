@@ -1,17 +1,28 @@
 if (process.platform !== 'win32') {
+	// @ts-expect-error
 	const {expect, test} = await import('bun:test');
+	// @ts-expect-error
+
 	const {createAvc1Data} = await import(
 		'../create/iso-base-media/codec-specific/avc1'
 	);
+
+	// @ts-expect-error
 	const {exampleVideoSamplePositions} = await import(
 		'../create/iso-base-media/example-stts'
 	);
+	// @ts-expect-error
+
 	const {createStbl} = await import(
 		'../create/iso-base-media/trak/mdia/minf/create-stbl'
 	);
+	// @ts-expect-error
+
 	const {createAvccBox} = await import(
 		'../create/iso-base-media/trak/mdia/minf/stbl/stsd/create-avcc'
 	);
+	// @ts-expect-error
+
 	const {createPasp} = await import(
 		'../create/iso-base-media/trak/mdia/minf/stbl/stsd/create-pasp'
 	);
