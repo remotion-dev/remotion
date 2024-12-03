@@ -2990,9 +2990,6 @@ importers:
 
   packages/webcodecs:
     dependencies:
-      '@remotion/example-videos':
-        specifier: workspace:*
-        version: link:../example-videos
       '@remotion/media-parser':
         specifier: workspace:*
         version: link:../media-parser
@@ -3000,6 +2997,9 @@ importers:
       '@remotion/eslint-config-internal':
         specifier: workspace:*
         version: link:../eslint-config-internal
+      '@remotion/example-videos':
+        specifier: workspace:*
+        version: link:../example-videos
       '@types/dom-webcodecs':
         specifier: 0.1.11
         version: 0.1.11
