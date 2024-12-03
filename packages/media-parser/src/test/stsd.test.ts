@@ -44,10 +44,10 @@ test('Should be able to parse a STSD audio box correctly', async () => {
 		size: 159,
 		options: {
 			onAudioTrack: null,
-			onVideoTrack: null,
+			onVideoTrack: () => () => undefined,
 			parserState: makeParserState({
-				hasAudioTrackHandlers: false,
-				hasVideoTrackHandlers: false,
+				hasAudioTrackHandlers: true,
+				hasVideoTrackHandlers: true,
 				signal: undefined,
 				getIterator: () => null,
 				fields: {},
@@ -57,6 +57,7 @@ test('Should be able to parse a STSD audio box correctly', async () => {
 			nextTrackIndex: 0,
 		},
 		signal: null,
+		fields: {},
 	});
 
 	expect(parsed).toEqual({
@@ -215,13 +216,15 @@ test('Should be able to parse a STSD video box correctly', async () => {
 		iterator: getArrayBufferIterator(buffer, null),
 		options: {
 			onAudioTrack: null,
-			onVideoTrack: null,
+			onVideoTrack: () => () => undefined,
 			parserState: makeParserState({
-				hasAudioTrackHandlers: false,
-				hasVideoTrackHandlers: false,
+				hasAudioTrackHandlers: true,
+				hasVideoTrackHandlers: true,
 				signal: undefined,
 				getIterator: () => null,
-				fields: {},
+				fields: {
+					structure: true,
+				},
 			}),
 			nullifySamples: false,
 			supportsContentRange: true,
@@ -229,6 +232,7 @@ test('Should be able to parse a STSD video box correctly', async () => {
 		},
 		signal: null,
 		logLevel: 'info',
+		fields: {},
 	});
 	expect(parsed.sample).toEqual({
 		size: 158,

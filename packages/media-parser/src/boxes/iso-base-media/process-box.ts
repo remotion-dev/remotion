@@ -1,6 +1,8 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import {hasTracks} from '../../get-tracks';
+import {hasAllInfo} from '../../has-all-info';
 import type {LogLevel} from '../../log';
+import type {Options, ParseMediaFields} from '../../options';
 import type {
 	IsoBaseMediaBox,
 	IsoBaseMediaStructure,
@@ -43,6 +45,7 @@ const getChildren = async ({
 	options,
 	signal,
 	logLevel,
+	fields,
 }: {
 	boxType: string;
 	iterator: BufferIterator;
@@ -50,6 +53,7 @@ const getChildren = async ({
 	options: ParserContext;
 	signal: AbortSignal | null;
 	logLevel: LogLevel;
+	fields: Options<ParseMediaFields>;
 }): Promise<IsoBaseMediaBox[]> => {
 	const parseChildren =
 		boxType === 'mdia' ||
@@ -72,6 +76,7 @@ const getChildren = async ({
 			continueMdat: false,
 			signal,
 			logLevel,
+			fields,
 		});
 
 		if (parsed.status === 'incomplete') {
@@ -140,6 +145,7 @@ export const processBox = async ({
 	options,
 	signal,
 	logLevel,
+	fields,
 }: {
 	iterator: BufferIterator;
 	allowIncompleteBoxes: boolean;
@@ -147,6 +153,7 @@ export const processBox = async ({
 	options: ParserContext;
 	signal: AbortSignal | null;
 	logLevel: LogLevel;
+	fields: Options<ParseMediaFields>;
 }): Promise<BoxAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
@@ -313,6 +320,7 @@ export const processBox = async ({
 			size: boxSize,
 			options,
 			signal,
+			fields,
 		});
 
 		return {
@@ -421,6 +429,7 @@ export const processBox = async ({
 			size: boxSize,
 			options,
 			signal,
+			fields,
 		});
 
 		return {
@@ -439,6 +448,7 @@ export const processBox = async ({
 			options,
 			signal,
 			logLevel,
+			fields,
 		});
 
 		options.parserState.tracks.setIsDone();
@@ -459,6 +469,7 @@ export const processBox = async ({
 			options,
 			signal,
 			logLevel,
+			fields,
 		});
 		const transformedTrack = makeBaseMediaTrack(box);
 		if (transformedTrack) {
@@ -613,6 +624,7 @@ export const processBox = async ({
 		options,
 		signal,
 		logLevel,
+		fields,
 	});
 
 	return {
@@ -638,6 +650,7 @@ export const parseIsoBaseMediaBoxes = async ({
 	continueMdat,
 	signal,
 	logLevel,
+	fields,
 }: {
 	iterator: BufferIterator;
 	maxBytes: number;
@@ -647,6 +660,7 @@ export const parseIsoBaseMediaBoxes = async ({
 	continueMdat: false | PartialMdatBox;
 	signal: AbortSignal | null;
 	logLevel: LogLevel;
+	fields: Options<ParseMediaFields>;
 }): Promise<ParseResult<IsoBaseMediaStructure>> => {
 	const structure: IsoBaseMediaStructure = {
 		type: 'iso-base-media',
@@ -675,6 +689,7 @@ export const parseIsoBaseMediaBoxes = async ({
 					options,
 					signal,
 					logLevel,
+					fields,
 				});
 
 		if (result.type === 'incomplete') {
@@ -695,6 +710,7 @@ export const parseIsoBaseMediaBoxes = async ({
 						continueMdat: false,
 						signal,
 						logLevel,
+						fields,
 					});
 				},
 				skipTo: null,
@@ -716,6 +732,7 @@ export const parseIsoBaseMediaBoxes = async ({
 							continueMdat: result,
 							signal,
 							logLevel,
+							fields,
 						}),
 					);
 				},
@@ -734,6 +751,12 @@ export const parseIsoBaseMediaBoxes = async ({
 			break;
 		} else {
 			structure.boxes.push(result.box);
+			if (hasAllInfo({fields, state: options.parserState, structure})) {
+				return {
+					status: 'done',
+					segments: structure,
+				};
+			}
 		}
 
 		if (result.skipTo !== null) {
@@ -756,6 +779,7 @@ export const parseIsoBaseMediaBoxes = async ({
 						continueMdat: false,
 						signal,
 						logLevel,
+						fields,
 					});
 				},
 				skipTo: result.skipTo,
@@ -776,6 +800,7 @@ export const parseIsoBaseMediaBoxes = async ({
 						continueMdat: false,
 						signal,
 						logLevel,
+						fields,
 					});
 				},
 				skipTo: null,
@@ -812,6 +837,7 @@ export const parseIsoBaseMediaBoxes = async ({
 					continueMdat: false,
 					signal,
 					logLevel,
+					fields,
 				});
 			},
 			skipTo: skipped ? mdatState.fileOffset : null,

@@ -147,12 +147,16 @@ export const hasAllTracksFromAvi = (
 		throw new Error('Not an AVI file');
 	}
 
-	const numberOfTracks = getNumberOfTracks(structure);
-	const tracks = getTracksFromAvi(structure, state);
-	return (
-		tracks.videoTracks.length +
-			tracks.audioTracks.length +
-			tracks.otherTracks.length ===
-		numberOfTracks
-	);
+	try {
+		const numberOfTracks = getNumberOfTracks(structure);
+		const tracks = getTracksFromAvi(structure, state);
+		return (
+			tracks.videoTracks.length +
+				tracks.audioTracks.length +
+				tracks.otherTracks.length ===
+			numberOfTracks
+		);
+	} catch {
+		return false;
+	}
 };

@@ -7,7 +7,7 @@ import {hasHdr} from './get-is-hdr';
 import {hasTracks} from './get-tracks';
 import {hasVideoCodec} from './get-video-codec';
 import type {AllParseMediaFields, Options, ParseMediaFields} from './options';
-import type {ParseResult, Structure} from './parse-result';
+import type {Structure} from './parse-result';
 import type {ParserState} from './state/parser-state';
 
 export const getAvailableInfo = (
@@ -91,18 +91,17 @@ export const getAvailableInfo = (
 };
 
 export const hasAllInfo = ({
-	parseResult,
 	fields,
 	state,
+	structure,
 }: {
-	parseResult: ParseResult<Structure> | null;
+	structure: Structure | null;
 	fields: Options<ParseMediaFields>;
 	state: ParserState;
 }) => {
-	const availableInfo = getAvailableInfo(
-		fields ?? {},
-		parseResult?.segments ?? null,
-		state,
+	const availableInfo = getAvailableInfo(fields ?? {}, structure, state);
+	return (
+		Object.values(availableInfo).every(Boolean) &&
+		(state.maySkipVideoData() || state.canSkipTracksState.canSkipTracks())
 	);
-	return Object.values(availableInfo).every(Boolean);
 };

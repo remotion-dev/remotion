@@ -201,7 +201,7 @@ export const parseRiff = ({
 
 	structure.boxes.push({type: 'riff-header', fileSize: size, fileType});
 
-	if (hasAllInfo({fields, parseResult: null, state: options.parserState})) {
+	if (hasAllInfo({fields, structure, state: options.parserState})) {
 		return Promise.resolve({
 			status: 'done',
 			segments: structure,

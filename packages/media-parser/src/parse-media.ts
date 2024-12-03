@@ -157,8 +157,11 @@ export const parseMedia: ParseMedia = async ({
 		}
 
 		if (
-			hasAllInfo({fields: fields ?? {}, parseResult, state}) &&
-			(state.maySkipVideoData() || state.canSkipTracksState.canSkipTracks())
+			hasAllInfo({
+				fields: fields ?? {},
+				structure: parseResult.segments,
+				state,
+			})
 		) {
 			Log.verbose(logLevel, 'Got all info, skipping to the end.');
 			if (contentLength !== null) {

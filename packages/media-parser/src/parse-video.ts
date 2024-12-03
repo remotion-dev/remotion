@@ -43,6 +43,7 @@ export const parseVideo = ({
 	}
 
 	if (iterator.isRiff()) {
+		Log.verbose(logLevel, 'Detected RIFF container');
 		return Promise.resolve(parseRiff({iterator, options, fields}));
 	}
 
@@ -57,6 +58,7 @@ export const parseVideo = ({
 			continueMdat: false,
 			signal,
 			logLevel,
+			fields,
 		});
 	}
 

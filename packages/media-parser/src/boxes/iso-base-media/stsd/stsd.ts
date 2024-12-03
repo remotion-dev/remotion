@@ -1,4 +1,5 @@
 import type {BufferIterator} from '../../../buffer-iterator';
+import type {Options, ParseMediaFields} from '../../../options';
 import type {ParserContext} from '../../../parser-context';
 import type {BaseBox} from '../base-type';
 import type {Sample} from './samples';
@@ -16,12 +17,14 @@ export const parseStsd = async ({
 	size,
 	options,
 	signal,
+	fields,
 }: {
 	iterator: BufferIterator;
 	offset: number;
 	size: number;
 	options: ParserContext;
 	signal: AbortSignal | null;
+	fields: Options<ParseMediaFields>;
 }): Promise<StsdBox> => {
 	const version = iterator.getUint8();
 	if (version !== 0) {
@@ -41,6 +44,7 @@ export const parseStsd = async ({
 		options,
 		signal,
 		logLevel: 'info',
+		fields,
 	});
 
 	if (boxes.length !== numberOfEntries) {
