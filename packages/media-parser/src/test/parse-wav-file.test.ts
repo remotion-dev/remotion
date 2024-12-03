@@ -3,7 +3,7 @@ import {expect, test} from 'bun:test';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
-test('WAV file', async () => {
+test('WAV file full parse', async () => {
 	const {structure} = await parseMedia({
 		src: exampleVideos.chirp,
 		reader: nodeReader,
@@ -50,5 +50,20 @@ test('WAV file', async () => {
 				type: 'riff-box',
 			},
 		],
+	});
+});
+
+test('WAV file should skip over file if only wanting header', async () => {
+	const {internalStats} = await parseMedia({
+		src: exampleVideos.chirp,
+		reader: nodeReader,
+		fields: {
+			internalStats: true,
+		},
+	});
+
+	expect(internalStats).toEqual({
+		finalCursorOffset: 12,
+		skippedBytes: 2646138,
 	});
 });
