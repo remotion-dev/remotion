@@ -576,7 +576,6 @@ module.exports = {
 			items: [
 				'webcodecs/index',
 				'webcodecs/track-transformation',
-				'webcodecs/rotate-a-video',
 				'webcodecs/convert-media',
 				'webcodecs/get-available-containers',
 				'webcodecs/can-reencode-audio-track',
@@ -855,7 +854,7 @@ module.exports = {
 		},
 		{
 			type: 'category',
-			label: 'Cloud Run (Alpha)',
+			label: 'Cloud Run',
 			link: {
 				type: 'doc',
 				id: 'cloudrun-alpha',
@@ -873,6 +872,15 @@ module.exports = {
 				'cloudrun/light-client',
 				'cloudrun/upgrading',
 				'cloudrun/uninstall',
+			],
+		},
+		{
+			type: 'category',
+			label: 'WebCodecs',
+			items: [
+				'webcodecs/convert-a-video',
+				'webcodecs/rotate-a-video',
+				'webcodecs/fix-mediarecorder-video',
 			],
 		},
 		{

@@ -3362,6 +3362,20 @@ export const articles = [
 		crumb: '@remotion/webcodecs',
 	},
 	{
+		id: 'fix-mediarecorder-video',
+		title: 'Fixing a MediaRecorder video',
+		relativePath: 'docs/webcodecs/fix-a-mediarecorder-video.mdx',
+		compId: 'articles-docs-webcodecs-fix-a-mediarecorder-video',
+		crumb: '@remotion/webcodecs',
+	},
+	{
+		id: 'convert-a-video',
+		title: 'Convert a video',
+		relativePath: 'docs/webcodecs/convert-a-video.mdx',
+		compId: 'articles-docs-webcodecs-convert-a-video',
+		crumb: '@remotion/webcodecs',
+	},
+	{
 		id: 'track-transformation',
 		title: 'Track Transformation',
 		relativePath: 'docs/webcodecs/track-transformation.mdx',
