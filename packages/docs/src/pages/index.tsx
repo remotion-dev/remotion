@@ -12,6 +12,7 @@ import EvaluateRemotionSection from '../../components/LandingPage/EvaluateRemoti
 import {NewsletterButton} from '../../components/LandingPage/NewsletterButton';
 import {Pricing} from '../../components/LandingPage/Pricing';
 import TrustedByBanner from '../../components/LandingPage/TrustedByBanner';
+import VideoAppsShowcase from '../../components/LandingPage/VideoAppsShowcase';
 import {WriteInReact} from '../../components/LandingPage/WriteInReact';
 import {LightningFastEditor} from '../../components/LandingPage/editor';
 import {IfYouKnowReact} from '../../components/LandingPage/if-you-know-react';
@@ -58,9 +59,11 @@ const NewLanding: React.FC = () => {
 					<VideoAppsTitle />
 					<VideoApps active="remotion" />
 					<br />
-
+					<br />
+					<VideoAppsShowcase />
+					<br />
+					<br />
 					<Demo />
-
 					<br />
 					<br />
 					<br />
@@ -71,13 +74,11 @@ const NewLanding: React.FC = () => {
 					<EvaluateRemotionSection />
 					<br />
 					<br />
-
+					<br />
 					<CommunityStats />
 					<br />
 					<br />
 					<br />
-					<br />
-
 					<NewsletterButton />
 					<br />
 					<br />

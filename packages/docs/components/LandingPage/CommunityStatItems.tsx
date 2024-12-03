@@ -31,6 +31,8 @@ const StatItemContent: React.FC<{
 			justifyContent: 'center',
 			alignItems: 'center',
 			textAlign: 'center',
+			fontFamily: 'GTPlanar',
+			fontFeatureSettings: "'ss03' on",
 		}}
 	>
 		{content}
@@ -51,7 +53,7 @@ export const InstallsPerMonth: React.FC = () => {
 				}}
 			>
 				<StatItemContent
-					content="100k"
+					content="180k"
 					width="100px"
 					fontSize="2.5rem"
 					fontWeight="bold"
@@ -109,7 +111,7 @@ export const PagesOfDocs: React.FC = () => {
 					width="40px"
 				/>
 				<StatItemContent
-					content="500"
+					content="600"
 					width="85px"
 					maxWidth="100px"
 					fontSize="2.5rem"
@@ -175,7 +177,7 @@ export const GitHubStars: React.FC = () => {
 					width="45px"
 				/>
 				<StatItemContent
-					content="20k"
+					content="21k"
 					width="80px"
 					fontSize="2.5rem"
 					fontWeight="bold"
@@ -292,7 +294,7 @@ export const Contributors: React.FC = () => {
 					}}
 				>
 					<StatItemContent
-						content="200"
+						content="250"
 						width="100px"
 						fontSize="2.5rem"
 						fontWeight="bold"
