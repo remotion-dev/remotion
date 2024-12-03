@@ -58,7 +58,7 @@ test('Should read the whole file', async () => {
 
 	expect(parsed.container).toBe('mp4');
 	expect(parsed.internalStats).toEqual({
-		finalCursorOffset: parsed.size,
+		finalCursorOffset: parsed.size as number,
 		skippedBytes: 0,
 	});
 });

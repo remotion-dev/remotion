@@ -64,7 +64,7 @@ export const parseVideo = ({
 
 	if (iterator.isWebm()) {
 		Log.verbose(logLevel, 'Detected Matroska container');
-		return parseWebm(iterator, options);
+		return parseWebm({counter: iterator, parserContext: options, fields});
 	}
 
 	if (iterator.isMp3()) {

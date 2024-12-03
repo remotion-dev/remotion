@@ -75,7 +75,7 @@ test('Should not skip if just a video track is requested', async () => {
 
 	expect(internalStats).toEqual({
 		skippedBytes: 0,
-		finalCursorOffset: size,
+		finalCursorOffset: size as number,
 	});
 	expect(dimensions).toEqual({height: 270, width: 480});
 	expect(size).toEqual(742478);

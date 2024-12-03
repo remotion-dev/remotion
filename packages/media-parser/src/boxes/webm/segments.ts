@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type {BufferIterator} from '../../buffer-iterator';
+import type {Options, ParseMediaFields} from '../../options';
 import type {
 	ExpectSegmentParseResult,
 	MatroskaParseResult,
+	MatroskaStructure,
 } from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
 import {parseEbml, postprocessEbml} from './parse-ebml';
@@ -59,11 +61,15 @@ export const expectSegment = async ({
 	parserContext,
 	offset,
 	children,
+	fields,
+	topLevelStructure,
 }: {
 	iterator: BufferIterator;
 	parserContext: ParserContext;
 	offset: number;
 	children: PossibleEbml[];
+	fields: Options<ParseMediaFields>;
+	topLevelStructure: MatroskaStructure;
 }): Promise<ExpectSegmentParseResult> => {
 	iterator.counter.decrement(iterator.counter.getOffset() - offset);
 
@@ -76,6 +82,8 @@ export const expectSegment = async ({
 					parserContext,
 					offset,
 					children,
+					fields,
+					topLevelStructure,
 				});
 			},
 			segment: null,
@@ -94,6 +102,8 @@ export const expectSegment = async ({
 					parserContext,
 					offset,
 					children,
+					fields,
+					topLevelStructure,
 				});
 			},
 			segment: null,
@@ -109,7 +119,14 @@ export const expectSegment = async ({
 		return {
 			status: 'incomplete',
 			continueParsing: () => {
-				return expectSegment({iterator, parserContext, offset, children});
+				return expectSegment({
+					iterator,
+					parserContext,
+					offset,
+					children,
+					fields,
+					topLevelStructure,
+				});
 			},
 			segment: null,
 		};
@@ -131,6 +148,8 @@ export const expectSegment = async ({
 			children: newSegment.value,
 			parserContext,
 			startOffset: iterator.counter.getOffset(),
+			fields,
+			topLevelStructure,
 		});
 
 		if (main.status === 'incomplete') {
@@ -161,7 +180,14 @@ export const expectSegment = async ({
 			status: 'incomplete',
 			segment: null,
 			continueParsing: () => {
-				return expectSegment({iterator, parserContext, offset, children});
+				return expectSegment({
+					iterator,
+					parserContext,
+					offset,
+					children,
+					fields,
+					topLevelStructure,
+				});
 			},
 		};
 	}

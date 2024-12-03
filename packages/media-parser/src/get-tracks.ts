@@ -119,7 +119,7 @@ export const hasTracks = (
 	if (structure.type === 'matroska') {
 		const mainSegment = getMainSegment(structure.boxes);
 		if (!mainSegment) {
-			throw new Error('No main segment found');
+			return false;
 		}
 
 		return getTracksSegment(mainSegment) !== null;

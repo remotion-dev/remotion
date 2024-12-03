@@ -16,7 +16,10 @@ import type {
 import {makeCanSkipTracksState} from './can-skip-tracks';
 import {makeTracksSectionState} from './has-tracks-section';
 
-export type InternalStats = {};
+export type InternalStats = {
+	skippedBytes: number;
+	finalCursorOffset: number;
+};
 
 export type SpsAndPps = {
 	sps: AvcProfileInfo;
@@ -220,7 +223,7 @@ export const makeParserState = ({
 		getAvcProfile: () => {
 			return avcProfile;
 		},
-		getInternalStats: () => ({
+		getInternalStats: (): InternalStats => ({
 			skippedBytes,
 			finalCursorOffset: getIterator()?.counter.getOffset() ?? 0,
 		}),

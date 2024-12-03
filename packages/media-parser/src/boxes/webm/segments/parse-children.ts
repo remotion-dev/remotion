@@ -1,7 +1,10 @@
 import type {BufferIterator} from '../../../buffer-iterator';
+import {hasAllInfo} from '../../../has-all-info';
+import type {Options, ParseMediaFields} from '../../../options';
 import type {
 	ExpectSegmentParseResult,
 	MatroskaParseResult,
+	MatroskaStructure,
 } from '../../../parse-result';
 import type {ParserContext} from '../../../parser-context';
 import type {ParserState} from '../../../state/parser-state';
@@ -13,13 +16,24 @@ const processParseResult = ({
 	parseResult,
 	children,
 	state,
+	fields,
+	topLevelStructure,
 }: {
 	children: MatroskaSegment[];
 	parseResult: ExpectSegmentParseResult;
 	state: ParserState;
+	fields: Options<ParseMediaFields>;
+	topLevelStructure: MatroskaStructure;
 }): ExpectSegmentParseResult => {
 	if (parseResult.segment && !children.includes(parseResult.segment)) {
 		children.push(parseResult.segment);
+		if (hasAllInfo({fields, state, structure: topLevelStructure})) {
+			return {
+				status: 'done',
+				segment: parseResult.segment,
+			};
+		}
+
 		if (parseResult.segment.type === 'Tracks') {
 			state.tracks.setIsDone();
 		}
@@ -36,6 +50,8 @@ const processParseResult = ({
 					children,
 					parseResult: newParseResult,
 					state,
+					fields,
+					topLevelStructure,
 				});
 			},
 		};
@@ -52,22 +68,30 @@ export const expectAndProcessSegment = async ({
 	parserContext,
 	offset,
 	children,
+	fields,
+	topLevelStructure,
 }: {
 	iterator: BufferIterator;
 	parserContext: ParserContext;
 	offset: number;
 	children: PossibleEbml[];
+	fields: Options<ParseMediaFields>;
+	topLevelStructure: MatroskaStructure;
 }) => {
 	const segment = await expectSegment({
 		iterator,
 		parserContext,
 		offset,
 		children,
+		fields,
+		topLevelStructure,
 	});
 	return processParseResult({
 		children,
 		parseResult: segment,
 		state: parserContext.parserState,
+		fields,
+		topLevelStructure,
 	});
 };
 
@@ -78,6 +102,8 @@ const continueAfterSegmentResult = async ({
 	parserContext,
 	iterator,
 	startOffset,
+	fields,
+	topLevelStructure,
 }: {
 	result: ExpectSegmentParseResult;
 	length: number;
@@ -85,6 +111,8 @@ const continueAfterSegmentResult = async ({
 	parserContext: ParserContext;
 	iterator: BufferIterator;
 	startOffset: number;
+	fields: Options<ParseMediaFields>;
+	topLevelStructure: MatroskaStructure;
 }): Promise<MatroskaParseResult> => {
 	if (result.status === 'done') {
 		throw new Error('Should not continue after done');
@@ -102,6 +130,8 @@ const continueAfterSegmentResult = async ({
 					length,
 					parserContext,
 					startOffset,
+					fields,
+					topLevelStructure,
 				});
 			},
 			skipTo: null,
@@ -118,6 +148,8 @@ const continueAfterSegmentResult = async ({
 				length,
 				parserContext,
 				startOffset,
+				fields,
+				topLevelStructure,
 			});
 		},
 		skipTo: null,
@@ -130,12 +162,16 @@ export const expectChildren = async ({
 	children,
 	parserContext,
 	startOffset,
+	fields,
+	topLevelStructure,
 }: {
 	iterator: BufferIterator;
 	length: number;
 	children: MatroskaSegment[];
 	parserContext: ParserContext;
 	startOffset: number;
+	fields: Options<ParseMediaFields>;
+	topLevelStructure: MatroskaStructure;
 }): Promise<MatroskaParseResult> => {
 	while (iterator.counter.getOffset() < startOffset + length) {
 		if (iterator.bytesRemaining() === 0) {
@@ -148,7 +184,21 @@ export const expectChildren = async ({
 			parserContext,
 			offset: currentOffset,
 			children,
+			fields,
+			topLevelStructure,
 		});
+
+		if (
+			hasAllInfo({
+				fields,
+				state: parserContext.parserState,
+				structure: topLevelStructure,
+			})
+		) {
+			return {
+				status: 'done',
+			};
+		}
 
 		if (child.status === 'incomplete') {
 			return {
@@ -161,6 +211,8 @@ export const expectChildren = async ({
 						length: length - (currentOffset - startOffset),
 						parserContext,
 						startOffset: currentOffset,
+						fields,
+						topLevelStructure,
 					});
 				},
 				skipTo: null,
