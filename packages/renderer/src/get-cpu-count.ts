@@ -9,7 +9,7 @@ import {cpus} from 'node:os';
 export const getConcurrencyFromNProc = (): number | null => {
 	try {
 		return parseInt(execSync('nproc', {stdio: 'pipe'}).toString().trim(), 10);
-	} catch (error) {
+	} catch {
 		return null;
 	}
 };

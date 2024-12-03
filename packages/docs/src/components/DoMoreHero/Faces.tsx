@@ -12,8 +12,8 @@ const sortFacesZIndex = (face: FaceType[]): FaceType[] => {
 
 export const Faces: React.FC<
 	{
-		elements: ThreeDElement[];
-		noSort?: boolean;
+		readonly elements: ThreeDElement[];
+		readonly noSort?: boolean;
 	} & FaceSVGProps
 > = ({elements, noSort, ...svgProps}) => {
 	const sortedElement = noSort

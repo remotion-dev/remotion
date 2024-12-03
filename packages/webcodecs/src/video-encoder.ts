@@ -1,8 +1,13 @@
+import type {LogLevel, ProgressTracker} from '@remotion/media-parser';
+import {convertToCorrectVideoFrame} from './convert-to-correct-videoframe';
+import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
+import {makeIoSynchronizer} from './io-manager/io-synchronizer';
+import {Log} from './log';
+
 export type WebCodecsVideoEncoder = {
-	encodeFrame: (videoFrame: VideoFrame) => Promise<void>;
+	encodeFrame: (videoFrame: VideoFrame, timestamp: number) => Promise<void>;
 	waitForFinish: () => Promise<void>;
 	close: () => void;
-	getQueueSize: () => number;
 	flush: () => Promise<void>;
 };
 
@@ -11,32 +16,56 @@ export const createVideoEncoder = ({
 	onError,
 	signal,
 	config,
+	logLevel,
+	outputCodec,
+	progress,
 }: {
-	onChunk: (chunk: EncodedVideoChunk) => Promise<void>;
+	onChunk: (
+		chunk: EncodedVideoChunk,
+		metadata: EncodedVideoChunkMetadata | null,
+	) => Promise<void>;
 	onError: (error: DOMException) => void;
 	signal: AbortSignal;
 	config: VideoEncoderConfig;
+	logLevel: LogLevel;
+	outputCodec: ConvertMediaVideoCodec;
+	progress: ProgressTracker;
 }): WebCodecsVideoEncoder => {
 	if (signal.aborted) {
 		throw new Error('Not creating video encoder, already aborted');
 	}
 
+	const ioSynchronizer = makeIoSynchronizer({
+		logLevel,
+		label: 'Video encoder',
+		progress,
+	});
+
 	let outputQueue = Promise.resolve();
-	let outputQueueSize = 0;
-	let dequeueResolver = () => {};
 
 	const encoder = new VideoEncoder({
 		error(error) {
 			onError(error);
 		},
-		output(chunk) {
-			outputQueueSize++;
+		output(chunk, metadata) {
+			const timestamp = chunk.timestamp + (chunk.duration ?? 0);
+
+			ioSynchronizer.onOutput(timestamp);
+
 			outputQueue = outputQueue
-				.then(() => onChunk(chunk))
 				.then(() => {
-					outputQueueSize--;
-					dequeueResolver();
+					if (signal.aborted) {
+						return;
+					}
+
+					return onChunk(chunk, metadata ?? null);
+				})
+				.then(() => {
+					ioSynchronizer.onProcessed();
 					return Promise.resolve();
+				})
+				.catch((err) => {
+					onError(err);
 				});
 		},
 	});
@@ -57,46 +86,38 @@ export const createVideoEncoder = ({
 
 	signal.addEventListener('abort', onAbort);
 
-	const getQueueSize = () => {
-		return encoder.encodeQueueSize + outputQueueSize;
-	};
-
+	Log.verbose(logLevel, 'Configuring video encoder', config);
 	encoder.configure(config);
 
 	let framesProcessed = 0;
-
-	const waitForDequeue = async () => {
-		await new Promise<void>((r) => {
-			dequeueResolver = r;
-			encoder.addEventListener('dequeue', () => r(), {
-				once: true,
-			});
-		});
-	};
-
-	const waitForFinish = async () => {
-		while (getQueueSize() > 0) {
-			await waitForDequeue();
-		}
-	};
 
 	const encodeFrame = async (frame: VideoFrame) => {
 		if (encoder.state === 'closed') {
 			return;
 		}
 
-		while (getQueueSize() > 10) {
-			await waitForDequeue();
-		}
+		await ioSynchronizer.waitFor({
+			// Firefox stalls if too few frames are passed
+			unemitted: 10,
+			_unprocessed: 10,
+			minimumProgress: frame.timestamp - 5_000_000,
+		});
 
 		// @ts-expect-error - can have changed in the meanwhile
 		if (encoder.state === 'closed') {
 			return;
 		}
 
-		encoder.encode(frame, {
-			keyFrame: framesProcessed % 40 === 0,
-		});
+		const keyFrame = framesProcessed % 40 === 0;
+		encoder.encode(
+			convertToCorrectVideoFrame({videoFrame: frame, outputCodec}),
+			{
+				keyFrame,
+			},
+		);
+
+		ioSynchronizer.inputItem(frame.timestamp, keyFrame);
+
 		framesProcessed++;
 	};
 
@@ -110,10 +131,9 @@ export const createVideoEncoder = ({
 		waitForFinish: async () => {
 			await encoder.flush();
 			await outputQueue;
-			await waitForFinish();
+			await ioSynchronizer.waitForFinish();
 		},
 		close,
-		getQueueSize,
 		flush: async () => {
 			await encoder.flush();
 		},

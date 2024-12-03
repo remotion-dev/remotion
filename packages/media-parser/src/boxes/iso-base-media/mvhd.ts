@@ -75,14 +75,17 @@ export const parseMvhd = ({
 	iterator.discard(4);
 
 	// matrix
-	const matrix: number[] = [];
-	for (let i = 0; i < 9; i++) {
-		if (i % 3 === 2) {
-			matrix.push(iterator.getFixedPointSigned230Number());
-		} else {
-			matrix.push(iterator.getFixedPointSigned1616Number());
-		}
-	}
+	const matrix = [
+		iterator.getFixedPointSigned1616Number(),
+		iterator.getFixedPointSigned1616Number(),
+		iterator.getFixedPointSigned230Number(),
+		iterator.getFixedPointSigned1616Number(),
+		iterator.getFixedPointSigned1616Number(),
+		iterator.getFixedPointSigned230Number(),
+		iterator.getFixedPointSigned1616Number(),
+		iterator.getFixedPointSigned1616Number(),
+		iterator.getFixedPointSigned230Number(),
+	];
 
 	// pre-defined
 	iterator.discard(4 * 6);

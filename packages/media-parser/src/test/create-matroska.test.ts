@@ -1,4 +1,3 @@
-/* eslint-disable padding-line-between-statements */
 /* eslint-disable max-depth */
 import {expect, test} from 'bun:test';
 import {combineUint8Arrays, makeMatroskaBytes} from '../boxes/webm/make-header';
@@ -10,7 +9,6 @@ import type {
 } from '../boxes/webm/segments/all-segments';
 import {getArrayBufferIterator} from '../buffer-iterator';
 import {parseMedia} from '../parse-media';
-import type {AnySegment} from '../parse-result';
 import type {ParserContext} from '../parser-context';
 import {makeParserState} from '../parser-state';
 import {nodeReader} from '../readers/from-node';
@@ -28,6 +26,7 @@ const options: ParserContext = {
 	parserState: state,
 	nullifySamples: false,
 	supportsContentRange: true,
+	nextTrackIndex: 0,
 };
 
 test('Should make Matroska header that is same as input', async () => {
@@ -238,20 +237,20 @@ test('Should parse seekHead', async () => {
 });
 
 const parseWebm = async (str: string) => {
-	const {boxes} = await parseMedia({
+	const {structure} = await parseMedia({
 		src: str,
 		fields: {
-			boxes: true,
+			structure: true,
 		},
 		reader: nodeReader,
 	});
-	return boxes;
+	return structure;
 };
 
-const stringifyWebm = (boxes: AnySegment[]) => {
+const stringifyWebm = (boxes: MatroskaSegment[]) => {
 	const buffers: Uint8Array[] = [];
 	for (const box of boxes) {
-		const {bytes} = makeMatroskaBytes(box as MatroskaSegment);
+		const {bytes} = makeMatroskaBytes(box);
 		buffers.push(bytes);
 	}
 
@@ -264,7 +263,7 @@ test('Can we disassemble a Matroska file and assembled it again', async () => {
 
 	const parsed = await parseWebm('input.webm');
 
-	const segment = parsed.find((s) => s.type === 'Segment') as MainSegment;
+	const segment = parsed.boxes.find((s) => s.type === 'Segment') as MainSegment;
 	const tracks = segment.value.flatMap((s) =>
 		s.type === 'Tracks' ? s.value.filter((a) => a.type === 'TrackEntry') : [],
 	);
@@ -281,7 +280,11 @@ test('Can we disassemble a Matroska file and assembled it again', async () => {
 	}
 
 	const bytes = await Bun.file('input.webm').arrayBuffer();
-	expect(stringifyWebm(parsed).byteLength).toEqual(
+	if (parsed.type !== 'matroska') {
+		throw new Error('Not a webm file');
+	}
+
+	expect(stringifyWebm(parsed.boxes).byteLength).toEqual(
 		new Uint8Array(bytes).byteLength,
 	);
 	process.env.KEEP_SAMPLES = 'false';

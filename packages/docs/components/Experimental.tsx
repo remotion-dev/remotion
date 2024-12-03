@@ -1,7 +1,7 @@
 import React from "react";
 
 export const ExperimentalBadge: React.FC<{
-  children: React.ReactNode;
+  readonly children: React.ReactNode;
 }> = ({ children }) => {
   return (
     <div

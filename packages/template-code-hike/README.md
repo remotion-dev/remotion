@@ -22,7 +22,7 @@ npm i
 **Start Preview**
 
 ```console
-npm start
+npm run dev
 ```
 
 **Change code snippets**
@@ -33,13 +33,13 @@ Change the code or create new files in there.
 **Render video**
 
 ```console
-npm run build
+npx remotion render
 ```
 
 **Upgrade Remotion**
 
 ```console
-bun run upgrade
+npx remotion upgrade
 ```
 
 ## More examples

@@ -3,8 +3,8 @@ import React from "react";
 const FALLBACK_VERSION = "4.0.1";
 
 export const Prerelease: React.FC<{
-  onlySnippet: boolean;
-  packageName: string;
+  readonly onlySnippet: boolean;
+  readonly packageName: string;
 }> = ({ onlySnippet, packageName = "@remotion/lambda" }) => {
   const version =
     typeof URLSearchParams === "undefined"

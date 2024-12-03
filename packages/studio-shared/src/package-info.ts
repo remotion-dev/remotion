@@ -23,6 +23,7 @@ export const packages = [
 	'docs',
 	'enable-scss',
 	'eslint-config',
+	'eslint-config-internal',
 	'eslint-plugin',
 	'example-without-zod',
 	'example',
@@ -34,6 +35,7 @@ export const packages = [
 	'lambda-go-example',
 	'lambda-go',
 	'lambda-php',
+	'lambda-ruby',
 	'lambda-python',
 	'lambda',
 	'layout-utils',
@@ -64,11 +66,14 @@ export const packages = [
 	'convert',
 	'captions',
 	'openai-whisper',
+	'compositor',
+	'example-videos',
 ] as const;
 
 export type Pkgs = (typeof packages)[number];
 
 export const descriptions: {[key in Pkgs]: string | null} = {
+	compositor: 'Rust binary for Remotion',
 	player: 'React component for embedding a Remotion preview into your app',
 	cloudrun: 'Render Remotion videos on Google Cloud Run',
 	renderer: 'Render Remotion videos using Node.js or Bun',
@@ -126,6 +131,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	docs: null,
 	'it-tests': null,
 	'lambda-python': null,
+	'lambda-ruby': null,
 	'player-example': null,
 	'ai-improvements': null,
 	'discord-poster': null,
@@ -137,6 +143,8 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	convert: 'Video conversion tool - convert.remotion.dev',
 	captions: 'Primitives for dealing with captions',
 	'openai-whisper': 'Work with the output of the OpenAI Whisper API',
+	'eslint-config-internal': "ESLint condig for Remotion's internal packages",
+	'example-videos': null,
 };
 
 export const apiDocs: {[key in Pkgs]: string | null} = {
@@ -179,6 +187,7 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	docs: null,
 	'it-tests': null,
 	'lambda-python': null,
+	'lambda-ruby': 'https://www.remotion.dev/docs/lambda/ruby',
 	'player-example': null,
 	'astro-example': null,
 	'lambda-go-example': null,
@@ -203,8 +212,11 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	studio: 'https://www.remotion.dev/docs/studio/api',
 	transitions: 'https://www.remotion.dev/transitions',
 	'animated-emoji': 'https://www.remotion.dev/docs/animated-emoji',
-	webcodecs: null,
+	webcodecs: 'https://remotion.dev/webcodecs',
 	convert: 'https://convert.remotion.dev',
 	captions: 'https://remotion.dev/docs/captions',
 	'openai-whisper': 'https://www.remotion.dev/docs/openai-whisper',
+	'eslint-config-internal': null,
+	compositor: null,
+	'example-videos': null,
 };

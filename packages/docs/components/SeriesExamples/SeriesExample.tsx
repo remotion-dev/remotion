@@ -3,7 +3,7 @@ import React from "react";
 import { AbsoluteFill, Series, useCurrentFrame } from "remotion";
 
 const Square: React.FC<{
-  color: string;
+  readonly color: string;
 }> = ({ color }) => {
   const frame = useCurrentFrame();
   return (
@@ -44,7 +44,7 @@ const BaseExample: React.FC = () => {
 };
 
 export const SeriesExample: React.FC<{
-  type: "base";
+  readonly type: "base";
 }> = ({ type }) => {
   const component = (() => {
     if (type === "base") {

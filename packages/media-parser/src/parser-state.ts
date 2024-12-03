@@ -1,3 +1,4 @@
+import type {AvcPPs, AvcProfileInfo} from './boxes/avc/parse-avc';
 import type {OnTrackEntrySegment} from './boxes/webm/segments';
 import type {TrackInfo} from './boxes/webm/segments/track-entry';
 import {
@@ -6,13 +7,19 @@ import {
 	getTrackTimestampScale,
 } from './boxes/webm/traversal';
 import type {
-	AudioSample,
+	AudioOrVideoSample,
 	OnAudioSample,
 	OnVideoSample,
-	VideoSample,
 } from './webcodec-sample-types';
 
 export type InternalStats = {};
+
+export type SpsAndPps = {
+	sps: AvcProfileInfo;
+	pps: AvcPPs;
+};
+
+type AvcProfileInfoCallback = (profile: SpsAndPps) => Promise<void>;
 
 export const makeParserState = ({
 	hasAudioCallbacks,
@@ -51,8 +58,8 @@ export const makeParserState = ({
 	const videoSampleCallbacks: Record<number, OnVideoSample> = {};
 	const audioSampleCallbacks: Record<number, OnAudioSample> = {};
 
-	const queuedAudioSamples: Record<number, AudioSample[]> = {};
-	const queuedVideoSamples: Record<number, VideoSample[]> = {};
+	const queuedAudioSamples: Record<number, AudioOrVideoSample[]> = {};
+	const queuedVideoSamples: Record<number, AudioOrVideoSample[]> = {};
 
 	const declinedTrackNumbers: number[] = [];
 
@@ -96,8 +103,29 @@ export const makeParserState = ({
 		return timestampMap.get(byteOffset);
 	};
 
+	const samplesForTrack: Record<number, number> = {};
+
+	const profileCallbacks: AvcProfileInfoCallback[] = [];
+
+	const registerOnAvcProfileCallback = (callback: AvcProfileInfoCallback) => {
+		profileCallbacks.push(callback);
+	};
+
+	let avcProfile: SpsAndPps | null = null;
+
+	const onProfile = async (profile: SpsAndPps) => {
+		avcProfile = profile;
+		for (const callback of profileCallbacks) {
+			await callback(profile);
+		}
+
+		profileCallbacks.length = 0;
+	};
+
 	return {
 		onTrackEntrySegment,
+		onProfile,
+		registerOnAvcProfileCallback,
 		getTrackInfoByNumber: (id: number) => trackEntries[id],
 		registerVideoSampleCallback: async (
 			id: number,
@@ -136,10 +164,16 @@ export const makeParserState = ({
 
 			queuedAudioSamples[id] = [];
 		},
-		onAudioSample: async (trackId: number, audioSample: AudioSample) => {
+		onAudioSample: async (trackId: number, audioSample: AudioOrVideoSample) => {
 			if (signal?.aborted) {
 				throw new Error('Aborted');
 			}
+
+			if (typeof samplesForTrack[trackId] === 'undefined') {
+				samplesForTrack[trackId] = 0;
+			}
+
+			samplesForTrack[trackId]++;
 
 			const callback = audioSampleCallbacks[trackId];
 			if (callback) {
@@ -154,10 +188,16 @@ export const makeParserState = ({
 				}
 			}
 		},
-		onVideoSample: async (trackId: number, videoSample: VideoSample) => {
+		onVideoSample: async (trackId: number, videoSample: AudioOrVideoSample) => {
 			if (signal?.aborted) {
 				throw new Error('Aborted');
 			}
+
+			if (typeof samplesForTrack[trackId] === 'undefined') {
+				samplesForTrack[trackId] = 0;
+			}
+
+			samplesForTrack[trackId]++;
 
 			const callback = videoSampleCallbacks[trackId];
 			if (callback) {
@@ -175,6 +215,12 @@ export const makeParserState = ({
 		getInternalStats: () => ({}),
 		getTimescale,
 		setTimescale,
+		getSamplesForTrack: (trackId: number) => {
+			return samplesForTrack[trackId] ?? 0;
+		},
+		getAvcProfile: () => {
+			return avcProfile;
+		},
 	};
 };
 

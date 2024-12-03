@@ -12,7 +12,7 @@ packages/example/out
 .vscode/taskmarks.json
 .turbo
 .vercel
-packages/renderer/target
+packages/compositor/target
 packages/cloudrun/remotion-lambda-gcp.code-workspace
 .terraform*
 packages/example/sa-key.json
@@ -31,3 +31,4 @@ packages/example/public/offthreadvideoregression
 
 packages/example/build
 packages/example-without-zod/build
+packages/docs/out

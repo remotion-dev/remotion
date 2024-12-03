@@ -12,7 +12,6 @@ import {mockImplementation} from '../mock-implementation';
 const functionName = 'remotion-dev-render';
 
 const waitUntilDone = async (bucketName: string, renderId: string) => {
-	// eslint-disable-next-line no-constant-condition
 	while (true) {
 		const progress = await callLambda({
 			type: ServerlessRoutines.status,

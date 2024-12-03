@@ -17,8 +17,8 @@ const MODE_TO_STRING: {[key in QuickSwitcherMode]: string} = {
 };
 
 export const QuickSwitcherNoResults: React.FC<{
-	query: string;
-	mode: QuickSwitcherMode;
+	readonly query: string;
+	readonly mode: QuickSwitcherMode;
 }> = ({query, mode}) => {
 	return (
 		<div style={container}>

@@ -12,7 +12,6 @@ import {DEFAULT_CODEC, validCodecs} from './codec';
 import {combineChunks} from './combine-videos';
 import {getExecutablePath} from './compositor/get-executable-path';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
-import {copyImageToClipboard} from './copy-to-clipboard';
 import {deleteDirectory} from './delete-directory';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {symbolicateError} from './error-handling/symbolicate-error';
@@ -137,7 +136,6 @@ import {killAllBrowsers} from './browser-instances';
 import {codecSupportsMedia} from './codec-supports-media';
 import {makeFileExecutableIfItIsNot} from './compositor/make-file-executable';
 import {internalEnsureBrowser} from './ensure-browser';
-import {exampleVideos} from './example-videos';
 import type {AudioCodec} from './options/audio-codec';
 import {
 	getDefaultAudioCodec,
@@ -228,7 +226,6 @@ export const RenderInternals = {
 	internalRenderFrames,
 	internalRenderMedia,
 	validOpenGlRenderers,
-	copyImageToClipboard,
 	isIpV6Supported,
 	getChromiumGpuInformation,
 	getPortConfig,
@@ -240,7 +237,6 @@ export const RenderInternals = {
 	codecSupportsMedia,
 	toMegabytes,
 	internalEnsureBrowser,
-	exampleVideos,
 	printUsefulErrorMessage,
 };
 

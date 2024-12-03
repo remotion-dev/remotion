@@ -20,7 +20,7 @@ export const renderJobsRef = createRef<{
 }>();
 
 export const RenderQueueContextProvider: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const [jobs, setJobs] = useState<RenderJob[]>(
 		window.remotion_initialRenderQueue ?? [],

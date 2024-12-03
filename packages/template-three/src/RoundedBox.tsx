@@ -2,11 +2,11 @@ import React, { useMemo } from "react";
 import { roundedRect } from "./helpers/rounded-rectangle";
 
 type Props = {
-  width: number;
-  height: number;
-  radius: number;
-  curveSegments: number;
-  depth: number;
+  readonly width: number;
+  readonly height: number;
+  readonly radius: number;
+  readonly curveSegments: number;
+  readonly depth: number;
 } & Omit<JSX.IntrinsicElements["mesh"], "args">;
 
 export const RoundedBox: React.FC<Props> = ({

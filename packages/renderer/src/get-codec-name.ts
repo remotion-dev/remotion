@@ -1,19 +1,61 @@
 import type {Codec} from './codec';
 
-const map: {[key in Codec]: string | null} = {
-	h264: 'libx264',
-	h265: 'libx265',
-	vp8: 'libvpx',
-	vp9: 'libvpx-vp9',
-	prores: 'prores_ks',
-	gif: 'gif',
-	mp3: null,
-	aac: null,
-	wav: null,
-	'h264-mkv': 'libx264',
-	'h264-ts': 'libx264',
+export type CodecSettings = {
+	encoderName: string;
+	hardwareAccelerated: boolean;
 };
 
-export const getCodecName = (codec: Codec): string | null => {
-	return map[codec];
+export const getCodecName = (
+	codec: Codec,
+	preferredHwAcceleration: boolean,
+): CodecSettings | null => {
+	if (codec === 'prores') {
+		if (preferredHwAcceleration && process.platform === 'darwin') {
+			return {encoderName: 'prores_videotoolbox', hardwareAccelerated: true};
+		}
+
+		return {encoderName: 'prores_ks', hardwareAccelerated: false};
+	}
+
+	if (codec === 'h264') {
+		return {encoderName: 'libx264', hardwareAccelerated: false};
+	}
+
+	if (codec === 'h265') {
+		return {encoderName: 'libx265', hardwareAccelerated: false};
+	}
+
+	if (codec === 'vp8') {
+		return {encoderName: 'libvpx', hardwareAccelerated: false};
+	}
+
+	if (codec === 'vp9') {
+		return {encoderName: 'libvpx-vp9', hardwareAccelerated: false};
+	}
+
+	if (codec === 'gif') {
+		return {encoderName: 'gif', hardwareAccelerated: false};
+	}
+
+	if (codec === 'mp3') {
+		return null;
+	}
+
+	if (codec === 'aac') {
+		return null;
+	}
+
+	if (codec === 'wav') {
+		return null;
+	}
+
+	if (codec === 'h264-mkv') {
+		return {encoderName: 'libx264', hardwareAccelerated: false};
+	}
+
+	if (codec === 'h264-ts') {
+		return {encoderName: 'libx264', hardwareAccelerated: false};
+	}
+
+	throw new Error(`Could not get codec for ${codec satisfies never}`);
 };

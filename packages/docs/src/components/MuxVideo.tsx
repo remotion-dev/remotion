@@ -13,13 +13,13 @@ const MuxVideoForward: React.ForwardRefRenderFunction<
 		React.VideoHTMLAttributes<HTMLVideoElement>,
 		HTMLVideoElement
 	> & {
-		muxId: string;
+		readonly muxId: string;
 	}
 > = ({muxId, ...props}, ref) => {
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const vidUrl = getVideoToPlayUrl(muxId);
 
-	useImperativeHandle(ref, () => videoRef.current, []);
+	useImperativeHandle(ref, () => videoRef.current!, []);
 
 	useEffect(() => {
 		let hls: Hls;
@@ -51,7 +51,7 @@ const MuxVideoForward: React.ForwardRefRenderFunction<
 export const MuxVideo = forwardRef(MuxVideoForward);
 
 export const NewMuxVideo: React.FC<{
-	muxId: string;
+	readonly muxId: string;
 }> = ({muxId}) => {
 	return (
 		<BrowserOnly>

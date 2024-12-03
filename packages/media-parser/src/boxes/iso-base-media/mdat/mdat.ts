@@ -1,7 +1,6 @@
-/* eslint-disable max-depth */
 import type {BufferIterator} from '../../../buffer-iterator';
 import {getTracks, hasTracks} from '../../../get-tracks';
-import type {AnySegment} from '../../../parse-result';
+import type {IsoBaseMediaBox} from '../../../parse-result';
 import type {ParserContext} from '../../../parser-context';
 import {getSamplePositionsFromTrack} from '../get-sample-positions-from-track';
 import type {TrakBox} from '../trak/trak';
@@ -36,12 +35,18 @@ export const parseMdat = async ({
 	data: BufferIterator;
 	size: number;
 	fileOffset: number;
-	existingBoxes: AnySegment[];
+	existingBoxes: IsoBaseMediaBox[];
 	options: ParserContext;
 	signal: AbortSignal | null;
 	maySkipSampleProcessing: boolean;
 }): Promise<MdatBox> => {
-	const alreadyHas = hasTracks(existingBoxes);
+	const alreadyHas = hasTracks(
+		{
+			type: 'iso-base-media',
+			boxes: existingBoxes,
+		},
+		options.parserState,
+	);
 	if (!alreadyHas) {
 		if (maySkipSampleProcessing) {
 			data.discard(size - (data.counter.getOffset() - fileOffset));
@@ -64,7 +69,10 @@ export const parseMdat = async ({
 		});
 	}
 
-	const tracks = getTracks(existingBoxes, options.parserState);
+	const tracks = getTracks(
+		{type: 'iso-base-media', boxes: existingBoxes},
+		options.parserState,
+	);
 	const allTracks = [
 		...tracks.videoTracks,
 		...tracks.audioTracks,
@@ -90,7 +98,6 @@ export const parseMdat = async ({
 		})
 		.flat(1);
 
-	// eslint-disable-next-line no-constant-condition
 	while (true) {
 		if (signal && signal.aborted) {
 			break;
@@ -124,35 +131,39 @@ export const parseMdat = async ({
 
 		const bytes = data.getSlice(samplesWithIndex.samplePosition.size);
 
+		const timestamp =
+			(samplesWithIndex.samplePosition.cts * 1_000_000) /
+			samplesWithIndex.track.timescale;
+		const duration =
+			(samplesWithIndex.samplePosition.duration * 1_000_000) /
+			samplesWithIndex.track.timescale;
+
+		const cts =
+			(samplesWithIndex.samplePosition.cts * 1_000_000) /
+			samplesWithIndex.track.timescale;
+		const dts =
+			(samplesWithIndex.samplePosition.dts * 1_000_000) /
+			samplesWithIndex.track.timescale;
+
 		if (samplesWithIndex.track.type === 'audio') {
-			const timestamp = Math.floor(
-				(samplesWithIndex.samplePosition.cts * 1_000_000) /
-					samplesWithIndex.track.timescale,
-			);
 			await options.parserState.onAudioSample(samplesWithIndex.track.trackId, {
 				data: bytes,
 				timestamp,
+				duration,
+				cts,
+				dts,
 				trackId: samplesWithIndex.track.trackId,
 				type: samplesWithIndex.samplePosition.isKeyframe ? 'key' : 'delta',
 			});
 		}
 
 		if (samplesWithIndex.track.type === 'video') {
-			const timestamp = Math.floor(
-				(samplesWithIndex.samplePosition.cts * 1_000_000) /
-					samplesWithIndex.track.timescale,
-			);
-			const duration = Math.floor(
-				(samplesWithIndex.samplePosition.duration * 1_000_000) /
-					samplesWithIndex.track.timescale,
-			);
-
 			await options.parserState.onVideoSample(samplesWithIndex.track.trackId, {
 				data: bytes,
 				timestamp,
 				duration,
-				cts: samplesWithIndex.samplePosition.cts,
-				dts: samplesWithIndex.samplePosition.dts,
+				cts,
+				dts,
 				trackId: samplesWithIndex.track.trackId,
 				type: samplesWithIndex.samplePosition.isKeyframe ? 'key' : 'delta',
 			});

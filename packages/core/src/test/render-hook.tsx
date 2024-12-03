@@ -28,7 +28,7 @@ export function renderHook<Result, Props>(
 	const TestComponent = ({
 		renderCallbackProps,
 	}: {
-		renderCallbackProps: Props;
+		readonly renderCallbackProps: Props;
 	}) => {
 		const pendingResult = renderCallback(renderCallbackProps);
 

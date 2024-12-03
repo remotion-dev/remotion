@@ -33,7 +33,19 @@ npm run dev
 Open the Remotion Studio:
 
 ```
-npm run remotion
+npx remotion studio
+```
+
+Render a video locally:
+
+```
+npx remotion render
+```
+
+Upgrade Remotion:
+
+```
+npx remotion upgrade
 ```
 
 The following script will set up your Remotion Bundle and Lambda function on AWS:

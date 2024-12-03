@@ -14,25 +14,25 @@ export const lockFilePaths: LockfilePath[] = [
 		path: 'package-lock.json',
 		manager: 'npm',
 		installCommand: 'npm i',
-		startCommand: 'npm start',
+		startCommand: 'npx remotion studio',
 	},
 	{
 		path: 'yarn.lock',
 		manager: 'yarn',
 		installCommand: 'yarn add',
-		startCommand: 'yarn start',
+		startCommand: 'yarn remotion studio',
 	},
 	{
 		path: 'pnpm-lock.yaml',
 		manager: 'pnpm',
 		installCommand: 'pnpm i',
-		startCommand: 'pnpm start',
+		startCommand: 'pnpm exec remotion studio',
 	},
 	{
 		path: 'bun.lockb',
 		manager: 'bun',
 		installCommand: 'bun i',
-		startCommand: 'bun start',
+		startCommand: 'bunx remotion studio',
 	},
 ];
 

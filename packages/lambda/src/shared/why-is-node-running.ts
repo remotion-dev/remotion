@@ -96,7 +96,7 @@ export function whyIsNodeRunning({active, hook}: NodeIntrospection) {
 							' - ' +
 							src[(s.getLineNumber() as number) - 1].trim(),
 					);
-				} catch (e) {
+				} catch {
 					console.error(prefix + padding.slice(prefix.length));
 				}
 			});

@@ -56,9 +56,9 @@ const result = await parseMedia({
 
 ### `src`
 
-Either a local file path, or a URL, or a `File` object.  
-If you pass a local file path, you must also pass `nodeReader` as the `reader` argument.
-If you pass a `File` object, you must also pass `webFileReader` as the `reader` argument.
+Either a local file path, or a URL, or a `File` or `Blob` object.  
+If you pass a local file path, you must also pass [`nodeReader`](/docs/media-parser/node-reader) as the `reader` argument.  
+If you pass a `File` object, you must also pass [`webFileReader`](/docs/media-parser/web-file-reader) as the `reader` argument.
 
 ### `fields?`
 
@@ -88,7 +88,7 @@ The name of the file.
 
 #### `container`
 
-_"mp4" | "webm" | null_
+_"mp4" | "webm" | "avi" | null_
 
 The container of the file.
 
@@ -98,7 +98,7 @@ _number | null_
 
 The size of the input in bytes.
 
-#### `boxes`
+#### `structure`
 
 The internal structure of the video. Unstable, internal data structure, refer to the TypeScript types to see what's inside.
 
@@ -130,6 +130,12 @@ The data structure of them is not yet stable.
 _`{width: number, height: number}`_
 
 The dimensions of the video before rotation.
+
+#### `isHdr`
+
+_`boolean`_
+
+Whether the video is in HDR (High dynamic range).
 
 #### `rotation`
 
@@ -188,6 +194,26 @@ const onAudioTrack: OnAudioTrack = (track) => {
   };
 };
 ```
+
+### `onParseProgress?`
+
+A callback that is called from time to time when bytes have been read from the media.  
+It includes the following data:
+
+```tsx twoslash
+import {ParseMediaProgress} from '@remotion/media-parser';
+//          ^?
+```
+
+:::note
+You may make this an async function, and while it is not resolved, **the parsing process will be paused**.  
+This is useful if you want to add a small delay inbetween progress steps to keep the UI interactive.
+:::
+
+### `logLevel?`
+
+One of `"error"`, `"warn"`, `"info"`, `"debug"`, `"trace"`.  
+Default value: `"info"`, which logs only important information.
 
 ### `signal?`
 

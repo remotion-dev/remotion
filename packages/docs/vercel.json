@@ -143,6 +143,11 @@
 			"permanent": true
 		},
 		{
+			"source": "/webcodecs",
+			"destination": "/docs/webcodecs",
+			"permanent": true
+		},
+		{
 			"source": "/docs/player/api",
 			"destination": "/docs/player/player",
 			"permanent": true
@@ -285,6 +290,16 @@
 		{
 			"source": "/security",
 			"destination": "/docs/security",
+			"permanent": false
+		},
+		{
+			"source": "/custom-controls",
+			"destination": "/docs/player/custom-controls",
+			"permanent": false
+		},
+		{
+			"source": "/drag-and-drop",
+			"destination": "/docs/player/drag-and-drop/",
 			"permanent": false
 		},
 		{

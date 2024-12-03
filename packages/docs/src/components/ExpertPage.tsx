@@ -4,10 +4,10 @@ import Layout from '@theme/Layout';
 import React from 'react';
 import {Button} from '../../components/layout/Button';
 import {Spacer} from '../../components/layout/Spacer';
-import {DARK_BLUE} from '../../components/layout/colors';
 import {experts} from '../data/experts';
 
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import {PALETTE} from '../../components/layout/colors';
 import {BackButton} from './BackButton';
 import {Seo} from './Seo';
 
@@ -19,7 +19,7 @@ const layout: React.CSSProperties = {
 };
 
 const header: React.CSSProperties = {
-	backgroundColor: DARK_BLUE,
+	backgroundColor: PALETTE.BRAND,
 	color: 'white',
 	paddingTop: 15,
 };
@@ -58,7 +58,7 @@ const description: React.CSSProperties = {
 };
 
 const socialIcon: React.CSSProperties = {
-	color: DARK_BLUE,
+	color: PALETTE.BRAND,
 	height: 24,
 };
 
@@ -107,11 +107,11 @@ export default () => {
 	}
 
 	const expert = experts.find((e) => e.slug === expertSlug[1]);
-	const imgSrc = `/generated/experts-${expert.slug}.png`;
-
 	if (!expert) {
 		throw new Error('no expert found');
 	}
+
+	const imgSrc = `/generated/experts-${expert.slug}.png`;
 
 	return (
 		<Layout>

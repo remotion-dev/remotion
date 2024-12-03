@@ -1,7 +1,7 @@
-import {registerTrack} from '../../add-new-matroska-tracks';
 import {type BufferIterator} from '../../buffer-iterator';
 import type {ParserContext} from '../../parser-context';
-import type {VideoSample} from '../../webcodec-sample-types';
+import {registerTrack} from '../../register-track';
+import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 import {getSampleFromBlock} from './get-sample-from-block';
 import {getTrack} from './make-track';
 import type {PossibleEbml} from './segments/all-segments';
@@ -108,7 +108,6 @@ export const parseEbml = async (
 		const children: PossibleEbml[] = [];
 		const startOffset = iterator.counter.getOffset();
 
-		// eslint-disable-next-line no-constant-condition
 		while (true) {
 			if (size === 0) {
 				break;
@@ -116,6 +115,7 @@ export const parseEbml = async (
 
 			const offset = iterator.counter.getOffset();
 			const value = await parseEbml(iterator, parserContext);
+			// eslint-disable-next-line @typescript-eslint/no-use-before-define
 			const remapped = await postprocessEbml({
 				offset,
 				ebml: value,
@@ -236,7 +236,7 @@ export const postprocessEbml = async ({
 				: getSampleFromBlock(block, parserContext, offset);
 
 		if (sample && sample.type === 'partial-video-sample') {
-			const completeFrame: VideoSample = {
+			const completeFrame: AudioOrVideoSample = {
 				...sample.partialVideoSample,
 				type: hasReferenceBlock ? 'delta' : 'key',
 			};

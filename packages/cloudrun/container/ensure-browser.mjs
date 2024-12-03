@@ -2743,6 +2743,9 @@ var Log = {
   verbose: (options, ...args) => {
     writeInRepro("verbose", ...args);
     if (isEqualOrBelowLogLevel(options.logLevel, "verbose")) {
+      if (args.length === 0) {
+        return process.stdout.write("\n");
+      }
       return console.log(...[
         options.indent ? INDENT_TOKEN : null,
         options.tag ? verboseTag(options.tag) : null
@@ -2752,18 +2755,27 @@ var Log = {
   info: (options, ...args) => {
     writeInRepro("info", ...args);
     if (isEqualOrBelowLogLevel(options.logLevel, "info")) {
-      return console.log(...[options.indent ? INDENT_TOKEN : null].filter(truthy).concat(args));
+      if (args.length === 0) {
+        return process.stdout.write("\n");
+      }
+      return console.log(...[options.indent ? INDENT_TOKEN : null].filter(truthy).concat(args ?? []));
     }
   },
   warn: (options, ...args) => {
     writeInRepro("warn", ...args);
     if (isEqualOrBelowLogLevel(options.logLevel, "warn")) {
+      if (args.length === 0) {
+        return process.stdout.write("\n");
+      }
       return console.warn(...[options.indent ? chalk.yellow(INDENT_TOKEN) : null].filter(truthy).concat(args.map((a) => chalk.yellow(a))));
     }
   },
   error: (options, ...args) => {
     writeInRepro("error", ...args);
     if (isEqualOrBelowLogLevel(options.logLevel, "error")) {
+      if (args.length === 0) {
+        return process.stdout.write("\n");
+      }
       return console.error(...[
         options.indent ? INDENT_TOKEN : null,
         options.tag ? verboseTag(options.tag) : null
@@ -2887,6 +2899,7 @@ var downloadFileWithoutRetries = ({ onProgress, url, to: toFn }) => {
       }, 20000);
     };
     refreshTimeout();
+    let finishEventSent = false;
     readFile(url).then((res) => {
       const contentDisposition = res.headers["content-disposition"] ?? null;
       const contentType = res.headers["content-type"] ?? null;
@@ -2900,11 +2913,13 @@ var downloadFileWithoutRetries = ({ onProgress, url, to: toFn }) => {
         if (rejected) {
           return;
         }
-        onProgress?.({
-          downloaded,
-          percent: 1,
-          totalSize: downloaded
-        });
+        if (!finishEventSent) {
+          onProgress?.({
+            downloaded,
+            percent: 1,
+            totalSize: downloaded
+          });
+        }
         refreshTimeout();
         return resolveAndFlag({ sizeInBytes: downloaded, to });
       });
@@ -2915,11 +2930,15 @@ var downloadFileWithoutRetries = ({ onProgress, url, to: toFn }) => {
         refreshTimeout();
         downloaded += d.length;
         refreshTimeout();
+        const percent = totalSize === null ? null : downloaded / totalSize;
         onProgress?.({
           downloaded,
-          percent: totalSize === null ? null : downloaded / totalSize,
+          percent,
           totalSize
         });
+        if (percent === 1) {
+          finishEventSent = true;
+        }
       });
       res.on("close", () => {
         if (totalSize !== null && downloaded !== totalSize) {
@@ -3164,7 +3183,7 @@ var defaultBrowserDownloadProgress = ({
   let lastProgress = 0;
   return {
     onProgress: (progress) => {
-      if (progress.downloadedBytes > lastProgress + 1e7) {
+      if (progress.downloadedBytes > lastProgress + 1e7 || progress.percent === 1) {
         lastProgress = progress.downloadedBytes;
         Log.info({ indent, logLevel }, `Downloading Chrome Headless Shell - ${toMegabytes(progress.downloadedBytes)}/${toMegabytes(progress.totalSizeInBytes)}`);
       }
@@ -3188,7 +3207,8 @@ var getLocalBrowser = () => {
 };
 
 // src/ensure-browser.ts
-var internalEnsureBrowser = async ({
+var currentEnsureBrowserOperation = Promise.resolve();
+var internalEnsureBrowserUncapped = async ({
   indent,
   logLevel,
   browserExecutable,
@@ -3201,6 +3221,10 @@ var internalEnsureBrowser = async ({
   }
   const newStatus = getBrowserStatus(browserExecutable);
   return newStatus;
+};
+var internalEnsureBrowser = (options) => {
+  currentEnsureBrowserOperation = currentEnsureBrowserOperation.then(() => internalEnsureBrowserUncapped(options));
+  return currentEnsureBrowserOperation;
 };
 var getBrowserStatus = (browserExecutable) => {
   if (browserExecutable) {

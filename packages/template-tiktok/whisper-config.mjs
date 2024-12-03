@@ -20,7 +20,7 @@ export const WHISPER_VERSION = "1.6.0";
 // | large-v1         | 2.9 GB | ~4.7 GB  |
 // | large-v2         | 2.9 GB | ~4.7 GB  |
 // | large-v3         | 2.9 GB | ~4.7 GB  |
-// | large-v3-turbo   | 1.5 GB | ~4.7 GB  |
+// | large-v3-turbo   | 1.5 GB | ~4.7 GB  | // Only supported from Whisper.cpp 1.7.2 and higher
 // | large            | 2.9 GB | ~4.7 GB  |
 
 /**

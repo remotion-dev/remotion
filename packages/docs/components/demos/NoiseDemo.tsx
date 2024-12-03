@@ -3,9 +3,9 @@ import React from "react";
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 
 interface Props {
-  speed: number;
-  circleRadius: number;
-  maxOffset: number;
+  readonly speed: number;
+  readonly circleRadius: number;
+  readonly maxOffset: number;
 }
 
 const OVERSCAN_MARGIN = 100;

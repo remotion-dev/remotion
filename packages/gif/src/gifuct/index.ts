@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {GIF} from '../js-binary-schema-parser/gif';
 import {parse} from '../js-binary-schema-parser/parser';
 import {buildStream} from '../js-binary-schema-parser/uint8-parser';

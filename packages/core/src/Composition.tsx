@@ -1,15 +1,13 @@
-import type {ComponentType, PropsWithChildren} from 'react';
-import React, {Suspense, useContext, useEffect, useMemo} from 'react';
+import type {ComponentType} from 'react';
+import React, {Suspense, useContext, useEffect} from 'react';
 import {createPortal} from 'react-dom';
 import type {AnyZodObject, z} from 'zod';
-import {AbsoluteFill} from './AbsoluteFill.js';
 import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
 } from './CanUseRemotionHooks.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import {FolderContext} from './Folder.js';
-import {NativeLayersContext} from './NativeLayers.js';
 import {useResolvedVideoConfig} from './ResolveCompositionConfig.js';
 import type {Codec} from './codec.js';
 import {continueRender, delayRender} from './delay-render.js';
@@ -97,27 +95,6 @@ export type StillProps<
 } & StillCalculateMetadataOrExplicit<Schema, Props> &
 	CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
-
-export const ClipComposition: React.FC<PropsWithChildren> = ({children}) => {
-	const {clipRegion} = useContext(NativeLayersContext);
-	const style: React.CSSProperties = useMemo(() => {
-		return {
-			display: 'flex',
-			flexDirection: 'row',
-			opacity: clipRegion === 'hide' ? 0 : 1,
-			clipPath:
-				clipRegion && clipRegion !== 'hide'
-					? `polygon(${clipRegion.x}px ${clipRegion.y}px, ${clipRegion.x}px ${
-							clipRegion.height + clipRegion.y
-						}px, ${clipRegion.width + clipRegion.x}px ${
-							clipRegion.height + clipRegion.y
-						}px, ${clipRegion.width + clipRegion.x}px ${clipRegion.y}px)`
-					: undefined,
-		};
-	}, [clipRegion]);
-
-	return <AbsoluteFill style={style}>{children}</AbsoluteFill>;
-};
 
 export type CompositionProps<
 	Schema extends AnyZodObject,
@@ -232,18 +209,16 @@ export const Composition = <
 		}
 
 		return createPortal(
-			<ClipComposition>
-				<CanUseRemotionHooksProvider>
-					<Suspense fallback={<Loading />}>
-						<Comp
-							{
-								// eslint-disable-next-line @typescript-eslint/no-explicit-any
-								...((resolved.result.props ?? {}) as any)
-							}
-						/>
-					</Suspense>
-				</CanUseRemotionHooksProvider>
-			</ClipComposition>,
+			<CanUseRemotionHooksProvider>
+				<Suspense fallback={<Loading />}>
+					<Comp
+						{
+							// eslint-disable-next-line @typescript-eslint/no-explicit-any
+							...((resolved.result.props ?? {}) as any)
+						}
+					/>
+				</Suspense>
+			</CanUseRemotionHooksProvider>,
 			portalNode(),
 		);
 	}

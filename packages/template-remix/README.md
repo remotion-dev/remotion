@@ -78,7 +78,7 @@ npm run build
 Start the app in production mode (after build is done):
 
 ```
-npm start
+npm run dev
 ```
 
 Start the Remotion preview:
@@ -90,13 +90,13 @@ npm run remotion:preview
 Render the example video locally:
 
 ```
-npm run remotion:render
+npx remotion render
 ```
 
 Upgrade all Remotion packages:
 
 ```
-npm run remotion:upgrade
+npx remotion upgrade
 ```
 
 Render the example video on AWS Lambda:

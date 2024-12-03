@@ -1,3 +1,6 @@
+// @ts-expect-error no types
+import styles from './styles.module.scss';
+
 import {alias} from 'lib/alias';
 import React, {useCallback, useMemo} from 'react';
 import {
@@ -36,6 +39,7 @@ import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {Layers} from './Layers';
 import {ManyAudio} from './ManyAudio';
 import {HandleAudioRenderError} from './MediaErrorHandling/HandleAudioRenderError';
+import {InfiniteAudio} from './MediaErrorHandling/InfiniteAudio';
 import {MissingImg} from './MissingImg';
 import {
 	OffthreadRemoteVideo,
@@ -82,6 +86,7 @@ import {
 import {TriggerCalculateMetadata} from './StudioApis/TriggerCalculateMetadata';
 import {WriteStaticFile} from './StudioApis/WriteStaticFile';
 import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
+import {SvgFilter} from './SvgFilter';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
 import {TextStroke} from './TextStroke';
@@ -108,9 +113,6 @@ if (alias !== 'alias') {
 }
 
 const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
-
-// @ts-expect-error no types
-import styles from './styles.module.scss';
 
 class Vector2 {
 	readonly x: number;
@@ -507,6 +509,12 @@ export const Index: React.FC = () => {
 						calculated: new Vector2(15, 10),
 					}}
 				/>
+				<Still
+					id="svg-filter"
+					component={SvgFilter}
+					width={1080}
+					height={1080}
+				/>
 			</Folder>
 			<Folder name="creatives">
 				<Composition
@@ -622,9 +630,6 @@ export const Index: React.FC = () => {
 					component={OffthreadRemoteVideo}
 					fps={30}
 					calculateMetadata={calculateMetadataFn}
-					defaultProps={{
-						src: staticFile('bigbuckbunny.mp4'),
-					}}
 				/>
 				<Composition
 					id="OffthreadVideoToCanvas"
@@ -1193,7 +1198,11 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						union: [
 							{type: 'boat' as const, depth: 10},
-							{type: 'car' as const, color: 'red', obj: [{link: 'hi there'}]},
+							{type: 'car' as const, color: 'blue', obj: [{link: 'hi there'}]},
+							{type: 'car' as const, color: '', obj: [{link: ''}]},
+							{type: 'car' as const, color: '', obj: [{link: ''}]},
+							{type: 'car' as const, color: '', obj: [{link: ''}]},
+							{type: 'car' as const, color: '', obj: [{link: ''}]},
 							{type: 'car' as const, color: '', obj: [{link: ''}]},
 							{type: 'car' as const, color: '', obj: [{link: ''}]},
 							{type: 'car' as const, color: '', obj: [{link: ''}]},
@@ -1268,6 +1277,7 @@ export const Index: React.FC = () => {
 							{type: 'a' as const, a: {a: 'hi'}},
 							{type: 'b' as const, b: {b: 'hi'}},
 						],
+						discriminatedUnion: {type: 'auto'},
 					}}
 				/>
 				{/**
@@ -1420,6 +1430,14 @@ export const Index: React.FC = () => {
 					height={1080}
 					width={1080}
 					durationInFrames={10_000}
+				/>
+				<Composition
+					id="InfiniteAudio"
+					component={InfiniteAudio}
+					fps={30}
+					height={1080}
+					width={1080}
+					durationInFrames={1800}
 				/>
 			</Folder>
 			<Folder name="AnimatedEmojis">

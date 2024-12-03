@@ -1,17 +1,17 @@
-import {RenderInternals} from '@remotion/renderer';
+import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
 test('Parse Big Buck bunny', async () => {
 	const data = await parseMedia({
-		src: RenderInternals.exampleVideos.bigBuckBunny,
+		src: exampleVideos.bigBuckBunny,
 		fields: {
-			boxes: true,
+			structure: true,
 		},
 		reader: nodeReader,
 	});
-	expect(data.boxes.slice(0, 2)).toEqual([
+	expect(data.structure.boxes.slice(0, 2)).toEqual([
 		{
 			offset: 0,
 			boxSize: 32,
@@ -32,13 +32,13 @@ test('Parse Big Buck bunny', async () => {
 
 test('Parse framer', async () => {
 	const parsed = await parseMedia({
-		src: RenderInternals.exampleVideos.framerWithoutFileExtension,
+		src: exampleVideos.framerWithoutFileExtension,
 		fields: {
-			boxes: true,
+			structure: true,
 		},
 		reader: nodeReader,
 	});
-	expect(parsed.boxes.slice(0, 2)).toEqual([
+	expect(parsed.structure.boxes.slice(0, 2)).toEqual([
 		{
 			offset: 0,
 			boxSize: 32,
@@ -59,13 +59,13 @@ test('Parse framer', async () => {
 
 test('Parse a full video', async () => {
 	const data = await parseMedia({
-		src: RenderInternals.exampleVideos.framer24fps,
-		fields: {boxes: true},
+		src: exampleVideos.framer24fps,
+		fields: {structure: true},
 		reader: nodeReader,
 	});
 	if (!data) throw new Error('No data');
 
-	const [first, second, third] = data.boxes;
+	const [first, second, third] = data.structure.boxes;
 
 	expect(first).toEqual({
 		offset: 0,
@@ -92,9 +92,9 @@ test('Parse a full video', async () => {
 
 test('Should warn if missing node reader', () => {
 	const data = parseMedia({
-		src: RenderInternals.exampleVideos.framer24fps,
+		src: exampleVideos.framer24fps,
 		fields: {
-			boxes: true,
+			structure: true,
 		},
 	});
 	expect(data).rejects.toThrow(/node/);

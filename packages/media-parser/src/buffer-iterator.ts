@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import {webmPattern} from './boxes/webm/make-header';
 import {
 	knownIdsWithOneLength,
@@ -106,6 +107,10 @@ export const getArrayBufferIterator = (
 		discardAllowed = true;
 	};
 
+	const discard = (length: number) => {
+		counter.increment(length);
+	};
+
 	const getUint8 = () => {
 		const val = view.getUint8(counter.getDiscardedOffset());
 		counter.increment(1);
@@ -159,15 +164,7 @@ export const getArrayBufferIterator = (
 		return Number(bigInt);
 	};
 
-	const getFourByteNumber = (littleEndian = false) => {
-		if (littleEndian) {
-			const one = getUint8();
-			const two = getUint8();
-			const three = getUint8();
-			const four = getUint8();
-			return (four << 24) | (three << 16) | (two << 8) | one;
-		}
-
+	const getFourByteNumber = () => {
 		return (
 			(getUint8() << 24) | (getUint8() << 16) | (getUint8() << 8) | getUint8()
 		);
@@ -182,8 +179,8 @@ export const getArrayBufferIterator = (
 		return lastInt;
 	};
 
-	const getUint32 = (littleEndian = false) => {
-		const val = view.getUint32(counter.getDiscardedOffset(), littleEndian);
+	const getUint32 = () => {
+		const val = view.getUint32(counter.getDiscardedOffset());
 		counter.increment(4);
 		return val;
 	};
@@ -192,6 +189,20 @@ export const getArrayBufferIterator = (
 		const val = view.getBigUint64(counter.getDiscardedOffset(), littleEndian);
 		counter.increment(8);
 		return val;
+	};
+
+	const startBox = (size: number) => {
+		const startOffset = counter.getOffset();
+
+		return {
+			discardRest: () => discard(size - (counter.getOffset() - startOffset)),
+			expectNoMoreBytes: () => {
+				const remaining = size - (counter.getOffset() - startOffset);
+				if (remaining !== 0) {
+					throw new Error('expected 0 bytes, got ' + remaining);
+				}
+			},
+		};
 	};
 
 	const getUint32Le = () => {
@@ -373,9 +384,7 @@ export const getArrayBufferIterator = (
 		leb128,
 		removeBytesRead,
 		isWebm,
-		discard: (length: number) => {
-			counter.increment(length);
-		},
+		discard,
 		getEightByteNumber,
 		getFourByteNumber,
 		getSlice,
@@ -516,6 +525,11 @@ export const getArrayBufferIterator = (
 			counter.increment(2);
 			return val;
 		},
+		getUint16Le: () => {
+			const val = view.getUint16(counter.getDiscardedOffset(), true);
+			counter.increment(2);
+			return val;
+		},
 		getUint24: () => {
 			const val1 = view.getUint8(counter.getDiscardedOffset());
 			const val2 = view.getUint8(counter.getDiscardedOffset() + 1);
@@ -579,6 +593,7 @@ export const getArrayBufferIterator = (
 		isMp3,
 		disallowDiscard,
 		allowDiscard,
+		startBox,
 	};
 };
 

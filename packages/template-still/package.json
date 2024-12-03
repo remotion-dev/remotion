@@ -4,12 +4,13 @@
   "description": "A template for designing still images with dynamic data with built-in server for deploying to the cloud.",
   "scripts": {
     "start": "node dist/server/index.js",
-    "build": "tsc",
+    "make": "tsc -d",
     "dev": "remotion studio",
+    "build": "remotion bundle",
     "render": "remotion still PreviewCard out/still.png",
     "upgrade": "remotion upgrade",
     "server": "bun src/server/index.ts",
-    "test": "eslint src --ext ts,tsx,js,jsx && tsc"
+    "lint": "eslint src --ext ts,tsx,js,jsx && tsc"
   },
   "repository": {},
   "license": "UNLICENSED",

@@ -32,11 +32,11 @@ function ellipseToPath(cx: number, cy: number): string {
 const electronRadius = 6;
 
 export const Arc: React.FC<{
-	progress: number;
-	rotation: number;
-	rotateProgress: number;
-	electronProgress: number;
-	electronOpacity: number;
+	readonly progress: number;
+	readonly rotation: number;
+	readonly rotateProgress: number;
+	readonly electronProgress: number;
+	readonly electronOpacity: number;
 }> = ({
 	progress,
 	rotation,

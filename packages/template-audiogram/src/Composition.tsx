@@ -55,12 +55,12 @@ export const AudioGramSchema = z.object({
 type AudiogramCompositionSchemaType = z.infer<typeof AudioGramSchema>;
 
 const AudioViz: React.FC<{
-  waveColor: string;
-  numberOfSamples: number;
-  freqRangeStartIndex: number;
-  waveLinesToDisplay: number;
-  mirrorWave: boolean;
-  audioSrc: string;
+  readonly waveColor: string;
+  readonly numberOfSamples: number;
+  readonly freqRangeStartIndex: number;
+  readonly waveLinesToDisplay: number;
+  readonly mirrorWave: boolean;
+  readonly audioSrc: string;
 }> = ({
   waveColor,
   numberOfSamples,

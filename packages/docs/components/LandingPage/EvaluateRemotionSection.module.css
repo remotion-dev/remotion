@@ -11,7 +11,8 @@
 	flex-direction: column;
 	justify-content: space-between; /* This will push the content to the top and the buttons/avatars to the bottom */
 	background-color: var(--ifm-background-surface-color);
-	border: 5px solid var(--text-color);
+	border: 2px solid var(--box-stroke);
+	border-bottom: 4px solid var(--box-stroke);
 	border-radius: 10px;
 	padding: 20px;
 	width: 100%;

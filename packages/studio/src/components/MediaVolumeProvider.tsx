@@ -7,7 +7,7 @@ import {Internals} from 'remotion';
 import {loadMuteOption} from '../state/mute';
 
 export const MediaVolumeProvider: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const [mediaMuted, setMediaMuted] = useState<boolean>(() => loadMuteOption());
 	const [mediaVolume, setMediaVolume] = useState<number>(1);

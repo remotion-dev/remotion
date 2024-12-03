@@ -1,11 +1,24 @@
-import type {ConvertMediaAudioCodec} from './codec-id';
+import type {LogLevel, ProgressTracker} from '@remotion/media-parser';
+import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
+import {makeIoSynchronizer} from './io-manager/io-synchronizer';
+import {getWaveAudioEncoder} from './wav-audio-encoder';
 
 export type WebCodecsAudioEncoder = {
 	encodeFrame: (audioData: AudioData) => Promise<void>;
 	waitForFinish: () => Promise<void>;
 	close: () => void;
-	getQueueSize: () => number;
 	flush: () => Promise<void>;
+};
+
+export type AudioEncoderInit = {
+	onChunk: (chunk: EncodedAudioChunk) => Promise<void>;
+	onError: (error: DOMException) => void;
+	codec: ConvertMediaAudioCodec;
+	signal: AbortSignal;
+	config: AudioEncoderConfig;
+	logLevel: LogLevel;
+	onNewAudioSampleRate: (sampleRate: number) => void;
+	progressTracker: ProgressTracker;
 };
 
 export const createAudioEncoder = ({
@@ -14,30 +27,43 @@ export const createAudioEncoder = ({
 	codec,
 	signal,
 	config: audioEncoderConfig,
-}: {
-	onChunk: (chunk: EncodedAudioChunk) => Promise<void>;
-	onError: (error: DOMException) => void;
-	codec: ConvertMediaAudioCodec;
-	signal: AbortSignal;
-	config: AudioEncoderConfig;
-}): WebCodecsAudioEncoder => {
+	logLevel,
+	onNewAudioSampleRate,
+	progressTracker,
+}: AudioEncoderInit): WebCodecsAudioEncoder => {
 	if (signal.aborted) {
 		throw new Error('Not creating audio encoder, already aborted');
 	}
 
+	if (codec === 'wav') {
+		return getWaveAudioEncoder({onChunk, signal});
+	}
+
+	const ioSynchronizer = makeIoSynchronizer({
+		logLevel,
+		label: 'Audio encoder',
+		progress: progressTracker,
+	});
+
 	let prom = Promise.resolve();
-	let outputQueue = 0;
-	let dequeueResolver = () => {};
 
 	const encoder = new AudioEncoder({
 		output: (chunk) => {
-			outputQueue++;
+			ioSynchronizer.onOutput(chunk.timestamp);
 			prom = prom
-				.then(() => onChunk(chunk))
 				.then(() => {
-					outputQueue--;
-					dequeueResolver();
+					if (signal.aborted) {
+						return;
+					}
+
+					return onChunk(chunk);
+				})
+				.then(() => {
+					ioSynchronizer.onProcessed();
 					return Promise.resolve();
+				})
+				.catch((err) => {
+					onError(err);
 				});
 		},
 		error(error) {
@@ -61,48 +87,44 @@ export const createAudioEncoder = ({
 
 	signal.addEventListener('abort', onAbort);
 
-	if (codec !== 'opus') {
-		throw new Error('Only `codec: "opus"` is supported currently');
+	if (codec !== 'opus' && codec !== 'aac') {
+		throw new Error(
+			'Only `codec: "opus"` and `codec: "aac"` is supported currently',
+		);
 	}
 
-	const getQueueSize = () => {
-		return encoder.encodeQueueSize + outputQueue;
-	};
-
-	encoder.configure(audioEncoderConfig);
-
-	const waitForDequeue = async () => {
-		await new Promise<void>((r) => {
-			dequeueResolver = r;
-
-			// @ts-expect-error exists
-			encoder.addEventListener('dequeue', () => r(), {
-				once: true,
-			});
-		});
-	};
-
-	const waitForFinish = async () => {
-		while (getQueueSize() > 0) {
-			await waitForDequeue();
-		}
-	};
+	const wantedSampleRate = audioEncoderConfig.sampleRate;
 
 	const encodeFrame = async (audioData: AudioData) => {
 		if (encoder.state === 'closed') {
 			return;
 		}
 
-		while (getQueueSize() > 10) {
-			await waitForDequeue();
-		}
+		await ioSynchronizer.waitFor({
+			unemitted: 20,
+			_unprocessed: 20,
+			minimumProgress: audioData.timestamp - 10_000_000,
+		});
 
 		// @ts-expect-error - can have changed in the meanwhile
 		if (encoder.state === 'closed') {
 			return;
 		}
 
+		if (encoder.state === 'unconfigured') {
+			if (audioData.sampleRate === wantedSampleRate) {
+				encoder.configure(audioEncoderConfig);
+			} else {
+				encoder.configure({
+					...audioEncoderConfig,
+					sampleRate: audioData.sampleRate,
+				});
+				onNewAudioSampleRate(audioData.sampleRate);
+			}
+		}
+
 		encoder.encode(audioData);
+		ioSynchronizer.inputItem(audioData.timestamp, true);
 	};
 
 	let queue = Promise.resolve();
@@ -114,11 +136,10 @@ export const createAudioEncoder = ({
 		},
 		waitForFinish: async () => {
 			await encoder.flush();
-			await waitForFinish();
+			await ioSynchronizer.waitForFinish();
 			await prom;
 		},
 		close,
-		getQueueSize,
 		flush: async () => {
 			await encoder.flush();
 		},

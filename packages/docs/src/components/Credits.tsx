@@ -27,11 +27,11 @@ interface Contributor {
 }
 
 interface CreditsProps {
-	contributors: Contributor[];
+	readonly contributors: Contributor[];
 }
 
 const ContributorComp: React.FC<{
-	contributor: Contributor;
+	readonly contributor: Contributor;
 }> = ({contributor}) => {
 	const cardStyle: React.CSSProperties = {
 		width: '300px',

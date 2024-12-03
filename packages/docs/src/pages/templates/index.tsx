@@ -55,7 +55,7 @@ const descriptionStyle: React.CSSProperties = {
 
 const Item: React.FC<{
 	readonly label: string;
-	readonly description: React.ReactNode;
+	readonly description: string;
 	readonly children: React.ReactNode;
 }> = ({children, label, description}) => {
 	return (
@@ -67,7 +67,13 @@ const Item: React.FC<{
 				<div style={labelStyle}>{label}</div>
 			</div>
 			<div>
-				<p style={descriptionStyle}>{description}</p>
+				<p
+					// eslint-disable-next-line react/no-danger
+					dangerouslySetInnerHTML={{
+						__html: description,
+					}}
+					style={descriptionStyle}
+				/>
 			</div>
 		</div>
 	);

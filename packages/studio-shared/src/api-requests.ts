@@ -9,6 +9,7 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
+import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import type {RecastCodemod} from './codemods';
 import type {InstallablePackage} from './installable-packages';
 import type {PackageManager} from './package-manager';
@@ -79,6 +80,7 @@ type AddRenderRequestDynamicFields =
 			repro: boolean;
 			forSeamlessAacConcatenation: boolean;
 			separateAudioTo: string | null;
+			hardwareAcceleration: HardwareAccelerationOption;
 	  };
 
 export type CancelRenderRequest = {
@@ -210,7 +212,6 @@ export type ApiRoutes = {
 	>;
 	'/api/remove-render': ReqAndRes<RemoveRenderRequest, undefined>;
 	'/api/open-in-file-explorer': ReqAndRes<OpenInFileExplorerRequest, void>;
-	'/api/copy-still-to-clipboard': ReqAndRes<CopyStillToClipboardRequest, void>;
 	'/api/update-default-props': ReqAndRes<
 		UpdateDefaultPropsRequest,
 		UpdateDefaultPropsResponse

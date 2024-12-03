@@ -10,6 +10,7 @@ import {
 	type CustomCredentials,
 } from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
+import type {AwsRegion} from '../../regions';
 import type {CleanupInfo, GenericRenderProgress} from '../../shared/constants';
 import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../../shared/constants';
 import {calculateChunkTimes} from './calculate-chunk-times';
@@ -31,6 +32,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 	customCredentials,
 	providerSpecifics,
 	forcePathStyle,
+	functionName,
 }: {
 	bucketName: string;
 	renderId: string;
@@ -41,6 +43,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 	customCredentials: CustomCredentials<Provider> | null;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	forcePathStyle: boolean;
+	functionName: string;
 }): Promise<GenericRenderProgress<Provider>> => {
 	const overallProgress = await getOverallProgressS3({
 		renderId,
@@ -207,7 +210,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 		// overestimate the price, but will only have a miniscule effect (~0.2%)
 		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
 		timings: overallProgress.timings ?? [],
-		providerSpecifics,
+		region: region as AwsRegion,
 	});
 
 	const chunkMultiplier = [hasAudio, hasVideo].filter(truthy).length;
@@ -255,7 +258,8 @@ export const getProgress = async <Provider extends CloudProvider>({
 					renderMetadata,
 					renderId,
 					missingChunks: missingChunks ?? [],
-					providerSpecifics,
+					region,
+					functionName,
 				})
 			: null,
 		...errorExplanations,

@@ -7,8 +7,8 @@ export type AllShapesProps = Omit<
 	React.SVGProps<SVGPathElement>,
 	'width' | 'height' | 'd'
 > & {
-	debug?: boolean;
-	pathStyle?: React.CSSProperties;
+	readonly debug?: boolean;
+	readonly pathStyle?: React.CSSProperties;
 };
 
 export const RenderSvg = ({
@@ -22,11 +22,11 @@ export const RenderSvg = ({
 	instructions,
 	...props
 }: {
-	width: number;
-	height: number;
-	path: string;
-	instructions: Instruction[];
-	transformOrigin: string;
+	readonly width: number;
+	readonly height: number;
+	readonly path: string;
+	readonly instructions: Instruction[];
+	readonly transformOrigin: string;
 } & AllShapesProps) => {
 	const actualStyle = useMemo((): React.CSSProperties => {
 		return {

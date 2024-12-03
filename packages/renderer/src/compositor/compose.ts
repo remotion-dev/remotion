@@ -1,36 +1,14 @@
 import {spawn} from 'node:child_process';
-import {createHash} from 'node:crypto';
-import {copyFile} from 'node:fs/promises';
 import path from 'node:path';
-import type {DownloadMap} from '../assets/download-map';
 import type {LogLevel} from '../log-level';
-import type {Compositor} from './compositor';
 import {getExecutablePath} from './get-executable-path';
 import {makeFileExecutableIfItIsNot} from './make-file-executable';
 import {makeNonce} from './make-nonce';
 import type {
 	CompositorCommand,
 	CompositorCommandSerialized,
-	CompositorImageFormat,
 	ErrorPayload,
-	Layer,
 } from './payloads';
-
-type CompositorInput = {
-	height: number;
-	width: number;
-	layers: Layer[];
-	imageFormat: CompositorImageFormat;
-};
-
-type ComposeInput = CompositorInput & {
-	output: string;
-	compositor: Compositor;
-};
-
-const getCompositorHash = ({...input}: CompositorInput): string => {
-	return createHash('sha256').update(JSON.stringify(input)).digest('base64');
-};
 
 export const serializeCommand = <Type extends keyof CompositorCommand>(
 	command: Type,
@@ -43,56 +21,6 @@ export const serializeCommand = <Type extends keyof CompositorCommand>(
 			params,
 		},
 	};
-};
-
-export const composeWithoutCache = async ({
-	height,
-	width,
-	layers,
-	output,
-	imageFormat,
-	compositor,
-}: CompositorInput & {
-	output: string;
-	compositor: Compositor;
-}) => {
-	await compositor.executeCommand('Compose', {
-		height,
-		width,
-		layers,
-		output,
-		output_format: imageFormat,
-	});
-};
-
-export const compose = async ({
-	height,
-	width,
-	layers,
-	output,
-	downloadMap,
-	imageFormat,
-	compositor,
-}: ComposeInput & {
-	downloadMap: DownloadMap;
-}) => {
-	const hash = getCompositorHash({height, width, layers, imageFormat});
-
-	if (downloadMap.compositorCache[hash]) {
-		await copyFile(downloadMap.compositorCache[hash], output);
-		return;
-	}
-
-	await composeWithoutCache({
-		compositor,
-		height,
-		imageFormat,
-		layers,
-		output,
-		width,
-	});
-
-	downloadMap.compositorCache[hash] = output;
 };
 
 export const callCompositor = (
@@ -130,7 +58,7 @@ export const callCompositor = (
 					const err = new Error(`${msg}\n${parsed.backtrace}`);
 
 					reject(err);
-				} catch (err) {
+				} catch {
 					reject(
 						new Error(`Compositor panicked with code ${code}: ${message}`),
 					);

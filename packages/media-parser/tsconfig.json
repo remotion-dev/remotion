@@ -8,6 +8,9 @@
 	"references": [
 		{
 			"path": "../renderer"
+		},
+		{
+			"path": "../example-videos"
 		}
 	],
 	"include": ["src"]

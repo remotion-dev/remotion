@@ -137,7 +137,7 @@ npm i
 #### Start Remotion Studio
 
 ```console
-npm start
+npm run dev
 ```
 
 #### Running on Cloud development environments:
@@ -159,7 +159,7 @@ Replace `5050` with your own port, if you have changed it to something else. To 
 #### Render video
 
 ```console
-npm run build
+npx remotion render
 ```
 
 See [docs for server-side rendering](https://www.remotion.dev/docs/ssr) here.
@@ -167,7 +167,7 @@ See [docs for server-side rendering](https://www.remotion.dev/docs/ssr) here.
 #### Upgrade Remotion
 
 ```console
-npm run upgrade
+npx remotion upgrade
 ```
 
 ## Docs

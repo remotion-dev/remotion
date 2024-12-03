@@ -25,12 +25,13 @@ import type {TkhdBox} from './boxes/iso-base-media/tkhd';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import type {TrunBox} from './boxes/iso-base-media/trun';
 import type {VoidBox} from './boxes/iso-base-media/void-box';
+import type {RiffBox} from './boxes/riff/riff-box';
 import type {MatroskaSegment} from './boxes/webm/segments';
 
 export interface RegularBox extends BaseBox {
 	boxType: string;
 	boxSize: number;
-	children: AnySegment[];
+	children: IsoBaseMediaBox[];
 	offset: number;
 	type: 'regular-box';
 }
@@ -64,16 +65,57 @@ export type IsoBaseMediaBox =
 	| TfdtBox
 	| TfhdBox;
 
-export type AnySegment = MatroskaSegment | IsoBaseMediaBox;
+export type AnySegment = MatroskaSegment | IsoBaseMediaBox | RiffBox;
 
-export type ParseResult =
+export type IsoBaseMediaStructure = {
+	type: 'iso-base-media';
+	boxes: IsoBaseMediaBox[];
+};
+
+export type RiffStructure = {
+	type: 'riff';
+	boxes: RiffBox[];
+};
+
+export type MatroskaStructure = {
+	type: 'matroska';
+	boxes: MatroskaSegment[];
+};
+
+export type Structure =
+	| IsoBaseMediaStructure
+	| RiffStructure
+	| MatroskaStructure;
+
+export type ParseResult<TStructure extends Structure> =
 	| {
 			status: 'done';
-			segments: AnySegment[];
+			segments: TStructure;
 	  }
 	| {
 			status: 'incomplete';
-			segments: AnySegment[];
+			segments: TStructure;
 			skipTo: number | null;
-			continueParsing: () => Promise<ParseResult>;
+			continueParsing: () => Promise<ParseResult<TStructure>>;
+	  };
+
+export type MatroskaParseResult =
+	| {
+			status: 'done';
+	  }
+	| {
+			status: 'incomplete';
+			skipTo: number | null;
+			continueParsing: () => Promise<MatroskaParseResult>;
+	  };
+
+export type ExpectSegmentParseResult =
+	| {
+			status: 'done';
+			segment: MatroskaSegment;
+	  }
+	| {
+			status: 'incomplete';
+			segment: MatroskaSegment | null;
+			continueParsing: () => Promise<ExpectSegmentParseResult>;
 	  };

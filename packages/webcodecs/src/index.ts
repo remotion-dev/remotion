@@ -1,5 +1,49 @@
-export {createAudioDecoder} from './audio-decoder';
-export {createAudioEncoder} from './audio-encoder';
-export {ConvertMediaState, ConvertMediaTo, convertMedia} from './convert-media';
-export {createVideoDecoder} from './video-decoder';
-export {createVideoEncoder} from './video-encoder';
+import {normalizeVideoRotation, rotateVideoFrame} from './rotate-video-frame';
+import {setRemotionImported} from './set-remotion-imported';
+
+export {createAudioDecoder, WebCodecsAudioDecoder} from './audio-decoder';
+export {createAudioEncoder, WebCodecsAudioEncoder} from './audio-encoder';
+export {canCopyAudioTrack} from './can-copy-audio-track';
+export {canCopyVideoTrack} from './can-copy-video-track';
+export {canReencodeAudioTrack} from './can-reencode-audio-track';
+export {canReencodeVideoTrack} from './can-reencode-video-track';
+export {
+	convertMedia,
+	ConvertMediaOnProgress,
+	ConvertMediaOnVideoFrame,
+	ConvertMediaProgress,
+	ConvertMediaResult,
+} from './convert-media';
+export {defaultOnAudioTrackHandler} from './default-on-audio-track-handler';
+export {defaultOnVideoTrackHandler} from './default-on-video-track-handler';
+export {
+	ConvertMediaAudioCodec,
+	getAvailableAudioCodecs,
+} from './get-available-audio-codecs';
+export {
+	ConvertMediaContainer,
+	getAvailableContainers,
+} from './get-available-containers';
+export {
+	ConvertMediaVideoCodec,
+	getAvailableVideoCodecs,
+} from './get-available-video-codecs';
+export {getDefaultAudioCodec} from './get-default-audio-codec';
+export {getDefaultVideoCodec} from './get-default-video-codec';
+export {
+	AudioOperation,
+	ConvertMediaOnAudioTrackHandler,
+} from './on-audio-track-handler';
+export {
+	ConvertMediaOnVideoTrackHandler,
+	VideoOperation,
+} from './on-video-track-handler';
+export {createVideoDecoder, WebCodecsVideoDecoder} from './video-decoder';
+export {createVideoEncoder, WebCodecsVideoEncoder} from './video-encoder';
+
+export const WebCodecsInternals = {
+	rotateVideoFrame,
+	normalizeVideoRotation,
+};
+
+setRemotionImported();

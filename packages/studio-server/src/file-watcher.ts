@@ -27,6 +27,12 @@ export const installFileWatcher = ({
 		}
 
 		if (existsNow) {
+			if (typeof Deno !== 'undefined') {
+				// Deno always goes here, even if the file has not changed.
+				// Don't support this for now.
+				return;
+			}
+
 			onChange('changed');
 		}
 	};

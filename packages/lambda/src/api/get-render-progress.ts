@@ -58,6 +58,7 @@ export const getRenderProgress = async (
 			providerSpecifics: awsImplementation,
 			memorySizeInMb: parsed.memorySizeInMb,
 			timeoutInMilliseconds: parsed.timeoutInSeconds * 1000,
+			functionName: input.functionName,
 		});
 	}
 

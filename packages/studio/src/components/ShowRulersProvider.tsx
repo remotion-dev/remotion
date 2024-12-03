@@ -6,7 +6,7 @@ import {
 } from '../state/editor-rulers';
 
 export const ShowRulersProvider: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const [editorShowRulers, setEditorShowRulersState] = useState(() =>
 		loadEditorShowRulersOption(),

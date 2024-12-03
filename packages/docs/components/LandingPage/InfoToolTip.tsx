@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import styles from './InfoTool.module.css';
 
 interface InfoTooltipProps {
-	text: string;
+	readonly text: string;
 }
 
 export const InfoTooltip: React.FC<InfoTooltipProps> = ({text}) => {

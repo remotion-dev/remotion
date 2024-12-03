@@ -8,7 +8,7 @@ import {
 	writeFileSync,
 } from 'fs';
 import path from 'path';
-import {FEATURED_TEMPLATES} from './packages/create-video/src/templates.tsx';
+import {FEATURED_TEMPLATES} from './packages/create-video/src/templates.ts';
 
 let version = process.argv[2];
 let noCommit = process.argv.includes('--no-commit');
@@ -59,6 +59,9 @@ for (const dir of [path.join('cloudrun', 'container'), ...dirs]) {
 execSync('bun ensure-correct-version.ts', {
 	cwd: 'packages/core',
 });
+execSync('bun ensure-correct-version.ts', {
+	cwd: 'packages/media-parser',
+});
 
 execSync('bun test src/monorepo', {
 	cwd: 'packages/it-tests',
@@ -66,7 +69,7 @@ execSync('bun test src/monorepo', {
 });
 
 execSync('bun build.ts --all', {
-	cwd: 'packages/renderer',
+	cwd: 'packages/compositor',
 	stdio: 'inherit',
 });
 

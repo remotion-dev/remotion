@@ -41,14 +41,14 @@ const useWindowedFrameSubs = (
 };
 
 export const PaginatedSubtitles: React.FC<{
-  subtitles: string;
-  startFrame: number;
-  endFrame: number;
-  linesPerPage: number;
-  subtitlesTextColor: string;
-  subtitlesZoomMeasurerSize: number;
-  subtitlesLineHeight: number;
-  onlyDisplayCurrentSentence: boolean;
+  readonly subtitles: string;
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly linesPerPage: number;
+  readonly subtitlesTextColor: string;
+  readonly subtitlesZoomMeasurerSize: number;
+  readonly subtitlesLineHeight: number;
+  readonly onlyDisplayCurrentSentence: boolean;
 }> = ({
   startFrame,
   endFrame,

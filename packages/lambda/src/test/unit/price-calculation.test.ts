@@ -1,6 +1,5 @@
 import {expect, test} from 'vitest';
 import {estimatePriceFromBucket} from '../../functions/helpers/calculate-price-from-bucket';
-import {mockImplementation} from '../mock-implementation';
 
 test('Should not throw while calculating prices when time shifts occur', () => {
 	const aDate = Date.now();
@@ -40,6 +39,10 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 			muted: false,
 			metadata: {Author: 'Lunar'},
 			functionName: 'remotion-render-la8ffw',
+			dimensions: {
+				height: 1080,
+				width: 1920,
+			},
 		},
 		diskSizeInMb: 512,
 		lambdasInvoked: 1,
@@ -50,7 +53,7 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 				start: aDate,
 			},
 		],
-		providerSpecifics: mockImplementation,
+		region: 'eu-central-1',
 	});
 	expect(price?.accruedSoFar).toBeGreaterThanOrEqual(0);
 });

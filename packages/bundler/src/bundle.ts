@@ -254,6 +254,7 @@ export const internalBundle = async (
 		}
 
 		symlinkWarningShown = true;
+		// eslint-disable-next-line no-console
 		console.warn(
 			`\nFound a symbolic link in the public folder (${absolutePath}). The symlink will be forwarded into the bundle.`,
 		);

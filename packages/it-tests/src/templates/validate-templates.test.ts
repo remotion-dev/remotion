@@ -33,15 +33,6 @@ describe('Templates should be valid', () => {
 			const res = readFileSync(packageJson, 'utf8');
 			const body = JSON.parse(res);
 
-			if (
-				!template.shortName.includes('Remix') &&
-				!template.shortName.includes('Next') &&
-				!template.shortName.includes('Still')
-			) {
-				expect(body.scripts.build).toMatch(/render/);
-				expect(body.scripts.build).not.toContain('index');
-			}
-
 			expect(body.dependencies.remotion).toBe('workspace:*');
 			expect(body.dependencies['@remotion/cli']).toMatch('workspace:*');
 			expect(body.dependencies.react).toMatch(/^\^?18/);
@@ -69,6 +60,14 @@ describe('Templates should be valid', () => {
 					body.devDependencies['@remotion/eslint-plugin']?.match('workspace:*');
 				expect(eitherPluginOrConfig).toBeTruthy();
 			}
+
+			const scripts = body.scripts;
+			expect(scripts.dev).toMatch(
+				/(remotion\sstudio)|(ts-node src\/studio)|(next dev)|(remix dev)/,
+			);
+			expect(scripts.build).toMatch(
+				/(remotion\sbundle)|(ts-node\ssrc\/render)|(remix\sbuild)|(next\sbuild)/,
+			);
 		});
 
 		it(`${template.shortName} should not have any lockfiles`, async () => {
@@ -148,6 +147,14 @@ describe('Templates should be valid', () => {
   "tabWidth": 2
 }
 `);
+		});
+		it(`${template.shortName} should reference commands`, async () => {
+			const {contents} = await findFile([
+				getFileForTemplate(template, 'README.md'),
+			]);
+			expect(contents).toInclude('npx remotion upgrade');
+			expect(contents).toInclude('npx remotion render');
+			expect(contents).toInclude('npm run dev');
 		});
 		it(`${template.shortName} should be registered in tsconfig.json`, async () => {
 			const tsconfig = path.join(process.cwd(), '..', '..', 'tsconfig.json');

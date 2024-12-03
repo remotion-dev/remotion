@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import fs, {existsSync} from 'fs';
 import path from 'path';
 import {downloadFile, type OnProgress} from './download';

@@ -103,20 +103,18 @@ export const SharedPlayerContexts: React.FC<{
 								<Internals.MediaVolumeContext.Provider
 									value={mediaVolumeContextValue}
 								>
-									<Internals.NativeLayersProvider>
-										<Internals.SetMediaVolumeContext.Provider
-											value={setMediaVolumeContextValue}
+									<Internals.SetMediaVolumeContext.Provider
+										value={setMediaVolumeContextValue}
+									>
+										<Internals.SharedAudioContextProvider
+											numberOfAudioTags={numberOfSharedAudioTags}
+											component={component}
 										>
-											<Internals.SharedAudioContextProvider
-												numberOfAudioTags={numberOfSharedAudioTags}
-												component={component}
-											>
-												<Internals.BufferingProvider>
-													{children}
-												</Internals.BufferingProvider>
-											</Internals.SharedAudioContextProvider>
-										</Internals.SetMediaVolumeContext.Provider>
-									</Internals.NativeLayersProvider>
+											<Internals.BufferingProvider>
+												{children}
+											</Internals.BufferingProvider>
+										</Internals.SharedAudioContextProvider>
+									</Internals.SetMediaVolumeContext.Provider>
 								</Internals.MediaVolumeContext.Provider>
 							</Internals.DurationsContextProvider>
 						</Internals.PrefetchProvider>

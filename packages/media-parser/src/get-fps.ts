@@ -7,7 +7,12 @@ import {
 	getSttsBox,
 	getTraks,
 } from './boxes/iso-base-media/traversal';
-import type {AnySegment} from './parse-result';
+import {getStrhBox, getStrlBoxes} from './boxes/riff/traversal';
+import type {
+	IsoBaseMediaStructure,
+	RiffStructure,
+	Structure,
+} from './parse-result';
 
 const calculateFps = ({
 	sttsBox,
@@ -74,25 +79,13 @@ export const getTimescaleAndDuration = (
 	return null;
 };
 
-export const getFps = (segments: AnySegment[]) => {
-	const moovBox = getMoovBox(segments);
-	if (!moovBox) {
-		return null;
-	}
-
-	const trackBoxes = getTraks(moovBox);
-
-	const trackBox = trackBoxes.find(trakBoxContainsVideo);
-	if (!trackBox) {
-		return null;
-	}
-
-	const timescaleAndDuration = getTimescaleAndDuration(trackBox);
+export const getFpsFromMp4TrakBox = (trakBox: TrakBox) => {
+	const timescaleAndDuration = getTimescaleAndDuration(trakBox);
 	if (!timescaleAndDuration) {
 		return null;
 	}
 
-	const sttsBox = getSttsBox(trackBox);
+	const sttsBox = getSttsBox(trakBox);
 	if (!sttsBox) {
 		return null;
 	}
@@ -104,10 +97,69 @@ export const getFps = (segments: AnySegment[]) => {
 	});
 };
 
-export const hasFps = (boxes: AnySegment[]): boolean => {
+const getFpsFromIsoMaseMedia = (structure: IsoBaseMediaStructure) => {
+	const moovBox = getMoovBox(structure.boxes);
+	if (!moovBox) {
+		return null;
+	}
+
+	const trackBoxes = getTraks(moovBox);
+
+	const trackBox = trackBoxes.find(trakBoxContainsVideo);
+	if (!trackBox) {
+		return null;
+	}
+
+	return getFpsFromMp4TrakBox(trackBox);
+};
+
+const getFpsFromAvi = (structure: RiffStructure) => {
+	const strl = getStrlBoxes(structure);
+
+	for (const s of strl) {
+		const strh = getStrhBox(s.children);
+		if (!strh) {
+			throw new Error('No strh box');
+		}
+
+		if (strh.fccType === 'auds') {
+			continue;
+		}
+
+		return strh.rate;
+	}
+
+	return null;
+};
+
+export const getFps = (segments: Structure) => {
+	if (segments.type === 'iso-base-media') {
+		return getFpsFromIsoMaseMedia(segments);
+	}
+
+	if (segments.type === 'riff') {
+		return getFpsFromAvi(segments);
+	}
+
+	// TODO: Matroska doesn't have Matroska
+	if (segments.type === 'matroska') {
+		return null;
+	}
+
+	throw new Error('Cannot get fps, not implemented');
+};
+
+export const hasFps = (boxes: Structure): boolean => {
 	try {
+		// Matroska has no FPS metadata
+		// Not bothering to parse
+		// Idea: `guaranteedFps` field
+		if (boxes.type === 'matroska') {
+			return true;
+		}
+
 		return getFps(boxes) !== null;
-	} catch (err) {
+	} catch {
 		return false;
 	}
 };

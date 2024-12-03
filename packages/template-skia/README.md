@@ -22,19 +22,19 @@ npm install
 **Start Preview**
 
 ```console
-npm start
+npm run dev
 ```
 
 **Render video**
 
 ```console
-npm run build
+npx remotion render
 ```
 
 **Upgrade Remotion**
 
 ```console
-npm run upgrade
+npx remotion upgrade
 ```
 
 ## Using server-side rendering
@@ -43,11 +43,11 @@ This template uses a [custom Webpack override](https://www.remotion.dev/docs/web
 
 ```ts
 bundle(entry, () => undefined, {
-	webpackOverride: (config) => enableSkia(config),
+  webpackOverride: (config) => enableSkia(config),
 });
 // or
 deploySite({
-	webpackOverride: (config) => enableSkia(config),
+  webpackOverride: (config) => enableSkia(config),
 });
 ```
 

@@ -319,7 +319,6 @@ const getRules = (typescript: boolean) => {
 		'no-array-constructor': 'error',
 		'no-lonely-if': 'error',
 		'no-multi-assign': 'error',
-		'no-negated-condition': 'error',
 		'no-new-object': 'error',
 		'no-restricted-syntax': ['error', 'WithStatement'],
 		'no-unneeded-ternary': 'error',
@@ -400,13 +399,6 @@ const getRules = (typescript: boolean) => {
 			},
 		],
 		'no-useless-catch': 'error',
-		// xo-react rules
-		'react/boolean-prop-naming': [
-			'error',
-			{
-				validateNested: true,
-			},
-		],
 		'react/button-has-type': 'error',
 		'react/default-props-match-prop-types': 'error',
 		'react/no-access-state-in-setstate': 'error',

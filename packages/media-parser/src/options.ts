@@ -6,7 +6,8 @@ import type {
 	MediaParserVideoCodec,
 	VideoTrack,
 } from './get-tracks';
-import type {AnySegment} from './parse-result';
+import type {LogLevel} from './log';
+import type {Structure} from './parse-result';
 import type {InternalStats} from './parser-state';
 import type {ReaderInterface} from './readers/reader';
 import type {OnAudioTrack, OnVideoTrack} from './webcodec-sample-types';
@@ -23,7 +24,7 @@ export type KnownAudioCodecs =
 export type ParseMediaFields = {
 	dimensions: boolean;
 	durationInSeconds: boolean;
-	boxes: boolean;
+	structure: boolean;
 	fps: boolean;
 	videoCodec: boolean;
 	audioCodec: boolean;
@@ -34,12 +35,13 @@ export type ParseMediaFields = {
 	size: boolean;
 	name: boolean;
 	container: boolean;
+	isHdr: boolean;
 };
 
 export type AllParseMediaFields = {
 	dimensions: true;
 	durationInSeconds: true;
-	boxes: true;
+	structure: true;
 	fps: true;
 	videoCodec: true;
 	audioCodec: true;
@@ -50,12 +52,13 @@ export type AllParseMediaFields = {
 	size: true;
 	name: true;
 	container: true;
+	isHdr: true;
 };
 
 export type Options<Fields extends ParseMediaFields> = {
 	dimensions?: Fields['dimensions'];
 	durationInSeconds?: Fields['durationInSeconds'];
-	boxes?: Fields['boxes'];
+	structure?: Fields['structure'];
 	fps?: Fields['fps'];
 	videoCodec?: Fields['videoCodec'];
 	audioCodec?: Fields['audioCodec'];
@@ -66,6 +69,7 @@ export type Options<Fields extends ParseMediaFields> = {
 	size?: Fields['size'];
 	name?: Fields['name'];
 	container?: Fields['container'];
+	isHdr?: Fields['isHdr'];
 };
 
 export type TracksField = {
@@ -73,7 +77,7 @@ export type TracksField = {
 	audioTracks: AudioTrack[];
 };
 
-export type ParseMediaContainer = 'mp4' | 'webm';
+export type ParseMediaContainer = 'mp4' | 'webm' | 'avi';
 
 export type ParseMediaCallbacks<Fields extends Options<ParseMediaFields>> =
 	(Fields['dimensions'] extends true
@@ -82,8 +86,8 @@ export type ParseMediaCallbacks<Fields extends Options<ParseMediaFields>> =
 		(Fields['durationInSeconds'] extends true
 			? {onDurationInSeconds?: (durationInSeconds: number | null) => void}
 			: {}) &
-		(Fields['boxes'] extends true
-			? {onBoxes?: (boxes: AnySegment[]) => void}
+		(Fields['structure'] extends true
+			? {onStructure?: (structure: Structure) => void}
 			: {}) &
 		(Fields['fps'] extends true ? {onFps?: (fps: number | null) => void} : {}) &
 		(Fields['videoCodec'] extends true
@@ -101,6 +105,7 @@ export type ParseMediaCallbacks<Fields extends Options<ParseMediaFields>> =
 		(Fields['unrotatedDimensions'] extends true
 			? {onUnrotatedDimensions?: (dimensions: Dimensions) => void}
 			: {}) &
+		(Fields['isHdr'] extends true ? {onIsHdr?: (isHdr: boolean) => void} : {}) &
 		(Fields['internalStats'] extends true
 			? {onInternalStats?: (stats: InternalStats) => void}
 			: {}) &
@@ -117,7 +122,7 @@ export type ParseMediaResult<Fields extends Options<ParseMediaFields>> =
 		(Fields['durationInSeconds'] extends true
 			? {durationInSeconds: number | null}
 			: {}) &
-		(Fields['boxes'] extends true ? {boxes: AnySegment[]} : {}) &
+		(Fields['structure'] extends true ? {structure: Structure} : {}) &
 		(Fields['fps'] extends true ? {fps: number | null} : {}) &
 		(Fields['videoCodec'] extends true
 			? {videoCodec: MediaParserVideoCodec | null}
@@ -130,6 +135,7 @@ export type ParseMediaResult<Fields extends Options<ParseMediaFields>> =
 		(Fields['unrotatedDimensions'] extends true
 			? {unrotatedDimensions: Dimensions}
 			: {}) &
+		(Fields['isHdr'] extends true ? {isHdr: boolean} : {}) &
 		(Fields['internalStats'] extends true
 			? {internalStats: InternalStats}
 			: {}) &
@@ -139,13 +145,30 @@ export type ParseMediaResult<Fields extends Options<ParseMediaFields>> =
 			? {container: ParseMediaContainer | null}
 			: {});
 
+export type ParseMediaDynamicOptions<F extends Options<ParseMediaFields>> = {
+	fields?: F;
+} & ParseMediaCallbacks<F>;
+
+export type ParseMediaProgress = {
+	bytes: number;
+	percentage: number | null;
+	totalBytes: number | null;
+};
+
+export type ParseMediaOnProgress = (
+	progress: ParseMediaProgress,
+) => void | Promise<void>;
+
+export type ParseMediaOptions<F extends Options<ParseMediaFields>> = {
+	src: string | Blob;
+	reader?: ReaderInterface;
+	onAudioTrack?: OnAudioTrack;
+	onVideoTrack?: OnVideoTrack;
+	signal?: AbortSignal;
+	logLevel?: LogLevel;
+	onParseProgress?: ParseMediaOnProgress;
+} & ParseMediaDynamicOptions<F>;
+
 export type ParseMedia = <F extends Options<ParseMediaFields>>(
-	options: {
-		src: string | File;
-		fields?: F;
-		reader?: ReaderInterface;
-		onAudioTrack?: OnAudioTrack;
-		onVideoTrack?: OnVideoTrack;
-		signal?: AbortSignal;
-	} & ParseMediaCallbacks<F>,
+	options: ParseMediaOptions<F>,
 ) => Promise<ParseMediaResult<F>>;

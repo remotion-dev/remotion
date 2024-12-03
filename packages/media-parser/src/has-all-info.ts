@@ -3,15 +3,16 @@ import {hasContainer} from './get-container';
 import {hasDimensions} from './get-dimensions';
 import {hasDuration} from './get-duration';
 import {hasFps} from './get-fps';
+import {hasHdr} from './get-is-hdr';
 import {hasTracks} from './get-tracks';
 import {hasVideoCodec} from './get-video-codec';
-import type {Options, ParseMediaFields} from './options';
-import type {ParseResult} from './parse-result';
+import type {AllParseMediaFields, Options, ParseMediaFields} from './options';
+import type {ParseResult, Structure} from './parse-result';
 import type {ParserState} from './parser-state';
 
 export const getAvailableInfo = (
 	options: Options<ParseMediaFields>,
-	parseResult: ParseResult,
+	parseResult: ParseResult<Structure> | null,
 	state: ParserState,
 ): Record<keyof Options<ParseMediaFields>, boolean> => {
 	const keys = Object.entries(options).filter(([, value]) => value) as [
@@ -19,13 +20,14 @@ export const getAvailableInfo = (
 		boolean,
 	][];
 
-	const infos = keys.map(([key]) => {
-		if (key === 'boxes') {
-			return parseResult.status === 'done';
+	const infos = keys.map(([_key]) => {
+		const key = _key as keyof Options<AllParseMediaFields>;
+		if (key === 'structure') {
+			return Boolean(parseResult && parseResult.status === 'done');
 		}
 
 		if (key === 'durationInSeconds') {
-			return hasDuration(parseResult.segments, state);
+			return Boolean(parseResult && hasDuration(parseResult.segments, state));
 		}
 
 		if (
@@ -33,23 +35,27 @@ export const getAvailableInfo = (
 			key === 'rotation' ||
 			key === 'unrotatedDimensions'
 		) {
-			return hasDimensions(parseResult.segments, state);
+			return Boolean(parseResult && hasDimensions(parseResult.segments, state));
 		}
 
 		if (key === 'fps') {
-			return hasFps(parseResult.segments);
+			return Boolean(parseResult && hasFps(parseResult.segments));
+		}
+
+		if (key === 'isHdr') {
+			return Boolean(parseResult && hasHdr(parseResult.segments, state));
 		}
 
 		if (key === 'videoCodec') {
-			return hasVideoCodec(parseResult.segments);
+			return Boolean(parseResult && hasVideoCodec(parseResult.segments, state));
 		}
 
 		if (key === 'audioCodec') {
-			return hasAudioCodec(parseResult.segments, state);
+			return Boolean(parseResult && hasAudioCodec(parseResult.segments, state));
 		}
 
 		if (key === 'tracks') {
-			return hasTracks(parseResult.segments);
+			return Boolean(parseResult && hasTracks(parseResult.segments, state));
 		}
 
 		if (key === 'internalStats') {
@@ -65,7 +71,7 @@ export const getAvailableInfo = (
 		}
 
 		if (key === 'container') {
-			return hasContainer(parseResult.segments);
+			return Boolean(parseResult && hasContainer(parseResult.segments));
 		}
 
 		throw new Error(`Unknown key: ${key satisfies never}`);

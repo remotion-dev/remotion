@@ -49,13 +49,13 @@ const cancelIcon: React.CSSProperties = {
 };
 
 export const VideoPlayer: React.FC<{
-	video: ShowcaseVideo | null;
-	dismiss: () => void;
-	toNext: () => void;
-	toPrevious: () => void;
-	hasPrevious: boolean;
-	hasNext: boolean;
-	userHasInteractedWithPage: boolean;
+	readonly video: ShowcaseVideo | null;
+	readonly dismiss: () => void;
+	readonly toNext: () => void;
+	readonly toPrevious: () => void;
+	readonly hasPrevious: boolean;
+	readonly hasNext: boolean;
+	readonly userHasInteractedWithPage: boolean;
 }> = ({
 	video,
 	dismiss,

@@ -54,7 +54,7 @@ const useVideoOrOffthreadVideoTexture = (
 
 export const VideoTextureDemo: React.FC<
 	{
-		baseScale: number;
+		readonly baseScale: number;
 	} & MyCompSchemaType
 > = ({baseScale, phoneColor, deviceType, textureType}) => {
 	const videoRef = useRef<HTMLVideoElement>(null);

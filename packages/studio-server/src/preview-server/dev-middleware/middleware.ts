@@ -49,7 +49,7 @@ function getFilenameFromUrl(
 	try {
 		// The `url` property of the `request` is contains only  `pathname`, `search` and `hash`
 		urlObject = memoizedParse(url, false, true);
-	} catch (_ignoreError) {
+	} catch {
 		return;
 	}
 
@@ -63,7 +63,7 @@ function getFilenameFromUrl(
 				false,
 				true,
 			);
-		} catch (_ignoreError) {
+		} catch {
 			continue;
 		}
 
@@ -99,7 +99,7 @@ function getFilenameFromUrl(
 					// eslint-disable-next-line max-depth
 					try {
 						fsStats = context.outputFileSystem.statSync(filename);
-					} catch (__ignoreError) {
+					} catch {
 						continue;
 					}
 
@@ -110,7 +110,7 @@ function getFilenameFromUrl(
 						break;
 					}
 				}
-			} catch (_ignoreError) {
+			} catch {
 				continue;
 			}
 		}
@@ -311,7 +311,7 @@ export function middleware(context: DevMiddlewareContext) {
 					) as Buffer;
 					byteLength = bufferOtStream.byteLength;
 				}
-			} catch (_ignoreError) {
+			} catch {
 				goNext();
 
 				return;

@@ -5,7 +5,7 @@ function FormatStackTrace(error: Error, frames: NodeJS.CallSite[]) {
 	} catch (e) {
 		try {
 			lines.push('<error: ' + e + '>');
-		} catch (ee) {
+		} catch {
 			lines.push('<error>');
 		}
 	}
@@ -18,7 +18,7 @@ function FormatStackTrace(error: Error, frames: NodeJS.CallSite[]) {
 		} catch (e) {
 			try {
 				line = '<error: ' + e + '>';
-			} catch (ee) {
+			} catch {
 				// Any code that reaches this point is seriously nasty!
 				line = '<error>';
 			}

@@ -1,10 +1,15 @@
-import type {VideoSample} from '@remotion/media-parser';
+import type {
+	AudioOrVideoSample,
+	LogLevel,
+	ProgressTracker,
+} from '@remotion/media-parser';
+import {makeIoSynchronizer} from './io-manager/io-synchronizer';
+import {Log} from './log';
 
 export type WebCodecsVideoDecoder = {
-	processSample: (videoSample: VideoSample) => Promise<void>;
+	processSample: (videoSample: AudioOrVideoSample) => Promise<void>;
 	waitForFinish: () => Promise<void>;
 	close: () => void;
-	getQueueSize: () => number;
 	flush: () => Promise<void>;
 };
 
@@ -13,25 +18,49 @@ export const createVideoDecoder = ({
 	onError,
 	signal,
 	config,
+	logLevel,
+	progress,
 }: {
 	onFrame: (frame: VideoFrame) => Promise<void>;
 	onError: (error: DOMException) => void;
 	signal: AbortSignal;
 	config: VideoDecoderConfig;
+	logLevel: LogLevel;
+	progress: ProgressTracker;
 }): WebCodecsVideoDecoder => {
+	const ioSynchronizer = makeIoSynchronizer({
+		logLevel,
+		label: 'Video decoder',
+		progress,
+	});
 	let outputQueue = Promise.resolve();
-	let outputQueueSize = 0;
-	let dequeueResolver = () => {};
 
 	const videoDecoder = new VideoDecoder({
 		output(inputFrame) {
-			outputQueueSize++;
+			ioSynchronizer.onOutput(inputFrame.timestamp);
+
+			const abortHandler = () => {
+				inputFrame.close();
+			};
+
+			signal.addEventListener('abort', abortHandler, {once: true});
+
 			outputQueue = outputQueue
-				.then(() => onFrame(inputFrame))
 				.then(() => {
-					outputQueueSize--;
-					dequeueResolver();
+					if (signal.aborted) {
+						return;
+					}
+
+					return onFrame(inputFrame);
+				})
+				.then(() => {
+					ioSynchronizer.onProcessed();
+					signal.removeEventListener('abort', abortHandler);
 					return Promise.resolve();
+				})
+				.catch((err) => {
+					inputFrame.close();
+					onError(err);
 				});
 		},
 		error(error) {
@@ -55,34 +84,11 @@ export const createVideoDecoder = ({
 
 	signal.addEventListener('abort', onAbort);
 
-	const getQueueSize = () => {
-		return videoDecoder.decodeQueueSize + outputQueueSize;
-	};
-
 	videoDecoder.configure(config);
 
-	const waitForDequeue = async () => {
-		await new Promise<void>((r) => {
-			dequeueResolver = r;
-			videoDecoder.addEventListener('dequeue', () => r(), {
-				once: true,
-			});
-		});
-	};
-
-	const waitForFinish = async () => {
-		while (getQueueSize() > 0) {
-			await waitForDequeue();
-		}
-	};
-
-	const processSample = async (sample: VideoSample) => {
+	const processSample = async (sample: AudioOrVideoSample) => {
 		if (videoDecoder.state === 'closed') {
 			return;
-		}
-
-		while (getQueueSize() > 10) {
-			await waitForDequeue();
 		}
 
 		// @ts-expect-error - can have changed in the meanwhile
@@ -90,28 +96,39 @@ export const createVideoDecoder = ({
 			return;
 		}
 
+		await ioSynchronizer.waitFor({
+			unemitted: 20,
+			_unprocessed: 2,
+			minimumProgress: sample.timestamp - 5_000_000,
+		});
+
 		if (sample.type === 'key') {
 			await videoDecoder.flush();
 		}
 
 		videoDecoder.decode(new EncodedVideoChunk(sample));
+
+		ioSynchronizer.inputItem(sample.timestamp, sample.type === 'key');
 	};
 
 	let inputQueue = Promise.resolve();
 
 	return {
-		processSample: (sample: VideoSample) => {
+		processSample: (sample: AudioOrVideoSample) => {
 			inputQueue = inputQueue.then(() => processSample(sample));
 			return inputQueue;
 		},
 		waitForFinish: async () => {
 			await videoDecoder.flush();
-			await waitForFinish();
+			Log.verbose(logLevel, 'Flushed video decoder');
+			await ioSynchronizer.waitForFinish();
+			Log.verbose(logLevel, 'IO synchro finished');
 			await outputQueue;
+			Log.verbose(logLevel, 'Output queue finished');
 			await inputQueue;
+			Log.verbose(logLevel, 'Input queue finished');
 		},
 		close,
-		getQueueSize,
 		flush: async () => {
 			await videoDecoder.flush();
 		},

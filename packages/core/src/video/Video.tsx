@@ -70,6 +70,16 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		durations[getAbsoluteSrc(props.src)];
 
 	if (loop && durationFetched !== undefined) {
+		if (!Number.isFinite(durationFetched)) {
+			return (
+				<Video
+					{...propsOtherThanLoop}
+					ref={ref}
+					_remotionInternalNativeLoopPassed
+				/>
+			);
+		}
+
 		const mediaDuration = durationFetched * fps;
 
 		return (

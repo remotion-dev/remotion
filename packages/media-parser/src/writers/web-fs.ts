@@ -1,9 +1,9 @@
-import type {Writer, WriterInterface} from './writer';
+import type {CreateContent, Writer, WriterInterface} from './writer';
 
-const createContent = async () => {
+const createContent: CreateContent = async ({filename}) => {
 	const directoryHandle = await navigator.storage.getDirectory();
-	const filename = `media-parser-${Math.random().toString().replace('0.', '')}.webm`;
 
+	directoryHandle.removeEntry(filename);
 	const fileHandle = await directoryHandle.getFileHandle(filename, {
 		create: true,
 	});
@@ -38,7 +38,7 @@ const createContent = async () => {
 		save: async () => {
 			try {
 				await writable.close();
-			} catch (err) {
+			} catch {
 				// Ignore, could already be closed
 			}
 
@@ -67,6 +67,14 @@ export const webFsWriter: WriterInterface = {
 };
 
 export const canUseWebFsWriter = async () => {
+	if (!('storage' in navigator)) {
+		return false;
+	}
+
+	if (!('getDirectory' in navigator.storage)) {
+		return false;
+	}
+
 	const directoryHandle = await navigator.storage.getDirectory();
 	const fileHandle = await directoryHandle.getFileHandle(
 		'remotion-probe-web-fs-support',

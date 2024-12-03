@@ -1,6 +1,7 @@
 ---
 image: /generated/articles-docs-miscellaneous-snippets-accelerated-video.png
 title: 'Change the speed of a video over time'
+sidebar_label: Changing speed over time
 crumb: 'Snippets'
 ---
 
@@ -11,10 +12,13 @@ To speed up a video over time - for example to start with regular speed and then
 It is not as easy as interpolating the [`playbackRate`](/docs/video#playbackrate):
 
 ```tsx twoslash title="❌ Does not work"
-import {interpolate, Video} from 'remotion';
+import {interpolate, OffthreadVideo} from 'remotion';
 let frame = 0;
 // ---cut---
-<Video playbackRate={interpolate(frame, [0, 100], [1, 5])} />;
+<OffthreadVideo
+  playbackRate={interpolate(frame, [0, 100], [1, 5])}
+  src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#disable"
+/>;
 ```
 
 This is because Remotion will evaluate each frame independently from the other frames. If `frame` is 100, the `playbackRate` evaluates as 5 and Remotion will render the 500th frame of the video, which is undesired because it does not take into account that the speed has been building up to 5 until now.
@@ -23,7 +27,7 @@ The correct way is to calculate the total time that has elapsed until the curren
 
 ```tsx twoslash title="✅ AcceleratedVideo.tsx"
 import React from 'react';
-import {interpolate, Sequence, useCurrentFrame, Video} from 'remotion';
+import {interpolate, Sequence, useCurrentFrame, OffthreadVideo} from 'remotion';
 
 const remapSpeed = (frame: number, speed: (fr: number) => number) => {
   let framesPassed = 0;
@@ -43,7 +47,7 @@ export const AcceleratedVideo: React.FC = () => {
 
   return (
     <Sequence from={frame}>
-      <Video
+      <OffthreadVideo
         startFrom={Math.round(remappedFrame)}
         playbackRate={speedFunction(frame)}
         src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#disable"
@@ -65,4 +69,6 @@ Note that the timeline in the Remotion Studio might move as you play the video b
 
 ## See also
 
-- [`<Video>`](/docs/video)
+- [`<OffthreadVideo>`](/docs/video)
+- [Different segments at different speeds](/docs/miscellaneous/snippets/different-segments-at-different-speeds)
+- [Jump Cutting](/docs/miscellaneous/snippets/jumpcuts)

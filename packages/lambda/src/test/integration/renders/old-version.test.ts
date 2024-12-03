@@ -32,7 +32,7 @@ test('Should fail when using an incompatible version', async () => {
 				outName: null,
 				pixelFormat: 'yuv420p',
 				privacy: 'public',
-				proResProfile: undefined,
+				proResProfile: null,
 				x264Preset: null,
 				jpegQuality: undefined,
 				scale: 1,

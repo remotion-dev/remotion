@@ -6,23 +6,27 @@ import {
 	selectComposition,
 	StillImageFormat,
 } from '@remotion/renderer';
+import {afterAll, beforeAll, expect, test} from 'bun:test';
 import {execSync} from 'node:child_process';
 import {existsSync, readFileSync, unlinkSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import sharp from 'sharp';
-import {afterAll, beforeAll, expect, test} from 'vitest';
 // @ts-expect-error it does work
 import {webpackOverride} from '../webpack-override.mjs';
 
 let bundled = 'none';
+
+if (process.platform === 'win32') {
+	process.exit(0);
+}
 
 beforeAll(async () => {
 	bundled = await bundle({
 		entryPoint: path.join(process.cwd(), 'src/index.ts'),
 		webpackOverride,
 	});
-}, 30000);
+});
 
 afterAll(() => {
 	RenderInternals.deleteDirectory(bundled);
@@ -42,7 +46,7 @@ test(
 
 		const fileOSRoot = path.parse(__dirname).root;
 
-		await expect(() =>
+		await expect(
 			renderStill({
 				composition,
 				output: testOut,
@@ -53,7 +57,7 @@ test(
 			/Cannot use frame 500: Duration of composition is 300, therefore the highest frame that can be rendered is 299/,
 		);
 
-		await expect(() =>
+		await expect(
 			renderStill({
 				composition,
 				output: process.platform === 'win32' ? fileOSRoot : '/var',
@@ -61,7 +65,7 @@ test(
 			}),
 		).rejects.toThrow(/already exists, but is not a file/);
 
-		await expect(() =>
+		await expect(
 			renderStill({
 				composition,
 				output: 'src/index.ts',
@@ -159,6 +163,7 @@ test('Bt709 encoding should work', async () => {
 
 	execSync('pnpm exec remotion ffmpeg -i - -frames:v 1 -c:v png out%02d.png', {
 		input: new Uint8Array(buffer as Buffer),
+		stdio: ['pipe', 'ignore', 'ignore'],
 	});
 
 	const pngBuffer = readFileSync('out01.png');

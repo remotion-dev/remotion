@@ -6,7 +6,7 @@ const AllTheProviders: FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	// overwriting console.error console does not gets poluted with all the errors
-	// eslint-disable-next-line @typescript-eslint/no-empty-function
+
 	window.console.error = () => {};
 	return <div>{children}</div>;
 };

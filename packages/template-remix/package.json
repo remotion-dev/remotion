@@ -5,13 +5,10 @@
   "scripts": {
     "build": "remix build",
     "dev": "remix dev --manual",
-    "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
+    "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint . && tsc",
     "start": "remix-serve ./build/index.js",
     "typecheck": "tsc",
-    "test": "eslint app --ext ts,tsx,js,jsx && tsc",
     "remotion:studio": "remotion studio",
-    "remotion:render": "remotion render LogoAnimation out/logo-animation.mp4",
-    "remotion:upgrade": "remotion upgrade",
     "remotion:renderlambda": "remotion lambda render remotion-remix-example LogoAnimation out/logo-animation-lambda-rendered.mp4",
     "remotion:deploy": "ts-node app/deploy.ts"
   },

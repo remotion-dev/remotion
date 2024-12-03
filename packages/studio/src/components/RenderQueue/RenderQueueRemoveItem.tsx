@@ -6,7 +6,7 @@ import {showNotification} from '../Notifications/NotificationCenter';
 import {removeRenderJob} from './actions';
 
 export const RenderQueueRemoveItem: React.FC<{
-	job: RenderJob;
+	readonly job: RenderJob;
 }> = ({job}) => {
 	const onClick: React.MouseEventHandler = useCallback(
 		(e) => {

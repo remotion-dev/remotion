@@ -21,7 +21,7 @@ jobs:
       - name: Cache turbo build setup
         uses: actions/cache/restore@v4
         with:
-          path: .turbo 
+          path: .turbo
           key: |
             ${{ runner.os }}-turbo-
       - uses: actions/setup-node@v4
@@ -33,7 +33,7 @@ jobs:
           bun-version: 1.1.20
       - uses: Swatinem/rust-cache@v2
         with:
-          workspaces: "packages/renderer -> target"
+          workspaces: "packages/compositor -> target"
       - name: Install
         run: pnpm i --frozen-lockfile
       - name: build
@@ -41,10 +41,7 @@ jobs:
           pnpm build
       - name: Test Lambda IT
         run: |
-          cd packages/it-tests && pnpm run testlambda
-      - name: Test Lambda E2E
-        run: |
-          cd packages/lambda && pnpm run testintegration
+          pnpm run testlambda
   ssr-tests:
     runs-on: ubuntu-latest
     name: SSR integration
@@ -56,7 +53,7 @@ jobs:
       - name: Cache turbo build setup
         uses: actions/cache/restore@v4
         with:
-          path: .turbo 
+          path: .turbo
           key: |
             ${{ runner.os }}-turbo-
       - uses: actions/setup-node@v4
@@ -72,6 +69,9 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
+      - uses: ruby/setup-ruby@ec02537da5712d66d4d50a0f33b7eb52773b5ed1
+        with:
+          ruby-version: "3.1"
       - name: Setup PHP with PHPUnit
         uses: shivammathur/setup-php@v2
         with:
@@ -90,7 +90,7 @@ jobs:
       - name: Test SSR
         timeout-minutes: 8
         run: |
-          cd packages/it-tests && bun run testssr
+          pnpm run testssr
   lint:
     runs-on: ubuntu-latest
     name: Linting + Formatting
@@ -102,12 +102,12 @@ jobs:
       - name: Cache turbo build setup
         uses: actions/cache/restore@v4
         with:
-          path: .turbo 
+          path: .turbo
           key: |
             ${{ runner.os }}-turbo-
       - uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20
           cache: "pnpm"
       - uses: oven-sh/setup-bun@v1
         with:
@@ -117,7 +117,7 @@ jobs:
         env:
           CI: true
       - name: Perform stylecheck
-        timeout-minutes: 5
+        timeout-minutes: 10
         run: |
           pnpm run stylecheck
   build:
@@ -152,7 +152,7 @@ jobs:
           cache: "pnpm"
       - name: Cache turbo build setup
         uses: actions/cache@v4
-        with: 
+        with:
           path: .turbo
           key: ${{ runner.os }}-turbo-${{ github.sha }}
           restore-keys: |
@@ -162,7 +162,7 @@ jobs:
           bun-version: 1.1.20
       - uses: Swatinem/rust-cache@v2
         with:
-          workspaces: "packages/renderer -> target"
+          workspaces: "packages/compositor -> target"
       - name: Install
         run: pnpm i --frozen-lockfile
       - name: Build & Test

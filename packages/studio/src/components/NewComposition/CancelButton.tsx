@@ -15,7 +15,7 @@ const style: React.CSSProperties = {
 
 export const CancelButton: React.FC<
 	SVGProps<SVGSVGElement> & {
-		onPress: () => void;
+		readonly onPress: () => void;
 	}
 > = ({onPress, ...props}) => {
 	const {tabIndex} = useZIndex();

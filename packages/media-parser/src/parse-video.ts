@@ -1,7 +1,9 @@
-import {parseBoxes} from './boxes/iso-base-media/process-box';
+import {parseIsoBaseMediaBoxes} from './boxes/iso-base-media/process-box';
+import {parseRiff} from './boxes/riff/parse-box';
 import {parseWebm} from './boxes/webm/parse-webm-header';
 import type {BufferIterator} from './buffer-iterator';
-import type {IsoBaseMediaBox, ParseResult} from './parse-result';
+import {Log, type LogLevel} from './log';
+import type {IsoBaseMediaBox, ParseResult, Structure} from './parse-result';
 import type {ParserContext} from './parser-context';
 
 export type PartialMdatBox = {
@@ -26,57 +28,38 @@ export const parseVideo = ({
 	iterator,
 	options,
 	signal,
+	logLevel,
 }: {
 	iterator: BufferIterator;
 	options: ParserContext;
 	signal: AbortSignal | null;
-}): Promise<ParseResult> => {
+	logLevel: LogLevel;
+}): Promise<ParseResult<Structure>> => {
 	if (iterator.bytesRemaining() === 0) {
-		return Promise.resolve({
-			status: 'incomplete',
-			segments: [],
-			continueParsing: () => {
-				return parseVideo({
-					iterator,
-					options,
-					signal,
-				});
-			},
-			skipTo: null,
-		});
+		return Promise.reject(new Error('no bytes'));
 	}
 
 	if (iterator.isRiff()) {
-		throw new Error('AVI files are not yet supported');
-		/*
-		iterator.discard(4);
-		return parseBoxes({
-			iterator,
-			maxBytes: Infinity,
-			allowIncompleteBoxes: true,
-			initialBoxes: [],
-			options,
-			continueMdat: false,
-			littleEndian: true,
-		});
-		*/
+		return Promise.resolve(parseRiff({iterator, options}));
 	}
 
 	if (iterator.isIsoBaseMedia()) {
-		return parseBoxes({
+		Log.verbose(logLevel, 'Detected ISO Base Media container');
+		return parseIsoBaseMediaBoxes({
 			iterator,
 			maxBytes: Infinity,
 			allowIncompleteBoxes: true,
 			initialBoxes: [],
 			options,
 			continueMdat: false,
-			littleEndian: false,
 			signal,
+			logLevel,
 		});
 	}
 
 	if (iterator.isWebm()) {
-		return Promise.resolve(parseWebm(iterator, options));
+		Log.verbose(logLevel, 'Detected Matroska container');
+		return parseWebm(iterator, options);
 	}
 
 	if (iterator.isMp3()) {

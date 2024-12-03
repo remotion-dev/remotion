@@ -11,10 +11,10 @@ export function Content({
   repoName,
   progress,
 }: {
-  stargazers: Stargazer[];
-  repoOrg: string;
-  repoName: string;
-  progress: number;
+  readonly stargazers: Stargazer[];
+  readonly repoOrg: string;
+  readonly repoName: string;
+  readonly progress: number;
 }) {
   const gap = 102;
   const startY = 76 - gap;
@@ -68,14 +68,14 @@ function StarBox({
   grow,
   opacity,
 }: {
-  avatarUrl: string;
-  name: string;
-  date: string;
-  repoName: string;
-  y: number;
-  starNumber: number;
-  grow: number;
-  opacity: number;
+  readonly avatarUrl: string;
+  readonly name: string;
+  readonly date: string;
+  readonly repoName: string;
+  readonly y: number;
+  readonly starNumber: number;
+  readonly grow: number;
+  readonly opacity: number;
 }) {
   const d = new Date(date);
   const dateString = d.toLocaleDateString("en-US", {

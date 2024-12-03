@@ -11,6 +11,7 @@ import {TableOfContents as SkiaTableOfContents} from '../../docs/skia/TableOfCon
 import {TableOfContents as StudioTableOfContents} from '../../docs/studio/TableOfContents';
 import {TableOfContents as TailwindTableOfContents} from '../../docs/tailwind/TableOfContents';
 import {TableOfContents as ThreeTableOfContents} from '../../docs/three/TableOfContents';
+import {TableOfContents as WebcodecsTableOfContents} from '../../docs/webcodecs/TableOfContents';
 import {TableOfContents as AnimationUtilsTableOfContents} from '../TableOfContents/animation-utils';
 import {TableOfContents as BundlerTableOfContents} from '../TableOfContents/bundler';
 import {TableOfContents as CloudrunTableOfContents} from '../TableOfContents/cloudrun';
@@ -146,6 +147,9 @@ export const TableOfContents: React.FC = () => {
 			<h2>@remotion/media-parser</h2>
 			<p>A pure JavaScript library for parsing video files</p>
 			<MediaParserTableOfContents />
+			<h2>@remotion/webcodecs</h2>
+			<p>Converting media using WebCodecs</p>
+			<WebcodecsTableOfContents />
 		</div>
 	);
 };

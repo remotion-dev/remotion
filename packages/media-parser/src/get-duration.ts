@@ -5,9 +5,15 @@ import {
 	getMoovBox,
 	getMvhdBox,
 } from './boxes/iso-base-media/traversal';
+import {getStrhBox, getStrlBoxes} from './boxes/riff/traversal';
 import type {DurationSegment} from './boxes/webm/segments/all-segments';
-import {getTracks} from './get-tracks';
-import type {AnySegment} from './parse-result';
+import {getTracks, hasTracks} from './get-tracks';
+import type {
+	AnySegment,
+	IsoBaseMediaStructure,
+	RiffStructure,
+	Structure,
+} from './parse-result';
 import type {ParserState} from './parser-state';
 
 const getDurationFromMatroska = (segments: AnySegment[]): number | null => {
@@ -43,21 +49,21 @@ const getDurationFromMatroska = (segments: AnySegment[]): number | null => {
 	return (duration.value.value / timestampScale.value.value) * 1000;
 };
 
-export const getDuration = (
-	boxes: AnySegment[],
-	parserState: ParserState,
-): number | null => {
+export const isMatroska = (boxes: AnySegment[]) => {
 	const matroskaBox = boxes.find((b) => b.type === 'Segment');
-	if (matroskaBox) {
-		return getDurationFromMatroska(boxes);
-	}
+	return matroskaBox;
+};
 
-	const moovBox = getMoovBox(boxes);
+const getDurationFromIsoBaseMedia = (
+	structure: IsoBaseMediaStructure,
+	parserState: ParserState,
+) => {
+	const moovBox = getMoovBox(structure.boxes);
 	if (!moovBox) {
 		return null;
 	}
 
-	const moofBox = getMoofBox(boxes);
+	const moofBox = getMoofBox(structure.boxes);
 	const mvhdBox = getMvhdBox(moovBox);
 
 	if (!mvhdBox) {
@@ -72,7 +78,7 @@ export const getDuration = (
 		return mvhdBox.durationInSeconds;
 	}
 
-	const tracks = getTracks(boxes, parserState);
+	const tracks = getTracks(structure, parserState);
 	const allTracks = [
 		...tracks.videoTracks,
 		...tracks.audioTracks,
@@ -94,14 +100,47 @@ export const getDuration = (
 	return highestTimestamp;
 };
 
+const getDurationFromAvi = (structure: RiffStructure) => {
+	const strl = getStrlBoxes(structure);
+
+	const lengths: number[] = [];
+	for (const s of strl) {
+		const strh = getStrhBox(s.children);
+		if (!strh) {
+			throw new Error('No strh box');
+		}
+
+		const samplesPerSecond = strh.rate / strh.scale;
+
+		const streamLength = strh.length / samplesPerSecond;
+		lengths.push(streamLength);
+	}
+
+	return Math.max(...lengths);
+};
+
+export const getDuration = (
+	structure: Structure,
+	parserState: ParserState,
+): number | null => {
+	if (structure.type === 'matroska') {
+		return getDurationFromMatroska(structure.boxes);
+	}
+
+	if (structure.type === 'iso-base-media') {
+		return getDurationFromIsoBaseMedia(structure, parserState);
+	}
+
+	if (structure.type === 'riff') {
+		return getDurationFromAvi(structure);
+	}
+
+	throw new Error('Has no duration');
+};
+
 export const hasDuration = (
-	boxes: AnySegment[],
+	structure: Structure,
 	parserState: ParserState,
 ): boolean => {
-	try {
-		const duration = getDuration(boxes, parserState);
-		return getDuration(boxes, parserState) !== null && duration !== 0;
-	} catch (err) {
-		return false;
-	}
+	return hasTracks(structure, parserState);
 };

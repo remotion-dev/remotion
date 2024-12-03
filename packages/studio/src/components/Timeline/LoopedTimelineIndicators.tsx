@@ -8,7 +8,7 @@ const row: React.CSSProperties = {
 };
 
 export const LoopedTimelineIndicator: React.FC<{
-	loops: number;
+	readonly loops: number;
 }> = ({loops}) => {
 	return (
 		<AbsoluteFill style={row}>

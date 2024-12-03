@@ -53,6 +53,7 @@ test('Should be able to parse a STSD audio box correctly', async () => {
 			}),
 			nullifySamples: false,
 			supportsContentRange: true,
+			nextTrackIndex: 0,
 		},
 		signal: null,
 	});
@@ -115,14 +116,14 @@ test('Should be able to parse a STSD audio box correctly', async () => {
 												audioObjectType: 2,
 												channelConfiguration: 2,
 												samplingFrequencyIndex: 4,
-												type: 'audio-specific-config',
+												type: 'mp4a-specific-config',
 												asBytes: new Uint8Array([18, 16]),
-											},
-											{
-												type: 'unknown-decoder-specific-config',
 											},
 										],
 										upStream: 0,
+									},
+									{
+										type: 'sl-config-descriptor',
 									},
 								],
 								esId: 0,
@@ -205,6 +206,7 @@ test('Should be able to parse a STSD video box correctly', async () => {
 		0, 0, 0, 56, 97, 118, 99, 67, 1, 100, 0, 32, 255, 225, 0, 27, 103, 100, 0,
 		32, 172, 217, 64, 68, 2, 39, 150, 92, 4, 64, 0, 0, 3, 0, 64, 0, 0, 12, 3,
 		198, 12, 101, 128, 1, 0, 6, 104, 235, 224, 140, 178, 44, 253, 248, 248, 0,
+		// pasp
 		0, 0, 0, 16, 112, 97, 115, 112, 0, 0, 0, 1, 0, 0, 0, 1,
 	]);
 
@@ -221,8 +223,10 @@ test('Should be able to parse a STSD video box correctly', async () => {
 			}),
 			nullifySamples: false,
 			supportsContentRange: true,
+			nextTrackIndex: 0,
 		},
 		signal: null,
+		logLevel: 'info',
 	});
 	expect(parsed.sample).toEqual({
 		size: 158,

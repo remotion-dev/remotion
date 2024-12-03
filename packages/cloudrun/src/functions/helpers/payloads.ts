@@ -95,6 +95,7 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 	}),
 ]);
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const renderFailResponsePayload = z.object({
 	type: z.literal('error'),
 	message: z.string(),
@@ -102,6 +103,7 @@ const renderFailResponsePayload = z.object({
 	stack: z.string(),
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const renderStillOnCloudrunResponsePayload = z.object({
 	type: z.literal('success'),
 	publicUrl: z.string().optional().nullable(),
@@ -112,6 +114,7 @@ const renderStillOnCloudrunResponsePayload = z.object({
 	privacy: z.enum(['public-read', 'project-private']),
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const renderMediaOnCloudrunResponsePayload = z.object({
 	type: z.literal('success'),
 	publicUrl: z.string().optional().nullable(),
@@ -122,6 +125,7 @@ const renderMediaOnCloudrunResponsePayload = z.object({
 	privacy: z.enum(['public-read', 'project-private']),
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const cloudRunCrashResponse = z.object({
 	type: z.literal('crash'),
 	cloudRunEndpoint: z.string(),

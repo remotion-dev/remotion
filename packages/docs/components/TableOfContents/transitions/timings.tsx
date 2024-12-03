@@ -3,7 +3,7 @@ import {Grid} from '../Grid';
 import {TOCItem} from '../TOCItem';
 
 export const Timings: React.FC<{
-	apisOnly: boolean;
+	readonly apisOnly: boolean;
 }> = ({apisOnly}) => {
 	return (
 		<Grid>

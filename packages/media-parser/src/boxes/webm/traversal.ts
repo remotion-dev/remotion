@@ -1,4 +1,5 @@
-import type {AnySegment} from '../../parse-result';
+/* eslint-disable @typescript-eslint/no-use-before-define */
+import type {MatroskaSegment} from './segments';
 import type {
 	AudioSegment,
 	ClusterSegment,
@@ -20,7 +21,9 @@ import type {
 	WidthSegment,
 } from './segments/all-segments';
 
-export const getMainSegment = (segments: AnySegment[]): MainSegment | null => {
+export const getMainSegment = (
+	segments: MatroskaSegment[],
+): MainSegment | null => {
 	return segments.find((s) => s.type === 'Segment') as MainSegment | null;
 };
 
