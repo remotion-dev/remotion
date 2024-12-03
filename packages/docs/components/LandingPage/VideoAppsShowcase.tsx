@@ -20,7 +20,6 @@ const videoApps = [
 		videoWidth: 1080,
 		videoHeight: 1080,
 		muxId: 'riYdneJ2zu1Vqiayoe1qAZXcSIRq0201tHgSBbh9JbtlU',
-		thumbnailSrc: '/img/homepage-showcase/banger-show-thumbnail.png',
 		buttonText: 'Banger.Show website',
 	},
 	{
@@ -32,7 +31,6 @@ const videoApps = [
 		videoWidth: 540,
 		videoHeight: 1080,
 		muxId: 'pxqGEjlBBntnXrEe4v00pYUBw3FPgUPKumfhSym00Vs004',
-		thumbnailSrc: '/img/homepage-showcase/submagic-thumbnail.png',
 		buttonText: 'Submagic website',
 	},
 	{
@@ -44,7 +42,6 @@ const videoApps = [
 		videoWidth: 1080,
 		videoHeight: 1080,
 		muxId: 'pHlwqDZFUH00Aubo9M001ty3gZ6YW8z689XTd9R479ayE',
-		thumbnailSrc: '/img/homepage-showcase/remotion-recorder-thumbnail.png',
 		buttonText: 'More infos',
 	},
 	{
@@ -57,7 +54,6 @@ const videoApps = [
 		videoWidth: 1080,
 		videoHeight: 1080,
 		muxId: 'OwQFvqomOR00q6yj5SWwaA7DBg01NaCPKcOvczoZqCty00',
-		thumbnailSrc: '/img/homepage-showcase/GHU-thumbnail.png',
 		buttonText: 'GitHub Unwrapped website',
 	},
 ];
