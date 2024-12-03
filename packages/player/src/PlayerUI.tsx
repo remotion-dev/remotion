@@ -26,6 +26,7 @@ import {
 	calculateOuterStyle,
 } from './calculate-scale.js';
 import {ErrorBoundary} from './error-boundary.js';
+import {RenderWarningIfBlacklist} from './license-blacklist.js';
 import {playerCssClassname} from './player-css-classname.js';
 import type {PlayerMethods, PlayerRef} from './player-methods.js';
 import type {RenderVolumeSlider} from './render-volume-slider.js';
@@ -650,6 +651,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 						</div>
 					) : null}
 				</div>
+				<RenderWarningIfBlacklist />
 			</div>
 			{shouldShowPoster && posterFillMode === 'player-size' ? (
 				<div
