@@ -1,6 +1,6 @@
 import {combineUint8Arrays, serializeUint16} from './boxes/webm/make-header';
 import type {VideoTrack} from './get-tracks';
-import type {SpsAndPps} from './parser-state';
+import type {SpsAndPps} from './state/parser-state';
 
 export const addAvcProfileToTrack = (
 	track: VideoTrack,

@@ -188,13 +188,14 @@ export const processBox = async ({
 
 	if (bytesRemaining < boxSize) {
 		if (boxType === 'mdat') {
+			// Check if the moov atom is at the end
 			const shouldSkip =
-				(options.canSkipVideoData ||
-					!hasTracks(
-						{type: 'iso-base-media', boxes: parsedBoxes},
-						options.parserState,
-					)) &&
-				options.supportsContentRange;
+				options.parserState.maySkipVideoData() ||
+				(!hasTracks(
+					{type: 'iso-base-media', boxes: parsedBoxes},
+					options.parserState,
+				) &&
+					options.supportsContentRange);
 
 			if (shouldSkip) {
 				const skipTo = fileOffset + boxSize;
@@ -439,6 +440,8 @@ export const processBox = async ({
 			signal,
 			logLevel,
 		});
+
+		options.parserState.tracks.setIsDone();
 
 		return {
 			type: 'complete',
@@ -785,10 +788,11 @@ export const parseIsoBaseMediaBoxes = async ({
 	const mdatState = getMdatBox(structure.boxes);
 	const skipped =
 		mdatState?.status === 'samples-skipped' &&
-		!options.canSkipVideoData &&
+		!options.parserState.maySkipVideoData() &&
 		options.supportsContentRange;
 	const buffered =
-		mdatState?.status === 'samples-buffered' && !options.canSkipVideoData;
+		mdatState?.status === 'samples-buffered' &&
+		!options.parserState.maySkipVideoData();
 
 	if (skipped || buffered) {
 		return {

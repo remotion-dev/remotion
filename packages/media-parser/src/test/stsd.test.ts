@@ -2,7 +2,7 @@ import {expect, test} from 'bun:test';
 import {processSample} from '../boxes/iso-base-media/stsd/samples';
 import {parseStsd} from '../boxes/iso-base-media/stsd/stsd';
 import {getArrayBufferIterator} from '../buffer-iterator';
-import {makeParserState} from '../parser-state';
+import {makeParserState} from '../state/parser-state';
 
 test('Should be able to parse a STSD audio box correctly', async () => {
 	const buffer = Uint8Array.from([
@@ -43,13 +43,14 @@ test('Should be able to parse a STSD audio box correctly', async () => {
 		offset: 0,
 		size: 159,
 		options: {
-			canSkipVideoData: true,
 			onAudioTrack: null,
 			onVideoTrack: null,
 			parserState: makeParserState({
-				hasAudioCallbacks: false,
-				hasVideoCallbacks: false,
+				hasAudioTrackHandlers: false,
+				hasVideoTrackHandlers: false,
 				signal: undefined,
+				getIterator: () => null,
+				fields: {},
 			}),
 			nullifySamples: false,
 			supportsContentRange: true,
@@ -213,13 +214,14 @@ test('Should be able to parse a STSD video box correctly', async () => {
 	const parsed = await processSample({
 		iterator: getArrayBufferIterator(buffer, null),
 		options: {
-			canSkipVideoData: true,
 			onAudioTrack: null,
 			onVideoTrack: null,
 			parserState: makeParserState({
-				hasAudioCallbacks: false,
-				hasVideoCallbacks: false,
+				hasAudioTrackHandlers: false,
+				hasVideoTrackHandlers: false,
 				signal: undefined,
+				getIterator: () => null,
+				fields: {},
 			}),
 			nullifySamples: false,
 			supportsContentRange: true,

@@ -1,7 +1,7 @@
 import {addAvcProfileToTrack} from './add-avc-profile-to-track';
 import type {Track, VideoTrack} from './get-tracks';
 import type {ParserContext} from './parser-context';
-import type {ParserState} from './parser-state';
+import type {ParserState} from './state/parser-state';
 
 export const registerTrack = async ({
 	state,

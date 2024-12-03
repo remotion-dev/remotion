@@ -15,7 +15,7 @@ import {getTracksFromMatroska} from './boxes/webm/get-ready-tracks';
 import type {MatroskaSegment} from './boxes/webm/segments';
 import {getMainSegment, getTracksSegment} from './boxes/webm/traversal';
 import type {IsoBaseMediaBox, Structure} from './parse-result';
-import type {ParserState} from './parser-state';
+import type {ParserState} from './state/parser-state';
 
 type SampleAspectRatio = {
 	numerator: number;

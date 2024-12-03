@@ -3,6 +3,7 @@ import {parseRiff} from './boxes/riff/parse-box';
 import {parseWebm} from './boxes/webm/parse-webm-header';
 import type {BufferIterator} from './buffer-iterator';
 import {Log, type LogLevel} from './log';
+import type {Options, ParseMediaFields} from './options';
 import type {IsoBaseMediaBox, ParseResult, Structure} from './parse-result';
 import type {ParserContext} from './parser-context';
 
@@ -29,18 +30,20 @@ export const parseVideo = ({
 	options,
 	signal,
 	logLevel,
+	fields,
 }: {
 	iterator: BufferIterator;
 	options: ParserContext;
 	signal: AbortSignal | null;
 	logLevel: LogLevel;
+	fields: Options<ParseMediaFields>;
 }): Promise<ParseResult<Structure>> => {
 	if (iterator.bytesRemaining() === 0) {
 		return Promise.reject(new Error('no bytes'));
 	}
 
 	if (iterator.isRiff()) {
-		return Promise.resolve(parseRiff({iterator, options}));
+		return Promise.resolve(parseRiff({iterator, options, fields}));
 	}
 
 	if (iterator.isIsoBaseMedia()) {

@@ -14,7 +14,7 @@ import type {
 	RiffStructure,
 	Structure,
 } from './parse-result';
-import type {ParserState} from './parser-state';
+import type {ParserState} from './state/parser-state';
 
 const getDurationFromMatroska = (segments: AnySegment[]): number | null => {
 	const mainSegment = segments.find((s) => s.type === 'Segment');

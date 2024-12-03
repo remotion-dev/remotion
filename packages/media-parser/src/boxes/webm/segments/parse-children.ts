@@ -4,6 +4,7 @@ import type {
 	MatroskaParseResult,
 } from '../../../parse-result';
 import type {ParserContext} from '../../../parser-context';
+import type {ParserState} from '../../../state/parser-state';
 import type {MatroskaSegment} from '../segments';
 import {expectSegment} from '../segments';
 import type {PossibleEbml} from './all-segments';
@@ -11,12 +12,17 @@ import type {PossibleEbml} from './all-segments';
 const processParseResult = ({
 	parseResult,
 	children,
+	state,
 }: {
 	children: MatroskaSegment[];
 	parseResult: ExpectSegmentParseResult;
+	state: ParserState;
 }): ExpectSegmentParseResult => {
 	if (parseResult.segment && !children.includes(parseResult.segment)) {
 		children.push(parseResult.segment);
+		if (parseResult.segment.type === 'Tracks') {
+			state.tracks.setIsDone();
+		}
 	}
 
 	if (parseResult.status === 'incomplete') {
@@ -29,6 +35,7 @@ const processParseResult = ({
 				return processParseResult({
 					children,
 					parseResult: newParseResult,
+					state,
 				});
 			},
 		};
@@ -60,6 +67,7 @@ export const expectAndProcessSegment = async ({
 	return processParseResult({
 		children,
 		parseResult: segment,
+		state: parserContext.parserState,
 	});
 };
 

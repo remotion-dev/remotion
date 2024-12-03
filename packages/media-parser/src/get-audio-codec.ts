@@ -6,7 +6,7 @@ import {getStsdBox, getTraks} from './boxes/iso-base-media/traversal';
 import {trakBoxContainsAudio} from './get-fps';
 import {getTracks, hasTracks, type MediaParserAudioCodec} from './get-tracks';
 import type {AnySegment, Structure} from './parse-result';
-import type {ParserState} from './parser-state';
+import type {ParserState} from './state/parser-state';
 
 export const getAudioCodec = (
 	boxes: Structure,

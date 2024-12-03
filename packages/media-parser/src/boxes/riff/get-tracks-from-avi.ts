@@ -1,7 +1,7 @@
 import {addAvcProfileToTrack} from '../../add-avc-profile-to-track';
 import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
 import type {RiffStructure} from '../../parse-result';
-import type {ParserState} from '../../parser-state';
+import type {ParserState} from '../../state/parser-state';
 import type {StrfBoxAudio, StrfBoxVideo, StrhBox} from './riff-box';
 import {MEDIA_PARSER_RIFF_TIMESCALE} from './timescale';
 import {
@@ -17,6 +17,8 @@ export type AllTracks = {
 	audioTracks: AudioTrack[];
 	otherTracks: OtherTrack[];
 };
+
+export const TO_BE_OVERRIDDEN_LATER = 'to-be-overriden-later';
 
 export const getNumberOfTracks = (structure: RiffStructure): number => {
 	const avihBox = getAvihBox(structure);
@@ -68,7 +70,7 @@ export const makeAviVideoTrack = ({
 
 	return {
 		codecPrivate: null,
-		codec: 'to-be-overriden-later',
+		codec: TO_BE_OVERRIDDEN_LATER,
 		codecWithoutConfig: 'h264',
 		codedHeight: strf.height,
 		codedWidth: strf.width,

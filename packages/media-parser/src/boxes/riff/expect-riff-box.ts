@@ -14,6 +14,7 @@ export type RiffResult =
 	| {
 			type: 'complete';
 			box: RiffBox | null;
+			skipTo: number | null;
 	  };
 
 export const expectRiffBox = async ({
@@ -49,7 +50,6 @@ export const expectRiffBox = async ({
 		});
 	}
 
-	// TODO: Add capability to read partially
 	if (iterator.bytesRemaining() < ckSize) {
 		iterator.counter.decrement(8);
 		return {
@@ -69,5 +69,6 @@ export const expectRiffBox = async ({
 			boxes: structure.boxes,
 			options,
 		}),
+		skipTo: null,
 	};
 };

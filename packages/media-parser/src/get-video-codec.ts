@@ -21,7 +21,7 @@ import {
 	type VideoTrackColorParams,
 } from './get-tracks';
 import type {RiffStructure, Structure} from './parse-result';
-import type {ParserState} from './parser-state';
+import type {ParserState} from './state/parser-state';
 
 export const getVideoCodecFromIsoTrak = (trakBox: TrakBox) => {
 	const stsdBox = getStsdBox(trakBox);
