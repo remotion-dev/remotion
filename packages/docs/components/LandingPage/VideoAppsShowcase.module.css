@@ -1,7 +1,6 @@
 .container {
 	max-width: 1200px;
 	margin: 0 auto;
-	padding: 2rem;
 }
 
 .tabs {
@@ -13,42 +12,40 @@
 .tab {
 	background: none;
 	border: none;
-	padding: 10px 15px; /* Adjust these values as needed */
-	margin: 0.2rem 0.6rem;
+	margin: 10px 15px; /* Adjust these values as needed */
 	cursor: pointer;
 	font-size: 16px; /* Default font size */
 	font-weight: bold;
 	transition: color 0.3s ease;
 	color: #888; /* Light gray for inactive tabs */
+	font-family: 'GTPlanar';
 }
 
 @media (max-width: 900px) {
 	.tab {
 		font-size: 14px; /* Smaller font size for screens less than 600px wide */
-		padding: 8px 10px; /* Smaller padding for narrow screens */
-		margin: 0.1rem 0.3rem; /* Reduce margin between tabs */
+		margin: 8px 10px; /* Smaller padding for narrow screens */
 	}
 }
 
 @media (max-width: 500px) {
 	.tab {
 		font-size: 12px; /* Even smaller font size for screens 500px and below */
-		padding: 6px 8px; /* Further reduce padding if needed */
+		margin: 6px 8px; /* Further reduce padding if needed */
 	}
 }
 
 .activeTab {
 	color: #007bff;
-	border-bottom: 2px solid #007bff;
 }
 
 .content {
 	display: flex;
 	align-items: stretch;
-	border: 5px solid var(--text-color); /* Add black border */
+	border: 2px solid var(--text-color); /* Add black border */
+	border-bottom: 4px solid;
 	border-radius: 16px; /* Rounded corners */
 	overflow: hidden; /* Ensure content doesn't overflow rounded corners */
-	padding: 16px;
 }
 
 .videoWrapper {
@@ -60,10 +57,12 @@
 
 .videoContainer {
 	width: 100%;
-	max-width: 500px; /* Adjust this value as needed */
+	max-width: 500px;
 	aspect-ratio: 1 / 1;
 	position: relative;
 	border-radius: 8px;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
 	overflow: hidden;
 	background-color: rgba(104, 104, 104, 0.171);
 }
@@ -76,6 +75,8 @@
 	height: 100%;
 	object-fit: contain;
 	border-radius: 8px;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
 }
 
 .playButton {
@@ -139,6 +140,11 @@
 	.textContent {
 		padding-left: 0;
 		padding-top: 16px; /* Add space between video and text on mobile */
+	}
+
+	.videoContainer {
+		border-top-right-radius: 8px;
+		border-bottom-right-radius: 8px;
 	}
 }
 

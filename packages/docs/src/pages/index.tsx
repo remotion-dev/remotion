@@ -59,8 +59,10 @@ const NewLanding: React.FC = () => {
 					<VideoAppsTitle />
 					<VideoApps active="remotion" />
 					<br />
+					<br />
 					<VideoAppsShowcase />
-					<CommunityStats />
+					<br />
+					<br />
 					<Demo />
 					<br />
 					<br />
@@ -73,10 +75,10 @@ const NewLanding: React.FC = () => {
 					<br />
 					<br />
 					<br />
+					<CommunityStats />
 					<br />
 					<br />
 					<br />
-
 					<NewsletterButton />
 					<br />
 					<br />

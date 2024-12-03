@@ -64,14 +64,11 @@ const videoApps = [
 
 const VideoAppsShowcase: React.FC = () => {
 	const [activeTab, setActiveTab] = useState(0);
-	const [isPlaying, setIsPlaying] = useState(false);
 	const [isMuted, setIsMuted] = useState(true);
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
-		setActiveTab(0); // Set to 0 for "Music visualization"
-
 		const observer = new IntersectionObserver(
 			(entries) => {
 				if (entries[0].isIntersecting) {
@@ -80,17 +77,13 @@ const VideoAppsShowcase: React.FC = () => {
 						setIsMuted(true); // Update state to reflect muted status
 						videoRef.current
 							.play()
-							.then(() => {
-								setIsPlaying(true);
-							})
+							.then(() => {})
 							.catch((error) => {
 								console.error('Playback error:', error);
-								setIsPlaying(false);
 							});
 					}
 				} else if (videoRef.current && !videoRef.current.paused) {
 					videoRef.current.pause();
-					setIsPlaying(false);
 				}
 			},
 			{threshold: 0.5},
@@ -109,7 +102,6 @@ const VideoAppsShowcase: React.FC = () => {
 	}, []);
 
 	useEffect(() => {
-		setIsPlaying(false);
 		const video = videoRef.current;
 		if (video) {
 			video.pause();
@@ -121,21 +113,16 @@ const VideoAppsShowcase: React.FC = () => {
 				(entries) => {
 					if (entries[0].isIntersecting) {
 						// Introduce a delay before playing the video
-						setTimeout(() => {
-							if (video) {
-								video.muted = true; // Ensure video is muted before autoplay
-								setIsMuted(true); // Update state to reflect muted status
-								video
-									.play()
-									.then(() => {
-										setIsPlaying(true);
-									})
-									.catch((error) => {
-										console.error('Playback error:', error);
-										setIsPlaying(false);
-									});
-							}
-						}, 750); // 750ms (0.75 second) delay, adjust as needed
+						if (video) {
+							video.muted = true; // Ensure video is muted before autoplay
+							setIsMuted(true); // Update state to reflect muted status
+							video
+								.play()
+								.then(() => {})
+								.catch((error) => {
+									console.error('Playback error:', error);
+								});
+						}
 					}
 				},
 				{threshold: 0.5},
@@ -164,17 +151,14 @@ const VideoAppsShowcase: React.FC = () => {
 					playPromise
 						.then(() => {
 							// Playback started successfully
-							setIsPlaying(true);
 						})
 						.catch((error) => {
 							// Auto-play was prevented or there was an error
 							console.error('Playback error:', error);
-							setIsPlaying(false);
 						});
 				}
 			} else {
 				videoRef.current.pause();
-				setIsPlaying(false);
 			}
 		}
 	};
@@ -190,10 +174,7 @@ const VideoAppsShowcase: React.FC = () => {
 	return (
 		<div ref={containerRef} className={styles.container}>
 			<div className={styles.titleContainer}>
-				<h2 className={styles.title}>
-					Video apps created with{' '}
-					<span className={styles.highlight}>Remotion</span>
-				</h2>
+				<h2 className={styles.title}>Use Cases</h2>
 			</div>
 			<div className={styles.tabs}>
 				{tabs.map((tab, index) => (
@@ -214,16 +195,11 @@ const VideoAppsShowcase: React.FC = () => {
 							ref={videoRef}
 							muxId={videoApps[activeTab].muxId}
 							className={styles.video}
-							poster={videoApps[activeTab].thumbnailSrc}
 							loop
 							playsInline
 							muted={isMuted}
 						/>
-						{!isPlaying && (
-							<div className={styles.playButton}>
-								<span>▶</span>
-							</div>
-						)}
+
 						<button
 							type="button"
 							className={styles.muteButton}
@@ -232,7 +208,21 @@ const VideoAppsShowcase: React.FC = () => {
 								handleMuteToggle();
 							}}
 						>
-							{isMuted ? '🔇' : '🔊'}
+							{isMuted ? (
+								<svg style={{width: 24}} viewBox="0 0 576 512">
+									<path
+										fill="white"
+										d="M0 160L0 352l128 0L272 480l48 0 0-448-48 0L128 160 0 160zm441 23l-17-17L390.1 200l17 17 39 39-39 39-17 17L424 345.9l17-17 39-39 39 39 17 17L569.9 312l-17-17-39-39 39-39 17-17L536 166.1l-17 17-39 39-39-39z"
+									/>
+								</svg>
+							) : (
+								<svg style={{width: 24}} viewBox="0 0 576 512">
+									<path
+										fill="white"
+										d="M32 160l0 192 128 0L304 480l48 0 0-448-48 0L160 160 32 160zM441.6 332.8C464.9 315.3 480 287.4 480 256s-15.1-59.3-38.4-76.8l-28.8 38.4c11.7 8.8 19.2 22.7 19.2 38.4s-7.5 29.6-19.2 38.4l28.8 38.4zm57.6 76.8c46.6-35 76.8-90.8 76.8-153.6s-30.2-118.6-76.8-153.6l-28.8 38.4c35 26.3 57.6 68.1 57.6 115.2s-22.6 88.9-57.6 115.2l28.8 38.4z"
+									/>
+								</svg>
+							)}
 						</button>
 					</div>
 				</div>
@@ -263,7 +253,7 @@ const VideoAppsShowcase: React.FC = () => {
 						fontFamily: 'GTPlanar',
 					}}
 				>
-					For more examples see our <a href="../showcase">showcase page</a>.
+					For more examples see our <a href="/showcase">showcase page</a>.
 				</div>
 			</div>
 		</div>
