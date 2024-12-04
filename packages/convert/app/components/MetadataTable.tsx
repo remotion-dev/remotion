@@ -1,6 +1,10 @@
 import {MetadataEntry} from '@remotion/media-parser';
 import React, {useMemo} from 'react';
-import {renderMetadataLabel} from '~/lib/render-metadata-label';
+import {
+	renderMetadataLabel,
+	renderMetadataValue,
+	sortMetadataByRelevance,
+} from '~/lib/render-metadata-label';
 import {TableCell, TableRow} from './ui/table';
 
 const LimitedWidthLabel: React.FC<{
@@ -19,7 +23,7 @@ export const MetadataDisplay: React.FC<{
 	readonly trackId: number | null;
 }> = ({metadata, trackId}) => {
 	const filtered = useMemo(() => {
-		return metadata.filter((entry) => {
+		return sortMetadataByRelevance(metadata).filter((entry) => {
 			return entry.trackId === trackId;
 		});
 	}, [metadata, trackId]);
@@ -34,7 +38,9 @@ export const MetadataDisplay: React.FC<{
 						</LimitedWidthLabel>
 					</TableCell>
 					<TableCell className="text-right">
-						<LimitedWidthLabel alt={entry.key}>{entry.value}</LimitedWidthLabel>
+						<LimitedWidthLabel alt={entry.key}>
+							{renderMetadataValue(entry.key, entry.value)}
+						</LimitedWidthLabel>
 					</TableCell>
 				</TableRow>
 			))}
