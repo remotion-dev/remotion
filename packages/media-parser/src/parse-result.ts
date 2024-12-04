@@ -3,6 +3,7 @@ import type {EsdsBox} from './boxes/iso-base-media/esds/esds';
 import type {FtypBox} from './boxes/iso-base-media/ftyp';
 import type {MdatBox} from './boxes/iso-base-media/mdat/mdat';
 import type {MdhdBox} from './boxes/iso-base-media/mdhd';
+import type {HdlrBox} from './boxes/iso-base-media/meta/hdlr';
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';
 import type {MvhdBox} from './boxes/iso-base-media/mvhd';
 import type {Av1CBox} from './boxes/iso-base-media/stsd/av1c';
@@ -61,6 +62,7 @@ export type IsoBaseMediaBox =
 	| CttsBox
 	| Av1CBox
 	| TrunBox
+	| HdlrBox
 	| ColorParameterBox
 	| TfdtBox
 	| TfhdBox;

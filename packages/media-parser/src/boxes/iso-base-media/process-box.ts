@@ -16,6 +16,7 @@ import {parseFtyp} from './ftyp';
 import {makeBaseMediaTrack} from './make-track';
 import {parseMdat} from './mdat/mdat';
 import {parseMdhd} from './mdhd';
+import {parseHdlr} from './meta/hdlr';
 import {parseMoov} from './moov/moov';
 import {parseMvhd} from './mvhd';
 import {parseAv1C} from './stsd/av1c';
@@ -432,6 +433,17 @@ export const processBox = async ({
 			signal,
 			fields,
 		});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
+	if (boxType === 'hdlr') {
+		const box = await parseHdlr({iterator, size: boxSize, offset: fileOffset});
 
 		return {
 			type: 'complete',

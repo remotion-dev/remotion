@@ -111,6 +111,18 @@ export const getArrayBufferIterator = (
 		counter.increment(length);
 	};
 
+	const readUntilNullTerminator = () => {
+		const bytes = [];
+		let byte;
+		while ((byte = getUint8()) !== 0) {
+			bytes.push(byte);
+		}
+
+		counter.decrement(1);
+
+		return new TextDecoder().decode(new Uint8Array(bytes));
+	};
+
 	const getUint8 = () => {
 		const val = view.getUint8(counter.getDiscardedOffset());
 		counter.increment(1);
@@ -581,6 +593,7 @@ export const getArrayBufferIterator = (
 			counter.increment(8);
 			return val;
 		},
+		readUntilNullTerminator,
 		getFloat32: () => {
 			const val = view.getFloat32(counter.getDiscardedOffset());
 			counter.increment(4);
