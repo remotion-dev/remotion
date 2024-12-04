@@ -154,7 +154,7 @@ export const useProbe = ({
 				cancelIfDone();
 			},
 			onIsHdr: (hdr) => {
-				hasHdr = hdr;
+				hasHdr = true;
 				setHdr(hdr);
 				cancelIfDone();
 			},
