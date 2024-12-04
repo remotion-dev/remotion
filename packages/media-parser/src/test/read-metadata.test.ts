@@ -205,7 +205,7 @@ test('webm Big buck bunny metadata', async () => {
 });
 
 test('mp4 Big buck bunny metadata', async () => {
-	const {metadata, structure} = await parseMedia({
+	const {metadata} = await parseMedia({
 		src: exampleVideos.av1mp4,
 		fields: {
 			metadata: true,
