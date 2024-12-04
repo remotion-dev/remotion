@@ -87,6 +87,11 @@ export type MoviBox = {
 	type: 'movi-box';
 };
 
+export type IsftBox = {
+	type: 'isft-box';
+	software: string;
+};
+
 export type RiffBox =
 	| RiffRegularBox
 	| WaveFormatBox
@@ -96,4 +101,5 @@ export type RiffBox =
 	| StrhBox
 	| StrfBoxVideo
 	| StrfBoxAudio
-	| MoviBox;
+	| MoviBox
+	| IsftBox;

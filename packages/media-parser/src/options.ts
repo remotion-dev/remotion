@@ -1,5 +1,4 @@
 import type {Dimensions} from './get-dimensions';
-import type {MetadataEntry} from './get-metadata';
 import type {
 	AudioTrack,
 	MediaParserAudioCodec,
@@ -7,6 +6,7 @@ import type {
 	VideoTrack,
 } from './get-tracks';
 import type {LogLevel} from './log';
+import type {MetadataEntry} from './metadata/get-metadata';
 import type {Structure} from './parse-result';
 import type {ReaderInterface} from './readers/reader';
 import type {InternalStats} from './state/parser-state';

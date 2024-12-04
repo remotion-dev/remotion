@@ -2,6 +2,7 @@ import type {BufferIterator} from '../../buffer-iterator';
 import type {ParserContext} from '../../parser-context';
 import {parseAvih} from './parse-avih';
 import {parseFmtBox} from './parse-fmt-box';
+import {parseIsft} from './parse-isft';
 import {parseListBox} from './parse-list-box';
 import {parseStrf} from './parse-strf';
 import {parseStrh} from './parse-strh';
@@ -26,6 +27,10 @@ export const parseRiffBox = ({
 
 	if (id === 'LIST') {
 		return parseListBox({iterator, size, options});
+	}
+
+	if (id === 'ISFT') {
+		return Promise.resolve(parseIsft({iterator, size}));
 	}
 
 	if (id === 'avih') {

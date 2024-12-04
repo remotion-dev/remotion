@@ -2,21 +2,12 @@ import {
 	getMoovBox,
 	getTkhdBox,
 	getTraks,
-} from './boxes/iso-base-media/traversal';
-import type {
-	IsoBaseMediaStructure,
-	RegularBox,
-	Structure,
-} from './parse-result';
-import {truthy} from './truthy';
+} from '../boxes/iso-base-media/traversal';
+import type {IsoBaseMediaStructure, RegularBox} from '../parse-result';
+import {truthy} from '../truthy';
+import type {MetadataEntry} from './get-metadata';
 
-export type MetadataEntry = {
-	key: string;
-	value: string | number;
-	trackId: number | null;
-};
-
-const parseIsoMetaBox = (
+export const parseIsoMetaBox = (
 	meta: RegularBox,
 	trackId: number | null,
 ): MetadataEntry[] => {
@@ -47,7 +38,7 @@ const parseIsoMetaBox = (
 	return entries;
 };
 
-const getMetadataFromIsoBase = (
+export const getMetadataFromIsoBase = (
 	isoBase: IsoBaseMediaStructure,
 ): MetadataEntry[] => {
 	const moov = getMoovBox(isoBase.boxes);
@@ -81,16 +72,4 @@ const getMetadataFromIsoBase = (
 	}
 
 	return [...parseIsoMetaBox(meta, null), ...metaInTracks.flat(1)];
-};
-
-export const getMetadata = (structure: Structure): MetadataEntry[] => {
-	if (structure.type === 'matroska') {
-		return [];
-	}
-
-	if (structure.type === 'riff') {
-		return [];
-	}
-
-	return getMetadataFromIsoBase(structure);
 };

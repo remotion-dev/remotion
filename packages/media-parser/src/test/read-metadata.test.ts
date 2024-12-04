@@ -85,3 +85,20 @@ test('iPhone metadata', async () => {
 		},
 	]);
 });
+
+test('AVI metadata', async () => {
+	const {metadata} = await parseMedia({
+		src: exampleVideos.avi,
+		fields: {
+			metadata: true,
+		},
+		reader: nodeReader,
+	});
+	expect(metadata).toEqual([
+		{
+			key: 'encoder',
+			trackId: null,
+			value: 'Lavf57.19.100',
+		},
+	]);
+});

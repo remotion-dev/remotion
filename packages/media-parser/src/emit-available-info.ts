@@ -5,9 +5,9 @@ import {getDimensions} from './get-dimensions';
 import {getDuration} from './get-duration';
 import {getFps} from './get-fps';
 import {getIsHdr} from './get-is-hdr';
-import {getMetadata} from './get-metadata';
 import {getTracks} from './get-tracks';
 import {getVideoCodec} from './get-video-codec';
+import {getMetadata} from './metadata/get-metadata';
 import type {
 	AllParseMediaFields,
 	Options,

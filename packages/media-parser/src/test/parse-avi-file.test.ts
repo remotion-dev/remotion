@@ -236,9 +236,8 @@ test('AVI file', async () => {
 			{
 				children: [
 					{
-						id: 'ISFT',
-						size: 14,
-						type: 'riff-box',
+						software: 'Lavf57.19.100',
+						type: 'isft-box',
 					},
 				],
 				listType: 'INFO',
