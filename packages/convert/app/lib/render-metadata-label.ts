@@ -118,6 +118,10 @@ export const renderMetadataLabel = (key: string) => {
 		return 'Should play at full frame rate';
 	}
 
+	if (key === 'com.apple.quicktime.information') {
+		return 'Information';
+	}
+
 	if (key === 'com.apple.quicktime.location.ISO6709') {
 		return 'Location';
 	}
@@ -157,6 +161,7 @@ export const sortMetadataByRelevance = (metadata: MetadataEntry[]) => {
 		'com.apple.quicktime.location.ISO6709', // Relevant: location information can be useful
 		'com.apple.quicktime.location.accuracy.horizontal', // Relevant: complements location data
 		'com.apple.quicktime.content.identifier', // Less relevant: unique identifier
+		'com.apple.quicktime.information', // Less relevant: technical detail
 		'com.apple.quicktime.live-photo.vitality-score', // Less relevant: specific to live photos
 		'com.apple.quicktime.live-photo.vitality-scoring-version', // Less relevant: specific to live photos
 		'com.apple.quicktime.live-photo.auto', // Less relevant: specific to live photos
@@ -189,7 +194,7 @@ export const sortMetadataByRelevance = (metadata: MetadataEntry[]) => {
 
 function displayLocationData(locationString: string): string {
 	// Regular expression to match the pattern of the location string
-	const locationPattern = /^([+-]\d+\.\d+)([+-]\d+\.\d+)([+-]\d+\.\d+)\/$/;
+	const locationPattern = /^([+-]\d+\.\d+)([+-]\d+\.\d+)\/(\d+)?$/;
 	const match = locationString.match(locationPattern);
 
 	if (!match) {
