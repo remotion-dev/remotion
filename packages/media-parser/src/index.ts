@@ -10,6 +10,7 @@ import {
 } from './create/with-resolvers';
 import type {LogLevel} from './log';
 import {Log} from './log';
+export {MetadataEntry} from './metadata/get-metadata';
 export {WriterInterface} from './writers/writer';
 
 export {

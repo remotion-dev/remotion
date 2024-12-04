@@ -10,7 +10,7 @@ import {Footer} from './Footer';
 import {Probe} from './Probe';
 import {VideoThumbnailRef} from './VideoThumbnail';
 import {Button} from './ui/button';
-import {useProbe} from './use-probe';
+import {useProbe, useThumbnail} from './use-probe';
 
 export const FileAvailable: React.FC<{
 	readonly src: Source;
@@ -51,11 +51,11 @@ export const FileAvailable: React.FC<{
 	const [enableRotateOrMirrow, setEnableRotateOrMirror] =
 		useState<RotateOrMirrorState>(() => defaultRotateOrMirorState(routeAction));
 
+	useThumbnail({src, logLevel: 'verbose', onVideoThumbnail});
 	const probeResult = useProbe({
 		src,
 		logLevel: 'verbose',
 		onProgress,
-		onVideoThumbnail,
 	});
 
 	const [userRotation, setRotation] = useState(90);

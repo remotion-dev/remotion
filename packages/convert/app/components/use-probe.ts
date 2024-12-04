@@ -3,6 +3,7 @@ import {
 	LogLevel,
 	MediaParserAudioCodec,
 	MediaParserVideoCodec,
+	MetadataEntry,
 	parseMedia,
 	ParseMediaContainer,
 	ParseMediaOnProgress,
@@ -15,15 +16,74 @@ import {Source} from '~/lib/convert-state';
 
 export type ProbeResult = ReturnType<typeof useProbe>;
 
+export const useThumbnail = ({
+	src,
+	logLevel,
+	onVideoThumbnail,
+}: {
+	src: Source;
+	logLevel: LogLevel;
+	onVideoThumbnail: (videoFrame: VideoFrame) => void;
+}) => {
+	const abortController = new AbortController();
+	parseMedia({
+		signal: abortController.signal,
+		reader: src.type === 'file' ? webFileReader : fetchReader,
+		src: src.type === 'file' ? src.file : src.url,
+		logLevel,
+		onVideoTrack: async (track) => {
+			if (typeof VideoDecoder === 'undefined') {
+				return null;
+			}
+
+			let frames = 0;
+
+			const decoder = new VideoDecoder({
+				error: (error) => {
+					// eslint-disable-next-line no-console
+					console.log(error);
+				},
+				output(frame) {
+					onVideoThumbnail(frame);
+					frame.close();
+				},
+			});
+
+			if (!(await VideoDecoder.isConfigSupported(track)).supported) {
+				return null;
+			}
+
+			// TODO: See if possible
+			decoder.configure(track);
+			return (sample) => {
+				frames++;
+				if (frames >= 30) {
+					abortController.abort();
+				}
+
+				decoder.decode(new EncodedVideoChunk(sample));
+			};
+		},
+	}).catch((err) => {
+		if ((err as Error).stack?.includes('Cancelled')) {
+			return;
+		}
+		if ((err as Error).stack?.toLowerCase()?.includes('aborted')) {
+			return;
+		}
+
+		// eslint-disable-next-line no-console
+		console.log(err);
+	});
+};
+
 export const useProbe = ({
 	src,
-	onVideoThumbnail,
 	logLevel,
 	onProgress,
 }: {
 	src: Source;
 	logLevel: LogLevel;
-	onVideoThumbnail: (videoFrame: VideoFrame) => void;
 	onProgress: ParseMediaOnProgress;
 }) => {
 	const [audioCodec, setAudioCodec] = useState<
@@ -41,6 +101,7 @@ export const useProbe = ({
 	);
 	const [rotation, setRotation] = useState<number | null>(null);
 	const [size, setSize] = useState<number | null>(null);
+	const [metadata, setMetadata] = useState<MetadataEntry[] | null>(null);
 	const [tracks, setTracks] = useState<TracksField | null>(null);
 	const [container, setContainer] = useState<ParseMediaContainer | null>(null);
 	const [done, setDone] = useState(false);
@@ -48,38 +109,6 @@ export const useProbe = ({
 
 	const getStart = useCallback(() => {
 		const controller = new AbortController();
-		let hasFps = false;
-		let hasDuration = false;
-		let hasDimensions = false;
-		let hasVideoCodec = false;
-		let hasAudioCodec = false;
-		let hasSize = false;
-		let hasName = false;
-		let hasFrame = false;
-		let hasContainer = false;
-		let hasTracks = false;
-		let hasHdr = false;
-		let hasRotation = false;
-
-		const cancelIfDone = () => {
-			if (
-				hasFps &&
-				hasDuration &&
-				hasDimensions &&
-				hasVideoCodec &&
-				hasAudioCodec &&
-				hasSize &&
-				hasName &&
-				hasFrame &&
-				hasContainer &&
-				hasTracks &&
-				hasHdr &&
-				hasRotation
-			) {
-				controller.abort(new Error('Cancelled (all info)'));
-			}
-		};
-
 		parseMedia({
 			logLevel,
 			src: src.type === 'file' ? src.file : src.url,
@@ -95,103 +124,46 @@ export const useProbe = ({
 				container: true,
 				isHdr: true,
 				rotation: true,
+				metadata: true,
 			},
 			onParseProgress: onProgress,
 			reader: src.type === 'file' ? webFileReader : fetchReader,
 			signal: controller.signal,
-			onVideoTrack: async (track) => {
-				if (typeof VideoDecoder === 'undefined') {
-					return null;
-				}
-
-				let frames = 0;
-
-				const decoder = new VideoDecoder({
-					error: (error) => {
-						// eslint-disable-next-line no-console
-						console.log(error);
-					},
-					output(frame) {
-						onVideoThumbnail(frame);
-						frame.close();
-						hasFrame = true;
-						cancelIfDone();
-					},
-				});
-
-				if (!(await VideoDecoder.isConfigSupported(track)).supported) {
-					return null;
-				}
-
-				// TODO: See if possible
-				decoder.configure(track);
-				return (sample) => {
-					if (hasFrame) {
-						return;
-					}
-					frames++;
-					if (frames >= 30) {
-						hasFrame = true;
-						cancelIfDone();
-					}
-
-					decoder.decode(new EncodedVideoChunk(sample));
-				};
+			onMetadata: (metadata) => {
+				setMetadata(metadata);
 			},
 			onContainer(c) {
-				hasContainer = true;
 				setContainer(c);
-				cancelIfDone();
 			},
 			onAudioCodec: (codec) => {
-				hasAudioCodec = true;
 				setAudioCodec(codec);
-				cancelIfDone();
 			},
 			onFps: (f) => {
-				hasFps = true;
 				setFps(f);
-				cancelIfDone();
 			},
 			onIsHdr: (hdr) => {
-				hasHdr = true;
 				setHdr(hdr);
-				cancelIfDone();
 			},
 			onDurationInSeconds: (d) => {
-				hasDuration = true;
 				setDurationInSeconds(d);
-				cancelIfDone();
 			},
 			onRotation(rotation) {
-				hasRotation = true;
 				setRotation(rotation);
-				cancelIfDone();
 			},
 			onName: (n) => {
-				hasName = true;
 				setName(n);
-				cancelIfDone();
 			},
 			onDimensions(dim) {
-				hasDimensions = true;
 				setDimensions(dim);
-				cancelIfDone();
 			},
 			onVideoCodec: (codec) => {
-				hasVideoCodec = true;
 				setVideoCodec(codec);
-				cancelIfDone();
 			},
 			onTracks: (trx) => {
-				hasTracks = true;
 				setTracks(trx);
-				cancelIfDone();
 			},
 			onSize(s) {
-				hasSize = true;
 				setSize(s);
-				cancelIfDone();
 			},
 		})
 			.then(() => {})
@@ -212,7 +184,7 @@ export const useProbe = ({
 			});
 
 		return controller;
-	}, [onVideoThumbnail, src, logLevel, onProgress]);
+	}, [src, logLevel, onProgress]);
 
 	useEffect(() => {
 		const start = getStart();
@@ -236,6 +208,7 @@ export const useProbe = ({
 			done,
 			error,
 			rotation,
+			metadata,
 		};
 	}, [
 		audioCodec,
@@ -251,5 +224,6 @@ export const useProbe = ({
 		error,
 		isHdr,
 		rotation,
+		metadata,
 	]);
 };
