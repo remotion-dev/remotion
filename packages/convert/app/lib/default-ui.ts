@@ -8,6 +8,9 @@ export const defaultRotateOrMirorState = (
 	if (action.type === 'convert') {
 		return null;
 	}
+	if (action.type === 'generic-probe') {
+		return null;
+	}
 
 	if (action.type === 'generic-convert') {
 		return null;
@@ -36,6 +39,9 @@ export const defaultRotateOrMirorState = (
 
 export const isConvertEnabledByDefault = (action: RouteAction) => {
 	if (action.type === 'convert') {
+		return true;
+	}
+	if (action.type === 'generic-probe') {
 		return true;
 	}
 
@@ -77,6 +83,13 @@ export const getOrderOfSections = (
 		};
 	}
 	if (action.type === 'convert') {
+		return {
+			convert: 0,
+			rotate: 1,
+			mirror: 2,
+		};
+	}
+	if (action.type === 'generic-probe') {
 		return {
 			convert: 0,
 			rotate: 1,

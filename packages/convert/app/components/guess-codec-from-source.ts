@@ -49,6 +49,9 @@ const shouldKeepSameContainerByDefault = (action: RouteAction) => {
 	if (action.type === 'convert') {
 		return false;
 	}
+	if (action.type === 'generic-probe') {
+		return false;
+	}
 
 	throw new Error(`Unhandled action type: ${action satisfies never}`);
 };

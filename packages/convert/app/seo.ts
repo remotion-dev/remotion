@@ -46,11 +46,18 @@ export type RouteAction =
 	| {
 			type: 'mirror-format';
 			format: ParseMediaContainer | ConvertMediaContainer;
+	  }
+	| {
+			type: 'generic-probe';
 	  };
 
 export const getHeaderTitle = (routeAction: RouteAction) => {
 	if (routeAction.type === 'convert') {
 		return `Fast ${renderHumanReadableContainer(routeAction.input)} → ${renderHumanReadableContainer(routeAction.output)} conversion in the browser`;
+	}
+
+	if (routeAction.type === 'generic-probe') {
+		return 'See video metadata in the browser';
 	}
 
 	if (routeAction.type === 'generic-convert') {
@@ -85,6 +92,10 @@ export const getPageTitle = (routeAction: RouteAction) => {
 		return `Online ${renderHumanReadableContainer(routeAction.input)} to ${renderHumanReadableContainer(routeAction.output)} converter - Remotion Convert`;
 	}
 
+	if (routeAction.type === 'generic-probe') {
+		return 'Online video Metadata Viewer - Remotion Convert';
+	}
+
 	if (routeAction.type === 'generic-rotate') {
 		return 'Online video Rotation - Remotion Convert';
 	}
@@ -111,6 +122,10 @@ export const getDescription = (routeAction: RouteAction) => {
 
 	if (routeAction.type === 'convert') {
 		return `The fastest online ${renderHumanReadableContainer(routeAction.input)} to ${renderHumanReadableContainer(routeAction.output)} converter, powered by WebCodecs. No upload required, no watermarks, no limits.`;
+	}
+
+	if (routeAction.type === 'generic-probe') {
+		return `The fastest online video metadata viewer. No upload required, no ads, no limits.`;
 	}
 
 	if (routeAction.type === 'generic-rotate') {
@@ -143,6 +158,10 @@ export const makeSlug = (routeAction: RouteAction) => {
 
 	if (routeAction.type === 'generic-convert') {
 		return '/convert';
+	}
+
+	if (routeAction.type === 'generic-probe') {
+		return '/probe';
 	}
 
 	if (routeAction.type === 'generic-rotate') {
