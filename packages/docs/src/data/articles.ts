@@ -1848,6 +1848,13 @@ export const articles = [
 		crumb: '@remotion/media-parser',
 	},
 	{
+		id: 'tags',
+		title: 'Extract ID3 tags and EXIF data',
+		relativePath: 'docs/media-parser/tags.mdx',
+		compId: 'articles-docs-media-parser-tags',
+		crumb: '@remotion/media-parser',
+	},
+	{
 		id: 'web-file-reader',
 		title: 'webFileReader',
 		relativePath: 'docs/media-parser/web-file-reader.mdx',

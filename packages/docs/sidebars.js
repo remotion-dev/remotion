@@ -564,6 +564,7 @@ module.exports = {
 				'media-parser/web-file-reader',
 				'media-parser/webcodecs',
 				'media-parser/fast-and-slow',
+				'media-parser/tags',
 				'media-parser/support',
 			],
 		},

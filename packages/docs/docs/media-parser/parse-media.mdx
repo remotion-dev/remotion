@@ -120,6 +120,11 @@ The audio codec of the file.
 If multiple audio tracks are present, this will be the first audio track.  
 One of `'aac'`, `'mp3'`, `'aiff'`, `'opus'`, `'pcm'`, `'unknown'` (audio is there but not recognized) or `null` (in case of no audio detected).
 
+#### `metadata`
+
+Metadata fields such as ID3 tags or EXIF data.  
+See [metadata](/docs/media-parser/metadata) for more information.
+
 #### `tracks`
 
 Returns two arrays `videoTracks` and `audioTracks`.  

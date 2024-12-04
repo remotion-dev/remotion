@@ -17,7 +17,9 @@ export const FileAvailable: React.FC<{
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 	readonly routeAction: RouteAction;
 }> = ({src, setSrc, routeAction}) => {
-	const [probeDetails, setProbeDetails] = useState(false);
+	const [probeDetails, setProbeDetails] = useState(
+		() => routeAction.type === 'generic-probe',
+	);
 
 	const clear = useCallback(() => {
 		setSrc(null);
@@ -103,32 +105,36 @@ export const FileAvailable: React.FC<{
 							}
 							mirrorVertical={flipVertical && enableRotateOrMirrow === 'mirror'}
 						/>
-						<div className="h-8 lg:h-0 lg:w-8" />
-						<div
-							data-disabled={!(probeResult.done && !probeResult.error)}
-							className="w-full lg:w-[350px] data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
-						>
-							<div className="gap-4">
-								<ConvertUI
-									currentAudioCodec={probeResult.audioCodec ?? null}
-									currentVideoCodec={probeResult.videoCodec ?? null}
-									src={src}
-									tracks={probeResult.tracks}
-									setSrc={setSrc}
-									duration={probeResult.durationInSeconds ?? null}
-									logLevel="verbose"
-									action={routeAction}
-									enableRotateOrMirror={enableRotateOrMirrow}
-									setEnableRotateOrMirror={setEnableRotateOrMirror}
-									userRotation={actualUserRotation}
-									setRotation={setRotation}
-									flipHorizontal={flipHorizontal}
-									setFlipHorizontal={setFlipHorizontal}
-									flipVertical={flipVertical}
-									setFlipVertical={setFlipVertical}
-								/>
-							</div>
-						</div>
+						{routeAction.type !== 'generic-probe' ? (
+							<>
+								<div className="h-8 lg:h-0 lg:w-8" />
+								<div
+									data-disabled={!(probeResult.done && !probeResult.error)}
+									className="w-full lg:w-[350px] data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
+								>
+									<div className="gap-4">
+										<ConvertUI
+											currentAudioCodec={probeResult.audioCodec ?? null}
+											currentVideoCodec={probeResult.videoCodec ?? null}
+											src={src}
+											tracks={probeResult.tracks}
+											setSrc={setSrc}
+											duration={probeResult.durationInSeconds ?? null}
+											logLevel="verbose"
+											action={routeAction}
+											enableRotateOrMirror={enableRotateOrMirrow}
+											setEnableRotateOrMirror={setEnableRotateOrMirror}
+											userRotation={actualUserRotation}
+											setRotation={setRotation}
+											flipHorizontal={flipHorizontal}
+											setFlipHorizontal={setFlipHorizontal}
+											flipVertical={flipVertical}
+											setFlipVertical={setFlipVertical}
+										/>
+									</div>
+								</div>
+							</>
+						) : null}
 					</div>
 					<div className="h-16" />
 					<Footer />
