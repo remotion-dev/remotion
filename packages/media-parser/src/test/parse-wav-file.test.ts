@@ -35,11 +35,7 @@ test('WAV file full parse', async () => {
 			},
 			{
 				children: [
-					{
-						id: 'ISFT',
-						size: 34,
-						type: 'riff-box',
-					},
+					{software: 'Lavf60.16.100 (libsndfile-1.0.31)', type: 'isft-box'},
 				],
 				listType: 'INFO',
 				type: 'list-box',

@@ -47,6 +47,7 @@ export const Probe: React.FC<{
 		rotation,
 		done,
 		error,
+		metadata,
 	} = probeResult;
 
 	const onClick = useCallback(() => {
@@ -133,12 +134,13 @@ export const Probe: React.FC<{
 								durationInSeconds={durationInSeconds}
 								audioCodec={audioCodec}
 								fps={fps}
+								metadata={metadata}
 								isHdr={isHdr}
 							/>
 						) : selectedTrack.type === 'video' ? (
-							<VideoTrackOverview track={selectedTrack} />
+							<VideoTrackOverview metadata={metadata} track={selectedTrack} />
 						) : selectedTrack.type === 'audio' ? (
-							<AudioTrackOverview track={selectedTrack} />
+							<AudioTrackOverview metadata={metadata} track={selectedTrack} />
 						) : null}
 					</ScrollArea>
 					<Separator orientation="horizontal" />

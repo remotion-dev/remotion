@@ -74,6 +74,10 @@ export const getAvailableInfo = (
 			return Boolean(structure && hasContainer(structure));
 		}
 
+		if (key === 'metadata') {
+			return false;
+		}
+
 		throw new Error(`Unknown key: ${key satisfies never}`);
 	});
 

@@ -40,6 +40,7 @@ The following [`fields`](/docs/media-parser#fields) require only the metadata se
 - [`unrotatedDimensions`](/docs/media-parser/parse-media#unrotateddimensions)
 - [`isHdr`](/docs/media-parser/parse-media#ishdr)
 - [`rotation`](/docs/media-parser/parse-media#rotation)
+- [`metadata`](/docs/media-parser/parse-media#metadata)
 
 Also, if an [`onVideoTrack`](/docs/media-parser/parse-media#onvideotrack) or [`onAudioTrack`](/docs/media-parser/parse-media#onvideotrack) handler is passed, only the parsing of the metadata section is required if `null` is returned from the handler function.
 
@@ -50,6 +51,11 @@ The following [`fields`](/docs/media-parser/parse-media#fields) require only the
 - [`name`](/docs/media-parser/parse-media#name)
 - [`size`](/docs/media-parser/parse-media#size)
 - [`container`](/docs/media-parser/parse-media#container)
+
+## Seeking required
+
+If you load videos from a URL, make sure that they support the `Range` header.  
+Otherwise, `@remotion/media-parser` has no choice but to read the full file if the metadata is at the end of it.
 
 ## Example
 

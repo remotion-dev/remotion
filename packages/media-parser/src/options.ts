@@ -1,4 +1,3 @@
-import type {} from './boxes/iso-base-media/mdat/mdat';
 import type {Dimensions} from './get-dimensions';
 import type {
 	AudioTrack,
@@ -7,6 +6,7 @@ import type {
 	VideoTrack,
 } from './get-tracks';
 import type {LogLevel} from './log';
+import type {MetadataEntry} from './metadata/get-metadata';
 import type {Structure} from './parse-result';
 import type {ReaderInterface} from './readers/reader';
 import type {InternalStats} from './state/parser-state';
@@ -36,6 +36,7 @@ export type ParseMediaFields = {
 	name: boolean;
 	container: boolean;
 	isHdr: boolean;
+	metadata: boolean;
 };
 
 export type AllParseMediaFields = {
@@ -53,6 +54,7 @@ export type AllParseMediaFields = {
 	name: true;
 	container: true;
 	isHdr: true;
+	metadata: true;
 };
 
 export type Options<Fields extends ParseMediaFields> = {
@@ -70,6 +72,7 @@ export type Options<Fields extends ParseMediaFields> = {
 	name?: Fields['name'];
 	container?: Fields['container'];
 	isHdr?: Fields['isHdr'];
+	metadata?: Fields['metadata'];
 };
 
 export type TracksField = {
@@ -101,6 +104,9 @@ export type ParseMediaCallbacks<Fields extends Options<ParseMediaFields>> =
 			: {}) &
 		(Fields['rotation'] extends true
 			? {onRotation?: (rotation: number | null) => void}
+			: {}) &
+		(Fields['metadata'] extends true
+			? {onMetadata?: (metadata: MetadataEntry[]) => void}
 			: {}) &
 		(Fields['unrotatedDimensions'] extends true
 			? {onUnrotatedDimensions?: (dimensions: Dimensions) => void}
@@ -138,6 +144,7 @@ export type ParseMediaResult<Fields extends Options<ParseMediaFields>> =
 			: {}) &
 		(Fields['size'] extends true ? {size: number | null} : {}) &
 		(Fields['name'] extends true ? {name: string} : {}) &
+		(Fields['metadata'] extends true ? {metadata: MetadataEntry[]} : {}) &
 		(Fields['container'] extends true
 			? {container: ParseMediaContainer | null}
 			: {});

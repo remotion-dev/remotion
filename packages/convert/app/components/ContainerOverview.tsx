@@ -3,6 +3,7 @@ import type {
 	Dimensions,
 	MediaParserAudioCodec,
 	MediaParserVideoCodec,
+	MetadataEntry,
 	ParseMediaContainer,
 } from '@remotion/media-parser';
 import React from 'react';
@@ -12,6 +13,7 @@ import {
 	renderHumanReadableAudioCodec,
 	renderHumanReadableVideoCodec,
 } from '~/lib/render-codec-label';
+import {MetadataDisplay} from './MetadataTable';
 import {Skeleton} from './ui/skeleton';
 
 export const ContainerOverview: React.FC<{
@@ -23,6 +25,7 @@ export const ContainerOverview: React.FC<{
 	readonly fps: number | null | undefined;
 	readonly container: ParseMediaContainer | null;
 	readonly isHdr: boolean | undefined;
+	readonly metadata: MetadataEntry[] | null;
 }> = ({
 	container,
 	dimensions,
@@ -32,14 +35,13 @@ export const ContainerOverview: React.FC<{
 	size,
 	fps,
 	isHdr,
+	metadata,
 }) => {
 	return (
-		<Table>
+		<Table className="table-fixed">
 			<TableBody>
 				<TableRow>
-					<TableCell className="font-brand" colSpan={3}>
-						Size
-					</TableCell>
+					<TableCell className="font-brand">Size</TableCell>
 					<TableCell className="text-right">
 						{size === null ? (
 							<Skeleton className="h-3 w-[100px] inline-block" />
@@ -49,9 +51,7 @@ export const ContainerOverview: React.FC<{
 					</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell className="font-brand" colSpan={3}>
-						Container
-					</TableCell>
+					<TableCell className="font-brand">Container</TableCell>
 					<TableCell className="text-right">
 						{container ? (
 							<>{String(container)}</>
@@ -61,9 +61,7 @@ export const ContainerOverview: React.FC<{
 					</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell className="font-brand" colSpan={3}>
-						Duration
-					</TableCell>
+					<TableCell className="font-brand">Duration</TableCell>
 					<TableCell className="text-right">
 						{durationInSeconds === undefined ? (
 							<Skeleton className="h-3 w-[100px] inline-block" />
@@ -75,9 +73,7 @@ export const ContainerOverview: React.FC<{
 					</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell className="font-brand" colSpan={3}>
-						Dimensions
-					</TableCell>
+					<TableCell className="font-brand">Dimensions</TableCell>
 					<TableCell className="text-right">
 						{dimensions === null ? (
 							<Skeleton className="h-3 w-[100px] inline-block" />
@@ -89,9 +85,7 @@ export const ContainerOverview: React.FC<{
 					</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell className="font-brand" colSpan={3}>
-						Frame Rate
-					</TableCell>
+					<TableCell className="font-brand">Frame Rate</TableCell>
 					<TableCell className="text-right">
 						{fps === undefined ? (
 							<Skeleton className="h-3 w-[100px] inline-block" />
@@ -103,9 +97,7 @@ export const ContainerOverview: React.FC<{
 					</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell className="font-brand" colSpan={3}>
-						Video Codec
-					</TableCell>
+					<TableCell className="font-brand">Video Codec</TableCell>
 					<TableCell className="text-right">
 						{videoCodec === null ? (
 							<Skeleton className="h-3 w-[100px] inline-block" />
@@ -115,9 +107,7 @@ export const ContainerOverview: React.FC<{
 					</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell className="font-brand" colSpan={3}>
-						Audio Codec
-					</TableCell>
+					<TableCell className="font-brand">Audio Codec</TableCell>
 					<TableCell className="text-right">
 						{audioCodec === undefined ? (
 							<Skeleton className="h-3 w-[100px] inline-block" />
@@ -129,9 +119,7 @@ export const ContainerOverview: React.FC<{
 					</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell className="font-brand" colSpan={3}>
-						HDR
-					</TableCell>
+					<TableCell className="font-brand">HDR</TableCell>
 					<TableCell className="text-right">
 						{isHdr === undefined ? (
 							<Skeleton className="h-3 w-[100px] inline-block" />
@@ -142,6 +130,7 @@ export const ContainerOverview: React.FC<{
 						)}
 					</TableCell>
 				</TableRow>
+				<MetadataDisplay metadata={metadata ?? []} trackId={null} />
 			</TableBody>
 		</Table>
 	);

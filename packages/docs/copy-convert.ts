@@ -70,6 +70,10 @@ extraPages.push({
 	type: 'generic-mirror',
 });
 
+extraPages.push({
+	type: 'generic-probe',
+});
+
 for (const page of extraPages) {
 	const slug = seo.makeSlug(page);
 	const pageTitle = seo.getPageTitle(page);

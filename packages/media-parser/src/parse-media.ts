@@ -180,6 +180,11 @@ export const parseMedia: ParseMedia = async ({
 				);
 			}
 
+			if (parseResult.skipTo === contentLength) {
+				Log.verbose(logLevel, 'Skipped to end of file, not fetching.');
+				break;
+			}
+
 			Log.verbose(
 				logLevel,
 				`Skipping over video data from position ${iterator.counter.getOffset()} -> ${parseResult.skipTo}`,
