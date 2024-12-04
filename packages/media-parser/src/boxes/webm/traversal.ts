@@ -232,11 +232,34 @@ export const getDisplayWidthSegment = (
 
 export const getTracksSegment = (segment: MainSegment) => {
 	const tracksSegment = segment.value.find((b) => b.type === 'Tracks');
-	if (!tracksSegment || tracksSegment.type !== 'Tracks') {
+	if (!tracksSegment) {
 		return null;
 	}
 
 	return tracksSegment;
+};
+
+export const getTrackWithUid = (segment: MainSegment, trackUid: string) => {
+	const tracksSegment = getTracksSegment(segment);
+	if (!tracksSegment) {
+		return null;
+	}
+
+	const trackEntries = tracksSegment.value.filter(
+		(t) => t.type === 'TrackEntry',
+	);
+	const trackEntry = trackEntries.find((entry) => {
+		return entry?.value.find(
+			(t) => t.type === 'TrackUID' && t.value === trackUid,
+		);
+	});
+	if (!trackEntry) {
+		return null;
+	}
+
+	return (
+		trackEntry.value.find((t) => t.type === 'TrackNumber')?.value.value ?? null
+	);
 };
 
 export const getTimescaleSegment = (

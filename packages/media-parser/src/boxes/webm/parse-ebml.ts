@@ -91,7 +91,8 @@ export const parseEbml = async (
 				'0x' +
 				[...iterator.getSlice(size)]
 					.map((b) => b.toString(16).padStart(2, '0'))
-					.join(''),
+					.join('')
+					.replace(new RegExp('^' + hex), ''),
 			minVintWidth,
 		};
 	}

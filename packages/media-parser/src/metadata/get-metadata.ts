@@ -1,5 +1,6 @@
 import type {Structure} from '../parse-result';
 import {getMetadataFromIsoBase} from './metadata-from-iso';
+import {getMetadataFromMatroska} from './metadata-from-matroska';
 import {getMetadataFromRiff} from './metadata-from-riff';
 
 export type MetadataEntry = {
@@ -10,7 +11,7 @@ export type MetadataEntry = {
 
 export const getMetadata = (structure: Structure): MetadataEntry[] => {
 	if (structure.type === 'matroska') {
-		return [];
+		return getMetadataFromMatroska(structure);
 	}
 
 	if (structure.type === 'riff') {

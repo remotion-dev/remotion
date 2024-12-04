@@ -477,6 +477,11 @@ export const titleType = {
 	type: 'string',
 } as const satisfies Ebml;
 
+export const tagTrackUidType = {
+	name: 'TagTrackUID',
+	type: 'hex-string',
+} as const satisfies Ebml;
+
 export const samplingFrequency = {
 	name: 'SamplingFrequency',
 	type: 'float',
@@ -519,7 +524,7 @@ export const flagLacing = {
 
 export const tagSegment = {
 	name: 'Tag',
-	type: 'uint8array',
+	type: 'children',
 } as const satisfies Ebml;
 
 export const tags = {
@@ -672,6 +677,26 @@ export const cluster = {
 	type: 'children',
 } as const satisfies Ebml;
 
+export const targetsType = {
+	name: 'Targets',
+	type: 'children',
+} as const satisfies Ebml;
+
+export const simpleTagType = {
+	name: 'SimpleTag',
+	type: 'children',
+} as const satisfies Ebml;
+
+export const tagNameType = {
+	name: 'TagName',
+	type: 'string',
+} as const satisfies Ebml;
+
+export const tagStringType = {
+	name: 'TagString',
+	type: 'string',
+} as const satisfies Ebml;
+
 export type CodecIdSegment = EbmlParsed<typeof codecID>;
 export type ColourSegment = EbmlParsed<typeof color>;
 export type TransferCharacteristicsSegment = EbmlParsed<
@@ -736,6 +761,10 @@ export type EbmlParsedOrUint8Array<T extends Ebml> = {
 export const ebmlMap = {
 	[matroskaElements.Header]: matroskaHeader,
 	[matroskaElements.DocType]: docType,
+	[matroskaElements.Targets]: targetsType,
+	[matroskaElements.SimpleTag]: simpleTagType,
+	[matroskaElements.TagName]: tagNameType,
+	[matroskaElements.TagString]: tagStringType,
 	[matroskaElements.DocTypeVersion]: docTypeVersion,
 	[matroskaElements.DocTypeReadVersion]: docTypeReadVersion,
 	[matroskaElements.EBMLVersion]: ebmlVersion,
@@ -805,6 +834,7 @@ export const ebmlMap = {
 		name: 'SliceDuration',
 		type: 'uint8array',
 	},
+	[matroskaElements.TagTrackUID]: tagTrackUidType,
 	[matroskaElements.SeekHead]: seekHead,
 	[matroskaElements.Seek]: seek,
 	[matroskaElements.SeekID]: seekId,

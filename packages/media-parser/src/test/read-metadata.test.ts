@@ -102,3 +102,41 @@ test('AVI metadata', async () => {
 		},
 	]);
 });
+
+test('Metadata from Matroska', async () => {
+	const {metadata} = await parseMedia({
+		src: exampleVideos.matroskaPcm16,
+		fields: {
+			metadata: true,
+			structure: true,
+		},
+		reader: nodeReader,
+	});
+	expect(metadata).toEqual([
+		{
+			key: 'comment',
+			trackId: null,
+			value: 'Made with Remotion 4.0.192',
+		},
+		{
+			key: 'encoder',
+			trackId: null,
+			value: 'Lavf60.16.100',
+		},
+		{
+			key: 'encoder',
+			trackId: 1,
+			value: 'Lavc60.31.102 libx264',
+		},
+		{
+			key: 'duration',
+			trackId: 1,
+			value: '00:00:00.333000000',
+		},
+		{
+			key: 'duration',
+			trackId: 2,
+			value: '00:00:00.333000000',
+		},
+	]);
+});
