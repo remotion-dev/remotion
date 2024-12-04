@@ -296,7 +296,7 @@ test('Should get duration of AV1 video', async () => {
 								{
 									minVintWidth: 1,
 									type: 'Targets',
-									value: '0x',
+									value: [],
 								},
 								{
 									minVintWidth: 1,
@@ -323,7 +323,13 @@ test('Should get duration of AV1 video', async () => {
 								{
 									minVintWidth: 1,
 									type: 'Targets',
-									value: '0x63c588ab2171012bb9020a',
+									value: [
+										{
+											minVintWidth: 1,
+											type: 'TagTrackUID',
+											value: '0xab2171012bb9020a',
+										},
+									],
 								},
 								{
 									minVintWidth: 1,

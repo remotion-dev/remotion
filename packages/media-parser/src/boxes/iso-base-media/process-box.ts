@@ -62,6 +62,7 @@ const getChildren = async ({
 		boxType === 'mdia' ||
 		boxType === 'minf' ||
 		boxType === 'stbl' ||
+		boxType === 'udta' ||
 		boxType === 'moof' ||
 		boxType === 'dims' ||
 		boxType === 'meta' ||

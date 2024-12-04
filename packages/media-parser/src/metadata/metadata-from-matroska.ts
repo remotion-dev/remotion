@@ -4,6 +4,10 @@ import {getTrackWithUid} from '../boxes/webm/traversal';
 import type {MatroskaStructure} from '../parse-result';
 import type {MetadataEntry} from './get-metadata';
 
+const removeEndZeroes = (value: string): string => {
+	return value.endsWith('\u0000') ? removeEndZeroes(value.slice(0, -1)) : value;
+};
+
 const parseSimpleTagIntoEbml = (
 	children: PossibleEbml[],
 	trackId: number | null,
@@ -17,9 +21,7 @@ const parseSimpleTagIntoEbml = (
 	return {
 		trackId,
 		key: tagName.value.toLowerCase(),
-		value: tagString.value.endsWith('\u0000')
-			? tagString.value.slice(0, -1)
-			: tagString.value,
+		value: removeEndZeroes(tagString.value),
 	};
 };
 

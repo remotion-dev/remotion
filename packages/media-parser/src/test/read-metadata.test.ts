@@ -140,3 +140,111 @@ test('Metadata from Matroska', async () => {
 		},
 	]);
 });
+
+test('webm Big buck bunny metadata', async () => {
+	const {metadata} = await parseMedia({
+		src: exampleVideos.av1bbb,
+		fields: {
+			metadata: true,
+		},
+		reader: nodeReader,
+	});
+	expect(metadata).toEqual([
+		{
+			key: 'major_brand',
+			trackId: null,
+			value: 'isom',
+		},
+		{
+			key: 'minor_version',
+			trackId: null,
+			value: '512',
+		},
+		{
+			key: 'compatible_brands',
+			trackId: null,
+			value: 'isomav01iso2mp41',
+		},
+		{
+			key: 'artist',
+			trackId: null,
+			value: 'Blender Foundation 2008, Janus Bager Kristensen 2013',
+		},
+		{
+			key: 'composer',
+			trackId: null,
+			value: 'Sacha Goedegebure',
+		},
+		{
+			key: 'genre',
+			trackId: null,
+			value: 'Animation',
+		},
+		{
+			key: 'comment',
+			trackId: null,
+			value:
+				'Creative Commons Attribution 3.0 - http://bbb3d.renderfarming.net',
+		},
+		{
+			key: 'encoder',
+			trackId: null,
+			value: 'Lavf58.63.100',
+		},
+		{
+			key: 'handler_name',
+			trackId: 1,
+			value: 'GPAC ISO Video Handler',
+		},
+		{
+			key: 'duration',
+			trackId: 1,
+			value: '00:00:10.000000000',
+		},
+	]);
+});
+
+test('mp4 Big buck bunny metadata', async () => {
+	const {metadata, structure} = await parseMedia({
+		src: exampleVideos.av1mp4,
+		fields: {
+			metadata: true,
+			structure: true,
+		},
+		reader: nodeReader,
+	});
+
+	expect(metadata).toEqual([
+		{
+			key: 'title',
+			trackId: null,
+			value: 'Big Buck Bunny, Sunflower version',
+		},
+		{
+			key: 'artist',
+			trackId: null,
+			value: 'Blender Foundation 2008, Janus Bager Kristensen 2013',
+		},
+		{
+			key: 'writer',
+			trackId: null,
+			value: 'Sacha Goedegebure',
+		},
+		{
+			key: 'encoder',
+			trackId: null,
+			value: 'Lavf60.16.100',
+		},
+		{
+			key: 'comment',
+			trackId: null,
+			value:
+				'Creative Commons Attribution 3.0 - http://bbb3d.renderfarming.net',
+		},
+		{
+			key: 'genre',
+			trackId: null,
+			value: 'Animation',
+		},
+	]);
+});
