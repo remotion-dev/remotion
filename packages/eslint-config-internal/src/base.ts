@@ -203,7 +203,6 @@ export const rules = ({
 				exceptAfterSingleLine: true,
 			},
 		],
-		'max-depth': 'warn',
 		'max-nested-callbacks': ['warn', 4],
 		'max-params': [
 			'warn',
