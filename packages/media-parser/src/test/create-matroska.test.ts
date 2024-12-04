@@ -10,17 +10,18 @@ import type {
 import {getArrayBufferIterator} from '../buffer-iterator';
 import {parseMedia} from '../parse-media';
 import type {ParserContext} from '../parser-context';
-import {makeParserState} from '../parser-state';
 import {nodeReader} from '../readers/from-node';
+import {makeParserState} from '../state/parser-state';
 
 const state = makeParserState({
-	hasAudioCallbacks: false,
-	hasVideoCallbacks: false,
+	hasAudioTrackHandlers: false,
+	hasVideoTrackHandlers: false,
 	signal: undefined,
+	getIterator: () => null,
+	fields: {},
 });
 
 const options: ParserContext = {
-	canSkipVideoData: true,
 	onAudioTrack: null,
 	onVideoTrack: null,
 	parserState: state,

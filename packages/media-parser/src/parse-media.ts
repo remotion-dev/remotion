@@ -1,7 +1,7 @@
 import type {BufferIterator} from './buffer-iterator';
 import {getArrayBufferIterator} from './buffer-iterator';
 import {emitAvailableInfo} from './emit-available-info';
-import {getAvailableInfo} from './has-all-info';
+import {getAvailableInfo, hasAllInfo} from './has-all-info';
 import {Log} from './log';
 import type {
 	AllParseMediaFields,
@@ -14,8 +14,8 @@ import type {
 import type {ParseResult, Structure} from './parse-result';
 import {parseVideo} from './parse-video';
 import type {ParserContext} from './parser-context';
-import {makeParserState} from './parser-state';
 import {fetchReader} from './readers/from-fetch';
+import {makeParserState} from './state/parser-state';
 
 export const parseMedia: ParseMedia = async ({
 	src,
@@ -28,10 +28,15 @@ export const parseMedia: ParseMedia = async ({
 	onParseProgress,
 	...more
 }) => {
+	let iterator: BufferIterator | null = null;
+	let parseResult: ParseResult<Structure> | null = null;
+
 	const state = makeParserState({
-		hasAudioCallbacks: onAudioTrack !== null,
-		hasVideoCallbacks: onVideoTrack !== null,
+		hasAudioTrackHandlers: Boolean(onAudioTrack),
+		hasVideoTrackHandlers: Boolean(onVideoTrack),
 		signal,
+		getIterator: () => iterator,
+		fields: fields ?? {},
 	});
 	const {
 		reader,
@@ -52,25 +57,7 @@ export const parseMedia: ParseMedia = async ({
 	const returnValue = {} as ParseMediaResult<AllParseMediaFields>;
 	const moreFields = more as ParseMediaCallbacks<AllParseMediaFields>;
 
-	let iterator: BufferIterator | null = null;
-	let parseResult: ParseResult<Structure> | null = null;
-
-	// TODO: Should be possible to skip if `null` is returned
-	const canSkipVideoData = !onVideoTrack && !onAudioTrack;
-	if (canSkipVideoData) {
-		Log.verbose(
-			logLevel,
-			'Only parsing metadata, because no onVideoTrack and onAudioTrack callbacks were passed.',
-		);
-	} else {
-		Log.verbose(
-			logLevel,
-			'Parsing video data, because onVideoTrack/onAudioTrack callbacks were passed.',
-		);
-	}
-
 	const options: ParserContext = {
-		canSkipVideoData,
 		onAudioTrack: onAudioTrack ?? null,
 		onVideoTrack: onVideoTrack ?? null,
 		parserState: state,
@@ -83,17 +70,12 @@ export const parseMedia: ParseMedia = async ({
 		nextTrackIndex: 0,
 	};
 
-	const hasAllInfo = () => {
-		if (parseResult === null) {
-			return false;
-		}
-
-		const availableInfo = getAvailableInfo(fields ?? {}, parseResult, state);
-		return Object.values(availableInfo).every(Boolean);
-	};
-
 	const triggerInfoEmit = () => {
-		const availableInfo = getAvailableInfo(fields ?? {}, parseResult, state);
+		const availableInfo = getAvailableInfo(
+			fields ?? {},
+			parseResult?.segments ?? null,
+			state,
+		);
 		emitAvailableInfo({
 			hasInfo: availableInfo,
 			moreFields,
@@ -164,25 +146,44 @@ export const parseMedia: ParseMedia = async ({
 				options,
 				signal: signal ?? null,
 				logLevel,
+				fields: fields ?? {},
 			});
 		}
 
-		// TODO Better: Check if no active listeners are registered
-		// Also maybe check for canSkipVideoData
-		if (hasAllInfo() && !onVideoTrack && !onAudioTrack) {
-			break;
+		if (parseResult.status === 'incomplete' && parseResult.skipTo !== null) {
+			state.increaseSkippedBytes(
+				parseResult.skipTo - iterator.counter.getOffset(),
+			);
 		}
 
 		if (
-			parseResult &&
-			parseResult.status === 'incomplete' &&
-			parseResult.skipTo !== null
+			hasAllInfo({
+				fields: fields ?? {},
+				structure: parseResult.segments,
+				state,
+			})
 		) {
+			Log.verbose(logLevel, 'Got all info, skipping to the end.');
+			if (contentLength !== null) {
+				state.increaseSkippedBytes(
+					contentLength - iterator.counter.getOffset(),
+				);
+			}
+
+			break;
+		}
+
+		if (parseResult.status === 'incomplete' && parseResult.skipTo !== null) {
 			if (!supportsContentRange) {
 				throw new Error(
 					'Content-Range header is not supported by the reader, but was asked to seek',
 				);
 			}
+
+			Log.verbose(
+				logLevel,
+				`Skipping over video data from position ${iterator.counter.getOffset()} -> ${parseResult.skipTo}`,
+			);
 
 			currentReader.abort();
 
@@ -204,7 +205,10 @@ export const parseMedia: ParseMedia = async ({
 			Object.keys(fields ?? {}) as (keyof Options<ParseMediaFields>)[]
 		).reduce(
 			(acc, key) => {
-				acc[key] = true;
+				if (fields?.[key]) {
+					acc[key] = true;
+				}
+
 				return acc;
 			},
 			{} as Record<keyof Options<ParseMediaFields>, boolean>,
@@ -219,5 +223,7 @@ export const parseMedia: ParseMedia = async ({
 
 	currentReader.abort();
 	iterator?.destroy();
+
+	state.tracks.ensureHasTracksAtEnd();
 	return returnValue;
 };

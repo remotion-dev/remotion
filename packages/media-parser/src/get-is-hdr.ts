@@ -1,7 +1,7 @@
 import type {VideoTrack} from './get-tracks';
 import {getTracks, hasTracks} from './get-tracks';
 import type {Structure} from './parse-result';
-import type {ParserState} from './parser-state';
+import type {ParserState} from './state/parser-state';
 
 const isVideoTrackHdr = (track: VideoTrack) => {
 	return (

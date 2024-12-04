@@ -7,12 +7,12 @@ import {hasHdr} from './get-is-hdr';
 import {hasTracks} from './get-tracks';
 import {hasVideoCodec} from './get-video-codec';
 import type {AllParseMediaFields, Options, ParseMediaFields} from './options';
-import type {ParseResult, Structure} from './parse-result';
-import type {ParserState} from './parser-state';
+import type {Structure} from './parse-result';
+import type {ParserState} from './state/parser-state';
 
 export const getAvailableInfo = (
 	options: Options<ParseMediaFields>,
-	parseResult: ParseResult<Structure> | null,
+	structure: Structure | null,
 	state: ParserState,
 ): Record<keyof Options<ParseMediaFields>, boolean> => {
 	const keys = Object.entries(options).filter(([, value]) => value) as [
@@ -23,11 +23,11 @@ export const getAvailableInfo = (
 	const infos = keys.map(([_key]) => {
 		const key = _key as keyof Options<AllParseMediaFields>;
 		if (key === 'structure') {
-			return Boolean(parseResult && parseResult.status === 'done');
+			return false;
 		}
 
 		if (key === 'durationInSeconds') {
-			return Boolean(parseResult && hasDuration(parseResult.segments, state));
+			return Boolean(structure && hasDuration(structure, state));
 		}
 
 		if (
@@ -35,31 +35,31 @@ export const getAvailableInfo = (
 			key === 'rotation' ||
 			key === 'unrotatedDimensions'
 		) {
-			return Boolean(parseResult && hasDimensions(parseResult.segments, state));
+			return Boolean(structure && hasDimensions(structure, state));
 		}
 
 		if (key === 'fps') {
-			return Boolean(parseResult && hasFps(parseResult.segments));
+			return Boolean(structure && hasFps(structure));
 		}
 
 		if (key === 'isHdr') {
-			return Boolean(parseResult && hasHdr(parseResult.segments, state));
+			return Boolean(structure && hasHdr(structure, state));
 		}
 
 		if (key === 'videoCodec') {
-			return Boolean(parseResult && hasVideoCodec(parseResult.segments, state));
+			return Boolean(structure && hasVideoCodec(structure, state));
 		}
 
 		if (key === 'audioCodec') {
-			return Boolean(parseResult && hasAudioCodec(parseResult.segments, state));
+			return Boolean(structure && hasAudioCodec(structure, state));
 		}
 
 		if (key === 'tracks') {
-			return Boolean(parseResult && hasTracks(parseResult.segments, state));
+			return Boolean(structure && hasTracks(structure, state));
 		}
 
 		if (key === 'internalStats') {
-			return false;
+			return true;
 		}
 
 		if (key === 'size') {
@@ -71,7 +71,7 @@ export const getAvailableInfo = (
 		}
 
 		if (key === 'container') {
-			return Boolean(parseResult && hasContainer(parseResult.segments));
+			return Boolean(structure && hasContainer(structure));
 		}
 
 		throw new Error(`Unknown key: ${key satisfies never}`);
@@ -88,4 +88,20 @@ export const getAvailableInfo = (
 		keyof Options<ParseMediaFields>,
 		boolean
 	>;
+};
+
+export const hasAllInfo = ({
+	fields,
+	state,
+	structure,
+}: {
+	structure: Structure | null;
+	fields: Options<ParseMediaFields>;
+	state: ParserState;
+}) => {
+	const availableInfo = getAvailableInfo(fields ?? {}, structure, state);
+	return (
+		Object.values(availableInfo).every(Boolean) &&
+		(state.maySkipVideoData() || state.canSkipTracksState.canSkipTracks())
+	);
 };

@@ -1,18 +1,25 @@
-import type {AvcPPs, AvcProfileInfo} from './boxes/avc/parse-avc';
-import type {OnTrackEntrySegment} from './boxes/webm/segments';
-import type {TrackInfo} from './boxes/webm/segments/track-entry';
+import type {AvcPPs, AvcProfileInfo} from '../boxes/avc/parse-avc';
+import type {OnTrackEntrySegment} from '../boxes/webm/segments';
+import type {TrackInfo} from '../boxes/webm/segments/track-entry';
 import {
 	getTrackCodec,
 	getTrackId,
 	getTrackTimestampScale,
-} from './boxes/webm/traversal';
+} from '../boxes/webm/traversal';
+import type {BufferIterator} from '../buffer-iterator';
+import type {Options, ParseMediaFields} from '../options';
 import type {
 	AudioOrVideoSample,
 	OnAudioSample,
 	OnVideoSample,
-} from './webcodec-sample-types';
+} from '../webcodec-sample-types';
+import {makeCanSkipTracksState} from './can-skip-tracks';
+import {makeTracksSectionState} from './has-tracks-section';
 
-export type InternalStats = {};
+export type InternalStats = {
+	skippedBytes: number;
+	finalCursorOffset: number;
+};
 
 export type SpsAndPps = {
 	sps: AvcProfileInfo;
@@ -22,13 +29,17 @@ export type SpsAndPps = {
 type AvcProfileInfoCallback = (profile: SpsAndPps) => Promise<void>;
 
 export const makeParserState = ({
-	hasAudioCallbacks,
-	hasVideoCallbacks,
+	hasAudioTrackHandlers,
+	hasVideoTrackHandlers,
 	signal,
+	getIterator,
+	fields,
 }: {
-	hasAudioCallbacks: boolean;
-	hasVideoCallbacks: boolean;
+	hasAudioTrackHandlers: boolean;
+	hasVideoTrackHandlers: boolean;
 	signal: AbortSignal | undefined;
+	getIterator: () => BufferIterator | null;
+	fields: Options<ParseMediaFields>;
 }) => {
 	const trackEntries: Record<number, TrackInfo> = {};
 
@@ -61,9 +72,8 @@ export const makeParserState = ({
 	const queuedAudioSamples: Record<number, AudioOrVideoSample[]> = {};
 	const queuedVideoSamples: Record<number, AudioOrVideoSample[]> = {};
 
-	const declinedTrackNumbers: number[] = [];
-
 	let timescale: number | null = null;
+	let skippedBytes: number = 0;
 
 	const getTimescale = () => {
 		// https://www.matroska.org/technical/notes.html
@@ -73,6 +83,10 @@ export const makeParserState = ({
 		}
 
 		return timescale;
+	};
+
+	const increaseSkippedBytes = (bytes: number) => {
+		skippedBytes += bytes;
 	};
 
 	const setTimescale = (newTimescale: number) => {
@@ -122,6 +136,13 @@ export const makeParserState = ({
 		profileCallbacks.length = 0;
 	};
 
+	const canSkipTracksState = makeCanSkipTracksState({
+		hasAudioTrackHandlers,
+		fields,
+		hasVideoTrackHandlers,
+	});
+	const tracksState = makeTracksSectionState(canSkipTracksState);
+
 	return {
 		onTrackEntrySegment,
 		onProfile,
@@ -133,7 +154,6 @@ export const makeParserState = ({
 		) => {
 			if (callback === null) {
 				delete videoSampleCallbacks[id];
-				declinedTrackNumbers.push(id);
 				return;
 			}
 
@@ -153,7 +173,6 @@ export const makeParserState = ({
 		) => {
 			if (callback === null) {
 				delete audioSampleCallbacks[id];
-				declinedTrackNumbers.push(id);
 				return;
 			}
 
@@ -178,14 +197,6 @@ export const makeParserState = ({
 			const callback = audioSampleCallbacks[trackId];
 			if (callback) {
 				await callback(audioSample);
-			} else {
-				if (declinedTrackNumbers.includes(trackId)) {
-					return;
-				}
-
-				if (!hasAudioCallbacks) {
-					throw new Error('No audio callbacks registered');
-				}
 			}
 		},
 		onVideoSample: async (trackId: number, videoSample: AudioOrVideoSample) => {
@@ -202,17 +213,8 @@ export const makeParserState = ({
 			const callback = videoSampleCallbacks[trackId];
 			if (callback) {
 				await callback(videoSample);
-			} else {
-				if (declinedTrackNumbers.includes(trackId)) {
-					return;
-				}
-
-				if (!hasVideoCallbacks) {
-					throw new Error('No video callbacks registered');
-				}
 			}
 		},
-		getInternalStats: () => ({}),
 		getTimescale,
 		setTimescale,
 		getSamplesForTrack: (trackId: number) => {
@@ -221,6 +223,21 @@ export const makeParserState = ({
 		getAvcProfile: () => {
 			return avcProfile;
 		},
+		getInternalStats: (): InternalStats => ({
+			skippedBytes,
+			finalCursorOffset: getIterator()?.counter.getOffset() ?? 0,
+		}),
+		getSkipBytes: () => skippedBytes,
+		increaseSkippedBytes,
+		maySkipVideoData: () => {
+			return (
+				tracksState.hasAllTracks() &&
+				Object.values(videoSampleCallbacks).length === 0 &&
+				Object.values(audioSampleCallbacks).length === 0
+			);
+		},
+		tracks: tracksState,
+		canSkipTracksState,
 	};
 };
 

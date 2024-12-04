@@ -64,6 +64,7 @@ export const handleChunk = async ({
 		const ppsProfile = infos.find((i) => i.type === 'avc-pps');
 		if (avcProfile && ppsProfile) {
 			await options.parserState.onProfile({pps: ppsProfile, sps: avcProfile});
+			options.parserState.tracks.setIsDone();
 		}
 
 		await options.parserState.onVideoSample(trackId, {
@@ -75,28 +76,29 @@ export const handleChunk = async ({
 			trackId,
 			type: keyOrDelta.type === 'keyframe' ? 'key' : 'delta',
 		});
-	} else {
-		const audioChunk = ckId.match(/^([0-9]{2})wb$/);
-		if (audioChunk) {
-			const trackId = parseInt(audioChunk[1], 10);
-			const strh = getStrhForIndex(structure, trackId);
+		return;
+	}
 
-			const samplesPerSecond = strh.rate / strh.scale;
-			const nthSample = options.parserState.getSamplesForTrack(trackId);
-			const timeInSec = nthSample / samplesPerSecond;
-			const timestamp = timeInSec * MEDIA_PARSER_RIFF_TIMESCALE;
-			const duration = (1 / samplesPerSecond) * MEDIA_PARSER_RIFF_TIMESCALE;
+	const audioChunk = ckId.match(/^([0-9]{2})wb$/);
+	if (audioChunk) {
+		const trackId = parseInt(audioChunk[1], 10);
+		const strh = getStrhForIndex(structure, trackId);
 
-			await options.parserState.onAudioSample(trackId, {
-				cts: timestamp,
-				dts: timestamp,
-				data: iterator.getSlice(ckSize),
-				duration,
-				timestamp,
-				trackId,
-				type: 'key',
-			});
-		}
+		const samplesPerSecond = strh.rate / strh.scale;
+		const nthSample = options.parserState.getSamplesForTrack(trackId);
+		const timeInSec = nthSample / samplesPerSecond;
+		const timestamp = timeInSec * MEDIA_PARSER_RIFF_TIMESCALE;
+		const duration = (1 / samplesPerSecond) * MEDIA_PARSER_RIFF_TIMESCALE;
+
+		await options.parserState.onAudioSample(trackId, {
+			cts: timestamp,
+			dts: timestamp,
+			data: iterator.getSlice(ckSize),
+			duration,
+			timestamp,
+			trackId,
+			type: 'key',
+		});
 	}
 };
 
@@ -125,6 +127,20 @@ export const parseMovi = async ({
 
 		const ckId = iterator.getByteString(4);
 		const ckSize = iterator.getUint32Le();
+
+		if (
+			options.parserState.maySkipVideoData() &&
+			options.parserState.getAvcProfile()
+		) {
+			return {
+				type: 'complete',
+				box: {
+					type: 'movi-box',
+				},
+				skipTo: maxOffset,
+			};
+		}
+
 		if (iterator.bytesRemaining() < ckSize) {
 			iterator.counter.decrement(8);
 			return {
@@ -157,6 +173,7 @@ export const parseMovi = async ({
 			box: {
 				type: 'movi-box',
 			},
+			skipTo: null,
 		};
 	}
 

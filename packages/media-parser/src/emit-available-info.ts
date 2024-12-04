@@ -15,7 +15,7 @@ import type {
 	ParseMediaResult,
 } from './options';
 import type {ParseResult, Structure} from './parse-result';
-import type {ParserState} from './parser-state';
+import type {ParserState} from './state/parser-state';
 
 export const emitAvailableInfo = ({
 	hasInfo,
@@ -175,9 +175,9 @@ export const emitAvailableInfo = ({
 		}
 
 		if (key === 'internalStats') {
-			if (hasInfo.internalStats && returnValue.internalStats === undefined) {
+			// Special case: Always emitting internal stats at the end
+			if (hasInfo.internalStats) {
 				const internalStats = state.getInternalStats();
-				moreFields.onInternalStats?.(internalStats);
 				returnValue.internalStats = internalStats;
 			}
 

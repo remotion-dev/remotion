@@ -1,5 +1,6 @@
 import type {BufferIterator} from '../../../buffer-iterator';
 import type {LogLevel} from '../../../log';
+import type {Options, ParseMediaFields} from '../../../options';
 import type {
 	AnySegment,
 	IsoBaseMediaBox,
@@ -129,11 +130,13 @@ export const processSample = async ({
 	options,
 	signal,
 	logLevel,
+	fields,
 }: {
 	iterator: BufferIterator;
 	options: ParserContext;
 	signal: AbortSignal | null;
 	logLevel: LogLevel;
+	fields: Options<ParseMediaFields>;
 }): Promise<SampleAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
@@ -193,6 +196,7 @@ export const processSample = async ({
 				continueMdat: false,
 				signal,
 				logLevel,
+				fields,
 			});
 
 			if (children.status === 'incomplete') {
@@ -248,6 +252,7 @@ export const processSample = async ({
 				continueMdat: false,
 				signal,
 				logLevel,
+				fields,
 			});
 
 			if (children.status === 'incomplete') {
@@ -306,6 +311,7 @@ export const processSample = async ({
 				continueMdat: false,
 				signal,
 				logLevel,
+				fields,
 			});
 
 			if (children.status === 'incomplete') {
@@ -369,6 +375,7 @@ export const processSample = async ({
 						continueMdat: false,
 						signal,
 						logLevel,
+						fields,
 					})
 				: (iterator.discard(bytesRemainingInBox),
 					{status: 'done', segments: {boxes: [], type: 'iso-base-media'}});
@@ -412,12 +419,14 @@ export const parseSamples = async ({
 	options,
 	signal,
 	logLevel,
+	fields,
 }: {
 	iterator: BufferIterator;
 	maxBytes: number;
 	options: ParserContext;
 	signal: AbortSignal | null;
 	logLevel: LogLevel;
+	fields: Options<ParseMediaFields>;
 }): Promise<Sample[]> => {
 	const samples: Sample[] = [];
 	const initialOffset = iterator.counter.getOffset();
@@ -431,6 +440,7 @@ export const parseSamples = async ({
 			options,
 			signal,
 			logLevel,
+			fields,
 		});
 
 		if (sample) {

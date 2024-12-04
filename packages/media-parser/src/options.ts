@@ -8,8 +8,8 @@ import type {
 } from './get-tracks';
 import type {LogLevel} from './log';
 import type {Structure} from './parse-result';
-import type {InternalStats} from './parser-state';
 import type {ReaderInterface} from './readers/reader';
+import type {InternalStats} from './state/parser-state';
 import type {OnAudioTrack, OnVideoTrack} from './webcodec-sample-types';
 
 export type KnownAudioCodecs =
@@ -106,9 +106,6 @@ export type ParseMediaCallbacks<Fields extends Options<ParseMediaFields>> =
 			? {onUnrotatedDimensions?: (dimensions: Dimensions) => void}
 			: {}) &
 		(Fields['isHdr'] extends true ? {onIsHdr?: (isHdr: boolean) => void} : {}) &
-		(Fields['internalStats'] extends true
-			? {onInternalStats?: (stats: InternalStats) => void}
-			: {}) &
 		(Fields['size'] extends true
 			? {onSize?: (size: number | null) => void}
 			: {}) &

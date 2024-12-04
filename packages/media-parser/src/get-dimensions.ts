@@ -1,6 +1,6 @@
 import {getTracks} from './get-tracks';
 import type {Structure} from './parse-result';
-import type {ParserState} from './parser-state';
+import type {ParserState} from './state/parser-state';
 
 export type Dimensions = {
 	width: number;

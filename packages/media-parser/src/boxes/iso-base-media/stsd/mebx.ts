@@ -1,4 +1,5 @@
 import type {BufferIterator} from '../../../buffer-iterator';
+import type {Options, ParseMediaFields} from '../../../options';
 import type {AnySegment} from '../../../parse-result';
 import type {ParserContext} from '../../../parser-context';
 import type {BaseBox} from '../base-type';
@@ -17,12 +18,14 @@ export const parseMebx = async ({
 	size,
 	options,
 	signal,
+	fields,
 }: {
 	iterator: BufferIterator;
 	offset: number;
 	size: number;
 	options: ParserContext;
 	signal: AbortSignal | null;
+	fields: Options<ParseMediaFields>;
 }): Promise<MebxBox> => {
 	// reserved, 6 bit
 	iterator.discard(6);
@@ -38,6 +41,7 @@ export const parseMebx = async ({
 		continueMdat: false,
 		signal,
 		logLevel: 'info',
+		fields,
 	});
 
 	if (children.status === 'incomplete') {
