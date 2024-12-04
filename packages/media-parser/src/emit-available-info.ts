@@ -5,6 +5,7 @@ import {getDimensions} from './get-dimensions';
 import {getDuration} from './get-duration';
 import {getFps} from './get-fps';
 import {getIsHdr} from './get-is-hdr';
+import {getMetadata} from './get-metadata';
 import {getTracks} from './get-tracks';
 import {getVideoCodec} from './get-video-codec';
 import type {
@@ -221,6 +222,20 @@ export const emitAvailableInfo = ({
 				const container = getContainer(parseResult.segments);
 				moreFields.onContainer?.(container);
 				returnValue.container = container;
+			}
+
+			continue;
+		}
+
+		if (key === 'metadata') {
+			if (
+				returnValue.metadata === undefined &&
+				hasInfo.metadata &&
+				parseResult
+			) {
+				const metadata = getMetadata(parseResult.segments);
+				moreFields.onMetadata?.(metadata);
+				returnValue.metadata = metadata;
 			}
 
 			continue;

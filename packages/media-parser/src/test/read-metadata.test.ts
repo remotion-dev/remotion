@@ -1,14 +1,14 @@
 import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
-import {getMetadata} from '../get-metadata';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
 test('iPhone metadata', async () => {
-	const {structure} = await parseMedia({
+	const {structure, metadata} = await parseMedia({
 		src: exampleVideos.iphonelivefoto,
 		fields: {
 			structure: true,
+			metadata: true,
 		},
 		reader: nodeReader,
 	});
@@ -17,7 +17,6 @@ test('iPhone metadata', async () => {
 		throw new Error('Expected video');
 	}
 
-	const metadata = getMetadata(structure);
 	expect(metadata).toEqual([
 		{
 			key: 'com.apple.quicktime.location.accuracy.horizontal',

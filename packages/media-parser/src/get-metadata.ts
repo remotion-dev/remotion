@@ -10,7 +10,7 @@ import type {
 } from './parse-result';
 import {truthy} from './truthy';
 
-type MetadataEntry = {
+export type MetadataEntry = {
 	key: string;
 	value: string | number;
 	trackId: number | null;
@@ -83,13 +83,13 @@ const getMetadataFromIsoBase = (
 	return [...parseIsoMetaBox(meta, null), ...metaInTracks.flat(1)];
 };
 
-export const getMetadata = (structure: Structure) => {
+export const getMetadata = (structure: Structure): MetadataEntry[] => {
 	if (structure.type === 'matroska') {
-		return null;
+		return [];
 	}
 
 	if (structure.type === 'riff') {
-		return null;
+		return [];
 	}
 
 	return getMetadataFromIsoBase(structure);
