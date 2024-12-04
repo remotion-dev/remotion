@@ -17,6 +17,7 @@ import {makeBaseMediaTrack} from './make-track';
 import {parseMdat} from './mdat/mdat';
 import {parseMdhd} from './mdhd';
 import {parseHdlr} from './meta/hdlr';
+import {parseIlstBox} from './meta/ilst';
 import {parseMoov} from './moov/moov';
 import {parseMvhd} from './mvhd';
 import {parseAv1C} from './stsd/av1c';
@@ -24,6 +25,7 @@ import {parseAvcc} from './stsd/avcc';
 import {parseColorParameterBox} from './stsd/colr';
 import {parseCtts} from './stsd/ctts';
 import {parseHvcc} from './stsd/hvcc';
+import {parseKeys} from './stsd/keys';
 import {parseMebx} from './stsd/mebx';
 import {parsePasp} from './stsd/pasp';
 import {parseStco} from './stsd/stco';
@@ -444,6 +446,32 @@ export const processBox = async ({
 
 	if (boxType === 'hdlr') {
 		const box = await parseHdlr({iterator, size: boxSize, offset: fileOffset});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
+	if (boxType === 'keys') {
+		const box = parseKeys({iterator, size: boxSize, offset: fileOffset});
+
+		return {
+			type: 'complete',
+			box,
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
+	if (boxType === 'ilst') {
+		const box = parseIlstBox({
+			iterator,
+			offset: fileOffset,
+			size: boxSize,
+		});
 
 		return {
 			type: 'complete',
