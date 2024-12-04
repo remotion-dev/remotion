@@ -109,8 +109,14 @@ export const parseIlstBox = ({
 	const entries: IlstEntry[] = [];
 	while (iterator.counter.getOffset() < size + offset) {
 		// metadata size
-		iterator.discard(4);
+		const metadataSize = iterator.getUint32();
 		const index = iterator.getUint32();
+		// "skip" as a number
+		if (index === 1936419184) {
+			iterator.discard(metadataSize - 8);
+			continue;
+		}
+
 		const innerSize = iterator.getUint32();
 		const type = iterator.getAtom();
 		const typeIndicator = iterator.getUint8();
