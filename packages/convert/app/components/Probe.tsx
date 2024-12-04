@@ -138,9 +138,9 @@ export const Probe: React.FC<{
 								isHdr={isHdr}
 							/>
 						) : selectedTrack.type === 'video' ? (
-							<VideoTrackOverview track={selectedTrack} />
+							<VideoTrackOverview metadata={metadata} track={selectedTrack} />
 						) : selectedTrack.type === 'audio' ? (
-							<AudioTrackOverview track={selectedTrack} />
+							<AudioTrackOverview metadata={metadata} track={selectedTrack} />
 						) : null}
 					</ScrollArea>
 					<Separator orientation="horizontal" />

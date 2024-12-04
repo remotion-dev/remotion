@@ -13,19 +13,8 @@ import {
 	renderHumanReadableAudioCodec,
 	renderHumanReadableVideoCodec,
 } from '~/lib/render-codec-label';
-import {renderMetadataLabel} from '~/lib/render-metadata-label';
+import {MetadataDisplay} from './MetadataTable';
 import {Skeleton} from './ui/skeleton';
-
-const LimitedWidthLabel: React.FC<{
-	readonly children: React.ReactNode;
-	readonly alt: string;
-}> = ({children, alt}) => {
-	return (
-		<div className="text-ellipsis break-words" title={alt}>
-			{children}
-		</div>
-	);
-};
 
 export const ContainerOverview: React.FC<{
 	readonly dimensions: Dimensions | null;
@@ -141,20 +130,7 @@ export const ContainerOverview: React.FC<{
 						)}
 					</TableCell>
 				</TableRow>
-				{metadata?.map((entry) => (
-					<TableRow>
-						<TableCell className="font-brand">
-							<LimitedWidthLabel alt={entry.key}>
-								{renderMetadataLabel(entry.key)}
-							</LimitedWidthLabel>
-						</TableCell>
-						<TableCell className="text-right">
-							<LimitedWidthLabel alt={entry.key}>
-								{entry.value}
-							</LimitedWidthLabel>
-						</TableCell>
-					</TableRow>
-				))}
+				<MetadataDisplay metadata={metadata ?? []} trackId={null} />
 			</TableBody>
 		</Table>
 	);
