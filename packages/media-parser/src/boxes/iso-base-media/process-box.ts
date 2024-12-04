@@ -61,6 +61,7 @@ const getChildren = async ({
 		boxType === 'stbl' ||
 		boxType === 'moof' ||
 		boxType === 'dims' ||
+		boxType === 'meta' ||
 		boxType === 'wave' ||
 		boxType === 'traf' ||
 		boxType === 'stsb';
