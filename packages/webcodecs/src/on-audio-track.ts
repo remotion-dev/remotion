@@ -9,6 +9,7 @@ import {getAudioDecoderConfig} from './audio-decoder-config';
 import {createAudioEncoder} from './audio-encoder';
 import {getAudioEncoderConfig} from './audio-encoder-config';
 import {convertEncodedChunk} from './convert-encoded-chunk';
+import {createAacCodecPrivate} from './create-aac-codecprivate';
 import {defaultOnAudioTrackHandler} from './default-on-audio-track-handler';
 import Error from './error-cause';
 import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
@@ -123,7 +124,13 @@ export const makeAudioTrackHandler =
 		}
 
 		const codecPrivate =
-			audioOperation.audioCodec === 'aac' ? new Uint8Array([17, 144]) : null;
+			audioOperation.audioCodec === 'aac'
+				? createAacCodecPrivate({
+						audioObjectType: 2,
+						sampleRate: track.sampleRate,
+						channelConfiguration: track.numberOfChannels,
+					})
+				: null;
 
 		const {trackNumber} = await state.addTrack({
 			type: 'audio',
