@@ -52,23 +52,7 @@ export const createMp4a = ({
 							numberTo32BitUIntOrInt(avgBitrate),
 							// DecoderSpecificInfoTag
 							new Uint8Array([5]),
-							// codec private, for example [17, 144]
-							// audioObjectType = 2 = 'AAC LC'
-							// samplingFrequencyIndex = 3 = '48000 Hz'
-							// channelConfiguration = 2 = '2 channels'
-							/**
-							 * Byte 1 (17):  0001 0001
-															^^^^^ ^^^^
-															|     |
-															|     +-- Start of samplingFrequencyIndex (3)
-															+-- audioConfigType (2)
-
-								Byte 2 (144): 1001 0000
-															^^^^ ^^^^
-															|    |
-															|    +-- Remaining bits/padding
-															+-- channelConfiguration (2)
-								*/
+							// see create-aac-codecprivate.ts
 							addLeading128Size(codecPrivate),
 						]),
 					),

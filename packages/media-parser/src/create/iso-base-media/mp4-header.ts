@@ -1,3 +1,4 @@
+import {VERSION} from '../../version';
 import {createIlst} from './create-ilst';
 import {createMoov} from './create-moov';
 import {createMvhd} from './create-mvhd';
@@ -50,7 +51,7 @@ export const createPaddedMoovAtom = ({
 					hdlr: createHdlr('mdir'),
 					ilst: createIlst([
 						createToo('WebCodecs'),
-						createCmt('Made with @remotion/webcodecs'),
+						createCmt(`Made with @remotion/webcodecs ${VERSION}`),
 					]),
 				}),
 			),
