@@ -80,6 +80,7 @@ export const loadFonts = (
 						weight,
 						subset,
 					})}`,
+					{timeoutInMilliseconds: 60000},
 				);
 
 				//  Create font-face
