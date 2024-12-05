@@ -1,3 +1,4 @@
+import {createAacCodecPrivate} from './aac-codecprivate';
 import {IoEventEmitter} from './create/event-emitter';
 import {createIsoBaseMedia} from './create/iso-base-media/create-iso-base-media';
 import {createMatroskaMedia} from './create/matroska/create-matroska-media';
@@ -56,6 +57,7 @@ export const MediaParserInternals = {
 	makeProgressTracker,
 	withResolvers,
 	withResolversAndWaitForReturn,
+	createAacCodecPrivate,
 };
 
 export type {IoEventEmitter, LogLevel, ProgressTracker};

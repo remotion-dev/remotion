@@ -92,3 +92,59 @@ export const createAacCodecPrivate = ({
 
 	return new Uint8Array([firstByte, secondByte]);
 };
+
+export const parseAacCodecPrivate = (bytes: Uint8Array) => {
+	if (bytes.length < 2) {
+		throw new Error('Invalid AAC codec private length');
+	}
+
+	const bits = `${bytes[0].toString(2).padStart(8, '0')}${bytes[1].toString(2).padStart(8, '0')}`;
+	if (bits.length !== 16) {
+		throw new Error('Invalid AAC codec private bits length');
+	}
+
+	const audioObjectType = parseInt(bits.slice(0, 5), 2);
+	const samplingFrequencyIndex = parseInt(bits.slice(5, 9), 2);
+	const channelConfiguration = parseInt(bits.slice(9, 13), 2);
+
+	const sampleRate = (() => {
+		switch (samplingFrequencyIndex) {
+			case 0:
+				return 96000;
+			case 1:
+				return 88200;
+			case 2:
+				return 64000;
+			case 3:
+				return 48000;
+			case 4:
+				return 44100;
+			case 5:
+				return 32000;
+			case 6:
+				return 24000;
+			case 7:
+				return 22050;
+			case 8:
+				return 16000;
+			case 9:
+				return 12000;
+			case 10:
+				return 11025;
+			case 11:
+				return 8000;
+			case 12:
+				return 7350;
+			default:
+				throw new Error(
+					`Unexpected sampling frequency index ${samplingFrequencyIndex}`,
+				);
+		}
+	})();
+
+	return {
+		audioObjectType,
+		sampleRate,
+		channelConfiguration,
+	};
+};
