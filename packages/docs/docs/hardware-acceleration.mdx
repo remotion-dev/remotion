@@ -13,7 +13,7 @@ From Remotion v4.0.228, Remotion supports hardware-accelerated encoding in some 
 Since encoding is platform- and codec-specific, only a few scenarios are supported at the moment.
 
 - Currently, only macOS is supported (Acceleration using VideoToolbox)
-- Only ProRes is supported
+- ProRes is supported from v4.0.228, H.264 and H.265 are supported from v4.0.236
 
 ## Enable hardware accelerated encoding
 
@@ -80,6 +80,13 @@ Config.setHardwareAcceleration('if-possible');
 ### In Remotion Lambda and Cloud Run
 
 These options are not supported in Remotion Lambda and Cloud Run, because those cloud services do not support hardware acceleration.
+
+## File size
+
+Note that the file size is significantly larger by default when using hardware acceleration, likely because less compression is applied.  
+We recommend that you use the `--video-bitrate` flag to control the file size.
+
+We find that `--video-bitrate=8M` achieves a similar file size than software encoding when exporting a H.264 Full HD video.
 
 ## Tell if hardware acceleration is being used
 
