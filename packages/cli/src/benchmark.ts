@@ -61,7 +61,7 @@ const getValidConcurrency = (cliConcurrency: number | string | null) => {
 		return [RenderInternals.resolveConcurrency(cliConcurrency)];
 	}
 
-	return (concurrencies as string)
+	return String(concurrencies)
 		.split(',')
 		.map((c) => parseInt(c.trim(), 10));
 };
