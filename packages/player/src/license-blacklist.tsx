@@ -96,7 +96,6 @@ export const RenderWarningIfBlacklist: React.FC = () => {
 		return null;
 	}
 
-	// Initial React render of the banner
 	return (
 		<div style={style} className="warning-banner">
 			<a
