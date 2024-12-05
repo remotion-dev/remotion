@@ -115,6 +115,11 @@ A page consists of:
   - `fromMs`: The absolute start time of the token in milliseconds.
   - `toMs`: The absolute end time of the token in milliseconds.
 
+## Whitespace sensitivity
+
+The `text` field is white-space sensitive. You should include spaces in it, as none are added automatically.  
+While rendering, apply the `white-space: pre` CSS property to the container of the caption to ensure that the spaces are preserved.
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/captions/src/create-tiktok-style-captions.ts)
