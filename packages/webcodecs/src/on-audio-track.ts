@@ -1,15 +1,15 @@
-import type {
-	LogLevel,
-	MediaFn,
-	OnAudioTrack,
-	ProgressTracker,
+import {
+	MediaParserInternals,
+	type LogLevel,
+	type MediaFn,
+	type OnAudioTrack,
+	type ProgressTracker,
 } from '@remotion/media-parser';
 import {createAudioDecoder} from './audio-decoder';
 import {getAudioDecoderConfig} from './audio-decoder-config';
 import {createAudioEncoder} from './audio-encoder';
 import {getAudioEncoderConfig} from './audio-encoder-config';
 import {convertEncodedChunk} from './convert-encoded-chunk';
-import {createAacCodecPrivate} from './create-aac-codecprivate';
 import {defaultOnAudioTrackHandler} from './default-on-audio-track-handler';
 import Error from './error-cause';
 import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
@@ -95,15 +95,12 @@ export const makeAudioTrackHandler =
 			codec: audioOperation.audioCodec,
 			bitrate: audioOperation.bitrate,
 		});
-		const audioDecoderConfig = await getAudioDecoderConfig(
-			{
-				codec: track.codec,
-				numberOfChannels: track.numberOfChannels,
-				sampleRate: track.sampleRate,
-				description: track.description,
-			},
-			logLevel,
-		);
+		const audioDecoderConfig = await getAudioDecoderConfig({
+			codec: track.codec,
+			numberOfChannels: track.numberOfChannels,
+			sampleRate: track.sampleRate,
+			description: track.description,
+		});
 
 		if (!audioEncoderConfig) {
 			abortConversion(
@@ -125,7 +122,7 @@ export const makeAudioTrackHandler =
 
 		const codecPrivate =
 			audioOperation.audioCodec === 'aac'
-				? createAacCodecPrivate({
+				? MediaParserInternals.createAacCodecPrivate({
 						audioObjectType: 2,
 						sampleRate: track.sampleRate,
 						channelConfiguration: track.numberOfChannels,

@@ -1,4 +1,4 @@
-import {LogLevel, TracksField} from '@remotion/media-parser';
+import {TracksField} from '@remotion/media-parser';
 import {ConvertMediaContainer} from '@remotion/webcodecs';
 import {useEffect, useState} from 'react';
 import {RouteAction} from '~/seo';
@@ -7,13 +7,11 @@ import {getSupportedConfigs, SupportedConfigs} from './get-supported-configs';
 export const useSupportedConfigs = ({
 	container,
 	tracks,
-	logLevel,
 	action,
 	userRotation,
 }: {
 	container: ConvertMediaContainer;
 	tracks: TracksField | null;
-	logLevel: LogLevel;
 	action: RouteAction;
 	userRotation: number;
 }) => {
@@ -30,7 +28,6 @@ export const useSupportedConfigs = ({
 			tracks,
 			container,
 			bitrate: 128000,
-			logLevel,
 			action,
 			userRotation,
 		}).then((supportedConfigs) => {
@@ -39,7 +36,7 @@ export const useSupportedConfigs = ({
 				[container]: supportedConfigs,
 			}));
 		});
-	}, [action, container, logLevel, tracks, userRotation]);
+	}, [action, container, tracks, userRotation]);
 
 	return state[container];
 };

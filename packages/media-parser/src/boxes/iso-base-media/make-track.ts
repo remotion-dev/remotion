@@ -25,6 +25,7 @@ import {
 	getVideoCodecString,
 	getVideoPrivateData,
 } from '../../get-video-codec';
+import {getActualDecoderParameters} from './get-actual-number-of-channels';
 import type {TrakBox} from './trak/trak';
 import {getTkhdBox, getVideoDescriptors} from './traversal';
 
@@ -56,18 +57,28 @@ export const makeBaseMediaTrack = (
 		}
 
 		const {codecString, description} = getAudioCodecStringFromTrak(trakBox);
+		const codecPrivate =
+			getCodecPrivateFromTrak(trakBox) ?? description ?? null;
+		const codecWithoutConfig = getAudioCodecFromTrack(trakBox);
+
+		const actual = getActualDecoderParameters({
+			audioCodec: codecWithoutConfig,
+			codecPrivate,
+			numberOfChannels,
+			sampleRate,
+		});
 
 		return {
 			type: 'audio',
 			trackId: tkhdBox.trackId,
 			timescale: timescaleAndDuration.timescale,
 			codec: codecString,
-			numberOfChannels,
-			sampleRate,
-			description,
+			numberOfChannels: actual.numberOfChannels,
+			sampleRate: actual.sampleRate,
+			description: actual.codecPrivate ?? undefined,
 			trakBox,
-			codecPrivate: getCodecPrivateFromTrak(trakBox) ?? description ?? null,
-			codecWithoutConfig: getAudioCodecFromTrack(trakBox),
+			codecPrivate: actual.codecPrivate,
+			codecWithoutConfig,
 		};
 	}
 

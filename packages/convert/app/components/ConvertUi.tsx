@@ -99,7 +99,6 @@ export default function ConvertUI({
 	const supportedConfigs = useSupportedConfigs({
 		container,
 		tracks,
-		logLevel,
 		action,
 		userRotation,
 	});

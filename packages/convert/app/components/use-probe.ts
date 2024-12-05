@@ -71,6 +71,10 @@ export const useThumbnail = ({
 		if ((err as Error).stack?.toLowerCase()?.includes('aborted')) {
 			return;
 		}
+		// firefox
+		if ((err as Error).message?.toLowerCase()?.includes('aborted')) {
+			return;
+		}
 
 		// eslint-disable-next-line no-console
 		console.log(err);
@@ -172,6 +176,10 @@ export const useProbe = ({
 					return;
 				}
 				if ((err as Error).stack?.toLowerCase()?.includes('aborted')) {
+					return;
+				}
+				// firefox
+				if ((err as Error).message?.toLowerCase()?.includes('aborted')) {
 					return;
 				}
 
