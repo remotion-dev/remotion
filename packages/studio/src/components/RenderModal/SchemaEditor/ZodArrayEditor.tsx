@@ -124,6 +124,7 @@ export const ZodArrayEditor: React.FC<{
 										index={i}
 										onChange={onChange}
 										isLast={i === localValue.value.length - 1}
+										showAddButton
 									/>
 								</React.Fragment>
 							);
@@ -134,6 +135,7 @@ export const ZodArrayEditor: React.FC<{
 								index={0}
 								onChange={onChange}
 								isLast
+								showAddButton
 							/>
 						) : null}
 					</SchemaVerticalGuide>
