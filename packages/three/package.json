@@ -32,13 +32,13 @@
 	},
 	"devDependencies": {
 		"@react-three/fiber": "9.0.0-rc.1",
-		"@types/react-reconciler": "^0.26.4",
-		"@types/three": "0.157.2",
+		"@types/react-reconciler": "0.28.8",
+		"@types/three": "0.170.0",
 		"@types/web": "0.0.166",
 		"react": "19.0.0",
 		"react-dom": "19.0.0",
 		"remotion": "workspace:*",
-		"three": "0.158.0",
+		"three": "0.171.0",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "9.14.0"
 	},

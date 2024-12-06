@@ -7,7 +7,7 @@ type Props = {
 	readonly radius: number;
 	readonly curveSegments: number;
 	readonly depth: number;
-} & Omit<JSX.IntrinsicElements['mesh'], 'args'>;
+} & Omit<JSX.IntrinsicElements['positionMesh'], 'args'>;
 
 export const RoundedBox: React.FC<Props> = ({
 	width,

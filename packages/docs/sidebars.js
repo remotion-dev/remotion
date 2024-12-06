@@ -1003,6 +1003,7 @@ module.exports = {
 			type: 'category',
 			label: 'Migration guides',
 			items: [
+				'react-19',
 				'5-0-migration',
 				'4-0-migration',
 				'3-0-migration',

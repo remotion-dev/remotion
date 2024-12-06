@@ -2566,6 +2566,13 @@ export const articles = [
 		crumb: 'The new and shiny',
 	},
 	{
+		id: 'react-19',
+		title: 'React 19',
+		relativePath: 'docs/react-19.mdx',
+		compId: 'articles-docs-react-19',
+		crumb: 'Migration Guide',
+	},
+	{
 		id: 'react-native',
 		title: 'React Native',
 		relativePath: 'docs/react-native.mdx',
