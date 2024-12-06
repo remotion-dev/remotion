@@ -67,7 +67,7 @@
 		"@types/hls.js": "^0.13.3",
 		"@types/opentype.js": "^1.3.4",
 		"@types/styled-components": "5.1.34",
-		"@types/three": "0.157.2",
+		"@types/three": "0.170.0",
 		"@types/web": "0.0.166",
 		"babel-loader": "^8.2.2",
 		"dotenv": "9.0.2",
