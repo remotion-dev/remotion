@@ -114,6 +114,10 @@ if (alias !== 'alias') {
 
 const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
 
+import {AvifAnimatedImage} from './AnimatedImage/Avif';
+import {GifAnimatedImage} from './AnimatedImage/Gif';
+import {WebpAnimatedImage} from './AnimatedImage/Webp';
+
 class Vector2 {
 	readonly x: number;
 	readonly y: number;
@@ -711,6 +715,32 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={100}
+				/>
+			</Folder>
+			<Folder name="AnimatedImage">
+				<Composition
+					id="gif-animated-image"
+					component={GifAnimatedImage}
+					width={1920}
+					height={1080}
+					durationInFrames={200}
+					fps={30}
+				/>
+				<Composition
+					id="avif-animated-image"
+					component={AvifAnimatedImage}
+					width={1920}
+					height={1080}
+					durationInFrames={200}
+					fps={30}
+				/>
+				<Composition
+					id="webp-animated-image"
+					component={WebpAnimatedImage}
+					width={1920}
+					height={1080}
+					durationInFrames={200}
+					fps={30}
 				/>
 			</Folder>
 			<Folder name="still-tests">
