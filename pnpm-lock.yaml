@@ -79,7 +79,7 @@ importers:
     dependencies:
       '@astrojs/react':
         specifier: 4.0.0
-        version: 4.0.0(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@19.0.0)(react@19.0.0)
+        version: 4.0.0(@types/react-dom@18.3.1)(@types/react@18.3.1)(react-dom@19.0.0)(react@19.0.0)
       '@remotion/gif':
         specifier: workspace:*
         version: link:../gif
@@ -2533,8 +2533,8 @@ importers:
         specifier: 0.1.11
         version: 0.1.11
       '@types/react':
-        specifier: 18.3.1
-        version: 18.3.1
+        specifier: 19.0.0
+        version: 19.0.0
       '@types/web':
         specifier: 0.0.166
         version: 0.0.166
@@ -3270,7 +3270,7 @@ packages:
       prismjs: 1.29.0
     dev: false
 
-  /@astrojs/react@4.0.0(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@19.0.0)(react@19.0.0):
+  /@astrojs/react@4.0.0(@types/react-dom@18.3.1)(@types/react@18.3.1)(react-dom@19.0.0)(react@19.0.0):
     resolution: {integrity: sha512-YwTKFm/EMAl3JU3wlVBBI3qpuNMW5ofkvq9nWfpQEo4P38yLJjrqO/trxv0HSrAYinRp7gg3rgAR7MeadSNuvQ==}
     engines: {node: ^18.17.1 || ^20.3.0 || >=22.0.0}
     peerDependencies:
@@ -3280,7 +3280,7 @@ packages:
       react-dom: ^17.0.2 || ^18.0.0 || ^19.0.0-beta
     dependencies:
       '@types/react': 18.3.1
-      '@types/react-dom': 18.3.0
+      '@types/react-dom': 18.3.1
       '@vitejs/plugin-react': 4.3.4(vite@6.0.3)
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
@@ -14169,6 +14169,13 @@ packages:
     resolution: {integrity: sha512-EhwApuTmMBmXuFOikhQLIBUn6uFg81SwLMOAUgodJF14SOBOCMdU04gDoYi0WOJJHD144TL32z4yDqCW3dnkQg==}
     dependencies:
       '@types/react': 19.0.0
+    dev: true
+
+  /@types/react-dom@18.3.1:
+    resolution: {integrity: sha512-qW1Mfv8taImTthu4KoXgDfLuk4bydU6Q/TkADnDWWHwi4NX4BR+LWfTp2sVmTqRrsHvyDDTelgelxJ+SsejKKQ==}
+    dependencies:
+      '@types/react': 19.0.0
+    dev: false
 
   /@types/react-dom@19.0.0:
     resolution: {integrity: sha512-1KfiQKsH1o00p9m5ag12axHQSb3FOU9H20UTrujVSkNhuCrRHiQWFqgEnTNK5ZNfnzZv8UWrnXVqCmCF9fgY3w==}
@@ -14213,7 +14220,7 @@ packages:
     resolution: {integrity: sha512-V0kuGBX3+prX+DQ/7r2qsv1NsdfnCLnTgnRJ1pYnxykBhGMz+qj+box5lq7XsO5mtZsBqpjwwTu/7wszPfMBcw==}
     dependencies:
       '@types/prop-types': 15.7.4
-      csstype: 3.1.1
+      csstype: 3.1.3
 
   /@types/react@19.0.0:
     resolution: {integrity: sha512-MY3oPudxvMYyesqs/kW1Bh8y9VqSmf+tzqw3ae8a9DZW68pUe3zAdHeI1jc6iAysuRdACnVknHP8AhwD4/dxtg==}

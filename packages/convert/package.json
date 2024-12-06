@@ -10,7 +10,7 @@
 		"dev": "remix vite:dev",
 		"typecheck": "tsc",
 		"test": "bun test test",
-		"lint": "tsc && eslint --cache --cache-location ./node_modules/.cache/eslint ."
+		"lint": "tsc && eslint --cache --cache-location ./node_modules/.cache/eslint app"
 	},
 	"dependencies": {
 		"@radix-ui/react-checkbox": "^1.1.2",

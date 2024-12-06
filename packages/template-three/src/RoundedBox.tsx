@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { JSX, useMemo } from "react";
 import { roundedRect } from "./helpers/rounded-rectangle";
 
 type Props = {
