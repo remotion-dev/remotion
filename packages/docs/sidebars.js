@@ -640,6 +640,15 @@ module.exports = {
 			},
 			items: ['fonts-api/load-font'],
 		},
+		{
+			type: 'category',
+			label: '@remotion/licensing',
+			link: {
+				type: 'doc',
+				id: 'licensing/index',
+			},
+			items: ['licensing/register-usage-point', 'licensing/get-usage'],
+		},
 	],
 	mainSidebar: [
 		{

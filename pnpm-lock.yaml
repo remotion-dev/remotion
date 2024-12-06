@@ -623,6 +623,9 @@ importers:
       '@remotion/layout-utils':
         specifier: workspace:*
         version: link:../layout-utils
+      '@remotion/licensing':
+        specifier: workspace:*
+        version: link:../licensing
       '@remotion/lottie':
         specifier: workspace:*
         version: link:../lottie
