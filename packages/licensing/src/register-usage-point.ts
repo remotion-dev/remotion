@@ -1,4 +1,4 @@
-const HOST = 'http://localhost:51748/';
+export const HOST = 'http://localhost:51748/';
 
 type ApiResponse =
 	| {
@@ -12,7 +12,6 @@ type ApiResponse =
 	  };
 
 export type RegisterUsageEventResponse = {
-	success: true;
 	billable: boolean;
 	classification: UsageEventClassification;
 };
@@ -32,10 +31,10 @@ export const registerUsageEvent = async ({
 	succeeded: boolean;
 	event: UsageEventType;
 }): Promise<RegisterUsageEventResponse> => {
-	const res = await fetch(`${HOST}/api/track`, {
+	const res = await fetch(`${HOST}/api/track/register-usage-point`, {
 		method: 'POST',
 		body: JSON.stringify({
-			event: event,
+			event,
 			apiKey,
 			host,
 			succeeded,
@@ -49,7 +48,6 @@ export const registerUsageEvent = async ({
 	if (json.success) {
 		return {
 			billable: json.billable,
-			success: true,
 			classification: json.classification,
 		};
 	}
