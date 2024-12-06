@@ -31,12 +31,12 @@
 		"remotion": "workspace:*"
 	},
 	"devDependencies": {
-		"@react-three/fiber": "8.13.5",
+		"@react-three/fiber": "9.0.0-rc.1",
 		"@types/react-reconciler": "^0.26.4",
 		"@types/three": "0.157.2",
 		"@types/web": "0.0.166",
-		"react": "18.3.1",
-		"react-dom": "18.3.1",
+		"react": "19.0.0",
+		"react-dom": "19.0.0",
 		"remotion": "workspace:*",
 		"three": "0.158.0",
 		"@remotion/eslint-config-internal": "workspace:*",

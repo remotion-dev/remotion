@@ -27,7 +27,7 @@ export const updateAllElementsSizes = () => {
 };
 
 export const useElementSize = (
-	ref: React.RefObject<HTMLElement>,
+	ref: React.RefObject<HTMLElement | null>,
 	options: {
 		triggerOnWindowResize: boolean;
 		shouldApplyCssTransforms: boolean;

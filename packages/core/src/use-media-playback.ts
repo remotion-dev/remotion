@@ -20,7 +20,7 @@ import {warnAboutNonSeekableMedia} from './warn-about-non-seekable-media.js';
 export const DEFAULT_ACCEPTABLE_TIMESHIFT = 0.45;
 
 const seek = (
-	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>,
+	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement | null>,
 	time: number,
 ): void => {
 	if (!mediaRef.current) {
@@ -44,7 +44,7 @@ export const useMediaPlayback = ({
 	debugSeeking,
 	onAutoPlayError,
 }: {
-	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>;
+	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement | null>;
 	src: string | undefined;
 	mediaType: 'audio' | 'video';
 	playbackRate: number;

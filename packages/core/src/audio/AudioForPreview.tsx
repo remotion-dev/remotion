@@ -182,7 +182,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	}, [audioRef]);
 
 	const currentOnDurationCallback =
-		useRef<AudioForPreviewProps['onDuration']>();
+		useRef<AudioForPreviewProps['onDuration']>(onDuration);
 	currentOnDurationCallback.current = onDuration;
 
 	useEffect(() => {

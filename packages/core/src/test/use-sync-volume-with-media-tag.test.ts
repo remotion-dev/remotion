@@ -1,12 +1,12 @@
 /**
  * @vitest-environment jsdom
  */
+import {renderHook} from '@testing-library/react';
 import type {RefObject} from 'react';
 import {expect, test, vitest} from 'vitest';
 import type {UseSyncVolumeWithMediaTagOptions} from '../use-sync-volume-with-media-tag.js';
 import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag.js';
 import type {VolumeProp} from '../volume-prop.js';
-import {renderHook} from './render-hook.js';
 
 test('has the volume been adapted', () => {
 	const addEventListener = vitest.fn();

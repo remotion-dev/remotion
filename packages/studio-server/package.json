@@ -35,7 +35,7 @@
 		"open": "^8.4.2"
 	},
 	"devDependencies": {
-		"react": "18.3.1",
+		"react": "19.0.0",
 		"@babel/types": "7.24.0",
 		"@types/semver": "^7.3.4",
 		"@remotion/eslint-config-internal": "workspace:*",

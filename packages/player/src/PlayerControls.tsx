@@ -109,7 +109,7 @@ export const Controls: React.FC<{
 	readonly renderFullscreenButton: RenderFullscreenButton | null;
 	readonly alwaysShowControls: boolean;
 	readonly showPlaybackRateControl: boolean | number[];
-	readonly containerRef: React.RefObject<HTMLDivElement>;
+	readonly containerRef: React.RefObject<HTMLDivElement | null>;
 	readonly buffering: boolean;
 	readonly hideControlsWhenPointerDoesntMove: boolean | number;
 	readonly onPointerDown:

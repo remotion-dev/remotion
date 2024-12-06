@@ -69,8 +69,6 @@ import EllipseTest from './Shapes/EllipseTest';
 import RectTest from './Shapes/RectTest';
 import StarTest from './Shapes/StarTest';
 import TriangleTest from './Shapes/TriangleTest';
-import {RuntimeShaderZoomBlur} from './Skia/Blur';
-import {RuntimeShaderDemo} from './Skia/Shader';
 import {SkipZeroFrame} from './SkipZeroFrame';
 import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
@@ -1338,6 +1336,10 @@ export const Index: React.FC = () => {
 				width={1080}
 				durationInFrames={120}
 			/>
+			{/**
+			 * 
+			 * 
+			 * disabled for react   19
 			<Folder name="Skia">
 				<Composition
 					id="skia-shader"
@@ -1356,6 +1358,8 @@ export const Index: React.FC = () => {
 					durationInFrames={120}
 				/>
 			</Folder>
+			 */}
+
 			<Folder name="studio-apis">
 				<Composition
 					id="save-default-props"

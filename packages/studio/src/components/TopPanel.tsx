@@ -54,7 +54,7 @@ export const useResponsiveSidebarStatus = (): 'collapsed' | 'expanded' => {
 export const TopPanel: React.FC<{
 	readonly readOnlyStudio: boolean;
 	readonly onMounted: () => void;
-	readonly drawRef: React.RefObject<HTMLDivElement>;
+	readonly drawRef: React.RefObject<HTMLDivElement | null>;
 	readonly bufferStateDelayInMilliseconds: number;
 }> = ({readOnlyStudio, onMounted, drawRef, bufferStateDelayInMilliseconds}) => {
 	const {setSidebarCollapsedState, sidebarCollapsedStateRight} =

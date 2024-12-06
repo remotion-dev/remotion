@@ -38,7 +38,7 @@ export const EditorRulers: React.FC<{
 	readonly canvasSize: Size;
 	readonly contentDimensions: Dimensions | 'none' | null;
 	readonly assetMetadata: AssetMetadata | null;
-	readonly containerRef: React.RefObject<HTMLDivElement>;
+	readonly containerRef: React.RefObject<HTMLDivElement | null>;
 }> = ({contentDimensions, canvasSize, assetMetadata, containerRef}) => {
 	const {scale, canvasPosition} = useStudioCanvasDimensions({
 		canvasSize,

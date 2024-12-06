@@ -29,8 +29,8 @@
 	"devDependencies": {
 		"@types/bun": "1.1.10",
 		"@types/deno": "2.0.0",
-		"@types/react": "18.3.1",
-		"@types/react-dom": "18.3.0",
+		"@types/react": "19.0.0",
+		"@types/react-dom": "19.0.0",
 		"prettier": "3.3.3",
 		"prettier-plugin-organize-imports": "3.2.4"
 	},

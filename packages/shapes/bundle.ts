@@ -10,6 +10,7 @@ const output = await build({
 	external: [
 		'react/jsx-runtime',
 		'react',
+		'react-dom',
 		'remotion',
 		'remotion/no-react',
 		'@remotion/paths',
