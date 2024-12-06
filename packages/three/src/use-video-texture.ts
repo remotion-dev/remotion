@@ -24,7 +24,7 @@ const warnAboutRequestVideoFrameCallback = () => {
  * @see [Documentation](https://www.remotion.dev/docs/use-video-texture)
  */
 export const useVideoTexture = (
-	videoRef: React.RefObject<HTMLVideoElement>,
+	videoRef: React.RefObject<HTMLVideoElement | null>,
 ): VideoTexture | null => {
 	const [loaded] = useState(() => {
 		if (typeof document === 'undefined') {

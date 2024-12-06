@@ -8,7 +8,7 @@ export type TSplitterContext = {
 	flexValue: number;
 	setFlexValue: React.Dispatch<React.SetStateAction<number>>;
 	orientation: SplitterOrientation;
-	ref: React.RefObject<HTMLDivElement>;
+	ref: React.RefObject<HTMLDivElement | null>;
 	maxFlex: number;
 	minFlex: number;
 	defaultFlex: number;

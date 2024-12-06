@@ -1,6 +1,5 @@
 import React from 'react';
-// eslint-disable-next-line react/no-deprecated
-import type {render} from 'react-dom';
+
 import ReactDOM from 'react-dom/client';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -32,7 +31,8 @@ const renderToDOM = (content: React.ReactElement) => {
 			);
 		}
 
-		(ReactDOM as unknown as {render: typeof render}).render(
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		(ReactDOM as unknown as {render: any}).render(
 			content,
 			Internals.getPreviewDomElement(),
 		);

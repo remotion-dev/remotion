@@ -19,7 +19,7 @@ export const Probe: React.FC<{
 	readonly setProbeDetails: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly probeDetails: boolean;
 	readonly probeResult: ProbeResult;
-	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef>;
+	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef | null>;
 	readonly userRotation: number;
 	readonly mirrorHorizontal: boolean;
 	readonly mirrorVertical: boolean;

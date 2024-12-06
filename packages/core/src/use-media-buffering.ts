@@ -7,7 +7,7 @@ export const useMediaBuffering = ({
 	shouldBuffer,
 	isPremounting,
 }: {
-	element: React.RefObject<HTMLVideoElement | HTMLAudioElement>;
+	element: React.RefObject<HTMLVideoElement | HTMLAudioElement | null>;
 	shouldBuffer: boolean;
 	isPremounting: boolean;
 }) => {

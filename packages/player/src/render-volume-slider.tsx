@@ -9,7 +9,7 @@ type RenderVolumeSliderProps = {
 	readonly volume: number;
 	readonly isVertical: boolean;
 	readonly onBlur: () => void;
-	readonly inputRef: React.RefObject<HTMLInputElement>;
+	readonly inputRef: React.RefObject<HTMLInputElement | null>;
 	readonly setVolume: (u: number) => void;
 };
 

@@ -10,7 +10,7 @@
 		"dev": "remix vite:dev",
 		"typecheck": "tsc",
 		"test": "bun test test",
-		"lint": "tsc && eslint --cache --cache-location ./node_modules/.cache/eslint ."
+		"lint": "tsc && eslint --cache --cache-location ./node_modules/.cache/eslint app"
 	},
 	"dependencies": {
 		"@radix-ui/react-checkbox": "^1.1.2",
@@ -31,8 +31,8 @@
 		"fast-average-color": "9.4.0",
 		"isbot": "4.1.0",
 		"lucide-react": "^0.439.0",
-		"react": "18.3.1",
-		"react-dom": "18.3.1",
+		"react": "19.0.0",
+		"react-dom": "19.0.0",
 		"tailwind-merge": "2.5.2",
 		"tailwindcss-animate": "^1.0.7"
 	},

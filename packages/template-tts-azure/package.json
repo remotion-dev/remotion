@@ -18,15 +18,15 @@
     "@remotion/zod-types": "workspace:*",
     "md5": "2.3.0",
     "microsoft-cognitiveservices-speech-sdk": "1.17.0",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "remotion": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "20.12.14",
     "@remotion/eslint-config": "workspace:*",
     "@types/md5": "2.3.0",
-    "@types/react": "18.3.1",
+    "@types/react": "19.0.0",
     "eslint": "8.56.0",
     "prettier": "3.3.3",
     "ts-node": "10.9.1",

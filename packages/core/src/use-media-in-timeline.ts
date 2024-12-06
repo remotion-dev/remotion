@@ -40,7 +40,7 @@ export const useMediaInTimeline = ({
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
-	mediaRef: RefObject<HTMLAudioElement | HTMLVideoElement>;
+	mediaRef: RefObject<HTMLAudioElement | HTMLVideoElement | null>;
 	src: string | undefined;
 	mediaType: 'audio' | 'video';
 	playbackRate: number;

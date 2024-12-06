@@ -43,7 +43,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
 	VideoForPreviewProps
 > = (props, ref) => {
-	const videoRef = useRef<HTMLVideoElement>(null);
+	const videoRef = useRef<HTMLVideoElement | null>(null);
 
 	const {
 		volume,
@@ -189,7 +189,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	}, [onError, src]);
 
 	const currentOnDurationCallback =
-		useRef<VideoForPreviewProps['onDuration']>();
+		useRef<VideoForPreviewProps['onDuration']>(onDuration);
 	currentOnDurationCallback.current = onDuration;
 
 	useEmitVideoFrame({ref: videoRef, onVideoFrame});

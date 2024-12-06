@@ -9,6 +9,7 @@ import {
 	useVideoConfig,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import type {Texture} from 'three';
 
 export type UseOffthreadVideoTextureOptions = {
 	src: string;
@@ -55,12 +56,12 @@ export const useInnerVideoTexture = ({
 		() => import('three/src/loaders/TextureLoader.js'),
 	);
 
-	const [imageTexture, setImageTexture] = useState<THREE.Texture | null>(null);
+	const [imageTexture, setImageTexture] = useState<Texture | null>(null);
 
 	const fetchTexture = useCallback(() => {
 		const imageTextureHandle = delayRender('fetch offthread video frame');
 
-		let textureLoaded: THREE.Texture | null = null;
+		let textureLoaded: Texture | null = null;
 		let cleanedUp = false;
 
 		textLoaderPromise.then((loader) => {

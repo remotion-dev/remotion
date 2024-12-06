@@ -40,8 +40,9 @@ const Box: React.FC<{
 };
 
 export const ThreeHtml = () => {
-	const portalRef =
-		useRef<HTMLDivElement>() as React.MutableRefObject<HTMLDivElement>;
+	const portalRef = useRef<HTMLDivElement | null>(
+		null,
+	) as React.MutableRefObject<HTMLDivElement>;
 
 	const {width, height} = useVideoConfig();
 

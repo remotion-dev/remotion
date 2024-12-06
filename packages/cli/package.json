@@ -60,8 +60,8 @@
 		"@remotion/tailwind": "workspace:*",
 		"@remotion/enable-scss": "workspace:*",
 		"@remotion/skia": "workspace:*",
-		"react": "18.3.1",
-		"react-dom": "18.3.1",
+		"react": "19.0.0",
+		"react-dom": "19.0.0",
 		"zod": "3.22.3",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "9.14.0"

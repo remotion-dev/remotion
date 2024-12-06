@@ -1,10 +1,10 @@
 /**
  * @vitest-environment jsdom
  */
+import {renderHook} from '@testing-library/react';
 import type {RefObject} from 'react';
 import {expect, test, vitest} from 'vitest';
 import {useMediaTagVolume} from '../use-media-tag-volume.js';
-import {renderHook} from './render-hook.js';
 
 test('Should listen for volume changes', () => {
 	const addEventListener = vitest.fn();
