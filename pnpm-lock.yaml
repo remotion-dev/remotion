@@ -1767,6 +1767,12 @@ importers:
       '@shopify/react-native-skia':
         specifier: 1.6.0
         version: 1.6.0(react@18.3.1)
+      '@types/react':
+        specifier: 18.3.1
+        version: 18.3.1
+      '@types/react-dom':
+        specifier: 18.3.1
+        version: 18.3.1
       '@types/react-native':
         specifier: ^0.69.2
         version: 0.69.2
@@ -14175,7 +14181,6 @@ packages:
     resolution: {integrity: sha512-qW1Mfv8taImTthu4KoXgDfLuk4bydU6Q/TkADnDWWHwi4NX4BR+LWfTp2sVmTqRrsHvyDDTelgelxJ+SsejKKQ==}
     dependencies:
       '@types/react': 19.0.0
-    dev: false
 
   /@types/react-dom@19.0.0:
     resolution: {integrity: sha512-1KfiQKsH1o00p9m5ag12axHQSb3FOU9H20UTrujVSkNhuCrRHiQWFqgEnTNK5ZNfnzZv8UWrnXVqCmCF9fgY3w==}
@@ -14185,7 +14190,7 @@ packages:
   /@types/react-native@0.69.2:
     resolution: {integrity: sha512-AVdWv4B8/++T5QQdnpveb2OVqD+0i8SOoT63ZRD+lNtQIYxzDak91V0k6olthy+H261d4t/MRBC1cfX1Rwsb6A==}
     dependencies:
-      '@types/react': 18.3.1
+      '@types/react': 19.0.0
     dev: true
 
   /@types/react-reconciler@0.28.8:

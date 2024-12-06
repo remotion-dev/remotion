@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/skia"
 	},
 	"name": "@remotion/skia",
-	"version": "4.0.235",
+	"version": "4.0.236",
 	"description": "Include React Native Skia components in a Remotion video",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -35,6 +35,8 @@
 		"@types/react-native": "^0.69.2",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
+		"@types/react": "18.3.1",
+		"@types/react-dom": "18.3.1",
 		"remotion": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "9.14.0"
