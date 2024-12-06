@@ -106,6 +106,9 @@
 			"path": "./packages/player-example"
 		},
 		{
+			"path": "./packages/licensing"
+		},
+		{
 			"path": "./packages/preload"
 		},
 		{

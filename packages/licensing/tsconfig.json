@@ -1,0 +1,12 @@
+{
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"rootDir": "src",
+		"outDir": "dist",
+		"jsx": "react-jsx",
+		"skipLibCheck": true,
+		"target": "ES2023"
+	},
+	"include": ["src"],
+	"references": []
+}

@@ -17,6 +17,7 @@ export const listOfRemotionPackages = [
 	'@remotion/paths',
 	'@remotion/babel-loader',
 	'@remotion/lambda',
+	'@remotion/licensing',
 	'@remotion/player',
 	'@remotion/preload',
 	'@remotion/three',

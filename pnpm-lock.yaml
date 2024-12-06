@@ -1419,6 +1419,25 @@ importers:
         specifier: 9.14.0
         version: 9.14.0
 
+  packages/licensing:
+    dependencies:
+      '@remotion/renderer':
+        specifier: workspace:*
+        version: link:../renderer
+      '@remotion/streaming':
+        specifier: workspace:*
+        version: link:../streaming
+      remotion:
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 9.14.0
+        version: 9.14.0
+
   packages/lottie:
     dependencies:
       lottie-web:
