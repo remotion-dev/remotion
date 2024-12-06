@@ -1,5 +1,3 @@
-"use client";
-
 import { Player } from "@remotion/player";
 import type { NextPage } from "next";
 import Head from "next/head";
