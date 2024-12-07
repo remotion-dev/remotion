@@ -1827,6 +1827,13 @@ export const articles = [
 		crumb: null,
 	},
 	{
+		id: 'metadata',
+		title: 'Getting metadata from videos using @remotion/media-parser',
+		relativePath: 'docs/media-parser/metadata.mdx',
+		compId: 'articles-docs-media-parser-metadata',
+		crumb: '@remotion/media-parser',
+	},
+	{
 		id: 'node-reader',
 		title: 'nodeReader',
 		relativePath: 'docs/media-parser/node-reader.mdx',
