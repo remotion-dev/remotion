@@ -64,12 +64,45 @@ export const RenderWarningIfBlacklist: React.FC = () => {
 			.catch(() => {});
 	}, []);
 
+	useEffect(() => {
+		if (!unlicensed) {
+			return;
+		}
+
+		const ensureBanner = () => {
+			const banner = document.querySelector('.warning-banner');
+			if (!banner) {
+				const div = document.createElement('div');
+				div.className = 'warning-banner';
+				Object.assign(div.style, style, {
+					zIndex: '9999',
+					// @ts-expect-error
+					cssText: `${style.cssText} !important;`,
+				});
+				div.innerHTML = `
+	        <a href="https://github.com/remotion-dev/remotion/pull/4589" style="color: white;">
+	          Remotion Unlicensed – Contact hi@remotion.dev
+	        </a>
+	      `;
+				document.body.appendChild(div);
+			}
+		};
+
+		// Using MutationObserver to watch for changes
+		const observer = new MutationObserver(() => ensureBanner());
+		observer.observe(document.body, {childList: true, subtree: true});
+
+		return () => {
+			observer.disconnect();
+		};
+	}, [unlicensed]);
+
 	if (!unlicensed) {
 		return null;
 	}
 
 	return (
-		<div style={style}>
+		<div style={style} className="warning-banner">
 			<a
 				style={{color: 'white'}}
 				href="https://github.com/remotion-dev/remotion/pull/4589"
