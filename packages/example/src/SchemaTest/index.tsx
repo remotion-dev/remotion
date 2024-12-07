@@ -31,6 +31,7 @@ export const schemaTestSchema = z.object({
 			value: z.number().min(1080),
 		}),
 	]),
+	tuple: z.tuple([z.string(), z.number(), z.object({a: z.string()})]),
 });
 
 export const schemaArrayTestSchema = z.array(z.number());
