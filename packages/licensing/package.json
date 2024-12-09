@@ -3,8 +3,8 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/licensing"
 	},
 	"name": "@remotion/licensing",
-	"version": "4.0.236",
-	"description": "A runtime for distributed rendering",
+	"version": "4.0.237",
+	"description": "Manage your Remotion.pro license",
 	"main": "dist",
 	"sideEffects": false,
 	"scripts": {
@@ -30,5 +30,6 @@
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "9.14.0"
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/licensing"
 }
