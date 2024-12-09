@@ -1,3 +1,5 @@
+import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag';
+
 const injected: {[key: string]: boolean} = {};
 
 export const injectCSS = (css: string) => {
@@ -29,6 +31,7 @@ export const makeDefaultPreviewCSS = (
 		return `
     * {
       box-sizing: border-box;
+      ${ENABLE_V5_BREAKING_CHANGES ? 'all: initial;' : ''}
     }
     body {
       margin: 0;
@@ -43,6 +46,7 @@ export const makeDefaultPreviewCSS = (
 	return `
     ${scope} * {
       box-sizing: border-box;
+      ${ENABLE_V5_BREAKING_CHANGES ? 'all: initial;' : ''}
     }
     ${scope} *:-webkit-full-screen {
       width: 100%;
