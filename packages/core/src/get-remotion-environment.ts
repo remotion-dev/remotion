@@ -2,7 +2,6 @@ export type RemotionEnvironment = {
 	isStudio: boolean;
 	isRendering: boolean;
 	isPlayer: boolean;
-	isReadOnlyStudio: boolean;
 };
 
 // Avoid VITE obfuscation
@@ -29,13 +28,10 @@ export const getRemotionEnvironment = (): RemotionEnvironment => {
 				typeof window !== 'undefined' &&
 				typeof window.remotion_puppeteerTimeout !== 'undefined'));
 	const isStudio = typeof window !== 'undefined' && window.remotion_isStudio;
-	const isReadOnlyStudio =
-		typeof window !== 'undefined' && window.remotion_isReadOnlyStudio;
 
 	return {
 		isStudio,
 		isRendering,
 		isPlayer,
-		isReadOnlyStudio,
 	};
 };
