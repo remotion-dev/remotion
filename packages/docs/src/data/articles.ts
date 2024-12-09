@@ -3464,7 +3464,7 @@ export const articles = [
 		title: '@remotion/licensing',
 		relativePath: 'docs/licensing/index.mdx',
 		compId: 'articles-docs-licensing-index',
-		crumb: null,
+		crumb: 'API',
 	},
 	{
 		id: 'react-18',

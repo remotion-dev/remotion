@@ -53,6 +53,21 @@ If the host is `localhost` or similar, it will be registered as non-billable.
 Whether the event was successful or not.  
 If the event was not successful, it will be registered as a non-billable event.
 
+## Return value
+
+A promise that resolves when the event was successfully registered.
+
+The resolved object contains two properties:
+
+### `billable`
+
+Whether this was an event that should be billed.
+
+### `classification`
+
+Either, `"billable"`, `"development"` or `"failed"`.  
+You do not have to pay for failed renders or renders doing development.
+
 ## See also
 
 - [`@remotion/licensing`](/docs/licensing)
