@@ -1,88 +1,47 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import type {ParseResult, TransportStreamStructure} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
-import type {
-	TransportStreamAdaptationField,
-	TransportStreamBox,
-	TransportStreamHeader,
-} from './boxes';
+import {parsePacket} from './parse-packet';
 
-export const parseTransportStream = ({
+export const parseTransportStream = async ({
 	iterator,
 	parsercontext,
+	structure,
 }: {
 	iterator: BufferIterator;
 	parsercontext: ParserContext;
+	structure: TransportStreamStructure;
 }): Promise<ParseResult<TransportStreamStructure>> => {
-	const syncByte = iterator.getUint8();
-	if (syncByte !== 0x47) {
-		throw new Error('Invalid sync byte');
+	if (iterator.bytesRemaining() === 0) {
+		// TODO: Not right
+		parsercontext.parserState.tracks.setIsDone();
+		return Promise.resolve({
+			status: 'done',
+			segments: structure,
+		});
 	}
 
-	iterator.startReadingBits();
-	const transportErrorIndicator = iterator.getBits(1);
-	const payloadUnitStartIndicator = iterator.getBits(1);
-	const transportPriority = iterator.getBits(1);
-	const packetIdentifier = iterator.getBits(13);
-	const transportScramblingControl = iterator.getBits(2);
-	const adaptationFieldControl1 = iterator.getBits(1);
-	const adaptationFieldControl2 = iterator.getBits(1);
-	const continuityCounter = iterator.getBits(4);
-	iterator.stopReadingBits();
-	let adaptationField: TransportStreamAdaptationField | null = null;
-	if (adaptationFieldControl1 === 1) {
-		iterator.startReadingBits();
-		const adaptationFieldLength = iterator.getBits(8);
-		const offset = iterator.counter.getOffset();
-		const discontinuityIndicator = iterator.getBits(1);
-		const randomAccessIndicator = iterator.getBits(1);
-		const elementaryStreamPriorityIndicator = iterator.getBits(1);
-		const pcrFlag = iterator.getBits(1);
-		const opcrFlag = iterator.getBits(1);
-		const splicingPointFlag = iterator.getBits(1);
-		const transportPrivateDataFlag = iterator.getBits(1);
-		const adaptationFieldExtensionFlag = iterator.getBits(1);
-		adaptationField = {
-			adaptationFieldExtensionFlag,
-			adaptationFieldLength,
-			discontinuityIndicator,
-			elementaryStreamPriorityIndicator,
-			opcrFlag,
-			pcrFlag,
-			randomAccessIndicator,
-			splicingPointFlag,
-			transportPrivateDataFlag,
-			type: 'transport-stream-adaptation-field',
-		};
-		const remaining =
-			adaptationFieldLength - (iterator.counter.getOffset() - offset);
-		iterator.stopReadingBits();
-		iterator.discard(remaining);
+	if (iterator.bytesRemaining() < 188) {
+		return Promise.resolve({
+			status: 'incomplete',
+			segments: structure,
+			skipTo: null,
+			continueParsing: () => {
+				return parseTransportStream({iterator, parsercontext, structure});
+			},
+		});
 	}
 
-	const header: TransportStreamHeader = {
-		packetIdentifier,
-		syncByte,
-		adaptationFieldControl1,
-		adaptationFieldControl2,
-		continuityCounter,
-		payloadUnitStartIndicator,
-		transportErrorIndicator,
-		transportPriority,
-		transportScramblingControl,
-		type: 'transport-stream-header',
-		adaptionField: adaptationField,
-	};
+	const packet = await parsePacket(iterator);
 
-	const segments: TransportStreamBox[] = [header];
-
-	parsercontext.parserState.tracks.setIsDone();
+	structure.boxes.push(packet);
 
 	return Promise.resolve({
-		segments: {
-			type: 'transport-stream',
-			boxes: segments,
+		segments: structure,
+		status: 'incomplete',
+		continueParsing() {
+			return parseTransportStream({iterator, parsercontext, structure});
 		},
-		status: 'done',
+		skipTo: null,
 	});
 };

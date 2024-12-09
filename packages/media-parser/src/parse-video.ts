@@ -69,7 +69,14 @@ export const parseVideo = ({
 	}
 
 	if (iterator.isTransportStream()) {
-		return parseTransportStream({iterator, parsercontext: options});
+		return parseTransportStream({
+			iterator,
+			parsercontext: options,
+			structure: {
+				type: 'transport-stream',
+				boxes: [],
+			},
+		});
 	}
 
 	if (iterator.isMp3()) {
