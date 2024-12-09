@@ -1,5 +1,6 @@
 import {parseIsoBaseMediaBoxes} from './boxes/iso-base-media/process-box';
 import {parseRiff} from './boxes/riff/parse-box';
+import {parseTransportStream} from './boxes/transport-stream/parse-transport-stream';
 import {parseWebm} from './boxes/webm/parse-webm-header';
 import type {BufferIterator} from './buffer-iterator';
 import {Log, type LogLevel} from './log';
@@ -65,6 +66,17 @@ export const parseVideo = ({
 	if (iterator.isWebm()) {
 		Log.verbose(logLevel, 'Detected Matroska container');
 		return parseWebm({counter: iterator, parserContext: options, fields});
+	}
+
+	if (iterator.isTransportStream()) {
+		return parseTransportStream({
+			iterator,
+			parsercontext: options,
+			structure: {
+				type: 'transport-stream',
+				boxes: [],
+			},
+		});
 	}
 
 	if (iterator.isMp3()) {

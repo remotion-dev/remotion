@@ -275,6 +275,10 @@ export const getArrayBufferIterator = (
 		return matchesPattern(mpegPattern)(data.subarray(0, 4));
 	};
 
+	const isTransportStream = () => {
+		return data[0] === 0x47;
+	};
+
 	const removeBytesRead = () => {
 		if (!discardAllowed) {
 			return;
@@ -620,6 +624,7 @@ export const getArrayBufferIterator = (
 		disallowDiscard,
 		allowDiscard,
 		startBox,
+		isTransportStream,
 	};
 };
 
