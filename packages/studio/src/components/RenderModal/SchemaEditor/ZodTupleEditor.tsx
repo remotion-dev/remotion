@@ -4,19 +4,19 @@ import {
 	useZodIfPossible,
 	useZodTypesIfPossible,
 } from '../../get-zod-if-possible';
+import {createZodValues} from './create-zod-values';
+import {deepEqual} from './deep-equal';
 import {Fieldset} from './Fieldset';
+import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import {SchemaArrayItemSeparationLine} from './SchemaSeparationLine';
 import {SchemaVerticalGuide} from './SchemaVerticalGuide';
-import {ZodArrayItemEditor} from './ZodArrayItemEditor';
+import type {JSONPath} from './zod-types';
 import {ZodFieldValidation} from './ZodFieldValidation';
 import type {UpdaterFunction} from './ZodSwitch';
-import {createZodValues} from './create-zod-values';
-import {deepEqual} from './deep-equal';
-import {useLocalState} from './local-state';
-import type {JSONPath} from './zod-types';
+import {ZodTupleItemEditor} from './ZodTupleItemEditor';
 
-export const ZodArrayEditor: React.FC<{
+export const ZodTupleEditor: React.FC<{
 	readonly schema: z.ZodTypeAny;
 	readonly jsonPath: JSONPath;
 	readonly value: unknown[];
@@ -47,10 +47,9 @@ export const ZodArrayEditor: React.FC<{
 		setValue,
 		savedValue: defaultValue,
 	});
-
 	const [expanded, setExpanded] = useState(true);
 
-	const def = schema._def as z.ZodArrayDef;
+	const def = schema._def as z.ZodTupleDef;
 
 	const suffix = useMemo(() => {
 		return expanded ? ' [' : ' [...] ';
@@ -63,7 +62,7 @@ export const ZodArrayEditor: React.FC<{
 	const zodTypes = useZodTypesIfPossible();
 
 	const typeName = def.typeName as z.ZodFirstPartyTypeKind;
-	if (typeName !== z.ZodFirstPartyTypeKind.ZodArray) {
+	if (typeName !== z.ZodFirstPartyTypeKind.ZodTuple) {
 		throw new Error('expected object');
 	}
 
@@ -103,7 +102,7 @@ export const ZodArrayEditor: React.FC<{
 							return (
 								// eslint-disable-next-line react/no-array-index-key
 								<React.Fragment key={`${i}${localValue.keyStabilityRevision}`}>
-									<ZodArrayItemEditor
+									<ZodTupleItemEditor
 										onChange={onChange}
 										value={child}
 										def={def}
@@ -111,7 +110,7 @@ export const ZodArrayEditor: React.FC<{
 										jsonPath={jsonPath}
 										defaultValue={
 											defaultValue?.[i] ??
-											createZodValues(def.type, z, zodTypes)
+											createZodValues(def.items[i], z, zodTypes)
 										}
 										onSave={onSave}
 										showSaveButton={showSaveButton}
@@ -124,7 +123,7 @@ export const ZodArrayEditor: React.FC<{
 										index={i}
 										onChange={onChange}
 										isLast={i === localValue.value.length - 1}
-										showAddButton
+										showAddButton={false}
 									/>
 								</React.Fragment>
 							);
@@ -135,7 +134,7 @@ export const ZodArrayEditor: React.FC<{
 								index={0}
 								onChange={onChange}
 								isLast
-								showAddButton
+								showAddButton={false}
 							/>
 						) : null}
 					</SchemaVerticalGuide>

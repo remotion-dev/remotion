@@ -1276,6 +1276,7 @@ export const Index: React.FC = () => {
 							{type: 'b' as const, b: {b: 'hi'}},
 						],
 						discriminatedUnion: {type: 'auto'},
+						tuple: ['foo', 42, {a: 'hi'}],
 					}}
 				/>
 				{/**

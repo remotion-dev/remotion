@@ -557,15 +557,15 @@ module.exports = {
 				id: 'media-parser/index',
 			},
 			items: [
-				'media-parser/index',
+				{
+					type: 'link',
+					href: '/docs/media-parser/metadata',
+					label: 'Guide',
+				},
 				'media-parser/parse-media',
 				'media-parser/node-reader',
 				'media-parser/fetch-reader',
 				'media-parser/web-file-reader',
-				'media-parser/webcodecs',
-				'media-parser/fast-and-slow',
-				'media-parser/tags',
-				'media-parser/support',
 			],
 		},
 		{
@@ -883,6 +883,26 @@ module.exports = {
 				'cloudrun/light-client',
 				'cloudrun/upgrading',
 				'cloudrun/uninstall',
+			],
+		},
+		{
+			type: 'category',
+			label: 'Media Parser',
+			link: {
+				type: 'doc',
+				id: 'media-parser/index',
+			},
+			items: [
+				{
+					type: 'link',
+					href: '/docs/media-parser/parse-media',
+					label: 'API Reference',
+				},
+				'media-parser/metadata',
+				'media-parser/fast-and-slow',
+				'media-parser/tags',
+				'media-parser/support',
+				'media-parser/webcodecs',
 			],
 		},
 		{

@@ -106,6 +106,8 @@ await convertMedia({
     const canCopy = canCopyVideoTrack({
       inputCodec: track.codecWithoutConfig,
       container,
+      inputRotation: track.rotation,
+      rotationToApply: 0,
     });
 
     if (canCopy) {
