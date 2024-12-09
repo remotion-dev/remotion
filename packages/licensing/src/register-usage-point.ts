@@ -1,4 +1,4 @@
-export const HOST = 'http://localhost:51748/';
+export const HOST = 'https://remotion.pro';
 
 type ApiResponse =
 	| {
