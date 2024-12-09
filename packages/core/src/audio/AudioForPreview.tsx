@@ -161,6 +161,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		showInTimeline,
 		premountDisplay: null,
 		onAutoPlayError: null,
+		isPremounting: Boolean(sequenceContext?.premounting),
 	});
 
 	useMediaPlayback({

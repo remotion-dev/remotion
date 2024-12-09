@@ -105,6 +105,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		showInTimeline,
 		premountDisplay: null,
 		onAutoPlayError: onAutoPlayError ?? null,
+		isPremounting: Boolean(parentSequence?.premounting),
 	});
 
 	useSyncVolumeWithMediaTag({
