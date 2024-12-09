@@ -1,5 +1,7 @@
+import type {TransportStreamProgramAssociationTableEntry} from './parse-pat';
+import type {TransportStreamEntry} from './parse-pmt';
+
 export type TransportStreamAdaptationField = {
-	type: 'transport-stream-adaptation-field';
 	adaptationFieldLength: number;
 	discontinuityIndicator: number;
 	randomAccessIndicator: number;
@@ -12,7 +14,6 @@ export type TransportStreamAdaptationField = {
 };
 
 export type TransportStreamHeader = {
-	type: 'transport-stream-header';
 	syncByte: number;
 	transportErrorIndicator: number;
 	payloadUnitStartIndicator: number;
@@ -23,6 +24,27 @@ export type TransportStreamHeader = {
 	adaptationFieldControl2: number;
 	continuityCounter: number;
 	adaptionField: TransportStreamAdaptationField | null;
+	pointerField: number | null;
 };
 
-export type TransportStreamBox = TransportStreamHeader;
+export type TransportStreamGenericBox = {
+	header: TransportStreamHeader;
+	type: 'transport-stream-generic-box';
+};
+
+export type TransportStreamPATBox = {
+	type: 'transport-stream-pat-box';
+	tableId: string;
+	pat: TransportStreamProgramAssociationTableEntry[];
+};
+
+export type TransportStreamPMTBox = {
+	type: 'transport-stream-pmt-box';
+	tableId: number;
+	streams: TransportStreamEntry[];
+};
+
+export type TransportStreamBox =
+	| TransportStreamGenericBox
+	| TransportStreamPATBox
+	| TransportStreamPMTBox;

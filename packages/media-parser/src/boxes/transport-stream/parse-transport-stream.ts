@@ -32,7 +32,7 @@ export const parseTransportStream = async ({
 		});
 	}
 
-	const packet = await parsePacket(iterator);
+	const packet = await parsePacket(iterator, structure);
 
 	structure.boxes.push(packet);
 

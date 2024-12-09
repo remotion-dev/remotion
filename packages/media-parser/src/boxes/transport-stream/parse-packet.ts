@@ -1,12 +1,18 @@
 import type {BufferIterator} from '../../buffer-iterator';
+import type {TransportStreamStructure} from '../../parse-result';
 import type {
 	TransportStreamAdaptationField,
 	TransportStreamBox,
 	TransportStreamHeader,
 } from './boxes';
+import {discardRestOfPacket} from './discard-rest-of-packet';
+import {parsePat} from './parse-pat';
+import {parsePmt} from './parse-pmt';
+import {getProgramForId, getStreamForId} from './traversal';
 
 export const parsePacket = (
 	iterator: BufferIterator,
+	structure: TransportStreamStructure,
 ): Promise<TransportStreamBox> => {
 	const syncByte = iterator.getUint8();
 	if (syncByte !== 0x47) {
@@ -46,12 +52,17 @@ export const parsePacket = (
 			randomAccessIndicator,
 			splicingPointFlag,
 			transportPrivateDataFlag,
-			type: 'transport-stream-adaptation-field',
 		};
 		const remaining =
 			adaptationFieldLength - (iterator.counter.getOffset() - offset);
 		iterator.stopReadingBits();
 		iterator.discard(Math.max(0, remaining));
+	}
+
+	let pointerField: number | null = null;
+
+	if (payloadUnitStartIndicator === 1) {
+		pointerField = iterator.getUint8();
 	}
 
 	const header: TransportStreamHeader = {
@@ -64,12 +75,29 @@ export const parsePacket = (
 		transportErrorIndicator,
 		transportPriority,
 		transportScramblingControl,
-		type: 'transport-stream-header',
 		adaptionField: adaptationField,
+		pointerField,
 	};
 
-	const next188 = 188 - (iterator.counter.getOffset() % 188);
-	iterator.discard(next188);
+	if (packetIdentifier === 0) {
+		return Promise.resolve(parsePat(iterator));
+	}
 
-	return Promise.resolve(header);
+	const program = getProgramForId(structure, packetIdentifier);
+	if (program) {
+		const pmt = parsePmt(iterator);
+		return Promise.resolve(pmt);
+	}
+
+	const stream = getStreamForId(structure, packetIdentifier);
+	if (!stream) {
+		throw new Error('Unknown packet identifier');
+	}
+
+	discardRestOfPacket(iterator);
+
+	return Promise.resolve({
+		type: 'transport-stream-generic-box',
+		header,
+	});
 };

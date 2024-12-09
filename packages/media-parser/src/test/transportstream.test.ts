@@ -13,27 +13,30 @@ test('Transport stream', async () => {
 		reader: nodeReader,
 	});
 	expect(structure.boxes[0]).toEqual({
-		adaptationFieldControl1: 1,
-		adaptationFieldControl2: 1,
-		adaptionField: {
-			adaptationFieldExtensionFlag: 0,
-			adaptationFieldLength: 1,
-			discontinuityIndicator: 1,
-			elementaryStreamPriorityIndicator: 0,
-			opcrFlag: 0,
-			pcrFlag: 0,
-			randomAccessIndicator: 1,
-			splicingPointFlag: 0,
-			transportPrivateDataFlag: 0,
-			type: 'transport-stream-adaptation-field',
-		},
-		continuityCounter: 0,
-		packetIdentifier: 0,
-		payloadUnitStartIndicator: 1,
-		syncByte: 71,
-		transportErrorIndicator: 0,
-		transportPriority: 0,
-		transportScramblingControl: 0,
-		type: 'transport-stream-header',
+		type: 'transport-stream-pat-box',
+		tableId: '0',
+		pat: [
+			{
+				type: 'transport-stream-program-association-table',
+				programNumber: 1,
+				programMapIdentifier: 4096,
+			},
+		],
 	});
+	expect(structure.boxes[1]).toEqual({
+		type: 'transport-stream-pmt-box',
+		tableId: 2,
+		streams: [
+			{
+				pid: 256,
+				streamType: 27,
+			},
+			{
+				pid: 257,
+				streamType: 15,
+			},
+		],
+	});
+	const fs = await import('fs');
+	fs.writeFileSync('transportstream.json', JSON.stringify(structure, null, 2));
 });
