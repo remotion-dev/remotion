@@ -52,7 +52,9 @@ Your Remotion secret API key. You can get it from your Remotion.pro dashboard.
 
 Type: `number`
 
-The timestamp since when you want to get the usage. The lowest timestamp you can use is 90 days ago.
+The timestamp since when you want to get the usage.  
+The default is since the beginning of the current month in UTC.  
+The lowest timestamp you can use is 90 days ago (`Date.now() - 90 * 24 * 60 * 60 * 1000`).
 
 ## Return value
 
