@@ -135,7 +135,12 @@ export const getDuration = (
 		return getDurationFromAvi(structure);
 	}
 
-	throw new Error('Has no duration');
+	if (structure.type === 'transport-stream') {
+		// TODO: Hardcoded
+		return 10;
+	}
+
+	throw new Error('Has no duration ' + (structure satisfies never));
 };
 
 export const hasDuration = (

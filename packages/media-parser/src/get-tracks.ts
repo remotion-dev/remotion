@@ -142,7 +142,12 @@ export const hasTracks = (
 		return hasAllTracksFromAvi(structure, state);
 	}
 
-	throw new Error('Unknown container');
+	if (structure.type === 'transport-stream') {
+		// TODO: Emit early
+		return true;
+	}
+
+	throw new Error('Unknown container ' + (structure satisfies never));
 };
 
 const getTracksFromMa = (
