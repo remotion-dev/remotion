@@ -77,6 +77,7 @@ export const parseVideo = ({
 				boxes: [],
 			},
 			streamBuffers: new Map(),
+			fields,
 		});
 	}
 

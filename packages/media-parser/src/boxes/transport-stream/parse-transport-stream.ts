@@ -1,4 +1,6 @@
 import type {BufferIterator} from '../../buffer-iterator';
+import {hasAllInfo} from '../../has-all-info';
+import type {Options, ParseMediaFields} from '../../options';
 import type {ParseResult, TransportStreamStructure} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
 import {parsePacket} from './parse-packet';
@@ -12,11 +14,13 @@ export const parseTransportStream = async ({
 	parserContext,
 	structure,
 	streamBuffers,
+	fields,
 }: {
 	iterator: BufferIterator;
 	parserContext: ParserContext;
 	structure: TransportStreamStructure;
 	streamBuffers: StreamBufferMap;
+	fields: Options<ParseMediaFields>;
 }): Promise<ParseResult<TransportStreamStructure>> => {
 	if (iterator.bytesRemaining() === 0) {
 		await processStreamBuffers({
@@ -32,6 +36,16 @@ export const parseTransportStream = async ({
 	}
 
 	while (true) {
+		if (
+			hasAllInfo({
+				fields,
+				state: parserContext.parserState,
+				structure,
+			})
+		) {
+			break;
+		}
+
 		if (iterator.bytesRemaining() < 188) {
 			return Promise.resolve({
 				status: 'incomplete',
@@ -43,6 +57,7 @@ export const parseTransportStream = async ({
 						parserContext,
 						structure,
 						streamBuffers,
+						fields,
 					});
 				},
 			});
@@ -70,6 +85,7 @@ export const parseTransportStream = async ({
 				parserContext,
 				structure,
 				streamBuffers,
+				fields,
 			});
 		},
 		skipTo: null,
