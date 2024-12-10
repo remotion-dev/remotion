@@ -71,6 +71,6 @@ export const handleAvcPacket = async ({
 		trackId: programId,
 		type: getKeyFrameOrDeltaFromAvcInfo(avc),
 	};
-	// TODO: Hardcoded to video
+
 	await options.parserState.onVideoSample(programId, sample);
 };

@@ -1,5 +1,6 @@
 import type {TransportStreamStructure} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
+import {handleAacPacket} from './handle-aac-packet';
 import {handleAvcPacket} from './handle-avc-packet';
 import type {PacketPes} from './parse-pes';
 import {getStreamForId} from './traversal';
@@ -27,8 +28,13 @@ export const processStreamBuffer = async ({
 		throw new Error('No stream found');
 	}
 
+	// 27 = AVC / H.264 Video
 	if (stream.streamType === 27) {
 		await handleAvcPacket({programId, streamBuffer, options});
+	}
+	// 15 = AAC / ADTS
+	else if (stream.streamType === 15) {
+		await handleAacPacket({streamBuffer, options, programId});
 	}
 };
 
