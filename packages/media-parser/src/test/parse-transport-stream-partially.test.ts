@@ -30,6 +30,8 @@ test('Should be able to parse only tracks of Transport Stream', async () => {
 			name: true,
 			internalStats: true,
 			tracks: true,
+			durationInSeconds: true,
+			fps: true,
 		},
 		reader: nodeReader,
 	});
