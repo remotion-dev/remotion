@@ -67,11 +67,7 @@ test('Transport stream', async () => {
 				displayAspectHeight: 720,
 				trakBox: null,
 				codecWithoutConfig: 'h264',
-				description: new Uint8Array([
-					1, 32, 0, 100, 255, 225, 0, 27, 100, 0, 32, 172, 217, 0, 180, 22, 236,
-					5, 168, 72, 144, 74, 0, 0, 3, 0, 2, 168, 58, 104, 0, 30, 48, 99, 44,
-					1, 0, 5, 104, 234, 236, 178, 44,
-				]),
+				description: undefined,
 				sampleAspectRatio: {
 					denominator: 1,
 					numerator: 1,
@@ -83,7 +79,16 @@ test('Transport stream', async () => {
 					fullRange: false,
 				},
 			});
-			return () => {
+			return (sample) => {
+				if (videoSamples === 0) {
+					expect(sample.data.byteLength).toBe(23813);
+				}
+
+				expect(sample.data[0]).toBe(0);
+				expect(sample.data[1]).toBe(0);
+				expect(sample.data[2]).toBe(1);
+				expect(sample.data[3]).toBe(0x9);
+
 				videoSamples++;
 			};
 		},
