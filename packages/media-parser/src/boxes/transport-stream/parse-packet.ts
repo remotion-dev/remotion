@@ -1,16 +1,28 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import type {TransportStreamStructure} from '../../parse-result';
+import type {ParserContext} from '../../parser-context';
 import type {TransportStreamBox} from './boxes';
 import {parsePat} from './parse-pat';
 import {parsePes} from './parse-pes';
 import {parsePmt} from './parse-pmt';
 import {doesPesPacketFollow, parseStream} from './parse-stream-packet';
+import {
+	processStreamBuffer,
+	type StreamBufferMap,
+} from './process-stream-buffers';
 import {getProgramForId, getStreamForId} from './traversal';
 
-export const parsePacket = (
-	iterator: BufferIterator,
-	structure: TransportStreamStructure,
-): Promise<TransportStreamBox> => {
+export const parsePacket = async ({
+	iterator,
+	structure,
+	streamBuffers,
+	parserContext,
+}: {
+	iterator: BufferIterator;
+	structure: TransportStreamStructure;
+	streamBuffers: StreamBufferMap;
+	parserContext: ParserContext;
+}): Promise<TransportStreamBox | null> => {
 	const syncByte = iterator.getUint8();
 	if (syncByte !== 0x47) {
 		throw new Error('Invalid sync byte');
@@ -20,7 +32,7 @@ export const parsePacket = (
 	iterator.getBits(1); // transport error indicator
 	const payloadUnitStartIndicator = iterator.getBits(1);
 	iterator.getBits(1); // transport priority
-	const packetIdentifier = iterator.getBits(13);
+	const programId = iterator.getBits(13);
 	iterator.getBits(2); // transport scrambling control
 	const adaptationFieldControl1 = iterator.getBits(1); // adaptation field control 1
 	iterator.getBits(1); // adaptation field control 2
@@ -46,24 +58,40 @@ export const parsePacket = (
 
 	const isPes = doesPesPacketFollow(iterator);
 	if (isPes && payloadUnitStartIndicator === 1) {
-		parsePes(iterator);
+		const previousStreamBuffer = streamBuffers.get(programId);
+		if (previousStreamBuffer) {
+			await processStreamBuffer({
+				options: parserContext,
+				streamBuffer: previousStreamBuffer,
+				programId,
+				structure,
+			});
+		}
+
+		const packetPes = parsePes(iterator);
+		streamBuffers.set(programId, {
+			pesHeader: packetPes,
+			buffer: Buffer.from([]),
+		});
 	} else if (payloadUnitStartIndicator === 1) {
 		iterator.getUint8(); // pointerField
 	}
 
-	if (packetIdentifier === 0) {
+	if (programId === 0) {
 		return Promise.resolve(parsePat(iterator));
 	}
 
-	const program = getProgramForId(structure, packetIdentifier);
+	const program = getProgramForId(structure, programId);
 	if (program) {
 		const pmt = parsePmt(iterator);
 		return Promise.resolve(pmt);
 	}
 
-	const stream = getStreamForId(structure, packetIdentifier);
+	const stream = getStreamForId(structure, programId);
 	if (stream) {
-		return Promise.resolve(parseStream(iterator));
+		return Promise.resolve(
+			parseStream({iterator, transportStreamEntry: stream, streamBuffers}),
+		);
 	}
 
 	throw new Error('Unknown packet identifier');

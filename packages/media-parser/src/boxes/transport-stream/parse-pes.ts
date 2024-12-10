@@ -3,7 +3,7 @@ import type {BufferIterator} from '../../buffer-iterator';
 export type PacketPes = {
 	streamId: number;
 	dts: number | null;
-	pts: number | null;
+	pts: number;
 	priority: number;
 };
 
@@ -47,26 +47,28 @@ export const parsePes = (iterator: BufferIterator) => {
 	const pesHeaderLength = iterator.getBits(8);
 	const offset = iterator.counter.getOffset();
 	let pts: number | null = null;
-	if (ptsPresent) {
-		const fourBits = iterator.getBits(4);
-		if (fourBits !== 0b0011 && fourBits !== 0b0010) {
-			throw new Error(`Invalid PTS marker bits: ${fourBits}`);
-		}
-
-		const pts1 = iterator.getBits(3);
-		iterator.getBits(1); // marker bit
-		const pts2 = iterator.getBits(15);
-		iterator.getBits(1); // marker bit
-		const pts3 = iterator.getBits(15);
-		iterator.getBits(1); // marker bit
-		pts = (pts1 << 30) | (pts2 << 15) | pts3;
+	if (!ptsPresent) {
+		throw new Error(`PTS is required`);
 	}
+
+	const fourBits = iterator.getBits(4);
+	if (fourBits !== 0b0011 && fourBits !== 0b0010) {
+		throw new Error(`Invalid PTS marker bits: ${fourBits}`);
+	}
+
+	const pts1 = iterator.getBits(3);
+	iterator.getBits(1); // marker bit
+	const pts2 = iterator.getBits(15);
+	iterator.getBits(1); // marker bit
+	const pts3 = iterator.getBits(15);
+	iterator.getBits(1); // marker bit
+	pts = (pts1 << 30) | (pts2 << 15) | pts3;
 
 	let dts: number | null = null;
 	if (dtsPresent) {
-		const fourBits = iterator.getBits(4);
-		if (fourBits !== 0b0001) {
-			throw new Error(`Invalid DTS marker bits: ${fourBits}`);
+		const _fourBits = iterator.getBits(4);
+		if (_fourBits !== 0b0001) {
+			throw new Error(`Invalid DTS marker bits: ${_fourBits}`);
 		}
 
 		const dts1 = iterator.getBits(3);

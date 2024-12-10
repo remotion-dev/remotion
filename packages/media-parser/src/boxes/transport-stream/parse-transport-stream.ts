@@ -2,19 +2,32 @@ import type {BufferIterator} from '../../buffer-iterator';
 import type {ParseResult, TransportStreamStructure} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
 import {parsePacket} from './parse-packet';
+import {
+	processStreamBuffers,
+	type StreamBufferMap,
+} from './process-stream-buffers';
 
 export const parseTransportStream = async ({
 	iterator,
-	parsercontext,
+	parserContext,
 	structure,
+	streamBuffers,
 }: {
 	iterator: BufferIterator;
-	parsercontext: ParserContext;
+	parserContext: ParserContext;
 	structure: TransportStreamStructure;
+	streamBuffers: StreamBufferMap;
 }): Promise<ParseResult<TransportStreamStructure>> => {
 	if (iterator.bytesRemaining() === 0) {
+		await processStreamBuffers({
+			streamBufferMap: streamBuffers,
+			parserContext,
+			structure,
+		});
+
 		// TODO: Not right
-		parsercontext.parserState.tracks.setIsDone();
+		parserContext.parserState.tracks.setIsDone();
+
 		return Promise.resolve({
 			status: 'done',
 			segments: structure,
@@ -27,20 +40,37 @@ export const parseTransportStream = async ({
 			segments: structure,
 			skipTo: null,
 			continueParsing: () => {
-				return parseTransportStream({iterator, parsercontext, structure});
+				return parseTransportStream({
+					iterator,
+					parserContext,
+					structure,
+					streamBuffers,
+				});
 			},
 		});
 	}
 
-	const packet = await parsePacket(iterator, structure);
+	const packet = await parsePacket({
+		iterator,
+		structure,
+		streamBuffers,
+		parserContext,
+	});
 
-	structure.boxes.push(packet);
+	if (packet) {
+		structure.boxes.push(packet);
+	}
 
 	return Promise.resolve({
 		segments: structure,
 		status: 'incomplete',
 		continueParsing() {
-			return parseTransportStream({iterator, parsercontext, structure});
+			return parseTransportStream({
+				iterator,
+				parserContext,
+				structure,
+				streamBuffers,
+			});
 		},
 		skipTo: null,
 	});

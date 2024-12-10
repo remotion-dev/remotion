@@ -71,11 +71,12 @@ export const parseVideo = ({
 	if (iterator.isTransportStream()) {
 		return parseTransportStream({
 			iterator,
-			parsercontext: options,
+			parserContext: options,
 			structure: {
 				type: 'transport-stream',
 				boxes: [],
 			},
+			streamBuffers: new Map(),
 		});
 	}
 

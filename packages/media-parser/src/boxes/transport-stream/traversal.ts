@@ -17,7 +17,9 @@ const findProgramAssociationTableOrThrow = (
 	return box as TransportStreamPATBox;
 };
 
-const findProgramMapTableOrThrow = (structure: TransportStreamStructure) => {
+export const findProgramMapTableOrThrow = (
+	structure: TransportStreamStructure,
+) => {
 	const box = structure.boxes.find(
 		(b) => b.type === 'transport-stream-pmt-box',
 	);

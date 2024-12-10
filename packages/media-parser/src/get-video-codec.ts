@@ -1,3 +1,8 @@
+import {
+	getMatrixCoefficientsFromIndex,
+	getPrimariesFromIndex,
+	getTransferCharacteristicsFromIndex,
+} from './boxes/avc/color';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import {
 	getMoovBox,
@@ -226,36 +231,11 @@ export const getIsoBmColrConfig = (
 	// https://github.com/bbc/qtff-parameter-editor
 	return {
 		fullRange: colrAtom.fullRangeFlag,
-		matrixCoefficients:
-			colrAtom.matrixIndex === 1
-				? 'bt709'
-				: colrAtom.matrixIndex === 5
-					? 'bt470bg'
-					: colrAtom.matrixIndex === 6
-						? 'smpte170m'
-						: colrAtom.matrixIndex === 9
-							? 'bt2020'
-							: null,
-		primaries:
-			colrAtom.primaries === 1
-				? 'bt709'
-				: colrAtom.primaries === 5
-					? 'bt470bg'
-					: colrAtom.primaries === 6
-						? 'smpte170m'
-						: colrAtom.primaries === 9
-							? 'bt2020'
-							: null,
-		transferCharacteristics:
-			colrAtom.transfer === 1
-				? 'bt709'
-				: colrAtom.transfer === 6
-					? 'smpte170m'
-					: colrAtom.transfer === 13
-						? 'iec61966-2-1'
-						: colrAtom.transfer === 18
-							? 'arib-std-b67'
-							: null,
+		matrixCoefficients: getMatrixCoefficientsFromIndex(colrAtom.matrixIndex),
+		primaries: getPrimariesFromIndex(colrAtom.primaries),
+		transferCharacteristics: getTransferCharacteristicsFromIndex(
+			colrAtom.transfer,
+		),
 	};
 };
 

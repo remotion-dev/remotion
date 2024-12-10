@@ -7,7 +7,7 @@ export type TransportStreamEntry = {
 	pid: number;
 };
 
-export type TransportStreamProgramMapTableEntry = {
+export type TransportStreamProgramMapTable = {
 	type: 'transport-stream-program-map-table';
 	streams: TransportStreamEntry[];
 };
@@ -29,7 +29,7 @@ const parsePmtTable = ({
 	const sectionNumber = iterator.getBits(8);
 	const lastSectionNumber = iterator.getBits(8);
 
-	const tables: TransportStreamProgramMapTableEntry[] = [];
+	const tables: TransportStreamProgramMapTable[] = [];
 
 	for (let i = sectionNumber; i <= lastSectionNumber; i++) {
 		iterator.getBits(3); // reserved
