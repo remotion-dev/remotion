@@ -18,5 +18,9 @@ export const getMetadata = (structure: Structure): MetadataEntry[] => {
 		return getMetadataFromRiff(structure);
 	}
 
+	if (structure.type === 'transport-stream') {
+		return [];
+	}
+
 	return getMetadataFromIsoBase(structure);
 };

@@ -105,5 +105,9 @@ export const renderHumanReadableContainer = (
 		return 'AVI';
 	}
 
+	if (container === 'transport-stream') {
+		return 'Transport Stream';
+	}
+
 	throw new Error(`Unknown container ${container satisfies never}`);
 };

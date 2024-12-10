@@ -1,0 +1,30 @@
+import type {BufferIterator} from '../../buffer-iterator';
+import {combineUint8Arrays} from '../webm/make-header';
+import {getRestOfPacket} from './discard-rest-of-packet';
+import type {TransportStreamEntry} from './parse-pmt';
+import type {StreamBufferMap} from './process-stream-buffers';
+
+export const doesPesPacketFollow = (iterator: BufferIterator) => {
+	const assertion = iterator.getUint24() === 0x000001;
+	iterator.counter.decrement(3);
+	return assertion;
+};
+
+export const parseStream = ({
+	iterator,
+	transportStreamEntry,
+	streamBuffers,
+}: {
+	iterator: BufferIterator;
+	transportStreamEntry: TransportStreamEntry;
+	streamBuffers: StreamBufferMap;
+}): void => {
+	const streamBuffer = streamBuffers.get(transportStreamEntry.pid);
+	if (!streamBuffer) {
+		throw new Error('No header found for ' + transportStreamEntry.pid);
+	}
+
+	const restOfPacket = getRestOfPacket(iterator);
+
+	streamBuffer.buffer = combineUint8Arrays([streamBuffer.buffer, restOfPacket]);
+};

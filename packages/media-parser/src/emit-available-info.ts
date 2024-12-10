@@ -134,7 +134,7 @@ export const emitAvailableInfo = ({
 				hasInfo.videoCodec &&
 				parseResult
 			) {
-				const videoCodec = getVideoCodec(parseResult.segments);
+				const videoCodec = getVideoCodec(parseResult.segments, state);
 				moreFields.onVideoCodec?.(videoCodec);
 				returnValue.videoCodec = videoCodec;
 			}

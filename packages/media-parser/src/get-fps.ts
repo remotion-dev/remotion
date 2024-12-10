@@ -141,8 +141,12 @@ export const getFps = (segments: Structure) => {
 		return getFpsFromAvi(segments);
 	}
 
-	// TODO: Matroska doesn't have Matroska
+	// TODO: Matroska doesn't have fps
 	if (segments.type === 'matroska') {
+		return null;
+	}
+
+	if (segments.type === 'transport-stream') {
 		return null;
 	}
 
@@ -151,10 +155,14 @@ export const getFps = (segments: Structure) => {
 
 export const hasFps = (boxes: Structure): boolean => {
 	try {
-		// Matroska has no FPS metadata
+		// Matroska and Transport stream has no FPS metadata
 		// Not bothering to parse
 		// Idea: `guaranteedFps` field
 		if (boxes.type === 'matroska') {
+			return true;
+		}
+
+		if (boxes.type === 'transport-stream') {
 			return true;
 		}
 

@@ -1,6 +1,7 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import type {RiffStructure} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
+import {getKeyFrameOrDeltaFromAvcInfo} from '../avc/key';
 import {parseAvc} from '../avc/parse-avc';
 import type {RiffResult} from './expect-riff-box';
 import type {StrhBox} from './riff-box';
@@ -53,12 +54,7 @@ export const handleChunk = async ({
 
 		const data = iterator.getSlice(ckSize);
 		const infos = parseAvc(data);
-		const keyOrDelta = infos.find(
-			(i) => i.type === 'keyframe' || i.type === 'delta-frame',
-		);
-		if (!keyOrDelta) {
-			throw new Error('expected avc to contain info about key or delta');
-		}
+		const keyOrDelta = getKeyFrameOrDeltaFromAvcInfo(infos);
 
 		const avcProfile = infos.find((i) => i.type === 'avc-profile');
 		const ppsProfile = infos.find((i) => i.type === 'avc-pps');
@@ -74,7 +70,7 @@ export const handleChunk = async ({
 			duration,
 			timestamp,
 			trackId,
-			type: keyOrDelta.type === 'keyframe' ? 'key' : 'delta',
+			type: keyOrDelta,
 		});
 		return;
 	}

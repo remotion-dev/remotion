@@ -3,16 +3,23 @@ import {ConvertMediaContainer} from '@remotion/webcodecs';
 import {Source} from '~/lib/convert-state';
 import {RouteAction} from '~/seo';
 
-const guessFromExtension = (src: string) => {
+const guessFromExtension = (src: string): ParseMediaContainer => {
 	if (src.endsWith('.webm')) {
 		return 'webm';
 	}
+
 	if (src.endsWith('.mkv')) {
 		return 'webm';
 	}
+
 	if (src.endsWith('.avi')) {
 		return 'avi';
 	}
+
+	if (src.endsWith('.ts')) {
+		return 'transport-stream';
+	}
+
 	return 'mp4';
 };
 
@@ -73,6 +80,10 @@ export const getDefaultContainerForConversion = (
 
 	if (guessed === 'webm') {
 		return keepSame ? 'webm' : 'mp4';
+	}
+
+	if (guessed === 'transport-stream') {
+		return 'mp4';
 	}
 
 	throw new Error('Unhandled container ' + (guessed satisfies never));

@@ -1,8 +1,10 @@
+import type {Track} from '../get-tracks';
 import type {CanSkipTracksState} from './can-skip-tracks';
 
 export const makeTracksSectionState = (
 	canSkipTracksState: CanSkipTracksState,
 ) => {
+	const tracks: Track[] = [];
 	let doneWithTracks = false;
 
 	return {
@@ -10,6 +12,10 @@ export const makeTracksSectionState = (
 		setIsDone: () => {
 			doneWithTracks = true;
 		},
+		addTrack: (track: Track) => {
+			tracks.push(track);
+		},
+		getTracks: () => tracks,
 		ensureHasTracksAtEnd: () => {
 			if (canSkipTracksState.canSkipTracks()) {
 				return;
