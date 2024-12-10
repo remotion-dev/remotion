@@ -167,6 +167,23 @@ export const offsetTimestamps = (): TestStructure => {
 	});
 };
 
+export const transportStream = (): TestStructure => {
+	const src =
+		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/transportstream.ts';
+
+	return addTestWatcher({
+		name: 'Convert a .ts file to .webm',
+		src,
+		async execute(onUpdate) {
+			await convertMedia({
+				src,
+				container: 'webm',
+				onProgress: makeProgressReporter(onUpdate),
+			});
+		},
+	});
+};
+
 export const testList: TestStructure[] = [
 	basicMp4ToWebM(),
 	av1WebmToMp4(),
@@ -177,4 +194,5 @@ export const testList: TestStructure[] = [
 	lpcmLivePhoto(),
 	vpxEncodingError(),
 	offsetTimestamps(),
+	transportStream(),
 ];

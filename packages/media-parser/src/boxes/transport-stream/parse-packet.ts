@@ -71,7 +71,7 @@ export const parsePacket = async ({
 		const packetPes = parsePes(iterator);
 		streamBuffers.set(programId, {
 			pesHeader: packetPes,
-			buffer: Buffer.from([]),
+			buffer: new Uint8Array([]),
 		});
 	} else if (payloadUnitStartIndicator === 1) {
 		iterator.getUint8(); // pointerField

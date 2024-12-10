@@ -1,5 +1,4 @@
 /* eslint-disable eqeqeq */
-/* eslint-disable no-negated-condition */
 /* eslint-disable no-eq-null */
 import type {ReaderInterface} from './reader';
 

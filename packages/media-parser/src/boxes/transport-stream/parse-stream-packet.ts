@@ -1,4 +1,5 @@
 import type {BufferIterator} from '../../buffer-iterator';
+import {combineUint8Arrays} from '../webm/make-header';
 import {getRestOfPacket} from './discard-rest-of-packet';
 import type {TransportStreamEntry} from './parse-pmt';
 import type {StreamBufferMap} from './process-stream-buffers';
@@ -25,5 +26,5 @@ export const parseStream = ({
 
 	const restOfPacket = getRestOfPacket(iterator);
 
-	streamBuffer.buffer = Buffer.concat([streamBuffer.buffer, restOfPacket]);
+	streamBuffer.buffer = combineUint8Arrays([streamBuffer.buffer, restOfPacket]);
 };

@@ -25,40 +25,40 @@ export const parseTransportStream = async ({
 			structure,
 		});
 
-		// TODO: Not right
-		parserContext.parserState.tracks.setIsDone();
-
 		return Promise.resolve({
 			status: 'done',
 			segments: structure,
 		});
 	}
 
-	if (iterator.bytesRemaining() < 188) {
-		return Promise.resolve({
-			status: 'incomplete',
-			segments: structure,
-			skipTo: null,
-			continueParsing: () => {
-				return parseTransportStream({
-					iterator,
-					parserContext,
-					structure,
-					streamBuffers,
-				});
-			},
+	while (true) {
+		if (iterator.bytesRemaining() < 188) {
+			return Promise.resolve({
+				status: 'incomplete',
+				segments: structure,
+				skipTo: null,
+				continueParsing: () => {
+					return parseTransportStream({
+						iterator,
+						parserContext,
+						structure,
+						streamBuffers,
+					});
+				},
+			});
+		}
+
+		const packet = await parsePacket({
+			iterator,
+			structure,
+			streamBuffers,
+			parserContext,
 		});
-	}
 
-	const packet = await parsePacket({
-		iterator,
-		structure,
-		streamBuffers,
-		parserContext,
-	});
-
-	if (packet) {
-		structure.boxes.push(packet);
+		if (packet) {
+			structure.boxes.push(packet);
+			break;
+		}
 	}
 
 	return Promise.resolve({

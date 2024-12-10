@@ -3,10 +3,10 @@ import type {ParserContext} from '../../parser-context';
 import {handleAacPacket} from './handle-aac-packet';
 import {handleAvcPacket} from './handle-avc-packet';
 import type {PacketPes} from './parse-pes';
-import {getStreamForId} from './traversal';
+import {findProgramMapTableOrThrow, getStreamForId} from './traversal';
 
 export type TransportStreamPacketBuffer = {
-	buffer: Buffer;
+	buffer: Uint8Array;
 	pesHeader: PacketPes;
 };
 
@@ -35,6 +35,14 @@ export const processStreamBuffer = async ({
 	// 15 = AAC / ADTS
 	else if (stream.streamType === 15) {
 		await handleAacPacket({streamBuffer, options, programId});
+	}
+
+	if (!options.parserState.tracks.hasAllTracks()) {
+		const tracksRegistered = options.parserState.tracks.getTracks().length;
+		const {streams} = findProgramMapTableOrThrow(structure);
+		if (streams.length === tracksRegistered) {
+			options.parserState.tracks.setIsDone();
+		}
 	}
 };
 
