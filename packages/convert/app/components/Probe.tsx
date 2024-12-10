@@ -23,6 +23,7 @@ export const Probe: React.FC<{
 	readonly userRotation: number;
 	readonly mirrorHorizontal: boolean;
 	readonly mirrorVertical: boolean;
+	readonly thumbnailError: Error | null;
 }> = ({
 	src,
 	probeDetails,
@@ -32,6 +33,7 @@ export const Probe: React.FC<{
 	userRotation,
 	mirrorHorizontal,
 	mirrorVertical,
+	thumbnailError,
 }) => {
 	const {
 		audioCodec,
@@ -80,7 +82,7 @@ export const Probe: React.FC<{
 	return (
 		<Card className="w-full lg:w-[350px] overflow-hidden">
 			<div className="flex flex-row lg:flex-col w-full border-b-2 border-black">
-				{error ? null : (
+				{error ? null : thumbnailError ? null : (
 					<VideoThumbnail
 						ref={videoThumbnailRef}
 						smallThumbOnMobile
