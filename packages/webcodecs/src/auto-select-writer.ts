@@ -29,7 +29,7 @@ export const autoSelectWriter = async (
       canUseWebFsWriter(),
       // Add a timeout to avoid hanging in PWA
       new Promise<boolean>((_, reject) => 
-        setTimeout(() => reject(new Error('WebFS check timeout')), 3000)
+        setTimeout(() => reject(new Error('WebFS check timeout')), 2000)
       )
     ]);
 
