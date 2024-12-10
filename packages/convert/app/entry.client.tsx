@@ -1,12 +1,12 @@
 import {RemixBrowser} from '@remix-run/react';
-import {startTransition} from 'react';
 import {hydrateRoot} from 'react-dom/client';
+import {startTransition} from 'react';
 
 const registerServiceWorker = () => {
 	if ('serviceWorker' in navigator) {
 		window.addEventListener('load', () => {
 			navigator.serviceWorker
-				.register('/service-worker.js')
+				.register('/convert/service-worker.js')
 				.then((registration) => {
 					console.log('SW registered:', registration);
 				})

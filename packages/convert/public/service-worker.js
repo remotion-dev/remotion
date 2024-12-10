@@ -4,8 +4,8 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll([
-        '/',
-        '/manifest.json',
+        '/convert',
+        '/convert/manifest.json',
         // Add other critical assets here
       ]);
     })
@@ -47,7 +47,7 @@ self.addEventListener('fetch', (event) => {
           }
           // If both network and cache fail, show offline page
           if (event.request.mode === 'navigate') {
-            return caches.match('/');
+            return caches.match('/convert');
           }
           return new Response('Network error happened', {
             status: 408,
