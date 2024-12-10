@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/docs"
 	},
 	"name": "docs",
-	"version": "4.0.236",
+	"version": "4.0.237",
 	"private": true,
 	"scripts": {
 		"formatting": "prettier src --check",
@@ -46,6 +46,7 @@
 		"@remotion/install-whisper-cpp": "workspace:*",
 		"@remotion/lambda": "workspace:*",
 		"@remotion/layout-utils": "workspace:*",
+		"@remotion/licensing": "workspace:*",
 		"@remotion/lottie": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/motion-blur": "workspace:*",

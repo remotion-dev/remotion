@@ -623,6 +623,9 @@ importers:
       '@remotion/layout-utils':
         specifier: workspace:*
         version: link:../layout-utils
+      '@remotion/licensing':
+        specifier: workspace:*
+        version: link:../licensing
       '@remotion/lottie':
         specifier: workspace:*
         version: link:../lottie
@@ -1411,6 +1414,25 @@ importers:
         version: link:../core
 
   packages/layout-utils:
+    devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 9.14.0
+        version: 9.14.0
+
+  packages/licensing:
+    dependencies:
+      '@remotion/renderer':
+        specifier: workspace:*
+        version: link:../renderer
+      '@remotion/streaming':
+        specifier: workspace:*
+        version: link:../streaming
+      remotion:
+        specifier: workspace:*
+        version: link:../core
     devDependencies:
       '@remotion/eslint-config-internal':
         specifier: workspace:*

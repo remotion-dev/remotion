@@ -4,6 +4,7 @@ import {TableOfContents as CaptionsTableOfContents} from '../../docs/captions/Ta
 import {TableOfContents as EnableScssTableOfContents} from '../../docs/enable-scss/TableOfContents';
 import {TableOfContents as FontsTableOfContents} from '../../docs/fonts-api/TableOfContents';
 import {TableOfContents as InstallWhisperCppTableOfContents} from '../../docs/install-whisper-cpp/install-whisper-cpp';
+import {TableOfContents as LicensingTableOfContents} from '../../docs/licensing/TableOfContents';
 import {TableOfContents as MediaParserTableOfContents} from '../../docs/media-parser/TableOfContents';
 import {TableOfContents as OpenAiWhisperTableOfContents} from '../../docs/openai-whisper/TableOfContents';
 import {PlayerTableOfContents} from '../../docs/player/TableOfContents';
@@ -150,6 +151,9 @@ export const TableOfContents: React.FC = () => {
 			<h2>@remotion/webcodecs</h2>
 			<p>Converting media using WebCodecs</p>
 			<WebcodecsTableOfContents />
+			<h2>@remotion/licensing</h2>
+			<p>Report and query company license usage</p>
+			<LicensingTableOfContents />
 		</div>
 	);
 };
