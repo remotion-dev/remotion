@@ -1,5 +1,6 @@
 {
   "name": "Remotion Convert",
+  "id": "com.remotion.convert",
   "short_name": "Remotion Convert",
   "description": "Convert videos using WebCodecs",
   "start_url": "/convert",
