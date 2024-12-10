@@ -136,8 +136,7 @@ export const getDuration = (
 	}
 
 	if (structure.type === 'transport-stream') {
-		// TODO: Hardcoded
-		return 10;
+		return null;
 	}
 
 	throw new Error('Has no duration ' + (structure satisfies never));

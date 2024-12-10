@@ -141,8 +141,12 @@ export const getFps = (segments: Structure) => {
 		return getFpsFromAvi(segments);
 	}
 
-	// TODO: Matroska doesn't have Matroska
+	// TODO: Matroska doesn't have fps
 	if (segments.type === 'matroska') {
+		return null;
+	}
+
+	if (segments.type === 'transport-stream') {
 		return null;
 	}
 

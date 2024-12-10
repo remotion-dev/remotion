@@ -44,12 +44,7 @@ export type TransportStreamPMTBox = {
 	streams: TransportStreamEntry[];
 };
 
-export type UnimplementedBox = {
-	type: 'transport-stream-unimplemented-box';
-};
-
 export type TransportStreamBox =
 	| TransportStreamGenericBox
 	| TransportStreamPATBox
-	| TransportStreamPMTBox
-	| UnimplementedBox;
+	| TransportStreamPMTBox;

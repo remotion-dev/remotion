@@ -1,5 +1,4 @@
 import type {BufferIterator} from '../../buffer-iterator';
-import type {UnimplementedBox} from './boxes';
 import {getRestOfPacket} from './discard-rest-of-packet';
 import type {TransportStreamEntry} from './parse-pmt';
 import type {StreamBufferMap} from './process-stream-buffers';
@@ -18,7 +17,7 @@ export const parseStream = ({
 	iterator: BufferIterator;
 	transportStreamEntry: TransportStreamEntry;
 	streamBuffers: StreamBufferMap;
-}): UnimplementedBox => {
+}): void => {
 	const streamBuffer = streamBuffers.get(transportStreamEntry.pid);
 	if (!streamBuffer) {
 		throw new Error('No header found for ' + transportStreamEntry.pid);
@@ -27,6 +26,4 @@ export const parseStream = ({
 	const restOfPacket = getRestOfPacket(iterator);
 
 	streamBuffer.buffer = Buffer.concat([streamBuffer.buffer, restOfPacket]);
-
-	return {type: 'transport-stream-unimplemented-box'};
 };

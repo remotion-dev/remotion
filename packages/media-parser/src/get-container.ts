@@ -13,6 +13,10 @@ export const getContainer = (
 		return 'webm';
 	}
 
+	if (segments.type === 'transport-stream') {
+		return 'transport-stream';
+	}
+
 	if (segments.type === 'riff') {
 		if (isRiffAvi(segments)) {
 			return 'avi';

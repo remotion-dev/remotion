@@ -6,9 +6,11 @@ import {
 import {getArrayBufferIterator} from '../../buffer-iterator';
 import type {Track} from '../../get-tracks';
 import type {ParserContext} from '../../parser-context';
+import {registerTrack} from '../../register-track';
+import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 import type {TransportStreamPacketBuffer} from './process-stream-buffers';
 
-export const handleAacPacket = ({
+export const handleAacPacket = async ({
 	streamBuffer,
 	options,
 	programId,
@@ -46,7 +48,7 @@ export const handleAacPacket = ({
 	const sampleRate = getSampleRateFromSampleFrequencyIndex(
 		samplingFrequencyIndex,
 	);
-	const privateBit = iterator.getBits(1);
+	iterator.getBits(1); // private bit
 	const channelConfiguration = iterator.getBits(3);
 	const codecPrivate = createAacCodecPrivate({
 		audioObjectType,
@@ -57,9 +59,9 @@ export const handleAacPacket = ({
 	iterator.getBits(1); // home
 	iterator.getBits(1); // copyright bit
 	iterator.getBits(1); // copy start
-	const frameLength = iterator.getBits(13);
-	const adtsBufferFullness = iterator.getBits(11);
-	const numberOfAacFrames = iterator.getBits(2) + 1;
+	iterator.getBits(13); // frame length
+	iterator.getBits(11); // buffer fullness
+	iterator.getBits(2); // number of AAC frames minus 1
 
 	if (!protectionAbsent) {
 		iterator.getBits(16); // crc
@@ -72,31 +74,32 @@ export const handleAacPacket = ({
 		return t.trackId === programId;
 	});
 
-	const track: Track = {
-		type: 'audio',
-		codecPrivate,
+	if (!isTrackRegistered) {
+		const track: Track = {
+			type: 'audio',
+			codecPrivate,
+			trackId: programId,
+			trakBox: null,
+			timescale: sampleRate,
+			codecWithoutConfig: 'aac',
+			codec: mapAudioObjectTypeToCodecString(audioObjectType),
+			// https://www.w3.org/TR/webcodecs-aac-codec-registration/
+			description: undefined,
+			numberOfChannels: channelConfiguration,
+			sampleRate,
+		};
+		await registerTrack({track, options});
+	}
+
+	const sample: AudioOrVideoSample = {
+		cts: streamBuffer.pesHeader.pts,
+		dts: streamBuffer.pesHeader.dts ?? streamBuffer.pesHeader.pts,
+		timestamp: streamBuffer.pesHeader.pts,
+		duration: undefined,
+		data: new Uint8Array(streamBuffer.buffer),
 		trackId: programId,
-		trakBox: null,
-		timescale: sampleRate,
-		codecWithoutConfig: 'aac',
-		codec: mapAudioObjectTypeToCodecString(audioObjectType),
-		description: codecPrivate,
-		numberOfChannels: channelConfiguration,
-		sampleRate,
+		type: 'key',
 	};
 
-	console.log({
-		audioObjectType,
-		samplingFrequencyIndex,
-		sampleRate,
-		privateBit,
-		channelConfiguration,
-		codecPrivate,
-		frameLength,
-		adtsBufferFullness,
-		numberOfAacFrames,
-		length: streamBuffer.buffer.byteLength,
-		isTrackRegistered,
-		track,
-	});
+	await options.parserState.onAudioSample(programId, sample);
 };

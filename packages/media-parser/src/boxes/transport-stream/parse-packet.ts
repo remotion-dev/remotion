@@ -89,9 +89,8 @@ export const parsePacket = async ({
 
 	const stream = getStreamForId(structure, programId);
 	if (stream) {
-		return Promise.resolve(
-			parseStream({iterator, transportStreamEntry: stream, streamBuffers}),
-		);
+		parseStream({iterator, transportStreamEntry: stream, streamBuffers});
+		return Promise.resolve(null);
 	}
 
 	throw new Error('Unknown packet identifier');

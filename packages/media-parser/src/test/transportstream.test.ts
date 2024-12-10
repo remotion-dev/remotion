@@ -4,13 +4,48 @@ import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
 test('Transport stream', async () => {
-	const {structure} = await parseMedia({
+	let audioSamples = 0;
+	let videoSamples = 0;
+
+	const {
+		structure,
+		durationInSeconds,
+		dimensions,
+		container,
+		audioCodec,
+		fps,
+		isHdr,
+		videoCodec,
+	} = await parseMedia({
 		src: exampleVideos.transportstream,
 		fields: {
 			durationInSeconds: true,
 			structure: true,
+			dimensions: true,
+			container: true,
+			audioCodec: true,
+			fps: true,
+			videoCodec: true,
+			isHdr: true,
 		},
 		reader: nodeReader,
+		onAudioTrack: (track) => {
+			expect(track).toEqual({
+				type: 'audio',
+				codecPrivate: new Uint8Array([9, 144]),
+				trackId: 257,
+				trakBox: null,
+				timescale: 48000,
+				codecWithoutConfig: 'aac',
+				codec: 'mp4a.40.2',
+				description: undefined,
+				numberOfChannels: 2,
+				sampleRate: 48000,
+			});
+			return () => {
+				audioSamples++;
+			};
+		},
 		onVideoTrack: (track) => {
 			expect(track).toEqual({
 				rotation: 0,
@@ -48,9 +83,23 @@ test('Transport stream', async () => {
 					fullRange: false,
 				},
 			});
-			return null;
+			return () => {
+				videoSamples++;
+			};
 		},
 	});
+	expect(container).toBe('transport-stream');
+	expect(durationInSeconds).toBe(null);
+	expect(dimensions).toEqual({
+		height: 720,
+		width: 720,
+	});
+	expect(audioSamples).toBe(24);
+	expect(audioCodec).toBe('aac');
+	expect(fps).toBe(null);
+	expect(isHdr).toBe(true);
+	expect(videoCodec).toBe('h264');
+	expect(videoSamples).toBe(298);
 	expect(structure.boxes[0]).toEqual({
 		type: 'transport-stream-pat-box',
 		tableId: '0',
@@ -76,6 +125,4 @@ test('Transport stream', async () => {
 			},
 		],
 	});
-	const fs = await import('fs');
-	fs.writeFileSync('transportstream.json', JSON.stringify(structure, null, 2));
 });

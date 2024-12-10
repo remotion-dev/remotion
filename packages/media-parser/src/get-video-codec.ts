@@ -4,15 +4,7 @@ import {
 	getTransferCharacteristicsFromIndex,
 } from './boxes/avc/color';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
-import {
-	getMoovBox,
-	getStsdBox,
-	getTraks,
-} from './boxes/iso-base-media/traversal';
-import {getStrhBox, getStrlBoxes} from './boxes/riff/traversal';
 import {parseAv1PrivateData} from './boxes/webm/av1-codec-private';
-import type {MatroskaSegment} from './boxes/webm/segments';
-import {trakBoxContainsVideo} from './get-fps';
 import {
 	getAv1CBox,
 	getAvccBox,
@@ -21,161 +13,20 @@ import {
 	getStsdVideoConfig,
 } from './get-sample-aspect-ratio';
 import {
+	getTracks,
 	hasTracks,
 	type MediaParserVideoCodec,
 	type VideoTrackColorParams,
 } from './get-tracks';
-import type {RiffStructure, Structure} from './parse-result';
+import type {Structure} from './parse-result';
 import type {ParserState} from './state/parser-state';
-
-export const getVideoCodecFromIsoTrak = (trakBox: TrakBox) => {
-	const stsdBox = getStsdBox(trakBox);
-	if (stsdBox && stsdBox.type === 'stsd-box') {
-		const videoSample = stsdBox.samples.find((s) => s.type === 'video');
-		if (videoSample && videoSample.type === 'video') {
-			if (videoSample.format === 'hvc1') {
-				return 'h265';
-			}
-
-			if (videoSample.format === 'avc1') {
-				return 'h264';
-			}
-
-			if (videoSample.format === 'av01') {
-				return 'av1';
-			}
-
-			// ap4h: ProRes 4444
-			if (videoSample.format === 'ap4h') {
-				return 'prores';
-			}
-
-			// ap4x: ap4x: ProRes 4444 XQ
-			if (videoSample.format === 'ap4x') {
-				return 'prores';
-			}
-
-			// apch: ProRes 422 High Quality
-			if (videoSample.format === 'apch') {
-				return 'prores';
-			}
-
-			// apcn: ProRes 422 Standard Definition
-			if (videoSample.format === 'apcn') {
-				return 'prores';
-			}
-
-			// apcs: ProRes 422 LT
-			if (videoSample.format === 'apcs') {
-				return 'prores';
-			}
-
-			// apco: ProRes 422 Proxy
-			if (videoSample.format === 'apco') {
-				return 'prores';
-			}
-
-			// aprh: ProRes RAW High Quality
-			if (videoSample.format === 'aprh') {
-				return 'prores';
-			}
-
-			// aprn: ProRes RAW Standard Definition
-			if (videoSample.format === 'aprn') {
-				return 'prores';
-			}
-		}
-	}
-
-	throw new Error('Could not find video codec');
-};
-
-const getVideoCodecFromMatroska = (boxes: MatroskaSegment[]) => {
-	const mainSegment = boxes.find((b) => b.type === 'Segment');
-	if (!mainSegment || mainSegment.type !== 'Segment') {
-		return null;
-	}
-
-	const tracksSegment = mainSegment.value.find((b) => b.type === 'Tracks');
-	if (!tracksSegment || tracksSegment.type !== 'Tracks') {
-		return null;
-	}
-
-	for (const track of tracksSegment.value) {
-		if (track.type === 'TrackEntry') {
-			const trackType = track.value.find((b) => b.type === 'CodecID');
-			if (trackType && trackType.type === 'CodecID') {
-				if (trackType.value === 'V_VP8') {
-					return 'vp8';
-				}
-
-				if (trackType.value === 'V_VP9') {
-					return 'vp9';
-				}
-
-				if (trackType.value === 'V_AV1') {
-					return 'av1';
-				}
-
-				if (trackType.value === 'V_MPEG4/ISO/AVC') {
-					return 'h264';
-				}
-
-				if (trackType.value === 'V_MPEGH/ISO/HEVC') {
-					return 'h265';
-				}
-			}
-		}
-	}
-
-	throw new Error('Could not find video codec');
-};
-
-const getVideoCodecFromAvi = (structure: RiffStructure): 'h264' => {
-	const strl = getStrlBoxes(structure);
-
-	for (const s of strl) {
-		const strh = getStrhBox(s.children);
-		if (!strh) {
-			throw new Error('No strh box');
-		}
-
-		if (strh.fccType === 'auds') {
-			continue;
-		}
-
-		if (strh.handler === 'H264') {
-			return 'h264';
-		}
-	}
-
-	throw new Error('Unsupported codec');
-};
 
 export const getVideoCodec = (
 	boxes: Structure,
+	state: ParserState,
 ): MediaParserVideoCodec | null => {
-	if (boxes.type === 'iso-base-media') {
-		const moovBox = getMoovBox(boxes.boxes);
-		if (moovBox) {
-			const trakBox = getTraks(moovBox).filter((t) =>
-				trakBoxContainsVideo(t),
-			)[0];
-			if (trakBox) {
-				return getVideoCodecFromIsoTrak(trakBox);
-			}
-		}
-	}
-
-	if (boxes.type === 'riff') {
-		return getVideoCodecFromAvi(boxes);
-	}
-
-	if (boxes.type === 'matroska') {
-		return getVideoCodecFromMatroska(boxes.boxes);
-	}
-
-	return null;
+	const track = getTracks(boxes, state);
+	return track.videoTracks[0]?.codecWithoutConfig ?? null;
 };
 
 export const hasVideoCodec = (

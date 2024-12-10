@@ -21,11 +21,11 @@ import {
 import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
 import {
 	getIsoBmColrConfig,
-	getVideoCodecFromIsoTrak,
 	getVideoCodecString,
 	getVideoPrivateData,
 } from '../../get-video-codec';
 import {getActualDecoderParameters} from './get-actual-number-of-channels';
+import {getVideoCodecFromIsoTrak} from './get-video-codec-from-iso-track';
 import type {TrakBox} from './trak/trak';
 import {getTkhdBox, getVideoDescriptors} from './traversal';
 
