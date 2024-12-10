@@ -1,5 +1,6 @@
-import {Links, Outlet, Scripts, ScrollRestoration} from '@remix-run/react';
 import './tailwind.css';
+
+import {Links, Outlet, Scripts, ScrollRestoration} from '@remix-run/react';
 
 export function Layout({children}: {readonly children: React.ReactNode}) {
 	return (
@@ -10,6 +11,7 @@ export function Layout({children}: {readonly children: React.ReactNode}) {
 				<title>Remotion Convert</title>
 				<meta name="description" content="Remotion Convert" />
 				<link rel="icon" href="https://www.remotion.dev/img/favicon.png" />
+				<link rel="manifest" href="/manifest.json" />
 				<Links />
 			</head>
 			<body>
