@@ -1,13 +1,10 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import type {TransportStreamStructure} from '../../parse-result';
-import type {
-	TransportStreamAdaptationField,
-	TransportStreamBox,
-	TransportStreamHeader,
-} from './boxes';
-import {discardRestOfPacket} from './discard-rest-of-packet';
+import type {TransportStreamBox} from './boxes';
 import {parsePat} from './parse-pat';
+import {parsePes} from './parse-pes';
 import {parsePmt} from './parse-pmt';
+import {doesPesPacketFollow, parseStream} from './parse-stream-packet';
 import {getProgramForId, getStreamForId} from './traversal';
 
 export const parsePacket = (
@@ -20,64 +17,39 @@ export const parsePacket = (
 	}
 
 	iterator.startReadingBits();
-	const transportErrorIndicator = iterator.getBits(1);
+	iterator.getBits(1); // transport error indicator
 	const payloadUnitStartIndicator = iterator.getBits(1);
-	const transportPriority = iterator.getBits(1);
+	iterator.getBits(1); // transport priority
 	const packetIdentifier = iterator.getBits(13);
-	const transportScramblingControl = iterator.getBits(2);
-	const adaptationFieldControl1 = iterator.getBits(1);
-	const adaptationFieldControl2 = iterator.getBits(1);
-	const continuityCounter = iterator.getBits(4);
+	iterator.getBits(2); // transport scrambling control
+	const adaptationFieldControl1 = iterator.getBits(1); // adaptation field control 1
+	iterator.getBits(1); // adaptation field control 2
+	iterator.getBits(4); // continuity counter
 	iterator.stopReadingBits();
-	let adaptationField: TransportStreamAdaptationField | null = null;
 	if (adaptationFieldControl1 === 1) {
 		iterator.startReadingBits();
 		const adaptationFieldLength = iterator.getBits(8);
 		const offset = iterator.counter.getOffset();
-		const discontinuityIndicator = iterator.getBits(1);
-		const randomAccessIndicator = iterator.getBits(1);
-		const elementaryStreamPriorityIndicator = iterator.getBits(1);
-		const pcrFlag = iterator.getBits(1);
-		const opcrFlag = iterator.getBits(1);
-		const splicingPointFlag = iterator.getBits(1);
-		const transportPrivateDataFlag = iterator.getBits(1);
-		const adaptationFieldExtensionFlag = iterator.getBits(1);
-		adaptationField = {
-			adaptationFieldExtensionFlag,
-			adaptationFieldLength,
-			discontinuityIndicator,
-			elementaryStreamPriorityIndicator,
-			opcrFlag,
-			pcrFlag,
-			randomAccessIndicator,
-			splicingPointFlag,
-			transportPrivateDataFlag,
-		};
+		iterator.getBits(1); // discontinuity indicator
+		iterator.getBits(1); // random access indicator
+		iterator.getBits(1); // elementary stream priority indicator
+		iterator.getBits(1); // PCR flag
+		iterator.getBits(1); // OPCR flag
+		iterator.getBits(1); // splicing point flag
+		iterator.getBits(1); // transport private data flag
+		iterator.getBits(1); // adaptation field extension flag
 		const remaining =
 			adaptationFieldLength - (iterator.counter.getOffset() - offset);
 		iterator.stopReadingBits();
 		iterator.discard(Math.max(0, remaining));
 	}
 
-	let pointerField: number | null = null;
-
-	if (payloadUnitStartIndicator === 1) {
-		pointerField = iterator.getUint8();
+	const isPes = doesPesPacketFollow(iterator);
+	if (isPes && payloadUnitStartIndicator === 1) {
+		parsePes(iterator);
+	} else if (payloadUnitStartIndicator === 1) {
+		iterator.getUint8(); // pointerField
 	}
-
-	const header: TransportStreamHeader = {
-		packetIdentifier,
-		syncByte,
-		adaptationFieldControl1,
-		adaptationFieldControl2,
-		continuityCounter,
-		payloadUnitStartIndicator,
-		transportErrorIndicator,
-		transportPriority,
-		transportScramblingControl,
-		adaptionField: adaptationField,
-		pointerField,
-	};
 
 	if (packetIdentifier === 0) {
 		return Promise.resolve(parsePat(iterator));
@@ -90,14 +62,9 @@ export const parsePacket = (
 	}
 
 	const stream = getStreamForId(structure, packetIdentifier);
-	if (!stream) {
-		throw new Error('Unknown packet identifier');
+	if (stream) {
+		return Promise.resolve(parseStream(iterator));
 	}
 
-	discardRestOfPacket(iterator);
-
-	return Promise.resolve({
-		type: 'transport-stream-generic-box',
-		header,
-	});
+	throw new Error('Unknown packet identifier');
 };
