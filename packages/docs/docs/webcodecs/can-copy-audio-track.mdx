@@ -38,7 +38,7 @@ for (const track of audioTracks) {
     inputCodec: track.codecWithoutConfig,
     outputContainer: 'webm',
     inputContainer: container,
-  }); // boolean
+  }); // bool
 }
 ```
 
@@ -53,11 +53,11 @@ await convertMedia({
   container: 'webm',
   videoCodec: 'vp8',
   audioCodec: 'opus',
-  onAudioTrack: async ({track, container}) => {
+  onAudioTrack: async ({track, outputContainer, inputContainer}) => {
     const canCopy = canCopyAudioTrack({
       inputCodec: track.codecWithoutConfig,
-      outputContainer: 'webm',
-      inputContainer: container,
+      outputContainer,
+      inputContainer,
     });
 
     if (canCopy) {

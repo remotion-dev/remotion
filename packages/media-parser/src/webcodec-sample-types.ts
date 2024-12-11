@@ -13,7 +13,6 @@ export type OnAudioTrack = (options: {
 	container: ParseMediaContainer;
 }) => OnAudioSample | Promise<OnAudioSample | null> | null;
 
-// TODO: Make this an object?
 export type OnVideoTrack = (options: {
 	track: VideoTrack;
 	container: ParseMediaContainer;

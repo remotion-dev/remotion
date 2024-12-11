@@ -102,11 +102,11 @@ await convertMedia({
   src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
   container: 'webm',
   audioCodec: 'opus',
-  onVideoTrack: ({track, container}) => {
+  onVideoTrack: ({track, inputContainer, outputContainer}) => {
     const canCopy = canCopyVideoTrack({
       inputCodec: track.codecWithoutConfig,
-      outputContainer: 'webm',
-      inputContainer: container,
+      outputContainer,
+      inputContainer,
       inputRotation: track.rotation,
       rotationToApply: 0,
     });
@@ -133,7 +133,7 @@ await convertMedia({
   src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
   container: 'webm',
   audioCodec: 'opus',
-  onVideoTrack: async ({track, container}) => {
+  onVideoTrack: async ({track}) => {
     const canReencode = await canReencodeVideoTrack({
       videoCodec: 'vp8',
       track,

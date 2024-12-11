@@ -57,7 +57,7 @@ export const defaultOnVideoTrackHandler: ConvertMediaOnVideoTrackHandler =
   }): Promise<VideoOperation> => {
     const canCopy = canCopyVideoTrack({
       inputCodec: track.codecWithoutConfig,
-      outputContainer: container,
+      outputContainer,
       inputContainer,
       inputRotation: track.rotation,
       rotationToApply: rotate,
@@ -67,7 +67,8 @@ export const defaultOnVideoTrackHandler: ConvertMediaOnVideoTrackHandler =
       return Promise.resolve({type: 'copy'});
     }
 
-    const videoCodec = defaultVideoCodec ?? getDefaultVideoCodec({container});
+    const videoCodec =
+      defaultVideoCodec ?? getDefaultVideoCodec({container: outputContainer});
 
     if (videoCodec === null) {
       return Promise.resolve({type: 'drop'});

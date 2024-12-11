@@ -107,7 +107,7 @@ const onVideoTrack: OnVideoTrack = ({track}) => {
   // ...
 };
 
-const onAudioTrack: OnAudioTrack = (track) => {
+const onAudioTrack: OnAudioTrack = ({track}) => {
   if (typeof AudioDecoder === 'undefined') {
     return null;
   }
@@ -144,7 +144,7 @@ const onVideoTrack: OnVideoTrack = async ({track}) => {
   // ...
 };
 
-const onAudioTrack: OnAudioTrack = async (track) => {
+const onAudioTrack: OnAudioTrack = async ({track}) => {
   const audioDecoder = new AudioDecoder({
     output: console.log,
     error: console.error,
