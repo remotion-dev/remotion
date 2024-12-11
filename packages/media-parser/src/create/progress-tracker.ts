@@ -1,4 +1,3 @@
-import {truthy} from '../truthy';
 import {IoEventEmitter} from './event-emitter';
 import {withResolvers} from './with-resolvers';
 
@@ -9,7 +8,9 @@ export const makeProgressTracker = () => {
 	const eventEmitter = new IoEventEmitter();
 
 	const calculateSmallestProgress = (initialTimestamp: number | null) => {
-		const progressValues = Object.values(trackNumberProgresses).filter(truthy);
+		const progressValues = Object.values(trackNumberProgresses).filter(
+			(p) => p !== null,
+		);
 		if (progressValues.length === 0) {
 			if (initialTimestamp === null) {
 				throw new Error(
