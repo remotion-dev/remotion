@@ -1,4 +1,4 @@
-import {getCodecPrivate} from './boxes/avc/codec-private';
+import {getAvccBoxContent} from './boxes/avc/codec-private';
 import {getCodecStringFromSpsAndPps} from './boxes/avc/codec-string';
 import type {VideoTrack} from './get-tracks';
 import type {SpsAndPps} from './state/parser-state';
@@ -14,6 +14,6 @@ export const addAvcProfileToTrack = (
 	return {
 		...track,
 		codec: getCodecStringFromSpsAndPps(avc1Profile.sps),
-		codecPrivate: getCodecPrivate(avc1Profile),
+		codecPrivate: getAvccBoxContent(avc1Profile),
 	};
 };

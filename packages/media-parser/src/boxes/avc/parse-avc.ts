@@ -280,7 +280,7 @@ const inspect = (buffer: Uint8Array): AvcInfo | null => {
 	if (type === 7) {
 		const end = findEnd(buffer);
 		const data = readSps(iterator);
-		const sps = buffer.slice(1, end === null ? Infinity : end);
+		const sps = buffer.slice(0, end === null ? Infinity : end);
 
 		return {
 			spsData: data,
