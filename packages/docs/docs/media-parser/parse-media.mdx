@@ -158,7 +158,7 @@ If you pass [`webFileReader`](/docs/media-parser/web-file-reader), you must also
 ### `onVideoTrack?`
 
 A callback that is called when a video track is detected.  
-It receives a `VideoTrack` object (API not yet stable).  
+It receives an object with `track` and `container` (API not yet stable).  
 You must return either `null` or a callback that is called for each sample that corresponds to the video track.
 
 The `sample` has the type `VideoSample` and while not all fields are stable, it has all the mandatory fields for the [`EncodedVideoChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedVideoChunk) constructor.
@@ -168,7 +168,7 @@ The `sample` has the type `VideoSample` and while not all fields are stable, it 
 // @target: es2017
 import {parseMedia, OnVideoTrack} from '@remotion/media-parser';
 
-const onVideoTrack: OnVideoTrack = (track) => {
+const onVideoTrack: OnVideoTrack = ({track}) => {
   console.log(track);
 
   return (sample) => {
@@ -180,7 +180,7 @@ const onVideoTrack: OnVideoTrack = (track) => {
 ### `onAudioTrack?`
 
 A callback that is called when an audio track is detected.  
-It receives a `AudioTrack` object (API not yet stable).  
+It receives an object with `track` and `container` (API not yet stable).  
 You must return either `null` or a callback that is called for each sample that corresponds to the audio track.
 
 The `sample` has the type `AudioSample` and while not all fields are stable, it has all the mandatory fields for the [`EncodedAudioChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedAudioChunk) constructor.
@@ -191,7 +191,7 @@ The `sample` has the type `AudioSample` and while not all fields are stable, it 
 // @noErrors
 import {parseMedia, OnAudioTrack} from '@remotion/media-parser';
 
-const onAudioTrack: OnAudioTrack = (track) => {
+const onAudioTrack: OnAudioTrack = ({track}) => {
   console.log(track);
 
   return (sample) => {

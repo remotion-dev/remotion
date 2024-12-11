@@ -55,10 +55,11 @@ await convertMedia({
   container: 'webm',
   videoCodec: 'vp8',
   audioCodec: 'opus',
-  onVideoTrack: async ({track}) => {
+  onVideoTrack: async ({track, container}) => {
     const canCopy = canCopyVideoTrack({
       inputCodec: track.codecWithoutConfig,
-      container: 'webm',
+      outputContainer: 'webm',
+      inputContainer: container,
       inputRotation: track.rotation,
       rotationToApply: 0,
     });
@@ -93,7 +94,13 @@ _number_
 
 The number of degrees to rotate the video track.
 
-### `container`
+### `inputContainer`
+
+_string_ <TsType type="ParseMediaContainer" source="@remotion/media-parser" />
+
+The container format of the input media.
+
+### `outputContainer`
 
 _string_ <TsType type="ConvertMediaContainer" source="@remotion/webcodecs" />
 

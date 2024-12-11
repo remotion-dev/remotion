@@ -55,13 +55,15 @@ export const defaultOnAudioTrackHandler: ConvertMediaOnAudioTrackHandler =
     track,
     defaultAudioCodec,
     logLevel,
-    container,
+    inputContainer,
+    outputContainer,
   }): Promise<AudioOperation> => {
     const bitrate = DEFAULT_BITRATE;
 
     const canCopy = canCopyAudioTrack({
       inputCodec: track.codecWithoutConfig,
-      container,
+      inputContainer,
+      outputContainer,
     });
 
     if (canCopy) {

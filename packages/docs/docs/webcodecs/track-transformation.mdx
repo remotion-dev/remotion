@@ -105,7 +105,8 @@ await convertMedia({
   onVideoTrack: ({track, container}) => {
     const canCopy = canCopyVideoTrack({
       inputCodec: track.codecWithoutConfig,
-      container,
+      outputContainer: 'webm',
+      inputContainer: container,
       inputRotation: track.rotation,
       rotationToApply: 0,
     });
