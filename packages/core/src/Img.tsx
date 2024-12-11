@@ -137,6 +137,11 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				return;
 			}
 
+			const {current} = imageRef;
+			if (!current) {
+				return;
+			}
+
 			const newHandle = delayRender('Loading <Img> with src=' + actualSrc, {
 				retries: delayRenderRetries ?? undefined,
 				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
@@ -145,7 +150,6 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				pauseWhenLoading && !isPremounting
 					? delayPlayback().unblock
 					: () => undefined;
-			const {current} = imageRef;
 
 			let unmounted = false;
 
@@ -166,8 +170,6 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				}
 
 				if (current) {
-					current.src = actualSrc;
-
 					onImageFrame?.(current);
 				}
 
@@ -175,10 +177,13 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				continueRender(newHandle);
 			};
 
-			const newImg = new Image();
-			newImg.src = actualSrc;
+			if (!imageRef.current) {
+				return;
+			}
 
-			newImg
+			current.src = actualSrc;
+
+			current
 				.decode()
 				.then(onComplete)
 				.catch((err) => {
@@ -186,17 +191,17 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 					// eslint-disable-next-line no-console
 					console.warn(err);
 
-					if (newImg.complete) {
+					if (current.complete) {
 						onComplete();
 					} else {
-						newImg.addEventListener('load', onComplete);
+						current.addEventListener('load', onComplete);
 					}
 				});
 
 			// If tag gets unmounted, clear pending handles because image is not going to load
 			return () => {
 				unmounted = true;
-				newImg.removeEventListener('load', onComplete);
+				current.removeEventListener('load', onComplete);
 				unblock();
 				continueRender(newHandle);
 			};
