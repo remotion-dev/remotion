@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.description = "A Ruby SDK for Remotion Lambda"
   s.authors     = ["Jonny Burger"]
   s.email       = "jonny@remotion.dev"
-  s.files       = ["lib/sdk.rb", "lib/s3_output_provider.rb", "lib/render_progress_payload.rb", "lib/render_media_on_lambda_payload.rb", "lib/render_still_on_lambda_payload.rb"]
+  s.files       = Dir["lib/**/*.rb"] + ["README.md"]
   s.homepage    =
     "https://rubygems.org/gems/remotion_lambda"
   s.license       = "MIT"
