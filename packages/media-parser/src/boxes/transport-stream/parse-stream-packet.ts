@@ -84,7 +84,7 @@ const parseAvcStream = async ({
 	parserContext: ParserContext;
 	structure: TransportStreamStructure;
 }) => {
-	const {i: indexOfSeparator, toSlice} = findNextSeparator(
+	const indexOfSeparator = findNextSeparator(
 		restOfPacket,
 		transportStreamEntry,
 	);
@@ -117,7 +117,7 @@ const parseAvcStream = async ({
 			programId,
 			structure,
 		});
-		const rest = restOfPacket.slice(toSlice);
+		const rest = restOfPacket.slice(indexOfSeparator);
 		streamBuffers.set(programId, {
 			pesHeader: nextPesHeader,
 			buffer: rest,
@@ -133,7 +133,7 @@ const parseAvcStream = async ({
 
 	streamBuffers.set(programId, {
 		pesHeader: nextPesHeader,
-		buffer: restOfPacket.slice(toSlice),
+		buffer: restOfPacket.slice(indexOfSeparator),
 	});
 };
 

@@ -14,16 +14,15 @@ function findSubarrayIndex(array: Uint8Array, subarray: Uint8Array) {
 		}
 
 		if (match) {
-			const toSlice = i;
-			while (i > 0 && subarray[i - 1] === 0) {
+			if (subarray[i - 1] === 0) {
 				i--;
 			}
 
-			return {i, toSlice}; // Return the starting index of the subarray
+			return i; // Return the starting index of the subarray
 		}
 	}
 
-	return {i: -1, toSlice: -1}; // Return -1 if subarray is not found
+	return -1; // Return -1 if subarray is not found
 }
 
 export const findNextSeparator = (

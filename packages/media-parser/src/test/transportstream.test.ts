@@ -1,11 +1,14 @@
 import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
+import {combineUint8Arrays} from '../boxes/webm/make-header';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
 test('Transport stream', async () => {
 	let audioSamples = 0;
 	let videoSamples = 0;
+
+	let h264File = new Uint8Array([]);
 
 	const {
 		structure,
@@ -129,17 +132,32 @@ test('Transport stream', async () => {
 				},
 			});
 			return (sample) => {
-				if (videoSamples === 0) {
-					expect(sample.data.byteLength).toBe(23813);
-				}
-
-				expect(sample.data[0]).toBe(0);
-				expect(sample.data[1]).toBe(0);
+				h264File = combineUint8Arrays([h264File, sample.data]);
 
 				videoSamples++;
 			};
 		},
 	});
+
+	const ffmpegResult = Bun.spawnSync({
+		cmd: [
+			'ffmpeg',
+			'-i',
+			exampleVideos.transportstream,
+			'-codec',
+			'copy',
+			'-f',
+			'h264',
+			'-',
+		],
+	});
+	if (ffmpegResult.exitCode !== 0) {
+		throw new Error(ffmpegResult.stderr.toString('utf8'));
+	}
+
+	const output = new Uint8Array(ffmpegResult.stdout);
+	expect(output).toEqual(h264File);
+
 	expect(container).toBe('transport-stream');
 	expect(durationInSeconds).toBe(null);
 	expect(dimensions).toEqual({

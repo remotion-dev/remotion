@@ -101,7 +101,6 @@ export const createVideoDecoder = ({
 			_unprocessed: 2,
 			minimumProgress: sample.timestamp - 5_000_000,
 		});
-
 		if (sample.type === 'key') {
 			await videoDecoder.flush();
 		}
