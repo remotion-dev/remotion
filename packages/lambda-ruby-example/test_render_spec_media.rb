@@ -1,6 +1,6 @@
-require_relative 'sdk'
-require_relative 'render_media_on_lambda_payload'
-require_relative 'render_progress_payload'
+require 'remotion_lambda'
+require 'remotion_lambda/render_media_on_lambda_payload'
+require 'remotion_lambda/render_progress_payload'
 
 client = RemotionLambda::Client.new(
   region: 'eu-central-1',
