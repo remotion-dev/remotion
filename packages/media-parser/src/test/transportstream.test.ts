@@ -42,7 +42,8 @@ test('Transport stream', async () => {
 				numberOfChannels: 2,
 				sampleRate: 48000,
 			});
-			return () => {
+			return (sample) => {
+				expect(sample.data[0]).toBe(255);
 				audioSamples++;
 			};
 		},
@@ -97,12 +98,12 @@ test('Transport stream', async () => {
 		height: 720,
 		width: 720,
 	});
-	expect(audioSamples).toBe(24);
+	expect(audioSamples).toBe(234);
 	expect(audioCodec).toBe('aac');
 	expect(fps).toBe(null);
 	expect(isHdr).toBe(true);
 	expect(videoCodec).toBe('h264');
-	expect(videoSamples).toBe(298);
+	expect(videoSamples).toBe(294);
 	expect(structure.boxes[0]).toEqual({
 		type: 'transport-stream-pat-box',
 		tableId: '0',

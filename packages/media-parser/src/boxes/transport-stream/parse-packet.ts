@@ -6,7 +6,7 @@ import type {NextPesHeaderStore} from './next-pes-header-store';
 import {parsePat} from './parse-pat';
 import {parsePes} from './parse-pes';
 import {parsePmt} from './parse-pmt';
-import {doesPesPacketFollow, parseStream} from './parse-stream-packet';
+import {parseStream} from './parse-stream-packet';
 import {type StreamBufferMap} from './process-stream-buffers';
 import {getProgramForId, getStreamForId} from './traversal';
 
@@ -23,6 +23,7 @@ export const parsePacket = async ({
 	parserContext: ParserContext;
 	nextPesHeaderStore: NextPesHeaderStore;
 }): Promise<TransportStreamBox | null> => {
+	const offset = iterator.counter.getOffset();
 	const syncByte = iterator.getUint8();
 	if (syncByte !== 0x47) {
 		throw new Error('Invalid sync byte');
@@ -41,23 +42,37 @@ export const parsePacket = async ({
 	if (adaptationFieldControl1 === 1) {
 		iterator.startReadingBits();
 		const adaptationFieldLength = iterator.getBits(8);
-		const offset = iterator.counter.getOffset();
-		iterator.getBits(1); // discontinuity indicator
-		iterator.getBits(1); // random access indicator
-		iterator.getBits(1); // elementary stream priority indicator
-		iterator.getBits(1); // PCR flag
-		iterator.getBits(1); // OPCR flag
-		iterator.getBits(1); // splicing point flag
-		iterator.getBits(1); // transport private data flag
-		iterator.getBits(1); // adaptation field extension flag
+		const headerOffset = iterator.counter.getOffset();
+		if (adaptationFieldLength > 0) {
+			iterator.getBits(1); // discontinuity indicator
+			iterator.getBits(1); // random access indicator
+			iterator.getBits(1); // elementary stream priority indicator
+			iterator.getBits(1); // PCR flag
+			iterator.getBits(1); // OPCR flag
+			iterator.getBits(1); // splicing point flag
+			iterator.getBits(1); // transport private data flag
+			iterator.getBits(1); // adaptation field extension flag
+		}
+
 		const remaining =
-			adaptationFieldLength - (iterator.counter.getOffset() - offset);
+			adaptationFieldLength - (iterator.counter.getOffset() - headerOffset);
 		iterator.stopReadingBits();
-		iterator.discard(Math.max(0, remaining));
+		const toDiscard = Math.max(0, remaining);
+		iterator.discard(toDiscard);
 	}
 
-	const isPes = doesPesPacketFollow(iterator);
-	if (isPes && payloadUnitStartIndicator === 1) {
+	const read = iterator.counter.getOffset() - offset;
+	if (read === 188) {
+		return Promise.resolve(null);
+	}
+
+	const pat = structure.boxes.find(
+		(b) => b.type === 'transport-stream-pmt-box',
+	);
+	const isPes =
+		payloadUnitStartIndicator && pat?.streams.find((e) => e.pid === programId);
+
+	if (isPes) {
 		const packetPes = parsePes(iterator);
 		nextPesHeaderStore.setNextPesHeader(packetPes);
 	} else if (payloadUnitStartIndicator === 1) {

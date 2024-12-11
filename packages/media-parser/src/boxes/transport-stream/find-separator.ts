@@ -14,23 +14,16 @@ function findSubarrayIndex(array: Uint8Array, subarray: Uint8Array) {
 		}
 
 		if (match) {
-			return i; // Return the starting index of the subarray
+			const toSlice = i;
+			while (i > 0 && subarray[i - 1] === 0) {
+				i--;
+			}
+
+			return {i, toSlice}; // Return the starting index of the subarray
 		}
 	}
 
-	return -1; // Return -1 if subarray is not found
-}
-
-function findADTSsyncword(uint8Array: Uint8Array) {
-	for (let i = 0; i < uint8Array.length - 2; i++) {
-		// Check if the current and next two bytes match the syncword pattern
-		if (uint8Array[i] === 0xff && (uint8Array[i + 1] & 0xf0) === 0xf0) {
-			// Optionally, you can add further checks for other header fields here
-			return i; // Return the index where the syncword starts
-		}
-	}
-
-	return -1; // Return -1 if syncword is not found
+	return {i: -1, toSlice: -1}; // Return -1 if subarray is not found
 }
 
 export const findNextSeparator = (
@@ -39,10 +32,6 @@ export const findNextSeparator = (
 ) => {
 	if (transportStreamEntry.streamType === 27) {
 		return findSubarrayIndex(restOfPacket, new Uint8Array([0, 0, 1, 9]));
-	}
-
-	if (transportStreamEntry.streamType === 15) {
-		return findADTSsyncword(restOfPacket);
 	}
 
 	throw new Error(`Unsupported stream ID ${transportStreamEntry.streamType}`);

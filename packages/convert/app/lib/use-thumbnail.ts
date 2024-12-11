@@ -1,4 +1,4 @@
-import {AudioOrVideoSample, LogLevel, parseMedia} from '@remotion/media-parser';
+import {LogLevel, parseMedia} from '@remotion/media-parser';
 import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
 import {useCallback, useEffect, useMemo, useState} from 'react';
@@ -51,16 +51,12 @@ export const useThumbnail = ({
 				decoder.configure(track);
 
 				return (sample) => {
-					const remappedSample: AudioOrVideoSample = {
-						...sample,
-						duration: 1500,
-					};
 					frames++;
 					if (frames >= 10) {
 						abortController.abort();
 					}
 
-					decoder.decode(new EncodedVideoChunk(remappedSample));
+					decoder.decode(new EncodedVideoChunk(sample));
 				};
 			},
 		}).catch((err) => {
