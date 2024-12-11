@@ -156,6 +156,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 			const onComplete = () => {
 				// the decode() promise isn't cancelable -- it may still resolve after unmounting
 				if (unmounted) {
+					continueRender(newHandle);
 					return;
 				}
 
@@ -178,6 +179,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 			};
 
 			if (!imageRef.current) {
+				onComplete();
 				return;
 			}
 
