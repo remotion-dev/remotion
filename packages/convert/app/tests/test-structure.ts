@@ -109,20 +109,23 @@ export const isSafari = () => {
 export const allowSafariAudioDrop: ConvertMediaOnAudioTrackHandler = async ({
 	track,
 	defaultAudioCodec,
-	container,
+	outputContainer,
+	inputContainer,
 }): Promise<AudioOperation> => {
 	const bitrate = DEFAULT_BITRATE;
 
 	const canCopy = canCopyAudioTrack({
 		inputCodec: track.codecWithoutConfig,
-		container,
+		outputContainer,
+		inputContainer,
 	});
 
 	if (canCopy) {
 		return Promise.resolve({type: 'copy'});
 	}
 
-	const audioCodec = defaultAudioCodec ?? getDefaultAudioCodec({container});
+	const audioCodec =
+		defaultAudioCodec ?? getDefaultAudioCodec({container: outputContainer});
 	const canReencode = await canReencodeAudioTrack({
 		audioCodec,
 		track,

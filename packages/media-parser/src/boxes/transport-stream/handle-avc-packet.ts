@@ -1,3 +1,4 @@
+import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
 import type {Track} from '../../get-tracks';
 import type {ParserContext} from '../../parser-context';
 import {registerTrack} from '../../register-track';
@@ -13,6 +14,8 @@ import {getKeyFrameOrDeltaFromAvcInfo} from '../avc/key';
 import {parseAvc} from '../avc/parse-avc';
 import {getSpsAndPps} from '../avc/sps-and-pps';
 import type {TransportStreamPacketBuffer} from './process-stream-buffers';
+
+export const MPEG_TIMESCALE = 90000;
 
 export const handleAvcPacket = async ({
 	streamBuffer,
@@ -39,7 +42,7 @@ export const handleAvcPacket = async ({
 			rotation: 0,
 			trackId: programId,
 			type: 'video',
-			timescale: 90000,
+			timescale: MPEG_TIMESCALE,
 			codec: getCodecStringFromSpsAndPps(spsAndPps.sps),
 			codecPrivate: getAvccBoxContent(spsAndPps),
 			fps: null,
@@ -59,9 +62,10 @@ export const handleAvcPacket = async ({
 			color: getVideoColorFromSps(spsAndPps.sps.spsData),
 		};
 
-		await registerTrack({track, options});
+		await registerTrack({track, options, container: 'transport-stream'});
 	}
 
+	// sample for webcodecs needs to be in nano seconds
 	const sample: AudioOrVideoSample = {
 		cts: streamBuffer.pesHeader.pts,
 		dts: streamBuffer.pesHeader.dts ?? streamBuffer.pesHeader.pts,
@@ -72,5 +76,8 @@ export const handleAvcPacket = async ({
 		type: getKeyFrameOrDeltaFromAvcInfo(avc),
 	};
 
-	await options.parserState.onVideoSample(programId, sample);
+	await options.parserState.onVideoSample(
+		programId,
+		convertAudioOrVideoSampleToWebCodecsTimestamps(sample, MPEG_TIMESCALE),
+	);
 };

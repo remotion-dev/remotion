@@ -22,7 +22,7 @@ export const useThumbnail = ({
 			reader: src.type === 'file' ? webFileReader : fetchReader,
 			src: src.type === 'file' ? src.file : src.url,
 			logLevel,
-			onVideoTrack: async (track) => {
+			onVideoTrack: async ({track}) => {
 				if (typeof VideoDecoder === 'undefined') {
 					return null;
 				}

@@ -1,9 +1,11 @@
 import {mapAudioObjectTypeToCodecString} from '../../aac-codecprivate';
+import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
 import type {Track} from '../../get-tracks';
 import type {ParserContext} from '../../parser-context';
 import {registerTrack} from '../../register-track';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 import {readAdtsHeader} from './adts-header';
+import {MPEG_TIMESCALE} from './handle-avc-packet';
 import type {TransportStreamPacketBuffer} from './process-stream-buffers';
 
 export const handleAacPacket = async ({
@@ -33,7 +35,7 @@ export const handleAacPacket = async ({
 			codecPrivate,
 			trackId: programId,
 			trakBox: null,
-			timescale: sampleRate,
+			timescale: MPEG_TIMESCALE,
 			codecWithoutConfig: 'aac',
 			codec: mapAudioObjectTypeToCodecString(audioObjectType),
 			// https://www.w3.org/TR/webcodecs-aac-codec-registration/
@@ -41,7 +43,11 @@ export const handleAacPacket = async ({
 			numberOfChannels: channelConfiguration,
 			sampleRate,
 		};
-		await registerTrack({track, options});
+		await registerTrack({
+			track,
+			options,
+			container: 'transport-stream',
+		});
 	}
 
 	const sample: AudioOrVideoSample = {
@@ -54,5 +60,8 @@ export const handleAacPacket = async ({
 		type: 'key',
 	};
 
-	await options.parserState.onAudioSample(programId, sample);
+	await options.parserState.onAudioSample(
+		programId,
+		convertAudioOrVideoSampleToWebCodecsTimestamps(sample, MPEG_TIMESCALE),
+	);
 };

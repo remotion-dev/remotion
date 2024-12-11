@@ -116,6 +116,7 @@ export const FileAvailable: React.FC<{
 								>
 									<div className="gap-4">
 										<ConvertUI
+											inputContainer={probeResult.container}
 											currentAudioCodec={probeResult.audioCodec ?? null}
 											currentVideoCodec={probeResult.videoCodec ?? null}
 											src={src}

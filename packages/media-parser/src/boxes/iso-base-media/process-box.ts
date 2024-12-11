@@ -518,6 +518,7 @@ export const processBox = async ({
 			await registerTrack({
 				options,
 				track: transformedTrack,
+				container: 'mp4',
 			});
 		}
 

@@ -179,7 +179,7 @@ export const convertMedia = async function <
 		defaultVideoCodec: videoCodec ?? null,
 		onVideoTrack: userVideoResolver ?? null,
 		logLevel,
-		container,
+		outputContainer: container,
 		rotate: rotate ?? 0,
 		progress: progressTracker,
 	});

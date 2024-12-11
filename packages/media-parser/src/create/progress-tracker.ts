@@ -1,14 +1,23 @@
+import {truthy} from '../truthy';
 import {IoEventEmitter} from './event-emitter';
 import {withResolvers} from './with-resolvers';
 
+// Make sure to distinguish null and undefined here
+
 export const makeProgressTracker = () => {
-	const trackNumberProgresses: Record<number, number> = {};
+	const trackNumberProgresses: Record<number, number | null> = {};
 	const eventEmitter = new IoEventEmitter();
 
-	const calculateSmallestProgress = () => {
-		const progressValues = Object.values(trackNumberProgresses);
+	const calculateSmallestProgress = (initialTimestamp: number | null) => {
+		const progressValues = Object.values(trackNumberProgresses).filter(truthy);
 		if (progressValues.length === 0) {
-			return 0;
+			if (initialTimestamp === null) {
+				throw new Error(
+					'No progress values to calculate smallest progress from',
+				);
+			}
+
+			return initialTimestamp - 1;
 		}
 
 		return Math.min(...progressValues);
@@ -16,11 +25,9 @@ export const makeProgressTracker = () => {
 
 	return {
 		registerTrack: (trackNumber: number) => {
-			trackNumberProgresses[trackNumber] = 0;
+			trackNumberProgresses[trackNumber] = null;
 		},
-		getSmallestProgress: () => {
-			return calculateSmallestProgress();
-		},
+		getSmallestProgress: calculateSmallestProgress,
 		updateTrackProgress: (trackNumber: number, progress: number) => {
 			if (trackNumberProgresses[trackNumber] === undefined) {
 				throw new Error(
@@ -30,7 +37,7 @@ export const makeProgressTracker = () => {
 
 			trackNumberProgresses[trackNumber] = progress;
 			eventEmitter.dispatchEvent('progress', {
-				smallestProgress: calculateSmallestProgress(),
+				smallestProgress: calculateSmallestProgress(null),
 			});
 		},
 		waitForProgress: () => {

@@ -169,6 +169,7 @@ export const postprocessEbml = async ({
 			await registerTrack({
 				options: parserContext,
 				track,
+				container: 'webm',
 			});
 		}
 	}

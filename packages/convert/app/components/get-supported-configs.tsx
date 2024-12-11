@@ -1,4 +1,4 @@
-import {TracksField} from '@remotion/media-parser';
+import {ParseMediaContainer, TracksField} from '@remotion/media-parser';
 import {
 	AudioOperation,
 	canCopyAudioTrack,
@@ -59,12 +59,14 @@ export const getSupportedConfigs = async ({
 	bitrate,
 	action,
 	userRotation,
+	inputContainer,
 }: {
 	tracks: TracksField;
 	container: ConvertMediaContainer;
 	bitrate: number;
 	action: RouteAction;
 	userRotation: number;
+	inputContainer: ParseMediaContainer;
 }): Promise<SupportedConfigs> => {
 	const availableVideoCodecs = getAvailableVideoCodecs({container});
 
@@ -77,9 +79,10 @@ export const getSupportedConfigs = async ({
 		const options: VideoOperation[] = [];
 		const canCopy = canCopyVideoTrack({
 			inputCodec: track.codecWithoutConfig,
-			container,
+			outputContainer: container,
 			inputRotation: track.rotation,
 			rotationToApply: userRotation,
+			inputContainer,
 		});
 		if (canCopy && prioritizeCopyOverReencode) {
 			options.push({
@@ -120,7 +123,8 @@ export const getSupportedConfigs = async ({
 
 		const canCopy = canCopyAudioTrack({
 			inputCodec: track.codecWithoutConfig,
-			container,
+			outputContainer: container,
+			inputContainer,
 		});
 
 		if (canCopy) {

@@ -12,6 +12,10 @@ type Entry = {
 };
 
 const makeEntry = (entry: Entry) => {
+	if (entry.sampleOffset < 0) {
+		throw new Error('negative sample offset in stts ' + entry.sampleOffset);
+	}
+
 	return combineUint8Arrays([
 		numberTo32BitUIntOrInt(entry.sampleCount),
 		numberTo32BitUIntOrInt(entry.sampleOffset),
@@ -20,6 +24,7 @@ const makeEntry = (entry: Entry) => {
 
 export const createSttsAtom = (samplePositions: SamplePosition[]) => {
 	let lastDuration: null | number = null;
+
 	const durations = samplePositions.map((_, i, a) => {
 		// TODO: Why does 0 appear here?
 		if (a[i].duration === undefined || a[i].duration === 0) {

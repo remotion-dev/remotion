@@ -2,9 +2,7 @@ import {isRiffAvi} from './boxes/riff/traversal';
 import type {ParseMediaContainer} from './options';
 import type {Structure} from './parse-result';
 
-export const getContainer = (
-	segments: Structure,
-): ParseMediaContainer | null => {
+export const getContainer = (segments: Structure): ParseMediaContainer => {
 	if (segments.type === 'iso-base-media') {
 		return 'mp4';
 	}

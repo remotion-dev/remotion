@@ -40,12 +40,13 @@ export const makeAudioTrackHandler =
 		container: ConvertMediaContainer;
 		progressTracker: ProgressTracker;
 	}): OnAudioTrack =>
-	async (track) => {
+	async ({track, container: inputContainer}) => {
 		const audioOperation = await (onAudioTrack ?? defaultOnAudioTrackHandler)({
 			defaultAudioCodec: audioCodec,
 			track,
 			logLevel,
-			container,
+			outputContainer: container,
+			inputContainer,
 		});
 
 		if (audioOperation.type === 'drop') {
@@ -77,7 +78,6 @@ export const makeAudioTrackHandler =
 					chunk: audioSample,
 					trackNumber: addedTrack.trackNumber,
 					isVideo: false,
-					timescale: track.timescale,
 					codecPrivate: track.codecPrivate,
 				});
 				onMediaStateUpdate?.((prevState) => {
@@ -154,7 +154,6 @@ export const makeAudioTrackHandler =
 					chunk: convertEncodedChunk(chunk, trackNumber),
 					trackNumber,
 					isVideo: false,
-					timescale: track.timescale,
 					codecPrivate,
 				});
 				onMediaStateUpdate?.((prevState) => {

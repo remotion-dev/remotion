@@ -15,6 +15,8 @@ export const makeIoSynchronizer = ({
 }) => {
 	const eventEmitter = new MediaParserInternals.IoEventEmitter();
 
+	let firstInput: number | null = null;
+
 	let lastInput = 0;
 	let lastInputKeyframe = 0;
 	let lastOutput = 0;
@@ -50,6 +52,10 @@ export const makeIoSynchronizer = ({
 	};
 
 	const inputItem = (timestamp: number, keyFrame: boolean) => {
+		if (firstInput === null) {
+			firstInput = timestamp;
+		}
+
 		lastInput = timestamp;
 		if (keyFrame) {
 			lastInputKeyframe = timestamp;
@@ -125,10 +131,12 @@ export const makeIoSynchronizer = ({
 						await waitForProcessed();
 					}
 				})(),
-				minimumProgress === null
+				minimumProgress === null || firstInput === null
 					? Promise.resolve()
 					: (async () => {
-							while (progress.getSmallestProgress() < minimumProgress) {
+							while (
+								progress.getSmallestProgress(firstInput) < minimumProgress
+							) {
 								await progress.waitForProgress();
 							}
 						})(),

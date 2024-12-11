@@ -31,7 +31,7 @@ export const makeVideoTrackHandler =
 		defaultVideoCodec,
 		onVideoTrack,
 		logLevel,
-		container,
+		outputContainer,
 		rotate,
 		progress,
 	}: {
@@ -43,11 +43,11 @@ export const makeVideoTrackHandler =
 		defaultVideoCodec: ConvertMediaVideoCodec | null;
 		onVideoTrack: ConvertMediaOnVideoTrackHandler | null;
 		logLevel: LogLevel;
-		container: ConvertMediaContainer;
+		outputContainer: ConvertMediaContainer;
 		rotate: number;
 		progress: ProgressTracker;
 	}): OnVideoTrack =>
-	async (track) => {
+	async ({track, container: inputContainer}) => {
 		if (controller.signal.aborted) {
 			throw new Error('Aborted');
 		}
@@ -56,8 +56,9 @@ export const makeVideoTrackHandler =
 			track,
 			defaultVideoCodec,
 			logLevel,
-			container,
+			outputContainer,
 			rotate,
+			inputContainer,
 		});
 
 		if (videoOperation.type === 'drop') {
@@ -89,7 +90,6 @@ export const makeVideoTrackHandler =
 					chunk: sample,
 					trackNumber: videoTrack.trackNumber,
 					isVideo: true,
-					timescale: track.timescale,
 					codecPrivate: track.codecPrivate,
 				});
 
@@ -166,7 +166,6 @@ export const makeVideoTrackHandler =
 					chunk: convertEncodedChunk(chunk, trackNumber),
 					trackNumber,
 					isVideo: true,
-					timescale: track.timescale,
 					codecPrivate: arrayBufferToUint8Array(
 						(metadata?.decoderConfig?.description ??
 							null) as ArrayBuffer | null,

@@ -43,7 +43,7 @@ test('AVI file', async () => {
 				audioSamples++;
 			};
 		},
-		onVideoTrack: (track) => {
+		onVideoTrack: ({track}) => {
 			if (track.codec !== 'avc1.640015') {
 				throw new Error('unexpected codec');
 			}

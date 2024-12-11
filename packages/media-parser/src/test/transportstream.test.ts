@@ -32,7 +32,7 @@ test('Transport stream', async () => {
 			isHdr: true,
 		},
 		reader: nodeReader,
-		onAudioTrack: (track) => {
+		onAudioTrack: ({track}) => {
 			expect(track).toEqual({
 				type: 'audio',
 				codecPrivate: new Uint8Array([9, 144]),
@@ -50,7 +50,7 @@ test('Transport stream', async () => {
 				audioSamples++;
 			};
 		},
-		onVideoTrack: (track) => {
+		onVideoTrack: ({track}) => {
 			expect(track).toEqual({
 				rotation: 0,
 				trackId: 256,
