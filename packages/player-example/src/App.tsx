@@ -635,10 +635,11 @@ const PlayerOnly: React.FC<
 			ref={playerRef}
 			controls
 			showVolumeControls={showVolumeControls}
-			compositionWidth={1920}
-			compositionHeight={1080}
+			compositionWidth={1080}
+			compositionHeight={1920}
 			fps={fps}
 			{...props}
+			alwaysShowControls
 			durationInFrames={durationInFrames}
 			doubleClickToFullscreen={doubleClickToFullscreen}
 			loop={loop}
@@ -649,7 +650,6 @@ const PlayerOnly: React.FC<
 			playbackRate={playbackRate}
 			spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
 			moveToBeginningWhenEnded={moveToBeginningWhenEnded}
-			renderPoster={renderPoster}
 			initialFrame={30}
 			showPosterWhenUnplayed={showPosterWhenUnplayed}
 			showPosterWhenEnded={showPosterWhenEnded}
@@ -657,17 +657,13 @@ const PlayerOnly: React.FC<
 			showPosterWhenBuffering={showPosterWhenBuffering}
 			inFrame={inFrame}
 			outFrame={outFrame}
-			alwaysShowControls={alwaysShowControls}
 			showPlaybackRateControl={showPlaybackRateControl}
 			hideControlsWhenPointerDoesntMove={hideControlsWhenPointerDoesntMove}
 			style={{
 				height: '100%',
 				width: '100%',
-				resize: 'both',
-				maxWidth: 550,
-				maxHeight: 550,
-				minWidth: 300,
-				minHeight: 300,
+				minWidth: 400,
+				minHeight: 400,
 				display: 'block',
 			}}
 		/>
@@ -717,7 +713,6 @@ export default ({
 	return (
 		<div style={{margin: '2rem'}}>
 			<PlayerOnly
-				hideControlsWhenPointerDoesntMove={hideControlsWhenPointerDoesntMove}
 				alwaysShowControls={alwaysShowControls}
 				clickToPlay={clickToPlay}
 				{...props}
@@ -738,49 +733,13 @@ export default ({
 				inFrame={inFrame}
 				outFrame={outFrame}
 			/>
-			<ControlsOnly
-				bgColor={bgColor}
-				clickToPlay={clickToPlay}
-				color={color}
-				doubleClickToFullscreen={doubleClickToFullscreen}
-				loop={loop}
-				moveToBeginningWhenEnded={moveToBeginningWhenEnded}
-				setBgColor={setBgColor}
-				setClickToPlay={setClickToPlay}
-				setColor={setColor}
-				setDoubleClickToFullscreen={setDoubleClickToFullscreen}
-				setLoop={setLoop}
-				setMoveToBeginningWhenEnded={setMoveToBeginningWhenEnded}
-				setPlaybackRate={setPlaybackRate}
-				setSpaceKeyToPlayOrPause={setSpaceKeyToPlayOrPause}
-				setTitle={setTitle}
-				spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
-				title={title}
-				playerRef={ref}
-				setshowPosterWhenUnplayed={setshowPosterWhenUnplayed}
-				setShowPosterWhenEnded={setShowPosterWhenEnded}
-				setShowPosterWhenPaused={setShowPosterWhenPaused}
-				showPosterWhenBuffering={showPosterWhenBuffering}
-				setShowPosterWhenBuffering={setShowPosterWhenBuffering}
-				setAlwaysShowControls={setAlwaysShowControls}
-				showPosterWhenUnplayed={showPosterWhenUnplayed}
-				showPosterWhenEnded={showPosterWhenEnded}
-				showPosterWhenPaused={showPosterWhenPaused}
-				alwaysShowControls={alwaysShowControls}
-				setShowVolumeControls={setShowVolumeControls}
-				showVolumeControls={showVolumeControls}
-				setInFrame={setInFrame}
-				setOutFrame={setOutFrame}
-				inFrame={inFrame}
-				outFrame={outFrame}
-				durationInFrames={durationInFrames}
-				showPlaybackrateControl={showPlaybackRateControl}
-				setShowPlaybackRateControl={setPlaybackRateControl}
-				hideControlsWhenPointerDoesntMove={hideControlsWhenPointerDoesntMove}
-				setHideControlsWhenPointerDoesntMove={
-					setHideControlsWhenPointerDoesntMove
-				}
-			/>
+			<button
+				onClick={() => {
+					ref.current?.seekTo(150);
+				}}
+			>
+				Seek to 150
+			</button>
 		</div>
 	);
 };
