@@ -46,7 +46,7 @@ export const processStreamBuffer = async ({
 	}
 };
 
-export const processStreamBuffers = async ({
+export const processFinalStreamBuffers = async ({
 	streamBufferMap,
 	parserContext,
 	structure,

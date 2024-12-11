@@ -1,5 +1,6 @@
 import {parseIsoBaseMediaBoxes} from './boxes/iso-base-media/process-box';
 import {parseRiff} from './boxes/riff/parse-box';
+import {makeNextPesHeaderStore} from './boxes/transport-stream/next-pes-header-store';
 import {parseTransportStream} from './boxes/transport-stream/parse-transport-stream';
 import {parseWebm} from './boxes/webm/parse-webm-header';
 import type {BufferIterator} from './buffer-iterator';
@@ -78,6 +79,7 @@ export const parseVideo = ({
 			},
 			streamBuffers: new Map(),
 			fields,
+			nextPesHeaderStore: makeNextPesHeaderStore(),
 		});
 	}
 

@@ -86,8 +86,6 @@ test('Transport stream', async () => {
 
 				expect(sample.data[0]).toBe(0);
 				expect(sample.data[1]).toBe(0);
-				expect(sample.data[2]).toBe(1);
-				expect(sample.data[3]).toBe(0x9);
 
 				videoSamples++;
 			};

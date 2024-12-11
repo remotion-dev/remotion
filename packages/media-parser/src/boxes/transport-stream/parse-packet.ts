@@ -2,14 +2,12 @@ import type {BufferIterator} from '../../buffer-iterator';
 import type {TransportStreamStructure} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
 import type {TransportStreamBox} from './boxes';
+import type {NextPesHeaderStore} from './next-pes-header-store';
 import {parsePat} from './parse-pat';
 import {parsePes} from './parse-pes';
 import {parsePmt} from './parse-pmt';
 import {doesPesPacketFollow, parseStream} from './parse-stream-packet';
-import {
-	processStreamBuffer,
-	type StreamBufferMap,
-} from './process-stream-buffers';
+import {type StreamBufferMap} from './process-stream-buffers';
 import {getProgramForId, getStreamForId} from './traversal';
 
 export const parsePacket = async ({
@@ -17,11 +15,13 @@ export const parsePacket = async ({
 	structure,
 	streamBuffers,
 	parserContext,
+	nextPesHeaderStore,
 }: {
 	iterator: BufferIterator;
 	structure: TransportStreamStructure;
 	streamBuffers: StreamBufferMap;
 	parserContext: ParserContext;
+	nextPesHeaderStore: NextPesHeaderStore;
 }): Promise<TransportStreamBox | null> => {
 	const syncByte = iterator.getUint8();
 	if (syncByte !== 0x47) {
@@ -58,21 +58,8 @@ export const parsePacket = async ({
 
 	const isPes = doesPesPacketFollow(iterator);
 	if (isPes && payloadUnitStartIndicator === 1) {
-		const previousStreamBuffer = streamBuffers.get(programId);
-		if (previousStreamBuffer) {
-			await processStreamBuffer({
-				options: parserContext,
-				streamBuffer: previousStreamBuffer,
-				programId,
-				structure,
-			});
-		}
-
 		const packetPes = parsePes(iterator);
-		streamBuffers.set(programId, {
-			pesHeader: packetPes,
-			buffer: new Uint8Array([]),
-		});
+		nextPesHeaderStore.setNextPesHeader(packetPes);
 	} else if (payloadUnitStartIndicator === 1) {
 		iterator.getUint8(); // pointerField
 	}
@@ -89,7 +76,15 @@ export const parsePacket = async ({
 
 	const stream = getStreamForId(structure, programId);
 	if (stream) {
-		parseStream({iterator, transportStreamEntry: stream, streamBuffers});
+		await parseStream({
+			iterator,
+			transportStreamEntry: stream,
+			streamBuffers,
+			nextPesHeader: nextPesHeaderStore.getNextPesHeader(),
+			parserContext,
+			programId,
+			structure,
+		});
 		return Promise.resolve(null);
 	}
 
