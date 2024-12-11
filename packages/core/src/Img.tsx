@@ -156,6 +156,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 			const onComplete = () => {
 				// the decode() promise isn't cancelable -- it may still resolve after unmounting
 				if (unmounted) {
+					continueRender(newHandle);
 					return;
 				}
 
@@ -178,25 +179,29 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 			};
 
 			if (!imageRef.current) {
+				onComplete();
 				return;
 			}
 
 			current.src = actualSrc;
+			if (current.complete) {
+				onComplete();
+			} else {
+				current
+					.decode()
+					.then(onComplete)
+					.catch((err) => {
+						// fall back to onload event if decode() fails
+						// eslint-disable-next-line no-console
+						console.warn(err);
 
-			current
-				.decode()
-				.then(onComplete)
-				.catch((err) => {
-					// fall back to onload event if decode() fails
-					// eslint-disable-next-line no-console
-					console.warn(err);
-
-					if (current.complete) {
-						onComplete();
-					} else {
-						current.addEventListener('load', onComplete);
-					}
-				});
+						if (current.complete) {
+							onComplete();
+						} else {
+							current.addEventListener('load', onComplete);
+						}
+					});
+			}
 
 			// If tag gets unmounted, clear pending handles because image is not going to load
 			return () => {

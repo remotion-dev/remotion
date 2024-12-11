@@ -181,6 +181,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			try {
 				const res = await fetch(actualSrc, {
 					signal: controller.signal,
+					cache: 'no-store',
 				});
 				if (res.status !== 200) {
 					if (res.status === 500) {
