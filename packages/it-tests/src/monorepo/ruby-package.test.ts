@@ -7,7 +7,12 @@ import {VERSION} from 'remotion';
 
 const rubySdk = path.join(__dirname, '..', '..', '..', 'lambda-ruby');
 test('Set the right version for Ruby in version.rb', () => {
-	const versionPath = path.join(rubySdk, 'lib', 'version.rb');
+	const versionPath = path.join(
+		rubySdk,
+		'lib',
+		'remotion_lambda',
+		'version.rb',
+	);
 
 	fs.writeFileSync(versionPath, `VERSION = "${VERSION}"`);
 });
@@ -36,9 +41,12 @@ test('Set the right version for Ruby in remotion_lambda.gemspec', () => {
 });
 
 test('Render progress payload', () => {
-	const output = execSync('ruby lib/render_progress_payload_spec.rb', {
-		cwd: rubySdk,
-	}).toString();
+	const output = execSync(
+		'ruby lib/remotion_lambda/render_progress_payload_spec.rb',
+		{
+			cwd: rubySdk,
+		},
+	).toString();
 	const nativeVersion = LambdaInternals.getRenderProgressPayload({
 		region: 'us-east-1',
 		functionName: 'remotion-render',
@@ -56,9 +64,12 @@ test('Render progress payload', () => {
 });
 
 test('Render Media payload', async () => {
-	const output = execSync('ruby lib/render_media_on_lambda_payload_spec.rb', {
-		cwd: rubySdk,
-	}).toString();
+	const output = execSync(
+		'ruby lib/remotion_lambda/render_media_on_lambda_payload_spec.rb',
+		{
+			cwd: rubySdk,
+		},
+	).toString();
 
 	const nativeVersion = await LambdaInternals.makeLambdaRenderMediaPayload({
 		region: 'us-east-1',
@@ -125,9 +136,12 @@ test('Render Media payload', async () => {
 });
 
 test('Render Still payload', async () => {
-	const output = execSync('ruby lib/render_still_on_lambda_payload_spec.rb', {
-		cwd: rubySdk,
-	}).toString();
+	const output = execSync(
+		'ruby lib/remotion_lambda/render_still_on_lambda_payload_spec.rb',
+		{
+			cwd: rubySdk,
+		},
+	).toString();
 	const nativeVersion = await LambdaInternals.makeLambdaRenderStillPayload({
 		region: 'us-east-1',
 		composition: 'still-helloworld',

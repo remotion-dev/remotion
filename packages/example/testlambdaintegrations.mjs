@@ -11,7 +11,10 @@ const functionName = execSync(
 	.split(' ')[0];
 
 console.log('=== Ruby (Still) ===');
-
+execSync(`bundle install --path=vendor/bundle`, {
+	cwd: '../lambda-ruby-example',
+	stdio: 'inherit',
+});
 execSync(`bundle exec ruby test_render_spec_still.rb`, {
 	env: {
 		// eslint-disable-next-line no-undef
