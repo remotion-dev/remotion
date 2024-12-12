@@ -70,7 +70,7 @@ self.addEventListener('fetch', (event) => {
 					await cache.put(event.request, response.clone());
 
 					return response;
-				} catch {
+				} catch (error) {
 					// If network fails, try cache
 					const cachedResponse = await caches.match(event.request);
 					if (cachedResponse) {
@@ -82,6 +82,7 @@ self.addEventListener('fetch', (event) => {
 						return caches.match('/convert');
 					}
 
+					console.log(error);
 					return new Response('Network error happened', {
 						status: 408,
 						headers: {'Content-Type': 'text/plain'},
