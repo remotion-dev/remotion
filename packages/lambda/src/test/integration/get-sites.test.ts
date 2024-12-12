@@ -22,6 +22,7 @@ test('Should have a site after deploying', async () => {
 		customCredentials: null,
 		enableFolderExpiry: null,
 		forcePathStyle: false,
+		skipPutAcl: false,
 	});
 	expect(
 		await internalDeploySite({

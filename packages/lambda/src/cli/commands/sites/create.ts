@@ -141,6 +141,7 @@ export const sitesCreateSubcommand = async (
 				customCredentials: null,
 				providerSpecifics: implementation,
 				forcePathStyle: false,
+				skipPutAcl: parsedLambdaCli.privacy === 'no-acl',
 			})
 		).bucketName;
 

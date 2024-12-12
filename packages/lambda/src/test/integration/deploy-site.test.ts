@@ -71,6 +71,7 @@ test('Should apply name if given', async () => {
 		customCredentials: null,
 		enableFolderExpiry: false,
 		forcePathStyle: false,
+		skipPutAcl: false,
 	});
 	expect(
 		await internalDeploySite({
@@ -106,6 +107,7 @@ test('Should overwrite site if given siteName is already taken', async () => {
 		customCredentials: null,
 		enableFolderExpiry: false,
 		forcePathStyle: false,
+		skipPutAcl: false,
 	});
 
 	expect(
@@ -142,6 +144,7 @@ test('Should delete the previous site if deploying the new one', async () => {
 		customCredentials: null,
 		enableFolderExpiry: false,
 		forcePathStyle: false,
+		skipPutAcl: false,
 	});
 
 	await internalDeploySite({
@@ -199,6 +202,7 @@ test('Should keep the previous site if deploying the new one with different ID',
 		customCredentials: null,
 		enableFolderExpiry: false,
 		forcePathStyle: false,
+		skipPutAcl: false,
 	});
 
 	await internalDeploySite({
@@ -276,6 +280,7 @@ test('Should not delete site with same prefix', async () => {
 		customCredentials: null,
 		enableFolderExpiry: false,
 		forcePathStyle: false,
+		skipPutAcl: false,
 	});
 
 	await internalDeploySite({
