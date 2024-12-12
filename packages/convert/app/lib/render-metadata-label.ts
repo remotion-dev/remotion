@@ -192,22 +192,43 @@ export const sortMetadataByRelevance = (metadata: MetadataEntry[]) => {
 	});
 };
 
-function displayLocationData(locationString: string): string {
-	// Regular expression to match the pattern of the location string
-	const locationPattern = /^([+-]\d+\.\d+)([+-]\d+\.\d+)\/(\d+)?$/;
+export function parseLocation(locationString: string) {
+	const locationPattern =
+		/^([+-]\d{2}\.?\d{0,10})([+-]\d{3}\.\d{0,10})([+-]\d+(\.\d+)?)?\/$/;
 	const match = locationString.match(locationPattern);
+	console.log(match);
 
 	if (!match) {
-		return locationString;
+		return null;
 	}
 
 	// Extract latitude, longitude, and altitude
 	const latitude = parseFloat(match[1]);
 	const longitude = parseFloat(match[2]);
-	const altitude = parseFloat(match[3]);
+	const altitude = match[3] ? parseFloat(match[3]) : null;
 
-	// Format the output
-	return `${latitude.toFixed(4)}°, ${longitude.toFixed(4)}°\nAltitude ${altitude.toFixed(2)}m`;
+	return {
+		latitude,
+		longitude,
+		altitude,
+	};
+}
+
+export function displayLocationData(locationString: string): string {
+	const location = parseLocation(locationString);
+
+	if (!location) {
+		return locationString;
+	}
+
+	const {latitude, longitude, altitude} = location;
+
+	return [
+		`${latitude.toFixed(4)}°, ${longitude.toFixed(4)}°`,
+		altitude !== null ? `Altitude ${altitude.toFixed(2)}m` : null,
+	]
+		.filter(Boolean)
+		.join('\n');
 }
 
 function formatDateString(dateString: string): string {
