@@ -11,6 +11,7 @@ test('Return 0 total size if site did not exist', async () => {
 		customCredentials: null,
 		enableFolderExpiry: null,
 		forcePathStyle: false,
+		skipPutAcl: false,
 	});
 	expect(
 		await internalDeleteSite({
@@ -30,6 +31,7 @@ test('Return more than 0 total size if site did not exist', async () => {
 		customCredentials: null,
 		enableFolderExpiry: null,
 		forcePathStyle: false,
+		skipPutAcl: false,
 	});
 	const {siteName} = await internalDeploySite({
 		bucketName,

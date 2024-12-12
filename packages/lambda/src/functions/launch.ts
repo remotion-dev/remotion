@@ -218,6 +218,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		needsToUpload,
 		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
+		skipPutAcl: false,
 	});
 
 	registerCleanupTask(() => {

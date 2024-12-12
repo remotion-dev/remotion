@@ -18,5 +18,6 @@ export const getOrCreateBucket = (
 		customCredentials: options.customCredentials ?? null,
 		providerSpecifics: awsImplementation,
 		forcePathStyle: false,
+		skipPutAcl: false,
 	});
 };

@@ -53,6 +53,7 @@ export const compositionsHandler = async <Provider extends CloudProvider>(
 					customCredentials: null,
 					providerSpecifics,
 					forcePathStyle: lambdaParams.forcePathStyle,
+					skipPutAcl: false,
 				}).then((b) => b.bucketName);
 
 		const bucketName = await bucketNamePromise;

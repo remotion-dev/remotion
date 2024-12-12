@@ -20,6 +20,7 @@ type CreateBucket<Provider extends CloudProvider> = (params: {
 	region: Provider['region'];
 	bucketName: string;
 	forcePathStyle: boolean;
+	skipPutAcl: boolean;
 }) => Promise<void>;
 
 type ApplyLifeCycle<Provider extends CloudProvider> = (params: {

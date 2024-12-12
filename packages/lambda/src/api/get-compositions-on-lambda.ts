@@ -71,6 +71,7 @@ export const getCompositionsOnLambda = async ({
 		]),
 		providerSpecifics: awsImplementation,
 		forcePathStyle: forcePathStyle ?? false,
+		skipPutAcl: false,
 	});
 
 	try {

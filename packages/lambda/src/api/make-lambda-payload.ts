@@ -159,6 +159,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		propsType: 'input-props',
 		providerSpecifics: awsImplementation,
 		forcePathStyle: forcePathStyle ?? false,
+		skipPutAcl: privacy === 'no-acl',
 	});
 	return {
 		rendererFunctionName,
@@ -272,6 +273,7 @@ export const makeLambdaRenderStillPayload = async ({
 		propsType: 'input-props',
 		providerSpecifics: awsImplementation,
 		forcePathStyle,
+		skipPutAcl: privacy === 'no-acl',
 	});
 
 	return {

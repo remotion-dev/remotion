@@ -10,6 +10,7 @@ type GetOrCreateBucketInputInner<Provider extends CloudProvider> = {
 	customCredentials: CustomCredentials<Provider> | null;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	forcePathStyle: boolean;
+	skipPutAcl: boolean;
 };
 
 export type GetOrCreateBucketInput<Provider extends CloudProvider> = {
@@ -63,6 +64,7 @@ export const internalGetOrCreateBucket = async <Provider extends CloudProvider>(
 		bucketName,
 		region: params.region,
 		forcePathStyle: params.forcePathStyle,
+		skipPutAcl: params.skipPutAcl,
 	});
 
 	// apply to newly created bucket

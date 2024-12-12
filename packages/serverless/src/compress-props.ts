@@ -68,6 +68,7 @@ export const compressInputProps = async <Provider extends CloudProvider>({
 	needsToUpload,
 	providerSpecifics,
 	forcePathStyle,
+	skipPutAcl,
 }: {
 	stringifiedInputProps: string;
 	region: Provider['region'];
@@ -76,6 +77,7 @@ export const compressInputProps = async <Provider extends CloudProvider>({
 	needsToUpload: boolean;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	forcePathStyle: boolean;
+	skipPutAcl: boolean;
 }): Promise<SerializedInputProps> => {
 	const hash = providerSpecifics.randomHash();
 
@@ -89,6 +91,7 @@ export const compressInputProps = async <Provider extends CloudProvider>({
 					customCredentials: null,
 					providerSpecifics,
 					forcePathStyle,
+					skipPutAcl,
 				})
 			).bucketName;
 
