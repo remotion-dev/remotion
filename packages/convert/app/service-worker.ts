@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 const $FILES = [];
 // ^ leave this - will get filled in during build
 // --auto-generated-until-here
