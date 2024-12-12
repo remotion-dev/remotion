@@ -15,8 +15,6 @@ export const makeIoSynchronizer = ({
 }) => {
 	const eventEmitter = new MediaParserInternals.IoEventEmitter();
 
-	let firstInput: number | null = null;
-
 	let lastInput = 0;
 	let lastInputKeyframe = 0;
 	let lastOutput = 0;
@@ -52,10 +50,6 @@ export const makeIoSynchronizer = ({
 	};
 
 	const inputItem = (timestamp: number, keyFrame: boolean) => {
-		if (firstInput === null) {
-			firstInput = timestamp;
-		}
-
 		lastInput = timestamp;
 		if (keyFrame) {
 			lastInputKeyframe = timestamp;
@@ -108,15 +102,18 @@ export const makeIoSynchronizer = ({
 		_unprocessed,
 		unemitted,
 		minimumProgress,
+		signal,
 	}: {
 		unemitted: number;
 		_unprocessed: number;
 		minimumProgress: number | null;
+		signal: AbortSignal;
 	}) => {
 		const {timeoutPromise, clear} = makeTimeoutPromise(
 			`Waited too long for ${label}`,
 			10_000,
 		);
+		signal.addEventListener('abort', clear);
 
 		await Promise.race([
 			timeoutPromise,
@@ -131,21 +128,25 @@ export const makeIoSynchronizer = ({
 						await waitForProcessed();
 					}
 				})(),
-				minimumProgress === null || firstInput === null
+				minimumProgress === null || progress.getSmallestProgress() === null
 					? Promise.resolve()
 					: (async () => {
-							while (
-								progress.getSmallestProgress(firstInput) < minimumProgress
-							) {
+							while (progress.getSmallestProgress() < minimumProgress) {
 								await progress.waitForProgress();
 							}
 						})(),
 			]),
 		]).finally(() => clear());
+		signal.removeEventListener('abort', clear);
 	};
 
-	const waitForFinish = async () => {
-		await waitFor({_unprocessed: 0, unemitted: 0, minimumProgress: null});
+	const waitForFinish = async (signal: AbortSignal) => {
+		await waitFor({
+			_unprocessed: 0,
+			unemitted: 0,
+			minimumProgress: null,
+			signal,
+		});
 	};
 
 	const onProcessed = () => {

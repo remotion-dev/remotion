@@ -110,6 +110,9 @@ export const createIsoBaseMedia = async ({
 		await w.write(chunk.data);
 		mdatSize += chunk.data.length;
 		onBytesProgress(w.getWrittenByteCount());
+		progressTracker.setPossibleLowestTimestamp(
+			Math.min(chunk.timestamp, chunk.cts ?? Infinity, chunk.dts ?? Infinity),
+		);
 		progressTracker.updateTrackProgress(trackNumber, chunk.timestamp);
 
 		if (codecPrivate) {

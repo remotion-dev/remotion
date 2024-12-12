@@ -7,19 +7,41 @@ export const makeProgressTracker = () => {
 	const trackNumberProgresses: Record<number, number | null> = {};
 	const eventEmitter = new IoEventEmitter();
 
-	const calculateSmallestProgress = (initialTimestamp: number | null) => {
-		const progressValues = Object.values(trackNumberProgresses).filter(
-			(p) => p !== null,
-		);
-		if (progressValues.length === 0) {
-			if (initialTimestamp === null) {
+	let startingTimestamp: number | null = null;
+
+	const setPossibleLowestTimestamp = (timestamp: number) => {
+		if (startingTimestamp === null) {
+			startingTimestamp = timestamp;
+		} else {
+			startingTimestamp = Math.min(startingTimestamp, timestamp);
+		}
+	};
+
+	const getStartingTimestamp = () => {
+		if (startingTimestamp === null) {
+			throw new Error('No starting timestamp');
+		}
+
+		return startingTimestamp;
+	};
+
+	const calculateSmallestProgress = () => {
+		const progressValues = Object.values(trackNumberProgresses).map((p) => {
+			if (p !== null) {
+				return p;
+			}
+
+			// The starting timestamp might not be 0, it might be very huge
+			// If no sample has arrived yet, we should assume the smallest value
+			// we know as the progress
+			if (startingTimestamp === null) {
 				throw new Error(
 					'No progress values to calculate smallest progress from',
 				);
 			}
 
-			return initialTimestamp - 1;
-		}
+			return startingTimestamp;
+		});
 
 		return Math.min(...progressValues);
 	};
@@ -38,7 +60,7 @@ export const makeProgressTracker = () => {
 
 			trackNumberProgresses[trackNumber] = progress;
 			eventEmitter.dispatchEvent('progress', {
-				smallestProgress: calculateSmallestProgress(null),
+				smallestProgress: calculateSmallestProgress(),
 			});
 		},
 		waitForProgress: () => {
@@ -51,6 +73,8 @@ export const makeProgressTracker = () => {
 			eventEmitter.addEventListener('processed', on);
 			return promise;
 		},
+		getStartingTimestamp,
+		setPossibleLowestTimestamp,
 	};
 };
 

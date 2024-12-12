@@ -104,10 +104,19 @@ export const createAudioDecoder = ({
 			return;
 		}
 
+		progressTracker.setPossibleLowestTimestamp(
+			Math.min(
+				audioSample.timestamp,
+				audioSample.dts ?? Infinity,
+				audioSample.cts ?? Infinity,
+			),
+		);
+
 		await ioSynchronizer.waitFor({
 			unemitted: 20,
 			_unprocessed: 20,
 			minimumProgress: audioSample.timestamp - 10_000_000,
+			signal,
 		});
 
 		// Don't flush, it messes up the audio
@@ -137,7 +146,7 @@ export const createAudioDecoder = ({
 			} catch {}
 
 			await queue;
-			await ioSynchronizer.waitForFinish();
+			await ioSynchronizer.waitForFinish(signal);
 			await outputQueue;
 		},
 		close,
