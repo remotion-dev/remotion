@@ -17,5 +17,9 @@ test('Should format location data', () => {
 	expect(parseLocation('+40.6894-074.0447/')).not.toEqual(null);
 
 	const data = parseLocation('+34.4243-118.4786+405.987/');
-	expect(data).toEqual({});
+	expect(data).toEqual({
+		altitude: 405.987,
+		latitude: 34.4243,
+		longitude: -118.4786,
+	});
 });

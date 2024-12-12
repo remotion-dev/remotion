@@ -194,9 +194,8 @@ export const sortMetadataByRelevance = (metadata: MetadataEntry[]) => {
 
 export function parseLocation(locationString: string) {
 	const locationPattern =
-		/^([+-]\d{2}\.?\d{0,10})([+-]\d{3}\.\d{0,10})([+-]\d+(\.\d+)?)?\/$/;
+		/^([+-]\d{2}\.?\d{0,10})([+-]\d{3}\.?\d{0,10})([+-]\d+(\.\d+)?)?\/$/;
 	const match = locationString.match(locationPattern);
-	console.log(match);
 
 	if (!match) {
 		return null;
