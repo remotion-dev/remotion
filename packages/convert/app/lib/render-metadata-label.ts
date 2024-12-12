@@ -198,7 +198,7 @@ function displayLocationData(locationString: string): string {
 	const match = locationString.match(locationPattern);
 
 	if (!match) {
-		throw new Error('Invalid location format');
+		return locationString;
 	}
 
 	// Extract latitude, longitude, and altitude
