@@ -50,6 +50,7 @@ export const Probe: React.FC<{
 		done,
 		error,
 		metadata,
+		location,
 	} = probeResult;
 
 	const onClick = useCallback(() => {
@@ -138,11 +139,20 @@ export const Probe: React.FC<{
 								fps={fps}
 								metadata={metadata}
 								isHdr={isHdr}
+								location={location}
 							/>
 						) : selectedTrack.type === 'video' ? (
-							<VideoTrackOverview metadata={metadata} track={selectedTrack} />
+							<VideoTrackOverview
+								location={location}
+								metadata={metadata}
+								track={selectedTrack}
+							/>
 						) : selectedTrack.type === 'audio' ? (
-							<AudioTrackOverview metadata={metadata} track={selectedTrack} />
+							<AudioTrackOverview
+								location={location}
+								metadata={metadata}
+								track={selectedTrack}
+							/>
 						) : null}
 					</ScrollArea>
 					<Separator orientation="horizontal" />

@@ -1,4 +1,5 @@
 import type {Dimensions} from './get-dimensions';
+import type {MediaParserLocation} from './get-location';
 import type {
 	AudioTrack,
 	MediaParserAudioCodec,
@@ -37,6 +38,7 @@ export type ParseMediaFields = {
 	container: boolean;
 	isHdr: boolean;
 	metadata: boolean;
+	location: boolean;
 };
 
 export type AllParseMediaFields = {
@@ -55,6 +57,7 @@ export type AllParseMediaFields = {
 	container: true;
 	isHdr: true;
 	metadata: true;
+	location: true;
 };
 
 export type Options<Fields extends ParseMediaFields> = {
@@ -73,6 +76,7 @@ export type Options<Fields extends ParseMediaFields> = {
 	container?: Fields['container'];
 	isHdr?: Fields['isHdr'];
 	metadata?: Fields['metadata'];
+	location?: Fields['location'];
 };
 
 export type TracksField = {
@@ -107,6 +111,9 @@ export type ParseMediaCallbacks<Fields extends Options<ParseMediaFields>> =
 			: {}) &
 		(Fields['metadata'] extends true
 			? {onMetadata?: (metadata: MetadataEntry[]) => void}
+			: {}) &
+		(Fields['location'] extends true
+			? {onLocation?: (location: MediaParserLocation | null) => void}
 			: {}) &
 		(Fields['unrotatedDimensions'] extends true
 			? {onUnrotatedDimensions?: (dimensions: Dimensions) => void}
@@ -145,6 +152,9 @@ export type ParseMediaResult<Fields extends Options<ParseMediaFields>> =
 		(Fields['size'] extends true ? {size: number | null} : {}) &
 		(Fields['name'] extends true ? {name: string} : {}) &
 		(Fields['metadata'] extends true ? {metadata: MetadataEntry[]} : {}) &
+		(Fields['location'] extends true
+			? {location: MediaParserLocation | null}
+			: {}) &
 		(Fields['container'] extends true ? {container: ParseMediaContainer} : {});
 
 export type ParseMediaDynamicOptions<F extends Options<ParseMediaFields>> = {

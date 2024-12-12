@@ -46,6 +46,7 @@ export {
 
 export type {MediaFn} from './create/media-fn';
 export {Dimensions} from './get-dimensions';
+export {MediaParserLocation} from './get-location';
 export type {ReaderInterface} from './readers/reader';
 
 export const MediaParserInternals = {

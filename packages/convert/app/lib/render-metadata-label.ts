@@ -1,4 +1,4 @@
-import {MetadataEntry} from '@remotion/media-parser';
+import {MediaParserLocation, MetadataEntry} from '@remotion/media-parser';
 
 /* eslint-disable complexity */
 export const renderMetadataLabel = (key: string) => {
@@ -192,22 +192,15 @@ export const sortMetadataByRelevance = (metadata: MetadataEntry[]) => {
 	});
 };
 
-function displayLocationData(locationString: string): string {
-	// Regular expression to match the pattern of the location string
-	const locationPattern = /^([+-]\d+\.\d+)([+-]\d+\.\d+)\/(\d+)?$/;
-	const match = locationString.match(locationPattern);
+export function displayLocationData(location: MediaParserLocation): string {
+	const {latitude, longitude, altitude} = location;
 
-	if (!match) {
-		return locationString;
-	}
-
-	// Extract latitude, longitude, and altitude
-	const latitude = parseFloat(match[1]);
-	const longitude = parseFloat(match[2]);
-	const altitude = parseFloat(match[3]);
-
-	// Format the output
-	return `${latitude.toFixed(4)}°, ${longitude.toFixed(4)}°\nAltitude ${altitude.toFixed(2)}m`;
+	return [
+		`${latitude.toFixed(4)}°, ${longitude.toFixed(4)}°`,
+		altitude !== null ? `Altitude ${altitude.toFixed(2)}m` : null,
+	]
+		.filter(Boolean)
+		.join('\n');
 }
 
 function formatDateString(dateString: string): string {
@@ -233,9 +226,20 @@ function formatDateString(dateString: string): string {
 	return formatter.format(date);
 }
 
-export const renderMetadataValue = (key: string, value: string | number) => {
+export const renderMetadataValue = ({
+	key,
+	value,
+	location,
+}: {
+	key: string;
+	value: string | number;
+	location: MediaParserLocation | null;
+}) => {
 	if (key === 'com.apple.quicktime.location.ISO6709') {
-		return displayLocationData(String(value));
+		if (location) {
+			return displayLocationData(location);
+		}
+		return String(value);
 	}
 	if (key === 'com.apple.quicktime.creationdate') {
 		return formatDateString(String(value));
