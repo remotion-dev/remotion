@@ -20,6 +20,13 @@ import {RealMP4Videos} from '../../components/LandingPage/real-mp4-videos';
 import {Demo} from '../components/Demo/Demo';
 import styles from './landing.module.css';
 
+if (
+	typeof window !== 'undefined' &&
+	window.location?.origin?.includes('convert.remotion.dev')
+) {
+	window.location.href = 'https://remotion.dev/convert';
+}
+
 const NewLanding: React.FC = () => {
 	return (
 		<Layout>

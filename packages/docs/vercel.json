@@ -18,11 +18,6 @@
 	],
 	"redirects": [
 		{
-			"source": "https://convert.remotion.dev",
-			"destination": "https://remotion.dev/convert",
-			"permanent": false
-		},
-		{
 			"source": "/changelog",
 			"destination": "https://github.com/remotion-dev/remotion/releases",
 			"permanent": false
