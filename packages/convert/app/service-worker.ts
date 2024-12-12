@@ -4,7 +4,8 @@ const $FILES = [];
 // ^ leave this - will get filled in during build
 // --auto-generated-until-here
 
-const CACHE_NAME = 'remotion-convert-v1';
+const CACHE_NAME = 'ABCDEF';
+// ^ leave this - will get filled in during build
 
 // Helper function to determine if a request is under /convert
 function isConvertPath(url) {

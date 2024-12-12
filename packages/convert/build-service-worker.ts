@@ -32,12 +32,25 @@ if (!firstOutput) {
 	throw new Error('No output');
 }
 const text = await firstOutput.text();
+
 const replaced = '$FILES = [];';
 if (!text.includes(replaced)) {
 	throw new Error('Unexpected output');
 }
 
+const cacheNameReplacer = 'CACHE_NAME = "ABCDEF"';
+
+if (!text.includes(cacheNameReplacer)) {
+	throw new Error('Unexpected output');
+}
+
+const gitRef =
+	// eslint-disable-next-line @remotion/deterministic-randomness
+	process.env.VERCEL_GIT_COMMIT_SHA || Math.random().toString(36).slice(2);
+
 await Bun.write(
 	'spa-dist/client/service-worker.js',
-	text.replace(replaced, `$FILES = ${JSON.stringify(toCache)};`),
+	text
+		.replace(replaced, `$FILES = ${JSON.stringify(toCache)};`)
+		.replace(cacheNameReplacer, `CACHE_NAME = 'convert-${gitRef}'`),
 );

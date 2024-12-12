@@ -9,6 +9,12 @@ const registerServiceWorker = () => {
 				.register('/convert/service-worker.js', {
 					scope: '/convert', // "/convert", not "/convert/"
 				})
+				.then((registration) => {
+					console.log(
+						'Service worker registered, site is now available offline',
+					);
+					registration.update();
+				})
 				.catch((error) => {
 					console.log('SW registration failed:', error);
 				});
