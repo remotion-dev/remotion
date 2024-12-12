@@ -1,3 +1,7 @@
+const $FILES = [];
+// ^ leave this - will get filled in during build
+// --auto-generated-until-here
+
 const CACHE_NAME = 'remotion-convert-v1';
 
 // Helper function to determine if a request is under /convert
@@ -5,18 +9,12 @@ function isConvertPath(url) {
 	return url.pathname.startsWith('/convert');
 }
 
-const $FILES = [
-	'/convert',
-	'/convert/manifest.json',
-	'/convert/pwa-icon-192.png',
-	'/convert/pwa-icon-512.png',
-];
-
 self.addEventListener('install', (event) => {
 	event.waitUntil(
 		(async () => {
 			const cache = await caches.open(CACHE_NAME);
 			await cache.addAll($FILES);
+			// @ts-expect-error no types
 			await self.skipWaiting();
 		})(),
 	);
@@ -33,6 +31,7 @@ self.addEventListener('activate', (event) => {
 					.map((name) => caches.delete(name)),
 			);
 			// Take control of all pages immediately
+			// @ts-expect-error no types
 			await self.clients.claim();
 		})(),
 	);
