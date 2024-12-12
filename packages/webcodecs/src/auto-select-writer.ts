@@ -1,6 +1,9 @@
 import {canUseWebFsWriter, webFsWriter} from '@remotion/media-parser/web-fs';
 
-import type {WriterInterface} from '@remotion/media-parser';
+import {
+	MediaParserInternals,
+	type WriterInterface,
+} from '@remotion/media-parser';
 import {bufferWriter} from '@remotion/media-parser/buffer';
 import type {LogLevel} from './log';
 import {Log} from './log';
@@ -25,13 +28,19 @@ export const autoSelectWriter = async (
 	}
 
 	try {
-		const webFsSupported = await Promise.race([
-			canUseWebFsWriter(),
-			// Add a timeout to avoid hanging in PWA
-			new Promise<boolean>((_, reject) =>
-				setTimeout(() => reject(new Error('WebFS check timeout')), 2000),
-			),
-		]);
+		const {
+			promise: timeout,
+			reject,
+			resolve,
+		} = MediaParserInternals.withResolvers<void>();
+		const time = setTimeout(
+			() => reject(new Error('WebFS check timeout')),
+			2000,
+		);
+
+		const webFsSupported = await Promise.race([canUseWebFsWriter(), timeout]);
+		resolve();
+		clearTimeout(time);
 
 		if (webFsSupported) {
 			Log.verbose(logLevel, 'Using WebFS writer because it is supported');
