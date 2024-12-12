@@ -192,7 +192,7 @@ export const convertMedia = async function <
 		state,
 		onAudioTrack: userAudioResolver ?? null,
 		logLevel,
-		container,
+		outputContainer: container,
 		progressTracker,
 	});
 

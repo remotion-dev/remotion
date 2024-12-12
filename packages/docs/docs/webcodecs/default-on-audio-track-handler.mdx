@@ -41,7 +41,6 @@ This is the source code for the default function. You may use this as a referenc
 
 ```tsx twoslash title="Source code for defaultOnAudioTrackHandler"
 import {
-  canCopyAudioTrack,
   canReencodeAudioTrack,
   AudioOperation,
   ConvertMediaOnAudioTrackHandler,
@@ -57,16 +56,11 @@ export const defaultOnAudioTrackHandler: ConvertMediaOnAudioTrackHandler =
     logLevel,
     inputContainer,
     outputContainer,
+    canCopyTrack,
   }): Promise<AudioOperation> => {
     const bitrate = DEFAULT_BITRATE;
 
-    const canCopy = canCopyAudioTrack({
-      inputCodec: track.codecWithoutConfig,
-      inputContainer,
-      outputContainer,
-    });
-
-    if (canCopy) {
+    if (canCopyTrack) {
       return Promise.resolve({type: 'copy'});
     }
 

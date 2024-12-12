@@ -9,6 +9,7 @@ import {createAudioDecoder} from './audio-decoder';
 import {getAudioDecoderConfig} from './audio-decoder-config';
 import {createAudioEncoder} from './audio-encoder';
 import {getAudioEncoderConfig} from './audio-encoder-config';
+import {canCopyAudioTrack} from './can-copy-audio-track';
 import {convertEncodedChunk} from './convert-encoded-chunk';
 import {defaultOnAudioTrackHandler} from './default-on-audio-track-handler';
 import Error from './error-cause';
@@ -27,7 +28,7 @@ export const makeAudioTrackHandler =
 		onMediaStateUpdate,
 		onAudioTrack,
 		logLevel,
-		container,
+		outputContainer,
 		progressTracker,
 	}: {
 		state: MediaFn;
@@ -37,16 +38,23 @@ export const makeAudioTrackHandler =
 		onMediaStateUpdate: null | ConvertMediaProgressFn;
 		onAudioTrack: ConvertMediaOnAudioTrackHandler | null;
 		logLevel: LogLevel;
-		container: ConvertMediaContainer;
+		outputContainer: ConvertMediaContainer;
 		progressTracker: ProgressTracker;
 	}): OnAudioTrack =>
 	async ({track, container: inputContainer}) => {
+		const canCopyTrack = canCopyAudioTrack({
+			inputCodec: track.codecWithoutConfig,
+			outputContainer,
+			inputContainer,
+		});
+
 		const audioOperation = await (onAudioTrack ?? defaultOnAudioTrackHandler)({
 			defaultAudioCodec: audioCodec,
 			track,
 			logLevel,
-			outputContainer: container,
+			outputContainer,
 			inputContainer,
+			canCopyTrack,
 		});
 
 		if (audioOperation.type === 'drop') {

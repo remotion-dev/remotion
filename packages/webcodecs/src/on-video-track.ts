@@ -5,6 +5,7 @@ import type {
 	ProgressTracker,
 } from '@remotion/media-parser';
 import {arrayBufferToUint8Array} from './arraybuffer-to-uint8-array';
+import {canCopyVideoTrack} from './can-copy-video-track';
 import {convertEncodedChunk} from './convert-encoded-chunk';
 import type {ConvertMediaOnVideoFrame} from './convert-media';
 import {defaultOnVideoTrackHandler} from './default-on-video-track-handler';
@@ -52,6 +53,14 @@ export const makeVideoTrackHandler =
 			throw new Error('Aborted');
 		}
 
+		const canCopyTrack = canCopyVideoTrack({
+			inputCodec: track.codecWithoutConfig,
+			inputContainer,
+			inputRotation: track.rotation,
+			outputContainer,
+			rotationToApply: rotate,
+		});
+
 		const videoOperation = await (onVideoTrack ?? defaultOnVideoTrackHandler)({
 			track,
 			defaultVideoCodec,
@@ -59,6 +68,7 @@ export const makeVideoTrackHandler =
 			outputContainer,
 			rotate,
 			inputContainer,
+			canCopyTrack,
 		});
 
 		if (videoOperation.type === 'drop') {

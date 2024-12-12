@@ -19,4 +19,5 @@ export type ConvertMediaOnVideoTrackHandler = (options: {
 	outputContainer: ConvertMediaContainer;
 	rotate: number;
 	inputContainer: ParseMediaContainer;
+	canCopyTrack: boolean;
 }) => VideoOperation | Promise<VideoOperation>;

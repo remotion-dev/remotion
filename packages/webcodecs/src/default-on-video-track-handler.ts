@@ -1,5 +1,4 @@
 import {MediaParserInternals} from '@remotion/media-parser';
-import {canCopyVideoTrack} from './can-copy-video-track';
 import {canReencodeVideoTrack} from './can-reencode-video-track';
 import {getDefaultVideoCodec} from './get-default-video-codec';
 import type {
@@ -14,17 +13,9 @@ export const defaultOnVideoTrackHandler: ConvertMediaOnVideoTrackHandler =
 		logLevel,
 		outputContainer,
 		rotate,
-		inputContainer,
+		canCopyTrack,
 	}): Promise<VideoOperation> => {
-		const canCopy = canCopyVideoTrack({
-			inputCodec: track.codecWithoutConfig,
-			outputContainer,
-			inputRotation: track.rotation,
-			rotationToApply: rotate,
-			inputContainer,
-		});
-
-		if (canCopy) {
+		if (canCopyTrack) {
 			MediaParserInternals.Log.verbose(
 				logLevel,
 				`Track ${track.trackId} (video): Can copy, therefore copying`,

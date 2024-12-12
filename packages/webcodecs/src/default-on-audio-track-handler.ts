@@ -1,5 +1,4 @@
 import {MediaParserInternals} from '@remotion/media-parser';
-import {canCopyAudioTrack} from './can-copy-audio-track';
 import {canReencodeAudioTrack} from './can-reencode-audio-track';
 import {getDefaultAudioCodec} from './get-default-audio-codec';
 import type {
@@ -15,17 +14,11 @@ export const defaultOnAudioTrackHandler: ConvertMediaOnAudioTrackHandler =
 		defaultAudioCodec,
 		logLevel,
 		outputContainer,
-		inputContainer,
+		canCopyTrack,
 	}): Promise<AudioOperation> => {
 		const bitrate = DEFAULT_BITRATE;
 
-		const canCopy = canCopyAudioTrack({
-			inputCodec: track.codecWithoutConfig,
-			outputContainer,
-			inputContainer,
-		});
-
-		if (canCopy) {
+		if (canCopyTrack) {
 			MediaParserInternals.Log.verbose(
 				logLevel,
 				`Track ${track.trackId} (audio): Can copy track, therefore copying`,

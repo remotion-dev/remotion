@@ -54,16 +54,9 @@ export const defaultOnVideoTrackHandler: ConvertMediaOnVideoTrackHandler =
     outputContainer,
     rotate,
     inputContainer,
+    canCopyTrack,
   }): Promise<VideoOperation> => {
-    const canCopy = canCopyVideoTrack({
-      inputCodec: track.codecWithoutConfig,
-      outputContainer,
-      inputContainer,
-      inputRotation: track.rotation,
-      rotationToApply: rotate,
-    });
-
-    if (canCopy) {
+    if (canCopyTrack) {
       return Promise.resolve({type: 'copy'});
     }
 

@@ -18,4 +18,5 @@ export type ConvertMediaOnAudioTrackHandler = (options: {
 	logLevel: LogLevel;
 	outputContainer: ConvertMediaContainer;
 	inputContainer: ParseMediaContainer;
+	canCopyTrack: boolean;
 }) => AudioOperation | Promise<AudioOperation>;
