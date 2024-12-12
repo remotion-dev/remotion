@@ -40,11 +40,10 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
 	const url = new URL(event.request.url);
-	
+
 	if (!isConvertPath(url)) {
 		return;
 	}
-	
 
 	// Only handle same-origin requests
 	if (!url.origin.includes(self.location.origin)) {
@@ -69,7 +68,7 @@ self.addEventListener('fetch', (event) => {
 					await cache.put(event.request, response.clone());
 
 					return response;
-				} catch (error) {
+				} catch {
 					// If network fails, try cache
 					const cachedResponse = await caches.match(event.request);
 					if (cachedResponse) {
@@ -96,7 +95,7 @@ self.addEventListener('fetch', (event) => {
 		(async () => {
 			try {
 				return await fetch(event.request);
-			} catch (error) {
+			} catch {
 				return caches.match(event.request);
 			}
 		})(),
