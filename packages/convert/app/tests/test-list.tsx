@@ -161,6 +161,7 @@ export const offsetTimestamps = (): TestStructure => {
 			await convertMedia({
 				src,
 				container: 'webm',
+				onAudioTrack: allowSafariAudioDrop,
 				onProgress: makeProgressReporter(onUpdate),
 			});
 		},
@@ -178,6 +179,7 @@ export const transportStream = (): TestStructure => {
 			await convertMedia({
 				src,
 				container: 'webm',
+				onAudioTrack: allowSafariAudioDrop,
 				onProgress: makeProgressReporter(onUpdate),
 			});
 		},

@@ -55,7 +55,7 @@ export const makeAudioTrackHandler =
 
 		if (audioOperation.type === 'fail') {
 			throw new Error(
-				`Audio track with ID ${track.trackId} could resolved with {"type": "fail"}. This could mean that this audio track could neither be copied to the output container or re-encoded. You have the option to drop the track instead of failing it: https://remotion.dev/docs/webcodecs/track-transformation`,
+				`Audio track with ID ${track.trackId} resolved with {"type": "fail"}. This could mean that this audio track could neither be copied to the output container or re-encoded. You have the option to drop the track instead of failing it: https://remotion.dev/docs/webcodecs/track-transformation`,
 			);
 		}
 
