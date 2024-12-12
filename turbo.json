@@ -26,7 +26,7 @@
 			"outputLogs": "new-only"
 		},
 		"build-docs": {
-			"dependsOn": ["^make", "make"],
+			"dependsOn": ["^make", "make", "@remotion/convert#build-spa"],
 			"outputs": [".docusaurus", "build", "node_modules/.cache/twoslash"],
 			"outputLogs": "new-only"
 		},
