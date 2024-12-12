@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {parseLocation} from '~/lib/render-metadata-label';
+import {parseLocation} from '../get-location';
 
 // https://en.wikipedia.org/wiki/ISO_6709#Examples
 test('Should format location data', () => {

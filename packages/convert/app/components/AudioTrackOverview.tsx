@@ -1,4 +1,8 @@
-import type {AudioTrack, MetadataEntry} from '@remotion/media-parser';
+import type {
+	AudioTrack,
+	MediaParserLocation,
+	MetadataEntry,
+} from '@remotion/media-parser';
 import {renderHumanReadableAudioCodec} from '~/lib/render-codec-label';
 import {MetadataDisplay} from './MetadataTable';
 import {Table, TableBody, TableCell, TableRow} from './ui/table';
@@ -6,7 +10,8 @@ import {Table, TableBody, TableCell, TableRow} from './ui/table';
 export const AudioTrackOverview: React.FC<{
 	readonly track: AudioTrack;
 	readonly metadata: MetadataEntry[] | null;
-}> = ({track, metadata}) => {
+	location: MediaParserLocation | null;
+}> = ({track, metadata, location}) => {
 	return (
 		<Table className="table-fixed">
 			<TableBody>
@@ -32,7 +37,11 @@ export const AudioTrackOverview: React.FC<{
 					<TableCell className="font-brand">Sample Rate</TableCell>
 					<TableCell className="text-right">{track.sampleRate}</TableCell>
 				</TableRow>
-				<MetadataDisplay metadata={metadata ?? []} trackId={track.trackId} />
+				<MetadataDisplay
+					location={location}
+					metadata={metadata ?? []}
+					trackId={track.trackId}
+				/>
 			</TableBody>
 		</Table>
 	);

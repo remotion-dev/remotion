@@ -1,4 +1,4 @@
-import {MetadataEntry} from '@remotion/media-parser';
+import {MediaParserLocation, MetadataEntry} from '@remotion/media-parser';
 import React, {useMemo} from 'react';
 import {
 	renderMetadataLabel,
@@ -21,7 +21,8 @@ const LimitedWidthLabel: React.FC<{
 export const MetadataDisplay: React.FC<{
 	readonly metadata: MetadataEntry[];
 	readonly trackId: number | null;
-}> = ({metadata, trackId}) => {
+	readonly location: MediaParserLocation | null;
+}> = ({metadata, trackId, location}) => {
 	const filtered = useMemo(() => {
 		return sortMetadataByRelevance(metadata).filter((entry) => {
 			return entry.trackId === trackId;
@@ -39,7 +40,11 @@ export const MetadataDisplay: React.FC<{
 					</TableCell>
 					<TableCell className="text-right">
 						<LimitedWidthLabel alt={entry.key}>
-							{renderMetadataValue(entry.key, entry.value)}
+							{renderMetadataValue({
+								key: entry.key,
+								value: entry.value,
+								location,
+							})}
 						</LimitedWidthLabel>
 					</TableCell>
 				</TableRow>

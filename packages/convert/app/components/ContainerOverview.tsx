@@ -2,6 +2,7 @@ import {Table, TableBody, TableCell, TableRow} from '@/components/ui/table';
 import type {
 	Dimensions,
 	MediaParserAudioCodec,
+	MediaParserLocation,
 	MediaParserVideoCodec,
 	MetadataEntry,
 	ParseMediaContainer,
@@ -27,6 +28,7 @@ export const ContainerOverview: React.FC<{
 	readonly container: ParseMediaContainer | null;
 	readonly isHdr: boolean | undefined;
 	readonly metadata: MetadataEntry[] | null;
+	readonly location: MediaParserLocation | null;
 }> = ({
 	container,
 	dimensions,
@@ -37,6 +39,7 @@ export const ContainerOverview: React.FC<{
 	fps,
 	isHdr,
 	metadata,
+	location,
 }) => {
 	return (
 		<Table className="table-fixed">
@@ -131,7 +134,11 @@ export const ContainerOverview: React.FC<{
 						)}
 					</TableCell>
 				</TableRow>
-				<MetadataDisplay metadata={metadata ?? []} trackId={null} />
+				<MetadataDisplay
+					location={location}
+					metadata={metadata ?? []}
+					trackId={null}
+				/>
 			</TableBody>
 		</Table>
 	);

@@ -2,6 +2,7 @@ import {
 	Dimensions,
 	LogLevel,
 	MediaParserAudioCodec,
+	MediaParserLocation,
 	MediaParserVideoCodec,
 	MetadataEntry,
 	parseMedia,
@@ -41,6 +42,7 @@ export const useProbe = ({
 	const [rotation, setRotation] = useState<number | null>(null);
 	const [size, setSize] = useState<number | null>(null);
 	const [metadata, setMetadata] = useState<MetadataEntry[] | null>(null);
+	const [location, setLocation] = useState<MediaParserLocation | null>(null);
 	const [tracks, setTracks] = useState<TracksField | null>(null);
 	const [container, setContainer] = useState<ParseMediaContainer | null>(null);
 	const [done, setDone] = useState(false);
@@ -64,6 +66,7 @@ export const useProbe = ({
 				isHdr: true,
 				rotation: true,
 				metadata: true,
+				location: true,
 			},
 			onParseProgress: onProgress,
 			reader: src.type === 'file' ? webFileReader : fetchReader,
@@ -101,7 +104,10 @@ export const useProbe = ({
 			onTracks: (trx) => {
 				setTracks(trx);
 			},
-			onSize(s) {
+			onLocation: (l) => {
+				setLocation(l);
+			},
+			onSize: (s) => {
 				setSize(s);
 			},
 		})
@@ -152,6 +158,7 @@ export const useProbe = ({
 			error,
 			rotation,
 			metadata,
+			location,
 		};
 	}, [
 		audioCodec,
@@ -168,5 +175,6 @@ export const useProbe = ({
 		isHdr,
 		rotation,
 		metadata,
+		location,
 	]);
 };

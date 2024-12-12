@@ -74,7 +74,7 @@ export const getAvailableInfo = (
 			return Boolean(structure && hasContainer(structure));
 		}
 
-		if (key === 'metadata') {
+		if (key === 'metadata' || key === 'location') {
 			return false;
 		}
 

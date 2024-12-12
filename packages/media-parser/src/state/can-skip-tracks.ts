@@ -16,6 +16,7 @@ const needsTracksField: Record<keyof Options<ParseMediaFields>, boolean> = {
 	unrotatedDimensions: true,
 	videoCodec: true,
 	metadata: true,
+	location: true,
 };
 
 export const makeCanSkipTracksState = ({

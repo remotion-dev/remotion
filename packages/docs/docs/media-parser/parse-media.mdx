@@ -125,6 +125,15 @@ One of `'aac'`, `'mp3'`, `'aiff'`, `'opus'`, `'pcm'`, `'unknown'` (audio is ther
 Metadata fields such as ID3 tags or EXIF data.  
 See [metadata](/docs/media-parser/tags) for more information.
 
+#### `location`
+
+The location of the video was shot. Either `null` if not available or:
+
+- `latitude`: The latitude of the location
+- `longitude`: The longitude of the location
+- `altitude`: The altitude of the location (can be `null`)
+- `horizontalAccuracy`: The horizontal accuracy of the location (can be `null`)
+
 #### `tracks`
 
 Returns two arrays `videoTracks` and `audioTracks`.  

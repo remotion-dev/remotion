@@ -1,5 +1,9 @@
 import {Table, TableBody, TableCell, TableRow} from '@/components/ui/table';
-import type {MetadataEntry, VideoTrack} from '@remotion/media-parser';
+import type {
+	MediaParserLocation,
+	MetadataEntry,
+	VideoTrack,
+} from '@remotion/media-parser';
 import React from 'react';
 import {renderHumanReadableVideoCodec} from '~/lib/render-codec-label';
 import {MetadataDisplay} from './MetadataTable';
@@ -7,7 +11,8 @@ import {MetadataDisplay} from './MetadataTable';
 export const VideoTrackOverview: React.FC<{
 	readonly track: VideoTrack;
 	readonly metadata: MetadataEntry[] | null;
-}> = ({track, metadata}) => {
+	readonly location: MediaParserLocation | null;
+}> = ({track, metadata, location}) => {
 	return (
 		<Table className="table-fixed">
 			<TableBody>
@@ -82,7 +87,11 @@ export const VideoTrackOverview: React.FC<{
 								: 'N/A'}
 					</TableCell>
 				</TableRow>
-				<MetadataDisplay metadata={metadata ?? []} trackId={track.trackId} />
+				<MetadataDisplay
+					location={location}
+					metadata={metadata ?? []}
+					trackId={track.trackId}
+				/>
 			</TableBody>
 		</Table>
 	);

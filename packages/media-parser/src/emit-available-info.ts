@@ -5,6 +5,7 @@ import {getDimensions} from './get-dimensions';
 import {getDuration} from './get-duration';
 import {getFps} from './get-fps';
 import {getIsHdr} from './get-is-hdr';
+import {getLocation} from './get-location';
 import {getTracks} from './get-tracks';
 import {getVideoCodec} from './get-video-codec';
 import {getMetadata} from './metadata/get-metadata';
@@ -236,6 +237,20 @@ export const emitAvailableInfo = ({
 				const metadata = getMetadata(parseResult.segments);
 				moreFields.onMetadata?.(metadata);
 				returnValue.metadata = metadata;
+			}
+
+			continue;
+		}
+
+		if (key === 'location') {
+			if (
+				returnValue.location === undefined &&
+				hasInfo.location &&
+				parseResult
+			) {
+				const location = getLocation(parseResult.segments);
+				moreFields.onLocation?.(location);
+				returnValue.location = location;
 			}
 
 			continue;

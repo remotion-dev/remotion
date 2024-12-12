@@ -4,11 +4,12 @@ import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
 test('iPhone metadata', async () => {
-	const {structure, metadata} = await parseMedia({
+	const {structure, metadata, location} = await parseMedia({
 		src: exampleVideos.iphonelivefoto,
 		fields: {
 			structure: true,
 			metadata: true,
+			location: true,
 		},
 		reader: nodeReader,
 	});
@@ -16,6 +17,13 @@ test('iPhone metadata', async () => {
 	if (structure.type !== 'iso-base-media') {
 		throw new Error('Expected video');
 	}
+
+	expect(location).toEqual({
+		latitude: 47.3915,
+		longitude: 8.5121,
+		altitude: 404.68,
+		horizontalAccuracy: 5.762147,
+	});
 
 	expect(metadata).toEqual([
 		{
