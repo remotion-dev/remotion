@@ -6,9 +6,7 @@ const registerServiceWorker = () => {
 	if ('serviceWorker' in navigator) {
 		window.addEventListener('load', () => {
 			navigator.serviceWorker
-				.register('/convert/service-worker.js', {
-					scope: '/convert', // "/convert", not "/convert/"
-				})
+				.register('/convert-service-worker.js', {})
 				.then((registration) => {
 					console.log(
 						'Service worker registered, site is now available offline',
