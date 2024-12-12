@@ -77,13 +77,8 @@ self.addEventListener('fetch', (event) => {
 						return cachedResponse;
 					}
 
-					// If both network and cache fail, return a basic offline response
-					if (event.request.headers.get('accept')?.includes('text/html')) {
-						return caches.match('/convert');
-					}
-
 					console.log(error);
-					return new Response('Network error happened', {
+					return new Response('You are offline', {
 						status: 408,
 						headers: {'Content-Type': 'text/plain'},
 					});
