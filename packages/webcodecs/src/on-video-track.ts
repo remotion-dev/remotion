@@ -12,6 +12,7 @@ import {defaultOnVideoTrackHandler} from './default-on-video-track-handler';
 import Error from './error-cause';
 import type {ConvertMediaContainer} from './get-available-containers';
 import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
+import {getDefaultVideoCodec} from './get-default-video-codec';
 import {Log} from './log';
 import {onFrame} from './on-frame';
 import type {ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
@@ -63,7 +64,8 @@ export const makeVideoTrackHandler =
 
 		const videoOperation = await (onVideoTrack ?? defaultOnVideoTrackHandler)({
 			track,
-			defaultVideoCodec,
+			defaultVideoCodec:
+				defaultVideoCodec ?? getDefaultVideoCodec({container: outputContainer}),
 			logLevel,
 			outputContainer,
 			rotate,

@@ -15,6 +15,7 @@ import {defaultOnAudioTrackHandler} from './default-on-audio-track-handler';
 import Error from './error-cause';
 import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 import type {ConvertMediaContainer} from './get-available-containers';
+import {getDefaultAudioCodec} from './get-default-audio-codec';
 import {Log} from './log';
 import type {ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
 import type {ConvertMediaProgressFn} from './throttled-state-update';
@@ -49,7 +50,8 @@ export const makeAudioTrackHandler =
 		});
 
 		const audioOperation = await (onAudioTrack ?? defaultOnAudioTrackHandler)({
-			defaultAudioCodec: audioCodec,
+			defaultAudioCodec:
+				audioCodec ?? getDefaultAudioCodec({container: outputContainer}),
 			track,
 			logLevel,
 			outputContainer,

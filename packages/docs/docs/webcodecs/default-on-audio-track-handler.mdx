@@ -64,10 +64,14 @@ export const defaultOnAudioTrackHandler: ConvertMediaOnAudioTrackHandler =
       return Promise.resolve({type: 'copy'});
     }
 
-    const audioCodec =
-      defaultAudioCodec ?? getDefaultAudioCodec({container: outputContainer});
+    // In the future, we might support containers that don't support audio
+    // (like GIF, animated WebP, etc.) - in that case, we should drop the audio
+    if (defaultAudioCodec === null) {
+      return Promise.resolve({type: 'drop'});
+    }
+
     const canReencode = await canReencodeAudioTrack({
-      audioCodec,
+      audioCodec: defaultAudioCodec,
       track,
       bitrate,
     });
@@ -76,7 +80,7 @@ export const defaultOnAudioTrackHandler: ConvertMediaOnAudioTrackHandler =
       return Promise.resolve({
         type: 'reencode',
         bitrate,
-        audioCodec,
+        audioCodec: defaultAudioCodec,
       });
     }
 

@@ -1,6 +1,5 @@
 import {MediaParserInternals} from '@remotion/media-parser';
 import {canReencodeAudioTrack} from './can-reencode-audio-track';
-import {getDefaultAudioCodec} from './get-default-audio-codec';
 import type {
 	AudioOperation,
 	ConvertMediaOnAudioTrackHandler,
@@ -13,7 +12,6 @@ export const defaultOnAudioTrackHandler: ConvertMediaOnAudioTrackHandler =
 		track,
 		defaultAudioCodec,
 		logLevel,
-		outputContainer,
 		canCopyTrack,
 	}): Promise<AudioOperation> => {
 		const bitrate = DEFAULT_BITRATE;
@@ -27,11 +25,18 @@ export const defaultOnAudioTrackHandler: ConvertMediaOnAudioTrackHandler =
 			return Promise.resolve({type: 'copy'});
 		}
 
-		const audioCodec =
-			defaultAudioCodec ?? getDefaultAudioCodec({container: outputContainer});
+		// The idea is that for example for GIFs, we will return defaultAudioCodec = null
+		if (defaultAudioCodec === null) {
+			MediaParserInternals.Log.verbose(
+				logLevel,
+				`Track ${track.trackId} (audio): Container does not support audio, dropping audio`,
+			);
+
+			return Promise.resolve({type: 'drop'});
+		}
 
 		const canReencode = await canReencodeAudioTrack({
-			audioCodec,
+			audioCodec: defaultAudioCodec,
 			track,
 			bitrate,
 		});
@@ -45,7 +50,7 @@ export const defaultOnAudioTrackHandler: ConvertMediaOnAudioTrackHandler =
 			return Promise.resolve({
 				type: 'reencode',
 				bitrate,
-				audioCodec,
+				audioCodec: defaultAudioCodec,
 			});
 		}
 
