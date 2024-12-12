@@ -104,7 +104,7 @@ export const createAudioEncoder = ({
 
 		await ioSynchronizer.waitFor({
 			unemitted: 20,
-			_unprocessed: 20,
+			unprocessed: 20,
 			minimumProgress: audioData.timestamp - 10_000_000,
 			signal,
 		});

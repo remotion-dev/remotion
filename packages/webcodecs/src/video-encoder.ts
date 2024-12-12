@@ -101,7 +101,7 @@ export const createVideoEncoder = ({
 		await ioSynchronizer.waitFor({
 			// Firefox stalls if too few frames are passed
 			unemitted: 10,
-			_unprocessed: 10,
+			unprocessed: 10,
 			minimumProgress: frame.timestamp - 5_000_000,
 			signal,
 		});

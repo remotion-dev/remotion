@@ -24,9 +24,9 @@ export const makeIoSynchronizer = ({
 
 	// Once WebCodecs emits items, the user has to handle them
 	// Let's keep count of how many items are unprocessed
-	let unprocessed = 0;
+	let _unprocessed = 0;
 
-	const getUnprocessed = () => unprocessed;
+	const getUnprocessed = () => _unprocessed;
 
 	const getUnemittedItems = () => {
 		inputs = inputs.filter(
@@ -72,7 +72,7 @@ export const makeIoSynchronizer = ({
 		eventEmitter.dispatchEvent('output', {
 			timestamp,
 		});
-		unprocessed++;
+		_unprocessed++;
 		printState('Got output');
 	};
 
@@ -99,13 +99,13 @@ export const makeIoSynchronizer = ({
 	};
 
 	const waitFor = async ({
-		_unprocessed,
+		unprocessed,
 		unemitted,
 		minimumProgress,
 		signal,
 	}: {
 		unemitted: number;
-		_unprocessed: number;
+		unprocessed: number;
 		minimumProgress: number | null;
 		signal: AbortSignal;
 	}) => {
@@ -132,7 +132,7 @@ export const makeIoSynchronizer = ({
 					}
 				})(),
 				(async () => {
-					while (getUnprocessed() > _unprocessed) {
+					while (getUnprocessed() > unprocessed) {
 						await waitForProcessed();
 					}
 				})(),
@@ -150,7 +150,7 @@ export const makeIoSynchronizer = ({
 
 	const waitForFinish = async (signal: AbortSignal) => {
 		await waitFor({
-			_unprocessed: 0,
+			unprocessed: 0,
 			unemitted: 0,
 			minimumProgress: null,
 			signal,
@@ -159,7 +159,7 @@ export const makeIoSynchronizer = ({
 
 	const onProcessed = () => {
 		eventEmitter.dispatchEvent('processed', {});
-		unprocessed--;
+		_unprocessed--;
 	};
 
 	return {
