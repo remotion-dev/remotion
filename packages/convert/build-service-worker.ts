@@ -49,7 +49,7 @@ const gitRef =
 	process.env.VERCEL_GIT_COMMIT_SHA || Math.random().toString(36).slice(2);
 
 await Bun.write(
-	'spa-dist/client/service-worker.js',
+	'spa-dist/client/convert-service-worker.js',
 	text
 		.replace(replaced, `$FILES = ${JSON.stringify(toCache)};`)
 		.replace(cacheNameReplacer, `CACHE_NAME = 'convert-${gitRef}'`),

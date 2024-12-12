@@ -4,12 +4,15 @@ import path from 'path';
 // @ts-ignore outside project
 import * as seo from '../convert/app/seo';
 
-// @ts-expect-error
 await $`bunx turbo "@remotion/convert#build-spa"`;
 
 const dir = path.join(__dirname, '../convert/spa-dist/client');
 
 fs.cpSync(dir, path.join(__dirname, './build/convert'), {recursive: true});
+fs.cpSync(
+	path.join(__dirname, './build/convert/convert-service-worker.js'),
+	path.join(__dirname, './build/convert-service-worker.js'),
+);
 
 const extraPages: seo.RouteAction[] = [];
 
