@@ -51,35 +51,29 @@ export const defaultOnVideoTrackHandler: ConvertMediaOnVideoTrackHandler =
     track,
     defaultVideoCodec,
     logLevel,
-    container,
+    outputContainer,
     rotate,
+    inputContainer,
+    canCopyTrack,
   }): Promise<VideoOperation> => {
-    const canCopy = canCopyVideoTrack({
-      inputCodec: track.codecWithoutConfig,
-      container,
-      inputRotation: track.rotation,
-      rotationToApply: rotate,
-    });
-
-    if (canCopy) {
+    if (canCopyTrack) {
       return Promise.resolve({type: 'copy'});
     }
 
-    const videoCodec = defaultVideoCodec ?? getDefaultVideoCodec({container});
-
-    if (videoCodec === null) {
+    // If for example exporting to audio, the default video codec will be null
+    if (defaultVideoCodec === null) {
       return Promise.resolve({type: 'drop'});
     }
 
     const canReencode = await canReencodeVideoTrack({
-      videoCodec,
+      videoCodec: defaultVideoCodec,
       track,
     });
 
     if (canReencode) {
       return Promise.resolve({
         type: 'reencode',
-        videoCodec,
+        videoCodec: defaultVideoCodec,
         rotation: rotate - track.rotation,
       });
     }

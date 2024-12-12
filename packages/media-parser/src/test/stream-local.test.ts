@@ -22,7 +22,7 @@ test('Should stream ISO base media', async () => {
 			unrotatedDimensions: true,
 		},
 		reader: nodeReader,
-		onVideoTrack: (track) => {
+		onVideoTrack: ({track}) => {
 			expect(track.timescale).toBe(600);
 			videoTracks++;
 			return () => {
@@ -71,7 +71,7 @@ test('Should stream WebM with no duration', async () => {
 			tracks: true,
 		},
 		reader: nodeReader,
-		onVideoTrack: (track) => {
+		onVideoTrack: ({track}) => {
 			expect(track.timescale).toBe(1000000);
 			expect(track.codec).toBe('vp8');
 			expect(track.trackId).toBe(1);
@@ -111,7 +111,7 @@ test('Should stream AV1', async () => {
 			structure: true,
 		},
 		reader: nodeReader,
-		onVideoTrack: (track) => {
+		onVideoTrack: ({track}) => {
 			expect(track.timescale).toBe(1000000);
 
 			videoTracks++;
@@ -179,7 +179,7 @@ test('Should stream corrupted video', async () => {
 			tracks: true,
 			rotation: true,
 		},
-		onVideoTrack: (track) => {
+		onVideoTrack: ({track}) => {
 			expect(track.timescale).toBe(24000);
 			return () => {
 				videoSamples++;
@@ -275,7 +275,7 @@ test('Should stream variable fps video', async () => {
 			structure: true,
 		},
 		reader: nodeReader,
-		onAudioTrack: (track_) => {
+		onAudioTrack: ({track: track_}) => {
 			expect(track_.type).toBe('audio');
 			expect(track_.trackId).toBe(1);
 			expect(track_.codec).toBe('opus');
@@ -359,14 +359,14 @@ test('Should stream MKV video', async () => {
 			structure: true,
 			internalStats: true,
 		},
-		onVideoTrack: (track) => {
+		onVideoTrack: ({track}) => {
 			expect(track.codec).toBe('avc1.640020');
 
 			return () => {
 				videoSamples++;
 			};
 		},
-		onAudioTrack: (track) => {
+		onAudioTrack: ({track}) => {
 			expect(track.codec).toBe('pcm-s16');
 			return () => {
 				audioSamples++;
@@ -401,7 +401,7 @@ test('Should stream MP3 in MP4 video', async () => {
 			rotation: true,
 			structure: true,
 		},
-		onAudioTrack: (track) => {
+		onAudioTrack: ({track}) => {
 			expect(track.type).toBe('audio');
 			expect(track.codec).toBe('mp3');
 			expect(track.sampleRate).toBe(48000);
@@ -557,7 +557,7 @@ test('VP8 Vorbis', async () => {
 
 	const {audioCodec} = await parseMedia({
 		src: exampleVideos.vp8Vorbis,
-		onVideoTrack: (track) => {
+		onVideoTrack: ({track}) => {
 			expect(track.codec).toBe('vp8');
 			expect(track.timescale).toBe(1000000);
 			expect(track.codedHeight).toBe(360);
@@ -570,7 +570,7 @@ test('VP8 Vorbis', async () => {
 		fields: {
 			audioCodec: true,
 		},
-		onAudioTrack: (track) => {
+		onAudioTrack: ({track}) => {
 			expect(track.codec).toBe('vorbis');
 			expect(track.timescale).toBe(1000000);
 			expect(track.description?.length).toBe(3097);
@@ -592,7 +592,7 @@ test('VP9', async () => {
 	let videoSamples = 0;
 	await parseMedia({
 		src: exampleVideos.vp9,
-		onVideoTrack: (track) => {
+		onVideoTrack: ({track}) => {
 			expect(track.codec).toBe('vp09.00.10.08');
 			return () => {
 				videoSamples++;
@@ -657,13 +657,13 @@ test('HEVC and AAC in Matroska', async () => {
 			structure: true,
 		},
 		reader: nodeReader,
-		onAudioTrack: (audioTrack) => {
+		onAudioTrack: ({track: audioTrack}) => {
 			expect(audioTrack.codec).toEqual('mp4a.40.02');
 			return () => {
 				audioSamples++;
 			};
 		},
-		onVideoTrack: (videoTrack) => {
+		onVideoTrack: ({track: videoTrack}) => {
 			expect(videoTrack.codec).toEqual('hvc1.1.6.L93.90');
 			return () => {
 				videoSamples++;
@@ -692,13 +692,13 @@ test('MP3 in matroska', async () => {
 			structure: true,
 		},
 		reader: nodeReader,
-		onAudioTrack: (audioTrack) => {
+		onAudioTrack: ({track: audioTrack}) => {
 			expect(audioTrack.codec).toEqual('mp3');
 			return () => {
 				audioSamples++;
 			};
 		},
-		onVideoTrack: (videoTrack) => {
+		onVideoTrack: ({track: videoTrack}) => {
 			expect(videoTrack.codec).toEqual('avc1.64001f');
 			return () => {
 				videoSamples++;
@@ -727,7 +727,7 @@ test('Should stream OPUS', async () => {
 			audioCodec = codec;
 		},
 		reader: nodeReader,
-		onAudioTrack: (track) => {
+		onAudioTrack: ({track}) => {
 			expect(track.codec).toEqual('opus');
 			expect(typeof track.description).toEqual('undefined');
 			return (samples) => {
@@ -752,7 +752,7 @@ test('Should stream transparent video', async () => {
 	await parseMedia({
 		src: exampleVideos.transparentwithdar,
 		reader: nodeReader,
-		onVideoTrack: (track) => {
+		onVideoTrack: ({track}) => {
 			expect(track.codedHeight).toBe(512);
 			expect(track.codedWidth).toBe(512);
 			videoTracks++;

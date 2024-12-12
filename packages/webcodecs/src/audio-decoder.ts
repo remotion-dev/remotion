@@ -50,10 +50,10 @@ export const createAudioDecoder = ({
 	let outputQueue = Promise.resolve();
 
 	const audioDecoder = new AudioDecoder({
-		output(inputFrame) {
-			ioSynchronizer.onOutput(inputFrame.timestamp);
+		output(frame) {
+			ioSynchronizer.onOutput(frame.timestamp + (frame.duration ?? 0));
 			const abortHandler = () => {
-				inputFrame.close();
+				frame.close();
 			};
 
 			signal.addEventListener('abort', abortHandler, {once: true});
@@ -63,7 +63,7 @@ export const createAudioDecoder = ({
 						return;
 					}
 
-					return onFrame(inputFrame);
+					return onFrame(frame);
 				})
 				.then(() => {
 					ioSynchronizer.onProcessed();
@@ -71,7 +71,7 @@ export const createAudioDecoder = ({
 					return Promise.resolve();
 				})
 				.catch((err) => {
-					inputFrame.close();
+					frame.close();
 					onError(err);
 				});
 		},
@@ -104,10 +104,19 @@ export const createAudioDecoder = ({
 			return;
 		}
 
+		progressTracker.setPossibleLowestTimestamp(
+			Math.min(
+				audioSample.timestamp,
+				audioSample.dts ?? Infinity,
+				audioSample.cts ?? Infinity,
+			),
+		);
+
 		await ioSynchronizer.waitFor({
 			unemitted: 20,
-			_unprocessed: 20,
+			unprocessed: 20,
 			minimumProgress: audioSample.timestamp - 10_000_000,
+			signal,
 		});
 
 		// Don't flush, it messes up the audio
@@ -137,7 +146,7 @@ export const createAudioDecoder = ({
 			} catch {}
 
 			await queue;
-			await ioSynchronizer.waitForFinish();
+			await ioSynchronizer.waitForFinish(signal);
 			await outputQueue;
 		},
 		close,

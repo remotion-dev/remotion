@@ -100,10 +100,13 @@ export const createAudioEncoder = ({
 			return;
 		}
 
+		progressTracker.setPossibleLowestTimestamp(audioData.timestamp);
+
 		await ioSynchronizer.waitFor({
 			unemitted: 20,
-			_unprocessed: 20,
+			unprocessed: 20,
 			minimumProgress: audioData.timestamp - 10_000_000,
+			signal,
 		});
 
 		// @ts-expect-error - can have changed in the meanwhile
@@ -136,7 +139,7 @@ export const createAudioEncoder = ({
 		},
 		waitForFinish: async () => {
 			await encoder.flush();
-			await ioSynchronizer.waitForFinish();
+			await ioSynchronizer.waitForFinish(signal);
 			await prom;
 		},
 		close,

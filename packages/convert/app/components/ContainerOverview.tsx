@@ -11,6 +11,7 @@ import {formatBytes} from '~/lib/format-bytes';
 import {formatSeconds} from '~/lib/format-seconds';
 import {
 	renderHumanReadableAudioCodec,
+	renderHumanReadableContainer,
 	renderHumanReadableVideoCodec,
 } from '~/lib/render-codec-label';
 import {MetadataDisplay} from './MetadataTable';
@@ -54,7 +55,7 @@ export const ContainerOverview: React.FC<{
 					<TableCell className="font-brand">Container</TableCell>
 					<TableCell className="text-right">
 						{container ? (
-							<>{String(container)}</>
+							<>{renderHumanReadableContainer(container)}</>
 						) : (
 							<Skeleton className="h-3 w-[100px] inline-block" />
 						)}

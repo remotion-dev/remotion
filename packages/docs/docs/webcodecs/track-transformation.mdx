@@ -91,26 +91,19 @@ The enums `ConvertMediaVideoCodec` and `ConvertMediaAudioCodec` can be imported 
 
 ## Checking if a track can be copied
 
-To check if it is possible to return `{"type": "copy"}`, you can use the [`canCopyVideoTrack()`](/docs/webcodecs/can-copy-video-track) and [`canCopyAudioTrack()`](/docs/webcodecs/can-copy-audio-track) APIs.
+To check if it is possible to return `{"type": "copy"}`, you can use `canCopyTrack` property you get from `onVideoTrack`.
 
 ```tsx twoslash title="Using the canCopyVideoTrack() API"
 // @module: es2022
 // @target: es2017
-import {convertMedia, canCopyVideoTrack} from '@remotion/webcodecs';
+import {convertMedia} from '@remotion/webcodecs';
 
 await convertMedia({
   src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
   container: 'webm',
   audioCodec: 'opus',
-  onVideoTrack: ({track, container}) => {
-    const canCopy = canCopyVideoTrack({
-      inputCodec: track.codecWithoutConfig,
-      container,
-      inputRotation: track.rotation,
-      rotationToApply: 0,
-    });
-
-    if (canCopy) {
+  onVideoTrack: ({track, inputContainer, outputContainer, canCopyTrack}) => {
+    if (canCopyTrack) {
       return {type: 'copy'};
     }
 
@@ -118,6 +111,8 @@ await convertMedia({
   },
 });
 ```
+
+To check outside of a `onVideoTrack` handler, you can also use the the [`canCopyVideoTrack()`](/docs/webcodecs/can-copy-video-track) and [`canCopyAudioTrack()`](/docs/webcodecs/can-copy-audio-track) APIs
 
 ## Checking if a track can be re-encoded
 
@@ -132,7 +127,7 @@ await convertMedia({
   src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
   container: 'webm',
   audioCodec: 'opus',
-  onVideoTrack: async ({track, container}) => {
+  onVideoTrack: async ({track}) => {
     const canReencode = await canReencodeVideoTrack({
       videoCodec: 'vp8',
       track,

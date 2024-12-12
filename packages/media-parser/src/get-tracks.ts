@@ -1,3 +1,8 @@
+import type {
+	MatrixCoefficients,
+	Primaries,
+	TransferCharacteristics,
+} from './boxes/avc/color';
 import {makeBaseMediaTrack} from './boxes/iso-base-media/make-track';
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
@@ -11,6 +16,10 @@ import {
 	getTracksFromAvi,
 	hasAllTracksFromAvi,
 } from './boxes/riff/get-tracks-from-avi';
+import {
+	getTracksFromTransportStream,
+	hasAllTracksFromTransportStream,
+} from './boxes/transport-stream/get-tracks';
 import {getTracksFromMatroska} from './boxes/webm/get-ready-tracks';
 import type {MatroskaSegment} from './boxes/webm/segments';
 import {getMainSegment, getTracksSegment} from './boxes/webm/traversal';
@@ -23,20 +32,9 @@ type SampleAspectRatio = {
 };
 
 export type VideoTrackColorParams = {
-	transferCharacteristics:
-		| 'bt709'
-		| 'smpte170m'
-		| 'iec61966-2-1'
-		| 'arib-std-b67'
-		| null;
-	matrixCoefficients:
-		| 'bt709'
-		| 'bt470bg'
-		| 'rgb'
-		| 'smpte170m'
-		| 'bt2020'
-		| null;
-	primaries: 'bt709' | 'smpte170m' | 'bt470bg' | 'bt2020' | null;
+	transferCharacteristics: TransferCharacteristics | null;
+	matrixCoefficients: MatrixCoefficients | null;
+	primaries: Primaries | null;
 	fullRange: boolean | null;
 };
 
@@ -142,7 +140,11 @@ export const hasTracks = (
 		return hasAllTracksFromAvi(structure, state);
 	}
 
-	throw new Error('Unknown container');
+	if (structure.type === 'transport-stream') {
+		return hasAllTracksFromTransportStream(structure, state);
+	}
+
+	throw new Error('Unknown container ' + (structure satisfies never));
 };
 
 const getTracksFromMa = (
@@ -234,5 +236,9 @@ export const getTracks = (
 		return getTracksFromAvi(segments, state);
 	}
 
-	throw new Error('Unknown container');
+	if (segments.type === 'transport-stream') {
+		return getTracksFromTransportStream(segments, state);
+	}
+
+	throw new Error(`Unknown container${segments satisfies never}`);
 };

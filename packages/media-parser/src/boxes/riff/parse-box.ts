@@ -150,8 +150,8 @@ export const parseRiffBody = async ({
 				});
 				await registerTrack({
 					options,
-					state: options.parserState,
 					track: audioTrack,
+					container: 'avi',
 				});
 			}
 
@@ -163,8 +163,8 @@ export const parseRiffBody = async ({
 				});
 				registerVideoTrackWhenProfileIsAvailable({
 					options,
-					state: options.parserState,
 					track: videoTrack,
+					container: 'avi',
 				});
 			}
 

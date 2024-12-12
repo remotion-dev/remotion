@@ -69,7 +69,7 @@ export const Footer: React.FC = () => {
 				href="https://github.com/remotion-dev/remotion/tree/main/packages/convert"
 				className="text-sm text-muted-foreground font-medium hover:text-foreground"
 			>
-				Source code
+				Source Code
 			</a>
 		</div>
 	);

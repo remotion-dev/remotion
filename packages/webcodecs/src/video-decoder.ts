@@ -96,12 +96,20 @@ export const createVideoDecoder = ({
 			return;
 		}
 
+		progress.setPossibleLowestTimestamp(
+			Math.min(
+				sample.timestamp,
+				sample.dts ?? Infinity,
+				sample.cts ?? Infinity,
+			),
+		);
+
 		await ioSynchronizer.waitFor({
 			unemitted: 20,
-			_unprocessed: 2,
+			unprocessed: 2,
 			minimumProgress: sample.timestamp - 5_000_000,
+			signal,
 		});
-
 		if (sample.type === 'key') {
 			await videoDecoder.flush();
 		}
@@ -121,7 +129,7 @@ export const createVideoDecoder = ({
 		waitForFinish: async () => {
 			await videoDecoder.flush();
 			Log.verbose(logLevel, 'Flushed video decoder');
-			await ioSynchronizer.waitForFinish();
+			await ioSynchronizer.waitForFinish(signal);
 			Log.verbose(logLevel, 'IO synchro finished');
 			await outputQueue;
 			Log.verbose(logLevel, 'Output queue finished');

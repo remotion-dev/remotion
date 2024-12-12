@@ -1,10 +1,11 @@
 import type {BufferIterator} from '../../buffer-iterator';
+import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
 import type {RiffStructure} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
+import {getKeyFrameOrDeltaFromAvcInfo} from '../avc/key';
 import {parseAvc} from '../avc/parse-avc';
 import type {RiffResult} from './expect-riff-box';
 import type {StrhBox} from './riff-box';
-import {MEDIA_PARSER_RIFF_TIMESCALE} from './timescale';
 import {getStrhBox, getStrlBoxes} from './traversal';
 
 const getStrhForIndex = (
@@ -46,19 +47,12 @@ export const handleChunk = async ({
 		const samplesPerSecond = strh.rate / strh.scale;
 		const nthSample = options.parserState.getSamplesForTrack(trackId);
 		const timeInSec = nthSample / samplesPerSecond;
-		const timestamp = Math.floor(timeInSec * MEDIA_PARSER_RIFF_TIMESCALE);
-		const duration = Math.floor(
-			(1 / samplesPerSecond) * MEDIA_PARSER_RIFF_TIMESCALE,
-		);
+		const timestamp = Math.floor(timeInSec);
+		const duration = Math.floor(1 / samplesPerSecond);
 
 		const data = iterator.getSlice(ckSize);
 		const infos = parseAvc(data);
-		const keyOrDelta = infos.find(
-			(i) => i.type === 'keyframe' || i.type === 'delta-frame',
-		);
-		if (!keyOrDelta) {
-			throw new Error('expected avc to contain info about key or delta');
-		}
+		const keyOrDelta = getKeyFrameOrDeltaFromAvcInfo(infos);
 
 		const avcProfile = infos.find((i) => i.type === 'avc-profile');
 		const ppsProfile = infos.find((i) => i.type === 'avc-pps');
@@ -67,15 +61,21 @@ export const handleChunk = async ({
 			options.parserState.tracks.setIsDone();
 		}
 
-		await options.parserState.onVideoSample(trackId, {
-			cts: timestamp,
-			dts: timestamp,
-			data,
-			duration,
-			timestamp,
+		await options.parserState.onVideoSample(
 			trackId,
-			type: keyOrDelta.type === 'keyframe' ? 'key' : 'delta',
-		});
+			convertAudioOrVideoSampleToWebCodecsTimestamps(
+				{
+					cts: timestamp,
+					dts: timestamp,
+					data,
+					duration,
+					timestamp,
+					trackId,
+					type: keyOrDelta,
+				},
+				1,
+			),
+		);
 		return;
 	}
 
@@ -87,18 +87,24 @@ export const handleChunk = async ({
 		const samplesPerSecond = strh.rate / strh.scale;
 		const nthSample = options.parserState.getSamplesForTrack(trackId);
 		const timeInSec = nthSample / samplesPerSecond;
-		const timestamp = timeInSec * MEDIA_PARSER_RIFF_TIMESCALE;
-		const duration = (1 / samplesPerSecond) * MEDIA_PARSER_RIFF_TIMESCALE;
+		const timestamp = timeInSec;
+		const duration = 1 / samplesPerSecond;
 
-		await options.parserState.onAudioSample(trackId, {
-			cts: timestamp,
-			dts: timestamp,
-			data: iterator.getSlice(ckSize),
-			duration,
-			timestamp,
+		await options.parserState.onAudioSample(
 			trackId,
-			type: 'key',
-		});
+			convertAudioOrVideoSampleToWebCodecsTimestamps(
+				{
+					cts: timestamp,
+					dts: timestamp,
+					data: iterator.getSlice(ckSize),
+					duration,
+					timestamp,
+					trackId,
+					type: 'key',
+				},
+				1,
+			),
+		);
 	}
 };
 

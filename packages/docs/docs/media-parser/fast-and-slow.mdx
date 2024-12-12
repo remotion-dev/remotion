@@ -86,7 +86,7 @@ const result2 = await parseMedia({
     dimensions: true,
     internalStats: true,
   },
-  onVideoTrack: (track) => {
+  onVideoTrack: ({track}) => {
     console.log(track);
     return null;
   },

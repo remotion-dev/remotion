@@ -19,12 +19,21 @@ export const createStbl = ({
 	codecSpecificData: Uint8Array;
 	isVideo: boolean;
 }) => {
+	// For stts:
+	// https://developer.apple.com/documentation/quicktime-file-format/time-to-sample_atom
+	// The sample entries are ordered by time stamps; therefore, the deltas are all nonnegative.
+
+	// For the other tables, there doesn't seem to be a requirement for them to be sorted
+
+	// -> ordering the sample positions by dts
+	const sorted = samplePositions.slice().sort((a, b) => a.dts - b.dts);
+
 	return addSize(
 		combineUint8Arrays(
 			[
 				stringsToUint8Array('stbl'),
 				createStsdData(codecSpecificData),
-				createSttsAtom(samplePositions),
+				createSttsAtom(sorted),
 				isVideo ? createStss(samplePositions) : null,
 				createCttsBox(samplePositions),
 				createStsc(samplePositions),

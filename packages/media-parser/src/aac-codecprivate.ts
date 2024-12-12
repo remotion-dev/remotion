@@ -1,3 +1,40 @@
+export const getSampleRateFromSampleFrequencyIndex = (
+	samplingFrequencyIndex: number,
+) => {
+	switch (samplingFrequencyIndex) {
+		case 0:
+			return 96000;
+		case 1:
+			return 88200;
+		case 2:
+			return 64000;
+		case 3:
+			return 48000;
+		case 4:
+			return 44100;
+		case 5:
+			return 32000;
+		case 6:
+			return 24000;
+		case 7:
+			return 22050;
+		case 8:
+			return 16000;
+		case 9:
+			return 12000;
+		case 10:
+			return 11025;
+		case 11:
+			return 8000;
+		case 12:
+			return 7350;
+		default:
+			throw new Error(
+				`Unexpected sampling frequency index ${samplingFrequencyIndex}`,
+			);
+	}
+};
+
 // codec private, for example [17, 144]
 // audioObjectType = 2 = 'AAC LC'
 // samplingFrequencyIndex = 3 = '48000 Hz'
@@ -107,44 +144,47 @@ export const parseAacCodecPrivate = (bytes: Uint8Array) => {
 	const samplingFrequencyIndex = parseInt(bits.slice(5, 9), 2);
 	const channelConfiguration = parseInt(bits.slice(9, 13), 2);
 
-	const sampleRate = (() => {
-		switch (samplingFrequencyIndex) {
-			case 0:
-				return 96000;
-			case 1:
-				return 88200;
-			case 2:
-				return 64000;
-			case 3:
-				return 48000;
-			case 4:
-				return 44100;
-			case 5:
-				return 32000;
-			case 6:
-				return 24000;
-			case 7:
-				return 22050;
-			case 8:
-				return 16000;
-			case 9:
-				return 12000;
-			case 10:
-				return 11025;
-			case 11:
-				return 8000;
-			case 12:
-				return 7350;
-			default:
-				throw new Error(
-					`Unexpected sampling frequency index ${samplingFrequencyIndex}`,
-				);
-		}
-	})();
+	const sampleRate = getSampleRateFromSampleFrequencyIndex(
+		samplingFrequencyIndex,
+	);
 
 	return {
 		audioObjectType,
 		sampleRate,
 		channelConfiguration,
 	};
+};
+
+export const mapAudioObjectTypeToCodecString = (audioObjectType: number) => {
+	/**
+ * 	1.	1 - mp4a.40.2: MPEG-4 AAC LC (Low Complexity)
+	2.	2 - mp4a.40.5: MPEG-4 AAC HE (High Efficiency)
+	3.	3 - mp4a.40.29: MPEG-4 AAC HEv2 (High Efficiency v2)
+	4.	4 - mp4a.40.1: MPEG-4 AAC Main
+	5.	5 - mp4a.40.3: MPEG-4 AAC SSR (Scalable Sample Rate)
+	6.	6 - mp4a.40.4: MPEG-4 AAC LTP (Long Term Prediction)
+	7.	17 - mp4a.40.17: MPEG-4 AAC LD (Low Delay)
+	8.	23 - mp4a.40.23: MPEG-4 AAC ELD (Enhanced Low Delay)
+ */
+
+	switch (audioObjectType) {
+		case 1:
+			return 'mp4a.40.2';
+		case 2:
+			return 'mp4a.40.5';
+		case 3:
+			return 'mp4a.40.29';
+		case 4:
+			return 'mp4a.40.1';
+		case 5:
+			return 'mp4a.40.3';
+		case 6:
+			return 'mp4a.40.4';
+		case 17:
+			return 'mp4a.40.17';
+		case 23:
+			return 'mp4a.40.23';
+		default:
+			throw new Error(`Unexpected audio object type ${audioObjectType}`);
+	}
 };
