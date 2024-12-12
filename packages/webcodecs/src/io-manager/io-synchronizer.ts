@@ -110,7 +110,15 @@ export const makeIoSynchronizer = ({
 		signal: AbortSignal;
 	}) => {
 		const {timeoutPromise, clear} = makeTimeoutPromise(
-			`Waited too long for ${label}`,
+			[
+				`Waited too long for ${label}:`,
+				`${getUnemittedItems()} unemitted items`,
+				`${getUnprocessed()} unprocessed items`,
+				`minimum progress ${minimumProgress}`,
+				`smallest progress: ${progress.getSmallestProgress()}`,
+				`inputs: ${JSON.stringify(inputs)}`,
+				`last output: ${lastOutput}`,
+			].join('\n'),
 			10_000,
 		);
 		signal.addEventListener('abort', clear);

@@ -51,7 +51,9 @@ export const createAudioDecoder = ({
 
 	const audioDecoder = new AudioDecoder({
 		output(inputFrame) {
-			ioSynchronizer.onOutput(inputFrame.timestamp);
+			ioSynchronizer.onOutput(
+				inputFrame.timestamp + (inputFrame.duration ?? 0),
+			);
 			const abortHandler = () => {
 				inputFrame.close();
 			};
