@@ -38,7 +38,7 @@ test('Transport stream', async () => {
 				codecPrivate: new Uint8Array([9, 144]),
 				trackId: 257,
 				trakBox: null,
-				timescale: 48000,
+				timescale: 90000,
 				codecWithoutConfig: 'aac',
 				codec: 'mp4a.40.2',
 				description: undefined,

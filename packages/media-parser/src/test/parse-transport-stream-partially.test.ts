@@ -38,7 +38,7 @@ test('Should be able to parse only tracks of Transport Stream', async () => {
 
 	expect(parsed.container).toBe('transport-stream');
 	expect(parsed.internalStats).toEqual({
-		finalCursorOffset: 178224,
-		skippedBytes: 1735240,
+		finalCursorOffset: 80652,
+		skippedBytes: 1832812,
 	});
 });

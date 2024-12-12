@@ -31,7 +31,7 @@ export const MetadataDisplay: React.FC<{
 	return (
 		<>
 			{filtered.map((entry) => (
-				<TableRow>
+				<TableRow key={entry.key}>
 					<TableCell className="font-brand">
 						<LimitedWidthLabel alt={entry.key}>
 							{renderMetadataLabel(entry.key)}
