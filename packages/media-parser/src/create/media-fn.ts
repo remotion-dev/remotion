@@ -11,7 +11,6 @@ export type MediaFn = {
 		chunk: AudioOrVideoSample;
 		trackNumber: number;
 		isVideo: boolean;
-		timescale: number;
 		codecPrivate: Uint8Array | null;
 	}) => Promise<void>;
 	addTrack: (

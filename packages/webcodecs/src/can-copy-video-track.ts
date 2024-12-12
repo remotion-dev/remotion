@@ -1,17 +1,22 @@
-import type {MediaParserVideoCodec} from '@remotion/media-parser';
+import type {
+	MediaParserVideoCodec,
+	ParseMediaContainer,
+} from '@remotion/media-parser';
 import type {ConvertMediaContainer} from './get-available-containers';
 import {normalizeVideoRotation} from './rotate-video-frame';
 
 export const canCopyVideoTrack = ({
 	inputCodec,
-	container,
+	outputContainer,
 	inputRotation,
 	rotationToApply,
+	inputContainer,
 }: {
+	inputContainer: ParseMediaContainer;
 	inputCodec: MediaParserVideoCodec;
 	inputRotation: number;
 	rotationToApply: number;
-	container: ConvertMediaContainer;
+	outputContainer: ConvertMediaContainer;
 }) => {
 	if (
 		normalizeVideoRotation(inputRotation) !==
@@ -20,17 +25,20 @@ export const canCopyVideoTrack = ({
 		return false;
 	}
 
-	if (container === 'webm') {
+	if (outputContainer === 'webm') {
 		return inputCodec === 'vp8' || inputCodec === 'vp9';
 	}
 
-	if (container === 'mp4') {
-		return inputCodec === 'h264';
+	if (outputContainer === 'mp4') {
+		return (
+			inputCodec === 'h264' &&
+			(inputContainer === 'mp4' || inputContainer === 'avi')
+		);
 	}
 
-	if (container === 'wav') {
+	if (outputContainer === 'wav') {
 		return false;
 	}
 
-	throw new Error(`Unhandled codec: ${container satisfies never}`);
+	throw new Error(`Unhandled codec: ${outputContainer satisfies never}`);
 };

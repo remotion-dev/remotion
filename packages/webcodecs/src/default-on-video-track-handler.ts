@@ -1,7 +1,5 @@
 import {MediaParserInternals} from '@remotion/media-parser';
-import {canCopyVideoTrack} from './can-copy-video-track';
 import {canReencodeVideoTrack} from './can-reencode-video-track';
-import {getDefaultVideoCodec} from './get-default-video-codec';
 import type {
 	ConvertMediaOnVideoTrackHandler,
 	VideoOperation,
@@ -12,17 +10,10 @@ export const defaultOnVideoTrackHandler: ConvertMediaOnVideoTrackHandler =
 		track,
 		defaultVideoCodec,
 		logLevel,
-		container,
 		rotate,
+		canCopyTrack,
 	}): Promise<VideoOperation> => {
-		const canCopy = canCopyVideoTrack({
-			inputCodec: track.codecWithoutConfig,
-			container,
-			inputRotation: track.rotation,
-			rotationToApply: rotate,
-		});
-
-		if (canCopy) {
+		if (canCopyTrack) {
 			MediaParserInternals.Log.verbose(
 				logLevel,
 				`Track ${track.trackId} (video): Can copy, therefore copying`,
@@ -31,18 +22,16 @@ export const defaultOnVideoTrackHandler: ConvertMediaOnVideoTrackHandler =
 			return Promise.resolve({type: 'copy'});
 		}
 
-		const videoCodec = defaultVideoCodec ?? getDefaultVideoCodec({container});
-
-		if (videoCodec === null) {
+		if (defaultVideoCodec === null) {
 			MediaParserInternals.Log.verbose(
 				logLevel,
-				`Track ${track.trackId} (video): No default video codec, therefore dropping`,
+				`Track ${track.trackId} (video): Is audio container, therefore dropping video`,
 			);
 			return Promise.resolve({type: 'drop'});
 		}
 
 		const canReencode = await canReencodeVideoTrack({
-			videoCodec,
+			videoCodec: defaultVideoCodec,
 			track,
 		});
 
@@ -54,7 +43,7 @@ export const defaultOnVideoTrackHandler: ConvertMediaOnVideoTrackHandler =
 
 			return Promise.resolve({
 				type: 'reencode',
-				videoCodec,
+				videoCodec: defaultVideoCodec,
 				rotation: rotate - track.rotation,
 			});
 		}

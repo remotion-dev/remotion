@@ -4,13 +4,14 @@ import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {Source} from '~/lib/convert-state';
 import {defaultRotateOrMirorState, RotateOrMirrorState} from '~/lib/default-ui';
 import {formatBytes} from '~/lib/format-bytes';
+import {useThumbnail} from '~/lib/use-thumbnail';
 import {RouteAction} from '~/seo';
 import ConvertUI from './ConvertUi';
 import {Footer} from './Footer';
 import {Probe} from './Probe';
 import {VideoThumbnailRef} from './VideoThumbnail';
 import {Button} from './ui/button';
-import {useProbe, useThumbnail} from './use-probe';
+import {useProbe} from './use-probe';
 
 export const FileAvailable: React.FC<{
 	readonly src: Source;
@@ -53,7 +54,7 @@ export const FileAvailable: React.FC<{
 	const [enableRotateOrMirrow, setEnableRotateOrMirror] =
 		useState<RotateOrMirrorState>(() => defaultRotateOrMirorState(routeAction));
 
-	useThumbnail({src, logLevel: 'verbose', onVideoThumbnail});
+	const {err} = useThumbnail({src, logLevel: 'verbose', onVideoThumbnail});
 	const probeResult = useProbe({
 		src,
 		logLevel: 'verbose',
@@ -94,6 +95,7 @@ export const FileAvailable: React.FC<{
 					</div>
 					<div className="lg:inline-flex lg:flex-row">
 						<Probe
+							thumbnailError={err}
 							src={src}
 							probeDetails={probeDetails}
 							setProbeDetails={setProbeDetails}
@@ -114,6 +116,7 @@ export const FileAvailable: React.FC<{
 								>
 									<div className="gap-4">
 										<ConvertUI
+											inputContainer={probeResult.container}
 											currentAudioCodec={probeResult.audioCodec ?? null}
 											currentVideoCodec={probeResult.videoCodec ?? null}
 											src={src}

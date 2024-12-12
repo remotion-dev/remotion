@@ -5,12 +5,14 @@ import type {
 	ProgressTracker,
 } from '@remotion/media-parser';
 import {arrayBufferToUint8Array} from './arraybuffer-to-uint8-array';
+import {canCopyVideoTrack} from './can-copy-video-track';
 import {convertEncodedChunk} from './convert-encoded-chunk';
 import type {ConvertMediaOnVideoFrame} from './convert-media';
 import {defaultOnVideoTrackHandler} from './default-on-video-track-handler';
 import Error from './error-cause';
 import type {ConvertMediaContainer} from './get-available-containers';
 import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
+import {getDefaultVideoCodec} from './get-default-video-codec';
 import {Log} from './log';
 import {onFrame} from './on-frame';
 import type {ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
@@ -31,7 +33,7 @@ export const makeVideoTrackHandler =
 		defaultVideoCodec,
 		onVideoTrack,
 		logLevel,
-		container,
+		outputContainer,
 		rotate,
 		progress,
 	}: {
@@ -43,21 +45,32 @@ export const makeVideoTrackHandler =
 		defaultVideoCodec: ConvertMediaVideoCodec | null;
 		onVideoTrack: ConvertMediaOnVideoTrackHandler | null;
 		logLevel: LogLevel;
-		container: ConvertMediaContainer;
+		outputContainer: ConvertMediaContainer;
 		rotate: number;
 		progress: ProgressTracker;
 	}): OnVideoTrack =>
-	async (track) => {
+	async ({track, container: inputContainer}) => {
 		if (controller.signal.aborted) {
 			throw new Error('Aborted');
 		}
 
+		const canCopyTrack = canCopyVideoTrack({
+			inputCodec: track.codecWithoutConfig,
+			inputContainer,
+			inputRotation: track.rotation,
+			outputContainer,
+			rotationToApply: rotate,
+		});
+
 		const videoOperation = await (onVideoTrack ?? defaultOnVideoTrackHandler)({
 			track,
-			defaultVideoCodec,
+			defaultVideoCodec:
+				defaultVideoCodec ?? getDefaultVideoCodec({container: outputContainer}),
 			logLevel,
-			container,
+			outputContainer,
 			rotate,
+			inputContainer,
+			canCopyTrack,
 		});
 
 		if (videoOperation.type === 'drop') {
@@ -66,7 +79,7 @@ export const makeVideoTrackHandler =
 
 		if (videoOperation.type === 'fail') {
 			throw new Error(
-				`Video track with ID ${track.trackId} could resolved with {"type": "fail"}. This could mean that this video track could neither be copied to the output container or re-encoded. You have the option to drop the track instead of failing it: https://remotion.dev/docs/webcodecs/track-transformation`,
+				`Video track with ID ${track.trackId} could with {"type": "fail"}. This could mean that this video track could neither be copied to the output container or re-encoded. You have the option to drop the track instead of failing it: https://remotion.dev/docs/webcodecs/track-transformation`,
 			);
 		}
 
@@ -89,7 +102,6 @@ export const makeVideoTrackHandler =
 					chunk: sample,
 					trackNumber: videoTrack.trackNumber,
 					isVideo: true,
-					timescale: track.timescale,
 					codecPrivate: track.codecPrivate,
 				});
 
@@ -166,7 +178,6 @@ export const makeVideoTrackHandler =
 					chunk: convertEncodedChunk(chunk, trackNumber),
 					trackNumber,
 					isVideo: true,
-					timescale: track.timescale,
 					codecPrivate: arrayBufferToUint8Array(
 						(metadata?.decoderConfig?.description ??
 							null) as ArrayBuffer | null,

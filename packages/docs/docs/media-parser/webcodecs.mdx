@@ -4,16 +4,14 @@ id: webcodecs
 title: Decoding a video with WebCodecs and @remotion/media-parser
 sidebar_label: WebCodecs
 slug: /media-parser/webcodecs
-crumb: "@remotion/media-parser"
+crumb: '@remotion/media-parser'
 ---
 
-
-[`parseMedia()`](/docs/media-parser/parse-media) is able to extract tracks and samples from audio and video in a format that is suitable for usage with WebCodecs APIs.  
+[`parseMedia()`](/docs/media-parser/parse-media) is able to extract tracks and samples from audio and video in a format that is suitable for usage with WebCodecs APIs.
 
 :::warning
 **Unstable API**: This package is experimental. We might change the API at any time, until we remove this notice.
 :::
-
 
 ## Minimal example
 
@@ -22,8 +20,11 @@ crumb: "@remotion/media-parser"
 // @target: es2017
 import {parseMedia, OnAudioTrack, OnVideoTrack} from '@remotion/media-parser';
 
-const onVideoTrack: OnVideoTrack = (track) => {
-  const videoDecoder = new VideoDecoder({output: console.log, error: console.error});
+const onVideoTrack: OnVideoTrack = ({track}) => {
+  const videoDecoder = new VideoDecoder({
+    output: console.log,
+    error: console.error,
+  });
   videoDecoder.configure(track);
 
   return (sample) => {
@@ -43,12 +44,12 @@ WebCodecs is the fastest way to decode videos in the browser.
 WebAssembly solutions need to strip the CPU-specific optimizations and cannot benefit from hardware acceleration.
 
 To decode a video using WebCodecs, the binary format of a video needs to be understood and parsed.  
-This is a meticulous task that requires a lot of domain knowledge.  
+This is a meticulous task that requires a lot of domain knowledge.
 
 Video files usually come in one of two container formats: ISO BMFF (.mp4, .mov) or Matroska (.webm, .mkv).  
-Libraries like mp4box.js do a good job of parsing these containers, but are scoped to the specific container format, meaning you need to mix multiple libraries.  
+Libraries like mp4box.js do a good job of parsing these containers, but are scoped to the specific container format, meaning you need to mix multiple libraries.
 
-[`parseMedia()`](/docs/media-parser/parse-media) allows to to read an arbitrary video file (in the future: an arbitrary media file) and interface with it regardless of container, video codec and audio codec.  
+[`parseMedia()`](/docs/media-parser/parse-media) allows to to read an arbitrary video file (in the future: an arbitrary media file) and interface with it regardless of container, video codec and audio codec.
 
 It uses modern Web APIs like `fetch()`, `ReadableStream` and resizeable ArrayBuffers, and returns data structures that are designed to be used with WebCodecs APIs.
 
@@ -74,7 +75,8 @@ Remotion requires the `fetch()` and Resizeable ArrayBuffer APIs to be present.
 Check if your runtime supports these APIs before you use `parseMedia()`.
 
 ```tsx
-const canUseMediaParser = typeof fetch === 'function' && typeof new ArrayBuffer().resize === 'function';
+const canUseMediaParser =
+  typeof fetch === 'function' && typeof new ArrayBuffer().resize === 'function';
 ```
 
 ### Check if browser has `VideoDecoder` and `AudioDecoder`
@@ -93,21 +95,27 @@ You can choose to not receive samples if the corresponding decoder is not suppor
 // @noErrors
 import type {OnAudioTrack, OnVideoTrack} from '@remotion/media-parser';
 
-const onVideoTrack: OnVideoTrack = (track) => {
+const onVideoTrack: OnVideoTrack = ({track}) => {
   if (typeof VideoDecoder === 'undefined') {
     return null;
   }
 
-  const videoDecoder = new VideoDecoder({output: console.log, error: console.error});
+  const videoDecoder = new VideoDecoder({
+    output: console.log,
+    error: console.error,
+  });
   // ...
 };
 
-const onAudioTrack: OnAudioTrack = (track) => {
+const onAudioTrack: OnAudioTrack = ({track}) => {
   if (typeof AudioDecoder === 'undefined') {
     return null;
   }
 
-  const audioDecoder = new AudioDecoder({output: console.log, error: console.error});
+  const audioDecoder = new AudioDecoder({
+    output: console.log,
+    error: console.error,
+  });
   // ...
 };
 ```
@@ -122,8 +130,11 @@ These are async APIs, fortunately `onAudioTrack` and `onVideoTrack` allow async 
 // @noErrors
 import type {OnAudioTrack, OnVideoTrack} from '@remotion/media-parser';
 
-const onVideoTrack: OnVideoTrack = async (track) => {
-  const videoDecoder = new VideoDecoder({output: console.log, error: console.error});
+const onVideoTrack: OnVideoTrack = async ({track}) => {
+  const videoDecoder = new VideoDecoder({
+    output: console.log,
+    error: console.error,
+  });
 
   const {supported} = await VideoDecoder.isConfigSupported(track);
   if (!supported) {
@@ -133,8 +144,11 @@ const onVideoTrack: OnVideoTrack = async (track) => {
   // ...
 };
 
-const onAudioTrack: OnAudioTrack = async (track) => {
-  const audioDecoder = new AudioDecoder({output: console.log, error: console.error});
+const onAudioTrack: OnAudioTrack = async ({track}) => {
+  const audioDecoder = new AudioDecoder({
+    output: console.log,
+    error: console.error,
+  });
 
   const {supported} = await AudioDecoder.isConfigSupported(track);
   if (!supported) {
@@ -152,15 +166,18 @@ Perform these checks in addition to the previously mentioned ones.
 ### Error handling
 
 If an error occurs, you get the error in the `error` callback that you passed to the `VideoDecoder` or `AudioDecoder` constructor.  
-The decoder `state` will switch to `"closed"`, however, you will still receive samples.  
+The decoder `state` will switch to `"closed"`, however, you will still receive samples.
 
 If the decoder is in `"closed"` state, you should stop passing them to VideoDecoder.
 
 ```tsx twoslash title="Error handling"
 import type {OnVideoTrack} from '@remotion/media-parser';
 
-const onVideoTrack: OnVideoTrack = async (track) => {
-  const videoDecoder = new VideoDecoder({output: console.log, error: console.error});
+const onVideoTrack: OnVideoTrack = async ({track}) => {
+  const videoDecoder = new VideoDecoder({
+    output: console.log,
+    error: console.error,
+  });
 
   return async (sample) => {
     if (videoDecoder.state === 'closed') {
@@ -171,14 +188,15 @@ const onVideoTrack: OnVideoTrack = async (track) => {
 ```
 
 :::note
-- The same logic goes for `AudioDecoder`.  
+
+- The same logic goes for `AudioDecoder`.
 - You should still perform the checks previously mentioned, but they are omitted from this example.  
-:::
+  :::
 
 ### Queuing samples
 
 Extracting samples is the fast part, decoding them is the slow part.  
-If too many samples are in the queue, it will negatively impact the performance of the page.  
+If too many samples are in the queue, it will negatively impact the performance of the page.
 
 Fortunately, the parsing process can be temporarily paused while the decoder is busy.  
 For this, make the sample processing function async. Remotion will await it before processing the file further.
@@ -188,8 +206,11 @@ This will make it so that samples that are not yet needed are not kept in memory
 ```tsx twoslash title="Only keeping 10 samples in the queue at a time"
 import type {OnVideoTrack} from '@remotion/media-parser';
 
-const onVideoTrack: OnVideoTrack = async (track) => {
-  const videoDecoder = new VideoDecoder({output: console.log, error: console.error});
+const onVideoTrack: OnVideoTrack = async ({track}) => {
+  const videoDecoder = new VideoDecoder({
+    output: console.log,
+    error: console.error,
+  });
 
   return async (sample) => {
     if (videoDecoder.decodeQueueSize > 10) {
@@ -207,14 +228,15 @@ const onVideoTrack: OnVideoTrack = async (track) => {
     }
 
     videoDecoder.decode(new EncodedVideoChunk(sample));
-  } 
+  };
 };
 ```
 
 :::note
-- The same logic goes for `AudioDecoder`.  
+
+- The same logic goes for `AudioDecoder`.
 - You should still perform the checks previously mentioned, but they are omitted from this example.  
-:::
+  :::
 
 ### Handling stretched videos
 
@@ -224,12 +246,15 @@ For example, [this sample video](https://github.com/remotion-dev/remotion/blob/m
 ```tsx twoslash title="Handling stretched videos"
 import type {OnVideoTrack} from '@remotion/media-parser';
 
-const onVideoTrack: OnVideoTrack = async (track) => {
-  const videoDecoder = new VideoDecoder({output: console.log, error: console.error});
+const onVideoTrack: OnVideoTrack = async ({track}) => {
+  const videoDecoder = new VideoDecoder({
+    output: console.log,
+    error: console.error,
+  });
   videoDecoder.configure(track);
 
   return async (sample) => {
-    console.log(sample)
+    console.log(sample);
     // {
     //   codedWidth: 1440,
     //   codedHeight: 1080,
@@ -255,9 +280,9 @@ Fortunately `parseMedia()` returns the rotation of the track:
 ```tsx twoslash title="Handling stretched videos"
 import type {OnVideoTrack} from '@remotion/media-parser';
 
-const onVideoTrack: OnVideoTrack = async (track) => {
-  console.log(track.rotation) // -90
-  return null
+const onVideoTrack: OnVideoTrack = async ({track}) => {
+  console.log(track.rotation); // -90
+  return null;
 };
 ```
 
@@ -271,7 +296,7 @@ In an extreme case, it is possible that you stumble opon a video that has three 
 ```tsx twoslash title="Handling stretched videos"
 import type {OnVideoTrack} from '@remotion/media-parser';
 
-const onVideoTrack: OnVideoTrack = async (track) => {
+const onVideoTrack: OnVideoTrack = async ({track}) => {
   console.log(track);
   // {
   //   codedWidth: 1440,
@@ -283,7 +308,7 @@ const onVideoTrack: OnVideoTrack = async (track) => {
   //   ...
   // }
 
-  return null
+  return null;
 };
 ```
 
@@ -291,10 +316,10 @@ The meaning of it is:
 
 - `codedWidth` and `codedHeight` are the dimensions of the video in the codec's internal format.
 - `displayAspectWidth` and `displayAspectHeight` are scaled dimensions of how the video should be displayed, but with rotation not yet applied.
-:::note
-These are not necessarily the actual dimensions of how a video is presented to the user, because rotation is not yet applied.  
-The fields are named like this because they correspond with what should be passed to `new EncodedVideoChunk()`.
-:::
+  :::note
+  These are not necessarily the actual dimensions of how a video is presented to the user, because rotation is not yet applied.  
+  The fields are named like this because they correspond with what should be passed to `new EncodedVideoChunk()`.
+  :::
 - `width` and `height` are the dimensions of the video how it would be displayed by a Player.
 
 ### Google Chrome quirks
@@ -305,7 +330,7 @@ We find that as of now, `AudioDecoder.isConfigSupported()` are not 100% reliable
 const config = {codec: 'opus', numberOfChannels: 6, sampleRate: 44100};
 console.log(await AudioDecoder.isConfigSupported(config)); // {supported: true}
 
-const decoder = new AudioDecoder({ error: console.error, output: console.log });
+const decoder = new AudioDecoder({error: console.error, output: console.log});
 
 decoder.configure(config); // Unsupported configuration. Check isConfigSupported() prior to calling configure().
 ```

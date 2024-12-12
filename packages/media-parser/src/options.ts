@@ -80,7 +80,7 @@ export type TracksField = {
 	audioTracks: AudioTrack[];
 };
 
-export type ParseMediaContainer = 'mp4' | 'webm' | 'avi';
+export type ParseMediaContainer = 'mp4' | 'webm' | 'avi' | 'transport-stream';
 
 export type ParseMediaCallbacks<Fields extends Options<ParseMediaFields>> =
 	(Fields['dimensions'] extends true
@@ -117,7 +117,7 @@ export type ParseMediaCallbacks<Fields extends Options<ParseMediaFields>> =
 			: {}) &
 		(Fields['name'] extends true ? {onName?: (name: string) => void} : {}) &
 		(Fields['container'] extends true
-			? {onContainer?: (container: ParseMediaContainer | null) => void}
+			? {onContainer?: (container: ParseMediaContainer) => void}
 			: {});
 
 export type ParseMediaResult<Fields extends Options<ParseMediaFields>> =
@@ -145,9 +145,7 @@ export type ParseMediaResult<Fields extends Options<ParseMediaFields>> =
 		(Fields['size'] extends true ? {size: number | null} : {}) &
 		(Fields['name'] extends true ? {name: string} : {}) &
 		(Fields['metadata'] extends true ? {metadata: MetadataEntry[]} : {}) &
-		(Fields['container'] extends true
-			? {container: ParseMediaContainer | null}
-			: {});
+		(Fields['container'] extends true ? {container: ParseMediaContainer} : {});
 
 export type ParseMediaDynamicOptions<F extends Options<ParseMediaFields>> = {
 	fields?: F;

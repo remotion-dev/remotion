@@ -4,6 +4,7 @@ import {
 	MediaParserAudioCodec,
 	MediaParserInternals,
 	MediaParserVideoCodec,
+	ParseMediaContainer,
 	TracksField,
 } from '@remotion/media-parser';
 import {fetchReader} from '@remotion/media-parser/fetch';
@@ -53,6 +54,7 @@ export default function ConvertUI({
 	flipVertical,
 	setFlipHorizontal,
 	setFlipVertical,
+	inputContainer,
 }: {
 	readonly src: Source;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
@@ -60,6 +62,7 @@ export default function ConvertUI({
 	readonly currentVideoCodec: MediaParserVideoCodec | null;
 	readonly tracks: TracksField | null;
 	readonly duration: number | null;
+	readonly inputContainer: ParseMediaContainer | null;
 	readonly logLevel: LogLevel;
 	readonly action: RouteAction;
 	readonly enableRotateOrMirror: RotateOrMirrorState;
@@ -73,7 +76,7 @@ export default function ConvertUI({
 	readonly setFlipHorizontal: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly setFlipVertical: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-	const [container, setContainer] = useState<ConvertMediaContainer>(() =>
+	const [outputContainer, setContainer] = useState<ConvertMediaContainer>(() =>
 		getDefaultContainerForConversion(src, action),
 	);
 	const [videoConfigIndexSelection, _setVideoConfigIndex] = useState<
@@ -97,10 +100,11 @@ export default function ConvertUI({
 	}, [action]);
 
 	const supportedConfigs = useSupportedConfigs({
-		container,
+		outputContainer,
 		tracks,
 		action,
 		userRotation,
+		inputContainer,
 	});
 
 	const setVideoConfigIndex = useCallback((trackId: number, i: number) => {
@@ -153,7 +157,7 @@ export default function ConvertUI({
 					},
 				});
 			},
-			container,
+			container: outputContainer,
 			signal: abortController.signal,
 			fields: {
 				name: true,
@@ -238,7 +242,7 @@ export default function ConvertUI({
 		src,
 		userRotation,
 		logLevel,
-		container,
+		outputContainer,
 		flipHorizontal,
 		enableRotateOrMirror,
 		flipVertical,
@@ -305,7 +309,7 @@ export default function ConvertUI({
 				<ConvertProgress
 					state={state.state}
 					name={name}
-					container={container}
+					container={outputContainer}
 					done={false}
 					duration={duration}
 					isReencoding={
@@ -332,7 +336,7 @@ export default function ConvertUI({
 					done
 					state={state.state}
 					name={name}
-					container={container}
+					container={outputContainer}
 					duration={duration}
 					isReencoding={
 						supportedConfigs !== null &&
@@ -344,7 +348,9 @@ export default function ConvertUI({
 					}
 				/>
 				<div className="h-2" />
-				<ConversionDone {...{container, name, setState, state, setSrc}} />
+				<ConversionDone
+					{...{container: outputContainer, name, setState, state, setSrc}}
+				/>
 			</>
 		);
 	}
@@ -381,7 +387,7 @@ export default function ConvertUI({
 										<div className="h-2" />
 										<ConvertForm
 											{...{
-												container,
+												container: outputContainer,
 												setContainer,
 												flipHorizontal,
 												flipVertical,

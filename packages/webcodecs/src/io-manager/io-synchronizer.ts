@@ -24,9 +24,9 @@ export const makeIoSynchronizer = ({
 
 	// Once WebCodecs emits items, the user has to handle them
 	// Let's keep count of how many items are unprocessed
-	let unprocessed = 0;
+	let _unprocessed = 0;
 
-	const getUnprocessed = () => unprocessed;
+	const getUnprocessed = () => _unprocessed;
 
 	const getUnemittedItems = () => {
 		inputs = inputs.filter(
@@ -72,7 +72,7 @@ export const makeIoSynchronizer = ({
 		eventEmitter.dispatchEvent('output', {
 			timestamp,
 		});
-		unprocessed++;
+		_unprocessed++;
 		printState('Got output');
 	};
 
@@ -99,18 +99,29 @@ export const makeIoSynchronizer = ({
 	};
 
 	const waitFor = async ({
-		_unprocessed,
+		unprocessed,
 		unemitted,
 		minimumProgress,
+		signal,
 	}: {
 		unemitted: number;
-		_unprocessed: number;
+		unprocessed: number;
 		minimumProgress: number | null;
+		signal: AbortSignal;
 	}) => {
 		const {timeoutPromise, clear} = makeTimeoutPromise(
-			`Waited too long for ${label}`,
+			[
+				`Waited too long for ${label}:`,
+				`${getUnemittedItems()} unemitted items`,
+				`${getUnprocessed()} unprocessed items`,
+				`minimum progress ${minimumProgress}`,
+				`smallest progress: ${progress.getSmallestProgress()}`,
+				`inputs: ${JSON.stringify(inputs)}`,
+				`last output: ${lastOutput}`,
+			].join('\n'),
 			10_000,
 		);
+		signal.addEventListener('abort', clear);
 
 		await Promise.race([
 			timeoutPromise,
@@ -121,11 +132,11 @@ export const makeIoSynchronizer = ({
 					}
 				})(),
 				(async () => {
-					while (getUnprocessed() > _unprocessed) {
+					while (getUnprocessed() > unprocessed) {
 						await waitForProcessed();
 					}
 				})(),
-				minimumProgress === null
+				minimumProgress === null || progress.getSmallestProgress() === null
 					? Promise.resolve()
 					: (async () => {
 							while (progress.getSmallestProgress() < minimumProgress) {
@@ -134,15 +145,21 @@ export const makeIoSynchronizer = ({
 						})(),
 			]),
 		]).finally(() => clear());
+		signal.removeEventListener('abort', clear);
 	};
 
-	const waitForFinish = async () => {
-		await waitFor({_unprocessed: 0, unemitted: 0, minimumProgress: null});
+	const waitForFinish = async (signal: AbortSignal) => {
+		await waitFor({
+			unprocessed: 0,
+			unemitted: 0,
+			minimumProgress: null,
+			signal,
+		});
 	};
 
 	const onProcessed = () => {
 		eventEmitter.dispatchEvent('processed', {});
-		unprocessed--;
+		_unprocessed--;
 	};
 
 	return {

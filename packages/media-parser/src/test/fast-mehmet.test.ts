@@ -15,7 +15,7 @@ test('mehmet video should be fast', async () => {
 		onVideoTrack: () => {
 			return () => {};
 		},
-		onAudioTrack: (track) => {
+		onAudioTrack: ({track}) => {
 			expect(track.codec).toBe('pcm-s16');
 			expect(track.numberOfChannels).toBe(1);
 			audioTracks++;

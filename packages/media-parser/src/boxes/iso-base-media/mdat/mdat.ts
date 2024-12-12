@@ -1,4 +1,5 @@
 import type {BufferIterator} from '../../../buffer-iterator';
+import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../../convert-audio-or-video-sample';
 import {getTracks, hasTracks} from '../../../get-tracks';
 import type {IsoBaseMediaBox} from '../../../parse-result';
 import type {ParserContext} from '../../../parser-context';
@@ -131,42 +132,42 @@ export const parseMdat = async ({
 
 		const bytes = data.getSlice(samplesWithIndex.samplePosition.size);
 
-		const timestamp =
-			(samplesWithIndex.samplePosition.cts * 1_000_000) /
-			samplesWithIndex.track.timescale;
-		const duration =
-			(samplesWithIndex.samplePosition.duration * 1_000_000) /
-			samplesWithIndex.track.timescale;
-
-		const cts =
-			(samplesWithIndex.samplePosition.cts * 1_000_000) /
-			samplesWithIndex.track.timescale;
-		const dts =
-			(samplesWithIndex.samplePosition.dts * 1_000_000) /
-			samplesWithIndex.track.timescale;
+		const {cts, dts, duration} = samplesWithIndex.samplePosition;
 
 		if (samplesWithIndex.track.type === 'audio') {
-			await options.parserState.onAudioSample(samplesWithIndex.track.trackId, {
-				data: bytes,
-				timestamp,
-				duration,
-				cts,
-				dts,
-				trackId: samplesWithIndex.track.trackId,
-				type: samplesWithIndex.samplePosition.isKeyframe ? 'key' : 'delta',
-			});
+			await options.parserState.onAudioSample(
+				samplesWithIndex.track.trackId,
+				convertAudioOrVideoSampleToWebCodecsTimestamps(
+					{
+						data: bytes,
+						timestamp: cts,
+						duration,
+						cts,
+						dts,
+						trackId: samplesWithIndex.track.trackId,
+						type: samplesWithIndex.samplePosition.isKeyframe ? 'key' : 'delta',
+					},
+					samplesWithIndex.track.timescale,
+				),
+			);
 		}
 
 		if (samplesWithIndex.track.type === 'video') {
-			await options.parserState.onVideoSample(samplesWithIndex.track.trackId, {
-				data: bytes,
-				timestamp,
-				duration,
-				cts,
-				dts,
-				trackId: samplesWithIndex.track.trackId,
-				type: samplesWithIndex.samplePosition.isKeyframe ? 'key' : 'delta',
-			});
+			await options.parserState.onVideoSample(
+				samplesWithIndex.track.trackId,
+				convertAudioOrVideoSampleToWebCodecsTimestamps(
+					{
+						data: bytes,
+						timestamp: cts,
+						duration,
+						cts,
+						dts,
+						trackId: samplesWithIndex.track.trackId,
+						type: samplesWithIndex.samplePosition.isKeyframe ? 'key' : 'delta',
+					},
+					samplesWithIndex.track.timescale,
+				),
+			);
 		}
 
 		const remaining = size - (data.counter.getOffset() - fileOffset);

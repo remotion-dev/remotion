@@ -275,6 +275,10 @@ export const getArrayBufferIterator = (
 		return matchesPattern(mpegPattern)(data.subarray(0, 4));
 	};
 
+	const isTransportStream = () => {
+		return data[0] === 0x47;
+	};
+
 	const removeBytesRead = () => {
 		if (!discardAllowed) {
 			return;
@@ -317,6 +321,28 @@ export const getArrayBufferIterator = (
 		}
 	};
 
+	const readExpGolomb = () => {
+		if (!bitReadingMode) {
+			throw new Error('Not in bit reading mode');
+		}
+
+		let zerosCount = 0;
+
+		// Step 1: Count the number of leading zeros
+		while (getBits(1) === 0) {
+			zerosCount++;
+		}
+
+		// Step 2: Read the suffix
+		let suffix = 0;
+		for (let i = 0; i < zerosCount; i++) {
+			suffix = (suffix << 1) | getBits(1);
+		}
+
+		// Step 3: Calculate the value
+		return (1 << zerosCount) - 1 + suffix;
+	};
+
 	const peekB = (length: number) => {
 		// eslint-disable-next-line no-console
 		console.log(
@@ -349,11 +375,14 @@ export const getArrayBufferIterator = (
 
 	const stopReadingBits = () => {
 		bitIndex = 0;
+		bitReadingMode = false;
 	};
 
 	let byteToShift = 0;
+	let bitReadingMode = false;
 
 	const startReadingBits = () => {
+		bitReadingMode = true;
 		byteToShift = getUint8();
 	};
 
@@ -620,6 +649,8 @@ export const getArrayBufferIterator = (
 		disallowDiscard,
 		allowDiscard,
 		startBox,
+		isTransportStream,
+		readExpGolomb,
 	};
 };
 

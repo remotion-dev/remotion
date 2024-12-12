@@ -96,11 +96,14 @@ export const createVideoEncoder = ({
 			return;
 		}
 
+		progress.setPossibleLowestTimestamp(frame.timestamp);
+
 		await ioSynchronizer.waitFor({
 			// Firefox stalls if too few frames are passed
 			unemitted: 10,
-			_unprocessed: 10,
+			unprocessed: 10,
 			minimumProgress: frame.timestamp - 5_000_000,
+			signal,
 		});
 
 		// @ts-expect-error - can have changed in the meanwhile
@@ -131,7 +134,7 @@ export const createVideoEncoder = ({
 		waitForFinish: async () => {
 			await encoder.flush();
 			await outputQueue;
-			await ioSynchronizer.waitForFinish();
+			await ioSynchronizer.waitForFinish(signal);
 		},
 		close,
 		flush: async () => {

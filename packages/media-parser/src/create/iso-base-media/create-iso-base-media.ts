@@ -8,6 +8,8 @@ import {createIsoBaseMediaFtyp} from './create-ftyp';
 import {createPaddedMoovAtom} from './mp4-header';
 import {numberTo32BitUIntOrInt, stringsToUint8Array} from './primitives';
 
+const CONTAINER_TIMESCALE = 1_000;
+
 export const createIsoBaseMedia = async ({
 	writer,
 	onBytesProgress,
@@ -25,7 +27,9 @@ export const createIsoBaseMedia = async ({
 	const w = await writer.createContent({filename, mimeType: 'video/mp4'});
 	await w.write(header);
 
-	let durationInUnits = 0;
+	let globalDurationInUnits = 0;
+	const lowestTrackTimestamps: Record<number, number> = {};
+	const trackDurations: Record<number, number> = {};
 
 	const currentTracks: (MakeTrackAudio | MakeTrackVideo)[] = [];
 	const samplePositions: SamplePosition[][] = [];
@@ -34,16 +38,16 @@ export const createIsoBaseMedia = async ({
 	const moovOffset = w.getWrittenByteCount();
 	const getPaddedMoovAtom = () => {
 		return createPaddedMoovAtom({
-			durationInUnits,
+			durationInUnits: globalDurationInUnits,
 			trackInfo: currentTracks.map((track) => {
 				return {
 					track,
-					durationInUnits,
+					durationInUnits: trackDurations[track.trackNumber] ?? 0,
 					samplePositions: samplePositions[track.trackNumber] ?? [],
 					timescale: track.timescale,
 				};
 			}),
-			timescale: 1000,
+			timescale: CONTAINER_TIMESCALE,
 		});
 	};
 
@@ -74,11 +78,6 @@ export const createIsoBaseMedia = async ({
 		onBytesProgress(w.getWrittenByteCount());
 	};
 
-	const updateDuration = (newDuration: number) => {
-		durationInUnits = newDuration;
-		onMillisecondsProgress(newDuration);
-	};
-
 	const addCodecPrivateToTrack = ({
 		trackNumber,
 		codecPrivate,
@@ -99,13 +98,11 @@ export const createIsoBaseMedia = async ({
 		chunk,
 		trackNumber,
 		isVideo,
-		timescale,
 		codecPrivate,
 	}: {
 		chunk: AudioOrVideoSample;
 		trackNumber: number;
 		isVideo: boolean;
-		timescale: number;
 		codecPrivate: Uint8Array | null;
 	}) => {
 		const position = w.getWrittenByteCount();
@@ -113,17 +110,55 @@ export const createIsoBaseMedia = async ({
 		await w.write(chunk.data);
 		mdatSize += chunk.data.length;
 		onBytesProgress(w.getWrittenByteCount());
+		progressTracker.setPossibleLowestTimestamp(
+			Math.min(chunk.timestamp, chunk.cts ?? Infinity, chunk.dts ?? Infinity),
+		);
 		progressTracker.updateTrackProgress(trackNumber, chunk.timestamp);
 
 		if (codecPrivate) {
 			addCodecPrivateToTrack({trackNumber, codecPrivate});
 		}
 
-		const newDuration = Math.round(
-			(chunk.timestamp + (chunk.duration ?? 0)) / 1000,
+		const currentTrack = currentTracks.find(
+			(t) => t.trackNumber === trackNumber,
+		);
+		if (!currentTrack) {
+			throw new Error(
+				`Tried to add sample to track ${trackNumber}, but it doesn't exist`,
+			);
+		}
+
+		if (
+			!lowestTrackTimestamps[trackNumber] ||
+			chunk.timestamp < lowestTrackTimestamps[trackNumber]
+		) {
+			lowestTrackTimestamps[trackNumber] = chunk.timestamp;
+		}
+
+		if (typeof lowestTrackTimestamps[trackNumber] !== 'number') {
+			throw new Error(
+				`Tried to add sample to track ${trackNumber}, but it has no timestamp`,
+			);
+		}
+
+		const newDurationInMicroSeconds =
+			chunk.timestamp +
+			(chunk.duration ?? 0) -
+			lowestTrackTimestamps[trackNumber];
+		const newDurationInTrackTimeUnits = Math.round(
+			newDurationInMicroSeconds / (1_000_000 / currentTrack.timescale),
+		);
+		trackDurations[trackNumber] = newDurationInTrackTimeUnits;
+
+		// webcodecs returns frame duration in microseconds
+		const newDurationInMilliseconds = Math.round(
+			(newDurationInMicroSeconds / 1_000_000) * CONTAINER_TIMESCALE,
 		);
 
-		updateDuration(newDuration);
+		if (newDurationInMilliseconds > globalDurationInUnits) {
+			globalDurationInUnits = newDurationInMilliseconds;
+			onMillisecondsProgress(newDurationInMilliseconds);
+		}
 
 		if (!samplePositions[trackNumber]) {
 			samplePositions[trackNumber] = [];
@@ -152,9 +187,11 @@ export const createIsoBaseMedia = async ({
 			isKeyframe: chunk.type === 'key',
 			offset: position,
 			chunk: sampleChunkIndices[trackNumber],
-			cts: Math.round(chunk.cts / (1_000_000 / timescale)),
-			dts: Math.round(chunk.dts / (1_000_000 / timescale)),
-			duration: Math.round((chunk.duration ?? 0) / (1_000_000 / timescale)),
+			cts: Math.round((chunk.cts / 1_000_000) * currentTrack.timescale),
+			dts: Math.round((chunk.dts / 1_000_000) * currentTrack.timescale),
+			duration: Math.round(
+				((chunk.duration ?? 0) / 1_000_000) * currentTrack.timescale,
+			),
 			size: chunk.data.length,
 		};
 		lastChunkWasVideo = isVideo;
@@ -184,13 +221,12 @@ export const createIsoBaseMedia = async ({
 		remove: async () => {
 			await w.remove();
 		},
-		addSample: ({chunk, trackNumber, isVideo, timescale, codecPrivate}) => {
+		addSample: ({chunk, trackNumber, isVideo, codecPrivate}) => {
 			operationProm.current = operationProm.current.then(() => {
 				return addSample({
 					chunk,
 					trackNumber,
 					isVideo,
-					timescale,
 					codecPrivate,
 				});
 			});

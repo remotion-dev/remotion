@@ -1,4 +1,5 @@
 import type {VideoTrack} from '@remotion/media-parser';
+import {isSafari} from './browser-quirks';
 import type {ConvertMediaOnVideoFrame} from './convert-media';
 import {convertToCorrectVideoFrame} from './convert-to-correct-videoframe';
 import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
@@ -44,7 +45,9 @@ export const onFrame = async ({
 		);
 	}
 
-	if (userProcessedFrame.timestamp !== rotated.timestamp) {
+	// In Safari, calling new VideoFrame() might change the timestamp
+	// In flipVideo test from 803000 to 803299
+	if (userProcessedFrame.timestamp !== rotated.timestamp && !isSafari()) {
 		throw new Error(
 			`Returned VideoFrame of track ${track.trackId} has different timestamp (${userProcessedFrame.timestamp}) than the input frame (${rotated.timestamp}). When calling new VideoFrame(), pass {timestamp: frame.timestamp} as second argument`,
 		);

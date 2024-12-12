@@ -27,16 +27,18 @@ You can obtain a `VideoTrack` using [`parseMedia()`](/docs/media-parser/parse-me
 import {parseMedia} from '@remotion/media-parser';
 import {canCopyVideoTrack} from '@remotion/webcodecs';
 
-const {videoTracks} = await parseMedia({
+const {videoTracks, container} = await parseMedia({
   src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
   fields: {
     tracks: true,
+    container: true,
   },
 });
 
 for (const track of videoTracks) {
   canCopyVideoTrack({
-    container: 'webm',
+    outputContainer: 'webm',
+    inputContainer: container,
     inputCodec: track.codecWithoutConfig,
     inputRotation: track.rotation,
     rotationToApply: 0,
@@ -55,10 +57,11 @@ await convertMedia({
   container: 'webm',
   videoCodec: 'vp8',
   audioCodec: 'opus',
-  onVideoTrack: async ({track}) => {
+  onVideoTrack: async ({track, inputContainer, outputContainer}) => {
     const canCopy = canCopyVideoTrack({
       inputCodec: track.codecWithoutConfig,
-      container: 'webm',
+      outputContainer,
+      inputContainer,
       inputRotation: track.rotation,
       rotationToApply: 0,
     });
@@ -93,7 +96,13 @@ _number_
 
 The number of degrees to rotate the video track.
 
-### `container`
+### `inputContainer`
+
+_string_ <TsType type="ParseMediaContainer" source="@remotion/media-parser" />
+
+The container format of the input media.
+
+### `outputContainer`
 
 _string_ <TsType type="ConvertMediaContainer" source="@remotion/webcodecs" />
 

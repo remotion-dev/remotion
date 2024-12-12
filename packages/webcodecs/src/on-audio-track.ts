@@ -9,11 +9,13 @@ import {createAudioDecoder} from './audio-decoder';
 import {getAudioDecoderConfig} from './audio-decoder-config';
 import {createAudioEncoder} from './audio-encoder';
 import {getAudioEncoderConfig} from './audio-encoder-config';
+import {canCopyAudioTrack} from './can-copy-audio-track';
 import {convertEncodedChunk} from './convert-encoded-chunk';
 import {defaultOnAudioTrackHandler} from './default-on-audio-track-handler';
 import Error from './error-cause';
 import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 import type {ConvertMediaContainer} from './get-available-containers';
+import {getDefaultAudioCodec} from './get-default-audio-codec';
 import {Log} from './log';
 import type {ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
 import type {ConvertMediaProgressFn} from './throttled-state-update';
@@ -27,7 +29,7 @@ export const makeAudioTrackHandler =
 		onMediaStateUpdate,
 		onAudioTrack,
 		logLevel,
-		container,
+		outputContainer,
 		progressTracker,
 	}: {
 		state: MediaFn;
@@ -37,15 +39,24 @@ export const makeAudioTrackHandler =
 		onMediaStateUpdate: null | ConvertMediaProgressFn;
 		onAudioTrack: ConvertMediaOnAudioTrackHandler | null;
 		logLevel: LogLevel;
-		container: ConvertMediaContainer;
+		outputContainer: ConvertMediaContainer;
 		progressTracker: ProgressTracker;
 	}): OnAudioTrack =>
-	async (track) => {
+	async ({track, container: inputContainer}) => {
+		const canCopyTrack = canCopyAudioTrack({
+			inputCodec: track.codecWithoutConfig,
+			outputContainer,
+			inputContainer,
+		});
+
 		const audioOperation = await (onAudioTrack ?? defaultOnAudioTrackHandler)({
-			defaultAudioCodec: audioCodec,
+			defaultAudioCodec:
+				audioCodec ?? getDefaultAudioCodec({container: outputContainer}),
 			track,
 			logLevel,
-			container,
+			outputContainer,
+			inputContainer,
+			canCopyTrack,
 		});
 
 		if (audioOperation.type === 'drop') {
@@ -54,7 +65,7 @@ export const makeAudioTrackHandler =
 
 		if (audioOperation.type === 'fail') {
 			throw new Error(
-				`Audio track with ID ${track.trackId} could resolved with {"type": "fail"}. This could mean that this audio track could neither be copied to the output container or re-encoded. You have the option to drop the track instead of failing it: https://remotion.dev/docs/webcodecs/track-transformation`,
+				`Audio track with ID ${track.trackId} resolved with {"type": "fail"}. This could mean that this audio track could neither be copied to the output container or re-encoded. You have the option to drop the track instead of failing it: https://remotion.dev/docs/webcodecs/track-transformation`,
 			);
 		}
 
@@ -77,7 +88,6 @@ export const makeAudioTrackHandler =
 					chunk: audioSample,
 					trackNumber: addedTrack.trackNumber,
 					isVideo: false,
-					timescale: track.timescale,
 					codecPrivate: track.codecPrivate,
 				});
 				onMediaStateUpdate?.((prevState) => {
@@ -154,7 +164,6 @@ export const makeAudioTrackHandler =
 					chunk: convertEncodedChunk(chunk, trackNumber),
 					trackNumber,
 					isVideo: false,
-					timescale: track.timescale,
 					codecPrivate,
 				});
 				onMediaStateUpdate?.((prevState) => {

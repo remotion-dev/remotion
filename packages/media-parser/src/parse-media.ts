@@ -90,11 +90,11 @@ export const parseMedia: ParseMedia = async ({
 	triggerInfoEmit();
 
 	while (parseResult === null || parseResult.status === 'incomplete') {
-		if (signal?.aborted) {
-			throw new Error('Aborted');
-		}
-
 		while (true) {
+			if (signal?.aborted) {
+				throw new Error('Aborted');
+			}
+
 			const result = await currentReader.reader.read();
 
 			if (iterator) {

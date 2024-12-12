@@ -28,6 +28,7 @@ import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import type {TrunBox} from './boxes/iso-base-media/trun';
 import type {VoidBox} from './boxes/iso-base-media/void-box';
 import type {RiffBox} from './boxes/riff/riff-box';
+import type {TransportStreamBox} from './boxes/transport-stream/boxes';
 import type {MatroskaSegment} from './boxes/webm/segments';
 
 export interface RegularBox extends BaseBox {
@@ -69,7 +70,11 @@ export type IsoBaseMediaBox =
 	| TfdtBox
 	| TfhdBox;
 
-export type AnySegment = MatroskaSegment | IsoBaseMediaBox | RiffBox;
+export type AnySegment =
+	| MatroskaSegment
+	| IsoBaseMediaBox
+	| RiffBox
+	| TransportStreamBox;
 
 export type IsoBaseMediaStructure = {
 	type: 'iso-base-media';
@@ -86,10 +91,16 @@ export type MatroskaStructure = {
 	boxes: MatroskaSegment[];
 };
 
+export type TransportStreamStructure = {
+	type: 'transport-stream';
+	boxes: TransportStreamBox[];
+};
+
 export type Structure =
 	| IsoBaseMediaStructure
 	| RiffStructure
-	| MatroskaStructure;
+	| MatroskaStructure
+	| TransportStreamStructure;
 
 export type ParseResult<TStructure extends Structure> =
 	| {
