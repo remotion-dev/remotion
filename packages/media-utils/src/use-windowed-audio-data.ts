@@ -102,6 +102,10 @@ export const useWindowedAudioData = ({
 				throw new Error('Wave probe is not loaded yet');
 			}
 
+			if (waveFormMap[windowIndex]) {
+				return;
+			}
+
 			const controller = new AbortController();
 			requests.current[windowIndex] = controller;
 			const partialWaveData = await getPartialWaveData({
