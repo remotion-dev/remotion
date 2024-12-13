@@ -7,13 +7,14 @@ import {
 	useState,
 } from 'react';
 import {cancelRender, continueRender, delayRender} from 'remotion';
+import {combineFloat32Arrays} from './combine-float32-arrays';
 import {getPartialWaveData} from './get-partial-wave-data';
 import {isRemoteAsset} from './is-remote-asset';
 import type {WaveProbe} from './probe-wave-file';
 import {probeWaveFile} from './probe-wave-file';
 import type {AudioData} from './types';
 
-type WaveformMap = Record<number, AudioData>;
+type WaveformMap = Record<number, Float32Array>;
 
 export type UseWindowedAudioDataOptions = {
 	src: string;
@@ -85,9 +86,10 @@ export const useWindowedAudioData = ({
 			waveProbe.durationInSeconds / windowInSeconds,
 		);
 
+		// needs to be in order because we rely on the concatenation below
 		return [
-			currentWindowIndex,
 			currentWindowIndex === 0 ? null : currentWindowIndex - 1,
+			currentWindowIndex,
 			currentWindowIndex + 1 > maxWindowIndex ? null : currentWindowIndex + 1,
 		]
 			.filter((i) => i !== null)
@@ -132,14 +134,7 @@ export const useWindowedAudioData = ({
 						{} as Record<string, null>,
 					),
 					// Add the new window
-					[windowIndex]: {
-						channelWaveforms: [partialWaveData],
-						durationInSeconds: waveProbe.durationInSeconds,
-						isRemote: isRemoteAsset(src),
-						numberOfChannels: 1,
-						resultId: String(Math.random()),
-						sampleRate: waveProbe.sampleRate,
-					},
+					[windowIndex]: partialWaveData,
 				};
 			});
 		},
@@ -184,9 +179,26 @@ export const useWindowedAudioData = ({
 		});
 	}, [fetchAndSetWaveformData, waveProbe, windowsToFetch]);
 
-	const currentAudioData = useMemo(() => {
-		return waveFormMap[currentWindowIndex] ?? null;
-	}, [currentWindowIndex, waveFormMap]);
+	const currentAudioData = useMemo((): AudioData | null => {
+		if (!waveProbe) {
+			return null;
+		}
+
+		if (windowsToFetch.some((i) => !waveFormMap[i])) {
+			return null;
+		}
+
+		const windows = windowsToFetch.map((i) => waveFormMap[i]);
+		const data = combineFloat32Arrays(windows);
+		return {
+			channelWaveforms: [data],
+			durationInSeconds: waveProbe.durationInSeconds,
+			isRemote: isRemoteAsset(src),
+			numberOfChannels: 1,
+			resultId: String(Math.random()),
+			sampleRate: waveProbe.sampleRate,
+		};
+	}, [src, waveFormMap, waveProbe, windowsToFetch]);
 
 	useLayoutEffect(() => {
 		if (currentAudioData) {
@@ -203,6 +215,6 @@ export const useWindowedAudioData = ({
 
 	return {
 		audioData: currentAudioData,
-		dataOffsetInSeconds: currentWindowIndex * windowInSeconds,
+		dataOffsetInSeconds: windowsToFetch[0] * windowInSeconds,
 	};
 };
