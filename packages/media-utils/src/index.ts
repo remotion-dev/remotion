@@ -12,5 +12,9 @@ export {WaveProbe, probeWaveFile} from './probe-wave-file';
 export * from './types';
 export type {AudioData, VideoMetadata as VideoData} from './types';
 export {useAudioData} from './use-audio-data';
-export {useWindowedAudioData} from './use-windowed-audio-data';
+export {
+	UseWindowedAudioDataOptions,
+	UseWindowedAudioDataReturnValue,
+	useWindowedAudioData,
+} from './use-windowed-audio-data';
 export {VisualizeAudioOptions, visualizeAudio} from './visualize-audio';
