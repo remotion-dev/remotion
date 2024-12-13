@@ -1,5 +1,6 @@
-import { useWindowedAudioData, visualizeAudio } from "@remotion/media-utils";
+import { visualizeAudio } from "@remotion/media-utils";
 import { useCurrentFrame, useVideoConfig } from "remotion";
+import { useWindowedAudioDataIfPossible } from "../helpers/use-windowed-audio-data-if-possible";
 
 export const Waveform: React.FC<{
   readonly waveColor: string;
@@ -19,7 +20,7 @@ export const Waveform: React.FC<{
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const { audioData, dataOffsetInSeconds } = useWindowedAudioData({
+  const { audioData, dataOffsetInSeconds } = useWindowedAudioDataIfPossible({
     src: audioSrc,
     fps,
     frame,

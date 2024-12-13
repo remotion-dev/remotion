@@ -57,6 +57,7 @@ export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({
           </div>
           <div>
             <Waveform
+              key={audioFileName}
               audioSrc={audioFileName}
               mirrorWave={mirrorWave}
               waveColor={waveColor}
