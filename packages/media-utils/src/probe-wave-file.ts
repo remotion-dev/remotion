@@ -61,8 +61,6 @@ export const probeWaveFile = async (src: string): Promise<WaveProbe> => {
 	const buffer = await response.arrayBuffer();
 	const uintArray = new Uint8Array(buffer);
 
-	// const header = uintArray.slice(0, 44);
-
 	const shouldBeRiff = new TextDecoder().decode(uintArray.slice(0, 4));
 	if (shouldBeRiff !== 'RIFF') {
 		throw new Error(
