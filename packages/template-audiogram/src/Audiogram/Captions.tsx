@@ -19,22 +19,9 @@ const useWindowedFrameCaptions = ({
   windowEnd: number;
 }) => {
   return useMemo(() => {
-    return captions
-      .map((item) => {
-        const start = msToFrame(item.startMs);
-        const end = msToFrame(item.endMs);
-        return { item, start, end };
-      })
-      .filter(({ start }) => {
-        return start >= windowStart && start <= windowEnd;
-      })
-      .map(({ item, start, end }) => {
-        return {
-          ...item,
-          start,
-          end,
-        };
-      }, []);
+    return captions.filter(({ startMs, endMs }) => {
+      return msToFrame(startMs) >= windowStart && msToFrame(endMs) <= windowEnd;
+    });
   }, [captions, windowEnd, windowStart]);
 };
 
@@ -67,6 +54,8 @@ export const PaginatedCaptions: React.FC<{
   });
   const currentScale = useCurrentScale();
 
+  console.log(captions);
+
   const [lineOffset, setLineOffset] = useState(0);
 
   const currentAndFollowingSentences = useMemo(() => {
@@ -82,7 +71,7 @@ export const PaginatedCaptions: React.FC<{
           (w.text.endsWith("?") ||
             w.text.endsWith(".") ||
             w.text.endsWith("!")) &&
-          nextWord.start < frame
+          msToFrame(nextWord.startMs) < frame
         );
       }) + 1;
 
@@ -106,7 +95,7 @@ export const PaginatedCaptions: React.FC<{
   ]);
 
   const currentFrameSentences = currentAndFollowingSentences.filter((word) => {
-    return word.start < frame;
+    return msToFrame(word.startMs) < frame;
   });
 
   return (
@@ -124,12 +113,15 @@ export const PaginatedCaptions: React.FC<{
         }}
       >
         {currentFrameSentences.map((item) => (
-          <span key={item.start + item.end} id={String(item.start + item.end)}>
+          <span
+            key={item.startMs + item.endMs}
+            id={String(item.startMs + item.endMs)}
+          >
             <Word
               frame={frame}
               item={item}
               transcriptionColor={transcriptionColor}
-            />{" "}
+            />
           </span>
         ))}
       </div>

@@ -1,5 +1,5 @@
 import { Composition, staticFile } from "remotion";
-import { Main } from "./Audiogram/Main";
+import { Audiogram } from "./Audiogram/Main";
 import { audiogramSchema } from "./Audiogram/schema";
 import { getAudioDurationInSeconds } from "@remotion/media-utils";
 import { getSubtitles } from "./helpers/fetch-captions";
@@ -10,7 +10,7 @@ export const RemotionRoot: React.FC = () => {
     <>
       <Composition
         id="Audiogram"
-        component={Main}
+        component={Audiogram}
         width={1080}
         height={1080}
         schema={audiogramSchema}

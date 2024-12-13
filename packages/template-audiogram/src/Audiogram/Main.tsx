@@ -4,14 +4,14 @@ import { loadFont, fontFamily } from "@remotion/google-fonts/IBMPlexSans";
 import "./style.css";
 
 import { PaginatedCaptions } from "./Captions";
-import { AudioViz } from "./AudioViz";
+import { Waveform } from "./Waveform";
 import { AudiogramCompositionSchemaType } from "./schema";
 
 loadFont("normal", {
   weights: ["500"],
 });
 
-export const Main: React.FC<AudiogramCompositionSchemaType> = ({
+export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({
   audioFileName,
   coverImgFileName,
   titleText,
@@ -55,14 +55,16 @@ export const Main: React.FC<AudiogramCompositionSchemaType> = ({
               {titleText}
             </div>
           </div>
-          <AudioViz
-            audioSrc={audioFileName}
-            mirrorWave={mirrorWave}
-            waveColor={waveColor}
-            numberOfSamples={Number(waveNumberOfSamples)}
-            freqRangeStartIndex={waveFreqRangeStartIndex}
-            waveLinesToDisplay={waveLinesToDisplay}
-          />
+          <div>
+            <Waveform
+              audioSrc={audioFileName}
+              mirrorWave={mirrorWave}
+              waveColor={waveColor}
+              numberOfSamples={Number(waveNumberOfSamples)}
+              freqRangeStartIndex={waveFreqRangeStartIndex}
+              waveLinesToDisplay={waveLinesToDisplay}
+            />
+          </div>
           <div
             style={{ lineHeight: `${subtitlesLineHeight}px` }}
             className="captions"

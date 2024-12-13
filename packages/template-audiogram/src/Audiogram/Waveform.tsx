@@ -1,7 +1,7 @@
 import { useAudioData, visualizeAudio } from "@remotion/media-utils";
 import { useCurrentFrame, useVideoConfig } from "remotion";
 
-export const AudioViz: React.FC<{
+export const Waveform: React.FC<{
   readonly waveColor: string;
   readonly numberOfSamples: number;
   readonly freqRangeStartIndex: number;
@@ -30,6 +30,7 @@ export const AudioViz: React.FC<{
     frame,
     audioData,
     numberOfSamples, // Use more samples to get a nicer visualisation
+    optimizeFor: "speed",
   });
 
   // Pick the low values because they look nicer than high values
