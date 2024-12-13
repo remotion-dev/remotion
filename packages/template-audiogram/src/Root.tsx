@@ -19,7 +19,7 @@ export const RemotionRoot: React.FC = () => {
           audioOffsetInSeconds: 6.9,
 
           // Title settings
-          audioFileName: staticFile("audio1.mp3"),
+          audioFileName: staticFile("audio.wav"),
           coverImgFileName: staticFile("cover.jpg"),
           titleText:
             "#234 – Money, Kids, and Choosing Your Market with Justin Jackson of Transistor.fm",
@@ -49,7 +49,9 @@ export const RemotionRoot: React.FC = () => {
           );
 
           return {
-            durationInFrames: Math.round(durationInSeconds * FPS),
+            durationInFrames: Math.floor(
+              (durationInSeconds - props.audioOffsetInSeconds) * FPS,
+            ),
             props: {
               ...props,
               captions,

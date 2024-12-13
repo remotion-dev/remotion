@@ -195,6 +195,7 @@ module.exports = {
 				'get-video-metadata',
 				'get-waveform-portion',
 				'use-audio-data',
+				'use-windowed-audio-data',
 				'visualize-audio',
 				'get-image-dimensions',
 			],

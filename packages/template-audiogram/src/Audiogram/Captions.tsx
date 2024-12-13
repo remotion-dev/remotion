@@ -54,8 +54,6 @@ export const PaginatedCaptions: React.FC<{
   });
   const currentScale = useCurrentScale();
 
-  console.log(captions);
-
   const [lineOffset, setLineOffset] = useState(0);
 
   const currentAndFollowingSentences = useMemo(() => {

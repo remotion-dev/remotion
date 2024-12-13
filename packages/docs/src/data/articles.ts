@@ -693,6 +693,13 @@ export const articles = [
 		crumb: 'Troubleshooting',
 	},
 	{
+		id: 'use-windowed-audio-data',
+		title: 'useWindowedAudioData()',
+		relativePath: 'docs/use-windowed-audio-data.mdx',
+		compId: 'articles-docs-use-windowed-audio-data',
+		crumb: '@remotion/media-utils',
+	},
+	{
 		id: 'wrong-composition-mount',
 		title: 'Wrongly mounted <Composition>',
 		relativePath: 'docs/wrong-composition-mount.mdx',

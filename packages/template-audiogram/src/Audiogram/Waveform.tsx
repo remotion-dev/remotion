@@ -1,5 +1,6 @@
-import { useAudioData, visualizeAudio } from "@remotion/media-utils";
+import { visualizeAudio } from "@remotion/media-utils";
 import { useCurrentFrame, useVideoConfig } from "remotion";
+import { useWindowedAudioDataIfPossible } from "../helpers/use-windowed-audio-data-if-possible";
 
 export const Waveform: React.FC<{
   readonly waveColor: string;
@@ -19,7 +20,12 @@ export const Waveform: React.FC<{
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const audioData = useAudioData(audioSrc);
+  const { audioData, dataOffsetInSeconds } = useWindowedAudioDataIfPossible({
+    src: audioSrc,
+    fps,
+    frame,
+    windowInSeconds: 10,
+  });
 
   if (!audioData) {
     return null;
@@ -31,6 +37,7 @@ export const Waveform: React.FC<{
     audioData,
     numberOfSamples, // Use more samples to get a nicer visualisation
     optimizeFor: "speed",
+    dataOffsetInSeconds,
   });
 
   // Pick the low values because they look nicer than high values
