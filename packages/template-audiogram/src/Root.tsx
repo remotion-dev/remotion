@@ -1,7 +1,6 @@
 import { Composition, staticFile } from "remotion";
-import { Main } from "./Main";
-import "./style.css";
-import { audiogramSchema } from "./schema";
+import { Main } from "./Audiogram/Main";
+import { audiogramSchema } from "./Audiogram/schema";
 import { getAudioDurationInSeconds } from "@remotion/media-utils";
 import { getSubtitles } from "./helpers/fetch-captions";
 import { FPS } from "./helpers/ms-to-frame";

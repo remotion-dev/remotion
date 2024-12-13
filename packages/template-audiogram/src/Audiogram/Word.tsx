@@ -2,7 +2,7 @@ import { Easing } from "remotion";
 import { interpolate } from "remotion";
 import React from "react";
 import { Caption } from "@remotion/captions";
-import { msToFrame } from "./helpers/ms-to-frame";
+import { msToFrame } from "../helpers/ms-to-frame";
 
 export const Word: React.FC<{
   readonly item: Caption;

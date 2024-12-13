@@ -1,7 +1,4 @@
 :root {
-  --remotion-font: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell,
-    Noto Sans, sans-serif, "Segoe UI", Roboto, Helvetica, Arial, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji";
   --base-size: 48px;
 }
 
@@ -28,7 +25,6 @@
   color: white;
   padding: var(--base-size);
   background-color: black;
-  font-family: var(--remotion-font);
 }
 
 .row {

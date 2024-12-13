@@ -1979,15 +1979,15 @@ importers:
       '@remotion/cli':
         specifier: workspace:*
         version: link:../cli
+      '@remotion/google-fonts':
+        specifier: workspace:*
+        version: link:../google-fonts
       '@remotion/media-utils':
         specifier: workspace:*
         version: link:../media-utils
       '@remotion/zod-types':
         specifier: workspace:*
         version: link:../zod-types
-      parse-srt:
-        specifier: 1.0.0-alpha
-        version: 1.0.0-alpha
       react:
         specifier: 19.0.0
         version: 19.0.0
@@ -24106,10 +24106,6 @@ packages:
 
   /parse-numeric-range@1.3.0:
     resolution: {integrity: sha512-twN+njEipszzlMJd4ONUYgSfZPDxgHhT9Ahed5uTigpQn90FggW4SA/AIPq/6a149fTbE9qBEcSwE3FAEp6wQQ==}
-    dev: false
-
-  /parse-srt@1.0.0-alpha:
-    resolution: {integrity: sha1-hePGDTHk3Qkk+vVB6oWhiPw0T2E=}
     dev: false
 
   /parse5-htmlparser2-tree-adapter@7.0.0:

@@ -1,24 +1,25 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-  cancelRender,
   continueRender,
   delayRender,
   useCurrentFrame,
   useCurrentScale,
 } from "remotion";
-import { ensureFont } from "./ensure-font";
 import { Word } from "./Word";
 import { Caption } from "@remotion/captions";
-import { msToFrame } from "./helpers/ms-to-frame";
+import { msToFrame } from "../helpers/ms-to-frame";
 
-const useWindowedFrameCaptions = (
-  src: Caption[],
-  options: { windowStart: number; windowEnd: number },
-) => {
-  const { windowStart, windowEnd } = options;
-
+const useWindowedFrameCaptions = ({
+  captions,
+  windowStart,
+  windowEnd,
+}: {
+  captions: Caption[];
+  windowStart: number;
+  windowEnd: number;
+}) => {
   return useMemo(() => {
-    return src
+    return captions
       .map((item) => {
         const start = msToFrame(item.startMs);
         const end = msToFrame(item.endMs);
@@ -34,7 +35,7 @@ const useWindowedFrameCaptions = (
           end,
         };
       }, []);
-  }, [src, windowEnd, windowStart]);
+  }, [captions, windowEnd, windowStart]);
 };
 
 export const PaginatedCaptions: React.FC<{
@@ -59,9 +60,8 @@ export const PaginatedCaptions: React.FC<{
   const frame = useCurrentFrame();
   const windowRef = useRef<HTMLDivElement>(null);
   const [handle] = useState(() => delayRender());
-  const [fontHandle] = useState(() => delayRender());
-  const [fontLoaded, setFontLoaded] = useState(false);
-  const windowedFrameSubs = useWindowedFrameCaptions(captions, {
+  const windowedFrameSubs = useWindowedFrameCaptions({
+    captions,
     windowStart: startFrame,
     windowEnd: endFrame,
   });
@@ -90,9 +90,6 @@ export const PaginatedCaptions: React.FC<{
   }, [frame, onlyDisplayCurrentSentence, windowedFrameSubs]);
 
   useEffect(() => {
-    if (!fontLoaded) {
-      return;
-    }
     const linesRendered =
       (windowRef.current?.getBoundingClientRect().height as number) /
       (subtitlesLineHeight * currentScale);
@@ -101,24 +98,12 @@ export const PaginatedCaptions: React.FC<{
     continueRender(handle);
   }, [
     currentScale,
-    fontLoaded,
     frame,
     handle,
     linesPerPage,
     subtitlesLineHeight,
     subtitlesZoomMeasurerSize,
   ]);
-
-  useEffect(() => {
-    ensureFont()
-      .then(() => {
-        continueRender(fontHandle);
-        setFontLoaded(true);
-      })
-      .catch((err) => {
-        cancelRender(err);
-      });
-  }, [fontHandle, fontLoaded]);
 
   const currentFrameSentences = currentAndFollowingSentences.filter((word) => {
     return word.start < frame;

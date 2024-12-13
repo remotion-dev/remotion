@@ -1,9 +1,15 @@
 import React from "react";
 import { AbsoluteFill, Audio, Img, Sequence, useVideoConfig } from "remotion";
+import { loadFont, fontFamily } from "@remotion/google-fonts/IBMPlexSans";
+import "./style.css";
 
 import { PaginatedCaptions } from "./Captions";
 import { AudioViz } from "./AudioViz";
 import { AudiogramCompositionSchemaType } from "./schema";
+
+loadFont("normal", {
+  weights: ["500"],
+});
 
 export const Main: React.FC<AudiogramCompositionSchemaType> = ({
   audioFileName,
@@ -40,7 +46,7 @@ export const Main: React.FC<AudiogramCompositionSchemaType> = ({
         <div
           className="container"
           style={{
-            fontFamily: "IBM Plex Sans",
+            fontFamily,
           }}
         >
           <div className="row">
