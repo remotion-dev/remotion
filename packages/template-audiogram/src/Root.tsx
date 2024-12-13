@@ -49,7 +49,9 @@ export const RemotionRoot: React.FC = () => {
           );
 
           return {
-            durationInFrames: Math.floor(durationInSeconds * FPS),
+            durationInFrames: Math.floor(
+              (durationInSeconds - props.audioOffsetInSeconds) * FPS,
+            ),
             props: {
               ...props,
               captions,
