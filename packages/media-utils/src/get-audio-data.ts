@@ -21,7 +21,7 @@ const fn = async (src: string, options?: Options): Promise<AudioData> => {
 	}
 
 	const audioContext = new AudioContext({
-		sampleRate: options?.sampleRate ?? 16000,
+		sampleRate: options?.sampleRate ?? 48000,
 	});
 
 	const response = await fetchWithCorsCatch(src);

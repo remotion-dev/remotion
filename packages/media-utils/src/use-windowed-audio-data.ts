@@ -38,6 +38,7 @@ export const useWindowedAudioData = ({
 	const isMounted = useRef(true);
 	const [waveProbe, setWaveProbe] = useState<WaveProbe | null>(null);
 	const [waveFormMap, setWaveformMap] = useState({} as WaveformMap);
+	const requests = useRef<Record<string, AbortController | null>>({});
 	const [initialWindowInSeconds] = useState(windowInSeconds);
 	if (windowInSeconds !== initialWindowInSeconds) {
 		throw new Error('windowInSeconds cannot be changed dynamically');
@@ -76,12 +77,22 @@ export const useWindowedAudioData = ({
 	const currentWindowIndex = Math.floor(currentTime / windowInSeconds);
 
 	const windowsToFetch = useMemo(() => {
+		if (!waveProbe) {
+			return [];
+		}
+
+		const maxWindowIndex = Math.floor(
+			waveProbe.durationInSeconds / windowInSeconds,
+		);
+
 		return [
 			currentWindowIndex,
-			currentWindowIndex - 1,
-			currentWindowIndex + 1,
-		].filter((i) => i >= 0);
-	}, [currentWindowIndex]);
+			currentWindowIndex === 0 ? null : currentWindowIndex - 1,
+			currentWindowIndex + 1 > maxWindowIndex ? null : currentWindowIndex + 1,
+		]
+			.filter((i) => i !== null)
+			.filter((i) => i >= 0);
+	}, [currentWindowIndex, waveProbe, windowInSeconds]);
 
 	const fetchAndSetWaveformData = useCallback(
 		async (windowIndex: number) => {
@@ -89,6 +100,8 @@ export const useWindowedAudioData = ({
 				throw new Error('Wave probe is not loaded yet');
 			}
 
+			const controller = new AbortController();
+			requests.current[windowIndex] = controller;
 			const partialWaveData = await getPartialWaveData({
 				bitsPerSample: waveProbe.bitsPerSample,
 				blockAlign: waveProbe.blockAlign,
@@ -99,7 +112,9 @@ export const useWindowedAudioData = ({
 				sampleRate: waveProbe.sampleRate,
 				src,
 				toSeconds: (windowIndex + 1) * windowInSeconds,
+				signal: controller.signal,
 			});
+			requests.current[windowIndex] = null;
 
 			setWaveformMap((prev) => {
 				const entries = Object.keys(prev);
@@ -136,11 +151,35 @@ export const useWindowedAudioData = ({
 			return;
 		}
 
+		const windowsToClear = Object.keys(requests.current).filter(
+			(entry) => !windowsToFetch.includes(Number(entry)),
+		);
+		for (const windowIndex of windowsToClear) {
+			const controller = requests.current[windowIndex];
+			if (controller) {
+				controller.abort();
+				requests.current[windowIndex] = null;
+			}
+		}
+
 		Promise.all(
 			windowsToFetch.map((windowIndex) => {
 				return fetchAndSetWaveformData(windowIndex);
 			}),
 		).catch((err) => {
+			if ((err as Error).stack?.includes('Cancelled')) {
+				return;
+			}
+
+			if ((err as Error).stack?.toLowerCase()?.includes('aborted')) {
+				return;
+			}
+
+			// firefox
+			if ((err as Error).message?.toLowerCase()?.includes('aborted')) {
+				return;
+			}
+
 			cancelRender(err);
 		});
 	}, [fetchAndSetWaveformData, waveProbe, windowsToFetch]);
@@ -148,6 +187,19 @@ export const useWindowedAudioData = ({
 	const currentAudioData = useMemo(() => {
 		return waveFormMap[currentWindowIndex] ?? null;
 	}, [currentWindowIndex, waveFormMap]);
+
+	useLayoutEffect(() => {
+		if (currentAudioData) {
+			return;
+		}
+
+		const handle = delayRender(
+			`Waiting for audio data with src="${src}" to be loaded`,
+		);
+		return () => {
+			continueRender(handle);
+		};
+	}, [currentAudioData, src]);
 
 	return {
 		audioData: currentAudioData,

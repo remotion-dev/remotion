@@ -11,6 +11,7 @@ export const getPartialWaveData = async ({
 	toSeconds,
 	blockAlign,
 	fileSize,
+	signal,
 }: {
 	dataOffset: number;
 	src: string;
@@ -21,22 +22,20 @@ export const getPartialWaveData = async ({
 	toSeconds: number;
 	blockAlign: number;
 	fileSize: number;
+	signal: AbortSignal;
 }) => {
 	const startByte =
 		dataOffset + Math.floor(fromSeconds * sampleRate) * blockAlign;
-	const endByte =
-		dataOffset + Math.floor(toSeconds * sampleRate - 1) * blockAlign;
-
-	if (endByte > fileSize - 1) {
-		throw new Error(
-			`End byte ${endByte} is greater than file size ${fileSize}`,
-		);
-	}
+	const endByte = Math.min(
+		fileSize - 1,
+		dataOffset + Math.floor(toSeconds * sampleRate - 1) * blockAlign,
+	);
 
 	const response = await fetchWithCorsCatch(src, {
 		headers: {
 			range: `bytes=${startByte}-${endByte}`,
 		},
+		signal,
 	});
 
 	if (response.status !== 206) {
