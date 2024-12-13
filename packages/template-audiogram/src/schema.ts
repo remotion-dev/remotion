@@ -4,12 +4,16 @@ import { Caption } from "@remotion/captions";
 
 export const audiogramSchema = z.object({
   audioOffsetInSeconds: z.number().min(0),
-  subtitlesFileName: z.string().refine((s) => s.endsWith(".srt"), {
-    message: "Subtitles file must be a .srt file",
-  }),
-  audioFileName: z.string().refine((s) => s.endsWith(".mp3"), {
-    message: "Audio file must be a .mp3 file",
-  }),
+  subtitlesFileName: z
+    .string()
+    .refine((s) => s.endsWith(".srt") || s.endsWith(".json"), {
+      message: "Subtitles file must be a .srt or .json file",
+    }),
+  audioFileName: z
+    .string()
+    .refine((s) => s.endsWith(".mp3") || s.endsWith(".wav"), {
+      message: "Audio file must be a .mp3 or .wav file",
+    }),
   coverImgFileName: z
     .string()
     .refine(

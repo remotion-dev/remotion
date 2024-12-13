@@ -19,14 +19,14 @@ export const RemotionRoot: React.FC = () => {
           audioOffsetInSeconds: 6.9,
 
           // Title settings
-          audioFileName: staticFile("audio.mp3"),
+          audioFileName: staticFile("audio1.mp3"),
           coverImgFileName: staticFile("cover.jpg"),
           titleText:
             "#234 – Money, Kids, and Choosing Your Market with Justin Jackson of Transistor.fm",
           titleColor: "rgba(186, 186, 186, 0.93)",
 
           // Subtitles settings
-          subtitlesFileName: staticFile("subtitles.srt"),
+          subtitlesFileName: staticFile("captions1.srt"),
           onlyDisplayCurrentSentence: true,
           subtitlesTextColor: "rgba(255, 255, 255, 0.93)",
           subtitlesLinePerPage: 4,

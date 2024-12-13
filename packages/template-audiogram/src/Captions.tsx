@@ -153,12 +153,3 @@ export const PaginatedCaptions: React.FC<{
     </div>
   );
 };
-
-declare global {
-  interface Array<T> {
-    findLastIndex(
-      predicate: (value: T, index: number, obj: T[]) => unknown,
-      thisArg?: unknown,
-    ): number;
-  }
-}
