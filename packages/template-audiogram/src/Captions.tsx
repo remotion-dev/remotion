@@ -5,25 +5,23 @@ import {
   delayRender,
   useCurrentFrame,
   useCurrentScale,
-  useVideoConfig,
 } from "remotion";
 import { ensureFont } from "./ensure-font";
 import { Word } from "./Word";
 import { Caption } from "@remotion/captions";
+import { msToFrame } from "./helpers/ms-to-frame";
 
 const useWindowedFrameCaptions = (
   src: Caption[],
   options: { windowStart: number; windowEnd: number },
 ) => {
   const { windowStart, windowEnd } = options;
-  const config = useVideoConfig();
-  const { fps } = config;
 
   return useMemo(() => {
     return src
       .map((item) => {
-        const start = Math.floor((item.startMs / 1000) * fps);
-        const end = Math.floor((item.endMs / 1000) * fps);
+        const start = msToFrame(item.startMs);
+        const end = msToFrame(item.endMs);
         return { item, start, end };
       })
       .filter(({ start }) => {
@@ -36,7 +34,7 @@ const useWindowedFrameCaptions = (
           end,
         };
       }, []);
-  }, [fps, src, windowEnd, windowStart]);
+  }, [src, windowEnd, windowStart]);
 };
 
 export const PaginatedCaptions: React.FC<{

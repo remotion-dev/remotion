@@ -8,6 +8,5 @@ export const getSubtitles = async (file: string) => {
     input: text,
   });
 
-  console.log(captions);
   return captions;
 };

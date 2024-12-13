@@ -1,17 +1,17 @@
-import { Easing, useVideoConfig } from "remotion";
+import { Easing } from "remotion";
 import { interpolate } from "remotion";
 import React from "react";
 import { Caption } from "@remotion/captions";
+import { msToFrame } from "./helpers/ms-to-frame";
 
 export const Word: React.FC<{
   readonly item: Caption;
   readonly frame: number;
   readonly transcriptionColor: string;
 }> = ({ item, frame, transcriptionColor }) => {
-  const { fps } = useVideoConfig();
   const opacity = interpolate(
     frame,
-    [(item.startMs / 1000) * fps, (item.startMs / 1000) * fps + 15],
+    [msToFrame(item.startMs), msToFrame(item.startMs) + 15],
     [0, 1],
     {
       extrapolateLeft: "clamp",
@@ -21,7 +21,7 @@ export const Word: React.FC<{
 
   const translateY = interpolate(
     frame,
-    [(item.startMs / 1000) * fps, (item.startMs / 1000) * fps + 10],
+    [msToFrame(item.startMs), msToFrame(item.startMs) + 10],
     [0.25, 0],
     {
       easing: Easing.out(Easing.quad),
