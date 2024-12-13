@@ -1,17 +1,17 @@
 import { Composition, staticFile } from "remotion";
-import { AudioGramSchema, AudiogramComposition, fps } from "./Composition";
+import { Main } from "./Main";
 import "./style.css";
+import { audiogramSchema } from "./schema";
 
 export const RemotionRoot: React.FC = () => {
   return (
     <>
       <Composition
         id="Audiogram"
-        component={AudiogramComposition}
-        fps={fps}
+        component={Main}
         width={1080}
         height={1080}
-        schema={AudioGramSchema}
+        schema={audiogramSchema}
         defaultProps={{
           // Audio settings
           audioOffsetInSeconds: 6.9,
@@ -38,12 +38,21 @@ export const RemotionRoot: React.FC = () => {
           waveNumberOfSamples: "256", // This is string for Remotion controls and will be converted to a number
           mirrorWave: true,
           durationInSeconds: 29.5,
+          subtitles: null,
         }}
         // Determine the length of the video based on the duration of the audio file
-        calculateMetadata={({ props }) => {
+        calculateMetadata={async ({ props }) => {
+          const fps = 30;
+          const res = await fetch(props.subtitlesFileName);
+          const text = await res.text();
+
           return {
             durationInFrames: props.durationInSeconds * fps,
-            props,
+            props: {
+              ...props,
+              subtitles: text,
+            },
+            fps,
           };
         }}
       />
