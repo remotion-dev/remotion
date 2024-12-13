@@ -36,7 +36,17 @@ export const getInt8AsFloat = (bytes: Uint8Array, offset: number) => {
 	return (bytes[offset] - 128) / 128;
 };
 
-export const probeWaveFile = async (src: string) => {
+export type WaveProbe = {
+	dataOffset: number;
+	bitsPerSample: number;
+	numberOfChannels: number;
+	sampleRate: number;
+	blockAlign: number;
+	fileSize: number;
+	durationInSeconds: number;
+};
+
+export const probeWaveFile = async (src: string): Promise<WaveProbe> => {
 	const response = await fetchWithCorsCatch(src, {
 		headers: {
 			range: 'bytes=0-256',
@@ -126,5 +136,6 @@ export const probeWaveFile = async (src: string) => {
 		sampleRate,
 		blockAlign,
 		fileSize: size,
+		durationInSeconds: dataSize / (sampleRate * blockAlign),
 	};
 };

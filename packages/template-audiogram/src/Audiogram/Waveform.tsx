@@ -1,10 +1,4 @@
-import {
-  getPartialWaveData,
-  probeWaveFile,
-  useAudioData,
-  visualizeAudio,
-} from "@remotion/media-utils";
-import { useEffect } from "react";
+import { useWindowedAudioData, visualizeAudio } from "@remotion/media-utils";
 import { useCurrentFrame, useVideoConfig } from "remotion";
 
 export const Waveform: React.FC<{
@@ -25,30 +19,12 @@ export const Waveform: React.FC<{
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  useEffect(() => {
-    probeWaveFile(audioSrc)
-      .then((result) => {
-        return getPartialWaveData({
-          bitsPerSample: result.bitsPerSample,
-          blockAlign: result.blockAlign,
-          dataOffset: result.dataOffset,
-          fileSize: result.fileSize,
-          fromSeconds: 0,
-          sampleRate: result.sampleRate,
-          src: audioSrc,
-          toSeconds: 1,
-          channelIndex: 0,
-        });
-      })
-      .then((data) => {
-        console.log(data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, [audioSrc]);
-
-  const audioData = useAudioData(audioSrc);
+  const { audioData, dataOffsetInSeconds } = useWindowedAudioData({
+    src: audioSrc,
+    fps,
+    frame,
+    windowInSeconds: 10,
+  });
 
   if (!audioData) {
     return null;
@@ -60,6 +36,7 @@ export const Waveform: React.FC<{
     audioData,
     numberOfSamples, // Use more samples to get a nicer visualisation
     optimizeFor: "speed",
+    dataOffsetInSeconds,
   });
 
   // Pick the low values because they look nicer than high values

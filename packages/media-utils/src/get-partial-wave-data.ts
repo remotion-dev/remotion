@@ -48,7 +48,7 @@ export const getPartialWaveData = async ({
 	const arrayBuffer = await response.arrayBuffer();
 	const uintArray = new Uint8Array(arrayBuffer);
 
-	const samples = [];
+	const samples = new Float32Array(uintArray.length / blockAlign);
 
 	for (let i = 0; i < uintArray.length; i += blockAlign) {
 		const sampleStart = i + channelIndex * (bitsPerSample / 8);
@@ -62,7 +62,7 @@ export const getPartialWaveData = async ({
 			throw new Error(`Unsupported bits per sample: ${bitsPerSample}`);
 		}
 
-		samples.push(sample);
+		samples[i / blockAlign] = sample;
 	}
 
 	return samples;
