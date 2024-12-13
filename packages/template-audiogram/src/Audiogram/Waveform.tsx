@@ -1,4 +1,10 @@
-import { useAudioData, visualizeAudio } from "@remotion/media-utils";
+import {
+  getPartialWaveData,
+  probeWaveFile,
+  useAudioData,
+  visualizeAudio,
+} from "@remotion/media-utils";
+import { useEffect } from "react";
 import { useCurrentFrame, useVideoConfig } from "remotion";
 
 export const Waveform: React.FC<{
@@ -18,6 +24,29 @@ export const Waveform: React.FC<{
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+
+  useEffect(() => {
+    probeWaveFile(audioSrc)
+      .then((result) => {
+        return getPartialWaveData({
+          bitsPerSample: result.bitsPerSample,
+          blockAlign: result.blockAlign,
+          dataOffset: result.dataOffset,
+          fileSize: result.fileSize,
+          fromSeconds: 0,
+          sampleRate: result.sampleRate,
+          src: audioSrc,
+          toSeconds: 1,
+          channelIndex: 0,
+        });
+      })
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [audioSrc]);
 
   const audioData = useAudioData(audioSrc);
 
