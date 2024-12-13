@@ -8,6 +8,7 @@
     "upgrade": "remotion upgrade",
     "lint": "eslint src --ext ts,tsx,js,jsx && tsc"
   },
+  "author": "Marcus Stenbeck, Jonny Burger, Alex Fernandez",
   "repository": {},
   "license": "UNLICENSED",
   "dependencies": {

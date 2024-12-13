@@ -2,6 +2,7 @@ import { Composition, staticFile } from "remotion";
 import { Main } from "./Main";
 import "./style.css";
 import { audiogramSchema } from "./schema";
+import { getAudioDurationInSeconds } from "@remotion/media-utils";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -37,7 +38,6 @@ export const RemotionRoot: React.FC = () => {
           waveLinesToDisplay: 29,
           waveNumberOfSamples: "256", // This is string for Remotion controls and will be converted to a number
           mirrorWave: true,
-          durationInSeconds: 29.5,
           subtitles: null,
         }}
         // Determine the length of the video based on the duration of the audio file
@@ -45,9 +45,12 @@ export const RemotionRoot: React.FC = () => {
           const fps = 30;
           const res = await fetch(props.subtitlesFileName);
           const text = await res.text();
+          const durationInSeconds = await getAudioDurationInSeconds(
+            props.audioFileName,
+          );
 
           return {
-            durationInFrames: props.durationInSeconds * fps,
+            durationInFrames: durationInSeconds * fps,
             props: {
               ...props,
               subtitles: text,

@@ -2,7 +2,6 @@ import { zColor } from "@remotion/zod-types";
 import { z } from "zod";
 
 export const audiogramSchema = z.object({
-  durationInSeconds: z.number().positive(),
   audioOffsetInSeconds: z.number().min(0),
   subtitlesFileName: z.string().refine((s) => s.endsWith(".srt"), {
     message: "Subtitles file must be a .srt file",
