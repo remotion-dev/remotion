@@ -41,6 +41,11 @@ You can supply a .srt file or a .json file that follows the [`@remotion/captions
 
 If you supply a .srt, make sure to export subtitles that are segmented by word rather than by sentence.
 
+## Optimizing for long audio files
+
+If your audio is long, pass a `.wav` file instead of another format. The template will use [`useWindowedAudioData()`](/docs/use-windowed-audio-data) to only fetch the data around the current time.  
+Otherwise, the audio visualization may become a heavy duty for the browser or during rendering.
+
 ## Commands
 
 **Install Dependencies**
