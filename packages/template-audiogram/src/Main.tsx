@@ -1,7 +1,7 @@
 import React from "react";
 import { AbsoluteFill, Audio, Img, Sequence, useVideoConfig } from "remotion";
 
-import { PaginatedSubtitles } from "./Subtitles";
+import { PaginatedCaptions } from "./Captions";
 import { AudioViz } from "./AudioViz";
 import { AudiogramCompositionSchemaType } from "./schema";
 
@@ -21,11 +21,11 @@ export const Main: React.FC<AudiogramCompositionSchemaType> = ({
   onlyDisplayCurrentSentence,
   mirrorWave,
   audioOffsetInSeconds,
-  subtitles,
+  captions,
 }) => {
   const { durationInFrames, fps } = useVideoConfig();
 
-  if (!subtitles) {
+  if (!captions) {
     throw new Error(
       "subtitles should have been provided through calculateMetadata",
     );
@@ -61,8 +61,8 @@ export const Main: React.FC<AudiogramCompositionSchemaType> = ({
             style={{ lineHeight: `${subtitlesLineHeight}px` }}
             className="captions"
           >
-            <PaginatedSubtitles
-              subtitles={subtitles}
+            <PaginatedCaptions
+              captions={captions}
               startFrame={audioOffsetInFrames}
               endFrame={audioOffsetInFrames + durationInFrames}
               linesPerPage={subtitlesLinePerPage}

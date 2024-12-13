@@ -1973,6 +1973,9 @@ importers:
 
   packages/template-audiogram:
     dependencies:
+      '@remotion/captions':
+        specifier: workspace:*
+        version: link:../captions
       '@remotion/cli':
         specifier: workspace:*
         version: link:../cli

@@ -1,5 +1,6 @@
 import { zColor } from "@remotion/zod-types";
 import { z } from "zod";
+import { Caption } from "@remotion/captions";
 
 export const audiogramSchema = z.object({
   audioOffsetInSeconds: z.number().min(0),
@@ -33,7 +34,8 @@ export const audiogramSchema = z.object({
   waveLinesToDisplay: z.number().int().min(0),
   waveFreqRangeStartIndex: z.number().int().min(0),
   waveNumberOfSamples: z.enum(["32", "64", "128", "256", "512"]),
-  subtitles: z.string().nullable(),
 });
 
-export type AudiogramCompositionSchemaType = z.infer<typeof audiogramSchema>;
+export type AudiogramCompositionSchemaType = z.infer<typeof audiogramSchema> & {
+  captions: Caption[] | null;
+};

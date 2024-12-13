@@ -1,21 +1,27 @@
-import { Easing } from "remotion";
+import { Easing, useVideoConfig } from "remotion";
 import { interpolate } from "remotion";
 import React from "react";
-import { SubtitleItem } from "parse-srt";
+import { Caption } from "@remotion/captions";
 
 export const Word: React.FC<{
-  readonly item: SubtitleItem;
+  readonly item: Caption;
   readonly frame: number;
   readonly transcriptionColor: string;
 }> = ({ item, frame, transcriptionColor }) => {
-  const opacity = interpolate(frame, [item.start, item.start + 15], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
+  const { fps } = useVideoConfig();
+  const opacity = interpolate(
+    frame,
+    [(item.startMs / 1000) * fps, (item.startMs / 1000) * fps + 15],
+    [0, 1],
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    },
+  );
 
   const translateY = interpolate(
     frame,
-    [item.start, item.start + 10],
+    [(item.startMs / 1000) * fps, (item.startMs / 1000) * fps + 10],
     [0.25, 0],
     {
       easing: Easing.out(Easing.quad),
