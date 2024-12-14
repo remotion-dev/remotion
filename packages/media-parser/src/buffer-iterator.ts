@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import {webmPattern} from './boxes/webm/make-header';
 import {
 	knownIdsWithOneLength,
 	knownIdsWithThreeLength,
 	knownIdsWithTwoLength,
 } from './boxes/webm/segments/all-segments';
+import {detectFileType} from './file-types';
 
 export class OffsetCounter {
 	#offset: number;
@@ -50,16 +50,6 @@ export class OffsetCounter {
 		this.#offset -= amount;
 	}
 }
-
-const isoBaseMediaMp4Pattern = new TextEncoder().encode('ftyp');
-const mpegPattern = new Uint8Array([0xff, 0xf3, 0xe4, 0x64]);
-const riffPattern = new Uint8Array([0x52, 0x49, 0x46, 0x46]);
-
-const matchesPattern = (pattern: Uint8Array) => {
-	return (data: Uint8Array) => {
-		return pattern.every((value, index) => data[index] === value);
-	};
-};
 
 const makeOffsetCounter = (): OffsetCounter => {
 	return new OffsetCounter(0);
@@ -259,26 +249,6 @@ export const getArrayBufferIterator = (
 		return data.byteLength - counter.getDiscardedOffset();
 	};
 
-	const isIsoBaseMedia = () => {
-		return matchesPattern(isoBaseMediaMp4Pattern)(data.subarray(4, 8));
-	};
-
-	const isRiff = () => {
-		return matchesPattern(riffPattern)(data.subarray(0, 4));
-	};
-
-	const isWebm = () => {
-		return matchesPattern(webmPattern)(data.subarray(0, 4));
-	};
-
-	const isMp3 = () => {
-		return matchesPattern(mpegPattern)(data.subarray(0, 4));
-	};
-
-	const isTransportStream = () => {
-		return data[0] === 0x47;
-	};
-
 	const removeBytesRead = () => {
 		if (!discardAllowed) {
 			return;
@@ -427,10 +397,8 @@ export const getArrayBufferIterator = (
 		getBits,
 		byteLength,
 		bytesRemaining,
-		isIsoBaseMedia,
 		leb128,
 		removeBytesRead,
-		isWebm,
 		discard,
 		getEightByteNumber,
 		getFourByteNumber,
@@ -439,7 +407,9 @@ export const getArrayBufferIterator = (
 			const atom = getSlice(4);
 			return new TextDecoder().decode(atom);
 		},
-		isRiff,
+		detectFileType: () => {
+			return detectFileType(data);
+		},
 		getPaddedFourByteNumber,
 		getMatroskaSegmentId: (): string | null => {
 			if (bytesRemaining() === 0) {
@@ -645,11 +615,9 @@ export const getArrayBufferIterator = (
 		getInt32Le,
 		getInt32,
 		destroy,
-		isMp3,
 		disallowDiscard,
 		allowDiscard,
 		startBox,
-		isTransportStream,
 		readExpGolomb,
 	};
 };

@@ -53,4 +53,5 @@ export const exampleVideos = {
 	chirp: path.join(examplePackage, 'public', 'chirp.wav'),
 	iphonelivefoto: path.join(__dirname, '..', 'videos', 'mehmet.mov'),
 	transportstream: path.join(__dirname, '..', 'videos', '0.ts'),
+	gif: path.join(examplePackage, 'public', 'giphy.gif'),
 };

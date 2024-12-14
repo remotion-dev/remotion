@@ -4,6 +4,7 @@ import {makeNextPesHeaderStore} from './boxes/transport-stream/next-pes-header-s
 import {parseTransportStream} from './boxes/transport-stream/parse-transport-stream';
 import {parseWebm} from './boxes/webm/parse-webm-header';
 import type {BufferIterator} from './buffer-iterator';
+import {IsAGifError} from './errors';
 import {Log, type LogLevel} from './log';
 import type {Options, ParseMediaFields} from './options';
 import type {IsoBaseMediaBox, ParseResult, Structure} from './parse-result';
@@ -44,12 +45,14 @@ export const parseVideo = ({
 		return Promise.reject(new Error('no bytes'));
 	}
 
-	if (iterator.isRiff()) {
+	const fileType = iterator.detectFileType();
+
+	if (fileType === 'riff') {
 		Log.verbose(logLevel, 'Detected RIFF container');
 		return Promise.resolve(parseRiff({iterator, options, fields}));
 	}
 
-	if (iterator.isIsoBaseMedia()) {
+	if (fileType === 'iso-base-media') {
 		Log.verbose(logLevel, 'Detected ISO Base Media container');
 		return parseIsoBaseMediaBoxes({
 			iterator,
@@ -64,12 +67,12 @@ export const parseVideo = ({
 		});
 	}
 
-	if (iterator.isWebm()) {
+	if (fileType === 'webm') {
 		Log.verbose(logLevel, 'Detected Matroska container');
 		return parseWebm({counter: iterator, parserContext: options, fields});
 	}
 
-	if (iterator.isTransportStream()) {
+	if (fileType === 'transport-stream') {
 		return parseTransportStream({
 			iterator,
 			parserContext: options,
@@ -83,8 +86,12 @@ export const parseVideo = ({
 		});
 	}
 
-	if (iterator.isMp3()) {
+	if (fileType === 'mp3') {
 		return Promise.reject(new Error('MP3 files are not yet supported'));
+	}
+
+	if (fileType === 'gif') {
+		return Promise.reject(new IsAGifError('GIF files are not yet supported'));
 	}
 
 	return Promise.reject(new Error('Unknown video format'));
