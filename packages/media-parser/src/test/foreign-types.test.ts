@@ -37,6 +37,7 @@ test('Should throw IsAnImageError for a jpeg', async () => {
 	} catch (e) {
 		if (e instanceof IsAnImageError) {
 			expect(e.imageType).toBe('jpeg');
+			expect(e.dimensions).toEqual({height: 400, width: 400});
 			return;
 		}
 	}
@@ -53,6 +54,7 @@ test('Should throw IsAnImageError for a bmp', async () => {
 	} catch (e) {
 		if (e instanceof IsAnImageError) {
 			expect(e.imageType).toBe('bmp');
+			expect(e.dimensions).toEqual({width: 600, height: 300});
 			return;
 		}
 	}

@@ -47,12 +47,12 @@ export const parseVideo = ({
 
 	const fileType = iterator.detectFileType();
 
-	if (fileType === 'riff') {
+	if (fileType.type === 'riff') {
 		Log.verbose(logLevel, 'Detected RIFF container');
 		return Promise.resolve(parseRiff({iterator, options, fields}));
 	}
 
-	if (fileType === 'iso-base-media') {
+	if (fileType.type === 'iso-base-media') {
 		Log.verbose(logLevel, 'Detected ISO Base Media container');
 		return parseIsoBaseMediaBoxes({
 			iterator,
@@ -67,12 +67,12 @@ export const parseVideo = ({
 		});
 	}
 
-	if (fileType === 'webm') {
+	if (fileType.type === 'webm') {
 		Log.verbose(logLevel, 'Detected Matroska container');
 		return parseWebm({counter: iterator, parserContext: options, fields});
 	}
 
-	if (fileType === 'transport-stream') {
+	if (fileType.type === 'transport-stream') {
 		return parseTransportStream({
 			iterator,
 			parserContext: options,
@@ -86,26 +86,36 @@ export const parseVideo = ({
 		});
 	}
 
-	if (fileType === 'mp3') {
+	if (fileType.type === 'mp3') {
 		return Promise.reject(new Error('MP3 files are not yet supported'));
 	}
 
-	if (fileType === 'gif') {
+	if (fileType.type === 'gif') {
 		return Promise.reject(new IsAGifError('GIF files are not yet supported'));
 	}
 
 	if (
-		fileType === 'bmp' ||
-		fileType === 'jpeg' ||
-		fileType === 'png' ||
-		fileType === 'webp'
+		fileType.type === 'bmp' ||
+		fileType.type === 'jpeg' ||
+		fileType.type === 'png' ||
+		fileType.type === 'webp'
 	) {
+		if (fileType.type === 'jpeg' || fileType.type === 'bmp') {
+			return Promise.reject(
+				new IsAnImageError(
+					'Image files are not supported',
+					fileType.type,
+					fileType.dimensions,
+				),
+			);
+		}
+
 		return Promise.reject(
-			new IsAnImageError('Image files are not supported', fileType),
+			new IsAnImageError('Image files are not supported', fileType.type, null),
 		);
 	}
 
-	if (fileType === 'unknown') {
+	if (fileType.type === 'unknown') {
 		return Promise.reject(new Error('Unknown file format'));
 	}
 
