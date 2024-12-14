@@ -904,6 +904,7 @@ module.exports = {
 				'media-parser/tags',
 				'media-parser/support',
 				'media-parser/webcodecs',
+				'media-parser/foreign-file-types',
 			],
 		},
 		{

@@ -65,4 +65,5 @@ export const exampleVideos = {
 		'renders',
 		'regular-audio.bmp',
 	),
+	webp: path.join(__dirname, '..', 'videos', '1.webp'),
 };

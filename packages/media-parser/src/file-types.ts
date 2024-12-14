@@ -55,7 +55,17 @@ const isJpeg = (data: Uint8Array) => {
 	return matchesPattern(jpegPattern)(data.subarray(0, 2));
 };
 
+const isWebp = (data: Uint8Array) => {
+	const webpPattern = new Uint8Array([0x52, 0x49, 0x46, 0x46]);
+
+	return matchesPattern(webpPattern)(data.subarray(0, 4));
+};
+
 export const detectFileType = (data: Uint8Array) => {
+	if (isWebp(data)) {
+		return 'webp';
+	}
+
 	if (isRiff(data)) {
 		return 'riff';
 	}

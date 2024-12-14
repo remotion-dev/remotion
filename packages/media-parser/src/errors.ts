@@ -9,7 +9,7 @@ export class IsAGifError extends Error {
 	}
 }
 
-type ImageType = 'png' | 'jpeg' | 'bmp';
+type ImageType = 'png' | 'jpeg' | 'bmp' | 'webp';
 
 export class IsAnImageError extends Error {
 	public imageType: ImageType;

@@ -59,3 +59,19 @@ test('Should throw IsAnImageError for a bmp', async () => {
 
 	throw new Error('Expected IsAnImageError');
 });
+
+test('Should throw IsAnImageError for a webp', async () => {
+	try {
+		await parseMedia({
+			src: exampleVideos.webp,
+			reader: nodeReader,
+		});
+	} catch (e) {
+		if (e instanceof IsAnImageError) {
+			expect(e.imageType).toBe('webp');
+			return;
+		}
+
+		throw e;
+	}
+});

@@ -94,7 +94,12 @@ export const parseVideo = ({
 		return Promise.reject(new IsAGifError('GIF files are not yet supported'));
 	}
 
-	if (fileType === 'bmp' || fileType === 'jpeg' || fileType === 'png') {
+	if (
+		fileType === 'bmp' ||
+		fileType === 'jpeg' ||
+		fileType === 'png' ||
+		fileType === 'webp'
+	) {
 		return Promise.reject(
 			new IsAnImageError('Image files are not supported', fileType),
 		);
