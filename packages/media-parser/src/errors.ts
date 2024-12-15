@@ -80,3 +80,27 @@ export class IsAPdfError extends Error {
 		}
 	}
 }
+
+export class IsAnUnsupportedFileTypeError extends Error {
+	public mimeType: string | null;
+	public sizeInBytes: number | null;
+
+	constructor({
+		message,
+		mimeType,
+		sizeInBytes,
+	}: {
+		message: string;
+		mimeType: string | null;
+		sizeInBytes: number | null;
+	}) {
+		super(message);
+		this.name = 'IsAnUnsupportedFileTypeError';
+		this.mimeType = mimeType;
+		this.sizeInBytes = sizeInBytes;
+
+		if (Error.captureStackTrace) {
+			Error.captureStackTrace(this, IsAnUnsupportedFileTypeError);
+		}
+	}
+}

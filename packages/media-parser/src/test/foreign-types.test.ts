@@ -1,6 +1,11 @@
 import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
-import {IsAGifError, IsAnImageError, IsAPdfError} from '../errors';
+import {
+	IsAGifError,
+	IsAnImageError,
+	IsAnUnsupportedFileTypeError,
+	IsAPdfError,
+} from '../errors';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
@@ -98,6 +103,23 @@ test('Should throw IsAnPdfError for a pdf', async () => {
 		if (e instanceof IsAPdfError) {
 			expect(e.mimeType).toEqual(null);
 			expect(e.sizeInBytes).toEqual(1453291);
+			return;
+		}
+
+		throw e;
+	}
+});
+
+test('Should throw IsAnUnsupportedFileTypeError on unknown type', async () => {
+	try {
+		await parseMedia({
+			src: exampleVideos.unknown,
+			reader: nodeReader,
+		});
+	} catch (e) {
+		if (e instanceof IsAnUnsupportedFileTypeError) {
+			expect(e.mimeType).toEqual(null);
+			expect(e.sizeInBytes).toEqual(4251);
 			return;
 		}
 

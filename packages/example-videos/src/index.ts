@@ -72,4 +72,5 @@ export const exampleVideos = {
 		'documents',
 		'RemotionSeedFundingPressRelease.pdf',
 	),
+	unknown: __filename,
 };

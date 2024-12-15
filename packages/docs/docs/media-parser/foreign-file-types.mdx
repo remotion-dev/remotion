@@ -13,7 +13,13 @@ This is useful if you allow users to upload an arbitrary file and want to get in
 ```tsx twoslash title="Get information about a video, or get the file type if it's not a video"
 // @module: es2022
 // @target: es2017
-import {parseMedia, IsAnImageError, IsAGifError} from '@remotion/media-parser';
+import {
+  parseMedia,
+  IsAnImageError,
+  IsAGifError,
+  IsAPdfError,
+  IsAnUnsupportedFileTypeError,
+} from '@remotion/media-parser';
 
 try {
   await parseMedia({
@@ -25,6 +31,10 @@ try {
     console.log('The file is an image of format', e.imageType, e.dimensions);
   } else if (e instanceof IsAGifError) {
     console.log('The file is a GIF');
+  } else if (e instanceof IsAPdfError) {
+    console.log('The file is a PDF');
+  } else if (e instanceof IsAnUnsupportedFileTypeError) {
+    console.log('The file is of an unsupported type');
   }
 }
 ```
@@ -41,3 +51,11 @@ An error if the image is a `png`, `jpeg`, `bmp` or `webp`.
 ### `IsAGifError`
 
 An error if the image is a GIF.
+
+### `IsAPdfError`
+
+An error if the file is a PDF.
+
+### `IsAnUnsupportedFileTypeError`
+
+An error if the file is of a type that `@remotion/media-parser` does not recognize.
