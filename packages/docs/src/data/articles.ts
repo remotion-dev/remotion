@@ -3705,6 +3705,13 @@ export const articles = [
 		crumb: '@remotion/media-parser',
 	},
 	{
+		id: 'foreign-file-types',
+		title: 'Foreign file types',
+		relativePath: 'docs/media-parser/foreign-file-types.mdx',
+		compId: 'articles-docs-media-parser-foreign-file-types',
+		crumb: '@remotion/media-parser',
+	},
+	{
 		id: 'fast-and-slow',
 		title: 'Fast and slow operations',
 		relativePath: 'docs/media-parser/fast-and-slow.mdx',
