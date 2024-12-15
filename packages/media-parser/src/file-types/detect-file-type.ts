@@ -10,9 +10,24 @@ export const matchesPattern = (pattern: Uint8Array) => {
 	};
 };
 
-export const isRiff = (data: Uint8Array) => {
+export const isRiffAvi = (data: Uint8Array) => {
 	const riffPattern = new Uint8Array([0x52, 0x49, 0x46, 0x46]);
-	return matchesPattern(riffPattern)(data.subarray(0, 4));
+	if (!matchesPattern(riffPattern)(data.subarray(0, 4))) {
+		return false;
+	}
+
+	const fileType = data.subarray(8, 12);
+	return new TextDecoder().decode(fileType) === 'AVI ';
+};
+
+export const isRiffWave = (data: Uint8Array) => {
+	const riffPattern = new Uint8Array([0x52, 0x49, 0x46, 0x46]);
+	if (!matchesPattern(riffPattern)(data.subarray(0, 4))) {
+		return false;
+	}
+
+	const fileType = data.subarray(8, 12);
+	return new TextDecoder().decode(fileType) === 'WAVE';
 };
 
 export const isWebm = (data: Uint8Array) => {

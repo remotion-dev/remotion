@@ -27,6 +27,7 @@ export const emitAvailableInfo = ({
 	returnValue,
 	contentLength,
 	name,
+	mimeType,
 }: {
 	hasInfo: Record<keyof Options<ParseMediaFields>, boolean>;
 	parseResult: ParseResult<Structure> | null;
@@ -34,6 +35,7 @@ export const emitAvailableInfo = ({
 	state: ParserState;
 	returnValue: ParseMediaResult<AllParseMediaFields>;
 	contentLength: number | null;
+	mimeType: string | null;
 	name: string;
 }) => {
 	const keys = Object.keys(hasInfo) as (keyof Options<ParseMediaFields>)[];
@@ -190,6 +192,15 @@ export const emitAvailableInfo = ({
 			if (returnValue.size === undefined && hasInfo.size) {
 				moreFields.onSize?.(contentLength);
 				returnValue.size = contentLength;
+			}
+
+			continue;
+		}
+
+		if (key === 'mimeType') {
+			if (returnValue.mimeType === undefined && hasInfo.mimeType) {
+				moreFields.onMimeType?.(mimeType);
+				returnValue.mimeType = mimeType;
 			}
 
 			continue;

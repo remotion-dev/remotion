@@ -11,10 +11,12 @@ test('Should be able to parse only header of MP4', async () => {
 			container: true,
 			name: true,
 			internalStats: true,
+			mimeType: true,
 		},
 		reader: nodeReader,
 	});
 
+	expect(parsed.mimeType).toBe(null);
 	expect(parsed.container).toBe('mp4');
 	expect(parsed.internalStats).toEqual({
 		finalCursorOffset: 32,
@@ -31,11 +33,13 @@ test('Should be able to parse only tracks of MP4', async () => {
 			name: true,
 			internalStats: true,
 			tracks: true,
+			mimeType: true,
 		},
 		reader: nodeReader,
 	});
 
 	expect(parsed.container).toBe('mp4');
+	expect(parsed.mimeType).toBe(null);
 	expect(parsed.internalStats).toEqual({
 		finalCursorOffset: 1621,
 		skippedBytes: 24737,

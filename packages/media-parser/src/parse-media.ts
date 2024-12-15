@@ -85,6 +85,7 @@ export const parseMedia: ParseMedia = async ({
 			returnValue,
 			contentLength,
 			name,
+			mimeType: contentType,
 		});
 	};
 
@@ -226,6 +227,7 @@ export const parseMedia: ParseMedia = async ({
 		state,
 		returnValue,
 		contentLength,
+		mimeType: contentType,
 		name,
 	});
 

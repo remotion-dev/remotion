@@ -4,7 +4,8 @@ import {
 	isGif,
 	isIsoBaseMedia,
 	isMp3,
-	isRiff,
+	isRiffAvi,
+	isRiffWave,
 	isTransportStream,
 	isWebm,
 } from './detect-file-type';
@@ -13,13 +14,13 @@ import {isPng} from './png';
 import {isWebp} from './webp';
 
 export const detectFileType = (data: Uint8Array): FileType => {
+	if (isRiffAvi(data) || isRiffWave(data)) {
+		return {type: 'riff'};
+	}
+
 	const webp = isWebp(data);
 	if (webp) {
 		return webp;
-	}
-
-	if (isRiff(data)) {
-		return {type: 'riff'};
 	}
 
 	if (isWebm(data)) {

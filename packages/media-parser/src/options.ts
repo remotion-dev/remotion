@@ -39,6 +39,7 @@ export type ParseMediaFields = {
 	isHdr: boolean;
 	metadata: boolean;
 	location: boolean;
+	mimeType: boolean;
 };
 
 export type AllParseMediaFields = {
@@ -58,6 +59,7 @@ export type AllParseMediaFields = {
 	isHdr: true;
 	metadata: true;
 	location: true;
+	mimeType: true;
 };
 
 export type Options<Fields extends ParseMediaFields> = {
@@ -77,6 +79,7 @@ export type Options<Fields extends ParseMediaFields> = {
 	isHdr?: Fields['isHdr'];
 	metadata?: Fields['metadata'];
 	location?: Fields['location'];
+	mimeType?: Fields['mimeType'];
 };
 
 export type TracksField = {
@@ -125,6 +128,9 @@ export type ParseMediaCallbacks<Fields extends Options<ParseMediaFields>> =
 		(Fields['name'] extends true ? {onName?: (name: string) => void} : {}) &
 		(Fields['container'] extends true
 			? {onContainer?: (container: ParseMediaContainer) => void}
+			: {}) &
+		(Fields['mimeType'] extends true
+			? {onMimeType?: (mimeType: string | null) => void}
 			: {});
 
 export type ParseMediaResult<Fields extends Options<ParseMediaFields>> =
@@ -155,7 +161,8 @@ export type ParseMediaResult<Fields extends Options<ParseMediaFields>> =
 		(Fields['location'] extends true
 			? {location: MediaParserLocation | null}
 			: {}) &
-		(Fields['container'] extends true ? {container: ParseMediaContainer} : {});
+		(Fields['container'] extends true ? {container: ParseMediaContainer} : {}) &
+		(Fields['mimeType'] extends true ? {mimeType: string | null} : {});
 
 export type ParseMediaDynamicOptions<F extends Options<ParseMediaFields>> = {
 	fields?: F;

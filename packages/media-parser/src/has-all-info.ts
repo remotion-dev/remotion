@@ -66,6 +66,10 @@ export const getAvailableInfo = (
 			return true;
 		}
 
+		if (key === 'mimeType') {
+			return true;
+		}
+
 		if (key === 'name') {
 			return true;
 		}
