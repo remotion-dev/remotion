@@ -41,6 +41,7 @@ export const parseVideo = ({
 	fields,
 	mimeType,
 	contentLength,
+	name,
 }: {
 	iterator: BufferIterator;
 	options: ParserContext;
@@ -49,6 +50,7 @@ export const parseVideo = ({
 	fields: Options<ParseMediaFields>;
 	mimeType: string | null;
 	contentLength: number | null;
+	name: string | null;
 }): Promise<ParseResult<Structure>> => {
 	if (iterator.bytesRemaining() === 0) {
 		return Promise.reject(new Error('no bytes'));
@@ -105,6 +107,7 @@ export const parseVideo = ({
 				message: 'GIF files are not yet supported',
 				mimeType,
 				sizeInBytes: contentLength,
+				fileName: name,
 			}),
 		);
 	}
@@ -115,6 +118,7 @@ export const parseVideo = ({
 				message: 'GIF files are not supported',
 				mimeType,
 				sizeInBytes: contentLength,
+				fileName: name,
 			}),
 		);
 	}
@@ -132,6 +136,7 @@ export const parseVideo = ({
 				dimensions: fileType.dimensions,
 				mimeType,
 				sizeInBytes: contentLength,
+				fileName: name,
 			}),
 		);
 	}
@@ -142,6 +147,7 @@ export const parseVideo = ({
 				message: 'Unknown file format',
 				mimeType,
 				sizeInBytes: contentLength,
+				fileName: name,
 			}),
 		);
 	}

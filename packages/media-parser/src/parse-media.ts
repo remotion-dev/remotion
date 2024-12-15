@@ -151,6 +151,7 @@ export const parseMedia: ParseMedia = async ({
 				fields: fields ?? {},
 				mimeType: contentType,
 				contentLength,
+				name,
 			});
 		}
 

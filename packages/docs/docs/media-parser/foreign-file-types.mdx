@@ -45,6 +45,9 @@ try {
 
 An error if the image is a `png`, `jpeg`, `bmp` or `webp`.
 
+- `fileName`: The name of the file - from file name or `Content-Disposition` header.
+- `sizeInBytes`: The size of the file in bytes.
+- `mimeType`: The MIME type of the file.
 - `imageType`: The type of the image (`png`, `jpeg`, `bmp` or `webp`).
 - `dimensions`: The dimensions of the image (`width` and `height`).
 
@@ -52,10 +55,22 @@ An error if the image is a `png`, `jpeg`, `bmp` or `webp`.
 
 An error if the image is a GIF.
 
+- `fileName`: The name of the file - from file name or `Content-Disposition` header.
+- `sizeInBytes`: The size of the file in bytes.
+- `mimeType`: The MIME type of the file.
+
 ### `IsAPdfError`
 
 An error if the file is a PDF.
 
+- `fileName`: The name of the file - from file name or `Content-Disposition` header.
+- `sizeInBytes`: The size of the file in bytes.
+- `mimeType`: The MIME type of the file.
+
 ### `IsAnUnsupportedFileTypeError`
 
 An error if the file is of a type that `@remotion/media-parser` does not recognize.
+
+- `fileName`: The name of the file - from file name or `Content-Disposition` header.
+- `sizeInBytes`: The size of the file in bytes.
+- `mimeType`: The MIME type of the file.

@@ -1,20 +1,24 @@
 export class IsAGifError extends Error {
 	public mimeType: string | null;
 	public sizeInBytes: number | null;
+	public fileName: string | null;
 
 	constructor({
 		message,
 		mimeType,
 		sizeInBytes,
+		fileName,
 	}: {
 		message: string;
 		mimeType: string | null;
 		sizeInBytes: number | null;
+		fileName: string | null;
 	}) {
 		super(message);
-		this.name = 'IsAGifError';
+		this.fileName = 'IsAGifError';
 		this.mimeType = mimeType;
 		this.sizeInBytes = sizeInBytes;
+		this.fileName = fileName;
 
 		if (Error.captureStackTrace) {
 			Error.captureStackTrace(this, IsAGifError);
@@ -30,6 +34,7 @@ export class IsAnImageError extends Error {
 	public dimensions: Dimensions | null;
 	public mimeType: string | null;
 	public sizeInBytes: number | null;
+	public fileName: string | null;
 
 	constructor({
 		dimensions,
@@ -37,12 +42,14 @@ export class IsAnImageError extends Error {
 		message,
 		mimeType,
 		sizeInBytes,
+		fileName,
 	}: {
 		message: string;
 		imageType: ImageType;
 		dimensions: Dimensions | null;
 		mimeType: string | null;
 		sizeInBytes: number | null;
+		fileName: string | null;
 	}) {
 		super(message);
 		this.name = 'IsAnImageError';
@@ -50,6 +57,7 @@ export class IsAnImageError extends Error {
 		this.dimensions = dimensions;
 		this.mimeType = mimeType;
 		this.sizeInBytes = sizeInBytes;
+		this.fileName = fileName;
 
 		if (Error.captureStackTrace) {
 			Error.captureStackTrace(this, IsAnImageError);
@@ -60,20 +68,24 @@ export class IsAnImageError extends Error {
 export class IsAPdfError extends Error {
 	public mimeType: string | null;
 	public sizeInBytes: number | null;
+	public fileName: string | null;
 
 	constructor({
 		message,
 		mimeType,
 		sizeInBytes,
+		fileName,
 	}: {
 		message: string;
 		mimeType: string | null;
 		sizeInBytes: number | null;
+		fileName: string | null;
 	}) {
 		super(message);
 		this.name = 'IsAPdfError';
 		this.mimeType = mimeType;
 		this.sizeInBytes = sizeInBytes;
+		this.fileName = fileName;
 
 		if (Error.captureStackTrace) {
 			Error.captureStackTrace(this, IsAPdfError);
@@ -84,20 +96,24 @@ export class IsAPdfError extends Error {
 export class IsAnUnsupportedFileTypeError extends Error {
 	public mimeType: string | null;
 	public sizeInBytes: number | null;
+	public fileName: string | null;
 
 	constructor({
 		message,
 		mimeType,
 		sizeInBytes,
+		fileName,
 	}: {
 		message: string;
 		mimeType: string | null;
 		sizeInBytes: number | null;
+		fileName: string | null;
 	}) {
 		super(message);
 		this.name = 'IsAnUnsupportedFileTypeError';
 		this.mimeType = mimeType;
 		this.sizeInBytes = sizeInBytes;
+		this.fileName = fileName;
 
 		if (Error.captureStackTrace) {
 			Error.captureStackTrace(this, IsAnUnsupportedFileTypeError);
