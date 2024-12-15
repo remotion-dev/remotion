@@ -7,6 +7,7 @@ import type {BufferIterator} from './buffer-iterator';
 import {
 	IsAGifError,
 	IsAnImageError,
+	IsAnUnsupportedAudioTypeError,
 	IsAnUnsupportedFileTypeError,
 	IsAPdfError,
 } from './errors';
@@ -98,7 +99,15 @@ export const parseVideo = ({
 	}
 
 	if (fileType.type === 'mp3') {
-		return Promise.reject(new Error('MP3 files are not yet supported'));
+		return Promise.reject(
+			new IsAnUnsupportedAudioTypeError({
+				message: 'MP3 files are not supported',
+				mimeType,
+				sizeInBytes: contentLength,
+				fileName: name,
+				audioType: 'mp3',
+			}),
+		);
 	}
 
 	if (fileType.type === 'gif') {

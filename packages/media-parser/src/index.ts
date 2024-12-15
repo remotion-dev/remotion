@@ -14,6 +14,7 @@ import {Log} from './log';
 export {
 	IsAGifError,
 	IsAnImageError,
+	IsAnUnsupportedAudioTypeError,
 	IsAnUnsupportedFileTypeError,
 	IsAPdfError,
 } from './errors';

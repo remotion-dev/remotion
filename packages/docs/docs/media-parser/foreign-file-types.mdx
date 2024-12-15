@@ -19,6 +19,7 @@ import {
   IsAGifError,
   IsAPdfError,
   IsAnUnsupportedFileTypeError,
+  IsAnUnsupportedAudioTypeError,
 } from '@remotion/media-parser';
 
 try {
@@ -50,6 +51,14 @@ An error if the image is a `png`, `jpeg`, `bmp` or `webp`.
 - `mimeType`: The MIME type of the file.
 - `imageType`: The type of the image (`png`, `jpeg`, `bmp` or `webp`).
 - `dimensions`: The dimensions of the image (`width` and `height`).
+
+### `IsAnUnsupportedAudioTypeError`
+
+An error if the file is an audio file that `@remotion/media-parser` does not yet support.
+
+- `fileName`: The name of the file - from file name or `Content-Disposition` header.
+- `sizeInBytes`: The size of the file in bytes.
+- `mimeType`: The MIME type of the file.
 
 ### `IsAGifError`
 

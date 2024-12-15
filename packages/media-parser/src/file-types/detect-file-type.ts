@@ -47,8 +47,13 @@ export const isTransportStream = (data: Uint8Array) => {
 
 export const isMp3 = (data: Uint8Array) => {
 	const mpegPattern = new Uint8Array([0xff, 0xf3, 0xe4, 0x64]);
+	const id3Pattern = new Uint8Array([73, 68, 51, 3]);
 
-	return matchesPattern(mpegPattern)(data.subarray(0, 4));
+	const subarray = data.subarray(0, 4);
+	return (
+		matchesPattern(mpegPattern)(subarray) ||
+		matchesPattern(id3Pattern)(subarray)
+	);
 };
 
 export const isGif = (data: Uint8Array) => {

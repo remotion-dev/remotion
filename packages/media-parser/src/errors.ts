@@ -120,3 +120,37 @@ export class IsAnUnsupportedFileTypeError extends Error {
 		}
 	}
 }
+
+type UnsupportedAudioType = 'mp3' | 'wav' | 'aac';
+
+export class IsAnUnsupportedAudioTypeError extends Error {
+	public mimeType: string | null;
+	public sizeInBytes: number | null;
+	public fileName: string | null;
+	public audioType: UnsupportedAudioType | null;
+
+	constructor({
+		message,
+		mimeType,
+		sizeInBytes,
+		fileName,
+		audioType,
+	}: {
+		message: string;
+		mimeType: string | null;
+		sizeInBytes: number | null;
+		fileName: string | null;
+		audioType: UnsupportedAudioType | null;
+	}) {
+		super(message);
+		this.name = 'IsAnUnsupportedAudioTypeError';
+		this.mimeType = mimeType;
+		this.sizeInBytes = sizeInBytes;
+		this.fileName = fileName;
+		this.audioType = audioType;
+
+		if (Error.captureStackTrace) {
+			Error.captureStackTrace(this, IsAnUnsupportedAudioTypeError);
+		}
+	}
+}
