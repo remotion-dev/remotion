@@ -42,6 +42,7 @@ export const parseMedia: ParseMedia = async ({
 		reader,
 		contentLength,
 		name,
+		contentType,
 		supportsContentRange: readerSupportsContentRange,
 	} = await readerInterface.read(src, null, signal);
 	let currentReader = reader;
@@ -147,6 +148,8 @@ export const parseMedia: ParseMedia = async ({
 				signal: signal ?? null,
 				logLevel,
 				fields: fields ?? {},
+				mimeType: contentType,
+				contentLength,
 			});
 		}
 

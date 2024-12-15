@@ -22,6 +22,8 @@ test('Should throw IsAnImageError for a png', async () => {
 		if (e instanceof IsAnImageError) {
 			expect(e.imageType).toBe('png');
 			expect(e.dimensions).toEqual({height: 820, width: 820});
+			expect(e.mimeType).toEqual(null);
+			expect(e.sizeInBytes).toEqual(44183);
 			return;
 		}
 	}
@@ -39,6 +41,8 @@ test('Should throw IsAnImageError for a jpeg', async () => {
 		if (e instanceof IsAnImageError) {
 			expect(e.imageType).toBe('jpeg');
 			expect(e.dimensions).toEqual({height: 400, width: 400});
+			expect(e.mimeType).toEqual(null);
+			expect(e.sizeInBytes).toEqual(27820);
 			return;
 		}
 	}
@@ -56,6 +60,8 @@ test('Should throw IsAnImageError for a bmp', async () => {
 		if (e instanceof IsAnImageError) {
 			expect(e.imageType).toBe('bmp');
 			expect(e.dimensions).toEqual({width: 600, height: 300});
+			expect(e.mimeType).toEqual(null);
+			expect(e.sizeInBytes).toEqual(540054);
 			return;
 		}
 	}
@@ -73,6 +79,8 @@ test('Should throw IsAnImageError for a webp', async () => {
 		if (e instanceof IsAnImageError) {
 			expect(e.imageType).toBe('webp');
 			expect(e.dimensions).toEqual({height: 368, width: 550});
+			expect(e.mimeType).toEqual(null);
+			expect(e.sizeInBytes).toEqual(30320);
 			return;
 		}
 

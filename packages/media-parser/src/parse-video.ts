@@ -34,12 +34,16 @@ export const parseVideo = ({
 	signal,
 	logLevel,
 	fields,
+	mimeType,
+	contentLength,
 }: {
 	iterator: BufferIterator;
 	options: ParserContext;
 	signal: AbortSignal | null;
 	logLevel: LogLevel;
 	fields: Options<ParseMediaFields>;
+	mimeType: string | null;
+	contentLength: number | null;
 }): Promise<ParseResult<Structure>> => {
 	if (iterator.bytesRemaining() === 0) {
 		return Promise.reject(new Error('no bytes'));
@@ -91,7 +95,13 @@ export const parseVideo = ({
 	}
 
 	if (fileType.type === 'gif') {
-		return Promise.reject(new IsAGifError('GIF files are not yet supported'));
+		return Promise.reject(
+			new IsAGifError({
+				message: 'GIF files are not yet supported',
+				mimeType,
+				sizeInBytes: contentLength,
+			}),
+		);
 	}
 
 	if (
@@ -101,11 +111,13 @@ export const parseVideo = ({
 		fileType.type === 'webp'
 	) {
 		return Promise.reject(
-			new IsAnImageError(
-				'Image files are not supported',
-				fileType.type,
-				fileType.dimensions,
-			),
+			new IsAnImageError({
+				message: 'Image files are not supported',
+				imageType: fileType.type,
+				dimensions: fileType.dimensions,
+				mimeType,
+				sizeInBytes: contentLength,
+			}),
 		);
 	}
 
