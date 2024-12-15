@@ -1,6 +1,6 @@
 import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
-import {IsAGifError, IsAnImageError} from '../errors';
+import {IsAGifError, IsAnImageError, IsAPdfError} from '../errors';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
@@ -81,6 +81,23 @@ test('Should throw IsAnImageError for a webp', async () => {
 			expect(e.dimensions).toEqual({height: 368, width: 550});
 			expect(e.mimeType).toEqual(null);
 			expect(e.sizeInBytes).toEqual(30320);
+			return;
+		}
+
+		throw e;
+	}
+});
+
+test('Should throw IsAnPdfError for a pdf', async () => {
+	try {
+		await parseMedia({
+			src: exampleVideos.pdf,
+			reader: nodeReader,
+		});
+	} catch (e) {
+		if (e instanceof IsAPdfError) {
+			expect(e.mimeType).toEqual(null);
+			expect(e.sizeInBytes).toEqual(1453291);
 			return;
 		}
 

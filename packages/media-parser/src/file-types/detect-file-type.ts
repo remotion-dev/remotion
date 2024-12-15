@@ -1,6 +1,7 @@
 import {webmPattern} from '../boxes/webm/make-header';
 import type {BmpType} from './bmp';
 import type {JpegType} from './jpeg';
+import type {PdfType} from './pdf';
 import type {PngType} from './png';
 import type {WebpType} from './webp';
 
@@ -89,6 +90,7 @@ export type FileType =
 	| WebpType
 	| RiffType
 	| WebmType
+	| PdfType
 	| IsoBaseMediaType
 	| TransportStreamType
 	| Mp3Type

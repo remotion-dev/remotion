@@ -56,3 +56,27 @@ export class IsAnImageError extends Error {
 		}
 	}
 }
+
+export class IsAPdfError extends Error {
+	public mimeType: string | null;
+	public sizeInBytes: number | null;
+
+	constructor({
+		message,
+		mimeType,
+		sizeInBytes,
+	}: {
+		message: string;
+		mimeType: string | null;
+		sizeInBytes: number | null;
+	}) {
+		super(message);
+		this.name = 'IsAPdfError';
+		this.mimeType = mimeType;
+		this.sizeInBytes = sizeInBytes;
+
+		if (Error.captureStackTrace) {
+			Error.captureStackTrace(this, IsAPdfError);
+		}
+	}
+}

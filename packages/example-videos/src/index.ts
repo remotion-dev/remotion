@@ -66,4 +66,10 @@ export const exampleVideos = {
 		'regular-audio.bmp',
 	),
 	webp: path.join(__dirname, '..', 'videos', '1.webp'),
+	pdf: path.join(
+		docsPackage,
+		'static',
+		'documents',
+		'RemotionSeedFundingPressRelease.pdf',
+	),
 };

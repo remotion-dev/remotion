@@ -10,6 +10,7 @@ import {
 	isWebm,
 } from './detect-file-type';
 import {isJpeg} from './jpeg';
+import {isPdf} from './pdf';
 import {isPng} from './png';
 import {isWebp} from './webp';
 
@@ -46,6 +47,11 @@ export const detectFileType = (data: Uint8Array): FileType => {
 	const png = isPng(data);
 	if (png) {
 		return png;
+	}
+
+	const pdf = isPdf(data);
+	if (pdf) {
+		return pdf;
 	}
 
 	const bmp = isBmp(data);
