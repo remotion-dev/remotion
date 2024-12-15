@@ -6,7 +6,7 @@ import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
 test('Stream samples', async () => {
-	const {videoTracks, audioTracks} = await parseMedia({
+	const {tracks} = await parseMedia({
 		src: exampleVideos.mp4withmp3,
 		fields: {
 			tracks: true,
@@ -22,7 +22,7 @@ test('Stream samples', async () => {
 		140, 176, 1, 0, 6, 104, 235, 224, 140, 178, 44, 253, 248, 248, 0,
 	]);
 
-	const {trakBox, ...trackInfo} = videoTracks[0];
+	const {trakBox, ...trackInfo} = tracks.videoTracks[0];
 	expect(trackInfo).toEqual({
 		type: 'video',
 		trackId: 1,
@@ -57,7 +57,7 @@ test('Stream samples', async () => {
 
 	expect(getSamplePositionsFromTrack(trakBox as TrakBox, null));
 
-	const [firstAudioTrack] = audioTracks;
+	const [firstAudioTrack] = tracks.audioTracks;
 	const {trakBox: trakBox2, ...audioTrack} = firstAudioTrack;
 
 	expect(audioTrack).toEqual({

@@ -159,7 +159,7 @@ Use [`parseMedia()`](/docs/media-parser/parse-media) to get video and audio trac
 
 import {parseMedia} from '@remotion/media-parser';
 
-const {videoTracks, audioTracks} = await parseMedia({
+const {tracks} = await parseMedia({
   src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
   fields: {
     tracks: true,
@@ -167,7 +167,7 @@ const {videoTracks, audioTracks} = await parseMedia({
 });
 ```
 
-You now have an array of `VideoTrack` and `AudioTrack` objects.
+You now have an object of two arrays of `VideoTrack` and `AudioTrack` objects.
 
 You can now use [`canReencodeAudioTrack()`](/docs/webcodecs/can-reencode-audio-track), [`canReencodeVideoTrack()`](/docs/webcodecs/can-reencode-video-track), [`canCopyAudioTrack()`](/docs/webcodecs/can-copy-audio-track), and [`canCopyVideoTrack()`](/docs/webcodecs/can-copy-video-track) to determine which options to show.
 

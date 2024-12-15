@@ -10,8 +10,7 @@ test('AVI file', async () => {
 	let videoSamples = 0;
 	const {
 		structure,
-		audioTracks,
-		videoTracks,
+		tracks,
 		size,
 		container,
 		audioCodec,
@@ -70,7 +69,7 @@ test('AVI file', async () => {
 	expect(audioSamples).toBe(1435);
 	expect(videoSamples).toBe(901);
 	expect(videoCodec).toBe('h264');
-	expect(audioTracks).toEqual([
+	expect(tracks.audioTracks).toEqual([
 		{
 			codec: 'mp4a.40.2',
 			codecPrivate: new Uint8Array([18, 16]),
@@ -84,7 +83,7 @@ test('AVI file', async () => {
 			type: 'audio',
 		},
 	]);
-	expect(videoTracks).toEqual([
+	expect(tracks.videoTracks).toEqual([
 		{
 			codec: 'avc1.640015',
 			codecPrivate: new Uint8Array([

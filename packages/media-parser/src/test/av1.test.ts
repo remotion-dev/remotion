@@ -46,9 +46,9 @@ if (process.platform !== 'win32') {
 		expect(parsed.durationInSeconds).toBe(10);
 		expect(parsed.fps).toBe(30);
 		expect(parsed.videoCodec).toBe('av1');
-		expect(parsed.videoTracks[0].codec).toEqual('av01.0.08M.08');
+		expect(parsed.tracks.videoTracks[0].codec).toEqual('av01.0.08M.08');
 		// This is true, there are no audio tracks
-		expect(parsed.audioTracks).toEqual([]);
+		expect(parsed.tracks.audioTracks).toEqual([]);
 		expect(parsed.audioCodec).toEqual(null);
 		expect(parsed.dimensions).toEqual({
 			width: 1920,
@@ -105,9 +105,9 @@ if (process.platform !== 'win32') {
 		expect(parsed.durationInSeconds).toBe(1);
 		expect(parsed.fps).toBe(25);
 		expect(parsed.videoCodec).toBe('av1');
-		expect(parsed.videoTracks[0].codec).toEqual('av01.0.08M.08');
+		expect(parsed.tracks.videoTracks[0].codec).toEqual('av01.0.08M.08');
 		// This is true, there are no audio tracks
-		expect(parsed.audioTracks).toEqual([]);
+		expect(parsed.tracks.audioTracks).toEqual([]);
 		expect(parsed.audioCodec).toEqual(null);
 		expect(parsed.dimensions).toEqual({
 			width: 1920,

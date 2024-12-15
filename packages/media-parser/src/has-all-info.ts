@@ -10,12 +10,16 @@ import type {AllParseMediaFields, Options, ParseMediaFields} from './options';
 import type {Structure} from './parse-result';
 import type {ParserState} from './state/parser-state';
 
-export const getAvailableInfo = (
-	options: Options<ParseMediaFields>,
-	structure: Structure | null,
-	state: ParserState,
-): Record<keyof Options<ParseMediaFields>, boolean> => {
-	const keys = Object.entries(options).filter(([, value]) => value) as [
+export const getAvailableInfo = ({
+	fieldsToFetch,
+	structure,
+	state,
+}: {
+	fieldsToFetch: Options<ParseMediaFields>;
+	structure: Structure | null;
+	state: ParserState;
+}): Record<keyof Options<ParseMediaFields>, boolean> => {
+	const keys = Object.entries(fieldsToFetch).filter(([, value]) => value) as [
 		keyof Options<ParseMediaFields>,
 		boolean,
 	][];
@@ -107,7 +111,11 @@ export const hasAllInfo = ({
 	fields: Options<ParseMediaFields>;
 	state: ParserState;
 }) => {
-	const availableInfo = getAvailableInfo(fields ?? {}, structure, state);
+	const availableInfo = getAvailableInfo({
+		fieldsToFetch: fields ?? {},
+		structure,
+		state,
+	});
 	return (
 		Object.values(availableInfo).every(Boolean) &&
 		(state.maySkipVideoData() || state.canSkipTracksState.canSkipTracks())

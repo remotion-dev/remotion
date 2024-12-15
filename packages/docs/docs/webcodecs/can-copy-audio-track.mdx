@@ -25,7 +25,7 @@ You can obtain an `AudioTrack` using [`parseMedia()`](/docs/media-parser/parse-m
 import {parseMedia} from '@remotion/media-parser';
 import {canCopyAudioTrack} from '@remotion/webcodecs';
 
-const {audioTracks, container} = await parseMedia({
+const {tracks, container} = await parseMedia({
   src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
   fields: {
     tracks: true,
@@ -33,7 +33,7 @@ const {audioTracks, container} = await parseMedia({
   },
 });
 
-for (const track of audioTracks) {
+for (const track of tracks.audioTracks) {
   canCopyAudioTrack({
     inputCodec: track.codecWithoutConfig,
     outputContainer: 'webm',

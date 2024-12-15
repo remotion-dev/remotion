@@ -1,14 +1,17 @@
 import type {BufferIterator} from './buffer-iterator';
 import {getArrayBufferIterator} from './buffer-iterator';
 import {emitAvailableInfo} from './emit-available-info';
+import {getFieldsFromCallback} from './get-fields-from-callbacks';
 import {getAvailableInfo, hasAllInfo} from './has-all-info';
 import {Log} from './log';
 import type {
+	AllOptions,
 	AllParseMediaFields,
 	Options,
 	ParseMedia,
 	ParseMediaCallbacks,
 	ParseMediaFields,
+	ParseMediaOptions,
 	ParseMediaResult,
 } from './options';
 import type {ParseResult, Structure} from './parse-result';
@@ -17,9 +20,11 @@ import type {ParserContext} from './parser-context';
 import {fetchReader} from './readers/from-fetch';
 import {makeParserState} from './state/parser-state';
 
-export const parseMedia: ParseMedia = async ({
+export const parseMedia: ParseMedia = async function <
+	F extends Options<ParseMediaFields>,
+>({
 	src,
-	fields,
+	fields: _fieldsInReturnValue,
 	reader: readerInterface = fetchReader,
 	onAudioTrack,
 	onVideoTrack,
@@ -27,16 +32,23 @@ export const parseMedia: ParseMedia = async ({
 	logLevel = 'info',
 	onParseProgress,
 	...more
-}) => {
+}: ParseMediaOptions<F>) {
 	let iterator: BufferIterator | null = null;
 	let parseResult: ParseResult<Structure> | null = null;
+
+	const fieldsInReturnValue = _fieldsInReturnValue ?? {};
+
+	const fields = getFieldsFromCallback({
+		fields: fieldsInReturnValue,
+		callbacks: more,
+	});
 
 	const state = makeParserState({
 		hasAudioTrackHandlers: Boolean(onAudioTrack),
 		hasVideoTrackHandlers: Boolean(onVideoTrack),
 		signal,
 		getIterator: () => iterator,
-		fields: fields ?? {},
+		fields,
 	});
 	const {
 		reader,
@@ -47,6 +59,26 @@ export const parseMedia: ParseMedia = async ({
 	} = await readerInterface.read(src, null, signal);
 	let currentReader = reader;
 
+	const emittedFields: AllOptions<ParseMediaFields> = {
+		audioCodec: false,
+		container: false,
+		dimensions: false,
+		durationInSeconds: false,
+		fps: false,
+		internalStats: false,
+		isHdr: false,
+		location: false,
+		metadata: false,
+		mimeType: false,
+		name: false,
+		rotation: false,
+		size: false,
+		structure: false,
+		tracks: false,
+		videoCodec: false,
+		unrotatedDimensions: false,
+	};
+
 	const supportsContentRange =
 		readerSupportsContentRange &&
 		!(
@@ -56,7 +88,7 @@ export const parseMedia: ParseMedia = async ({
 		);
 
 	const returnValue = {} as ParseMediaResult<AllParseMediaFields>;
-	const moreFields = more as ParseMediaCallbacks<AllParseMediaFields>;
+	const moreFields = more as ParseMediaCallbacks;
 
 	const options: ParserContext = {
 		onAudioTrack: onAudioTrack ?? null,
@@ -72,20 +104,22 @@ export const parseMedia: ParseMedia = async ({
 	};
 
 	const triggerInfoEmit = () => {
-		const availableInfo = getAvailableInfo(
-			fields ?? {},
-			parseResult?.segments ?? null,
+		const availableInfo = getAvailableInfo({
+			fieldsToFetch: fields,
+			structure: parseResult?.segments ?? null,
 			state,
-		);
+		});
 		emitAvailableInfo({
 			hasInfo: availableInfo,
-			moreFields,
+			callbacks: moreFields,
+			fieldsInReturnValue,
 			parseResult,
 			state,
 			returnValue,
 			contentLength,
 			name,
 			mimeType: contentType,
+			emittedFields,
 		});
 	};
 
@@ -148,7 +182,7 @@ export const parseMedia: ParseMedia = async ({
 				options,
 				signal: signal ?? null,
 				logLevel,
-				fields: fields ?? {},
+				fields,
 				mimeType: contentType,
 				contentLength,
 				name,
@@ -163,7 +197,7 @@ export const parseMedia: ParseMedia = async ({
 
 		if (
 			hasAllInfo({
-				fields: fields ?? {},
+				fields,
 				structure: parseResult.segments,
 				state,
 			})
@@ -209,32 +243,36 @@ export const parseMedia: ParseMedia = async ({
 
 	Log.verbose(logLevel, 'Finished parsing file');
 
+	const hasInfo = (
+		Object.keys(fields) as (keyof Options<ParseMediaFields>)[]
+	).reduce(
+		(acc, key) => {
+			if (fields?.[key]) {
+				acc[key] = true;
+			}
+
+			return acc;
+		},
+		{} as Record<keyof Options<ParseMediaFields>, boolean>,
+	);
+
 	// Force assign
 	emitAvailableInfo({
-		hasInfo: (
-			Object.keys(fields ?? {}) as (keyof Options<ParseMediaFields>)[]
-		).reduce(
-			(acc, key) => {
-				if (fields?.[key]) {
-					acc[key] = true;
-				}
-
-				return acc;
-			},
-			{} as Record<keyof Options<ParseMediaFields>, boolean>,
-		),
-		moreFields,
+		hasInfo,
+		callbacks: moreFields,
+		fieldsInReturnValue,
 		parseResult,
 		state,
 		returnValue,
 		contentLength,
 		mimeType: contentType,
 		name,
+		emittedFields,
 	});
 
 	currentReader.abort();
 	iterator?.destroy();
 
 	state.tracks.ensureHasTracksAtEnd();
-	return returnValue;
+	return returnValue as ParseMediaResult<F>;
 };

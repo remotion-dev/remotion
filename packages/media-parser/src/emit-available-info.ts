@@ -10,6 +10,7 @@ import {getTracks} from './get-tracks';
 import {getVideoCodec} from './get-video-codec';
 import {getMetadata} from './metadata/get-metadata';
 import type {
+	AllOptions,
 	AllParseMediaFields,
 	Options,
 	ParseMediaCallbacks,
@@ -22,16 +23,20 @@ import type {ParserState} from './state/parser-state';
 export const emitAvailableInfo = ({
 	hasInfo,
 	parseResult,
-	moreFields,
+	callbacks,
 	state,
 	returnValue,
 	contentLength,
 	name,
 	mimeType,
+	fieldsInReturnValue,
+	emittedFields,
 }: {
 	hasInfo: Record<keyof Options<ParseMediaFields>, boolean>;
 	parseResult: ParseResult<Structure> | null;
-	moreFields: ParseMediaCallbacks<AllParseMediaFields>;
+	callbacks: ParseMediaCallbacks;
+	fieldsInReturnValue: Options<ParseMediaFields>;
+	emittedFields: AllOptions<ParseMediaFields>;
 	state: ParserState;
 	returnValue: ParseMediaResult<AllParseMediaFields>;
 	contentLength: number | null;
@@ -42,13 +47,13 @@ export const emitAvailableInfo = ({
 
 	for (const key of keys) {
 		if (key === 'structure') {
-			if (
-				parseResult &&
-				hasInfo.structure &&
-				returnValue.structure === undefined
-			) {
-				moreFields.onStructure?.(parseResult.segments);
-				returnValue.structure = parseResult.segments;
+			if (parseResult && hasInfo.structure && !emittedFields.structure) {
+				callbacks.onStructure?.(parseResult.segments);
+				if (fieldsInReturnValue.structure) {
+					returnValue.structure = parseResult.segments;
+				}
+
+				emittedFields.structure = true;
 			}
 
 			continue;
@@ -57,30 +62,34 @@ export const emitAvailableInfo = ({
 		if (key === 'durationInSeconds') {
 			if (
 				hasInfo.durationInSeconds &&
-				returnValue.durationInSeconds === undefined &&
+				!emittedFields.durationInSeconds &&
 				parseResult
 			) {
 				const durationInSeconds = getDuration(parseResult.segments, state);
-				moreFields.onDurationInSeconds?.(durationInSeconds);
-				returnValue.durationInSeconds = durationInSeconds;
+				callbacks.onDurationInSeconds?.(durationInSeconds);
+				if (fieldsInReturnValue.durationInSeconds) {
+					returnValue.durationInSeconds = durationInSeconds;
+				}
+
+				emittedFields.durationInSeconds = true;
 			}
 
 			continue;
 		}
 
 		if (key === 'dimensions') {
-			if (
-				hasInfo.dimensions &&
-				returnValue.dimensions === undefined &&
-				parseResult
-			) {
+			if (hasInfo.dimensions && !emittedFields.dimensions && parseResult) {
 				const dimensionsQueried = getDimensions(parseResult.segments, state);
 				const dimensions: Dimensions = {
 					height: dimensionsQueried.height,
 					width: dimensionsQueried.width,
 				};
-				moreFields.onDimensions?.(dimensions);
-				returnValue.dimensions = dimensions;
+				callbacks.onDimensions?.(dimensions);
+				if (fieldsInReturnValue.dimensions) {
+					returnValue.dimensions = dimensions;
+				}
+
+				emittedFields.dimensions = true;
 			}
 
 			continue;
@@ -89,7 +98,7 @@ export const emitAvailableInfo = ({
 		if (key === 'unrotatedDimensions') {
 			if (
 				returnValue.unrotatedDimensions === undefined &&
-				hasInfo.unrotatedDimensions &&
+				!emittedFields.unrotatedDimensions &&
 				parseResult
 			) {
 				const dimensionsQueried = getDimensions(parseResult.segments, state);
@@ -98,8 +107,12 @@ export const emitAvailableInfo = ({
 					width: dimensionsQueried.unrotatedWidth,
 				};
 
-				moreFields.onUnrotatedDimensions?.(unrotatedDimensions);
-				returnValue.unrotatedDimensions = unrotatedDimensions;
+				callbacks.onUnrotatedDimensions?.(unrotatedDimensions);
+				if (fieldsInReturnValue.unrotatedDimensions) {
+					returnValue.unrotatedDimensions = unrotatedDimensions;
+				}
+
+				emittedFields.unrotatedDimensions = true;
 			}
 
 			continue;
@@ -108,52 +121,60 @@ export const emitAvailableInfo = ({
 		if (key === 'rotation') {
 			if (
 				returnValue.rotation === undefined &&
-				hasInfo.rotation &&
+				!emittedFields.rotation &&
 				parseResult
 			) {
 				const dimensionsQueried = getDimensions(parseResult.segments, state);
 				const {rotation} = dimensionsQueried;
 
-				moreFields.onRotation?.(rotation);
-				returnValue.rotation = rotation;
+				callbacks.onRotation?.(rotation);
+				if (fieldsInReturnValue.rotation) {
+					returnValue.rotation = rotation;
+				}
+
+				emittedFields.rotation = true;
 			}
 
 			continue;
 		}
 
 		if (key === 'fps') {
-			if (returnValue.fps === undefined && hasInfo.fps && parseResult) {
+			if (!emittedFields.fps && hasInfo.fps && parseResult) {
 				const fps = getFps(parseResult.segments);
-				moreFields.onFps?.(fps);
-				returnValue.fps = fps;
+				callbacks.onFps?.(fps);
+				if (fieldsInReturnValue.fps) {
+					returnValue.fps = fps;
+				}
+
+				emittedFields.fps = true;
 			}
 
 			continue;
 		}
 
 		if (key === 'videoCodec') {
-			if (
-				returnValue.videoCodec === undefined &&
-				hasInfo.videoCodec &&
-				parseResult
-			) {
+			if (!emittedFields.videoCodec && hasInfo.videoCodec && parseResult) {
 				const videoCodec = getVideoCodec(parseResult.segments, state);
-				moreFields.onVideoCodec?.(videoCodec);
-				returnValue.videoCodec = videoCodec;
+				callbacks.onVideoCodec?.(videoCodec);
+				if (fieldsInReturnValue.videoCodec) {
+					returnValue.videoCodec = videoCodec;
+				}
+
+				emittedFields.videoCodec = true;
 			}
 
 			continue;
 		}
 
 		if (key === 'audioCodec') {
-			if (
-				returnValue.audioCodec === undefined &&
-				hasInfo.audioCodec &&
-				parseResult
-			) {
+			if (!emittedFields.audioCodec && hasInfo.audioCodec && parseResult) {
 				const audioCodec = getAudioCodec(parseResult.segments, state);
-				moreFields.onAudioCodec?.(audioCodec);
-				returnValue.audioCodec = audioCodec;
+				callbacks.onAudioCodec?.(audioCodec);
+				if (fieldsInReturnValue.audioCodec) {
+					returnValue.audioCodec = audioCodec;
+				}
+
+				emittedFields.audioCodec = true;
 			}
 
 			continue;
@@ -161,18 +182,20 @@ export const emitAvailableInfo = ({
 
 		if (key === 'tracks') {
 			if (
-				hasInfo.tracks &&
-				returnValue.videoTracks === undefined &&
-				returnValue.audioTracks === undefined &&
+				!emittedFields.tracks &&
+				returnValue.tracks === undefined &&
 				parseResult
 			) {
 				const {videoTracks, audioTracks} = getTracks(
 					parseResult.segments,
 					state,
 				);
-				moreFields.onTracks?.({videoTracks, audioTracks});
-				returnValue.videoTracks = videoTracks;
-				returnValue.audioTracks = audioTracks;
+				callbacks.onTracks?.({videoTracks, audioTracks});
+				if (fieldsInReturnValue.tracks) {
+					returnValue.tracks = {videoTracks, audioTracks};
+				}
+
+				emittedFields.tracks = true;
 			}
 
 			continue;
@@ -182,86 +205,106 @@ export const emitAvailableInfo = ({
 			// Special case: Always emitting internal stats at the end
 			if (hasInfo.internalStats) {
 				const internalStats = state.getInternalStats();
-				returnValue.internalStats = internalStats;
+				if (fieldsInReturnValue.internalStats) {
+					returnValue.internalStats = internalStats;
+				}
+
+				emittedFields.internalStats = true;
 			}
 
 			continue;
 		}
 
 		if (key === 'size') {
-			if (returnValue.size === undefined && hasInfo.size) {
-				moreFields.onSize?.(contentLength);
-				returnValue.size = contentLength;
+			if (!emittedFields.size && hasInfo.size) {
+				callbacks.onSize?.(contentLength);
+				if (fieldsInReturnValue.size) {
+					returnValue.size = contentLength;
+				}
+
+				emittedFields.size = true;
 			}
 
 			continue;
 		}
 
 		if (key === 'mimeType') {
-			if (returnValue.mimeType === undefined && hasInfo.mimeType) {
-				moreFields.onMimeType?.(mimeType);
-				returnValue.mimeType = mimeType;
+			if (!emittedFields.mimeType && hasInfo.mimeType) {
+				callbacks.onMimeType?.(mimeType);
+				if (fieldsInReturnValue.mimeType) {
+					returnValue.mimeType = mimeType;
+				}
+
+				emittedFields.mimeType = true;
 			}
 
 			continue;
 		}
 
 		if (key === 'name') {
-			if (returnValue.name === undefined && hasInfo.name) {
-				moreFields.onName?.(name);
-				returnValue.name = name;
+			if (!emittedFields.name && hasInfo.name) {
+				callbacks.onName?.(name);
+				if (fieldsInReturnValue.name) {
+					returnValue.name = name;
+				}
+
+				emittedFields.name = true;
 			}
 
 			continue;
 		}
 
 		if (key === 'isHdr') {
-			if (returnValue.isHdr === undefined && hasInfo.isHdr && parseResult) {
+			if (!returnValue.isHdr && hasInfo.isHdr && parseResult) {
 				const isHdr = getIsHdr(parseResult.segments, state);
-				moreFields.onIsHdr?.(isHdr);
-				returnValue.isHdr = isHdr;
+				callbacks.onIsHdr?.(isHdr);
+				if (fieldsInReturnValue.isHdr) {
+					returnValue.isHdr = isHdr;
+				}
+
+				emittedFields.isHdr = true;
 			}
 
 			continue;
 		}
 
 		if (key === 'container') {
-			if (
-				returnValue.container === undefined &&
-				hasInfo.container &&
-				parseResult
-			) {
+			if (!returnValue.container && hasInfo.container && parseResult) {
 				const container = getContainer(parseResult.segments);
-				moreFields.onContainer?.(container);
-				returnValue.container = container;
+				callbacks.onContainer?.(container);
+				if (fieldsInReturnValue.container) {
+					returnValue.container = container;
+				}
+
+				emittedFields.container = true;
 			}
 
 			continue;
 		}
 
 		if (key === 'metadata') {
-			if (
-				returnValue.metadata === undefined &&
-				hasInfo.metadata &&
-				parseResult
-			) {
+			if (!emittedFields.metadata && hasInfo.metadata && parseResult) {
 				const metadata = getMetadata(parseResult.segments);
-				moreFields.onMetadata?.(metadata);
-				returnValue.metadata = metadata;
+				callbacks.onMetadata?.(metadata);
+				if (fieldsInReturnValue.metadata) {
+					returnValue.metadata = metadata;
+				}
+
+				emittedFields.metadata = true;
 			}
 
 			continue;
 		}
 
 		if (key === 'location') {
-			if (
-				returnValue.location === undefined &&
-				hasInfo.location &&
-				parseResult
-			) {
+			if (!emittedFields.location && hasInfo.location && parseResult) {
 				const location = getLocation(parseResult.segments);
-				moreFields.onLocation?.(location);
-				returnValue.location = location;
+				callbacks.onLocation?.(location);
+				if (fieldsInReturnValue.location) {
+					returnValue.location = location;
+				}
+
+				emittedFields.location = true;
 			}
 
 			continue;
