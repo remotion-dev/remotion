@@ -36,7 +36,7 @@
 	},
 	"dependencies": {
 		"turbo": "2.3.3",
-		"typescript": "5.7.2"
+		"typescript": "5.5.4"
 	},
 	"packageManager": "pnpm@8.10.2"
 }
