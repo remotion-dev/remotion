@@ -97,7 +97,7 @@ export const emitAvailableInfo = ({
 
 		if (key === 'unrotatedDimensions') {
 			if (
-				returnValue.unrotatedDimensions === undefined &&
+				hasInfo.unrotatedDimensions &&
 				!emittedFields.unrotatedDimensions &&
 				parseResult
 			) {
@@ -119,11 +119,7 @@ export const emitAvailableInfo = ({
 		}
 
 		if (key === 'rotation') {
-			if (
-				returnValue.rotation === undefined &&
-				!emittedFields.rotation &&
-				parseResult
-			) {
+			if (hasInfo.rotation && !emittedFields.rotation && parseResult) {
 				const dimensionsQueried = getDimensions(parseResult.segments, state);
 				const {rotation} = dimensionsQueried;
 
@@ -181,11 +177,7 @@ export const emitAvailableInfo = ({
 		}
 
 		if (key === 'tracks') {
-			if (
-				!emittedFields.tracks &&
-				returnValue.tracks === undefined &&
-				parseResult
-			) {
+			if (!emittedFields.tracks && hasInfo.tracks && parseResult) {
 				const {videoTracks, audioTracks} = getTracks(
 					parseResult.segments,
 					state,
