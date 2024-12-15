@@ -89,80 +89,145 @@ export type TracksField = {
 
 export type ParseMediaContainer = 'mp4' | 'webm' | 'avi' | 'transport-stream';
 
-export type ParseMediaCallbacks<Fields extends Options<ParseMediaFields>> =
-	(Fields['dimensions'] extends true
+type DimensionsCallback<F extends Options<ParseMediaFields>> =
+	F['dimensions'] extends true
 		? {onDimensions?: (dimensions: Dimensions) => void}
-		: {}) &
-		(Fields['durationInSeconds'] extends true
-			? {onDurationInSeconds?: (durationInSeconds: number | null) => void}
-			: {}) &
-		(Fields['structure'] extends true
-			? {onStructure?: (structure: Structure) => void}
-			: {}) &
-		(Fields['fps'] extends true ? {onFps?: (fps: number | null) => void} : {}) &
-		(Fields['videoCodec'] extends true
-			? {onVideoCodec?: (codec: MediaParserVideoCodec | null) => void}
-			: {}) &
-		(Fields['audioCodec'] extends true
-			? {onAudioCodec?: (codec: MediaParserAudioCodec | null) => void}
-			: {}) &
-		(Fields['tracks'] extends true
-			? {onTracks?: (tracks: TracksField) => void}
-			: {}) &
-		(Fields['rotation'] extends true
-			? {onRotation?: (rotation: number | null) => void}
-			: {}) &
-		(Fields['metadata'] extends true
-			? {onMetadata?: (metadata: MetadataEntry[]) => void}
-			: {}) &
-		(Fields['location'] extends true
-			? {onLocation?: (location: MediaParserLocation | null) => void}
-			: {}) &
-		(Fields['unrotatedDimensions'] extends true
-			? {onUnrotatedDimensions?: (dimensions: Dimensions) => void}
-			: {}) &
-		(Fields['isHdr'] extends true ? {onIsHdr?: (isHdr: boolean) => void} : {}) &
-		(Fields['size'] extends true
-			? {onSize?: (size: number | null) => void}
-			: {}) &
-		(Fields['name'] extends true ? {onName?: (name: string) => void} : {}) &
-		(Fields['container'] extends true
-			? {onContainer?: (container: ParseMediaContainer) => void}
-			: {}) &
-		(Fields['mimeType'] extends true
-			? {onMimeType?: (mimeType: string | null) => void}
-			: {});
+		: {};
+type DurationCallback<F extends Options<ParseMediaFields>> =
+	F['durationInSeconds'] extends true
+		? {onDurationInSeconds?: (durationInSeconds: number | null) => void}
+		: {};
+type StructureCallback<F extends Options<ParseMediaFields>> =
+	F['structure'] extends true
+		? {onStructure?: (structure: Structure) => void}
+		: {};
+type FpsCallback<F extends Options<ParseMediaFields>> = F['fps'] extends true
+	? {onFps?: (fps: number | null) => void}
+	: {};
+type VideoCodecCallback<F extends Options<ParseMediaFields>> =
+	F['videoCodec'] extends true
+		? {onVideoCodec?: (codec: MediaParserVideoCodec | null) => void}
+		: {};
+type AudioCodecCallback<F extends Options<ParseMediaFields>> =
+	F['audioCodec'] extends true
+		? {onAudioCodec?: (codec: MediaParserAudioCodec | null) => void}
+		: {};
+type TracksCallback<F extends Options<ParseMediaFields>> =
+	F['tracks'] extends true ? {onTracks?: (tracks: TracksField) => void} : {};
+type RotationCallback<F extends Options<ParseMediaFields>> =
+	F['rotation'] extends true
+		? {onRotation?: (rotation: number | null) => void}
+		: {};
+type MetadataCallback<F extends Options<ParseMediaFields>> =
+	F['metadata'] extends true
+		? {onMetadata?: (metadata: MetadataEntry[]) => void}
+		: {};
+type LocationCallback<F extends Options<ParseMediaFields>> =
+	F['location'] extends true
+		? {onLocation?: (location: MediaParserLocation | null) => void}
+		: {};
+type UnrotatedDimensionsCallback<F extends Options<ParseMediaFields>> =
+	F['unrotatedDimensions'] extends true
+		? {onUnrotatedDimensions?: (dimensions: Dimensions) => void}
+		: {};
+type IsHdrCallback<F extends Options<ParseMediaFields>> =
+	F['isHdr'] extends true ? {onIsHdr?: (isHdr: boolean) => void} : {};
+type SizeCallback<F extends Options<ParseMediaFields>> = F['size'] extends true
+	? {onSize?: (size: number | null) => void}
+	: {};
+type NameCallback<F extends Options<ParseMediaFields>> = F['name'] extends true
+	? {onName?: (name: string) => void}
+	: {};
+type ContainerCallback<F extends Options<ParseMediaFields>> =
+	F['container'] extends true
+		? {onContainer?: (container: ParseMediaContainer) => void}
+		: {};
+type MimeTypeCallback<F extends Options<ParseMediaFields>> =
+	F['mimeType'] extends true
+		? {onMimeType?: (mimeType: string | null) => void}
+		: {};
+
+export type ParseMediaCallbacks<Fields extends Options<ParseMediaFields>> =
+	DimensionsCallback<Fields> &
+		DurationCallback<Fields> &
+		StructureCallback<Fields> &
+		FpsCallback<Fields> &
+		VideoCodecCallback<Fields> &
+		AudioCodecCallback<Fields> &
+		TracksCallback<Fields> &
+		RotationCallback<Fields> &
+		MetadataCallback<Fields> &
+		LocationCallback<Fields> &
+		UnrotatedDimensionsCallback<Fields> &
+		IsHdrCallback<Fields> &
+		SizeCallback<Fields> &
+		NameCallback<Fields> &
+		ContainerCallback<Fields> &
+		MimeTypeCallback<Fields>;
+
+type DimensionsField<F extends Options<ParseMediaFields>> =
+	F['dimensions'] extends true ? {dimensions: Dimensions} : {};
+type DurationField<F extends Options<ParseMediaFields>> =
+	F['durationInSeconds'] extends true ? {durationInSeconds: number | null} : {};
+type StructureField<F extends Options<ParseMediaFields>> =
+	F['structure'] extends true ? {structure: Structure} : {};
+type FpsField<F extends Options<ParseMediaFields>> = F['fps'] extends true
+	? {fps: number | null}
+	: {};
+type VideoCodecField<F extends Options<ParseMediaFields>> =
+	F['videoCodec'] extends true
+		? {videoCodec: MediaParserVideoCodec | null}
+		: {};
+type AudioCodecField<F extends Options<ParseMediaFields>> =
+	F['audioCodec'] extends true
+		? {audioCodec: MediaParserAudioCodec | null}
+		: {};
+type TracksTypeField<F extends Options<ParseMediaFields>> =
+	F['tracks'] extends true ? TracksField : {};
+type RotationField<F extends Options<ParseMediaFields>> =
+	F['rotation'] extends true ? {rotation: number | null} : {};
+type UnrotatedDimensionsField<F extends Options<ParseMediaFields>> =
+	F['unrotatedDimensions'] extends true
+		? {unrotatedDimensions: Dimensions}
+		: {};
+type IsHdrField<F extends Options<ParseMediaFields>> = F['isHdr'] extends true
+	? {isHdr: boolean}
+	: {};
+type InternalStatsField<F extends Options<ParseMediaFields>> =
+	F['internalStats'] extends true ? {internalStats: InternalStats} : {};
+type SizeField<F extends Options<ParseMediaFields>> = F['size'] extends true
+	? {size: number | null}
+	: {};
+type NameField<F extends Options<ParseMediaFields>> = F['name'] extends true
+	? {name: string}
+	: {};
+type MetadataField<F extends Options<ParseMediaFields>> =
+	F['metadata'] extends true ? {metadata: MetadataEntry[]} : {};
+type LocationField<F extends Options<ParseMediaFields>> =
+	F['location'] extends true ? {location: MediaParserLocation | null} : {};
+type ContainerField<F extends Options<ParseMediaFields>> =
+	F['container'] extends true ? {container: ParseMediaContainer} : {};
+type MimeTypeField<F extends Options<ParseMediaFields>> =
+	F['mimeType'] extends true ? {mimeType: string | null} : {};
 
 export type ParseMediaResult<Fields extends Options<ParseMediaFields>> =
-	(Fields['dimensions'] extends true ? {dimensions: Dimensions} : {}) &
-		(Fields['durationInSeconds'] extends true
-			? {durationInSeconds: number | null}
-			: {}) &
-		(Fields['structure'] extends true ? {structure: Structure} : {}) &
-		(Fields['fps'] extends true ? {fps: number | null} : {}) &
-		(Fields['videoCodec'] extends true
-			? {videoCodec: MediaParserVideoCodec | null}
-			: {}) &
-		(Fields['audioCodec'] extends true
-			? {audioCodec: MediaParserAudioCodec | null}
-			: {}) &
-		(Fields['tracks'] extends true ? TracksField : {}) &
-		(Fields['rotation'] extends true ? {rotation: number | null} : {}) &
-		(Fields['unrotatedDimensions'] extends true
-			? {unrotatedDimensions: Dimensions}
-			: {}) &
-		(Fields['isHdr'] extends true ? {isHdr: boolean} : {}) &
-		(Fields['internalStats'] extends true
-			? {internalStats: InternalStats}
-			: {}) &
-		(Fields['size'] extends true ? {size: number | null} : {}) &
-		(Fields['name'] extends true ? {name: string} : {}) &
-		(Fields['metadata'] extends true ? {metadata: MetadataEntry[]} : {}) &
-		(Fields['location'] extends true
-			? {location: MediaParserLocation | null}
-			: {}) &
-		(Fields['container'] extends true ? {container: ParseMediaContainer} : {}) &
-		(Fields['mimeType'] extends true ? {mimeType: string | null} : {});
+	DimensionsField<Fields> &
+		DurationField<Fields> &
+		StructureField<Fields> &
+		FpsField<Fields> &
+		VideoCodecField<Fields> &
+		AudioCodecField<Fields> &
+		TracksTypeField<Fields> &
+		RotationField<Fields> &
+		UnrotatedDimensionsField<Fields> &
+		IsHdrField<Fields> &
+		InternalStatsField<Fields> &
+		SizeField<Fields> &
+		NameField<Fields> &
+		MetadataField<Fields> &
+		LocationField<Fields> &
+		ContainerField<Fields> &
+		MimeTypeField<Fields>;
 
 export type ParseMediaDynamicOptions<F extends Options<ParseMediaFields>> = {
 	fields?: F;
