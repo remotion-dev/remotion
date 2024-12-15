@@ -21,6 +21,7 @@ test('Should throw IsAnImageError for a png', async () => {
 	} catch (e) {
 		if (e instanceof IsAnImageError) {
 			expect(e.imageType).toBe('png');
+			expect(e.dimensions).toEqual({height: 820, width: 820});
 			return;
 		}
 	}
@@ -71,6 +72,7 @@ test('Should throw IsAnImageError for a webp', async () => {
 	} catch (e) {
 		if (e instanceof IsAnImageError) {
 			expect(e.imageType).toBe('webp');
+			expect(e.dimensions).toEqual({height: 368, width: 550});
 			return;
 		}
 

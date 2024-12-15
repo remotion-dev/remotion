@@ -4,17 +4,18 @@ import {
 	isGif,
 	isIsoBaseMedia,
 	isMp3,
-	isPng,
 	isRiff,
 	isTransportStream,
 	isWebm,
-	isWebp,
 } from './detect-file-type';
 import {isJpeg} from './jpeg';
+import {isPng} from './png';
+import {isWebp} from './webp';
 
 export const detectFileType = (data: Uint8Array): FileType => {
-	if (isWebp(data)) {
-		return {type: 'webp'};
+	const webp = isWebp(data);
+	if (webp) {
+		return webp;
 	}
 
 	if (isRiff(data)) {
@@ -41,8 +42,9 @@ export const detectFileType = (data: Uint8Array): FileType => {
 		return {type: 'gif'};
 	}
 
-	if (isPng(data)) {
-		return {type: 'png'};
+	const png = isPng(data);
+	if (png) {
+		return png;
 	}
 
 	const bmp = isBmp(data);

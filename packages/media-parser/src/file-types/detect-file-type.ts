@@ -1,6 +1,8 @@
 import {webmPattern} from '../boxes/webm/make-header';
 import type {BmpType} from './bmp';
 import type {JpegType} from './jpeg';
+import type {PngType} from './png';
+import type {WebpType} from './webp';
 
 export const matchesPattern = (pattern: Uint8Array) => {
 	return (data: Uint8Array) => {
@@ -39,22 +41,6 @@ export const isGif = (data: Uint8Array) => {
 	return matchesPattern(gifPattern)(data.subarray(0, 4));
 };
 
-export const isPng = (data: Uint8Array) => {
-	const pngPattern = new Uint8Array([0x89, 0x50, 0x4e, 0x47]);
-
-	return matchesPattern(pngPattern)(data.subarray(0, 4));
-};
-
-export const isWebp = (data: Uint8Array) => {
-	const webpPattern = new Uint8Array([0x52, 0x49, 0x46, 0x46]);
-
-	return matchesPattern(webpPattern)(data.subarray(0, 4));
-};
-
-export type WebpType = {
-	type: 'webp';
-};
-
 export type RiffType = {
 	type: 'riff';
 };
@@ -77,10 +63,6 @@ export type Mp3Type = {
 
 export type GifType = {
 	type: 'gif';
-};
-
-export type PngType = {
-	type: 'png';
 };
 
 export type UnknownType = {

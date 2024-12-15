@@ -17,12 +17,12 @@ import {parseMedia, IsAnImageError, IsAGifError} from '@remotion/media-parser';
 
 try {
   await parseMedia({
-    src: 'https://example.com/my-video.mp4',
+    src: 'https://example.com/my-video.png',
     fields: {},
   });
 } catch (e) {
   if (e instanceof IsAnImageError) {
-    console.log('The file is an image of format', e.imageType);
+    console.log('The file is an image of format', e.imageType, e.dimensions);
   } else if (e instanceof IsAGifError) {
     console.log('The file is a GIF');
   }
@@ -36,6 +36,7 @@ try {
 An error if the image is a `png`, `jpeg`, `bmp` or `webp`.
 
 - `imageType`: The type of the image (`png`, `jpeg`, `bmp` or `webp`).
+- `dimensions`: The dimensions of the image (`width` and `height`).
 
 ### `IsAGifError`
 

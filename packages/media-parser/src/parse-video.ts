@@ -100,18 +100,12 @@ export const parseVideo = ({
 		fileType.type === 'png' ||
 		fileType.type === 'webp'
 	) {
-		if (fileType.type === 'jpeg' || fileType.type === 'bmp') {
-			return Promise.reject(
-				new IsAnImageError(
-					'Image files are not supported',
-					fileType.type,
-					fileType.dimensions,
-				),
-			);
-		}
-
 		return Promise.reject(
-			new IsAnImageError('Image files are not supported', fileType.type, null),
+			new IsAnImageError(
+				'Image files are not supported',
+				fileType.type,
+				fileType.dimensions,
+			),
 		);
 	}
 
