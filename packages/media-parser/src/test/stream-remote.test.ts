@@ -31,11 +31,13 @@ test(
 				dimensions: true,
 				videoCodec: true,
 				internalStats: true,
+				mimeType: true,
 			},
 		});
 		expect(result.durationInSeconds).toBe(634.571);
 		// TODO: Not yet implemented
 		expect(result.fps).toBe(null);
+		expect(result.mimeType).toBe('video/webm');
 		expect(result.dimensions).toEqual({
 			width: 1280,
 			height: 720,

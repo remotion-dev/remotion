@@ -17,6 +17,7 @@ const needsTracksField: Record<keyof Options<ParseMediaFields>, boolean> = {
 	videoCodec: true,
 	metadata: true,
 	location: true,
+	mimeType: false,
 };
 
 export const makeCanSkipTracksState = ({

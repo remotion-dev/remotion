@@ -11,6 +11,13 @@ import {
 } from './create/with-resolvers';
 import type {LogLevel} from './log';
 import {Log} from './log';
+export {
+	IsAGifError,
+	IsAnImageError,
+	IsAnUnsupportedAudioTypeError,
+	IsAnUnsupportedFileTypeError,
+	IsAPdfError,
+} from './errors';
 export {MetadataEntry} from './metadata/get-metadata';
 export {WriterInterface} from './writers/writer';
 

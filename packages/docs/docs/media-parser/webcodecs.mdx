@@ -13,7 +13,17 @@ crumb: '@remotion/media-parser'
 **Unstable API**: This package is experimental. We might change the API at any time, until we remove this notice.
 :::
 
-## Minimal example
+## With `@remotion/webcodecs`
+
+[`@remotion/webcodecs`](/docs/webcodecs) is a package that uses `@remotion/media-parser` to provide video processing in the browser.  
+It handles various browser quirks and hard implementation details for you.
+
+We recommend it if you want to build a solution based on WebCodecs.  
+It is a higher-level API that is easier to use than `@remotion/media-parser`.
+
+## Using `@remotion/media-parser`
+
+`@remotion/media-parser` is a lower-level API that allows you to interface with WebCodecs directly.
 
 ```tsx twoslash title="Reading video frames"
 // @module: es2022

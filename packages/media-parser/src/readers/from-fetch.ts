@@ -176,6 +176,7 @@ export const fetchReader: ReaderInterface = {
 				},
 			},
 			contentLength,
+			contentType: res.headers.get('content-type'),
 			name: name ?? (fallbackName as string),
 			supportsContentRange,
 		};

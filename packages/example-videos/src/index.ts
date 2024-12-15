@@ -2,6 +2,7 @@ import path from 'node:path';
 
 const examplePackage = path.join(__dirname, '..', '..', 'example');
 const docsPackage = path.join(__dirname, '..', '..', 'docs');
+const lambdaPackage = path.join(__dirname, '..', '..', 'lambda');
 
 export const exampleVideos = {
 	bigBuckBunny: path.join(examplePackage, 'public/bigbuckbunny.mp4'),
@@ -53,4 +54,24 @@ export const exampleVideos = {
 	chirp: path.join(examplePackage, 'public', 'chirp.wav'),
 	iphonelivefoto: path.join(__dirname, '..', 'videos', 'mehmet.mov'),
 	transportstream: path.join(__dirname, '..', 'videos', '0.ts'),
+	gif: path.join(examplePackage, 'public', 'giphy.gif'),
+	png: path.join(docsPackage, 'static', 'img', 'logo.png'),
+	jpeg: path.join(docsPackage, 'static', 'img', 'freelancers', 'ray.jpeg'),
+	aac: path.join(__dirname, '..', 'videos', 'sample3.aac'),
+	bmp: path.join(
+		lambdaPackage,
+		'src',
+		'test',
+		'integration',
+		'renders',
+		'regular-audio.bmp',
+	),
+	webp: path.join(__dirname, '..', 'videos', '1.webp'),
+	pdf: path.join(
+		docsPackage,
+		'static',
+		'documents',
+		'RemotionSeedFundingPressRelease.pdf',
+	),
+	unknown: __filename,
 };

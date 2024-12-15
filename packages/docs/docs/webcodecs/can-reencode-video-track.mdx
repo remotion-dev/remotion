@@ -25,14 +25,14 @@ You can obtain a `VideoTrack` using [`parseMedia()`](/docs/media-parser/parse-me
 import {parseMedia} from '@remotion/media-parser';
 import {canReencodeVideoTrack} from '@remotion/webcodecs';
 
-const {videoTracks} = await parseMedia({
+const {tracks} = await parseMedia({
   src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
   fields: {
     tracks: true,
   },
 });
 
-for (const track of videoTracks) {
+for (const track of tracks.videoTracks) {
   await canReencodeVideoTrack({
     track,
     videoCodec: 'vp8',

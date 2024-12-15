@@ -6,6 +6,7 @@ type Reader = {
 type ReadResult = {
 	reader: Reader;
 	contentLength: number | null;
+	contentType: string | null;
 	name: string;
 	supportsContentRange: boolean;
 };

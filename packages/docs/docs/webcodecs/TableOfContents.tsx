@@ -2,6 +2,27 @@ import React from 'react';
 import {Grid} from '../../components/TableOfContents/Grid';
 import {TOCItem} from '../../components/TableOfContents/TOCItem';
 
+export const WebCodecsGuide: React.FC = () => {
+	return (
+		<div>
+			<Grid>
+				<TOCItem link="/docs/webcodecs/convert-a-video">
+					<strong>Convert a video</strong>
+					<div>from one format to another</div>
+				</TOCItem>
+				<TOCItem link="/docs/webcodecs/rotate-a-video">
+					<strong>Rotate a video</strong>
+					<div>Fix bad orientation</div>
+				</TOCItem>
+				<TOCItem link="/docs/webcodecs/fix-mediarecorder-video">
+					<strong>Fix a MediaRecorder video</strong>
+					<div>Fix missing video duration and poor seeking performance</div>
+				</TOCItem>
+			</Grid>
+		</div>
+	);
+};
+
 export const TableOfContents: React.FC = () => {
 	return (
 		<div>
