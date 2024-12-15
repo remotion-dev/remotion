@@ -101,11 +101,35 @@ export const parseVideo = ({
 	if (fileType.type === 'mp3') {
 		return Promise.reject(
 			new IsAnUnsupportedAudioTypeError({
-				message: 'MP3 files are not supported',
+				message: 'MP3 files are not yet supported',
 				mimeType,
 				sizeInBytes: contentLength,
 				fileName: name,
 				audioType: 'mp3',
+			}),
+		);
+	}
+
+	if (fileType.type === 'wav') {
+		return Promise.reject(
+			new IsAnUnsupportedAudioTypeError({
+				message: 'WAV files are not yet supported',
+				mimeType,
+				sizeInBytes: contentLength,
+				fileName: name,
+				audioType: 'wav',
+			}),
+		);
+	}
+
+	if (fileType.type === 'aac') {
+		return Promise.reject(
+			new IsAnUnsupportedAudioTypeError({
+				message: 'AAC files are not yet supported',
+				mimeType,
+				sizeInBytes: contentLength,
+				fileName: name,
+				audioType: 'aac',
 			}),
 		);
 	}

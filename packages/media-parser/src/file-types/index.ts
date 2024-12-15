@@ -1,6 +1,7 @@
 import {isBmp} from './bmp';
 import type {FileType} from './detect-file-type';
 import {
+	isAac,
 	isGif,
 	isIsoBaseMedia,
 	isMp3,
@@ -15,8 +16,16 @@ import {isPng} from './png';
 import {isWebp} from './webp';
 
 export const detectFileType = (data: Uint8Array): FileType => {
-	if (isRiffAvi(data) || isRiffWave(data)) {
+	if (isRiffWave(data)) {
+		return {type: 'wav'};
+	}
+
+	if (isRiffAvi(data)) {
 		return {type: 'riff'};
+	}
+
+	if (isAac(data)) {
+		return {type: 'aac'};
 	}
 
 	const webp = isWebp(data);

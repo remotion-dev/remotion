@@ -62,6 +62,12 @@ export const isGif = (data: Uint8Array) => {
 	return matchesPattern(gifPattern)(data.subarray(0, 4));
 };
 
+export const isAac = (data: Uint8Array) => {
+	const aacPattern = new Uint8Array([0xff, 0xf1]);
+
+	return matchesPattern(aacPattern)(data.subarray(0, 2));
+};
+
 export type RiffType = {
 	type: 'riff';
 };
@@ -82,6 +88,14 @@ export type Mp3Type = {
 	type: 'mp3';
 };
 
+export type AacType = {
+	type: 'aac';
+};
+
+export type WavType = {
+	type: 'wav';
+};
+
 export type GifType = {
 	type: 'gif';
 };
@@ -95,11 +109,14 @@ export type FileType =
 	| WebpType
 	| RiffType
 	| WebmType
+	| WavType
 	| PdfType
+	| AacType
 	| IsoBaseMediaType
 	| TransportStreamType
 	| Mp3Type
 	| GifType
 	| PngType
 	| BmpType
+	| AacType
 	| UnknownType;

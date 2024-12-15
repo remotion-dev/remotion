@@ -57,6 +57,7 @@ export const exampleVideos = {
 	gif: path.join(examplePackage, 'public', 'giphy.gif'),
 	png: path.join(docsPackage, 'static', 'img', 'logo.png'),
 	jpeg: path.join(docsPackage, 'static', 'img', 'freelancers', 'ray.jpeg'),
+	aac: path.join(__dirname, '..', 'videos', 'sample3.aac'),
 	bmp: path.join(
 		lambdaPackage,
 		'src',

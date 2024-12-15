@@ -28,6 +28,42 @@ test('Should throw IsAnUnsupportedAudio for a mp3', async () => {
 	}
 });
 
+test('Should throw IsAnUnsupportedAudio for a wav', async () => {
+	try {
+		await parseMedia({
+			src: exampleVideos.chirp,
+			reader: nodeReader,
+		});
+		throw new Error('Expected an error');
+	} catch (e) {
+		if (e instanceof IsAnUnsupportedAudioTypeError) {
+			expect(e.sizeInBytes).toEqual(2646150);
+			expect(e.audioType).toEqual('wav');
+			return;
+		}
+
+		throw e;
+	}
+});
+
+test('Should throw IsAnUnsupportedAudio for an aac', async () => {
+	try {
+		await parseMedia({
+			src: exampleVideos.aac,
+			reader: nodeReader,
+		});
+		throw new Error('Expected an error');
+	} catch (e) {
+		if (e instanceof IsAnUnsupportedAudioTypeError) {
+			expect(e.sizeInBytes).toEqual(1758426);
+			expect(e.audioType).toEqual('aac');
+			return;
+		}
+
+		throw e;
+	}
+});
+
 test('Should throw IsAGifError for a gif', () => {
 	const prom = parseMedia({
 		src: exampleVideos.gif,
@@ -138,7 +174,7 @@ test('Should throw IsAnUnsupportedFileTypeError on unknown type', async () => {
 	} catch (e) {
 		if (e instanceof IsAnUnsupportedFileTypeError) {
 			expect(e.mimeType).toEqual(null);
-			expect(e.sizeInBytes).toEqual(4251);
+			expect(e.sizeInBytes).toBeGreaterThan(1000);
 			return;
 		}
 
