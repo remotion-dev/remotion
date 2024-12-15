@@ -577,7 +577,11 @@ module.exports = {
 				id: 'webcodecs/index',
 			},
 			items: [
-				'webcodecs/index',
+				{
+					type: 'link',
+					href: '/docs/webcodecs/convert-a-video',
+					label: 'Guide',
+				},
 				'webcodecs/track-transformation',
 				'webcodecs/convert-media',
 				'webcodecs/get-available-containers',
@@ -910,7 +914,16 @@ module.exports = {
 		{
 			type: 'category',
 			label: 'WebCodecs',
+			link: {
+				type: 'doc',
+				id: 'webcodecs/index',
+			},
 			items: [
+				{
+					type: 'link',
+					href: '/docs/webcodecs/convert-media',
+					label: 'API Reference',
+				},
 				'webcodecs/convert-a-video',
 				'webcodecs/rotate-a-video',
 				'webcodecs/fix-mediarecorder-video',

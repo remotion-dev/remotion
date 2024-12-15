@@ -29,7 +29,12 @@ try {
   });
 } catch (e) {
   if (e instanceof IsAnImageError) {
-    console.log('The file is an image of format:', e.imageType, 'dimensions:' e.dimensions);
+    console.log(
+      'The file is an image of format:',
+      e.imageType,
+      'dimensions:',
+      e.dimensions,
+    );
   } else if (e instanceof IsAGifError) {
     console.log('The file is a GIF');
   } else if (e instanceof IsAPdfError) {
