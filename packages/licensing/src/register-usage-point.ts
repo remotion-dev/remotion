@@ -26,8 +26,8 @@ export const registerUsageEvent = async ({
 	succeeded,
 	event,
 }: {
-	apiKey: string;
-	host: string;
+	apiKey: string | null;
+	host: string | null;
 	succeeded: boolean;
 	event: UsageEventType;
 }): Promise<RegisterUsageEventResponse> => {

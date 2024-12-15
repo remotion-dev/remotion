@@ -26,11 +26,13 @@ import {generateOutputFilename} from './generate-output-filename';
 import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 import type {ConvertMediaContainer} from './get-available-containers';
 import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
+import {Log} from './log';
 import {makeAudioTrackHandler} from './on-audio-track';
 import {type ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
 import {makeVideoTrackHandler} from './on-video-track';
 import {type ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
 import {selectContainerCreator} from './select-container-creator';
+import {sendUsageEvent} from './send-telemetry-event';
 import {throttledStateUpdate} from './throttled-state-update';
 
 export type ConvertMediaProgress = {
@@ -74,6 +76,7 @@ export const convertMedia = async function <
 	writer,
 	progressIntervalInMs,
 	rotate,
+	apiKey,
 	...more
 }: {
 	src: ParseMediaOptions<F>['src'];
@@ -90,6 +93,7 @@ export const convertMedia = async function <
 	writer?: WriterInterface;
 	progressIntervalInMs?: number;
 	rotate?: number;
+	apiKey?: string | null;
 } & ParseMediaDynamicOptions<F>): Promise<ConvertMediaResult> {
 	if (userPassedAbortSignal?.aborted) {
 		return Promise.reject(new Error('Aborted'));
@@ -243,7 +247,17 @@ export const convertMedia = async function <
 				finalState: throttledState.get(),
 			});
 		})
+		.then(() => {
+			sendUsageEvent({succeeded: true, apiKey: apiKey ?? null}).catch((err) => {
+				Log.error('Failed to send usage event', err);
+			});
+		})
 		.catch((err) => {
+			sendUsageEvent({succeeded: false, apiKey: apiKey ?? null}).catch(
+				(err2) => {
+					Log.error('Failed to send usage event hmm', err2);
+				},
+			);
 			reject(err);
 		})
 		.finally(() => {
