@@ -243,8 +243,10 @@ If the signal is aborted, the parser will stop reading the media and stop the de
 
 ### Callbacks
 
-Each field also has a callback that allows you to retrieve the value as soon as it is obtained without waiting for the function to resolve.  
-You must pass `true` as the value for the field in order for the callback to be called.
+Each field also has a callback that allows you to retrieve the value as soon as it is obtained without waiting for the function to resolve.
+
+You do not have to add the field to the [`fields`](#fields) object if you use the callback.  
+However, just like with [`fields`](#fields), adding a callback for a [slow field](/docs/media-parser/fast-and-slow) may require reading more of the file.
 
 ```tsx twoslash title="Using a callback"
 // @module: es2022
@@ -254,10 +256,6 @@ import {parseMedia} from '@remotion/media-parser';
 
 const result = await parseMedia({
   src: 'https://example.com/my-video.mp4',
-  fields: {
-    durationInSeconds: true,
-    dimensions: true,
-  },
   onDurationInSeconds: (durationInSeconds) => {
     console.log(durationInSeconds);
   },
