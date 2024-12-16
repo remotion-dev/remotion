@@ -217,6 +217,8 @@ export default function ConvertUI({
 				);
 				return operation;
 			},
+			// Remotion team can see usage on https://www.remotion.pro/projects/remotiondevconvert/
+			apiKey: 'rm_pub_9a996d341238eaa34e696b099968d8510420b9f6ba4aa0ee',
 		})
 			.then(({save, finalState}) => {
 				setState({
