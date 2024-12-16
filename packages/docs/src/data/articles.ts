@@ -3383,6 +3383,13 @@ export const articles = [
 		crumb: '@remotion/webcodecs',
 	},
 	{
+		id: 'telemetry',
+		title: 'Telemetry in @remotion/webcodecs',
+		relativePath: 'docs/webcodecs/telemetry.mdx',
+		compId: 'articles-docs-webcodecs-telemetry',
+		crumb: '@remotion/webcodecs',
+	},
+	{
 		id: 'convert-a-video',
 		title: 'Convert a video',
 		relativePath: 'docs/webcodecs/convert-a-video.mdx',

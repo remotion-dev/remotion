@@ -3024,6 +3024,9 @@ importers:
 
   packages/webcodecs:
     dependencies:
+      '@remotion/licensing':
+        specifier: workspace:*
+        version: link:../licensing
       '@remotion/media-parser':
         specifier: workspace:*
         version: link:../media-parser
