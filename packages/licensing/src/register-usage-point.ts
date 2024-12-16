@@ -1,4 +1,4 @@
-export const HOST = 'https://remotion.pro';
+export const HOST = 'https://www.remotion.pro';
 
 type ApiResponse =
 	| {
