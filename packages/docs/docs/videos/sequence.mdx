@@ -237,6 +237,9 @@ export const Root: React.FC = () => {
 
 ## Adding premounting
 
+If you only care about the video looking smooth when rendered, you may skip this step.  
+If you also want smooth preview playback in the Player, consider this:
+
 A video will only load when it is about to be played.  
 To create a smoother preview playback, we should do two things to all videos:
 
@@ -283,6 +286,12 @@ export const VideosInSequence: React.FC<Props> = ({videos}) => {
   );
 };
 ```
+
+## Browser autoplay policies
+
+Mobile browsers are more aggressive in blocking autoplaying videos that enter after the start of the composition.
+
+If you want to ensure a smooth playback experience for all videos, also [read the notes about browser autoplay behavior](/docs/player/autoplay#media-that-enters-the-video-after-the-start) and customize the behavior if needed.
 
 ## See also
 
