@@ -7,13 +7,13 @@ crumb: 'How To'
 
 If you would like to play multiple videos in sequence, you can:
 
-<Step>1</Step> Define a component that renders a [`<Series>`](/docs/series) of [`<OffthreadVideo>`](/docs/offthread-video) components.
+<Step>1</Step> Define a component that renders a [`<Series>`](/docs/series) of [`<OffthreadVideo>`](/docs/offthreadvideo) components.
 <br/><Step>2</Step> Create a [`calculateMetadata()`](/docs/calculate-metadata) function that fetches the duration of each video.
 <br/><Step>3</Step> Register a [`<Composition>`](/docs/composition) that specifies a list of videos.
 
 ## Basic example
 
-Start off by creating a component that renders a list of videos using the [`<Series>`](/docs/series) and [`<OffthreadVideo>`](/docs/offthread-video) component:
+Start off by creating a component that renders a list of videos using the [`<Series>`](/docs/series) and [`<OffthreadVideo>`](/docs/offthreadvideo) component:
 
 ```tsx twoslash title="VideosInSequence.tsx"
 import React from 'react';
@@ -295,11 +295,11 @@ If you want to ensure a smooth playback experience for all videos, also [read th
 
 ## See also
 
-- [OffthreadVideo](/docs/offthreadvideo)
-- [Series](/docs/series)
-- [calculateMetadata()](/docs/calculate-metadata)
-- [parseMedia()](/docs/media-parser)
-- [Composition](/docs/composition)
+- [`<OffthreadVideo>`](/docs/offthreadvideo)
+- [`<Series>`](/docs/series)
+- [`calculateMetadata()`](/docs/calculate-metadata)
+- [`parseMedia()`](/docs/media-parser)
+- [`<Composition>`](/docs/composition)
 - [Root file](/docs/terminology/root-file)
 - [Player buffering state](/docs/player/buffer-state)
 - [Avoiding flickering in the Player](/docs/troubleshooting/player-flicker)
