@@ -669,7 +669,7 @@ module.exports = {
 		},
 		{
 			type: 'category',
-			label: 'Designing videos',
+			label: 'Designing visuals',
 			items: [
 				'transforms',
 				'assets',
@@ -689,8 +689,9 @@ module.exports = {
 			label: 'Embedding videos',
 			items: [
 				'videos/index',
-				'videos/transparency',
 				'miscellaneous/snippets/align-duration',
+				'videos/sequence',
+				'videos/transparency',
 				'video-manipulation',
 				'miscellaneous/snippets/accelerated-video',
 				'miscellaneous/snippets/jumpcuts',

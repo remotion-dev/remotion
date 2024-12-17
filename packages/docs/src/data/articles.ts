@@ -2112,6 +2112,13 @@ export const articles = [
 		crumb: 'Compare',
 	},
 	{
+		id: 'videos/sequence',
+		title: 'Playing videos in sequence',
+		relativePath: 'docs/videos/sequence.mdx',
+		compId: 'articles-docs-videos-sequence',
+		crumb: 'How To',
+	},
+	{
 		id: 'videos/index',
 		title: 'Embedding videos into Remotion',
 		relativePath: 'docs/videos/index.mdx',
