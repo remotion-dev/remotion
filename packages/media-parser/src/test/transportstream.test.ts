@@ -60,9 +60,9 @@ test('Transport stream', async () => {
 				codecPrivate: new Uint8Array([
 					1, // version
 
-					32,
-					0,
 					100, // profile, profile compatibility, level
+					0,
+					32,
 					255, // reserved
 
 					225, // reserved
