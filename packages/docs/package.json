@@ -81,7 +81,7 @@
 		"mux-embed": "^4.16.0",
 		"plyr": "^3.7.3",
 		"polished": "4.1.2",
-		"next": "14.2.13",
+		"next": "14.2.15",
 		"react": "19.0.0",
 		"react-dom": "19.0.0",
 		"remark-shiki-twoslash": "^3.1.3",
