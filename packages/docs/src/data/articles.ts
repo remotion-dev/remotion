@@ -1639,6 +1639,13 @@ export const articles = [
 		crumb: 'Snippets',
 	},
 	{
+		id: 'miscellaneous/snippets/freeze-portions',
+		title: 'Freeze portions of a sequence',
+		relativePath: 'docs/miscellaneous/snippets/freeze-portions-mdx',
+		compId: 'articles-docs-miscellaneous-snippets-freeze-portions',
+		crumb: 'Snippets',
+	},
+	{
 		id: 'miscellaneous/snippets/jumpcuts',
 		title: 'Jump Cutting',
 		relativePath: 'docs/miscellaneous/snippets/jumpcuts.mdx',

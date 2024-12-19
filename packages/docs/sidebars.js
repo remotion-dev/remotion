@@ -695,6 +695,7 @@ module.exports = {
 				'video-manipulation',
 				'miscellaneous/snippets/accelerated-video',
 				'miscellaneous/snippets/jumpcuts',
+				'miscellaneous/snippets/freeze-portions',
 				'miscellaneous/snippets/hls',
 				'video-vs-offthreadvideo',
 			],
