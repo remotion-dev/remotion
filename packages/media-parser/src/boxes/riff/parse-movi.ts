@@ -88,23 +88,33 @@ export const handleChunk = async ({
 		const nthSample = options.parserState.getSamplesForTrack(trackId);
 		const timeInSec = nthSample / samplesPerSecond;
 		const timestamp = timeInSec;
-		const duration = 1 / samplesPerSecond;
 
-		await options.parserState.onAudioSample(
-			trackId,
-			convertAudioOrVideoSampleToWebCodecsTimestamps(
-				{
-					cts: timestamp,
-					dts: timestamp,
-					data: iterator.getSlice(ckSize),
-					duration,
-					timestamp,
-					trackId,
-					type: 'key',
-				},
-				1,
-			),
-		);
+		const data = iterator.getSlice(ckSize);
+
+		// In example.avi, we have samples with 0 data
+		// Chrome fails on these
+
+		// We must also NOT pass a duration because if the the next sample is 0,
+		// this sample would be longer. Chrome will pad it with silence.
+		// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished
+
+		if (data.length > 0) {
+			await options.parserState.onAudioSample(
+				trackId,
+				convertAudioOrVideoSampleToWebCodecsTimestamps(
+					{
+						cts: timestamp,
+						dts: timestamp,
+						data,
+						duration: undefined,
+						timestamp,
+						trackId,
+						type: 'key',
+					},
+					1,
+				),
+			);
+		}
 	}
 };
 
