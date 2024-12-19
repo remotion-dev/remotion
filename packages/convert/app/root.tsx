@@ -10,8 +10,11 @@ export function Layout({children}: {readonly children: React.ReactNode}) {
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
 				<title>Remotion Convert</title>
 				<meta name="description" content="Remotion Convert" />
-				<link rel="icon" href="/convert/pwa-icon-192.png" />
-				<link rel="manifest" href="/convert/manifest.json" />
+				<link rel="icon" href={`${import.meta.env.BASE_URL}pwa-icon-192.png`} />
+				<link
+					rel="manifest"
+					href={`${import.meta.env.BASE_URL}manifest.json`}
+				/>
 				<Links />
 			</head>
 			<body>
