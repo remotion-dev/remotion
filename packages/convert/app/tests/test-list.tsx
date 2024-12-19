@@ -97,6 +97,28 @@ export const lpcmLivePhoto = (): TestStructure => {
 	});
 };
 
+export const aviToMp4ReEncode = (): TestStructure => {
+	const src =
+		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/example.avi';
+	return addTestWatcher({
+		name: 'AVI to MP4 (Re-Encode)',
+		src,
+		async execute(onUpdate) {
+			await convertMedia({
+				src,
+				container: 'mp4',
+				onProgress: makeProgressReporter(onUpdate),
+				onVideoTrack: () => {
+					return {type: 'reencode', videoCodec: 'h264'};
+				},
+				onAudioTrack: () => {
+					return {type: 'reencode', audioCodec: 'aac', bitrate: 128000};
+				},
+			});
+		},
+	});
+};
+
 export const aviToMp4 = (): TestStructure => {
 	const src =
 		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/example.avi';
@@ -190,6 +212,7 @@ export const testList: TestStructure[] = [
 	basicMp4ToWebM(),
 	av1WebmToMp4(),
 	aviToMp4(),
+	aviToMp4ReEncode(),
 	convertToWav(),
 	weirdMp4aConfig(),
 	rotatedVideo(),

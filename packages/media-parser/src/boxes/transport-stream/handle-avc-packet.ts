@@ -3,8 +3,8 @@ import type {Track} from '../../get-tracks';
 import type {ParserContext} from '../../parser-context';
 import {registerTrack} from '../../register-track';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
-import {getAvccBoxContent} from '../avc/codec-private';
 import {getCodecStringFromSpsAndPps} from '../avc/codec-string';
+import {createSpsPpsData} from '../avc/create-sps-pps-data';
 import {
 	getDimensionsFromSps,
 	getSampleAspectRatioFromSps,
@@ -44,7 +44,7 @@ export const handleAvcPacket = async ({
 			type: 'video',
 			timescale: MPEG_TIMESCALE,
 			codec: getCodecStringFromSpsAndPps(spsAndPps.sps),
-			codecPrivate: getAvccBoxContent(spsAndPps),
+			codecPrivate: createSpsPpsData(spsAndPps),
 			fps: null,
 			codedWidth: dimensions.width,
 			codedHeight: dimensions.height,
