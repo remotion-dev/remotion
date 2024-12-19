@@ -154,7 +154,8 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	RenderInternals.validateConcurrency({
 		value: params.concurrencyPerLambda,
 		setting: 'concurrencyPerLambda',
-		checkIfValidForCurrentMachine: true,
+		checkIfValidForCurrentMachine:
+			(params.rendererFunctionName ?? null) === null,
 	});
 
 	const realFrameRange = RenderInternals.getRealFrameRange(
