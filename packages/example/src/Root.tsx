@@ -32,6 +32,7 @@ import {Expert} from './Expert';
 import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
+import {FreezePortion} from './FreezePortion/FreezePortion';
 import {Green} from './Green';
 import {HlsDemo} from './Hls/HlsDemo';
 import {HugeImage} from './HugeImage';
@@ -359,6 +360,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="freeze-example"
 					component={FreezeExample}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={300}
+				/>
+				<Composition
+					id="freeze-portion"
+					component={FreezePortion}
 					width={1280}
 					height={720}
 					fps={30}
