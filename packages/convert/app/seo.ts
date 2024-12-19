@@ -11,7 +11,7 @@ export const outputContainers = getAvailableContainers();
 export const parseConvertRouteAction = (action: string) => {
 	const split = action.split('-to-');
 	if (split.length !== 2) {
-		throw new Error('Invalid action');
+		throw new Error('Invalid action: ' + action);
 	}
 
 	if (split[0] === split[1]) {
