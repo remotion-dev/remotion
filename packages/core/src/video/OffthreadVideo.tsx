@@ -75,7 +75,9 @@ export const OffthreadVideo: React.FC<OffthreadVideoProps> = (props) => {
 		onAutoPlayError,
 		onVideoFrame,
 		crossOrigin,
-		...withoutTransparent
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
+		...propsForPreview
 	} = otherProps;
 
 	return (
@@ -90,7 +92,7 @@ export const OffthreadVideo: React.FC<OffthreadVideoProps> = (props) => {
 			onAutoPlayError={onAutoPlayError ?? undefined}
 			onVideoFrame={onVideoFrame ?? null}
 			crossOrigin={crossOrigin}
-			{...withoutTransparent}
+			{...propsForPreview}
 		/>
 	);
 };
