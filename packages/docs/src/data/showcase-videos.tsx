@@ -118,7 +118,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
 			},
 			{
 				type: 'source_code',
-				url: 'https://github.com/remotion-dev/github-unwrapped-2023',
+				url: 'https://github.com/remotion-dev/github-unwrapped',
 			},
 		],
 		author: {
