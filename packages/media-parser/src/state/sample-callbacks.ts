@@ -1,20 +1,34 @@
+import type {Options, ParseMediaFields} from '../options';
 import type {
 	AudioOrVideoSample,
 	OnAudioSample,
 	OnVideoSample,
 } from '../webcodec-sample-types';
-import type {CanSkipTracksState} from './can-skip-tracks';
+import {makeCanSkipTracksState} from './can-skip-tracks';
 import {makeTracksSectionState} from './has-tracks-section';
 
-export const sampleCallback = (
-	canSkipTracksState: CanSkipTracksState,
-	signal: AbortSignal | undefined,
-) => {
+export const sampleCallback = ({
+	signal,
+	hasAudioTrackHandlers,
+	hasVideoTrackHandlers,
+	fields,
+}: {
+	signal: AbortSignal | undefined;
+	hasAudioTrackHandlers: boolean;
+	hasVideoTrackHandlers: boolean;
+	fields: Options<ParseMediaFields>;
+}) => {
 	const videoSampleCallbacks: Record<number, OnVideoSample> = {};
 	const audioSampleCallbacks: Record<number, OnAudioSample> = {};
 
 	const queuedAudioSamples: Record<number, AudioOrVideoSample[]> = {};
 	const queuedVideoSamples: Record<number, AudioOrVideoSample[]> = {};
+
+	const canSkipTracksState = makeCanSkipTracksState({
+		hasAudioTrackHandlers,
+		fields,
+		hasVideoTrackHandlers,
+	});
 
 	const tracksState = makeTracksSectionState(canSkipTracksState);
 
@@ -80,6 +94,7 @@ export const sampleCallback = (
 				Object.values(audioSampleCallbacks).length === 0
 			);
 		},
+		canSkipTracksState,
 		registerAudioSampleCallback: async (
 			id: number,
 			callback: OnAudioSample | null,

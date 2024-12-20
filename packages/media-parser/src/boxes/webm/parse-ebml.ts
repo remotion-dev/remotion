@@ -182,7 +182,7 @@ export const postprocessEbml = async ({
 		const sample = getSampleFromBlock(ebml, state, offset);
 
 		if (sample.type === 'video-sample' && state.nullifySamples) {
-			await state.sample.onVideoSample(
+			await state.callbacks.onVideoSample(
 				sample.videoSample.trackId,
 				sample.videoSample,
 			);
@@ -194,7 +194,7 @@ export const postprocessEbml = async ({
 		}
 
 		if (sample.type === 'audio-sample' && state.nullifySamples) {
-			await state.sample.onAudioSample(
+			await state.callbacks.onAudioSample(
 				sample.audioSample.trackId,
 				sample.audioSample,
 			);
@@ -241,7 +241,7 @@ export const postprocessEbml = async ({
 				...sample.partialVideoSample,
 				type: hasReferenceBlock ? 'delta' : 'key',
 			};
-			await state.sample.onVideoSample(
+			await state.callbacks.onVideoSample(
 				sample.partialVideoSample.trackId,
 				completeFrame,
 			);

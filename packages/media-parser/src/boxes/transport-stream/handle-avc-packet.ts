@@ -27,7 +27,7 @@ export const handleAvcPacket = async ({
 	state: ParserState;
 }) => {
 	const avc = parseAvc(streamBuffer.buffer);
-	const isTrackRegistered = state.sample.tracks.getTracks().find((t) => {
+	const isTrackRegistered = state.callbacks.tracks.getTracks().find((t) => {
 		return t.trackId === programId;
 	});
 
@@ -76,7 +76,7 @@ export const handleAvcPacket = async ({
 		type: getKeyFrameOrDeltaFromAvcInfo(avc),
 	};
 
-	await state.sample.onVideoSample(
+	await state.callbacks.onVideoSample(
 		programId,
 		convertAudioOrVideoSampleToWebCodecsTimestamps(sample, MPEG_TIMESCALE),
 	);

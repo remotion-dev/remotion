@@ -122,13 +122,13 @@ export const parseRiffBody = async ({
 		if (result.box.type === 'list-box' && result.box.listType === 'hdrl') {
 			const tracks = getTracks(structure, state);
 			if (!tracks.videoTracks.some((t) => t.codec === TO_BE_OVERRIDDEN_LATER)) {
-				state.sample.tracks.setIsDone();
+				state.callbacks.tracks.setIsDone();
 			}
 		}
 
 		// When parsing a WAV
 		if (result.box.type === 'wave-format-box') {
-			state.sample.tracks.setIsDone();
+			state.callbacks.tracks.setIsDone();
 		}
 
 		if (

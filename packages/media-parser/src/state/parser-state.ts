@@ -2,7 +2,6 @@ import type {AvcPPs, AvcProfileInfo} from '../boxes/avc/parse-avc';
 import type {BufferIterator} from '../buffer-iterator';
 import type {Options, ParseMediaFields} from '../options';
 import type {OnAudioTrack, OnVideoTrack} from '../webcodec-sample-types';
-import {makeCanSkipTracksState} from './can-skip-tracks';
 import {keyframesState} from './keyframes';
 import {riffSpecificState} from './riff';
 import {sampleCallback} from './sample-callbacks';
@@ -46,22 +45,20 @@ export const makeParserState = ({
 		skippedBytes += bytes;
 	};
 
-	const canSkipTracksState = makeCanSkipTracksState({
-		hasAudioTrackHandlers,
-		fields,
-		hasVideoTrackHandlers,
-	});
-
 	return {
 		riff: riffSpecificState(),
-		sample: sampleCallback(canSkipTracksState, signal),
+		callbacks: sampleCallback({
+			signal,
+			hasAudioTrackHandlers,
+			hasVideoTrackHandlers,
+			fields,
+		}),
 		getInternalStats: (): InternalStats => ({
 			skippedBytes,
 			finalCursorOffset: getIterator()?.counter.getOffset() ?? 0,
 		}),
 		getSkipBytes: () => skippedBytes,
 		increaseSkippedBytes,
-		canSkipTracksState,
 		keyframes: keyframesState(),
 		structure: structureState(),
 		nullifySamples,

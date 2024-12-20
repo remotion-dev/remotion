@@ -45,7 +45,7 @@ export const handleChunk = async ({
 		const strh = getStrhForIndex(structure, trackId);
 
 		const samplesPerSecond = strh.rate / strh.scale;
-		const nthSample = state.sample.getSamplesForTrack(trackId);
+		const nthSample = state.callbacks.getSamplesForTrack(trackId);
 		const timeInSec = nthSample / samplesPerSecond;
 		const timestamp = timeInSec;
 
@@ -57,14 +57,14 @@ export const handleChunk = async ({
 		const ppsProfile = infos.find((i) => i.type === 'avc-pps');
 		if (avcProfile && ppsProfile) {
 			await state.riff.onProfile({pps: ppsProfile, sps: avcProfile});
-			state.sample.tracks.setIsDone();
+			state.callbacks.tracks.setIsDone();
 		}
 
 		// We must also NOT pass a duration because if the the next sample is 0,
 		// this sample would be longer. Chrome will pad it with silence.
 		// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished
 		if (data.length > 0) {
-			await state.sample.onVideoSample(
+			await state.callbacks.onVideoSample(
 				trackId,
 				convertAudioOrVideoSampleToWebCodecsTimestamps(
 					{
@@ -90,7 +90,7 @@ export const handleChunk = async ({
 		const strh = getStrhForIndex(structure, trackId);
 
 		const samplesPerSecond = strh.rate / strh.scale;
-		const nthSample = state.sample.getSamplesForTrack(trackId);
+		const nthSample = state.callbacks.getSamplesForTrack(trackId);
 		const timeInSec = nthSample / samplesPerSecond;
 		const timestamp = timeInSec;
 
@@ -104,7 +104,7 @@ export const handleChunk = async ({
 		// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished
 
 		if (data.length > 0) {
-			await state.sample.onAudioSample(
+			await state.callbacks.onAudioSample(
 				trackId,
 				convertAudioOrVideoSampleToWebCodecsTimestamps(
 					{
@@ -149,7 +149,7 @@ export const parseMovi = async ({
 		const ckId = iterator.getByteString(4);
 		const ckSize = iterator.getUint32Le();
 
-		if (state.sample.maySkipVideoData() && state.riff.getAvcProfile()) {
+		if (state.callbacks.maySkipVideoData() && state.riff.getAvcProfile()) {
 			return {
 				type: 'complete',
 				box: {

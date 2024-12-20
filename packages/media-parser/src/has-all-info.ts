@@ -118,7 +118,7 @@ export const hasAllInfo = ({
 	});
 	return (
 		Object.values(availableInfo).every(Boolean) &&
-		(state.sample.maySkipVideoData() ||
-			state.canSkipTracksState.canSkipTracks())
+		(state.callbacks.maySkipVideoData() ||
+			state.callbacks.canSkipTracksState.canSkipTracks())
 	);
 };

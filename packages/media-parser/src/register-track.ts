@@ -13,10 +13,10 @@ export const registerTrack = async ({
 	container: ParseMediaContainer;
 }) => {
 	if (track.type === 'video') {
-		state.sample.tracks.addTrack(track);
+		state.callbacks.tracks.addTrack(track);
 		if (state.onVideoTrack) {
 			const callback = await state.onVideoTrack({track, container});
-			await state.sample.registerVideoSampleCallback(
+			await state.callbacks.registerVideoSampleCallback(
 				track.trackId,
 				callback ?? null,
 			);
@@ -24,10 +24,10 @@ export const registerTrack = async ({
 	}
 
 	if (track.type === 'audio') {
-		state.sample.tracks.addTrack(track);
+		state.callbacks.tracks.addTrack(track);
 		if (state.onAudioTrack) {
 			const callback = await state.onAudioTrack({track, container});
-			await state.sample.registerAudioSampleCallback(
+			await state.callbacks.registerAudioSampleCallback(
 				track.trackId,
 				callback ?? null,
 			);

@@ -34,7 +34,7 @@ const processParseResult = ({
 		}
 
 		if (parseResult.segment.type === 'Tracks') {
-			state.sample.tracks.setIsDone();
+			state.callbacks.tracks.setIsDone();
 		}
 	}
 

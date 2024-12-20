@@ -37,11 +37,11 @@ export const processStreamBuffer = async ({
 		await handleAacPacket({streamBuffer, state, programId});
 	}
 
-	if (!state.sample.tracks.hasAllTracks()) {
-		const tracksRegistered = state.sample.tracks.getTracks().length;
+	if (!state.callbacks.tracks.hasAllTracks()) {
+		const tracksRegistered = state.callbacks.tracks.getTracks().length;
 		const {streams} = findProgramMapTableOrThrow(structure);
 		if (streams.length === tracksRegistered) {
-			state.sample.tracks.setIsDone();
+			state.callbacks.tracks.setIsDone();
 		}
 	}
 };

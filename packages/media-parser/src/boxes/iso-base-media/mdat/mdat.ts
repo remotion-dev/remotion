@@ -135,7 +135,7 @@ export const parseMdat = async ({
 		const {cts, dts, duration} = samplesWithIndex.samplePosition;
 
 		if (samplesWithIndex.track.type === 'audio') {
-			await state.sample.onAudioSample(
+			await state.callbacks.onAudioSample(
 				samplesWithIndex.track.trackId,
 				convertAudioOrVideoSampleToWebCodecsTimestamps(
 					{
@@ -153,7 +153,7 @@ export const parseMdat = async ({
 		}
 
 		if (samplesWithIndex.track.type === 'video') {
-			await state.sample.onVideoSample(
+			await state.callbacks.onVideoSample(
 				samplesWithIndex.track.trackId,
 				convertAudioOrVideoSampleToWebCodecsTimestamps(
 					{
