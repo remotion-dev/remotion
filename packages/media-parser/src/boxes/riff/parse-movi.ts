@@ -56,7 +56,7 @@ export const handleChunk = async ({
 		const avcProfile = infos.find((i) => i.type === 'avc-profile');
 		const ppsProfile = infos.find((i) => i.type === 'avc-pps');
 		if (avcProfile && ppsProfile) {
-			await state.onProfile({pps: ppsProfile, sps: avcProfile});
+			await state.riff.onProfile({pps: ppsProfile, sps: avcProfile});
 			state.tracks.setIsDone();
 		}
 

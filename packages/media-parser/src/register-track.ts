@@ -38,7 +38,7 @@ export const registerVideoTrackWhenProfileIsAvailable = ({
 	track: VideoTrack;
 	container: ParseMediaContainer;
 }) => {
-	state.registerOnAvcProfileCallback(async (profile) => {
+	state.riff.registerOnAvcProfileCallback(async (profile) => {
 		await registerTrack({
 			state,
 			track: addAvcProfileToTrack(track, profile),

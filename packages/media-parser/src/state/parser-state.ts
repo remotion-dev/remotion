@@ -18,6 +18,7 @@ import type {
 import {makeCanSkipTracksState} from './can-skip-tracks';
 import {makeTracksSectionState} from './has-tracks-section';
 import {keyframesState} from './keyframes';
+import {riffSpecificState} from './riff';
 import {structureState} from './structure';
 
 export type InternalStats = {
@@ -29,8 +30,6 @@ export type SpsAndPps = {
 	sps: AvcProfileInfo;
 	pps: AvcPPs;
 };
-
-type AvcProfileInfoCallback = (profile: SpsAndPps) => Promise<void>;
 
 export const makeParserState = ({
 	hasAudioTrackHandlers,
@@ -136,22 +135,7 @@ export const makeParserState = ({
 
 	const samplesForTrack: Record<number, number> = {};
 
-	const profileCallbacks: AvcProfileInfoCallback[] = [];
-
-	const registerOnAvcProfileCallback = (callback: AvcProfileInfoCallback) => {
-		profileCallbacks.push(callback);
-	};
-
-	let avcProfile: SpsAndPps | null = null;
-
-	const onProfile = async (profile: SpsAndPps) => {
-		avcProfile = profile;
-		for (const callback of profileCallbacks) {
-			await callback(profile);
-		}
-
-		profileCallbacks.length = 0;
-	};
+	const avcProfile: SpsAndPps | null = null;
 
 	const canSkipTracksState = makeCanSkipTracksState({
 		hasAudioTrackHandlers,
@@ -159,11 +143,11 @@ export const makeParserState = ({
 		hasVideoTrackHandlers,
 	});
 	const tracksState = makeTracksSectionState(canSkipTracksState);
+	const riff = riffSpecificState();
 
 	return {
+		riff,
 		onTrackEntrySegment,
-		onProfile,
-		registerOnAvcProfileCallback,
 		getTrackInfoByNumber: (id: number) => trackEntries[id],
 		registerVideoSampleCallback: async (
 			id: number,
