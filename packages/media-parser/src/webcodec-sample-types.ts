@@ -27,4 +27,5 @@ export type AudioOrVideoSample = {
 	cts: number;
 	dts: number;
 	offset: number;
+	timescale: number;
 };

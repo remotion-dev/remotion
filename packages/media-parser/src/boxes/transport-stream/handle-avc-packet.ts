@@ -77,6 +77,7 @@ export const handleAvcPacket = async ({
 		trackId: programId,
 		type: getKeyFrameOrDeltaFromAvcInfo(avc),
 		offset,
+		timescale: MPEG_TIMESCALE,
 	};
 
 	await state.callbacks.onVideoSample(

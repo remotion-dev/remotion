@@ -96,6 +96,8 @@ export const sampleCallback = ({
 			}
 
 			if (
+				videoSample.type === 'key' &&
+				fields.keyframes &&
 				needsToIterateOverSamples({
 					fields,
 					structure: structureState.getStructure(),
@@ -106,7 +108,6 @@ export const sampleCallback = ({
 					decodingTimeInSeconds: videoSample.dts / videoSample.timescale,
 					positionInBytes: videoSample.offset,
 					presentationTimeInSeconds: videoSample.cts / videoSample.timescale,
-					presentationTimeInTimescale: videoSample.cts,
 					sizeInBytes: videoSample.data.length,
 				});
 			}

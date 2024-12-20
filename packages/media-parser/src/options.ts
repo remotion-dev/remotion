@@ -101,7 +101,6 @@ export type MediaParserKeyframe = {
 	sizeInBytes: number;
 	presentationTimeInSeconds: number;
 	decodingTimeInSeconds: number;
-	presentationTimeInTimescale: number;
 	trackId: number;
 };
 

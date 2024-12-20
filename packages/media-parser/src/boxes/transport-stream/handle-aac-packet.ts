@@ -61,6 +61,7 @@ export const handleAacPacket = async ({
 		trackId: programId,
 		type: 'key',
 		offset,
+		timescale: MPEG_TIMESCALE,
 	};
 
 	await state.callbacks.onAudioSample(

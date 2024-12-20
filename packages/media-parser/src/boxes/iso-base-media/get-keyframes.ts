@@ -1,9 +1,9 @@
-import {getSamplePositionsFromTrack} from './boxes/iso-base-media/get-sample-positions-from-track';
-import type {TrakBox} from './boxes/iso-base-media/trak/trak';
-import {getMoofBox} from './boxes/iso-base-media/traversal';
-import {getTracksFromIsoBaseMedia} from './get-tracks';
-import type {MediaParserKeyframe} from './options';
-import type {IsoBaseMediaStructure} from './parse-result';
+import {getTracksFromIsoBaseMedia} from '../../get-tracks';
+import type {MediaParserKeyframe} from '../../options';
+import type {IsoBaseMediaStructure} from '../../parse-result';
+import {getSamplePositionsFromTrack} from './get-sample-positions-from-track';
+import type {TrakBox} from './trak/trak';
+import {getMoofBox} from './traversal';
 
 export const getKeyframesFromIsoBaseMedia = (
 	structure: IsoBaseMediaStructure,
@@ -26,7 +26,6 @@ export const getKeyframesFromIsoBaseMedia = (
 				return {
 					trackId: t.trackId,
 					presentationTimeInSeconds: k.cts / ts,
-					presentationTimeInTimescale: k.cts,
 					decodingTimeInSeconds: k.dts / ts,
 					positionInBytes: k.offset,
 					sizeInBytes: k.size,
