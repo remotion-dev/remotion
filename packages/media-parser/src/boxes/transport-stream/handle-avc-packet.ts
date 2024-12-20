@@ -27,7 +27,7 @@ export const handleAvcPacket = async ({
 	state: ParserState;
 }) => {
 	const avc = parseAvc(streamBuffer.buffer);
-	const isTrackRegistered = state.tracks.getTracks().find((t) => {
+	const isTrackRegistered = state.sample.tracks.getTracks().find((t) => {
 		return t.trackId === programId;
 	});
 
@@ -62,7 +62,7 @@ export const handleAvcPacket = async ({
 			color: getVideoColorFromSps(spsAndPps.sps.spsData),
 		};
 
-		await registerTrack({track, state: state, container: 'transport-stream'});
+		await registerTrack({track, state, container: 'transport-stream'});
 	}
 
 	// sample for webcodecs needs to be in nano seconds
@@ -76,7 +76,7 @@ export const handleAvcPacket = async ({
 		type: getKeyFrameOrDeltaFromAvcInfo(avc),
 	};
 
-	await state.onVideoSample(
+	await state.sample.onVideoSample(
 		programId,
 		convertAudioOrVideoSampleToWebCodecsTimestamps(sample, MPEG_TIMESCALE),
 	);

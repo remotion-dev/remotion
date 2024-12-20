@@ -45,7 +45,7 @@ export const handleChunk = async ({
 		const strh = getStrhForIndex(structure, trackId);
 
 		const samplesPerSecond = strh.rate / strh.scale;
-		const nthSample = state.getSamplesForTrack(trackId);
+		const nthSample = state.sample.getSamplesForTrack(trackId);
 		const timeInSec = nthSample / samplesPerSecond;
 		const timestamp = timeInSec;
 
@@ -57,14 +57,14 @@ export const handleChunk = async ({
 		const ppsProfile = infos.find((i) => i.type === 'avc-pps');
 		if (avcProfile && ppsProfile) {
 			await state.riff.onProfile({pps: ppsProfile, sps: avcProfile});
-			state.tracks.setIsDone();
+			state.sample.tracks.setIsDone();
 		}
 
 		// We must also NOT pass a duration because if the the next sample is 0,
 		// this sample would be longer. Chrome will pad it with silence.
 		// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished
 		if (data.length > 0) {
-			await state.onVideoSample(
+			await state.sample.onVideoSample(
 				trackId,
 				convertAudioOrVideoSampleToWebCodecsTimestamps(
 					{
@@ -90,7 +90,7 @@ export const handleChunk = async ({
 		const strh = getStrhForIndex(structure, trackId);
 
 		const samplesPerSecond = strh.rate / strh.scale;
-		const nthSample = state.getSamplesForTrack(trackId);
+		const nthSample = state.sample.getSamplesForTrack(trackId);
 		const timeInSec = nthSample / samplesPerSecond;
 		const timestamp = timeInSec;
 
@@ -104,7 +104,7 @@ export const handleChunk = async ({
 		// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished
 
 		if (data.length > 0) {
-			await state.onAudioSample(
+			await state.sample.onAudioSample(
 				trackId,
 				convertAudioOrVideoSampleToWebCodecsTimestamps(
 					{
@@ -149,7 +149,7 @@ export const parseMovi = async ({
 		const ckId = iterator.getByteString(4);
 		const ckSize = iterator.getUint32Le();
 
-		if (state.maySkipVideoData() && state.getAvcProfile()) {
+		if (state.sample.maySkipVideoData() && state.riff.getAvcProfile()) {
 			return {
 				type: 'complete',
 				box: {

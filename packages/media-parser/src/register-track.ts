@@ -13,18 +13,24 @@ export const registerTrack = async ({
 	container: ParseMediaContainer;
 }) => {
 	if (track.type === 'video') {
-		state.tracks.addTrack(track);
+		state.sample.tracks.addTrack(track);
 		if (state.onVideoTrack) {
 			const callback = await state.onVideoTrack({track, container});
-			await state.registerVideoSampleCallback(track.trackId, callback ?? null);
+			await state.sample.registerVideoSampleCallback(
+				track.trackId,
+				callback ?? null,
+			);
 		}
 	}
 
 	if (track.type === 'audio') {
-		state.tracks.addTrack(track);
+		state.sample.tracks.addTrack(track);
 		if (state.onAudioTrack) {
 			const callback = await state.onAudioTrack({track, container});
-			await state.registerAudioSampleCallback(track.trackId, callback ?? null);
+			await state.sample.registerAudioSampleCallback(
+				track.trackId,
+				callback ?? null,
+			);
 		}
 	}
 };

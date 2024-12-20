@@ -268,6 +268,6 @@ export const parseMedia: ParseMedia = async function <
 	currentReader.abort();
 	iterator?.destroy();
 
-	state.tracks.ensureHasTracksAtEnd();
+	state.sample.tracks.ensureHasTracksAtEnd();
 	return returnValue as ParseMediaResult<F>;
 };

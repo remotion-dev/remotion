@@ -124,7 +124,7 @@ export const getTracksFromAvi = (
 			videoTracks.push(
 				addAvcProfileToTrack(
 					makeAviVideoTrack({strh, strf, index: i}),
-					state.getAvcProfile(),
+					state.riff.getAvcProfile(),
 				),
 			);
 		} else if (strh.fccType === 'auds') {

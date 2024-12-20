@@ -25,7 +25,7 @@ export const handleAacPacket = async ({
 	const {channelConfiguration, codecPrivate, sampleRate, audioObjectType} =
 		adtsHeader;
 
-	const isTrackRegistered = state.tracks.getTracks().find((t) => {
+	const isTrackRegistered = state.sample.tracks.getTracks().find((t) => {
 		return t.trackId === programId;
 	});
 
@@ -45,7 +45,7 @@ export const handleAacPacket = async ({
 		};
 		await registerTrack({
 			track,
-			state: state,
+			state,
 			container: 'transport-stream',
 		});
 	}
@@ -60,7 +60,7 @@ export const handleAacPacket = async ({
 		type: 'key',
 	};
 
-	await state.onAudioSample(
+	await state.sample.onAudioSample(
 		programId,
 		convertAudioOrVideoSampleToWebCodecsTimestamps(sample, MPEG_TIMESCALE),
 	);

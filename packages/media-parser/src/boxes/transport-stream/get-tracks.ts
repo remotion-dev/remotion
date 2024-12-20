@@ -9,7 +9,7 @@ export const getTracksFromTransportStream = (
 	parserState: ParserState,
 ): AllTracks => {
 	const programMapTable = findProgramMapTableOrThrow(structure);
-	const parserTracks = parserState.tracks.getTracks();
+	const parserTracks = parserState.sample.tracks.getTracks();
 
 	const mapped = programMapTable.streams
 		.map((stream) => {
