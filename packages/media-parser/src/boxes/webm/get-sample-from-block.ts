@@ -76,6 +76,7 @@ export const getSampleFromBlock = (
 			duration: undefined,
 			trackId: trackNumber,
 			timestamp: timecodeInMicroseconds,
+			offset,
 		};
 
 		if (keyframe === null) {
@@ -109,6 +110,7 @@ export const getSampleFromBlock = (
 			duration: undefined,
 			cts: timecodeInMicroseconds,
 			dts: timecodeInMicroseconds,
+			offset,
 		};
 
 		iterator.destroy();

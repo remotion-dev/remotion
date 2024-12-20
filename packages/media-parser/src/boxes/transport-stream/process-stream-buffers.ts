@@ -8,6 +8,7 @@ import {findProgramMapTableOrThrow, getStreamForId} from './traversal';
 export type TransportStreamPacketBuffer = {
 	buffer: Uint8Array;
 	pesHeader: PacketPes;
+	offset: number;
 };
 
 export type StreamBufferMap = Map<number, TransportStreamPacketBuffer>;
@@ -30,11 +31,21 @@ export const processStreamBuffer = async ({
 
 	// 27 = AVC / H.264 Video
 	if (stream.streamType === 27) {
-		await handleAvcPacket({programId, streamBuffer, state});
+		await handleAvcPacket({
+			programId,
+			streamBuffer,
+			state,
+			offset: streamBuffer.offset,
+		});
 	}
 	// 15 = AAC / ADTS
 	else if (stream.streamType === 15) {
-		await handleAacPacket({streamBuffer, state, programId});
+		await handleAacPacket({
+			streamBuffer,
+			state,
+			programId,
+			offset: streamBuffer.offset,
+		});
 	}
 
 	if (!state.callbacks.tracks.hasAllTracks()) {

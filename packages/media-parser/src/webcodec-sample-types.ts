@@ -26,4 +26,5 @@ export type AudioOrVideoSample = {
 	type: 'key' | 'delta';
 	cts: number;
 	dts: number;
+	offset: number;
 };

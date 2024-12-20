@@ -4,20 +4,19 @@ import type {MediaParserKeyframe} from '../options';
 import type {Structure} from '../parse-result';
 
 export const keyframesState = (getStructure: () => Structure) => {
-	let hasKeyframes = false;
 	const keyframes: MediaParserKeyframe[] = [];
 
 	return {
 		getHasKeyframes: () => {
 			const structure = getStructure();
 			if (structure.type === 'iso-base-media') {
-				isoBaseMediaHasTracks(structure);
+				return isoBaseMediaHasTracks(structure);
 			}
 
-			return hasKeyframes;
+			return false;
 		},
-		setHasKeyframes: (value: boolean) => {
-			hasKeyframes = value;
+		addKeyframe: (keyframe: MediaParserKeyframe) => {
+			keyframes.push(keyframe);
 		},
 		getKeyframes: (): MediaParserKeyframe[] => {
 			const structure = getStructure();
@@ -29,3 +28,5 @@ export const keyframesState = (getStructure: () => Structure) => {
 		},
 	};
 };
+
+export type KeyframesState = ReturnType<typeof keyframesState>;

@@ -29,3 +29,5 @@ export const makeTracksSectionState = (
 		},
 	};
 };
+
+export type TracksState = ReturnType<typeof makeTracksSectionState>;

@@ -21,10 +21,12 @@ export const handleAvcPacket = async ({
 	streamBuffer,
 	programId,
 	state,
+	offset,
 }: {
 	streamBuffer: TransportStreamPacketBuffer;
 	programId: number;
 	state: ParserState;
+	offset: number;
 }) => {
 	const avc = parseAvc(streamBuffer.buffer);
 	const isTrackRegistered = state.callbacks.tracks.getTracks().find((t) => {
@@ -74,6 +76,7 @@ export const handleAvcPacket = async ({
 		data: new Uint8Array(streamBuffer.buffer),
 		trackId: programId,
 		type: getKeyFrameOrDeltaFromAvcInfo(avc),
+		offset,
 	};
 
 	await state.callbacks.onVideoSample(

@@ -46,6 +46,7 @@ export const makeParserState = ({
 	};
 
 	const structure = structureState();
+	const keyframes = keyframesState(structure.getStructure);
 
 	return {
 		riff: riffSpecificState(),
@@ -54,6 +55,8 @@ export const makeParserState = ({
 			hasAudioTrackHandlers,
 			hasVideoTrackHandlers,
 			fields,
+			structureState: structure,
+			keyframes,
 		}),
 		getInternalStats: (): InternalStats => ({
 			skippedBytes,
@@ -61,7 +64,7 @@ export const makeParserState = ({
 		}),
 		getSkipBytes: () => skippedBytes,
 		increaseSkippedBytes,
-		keyframes: keyframesState(structure.getStructure),
+		keyframes,
 		structure,
 		nullifySamples,
 		onAudioTrack,

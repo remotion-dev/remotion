@@ -14,5 +14,6 @@ export const convertAudioOrVideoSampleToWebCodecsTimestamps = (
 		data: sample.data,
 		trackId: sample.trackId,
 		type: sample.type,
+		offset: sample.offset,
 	};
 };

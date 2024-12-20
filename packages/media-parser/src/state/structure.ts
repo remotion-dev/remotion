@@ -19,3 +19,5 @@ export const structureState = () => {
 		},
 	};
 };
+
+export type StructureState = ReturnType<typeof structureState>;

@@ -39,6 +39,8 @@ export const handleChunk = async ({
 	ckId: string;
 	ckSize: number;
 }) => {
+	const offset = iterator.counter.getOffset();
+
 	const videoChunk = ckId.match(/^([0-9]{2})dc$/);
 	if (videoChunk) {
 		const trackId = parseInt(videoChunk[1], 10);
@@ -75,6 +77,7 @@ export const handleChunk = async ({
 						timestamp,
 						trackId,
 						type: keyOrDelta,
+						offset,
 					},
 					1,
 				),
@@ -115,6 +118,7 @@ export const handleChunk = async ({
 						timestamp,
 						trackId,
 						type: 'key',
+						offset,
 					},
 					1,
 				),

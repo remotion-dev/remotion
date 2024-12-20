@@ -12,10 +12,12 @@ export const handleAacPacket = async ({
 	streamBuffer,
 	state,
 	programId,
+	offset,
 }: {
 	streamBuffer: TransportStreamPacketBuffer;
 	state: ParserState;
 	programId: number;
+	offset: number;
 }) => {
 	const adtsHeader = readAdtsHeader(streamBuffer.buffer);
 	if (!adtsHeader) {
@@ -58,6 +60,7 @@ export const handleAacPacket = async ({
 		data: new Uint8Array(streamBuffer.buffer),
 		trackId: programId,
 		type: 'key',
+		offset,
 	};
 
 	await state.callbacks.onAudioSample(

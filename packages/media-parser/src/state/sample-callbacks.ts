@@ -1,3 +1,5 @@
+import {maySkipVideoData} from '../may-skip-video-data/may-skip-video-data';
+import {needsToIterateOverSamples} from '../may-skip-video-data/need-samples-for-fields';
 import type {Options, ParseMediaFields} from '../options';
 import type {
 	AudioOrVideoSample,
@@ -6,17 +8,23 @@ import type {
 } from '../webcodec-sample-types';
 import {makeCanSkipTracksState} from './can-skip-tracks';
 import {makeTracksSectionState} from './has-tracks-section';
+import {type KeyframesState} from './keyframes';
+import type {StructureState} from './structure';
 
 export const sampleCallback = ({
 	signal,
 	hasAudioTrackHandlers,
 	hasVideoTrackHandlers,
 	fields,
+	structureState,
+	keyframes,
 }: {
 	signal: AbortSignal | undefined;
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
 	fields: Options<ParseMediaFields>;
+	structureState: StructureState;
+	keyframes: KeyframesState;
 }) => {
 	const videoSampleCallbacks: Record<number, OnVideoSample> = {};
 	const audioSampleCallbacks: Record<number, OnAudioSample> = {};
@@ -86,13 +94,31 @@ export const sampleCallback = ({
 			if (callback) {
 				await callback(videoSample);
 			}
+
+			if (
+				needsToIterateOverSamples({
+					fields,
+					structure: structureState.getStructure(),
+				})
+			) {
+				keyframes.addKeyframe({
+					trackId,
+					decodingTimeInSeconds: videoSample.dts / videoSample.timescale,
+					positionInBytes: videoSample.offset,
+					presentationTimeInSeconds: videoSample.cts / videoSample.timescale,
+					presentationTimeInTimescale: videoSample.cts,
+					sizeInBytes: videoSample.data.length,
+				});
+			}
 		},
 		maySkipVideoData: () => {
-			return (
-				tracksState.hasAllTracks() &&
-				Object.values(videoSampleCallbacks).length === 0 &&
-				Object.values(audioSampleCallbacks).length === 0
-			);
+			return maySkipVideoData({
+				tracksState,
+				videoSampleCallbacks,
+				audioSampleCallbacks,
+				fields,
+				structure: structureState.getStructureOrNull(),
+			});
 		},
 		canSkipTracksState,
 		registerAudioSampleCallback: async (
