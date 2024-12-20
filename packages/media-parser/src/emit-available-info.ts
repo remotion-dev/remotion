@@ -304,9 +304,13 @@ export const emitAvailableInfo = ({
 
 		if (key === 'keyframes') {
 			if (!emittedFields.keyframes && hasInfo.keyframes && parseResult) {
-				callbacks.onKeyframes?.(state.keyframes.getKeyframes());
+				callbacks.onKeyframes?.(
+					state.keyframes.getKeyframes(parseResult.segments),
+				);
 				if (fieldsInReturnValue.keyframes) {
-					returnValue.keyframes = state.keyframes.getKeyframes();
+					returnValue.keyframes = state.keyframes.getKeyframes(
+						parseResult.segments,
+					);
 				}
 
 				emittedFields.keyframes = true;

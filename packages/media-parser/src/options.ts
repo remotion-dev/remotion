@@ -98,8 +98,10 @@ export type ParseMediaContainer = 'mp4' | 'webm' | 'avi' | 'transport-stream';
 
 export type MediaParserKeyframe = {
 	positionInBytes: number;
-	timeInSeconds: number;
-	timeInTimescale: number;
+	sizeInBytes: number;
+	presentationTimeInSeconds: number;
+	decodingTimeInSeconds: number;
+	presentationTimeInTimescale: number;
 	trackId: number;
 };
 

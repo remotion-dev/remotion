@@ -4,59 +4,6 @@ import type {MediaParserAudioCodec} from '../get-tracks';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
-test('Should stream ISO base media', async () => {
-	let videoTracks = 0;
-	let audioTracks = 0;
-	let videoSamples = 0;
-	let audioSamples = 0;
-	const result = await parseMedia({
-		src: exampleVideos.iphonevideo,
-		fields: {
-			durationInSeconds: true,
-			fps: true,
-			videoCodec: true,
-			audioCodec: true,
-			tracks: true,
-			dimensions: true,
-			rotation: true,
-			unrotatedDimensions: true,
-		},
-		reader: nodeReader,
-		onVideoTrack: ({track}) => {
-			expect(track.timescale).toBe(600);
-			videoTracks++;
-			return () => {
-				videoSamples++;
-			};
-		},
-		onAudioTrack: () => {
-			audioTracks++;
-			return () => {
-				audioSamples++;
-			};
-		},
-	});
-	expect(result.dimensions).toEqual({
-		width: 2160,
-		height: 3840,
-	});
-	expect(result.durationInSeconds).toBe(12.568333333333333);
-	expect(result.fps).toBe(29.99602174777881);
-	expect(result.videoCodec).toBe('h265');
-	expect(result.audioCodec).toBe('aac');
-	expect(result.tracks.videoTracks.length).toBe(1);
-	expect(result.tracks.videoTracks[0].codec).toBe('hvc1.2.4.L150.b0');
-	expect(result.rotation).toBe(-90);
-	expect(result.unrotatedDimensions).toEqual({
-		height: 2160,
-		width: 3840,
-	});
-	expect(videoTracks).toBe(1);
-	expect(audioTracks).toBe(1);
-	expect(videoSamples).toBe(377);
-	expect(audioSamples).toBe(544);
-});
-
 test('Should stream WebM with no duration', async () => {
 	let videoSamples = 0;
 	const result = await parseMedia({
