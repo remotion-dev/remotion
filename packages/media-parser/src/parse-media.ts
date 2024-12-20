@@ -71,7 +71,6 @@ export const parseMedia: ParseMedia = async function <
 			process.env.KEEP_SAMPLES === 'true'
 		),
 		supportsContentRange,
-		nextTrackIndex: 0,
 	});
 
 	let currentReader = reader;

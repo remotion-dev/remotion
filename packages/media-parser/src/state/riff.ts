@@ -4,6 +4,7 @@ type AvcProfileInfoCallback = (profile: SpsAndPps) => Promise<void>;
 
 export const riffSpecificState = () => {
 	let avcProfile: SpsAndPps | null = null;
+	let nextTrackIndex = 0;
 
 	const profileCallbacks: AvcProfileInfoCallback[] = [];
 
@@ -26,5 +27,11 @@ export const riffSpecificState = () => {
 		},
 		onProfile,
 		registerOnAvcProfileCallback,
+		getNextTrackIndex: () => {
+			return nextTrackIndex;
+		},
+		incrementNextTrackIndex: () => {
+			nextTrackIndex++;
+		},
 	};
 };

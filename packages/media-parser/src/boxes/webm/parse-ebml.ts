@@ -158,7 +158,7 @@ export const postprocessEbml = async ({
 	}
 
 	if (ebml.type === 'TrackEntry') {
-		state.onTrackEntrySegment(ebml);
+		state.webm.onTrackEntrySegment(ebml);
 
 		const track = getTrack({
 			track: ebml,

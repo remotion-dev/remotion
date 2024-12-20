@@ -42,7 +42,7 @@ export const getSampleFromBlock = (
 			: matroskaElements.Block,
 	);
 
-	const {codec, trackTimescale} = state.getTrackInfoByNumber(trackNumber);
+	const {codec, trackTimescale} = state.webm.getTrackInfoByNumber(trackNumber);
 
 	const clusterOffset = state.getTimestampOffsetForByteOffset(offset);
 

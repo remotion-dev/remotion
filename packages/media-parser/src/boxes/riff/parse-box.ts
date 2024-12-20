@@ -143,7 +143,7 @@ export const parseRiffBody = async ({
 
 			if (strf.type === 'strf-box-audio' && state.onAudioTrack) {
 				const audioTrack = makeAviAudioTrack({
-					index: state.nextTrackIndex,
+					index: state.riff.getNextTrackIndex(),
 					strf,
 				});
 				await registerTrack({
@@ -156,7 +156,7 @@ export const parseRiffBody = async ({
 			if (state.onVideoTrack && strf.type === 'strf-box-video') {
 				const videoTrack = makeAviVideoTrack({
 					strh,
-					index: state.nextTrackIndex,
+					index: state.riff.getNextTrackIndex(),
 					strf,
 				});
 				registerVideoTrackWhenProfileIsAvailable({
@@ -166,7 +166,7 @@ export const parseRiffBody = async ({
 				});
 			}
 
-			state.nextTrackIndex++;
+			state.riff.incrementNextTrackIndex();
 		}
 	}
 

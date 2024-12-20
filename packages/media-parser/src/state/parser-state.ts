@@ -1,11 +1,4 @@
 import type {AvcPPs, AvcProfileInfo} from '../boxes/avc/parse-avc';
-import type {OnTrackEntrySegment} from '../boxes/webm/segments';
-import type {TrackInfo} from '../boxes/webm/segments/track-entry';
-import {
-	getTrackCodec,
-	getTrackId,
-	getTrackTimestampScale,
-} from '../boxes/webm/traversal';
 import type {BufferIterator} from '../buffer-iterator';
 import type {Options, ParseMediaFields} from '../options';
 import type {OnAudioTrack, OnVideoTrack} from '../webcodec-sample-types';
@@ -14,6 +7,7 @@ import {keyframesState} from './keyframes';
 import {riffSpecificState} from './riff';
 import {sampleCallback} from './sample-callbacks';
 import {structureState} from './structure';
+import {webmState} from './webm';
 
 export type InternalStats = {
 	skippedBytes: number;
@@ -31,7 +25,6 @@ export const makeParserState = ({
 	signal,
 	getIterator,
 	fields,
-	nextTrackIndex,
 	nullifySamples,
 	onAudioTrack,
 	onVideoTrack,
@@ -44,37 +37,11 @@ export const makeParserState = ({
 	fields: Options<ParseMediaFields>;
 	nullifySamples: boolean;
 	supportsContentRange: boolean;
-	nextTrackIndex: number;
 	onAudioTrack: OnAudioTrack | null;
 	onVideoTrack: OnVideoTrack | null;
 }) => {
-	const trackEntries: Record<number, TrackInfo> = {};
-
 	const keyframes = keyframesState();
 	const structure = structureState();
-
-	const onTrackEntrySegment: OnTrackEntrySegment = (trackEntry) => {
-		const trackId = getTrackId(trackEntry);
-		if (!trackId) {
-			throw new Error('Expected track id');
-		}
-
-		if (trackEntries[trackId]) {
-			return;
-		}
-
-		const codec = getTrackCodec(trackEntry);
-		if (!codec) {
-			throw new Error('Expected codec');
-		}
-
-		const trackTimescale = getTrackTimestampScale(trackEntry);
-
-		trackEntries[trackId] = {
-			codec: codec.value,
-			trackTimescale: trackTimescale?.value ?? null,
-		};
-	};
 
 	let timescale: number | null = null;
 	let skippedBytes: number = 0;
@@ -132,8 +99,6 @@ export const makeParserState = ({
 	return {
 		riff,
 		sample,
-		onTrackEntrySegment,
-		getTrackInfoByNumber: (id: number) => trackEntries[id],
 		setTimestampOffset,
 		getTimestampOffsetForByteOffset,
 		getTimescale,
@@ -147,11 +112,11 @@ export const makeParserState = ({
 		canSkipTracksState,
 		keyframes,
 		structure,
-		nextTrackIndex,
 		nullifySamples,
 		onAudioTrack,
 		onVideoTrack,
 		supportsContentRange,
+		webm: webmState(),
 	};
 };
 
