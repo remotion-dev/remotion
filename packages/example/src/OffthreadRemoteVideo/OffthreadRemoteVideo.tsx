@@ -1,9 +1,10 @@
 import {getVideoMetadata} from '@remotion/media-utils';
 import {
+	AbsoluteFill,
 	CalculateMetadataFunction,
-	Loop,
 	OffthreadVideo,
 	staticFile,
+	useCurrentFrame,
 } from 'remotion';
 
 const fps = 30;
@@ -17,8 +18,8 @@ export const calculateMetadataFn: CalculateMetadataFunction<
 	return {
 		durationInFrames: Math.round(durationInSeconds * fps),
 		fps,
-		width,
-		height,
+		width: Math.floor(width / 2) * 2,
+		height: Math.floor(height / 2) * 2,
 	};
 };
 
@@ -26,14 +27,15 @@ export const LoopedOffthreadVideo: React.FC<{
 	durationInFrames: number;
 	muted?: boolean;
 }> = ({durationInFrames}) => {
+	const frame = useCurrentFrame();
 	if (durationInFrames <= 0) {
 		throw new Error('durationInFrames must be greater than 0');
 	}
 
 	return (
-		<Loop durationInFrames={durationInFrames}>
-			<OffthreadVideo muted src={src} />
-		</Loop>
+		<AbsoluteFill style={{backgroundColor: 'green'}}>
+			<OffthreadVideo muted transparent={frame % 2 === 0} src={src} />
+		</AbsoluteFill>
 	);
 };
 
