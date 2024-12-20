@@ -1112,6 +1112,7 @@ module.exports = {
 				'miscellaneous/embed-studio',
 				'miscellaneous/absolute-paths',
 				'miscellaneous/live-streaming',
+				'miscellaneous/parse-media-vs-get-video-metadata',
 				'compare/motion-canvas',
 			],
 		},

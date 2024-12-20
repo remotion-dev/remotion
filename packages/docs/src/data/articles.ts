@@ -1639,13 +1639,6 @@ export const articles = [
 		crumb: 'Snippets',
 	},
 	{
-		id: 'miscellaneous/snippets/freeze-portions',
-		title: 'Freeze portions of a sequence',
-		relativePath: 'docs/miscellaneous/snippets/freeze-portions-mdx',
-		compId: 'articles-docs-miscellaneous-snippets-freeze-portions',
-		crumb: 'Snippets',
-	},
-	{
 		id: 'miscellaneous/snippets/jumpcuts',
 		title: 'Jump Cutting',
 		relativePath: 'docs/miscellaneous/snippets/jumpcuts.mdx',
@@ -1666,6 +1659,13 @@ export const articles = [
 			'docs/miscellaneous/snippets/different-segments-at-different-speeds.mdx',
 		compId:
 			'articles-docs-miscellaneous-snippets-different-segments-at-different-speeds',
+		crumb: 'Snippets',
+	},
+	{
+		id: 'miscellaneous/snippets/freeze-portions',
+		title: 'Freeze portions of a sequence',
+		relativePath: 'docs/miscellaneous/snippets/freeze-portions.mdx',
+		compId: 'articles-docs-miscellaneous-snippets-freeze-portions',
 		crumb: 'Snippets',
 	},
 	{
@@ -1808,6 +1808,13 @@ export const articles = [
 		title: 'Can Remotion be used for live streaming?',
 		relativePath: 'docs/miscellaneous/live-streaming.mdx',
 		compId: 'articles-docs-miscellaneous-live-streaming',
+		crumb: 'FAQ',
+	},
+	{
+		id: 'miscellaneous/parse-media-vs-get-video-metadata',
+		title: 'parseMedia() vs. getVideoMetadata()',
+		relativePath: 'docs/miscellaneous/parse-media-vs-get-video-metadata.mdx',
+		compId: 'articles-docs-miscellaneous-parse-media-vs-get-video-metadata',
 		crumb: 'FAQ',
 	},
 	{
