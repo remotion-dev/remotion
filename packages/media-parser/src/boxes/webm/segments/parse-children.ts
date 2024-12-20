@@ -27,7 +27,7 @@ const processParseResult = ({
 }): ExpectSegmentParseResult => {
 	if (parseResult.segment && !children.includes(parseResult.segment)) {
 		children.push(parseResult.segment);
-		if (hasAllInfo({fields, state, structure: topLevelStructure})) {
+		if (hasAllInfo({fields, state})) {
 			return {
 				status: 'done',
 				segment: parseResult.segment,
@@ -192,7 +192,6 @@ export const expectChildren = async ({
 			hasAllInfo({
 				fields,
 				state: parserContext.parserState,
-				structure: topLevelStructure,
 			})
 		) {
 			return {

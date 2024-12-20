@@ -30,7 +30,7 @@ const continueAfterRiffBoxResult = ({
 	iterator: BufferIterator;
 	maxOffset: number;
 	options: ParserContext;
-}): Promise<ParseResult<RiffStructure>> => {
+}): Promise<ParseResult> => {
 	if (result.type === 'incomplete') {
 		return Promise.resolve({
 			status: 'incomplete',
@@ -67,7 +67,7 @@ export const parseRiffBody = async ({
 	structure: RiffStructure;
 	maxOffset: number;
 	options: ParserContext;
-}): Promise<ParseResult<RiffStructure>> => {
+}): Promise<ParseResult> => {
 	while (
 		iterator.bytesRemaining() > 0 &&
 		iterator.counter.getOffset() < maxOffset
@@ -81,7 +81,6 @@ export const parseRiffBody = async ({
 			return {
 				status: 'incomplete',
 				skipTo: result.skipTo,
-				segments: structure,
 				continueParsing() {
 					return Promise.resolve(
 						continueAfterRiffBoxResult({
@@ -110,7 +109,6 @@ export const parseRiffBody = async ({
 						}),
 					);
 				},
-				segments: structure,
 				skipTo: null,
 			};
 		}
@@ -174,7 +172,6 @@ export const parseRiffBody = async ({
 
 	return {
 		status: 'done',
-		segments: structure,
 	};
 };
 
@@ -186,11 +183,15 @@ export const parseRiff = ({
 	iterator: BufferIterator;
 	options: ParserContext;
 	fields: Options<ParseMediaFields>;
-}): Promise<ParseResult<RiffStructure>> => {
-	const structure: RiffStructure = {type: 'riff', boxes: []};
+}): Promise<ParseResult> => {
 	const riff = iterator.getByteString(4);
 	if (riff !== 'RIFF') {
 		throw new Error('Not a RIFF file');
+	}
+
+	const structure = options.parserState.structure.getStructure();
+	if (structure.type !== 'riff') {
+		throw new Error('Structure is not a RIFF structure');
 	}
 
 	const size = iterator.getUint32Le();
@@ -201,12 +202,12 @@ export const parseRiff = ({
 
 	structure.boxes.push({type: 'riff-header', fileSize: size, fileType});
 
-	if (hasAllInfo({fields, structure, state: options.parserState})) {
+	if (hasAllInfo({fields, state: options.parserState})) {
 		return Promise.resolve({
 			status: 'done',
 			segments: structure,
 		});
 	}
 
-	return parseRiffBody({iterator, structure, maxOffset: Infinity, options});
+	return parseRiffBody({iterator, maxOffset: Infinity, options, structure});
 };

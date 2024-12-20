@@ -11,17 +11,15 @@ import {expectChildren} from './segments/parse-children';
 const continueAfterMatroskaResult = (
 	result: MatroskaParseResult,
 	structure: MatroskaStructure,
-): ParseResult<MatroskaStructure> => {
+): ParseResult => {
 	if (result.status === 'done') {
 		return {
 			status: 'done',
-			segments: structure,
 		};
 	}
 
 	return {
 		status: 'incomplete',
-		segments: structure,
 		continueParsing: async () => {
 			const newResult = await result.continueParsing();
 			return continueAfterMatroskaResult(newResult, structure);
@@ -39,8 +37,12 @@ export const parseWebm = async ({
 	counter: BufferIterator;
 	parserContext: ParserContext;
 	fields: Options<ParseMediaFields>;
-}): Promise<ParseResult<MatroskaStructure>> => {
-	const structure: MatroskaStructure = {type: 'matroska', boxes: []};
+}): Promise<ParseResult> => {
+	const structure = parserContext.parserState.structure.getStructure();
+	if (structure.type !== 'matroska') {
+		throw new Error('Invalid structure type');
+	}
+
 	const results = await expectChildren({
 		iterator: counter,
 		length: Infinity,

@@ -16,6 +16,7 @@ import type {
 import {makeCanSkipTracksState} from './can-skip-tracks';
 import {makeTracksSectionState} from './has-tracks-section';
 import {keyframesState} from './keyframes';
+import {structureState} from './structure';
 
 export type InternalStats = {
 	skippedBytes: number;
@@ -45,6 +46,7 @@ export const makeParserState = ({
 	const trackEntries: Record<number, TrackInfo> = {};
 
 	const keyframes = keyframesState();
+	const structure = structureState();
 
 	const onTrackEntrySegment: OnTrackEntrySegment = (trackEntry) => {
 		const trackId = getTrackId(trackEntry);
@@ -242,6 +244,7 @@ export const makeParserState = ({
 		tracks: tracksState,
 		canSkipTracksState,
 		keyframes,
+		structure,
 	};
 };
 

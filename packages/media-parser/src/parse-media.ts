@@ -14,7 +14,7 @@ import type {
 	ParseMediaOptions,
 	ParseMediaResult,
 } from './options';
-import type {ParseResult, Structure} from './parse-result';
+import type {ParseResult} from './parse-result';
 import {parseVideo} from './parse-video';
 import type {ParserContext} from './parser-context';
 import {fetchReader} from './readers/from-fetch';
@@ -34,7 +34,7 @@ export const parseMedia: ParseMedia = async function <
 	...more
 }: ParseMediaOptions<F>) {
 	let iterator: BufferIterator | null = null;
-	let parseResult: ParseResult<Structure> | null = null;
+	let parseResult: ParseResult | null = null;
 
 	const fieldsInReturnValue = _fieldsInReturnValue ?? {};
 
@@ -107,7 +107,6 @@ export const parseMedia: ParseMedia = async function <
 	const triggerInfoEmit = () => {
 		const availableInfo = getAvailableInfo({
 			fieldsToFetch: fields,
-			structure: parseResult?.segments ?? null,
 			state,
 		});
 		emitAvailableInfo({
@@ -199,7 +198,6 @@ export const parseMedia: ParseMedia = async function <
 		if (
 			hasAllInfo({
 				fields,
-				structure: parseResult.segments,
 				state,
 			})
 		) {

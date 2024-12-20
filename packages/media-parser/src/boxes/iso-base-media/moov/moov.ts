@@ -1,7 +1,7 @@
 import type {BufferIterator} from '../../../buffer-iterator';
 import type {LogLevel} from '../../../log';
 import type {Options, ParseMediaFields} from '../../../options';
-import type {AnySegment} from '../../../parse-result';
+import type {AnySegment, IsoBaseMediaBox} from '../../../parse-result';
 import type {ParserContext} from '../../../parser-context';
 import type {BaseBox} from '../base-type';
 import {parseIsoBaseMediaBoxes} from '../process-box';
@@ -28,11 +28,13 @@ export const parseMoov = async ({
 	logLevel: LogLevel;
 	fields: Options<ParseMediaFields>;
 }): Promise<MoovBox> => {
+	const boxes: IsoBaseMediaBox[] = [];
+
 	const children = await parseIsoBaseMediaBoxes({
 		iterator,
 		maxBytes: size - (iterator.counter.getOffset() - offset),
 		allowIncompleteBoxes: false,
-		initialBoxes: [],
+		initialBoxes: boxes,
 		options,
 		continueMdat: false,
 		signal,
@@ -48,6 +50,6 @@ export const parseMoov = async ({
 		offset,
 		boxSize: size,
 		type: 'moov-box',
-		children: children.segments.boxes,
+		children: boxes,
 	};
 };

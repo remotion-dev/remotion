@@ -102,16 +102,14 @@ export type Structure =
 	| MatroskaStructure
 	| TransportStreamStructure;
 
-export type ParseResult<TStructure extends Structure> =
+export type ParseResult =
 	| {
 			status: 'done';
-			segments: TStructure;
 	  }
 	| {
 			status: 'incomplete';
-			segments: TStructure;
 			skipTo: number | null;
-			continueParsing: () => Promise<ParseResult<TStructure>>;
+			continueParsing: () => Promise<ParseResult>;
 	  };
 
 export type MatroskaParseResult =

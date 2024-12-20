@@ -3,11 +3,7 @@ import {hasTracks} from '../../get-tracks';
 import {hasAllInfo} from '../../has-all-info';
 import type {LogLevel} from '../../log';
 import type {Options, ParseMediaFields} from '../../options';
-import type {
-	IsoBaseMediaBox,
-	IsoBaseMediaStructure,
-	ParseResult,
-} from '../../parse-result';
+import type {IsoBaseMediaBox, ParseResult} from '../../parse-result';
 import type {BoxAndNext, PartialMdatBox} from '../../parse-video';
 import type {ParserContext} from '../../parser-context';
 import {registerTrack} from '../../register-track';
@@ -71,12 +67,13 @@ const getChildren = async ({
 		boxType === 'stsb';
 
 	if (parseChildren) {
+		const boxes: IsoBaseMediaBox[] = [];
 		// eslint-disable-next-line @typescript-eslint/no-use-before-define
 		const parsed = await parseIsoBaseMediaBoxes({
 			iterator,
 			maxBytes: bytesRemainingInBox,
 			allowIncompleteBoxes: false,
-			initialBoxes: [],
+			initialBoxes: boxes,
 			options,
 			continueMdat: false,
 			signal,
@@ -88,7 +85,7 @@ const getChildren = async ({
 			throw new Error('Incomplete boxes are not allowed');
 		}
 
-		return parsed.segments.boxes;
+		return boxes;
 	}
 
 	if (bytesRemainingInBox < 0) {
@@ -703,13 +700,11 @@ export const parseIsoBaseMediaBoxes = async ({
 	signal: AbortSignal | null;
 	logLevel: LogLevel;
 	fields: Options<ParseMediaFields>;
-}): Promise<ParseResult<IsoBaseMediaStructure>> => {
-	const structure: IsoBaseMediaStructure = {
-		type: 'iso-base-media',
-		boxes: initialBoxes,
-	};
+}): Promise<ParseResult> => {
 	const initialOffset = iterator.counter.getOffset();
-	const alreadyHasMdat = structure.boxes.find((b) => b.type === 'mdat-box');
+	const alreadyHasMdat = options.parserState.structure
+		.getStructureOrNull()
+		?.boxes.find((b) => b.type === 'mdat-box');
 
 	while (
 		iterator.bytesRemaining() > 0 &&
@@ -741,13 +736,12 @@ export const parseIsoBaseMediaBoxes = async ({
 
 			return {
 				status: 'incomplete',
-				segments: structure,
 				continueParsing: () => {
 					return parseIsoBaseMediaBoxes({
 						iterator,
 						maxBytes,
 						allowIncompleteBoxes,
-						initialBoxes: structure.boxes,
+						initialBoxes,
 						options,
 						continueMdat: false,
 						signal,
@@ -762,14 +756,13 @@ export const parseIsoBaseMediaBoxes = async ({
 		if (result.type === 'partial-mdat-box') {
 			return {
 				status: 'incomplete',
-				segments: structure,
 				continueParsing: () => {
 					return Promise.resolve(
 						parseIsoBaseMediaBoxes({
 							iterator,
 							maxBytes,
 							allowIncompleteBoxes,
-							initialBoxes: structure.boxes,
+							initialBoxes,
 							options,
 							continueMdat: result,
 							signal,
@@ -783,8 +776,8 @@ export const parseIsoBaseMediaBoxes = async ({
 		}
 
 		if (result.box.type === 'mdat-box' && alreadyHasMdat) {
-			structure.boxes = structure.boxes.filter((b) => b.type !== 'mdat-box');
-			structure.boxes.push(result.box);
+			initialBoxes = initialBoxes.filter((b) => b.type !== 'mdat-box');
+			initialBoxes.push(result.box);
 			iterator.allowDiscard();
 			if (result.box.status !== 'samples-processed') {
 				throw new Error('unexpected');
@@ -792,11 +785,10 @@ export const parseIsoBaseMediaBoxes = async ({
 
 			break;
 		} else {
-			structure.boxes.push(result.box);
-			if (hasAllInfo({fields, state: options.parserState, structure})) {
+			initialBoxes.push(result.box);
+			if (hasAllInfo({fields, state: options.parserState})) {
 				return {
 					status: 'done',
-					segments: structure,
 				};
 			}
 		}
@@ -810,13 +802,12 @@ export const parseIsoBaseMediaBoxes = async ({
 
 			return {
 				status: 'incomplete',
-				segments: structure,
 				continueParsing: () => {
 					return parseIsoBaseMediaBoxes({
 						iterator,
 						maxBytes,
 						allowIncompleteBoxes,
-						initialBoxes: structure.boxes,
+						initialBoxes,
 						options,
 						continueMdat: false,
 						signal,
@@ -831,13 +822,12 @@ export const parseIsoBaseMediaBoxes = async ({
 		if (iterator.bytesRemaining() < 0) {
 			return {
 				status: 'incomplete',
-				segments: structure,
 				continueParsing: () => {
 					return parseIsoBaseMediaBoxes({
 						iterator,
 						maxBytes,
 						allowIncompleteBoxes,
-						initialBoxes: structure.boxes,
+						initialBoxes,
 						options,
 						continueMdat: false,
 						signal,
@@ -852,7 +842,7 @@ export const parseIsoBaseMediaBoxes = async ({
 		iterator.removeBytesRead();
 	}
 
-	const mdatState = getMdatBox(structure.boxes);
+	const mdatState = getMdatBox(initialBoxes);
 	const skipped =
 		mdatState?.status === 'samples-skipped' &&
 		!options.parserState.maySkipVideoData() &&
@@ -864,7 +854,6 @@ export const parseIsoBaseMediaBoxes = async ({
 	if (skipped || buffered) {
 		return {
 			status: 'incomplete',
-			segments: structure,
 			continueParsing: () => {
 				if (buffered) {
 					iterator.skipTo(mdatState.fileOffset, false);
@@ -874,7 +863,7 @@ export const parseIsoBaseMediaBoxes = async ({
 					iterator,
 					maxBytes,
 					allowIncompleteBoxes: false,
-					initialBoxes: structure.boxes,
+					initialBoxes,
 					options,
 					continueMdat: false,
 					signal,
@@ -888,6 +877,5 @@ export const parseIsoBaseMediaBoxes = async ({
 
 	return {
 		status: 'done',
-		segments: structure,
 	};
 };

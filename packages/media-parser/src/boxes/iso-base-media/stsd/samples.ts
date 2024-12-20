@@ -4,7 +4,6 @@ import type {Options, ParseMediaFields} from '../../../options';
 import type {
 	AnySegment,
 	IsoBaseMediaBox,
-	IsoBaseMediaStructure,
 	ParseResult,
 } from '../../../parse-result';
 import type {ParserContext} from '../../../parser-context';
@@ -187,11 +186,14 @@ export const processSample = async ({
 
 			const bytesRemainingInBox =
 				boxSize - (iterator.counter.getOffset() - fileOffset);
+
+			const initialBoxes: IsoBaseMediaBox[] = [];
+
 			const children = await parseIsoBaseMediaBoxes({
 				iterator,
 				allowIncompleteBoxes: false,
 				maxBytes: bytesRemainingInBox,
-				initialBoxes: [],
+				initialBoxes,
 				options,
 				continueMdat: false,
 				signal,
@@ -222,7 +224,7 @@ export const processSample = async ({
 					bytesPerPacket: null,
 					bytesPerFrame: null,
 					bitsPerSample: null,
-					children: children.segments.boxes,
+					children: initialBoxes,
 				},
 			};
 		}
@@ -243,11 +245,12 @@ export const processSample = async ({
 			const bytesRemainingInBox =
 				boxSize - (iterator.counter.getOffset() - fileOffset);
 
+			const initialBoxes: IsoBaseMediaBox[] = [];
 			const children = await parseIsoBaseMediaBoxes({
 				iterator,
 				allowIncompleteBoxes: false,
 				maxBytes: bytesRemainingInBox,
-				initialBoxes: [],
+				initialBoxes,
 				options,
 				continueMdat: false,
 				signal,
@@ -278,7 +281,7 @@ export const processSample = async ({
 					bytesPerPacket,
 					bytesPerFrame,
 					bitsPerSample: bytesPerSample,
-					children: children.segments.boxes,
+					children: initialBoxes,
 				},
 			};
 		}
@@ -318,6 +321,7 @@ export const processSample = async ({
 				throw new Error('Incomplete boxes are not allowed');
 			}
 
+			const initialBoxes: IsoBaseMediaBox[] = [];
 			return {
 				sample: {
 					format: boxFormat,
@@ -337,7 +341,7 @@ export const processSample = async ({
 					bytesPerPacket: null,
 					bytesPerFrame,
 					bitsPerSample: bitsPerChannel,
-					children: children.segments.boxes,
+					children: initialBoxes,
 				},
 			};
 		}
@@ -363,22 +367,22 @@ export const processSample = async ({
 
 		const bytesRemainingInBox =
 			boxSize - (iterator.counter.getOffset() - fileOffset);
+		const initialBoxes: IsoBaseMediaBox[] = [];
 
-		const children: ParseResult<IsoBaseMediaStructure> =
+		const children: ParseResult =
 			bytesRemainingInBox > 8
 				? await parseIsoBaseMediaBoxes({
 						iterator,
 						allowIncompleteBoxes: false,
 						maxBytes: bytesRemainingInBox,
-						initialBoxes: [],
+						initialBoxes,
 						options,
 						continueMdat: false,
 						signal,
 						logLevel,
 						fields,
 					})
-				: (iterator.discard(bytesRemainingInBox),
-					{status: 'done', segments: {boxes: [], type: 'iso-base-media'}});
+				: (iterator.discard(bytesRemainingInBox), {status: 'done'});
 
 		if (children.status === 'incomplete') {
 			throw new Error('Incomplete boxes are not allowed');
@@ -405,7 +409,7 @@ export const processSample = async ({
 				compressorName,
 				depth,
 				colorTableId,
-				descriptors: children.segments.boxes,
+				descriptors: initialBoxes,
 			},
 		};
 	}

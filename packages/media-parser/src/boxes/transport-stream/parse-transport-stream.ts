@@ -1,7 +1,7 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import {hasAllInfo} from '../../has-all-info';
 import type {Options, ParseMediaFields} from '../../options';
-import type {ParseResult, TransportStreamStructure} from '../../parse-result';
+import type {ParseResult} from '../../parse-result';
 import type {ParserContext} from '../../parser-context';
 import type {NextPesHeaderStore} from './next-pes-header-store';
 import {parsePacket} from './parse-packet';
@@ -13,18 +13,21 @@ import {
 export const parseTransportStream = async ({
 	iterator,
 	parserContext,
-	structure,
 	streamBuffers,
 	fields,
 	nextPesHeaderStore,
 }: {
 	iterator: BufferIterator;
 	parserContext: ParserContext;
-	structure: TransportStreamStructure;
 	streamBuffers: StreamBufferMap;
 	fields: Options<ParseMediaFields>;
 	nextPesHeaderStore: NextPesHeaderStore;
-}): Promise<ParseResult<TransportStreamStructure>> => {
+}): Promise<ParseResult> => {
+	const structure = parserContext.parserState.structure.getStructure();
+	if (structure.type !== 'transport-stream') {
+		throw new Error('Invalid structure type');
+	}
+
 	if (iterator.bytesRemaining() === 0) {
 		await processFinalStreamBuffers({
 			streamBufferMap: streamBuffers,
@@ -43,7 +46,6 @@ export const parseTransportStream = async ({
 			hasAllInfo({
 				fields,
 				state: parserContext.parserState,
-				structure,
 			})
 		) {
 			break;
@@ -58,7 +60,6 @@ export const parseTransportStream = async ({
 					return parseTransportStream({
 						iterator,
 						parserContext,
-						structure,
 						streamBuffers,
 						fields,
 						nextPesHeaderStore,
@@ -88,7 +89,6 @@ export const parseTransportStream = async ({
 			return parseTransportStream({
 				iterator,
 				parserContext,
-				structure,
 				streamBuffers,
 				fields,
 				nextPesHeaderStore,

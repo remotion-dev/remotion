@@ -7,22 +7,21 @@ import {hasHdr} from './get-is-hdr';
 import {hasTracks} from './get-tracks';
 import {hasVideoCodec} from './get-video-codec';
 import type {AllParseMediaFields, Options, ParseMediaFields} from './options';
-import type {Structure} from './parse-result';
 import type {ParserState} from './state/parser-state';
 
 export const getAvailableInfo = ({
 	fieldsToFetch,
-	structure,
 	state,
 }: {
 	fieldsToFetch: Options<ParseMediaFields>;
-	structure: Structure | null;
 	state: ParserState;
 }): Record<keyof Options<ParseMediaFields>, boolean> => {
 	const keys = Object.entries(fieldsToFetch).filter(([, value]) => value) as [
 		keyof Options<ParseMediaFields>,
 		boolean,
 	][];
+
+	const structure = state.structure.getStructureOrNull();
 
 	const infos = keys.map(([_key]) => {
 		const key = _key as keyof Options<AllParseMediaFields>;
@@ -109,15 +108,12 @@ export const getAvailableInfo = ({
 export const hasAllInfo = ({
 	fields,
 	state,
-	structure,
 }: {
-	structure: Structure | null;
 	fields: Options<ParseMediaFields>;
 	state: ParserState;
 }) => {
 	const availableInfo = getAvailableInfo({
 		fieldsToFetch: fields ?? {},
-		structure,
 		state,
 	});
 	return (

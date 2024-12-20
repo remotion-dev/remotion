@@ -13,7 +13,7 @@ import {
 } from './errors';
 import {Log, type LogLevel} from './log';
 import type {Options, ParseMediaFields} from './options';
-import type {IsoBaseMediaBox, ParseResult, Structure} from './parse-result';
+import type {IsoBaseMediaBox, ParseResult} from './parse-result';
 import type {ParserContext} from './parser-context';
 
 export type PartialMdatBox = {
@@ -52,7 +52,7 @@ export const parseVideo = ({
 	mimeType: string | null;
 	contentLength: number | null;
 	name: string | null;
-}): Promise<ParseResult<Structure>> => {
+}): Promise<ParseResult> => {
 	if (iterator.bytesRemaining() === 0) {
 		return Promise.reject(new Error('no bytes'));
 	}
@@ -61,16 +61,27 @@ export const parseVideo = ({
 
 	if (fileType.type === 'riff') {
 		Log.verbose(logLevel, 'Detected RIFF container');
+		options.parserState.structure.setStructure({
+			type: 'riff',
+			boxes: [],
+		});
+
 		return Promise.resolve(parseRiff({iterator, options, fields}));
 	}
 
 	if (fileType.type === 'iso-base-media') {
 		Log.verbose(logLevel, 'Detected ISO Base Media container');
+		const initialBoxes: IsoBaseMediaBox[] = [];
+		options.parserState.structure.setStructure({
+			type: 'iso-base-media',
+			boxes: initialBoxes,
+		});
+
 		return parseIsoBaseMediaBoxes({
 			iterator,
 			maxBytes: Infinity,
 			allowIncompleteBoxes: true,
-			initialBoxes: [],
+			initialBoxes,
 			options,
 			continueMdat: false,
 			signal,
@@ -81,17 +92,22 @@ export const parseVideo = ({
 
 	if (fileType.type === 'webm') {
 		Log.verbose(logLevel, 'Detected Matroska container');
+		options.parserState.structure.setStructure({
+			boxes: [],
+			type: 'matroska',
+		});
 		return parseWebm({counter: iterator, parserContext: options, fields});
 	}
 
 	if (fileType.type === 'transport-stream') {
+		Log.verbose(logLevel, 'Detected MPEG-2 Transport Stream');
+		options.parserState.structure.setStructure({
+			boxes: [],
+			type: 'transport-stream',
+		});
 		return parseTransportStream({
 			iterator,
 			parserContext: options,
-			structure: {
-				type: 'transport-stream',
-				boxes: [],
-			},
 			streamBuffers: new Map(),
 			fields,
 			nextPesHeaderStore: makeNextPesHeaderStore(),
