@@ -1,22 +1,22 @@
 import {addAvcProfileToTrack} from './add-avc-profile-to-track';
 import type {Track, VideoTrack} from './get-tracks';
 import type {ParseMediaContainer} from './options';
-import type {ParserContext} from './parser-context';
+import type {ParserState} from './state/parser-state';
 
 export const registerTrack = async ({
-	options,
+	state,
 	track,
 	container,
 }: {
-	options: ParserContext;
+	state: ParserState;
 	track: Track;
 	container: ParseMediaContainer;
 }) => {
 	if (track.type === 'video') {
-		options.parserState.tracks.addTrack(track);
-		if (options.onVideoTrack) {
-			const callback = await options.onVideoTrack({track, container});
-			await options.parserState.registerVideoSampleCallback(
+		state.callbacks.tracks.addTrack(track);
+		if (state.onVideoTrack) {
+			const callback = await state.onVideoTrack({track, container});
+			await state.callbacks.registerVideoSampleCallback(
 				track.trackId,
 				callback ?? null,
 			);
@@ -24,10 +24,10 @@ export const registerTrack = async ({
 	}
 
 	if (track.type === 'audio') {
-		options.parserState.tracks.addTrack(track);
-		if (options.onAudioTrack) {
-			const callback = await options.onAudioTrack({track, container});
-			await options.parserState.registerAudioSampleCallback(
+		state.callbacks.tracks.addTrack(track);
+		if (state.onAudioTrack) {
+			const callback = await state.onAudioTrack({track, container});
+			await state.callbacks.registerAudioSampleCallback(
 				track.trackId,
 				callback ?? null,
 			);
@@ -36,17 +36,17 @@ export const registerTrack = async ({
 };
 
 export const registerVideoTrackWhenProfileIsAvailable = ({
-	options,
+	state,
 	track,
 	container,
 }: {
-	options: ParserContext;
+	state: ParserState;
 	track: VideoTrack;
 	container: ParseMediaContainer;
 }) => {
-	options.parserState.registerOnAvcProfileCallback(async (profile) => {
+	state.riff.registerOnAvcProfileCallback(async (profile) => {
 		await registerTrack({
-			options,
+			state,
 			track: addAvcProfileToTrack(track, profile),
 			container,
 		});

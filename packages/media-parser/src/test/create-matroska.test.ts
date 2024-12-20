@@ -1,4 +1,3 @@
-/* eslint-disable max-depth */
 import {expect, test} from 'bun:test';
 import {combineUint8Arrays, makeMatroskaBytes} from '../boxes/webm/make-header';
 import {parseEbml} from '../boxes/webm/parse-ebml';
@@ -9,7 +8,6 @@ import type {
 } from '../boxes/webm/segments/all-segments';
 import {getArrayBufferIterator} from '../buffer-iterator';
 import {parseMedia} from '../parse-media';
-import type {ParserContext} from '../parser-context';
 import {nodeReader} from '../readers/from-node';
 import {makeParserState} from '../state/parser-state';
 
@@ -19,16 +17,11 @@ const state = makeParserState({
 	signal: undefined,
 	getIterator: () => null,
 	fields: {},
-});
-
-const options: ParserContext = {
 	onAudioTrack: null,
 	onVideoTrack: null,
-	parserState: state,
 	nullifySamples: false,
 	supportsContentRange: true,
-	nextTrackIndex: 0,
-};
+});
 
 test('Should make Matroska header that is same as input', async () => {
 	const headerOutput = makeMatroskaBytes({
@@ -77,7 +70,7 @@ test('Should make Matroska header that is same as input', async () => {
 		headerOutput.bytes,
 		headerOutput.bytes.length,
 	);
-	const parsed = await parseEbml(iterator, options);
+	const parsed = await parseEbml(iterator, state);
 
 	expect(parsed).toEqual({
 		type: 'Header',
@@ -139,7 +132,7 @@ test('Should be able to create Seek', async () => {
 	const file = new Uint8Array(
 		await Bun.file('vp8-segments/53-0x4dbb').arrayBuffer(),
 	);
-	const parsed = await parseEbml(getArrayBufferIterator(file, null), options);
+	const parsed = await parseEbml(getArrayBufferIterator(file, null), state);
 	expect(parsed).toEqual({
 		type: 'Seek',
 		value: [
@@ -215,7 +208,7 @@ test('Should parse seekHead', async () => {
 	expect(custom.bytes).toEqual(file);
 
 	const iterator = getArrayBufferIterator(file, file.length);
-	const parsed = await parseEbml(iterator, options);
+	const parsed = await parseEbml(iterator, state);
 
 	expect(parsed).toEqual({
 		minVintWidth: 1,

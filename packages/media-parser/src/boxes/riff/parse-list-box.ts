@@ -1,17 +1,17 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import type {RiffStructure} from '../../parse-result';
-import type {ParserContext} from '../../parser-context';
+import type {ParserState} from '../../state/parser-state';
 import {parseRiffBody} from './parse-box';
 import type {RiffBox} from './riff-box';
 
 export const parseListBox = async ({
 	iterator,
 	size,
-	options,
+	state,
 }: {
 	iterator: BufferIterator;
 	size: number;
-	options: ParserContext;
+	state: ParserState;
 }): Promise<RiffBox> => {
 	const counter = iterator.counter.getOffset();
 	const listType = iterator.getByteString(4);
@@ -28,7 +28,7 @@ export const parseListBox = async ({
 		structure,
 		iterator,
 		maxOffset: counter + size,
-		options,
+		state,
 	});
 
 	if (result.status === 'incomplete') {

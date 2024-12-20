@@ -1,5 +1,5 @@
 import type {TransportStreamStructure} from '../../parse-result';
-import type {ParserContext} from '../../parser-context';
+import type {ParserState} from '../../state/parser-state';
 import {handleAacPacket} from './handle-aac-packet';
 import {handleAvcPacket} from './handle-avc-packet';
 import type {PacketPes} from './parse-pes';
@@ -8,18 +8,19 @@ import {findProgramMapTableOrThrow, getStreamForId} from './traversal';
 export type TransportStreamPacketBuffer = {
 	buffer: Uint8Array;
 	pesHeader: PacketPes;
+	offset: number;
 };
 
 export type StreamBufferMap = Map<number, TransportStreamPacketBuffer>;
 
 export const processStreamBuffer = async ({
 	streamBuffer,
-	options,
+	state,
 	programId,
 	structure,
 }: {
 	streamBuffer: TransportStreamPacketBuffer;
-	options: ParserContext;
+	state: ParserState;
 	programId: number;
 	structure: TransportStreamStructure;
 }) => {
@@ -30,36 +31,46 @@ export const processStreamBuffer = async ({
 
 	// 27 = AVC / H.264 Video
 	if (stream.streamType === 27) {
-		await handleAvcPacket({programId, streamBuffer, options});
+		await handleAvcPacket({
+			programId,
+			streamBuffer,
+			state,
+			offset: streamBuffer.offset,
+		});
 	}
 	// 15 = AAC / ADTS
 	else if (stream.streamType === 15) {
-		await handleAacPacket({streamBuffer, options, programId});
+		await handleAacPacket({
+			streamBuffer,
+			state,
+			programId,
+			offset: streamBuffer.offset,
+		});
 	}
 
-	if (!options.parserState.tracks.hasAllTracks()) {
-		const tracksRegistered = options.parserState.tracks.getTracks().length;
+	if (!state.callbacks.tracks.hasAllTracks()) {
+		const tracksRegistered = state.callbacks.tracks.getTracks().length;
 		const {streams} = findProgramMapTableOrThrow(structure);
 		if (streams.length === tracksRegistered) {
-			options.parserState.tracks.setIsDone();
+			state.callbacks.tracks.setIsDone();
 		}
 	}
 };
 
 export const processFinalStreamBuffers = async ({
 	streamBufferMap,
-	parserContext,
+	state,
 	structure,
 }: {
 	streamBufferMap: StreamBufferMap;
-	parserContext: ParserContext;
+	state: ParserState;
 	structure: TransportStreamStructure;
 }) => {
 	for (const [programId, buffer] of streamBufferMap) {
 		if (buffer.buffer.byteLength > 0) {
 			await processStreamBuffer({
 				streamBuffer: buffer,
-				options: parserContext,
+				state,
 				programId,
 				structure,
 			});

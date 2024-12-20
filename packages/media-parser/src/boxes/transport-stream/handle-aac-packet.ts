@@ -1,8 +1,8 @@
 import {mapAudioObjectTypeToCodecString} from '../../aac-codecprivate';
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
 import type {Track} from '../../get-tracks';
-import type {ParserContext} from '../../parser-context';
 import {registerTrack} from '../../register-track';
+import type {ParserState} from '../../state/parser-state';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 import {readAdtsHeader} from './adts-header';
 import {MPEG_TIMESCALE} from './handle-avc-packet';
@@ -10,12 +10,14 @@ import type {TransportStreamPacketBuffer} from './process-stream-buffers';
 
 export const handleAacPacket = async ({
 	streamBuffer,
-	options,
+	state,
 	programId,
+	offset,
 }: {
 	streamBuffer: TransportStreamPacketBuffer;
-	options: ParserContext;
+	state: ParserState;
 	programId: number;
+	offset: number;
 }) => {
 	const adtsHeader = readAdtsHeader(streamBuffer.buffer);
 	if (!adtsHeader) {
@@ -25,7 +27,7 @@ export const handleAacPacket = async ({
 	const {channelConfiguration, codecPrivate, sampleRate, audioObjectType} =
 		adtsHeader;
 
-	const isTrackRegistered = options.parserState.tracks.getTracks().find((t) => {
+	const isTrackRegistered = state.callbacks.tracks.getTracks().find((t) => {
 		return t.trackId === programId;
 	});
 
@@ -45,7 +47,7 @@ export const handleAacPacket = async ({
 		};
 		await registerTrack({
 			track,
-			options,
+			state,
 			container: 'transport-stream',
 		});
 	}
@@ -58,9 +60,11 @@ export const handleAacPacket = async ({
 		data: new Uint8Array(streamBuffer.buffer),
 		trackId: programId,
 		type: 'key',
+		offset,
+		timescale: MPEG_TIMESCALE,
 	};
 
-	await options.parserState.onAudioSample(
+	await state.callbacks.onAudioSample(
 		programId,
 		convertAudioOrVideoSampleToWebCodecsTimestamps(sample, MPEG_TIMESCALE),
 	);

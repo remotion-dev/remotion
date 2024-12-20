@@ -6,7 +6,7 @@ import type {
 	MatroskaParseResult,
 	MatroskaStructure,
 } from '../../parse-result';
-import type {ParserContext} from '../../parser-context';
+import type {ParserState} from '../../state/parser-state';
 import {parseEbml, postprocessEbml} from './parse-ebml';
 import type {ClusterSegment, MainSegment} from './segments/all-segments';
 import {type PossibleEbml, type TrackEntry} from './segments/all-segments';
@@ -22,12 +22,12 @@ export type OnTrackEntrySegment = (trackEntry: TrackEntry) => void;
 const continueAfterMatroskaParseResult = async ({
 	result,
 	iterator,
-	parserContext,
+	state,
 	segment,
 }: {
 	result: MatroskaParseResult;
 	iterator: BufferIterator;
-	parserContext: ParserContext;
+	state: ParserState;
 	segment: MatroskaSegment;
 }): Promise<ExpectSegmentParseResult> => {
 	if (result.status === 'done') {
@@ -47,7 +47,7 @@ const continueAfterMatroskaParseResult = async ({
 			return continueAfterMatroskaParseResult({
 				result: proceeded,
 				iterator,
-				parserContext,
+				state,
 				segment,
 			});
 		},
@@ -58,14 +58,14 @@ const continueAfterMatroskaParseResult = async ({
 
 export const expectSegment = async ({
 	iterator,
-	parserContext,
+	state,
 	offset,
 	children,
 	fields,
 	topLevelStructure,
 }: {
 	iterator: BufferIterator;
-	parserContext: ParserContext;
+	state: ParserState;
 	offset: number;
 	children: PossibleEbml[];
 	fields: Options<ParseMediaFields>;
@@ -79,7 +79,7 @@ export const expectSegment = async ({
 			continueParsing: () => {
 				return expectAndProcessSegment({
 					iterator,
-					parserContext,
+					state,
 					offset,
 					children,
 					fields,
@@ -99,7 +99,7 @@ export const expectSegment = async ({
 			continueParsing: () => {
 				return expectAndProcessSegment({
 					iterator,
-					parserContext,
+					state,
 					offset,
 					children,
 					fields,
@@ -121,7 +121,7 @@ export const expectSegment = async ({
 			continueParsing: () => {
 				return expectSegment({
 					iterator,
-					parserContext,
+					state,
 					offset,
 					children,
 					fields,
@@ -146,7 +146,7 @@ export const expectSegment = async ({
 			iterator,
 			length,
 			children: newSegment.value,
-			parserContext,
+			state,
 			startOffset: iterator.counter.getOffset(),
 			fields,
 			topLevelStructure,
@@ -158,7 +158,7 @@ export const expectSegment = async ({
 				continueParsing: () => {
 					return continueAfterMatroskaParseResult({
 						iterator,
-						parserContext,
+						state,
 						result: main,
 						segment: newSegment,
 					});
@@ -182,7 +182,7 @@ export const expectSegment = async ({
 			continueParsing: () => {
 				return expectSegment({
 					iterator,
-					parserContext,
+					state,
 					offset,
 					children,
 					fields,
@@ -196,7 +196,7 @@ export const expectSegment = async ({
 		segmentId,
 		iterator,
 		length,
-		parserContext,
+		state,
 		headerReadSoFar: iterator.counter.getOffset() - offset,
 	});
 
@@ -210,13 +210,13 @@ const parseSegment = async ({
 	segmentId,
 	iterator,
 	length,
-	parserContext,
+	state,
 	headerReadSoFar,
 }: {
 	segmentId: string;
 	iterator: BufferIterator;
 	length: number;
-	parserContext: ParserContext;
+	state: ParserState;
 	headerReadSoFar: number;
 }): Promise<Promise<MatroskaSegment> | MatroskaSegment> => {
 	if (length < 0) {
@@ -226,8 +226,8 @@ const parseSegment = async ({
 	iterator.counter.decrement(headerReadSoFar);
 
 	const offset = iterator.counter.getOffset();
-	const ebml = await parseEbml(iterator, parserContext);
-	const remapped = await postprocessEbml({offset, ebml, parserContext});
+	const ebml = await parseEbml(iterator, state);
+	const remapped = await postprocessEbml({offset, ebml, state});
 
 	return remapped;
 };

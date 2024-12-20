@@ -4,10 +4,9 @@ import type {Options, ParseMediaFields} from '../../../options';
 import type {
 	AnySegment,
 	IsoBaseMediaBox,
-	IsoBaseMediaStructure,
 	ParseResult,
 } from '../../../parse-result';
-import type {ParserContext} from '../../../parser-context';
+import type {ParserState} from '../../../state/parser-state';
 import {parseIsoBaseMediaBoxes} from '../process-box';
 
 type SampleBase = {
@@ -127,13 +126,13 @@ const audioTags = [
 
 export const processSample = async ({
 	iterator,
-	options,
+	state: options,
 	signal,
 	logLevel,
 	fields,
 }: {
 	iterator: BufferIterator;
-	options: ParserContext;
+	state: ParserState;
 	signal: AbortSignal | null;
 	logLevel: LogLevel;
 	fields: Options<ParseMediaFields>;
@@ -187,12 +186,15 @@ export const processSample = async ({
 
 			const bytesRemainingInBox =
 				boxSize - (iterator.counter.getOffset() - fileOffset);
+
+			const initialBoxes: IsoBaseMediaBox[] = [];
+
 			const children = await parseIsoBaseMediaBoxes({
 				iterator,
 				allowIncompleteBoxes: false,
 				maxBytes: bytesRemainingInBox,
-				initialBoxes: [],
-				options,
+				initialBoxes,
+				state: options,
 				continueMdat: false,
 				signal,
 				logLevel,
@@ -222,7 +224,7 @@ export const processSample = async ({
 					bytesPerPacket: null,
 					bytesPerFrame: null,
 					bitsPerSample: null,
-					children: children.segments.boxes,
+					children: initialBoxes,
 				},
 			};
 		}
@@ -243,12 +245,13 @@ export const processSample = async ({
 			const bytesRemainingInBox =
 				boxSize - (iterator.counter.getOffset() - fileOffset);
 
+			const initialBoxes: IsoBaseMediaBox[] = [];
 			const children = await parseIsoBaseMediaBoxes({
 				iterator,
 				allowIncompleteBoxes: false,
 				maxBytes: bytesRemainingInBox,
-				initialBoxes: [],
-				options,
+				initialBoxes,
+				state: options,
 				continueMdat: false,
 				signal,
 				logLevel,
@@ -278,7 +281,7 @@ export const processSample = async ({
 					bytesPerPacket,
 					bytesPerFrame,
 					bitsPerSample: bytesPerSample,
-					children: children.segments.boxes,
+					children: initialBoxes,
 				},
 			};
 		}
@@ -307,7 +310,7 @@ export const processSample = async ({
 				allowIncompleteBoxes: false,
 				maxBytes: bytesRemainingInBox,
 				initialBoxes: [],
-				options,
+				state: options,
 				continueMdat: false,
 				signal,
 				logLevel,
@@ -318,6 +321,7 @@ export const processSample = async ({
 				throw new Error('Incomplete boxes are not allowed');
 			}
 
+			const initialBoxes: IsoBaseMediaBox[] = [];
 			return {
 				sample: {
 					format: boxFormat,
@@ -337,7 +341,7 @@ export const processSample = async ({
 					bytesPerPacket: null,
 					bytesPerFrame,
 					bitsPerSample: bitsPerChannel,
-					children: children.segments.boxes,
+					children: initialBoxes,
 				},
 			};
 		}
@@ -363,22 +367,22 @@ export const processSample = async ({
 
 		const bytesRemainingInBox =
 			boxSize - (iterator.counter.getOffset() - fileOffset);
+		const initialBoxes: IsoBaseMediaBox[] = [];
 
-		const children: ParseResult<IsoBaseMediaStructure> =
+		const children: ParseResult =
 			bytesRemainingInBox > 8
 				? await parseIsoBaseMediaBoxes({
 						iterator,
 						allowIncompleteBoxes: false,
 						maxBytes: bytesRemainingInBox,
-						initialBoxes: [],
-						options,
+						initialBoxes,
+						state: options,
 						continueMdat: false,
 						signal,
 						logLevel,
 						fields,
 					})
-				: (iterator.discard(bytesRemainingInBox),
-					{status: 'done', segments: {boxes: [], type: 'iso-base-media'}});
+				: (iterator.discard(bytesRemainingInBox), {status: 'done'});
 
 		if (children.status === 'incomplete') {
 			throw new Error('Incomplete boxes are not allowed');
@@ -405,7 +409,7 @@ export const processSample = async ({
 				compressorName,
 				depth,
 				colorTableId,
-				descriptors: children.segments.boxes,
+				descriptors: initialBoxes,
 			},
 		};
 	}
@@ -416,14 +420,14 @@ export const processSample = async ({
 export const parseSamples = async ({
 	iterator,
 	maxBytes,
-	options,
+	state,
 	signal,
 	logLevel,
 	fields,
 }: {
 	iterator: BufferIterator;
 	maxBytes: number;
-	options: ParserContext;
+	state: ParserState;
 	signal: AbortSignal | null;
 	logLevel: LogLevel;
 	fields: Options<ParseMediaFields>;
@@ -437,7 +441,7 @@ export const parseSamples = async ({
 	) {
 		const {sample} = await processSample({
 			iterator,
-			options,
+			state,
 			signal,
 			logLevel,
 			fields,

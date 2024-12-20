@@ -23,7 +23,11 @@ import {
 import {getTracksFromMatroska} from './boxes/webm/get-ready-tracks';
 import type {MatroskaSegment} from './boxes/webm/segments';
 import {getMainSegment, getTracksSegment} from './boxes/webm/traversal';
-import type {IsoBaseMediaBox, Structure} from './parse-result';
+import type {
+	IsoBaseMediaBox,
+	IsoBaseMediaStructure,
+	Structure,
+} from './parse-result';
 import type {ParserState} from './state/parser-state';
 
 type SampleAspectRatio = {
@@ -110,6 +114,19 @@ export const getNumberOfTracks = (moovBox: MoovBox): number => {
 	return mvHdBox.nextTrackId - 1;
 };
 
+export const isoBaseMediaHasTracks = (structure: IsoBaseMediaStructure) => {
+	const moovBox = getMoovBox(structure.boxes);
+
+	if (!moovBox) {
+		return false;
+	}
+
+	const numberOfTracks = getNumberOfTracks(moovBox);
+	const tracks = getTraks(moovBox);
+
+	return tracks.length === numberOfTracks;
+};
+
 export const hasTracks = (
 	structure: Structure,
 	state: ParserState,
@@ -124,16 +141,7 @@ export const hasTracks = (
 	}
 
 	if (structure.type === 'iso-base-media') {
-		const moovBox = getMoovBox(structure.boxes);
-
-		if (!moovBox) {
-			return false;
-		}
-
-		const numberOfTracks = getNumberOfTracks(moovBox);
-		const tracks = getTraks(moovBox);
-
-		return tracks.length === numberOfTracks;
+		return isoBaseMediaHasTracks(structure);
 	}
 
 	if (structure.type === 'riff') {
@@ -162,7 +170,7 @@ const getTracksFromMa = (
 
 	const matroskaTracks = getTracksFromMatroska(
 		mainSegment,
-		state.getTimescale(),
+		state.webm.getTimescale(),
 	);
 
 	for (const track of matroskaTracks) {
@@ -182,7 +190,7 @@ const getTracksFromMa = (
 	};
 };
 
-const getTracksFromIsoBaseMedia = (segments: IsoBaseMediaBox[]) => {
+export const getTracksFromIsoBaseMedia = (segments: IsoBaseMediaBox[]) => {
 	const videoTracks: VideoTrack[] = [];
 	const audioTracks: AudioTrack[] = [];
 	const otherTracks: OtherTrack[] = [];

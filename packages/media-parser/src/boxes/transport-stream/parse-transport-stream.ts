@@ -1,8 +1,8 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import {hasAllInfo} from '../../has-all-info';
 import type {Options, ParseMediaFields} from '../../options';
-import type {ParseResult, TransportStreamStructure} from '../../parse-result';
-import type {ParserContext} from '../../parser-context';
+import type {ParseResult} from '../../parse-result';
+import type {ParserState} from '../../state/parser-state';
 import type {NextPesHeaderStore} from './next-pes-header-store';
 import {parsePacket} from './parse-packet';
 import {
@@ -12,23 +12,26 @@ import {
 
 export const parseTransportStream = async ({
 	iterator,
-	parserContext,
-	structure,
+	state,
 	streamBuffers,
 	fields,
 	nextPesHeaderStore,
 }: {
 	iterator: BufferIterator;
-	parserContext: ParserContext;
-	structure: TransportStreamStructure;
+	state: ParserState;
 	streamBuffers: StreamBufferMap;
 	fields: Options<ParseMediaFields>;
 	nextPesHeaderStore: NextPesHeaderStore;
-}): Promise<ParseResult<TransportStreamStructure>> => {
+}): Promise<ParseResult> => {
+	const structure = state.structure.getStructure();
+	if (structure.type !== 'transport-stream') {
+		throw new Error('Invalid structure type');
+	}
+
 	if (iterator.bytesRemaining() === 0) {
 		await processFinalStreamBuffers({
 			streamBufferMap: streamBuffers,
-			parserContext,
+			state,
 			structure,
 		});
 
@@ -42,8 +45,7 @@ export const parseTransportStream = async ({
 		if (
 			hasAllInfo({
 				fields,
-				state: parserContext.parserState,
-				structure,
+				state,
 			})
 		) {
 			break;
@@ -57,8 +59,7 @@ export const parseTransportStream = async ({
 				continueParsing: () => {
 					return parseTransportStream({
 						iterator,
-						parserContext,
-						structure,
+						state,
 						streamBuffers,
 						fields,
 						nextPesHeaderStore,
@@ -71,7 +72,7 @@ export const parseTransportStream = async ({
 			iterator,
 			structure,
 			streamBuffers,
-			parserContext,
+			parserState: state,
 			nextPesHeaderStore,
 		});
 
@@ -87,8 +88,7 @@ export const parseTransportStream = async ({
 		continueParsing() {
 			return parseTransportStream({
 				iterator,
-				parserContext,
-				structure,
+				state,
 				streamBuffers,
 				fields,
 				nextPesHeaderStore,

@@ -1,6 +1,6 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import type {TransportStreamStructure} from '../../parse-result';
-import type {ParserContext} from '../../parser-context';
+import type {ParserState} from '../../state/parser-state';
 import type {TransportStreamBox} from './boxes';
 import type {NextPesHeaderStore} from './next-pes-header-store';
 import {parsePat} from './parse-pat';
@@ -14,13 +14,13 @@ export const parsePacket = async ({
 	iterator,
 	structure,
 	streamBuffers,
-	parserContext,
+	parserState,
 	nextPesHeaderStore,
 }: {
 	iterator: BufferIterator;
 	structure: TransportStreamStructure;
 	streamBuffers: StreamBufferMap;
-	parserContext: ParserContext;
+	parserState: ParserState;
 	nextPesHeaderStore: NextPesHeaderStore;
 }): Promise<TransportStreamBox | null> => {
 	const offset = iterator.counter.getOffset();
@@ -96,7 +96,7 @@ export const parsePacket = async ({
 			transportStreamEntry: stream,
 			streamBuffers,
 			nextPesHeader: nextPesHeaderStore.getNextPesHeader(),
-			parserContext,
+			state: parserState,
 			programId,
 			structure,
 		});

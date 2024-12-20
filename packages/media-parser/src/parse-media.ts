@@ -14,9 +14,8 @@ import type {
 	ParseMediaOptions,
 	ParseMediaResult,
 } from './options';
-import type {ParseResult, Structure} from './parse-result';
+import type {ParseResult} from './parse-result';
 import {parseVideo} from './parse-video';
-import type {ParserContext} from './parser-context';
 import {fetchReader} from './readers/from-fetch';
 import {makeParserState} from './state/parser-state';
 
@@ -34,7 +33,7 @@ export const parseMedia: ParseMedia = async function <
 	...more
 }: ParseMediaOptions<F>) {
 	let iterator: BufferIterator | null = null;
-	let parseResult: ParseResult<Structure> | null = null;
+	let parseResult: ParseResult | null = null;
 
 	const fieldsInReturnValue = _fieldsInReturnValue ?? {};
 
@@ -43,13 +42,6 @@ export const parseMedia: ParseMedia = async function <
 		callbacks: more,
 	});
 
-	const state = makeParserState({
-		hasAudioTrackHandlers: Boolean(onAudioTrack),
-		hasVideoTrackHandlers: Boolean(onVideoTrack),
-		signal,
-		getIterator: () => iterator,
-		fields,
-	});
 	const {
 		reader,
 		contentLength,
@@ -57,6 +49,30 @@ export const parseMedia: ParseMedia = async function <
 		contentType,
 		supportsContentRange: readerSupportsContentRange,
 	} = await readerInterface.read(src, null, signal);
+	const supportsContentRange =
+		readerSupportsContentRange &&
+		!(
+			typeof process !== 'undefined' &&
+			typeof process.env !== 'undefined' &&
+			process.env.DISABLE_CONTENT_RANGE === 'true'
+		);
+
+	const state = makeParserState({
+		hasAudioTrackHandlers: Boolean(onAudioTrack),
+		hasVideoTrackHandlers: Boolean(onVideoTrack),
+		signal,
+		getIterator: () => iterator,
+		fields,
+		onAudioTrack: onAudioTrack ?? null,
+		onVideoTrack: onVideoTrack ?? null,
+		nullifySamples: !(
+			typeof process !== 'undefined' &&
+			typeof process.env !== 'undefined' &&
+			process.env.KEEP_SAMPLES === 'true'
+		),
+		supportsContentRange,
+	});
+
 	let currentReader = reader;
 
 	const emittedFields: AllOptions<ParseMediaFields> = {
@@ -77,36 +93,15 @@ export const parseMedia: ParseMedia = async function <
 		tracks: false,
 		videoCodec: false,
 		unrotatedDimensions: false,
+		keyframes: false,
 	};
-
-	const supportsContentRange =
-		readerSupportsContentRange &&
-		!(
-			typeof process !== 'undefined' &&
-			typeof process.env !== 'undefined' &&
-			process.env.DISABLE_CONTENT_RANGE === 'true'
-		);
 
 	const returnValue = {} as ParseMediaResult<AllParseMediaFields>;
 	const moreFields = more as ParseMediaCallbacks;
 
-	const options: ParserContext = {
-		onAudioTrack: onAudioTrack ?? null,
-		onVideoTrack: onVideoTrack ?? null,
-		parserState: state,
-		nullifySamples: !(
-			typeof process !== 'undefined' &&
-			typeof process.env !== 'undefined' &&
-			process.env.KEEP_SAMPLES === 'true'
-		),
-		supportsContentRange,
-		nextTrackIndex: 0,
-	};
-
 	const triggerInfoEmit = () => {
 		const availableInfo = getAvailableInfo({
 			fieldsToFetch: fields,
-			structure: parseResult?.segments ?? null,
 			state,
 		});
 		emitAvailableInfo({
@@ -179,7 +174,7 @@ export const parseMedia: ParseMedia = async function <
 		} else {
 			parseResult = await parseVideo({
 				iterator,
-				options,
+				state,
 				signal: signal ?? null,
 				logLevel,
 				fields,
@@ -198,7 +193,6 @@ export const parseMedia: ParseMedia = async function <
 		if (
 			hasAllInfo({
 				fields,
-				structure: parseResult.segments,
 				state,
 			})
 		) {
@@ -273,6 +267,6 @@ export const parseMedia: ParseMedia = async function <
 	currentReader.abort();
 	iterator?.destroy();
 
-	state.tracks.ensureHasTracksAtEnd();
+	state.callbacks.tracks.ensureHasTracksAtEnd();
 	return returnValue as ParseMediaResult<F>;
 };

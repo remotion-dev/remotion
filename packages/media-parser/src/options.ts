@@ -40,6 +40,7 @@ export type ParseMediaFields = {
 	metadata: boolean;
 	location: boolean;
 	mimeType: boolean;
+	keyframes: boolean;
 };
 
 export type AllParseMediaFields = {
@@ -60,6 +61,7 @@ export type AllParseMediaFields = {
 	metadata: true;
 	location: true;
 	mimeType: true;
+	keyframes: true;
 };
 
 export type AllOptions<Fields extends ParseMediaFields> = {
@@ -80,6 +82,7 @@ export type AllOptions<Fields extends ParseMediaFields> = {
 	metadata: Fields['metadata'];
 	location: Fields['location'];
 	mimeType: Fields['mimeType'];
+	keyframes: Fields['keyframes'];
 };
 
 export type Options<Fields extends ParseMediaFields> = Partial<
@@ -92,6 +95,14 @@ export type TracksField = {
 };
 
 export type ParseMediaContainer = 'mp4' | 'webm' | 'avi' | 'transport-stream';
+
+export type MediaParserKeyframe = {
+	positionInBytes: number;
+	sizeInBytes: number;
+	presentationTimeInSeconds: number;
+	decodingTimeInSeconds: number;
+	trackId: number;
+};
 
 export interface ParseMediaCallbacks {
 	onDimensions?: (dimensions: Dimensions) => void;
@@ -111,6 +122,7 @@ export interface ParseMediaCallbacks {
 	onMetadata?: (metadata: MetadataEntry[]) => void;
 	onLocation?: (location: MediaParserLocation | null) => void;
 	onMimeType?: (mimeType: string | null) => void;
+	onKeyframes?: (keyframes: Keyframe[]) => void;
 }
 
 export interface ParseMediaData {
@@ -131,6 +143,7 @@ export interface ParseMediaData {
 	location: MediaParserLocation | null;
 	container: ParseMediaContainer;
 	mimeType: string | null;
+	keyframes: Keyframe[];
 }
 
 export type ParseMediaResult<T extends Partial<ParseMediaFields>> = {

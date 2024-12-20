@@ -1,7 +1,7 @@
 import type {BufferIterator} from '../../../buffer-iterator';
 import type {Options, ParseMediaFields} from '../../../options';
-import type {AnySegment} from '../../../parse-result';
-import type {ParserContext} from '../../../parser-context';
+import type {AnySegment, IsoBaseMediaBox} from '../../../parse-result';
+import type {ParserState} from '../../../state/parser-state';
 import type {BaseBox} from '../base-type';
 import {parseIsoBaseMediaBoxes} from '../process-box';
 
@@ -16,14 +16,14 @@ export const parseMebx = async ({
 	iterator,
 	offset,
 	size,
-	options,
+	state,
 	signal,
 	fields,
 }: {
 	iterator: BufferIterator;
 	offset: number;
 	size: number;
-	options: ParserContext;
+	state: ParserState;
 	signal: AbortSignal | null;
 	fields: Options<ParseMediaFields>;
 }): Promise<MebxBox> => {
@@ -31,13 +31,14 @@ export const parseMebx = async ({
 	iterator.discard(6);
 
 	const dataReferenceIndex = iterator.getUint16();
+	const boxes: IsoBaseMediaBox[] = [];
 
 	const children = await parseIsoBaseMediaBoxes({
 		iterator,
 		maxBytes: iterator.counter.getOffset() - offset,
 		allowIncompleteBoxes: false,
-		initialBoxes: [],
-		options,
+		initialBoxes: boxes,
+		state,
 		continueMdat: false,
 		signal,
 		logLevel: 'info',
@@ -54,6 +55,6 @@ export const parseMebx = async ({
 		offset,
 		dataReferenceIndex,
 		format: 'mebx',
-		children: children.segments.boxes,
+		children: boxes,
 	};
 };

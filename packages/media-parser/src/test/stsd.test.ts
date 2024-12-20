@@ -42,20 +42,17 @@ test('Should be able to parse a STSD audio box correctly', async () => {
 		iterator,
 		offset: 0,
 		size: 159,
-		options: {
+		state: makeParserState({
 			onAudioTrack: null,
 			onVideoTrack: () => () => undefined,
-			parserState: makeParserState({
-				hasAudioTrackHandlers: true,
-				hasVideoTrackHandlers: true,
-				signal: undefined,
-				getIterator: () => null,
-				fields: {},
-			}),
+			hasAudioTrackHandlers: true,
+			hasVideoTrackHandlers: true,
+			signal: undefined,
+			getIterator: () => null,
+			fields: {},
 			nullifySamples: false,
 			supportsContentRange: true,
-			nextTrackIndex: 0,
-		},
+		}),
 		signal: null,
 		fields: {},
 	});
@@ -214,22 +211,21 @@ test('Should be able to parse a STSD video box correctly', async () => {
 
 	const parsed = await processSample({
 		iterator: getArrayBufferIterator(buffer, null),
-		options: {
+		state: makeParserState({
 			onAudioTrack: null,
 			onVideoTrack: () => () => undefined,
-			parserState: makeParserState({
-				hasAudioTrackHandlers: true,
-				hasVideoTrackHandlers: true,
-				signal: undefined,
-				getIterator: () => null,
-				fields: {
-					structure: true,
-				},
-			}),
+			hasAudioTrackHandlers: true,
+			hasVideoTrackHandlers: true,
+			signal: undefined,
+			getIterator: () => null,
+			fields: {
+				structure: true,
+			},
+
 			nullifySamples: false,
 			supportsContentRange: true,
-			nextTrackIndex: 0,
-		},
+		}),
+
 		signal: null,
 		logLevel: 'info',
 		fields: {},
