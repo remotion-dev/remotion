@@ -39,5 +39,7 @@ export const convertEncodedChunk = (
 		cts: chunk.timestamp,
 		dts: chunk.timestamp,
 		trackId,
+		offset: 0,
+		timescale: 1_000_000,
 	};
 };
