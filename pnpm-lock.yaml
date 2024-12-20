@@ -1822,6 +1822,9 @@ importers:
 
   packages/studio:
     dependencies:
+      '@remotion/media-parser':
+        specifier: workspace:*
+        version: link:../media-parser
       '@remotion/media-utils':
         specifier: workspace:*
         version: link:../media-utils
