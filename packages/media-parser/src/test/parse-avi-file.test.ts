@@ -66,7 +66,7 @@ test('AVI file', async () => {
 	expect(size).toBe(742478);
 	expect(audioTrackCount).toBe(1);
 	expect(videoTrackCount).toBe(1);
-	expect(audioSamples).toBe(1435);
+	expect(audioSamples).toBe(1433);
 	expect(videoSamples).toBe(901);
 	expect(videoCodec).toBe('h264');
 	expect(tracks.audioTracks).toEqual([
@@ -87,9 +87,52 @@ test('AVI file', async () => {
 		{
 			codec: 'avc1.640015',
 			codecPrivate: new Uint8Array([
-				1, 21, 0, 100, 255, 225, 0, 26, 103, 100, 0, 21, 172, 217, 65, 224, 143,
-				235, 1, 16, 0, 0, 3, 0, 16, 0, 0, 3, 3, 192, 241, 98, 217, 96, 1, 0, 4,
-				104, 239, 139, 203,
+				1, // version
+				100, // profile, profile compatibility, level
+				0,
+				21,
+				255,
+				225, // reserved
+				// sps length
+				0,
+				26,
+				// sps
+				103,
+				100,
+				0,
+				21,
+				172,
+				217,
+				65,
+				224,
+				143,
+				235,
+				1,
+				16,
+				0,
+				0,
+				3,
+				0,
+				16,
+				0,
+				0,
+				3,
+				3,
+				192,
+				241,
+				98,
+				217,
+				96,
+				// num of pps
+				1,
+				// pps length
+				0,
+				4,
+				// pps
+				104,
+				239,
+				139,
+				203,
 			]),
 			codecWithoutConfig: 'h264',
 			codedHeight: 270,
