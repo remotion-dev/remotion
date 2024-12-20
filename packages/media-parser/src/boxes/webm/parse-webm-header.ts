@@ -5,7 +5,7 @@ import type {
 	MatroskaStructure,
 	ParseResult,
 } from '../../parse-result';
-import type {ParserContext} from '../../parser-context';
+import type {ParserState} from '../../state/parser-state';
 import {expectChildren} from './segments/parse-children';
 
 const continueAfterMatroskaResult = (
@@ -35,10 +35,10 @@ export const parseWebm = async ({
 	fields,
 }: {
 	counter: BufferIterator;
-	parserContext: ParserContext;
+	parserContext: ParserState;
 	fields: Options<ParseMediaFields>;
 }): Promise<ParseResult> => {
-	const structure = parserContext.parserState.structure.getStructure();
+	const structure = parserContext.structure.getStructure();
 	if (structure.type !== 'matroska') {
 		throw new Error('Invalid structure type');
 	}

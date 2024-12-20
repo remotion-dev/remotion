@@ -2,7 +2,7 @@ import type {BufferIterator} from '../../../buffer-iterator';
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../../convert-audio-or-video-sample';
 import {getTracks, hasTracks} from '../../../get-tracks';
 import type {IsoBaseMediaBox} from '../../../parse-result';
-import type {ParserContext} from '../../../parser-context';
+import type {ParserState} from '../../../state/parser-state';
 import {getSamplePositionsFromTrack} from '../get-sample-positions-from-track';
 import type {TrakBox} from '../trak/trak';
 import {getMoofBox} from '../traversal';
@@ -29,7 +29,7 @@ export const parseMdat = async ({
 	size,
 	fileOffset,
 	existingBoxes,
-	options,
+	state,
 	signal,
 	maySkipSampleProcessing,
 }: {
@@ -37,7 +37,7 @@ export const parseMdat = async ({
 	size: number;
 	fileOffset: number;
 	existingBoxes: IsoBaseMediaBox[];
-	options: ParserContext;
+	state: ParserState;
 	signal: AbortSignal | null;
 	maySkipSampleProcessing: boolean;
 }): Promise<MdatBox> => {
@@ -46,7 +46,7 @@ export const parseMdat = async ({
 			type: 'iso-base-media',
 			boxes: existingBoxes,
 		},
-		options.parserState,
+		state,
 	);
 	if (!alreadyHas) {
 		if (maySkipSampleProcessing) {
@@ -72,7 +72,7 @@ export const parseMdat = async ({
 
 	const tracks = getTracks(
 		{type: 'iso-base-media', boxes: existingBoxes},
-		options.parserState,
+		state,
 	);
 	const allTracks = [
 		...tracks.videoTracks,
@@ -135,7 +135,7 @@ export const parseMdat = async ({
 		const {cts, dts, duration} = samplesWithIndex.samplePosition;
 
 		if (samplesWithIndex.track.type === 'audio') {
-			await options.parserState.onAudioSample(
+			await state.onAudioSample(
 				samplesWithIndex.track.trackId,
 				convertAudioOrVideoSampleToWebCodecsTimestamps(
 					{
@@ -153,7 +153,7 @@ export const parseMdat = async ({
 		}
 
 		if (samplesWithIndex.track.type === 'video') {
-			await options.parserState.onVideoSample(
+			await state.onVideoSample(
 				samplesWithIndex.track.trackId,
 				convertAudioOrVideoSampleToWebCodecsTimestamps(
 					{

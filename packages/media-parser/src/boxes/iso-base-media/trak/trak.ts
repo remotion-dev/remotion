@@ -2,7 +2,7 @@ import type {BufferIterator} from '../../../buffer-iterator';
 import type {LogLevel} from '../../../log';
 import type {Options, ParseMediaFields} from '../../../options';
 import type {AnySegment, IsoBaseMediaBox} from '../../../parse-result';
-import type {ParserContext} from '../../../parser-context';
+import type {ParserState} from '../../../state/parser-state';
 import type {BaseBox} from '../base-type';
 import {parseIsoBaseMediaBoxes} from '../process-box';
 
@@ -15,7 +15,7 @@ export const parseTrak = async ({
 	data,
 	size,
 	offsetAtStart,
-	options,
+	state: options,
 	signal,
 	logLevel,
 	fields,
@@ -23,7 +23,7 @@ export const parseTrak = async ({
 	data: BufferIterator;
 	size: number;
 	offsetAtStart: number;
-	options: ParserContext;
+	state: ParserState;
 	signal: AbortSignal | null;
 	logLevel: LogLevel;
 	fields: Options<ParseMediaFields>;
@@ -34,7 +34,7 @@ export const parseTrak = async ({
 		maxBytes: size - (data.counter.getOffset() - offsetAtStart),
 		allowIncompleteBoxes: false,
 		initialBoxes,
-		options,
+		state: options,
 		continueMdat: false,
 		signal,
 		logLevel,

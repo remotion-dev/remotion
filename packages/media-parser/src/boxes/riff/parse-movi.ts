@@ -1,7 +1,7 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
 import type {RiffStructure} from '../../parse-result';
-import type {ParserContext} from '../../parser-context';
+import type {ParserState} from '../../state/parser-state';
 import {getKeyFrameOrDeltaFromAvcInfo} from '../avc/key';
 import {parseAvc} from '../avc/parse-avc';
 import type {RiffResult} from './expect-riff-box';
@@ -28,13 +28,13 @@ const getStrhForIndex = (
 
 export const handleChunk = async ({
 	iterator,
-	options,
+	state,
 	structure,
 	ckId,
 	ckSize,
 }: {
 	iterator: BufferIterator;
-	options: ParserContext;
+	state: ParserState;
 	structure: RiffStructure;
 	ckId: string;
 	ckSize: number;
@@ -45,7 +45,7 @@ export const handleChunk = async ({
 		const strh = getStrhForIndex(structure, trackId);
 
 		const samplesPerSecond = strh.rate / strh.scale;
-		const nthSample = options.parserState.getSamplesForTrack(trackId);
+		const nthSample = state.getSamplesForTrack(trackId);
 		const timeInSec = nthSample / samplesPerSecond;
 		const timestamp = timeInSec;
 
@@ -56,15 +56,15 @@ export const handleChunk = async ({
 		const avcProfile = infos.find((i) => i.type === 'avc-profile');
 		const ppsProfile = infos.find((i) => i.type === 'avc-pps');
 		if (avcProfile && ppsProfile) {
-			await options.parserState.onProfile({pps: ppsProfile, sps: avcProfile});
-			options.parserState.tracks.setIsDone();
+			await state.onProfile({pps: ppsProfile, sps: avcProfile});
+			state.tracks.setIsDone();
 		}
 
 		// We must also NOT pass a duration because if the the next sample is 0,
 		// this sample would be longer. Chrome will pad it with silence.
 		// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished
 		if (data.length > 0) {
-			await options.parserState.onVideoSample(
+			await state.onVideoSample(
 				trackId,
 				convertAudioOrVideoSampleToWebCodecsTimestamps(
 					{
@@ -90,7 +90,7 @@ export const handleChunk = async ({
 		const strh = getStrhForIndex(structure, trackId);
 
 		const samplesPerSecond = strh.rate / strh.scale;
-		const nthSample = options.parserState.getSamplesForTrack(trackId);
+		const nthSample = state.getSamplesForTrack(trackId);
 		const timeInSec = nthSample / samplesPerSecond;
 		const timestamp = timeInSec;
 
@@ -104,7 +104,7 @@ export const handleChunk = async ({
 		// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished
 
 		if (data.length > 0) {
-			await options.parserState.onAudioSample(
+			await state.onAudioSample(
 				trackId,
 				convertAudioOrVideoSampleToWebCodecsTimestamps(
 					{
@@ -126,12 +126,12 @@ export const handleChunk = async ({
 export const parseMovi = async ({
 	iterator,
 	maxOffset,
-	options,
+	state,
 	structure,
 }: {
 	iterator: BufferIterator;
 	maxOffset: number;
-	options: ParserContext;
+	state: ParserState;
 	structure: RiffStructure;
 }): Promise<RiffResult> => {
 	while (iterator.counter.getOffset() < maxOffset) {
@@ -140,7 +140,7 @@ export const parseMovi = async ({
 				type: 'incomplete',
 				continueParsing: () => {
 					return Promise.resolve(
-						parseMovi({iterator, maxOffset, options, structure}),
+						parseMovi({iterator, maxOffset, state, structure}),
 					);
 				},
 			};
@@ -149,10 +149,7 @@ export const parseMovi = async ({
 		const ckId = iterator.getByteString(4);
 		const ckSize = iterator.getUint32Le();
 
-		if (
-			options.parserState.maySkipVideoData() &&
-			options.parserState.getAvcProfile()
-		) {
+		if (state.maySkipVideoData() && state.getAvcProfile()) {
 			return {
 				type: 'complete',
 				box: {
@@ -168,13 +165,13 @@ export const parseMovi = async ({
 				type: 'incomplete',
 				continueParsing: () => {
 					return Promise.resolve(
-						parseMovi({iterator, maxOffset, options, structure}),
+						parseMovi({iterator, maxOffset, state, structure}),
 					);
 				},
 			};
 		}
 
-		await handleChunk({iterator, options, structure, ckId, ckSize});
+		await handleChunk({iterator, state, structure, ckId, ckSize});
 
 		// Discard added zeroes
 		while (
@@ -206,7 +203,7 @@ export const parseMovi = async ({
 		type: 'incomplete',
 		continueParsing: () => {
 			return Promise.resolve(
-				parseMovi({iterator, maxOffset, options, structure}),
+				parseMovi({iterator, maxOffset, state, structure}),
 			);
 		},
 	};

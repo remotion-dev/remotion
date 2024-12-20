@@ -6,7 +6,7 @@ import type {
 	IsoBaseMediaBox,
 	ParseResult,
 } from '../../../parse-result';
-import type {ParserContext} from '../../../parser-context';
+import type {ParserState} from '../../../state/parser-state';
 import {parseIsoBaseMediaBoxes} from '../process-box';
 
 type SampleBase = {
@@ -126,13 +126,13 @@ const audioTags = [
 
 export const processSample = async ({
 	iterator,
-	options,
+	state: options,
 	signal,
 	logLevel,
 	fields,
 }: {
 	iterator: BufferIterator;
-	options: ParserContext;
+	state: ParserState;
 	signal: AbortSignal | null;
 	logLevel: LogLevel;
 	fields: Options<ParseMediaFields>;
@@ -194,7 +194,7 @@ export const processSample = async ({
 				allowIncompleteBoxes: false,
 				maxBytes: bytesRemainingInBox,
 				initialBoxes,
-				options,
+				state: options,
 				continueMdat: false,
 				signal,
 				logLevel,
@@ -251,7 +251,7 @@ export const processSample = async ({
 				allowIncompleteBoxes: false,
 				maxBytes: bytesRemainingInBox,
 				initialBoxes,
-				options,
+				state: options,
 				continueMdat: false,
 				signal,
 				logLevel,
@@ -310,7 +310,7 @@ export const processSample = async ({
 				allowIncompleteBoxes: false,
 				maxBytes: bytesRemainingInBox,
 				initialBoxes: [],
-				options,
+				state: options,
 				continueMdat: false,
 				signal,
 				logLevel,
@@ -376,7 +376,7 @@ export const processSample = async ({
 						allowIncompleteBoxes: false,
 						maxBytes: bytesRemainingInBox,
 						initialBoxes,
-						options,
+						state: options,
 						continueMdat: false,
 						signal,
 						logLevel,
@@ -420,14 +420,14 @@ export const processSample = async ({
 export const parseSamples = async ({
 	iterator,
 	maxBytes,
-	options,
+	state,
 	signal,
 	logLevel,
 	fields,
 }: {
 	iterator: BufferIterator;
 	maxBytes: number;
-	options: ParserContext;
+	state: ParserState;
 	signal: AbortSignal | null;
 	logLevel: LogLevel;
 	fields: Options<ParseMediaFields>;
@@ -441,7 +441,7 @@ export const parseSamples = async ({
 	) {
 		const {sample} = await processSample({
 			iterator,
-			options,
+			state,
 			signal,
 			logLevel,
 			fields,

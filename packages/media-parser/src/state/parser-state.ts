@@ -11,7 +11,9 @@ import type {Options, ParseMediaFields} from '../options';
 import type {
 	AudioOrVideoSample,
 	OnAudioSample,
+	OnAudioTrack,
 	OnVideoSample,
+	OnVideoTrack,
 } from '../webcodec-sample-types';
 import {makeCanSkipTracksState} from './can-skip-tracks';
 import {makeTracksSectionState} from './has-tracks-section';
@@ -36,12 +38,22 @@ export const makeParserState = ({
 	signal,
 	getIterator,
 	fields,
+	nextTrackIndex,
+	nullifySamples,
+	onAudioTrack,
+	onVideoTrack,
+	supportsContentRange,
 }: {
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
 	signal: AbortSignal | undefined;
 	getIterator: () => BufferIterator | null;
 	fields: Options<ParseMediaFields>;
+	nullifySamples: boolean;
+	supportsContentRange: boolean;
+	nextTrackIndex: number;
+	onAudioTrack: OnAudioTrack | null;
+	onVideoTrack: OnVideoTrack | null;
 }) => {
 	const trackEntries: Record<number, TrackInfo> = {};
 
@@ -245,6 +257,11 @@ export const makeParserState = ({
 		canSkipTracksState,
 		keyframes,
 		structure,
+		nextTrackIndex,
+		nullifySamples,
+		onAudioTrack,
+		onVideoTrack,
+		supportsContentRange,
 	};
 };
 

@@ -1,6 +1,6 @@
 import {type BufferIterator} from '../../buffer-iterator';
-import type {ParserContext} from '../../parser-context';
 import {registerTrack} from '../../register-track';
+import type {ParserState} from '../../state/parser-state';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 import {getSampleFromBlock} from './get-sample-from-block';
 import {getTrack} from './make-track';
@@ -13,7 +13,7 @@ export type Prettify<T> = {
 
 export const parseEbml = async (
 	iterator: BufferIterator,
-	parserContext: ParserContext,
+	parserContext: ParserState,
 ): Promise<Prettify<PossibleEbml>> => {
 	const hex = iterator.getMatroskaSegmentId();
 	if (hex === null) {
@@ -151,18 +151,18 @@ export const postprocessEbml = async ({
 }: {
 	offset: number;
 	ebml: Prettify<PossibleEbml>;
-	parserContext: ParserContext;
+	parserContext: ParserState;
 }): Promise<Prettify<PossibleEbml>> => {
 	if (ebml.type === 'TimestampScale') {
-		parserContext.parserState.setTimescale(ebml.value.value);
+		parserContext.setTimescale(ebml.value.value);
 	}
 
 	if (ebml.type === 'TrackEntry') {
-		parserContext.parserState.onTrackEntrySegment(ebml);
+		parserContext.onTrackEntrySegment(ebml);
 
 		const track = getTrack({
 			track: ebml,
-			timescale: parserContext.parserState.getTimescale(),
+			timescale: parserContext.getTimescale(),
 		});
 
 		if (track) {
@@ -175,14 +175,14 @@ export const postprocessEbml = async ({
 	}
 
 	if (ebml.type === 'Timestamp') {
-		parserContext.parserState.setTimestampOffset(offset, ebml.value.value);
+		parserContext.setTimestampOffset(offset, ebml.value.value);
 	}
 
 	if (ebml.type === 'Block' || ebml.type === 'SimpleBlock') {
 		const sample = getSampleFromBlock(ebml, parserContext, offset);
 
 		if (sample.type === 'video-sample' && parserContext.nullifySamples) {
-			await parserContext.parserState.onVideoSample(
+			await parserContext.onVideoSample(
 				sample.videoSample.trackId,
 				sample.videoSample,
 			);
@@ -194,7 +194,7 @@ export const postprocessEbml = async ({
 		}
 
 		if (sample.type === 'audio-sample' && parserContext.nullifySamples) {
-			await parserContext.parserState.onAudioSample(
+			await parserContext.onAudioSample(
 				sample.audioSample.trackId,
 				sample.audioSample,
 			);
@@ -241,7 +241,7 @@ export const postprocessEbml = async ({
 				...sample.partialVideoSample,
 				type: hasReferenceBlock ? 'delta' : 'key',
 			};
-			await parserContext.parserState.onVideoSample(
+			await parserContext.onVideoSample(
 				sample.partialVideoSample.trackId,
 				completeFrame,
 			);

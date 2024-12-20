@@ -1,7 +1,7 @@
 import type {BufferIterator} from '../../../buffer-iterator';
 import type {Options, ParseMediaFields} from '../../../options';
 import type {AnySegment, IsoBaseMediaBox} from '../../../parse-result';
-import type {ParserContext} from '../../../parser-context';
+import type {ParserState} from '../../../state/parser-state';
 import type {BaseBox} from '../base-type';
 import {parseIsoBaseMediaBoxes} from '../process-box';
 
@@ -16,14 +16,14 @@ export const parseMebx = async ({
 	iterator,
 	offset,
 	size,
-	options,
+	state,
 	signal,
 	fields,
 }: {
 	iterator: BufferIterator;
 	offset: number;
 	size: number;
-	options: ParserContext;
+	state: ParserState;
 	signal: AbortSignal | null;
 	fields: Options<ParseMediaFields>;
 }): Promise<MebxBox> => {
@@ -38,7 +38,7 @@ export const parseMebx = async ({
 		maxBytes: iterator.counter.getOffset() - offset,
 		allowIncompleteBoxes: false,
 		initialBoxes: boxes,
-		options,
+		state,
 		continueMdat: false,
 		signal,
 		logLevel: 'info',

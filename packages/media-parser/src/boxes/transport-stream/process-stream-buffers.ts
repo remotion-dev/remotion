@@ -1,5 +1,5 @@
 import type {TransportStreamStructure} from '../../parse-result';
-import type {ParserContext} from '../../parser-context';
+import type {ParserState} from '../../state/parser-state';
 import {handleAacPacket} from './handle-aac-packet';
 import {handleAvcPacket} from './handle-avc-packet';
 import type {PacketPes} from './parse-pes';
@@ -19,7 +19,7 @@ export const processStreamBuffer = async ({
 	structure,
 }: {
 	streamBuffer: TransportStreamPacketBuffer;
-	options: ParserContext;
+	options: ParserState;
 	programId: number;
 	structure: TransportStreamStructure;
 }) => {
@@ -30,18 +30,18 @@ export const processStreamBuffer = async ({
 
 	// 27 = AVC / H.264 Video
 	if (stream.streamType === 27) {
-		await handleAvcPacket({programId, streamBuffer, options});
+		await handleAvcPacket({programId, streamBuffer, state: options});
 	}
 	// 15 = AAC / ADTS
 	else if (stream.streamType === 15) {
-		await handleAacPacket({streamBuffer, options, programId});
+		await handleAacPacket({streamBuffer, state: options, programId});
 	}
 
-	if (!options.parserState.tracks.hasAllTracks()) {
-		const tracksRegistered = options.parserState.tracks.getTracks().length;
+	if (!options.tracks.hasAllTracks()) {
+		const tracksRegistered = options.tracks.getTracks().length;
 		const {streams} = findProgramMapTableOrThrow(structure);
 		if (streams.length === tracksRegistered) {
-			options.parserState.tracks.setIsDone();
+			options.tracks.setIsDone();
 		}
 	}
 };
@@ -52,7 +52,7 @@ export const processFinalStreamBuffers = async ({
 	structure,
 }: {
 	streamBufferMap: StreamBufferMap;
-	parserContext: ParserContext;
+	parserContext: ParserState;
 	structure: TransportStreamStructure;
 }) => {
 	for (const [programId, buffer] of streamBufferMap) {

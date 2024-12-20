@@ -1,5 +1,5 @@
 import {getArrayBufferIterator} from '../../buffer-iterator';
-import type {ParserContext} from '../../parser-context';
+import type {ParserState} from '../../state/parser-state';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 import type {BlockSegment, SimpleBlockSegment} from './segments/all-segments';
 import {matroskaElements} from './segments/all-segments';
@@ -24,7 +24,7 @@ type SampleResult =
 
 export const getSampleFromBlock = (
 	ebml: BlockSegment | SimpleBlockSegment,
-	parserContext: ParserContext,
+	parserContext: ParserState,
 	offset: number,
 ): SampleResult => {
 	const iterator = getArrayBufferIterator(ebml.value, ebml.value.length);
@@ -43,12 +43,11 @@ export const getSampleFromBlock = (
 	);
 
 	const {codec, trackTimescale} =
-		parserContext.parserState.getTrackInfoByNumber(trackNumber);
+		parserContext.getTrackInfoByNumber(trackNumber);
 
-	const clusterOffset =
-		parserContext.parserState.getTimestampOffsetForByteOffset(offset);
+	const clusterOffset = parserContext.getTimestampOffsetForByteOffset(offset);
 
-	const timescale = parserContext.parserState.getTimescale();
+	const timescale = parserContext.getTimescale();
 
 	if (clusterOffset === undefined) {
 		throw new Error('Could not find offset for byte offset ' + offset);

@@ -14,7 +14,7 @@ import {
 import {Log, type LogLevel} from './log';
 import type {Options, ParseMediaFields} from './options';
 import type {IsoBaseMediaBox, ParseResult} from './parse-result';
-import type {ParserContext} from './parser-context';
+import type {ParserState} from './state/parser-state';
 
 export type PartialMdatBox = {
 	type: 'partial-mdat-box';
@@ -45,7 +45,7 @@ export const parseVideo = ({
 	name,
 }: {
 	iterator: BufferIterator;
-	options: ParserContext;
+	options: ParserState;
 	signal: AbortSignal | null;
 	logLevel: LogLevel;
 	fields: Options<ParseMediaFields>;
@@ -61,18 +61,18 @@ export const parseVideo = ({
 
 	if (fileType.type === 'riff') {
 		Log.verbose(logLevel, 'Detected RIFF container');
-		options.parserState.structure.setStructure({
+		options.structure.setStructure({
 			type: 'riff',
 			boxes: [],
 		});
 
-		return Promise.resolve(parseRiff({iterator, options, fields}));
+		return Promise.resolve(parseRiff({iterator, state: options, fields}));
 	}
 
 	if (fileType.type === 'iso-base-media') {
 		Log.verbose(logLevel, 'Detected ISO Base Media container');
 		const initialBoxes: IsoBaseMediaBox[] = [];
-		options.parserState.structure.setStructure({
+		options.structure.setStructure({
 			type: 'iso-base-media',
 			boxes: initialBoxes,
 		});
@@ -82,7 +82,7 @@ export const parseVideo = ({
 			maxBytes: Infinity,
 			allowIncompleteBoxes: true,
 			initialBoxes,
-			options,
+			state: options,
 			continueMdat: false,
 			signal,
 			logLevel,
@@ -92,7 +92,7 @@ export const parseVideo = ({
 
 	if (fileType.type === 'webm') {
 		Log.verbose(logLevel, 'Detected Matroska container');
-		options.parserState.structure.setStructure({
+		options.structure.setStructure({
 			boxes: [],
 			type: 'matroska',
 		});
@@ -101,7 +101,7 @@ export const parseVideo = ({
 
 	if (fileType.type === 'transport-stream') {
 		Log.verbose(logLevel, 'Detected MPEG-2 Transport Stream');
-		options.parserState.structure.setStructure({
+		options.structure.setStructure({
 			boxes: [],
 			type: 'transport-stream',
 		});

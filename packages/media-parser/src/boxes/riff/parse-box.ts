@@ -4,11 +4,11 @@ import {getTracks} from '../../get-tracks';
 import {hasAllInfo} from '../../has-all-info';
 import type {Options, ParseMediaFields} from '../../options';
 import type {ParseResult, RiffStructure} from '../../parse-result';
-import type {ParserContext} from '../../parser-context';
 import {
 	registerTrack,
 	registerVideoTrackWhenProfileIsAvailable,
 } from '../../register-track';
+import type {ParserState} from '../../state/parser-state';
 import type {RiffResult} from './expect-riff-box';
 import {expectRiffBox} from './expect-riff-box';
 import {
@@ -23,13 +23,13 @@ const continueAfterRiffBoxResult = ({
 	structure,
 	iterator,
 	maxOffset,
-	options,
+	state: options,
 }: {
 	result: RiffResult;
 	structure: RiffStructure;
 	iterator: BufferIterator;
 	maxOffset: number;
-	options: ParserContext;
+	state: ParserState;
 }): Promise<ParseResult> => {
 	if (result.type === 'incomplete') {
 		return Promise.resolve({
@@ -41,7 +41,7 @@ const continueAfterRiffBoxResult = ({
 						structure,
 						iterator,
 						maxOffset,
-						options,
+						state: options,
 					}),
 				);
 			},
@@ -54,19 +54,19 @@ const continueAfterRiffBoxResult = ({
 		structure.boxes.push(result.box);
 	}
 
-	return parseRiffBody({iterator, maxOffset, options, structure});
+	return parseRiffBody({iterator, maxOffset, state: options, structure});
 };
 
 export const parseRiffBody = async ({
 	iterator,
 	structure,
 	maxOffset,
-	options,
+	state,
 }: {
 	iterator: BufferIterator;
 	structure: RiffStructure;
 	maxOffset: number;
-	options: ParserContext;
+	state: ParserState;
 }): Promise<ParseResult> => {
 	while (
 		iterator.bytesRemaining() > 0 &&
@@ -74,7 +74,7 @@ export const parseRiffBody = async ({
 	) {
 		const result = await expectRiffBox({
 			iterator,
-			options,
+			state,
 			structure,
 		});
 		if (result.type === 'complete' && result.skipTo !== null) {
@@ -86,7 +86,7 @@ export const parseRiffBody = async ({
 						continueAfterRiffBoxResult({
 							iterator,
 							maxOffset,
-							options,
+							state,
 							result,
 							structure,
 						}),
@@ -103,7 +103,7 @@ export const parseRiffBody = async ({
 						continueAfterRiffBoxResult({
 							iterator,
 							maxOffset,
-							options,
+							state,
 							result: await result.continueParsing(),
 							structure,
 						}),
@@ -120,15 +120,15 @@ export const parseRiffBody = async ({
 		structure.boxes.push(result.box);
 		// When parsing an AVI
 		if (result.box.type === 'list-box' && result.box.listType === 'hdrl') {
-			const tracks = getTracks(structure, options.parserState);
+			const tracks = getTracks(structure, state);
 			if (!tracks.videoTracks.some((t) => t.codec === TO_BE_OVERRIDDEN_LATER)) {
-				options.parserState.tracks.setIsDone();
+				state.tracks.setIsDone();
 			}
 		}
 
 		// When parsing a WAV
 		if (result.box.type === 'wave-format-box') {
-			options.parserState.tracks.setIsDone();
+			state.tracks.setIsDone();
 		}
 
 		if (
@@ -141,32 +141,32 @@ export const parseRiffBody = async ({
 				throw new Error('strh or strf box missing');
 			}
 
-			if (strf.type === 'strf-box-audio' && options.onAudioTrack) {
+			if (strf.type === 'strf-box-audio' && state.onAudioTrack) {
 				const audioTrack = makeAviAudioTrack({
-					index: options.nextTrackIndex,
+					index: state.nextTrackIndex,
 					strf,
 				});
 				await registerTrack({
-					options,
+					options: state,
 					track: audioTrack,
 					container: 'avi',
 				});
 			}
 
-			if (options.onVideoTrack && strf.type === 'strf-box-video') {
+			if (state.onVideoTrack && strf.type === 'strf-box-video') {
 				const videoTrack = makeAviVideoTrack({
 					strh,
-					index: options.nextTrackIndex,
+					index: state.nextTrackIndex,
 					strf,
 				});
 				registerVideoTrackWhenProfileIsAvailable({
-					options,
+					options: state,
 					track: videoTrack,
 					container: 'avi',
 				});
 			}
 
-			options.nextTrackIndex++;
+			state.nextTrackIndex++;
 		}
 	}
 
@@ -177,11 +177,11 @@ export const parseRiffBody = async ({
 
 export const parseRiff = ({
 	iterator,
-	options,
+	state,
 	fields,
 }: {
 	iterator: BufferIterator;
-	options: ParserContext;
+	state: ParserState;
 	fields: Options<ParseMediaFields>;
 }): Promise<ParseResult> => {
 	const riff = iterator.getByteString(4);
@@ -189,7 +189,7 @@ export const parseRiff = ({
 		throw new Error('Not a RIFF file');
 	}
 
-	const structure = options.parserState.structure.getStructure();
+	const structure = state.structure.getStructure();
 	if (structure.type !== 'riff') {
 		throw new Error('Structure is not a RIFF structure');
 	}
@@ -202,12 +202,17 @@ export const parseRiff = ({
 
 	structure.boxes.push({type: 'riff-header', fileSize: size, fileType});
 
-	if (hasAllInfo({fields, state: options.parserState})) {
+	if (hasAllInfo({fields, state})) {
 		return Promise.resolve({
 			status: 'done',
 			segments: structure,
 		});
 	}
 
-	return parseRiffBody({iterator, maxOffset: Infinity, options, structure});
+	return parseRiffBody({
+		iterator,
+		maxOffset: Infinity,
+		state,
+		structure,
+	});
 };

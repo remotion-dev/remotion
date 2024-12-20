@@ -1,6 +1,6 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import type {TransportStreamStructure} from '../../parse-result';
-import type {ParserContext} from '../../parser-context';
+import type {ParserState} from '../../state/parser-state';
 import {combineUint8Arrays} from '../webm/make-header';
 import {readAdtsHeader} from './adts-header';
 import {getRestOfPacket} from './discard-rest-of-packet';
@@ -25,7 +25,7 @@ const parseAdtsStream = async ({
 	streamBuffers: StreamBufferMap;
 	nextPesHeader: PacketPes;
 	structure: TransportStreamStructure;
-	options: ParserContext;
+	options: ParserState;
 }) => {
 	const streamBuffer = streamBuffers.get(transportStreamEntry.pid);
 	if (!streamBuffer) {
@@ -81,7 +81,7 @@ const parseAvcStream = async ({
 	streamBuffers: StreamBufferMap;
 	programId: number;
 	nextPesHeader: PacketPes;
-	parserContext: ParserContext;
+	parserContext: ParserState;
 	structure: TransportStreamStructure;
 }) => {
 	const indexOfSeparator = findNextSeparator(
@@ -149,7 +149,7 @@ export const parseStream = ({
 	iterator: BufferIterator;
 	transportStreamEntry: TransportStreamEntry;
 	streamBuffers: StreamBufferMap;
-	parserContext: ParserContext;
+	parserContext: ParserState;
 	programId: number;
 	structure: TransportStreamStructure;
 	nextPesHeader: PacketPes;
