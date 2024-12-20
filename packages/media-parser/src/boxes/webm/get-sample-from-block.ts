@@ -44,9 +44,9 @@ export const getSampleFromBlock = (
 
 	const {codec, trackTimescale} = state.webm.getTrackInfoByNumber(trackNumber);
 
-	const clusterOffset = state.getTimestampOffsetForByteOffset(offset);
+	const clusterOffset = state.webm.getTimestampOffsetForByteOffset(offset);
 
-	const timescale = state.getTimescale();
+	const timescale = state.webm.getTimescale();
 
 	if (clusterOffset === undefined) {
 		throw new Error('Could not find offset for byte offset ' + offset);

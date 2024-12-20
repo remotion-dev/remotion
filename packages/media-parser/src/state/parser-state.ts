@@ -40,52 +40,10 @@ export const makeParserState = ({
 	onAudioTrack: OnAudioTrack | null;
 	onVideoTrack: OnVideoTrack | null;
 }) => {
-	const keyframes = keyframesState();
-	const structure = structureState();
-
-	let timescale: number | null = null;
 	let skippedBytes: number = 0;
-
-	const getTimescale = () => {
-		// https://www.matroska.org/technical/notes.html
-		// When using the default value of TimestampScale of “1,000,000”, one Segment Tick represents one millisecond.
-		if (timescale === null) {
-			return 1_000_000;
-		}
-
-		return timescale;
-	};
 
 	const increaseSkippedBytes = (bytes: number) => {
 		skippedBytes += bytes;
-	};
-
-	const setTimescale = (newTimescale: number) => {
-		timescale = newTimescale;
-	};
-
-	const timestampMap = new Map<number, number>();
-
-	const setTimestampOffset = (byteOffset: number, timestamp: number) => {
-		timestampMap.set(byteOffset, timestamp);
-	};
-
-	const getTimestampOffsetForByteOffset = (byteOffset: number) => {
-		const entries = Array.from(timestampMap.entries());
-		const sortedByByteOffset = entries
-			.sort((a, b) => {
-				return a[0] - b[0];
-			})
-			.reverse();
-		for (const [offset, timestamp] of sortedByByteOffset) {
-			if (offset >= byteOffset) {
-				continue;
-			}
-
-			return timestamp;
-		}
-
-		return timestampMap.get(byteOffset);
 	};
 
 	const canSkipTracksState = makeCanSkipTracksState({
@@ -93,16 +51,10 @@ export const makeParserState = ({
 		fields,
 		hasVideoTrackHandlers,
 	});
-	const riff = riffSpecificState();
-	const sample = sampleCallback(canSkipTracksState, signal);
 
 	return {
-		riff,
-		sample,
-		setTimestampOffset,
-		getTimestampOffsetForByteOffset,
-		getTimescale,
-		setTimescale,
+		riff: riffSpecificState(),
+		sample: sampleCallback(canSkipTracksState, signal),
 		getInternalStats: (): InternalStats => ({
 			skippedBytes,
 			finalCursorOffset: getIterator()?.counter.getOffset() ?? 0,
@@ -110,8 +62,8 @@ export const makeParserState = ({
 		getSkipBytes: () => skippedBytes,
 		increaseSkippedBytes,
 		canSkipTracksState,
-		keyframes,
-		structure,
+		keyframes: keyframesState(),
+		structure: structureState(),
 		nullifySamples,
 		onAudioTrack,
 		onVideoTrack,

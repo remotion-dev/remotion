@@ -170,7 +170,7 @@ const getTracksFromMa = (
 
 	const matroskaTracks = getTracksFromMatroska(
 		mainSegment,
-		state.getTimescale(),
+		state.webm.getTimescale(),
 	);
 
 	for (const track of matroskaTracks) {

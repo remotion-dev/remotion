@@ -154,7 +154,7 @@ export const postprocessEbml = async ({
 	state: ParserState;
 }): Promise<Prettify<PossibleEbml>> => {
 	if (ebml.type === 'TimestampScale') {
-		state.setTimescale(ebml.value.value);
+		state.webm.setTimescale(ebml.value.value);
 	}
 
 	if (ebml.type === 'TrackEntry') {
@@ -162,7 +162,7 @@ export const postprocessEbml = async ({
 
 		const track = getTrack({
 			track: ebml,
-			timescale: state.getTimescale(),
+			timescale: state.webm.getTimescale(),
 		});
 
 		if (track) {
@@ -175,7 +175,7 @@ export const postprocessEbml = async ({
 	}
 
 	if (ebml.type === 'Timestamp') {
-		state.setTimestampOffset(offset, ebml.value.value);
+		state.webm.setTimestampOffset(offset, ebml.value.value);
 	}
 
 	if (ebml.type === 'Block' || ebml.type === 'SimpleBlock') {
