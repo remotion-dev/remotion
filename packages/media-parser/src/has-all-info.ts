@@ -86,7 +86,7 @@ export const getAvailableInfo = ({
 		}
 
 		if (key === 'keyframes') {
-			return Boolean(structure && state.keyframes.getHasKeyframes(structure));
+			return Boolean(structure && state.keyframes.getHasKeyframes());
 		}
 
 		throw new Error(`Unknown key: ${key satisfies never}`);

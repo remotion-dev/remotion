@@ -45,6 +45,8 @@ export const makeParserState = ({
 		skippedBytes += bytes;
 	};
 
+	const structure = structureState();
+
 	return {
 		riff: riffSpecificState(),
 		callbacks: sampleCallback({
@@ -59,8 +61,8 @@ export const makeParserState = ({
 		}),
 		getSkipBytes: () => skippedBytes,
 		increaseSkippedBytes,
-		keyframes: keyframesState(),
-		structure: structureState(),
+		keyframes: keyframesState(structure.getStructure),
+		structure,
 		nullifySamples,
 		onAudioTrack,
 		onVideoTrack,

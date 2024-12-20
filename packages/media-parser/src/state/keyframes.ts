@@ -3,12 +3,13 @@ import {isoBaseMediaHasTracks} from '../get-tracks';
 import type {MediaParserKeyframe} from '../options';
 import type {Structure} from '../parse-result';
 
-export const keyframesState = () => {
+export const keyframesState = (getStructure: () => Structure) => {
 	let hasKeyframes = false;
 	const keyframes: MediaParserKeyframe[] = [];
 
 	return {
-		getHasKeyframes: (structure: Structure) => {
+		getHasKeyframes: () => {
+			const structure = getStructure();
 			if (structure.type === 'iso-base-media') {
 				isoBaseMediaHasTracks(structure);
 			}
@@ -18,7 +19,8 @@ export const keyframesState = () => {
 		setHasKeyframes: (value: boolean) => {
 			hasKeyframes = value;
 		},
-		getKeyframes: (structure: Structure): MediaParserKeyframe[] => {
+		getKeyframes: (): MediaParserKeyframe[] => {
+			const structure = getStructure();
 			if (structure.type === 'iso-base-media') {
 				return getKeyframesFromIsoBaseMedia(structure);
 			}
