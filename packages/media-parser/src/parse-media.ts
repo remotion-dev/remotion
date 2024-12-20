@@ -77,6 +77,7 @@ export const parseMedia: ParseMedia = async function <
 		tracks: false,
 		videoCodec: false,
 		unrotatedDimensions: false,
+		keyframes: false,
 	};
 
 	const supportsContentRange =

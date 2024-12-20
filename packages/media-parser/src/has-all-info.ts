@@ -86,6 +86,10 @@ export const getAvailableInfo = ({
 			return false;
 		}
 
+		if (key === 'keyframes') {
+			return state.keyframes.getHasKeyframes();
+		}
+
 		throw new Error(`Unknown key: ${key satisfies never}`);
 	});
 

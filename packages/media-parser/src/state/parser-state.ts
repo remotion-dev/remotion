@@ -15,6 +15,7 @@ import type {
 } from '../webcodec-sample-types';
 import {makeCanSkipTracksState} from './can-skip-tracks';
 import {makeTracksSectionState} from './has-tracks-section';
+import {keyframesState} from './keyframes';
 
 export type InternalStats = {
 	skippedBytes: number;
@@ -42,6 +43,8 @@ export const makeParserState = ({
 	fields: Options<ParseMediaFields>;
 }) => {
 	const trackEntries: Record<number, TrackInfo> = {};
+
+	const keyframes = keyframesState();
 
 	const onTrackEntrySegment: OnTrackEntrySegment = (trackEntry) => {
 		const trackId = getTrackId(trackEntry);
@@ -238,6 +241,7 @@ export const makeParserState = ({
 		},
 		tracks: tracksState,
 		canSkipTracksState,
+		keyframes,
 	};
 };
 

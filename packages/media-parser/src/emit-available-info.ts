@@ -302,6 +302,19 @@ export const emitAvailableInfo = ({
 			continue;
 		}
 
+		if (key === 'keyframes') {
+			if (!emittedFields.keyframes && hasInfo.keyframes && parseResult) {
+				callbacks.onKeyframes?.(state.keyframes.getKeyframes());
+				if (fieldsInReturnValue.keyframes) {
+					returnValue.keyframes = state.keyframes.getKeyframes();
+				}
+
+				emittedFields.keyframes = true;
+			}
+
+			continue;
+		}
+
 		throw new Error(`Unhandled key: ${key satisfies never}`);
 	}
 };
