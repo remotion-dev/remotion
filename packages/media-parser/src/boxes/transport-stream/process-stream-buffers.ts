@@ -14,12 +14,12 @@ export type StreamBufferMap = Map<number, TransportStreamPacketBuffer>;
 
 export const processStreamBuffer = async ({
 	streamBuffer,
-	options,
+	state,
 	programId,
 	structure,
 }: {
 	streamBuffer: TransportStreamPacketBuffer;
-	options: ParserState;
+	state: ParserState;
 	programId: number;
 	structure: TransportStreamStructure;
 }) => {
@@ -30,18 +30,18 @@ export const processStreamBuffer = async ({
 
 	// 27 = AVC / H.264 Video
 	if (stream.streamType === 27) {
-		await handleAvcPacket({programId, streamBuffer, state: options});
+		await handleAvcPacket({programId, streamBuffer, state});
 	}
 	// 15 = AAC / ADTS
 	else if (stream.streamType === 15) {
-		await handleAacPacket({streamBuffer, state: options, programId});
+		await handleAacPacket({streamBuffer, state, programId});
 	}
 
-	if (!options.tracks.hasAllTracks()) {
-		const tracksRegistered = options.tracks.getTracks().length;
+	if (!state.tracks.hasAllTracks()) {
+		const tracksRegistered = state.tracks.getTracks().length;
 		const {streams} = findProgramMapTableOrThrow(structure);
 		if (streams.length === tracksRegistered) {
-			options.tracks.setIsDone();
+			state.tracks.setIsDone();
 		}
 	}
 };
@@ -59,7 +59,7 @@ export const processFinalStreamBuffers = async ({
 		if (buffer.buffer.byteLength > 0) {
 			await processStreamBuffer({
 				streamBuffer: buffer,
-				options: state,
+				state,
 				programId,
 				structure,
 			});

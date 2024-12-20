@@ -36,7 +36,7 @@ export type BoxAndNext =
 
 export const parseVideo = ({
 	iterator,
-	options,
+	state,
 	signal,
 	logLevel,
 	fields,
@@ -45,7 +45,7 @@ export const parseVideo = ({
 	name,
 }: {
 	iterator: BufferIterator;
-	options: ParserState;
+	state: ParserState;
 	signal: AbortSignal | null;
 	logLevel: LogLevel;
 	fields: Options<ParseMediaFields>;
@@ -61,18 +61,18 @@ export const parseVideo = ({
 
 	if (fileType.type === 'riff') {
 		Log.verbose(logLevel, 'Detected RIFF container');
-		options.structure.setStructure({
+		state.structure.setStructure({
 			type: 'riff',
 			boxes: [],
 		});
 
-		return Promise.resolve(parseRiff({iterator, state: options, fields}));
+		return Promise.resolve(parseRiff({iterator, state, fields}));
 	}
 
 	if (fileType.type === 'iso-base-media') {
 		Log.verbose(logLevel, 'Detected ISO Base Media container');
 		const initialBoxes: IsoBaseMediaBox[] = [];
-		options.structure.setStructure({
+		state.structure.setStructure({
 			type: 'iso-base-media',
 			boxes: initialBoxes,
 		});
@@ -82,7 +82,7 @@ export const parseVideo = ({
 			maxBytes: Infinity,
 			allowIncompleteBoxes: true,
 			initialBoxes,
-			state: options,
+			state,
 			continueMdat: false,
 			signal,
 			logLevel,
@@ -92,22 +92,22 @@ export const parseVideo = ({
 
 	if (fileType.type === 'webm') {
 		Log.verbose(logLevel, 'Detected Matroska container');
-		options.structure.setStructure({
+		state.structure.setStructure({
 			boxes: [],
 			type: 'matroska',
 		});
-		return parseWebm({counter: iterator, state: options, fields});
+		return parseWebm({counter: iterator, state, fields});
 	}
 
 	if (fileType.type === 'transport-stream') {
 		Log.verbose(logLevel, 'Detected MPEG-2 Transport Stream');
-		options.structure.setStructure({
+		state.structure.setStructure({
 			boxes: [],
 			type: 'transport-stream',
 		});
 		return parseTransportStream({
 			iterator,
-			state: options,
+			state,
 			streamBuffers: new Map(),
 			fields,
 			nextPesHeaderStore: makeNextPesHeaderStore(),

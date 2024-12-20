@@ -167,7 +167,7 @@ export const postprocessEbml = async ({
 
 		if (track) {
 			await registerTrack({
-				options: state,
+				state: state,
 				track,
 				container: 'webm',
 			});

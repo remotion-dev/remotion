@@ -175,7 +175,7 @@ export const parseMedia: ParseMedia = async function <
 		} else {
 			parseResult = await parseVideo({
 				iterator,
-				options: state,
+				state,
 				signal: signal ?? null,
 				logLevel,
 				fields,

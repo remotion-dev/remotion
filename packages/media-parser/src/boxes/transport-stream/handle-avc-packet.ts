@@ -62,7 +62,7 @@ export const handleAvcPacket = async ({
 			color: getVideoColorFromSps(spsAndPps.sps.spsData),
 		};
 
-		await registerTrack({track, options: state, container: 'transport-stream'});
+		await registerTrack({track, state: state, container: 'transport-stream'});
 	}
 
 	// sample for webcodecs needs to be in nano seconds

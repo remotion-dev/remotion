@@ -45,7 +45,7 @@ export const handleAacPacket = async ({
 		};
 		await registerTrack({
 			track,
-			options: state,
+			state: state,
 			container: 'transport-stream',
 		});
 	}

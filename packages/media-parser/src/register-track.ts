@@ -4,49 +4,43 @@ import type {ParseMediaContainer} from './options';
 import type {ParserState} from './state/parser-state';
 
 export const registerTrack = async ({
-	options,
+	state,
 	track,
 	container,
 }: {
-	options: ParserState;
+	state: ParserState;
 	track: Track;
 	container: ParseMediaContainer;
 }) => {
 	if (track.type === 'video') {
-		options.tracks.addTrack(track);
-		if (options.onVideoTrack) {
-			const callback = await options.onVideoTrack({track, container});
-			await options.registerVideoSampleCallback(
-				track.trackId,
-				callback ?? null,
-			);
+		state.tracks.addTrack(track);
+		if (state.onVideoTrack) {
+			const callback = await state.onVideoTrack({track, container});
+			await state.registerVideoSampleCallback(track.trackId, callback ?? null);
 		}
 	}
 
 	if (track.type === 'audio') {
-		options.tracks.addTrack(track);
-		if (options.onAudioTrack) {
-			const callback = await options.onAudioTrack({track, container});
-			await options.registerAudioSampleCallback(
-				track.trackId,
-				callback ?? null,
-			);
+		state.tracks.addTrack(track);
+		if (state.onAudioTrack) {
+			const callback = await state.onAudioTrack({track, container});
+			await state.registerAudioSampleCallback(track.trackId, callback ?? null);
 		}
 	}
 };
 
 export const registerVideoTrackWhenProfileIsAvailable = ({
-	options,
+	state,
 	track,
 	container,
 }: {
-	options: ParserState;
+	state: ParserState;
 	track: VideoTrack;
 	container: ParseMediaContainer;
 }) => {
-	options.registerOnAvcProfileCallback(async (profile) => {
+	state.registerOnAvcProfileCallback(async (profile) => {
 		await registerTrack({
-			options,
+			state,
 			track: addAvcProfileToTrack(track, profile),
 			container,
 		});

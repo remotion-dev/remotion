@@ -17,7 +17,7 @@ const parseAdtsStream = async ({
 	transportStreamEntry,
 	streamBuffers,
 	nextPesHeader,
-	options,
+	state,
 	structure,
 }: {
 	restOfPacket: Uint8Array;
@@ -25,7 +25,7 @@ const parseAdtsStream = async ({
 	streamBuffers: StreamBufferMap;
 	nextPesHeader: PacketPes;
 	structure: TransportStreamStructure;
-	options: ParserState;
+	state: ParserState;
 }) => {
 	const streamBuffer = streamBuffers.get(transportStreamEntry.pid);
 	if (!streamBuffer) {
@@ -55,7 +55,7 @@ const parseAdtsStream = async ({
 		await processStreamBuffer({
 			streamBuffer,
 			programId: transportStreamEntry.pid,
-			options,
+			state,
 			structure,
 		});
 
@@ -112,7 +112,7 @@ const parseAvcStream = async ({
 		const packet = restOfPacket.slice(0, indexOfSeparator);
 		streamBuffer.buffer = combineUint8Arrays([streamBuffer.buffer, packet]);
 		await processStreamBuffer({
-			options: state,
+			state,
 			streamBuffer,
 			programId,
 			structure,
@@ -173,7 +173,7 @@ export const parseStream = ({
 			transportStreamEntry,
 			streamBuffers,
 			nextPesHeader,
-			options: state,
+			state,
 			structure,
 		});
 	}
