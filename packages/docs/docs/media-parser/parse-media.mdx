@@ -146,6 +146,16 @@ The location of the video was shot. Either `null` if not available or:
 Returns an object of two two arrays `videoTracks` and `audioTracks`.  
 The data structure of them is not yet stable.
 
+#### `keyframes`
+
+An array of keyframes. Each keyframe has the following structure:
+
+- `presentationTimeInSeconds`: The time in seconds when the keyframe should be presented
+- `decodingTimeInSeconds`: The time in seconds when the keyframe should be decoded
+- `positionInBytes`: The position in bytes where the keyframe is located in the file
+- `sizeInBytes`: The size of the keyframe in bytes
+- `trackId`: The ID of the track the frame belongs to
+
 #### `unrotatedDimensions`
 
 _`{width: number, height: number}`_
