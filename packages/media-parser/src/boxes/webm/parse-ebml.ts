@@ -13,7 +13,7 @@ export type Prettify<T> = {
 
 export const parseEbml = async (
 	iterator: BufferIterator,
-	parserContext: ParserState,
+	state: ParserState,
 ): Promise<Prettify<PossibleEbml>> => {
 	const hex = iterator.getMatroskaSegmentId();
 	if (hex === null) {
@@ -115,12 +115,12 @@ export const parseEbml = async (
 			}
 
 			const offset = iterator.counter.getOffset();
-			const value = await parseEbml(iterator, parserContext);
+			const value = await parseEbml(iterator, state);
 			// eslint-disable-next-line @typescript-eslint/no-use-before-define
 			const remapped = await postprocessEbml({
 				offset,
 				ebml: value,
-				parserContext,
+				state,
 			});
 			children.push(remapped);
 
@@ -147,27 +147,27 @@ export const parseEbml = async (
 export const postprocessEbml = async ({
 	offset,
 	ebml,
-	parserContext,
+	state,
 }: {
 	offset: number;
 	ebml: Prettify<PossibleEbml>;
-	parserContext: ParserState;
+	state: ParserState;
 }): Promise<Prettify<PossibleEbml>> => {
 	if (ebml.type === 'TimestampScale') {
-		parserContext.setTimescale(ebml.value.value);
+		state.setTimescale(ebml.value.value);
 	}
 
 	if (ebml.type === 'TrackEntry') {
-		parserContext.onTrackEntrySegment(ebml);
+		state.onTrackEntrySegment(ebml);
 
 		const track = getTrack({
 			track: ebml,
-			timescale: parserContext.getTimescale(),
+			timescale: state.getTimescale(),
 		});
 
 		if (track) {
 			await registerTrack({
-				options: parserContext,
+				options: state,
 				track,
 				container: 'webm',
 			});
@@ -175,17 +175,14 @@ export const postprocessEbml = async ({
 	}
 
 	if (ebml.type === 'Timestamp') {
-		parserContext.setTimestampOffset(offset, ebml.value.value);
+		state.setTimestampOffset(offset, ebml.value.value);
 	}
 
 	if (ebml.type === 'Block' || ebml.type === 'SimpleBlock') {
-		const sample = getSampleFromBlock(ebml, parserContext, offset);
+		const sample = getSampleFromBlock(ebml, state, offset);
 
-		if (sample.type === 'video-sample' && parserContext.nullifySamples) {
-			await parserContext.onVideoSample(
-				sample.videoSample.trackId,
-				sample.videoSample,
-			);
+		if (sample.type === 'video-sample' && state.nullifySamples) {
+			await state.onVideoSample(sample.videoSample.trackId, sample.videoSample);
 			return {
 				type: 'Block',
 				value: new Uint8Array([]),
@@ -193,11 +190,8 @@ export const postprocessEbml = async ({
 			};
 		}
 
-		if (sample.type === 'audio-sample' && parserContext.nullifySamples) {
-			await parserContext.onAudioSample(
-				sample.audioSample.trackId,
-				sample.audioSample,
-			);
+		if (sample.type === 'audio-sample' && state.nullifySamples) {
+			await state.onAudioSample(sample.audioSample.trackId, sample.audioSample);
 			return {
 				type: 'Block',
 				value: new Uint8Array([]),
@@ -205,7 +199,7 @@ export const postprocessEbml = async ({
 			};
 		}
 
-		if (sample.type === 'no-sample' && parserContext.nullifySamples) {
+		if (sample.type === 'no-sample' && state.nullifySamples) {
 			return {
 				type: 'Block',
 				value: new Uint8Array([]),
@@ -234,20 +228,20 @@ export const postprocessEbml = async ({
 		const sample =
 			block.value.length === 0
 				? null
-				: getSampleFromBlock(block, parserContext, offset);
+				: getSampleFromBlock(block, state, offset);
 
 		if (sample && sample.type === 'partial-video-sample') {
 			const completeFrame: AudioOrVideoSample = {
 				...sample.partialVideoSample,
 				type: hasReferenceBlock ? 'delta' : 'key',
 			};
-			await parserContext.onVideoSample(
+			await state.onVideoSample(
 				sample.partialVideoSample.trackId,
 				completeFrame,
 			);
 		}
 
-		if (parserContext.nullifySamples) {
+		if (state.nullifySamples) {
 			return {
 				type: 'BlockGroup',
 				value: [],

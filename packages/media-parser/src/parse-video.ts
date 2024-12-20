@@ -96,7 +96,7 @@ export const parseVideo = ({
 			boxes: [],
 			type: 'matroska',
 		});
-		return parseWebm({counter: iterator, parserContext: options, fields});
+		return parseWebm({counter: iterator, state: options, fields});
 	}
 
 	if (fileType.type === 'transport-stream') {
@@ -107,7 +107,7 @@ export const parseVideo = ({
 		});
 		return parseTransportStream({
 			iterator,
-			parserContext: options,
+			state: options,
 			streamBuffers: new Map(),
 			fields,
 			nextPesHeaderStore: makeNextPesHeaderStore(),

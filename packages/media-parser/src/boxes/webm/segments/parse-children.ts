@@ -64,14 +64,14 @@ const processParseResult = ({
 
 export const expectAndProcessSegment = async ({
 	iterator,
-	parserContext,
+	state,
 	offset,
 	children,
 	fields,
 	topLevelStructure,
 }: {
 	iterator: BufferIterator;
-	parserContext: ParserState;
+	state: ParserState;
 	offset: number;
 	children: PossibleEbml[];
 	fields: Options<ParseMediaFields>;
@@ -79,7 +79,7 @@ export const expectAndProcessSegment = async ({
 }) => {
 	const segment = await expectSegment({
 		iterator,
-		parserContext,
+		state,
 		offset,
 		children,
 		fields,
@@ -88,7 +88,7 @@ export const expectAndProcessSegment = async ({
 	return processParseResult({
 		children,
 		parseResult: segment,
-		state: parserContext,
+		state,
 		fields,
 		topLevelStructure,
 	});
@@ -98,7 +98,7 @@ const continueAfterSegmentResult = async ({
 	result,
 	length,
 	children,
-	parserContext,
+	state,
 	iterator,
 	startOffset,
 	fields,
@@ -107,7 +107,7 @@ const continueAfterSegmentResult = async ({
 	result: ExpectSegmentParseResult;
 	length: number;
 	children: MatroskaSegment[];
-	parserContext: ParserState;
+	state: ParserState;
 	iterator: BufferIterator;
 	startOffset: number;
 	fields: Options<ParseMediaFields>;
@@ -127,7 +127,7 @@ const continueAfterSegmentResult = async ({
 					children,
 					iterator,
 					length,
-					parserContext,
+					state,
 					startOffset,
 					fields,
 					topLevelStructure,
@@ -145,7 +145,7 @@ const continueAfterSegmentResult = async ({
 				children,
 				iterator,
 				length,
-				parserContext,
+				state,
 				startOffset,
 				fields,
 				topLevelStructure,
@@ -159,7 +159,7 @@ export const expectChildren = async ({
 	iterator,
 	length,
 	children,
-	parserContext,
+	state,
 	startOffset,
 	fields,
 	topLevelStructure,
@@ -167,7 +167,7 @@ export const expectChildren = async ({
 	iterator: BufferIterator;
 	length: number;
 	children: MatroskaSegment[];
-	parserContext: ParserState;
+	state: ParserState;
 	startOffset: number;
 	fields: Options<ParseMediaFields>;
 	topLevelStructure: MatroskaStructure;
@@ -180,7 +180,7 @@ export const expectChildren = async ({
 		const currentOffset = iterator.counter.getOffset();
 		const child = await expectAndProcessSegment({
 			iterator,
-			parserContext,
+			state,
 			offset: currentOffset,
 			children,
 			fields,
@@ -190,7 +190,7 @@ export const expectChildren = async ({
 		if (
 			hasAllInfo({
 				fields,
-				state: parserContext,
+				state,
 			})
 		) {
 			return {
@@ -207,7 +207,7 @@ export const expectChildren = async ({
 						children,
 						iterator,
 						length: length - (currentOffset - startOffset),
-						parserContext,
+						state,
 						startOffset: currentOffset,
 						fields,
 						topLevelStructure,

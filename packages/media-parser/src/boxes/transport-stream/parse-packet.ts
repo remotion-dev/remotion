@@ -96,7 +96,7 @@ export const parsePacket = async ({
 			transportStreamEntry: stream,
 			streamBuffers,
 			nextPesHeader: nextPesHeaderStore.getNextPesHeader(),
-			parserContext: parserState,
+			state: parserState,
 			programId,
 			structure,
 		});

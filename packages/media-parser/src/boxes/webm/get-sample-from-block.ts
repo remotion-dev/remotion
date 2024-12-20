@@ -24,7 +24,7 @@ type SampleResult =
 
 export const getSampleFromBlock = (
 	ebml: BlockSegment | SimpleBlockSegment,
-	parserContext: ParserState,
+	state: ParserState,
 	offset: number,
 ): SampleResult => {
 	const iterator = getArrayBufferIterator(ebml.value, ebml.value.length);
@@ -42,12 +42,11 @@ export const getSampleFromBlock = (
 			: matroskaElements.Block,
 	);
 
-	const {codec, trackTimescale} =
-		parserContext.getTrackInfoByNumber(trackNumber);
+	const {codec, trackTimescale} = state.getTrackInfoByNumber(trackNumber);
 
-	const clusterOffset = parserContext.getTimestampOffsetForByteOffset(offset);
+	const clusterOffset = state.getTimestampOffsetForByteOffset(offset);
 
-	const timescale = parserContext.getTimescale();
+	const timescale = state.getTimescale();
 
 	if (clusterOffset === undefined) {
 		throw new Error('Could not find offset for byte offset ' + offset);

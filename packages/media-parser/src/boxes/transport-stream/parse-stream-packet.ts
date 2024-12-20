@@ -73,7 +73,7 @@ const parseAvcStream = async ({
 	streamBuffers,
 	nextPesHeader,
 	programId,
-	parserContext,
+	state,
 	structure,
 }: {
 	restOfPacket: Uint8Array;
@@ -81,7 +81,7 @@ const parseAvcStream = async ({
 	streamBuffers: StreamBufferMap;
 	programId: number;
 	nextPesHeader: PacketPes;
-	parserContext: ParserState;
+	state: ParserState;
 	structure: TransportStreamStructure;
 }) => {
 	const indexOfSeparator = findNextSeparator(
@@ -112,7 +112,7 @@ const parseAvcStream = async ({
 		const packet = restOfPacket.slice(0, indexOfSeparator);
 		streamBuffer.buffer = combineUint8Arrays([streamBuffer.buffer, packet]);
 		await processStreamBuffer({
-			options: parserContext,
+			options: state,
 			streamBuffer,
 			programId,
 			structure,
@@ -141,7 +141,7 @@ export const parseStream = ({
 	iterator,
 	transportStreamEntry,
 	streamBuffers,
-	parserContext,
+	state,
 	programId,
 	structure,
 	nextPesHeader,
@@ -149,7 +149,7 @@ export const parseStream = ({
 	iterator: BufferIterator;
 	transportStreamEntry: TransportStreamEntry;
 	streamBuffers: StreamBufferMap;
-	parserContext: ParserState;
+	state: ParserState;
 	programId: number;
 	structure: TransportStreamStructure;
 	nextPesHeader: PacketPes;
@@ -161,7 +161,7 @@ export const parseStream = ({
 			transportStreamEntry,
 			streamBuffers,
 			nextPesHeader,
-			parserContext,
+			state,
 			programId,
 			structure,
 		});
@@ -173,7 +173,7 @@ export const parseStream = ({
 			transportStreamEntry,
 			streamBuffers,
 			nextPesHeader,
-			options: parserContext,
+			options: state,
 			structure,
 		});
 	}

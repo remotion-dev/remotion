@@ -31,14 +31,14 @@ const continueAfterMatroskaResult = (
 // Parsing according to https://darkcoding.net/software/reading-mediarecorders-webm-opus-output/
 export const parseWebm = async ({
 	counter,
-	parserContext,
+	state,
 	fields,
 }: {
 	counter: BufferIterator;
-	parserContext: ParserState;
+	state: ParserState;
 	fields: Options<ParseMediaFields>;
 }): Promise<ParseResult> => {
-	const structure = parserContext.structure.getStructure();
+	const structure = state.structure.getStructure();
 	if (structure.type !== 'matroska') {
 		throw new Error('Invalid structure type');
 	}
@@ -47,7 +47,7 @@ export const parseWebm = async ({
 		iterator: counter,
 		length: Infinity,
 		children: structure.boxes,
-		parserContext,
+		state,
 		startOffset: counter.counter.getOffset(),
 		fields,
 		topLevelStructure: structure,

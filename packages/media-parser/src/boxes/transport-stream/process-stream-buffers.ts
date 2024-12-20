@@ -48,18 +48,18 @@ export const processStreamBuffer = async ({
 
 export const processFinalStreamBuffers = async ({
 	streamBufferMap,
-	parserContext,
+	state,
 	structure,
 }: {
 	streamBufferMap: StreamBufferMap;
-	parserContext: ParserState;
+	state: ParserState;
 	structure: TransportStreamStructure;
 }) => {
 	for (const [programId, buffer] of streamBufferMap) {
 		if (buffer.buffer.byteLength > 0) {
 			await processStreamBuffer({
 				streamBuffer: buffer,
-				options: parserContext,
+				options: state,
 				programId,
 				structure,
 			});
