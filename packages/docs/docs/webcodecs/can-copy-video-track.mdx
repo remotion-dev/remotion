@@ -78,17 +78,11 @@ await convertMedia({
 
 ## API
 
-### `inputCodec`
+### `inputTrack`
 
-_string_ <TsType type="MediaParserVideoCodec" source="@remotion/media-parser" />
+_string_ <TsType type="VideoTrack" source="@remotion/media-parser" />
 
-The codec of the input video track.
-
-### `inputRotation`
-
-_number_
-
-The number of degrees the input video track is rotated.
+The input video track.
 
 ### `rotationToApply`
 
@@ -107,6 +101,12 @@ The container format of the input media.
 _string_ <TsType type="ConvertMediaContainer" source="@remotion/webcodecs" />
 
 The container format of the output media.
+
+### `resizeOperation`
+
+_string_ <TsType type="ResizeOperation" source="@remotion/webcodecs" />
+
+The [resize operation](/docs/webcodecs/resize-a-video) to apply to the video track.
 
 ## Rotation behavior
 
