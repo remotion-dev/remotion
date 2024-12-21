@@ -68,11 +68,15 @@ export const ResizeThumbnail: React.FC<{
 				map,
 				0,
 				0,
-				thumbnailDimensions.width,
-				thumbnailDimensions.height,
+				unrotatedThumbnailDimensions.width,
+				unrotatedThumbnailDimensions.height,
 			);
 		});
-	}, [thumbnailDimensions.height, thumbnailDimensions.width, thumbnailRef]);
+	}, [
+		unrotatedThumbnailDimensions.height,
+		unrotatedThumbnailDimensions.width,
+		thumbnailRef,
+	]);
 
 	const [dragging, setDragging] = useState(false);
 

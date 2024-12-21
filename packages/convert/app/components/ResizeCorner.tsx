@@ -28,29 +28,21 @@ export const ResizeCorner: React.FC<{
 			onStart();
 			e.preventDefault();
 			const originalX = e.clientX;
-			const originalY = e.clientY;
 
 			const currentScale = innerDimensions.width / outerDimensions.width;
 
 			const getScale = (e: PointerEvent) => {
 				const dx = e.clientX - originalX;
-				const dy = e.clientY - originalY;
 
-				const newScaleX = Math.min(
-					1,
-					currentScale + dx / (outerDimensions.width / 2),
+				const newScaleX = Math.max(
+					0.2,
+					Math.min(1, currentScale + dx / (outerDimensions.width / 2)),
 				);
-				const newScaleY = Math.min(
-					1,
-					currentScale + dy / (outerDimensions.height / 2),
-				);
-				const xBigger = Math.abs(dx) > Math.abs(dy);
-				const newScale = Math.max(0.2, xBigger ? newScaleX : newScaleY);
 
 				const newResizeMode: ResizeOperation = {
 					mode: 'max-height-width',
-					maxWidth: videoDimensionsAfterRotation.width * newScale,
-					maxHeight: videoDimensionsAfterRotation.height * newScale,
+					maxWidth: videoDimensionsAfterRotation.width * newScaleX,
+					maxHeight: videoDimensionsAfterRotation.height * newScaleX,
 				};
 				setResizeMode(newResizeMode);
 			};
@@ -73,7 +65,6 @@ export const ResizeCorner: React.FC<{
 			innerDimensions.width,
 			onEnd,
 			onStart,
-			outerDimensions.height,
 			outerDimensions.width,
 			setResizeMode,
 			videoDimensionsAfterRotation.height,
