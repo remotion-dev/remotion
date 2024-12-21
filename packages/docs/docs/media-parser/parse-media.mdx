@@ -162,7 +162,9 @@ The location of the video was shot. Either `null` if not available or:
 Returns an object of two two arrays `videoTracks` and `audioTracks`.  
 The data structure of them is not yet stable.
 
-#### `slowKeyframes`
+#### `keyframes`
+
+Return type: <TsType type="MediaParserKeyframe[] | null" source="@remotion/media-parser" />
 
 An array of keyframes. Each keyframe has the following structure:
 
@@ -171,6 +173,16 @@ An array of keyframes. Each keyframe has the following structure:
 - `positionInBytes`: The position in bytes where the keyframe is located in the file
 - `sizeInBytes`: The size of the keyframe in bytes
 - `trackId`: The ID of the track the frame belongs to
+
+Only being returned if the keyframe information are stored in the metadata, otherwise `null`.
+
+#### `slowKeyframes`
+
+Return type: <TsType type="MediaParserKeyframe[]" source="@remotion/media-parser" />
+
+An array of keyframes, same as [`keyframes`](#keyframes), but it is guaranteed to return a value.
+
+Will read the entire video file to determine the keyframes.
 
 #### `slowNumberOfFrames`
 

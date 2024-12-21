@@ -22,6 +22,7 @@ const needsSamples: Record<keyof Options<ParseMediaFields>, boolean> = {
 	metadata: false,
 	location: false,
 	mimeType: false,
+	keyframes: false,
 };
 
 export const needsToIterateOverSamples = ({

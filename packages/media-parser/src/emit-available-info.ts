@@ -5,6 +5,7 @@ import {getDimensions} from './get-dimensions';
 import {getDuration} from './get-duration';
 import {getFps} from './get-fps';
 import {getIsHdr} from './get-is-hdr';
+import {getKeyframes} from './get-keyframes';
 import {getLocation} from './get-location';
 import {getTracks} from './get-tracks';
 import {getVideoCodec} from './get-video-codec';
@@ -436,6 +437,19 @@ export const emitAvailableInfo = ({
 				}
 
 				emittedFields.slowNumberOfFrames = true;
+			}
+
+			continue;
+		}
+
+		if (key === 'keyframes') {
+			if (!emittedFields.keyframes && hasInfo.keyframes && parseResult) {
+				callbacks.onKeyframes?.(getKeyframes(state.structure.getStructure()));
+				if (fieldsInReturnValue.keyframes) {
+					returnValue.keyframes = getKeyframes(state.structure.getStructure());
+				}
+
+				emittedFields.keyframes = true;
 			}
 
 			continue;

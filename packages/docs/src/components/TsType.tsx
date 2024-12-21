@@ -11,7 +11,7 @@ export const TsType: React.FC<{
 	return (
 		<span
 			style={{marginLeft: 16, cursor: 'help'}}
-			title={`You can import the TypeScript type \`${type}\` from ${source}`}
+			title={`You can import the TypeScript type \`${type.replace(' | null', '').replace('[]', '')}\` from ${source}`}
 		>
 			<svg
 				style={{width: 18, verticalAlign: 'middle', marginRight: 2}}
