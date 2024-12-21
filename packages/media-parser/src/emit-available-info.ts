@@ -65,35 +65,27 @@ export const emitAvailableInfo = ({
 		}
 
 		if (key === 'durationInSeconds') {
-			if (
-				hasInfo.durationInSeconds &&
-				!emittedFields.durationInSeconds &&
-				parseResult &&
-				segments
-			) {
-				const durationInSeconds = getDuration(segments, state);
-				callbacks.onDurationInSeconds?.(durationInSeconds);
-				if (fieldsInReturnValue.durationInSeconds) {
-					returnValue.durationInSeconds = durationInSeconds;
-				}
-
-				emittedFields.durationInSeconds = true;
-			}
-
-			if (
-				hasInfo.durationInSeconds &&
-				!emittedFields.slowDurationInSeconds &&
-				parseResult &&
-				segments
-			) {
-				const durationInSeconds = getDuration(segments, state);
-				if (durationInSeconds !== null) {
-					callbacks.onSlowDurationInSeconds?.(durationInSeconds);
-					if (fieldsInReturnValue.slowDurationInSeconds) {
-						returnValue.slowDurationInSeconds = durationInSeconds;
+			if (hasInfo.durationInSeconds && parseResult && segments) {
+				if (!emittedFields.durationInSeconds) {
+					const durationInSeconds = getDuration(segments, state);
+					callbacks.onDurationInSeconds?.(durationInSeconds);
+					if (fieldsInReturnValue.durationInSeconds) {
+						returnValue.durationInSeconds = durationInSeconds;
 					}
 
-					emittedFields.slowDurationInSeconds = true;
+					emittedFields.durationInSeconds = true;
+				}
+
+				if (!emittedFields.slowDurationInSeconds) {
+					const durationInSeconds = getDuration(segments, state);
+					if (durationInSeconds !== null) {
+						callbacks.onSlowDurationInSeconds?.(durationInSeconds);
+						if (fieldsInReturnValue.slowDurationInSeconds) {
+							returnValue.slowDurationInSeconds = durationInSeconds;
+						}
+
+						emittedFields.slowDurationInSeconds = true;
+					}
 				}
 			}
 
@@ -107,14 +99,33 @@ export const emitAvailableInfo = ({
 				parseResult &&
 				segments
 			) {
-				// TODO: Fix slow duration
-				const slowDurationInSeconds = 100;
+				const slowDurationInSeconds =
+					state.slowDurationAndFps.getSlowDurationInSeconds();
 				callbacks.onSlowDurationInSeconds?.(slowDurationInSeconds);
 				if (fieldsInReturnValue.slowDurationInSeconds) {
 					returnValue.slowDurationInSeconds = slowDurationInSeconds;
 				}
 
 				emittedFields.slowDurationInSeconds = true;
+			}
+
+			continue;
+		}
+
+		if (key === 'slowFps') {
+			if (
+				hasInfo.slowFps &&
+				!emittedFields.slowFps &&
+				parseResult &&
+				segments
+			) {
+				const slowFps = state.slowDurationAndFps.getFps();
+				callbacks.onSlowFps?.(slowFps);
+				if (fieldsInReturnValue.slowFps) {
+					returnValue.slowFps = slowFps;
+				}
+
+				emittedFields.slowFps = true;
 			}
 
 			continue;
@@ -189,14 +200,28 @@ export const emitAvailableInfo = ({
 		}
 
 		if (key === 'fps') {
-			if (!emittedFields.fps && hasInfo.fps && parseResult && segments) {
-				const fps = getFps(segments);
-				callbacks.onFps?.(fps);
-				if (fieldsInReturnValue.fps) {
-					returnValue.fps = fps;
+			if (hasInfo.fps && parseResult && segments) {
+				if (!emittedFields.fps) {
+					const fps = getFps(segments);
+					callbacks.onFps?.(fps);
+					if (fieldsInReturnValue.fps) {
+						returnValue.fps = fps;
+					}
+
+					emittedFields.fps = true;
 				}
 
-				emittedFields.fps = true;
+				if (!emittedFields.slowFps) {
+					const fps = getFps(segments);
+					if (fps) {
+						callbacks.onSlowFps?.(fps);
+						if (fieldsInReturnValue.slowFps) {
+							returnValue.slowFps = fps;
+						}
+
+						emittedFields.slowFps = true;
+					}
+				}
 			}
 
 			continue;

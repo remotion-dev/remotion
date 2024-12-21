@@ -44,7 +44,9 @@ export const getAvailableInfo = ({
 			return Boolean(structure && hasDimensions(structure, state));
 		}
 
-		if (key === 'fps') {
+		if (key === 'fps' || key === 'slowFps') {
+			// If we have fastFps, we also propagate it to slowFps
+			// Otherwise, we need to go through the entire file to get the fps
 			return Boolean(structure && hasFps(structure));
 		}
 

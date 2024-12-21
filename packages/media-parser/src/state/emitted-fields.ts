@@ -20,6 +20,7 @@ export const emittedState = () => {
 		videoCodec: false,
 		unrotatedDimensions: false,
 		slowDurationInSeconds: false,
+		slowFps: false,
 		keyframes: false,
 	};
 

@@ -7,6 +7,7 @@ const needsSamples: Record<keyof Options<ParseMediaFields>, boolean> = {
 	dimensions: false,
 	durationInSeconds: false,
 	slowDurationInSeconds: true,
+	slowFps: true,
 	fps: false,
 	internalStats: false,
 	isHdr: false,

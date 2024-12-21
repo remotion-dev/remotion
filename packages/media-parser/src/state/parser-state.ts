@@ -6,6 +6,7 @@ import {emittedState} from './emitted-fields';
 import {keyframesState} from './keyframes';
 import {riffSpecificState} from './riff';
 import {sampleCallback} from './sample-callbacks';
+import {slowDurationAndFpsState} from './slow-duration-fps';
 import {structureState} from './structure';
 import {webmState} from './webm';
 
@@ -49,6 +50,7 @@ export const makeParserState = ({
 	const structure = structureState();
 	const keyframes = keyframesState(structure.getStructure);
 	const emittedFields = emittedState();
+	const slowDurationAndFps = slowDurationAndFpsState();
 
 	return {
 		riff: riffSpecificState(),
@@ -60,6 +62,7 @@ export const makeParserState = ({
 			structureState: structure,
 			keyframes,
 			emittedFields,
+			slowDurationAndFpsState: slowDurationAndFps,
 		}),
 		getInternalStats: (): InternalStats => ({
 			skippedBytes,
@@ -76,6 +79,7 @@ export const makeParserState = ({
 		webm: webmState(),
 		emittedFields,
 		fields,
+		slowDurationAndFps,
 	};
 };
 

@@ -6,6 +6,7 @@ const needsTracksField: Record<keyof Options<ParseMediaFields>, boolean> = {
 	dimensions: true,
 	durationInSeconds: true,
 	slowDurationInSeconds: true,
+	slowFps: true,
 	fps: true,
 	internalStats: false,
 	isHdr: true,

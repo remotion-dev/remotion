@@ -8,6 +8,7 @@ import type {
 import {makeCanSkipTracksState} from './can-skip-tracks';
 import {makeTracksSectionState} from './has-tracks-section';
 import {type KeyframesState} from './keyframes';
+import type {SlowDurationAndFpsState} from './slow-duration-fps';
 import type {StructureState} from './structure';
 
 export const sampleCallback = ({
@@ -18,6 +19,7 @@ export const sampleCallback = ({
 	structureState,
 	keyframes,
 	emittedFields,
+	slowDurationAndFpsState,
 }: {
 	signal: AbortSignal | undefined;
 	hasAudioTrackHandlers: boolean;
@@ -26,6 +28,7 @@ export const sampleCallback = ({
 	structureState: StructureState;
 	keyframes: KeyframesState;
 	emittedFields: AllOptions<ParseMediaFields>;
+	slowDurationAndFpsState: SlowDurationAndFpsState;
 }) => {
 	const videoSampleCallbacks: Record<number, OnVideoSample> = {};
 	const audioSampleCallbacks: Record<number, OnAudioSample> = {};
@@ -97,21 +100,25 @@ export const sampleCallback = ({
 			}
 
 			if (
-				videoSample.type === 'key' &&
-				fields.keyframes &&
 				needsToIterateOverSamples({
 					fields,
 					structure: structureState.getStructure(),
 					emittedFields,
 				})
 			) {
-				keyframes.addKeyframe({
-					trackId,
-					decodingTimeInSeconds: videoSample.dts / videoSample.timescale,
-					positionInBytes: videoSample.offset,
-					presentationTimeInSeconds: videoSample.cts / videoSample.timescale,
-					sizeInBytes: videoSample.data.length,
-				});
+				if (fields.keyframes && videoSample.type === 'key') {
+					keyframes.addKeyframe({
+						trackId,
+						decodingTimeInSeconds: videoSample.dts / videoSample.timescale,
+						positionInBytes: videoSample.offset,
+						presentationTimeInSeconds: videoSample.cts / videoSample.timescale,
+						sizeInBytes: videoSample.data.length,
+					});
+				}
+
+				if (fields.slowDurationInSeconds || fields.slowFps) {
+					slowDurationAndFpsState.addSample(videoSample);
+				}
 			}
 		},
 		canSkipTracksState,

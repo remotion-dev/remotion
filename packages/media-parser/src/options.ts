@@ -28,6 +28,7 @@ export type ParseMediaFields = {
 	slowDurationInSeconds: boolean;
 	structure: boolean;
 	fps: boolean;
+	slowFps: boolean;
 	videoCodec: boolean;
 	audioCodec: boolean;
 	tracks: boolean;
@@ -48,6 +49,7 @@ export type AllParseMediaFields = {
 	dimensions: true;
 	durationInSeconds: true;
 	slowDurationInSeconds: true;
+	slowFps: true;
 	structure: true;
 	fps: true;
 	videoCodec: true;
@@ -70,6 +72,7 @@ export type AllOptions<Fields extends ParseMediaFields> = {
 	dimensions: Fields['dimensions'];
 	durationInSeconds: Fields['durationInSeconds'];
 	slowDurationInSeconds: Fields['slowDurationInSeconds'];
+	slowFps: Fields['slowFps'];
 	structure: Fields['structure'];
 	fps: Fields['fps'];
 	videoCodec: Fields['videoCodec'];
@@ -111,6 +114,7 @@ export interface ParseMediaCallbacks {
 	onDimensions?: (dimensions: Dimensions) => void;
 	onDurationInSeconds?: (durationInSeconds: number | null) => void;
 	onSlowDurationInSeconds?: (durationInSeconds: number) => void;
+	onSlowFps?: (fps: number) => void;
 	onStructure?: (structure: Structure) => void;
 	onFps?: (fps: number | null) => void;
 	onVideoCodec?: (codec: MediaParserVideoCodec | null) => void;
@@ -133,6 +137,7 @@ export interface ParseMediaData {
 	dimensions: Dimensions;
 	durationInSeconds: number | null;
 	slowDurationInSeconds: number;
+	slowFps: number;
 	structure: Structure;
 	fps: number | null;
 	videoCodec: MediaParserVideoCodec | null;
