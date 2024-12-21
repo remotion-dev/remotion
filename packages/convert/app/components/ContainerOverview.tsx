@@ -45,22 +45,22 @@ export const ContainerOverview: React.FC<{
 		<Table className="table-fixed">
 			<TableBody>
 				<TableRow>
-					<TableCell className="font-brand">Size</TableCell>
-					<TableCell className="text-right">
-						{size === null ? (
-							<Skeleton className="h-3 w-[100px] inline-block" />
-						) : (
-							<>{formatBytes(size)}</>
-						)}
-					</TableCell>
-				</TableRow>
-				<TableRow>
 					<TableCell className="font-brand">Container</TableCell>
 					<TableCell className="text-right">
 						{container ? (
 							<>{renderHumanReadableContainer(container)}</>
 						) : (
 							<Skeleton className="h-3 w-[100px] inline-block" />
+						)}
+					</TableCell>
+				</TableRow>
+				<TableRow>
+					<TableCell className="font-brand">Size</TableCell>
+					<TableCell className="text-right">
+						{size === null ? (
+							<Skeleton className="h-3 w-[100px] inline-block" />
+						) : (
+							<>{formatBytes(size)}</>
 						)}
 					</TableCell>
 				</TableRow>

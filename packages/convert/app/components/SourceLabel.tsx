@@ -15,7 +15,7 @@ export const SourceLabel: React.FC<{
 		.replace(/^http:\/\//, '');
 
 	return (
-		<span className="font-brand">
+		<span className="font-brand white ">
 			From{' '}
 			<a
 				href={src.url}

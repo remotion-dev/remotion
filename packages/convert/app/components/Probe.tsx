@@ -1,4 +1,5 @@
 /* eslint-disable complexity */
+import clsx from 'clsx';
 import React, {useCallback, useMemo, useState} from 'react';
 import {Source} from '~/lib/convert-state';
 import {useIsNarrow} from '~/lib/is-narrow';
@@ -8,6 +9,7 @@ import {SourceLabel} from './SourceLabel';
 import {TrackSwitcher} from './TrackSwitcher';
 import {VideoThumbnail, VideoThumbnailRef} from './VideoThumbnail';
 import {VideoTrackOverview} from './VideoTrackOverview';
+import styles from './probe.module.css';
 import {Button} from './ui/button';
 import {Card, CardDescription, CardHeader, CardTitle} from './ui/card';
 import {ScrollArea} from './ui/scroll-area';
@@ -80,8 +82,6 @@ export const Probe: React.FC<{
 		return sortedTracks[trackDetails];
 	}, [probeDetails, sortedTracks, trackDetails]);
 
-	const isCompact = isNarrow && !probeDetails;
-
 	return (
 		<Card className="w-full lg:w-[350px] overflow-hidden">
 			<div className="flex flex-row lg:flex-col w-full border-b-2 border-black">
@@ -92,6 +92,7 @@ export const Probe: React.FC<{
 						rotation={userRotation - (rotation ?? 0)}
 						mirrorHorizontal={mirrorHorizontal}
 						mirrorVertical={mirrorVertical}
+						initialReveal={false}
 					/>
 				)}
 				<CardHeader className="p-3 lg:p-4 w-full">
@@ -107,13 +108,15 @@ export const Probe: React.FC<{
 							</p>
 						</CardDescription>
 					) : null}
-					{done ? (
-						<CardDescription className="!mt-0">
+					<CardDescription
+						className={clsx('!mt-0 truncate', styles['fade-in'])}
+					>
+						{done ? (
 							<SourceLabel src={src} />
-						</CardDescription>
-					) : (
-						<div id="not-done" />
-					)}
+						) : (
+							<span id="not-done">0% read</span>
+						)}
+					</CardDescription>
 				</CardHeader>
 			</div>
 			{sortedTracks.length && probeDetails ? (
@@ -127,7 +130,7 @@ export const Probe: React.FC<{
 					/>
 				</div>
 			) : null}
-			{isCompact ? null : (
+			{isNarrow ? null : (
 				<>
 					<ScrollArea height={300} className="flex-1">
 						{selectedTrack === null ? (

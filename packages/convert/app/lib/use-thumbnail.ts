@@ -8,10 +8,12 @@ export const useThumbnail = ({
 	src,
 	logLevel,
 	onVideoThumbnail,
+	onDone,
 }: {
 	src: Source;
 	logLevel: LogLevel;
-	onVideoThumbnail: (videoFrame: VideoFrame) => void;
+	onVideoThumbnail: (videoFrame: VideoFrame) => Promise<void>;
+	onDone: () => void;
 }) => {
 	const [err, setError] = useState<Error | null>(null);
 
@@ -22,12 +24,15 @@ export const useThumbnail = ({
 			reader: src.type === 'file' ? webFileReader : fetchReader,
 			src: src.type === 'file' ? src.file : src.url,
 			logLevel,
-			onVideoTrack: async ({track}) => {
+			onVideoTrack: async ({track, container}) => {
 				if (typeof VideoDecoder === 'undefined') {
 					return null;
 				}
 
 				let frames = 0;
+				const onlyKeyframes =
+					container !== 'transport-stream' && container !== 'webm';
+				const framesToGet = onlyKeyframes ? 30 : 3;
 
 				const decoder = new VideoDecoder({
 					error: (error) => {
@@ -37,8 +42,16 @@ export const useThumbnail = ({
 						abortController.abort();
 					},
 					output(frame) {
-						onVideoThumbnail(frame);
-						frame.close();
+						if (frames >= framesToGet) {
+							abortController.abort();
+							onDone();
+							return;
+						}
+						frames++;
+
+						onVideoThumbnail(frame).then(() => {
+							frame.close();
+						});
 					},
 				});
 
@@ -51,9 +64,12 @@ export const useThumbnail = ({
 				decoder.configure(track);
 
 				return (sample) => {
-					frames++;
-					if (frames >= 10) {
-						abortController.abort();
+					if (sample.type !== 'key' && onlyKeyframes) {
+						return;
+					}
+
+					if (sample.type === 'key') {
+						decoder.flush();
 					}
 
 					decoder.decode(new EncodedVideoChunk(sample));

@@ -142,7 +142,7 @@ export const parseMedia: ParseMedia = async function <
 		});
 		triggerInfoEmit();
 		if (parseResult && parseResult.status === 'incomplete') {
-			Log.verbose(
+			Log.trace(
 				logLevel,
 				'Continuing parsing of file, currently at position',
 				iterator.counter.getOffset(),

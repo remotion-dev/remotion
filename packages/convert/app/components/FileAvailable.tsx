@@ -10,8 +10,11 @@ import ConvertUI from './ConvertUi';
 import {Footer} from './Footer';
 import {Probe} from './Probe';
 import {VideoThumbnailRef} from './VideoThumbnail';
+import {getBrightnessOfFrame} from './get-brightness-of-frame';
 import {Button} from './ui/button';
 import {useProbe} from './use-probe';
+
+const idealBrightness = 0.8;
 
 export const FileAvailable: React.FC<{
 	readonly src: Source;
@@ -26,10 +29,24 @@ export const FileAvailable: React.FC<{
 		setSrc(null);
 	}, [setSrc]);
 
+	const bestBrightness = useRef<number | null>(null);
+
 	const videoThumbnailRef = useRef<VideoThumbnailRef>(null);
 
-	const onVideoThumbnail = useCallback((frame: VideoFrame) => {
-		videoThumbnailRef.current?.draw(frame);
+	const onVideoThumbnail = useCallback(async (frame: VideoFrame) => {
+		const brightness = await getBrightnessOfFrame(frame);
+		const differenceToIdeal = Math.abs(brightness - idealBrightness);
+		if (
+			bestBrightness.current === null ||
+			differenceToIdeal < bestBrightness.current
+		) {
+			bestBrightness.current = differenceToIdeal;
+			videoThumbnailRef.current?.draw(frame);
+		}
+	}, []);
+
+	const onDone = useCallback(() => {
+		videoThumbnailRef.current?.onDone();
 	}, []);
 
 	const onProgress: ParseMediaOnProgress = useCallback(
@@ -54,7 +71,12 @@ export const FileAvailable: React.FC<{
 	const [enableRotateOrMirrow, setEnableRotateOrMirror] =
 		useState<RotateOrMirrorState>(() => defaultRotateOrMirorState(routeAction));
 
-	const {err} = useThumbnail({src, logLevel: 'verbose', onVideoThumbnail});
+	const {err} = useThumbnail({
+		src,
+		logLevel: 'verbose',
+		onVideoThumbnail,
+		onDone,
+	});
 	const probeResult = useProbe({
 		src,
 		logLevel: 'verbose',

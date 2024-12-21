@@ -24,6 +24,7 @@ export const ConvertProgress: React.FC<{
 					<>
 						<VideoThumbnail
 							ref={convertProgressRef}
+							initialReveal
 							smallThumbOnMobile={false}
 							rotation={0}
 							mirrorHorizontal={false}

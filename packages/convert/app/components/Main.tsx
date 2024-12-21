@@ -20,7 +20,7 @@ export const Main: React.FC<{
 	}, [routeAction]);
 
 	return (
-		<div className="font-sans min-h-screen ">
+		<div className="font-sans min-h-screen">
 			{src ? (
 				<FileAvailable
 					key={src.type === 'url' ? src.url : src.file.name}
