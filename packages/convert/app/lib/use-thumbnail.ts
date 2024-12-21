@@ -8,10 +8,12 @@ export const useThumbnail = ({
 	src,
 	logLevel,
 	onVideoThumbnail,
+	onDone,
 }: {
 	src: Source;
 	logLevel: LogLevel;
-	onVideoThumbnail: (videoFrame: VideoFrame) => void;
+	onVideoThumbnail: (videoFrame: VideoFrame) => Promise<void>;
+	onDone: () => void;
 }) => {
 	const [err, setError] = useState<Error | null>(null);
 
@@ -37,8 +39,9 @@ export const useThumbnail = ({
 						abortController.abort();
 					},
 					output(frame) {
-						onVideoThumbnail(frame);
-						frame.close();
+						onVideoThumbnail(frame).then(() => {
+							frame.close();
+						});
 					},
 				});
 
@@ -51,32 +54,42 @@ export const useThumbnail = ({
 				decoder.configure(track);
 
 				return (sample) => {
-					frames++;
-					if (frames >= 10) {
-						abortController.abort();
+					if (sample.type !== 'key') {
+						return;
 					}
 
+					if (frames >= 3) {
+						abortController.abort();
+						return;
+					}
+
+					frames++;
+					decoder.flush();
 					decoder.decode(new EncodedVideoChunk(sample));
 				};
 			},
-		}).catch((err) => {
-			if ((err as Error).stack?.includes('Cancelled')) {
-				return;
-			}
-			if ((err as Error).stack?.toLowerCase()?.includes('aborted')) {
-				return;
-			}
-			// firefox
-			if ((err as Error).message?.toLowerCase()?.includes('aborted')) {
-				return;
-			}
+		})
+			.catch((err) => {
+				if ((err as Error).stack?.includes('Cancelled')) {
+					return;
+				}
+				if ((err as Error).stack?.toLowerCase()?.includes('aborted')) {
+					return;
+				}
+				// firefox
+				if ((err as Error).message?.toLowerCase()?.includes('aborted')) {
+					return;
+				}
 
-			console.log(err);
-			setError(err as Error);
-		});
+				console.log(err);
+				setError(err as Error);
+			})
+			.finally(() => {
+				onDone();
+			});
 
 		return abortController;
-	}, [logLevel, onVideoThumbnail, src]);
+	}, [logLevel, onDone, onVideoThumbnail, src]);
 
 	useEffect(() => {
 		const task = execute();
