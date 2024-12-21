@@ -48,7 +48,7 @@ export const makeParserState = ({
 	};
 
 	const structure = structureState();
-	const keyframes = keyframesState(structure.getStructure);
+	const keyframes = keyframesState();
 	const emittedFields = emittedState();
 	const slowDurationAndFps = slowDurationAndFpsState();
 
@@ -59,7 +59,6 @@ export const makeParserState = ({
 			hasAudioTrackHandlers,
 			hasVideoTrackHandlers,
 			fields,
-			structureState: structure,
 			keyframes,
 			emittedFields,
 			slowDurationAndFpsState: slowDurationAndFps,

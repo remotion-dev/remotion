@@ -19,6 +19,8 @@ test('Transport stream', async () => {
 		fps,
 		isHdr,
 		videoCodec,
+		slowDurationInSeconds,
+		slowFps,
 	} = await parseMedia({
 		src: exampleVideos.transportstream,
 		fields: {
@@ -30,6 +32,8 @@ test('Transport stream', async () => {
 			fps: true,
 			videoCodec: true,
 			isHdr: true,
+			slowDurationInSeconds: true,
+			slowFps: true,
 		},
 		reader: nodeReader,
 		onAudioTrack: ({track}) => {
@@ -176,6 +180,8 @@ test('Transport stream', async () => {
 	expect(audioSamples).toBe(234);
 	expect(audioCodec).toBe('aac');
 	expect(fps).toBe(null);
+	expect(slowFps).toBe(59.191919191919176);
+	expect(slowDurationInSeconds).toBe(1.8000000000000007);
 	expect(isHdr).toBe(true);
 	expect(videoCodec).toBe('h264');
 	expect(videoSamples).toBe(294);

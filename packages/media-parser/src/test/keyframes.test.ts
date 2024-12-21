@@ -6,15 +6,15 @@ import {nodeReader} from '../readers/from-node';
 // ISO Base media is tested elsewhere
 
 test('should be able to get keyframes from webm', async () => {
-	const {keyframes, internalStats} = await parseMedia({
+	const {slowKeyframes, internalStats} = await parseMedia({
 		src: exampleVideos.stretchedVp8,
 		fields: {
-			keyframes: true,
+			slowKeyframes: true,
 			internalStats: true,
 		},
 		reader: nodeReader,
 	});
-	expect(keyframes).toEqual([
+	expect(slowKeyframes).toEqual([
 		{
 			trackId: 1,
 			decodingTimeInSeconds: 0.003,
@@ -44,15 +44,15 @@ test('should be able to get keyframes from webm', async () => {
 });
 
 test('should be able to get keyframes from avi', async () => {
-	const {keyframes, internalStats} = await parseMedia({
+	const {slowKeyframes, internalStats} = await parseMedia({
 		src: exampleVideos.avi,
 		fields: {
-			keyframes: true,
+			slowKeyframes: true,
 			internalStats: true,
 		},
 		reader: nodeReader,
 	});
-	expect(keyframes).toEqual([
+	expect(slowKeyframes).toEqual([
 		{
 			decodingTimeInSeconds: 0,
 			positionInBytes: 9992,
@@ -89,15 +89,15 @@ test('should be able to get keyframes from avi', async () => {
 });
 
 test('should be able to get keyframes from .ts', async () => {
-	const {keyframes, internalStats} = await parseMedia({
+	const {slowKeyframes, internalStats} = await parseMedia({
 		src: exampleVideos.transportstream,
 		fields: {
-			keyframes: true,
+			slowKeyframes: true,
 			internalStats: true,
 		},
 		reader: nodeReader,
 	});
-	expect(keyframes).toEqual([
+	expect(slowKeyframes).toEqual([
 		{
 			decodingTimeInSeconds: 10,
 			positionInBytes: 564,

@@ -6,7 +6,7 @@ export const slowDurationAndFpsState = () => {
 	let samples = 0;
 
 	const getSlowDurationInSeconds = () => {
-		if (smallestSample && largestSample) {
+		if (smallestSample !== undefined && largestSample !== undefined) {
 			return largestSample - smallestSample;
 		}
 
@@ -17,17 +17,23 @@ export const slowDurationAndFpsState = () => {
 		addSample: (videoSample: AudioOrVideoSample) => {
 			samples++;
 			const presentationTimeInSeconds = videoSample.cts / videoSample.timescale;
-			if (!largestSample || presentationTimeInSeconds > largestSample) {
+			if (
+				largestSample === undefined ||
+				presentationTimeInSeconds > largestSample
+			) {
 				largestSample = presentationTimeInSeconds;
 			}
 
-			if (!smallestSample || presentationTimeInSeconds < smallestSample) {
+			if (
+				smallestSample === undefined ||
+				presentationTimeInSeconds < smallestSample
+			) {
 				smallestSample = presentationTimeInSeconds;
 			}
 		},
 		getSlowDurationInSeconds,
 		getFps: () => {
-			return samples / getSlowDurationInSeconds();
+			return (samples - 1) / getSlowDurationInSeconds();
 		},
 	};
 };

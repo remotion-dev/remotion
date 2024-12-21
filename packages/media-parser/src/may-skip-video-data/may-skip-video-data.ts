@@ -6,11 +6,9 @@ export const maySkipVideoData = ({state}: {state: ParserState}) => {
 		state.callbacks.tracks.hasAllTracks() &&
 		Object.values(state.callbacks.videoSampleCallbacks).length === 0 &&
 		Object.values(state.callbacks.audioSampleCallbacks).length === 0 &&
-		state.structure.getStructureOrNull() &&
 		!needsToIterateOverSamples({
 			emittedFields: state.emittedFields,
 			fields: state.fields,
-			structure: state.structure.getStructure(),
 		})
 	);
 };

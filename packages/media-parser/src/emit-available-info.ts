@@ -112,6 +112,35 @@ export const emitAvailableInfo = ({
 			continue;
 		}
 
+		if (key === 'fps') {
+			if (hasInfo.fps && parseResult && segments) {
+				if (!emittedFields.fps) {
+					const fps = getFps(segments);
+					callbacks.onFps?.(fps);
+					if (fieldsInReturnValue.fps) {
+						returnValue.fps = fps;
+					}
+
+					emittedFields.fps = true;
+				}
+
+				if (!emittedFields.slowFps) {
+					const fps = getFps(segments);
+					if (fps) {
+						callbacks.onSlowFps?.(fps);
+						if (fieldsInReturnValue.slowFps) {
+							returnValue.slowFps = fps;
+						}
+
+						emittedFields.slowFps = true;
+					}
+				}
+			}
+
+			continue;
+		}
+
+		// must be handled after fps
 		if (key === 'slowFps') {
 			if (
 				hasInfo.slowFps &&
@@ -194,34 +223,6 @@ export const emitAvailableInfo = ({
 				}
 
 				emittedFields.rotation = true;
-			}
-
-			continue;
-		}
-
-		if (key === 'fps') {
-			if (hasInfo.fps && parseResult && segments) {
-				if (!emittedFields.fps) {
-					const fps = getFps(segments);
-					callbacks.onFps?.(fps);
-					if (fieldsInReturnValue.fps) {
-						returnValue.fps = fps;
-					}
-
-					emittedFields.fps = true;
-				}
-
-				if (!emittedFields.slowFps) {
-					const fps = getFps(segments);
-					if (fps) {
-						callbacks.onSlowFps?.(fps);
-						if (fieldsInReturnValue.slowFps) {
-							returnValue.slowFps = fps;
-						}
-
-						emittedFields.slowFps = true;
-					}
-				}
 			}
 
 			continue;
@@ -403,14 +404,18 @@ export const emitAvailableInfo = ({
 			continue;
 		}
 
-		if (key === 'keyframes') {
-			if (!emittedFields.keyframes && hasInfo.keyframes && parseResult) {
-				callbacks.onKeyframes?.(state.keyframes.getKeyframes());
-				if (fieldsInReturnValue.keyframes) {
-					returnValue.keyframes = state.keyframes.getKeyframes();
+		if (key === 'slowKeyframes') {
+			if (
+				!emittedFields.slowKeyframes &&
+				hasInfo.slowKeyframes &&
+				parseResult
+			) {
+				callbacks.onSlowKeyframes?.(state.keyframes.getKeyframes());
+				if (fieldsInReturnValue.slowKeyframes) {
+					returnValue.slowKeyframes = state.keyframes.getKeyframes();
 				}
 
-				emittedFields.keyframes = true;
+				emittedFields.slowKeyframes = true;
 			}
 
 			continue;

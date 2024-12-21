@@ -21,7 +21,7 @@ export const emittedState = () => {
 		unrotatedDimensions: false,
 		slowDurationInSeconds: false,
 		slowFps: false,
-		keyframes: false,
+		slowKeyframes: false,
 	};
 
 	return emittedFields;

@@ -2,7 +2,7 @@ import {hasAudioCodec} from './get-audio-codec';
 import {hasContainer} from './get-container';
 import {hasDimensions} from './get-dimensions';
 import {hasDuration} from './get-duration';
-import {hasFps} from './get-fps';
+import {hasFps, hasFpsSuitedForSlowFps} from './get-fps';
 import {hasHdr} from './get-is-hdr';
 import {hasTracks} from './get-tracks';
 import {hasVideoCodec} from './get-video-codec';
@@ -44,10 +44,13 @@ export const getAvailableInfo = ({
 			return Boolean(structure && hasDimensions(structure, state));
 		}
 
-		if (key === 'fps' || key === 'slowFps') {
-			// If we have fastFps, we also propagate it to slowFps
-			// Otherwise, we need to go through the entire file to get the fps
+		if (key === 'fps') {
 			return Boolean(structure && hasFps(structure));
+		}
+
+		if (key === 'slowFps') {
+			// In case FPS is available an non-null, it also works for `slowFps`
+			return Boolean(structure && hasFpsSuitedForSlowFps(structure));
 		}
 
 		if (key === 'isHdr') {
@@ -90,8 +93,8 @@ export const getAvailableInfo = ({
 			return false;
 		}
 
-		if (key === 'keyframes') {
-			return Boolean(structure && state.keyframes.getHasKeyframes());
+		if (key === 'slowKeyframes') {
+			return false;
 		}
 
 		throw new Error(`Unknown key: ${key satisfies never}`);

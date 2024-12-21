@@ -42,7 +42,7 @@ export type ParseMediaFields = {
 	metadata: boolean;
 	location: boolean;
 	mimeType: boolean;
-	keyframes: boolean;
+	slowKeyframes: boolean;
 };
 
 export type AllParseMediaFields = {
@@ -65,7 +65,7 @@ export type AllParseMediaFields = {
 	metadata: true;
 	location: true;
 	mimeType: true;
-	keyframes: true;
+	slowKeyframes: true;
 };
 
 export type AllOptions<Fields extends ParseMediaFields> = {
@@ -88,7 +88,7 @@ export type AllOptions<Fields extends ParseMediaFields> = {
 	metadata: Fields['metadata'];
 	location: Fields['location'];
 	mimeType: Fields['mimeType'];
-	keyframes: Fields['keyframes'];
+	slowKeyframes: Fields['slowKeyframes'];
 };
 
 export type Options<Fields extends ParseMediaFields> = Partial<
@@ -130,7 +130,7 @@ export interface ParseMediaCallbacks {
 	onMetadata?: (metadata: MetadataEntry[]) => void;
 	onLocation?: (location: MediaParserLocation | null) => void;
 	onMimeType?: (mimeType: string | null) => void;
-	onKeyframes?: (keyframes: Keyframe[]) => void;
+	onSlowKeyframes?: (keyframes: Keyframe[]) => void;
 }
 
 export interface ParseMediaData {
@@ -153,7 +153,7 @@ export interface ParseMediaData {
 	location: MediaParserLocation | null;
 	container: ParseMediaContainer;
 	mimeType: string | null;
-	keyframes: Keyframe[];
+	slowKeyframes: MediaParserKeyframe[];
 }
 
 export type ParseMediaResult<T extends Partial<ParseMediaFields>> = {
