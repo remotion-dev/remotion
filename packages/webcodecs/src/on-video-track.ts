@@ -16,6 +16,7 @@ import {getDefaultVideoCodec} from './get-default-video-codec';
 import {Log} from './log';
 import {onFrame} from './on-frame';
 import type {ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
+import type {ResizingOperation} from './resizing/mode';
 import {calculateNewDimensionsFromDimensions} from './rotation';
 import type {ConvertMediaProgressFn} from './throttled-state-update';
 import {createVideoDecoder} from './video-decoder';
@@ -36,6 +37,7 @@ export const makeVideoTrackHandler =
 		outputContainer,
 		rotate,
 		progress,
+		resizeOperation,
 	}: {
 		state: MediaFn;
 		onVideoFrame: null | ConvertMediaOnVideoFrame;
@@ -48,6 +50,7 @@ export const makeVideoTrackHandler =
 		outputContainer: ConvertMediaContainer;
 		rotate: number;
 		progress: ProgressTracker;
+		resizeOperation: ResizingOperation | null;
 	}): OnVideoTrack =>
 	async ({track, container: inputContainer}) => {
 		if (controller.signal.aborted) {
@@ -71,6 +74,7 @@ export const makeVideoTrackHandler =
 			rotate,
 			inputContainer,
 			canCopyTrack,
+			resizeOperation,
 		});
 
 		if (videoOperation.type === 'drop') {
@@ -129,6 +133,8 @@ export const makeVideoTrackHandler =
 				width: track.codedWidth,
 				height: track.codedHeight,
 				rotation,
+				videoCodec: videoOperation.videoCodec,
+				resizingOperation: videoOperation.resize,
 			});
 
 		const videoEncoderConfig = await getVideoEncoderConfig({
@@ -217,6 +223,7 @@ export const makeVideoTrackHandler =
 					onVideoFrame,
 					outputCodec: videoOperation.videoCodec,
 					rotation,
+					resizingOperation: videoOperation.resize,
 				});
 			},
 			onError: (err) => {

@@ -3,7 +3,7 @@ import type {
 	ParseMediaContainer,
 } from '@remotion/media-parser';
 import type {ConvertMediaContainer} from './get-available-containers';
-import {normalizeVideoRotation} from './rotate-video-frame';
+import {normalizeVideoRotation} from './rotate-and-resize-video-frame';
 
 export const canCopyVideoTrack = ({
 	inputCodec,

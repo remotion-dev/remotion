@@ -1,0 +1,47 @@
+---
+id: resize-a-video
+title: Resize a video
+slug: /webcodecs/resize-a-video
+crumb: '@remotion/webcodecs'
+---
+
+You can resize a video in the browser using the [`@remotion/webcodecs`](/docs/webcodecs) package.
+
+import {LicenseDisclaimer} from './LicenseDisclaimer';
+import {UnstableDisclaimer} from './UnstableDisclaimer';
+
+<details>
+  <summary>💼 Important License Disclaimer</summary>
+  <LicenseDisclaimer />
+</details>
+
+<details>
+  <summary>🚧 Unstable API</summary>
+  <UnstableDisclaimer />
+</details>
+
+## Simple Example
+
+```tsx twoslash title="Scale a video down to 480p"
+// @module: es2022
+// @target: es2017
+import {convertMedia} from '@remotion/webcodecs';
+
+await convertMedia({
+  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  container: 'mp4',
+  resize: {
+    mode: 'max-height',
+    maxHeight: 480,
+  },
+});
+```
+
+## Order of operations
+
+If you apply both a [`rotate`](/docs/webcodecs/rotate-a-video) and a `resize` operation, the `rotate` operation will be applied first.
+
+## See also
+
+- [`@remotion/webcodecs`](/docs/webcodecs)
+- [Rotate a video](/docs/webcodecs/rotate-a-video)

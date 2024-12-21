@@ -31,6 +31,7 @@ import {makeAudioTrackHandler} from './on-audio-track';
 import {type ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
 import {makeVideoTrackHandler} from './on-video-track';
 import {type ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
+import type {ResizingOperation} from './resizing/mode';
 import {selectContainerCreator} from './select-container-creator';
 import {sendUsageEvent} from './send-telemetry-event';
 import {throttledStateUpdate} from './throttled-state-update';
@@ -77,6 +78,7 @@ export const convertMedia = async function <
 	progressIntervalInMs,
 	rotate,
 	apiKey,
+	resize,
 	...more
 }: {
 	src: ParseMediaOptions<F>['src'];
@@ -93,6 +95,7 @@ export const convertMedia = async function <
 	writer?: WriterInterface;
 	progressIntervalInMs?: number;
 	rotate?: number;
+	resize?: ResizingOperation;
 	apiKey?: string | null;
 } & ParseMediaDynamicOptions<F>): Promise<ConvertMediaResult> {
 	if (userPassedAbortSignal?.aborted) {
@@ -186,6 +189,7 @@ export const convertMedia = async function <
 		outputContainer: container,
 		rotate: rotate ?? 0,
 		progress: progressTracker,
+		resizeOperation: resize ?? null,
 	});
 
 	const onAudioTrack: OnAudioTrack = makeAudioTrackHandler({

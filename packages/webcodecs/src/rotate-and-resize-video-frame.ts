@@ -1,18 +1,26 @@
+import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
+import type {ResizingOperation} from './resizing/mode';
 import {calculateNewDimensionsFromDimensions} from './rotation';
 
 export const normalizeVideoRotation = (rotation: number) => {
 	return ((rotation % 360) + 360) % 360;
 };
 
-export const rotateVideoFrame = ({
+export const rotateAndResizeVideoFrame = ({
 	frame,
 	rotation,
+	videoCodec,
+	resizingOperation,
 }: {
 	frame: VideoFrame;
 	rotation: number;
+	videoCodec: ConvertMediaVideoCodec;
+	resizingOperation: ResizingOperation | null;
 }) => {
 	const normalized = ((rotation % 360) + 360) % 360;
-	if (normalized % 360 === 0) {
+
+	// No resize, no rotation
+	if (normalized === 0 && resizingOperation === null) {
 		return frame;
 	}
 
@@ -24,7 +32,18 @@ export const rotateVideoFrame = ({
 		height: frame.displayHeight,
 		width: frame.displayWidth,
 		rotation,
+		videoCodec,
+		resizingOperation,
 	});
+
+	// No rotation, and resize turned out to be same dimensions
+	if (
+		normalized === 0 &&
+		height === frame.displayHeight &&
+		width === frame.displayWidth
+	) {
+		return frame;
+	}
 
 	const canvas = new OffscreenCanvas(width, height);
 	const ctx = canvas.getContext('2d');
@@ -43,7 +62,14 @@ export const rotateVideoFrame = ({
 		ctx.translate(0, height);
 	}
 
-	ctx.rotate(normalized * (Math.PI / 180));
+	if (normalized !== 0) {
+		ctx.rotate(normalized * (Math.PI / 180));
+	}
+
+	if (frame.displayHeight !== height || frame.displayWidth !== width) {
+		ctx.scale(width / frame.displayWidth, height / frame.displayHeight);
+	}
+
 	ctx.drawImage(frame, 0, 0);
 
 	return new VideoFrame(canvas, {
