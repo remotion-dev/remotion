@@ -157,6 +157,7 @@ export const FileAvailable: React.FC<{
 											flipVertical={flipVertical}
 											setFlipVertical={setFlipVertical}
 											videoThumbnailRef={videoThumbnailRef}
+											rotation={probeResult.rotation}
 										/>
 									</div>
 								</div>

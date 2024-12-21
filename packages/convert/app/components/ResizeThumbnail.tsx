@@ -1,29 +1,61 @@
 import {Dimensions} from '@remotion/media-parser';
-import React, {useEffect, useMemo, useRef} from 'react';
+import {ResizeOperation} from '@remotion/webcodecs';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {ResizeCorner} from './ResizeCorner';
 import {VideoThumbnailRef} from './VideoThumbnail';
+
+const MAX_THUMBNAIL_SIZE = 150;
 
 export const getThumbnailDimensions = (dimensions: Dimensions) => {
 	if (dimensions.height > dimensions.width) {
 		return {
-			height: 150,
-			width: Math.floor((dimensions.width / dimensions.height) * 150),
+			height: MAX_THUMBNAIL_SIZE,
+			width: Math.floor(
+				(dimensions.width / dimensions.height) * MAX_THUMBNAIL_SIZE,
+			),
 		};
 	}
 
 	return {
-		height: Math.floor((dimensions.height / dimensions.width) * 150),
-		width: 150,
+		height: Math.floor(
+			(dimensions.height / dimensions.width) * MAX_THUMBNAIL_SIZE,
+		),
+		width: MAX_THUMBNAIL_SIZE,
 	};
 };
 
 export const ResizeThumbnail: React.FC<{
 	readonly dimensions: Dimensions;
+	readonly unrotatedDimensions: Dimensions;
 	readonly thumbnailRef: React.RefObject<VideoThumbnailRef | null>;
-}> = ({thumbnailRef, dimensions}) => {
+	readonly rotation: number;
+	readonly scale: number;
+	readonly setResizeMode: React.Dispatch<
+		React.SetStateAction<ResizeOperation | null>
+	>;
+}> = ({
+	thumbnailRef,
+	dimensions,
+	scale,
+	setResizeMode,
+	rotation,
+	unrotatedDimensions,
+}) => {
 	const ref = useRef<HTMLCanvasElement>(null);
-	const outer = useMemo(() => {
+	const thumbnailDimensions = useMemo(() => {
 		return getThumbnailDimensions(dimensions);
 	}, [dimensions]);
+
+	const unrotatedThumbnailDimensions = useMemo(() => {
+		return getThumbnailDimensions(unrotatedDimensions);
+	}, [unrotatedDimensions]);
+
+	const inner = useMemo(() => {
+		return {
+			height: thumbnailDimensions.height * scale,
+			width: thumbnailDimensions.width * scale,
+		};
+	}, [scale, thumbnailDimensions]);
 
 	useEffect(() => {
 		thumbnailRef.current?.copy().then((map) => {
@@ -32,16 +64,60 @@ export const ResizeThumbnail: React.FC<{
 				return;
 			}
 
-			ctx.drawImage(map, 0, 0, outer.width, outer.height);
+			ctx.drawImage(
+				map,
+				0,
+				0,
+				thumbnailDimensions.width,
+				thumbnailDimensions.height,
+			);
 		});
-	}, [outer.height, outer.width, thumbnailRef]);
+	}, [thumbnailDimensions.height, thumbnailDimensions.width, thumbnailRef]);
+
+	const [dragging, setDragging] = useState(false);
+
+	const onEnd = useCallback(() => {
+		setDragging(false);
+	}, []);
+
+	const onStart = useCallback(() => {
+		setDragging(true);
+	}, []);
 
 	return (
-		<canvas
-			ref={ref}
-			className="rounded overflow-hidden"
-			width={outer.width}
-			height={outer.height}
-		/>
+		<div className="rounded transition-transform">
+			<div
+				style={{
+					width: inner.width,
+					height: inner.height,
+					position: 'relative',
+					outline: '2px solid black',
+					overflow: 'hidden',
+				}}
+				data-animate={!dragging}
+				className="rounded flex justify-center items-center data-[animate=true]:transition-all"
+			>
+				<canvas
+					ref={ref}
+					className="rounded transition-transform"
+					style={{
+						position: 'absolute',
+						width: Math.ceil(unrotatedThumbnailDimensions.width * scale),
+						height: Math.ceil(unrotatedThumbnailDimensions.height * scale),
+						transform: `rotate(${rotation}deg)`,
+					}}
+					width={unrotatedThumbnailDimensions.width}
+					height={unrotatedThumbnailDimensions.height}
+				/>
+				<ResizeCorner
+					outerDimensions={thumbnailDimensions}
+					innerDimensions={inner}
+					setResizeMode={setResizeMode}
+					videoDimensionsAfterRotation={dimensions}
+					onEnd={onEnd}
+					onStart={onStart}
+				/>
+			</div>
+		</div>
 	);
 };

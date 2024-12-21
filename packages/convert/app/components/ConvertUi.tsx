@@ -65,6 +65,7 @@ export default function ConvertUI({
 	inputContainer,
 	dimensions,
 	videoThumbnailRef,
+	rotation,
 }: {
 	readonly src: Source;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
@@ -74,6 +75,7 @@ export default function ConvertUI({
 	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef | null>;
 	readonly dimensions: Dimensions | null;
 	readonly duration: number | null;
+	readonly rotation: number | null;
 	readonly inputContainer: ParseMediaContainer | null;
 	readonly logLevel: LogLevel;
 	readonly action: RouteAction;
@@ -412,6 +414,8 @@ export default function ConvertUI({
 		enableConvert,
 	});
 
+	console.log('rsize', resizeOperation);
+
 	return (
 		<>
 			<div className="w-full gap-4 flex flex-col">
@@ -511,6 +515,8 @@ export default function ConvertUI({
 											originalDimensions={dimensions}
 											dimensions={newDimensions}
 											thumbnailRef={videoThumbnailRef}
+											rotation={userRotation - (rotation ?? 0)}
+											setResizeMode={setResizeOperation}
 										/>
 									</>
 								) : null}

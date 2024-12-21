@@ -1,4 +1,5 @@
 import {Dimensions} from '@remotion/media-parser';
+import {ResizeOperation} from '@remotion/webcodecs';
 import React, {useMemo} from 'react';
 import {getThumbnailDimensions, ResizeThumbnail} from './ResizeThumbnail';
 import {VideoThumbnailRef} from './VideoThumbnail';
@@ -23,10 +24,34 @@ export const ResizeUi: React.FC<{
 	readonly dimensions: Dimensions;
 	readonly originalDimensions: Dimensions;
 	readonly thumbnailRef: React.RefObject<VideoThumbnailRef | null>;
-}> = ({dimensions, thumbnailRef, originalDimensions}) => {
+	readonly rotation: number;
+	readonly setResizeMode: React.Dispatch<
+		React.SetStateAction<ResizeOperation | null>
+	>;
+}> = ({
+	dimensions,
+	thumbnailRef,
+	originalDimensions,
+	rotation,
+	setResizeMode,
+}) => {
 	const outer: React.CSSProperties = useMemo(() => {
-		return {...getThumbnailDimensions(dimensions), outline: '2px solid black'};
+		return {...getThumbnailDimensions(dimensions), outlineStyle: 'solid'};
 	}, [dimensions]);
+
+	const rotatedDimensions = useMemo(() => {
+		if (rotation % 360 === 90 || rotation % 360 === 270) {
+			return {
+				height: originalDimensions.width,
+				width: originalDimensions.height,
+			};
+		}
+
+		return {
+			height: originalDimensions.height,
+			width: originalDimensions.width,
+		};
+	}, [originalDimensions, rotation]);
 
 	return (
 		<div className="mt-6 mb-6">
@@ -34,19 +59,23 @@ export const ResizeUi: React.FC<{
 				<div className="flex-1" />
 				<div
 					style={outer}
-					className="rounded bg-white transition-all overflow-hidden"
+					className="rounded bg-white transition-all flex justify-center items-center outline-2 outline-slate-300"
 				>
 					<ResizeThumbnail
-						dimensions={originalDimensions}
+						dimensions={rotatedDimensions}
 						thumbnailRef={thumbnailRef}
+						rotation={rotation}
+						scale={dimensions.width / rotatedDimensions.width}
+						setResizeMode={setResizeMode}
+						unrotatedDimensions={originalDimensions}
 					/>
 				</div>
-				<div className="flex-1 flex flex-row items-center">
+				<div className="flex-1 flex flex-row items-center ml-[2px]">
 					<div className="w-6 border-b-2 border-black border-dotted" />
 					<NumberInput value={dimensions.height} />
 				</div>
 			</div>
-			<div className="flex flex-col items-center">
+			<div className="flex flex-col items-center mt-[2px]">
 				<div className="h-6 border-r-2 border-black border-dotted" />
 				<div className="flex flex-row justify-center">
 					<NumberInput value={dimensions.width} />
