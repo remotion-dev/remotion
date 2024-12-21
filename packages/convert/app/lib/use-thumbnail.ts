@@ -24,12 +24,15 @@ export const useThumbnail = ({
 			reader: src.type === 'file' ? webFileReader : fetchReader,
 			src: src.type === 'file' ? src.file : src.url,
 			logLevel,
-			onVideoTrack: async ({track}) => {
+			onVideoTrack: async ({track, container}) => {
 				if (typeof VideoDecoder === 'undefined') {
 					return null;
 				}
 
 				let frames = 0;
+				const onlyKeyframes =
+					container !== 'transport-stream' && container !== 'webm';
+				const framesToGet = onlyKeyframes ? 30 : 3;
 
 				const decoder = new VideoDecoder({
 					error: (error) => {
@@ -39,6 +42,13 @@ export const useThumbnail = ({
 						abortController.abort();
 					},
 					output(frame) {
+						if (frames >= framesToGet) {
+							abortController.abort();
+							onDone();
+							return;
+						}
+						frames++;
+
 						onVideoThumbnail(frame).then(() => {
 							frame.close();
 						});
@@ -54,42 +64,35 @@ export const useThumbnail = ({
 				decoder.configure(track);
 
 				return (sample) => {
-					if (sample.type !== 'key') {
+					if (sample.type !== 'key' && onlyKeyframes) {
 						return;
 					}
 
-					if (frames >= 3) {
-						abortController.abort();
-						return;
+					if (sample.type === 'key') {
+						decoder.flush();
 					}
 
-					frames++;
-					decoder.flush();
 					decoder.decode(new EncodedVideoChunk(sample));
 				};
 			},
-		})
-			.catch((err) => {
-				if ((err as Error).stack?.includes('Cancelled')) {
-					return;
-				}
-				if ((err as Error).stack?.toLowerCase()?.includes('aborted')) {
-					return;
-				}
-				// firefox
-				if ((err as Error).message?.toLowerCase()?.includes('aborted')) {
-					return;
-				}
+		}).catch((err) => {
+			if ((err as Error).stack?.includes('Cancelled')) {
+				return;
+			}
+			if ((err as Error).stack?.toLowerCase()?.includes('aborted')) {
+				return;
+			}
+			// firefox
+			if ((err as Error).message?.toLowerCase()?.includes('aborted')) {
+				return;
+			}
 
-				console.log(err);
-				setError(err as Error);
-			})
-			.finally(() => {
-				onDone();
-			});
+			console.log(err);
+			setError(err as Error);
+		});
 
 		return abortController;
-	}, [logLevel, onDone, onVideoThumbnail, src]);
+	}, [logLevel, onVideoThumbnail, src]);
 
 	useEffect(() => {
 		const task = execute();

@@ -46,7 +46,7 @@ export const FileAvailable: React.FC<{
 	}, []);
 
 	const onDone = useCallback(() => {
-		videoThumbnailRef.current?.reveal();
+		videoThumbnailRef.current?.onDone();
 	}, []);
 
 	const onProgress: ParseMediaOnProgress = useCallback(

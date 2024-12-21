@@ -14,7 +14,7 @@ type Props = {
 
 export type VideoThumbnailRef = {
 	draw: (videoFrame: VideoFrame) => void;
-	reveal: () => void;
+	onDone: () => void;
 };
 
 const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
@@ -35,6 +35,7 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 	const [color, setColor] = useState<string>('transparent');
 	const [dimensions, setDimensions] = useState<{width: number}>({width: 0});
 	const [reveal, setReveal] = useState(initialReveal);
+	const [drawn, setDrawn] = useState(false);
 
 	const drawThumbnail = useCallback((unrotatedVideoFrame: VideoFrame) => {
 		const scaleRatio = THUMBNAIL_HEIGHT / unrotatedVideoFrame.displayHeight;
@@ -59,13 +60,16 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 
 			return new FastAverageColor().getColor(canvas).hex;
 		});
+		setDrawn(true);
 	}, []);
 
 	useImperativeHandle(
 		forwardedRef,
 		() => ({
 			draw: drawThumbnail,
-			reveal: () => setReveal(true),
+			onDone: () => {
+				setReveal(true);
+			},
 		}),
 		[drawThumbnail],
 	);
@@ -80,13 +84,13 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 
 	return (
 		<div
-			className="border-b-2 border-black overflow-hidden"
+			className="border-b-2 border-black overflow-hidden bg-slate-100"
 			// +2 to account for border
 			style={{height: THUMBNAIL_HEIGHT * scale + 2}}
 		>
 			<div
 				className="flex justify-center transition-opacity"
-				style={{backgroundColor: color, opacity: reveal ? 1 : 0}}
+				style={{backgroundColor: color, opacity: reveal && drawn ? 1 : 0}}
 			>
 				<canvas
 					ref={ref}
