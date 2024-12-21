@@ -32,7 +32,7 @@ export const useThumbnail = ({
 				let frames = 0;
 				const onlyKeyframes =
 					container !== 'transport-stream' && container !== 'webm';
-				const framesToGet = onlyKeyframes ? 30 : 3;
+				const framesToGet = onlyKeyframes ? 3 : 30;
 
 				const decoder = new VideoDecoder({
 					error: (error) => {
