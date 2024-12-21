@@ -1,6 +1,5 @@
-import {maySkipVideoData} from '../may-skip-video-data/may-skip-video-data';
 import {needsToIterateOverSamples} from '../may-skip-video-data/need-samples-for-fields';
-import type {Options, ParseMediaFields} from '../options';
+import type {AllOptions, Options, ParseMediaFields} from '../options';
 import type {
 	AudioOrVideoSample,
 	OnAudioSample,
@@ -18,6 +17,7 @@ export const sampleCallback = ({
 	fields,
 	structureState,
 	keyframes,
+	emittedFields,
 }: {
 	signal: AbortSignal | undefined;
 	hasAudioTrackHandlers: boolean;
@@ -25,6 +25,7 @@ export const sampleCallback = ({
 	fields: Options<ParseMediaFields>;
 	structureState: StructureState;
 	keyframes: KeyframesState;
+	emittedFields: AllOptions<ParseMediaFields>;
 }) => {
 	const videoSampleCallbacks: Record<number, OnVideoSample> = {};
 	const audioSampleCallbacks: Record<number, OnAudioSample> = {};
@@ -101,6 +102,7 @@ export const sampleCallback = ({
 				needsToIterateOverSamples({
 					fields,
 					structure: structureState.getStructure(),
+					emittedFields,
 				})
 			) {
 				keyframes.addKeyframe({
@@ -111,15 +113,6 @@ export const sampleCallback = ({
 					sizeInBytes: videoSample.data.length,
 				});
 			}
-		},
-		maySkipVideoData: () => {
-			return maySkipVideoData({
-				tracksState,
-				videoSampleCallbacks,
-				audioSampleCallbacks,
-				fields,
-				structure: structureState.getStructureOrNull(),
-			});
 		},
 		canSkipTracksState,
 		registerAudioSampleCallback: async (
@@ -139,5 +132,7 @@ export const sampleCallback = ({
 			queuedAudioSamples[id] = [];
 		},
 		tracks: tracksState,
+		audioSampleCallbacks,
+		videoSampleCallbacks,
 	};
 };

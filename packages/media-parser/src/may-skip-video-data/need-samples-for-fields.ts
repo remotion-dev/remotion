@@ -1,4 +1,4 @@
-import type {Options, ParseMediaFields} from '../options';
+import type {AllOptions, Options, ParseMediaFields} from '../options';
 import type {Structure} from '../parse-result';
 
 const needsSamples: Record<keyof Options<ParseMediaFields>, boolean> = {
@@ -6,6 +6,7 @@ const needsSamples: Record<keyof Options<ParseMediaFields>, boolean> = {
 	container: false,
 	dimensions: false,
 	durationInSeconds: false,
+	slowDurationInSeconds: true,
 	fps: false,
 	internalStats: false,
 	isHdr: false,
@@ -25,9 +26,11 @@ const needsSamples: Record<keyof Options<ParseMediaFields>, boolean> = {
 export const needsToIterateOverSamples = ({
 	fields,
 	structure,
+	emittedFields,
 }: {
 	fields: Options<ParseMediaFields>;
 	structure: Structure;
+	emittedFields: AllOptions<ParseMediaFields>;
 }) => {
 	// We can get keyframes from the metadata!
 	if (structure.type === 'iso-base-media') {
@@ -36,5 +39,5 @@ export const needsToIterateOverSamples = ({
 
 	const keys = Object.keys(fields ?? {}) as (keyof Options<ParseMediaFields>)[];
 	const selectedKeys = keys.filter((k) => fields[k]);
-	return selectedKeys.some((k) => needsSamples[k]);
+	return selectedKeys.some((k) => needsSamples[k] && !emittedFields[k]);
 };

@@ -10,7 +10,6 @@ import {getTracks} from './get-tracks';
 import {getVideoCodec} from './get-video-codec';
 import {getMetadata} from './metadata/get-metadata';
 import type {
-	AllOptions,
 	AllParseMediaFields,
 	Options,
 	ParseMediaCallbacks,
@@ -30,13 +29,11 @@ export const emitAvailableInfo = ({
 	name,
 	mimeType,
 	fieldsInReturnValue,
-	emittedFields,
 }: {
 	hasInfo: Record<keyof Options<ParseMediaFields>, boolean>;
 	parseResult: ParseResult | null;
 	callbacks: ParseMediaCallbacks;
 	fieldsInReturnValue: Options<ParseMediaFields>;
-	emittedFields: AllOptions<ParseMediaFields>;
 	state: ParserState;
 	returnValue: ParseMediaResult<AllParseMediaFields>;
 	contentLength: number | null;
@@ -46,6 +43,7 @@ export const emitAvailableInfo = ({
 	const keys = Object.keys(hasInfo) as (keyof Options<ParseMediaFields>)[];
 
 	const segments = state.structure.getStructureOrNull();
+	const {emittedFields} = state;
 
 	for (const key of keys) {
 		if (key === 'structure') {
@@ -80,6 +78,43 @@ export const emitAvailableInfo = ({
 				}
 
 				emittedFields.durationInSeconds = true;
+			}
+
+			if (
+				hasInfo.durationInSeconds &&
+				!emittedFields.slowDurationInSeconds &&
+				parseResult &&
+				segments
+			) {
+				const durationInSeconds = getDuration(segments, state);
+				if (durationInSeconds !== null) {
+					callbacks.onSlowDurationInSeconds?.(durationInSeconds);
+					if (fieldsInReturnValue.slowDurationInSeconds) {
+						returnValue.slowDurationInSeconds = durationInSeconds;
+					}
+
+					emittedFields.slowDurationInSeconds = true;
+				}
+			}
+
+			continue;
+		}
+
+		if (key === 'slowDurationInSeconds') {
+			if (
+				hasInfo.slowDurationInSeconds &&
+				!emittedFields.slowDurationInSeconds &&
+				parseResult &&
+				segments
+			) {
+				// TODO: Fix slow duration
+				const slowDurationInSeconds = 100;
+				callbacks.onSlowDurationInSeconds?.(slowDurationInSeconds);
+				if (fieldsInReturnValue.slowDurationInSeconds) {
+					returnValue.slowDurationInSeconds = slowDurationInSeconds;
+				}
+
+				emittedFields.slowDurationInSeconds = true;
 			}
 
 			continue;

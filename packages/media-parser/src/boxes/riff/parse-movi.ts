@@ -1,5 +1,6 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
+import {maySkipVideoData} from '../../may-skip-video-data/may-skip-video-data';
 import type {RiffStructure} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import {getKeyFrameOrDeltaFromAvcInfo} from '../avc/key';
@@ -155,7 +156,12 @@ export const parseMovi = async ({
 		const ckId = iterator.getByteString(4);
 		const ckSize = iterator.getUint32Le();
 
-		if (state.callbacks.maySkipVideoData() && state.riff.getAvcProfile()) {
+		if (
+			maySkipVideoData({
+				state,
+			}) &&
+			state.riff.getAvcProfile()
+		) {
 			return {
 				type: 'complete',
 				box: {

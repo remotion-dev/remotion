@@ -31,6 +31,7 @@ export const getFieldsFromCallback = <F extends Options<ParseMediaFields>>({
 		unrotatedDimensions: Boolean(callbacks.onUnrotatedDimensions),
 		videoCodec: Boolean(callbacks.onVideoCodec),
 		keyframes: Boolean(callbacks.onKeyframes),
+		slowDurationInSeconds: Boolean(callbacks.onSlowDurationInSeconds),
 		...fields,
 	};
 	return newFields;

@@ -6,6 +6,7 @@ import {hasFps} from './get-fps';
 import {hasHdr} from './get-is-hdr';
 import {hasTracks} from './get-tracks';
 import {hasVideoCodec} from './get-video-codec';
+import {maySkipVideoData} from './may-skip-video-data/may-skip-video-data';
 import type {AllParseMediaFields, Options, ParseMediaFields} from './options';
 import type {ParserState} from './state/parser-state';
 
@@ -29,7 +30,9 @@ export const getAvailableInfo = ({
 			return false;
 		}
 
-		if (key === 'durationInSeconds') {
+		if (key === 'durationInSeconds' || key === 'slowDurationInSeconds') {
+			// If we have fastDuration, we also propagate it to slowDuration
+			// Otherwise, we need to go through the entire file to get the duration
 			return Boolean(structure && hasDuration(structure, state));
 		}
 
@@ -118,7 +121,7 @@ export const hasAllInfo = ({
 	});
 	return (
 		Object.values(availableInfo).every(Boolean) &&
-		(state.callbacks.maySkipVideoData() ||
+		(maySkipVideoData({state}) ||
 			state.callbacks.canSkipTracksState.canSkipTracks())
 	);
 };

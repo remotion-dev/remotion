@@ -5,7 +5,6 @@ import {getFieldsFromCallback} from './get-fields-from-callbacks';
 import {getAvailableInfo, hasAllInfo} from './has-all-info';
 import {Log} from './log';
 import type {
-	AllOptions,
 	AllParseMediaFields,
 	Options,
 	ParseMedia,
@@ -75,27 +74,6 @@ export const parseMedia: ParseMedia = async function <
 
 	let currentReader = reader;
 
-	const emittedFields: AllOptions<ParseMediaFields> = {
-		audioCodec: false,
-		container: false,
-		dimensions: false,
-		durationInSeconds: false,
-		fps: false,
-		internalStats: false,
-		isHdr: false,
-		location: false,
-		metadata: false,
-		mimeType: false,
-		name: false,
-		rotation: false,
-		size: false,
-		structure: false,
-		tracks: false,
-		videoCodec: false,
-		unrotatedDimensions: false,
-		keyframes: false,
-	};
-
 	const returnValue = {} as ParseMediaResult<AllParseMediaFields>;
 	const moreFields = more as ParseMediaCallbacks;
 
@@ -114,7 +92,6 @@ export const parseMedia: ParseMedia = async function <
 			contentLength,
 			name,
 			mimeType: contentType,
-			emittedFields,
 		});
 	};
 
@@ -261,7 +238,6 @@ export const parseMedia: ParseMedia = async function <
 		contentLength,
 		mimeType: contentType,
 		name,
-		emittedFields,
 	});
 
 	currentReader.abort();
