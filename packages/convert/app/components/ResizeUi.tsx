@@ -1,6 +1,7 @@
 import {Dimensions} from '@remotion/media-parser';
 import {ResizeOperation} from '@remotion/webcodecs';
 import React, {useCallback, useMemo} from 'react';
+import {ResizeShortcuts} from './ResizeShortcuts';
 import {getThumbnailDimensions, ResizeThumbnail} from './ResizeThumbnail';
 import {VideoThumbnailRef} from './VideoThumbnail';
 
@@ -13,22 +14,24 @@ const NumberInput: React.FC<{
 }> = ({value, requireTwoStep, onValueChange, onBlur, onFocus}) => {
 	const ref = React.useRef<HTMLInputElement>(null);
 	return (
-		<input
-			ref={ref}
-			type="number"
-			min="2"
-			value={value}
-			step={requireTwoStep ? 2 : 1}
-			className="border-2 border-black border-b-4 w-20 text-center rounded font-brand h-10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none active:border-brand focus:border-brand active:text-brand focus:text-brand outline-none"
-			onFocus={() => {
-				ref.current?.select();
-				onFocus();
-			}}
-			onBlur={onBlur}
-			onChange={(e) => {
-				onValueChange(Number(e.target.value));
-			}}
-		/>
+		<div className="flex flex-row">
+			<input
+				ref={ref}
+				type="number"
+				min="2"
+				value={value}
+				step={requireTwoStep ? 2 : 1}
+				className="border-2 border-black border-b-4 w-20 text-center rounded font-brand h-10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none active:border-brand focus:border-brand active:text-brand focus:text-brand outline-none"
+				onFocus={() => {
+					ref.current?.select();
+					onFocus();
+				}}
+				onBlur={onBlur}
+				onChange={(e) => {
+					onValueChange(Number(e.target.value));
+				}}
+			/>
+		</div>
 	);
 };
 
@@ -96,6 +99,12 @@ export const ResizeUi: React.FC<{
 
 	return (
 		<div className="mt-6 mb-6">
+			<ResizeShortcuts
+				originalDimensions={rotatedDimensions}
+				resolvedDimensions={dimensions}
+				setResizeMode={setResizeMode}
+			/>
+
 			<div className="flex flex-row justify-center items-center">
 				<div className="flex-1" />
 				<div

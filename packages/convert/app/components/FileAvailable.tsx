@@ -115,7 +115,7 @@ export const FileAvailable: React.FC<{
 							Choose another file
 						</Button>
 					</div>
-					<div className="lg:inline-flex lg:flex-row">
+					<div className="lg:inline-flex lg:flex-row items-start">
 						<Probe
 							thumbnailError={err}
 							src={src}
