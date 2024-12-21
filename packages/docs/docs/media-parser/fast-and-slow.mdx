@@ -22,7 +22,10 @@ Obviously, processing less of the file is faster and you should aim to read only
 The following [`fields`](/docs/media-parser#fields) require the full file to be read:
 
 - [`structure`](/docs/media-parser/parse-media#structure)
-- [`keyframes`](/docs/media-parser/parse-media#keyframes) - Except for ISO Base Media (`.mp4`, `.mov`) files.
+- [`slowKeyframes`](/docs/media-parser/parse-media#slowkeyframes)
+- [`slowFps`](/docs/media-parser/parse-media#slowfps)
+- [`slowDurationInSeconds`](/docs/media-parser/parse-media#slowdurationinseconds)
+- [`slowNumberOfFrames`](/docs/media-parser/parse-media#slownumberofframes)
 
 Also, if an [`onVideoTrack`](/docs/media-parser/parse-media#onvideotrack) or [`onAudioTrack`](/docs/media-parser/parse-media#onvideotrack) handler is passed, and the handler function returns an callback function for each sample, full parsing is required.
 
