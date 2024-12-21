@@ -31,6 +31,12 @@ export const defaultRotateOrMirorState = (
 	if (action.type === 'generic-mirror') {
 		return 'mirror';
 	}
+	if (action.type === 'generic-resize') {
+		return null;
+	}
+	if (action.type === 'resize-format') {
+		return null;
+	}
 
 	throw new Error(
 		'Rotate is not enabled by default ' + (action satisfies never),
@@ -65,6 +71,14 @@ export const isConvertEnabledByDefault = (action: RouteAction) => {
 		return false;
 	}
 
+	if (action.type === 'generic-resize') {
+		return false;
+	}
+
+	if (action.type === 'resize-format') {
+		return false;
+	}
+
 	throw new Error(
 		'Convert is not enabled by default ' + (action satisfies never),
 	);
@@ -83,7 +97,7 @@ export const getOrderOfSections = (
 			convert: 3,
 		};
 	}
-	if (action.type === 'convert') {
+	if (action.type === 'convert' || action.type === 'generic-convert') {
 		return {
 			convert: 0,
 			resize: 1,
@@ -99,15 +113,7 @@ export const getOrderOfSections = (
 			mirror: 3,
 		};
 	}
-	if (action.type === 'generic-convert') {
-		return {
-			convert: 0,
-			resize: 1,
-			rotate: 2,
-			mirror: 3,
-		};
-	}
-	if (action.type === 'generic-mirror') {
+	if (action.type === 'generic-mirror' || action.type === 'mirror-format') {
 		return {
 			mirror: 0,
 			resize: 1,
@@ -115,11 +121,11 @@ export const getOrderOfSections = (
 			convert: 3,
 		};
 	}
-	if (action.type === 'mirror-format') {
+	if (action.type === 'generic-resize' || action.type === 'resize-format') {
 		return {
-			mirror: 0,
-			resize: 1,
-			rotate: 2,
+			resize: 0,
+			rotate: 1,
+			mirror: 2,
 			convert: 3,
 		};
 	}

@@ -108,7 +108,11 @@ export default function ConvertUI({
 		isConvertEnabledByDefault(action),
 	);
 	const [resizeOperation, setResizeOperation] =
-		useState<ResizeOperation | null>(null);
+		useState<ResizeOperation | null>(() => {
+			return action.type === 'resize-format' || action.type === 'generic-resize'
+				? getInitialResizeSuggestion(dimensions)
+				: null;
+		});
 
 	const order = useMemo(() => {
 		return Object.entries(getOrderOfSections(action))

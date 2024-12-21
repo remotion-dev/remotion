@@ -50,6 +50,12 @@ const shouldPrioritizeVideoCopyOverReencode = (routeAction: RouteAction) => {
 	if (routeAction.type === 'generic-probe') {
 		return true;
 	}
+	if (routeAction.type === 'generic-resize') {
+		return false;
+	}
+	if (routeAction.type === 'resize-format') {
+		return false;
+	}
 
 	throw new Error('Unsupported route action' + (routeAction satisfies never));
 };
