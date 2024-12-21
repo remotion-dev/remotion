@@ -35,7 +35,7 @@ test('Should stream WebM with no duration', async () => {
 		height: 690,
 	});
 	expect(result.fps).toBe(null);
-	expect(result.slowFps).toBe(0.9968433294567204);
+	expect(result.slowFps).toBe(0.9968433294567203);
 	expect(result.videoCodec).toBe('vp8');
 	expect(result.audioCodec).toBe(null);
 	expect(result.rotation).toBe(0);

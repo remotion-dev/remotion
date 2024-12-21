@@ -142,9 +142,24 @@ export const getDuration = (
 	throw new Error('Has no duration ' + (structure satisfies never));
 };
 
+// `duration` just grabs from metadata, and otherwise returns null
+// Therefore just checking if we have tracks
 export const hasDuration = (
 	structure: Structure,
 	parserState: ParserState,
 ): boolean => {
 	return hasTracks(structure, parserState);
+};
+
+// `slowDuration` does through everything, and therefore is false
+// Unless it it somewhere in the metadata and is non-null
+export const hasSlowDuration = (
+	structure: Structure,
+	parserState: ParserState,
+): boolean => {
+	try {
+		return getDuration(structure, parserState) !== null;
+	} catch {
+		return false;
+	}
 };

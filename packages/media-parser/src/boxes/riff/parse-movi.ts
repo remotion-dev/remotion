@@ -66,25 +66,23 @@ export const handleChunk = async ({
 		// We must also NOT pass a duration because if the the next sample is 0,
 		// this sample would be longer. Chrome will pad it with silence.
 		// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished
-		if (data.length > 0) {
-			await state.callbacks.onVideoSample(
-				trackId,
-				convertAudioOrVideoSampleToWebCodecsTimestamps(
-					{
-						cts: timestamp,
-						dts: timestamp,
-						data,
-						duration: undefined,
-						timestamp,
-						trackId,
-						type: keyOrDelta,
-						offset,
-						timescale: samplesPerSecond,
-					},
-					1,
-				),
-			);
-		}
+		await state.callbacks.onVideoSample(
+			trackId,
+			convertAudioOrVideoSampleToWebCodecsTimestamps(
+				{
+					cts: timestamp,
+					dts: timestamp,
+					data,
+					duration: undefined,
+					timestamp,
+					trackId,
+					type: keyOrDelta,
+					offset,
+					timescale: samplesPerSecond,
+				},
+				1,
+			),
+		);
 
 		return;
 	}
@@ -107,26 +105,23 @@ export const handleChunk = async ({
 		// We must also NOT pass a duration because if the the next sample is 0,
 		// this sample would be longer. Chrome will pad it with silence.
 		// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished
-
-		if (data.length > 0) {
-			await state.callbacks.onAudioSample(
-				trackId,
-				convertAudioOrVideoSampleToWebCodecsTimestamps(
-					{
-						cts: timestamp,
-						dts: timestamp,
-						data,
-						duration: undefined,
-						timestamp,
-						trackId,
-						type: 'key',
-						offset,
-						timescale: samplesPerSecond,
-					},
-					1,
-				),
-			);
-		}
+		await state.callbacks.onAudioSample(
+			trackId,
+			convertAudioOrVideoSampleToWebCodecsTimestamps(
+				{
+					cts: timestamp,
+					dts: timestamp,
+					data,
+					duration: undefined,
+					timestamp,
+					trackId,
+					type: 'key',
+					offset,
+					timescale: samplesPerSecond,
+				},
+				1,
+			),
+		);
 	}
 };
 

@@ -180,8 +180,8 @@ test('Transport stream', async () => {
 	expect(audioSamples).toBe(234);
 	expect(audioCodec).toBe('aac');
 	expect(fps).toBe(null);
-	expect(slowFps).toBe(59.191919191919176);
-	expect(slowDurationInSeconds).toBe(1.8000000000000007);
+	expect(slowFps).toBe(59.19191919191918);
+	expect(slowDurationInSeconds).toBe(4.966894197952219);
 	expect(isHdr).toBe(true);
 	expect(videoCodec).toBe('h264');
 	expect(videoSamples).toBe(294);

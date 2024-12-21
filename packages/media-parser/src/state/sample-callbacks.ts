@@ -92,7 +92,9 @@ export const sampleCallback = ({
 			samplesForTrack[trackId]++;
 
 			const callback = videoSampleCallbacks[trackId];
-			if (callback) {
+
+			// If we emit samples with data 0, Chrome will fail
+			if (callback && videoSample.data.length > 0) {
 				await callback(videoSample);
 			}
 

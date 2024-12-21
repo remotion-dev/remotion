@@ -7,7 +7,9 @@ export const slowDurationAndFpsState = () => {
 
 	const getSlowDurationInSeconds = () => {
 		if (smallestSample !== undefined && largestSample !== undefined) {
-			return largestSample - smallestSample;
+			const startingTimestampDifference = largestSample - smallestSample;
+			const timeBetweenSamples = startingTimestampDifference / (samples - 1);
+			return timeBetweenSamples * samples;
 		}
 
 		throw new Error('No samples');
@@ -33,7 +35,7 @@ export const slowDurationAndFpsState = () => {
 		},
 		getSlowDurationInSeconds,
 		getFps: () => {
-			return (samples - 1) / getSlowDurationInSeconds();
+			return samples / getSlowDurationInSeconds();
 		},
 	};
 };
