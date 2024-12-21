@@ -25,8 +25,10 @@ export type KnownAudioCodecs =
 export type ParseMediaFields = {
 	dimensions: boolean;
 	durationInSeconds: boolean;
+	slowDurationInSeconds: boolean;
 	structure: boolean;
 	fps: boolean;
+	slowFps: boolean;
 	videoCodec: boolean;
 	audioCodec: boolean;
 	tracks: boolean;
@@ -41,11 +43,16 @@ export type ParseMediaFields = {
 	location: boolean;
 	mimeType: boolean;
 	keyframes: boolean;
+	slowKeyframes: boolean;
+	slowNumberOfFrames: boolean;
 };
 
 export type AllParseMediaFields = {
 	dimensions: true;
 	durationInSeconds: true;
+	slowDurationInSeconds: true;
+	slowNumberOfFrames: true;
+	slowFps: true;
 	structure: true;
 	fps: true;
 	videoCodec: true;
@@ -62,11 +69,14 @@ export type AllParseMediaFields = {
 	location: true;
 	mimeType: true;
 	keyframes: true;
+	slowKeyframes: true;
 };
 
 export type AllOptions<Fields extends ParseMediaFields> = {
 	dimensions: Fields['dimensions'];
 	durationInSeconds: Fields['durationInSeconds'];
+	slowDurationInSeconds: Fields['slowDurationInSeconds'];
+	slowFps: Fields['slowFps'];
 	structure: Fields['structure'];
 	fps: Fields['fps'];
 	videoCodec: Fields['videoCodec'];
@@ -83,6 +93,8 @@ export type AllOptions<Fields extends ParseMediaFields> = {
 	location: Fields['location'];
 	mimeType: Fields['mimeType'];
 	keyframes: Fields['keyframes'];
+	slowKeyframes: Fields['slowKeyframes'];
+	slowNumberOfFrames: Fields['slowNumberOfFrames'];
 };
 
 export type Options<Fields extends ParseMediaFields> = Partial<
@@ -107,6 +119,8 @@ export type MediaParserKeyframe = {
 export interface ParseMediaCallbacks {
 	onDimensions?: (dimensions: Dimensions) => void;
 	onDurationInSeconds?: (durationInSeconds: number | null) => void;
+	onSlowDurationInSeconds?: (durationInSeconds: number) => void;
+	onSlowFps?: (fps: number) => void;
 	onStructure?: (structure: Structure) => void;
 	onFps?: (fps: number | null) => void;
 	onVideoCodec?: (codec: MediaParserVideoCodec | null) => void;
@@ -122,12 +136,16 @@ export interface ParseMediaCallbacks {
 	onMetadata?: (metadata: MetadataEntry[]) => void;
 	onLocation?: (location: MediaParserLocation | null) => void;
 	onMimeType?: (mimeType: string | null) => void;
-	onKeyframes?: (keyframes: Keyframe[]) => void;
+	onKeyframes?: (keyframes: MediaParserKeyframe[] | null) => void;
+	onSlowKeyframes?: (keyframes: MediaParserKeyframe[]) => void;
+	onSlowNumberOfFrames?: (samples: number) => void;
 }
 
 export interface ParseMediaData {
 	dimensions: Dimensions;
 	durationInSeconds: number | null;
+	slowDurationInSeconds: number;
+	slowFps: number;
 	structure: Structure;
 	fps: number | null;
 	videoCodec: MediaParserVideoCodec | null;
@@ -143,7 +161,9 @@ export interface ParseMediaData {
 	location: MediaParserLocation | null;
 	container: ParseMediaContainer;
 	mimeType: string | null;
-	keyframes: Keyframe[];
+	keyframes: MediaParserKeyframe[] | null;
+	slowKeyframes: MediaParserKeyframe[];
+	slowNumberOfFrames: number;
 }
 
 export type ParseMediaResult<T extends Partial<ParseMediaFields>> = {

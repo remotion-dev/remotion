@@ -1,18 +1,22 @@
 import {Table, TableBody, TableCell, TableRow} from '@/components/ui/table';
 import type {
+	MediaParserKeyframe,
 	MediaParserLocation,
 	MetadataEntry,
 	VideoTrack,
 } from '@remotion/media-parser';
 import React from 'react';
 import {renderHumanReadableVideoCodec} from '~/lib/render-codec-label';
+import {KeyframesInfo} from './KeyframesInfo';
 import {MetadataDisplay} from './MetadataTable';
 
 export const VideoTrackOverview: React.FC<{
 	readonly track: VideoTrack;
 	readonly metadata: MetadataEntry[] | null;
 	readonly location: MediaParserLocation | null;
-}> = ({track, metadata, location}) => {
+	readonly keyframes: MediaParserKeyframe[] | null;
+	readonly durationInSeconds: number | null;
+}> = ({track, metadata, location, keyframes, durationInSeconds}) => {
 	return (
 		<Table className="table-fixed">
 			<TableBody>
@@ -47,6 +51,13 @@ export const VideoTrackOverview: React.FC<{
 						{track.sampleAspectRatio.denominator}
 					</TableCell>
 				</TableRow>
+				{keyframes !== null ? (
+					<KeyframesInfo
+						durationInSeconds={durationInSeconds}
+						keyframes={keyframes}
+						trackId={track.trackId}
+					/>
+				) : null}
 				<TableRow>
 					<TableCell className="font-brand">Rotation</TableCell>
 					<TableCell className="text-right">{track.rotation}°</TableCell>

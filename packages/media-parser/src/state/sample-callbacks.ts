@@ -1,6 +1,5 @@
-import {maySkipVideoData} from '../may-skip-video-data/may-skip-video-data';
 import {needsToIterateOverSamples} from '../may-skip-video-data/need-samples-for-fields';
-import type {Options, ParseMediaFields} from '../options';
+import type {AllOptions, Options, ParseMediaFields} from '../options';
 import type {
 	AudioOrVideoSample,
 	OnAudioSample,
@@ -9,22 +8,24 @@ import type {
 import {makeCanSkipTracksState} from './can-skip-tracks';
 import {makeTracksSectionState} from './has-tracks-section';
 import {type KeyframesState} from './keyframes';
-import type {StructureState} from './structure';
+import type {SlowDurationAndFpsState} from './slow-duration-fps';
 
 export const sampleCallback = ({
 	signal,
 	hasAudioTrackHandlers,
 	hasVideoTrackHandlers,
 	fields,
-	structureState,
 	keyframes,
+	emittedFields,
+	slowDurationAndFpsState,
 }: {
 	signal: AbortSignal | undefined;
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
 	fields: Options<ParseMediaFields>;
-	structureState: StructureState;
 	keyframes: KeyframesState;
+	emittedFields: AllOptions<ParseMediaFields>;
+	slowDurationAndFpsState: SlowDurationAndFpsState;
 }) => {
 	const videoSampleCallbacks: Record<number, OnVideoSample> = {};
 	const audioSampleCallbacks: Record<number, OnAudioSample> = {};
@@ -91,35 +92,30 @@ export const sampleCallback = ({
 			samplesForTrack[trackId]++;
 
 			const callback = videoSampleCallbacks[trackId];
-			if (callback) {
+
+			// If we emit samples with data 0, Chrome will fail
+			if (callback && videoSample.data.length > 0) {
 				await callback(videoSample);
 			}
 
 			if (
-				videoSample.type === 'key' &&
-				fields.keyframes &&
 				needsToIterateOverSamples({
 					fields,
-					structure: structureState.getStructure(),
+					emittedFields,
 				})
 			) {
-				keyframes.addKeyframe({
-					trackId,
-					decodingTimeInSeconds: videoSample.dts / videoSample.timescale,
-					positionInBytes: videoSample.offset,
-					presentationTimeInSeconds: videoSample.cts / videoSample.timescale,
-					sizeInBytes: videoSample.data.length,
-				});
+				if (fields.slowKeyframes && videoSample.type === 'key') {
+					keyframes.addKeyframe({
+						trackId,
+						decodingTimeInSeconds: videoSample.dts / videoSample.timescale,
+						positionInBytes: videoSample.offset,
+						presentationTimeInSeconds: videoSample.cts / videoSample.timescale,
+						sizeInBytes: videoSample.data.length,
+					});
+				}
+
+				slowDurationAndFpsState.addSample(videoSample);
 			}
-		},
-		maySkipVideoData: () => {
-			return maySkipVideoData({
-				tracksState,
-				videoSampleCallbacks,
-				audioSampleCallbacks,
-				fields,
-				structure: structureState.getStructureOrNull(),
-			});
 		},
 		canSkipTracksState,
 		registerAudioSampleCallback: async (
@@ -139,5 +135,7 @@ export const sampleCallback = ({
 			queuedAudioSamples[id] = [];
 		},
 		tracks: tracksState,
+		audioSampleCallbacks,
+		videoSampleCallbacks,
 	};
 };

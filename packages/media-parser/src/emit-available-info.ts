@@ -5,12 +5,12 @@ import {getDimensions} from './get-dimensions';
 import {getDuration} from './get-duration';
 import {getFps} from './get-fps';
 import {getIsHdr} from './get-is-hdr';
+import {getKeyframes} from './get-keyframes';
 import {getLocation} from './get-location';
 import {getTracks} from './get-tracks';
 import {getVideoCodec} from './get-video-codec';
 import {getMetadata} from './metadata/get-metadata';
 import type {
-	AllOptions,
 	AllParseMediaFields,
 	Options,
 	ParseMediaCallbacks,
@@ -30,13 +30,11 @@ export const emitAvailableInfo = ({
 	name,
 	mimeType,
 	fieldsInReturnValue,
-	emittedFields,
 }: {
 	hasInfo: Record<keyof Options<ParseMediaFields>, boolean>;
 	parseResult: ParseResult | null;
 	callbacks: ParseMediaCallbacks;
 	fieldsInReturnValue: Options<ParseMediaFields>;
-	emittedFields: AllOptions<ParseMediaFields>;
 	state: ParserState;
 	returnValue: ParseMediaResult<AllParseMediaFields>;
 	contentLength: number | null;
@@ -46,6 +44,7 @@ export const emitAvailableInfo = ({
 	const keys = Object.keys(hasInfo) as (keyof Options<ParseMediaFields>)[];
 
 	const segments = state.structure.getStructureOrNull();
+	const {emittedFields} = state;
 
 	for (const key of keys) {
 		if (key === 'structure') {
@@ -67,19 +66,96 @@ export const emitAvailableInfo = ({
 		}
 
 		if (key === 'durationInSeconds') {
+			if (hasInfo.durationInSeconds && parseResult && segments) {
+				if (!emittedFields.durationInSeconds) {
+					const durationInSeconds = getDuration(segments, state);
+					callbacks.onDurationInSeconds?.(durationInSeconds);
+					if (fieldsInReturnValue.durationInSeconds) {
+						returnValue.durationInSeconds = durationInSeconds;
+					}
+
+					emittedFields.durationInSeconds = true;
+				}
+
+				if (!emittedFields.slowDurationInSeconds) {
+					const durationInSeconds = getDuration(segments, state);
+					if (durationInSeconds !== null) {
+						callbacks.onSlowDurationInSeconds?.(durationInSeconds);
+						if (fieldsInReturnValue.slowDurationInSeconds) {
+							returnValue.slowDurationInSeconds = durationInSeconds;
+						}
+
+						emittedFields.slowDurationInSeconds = true;
+					}
+				}
+			}
+
+			continue;
+		}
+
+		if (key === 'slowDurationInSeconds') {
 			if (
-				hasInfo.durationInSeconds &&
-				!emittedFields.durationInSeconds &&
+				hasInfo.slowDurationInSeconds &&
+				!emittedFields.slowDurationInSeconds &&
 				parseResult &&
 				segments
 			) {
-				const durationInSeconds = getDuration(segments, state);
-				callbacks.onDurationInSeconds?.(durationInSeconds);
-				if (fieldsInReturnValue.durationInSeconds) {
-					returnValue.durationInSeconds = durationInSeconds;
+				const slowDurationInSeconds =
+					state.slowDurationAndFps.getSlowDurationInSeconds();
+				callbacks.onSlowDurationInSeconds?.(slowDurationInSeconds);
+				if (fieldsInReturnValue.slowDurationInSeconds) {
+					returnValue.slowDurationInSeconds = slowDurationInSeconds;
 				}
 
-				emittedFields.durationInSeconds = true;
+				emittedFields.slowDurationInSeconds = true;
+			}
+
+			continue;
+		}
+
+		if (key === 'fps') {
+			if (hasInfo.fps && parseResult && segments) {
+				if (!emittedFields.fps) {
+					const fps = getFps(segments);
+					callbacks.onFps?.(fps);
+					if (fieldsInReturnValue.fps) {
+						returnValue.fps = fps;
+					}
+
+					emittedFields.fps = true;
+				}
+
+				if (!emittedFields.slowFps) {
+					const fps = getFps(segments);
+					if (fps) {
+						callbacks.onSlowFps?.(fps);
+						if (fieldsInReturnValue.slowFps) {
+							returnValue.slowFps = fps;
+						}
+
+						emittedFields.slowFps = true;
+					}
+				}
+			}
+
+			continue;
+		}
+
+		// must be handled after fps
+		if (key === 'slowFps') {
+			if (
+				hasInfo.slowFps &&
+				!emittedFields.slowFps &&
+				parseResult &&
+				segments
+			) {
+				const slowFps = state.slowDurationAndFps.getFps();
+				callbacks.onSlowFps?.(slowFps);
+				if (fieldsInReturnValue.slowFps) {
+					returnValue.slowFps = slowFps;
+				}
+
+				emittedFields.slowFps = true;
 			}
 
 			continue;
@@ -148,20 +224,6 @@ export const emitAvailableInfo = ({
 				}
 
 				emittedFields.rotation = true;
-			}
-
-			continue;
-		}
-
-		if (key === 'fps') {
-			if (!emittedFields.fps && hasInfo.fps && parseResult && segments) {
-				const fps = getFps(segments);
-				callbacks.onFps?.(fps);
-				if (fieldsInReturnValue.fps) {
-					returnValue.fps = fps;
-				}
-
-				emittedFields.fps = true;
 			}
 
 			continue;
@@ -343,11 +405,48 @@ export const emitAvailableInfo = ({
 			continue;
 		}
 
+		if (key === 'slowKeyframes') {
+			if (
+				!emittedFields.slowKeyframes &&
+				hasInfo.slowKeyframes &&
+				parseResult
+			) {
+				callbacks.onSlowKeyframes?.(state.keyframes.getKeyframes());
+				if (fieldsInReturnValue.slowKeyframes) {
+					returnValue.slowKeyframes = state.keyframes.getKeyframes();
+				}
+
+				emittedFields.slowKeyframes = true;
+			}
+
+			continue;
+		}
+
+		if (key === 'slowNumberOfFrames') {
+			if (
+				!emittedFields.slowNumberOfFrames &&
+				hasInfo.slowNumberOfFrames &&
+				parseResult
+			) {
+				callbacks.onSlowNumberOfFrames?.(
+					state.slowDurationAndFps.getSlowNumberOfFrames(),
+				);
+				if (fieldsInReturnValue.slowNumberOfFrames) {
+					returnValue.slowNumberOfFrames =
+						state.slowDurationAndFps.getSlowNumberOfFrames();
+				}
+
+				emittedFields.slowNumberOfFrames = true;
+			}
+
+			continue;
+		}
+
 		if (key === 'keyframes') {
 			if (!emittedFields.keyframes && hasInfo.keyframes && parseResult) {
-				callbacks.onKeyframes?.(state.keyframes.getKeyframes());
+				callbacks.onKeyframes?.(getKeyframes(state.structure.getStructure()));
 				if (fieldsInReturnValue.keyframes) {
-					returnValue.keyframes = state.keyframes.getKeyframes();
+					returnValue.keyframes = getKeyframes(state.structure.getStructure());
 				}
 
 				emittedFields.keyframes = true;

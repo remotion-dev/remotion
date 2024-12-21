@@ -78,7 +78,15 @@ Use `unrotatedDimensions` to get the dimensions before rotation.
 
 _number | null_
 
-The duration of the video in seconds.
+The duration of the video in seconds.  
+Only returns a non-null value if the duration is stored in the metadata.
+
+#### `slowDurationInSeconds`
+
+_number_
+
+The duration of the video in seconds, but it is guaranteed to return a value.  
+If needed, the entire video file is read to determine the duration.
 
 #### `name`
 
@@ -113,7 +121,15 @@ The internal structure of the video. Unstable, internal data structure, refer to
 
 _number | null_
 
-The frame rate of the video.
+The frame rate of the video.  
+Only returns a non-null value if the frame rate is stored in the metadata.
+
+#### `slowFps`
+
+_number_
+
+The frame rate of the video, but it is guaranteed to return a value.  
+If needed, the entire video file is read to determine the frame rate.
 
 #### `videoCodec`
 
@@ -148,6 +164,8 @@ The data structure of them is not yet stable.
 
 #### `keyframes`
 
+Return type: <TsType type="MediaParserKeyframe[] | null" source="@remotion/media-parser" />
+
 An array of keyframes. Each keyframe has the following structure:
 
 - `presentationTimeInSeconds`: The time in seconds when the keyframe should be presented
@@ -155,6 +173,23 @@ An array of keyframes. Each keyframe has the following structure:
 - `positionInBytes`: The position in bytes where the keyframe is located in the file
 - `sizeInBytes`: The size of the keyframe in bytes
 - `trackId`: The ID of the track the frame belongs to
+
+Only being returned if the keyframe information are stored in the metadata, otherwise `null`.
+
+#### `slowKeyframes`
+
+Return type: <TsType type="MediaParserKeyframe[]" source="@remotion/media-parser" />
+
+An array of keyframes, same as [`keyframes`](#keyframes), but it is guaranteed to return a value.
+
+Will read the entire video file to determine the keyframes.
+
+#### `slowNumberOfFrames`
+
+_number_
+
+The number of video frames in the media.  
+Will read the entire video file to determine the number of frames.
 
 #### `unrotatedDimensions`
 

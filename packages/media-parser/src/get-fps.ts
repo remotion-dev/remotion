@@ -141,11 +141,12 @@ export const getFps = (segments: Structure) => {
 		return getFpsFromAvi(segments);
 	}
 
-	// TODO: Matroska doesn't have fps
+	// People need to get it from slowFps
 	if (segments.type === 'matroska') {
 		return null;
 	}
 
+	// People need to get it from slowFps
 	if (segments.type === 'transport-stream') {
 		return null;
 	}
@@ -153,21 +154,25 @@ export const getFps = (segments: Structure) => {
 	throw new Error('Cannot get fps, not implemented');
 };
 
-export const hasFps = (boxes: Structure): boolean => {
+export const hasFpsSuitedForSlowFps = (boxes: Structure): boolean => {
 	try {
-		// Matroska and Transport stream has no FPS metadata
-		// Not bothering to parse
-		// Idea: `guaranteedFps` field
-		if (boxes.type === 'matroska') {
-			return true;
-		}
-
-		if (boxes.type === 'transport-stream') {
-			return true;
-		}
-
 		return getFps(boxes) !== null;
 	} catch {
 		return false;
 	}
+};
+
+export const hasFps = (boxes: Structure): boolean => {
+	// Matroska and Transport stream has no FPS metadata
+	// Not bothering to parse
+	// Users should use `slowFps` field
+	if (boxes.type === 'matroska') {
+		return true;
+	}
+
+	if (boxes.type === 'transport-stream') {
+		return true;
+	}
+
+	return hasFpsSuitedForSlowFps(boxes);
 };

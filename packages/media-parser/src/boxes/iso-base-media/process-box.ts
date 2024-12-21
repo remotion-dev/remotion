@@ -2,6 +2,7 @@ import type {BufferIterator} from '../../buffer-iterator';
 import {hasTracks} from '../../get-tracks';
 import {hasAllInfo} from '../../has-all-info';
 import type {LogLevel} from '../../log';
+import {maySkipVideoData} from '../../may-skip-video-data/may-skip-video-data';
 import type {Options, ParseMediaFields} from '../../options';
 import type {IsoBaseMediaBox, ParseResult} from '../../parse-result';
 import type {BoxAndNext, PartialMdatBox} from '../../parse-video';
@@ -199,7 +200,7 @@ export const processBox = async ({
 		if (boxType === 'mdat') {
 			// Check if the moov atom is at the end
 			const shouldSkip =
-				state.callbacks.maySkipVideoData() ||
+				maySkipVideoData({state}) ||
 				(!hasTracks({type: 'iso-base-media', boxes: parsedBoxes}, state) &&
 					state.supportsContentRange);
 
@@ -842,11 +843,10 @@ export const parseIsoBaseMediaBoxes = async ({
 	const mdatState = getMdatBox(initialBoxes);
 	const skipped =
 		mdatState?.status === 'samples-skipped' &&
-		!state.callbacks.maySkipVideoData() &&
+		!maySkipVideoData({state}) &&
 		state.supportsContentRange;
 	const buffered =
-		mdatState?.status === 'samples-buffered' &&
-		!state.callbacks.maySkipVideoData();
+		mdatState?.status === 'samples-buffered' && !maySkipVideoData({state});
 
 	if (skipped || buffered) {
 		return {

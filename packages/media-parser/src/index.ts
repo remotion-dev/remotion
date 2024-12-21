@@ -19,6 +19,7 @@ export {
 	IsAPdfError,
 } from './errors';
 export {MetadataEntry} from './metadata/get-metadata';
+export {MediaParserKeyframe} from './options';
 export {WriterInterface} from './writers/writer';
 
 export {

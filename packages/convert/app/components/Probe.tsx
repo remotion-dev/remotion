@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 import React, {useCallback, useMemo, useState} from 'react';
 import {Source} from '~/lib/convert-state';
 import {useIsNarrow} from '~/lib/is-narrow';
@@ -51,6 +52,7 @@ export const Probe: React.FC<{
 		error,
 		metadata,
 		location,
+		keyframes,
 	} = probeResult;
 
 	const onClick = useCallback(() => {
@@ -146,6 +148,8 @@ export const Probe: React.FC<{
 								location={location}
 								metadata={metadata}
 								track={selectedTrack}
+								keyframes={keyframes}
+								durationInSeconds={durationInSeconds ?? null}
 							/>
 						) : selectedTrack.type === 'audio' ? (
 							<AudioTrackOverview

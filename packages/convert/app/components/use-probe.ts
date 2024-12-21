@@ -2,6 +2,7 @@ import {
 	Dimensions,
 	LogLevel,
 	MediaParserAudioCodec,
+	MediaParserKeyframe,
 	MediaParserLocation,
 	MediaParserVideoCodec,
 	MetadataEntry,
@@ -45,6 +46,9 @@ export const useProbe = ({
 	const [location, setLocation] = useState<MediaParserLocation | null>(null);
 	const [tracks, setTracks] = useState<TracksField | null>(null);
 	const [container, setContainer] = useState<ParseMediaContainer | null>(null);
+	const [keyframes, setKeyframes] = useState<MediaParserKeyframe[] | null>(
+		null,
+	);
 	const [done, setDone] = useState(false);
 	const [error, setError] = useState<Error | null>(null);
 
@@ -53,21 +57,7 @@ export const useProbe = ({
 		parseMedia({
 			logLevel,
 			src: src.type === 'file' ? src.file : src.url,
-			fields: {
-				dimensions: true,
-				videoCodec: true,
-				size: true,
-				durationInSeconds: true,
-				audioCodec: true,
-				fps: true,
-				name: true,
-				tracks: true,
-				container: true,
-				isHdr: true,
-				rotation: true,
-				metadata: true,
-				location: true,
-			},
+
 			onParseProgress: onProgress,
 			reader: src.type === 'file' ? webFileReader : fetchReader,
 			signal: controller.signal,
@@ -109,6 +99,9 @@ export const useProbe = ({
 			},
 			onSize: (s) => {
 				setSize(s);
+			},
+			onKeyframes: (k) => {
+				setKeyframes(k);
 			},
 		})
 			.then(() => {})
@@ -159,6 +152,7 @@ export const useProbe = ({
 			rotation,
 			metadata,
 			location,
+			keyframes,
 		};
 	}, [
 		audioCodec,
@@ -176,5 +170,6 @@ export const useProbe = ({
 		rotation,
 		metadata,
 		location,
+		keyframes,
 	]);
 };

@@ -1,5 +1,6 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
+import {maySkipVideoData} from '../../may-skip-video-data/may-skip-video-data';
 import type {RiffStructure} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import {getKeyFrameOrDeltaFromAvcInfo} from '../avc/key';
@@ -65,25 +66,23 @@ export const handleChunk = async ({
 		// We must also NOT pass a duration because if the the next sample is 0,
 		// this sample would be longer. Chrome will pad it with silence.
 		// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished
-		if (data.length > 0) {
-			await state.callbacks.onVideoSample(
-				trackId,
-				convertAudioOrVideoSampleToWebCodecsTimestamps(
-					{
-						cts: timestamp,
-						dts: timestamp,
-						data,
-						duration: undefined,
-						timestamp,
-						trackId,
-						type: keyOrDelta,
-						offset,
-						timescale: samplesPerSecond,
-					},
-					1,
-				),
-			);
-		}
+		await state.callbacks.onVideoSample(
+			trackId,
+			convertAudioOrVideoSampleToWebCodecsTimestamps(
+				{
+					cts: timestamp,
+					dts: timestamp,
+					data,
+					duration: undefined,
+					timestamp,
+					trackId,
+					type: keyOrDelta,
+					offset,
+					timescale: samplesPerSecond,
+				},
+				1,
+			),
+		);
 
 		return;
 	}
@@ -106,26 +105,23 @@ export const handleChunk = async ({
 		// We must also NOT pass a duration because if the the next sample is 0,
 		// this sample would be longer. Chrome will pad it with silence.
 		// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished
-
-		if (data.length > 0) {
-			await state.callbacks.onAudioSample(
-				trackId,
-				convertAudioOrVideoSampleToWebCodecsTimestamps(
-					{
-						cts: timestamp,
-						dts: timestamp,
-						data,
-						duration: undefined,
-						timestamp,
-						trackId,
-						type: 'key',
-						offset,
-						timescale: samplesPerSecond,
-					},
-					1,
-				),
-			);
-		}
+		await state.callbacks.onAudioSample(
+			trackId,
+			convertAudioOrVideoSampleToWebCodecsTimestamps(
+				{
+					cts: timestamp,
+					dts: timestamp,
+					data,
+					duration: undefined,
+					timestamp,
+					trackId,
+					type: 'key',
+					offset,
+					timescale: samplesPerSecond,
+				},
+				1,
+			),
+		);
 	}
 };
 
@@ -155,7 +151,12 @@ export const parseMovi = async ({
 		const ckId = iterator.getByteString(4);
 		const ckSize = iterator.getUint32Le();
 
-		if (state.callbacks.maySkipVideoData() && state.riff.getAvcProfile()) {
+		if (
+			maySkipVideoData({
+				state,
+			}) &&
+			state.riff.getAvcProfile()
+		) {
 			return {
 				type: 'complete',
 				box: {

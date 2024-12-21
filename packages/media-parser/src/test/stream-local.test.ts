@@ -16,6 +16,7 @@ test('Should stream WebM with no duration', async () => {
 			audioCodec: true,
 			rotation: true,
 			tracks: true,
+			slowFps: true,
 		},
 		reader: nodeReader,
 		onVideoTrack: ({track}) => {
@@ -34,6 +35,7 @@ test('Should stream WebM with no duration', async () => {
 		height: 690,
 	});
 	expect(result.fps).toBe(null);
+	expect(result.slowFps).toBe(0.9968433294567203);
 	expect(result.videoCodec).toBe('vp8');
 	expect(result.audioCodec).toBe(null);
 	expect(result.rotation).toBe(0);
@@ -305,6 +307,8 @@ test('Should stream MKV video', async () => {
 			rotation: true,
 			structure: true,
 			internalStats: true,
+			slowFps: true,
+			slowNumberOfFrames: true,
 		},
 		onVideoTrack: ({track}) => {
 			expect(track.codec).toBe('avc1.640020');
@@ -329,9 +333,11 @@ test('Should stream MKV video', async () => {
 	expect(parsed.audioCodec).toBe('pcm-s16');
 	expect(parsed.rotation).toBe(0);
 	expect(parsed.fps).toBe(null);
+	expect(parsed.slowFps).toBe(30);
 
 	expect(videoSamples).toBe(10);
 	expect(audioSamples).toBe(16);
+	expect(parsed.slowNumberOfFrames).toBe(10);
 });
 
 test('Should stream MP3 in MP4 video', async () => {

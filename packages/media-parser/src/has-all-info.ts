@@ -1,11 +1,13 @@
 import {hasAudioCodec} from './get-audio-codec';
 import {hasContainer} from './get-container';
 import {hasDimensions} from './get-dimensions';
-import {hasDuration} from './get-duration';
-import {hasFps} from './get-fps';
+import {hasDuration, hasSlowDuration} from './get-duration';
+import {hasFps, hasFpsSuitedForSlowFps} from './get-fps';
 import {hasHdr} from './get-is-hdr';
+import {hasKeyframes} from './get-keyframes';
 import {hasTracks} from './get-tracks';
 import {hasVideoCodec} from './get-video-codec';
+import {maySkipVideoData} from './may-skip-video-data/may-skip-video-data';
 import type {AllParseMediaFields, Options, ParseMediaFields} from './options';
 import type {ParserState} from './state/parser-state';
 
@@ -33,6 +35,10 @@ export const getAvailableInfo = ({
 			return Boolean(structure && hasDuration(structure, state));
 		}
 
+		if (key === 'slowDurationInSeconds') {
+			return Boolean(structure && hasSlowDuration(structure, state));
+		}
+
 		if (
 			key === 'dimensions' ||
 			key === 'rotation' ||
@@ -43,6 +49,11 @@ export const getAvailableInfo = ({
 
 		if (key === 'fps') {
 			return Boolean(structure && hasFps(structure));
+		}
+
+		if (key === 'slowFps') {
+			// In case FPS is available an non-null, it also works for `slowFps`
+			return Boolean(structure && hasFpsSuitedForSlowFps(structure));
 		}
 
 		if (key === 'isHdr') {
@@ -59,6 +70,10 @@ export const getAvailableInfo = ({
 
 		if (key === 'tracks') {
 			return Boolean(structure && hasTracks(structure, state));
+		}
+
+		if (key === 'keyframes') {
+			return Boolean(structure && hasKeyframes(structure, state));
 		}
 
 		if (key === 'internalStats') {
@@ -85,8 +100,12 @@ export const getAvailableInfo = ({
 			return false;
 		}
 
-		if (key === 'keyframes') {
-			return Boolean(structure && state.keyframes.getHasKeyframes());
+		if (key === 'slowKeyframes') {
+			return false;
+		}
+
+		if (key === 'slowNumberOfFrames') {
+			return false;
 		}
 
 		throw new Error(`Unknown key: ${key satisfies never}`);
@@ -118,7 +137,7 @@ export const hasAllInfo = ({
 	});
 	return (
 		Object.values(availableInfo).every(Boolean) &&
-		(state.callbacks.maySkipVideoData() ||
+		(maySkipVideoData({state}) ||
 			state.callbacks.canSkipTracksState.canSkipTracks())
 	);
 };

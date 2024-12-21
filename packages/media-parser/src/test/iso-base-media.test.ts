@@ -57,19 +57,19 @@ test('Should stream ISO base media', async () => {
 });
 
 test('Should get keyframes', async () => {
-	const {keyframes, internalStats} = await parseMedia({
+	const {slowKeyframes, internalStats} = await parseMedia({
 		src: exampleVideos.iphonevideo,
 		fields: {
-			keyframes: true,
+			slowKeyframes: true,
 			internalStats: true,
 		},
 		reader: nodeReader,
 	});
 	expect(internalStats).toEqual({
-		finalCursorOffset: 39062928,
-		skippedBytes: 39048792,
+		finalCursorOffset: 39048828,
+		skippedBytes: -14108,
 	});
-	expect(keyframes).toEqual([
+	expect(slowKeyframes).toEqual([
 		{
 			decodingTimeInSeconds: 0,
 			positionInBytes: 42038,
@@ -99,7 +99,7 @@ test('Should get keyframes', async () => {
 			trackId: 1,
 		},
 		{
-			decodingTimeInSeconds: 4.166666666666667,
+			decodingTimeInSeconds: 4.166666666666666,
 			positionInBytes: 13242642,
 			presentationTimeInSeconds: 4.266666666666667,
 			sizeInBytes: 213213,
@@ -120,7 +120,7 @@ test('Should get keyframes', async () => {
 			trackId: 1,
 		},
 		{
-			decodingTimeInSeconds: 7.366666666666666,
+			decodingTimeInSeconds: 7.366666666666667,
 			positionInBytes: 23245257,
 			presentationTimeInSeconds: 7.466666666666667,
 			sizeInBytes: 292951,
@@ -143,7 +143,7 @@ test('Should get keyframes', async () => {
 		{
 			decodingTimeInSeconds: 10.568333333333333,
 			positionInBytes: 33215445,
-			presentationTimeInSeconds: 10.668333333333333,
+			presentationTimeInSeconds: 10.668333333333335,
 			sizeInBytes: 243845,
 			trackId: 1,
 		},

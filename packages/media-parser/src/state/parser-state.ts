@@ -2,9 +2,11 @@ import type {AvcPPs, AvcProfileInfo} from '../boxes/avc/parse-avc';
 import type {BufferIterator} from '../buffer-iterator';
 import type {Options, ParseMediaFields} from '../options';
 import type {OnAudioTrack, OnVideoTrack} from '../webcodec-sample-types';
+import {emittedState} from './emitted-fields';
 import {keyframesState} from './keyframes';
 import {riffSpecificState} from './riff';
 import {sampleCallback} from './sample-callbacks';
+import {slowDurationAndFpsState} from './slow-duration-fps';
 import {structureState} from './structure';
 import {webmState} from './webm';
 
@@ -46,7 +48,9 @@ export const makeParserState = ({
 	};
 
 	const structure = structureState();
-	const keyframes = keyframesState(structure.getStructure);
+	const keyframes = keyframesState();
+	const emittedFields = emittedState();
+	const slowDurationAndFps = slowDurationAndFpsState();
 
 	return {
 		riff: riffSpecificState(),
@@ -55,8 +59,9 @@ export const makeParserState = ({
 			hasAudioTrackHandlers,
 			hasVideoTrackHandlers,
 			fields,
-			structureState: structure,
 			keyframes,
+			emittedFields,
+			slowDurationAndFpsState: slowDurationAndFps,
 		}),
 		getInternalStats: (): InternalStats => ({
 			skippedBytes,
@@ -71,6 +76,9 @@ export const makeParserState = ({
 		onVideoTrack,
 		supportsContentRange,
 		webm: webmState(),
+		emittedFields,
+		fields,
+		slowDurationAndFps,
 	};
 };
 
