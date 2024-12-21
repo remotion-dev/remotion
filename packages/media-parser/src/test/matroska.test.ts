@@ -12,6 +12,7 @@ test('Should get duration of AV1 video', async () => {
 			dimensions: true,
 			fps: true,
 			slowFps: true,
+			slowNumberOfFrames: true,
 		},
 		reader: nodeReader,
 	});
@@ -19,6 +20,7 @@ test('Should get duration of AV1 video', async () => {
 	expect(parsed.durationInSeconds).toBe(1);
 	expect(parsed.fps).toBe(null);
 	expect(parsed.slowFps).toBe(25);
+	expect(parsed.slowNumberOfFrames).toBe(25);
 	expect(parsed.dimensions).toEqual({
 		width: 1920,
 		height: 1080,

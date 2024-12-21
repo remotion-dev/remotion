@@ -43,12 +43,14 @@ export type ParseMediaFields = {
 	location: boolean;
 	mimeType: boolean;
 	slowKeyframes: boolean;
+	slowNumberOfFrames: boolean;
 };
 
 export type AllParseMediaFields = {
 	dimensions: true;
 	durationInSeconds: true;
 	slowDurationInSeconds: true;
+	slowNumberOfFrames: true;
 	slowFps: true;
 	structure: true;
 	fps: true;
@@ -89,6 +91,7 @@ export type AllOptions<Fields extends ParseMediaFields> = {
 	location: Fields['location'];
 	mimeType: Fields['mimeType'];
 	slowKeyframes: Fields['slowKeyframes'];
+	slowNumberOfFrames: Fields['slowNumberOfFrames'];
 };
 
 export type Options<Fields extends ParseMediaFields> = Partial<
@@ -131,6 +134,7 @@ export interface ParseMediaCallbacks {
 	onLocation?: (location: MediaParserLocation | null) => void;
 	onMimeType?: (mimeType: string | null) => void;
 	onSlowKeyframes?: (keyframes: Keyframe[]) => void;
+	onSlowNumberOfFrames?: (samples: number) => void;
 }
 
 export interface ParseMediaData {
@@ -154,6 +158,7 @@ export interface ParseMediaData {
 	container: ParseMediaContainer;
 	mimeType: string | null;
 	slowKeyframes: MediaParserKeyframe[];
+	slowNumberOfFrames: number;
 }
 
 export type ParseMediaResult<T extends Partial<ParseMediaFields>> = {

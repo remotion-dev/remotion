@@ -37,6 +37,7 @@ export const slowDurationAndFpsState = () => {
 		getFps: () => {
 			return samples / getSlowDurationInSeconds();
 		},
+		getSlowNumberOfFrames: () => samples,
 	};
 };
 

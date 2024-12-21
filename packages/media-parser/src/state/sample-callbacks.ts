@@ -114,9 +114,7 @@ export const sampleCallback = ({
 					});
 				}
 
-				if (fields.slowDurationInSeconds || fields.slowFps) {
-					slowDurationAndFpsState.addSample(videoSample);
-				}
+				slowDurationAndFpsState.addSample(videoSample);
 			}
 		},
 		canSkipTracksState,

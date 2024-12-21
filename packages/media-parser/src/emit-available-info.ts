@@ -421,6 +421,26 @@ export const emitAvailableInfo = ({
 			continue;
 		}
 
+		if (key === 'slowNumberOfFrames') {
+			if (
+				!emittedFields.slowNumberOfFrames &&
+				hasInfo.slowNumberOfFrames &&
+				parseResult
+			) {
+				callbacks.onSlowNumberOfFrames?.(
+					state.slowDurationAndFps.getSlowNumberOfFrames(),
+				);
+				if (fieldsInReturnValue.slowNumberOfFrames) {
+					returnValue.slowNumberOfFrames =
+						state.slowDurationAndFps.getSlowNumberOfFrames();
+				}
+
+				emittedFields.slowNumberOfFrames = true;
+			}
+
+			continue;
+		}
+
 		throw new Error(`Unhandled key: ${key satisfies never}`);
 	}
 };

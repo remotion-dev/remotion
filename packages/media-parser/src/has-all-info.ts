@@ -99,6 +99,10 @@ export const getAvailableInfo = ({
 			return false;
 		}
 
+		if (key === 'slowNumberOfFrames') {
+			return false;
+		}
+
 		throw new Error(`Unknown key: ${key satisfies never}`);
 	});
 

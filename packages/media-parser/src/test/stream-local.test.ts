@@ -308,6 +308,7 @@ test('Should stream MKV video', async () => {
 			structure: true,
 			internalStats: true,
 			slowFps: true,
+			slowNumberOfFrames: true,
 		},
 		onVideoTrack: ({track}) => {
 			expect(track.codec).toBe('avc1.640020');
@@ -336,6 +337,7 @@ test('Should stream MKV video', async () => {
 
 	expect(videoSamples).toBe(10);
 	expect(audioSamples).toBe(16);
+	expect(parsed.slowNumberOfFrames).toBe(10);
 });
 
 test('Should stream MP3 in MP4 video', async () => {

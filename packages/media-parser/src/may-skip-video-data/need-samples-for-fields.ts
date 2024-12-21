@@ -4,6 +4,7 @@ const needsSamples: Record<keyof Options<ParseMediaFields>, boolean> = {
 	slowDurationInSeconds: true,
 	slowFps: true,
 	slowKeyframes: true,
+	slowNumberOfFrames: true,
 	audioCodec: false,
 	container: false,
 	dimensions: false,

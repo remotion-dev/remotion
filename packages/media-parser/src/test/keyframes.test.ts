@@ -89,14 +89,16 @@ test('should be able to get keyframes from avi', async () => {
 });
 
 test('should be able to get keyframes from .ts', async () => {
-	const {slowKeyframes, internalStats} = await parseMedia({
+	const {slowKeyframes, slowNumberOfFrames, internalStats} = await parseMedia({
 		src: exampleVideos.transportstream,
 		fields: {
 			slowKeyframes: true,
 			internalStats: true,
+			slowNumberOfFrames: true,
 		},
 		reader: nodeReader,
 	});
+	expect(slowNumberOfFrames).toEqual(294);
 	expect(slowKeyframes).toEqual([
 		{
 			decodingTimeInSeconds: 10,

@@ -22,6 +22,7 @@ export const emittedState = () => {
 		slowDurationInSeconds: false,
 		slowFps: false,
 		slowKeyframes: false,
+		slowNumberOfFrames: false,
 	};
 
 	return emittedFields;

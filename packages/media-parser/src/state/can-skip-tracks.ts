@@ -21,6 +21,7 @@ const needsTracksField: Record<keyof Options<ParseMediaFields>, boolean> = {
 	location: true,
 	mimeType: false,
 	slowKeyframes: true,
+	slowNumberOfFrames: true,
 };
 
 export const makeCanSkipTracksState = ({
