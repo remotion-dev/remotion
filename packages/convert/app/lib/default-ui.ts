@@ -56,27 +56,27 @@ export const isConvertEnabledByDefault = (action: RouteAction) => {
 	}
 
 	if (action.type === 'generic-rotate') {
-		return false;
+		return true;
 	}
 
 	if (action.type === 'rotate-format') {
-		return false;
+		return true;
 	}
 
 	if (action.type === 'mirror-format') {
-		return false;
+		return true;
 	}
 
 	if (action.type === 'generic-mirror') {
-		return false;
+		return true;
 	}
 
 	if (action.type === 'generic-resize') {
-		return false;
+		return true;
 	}
 
 	if (action.type === 'resize-format') {
-		return false;
+		return true;
 	}
 
 	throw new Error(
