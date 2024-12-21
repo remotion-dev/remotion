@@ -120,7 +120,6 @@ export const ResizeThumbnail: React.FC<{
 					outerDimensions={thumbnailDimensions}
 					innerDimensions={inner}
 					setResizeMode={setResizeMode}
-					videoDimensionsAfterRotation={dimensions}
 					onEnd={onEnd}
 					onStart={onStart}
 				/>

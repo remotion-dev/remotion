@@ -24,4 +24,8 @@ export type ResizeOperation =
 			mode: 'max-height-width';
 			maxHeight: number;
 			maxWidth: number;
+	  }
+	| {
+			mode: 'scale';
+			scale: number;
 	  };

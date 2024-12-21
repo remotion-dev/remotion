@@ -104,5 +104,21 @@ export const calculateNewSizeAfterResizing = ({
 		});
 	}
 
+	if (resizeOperation.mode === 'scale') {
+		if (resizeOperation.scale <= 0) {
+			throw new Error('Scale must be greater than 0');
+		}
+
+		const width = Math.round(dimensions.width * resizeOperation.scale);
+		const height = Math.round(dimensions.height * resizeOperation.scale);
+		return ensureMultipleOfTwo({
+			dimensions: {
+				width,
+				height,
+			},
+			needsToBeMultipleOfTwo,
+		});
+	}
+
 	throw new Error('Invalid resizing mode ' + (resizeOperation satisfies never));
 };

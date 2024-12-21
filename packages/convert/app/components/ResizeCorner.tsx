@@ -5,20 +5,12 @@ import React, {useCallback} from 'react';
 export const ResizeCorner: React.FC<{
 	readonly innerDimensions: Dimensions;
 	readonly outerDimensions: Dimensions;
-	readonly videoDimensionsAfterRotation: Dimensions;
 	readonly setResizeMode: React.Dispatch<
 		React.SetStateAction<ResizeOperation | null>
 	>;
 	readonly onStart: () => void;
 	readonly onEnd: () => void;
-}> = ({
-	innerDimensions,
-	outerDimensions,
-	setResizeMode,
-	videoDimensionsAfterRotation,
-	onEnd,
-	onStart,
-}) => {
+}> = ({innerDimensions, outerDimensions, setResizeMode, onEnd, onStart}) => {
 	const onPointerDown: React.PointerEventHandler = useCallback(
 		(e) => {
 			if (e.button !== 0) {
@@ -40,9 +32,8 @@ export const ResizeCorner: React.FC<{
 				);
 
 				const newResizeMode: ResizeOperation = {
-					mode: 'max-height-width',
-					maxWidth: videoDimensionsAfterRotation.width * newScaleX,
-					maxHeight: videoDimensionsAfterRotation.height * newScaleX,
+					mode: 'scale',
+					scale: newScaleX,
 				};
 				setResizeMode(newResizeMode);
 			};
@@ -67,8 +58,6 @@ export const ResizeCorner: React.FC<{
 			onStart,
 			outerDimensions.width,
 			setResizeMode,
-			videoDimensionsAfterRotation.height,
-			videoDimensionsAfterRotation.width,
 		],
 	);
 
