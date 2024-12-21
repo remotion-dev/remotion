@@ -2,7 +2,7 @@ import type {ParseMediaContainer, VideoTrack} from '@remotion/media-parser';
 import type {ConvertMediaContainer} from './get-available-containers';
 import type {ResizeOperation} from './resizing/mode';
 import {normalizeVideoRotation} from './rotate-and-resize-video-frame';
-import {calculateNewDimensionsFromDimensions} from './rotation';
+import {calculateNewDimensionsFromRotateAndScale} from './rotation';
 
 export const canCopyVideoTrack = ({
 	outputContainer,
@@ -24,7 +24,7 @@ export const canCopyVideoTrack = ({
 		return false;
 	}
 
-	const newDimensions = calculateNewDimensionsFromDimensions({
+	const newDimensions = calculateNewDimensionsFromRotateAndScale({
 		height: inputTrack.height,
 		resizeOperation,
 		rotation: rotationToApply,

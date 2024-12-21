@@ -1,6 +1,9 @@
 import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 import type {ResizeOperation} from './resizing/mode';
-import {calculateNewDimensionsFromDimensions} from './rotation';
+import {
+	calculateNewDimensionsFromRotate,
+	calculateNewDimensionsFromRotateAndScale,
+} from './rotation';
 
 export const normalizeVideoRotation = (rotation: number) => {
 	return ((rotation % 360) + 360) % 360;
@@ -28,7 +31,7 @@ export const rotateAndResizeVideoFrame = ({
 		throw new Error('Only 90 degree rotations are supported');
 	}
 
-	const {height, width} = calculateNewDimensionsFromDimensions({
+	const {height, width} = calculateNewDimensionsFromRotateAndScale({
 		height: frame.displayHeight,
 		width: frame.displayWidth,
 		rotation,
@@ -67,7 +70,15 @@ export const rotateAndResizeVideoFrame = ({
 	}
 
 	if (frame.displayHeight !== height || frame.displayWidth !== width) {
-		ctx.scale(width / frame.displayWidth, height / frame.displayHeight);
+		const dimensionsAfterRotate = calculateNewDimensionsFromRotate({
+			height: frame.displayHeight,
+			rotation,
+			width: frame.displayWidth,
+		});
+		ctx.scale(
+			width / dimensionsAfterRotate.width,
+			height / dimensionsAfterRotate.height,
+		);
 	}
 
 	ctx.drawImage(frame, 0, 0);

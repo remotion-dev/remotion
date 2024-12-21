@@ -63,7 +63,7 @@ export default function ConvertUI({
 	setFlipHorizontal,
 	setFlipVertical,
 	inputContainer,
-	dimensions,
+	unrotatedDimensions,
 	videoThumbnailRef,
 	rotation,
 }: {
@@ -73,7 +73,7 @@ export default function ConvertUI({
 	readonly currentVideoCodec: MediaParserVideoCodec | null;
 	readonly tracks: TracksField | null;
 	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef | null>;
-	readonly dimensions: Dimensions | null;
+	readonly unrotatedDimensions: Dimensions | null;
 	readonly duration: number | null;
 	readonly rotation: number | null;
 	readonly inputContainer: ParseMediaContainer | null;
@@ -336,17 +336,23 @@ export default function ConvertUI({
 	}, [setResizeOperation]);
 
 	const newDimensions = useMemo(() => {
-		if (dimensions === null) {
+		if (unrotatedDimensions === null) {
 			return null;
 		}
 
 		return WebCodecsInternals.calculateNewDimensionsFromDimensions({
-			...dimensions,
-			rotation: userRotation,
+			...unrotatedDimensions,
+			rotation: userRotation - (rotation ?? 0),
 			resizeOperation,
 			videoCodec: isH264Reencode ? 'h264' : 'vp8',
 		});
-	}, [dimensions, isH264Reencode, resizeOperation, userRotation]);
+	}, [
+		unrotatedDimensions,
+		isH264Reencode,
+		resizeOperation,
+		rotation,
+		userRotation,
+	]);
 
 	if (state.type === 'error') {
 		return (
@@ -518,11 +524,11 @@ export default function ConvertUI({
 								</ConvertUiSection>
 								{resizeOperation !== null &&
 								newDimensions !== null &&
-								dimensions !== null ? (
+								unrotatedDimensions !== null ? (
 									<>
 										<div className="h-2" />
 										<ResizeUi
-											originalDimensions={dimensions}
+											originalDimensions={unrotatedDimensions}
 											dimensions={newDimensions}
 											thumbnailRef={videoThumbnailRef}
 											rotation={userRotation - (rotation ?? 0)}
