@@ -145,6 +145,7 @@ export const FileAvailable: React.FC<{
 											tracks={probeResult.tracks}
 											setSrc={setSrc}
 											unrotatedDimensions={probeResult.unrotatedDimensions}
+											dimensions={probeResult.dimensions}
 											duration={probeResult.durationInSeconds ?? null}
 											logLevel="verbose"
 											action={routeAction}

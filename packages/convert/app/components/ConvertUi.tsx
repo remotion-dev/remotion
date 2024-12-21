@@ -29,6 +29,7 @@ import {
 	getActualAudioConfigIndex,
 	getActualVideoConfigIndex,
 } from '~/lib/get-audio-video-config-index';
+import {getInitialResizeSuggestion} from '~/lib/get-initial-resize-suggestion';
 import {isReencoding} from '~/lib/is-reencoding';
 import {isSubmitDisabled} from '~/lib/is-submit-enabled';
 import {RouteAction} from '~/seo';
@@ -66,6 +67,7 @@ export default function ConvertUI({
 	unrotatedDimensions,
 	videoThumbnailRef,
 	rotation,
+	dimensions,
 }: {
 	readonly src: Source;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
@@ -74,6 +76,7 @@ export default function ConvertUI({
 	readonly tracks: TracksField | null;
 	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef | null>;
 	readonly unrotatedDimensions: Dimensions | null;
+	readonly dimensions: Dimensions | null;
 	readonly duration: number | null;
 	readonly rotation: number | null;
 	readonly inputContainer: ParseMediaContainer | null;
@@ -324,16 +327,13 @@ export default function ConvertUI({
 
 	const onResizeClick = useCallback(() => {
 		setResizeOperation((r) => {
-			if (r !== null) {
+			if (r !== null || !dimensions) {
 				return null;
 			}
 
-			return {
-				mode: 'max-height',
-				maxHeight: 480,
-			};
+			return getInitialResizeSuggestion(dimensions);
 		});
-	}, [setResizeOperation]);
+	}, [dimensions]);
 
 	const newDimensions = useMemo(() => {
 		if (unrotatedDimensions === null) {
