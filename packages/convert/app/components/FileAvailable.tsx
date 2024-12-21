@@ -115,7 +115,7 @@ export const FileAvailable: React.FC<{
 							Choose another file
 						</Button>
 					</div>
-					<div className="lg:inline-flex lg:flex-row">
+					<div className="lg:inline-flex lg:flex-row items-start">
 						<Probe
 							thumbnailError={err}
 							src={src}
@@ -144,6 +144,8 @@ export const FileAvailable: React.FC<{
 											src={src}
 											tracks={probeResult.tracks}
 											setSrc={setSrc}
+											unrotatedDimensions={probeResult.unrotatedDimensions}
+											dimensions={probeResult.dimensions}
 											duration={probeResult.durationInSeconds ?? null}
 											logLevel="verbose"
 											action={routeAction}
@@ -155,6 +157,8 @@ export const FileAvailable: React.FC<{
 											setFlipHorizontal={setFlipHorizontal}
 											flipVertical={flipVertical}
 											setFlipVertical={setFlipVertical}
+											videoThumbnailRef={videoThumbnailRef}
+											rotation={probeResult.rotation}
 										/>
 									</div>
 								</div>

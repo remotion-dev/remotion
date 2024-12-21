@@ -16,7 +16,8 @@ import {getDefaultVideoCodec} from './get-default-video-codec';
 import {Log} from './log';
 import {onFrame} from './on-frame';
 import type {ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
-import {calculateNewDimensionsFromDimensions} from './rotation';
+import type {ResizeOperation} from './resizing/mode';
+import {calculateNewDimensionsFromRotateAndScale} from './rotation';
 import type {ConvertMediaProgressFn} from './throttled-state-update';
 import {createVideoDecoder} from './video-decoder';
 import {getVideoDecoderConfigWithHardwareAcceleration} from './video-decoder-config';
@@ -36,6 +37,7 @@ export const makeVideoTrackHandler =
 		outputContainer,
 		rotate,
 		progress,
+		resizeOperation,
 	}: {
 		state: MediaFn;
 		onVideoFrame: null | ConvertMediaOnVideoFrame;
@@ -48,6 +50,7 @@ export const makeVideoTrackHandler =
 		outputContainer: ConvertMediaContainer;
 		rotate: number;
 		progress: ProgressTracker;
+		resizeOperation: ResizeOperation | null;
 	}): OnVideoTrack =>
 	async ({track, container: inputContainer}) => {
 		if (controller.signal.aborted) {
@@ -55,11 +58,11 @@ export const makeVideoTrackHandler =
 		}
 
 		const canCopyTrack = canCopyVideoTrack({
-			inputCodec: track.codecWithoutConfig,
 			inputContainer,
-			inputRotation: track.rotation,
 			outputContainer,
 			rotationToApply: rotate,
+			inputTrack: track,
+			resizeOperation,
 		});
 
 		const videoOperation = await (onVideoTrack ?? defaultOnVideoTrackHandler)({
@@ -71,6 +74,7 @@ export const makeVideoTrackHandler =
 			rotate,
 			inputContainer,
 			canCopyTrack,
+			resizeOperation,
 		});
 
 		if (videoOperation.type === 'drop') {
@@ -125,10 +129,12 @@ export const makeVideoTrackHandler =
 		const rotation = (videoOperation.rotate ?? rotate) - track.rotation;
 
 		const {height: newHeight, width: newWidth} =
-			calculateNewDimensionsFromDimensions({
+			calculateNewDimensionsFromRotateAndScale({
 				width: track.codedWidth,
 				height: track.codedHeight,
 				rotation,
+				videoCodec: videoOperation.videoCodec,
+				resizeOperation: videoOperation.resize ?? null,
 			});
 
 		const videoEncoderConfig = await getVideoEncoderConfig({
@@ -217,6 +223,7 @@ export const makeVideoTrackHandler =
 					onVideoFrame,
 					outputCodec: videoOperation.videoCodec,
 					rotation,
+					resizeOperation: videoOperation.resize ?? null,
 				});
 			},
 			onError: (err) => {

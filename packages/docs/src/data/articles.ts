@@ -3453,6 +3453,13 @@ export const articles = [
 		crumb: '@remotion/webcodecs',
 	},
 	{
+		id: 'resize-a-video',
+		title: 'Resize a video',
+		relativePath: 'docs/webcodecs/resizing.mdx',
+		compId: 'articles-docs-webcodecs-resizing',
+		crumb: '@remotion/webcodecs',
+	},
+	{
 		id: 'can-copy-audio-track',
 		title: 'canCopyAudioTrack()',
 		relativePath: 'docs/webcodecs/can-copy-audio-track.mdx',

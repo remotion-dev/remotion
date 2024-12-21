@@ -74,6 +74,10 @@ await convertMedia({
 
 See [Track Transformation](/docs/webcodecs/track-transformation) for more information on how to customize the video track transformation.
 
+## Order of operations
+
+If you apply both a `rotate` and a [`resize`](/docs/webcodecs/resize-a-video) operation, the `rotate` operation will be applied first.
+
 ## Reference implementation
 
 Use [remotion.dev/rotate](https://remotion.dev/rotate) to rotate a video online using WebCodecs.  
@@ -82,3 +86,4 @@ See the [source code](https://github.com/remotion-dev/remotion/tree/main/package
 ## See also
 
 - [`convertMedia()`](/docs/webcodecs/convert-media)
+- [Resize a video](/docs/webcodecs/resize-a-video)

@@ -59,6 +59,12 @@ const shouldKeepSameContainerByDefault = (action: RouteAction) => {
 	if (action.type === 'generic-probe') {
 		return false;
 	}
+	if (action.type === 'resize-format') {
+		return true;
+	}
+	if (action.type === 'generic-resize') {
+		return true;
+	}
 
 	throw new Error(`Unhandled action type: ${action satisfies never}`);
 };

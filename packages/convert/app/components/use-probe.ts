@@ -36,6 +36,8 @@ export const useProbe = ({
 		number | null | undefined
 	>(undefined);
 	const [dimensions, setDimensions] = useState<Dimensions | null>(null);
+	const [unrotatedDimensions, setUnrotatedDimensions] =
+		useState<Dimensions | null>(null);
 	const [name, setName] = useState<string | null>(null);
 	const [videoCodec, setVideoCodec] = useState<MediaParserVideoCodec | null>(
 		null,
@@ -87,6 +89,9 @@ export const useProbe = ({
 			},
 			onDimensions(dim) {
 				setDimensions(dim);
+			},
+			onUnrotatedDimensions(dim) {
+				setUnrotatedDimensions(dim);
 			},
 			onVideoCodec: (codec) => {
 				setVideoCodec(codec);
@@ -153,6 +158,7 @@ export const useProbe = ({
 			metadata,
 			location,
 			keyframes,
+			unrotatedDimensions,
 		};
 	}, [
 		audioCodec,
@@ -171,5 +177,6 @@ export const useProbe = ({
 		metadata,
 		location,
 		keyframes,
+		unrotatedDimensions,
 	]);
 };

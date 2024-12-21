@@ -1,4 +1,8 @@
-import {normalizeVideoRotation, rotateVideoFrame} from './rotate-video-frame';
+import {
+	normalizeVideoRotation,
+	rotateAndResizeVideoFrame,
+} from './rotate-and-resize-video-frame';
+import {calculateNewDimensionsFromRotateAndScale} from './rotation';
 import {setRemotionImported} from './set-remotion-imported';
 
 export {createAudioDecoder, WebCodecsAudioDecoder} from './audio-decoder';
@@ -38,12 +42,15 @@ export {
 	ConvertMediaOnVideoTrackHandler,
 	VideoOperation,
 } from './on-video-track-handler';
+export type {ResizeOperation} from './resizing/mode';
 export {createVideoDecoder, WebCodecsVideoDecoder} from './video-decoder';
 export {createVideoEncoder, WebCodecsVideoEncoder} from './video-encoder';
 
 export const WebCodecsInternals = {
-	rotateVideoFrame,
+	rotateAndResizeVideoFrame,
 	normalizeVideoRotation,
+	calculateNewDimensionsFromDimensions:
+		calculateNewDimensionsFromRotateAndScale,
 };
 
 setRemotionImported();

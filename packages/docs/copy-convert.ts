@@ -34,6 +34,11 @@ for (const inputs of seo.inputContainers) {
 		type: 'mirror-format',
 		format: inputs,
 	});
+
+	extraPages.push({
+		type: 'resize-format',
+		format: inputs,
+	});
 }
 
 const contents = path.join(dir, 'index.html');
@@ -75,6 +80,10 @@ extraPages.push({
 
 extraPages.push({
 	type: 'generic-probe',
+});
+
+extraPages.push({
+	type: 'generic-resize',
 });
 
 for (const page of extraPages) {

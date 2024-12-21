@@ -1,37 +1,53 @@
-import type {
-	MediaParserVideoCodec,
-	ParseMediaContainer,
-} from '@remotion/media-parser';
+import type {ParseMediaContainer, VideoTrack} from '@remotion/media-parser';
 import type {ConvertMediaContainer} from './get-available-containers';
-import {normalizeVideoRotation} from './rotate-video-frame';
+import type {ResizeOperation} from './resizing/mode';
+import {normalizeVideoRotation} from './rotate-and-resize-video-frame';
+import {calculateNewDimensionsFromRotateAndScale} from './rotation';
 
 export const canCopyVideoTrack = ({
-	inputCodec,
 	outputContainer,
-	inputRotation,
 	rotationToApply,
 	inputContainer,
+	resizeOperation,
+	inputTrack,
 }: {
 	inputContainer: ParseMediaContainer;
-	inputCodec: MediaParserVideoCodec;
-	inputRotation: number;
+	inputTrack: VideoTrack;
 	rotationToApply: number;
 	outputContainer: ConvertMediaContainer;
+	resizeOperation: ResizeOperation | null;
 }) => {
 	if (
-		normalizeVideoRotation(inputRotation) !==
+		normalizeVideoRotation(inputTrack.rotation) !==
 		normalizeVideoRotation(rotationToApply)
 	) {
 		return false;
 	}
 
+	const newDimensions = calculateNewDimensionsFromRotateAndScale({
+		height: inputTrack.height,
+		resizeOperation,
+		rotation: rotationToApply,
+		videoCodec: inputTrack.codecWithoutConfig,
+		width: inputTrack.width,
+	});
+	if (
+		newDimensions.height !== inputTrack.height ||
+		newDimensions.width !== inputTrack.width
+	) {
+		return false;
+	}
+
 	if (outputContainer === 'webm') {
-		return inputCodec === 'vp8' || inputCodec === 'vp9';
+		return (
+			inputTrack.codecWithoutConfig === 'vp8' ||
+			inputTrack.codecWithoutConfig === 'vp9'
+		);
 	}
 
 	if (outputContainer === 'mp4') {
 		return (
-			inputCodec === 'h264' &&
+			inputTrack.codecWithoutConfig === 'h264' &&
 			(inputContainer === 'mp4' || inputContainer === 'avi')
 		);
 	}

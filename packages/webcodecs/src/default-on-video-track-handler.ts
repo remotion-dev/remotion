@@ -12,6 +12,7 @@ export const defaultOnVideoTrackHandler: ConvertMediaOnVideoTrackHandler =
 		logLevel,
 		rotate,
 		canCopyTrack,
+		resizeOperation,
 	}): Promise<VideoOperation> => {
 		if (canCopyTrack) {
 			MediaParserInternals.Log.verbose(
@@ -44,7 +45,8 @@ export const defaultOnVideoTrackHandler: ConvertMediaOnVideoTrackHandler =
 			return Promise.resolve({
 				type: 'reencode',
 				videoCodec: defaultVideoCodec,
-				rotation: rotate - track.rotation,
+				rotate: rotate - track.rotation,
+				resize: resizeOperation,
 			});
 		}
 

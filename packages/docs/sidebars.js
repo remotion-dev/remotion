@@ -928,6 +928,7 @@ module.exports = {
 				},
 				'webcodecs/convert-a-video',
 				'webcodecs/rotate-a-video',
+				'webcodecs/resize-a-video',
 				'webcodecs/fix-mediarecorder-video',
 				'webcodecs/telemetry',
 			],

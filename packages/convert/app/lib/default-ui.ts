@@ -31,6 +31,12 @@ export const defaultRotateOrMirorState = (
 	if (action.type === 'generic-mirror') {
 		return 'mirror';
 	}
+	if (action.type === 'generic-resize') {
+		return null;
+	}
+	if (action.type === 'resize-format') {
+		return null;
+	}
 
 	throw new Error(
 		'Rotate is not enabled by default ' + (action satisfies never),
@@ -50,19 +56,27 @@ export const isConvertEnabledByDefault = (action: RouteAction) => {
 	}
 
 	if (action.type === 'generic-rotate') {
-		return false;
+		return true;
 	}
 
 	if (action.type === 'rotate-format') {
-		return false;
+		return true;
 	}
 
 	if (action.type === 'mirror-format') {
-		return false;
+		return true;
 	}
 
 	if (action.type === 'generic-mirror') {
-		return false;
+		return true;
+	}
+
+	if (action.type === 'generic-resize') {
+		return true;
+	}
+
+	if (action.type === 'resize-format') {
+		return true;
 	}
 
 	throw new Error(
@@ -70,7 +84,7 @@ export const isConvertEnabledByDefault = (action: RouteAction) => {
 	);
 };
 
-export type ConvertSections = 'convert' | 'rotate' | 'mirror';
+export type ConvertSections = 'convert' | 'rotate' | 'mirror' | 'resize';
 
 export const getOrderOfSections = (
 	action: RouteAction,
@@ -78,43 +92,41 @@ export const getOrderOfSections = (
 	if (action.type === 'generic-rotate' || action.type === 'rotate-format') {
 		return {
 			rotate: 0,
-			mirror: 1,
-			convert: 2,
+			resize: 1,
+			mirror: 2,
+			convert: 3,
 		};
 	}
-	if (action.type === 'convert') {
+	if (action.type === 'convert' || action.type === 'generic-convert') {
 		return {
 			convert: 0,
-			rotate: 1,
-			mirror: 2,
+			resize: 1,
+			rotate: 2,
+			mirror: 3,
 		};
 	}
 	if (action.type === 'generic-probe') {
 		return {
 			convert: 0,
-			rotate: 1,
-			mirror: 2,
+			resize: 1,
+			rotate: 2,
+			mirror: 3,
 		};
 	}
-	if (action.type === 'generic-convert') {
-		return {
-			convert: 0,
-			rotate: 1,
-			mirror: 2,
-		};
-	}
-	if (action.type === 'generic-mirror') {
+	if (action.type === 'generic-mirror' || action.type === 'mirror-format') {
 		return {
 			mirror: 0,
-			rotate: 1,
-			convert: 2,
+			resize: 1,
+			rotate: 2,
+			convert: 3,
 		};
 	}
-	if (action.type === 'mirror-format') {
+	if (action.type === 'generic-resize' || action.type === 'resize-format') {
 		return {
-			mirror: 0,
+			resize: 0,
 			rotate: 1,
-			convert: 2,
+			mirror: 2,
+			convert: 3,
 		};
 	}
 

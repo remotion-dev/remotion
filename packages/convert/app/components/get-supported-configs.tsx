@@ -8,6 +8,7 @@ import {
 	ConvertMediaContainer,
 	getAvailableAudioCodecs,
 	getAvailableVideoCodecs,
+	ResizeOperation,
 	VideoOperation,
 } from '@remotion/webcodecs';
 import {RouteAction} from '~/seo';
@@ -49,6 +50,12 @@ const shouldPrioritizeVideoCopyOverReencode = (routeAction: RouteAction) => {
 	if (routeAction.type === 'generic-probe') {
 		return true;
 	}
+	if (routeAction.type === 'generic-resize') {
+		return false;
+	}
+	if (routeAction.type === 'resize-format') {
+		return false;
+	}
 
 	throw new Error('Unsupported route action' + (routeAction satisfies never));
 };
@@ -60,6 +67,7 @@ export const getSupportedConfigs = async ({
 	action,
 	userRotation,
 	inputContainer,
+	resizeOperation,
 }: {
 	tracks: TracksField;
 	container: ConvertMediaContainer;
@@ -67,6 +75,7 @@ export const getSupportedConfigs = async ({
 	action: RouteAction;
 	userRotation: number;
 	inputContainer: ParseMediaContainer;
+	resizeOperation: ResizeOperation | null;
 }): Promise<SupportedConfigs> => {
 	const availableVideoCodecs = getAvailableVideoCodecs({container});
 
@@ -78,11 +87,11 @@ export const getSupportedConfigs = async ({
 	for (const track of tracks.videoTracks) {
 		const options: VideoOperation[] = [];
 		const canCopy = canCopyVideoTrack({
-			inputCodec: track.codecWithoutConfig,
+			inputTrack: track,
 			outputContainer: container,
-			inputRotation: track.rotation,
 			rotationToApply: userRotation,
 			inputContainer,
+			resizeOperation,
 		});
 		if (canCopy && prioritizeCopyOverReencode) {
 			options.push({
@@ -98,6 +107,7 @@ export const getSupportedConfigs = async ({
 				options.push({
 					type: 'reencode',
 					videoCodec: outputCodec,
+					resize: resizeOperation,
 				});
 			}
 		}

@@ -3,7 +3,8 @@ import {isSafari} from './browser-quirks';
 import type {ConvertMediaOnVideoFrame} from './convert-media';
 import {convertToCorrectVideoFrame} from './convert-to-correct-videoframe';
 import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
-import {rotateVideoFrame} from './rotate-video-frame';
+import type {ResizeOperation} from './resizing/mode';
+import {rotateAndResizeVideoFrame} from './rotate-and-resize-video-frame';
 import type {WebCodecsVideoEncoder} from './video-encoder';
 
 export const onFrame = async ({
@@ -13,6 +14,7 @@ export const onFrame = async ({
 	track,
 	outputCodec,
 	rotation,
+	resizeOperation,
 }: {
 	frame: VideoFrame;
 	onVideoFrame: ConvertMediaOnVideoFrame | null;
@@ -20,10 +22,13 @@ export const onFrame = async ({
 	track: VideoTrack;
 	outputCodec: ConvertMediaVideoCodec;
 	rotation: number;
+	resizeOperation: ResizeOperation | null;
 }) => {
-	const rotated = rotateVideoFrame({
+	const rotated = rotateAndResizeVideoFrame({
 		rotation,
 		frame: unrotatedFrame,
+		resizeOperation,
+		videoCodec: outputCodec,
 	});
 	if (unrotatedFrame !== rotated) {
 		unrotatedFrame.close();

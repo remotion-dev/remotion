@@ -48,6 +48,13 @@ export type RouteAction =
 			format: ParseMediaContainer | ConvertMediaContainer;
 	  }
 	| {
+			type: 'generic-resize';
+	  }
+	| {
+			type: 'resize-format';
+			format: ParseMediaContainer | ConvertMediaContainer;
+	  }
+	| {
 			type: 'generic-probe';
 	  };
 
@@ -80,6 +87,14 @@ export const getHeaderTitle = (routeAction: RouteAction) => {
 		return `Fast ${renderHumanReadableContainer(routeAction.format)} mirroring in the browser`;
 	}
 
+	if (routeAction.type === 'generic-resize') {
+		return 'Fast video resizing in the browser';
+	}
+
+	if (routeAction.type === 'resize-format') {
+		return `Fast ${renderHumanReadableContainer(routeAction.format)} resizing in the browser`;
+	}
+
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);
 };
 
@@ -110,6 +125,14 @@ export const getPageTitle = (routeAction: RouteAction) => {
 
 	if (routeAction.type === 'mirror-format') {
 		return `Online ${renderHumanReadableContainer(routeAction.format)} Mirrorer - Remotion Convert`;
+	}
+
+	if (routeAction.type === 'generic-resize') {
+		return 'Online video Resizer - Remotion Convert';
+	}
+
+	if (routeAction.type === 'resize-format') {
+		return `Online ${renderHumanReadableContainer(routeAction.format)} Resizer - Remotion Convert`;
 	}
 
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);
@@ -148,6 +171,16 @@ export const getDescription = (routeAction: RouteAction) => {
 		)} rotator, powered by WebCodecs. No upload required, no watermarks, no limits.`;
 	}
 
+	if (routeAction.type === 'generic-resize') {
+		return `The fastest online video resizer, powered by WebCodecs. No upload required, no watermarks, no limits.`;
+	}
+
+	if (routeAction.type === 'resize-format') {
+		return `The fastest online ${renderHumanReadableContainer(
+			routeAction.format,
+		)} resizer, powered by WebCodecs. No upload required, no watermarks, no limits.`;
+	}
+
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);
 };
 
@@ -178,6 +211,14 @@ export const makeSlug = (routeAction: RouteAction) => {
 
 	if (routeAction.type === 'generic-mirror') {
 		return `/mirror`;
+	}
+
+	if (routeAction.type === 'generic-resize') {
+		return '/resize';
+	}
+
+	if (routeAction.type === 'resize-format') {
+		return `/resize/${routeAction.format}`;
 	}
 
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);

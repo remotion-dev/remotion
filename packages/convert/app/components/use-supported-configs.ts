@@ -1,5 +1,5 @@
 import {ParseMediaContainer, TracksField} from '@remotion/media-parser';
-import {ConvertMediaContainer} from '@remotion/webcodecs';
+import {ConvertMediaContainer, ResizeOperation} from '@remotion/webcodecs';
 import {useEffect, useState} from 'react';
 import {RouteAction} from '~/seo';
 import {getSupportedConfigs, SupportedConfigs} from './get-supported-configs';
@@ -10,11 +10,13 @@ export const useSupportedConfigs = ({
 	action,
 	userRotation,
 	inputContainer,
+	resizeOperation,
 }: {
 	outputContainer: ConvertMediaContainer;
 	tracks: TracksField | null;
 	action: RouteAction;
 	userRotation: number;
+	resizeOperation: ResizeOperation | null;
 	inputContainer: ParseMediaContainer | null;
 }) => {
 	const [state, setState] = useState<
@@ -33,13 +35,21 @@ export const useSupportedConfigs = ({
 			action,
 			userRotation,
 			inputContainer,
+			resizeOperation,
 		}).then((supportedConfigs) => {
 			setState((prev) => ({
 				...prev,
 				[outputContainer]: supportedConfigs,
 			}));
 		});
-	}, [action, inputContainer, outputContainer, tracks, userRotation]);
+	}, [
+		action,
+		inputContainer,
+		outputContainer,
+		tracks,
+		userRotation,
+		resizeOperation,
+	]);
 
 	return state[outputContainer];
 };

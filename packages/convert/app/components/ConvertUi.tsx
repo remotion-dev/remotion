@@ -1,5 +1,6 @@
 import {Button} from '@/components/ui/button';
 import {
+	Dimensions,
 	LogLevel,
 	MediaParserAudioCodec,
 	MediaParserInternals,
@@ -9,8 +10,13 @@ import {
 } from '@remotion/media-parser';
 import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
-import {convertMedia, ConvertMediaContainer} from '@remotion/webcodecs';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {
+	convertMedia,
+	ConvertMediaContainer,
+	ResizeOperation,
+	WebCodecsInternals,
+} from '@remotion/webcodecs';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {canRotateOrMirror} from '~/lib/can-rotate-or-mirror';
 import {ConvertState, Source} from '~/lib/convert-state';
 import {
@@ -23,6 +29,7 @@ import {
 	getActualAudioConfigIndex,
 	getActualVideoConfigIndex,
 } from '~/lib/get-audio-video-config-index';
+import {getInitialResizeSuggestion} from '~/lib/get-initial-resize-suggestion';
 import {isReencoding} from '~/lib/is-reencoding';
 import {isSubmitDisabled} from '~/lib/is-submit-enabled';
 import {RouteAction} from '~/seo';
@@ -34,8 +41,10 @@ import {ErrorState} from './ErrorState';
 import {flipVideoFrame} from './flip-video';
 import {getDefaultContainerForConversion} from './guess-codec-from-source';
 import {MirrorComponents} from './MirrorComponents';
+import {ResizeUi} from './ResizeUi';
 import {RotateComponents} from './RotateComponents';
 import {useSupportedConfigs} from './use-supported-configs';
+import {VideoThumbnailRef} from './VideoThumbnail';
 
 export default function ConvertUI({
 	src,
@@ -55,13 +64,21 @@ export default function ConvertUI({
 	setFlipHorizontal,
 	setFlipVertical,
 	inputContainer,
+	unrotatedDimensions,
+	videoThumbnailRef,
+	rotation,
+	dimensions,
 }: {
 	readonly src: Source;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 	readonly currentAudioCodec: MediaParserAudioCodec | null;
 	readonly currentVideoCodec: MediaParserVideoCodec | null;
 	readonly tracks: TracksField | null;
+	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef | null>;
+	readonly unrotatedDimensions: Dimensions | null;
+	readonly dimensions: Dimensions | null;
 	readonly duration: number | null;
+	readonly rotation: number | null;
 	readonly inputContainer: ParseMediaContainer | null;
 	readonly logLevel: LogLevel;
 	readonly action: RouteAction;
@@ -90,6 +107,12 @@ export default function ConvertUI({
 	const [enableConvert, setEnableConvert] = useState(() =>
 		isConvertEnabledByDefault(action),
 	);
+	const [resizeOperation, setResizeOperation] =
+		useState<ResizeOperation | null>(() => {
+			return action.type === 'resize-format' || action.type === 'generic-resize'
+				? getInitialResizeSuggestion(dimensions)
+				: null;
+		});
 
 	const order = useMemo(() => {
 		return Object.entries(getOrderOfSections(action))
@@ -105,6 +128,19 @@ export default function ConvertUI({
 		action,
 		userRotation,
 		inputContainer,
+		resizeOperation,
+	});
+
+	const isH264Reencode = supportedConfigs?.videoTrackOptions.some((o) => {
+		const index = getActualVideoConfigIndex({
+			enableConvert,
+			trackNumber: o.trackId,
+			videoConfigIndexSelection,
+		});
+		return (
+			o.operations[index].type === 'reencode' &&
+			o.operations[index].videoCodec === 'h264'
+		);
 	});
 
 	const setVideoConfigIndex = useCallback((trackId: number, i: number) => {
@@ -293,6 +329,35 @@ export default function ConvertUI({
 		});
 	}, [setEnableRotateOrMirror]);
 
+	const onResizeClick = useCallback(() => {
+		setResizeOperation((r) => {
+			if (r !== null || !dimensions) {
+				return null;
+			}
+
+			return getInitialResizeSuggestion(dimensions);
+		});
+	}, [dimensions]);
+
+	const newDimensions = useMemo(() => {
+		if (unrotatedDimensions === null) {
+			return null;
+		}
+
+		return WebCodecsInternals.calculateNewDimensionsFromDimensions({
+			...unrotatedDimensions,
+			rotation: userRotation - (rotation ?? 0),
+			resizeOperation,
+			videoCodec: isH264Reencode ? 'h264' : 'vp8',
+		});
+	}, [
+		unrotatedDimensions,
+		isH264Reencode,
+		resizeOperation,
+		rotation,
+		userRotation,
+	]);
+
 	if (state.type === 'error') {
 		return (
 			<>
@@ -452,7 +517,35 @@ export default function ConvertUI({
 						);
 					}
 
-					throw new Error('Unknown section');
+					if (section === 'resize') {
+						return (
+							<div key="resize">
+								<ConvertUiSection
+									active={resizeOperation !== null && newDimensions !== null}
+									setActive={onResizeClick}
+								>
+									Resize
+								</ConvertUiSection>
+								{resizeOperation !== null &&
+								newDimensions !== null &&
+								unrotatedDimensions !== null ? (
+									<>
+										<div className="h-2" />
+										<ResizeUi
+											originalDimensions={unrotatedDimensions}
+											dimensions={newDimensions}
+											thumbnailRef={videoThumbnailRef}
+											rotation={userRotation - (rotation ?? 0)}
+											setResizeMode={setResizeOperation}
+											requireTwoStep={Boolean(isH264Reencode)}
+										/>
+									</>
+								) : null}
+							</div>
+						);
+					}
+
+					throw new Error('Unknown section ' + (section satisfies never));
 				})}
 			</div>
 			<div className="h-8" />

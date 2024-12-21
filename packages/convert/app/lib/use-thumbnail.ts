@@ -44,6 +44,7 @@ export const useThumbnail = ({
 					output(frame) {
 						if (frames >= framesToGet) {
 							abortController.abort();
+							frame.close();
 							onDone();
 							return;
 						}

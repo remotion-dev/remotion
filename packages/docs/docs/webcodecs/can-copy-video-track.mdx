@@ -28,7 +28,7 @@ import {parseMedia} from '@remotion/media-parser';
 import {canCopyVideoTrack} from '@remotion/webcodecs';
 
 const {tracks, container} = await parseMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.webm',
   fields: {
     tracks: true,
     container: true,
@@ -38,10 +38,10 @@ const {tracks, container} = await parseMedia({
 for (const track of tracks.videoTracks) {
   canCopyVideoTrack({
     outputContainer: 'webm',
+    inputTrack: track,
     inputContainer: container,
-    inputCodec: track.codecWithoutConfig,
-    inputRotation: track.rotation,
     rotationToApply: 0,
+    resizeOperation: null,
   }); // boolean
 }
 ```
@@ -53,17 +53,17 @@ for (const track of tracks.videoTracks) {
 import {convertMedia, canCopyVideoTrack} from '@remotion/webcodecs';
 
 await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.webm',
   container: 'webm',
   videoCodec: 'vp8',
   audioCodec: 'opus',
   onVideoTrack: async ({track, inputContainer, outputContainer}) => {
     const canCopy = canCopyVideoTrack({
-      inputCodec: track.codecWithoutConfig,
       outputContainer,
+      inputTrack: track,
       inputContainer,
-      inputRotation: track.rotation,
       rotationToApply: 0,
+      resizeOperation: null,
     });
 
     if (canCopy) {
@@ -78,17 +78,11 @@ await convertMedia({
 
 ## API
 
-### `inputCodec`
+### `inputTrack`
 
-_string_ <TsType type="MediaParserVideoCodec" source="@remotion/media-parser" />
+_string_ <TsType type="VideoTrack" source="@remotion/media-parser" />
 
-The codec of the input video track.
-
-### `inputRotation`
-
-_number_
-
-The number of degrees the input video track is rotated.
+The input video track.
 
 ### `rotationToApply`
 
@@ -107,6 +101,12 @@ The container format of the input media.
 _string_ <TsType type="ConvertMediaContainer" source="@remotion/webcodecs" />
 
 The container format of the output media.
+
+### `resizeOperation`
+
+_string_ <TsType type="ResizeOperation" source="@remotion/webcodecs" />
+
+The [resize operation](/docs/webcodecs/resize-a-video) to apply to the video track.
 
 ## Rotation behavior
 
