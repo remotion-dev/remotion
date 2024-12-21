@@ -33,6 +33,7 @@ export const ResizeThumbnail: React.FC<{
 	readonly setResizeMode: React.Dispatch<
 		React.SetStateAction<ResizeOperation | null>
 	>;
+	readonly inputFocused: boolean;
 }> = ({
 	thumbnailRef,
 	dimensions,
@@ -40,6 +41,7 @@ export const ResizeThumbnail: React.FC<{
 	setResizeMode,
 	rotation,
 	unrotatedDimensions,
+	inputFocused,
 }) => {
 	const ref = useRef<HTMLCanvasElement>(null);
 	const thumbnailDimensions = useMemo(() => {
@@ -98,18 +100,19 @@ export const ResizeThumbnail: React.FC<{
 					outline: '2px solid black',
 					overflow: 'hidden',
 				}}
-				data-animate={!dragging}
+				data-animate={!dragging && !inputFocused}
 				className="rounded flex justify-center items-center data-[animate=true]:transition-all"
 			>
 				<canvas
 					ref={ref}
-					className="rounded transition-transform"
+					className="rounded transition-transform data-[animate=true]:transition-all"
 					style={{
 						position: 'absolute',
 						width: Math.ceil(unrotatedThumbnailDimensions.width * scale),
 						height: Math.ceil(unrotatedThumbnailDimensions.height * scale),
 						transform: `rotate(${rotation}deg)`,
 					}}
+					data-animate={!dragging && !inputFocused}
 					width={unrotatedThumbnailDimensions.width}
 					height={unrotatedThumbnailDimensions.height}
 				/>

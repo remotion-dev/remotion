@@ -124,6 +124,18 @@ export default function ConvertUI({
 		resizeOperation,
 	});
 
+	const isH264Reencode = supportedConfigs?.videoTrackOptions.some((o) => {
+		const index = getActualVideoConfigIndex({
+			enableConvert,
+			trackNumber: o.trackId,
+			videoConfigIndexSelection,
+		});
+		return (
+			o.operations[index].type === 'reencode' &&
+			o.operations[index].videoCodec === 'h264'
+		);
+	});
+
 	const setVideoConfigIndex = useCallback((trackId: number, i: number) => {
 		_setVideoConfigIndex((prev) => ({
 			...prev,
@@ -332,9 +344,9 @@ export default function ConvertUI({
 			...dimensions,
 			rotation: userRotation,
 			resizeOperation,
-			videoCodec: currentVideoCodec ?? 'h264',
+			videoCodec: isH264Reencode ? 'h264' : 'vp8',
 		});
-	}, [currentVideoCodec, dimensions, resizeOperation, userRotation]);
+	}, [dimensions, isH264Reencode, resizeOperation, userRotation]);
 
 	if (state.type === 'error') {
 		return (
@@ -413,8 +425,6 @@ export default function ConvertUI({
 		videoConfigIndexSelection,
 		enableConvert,
 	});
-
-	console.log('rsize', resizeOperation);
 
 	return (
 		<>
@@ -517,6 +527,7 @@ export default function ConvertUI({
 											thumbnailRef={videoThumbnailRef}
 											rotation={userRotation - (rotation ?? 0)}
 											setResizeMode={setResizeOperation}
+											requireTwoStep={Boolean(isH264Reencode)}
 										/>
 									</>
 								) : null}
