@@ -144,6 +144,7 @@ export const FileAvailable: React.FC<{
 											src={src}
 											tracks={probeResult.tracks}
 											setSrc={setSrc}
+											dimensions={probeResult.dimensions}
 											duration={probeResult.durationInSeconds ?? null}
 											logLevel="verbose"
 											action={routeAction}
@@ -155,6 +156,7 @@ export const FileAvailable: React.FC<{
 											setFlipHorizontal={setFlipHorizontal}
 											flipVertical={flipVertical}
 											setFlipVertical={setFlipVertical}
+											videoThumbnailRef={videoThumbnailRef}
 										/>
 									</div>
 								</div>

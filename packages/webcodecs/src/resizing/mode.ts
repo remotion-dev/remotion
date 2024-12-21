@@ -3,7 +3,7 @@ export type Dimensions = {
 	height: number;
 };
 
-export type ResizingOperation =
+export type ResizeOperation =
 	| {
 			mode: 'width';
 			width: number;

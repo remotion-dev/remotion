@@ -8,6 +8,7 @@ import {
 	ConvertMediaContainer,
 	getAvailableAudioCodecs,
 	getAvailableVideoCodecs,
+	ResizeOperation,
 	VideoOperation,
 } from '@remotion/webcodecs';
 import {RouteAction} from '~/seo';
@@ -60,6 +61,7 @@ export const getSupportedConfigs = async ({
 	action,
 	userRotation,
 	inputContainer,
+	resizeOperation,
 }: {
 	tracks: TracksField;
 	container: ConvertMediaContainer;
@@ -67,6 +69,7 @@ export const getSupportedConfigs = async ({
 	action: RouteAction;
 	userRotation: number;
 	inputContainer: ParseMediaContainer;
+	resizeOperation: ResizeOperation | null;
 }): Promise<SupportedConfigs> => {
 	const availableVideoCodecs = getAvailableVideoCodecs({container});
 
@@ -78,11 +81,11 @@ export const getSupportedConfigs = async ({
 	for (const track of tracks.videoTracks) {
 		const options: VideoOperation[] = [];
 		const canCopy = canCopyVideoTrack({
-			inputCodec: track.codecWithoutConfig,
+			inputTrack: track,
 			outputContainer: container,
-			inputRotation: track.rotation,
 			rotationToApply: userRotation,
 			inputContainer,
+			resizeOperation,
 		});
 		if (canCopy && prioritizeCopyOverReencode) {
 			options.push({
@@ -98,6 +101,7 @@ export const getSupportedConfigs = async ({
 				options.push({
 					type: 'reencode',
 					videoCodec: outputCodec,
+					resize: resizeOperation,
 				});
 			}
 		}

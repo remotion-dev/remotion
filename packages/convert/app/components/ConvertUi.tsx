@@ -1,5 +1,6 @@
 import {Button} from '@/components/ui/button';
 import {
+	Dimensions,
 	LogLevel,
 	MediaParserAudioCodec,
 	MediaParserInternals,
@@ -9,8 +10,13 @@ import {
 } from '@remotion/media-parser';
 import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
-import {convertMedia, ConvertMediaContainer} from '@remotion/webcodecs';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {
+	convertMedia,
+	ConvertMediaContainer,
+	ResizeOperation,
+	WebCodecsInternals,
+} from '@remotion/webcodecs';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {canRotateOrMirror} from '~/lib/can-rotate-or-mirror';
 import {ConvertState, Source} from '~/lib/convert-state';
 import {
@@ -34,8 +40,10 @@ import {ErrorState} from './ErrorState';
 import {flipVideoFrame} from './flip-video';
 import {getDefaultContainerForConversion} from './guess-codec-from-source';
 import {MirrorComponents} from './MirrorComponents';
+import {ResizeUi} from './ResizeUi';
 import {RotateComponents} from './RotateComponents';
 import {useSupportedConfigs} from './use-supported-configs';
+import {VideoThumbnailRef} from './VideoThumbnail';
 
 export default function ConvertUI({
 	src,
@@ -55,12 +63,16 @@ export default function ConvertUI({
 	setFlipHorizontal,
 	setFlipVertical,
 	inputContainer,
+	dimensions,
+	videoThumbnailRef,
 }: {
 	readonly src: Source;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 	readonly currentAudioCodec: MediaParserAudioCodec | null;
 	readonly currentVideoCodec: MediaParserVideoCodec | null;
 	readonly tracks: TracksField | null;
+	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef | null>;
+	readonly dimensions: Dimensions | null;
 	readonly duration: number | null;
 	readonly inputContainer: ParseMediaContainer | null;
 	readonly logLevel: LogLevel;
@@ -90,6 +102,8 @@ export default function ConvertUI({
 	const [enableConvert, setEnableConvert] = useState(() =>
 		isConvertEnabledByDefault(action),
 	);
+	const [resizeOperation, setResizeOperation] =
+		useState<ResizeOperation | null>(null);
 
 	const order = useMemo(() => {
 		return Object.entries(getOrderOfSections(action))
@@ -105,6 +119,7 @@ export default function ConvertUI({
 		action,
 		userRotation,
 		inputContainer,
+		resizeOperation,
 	});
 
 	const setVideoConfigIndex = useCallback((trackId: number, i: number) => {
@@ -293,6 +308,32 @@ export default function ConvertUI({
 		});
 	}, [setEnableRotateOrMirror]);
 
+	const onResizeClick = useCallback(() => {
+		setResizeOperation((r) => {
+			if (r !== null) {
+				return null;
+			}
+
+			return {
+				mode: 'max-height',
+				maxHeight: 480,
+			};
+		});
+	}, [setResizeOperation]);
+
+	const newDimensions = useMemo(() => {
+		if (dimensions === null) {
+			return null;
+		}
+
+		return WebCodecsInternals.calculateNewDimensionsFromDimensions({
+			...dimensions,
+			rotation: userRotation,
+			resizeOperation,
+			videoCodec: currentVideoCodec ?? 'h264',
+		});
+	}, [currentVideoCodec, dimensions, resizeOperation, userRotation]);
+
 	if (state.type === 'error') {
 		return (
 			<>
@@ -452,7 +493,32 @@ export default function ConvertUI({
 						);
 					}
 
-					throw new Error('Unknown section');
+					if (section === 'resize') {
+						return (
+							<div key="resize">
+								<ConvertUiSection
+									active={resizeOperation !== null && newDimensions !== null}
+									setActive={onResizeClick}
+								>
+									Resize
+								</ConvertUiSection>
+								{resizeOperation !== null &&
+								newDimensions !== null &&
+								dimensions !== null ? (
+									<>
+										<div className="h-2" />
+										<ResizeUi
+											originalDimensions={dimensions}
+											dimensions={newDimensions}
+											thumbnailRef={videoThumbnailRef}
+										/>
+									</>
+								) : null}
+							</div>
+						);
+					}
+
+					throw new Error('Unknown section ' + (section satisfies never));
 				})}
 			</div>
 			<div className="h-8" />

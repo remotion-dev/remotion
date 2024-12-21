@@ -15,6 +15,7 @@ type Props = {
 export type VideoThumbnailRef = {
 	draw: (videoFrame: VideoFrame) => void;
 	onDone: () => void;
+	copy: () => Promise<ImageBitmap>;
 };
 
 const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
@@ -69,6 +70,13 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 			draw: drawThumbnail,
 			onDone: () => {
 				setReveal(true);
+			},
+			copy: () => {
+				const canvas = ref.current;
+				if (!canvas) {
+					throw new Error('Canvas not ready');
+				}
+				return createImageBitmap(canvas);
 			},
 		}),
 		[drawThumbnail],

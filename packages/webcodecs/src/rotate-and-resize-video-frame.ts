@@ -1,5 +1,5 @@
 import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
-import type {ResizingOperation} from './resizing/mode';
+import type {ResizeOperation} from './resizing/mode';
 import {calculateNewDimensionsFromDimensions} from './rotation';
 
 export const normalizeVideoRotation = (rotation: number) => {
@@ -10,17 +10,17 @@ export const rotateAndResizeVideoFrame = ({
 	frame,
 	rotation,
 	videoCodec,
-	resizingOperation,
+	resizeOperation,
 }: {
 	frame: VideoFrame;
 	rotation: number;
 	videoCodec: ConvertMediaVideoCodec;
-	resizingOperation: ResizingOperation | null;
+	resizeOperation: ResizeOperation | null;
 }) => {
 	const normalized = ((rotation % 360) + 360) % 360;
 
 	// No resize, no rotation
-	if (normalized === 0 && resizingOperation === null) {
+	if (normalized === 0 && resizeOperation === null) {
 		return frame;
 	}
 
@@ -33,7 +33,7 @@ export const rotateAndResizeVideoFrame = ({
 		width: frame.displayWidth,
 		rotation,
 		videoCodec,
-		resizingOperation,
+		resizeOperation,
 	});
 
 	// No rotation, and resize turned out to be same dimensions

@@ -70,7 +70,7 @@ export const isConvertEnabledByDefault = (action: RouteAction) => {
 	);
 };
 
-export type ConvertSections = 'convert' | 'rotate' | 'mirror';
+export type ConvertSections = 'convert' | 'rotate' | 'mirror' | 'resize';
 
 export const getOrderOfSections = (
 	action: RouteAction,
@@ -78,43 +78,49 @@ export const getOrderOfSections = (
 	if (action.type === 'generic-rotate' || action.type === 'rotate-format') {
 		return {
 			rotate: 0,
-			mirror: 1,
-			convert: 2,
+			resize: 1,
+			mirror: 2,
+			convert: 3,
 		};
 	}
 	if (action.type === 'convert') {
 		return {
 			convert: 0,
-			rotate: 1,
-			mirror: 2,
+			resize: 1,
+			rotate: 2,
+			mirror: 3,
 		};
 	}
 	if (action.type === 'generic-probe') {
 		return {
 			convert: 0,
-			rotate: 1,
-			mirror: 2,
+			resize: 1,
+			rotate: 2,
+			mirror: 3,
 		};
 	}
 	if (action.type === 'generic-convert') {
 		return {
 			convert: 0,
-			rotate: 1,
-			mirror: 2,
+			resize: 1,
+			rotate: 2,
+			mirror: 3,
 		};
 	}
 	if (action.type === 'generic-mirror') {
 		return {
 			mirror: 0,
-			rotate: 1,
-			convert: 2,
+			resize: 1,
+			rotate: 2,
+			convert: 3,
 		};
 	}
 	if (action.type === 'mirror-format') {
 		return {
 			mirror: 0,
-			rotate: 1,
-			convert: 2,
+			resize: 1,
+			rotate: 2,
+			convert: 3,
 		};
 	}
 

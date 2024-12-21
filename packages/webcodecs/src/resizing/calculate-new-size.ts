@@ -1,5 +1,6 @@
+import type {MediaParserVideoCodec} from '@remotion/media-parser';
 import type {ConvertMediaVideoCodec} from '../get-available-video-codecs';
-import type {Dimensions, ResizingOperation} from './mode';
+import type {Dimensions, ResizeOperation} from './mode';
 
 const ensureMultipleOfTwo = ({
 	dimensions,
@@ -20,48 +21,48 @@ const ensureMultipleOfTwo = ({
 
 export const calculateNewSizeAfterResizing = ({
 	dimensions,
-	resizingOperation,
+	resizeOperation,
 	videoCodec,
 }: {
 	dimensions: Dimensions;
-	resizingOperation: ResizingOperation | null;
-	videoCodec: ConvertMediaVideoCodec;
+	resizeOperation: ResizeOperation | null;
+	videoCodec: ConvertMediaVideoCodec | MediaParserVideoCodec;
 }) => {
 	const needsToBeMultipleOfTwo = videoCodec === 'h264';
 
-	if (resizingOperation === null) {
+	if (resizeOperation === null) {
 		return ensureMultipleOfTwo({
 			dimensions,
 			needsToBeMultipleOfTwo,
 		});
 	}
 
-	if (resizingOperation.mode === 'width') {
+	if (resizeOperation.mode === 'width') {
 		return ensureMultipleOfTwo({
 			dimensions: {
-				width: resizingOperation.width,
+				width: resizeOperation.width,
 				height: Math.round(
-					(resizingOperation.width / dimensions.width) * dimensions.height,
+					(resizeOperation.width / dimensions.width) * dimensions.height,
 				),
 			},
 			needsToBeMultipleOfTwo,
 		});
 	}
 
-	if (resizingOperation.mode === 'height') {
+	if (resizeOperation.mode === 'height') {
 		return ensureMultipleOfTwo({
 			dimensions: {
 				width: Math.round(
-					(resizingOperation.height / dimensions.height) * dimensions.width,
+					(resizeOperation.height / dimensions.height) * dimensions.width,
 				),
-				height: resizingOperation.height,
+				height: resizeOperation.height,
 			},
 			needsToBeMultipleOfTwo,
 		});
 	}
 
-	if (resizingOperation.mode === 'max-height') {
-		const height = Math.min(dimensions.height, resizingOperation.maxHeight);
+	if (resizeOperation.mode === 'max-height') {
+		const height = Math.min(dimensions.height, resizeOperation.maxHeight);
 		return ensureMultipleOfTwo({
 			dimensions: {
 				width: Math.round((height / dimensions.height) * dimensions.width),
@@ -71,8 +72,8 @@ export const calculateNewSizeAfterResizing = ({
 		});
 	}
 
-	if (resizingOperation.mode === 'max-width') {
-		const width = Math.min(dimensions.width, resizingOperation.maxWidth);
+	if (resizeOperation.mode === 'max-width') {
+		const width = Math.min(dimensions.width, resizeOperation.maxWidth);
 		return ensureMultipleOfTwo({
 			dimensions: {
 				width,
@@ -82,9 +83,9 @@ export const calculateNewSizeAfterResizing = ({
 		});
 	}
 
-	if (resizingOperation.mode === 'max-height-width') {
-		const height = Math.min(dimensions.height, resizingOperation.maxHeight);
-		const width = Math.min(dimensions.width, resizingOperation.maxWidth);
+	if (resizeOperation.mode === 'max-height-width') {
+		const height = Math.min(dimensions.height, resizeOperation.maxHeight);
+		const width = Math.min(dimensions.width, resizeOperation.maxWidth);
 
 		const scale = Math.min(
 			width / dimensions.width,
@@ -103,7 +104,5 @@ export const calculateNewSizeAfterResizing = ({
 		});
 	}
 
-	throw new Error(
-		'Invalid resizing mode ' + (resizingOperation satisfies never),
-	);
+	throw new Error('Invalid resizing mode ' + (resizeOperation satisfies never));
 };

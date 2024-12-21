@@ -1,19 +1,20 @@
+import type {MediaParserVideoCodec} from '@remotion/media-parser';
 import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 import {calculateNewSizeAfterResizing} from './resizing/calculate-new-size';
-import type {ResizingOperation} from './resizing/mode';
+import type {ResizeOperation} from './resizing/mode';
 
 export const calculateNewDimensionsFromDimensions = ({
 	width,
 	height,
 	rotation,
-	resizingOperation,
+	resizeOperation,
 	videoCodec,
 }: {
 	width: number;
 	height: number;
 	rotation: number;
-	resizingOperation: ResizingOperation | null;
-	videoCodec: ConvertMediaVideoCodec;
+	resizeOperation: ResizeOperation | null;
+	videoCodec: ConvertMediaVideoCodec | MediaParserVideoCodec;
 }) => {
 	const switchDimensions = rotation % 90 === 0 && rotation % 180 !== 0;
 
@@ -22,7 +23,7 @@ export const calculateNewDimensionsFromDimensions = ({
 
 	return calculateNewSizeAfterResizing({
 		dimensions: {height: newHeight, width: newWidth},
-		resizingOperation,
+		resizeOperation,
 		videoCodec,
 	});
 };
