@@ -57,22 +57,7 @@ export const useProbe = ({
 		parseMedia({
 			logLevel,
 			src: src.type === 'file' ? src.file : src.url,
-			fields: {
-				dimensions: true,
-				videoCodec: true,
-				size: true,
-				durationInSeconds: true,
-				audioCodec: true,
-				fps: true,
-				name: true,
-				tracks: true,
-				container: true,
-				isHdr: true,
-				rotation: true,
-				metadata: true,
-				location: true,
-				keyframes: true,
-			},
+
 			onParseProgress: onProgress,
 			reader: src.type === 'file' ? webFileReader : fetchReader,
 			signal: controller.signal,
