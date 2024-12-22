@@ -133,6 +133,10 @@ export const createMatroskaMedia = async ({
 		// Therefore, only updating track number progress if it is a keyframe
 		// to allow for timestamps to be lower than the previous one
 
+		progressTracker.setPossibleLowestTimestamp(
+			Math.min(chunk.timestamp, chunk.cts ?? Infinity, chunk.dts ?? Infinity),
+		);
+
 		const smallestProgress = progressTracker.getSmallestProgress();
 
 		if (

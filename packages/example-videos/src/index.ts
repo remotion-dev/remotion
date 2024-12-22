@@ -74,4 +74,5 @@ export const exampleVideos = {
 		'RemotionSeedFundingPressRelease.pdf',
 	),
 	unknown: __filename,
+	unevendim: path.join(__dirname, '..', 'videos', 'unevendim.webm'),
 };

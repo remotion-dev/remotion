@@ -207,6 +207,28 @@ export const transportStream = (): TestStructure => {
 		},
 	});
 };
+export const remuxUnevenDim = (): TestStructure => {
+	const src =
+		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/unevendim.webm';
+
+	return addTestWatcher({
+		name: 'Remux uneven dim',
+		src,
+		async execute(onUpdate) {
+			await convertMedia({
+				src,
+				container: 'webm',
+				onAudioTrack: () => {
+					return {type: 'copy'};
+				},
+				onVideoCodec: () => {
+					return {type: 'copy'};
+				},
+				onProgress: makeProgressReporter(onUpdate),
+			});
+		},
+	});
+};
 
 export const testList: TestStructure[] = [
 	basicMp4ToWebM(),
@@ -220,4 +242,5 @@ export const testList: TestStructure[] = [
 	vpxEncodingError(),
 	offsetTimestamps(),
 	transportStream(),
+	remuxUnevenDim(),
 ];
