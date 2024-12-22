@@ -10,7 +10,10 @@ export const convertAudioOrVideoSampleToWebCodecsTimestamps = (
 		cts: (cts * 1_000_000) / timescale,
 		dts: (dts * 1_000_000) / timescale,
 		timestamp: (timestamp * 1_000_000) / timescale,
-		duration: ((sample.duration ?? 0) * 1_000_000) / timescale,
+		duration:
+			sample.duration === undefined
+				? undefined
+				: (sample.duration * 1_000_000) / timescale,
 		data: sample.data,
 		trackId: sample.trackId,
 		type: sample.type,

@@ -70,11 +70,12 @@ export const sampleCallback = ({
 				samplesForTrack[trackId] = 0;
 			}
 
-			samplesForTrack[trackId]++;
-
 			const callback = audioSampleCallbacks[trackId];
-			if (callback) {
+
+			// If we emit samples with data length 0, Chrome will fail
+			if (callback && audioSample.data.length > 0) {
 				await callback(audioSample);
+				samplesForTrack[trackId]++;
 			}
 		},
 		getSamplesForTrack: (trackId: number) => {
@@ -89,12 +90,11 @@ export const sampleCallback = ({
 				samplesForTrack[trackId] = 0;
 			}
 
-			samplesForTrack[trackId]++;
-
 			const callback = videoSampleCallbacks[trackId];
 
 			// If we emit samples with data 0, Chrome will fail
 			if (callback && videoSample.data.length > 0) {
+				samplesForTrack[trackId]++;
 				await callback(videoSample);
 			}
 
