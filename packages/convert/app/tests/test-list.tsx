@@ -3,6 +3,7 @@ import {flipVideoFrame} from '~/components/flip-video';
 import {
 	addTestWatcher,
 	allowSafariAudioDrop,
+	isSafari,
 	makeProgressReporter,
 	TestStructure,
 } from './test-structure';
@@ -112,6 +113,11 @@ export const aviToMp4ReEncode = (): TestStructure => {
 					return {type: 'reencode', videoCodec: 'h264'};
 				},
 				onAudioTrack: () => {
+					if (isSafari()) {
+						return {
+							type: 'drop',
+						};
+					}
 					return {type: 'reencode', audioCodec: 'aac', bitrate: 128000};
 				},
 			});
