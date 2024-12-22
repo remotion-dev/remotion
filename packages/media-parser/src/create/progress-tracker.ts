@@ -66,11 +66,11 @@ export const makeProgressTracker = () => {
 		waitForProgress: () => {
 			const {promise, resolve} = withResolvers<void>();
 			const on = () => {
-				eventEmitter.removeEventListener('processed', on);
+				eventEmitter.removeEventListener('progress', on);
 				resolve();
 			};
 
-			eventEmitter.addEventListener('processed', on);
+			eventEmitter.addEventListener('progress', on);
 			return promise;
 		},
 		getStartingTimestamp,

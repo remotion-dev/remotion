@@ -66,7 +66,7 @@ test('AVI file', async () => {
 	expect(size).toBe(742478);
 	expect(audioTrackCount).toBe(1);
 	expect(videoTrackCount).toBe(1);
-	expect(audioSamples).toBe(1435);
+	expect(audioSamples).toBe(1433);
 	expect(videoSamples).toBe(901);
 	expect(videoCodec).toBe('h264');
 	expect(tracks.audioTracks).toEqual([

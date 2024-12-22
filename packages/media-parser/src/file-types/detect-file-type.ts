@@ -18,7 +18,8 @@ export const isRiffAvi = (data: Uint8Array) => {
 	}
 
 	const fileType = data.subarray(8, 12);
-	return new TextDecoder().decode(fileType) === 'AVI ';
+	const aviPattern = new Uint8Array([0x41, 0x56, 0x49, 0x20]);
+	return matchesPattern(aviPattern)(fileType);
 };
 
 export const isRiffWave = (data: Uint8Array) => {
@@ -28,7 +29,8 @@ export const isRiffWave = (data: Uint8Array) => {
 	}
 
 	const fileType = data.subarray(8, 12);
-	return new TextDecoder().decode(fileType) === 'WAVE';
+	const wavePattern = new Uint8Array([0x57, 0x41, 0x56, 0x45]);
+	return matchesPattern(wavePattern)(fileType);
 };
 
 export const isWebm = (data: Uint8Array) => {

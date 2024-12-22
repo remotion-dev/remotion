@@ -259,7 +259,7 @@ export const convertMedia = async function <
 		.catch((err) => {
 			sendUsageEvent({succeeded: false, apiKey: apiKey ?? null}).catch(
 				(err2) => {
-					Log.error('Failed to send usage event hmm', err2);
+					Log.error('Failed to send usage event', err2);
 				},
 			);
 			reject(err);
