@@ -6,7 +6,7 @@ import {
 } from "@remotion/lambda";
 import dotenv from "dotenv";
 import path from "path";
-import { RAM, TIMEOUT, SITE_NAME } from "./remotion/constants";
+import { RAM, TIMEOUT, SITE_NAME, DISK } from "./remotion/constants";
 
 dotenv.config();
 
@@ -19,7 +19,9 @@ const run = async () => {
     createCloudWatchLogGroup: true,
     memorySizeInMb: RAM,
     region,
+    diskSizeInMb: DISK,
     timeoutInSeconds: TIMEOUT,
+    enableV5Runtime: true,
   });
   console.log(
     `${alreadyExisted ? "Ensured" : "Deployed"} function "${functionName}"`,

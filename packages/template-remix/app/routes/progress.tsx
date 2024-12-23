@@ -1,9 +1,12 @@
 import type { ActionFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { AwsRegion } from "@remotion/lambda";
-import { getRenderProgress } from "@remotion/lambda/client";
-import { speculateFunctionName } from "app/lib/get-function-name";
+import {
+  getRenderProgress,
+  speculateFunctionName,
+} from "@remotion/lambda/client";
 import type { StatusResponse } from "../lib/types";
+import { DISK, RAM, TIMEOUT } from "~/remotion/constants";
 
 export const action: ActionFunction = async ({ request }) => {
   const body = await request.formData();
@@ -29,7 +32,11 @@ export const action: ActionFunction = async ({ request }) => {
     {
       renderId,
       bucketName,
-      functionName: speculateFunctionName(),
+      functionName: speculateFunctionName({
+        diskSizeInMb: DISK,
+        memorySizeInMb: RAM,
+        timeoutInSeconds: TIMEOUT,
+      }),
       region,
     },
   );
