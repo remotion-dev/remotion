@@ -1,8 +1,15 @@
 import type { AwsRegion } from "@remotion/lambda";
-import { renderMediaOnLambda } from "@remotion/lambda/client";
-import { speculateFunctionName } from "./get-function-name";
+import {
+  renderMediaOnLambda,
+  speculateFunctionName,
+} from "@remotion/lambda/client";
 import type { RenderResponse } from "./types";
-import type { LogoAnimationProps } from "app/remotion/constants";
+import {
+  DISK,
+  RAM,
+  TIMEOUT,
+  type LogoAnimationProps,
+} from "app/remotion/constants";
 
 export const renderVideo = async ({
   serveUrl,
@@ -24,7 +31,11 @@ export const renderVideo = async ({
 
   const { renderId, bucketName } = await renderMediaOnLambda({
     region,
-    functionName: speculateFunctionName(),
+    functionName: speculateFunctionName({
+      diskSizeInMb: DISK,
+      memorySizeInMb: RAM,
+      timeoutInSeconds: TIMEOUT,
+    }),
     serveUrl,
     composition,
     inputProps,
@@ -39,7 +50,11 @@ export const renderVideo = async ({
   return {
     renderId,
     bucketName,
-    functionName: speculateFunctionName(),
+    functionName: speculateFunctionName({
+      diskSizeInMb: DISK,
+      memorySizeInMb: RAM,
+      timeoutInSeconds: TIMEOUT,
+    }),
     region,
   };
 };
