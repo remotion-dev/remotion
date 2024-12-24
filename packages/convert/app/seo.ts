@@ -108,15 +108,15 @@ export const getPageTitle = (routeAction: RouteAction) => {
 	}
 
 	if (routeAction.type === 'generic-probe') {
-		return 'Online video Metadata Viewer - Remotion Convert';
+		return 'Online Video Metadata Viewer - Remotion Convert';
 	}
 
 	if (routeAction.type === 'generic-rotate') {
-		return 'Online video Rotation - Remotion Convert';
+		return 'Online Video Rotation - Remotion Convert';
 	}
 
 	if (routeAction.type === 'generic-mirror') {
-		return 'Online video Mirrorer - Remotion Convert';
+		return 'Online Video Mirrorer - Remotion Convert';
 	}
 
 	if (routeAction.type === 'rotate-format') {
@@ -128,7 +128,7 @@ export const getPageTitle = (routeAction: RouteAction) => {
 	}
 
 	if (routeAction.type === 'generic-resize') {
-		return 'Online video Resizer - Remotion Convert';
+		return 'Online Video Resizer - Remotion Convert';
 	}
 
 	if (routeAction.type === 'resize-format') {
