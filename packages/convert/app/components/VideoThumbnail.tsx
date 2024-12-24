@@ -16,6 +16,8 @@ export type VideoThumbnailRef = {
 	draw: (videoFrame: VideoFrame) => void;
 	onDone: () => void;
 	copy: () => Promise<ImageBitmap>;
+	addOnChangeListener: (listener: () => void) => void;
+	removeOnChangeListener: (listener: () => void) => void;
 };
 
 const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
@@ -37,6 +39,8 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 	const [dimensions, setDimensions] = useState<{width: number}>({width: 0});
 	const [reveal, setReveal] = useState(initialReveal);
 	const [drawn, setDrawn] = useState(false);
+
+	const onChangeListeners = useRef<(() => void)[]>([]);
 
 	const drawThumbnail = useCallback((unrotatedVideoFrame: VideoFrame) => {
 		const scaleRatio = THUMBNAIL_HEIGHT / unrotatedVideoFrame.displayHeight;
@@ -69,6 +73,7 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 		() => ({
 			draw: drawThumbnail,
 			onDone: () => {
+				onChangeListeners.current.forEach((l) => l());
 				setReveal(true);
 			},
 			copy: () => {
@@ -77,6 +82,14 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 					throw new Error('Canvas not ready');
 				}
 				return createImageBitmap(canvas);
+			},
+			addOnChangeListener(listener) {
+				onChangeListeners.current.push(listener);
+			},
+			removeOnChangeListener(listener) {
+				onChangeListeners.current = onChangeListeners.current.filter(
+					(l) => l !== listener,
+				);
 			},
 		}),
 		[drawThumbnail],

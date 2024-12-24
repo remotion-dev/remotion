@@ -52,6 +52,8 @@ export const ResizeThumbnail: React.FC<{
 		return getThumbnailDimensions(unrotatedDimensions);
 	}, [unrotatedDimensions]);
 
+	const [drawn, setDrawn] = useState(false);
+
 	const inner = useMemo(() => {
 		return {
 			height: thumbnailDimensions.height * scale,
@@ -59,7 +61,7 @@ export const ResizeThumbnail: React.FC<{
 		};
 	}, [scale, thumbnailDimensions]);
 
-	useEffect(() => {
+	const draw = useCallback(() => {
 		thumbnailRef.current?.copy().then((map) => {
 			const ctx = ref.current?.getContext('2d');
 			if (!ctx) {
@@ -73,12 +75,25 @@ export const ResizeThumbnail: React.FC<{
 				unrotatedThumbnailDimensions.width,
 				unrotatedThumbnailDimensions.height,
 			);
+
+			setDrawn(true);
 		});
 	}, [
+		thumbnailRef,
 		unrotatedThumbnailDimensions.height,
 		unrotatedThumbnailDimensions.width,
-		thumbnailRef,
 	]);
+
+	useEffect(() => {
+		const {current} = thumbnailRef;
+		if (!current) {
+			return;
+		}
+		current.addOnChangeListener(draw);
+		return () => {
+			current.removeOnChangeListener(draw);
+		};
+	}, [draw, thumbnailRef]);
 
 	const [dragging, setDragging] = useState(false);
 
@@ -105,12 +120,16 @@ export const ResizeThumbnail: React.FC<{
 			>
 				<canvas
 					ref={ref}
-					className="rounded transition-transform data-[animate=true]:transition-all"
+					className="rounded data-[animate=true]:transition-all"
 					style={{
 						position: 'absolute',
 						width: Math.ceil(unrotatedThumbnailDimensions.width * scale),
 						height: Math.ceil(unrotatedThumbnailDimensions.height * scale),
 						transform: `rotate(${rotation}deg)`,
+						transitionProperty: 'transform opacity',
+						transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+						transitionDuration: '150ms',
+						opacity: drawn ? 1 : 0,
 					}}
 					data-animate={!dragging && !inputFocused}
 					width={unrotatedThumbnailDimensions.width}
