@@ -105,6 +105,8 @@ export const ResizeThumbnail: React.FC<{
 		setDragging(true);
 	}, []);
 
+	const animate = !dragging && !inputFocused;
+
 	return (
 		<div className="rounded transition-transform">
 			<div
@@ -115,23 +117,23 @@ export const ResizeThumbnail: React.FC<{
 					outline: '2px solid black',
 					overflow: 'hidden',
 				}}
-				data-animate={!dragging && !inputFocused}
+				data-animate={animate}
 				className="rounded flex justify-center items-center data-[animate=true]:transition-all"
 			>
 				<canvas
 					ref={ref}
-					className="rounded data-[animate=true]:transition-all"
+					className="rounded"
 					style={{
 						position: 'absolute',
 						width: Math.ceil(unrotatedThumbnailDimensions.width * scale),
 						height: Math.ceil(unrotatedThumbnailDimensions.height * scale),
 						transform: `rotate(${rotation}deg)`,
-						transitionProperty: 'transform opacity',
+						transitionProperty: animate ? 'all' : 'none',
 						transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
 						transitionDuration: '150ms',
 						opacity: drawn ? 1 : 0,
 					}}
-					data-animate={!dragging && !inputFocused}
+					data-animate={animate}
 					width={unrotatedThumbnailDimensions.width}
 					height={unrotatedThumbnailDimensions.height}
 				/>
