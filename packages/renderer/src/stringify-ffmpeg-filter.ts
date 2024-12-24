@@ -179,6 +179,7 @@ export const stringifyFfmpegFilter = ({
 	asset,
 	indent,
 	logLevel,
+	presentationTimeOffsetInSeconds,
 }: {
 	channels: number;
 	volume: AssetVolume;
@@ -191,6 +192,7 @@ export const stringifyFfmpegFilter = ({
 	asset: MediaAsset;
 	indent: boolean;
 	logLevel: LogLevel;
+	presentationTimeOffsetInSeconds: number;
 }): FilterWithoutPaddingApplied | null => {
 	if (channels === 0) {
 		return null;
@@ -242,6 +244,8 @@ export const stringifyFfmpegFilter = ({
 
 	const padAtEnd = chunkLengthInSeconds - audibleDuration - startInVideoSeconds;
 
+	const padStart = startInVideoSeconds + presentationTimeOffsetInSeconds;
+
 	// Set as few filters as possible, as combining them can create noise
 	return {
 		filter:
@@ -273,10 +277,10 @@ export const stringifyFfmpegFilter = ({
 			// This should be fine because FFMPEG documentation states:
 			// "Unused delays will be silently ignored."
 			// https://ffmpeg.org/ffmpeg-filters.html#adelay
-			startInVideoSeconds === 0
+			padStart === 0
 				? null
 				: `adelay=${new Array(channels + 1)
-						.fill((startInVideoSeconds * 1000).toFixed(0))
+						.fill((padStart * 1000).toFixed(0))
 						.join('|')}`,
 		actualTrimLeft,
 	};
