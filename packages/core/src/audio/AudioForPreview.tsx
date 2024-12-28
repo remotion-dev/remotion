@@ -16,7 +16,6 @@ import {
 	DEFAULT_ACCEPTABLE_TIMESHIFT,
 	useMediaPlayback,
 } from '../use-media-playback.js';
-import {useMediaTagVolume} from '../use-media-tag-volume.js';
 import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag.js';
 import {
 	useMediaMutedState,
@@ -138,11 +137,8 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 
 	const audioRef = useSharedAudio(propsToPass, id).el;
 
-	const actualVolume = useMediaTagVolume(audioRef);
-
 	useSyncVolumeWithMediaTag({
 		volumePropFrame,
-		actualVolume,
 		volume,
 		mediaVolume,
 		mediaRef: audioRef,
