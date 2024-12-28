@@ -102,7 +102,7 @@ export const createVideoEncoder = ({
 			// Firefox stalls if too few frames are passed
 			unemitted: 10,
 			unprocessed: 10,
-			minimumProgress: frame.timestamp - 5_000_000,
+			minimumProgress: frame.timestamp - 10_000_000,
 			signal,
 		});
 
