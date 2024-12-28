@@ -8,7 +8,7 @@ import {
 	TestStructure,
 } from './test-structure';
 
-export const basicMp4ToWebM = (): TestStructure => {
+const basicMp4ToWebM = (): TestStructure => {
 	const src =
 		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/bigbuckbunny.mp4';
 
@@ -26,7 +26,7 @@ export const basicMp4ToWebM = (): TestStructure => {
 	});
 };
 
-export const av1WebmToMp4 = (): TestStructure => {
+const av1WebmToMp4 = (): TestStructure => {
 	const src =
 		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/av1-bbb.webm';
 
@@ -44,7 +44,7 @@ export const av1WebmToMp4 = (): TestStructure => {
 	});
 };
 
-export const weirdMp4aConfig = (): TestStructure => {
+const weirdMp4aConfig = (): TestStructure => {
 	const src =
 		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/riverside.mp4';
 
@@ -64,7 +64,7 @@ export const weirdMp4aConfig = (): TestStructure => {
 	});
 };
 
-export const convertToWav = (): TestStructure => {
+const convertToWav = (): TestStructure => {
 	const src =
 		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/riverside.mp4';
 
@@ -81,7 +81,7 @@ export const convertToWav = (): TestStructure => {
 	});
 };
 
-export const lpcmLivePhoto = (): TestStructure => {
+const lpcmLivePhoto = (): TestStructure => {
 	const src =
 		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/livephoto-lpcm-audio.mov';
 	return addTestWatcher({
@@ -98,7 +98,7 @@ export const lpcmLivePhoto = (): TestStructure => {
 	});
 };
 
-export const aviToMp4ReEncode = (): TestStructure => {
+const aviToMp4ReEncode = (): TestStructure => {
 	const src =
 		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/example.avi';
 	return addTestWatcher({
@@ -125,7 +125,7 @@ export const aviToMp4ReEncode = (): TestStructure => {
 	});
 };
 
-export const aviToMp4 = (): TestStructure => {
+const aviToMp4 = (): TestStructure => {
 	const src =
 		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/example.avi';
 	return addTestWatcher({
@@ -141,7 +141,7 @@ export const aviToMp4 = (): TestStructure => {
 	});
 };
 
-export const rotatedVideo = (): TestStructure => {
+const rotatedVideo = (): TestStructure => {
 	const src =
 		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/iphone-hevc.mov';
 
@@ -159,7 +159,7 @@ export const rotatedVideo = (): TestStructure => {
 	});
 };
 
-export const vpxEncodingError = (): TestStructure => {
+const vpxEncodingError = (): TestStructure => {
 	const src =
 		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/vpx-encoding-error.mp4';
 	return addTestWatcher({
@@ -178,7 +178,7 @@ export const vpxEncodingError = (): TestStructure => {
 	});
 };
 
-export const offsetTimestamps = (): TestStructure => {
+const offsetTimestamps = (): TestStructure => {
 	const src =
 		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/very-offset-timestamps.mp4';
 
@@ -196,7 +196,7 @@ export const offsetTimestamps = (): TestStructure => {
 	});
 };
 
-export const transportStream = (): TestStructure => {
+const transportStream = (): TestStructure => {
 	const src =
 		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/transportstream.ts';
 
@@ -213,7 +213,8 @@ export const transportStream = (): TestStructure => {
 		},
 	});
 };
-export const remuxUnevenDim = (): TestStructure => {
+
+const remuxUnevenDim = (): TestStructure => {
 	const src =
 		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/unevendim.webm';
 
@@ -236,6 +237,30 @@ export const remuxUnevenDim = (): TestStructure => {
 	});
 };
 
+const remuxToughTimestamps = (): TestStructure => {
+	const src =
+		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/tough-timestamps.mp4';
+
+	return addTestWatcher({
+		name: 'Resize Recorder WebM with tough timestamps',
+		src,
+		async execute(onUpdate) {
+			await convertMedia({
+				src,
+				container: 'webm',
+				resize: {
+					maxHeight: 1080,
+					mode: 'max-height',
+				},
+				onAudioTrack: () => {
+					return {type: 'copy'};
+				},
+				onProgress: makeProgressReporter(onUpdate),
+			});
+		},
+	});
+};
+
 export const testList: TestStructure[] = [
 	basicMp4ToWebM(),
 	av1WebmToMp4(),
@@ -249,4 +274,5 @@ export const testList: TestStructure[] = [
 	offsetTimestamps(),
 	transportStream(),
 	remuxUnevenDim(),
+	remuxToughTimestamps(),
 ];
