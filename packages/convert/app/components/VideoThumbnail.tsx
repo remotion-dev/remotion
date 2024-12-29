@@ -37,7 +37,7 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 	const ref = useRef<HTMLCanvasElement>(null);
 
 	const [color, setColor] = useState<string>('transparent');
-	const [dimensions, setDimensions] = useState<{width: number}>({width: 0});
+	const [dimensions, setDimensions] = useState<{width: number}>({width: 350});
 	const [reveal, setReveal] = useState(initialReveal);
 	const [drawn, setDrawn] = useState(false);
 
