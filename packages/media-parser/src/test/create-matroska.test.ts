@@ -278,7 +278,8 @@ test('Can we disassemble a Matroska file and assembled it again', async () => {
 		throw new Error('Not a webm file');
 	}
 
-	expect(stringifyWebm(parsed.boxes).byteLength).toEqual(
+	// +1 because two files has leading 0x0 boxes which we strip during parsing
+	expect(stringifyWebm(parsed.boxes).byteLength + 2).toEqual(
 		new Uint8Array(bytes).byteLength,
 	);
 	process.env.KEEP_SAMPLES = 'false';

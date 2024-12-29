@@ -14,7 +14,7 @@ export const parseListBox = async ({
 	state: ParserState;
 }): Promise<RiffBox> => {
 	const counter = iterator.counter.getOffset();
-	const listType = iterator.getByteString(4);
+	const listType = iterator.getByteString(4, false);
 
 	if (listType === 'movi') {
 		throw new Error('should not be handled here');

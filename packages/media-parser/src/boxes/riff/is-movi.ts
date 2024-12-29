@@ -5,7 +5,7 @@ export const isMoviAtom = (iterator: BufferIterator, ckId: string): boolean => {
 		return false;
 	}
 
-	const listType = iterator.getByteString(4);
+	const listType = iterator.getByteString(4, false);
 	iterator.counter.decrement(4);
 	return listType === 'movi';
 };

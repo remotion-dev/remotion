@@ -35,7 +35,7 @@ export const parseKeys = ({
 		// key_size
 		const keySize = iterator.getUint32();
 		const namespace = iterator.getAtom();
-		const value = iterator.getByteString(keySize - 8);
+		const value = iterator.getByteString(keySize - 8, false);
 		// data
 		const entry: KeysEntry = {
 			keySize,

@@ -112,12 +112,10 @@ export const Probe: React.FC<{
 							)}
 						</CardTitle>
 						{error ? (
-							<CardDescription className="!mt-0">
-								<p className="text-red-500">
-									Failed to parse media:
-									<br />
-									{error.message}
-								</p>
+							<CardDescription className="!mt-0 text-red-500">
+								Failed to parse media:
+								<br />
+								{error.message}
 							</CardDescription>
 						) : null}
 						<CardDescription

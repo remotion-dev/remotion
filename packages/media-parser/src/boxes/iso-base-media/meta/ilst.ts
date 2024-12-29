@@ -31,7 +31,7 @@ const parseFromWellKnownType = (
 	size: number,
 ): Value => {
 	if (wellKnownType === 1) {
-		const value = iterator.getByteString(size);
+		const value = iterator.getByteString(size, false);
 		return {type: 'text', value};
 	}
 

@@ -27,7 +27,7 @@ export const parseColorParameterBox = ({
 	iterator: BufferIterator;
 	size: number;
 }): ColorParameterBox => {
-	const byteString = iterator.getByteString(4);
+	const byteString = iterator.getByteString(4, false);
 
 	if (byteString === 'nclx') {
 		const primaries = iterator.getUint16();

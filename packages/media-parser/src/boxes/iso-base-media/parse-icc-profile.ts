@@ -44,28 +44,28 @@ export const parseIccProfile = (data: Uint8Array): IccProfile => {
 		throw new Error('Invalid ICC profile size');
 	}
 
-	const preferredCMMType = iterator.getByteString(4);
-	const profileVersion = iterator.getByteString(4);
-	const profileDeviceClass = iterator.getByteString(4);
-	const colorSpace = iterator.getByteString(4);
-	const pcs = iterator.getByteString(4);
+	const preferredCMMType = iterator.getByteString(4, false);
+	const profileVersion = iterator.getByteString(4, false);
+	const profileDeviceClass = iterator.getByteString(4, false);
+	const colorSpace = iterator.getByteString(4, false);
+	const pcs = iterator.getByteString(4, false);
 	const dateTime = iterator.getSlice(12);
-	const signature = iterator.getByteString(4);
+	const signature = iterator.getByteString(4, false);
 	if (signature !== 'acsp') {
 		throw new Error('Invalid ICC profile signature');
 	}
 
-	const primaryPlatform = iterator.getByteString(4);
+	const primaryPlatform = iterator.getByteString(4, false);
 	const profileFlags = iterator.getUint32();
-	const deviceManufacturer = iterator.getByteString(4);
-	const deviceModel = iterator.getByteString(4);
+	const deviceManufacturer = iterator.getByteString(4, false);
+	const deviceModel = iterator.getByteString(4, false);
 	const deviceAttributes = iterator.getUint64();
 	const renderingIntent = iterator.getUint32();
 	const pcsIlluminant1 = iterator.getUint32();
 	const pcsIlluminant2 = iterator.getUint32();
 	const pcsIlluminant3 = iterator.getUint32();
-	const profileCreator = iterator.getByteString(4);
-	const profileId = iterator.getByteString(16);
+	const profileCreator = iterator.getByteString(4, false);
+	const profileId = iterator.getByteString(16, false);
 
 	// reserved
 	iterator.discard(28);
@@ -74,7 +74,7 @@ export const parseIccProfile = (data: Uint8Array): IccProfile => {
 	const entries: Entry[] = [];
 	for (let i = 0; i < tagCount; i++) {
 		const entry: Entry = {
-			tag: iterator.getByteString(4),
+			tag: iterator.getByteString(4, false),
 			offset: iterator.getUint32(),
 			size: iterator.getUint32(),
 		};
