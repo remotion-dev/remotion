@@ -3,7 +3,10 @@ import React, {createRef} from 'react';
 import {formatBytes} from '~/lib/format-bytes';
 import {formatSeconds} from '~/lib/format-seconds';
 import {getNewName} from '~/lib/generate-new-name';
-import {useAddProgressToTitle} from '~/lib/title-context';
+import {
+	useAddOutputFilenameToTitle,
+	useAddProgressToTitle,
+} from '~/lib/title-context';
 import {Card} from './ui/card';
 import {Skeleton} from './ui/skeleton';
 import {VideoThumbnail, VideoThumbnailRef} from './VideoThumbnail';
@@ -25,6 +28,9 @@ export const ConvertProgress: React.FC<{
 			: state.millisecondsWritten / 1000 / duration;
 
 	useAddProgressToTitle(progress);
+	const newName = name ? getNewName(name, container) : null;
+
+	useAddOutputFilenameToTitle(newName);
 
 	return (
 		<>
@@ -55,9 +61,7 @@ export const ConvertProgress: React.FC<{
 				<div className="p-2">
 					<div>
 						{name ? (
-							<strong className="font-brand ">
-								{getNewName(name, container)}
-							</strong>
+							<strong className="font-brand ">{name}</strong>
 						) : (
 							<Skeleton className="h-4 w-[200px]" />
 						)}

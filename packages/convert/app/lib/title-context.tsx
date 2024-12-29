@@ -7,6 +7,8 @@ import {useThumbnailAsFavicon} from './use-thumbnail-as-favicon';
 export type TitleContextT = {
 	filename: string | null;
 	setFilename: React.Dispatch<React.SetStateAction<string | null>>;
+	outputFilename: string | null;
+	setOutputFilename: React.Dispatch<React.SetStateAction<string | null>>;
 	progress: number | null;
 	setProgress: React.Dispatch<React.SetStateAction<number | null>>;
 	favicon: OffscreenCanvas | null;
@@ -19,6 +21,9 @@ export const TitleProvider: React.FC<{
 	readonly routeAction: RouteAction;
 }> = ({children, routeAction}) => {
 	const [filename, setFilename] = React.useState<string | null>(null);
+	const [outputFilename, setOutputFilename] = React.useState<string | null>(
+		null,
+	);
 	const [progress, setProgress] = React.useState<number | null>(null);
 	const [favicon] = React.useState<OffscreenCanvas | null>(() => {
 		if (typeof OffscreenCanvas === 'undefined') {
@@ -32,22 +37,31 @@ export const TitleProvider: React.FC<{
 	});
 
 	const value: TitleContextT = useMemo(() => {
-		return {filename, setFilename, progress, setProgress, favicon};
-	}, [filename, progress, favicon]);
+		return {
+			filename,
+			setFilename,
+			progress,
+			setProgress,
+			favicon,
+			outputFilename,
+			setOutputFilename,
+		};
+	}, [filename, progress, favicon, outputFilename]);
 
 	useLayoutEffect(() => {
+		const file = outputFilename ?? filename;
 		document.title = [
 			progress
 				? progress === 1
 					? '✅ '
 					: `${Math.floor(progress * 100)}% - `
 				: null,
-			filename ? filename + ' - ' : null,
+			file ? file + ' - ' : null,
 			getPageTitle(routeAction),
 		]
 			.filter(Boolean)
 			.join('');
-	}, [filename, routeAction, progress]);
+	}, [routeAction, progress, outputFilename, filename]);
 
 	return (
 		<TitleContext.Provider value={value}>{children}</TitleContext.Provider>
@@ -76,6 +90,21 @@ export const useAddFilenameToTitle = (name: string | null) => {
 			setFilename(null);
 		};
 	}, [name, setFilename]);
+};
+
+export const useAddOutputFilenameToTitle = (name: string | null) => {
+	const {setOutputFilename} = useTitle();
+	useEffect(() => {
+		if (name) {
+			setOutputFilename(name);
+		} else {
+			setOutputFilename(null);
+		}
+
+		return () => {
+			setOutputFilename(null);
+		};
+	}, [name, setOutputFilename]);
 };
 
 export const useAddProgressToTitle = (progress: number | null) => {
