@@ -541,7 +541,7 @@ export default function ConvertUI({
 			</div>
 			<div className="h-8" />
 			<Button
-				className="block w-full font-brand"
+				className="block w-full"
 				type="button"
 				variant="brand"
 				disabled={disableSubmit}
