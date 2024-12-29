@@ -3,6 +3,7 @@ import React, {createRef} from 'react';
 import {formatBytes} from '~/lib/format-bytes';
 import {formatSeconds} from '~/lib/format-seconds';
 import {getNewName} from '~/lib/generate-new-name';
+import {useAddProgressToTitle} from '~/lib/title-context';
 import {Card} from './ui/card';
 import {Skeleton} from './ui/skeleton';
 import {VideoThumbnail, VideoThumbnailRef} from './VideoThumbnail';
@@ -17,6 +18,14 @@ export const ConvertProgress: React.FC<{
 	readonly duration: number | null;
 	readonly isReencoding: boolean;
 }> = ({state, name, container, done, isReencoding, duration}) => {
+	const progress = done
+		? 1
+		: duration === null
+			? null
+			: state.millisecondsWritten / 1000 / duration;
+
+	useAddProgressToTitle(progress);
+
 	return (
 		<>
 			<Card className="overflow-hidden">
@@ -37,14 +46,7 @@ export const ConvertProgress: React.FC<{
 						<div
 							className="w-[50%] h-5 bg-brand"
 							style={{
-								width:
-									(done
-										? 1
-										: duration === null
-											? 0
-											: state.millisecondsWritten / 1000 / duration) *
-										100 +
-									'%',
+								width: (progress ?? 0) * 100 + '%',
 							}}
 						/>
 					) : null}
