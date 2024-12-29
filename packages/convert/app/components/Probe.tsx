@@ -3,7 +3,10 @@ import clsx from 'clsx';
 import React, {useCallback, useMemo, useState} from 'react';
 import {Source} from '~/lib/convert-state';
 import {useIsNarrow} from '~/lib/is-narrow';
-import {useAddFilenameToTitle} from '~/lib/title-context';
+import {
+	useAddFilenameToTitle,
+	useCopyThumbnailToFavicon,
+} from '~/lib/title-context';
 import {AudioTrackOverview} from './AudioTrackOverview';
 import {ContainerOverview} from './ContainerOverview';
 import {SourceLabel} from './SourceLabel';
@@ -84,6 +87,7 @@ export const Probe: React.FC<{
 	}, [probeDetails, sortedTracks, trackDetails]);
 
 	useAddFilenameToTitle(name);
+	useCopyThumbnailToFavicon(videoThumbnailRef);
 
 	return (
 		<div className="w-full lg:w-[350px]">
