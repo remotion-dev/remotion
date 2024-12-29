@@ -407,6 +407,11 @@ export const seekId = {
 	type: 'hex-string',
 } as const satisfies Ebml;
 
+export const _name = {
+	name: 'Name',
+	type: 'string',
+} as const satisfies Ebml;
+
 export const seekPosition = {
 	name: 'SeekPosition',
 	type: 'uint',
@@ -619,6 +624,11 @@ export const flagDefault = {
 
 export const referenceBlock = {
 	name: 'ReferenceBlock',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const blockDurationSegment = {
+	name: 'BlockDuration',
 	type: 'uint',
 } as const satisfies Ebml;
 
@@ -838,6 +848,7 @@ export const ebmlMap = {
 	[matroskaElements.SeekHead]: seekHead,
 	[matroskaElements.Seek]: seek,
 	[matroskaElements.SeekID]: seekId,
+	[matroskaElements.Name]: _name,
 	[matroskaElements.SeekPosition]: seekPosition,
 	[matroskaElements.Crc32]: {
 		name: 'Crc32',
@@ -879,6 +890,7 @@ export const ebmlMap = {
 	[matroskaElements.Language]: language,
 	[matroskaElements.DefaultDuration]: defaultDuration,
 	[matroskaElements.CodecPrivate]: codecPrivate,
+	[matroskaElements.BlockDuration]: blockDurationSegment,
 	[matroskaElements.BlockAdditions]: blockAdditionsSegment,
 	[matroskaElements.MaxBlockAdditionID]: maxBlockAdditionIdSegment,
 	[matroskaElements.Audio]: audioSegment,

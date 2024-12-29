@@ -597,7 +597,12 @@ export const getArrayBufferIterator = (
 			);
 		},
 		getByteString(length: number): string {
-			const bytes = getSlice(length);
+			let bytes = getSlice(length);
+			// This file has trailing zeroes throughout https://github.com/remotion-dev/remotion/issues/4668#issuecomment-2561904068
+			while (bytes[bytes.length - 1] === 0) {
+				bytes = bytes.slice(0, -1);
+			}
+
 			return new TextDecoder().decode(bytes).trim();
 		},
 		getFloat64: () => {
