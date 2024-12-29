@@ -10,6 +10,7 @@ import {BackButton} from './BackButton';
 import ConvertUI from './ConvertUi';
 import {Footer} from './Footer';
 import {Probe} from './Probe';
+import {ReplaceVideo} from './ReplaceVideo';
 import {VideoThumbnailRef} from './VideoThumbnail';
 import {getBrightnessOfFrame} from './get-brightness-of-frame';
 import {useProbe} from './use-probe';
@@ -149,6 +150,7 @@ export const FileAvailable: React.FC<{
 					</div>
 					<div className="h-16" />
 					<Footer />
+					<ReplaceVideo setSrc={setSrc} />
 				</div>
 			</div>
 		</div>

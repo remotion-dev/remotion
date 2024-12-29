@@ -11,9 +11,9 @@ export const Main: React.FC<{
 	const location = useLocation();
 	const [url] = useState(new URLSearchParams(location.search));
 
-	const [src, setSrc] = useState<Source | null>(
-		url.has('url') ? {type: 'url', url: url.get('url') as string} : null,
-	);
+	const [src, setSrc] = useState<Source | null>(() => {
+		return url.has('url') ? {type: 'url', url: url.get('url') as string} : null;
+	});
 
 	useEffect(() => {
 		document.title = getPageTitle(routeAction);
