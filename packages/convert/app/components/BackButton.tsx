@@ -11,7 +11,7 @@ export const BackButton: React.FC<{
 
 	return (
 		<div className="block lg:h-10">
-			<div className="lg:fixed">
+			<div className="flex items-center">
 				<Button variant="link" onClick={clear}>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"

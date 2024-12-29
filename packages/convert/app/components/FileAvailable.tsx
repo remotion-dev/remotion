@@ -96,6 +96,7 @@ export const FileAvailable: React.FC<{
 			<div className="overflow-y-auto w-full lg:flex lg:justify-center pt-6 pb-10 px-4 bg-slate-50 min-h-[100vh]">
 				<div>
 					<BackButton setSrc={setSrc} />
+					<div className="h-4" />
 					<div className="lg:inline-flex lg:flex-row items-start">
 						<Probe
 							thumbnailError={err}

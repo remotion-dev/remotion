@@ -28,7 +28,7 @@ ScrollBar.displayName = ScrollAreaPrimitive.ScrollAreaScrollbar.displayName;
 const ScrollArea = React.forwardRef<
 	React.ElementRef<typeof ScrollAreaPrimitive.Root>,
 	React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root> & {
-		readonly height: number;
+		readonly height: number | 'auto';
 	}
 >(({className, children, height, ...props}, ref) => (
 	<ScrollAreaPrimitive.Root

@@ -84,7 +84,7 @@ export const Probe: React.FC<{
 
 	return (
 		<div className="w-full lg:w-[350px]">
-			<Card className="overflow-hidden static lg:fixed lg:w-[350px]">
+			<Card className="overflow-hidden lg:w-[350px]">
 				<div className="flex flex-row lg:flex-col w-full border-b-2 border-black">
 					{error ? null : thumbnailError ? null : (
 						<VideoThumbnail
