@@ -36,6 +36,7 @@
 		"@remotion/studio-server": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
 		"@remotion/transitions": "workspace:*",
+		"@remotion/webcodecs": "workspace:*",
 		"@types/sharp": "^0.28.5",
 		"create-video": "workspace:*",
 		"execa": "5.1.1",
