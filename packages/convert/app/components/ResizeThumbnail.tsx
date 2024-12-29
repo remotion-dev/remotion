@@ -52,7 +52,9 @@ export const ResizeThumbnail: React.FC<{
 		return getThumbnailDimensions(unrotatedDimensions);
 	}, [unrotatedDimensions]);
 
-	const [drawn, setDrawn] = useState(false);
+	const [drawn, setDrawn] = useState(
+		() => thumbnailRef.current?.hasBitmap ?? false,
+	);
 
 	const inner = useMemo(() => {
 		return {
@@ -89,11 +91,16 @@ export const ResizeThumbnail: React.FC<{
 		if (!current) {
 			return;
 		}
+
 		current.addOnChangeListener(draw);
 		return () => {
 			current.removeOnChangeListener(draw);
 		};
 	}, [draw, thumbnailRef]);
+
+	useEffect(() => {
+		draw();
+	}, [draw]);
 
 	const [dragging, setDragging] = useState(false);
 
@@ -122,7 +129,6 @@ export const ResizeThumbnail: React.FC<{
 			>
 				<canvas
 					ref={ref}
-					className="rounded"
 					style={{
 						position: 'absolute',
 						width: Math.ceil(unrotatedThumbnailDimensions.width * scale),

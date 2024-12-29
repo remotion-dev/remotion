@@ -16,6 +16,7 @@ export type VideoThumbnailRef = {
 	draw: (videoFrame: VideoFrame) => void;
 	onDone: () => void;
 	copy: () => Promise<ImageBitmap>;
+	hasBitmap: boolean;
 	addOnChangeListener: (listener: () => void) => void;
 	removeOnChangeListener: (listener: () => void) => void;
 };
@@ -91,8 +92,9 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 					(l) => l !== listener,
 				);
 			},
+			hasBitmap: drawn,
 		}),
-		[drawThumbnail],
+		[drawThumbnail, drawn],
 	);
 
 	const isNarrow = useIsNarrow();
