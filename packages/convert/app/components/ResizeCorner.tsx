@@ -85,7 +85,7 @@ export const ResizeCorner: React.FC<{
 
 	return (
 		<div
-			className="w-6 h-6 rotate-45 bg-white border-2 border-black absolute -bottom-3 -right-3 cursor-nwse-resize"
+			className="w-6 h-6 rotate-45 bg-white border-2 border-black absolute -bottom-3 -right-3 cursor-nwse-resize touch-none"
 			onPointerDown={onPointerDown}
 		/>
 	);
