@@ -25,14 +25,14 @@ export const TitleProvider: React.FC<{
 		document.title = [
 			progress
 				? progress === 1
-					? '✅'
-					: `${Math.floor(progress * 100)}%`
+					? '✅ '
+					: `${Math.floor(progress * 100)}% - `
 				: null,
-			filename,
+			filename ? filename + ' - ' : null,
 			getPageTitle(routeAction),
 		]
 			.filter(Boolean)
-			.join(' | ');
+			.join('');
 	}, [filename, routeAction, progress]);
 
 	return (
