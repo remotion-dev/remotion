@@ -11,8 +11,8 @@ export const isSubmitDisabled = ({
 	enableRotateOrMirror,
 }: {
 	supportedConfigs: SupportedConfigs | null;
-	audioConfigIndexSelection: Record<number, number>;
-	videoConfigIndexSelection: Record<number, number>;
+	audioConfigIndexSelection: Record<number, string>;
+	videoConfigIndexSelection: Record<number, string>;
 	enableConvert: boolean;
 	enableRotateOrMirror: RotateOrMirrorState;
 }) => {

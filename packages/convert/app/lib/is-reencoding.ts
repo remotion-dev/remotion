@@ -1,7 +1,7 @@
 import {SupportedConfigs} from '~/components/get-supported-configs';
 import {
 	getActualAudioConfigIndex,
-	getActualVideoConfigIndex,
+	getActualVideoOperation,
 } from './get-audio-video-config-index';
 
 export const isReencoding = ({
@@ -10,16 +10,17 @@ export const isReencoding = ({
 	enableConvert,
 }: {
 	supportedConfigs: SupportedConfigs;
-	videoConfigIndexSelection: Record<number, number>;
+	videoConfigIndexSelection: Record<number, string>;
 	enableConvert: boolean;
 }) => {
 	return supportedConfigs.videoTrackOptions.every((o) => {
-		const index = getActualVideoConfigIndex({
+		const operation = getActualVideoOperation({
 			enableConvert,
 			trackNumber: o.trackId,
 			videoConfigIndexSelection,
+			operations: o.operations,
 		});
-		return o.operations[index].type === 'reencode';
+		return operation.type === 'reencode';
 	});
 };
 
@@ -30,26 +31,28 @@ export const isDroppingEverything = ({
 	enableConvert,
 }: {
 	supportedConfigs: SupportedConfigs;
-	audioConfigIndexSelection: Record<number, number>;
-	videoConfigIndexSelection: Record<number, number>;
+	audioConfigIndexSelection: Record<number, string>;
+	videoConfigIndexSelection: Record<number, string>;
 	enableConvert: boolean;
 }) => {
 	return (
 		supportedConfigs.audioTrackOptions.every((o) => {
-			const index = getActualAudioConfigIndex({
+			const operation = getActualAudioConfigIndex({
 				audioConfigIndexSelection,
 				enableConvert,
 				trackNumber: o.trackId,
+				operations: o.operations,
 			});
-			return o.operations[index].type === 'drop';
+			return operation.type === 'drop';
 		}) &&
 		supportedConfigs.videoTrackOptions.every((o) => {
-			const index = getActualVideoConfigIndex({
+			const operation = getActualVideoOperation({
 				enableConvert,
 				trackNumber: o.trackId,
 				videoConfigIndexSelection,
+				operations: o.operations,
 			});
-			return o.operations[index].type === 'drop';
+			return operation.type === 'drop';
 		})
 	);
 };

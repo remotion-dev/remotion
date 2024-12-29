@@ -7,7 +7,7 @@ export const canRotateOrMirror = ({
 	enableConvert,
 }: {
 	supportedConfigs: SupportedConfigs | null;
-	videoConfigIndexSelection: Record<number, number>;
+	videoConfigIndexSelection: Record<number, string>;
 	enableConvert: boolean;
 }) => {
 	return (
