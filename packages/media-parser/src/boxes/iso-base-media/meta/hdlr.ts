@@ -26,7 +26,7 @@ export const parseHdlr = ({
 	// predefined
 	iterator.discard(4);
 	// type
-	const hdlrType = iterator.getByteString(4);
+	const hdlrType = iterator.getByteString(4, false);
 	// component manufactor
 	iterator.discard(4);
 	// component flags

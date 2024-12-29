@@ -192,7 +192,7 @@ export const processBox = async ({
 		};
 	}
 
-	const boxType = iterator.getByteString(4);
+	const boxType = iterator.getByteString(4, false);
 
 	const boxSize = boxSizeRaw === 1 ? iterator.getEightByteNumber() : boxSizeRaw;
 

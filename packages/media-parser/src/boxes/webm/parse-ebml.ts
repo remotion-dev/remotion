@@ -57,7 +57,7 @@ export const parseEbml = async (
 	}
 
 	if (hasInMap.type === 'string') {
-		const value = iterator.getByteString(size);
+		const value = iterator.getByteString(size, true);
 
 		return {
 			type: hasInMap.name,

@@ -9,13 +9,15 @@ export const parseStrh = ({
 	size: number;
 }): RiffBox => {
 	const box = iterator.startBox(size);
-	const fccType = iterator.getByteString(4);
+	const fccType = iterator.getByteString(4, false);
 	if (fccType !== 'vids' && fccType !== 'auds') {
 		throw new Error('Expected AVI handler to be vids / auds');
 	}
 
 	const handler =
-		fccType === 'vids' ? iterator.getByteString(4) : iterator.getUint32Le();
+		fccType === 'vids'
+			? iterator.getByteString(4, false)
+			: iterator.getUint32Le();
 	if (typeof handler === 'string' && handler !== 'H264') {
 		throw new Error(
 			`Only H264 is supported as a stream type in .avi, got ${handler}`,
