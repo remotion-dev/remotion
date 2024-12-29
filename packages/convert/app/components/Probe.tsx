@@ -83,93 +83,99 @@ export const Probe: React.FC<{
 	}, [probeDetails, sortedTracks, trackDetails]);
 
 	return (
-		<Card className="w-full lg:w-[350px] overflow-hidden">
-			<div className="flex flex-row lg:flex-col w-full border-b-2 border-black">
-				{error ? null : thumbnailError ? null : (
-					<VideoThumbnail
-						ref={videoThumbnailRef}
-						smallThumbOnMobile
-						rotation={userRotation - (rotation ?? 0)}
-						mirrorHorizontal={mirrorHorizontal}
-						mirrorVertical={mirrorVertical}
-						initialReveal={false}
-					/>
-				)}
-				<CardHeader className="p-3 lg:p-4 w-full">
-					<CardTitle title={name ?? undefined}>
-						{name ? name : <Skeleton className="h-5 w-[220px] inline-block" />}
-					</CardTitle>
-					{error ? (
-						<CardDescription className="!mt-0">
-							<p className="text-red-500">
-								Failed to parse media:
-								<br />
-								{error.message}
-							</p>
-						</CardDescription>
-					) : null}
-					<CardDescription
-						className={clsx('!mt-0 truncate', styles['fade-in'])}
-					>
-						{done ? (
-							<SourceLabel src={src} />
-						) : (
-							<span id="not-done">0% read</span>
-						)}
-					</CardDescription>
-				</CardHeader>
-			</div>
-			{sortedTracks.length && probeDetails ? (
-				<div className="pr-6 border-b-2 border-black overflow-y-auto">
-					<TrackSwitcher
-						selectedTrack={trackDetails}
-						sortedTracks={sortedTracks}
-						onTrack={(track) => {
-							setTrackDetails(track);
-						}}
-					/>
-				</div>
-			) : null}
-			{isNarrow ? null : (
-				<>
-					<ScrollArea height={300} className="flex-1">
-						{selectedTrack === null ? (
-							<ContainerOverview
-								container={container ?? null}
-								dimensions={dimensions ?? null}
-								videoCodec={videoCodec ?? null}
-								size={size ?? null}
-								durationInSeconds={durationInSeconds}
-								audioCodec={audioCodec}
-								fps={fps}
-								metadata={metadata}
-								isHdr={isHdr}
-								location={location}
-							/>
-						) : selectedTrack.type === 'video' ? (
-							<VideoTrackOverview
-								location={location}
-								metadata={metadata}
-								track={selectedTrack}
-								keyframes={keyframes}
-								durationInSeconds={durationInSeconds ?? null}
-							/>
-						) : selectedTrack.type === 'audio' ? (
-							<AudioTrackOverview
-								location={location}
-								metadata={metadata}
-								track={selectedTrack}
-							/>
+		<div className="w-full lg:w-[350px]">
+			<Card className="overflow-hidden static lg:fixed lg:w-[350px]">
+				<div className="flex flex-row lg:flex-col w-full border-b-2 border-black">
+					{error ? null : thumbnailError ? null : (
+						<VideoThumbnail
+							ref={videoThumbnailRef}
+							smallThumbOnMobile
+							rotation={userRotation - (rotation ?? 0)}
+							mirrorHorizontal={mirrorHorizontal}
+							mirrorVertical={mirrorVertical}
+							initialReveal={false}
+						/>
+					)}
+					<CardHeader className="p-3 lg:p-4 w-full">
+						<CardTitle title={name ?? undefined}>
+							{name ? (
+								name
+							) : (
+								<Skeleton className="h-5 w-[220px] inline-block" />
+							)}
+						</CardTitle>
+						{error ? (
+							<CardDescription className="!mt-0">
+								<p className="text-red-500">
+									Failed to parse media:
+									<br />
+									{error.message}
+								</p>
+							</CardDescription>
 						) : null}
-					</ScrollArea>
-					<Separator orientation="horizontal" />
-				</>
-			)}
-			<div className="flex flex-row items-center justify-center">
-				<Button disabled={!tracks} variant="link" onClick={onClick}>
-					{probeDetails ? 'Hide details' : 'Show details'}
-				</Button>
-			</div>
-		</Card>
+						<CardDescription
+							className={clsx('!mt-0 truncate', styles['fade-in'])}
+						>
+							{done ? (
+								<SourceLabel src={src} />
+							) : (
+								<span id="not-done">0% read</span>
+							)}
+						</CardDescription>
+					</CardHeader>
+				</div>
+				{sortedTracks.length && probeDetails ? (
+					<div className="pr-6 border-b-2 border-black overflow-y-auto">
+						<TrackSwitcher
+							selectedTrack={trackDetails}
+							sortedTracks={sortedTracks}
+							onTrack={(track) => {
+								setTrackDetails(track);
+							}}
+						/>
+					</div>
+				) : null}
+				{isNarrow ? null : (
+					<>
+						<ScrollArea height={300} className="flex-1">
+							{selectedTrack === null ? (
+								<ContainerOverview
+									container={container ?? null}
+									dimensions={dimensions ?? null}
+									videoCodec={videoCodec ?? null}
+									size={size ?? null}
+									durationInSeconds={durationInSeconds}
+									audioCodec={audioCodec}
+									fps={fps}
+									metadata={metadata}
+									isHdr={isHdr}
+									location={location}
+								/>
+							) : selectedTrack.type === 'video' ? (
+								<VideoTrackOverview
+									location={location}
+									metadata={metadata}
+									track={selectedTrack}
+									keyframes={keyframes}
+									durationInSeconds={durationInSeconds ?? null}
+								/>
+							) : selectedTrack.type === 'audio' ? (
+								<AudioTrackOverview
+									location={location}
+									metadata={metadata}
+									track={selectedTrack}
+								/>
+							) : null}
+						</ScrollArea>
+						<Separator orientation="horizontal" />
+					</>
+				)}
+				<div className="flex flex-row items-center justify-center">
+					<Button disabled={!tracks} variant="link" onClick={onClick}>
+						{probeDetails ? 'Hide details' : 'Show details'}
+					</Button>
+				</div>
+			</Card>
+		</div>
 	);
 };
