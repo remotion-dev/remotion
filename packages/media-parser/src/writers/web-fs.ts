@@ -3,7 +3,7 @@ import type {CreateContent, Writer, WriterInterface} from './writer';
 const createContent: CreateContent = async ({filename}) => {
 	const directoryHandle = await navigator.storage.getDirectory();
 
-	directoryHandle.removeEntry(filename);
+	await directoryHandle.removeEntry(filename);
 	const fileHandle = await directoryHandle.getFileHandle(filename, {
 		create: true,
 	});
