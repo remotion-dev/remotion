@@ -132,7 +132,8 @@ export const parseMdat = async ({
 
 		const bytes = data.getSlice(samplesWithIndex.samplePosition.size);
 
-		const {cts, dts, duration} = samplesWithIndex.samplePosition;
+		const {cts, dts, duration, isKeyframe, offset} =
+			samplesWithIndex.samplePosition;
 
 		if (samplesWithIndex.track.type === 'audio') {
 			await state.callbacks.onAudioSample(
@@ -145,8 +146,8 @@ export const parseMdat = async ({
 						cts,
 						dts,
 						trackId: samplesWithIndex.track.trackId,
-						type: samplesWithIndex.samplePosition.isKeyframe ? 'key' : 'delta',
-						offset: samplesWithIndex.samplePosition.offset,
+						type: isKeyframe ? 'key' : 'delta',
+						offset,
 						timescale: samplesWithIndex.track.timescale,
 					},
 					samplesWithIndex.track.timescale,
@@ -155,6 +156,19 @@ export const parseMdat = async ({
 		}
 
 		if (samplesWithIndex.track.type === 'video') {
+			// https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/sei_checkpoint.mp4
+			// Position in file 0x0001aba615
+			// https://github.com/remotion-dev/remotion/issues/4680
+			// In Chrome, we may not treat recovery points as keyframes
+			// otherwise "a keyframe is required after flushing"
+			const nalUnitType = bytes[4] & 0b00011111;
+			let isRecoveryPoint = false;
+			// SEI (Supplemental enhancement information)
+			if (nalUnitType === 6) {
+				const seiType = bytes[5];
+				isRecoveryPoint = seiType === 6;
+			}
+
 			await state.callbacks.onVideoSample(
 				samplesWithIndex.track.trackId,
 				convertAudioOrVideoSampleToWebCodecsTimestamps(
@@ -165,8 +179,8 @@ export const parseMdat = async ({
 						cts,
 						dts,
 						trackId: samplesWithIndex.track.trackId,
-						type: samplesWithIndex.samplePosition.isKeyframe ? 'key' : 'delta',
-						offset: samplesWithIndex.samplePosition.offset,
+						type: isKeyframe && !isRecoveryPoint ? 'key' : 'delta',
+						offset,
 						timescale: samplesWithIndex.track.timescale,
 					},
 					samplesWithIndex.track.timescale,
