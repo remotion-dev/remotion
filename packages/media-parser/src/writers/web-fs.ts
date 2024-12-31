@@ -2,9 +2,17 @@ import type {CreateContent, Writer, WriterInterface} from './writer';
 
 const createContent: CreateContent = async ({filename}) => {
 	const directoryHandle = await navigator.storage.getDirectory();
+	const actualFilename = `__remotion_mediaparser:${filename}`;
 
-	await directoryHandle.removeEntry(filename);
-	const fileHandle = await directoryHandle.getFileHandle(filename, {
+	const remove = async () => {
+		await directoryHandle.removeEntry(actualFilename, {
+			recursive: true,
+		});
+	};
+
+	await remove();
+
+	const fileHandle = await directoryHandle.getFileHandle(actualFilename, {
 		create: true,
 	});
 	const writable = await fileHandle.createWritable();
@@ -24,12 +32,6 @@ const createContent: CreateContent = async ({filename}) => {
 		await writable.seek(written);
 	};
 
-	const remove = async () => {
-		await directoryHandle.removeEntry(filename, {
-			recursive: true,
-		});
-	};
-
 	const writer: Writer = {
 		write: (arr: Uint8Array) => {
 			writPromise = writPromise.then(() => write(arr));
@@ -42,7 +44,7 @@ const createContent: CreateContent = async ({filename}) => {
 				// Ignore, could already be closed
 			}
 
-			const newHandle = await directoryHandle.getFileHandle(filename, {
+			const newHandle = await directoryHandle.getFileHandle(actualFilename, {
 				create: true,
 			});
 			const newFile = await newHandle.getFile();
