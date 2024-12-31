@@ -71,8 +71,12 @@ export const calculateScale = ({
 };
 
 /**
- * Gets the current scale of the container in which the component is being rendered.
- * Only works in the Remotion Studio and in the Remotion Player.
+ * Retrieves the current scale of the canvas within Remotion's Studio or Player context.
+ * In the Studio, it corresponds to the zoom level (1 equals no scaling, i.e., 100% zoom).
+ * In the Player, it indicates the scaling necessary to fit the video into the player.
+ * If called outside of a Remotion context, by default, it throws an error unless configured not to.
+ * @see [Documentation](https://remotion.dev/docs/use-current-scale)
+ * @returns {number} The current scaling factor.
  */
 export const useCurrentScale = (options?: Options) => {
 	const hasContext = React.useContext(CurrentScaleContext);
